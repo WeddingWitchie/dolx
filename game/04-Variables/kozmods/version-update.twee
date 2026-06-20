@@ -34,6 +34,25 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
 	/* optional: if an old save made it the wrong type */
 	<<if $xchange.known isnot undefined and !Array.isArray($xchange.known)>><<set $xchange.known to []>><</if>>
+
+	/* Anti X-Change therapy (Harper hospital treatment that keeps the player "clean" from involuntary pilling).
+	   questStage: 0 not asked, 1 asked & refused (waiting for Harper), 2 Harper found PC (explanation pending), 3 unlocked & purchasable.
+	   active/countdown/duration track the current clean period, measured in hours like $xchange.pill. */
+	<<if $xchange.therapy is undefined or $xchange.therapy is null or typeof $xchange.therapy isnot "object" or Array.isArray($xchange.therapy)>>
+		<<set $xchange.therapy to {
+			questStage: 0,
+			refusedDay: null,
+			active: false,
+			countdown: 0,
+			duration: 0,
+		}>>
+	<</if>>
+	<<if $xchange.therapy.questStage is undefined>><<set $xchange.therapy.questStage to 0>><</if>>
+	<<if $xchange.therapy.refusedDay is undefined>><<set $xchange.therapy.refusedDay to null>><</if>>
+	<<if $xchange.therapy.active is undefined>><<set $xchange.therapy.active to false>><</if>>
+	<<if $xchange.therapy.countdown is undefined>><<set $xchange.therapy.countdown to 0>><</if>>
+	<<if $xchange.therapy.duration is undefined>><<set $xchange.therapy.duration to 0>><</if>>
+
 	/* Sanity: pubtimer must be a number >= 1, otherwise delete it (inactive). */
 	<<run (function () {
 		var x = State.variables.xchange; if (!x) { return; }

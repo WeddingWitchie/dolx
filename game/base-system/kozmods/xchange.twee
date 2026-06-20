@@ -1115,6 +1115,11 @@
 
 	<<widget "xchange-effects">>
 		<<set $xchange.everConsumed to true>>
+		<<if xchangeTherapyActive()>>
+			/* Anti X-Change therapy: a clean window is active. The pill is still consumed, but it's neutralised, no session starts and the body is left untouched. */
+			<span class="blue">The X-Change pill works its way into you, but your cleansing treatment smothers it before it can take hold. Nothing happens, your body stays exactly as it is.</span>
+			<br><br>
+		<<else>>
 		<<set _days to _args[0]>>
 		<<set _effectsList to _args[1]>>
 
@@ -1160,6 +1165,7 @@
 			<<xchange-addeffect _effect _days>>
 
 		<</for>>
+		<</if>>
 	<</widget>>
 
 <<widget "xchange-addeffect">>
@@ -1167,9 +1173,10 @@
 	<<if $xchange._debugEffectHistory is undefined>><<set $xchange._debugEffectHistory to []>><</if>>
 	<<run $xchange._debugEffectHistory.push(_args[0])>>
 
-	/* ADDED: refresh flag for mid-turn body changes */
+	<<if xchangeTherapyActive()>>
+		/* Anti X-Change therapy: no new pill effect can take hold while a clean window is active (covers stacking onto a pre-existing session and the Choice pill). */
+	<<else>>
 	<<set _xchangeNeedsRefresh to false>>
-
 	<<switch _args[0]>>
 
 	<<case "genderflip">>
@@ -1388,6 +1395,7 @@
 	<<if _xchangeNeedsRefresh and ($enemyanger isnot undefined or $enemytrust isnot undefined)>>
 		<<updatesidebarimg>>
 		<<set $xchange._combatRecalcPending to true>>
+	<</if>>
 	<</if>>
 <</widget>>
 
@@ -1806,6 +1814,13 @@
 	<</widget>>
 
 	<<widget "xchange-random-spike">>
+		<<if !playerMayBeSpiked() and xchangeTherapyActive()>>
+			/* Anti X-Change therapy: the dose is administered but the treatment neutralises it. Body stays unchanged. */
+			<<if _args[0] isnot "suppress">>
+				<span class="blue">The pill goes down, but your X-Change cleansing treatment neutralises it. Nothing happens, your body stays exactly as it is.</span>
+				<br>
+			<</if>>
+		<</if>>
 		<<if playerMayBeSpiked()>>
 			<<if !playerIsXChanged()>>
 				/* Compute pill duration likelihoods */

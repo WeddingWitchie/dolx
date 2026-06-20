@@ -806,7 +806,10 @@ function onTakeClick(itemName) {
 						return;
 				}
 			}
-			V.lastPillTakenDescription = item.onTakeMessage;
+			/* Anti X-Change therapy: a clean window neutralises any X-Change pill. The pill is still consumed, but it dissolves to nothing, so override the effect flavour with a no-effect line. */
+			V.lastPillTakenDescription = (item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive())
+				? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
+				: item.onTakeMessage;
 		}
 	}
 	Engine.play("Take Pill From Medicine Drawer");
@@ -841,7 +844,10 @@ function onTakeClickSilent(itemName) {
 
 			V.sexStats.pills.lastTaken[item.type] = item.subtype;
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
-			V.lastPillTakenDescription = item.onTakeMessage;
+			/* Anti X-Change therapy: a clean window neutralises any X-Change pill. The pill is still consumed, but it dissolves to nothing, so override the effect flavour with a no-effect line. */
+			V.lastPillTakenDescription = (item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive())
+				? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
+				: item.onTakeMessage;
 
 			/* Reuse original daily notice path */
 			V.pillsTaken = 1;

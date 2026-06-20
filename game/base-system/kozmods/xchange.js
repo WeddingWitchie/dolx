@@ -806,7 +806,16 @@ function playerIsCreampied() {
 }
 window.playerIsCreampied = playerIsCreampied;
 
+/* Anti X-Change therapy: while a purchased "clean" period is running the player cannot be involuntarily spiked.
+	It does NOT remove effects already active, only blocks new ones. */
+function xchangeTherapyActive() {
+	const t = V.xchange?.therapy;
+	return !!(t && t.active && t.countdown > 0);
+}
+window.xchangeTherapyActive = xchangeTherapyActive;
+
 function playerMayBeSpiked() {
+	if (xchangeTherapyActive()) return false;
 	return V.xchange.nonconEnabled === 1 && ((!playerIsXChanged() && !playerIsPregnant()) || playerIsXChanged());
 }
 window.playerMayBeSpiked = playerMayBeSpiked;
@@ -1075,7 +1084,18 @@ function xchangeHourlyCheck(hours = 1) {
 				V.effectsmessage = 1;
 				V.antiPillSensitivityEndMessage = endSource;
 			}
-		}		
+		}
+
+		// Tick the Anti X-Change therapy "clean" period (independent of the pill timer).
+		if (V.xchange?.therapy?.active && typeof V.xchange.therapy.countdown === "number") {
+			V.xchange.therapy.countdown = Math.max(V.xchange.therapy.countdown - 1 * hours, 0);
+			if (V.xchange.therapy.countdown === 0) {
+				V.xchange.therapy.active = false;
+				V.xchange.therapy.duration = 0;
+				V.effectsmessage = 1;
+				V.xchange_therapy_expired_message = 1;
+			}
+		}
 
 		// Apply hour-random passion effect
 		for (let i = 0; i < hours; i++) {
@@ -1138,6 +1158,11 @@ function xchangeEffectsMessages() {
 	if (V.xchange_passion_message) {
 		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink"); br();
 		delete V.xchange_passion_message;
+	}
+
+	if (V.xchange_therapy_expired_message) {
+		element("span", `Your X-Change cleansing treatment has worn off. You're no longer protected against being pilled.`, "blue"); br();
+		delete V.xchange_therapy_expired_message;
 	}
 
 	if (V.xchangeFameMessage) {

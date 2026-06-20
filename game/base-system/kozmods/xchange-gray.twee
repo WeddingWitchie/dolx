@@ -27,29 +27,29 @@
 
 	/* Stack one or more effects onto an already-active pill without resetting the session. */
 	<<widget "xchange-stackeffects">>
-		<<set _days to _args[0]>>
-		<<set _newEffects to Array.isArray(_args[1]) ? _args[1] : _args.slice(1)>>
-
-		<<if $xchange.pill.clone is undefined>><<set $xchange.pill.clone to "none">><</if>>
-
-		<<for _effect range _newEffects>>
-			/* Continue and Resistance only make sense when a gendered/herm X-Change body is involved. */
-			<<if ["continue", "resistance"].includes(_effect) && !($xchange.pill.genderflipEffect || $xchange.pill.hermEffect)>>
-				<<continue>>
+		<<set _days to _args[0]>><<set _newEffects to Array.isArray(_args[1]) ? _args[1] : _args.slice(1)>>
+		<<if xchangeTherapyActive()>>
+			/* Anti X-Change therapy: nothing new can be stacked onto a running session while the clean window holds. */
+			<span class="blue">The X-Change pill dissolves harmlessly, your cleansing treatment keeping anything new from taking hold.</span>
+			<br><br>
+		<<else>>
+			<<if $xchange.pill.clone is undefined>><<set $xchange.pill.clone to "none">><</if>>
+			<<for _effect range _newEffects>>
+				/* Continue and Resistance only make sense when a gendered/herm X-Change body is involved. */
+				<<if ["continue", "resistance"].includes(_effect) && !($xchange.pill.genderflipEffect || $xchange.pill.hermEffect)>>
+					<<continue>>
+				<</if>>
+				/* Skip if this effect is already running. */
+				<<xchange-effect-flag _effect>>
+				<<if _effectFlag isnot "" and $xchange.pill[_effectFlag]>>
+					<<continue>>
+				<</if>>
+				<<xchange-addeffect _effect _days>>
+			<</for>>
+			/* Give newly stacked effects enough time to matter, but don't shorten the running pill. */
+			<<if !pillIsPermanent()>>
+				<<set $xchange.pill.duration to Math.max($xchange.pill.duration || 0, _days * 24 - 1)>>
 			<</if>>
-
-			/* Skip if this effect is already running. */
-			<<xchange-effect-flag _effect>>
-			<<if _effectFlag isnot "" and $xchange.pill[_effectFlag]>>
-				<<continue>>
-			<</if>>
-
-			<<xchange-addeffect _effect _days>>
-		<</for>>
-
-		/* Give newly stacked effects enough time to matter, but don't shorten the running pill. */
-		<<if !pillIsPermanent()>>
-			<<set $xchange.pill.duration to Math.max($xchange.pill.duration || 0, _days * 24 - 1)>>
 		<</if>>
 	<</widget>>
 
@@ -64,9 +64,8 @@
 			<<exposedcheck>>
 		<<else>>
 			/* No session: start a fresh session.
-			   Setting "$xchange.grayPillGenderflip" decides whether a standalone
-			   gray pill also swaps gender (effect on a new body) or keeps the
-			   original body (effect-only). Default/undefined = original body. */
+			   Setting "$xchange.grayPillGenderflip" decides whether a standalone gray pill also swaps gender (effect on a new body) or keeps the original body (effect-only).
+			   Default/undefined = original body. */
 			<<save-body>>
 			<<if $xchange.grayPillGenderflip>>
 				<<run _effects.unshift("genderflip")>>
@@ -223,9 +222,8 @@ You want bulk, go queue at the hospital with everyone else and take your chances
 	Landry glances around the pub once, then produces a slim, hand-written list and slides it across the table. No labels, just names.
 	"One per day. <span class="gold"><<printmoney _landryPrice>>.</span> Pick."
 	<br><br>
-	/* Landry carries the complete line: derive it from the registered items
-	   rather than restating the key list. A new gray pill registered in
-	   xchange.js automatically appears here. Portal stays gated. */
+	/* Landry carries the complete line: derive it from the registered items rather than restating the key list.
+	A new gray pill registered in xchange.js automatically appears here. Portal stays gated. */
 	<<set _landryStock to Object.keys(setup.pharmacyItems).filter(function (k) { return k.indexOf("xchange_gray_") === 0 && (k !== "xchange_gray_portal" || State.variables.portalPantiesEnabled); })>>
 	<<for _gKey range _landryStock>>
 		<<set _gItem to setup.pharmacyItems[_gKey]>>
