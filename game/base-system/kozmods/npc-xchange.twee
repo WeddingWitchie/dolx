@@ -290,14 +290,8 @@
 				<</if>>
 			<</if>>
 		<<case "herm">>
-			<<if !_pill.genderflipEffect>>
-				<<set _pill.genderflipEffect to true>>
-				<<if npcStartingSexIs(_targetNo, _targetName, "m")>>
-					<<npc-become-girl>>
-				<<elseif npcStartingSexIs(_targetNo, _targetName, "f")>>
-					<<npc-become-boy>>
-				<</if>>
-			<</if>>
+			/* Herm keeps the NPC's original presentation (gender/pronoun/breasts) and only
+			   adds whichever genital they're missing, so they end up with both. */
 			<<if !_pill.hermEffect>>
 				<<set _pill.hermEffect to true>>
 				<<npc-hermify>>
@@ -397,8 +391,11 @@
 			<<set _mode to _args[2]>>
 		<</if>>
 
+		/* $NPCName is a numeric-indexed array, so resolve the slot index from the name. */
+		<<set _targetNameIndex to $NPCNameList.indexOf(_targetName)>>
+
 		/* npc temp pill/effects object (can be undefined) */
-		<<set _pill to $NPCName[_targetName]?.xchange>>
+		<<set _pill to $NPCName[_targetNameIndex]?.xchange>>
 		<<if _pill is undefined>><<set _pill to C.npc[_targetName]?.xchange>><</if>>
 
 		<<if $debug is 1>><<run console.log("NPC Restore:", _targetName, "mode:", _mode, "pill:", _pill)>><</if>>
@@ -447,8 +444,8 @@
 		<<set _pill.bimboEffect to false>>
 		<<set _pill.cumcureEffect to false>>
 		<<unset _pill.shouldHaveEnded>> */
-		<<if $NPCName[_targetName] and $NPCName[_targetName].xchange isnot undefined>>
-			<<run delete $NPCName[_targetName].xchange>>
+		<<if _targetNameIndex gte 0 and $NPCName[_targetNameIndex] and $NPCName[_targetNameIndex].xchange isnot undefined>>
+			<<run delete $NPCName[_targetNameIndex].xchange>>
 		<</if>>
 		<<set _restoreNpc to C.npc[_targetName]>>
 		<<if _restoreNpc and _restoreNpc.xchange isnot undefined>>
@@ -457,16 +454,28 @@
 	<</widget>>
 
 	<<widget "npc-xchange-setpermanent">>
-		<<set _targetName to _args[0]>>
-		<<set _pill to C.npc[_targetName]?.xchange>>
+		/* Only override the (shared) target name when an explicit one is passed, so calls
+		   from <<npc-xchange-addeffect "choice">> (no arg) keep using the active target.
+		   Use a private temp var so we never clobber the caller's _pill. */
+		<<if _args[0] isnot undefined>><<set _targetName to _args[0]>><</if>>
 
-		<<set _pill.duration to -1>>
-		<<if C.npc[_targetName]?.startingSex is "f">>
-			/* <<set $sexStats.vagina.menstruation.running = true>> */
-			<<set _pill.fertile to true>>
+		<<set _permPill to C.npc[_targetName]?.xchange>>
+		<<if _permPill is undefined and _targetName>>
+			<<set _permIndex to $NPCNameList.indexOf(_targetName)>>
+			<<if _permIndex gte 0>><<set _permPill to $NPCName[_permIndex]?.xchange>><</if>>
 		<</if>>
-		<<set _pill.continueEffect to false>>
-		<<set _pill.resistanceEffect to false>>
+
+		<<if _permPill isnot undefined>>
+			<<set _permPill.duration to -1>>
+			<<if C.npc[_targetName]?.startingSex is "f">>
+				/* <<set $sexStats.vagina.menstruation.running = true>> */
+				<<set _permPill.fertile to true>>
+			<</if>>
+			<<set _permPill.continueEffect to false>>
+			<<set _permPill.resistanceEffect to false>>
+		<<else>>
+			<<run console.warn("npc-xchange-setpermanent: no active pill for NPC:", _targetName)>>
+		<</if>>
 
 		/* <<set $effectsmessage to 1>> */
 		/* <<set $xchangePermanenceMessage to 1>> */
@@ -698,6 +707,63 @@
 			<<set _npcTemp.penis to "none">>
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>
+		<</if>>
+		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
+
+    <</widget>>
+
+    /* Turns the targeted NPC into a herm: ensures they end up with BOTH a penis and a
+       vagina. Additive only and presentation-preserving, so it keeps the NPC's existing
+       gender, pronoun, and breasts and merely fills in whichever genital is missing. */
+    <<widget "npc-hermify">>
+		<<set _npcTemp to $NPCList[_targetNo]>>
+        <<set _npc to $NPCName[_targetNameIndex]>>
+
+        <<set _penissizes to [1, 2,2,2,2, 3,3,3, 4]>>
+        <<set _penisdescs to [
+            "tiny penis",
+            "penis",
+            either("thick cock", "hefty cock", "big cock", "veiny cock", "large cock"),
+            either("massive cock","huge cock","humongous cock","immense cock","gigantic cock","enormous cock"),
+            either("colossal cock", "monstrous cock", "titanic cock", "towering cock", "immense cock"),
+        ]>>
+
+		<<if _npc>>
+			/* Ensure a penis exists, mirroring the vagina's clothed/idle/naked state. */
+			<<if _npc.penis is "none" or _npc.penisdesc is "none" or !_npc.penissize>>
+				<<set _npc.penis to _npc.vagina is "clothed" ? "clothed" : _npc.vagina is "idle" ? "idle" : 0>>
+				<<set _npc.penissize to _penissizes.random()>>
+				<<if _npc.penissize is 4 and ($settings.npcColossalPenisChance || 0) gt 0 and random(1, 100) lte $settings.npcColossalPenisChance>>
+					<<set _npc.penissize to 5>>
+				<</if>>
+				<<set _npc.penisdesc to _penisdescs[_npc.penissize-1]>>
+			<</if>>
+
+			/* Ensure a vagina exists, mirroring the penis's clothed/idle/naked state. */
+			<<if _npc.vagina is "none">>
+				<<set _npc.vagina to _npc.penis is "clothed" ? "clothed" : _npc.penis is "idle" ? "idle" : 0>>
+			<</if>>
+
+			<<for _key range Object.keys(_npc)>>
+				<<if !_npcTemp>><<break>><</if>>
+				<<if _npcTemp[_key] isnot undefined>>
+					<<set _npcTemp[_key] to _npc[_key]>>
+				<</if>>
+			<</for>>
+
+		<<elseif _npcTemp>>
+			<<if _npcTemp.penis is "none" or _npcTemp.penisdesc is "none" or !_npcTemp.penissize>>
+				<<set _npcTemp.penis to _npcTemp.vagina is "clothed" ? "clothed" : _npcTemp.vagina is "idle" ? "idle" : 0>>
+				<<set _npcTemp.penissize to _penissizes.random()>>
+				<<if _npcTemp.penissize is 4 and ($settings.npcColossalPenisChance || 0) gt 0 and random(1, 100) lte $settings.npcColossalPenisChance>>
+					<<set _npcTemp.penissize to 5>>
+				<</if>>
+				<<set _npcTemp.penisdesc to _penisdescs[_npcTemp.penissize-1]>>
+			<</if>>
+
+			<<if _npcTemp.vagina is "none">>
+				<<set _npcTemp.vagina to _npcTemp.penis is "clothed" ? "clothed" : _npcTemp.penis is "idle" ? "idle" : 0>>
+			<</if>>
 		<</if>>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
 
