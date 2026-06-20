@@ -106,7 +106,8 @@ blackmailQuests.low.push( // Generic wear no underwear
 blackmailQuests.low.push( // Drink and get wasted
 	{
 		id: 2, // Implemented
-		prerequisites: function() { return true; },
+		// A knowingly-pregnant PC refuses all alcohol, making "get wasted" impossible. Don't assign it.
+		prerequisites: function() { return !(playerIsPregnant() && playerAwareTheyArePregnant()); },
 		reward: function() { return V.rentmoney / 3; },
 		instructions: [
 			"Go drink and get wasted.",
