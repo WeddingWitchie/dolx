@@ -26,7 +26,7 @@ Weather.Renderer.Sky = class {
 
 		this.rng = new PRNG();
 
-		if (this.resizable) {
+		if (this.resizable && typeof ResizeObserver === "function") {
 			// Only trigger the resize event if the actual element is resized
 			new ResizeObserver(e => {
 				this.mainLayer.resize(e[0].contentRect.right, e[0].contentRect.bottom);
@@ -37,6 +37,8 @@ Weather.Renderer.Sky = class {
 		this.orbitals = {};
 
 		this.loaded = new ObservableValue(false);
+		this.loading = false;
+		this.initializationPromise = null;
 
 		this.skybox.append(this.mainLayer.canvas);
 	}
@@ -78,10 +80,15 @@ Weather.Renderer.Sky = class {
 	 * Executes once - when page is loaded
 	 */
 	initialize() {
+		if (this.loading) return this.initializationPromise;
+		this.loading = true;
 		this.initSun();
 		this.initMoon();
 		this.setupLayers();
-		this.setupCanvas();
+		this.initializationPromise = this.setupCanvas().finally(() => {
+			this.loading = false;
+		});
+		return this.initializationPromise;
 	}
 
 	setupLayers() {
@@ -165,9 +172,11 @@ Weather.Renderer.Sky = class {
 
 	stopAll() {
 		for (const layer of this.layers.values()) {
+			for (const effect of layer.effects) effect.disable();
 			layer.animationGroup?.stop();
 			layer.animationGroup?.reset();
 		}
+		this.loaded.value = false;
 	}
 
 	updateOrbits() {

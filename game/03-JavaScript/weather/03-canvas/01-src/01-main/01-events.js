@@ -1,6 +1,6 @@
 /* Initialise sky canvas on loading a save */
 $(document).on(":onloadsave", () => {
-	if (!Weather.sidebar?.loaded.value) return;
+	if (V.options.weatherUpdate === false || !Weather.sidebar?.loaded.value) return;
 	Weather.activeRenderer = Weather.sidebar;
 	Weather.sidebar.initialize();
 });
@@ -97,7 +97,7 @@ $(document).on(":passagestart", () => {
 	}
 
 	// Return if sidebar has already been initialised
-	if (!V.weatherObj || Weather.sidebar?.loaded.value) return;
+	if (!V.weatherObj || V.options.weatherUpdate === false || Weather.sidebar?.loaded.value) return;
 	Weather.activeRenderer = Weather.sidebar;
 	Weather.sidebar.initialize();
 });

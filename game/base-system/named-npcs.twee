@@ -1614,16 +1614,13 @@ Zohar
 			<<set $NPCName[_i].patience to _val>>
 			<<if $NPCName[_i].patience gt 100>>
 				<<set $NPCName[_i].patience to 100>>
-			<<elseif $NPCName[_i].patience lt 0>>
-				<<set $NPCName[_i].patience to 0>>
+			<<elseif $NPCName[_i].patience lt -100>>
+				<<set $NPCName[_i].patience to -100>>
 			<</if>>
+			<<set $NPCName[_i].anger to Math.max(0, -$NPCName[_i].patience)>>
 		<<case anger>>
-			<<set $NPCName[_i].patience to 100 - _val>>
-			<<if $NPCName[_i].patience gt 100>>
-				<<set $NPCName[_i].patience to 100>>
-			<<elseif $NPCName[_i].patience lt 0>>
-				<<set $NPCName[_i].patience to 0>>
-			<</if>>
+			<<set $NPCName[_i].anger to Math.max(0, Math.min(100, Number(_val) || 0))>>
+			<<set $NPCName[_i].patience to -$NPCName[_i].anger>>
 		<<default>>
 			<span class="red">NPCSET error - Unknown value _var</span>
 			<br><br>
@@ -2113,7 +2110,6 @@ Zohar
 
 			<<set _love to $NPCName[_i].love>><<set _lust to $NPCName[_i].lust>>
 			<<set _pat to (typeof T.poppyPatience === "number" ? T.poppyPatience : 100)>>
-			<<set _anger to 100 - _pat>>
 
 			Poppy
 			<<if $NPCName[_i].state is "dismissed">>
@@ -2148,7 +2144,7 @@ Zohar
 					<<elseif _pat gte 10>>
 						thinks you're <span class="purple">irritating</span>.
 					<<elseif _pat gte 1>>
-						thinks you're <span class="pink">getting on her nerves</span>.
+						thinks you're <span class="pink">getting on <<nnpc_his "Poppy">> nerves</span>.
 					<<else>>
 						wants to <span class="red">get rid of you</span>.
 					<</if>>
@@ -2162,7 +2158,7 @@ Zohar
 					<<elseif _pat gte 10>>
 						thinks you're <span class="purple">irritating</span>.
 					<<elseif _pat gte 1>>
-						thinks you're <span class="pink">getting on her nerves</span>.
+						thinks you're <span class="pink">getting on <<nnpc_his "Poppy">> nerves</span>.
 					<<else>>
 						wants to <span class="red">get rid of you</span>.
 					<</if>>
@@ -2784,4 +2780,3 @@ Zohar
 		<</if>>
 	<</if>>
 <</widget>>
-

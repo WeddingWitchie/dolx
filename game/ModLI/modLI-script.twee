@@ -2,7 +2,7 @@
 /* --- Mod LI slot guarantor ---
 Ensures every registered mod LI that is already in $NPCNameList has a matching $NPCName slot, 
 and creates newly-unlocked mod LI slots on vanilla to mod save loads.
-Also strips known Night Monster vestiges from corrupted Poppy slots before defaults are padded.
+Also strips known Night Monster vestiges and repairs Poppy's required relationship state.
 
 Returns immediately when all registered LI slots are already healthy. 
 Heavy work only runs when a slot is missing, mismatched, or carries vestige fields. */
@@ -15,7 +15,7 @@ Heavy work only runs when a slot is missing, mismatched, or carries vestige fiel
         /* ---- Per-LI configs (extend here for new LIs) ---- */
         var CONFIGS = {
             "Poppy": {
-                metadata: { title: "tolerant", insecurity: "skill", adult: 1, teen: 0, type: "human" },
+                metadata: { title: "tolerant", insecurity: "skill", adult: 1, teen: 0, type: "human", patience: 100, anger: 0 },
                 vestigeBadValues: {
                     title:           ["horror", "The Horror"],
                     insecurity:      ["weak"],
@@ -45,6 +45,18 @@ Heavy work only runs when a slot is missing, mismatched, or carries vestige fiel
         function isHealthy(slot, name) {
             if (!slot || slot.nam !== name) return false;
             if (!slot.virginity || slot.virginity.vaginal === undefined) return false;
+            if (name === "Poppy" && (
+                typeof slot.patience !== "number" || Number.isNaN(slot.patience) ||
+                !slot.timer || typeof slot.timer !== "object" || Array.isArray(slot.timer) ||
+                slot.timer.lastInteraction == null || slot.timer.lastInteraction === "" ||
+                slot.timer.lastPatienceDecay == null || slot.timer.lastPatienceDecay === "" ||
+                !slot.pregnancy || typeof slot.pregnancy !== "object" || Array.isArray(slot.pregnancy) ||
+                !Array.isArray(slot.pregnancy.fetus) || typeof slot.pregnancy.enabled !== "boolean" ||
+                !slot.pregnancy.type || slot.pregnancy.type === "none" ||
+                !V.daily || typeof V.daily !== "object" || Array.isArray(V.daily) ||
+                !V.daily.poppy || typeof V.daily.poppy !== "object" || Array.isArray(V.daily.poppy) ||
+                !Array.isArray(V.poppySeen)
+            )) return false;
             var cfg = CONFIGS[name];
             if (!cfg) return true;
             var bad = cfg.vestigeBadValues;
@@ -120,12 +132,29 @@ Heavy work only runs when a slot is missing, mismatched, or carries vestige fiel
                     if (slot.virginity[vk[j]] === undefined) slot.virginity[vk[j]] = true;
                 }
             }
-            if (!slot.timer || typeof slot.timer !== "object") slot.timer = {};
-            if (!slot.pregnancy || typeof slot.pregnancy !== "object") {
+            if (!slot.timer || typeof slot.timer !== "object" || Array.isArray(slot.timer)) slot.timer = {};
+            if (name === "Poppy") {
+                if (slot.timer.lastInteraction == null || slot.timer.lastInteraction === "") slot.timer.lastInteraction = Time.date.timeStamp;
+                if (slot.timer.lastPatienceDecay == null || slot.timer.lastPatienceDecay === "") slot.timer.lastPatienceDecay = Time.date.timeStamp;
+                if (typeof slot.patience !== "number" || Number.isNaN(slot.patience)) slot.patience = 100;
+                if (typeof slot.anger !== "number" || Number.isNaN(slot.anger)) slot.anger = 0;
+                if (!V.daily || typeof V.daily !== "object" || Array.isArray(V.daily)) V.daily = {};
+                if (!V.daily.poppy || typeof V.daily.poppy !== "object" || Array.isArray(V.daily.poppy)) V.daily.poppy = {};
+                if (!Array.isArray(V.poppySeen)) {
+                    if (V.poppySeen !== undefined) V.poppySeen_legacy = V.poppySeen;
+                    V.poppySeen = [];
+                }
+            }
+            if (!slot.pregnancy || typeof slot.pregnancy !== "object" || Array.isArray(slot.pregnancy)) {
                 slot.pregnancy = clone(d.pregnancy);
             } else {
                 if (slot.pregnancy.type === undefined) slot.pregnancy.type = "none";
                 if (slot.pregnancy.timer === undefined) slot.pregnancy.timer = 0;
+            }
+            if (name === "Poppy") {
+                if (!Array.isArray(slot.pregnancy.fetus)) slot.pregnancy.fetus = [];
+                if (typeof slot.pregnancy.enabled !== "boolean") slot.pregnancy.enabled = true;
+                if (!slot.pregnancy.type || slot.pregnancy.type === "none") slot.pregnancy.type = "human";
             }
         }
 
@@ -160,7 +189,6 @@ Heavy work only runs when a slot is missing, mismatched, or carries vestige fiel
         if (V.NPCName.length > V.NPCNameList.length) {
             V.NPCName.length = V.NPCNameList.length;
         }
-        if (typeof setup === "object" && setup) delete setup._poppyNpcIdx;
     })();
     <</script>>
 <</widget>>

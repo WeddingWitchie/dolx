@@ -6,10 +6,12 @@ function initCNPC() {
 	for (const name of setup.NPCNameList) {
 		Object.defineProperty(C.npc, name, {
 			get() {
-				return V.NPCName[setup.NPCNameList.indexOf(name)];
+				const index = V.NPCNameList.indexOf(name);
+				return index === -1 ? undefined : V.NPCName[index];
 			},
 			set(val) {
-				V.NPCName[setup.NPCNameList.indexOf(name)] = val;
+				const index = V.NPCNameList.indexOf(name);
+				if (index !== -1) V.NPCName[index] = val;
 			},
 		});
 	}

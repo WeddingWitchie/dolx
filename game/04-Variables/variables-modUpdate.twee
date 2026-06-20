@@ -1622,28 +1622,30 @@
 		<<set $options.statNerf to 100>>
 	<</if>>
 
-	/* Poppy LI data migration */
-	<<if $objectVersion.poppyLIData is undefined or $objectVersion.poppyLIData lt 1>>
-		<<if $daily is undefined>><<set $daily to {}>><</if>>
-		<<if $daily.poppy is undefined>><<set $daily.poppy to {}>><</if>>
+	/* Poppy LI data migration. Use the save's NPC index rather than the static alias index. */
+	<<if $objectVersion.poppyLIData is undefined or $objectVersion.poppyLIData lt 2>>
+		<<if $daily is undefined or $daily is null or typeof $daily isnot "object" or Array.isArray($daily)>><<set $daily to {}>><</if>>
+		<<if $daily.poppy is undefined or $daily.poppy is null or typeof $daily.poppy isnot "object" or Array.isArray($daily.poppy)>><<set $daily.poppy to {}>><</if>>
 		<<if !Array.isArray($poppySeen)>>
-			<<if $poppySeen isnot undefined>>
-				<<run console.warn("[Poppy migration] $poppySeen was not an array, resetting:", V.poppySeen)>>
-			<</if>>
+			<<if $poppySeen isnot undefined>><<set $poppySeen_legacy to $poppySeen>><</if>>
 			<<set $poppySeen to []>>
 		<</if>>
-		<<if C.npc.Poppy>>
-			<<if C.npc.Poppy.timer is undefined>><<set C.npc.Poppy.timer to {}>><</if>>
-			<<if C.npc.Poppy.timer.lastInteraction is undefined>>
-				<<set C.npc.Poppy.timer.lastInteraction to Time.date.timeStamp>>
+		<<set _poppyIndex to (Array.isArray($NPCNameList) ? $NPCNameList.indexOf("Poppy") : -1)>>
+		<<if _poppyIndex gte 0 and $NPCName[_poppyIndex]>>
+			<<set _poppy to $NPCName[_poppyIndex]>>
+			<<if _poppy.timer is undefined or _poppy.timer is null or typeof _poppy.timer isnot "object" or Array.isArray(_poppy.timer)>><<set _poppy.timer to {}>><</if>>
+			<<if _poppy.timer.lastInteraction is undefined or _poppy.timer.lastInteraction is "">><<set _poppy.timer.lastInteraction to Time.date.timeStamp>><</if>>
+			<<if _poppy.timer.lastPatienceDecay is undefined or _poppy.timer.lastPatienceDecay is "">><<set _poppy.timer.lastPatienceDecay to Time.date.timeStamp>><</if>>
+			<<if typeof _poppy.patience isnot "number" or Number.isNaN(_poppy.patience)>><<set _poppy.patience to 100>><</if>>
+			<<if _poppy.pregnancy is undefined or _poppy.pregnancy is null or typeof _poppy.pregnancy isnot "object" or Array.isArray(_poppy.pregnancy)>>
+				<<set _poppy.pregnancy to { fetus: [], enabled: true, type: "human" }>>
+			<<else>>
+				<<if !Array.isArray(_poppy.pregnancy.fetus)>><<set _poppy.pregnancy.fetus to []>><</if>>
+				<<if typeof _poppy.pregnancy.enabled isnot "boolean">><<set _poppy.pregnancy.enabled to true>><</if>>
+				<<if !_poppy.pregnancy.type or _poppy.pregnancy.type is "none">><<set _poppy.pregnancy.type to "human">><</if>>
 			<</if>>
-			<<if C.npc.Poppy.timer.lastPatienceDecay is undefined>>
-				<<set C.npc.Poppy.timer.lastPatienceDecay to Time.date.timeStamp>>
-			<</if>>
-			<<if typeof C.npc.Poppy.patience !== "number">>
-				<<set C.npc.Poppy.patience to 100>>
-			<</if>>
-			<<set $objectVersion.poppyLIData to 1>>
+			<<set $objectVersion.poppyPregnancy to 1>>
+			<<set $objectVersion.poppyLIData to 2>>
 		<</if>>
 	<</if>>
 

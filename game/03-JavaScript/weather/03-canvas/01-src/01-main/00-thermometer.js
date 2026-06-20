@@ -137,8 +137,9 @@ Weather.Thermometer = (() => {
 
 		Weather.Tooltips.thermometer();
 
+		tooltipElement.off("click.weatherSidebarEffects");
 		if (V.options.showSidebarEffects === false) return;
-		tooltipElement.on("click", () => {
+		tooltipElement.on("click.weatherSidebarEffects", () => {
 			if (!T.hideSidebarEffects) {
 				T.hideSidebarEffects = true;
 			} else {

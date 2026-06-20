@@ -41,6 +41,9 @@ Weather.Renderer.Effects.add({
 			this.particleEmitter.destroy?.();
 			this.particleEmitter = null;
 		}
+		if (Array.isArray(this.splashEmitters)) {
+			for (const emitter of this.splashEmitters) emitter.destroy();
+		}
 		const { width, height } = this.canvas.element;
 		this.splashes = [];
 		this.splashEmitters = [];
@@ -161,8 +164,12 @@ Weather.Renderer.Effects.add({
 	},
 
 	onDisable() {
-		this.particleEmitter.destroy?.();
+		this.particleEmitter?.destroy?.();
 		this.particleEmitter = null;
+		if (Array.isArray(this.splashEmitters)) {
+			for (const emitter of this.splashEmitters) emitter.destroy();
+		}
+		this.splashEmitters = [];
 	},
 
 	draw() {
@@ -351,7 +358,7 @@ Weather.Renderer.Effects.add({
 		this.particleEmitter?.enable?.();
 	},
 	onDisable() {
-		this.particleEmitter.destroy?.();
+		this.particleEmitter?.destroy?.();
 		this.particleEmitter = null;
 	},
 

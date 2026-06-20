@@ -41,10 +41,21 @@ Weather.Observables = (() => {
 	const scheduler = new UpdateScheduler();
 	const observables = {};
 	const changedKeys = new Map();
+	let updatesSubscribed = false;
+	let passageEndBound = false;
 
 	Object.keys(setup.WeatherBindings).forEach(key => (observables[key] = new ObservableValue(null)));
 
 	const setBindings = () => {
+		if (V.options.weatherUpdate === false) {
+			if (Weather.sidebar?.loaded.value) Weather.sidebar.stopAll();
+			return;
+		}
+		if (V.weatherObj && Weather.sidebar && !Weather.sidebar.loaded.value && !Weather.sidebar.loading) {
+			Weather.activeRenderer = Weather.sidebar;
+			Weather.sidebar.initialize();
+			return;
+		}
 		if (Weather.sidebar?.loaded.value) Weather.Tooltips.skybox();
 		Object.entries(setup.WeatherBindings).forEach(([key, config]) => {
 			const value = config.variable();
@@ -53,6 +64,8 @@ Weather.Observables = (() => {
 	};
 
 	const subscribeToUpdates = () => {
+		if (updatesSubscribed) return;
+		updatesSubscribed = true;
 		Object.entries(setup.WeatherBindings).forEach(([key, config]) => {
 			observables[key].subscribe(value => {
 				if (value === undefined) return;
@@ -79,7 +92,8 @@ Weather.Observables = (() => {
 		});
 	});
 
-	Weather.sidebar?.loaded.subscribe(() => {
+	Weather.sidebar?.loaded.subscribe(loaded => {
+		if (!loaded) return;
 		setBindings();
 		subscribeToUpdates();
 
@@ -89,7 +103,10 @@ Weather.Observables = (() => {
 				observables[key]._notifyListeners(observables[key].value, changedKeys.get(key));
 			}
 		});
-		$(document).on(":passageend", setBindings);
+		if (!passageEndBound) {
+			$(document).on(":passageend", setBindings);
+			passageEndBound = true;
+		}
 	});
 
 	return {

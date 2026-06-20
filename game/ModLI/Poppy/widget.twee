@@ -10,39 +10,7 @@
 <<widget "poppySocialPrep">>
 	<<script>>
 		if (C && C.npc && C.npc.Poppy && C.npc.Poppy.init === 1) {
-			var ran = false;
-			try {
-				if (typeof statusCheck === "function") {
-					statusCheck("Poppy");
-					ran = T.poppyPatienceRaw !== undefined && T.poppyPatienceRaw !== null;
-				}
-			} catch (e) {}
-
-			if (!ran) {
-				var raw = Number(C.npc.Poppy.patience) || 0;
-				if (raw > 100) raw = 100;
-				else if (raw < -100) raw = -100;
-				C.npc.Poppy.patience = raw;
-				C.npc.Poppy.anger = raw < 0 ? -raw : 0;
-				T.poppyPatienceRaw = raw;
-				T.poppyPatience = raw > 0 ? raw : 0;
-				T.poppyAnger = raw < 0 ? -raw : 0;
-			}
-
-			/* Mirror into V.NPCName record (relation-box uses npcData).
-			   Cache the index in setup so we don't indexOf on every prep. */
-			if (V && V.NPCNameList && V.NPCName) {
-				var pIdx = (typeof setup._poppyNpcIdx === "number" && V.NPCNameList[setup._poppyNpcIdx] === "Poppy")
-					? setup._poppyNpcIdx
-					: V.NPCNameList.indexOf("Poppy");
-				if (pIdx >= 0) {
-					setup._poppyNpcIdx = pIdx;
-					if (V.NPCName[pIdx]) {
-						V.NPCName[pIdx].patience = C.npc.Poppy.patience;
-						V.NPCName[pIdx].anger = C.npc.Poppy.anger;
-					}
-				}
-			}
+			statusCheck("Poppy");
 		} else {
 			T.poppyPatienceRaw = 0;
 		}
@@ -291,7 +259,8 @@
 │    ╚══════╝  ╚═══╝  ╚══════╝╚═╝  ╚═══╝   ╚═╝
 */
 <<widget "poppyFirstMeetingInit">>
-	<<set $daily to $daily || {}>><<set $daily.poppy to $daily.poppy || {}>>
+	<<if !$daily or typeof $daily isnot "object" or Array.isArray($daily)>><<set $daily to {}>><</if>>
+	<<if !$daily.poppy or typeof $daily.poppy isnot "object" or Array.isArray($daily.poppy)>><<set $daily.poppy to {}>><</if>>
 	<<if $poppySeen is undefined>>
 		<<set $poppySeen to []>>
 	<<elseif !Array.isArray($poppySeen)>>
@@ -302,20 +271,11 @@
 
 	<<if C.npc.Poppy>>
 		<<set _p to C.npc.Poppy>>
-		<<set _p.init to 1>><<set _p.intro to 1>><<set _p.aware to 1>><<set _p.timer to _p.timer || {}>>
+		<<set _p.init to 1>><<set _p.intro to 1>><<set _p.aware to 1>><<set _p.name_known to 1>>
+		<<if !_p.timer or typeof _p.timer isnot "object" or Array.isArray(_p.timer)>><<set _p.timer to {}>><</if>>
 		<<if _p.timer.lastInteraction is undefined or _p.timer.lastInteraction is "">><<set _p.timer.lastInteraction to Time.date.timeStamp>><</if>>
 		<<if _p.timer.lastPatienceDecay is undefined or _p.timer.lastPatienceDecay is "">><<set _p.timer.lastPatienceDecay to Time.date.timeStamp>><</if>>
-		<<if typeof _p.patience isnot "number">><<set _p.patience to 80>><</if>>
-
-		<<set _poppyIdx to -1>>
-		<<if $npcrow isnot undefined and Array.isArray($npcrow)>><<set _poppyIdx to $npcrow.indexOf("Poppy")>><</if>>
-		<<if _poppyIdx lt 0 and $NPCNameList isnot undefined and Array.isArray($NPCNameList)>><<set _poppyIdx to $NPCNameList.indexOf("Poppy")>><</if>>
-		<<if _poppyIdx gte 0 and $NPCName isnot undefined and $NPCName[_poppyIdx] isnot undefined>>
-			<<set $NPCName[_poppyIdx].intro to 1>>
-			<<set $NPCName[_poppyIdx].name_known to 1>>
-			<<set $NPCName[_poppyIdx].description to "Poppy">>
-			<<set $NPCName[_poppyIdx].nam to "Poppy">>
-		<</if>>
+		<<if typeof _p.patience isnot "number" or Number.isNaN(_p.patience)>><<set _p.patience to 100>><</if>>
 
 		<<if !$poppySeen.includes("talk_intro")>><<set $poppySeen.push("talk_intro")>><</if>>
 		<<if !$poppySeen.includes("classroom_intro")>><<set $poppySeen.push("classroom_intro")>><</if>>
@@ -324,10 +284,6 @@
 		<<run console.warn("[Poppy intro] C.npc.Poppy is not available yet during first meeting. Intro init was skipped to avoid setting half-complete flags.")>>
 	<</if>>
 
-	<<set $opium_addiction to $opium_addiction ?? 0>>
-	<<set $opium_timer to $opium_timer ?? 0>>
-	<<set $opium_knowledge to $opium_knowledge ?? 0>>
-	<<set $opium_message to $opium_message ?? "">>
 	<<poppyPregnancy>>
 <</widget>>
 
@@ -337,13 +293,13 @@
 	- Mirrors the schedule idea from the design draft
 */
 <<widget "poppyFlatInit">>
-	/* ---- 1. Persistent containers ---- */
-	<<set $daily to $daily || {}>>
-	<<set $poppyFlat to $poppyFlat || {}>>
-	<<set $daily.poppy to $daily.poppy || {}>>
-	<<set $daily.poppy.flatMeals to $daily.poppy.flatMeals || {}>>
-	<<set $daily.poppy.flatTending to $daily.poppy.flatTending || {}>>
-	<<set $poppyFlat.windowRoom to $poppyFlat.windowRoom || "living_room">>
+	/* Persistent containers */
+	<<if !$daily or typeof $daily isnot "object" or Array.isArray($daily)>><<set $daily to {}>><</if>>
+	<<if !$poppyFlat or typeof $poppyFlat isnot "object" or Array.isArray($poppyFlat)>><<set $poppyFlat to {}>><</if>>
+	<<if !$daily.poppy or typeof $daily.poppy isnot "object" or Array.isArray($daily.poppy)>><<set $daily.poppy to {}>><</if>>
+	<<if !$daily.poppy.flatMeals or typeof $daily.poppy.flatMeals isnot "object" or Array.isArray($daily.poppy.flatMeals)>><<set $daily.poppy.flatMeals to {}>><</if>>
+	<<if !$daily.poppy.flatTending or typeof $daily.poppy.flatTending isnot "object" or Array.isArray($daily.poppy.flatTending)>><<set $daily.poppy.flatTending to {}>><</if>>
+	<<if typeof $poppyFlat.windowRoom isnot "string">><<set $poppyFlat.windowRoom to "living_room">><</if>>
 	<<if typeof $poppyFlat.kickedUntilDay isnot "number">><<set $poppyFlat.kickedUntilDay to -1>><</if>>
 	<<if typeof $daily.poppy.flatBaileySeenDay isnot "number">><<set $daily.poppy.flatBaileySeenDay to -1>><</if>>
 	<<if $poppySeen is undefined>>
@@ -352,40 +308,11 @@
 		<<set $poppySeen_legacy to $poppySeen>>
 		<<set $poppySeen to []>>
 	<</if>>
-	
-	/* Reset transient per-entry fields */
-	<<set $poppyFlat.home to false>>
-	<<set $poppyFlat.room to "none">>
-	<<set $poppyFlat.meal to "">>
 
-	/* ---- 2. Refresh schedule + status ---- */
+	/* poppySchedule owns flat presence, room, and meal state. */
 	<<run poppySchedule()>>
 
-	/* ---- 3. Map T.poppy_location -> $poppyFlat ---- */
-	<<set _loc to T.poppy_location>>
-	<<set _msg to T.poppy_location_message>>
-
-	<<if _loc is "flatApartment">>
-		<<set $poppyFlat.home to true>>
-		<<if _msg is "sleep">>
-			<<set $poppyFlat.room to "bedroom">>
-		<<else>>
-			/* "apartment" (blood moon / default) or "lounging" (weekend evenings) */
-			<<set $poppyFlat.room to "living_room">>
-		<</if>>
-	<<elseif _loc is "flatKitchen">>
-		<<set $poppyFlat.home to true>>
-		<<set $poppyFlat.room to "kitchen">>
-		<<set $poppyFlat.meal to (_msg is "breakfast" ? "breakfast" : "dinner")>>
-	<<else>>
-		/* Anywhere else (school, soup kitchen, lake, cafe, bailey office, nightly, nowhere)
-		   means Poppy is not at the flat. */
-		<<set $poppyFlat.home to false>>
-		<<set $poppyFlat.room to "">>
-		<<set $poppyFlat.meal to "">>
-	<</if>>
-
-	/* ---- 4. Bailey trigger flags ---- */
+	/* Bailey trigger flags */
 	<<set _rentDue to (Number($rentmoney) || 0) + (Number($babyRent) || 0)>>
 	<<set _notYetToday to ($daily.poppy.flatBaileySeenDay isnot Time.days)>>
 	/* Two-tier overdue: -2+ any time, or -1..0 only during waking hours (4-21). */

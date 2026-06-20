@@ -156,9 +156,17 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		let imagePromise = Promise.resolve();
 		if (initialSettings.shape === "image" && typeof initialSettings.src === "string") {
 			const img = new Image();
-			img.src = initialSettings.src;
 			initialSettings.image = img;
-			imagePromise = img.decode();
+			if (typeof img.decode === "function") {
+				img.src = initialSettings.src;
+				imagePromise = img.decode();
+			} else {
+				imagePromise = new Promise((resolve, reject) => {
+					img.onload = resolve;
+					img.onerror = reject;
+					img.src = initialSettings.src;
+				});
+			}
 		}
 
 		this.initialSettings = initialSettings;
@@ -211,21 +219,24 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		}
 
 		// update
-		const next = [];
-		for (const p of this.particles) {
+		let writeIndex = 0;
+		const particleCount = this.particles.length;
+		for (let i = 0; i < particleCount; i++) {
+			const p = this.particles[i];
 			const prevAge = p.age;
 			p.update(time);
 			if (this.onCollision && p.collisionTime != null && prevAge < p.collisionTime && p.age >= p.collisionTime) {
 				this.onCollision(p);
 			}
-			if (p.isAlive) next.push(p);
-			else {
+			if (p.isAlive) {
+				this.particles[writeIndex++] = p;
+			} else {
 				this.pool.push(p);
 				this.onDestroy?.(p);
 			}
 			this.onUpdate?.(p, time);
 		}
-		this.particles = next;
+		this.particles.length = writeIndex;
 
 		// auto‑destroy
 		if (this.autoDestroy && this.spawnRate == null && this.particles.length === 0) {
@@ -263,6 +274,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	}
 
 	destroy() {
+		this.active = false;
 		if (this.group) {
 			const set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(this.group);
 			if (set) {
@@ -277,5 +289,8 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 				}
 			}
 		}
+		this.group = null;
+		this.particles.length = 0;
+		this.pool.length = 0;
 	}
 };

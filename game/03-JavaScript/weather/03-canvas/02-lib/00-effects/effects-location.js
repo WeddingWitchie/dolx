@@ -478,6 +478,7 @@ Weather.Renderer.Effects.add({
 		}
 	},
 	onDisable() {
+		if (!this.animations) return;
 		for (const obj of this.animations.values()) {
 			obj.animationObj?.disable();
 		}

@@ -31,7 +31,14 @@ Weather.Renderer.AnimationGroup = class AnimationGroup {
 	}
 
 	start() {
+		if (this.animationFrameId !== null) return;
+		this.lastUpdateTime = 0;
 		const frame = time => {
+			if (typeof document !== "undefined" && document.hidden) {
+				this.lastUpdateTime = time;
+				this.animationFrameId = requestAnimationFrame(frame);
+				return;
+			}
 			if (!this.lastUpdateTime || time - this.lastUpdateTime >= this.updateRate) {
 				this.updateAnimations(time - this.lastUpdateTime);
 				this.lastUpdateTime = time;
@@ -51,16 +58,16 @@ Weather.Renderer.AnimationGroup = class AnimationGroup {
 			this.onUpdate();
 			return;
 		}
-		const updatedEffects = new Set();
+		let needsRedraw = false;
 		this.animations.forEach((animation, key) => {
 			if (!animation.parentAnimation) {
 				if (animation.canUpdate(this) && animation.update(deltaTime)) {
-					updatedEffects.add(key);
+					needsRedraw = true;
 				}
 			}
 		});
 
-		if (updatedEffects.size > 0) {
+		if (needsRedraw) {
 			this.onUpdate();
 		}
 	}
@@ -71,9 +78,10 @@ Weather.Renderer.AnimationGroup = class AnimationGroup {
 	}
 
 	stop() {
-		if (this.animationFrameId) {
+		if (this.animationFrameId !== null) {
 			cancelAnimationFrame(this.animationFrameId);
 			this.animationFrameId = null;
 		}
+		this.lastUpdateTime = 0;
 	}
 };

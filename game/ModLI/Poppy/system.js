@@ -42,7 +42,7 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 	// Clamp signed value to -100..100 (single branch chain, no Math.* calls)
 	if (sp > 100) sp = 100;
 	else if (sp < -100) sp = -100;
-	poppy.patience = sp;
+	if (poppy.patience !== sp) poppy.patience = sp;
 
 	// Signed source of truth for UI + logic
 	T.poppyPatienceRaw = sp;
@@ -54,7 +54,7 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 	T.poppyAnger = neg;
 
 	// anger is a display-only mirror; it is never used for reconstruction.
-	poppy.anger = neg;
+	if (poppy.anger !== neg) poppy.anger = neg;
 
 	// Mood (based on signed value)
 	if (sp >= 50) T.poppyMood = "calm";
@@ -164,7 +164,9 @@ window.poppyDailyPatienceDecay = poppyDailyPatienceDecay;
 
 function markPoppyInteraction(poppy = C.npc.Poppy) {
 	if (!poppy || poppy.init !== 1) return;
-	poppy.timer ||= {}; poppy.timer.lastInteraction = Time.date.timeStamp; poppy.timer.lastInteractionDay = Time.days;
+	if (!poppy.timer || typeof poppy.timer !== "object" || Array.isArray(poppy.timer)) poppy.timer = {};
+	poppy.timer.lastInteraction = Time.date.timeStamp;
+	poppy.timer.lastInteractionDay = Time.days;
 }
 window.markPoppyInteraction = markPoppyInteraction;
 
@@ -175,7 +177,11 @@ function poppySchedule() {
 	const clearSchedule = () => {
 		T.poppy_location = "nowhere"; T.poppy_location_message = ""; T.poppy_night_active = 0;
 		// Reset flat presence so stale home/room/meal state cannot leak into the flat UI.
-		if (V.poppyFlat) { V.poppyFlat.home = false; V.poppyFlat.room = ""; V.poppyFlat.meal = ""; }
+		if (V.poppyFlat) {
+			if (V.poppyFlat.home !== false) V.poppyFlat.home = false;
+			if (V.poppyFlat.room !== "") V.poppyFlat.room = "";
+			if (V.poppyFlat.meal !== "") V.poppyFlat.meal = "";
+		}
 		return T.poppy_location;
 	};
 
@@ -194,7 +200,9 @@ function poppySchedule() {
 	if (Time.isBloodMoon()) {
 		T.poppy_location = "flatApartment"; T.poppy_location_message = "apartment"; T.poppy_night_active = 0;
 		if (!V.poppyFlat) V.poppyFlat = {};
-		V.poppyFlat.home = true; V.poppyFlat.room = "living_room"; V.poppyFlat.meal = "";
+		if (V.poppyFlat.home !== true) V.poppyFlat.home = true;
+		if (V.poppyFlat.room !== "living_room") V.poppyFlat.room = "living_room";
+		if (V.poppyFlat.meal !== "") V.poppyFlat.meal = "";
 		return T.poppy_location;
 	}
 
@@ -205,7 +213,11 @@ function poppySchedule() {
 	const handoffMet = poppy.pregnancy && poppy.pregnancy.handoffMet;
 	if (handoffDay !== undefined && !handoffMet && (Time.days === handoffDay || Time.days === handoffDay + 1)) {
 		T.poppy_location = "orphanage"; T.poppy_location_message = "orphanage"; T.poppy_night_active = 0;
-		if (V.poppyFlat) { V.poppyFlat.home = false; V.poppyFlat.room = ""; V.poppyFlat.meal = ""; }
+		if (V.poppyFlat) {
+			if (V.poppyFlat.home !== false) V.poppyFlat.home = false;
+			if (V.poppyFlat.room !== "") V.poppyFlat.room = "";
+			if (V.poppyFlat.meal !== "") V.poppyFlat.meal = "";
+		}
 		return T.poppy_location;
 	}
 
@@ -309,16 +321,17 @@ function poppySchedule() {
 	// These drive $poppyFlat.home / .room / .meal checks in the flat passages.
 	if (!V.poppyFlat) V.poppyFlat = {};
 	const atFlat = loc === "flatApartment" || loc === "flatKitchen";
-	V.poppyFlat.home = atFlat;
-	V.poppyFlat.room  = atFlat ? (loc === "flatKitchen" ? "kitchen" : msg === "sleep" ? "bedroom" : "living_room") : "";
+	const room = atFlat ? (loc === "flatKitchen" ? "kitchen" : msg === "sleep" ? "bedroom" : "living_room") : "";
+	const meal = msg === "breakfast" ? "breakfast" : msg === "dinner" ? "dinner" : "";
+	if (V.poppyFlat.home !== atFlat) V.poppyFlat.home = atFlat;
+	if (V.poppyFlat.room !== room) V.poppyFlat.room = room;
 	// Only set meal during actual cooking windows; empty string = no meal happening.
-	V.poppyFlat.meal  = msg === "breakfast" ? "breakfast" : msg === "dinner" ? "dinner" : "";
+	if (V.poppyFlat.meal !== meal) V.poppyFlat.meal = meal;
 
 	return T.poppy_location;
 }
 window.poppySchedule = poppySchedule;
 DefineMacro("poppySchedule", poppySchedule);
-DefineMacro("poppyRefreshSchedule", poppySchedule);
 
 
 /*
@@ -358,7 +371,7 @@ DefineMacro("poppyRefreshSchedule", poppySchedule);
 	function ensurePoppyTraitData() {
 		if (!Array.isArray(V.backgroundTraits)) V.backgroundTraits = [];
 
-		V.poppyDrug = V.poppyDrug || {};
+		if (!V.poppyDrug || typeof V.poppyDrug !== "object" || Array.isArray(V.poppyDrug)) V.poppyDrug = {};
 		const data = V.poppyDrug;
 
 		if (typeof data.addiction !== "number" || Number.isNaN(data.addiction)) data.addiction = Number(V.opium_addiction) || 0;
@@ -446,19 +459,6 @@ DefineMacro("poppyRefreshSchedule", poppySchedule);
 		return pending;
 	}
 
-	/**
-	 * Returns true (and clears the flag) if the player inhaled opium while an addict
-	 * since the last daily tick, i.e. insomnia should be suppressed this sleep cycle.
-	 * Retained as a utility for debugging / future use, but sleep passages do not need
-	 * to call this; suppression is handled automatically inside statChange.trauma().
-	 */
-	function consumePendingInsomniaSuppress() {
-		const data = ensurePoppyTraitData();
-		const suppress = !!data.insomniaSuppress;
-		data.insomniaSuppress = false;
-		return suppress;
-	}
-
 	function poppyOpiumPulse(forceKnown = null) {
 		const data = ensurePoppyTraitData();
 		const wasKnown = data.knowledge === 1;
@@ -533,43 +533,9 @@ DefineMacro("poppyRefreshSchedule", poppySchedule);
 
 	DefineMacro("poppyDailyTraits", () => poppyDailyTraits());
 
-	window.ensurePoppyTraitData = ensurePoppyTraitData;
 	window.poppyOpiumPulse = poppyOpiumPulse;
 	window.poppyDailyTraits = poppyDailyTraits;
 	window.poppyConsumePendingOpiumMessage = consumePendingOpiumMessage;
 	window.poppyConsumePendingPavlovMessage = consumePendingPavlovMessage;
-	window.poppyConsumePendingInsomniaSuppress = consumePendingInsomniaSuppress;
 	window.poppyGrantPavlovIfNeeded = grantPavlovIfNeeded;
-	window.poppyDetectScienceAKnowledge = detectScienceAKnowledge;
-})();
-
-/* =============================================================
- * POPPY PREGNANCY INTEGRATION
- * =============================================================
- * Registration now lives in variables-static.twee:
- *   setup.pregnancy.canBePregnant
- *   setup.pregnancy.canImpregnatePlayer
- *
- * This block only repairs/normalises C.npc.Poppy.pregnancy for very old saves or unusual load-order edge cases.
- * ============================================================= */
-(function () {
-	"use strict";
-	function poppyPregnancyEnsureState(poppy) {
-		poppy = poppy || (
-			typeof C !== "undefined" && C.npc ? C.npc.Poppy :
-			typeof V !== "undefined" && V.C && V.C.npc ? V.C.npc.Poppy :
-			null
-		);
-		if (!poppy) return null;
-
-		if (!poppy.pregnancy || typeof poppy.pregnancy !== "object") {
-			poppy.pregnancy = { fetus: [], enabled: true, type: "human" };
-		} else {
-			if (!Array.isArray(poppy.pregnancy.fetus)) poppy.pregnancy.fetus = [];
-			if (typeof poppy.pregnancy.enabled !== "boolean") poppy.pregnancy.enabled = true;
-			if (!poppy.pregnancy.type) poppy.pregnancy.type = "human";
-		}
-		return poppy.pregnancy;
-	}
-	window.poppyPregnancyEnsureState = poppyPregnancyEnsureState;
 })();

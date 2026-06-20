@@ -142,6 +142,12 @@ Weather.Renderer.Effect = class Effect {
 		return this.initPromise;
 	}
 
+	disable() {
+		this.onDisable?.();
+		for (const subEffect of this.effects) subEffect.disable();
+		this.previousDrawCondition = false;
+	}
+
 	/**
 	 * Draws the effect onto its canvas.
 	 * It will wait for the init to complete before drawing - to assure any images loaded in init will be drawn

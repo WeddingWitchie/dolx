@@ -27,6 +27,11 @@ Weather.Renderer.Effects.add({
 	},
 
 	init() {
+		if (this.particleEmitter) {
+			this.particleEmitter.destroy();
+			this.particleEmitter = null;
+		}
+
 		// Particles get culled when at 0 alpha
 		const MIN_ALPHA = 0.001;
 
@@ -132,6 +137,14 @@ Weather.Renderer.Effects.add({
 		});
 
 		this.particleEmitter.enable();
+	},
+	onEnable() {
+		if (!this.particleEmitter) this.init();
+		this.particleEmitter?.enable?.();
+	},
+	onDisable() {
+		this.particleEmitter?.destroy();
+		this.particleEmitter = null;
 	},
 	draw() {
 		const em = this.particleEmitter;
