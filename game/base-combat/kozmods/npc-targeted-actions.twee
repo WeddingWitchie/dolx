@@ -46,7 +46,7 @@
                 /* Drop pill */
                 <<set _leftaction["Pocket your pill"] to "dropXchangePill">>
 
-                /* Pill the targeted NPC */
+                /* Pill the targeted NPC (non-pillable named NPCs slap it away on resolve) */
                 <<if $lefttarget isnot undefined and $lefttarget isnot "self">>
                     <<set _actiontext to ($npcpillingasked is $lefttarget ? "Pill ": "Attempt to pill ")+$NPCList[$lefttarget].pronouns.him>>
                     <<set _leftaction[_actiontext] to "xchangePillOther">>
@@ -65,7 +65,7 @@
                 /* Drop pill */
                 <<set _rightaction["Pocket your pill"] to "dropXchangePill">>
 
-                /* Pill the targeted NPC */
+                /* Pill the targeted NPC (non-pillable named NPCs slap it away on resolve) */
                 <<if $righttarget isnot undefined and $righttarget isnot "self">>
                     <<set _actiontext to ($npcpillingasked is $righttarget ? "Pill ": "Attempt to pill ")+$NPCList[$righttarget].pronouns.him>>
                     <<set _rightaction[_actiontext] to "xchangePillOther">>
@@ -119,6 +119,27 @@
         <</if>>
     <</widget>>
 
+    /* Prints the closing descriptor for a freshly-pilled NPC and, for Whitney, flags the matching speech-whitney reaction.
+    Herm pills keep the NPC's presentation but leave them with both genitals, so the wording reflects that instead of "a boy". */
+    <<widget "xchange-pilled-descriptor">><<set _t to _args[0]>><<set _pilledHerm to !!($NPCList[_t].xchange and $NPCList[_t].xchange.hermEffect)>><<if ["Whitney","Robin","Kylar"].includes($NPCList[_t].fullDescription)>><<set $speechpill to (_pilledHerm ? "herm" : 1)>><</if>><<= ($NPCList[_t].teen ? $NPCList[_t].pronouns.boy : $NPCList[_t].pronouns.man) + (_pilledHerm ? " sporting both a stiff cock and a needy pussy" : "")>><</widget>>
+
+    /* A non-pillable named NPC angrily slaps the pill away. _args[0] = "left"/"right" hand,
+       _args[1] = target index. Resets the holding hand and unsets the held pill. */
+    <<widget "xchange-pill-slap">>
+        <<set _slapHand to _args[0]>><<set _slapTarget to _args[1]>>
+        <<if _slapHand is "left">>
+            <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>><<unset $currentXchangePillLeft>>
+        <<else>>
+            <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>><<unset $currentXchangePillRight>>
+        <</if>>
+        <<if $NPCList[_slapTarget].fullDescription is "Whitney">>
+            <span class="red">Whitney's hand snaps up and smacks the pill clean out of your grip. "You think you can pull that shit on me, slut? Not a fucking chance."</span>
+        <<else>>
+            <span class="red"><<= $NPCList[_slapTarget].fullDescription>> knocks the pill from your hand with a furious snarl. "Get that thing away from me!"</span>
+        <</if>>
+        <<set $enemyanger += 50>><<set $enemytrust -= 30>>
+    <</widget>>
+
     <<widget "effectsUseXchangePill">>
         <<if $leftaction is "xchangePillSelf" and $rightaction is "xchangePillSelf">>
             <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>><<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
@@ -163,9 +184,12 @@
                 <<run $currentXchangePillLeft.npcEffects.forEach(npcEffect => {
                     Wikifier.wikifyEval(npcEffect);
                 })>>
-                <<= $NPCList[$lefttarget].teen? $NPCList[$lefttarget].pronouns.boy : $NPCList[$lefttarget].pronouns.man>>.
+                <<xchange-pilled-descriptor $lefttarget>>.
                 <<unset $currentXchangePillLeft>>
-                
+
+            <<elseif not npcXchangePillable($lefttarget)>>
+                <<xchange-pill-slap "left" $lefttarget>>
+
             <<else>>
                 You throw yourself onto<<= !$NPCNameList.includes($NPCList[$lefttarget].fullDescription) ? " the":"">> $NPCList[$lefttarget].fullDescription, and after some struggle
 
@@ -181,7 +205,7 @@
                     <<run $currentXchangePillLeft.npcEffects.forEach(npcEffect => {
                         Wikifier.wikifyEval(npcEffect);
                     })>>
-                    <<= $NPCList[$lefttarget].teen? $NPCList[$lefttarget].pronouns.boy : $NPCList[$lefttarget].pronouns.man>>.
+                    <<xchange-pilled-descriptor $lefttarget>>.
                     <<unset $currentXchangePillLeft>>
 
                 <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
@@ -211,8 +235,11 @@
                 <<run $currentXchangePillRight.npcEffects.forEach(npcEffect => {
                     Wikifier.wikifyEval(npcEffect);
                 })>>
-                <<= $NPCList[$righttarget].teen? $NPCList[$righttarget].pronouns.boy : $NPCList[$righttarget].pronouns.man>>.
+                <<xchange-pilled-descriptor $righttarget>>.
                 <<unset $currentXchangePillRight>>
+
+            <<elseif not npcXchangePillable($righttarget)>>
+                <<xchange-pill-slap "right" $righttarget>>
 
             <<else>>
                 You throw yourself onto<<= !$NPCNameList.includes($NPCList[$righttarget].fullDescription) ? " the":"">> $NPCList[$righttarget].fullDescription, and after some struggle
@@ -229,7 +256,7 @@
                     <<run $currentXchangePillRight.npcEffects.forEach(npcEffect => {
                         Wikifier.wikifyEval(npcEffect);
                     })>>
-                    <<= $NPCList[$righttarget].teen? $NPCList[$righttarget].pronouns.boy : $NPCList[$righttarget].pronouns.man>>.
+                    <<xchange-pilled-descriptor $righttarget>>.
                     <<unset $currentXchangePillRight>>
 
                 <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
@@ -260,7 +287,11 @@
                 <<brat 5 demanding>><<if !$gloryhole and $gamemode isnot "soft">><<seductionskillusecombat>><</if>><<unset $askAction>>
                 You ask <<him>> to let you pill <<him>>.
 
-                <<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+                <<if $NPCList[$mouthtarget].fullDescription is "Whitney" and npcXchangePillable($mouthtarget)>>
+                    <<set $npcpillingasked to $mouthtarget>><span class="green"><<He_Short>> grins and tips <<his>> head back, mouth open in amused acceptance.</span>
+                    <span class="gold">You may now pill <<him>> without opposition.</span>
+
+                <<elseif $role is "islander" and (!$islander_language or $islander_language lt 100)>>
                     <span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
 
                 <<elseif $combatgoal is "strip">>
@@ -281,111 +312,50 @@
 		<</if>>
     <</widget>>
 
-    <<widget "npc-reaction-pill">> /* Using sextoy's code as a template */
-        /* <<set $_sexToy to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "sex toys" : "sex toy")>>
-		<<set $_was to ($rightarm is "heldSexToy" and $leftarm is "heldSexToy" ? "were" : "was")>>
+    /* Reaction when the player reveals/brandishes an X-Change pill in combat.
+       Called from init.twee when $xchangePillReveal is set. Mirrors the sextoy-reveal
+       Uses $xchangePillWord (a story var) so the text survives the deferred event pool. */
+    <<widget "npc-reaction-pill">>
+        <<set $xchangePillWord to ($rightarm is "heldXchangePill" and $leftarm is "heldXchangePill" ? "pills" : "pill")>>
 
-		<<if $enemyno gte 2>>
-			<<set $speechSextoyState to $speechSextoyState || either("aroused", "neutral", "disappointed", "shocked", "angry")>>
-			<<cleareventpool>>
-			<<switch $speechSextoyState>>
-				<<case "aroused">>
-					<<addinlineevent>>
-						Their breath quickens at the sight of your $_sexToy.
-						<<set $enemyarousal += 50>>
-					<</addinlineevent>>
-					<<addinlineevent>>
-						They seem pleased to see your $_sexToy.
-					<</addinlineevent>>
-					<<addinlineevent>>
-						They're taken aback by your $_sexToy, but seem excited by it.
-					<</addinlineevent>>
-				<<case "neutral">>
-					<<addinlineevent>>
-						Your $_sexToy $_was clearly unexpected, but they don't seem to mind.
-					<</addinlineevent>>
-				<<case "disappointed">>
-					<<addinlineevent 0.5>>
-						They look disappointed by your $_sexToy. It wasn't what they was expecting.
-						<<set $enemyarousal -= 100>><<set $enemytrust -= 50>>
-					<</addinlineevent>>
-				<<case "shocked">>
-					<<addinlineevent 0.5>>
-						Their eyes widen in shock at the reveal of your $_sexToy.
-						<<set $enemyanger -= 50>><<set $enemytrust -= 50>>
-					<</addinlineevent>>
-				<<case "angry">>
-					<<addinlineevent 0.5>>
-						They recoil in disgust at the sight of your $_sexToy.
-						<<set $enemyanger += 75>><<set $enemytrust -= 75>>
-					<</addinlineevent>>
-				<<default>>
-					<<addinlineevent>>
-						They appear confused. Not sure what to think of your $_sexToy.
-						<span class="blue">You should inform Vrelnir.</span>
-					<</addinlineevent>>
-			<</switch>>
-			<<runeventpool>>
-		<<else>>
-			<<switch $NPCList[0].fullDescription>>
-				<<case "Robin">>
-					<<set $speechsextoy to 1>>
-				<<case "Kylar">>
-					<<set $speechsextoy to 1>>
-				<<case "Whitney">>
-					<<set $speechsextoy to 1>>
-				<<case "Sydney">>
-					<<set $speechsextoy to 1>>
-				<<case "Alex">>
-					<<set $speechsextoy to 1>>
-				<<case "Eden">>
-					<<set $speechsextoy to 1>>
-					<<set $enemytrust -=25>>
-				<<case "Avery">>
-					<<set $speechsextoy to 1>>
-				<<case "Leighton">>
-					<<set $speechsextoy to 1>>
-				<<default>>
-					<<set $speechSextoyState to $speechSextoyState || either("aroused", "neutral", "disappointed", "shocked", "angry")>>
-					<<cleareventpool>>
-					<<switch $speechSextoyState>>
-						<<case "aroused">>
-							<<addinlineevent>>
-								<<His>> breath quickens at the sight of your $_sexToy.
-								<<set $enemyarousal += 50>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<He>> seems pleased to see your $_sexToy.
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<Hes>> taken aback by your $_sexToy, but seems excited by it.
-							<</addinlineevent>>
-						<<case "neutral">>
-							<<addinlineevent>>
-								Your $_sexToy $_was clearly unexpected, but <<he>> doesn't seem to mind.
-							<</addinlineevent>>
-						<<case "disappointed">>
-							<<addinlineevent 0.5>>
-								<<He>> looks disappointed by your $_sexToy. It wasn't what <<he>> was expecting.
-								<<set $enemyarousal -= 100>><<set $enemytrust -= 50>>
-							<</addinlineevent>>
-						<<case "shocked">>
-							<<addinlineevent 0.5>>
-								<<His>> eyes widen in shock at the reveal of your $_sexToy.
-								<<set $enemyanger -= 50>><<set $enemytrust -= 50>>
-							<</addinlineevent>>
-						<<case "angry">>
-							<<addinlineevent 0.5>>
-								<<He>> recoils in disgust at the sight of your $_sexToy.
-								<<set $enemyanger += 75>><<set $enemytrust -= 75>>
-							<</addinlineevent>>
-						<<default>>
-							<<addinlineevent>>
-								<<He>> appears confused. Not sure what to think of your $_sexToy.
-								<span class="blue">You should inform Vrelnir.</span>
-							<</addinlineevent>>
-					<</switch>>
-					<<runeventpool>>
-			<</switch>>
-		<</if>> */
+        <<if $enemyno gte 2>>
+            <<set $speechPillState to $speechPillState or either("curious", "aroused", "wary", "angry")>>
+            <<cleareventpool>>
+            <<switch $speechPillState>>
+                <<case "curious">>
+                    <<addinlineevent>>They eye the X-Change $xchangePillWord in your hand with open curiosity.<</addinlineevent>>
+                    <<addinlineevent>>They murmur amongst themselves, intrigued by your X-Change $xchangePillWord.<</addinlineevent>>
+                <<case "aroused">>
+                    <<addinlineevent>>They grin at the sight of your X-Change $xchangePillWord, excited by the idea.<<set $enemyarousal += 40>><</addinlineevent>>
+                <<case "wary">>
+                    <<addinlineevent 0.5>>They tense, eyeing your X-Change $xchangePillWord warily.<<set $enemytrust -= 30>><</addinlineevent>>
+                <<default>>
+                    <<addinlineevent 0.5>>They recoil from your X-Change $xchangePillWord. "Keep that away from us!"<<set $enemyanger += 40>><<set $enemytrust -= 30>><</addinlineevent>>
+            <</switch>>
+            <<runeventpool>>
+        <<elseif $NPCList[0] and npcXchangePillable(0) and ["Whitney", "Robin", "Kylar"].includes($NPCList[0].fullDescription)>>
+            /* Pillable named NPCs voice their own reaction in their speech file. */
+            <<set $speechpillreveal to 1>>
+        <<elseif $NPCList[0] and $NPCNameList.includes($NPCList[0].fullDescription)>>
+            /* Named but not pillable (incl. Whitney when love/dom fails): they want nothing to do with it. */
+            <<cleareventpool>>
+            <<addinlineevent>><<He>> notices the X-Change $xchangePillWord and sneers. "Don't even think about using that on me."<<set $enemyanger += 20>><<set $enemytrust -= 20>><</addinlineevent>>
+            <<runeventpool>>
+        <<else>>
+            <<set $speechPillState to $speechPillState or either("curious", "aroused", "wary", "angry")>>
+            <<cleareventpool>>
+            <<switch $speechPillState>>
+                <<case "curious">>
+                    <<addinlineevent>><<He>> eyes the X-Change $xchangePillWord in your hand with curiosity.<</addinlineevent>>
+                    <<addinlineevent>><<He>> studies your X-Change $xchangePillWord, trying to work out what you intend.<</addinlineevent>>
+                <<case "aroused">>
+                    <<addinlineevent>><<His>> breath quickens at the sight of your X-Change $xchangePillWord, excited by the possibilities.<<set $enemyarousal += 50>><</addinlineevent>>
+                    <<addinlineevent>><<He>> licks <<his>> lips at your X-Change $xchangePillWord. "Now that could be fun."<<set $enemyarousal += 40>><</addinlineevent>>
+                <<case "wary">>
+                    <<addinlineevent 0.5>><<He>> eyes your X-Change $xchangePillWord warily, unsure of your intentions.<<set $enemytrust -= 30>><</addinlineevent>>
+                <<default>>
+                    <<addinlineevent 0.5>><<He>> glares at your X-Change $xchangePillWord. "Keep that away from me."<<set $enemyanger += 40>><<set $enemytrust -= 30>><</addinlineevent>>
+            <</switch>>
+            <<runeventpool>>
+        <</if>>
     <</widget>>

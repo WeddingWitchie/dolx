@@ -171,6 +171,7 @@
 	<<widget "npc-xchange-sync-active-target">>
 		<<set _syncName to _args[0]>>
 		<<set _syncIndex to _args[1]>>
+		<<set _preserveGenitalState to _args[2] is true>>
 		<<if _syncName is undefined>><<set _syncName to _targetName>><</if>>
 		<<if _syncIndex is undefined>><<set _syncIndex to _targetNameIndex>><</if>>
 		<<set _syncSource to undefined>>
@@ -201,7 +202,18 @@
 				<<for _slot range $NPCList>>
 					<<if _slot and (_slot.description is _syncName or _slot.fullDescription is _syncName or _slot.nam is _syncName or _slot.name is _syncName)>>
 						<<for _key range _syncKeys>>
-							<<if _syncSource[_key] isnot undefined>><<set _slot[_key] to clone(_syncSource[_key])>><</if>>
+							<<if _syncSource[_key] isnot undefined>>
+								<<if _preserveGenitalState and (_key is "penis" or _key is "vagina")>>
+									<<if _slot[_key] is "none">>
+										/* A naked combat NPC must stay naked here, or the new hole comes back "clothed" and can't be penetrated. */
+										<<set _counterpartGenital to (_key is "penis") ? _slot.vagina : _slot.penis>>
+										<<set _slot[_key] to (_counterpartGenital is "clothed") ? "clothed" : 0>>
+									<</if>>
+									/* else: keep the live positional state (e.g. "vaginaentrance") as-is */
+								<<else>>
+									<<set _slot[_key] to clone(_syncSource[_key])>>
+								<</if>>
+							<</if>>
 						<</for>>
 						<<if _slot.pronoun>><<generatePronouns _slot>><</if>>
 					<</if>>
@@ -252,7 +264,8 @@
             <<set $NPCName[_targetNameIndex].xchange to _pill>>
             <<set _syncNpc to C.npc[_targetName]>>
             <<if _syncNpc>><<set _syncNpc.xchange to clone(_pill)>><</if>>
-            <<npc-xchange-sync-active-target _targetName _targetNameIndex>>
+            /* Additive herm pills must preserve a live combat copy's in-use genital state; genderflip pills still overwrite so the swapped genitals propagate. */
+            <<npc-xchange-sync-active-target _targetName _targetNameIndex `_pill.hermEffect && !_pill.genderflipEffect`>>
         <</if>>
 
     <</widget>>
@@ -729,7 +742,6 @@
         ]>>
 
 		<<if _npc>>
-			/* Ensure a penis exists, mirroring the vagina's clothed/idle/naked state. */
 			<<if _npc.penis is "none" or _npc.penisdesc is "none" or !_npc.penissize>>
 				<<set _npc.penis to _npc.vagina is "clothed" ? "clothed" : _npc.vagina is "idle" ? "idle" : 0>>
 				<<set _npc.penissize to _penissizes.random()>>
@@ -739,17 +751,9 @@
 				<<set _npc.penisdesc to _penisdescs[_npc.penissize-1]>>
 			<</if>>
 
-			/* Ensure a vagina exists, mirroring the penis's clothed/idle/naked state. */
 			<<if _npc.vagina is "none">>
 				<<set _npc.vagina to _npc.penis is "clothed" ? "clothed" : _npc.penis is "idle" ? "idle" : 0>>
 			<</if>>
-
-			<<for _key range Object.keys(_npc)>>
-				<<if !_npcTemp>><<break>><</if>>
-				<<if _npcTemp[_key] isnot undefined>>
-					<<set _npcTemp[_key] to _npc[_key]>>
-				<</if>>
-			<</for>>
 
 		<<elseif _npcTemp>>
 			<<if _npcTemp.penis is "none" or _npcTemp.penisdesc is "none" or !_npcTemp.penissize>>
@@ -765,7 +769,7 @@
 				<<set _npcTemp.vagina to _npcTemp.penis is "clothed" ? "clothed" : _npcTemp.penis is "idle" ? "idle" : 0>>
 			<</if>>
 		<</if>>
-		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
+		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex true>><</if>>
 
     <</widget>>
 
