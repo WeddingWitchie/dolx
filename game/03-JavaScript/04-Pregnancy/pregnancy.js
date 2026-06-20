@@ -114,7 +114,7 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 
 	if (!forcePregnancy && contraceptive && (random(0, 100) >= 10 || contraceptive > 1)) return "contraceptive fail";
 
-	if (["hawk", "harpy"].includes(spermType) && target === "pc" && V.harpy < 4) {
+	if (["hawk", "harpy"].includes(spermType) && target === "pc" && Transformations.effectiveLevel("bird") < 4) {
 		// Do nothing so that standard pregnancy chances apply to the player getting pregnant
 	} else if (["hawk", "harpy"].includes(spermType) || target === "Great Hawk") {
 		if (!["pc", "Great Hawk"].includes(target)) return false;

@@ -294,14 +294,14 @@ function skinColourCalc(colour) {
 // PC's TF takes priority; otherwise certain named NPC parents pass their own.
 function beastTransform(mother, father) {
 	if (mother === "pc" || father === "pc") {
-		if (V.cat >= 10) return "cat";
-		if (V.cow >= 6) return "cow";
-		if (V.bear >= 6) return "bear";
-		if (V.wolfgirl >= 6) return "wolf";
-		if ((V.harpy >= 6  || V.transformationParts.bird.wings == "default")) return "bird";
-		if (V.fox >= 6) return "fox";
-		if (V.waterdragon >= 7) return "waterdragon";
-		if (V.bunny >= 6) return "bunny";
+		if (Transformations.effectiveLevel("cat") >= 10) return "cat";
+		if (Transformations.effectiveLevel("cow") >= 6) return "cow";
+		if (Transformations.effectiveLevel("bear") >= 6) return "bear";
+		if (Transformations.effectiveLevel("wolf") >= 6) return "wolf";
+		if (Transformations.effectiveLevel("bird") >= 6) return "bird";
+		if (Transformations.effectiveLevel("fox") >= 6) return "fox";
+		if (Transformations.effectiveLevel("waterdragon") >= 7) return "waterdragon";
+		if (Transformations.effectiveLevel("bunny") >= 6) return "bunny";
 	}
 	// Poppy is a fallen-fox TF; always passes fox down.
 	if (mother === "Poppy" || father === "Poppy") return "fox";
@@ -310,9 +310,9 @@ function beastTransform(mother, father) {
 
 function divineTransform(mother, father) {
 	if (mother === "pc" || father === "pc") {
-		if (V.angel >= 6) return "angel";
-		if (V.fallenangel >= 4) return "fallen";
-		if (V.demon >= 6) return "demon";
+		if (Transformations.effectiveLevel("angel") >= 6) return "angel";
+		if (Transformations.effectiveLevel("fallen") >= 4) return "fallen";
+		if (Transformations.effectiveLevel("demon") >= 6) return "demon";
 	}
 	// Poppy is fallen; divine side passes too.
 	if (mother === "Poppy" || father === "Poppy") return "fallen"; 

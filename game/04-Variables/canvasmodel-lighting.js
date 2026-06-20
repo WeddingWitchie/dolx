@@ -226,9 +226,11 @@ function drawColorOverlay(ctx, color, maxAlpha, intensity) {
 }
 
 function lightBlendColor(options) {
-	if (!V.angel && !V.demon) return false;
-	const baseColor = V.angel ? options.lights.colors.angel : options.lights.colors.demon;
-	const factor = Math.abs((V.angel / 6 - V.demon / 6) * V.options.lightTFColor);
+	const angelLevel = Transformations.effectiveLevel("angel");
+	const demonLevel = Transformations.effectiveLevel("demon");
+	if (!angelLevel && !demonLevel) return false;
+	const baseColor = angelLevel ? options.lights.colors.angel : options.lights.colors.demon;
+	const factor = Math.abs((angelLevel / 6 - demonLevel / 6) * V.options.lightTFColor);
 	return ColourUtils.interpolateColor("#ffffff", baseColor, factor);
 }
 

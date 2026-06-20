@@ -2902,7 +2902,7 @@ function calculateSemenReleased() {
 
 	if (V.femaleclimax === 1) released /= 30;
 	if (V.orgasmtrait >= 1) released *= 2.5;
-	if (V.cow >= 6) released *= 2;
+	if (Transformations.effectiveLevel("cow") >= 6) released *= 2;
 
 	/* if the player doesn't have enough semen, set $_semen_released to whatever they have left */
 	if (V.semen_amount < released) released = V.semen_amount;
@@ -3641,14 +3641,14 @@ function hasSharpSenses(sense = "any") {
 		if (currentSkillValue("skulduggery") >= 600) return "experienced eyes";
 	}
 	if (["any", "hearing"].includes(sense)) {
-		if (V.transformationParts.wolf.ears !== "disabled" && V.transformationParts.wolf.ears !== "hidden") return "wolf ears";
-		if (V.transformationParts.cat.ears !== "disabled" && V.transformationParts.cat.ears !== "hidden") return "cat ears";
-		if (V.transformationParts.fox.ears !== "disabled" && V.transformationParts.fox.ears !== "hidden") return "fox ears";
+		if (Transformations.partActive("wolf", "ears")) return "wolf ears";
+		if (Transformations.partActive("cat", "ears")) return "cat ears";
+		if (Transformations.partActive("fox", "ears")) return "fox ears";
 		if (currentSkillValue("skulduggery") >= 600) return "experienced ears";
 	}
 	if (["instincts"].includes(sense)) {
 		if (Transformations.effectiveLevel("wolf") >= 6) return "wolf instincts";
-		if (V.cat >= 6 || (V.transformationParts.cat.tail !== "disabled" && V.transformationParts.cat.tail !== "hidden")) return "cat instincts";
+		if (Transformations.effectiveLevel("cat") >= 6) return "cat instincts";
 		if (Transformations.effectiveLevel("fox") >= 6) return "fox instincts";
 		if (V.dryad >= 6 || currentSkillValue("tending") >= 900) return "nature-trained instincts";
 	}

@@ -635,7 +635,11 @@ function calculateallure() {
 	/* extra attractiveness from accessories */
 	for (const slot of ["head", "face", "neck", "legs", "feet", "handheld", "earrings", "rings", "hands"]) attractiveness += V.worn[slot].reveal || 0;
 	/* tf bonuses */
-	const partsDisabled = (tf, parts) => parts.filter(part => V.transformationParts[tf][part] === "disabled").length;
+	const partEnabled = (tf, part) => {
+		const value = V.transformationParts?.[tf]?.[part];
+		return value !== undefined && value !== "disabled";
+	};
+	const partsDisabled = (tf, parts) => parts.filter(part => !partEnabled(tf, part)).length;
 	if (partsDisabled("demon", ["horns", "tail", "wings"]) < 3) attractiveness += 500 - 100 * partsDisabled("demon", ["horns", "tail", "wings"]);
 	if (partsDisabled("angel", ["halo", "wings"]) < 2) attractiveness += 500 - 150 * partsDisabled("angel", ["halo", "wings"]);
 	if (partsDisabled("fallenAngel", ["halo", "wings"]) < 2) attractiveness += 500 - 150 * partsDisabled("fallenAngel", ["halo", "wings"]);
@@ -648,7 +652,6 @@ function calculateallure() {
 	if (partsDisabled("okami", ["ears", "tail", "wings"]) < 3) attractiveness += 1000 - 225 * partsDisabled("okami", ["ears", "tail", "wings"]);
 	if (partsDisabled("seraphim", ["wings", "plumage"]) < 2) attractiveness += 1000 - 400 * partsDisabled("seraphim", ["wings", "plumage"]);
 	if (partsDisabled("kitsune", ["ears", "tail", "cheeks"]) < 3) attractiveness += 1000 - 225 * partsDisabled("kitsune", ["ears", "tail", "cheeks"]);
-	const partEnabled = (tf, part) => V.transformationParts[tf][part] !== "disabled";
 	const demonPresent = ["horns", "tail", "wings"].some(part => partEnabled("demon", part));
 	const angelPresent = ["halo", "wings"].some(part => partEnabled("angel", part));
 	const waterDragonPresent = ["horns", "ears", "tail"].some(part => partEnabled("waterdragon", part));
@@ -671,7 +674,7 @@ function calculateallure() {
 	/* long nails; a "groomed" signal, modest boost.
 	   Cat-TF exemption: cat players' claws are retractable and sheathed during normal social contact, so the long-nail visual signal isn't on display.
 	   The cat TF gets its own attractiveness from cat ears/tail above. */
-	const playerHasCatClaws = V.cat >= 6 || (V.transformationParts.cat.tail !== "hidden" && V.transformationParts.cat.tail !== "disabled");
+	const playerHasCatClaws = Transformations.effectiveLevel("cat") >= 6;
 	if (!playerHasCatClaws && V.nailslevel >= 2) {
 		attractiveness += V.nailslevel >= 3 ? 150 : 75;
 	}

@@ -17,15 +17,14 @@
 	/* --- TF presence detection (single source of truth: <<tfDescValidList>> in mirror.twee).
 	   It populates _present.* (per-TF presence + xenos), sets/validates $tfDesc and $tfDescValid, and treats missing/undefined parts as inactive. --- */
 	<<tfDescValidList>>
-	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
 	<<set _hasAngel to _present.angel>><<set _hasFallen to _present.fallen>><<set _hasDemon to _present.demon>>
 	<<set _hasWolf to _present.wolf>><<set _hasCat to _present.cat>><<set _hasCow to _present.cow>><<set _hasHarpy to _present.harpy>><<set _hasFox to _present.fox>>
 	<<set _hasBunny to _present.bunny>><<set _hasBear to _present.bear>><<set _hasWaterDragon to _present.waterdragon>>
 	<<set _isXenos to _present.xenos>>
-	/* Combo-part checks stay local on purpose: automatic combo titles require the combo limbs to actually be equipped, not just unlocked/qualified. */
-	<<set _seraphimActive to _partActive(_tfParts.seraphim?.wings)>>
-	<<set _kitsuneActive to ["ears", "tail", "cheeks"].some(p => _partActive(_tfParts.kitsune?.[p]))>>
-	<<set _okamiActive to ["ears", "tail", "misc"].some(p => _partActive(_tfParts.okami?.[p]))>>
+	/* Automatic combo titles use actual equipped presence from tfDescValidList, not unlocked/manual eligibility. */
+	<<set _seraphimActive to _present.seraphim>>
+	<<set _kitsuneActive to _present.kitsune>>
+	<<set _okamiActive to _present.okami>>
 	<<set _bakunawaActive to _present.bakunawa>>
 	<<set _ryuujinActive to _present.ryuujin>>
 	/* --- Manual description override (mirror > Transformation > Description) --- */
@@ -1801,7 +1800,7 @@
 		<<set $_arousedText to "keeping you aroused">>
 
 		/* SourceText */
-		<<if $wolfgirl gte 2 or $cat gte 2 or ($cow gte 2 or $transformationParts.cow.horns is "default") or $fox gte 2 or $bear gte 2 or $bunny gte 2>>
+		<<if effectiveTransformationLevel("wolf") gte 2 or effectiveTransformationLevel("cat") gte 2 or (effectiveTransformationLevel("cow") gte 2) or effectiveTransformationLevel("fox") gte 2 or effectiveTransformationLevel("bear") gte 2 or effectiveTransformationLevel("bunny") gte 2>>
 			<<run $_source.push("inner beast")>>
 		<</if>>
 		<<if $earSlime.growth gt 50 and (($earSlime.focus is "pregnancy" and $_heatArousal) or ($earSlime.focus is "impregnation" and $_rutArousal))>>

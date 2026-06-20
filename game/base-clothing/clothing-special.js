@@ -715,7 +715,7 @@ function initSpecialClothes() {
 		// Misc
 		shrine: {
 			text: "spirit mask and shrine robe",
-			requirements: () => V.fox >= 6 || V.moorLuck !== undefined,
+			requirements: () => Transformations.effectiveLevel("fox") >= 6 || V.moorLuck !== undefined,
 			hint: "become sufficiently foxy, or pray at wild shrines in the moor",
 			shop: ["forest"],
 			subsetOf: ["fox", "transformation"],
@@ -753,7 +753,7 @@ function initSpecialClothes() {
 		},
 		succubus: {
 			text: "succubus costume",
-			requirements: () => V.demon >= 6 || Object.values(V.virginTaken)?.flat().length >= 15,
+			requirements: () => Transformations.effectiveLevel("demon") >= 6 || Object.values(V.virginTaken)?.flat().length >= 15,
 			hint: "become sufficiently impure, or take 15 virginities",
 			shop: ["forest"],
 			subsetOf: ["transformation"],

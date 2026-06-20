@@ -49,7 +49,7 @@
 					has: $featsPurityBoost gt 0,
 					text: () => {
 						let dailyPurity = 1;
-						if (V.fallenangel >= 2) dailyPurity -= 10;
+						if (Transformations.effectiveLevel("fallen") >= 2) dailyPurity -= 10;
 						if (playerCountsAsVirgin()) dailyPurity += 2;
 						if (dailyPurity + V.featsPurityBoost > 0) return "You are gaining purity daily.";
 						if (dailyPurity + V.featsPurityBoost === 0) return "You are not losing purity daily.";
@@ -62,7 +62,7 @@
 					has: $featsPurityBoost lt 0,
 					text: () => {
 						let dailyPurity = 1;
-						if (V.fallenangel >= 2) dailyPurity -= 10;
+						if (Transformations.effectiveLevel("fallen") >= 2) dailyPurity -= 10;
 						if (playerCountsAsVirgin()) dailyPurity += 2;
 						if (dailyPurity + V.featsPurityBoost > 0) return "You are gaining less purity daily.";
 						if (dailyPurity + V.featsPurityBoost === 0) return "You are not gaining purity daily.";
@@ -514,7 +514,7 @@
 						return "Catkin";
 					},
 					colour: "grey",
-					has: ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled")),
+					has: (effectiveTransformationLevel("cat") gte 6),
 					text: 'You have an urge to lap up cream. Unlocks the "groom" action while dancing with lewd fluid on your person. Your ears and tail make you more conspicuous.',
 				},
 				{
@@ -524,7 +524,7 @@
 						return "Bunnykin";
 					},
 					colour: "grey",
-					has: ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled")),
+					has: (effectiveTransformationLevel("bunny") gte 6),
 					text: 'Your submissiveness increases over time. Your ears and tail make you more conspicuous.',
 				},
 				{
@@ -534,7 +534,7 @@
 						return "Bearkin";
 					},
 					colour: "grey",
-					has: ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled")),
+					has: (effectiveTransformationLevel("bear") gte 6),
 					text: 'You have an urge to eat honey and laze around. Your ears and tail make you more conspicuous.',
 				},
 				{
@@ -544,7 +544,7 @@
 						return "Bovine";
 					},
 					colour: "brat",
-					has: ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled")),
+					has: (effectiveTransformationLevel("cow") gte 6),
 					text: "You yearn to be milked. Milk and semen volume is increased. Certain body parts might grow. Your horns, ears and tail make you more conspicuous.",
 				},
 				{
@@ -633,8 +633,8 @@
 				{
 					name: "Sturdy Horns",
 					colour: "def",
-					has: (($cow gte 2 or $transformationParts.cow.horns is "default") or ($waterdragon gte 2 or !["disabled", "hidden"].includes($transformationParts.waterdragon.horns)))
-						and !($demon gte 2 or ($transformationParts.demon.horns isnot "disabled" and $transformationParts.demon.horns isnot "hidden")),
+					has: ((effectiveTransformationLevel("cow") gte 2) or (effectiveTransformationLevel("waterdragon") gte 2))
+						and !(effectiveTransformationLevel("demon") gte 2),
 					text: "Headbutts no longer hurt you.",
 				},
 				{
@@ -695,13 +695,13 @@
 				{
 					name: "Fallen Angel",
 					colour: "black",
-					has: $fallenangel gte 4,
+					has: effectiveTransformationLevel("fallen") gte 4,
 					text: 'The world is so cruel. Though you feel less pure by the day, you will not relinquish yourself. Unlocks the "disparage" action.',
 				},
 				{
 					name: "Fallen Angel",
 					colour: "black",
-					has: $fallenangel is 2 or $fallenangel is 3,
+					has: effectiveTransformationLevel("fallen") is 2 or effectiveTransformationLevel("fallen") is 3,
 					text: "The world is so cruel. You feel less pure by the day.",
 				},
 				{
@@ -762,22 +762,22 @@
 					name: "Radiant",
 					colour: "gold",
 					has: effectiveTransformationLevel("angel") gte 4,
-					text: 'You are pure. Unlocks the "banish" action a number of times per day based on your angelicness, dealing heavy damage to a tentacle. Its strength is greatly increased while at maximum purity. Uses remaining today: ($angelBanish / $angelBanishMax)',
+					text: 'You are pure. Unlocks the "banish" action up to five times per day at full angelicness or while an angelic chimera is active, dealing heavy damage to a tentacle. Its strength is greatly increased while at maximum purity. Uses remaining today: ($angelBanish / $angelBanishMax)',
 				},
 				{
 					name: "Dark Horns",
 					colour: "def",
-					has: !($cow gte 2 or $transformationParts.cow.horns is "default")
-						and !($waterdragon gte 2 or !["disabled", "hidden"].includes($transformationParts.waterdragon.horns))
-						and ($demon gte 2 or ($transformationParts.demon.horns isnot "disabled" and $transformationParts.demon.horns isnot "hidden")),
+					has: !(effectiveTransformationLevel("cow") gte 2)
+						and !(effectiveTransformationLevel("waterdragon") gte 2)
+						and (effectiveTransformationLevel("demon") gte 2),
 					text: "Headbutts deal twice as much damage.",
 				},
 				{
 					name: "Compound Horns",
 					colour: "def",
-					has: (($cow gte 2 or $transformationParts.cow.horns is "default") 
-						or ($waterdragon gte 2 or !["disabled", "hidden"].includes($transformationParts.waterdragon.horns)))
-						and ($demon gte 2 or ($transformationParts.demon.horns isnot "disabled" and $transformationParts.demon.horns isnot "hidden")),
+					has: ((effectiveTransformationLevel("cow") gte 2)
+						or (effectiveTransformationLevel("waterdragon") gte 2))
+						and (effectiveTransformationLevel("demon") gte 2),
 					text: "Your headbutts are vicious. Headbutts are four times as powerful and no longer hurt you.",
 				},
 				{
@@ -796,7 +796,7 @@
 				{
 					name: "Glide",
 					colour: "grey",
-					has: !(effectiveTransformationLevel("bird") gte 6 and $birdFly gte 1) and (effectiveTransformationLevel("angel") gte 6 or ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled")) or effectiveTransformationLevel("demon") gte 6 or effectiveTransformationLevel("bird") gte 6),
+					has: !(effectiveTransformationLevel("bird") gte 6 and $birdFly gte 1) and (effectiveTransformationLevel("angel") gte 6 or (effectiveTransformationLevel("fallen") gte 2) or effectiveTransformationLevel("demon") gte 6 or effectiveTransformationLevel("bird") gte 6),
 					text: "Can glide from high locations.",
 				},
 			],

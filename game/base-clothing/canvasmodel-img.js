@@ -547,7 +547,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.demon_tail_type = "hidden";
 	}
 	// Demon-fox ears
-	if (isPartEnabled(T.modeloptions.fox_ears_type) && V.demon >= 6 && isChimeraEnabled("demonfox", "ears")) {
+	if (isPartEnabled(T.modeloptions.fox_ears_type) && Transformations.effectiveLevel("demon") >= 6 && isChimeraEnabled("demonfox", "ears")) {
 		T.modeloptions.fox_ears_type = "default-demon";
 	}
 

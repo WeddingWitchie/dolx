@@ -261,7 +261,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (V.player.penisExist && amount) {
 			amount *= 3;
-			if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black") amount *= 2;
+			if (Transformations.effectiveLevel("cow") >= 6) amount *= 2;
 			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain === 1) amount /= 2;
 			/* Prevents those who can only have "female climax" increase their cum volume */
 			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
@@ -284,9 +284,9 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("milkvolume", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			if (amount > 0) lactationPressure(V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black" ? 2 : 1);
+			if (amount > 0) lactationPressure(Transformations.effectiveLevel("cow") >= 6 ? 2 : 1);
 			if (V.lactating) {
-				if (V.cow >= 6 || V.transformationParts.cow.tail === "default" || V.transformationParts.cow.tail === "black") amount *= 2;
+				if (Transformations.effectiveLevel("cow") >= 6) amount *= 2;
 				if (V.milk_volume >= V.milk_max || V.AMCTraits.halfGain === 1) amount /= 2;
 				V.milk_volume = Math.clamp(V.milk_volume + amount * (V.statGainMult / 100), 24, V.milk_max * V.AMCTraits.milk);
 			}

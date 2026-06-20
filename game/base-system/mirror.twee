@@ -116,7 +116,7 @@
 		<br><span class="red">As you stare into your reflection, the last remains of your divine grace finally break apart.</span><br>
 		<<set $fallenMirrorRepairNotice to 0>>
 	<</if>>
-	<<if $fallenangel is 2>>
+	<<if effectiveTransformationLevel("fallen") gte 2>>
 		A pathetic excuse of a person
 	<<elseif $hallucinogen gte 200>>
 		The $_mirror melts away into an inky black puddle, floating before you.
@@ -2705,46 +2705,52 @@
 	<<set _kitsune to $transformationParts.kitsune>>
 	<<set _traits to $transformationParts.traits>>
 
-	<<set _angelFullCheck to ($angel gte 6) or $angeltf is 1>>
-	<<set _fallenFullCheck to ($fallenangel gte 2) or $fallenangeltf is 1>>
-	<<set _fallenPlusFullCheck to ($fallenangel gte 4) or $fallenangelplustf is 1>>
-	<<set _demonFullCheck to ($demon gte 6) or $demontf is 1>>
-	<<set _catFullCheck to ($cat gte 6) or $cattf is 1>>
-	<<set _cowFullCheck to ($cow gte 6) or $cowtf is 1>>
-	<<set _bearFullCheck to ($bear gte 6) or $beartf is 1>>
-	<<set _waterdragonFullCheck to ($waterdragon gte 7) or $waterdragontf is 1>>
+	/* Mirror availability uses raw progression or permanent base unlocks.
+	   Effective levels are intentionally not used here: a chimera must not unlock its base TF's mirror options. */
+	<<set _tfStageUnlocked to (level, unlocked, required) => level gte required or unlocked is 1>>
+
+	<<set _angelFullCheck to _tfStageUnlocked($angel, $angeltf, 6)>>
+	<<set _fallenFullCheck to _tfStageUnlocked($fallenangel, $fallenangeltf, 2)>>
+	<<set _fallenPlusFullCheck to _tfStageUnlocked($fallenangel, $fallenangelplustf, 4)>>
+	<<set _demonFullCheck to _tfStageUnlocked($demon, $demontf, 6)>>
+	<<set _catFullCheck to _tfStageUnlocked($cat, $cattf, 6)>>
+	<<set _cowFullCheck to _tfStageUnlocked($cow, $cowtf, 6)>>
+	<<set _bearFullCheck to _tfStageUnlocked($bear, $beartf, 6)>>
+	<<set _waterdragonFullCheck to _tfStageUnlocked($waterdragon, $waterdragontf, 7)>>
 	<<set _waterdragonUnlockedCheck to ($waterdragonCosmeticUnlocked is 1)>>
 	<<set _waterdragonTraitsCheck to (_waterdragonFullCheck or _waterdragonUnlockedCheck)>>
 	<<set _waterdragonSkinMenuCheck to (_waterdragonTraitsCheck or $waterdragonSkinLock isnot 0)>>
-	<<set _wolfFullCheck to ($wolfgirl gte 6) or $wolftf is 1>>
-	<<set _birdFullCheck to ($harpy gte 6) or $harpytf is 1>>
-	<<set _foxFullCheck to ($fox gte 6) or $foxtf is 1>>
-	<<set _bunnyFullCheck to ($bunny gte 6) or $bunnytf is 1>>
+	<<set _wolfFullCheck to _tfStageUnlocked($wolfgirl, $wolftf, 6)>>
+	<<set _birdFullCheck to _tfStageUnlocked($harpy, $harpytf, 6)>>
+	<<set _foxFullCheck to _tfStageUnlocked($fox, $foxtf, 6)>>
+	<<set _bunnyFullCheck to _tfStageUnlocked($bunny, $bunnytf, 6)>>
 
-	<<set _angelPartialCheck to ($angel gte 4) or $angeltf is 1>>
-	<<set _demonPartialCheck to ($demon gte 4) or $demontf is 1>>
-	<<set _catPartialCheck to ($cat gte 4) or $cattf is 1>>
-	<<set _cowPartialCheck to ($cow gte 4) or $cowtf is 1>>
-	<<set _bearPartialCheck to ($bear gte 4) or $beartf is 1>>
-	<<set _waterdragonPartialCheck to ($waterdragon gte 4) or $waterdragontf is 1>>
-	<<set _wolfPartialCheck to ($wolfgirl gte 4) or $wolftf is 1>>
-	<<set _birdPartialCheck to ($harpy gte 4) or $harpytf is 1>>
-	<<set _foxPartialCheck to ($fox gte 4) or $foxtf is 1>>
-	<<set _bunnyPartialCheck to ($bunny gte 4) or $bunnytf is 1>>
+	<<set _angelPartialCheck to _tfStageUnlocked($angel, $angeltf, 4)>>
+	<<set _demonPartialCheck to _tfStageUnlocked($demon, $demontf, 4)>>
+	<<set _catPartialCheck to _tfStageUnlocked($cat, $cattf, 4)>>
+	<<set _cowPartialCheck to _tfStageUnlocked($cow, $cowtf, 4)>>
+	<<set _bearPartialCheck to _tfStageUnlocked($bear, $beartf, 4)>>
+	<<set _waterdragonPartialCheck to _tfStageUnlocked($waterdragon, $waterdragontf, 4)>>
+	<<set _wolfPartialCheck to _tfStageUnlocked($wolfgirl, $wolftf, 4)>>
+	<<set _birdPartialCheck to _tfStageUnlocked($harpy, $harpytf, 4)>>
+	<<set _foxPartialCheck to _tfStageUnlocked($fox, $foxtf, 4)>>
+	<<set _bunnyPartialCheck to _tfStageUnlocked($bunny, $bunnytf, 4)>>
 
-	<<set _angelInitialCheck to ($angel gte 2) or $angeltf is 1>>
-	<<set _demonInitialCheck to ($demon gte 2) or $demontf is 1>>
-	<<set _catInitialCheck to ($cat gte 2) or $cattf is 1>>
-	<<set _cowInitialCheck to ($cow gte 2) or $cowtf is 1>>
-	<<set _bearInitialCheck to ($bear gte 2) or $beartf is 1>>
-	<<set _waterdragonInitialCheck to ($waterdragon gte 2) or $waterdragontf is 1>>
+	<<set _angelInitialCheck to _tfStageUnlocked($angel, $angeltf, 2)>>
+	<<set _demonInitialCheck to _tfStageUnlocked($demon, $demontf, 2)>>
+	<<set _catInitialCheck to _tfStageUnlocked($cat, $cattf, 2)>>
+	<<set _cowInitialCheck to _tfStageUnlocked($cow, $cowtf, 2)>>
+	<<set _bearInitialCheck to _tfStageUnlocked($bear, $beartf, 2)>>
+	<<set _waterdragonInitialCheck to _tfStageUnlocked($waterdragon, $waterdragontf, 2)>>
 	<<set _waterdragonMenuCheck to (_waterdragonInitialCheck or _waterdragonUnlockedCheck)>>
-	<<set _wolfInitialCheck to ($wolfgirl gte 2) or $wolftf is 1>>
-	<<set _birdInitialCheck to ($harpy gte 2) or $harpytf is 1>>
-	<<set _foxInitialCheck to ($fox gte 2) or $foxtf is 1>>
-	<<set _bunnyInitialCheck to ($bunny gte 2) or $bunnytf is 1>>
+	<<set _wolfInitialCheck to _tfStageUnlocked($wolfgirl, $wolftf, 2)>>
+	<<set _birdInitialCheck to _tfStageUnlocked($harpy, $harpytf, 2)>>
+	<<set _foxInitialCheck to _tfStageUnlocked($fox, $foxtf, 2)>>
+	<<set _bunnyInitialCheck to _tfStageUnlocked($bunny, $bunnytf, 2)>>
+	<<set _birdTraitCheck to _tfStageUnlocked($harpy, $harpytf, 3)>>
+	<<set _foxTraitCheck to _tfStageUnlocked($fox, $foxtf, 3)>>
 
-	<<if _wolfInitialCheck or _catInitialCheck or _cowFullCheck or _bearFullCheck or _waterdragonMenuCheck or $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1 or _bunnyInitialCheck or (_demonPartialCheck and $exhibitionism gte 95)>>
+	<<if _wolfInitialCheck or _catInitialCheck or _cowFullCheck or _bearFullCheck or _waterdragonMenuCheck or _birdTraitCheck or _foxTraitCheck or _bunnyInitialCheck or (_demonPartialCheck and $exhibitionism gte 95)>>
 		__Traits__<br>
 		<<if _wolfInitialCheck or _catInitialCheck or _foxInitialCheck or _bearInitialCheck or _waterdragonMenuCheck>>
 			Fangs: <<checkbox "_traits.fangs" "disabled" "default" autocheck>><br>
@@ -2752,10 +2758,10 @@
 		<<if _catInitialCheck or _birdInitialCheck or _foxInitialCheck>>
 			Sharp Eyes: <<checkbox "_traits.sharpEyes" "disabled" "default" autocheck>><br>
 		<</if>>
-		<<if $waterdragon gte 7 or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1>>
+		<<if _waterdragonTraitsCheck>>
 			Dragon Eyes: <<checkbox "_traits.dragonEyes" "disabled" "default" autocheck>><br>
 		<</if>>
-		<<if $harpy gte 3 or $harpytf is 1 or $fox gte 3 or $foxtf is 1>>
+		<<if _birdTraitCheck or _foxTraitCheck>>
 			Mate for Life: <<checkbox "_traits.mateForLife" "disabled" "default" autocheck>><br>
 		<</if>>
 		<<if _bunnyInitialCheck>>
@@ -2764,7 +2770,7 @@
 		<<if _demonPartialCheck and hasSexStat("exhibitionism", 6, true)>>
 			Flaunting when exposed: <<checkbox "_traits.flaunting" "disabled" "default" autocheck>><br>
 		<</if>>
-		<<if $waterdragon gte 7 or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1>>
+		<<if _waterdragonTraitsCheck>>
 			Aquatic Lungs: <<checkbox "_traits.aquatic" "disabled" "default" autocheck>><br>
 		<</if>>
 		<<if _cowFullCheck>>
@@ -2785,7 +2791,7 @@
 			<</if>>
 			<br>
 		<</if>>
-		<<if $cat gte 7 or $cattf is 1>>
+		<<if _tfStageUnlocked($cat, $cattf, 7)>>
 			Heterochromia:
 			<<if _cat.heterochromia isnot "default">>
 				<<link [[Set|$passage]]>><<set _cat.heterochromia = "default">><<run window.determineCatEyeStages()>><<set $original_colour = [$leftEyeColour, $rightEyeColour]>><<catHeterochromiaTF 3>><<updatesidebarimg>><</link>>
@@ -2921,7 +2927,7 @@
 	/* Cheeks */
 	<<set _options = {}>> 
 	<<set _options["None"] = 0>>
-	<<if $fox gte 5 or $foxtf is 1>>
+	<<if _tfStageUnlocked($fox, $foxtf, 5)>>
 		<<set _options["Fox"] = ["fox", "default"]>>
 		<<if _fox.cheeks is "default">>
 			<<set _cheeksChoice to _options["Fox"]>>
@@ -3224,7 +3230,7 @@
 			<<set _haloChoice to _options["Angel Celestial"]>>
 		<</if>>
 	<</if>>
-	<<if $fallenangel gte 1 or $fallenangeltf is 1>>
+	<<if _tfStageUnlocked($fallenangel, $fallenangeltf, 1)>>
 		<<set _options["Fallen Angel Default"] = ["fallenAngel", "default"]>>
 		<<set _options["Fallen Angel Celestial"] = ["fallenAngel", "celestial"]>>
 		<<set _options["Fallen Angel Dark Celestial"] = ["fallenAngel", "celestial-black"]>>
@@ -3953,34 +3959,25 @@
 	/* Single source of truth for the Description chooser.
 	   _present = actual body/visible-limb state for automatic descriptions.
 	   _descOption = unlocked/allowed manual mirror choices. */
-	<<set _tfParts to $transformationParts || {}>>
-	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
+	<<set _baseTfPresent to (level, required, transformation, parts) => level gte required or parts.some(part => Transformations.partActive(transformation, part))>>
 
 	<<set _present to {}>>
-	<<set _present.demon to ($demon gte 6 or ["horns", "tail", "wings"].some(p => _partActive(_tfParts.demon?.[p])))>>
-	<<set _present.angel to ($angel gte 6 or ["halo", "wings"].some(p => _partActive(_tfParts.angel?.[p])))>>
-	<<set _present.fallen to ($fallenangel gte 2 or _partActive(_tfParts.fallenAngel?.wings))>>
-	<<set _present.wolf to ($wolfgirl gte 6 or _partActive(_tfParts.wolf?.tail))>>
-	<<set _present.cat to ($cat gte 6 or _partActive(_tfParts.cat?.tail))>>
-	<<set _present.cow to ($cow gte 6 or _partActive(_tfParts.cow?.tail))>>
-	<<set _present.harpy to ($harpy gte 6 or _partActive(_tfParts.bird?.wings))>>
-	<<set _present.fox to ($fox gte 6 or _partActive(_tfParts.fox?.tail))>>
-	<<set _present.bunny to ($bunny gte 6 or _partActive(_tfParts.bunny?.tail))>>
-	<<set _present.bear to ($bear gte 6 or _partActive(_tfParts.bear?.tail))>>
-	<<set _present.waterdragon to ($waterdragon gte 7 or ["horns", "ears", "tail"].some(p => _partActive(_tfParts.waterdragon?.[p])))>>
-	<<set _present.okami to ["ears", "tail", "wings", "misc"].some(p => _partActive(_tfParts.okami?.[p]))>>
-	<<set _present.kitsune to ["ears", "tail", "cheeks", "misc"].some(p => _partActive(_tfParts.kitsune?.[p]))>>
-	<<set _present.seraphim to ["wings", "plumage", "eyes"].some(p => _partActive(_tfParts.seraphim?.[p]))>>
-	<<set _present.bakunawa to (
-		($chimera?.bakunawa?.tail and _partActive(_tfParts.waterdragon?.tail) and _partActive(_tfParts.demon?.tail)) or
-		($chimera?.bakunawa?.horns and _partActive(_tfParts.waterdragon?.horns) and _partActive(_tfParts.demon?.horns)) or
-		($chimera?.bakunawa?.ears and _partActive(_tfParts.waterdragon?.ears) and _present.demon)
-	)>>
-	<<set _present.ryuujin to (
-		($chimera?.ryuujin?.tail and _partActive(_tfParts.waterdragon?.tail) and _present.angel) or
-		($chimera?.ryuujin?.horns and _partActive(_tfParts.waterdragon?.horns) and _present.angel) or
-		($chimera?.ryuujin?.halo and _partActive(_tfParts.angel?.halo) and _present.waterdragon)
-	)>>
+	<<set _present.demon to _baseTfPresent($demon, 6, "demon", ["horns", "tail", "wings"])>>
+	<<set _present.angel to _baseTfPresent($angel, 6, "angel", ["halo", "wings"])>>
+	<<set _present.fallen to _baseTfPresent($fallenangel, 2, "fallenAngel", ["halo", "wings"])>>
+	<<set _present.wolf to _baseTfPresent($wolfgirl, 6, "wolf", ["tail"])>>
+	<<set _present.cat to _baseTfPresent($cat, 6, "cat", ["tail"])>>
+	<<set _present.cow to _baseTfPresent($cow, 6, "cow", ["tail"])>>
+	<<set _present.harpy to _baseTfPresent($harpy, 6, "bird", ["wings"])>>
+	<<set _present.fox to _baseTfPresent($fox, 6, "fox", ["tail"])>>
+	<<set _present.bunny to _baseTfPresent($bunny, 6, "bunny", ["tail"])>>
+	<<set _present.bear to _baseTfPresent($bear, 6, "bear", ["tail"])>>
+	<<set _present.waterdragon to _baseTfPresent($waterdragon, 7, "waterdragon", ["horns", "ears", "tail"])>>
+	<<set _present.okami to Transformations.chimeraActive("okami")>>
+	<<set _present.kitsune to Transformations.chimeraActive("kitsune")>>
+	<<set _present.seraphim to Transformations.chimeraActive("seraphim")>>
+	<<set _present.bakunawa to Transformations.chimeraActive("bakunawa")>>
+	<<set _present.ryuujin to Transformations.chimeraActive("ryuujin")>>
 
 	/* Manual Description options may remain available from permanent unlock flags.
 	   Automatic description uses _present only, so Genome Dump + hidden/disabled limbs reads as human on Default. */

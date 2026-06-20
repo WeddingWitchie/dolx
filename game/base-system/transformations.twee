@@ -23,20 +23,20 @@
 			<<if $angel gte 4>>
 				<<set $transformationParts.angel.halo to "default">>
 			<</if>>
-			<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
+			<<if ($angel gte 6 or Transformations.partActive("angel", "wings"))>>
 				<<set $transformationParts.angel.wings to "default">>
 			<</if>>
-			<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
+			<<if ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings"))>>
 				<<set $transformationParts.fallenAngel.halo to "default">>
 				<<set $transformationParts.fallenAngel.wings to "default">>
 			<</if>>
-			<<if ($demon gte 2 or ($transformationParts.demon.horns isnot "disabled" and $transformationParts.demon.horns isnot "hidden"))>>
+			<<if ($demon gte 2 or Transformations.partActive("demon", "horns"))>>
 				<<set $transformationParts.demon.horns to "default">>
 			<</if>>
 			<<if $demon gte 4>>
 				<<set $transformationParts.demon.tail to "default">>
 			<</if>>
-			<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
+			<<if ($demon gte 6 or Transformations.partActive("demon", "wings"))>>
 				<<set $transformationParts.demon.wings to "default">>
 			<</if>>
 		<</if>>
@@ -49,7 +49,7 @@
 				<<set $transformationParts.wolf.pubes to "default">>
 				<<set $transformationParts.wolf.pits to "default">>
 			<</if>>
-			<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+			<<if ($wolfgirl gte 6 or Transformations.partActive("wolf", "tail"))>>
 				<<set $transformationParts.wolf.tail to "default">>
 			<</if>>
 			<<if $cat gte 2>>
@@ -58,7 +58,7 @@
 			<<if $cat gte 4>>
 				<<set $transformationParts.cat.ears to "default">>
 			<</if>>
-			<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+			<<if ($cat gte 6 or Transformations.partActive("cat", "tail"))>>
 				<<set $transformationParts.cat.tail to "default">>
 			<</if>>
 			<<if $cat gte 7>>
@@ -70,7 +70,7 @@
 			<<if $cow gte 4>>
 				<<set $transformationParts.cow.ears to "default">>
 			<</if>>
-			<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+			<<if ($cow gte 6 or Transformations.partActive("cow", "tail"))>>
 				<<set $transformationParts.cow.tail to "default">>
 			<</if>>
 			<<if ($waterdragon gte 2 or $transformationParts.waterdragon.horns is "default")>>
@@ -79,13 +79,13 @@
 			<<if $waterdragon gte 4>>
 				<<set $transformationParts.waterdragon.ears to "default">>
 			<</if>>
-			<<if ($waterdragon gte 7 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+			<<if ($waterdragon gte 7 or Transformations.partActive("waterdragon", "tail"))>>
 				<<set $transformationParts.waterdragon.tail to "default">>
 			<</if>>
 			<<if $bunny gte 4>>
 				<<set $transformationParts.bunny.ears to "default">>
 			<</if>>
-			<<if ($bunny gte 6 or ($transformationParts.bunny.tail isnot "hidden" and $transformationParts.bunny.tail isnot "disabled"))>>
+			<<if ($bunny gte 6 or Transformations.partActive("bunny", "tail"))>>
 				<<set $transformationParts.bunny.tail to "default">>
 			<</if>>
 			<<if $bear gte 4>>
@@ -122,7 +122,7 @@
 		<<set $transformationParts.fallenAngel.wings to "disabled">>
 	<</if>>
 	<<if $transformationParts.wolf.cheeks is undefined>>
-		<<if ($wolfgirl gte 5 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+		<<if ($wolfgirl gte 5 or Transformations.partActive("wolf", "tail"))>>
 			<<set $transformationParts.wolf.cheeks to "feral">>
 		<<else>>
 			<<set $transformationParts.wolf.cheeks to "disabled">>
@@ -132,7 +132,7 @@
 		<<set $transformationParts.bird to {tail:"disabled", wings:"disabled", eyes:"disabled", malar:"disabled", plumage:"disabled"}>>
 	<</if>>
 	<<if $transformationParts.bird.pubes is undefined>>
-		<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+		<<if ($harpy gte 6 or Transformations.partActive("bird", "wings"))>>
 			<<set $transformationParts.bird.pubes to "hidden">>
 		<<else>>
 			<<set $transformationParts.bird.pubes to "disabled">>
@@ -261,9 +261,8 @@
 	<<if $transformationParts is undefined>><<set $transformationParts to {}>><</if>>
 	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
 
-	<<set _partActive to value => value isnot undefined and value isnot "hidden" and value isnot "disabled">>
-	<<set _predatorActive to (effectiveTransformationLevel("wolf") gte 6 or $cat gte 6 or _partActive($transformationParts.cat?.tail) or effectiveTransformationLevel("fox") gte 6 or effectiveTransformationLevel("bird") gte 6 or $bear gte 6 or _partActive($transformationParts.bear?.tail) or effectiveTransformationLevel("waterdragon") gte 7)>>
-	<<set _preyActive to ($cow gte 6 or _partActive($transformationParts.cow?.tail) or $bunny gte 6 or _partActive($transformationParts.bunny?.tail))>>
+	<<set _predatorActive to (effectiveTransformationLevel("wolf") gte 6 or effectiveTransformationLevel("cat") gte 6 or effectiveTransformationLevel("fox") gte 6 or effectiveTransformationLevel("bird") gte 6 or effectiveTransformationLevel("bear") gte 6 or effectiveTransformationLevel("waterdragon") gte 7)>>
+	<<set _preyActive to (effectiveTransformationLevel("cow") gte 6 or effectiveTransformationLevel("bunny") gte 6)>>
 
 	<<set $transformationParts.traits.predatoryAnimal to (_predatorActive ? "default" : "disabled")>>
 	<<set $transformationParts.traits.preyAnimal to (_preyActive ? "default" : "disabled")>>
@@ -321,7 +320,7 @@
 		<<set $physicalTransform to 0>>
 	<</if>>
 	<<if ($physicalTransform is 1 or $specialTransform is 1) and !($hypnosis_traits.peace and $settings.hypnosisEnabled)>>
-		<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled")) and (($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled")) or ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled")) or ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled")))>>
+		<<if ($harpy gte 6 or Transformations.partActive("bird", "wings")) and (($angel gte 6 or Transformations.partActive("angel", "wings")) or ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings")) or ($demon gte 6 or Transformations.partActive("demon", "wings")))>>
 			<<if $transformationParts.bird.wings is "hidden" and ($transformationParts.demon.wings is "hidden" or $transformationParts.angel.wings is "hidden" or $transformationParts.fallenAngel.wings is "hidden")>>
 			<<else>>
 				<<set _excludeWings to true>>
@@ -362,7 +361,7 @@
 			<<demonTransform $demon>>
 		<<elseif ($angelbuild gte 5 and $specialTransform isnot 1) or ($angel gte 1 and $specialTransform is 1)>>
 			<<angelTransform $angel>>
- 		<<elseif ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
+		<<elseif ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings"))>>
 			<<fallenButNotOut $fallenangel>>
 		<</if>>
 	<</if>>
@@ -797,7 +796,7 @@
 					<<set $transformationParts.wolf.tail to "disabled">>
 				<</if>>
 			<<case 99>>
-				<<if ($wolfgirl gte 6 or ($transformationParts.wolf.tail isnot "hidden" and $transformationParts.wolf.tail isnot "disabled"))>>
+				<<if ($wolfgirl gte 6 or Transformations.partActive("wolf", "tail"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $wolfgirl to 0>>
@@ -940,7 +939,7 @@
 					<<run $timeMessages.pushUnique("catDown9")>>
 				<</if>>
 			<<case 99>>
-				<<if ($cat gte 6 or ($transformationParts.cat.tail isnot "hidden" and $transformationParts.cat.tail isnot "disabled"))>>
+				<<if ($cat gte 6 or Transformations.partActive("cat", "tail"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $cat to 0>>
@@ -1055,7 +1054,7 @@
 					<<set $transformationParts.cow.tail to "disabled">>
 				<</if>>
 			<<case 99>>
-				<<if ($cow gte 6 or ($transformationParts.cow.tail isnot "hidden" and $transformationParts.cow.tail isnot "disabled"))>>
+				<<if ($cow gte 6 or Transformations.partActive("cow", "tail"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $cow to 0>>
@@ -1171,7 +1170,7 @@
 					<<set $waterdragontf to 0>>
 				<</if>>
 			<<case 99>>
-				<<if ($waterdragon gte 7 or ($transformationParts.waterdragon.tail isnot "hidden" and $transformationParts.waterdragon.tail isnot "disabled"))>>
+				<<if ($waterdragon gte 7 or Transformations.partActive("waterdragon", "tail"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $waterdragon to 0>>
@@ -1286,7 +1285,7 @@
 				<</if>>
 
 			<<case 99>>
-				<<if ($bear gte 6 or ($transformationParts.bear.tail isnot "hidden" and $transformationParts.bear.tail isnot "disabled"))>>
+				<<if ($bear gte 6 or Transformations.partActive("bear", "tail"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $bear to 0>>
@@ -1394,18 +1393,18 @@
 					<<run $timeMessages.pushUnique("harpyDown5")>>
 					<<set $transformationParts.bird.wings to "disabled">>
 					<<set $transformationParts.bird.pubes to "disabled">>
-					<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
+					<<if ($angel gte 6 or Transformations.partActive("angel", "wings"))>>
 						<<set $transformationParts.angel.wings to "default">>
 					<</if>>
-					<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
+					<<if ($demon gte 6 or Transformations.partActive("demon", "wings"))>>
 						<<set $transformationParts.demon.wings to "default">>
 					<</if>>
-					<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
+					<<if ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings"))>>
 						<<set $transformationParts.fallenAngel.wings to "default">>
 					<</if>>
 				<</if>>
 			<<case 99>>
-				<<if ($harpy gte 6 or ($transformationParts.bird.wings isnot "hidden" and $transformationParts.bird.wings isnot "disabled"))>>
+				<<if ($harpy gte 6 or Transformations.partActive("bird", "wings"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $harpy to 0>>
@@ -1420,13 +1419,13 @@
 				<<set $transformationParts.traits.mateForLife to "disabled">>
 				<<set $transformationParts.bird.wings to "disabled">>
 				<<if !["hidden", "disabled"].includes($transformationParts.bird.wings)>>
-					<<if ($angel gte 6 or ($transformationParts.angel.wings isnot "hidden" and $transformationParts.angel.wings isnot "disabled"))>>
+					<<if ($angel gte 6 or Transformations.partActive("angel", "wings"))>>
 						<<set $transformationParts.angel.wings to "default">>
 					<</if>>
-					<<if ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled"))>>
+					<<if ($demon gte 6 or Transformations.partActive("demon", "wings"))>>
 						<<set $transformationParts.demon.wings to "default">>
 					<</if>>
-					<<if ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled"))>>
+					<<if ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings"))>>
 						<<set $transformationParts.fallenAngel.wings to "default">>
 					<</if>>
 				<</if>>
@@ -1528,7 +1527,7 @@
 					<<set $transformationParts.fox.tail to "disabled">>
 				<</if>>
 			<<case 99>>
-				<<if ($fox gte 6 or ($transformationParts.fox.tail isnot "hidden" and $transformationParts.fox.tail isnot "disabled"))>>
+				<<if ($fox gte 6 or Transformations.partActive("fox", "tail"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
 				<<set $fox to 0>>
@@ -1677,7 +1676,7 @@
 <<widget "revealTransformations">>
 	/* DO NOT USE without calling rehideTransformations before scene end */
 	<<set $tfPartsHidden to clone($transformationParts)>>
-	<<if $harpy gte 6 and ($angel gte 6 or ($fallenangel gte 2 or ($transformationParts.fallenAngel.wings isnot "hidden" and $transformationParts.fallenAngel.wings isnot "disabled")) or ($demon gte 6 or ($transformationParts.demon.wings isnot "hidden" and $transformationParts.demon.wings isnot "disabled")))>>
+	<<if $harpy gte 6 and ($angel gte 6 or ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings")) or ($demon gte 6 or Transformations.partActive("demon", "wings")))>>
 		<<if $transformationParts.bird.wings is "hidden" and ($transformationParts.demon.wings is "hidden" or $transformationParts.angel.wings is "hidden" or $transformationParts.fallenAngel.wings is "hidden")>>
 		<<else>>
 			<<set $_excludeWings to true>>

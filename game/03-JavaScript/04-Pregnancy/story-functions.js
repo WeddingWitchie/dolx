@@ -527,11 +527,11 @@ function playerHeatMinArousal() {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "pregnancy" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5 * (2 - risk);
 		}
-		if (V.wolfgirl >= 2) minArousal += Math.clamp(V.wolfbuild, 0, 100) * 20 * (2 - risk);
-		if (V.cat >= 2) minArousal += Math.clamp(V.catbuild, 0, 100) * 20 * (2 - risk);
-		if (V.cow >= 2) minArousal += Math.clamp(V.cowbuild, 0, 100) * 20 * (2 - risk);
-		if (V.fox >= 2) minArousal += Math.clamp(V.foxbuild, 0, 100) * 20 * (2 - risk);
-		if (V.bunny >= 2) minArousal += Math.clamp(V.bunnybuild, 0, 100) * 20 * (2 - risk);
+		if (Transformations.effectiveLevel("wolf") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("wolf"), 0, 100) * 20 * (2 - risk);
+		if (Transformations.effectiveLevel("cat") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cat"), 0, 100) * 20 * (2 - risk);
+		if (Transformations.effectiveLevel("cow") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cow"), 0, 100) * 20 * (2 - risk);
+		if (Transformations.effectiveLevel("fox") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("fox"), 0, 100) * 20 * (2 - risk);
+		if (Transformations.effectiveLevel("bunny") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("bunny"), 0, 100) * 20 * (2 - risk);
 		if (playerIsXChanged() && V.xchange.pill?.breederEffect) minArousal += 100 * 4 * V.xchange.breederDenial;
 	}
 	if (minArousal === 0) V.pregnancyStats.heatStillEnabled = !playerIsPregnant();
@@ -562,11 +562,11 @@ function playerRutMinArousal() {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "impregnation" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5;
 		}
-		if (V.wolfgirl >= 2) minArousal += Math.clamp(V.wolfbuild, 0, 100) * 40;
-		if (V.cat >= 2) minArousal += Math.clamp(V.catbuild, 0, 100) * 40;
-		if (V.cow >= 2) minArousal += Math.clamp(V.cowbuild, 0, 100) * 40;
-		if (V.fox >= 2) minArousal += Math.clamp(V.foxbuild, 0, 100) * 40;
-		if (V.bunny >= 2) minArousal += Math.clamp(V.bunnybuild, 0, 100) * 40;
+		if (Transformations.effectiveLevel("wolf") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("wolf"), 0, 100) * 40;
+		if (Transformations.effectiveLevel("cat") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cat"), 0, 100) * 40;
+		if (Transformations.effectiveLevel("cow") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cow"), 0, 100) * 40;
+		if (Transformations.effectiveLevel("fox") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("fox"), 0, 100) * 40;
+		if (Transformations.effectiveLevel("bunny") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("bunny"), 0, 100) * 40;
 		if (playerIsXChanged() && V.xchange.pill?.bullEffect) minArousal += 100 * 40;
 	}
 	if (pills["fertility booster"].doseTaken > 2) {
