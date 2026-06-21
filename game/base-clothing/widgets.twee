@@ -1606,8 +1606,13 @@
 			<<else>>
 				<<if _args[2] is "wardrobe" or $wardrobes[_args[2]] isnot undefined>>
 					<<if !setup.wardrobeSkip.includes($_item.name) and $_item.temp is undefined>>
-						<<set $_location to clothesReturnLocation($_item)>>
-						<<set $_selectedWardrobe to ($_location is "wardrobe" ? $wardrobe : $wardrobes[$_location])>>
+						/* If an explicit location wardrobe key is passed, store directly into that wardrobe (e.g. the school pool locker), otherwise fall back to the item's usual return location */
+						<<if _args[2] isnot "wardrobe" and $wardrobes[_args[2]] isnot undefined>>
+							<<set $_selectedWardrobe to $wardrobes[_args[2]]>>
+						<<else>>
+							<<set $_location to clothesReturnLocation($_item)>>
+							<<set $_selectedWardrobe to ($_location is "wardrobe" ? $wardrobe : $wardrobes[$_location])>>
+						<</if>>
 						<<set $_selectedWardrobe[$_slot].push(clone($_item))>>
 					<</if>>
 					<<set $store[$_slot].deleteAt($_index)>>
