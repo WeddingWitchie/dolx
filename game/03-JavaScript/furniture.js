@@ -23,6 +23,7 @@ const Furniture = (() => {
 		shelf: "shelf",
 		plush: "plush",
 		radio:"radio",
+		console: "console",
 		/* Special category for Kylar event */
 		owlplushie: "owlplushie",
 	});
@@ -518,6 +519,15 @@ const Furniture = (() => {
 			description: "A space-friendly radio, includes weather forecasts!",
 			iconFile: "radio",
 		});
+		mapper.set("handheldConsole", {
+			name: "console",
+			nameCap: "Console",
+			category: ["console"],
+			type: ["console"],
+			cost: 50000,
+			description: "A games console. It comes loaded with a handful of games to pass the time.",
+			iconFile: "controller",
+		});
 		/* ------------- BUNNY MOD -------------- */
 		mapper.set("shelf", {
 			name: "small shelf",
@@ -586,8 +596,8 @@ const Furniture = (() => {
 			print("Furniture.Get called before SugarCube is ready, postpone execution next time.", category);
 			return null;
 		}
-		const area = V.furniture[location];
-		if (typeof area !== "object" && area === null) {
+		const area = V.furniture && V.furniture[location];
+		if (typeof area !== "object" || area === null) {
 			print("Furniture.Get called with a location that doesn't exist:", location, area);
 			return null;
 		}

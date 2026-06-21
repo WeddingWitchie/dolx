@@ -1,0 +1,321 @@
+:: Home Console
+<<set $outside to 0>><<unset $consoleAction, $trainType, $consoleReturn>><<effects>>
+<<set _ret to ($location is "alex_cottage" ? "Farm Bedroom" : "Bedroom")>>
+<<furnitureicon "controller">>You switch on your console. What would you like to play?
+<br><br>
+
+<<icon "/furniture/tfplushes.png">><<link [[Virtual pet|Home Console Pet]]>><</link>>
+<<if Tamagotchi.exists()>>
+	<<run Tamagotchi.sync()>>
+	<<if Tamagotchi.isAlive()>><<set _t to Tamagotchi.status()>>
+		<<if _t.pendingAttack>>
+			<span class="red">(!) under attack</span>
+		<<elseif _t.pendingSkillChoice>>
+			<span class="gold">(new skill)</span>
+		<<elseif _t.sick or _t.hunger gte 80 or _t.poops gt 0>>
+			<span class="red">(!)</span>
+		<</if>>
+	<</if>>
+<</if>>
+<br>
+/* More games can be added here as further links. */
+<br>
+<<if $location is "alex_cottage">>
+	<<if Tamagotchi.isAlive() and Time.dayState isnot "night" and $farm_stage gte 7 and !$weekly.alexConsole>>
+		<<robinicon "controller">><<link [[Invite Alex to play (0:05)|Alex Console Visit]]>><<set $weekly.alexConsole to true>><<pass 5>><</link>>
+	<</if>>
+<<else>>
+	<<if $robinromance is 1 or $robinbreakup is 1>>
+		<<run getRobinLocation()>>
+		<<if _robin_location is "orphanage" and !$weekly.robinConsole>>
+			<<robinicon "controller">><<link [[Invite Robin to play (0:05)|Robin Console Visit]]>><<set $weekly.robinConsole to true>><<pass 5>><</link>>
+		<</if>>
+	<</if>>
+<</if>>
+<br>
+<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+
+:: Home Console Pet
+<<set $outside to 0>><<effects>>
+<<set _ret to ($location is "alex_cottage" ? "Farm Bedroom" : "Bedroom")>>
+<<furnitureicon "controller">>You open the virtual pet game.
+<br><br>
+<<run Tamagotchi.sync()>>
+<<if not Tamagotchi.exists()>>
+	The screen shows a speckled egg. As it hatches, the game asks you to pick your starter.
+	<br><br>
+	What will you name it?
+	<br>
+	<<textbox "_petname" "Pixel">>
+	<br><br>
+	<<for _sp range Tamagotchi.listSpecies()>>
+		<<capture _sp>>
+			<<link [["Choose " + _sp.name|Home Console Pet]]>><<run Tamagotchi.hatch(_petname, _sp.id)>><</link>>| <span class="teal">_sp.typeLabel</span> type. <i>_sp.blurb</i>
+		<</capture>>
+		<br>
+	<</for>>
+	<br>
+	<<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+
+<<elseif not Tamagotchi.isAlive()>>
+	<<set _t to Tamagotchi.status()>>
+	The screen displays a small headstone. <span class="blue">_t.name</span>
+	<<if _t.deathCause is "battle">>
+		was struck down defending itself, and didn't survive.
+	<<elseif _t.deathCause is "abandoned">>
+		was overwhelmed by an attacker you never came back to fend off.
+	<<elseif _t.deathCause is "illness">>
+		passed away from an untreated illness.
+	<<else>>
+		passed away from hunger and neglect.
+	<</if>>
+	<br><br>
+	You feel a pang of guilt.<<stress 4>><<gstress>>
+	<br><br>
+	<<link [[Lay it to rest and start over|Home Console Pet]]>><<run Tamagotchi.bury()>><</link>>
+	<br>
+	<<link "Turn it off" _ret>><</link>>
+
+<<else>>
+	<<set _t to Tamagotchi.status()>>
+	<<if Tamagotchi.ackWoke()>>
+		<span class="green"><<= _t.name>> has woken from its nap, fully rested but ravenous, and it's left a mess.</span>
+		<br>
+	<</if>>
+	You check in on <span class="blue">_t.name</span>.
+	<<if _t.sleeping>> <span class="teal">It's fast asleep.</span><</if>>
+	<<if _t.sick>> <span class="red">It looks ill.</span><</if>>
+	<<if _t.poops gt 0>> There <<= _t.poops is 1 ? "is a mess" : "are messes">> on the screen that <<= _t.poops is 1 ? "needs" : "need">> cleaning.<</if>>
+	<br>
+
+	<<= Tamagotchi.statusHtml()>>
+
+	<<if _t.pendingAttack>>
+		<span class="red">A wild enemy is attacking <<= _t.name>> right now! You have to defend it!</span>
+		<br>
+		<<link [[Defend your pet!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
+		<br><br>
+		<<link "Step away (risky)" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+	<<elseif _t.sleeping>>
+		<span class="teal"><<= _t.name>> is curled up asleep and can't be disturbed for about _t.sleepHoursLeft <<= _t.sleepHoursLeft is 1 ? "hour" : "hours">>. Come back once it's rested.</span>
+		<br><br>
+		<<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+	<<else>>
+		<<if _t.pendingSkillChoice>>
+			<span class="gold"><<= _t.name>> has trained enough to learn a new skill!</span>
+			<br>
+			<<link [[Choose a new skill|Home Console Pet Skill Pick]]>><</link>>
+			<br><br>
+		<<else>>
+			<span class="small-description"><i>The next challenger will arrive in about _t.nextAttackDays <<= _t.nextAttackDays is 1 ? "day" : "days">>.</i></span>
+			<br><br>
+		<</if>>
+
+		<<link [[Feed it (0:05)|Home Console Do]]>><<set $consoleAction to "feed">><<pass 5>><</link>>
+		<br>
+		<<link [[Play with it (0:15)|Home Console Do]]>><<set $consoleAction to "play">><<pass 15>><</link>>
+		<br>
+		<<if _t.poops gt 0>>
+			<<link [[Clean up the mess (0:05)|Home Console Do]]>><<set $consoleAction to "clean">><<pass 5>><</link>>
+			<br>
+		<</if>>
+		<<if _t.sick>>
+			<<link [[Give it medicine (0:05)|Home Console Do]]>><<set $consoleAction to "cure">><<pass 5>><</link>>
+			<br>
+		<</if>>
+		<<link [[Let it sleep|Home Console Do]]>><<set $consoleAction to "rest">><</link>>
+		<br><br>
+		<<set _ct to Tamagotchi.canTrain()>>
+		<<if _ct.ok>>
+			<<link [[Train your pet|Home Console Pet Train]]>><</link>>
+		<<else>>
+			<span class="grey">Train your pet</span>, <i>_ct.reason</i>
+		<</if>>
+		<br><br>
+		<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+	<</if>>
+<</if>>
+
+:: Home Console Do
+<<set $outside to 0>><<effects>>
+<<set _ret to ($location is "alex_cottage" ? "Farm Bedroom" : "Bedroom")>>
+
+<<set _action to $consoleAction>><<unset $consoleAction>>
+<<switch _action>>
+	<<case "feed">><<set _result to Tamagotchi.feed()>>
+	<<case "play">><<set _result to Tamagotchi.play()>>
+	<<case "clean">><<set _result to Tamagotchi.clean()>>
+	<<case "cure">><<set _result to Tamagotchi.cure()>>
+	<<case "rest">><<set _result to Tamagotchi.rest()>>
+	<<default>><<set _result to "invalid">>
+<</switch>>
+<<set _t to Tamagotchi.status()>>
+
+<<switch _result>>
+	<<case "fed">>
+		You feed <span class="blue">_t.name</span>. It gobbles the food down happily.
+	<<case "overfed">>
+		<span class="blue">_t.name</span> turns its nose up at more food. It's already full.
+	<<case "played">>
+		You play a quick minigame with <span class="blue">_t.name</span>. It bounces with delight.<<stress -10>><<lstress>>
+	<<case "tooTired">>
+		<span class="blue">_t.name</span> is too tired to play. It needs to rest first.
+	<<case "cleaned">>
+		You wipe the screen clean. <span class="blue">_t.name</span> looks much more comfortable.
+	<<case "alreadyClean">>
+		There's nothing to clean.
+	<<case "sleeping">>
+		You dim the screen and <span class="blue">_t.name</span> curls up to sleep. It'll nap for about 6 hours and can't be disturbed until it wakes.
+	<<case "alreadyAsleep">>
+		<span class="blue">_t.name</span> is already fast asleep.
+	<<case "asleep">>
+		<span class="blue">_t.name</span> is asleep and can't be disturbed right now.
+	<<case "cured">>
+		You give <span class="blue">_t.name</span> some medicine. The colour returns to its little face.
+	<<case "notSick">>
+		<span class="blue">_t.name</span> isn't sick.
+	<<case "dead">>
+		The screen is dark. There's nothing more you can do.
+	<<default>>
+		You fiddle with the console.
+<</switch>>
+<br><br>
+<<link [[Back|Home Console Pet]]>><</link>>
+
+
+:: Home Console Pet Train
+<<set $outside to 0>><<effects>>
+<<set _t to Tamagotchi.status()>>
+
+<<set _ct to Tamagotchi.canTrain()>>
+<<if not _ct.ok>>
+	You can't train right now| <i>_ct.reason</i>.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
+	How will you train <span class="blue">_t.name</span> today? It can train once per day.
+	<br><br>
+	<<for _tr range Tamagotchi.trainingTypes()>>
+		<<capture _tr>>
+			<<link [[_tr.name (1:30)|Home Console Pet Train Do]]>><<set $trainType to _tr.id>><<pass 90>><</link>>
+		<</capture>>
+		| <i>_tr.desc</i>
+		<br>
+	<</for>>
+<</if>>
+<br>
+
+:: Home Console Pet Train Do
+<<set $outside to 0>><<effects>>
+
+<<set _trainType to $trainType>><<unset $trainType>>
+<<set _r to Tamagotchi.train(_trainType)>>
+<<if not _r.ok>>
+	You can't train right now| <i>_r.reason</i>.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
+	<<set _t to Tamagotchi.status()>>
+	<<switch _r.type>>
+		<<case "strength">>
+			You set <span class="blue">_t.name</span> to smashing little training blocks. It huffs and puffs, and looks stronger for it.
+		<<case "endurance">>
+			You run <span class="blue">_t.name</span> through lap after lap. It's worn out, but its stamina is clearly growing.
+		<<case "agility">>
+			You guide <span class="blue">_t.name</span> through an obstacle course. It darts about, getting quicker with each run.
+		<<case "defense">>
+			You drill <span class="blue">_t.name</span> on bracing and blocking. It learns to stand its ground.
+		<<case "focus">>
+			You sit <span class="blue">_t.name</span> down to meditate. It calms, and its mind feels sharper.
+		<<default>>
+			<span class="blue">_t.name</span> finishes its training session.
+	<</switch>>
+	<<= " <span class='green'>(+" + _r.gain + " " + _r.stat + ")</span>">>
+	<br><br>
+	<<if _r.unlocked>>
+		<span class="gold"><<= _t.name>> has trained enough to learn a new skill!</span>
+		<br>
+		<<link [[Choose a new skill|Home Console Pet Skill Pick]]>><</link>>
+		<br>
+	<</if>>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<</if>>
+
+:: Home Console Pet Skill Pick
+<<set $outside to 0>><<effects>>
+<<set _t to Tamagotchi.status()>>
+<<set _offer to Tamagotchi.skillOfferList()>>
+
+<<if _offer.length is 0>>
+	There's no new skill to choose right now.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
+	Choose a new skill for <span class="blue">_t.name</span>. You can pick one:
+	<br><br>
+	<<for _s range _offer>>
+		<<capture _s>>
+			<<link [[_s.name|Home Console Pet]]>><<run Tamagotchi.chooseSkill(_s.id)>><</link>>
+		<</capture>>
+		| <span class="teal">_s.typeLabel</span><<if _s.heal>>, restores HP, _s.mp MP<<else>>, Power _s.power, _s.mp MP<</if>>
+		<br>
+	<</for>>
+<</if>>
+
+:: Home Console Pet Battle
+<<set $outside to 0>><<effects>>
+<<set _b to Tamagotchi.battleState()>>
+
+<<if _b is null>>
+	The battle is over.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
+	<<= Tamagotchi.battleHtml()>>
+
+	<div class="tama-log">
+	<<for _line range _b.log>>
+		_line<br>
+	<</for>>
+	</div>
+
+	<<if _b.over>>
+		<<link [[Continue|Home Console Pet Battle Result]]>><</link>>
+	<<else>>
+		Your move:
+		<br>
+		<<link [[Attack|Home Console Pet Battle]]>><<run Tamagotchi.battleAttack()>><</link>> <i>(basic, free)</i>
+		<br>
+		<<link [[Guard|Home Console Pet Battle]]>><<run Tamagotchi.battleGuard()>><</link>> <i>(halve next hit, recover MP)</i>
+		<br>
+		<<link [[Rest|Home Console Pet Battle]]>><<run Tamagotchi.battleRest()>><</link>> <i>(recover HP &amp; MP)</i>
+		<br>
+		<<for _s range Tamagotchi.learnedSkills()>>
+			<<capture _s>>
+				<<if _b.mp gte _s.mp>>
+					<<link [[_s.name|Home Console Pet Battle]]>><<run Tamagotchi.battleSkill(_s.id)>><</link>>
+				<<else>>
+					<span class="grey">_s.name</span>
+				<</if>>
+			<</capture>>
+			| <span class="teal">_s.typeLabel</span><<if _s.heal>>, heal<<else>>, Pow _s.power<</if>>, _s.mp MP
+			<br>
+		<</for>>
+	<</if>>
+<</if>>
+
+:: Home Console Pet Battle Result
+<<set $outside to 0>><<effects>>
+<<set _sum to Tamagotchi.endBattle()>>
+
+<<if _sum.result is "win">>
+	Your pet drove off the wild <span class="green"><<= _sum.enemy>></span>!<<stress -8>><<lstress>>
+	<br>
+	<span class="green">It's survived another week. The next challenger will be tougher.</span>
+<<elseif _sum.result is "lose">>
+	Your pet fought bravely, but the wild <span class="purple"><<= _sum.enemy>></span> was too strong. <span class="red">It didn't survive.</span><<stress 6>><<gstress>>
+<<else>>
+	The battle ends.
+<</if>>
+<br><br>
+<<link [[Back|Home Console Pet]]>><</link>>

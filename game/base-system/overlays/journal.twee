@@ -425,11 +425,36 @@
 		|| ($farm isnot undefined and $farm.build isnot "")
 		|| $gwylan?.request.event
 		|| $xchange.blackmail.activeQuest
+		|| Tamagotchi.isAlive()
 	)>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
 		<h1 class="header gold bold">Reminders</h1>
 		<ul class="journal carry">
+			<<if Tamagotchi.exists()>>
+				<<run Tamagotchi.sync()>>
+				<<if Tamagotchi.isAlive()>>
+					<<set _petStatus to Tamagotchi.status()>>
+					<<if _petStatus.pendingAttack>>
+						<li><<icon "/furniture/tfplushes.png">> <span class="red">_petStatus.name is under attack on your console! Defend it soon, or it won't survive the week.</span></li>
+					<<elseif _petStatus.sleeping>>
+						<li><<icon "/furniture/tfplushes.png">> _petStatus.name is sleeping on your console (about _petStatus.sleepHoursLeft <<= _petStatus.sleepHoursLeft is 1 ? "hour" : "hours">> left).</li>
+					<<elseif _petStatus.pendingSkillChoice>>
+						<li><<icon "/furniture/tfplushes.png">> _petStatus.name has trained enough to learn a new skill on your console.</li>
+					<<else>>
+						<<set _petNeeds to []>>
+						<<if _petStatus.sick>><<run _petNeeds.push("it's ill")>><</if>>
+						<<if _petStatus.hunger gte 80>><<run _petNeeds.push("it's hungry")>><</if>>
+						<<if _petStatus.poops gt 0>><<run _petNeeds.push("it's made a mess")>><</if>>
+						<<if _petStatus.energy lte 15>><<run _petNeeds.push("it's exhausted")>><</if>>
+						<<if _petNeeds.length gt 0>>
+							<li><<icon "/furniture/tfplushes.png">> _petStatus.name needs attention on your console (<<= _petNeeds.join(", ")>>).</li>
+						<<else>>
+							<li><<icon "/furniture/tfplushes.png">> _petStatus.name is happy and well looked after on your console.</li>
+						<</if>>
+					<</if>>
+				<</if>>
+			<</if>>
 			<<if $temple_spear_mission is 1>>
 				<li><<islandicon>> Jordan has tasked you with retrieving an artefact spear. It is said to reside on a mysterious island.
 					<<if $temple_spear_mission_winter is undefined>>
