@@ -1,7 +1,31 @@
 :: Widgets Whitney [widget]
 <<widget "whitneyoptions">>
 	<<if $daily.whitney is undefined>><<set $daily.whitney to {}>><</if>>
-	<<if $location is "park" and Time.dayState isnot "day">>
+	<<if [1,2].includes($whitney_orphanage_special_seen)>>
+		<<endevent>>
+		<<npc Whitney>><<person1>>
+		<<if $location is "flats">>
+			Whitney looks up to you, and <<his>> expression hardens. "Why the fuck are you still here? Don't mistake an unlocked door for an invitation."
+		<<else>>
+			Whitney watches you approach without moving from <<his>> spot. "You really don't know when to fuck off, do you?"
+			<br><br>
+			Whatever you hoped to find in <<his>> face isn't there.
+		<</if>>
+		<br><br>
+		<<if !$daily.whitney.chastityBeg and $worn.genitals.origin is "Whitney">>
+			<<templeicon "pray">><<link [[Beg for release|Whitney Chastity Beg]]>><<set $daily.whitney.chastityBeg to 1>><</link>>
+			<br>
+		<</if>>
+		<<if $whitneychastity is 1 and ($worn.genitals.name is "naked" or ($worn.genitals.integrity lte setup.clothes.genitals[clothesIndex('genitals',$worn.genitals)].integrity_max * 0.25 and $worn.genitals.origin is "Whitney"))>>
+			<<lockicon>><<link [[Ask if your chastity cage can be replaced|Whitney Chastity Replace]]>><</link>>
+			<br>
+		<</if>>
+		<<if $whitneycollar is 1 and not ($worn.neck.name.includes("Whitney's collar"))>>
+			<<edenicon "collar">><<link [[Ask if your collar can be replaced|Whitney Collar Replace Dolp]]>><<handheldon>><</link>>
+			<br>
+		<</if>>
+		<<whitneyoptionsleave>>
+	<<elseif $location is "park" and Time.dayState isnot "day">>
 		<br><br>
 		<<if C.npc.Whitney.love gte 15>>
 			"I'm leaving," <<he>> says suddenly. "Don't stay out in this weather." <<He>> leaves the park without another word.
@@ -284,14 +308,14 @@
 			<</if>>
 			<br>
 			/* Water dragon TF reaction. Repeatable emote; the love/stress reward is daily-gated inside the passage. */
-			<<if (effectiveTransformationLevel("waterdragon") gte 7 or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1)>>
+			<<if ![1,2].includes($whitney_orphanage_special_seen) and (effectiveTransformationLevel("waterdragon") gte 7 or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1)>>
 				<<tficon "waterdragon">><<link [[Squeak at Whitney|Whitney Water Dragon]]>><</link>>
 				<br>
 			<</if>>
 			<<if $location is "flats">>
 				<<socialiseicon "party">><<link [[Hang out (0:30)|Whitney Home Hang]]>><<pass 30>><<npcincr Whitney love 1>><<stress -6>><</link>><<glove>><<lstress>>
 				<br>
-				<<if Time.hour gte 9 and Time.hour lte 17 and !Time.schoolDay and !$daily.whitney.townShopping and ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6)>>
+				<<if Time.hour gte 9 and Time.hour lte 17 and !Time.schoolDay and !$daily.whitney.townShopping and ![1,2].includes($whitney_orphanage_special_seen) and ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6)>>
 					<<entertownicon>><<link [[Go out with Whitney (0:20)|Town Whitney Outing Start]]>><<set $daily.whitney.townShopping to true>><<set $whitneyTownOuting to { shopping: false, park: false }>><<pass 20>><<npcincr Whitney love 1>><</link>><<glove>>
 					<br>
 				<</if>>

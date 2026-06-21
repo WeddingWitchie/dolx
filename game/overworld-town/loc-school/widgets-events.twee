@@ -3174,7 +3174,7 @@
 			<<set _whitneyKnowsPill to $xchange.known.includes("Whitney")>>
 			<<set _playerIsXChanged to playerIsXChanged()>>
 			<<set _whitneyDiscoversXChangeHere to _playerIsXChanged and !_whitneyKnowsPill and $genderknown.includes("Whitney") and $xchange.expectedGenderBy.Whitney isnot undefined and $xchange.expectedGenderBy.Whitney isnot $player.sex>>
-			<<set _whitneyPossessiveToilet to $whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6>>
+			<<set _whitneyPossessiveToilet to ![1,2].includes($whitney_orphanage_special_seen) and ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6)>>
 			<<if _whitneyDiscoversXChangeHere>>
 				Whitney's smirk falters. <<He>> catches your chin and turns your face from side to side, eyes narrowing as <<he>> looks you over properly. Then recognition settles in, and <<his>> grin comes back sharper than before.
 				<br><br>
@@ -3305,7 +3305,7 @@
 
 	<<elseif $bullyevent is 12>>
 		<<set $bullyevent += 1>>
-		<<if $whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6>>
+		<<if ![1,2].includes($whitney_orphanage_special_seen) and ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6)>>
 			Whitney catches the front of your clothes before you can get away.
 			<br><br>
 			<<He>> pulls you back towards <<him>>, so close that you feel <<his>> breath against your lips. <<He>> grins as <<his>> thumb brushes your cheek. <<His>> friends notice at once and start calling out around you.
@@ -3358,7 +3358,7 @@
 
 	<<elseif $bullyevent is 14>> /* Scared into falling over or Kiss if Whitney is LI*/
 		<<set $bullyevent += 1>>
-		<<if $whitneyromance is 1>>
+		<<if $whitneyromance is 1 and ![1,2].includes($whitney_orphanage_special_seen)>>
 			Whitney and <<his>> friends surround you. Whitney pins you against a locker and kisses you. <<He>> grips your hands in <<his>> own. <<He>> leans to your side as if to whisper something, but just gives your ear a little nip. <<He>> withdraws and gives you a suggestive look before leaving with <<his>> friends.
 			<<npcincr Whitney lust 5>><<glust>><<garousal>><<arousal 600 "mouth">>
 			<br><br>
@@ -3527,7 +3527,7 @@
 
 	<<elseif $bullyevent is 22>>
 		<<set $bullyevent += 1>>
-		<<if $whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6>>
+		<<if ![1,2].includes($whitney_orphanage_special_seen) and ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6)>>
 			Whitney and <<his>> friends block your way in the hall.
 			<br><br>
 			Before you can slip past, <<he>> steps in close and plants one hand beside your head. Then <<he>> shoves you back against the lockers.<<gpain>><<pain 3>>
@@ -3564,7 +3564,7 @@
 		<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
 	
 	<<else>>
-		<<if $whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6>>
+		<<if ![1,2].includes($whitney_orphanage_special_seen) and ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6)>>
 			<<set $bullyevent to 12>>
 		<<else>>
 			<<set $bullyevent to 3>>
@@ -3734,7 +3734,7 @@
 <</widget>>
 
 <<widget "schoolbullyoutside">>
-	<<if $whitneyReunionScene isnot undefined>>
+	<<if $whitneyReunionScene isnot undefined and ![1,2].includes($whitney_orphanage_special_seen)>>
 		<<npc Whitney>><<person1>>
 		<<unset $whitneyReunionScene>>
 		As you step into the courtyard, something grabs your arm. Before you can react, you're yanked backwards and find yourself face-to-face with Whitney. <<His>> goons flank you, preventing escape. "There you are, <<bitch>>," Whitney says, looking aggravated. "What? You didn't think I'd notice when my favourite slut goes missing?" You're unable to respond as <<he>> presses <<his>> lips against your mouth, kissing you.<<takeKissVirginity "Whitney" "loveInterest">>
@@ -3785,7 +3785,7 @@
 
 		<<endevent>><<set $eventskip to 1>>
 		<<courtyard>>
-	<<elseif ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6) and random(1, 100) lte 45>>
+	<<elseif ![1,2].includes($whitney_orphanage_special_seen) and ($whitney_orphanage_special_seen gte 3 or $loft_whitney gte 6) and random(1, 100) lte 25>>
 		<<npc Whitney>><<person1>>
 		Whitney blocks your path, but the usual cruel spark never quite reaches <<his>> eyes.
 		<<He>> hooks a finger through your collar<<if !($worn.neck.name is "Whitney's collar with leash" or $worn.neck.name is "Whitney's collar")>>, or where it ought to be<</if>>, and pulls you close.
@@ -3803,7 +3803,7 @@
 	<<elseif $bullyeventoutside is 0>>
 		<<set $bullyeventoutside += 1>>
 
-		<<if $whitneyromance is 1>>
+		<<if $whitneyromance is 1 and ![1,2].includes($whitney_orphanage_special_seen)>>
 			<<npc Whitney>><<person1>>Whitney marches towards you. <<He>> pushes you against a wall. <<His>> friends flank <<him>>. "Hey <<girl>>," <<he>> says. "Time for your duties." <<He>> grabs your arm.
 				<<if $worn.neck.name is "Whitney's collar with leash" or $worn.neck.name is "Whitney's collar">>
 					<<He>> glances over your collar and gives you a smirk.
@@ -3837,9 +3837,15 @@
 
 		<<set _isPregnantForXChange to playerIsPregnant() or (canBeMPregnant() and $sexStats.anus.pregnancy isnot undefined and $sexStats.anus.pregnancy.type isnot null)>>
 		<<if playerIsXChanged()>>
-			Whitney's eyes drag over you. A faint flush reaches <<his>> cheeks before <<he>> covers it with a filthy grin.
-			<br><br>
-			"Still looking fucking good. Guess even a hopeless slut can follow instructions." <<He>> gives your <<bottom>> a sharp slap and lets you go.<<npcincr Whitney lust 5>><<glust>>
+			<<if [1,2].includes($whitney_orphanage_special_seen)>>
+				Whitney catches your jaw and turns your face from side to side like <<hes>> inspecting damaged goods.
+				<br><br>
+				"Pill did a decent job. Shame it couldn't make you less fucking pathetic." <<He>> slaps your cheek and lets go.<<stress 6>><<trauma 6>><<gstress>><<gtrauma>><<npcincr Whitney dom 1>><<gdom>>
+			<<else>>
+				Whitney's eyes drag over you. A faint flush reaches <<his>> cheeks before <<he>> covers it with a filthy grin.
+				<br><br>
+				"Still looking fucking good. Guess even a hopeless slut can follow instructions." <<He>> gives your <<bottom>> a sharp slap and lets you go.<<npcincr Whitney lust 5>><<glust>>
+			<</if>>
 			<br><br>
 			<<link [[Next|School Front Courtyard]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<<elseif _isPregnantForXChange>>
@@ -3848,7 +3854,11 @@
 			<br><br>
 			<<link [[Next|School Front Courtyard]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<<else>>
-			"Open up," <<he>> says, holding the pill against your lips. "Let's see how pretty my slut can get."
+			<<if [1,2].includes($whitney_orphanage_special_seen)>>
+				"Open up," <<he>> says, grinding the pill against your lips. "Maybe this can fix one thing about you that isn't a fucking disappointment."
+			<<else>>
+				"Open up," <<he>> says, holding the pill against your lips. "Let's see how pretty my slut can get."
+			<</if>>
 			<br><br>
 			<<link [[Comply|Bully XChange School Drug]]>><<set $phase to 0>><<set $whitneyXChangeOutside to true>><<trauma 6>><<stress 6>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gtrauma>><<gstress>><<gdom>>
 			<br>
@@ -3918,8 +3928,11 @@
 					<<He>>
 				<</if>>
 				examines your <span class="lewd">"<<print $skin[$_loc].writing>>" tattoo.</span>
-				"Good. Still labelled properly." <<He>> assaults your face with <<his>> tongue, then shoves you away. "Later, slut."
-				<<glove>><<npcincr Whitney love 1>><<gdom>><<npcincr Whitney dom 1>>
+				<<if [1,2].includes($whitney_orphanage_special_seen)>>
+					"Still wearing my label," <<he>> says, digging a nail into the marked skin. "At least you haven't failed at that yet." <<He>> shoves you away. "Get out of my sight."<<pain 3>><<stress 6>><<gpain>><<gstress>><<gdom>><<npcincr Whitney dom 1>>
+				<<else>>
+					"Good. Still labelled properly." <<He>> assaults your face with <<his>> tongue, then shoves you away. "Later, slut."<<glove>><<npcincr Whitney love 1>><<gdom>><<npcincr Whitney dom 1>>
+				<</if>>
 
 			<<elseif $_whitneyWritingLocs.length gte 1>>
 				<<set $_loc to $_whitneyWritingLocs.random()>>
@@ -4004,7 +4017,7 @@
 			<<link [[Fight|Bully Outside Fight]]>><<def 1>><<npcincr Whitney dom -1>><<set $fightstart to 1>><</link>><<ldom>>
 			<br>
 		<<elseif $phase is 0>>
-			<<if $whitneyromance isnot 1>>
+			<<if $whitneyromance isnot 1 or [1,2].includes($whitney_orphanage_special_seen)>>
 				<<gtrauma>><<trauma 6>>
 			<</if>>
 			<<gstress>><<stress 6>><<garousal>><<arousal 600 "mouth">><<glust>><<npcincr Whitney lust 1>>
@@ -4072,9 +4085,15 @@
 	<<else>>
 		<<set $bullyeventoutside to 0>>
 		<<npc Whitney>><<person1>>
-		Whitney catches your chin and turns your face from side to side while <<his>> friends laugh.
-		<br><br>
-		"Still the same desperate little slut," <<he>> decides. <<He>> licks your cheek, gives you a mocking pat, and strolls away. "Try not to miss me too fucking much."
+		<<if [1,2].includes($whitney_orphanage_special_seen)>>
+			Whitney catches your chin and forces you to look at <<him>> while <<his>> friends laugh. <<He>> studies your face, then pinches hard to make your eyes water.<<gpain>>
+			<br><br>
+			"Still the same fucking disappointment," <<he>> decides. <<He>> shoves you against the wall and strolls away without looking back. "Don't let me catch you staring again."<<pain 5>><<stress 6>><<gstress>>
+		<<else>>
+			Whitney catches your chin and turns your face from side to side while <<his>> friends laugh.
+			<br><br>
+			"Still the same desperate little slut," <<he>> decides. <<He>> licks your cheek, gives you a mocking pat, and strolls away. "Try not to miss me too fucking much."
+		<</if>>
 		<br><br>
 		<<endevent>><<set $eventskip to 1>>
 		<<courtyard>>
