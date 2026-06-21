@@ -52,11 +52,7 @@ Soft furnishings and warm lighting give the space a gentle, warm feel. You take 
 <<if $weekly.flatBumpNoticedDay isnot Time.days>>
 	<<set $weekly.flatBumpNoticedDay to Time.days>><<set $weekly.flatBumpNoticed to false>>
 <</if>>
-<<if Time.isBloodMoon() and !$possessed>>
-	The flat feels wrong under the red moon. Poppy is nowhere to be seen, and staying here suddenly feels like a terrible idea.
-	<br><br>
-	<<getouticon>><<link [[Leave the flat|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
-<<elseif isPregnancyEnding() and $poppyFlat.home and $poppyFlat.room is "living_room">>
+<<if isPregnancyEnding() and $poppyFlat.home and $poppyFlat.room is "living_room">>
 	<<include "Poppy PC Birth">>
 <<elseif $tiredness gte C.tiredness.max>>
 	<<include "Flats Poppy Exhaustion Collapse">>
@@ -201,11 +197,7 @@ You rest on the couch, enjoying the tranquility of the place that the orphanage 
 :: Flats Poppy Social
 <<set $outside to 0>><<set $bus to "poppy_living_room">><<effects>>
 <<run poppySchedule()>><<run markPoppyInteraction()>>
-<<if Time.isBloodMoon() and !$possessed>>
-	The flat feels wrong under the red moon. Poppy is nowhere to be seen, and staying here suddenly feels like a terrible idea.
-	<br><br>
-	<<getouticon>><<link [[Leave the flat|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
-<<elseif !C.npc.Poppy or C.npc.Poppy.init isnot 1 or !$poppyFlat.home or $poppyFlat.room isnot "living_room">>
+<<if !C.npc.Poppy or C.npc.Poppy.init isnot 1 or !$poppyFlat.home or $poppyFlat.room isnot "living_room">>
 	<<if $eventskip is 1>>
 		Poppy glances at <<his>> watch. "Oh, look at the time."
 		<br><br>
@@ -1313,12 +1305,7 @@ After several minutes, you rinse your private area with water and behold your <<
 :: Flats Poppy Bedroom
 <<endevent>><<npc Poppy>><<person1>><<run poppySchedule()>>
 <<set $location to "flats">><<set $bus to "poppy_bedroom">><<effects>><<set $outside to 0>>
-<<poppyFlatInit>>
-<<if Time.isBloodMoon() and !$possessed>>
-	The flat feels wrong under the red moon. Poppy is nowhere to be seen, and staying here suddenly feels like a terrible idea.
-	<br><br>
-	<<getouticon>><<link [[Leave the flat|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
-<<elseif $tiredness gte C.tiredness.max>>
+<<if $tiredness gte C.tiredness.max>>
 	<<include "Flats Poppy Exhaustion Collapse">>
 <<elseif !$poppyFlat.bedroomUnlocked and (typeof $poppyromance is "number" ? $poppyromance : -1)>>
 	<<include "Flats Poppy Bedroom Locked">>
@@ -1342,7 +1329,8 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 		<br><br>
 	<<elseif Time.hour gte 6 and Time.hour lt 7 and !$daily.poppy.flatMeals[$poppyFlat.meal]>>
 		Poppy stretches and yawns as <<he>> gets up from bed. <<if !(T.poppyStatus and T.poppyStatus.includes("LowPatience"))>>"Morning <<if $player.gender_appearance is "m">>handsome<<else>>beautiful<</if>>. <span class="green">I'll go make breakfast</span>..."<</if>> 
-		<br><<He>> stalks to the kitchen.
+		<br>
+		<<He>> stalks to the kitchen.
 		<br><br>
 	<</if>>
 <</if>>
@@ -1384,7 +1372,6 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 <</if>>
 <<projectoptions>>
 <<homeStudyOptions>>
-<br>
 <<if $ltsUsed isnot undefined>>
 	<<unset $ltsUsed>>
 	You fiddle with your lockpick training set. <<skulduggerycheck>><<skulduggeryuse>>
@@ -1556,7 +1543,20 @@ A pot of poppies rests on the sill, their colour vivid against the glass.
    ============================================================ */
 :: Flats Poppy Sleep
 <<run poppySchedule()>><<set $outside to 0>>
-<<set _autosavehere to true>><<sleep>><<effects>><<sleepeffects>><<wakingEffects $sleepHoursTotal>>
+<<set _autosavehere to true>><<sleep>><<effects>>
+<<if $wraith and $wraith.nightmare is 2 and Time.isBloodMoon() and !T.poppyFlatBaileyDue and _poppy_interrupt isnot "sex">>
+	<<sleepeffects>>
+	You dream of a beautiful figure, cloaked in white, standing under the red moon. It has its arms spread out to you in a welcoming gesture. You can feel its gaze boring into your mind as you step closer.
+	<br><br>
+	It's surrounded by trees, all bending inwards, and floating above a lake. Everything moves around you, and you find yourself hanging above a large ruin. You can't breathe.
+	<br><br>
+	You slowly open your eyes, and sluggishly stand from the bed. <<if $poppyFlat.home and $poppyFlat.room is "bedroom">>You make sure not to wake Poppy.<</if>> Your ears are ringing.
+	<br><br>
+	<<storeon "bed" "wardrobe">><<wraithPossess "poppy_flat">>
+	<span class="nextLink"><<link [[Walk.|Flats Poppy Bedroom]]>><<rainWraith>><</link>></span>
+	<br>
+<<else>>
+<<sleepeffects>><<wakingEffects $sleepHoursTotal>>
 <<if ["dryheaving","nausea"].includes(_wakingEffect)>>
 	<br><br>
 	You slept soundly, but now feel a little rough.
@@ -1578,7 +1578,7 @@ A pot of poppies rests on the sill, their colour vivid against the glass.
 	<br><br>
 	<<set $wardrobe_location to "wardrobe">><<wardrobeSelection true>><<radiooutfits>>
 	<<poppyOpiumPulse>>
-	<<getouticon>><<link [[Get out of bed|Flats Poppy Bailey]]>><<set $daily.poppy.flatBaileySeenDay to Time.days>><<bedclotheson "bed">><<loadTempHairStyle>><<endevent>><<clotheson>><</link>>
+	<<getouticon>><<link [[Get out of bed|Flats Poppy Bailey]]>><<set $daily.poppy.flatBaileySeenDay to Time.days>><<bedclotheson "bed">><<loadTempHairStyle>><<endevent>><</link>>
 <<elseif _poppy_interrupt is "sex">>
 	<<include "Flats Poppy Bed Sex Init">>
 <<else>>
@@ -1599,7 +1599,8 @@ A pot of poppies rests on the sill, their colour vivid against the glass.
 	<</if>>
 	<<set $wardrobe_location to "wardrobe">><<wardrobeSelection true>><<radiooutfits>>
 	<<poppyOpiumPulse>>
-	<<getouticon>><<link [[Get out of bed|Flats Poppy Bedroom]]>><<bedclotheson "bed">><<loadTempHairStyle>><<endevent>><<clotheson>><</link>>
+	<<getouticon>><<link [[Get out of bed|Flats Poppy Bedroom]]>><<bedclotheson "bed">><<loadTempHairStyle>><<endevent>><</link>>
+<</if>>
 <</if>>
 
 :: Flats Poppy Pyjamas Bed
