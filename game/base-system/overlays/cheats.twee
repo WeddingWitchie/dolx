@@ -2918,20 +2918,26 @@
 <</widget>>
 
 <<widget "cheatPregnancyNPCStepper">>
-<<numberStepper "Pregnancy progress" _pregnancyNPC.timer {
-	callback: (value, arr) => {
-		$NPCName[arr[0]].pregnancy.timer = value;
-		Wikifier.wikifyEval("<<updatesidebarimg>>");
-	},
-	values: [_args[0]],
-	min: 0, max: $NPCName[_args[0]].pregnancy.timerEnd - 0.5,
-	colorArr: ["--teal", "--pink"], activeButtons: ["single", "double"]
-}>>
+<<set _stepperTimerEnd to Number($NPCName[_args[0]].pregnancy.timerEnd)>>
+<<if !Number.isFinite(_stepperTimerEnd) or _stepperTimerEnd lte 0.5>>
+	<span class="red">This pregnancy has no valid term set. Use "Clear pregnancy" below to reset it.</span>
+<<else>>
+	<<numberStepper "Pregnancy progress" _pregnancyNPC.timer {
+		callback: (value, arr) => {
+			$NPCName[arr[0]].pregnancy.timer = value;
+			Wikifier.wikifyEval("<<updatesidebarimg>>");
+		},
+		values: [_args[0]],
+		min: 0, max: _stepperTimerEnd - 0.5,
+		colorArr: ["--teal", "--pink"], activeButtons: ["single", "double"]
+	}>>
+<</if>>
 <</widget>>
 <<widget "cheatPregnancyNPC">>
 	<<set _pregnancyNPC to $NPCName[_args[0]].pregnancy>>
-	<<set $_fatherName to pregnancyNameCorrection(_pregnancyNPC.fetus[0].father)>>
-	<<= $NPCName[_args[0]].nam>> is pregnant with <<= _pregnancyNPC.type is "wolf" ? "wolve" : _pregnancyNPC.type>>s. <<= $_fatherName === "yourself" ? "You are" : $_fatherName.toUpperFirst() + "is">> the father.
+	<<set _firstFetus to (_pregnancyNPC.fetus && _pregnancyNPC.fetus[0]) ? _pregnancyNPC.fetus[0] : null>>
+	<<set $_fatherName to _firstFetus ? pregnancyNameCorrection(_firstFetus.father) : null>>
+	<<= $NPCName[_args[0]].nam>> is pregnant with <<= _pregnancyNPC.type is "wolf" ? "wolve" : _pregnancyNPC.type>>s.<<if $_fatherName>> <<= $_fatherName === "yourself" ? "You are" : $_fatherName.toUpperFirst() + "is">> the father.<</if>>
 	<span id="cheatNPCPregnancyProgress">
 		<<cheatPregnancyNPCStepper _args[0]>>
 	</span>

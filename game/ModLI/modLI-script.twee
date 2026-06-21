@@ -52,7 +52,8 @@ Heavy work only runs when a slot is missing, mismatched, or carries vestige fiel
                 slot.timer.lastPatienceDecay == null || slot.timer.lastPatienceDecay === "" ||
                 !slot.pregnancy || typeof slot.pregnancy !== "object" || Array.isArray(slot.pregnancy) ||
                 !Array.isArray(slot.pregnancy.fetus) || typeof slot.pregnancy.enabled !== "boolean" ||
-                !slot.pregnancy.type || slot.pregnancy.type === "none" ||
+                slot.pregnancy.type === undefined || slot.pregnancy.type === "none" ||
+                (slot.pregnancy.type && !slot.pregnancy.fetus.length && !slot.pregnancy.timerEnd) ||
                 !V.daily || typeof V.daily !== "object" || Array.isArray(V.daily) ||
                 !V.daily.poppy || typeof V.daily.poppy !== "object" || Array.isArray(V.daily.poppy) ||
                 !Array.isArray(V.poppySeen)
@@ -154,7 +155,8 @@ Heavy work only runs when a slot is missing, mismatched, or carries vestige fiel
             if (name === "Poppy") {
                 if (!Array.isArray(slot.pregnancy.fetus)) slot.pregnancy.fetus = [];
                 if (typeof slot.pregnancy.enabled !== "boolean") slot.pregnancy.enabled = true;
-                if (!slot.pregnancy.type || slot.pregnancy.type === "none") slot.pregnancy.type = "human";
+                if (slot.pregnancy.type === "none" || slot.pregnancy.type === undefined) slot.pregnancy.type = null;
+                else if (slot.pregnancy.type && !slot.pregnancy.fetus.length && !slot.pregnancy.timerEnd) slot.pregnancy.type = null;
             }
         }
 

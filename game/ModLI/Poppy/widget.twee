@@ -182,11 +182,10 @@
 
 /* Poppy pregnancy data migration */
 <<widget "poppyPregnancy">>
-	<<if $objectVersion.poppyPregnancy is undefined or $objectVersion.poppyPregnancy lt 1>>
+	<<if $objectVersion.poppyPregnancy is undefined or $objectVersion.poppyPregnancy lt 2>>
 		<<if C.npc.Poppy>>
-			/* Pregnancy object; required by npcPregnancyCycle and npcPregObject */
 			<<if C.npc.Poppy.pregnancy is undefined>>
-				<<set C.npc.Poppy.pregnancy to { fetus: [], enabled: true, type: "human" }>>
+				<<set C.npc.Poppy.pregnancy to { fetus: [], enabled: true, type: null }>>
 			<<else>>
 				<<if !Array.isArray(C.npc.Poppy.pregnancy.fetus)>>
 					<<set C.npc.Poppy.pregnancy.fetus to []>>
@@ -194,11 +193,13 @@
 				<<if typeof C.npc.Poppy.pregnancy.enabled !== "boolean">>
 					<<set C.npc.Poppy.pregnancy.enabled to true>>
 				<</if>>
-				<<if C.npc.Poppy.pregnancy.type is undefined>>
-					<<set C.npc.Poppy.pregnancy.type to "human">>
+				<<if C.npc.Poppy.pregnancy.type is "none" or C.npc.Poppy.pregnancy.type is undefined>>
+					<<set C.npc.Poppy.pregnancy.type to null>>
+				<<elseif C.npc.Poppy.pregnancy.type and !C.npc.Poppy.pregnancy.fetus.length and !C.npc.Poppy.pregnancy.timerEnd>>
+					<<set C.npc.Poppy.pregnancy.type to null>>
 				<</if>>
 			<</if>>
-			<<set $objectVersion.poppyPregnancy to 1>>
+			<<set $objectVersion.poppyPregnancy to 2>>
 		<</if>>
 	<</if>>
 <</widget>>
