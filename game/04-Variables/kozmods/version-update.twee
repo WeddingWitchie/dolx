@@ -1295,6 +1295,30 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.saveWasLoadedAsHerm to 1>>
 	<</if>>
 
+	<!-- Adapt any leftover non-DoLX herm NPCs (gender not m/f) to a single available sex, mirroring the player pass above.
+	     Routes by the NPC's canonical startingSex so they return to their normal sex (default male).
+		 Skips NPCs that are herm via a live DoLX pill (.xchange), since that's an intended, temporary state, not stale cross-mod data. -->
+	<<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
+	<<if Array.isArray($NPCName)>>
+		<<for _hermIdx to 0; _hermIdx lt $NPCName.length; _hermIdx++>>
+			<<set _hermNpc to $NPCName[_hermIdx]>>
+			<<if _hermNpc and !["m","f"].includes(_hermNpc.gender) and !_hermNpc.xchange>>
+				<<set _targetNameIndex to _hermIdx>>
+				<<set _targetName to undefined>>
+				<<set _targetNo to undefined>>
+				<<if _hermNpc.startingSex is "f">>
+					<<npc-become-girl>>
+				<<else>>
+					<<npc-become-boy>>
+				<</if>>
+				<<set $effectsmessage to 1>>
+				<<set $hermSaveWarningMessage to 1>>
+				<<set $xchange.saveWasLoadedAsHerm to 1>>
+				<<run $xchange.errorLog.push(`Leftover non-DoLX herm NPC "${($NPCNameList && $NPCNameList[_hermIdx]) || _hermNpc.fullDescription || _hermNpc.description || _hermIdx}" was adapted to ${_hermNpc.gender is "f" ? "female" : "male"}.`)>>
+			<</if>>
+		<</for>>
+	<</if>>
+
 	<<if $xchange.saveWasLoadedAsHerm>>
 		<<run console.warn("WARNING: This save featured a non-DoLX herm at some point! This bug report may be invalid!")>>
 	<</if>>

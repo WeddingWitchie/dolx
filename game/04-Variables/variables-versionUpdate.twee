@@ -285,6 +285,8 @@
 			<<set _oldSpecialClothesObject to {}>>
 			<<run Object.keys($specialClothes).filter(oldClothes => $specialClothes[oldClothes] is "unlocked").forEach(item => _oldSpecialClothesObject[item] = "unlocked")>>
 			<<set _oldSpecialClothesUnlocked to updateSpecialClothesNames(_oldSpecialClothesObject)>>
+			<!-- Convert $specialClothes from the old object format to the new array format before forwarding unlocks. -->
+			<<specialClothesUpdate>>
 			<<if _oldSpecialClothesUnlocked>>
 				/* Forward previous unlocked items to new system. For items with requirements that could have become false in the meantime, grant true unlock as long as cheats aren't on. */
 				<<run $specialClothes.filter(newItem => _oldSpecialClothesUnlocked.includes(newItem.name)).forEach(item => {
@@ -308,7 +310,6 @@
 			<!-- Conversion code end -->
 		<</if>>
 
-		<<specialClothesUpdate>>
 		<<specialClothesRefresh>>
 
 		<!-- DO increment this, and don't forget to do it in variables-start.twee, too -->

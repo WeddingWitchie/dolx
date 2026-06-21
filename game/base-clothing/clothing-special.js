@@ -272,7 +272,7 @@ function initSpecialClothes() {
 		},
 		pumpkin: {
 			text: "pumpkin costume",
-			requirements: () => Object.values(V.foodstuff).filter(food => food.knows_recipe).length >= 15,
+			requirements: () => Object.values(V.foodstuff ?? {}).filter(food => food.knows_recipe).length >= 15,
 			hint: "learn 15 recipes",
 			shop: ["forest"],
 			subsetOf: ["halloween"],
@@ -753,7 +753,7 @@ function initSpecialClothes() {
 		},
 		succubus: {
 			text: "succubus costume",
-			requirements: () => Transformations.effectiveLevel("demon") >= 6 || Object.values(V.virginTaken)?.flat().length >= 15,
+			requirements: () => Transformations.effectiveLevel("demon") >= 6 || Object.values(V.virginTaken ?? {}).flat().length >= 15,
 			hint: "become sufficiently impure, or take 15 virginities",
 			shop: ["forest"],
 			subsetOf: ["transformation"],
