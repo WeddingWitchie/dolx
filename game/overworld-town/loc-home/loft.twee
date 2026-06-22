@@ -23,21 +23,36 @@ You are in the loft above the orphanage. A wide hall runs down the centre. Corri
 	The scent of coffee wafts through the air.
 	<br>
 <</if>>
-<br>
 
 <<if $loft_cook_taught is 1 and Time.dayState isnot "night">>
 	<<set _stocked to Object.keys($loftIngredients).some(key => ($loftIngredients[key] || 0) > 0 && setup.loftCookIsStockableFood(key))>>
 	<<set _chance to _stocked ? 35 : 10>>
 	<<if !Time.schoolDay and ((_stocked and $weekly.loftCookStockUsed isnot 1) or random(1, 100) lte _chance)>>
-		<<loftCookVignettes>><br>
+		<<loftCookVignettes>>
+		<br>
 	<</if>>
 	<<if !Time.schoolDay and $weekly.loftCookTogether isnot 1 and Time.hour gte 9 and Time.hour lt 21>>
 		<<kitchenicon "messy">><<link [[Cook together with the orphans|Loft Cook Teach]]>><<set $weekly.loftCookTogether to 1>><<set $loftCook to { mode: "together", prep: 0, picks: 0, maxPicks: 3, result: "" }>><<pass 30>><</link>>
 		<br>
 	<</if>>
 <</if>>
+<<if $loft_known is 1 and ($whitney_smoke gte 1 or $loft_whitney gte 1)>>
+	<<if $daily.loftSmokeCorner and $loft_whitney gte 6 and Time.dayState is "day">>
+		<span class="grey">Whitney squats in the corner by the window, busy smoking and pointedly ignoring everyone.</span>
+		<br>
+	<</if>>
+	<<if ($daily.cigarettesSmoked ?? 0) gte 5>>
+		<span class="blue">You've smoked enough for one day; any more and your chest would punish you for it.</span>
+		<br>
+	<<elseif $cigarettes gte 1>>
+		<<smokeicon>><<link [[Smoke by the window|Loft Smoke]]>><</link>> | <span class="gold">(<<= $cigarettes>> left)</span>
+		<br>
+	<<else>>
+		<span class="blue">You're out of cigarettes. You can buy a pack at the pub.</span>
+		<br>
+	<</if>>
+<</if>>
 <br>
-
 <<if $loft_spray isnot 1 and $spray lt $spraymax and ($loft_kylar or $loft_independentLab)>>
 	<<peppersprayicon>><<link [[Refill pepper spray|Orphanage Loft Spray]]>><<spray 1>><<set $loft_spray to 1>><</link>><<gspray>>
 	<br>
@@ -58,6 +73,7 @@ You are in the loft above the orphanage. A wide hall runs down the centre. Corri
 	<<foodicon "coffee">><<link [[Coffee Pot|Orphanage Loft Coffee Pot]]>><</link>>
 	<br>
 <</if>>
+<br>
 <<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><</link>>
 <br>
 

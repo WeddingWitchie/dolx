@@ -1436,7 +1436,8 @@ function minutePassed(minutes) {
 		// only if tolerance was actually meaningful. Mirrors real-life acute withdrawal window.
 		if (prevTolerance > 300 && V.timeSinceDrunk < 4320 && minutes < 1200) {
 			statChange.stress(minutes * (prevTolerance / 1000) * 0.5);
-			if (V.alcoholToleranceMessage !== "withdrawal") {
+			// Only remind about withdrawal once per in-game hour rather than every passage.
+			if (Math.floor((V.timeSinceDrunk - minutes) / 60) !== Math.floor(V.timeSinceDrunk / 60)) {
 				V.effectsmessage = 1;
 				V.alcoholToleranceMessage = "withdrawal";
 			}
@@ -1455,6 +1456,25 @@ function minutePassed(minutes) {
 	if (V.drugged > 0) statChange.drugs(-minutes * druggedRate);
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
 	if (minutes < 1200 && V.timeSkip === undefined) statChange.tiredness(minutes / 15);
+
+	// Cigarette craving: once hooked, abstaining for 24h brings on cravings that fade after a week clean.
+	if (V.cigaretteAddiction) {
+		const prevSince = V.timeSinceCigarette || 0;
+		V.timeSinceCigarette = prevSince + minutes;
+		if (V.timeSinceCigarette >= 1440 && V.timeSinceCigarette < 10080 && minutes < 1200) {
+			statChange.stress(minutes * 0.2);
+			// remind at most once per in-game hour
+			if (Math.floor(prevSince / 60) !== Math.floor(V.timeSinceCigarette / 60)) {
+				V.effectsmessage = 1;
+				V.cigaretteCravingMessage = "craving";
+			}
+		}
+		if (prevSince < 10080 && V.timeSinceCigarette >= 10080) {
+			V.cigaretteAddiction = false;
+			V.effectsmessage = 1;
+			V.cigaretteCravingMessage = "quit";
+		}
+	}
 	// Pain acclimation: painChangeByTime ramps decay up the longer the PC has been hurting,
 	// so V.painDuration tracks how many minutes pain has been continuous. Compute decay first
 	// (so this block uses the time already spent in pain), then advance/reset the counter.

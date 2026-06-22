@@ -1232,6 +1232,18 @@ function xchangeEffectsMessages() {
 		delete V.alcoholToleranceMessage;
 	}
 
+	if (V.cigaretteCravingMessage) {
+		switch (V.cigaretteCravingMessage) {
+			case "craving":
+				element("span", "You crave a cigarette.", "pink"); br();
+				break;
+			case "quit":
+				element("span", "The craving for cigarettes has finally left you.", "green"); br();
+				break;
+		}
+		delete V.cigaretteCravingMessage;
+	}
+
 	if (V.xchangePermanenceMessage) {
 		const vaginalPregnancy = V.sexStats?.vagina?.pregnancy?.type !== null && V.sexStats?.vagina?.pregnancy?.type !== undefined;
 
