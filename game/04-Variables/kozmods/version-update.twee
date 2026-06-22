@@ -17,7 +17,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			postPermanenceFertilityReset: 1,
 			grayPillGenderflip: 0,
 			chastityKeepBeltShape: 1,
-			willpowerPoints: Math.max(200,$willpower),
+			willpowerPoints: Math.max(200, $willpower || 0),
 			known: [],
 		}>>
 	<</if>>
@@ -32,7 +32,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.postPermanenceFertilityReset is undefined>><<set $xchange.postPermanenceFertilityReset to 1>><</if>>
 	<<if $xchange.grayPillGenderflip is undefined>><<set $xchange.grayPillGenderflip to 0>><</if>>
 	<<if $xchange.chastityKeepBeltShape is undefined>><<set $xchange.chastityKeepBeltShape to 1>><</if>>
-	<<if $xchange.willpowerPoints is undefined>><<set $xchange.willpowerPoints to Math.max(200, $willpower)>><</if>>
+	<<if $xchange.willpowerPoints is undefined or $xchange.willpowerPoints is null or isNaN($xchange.willpowerPoints)>><<set $xchange.willpowerPoints to Math.max(200, $willpower || 0)>><</if>>
 	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
 	/* optional: if an old save made it the wrong type */
 	<<if $xchange.known isnot undefined and !Array.isArray($xchange.known)>><<set $xchange.known to []>><</if>>
@@ -1011,6 +1011,11 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<physicalAdjustmentsInit>>
 
 	<<if $genderknown is undefined or $genderknown is null>><<set $genderknown to []>><</if>>
+
+	<<if $wardrobes isnot undefined and $wardrobes isnot null and typeof $wardrobes is "object" and !Array.isArray($wardrobes) and $wardrobes.inventory is undefined>>
+		<<specialClothesUpdate>>
+		<<wardrobesUpdate>>
+	<</if>>
 
 	<<if Object.keys($xchange.pill.changedBody).length gt 0 && $xchange.pill.changedBody.fame is undefined>>
 		<<set $xchange.pill.changedBody.fame to {
