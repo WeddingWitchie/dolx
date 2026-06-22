@@ -1482,7 +1482,7 @@ function minutePassed(minutes) {
 		(wearingLooseBra && V.worn.under_upper.exposed < 2) || (wearingLooseUpper && V.worn.upper.exposed < 2);
 	
 	if (nipplesAreSensitive && thereIsFabricRubbing) {
-		statChange.arousal(4 * minutes, "nipples");
+		statChange.arousal(15 * minutes, "nipples");
 		V.breastSensitiveRubMessage = (V.breastSensitiveRubMessage ?? 0) + 1;
 		V.effectsmessage = 1;
 	}
@@ -1493,7 +1493,7 @@ function minutePassed(minutes) {
 	const wearingPants = !V.worn.lower.type.includes("naked") && wornSetupClothes("lower").skirt !== 1;
 
 	if (genitalsAreSensitive && (wearingPants || wearingUnderwear)) {
-		statChange.arousal(4 * minutes, "genitals");
+		statChange.arousal(15 * minutes, "genitals");
 		V.genitalSensitiveRubMessage = (V.genitalSensitiveRubMessage ?? 0) + 1;
 		V.effectsmessage = 1;
 	}

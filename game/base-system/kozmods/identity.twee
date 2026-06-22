@@ -903,8 +903,11 @@
 					<<set $effectsmessage to 1>>
 					<<set $dysphoriaMessage to true>>
 					<<set $identityOption.dysphoria to $identityOption.dysphoria + _mod>>
+					<<set _overflow to 0>>
 					<<if $identityOption.dysphoria gt 100>>
 						<<set _shift to _mod>>
+						/* Dysphoria pushed past its cap bleeds into tolerance instead of being thrown away, so being overloaded in the new body (e.g. repeated arousal/pleasure) gradually builds fondness toward acceptance. */
+						<<set _overflow to $identityOption.dysphoria - 100>>
 					<<else>>
 						<<set _shift to Math.ceil(_mod / 2)>>
 					<</if>>
@@ -917,6 +920,10 @@
 						<<trauma _shift>>
 					<</if>>
 					<<set $identityOption.dysphoria to Math.clamp($identityOption.dysphoria, 0, 100)>>
+					/* Rejected characteristics never gain tolerance, matching the rest of the system. */
+					<<if _overflow gt 0 and !$identityOption.reject>>
+						<<tolerance _overflow>>
+					<</if>>
 					<<if (!$identityOption.acceptance and $identityOption.reject)>>
 						<<willpower 1>>
 						<<rejectionBreakdown>>
