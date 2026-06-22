@@ -150,17 +150,8 @@ You are in the furniture shop. Most of its stock is too large for your room.
 		<<case "desk">>
 			You browse the desks. A few appear to be small enough to replace your old desk.
 			<br>
-		<<case "shelf">>
-			You browse through the shelving units. There's only one you can get but it'll give you space for some new decorations.
-			<br>
-		<<case "plush">>
-			You'll need a shelf if you want any of these items.
-			<br>
-		<<case "radio">>
-			You browse the radios.
-			<br>
-		<<case "console">>
-			You browse the consoles. Small enough to fit even your cramped room.
+		<<case "electronic">>
+			You browse the electronics. Radios, and a console small enough to fit even your cramped room.
 			<br>
 		<<default>>
 			/* Do nothing */
@@ -187,19 +178,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 <</widget>>
 
 <<widget "furnitureLinks">>
-	<<set _furnitureLinks to [
-		{ id: 'bed', label: 'Bed' },
-		{ id: 'table', label: 'Table' },
-		{ id: 'chair', label: 'Chairs' },
-		{ id: 'desk', label: 'Desks'},
-		{ id: 'wardrobe', label: 'Wardrobe' },
-		{ id: 'radio', label: "Radio"},
-		{ id: 'console', label: "Console"},
-		{ id: 'shelf', label: "Shelving Units"},
-		{ id: 'decoration', label: 'Decorations' },
-		{ id: 'plush', label: "Special"},
-		{ id: 'windowsill', label: 'Miscellaneous' },
-	]>>
+	<<set _furnitureLinks to setup.furnitureShopTabs>>
 	<<for _i = 0; _i < _furnitureLinks.length; _i++>>
 		<<set _furniLink = _furnitureLinks[_i]>>
 		<div @class="$chosenFurnitureCategory is _furniLink.id ? 'shopTabSelected' : 'shopTab'">
@@ -232,28 +211,35 @@ You are in the furniture shop. Most of its stock is too large for your room.
 <</widget>>
 
 <<widget "furnitureList">>
-	<<set $currentFurnishing to Furniture.get($chosenFurnitureCategory, $furnitureShopTarget)>>
-	<<if $chosenFurnitureCategory is "desk" and $currentFurnishing is null>>
-		<<set $currentFurnishing to Furniture.get('desk', $furnitureShopTarget,'desk')>>
-	<</if>>
-	Currently installed in your bedroom:
-	<<if $currentFurnishing>>
-		<<furnitureicon $currentFurnishing.iconFile>>
-		$currentFurnishing.nameCap
-		<br>
-		<span class="description">$currentFurnishing.description
-			<<if $currentFurnishing.type && $currentFurnishing.type.includesAny('comfy','double','starter','spacious','organiser')>>
-				<<if $chosenFurnitureCategory is "wardrobe">>
-					<<set _amount to $currentFurnishing.type.includes('organiser') ? 40 : $currentFurnishing.type.includes('spacious') ? 30 : 20>>
-					Can hold <span class="gold"><<= _amount>></span> of each item type.
+	Currently installed in your bedroom:<br>
+	<<set _tabCategories to Furniture.tabCategories($chosenFurnitureCategory)>>
+	<<set _anyInstalled to false>>
+	<<for _ci range _tabCategories>>
+		<<set _current to Furniture.get(_ci, $furnitureShopTarget)>>
+		<<if _ci is "desk" and _current is null>>
+			<<set _current to Furniture.get('desk', $furnitureShopTarget, 'desk')>>
+		<</if>>
+		<<if _current>>
+			<<set _anyInstalled to true>>
+			<<furnitureicon _current.iconFile>>
+			<<= _current.nameCap>>
+			<br>
+			<span class="description"><<= _current.description>>
+				<<if _current.type && _current.type.includesAny('comfy','double','starter','spacious','organiser')>>
+					<<if _ci is "wardrobe">>
+						<<set _amount to _current.type.includes('organiser') ? 40 : _current.type.includes('spacious') ? 30 : 20>>
+						Can hold <span class="gold"><<= _amount>></span> of each item type.
+					<</if>>
+					<<if _current.type.includes('comfy')>>
+						<<= _ci is 'bed' ? "Improves sleep quality." : "Makes working on projects at your desk more effective.">>
+					<</if>>
+					<<if _current.type.includes('double')>>Has enough space for a proper sleepover.<</if>>
 				<</if>>
-				<<if $currentFurnishing.type.includes('comfy')>>
-					<<= $chosenFurnitureCategory is 'bed' ? "Improves sleep quality." : "Makes working on projects at your desk more effective.">>
-				<</if>>
-				<<if $currentFurnishing.type.includes('double')>>Has enough space for a proper sleepover.<</if>>
-			<</if>>
-		</span>
-	<<else>>
+			</span>
+			<br>
+		<</if>>
+	<</for>>
+	<<if !_anyInstalled>>
 		Nothing.
 	<</if>>
 	<hr>
@@ -270,7 +256,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 
 <<widget "paperList">>
 	<<set $currentFurnishing to Furniture.get($chosenFurnitureCategory, $furnitureShopTarget)>>
-	Currently installed in your bedroom:
+	Currently installed in your bedroom:<br>
 	<<if $currentFurnishing>>
 		<<set _premade to $chosenFurnitureCategory is "wallpaper" ? ["vines", "tentacles", "plain-white", "wavy-white", "cowgirls", "cow-girls", "hearts", "trees", "crosses", "starry", "deep sea", "beach", "crabs", "flames", "stained glass", "audience", "bears"].includes($currentFurnishing.name) : ["cowgirl", "cow-girl", "cat", "puppy"].includes($currentFurnishing.name)>>
 		<<set _icon to _premade ? $currentFurnishing.id + "-" + $currentFurnishing.name.replace(/ /g, '-') : ['dol', 'degrees of lewdity'].some(e => $currentFurnishing.name.toLowerCase().includes(e)) ? $chosenFurnitureCategory + "-dol" : $chosenFurnitureCategory is "poster" ? "poster" : "wallpaper-custom">>
@@ -424,10 +410,13 @@ You are in the furniture shop. Most of its stock is too large for your room.
 
 <<widget "generateFurnitureShopStock">>
 	<!-- TODO: Cache items belonging to a particular category. -->
+	<<set _tabCategories to Furniture.tabCategories($chosenFurnitureCategory)>>
 	<<for $_key, $_furnishing range setup.furniture>>
-		<<set $_isInCategory to $_furnishing.category.includes($chosenFurnitureCategory)>>
+		<<set $_itemCategory to $_furnishing.category.find(c => _tabCategories.includes(c))>>
+		<<set $_isInCategory to $_itemCategory isnot undefined>>
 		<<set $_isDefault to $_furnishing.type.includes('starter')>>
-		<<set $_isCurrent to !(!$currentFurnishing or $_key isnot $currentFurnishing.id)>>
+		<<set _itemCurrent to $_isInCategory ? Furniture.get($_itemCategory, $furnitureShopTarget) : null>>
+		<<set $_isCurrent to !(!_itemCurrent or $_key isnot _itemCurrent.id)>>
 		<<set $_isShowing to $_furnishing.showCheck ? Furniture.showFn($_furnishing) : true>>
 		<<if $_isInCategory and !$_isDefault and !$_isCurrent and $_isShowing>>
 			<div class="shopBlock no-numberify">
@@ -451,7 +440,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 								<<if $_furnishing.type.includes('spacious')>><br>Can hold 30 of each item type.<</if>>
 								<<if $_furnishing.type.includes('organiser')>><br>Can hold 40 of each item type.<</if>>
 								<<if $_furnishing.type.includes('comfy')>>
-									<<if $chosenFurnitureCategory is 'bed'>>
+									<<if $_itemCategory is 'bed'>>
 										<br>Improves sleep quality.
 									<<else>>
 										<br>Makes studying at your desk more effective.
@@ -463,11 +452,12 @@ You are in the furniture shop. Most of its stock is too large for your room.
 					<</capture>>
 				<</if>>
 				<<if $money gte $_cost>>
-					<<capture $_key $_furnishing $_cost>>
+					<<capture $_key $_furnishing $_cost $_itemCategory _itemCurrent>>
 						<<link [["£" + $_cost/100|Furniture Shop Catalogue]]>>
-							<<if ($_furnishing.tier or 0) lt (nullable($currentFurnishing).tier or 0)>>
+							<<if ($_furnishing.tier or 0) lt (nullable(_itemCurrent).tier or 0)>>
 								<<set $furnitureDowngrade to {
 									key: $_key,
+									category: $_itemCategory,
 									cost: $_cost,
 									name: $_furnishing.name,
 									nameCap: $_furnishing.nameCap,
@@ -476,7 +466,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 								}>>
 							<<else>>
 								<<money `-$_cost` "furniture">>
-								<<run Furniture.set($_key, $chosenFurnitureCategory)>>
+								<<run Furniture.set($_key, $_itemCategory)>>
 								<<set $boughtfurniturename to $_furnishing.name>>
 								<<set $boughtfurniturehandheld to $_furnishing.handheld>>
 								<<run Furniture.wardrobeUpdate()>>
@@ -514,7 +504,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 	<</button>>
 	<<button [[Yes|Furniture Shop Catalogue]]>>
 		<<money `-$furnitureDowngrade.cost` "furniture">>
-		<<run Furniture.set($furnitureDowngrade.key, $chosenFurnitureCategory)>>
+		<<run Furniture.set($furnitureDowngrade.key, $furnitureDowngrade.category)>>
 		<<set $boughtfurniturename to $furnitureDowngrade.name>>
 		<<run Furniture.wardrobeUpdate()>>
 		<<unset $furnitureDowngrade>>

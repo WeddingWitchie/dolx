@@ -28,6 +28,27 @@ const Furniture = (() => {
 		owlplushie: "owlplushie",
 	});
 
+	/* Shop tabs are decoupled from storage categories:
+	a single tab may display several categories, while each item keeps its own category for storage and lookup. */
+	const ShopTabs = Object.freeze([
+		{ id: "bed", label: "Bed", categories: ["bed"] },
+		{ id: "table", label: "Table", categories: ["table"] },
+		{ id: "chair", label: "Chairs", categories: ["chair"] },
+		{ id: "desk", label: "Desks", categories: ["desk"] },
+		{ id: "wardrobe", label: "Wardrobe", categories: ["wardrobe"] },
+		{ id: "electronic", label: "Electronic", categories: ["radio", "console"] },
+		{ id: "decoration", label: "Decorations", categories: ["decoration", "plush"] },
+		{ id: "windowsill", label: "Miscellaneous", categories: ["windowsill", "shelf"] },
+	]);
+	setup.furnitureShopTabs = ShopTabs;
+
+	/* Resolve a shop tab id to the storage categories it displays.
+	   Falls back to [tabId] for ids that are categories in their own right (e.g. poster/wallpaper). */
+	function tabCategories(tabId) {
+		const tab = ShopTabs.find(t => t.id === tabId);
+		return tab ? tab.categories : [tabId];
+	}
+
 	const Locations = Object.freeze({
 		bedroom: "bedroom",
 		cabin: "cabin",
@@ -545,7 +566,7 @@ const Furniture = (() => {
 			type: [],
 			cost: 40,
 			description: "A small plush of the moon.",
-			iconFile: "tfplushes",
+			iconFile: "moonplush",
 		});
 		mapper.set("frostplush", {
 			name: "snowman plush",
@@ -554,7 +575,7 @@ const Furniture = (() => {
 			type: [],
 			cost: 40,
 			description: "A small plush of a snowman.",
-			iconFile: "tfplushes",
+			iconFile: "snowmanplush",
 		});
 		mapper.set("tfplushes", {
 			name: "collection of animal plushes",
@@ -572,7 +593,7 @@ const Furniture = (() => {
 			type: [],
 			cost: 1,
 			description: "A small lemon coloured axolotl plush. You don't see a price tag on it, only the name 'Monsieur Citron' is written.",
-			iconFile: "tfplushes",
+			iconFile: "axolotlplush",
 		});
 	}
 
@@ -813,6 +834,7 @@ const Furniture = (() => {
 		log: furnitureLog,
 		setPrice,
 		showFn,
+		tabCategories,
 		get target() {
 			return V.furnitureShopTarget;
 		},
