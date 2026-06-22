@@ -47,7 +47,7 @@ You sprawl out together and lose track of time, swapping the controller back and
 <br><br>
 Eventually Robin yawns and stretches. "I should head back before Bailey notices," <<he>> says, gathering up <<his>> controller. "That was really fun. Let's do it again." <<He>> gives you a warm, sleepy smile.
 <<npcincr Robin love 2>><<glove>><br><br>
-<<link [[Next|Bedroom]]>><<unset $consoleAction, $trainType, $consoleReturn>><<endevent>><</link>>
+<<link [[Next|Bedroom]]>><<unset $consoleAction, $trainType>><<endevent>><</link>>
 
 :: Robin Console Visit End
 <<effects>>
@@ -56,7 +56,7 @@ After a while you both set the controllers down and just talk for a bit.<<stress
 <br><br>
 "Thanks for inviting me," <<he>> says, gathering up <<his>> controller. "That was really fun. Let's do it again." <<He>> gives you a warm smile before heading back to <<his>> own room.
 <<npcincr Robin love 1>><<glove>><br><br>
-<<link [[Next|Bedroom]]>><<unset $consoleAction, $trainType, $consoleReturn>><<endevent>><</link>>
+<<link [[Next|Bedroom]]>><<unset $consoleAction, $trainType>><<endevent>><</link>>
 
 :: Alex Console Visit
 <<set $outside to 0>><<set $location to "alex_cottage">><<effects>>
@@ -73,7 +73,7 @@ You hold up your console and ask Alex if <<he>> wants to play the virtual pet ga
 	<<He>> shakes <<his>> head and wanders off, no closer to understanding the appeal. <<npcincr Alex love -1>><<llove>>
 <</if>>
 <br><br>
-<<link [[Next|Farm Bedroom]]>><<unset $consoleAction, $trainType, $consoleReturn>><<endevent>><</link>>
+<<link [[Next|Farm Bedroom]]>><<unset $consoleAction, $trainType>><<endevent>><</link>>
 
 :: Robin Console Gift
 <<set $outside to 0>><<set $location to "home">><<effects>>
@@ -93,6 +93,77 @@ You press it into <<his>> hands and insist. <<He>> stares down at it, then clutc
 	<<run delete V.furniture.cottage.console>>
 <</if>>
 <<if not Furniture.get("console", "bedroom") and not Furniture.get("console", "cottage")>><<run Tamagotchi.bury()>><</if>>
-<<unset $consoleAction, $trainType, $consoleReturn>>
+<<unset $consoleAction, $trainType>>
 <br><br>
 <<link [[Next|Robin's Room Entrance]]>><<endevent>><</link>>
+
+:: Robin Arcade
+<<set _robin to statusCheck("Robin")>>
+<<if $speech_attitude is "meek">>
+	"Would you like to go to the game centre?" you ask.
+<<elseif $speech_attitude is "bratty">>
+	"Let's hit the arcade," you say.
+<<else>>
+	"Want to go to the game centre?" you ask.
+<</if>>
+<br><br>
+<<if Time.hour lt 12 and (Time.schoolDay or Time.isWeekEnd())>>
+	<<effects>>
+	<<His>> eyes light up, but then look at the clock on the wall. "I can't," <<he>> says. "I need to get ready soon. I can go in the evening."
+	<br><br>
+	<<robinoptions>>
+<<else>>
+	<<set $outside to 0>><<set $location to "town">><<effects>>
+	<<set $daily.robin.arcade to 1>><<money -1000 "robin">><<pass 30>>
+	<<His>> face lights up. "The arcade? I love that place!" <<He>> springs to <<his>> feet.
+	<br><br>
+	<<if $robinromance is 1>>
+		You walk hand in hand to Starfish Street. The bleeps and jingles of the amusement arcade spill out onto the pavement before you even reach the door.
+	<<else>>
+		You walk together to Starfish Street, the bleeps and jingles of the amusement arcade spilling out onto the pavement before you even reach the door.
+	<</if>>
+	<br><br>
+	Inside, the machines beep and whirr around you. Robin's eyes dart everywhere at once. "What should we play first?"
+	<br><br>
+	<<link [[A racing cabinet|Robin Arcade Play]]>><<set $phase to 0>><</link>>
+	<br>
+	<<link [[A co-op shooter|Robin Arcade Play]]>><<set $phase to 1>><</link>>
+	<br>
+	<<link [[The prize machines|Robin Arcade Play]]>><<set $phase to 2>><</link>>
+	<br>
+<</if>>
+
+:: Robin Arcade Play
+<<effects>><<pass 45>>
+<<switch $phase>>
+	<<case 0>>
+		You squeeze into the twin racing seats and thumb a coin into the slot. Robin takes the bends recklessly, shrieking with laughter every time <<he>> clips a barrier, and somehow still beats you on the final lap.<<stress -12>><<lstress>>
+		<<npcincr Robin love 1>><<glove>>
+	<<case 1>>
+		You stand shoulder to shoulder at a co-op light-gun cabinet, covering each other against waves of pixelated horrors. Robin's a surprisingly good shot, and the two of you clear the final stage to a tinny fanfare.<<stress -12>><<lstress>>
+		<<npcincr Robin love 1>><<glove>>
+	<<default>>
+		You drift over to the prize machines, feeding coins into the claw and the coin-pusher. Robin presses against your shoulder, willing the claw to grip. When a plush finally tumbles down the chute, <<he>> cheers loud enough to turn heads.<<stress -12>><<lstress>>
+		<<npcincr Robin love 1>><<glove>>
+<</switch>>
+<<unset $phase>>
+<br><br>
+<<set _hasConsole to (Furniture.get('console', 'bedroom') or Furniture.get('console', 'cottage'))>>
+<<if _hasConsole and random(1, 100) lt 20>>
+	<<set _boost to Tamagotchi.rollBooster()>>
+	On the way out, Robin lingers at a gachapon machine and feeds in the last of <<his>> coins. The capsule that rattles out makes <<him>> gasp.
+	"Look! It's a booster pack for that virtual pet!"
+	<br><br>
+	<<He>> presses it into your hands, and you crack it open together right there on the pavement.
+	<br><br>
+	<span class="gold">Robin gave you <<= _boost.label>> <<= _boost.detail>>!</span><<ltrauma>><<trauma -3>>
+	<br><br>
+<</if>>
+<<if $robinromance is 1>>
+	You leave the arcade hand in hand, ears still ringing pleasantly, and head back to the orphanage.
+<<else>>
+	You leave the arcade together, ears still ringing pleasantly, and head back to the orphanage.
+<</if>>
+<br><br>
+<<link [[Next|Robin Options]]>><</link>>
+<br>

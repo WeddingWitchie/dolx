@@ -1,5 +1,5 @@
 :: Home Console
-<<set $outside to 0>><<unset $consoleAction, $trainType, $consoleReturn>><<effects>>
+<<set $outside to 0>><<unset $consoleAction, $trainType>><<effects>>
 <<set _ret to ($location is "alex_cottage" ? "Farm Bedroom" : "Bedroom")>>
 <<furnitureicon "controller">>You switch on your console. What would you like to play?
 <br><br>
@@ -33,7 +33,7 @@
 	<</if>>
 <</if>>
 <br>
-<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
 
 :: Home Console Pet
 <<set $outside to 0>><<effects>>
@@ -55,7 +55,7 @@
 		<br>
 	<</for>>
 	<br>
-	<<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+	<<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
 
 <<elseif not Tamagotchi.isAlive()>>
 	<<set _t to Tamagotchi.status()>>
@@ -72,6 +72,12 @@
 	<br><br>
 	You feel a pang of guilt.<<stress 4>><<gstress>>
 	<br><br>
+	<<if _t.elixirs gt 0>>
+		<span class="green">You have _t.elixirs <<= _t.elixirs is 1 ? "Elixir" : "Elixirs">> from Robin. You could use one to bring <span class="blue">_t.name</span> back.</span>
+		<br>
+		<<link [[Use an Elixir to revive it|Home Console Pet]]>><<run Tamagotchi.reviveWithElixir()>><</link>>
+		<br><br>
+	<</if>>
 	<<link [[Lay it to rest and start over|Home Console Pet]]>><<run Tamagotchi.bury()>><</link>>
 	<br>
 	<<link "Turn it off" _ret>><</link>>
@@ -95,11 +101,11 @@
 		<br>
 		<<link [[Defend your pet!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
 		<br><br>
-		<<link "Step away (risky)" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+		<<link "Step away (risky)" _ret>><<unset $consoleAction, $trainType>><</link>>
 	<<elseif _t.sleeping>>
 		<span class="teal"><<= _t.name>> is curled up asleep and can't be disturbed for about _t.sleepHoursLeft <<= _t.sleepHoursLeft is 1 ? "hour" : "hours">>. Come back once it's rested.</span>
 		<br><br>
-		<<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+		<<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
 	<<else>>
 		<<if _t.pendingSkillChoice>>
 			<span class="gold"><<= _t.name>> has trained enough to learn a new skill!</span>
@@ -132,7 +138,7 @@
 			<span class="grey">Train your pet</span>, <i>_ct.reason</i>
 		<</if>>
 		<br><br>
-		<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType, $consoleReturn>><</link>>
+		<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
 	<</if>>
 <</if>>
 
@@ -257,7 +263,7 @@
 		<<capture _s>>
 			<<link [[_s.name|Home Console Pet]]>><<run Tamagotchi.chooseSkill(_s.id)>><</link>>
 		<</capture>>
-		| <span class="teal">_s.typeLabel</span><<if _s.heal>>, restores HP, _s.mp MP<<else>>, Power _s.power, _s.mp MP<</if>>
+		| <span class="teal">_s.typeLabel</span><<if _s.passive>>, passive | Revives once per battle<<elseif _s.heal>>, restores HP, _s.mp MP<<else>>, Power _s.power, _s.mp MP<</if>>
 		<br>
 	<</for>>
 <</if>>
@@ -265,6 +271,7 @@
 :: Home Console Pet Battle
 <<set $outside to 0>><<effects>>
 <<set _b to Tamagotchi.battleState()>>
+<<set _t to Tamagotchi.status()>>
 
 <<if _b is null>>
 	The battle is over.
@@ -290,7 +297,11 @@
 		<br>
 		<<link [[Rest|Home Console Pet Battle]]>><<run Tamagotchi.battleRest()>><</link>> <i>(recover HP &amp; MP)</i>
 		<br>
-		<<for _s range Tamagotchi.learnedSkills()>>
+		<<if _t.autoRevive and not _b.reviveUsed>>
+			<span class="green"><i>Revive is ready: your pet will get back up once if it falls this battle.</i></span>
+			<br>
+		<</if>>
+		<<for _s range Tamagotchi.battleSkills()>>
 			<<capture _s>>
 				<<if _b.mp gte _s.mp>>
 					<<link [[_s.name|Home Console Pet Battle]]>><<run Tamagotchi.battleSkill(_s.id)>><</link>>
@@ -312,6 +323,10 @@
 	Your pet drove off the wild <span class="green"><<= _sum.enemy>></span>!<<stress -8>><<lstress>>
 	<br>
 	<span class="green">It's survived another week. The next challenger will be tougher.</span>
+	<<if _sum.statBoost>>
+		<br>
+		<span class="gold">Victory has made it stronger! <<= "(+" + _sum.hpBoost + " max HP, +" + _sum.statBoost + " to ATK, DEF, SPD and max MP)">></span>
+	<</if>>
 <<elseif _sum.result is "lose">>
 	Your pet fought bravely, but the wild <span class="purple"><<= _sum.enemy>></span> was too strong. <span class="red">It didn't survive.</span><<stress 6>><<gstress>>
 <<else>>

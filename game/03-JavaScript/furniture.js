@@ -524,7 +524,7 @@ const Furniture = (() => {
 			nameCap: "Console",
 			category: ["console"],
 			type: ["console"],
-			cost: 50000,
+			cost: 5000,
 			description: "A games console. It comes loaded with a handful of games to pass the time.",
 			iconFile: "controller",
 		});

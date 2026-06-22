@@ -25,6 +25,9 @@ const Tamagotchi = (() => {
 		restHpFrac: 0.12,
 		restMpFrac: 0.4,
 		recoverHpFrac: 0.35,
+		winStatBoostStep: 10,
+		boosterHp: 100,
+		boosterMp: 50,
 	});
 
 	/* Starters: base stats + type. Pets start with no skills; they draft them through training. */
@@ -35,20 +38,29 @@ const Tamagotchi = (() => {
 		voltpup: { name: "Voltpup", type: "electric", blurb: "A jittery, lightning-fast pup.", base: { hp: 26, atk: 8, def: 5, spd: 8, mp: 8 } },
 	};
 
-	/* The draftable skills. Elemental damage + one heal. */
+	/* The draftable skills. Elemental damage, plus normal-type utility (heals, a nuke and a passive revive).
+	 * effect "heal": restores HP by healFrac (defaults to Tuning.recoverHpFrac).
+	 * effect "autorevive": passive, never used as a move; if learned, the pet revives once per battle when it would faint. */
 	const SKILLS = {
 		ember: { name: "Ember", type: "fire", power: 12, mp: 3 },
 		flameburst: { name: "Flame Burst", type: "fire", power: 20, mp: 6 },
+		inferno: { name: "Inferno", type: "fire", power: 30, mp: 10 },
 		bubble: { name: "Bubble", type: "water", power: 12, mp: 3 },
 		aquapulse: { name: "Aqua Pulse", type: "water", power: 20, mp: 6 },
+		tsunami: { name: "Tsunami", type: "water", power: 30, mp: 10 },
 		vinewhip: { name: "Vine Whip", type: "grass", power: 12, mp: 3 },
 		leafstorm: { name: "Leaf Storm", type: "grass", power: 20, mp: 6 },
+		solarbeam: { name: "Solar Beam", type: "grass", power: 30, mp: 10 },
 		spark: { name: "Spark", type: "electric", power: 12, mp: 3 },
 		thunderbolt: { name: "Thunderbolt", type: "electric", power: 20, mp: 6 },
+		voltcrash: { name: "Volt Crash", type: "electric", power: 30, mp: 10 },
 		powerstrike: { name: "Power Strike", type: "normal", power: 16, mp: 4 },
 		slam: { name: "Slam", type: "normal", power: 13, mp: 3 },
 		rampage: { name: "Rampage", type: "normal", power: 22, mp: 7 },
+		meteor: { name: "Meteor Strike", type: "normal", power: 28, mp: 9 },
 		recover: { name: "Recover", type: "normal", power: 0, mp: 5, effect: "heal" },
+		rejuvenate: { name: "Rejuvenate", type: "normal", power: 0, mp: 8, effect: "heal", healFrac: 0.6 },
+		revive: { name: "Revive", type: "normal", power: 0, mp: 0, effect: "autorevive", passive: true },
 	};
 
 	const TRAININGS = {
@@ -397,6 +409,7 @@ const Tamagotchi = (() => {
 			mp: pet.maxMp,
 			maxMp: pet.maxMp,
 			guarding: false,
+			reviveUsed: false,
 			log: ["A wild " + e.name + " attacks " + pet.name + "!"],
 			over: false,
 			result: null,
@@ -449,11 +462,11 @@ const Tamagotchi = (() => {
 			log.push("You rest, recovering " + h + " HP and " + m + " MP.");
 		} else if (action.kind === "skill") {
 			const sk = SKILLS[action.id];
-			if (!sk || !pet.skills.includes(action.id)) return b;
+			if (!sk || sk.passive || !pet.skills.includes(action.id)) return b;
 			if (b.mp < sk.mp) { b.log = ["Not enough MP to use " + sk.name + "."]; return b; }
 			b.mp -= sk.mp;
 			if (sk.effect === "heal") {
-				const h = Math.ceil(b.maxHp * Tuning.recoverHpFrac);
+				const h = Math.ceil(b.maxHp * (sk.healFrac || Tuning.recoverHpFrac));
 				b.hp = Math.min(b.maxHp, b.hp + h);
 				log.push("You use " + sk.name + ", restoring " + h + " HP.");
 			} else {
@@ -473,7 +486,16 @@ const Tamagotchi = (() => {
 			return b;
 		}
 		enemyTurn(b, log);
-		if (b.hp <= 0) { b.over = true; b.result = "lose"; log.push(pet.name + " has fallen..."); }
+		if (b.hp <= 0) {
+			/* Auto-revive: the passive Revive skill saves the pet once per battle. */
+			if (!b.reviveUsed && Array.isArray(pet.skills) && pet.skills.includes("revive")) {
+				b.reviveUsed = true;
+				b.hp = Math.ceil(b.maxHp * 0.5);
+				log.push(pet.name + " is struck down, but its Revive skill brings it back with " + b.hp + " HP!");
+			} else {
+				b.over = true; b.result = "lose"; log.push(pet.name + " has fallen...");
+			}
+		}
 		b.turn++;
 		b.log = log;
 		return b;
@@ -493,7 +515,17 @@ const Tamagotchi = (() => {
 			pet.wins = (pet.wins || 0) + 1;
 			pet.happiness = clamp(pet.happiness + 15);
 			pet.nextAttackDay = dayNum() + Tuning.attackIntervalDays;
+			/* Victory spoils: a stat boost that grows each win (1st win +10, 2nd +20, ...).
+			 * Every combat stat gains the amount; max HP gets a bigger share to keep pace with enemies whose HP doubles each wave. */
+			const boost = Tuning.winStatBoostStep * pet.wins;
+			pet.atk += boost;
+			pet.def += boost;
+			pet.spd += boost;
+			pet.maxMp += boost;
+			pet.maxHp += boost * 4;
 			summary.wave = pet.wave;
+			summary.statBoost = boost;
+			summary.hpBoost = boost * 4;
 		} else if (b.result === "lose") {
 			pet.alive = false;
 			pet.deathCause = "battle";
@@ -501,6 +533,65 @@ const Tamagotchi = (() => {
 		pet.lastTick = now();
 		delete V.petBattle;
 		return summary;
+	}
+
+	/* --- Elixirs & Robin's booster packs --- */
+	/* Elixirs live on V.petElixirs (global) so they survive hatching a new pet and can be banked for later. */
+	function elixirCount() {
+		return typeof V !== "undefined" && Number.isFinite(V.petElixirs) ? V.petElixirs : 0;
+	}
+	function addElixir(n = 1) {
+		if (typeof V === "undefined") return 0;
+		V.petElixirs = Math.max(0, elixirCount() + n);
+		return V.petElixirs;
+	}
+	/* Spend one elixir to bring a dead pet back to life. Works for any cause of death (battle or neglect). */
+	function reviveWithElixir() {
+		if (!exists() || V.tamagotchi.alive || elixirCount() <= 0) return false;
+		const t = V.tamagotchi;
+		V.petElixirs = elixirCount() - 1;
+		t.alive = true;
+		t.deathCause = null;
+		t.hunger = 30;
+		t.happiness = 60;
+		t.energy = 80;
+		t.poops = 0;
+		t.sick = false;
+		t.neglectHours = 0;
+		t.sleepUntil = 0;
+		t.justWoke = false;
+		t.lastTick = now();
+		t.nextAttackDay = dayNum() + Tuning.attackIntervalDays;
+		delete V.petBattle;
+		return true;
+	}
+	/* Robin's booster pack: applies one random reward and returns a descriptor for the event text.
+	 * With a living pet the full pool is available; otherwise only an elixir can be banked for a future pet. */
+	function rollBooster() {
+		sync();
+		const alive = isAlive();
+		const pool = alive ? ["hp", "mp", "elixir"] : ["elixir"];
+		if (alive && unlearnedSkills().length > 0) pool.push("skill");
+		const type = pool[rand(pool.length)];
+		const t = alive ? V.tamagotchi : null;
+		/* detail reads as a clause after the label, e.g. "Robin gave you <label> <detail>!" */
+		if (type === "hp") {
+			t.maxHp += Tuning.boosterHp;
+			return { type, label: "a Vitality Capsule", detail: "that raises its max HP by " + Tuning.boosterHp };
+		}
+		if (type === "mp") {
+			t.maxMp += Tuning.boosterMp;
+			return { type, label: "a Mana Crystal", detail: "that raises its max MP by " + Tuning.boosterMp };
+		}
+		if (type === "skill") {
+			const choices = unlearnedSkills();
+			const id = choices[rand(choices.length)];
+			if (!Array.isArray(t.skills)) t.skills = [];
+			t.skills.push(id);
+			return { type, label: "a Skill Disc", detail: "that teaches your pet " + SKILLS[id].name, skill: SKILLS[id].name };
+		}
+		addElixir(1);
+		return { type: "elixir", label: "an Elixir", detail: "that revives your pet once when it dies" };
 	}
 
 	/* --- UI data --- */
@@ -520,12 +611,16 @@ const Tamagotchi = (() => {
 	function skillInfo(id) {
 		const s = SKILLS[id];
 		if (!s) return null;
-		return { id, name: s.name, type: s.type, typeLabel: cap(s.type), power: s.power, mp: s.mp, heal: s.effect === "heal" };
+		return { id, name: s.name, type: s.type, typeLabel: cap(s.type), power: s.power, mp: s.mp, heal: s.effect === "heal", passive: s.passive === true };
 	}
 	function learnedSkills() {
 		if (!exists()) return [];
 		const skills = Array.isArray(V.tamagotchi.skills) ? V.tamagotchi.skills : [];
 		return skills.map(skillInfo).filter(Boolean);
+	}
+	/* Skills usable as a battle action and excludes passives like Revive, which trigger automatically. */
+	function battleSkills() {
+		return learnedSkills().filter(s => !s.passive);
 	}
 	function status() {
 		if (!exists()) return { exists: false };
@@ -544,6 +639,7 @@ const Tamagotchi = (() => {
 			pendingSkillChoice: t.pendingSkillChoice, pendingAttack: attackDue(),
 			nextAttackDays: Math.max(0, t.nextAttackDay - dayNum()),
 			sleeping: isSleeping(), sleepHoursLeft: sleepHoursLeft(),
+			elixirs: elixirCount(), autoRevive: skills.includes("revive"),
 		};
 	}
 	function bury() {
@@ -567,7 +663,7 @@ const Tamagotchi = (() => {
 		h += `<div class="tama-head"><span class="tama-name">${esc(s.name)}</span> <span class="tama-sub">${esc(s.stageLabel)} &middot; ${esc(s.speciesLabel)} (${esc(s.typeLabel)})</span></div>`;
 		h += `<div class="tama-row">${chip("HP", s.maxHp)}${chip("MP", s.maxMp)}${chip("ATK", s.atk)}${chip("DEF", s.def)}${chip("SPD", s.spd)}</div>`;
 		h += `<div class="tama-row">${care("Hunger", s.hungerWord, careClass(s.hunger, "hunger"))}${care("Mood", s.happinessWord, careClass(s.happiness, "happiness"))}${care("Energy", s.energyWord, careClass(s.energy, "energy"))}</div>`;
-		h += `<div class="tama-meta">Trainings: ${s.trainCount} &middot; Wins: ${s.wins} &middot; Age: ${s.ageDays}d &middot; Skills: ${s.skillCount ? esc(s.skills.join(", ")) : "none yet"}</div>`;
+		h += `<div class="tama-meta">Trainings: ${s.trainCount} &middot; Wins: ${s.wins} &middot; Age: ${s.ageDays}d${s.elixirs ? " &middot; Elixirs: " + s.elixirs : ""} &middot; Skills: ${s.skillCount ? esc(s.skills.join(", ")) : "none yet"}</div>`;
 		h += `</div>`;
 		return h;
 	}
@@ -588,8 +684,9 @@ const Tamagotchi = (() => {
 
 	return {
 		exists, isAlive, isSleeping, sleepHoursLeft, ackWoke, hatch, sync, feed, play, clean, rest, cure, status, stage, ageDays, bury, Tuning,
-		listSpecies, trainingTypes, canTrain, train, skillOfferList, chooseSkill, learnedSkills,
+		listSpecies, trainingTypes, canTrain, train, skillOfferList, chooseSkill, learnedSkills, battleSkills,
 		attackDue, startWeeklyBattle, battleState, battleAttack, battleGuard, battleRest, battleSkill, endBattle,
+		elixirCount, addElixir, reviveWithElixir, rollBooster,
 		statusHtml, battleHtml,
 	};
 })();
