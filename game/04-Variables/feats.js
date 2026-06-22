@@ -3532,6 +3532,7 @@ function setupFeatBoosts(force) {
 		},
 		sexToys: [{}, {}, {}, {}, {}, {}],
 		specialClothesSets: {},
+		hopelessEndings: {}, // X-Change: which Hopeless Cycle endings are bought to read directly
 		earSlimeType: "immaturePassive",
 		divineTFs: "",
 		animalTFs: "",
@@ -3661,6 +3662,15 @@ function setupFeatBoosts(force) {
 			required: ["Opened Pandoras Box", "Opened Pandoras Cocks"],
 			cost: 30,
 			missing: "Unlock this boost by obtaining a hidden feat (" + setup.feats["Opened Pandoras Box"].hint + ")",
+		},
+		hopelessEndings: {
+			// X-Change: buy Hopeless Cycle endings to read directly.
+			// Always available (max 1); per-ending VrelCoin costs are handled in the boost UI (hopelessEndingsFeatUI).
+			name: "Hopeless Cycle Endings",
+			required: [],
+			cost: 0,
+			max: 1,
+			missing: "",
 		},
 	};
 
@@ -4125,6 +4135,14 @@ function applyFeatBoosts() {
 		}
 	}
 
+	// X-Change: hopeless cycle endings bought to read directly from the painting this run
+	if (upgrades.hopelessEndings) {
+		V.hcBoughtEndings = [];
+		for (const [ending, selected] of Object.entries(V.featsBoosts.hopelessEndings)) {
+			if (selected === true) V.hcBoughtEndings.push(ending);
+		}
+	}
+
 	// tattoos
 	if (upgrades.tattoos) {
 		// number of tattoos to apply
@@ -4179,7 +4197,7 @@ function applyFeatBoosts() {
 	}
 
 	// cleanup
-	["name", "missing", "clothingCustomColors", "clothingGender", "upgradeDetails", "tattoos", "sexToys", "hidden", "purchased", "specialClothesSets"].forEach(
+	["name", "missing", "clothingCustomColors", "clothingGender", "upgradeDetails", "tattoos", "sexToys", "hidden", "purchased", "specialClothesSets", "hopelessEndings"].forEach(
 		k => delete V.featsBoosts[k]
 	);
 }

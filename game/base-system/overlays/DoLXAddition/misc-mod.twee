@@ -392,3 +392,60 @@
 		<</if>>
 	<</if>>
 <</widget>>
+
+:: Feats Mod [widget]
+/* X-Change: pick which Hopeless Cycle endings to buy.
+Like any feat boost, these can be purchased outright with VrelCoins. */
+<<widget "hopelessEndingsFeatUI">>
+	<br>
+	<div class="settingsHeader" style="margin-bottom: 0.5em">Endings To Read</div>
+	<<for _hcEndKey range ["S","A","B","C","D","E","F"]>>
+		<<set _hcEndData to setup.hopelessCycleEndingCosts[_hcEndKey]>>
+		<<set _hcEndCost to _hcEndData.cost>>
+		<<capture _hcEndKey, _hcEndData, _hcEndCost>>
+			<<set _hcEndAfford to ($feats.allSaves.points - $featsBoosts.pointsUsed) - _hcEndCost gte 0>>
+			<div class="settingsToggleItem">
+				<<if $featsBoosts.hopelessEndings[_hcEndKey]>>
+					<<link "[✓] Ending _hcEndKey">>
+						<<set $featsBoosts.hopelessEndings[_hcEndKey] to false>>
+						<<updateFeatsPointsMenu "hopelessEndings" _hcEndCost "subtract">>
+					<</link>>
+					<span @class="_hcEndData.colour"><<print _hcEndData.name>></span>
+					<span class="gold">(<<print _hcEndCost>> <<pluralise _hcEndCost "VrelCoin">>)</span>
+				<<elseif _hcEndAfford>>
+					<<link "[ ] Ending _hcEndKey">>
+						<<set $featsBoosts.hopelessEndings[_hcEndKey] to true>>
+						<<updateFeatsPointsMenu "hopelessEndings" _hcEndCost>>
+					<</link>>
+					<span @class="_hcEndData.colour"><<print _hcEndData.name>></span>
+					<span class="gold">(<<print _hcEndCost>> <<pluralise _hcEndCost "VrelCoin">>)</span>
+				<<else>>
+					<span class="black">[ ] Ending _hcEndKey <span @class="_hcEndData.colour"><<print _hcEndData.name>></span></span>
+					<span class="red">Not enough VrelCoins (<<print _hcEndCost>>)</span>
+				<</if>>
+			</div>
+		<</capture>>
+	<</for>>
+<</widget>>
+
+/* X-Change: links to read endings bought via the "Hopeless Cycle Endings" feat boost, skipping the full sequence.
+Each sets up the gaoler context (freeze/morph), then jumps straight to that ending's narrative, which funnels into "Hopeless Cycle End" and awards the prize. */
+<<widget "hopelessCycleQuickReadLinks">>
+	<<set $hcBoughtEndings ||= []>>
+	<<set _quickReadList to ["S","A","B","C","D","E","F"].filter(e => $hcBoughtEndings.includes(e))>>
+	<<if _quickReadList.length>>
+		<span class="gold">Some of these tales feel as though you've already lived them. You could recount one straight to its conclusion:</span>
+		<br>
+		<<for _qrEnd range _quickReadList>>
+			<<capture _qrEnd>>
+				<<set _qrData to setup.hopelessCycleEndingCosts[_qrEnd]>>
+				<<link `"Read the ending of " + _qrData.name + " (" + _qrEnd + ")"`>>
+					<<hopelessCycleStart>>
+					<<goto "Hopeless Cycle Ending " + _qrEnd>>
+				<</link>>
+				<br>
+			<</capture>>
+		<</for>>
+		<br>
+	<</if>>
+<</widget>>

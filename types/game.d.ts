@@ -183,6 +183,7 @@ declare module "twine-sugarcube" {
 		specialClothesEvents?: string[];
 		backgroundTraits?: string[];
 		hcEndings?: string[];
+		hcBoughtEndings?: string[];
 		foodstuff: Record<string, { knows_recipe?: boolean }>;
 		virginTaken: Record<string, unknown[]>;
 		museumAntiques: {
