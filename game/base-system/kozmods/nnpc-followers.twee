@@ -15,9 +15,15 @@
 
         <<run statusCheck("Sydney")>>
 
+        /* The body, hair and clothes must all key off the same field or they desync when an NPC's presentation (pronoun) differs from their genitals (gender) 
+        e.g. a futa/cuntboy from the futa/cuntboy chance settings, or an X-Change pilled NPC.
+        Clothes use pronoun, so the body and hair must too. 
+        Fall back to gender only for non-binary pronouns (i/t), which have no dedicated m/f base sprite anyway. */
+        <<set _displaySex to ["m","f"].includes($NPCList[0].pronoun) ? $NPCList[0].pronoun : $NPCList[0].gender>>
+
         <<set $follower to {
             name: _followerName,
-            base: "base_" + $NPCList[0].skincolour + "_" + $NPCList[0].gender,
+            base: "base_" + $NPCList[0].skincolour + "_" + _displaySex,
             clothes: "upper_default",
             under_clothes: "lower_default",
         }>>
@@ -29,17 +35,21 @@
             <<set $follower.base to $follower.base + "_trauma">>
         <</if>>
 
-        <<select-nnpc-follower-outfit _followerName>>
+        <<select-nnpc-follower-outfit _followerName _displaySex>>
 
         <!-- Hair Selection -->
         <<if _followerName is "sydney">>
-            <<set $follower.hair to "hair_" + C.npc.Sydney.hairColour + "_" + $sydney.hair>>
-            
+            /* Only a limited set of colour/style hair sprites exist for Sydney.
+            Guard against any unsupported combination (out-of-set dye colours, or a style without that colour) by falling back to her natural strawberryblond, so the hair never renders missing. */
+            <<set _sydHairValid to ["strawberryblond_loose", "strawberryblond_ponytail", "black_loose", "black_ponytail", "purple_loose", "mediumpurple_ponytail"]>>
+            <<set _sydHairColour to (_sydHairValid.includes(C.npc.Sydney.hairColour + "_" + $sydney.hair) ? C.npc.Sydney.hairColour : "strawberryblond")>>
+            <<set $follower.hair to "hair_" + _sydHairColour + "_" + $sydney.hair>>
+
         <<elseif _followerName is "kylar">>
-            <<set $follower.hair to 
-                "hair_" + 
-                (["goth","formal"].includes($kylar_clothes)? $kylar_clothes+"_": "") + 
-                $NPCList[0].gender
+            <<set $follower.hair to
+                "hair_" +
+                (["goth","formal"].includes($kylar_clothes)? $kylar_clothes+"_": "") +
+                _displaySex
             >>
         <</if>>
 
@@ -54,6 +64,8 @@
 
 <<widget "select-nnpc-follower-outfit">>
     <<set _followerName to _args[0]>>
+    /* Same presentation value the body and hair use, so clothing never desyncs from them. */
+    <<set _displaySex to _args[1] || $NPCList[0].pronoun>>
 
     <!-- Clothing Selection -->
     <<if _followerName is "bailey">>
@@ -76,8 +88,8 @@
     <</if>>
 
     <!-- Clothing Gender Selection -->
-    <<set $follower.clothes += "_" + $NPCList[0].pronoun>>
-    <<set $follower.under_clothes += "_" + $NPCList[0].pronoun>>
+    <<set $follower.clothes += "_" + _displaySex>>
+    <<set $follower.under_clothes += "_" + _displaySex>>
 
     <!-- Remove clothing if naked -->
     <<if $NPCList[0].clothes.upper.name is "naked" or $NPCList[0].chest isnot "clothed">><<unset $follower.clothes>><</if>>
