@@ -1653,15 +1653,29 @@
 			<<if _poppy.timer.lastPatienceDecay is undefined or _poppy.timer.lastPatienceDecay is "">><<set _poppy.timer.lastPatienceDecay to Time.date.timeStamp>><</if>>
 			<<if typeof _poppy.patience isnot "number" or Number.isNaN(_poppy.patience)>><<set _poppy.patience to 100>><</if>>
 			<<if _poppy.pregnancy is undefined or _poppy.pregnancy is null or typeof _poppy.pregnancy isnot "object" or Array.isArray(_poppy.pregnancy)>>
-				<<set _poppy.pregnancy to { fetus: [], enabled: true, type: "human" }>>
+				<<set _poppy.pregnancy to { fetus: [], enabled: true, type: null }>>
 			<<else>>
 				<<if !Array.isArray(_poppy.pregnancy.fetus)>><<set _poppy.pregnancy.fetus to []>><</if>>
 				<<if typeof _poppy.pregnancy.enabled isnot "boolean">><<set _poppy.pregnancy.enabled to true>><</if>>
-				<<if !_poppy.pregnancy.type or _poppy.pregnancy.type is "none">><<set _poppy.pregnancy.type to "human">><</if>>
+				<<if _poppy.pregnancy.type is "none" or _poppy.pregnancy.type is undefined>><<set _poppy.pregnancy.type to null>>
+				<<elseif _poppy.pregnancy.type and !_poppy.pregnancy.fetus.length and !_poppy.pregnancy.timerEnd>><<set _poppy.pregnancy.type to null>><</if>>
 			<</if>>
 			<<set $objectVersion.poppyPregnancy to 1>>
 			<<set $objectVersion.poppyLIData to 2>>
 		<</if>>
+	<</if>>
+
+	/* One-time heal for saves corrupted by the old migration that forced Poppy's pregnancy.type to "human".
+	   Runs regardless of the gates above, since corrupted saves already have poppyLIData set to 2. */
+	<<if $objectVersion.poppyPhantomPregnancyFix is undefined>>
+		<<set _poppyFixIndex to (Array.isArray($NPCNameList) ? $NPCNameList.indexOf("Poppy") : -1)>>
+		<<if _poppyFixIndex gte 0 and $NPCName[_poppyFixIndex] and $NPCName[_poppyFixIndex].pregnancy and typeof $NPCName[_poppyFixIndex].pregnancy is "object" and !Array.isArray($NPCName[_poppyFixIndex].pregnancy)>>
+			<<set _poppyFixPreg to $NPCName[_poppyFixIndex].pregnancy>>
+			<<if !Array.isArray(_poppyFixPreg.fetus)>><<set _poppyFixPreg.fetus to []>><</if>>
+			<<if _poppyFixPreg.type is "none">><<set _poppyFixPreg.type to null>>
+			<<elseif _poppyFixPreg.type and !_poppyFixPreg.fetus.length and !Number.isFinite(Number(_poppyFixPreg.timerEnd))>><<set _poppyFixPreg.type to null>><</if>>
+		<</if>>
+		<<set $objectVersion.poppyPhantomPregnancyFix to 1>>
 	<</if>>
 
 	<<run pruneNPCName()>>
