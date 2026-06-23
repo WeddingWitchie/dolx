@@ -1,4 +1,4 @@
-> **If the normal pipeline links above fail, use these backup downloads instead:**
+> **If the normal pipeline links at the bottom fail, use these backup downloads instead:**
 > [Images](https://gitgud.io/Akoz/dol-xchange/-/archive/master/dol-xchange-master.zip?ref_type=heads&path=img) | [Audio](https://gitgud.io/Akoz/dol-xchange/-/archive/master/dol-xchange-master.zip?ref_type=heads&path=audio)
 
 ## Instructions:

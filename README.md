@@ -13,10 +13,10 @@ For spoilers, routes, and more specific mechanics, see the **[Content Guide](CON
 ---
 
 ## Discord
-Join the `#xchange-gender-pills` channel on the **[DOLP Discord](https://discord.gg/dolp)** for discussion, help, bug reports, and updates.
+Join the `#xchange-gender-pills` channel on the **[DOLP Discord](https://discord.gg/dolp)** OR `#dol-xchange` on the **[Modding Discord](https://discord.gg/mGpRSn9qMF)** for discussion, help, bug reports, and updates.
 
 ## Credits
-* *Degrees of Lewdity* by Vrelnir and contributors.
+* Degrees of Lewdity by Vrelnir and contributors.
 * DoL Plus framework and contributors.
 * X-Change Edition and additional mod content by DoL:X-Change contributors.
 * Additional assets, fixes, and content by the credited community contributors listed in the release page.
