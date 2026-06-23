@@ -1174,6 +1174,15 @@ setup.feats = {
 		filter: ["All", "Special"],
 		hidden: true,
 	},
+	Smoker: {
+		title: "Smoker",
+		desc: "You picked up a cigarette habit.",
+		difficulty: 1,
+		series: "",
+		hint: "Hint: Whitney always did make it look easy.",
+		filter: ["All", "Special"],
+		hidden: true,
+	},
 	"Battle of the Other World": {
 		title: "Battle of the Other World",
 		desc: "You played Tenyclus until the very end.",

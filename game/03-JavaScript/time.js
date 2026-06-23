@@ -1463,6 +1463,8 @@ function minutePassed(minutes) {
 		V.timeSinceCigarette = prevSince + minutes;
 		if (V.timeSinceCigarette >= 1440 && V.timeSinceCigarette < 10080 && minutes < 1200) {
 			statChange.stress(minutes * 0.2);
+			// the craving marks genuine dependence; unlock the Smoker feat here, not on the first cigarette
+			if (typeof earnFeat === "function") earnFeat("Smoker");
 			// remind at most once per in-game hour
 			if (Math.floor(prevSince / 60) !== Math.floor(V.timeSinceCigarette / 60)) {
 				V.effectsmessage = 1;
