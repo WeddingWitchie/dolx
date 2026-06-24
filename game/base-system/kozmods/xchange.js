@@ -723,18 +723,6 @@ function fertilityTreatmentActive() {
 }
 window.fertilityTreatmentActive = fertilityTreatmentActive;
 
-function takeFertilityTreatment() {
-	if (V.xchange?.pill?.active) V.xchange.pill.hyperFertilityEffect = true;
-	return true;
-}
-window.takeFertilityTreatment = takeFertilityTreatment;
-
-function cancelFertilityTreatment() {
-	if (V.xchange?.pill) V.xchange.pill.hyperFertilityEffect = false;
-	return true;
-}
-window.cancelFertilityTreatment = cancelFertilityTreatment;
-
 function fertilityTreatmentApplyMultiples(baseCount, max = 4) {
 	if (!fertilityTreatmentActive()) return baseCount;
 	const cfg = setup.xchangeHyperFertility;
@@ -790,11 +778,6 @@ function fertilityTreatmentDailyTick(days = 1) {
 	});
 }
 window.fertilityTreatmentDailyTick = fertilityTreatmentDailyTick;
-
-function fertilityTreatmentDurationText() {
-	return fertilityTreatmentActive() ? "Lasts with the X-Change pill" : "Not active";
-}
-window.fertilityTreatmentDurationText = fertilityTreatmentDurationText;
 
 function wondersAboutPillEnd() {
 	return V.xchange.pill.shouldHaveEnded === true && V.xchange.pill.countdown < 24; 

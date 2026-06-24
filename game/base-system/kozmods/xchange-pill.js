@@ -2656,7 +2656,7 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.hyperFertilityEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
-		effects: [`<<xchange-removeeffect "fertile" "fertility">>`, "<<xchange-addsideeffect \"antipill\">>"],
+		effects: [`<<xchange-removeeffect "fertility">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 
 {
