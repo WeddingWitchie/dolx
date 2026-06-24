@@ -209,9 +209,12 @@ function isPregnancyEnding() {
 window.isPregnancyEnding = isPregnancyEnding;
 
 function playerNormalPregnancyType() {
-	if (V.player.vaginaExist && V.sexStats.vagina.pregnancy.type !== "parasite") {
+// Note: do not gate the vagina branch behind V.player.vaginaExist.
+// A PC who is sexflipped (e.g. X-Change) while carrying a vaginal pregnancy keeps the pregnancy and still gives birth, so the type must be reported regardless of current anatomy.
+// Otherwise birth passages (asylum/prison/forest) switch on a null type and dead-end with "no usable links".
+	if (V.sexStats.vagina.pregnancy.type !== null && V.sexStats.vagina.pregnancy.type !== "parasite") {
 		return V.sexStats.vagina.pregnancy.type;
-	} else if (V.sexStats.anus.pregnancy.type !== "parasite") {
+	} else if (V.sexStats.anus.pregnancy.type !== null && V.sexStats.anus.pregnancy.type !== "parasite") {
 		return V.sexStats.anus.pregnancy.type;
 	}
 	return null;
