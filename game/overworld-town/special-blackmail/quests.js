@@ -206,7 +206,7 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck: function() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
@@ -218,6 +218,7 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 		receiveItems: function() { },
 		onDayCleared: function() { },
 		onDayFailed: function() { },
+		masturbationtimer: 0,
 	}
 );
 
@@ -399,6 +400,7 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 		],
 		clearCondition: function() { return this.chaletsCleaned >= 3; },
 		failCondition: function() { return this.woreUnderwear; },
+		woreUnderwear: false,
 		alertMessage: ``,
 		clearCheck: function() {
 			if (this.clearCondition()) {
@@ -447,6 +449,7 @@ blackmailQuests.mid.push( // Avoid defiance for a day
 		],
 		clearCondition: function() { return true; },
 		failCondition: function() { return this.behavedDefiantly; },
+		behavedDefiantly: false,
 		alertMessage: `You just acted defiantly.`,
 		clearCheck: function() {
 			if (this.clearCondition()) {
@@ -731,7 +734,7 @@ blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully
 		failed: false,
 		failMessage: function() { },
 		includesItems: true,
-		receiveItems: function() { wikifier("xchange-random-spike", "supress"); },
+		receiveItems: function() { wikifier("xchange-random-spike", "suppress"); },
 		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
 		onDayFailed: function() { },
 		finishedGame: false,
