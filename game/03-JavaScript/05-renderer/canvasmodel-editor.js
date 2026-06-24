@@ -929,7 +929,7 @@ Macro.add("canvasModelEditor", {
 						selectOption("cow_ears_type", ["disabled", "hidden", "default"]),
 						selectOption("waterdragon_horns_type", ["disabled", "hidden", "default", "short", "default-angel", "default-demon"]),
 						selectOption("waterdragon_horns_layer", ["front", "back"]),
-						selectOption("waterdragon_tail_type", ["disabled", "hidden", "default", "short", "purple", "gray", "sgray", "default-angel", "purple-angel"]),
+						selectOption("waterdragon_tail_type", ["disabled", "hidden", "default", "short", "purple", "gray", "sgray", "sblue", "default-angel", "purple-angel"]),
 						selectOption("waterdragon_tail_layer", ["front", "back"]),
 						selectOption("waterdragon_ears_type", ["disabled", "hidden", "default", "purple", "gray", "default-demon"]),
 						selectOption("bird_wings_type", ["disabled", "hidden", "default"]),

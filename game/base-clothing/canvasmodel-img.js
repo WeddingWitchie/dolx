@@ -554,7 +554,7 @@ DefineMacro("modelprepare-player-body", function () {
 	const demonPresent = [T.modeloptions.demon_horns_type, T.modeloptions.demon_tail_type, T.modeloptions.demon_wings_type].some(isPartEnabled);
 	const angelPresent = [T.modeloptions.angel_halo_type, T.modeloptions.angel_wings_type].some(isPartEnabled);
 	const waterDragonPresent = [T.modeloptions.waterdragon_horns_type, T.modeloptions.waterdragon_ears_type, T.modeloptions.waterdragon_tail_type].some(isPartEnabled);
-	const purpleWaterDragon = T.modeloptions.waterdragon_tail_type === "purple";
+	const purpleWaterDragon = ["purple", "short"].includes(T.modeloptions.waterdragon_tail_type);
 
 	// Bakunawa tail
 	if (isPartEnabled(T.modeloptions.waterdragon_tail_type) && isPartEnabled(T.modeloptions.demon_tail_type) && isChimeraEnabled("bakunawa", "tail")) {
