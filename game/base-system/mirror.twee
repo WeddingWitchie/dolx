@@ -2677,6 +2677,14 @@
 					<<set _tfDescOptions[_tfDescLabels[_tfDescKey]] = _tfDescKey>>
 				<</if>>
 			<</for>>
+			/* Combination (chimera) descriptions, appended after the single-species options.
+			descriptionComboMenuLabel returns "" for plain single-species keys, so they are skipped here. */
+			<<for _tfComboKey range $tfDescValid>>
+				<<set _tfComboLabel to Transformations.descriptionComboMenuLabel(_tfComboKey)>>
+				<<if _tfComboLabel isnot "">>
+					<<set _tfDescOptions[_tfComboLabel] = _tfComboKey>>
+				<</if>>
+			<</for>>
 			<label>Described as:
 				<<listbox "$tfDesc.primary" autoselect>>
 					<<optionsfrom _tfDescOptions>>
@@ -4014,6 +4022,27 @@
 	<<set _descOption.xenos to (_optionAnimalN gte 1 and _optionNonAnimalN gte 1 and (_optionAnimalN + _optionNonAnimalN) gte 3)>>
 
 	<<set $tfDescValid to ["demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "bakunawa", "ryuujin", "xenos"].filter(id => _descOption[id])>>
+
+	/* Special named chimeras: their name already implies the celestial half, so no adjective and a single entry each (hellhound covers wolf + demon OR fallen). */
+	<<if _descOption.wolf and (_descOption.demon or _descOption.fallen)>><<run $tfDescValid.push("hellhound")>><</if>>
+	<<if _descOption.wolf and _descOption.angel>><<run $tfDescValid.push("dog")>><</if>>
+	<<if _descOption.bunny and _descOption.demon>><<run $tfDescValid.push("jackalope")>><</if>>
+	<<if _descOption.bunny and _descOption.angel>><<run $tfDescValid.push("moonrabbit")>><</if>>
+
+	/* Generic animal + celestial blends (e.g. demonic cat, fallen fox).
+	Wolf is excluded (always hellhound/dog); bunny only takes "fallen bunny" since demon/angel are the special names above. */
+	<<set _comboCelestialIds to ["demon", "fallen", "angel"]>>
+	<<set _genericComboAnimals to ["cat", "cow", "harpy", "fox", "bear", "waterdragon"]>>
+	<<for _comboAnimal range _genericComboAnimals>>
+		<<if _descOption[_comboAnimal]>>
+			<<for _comboCelestial range _comboCelestialIds>>
+				<<if _descOption[_comboCelestial]>>
+					<<run $tfDescValid.push(_comboAnimal + "+" + _comboCelestial)>>
+				<</if>>
+			<</for>>
+		<</if>>
+	<</for>>
+	<<if _descOption.bunny and _descOption.fallen>><<run $tfDescValid.push("bunny+fallen")>><</if>>
 
 	/* Self-heal: if the saved choice is no longer valid, revert to automatic. */
 	<<if $tfDesc is undefined>><<set $tfDesc to {}>><</if>>

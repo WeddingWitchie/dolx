@@ -102,6 +102,56 @@ class Transformations {
 	static canBanish() {
 		return this.effectiveLevel("angel") >= 4 && V.angelBanish >= 1;
 	}
+
+	/* --- Description (mirror "Described as") helpers ---------------------------------
+	   Combination descriptions come in two shapes, matching the automatic <<characteristics>> title:
+	   - Special named chimeras whose name already implies the celestial half, so they take NO adjective:
+	  	 hellhound (wolf + demon/fallen), dog (wolf + angel), jackalope (bunny + demon), moon rabbit (bunny + angel).
+	     Stored as the bare keys "hellhound"/"dog"/"jackalope"/"moonrabbit".
+	   - Generic animal + celestial blends, e.g. "fallen cat", "demonic fox". Stored as "<animal>+<celestial>". */
+
+	static get descriptionSpecialNames() {
+		return { hellhound: "hellhound", dog: "dog", jackalope: "jackalope", moonrabbit: "moon rabbit" };
+	}
+
+	static descriptionAnimalNoun(animal) {
+		switch (animal) {
+			case "cow":
+				return V.player?.gender_appearance === "m" ? "bull" : "cow";
+			case "harpy":
+				return V.hallucinations >= 2 || !V.settings?.bestialityEnabled ? "harpy" : "bird";
+			case "waterdragon":
+				return "water dragon";
+			default:
+				return animal; // cat, fox, bear
+		}
+	}
+
+	/** Noun phrase for a description key without an article, e.g. "hellhound", "fallen cat".
+	    Returns "" when the key is a plain single-species description (handled elsewhere). */
+	static descriptionPhrase(id) {
+		if (typeof id !== "string") return "";
+		if (this.descriptionSpecialNames[id]) return this.descriptionSpecialNames[id];
+		if (!id.includes("+")) return "";
+		const [animal, celestial] = id.split("+");
+		const adjective = { angel: "angelic", fallen: "fallen", demon: "demonic" }[celestial];
+		const noun = this.descriptionAnimalNoun(animal);
+		return adjective ? `${adjective} ${noun}` : noun;
+	}
+
+	/** Full phrase with article for body text, e.g. "a hellhound", "a fallen cat". "" if not a combo. */
+	static descriptionComboLabel(id) {
+		const phrase = this.descriptionPhrase(id);
+		if (!phrase) return "";
+		return `${/^[aeiou]/i.test(phrase) ? "an" : "a"} ${phrase}`;
+	}
+
+	/** Capitalised phrase for the mirror listbox, e.g. "Hellhound", "Fallen cat". "" if not a combo. */
+	static descriptionComboMenuLabel(id) {
+		const phrase = this.descriptionPhrase(id);
+		if (!phrase) return "";
+		return phrase.charAt(0).toUpperCase() + phrase.slice(1);
+	}
 }
 
 window.Transformations = Transformations;
