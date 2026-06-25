@@ -20,7 +20,7 @@
 	<<npc River>><<person1>>
 	You are in the soup kitchen on Wolf Street. Rows of crowded tables line the hall. The kitchen proper sits at the back, filling the room with the smell of warm soup.
 	<br><br>
-	<<kitchenicon "pot-clean">><<link [[Help River (1:00)|Soup Kitchen Work]]>><<endevent>><<pass 60>><<famegood 5>><<trauma -6>><<npcincr River love 1>><<housekeeping 1 300>><</link>><<glove>><<ltrauma>><<ghousekeeping 300>>
+	<<kitchenicon "pot-clean">><<link [[Help River (1:00)|Soup Kitchen Work]]>><<endevent>><<pass 60>><<famegood 5>><<trauma -6>><<npcincr River love 1>><<housekeeping 1 300>><<grace 3>><</link>><<glove>><<ltrauma>><<ghousekeeping 300>><<gggrace>>
 	<br>
 	<<if $mathsproject is "ongoing" and $river_help isnot 1>>
 		<<socialiseicon "ask">><<link [[Ask River for help with maths competition|Soup Kitchen Maths]]>><<endevent>><</link>>
@@ -605,15 +605,16 @@ The rest of the hour passes without event.
 :: Soup Kitchen Closed
 
 <<set $outside to 0>><<set $location to "temple">><<effects>>
+<<set _soupOpen to (Time.schoolDay ? 15 : 9)>>
 <<if $soup_kitchen_init isnot 1>>
-	You search for the grey building you were told about. You find it hidden among the trees in the shadow of the temple. You try the door, but it's locked. You were told it opens between <span class="gold"><<ampm 18 00>> and <<ampm 21 00>></span>.
+	You search for the grey building you were told about. You find it hidden among the trees in the shadow of the temple. You try the door, but it's locked. You were told it opens after school on school days, and from the morning on weekends, closing at <span class="gold"><<ampm 21 00>></span>.
 	<br><br>
 <<else>>
-	You approach the soup kitchen, but the door is locked. <<openinghours 18 21>>
+	You approach the soup kitchen, but the door is locked. <<openinghours _soupOpen 21>>
 	<br><br>
 <</if>>
-<<if $debug is 1 and !Time.betweenHours(18, 20, 1)>>
-	<<loitericon>><<link [[Wait for the soup kitchen to open (DEBUG)|Soup Kitchen]]>><<passTimeUntil 18 1>><</link>>
+<<if $debug is 1 and !(Time.schoolDay ? Time.betweenHours(15, 20, 1) : Time.betweenHours(9, 20, 1))>>
+	<<loitericon>><<link [[Wait for the soup kitchen to open (DEBUG)|Soup Kitchen]]>><<passTimeUntil _soupOpen 1>><</link>>
 	<br>
 <</if>>
 <<getouticon>><<link [[Leave|Wolf Street]]>><</link>>
