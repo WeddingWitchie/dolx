@@ -350,7 +350,7 @@ function initSpecialClothes() {
 		},
 		underground_farm: {
 			text: "cow print set",
-			requirements: () => V.livestock.intro !== undefined,
+			requirements: () => V.livestock?.intro !== undefined,
 			hint: "become livestock",
 			shop: ["forest", "adult"],
 			subsetOf: ["bad_end", "transformation"],
@@ -800,7 +800,7 @@ function initSpecialClothes() {
 			hint: "find them all",
 			shop: [],
 			featCost: 30,
-			requirements: () => (V.museumAntiques.museumCount === V.museumAntiques.maxCount),
+			requirements: () => (V.museumAntiques?.museumCount !== undefined && V.museumAntiques.museumCount === V.museumAntiques.maxCount),
 			feat: true,
 			icon: "clothes/antique_coral_ring.png",
 		},
