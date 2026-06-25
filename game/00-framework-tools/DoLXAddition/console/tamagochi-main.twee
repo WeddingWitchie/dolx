@@ -1,6 +1,11 @@
 :: Home Console
 <<set $outside to 0>><<unset $consoleAction, $trainType>><<effects>>
 <<set _ret to ($location is "alex_cottage" ? "Farm Bedroom" : "Bedroom")>>
+/* Elixirs (from Robin's arcade-date booster packs) let a dead virtual pet be revived once each. Stored globally so they survive hatching a new pet. */
+<<if $petElixirs is undefined>><<set $petElixirs to 0>><</if>>
+/* Dungeon keys won from minibosses; each opens one dungeon run for the virtual pet. */
+<<if $petKeys is undefined>><<set $petKeys to 0>><</if>>
+
 <<furnitureicon "controller">>You switch on your console. What would you like to play?
 <br><br>
 
@@ -62,6 +67,8 @@
 	The screen displays a small headstone. <span class="blue">_t.name</span>
 	<<if _t.deathCause is "battle">>
 		was struck down defending itself, and didn't survive.
+	<<elseif _t.deathCause is "boss">>
+		was hunted down by the blood-moon boss you never faced.
 	<<elseif _t.deathCause is "abandoned">>
 		was overwhelmed by an attacker you never came back to fend off.
 	<<elseif _t.deathCause is "illness">>
@@ -76,6 +83,12 @@
 		<span class="green">You have _t.elixirs <<= _t.elixirs is 1 ? "Elixir" : "Elixirs">> from Robin. You could use one to bring <span class="blue">_t.name</span> back.</span>
 		<br>
 		<<link [[Use an Elixir to revive it|Home Console Pet]]>><<run Tamagotchi.reviveWithElixir()>><</link>>
+		<br><br>
+	<</if>>
+	<<if _t.backupAlive>>
+		<span class="green">Your other pet, <span class="blue">_t.backup.name</span>, is still with you.</span>
+		<br>
+		<<link [[Continue with _t.backup.name|Home Console Pet]]>><<run Tamagotchi.promoteBackup()>><</link>>
 		<br><br>
 	<</if>>
 	<<link [[Lay it to rest and start over|Home Console Pet]]>><<run Tamagotchi.bury()>><</link>>
@@ -97,13 +110,26 @@
 	<<= Tamagotchi.statusHtml()>>
 
 	<<if _t.pendingAttack>>
-		<span class="red">A wild enemy is attacking <<= _t.name>> right now! You have to defend it!</span>
+		<<if _t.bossDue>>
+			<span class="red">A monstrous boss has risen under the blood moon and stalks <<= _t.name>>!
+			Beat it within _t.bossDaysLeft <<= _t.bossDaysLeft is 1 ? "day" : "days">>, or it will kill your pet.</span>
+		<<else>>
+			<span class="red">An enemy is attacking <<= _t.name>> right now! You have to defend it!</span>
+		<</if>>
+		<<if _t.backupAlive>>
+			<br><span class="green">Both your pets stand together! If one falls in battle, the other charges in.</span>
+		<</if>>
 		<br>
 		<<link [[Defend your pet!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
 		<br><br>
-		<<link "Step away (risky)" _ret>><<unset $consoleAction, $trainType>><</link>>
+		<<if _t.bossDue>>
+			<<link "Turn it off (the boss will keep hunting)" _ret>><<unset $consoleAction, $trainType>><</link>>
+		<<else>>
+			<<link "Step away (risky)" _ret>><<unset $consoleAction, $trainType>><</link>>
+		<</if>>
 	<<elseif _t.sleeping>>
-		<span class="teal"><<= _t.name>> is curled up asleep and can't be disturbed for about _t.sleepHoursLeft <<= _t.sleepHoursLeft is 1 ? "hour" : "hours">>. Come back once it's rested.</span>
+		<span class="teal"><<= _t.name>> is curled up asleep and can't be disturbed for about _t.sleepHoursLeft
+		<<= _t.sleepHoursLeft is 1 ? "hour" : "hours">>. Come back once it's rested.</span>
 		<br><br>
 		<<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
 	<<else>>
@@ -113,7 +139,8 @@
 			<<link [[Choose a new skill|Home Console Pet Skill Pick]]>><</link>>
 			<br><br>
 		<<else>>
-			<span class="small-description"><i>The next challenger will arrive in about _t.nextAttackDays <<= _t.nextAttackDays is 1 ? "day" : "days">>.</i></span>
+			<span class="small-description"><i>The next challenger will arrive in about _t.nextAttackDays
+			<<= _t.nextAttackDays is 1 ? "day" : "days">>.</i></span>
 			<br><br>
 		<</if>>
 
@@ -138,6 +165,39 @@
 			<span class="grey">Train your pet</span>, <i>_ct.reason</i>
 		<</if>>
 		<br><br>
+		<<if _t.canEvolve>>
+			<span class="gold"><<= _t.name>> trembles with pent-up power.
+			It could evolve, sacrificing _t.evolveCost of its skills to transform!</span>
+			<br>
+			<<link [[Evolve your pet|Home Console Pet Evolve]]>><</link>>
+			<br><br>
+		<</if>>
+		<<if _t.inDungeon>>
+			<<furnitureicon "controller">><<link [[Resume your dungeon run|Home Console Dungeon Walk]]>><</link>>
+			<br><br>
+		<<elseif _t.keys gt 0>>
+			<<furnitureicon "controller">><<link [[Enter the dungeon|Home Console Dungeon Enter]]>><</link>> <i>(_t.keys <<= _t.keys is 1 ? "key" : "keys">>)</i>
+			<br><br>
+		<</if>>
+		<<if _t.hasBackup and _t.backupAlive>>
+			<span class="small-description"><i>Your other pet:
+			<span class="blue">_t.backup.name</span><<if _t.backup.needsCare>>
+			<span class="red">(needs care)</span><</if>>.</i></span>
+			<br>
+			<<link [[Switch to your other pet|Home Console Pet]]>><<run Tamagotchi.switchActive()>><</link>>
+			<br><br>
+		<<elseif _t.hasBackup>>
+			<span class="red">Your other pet, <span class="blue">_t.backup.name</span>, has passed away.</span>
+			<br>
+			<<link [[Lay your other pet to rest|Home Console Pet]]>><<unset $petBackup>><</link>>
+			<br><br>
+		<<elseif _t.atCap>>
+			<span class="gold"><<= _t.name>> has grown as strong as it possibly can and can't get any stronger.
+			You could adopt a second pet to raise alongside it.</span>
+			<br>
+			<<link [[Adopt another pet|Home Console Pet Adopt]]>><</link>>
+			<br><br>
+		<</if>>
 		<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
 	<</if>>
 <</if>>
@@ -320,17 +380,123 @@
 <<set _sum to Tamagotchi.endBattle()>>
 
 <<if _sum.result is "win">>
-	Your pet drove off the wild <span class="green"><<= _sum.enemy>></span>!<<stress -8>><<lstress>>
-	<br>
-	<span class="green">It's survived another week. The next challenger will be tougher.</span>
+	<<if _sum.boss>>
+		Your pet vanquished the <span class="green"><<= _sum.enemy>></span> beneath the blood moon!<<stress -10>><<lllstress>>
+		<br><span class="green">The monthly threat is over... until the next blood moon.</span>
+	<<elseif _sum.keyGained>>
+		Your pet smashed through the <span class="green"><<= _sum.enemy>></span>!<<stress -8>><<llstress>>
+		<br><span class="gold">It dropped a dungeon key! You now hold <<= _sum.keys>>.</span>
+	<<elseif _sum.dungeon>>
+		Your pet cut down the <span class="green"><<= _sum.enemy>></span> deeper in the dungeon.<<stress -4>><<lstress>>
+	<<else>>
+		Your pet drove off the wild <span class="green"><<= _sum.enemy>></span>!<<stress -8>><<llstress>>
+		<br><span class="green">It's survived another week. The next challenger will be tougher.</span>
+	<</if>>
+	<<if _sum.teammateRevived>>
+		<br><span class="green">Your fallen teammate is helped back to its feet, exhausted but alive.</span>
+	<</if>>
 	<<if _sum.statBoost>>
 		<br>
-		<span class="gold">Victory has made it stronger! <<= "(+" + _sum.hpBoost + " max HP, +" + _sum.statBoost + " to ATK, DEF, SPD and max MP)">></span>
+		<span class="gold">Victory has made it stronger!
+		<<= "(+" + _sum.hpBoost + " max HP, +" + _sum.statBoost + " to ATK, DEF, SPD and max MP)">></span>
+	<</if>>
+	<<if _sum.capped>>
+		<br><span class="gold">It has reached its limits and can grow no further.</span>
 	<</if>>
 <<elseif _sum.result is "lose">>
-	Your pet fought bravely, but the wild <span class="purple"><<= _sum.enemy>></span> was too strong. <span class="red">It didn't survive.</span><<stress 6>><<gstress>>
+	Your pet fought bravely, but the <span class="purple"><<= _sum.enemy>></span> was too strong. <span class="red">It didn't survive.</span><<stress 6>><<gstress>>
 <<else>>
 	The battle ends.
 <</if>>
 <br><br>
+<<if _sum.dungeon and _sum.result is "win">>
+	<<run Tamagotchi.dungeonMobCleared()>>
+	<<link [[Press on|Home Console Dungeon Walk]]>><</link>>
+<<else>>
+	<<if _sum.dungeon>><<run Tamagotchi.dungeonEnd()>><</if>>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<</if>>
+
+:: Home Console Pet Evolve
+<<set $outside to 0>><<effects>>
+<<set _t to Tamagotchi.status()>>
+<<if $evoPick is undefined>><<set $evoPick to []>><</if>>
+<<if not _t.canEvolve>>
+	<<= _t.name>> can't evolve right now.
+	<<unset $evoPick>>
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
+	The screen glows as <span class="blue">_t.name</span> stands ready to evolve. The transformation multiplies every stat tenfold, but you must <span class="red">choose _t.evolveCost of its skills to sacrifice</span> in the ritual.
+	<br><br>
+	<span class="gold"><<= $evoPick.length>> / _t.evolveCost selected.</span>
+	<br>
+	<<for _s range Tamagotchi.learnedSkills()>>
+		<<capture _s>>
+			<<if $evoPick.includes(_s.id)>>
+				<<link [[(x) _s.name|Home Console Pet Evolve]]>><<set $evoPick to $evoPick.filter(id => id !== _s.id)>><</link>> <span class="red">to be sacrificed</span>
+			<<elseif $evoPick.length lt _t.evolveCost>>
+				<<link [[( ) _s.name|Home Console Pet Evolve]]>><<run $evoPick.push(_s.id)>><</link>>
+			<<else>>
+				<span class="grey">( ) _s.name</span>
+			<</if>>
+			| <span class="teal">_s.typeLabel</span><<if _s.passive>>, passive<<elseif _s.heal>>, heal<<else>>, Pow _s.power<</if>>
+		<</capture>>
+		<br>
+	<</for>>
+	<br>
+	<<if $evoPick.length is _t.evolveCost>>
+		<<link [[Evolve!|Home Console Pet Evolve Do]]>><</link>>
+	<<else>>
+		<span class="grey">Select exactly _t.evolveCost skills to evolve.</span>
+	<</if>>
+	<br>
+	<<link [[Cancel|Home Console Pet]]>><<unset $evoPick>><</link>>
+<</if>>
+
+:: Home Console Pet Evolve Do
+<<set $outside to 0>><<effects>>
+<<set _evo to Tamagotchi.evolve($evoPick)>>
+<<unset $evoPick>>
+<<set _t to Tamagotchi.status()>>
+
+<<if not _evo or not _evo.ok>>
+	Nothing happens.
+<<else>>
+	You sacrifice <span class="red"><<= _evo.sacrificed.join(", ")>></span>.
+	<br>
+
+	Light floods the little screen. When it fades, <span class="blue">_t.name</span>
+	has evolved from <span class="teal"><<= _evo.from>></span> into <span class="gold"><<= _evo.to>></span>!
+	<<stress -10>><<lllstress>>
+	<br><br>
+	<<= Tamagotchi.statusHtml()>>
+	<<if _evo.capped>>
+		<br><span class="gold"><<= _t.name>> is already as strong as it can ever be.</span>
+	<</if>>
+<</if>>
+<br><br>
 <<link [[Back|Home Console Pet]]>><</link>>
+
+:: Home Console Pet Adopt
+<<set $outside to 0>><<effects>>
+<<set _t to Tamagotchi.status()>>
+<<if _t.hasBackup or not _t.atCap>>
+	You can't adopt another pet right now.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
+	A second egg appears on the screen, ready to hatch alongside <span class="blue">_t.name</span>. It won't be the same kind as <span class="blue">_t.name</span>. What will you name it?
+	<br>
+	<<textbox "_petname" "Pixel">>
+	<br><br>
+	<<for _sp range Tamagotchi.adoptableSpecies()>>
+		<<capture _sp>>
+			<<link [["Choose " + _sp.name|Home Console Pet]]>><<run Tamagotchi.adopt(_petname, _sp.id)>><</link>>|
+			<span class="teal">_sp.typeLabel</span> type. <i>_sp.blurb</i>
+		<</capture>>
+		<br>
+	<</for>>
+	<br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<</if>>
