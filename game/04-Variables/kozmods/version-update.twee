@@ -1351,6 +1351,39 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<unset $xchange.spikerates["dumbbitch"]>>
 	<</if>>
 
+	/* Slider sanitiser. Runs after every key migration above, so it's the final authority.
+	   The <<numberslider>> macro throws if its stored value is missing/NaN ("is not a number") or below the slider's min ("default value (0) is less than min value (1)").
+	   Older builds used a min of 0 and never backfilled every key, so loaded saves could carry a 0, a NaN, or a missing key into the X-Change settings page and crash it.
+	   We repair every min-1 slider (and the two weight-only keys the spike pool reads) back into a valid range here. */
+	<<run (() => {
+		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+		const x = V && V.xchange;
+		if (!x) return;
+		/* spikerates: every settings slider is 1-10. genderflip/fertile have no slider but the spike pool reads them, so keep them valid too.
+		Values restore to their intended default when absent or non-numeric, and clamp into range when a stale value is out of bounds. */
+		const rateDefaults = {
+			genderflip: 10, crossdress: 7, herm: 4, breeder: 2, bull: 2,
+			continue: 3, resistance: 3, portal: 2, fertile: 2, passion: 1,
+			"dumb-bitch": 1, innocence: 1, fertility: 4, swell: 2, bimbo: 1, cumcure: 1,
+		};
+		if (!x.spikerates || typeof x.spikerates !== "object" || Array.isArray(x.spikerates)) x.spikerates = {};
+		for (const k of Object.keys(rateDefaults)) {
+			const v = x.spikerates[k];
+			x.spikerates[k] = Number.isFinite(v) ? Math.min(10, Math.max(1, v)) : rateDefaults[k];
+		}
+		/* Scalar sliders whose min is above 0, so a stale 0 / NaN / missing value crashes them too. */
+		const scalarSliders = {
+			combatPillingDrawChance: { min: 1, max: 50, def: 15 },
+			cumcureTime: { min: 1, max: 24, def: 3 },
+			resistanceOrgasmPenalty: { min: 0.5, max: 0.99, def: 0.7 },
+		};
+		for (const k of Object.keys(scalarSliders)) {
+			const s = scalarSliders[k];
+			const v = x[k];
+			x[k] = Number.isFinite(v) ? Math.min(s.max, Math.max(s.min, v)) : s.def;
+		}
+	})()>>
+
 	<<if $xchange.removerPillCatalogue>>
 		<<for _i to 0; _i lt $xchange.removerPillCatalogue.length; _i++>>
 			<<if $xchange.removerPillCatalogue[_i] is "dumbbitch">>
