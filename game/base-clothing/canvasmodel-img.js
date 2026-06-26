@@ -114,6 +114,9 @@ DefineMacro("modelprepare-player-body", function () {
 			██   ██ ██   ██ ██      ██ ███████
 			*/
 	const wings = ["demon", "angel", "fallenAngel", "bird"].some(tf => !["hidden", "disabled"].includes(V.transformationParts[tf].wings));
+	const demonTail = !T.disabled.includes(V.transformationParts.demon.tail);
+	const crotchCoveringTf = wings || demonTail;
+	const flauntingWhenExposed = !V.dontHide && V.libertine !== 2 && V.transformationParts.traits.flaunting === "default";
 	const coverBreasts = !V.dontHide && ((V.uncomfortable.nude && T.exposedUpper >= 2) || (V.uncomfortable.underwear && T.exposedUpper >= 1));
 	const coverCrotch = !V.dontHide && ((V.uncomfortable.nude && T.exposedLower >= 2) || (V.uncomfortable.underwear && T.exposedLower >= 1));
 
@@ -171,7 +174,7 @@ DefineMacro("modelprepare-player-body", function () {
 
 	if (V.leftarm !== "bound" && V.leftarm !== "grappled") {
 		if (!T.coverBreasts) {
-			if (V.exposed >= 2 && !V.dontHide && V.libertine !== 2 && V.transformationParts.traits.flaunting === "default") {
+			if (V.exposed >= 2 && flauntingWhenExposed) {
 				T.modeloptions.demon_wings_state = "flaunt";
 			} else {
 				T.modeloptions.demon_wings_state = "idle";
@@ -184,7 +187,7 @@ DefineMacro("modelprepare-player-body", function () {
 				!T.disabled.includes(V.transformationParts.demon.wings) &&
 				!(isChimeraEnabled("demonharpy", "wings") && isPartEnabled(T.modeloptions.bird_wings_type))
 			) {
-				T.modeloptions.demon_wings_state = V.transformationParts.traits.flaunting === "default" ? "flaunt" : "cover";
+				T.modeloptions.demon_wings_state = flauntingWhenExposed ? "flaunt" : "cover";
 				T.modeloptions.arm_left = leftArm;
 			} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
 				T.modeloptions.angel_wing_right = "cover";
@@ -205,9 +208,10 @@ DefineMacro("modelprepare-player-body", function () {
 		}
 	}
 
-	if (coverCrotch && wings) {
-		if (!T.disabled.includes(V.transformationParts.demon.tail)) {
-			T.modeloptions.demon_tail_state = V.transformationParts.traits.flaunting === "default" ? "flaunt" : "cover";
+	if (coverCrotch && crotchCoveringTf) {
+		if (demonTail) {
+			T.modeloptions.demon_tail_state = flauntingWhenExposed ? "flaunt" : "cover";
+			T.modeloptions.arm_right = rightArm;
 			if (!T.disabled.includes(V.transformationParts.cat.tail)) T.modeloptions.cat_tail_state = "cover";
 		} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
 			T.modeloptions.angel_wing_left = "cover";
@@ -218,6 +222,8 @@ DefineMacro("modelprepare-player-body", function () {
 		} else if (!T.disabled.includes(V.transformationParts.bird.wings)) {
 			T.modeloptions.bird_wing_left = "cover";
 		}
+	} else if (demonTail && V.exposed >= 2 && flauntingWhenExposed) {
+		T.modeloptions.demon_tail_state = "flaunt";
 	}
 
 	if (T.prop) {
@@ -225,7 +231,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.prop = Object.assign({}, T.prop);
 		T.modeloptions.prop.show =
 			(T.modeloptions.arm_left !== "none" && T.modeloptions.arm_right !== "none") || T.modeloptions.prop.armPosition === "handsfree";
-		if (coverCrotch && T.prop.hasCoverImg && !wings) T.modeloptions.prop.name += "-cover";
+		if (coverCrotch && T.prop.hasCoverImg && !crotchCoveringTf) T.modeloptions.prop.name += "-cover";
 	}
 
 	function armPosition(arm) {
@@ -247,6 +253,7 @@ DefineMacro("modelprepare-player-body", function () {
 
 	function propCoversNudity(arm) {
 		if (wings || !T.prop.hasCoverImg) return false;
+		if (arm === "right" && demonTail) return false;
 
 		if (arm === "right" && coverCrotch && !T.prop.armPosition.includes("left")) return true;
 		if (arm === "left" && coverBreasts && (T.prop.armPosition.includes("left") || T.prop.armPosition === "idle_both")) return true;
@@ -258,7 +265,8 @@ DefineMacro("modelprepare-player-body", function () {
 		const rightCoverClothes = setup.clothes_all_slots.some(slot => ["right_cover", "cover_both"].includes(V.worn[slot]?.holdPosition));
 
 		if ((arm === "left" && leftCoverClothes) || (arm === "right" && rightCoverClothes)) return true;
-		if (!wings && ((arm === "left" && coverBreasts) || (arm === "right" && coverCrotch))) return true;
+		if (arm === "left" && !wings && coverBreasts) return true;
+		if (arm === "right" && !crotchCoveringTf && coverCrotch) return true;
 		return false;
 	}
 
