@@ -660,11 +660,19 @@
 
 <<widget "temple_bailey_options">>
 	<<babyRent>>
-	<<if $money gte $rentmoney + ($babyRent or 0)>>
-		<<link [[Pay up|Temple Bailey Pay]]>><</link>>
-		<br>
-		<<link [[Refuse|Temple Bailey Refuse]]>><<def 1>><<grace -30>><</link>><<lllgrace>>
-		<br>
+	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
+	<<set _rentTotal to ($rentmoney + ($babyRent or 0) + _loanSurcharge)>>
+	<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+		<<if setup.inflation and setup.inflation.baileyAggressive()>>
+			<<baileyGripDemand>>
+			<<link [[Pay up|Temple Bailey Pay]]>><</link>>
+			<br>
+		<<else>>
+			<<link [[Pay up|Temple Bailey Pay]]>><</link>>
+			<br>
+			<<link [[Refuse|Temple Bailey Refuse]]>><<def 1>><<grace -30>><</link>><<lllgrace>>
+			<br>
+		<</if>>
 	<<else>>
 		<<set $baileypaychain to 0>>
 		<<set $baileyRefusedToPay += 1>>

@@ -7,6 +7,13 @@
 	hidden: true, //Will hide the feat at all times unless unlocked, best for feats for unreleased content
 */
 setup.feats = {
+	"Meet the Dev": {
+		title: "Meet the Dev",
+		desc: "Thanks for playing our game!",
+		difficulty: 5,
+		filter: ["All", "General"],
+		hidden: true,
+	},
 	"Pocket Change": {
 		title: "Pocket Change",
 		desc: "Have £1,000.",
@@ -2526,90 +2533,6 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max kicking with tempered kicking.",
 	},
-	// "Urban Myth": {
-	// 	title: "Urban Myth",
-	// 	desc: "Get 4000 combat fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Guardian Angel": {
-	// 	title: "Guardian Angel",
-	// 	desc: "Get 4000 kindness fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Mogul": {
-	// 	title: "Mogul",
-	// 	desc: "Get 4000 business fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "The Unmissable": {
-	// 	title: "The Unmissable",
-	// 	desc: "Get 4000 socialite fame.",
-	// 	difficulty: 5,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Face of the Spotlight": {
-	// 	title: "Face of the Spotlight",
-	// 	desc: "Get 4000 model fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Public Transit": {
-	// 	title: "Public Transit",
-	// 	desc: "Get 4000 sex fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Lady of the Night": {
-	// 	title: "Lady of the Night",
-	// 	desc: "Get 4000 prostitution fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Public Fucktoy": {
-	// 	title: "Public Fucktoy",
-	// 	desc: "Get 4000 rape fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Absolute Deviant": {
-	// 	title: "Absolute Deviant",
-	// 	desc: "Get 4000 bestiality fame.",
-	// 	difficulty: 3,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Attention Addict": {
-	// 	title: "Attention Addict",
-	// 	desc: "Get 4000 exhibitionism fame.",
-	// 	difficulty: 2,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Broodmother": {
-	// 	title: "Eve",
-	// 	desc: "Get 4000 pregnancy fame.",
-	// 	difficulty: 5,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
-	// "Progenitor": {
-	// 	title: "Progenitor",
-	// 	desc: "Get 4000 impregnation fame.",
-	// 	difficulty: 5,
-	// 	series: "",
-	// 	filter: ["All", "AMC Traits"],
-	// },
 	"Starting Point": {
 		title: "Starting Point",
 		desc: "You've beaten the peak of vanilla single combat, but that's it.",
@@ -3020,7 +2943,10 @@ function featsMerge() {
 DefineMacro("featsMerge", featsMerge);
 
 function earnFeat(featName) {
-	if (!featName || V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings?.allureModifier < 1 || V.statFreeze) return;
+	if (!featName) return;
+	/* "Meet the Dev" is awarded by the parody money-cap event, which only fires in an exploit/cheat state.
+	It is the single feat allowed to bypass the normal cheat/debug/soft-mode lockout. */
+	if (featName !== "Meet the Dev" && (V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings?.allureModifier < 1 || V.statFreeze)) return;
 
 	if (
 		V.feats.currentSave[featName] !== undefined ||

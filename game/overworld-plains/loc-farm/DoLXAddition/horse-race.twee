@@ -1,68 +1,101 @@
 :: Racecourse
+<<effects>>
 <<run setup.horserace.ensureState()>><<run setup.horserace.weeklyState()>><<outfitChecks>>
 <<if $farm.horseRaceUnlocked isnot true>>
 	The fenced-off course is quiet. Alex has not opened it for racing yet.
 	<br><br>
 	<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
 <<else>>
-	<<if $horserace.phase is "idle" or $horserace.phase is "finished">><<run setup.horserace.createRace(true)>><</if>>
-	The racecourse is already noisy. Bookies shout over each other, betting slips pass from hand to hand, and the horses are led towards the gate.
-	<<if $weekly.horseRaceIncidentLossStreak gte 2>>
-		<span class="purple">A strange hesitation sits under the noise today</span>. A few handlers watch the runners too closely, and some of the bookies lower their voices before taking the next slip. No one says the race is fixed, but no one looks comfortable either.
+	<<if $horserace.phase is "idle" or $horserace.phase is "finished" or $horserace.phase is "closed">><<run setup.horserace.createRace(true)>><</if>>
+	<<if $horserace.phase is "closed">>
+		<<endevent>>
+		<<npc Alex>><<person1>>
+		The racecourse is much quieter than usual. A few handlers linger near the stable gate,
+		but no bookies are calling odds and no horses are being led to the start.
+		<br><br>
+		Alex checks the empty course, then gives you an apologetic look.
+		"The horses don't look in any shape to run today. Too many are lame or shaken up. We'll have to close betting until they're right again.
+		<span class="pink">Maybe we can train them better...</span>"
+		<br><br>
+		<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
+	<<else>>
+		The racecourse is already noisy. Bookies shout over each other, betting slips pass from hand to hand,
+		and the horses are led towards the gate.
+		<br><br>
+		<<if $weekly.horseRaceIncidentLossStreak gte 2>>
+			<span class="purple">A strange hesitation sits under the noise today</span>.
+			A few handlers watch the runners too closely, and some of the bookies lower their voices before taking the next slip.
+			No one says the race is fixed, but no one looks comfortable either.
+		<</if>>
+		<<if $exposed gte 2>>
+			<span class="pink">A few conversations die as you approach</span>.
+			The bookies stare, the handlers pretend not to, and Alex quickly steps closer as if <<nnpc_he "Alex">>
+			can block the whole racecourse from seeing you.<<stress 6>><<gstress>>
+			<<if $face isnot "covered">><<fameexhibitionism 1>><</if>>
+		<<elseif $exposed is 1>>
+			<span class="pink">Several people glance your way and whisper</span>,
+			but the bookies are more interested in taking bets than asking questions about what you're wearing...
+			or almost not wearing.<<garousal>><<arousal 200>>
+		<</if>>
+		<<print setup.horserace.renderHorseList()>>
+		<<link "Place a bet" "Racecourse Betting">><</link>>
+		<br>
+		<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
 	<</if>>
-	<<if $exposed gte 2>>
-		<span class="pink">A few conversations die as you approach</span>. The bookies stare, the handlers pretend not to, and Alex quickly steps closer as if <<nnpc_he Alex>> can block the whole racecourse from seeing you.<<stress 6>><<gstress>>
-		<<if $face isnot "covered">><<fameexhibitionism 1>><</if>>
-	<<elseif $exposed is 1>>
-		<span class="pink">Several people glance your way and whisper</span>, but the bookies are more interested in taking bets than asking questions about what you're wearing... or almost not wearing.<<garousal>><<arousal 200>>
-	<</if>>
-	<<print setup.horserace.renderHorseList()>>
-	<<link "Place a bet" "Racecourse Betting">><</link>>
-	<br>
-	<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
 <</if>>
 
 :: Racecourse Betting
-The board changes one last time while the bookie calls for final bets.
-<<print setup.horserace.renderHorseList()>>
-<<if !$horserace.selectedHorseId>>
-	Choose a horse to back.
-	<p class="horse-race-bet-links">
-	<<set _firstHorseLink to true>>
-	<<for _horse range $horserace.horses>>
-		<<if _firstHorseLink>><<set _firstHorseLink to false>><<else>><br><</if>>
-		<<set _label to _horse.name + " (" + _horse.odds.toFixed(2) + "x)">>
-		<<capture _horse>>
-			<<link _label "Racecourse Betting">><<set $horserace.selectedHorseId to _horse.id>><<set $horserace.betInput to "">><</link>>
-		<</capture>>
-	<</for>>
-	</p>
+<<effects>>
+<<if $horserace.phase is "closed">>
+	<<endevent>>
+	<<npc Alex>><<person1>>
+	Alex gives the empty course another look. "The horses don't look in any shape to run today.
+	Too many are lame or shaken up. We'll have to close betting until they're right again.
+	<span class="pink">Maybe we can train them better...</span>"
+	<br><br>
+	<<link [[Return to the farm|Farm Work]]>><<endevent>><</link>>
 <<else>>
-	<<set _horse to setup.horserace.getHorse($horserace.selectedHorseId)>>
-	You choose <<print _horse.name>>. Choose how much you want to bet.
-	<<set _presetBets to [100, 500, 1000, 2000, 10000]>><<set _firstBet to true>><<set _shownPreset to false>>
-	<p class="horse-race-bet-links">
-	<<for _amount range _presetBets>>
-		<<set _internalAmount to setup.horserace.toInternalMoney(_amount)>>
-		<<if $money >= _internalAmount>>
-			<<set _shownPreset to true>>
-			<<if _firstBet>>
-				<<set _firstBet to false>>
-			<<else>>
-				 |
-			<</if>>
-			<<set _label to _amount.toLocaleString("en-GB") + "£">>
-			<<capture _amount>>
-				<<link _label "Racecourse Betting Submit">><<set $horserace.betInput to _amount + "">><</link>>
+	The board changes one last time while the bookie calls for final bets.
+	<<print setup.horserace.renderHorseList()>>
+	<<if !$horserace.selectedHorseId>>
+		Choose a horse to back.
+		<p class="horse-race-bet-links">
+		<<set _firstHorseLink to true>>
+		<<for _horse range $horserace.horses>>
+			<<if _firstHorseLink>><<set _firstHorseLink to false>><<else>><br><</if>>
+			<<set _label to _horse.name + " (" + _horse.odds.toFixed(2) + "x)">>
+			<<capture _horse>>
+				<<link _label "Racecourse Betting">><<set $horserace.selectedHorseId to _horse.id>><<set $horserace.betInput to "">><</link>>
 			<</capture>>
+		<</for>>
+		</p>
+	<<else>>
+		<<set _horse to setup.horserace.getHorse($horserace.selectedHorseId)>>
+		You choose <<print _horse.name>>. Choose how much you want to bet.
+		<<set _presetBets to [100, 500, 1000, 2000]>><<set _firstBet to true>><<set _shownPreset to false>>
+		<p class="horse-race-bet-links">
+		<<for _amount range _presetBets>>
+			<<set _internalAmount to setup.horserace.toInternalMoney(_amount)>>
+			<<if $money >= _internalAmount>>
+				<<set _shownPreset to true>>
+				<<if _firstBet>>
+					<<set _firstBet to false>>
+				<<else>>
+					 |
+				<</if>>
+				<<set _label to _amount.toLocaleString("en-GB") + "£">>
+				<<capture _amount>>
+					<<link _label "Racecourse Betting Submit">><<set $horserace.betInput to _amount + "">><</link>>
+				<</capture>>
+			<</if>>
+		<</for>>
+		</p>
+		<<if !_shownPreset>>
+			<span class="red">You do not have enough money for the smallest preset bet.</span>
+			<br>
 		<</if>>
-	<</for>>
-	</p>
-	<<if !_shownPreset>>
-		<span class="red">You do not have enough money for the smallest preset bet.</span>
-		<br>
+		<<steedicon>><<link "Choose a different horse" "Racecourse Betting">><<set $horserace.selectedHorseId to "">><<set $horserace.betInput to "">><</link>>
 	<</if>>
-	<<steedicon>><<link "Choose a different horse" "Racecourse Betting">><<set $horserace.selectedHorseId to "">><<set $horserace.betInput to "">><</link>>
 <</if>>
 
 :: Racecourse Betting Submit
@@ -146,6 +179,8 @@ The board changes one last time while the bookie calls for final bets.
 <<run setup.horserace.cancelAutoWatch()>>
 <<if $horserace.phase isnot "finished">><<run setup.horserace.simulateToEnd(false)>><</if>>
 <<print setup.horserace.renderResult()>>
+<<if $horserace.lossTraumaPending>><<gggtrauma>><<trauma 15>><<set $horserace.lossTraumaPending to false>>
+<<elseif $horserace.lossStressPending>><<gggstress>><<stress 20>><<set $horserace.lossStressPending to false>><</if>>
 <<link "Run another race" "Racecourse Betting">><<run setup.horserace.createRace(true)>><</link>>
 <br>
 <<link [[Return to the farm|Farm Work]]>><<run setup.horserace.clearRaceData()>><</link>>
@@ -255,4 +290,3 @@ A handler waves from the track. Alex waves back, then turns to you with a bright
 <span class="gold">The racecourse is now open from the farmyard.</span>
 <br>
 <<link [[Return to the farm|Farm Work]]>><<endevent>><<run setup.horserace.clearRaceData()>><</link>>
-

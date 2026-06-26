@@ -992,8 +992,10 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 		• Estimated total at maturity: <<printmoney _maturity.total>>
 	</div>
 	<br>
+	<span class="gold">Note:</span> <i>This money is locked away until the term ends.</i>
+	<br><br>
 
-	<<link [[Yes, open this fixed-term deposit|HBSC Bank Fixed-Term Open Result]]>><</link>>
+	<<link [[Yes, lock this away|HBSC Bank Fixed-Term Open Result]]>><</link>>
 	<br>
 	<<link [[No, let me change the amount|HBSC Bank Fixed-Term Amount]]>><</link>>
 <</if>>
@@ -1005,24 +1007,22 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <<set $hbsc.ftAmount to 0>><<set $hbsc.ftAmountInput to "">>
 
 <<if _result.ok>>
-	The teller confirms the amount, stamps the paperwork, and finishes the booking. "Done. Your fixed-term deposit is now active."
+	The teller takes the slip, books it in, and slides a receipt across the counter. "Done. That's locked away now until it matures, earning the rate we agreed."
 	<br><br>
 
 	<div class="hbsc-brochure">
-		<span class="gold">New fixed-term deposit</span><br>
-		• Amount Locked Away: <<printmoney _result.term.principal>><br>
-		• Taken Now From:
-		<<if _result.term.source is "deposit">>
-			HBSC savings balance
+		<span class="gold">Fixed-term deposit opened</span><br>
+		• Amount locked away: <<printmoney _result.amount>><br>
+		• Taken from:
+		<<if _result.source is "deposit">>
+			your HBSC savings
 		<<else>>
 			cash on hand
 		<</if>>
 		<br>
-		• Term: <<print _result.term.months>> month(s)<br>
-		• Rate: <<print _result.term.aer>>% per year<br>
-		<<set _interestEarned to setup.hbsc.roundMoney(_result.maturity.total - _result.term.principal)>>
-		• Interest earned over <<print _result.term.months>> month(s): <<printmoney _interestEarned>><br>
-		• Estimated Total At Maturity: <<printmoney _result.maturity.total>>
+		• Term: <<print _result.months>> month(s)<br>
+		• Rate: <<print _result.aer>>% per year<br>
+		• Matures in: <<print Math.max(0, (_result.term.matureOnDay - Time.days))>> days
 	</div>
 	<br>
 	<<set $hbsc.ftMonths to 0>><<set $hbsc.ftSource to "">>
@@ -1212,3 +1212,95 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<br><br>
 	<<hbscOptions>>
 <</if>>
+
+:: HBSC Bank Loan
+<<effects>><<run setup.hbsc.ensureState()>>
+<<set _owed to $hbsc.loan.owed>>
+<<set _principal to setup.hbsc.loanPrincipalOutstanding()>>
+<<set _borrowable to setup.hbsc.loanBorrowable()>>
+<<set _repayChunk to Math.min(_owed, $money, setup.hbsc.LOAN_CHUNK)>>
+<<set _repayAll to Math.min(_owed, $money)>>
+
+<<if setup.hbsc.isBanned()>>
+	<<set _remaining to setup.hbsc.getBanRemainingDays()>>
+	The teller checks the account notes. "Sorry. Because you tried to sneak around inside the branch, counter service is suspended for <span class="red"><<print _remaining>> more day<<print _remaining is 1 ? "" : "s">></span>."
+	<br><br>
+	<<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<<else>>
+	The teller pulls up the personal lending screen. "We can advance you cash in small amounts. The terms are simple: you repay one and a half times whatever you borrow. Miss it for a month and we'll arrange collection through your landlord."
+	<br><br>
+
+	<div class="hbsc-brochure">
+		<span class="gold">Loan summary</span><br>
+		&bull; Cash on hand: <<printmoney $money>><br>
+		&bull; Outstanding balance to repay: <<printmoney _owed>><br>
+		&bull; Borrowed principal: <<printmoney _principal>> of <<printmoney setup.hbsc.LOAN_PRINCIPAL_MAX>><br>
+		&bull; Available to borrow now: <<printmoney _borrowable>><br>
+		<<if $hbsc.loan.autoRepay and _owed gt 0>>
+			&bull; <span class="red">Overdue:</span> Bailey is collecting <<printmoney setup.hbsc.LOAN_RENT_SURCHARGE>> a week from your rent.<br>
+		<</if>>
+	</div>
+	<br>
+
+	<<if _borrowable gt 0>>
+		<<schoolicon "library desk">><<link [[Borrow|HBSC Bank Loan Result]]>><<set $hbsc.loan.action to "borrow">><</link>> (<span class="gold"><<printmoney _borrowable>></span>)
+		<br>
+	<<else>>
+		<i>You've reached the lending limit. Repay some of your balance to borrow more.</i>
+		<br>
+	<</if>>
+
+	<<if _repayChunk gt 0>>
+		<<schoolicon "library desk">><<link [[Repay a little|HBSC Bank Loan Result]]>><<set $hbsc.loan.action to "repayChunk">><</link>> (<span class="gold"><<printmoney _repayChunk>></span>)
+		<br>
+		<<if _repayAll gt _repayChunk>>
+			<<schoolicon "library desk">><<link [[Repay everything|HBSC Bank Loan Result]]>><<set $hbsc.loan.action to "repayAll">><</link>> (<span class="gold"><<printmoney _repayAll>></span>)
+			<br>
+		<</if>>
+	<<elseif _owed gt 0>>
+		<i>You don't have the cash to repay anything right now.</i>
+		<br>
+	<</if>>
+	<br>
+	<<hbscOptions>>
+<</if>>
+
+:: HBSC Bank Loan Result
+<<effects>><<run setup.hbsc.ensureState()>>
+<<set _action to $hbsc.loan.action>>
+<<set $hbsc.loan.action to "">>
+
+<<if _action is "borrow">>
+	<<set _result to setup.hbsc.borrowLoan()>>
+	<<if _result.ok>>
+		The teller counts out <<printmoney _result.amount>> and slides it across the counter. "There you go. That's added to what you owe us."
+		<br><br>
+		Your outstanding balance is now <<printmoney _result.owed>>.
+		<br><br>
+	<<elseif _result.reason is "banned">>
+		The teller shakes <<his>> head. "Counter service is suspended right now."
+		<br><br>
+	<<else>>
+		The teller shakes <<his>> head. "You've hit your lending limit. Pay some back first."
+		<br><br>
+	<</if>>
+<<elseif _action is "repayChunk" or _action is "repayAll">>
+	<<set _target to (_action is "repayAll" ? Math.min($hbsc.loan.owed, $money) : Math.min($hbsc.loan.owed, $money, setup.hbsc.LOAN_CHUNK))>>
+	<<set _result to setup.hbsc.repayLoan(_target)>>
+	<<if _result.ok>>
+		The teller takes <<printmoney _result.paid>> and updates your account.
+		<<if _result.owed gt 0>>
+			"You've still got <<printmoney _result.owed>> to go."
+		<<else>>
+			<span class="green">"That clears your loan in full. Pleasure doing business."</span>
+		<</if>>
+		<br><br>
+	<<else>>
+		The teller checks the screen. "There's nothing to repay, or you're short on cash."
+		<br><br>
+	<</if>>
+<<else>>
+	The teller waits for you to decide.
+	<br><br>
+<</if>>
+<<hbscOptions>>

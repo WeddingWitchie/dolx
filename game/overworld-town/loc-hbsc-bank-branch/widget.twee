@@ -14,6 +14,11 @@
 		<br>
 	<</if>>
 
+	<<if $passage isnot "HBSC Bank Loan" and $passage isnot "HBSC Bank Loan Result">>
+		<<shopicon "register">><<link [[Borrow or repay money (0:02)|HBSC Bank Loan]]>><<pass 2>><</link>>
+		<br>
+	<</if>>
+
 	<<if $hbsc.account.level >= 1 and $passage isnot "HBSC Bank Deposit" and $passage isnot "HBSC Bank Deposit Confirm" and $passage isnot "HBSC Bank Deposit Result">>
 		<<schoolicon "library desk">><<link [[Deposit cash into savings (0:02)|HBSC Bank Deposit]]>><<pass 2>><</link>>
 		<br>
@@ -54,7 +59,7 @@
 		<<set _hbscAutoEnabled to []>>
 		<<for _i, _bill range setup.hbsc.AUTOPAY_BILLS>><<if setup.hbsc.isAutoPayEnabled(_bill.id)>><<run _hbscAutoEnabled.push(_bill.label)>><</if>><</for>>
 		<<set _hbscAutoCancelled to $hbsc.notices.filter(n => n and n.type is "autoPayCancelled")>>
-		<<if $hbsc.account.level >= 1 or _hbscBanDays > 0 or _hbscNoticeSummary.savingsInterestCount > 0 or _hbscNoticeSummary.maturedCount > 0 or _hbscTermSummary.activeCount > 0 or _hbscTermSummary.maturedCount > 0 or _hbscAutoEnabled.length > 0 or _hbscAutoCancelled.length > 0>>
+		<<if $hbsc.account.level >= 1 or _hbscBanDays > 0 or _hbscNoticeSummary.savingsInterestCount > 0 or _hbscNoticeSummary.maturedCount > 0 or _hbscTermSummary.activeCount > 0 or _hbscTermSummary.maturedCount > 0 or _hbscAutoEnabled.length > 0 or _hbscAutoCancelled.length > 0 or ($hbsc.loan and $hbsc.loan.owed > 0)>>
 			<hr>
 			<h1 class="header gold bold">HBSC Banking</h1>
 			<ul class="journal">
@@ -62,6 +67,9 @@
 					<<icon "access-card.png">><span class="gold"><<print setup.hbsc.getTierName($hbsc.account.level)>></span>
 					|
 					Total savings: <<printmoney $hbsc.account.deposit>>
+				<</if>>
+				<<if $hbsc.loan and $hbsc.loan.owed > 0>>
+					<li><<shopicon "register">><span class="red">Outstanding loan:</span> <<printmoney $hbsc.loan.owed>> left to repay<<if $hbsc.loan.autoRepay>>, and <span class="red">overdue</span>!<</if>>.</li>
 				<</if>>
 				<<if _hbscBanDays > 0>>
 					<li>You are banned from HBSC counter service for <span class="red"><<print _hbscBanDays>> day<<print _hbscBanDays is 1 ? "" : "s">></span>.</li>

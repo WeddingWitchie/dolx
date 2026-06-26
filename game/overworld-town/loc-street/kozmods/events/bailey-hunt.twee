@@ -1,0 +1,66 @@
+:: Widgets Bailey Street Hunt [widget]
+
+<<widget "baileyStreetHunt">>
+	/* Rendered inline by <<eventsstreet>> when an overdue, aggressive Bailey corners the player in the street.
+	No effects call here as the street passage already ran them. */
+	<<if not $baileyHuntReturn>><<set $baileyHuntReturn to $passage>><</if>>
+	<<endevent>>
+	<<npc Bailey>><<person1>>
+	<<generateRole 1 0 "thug">><<generateRole 2 0 "thug">>
+
+	<<set _huntReason to (setup.inflation ? setup.inflation.baileyAggressionReason() : "")>>
+
+	Bailey is already there, flanked by a <<person2>><<person>> and a <<person3>><<person>>, the three of them spreading across the pavement to cut off the street.
+	The goons close in, herding you back until your shoulders meet a wall.
+	Before you can bolt, the <<person2>><<person>> seizes one of your wrists and the <<person3>><<person>> the other, pinning your hands against the brick.
+	<br><br>
+	<<person1>>"You can't run from me," Bailey says.
+	<<switch _huntReason>>
+	<<case "loan">>
+		"The bank's been bending my ear about what you owe them. They've made collecting it my problem, and I always solve my problems."
+	<<case "inflation">>
+		"I've heard all about that little fortune you've been hoarding. Did you really think keeping off the doorstep would make the rent disappear?"
+	<<case "both">>
+		"A fat purse you won't spend, and a bank screaming in my ear about your debt. You've turned yourself into my full-time job."
+	<<default>>
+		"You've kept me waiting long enough."
+	<</switch>>
+	<br><br>
+	<<baileyRentFlavour>>
+	"<span class="red">Pay up.</span>"
+	<<babyRent>>
+	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
+	<<set _rentTotal to ($rentmoney + ($babyRent or 0) + _loanSurcharge)>>
+	<<loanRentNotice>>
+	<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+		<<He>> holds out an open palm. "You owe me <<printmoney _rentTotal "red">>."
+		<br><br>
+		<<link [[Pay up|Street Bailey Hunt Pay]]>><</link>>
+		<br>
+	<<else>>
+		<<He>> nods. The goons turn out your pockets<<if $money gt 0>>, taking the <<printmoney $money "gold">> you're carrying<</if>>.
+		<<if $hbsc and $hbsc.account and Number.isFinite($hbsc.account.deposit) and $hbsc.account.deposit gt 0>>
+			<<baileyBankDraw `$hbsc.account.deposit`>>
+		<</if>>
+		It still isn't enough. <<His>> smile fades. "Consider that a down payment. I'll find you again. I always do."<<gggtrauma>><<gstress>>
+		<br><br>
+		The goons give your arms a final wrench before letting go.<<gpain>>
+		<<if $money gt 0>><<money `-$money` "baileyRent">><</if>>
+		/* Couldn't pay: give a day's reprieve so the hunt can't trap the player mid-street. */
+		<<set $daily.baileyHuntBroke to true>>
+		<<set $baileyRefusedToPay += 1>>
+		<<trauma 12>><<stress 5>><<pain 15>>
+		<br><br>
+		<<link [[Next|$baileyHuntReturn]]>><<endevent>><<unset $baileyHuntReturn>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+:: Street Bailey Hunt Pay
+<<effects>><<if not $baileyHuntReturn>><<set $baileyHuntReturn to "High Street">><</if>>
+<<rentpay>>
+The goons release your wrists at a flick of Bailey's hand. The three of them fold back into the crowd as if they'd never been there.
+<br><br>
+<<set $renttime to 7>><<set $rentday to Time.weekDay>>
+<<link [[Next|$baileyHuntReturn]]>><<endevent>><<unset $baileyHuntReturn>><</link>>
+<br>

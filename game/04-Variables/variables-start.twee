@@ -5,6 +5,32 @@
 
 <<variablesStatic>>
 
+<<script>> /* Parody money-cap. Unavoidable. */
+(function () {
+	if (typeof Config === "undefined" || !Config.navigation) return;
+	var previousOverride = Config.navigation.override;
+	Config.navigation.override = function (dest) {
+		/* Respect the original override's decision first: version-migration waiting rooms and passage remaps must win, so the parody never hijacks them. */
+		if (typeof previousOverride === "function") {
+			var previousDest = previousOverride.apply(this, arguments);
+			if (previousDest) return previousDest;
+		}
+		/* Only when the original passes through do we consider the parody.
+		moneyParodyDue already excludes the parody's own passages and refuses to fire mid-combat/scene. */
+		if (
+			typeof setup !== "undefined" && setup.inflation &&
+			typeof setup.inflation.moneyParodyDue === "function" && setup.inflation.moneyParodyDue(dest)
+		) {
+			if (typeof State !== "undefined" && State.variables) {
+				State.variables.moneyParodyReturnPassage = dest;
+			}
+			return "Money Parody Intro";
+		}
+		return false;
+	};
+}());
+<</script>>
+
 :: gameStartOnly [widget]
 /* The following is only run when the widget is called, which is only on new game start. Add to this if you want something to be run when you start a new game. */
 <<widget "gameStartOnly">>

@@ -714,7 +714,8 @@ function sexShopOnItemClick(index) {
 	}
 
 	// Price / Buy
-	const canAfford = V.money >= item.cost;
+	const displayCost = ssmInflatedCost(item.cost);
+	const canAfford = V.money >= displayCost;
 	actionDiv.insertAdjacentHTML(
 		"beforeend",
 		`
@@ -723,9 +724,9 @@ function sexShopOnItemClick(index) {
 			${
 				canAfford
 					? `<a id="ssmBuyButton" onclick="window.sexShopOnBuyClick(${item.index})" class="ssm_buy_button">Buy it</a> (<span class="gold">£${(
-							item.cost / 100
+							displayCost / 100
 					  ).toFixed(2)}</span>)`
-					: `<span class="ssm_not_enough_money">Not enough money</span> (<span class="gold">£${(item.cost / 100).toFixed(2)}</span>)`
+					: `<span class="ssm_not_enough_money">Not enough money</span> (<span class="gold">£${(displayCost / 100).toFixed(2)}</span>)`
 			}
 			${item.type.includes("strap-on") ? determineRecipient(item.index) : ""}
 		</div>
@@ -738,6 +739,12 @@ function sexShopOnItemClick(index) {
 
 window.sexShopOnItemClick = sexShopOnItemClick;
 
+/* Inflation-adjusted price for display & affordability.
+The actual charge goes through statChange.money(), which applies the same adjustment, so the label matches the charge. */
+function ssmInflatedCost(amount) {
+	return typeof setup !== "undefined" && setup.inflation ? setup.inflation.price(amount) : amount;
+}
+
 // conditions for gifting items to people
 function determineRecipient(index) {
 	const item = setup.sextoys[index];
@@ -747,7 +754,8 @@ function determineRecipient(index) {
 	if (giftBr != null) giftBr.remove();
 
 	// Add 15$ for gifting paperwrap
-	if (V.money < item.cost + 15 * 100) return "";
+	const giftCost = ssmInflatedCost(item.cost + 15 * 100);
+	if (V.money < giftCost) return "";
 
 	for (const li of ["Alex", "Eden", "Kylar", "Robin", "Sydney"]) {
 		if (isPossibleLoveInterest(li)) {
@@ -762,7 +770,7 @@ function determineRecipient(index) {
 	if (optionBuilder === "") return "";
 	const builder = `<br id="giftBr"><a id="ssmGiftButton" onclick="window.sexShopOnGiftClick(${item.index})" class="ssm_gift_button">
 	Make a gift for :  </a><select name="recipient" id="recipientList">${optionBuilder}</select>
-	<div id="spanGift">(<span class="gold">£${item.cost / 100 + 15}</span>)</div>`;
+	<div id="spanGift">(<span class="gold">£${(giftCost / 100).toFixed(2)}</span>)</div>`;
 	return builder;
 }
 window.determineRecipient = determineRecipient;
@@ -884,7 +892,7 @@ function sexShopOnBuyClick(index, inSexShop = true, colour, costsMoney = true) {
 				const buyBtnReset = document.getElementById("ssmBuyButton");
 				if (buyBtnReset) {
 					buyBtnReset.outerHTML =
-						V.money >= item.cost
+						V.money >= ssmInflatedCost(item.cost)
 							? `<a id="ssmBuyButton" onclick="window.sexShopOnBuyClick(${index})" class="ssm_buy_button ssm_fade_in_fast">Buy it</a>`
 							: `<span class="ssm_not_enough_money">Not enough money</span>`;
 				}

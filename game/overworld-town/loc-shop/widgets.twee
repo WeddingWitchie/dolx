@@ -344,7 +344,7 @@
 			<<if Time.dayState is "night">>
 				Value: <span class="gold"> £<<print ($_setupItem.shop.sell_price * ($_setupItem.shop.bought_in_bulk or 1) * 2 / 100).toFixed(2)>></span>
 			<<else>>
-				Price: <span class="gold"> £<<print ($_setupItem.shop.sell_price * ($_setupItem.shop.bought_in_bulk or 1) * 2 / 100).toFixed(2)>></span>
+				Price: <span class="gold"> £<<print ((setup.inflation ? setup.inflation.price($_setupItem.shop.sell_price * ($_setupItem.shop.bought_in_bulk or 1) * 2) : $_setupItem.shop.sell_price * ($_setupItem.shop.bought_in_bulk or 1) * 2) / 100).toFixed(2)>></span>
 			<</if>>
 			<<if $_setupItem.shop.bought_in_bulk>>
 				per <<print $_setupItem.shop.bought_in_bulk>>
@@ -422,6 +422,8 @@
 			sum += setup.foodstuff[key].shop.sell_price * amount * 2 or 0;
 			return sum;
 		}, 0)>>
+		/* Inflation-adjusted total for display & affordability; the per-item macro money deductions below apply the same adjustment, so the label matches the charge. */
+		<<set _totalCostShown to (setup.inflation ? setup.inflation.price(_totalCost) : _totalCost)>>
 
 		<<if $_typesInBasket is 0>>
 			Your shopping basket is empty.
@@ -454,9 +456,9 @@
 				<<set $shoppingBasket to {}>>
 			<</link>>
 		<<else>>
-			Total: <span class="gold"> £<<print (_totalCost / 100).toFixed(2)>></span>
+			Total: <span class="gold"> £<<print (_totalCostShown / 100).toFixed(2)>></span>
 			<br>
-			<<if $money gte _totalCost>>
+			<<if $money gte _totalCostShown>>
 				<<link [["Purchase"|$passage]]>>
 					<<for _itemInCart range Object.keys($shoppingBasket)>>
 						<<tending_give _itemInCart $shoppingBasket[_itemInCart]>>
@@ -490,7 +492,7 @@
 				x<<print $shoppingBasket[_itemInCart]>>
 			</div>
 			<div class="price">
-				<span class="gold"> £<<print (setup.foodstuff[_itemInCart].shop.sell_price * $shoppingBasket[_itemInCart] * 2 / 100).toFixed(2)>></span>
+				<span class="gold"> £<<print ((setup.inflation ? setup.inflation.price(setup.foodstuff[_itemInCart].shop.sell_price * $shoppingBasket[_itemInCart] * 2) : setup.foodstuff[_itemInCart].shop.sell_price * $shoppingBasket[_itemInCart] * 2) / 100).toFixed(2)>></span>
 				<span>
 					<<capture _itemInCart>>
 						<<link "Remove">>

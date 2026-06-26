@@ -102,7 +102,7 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 :: Toy Shop Widgets [widget]
 
 <<widget "toyUpdate">>
-	You take a look at the collection of <<print $selectedToy.set>>. They cost <span class="gold"><<print $selectedToy.costDisplay>></span> each.
+	You take a look at the collection of <<print $selectedToy.set>>. They cost <span class="gold"><<printprice $selectedToy.cost>></span> each.
 <</widget>>
 
 <<widget "toyLinks">>
@@ -162,11 +162,11 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 							</span>
 							|
 							<<if $player.inventory.childrenToys.length gte 5>>
-								<span class="grey"><<= "£"+$selectedToy.cost/100>></span>
-							<<elseif $selectedToy.cost lte $money>>
-								<<link [['£' + $selectedToy.cost/100|$passage]]>><<set $selectedToy.selectedOption to _i>><<buyToy>><</link>>
+								<span class="grey"><<= "£"+(setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost)/100>></span>
+							<<elseif (setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost) lte $money>>
+								<<link [['£' + (setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost)/100|$passage]]>><<set $selectedToy.selectedOption to _i>><<buyToy>><</link>>
 							<<else>>
-								<span class="red"><<= "£"+$selectedToy.cost/100>></span>
+								<span class="red"><<= "£"+(setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost)/100>></span>
 							<</if>>
 						</label>
 					</div>

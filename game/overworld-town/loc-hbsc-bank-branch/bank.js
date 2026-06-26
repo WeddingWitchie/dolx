@@ -217,6 +217,8 @@ setup.hbsc.ensureState = function () {
 		term.months = Math.max(0, Math.floor(term.months));
 		term.elapsedDays = Math.max(0, Math.floor(term.elapsedDays));
 	}
+
+	if (setup.hbsc.ensureLoanState) setup.hbsc.ensureLoanState();
 };
 
 setup.hbsc.getSavingsTier = function (level) {
@@ -446,17 +448,39 @@ setup.hbsc.processDay = function () {
 			const maturity = setup.hbsc.calcFixedTermMaturity(term.principal, term.months);
 			term.maturityInterest = setup.hbsc.roundMoney(maturity.interest);
 			term.maturityTotal = setup.hbsc.roundMoney(maturity.total);
-			V.hbsc.notices.push({
-				type: "fixedTermMatured",
-				id: term.id,
-				day: Time.days,
-				months: term.months,
-				principal: term.principal,
-				total: term.maturityTotal
-			});
 			maturedCount++;
 		}
 	}
+
+	/* A matured fixed term automatically transfers into the regular savings balance (overflowing to carried cash if the savings cap is reached).
+	From this point the money is liquid again, so Bailey can detect it and collect it for rent.
+	The term is then removed from the list. A notice is left for the bank journal so the player learns it matured. */
+	if (maturedCount > 0) {
+		const remaining = [];
+		for (const term of V.hbsc.fixedTerms) {
+			if (term && term.status === "matured") {
+				const total = Number.isFinite(term.maturityTotal)
+					? term.maturityTotal
+					: setup.hbsc.roundMoney(setup.hbsc.calcFixedTermMaturity(term.principal, term.months).total);
+				const moved = setup.hbsc.receiveExternalDeposit(total);
+				V.hbsc.notices.push({
+					type: "fixedTermMatured",
+					id: term.id,
+					day: Time.days,
+					months: term.months,
+					principal: term.principal,
+					total,
+					toDeposit: moved.toDeposit,
+					toCash: moved.toCash
+				});
+			} else {
+				remaining.push(term);
+			}
+		}
+		V.hbsc.fixedTerms = remaining;
+	}
+
+	setup.hbsc.processLoanDay();
 
 	return maturedCount;
 };
@@ -514,13 +538,16 @@ setup.hbsc.openFixedTerm = function (principal, months, source = "deposit") {
 	const aer = setup.hbsc.getFixedTermAER(months, amount);
 	if (!(aer > 0)) return { ok: false, reason: "invalidBand" };
 
+	/* Lock the money away.
+	It leaves the source (cash or savings) and lives in the fixedTerms array until it matures, at which point processDay sweeps it back into savings.
+	While locked it counts toward wealth/inflation (see inflation.bankFunds) but Bailey can't reach it for rent. */
 	if (source === "money") {
 		if (V.money < amount) return { ok: false, reason: "insufficientMoney" };
 		V.money -= amount;
 	}
 	else if (source === "deposit") {
 		if (V.hbsc.account.deposit < amount) return { ok: false, reason: "insufficientDeposit" };
-		V.hbsc.account.deposit -= amount;
+		V.hbsc.account.deposit = setup.hbsc.roundMoney(V.hbsc.account.deposit - amount);
 	}
 	else {
 		return { ok: false, reason: "invalidSource" };
@@ -531,21 +558,15 @@ setup.hbsc.openFixedTerm = function (principal, months, source = "deposit") {
 		principal: amount,
 		months,
 		aer,
-		status: "active",
 		elapsedDays: 0,
 		createdOnDay: Time.days,
 		matureOnDay: Time.days + Math.max(1, Math.round(months * 30)),
 		accountLevelAtOpen: V.hbsc.account.level,
-		source
+		status: "active"
 	};
-
 	V.hbsc.fixedTerms.push(term);
 
-	return {
-		ok: true,
-		term,
-		maturity: setup.hbsc.calcFixedTermMaturity(amount, months)
-	};
+	return { ok: true, amount, source, months, aer, term };
 };
 
 setup.hbsc.closeFixedTerm = function (id, withdrawalKind = "full", target = "deposit") {
@@ -851,4 +872,106 @@ setup.hbsc.autoPayGamblingUpkeep = function () {
 	if (V.weekly == null || typeof V.weekly !== "object") V.weekly = {};
 	V.weekly.gamblingUpkeepPaid = 1;
 	return true;
+};
+
+/* ===========================================================================
+   HBSC personal loan ("rent money").
+   Borrowed in fixed chunks, capped by outstanding PRINCIPAL (not the interest-inflated balance).
+   owed = principal * (1 + INTEREST), and repayments shrink owed (and thus principal) proportionally.
+   Borrowed cash is neutral to the inflation calc (see inflation.js totalWealth()).
+   If the player ignores the loan for a month, collection is handed to Bailey's rent (see rent.twee rentpay).
+   All amounts are in pennies (raw $money units).
+   =========================================================================== */
+setup.hbsc.LOAN_CHUNK = 30000000;         // £300,000 advanced per request
+setup.hbsc.LOAN_PRINCIPAL_MAX = 100000000;// £1,000,000 max outstanding principal
+setup.hbsc.LOAN_INTEREST = 0.5;           // repay 1.5x principal (£1,000 -> £1,500)
+setup.hbsc.LOAN_RENT_SURCHARGE = 300000;  // £3000/week collected via Bailey once overdue
+setup.hbsc.LOAN_OVERDUE_DAYS = 25;        // 25 in-game days with no payment
+
+setup.hbsc.ensureLoanState = function () {
+	const V = State.variables;
+	if (V.hbsc == null || typeof V.hbsc !== "object") V.hbsc = {};
+	if (V.hbsc.loan == null || typeof V.hbsc.loan !== "object") V.hbsc.loan = {};
+	const loan = V.hbsc.loan;
+	if (!Number.isFinite(loan.owed)) loan.owed = 0;
+	loan.owed = setup.hbsc.roundMoney(loan.owed);
+	if (!Number.isFinite(loan.lastPaymentDay)) loan.lastPaymentDay = Time.days;
+	if (typeof loan.autoRepay !== "boolean") loan.autoRepay = false;
+	if (typeof loan.baileyAnnouncePending !== "boolean") loan.baileyAnnouncePending = false;
+	if (typeof loan.action !== "string") loan.action = "";
+	return loan;
+};
+
+/* Outstanding borrowed principal (the part that counts against the lending limit). */
+setup.hbsc.loanPrincipalOutstanding = function () {
+	const loan = setup.hbsc.ensureLoanState();
+	return setup.hbsc.roundMoney(loan.owed / (1 + setup.hbsc.LOAN_INTEREST));
+};
+
+/* How much can be advanced right now: the chunk size, capped to the remaining limit. */
+setup.hbsc.loanBorrowable = function () {
+	const remaining = setup.hbsc.LOAN_PRINCIPAL_MAX - setup.hbsc.loanPrincipalOutstanding();
+	return Math.max(0, Math.min(setup.hbsc.LOAN_CHUNK, setup.hbsc.roundMoney(remaining)));
+};
+
+setup.hbsc.canBorrow = function () {
+	if (setup.hbsc.isBanned && setup.hbsc.isBanned()) return false;
+	return setup.hbsc.loanBorrowable() > 0;
+};
+
+setup.hbsc.borrowLoan = function () {
+	const V = State.variables;
+	const loan = setup.hbsc.ensureLoanState();
+	if (setup.hbsc.isBanned && setup.hbsc.isBanned()) return { ok: false, reason: "banned" };
+	const amount = setup.hbsc.loanBorrowable();
+	if (!(amount > 0)) return { ok: false, reason: "limit" };
+
+	loan.owed = setup.hbsc.roundMoney(loan.owed + amount * (1 + setup.hbsc.LOAN_INTEREST));
+	loan.lastPaymentDay = Time.days; // borrowing (re)starts the overdue clock
+	if (typeof statChange !== "undefined" && statChange.money) statChange.money(amount, "bankLoan");
+	else V.money += amount;
+	return { ok: true, amount, owed: loan.owed };
+};
+
+setup.hbsc.repayLoan = function (amount) {
+	const V = State.variables;
+	const loan = setup.hbsc.ensureLoanState();
+	let pay = setup.hbsc.roundMoney(amount);
+	pay = Math.min(pay, loan.owed, V.money);
+	if (!(pay > 0)) return { ok: false, reason: "invalid", paid: 0, owed: loan.owed };
+
+	if (typeof statChange !== "undefined" && statChange.money) statChange.money(-pay, "bankLoan");
+	else V.money -= pay;
+	loan.owed = setup.hbsc.roundMoney(loan.owed - pay);
+	loan.lastPaymentDay = Time.days;
+	if (loan.owed <= 0) { loan.owed = 0; loan.autoRepay = false; loan.baileyAnnouncePending = false; }
+	return { ok: true, paid: pay, owed: loan.owed };
+};
+
+/* Weekly amount Bailey collects toward the loan once it's gone a month unpaid. */
+setup.hbsc.loanRentSurcharge = function () {
+	const loan = setup.hbsc.ensureLoanState();
+	if (!loan.autoRepay || loan.owed <= 0) return 0;
+	return Math.min(setup.hbsc.LOAN_RENT_SURCHARGE, loan.owed);
+};
+
+/* Called by rentpay AFTER rent (incl. surcharge) is deducted: books the collected surcharge against the loan and resets the overdue clock.
+Cash already moved. */
+setup.hbsc.collectLoanFromRent = function (amount) {
+	const loan = setup.hbsc.ensureLoanState();
+	const collected = Math.min(setup.hbsc.roundMoney(amount), loan.owed);
+	if (collected <= 0) return 0;
+	loan.owed = setup.hbsc.roundMoney(loan.owed - collected);
+	loan.lastPaymentDay = Time.days;
+	if (loan.owed <= 0) { loan.owed = 0; loan.autoRepay = false; loan.baileyAnnouncePending = false; }
+	return collected;
+};
+
+/* Daily: if the loan has gone a month with no payment, hand collection to Bailey. */
+setup.hbsc.processLoanDay = function () {
+	const loan = setup.hbsc.ensureLoanState();
+	if (loan.owed > 0 && !loan.autoRepay && (Time.days - loan.lastPaymentDay) >= setup.hbsc.LOAN_OVERDUE_DAYS) {
+		loan.autoRepay = true;
+		loan.baileyAnnouncePending = true;
+	}
 };

@@ -2531,11 +2531,19 @@
 	<<speechresolve>>
 	<<babyRent>>
 	<<rent_avery>>
-	<<if $money gte $rentmoney + ($babyRent or 0)>>
-		<<link [[Pay up|Farm Cottage Bailey Pay]]>><</link>>
-		<br>
-		<<link [[Refuse|Farm Cottage Bailey Refuse]]>><<def 1>><</link>>
-		<br>
+	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
+	<<set _rentTotal to ($rentmoney + ($babyRent or 0) + _loanSurcharge)>>
+	<<if $money gte _rentTotal>>
+		<<if setup.inflation and setup.inflation.baileyAggressive()>>
+			<<baileyGripDemand>>
+			<<link [[Pay up|Farm Cottage Bailey Pay]]>><</link>>
+			<br>
+		<<else>>
+			<<link [[Pay up|Farm Cottage Bailey Pay]]>><</link>>
+			<br>
+			<<link [[Refuse|Farm Cottage Bailey Refuse]]>><<def 1>><</link>>
+			<br>
+		<</if>>
 	<<else>>
 		<<set $baileypaychain to 0>>
 		<<switch _speechAttitudeResolved>>
@@ -2552,7 +2560,12 @@
 			<<default>>
 				"I don't have it," you tell Bailey. "You're wasting your time."
 		<</switch>>
-		<br>
+		<br><br>
+		<<if $money gt 0>>
+			Bailey's gaze drops to the cash you do have. "Not enough," Bailey says, snatching it. "But I'll take what you've got."
+			<<money `-$money` "baileyRent">><<gstress>><<gtrauma>><<stress 6>><<trauma 4>>
+			<br><br>
+		<</if>>
 		Alex rests a steadying hand on your shoulder. "We won't be blackmailed," <<he>> says, glaring at the intruder. "Get the fuck off
 		<<if C.npc.Alex.dom gte 20>>
 			my

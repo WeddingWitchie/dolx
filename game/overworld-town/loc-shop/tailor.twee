@@ -84,9 +84,9 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 
 					<<if _brokenOutfit[_i].brokenHalf.includes("under")>>
 						<<set _brokenOutfitTime += 5>><<set _tailorCostMod += .06>>
-						<<He>> tells you that your <<print _brokenOutfit[_i].name>> will take a little more time and effort if you're willing to take the risk. The repair will cost <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+						<<He>> tells you that your <<print _brokenOutfit[_i].name>> will take a little more time and effort if you're willing to take the risk. The repair will cost <<printprice `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
 					<<else>>
-						<<He>> can repair your missing <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+						<<He>> can repair your missing <<print _brokenOutfit[_i].name>> for <<printprice `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
 					<</if>>
 					<br>
 
@@ -106,13 +106,13 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 			We offer repairs on clothes. We also offer a weekly service to repair by delivery."
 			<br><br>
 			<<if $tailor_cost gte 1 and $money gte $tailor_cost>>
-				<<He>> offers to fix what you're currently wearing for <<printmoney `Math.trunc($tailor_cost)`>>.
+				<<He>> offers to fix what you're currently wearing for <<printprice `Math.trunc($tailor_cost)`>>.
 				<br>
 				<<shopicon "tailor">><<print '<<link [[Fix clothes (0:'+(_time lt 10 ? "0":"")+_time+')|Fix Clothes]]>><<money '+ -$tailor_cost + ' "tailor">><<pass _time>><</link>>'>>
 				<br><br>
 				<<set _options to true>>
 			<<elseif $money lt $tailor_cost>>
-				You don't have enough cash to repair your current clothes. (<<printmoney `Math.trunc($tailor_cost)` "red">>)
+				You don't have enough cash to repair your current clothes. (<<printprice `Math.trunc($tailor_cost)` "red">>)
 				<br><br>
 				<<set _options to true>>
 			<</if>>
@@ -145,9 +145,9 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 						<<if _secondUnderItem isnot true>>
 							<<set _secondUnderItem to true>>
 							"Ah, things like your <<print _brokenOutfit[_i].name>> take a little more time and effort to fix than other items." <<He>> stops to show you some specialised fabric <<he>> would need to use.
-							"If you're fine with that, I can replace it for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>."
+							"If you're fine with that, I can replace it for <<printprice `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>."
 						<<else>>
-							<<He>> can fix your <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+							<<He>> can fix your <<print _brokenOutfit[_i].name>> for <<printprice `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
 						<</if>>
 
 					<<elseif _brokenOutfit[_i].brokenHalf.includes("over")>>
@@ -156,13 +156,13 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 						<<if _secondOverItem isnot true>>
 							<<set _secondOverItem to true>>
 							"Repairs on <<print _brokenOutfit[_i].name>> are fairly simple for someone of my skill." <<He>> points to a few of the more complex items in the store as proof.
-							"This repair is relatively easy, so I can do it for <<printmoney `Math.trunc(_brokenOutfit.over.outfitCost * _tailorCostMod)`>>. Deal?"
+							"This repair is relatively easy, so I can do it for <<printprice `Math.trunc(_brokenOutfit.over.outfitCost * _tailorCostMod)`>>. Deal?"
 						<<else>>
-							The ease of the repair means <<he>> can patch up your <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+							The ease of the repair means <<he>> can patch up your <<print _brokenOutfit[_i].name>> for <<printprice `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
 						<</if>>
 
 					<<else>>
-						<<He>> offers to replace your missing <<print _brokenOutfit[_i].name>> for <<printmoney `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
+						<<He>> offers to replace your missing <<print _brokenOutfit[_i].name>> for <<printprice `Math.trunc(_brokenOutfit[_i].cost * _tailorCostMod)`>>.
 					<</if>>
 					<br>
 
@@ -185,52 +185,52 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 			<<if $DoLPSpools is undefined>>
 				"If you're interested in learning," <<he>> continues. "There's sewing kits and spools for sale too."
 				<br>
-				<<if $money gte 10000>>
-					<<shopicon "tailor">><<link [[Buy a sewing kit (£100)|$passage]]>>
-						<<set $money -= 10000>>
+				<<if $money gte (setup.inflation ? setup.inflation.price(10000) : 10000)>>
+					<<shopicon "tailor">><<link [[Buy a sewing kit (<<printprice 10000>>)|$passage]]>>
+						<<money -10000 "tailorSupplies">>
 						<<set $DoLPSpools to 0>>
 					<</link>>
 				<<else>>
-					You can't afford the sewing kit. (<<printmoney `Math.trunc(10000)` "red">>)
+					You can't afford the sewing kit. (<<printprice `Math.trunc(10000)` "red">>)
 				<</if>>
 				<br><br>
 			<<else>>
 				"Remember to restock on spools," <<he>> continues. "A sewing kit's not much use without them." You have <span class="green">$DoLPSpools</span> spools.
 				<br>
-				<<if $money gte 500>>
-					<<shopicon "tailor">><<link [[Buy 5 spools (£5)|$passage]]>>
-						<<set $money -= 500>>
+				<<if $money gte (setup.inflation ? setup.inflation.price(500) : 500)>>
+					<<shopicon "tailor">><<link [[Buy 5 spools (<<printprice 500>>)|$passage]]>>
+						<<money -500 "tailorSupplies">>
 						<<set $DoLPSpools += 5>>
 							<<endevent>>
 					<</link>>
 					<br>
-					<<if $money gte 1000>>
-						<<shopicon "tailor">><<link [[Buy 10 spools (£10)|$passage]]>>
-							<<set $money -= 1000>>
+					<<if $money gte (setup.inflation ? setup.inflation.price(1000) : 1000)>>
+						<<shopicon "tailor">><<link [[Buy 10 spools (<<printprice 1000>>)|$passage]]>>
+							<<money -1000 "tailorSupplies">>
 							<<set $DoLPSpools += 10>>
 							<<endevent>>
 						<</link>>
 						<br>
 					<</if>>
-					<<if $money gte 2500>>
-						<<shopicon "tailor">><<link [[Buy 25 spools (£25)|$passage]]>>
-							<<set $money -= 2500>>
+					<<if $money gte (setup.inflation ? setup.inflation.price(2500) : 2500)>>
+						<<shopicon "tailor">><<link [[Buy 25 spools (<<printprice 2500>>)|$passage]]>>
+							<<money -2500 "tailorSupplies">>
 							<<set $DoLPSpools += 25>>
 							<<endevent>>
 						<</link>>
 						<br>
 					<</if>>
-					<<if $money gte 5000>>
-						<<shopicon "tailor">><<link [[Buy 50 spools (£50)|$passage]]>>
-							<<set $money -= 5000>>
+					<<if $money gte (setup.inflation ? setup.inflation.price(5000) : 5000)>>
+						<<shopicon "tailor">><<link [[Buy 50 spools (<<printprice 5000>>)|$passage]]>>
+							<<money -5000 "tailorSupplies">>
 							<<set $DoLPSpools += 50>>
 							<<endevent>>
 						<</link>>
 						<br>
 					<</if>>
-					<<if $money gte 10000>>
-						<<shopicon "tailor">><<link [[Buy 100 spools (£100)|$passage]]>>
-							<<set $money -= 10000>>
+					<<if $money gte (setup.inflation ? setup.inflation.price(10000) : 10000)>>
+						<<shopicon "tailor">><<link [[Buy 100 spools (<<printprice 10000>>)|$passage]]>>
+							<<money -10000 "tailorSupplies">>
 							<<set $DoLPSpools += 100>>
 							<<endevent>>
 						<</link>>
@@ -238,7 +238,7 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 					<</if>>
 					<br>
 				<<else>>
-					You can't afford the spools. (<<printmoney `Math.trunc(500)` "red">>)
+					You can't afford the spools. (<<printprice `Math.trunc(500)` "red">>)
 					<br><br>
 				<</if>>
 			<</if>>
@@ -335,8 +335,8 @@ Your lower clothes have been fixed.
 	- Only <span class ="gold">£1000.00!</span>
 	<br><br>
 
-	<<if $money gte 100000>>
-		<<link [[Purchase sewing machine - Repair your clothes in your room! £1000|Tailor Shop]]>><<money -100000 "tailor">><<set $sewingKit to 1>><<set $sewingBought to 1>><<endevent>><</link>>
+	<<if $money gte (setup.inflation ? setup.inflation.price(100000) : 100000)>>
+		<<link [[Purchase sewing machine - Repair your clothes in your room! <<printprice 100000>>|Tailor Shop]]>><<money -100000 "tailor">><<set $sewingKit to 1>><<set $sewingBought to 1>><<endevent>><</link>>
 		<br>
 	<</if>>
 	<<link [[Go back|Tailor Shop]]>><<endevent>><</link>>
@@ -362,7 +362,7 @@ You think it will earn you <<printmoney `_value + 5000`>> currently after gettin
 <br><br>
 <<if $money gte 5000>>
 	<<shopicon "tailor">><<link [[Confirm the sale and pay the £50 deposit|Tailor Monthly Driver]]>>
-		<<money -5000 "tailor">>
+		<<money -5000 "tailorDeposit">>
 		<<set $tailorMonthlyService to "discard">>
 	<</link>>
 <<else>>
@@ -394,7 +394,7 @@ currently with the deposit reducing the cost.
 <br><br>
 <<if $money gte 5000>>
 	<<shopicon "tailor">><<link [[Confirm the repair and pay the £50 deposit|Tailor Monthly Driver]]>>
-		<<money -5000 "tailor">>
+		<<money -5000 "tailorDeposit">>
 		<<set $tailorMonthlyService to "repair">>
 	<</link>>
 <<else>>

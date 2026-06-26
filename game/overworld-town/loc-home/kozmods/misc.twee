@@ -1,3 +1,84 @@
+:: Widgets Orphanage Misc [widget]
+<<widget "baileyGripDemand">>
+	/* Shared hand-grip dialogue used wherever Bailey turns aggressive and rent becomes unavoidable (temple, farm, street hunt).
+	Reason from setup.inflation. */
+	<<set _gripReason to (setup.inflation ? setup.inflation.baileyAggressionReason() : "")>>
+	<<if _gripReason isnot "">>
+		<<person1>>
+		Before you can get a word out, Bailey's hand clamps around your wrist.
+		<<switch _gripReason>>
+		<<case "loan">>
+			"The bank came to me about what you owe them. Your debt's my problem now, which makes it very much yours.
+			You're paying. Today."
+		<<case "inflation">>
+			<<His>> mouth curls into a knowing smirk. "I know exactly what you've been hoarding.
+			Don't insult me by pretending you're short. You've got the money, and I'm done waiting for it."
+		<<case "both">>
+			<<His>> mouth curls into a knowing smirk. "I know what you've been sitting on, and so does the bank you owe.
+			Don't waste my time pretending you can't pay. You'll settle up with me right now, every penny."
+		<</switch>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+<<widget "baileyRentFlavour">>
+	/* Special demand wording when wealth pushes rent into the jump (>=£10M) or best-investment (>=£100M) tiers. See setup.inflation.rentDemand. */
+	<<set _rentTier to (setup.inflation ? setup.inflation.rentDemandTier() : "")>>
+	<<if _rentTier is "jump">>
+		<<person1>><<He>> holds your gaze. "I know exactly how much you're really sitting on. <span class="red">I want more.</span>"
+		<br><br>
+	<<elseif _rentTier is "investment">>
+		<<person1>><<He>> looks you over with a smile. "You know, out of everything I've ever gotten my hands on, you've turned out to be my single best investment.
+		So I'll be taking <<printmoney `setup.inflation.scaleRentSetting(setup.inflation.RENT_INVESTMENT_DEMAND)` "red">> a week. You can afford it, and we both know it."
+		<br><br>
+	<</if>>
+<</widget>>
+
+<<widget "baileyBankDraw">>
+	/* Called during rent payment when cash can't cover it but savings can: Bailey marches the player to HBSC and forces a withdrawal. _args[0] = pennies needed out of savings. */
+	<<if setup.hbsc and setup.hbsc.ensureState>><<run setup.hbsc.ensureState()>><</if>>
+	<<set _bankDraw to Math.min(Math.ceil(_args[0]), ($hbsc and $hbsc.account and Number.isFinite($hbsc.account.deposit) ? $hbsc.account.deposit : 0))>>
+	<<if _bankDraw gt 0>>
+		<<person1>>
+		<<He>> doesn't buy your empty pockets for a second. "The bank, then. <span class="red">You can't run from me by stuffing it in a vault.</span>"
+		<<His>> hand closes around your arm, and <<he>> marches you down the street and in through the doors of HBSC.
+		<br><br>
+		The teller doesn't so much as care; a withdrawal is a withdrawal. By the door a security guard watches you instead, eyes narrowing, plainly deciding you're the trouble here.
+		The message lands: settle this, or you're the one who ends up in danger. Bailey, evidently, <<he>> can handle <<himself>>.
+		<br><br>
+		You have no choice. You draw <<printmoney _bankDraw>> out of your savings.
+		<<set $hbsc.account.deposit -= _bankDraw>><<set $money += _bankDraw>>
+	<</if>>
+<</widget>>
+
+<<widget "rentInflationNotice">>
+	/* One-time smirk the first time the player's wealth triggers inflation, when Bailey uncaps the rent and starts demanding more. */
+	<<if setup.inflation and setup.inflation.multiplier(setup.inflation.baileyWealth()) gt 1 and not $rentInflationAnnounced>>
+		<<set $rentInflationAnnounced to true>>
+		<<person1>>
+		Bailey looks you up and down, then a smirk spreads across <<his>> face. <<He>> taps at <<his>> phone.
+		"Funny thing. Word gets around. Seems you've been sitting on quite the little fortune, haven't you? Holding out on me this whole time."
+		<br><br>
+		<<His>> smile sharpens. "Prices are going up for everyone, and your rent's no different. Only fair I get my share of what you've squirrelled away.
+		I'll be wanting more from now on, and more again the fatter that purse of yours gets."
+		<br><br>
+	<</if>>
+<</widget>>
+
+<<widget "loanRentNotice">>
+	/* One-time heads-up when an ignored HBSC loan first gets handed to Bailey to collect. */
+	<<if setup.hbsc and setup.hbsc.ensureLoanState>>
+		<<run setup.hbsc.ensureLoanState()>>
+		<<if $hbsc.loan.baileyAnnouncePending>>
+			<<set $hbsc.loan.baileyAnnouncePending to false>>
+			"<span class="red">Before we settle up,</span>" Bailey says, "the bank's been in touch.
+			You never paid back what you borrowed, so they've asked me to collect for them. From now on,
+			part of what you hand me goes straight to clearing that debt. Lucky you."
+			<br><br>
+		<</if>>
+	<</if>>
+<</widget>>
+
 :: Rent Pay Auto
 <<effects>>
 <<if $bus is "hospital">>

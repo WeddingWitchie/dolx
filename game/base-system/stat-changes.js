@@ -1273,6 +1273,20 @@ const statChange = (() => {
 			paramError("money", "amount", amount, "Expected a valid number.");
 			return;
 		}
+
+		/* X-Change inflation: market purchases get pricier as the player's cash grows.
+		   The surcharge is clamped so it can never overdraw the player and trigger the affordability error below. */
+		if (amount < 0 && !optional.recordOnly && typeof setup !== "undefined" && setup.inflation && setup.inflation.appliesToSpend(source)) {
+			let inflated = -setup.inflation.price(-amount);
+			/* Only apply the surcharge when the player can afford the BASE price.
+			If they can't even afford the base, leave `amount` untouched so the normal affordability error below still fires (otherwise the clamp would let them buy for whatever they hold).
+			When affordable, cap the inflated charge at their cash so the surcharge alone can't overdraw. price() rounds the same way macro printprice displays it, so label == charge. */
+			if (inflated < amount && V.money >= -amount) {
+				if (V.money + inflated < 0) inflated = -V.money;
+				amount = inflated;
+			}
+		}
+
 		if (!optional.recordOnly) {
 			if (amount < 0 && V.money + amount < 0) {
 				/* Included both types of error reporting, since this often will only occur in a link */

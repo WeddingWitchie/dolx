@@ -7,9 +7,8 @@ setup.horserace = setup.horserace || {};
 	HR.DEFAULT_WATCH_DELAY = 1600;
 
 	/* ---- Gambling balance configuration -------------------------------- *
-	 * WEEKLY_WIN_CAP_POUNDS: total stake the player can safely place on
-	 *   racing in one in-game week before the bookie's horses start
-	 *   "having incidents". Set very high to effectively disable.
+	 * INJURY_CHANCE_PERCENT: chance that the backed horse will be pulled up
+	 *   late in the race after a bet is placed.
 	 *
 	 * PAYOUT_MARGIN: house edge applied to winning payouts. 1.0 = fair odds
 	 *   (the original, slightly player-favorable behaviour). 0.92 = the house
@@ -18,7 +17,7 @@ setup.horserace = setup.horserace || {};
 	 * The weekly reset is handled by DoL's native $weekly cleanup; all weekly
 	 * counters live on $weekly, so they clear automatically each game week.
 	 * ------------------------------------------------------------------- */
-	HR.WEEKLY_WIN_CAP_POUNDS = 10000;
+	HR.INJURY_CHANCE_PERCENT = 89;
 	HR.PAYOUT_MARGIN = 0.92;
 
 	HR.trackDefs = {
@@ -522,8 +521,6 @@ setup.horserace = setup.horserace || {};
 		}
 	};
 
-	HR.weeklyCapInternal = function () {return HR.toInternalMoney(HR.WEEKLY_WIN_CAP_POUNDS);};
-
 	/* Single source of truth for every weekly counter. They live on DoL's
 	   $weekly object, so the game's normal weekly cleanup resets them for us
 	   and nothing accumulates in the permanent save. */
@@ -539,13 +536,29 @@ setup.horserace = setup.horserace || {};
 		return w;
 	};
 
-	/* Total stake (in internal money units) the player can still safely place this week. */
-	HR.weeklyRemaining = function () {return HR.weeklyCapInternal() - HR.weeklyState().horseRaceWeeklyBets;};
-
-	HR.isCapReached = function () {return HR.weeklyRemaining() <= 0;};
 	HR.addWeeklyBet = function (amountInternal) {
 		if (!Number.isFinite(amountInternal)) return;
 		HR.weeklyState().horseRaceWeeklyBets += amountInternal;
+	};
+
+	HR.availableHorseNames = function () {
+		const injuredNames = new Set(HR.weeklyState().horseRaceInjuredHorses);
+		return HR.horseNames.filter(name => !injuredNames.has(name));
+	};
+
+	HR.recordLoss = function () {
+		const V = State.variables;
+		const race = HR.ensureState();
+		if (race.lossRecorded) return;
+		race.lossRecorded = true;
+		if (V.daily == null || typeof V.daily !== "object") V.daily = {};
+		if (!Number.isFinite(V.daily.horseRaceLosses)) V.daily.horseRaceLosses = 0;
+		V.daily.horseRaceLosses += 1;
+		if (V.daily.horseRaceLosses > 3) {
+			race.lossTraumaPending = true;
+		} else {
+			race.lossStressPending = true;
+		}
 	};
 
 
@@ -572,6 +585,9 @@ setup.horserace = setup.horserace || {};
 		if (typeof race.paidOut !== "boolean") race.paidOut = false;
 		if (typeof race.trial !== "boolean") race.trial = false;
 		if (typeof race.autoWatch !== "boolean") race.autoWatch = false;
+		if (typeof race.lossStressPending !== "boolean") race.lossStressPending = false;
+		if (typeof race.lossTraumaPending !== "boolean") race.lossTraumaPending = false;
+		if (typeof race.lossRecorded !== "boolean") race.lossRecorded = false;
 
 		/* Weekly counters used to live here; they now live on $weekly and reset
 		   with DoL's weekly cleanup. Shed the old fields from existing saves. */
@@ -644,12 +660,38 @@ setup.horserace = setup.horserace || {};
 
 	HR.createRace = function (force) {
 		const race = HR.ensureState();
-		if (!force && race.phase !== "idle" && race.phase !== "finished") return race;
+		if (!force && race.phase !== "idle" && race.phase !== "finished" && race.phase !== "closed") return race;
 
-		const weekly = HR.weeklyState();
-		const injuredNames = new Set(weekly.horseRaceInjuredHorses);
-		const availableNames = HR.horseNames.filter(name => !injuredNames.has(name));
-		const namePool = availableNames.length > 0 ? availableNames : HR.horseNames;
+		const namePool = HR.availableHorseNames();
+		if (namePool.length < 3) {
+			race.id = `hr-closed-${Date.now()}-${HR.randInt(1000, 9999)}`;
+			race.phase = "closed";
+			race.round = 0;
+			race.horses = [];
+			race.messages = [];
+			race.messageHistory = [];
+			race.ranking = [];
+			race.selectedHorseId = "";
+			race.betHorseId = "";
+			race.betAmount = 0;
+			race.betInput = "";
+			race.payout = 0;
+			race.winnerId = "";
+			race.won = false;
+			race.paidOut = false;
+			race.trial = false;
+			race.autoWatch = false;
+			race.lastError = "The horses are not in good enough shape to run today.";
+			race.accident = false;
+			race.accidentAtRound = 0;
+			race.accidentRefund = false;
+			race.incidentHorseId = "";
+			race.lossStressPending = false;
+			race.lossTraumaPending = false;
+			race.lossRecorded = false;
+			return race;
+		}
+
 		const minCount = Math.min(3, namePool.length);
 		const maxCount = Math.min(5, namePool.length);
 		const count = HR.randInt(minCount, maxCount);
@@ -690,6 +732,9 @@ setup.horserace = setup.horserace || {};
 		race.accidentAtRound = 0;
 		race.accidentRefund = false;
 		race.incidentHorseId = "";
+		race.lossStressPending = false;
+		race.lossTraumaPending = false;
+		race.lossRecorded = false;
 
 		return race;
 	};
@@ -699,7 +744,7 @@ setup.horserace = setup.horserace || {};
 	   sit in every save slot. Weekly counters are untouched. */
 	HR.clearRaceData = function () {
 		const race = HR.ensureState();
-		if (race.phase !== "finished" && race.phase !== "idle") return race;
+		if (race.phase !== "finished" && race.phase !== "idle" && race.phase !== "closed") return race;
 		race.horses = [];
 		race.messages = [];
 		race.messageHistory = [];
@@ -714,12 +759,16 @@ setup.horserace = setup.horserace || {};
 		race.accident = false;
 		race.accidentAtRound = 0;
 		race.accidentRefund = false;
+		race.lossStressPending = false;
+		race.lossTraumaPending = false;
+		race.lossRecorded = false;
 		race.phase = "idle";
 		return race;
 	};
 
 	HR.startTrialRace = function () {
 		const race = HR.createRace(true);
+		if (race.phase === "closed") return race;
 		race.phase = "running";
 		race.trial = true;
 		race.selectedHorseId = "";
@@ -761,12 +810,8 @@ setup.horserace = setup.horserace || {};
 			return { ok: false, reason: "insufficientMoney" };
 		}
 
-		/* Weekly stake cap:
-		The first £10,000 of stakes each week is safe. Once the player has
-		already placed that much, further bets are accepted but their backed
-		horse is secretly armed for a late-race incident. */
 		const weekly = HR.weeklyState();
-		const capped = HR.isCapReached();
+		const injuryRoll = HR.randInt(1, 100) <= HR.INJURY_CHANCE_PERCENT;
 
 		V.money = HR.roundMoney(V.money - amount);
 		HR.addWeeklyBet(amount);
@@ -777,13 +822,10 @@ setup.horserace = setup.horserace || {};
 		race.autoWatch = false;
 		race.messages = [`You back ${horse.name} for ${HR.formatMoney(amount)} at ${horse.odds.toFixed(2)}x odds.`];
 
-		if (capped) {
-			/* Arm a late incident. The first over-limit incident this week refunds
-			the stake; later ones keep the stake. The actual incident waits until
-			the backed horse is close to the finish, or the race is nearly over. */
+		if (injuryRoll) {
 			race.accident = true;
 			race.accidentAtRound = HR.randInt(18, 24);
-			race.accidentRefund = weekly.horseRaceWeeklyAccidents <= 0;
+			race.accidentRefund = false;
 			weekly.horseRaceWeeklyAccidents += 1;
 		} else {
 			race.accident = false;
@@ -954,6 +996,7 @@ setup.horserace = setup.horserace || {};
 				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.betAmount);
 			} else {
 				weekly.horseRaceIncidentLossStreak += 1;
+				HR.recordLoss();
 			}
 			/* This bet is already resolved. finishRace must not pay or charge it again. */
 			race.paidOut = true;
@@ -1153,6 +1196,8 @@ setup.horserace = setup.horserace || {};
 				const margin = Number.isFinite(HR.PAYOUT_MARGIN) ? HR.clamp(HR.PAYOUT_MARGIN, 0, 1) : 1;
 				race.payout = HR.roundMoney(race.betAmount * betHorse.odds * margin);
 				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.payout);
+			} else {
+				HR.recordLoss();
 			}
 			race.paidOut = true;
 		}

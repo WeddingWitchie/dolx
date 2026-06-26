@@ -3403,7 +3403,11 @@
 	<</if>>
 
 	/* Events that must bypass eventpool and any conditions */
-	<<if $wraith.state and $eventforced and Time.isBloodMoon() and !_wraithEventSkipped>>
+	<<if $baileyStreetHuntPending>>
+		<<set $baileyStreetHuntPending to false>>
+		<<set $eventforced to 0>>
+		<<baileyStreetHunt>>
+	<<elseif $wraith.state and $eventforced and Time.isBloodMoon() and !_wraithEventSkipped>>
 		<<wraithEventStreet>>
 	<<elseif $kylarwatched is 1>>
 		<<kylarwatched>>
@@ -4103,6 +4107,13 @@
 
 <<widget "streeteffects">>
 	<<if !$possessed>>
+		<<if $eventskip is 0 and ($rentmoney or 0) gt 0 and $tutorial isnot 0 and not $daily.baileyHuntBroke and setup.inflation and setup.inflation.baileyAggressive() and ($renttime lte -2 or ($renttime lte 0 and Time.hour gte 4 and Time.hour lte 21))>>
+			/* Aggressive Bailey hunts the player through the streets while rent is overdue. Fires on EVERY street entry until rent is paid (which resets $renttime).
+			   A broke player only triggers it once per day ($daily.baileyHuntBroke) so it can't soft-lock travel. */
+			<<set $baileyHuntReturn to $passage>>
+			<<set $baileyStreetHuntPending to true>>
+			<<set $eventforced to 1>>
+		<<else>>
 		<<run statusCheck("Kylar")>>
 		<<set _kylarLocation to getKylarLocation()>>
 		<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte (random(0, 60))>>
@@ -4126,6 +4137,7 @@
 		<</if>>
 		<<if modLISelected("Poppy") and C.npc.Poppy and C.npc.Poppy.init is 1>><<poppyDismissalStreetCheck>><</if>>
 		<<wTimerProgress>>
+		<</if>>
 	<</if>>
 <</widget>>
 

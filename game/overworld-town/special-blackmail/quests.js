@@ -1,5 +1,10 @@
 
 // All quests part from the assumption that PC starts their day at the orphanage
+function blackmailReward(amount) {
+	return Math.round((Number(amount) || 0) * 10);
+}
+window.blackmailReward = blackmailReward;
+
 const blackmailQuests = {
 	low: [],
 	mid: [],
@@ -8,7 +13,7 @@ const blackmailQuests = {
 		{
 			id: 1,
 			prerequisites: function() { return true; },
-			reward: function() { return V.rentmoney; },
+			reward: function() { return blackmailReward(V.rentmoney); },
 			instructions: [
 				". Complete this task before midnight.",
 			],
@@ -52,7 +57,7 @@ blackmailQuests.low.push( // Generic wear no underwear
 			*/
 			return !Time.schoolDay || hasSexStat("exhibitionism", 4, true);
 		},
-		reward: function() { return V.rentmoney / 3; },
+		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
 			"Wear no underwear today.", 
 			"You may not put on any upper or lower underwear.", 
@@ -108,7 +113,7 @@ blackmailQuests.low.push( // Drink and get wasted
 		id: 2, // Implemented
 		// A knowingly-pregnant PC refuses all alcohol, making "get wasted" impossible. Don't assign it.
 		prerequisites: function() { return !(playerIsPregnant() && playerAwareTheyArePregnant()); },
-		reward: function() { return V.rentmoney / 3; },
+		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
 			"Go drink and get wasted.",
 			"You can do so at the pub, but it's not mandatory.", 
@@ -141,7 +146,7 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 	{
 		id: 3, // Implemented. ID fixed. Do not alter value.
 		prerequisites: function() { return !playerIsXChanged(); },
-		reward: function() { return V.rentmoney; },
+		reward: function() { return blackmailReward(V.rentmoney); },
 		instructions: [
 			"Take this pill we've happily provided for you on this envelope.",
 			"You're not allowed to test this pill's effects.",
@@ -192,7 +197,7 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 		prerequisites: function() { 
 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue('skulduggery') >= 200;
 		},
-		reward: function() { return V.rentmoney; },
+		reward: function() { return blackmailReward(V.rentmoney); },
 		instructions: [
 			"Masturbate naked for 5 minutes, within an empty classroom.",
 			`<span class="red">If you stop before the exact 5 minutes have lapsed, you must start over.</span>`,
@@ -260,7 +265,7 @@ blackmailQuests.low.push( // Go for a run in your underwear at park
 	{
 		id: 6, // Implemented.
 		prerequisites: function() { return true; },
-		reward: function() { return V.rentmoney; },
+		reward: function() { return blackmailReward(V.rentmoney); },
 		instructions: [
 			"Go for a run at the park in your underwear. Spend at least 30 minutes on this activity.",
 			"We recommend you wait until 9PM before doing so.",
@@ -297,7 +302,7 @@ blackmailQuests.mid.push( // Go for a run naked at park
 	{
 		id: 7, // Implemented.
 		prerequisites: function() { return true; },
-		reward: function() { return V.rentmoney; },
+		reward: function() { return blackmailReward(V.rentmoney); },
 		instructions: [
 			"Go for a run at the park while naked. Spend at least 1 hour on this activity.",
 			"We recommend you wait until 9PM before doing so.", 
@@ -331,7 +336,7 @@ blackmailQuests.low.push( // Take a pill and wear a skirt
 	{
 		id: 8, // Implemented
 		prerequisites: function() { return V.player.gender === "m" && !playerIsXChanged(); },
-		reward: function() { return V.rentmoney / 3; },
+		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
 			"Take the pill we've included in this envelope.",
 			"You're not allowed to test its effects.", 
@@ -387,7 +392,7 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 	{
 		id: 9, // Implemented
 		prerequisites: function() { return Time.hour < 17; },
-		reward: function() { return V.rentmoney / 3; },
+		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
 			"Go clean 3 challets at the beach.",
 			"Wear either a maid dress or a butler suit while doing so.", 
@@ -440,7 +445,7 @@ blackmailQuests.mid.push( // Avoid defiance for a day
 	{
 		id: 10, // Implemented
 		prerequisites: function() { return V.submissive <= 850; },
-		reward: function() { return V.rentmoney; },
+		reward: function() { return blackmailReward(V.rentmoney); },
 		instructions: [
 			"Since you're so strong-willed and prideful, we want to teach you how to be more honest with yourself.",
 			"To that end, we won't allow you to behave defiantly today.",
@@ -475,7 +480,7 @@ blackmailQuests.low.push( // Wear no shirt if male
 	{
 		id: 11, // Implemented
 		prerequisites: function() { return V.player.sex == "m"; },
-		reward: function() { return V.rentmoney / 3; },
+		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
 			"You're not allowed to wear a shirt today, nor any other clothing that covers your torso.", 
 			"You may only cover your torso if you're within school grounds (does not include its pool).", 
@@ -567,7 +572,7 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 	{
 		id: 13,
 		prerequisites: function() { return Time.dayState == "dawn"; },
-		reward: function() { return V.rentmoney / 3; },
+		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
 			"Take this pill and these 200 flowers we've provided.", 
 			"Drink the pill, and go sell flowers on Connadatus Street.",
@@ -621,7 +626,7 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 	{
 		id: 14,
 		prerequisites: function() { return Time.dayState == "dawn" && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1; },
-		reward: function() { return V.rentmoney / 2; },
+		reward: function() { return blackmailReward(V.rentmoney / 2); },
 		instructions: [
 			"Masturbate (and orgasm) at least once while selling flowers at a market stall.",
 			"Take this pill and these 200 flowers we've provided.", 
@@ -676,7 +681,7 @@ blackmailQuests.high.push( // Go streaking naked at the park during the day
 	{
 		id: 15, // Implemented.
 		prerequisites: function() { return Time.hour <= 16; },
-		reward: function() { return V.rentmoney; },
+		reward: function() { return blackmailReward(V.rentmoney); },
 		instructions: [
 			"Go streaking at the park naked during the day.", 
 			"Complete this task before midnight.",
@@ -709,7 +714,7 @@ blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully
 	{
 		id: 16, // Implemented.
 		prerequisites: function() { return Time.hour < 20; },
-		reward: function() { return V.rentmoney; },
+		reward: function() { return blackmailReward(V.rentmoney); },
 		instructions: [
 			"Go to the arcade and play some air hockey.",
 			"Play a stripping game with another player until either of you is fully naked.",
