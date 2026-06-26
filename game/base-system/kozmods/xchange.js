@@ -999,7 +999,24 @@ function xchangeHourlyCheck(hours = 1) {
 				wikifier("xchange-setpermanent");
 
 			if (pill.innocenceEffect && (V.innocencestate !== 1 || V.awareness >= 0)) {
+				if (pill.innocenceWasNatural === true) {
+					if (V.awareness >= 0 && V.innocencestate === 1) {
+						V.innocencestate = 0;
+						V.trauma = V.innocencetrauma;
+						V.innocencetrauma = 0;
+						V.innocencemessage = "end";
+					}
+					V.innocenceawareness = 0;
+				} else if (V.awareness >= 0 && V.innocencestate === 1) {
+					V.innocencestate = 0;
+					V.awareness = typeof V.innocenceawareness === "number" ? V.innocenceawareness : 0;
+					V.trauma = V.innocencetrauma;
+					V.innocencetrauma = 0;
+					V.innocenceawareness = 0;
+					V.innocencemessage = "end";
+				}
 				pill.innocenceEffect = false;
+				pill.innocenceWasNatural = false;
 			}
 
 			// Check if the pill should expire

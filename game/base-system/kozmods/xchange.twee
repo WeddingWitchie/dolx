@@ -965,13 +965,22 @@
 		/* Innocence effect sync */
 		<<if _args[0] is undefined and $xchange.pill.innocenceEffect and ($innocencestate isnot 1 or $awareness gte 0)>>
 			<<set $xchange.pill.innocenceEffect to false>>
-			<<if $awareness gte 0 and $innocencestate is 1>>
+			<<if $xchange.pill.innocenceWasNatural is true>>
+				<<if $awareness gte 0 and $innocencestate is 1>>
+					<<set $innocencestate to 0>>
+					<<set $trauma to $innocencetrauma>>
+					<<set $innocencetrauma to 0>>
+					<<set $innocencemessage to "end">>
+				<</if>>
+				<<set $innocenceawareness to 0>>
+			<<elseif $awareness gte 0 and $innocencestate is 1>>
 				<<set $innocencestate to 0>>
 				<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
 				<<set $trauma to $innocencetrauma>>
 				<<set $innocenceawareness to 0>>
 				<<set $innocencemessage to "end">>
 			<</if>>
+			<<set $xchange.pill.innocenceWasNatural to false>>
 		<</if>>
 
 		/* Bimbo effect (original repeated twice; kept once) */
@@ -1148,6 +1157,7 @@
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
 		<<set $xchange.pill.innocenceEffect to false>>
+		<<set $xchange.pill.innocenceWasNatural to false>>
 		<<set $xchange.pill.swellEffect to false>>
 		<<unset $xchange.pill.swellTarget>>
 		<<set $xchange.pill.bimboEffect to false>>
@@ -1281,8 +1291,12 @@
 		<<xchange-addsideeffect "dumbbitch">>
 
 	<<case "innocence">>
+		<<set _innocenceEffectAlreadyActive to $xchange.pill.innocenceEffect is true>>
+		<<if !_innocenceEffectAlreadyActive>>
+			<<set $xchange.pill.innocenceWasNatural to ($innocencestate is 1)>>
+		<</if>>
 		<<set $xchange.pill.innocenceEffect to true>>
-			<<if $innocencestate isnot 1>>
+			<<if !_innocenceEffectAlreadyActive and $xchange.pill.innocenceWasNatural isnot true>>
 				<<set $innocencetrauma to $trauma>>
 				<<set $innocenceawareness to $awareness>>
 				<<set $trauma to 0>>
@@ -1443,12 +1457,22 @@
 		<<case "dumb-bitch">>
 			<<set $xchange.pill.dumbBitchEffect to false>>		
 		<<case "innocence">>
-			<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
-			<<set $innocencestate to 0>>
-			<<set $trauma to $innocencetrauma>>
-			<<set $innocencetrauma to 0>>
+			<<if $xchange.pill.innocenceWasNatural is true>>
+				<<if $awareness gte 0 and $innocencestate is 1>>
+					<<set $innocencestate to 0>>
+					<<set $trauma to $innocencetrauma>>
+					<<set $innocencetrauma to 0>>
+					<<set $innocencemessage to "end">>
+				<</if>>
+			<<else>>
+				<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
+				<<set $innocencestate to 0>>
+				<<set $trauma to $innocencetrauma>>
+				<<set $innocencetrauma to 0>>
+				<<set $innocencemessage to "end">>
+			<</if>>
 			<<set $innocenceawareness to 0>>
-			<<set $innocencemessage to "end">>
+			<<set $xchange.pill.innocenceWasNatural to false>>
 			<<set $xchange.pill.innocenceEffect to false>>
 		<<case "swell">>
 			<<set $xchange.pill.swellEffect to false>>
@@ -1670,12 +1694,21 @@
 
 		/* Forced-end cleanup before clearing pill effects */
 		<<if $xchange.pill.innocenceEffect and $innocencestate is 1>>
-			<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
-			<<set $innocencestate to 0>>
-			<<set $trauma to $innocencetrauma>>
-			<<set $innocencetrauma to 0>>
+			<<if $xchange.pill.innocenceWasNatural is true>>
+				<<if $awareness gte 0>>
+					<<set $innocencestate to 0>>
+					<<set $trauma to $innocencetrauma>>
+					<<set $innocencetrauma to 0>>
+					<<set $innocencemessage to "end">>
+				<</if>>
+			<<else>>
+				<<set $awareness to (typeof $innocenceawareness === "number" ? $innocenceawareness : 0)>>
+				<<set $innocencestate to 0>>
+				<<set $trauma to $innocencetrauma>>
+				<<set $innocencetrauma to 0>>
+				<<set $innocencemessage to "end">>
+			<</if>>
 			<<set $innocenceawareness to 0>>
-			<<set $innocencemessage to "end">>
 		<</if>>
 
 		<<if $xchange.pill.passionEffect>><<set $drugged to 0>><</if>>
@@ -1692,6 +1725,7 @@
 		<<set $xchange.pill.xtendEffect to false>>
 		<<unset $xchange.pill.xtendTracker>>
 		<<set $xchange.pill.innocenceEffect to false>>
+		<<set $xchange.pill.innocenceWasNatural to false>>
 		<<set $xchange.pill.swellEffect to false>>
 		<<unset $xchange.pill.swellTarget>>
 		<<set $xchange.pill.bimboEffect to false>>
