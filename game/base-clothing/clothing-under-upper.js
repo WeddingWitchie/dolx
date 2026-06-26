@@ -685,7 +685,6 @@ function initUnderUpper() {
 			accessory_colour_options: [],
 			sleeve_img: 0,
 			breast_img: 1,
-			mainImage: 0,
 			formfitting: 1,
 			cursed: 0,
 			location: 0,
