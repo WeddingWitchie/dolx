@@ -89,6 +89,7 @@ declare global {
 		topdownBreastjob: boolean;
 		showDebugRenderer: boolean;
 		showCombatTools: boolean;
+		showAllStatMeters: boolean;
 		reflections: boolean;
 	}
 }

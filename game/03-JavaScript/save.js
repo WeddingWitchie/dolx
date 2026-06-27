@@ -1454,6 +1454,7 @@ function settingsObjects(type) {
 				options: {
 					neverNudeMenus: { bool: true, displayName: "Hide player nudity in menus:" },
 					showCaptionText: { bool: true, displayName: "Show caption text in sidebar:" },
+					showAllStatMeters: { bool: true, displayName: "Always show sidebar stat meters:" },
 					clothingCaption: { bool: true, displayName: "Show clothing description in sidebar:" },
 					clothingReplacementWarning: { bool: true, displayName: "Enable clothing replacement warning:" },
 					sidebarStats: { strings: ["disabled", "limited", "all"], displayName: "Closed sidebar stats:" },
