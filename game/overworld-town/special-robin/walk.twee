@@ -20,16 +20,16 @@
 	<<foresticon>><<link [[Forest (0:30)|Robin Forest]]>><<pass 30>><<set $daily.robin.walk to 1>><</link>>
 	<br>
 <</if>>
-<<if C.npc.Robin.love gte 20 and $money gte 1500 and !$daily.robin.cinema>>
-	<<socialiseicon "cinema">><<link [[Cinema (£15 2:00)|Robin Walk Cinema]]>><<if Time.hour lt 12 and (Time.schoolDay or Time.isWeekEnd())>><<pass 15>><</if>><</link>>
+<<if C.npc.Robin.love gte 20 and setup.inflation.canAfford(1500, "robin") and !$daily.robin.cinema>>
+	<<socialiseicon "cinema">><<link [[Cinema (<<printprice 1500>> 2:00)|Robin Walk Cinema]]>><<if Time.hour lt 12 and (Time.schoolDay or Time.isWeekEnd())>><<pass 15>><</if>><</link>>
 	<br>
 <</if>>
-<<if C.npc.Robin.love gte 40 and $money gte 2100 and !$daily.robin.amusements>>
-	<<starfishicon>><<link [[Amusements (£21 1:15)|Robin Amusements]]>><<pass 15>><</link>>
+<<if C.npc.Robin.love gte 40 and setup.inflation.canAfford(2100, "robin") and !$daily.robin.amusements>>
+	<<starfishicon>><<link [[Amusements (<<printprice 2100>> 1:15)|Robin Amusements]]>><<pass 15>><</link>>
 	<br>
 <</if>>
-<<if C.npc.Robin.love gte 30 and $money gte 1000 and !$daily.robin.arcade>>
-	<<arcadeicon>><<link [[Game centre (£10 1:30)|Robin Arcade]]>><<pass 15>><</link>>
+<<if C.npc.Robin.love gte 30 and setup.inflation.canAfford(1000, "robin") and !$daily.robin.arcade>>
+	<<arcadeicon>><<link [[Game centre (<<printprice 1000>> 1:30)|Robin Arcade]]>><<pass 15>><</link>>
 	<br>
 <</if>>
 <<if $halloween_robin is 1 and $halloween_robin_costume is "ghost" and !(Time.monthDay is 31 and Time.hour gte 16)>>
@@ -150,8 +150,8 @@ _popcornIntro
 	<<socialiseicon "cinema">><<link [[Enter theatre|"Robin Cinema " + _theatreLink]]>><<set $phase2 to "popcorn">><</link>>
 
 <<else>>
-	<<if $money gte 1000>>
-		<<foodicon "popcorn">><<link [[Buy popcorn (£10)|"Robin Cinema " + _theatreLink]]>><<money -1000 "robin">><<set $popcorn += 1>><<set $phase to "purchase">><<set $phase2 to "popcorn">><</link>><br>
+	<<if setup.inflation.canAfford(1000, "robin")>>
+		<<foodicon "popcorn">><<link [[Buy popcorn (<<printprice 1000>>)|"Robin Cinema " + _theatreLink]]>><<money -1000 "robin">><<set $popcorn += 1>><<set $phase to "purchase">><<set $phase2 to "popcorn">><</link>><br>
 		<<socialiseicon "cinema">><<link [[Enter theatre|"Robin Cinema " + _theatreLink]]>><</link>>
 	<<else>>
 		<<if $speech_attitude is "meek">>
@@ -940,8 +940,8 @@ The film starts. It's quite frightening. You think you're getting used to it whe
 	<</if>>
 	<<link [[Leave the basket|Robin Forest Basket Leave]]>><</link>>
 	<br>
-	<<if $money gte 2000>>
-		<<link [[Offer to buy the new basket (£20)|Robin Forest New Basket]]>><<money -2000 "robin">><<npcincr Robin love 1>><</link>><<glove>>
+	<<if setup.inflation.canAfford(2000, "robin")>>
+		<<link [[Offer to buy the new basket (<<printprice 2000>>)|Robin Forest New Basket]]>><<money -2000 "robin">><<npcincr Robin love 1>><</link>><<glove>>
 		<br>
 	<</if>>
 <<else>>
@@ -1473,11 +1473,11 @@ You sit together for several minutes, before packing up the picnic and walking b
 <</widget>>
 
 <<widget "robinForestCostumeBuy">>
-	<<if $money gte 8000>>
-		<<link [[Buy the costume for Robin (£80)|Robin Forest Costume Buy]]>><<npcincr Robin love 3>><<money -8000 "robin">><<set $halloween_robin_costume to $forest_costume.name>><<set $forest_costume.bought to true>><</link>><<gglove>>
+	<<if setup.inflation.canAfford(8000, "robin")>>
+		<<link [[Buy the costume for Robin (<<printprice 8000>>)|Robin Forest Costume Buy]]>><<npcincr Robin love 3>><<money -8000 "robin">><<set $halloween_robin_costume to $forest_costume.name>><<set $forest_costume.bought to true>><</link>><<gglove>>
 		<br>
 	<<else>>
-		You don't have enough money to buy the costume. (£80)
+		You don't have enough money to buy the costume. (<<printprice 8000>>)
 		<br><br>
 	<</if>>
 <</widget>>
@@ -2163,8 +2163,12 @@ You hesitate, unsure how to explain. Robin waits for an answer. When it becomes 
 	Robin rushes ahead of you, spins in the middle of the room, then comes to a stop facing you. "What game do you want to play?"
 	<br><br>
 
-	<<robin_amusements_list>>
-	<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin_amusements.choice to $robin_amusements.games.pluck()>><</link>>
+	<<if setup.inflation.canAfford(700, "robin")>>
+		<<robin_amusements_list>>
+		<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin_amusements.choice to $robin_amusements.games.pluck()>><</link>>
+	<<else>>
+		<span class="blue">You can't afford another game.</span>
+	<</if>>
 <</if>>
 
 :: Robin Amusements Main
@@ -2173,8 +2177,12 @@ You hesitate, unsure how to explain. Robin waits for an answer. When it becomes 
 <<if $robin_amusements.games.length gte 4>>
 	"What do you want to play next?" Robin asks.
 	<br><br>
-	<<robin_amusements_list>>
-	<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin_amusements.choice to $robin_amusements.games.pluck()>><</link>>
+	<<if setup.inflation.canAfford(700, "robin")>>
+		<<robin_amusements_list>>
+		<<link [[Let Robin decide|Robin Amusements Robin]]>><<set $robin_amusements.choice to $robin_amusements.games.pluck()>><</link>>
+	<<else>>
+		<span class="blue">You can't afford another game.</span>
+	<</if>>
 	<br>
 <<else>>
 	Robin looks at the window, at the clocktower on the promenade.

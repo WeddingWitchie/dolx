@@ -346,19 +346,23 @@ You reach the upper floor of the shopping centre with Sydney in tow.
 Sydney seems to recognise the person working the counter<<if $phase is 1>>, and begins giving the details of <<his>> prescription as <<he>> sets <<his>> <<sydneyGlasses>> aside<</if>>. You look around to the rotary stands filled with glasses, as well as a cabinet full of various contact lenses.
 <br><br>
 <<if $phase is 1>>
-	<<link [[Buy Sydney glasses (£15)|Sydney Shopping Buy Glasses]]>><<money -1500 "sydney">><</link>>
-	<br>
-	<<if $money gte 5000>>
-		<<link [[Buy Sydney contacts (£50)|Sydney Shopping Buy Contacts]]>><<money -5000 "sydney">><</link>>
+	<<if setup.inflation.canAfford(1500, "sydney")>>
+		<<link [[Buy Sydney glasses (<<printprice 1500>>)|Sydney Shopping Buy Glasses]]>><<money -1500 "sydney">><</link>>
+		<br>
+	<<else>>
+		<span class="purple">You can't afford to buy Sydney glasses.</span>
+	<</if>>
+	<<if setup.inflation.canAfford(5000, "sydney")>>
+		<<link [[Buy Sydney contacts (<<printprice 5000>>)|Sydney Shopping Buy Contacts]]>><<money -5000 "sydney">><</link>>
 		<br>
 	<<else>>
 		<span class="purple">You can't afford to buy Sydney contacts.</span>
 	<</if>>
-<<elseif $money gte 1500>>
-	<<link [[Buy Sydney new glasses (£15 0:10)|Sydney Shopping Buy Glasses]]>><<pass 10>><<money -1500 "sydney">><<npcincr Sydney love 1>><</link>><<glove>>
+<<elseif setup.inflation.canAfford(1500, "sydney")>>
+	<<link [[Buy Sydney new glasses (<<printprice 1500>> 0:10)|Sydney Shopping Buy Glasses]]>><<pass 10>><<money -1500 "sydney">><<npcincr Sydney love 1>><</link>><<glove>>
 	<br>
-	<<if $money gte 5000>>
-		<<link [[Buy Sydney contacts (£50 0:10)|Sydney Shopping Buy Contacts]]>><<pass 10>><<money -5000 "sydney">><<npcincr Sydney love 1>><</link>><<glove>>
+	<<if setup.inflation.canAfford(5000, "sydney")>>
+		<<link [[Buy Sydney contacts (<<printprice 5000>> 0:10)|Sydney Shopping Buy Contacts]]>><<pass 10>><<money -5000 "sydney">><<npcincr Sydney love 1>><</link>><<glove>>
 		<br>
 	<<else>>
 		<span class="purple">You can't afford to buy Sydney contacts.</span>
@@ -475,7 +479,7 @@ You and Sydney enter the hairdressers. Here you can have your hair cut or dyed. 
 	<<He>> smiles. "It's oddly soothing to get my hair done by a professional. I like it here."
 <</if>>
 <br><br>
-<<if $money gte 3000>>
+<<if setup.inflation.canAfford(3000, "hairdressers")>>
 	<<link [[Take seats|Sydney Hairdressers Sit]]>><</link>>
 	<br>
 <<else>>
@@ -510,16 +514,16 @@ You bring Sydney to one of the vacant seats, and take the seat next to <<him>>.
 <<hairdressersPricelist>>
 <<set $sydneyHairOption to $sydney.hair>>
 <<set $dyeOption to "noChange">>
-<div id="currentCost" class="gold">
-	To pay: £0
-</div>
 <div id="hairDressersSydney">
 	<<hairDressersOptionsSydney>>
 </div>
 <<hairdressersResetAlt>>
-<<if $money gte _currentCost>>
+<div id="currentCost" class="gold">
+	To pay: <<printprice _currentCost>>
+</div>
+<<if setup.inflation.canAfford(_currentCost, "hairdressers")>>
 	<<link [[Continue|Sydney Hairdressers Sit 2]]>><<money `-_currentCost` "hairdressers">><</link>>
-<<elseif $money lt _currentCost>>
+<<elseif not setup.inflation.canAfford(_currentCost, "hairdressers")>>
 	You don't have enough money to pay the hairdresser.
 <</if>>
 <br><br>
@@ -578,9 +582,6 @@ Another hairdresser approaches you as Sydney is worked on. "And what about you?"
 <<set $twoToneDyeOption2 to "noChange">>
 <<set $twoToneHairDye to false>>
 <<set $twoToneStyle to $hairColourGradient.style>>
-<div id="currentCost" class="gold">
-	To pay: £0
-</div>
 <div id="hairDressers">
 	<<hairDressersOptions>>
 </div>
@@ -644,44 +645,44 @@ You enter the swimwear shop with Sydney. "This almost feels like shopping in a c
 <br><br>
 You approach the shelves of folded up swimwear. You can't help but think that some of these would look good on <<him>>.
 <br><br>
-<<if $money gte 2500>>
+<<if setup.inflation.canAfford(2500)>>
 	Buy Sydney a new set of swimwear?
 	<br>
 <<else>>
 	<span class="purple">You can't afford to buy Sydney anything here.</span>
 <</if>>
 <<if C.npc.Sydney.pronoun is "m">>
-	<<if $sydney.swim isnot "school" and $money gte 8000>>
-		<<link [[Buy school swim shorts and swim shirt (£80)|Sydney Buy Swim]]>><<set $select to "school">><</link>><<gspurity>>
+	<<if $sydney.swim isnot "school" and setup.inflation.canAfford(8000)>>
+		<<link [[Buy school swim shorts and swim shirt (<<printprice 8000>>)|Sydney Buy Swim]]>><<set $select to "school">><</link>><<gspurity>>
 		<br>
 	<</if>>
-	<<if $sydney.swim isnot "normal" and $money gte 3500>>
-		<<link [[Buy board shorts (£35)|Sydney Buy Swim]]>><<set $select to "normal">><</link>>
+	<<if $sydney.swim isnot "normal" and setup.inflation.canAfford(3500)>>
+		<<link [[Buy board shorts (<<printprice 3500>>)|Sydney Buy Swim]]>><<set $select to "normal">><</link>>
 		<br>
 	<</if>>
-	<<if $sydney.swim isnot "lewd" and $money gte 2500>>
-		<<link [[Buy speedo (£25)|Sydney Buy Swim]]>><<set $select to "lewd">><</link>><<lspurity>>
+	<<if $sydney.swim isnot "lewd" and setup.inflation.canAfford(2500)>>
+		<<link [[Buy speedo (<<printprice 2500>>)|Sydney Buy Swim]]>><<set $select to "lewd">><</link>><<lspurity>>
 		<br>
 	<</if>>
-	<<if $sydney.swim isnot "crossdress" and $money gte 4000>>
-		<<link [[Buy bikini (£40)|Sydney Buy Swim]]>><<set $select to "crossdress">><</link>><<llspurity>> <<note "Sydney might need some convincing to wear this." "italic">>
+	<<if $sydney.swim isnot "crossdress" and setup.inflation.canAfford(4000)>>
+		<<link [[Buy bikini (<<printprice 4000>>)|Sydney Buy Swim]]>><<set $select to "crossdress">><</link>><<llspurity>> <<note "Sydney might need some convincing to wear this." "italic">>
 		<br>
 	<</if>>
 <<else>>
-	<<if $sydney.swim isnot "school" and $money gte 2500>>
-		<<link [[Buy school swimsuit (£25)|Sydney Buy Swim]]>><<set $select to "school">><</link>><<gspurity>>
+	<<if $sydney.swim isnot "school" and setup.inflation.canAfford(2500)>>
+		<<link [[Buy school swimsuit (<<printprice 2500>>)|Sydney Buy Swim]]>><<set $select to "school">><</link>><<gspurity>>
 		<br>
 	<</if>>
-	<<if $sydney.swim isnot "normal" and $money gte 4000>>
-		<<link [[Buy bikini (£40)|Sydney Buy Swim]]>><<set $select to "normal">><</link>>
+	<<if $sydney.swim isnot "normal" and setup.inflation.canAfford(4000)>>
+		<<link [[Buy bikini (<<printprice 4000>>)|Sydney Buy Swim]]>><<set $select to "normal">><</link>>
 		<br>
 	<</if>>
-	<<if $sydney.swim isnot "lewd" and $money gte 4800>>
-		<<link [[Buy microkini (£48)|Sydney Buy Swim]]>><<set $select to "lewd">><</link>><<lspurity>>
+	<<if $sydney.swim isnot "lewd" and setup.inflation.canAfford(4800)>>
+		<<link [[Buy microkini (<<printprice 4800>>)|Sydney Buy Swim]]>><<set $select to "lewd">><</link>><<lspurity>>
 		<br>
 	<</if>>
-	<<if $sydney.swim isnot "crossdress" and $money gte 3500>>
-		<<link [[Buy board shorts (£35)|Sydney Buy Swim]]>><<set $select to "crossdress">><</link>><<llspurity>> <<note "Sydney might need some convincing to wear this." "italic">>
+	<<if $sydney.swim isnot "crossdress" and setup.inflation.canAfford(3500)>>
+		<<link [[Buy board shorts (<<printprice 3500>>)|Sydney Buy Swim]]>><<set $select to "crossdress">><</link>><<llspurity>> <<note "Sydney might need some convincing to wear this." "italic">>
 		<br>
 	<</if>>
 <</if>>
@@ -2473,4 +2474,3 @@ After a while, you two return to the temple. Sydney hugs you. "See you!" <<He>> 
 
 <<link [[Next|Temple]]>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
-

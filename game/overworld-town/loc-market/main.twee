@@ -3,7 +3,7 @@
 
 You enter the small office responsible for the Connudatus market. A <<generate1>><<person1>><<person>> greets you.
 <br><br>
-"<<printmoney 1500>> for the day," <<he>> says. "We close at <<ampm 21>>. We'll need to see a sample of what you intend to sell, too. We'll also need proof of citizenship, unless you're selling flowers or other produce."
+"<<printprice 1500>> for the day," <<he>> says. "We close at <<ampm 21>>. We'll need to see a sample of what you intend to sell, too. We'll also need proof of citizenship, unless you're selling flowers or other produce."
 <br><br>
 
 <<set _foodstuffKeys to Object.keys($foodstuff)>>
@@ -58,10 +58,10 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 	<<else>>
 		"Welcome back, are you here to make another deposit?" <<he>> inquires.
 	<</if>>
-	"The rate is <span class="gold">£30</span> per day."
+	"The rate is <span class="gold"><<printprice 3000>></span> per day."
 	<br><br>
 
-	<<if $money gte 3000>>
+	<<if setup.inflation.canAfford(3000, "marketStall")>>
 		<<link [[Make a deposit|Stall Rental Deposit]]>><<endevent>><</link>>
 		<br>
 	<<else>>
@@ -82,7 +82,7 @@ How much are you going to deposit? (£)
 
 <div id="depositExit">
 	<<link "Deposit">>
-		<<set _depositAmount = Math.clamp(_depositAmount * 100, 1, $money)>>
+		<<set _depositAmount = setup.inflation.affordableBase(Math.max(_depositAmount * 100, 1), "marketStall")>>
 		<<replace #depositExit>><<depositStallExitConfirm>><</replace>>
 	<</link>>
 </div>

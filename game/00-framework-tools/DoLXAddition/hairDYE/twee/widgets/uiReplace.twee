@@ -58,7 +58,7 @@
 		<!-- {{{ -->
 			<div class="settingsToggleItem">
 				<div class="gold bold">Haircut</div>
-				<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000) or $hairOption isnot $hairlength) and $hairlength gt 100>>
+				<<if (setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000), "hairdressers") or $hairOption isnot $hairlength) and $hairlength gt 100>>
 					<<if $hairOption isnot $hairlength and not dhmod.cfg.prices>>
 						<<set _currentCost += 3000>>
 					<</if>>
@@ -84,7 +84,7 @@
 
 			<div class="settingsToggleItem">
 				<div class="gold bold">Fringe Trim</div>
-				<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000) or $fringeOption isnot $fringelength) and $fringelength gte 100>>
+				<<if (setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000), "hairdressers") or $fringeOption isnot $fringelength) and $fringelength gte 100>>
 					<<if $fringeOption isnot $fringelength and not dhmod.cfg.prices>>
 						<<set _currentCost += 3000>>
 					<</if>>
@@ -123,9 +123,9 @@
 					<<set _dyeOptions["Remove dye"] to "removeDye">>
 				<</if>>
 				<!--}}}-->
-			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000) or $dyeOption isnot "noChange" or $twoToneHairDye>>
+			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000), "hairdressers") or $dyeOption isnot "noChange" or $twoToneHairDye>>
 
-				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 6000) or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
+				<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 6000), "hairdressers") or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
 						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple") or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
@@ -196,12 +196,12 @@
 
 		<div id="item-brows" class="settingsToggleItemWide">
 			<div class="gold bold">Eyebrow dye</div>
-			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browClear : 1000) or $browsDyeOption isnot "noChange">>
+			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.browClear : 1000), "hairdressers") or $browsDyeOption isnot "noChange">>
 				<<set _browsDyeOptions to {"Don't dye":"noChange"}>>
 				<<if $makeup.browscolour isnot $naturalhaircolour>>
 					<<set _browsDyeOptions["Remove dye"] to "removeDye">>
 				<</if>>
-				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browDye : 2000) or ($browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye")>>
+				<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.browDye : 2000), "hairdressers") or ($browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
 						<<if $makeup.browscolour is $hairdressersHairColour[_i] or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
@@ -231,11 +231,11 @@
 	<div id="currentCost">To pay: £<<print (dhmShop.displayPrice(_currentCost) / 100).toFixed(2)>></div>
 
 	<<if _sydneyPresent>>
-		<<if (!_cancel or _currentCost gt 0) and $money gte _currentCost>>
+		<<if (!_cancel or _currentCost gt 0) and setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>>
 				<<money `-_currentCost` "hairdressers">>
 			<</link>>
-		<<elseif $money lt _currentCost>>
+		<<elseif not setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<span class="red">You don't have enough money to pay the hairdresser.</span>
 			<br><br>
 			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>><</link>>
@@ -247,7 +247,7 @@
 		<</if>>
 	<<else>>
 
-		<<if $money lt _currentCost>>
+		<<if not setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<<hairdressericon "chair">><span class="red">You don't have enough money to pay the hairdresser.</span>
 		<<elseif $twoToneHairDye and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
 			<<hairdressericon "chair">><span class="red">You need to select two different colours for two-tone hair colouring.</span>
@@ -308,4 +308,3 @@
 		<<hairDressersOptions>>
 	<</if>>
 <</widget>>
-

@@ -161,12 +161,13 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 								<<print $selectedToy.options[_i].optionsName>>
 							</span>
 							|
+							<<set _toyPriceDisplay to formatMoney(setup.inflation.spendPrice($selectedToy.cost, "toyShop"))>>
 							<<if $player.inventory.childrenToys.length gte 5>>
-								<span class="grey"><<= "£"+(setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost)/100>></span>
-							<<elseif (setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost) lte $money>>
-								<<link [['£' + (setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost)/100|$passage]]>><<set $selectedToy.selectedOption to _i>><<buyToy>><</link>>
+								<span class="grey">_toyPriceDisplay</span>
+							<<elseif setup.inflation.canAfford($selectedToy.cost, "toyShop")>>
+								<<link _toyPriceDisplay $passage>><<set $selectedToy.selectedOption to _i>><<buyToy>><</link>>
 							<<else>>
-								<span class="red"><<= "£"+(setup.inflation ? setup.inflation.price($selectedToy.cost) : $selectedToy.cost)/100>></span>
+								<span class="red">_toyPriceDisplay</span>
 							<</if>>
 						</label>
 					</div>
@@ -180,7 +181,7 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 	<<set _toySelection to {
 		"babyRattle":
 			{
-				set:"baby rattles", name:"baby rattle", cost:1000, costDisplay:"£10", selectedOption: 0, type:"human",
+				set:"baby rattles", name:"baby rattle", cost:1000, selectedOption: 0, type:"human",
 				options: [
 					{"colour":"pink","name":"Pink baby rattle","name_lower":"pink baby rattle","optionsName":"Pink"},
 					{"colour":"blue","name":"Blue baby rattle","name_lower":"blue baby rattle","optionsName":"Blue"},
@@ -192,7 +193,7 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 			},
 		"teddyBear":
 			{
-				set:"teddy bears", name:"Teddy bear", name_lower: "teddy bear", cost:4000, costDisplay:"£40", selectedOption: 0, type:"human",
+				set:"teddy bears", name:"Teddy bear", name_lower: "teddy bear", cost:4000, selectedOption: 0, type:"human",
 				options: [
 					{"colour":"tan","name":"Teddy bear","name_lower":"teddy bear","optionsName":"Teddy Bear"},
 					{"colour":"blue","name":"Mr. Teddy","name_lower":"Mr. Teddy","optionsName":"Mr. Teddy"},
@@ -206,7 +207,7 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 			},
 		"toyCar":
 			{
-				set:"toy cars", name:"Toy car", name_lower: "toy car", cost:1500, costDisplay:"£15", selectedOption: 0, type:"human",
+				set:"toy cars", name:"Toy car", name_lower: "toy car", cost:1500, selectedOption: 0, type:"human",
 				options: [
 					{"colour":"pink","name":"Pink mini toy car","name_lower":"pink mini toy car","optionsName":"Pink Mini"},
 					{"colour":"blue","name":"Blue toy racecar","name_lower":"blue toy racecar","optionsName":"Blue Racecar"},
@@ -218,7 +219,7 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 			},
 		"chewToy":
 			{
-				set:"chew toys", name:"chew toy", cost:1500, costDisplay:"£15", selectedOption: 0, type:"wolf",
+				set:"chew toys", name:"chew toy", cost:1500, selectedOption: 0, type:"wolf",
 				options: [
 					{"colour":"grey","name":"Chew bone","name_lower":"chew bone","optionsName":"Chew Bone"},
 					{"colour":"light-green","name":"Chew ball","name_lower":"chew ball","optionsName":"Chew Ball"},
@@ -230,7 +231,7 @@ You are in the toy store. From floor to ceiling stand before you toys of all kin
 			},
 		"dummy":
 			{
-				set:"dummies", name:"dummy", cost:500, costDisplay:"£5", selectedOption: 0, type:"human",
+				set:"dummies", name:"dummy", cost:500, selectedOption: 0, type:"human",
 				options: [
 					{"colour":"pink","name":"Pink dummy","name_lower":"pink dummy","optionsName":"Pink"},
 					{"colour":"blue","name":"Blue dummy","name_lower":"blue dummy","optionsName":"Blue"},

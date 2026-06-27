@@ -146,6 +146,27 @@
 		return Math.round(base * setup.inflation.multiplier());
 	};
 
+	setup.inflation.spendPrice = function (base, source) {
+		if (!Number.isFinite(base)) return base;
+		if (!setup.inflation.appliesToSpend(source)) return base;
+		return setup.inflation.price(base);
+	};
+
+	setup.inflation.canAfford = function (base, source) {
+		if (typeof V === "undefined" || !Number.isFinite(V.money)) return false;
+		return V.money >= setup.inflation.spendPrice(base, source);
+	};
+
+	setup.inflation.affordableBase = function (base, source) {
+		if (typeof V === "undefined" || !Number.isFinite(V.money) || !Number.isFinite(base)) return 0;
+		const limit = Math.max(0, Math.floor(base));
+		if (!setup.inflation.appliesToSpend(source)) return Math.min(limit, Math.max(0, Math.floor(V.money)));
+		let affordable = Math.min(limit, Math.floor(V.money / setup.inflation.multiplier()));
+		while (affordable > 0 && setup.inflation.spendPrice(affordable, source) > V.money) affordable--;
+		while (affordable < limit && setup.inflation.spendPrice(affordable + 1, source) <= V.money) affordable++;
+		return affordable;
+	};
+
 	/**
 	 * Rent multiplier. Unlike prices (which use the STEPPED tier multiplier), rent is SMOOTH:
 	 * it interpolates linearly between the tier points and keeps climbing past the top tier.

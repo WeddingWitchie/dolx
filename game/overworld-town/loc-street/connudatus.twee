@@ -168,8 +168,8 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 				<<elseif pcAreArmsBound("both")>>
 					<<stallicon>><span class="blue">You can't rent a stall while your arms are bound.</span>
 					<br>
-				<<elseif $money gte 1500>>
-					<<stallicon>><<link [[Rent a stall (0:20 £15)|Stall Rent]]>><</link>>
+				<<elseif setup.inflation.canAfford(1500, "marketStall")>>
+					<<stallicon>><<link [[Rent a stall (0:20 <<printprice 1500>>)|Stall Rent]]>><</link>>
 					<br>
 				<<else>>
 					<<stallicon>><span class="blue">You could rent a stall here if you had the money.</span>
@@ -193,13 +193,14 @@ You are on Connudatus Street. The numerous clubs, bars and restaurants make it t
 				<br>
 			<</if>>
 
-			<<if (Time.dayState is "dawn" or $daily.stallRented is 1) and Time.dayState isnot "night" and $money gte 3000 and $exposed lte 0>>
+			<<if (Time.dayState is "dawn" or $daily.stallRented is 1) and Time.dayState isnot "night" and setup.inflation.canAfford(3000, "marketStall") and $exposed lte 0>>
 				<<if $daily.stallRented is 1>>
 					<<set _string to "your">>
 				<<else>>
 					<<set _string to "a">>
 				<</if>>
-				<<stallicon>><<link [["Put down a deposit for " + _string + " stall (0:05 £30)"|Stall Deposit]]>><<pass 5>><</link>>
+				<<formatmoney (setup.inflation.spendPrice(3000, "marketStall"))>>
+				<<stallicon>><<link [["Put down a deposit for " + _string + " stall (0:05 " + _printmoney + ")"|Stall Deposit]]>><<pass 5>><</link>>
 				<br>
 			<</if>>
 

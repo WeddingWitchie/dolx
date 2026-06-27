@@ -292,7 +292,7 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 
 	<br><br>
 
-	<<if $money gte 20000>>
+	<<if setup.inflation.canAfford(20000, "pharmacyContacts")>>
 		<<link [[Buy and send home|Pharmacy Lenses]]>><<money -20000 "pharmacyContacts">><<set $makeup.owned.eyelenses.push(_lensChoice)>><</link>>
 		<br>
 		<<link [[Buy and wear|Pharmacy]]>><<money -20000 "pharmacyContacts">><<set $makeup.owned.eyelenses.push(_lensChoice)>><<set $makeup.eyelenses = {"left":_lensChoice, "right":_lensChoice}>><</link>>
@@ -318,17 +318,17 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 		"I could place an order for ones with a colour of your choosing, but this will double the cost. Count about <<printprice 45000>> for the product, plus <<printprice 5000>> for the delivery which takes about a day. If you wish to choose two different colours for each eye, it will be <<printprice 95000>> total."
 	<</if>>
 	<br><br>
-	<<if $money gte 50000>>
+	<<if setup.inflation.canAfford(50000, "pharmacyContacts")>>
 		<<ind>><<link [[Choose your custom colour|Pharmacy Select Custom Lenses]]>><<set $pharmacy_order_colours to 1>><</link>>
 		<br>
 	<<else>>
 		<span class="purple">You can't afford the purchase.</span>
 		<br>
 	<</if>>
-	<<if $money gte 95000>>
+	<<if setup.inflation.canAfford(95000, "pharmacyContacts")>>
 		<<ind>><<link [[Choose a different colour for each eye|Pharmacy Select Custom Lenses]]>><<set $pharmacy_order_colours to 2>><</link>>
 		<br>
-	<<elseif $money gte 50000>>
+	<<elseif setup.inflation.canAfford(50000, "pharmacyContacts")>>
 		<span style="color:#566a9b; cursor:pointer">Choose a different colour for each eye</span> <span class="purple">You can't afford the purchase.</span>
 		<br>
 	<</if>>
@@ -521,7 +521,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 <</switch>>
 <br><br>
 
-<<if $money gte $pharmacyItem.price>>
+<<if setup.inflation.canAfford($pharmacyItem.price)>>
 	<<set _singlexchangepills to [
 		"X-Change Pink NOW",
 		"X-Change Blue NOW",
@@ -594,15 +594,15 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 			<<link [[Hand over the money|Pharmacy]]>><<money `-$pharmacyItem.price` "pharmacyPills">><<pharmacyAddOwned 14>><<boughtOnce>><</link>>
 	<</switch>>
 	<br>
-	<<if $money gte ($pharmacyItem.price * 5) and _singlexchangepills.includes($pharmacyItem.type)>>
+	<<if setup.inflation.canAfford($pharmacyItem.price * 5) and _singlexchangepills.includes($pharmacyItem.type)>>
 		<<link [[Buy 5 at once|Pharmacy]]>><<handheldon>><<money `-$pharmacyItem.price * 5` "pharmacyXChange">><<pharmacyAddOwned 5>><<boughtOnce>><</link>><br>
-	<<elseif $money lt ($pharmacyItem.price * 5)>>
+	<<elseif not setup.inflation.canAfford($pharmacyItem.price * 5)>>
 		<span class="purple">You cannot afford 5 at once.</span>
 		<br>
 	<</if>>
-	<<if $money gte ($pharmacyItem.price * 10) and _singlexchangepills.includes($pharmacyItem.type)>>
+	<<if setup.inflation.canAfford($pharmacyItem.price * 10) and _singlexchangepills.includes($pharmacyItem.type)>>
 		<<link [[Buy 10 at once|Pharmacy]]>><<handheldon>><<money `-$pharmacyItem.price * 10` "pharmacyXChange">><<pharmacyAddOwned 10>><<boughtOnce>><</link>><br><br>
-	<<elseif $money lt ($pharmacyItem.price * 10)>>
+	<<elseif not setup.inflation.canAfford($pharmacyItem.price * 10)>>
 		<span class="purple">You cannot afford 10 at once.</span>
 		<br><br>
 	<</if>>
@@ -672,7 +672,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 	A box of <<print $pharmacyItem.name>> lies on the table.
 	<br><br>
 
-	<<if $money gte $pharmacyItem.price>>
+	<<if setup.inflation.canAfford($pharmacyItem.price)>>
 		<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
 		<<link [["Pay " + _printmoney|Pharmacy Seduction End]]>><<set $phase to "pay">><</link>>
 	<<else>>
@@ -817,7 +817,8 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 		<br><br>
 
 		<<endcombat>>
-		<<if $money gte $pharmacyItem.price>>
+		<<if setup.inflation.canAfford($pharmacyItem.price)>>
+			<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
 			<<pillicon>><<link [["Buy " + $pharmacyItem.name + " for " + _printmoney|Pharmacy]]>>
 				<<set $eventskip to 1>><<set $daily.pharm.sexResult to "buy">>
 				<<money `-$pharmacyItem.price` "pharmacy">><<pharmacyAddOwned 14>><<boughtOnce>>
@@ -834,7 +835,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 		<br><br>
 
 		<<endcombat>>
-		<<if $money gte $pharmacyItem.price>>
+		<<if setup.inflation.canAfford($pharmacyItem.price)>>
 			<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
 			<<pillicon>><<link [["Buy growth blocker pills for " + _printmoney|Pharmacy]]>>
 				<<set $eventskip to 1>><<set $daily.pharm.sexResult to "buy">>
@@ -885,7 +886,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 			<br><br>
 			<<endcombat>>
 
-			<<if $money gte $pharmacyItem.price>>
+			<<if setup.inflation.canAfford($pharmacyItem.price)>>
 				<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
 				<<pillicon>><<link [["Pay " + _printmoney + " for " + $pharmacyItem.name|Pharmacy]]>>
 					<<set $eventskip to 1>>
@@ -918,10 +919,10 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 You ask the nurse for morning after pills.
 <br><br>
 <<if playerBellyVisible() or getPregnancyObject().awareOf>>
-	"You <<if $pregnancyStats.aftermorningpills>>already know you <</if>>can't take these pills if you are pregnant, and it's obvious you are. It's very dangerous for your health and it won't have the desired effects," <<he>> tells you while looking openly at your <<bellyDescription "pc">>. "If you still want to take it, £500 please. For legal reasons, we're unable to sell these in bulk. You'll have to take it while I'm supervising you, just in case issues occur."
+	"You <<if $pregnancyStats.aftermorningpills>>already know you <</if>>can't take these pills if you are pregnant, and it's obvious you are. It's very dangerous for your health and it won't have the desired effects," <<he>> tells you while looking openly at your <<bellyDescription "pc">>. "If you still want to take it, <<printprice 50000>> please. For legal reasons, we're unable to sell these in bulk. You'll have to take it while I'm supervising you, just in case issues occur."
 	<br><br>
 	<<if not getPregnancyObject().awareOf>>
-		<<if $money gte 50000>>
+		<<if setup.inflation.canAfford(50000, "pharmacyAfterPill")>>
 			<<link [[Hand over the money and take the pill anyway (0:15)|Pharmacy Morning After pill 2]]>><<pass 15>><</link>>
 		<<else>>
 			<span class="purple">You cannot afford them.</span>
@@ -935,11 +936,11 @@ You ask the nurse for morning after pills.
 <<else>>
 	"These pills are only effective for a short period after intercourse. If an egg has been fertilised and nestled in your uterus, taking them can be dangerous to your health.<<if $pregnancyStats.aftermorningpills>> Keep in mind that these pills are not a contraceptive method. Perhaps you should consider the option of using condoms or contraceptive pills that you can buy here, they are less harmful.<</if>>"
 	<br><br>
-	<<He>> opens a drawer and pulls out a blister with a single pill. "£500 please. For legal reasons, we're unable to sell these in bulk. You'll have to take it while I'm supervising you, just in case issues occur."
+	<<He>> opens a drawer and pulls out a blister with a single pill. "<<printprice 50000>> please. For legal reasons, we're unable to sell these in bulk. You'll have to take it while I'm supervising you, just in case issues occur."
 	<br><br>
 	<<if getPregnancyObject().awareOf>>
 		You know you are pregnant and won't take any risks.
-	<<elseif $money gte 50000>>
+	<<elseif setup.inflation.canAfford(50000, "pharmacyAfterPill")>>
 		<<link [[Hand over the money and take the pill (0:15)|Pharmacy Morning After pill 2]]>><<pass 15>><</link>>
 	<<else>>
 		<span class="purple">You cannot afford them.</span>
@@ -1025,18 +1026,18 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 		The vending machine doesn't need to be refilled with condoms right now.
 		<br><br>
 		<<link [[Return|Pharmacy]]>><</link>>
-	<<elseif $money lt 60000>>
+	<<elseif not setup.inflation.canAfford(60000, "pharmacyCondoms")>>
 		You can't afford condoms to refill the vending machine.
 		<br><br>
 		<<link [[Return|Pharmacy]]>><</link>>
 	<<else>>
 		You ask the nurse for the quantity of condoms you need:
 		<br><br>
-		<<link [[Buy 10 packs (£600)|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 10>><</link>>
+		<<link [[Buy 10 packs (<<printprice 60000>>)|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 10>><</link>>
 		<br>
 		<<if $brothelVending.condomsToRefill gte 25>>
-			<<if $money gte 25 * 6000>>
-				<<link [[Buy 25 packs (£1,500)|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 25>><</link>>
+			<<if setup.inflation.canAfford(25 * 6000, "pharmacyCondoms")>>
+				<<link [[Buy 25 packs (<<printprice `25 * 6000`>>)|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 25>><</link>>
 				<br>
 			<<else>>
 				You can't afford 25 packs.
@@ -1044,8 +1045,8 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 			<</if>>
 		<</if>>
 		<<if $brothelVending.condomsToRefill gte 50>>
-			<<if $money gte 50 * 6000>>
-				<<link [[Buy 50 packs (£3,000)|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 50>><</link>>
+			<<if setup.inflation.canAfford(50 * 6000, "pharmacyCondoms")>>
+				<<link [[Buy 50 packs (<<printprice `50 * 6000`>>)|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 50>><</link>>
 				<br>
 			<<else>>
 				You can't afford 50 packs.
@@ -1054,8 +1055,8 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 		<</if>>
 		<<if $brothelVending.condomsToRefill gte 100>>
 			<<condomsPrice 100>>
-			<<formatmoney _price>>
-			<<if $money gte _price>>
+			<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+			<<if setup.inflation.canAfford(_price, "pharmacyCondoms")>>
 				<<link [[`Buy 100 packs (${_printmoney})`|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 100>><</link>>
 				<br>
 			<<else>>
@@ -1065,8 +1066,8 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 		<</if>>
 		<<if $brothelVending.condomsToRefill gte 150>>
 			<<condomsPrice 150>>
-			<<formatmoney _price>>
-			<<if $money gte _price>>
+			<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+			<<if setup.inflation.canAfford(_price, "pharmacyCondoms")>>
 				<<link [[`Buy 150 packs (${_printmoney})`|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 150>><</link>>
 				<br>
 			<<else>>
@@ -1076,8 +1077,8 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 		<</if>>
 		<<if $brothelVending.condomsToRefill gte 11 and ![25, 50, 100, 150].includes($brothelVending.condomsToRefill)>>
 			<<condomsPrice $brothelVending.condomsToRefill>>
-			<<formatmoney _price>>
-			<<if $money gte _price>>
+			<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+			<<if setup.inflation.canAfford(_price, "pharmacyCondoms")>>
 				<<link [[`Buy ${$brothelVending.condomsToRefill} packs (${_printmoney})`|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to $brothelVending.condomsToRefill>><</link>>
 				<br>
 			<<else>>
@@ -1107,21 +1108,21 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<set _partial to Math.min($condomsBought, 50)>>
 <<condomsPrice _partial>>
-<<formatmoney _price>>
-"All right, $condomsBought 3-packs of condoms." <<He>> prepares the packages in a<<if $condomsBought lte 25>> small<</if>> cardboard box while calculating the total out loud. "This is _partial units, £60 each, _printmoney.
+<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+"All right, $condomsBought 3-packs of condoms." <<He>> prepares the packages in a<<if $condomsBought lte 25>> small<</if>> cardboard box while calculating the total out loud. "This is _partial units, <<printprice 6000>> each, _printmoney.
 <<condomsPrice $condomsBought>>
 <<if $condomsBought gt 50>>
 	<<set _partial to Math.min($condomsBought - 50, 50)>>
 	<<set _price2 to _partial * 6000 * .98>>
-	<<formatmoney _price2>>
-	Plus _partial units, £60 each, with a 2% discount, _printmoney.
+	<<formatmoney (setup.inflation ? setup.inflation.price(_price2) : _price2)>>
+	Plus _partial units, <<printprice 6000>> each, with a 2% discount, _printmoney.
 	<<if $condomsBought gt 100>>
 		<<set _partial to $condomsBought - 100>>
 		<<set _price2 to _partial * 6000 * .95>>
-		<<formatmoney _price2>>
-		And _partial units, £60 each, reduced by 5%, _printmoney.
+		<<formatmoney (setup.inflation ? setup.inflation.price(_price2) : _price2)>>
+		And _partial units, <<printprice 6000>> each, reduced by 5%, _printmoney.
 	<</if>>
-	Your total is <<printmoney _price>>.
+	Your total is <<printprice _price>>.
 <</if>>
 I'll send these out to be delivered. Thanks for your purchase."
 <br><br>

@@ -3,7 +3,9 @@ The hairdresser charge goes through <<money ... "hairdressers">>, which the X-Ch
 so the prices shown in the table and the "to pay" total must be scaled to match.
 Charge logic is untouched; this only affects what the player sees. Returns the base value when inflation is inactive. */
 dhmShop.displayPrice = function (amount) {
-	return typeof setup !== "undefined" && setup.inflation && typeof setup.inflation.price === "function"
+	return typeof setup !== "undefined" && setup.inflation && typeof setup.inflation.spendPrice === "function"
+		? setup.inflation.spendPrice(amount, "hairdressers")
+		: typeof setup !== "undefined" && setup.inflation && typeof setup.inflation.price === "function"
 		? setup.inflation.price(amount)
 		: amount;
 };

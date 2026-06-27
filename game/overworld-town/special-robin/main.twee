@@ -3116,14 +3116,14 @@ Bailey's no longer in the picture. It's now just you, Robin, and someone else.
 :: Bailey Pond
 <<effects>>
 
-You ask Bailey if it were possible to install a spring in the orphanage garden, like Mason suggested. "It's possible," Bailey says. "An underground stream runs right beneath us. I looked into it once. Would have cost £2000."
+You ask Bailey if it were possible to install a spring in the orphanage garden, like Mason suggested. "It's possible," Bailey says. "An underground stream runs right beneath us. I looked into it once. Would have cost <<printprice 600000>>."
 <br><br>
 
-<<He>> stares at you. "I could have one installed. For <<printmoney 600000>>. That's my price. Now piss off."
+<<He>> stares at you. "I could have one installed. For <<printprice 600000>>. That's my price. Now piss off."
 <br><br>
 
-<<if $money gte 600000>>
-	<<ind>><<link [[Pay for spring (£6000)|Bailey Pond Pay]]>><<money -600000 "orphanageUpgrades">><</link>>
+<<if setup.inflation.canAfford(600000, "orphanageUpgrades")>>
+	<<ind>><<link [[Pay for spring (<<printprice 600000>>)|Bailey Pond Pay]]>><<money -600000 "orphanageUpgrades">><</link>>
 	<br>
 <</if>>
 <<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<endevent>><</link>>
@@ -3135,8 +3135,8 @@ You ask Bailey if it were possible to install a spring in the orphanage garden, 
 "Bringing this up again?" <<he>> sneers. "You better have the money."
 <br><br>
 
-<<if $money gte 600000>>
-	<<ind>><<link [[Pay for spring (£6000)|Bailey Pond Pay]]>><<money -600000 "orphanageUpgrades">><</link>>
+<<if setup.inflation.canAfford(600000, "orphanageUpgrades")>>
+	<<ind>><<link [[Pay for spring (<<printprice 600000>>)|Bailey Pond Pay]]>><<money -600000 "orphanageUpgrades">><</link>>
 	<br>
 <</if>>
 <<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<endevent>><</link>>
@@ -3329,13 +3329,14 @@ You take the plushie back to your room and nestle it atop your wardrobe. It shou
 :: Bailey Office Alex Children Fee
 <<effects>>
 
-<<set _babies_fee to childrenCountBetweenParents("pc", "Alex")*1000>>
+<<set _babies_fee to childrenCountBetweenParents("pc", "Alex") * 100000>>
 
-"<<printmoney 100000>>, each. And you're only taking the ones you had with that stupid farmer," <<he>> says before returning to what <<he>> was doing.
+"<<printprice 100000>>, each. And you're only taking the ones you had with that stupid farmer," <<he>> says before returning to what <<he>> was doing.
 <br><br>
 
-<<if $money gte _babies_fee>>
-	<<ind>><<link [['Pay the fee (£' + _babies_fee + ')'|Bailey Office Alex Children Fee 2]]>><<money `-_babies_fee*10`>><</link>>
+<<if setup.inflation.canAfford(_babies_fee)>>
+	<<set _babies_fee_display to formatMoney(setup.inflation.spendPrice(_babies_fee))>>
+	<<ind>><<link [['Pay the fee (' + _babies_fee_display + ')'|Bailey Office Alex Children Fee 2]]>><<money `-_babies_fee`>><</link>>
 <<else>>
 	<i>You cannot afford the fee.</i>
 <</if>>
@@ -7652,16 +7653,16 @@ You try to come up with a way to distract the crowd from Robin.
 	<<link [[Catch the fruit (1:00)|Robin Pillory Fruit]]>><<pass 60>><</link>><<dancedifficulty 1 600>>
 	<br>
 <</if>>
-<<if $money gte 20000 and !$robinPillory.distractions.includes("money")>>
-	<<link [[Distract with money (1:00 £200)|Robin Pillory Money]]>><<money -20000 "robin">><<pass 60>><</link>>
+<<if setup.inflation.canAfford(20000, "robin") and !$robinPillory.distractions.includes("money")>>
+	<<link [[Distract with money (1:00 <<printprice 20000>>)|Robin Pillory Money]]>><<money -20000 "robin">><<pass 60>><</link>>
 	<br>
 <</if>>
 <<if !$robinPillory.distractions.includes("crime")>>
 	<<link [[Create a disturbance (1:00)|Robin Pillory Crime]]>><<pass 60>><<crimeUp 100 "destruction">><</link>><<gcrime "destruction">>
 	<br>
 <</if>>
-<<if $money gte 2000 and !$robinPillory.distractions.includes("flower")>>
-	<<link [[Make Robin unappealing (1:00 £20)|Robin Pillory Flower]]>><<pass 60>><</link>><<tendingdifficulty 1 600>>
+<<if setup.inflation.canAfford(2000, "robin") and !$robinPillory.distractions.includes("flower")>>
+	<<link [[Make Robin unappealing (1:00 <<printprice 2000>>)|Robin Pillory Flower]]>><<money -2000 "robin">><<pass 60>><</link>><<tendingdifficulty 1 600>>
 	<br>
 <</if>>
 <<if Time.hour lte 22>>

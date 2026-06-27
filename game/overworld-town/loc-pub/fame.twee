@@ -174,13 +174,13 @@
 
 	Boost:
 	<label><<radiobutton "$pubfameMoney" 0 autocheck>> £0</label>
-	<<if $money gte (setup.inflation ? setup.inflation.price(50000) : 50000)>> |
+	<<if setup.inflation.canAfford(50000, "pubFameBoost")>> |
 		<label><<radiobutton "$pubfameMoney" 1 autocheck>> <<printprice 50000>> (x1.5)</label>
 	<</if>>
-	<<if $money gte (setup.inflation ? setup.inflation.price(100000) : 100000)>> |
+	<<if setup.inflation.canAfford(100000, "pubFameBoost")>> |
 		<label><<radiobutton "$pubfameMoney" 2 autocheck>> <<printprice 100000>> (x2)</label>
 	<</if>>
-	<<if $money gte (setup.inflation ? setup.inflation.price(200000) : 200000)>> |
+	<<if setup.inflation.canAfford(200000, "pubFameBoost")>> |
 		<label><<radiobutton "$pubfameMoney" 4 autocheck>> <<printprice 200000>> (x3)</label>
 	<</if>>
 	<br><br>
@@ -195,11 +195,16 @@
 		<<set $pubfame.goal += $pubfameLower is true ? "Lower" : "Raise">>
 		<<set $pubfame.target to $pubfameTarget>>
 		<<if $pubfameMoney is 1>>
+			<<set $pubfameMoneyPaid to setup.inflation.spendPrice(50000, "pubFameBoost")>>
 			<<money -50000 "pubFameBoost">>
 		<<elseif $pubfameMoney is 2>>
+			<<set $pubfameMoneyPaid to setup.inflation.spendPrice(100000, "pubFameBoost")>>
 			<<money -100000 "pubFameBoost">>
 		<<elseif $pubfameMoney is 4>>
+			<<set $pubfameMoneyPaid to setup.inflation.spendPrice(200000, "pubFameBoost")>>
 			<<money -200000 "pubFameBoost">>
+		<<else>>
+			<<unset $pubfameMoneyPaid>>
 		<</if>>
 	<</link>>
 <</widget>>
@@ -900,18 +905,20 @@ You walk back to Landry's table. "The offer's out now," <<he>> says. "I did my p
 <<if $pubfameMoney gte 1>>
 	says, handing you your
 	<<if $pubfameMoney is 1>>
-		<<printmoney 50000>><<money 50000 "pubFameBoost">>
+		<<set _pubfameRefund to $pubfameMoneyPaid || setup.inflation.spendPrice(50000, "pubFameBoost")>>
 	<<elseif $pubfameMoney is 2>>
-		<<printmoney 100000>><<money 100000 "pubFameBoost">>
+		<<set _pubfameRefund to $pubfameMoneyPaid || setup.inflation.spendPrice(100000, "pubFameBoost")>>
 	<<elseif $pubfameMoney is 4>>
-		<<printmoney 200000>><<money 200000 "pubFameBoost">>
+		<<set _pubfameRefund to $pubfameMoneyPaid || setup.inflation.spendPrice(200000, "pubFameBoost")>>
 	<</if>>
+	<<printmoney _pubfameRefund>><<money _pubfameRefund "pubFameBoost">>
 	back.
 <<else>>
 	says.
 <</if>>
 
 <<set $pubfameMoney to 0>>
+<<unset $pubfameMoneyPaid>>
 "If that's all, I have things to do."
 <br><br>
 
@@ -928,13 +935,15 @@ You walk back to Landry's table. "The offer's out now," <<he>> says. "I did my p
 	<<if $pubfameMoney gte 1>>
 		They hand you your
 		<<if $pubfameMoney is 1>>
-			<<printmoney 50000>><<money 50000 "pubFameBoost">>
+			<<set _pubfameRefund to $pubfameMoneyPaid || setup.inflation.spendPrice(50000, "pubFameBoost")>>
 		<<elseif $pubfameMoney is 2>>
-			<<printmoney 100000>><<money 100000 "pubFameBoost">>
+			<<set _pubfameRefund to $pubfameMoneyPaid || setup.inflation.spendPrice(100000, "pubFameBoost")>>
 		<<elseif $pubfameMoney is 4>>
-			<<printmoney 200000>><<money 200000 "pubFameBoost">>
+			<<set _pubfameRefund to $pubfameMoneyPaid || setup.inflation.spendPrice(200000, "pubFameBoost")>>
 		<</if>>
+		<<printmoney _pubfameRefund>><<money _pubfameRefund "pubFameBoost">>
 		<<set $pubfameMoney to 0>>
+		<<unset $pubfameMoneyPaid>>
 		back before closing 
 	<<else>>
 		They close 
@@ -1245,6 +1254,7 @@ your <<pubfameTargetProse $pubfame.target>> fame?" You nod in confirmation, and 
 <<set $pubfame.tasksDone.pushUnique($pubfame.task)>>
 <<pubfameReset>>
 <<set $pubfameMoney to 0>>
+<<unset $pubfameMoneyPaid>>
 
 <<if $pub_task_stat % 3 is 0>>
 	<<set _qList to ["name","gender","hacker","good","leighton"]>><<set _qOptions to []>>

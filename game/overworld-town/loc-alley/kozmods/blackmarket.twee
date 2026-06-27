@@ -12,13 +12,13 @@ Your eyes betray your curiosity. "Dynapill Corp. was about to get rid of these i
 The <<person>> gives off shady vibe as hell, and under normal circumstances you'd stir away from people like <<him>>. But knowing just how expensive these pills can be on the open market, you feel kinda tempted to indulge. Even if these aren't regular X-Change pills, but rather unregulated SWP ones.
 <br><br>
 
-"I can sell you a batch of 10 pills for <<printmoney 10000>>," <<he>> offers. "Think about it. There might be very expensive, long duration variants mixed in the batch." <<He>> grabs one pill from the batch, pinching it between two fingers, to present it to you in an attempt to seal the deal.
+"I can sell you a batch of 10 pills for <<printprice 10000>>," <<he>> offers. "Think about it. There might be very expensive, long duration variants mixed in the batch." <<He>> grabs one pill from the batch, pinching it between two fingers, to present it to you in an attempt to seal the deal.
 <br><br>
 
 "It would be a real bargain," <<he>> concludes. "So, what do you say? Interested?"
 <br><br>
 
-<<if $money gte (setup.inflation ? setup.inflation.price(10000) : 10000)>>
+<<if setup.inflation.canAfford(10000, "blackMarket")>>
 	<<link [[Buy a batch of 10 pills (<<printprice 10000>>)|Residential Shady Person Accept]]>>
 		<<if $player.gender is "m">>
 			<<set $sexStats.pills.pills["Suspicious Pink Pill"].owned += 10>>
@@ -34,7 +34,7 @@ The <<person>> gives off shady vibe as hell, and under normal circumstances you'
 	You don't have enough cash.
 <</if>>
 <br>
-<<if $money gte (setup.inflation ? setup.inflation.price(20000) : 20000)>>
+<<if setup.inflation.canAfford(20000, "blackMarket")>>
 	<<link [[Buy a batch of 20 pills (<<printprice 20000>>)|Residential Shady Person Accept]]>>
 		<<if $player.gender is "m">>
 			<<set $sexStats.pills.pills["Suspicious Pink Pill"].owned += 20>>
@@ -48,7 +48,7 @@ The <<person>> gives off shady vibe as hell, and under normal circumstances you'
 	<</link>>
 	<br>
 <</if>>
-<<if $money gte (setup.inflation ? setup.inflation.price(30000) : 30000)>>
+<<if setup.inflation.canAfford(30000, "blackMarket")>>
 	<<link [[Buy a batch of 30 pills (<<printprice 30000>>)|Residential Shady Person Accept]]>>
 		<<if $player.gender is "m">>
 			<<set $sexStats.pills.pills["Suspicious Pink Pill"].owned += 30>>
@@ -120,26 +120,26 @@ You approach the shady-looking, coat-wearing, <<person1>><<person>>, and <<his>>
         "Pills that target the markers left on the body by the action of regular pills, in order to follow them to the source and neutralise the agents that cause any specified undesirable effect." Your ears perk up once you hear this last part. "You'll no longer have to fear the distressing effects of a Dumb Bitch pill anymore as long as you have its corresponding anti-Dumb Bitch pill at hand."
         <br><br>
 
-        "And all of this for the very low price of <<printmoney 50000>> each," you listen intently as <<he>> finalises <<his>> pitch. "But you gotta act now. My stock is limited, and me and my associates will only remain on this town until the end of the week. Decide a minute too late, and you won't even find us."
+        "And all of this for the very low price of <<printprice 50000>> each," you listen intently as <<he>> finalises <<his>> pitch. "But you gotta act now. My stock is limited, and me and my associates will only remain on this town until the end of the week. Decide a minute too late, and you won't even find us."
         <br><br>
 
         <<set $weekly.shadyPitchDelivered to 1>>
     <<else>>
-        Extending <<his>> hand once again to entice you. "Anyway, let's cut to the chase," <<he>> begins. "As my colleague probably explained the other day. These are <<printmoney 50000>> each."
+        Extending <<his>> hand once again to entice you. "Anyway, let's cut to the chase," <<he>> begins. "As my colleague probably explained the other day. These are <<printprice 50000>> each."
         <br><br>
     <</if>>
 
     "So, what do say you?" <<he>> asks. "Interested?"
     <br><br>
 
-    <<if $money gte (setup.inflation ? setup.inflation.price(50000) : 50000)>>
+    <<if setup.inflation.canAfford(50000, "blackMarket")>>
         <<if $xchange.removerPillCatalogue.length gt 0>>
             <<set _catalogue = []>>
             <<run $xchange.removerPillCatalogue.forEach(pill => _catalogue.pushUnique(pill))>>
             <<for _type range _catalogue>>
                <<if $debug is 1>> <<run console.log(`SWP Anti-${_type} Pill`)>><</if>>
                 <<capture _type>>
-                    <<link [[`Buy an anti-${_type} pill (${formatMoney(setup.inflation ? setup.inflation.price(50000) : 50000)})`|Park Shady Person Accept]]>>
+                    <<link [[`Buy an anti-${_type} pill (${formatMoney(setup.inflation.spendPrice(50000, "blackMarket"))})`|Park Shady Person Accept]]>>
                         <<set $sexStats.pills.pills[`SWP Anti-${_type} Pill`].owned += 1>>
                         <<set $sexStats.pills.boughtOnce to true>>
                         <<money -50000 "blackMarket">>

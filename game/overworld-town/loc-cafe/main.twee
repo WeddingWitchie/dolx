@@ -41,7 +41,7 @@ You are in the Ocean Breeze Cafe.
 	<br><br>
 
 	"World-class!" Sam beams.
-	"I've decided to increase the price to <<printmoney 10000>>. We have a limited supply after all, and can't keep up with demand as it is."
+	"I've decided to increase the price to <<printprice 10000>>. We have a limited supply after all, and can't keep up with demand as it is."
 	<br><br>
 
 	<<He>> returns to work, humming some tune.
@@ -114,12 +114,12 @@ You are in the Ocean Breeze Cafe.
 	<<link [[Next|Ocean Breeze]]>><</link>>
 	<br>
 
-<<elseif !$daily.earSlimeOceanBreezeCafeEat and Time.openingHours() and $exposed lt 1 and !$daily.cafeEaten and $money gte 200 and numberOfEarSlime() and ((earSlimeMakingMundaneRequests() and random(0,100) gte 90) or random(0,100) gte 96)>>
+<<elseif !$daily.earSlimeOceanBreezeCafeEat and Time.openingHours() and $exposed lt 1 and !$daily.cafeEaten and setup.inflation.canAfford(200, "cafe") and numberOfEarSlime() and ((earSlimeMakingMundaneRequests() and random(0,100) gte 90) or random(0,100) gte 96)>>
 	<<set _cafeOptions to []>>
-	<<if $money gte 200>>
+	<<if setup.inflation.canAfford(200, "cafe")>>
 		<<run _cafeOptions.push("coffee")>>
 	<</if>>
-	<<if $money gte 700 and !playerAwareTheyArePregnant()>>
+	<<if setup.inflation.canAfford(700, "cafe") and !playerAwareTheyArePregnant()>>
 		<<switch Time.season>>
 			<<case "winter">><<run _cafeOptions.push("winter ale")>>
 			<<case "spring">><<run _cafeOptions.push("fruity ale")>>
@@ -127,13 +127,13 @@ You are in the Ocean Breeze Cafe.
 			<<default>><<run _cafeOptions.push("autumn ale")>>
 		<</switch>>
 	<</if>>
-	<<if $money gte 500>>
+	<<if setup.inflation.canAfford(500, "cafe")>>
 		<<run _cafeOptions.push("fruit salad")>>
 	<</if>>
-	<<if $money gte 1000>>
+	<<if setup.inflation.canAfford(1000, "cafe")>>
 		<<run _cafeOptions.push("pancake")>>
 	<</if>>
-	<<if $money gte 5000>>
+	<<if setup.inflation.canAfford(5000, "cafe")>>
 		<<run _cafeOptions.push("deluxe cream bun")>>
 	<</if>>
 	<<set $daily.earSlimeOceanBreezeCafeEat to _cafeOptions.random()>>
@@ -241,7 +241,7 @@ You are in the Ocean Breeze Cafe.
 
 <<if Time.openingHours() and $exposed lt 1 and $daily.cafeEaten lte 3>>
 
-	<<if $money gte 200>>
+	<<if setup.inflation.canAfford(200, "cafe")>>
 		<br>
 		A menu lists what's currently being served.
 		<br>
@@ -250,7 +250,7 @@ You are in the Ocean Breeze Cafe.
 		<</link>><<lstress>><<ltiredness>>
 		<br>
 	<</if>>
-	<<if $money gte 700>>
+	<<if setup.inflation.canAfford(700, "cafe")>>
 		<<if Time.season is "winter">>
 			<<foodicon "winterale">>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
@@ -285,24 +285,24 @@ You are in the Ocean Breeze Cafe.
 			<br>
 		<</if>>
 	<</if>>
-	<<if $money gte 300>>
+	<<if setup.inflation.canAfford(300, "cafe")>>
 		<<if ndef $milkshake>><<set $milkshake to 0>><</if>>
 		<<if $milkshake lt 2>>
 			<<foodicon "milkshake">><<link [[Buy milkshake to go (0:02 <<printprice 300>>)|Ocean Breeze]]>><<money -300 "cafe">> <<set $milkshake +=1>> <<pass 2>><</link>>
 			<br>
 		<</if>>
 	<</if>>
-	<<if $money gte 500>>
+	<<if setup.inflation.canAfford(500, "cafe")>>
 		<<foodicon "fruitsalad">>
 		<<link [[Buy fruit salad (0:20 <<printprice 500>>)|Cafe Eat]]>><<set $phase to "fruit salad">><<set $daily.cafeEaten += 1>><<money -500 "cafe">><<stress -6>><<pass 20>><</link>><<lstress>>
 		<br>
 	<</if>>
-	<<if $money gte 600 and Time.season is "winter">>
+	<<if setup.inflation.canAfford(600, "cafe") and Time.season is "winter">>
 		<<foodicon "gingerbread">>
 		<<link [[Buy gingerbread (0:20 <<printprice 600>>)|Cafe Eat]]>><<set $phase to "gingerbread">><<set $daily.cafeEaten += 1>><<money -600 "cafe">><<stress -8>><<pass 20>><</link>><<lstress>>
 		<br>
 	<</if>>
-	<<if $money gte 1000>>
+	<<if setup.inflation.canAfford(1000, "cafe")>>
 		<<foodicon "pancakes">>
 		<<link [[Buy pancakes (0:20 <<printprice 1000>>)|Cafe Pancakes]]>><<set $phase to "pancakes">><<set $daily.cafeEaten += 1>><<money -1000 "cafe">><<tiredness -6>><<pass 20>><</link>><<ltiredness>>
 		<br>
@@ -310,12 +310,12 @@ You are in the Ocean Breeze Cafe.
 		<<link [[Buy crepes (0:20 <<printprice 1000>>)|Cafe Pancakes]]>><<set $phase to "crepes">><<set $daily.cafeEaten += 1>><<money -1000 "cafe">><<tiredness -6>><<pass 20>><</link>><<ltiredness>>
 		<br>
 	<</if>>
-	<<if $money gte 5000>>
+	<<if setup.inflation.canAfford(5000, "cafe")>>
 		<<foodicon "honeychallah">>
 		<<link [[Buy honey challah (0:20 <<printprice 5000>>)|Cafe Honey Challah]]>><<set $daily.cafeEaten += 1>><<transform bear 1>><<money -5000 "cafe">><<pass 20>><<stress -18>><</link>><<llstress>>
 		<br>
 	<</if>>
-	<<if $money gte 5000>>
+	<<if setup.inflation.canAfford(5000, "cafe")>>
 		<<foodicon "creambun">>
 		<<link [[Buy Deluxe Cream Bun (0:20 <<printprice 5000>>)|Cafe Cream Bun]]>><<set $daily.cafeEaten += 1>><<transform cat 1>><<money -5000 "cafe">><<pass 20>><<stress -18>><</link>><<llstress>>
 		<br>

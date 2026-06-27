@@ -4186,35 +4186,36 @@
 	<<sydneySchedule>>
 	<<if _sydney_location is "library">>
 		<<set _rentPrice to Math.round(2000 * (1 + ($studyBooks.rented.count * $studyBooks.rented.count)))>>
-		<<if $money gte _rentPrice and $bookOverdue is undefined>>
+		<<set _rentPriceDisplay to formatMoney(setup.inflation.spendPrice(_rentPrice, "libraryBooks"))>>
+		<<if setup.inflation.canAfford(_rentPrice, "libraryBooks") and $bookOverdue is undefined>>
 			<<if $studyBooks.rented.science is 0 and $studyBooks.stolen.science is 0>>
-				<<scienceicon>><<link [["Rent a science textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "science">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 1>><<set $studyBooks.rented.science to 1>><</link>><<note "+ Passive Science" "green">>
+				<<scienceicon>><<link [["Rent a science textbook (" + _rentPriceDisplay + ")"|Book Rental]]>><<handheldon>><<wearProp "science">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 1>><<set $studyBooks.rented.science to 1>><</link>><<note "+ Passive Science" "green">>
 				<br>
 			<</if>>
 			<<if $studyBooks.rented.maths is 0 and $studyBooks.stolen.maths is 0>>
-				<<mathicon>><<link [["Rent a maths textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "maths">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 2>><<set $studyBooks.rented.maths to 1>><</link>><<note "+ Passive Maths" "green">>
+				<<mathicon>><<link [["Rent a maths textbook (" + _rentPriceDisplay + ")"|Book Rental]]>><<handheldon>><<wearProp "maths">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 2>><<set $studyBooks.rented.maths to 1>><</link>><<note "+ Passive Maths" "green">>
 				<br>
 			<</if>>
 			<<if $studyBooks.rented.english is 0 and $studyBooks.stolen.english is 0>>
-				<<englishicon>><<link [["Rent an English textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "english">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 3>><<set $studyBooks.rented.english to 1>><</link>><<note "+ Passive English" "green">>
+				<<englishicon>><<link [["Rent an English textbook (" + _rentPriceDisplay + ")"|Book Rental]]>><<handheldon>><<wearProp "english">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 3>><<set $studyBooks.rented.english to 1>><</link>><<note "+ Passive English" "green">>
 				<br>
 			<</if>>
 			<<if $studyBooks.rented.history is 0 and $studyBooks.stolen.history is 0>>
-				<<historyicon>><<link [["Rent a history textbook (£" + _rentPrice / 100 + ")"|Book Rental]]>><<handheldon>><<wearProp "history">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 4>><<set $studyBooks.rented.history to 1>><</link>><<note "+ Passive History" "green">>
+				<<historyicon>><<link [["Rent a history textbook (" + _rentPriceDisplay + ")"|Book Rental]]>><<handheldon>><<wearProp "history">><<money `-_rentPrice` "libraryBooks">><<set $studyBooks.rented.count += 1>><<set $phase2 to "rent">><<set $phase to 4>><<set $studyBooks.rented.history to 1>><</link>><<note "+ Passive History" "green">>
 				<br>
 			<</if>>
 			<<if currentSkillValue('english') gte 300 and $studyBooks.rented.RaulAndJanet is 0 and $studyBooks.stolen.RaulAndJanet is 0>>
-				<<scarleticon>><<link [['Rent "Raul and Janet" (£' + _rentPrice / 100 + ')'|Book Rental]]>><<set $phase to 5>><<set $studyBooks.rented.count += 1>><<handheldon>><<wearProp "scarlet">><<money `-_rentPrice` "libraryBooks">><<set $phase2 to "rent">><<set $studyBooks.rented.RaulAndJanet to 1>><</link>>
+				<<scarleticon>><<link [['Rent "Raul and Janet" (' + _rentPriceDisplay + ')'|Book Rental]]>><<set $phase to 5>><<set $studyBooks.rented.count += 1>><<handheldon>><<wearProp "scarlet">><<money `-_rentPrice` "libraryBooks">><<set $phase2 to "rent">><<set $studyBooks.rented.RaulAndJanet to 1>><</link>>
 				<br>
 			<</if>>
 			<<if ((Time.monthName is "November" and Time.monthDay gte 24) or Time.monthName is "December") and $studyBooks.rented.pinch is 0 and $studyBooks.stolen.pinch is 0>>
-				<<oliveicon>><<link [["Rent the olive-coloured book (£" + _rentPrice / 100 + ")"|Book Rental]]>><<set $phase to 6>><<set $studyBooks.rented.count += 1>><<handheldon>><<wearProp "olive">><<money `-_rentPrice` "libraryBooks">><<set $phase2 to "rent">><<set $studyBooks.rented.pinch to 1>><</link>>
+				<<oliveicon>><<link [["Rent the olive-coloured book (" + _rentPriceDisplay + ")"|Book Rental]]>><<set $phase to 6>><<set $studyBooks.rented.count += 1>><<handheldon>><<wearProp "olive">><<money `-_rentPrice` "libraryBooks">><<set $phase2 to "rent">><<set $studyBooks.rented.pinch to 1>><</link>>
 				<br>
 			<</if>>
 		<<elseif $bookOverdue>>
 			<span class=purple>You can't rent another textbook while overdue.</span>
 			<br>
-		<<elseif $money lt _rentPrice>>
+		<<elseif not setup.inflation.canAfford(_rentPrice, "libraryBooks")>>
 			<<if $studyBooks.rented.count is 0>>
 				<span class=purple>You can't afford to rent a textbook.</span>
 			<<else>>
@@ -4227,24 +4228,24 @@
 			<<for _i to 1; _i lte $studyBooks.rented.count; _i++>>
 				<<set _totalRentPrice += Math.round(2000 * (1 + (_i * _i)))>>
 			<</for>>
-			<<set _totalRentPriceDisplay to _totalRentPrice / 100>>
-			<<if $money gte _totalRentPrice and $book_rent_timer lte 13 and $book_rent_timer gt 0 and $book_rent_deposit lte 0>>
+			<<set _totalRentPriceDisplay to formatMoney(setup.inflation.spendPrice(_totalRentPrice, "libraryBooks"))>>
+			<<if setup.inflation.canAfford(_totalRentPrice, "libraryBooks") and $book_rent_timer lte 13 and $book_rent_timer gt 0 and $book_rent_deposit lte 0>>
 				<<highicon>>
 				<<if $studyBooks.rented.count gt 1>>
-					<<link [["Renew your book rentals (£" + (_totalRentPrice/100) + ")"|Book Rental]]>><<money `-_totalRentPrice` "libraryBooks">><<set $phase2 to "renew">><</link>>
+					<<link [["Renew your book rentals (" + _totalRentPriceDisplay + ")"|Book Rental]]>><<money `-_totalRentPrice` "libraryBooks">><<set $phase2 to "renew">><</link>>
 				<<else>>
-					<<link [["Renew your book rental (£" + (_totalRentPrice/100) + ")"|Book Rental]]>><<money `-_totalRentPrice` "libraryBooks">><<set $phase2 to "renew">><</link>>
+					<<link [["Renew your book rental (" + _totalRentPriceDisplay + ")"|Book Rental]]>><<money `-_totalRentPrice` "libraryBooks">><<set $phase2 to "renew">><</link>>
 				<</if>>
 				<br>
-			<<elseif $money lt _totalRentPrice>>
+			<<elseif not setup.inflation.canAfford(_totalRentPrice, "libraryBooks")>>
 				<<if $studyBooks.rented.count gt 1>>
-					<span class=purple>You can't afford to renew your rentals (£_totalRentPriceDisplay).</span>
+					<span class=purple>You can't afford to renew your rentals (_totalRentPriceDisplay).</span>
 				<<else>>
-					<span class=purple>You can't afford to renew your rental (£_totalRentPriceDisplay).</span>
+					<span class=purple>You can't afford to renew your rental (_totalRentPriceDisplay).</span>
 				<</if>>
 				<br>
 			<</if>>
-			<<if $money gte 100>>
+			<<if setup.inflation.canAfford(100)>>
 				<<if $studyBooks.rented.count gt 1>>
 					<<link [[Deposit for your book rentals|Book Rental Deposit]]>><</link>>
 				<<else>>
@@ -4523,8 +4524,8 @@
 		<<if $daily.vendingMachine.used>>
 			A red display reads "<span class="red">Empty</span>".
 		<<else>>
-			<<if $money gte 2000>>
-				<<condomicon "machine">><<link [[Buy condoms (2-pack £20)|Vending Machine Buy]]>><</link>>
+			<<if setup.inflation.canAfford(2000)>>
+				<<condomicon "machine">><<link [[Buy condoms (2-pack <<printprice 2000>>)|Vending Machine Buy]]>><</link>>
 			<<else>>
 				You can't afford them.
 			<</if>>
@@ -4579,7 +4580,7 @@
 <</widget>>
 
 <<widget "depositLibraryExitConfirm">>
-	You are depositing <<printmoney _depositAmount>>, are you sure?
+	You are depositing <<printprice _depositAmount>>, are you sure?
 	<br>
 	<<link [[Confirm|Book Rental]]>>
 		<<set $book_rent_deposit += _depositAmount>>

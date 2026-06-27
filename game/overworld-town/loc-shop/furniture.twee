@@ -362,9 +362,10 @@ You are in the furniture shop. Most of its stock is too large for your room.
 								<<set $weekly.theft.furnitureShop to true>>
 							<</link>><<gcrime "petty">>
 						<</capture>>
-					<<elseif $money gte $_cost>>
+					<<elseif setup.inflation.canAfford($_cost, "furniture")>>
+						<<set $_costDisplay to formatMoney(setup.inflation.spendPrice($_cost, "furniture"))>>
 						<<capture $_key $_cost>>
-							<<link [["£" + (setup.inflation ? setup.inflation.price($_cost) : $_cost) / 100|Furniture Shop Papers]]>>
+							<<link $_costDisplay "Furniture Shop Papers">>
 								<<money `-$_cost` "furniture">>
 								<<run Furniture.set($chosenFurnitureCategory, $chosenFurnitureCategory, {
 									name	: $_key,
@@ -375,7 +376,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 							<</link>>
 						<</capture>>
 					<<else>>
-						<span class="red"><<print "£"+(setup.inflation ? setup.inflation.price($_cost) : $_cost) / 100>></span>
+						<span class="red"><<print formatMoney(setup.inflation.spendPrice($_cost, "furniture"))>></span>
 					<</if>>
 				</div>
 			<</if>>
@@ -385,9 +386,10 @@ You are in the furniture shop. Most of its stock is too large for your room.
 		<<if Time.dayState isnot "night">>
 			<<capture $_customCost>>
 				<div class="shopBlock no-numberify">
-					<<if $money gte $_customCost>>
+					<<if setup.inflation.canAfford($_customCost, "furniture")>>
+						<<set $_customCostDisplay to formatMoney(setup.inflation.spendPrice($_customCost, "furniture"))>>
 						Custom: <<textbox "_customHanging" "">> |
-						<<link [['£' + (setup.inflation ? setup.inflation.price($_cost) : $_cost) / 50|Furniture Shop Papers]]>>
+						<<link $_customCostDisplay "Furniture Shop Papers">>
 							<<money `-$_customCost` "furniture">>
 							<<if _customHanging is "" or _customHanging is undefined>><<set _customHanging to "a custom design">><</if>>
 							<<set _normalisedName to Util.escape(_customHanging).replace(/\[/g, "&#91;").replace(/\]/g, "&#93;")>>
@@ -400,7 +402,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 						<</link>>
 						<br>
 					<<else>>
-						Custom | <span class="red"><<print "£"+(setup.inflation ? setup.inflation.price($_cost) : $_cost) / 50>></span>
+						Custom | <span class="red"><<print formatMoney(setup.inflation.spendPrice($_customCost, "furniture"))>></span>
 					<</if>>
 				</div>
 			<</capture>>
@@ -451,9 +453,10 @@ You are in the furniture shop. Most of its stock is too large for your room.
 						</span></mouse> |
 					<</capture>>
 				<</if>>
-				<<if $money gte $_cost>>
+				<<if setup.inflation.canAfford($_cost, "furniture")>>
+					<<set $_costDisplay to formatMoney(setup.inflation.spendPrice($_cost, "furniture"))>>
 					<<capture $_key $_furnishing $_cost $_itemCategory _itemCurrent>>
-						<<link [["£" + (setup.inflation ? setup.inflation.price($_cost) : $_cost) / 100|Furniture Shop Catalogue]]>>
+						<<link $_costDisplay "Furniture Shop Catalogue">>
 							<<if ($_furnishing.tier or 0) lt (nullable(_itemCurrent).tier or 0)>>
 								<<set $furnitureDowngrade to {
 									key: $_key,
@@ -474,7 +477,7 @@ You are in the furniture shop. Most of its stock is too large for your room.
 						<</link>>
 					<</capture>>
 				<<else>>
-					<span class="red"><<print "£"+(setup.inflation ? setup.inflation.price($_cost) : $_cost) / 100>></span>
+					<span class="red"><<print formatMoney(setup.inflation.spendPrice($_cost, "furniture"))>></span>
 				<</if>>
 			</div>
 		<</if>>

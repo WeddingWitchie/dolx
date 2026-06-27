@@ -196,17 +196,17 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 <<widget "hairdressersPricelist">>
 	A sign by the mirror reads:
 	<br>
-	Haircut: £30
+	Haircut: <<printprice 3000>>
 	<br>
-	Fringe trim: £30
+	Fringe trim: <<printprice 3000>>
 	<br>
-	Full head colouring: £60
+	Full head colouring: <<printprice 6000>>
 	<br>
-	Fringe or sides colouring: £50
+	Fringe or sides colouring: <<printprice 5000>>
 	<br>
-	Two-tone hair colouring: £250
+	Two-tone hair colouring: <<printprice 25000>>
 	<br>
-	Eyebrows colouring: £20
+	Eyebrows colouring: <<printprice 2000>>
 	<br><br>
 <</widget>>
 
@@ -238,10 +238,9 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 			<<if ($settings.transformAnimalEnabled or $settings.transformDivineEnabled) and getTransformParts().length>>
 				<label><<checkbox "$transformationShow" false true autocheck>> Show transformations</label>
 			<</if>>
-			<div id="currentCost" class="gold">To pay: £0</div>
 		</div>
 		<div>
-			<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000) or $hairOption isnot $hairlength) and $hairlength gt 100>>
+			<<if (setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000), "hairdressers") or $hairOption isnot $hairlength) and $hairlength gt 100>>
 				<<if $hairOption isnot $hairlength and not dhmod.cfg.prices>>
 					<<set _currentCost += 3000>>
 				<</if>>
@@ -264,7 +263,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<br><br>
 			<</if>>
 
-			<<if ($money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000) or $fringeOption isnot $fringelength) and $fringelength gte 100>>
+			<<if (setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000), "hairdressers") or $fringeOption isnot $fringelength) and $fringelength gte 100>>
 				<<if $fringeOption isnot $fringelength and not dhmod.cfg.prices>>
 					<<set _currentCost += 3000>>
 				<</if>>
@@ -290,7 +289,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 			<<set _dyeNames to ["Red", "Jet black", "Black", "Blond", "Soft Blond", "Platinum blond", "Golden", "Ashy blond", "Strawberry blond", "Dark Brown", "Brown", "Soft brown", "Light brown", "Burnt Orange", "Ginger", "Blood Orange", "Blue", "Deep Blue", "Neon Blue", "Green", "Dark Lime", "Toxic Green", "Teal", "Pink", "Bright Pink", "Hot pink", "Soft pink", "Crimson", "Purple", "Medium Purple", "Bright Purple", "White", "Snow white"]>>
 			<<set $hairdressersHairColour to ["red", "jetblack", "black", "blond", "softblond", "platinumblond", "golden", "ashyblond", "strawberryblond", "darkbrown", "brown", "softbrown", "lightbrown", "burntorange", "ginger", "bloodorange", "blue", "deepblue", "neonblue", "green", "darklime", "toxicgreen", "teal", "pink", "brightpink", "hotpink", "softpink", "crimson", "purple", "mediumpurple", "brightpurple", "white", "snowwhite"]>>
 
-			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000) or $dyeOption isnot "noChange" or $twoToneHairDye>>
+			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000), "hairdressers") or $dyeOption isnot "noChange" or $twoToneHairDye>>
 				<<if not dhmod.cfg.prices>><<if $dyeOption is "removeDye">>
 					<<set _currentCost += 3000>>
 				<<elseif not $twoToneHairDye and $dyeOption isnot "noChange">>
@@ -317,7 +316,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<if $haircolour isnot $naturalhaircolour>>
 					<<set _dyeOptions["Remove dye"] to "removeDye">>
 				<</if>>
-				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 6000) or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
+				<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 6000), "hairdressers") or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
 						<<if ($haircolour is $hairdressersHairColour[_i] and $hairColourStyle is "simple") or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
@@ -363,7 +362,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<br><br>
 			<</if>>
 
-			<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browClear : 1000) or $browsDyeOption isnot "noChange">>
+			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.browClear : 1000), "hairdressers") or $browsDyeOption isnot "noChange">>
 				<<if not dhmod.cfg.prices>><<if $browsDyeOption is "removeDye">>
 					<<set _currentCost += 1000>>
 				<<elseif $browsDyeOption isnot "noChange">>
@@ -377,7 +376,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<if $makeup.browscolour isnot $naturalhaircolour>>
 					<<set _browsDyeOptions["Remove dye"] to "removeDye">>
 				<</if>>
-				<<if $money gte _currentCost + (dhmod.cfg.prices ? dhmShop.prices.browDye : 2000) or ($browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye")>>
+				<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.browDye : 2000), "hairdressers") or ($browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
 						<<if $makeup.browscolour is $hairdressersHairColour[_i] or $naturalhaircolour is $hairdressersHairColour[_i]>>
 							<<continue>>
@@ -401,17 +400,19 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 		</div>
 	</div>
 
+	<div id="currentCost" class="gold">To pay: <<printprice _currentCost>></div>
+
 	<<set _pass to 0>>
 	<<set _pass += $hairOption isnot $hairlength ? 15 : 0>>
 	<<set _pass += $fringeOption isnot $fringelength ? 15 : 0>>
 	<<set _pass += $browsDyeOption isnot "noChange" ? 10 : 0>>
 	<<set _pass += $twoToneHairDye ? 30 : $dyeOption is "removeDye" ? 15 : $dyeOption isnot "noChange" ? 30 : 0>>
 	<<if _sydneyPresent>>
-		<<if (!_cancel or _currentCost gt 0) and $money gte _currentCost>>
+		<<if (!_cancel or _currentCost gt 0) and setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>>
 				<<money `-_currentCost` "hairdressers">>
 			<</link>>
-		<<elseif $money lt _currentCost>>
+		<<elseif not setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<span class="blue">You don't have enough money to pay the hairdresser.</span>
 			<br><br>
 			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>><</link>>
@@ -423,7 +424,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 		<</if>>
 	<<else>>
 
-		<<if $money lt _currentCost>>
+		<<if not setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<<hairdressericon "chair">><span class="blue">You don't have enough money to pay the hairdresser.</span>
 			<br>
 		<<elseif $twoToneHairDye and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
@@ -580,7 +581,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<<set _currentCost += ($sydneyHairOption isnot $sydney.hair ? 3000 : 0)>>
 	<<set _currentCost += ($dyeOption is "removeDye" ? 3000 : ($dyeOption isnot "noChange" ? 6000 : 0))>>
 
-	<<if ($money gte _currentCost + 3000 or $sydneyHairOption isnot $sydney.hair)>>
+	<<if (setup.inflation.canAfford(_currentCost + 3000, "hairdressers") or $sydneyHairOption isnot $sydney.hair)>>
 		Encourage Sydney to have <<his>> hair styled:
 		<br>
 		<<set _hairOptions to {"As it is":$sydney.hair}>>
@@ -600,7 +601,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<</if>>
 	<br><br>
 
-	<<if $money gte _currentCost + ($_sydney.hairColour isnot "strawberryblond" ? 3000 : 6000) or $dyeOption isnot "noChange">>
+	<<if setup.inflation.canAfford(_currentCost + ($_sydney.hairColour isnot "strawberryblond" ? 3000 : 6000), "hairdressers") or $dyeOption isnot "noChange">>
 		Encourage Sydney to dye <<his>> hair<<if $_sydney.hairColour isnot "strawberryblond">> or cleared of hair dye<</if>>:
 		<br>
 		<<set _dyeOptions to {"Don't dye":"noChange"}>>
