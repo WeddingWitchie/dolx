@@ -2,7 +2,8 @@
 	"use strict";
 
 	let scheduled = false;
-	let observerInstalled = false;
+	let observer = null;
+	let observedScope = null;
 
 	/* The only UI we care about lives inside the sidebar caption / ui-bar.
 	   Observing that container instead of <body> avoids reacting to every mutation in #passages (the story text),
@@ -15,28 +16,8 @@
 		);
 	}
 
-	function getButtonLabelState() {
-		let hasSaves = false;
-		let hasCharacteristics = false;
-
-		/* Scope the button scan to the caption/ui-bar when available.
-		   SAVES and CHARACTERISTICS both live there, so we never need to walk every button in the whole document. */
-		const scope = getUiScope() || document;
-		const buttons = scope.querySelectorAll(".link-internal.macro-button, .macro-button, button");
-		for (const el of buttons) {
-			const label = (el.textContent || "").trim();
-			if (label === "SAVES") hasSaves = true;
-			else if (label === "CHARACTERISTICS") hasCharacteristics = true;
-
-			if (hasSaves && hasCharacteristics) break;
-		}
-
-		return { hasSaves, hasCharacteristics };
-	}
-
 	function isStartLikeScreen() {
-		const labels = getButtonLabelState();
-		return labels.hasSaves && !labels.hasCharacteristics;
+		return document.getElementById("startCaption") !== null;
 	}
 
 	function getDirectChildByTag(parent, tagName) {
@@ -118,31 +99,8 @@
 
 	function mutationTouchesUi(mutations) {
 		for (const mutation of mutations) {
-			if (mutation.type !== "childList") continue;
-
-			const target = mutation.target;
-			if (
-				target &&
-				(target.id === "startCaption" ||
-					target.id === "overlayButtons" ||
-					target.id === "story-caption" ||
-					target.id === "ui-bar")
-			) {
+			if (mutation.type === "childList" && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) {
 				return true;
-			}
-
-			for (const node of mutation.addedNodes) {
-				if (!(node instanceof Element)) continue;
-				if (
-					node.id === "startCaption" ||
-					node.id === "overlayButtons" ||
-					node.id === "story-caption" ||
-					node.id === "ui-bar" ||
-					node.matches?.(".macro-button, .link-internal, .sidebarButtonSplit") ||
-					node.querySelector?.("#startCaption, #overlayButtons, .macro-button, .link-internal, .sidebarButtonSplit")
-				) {
-					return true;
-				}
 			}
 		}
 
@@ -150,14 +108,16 @@
 	}
 
 	function installObserver() {
-		if (observerInstalled) return;
+		if (typeof MutationObserver !== "function") return;
 
 		const scope = getUiScope();
 		if (!scope) return; /* container not built yet; a later passage hook will retry */
+		if (observer && observedScope === scope) return;
 
-		observerInstalled = true;
+		if (observer) observer.disconnect();
+		observedScope = scope;
 
-		const observer = new MutationObserver((mutations) => {
+		observer = new MutationObserver((mutations) => {
 			if (mutationTouchesUi(mutations)) {
 				scheduleEnsureBreezeCompatAnchors();
 			}

@@ -1,8 +1,9 @@
 /* Initialise sky canvas on loading a save */
 $(document).on(":onloadsave", () => {
-	if (V.options.weatherUpdate === false || !Weather.sidebar?.loaded.value) return;
+	if (V.options.weatherUpdate === false || !Weather.sidebar) return;
 	Weather.activeRenderer = Weather.sidebar;
-	Weather.sidebar.initialize();
+	if (!Weather.sidebar.loaded.value) return;
+	Weather.Observables?.checkForUpdate?.(true);
 });
 
 /* Clear all layers on restart */

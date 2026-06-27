@@ -354,7 +354,7 @@ window.wornSetupClothes = wornSetupClothes;
 	if (typeof Math.clamp !== "function") {Math.clamp = (n, min, max) => Math.min(max, Math.max(min, n));}
 
 	// Back-compat: old saves may be missing newer X-Change pill fields.
-	// We only fill in missing fields; we don't wipe or "sanitise" existing data.
+	// We only fill in missing fields; we don't wipe or rewrite existing data.
 	setup.xchangeEnsurePillDefaults = function () {
 		const V = State?.variables;
 		const pill = V?.xchange?.pill;
@@ -378,8 +378,7 @@ window.wornSetupClothes = wornSetupClothes;
 		}
 	};
 
-	// Back-compat: older saves may be missing global X-Change fields that core game code expects.
-	// We only initialise values when they're missing/invalid, to avoid wiping legitimate data.
+	// Back-compat: older saves may be missing or have invalid scalar X-Change fields that core game code expects.
 	setup.xchangeEnsureCompatGlobals = function () {
 		const V = State?.variables;
 		if (!V) return;
@@ -390,7 +389,7 @@ window.wornSetupClothes = wornSetupClothes;
 		}
 		
 		// story-functions.js uses V.xchange.breederDenial in arithmetic.
-		// If it's missing or non-numeric, it can turn risk into NaN and silently disable heat.
+		// If it's missing or invalid, recover the bounded feature default so heat math doesn't become NaN.
 		const bd = Number(V.xchange.breederDenial);
 		if (!Number.isFinite(bd)) {
 			V.xchange.breederDenial = 0;
@@ -408,15 +407,34 @@ window.wornSetupClothes = wornSetupClothes;
 			}
 		}
 
-		// Ensure $ballssize always exists (female-start characters may never have it initialised,
-		// which causes NaN when save-body runs Number($ballssize)).
-		if (V.ballssize === undefined || V.ballssize === null || !Number.isFinite(Number(V.ballssize))) {
-			V.ballssize = 0;
+		// Ensure $ballssize always exists (female-start characters may never have it initialised, which causes NaN when save-body runs Number($ballssize)).
+		const balls = Number(V.ballssize);
+		if (!Number.isFinite(balls)) {
+			const penisSize = Number(V.player?.penissize);
+			V.ballssize = V.player?.ballsExist && Number.isFinite(penisSize) ? Math.clamp(penisSize, 0, 6) : 0;
+		} else {
+			V.ballssize = Math.clamp(balls, 0, 6);
 		}
+
+		// Body-size bounds are static limits. If an old save has broken bounds, restore the known ranges so transformed bodies can be generated without writing NaN body sizes.
+		const repairBounds = (minKey, maxKey, fallbackMin, fallbackMax) => {
+			const min = Number(V[minKey]);
+			const max = Number(V[maxKey]);
+			if (!Number.isInteger(min) || !Number.isInteger(max) || max < min) {
+				V[minKey] = fallbackMin;
+				V[maxKey] = fallbackMax;
+			} else {
+				V[minKey] = min;
+				V[maxKey] = max;
+			}
+		};
+		repairBounds("breastsizemin", "breastsizemax", 0, 12);
+		repairBounds("bottomsizemin", "bottomsizemax", 0, 8);
+		repairBounds("penissizemin", "penissizemax", 0, 6);
+		repairBounds("ballssizemin", "ballssizemax", 0, 6);
 	};
 
-	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled,
-	// and prevent "armed" drift/stage from firing later.
+	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled, and prevent "armed" drift/stage from firing later.
 	setup.xchangeEnsureGiSafety = function () {
 		const V = State?.variables;
 		if (!V) return;
@@ -455,16 +473,19 @@ window.wornSetupClothes = wornSetupClothes;
 		}
 	};
 
-	// Run once now
-	try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
-	try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
-	try { setup.xchangeEnsureGiSafety(); } catch (e) {}
+	const runXChangeLoadCompat = () => {
+		try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
+		try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
+		try { setup.xchangeEnsureGiSafety(); } catch (e) {}
+	};
 
-	// Run again on every passage start
+	// Run once now, then when a save is loaded. These are compatibility fills for old/missing setup, not an every-passage data cleaner.
+	runXChangeLoadCompat();
+
 	if (typeof jQuery === "function") {
+		jQuery(document).on(":onloadsave", runXChangeLoadCompat);
 		jQuery(document).on(":passagestart", () => {
 			try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
-			try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
 			try { setup.xchangeEnsureGiSafety(); } catch (e) {}
 		});
 	}
@@ -535,48 +556,21 @@ function xChangeCachedBodyUsable(slotName) {
 
 	if (xChangeBodySnapshotUsable(body)) return true;
 
-	// Old transformed-body caches can be missing fields that newer validators require.
-	// Repair only the affected fields in place;
-	// do not discard the whole cache unless the snapshot is truly unusable.
-	if (prop === "changedBody" || prop === "hermBody") {
-		const original = pill.originalBody && typeof pill.originalBody === "object" ? pill.originalBody : {};
-		const baseSex = ["m", "f"].includes(pill.baseSex) ? pill.baseSex
-			: (["m", "f"].includes(original.sex) ? original.sex
-			: (["m", "f"].includes(V.player?.gender) ? V.player.gender : "f"));
-		const targetSex = slotName === "herm" ? "m" : (baseSex === "m" ? "f" : "m");
-
-		if (!["m", "f"].includes(body.sex)) body.sex = targetSex;
-		if (!["m", "f", "a"].includes(body.gender_body)) body.gender_body = slotName === "herm" ? "a" : targetSex;
-		if (typeof body.bodyshape !== "string" || body.bodyshape.length === 0) {
-			body.bodyshape = body.gender_body === "f" ? "curvy" : (body.gender_body === "a" ? "slender" : "classic");
-		}
-		if (Number(body.penissize) < 0) body.penissize = 0;
-		if (Number(body.ballssize) < 0) body.ballssize = 0;
-		if (Number(body.breastsize) < 0) body.breastsize = 0;
-		if (Number(body.bottomsize) < 0) body.bottomsize = 0;
-		if (typeof body.penisExist !== "boolean") body.penisExist = body.sex === "m" || slotName === "herm" || Number(body.penissize) > 0;
-		if (typeof body.ballsExist !== "boolean") body.ballsExist = body.penisExist && Number(body.ballssize) > 0;
-		if (typeof body.vaginaExist !== "boolean") body.vaginaExist = body.sex === "f" || slotName === "herm";
-	}
-
-	xChangeSanitiseBodySnapshot(body, slotName);
-	if (xChangeBodySnapshotUsable(body)) {
-		xChangeRepairNoticeOnce(
-			`repair_xchange_repaired_${prop}`,
-			`<b>Save repair notice</b><br>X-Change repaired an incomplete cached body snapshot (<b>${slotName}</b>) instead of discarding it.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
-		);
-		return true;
-	}
-
 	xChangeRepairNoticeOnce(
-		`repair_xchange_unusable_${prop}`,
-		`<b>Save repair notice</b><br>X-Change found a cached body snapshot (<b>${slotName}</b>) that could not be repaired. A fresh appearance will be generated, but per-body virginity is stored separately and is not reset by this.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>`
+		`xchange_invalid_cached_${prop}`,
+		`<b>X-Change cache notice</b><br>X-Change found an invalid generated body cache (<b>${slotName}</b>). It was not loaded; the body will be regenerated through the normal X-Change path.<br><br><b>Please report this with your save and steps if the new body looks wrong.</b>`
 	);
+	try {
+		console.warn("[X-Change] Invalid generated body cache; regenerating", { slotName, prop, body });
+	} catch (e) {}
+	if (typeof Errors !== "undefined" && typeof Errors.report === "function") {
+		Errors.report(`X-Change found an invalid generated body cache (${slotName}) and regenerated it.`, { slotName, prop, body });
+	}
+	pill[prop] = {};
 	return false;
 }
 window.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
 setup.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
-setup.xChangeSanitiseBodySnapshot = xChangeSanitiseBodySnapshot;
 setup.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
 
 // ==================================================
@@ -821,11 +815,9 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 setup.xChangeBodyVirginityKeys = ["vaginal", "penile", "anal", "oral", "handholding", "kiss"];
 setup.xChangeVirginTraitKeys = ["vaginal", "penile"];
 
-/* Canonical role for the transformed body the player is currently inhabiting,
- * derived from its configuration (gender_body) rather than stale effect flags.
+/* Canonical role for the transformed body the player is currently inhabiting, derived from its configuration (gender_body) rather than stale effect flags.
  * herm bodies are gender_body "a"; genderflip bodies are "m"/"f".
- * Using this one signal everywhere a save/apply decides herm-vs-xchange keeps the store and the re-entry path in agreement,
- * so new saves never split. */
+ * Using this one signal everywhere a save/apply decides herm-vs-xchange keeps the store and the re-entry path in agreement, so new saves never split. */
 setup.xChangeTransformedRole = function xChangeTransformedRole(genderBody) {
 	return genderBody === "a" ? "herm" : "xchange";
 };
@@ -880,11 +872,8 @@ function xChangeCopyVirginityEntry(entry) {
 }
 
 function xChangeMigrateTransformedVirginityRoles() {
-	// One-time old-save bridge. Old saves could record a transformed body's losses
-	// under one role (e.g. "herm") while the re-entry path read the other ("xchange"),
-	// because the save slot used to be chosen by stale effect flags. Reconcile that
-	// split EXACTLY ONCE: if one transformed store has taken virginity and its sibling
-	// is still the all-true seed, copy it across.
+	// One-time old-save bridge. Old saves could record a transformed body's losses under one role (e.g. "herm") while the re-entry path read the other ("xchange"), because the save slot used to be chosen by stale effect flags.
+	// Reconcile that split EXACTLY ONCE: if one transformed store has taken virginity and its sibling is still the all-true seed, copy it across.
 	//   - never touches "real"
 	//   - never overwrites a transformed store that already has taken data
 	const pill = V.xchange && V.xchange.pill;

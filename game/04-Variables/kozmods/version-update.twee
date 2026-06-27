@@ -18,6 +18,9 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			grayPillGenderflip: 0,
 			chastityKeepBeltShape: 1,
 			willpowerPoints: Math.max(200, $willpower || 0),
+			breastsize: $player.breastsize,
+			bottomsize: $player.bottomsize,
+			penissize: $player.penissize,
 			known: [],
 		}>>
 	<</if>>
@@ -33,6 +36,9 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.grayPillGenderflip is undefined>><<set $xchange.grayPillGenderflip to 0>><</if>>
 	<<if $xchange.chastityKeepBeltShape is undefined>><<set $xchange.chastityKeepBeltShape to 1>><</if>>
 	<<if $xchange.willpowerPoints is undefined or $xchange.willpowerPoints is null or isNaN($xchange.willpowerPoints)>><<set $xchange.willpowerPoints to Math.max(200, $willpower || 0)>><</if>>
+	<<if $xchange.breastsize is undefined>><<set $xchange.breastsize to $player.breastsize>><</if>>
+	<<if $xchange.bottomsize is undefined>><<set $xchange.bottomsize to $player.bottomsize>><</if>>
+	<<if $xchange.penissize is undefined>><<set $xchange.penissize to $player.penissize>><</if>>
 	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
 	/* optional: if an old save made it the wrong type */
 	<<if $xchange.known isnot undefined and !Array.isArray($xchange.known)>><<set $xchange.known to []>><</if>>
@@ -886,13 +892,12 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.permaReflection to {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
 	<</if>>
 
-	/* Morning-after pill counter must be a finite number */
+	/* Morning-after pill counter: scalar stat recovery. Older saves/builds could leave it missing or NaN, which breaks statistics text. */
 	<<if $pregnancyStats isnot undefined>>
-		<<if $pregnancyStats.aftermorningpills is undefined or !Number.isFinite($pregnancyStats.aftermorningpills)>>
-			<<if $pregnancyStats.aftermorningpills !== undefined>>
-				<<run console.warn("[Morning After pill] pregnancyStats.aftermorningpills is invalid; resetting:", V.pregnancyStats?.aftermorningpills)>>
-			<</if>>
+		<<if $pregnancyStats.aftermorningpills is undefined or !Number.isFinite(Number($pregnancyStats.aftermorningpills))>>
 			<<set $pregnancyStats.aftermorningpills to 0>>
+		<<else>>
+			<<set $pregnancyStats.aftermorningpills to Number($pregnancyStats.aftermorningpills)>>
 		<</if>>
 	<</if>>
 
@@ -1285,13 +1290,22 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 				daily: 			0, 
 				count: 			0, 
 				countHistory: 	0}>>
-			<<set $xchange.errorLog.push(`Crime "${_cr}" data was found wiped, so has been reset.`)>>
+			<<set $xchange.errorLog.push(`Crime "${_cr}" data was missing and was initialised as a new empty category.`)>>
 		<</if>>
 	<</for>>
 
 	<<if isNaN($innocencetrauma) or isNaN($trauma)>>
-		<<set $innocencetrauma to 0>>
-		<<set $trauma to 0>>
+		<<if isNaN($trauma)>>
+			<<if !isNaN($innocencetrauma) and $innocencestate isnot 1>>
+				<<set $trauma to Number($innocencetrauma)>>
+				<<set $innocencetrauma to 0>>
+			<<else>>
+				<<set $trauma to 0>>
+			<</if>>
+		<</if>>
+		<<if isNaN($innocencetrauma)>>
+			<<set $innocencetrauma to 0>>
+		<</if>>
 	<</if>>
 
 	<<if !["m","f"].includes($player.gender) or !["m","f"].includes($player.sex)>>
@@ -1356,16 +1370,15 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<unset $xchange.spikerates["dumbbitch"]>>
 	<</if>>
 
-	/* Slider sanitiser. Runs after every key migration above, so it's the final authority.
+	/* Settings slider migration. Runs after every key migration above, so it's the final authority for values the settings UI itself needs.
 	   The <<numberslider>> macro throws if its stored value is missing/NaN ("is not a number") or below the slider's min ("default value (0) is less than min value (1)").
 	   Older builds used a min of 0 and never backfilled every key, so loaded saves could carry a 0, a NaN, or a missing key into the X-Change settings page and crash it.
-	   We repair every min-1 slider (and the two weight-only keys the spike pool reads) back into a valid range here. */
+	   Keep this scoped to settings values only; it is not a body/state repair path. */
 	<<run (() => {
 		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
 		const x = V && V.xchange;
 		if (!x) return;
-		/* spikerates: every settings slider is 1-10. genderflip/fertile have no slider but the spike pool reads them, so keep them valid too.
-		Values restore to their intended default when absent or non-numeric, and clamp into range when a stale value is out of bounds. */
+		/* spikerates: every settings slider is 1-10. genderflip/fertile have no slider but the spike pool reads them, so keep them valid too. */
 		const rateDefaults = {
 			genderflip: 10, crossdress: 7, herm: 4, breeder: 2, bull: 2,
 			continue: 3, resistance: 3, portal: 2, fertile: 2, passion: 1,

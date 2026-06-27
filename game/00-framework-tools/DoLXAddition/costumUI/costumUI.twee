@@ -10,7 +10,10 @@ setup.dolxUi = {
 			return;
 		}
 
-		const enabled = !!State.variables.dolxCustomUIEnabled;
+		const enabled =
+			State.variables.dolxCustomUIEnabled === true ||
+			State.variables.dolxCustomUIEnabled === 1 ||
+			State.variables.dolxCustomUIEnabled === "1";
 		if (!force && this.lastEnabled === enabled && root.classList.contains(this.className) === enabled) {
 			return;
 		}
@@ -36,7 +39,13 @@ setup.dolxUi = {
 	},
 };
 
-$(document).on(":storyready :passagerender", function () {
+$(document).on(":storyready :onloadsave :passagestart", function () {
+	if (window.setup && setup.dolxUi) {
+		setup.dolxUi.apply();
+	}
+});
+
+$(document).on(":passagerender", function () {
 	if (window.setup && setup.dolxUi) {
 		setup.dolxUi.scheduleApply();
 	}

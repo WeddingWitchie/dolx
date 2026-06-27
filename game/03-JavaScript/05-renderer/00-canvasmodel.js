@@ -245,6 +245,7 @@ class CanvasModel {
 		}
 		for (const layer of this.layerList) {
 			// Reset some options
+			layer.show = layer.defaultOptions.show;
 			layer.brightness = layer.defaultOptions.brightness;
 			layer.contrast = layer.defaultOptions.contrast;
 			layer.frameDx = 0;

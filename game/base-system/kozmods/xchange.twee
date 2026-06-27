@@ -96,9 +96,8 @@
 					bottomsizemin: V.bottomsizemin,
 					bottomsizemax: V.bottomsizemax
 				})>>
-			<<run setup.xChangeRepairNoticeOnce("repair_xchange_body_size_bounds", "<b>Save repair notice</b><br>Your save/runtime had invalid <b>breast/bottom size bounds</b> while generating a transformed body. X-Change used safe fallback sizes to prevent <b>NaN</b> body parts and sprite crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set $player.breastsize to 0>>
-			<<set $player.bottomsize to 2>>
+				<<error { message: "X-Change cannot generate a transformed body because breast/bottom size bounds are invalid. Please report this with your save and steps." }>>
+				<<exit>>
 			<<else>>
 				<<set $player.breastsize to random($breastsizemin,$breastsizemax)>>
 				<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
@@ -358,8 +357,8 @@
 					penissizemin: V.penissizemin,
 					penissizemax: V.penissizemax
 				})>>
-			<<run setup.xChangeRepairNoticeOnce("repair_xchange_penis_size_bounds", "<b>Save repair notice</b><br>Your save/runtime had invalid <b>penis size bounds</b> while generating a transformed body. X-Change used a safe fallback size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set $player.penissize to 0>>
+				<<error { message: "X-Change cannot generate a transformed body because penis size bounds are invalid. Please report this with your save and steps." }>>
+				<<exit>>
 			<<else>>
 				<<set $player.penissize to random($penissizemin,$penissizemax)>>
 			<</if>>
@@ -623,48 +622,50 @@
 
 		<<set _sb_bs to Number($player.breastsize)>>
 		<<if isNaN(_sb_bs)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_breastsize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>player.breastsize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
-			<<set _sb_bs to 0>>
+			<<run console.error("[X-Change save-body] Invalid player.breastsize", { slot: _slotLabel, value: V.player && V.player.breastsize })>>
+			<<error { message: "X-Change cannot save this body snapshot because player.breastsize is invalid. Please report this with your save and steps." }>>
+			<<exit>>
 		<</if>>
 
 		<<set _sb_bot to Number($player.bottomsize)>>
 		<<if isNaN(_sb_bot)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_bottomsize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>player.bottomsize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
-			<<set _sb_bot to 2>>
+			<<run console.error("[X-Change save-body] Invalid player.bottomsize", { slot: _slotLabel, value: V.player && V.player.bottomsize })>>
+			<<error { message: "X-Change cannot save this body snapshot because player.bottomsize is invalid. Please report this with your save and steps." }>>
+			<<exit>>
 		<</if>>
 
 		<<set _sb_ps to Number($player.penissize)>>
 		<<if isNaN(_sb_ps)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_penissize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>player.penissize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
-			<<set _sb_ps to 0>>
+			<<run console.error("[X-Change save-body] Invalid player.penissize", { slot: _slotLabel, value: V.player && V.player.penissize })>>
+			<<error { message: "X-Change cannot save this body snapshot because player.penissize is invalid. Please report this with your save and steps." }>>
+			<<exit>>
 		<</if>>
 
 		<<set _sb_ball to Number($ballssize)>>
 		<<if isNaN(_sb_ball)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_ballssize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>ballssize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value in the snapshot to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
-			<<set _sb_ball to 0>>
+			<<run console.error("[X-Change save-body] Invalid ballssize", { slot: _slotLabel, value: V.ballssize })>>
+			<<error { message: "X-Change cannot save this body snapshot because ballssize is invalid. Please report this with your save and steps." }>>
+			<<exit>>
 		<</if>>
 
-		/* Clamp to current valid floors (DoL rework moved e.g. penissize min to 0). */
-		<<set _sb_bs to Math.max(0, _sb_bs)>>
-		<<set _sb_bot to Math.max(0, _sb_bot)>>
-		<<set _sb_ps to Math.max(0, _sb_ps)>>
-		<<set _sb_ball to Math.max(0, _sb_ball)>>
+		<<if _sb_bs lt 0 or _sb_bot lt 0 or _sb_ps lt 0 or _sb_ball lt 0>>
+			<<run console.error("[X-Change save-body] Negative body size", { slot: _slotLabel, breastsize: _sb_bs, bottomsize: _sb_bot, penissize: _sb_ps, ballssize: _sb_ball })>>
+			<<error { message: "X-Change cannot save this body snapshot because a body size is below the valid minimum. Please report this with your save and steps." }>>
+			<<exit>>
+		<</if>>
 
-		/* bodysize is a REQUIRED field for snapshot validity but was previously saved unguarded.
-		A non-finite bodysize makes the cached body fail validation and get discarded/regenerated, which is what wipes per-body state. Guard it like the rest. */
 		<<set _sb_size to Number($bodysize)>>
 		<<if isNaN(_sb_size)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_savebody_bodysize_" + (_slotLabel ? _slotLabel : "unknown")), ("<b>Save repair notice</b><br>Your save had an invalid <b>bodysize</b> while X-Change was saving a body snapshot (<b>" + _slotLabel + "</b>). X-Change stored a safe fallback value so the snapshot isn't discarded.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>"))>>
-			<<set _sb_size to 2>>
+			<<run console.error("[X-Change save-body] Invalid bodysize", { slot: _slotLabel, value: V.bodysize })>>
+			<<error { message: "X-Change cannot save this body snapshot because bodysize is invalid. Please report this with your save and steps." }>>
+			<<exit>>
 		<</if>>
 
-		/* The remaining required fields must be valid strings/enums too, or the snapshot is judged invalid. Coerce only when actually bad; valid values pass through. */
-		<<set _sb_face to (typeof $facestyle === "string" && $facestyle.length) ? $facestyle : "default">>
-		<<set _sb_facevar to (typeof $facevariant === "string" && $facevariant.length) ? $facevariant : "default">>
-		<<set _sb_gender to ["m","f","a"].includes($player.gender_body) ? $player.gender_body : (["m","f"].includes($player.sex) ? $player.sex : "f")>>
-		<<set _sb_shape to (typeof $player.bodyshape === "string" && $player.bodyshape.length) ? $player.bodyshape : (_sb_gender === "f" ? "curvy" : "classic")>>
-		<<set _sb_sex to ["m","f"].includes($player.sex) ? $player.sex : (["m","f"].includes(_sb_gender) ? _sb_gender : "f")>>
+		<<set _sb_face to $facestyle>>
+		<<set _sb_facevar to $facevariant>>
+		<<set _sb_gender to $player.gender_body>>
+		<<set _sb_shape to $player.bodyshape>>
+		<<set _sb_sex to $player.sex>>
 
 		<<set _savedbody to {
 			/* Core appearance */
@@ -727,6 +728,12 @@
 			deviancy: $deviancy,
 		}>>
 
+		<<if !setup.xChangeBodySnapshotUsable(_savedbody)>>
+			<<run console.error("[X-Change save-body] Built invalid body snapshot", { slot: _slotLabel, body: _savedbody })>>
+			<<error { message: "X-Change built an invalid body snapshot. It was not saved. Please report this with your save and steps." }>>
+			<<exit>>
+		<</if>>
+
 		/* Parasites (deep clone to avoid reference mutation) */
 		<<run _savedbody.parasite = (typeof clone === "function") ? clone(V.parasite) : JSON.parse(JSON.stringify(V.parasite)) >>
 
@@ -777,7 +784,11 @@
 		<</if>>
 
 		<<set _slotName to (_args[0] ? _args[0] : "originalBody")>>
-		<<run setup.xChangeSanitiseBodySnapshot(_body, _slotName)>>
+		<<if !setup.xChangeBodySnapshotUsable(_body)>>
+			<<run console.error("[X-Change load-body] Invalid body snapshot", { slot: _slotName, body: _body })>>
+			<<error { message: "X-Change cannot load this body snapshot because it is invalid. It was not modified. Please report this with your save and steps." }>>
+			<<exit>>
+		<</if>>
 
 		/* Core appearance */
 		<<set $bodysize to _body.bodysize>>
@@ -785,51 +796,10 @@
 		<<set $facevariant to _body.facevariant>>
 		<<set $player.gender_body to _body.gender_body>>
 		<<set $player.bodyshape to _body.bodyshape>>
-		<<set _lb_bs to Number(_body.breastsize)>>
-		<<if isNaN(_lb_bs)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_breastsize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>breastsize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set _lb_bs to Number($player.breastsize)>>
-			<<if isNaN(_lb_bs)>>
-				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_breastsize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>player.breastsize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _lb_bs to 0>>
-			<</if>>
-		<</if>>
-		<<set $player.breastsize to _lb_bs>>
-
-		<<set _lb_bot to Number(_body.bottomsize)>>
-		<<if isNaN(_lb_bot)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_bottomsize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>bottomsize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set _lb_bot to Number($player.bottomsize)>>
-			<<if isNaN(_lb_bot)>>
-				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_bottomsize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>player.bottomsize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _lb_bot to 2>>
-			<</if>>
-		<</if>>
-		<<set $player.bottomsize to _lb_bot>>
-
-
-		<<set _lb_ps to Number(_body.penissize)>>
-		<<if isNaN(_lb_ps)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_penissize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>penissize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set _lb_ps to Number($player.penissize)>>
-			<<if isNaN(_lb_ps)>>
-				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_penissize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>player.penissize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _lb_ps to 0>>
-			<</if>>
-		<</if>>
-		<<set $player.penissize to _lb_ps>>
-
-
-		<<set _lb_ball to Number(_body.ballssize)>>
-		<<if isNaN(_lb_ball)>>
-			<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_ballssize_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>X-Change attempted to load a cached body with invalid <b>ballssize</b>. It will fall back to your current value (or a safe default) to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<<set _lb_ball to Number($ballssize)>>
-			<<if isNaN(_lb_ball)>>
-				<<run setup.xChangeRepairNoticeOnce(("repair_xchange_loadbody_ballssize_current_" + (_args[0] ? _args[0] : "originalBody")), "<b>Save repair notice</b><br>Your current <b>ballssize</b> was also invalid. X-Change set it to a safe default to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _lb_ball to 0>>
-			<</if>>
-		<</if>>
-		<<set $ballssize to _lb_ball>>
+		<<set $player.breastsize to _body.breastsize>>
+		<<set $player.bottomsize to _body.bottomsize>>
+		<<set $player.penissize to _body.penissize>>
+		<<set $ballssize to _body.ballssize>>
 
 
 		/* Sex / genital state (IMPORTANT for proper revert) */
@@ -1311,13 +1281,14 @@
 			<<set $xchange.pill.swellTarget to "penis">>
 			<<set _ps to Number($player.penissize)>>
 			<<if isNaN(_ps)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.penissize</b> during the Swell effect. X-Change will ignore the swell size change to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _ps to 0>>
+				<<run console.error("[X-Change swell] Invalid player.penissize", { value: V.player && V.player.penissize })>>
+				<<error { message: "X-Change cannot apply the Swell effect because player.penissize is invalid. Please report this with your save and steps." }>>
+				<<exit>>
 			<</if>>
 			<<set $xchange.penissize to _ps>>
 			<<set _psMax to Number($penissizemax)>>
 			<<if isNaN(_psMax)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissizemax_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>penissizemax</b> during the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>penissizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
 				<<set _psMax to $xchange.penissize>>
 			<</if>>
 			<<set $player.penissize to _psMax>>
@@ -1325,26 +1296,28 @@
 			<<set $xchange.pill.swellTarget to "curves">>
 			<<set _bs to Number($player.breastsize)>>
 			<<if isNaN(_bs)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.breastsize</b> during the Swell effect. X-Change rebuilt it from safe defaults to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _bs to 0>>
+				<<run console.error("[X-Change swell] Invalid player.breastsize", { value: V.player && V.player.breastsize })>>
+				<<error { message: "X-Change cannot apply the Swell effect because player.breastsize is invalid. Please report this with your save and steps." }>>
+				<<exit>>
 			<</if>>
 			<<set $xchange.breastsize to _bs>>
 			<<set _bsMax to Number($breastsizemax)>>
 			<<if isNaN(_bsMax)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsizemax_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>breastsizemax</b> during the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>breastsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
 				<<set _bsMax to $xchange.breastsize>>
 			<</if>>
 			<<set $player.breastsize to _bsMax>>
 
 			<<set _bot to Number($player.bottomsize)>>
 			<<if isNaN(_bot)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsize_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>player.bottomsize</b> during the Swell effect. X-Change rebuilt it from safe defaults to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-				<<set _bot to 2>>
+				<<run console.error("[X-Change swell] Invalid player.bottomsize", { value: V.player && V.player.bottomsize })>>
+				<<error { message: "X-Change cannot apply the Swell effect because player.bottomsize is invalid. Please report this with your save and steps." }>>
+				<<exit>>
 			<</if>>
 			<<set $xchange.bottomsize to _bot>>
 			<<set _botMax to Number($bottomsizemax)>>
 			<<if isNaN(_botMax)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsizemax_nan", "<b>Save repair notice</b><br>Your save had an invalid <b>bottomsizemax</b> during the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+				<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>bottomsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
 				<<set _botMax to $xchange.bottomsize>>
 			<</if>>
 			<<set $player.bottomsize to _botMax>>
@@ -1475,28 +1448,28 @@
 			<<set $xchange.pill.innocenceWasNatural to false>>
 			<<set $xchange.pill.innocenceEffect to false>>
 		<<case "swell">>
-			<<set $xchange.pill.swellEffect to false>>
 			<<if $xchange.pill.swellTarget is "penis">>
 				<<set _psRestore to Number($xchange.penissize)>>
 				<<if isNaN(_psRestore)>>
-					<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.penissize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissize_restore_nan", "<b>Save repair notice</b><br>X-Change could not read the stored pre-Swell <b>penis size</b>. The current visible size was kept so the stuck Swell effect could end.<br><br><b>Please report this with your save and steps.</b>")>>
 				<<else>>
 					<<set $player.penissize to _psRestore>>
 				<</if>>
 			<<elseif $xchange.pill.swellTarget is "curves">>
 				<<set _bsRestore to Number($xchange.breastsize)>>
 				<<if isNaN(_bsRestore)>>
-					<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.breastsize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsize_restore_nan", "<b>Save repair notice</b><br>X-Change could not read the stored pre-Swell <b>breast size</b>. The current visible size was kept so the stuck Swell effect could end.<br><br><b>Please report this with your save and steps.</b>")>>
 				<<else>>
 					<<set $player.breastsize to _bsRestore>>
 				<</if>>
 				<<set _botRestore to Number($xchange.bottomsize)>>
 				<<if isNaN(_botRestore)>>
-					<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsize_restore_nan", "<b>Save repair notice</b><br>Your save had an invalid stored <b>xchange.bottomsize</b> while ending the Swell effect. X-Change will keep the current size to prevent crashes.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsize_restore_nan", "<b>Save repair notice</b><br>X-Change could not read the stored pre-Swell <b>bottom size</b>. The current visible size was kept so the stuck Swell effect could end.<br><br><b>Please report this with your save and steps.</b>")>>
 				<<else>>
 					<<set $player.bottomsize to _botRestore>>
 				<</if>>
 			<</if>>
+			<<set $xchange.pill.swellEffect to false>>
 			<<unset $xchange.pill.swellTarget>>
 		<<case "bimbo">>
 			<<set $xchange.pill.bimboEffect to false>>

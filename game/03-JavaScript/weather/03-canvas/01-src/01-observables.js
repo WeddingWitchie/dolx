@@ -46,7 +46,7 @@ Weather.Observables = (() => {
 
 	Object.keys(setup.WeatherBindings).forEach(key => (observables[key] = new ObservableValue(null)));
 
-	const setBindings = () => {
+	const setBindings = (force = false) => {
 		if (V.options.weatherUpdate === false) {
 			if (Weather.sidebar?.loaded.value) Weather.sidebar.stopAll();
 			return;
@@ -56,10 +56,17 @@ Weather.Observables = (() => {
 			Weather.sidebar.initialize();
 			return;
 		}
+		const forceSidebarRefresh = force && Weather.sidebar?.loaded.value;
 		if (Weather.sidebar?.loaded.value) Weather.Tooltips.skybox();
+		if (forceSidebarRefresh) subscribeToUpdates();
 		Object.entries(setup.WeatherBindings).forEach(([key, config]) => {
+			const previous = observables[key].value;
 			const value = config.variable();
 			observables[key].value = value;
+			if (forceSidebarRefresh && previous === value) {
+				observables[key]._notifyListeners(value, changedKeys.get(key));
+			}
+			if (forceSidebarRefresh) changedKeys.set(key, value);
 		});
 	};
 

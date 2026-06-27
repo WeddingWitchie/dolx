@@ -1,6 +1,7 @@
 const dhmUtils = {
 	defaultColors: {},
 	stolenColors: {},
+	colorMapReady: false,
 
 	dhmStateFixup() {
 		const V = State.variables;
@@ -83,6 +84,7 @@ const dhmUtils = {
 	 */
 	colorMapGen() {
 		this.dhmStateFixup();
+		if (this.colorMapReady) return;
 
 		this.defaultColors = {};
 		this.stolenColors = {};
@@ -125,6 +127,7 @@ const dhmUtils = {
 				this.stolenColors[entry[2]] = tinycolor(entry[0]).toHsl();
 			}
 		}
+		this.colorMapReady = true;
 	},
 
 	/**

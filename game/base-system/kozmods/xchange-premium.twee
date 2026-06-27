@@ -1,7 +1,27 @@
 :: X-Change Premium Widgets [widget]
 <<widget "xchange-premium-ensure">>
+	<<if $xchange is undefined or $xchange is null or typeof $xchange isnot "object" or Array.isArray($xchange)>>
+		<<xchange-init>>
+	<<elseif $xchange.pill is undefined or $xchange.breastsize is undefined or $xchange.bottomsize is undefined or $xchange.penissize is undefined>>
+		<<xchange-init>>
+	<</if>>
 	<<if $xchange is undefined or $xchange is null or typeof $xchange isnot "object" or Array.isArray($xchange)>><<set $xchange to {}>><</if>>
-	<<if $xchange.pill is undefined or $xchange.pill is null or typeof $xchange.pill isnot "object" or Array.isArray($xchange.pill)>><<set $xchange.pill to {}>><</if>>
+	<<if $xchange.pill is undefined or $xchange.pill is null or typeof $xchange.pill isnot "object" or Array.isArray($xchange.pill)>>
+		<<set $xchange.pill to {
+			active: false,
+			duration: 0,
+			originalBody: {},
+			changedBody: {},
+			hermBody: {},
+			clone: "none",
+			clonedBody: {},
+		}>>
+	<</if>>
+	<<if $xchange.pill.originalBody is undefined>><<set $xchange.pill.originalBody to {}>><</if>>
+	<<if $xchange.pill.changedBody is undefined>><<set $xchange.pill.changedBody to {}>><</if>>
+	<<if $xchange.pill.hermBody is undefined>><<set $xchange.pill.hermBody to {}>><</if>>
+	<<if $xchange.pill.clonedBody is undefined>><<set $xchange.pill.clonedBody to {}>><</if>>
+	<<if $xchange.pill.clone is undefined>><<set $xchange.pill.clone to "none">><</if>>
 	<<if $xchange.premium is undefined or $xchange.premium is null or typeof $xchange.premium isnot "object" or Array.isArray($xchange.premium)>><<set $xchange.premium to {}>><</if>>
 	<<if $xchange.premium.sideSelected is undefined or !Array.isArray($xchange.premium.sideSelected)>><<set $xchange.premium.sideSelected to []>><</if>>
 	<<if $xchange.premium.mode is undefined>><<set $xchange.premium.mode to "side">><</if>>
@@ -55,8 +75,8 @@
 
 <<widget "xchange-premium-apply">>
 	<<xchange-premium-ensure>>
-	<<set $xchange.pill.isPremium to true>>
-	<<set $xchange.pill.premiumActive to true>>
+	<<set $xchange.pill.isPremium to false>>
+	<<set $xchange.pill.premiumActive to false>>
 
 	<<set _duration to $xchange.premium.duration>>
 	<<if _duration is undefined or _duration <= 0>><<set _duration to 7>><</if>>
@@ -96,7 +116,17 @@
 	<</if>>
 
 	/* Apply X-Change effects */
+	<<set _wasAlreadyXChanged to playerIsXChanged()>>
+	<<if !_wasAlreadyXChanged>>
+		<<save-body>>
+	<</if>>
 	<<xchange-effects _duration _effects>>
+	<<if $xchange.pill.active is true>>
+		<<set $xchange.pill.isPremium to true>>
+		<<set $xchange.pill.premiumActive to true>>
+	<<else>>
+		<<xchange-premium-clear-pill-temp>>
+	<</if>>
 
 	/* Mark choice complete (some flows check this) */
 	<<set $xchange.pill.done to true>>

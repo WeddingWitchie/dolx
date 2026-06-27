@@ -22,39 +22,52 @@
 		}
 	}
 
+	function getPillDefsSignature(defs) {
+		return defs.map(def => def && typeof def.name === "string" ? def.name : "").join("|");
+	}
+
 	function ensureInvEntry(name) {
-const V = getV();
-if (!V) return null;
-V.sexStats = V.sexStats || {};
-V.sexStats.pills = V.sexStats.pills || {};
-V.sexStats.pills.pills = V.sexStats.pills.pills || {};
+		const V = getV();
+		if (!V) return null;
+		V.sexStats = V.sexStats || {};
+		V.sexStats.pills = V.sexStats.pills || {};
+		V.sexStats.pills.pills = V.sexStats.pills.pills || {};
 
-const inv = V.sexStats.pills.pills;
-if (!inv[name] || typeof inv[name] !== "object") {
-	// Missing entry (common when loading older saves after new pills were added)
-	inv[name] = { owned: 0, doseTaken: 0, overdose: 0 };
-} else {
-	// Only fill missing fields; don't silently coerce existing values.
-	if (!("owned" in inv[name])) inv[name].owned = 0;
-	if (!("doseTaken" in inv[name])) inv[name].doseTaken = 0;
-	if (!("overdose" in inv[name])) inv[name].overdose = 0;
+		const inv = V.sexStats.pills.pills;
+		if (!inv[name] || typeof inv[name] !== "object") {
+			// Missing entry (common when loading older saves after new pills were added)
+			inv[name] = { owned: 0, doseTaken: 0, overdose: 0 };
+		} else {
+			// Only fill missing fields; don't silently coerce existing values.
+			if (!("owned" in inv[name])) inv[name].owned = 0;
+			if (!("doseTaken" in inv[name])) inv[name].doseTaken = 0;
+			if (!("overdose" in inv[name])) inv[name].overdose = 0;
 
-	// If types are wrong, log loudly (helps find real root cause instead of masking it).
-	if (typeof inv[name].owned !== "number" || typeof inv[name].doseTaken !== "number" || typeof inv[name].overdose !== "number") {
-		try {
-			console.warn("[X-Change Premium] Pill inventory entry has unexpected types for", name, inv[name]);
-		} catch (e) {}
+			// If types are wrong, log loudly (helps find real root cause instead of masking it).
+			if (typeof inv[name].owned !== "number" || typeof inv[name].doseTaken !== "number" || typeof inv[name].overdose !== "number") {
+				try {
+					console.warn("[X-Change Premium] Pill inventory entry has unexpected types for", name, inv[name]);
+				} catch (e) {}
+			}
+		}
+		return inv[name];
 	}
-}
-return inv[name];
-	}
 
-	function ensureAllInvEntries() {
+	function ensureAllInvEntries(force = false) {
 		try {
 			const defs = getPillDefs();
+			const signature = getPillDefsSignature(defs);
+			const V = getV();
+			if (!force && V?.sexStats?.pills?.pills && V.xchange?.premium?.pillInventorySignature === signature) return;
+
 			defs.forEach((def) => {
 				if (def && typeof def.name === "string") ensureInvEntry(def.name);
 			});
+			if (V) {
+				V.xchange ??= {};
+				V.xchange.premium ??= {};
+				V.xchange.premium.pillInventorySignature = signature;
+			}
 		} catch (e) {
 			// ignore
 		}
@@ -71,7 +84,7 @@ function listUniqueCarriedXchangePillsAll() {
 	const V = getV();
 	if (!V) return [];
 
-	ensureAllInvEntries();
+	ensureAllInvEntries(true);
 
 	const inv = (V.sexStats && V.sexStats.pills && V.sexStats.pills.pills) ? V.sexStats.pills.pills : {};
 	const defs = getPillDefs();
@@ -100,7 +113,7 @@ function listUniqueCarriedXchangePillsLimited() {
 	const V = getV();
 	if (!V) return [];
 
-	ensureAllInvEntries();
+	ensureAllInvEntries(true);
 
 	const defs = getPillDefs().filter(p => p && p.type === "xchange");
 	const inv = V.sexStats && V.sexStats.pills && V.sexStats.pills.pills ? V.sexStats.pills.pills : {};
@@ -140,7 +153,7 @@ function wrapCoreListUniqueCarriedXchangePills() {
 	function wrapped() {
 		const V = getV();
 		if (!V) return [];
-		ensureAllInvEntries();
+		ensureAllInvEntries(true);
 		return orig.apply(this, arguments);
 	}
 
@@ -150,48 +163,38 @@ function wrapCoreListUniqueCarriedXchangePills() {
 }
 
 try { wrapCoreListUniqueCarriedXchangePills(); } catch (e) {}
-try {
-	if (typeof jQuery !== "undefined") {
-		jQuery(document).on(":passagestart", wrapCoreListUniqueCarriedXchangePills);
-	}
-} catch (e) {}
 
 function syncPremiumPillState() {
-		const V = getV();
-		const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
-		if (!pill) return;
+	const V = getV();
+	const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
+	if (!pill) return;
 
-		if (pill.active !== true) {
-			if (pill.isPremium === true) pill.isPremium = false;
-			if (pill.premiumActive === true) pill.premiumActive = false;
-			if (pill.presentationGenderOverride != null) pill.presentationGenderOverride = null;
-			return;
-		}
-
-		if (pill.premiumActive === true) {
-			if (pill.isPremium !== true) pill.isPremium = true;
-			return;
-		}
-
-		if (pill.isPremium === true || pill.presentationGenderOverride != null) {
-			try {
-				console.warn("[X-Change Premium] Clearing stale premium-only pill state from a non-premium active dose.", {
-					isPremium: pill.isPremium,
-					presentationGenderOverride: pill.presentationGenderOverride,
-					premiumActive: pill.premiumActive
-				});
-			} catch (e) {}
-			pill.isPremium = false;
-			pill.presentationGenderOverride = null;
-		}
+	if (pill.active !== true) {
+		if (pill.isPremium === true) pill.isPremium = false;
+		if (pill.premiumActive === true) pill.premiumActive = false;
+		if (pill.presentationGenderOverride != null) pill.presentationGenderOverride = null;
+		return;
 	}
 
-	try { syncPremiumPillState(); } catch (e) {}
-	try {
-	if (typeof jQuery !== "undefined") {
-		jQuery(document).on(":passagestart", syncPremiumPillState);
+	if (pill.premiumActive === true) {
+		if (pill.isPremium !== true) pill.isPremium = true;
+		return;
 	}
-	} catch (e) {}
+
+	if (pill.isPremium === true || pill.presentationGenderOverride != null) {
+		try {
+			console.warn("[X-Change Premium] Clearing stale premium-only pill state from a non-premium active dose.", {
+				isPremium: pill.isPremium,
+				presentationGenderOverride: pill.presentationGenderOverride,
+				premiumActive: pill.premiumActive
+			});
+		} catch (e) {}
+		pill.isPremium = false;
+		pill.presentationGenderOverride = null;
+	}
+}
+
+try { syncPremiumPillState(); } catch (e) {}
 
 	// --- Pronoun/text override while active ---
 	(function patchPresentationOverride() {
@@ -221,7 +224,13 @@ function syncPremiumPillState() {
 	try { ensureAllInvEntries(); } catch (e) {}
 	try {
 		if (typeof jQuery !== "undefined") {
-			jQuery(document).on(":passagestart", ensureAllInvEntries);
+			jQuery(document)
+				.off(":passagestart.xchangePremiumRuntime")
+				.on(":passagestart.xchangePremiumRuntime", () => {
+					try { wrapCoreListUniqueCarriedXchangePills(); } catch (e) {}
+					try { syncPremiumPillState(); } catch (e) {}
+					try { ensureAllInvEntries(); } catch (e) {}
+				});
 		}
 	} catch (e) {}
 })();

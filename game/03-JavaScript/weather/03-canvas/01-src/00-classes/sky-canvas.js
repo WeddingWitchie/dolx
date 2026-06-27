@@ -80,6 +80,7 @@ Weather.Renderer.Sky = class {
 	 * Executes once - when page is loaded
 	 */
 	initialize() {
+		if (this.loaded.value) return this.initializationPromise || Promise.resolve();
 		if (this.loading) return this.initializationPromise;
 		this.loading = true;
 		this.initSun();
