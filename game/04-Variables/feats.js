@@ -3607,6 +3607,13 @@ function setupFeatBoosts(force) {
 			max: 1,
 			missing: "",
 		},
+		xchangePremiumPills: {
+			name: "X-Change Premium Pills",
+			required: [],
+			cost: 10,
+			max: 5,
+			missing: "",
+		},
 	};
 
 	const earnedFeats = Object.keys(V.feats.allSaves);
@@ -4075,6 +4082,27 @@ function applyFeatBoosts() {
 		V.hcBoughtEndings = [];
 		for (const [ending, selected] of Object.entries(V.featsBoosts.hopelessEndings)) {
 			if (selected === true) V.hcBoughtEndings.push(ending);
+		}
+	}
+
+	// X-Change: premium pill packs bought as a starting bonus
+	if (upgrades.xchangePremiumPills) {
+		const premiumPillName = "X-Change Premium";
+		V.sexStats = V.sexStats || {};
+		V.sexStats.pills = V.sexStats.pills || {};
+		V.sexStats.pills.pills = V.sexStats.pills.pills || {};
+		V.sexStats.pills.pills[premiumPillName] = V.sexStats.pills.pills[premiumPillName] || { autoTake: false, owned: 0, doseTaken: 0, overdose: 0 };
+
+		const premiumPill = V.sexStats.pills.pills[premiumPillName];
+		premiumPill.autoTake = premiumPill.autoTake === true;
+		premiumPill.owned = (Number.isFinite(Number(premiumPill.owned)) ? Number(premiumPill.owned) : 0) + details.xchangePremiumPills.purchased * 5;
+		premiumPill.doseTaken = Number.isFinite(Number(premiumPill.doseTaken)) ? Number(premiumPill.doseTaken) : 0;
+		premiumPill.overdose = Number.isFinite(Number(premiumPill.overdose)) ? Number(premiumPill.overdose) : 0;
+		V.sexStats.pills.boughtOnce = true;
+
+		if (V.xchange?.premium) {
+			V.xchange.premium.ownedBase = premiumPill.owned;
+			V.xchange.premium.doseBase = premiumPill.doseTaken;
 		}
 	}
 
