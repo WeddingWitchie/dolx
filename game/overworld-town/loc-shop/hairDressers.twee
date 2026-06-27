@@ -65,15 +65,15 @@ You are in the hairdressers. Various hair products are available for sale. You c
 		<<if $exposed lte 1 and Time.dayState isnot "night" and Time.hour isnot 21>>
 			<<hairdressericon "chair">><<link [[Take a seat|Hairdressers Seat]]>><</link>>
 			<br>
-			<<if $money gte 800>>
-				<<hairdressericon "gel">> <<link [[Purchase hair gel (<<printprice 800>>)|Hairdressers Gel]]>><<money -800 "hairdressers">><<set $hairgelBottles += 1>><</link>> | Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
+			<<if $money gte (setup.inflation ? setup.inflation.price(800) : 800)>>
+				<<hairdressericon "gel">> <<link [[Buy hair gel|Hairdressers Product Quantity]]>><<set $hairdressersProduct to "gel">><</link>> | Owned: <span class="gold"><<= $hairgelBottles || 0>></span>
 			<<else>>
 				<<hairdressericon "gel">> <span class="blue">You can't afford any hair gel or growth formula.</span>
 			<</if>>
 			<br>
-			<<if $money gte 5000>>
-				<<hairdressericon "hairspray">> <<link [[Purchase hair growth formula (<<printprice 5000>>)|Hairdressers Gel]]>><<money -5000 "hairdressers">><<set $sexStats.pills.pills["Hair Growth Formula"].owned += 3>><<set $sexStats.pills.boughtOnce to true>><<set $phase to 1>><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
-			<<elseif $money gte 800>>
+			<<if $money gte (setup.inflation ? setup.inflation.price(5000) : 5000)>>
+				<<hairdressericon "hairspray">> <<link [[Buy hair growth formula|Hairdressers Product Quantity]]>><<set $hairdressersProduct to "formula">><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["Hair Growth Formula"].owned>></span>
+			<<elseif $money gte (setup.inflation ? setup.inflation.price(800) : 800)>>
 				<<hairdressericon "hairspray">> <span class="blue">You can't afford any hair growth formula.</span>
 			<</if>><br><<dhmCfgButton>>
 			<br>
@@ -82,28 +82,86 @@ You are in the hairdressers. Various hair products are available for sale. You c
 	<</if>>
 <</if>>
 
+:: Hairdressers Product Quantity
+
+<<generate1>><<person1>>
+<<if $hairdressersProduct is "formula">>
+	<<set _icon to "hairspray">>
+	<<set _price to 5000>>
+	<<set _productName to "hair growth formula">>
+	<<set _unit to "canister">>
+<<else>>
+	<<set $hairdressersProduct to "gel">>
+	<<set _icon to "gel">>
+	<<set _price to 800>>
+	<<set _productName to "hair gel">>
+	<<set _unit to "bottle">>
+<</if>>
+You ask the hairdresser about buying _productName.
+<br><br>
+"How many do you want to buy?" <<he>> asks.
+<br><br>
+<<for _quantity range [1, 3, 5, 10]>>
+	<<set _cost to _price * _quantity>>
+	<<set _displayCost to setup.inflation ? setup.inflation.price(_cost) : _cost>>
+	<<set _label to "Buy " + _quantity + " " + _unit>>
+	<<if _quantity isnot 1>>
+		<<set _label += "s">>
+	<</if>>
+	<<set _label += " (" + formatMoney(_displayCost) + ")">>
+	<<capture _quantity _cost>>
+		<<if $money gte _displayCost>>
+			<<hairdressericon _icon>><<link _label "Hairdressers Gel">>
+				<<set $hairdressersProductQuantity to _quantity>>
+				<<money `-_cost` "hairdressers">>
+				<<if $hairdressersProduct is "formula">>
+					<<set $sexStats.pills.pills["Hair Growth Formula"].owned += _quantity * 3>>
+					<<set $sexStats.pills.boughtOnce to true>>
+				<<else>>
+					<<set $hairgelBottles += _quantity>>
+				<</if>>
+			<</link>>
+		<<else>>
+			<<hairdressericon _icon>><span class="blue">You can't afford _quantity <<print _unit>><<if _quantity isnot 1>>s<</if>>.</span>
+		<</if>>
+		<br>
+	<</capture>>
+<</for>>
+<br>
+<<getouticon>><<link [[Back|Hairdressers]]>><<unset $hairdressersProduct>><<unset $hairdressersProductQuantity>><</link>>
+
 :: Hairdressers Gel
 
-<<generate1>><<person1>>You browse the hair products for sale. You decide on a tiny <<if $phase is 1>>canister<<else>>bottle<</if>> labelled "No muss, no fuss!"
+<<set _quantity to $hairdressersProductQuantity || 1>>
+<<set _isFormula to $hairdressersProduct is "formula">>
+<<generate1>><<person1>>You browse the hair products for sale. You decide on <<if _quantity is 1>>a tiny <<else>><<print _quantity>> tiny <</if>><<if _isFormula>>canister<<else>>bottle<</if>><<if _quantity isnot 1>>s<</if>> labelled "No muss, no fuss!"
 <br><br>
 The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's great," <<he>> says.
 
-<<if $phase is 1>>
-	"The canister's small, so you'll only get <span class="teal">a small number of uses</span> out it, but you won't need to use it every day. You won't have to worry about your hair staying short. Not until you decide to get it cut again."
+<<if _isFormula>>
+	<<if _quantity is 1>>
+		"The canister's small, so you'll only get <span class="teal">a small number of uses</span> out of it, but you won't need to use it every day. You won't have to worry about your hair staying short. Not until you decide to get it cut again."
+	<<else>>
+		"The canisters are small, so you'll only get <span class="teal">a small number of uses</span> out of each, but you won't need to use them every day. You won't have to worry about your hair staying short. Not until you decide to get it cut again."
+	<</if>>
 <<else>>
-	"The bottle's small, so you'll only get <span class="teal">one use</span> out it, of but it's got a rock-solid hold. You won't have to worry about your hair getting mussed up. Not until you decide to change up your 'do, at least."
+	<<if _quantity is 1>>
+		"The bottle's small, so you'll only get <span class="teal">one use</span> out of it, but it's got a rock-solid hold. You won't have to worry about your hair getting mussed up. Not until you decide to change up your 'do, at least."
+	<<else>>
+		"The bottles are small, so you'll only get <span class="teal">one use</span> out of each, but they've got a rock-solid hold. You won't have to worry about your hair getting mussed up. Not until you decide to change up your 'do, at least."
+	<</if>>
 <</if>>
 <br><br>
 <<He>> hands you your bag with a smile. "<<print either("Thanks for shopping with us!","Have a great day.","Take care.","Pleasure doing business with ya.","Come back soon!")>>"
 <br><br>
-<<if $phase is 1>>
+<<if _isFormula>>
 	You have <span class="gold"><<print $sexStats.pills.pills["Hair Growth Formula"].owned>></span> applications of hair growth formula left.
 <<else>>
 	You have <span class="gold">$hairgelBottles</span> <<pluralise $hairgelBottles "bottle">> of hair gel.
 <</if>>
 <br><br>
 
-<<link [[Next|Hairdressers]]>><<endevent>><</link>>
+<<link [[Next|Hairdressers]]>><<endevent>><<unset $hairdressersProduct>><<unset $hairdressersProductQuantity>><</link>>
 
 :: Hairdressers Seat
 
