@@ -723,6 +723,12 @@
 				<span class="red">Your wardrobe is full.</span>
 				<br>
 			<<elseif (Time.dayState is "night" and $shopName isnot "forest") or _shopCloseOverride>>
+				<<set _paymentBase to getClothingCost(_temp_choice,$clothingShopSlot)>>
+				<<set _paymentCost to (setup.inflation ? setup.inflation.price(_paymentBase) : _paymentBase)>>
+				<<set _paymentExtraBase to Math.ceil(_paymentBase * 1.25)>>
+				<<set _paymentExtraCost to (setup.inflation ? setup.inflation.price(_paymentExtraBase) : _paymentExtraBase)>>
+				<<set _paymentGoods to ($shopName is "jewellery" or $shopName is "luxury_jewellery") ? "the jewellery" : "the clothes">>
+				<<set _allowTrespassPayment to ["clothing", "jewellery", "luxury_jewellery"].includes($shopName)>>
 				<<if $clothingShop.stolenClothes lte 20>>
 					<<if $worn[_realSlot].cursed is 1>>
 						<<printcursed>>
@@ -756,6 +762,22 @@
 							<<run updateMoment()>>
 						<</link>><<crime "thievery">>
 						<br>
+						<<if _allowTrespassPayment and $money gte _paymentCost>>
+							<<link [[Leave exact change and wear|Shop Trespass Payment Result]]>>
+								<<clothingReset _realSlot>>
+								<<shopbuyv2 _realSlot "buy" "wear" _realIndex>>
+								<<shopTrespassPayment _paymentBase "clothes" false $passage _paymentGoods>>
+							<</link>><<crime "trespassing">>
+							<br>
+						<</if>>
+						<<if _allowTrespassPayment and $money gte _paymentExtraCost>>
+							<<link [[Leave extra and wear (<<printprice _paymentExtraBase>>)|Shop Trespass Payment Result]]>>
+								<<clothingReset _realSlot>>
+								<<shopbuyv2 _realSlot "buy" "wear" _realIndex>>
+								<<shopTrespassPayment _paymentBase "clothes" true $passage _paymentGoods>>
+							<</link>><<crime "trespassing">>
+							<br>
+						<</if>>
 					<</if>>
 					<<if !_heavyPrevent>>
 						<<link "Steal and take home">>
@@ -776,6 +798,22 @@
 							<<run updateMoment()>>
 						<</link>><<crime "thievery">>
 						<br>
+						<<if _allowTrespassPayment and $money gte _paymentCost>>
+							<<link [[Leave exact change and take home|Shop Trespass Payment Result]]>>
+								<<clothingReset _realSlot>>
+								<<shopbuyv2 _realSlot "buy" "send" _realIndex>>
+								<<shopTrespassPayment _paymentBase "clothes" false $passage _paymentGoods>>
+							<</link>><<crime "trespassing">>
+							<br>
+						<</if>>
+						<<if _allowTrespassPayment and $money gte _paymentExtraCost>>
+							<<link [[Leave extra and take home (<<printprice _paymentExtraBase>>)|Shop Trespass Payment Result]]>>
+								<<clothingReset _realSlot>>
+								<<shopbuyv2 _realSlot "buy" "send" _realIndex>>
+								<<shopTrespassPayment _paymentBase "clothes" true $passage _paymentGoods>>
+							<</link>><<crime "trespassing">>
+							<br>
+						<</if>>
 					<</if>>
 				<<else>>
 					<span class="red">You can't carry any more clothes with you.</span> You should take them to your wardrobe.

@@ -62,7 +62,7 @@
 			<br><br>
 			<<run linkifyDivs('.button-back-to-shop')>>
 
-			<<if Time.dayState is "night" and Time.hour isnot $closinghour and !$weekly.theft.jewellerystore>>
+			<<if Time.dayState is "night" and Time.hour isnot $closinghour and !$weekly.theft.jewelleryStore>>
 				<<shopicon "register">><<link [[Examine the cash register|Jewellery Store Register]]>><</link>>
 				<br>
 			<</if>>
@@ -87,6 +87,10 @@
 					<<if $tryOn.value gt 0>>
 						<<crime "thievery">>
 					<</if>>
+					<<if $tryOn.value gt 0>>
+						<br>
+						<<shopTryOnTrespassPaymentLinks "Shopping Centre Top" "the jewellery">>
+					<</if>>
 				<<else>>
 					<<getouticon>>
 					<<link [[Leave|Shopping Centre Top]]>>
@@ -101,6 +105,10 @@
 					<</link>>
 					<<if $tryOn.value gt 0>>
 						<<crime "thievery">>
+					<</if>>
+					<<if $tryOn.value gt 0>>
+						<br>
+						<<shopTryOnTrespassPaymentLinks "Shopping Centre Top" "the jewellery">>
 					<</if>>
 				<</if>>
 				<br><br>
@@ -132,7 +140,7 @@
 					<<if Object.values(V.tryOn.tryingOn).some(slot => slot?.type.includes("heavy"))>>
 						<span class="red">The jewellery you're trying on is too heavy to steal!</span>
 					<<else>>
-						<<getouticon>><<link [[Leave with stolen jewellery|Stolen Clothing Shop Result]]>><<shopClothingFilterReset>><<shopHoodCheck>><<shopCommandoCheck>><</link>><<crime "thievery">>
+						<<getouticon>><<link [[Leave with stolen jewellery|Stolen Jewellery Store Result]]>><<shopClothingFilterReset>><<shopHoodCheck>><<shopCommandoCheck>><</link>><<crime "thievery">>
 					<</if>>
 					<br>
 				<</if>>
@@ -142,7 +150,7 @@
 <</widget>>
 
 :: Jewellery Store Sneak
-<<set $outside to 0>><<effects>><<set $lock to 0>>
+<<set $outside to 0>><<effects>><<set $lock to 500>>
 
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<<if pcAreArmsBound("both")>>
@@ -154,8 +162,8 @@
 		<br><br>
 		<<lockicon "pick">>
 		<<link [[Pick it (0:10)|Jewellery Store]]>>
-			<<handheldon>><<pass 10>><<crimeUp 5 "trespassing">>
-			<<if $clothingShop.ban gt 0 or crimeSumCurrent() gte 50000 or $clothingShop.rng gte $skulduggery>>
+			<<handheldon>><<pass 10>><<crimeUp 15 "trespassing">>
+			<<if $clothingShop.ban gt 0 or crimeSumCurrent() gte 50000 or ($clothingShop.rng + 200) gte $skulduggery>>
 				<<set $clothingShop.spotted to true>>
 			<</if>>
 			<<set $clothingShop.rng to random(0,1000)>>

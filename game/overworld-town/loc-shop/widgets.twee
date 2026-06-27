@@ -73,6 +73,53 @@
 	<<set $shopClothingFilter.outfit = { index: "none" }>>
 <</widget>>
 
+<<widget "shopTrespassPayment">>
+	<<set _payBase to _args[0]>>
+	<<set _source to _args[1] or "shopping">>
+	<<set _generous to _args[2] is true>>
+	<<if _generous>><<set _payBase to Math.ceil(_payBase * 1.25)>><</if>>
+	<<set $shopPaymentAmountShown to (setup.inflation ? setup.inflation.price(_payBase) : _payBase)>>
+	<<set $shopPaymentGenerous to _generous>>
+	<<set $shopPaymentReturn to _args[3] or $passage>>
+	<<set $shopPaymentGoods to _args[4] or "the goods">>
+	<<money `-_payBase` _source>>
+	<<crimeUp 1 "trespassing">>
+	<<if _generous>><<famegood 3 "none" true>><<else>><<famegood 1 "none" true>><</if>>
+<</widget>>
+
+<<widget "shopTryOnTrespassPaymentLinks">>
+	<<set _return to _args[0] or $passage>>
+	<<set _goods to _args[1] or "the goods">>
+	<<set _payBase to $tryOn.value>>
+	<<set _payCost to (setup.inflation ? setup.inflation.price(_payBase) : _payBase)>>
+	<<set _payExtraBase to Math.ceil(_payBase * 1.25)>>
+	<<set _payExtraCost to (setup.inflation ? setup.inflation.price(_payExtraBase) : _payExtraBase)>>
+	<<if $money gte _payCost>>
+		<<getouticon>><<link [[Leave exact change|Shop Trespass Payment Result]]>>
+			<<shopClothingFilterReset>>
+			<<ShowUnderEquip "normal">>
+			<<ShowUnderEquip "over">>
+			<<buyTryOnClothes "wear" "steal">>
+			<<shopTrespassPayment _payBase "clothes" false _return _goods>>
+			<<shopHoodCheck>>
+			<<shopCommandoCheck>>
+		<</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+	<<if $money gte _payExtraCost>>
+		<<getouticon>><<link [[Leave extra (<<printprice _payExtraBase>>)|Shop Trespass Payment Result]]>>
+			<<shopClothingFilterReset>>
+			<<ShowUnderEquip "normal">>
+			<<ShowUnderEquip "over">>
+			<<buyTryOnClothes "wear" "steal">>
+			<<shopTrespassPayment _payBase "clothes" true _return _goods>>
+			<<shopHoodCheck>>
+			<<shopCommandoCheck>>
+		<</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+<</widget>>
+
 /*Args: slots used in an array*/
 <<widget "shopBuyItemStatus">>
 	<<if _args[0]>>
@@ -446,15 +493,24 @@
 		<hr>
 		<<if Time.dayState is "night" and Time.hour isnot 21>>
 			<<link [[Steal|$passage]]>>
-				<<for _itemInCart range Object.keys($shoppingBasket)>>
-					<<for _i to 0; _i lt $shoppingBasket[_itemInCart]; _i++>>
-						<<crimeUp `setup.foodstuff[_itemInCart].shop.sell_price * 2 / 100` "thievery">>
-					<</for>>
-					<<tending_give _itemInCart $shoppingBasket[_itemInCart]>>
-					<<set $foodstuff[_itemInCart].supermarket -= $shoppingBasket[_itemInCart]>>
-				<</for>>
-				<<set $shoppingBasket to {}>>
+				<<supermarketTakeBasket "steal">>
 			<</link>>
+			<br>
+			<<if $money gte _totalCostShown>>
+				<<link [[Leave exact change|Shop Trespass Payment Result]]>>
+					<<supermarketTakeBasket>>
+					<<shopTrespassPayment _totalCost "supermarket" false $passage "the groceries">>
+				<</link>><<crime "trespassing">>
+				<br>
+			<</if>>
+			<<set _totalCostExtraShown to (setup.inflation ? setup.inflation.price(Math.ceil(_totalCost * 1.25)) : Math.ceil(_totalCost * 1.25))>>
+			<<if $money gte _totalCostExtraShown>>
+				<<link [[Leave extra (<<printprice `Math.ceil(_totalCost * 1.25)`>>)|Shop Trespass Payment Result]]>>
+					<<supermarketTakeBasket>>
+					<<shopTrespassPayment _totalCost "supermarket" true $passage "the groceries">>
+				<</link>><<crime "trespassing">>
+				<br>
+			<</if>>
 		<<else>>
 			Total: <span class="gold"> £<<print (_totalCostShown / 100).toFixed(2)>></span>
 			<br>
@@ -480,6 +536,19 @@
 		<</link>>
 	</div>
 	<br><br>
+<</widget>>
+
+<<widget "supermarketTakeBasket">>
+	<<for _itemInCart range Object.keys($shoppingBasket)>>
+		<<if _args[0] is "steal">>
+			<<for _i to 0; _i lt $shoppingBasket[_itemInCart]; _i++>>
+				<<crimeUp `setup.foodstuff[_itemInCart].shop.sell_price * 2 / 100` "thievery">>
+			<</for>>
+		<</if>>
+		<<tending_give _itemInCart $shoppingBasket[_itemInCart]>>
+		<<set $foodstuff[_itemInCart].supermarket -= $shoppingBasket[_itemInCart]>>
+	<</for>>
+	<<set $shoppingBasket to {}>>
 <</widget>>
 
 <<widget "supermarketDisplayBasketSummary">>

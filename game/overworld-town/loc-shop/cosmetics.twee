@@ -1,6 +1,6 @@
 :: Cosmetics Lock
 
-<<set $outside to 0>><<effects>><<set $lock to 0>>
+<<set $outside to 0>><<effects>><<set $lock to 400>>
 
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<<if pcAreArmsBound("both")>>
@@ -11,7 +11,7 @@
 		<span class="green">The lock looks easy to pick.</span>
 		<br><br>
 
-		<<lockicon "pick">><<link [[Pick it (0:10)|Cosmetics Store]]>><<pass 10>><<crimeUp 5 "trespassing">><</link>><<crime "trespassing">>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Cosmetics Store]]>><<pass 10>><<crimeUp 10 "trespassing">><</link>><<crime "trespassing">>
 		<br>
 	<</if>>
 <<else>>
@@ -113,6 +113,23 @@ Each bottle costs <<printprice _sunscreen.price>> and has <<print _sunscreen.use
 		<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
 		<<run Skin.Sunscreen.apply()>>
 	<</link>><<crime "petty">>
+	<br>
+	<<set _sunscreenPayCost to (setup.inflation ? setup.inflation.price(_sunscreen.price) : _sunscreen.price)>>
+	<<set _sunscreenPayExtraBase to Math.ceil(_sunscreen.price * 1.25)>>
+	<<set _sunscreenPayExtraCost to (setup.inflation ? setup.inflation.price(_sunscreenPayExtraBase) : _sunscreenPayExtraBase)>>
+	<<if $money gte _sunscreenPayCost>>
+		<<link [[Leave exact change for a bottle|Shop Trespass Payment Result]]>>
+			<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+			<<shopTrespassPayment _sunscreen.price "cosmetics" false "Cosmetics Sunscreen" "the sunscreen">>
+		<</link>><<crime "trespassing">>
+		<br>
+	<</if>>
+	<<if $money gte _sunscreenPayExtraCost>>
+		<<link [[Leave extra for a bottle (<<printprice _sunscreenPayExtraBase>>)|Shop Trespass Payment Result]]>>
+			<<run Skin.Sunscreen.addUses(_sunscreen.uses)>>
+			<<shopTrespassPayment _sunscreen.price "cosmetics" true "Cosmetics Sunscreen" "the sunscreen">>
+		<</link>><<crime "trespassing">>
+	<</if>>
 <<elseif $money gte _sunscreen.price>>
 	<<link [[Buy a bottle (<<printprice _sunscreen.price>>)|Cosmetics Sunscreen]]>>
 		<<money `-_sunscreen.price` "cosmetics">>
@@ -213,6 +230,33 @@ Each bottle costs <<printprice _sunscreen.price>> and has <<print _sunscreen.use
 				<br>
 				<<if _canUseNow == true>>
 					<<link [[_buy+" and use right now"|_passageCurrent]]>><<set $makeup.owned[_itemType].push($cosmeticsChoice)>><<set $makeup[_itemType] = $cosmeticsChoice>><<if Time.dayState is "night">><<crimeUp `_price / 100` "petty">><<else>><<money `-_price` "cosmetics">><</if>><</link>><<if Time.dayState is "night">><<crime "petty">><</if>>
+					<br>
+				<</if>>
+			<</if>>
+			<<if Time.dayState is "night">>
+				<<set _payCost to (setup.inflation ? setup.inflation.price(_price) : _price)>>
+				<<set _payExtraBase to Math.ceil(_price * 1.25)>>
+				<<set _payExtraCost to (setup.inflation ? setup.inflation.price(_payExtraBase) : _payExtraBase)>>
+				<<if $money gte _payCost>>
+					<<link [[Leave exact change|Shop Trespass Payment Result]]>>
+						<<if _isConsumable == true>>
+							<<addConsumableCosmetics _itemType $cosmeticsChoice _usesPerBuy>>
+						<<else>>
+							<<set $makeup.owned[_itemType].push($cosmeticsChoice)>>
+						<</if>>
+						<<shopTrespassPayment _price "cosmetics" false _passageCurrent _itemPlural>>
+					<</link>><<crime "trespassing">>
+					<br>
+				<</if>>
+				<<if $money gte _payExtraCost>>
+					<<link [[Leave extra (<<printprice _payExtraBase>>)|Shop Trespass Payment Result]]>>
+						<<if _isConsumable == true>>
+							<<addConsumableCosmetics _itemType $cosmeticsChoice _usesPerBuy>>
+						<<else>>
+							<<set $makeup.owned[_itemType].push($cosmeticsChoice)>>
+						<</if>>
+						<<shopTrespassPayment _price "cosmetics" true _passageCurrent _itemPlural>>
+					<</link>><<crime "trespassing">>
 					<br>
 				<</if>>
 			<</if>>

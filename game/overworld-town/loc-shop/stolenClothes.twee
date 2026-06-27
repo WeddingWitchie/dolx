@@ -33,6 +33,41 @@
 <br><br>
 <<link [[Next|Shopping Centre Top]]>><<set $tryOn.autoReset to true>><<endevent>><</link>>
 
+:: Stolen Jewellery Store Result
+<<effects>>
+<<ShowUnderEquip "over">>
+<<ShowUnderEquip "normal">>
+<<set _theftValue to $tryOn.value>>
+<<if currentSkillValue('skulduggery') lt 200>>
+	A security guard watches the jewellery store entrance. There's no other way out, so you put everything back before leaving.
+	<<clothingReset>>
+<<else>>
+	<<rng>>
+	<<if crimeSumCurrent() gte 40000 or (crimeSumCurrent() gte 30000 and $rng * 16 gte currentSkillValue('skulduggery')) or (crimeSumCurrent() gte 15000 and $rng * 8 gte currentSkillValue('skulduggery'))
+	or (crimeSumCurrent() gte 5000 and $rng * 4 gte currentSkillValue('skulduggery'))>>
+		<<generateSecurity 1>><<person1>>
+		A security guard watches the jewellery store entrance, and as you try to stroll by, <<he>> stops you.
+		<br><br>
+		"So. I've been keeping an eye on you," <<he>> continues, "and this isn't the place to try something that bold. You're banned until the owners say otherwise."
+		<<if $clothingShop.banCount lt 4>>
+			<<set $clothingShop.ban to 10>>
+		<<elseif $clothingShop.banCount lt 8>>
+			<<set $clothingShop.ban to 14>>
+		<<else>>
+			<<set $clothingShop.ban to 21>>
+		<</if>>
+		<<crime "thievery">>
+		<<set $clothingShop.banCount++>>
+	<<else>>
+		A security guard watches the jewellery store entrance, but you stroll by without arousing suspicion.
+		<<crime "thievery">>
+	<</if>>
+	<<set _crime to (_theftValue / 50)>>
+	<<crimeUp _crime "thievery">>
+<</if>>
+<br><br>
+<<link [[Next|Shopping Centre Top]]>><<set $tryOn.autoReset to true>><<endevent>><</link>>
+
 :: Clothing Shop Guard
 <<effects>>
 <<generateSecurity 1>><<person1>>
@@ -234,3 +269,24 @@ You decide to run and hide.
 		<<link [[Leave|Shopping Centre Top]]>><<pass 1>><</link>>
 	<</if>>
 <</if>>
+
+:: Shop Trespass Payment Result
+<<effects>>
+<<if !$shopPaymentReturn>><<set $shopPaymentReturn to "Shopping Centre">><</if>>
+<<set _goods to $shopPaymentGoods or "the goods">>
+<<if $shopPaymentGenerous>>
+	You leave <<printmoney $shopPaymentAmountShown>> for _goods, more than the tag asks for, and weigh it down where the staff will find it.
+	<br><br>
+	Getting inside was still illegal, but the extra money should make the morning discovery a little less grim.
+<<else>>
+	You count out <<printmoney $shopPaymentAmountShown>> for _goods and leave the money where the staff will find it.
+	<br><br>
+	Getting inside was still illegal, but at least the till won't be short.
+<</if>>
+<br><br>
+<<link [[Next|$shopPaymentReturn]]>>
+	<<unset $shopPaymentAmountShown>>
+	<<unset $shopPaymentGenerous>>
+	<<unset $shopPaymentReturn>>
+	<<unset $shopPaymentGoods>>
+<</link>>
