@@ -423,7 +423,8 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<wearProp $phase2>>
 The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
-<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
+<<set _displayPrice to setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price>>
+<<formatmoney _displayPrice>>
 <<switch $pharmacyItem.type>>
 	<<case "penis reduction">>
 		"That'll be _printmoney.<<if !$daily.pharm.seductionResult>> So is it too big, or do you just want it to be tiny?<</if>>"
@@ -673,7 +674,8 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 	<br><br>
 
 	<<if setup.inflation.canAfford($pharmacyItem.price)>>
-		<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
+		<<set _displayPrice to setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price>>
+		<<formatmoney _displayPrice>>
 		<<link [["Pay " + _printmoney|Pharmacy Seduction End]]>><<set $phase to "pay">><</link>>
 	<<else>>
 		<span class="purple">You cannot afford them.</span>
@@ -818,7 +820,8 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 
 		<<endcombat>>
 		<<if setup.inflation.canAfford($pharmacyItem.price)>>
-			<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
+			<<set _displayPrice to setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price>>
+			<<formatmoney _displayPrice>>
 			<<pillicon>><<link [["Buy " + $pharmacyItem.name + " for " + _printmoney|Pharmacy]]>>
 				<<set $eventskip to 1>><<set $daily.pharm.sexResult to "buy">>
 				<<money `-$pharmacyItem.price` "pharmacy">><<pharmacyAddOwned 14>><<boughtOnce>>
@@ -836,7 +839,8 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 
 		<<endcombat>>
 		<<if setup.inflation.canAfford($pharmacyItem.price)>>
-			<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
+			<<set _displayPrice to setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price>>
+			<<formatmoney _displayPrice>>
 			<<pillicon>><<link [["Buy growth blocker pills for " + _printmoney|Pharmacy]]>>
 				<<set $eventskip to 1>><<set $daily.pharm.sexResult to "buy">>
 				<<money `-$pharmacyItem.price` "pharmacy">><<pharmacyAddOwned 14>><<boughtOnce>>
@@ -887,7 +891,8 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 			<<endcombat>>
 
 			<<if setup.inflation.canAfford($pharmacyItem.price)>>
-				<<formatmoney (setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price)>>
+				<<set _displayPrice to setup.inflation ? setup.inflation.price($pharmacyItem.price) : $pharmacyItem.price>>
+				<<formatmoney _displayPrice>>
 				<<pillicon>><<link [["Pay " + _printmoney + " for " + $pharmacyItem.name|Pharmacy]]>>
 					<<set $eventskip to 1>>
 					<<money `-$pharmacyItem.price` "pharmacy">><<pharmacyAddOwned 14>><<boughtOnce>>
@@ -1055,7 +1060,8 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 		<</if>>
 		<<if $brothelVending.condomsToRefill gte 100>>
 			<<condomsPrice 100>>
-			<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+			<<set _displayPrice to setup.inflation ? setup.inflation.price(_price) : _price>>
+			<<formatmoney _displayPrice>>
 			<<if setup.inflation.canAfford(_price, "pharmacyCondoms")>>
 				<<link [[`Buy 100 packs (${_printmoney})`|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 100>><</link>>
 				<br>
@@ -1066,7 +1072,8 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 		<</if>>
 		<<if $brothelVending.condomsToRefill gte 150>>
 			<<condomsPrice 150>>
-			<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+			<<set _displayPrice to setup.inflation ? setup.inflation.price(_price) : _price>>
+			<<formatmoney _displayPrice>>
 			<<if setup.inflation.canAfford(_price, "pharmacyCondoms")>>
 				<<link [[`Buy 150 packs (${_printmoney})`|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 150>><</link>>
 				<br>
@@ -1077,7 +1084,8 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 		<</if>>
 		<<if $brothelVending.condomsToRefill gte 11 and ![25, 50, 100, 150].includes($brothelVending.condomsToRefill)>>
 			<<condomsPrice $brothelVending.condomsToRefill>>
-			<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+			<<set _displayPrice to setup.inflation ? setup.inflation.price(_price) : _price>>
+			<<formatmoney _displayPrice>>
 			<<if setup.inflation.canAfford(_price, "pharmacyCondoms")>>
 				<<link [[`Buy ${$brothelVending.condomsToRefill} packs (${_printmoney})`|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to $brothelVending.condomsToRefill>><</link>>
 				<br>
@@ -1108,18 +1116,21 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<set _partial to Math.min($condomsBought, 50)>>
 <<condomsPrice _partial>>
-<<formatmoney (setup.inflation ? setup.inflation.price(_price) : _price)>>
+<<set _displayPrice to setup.inflation ? setup.inflation.price(_price) : _price>>
+<<formatmoney _displayPrice>>
 "All right, $condomsBought 3-packs of condoms." <<He>> prepares the packages in a<<if $condomsBought lte 25>> small<</if>> cardboard box while calculating the total out loud. "This is _partial units, <<printprice 6000>> each, _printmoney.
 <<condomsPrice $condomsBought>>
 <<if $condomsBought gt 50>>
 	<<set _partial to Math.min($condomsBought - 50, 50)>>
 	<<set _price2 to _partial * 6000 * .98>>
-	<<formatmoney (setup.inflation ? setup.inflation.price(_price2) : _price2)>>
+	<<set _displayPrice to setup.inflation ? setup.inflation.price(_price2) : _price2>>
+	<<formatmoney _displayPrice>>
 	Plus _partial units, <<printprice 6000>> each, with a 2% discount, _printmoney.
 	<<if $condomsBought gt 100>>
 		<<set _partial to $condomsBought - 100>>
 		<<set _price2 to _partial * 6000 * .95>>
-		<<formatmoney (setup.inflation ? setup.inflation.price(_price2) : _price2)>>
+		<<set _displayPrice to setup.inflation ? setup.inflation.price(_price2) : _price2>>
+		<<formatmoney _displayPrice>>
 		And _partial units, <<printprice 6000>> each, reduced by 5%, _printmoney.
 	<</if>>
 	Your total is <<printprice _price>>.

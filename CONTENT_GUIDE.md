@@ -1,5 +1,5 @@
 # DoL:X-Change Edition Player Guide
-Use this guide when you want to know what a system does, what choices it opens, and what can go wrong. It focuses on current player-facing behaviour: pills, identity, routes, danger, money, settings, and the mechanics that change how you play. **Updated based on 0.5.10.8 DoLP v0.745 DoLX 0.20.0**
+Use this guide when you want to know what a system does, what choices it opens, and what can go wrong. It focuses on current player-facing behaviour: pills, identity, routes, danger, money, settings, and the mechanics that change how you play. **Updated based on 0.5.10.12 DoLP v0.750 DoLX 0.20.6**
 
 > **⚠️ Spoiler warning:** this guide explains mechanics, route triggers, event conditions, and some scene outcomes. Stop before a section if you would rather discover it naturally.
 
@@ -14,6 +14,7 @@ Use this guide when you want to know what a system does, what choices it opens, 
    - 1.5 [Pill Stacking, Spiking & Combat Pilling](#15-pill-stacking-spiking--combat-pilling)
    - 1.6 [Pill Permanence](#16-pill-permanence)
    - 1.7 [Pill Visibility, Timers & Settings](#17-pill-visibility-timers--settings)
+   - 1.8 [Anti X-Change Therapy](#18-anti-x-change-therapy)
 2. [Identity System](#2-identity-system)
    - 2.1 [Sex Swap vs. Identity vs. Presentation](#21-sex-swap-vs-identity-vs-presentation)
    - 2.2 [Transgender Trait](#22-transgender-trait)
@@ -59,6 +60,7 @@ Use this guide when you want to know what a system does, what choices it opens, 
 11. [Economy: HBSC Bank & Bank Heist](#11-economy-hbsc-bank--bank-heist)
     - 11.1 [HBSC Accounts, Interest & Standing Orders](#111-hbsc-accounts-interest--standing-orders)
     - 11.2 [Bank Heist](#112-bank-heist)
+    - 11.3 [Inflation, Bailey Pressure & Loans](#113-inflation-bailey-pressure--loans)
 12. [Gambling, Pub & Horse Racing](#12-gambling-pub--horse-racing)
     - 12.1 [Pub Gambling and Dice](#121-pub-gambling-and-dice)
     - 12.2 [Farm Racecourse and Horse Betting](#122-farm-racecourse-and-horse-betting)
@@ -136,6 +138,7 @@ It can let you choose or adjust:
 - genitals and sex characteristics
 - gender presentation
 - selected X-Change effects
+- a herm body with both genital sets, if your settings allow herm outcomes
 - whether the change flips sex/genitals, keeps them, or uses another available outcome
 
 Use this when you want X-Change content without relying on random spike pools or fixed pharmacy pills.
@@ -215,10 +218,13 @@ Use this when you want X-Change content without relying on random spike pools or
 #### X-Change™️ Herm
 **Both-genitals support tied to the purple-pill line.** Herm content lets the changed body have both genital sets when your settings allow it.
 - X-Change settings can allow herm outcomes for transformed bodies.
+- The Premium Pill can choose a herm body directly if herm outcomes are enabled.
 - Breeder and Bull can appear while Herm is active.
 - Fertility, menstruation, fame, and explicit scene routing check the current body more carefully.
 - Explicit herm-body scenes should require the character to currently have both genitals.
 - Rumours and social mockery can still linger after the body changes back, so reputation may outlast the anatomy.
+- Purple pills can now be used on NPCs in supported combat-pilling scenes, including some named-NPC support.
+- Pilled NPCs keep their identity and presentation, but their body can gain the missing genital set while the effect lasts.
 - Some older systems still treat herm support as a special case rather than a full base sex/gender.
 
 #### X-Change™️ CumCure
@@ -288,6 +294,21 @@ Use this when you want X-Change content without relying on random spike pools or
 - Has no special malus by itself.
 - Stays active until the reversal pill is taken.
 
+#### Gray X-Change Pills
+**Effect-only colourless capsules.** Gray pills carry one X-Change effect while stripping out the usual forced pink or blue body swap.
+- If you are already X-Changed, a gray pill can stack its effect onto the current session.
+- If you are not already X-Changed, a gray pill normally affects your current body without changing your sex.
+- A setting can make gray pills also flip your sex when taken from an untransformed state.
+- Continue and Resistance gray pills are useful only when a gendered or herm X-Change body is involved, so they are treated as stack-focused pills.
+- Anti X-Change therapy neutralises gray pills and prevents them from starting or stacking a new effect while the protection is active.
+
+Gray pill sources:
+- The hospital pharmacy sells gray pills for **£3,000** each.
+- The hospital always carries **Resistance**, **Continue**, and **Weekly Extension**.
+- Each week, the hospital also carries two random gray pills from **Breeder**, **Bull**, **Hyper Fertility**, **Fertility**, and **X-Tend**.
+- After the bank heist route exposes enough of the pill network, Landry can unlock a full gray-pill catalogue at the pub.
+- Landry charges **£6,000** per gray pill and sells only **one per day**, but his stock covers the full registered gray line. Portal remains gated behind Portal content.
+
 ### 1.4 NPC-Exclusive, Black-Market & Restricted Pills
 
 Some pills are not regular pharmacy purchases. You can still run into them through spiking, black-market sellers, prison content, dice drinks, combat pilling, theft, or route events.
@@ -305,7 +326,7 @@ Some pills are not regular pharmacy purchases. You can still run into them throu
 - Once heard, the rumour tells you where the shady dealers can be found that week, and the current weekly location is recorded in the journal.
 - The Anti-Pill Dealer may appear each week. When present, stock changes daily.
 - Anti-pill dealer access uses a flat **D-rank skulduggery** check.
-- The shady remover dealer can sell SWP Anti-pills, which acting like a normal Antidote for X-Change effects.
+- The shady remover dealer can sell SWP Anti-pills, which act like a normal Antidote for X-Change effects.
 
 ### 1.5 Pill Stacking, Spiking & Combat Pilling
 
@@ -318,7 +339,8 @@ Some pills are not regular pharmacy purchases. You can still run into them throu
 - NPCs can fail pill attempts, and settings can prevent combat pills while you are already pilled.
 - School hallway spiking can happen once X-Change fame reaches **800**, and it is limited to once per week.
 - NPC pill attempts may damage or destroy facegear.
-- You can pill NPCs during combat with supported pills: Basic-style pills, Continue, and Resistance. Xtra Strength is excluded from the NPC-pilling pool because of its fertility effect.
+- You can pill NPCs during combat with supported pills: Basic-style pills, Continue, Resistance, and purple/herm variants where the scene allows them. Xtra Strength is excluded from the NPC-pilling pool because of its fertility effect.
+- Whitney, Kylar, and Robin have extra pilling support and conditions instead of behaving exactly like generic NPCs.
 - Spike pool and frequency settings let you decide which effects appear and how often.
 - Suspicious-pill side effects can be toggled. When enabled, random spike sources share the same side-effect layer instead of being clean effect-only spikes.
 
@@ -360,6 +382,28 @@ Temporary X-Change states have special handling for temple vow and angelic conte
 - Pilled appearance, pregnancy chance while pilled, spike frequency, and spike pool selection all have settings support.
 - X-Change pill duration can be controlled from the cheat menu, with options for **1 day**, **3 days**, **1 week**, **1 month**, or **permanent** effects.
 - X-Change fame appears in cheat/menu tools and can matter for routes such as Mickey tasks.
+- Gray pills have a separate setting that decides whether they stay effect-only or also flip your sex when taken without an active X-Change body.
+
+### 1.8 Anti X-Change Therapy
+
+After your character has consumed X-Change at least once, the hospital can unlock an Anti X-Change cleansing treatment route with Doctor Harper.
+- First, ask Harper about resisting X-Change pills at the hospital.
+- Harper refuses at first. About a week later, Harper can approach you in town and say the treatment has been allowed.
+- After that, the hospital offers paid cleansing windows.
+
+Treatment options:
+- **1 day:** £10,000
+- **1 week:** £50,000
+- **1 month:** £150,000
+
+What the treatment does:
+- It blocks new X-Change pill effects while the clean window is active.
+- Pills and spikes can still be consumed or administered, but the treatment neutralises them before they take hold.
+- It prevents gray pills from stacking a new effect during the protected period.
+- It does **not** remove an X-Change effect that was already active before the treatment.
+- The Traits/status display can show roughly how long protection remains.
+
+Use this if you want a costly but reliable anti-spiking window. Do not treat it as an Antidote replacement.
 
 ---
 
@@ -560,7 +604,8 @@ The **Scratch** combat action is a new defiant action that uses your fingernails
 - Nail-armour rings now interact with Scratch correctly.
 - Cat, wolf, fox, bear, and Water Dragon transformations always have Scratch available because their claws are part of the transformation.
 - Smaller characters can deal more scratch/claw damage in dangerous fights, while larger and stronger characters still generally benefit more from punching. This keeps claws useful without replacing strength builds.
-- Consensual scenes keep Scratch/claw damage low so playful scratching does not end scenes too quickly.
+- If both hands have claws, Scratch can use both hands and inflict stronger wound damage.
+- Consensual scenes keep Scratch/claw damage lower, so playful scratching does not end scenes too quickly.
 
 Scratch also has social and NPC reaction support. Named NPCs can react differently to being scratched: Whitney may find it provocative, Sydney may lose trust, Kylar may treat it as a marking or obsession moment, Leighton may escalate punishment, and Bailey may frame it as damage or debt. Generic enemies vary by anger.
 
@@ -747,7 +792,15 @@ When you take a sex-flipping pill, your changed body can build its own reputatio
 - X-Change fame can unlock or affect some events, such as school hallway spiking at **800 fame** and Riley's alleyway rescue at **500+ fame**.
 - X-Change fame can also matter for some tasks, cheat tools, and menu checks.
 
-Lewd stats can also be separate between bodies. One body may have low promiscuity, exhibitionism, or deviancy, while the other has much higher experience. Herm content has its own routing checks. Some explicit herm scenes should only appear if your current body actually has both genital sets, though rumours and gossip may still linger after your body changes back.
+Lewd stats can also be separate between bodies when **Enable lewd stat split** is turned on. One body may have low promiscuity, exhibitionism, or deviancy, while the other has much higher experience. A new body starts with its own values, switching back restores that body's values, and the split stats are not merged.
+
+Virginity is also stored per body for the main X-Change roles.
+- Your original body, a sex-flipped X-Change body, and a herm X-Change body can each keep separate vaginal, penile, anal, oral, handholding, and kiss virginity state.
+- Brand-new X-Change and herm bodies start intact.
+- Losing virginity in one body does not automatically take it from the other stored body.
+- The Virgin trait checks the current and stored body state more carefully, so preserving one body's virginity can still matter after body swapping.
+
+Herm content has its own routing checks. Some explicit herm scenes should only appear if your current body actually has both genital sets, though rumours and gossip may still linger after your body changes back.
 
 ---
 
@@ -947,6 +1000,49 @@ A bank heist event has been added as a more active crime/economy route.
 
 > This guide avoids listing every exact check. If you want the safest or most profitable heist route, test it in-game or consult more spoiler-heavy notes.
 
+### 11.3 Inflation, Bailey Pressure & Loans
+
+DoLX now has a broader economy rebalance. Big cash piles make player spending more expensive, and Bailey reacts more aggressively to visible wealth and debt.
+
+**Inflation is based on net wealth.** The game counts:
+- cash on hand
+- HBSC savings
+- fixed-term deposit principal, even while locked
+- prepaid Bailey rent deposits
+- minus outstanding HBSC loan principal
+
+Inflation applies to player spending such as shop purchases, lessons, paid route actions, upgrades, and many transaction labels. It does **not** apply to earnings, wages, gambling stakes, bank deposits or withdrawals, rent, loan repayments, or debug/cheat money movement.
+
+Inflation tiers:
+- **£500,000+ net wealth:** prices rise by 20%.
+- **£2,000,000+ net wealth:** prices rise by 70%.
+- **£5,000,000+ net wealth:** prices rise by 150%.
+- **£15,000,000+ net wealth:** prices rise by 300%.
+- **£100,000,000+ net wealth:** the economy enters a parody spiral and prices can become absurd.
+
+The system is dynamic. If you spend down your wealth, inflation can fall again. The journal includes an economy block so you can see the current price pressure and whether Bailey is becoming more dangerous.
+
+**Bailey-visible wealth is different from shop-inflation wealth.**
+- Bailey can see cash and HBSC savings, minus HBSC loan principal.
+- Active fixed-term deposits are not Bailey-visible until they mature.
+- Fixed terms still count for shop inflation because they are still your wealth.
+- If you owe rent while in town, Bailey can force a withdrawal from HBSC savings.
+- Fixed terms can shield money from Bailey's immediate rent reach, but they do not hide you from the broader economy.
+
+Bailey rent pressure:
+- Below **£1,000,000** visible wealth, scaled rent is capped at **£30,000**.
+- From **£1,000,000** to **£10,000,000**, scaled rent is capped at **£70,000**.
+- From **£10,000,000** to **£100,000,000**, Bailey can demand **£150,000** per week.
+- At **£100,000,000+**, Bailey can demand **£500,000** per week.
+- Debt or crisis-level visible wealth can make Bailey aggressive, removing some refusal/seduction escape options and enabling street pressure when rent is overdue.
+
+HBSC loans exist for rent emergencies, but they are not free money.
+- Loaned money is inflation-neutral while it is borrowed.
+- Unpaid loan debt can make Bailey more aggressive after it becomes overdue.
+- Repayment costs more than the borrowed principal, so loans can solve a rent crisis while creating a longer-term Bailey problem.
+
+Very high exploit-level wealth can trigger a special cap event that wipes the runaway money state and awards a hidden feat. Treat the parody tier as a warning that you have broken past normal economy play, not as a recommended goal.
+
 ---
 
 ## 12. Gambling, Pub & Horse Racing
@@ -983,9 +1079,10 @@ Race basics:
 Risk notes:
 - Betting is not just a clean money button. Horse incidents can happen.
 - Horses injured by incidents become unavailable until they recover.
-- If a horse is injured, it is usually better to wait until the next week before betting again.
-- The racecourse is safest when treated as a weekly side activity rather than something to spam until it breaks.
-- Large weekly betting exposure can push the route toward incident consequences, so spreading bets carefully is safer than chasing losses.
+- Too many injured horses can close betting until the weekly reset.
+- The old hard betting cap is gone, so you can chase larger bets, but the risk is now handled through stress, trauma, injuries, and racecourse availability.
+- Losing large or repeated bets can stress the player, and repeated same-day losses can become traumatic.
+- The racecourse is safest when treated as a risky betting route rather than a guaranteed money printer.
 
 > Watch the odds, weather, time, and injury state. A good bet can pay well, but an injured favourite cannot keep carrying you through the week.
 
@@ -1013,10 +1110,24 @@ Whitney has several X-Change-specific interactions.
 - If the player flirts with someone else while Whitney is in the pub on Sunday night, Whitney may intercept after the special orphanage visit route is complete. This is tied to the orphanage visit, not merely the Loft event.
 - Whitney has multiple flat-chat reactions in current play, including special reactions.
 - A newer outing event lets the player take Whitney out while Whitney is in the flat. It becomes available after either the special orphanage event or the Whitney Loft event.
+- Whitney can react to Water Dragon transformation content.
+- Whitney has additional pub/after-school content in current play, including cage or chastity-related scenes when the route state supports them.
 
 ### Bailey
 
 Bailey may use pills as part of rent punishment if the player fails to pay.
+
+### Avery
+
+Avery has several money, mansion, and X-Change hooks.
+- Avery may force pill use for dates under certain same-sex conditions.
+- Avery can notice that you have a HBSC bank account and send money to the account for the correct cooking requests.
+- The Choice Reversal pill can be found at Avery's Mansion.
+- Avery reacts negatively if the player reverts their transformation while living with them.
+- Avery's mansion-intro Choice Pill scene gives a clearer coloured notice, making it easier to tell when the pill choice matters.
+- Office wage from working as Avery's assistant can be boosted by beauty.
+- After Avery has been saved, the mansion garden can unlock a crop plot in a sheltered glass corner. It works like a greenhouse-style plot and can be used year-round.
+- Saving Avery can also lead to a more conflicted follow-up scene at the mansion, even if you do not accept everything Avery offers.
 
 ### Robin
 
@@ -1030,6 +1141,9 @@ Robin has expanded relationship and X-Change content.
 - X-Change has been loosely integrated into Robin's crossdressing event chain.
 - Robin's kitchen loft event should now appear as a daily event around **7–8 a.m.**
 - Some Robin scenes account more cleanly for sex-friend status in current play.
+- If you own a console, Robin can interact with the virtual-pet system through arcade/date content.
+- Robin can give booster packs for the virtual pet, with the weekly chance improving through the console route.
+- Robin's Water Dragon reaction requires Robin to have console-related content unlocked.
 
 ### Kylar
 
@@ -1052,6 +1166,16 @@ Remy has additional Choice-pill and spiking content.
 - If that setting is disabled, the scene may still mention swallowing a pill, but no X-Change effect is applied.
 - Remy will not spike the player into X-Change while pregnant unless you are already X-Changed.
 - Remy may use Choice pills at the underground farm, which can require Wren's cooperation to acquire the Reversal pill.
+
+### Briar, Harper & Re-Virginity
+
+Briar and Harper have more X-Change-adjacent route content in current play.
+- Briar's Premium Pill route remains one of the clearest ways to access controlled X-Change outcomes, but it can lead into dangerous captivity content if you follow the wrong branch.
+- If a virginity test catches the player out, Harper can offer a temporary restoration that leads into Briar's **Re-Virginity / Second Debut** show instead of a simple punishment.
+- The show is built around five endurance trials. Each trial is safer if you keep orgasms under control.
+- Completing all five trials can restore virginity and unlock the Second Debut outcome.
+- Partial success can still pay out, while very poor performance can hand the player over to the crowd.
+- The route is weekly-gated, so it is not something you can immediately repeat every day.
 
 ### Poppy
 
@@ -1084,16 +1208,13 @@ Riley and the MMA Gym have been reworked from their DoLP origin.
 ### Wraith & Underwater Prison
 
 The Ivory Wraith and underwater prison content can interact with X-Change systems, including body changes and special encounter logic.
+- Wraith content has modded settings under NPC settings.
+- The underwater prison route can remember compound and prison progress more cleanly in current play.
+- Treat Wraith as a route with its own toggle and pacing rather than as a generic random encounter.
 
 ### Miscellaneous
 
 - Wren's Blackjack can become riskier through X-Change pill consequences.
-- Avery may force pill use for dates under certain same-sex conditions.
-- Avery can notice that you have a HBSC bank account and send money to the account for the correct cooking requests.
-- The Choice Reversal pill can be found at Avery's Mansion.
-- Avery reacts negatively if the player reverts their transformation while living with them.
-- Avery's mansion-intro Choice Pill scene now gives a clearer coloured notice, making it easier to tell when the pill choice matters.
-- Office wage from working as Avery's assistant can be boosted by beauty.
 - Jordan may react when spoken to at the temple if the player has a divine transformation.
 - Whitney may gain love from being made to orgasm during reverse rape.
 - Sirris class has an avoidance event that can let the player slip out of Leighton's inspection, though the first inspection remains unavoidable.
@@ -1117,21 +1238,97 @@ DoLX adds or expands several event, farming, utility, and location hooks beyond 
 - Street cat-call encounters now have more varied dialogue.
 - The street money proposition event has had some RNG removed so that branch behaves more consistently.
 
+### School, Soup Kitchen & Study
+
+School and temple-adjacent town content now have more small progression hooks.
+- The **soup kitchen** can be found on Wolf Street once discovered.
+- On school days, it opens after school.
+- On weekends and holidays, it opens from the morning.
+- It closes at **21:00**.
+- Helping River at the soup kitchen can grant **Grace** and housekeeping-related progress.
+- Class study and socialising events can now give clearer subject rewards and status changes.
+- Some Science, Maths, English, History, and Housekeeping class content can include X-Change-themed lessons or reactions, especially when the player is visibly X-Changed.
+
 ### Math Dildo Event
 
 The infamous math dildo event was expanded and can interact with special character states, including demon PCs.
 
 ### Water Dragon
 
-A **Water Dragon** transformation has been added as a new animal transformation.
-- Water Dragon has a trait and feat-boost support.
-- A Water Dragon lore event can occur at the island spear encounter.
-- Water Dragon TF has temperature tolerance: near-cold-immunity, with a slight heat vulnerability.
-- A dragon skin option is available at the mirror.
-- Water Dragon now has its own claw/scratch text and uses the same claw rebalance as other animal transformations.
+A **Water Dragon** transformation has been added as a full animal transformation route.
+
+How to build Water Dragon points:
+- Buy **Lilac earrings** from the forest shop. They cost **£250** and are found with the forest-shop earrings.
+- Wear the Lilac earrings to stop Water Dragon build from decaying.
+- During the day, swim in the ocean and look for an island with something shiny on it.
+- Investigating the island can reveal a blue necklace.
+- **Drop it to the water** to gain **+5 Water Dragon build**.
+- Taking the necklace gives stolen-value money but lowers Water Dragon build instead.
+- Full Water Dragon needs **50 build**, so it normally takes ten successful necklace drops if you do not lose progress.
+- There is no daily counter cap on the necklace event. You are limited by ocean RNG, daylight, and night ending ocean exploration for the day.
+
+Transformation milestones:
+- Early build unlocks the first draconic changes.
+- Around level 2, Water Dragon gains fangs, Sharp Eyes, and Dragon Eyes support.
+- Later levels unlock horns, ears, tail, and the Leviathan-style draconic trait setup.
+- At full transformation, Water Dragon unlocks **Aquatic Lungs**, **Dragon's Grace**, and the permanent Water Dragon transformation state.
+
+What Water Dragon does:
+- **Dragon's Grace** increases athletics and swimming ability.
+- **Aquatic Lungs** reduce underwater oxygen loss. Ordinary water actions spend more oxygen; Aquatic Lungs lowers the drain significantly.
+- Water Dragon has the strongest cold tolerance among beast transformations, but becomes slightly worse in heat.
+- The mirror can set or clear **Water Dragon Skin**. The special skin shifts through a lilac/purple to blue look as skin/tan display changes.
+- Water Dragon has its own claws and Scratch text, and uses the current Scratch rebalance.
 - Water Dragon horns count properly as horns for horn-related checks and effects.
-- **Dragon Eyes** are available at the mirror, including for old saves that gained Water Dragon before the trait was added.
-- Dragon Eyes combine sharp eyes with the esoteric trait from special clothing, grant **+5% skulduggery**, and make the player always hallucinate regardless of awareness, trauma, or hallucinogens.
+- Full Water Dragon, full effective Water Dragon, or active Aquatic Lungs can unlock a direct swim route to the island without needing pirates. The crossing is still a serious journey and takes about a week.
+- Full/aquatic Water Dragon characters can receive Water Dragon-specific island events, including home, language, tidepool, spring, carving, and moon-related events.
+- Water Dragon lore can also appear in island defeat and spear-related content.
+
+Dragon Eyes:
+- Dragon Eyes are available at the mirror, including for old saves that gained Water Dragon before the trait was added.
+- Dragon Eyes combine Sharp Eyes with the esoteric trait from special clothing.
+- They grant **+5% skulduggery**.
+- They make the player always see hallucination/esoteric content regardless of awareness, trauma, or hallucinogens.
+- Sharp Eyes or Dragon Eyes can also help notice some stalking signs, such as Kylar following you.
+
+Water Dragon chimeras:
+- **Water Dragon + Demon** can unlock **Bakunawa**.
+- **Water Dragon + Angel** can unlock **Ryuujin**.
+- Chimera visuals are mirror-controlled hybrid appearances. They do not erase the base transformation points.
+- The mirror can also pick unlocked transformation titles/descriptions for hybrid states, including special chimeras and generic celestial-animal combinations.
+
+### Virtual Pet Console
+
+The furniture shop sells a **console** for **£50**. It includes a virtual pet system that now has care, training, battles, evolution, second pets, dungeons, and blood moon risk.
+
+Core loop:
+- Feed, play, clean, rest, and cure your pet to keep it alive.
+- Neglect can kill the pet.
+- Training is daily. Every few training sessions, the pet can learn or improve skills.
+- Weekly attacks start turn-based battles with Attack, Guard, Rest, and MP skills.
+- Winning battles increases pet stats.
+
+Starter pets:
+- **Embit:** fire, evolves toward Blazilisk.
+- **Pudduck:** water, evolves toward Pondswan.
+- **Sprout:** grass, evolves toward Oakguard.
+- **Voltpup:** electric, evolves toward Thundrover.
+
+Progression and danger:
+- Pets have stat caps: **HP 5000**, **MP 2500**, and **ATK/DEF/SPD 500**.
+- Evolution greatly raises stats and opens harder content.
+- After evolution, weekly attacks can include minibosses.
+- Minibosses can drop dungeon keys.
+- Dungeons are 15-tile runs with enemies, money, fruit, rare pills, and other rewards.
+- A monthly blood moon boss can appear. If the boss is not defeated within the week, your pet can die.
+- You can eventually have a second pet. The backup pet can tag in if the active pet falls.
+
+Robin and boosters:
+- If you own a console, Robin can interact with it during arcade/date content.
+- Robin can give virtual-pet booster packs, with a weekly chance that improves through the console route.
+- Booster rewards can include stat items, HP/MP recovery, rare skill options, and **Elixir**.
+- Elixir can revive a dead pet once.
+- Some skills, such as Revive, can also save a pet during battle.
 
 ### Bear Transformation and Honey
 
@@ -1168,6 +1365,8 @@ Farming and orphanage food support have more tracking and interaction.
 
 **Crop Progress** appears as a foldout under the Jobs statistics section. It lists currently planted crops by location, plot number, crop name, watering state, and days remaining until harvest. Exact harvest estimates are shown when blind stats are disabled, or when you have enough tending skill or the **Green Thumb** background.
 
+Additional crop locations can appear through routes. After Avery is saved, the mansion garden can unlock a sheltered crop plot that behaves like a greenhouse-style growing space.
+
 **Clover patches are now actual searchable objects.**
 - Regular clover yield is affected by tending skill.
 - Four-leaf clovers are rare finds and can award a feat.
@@ -1192,6 +1391,11 @@ Eden can sometimes intervene during the underground farm route.
 - If successful, Eden can arrive to help.
 - This works because the underground farm is close enough to Eden's usual territory.
 
+Eden also has form-specific affection support.
+- Fully transformed players can show Eden affection in ways tied to their form.
+- Cow, harpy, cat, fox, wolf, bunny, bear, and Water Dragon forms have special flavour.
+- Lactating players can ask Eden to milk them, with Eden's response depending on relationship and dominance.
+
 ### Great Hawk Empty-Nest Memory
 
 Great Hawk / tower child handling is adjusted so dismissed or farewell children are not treated as still present in ordinary nest visits. When all GH children have left, a quiet empty-nest memory moment can occur, giving the player a small stress reduction while remembering time spent with them.
@@ -1203,6 +1407,20 @@ Bike travel has been reworked into a more active system.
 - Weather, season, and durability can affect travel.
 - Biking may be useful or risky depending on conditions.
 - If you walk somewhere with a companion while owning a bike, the bike can move with you to the destination.
+- Bike repairs at the depot cost **£350** before inflation, so repeated rough travel can become a real expense.
+
+### Smoking at the Loft
+
+After learning to smoke from Whitney or unlocking the relevant loft state, the pub can sell cigarettes.
+- A pack costs **£25** and contains **5 cigarettes**.
+- Smoking is tied to the loft and can reduce stress.
+- Weather, season, time, and blood moon state can change the flavour of the scene.
+- Smoking too many times in a row can make the player woozy or worse.
+- There is a daily limit before the habit becomes unsafe to keep pushing.
+- Skipping cigarettes after building the habit can cause cravings.
+- Staying clean long enough can end the craving.
+- Smoking can award smoking-related feats and a smoker trait.
+- Current smoking does not raise alcohol gain.
 
 ### Wardrobes & Handbag Inventory
 
@@ -1233,6 +1451,14 @@ DoLX adds many new settings and cheat options so players can control how the mod
 
 You can adjust things like pill frequency, spike pools, Hyper Fertility spike frequency, pregnancy chance while pilled, pilled appearance, Portal content, permanent heat or rut, Gender Identity body changes, combat pill safety, audio, NPC voiceovers, display options, and rebalance settings. The cheat menu also includes X-Change tools, including options for special pills, duration controls, and forcing the current pill effect to end.
 
+Newer player-facing settings include:
+- **Always show sidebar stat meters**, now enabled by default.
+- **Enable lewd stat split**, which keeps Promiscuity, Exhibitionism, and Deviancy separate between bodies.
+- **Gray pills also flip your sex**, which turns gray pills from effect-only pills into sex-flipping pills when taken without an active transformed body.
+- Chastity-belt preservation rules for body swapping, so belts/cages adapt more cleanly when the body changes.
+- Generic NPC and named-NPC multi-orgasm filters, with **Everyone**, **Women only**, and **Men only** options.
+- Wraith/NPC mod settings under the NPC settings area.
+
 > Use cheats carefully, especially on saves with pregnancy, permanent transformations, identity changes, or active route content.
 
 Check the settings and cheat menu if you want more control over how often X-Change content appears and how risky it becomes. Duration controls are especially powerful: a pill that normally feels like a short accident can be turned into a one-month or permanent route if you choose that style of play.
@@ -1242,10 +1468,11 @@ Check the settings and cheat menu if you want more control over how often X-Chan
 The game can use an alternate spritepack for the X-Changed sex.
 
 **Basic setup:**
-1. Copy vanilla's `img` folder.
-2. Rename the copy to `img2`.
-3. Install the desired spritepack into `img2` the same way it would normally be installed into `img`.
-4. In game, go to **Options > Performance**.
-5. Enable **Use alternate spriteset when gender is:** and choose which option should use the alternate pack.
+1. Supply an `img2` folder for the alternate spriteset.
+2. Install the desired alternate body/clothing spritepack into `img2` according to the pack's instructions.
+3. In game, go to **Options > Performance**.
+4. Enable **Use alternate spriteset when gender is:** and choose which option should use the alternate pack.
+
+Current DoLX keeps some folders shared with the main image set. Images under `decorations`, `sex`, `ui`, and `misc` are read from the normal `img` path rather than being redirected to `img2`. In practice, `img2` is for the alternate spritepack, while those shared non-body folders stay in `img`.
 
 > The option label may still use "gender" in-game, but the practical use is to swap spritepacks based on the current X-Changed body.
