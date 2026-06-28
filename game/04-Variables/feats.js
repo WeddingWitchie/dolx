@@ -848,6 +848,13 @@ setup.feats = {
 		hint: "Hint: Be terrible to the foxy.",
 		filter: ["All", "Social"],
 	},
+	Monogamous: {
+		title: "Monogamous",
+		desc: "Give every first to the same named NPC.",
+		difficulty: 3,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Love Triangles": {
 		title: "Love Triangles",
 		desc: "You don't know who to choose.",
@@ -3015,6 +3022,18 @@ function displayFeat(featName) {
 }
 DefineMacro("displayFeat", displayFeat);
 
+function playerVirginitiesTakenBySameNamedNpc(npcName) {
+	const virginity = V.player?.virginity;
+	const types = ["vaginal", "penile", "anal", "oral", "handholding", "kiss"];
+	if (!virginity || types.some(type => virginity[type] === true || virginity[type] === false || virginity[type] == null)) return false;
+
+	const taker = npcName || virginity[types[0]];
+	const namedNpcs = Array.isArray(V.NPCNameList) ? V.NPCNameList : setup.NPCNameList;
+	return typeof taker === "string" && Array.isArray(namedNpcs) && namedNpcs.includes(taker) && types.every(type => virginity[type] === taker);
+}
+window.playerVirginitiesTakenBySameNamedNpc = playerVirginitiesTakenBySameNamedNpc;
+setup.playerVirginitiesTakenBySameNamedNpc = playerVirginitiesTakenBySameNamedNpc;
+
 // eslint-disable-next-line no-unused-vars
 function earnHourlyFeats() {
 	if (V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings.allureModifier < 1 || V.replayScene) return false;
@@ -3324,6 +3343,7 @@ function earnHourlyFeats() {
 	if (V.milk_volume >= 12000) earnFeat("Rivers of White");
 	if (V.semen_volume >= 12000) earnFeat("Sticky Fountain");
 	if ((V.demon >= 6 || V.transformationParts.demon.wings == "default" || V.transformationParts.demon.wings == "succubus" || V.demontf == 1) && V.player.virginity.vaginal == true && V.player.virginity.penile == true) earnFeat("Demon of Purity");
+	if (!V.activeNightmare && playerVirginitiesTakenBySameNamedNpc()) earnFeat("Monogamous");
 
 	if (V.whitneycollar == 1) earnFeat("Owned");
 
