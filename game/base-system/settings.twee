@@ -2937,6 +2937,15 @@
 	<<set $_targetValue to _args[1]>>
 	<<for $_i to 0; $_i lt $NPCName.length; $_i++>>
 		<<set $NPCName[$_i][$_characteristic] to $_targetValue>>
+		<<if $_characteristic is "gender">>
+			<<if $_targetValue is "f">>
+				<<set $NPCName[$_i].vagina to ($NPCName[$_i].type isnot "human" ? 0 : "clothed")>>
+				<<set $NPCName[$_i].penis to "none">>
+			<<elseif $_targetValue is "m">>
+				<<set $NPCName[$_i].penis to ($NPCName[$_i].type isnot "human" ? 0 : "clothed")>>
+				<<set $NPCName[$_i].vagina to "none">>
+			<</if>>
+		<</if>>
 		<<if $_characteristic is "breastsize">>
 			<<set $NPCName[$_i].breastdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breast" : "nipple">>
 			<<set $NPCName[$_i].breastsdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breasts" : "nipples">>
@@ -2945,6 +2954,15 @@
 	<<if $passage isnot "Start" and $per_npc and Object.keys($per_npc).length gt 0>>
 		<<for $_npcKey, $_npcData range $per_npc>>
 			<<set $per_npc[$_npcKey][$_characteristic] to $_targetValue>>
+			<<if $_characteristic is "gender">>
+				<<if $_targetValue is "f">>
+					<<set $per_npc[$_npcKey].vagina to ($per_npc[$_npcKey].type isnot "human" ? 0 : "clothed")>>
+					<<set $per_npc[$_npcKey].penis to "none">>
+				<<elseif $_targetValue is "m">>
+					<<set $per_npc[$_npcKey].penis to ($per_npc[$_npcKey].type isnot "human" ? 0 : "clothed")>>
+					<<set $per_npc[$_npcKey].vagina to "none">>
+				<</if>>
+			<</if>>
 			<<if $_characteristic is "breastsize">>
 				<<set $per_npc[$_npcKey].breastdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breast" : "nipple">>
 				<<set $per_npc[$_npcKey].breastsdesc to $_targetValue > 0 ? setup.breastsizes[$_targetValue] + " breasts" : "nipples">>
@@ -3064,8 +3082,8 @@
 			<span class="gold">Genitals:</span>
 			<br>
 			<span data-target="npcname-pregnancy" data-disabledif="V.NPCName[T.npcId].pregnancy.type">
-				<label><<radiobutton "$NPCName[_npcId].gender" "f" autocheck>> Vagina</label> |
-				<label><<radiobutton "$NPCName[_npcId].gender" "m" autocheck>> Penis</label>
+				<label><<radiovar "$NPCName[_npcId].gender" "f">><<set $NPCName[_npcId].vagina to ($NPCName[_npcId].type isnot "human" ? 0 : "clothed")>><<set $NPCName[_npcId].penis to "none">><</radiovar>> Vagina</label> |
+				<label><<radiovar "$NPCName[_npcId].gender" "m">><<set $NPCName[_npcId].penis to ($NPCName[_npcId].type isnot "human" ? 0 : "clothed")>><<set $NPCName[_npcId].vagina to "none">><</radiovar>> Penis</label>
 				/* | <label><<radiobutton "$NPCName[_npcId].gender" "h" autocheck>> Both</label> */
 			</span>
 		</div>
@@ -3301,8 +3319,8 @@
 			<div class="settingsToggleItem">
 				<span class="gold">Genitals:</span>
 				<br>
-				<label><<radiobutton "$per_npc[_pNPCId].gender" "f" autocheck>> Vagina</label> |
-				<label><<radiobutton "$per_npc[_pNPCId].gender" "m" autocheck>> Penis</label>
+				<label><<radiovar "$per_npc[_pNPCId].gender" "f">><<set $per_npc[_pNPCId].vagina to ($per_npc[_pNPCId].type isnot "human" ? 0 : "clothed")>><<set $per_npc[_pNPCId].penis to "none">><</radiovar>> Vagina</label> |
+				<label><<radiovar "$per_npc[_pNPCId].gender" "m">><<set $per_npc[_pNPCId].penis to ($per_npc[_pNPCId].type isnot "human" ? 0 : "clothed")>><<set $per_npc[_pNPCId].vagina to "none">><</radiovar>> Penis</label>
 			</div>
 
 			<div class="settingsToggleItem">
@@ -4670,6 +4688,75 @@
 				<label><<checkbox "$xchange.useHermBalls" 0 1 autocheck>> Purple pillers have testes</label> <mouse class="tooltip linkBlue">(?)<span>When you take a pill that turns you herm, this toggle determines whether you'll be given testicles or not.</span></mouse><br>
 
 				<label><<checkbox "$xchange.chastityKeepBeltShape" 0 1 autocheck>> Keep chastity belt shape on sex change</label> <mouse class="tooltip linkBlue">(?)<span>If enabled, a chastity belt stays a belt when your body becomes male instead of reshaping into a cage. A belt locks a male body just fine, so this keeps the device you originally chose. Disable for the old behaviour, where becoming male turns a belt into a cage. Note: a cage always reshapes into a belt when you gain a vagina, since a cage can't enclose one.</span></mouse><br>
+
+				<<set _xchangeActiveHermMismatch to playerIsXChanged() and $xchange.pill and $xchange.pill.hermEffect and (!$player.penisExist or !$player.vaginaExist or !["m", "f"].includes($player.sex))>>
+				<<set _xchangeStoredOriginalSexMismatch to false>>
+				<<set _xchangeStoredOriginalSexCanApply to false>>
+				<<if playerIsXChanged() and $xchange.pill and $xchange.pill.originalBody and ($xchange.pill.originalBody.sex is undefined or !["m", "f"].includes($xchange.pill.originalBody.sex))>>
+					<<set _xchangeStoredOriginalSexMismatch to true>>
+					<<set _xchangeStoredOriginalSexCanApply to ($xchange.pill.originalBody.penisExist is true and $xchange.pill.originalBody.vaginaExist isnot true) or ($xchange.pill.originalBody.vaginaExist is true and $xchange.pill.originalBody.penisExist isnot true)>>
+				<</if>>
+				<<set _xchangeOldSaveGenitalMismatchNPC to []>>
+				<<for _xchangeOldSaveNPCIndex to 0; _xchangeOldSaveNPCIndex lt $NPCName.length; _xchangeOldSaveNPCIndex++>>
+					<<set _xchangeOldSaveNPC to $NPCName[_xchangeOldSaveNPCIndex]>>
+					<<if _xchangeOldSaveNPC and _xchangeOldSaveNPC.pregnancy and _xchangeOldSaveNPC.pregnancy.enabled isnot undefined and !_xchangeOldSaveNPC.pregnancy.fetus.length>>
+						<<if _xchangeOldSaveNPC.gender is "f" and (_xchangeOldSaveNPC.vagina is undefined or _xchangeOldSaveNPC.vagina is "none" or _xchangeOldSaveNPC.penis isnot "none")>>
+							<<set _xchangeOldSaveGenitalMismatchNPC.push(_xchangeOldSaveNPCIndex)>>
+						<<elseif _xchangeOldSaveNPC.gender is "m" and (_xchangeOldSaveNPC.penis is undefined or _xchangeOldSaveNPC.penis is "none" or _xchangeOldSaveNPC.vagina isnot "none")>>
+							<<set _xchangeOldSaveGenitalMismatchNPC.push(_xchangeOldSaveNPCIndex)>>
+						<</if>>
+					<</if>>
+				<</for>>
+				<<if _xchangeActiveHermMismatch or _xchangeStoredOriginalSexMismatch or _xchangeOldSaveGenitalMismatchNPC.length>>
+					<br>
+					<span class="gold bold">Old-save recovery:</span><br>
+					<<if _xchangeActiveHermMismatch>>
+						<span class="red">Active Herm X-Change genital mismatch detected.</span>
+						<<link "Apply active Herm genitals">>
+							<<set $player.sex to "m">>
+							<<set $player.penisExist to true>>
+							<<set $player.vaginaExist to true>>
+							<<set $player.ballsExist to $xchange.useHermBalls eq 1>>
+							<<updatesidebarimg>>
+							<<replace "#subsectionDiv">><<xchangeSettings>><</replace>>
+						<</link>><br>
+					<</if>>
+					<<if _xchangeStoredOriginalSexMismatch>>
+						<span class="red">Stored pre-pill X-Change sex is invalid.</span>
+						<<if _xchangeStoredOriginalSexCanApply>>
+							<<link "Apply stored pre-pill sex from saved genitals">>
+								<<if $xchange.pill.originalBody.penisExist is true and $xchange.pill.originalBody.vaginaExist isnot true>>
+									<<set $xchange.pill.originalBody.sex to "m">>
+									<<set $xchange.pill.baseSex to "m">>
+								<<elseif $xchange.pill.originalBody.vaginaExist is true and $xchange.pill.originalBody.penisExist isnot true>>
+									<<set $xchange.pill.originalBody.sex to "f">>
+									<<set $xchange.pill.baseSex to "f">>
+								<</if>>
+								<<replace "#subsectionDiv">><<xchangeSettings>><</replace>>
+							<</link>>
+						<<else>>
+							The saved pre-pill body does not say whether its base sex was male or female. Export this save and report it.
+						<</if>><br>
+					<</if>>
+					<<if _xchangeOldSaveGenitalMismatchNPC.length>>
+						<span class="red">NPC genital mismatch detected for <<= _xchangeOldSaveGenitalMismatchNPC.map(npcIndex => $NPCName[npcIndex].nam).join(", ") >>.</span>
+						<<capture _xchangeOldSaveGenitalMismatchNPC>>
+							<<link "Apply selected genitals to these NPCs">>
+								<<for _xchangeOldSaveNPCIndex range _xchangeOldSaveGenitalMismatchNPC>>
+									<<set _xchangeOldSaveNPC to $NPCName[_xchangeOldSaveNPCIndex]>>
+									<<if _xchangeOldSaveNPC.gender is "f">>
+										<<set _xchangeOldSaveNPC.vagina to (_xchangeOldSaveNPC.type isnot "human" ? 0 : "clothed")>>
+										<<set _xchangeOldSaveNPC.penis to "none">>
+									<<elseif _xchangeOldSaveNPC.gender is "m">>
+										<<set _xchangeOldSaveNPC.penis to (_xchangeOldSaveNPC.type isnot "human" ? 0 : "clothed")>>
+										<<set _xchangeOldSaveNPC.vagina to "none">>
+									<</if>>
+								<</for>>
+								<<replace "#subsectionDiv">><<xchangeSettings>><</replace>>
+							<</link>>
+						<</capture>>
+					<</if>>
+				<</if>>
 			</div>
 
 			<div class="settingsToggleItem">

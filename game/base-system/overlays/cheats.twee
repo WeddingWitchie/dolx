@@ -2612,7 +2612,7 @@
 	<span class="gold">Non-Parasitic Pregnancy</span>
 	<br>
 	<<set _womb to ($player.vaginaExist ? "vagina" : "anus")>>
-	<<set _eligible to ["Avery", "Eden", "Harper", "Kylar", "Morgan", "Robin", "Whitney", "Black Wolf", "Alex", "Wren", "Sydney", "Great Hawk"]>>
+	<<set _eligible to ["Avery", "Eden", "Harper", "Kylar", "Morgan", "Robin", "Whitney", "Black Wolf", "Alex", "Wren", "Sydney", "Great Hawk", "Poppy"]>>
 	<<set _impregnatableNPC to []>>
 	<<set _impregnatorNPC to []>>
 	<<set _pregnantNPC to {}>>
@@ -2657,6 +2657,7 @@
 			<br><br>
 			<<link [[Clear current pregnancy|$passage]]>>
 				<<set _pregnancyClear to getPregnancyObject()>>
+				<<set _clearPoppyPlayerPregnancy to _pregnancyClear.fetus && _pregnancyClear.fetus.find(fetus => fetus && fetus.father is "Poppy")>>
 				<<set _pregnancyClear.type to null>>
 				<<set _pregnancyClear.fetus to []>>
 				<<set _pregnancyClear.waterBreaking to false>>
@@ -2678,6 +2679,15 @@
 				<<run delete C.npc.Alex.pregnancy.ultraSound>>
 				<<run delete C.npc.Alex.pregnancy.sample>>
 				<<run delete C.npc.Alex.pregnancy.ultraSoundPics>>
+				<<if _clearPoppyPlayerPregnancy>>
+					<<run delete C.npc.Poppy.pregnancy.pcKnowledge>>
+					<<run delete C.npc.Poppy.pregnancy.test>>
+					<<run delete C.npc.Poppy.pregnancy.ultraSound>>
+					<<run delete C.npc.Poppy.pregnancy.ultraSoundPics>>
+					<<run delete C.npc.Poppy.pregnancy.ultrasoundShown>>
+					<<run delete C.npc.Poppy.pregnancy.paternityRequested>>
+					<<run delete C.npc.Poppy.pregnancy.sample>>
+				<</if>>
 			<</link>>
 		<<else>>
 			<<if ($settings.playerPregnancyHumanEnabled or $settings.playerPregnancyBeastEnabled) and !playerIsPregnant()>>
@@ -2851,18 +2861,14 @@
 
 <<widget "cheatsImpregOptions">>
 	<span class="gold">Impregnation</span>
-	<<if $player.penisExist and _impregnatableNPC.length>>
+	<<set _fertileNPC to _impregnatableNPC.filter(npcIndex => _eligible.includes($NPCName[npcIndex].nam) and !$NPCName[npcIndex].pregnancy.fetus.length)>>
+	<<if $player.penisExist and _fertileNPC.length>>
 		<br>
-		You can impregnate <span class="gold">_impregnatableNPC.length</span> fertile <<pluralise _impregnatableNPC.length "NPC">>.
+		You can impregnate <span class="gold">_fertileNPC.length</span> fertile <<pluralise _fertileNPC.length "NPC">>.
 		<br><br>
-		<<set _fertileNPC to 0>>
-		<<for _pregEnabled range _impregnatableNPC>>
+		<<for _pregEnabled range _fertileNPC>>
 			<<set _actor to $NPCName[_pregEnabled]>>
 			<<set _actorNameNoSpace to _actor.nam.replace(" ","")>>
-			<<if !_eligible.includes(_actor.nam) or _actor.pregnancy.fetus.length>>
-				<<continue>>
-			<</if>>
-			<<set _fertileNPC += 1>>
 			<<= _actor.nam>>:
 			<br>
 			<<capture _actor>>
@@ -2886,12 +2892,17 @@
 			<</capture>>
 			<br>
 		<</for>>
-		<<if !_fertileNPC is 0>>
-			You can't impregnate any other NPCs.
-		<</if>>
 	<<else>>
 		<br>
-		You can't currently impregnate any NPCs<<if !$player.penisExist>>, since you have no penis<</if>>.
+		<<if !$player.penisExist>>
+			You can't currently impregnate any NPCs, since you have no penis.
+		<<else>>
+			You can't currently impregnate any NPCs.
+		<</if>>
+		<<if $settings.npcPregnancyEnabled is false>>
+			<br>
+			<span class="red">NPC pregnancy is disabled in settings.</span>
+		<</if>>
 	<</if>>
 
 	<<for _pregEnabled range $NPCName>> /* Checks for any pregnant named NPC. */
@@ -2970,7 +2981,19 @@
 		<<set _pregnancyNPC.potentialFathers to []>>
 		<<set _pregnancyNPC.sperm to []>>
 		<<set _pregnancyNPC.cycleDay to 1>>
-		<<if _pregnantNPCId is 25>><<run delete C.npc.Alex.pregnancy.selfKnowledge>><</if>>
+		<<if $NPCName[_pregnantNPCId].nam is "Alex">><<run delete C.npc.Alex.pregnancy.selfKnowledge>><</if>>
+		<<if $NPCName[_pregnantNPCId].nam is "Poppy">>
+			<<run delete C.npc.Poppy.pregnancy.selfKnowledge>>
+			<<run delete C.npc.Poppy.pregnancy.pcKnowledge>>
+			<<run delete C.npc.Poppy.pregnancy.test>>
+			<<run delete C.npc.Poppy.pregnancy.ultraSound>>
+			<<run delete C.npc.Poppy.pregnancy.ultraSoundPics>>
+			<<run delete C.npc.Poppy.pregnancy.ultrasoundShown>>
+			<<run delete C.npc.Poppy.pregnancy.paternityRequested>>
+			<<run delete C.npc.Poppy.pregnancy.sample>>
+			<<run delete C.npc.Poppy.pregnancy.handoffMet>>
+			<<run delete C.npc.Poppy.pregnancy.handoffDay>>
+		<</if>>
 	<</link>>
 <</widget>>
 

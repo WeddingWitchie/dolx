@@ -885,6 +885,24 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<if $xchange.pill.clonedBody is undefined or $xchange.pill.clonedBody is null or typeof $xchange.pill.clonedBody isnot "object" or Array.isArray($xchange.pill.clonedBody)>><<set $xchange.pill.clonedBody to {}>><</if>>
 		/* clone is a string sentinel ("none"), not an object; explicit falsy check */
 		<<if !$xchange.pill.clone>><<set $xchange.pill.clone to "none">><</if>>
+		<<if $xchange.pill.active and $xchange.pill.baseSex isnot undefined and !["m", "f"].includes($xchange.pill.baseSex)>>
+			<<set $xchange.pill.baseSex to undefined>>
+		<</if>>
+		<<if $xchange.pill.active and $xchange.pill.baseSex is undefined>>
+			<<set _xcBaseSex to undefined>>
+			<<if ["m", "f"].includes($xchange.pill.originalBody.sex)>>
+				<<set _xcBaseSex to $xchange.pill.originalBody.sex>>
+			<<elseif $xchange.pill.baseGenitals isnot undefined and $xchange.pill.baseGenitals isnot null and typeof $xchange.pill.baseGenitals is "object">>
+				<<if $xchange.pill.baseGenitals.penis is true and $xchange.pill.baseGenitals.vagina isnot true>>
+					<<set _xcBaseSex to "m">>
+				<<elseif $xchange.pill.baseGenitals.vagina is true and $xchange.pill.baseGenitals.penis isnot true>>
+					<<set _xcBaseSex to "f">>
+				<</if>>
+			<</if>>
+			<<if _xcBaseSex isnot undefined>>
+				<<set $xchange.pill.baseSex to _xcBaseSex>>
+			<</if>>
+		<</if>>
 	<</if>>
 
 	/* permaReflection state object */

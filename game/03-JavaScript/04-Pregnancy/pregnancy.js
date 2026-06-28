@@ -1411,13 +1411,19 @@ function playerPregnancyPossibleWith(NPC) {
 	 */
 	T.pregFalseReason = "";
 	let NPCObject;
-	if (typeof NPC === "string" || V.NPCNameList.includes(NPC.fullDescription)) {
+	let NPCName;
+	if (typeof NPC === "string") {
+		NPCName = NPC;
+	} else if (typeof NPC === "object" && !Array.isArray(NPC) && NPC !== null) {
+		NPCName = [NPC.nam, NPC.description, NPC.fullDescription].find(name => typeof name === "string" && V.NPCNameList.includes(name));
+	}
+	if (V.NPCNameList.includes(NPCName)) {
 		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
-		NPCObject = V.NPCName[V.NPCNameList.indexOf(typeof NPC === "string" ? NPC : NPC.fullDescription)];
+		NPCObject = V.NPCName[V.NPCNameList.indexOf(NPCName)];
 
 		if (NPCObject == undefined) return false;
 
-		const NPCNameCheck = NPCObject.fullDescription || NPCObject.description; // .description is only for backup, should not be needed in normal cases
+		const NPCNameCheck = NPCObject.nam || NPCObject.description || NPCName; // named NPC data is keyed by stable names, not display descriptions
 		if (
 			setup.pregnancy.infertile.includes(NPCNameCheck) ||
 			(V.settings.incompletePregnancyEnabled === false && C.npc[NPCNameCheck] && !setup.pregnancy.canImpregnatePlayer.includes(NPCNameCheck))
@@ -1477,11 +1483,17 @@ function NPCPregnancyPossibleWithPlayer(NPC) {
 	 */
 	T.pregFalseReason = "";
 	let NPCObject;
-	if (typeof NPC === "string" || V.NPCNameList.includes(NPC.fullDescription)) {
+	let NPCName;
+	if (typeof NPC === "string") {
+		NPCName = NPC;
+	} else if (typeof NPC === "object" && !Array.isArray(NPC) && NPC !== null) {
+		NPCName = [NPC.nam, NPC.description, NPC.fullDescription].find(name => typeof name === "string" && V.NPCNameList.includes(name));
+	}
+	if (V.NPCNameList.includes(NPCName)) {
 		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
-		NPCObject = V.NPCName[V.NPCNameList.indexOf(typeof NPC === "string" ? NPC : NPC.fullDescription)];
+		NPCObject = V.NPCName[V.NPCNameList.indexOf(NPCName)];
 		if (NPCObject == undefined) return false;
-		const NPCNameCheck = NPCObject.fullDescription || NPCObject.description;
+		const NPCNameCheck = NPCObject.nam || NPCObject.description || NPCName;
 		if (!C.npc[NPCNameCheck]) {
 			Errors.report("Named NPC " + NPCNameCheck + " is undefined for pregnancy compatibility check.");
 			return false;
