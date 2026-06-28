@@ -214,6 +214,7 @@
 	setup.inflation.RENT_CAP_HIGH = 7000000;         // £70,000
 	setup.inflation.RENT_JUMP_DEMAND = 15000000;     // £150,000
 	setup.inflation.RENT_INVESTMENT_DEMAND = 50000000; // £500,000
+	setup.inflation.RENT_INFLATION_PCT = 70;         // Bailey rent only starts climbing at bad-economy inflation.
 	/* Vanilla rent stops climbing at stage 6 (base £2,000).
 	Past that, add this much base per week so the demand keeps ratcheting upward toward the cap instead of plateauing. */
 	setup.inflation.RENT_STAGE_STEP = 50000;         // +£500 of base per week beyond stage 6
@@ -232,6 +233,7 @@
 		if (!Number.isFinite(baseRent)) return baseRent;
 		/* Bailey only demands against money he can see (liquid), not locked fixed terms. */
 		const wealth = setup.inflation.baileyWealth();
+		if (setup.inflation.percent(wealth) < setup.inflation.RENT_INFLATION_PCT) return baseRent;
 		if (wealth >= setup.inflation.RENT_WEALTH_INVESTMENT) return setup.inflation.scaleRentSetting(setup.inflation.RENT_INVESTMENT_DEMAND);
 		if (wealth >= setup.inflation.RENT_WEALTH_JUMP) return setup.inflation.scaleRentSetting(setup.inflation.RENT_JUMP_DEMAND);
 		/* Keep the base climbing each week past the vanilla stage-6 plateau so rent ratchets up. */
