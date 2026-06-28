@@ -302,6 +302,7 @@
   * Fixed doubled sentences in the Mason pond.
   * Reduced wall-of-text issues in Sydney library.
   * Improved bad mobile UI in loft cooking for the orphanage.
+* Fix softlocked encounter because breeder pill
 
 ## Art and Asset Updates:
 * Updated the **Goose image pack** by Snowy.
