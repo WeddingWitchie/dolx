@@ -425,10 +425,10 @@ function getClothingOptions() {
 	const modelOptions = { worn: {}, filters: {} };
 	const slots = [
 		["upper", V.upperwetstage],
-		["over_upper"],
+		["over_upper", V.overupperwetstage],
 		["genitals"],
 		["lower", V.lowerwetstage],
-		["over_lower"],
+		["over_lower", V.overlowerwetstage],
 		["under_lower", V.underlowerwetstage],
 		["under_upper", V.underupperwetstage],
 		["hands"],

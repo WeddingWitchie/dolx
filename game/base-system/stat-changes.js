@@ -1219,8 +1219,8 @@ const statChange = (() => {
 	function wet(type, amount) {
 		if (isNaN(amount)) paramError("wet", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (!["upper", "lower", "under_upper", "under_lower"].includes(type)) {
-			paramError("wet", "type", type, 'Expected values include "upper", "lower", "under_upper" and "under_lower"');
+		if (!["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower"].includes(type)) {
+			paramError("wet", "type", type, 'Expected values include "over_upper", "over_lower", "upper", "lower", "under_upper" and "under_lower"');
 			return;
 		}
 		if (!waterproofCheck(V.worn[type])) {
@@ -1234,6 +1234,8 @@ const statChange = (() => {
 	DefineMacro("lowerwet", amount => wet("lower", amount));
 	DefineMacro("underupperwet", amount => wet("under_upper", amount));
 	DefineMacro("underlowerwet", amount => wet("under_lower", amount));
+	DefineMacro("overupperwet", amount => wet("over_upper", amount));
+	DefineMacro("overlowerwet", amount => wet("over_lower", amount));
 
 	function worldCorruption(type, amount) {
 		if (isNaN(amount)) paramError("worldCorruption", "amount", amount, "Expected a number.");

@@ -52,7 +52,11 @@ declare module "twine-sugarcube" {
 		outfit: {
 			[x in ClothedSlots]: string;
 		}[];
+		overupperwetstage: number;
+		overlowerwetstage: number;
+		upperwetstage: number;
 		lowerwetstage: number;
+		underupperwetstage: number;
 		underlowerwetstage: number;
 		specialClothes: specialClothesItem[];
 		portalPanties?: PortalPantiesState;

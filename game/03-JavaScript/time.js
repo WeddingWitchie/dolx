@@ -2886,12 +2886,20 @@ function passWater(passMinutes) {
 	if (!V.outside || (V.outside && Weather.precipitation === "none")) {
 		const temperature = V.outside ? Weather.temperature : Weather.insideTemperature;
 		const dryingFactor = 0.1 + (temperature / 25) * ((1 + Weather.sunIntensity) * 2);
+		if (V.overupperwet) statChange.wet("over_upper", -passMinutes * dryingFactor);
+		if (V.overlowerwet) statChange.wet("over_lower", -passMinutes * dryingFactor);
 		if (V.upperwet) statChange.wet("upper", -passMinutes * dryingFactor);
 		if (V.lowerwet) statChange.wet("lower", -passMinutes * dryingFactor);
 		if (V.underlowerwet) statChange.wet("under_lower", -passMinutes * (V.worn.lower.type.includes("naked") ? dryingFactor : dryingFactor * 0.5));
 		if (V.underupperwet) statChange.wet("under_upper", -passMinutes * (V.worn.upper.type.includes("naked") ? dryingFactor : dryingFactor * 0.5));
 	} else if (V.outside && Weather.precipitation === "rain" && !V.worn.head.type.includes("rainproof") && !V.worn.handheld.type.includes("rainproof")) {
 		passMinutes *= Weather.precipitationIntensity;
+		if (!V.worn.over_upper.type.includes("naked") && !waterproofCheck(V.worn.over_upper)) {
+			statChange.wet("over_upper", passMinutes);
+		}
+		if (!V.worn.over_lower.type.includes("naked") && !waterproofCheck(V.worn.over_lower)) {
+			statChange.wet("over_lower", passMinutes);
+		}
 		if (!V.worn.upper.type.includes("naked") && !waterproofCheck(V.worn.upper) && !waterproofCheck(V.worn.over_upper)) {
 			statChange.wet("upper", passMinutes);
 		}

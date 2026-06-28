@@ -119,10 +119,14 @@ function clothingInit() {
 	V.lowerwet = 0;
 	V.underlowerwet = 0;
 	V.underupperwet = 0;
+	V.overlowerwet = 0;
+	V.overupperwet = 0;
 	V.upperwetstage = 0;
 	V.lowerwetstage = 0;
 	V.underupperwetstage = 0;
 	V.underlowerwetstage = 0;
+	V.overlowerwetstage = 0;
+	V.overupperwetstage = 0;
 	V.waterwash = 0;
 	V.wear_over_upper = "none";
 	V.wear_over_lower = "none";
