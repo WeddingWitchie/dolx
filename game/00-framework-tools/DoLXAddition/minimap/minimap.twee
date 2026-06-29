@@ -5,13 +5,14 @@
 		<<set _inHunt to ($bird isnot undefined and $bird.hunts isnot undefined)>>
 		<<set _playerN to (_inHunt ? $bird.hunts.distanceNorth : 0)>>
 		<<set _playerE to (_inHunt ? $bird.hunts.distanceEast  : 0)>>
+		<<set _showHints to ($historytrait gte 2)>>
 
 		/* mapSize 5 => 11x11 */
 		<<set _mapSize to 5>>
 
 		/* targets format: [{n:?, e:?, label:"X"}, ...]
 		   If don't set $hawkHuntTargets anywhere, it defaults to none. */
-		<<set _targets to ($hawkHuntTargets isnot undefined ? $hawkHuntTargets : [])>>
+		<<set _targets to ((_showHints and $hawkHuntTargets isnot undefined) ? $hawkHuntTargets : [])>>
 
 		/* Cache targets by coordinate so the render loop does not scan the target list for every cell. */
 		<<set _targetByKey to {}>>
@@ -131,6 +132,7 @@
 		}>>
 
 		<<set _hereNode to _pass2node[_loc]>>
+		<<set _showHints to ($historytrait gte 2)>>
 
 		<<set _label to {
 			"lake":"Lake",
@@ -141,11 +143,11 @@
 		}>>
 
 		<<set _antiqueNode to {
-			"webs":     (!$weekly.sewers.antiqueCandlestick),
-			"lake":     (!$weekly.sewers.antiqueCrystal),
-			"fungus":   (!$weekly.sewers.antiqueDildo),
-			"breeze":   (!$weekly.sewers.antiqueHorn),
-			"sculpture":(!$weekly.sewers.antiqueWatch)
+			"webs":     (_showHints and !$weekly.sewers.antiqueCandlestick),
+			"lake":     (_showHints and !$weekly.sewers.antiqueCrystal),
+			"fungus":   (_showHints and !$weekly.sewers.antiqueDildo),
+			"breeze":   (_showHints and !$weekly.sewers.antiqueHorn),
+			"sculpture":(_showHints and !$weekly.sewers.antiqueWatch)
 		}>>
 
 		/* layout */
@@ -268,7 +270,7 @@
 
 								<<if _playerKey and _key is _playerKey>>
 									<span class="sewmap-you">YOU</span>
-								<<else>>
+								<<elseif _showHints>>
 									<<set _ncls to "sewmap-name">>
 									<<if _nid is "sculpture" or _nid is "pub">>
 										<<set _ncls += " sewmap-name-small">>
@@ -280,7 +282,7 @@
 						<<elseif _corrH[_key] or _corrV[_key]>>
 							<<set _cls += " sewmap-block">>
 							<<if _mainCorrKey[_key] isnot undefined>><<set _cls += " sewmap-main">><</if>>
-							<<if _bluePathKey[_key] isnot undefined>><<set _cls += " sewmap-bluepath">><</if>>
+							<<if _showHints and _bluePathKey[_key] isnot undefined>><<set _cls += " sewmap-bluepath">><</if>>
 							<div @class="_cls"></div>
 
 						<<else>>
@@ -298,6 +300,7 @@
 	<<silently>>
 		<<set _mapSize to 5>>
 		<<set _innerR  to 3>>
+		<<set _showHints to ($historytrait gte 2)>>
 
 		<<set _playerN to ($tentnorth is undefined ? 0 : $tentnorth)>>
 		<<set _playerE to ($tenteast  is undefined ? 0 : $tenteast)>>
@@ -329,10 +332,10 @@
 								<<if _n is _playerN and _e is _playerE>>
 									<span class="tplmap-you">YOU</span>
 
-								<<elseif _n is 4 and _e is 4 and $tentspray isnot 1>>
+								<<elseif _showHints and _n is 4 and _e is 4 and $tentspray isnot 1>>
 									<span class="tplmap-icon"><<peppersprayicon>></span>
 
-								<<elseif _n is _squidN and _e is _squidE>>
+								<<elseif _showHints and _n is _squidN and _e is _squidE>>
 									<span class="tplmap-icon"><<exiticon>></span>
 								<</if>>
 							</div>
@@ -494,11 +497,12 @@
 		<<set _caveValue to ($cave is undefined ? 0 : Math.clamp($cave, 0, 100))>>
 		<<set _depthValue to (100 - _caveValue)>>
 		<<set _pos to Math.floor(_depthValue / 5)>>
-		<<set _pubKnown to ($smuggler_pub_known is 1 or $historytrait gte 4 or ($temple_spear_mission gte 1 and $temple_spear_mission_winter is 1))>>
+		<<set _showHints to ($historytrait gte 2)>>
+		<<set _pubKnown to (_showHints and ($smuggler_pub_known is 1 or $historytrait gte 4 or ($temple_spear_mission gte 1 and $temple_spear_mission_winter is 1)))>>
 		<<set _mapStatus to (($museumAntiques and $museumAntiques.antiques) ? $museumAntiques.antiques.antiqueleathermap : undefined)>>
 		<<set _mapHidden to (_mapStatus isnot "found" and _mapStatus isnot "talk" and _mapStatus isnot "museum")>>
 		<<set _compassHidden to (!$weekly.beachCaveCompass)>>
-		<<set _showChestHint to (_mapHidden or _compassHidden)>>
+		<<set _showChestHint to (_showHints and (_mapHidden or _compassHidden))>>
 
 		<<if _depthValue lt 20>>
 			<<set _zoneLabel to "Water up to your neck">>
@@ -543,8 +547,8 @@
 						<<if _i is _pos>><<set _class += " cavemap-here">><</if>>
 
 						<div @class="_class" @style="_style">
-							<<if _depth gte 3 and _depth lte 19>><span class="cavemap-antique cavemap-antique-basic"></span><</if>>
-							<<if _depth gte 6 and _depth lte 19>><span class="cavemap-antique cavemap-antique-deep"></span><</if>>
+							<<if _showHints and _depth gte 3 and _depth lte 19>><span class="cavemap-antique cavemap-antique-basic"></span><</if>>
+							<<if _showHints and _depth gte 6 and _depth lte 19>><span class="cavemap-antique cavemap-antique-deep"></span><</if>>
 							<<if _showChestHint and _depth is 20>><span class="cavemap-antique cavemap-antique-chest"></span><</if>>
 							<<if _pubKnown and _depth is 10>><span class="cavemap-pubdot"></span><</if>>
 							<<if _i is _pos>>
@@ -557,13 +561,15 @@
 		</div>
 
 		<div class="cavemap-caption"><<print _zoneLabel>></div>
-		<div class="cavemap-legend">
-			<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-basic"></span> Antiques 3–19</span>
-			<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-deep"></span> Better finds 6–19</span>
-			<<if _showChestHint>>
-				<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-chest"></span> Chest 20</span>
-			<</if>>
-		</div>
+		<<if _showHints>>
+			<div class="cavemap-legend">
+				<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-basic"></span> Antiques 3–19</span>
+				<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-deep"></span> Better finds 6–19</span>
+				<<if _showChestHint>>
+					<span class="cavemap-legend-item"><span class="cavemap-legend-mark cavemap-legend-chest"></span> Chest 20</span>
+				<</if>>
+			</div>
+		<</if>>
 	</div>
 
 	<<script>>
@@ -585,6 +591,7 @@
 		/* Sea progress uses $sea from 0 to 100 in steps of 10. */
 		<<set _seaValue to ($sea is undefined ? 0 : Math.clamp($sea, 0, 100))>>
 		<<set _pos to Math.floor(_seaValue / 10)>>
+		<<set _showHints to ($historytrait gte 2)>>
 
 		<<if _seaValue is 0>>
 			<<set _zoneLabel to "Near shore">>
@@ -630,8 +637,8 @@
 						<<if _i is _pos>><<set _class += " seamap-here">><</if>>
 
 						<div @class="_class" @style="_style">
-							<<if _i is 0>><span class="seamap-shore"></span><</if>>
-							<<if _i is 10>><span class="seamap-island"></span><</if>>
+							<<if _showHints and _i is 0>><span class="seamap-shore"></span><</if>>
+							<<if _showHints and _i is 10>><span class="seamap-island"></span><</if>>
 							<<if _i is _pos>>
 								<span class="seamap-you">YOU</span>
 							<</if>>
@@ -662,6 +669,7 @@
 		/* Docks sneak uses $bus for its current zone.
 		   This widget keeps the same read-only style as the other minimaps. */
 		<<set _here to ($bus is undefined ? "" : $bus)>>
+		<<set _showHints to ($historytrait gte 2)>>
 
 		<<set _nodes to {
 			"0-0":{id:"MER", label:"Mer Street", kind:"street", small:false, sea:false},
@@ -716,7 +724,7 @@
 									<<set _nameClass to "dockmap-name">>
 									<<if _node.small>><<set _nameClass += " dockmap-name-small">><</if>>
 									<span @class="_nameClass"><<print _node.label>></span>
-									<<if _node.sea>><span class="dockmap-sea" title="Sea exit"></span><</if>>
+									<<if _showHints and _node.sea>><span class="dockmap-sea" title="Sea exit"></span><</if>>
 								<</if>>
 							</div>
 						<</capture>>
@@ -724,9 +732,10 @@
 				<</for>>
 			</div>
 		</div>
-		<div class="dockmap-caption">
-			<span class="dockmap-legend"><span class="dockmap-legend-sea"></span> Sea exit</span>
-		</div>
+		<<if _showHints>>
+			<div class="dockmap-caption">
+				<span class="dockmap-legend"><span class="dockmap-legend-sea"></span> Sea exit</span>
+			</div>
+		<</if>>
 	</div>
 <</widget>>
-
