@@ -129,6 +129,8 @@ They didn't just find out <i>who</i> moves the pills." <<He>> taps the table.
 
 :: Pub Landry Gray News 2
 <<effects>>
+<<run setup.ensureGrayPharmacyItems()>>
+<<set _landryPrice to setup.pharmacyItems.xchange_gray_breeder.price * 2>>
 "So I called in some favours. People I trust, people with the right equipment and short memories." 
 <<He>> reaches into <<his>> coat and sets something on the table between you, shielded by <<his>> hand: 
 a small bottle of colourless capsules.
@@ -142,7 +144,7 @@ Take it on its own, or on top of a regular pill. Your choice, for once."
 <br><br>
 "Safer. Controlled. Properly dosed, properly tested. The catch is they're a nightmare to make quietly. 
 Which brings us to the part you won't like." <<He>> turns the bottle so the light catches it.
-"<span class="gold"><<printprice (setup.pharmacyItems.xchange_gray_breeder.price * 2)>></span> a pill."
+"<span class="gold"><<printprice _landryPrice>></span> a pill."
 <br><br>
 <<link [[Protest the price|Pub Landry Gray Protest]]>><</link>>
 <br>
@@ -153,11 +155,11 @@ Which brings us to the part you won't like." <<He>> turns the bottle so the ligh
 <<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy"))>>
 	"That's... the hospital sells theirs for half that," you manage.
 <<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
-	"Six thousand?" you say. "The hospital charges half that. You're aware of this, I assume."
+	"That much?" you say. "The hospital charges half that. You're aware of this, I assume."
 <<elseif _speechAttitudeResolved is "docile">>
 	"The hospital's are cheaper," you say quietly. "Half the price."
 <<elseif _speechAttitudeResolved is "confident">>
-	You frowns. "Six grand. The hospital sells the same thing for three. Try again."
+	You frown. "Twice the hospital price. Try again."
 <<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
 	"Twice the hospital price? Did the heist knock something loose in your head?" you hiss.
 <<else>>
@@ -184,7 +186,7 @@ You're paying for the complete catalogue, made by people who aren't owned by the
 <<effects>>
 <<if $xchange.grayPills is undefined>><<set $xchange.grayPills to {}>><</if>>
 <<set $xchange.grayPills.landryIntro to true>>
-"Fine," you say. "Six thousand."
+"Fine," you say. "I get it."
 <br><br>
 "Knew you'd see sense." Landry pockets the bottle and raises one cautioning hand before you can reach for your money.
 <br><br>
@@ -229,7 +231,7 @@ You want bulk, go queue at the hospital with everyone else and take your chances
 		<<set _gItem to setup.pharmacyItems[_gKey]>>
 		<<set _gLabel to _gItem.name>>
 		<<capture _gItem _gLabel _landryPrice>>
-			<<pillicon "xchangeGray">><<link _gLabel "Pub Landry Gray Bought">><<set $xchange.grayPills.lastBought to _gItem.type>><<money `-_landryPrice` "pharmacyXChange">><<set $sexStats.pills.pills[_gItem.type].owned++>><<set $daily.landryGrayPill to true>><</link>>
+			<<pillicon "xchangeGray">><<link _gLabel "Pub Landry Gray Bought">><<set $xchange.grayPills.lastBought to _gItem.type>><<set $pharmacyItem to _gItem>><<money `-_landryPrice` "pharmacyXChange">><<pharmacyAddOwned 1>><<boughtOnce>><<set $daily.landryGrayPill to true>><</link>>
 			<br>
 		<</capture>>
 	<</for>>

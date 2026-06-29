@@ -37,3 +37,5 @@
 * Adjusted Great Hawk Tower cheats to safely check for initialized bird material data before modifying tower state. Hunting trophy cheats now stop before the Great Hawk’s great hunting event, so players still experience the silver-bar hunting event and Legendary trophies lore instead of skipping it. These cheats are also gated behind tower progress to avoid errors before the content begins.
 * Removed heel movement penalties at high feet skill. Once feet skill reaches 1800, just past SS, high heels no longer hobble the player. The player can now run at the beach and park, walk or sneak through the forest and moor, jog the coast, and avoid the physique penalty in the wild while wearing heels.
 * Scaled encounter theft payouts with high skulduggery. Stealing cash during combat encounters now rewards extra money once skulduggery rises beyond S-rank, giving post-S investment a clearer payoff while leaving other stolen-money rewards unchanged.
+* Fix Monogamous trait
+* Fix Gray Pills in Landry
