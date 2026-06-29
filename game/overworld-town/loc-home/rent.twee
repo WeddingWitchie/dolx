@@ -298,7 +298,7 @@
 	<<if $robinpaid is 1>>
 		<<set $rentmoney *= 2>>
 	<</if>>
-	/* Wealth-driven inflation: the richer you are, the more Bailey demands. Effectively uncaps rent, since it keeps climbing with your cash on hand. */
+	/* Wealth-driven rent pressure is applied here, but advanced only after rent is paid. */
 	<<if setup.inflation>>
 		<<set $rentmoney to setup.inflation.applyToRent($rentmoney)>>
 	<</if>>
@@ -325,6 +325,7 @@
 	<</if>>
 	/* Book the surcharge portion against the loan now that the cash has moved. */
 	<<if _loanSurcharge gt 0>><<run setup.hbsc.collectLoanFromRent(_loanSurcharge)>><</if>>
+	<<if setup.inflation and setup.inflation.advanceRentPressure>><<run setup.inflation.advanceRentPressure()>><</if>>
 	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>> <!-- note: clamping to 1 is intentional -->
 	<<rentmod>>
 

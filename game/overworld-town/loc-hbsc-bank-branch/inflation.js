@@ -202,11 +202,11 @@
 	};
 
 	/* Bailey's rent demand, tiered by Bailey-visible wealth (all thresholds in pennies):
-	     < £1,000,000  : scaled rent, capped at £30,000
-	     £1M - £10M    : scaled rent, capped at £70,000
-	     £10M - £100M  : flat £150,000 a week ("don't fool me, I want more")
-	     >= £100M      : flat £500,000 a week ("my best investment")
-	   "Scaled rent" is the base rent times the uncapped rentMultiplier. */
+	     < £1,000,000  : rent pressure capped at £30,000
+	     £1M - £10M    : rent pressure capped at £70,000
+	     £10M - £100M  : rent pressure capped at £150,000 ("don't fool me, I want more")
+	     >= £100M      : rent pressure capped at £500,000 ("my best investment")
+	   Rent pressure rises by one step each paid week while Bailey-visible wealth is high enough, then resets once it falls below that threshold. */
 	setup.inflation.RENT_WEALTH_LOW = 100000000;     // £1,000,000
 	setup.inflation.RENT_WEALTH_JUMP = 1000000000;   // £10,000,000
 	setup.inflation.RENT_WEALTH_INVESTMENT = 10000000000; // £100,000,000
@@ -215,9 +215,9 @@
 	setup.inflation.RENT_JUMP_DEMAND = 15000000;     // £150,000
 	setup.inflation.RENT_INVESTMENT_DEMAND = 50000000; // £500,000
 	setup.inflation.RENT_INFLATION_PCT = 70;         // Bailey rent only starts climbing at bad-economy inflation.
-	/* Vanilla rent stops climbing at stage 6 (base £2,000).
-	Past that, add this much base per week so the demand keeps ratcheting upward toward the cap instead of plateauing. */
-	setup.inflation.RENT_STAGE_STEP = 50000;         // +£500 of base per week beyond stage 6
+	/* Extra Bailey pressure rises by this much per paid week while Bailey-visible wealth is at RENT_INFLATION_PCT or higher.
+	The pressure is separate from vanilla $rentstage so it can fall back to normal when the player is poor again. */
+	setup.inflation.RENT_STAGE_STEP = 50000;         // +£500 per paid week
 
 	setup.inflation.rentSettingModifier = function () {
 		if (typeof V === "undefined" || !V.settings) return 1;
@@ -229,21 +229,97 @@
 		return Math.round(amount * setup.inflation.rentSettingModifier());
 	};
 
+	setup.inflation.rentRobinModifier = function () {
+		return typeof V !== "undefined" && V.robinpaid === 1 ? 2 : 1;
+	};
+
+	setup.inflation.scaleRentFull = function (amount) {
+		return setup.inflation.scaleRentSetting(amount) * setup.inflation.rentRobinModifier();
+	};
+
+	setup.inflation.rentInflationActive = function (wealth) {
+		return setup.inflation.percent(wealth) >= setup.inflation.RENT_INFLATION_PCT;
+	};
+
+	setup.inflation.rentCap = function (wealth) {
+		if (wealth >= setup.inflation.RENT_WEALTH_INVESTMENT) return setup.inflation.scaleRentFull(setup.inflation.RENT_INVESTMENT_DEMAND);
+		if (wealth >= setup.inflation.RENT_WEALTH_JUMP) return setup.inflation.scaleRentFull(setup.inflation.RENT_JUMP_DEMAND);
+		const baseCap = wealth < setup.inflation.RENT_WEALTH_LOW ? setup.inflation.RENT_CAP_LOW : setup.inflation.RENT_CAP_HIGH;
+		return setup.inflation.scaleRentFull(baseCap);
+	};
+
+	setup.inflation.rentPressureSteps = function () {
+		if (typeof V === "undefined" || !Number.isFinite(V.baileyRentInflationSteps)) return 0;
+		return Math.max(0, Math.floor(V.baileyRentInflationSteps));
+	};
+
+	setup.inflation.setRentPressureSteps = function (steps) {
+		if (typeof V === "undefined") return;
+		steps = Math.max(0, Math.floor(Number(steps) || 0));
+		if (steps > 0) V.baileyRentInflationSteps = steps;
+		else delete V.baileyRentInflationSteps;
+	};
+
+	setup.inflation.rentPressureStep = function () {
+		return setup.inflation.scaleRentFull(setup.inflation.RENT_STAGE_STEP);
+	};
+
+	setup.inflation.rentBaseWithModifiers = function (rawBaseRent) {
+		const setting = Math.floor(rawBaseRent * setup.inflation.rentSettingModifier());
+		return setting * setup.inflation.rentRobinModifier();
+	};
+
+	setup.inflation.nextRentBase = function () {
+		if (typeof V === "undefined") return setup.inflation.rentBaseWithModifiers(200000);
+		const baseRents = [10000, 30000, 50000, 70000, 100000, 150000, 200000];
+		const stage = Number.isFinite(V.rentstage) ? V.rentstage : 6;
+		return setup.inflation.rentBaseWithModifiers(baseRents[Math.clamp(stage, 1, 6)]);
+	};
+
+	setup.inflation.rentPressureTarget = function (baseRent, wealth) {
+		if (!setup.inflation.rentInflationActive(wealth)) return 0;
+		return Math.max(0, setup.inflation.rentCap(wealth) - baseRent);
+	};
+
+	setup.inflation.advanceRentPressure = function () {
+		if (typeof V === "undefined") return;
+		const wealth = setup.inflation.baileyWealth();
+		if (!setup.inflation.rentInflationActive(wealth)) {
+			setup.inflation.setRentPressureSteps(0);
+			return;
+		}
+
+		const step = setup.inflation.rentPressureStep();
+		const target = setup.inflation.rentPressureTarget(setup.inflation.nextRentBase(), wealth);
+		if (step <= 0 || target <= 0) {
+			setup.inflation.setRentPressureSteps(0);
+			return;
+		}
+
+		let steps = setup.inflation.rentPressureSteps();
+		const current = steps * step;
+		if (current < target) steps += 1;
+		else if (current > target) steps = Math.floor(target / step);
+		setup.inflation.setRentPressureSteps(steps);
+	};
+
 	setup.inflation.rentDemand = function (baseRent) {
 		if (!Number.isFinite(baseRent)) return baseRent;
 		/* Bailey only demands against money he can see (liquid), not locked fixed terms. */
 		const wealth = setup.inflation.baileyWealth();
-		if (setup.inflation.percent(wealth) < setup.inflation.RENT_INFLATION_PCT) return baseRent;
-		if (wealth >= setup.inflation.RENT_WEALTH_INVESTMENT) return setup.inflation.scaleRentSetting(setup.inflation.RENT_INVESTMENT_DEMAND);
-		if (wealth >= setup.inflation.RENT_WEALTH_JUMP) return setup.inflation.scaleRentSetting(setup.inflation.RENT_JUMP_DEMAND);
-		/* Keep the base climbing each week past the vanilla stage-6 plateau so rent ratchets up. */
-		let base = baseRent;
-		const stage = typeof V !== "undefined" && Number.isFinite(V.rentstage) ? V.rentstage : 0;
-		if (stage > 6) base += setup.inflation.scaleRentSetting((stage - 6) * setup.inflation.RENT_STAGE_STEP);
-		const scaled = Math.round(base * setup.inflation.rentMultiplier(wealth));
-		const baseCap = wealth < setup.inflation.RENT_WEALTH_LOW ? setup.inflation.RENT_CAP_LOW : setup.inflation.RENT_CAP_HIGH;
-		const cap = setup.inflation.scaleRentSetting(baseCap);
-		return Math.min(scaled, cap);
+		const target = setup.inflation.rentPressureTarget(baseRent, wealth);
+		if (target <= 0) {
+			setup.inflation.setRentPressureSteps(0);
+			return baseRent;
+		}
+		const step = setup.inflation.rentPressureStep();
+		let steps = setup.inflation.rentPressureSteps();
+		if (step > 0 && steps * step > target) {
+			steps = Math.floor(target / step);
+			setup.inflation.setRentPressureSteps(steps);
+		}
+		const pressure = Math.min(steps * step, target);
+		return baseRent + pressure;
 	};
 
 	/** Which special rent-demand tier the player is in: "" (normal), "jump" (>=£10M), "investment" (>=£100M). */

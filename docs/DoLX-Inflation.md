@@ -19,7 +19,7 @@ The base price of everything stays vanilla. Inflation is a read-only multiplier 
 ## Design Goals
 
 - A rich player should not find the city trivially cheap. Prices rise with the player's wealth.
-- The system is fully dynamic. Spend down and prices fall back through the tiers; there is no permanent state to migrate.
+- The system is dynamic. Spend down and prices fall back through the tiers; Bailey's extra rent pressure is temporary and clears when his visible-wealth threshold is no longer met.
 - The displayed price and the charged price must always agree. One rounding function is the single source of truth.
 - Money kept in the bank still counts as wealth, but borrowed "rent money" is neutral, because the cash you receive is cancelled by the principal you owe.
 - Inflation applies to **prices the player pays**, never to income, wages, gambling stakes, cheats, or internal bank transfers.
@@ -38,7 +38,9 @@ Thresholds were chosen in raw units because individual item prices in this game 
 
 ## State Model
 
-Inflation has **no persistent state of its own**. The multiplier is recomputed live from the player's current wealth on every read. Nothing is written to the save by the inflation layer, so there is no migration to maintain.
+General price inflation has **no persistent state of its own**. The multiplier is recomputed live from the player's current wealth on every read. Nothing is written to the save by the shop-price layer, so there is no migration to maintain.
+
+Bailey's rent has one small saved counter, `$baileyRentInflationSteps`, for the extra rent pressure he has built up. It rises by one step only after a successful rent payment while Bailey-visible wealth is at the rent-inflation threshold, and is cleared as soon as Bailey-visible wealth falls below that threshold. This keeps rent from jumping instantly when the player gets rich, and keeps old pressure from haunting a save after the player becomes poor again.
 
 The bank loan does have state, stored under `$hbsc.loan`:
 
@@ -91,22 +93,19 @@ Returns the price multiplier (`>= 1`) for the given wealth, or the player's curr
 
 The **single source of truth**. Returns `Math.round(base * multiplier())`. Both the `money()` charge hook and the `<<printprice>>` display widget go through this, so a label and its charge always match.
 
-### `setup.inflation.rentMultiplier(wealth?)`
-
-Like `multiplier()` but **continuous** (linearly interpolated between the tier points, extended past the top with the final segment's slope). Prices use the stepped multiplier; rent uses this smooth one so the demand doesn't lurch when wealth crosses a tier boundary — including when the player simply pays the rent, which previously dropped them a tier and halved next week's demand. Used for the scaled portion of `rentDemand`.
-
 ### `setup.inflation.rentDemand(baseRent)`
 
 Bailey's actual weekly rent demand, tiered by **Bailey-visible wealth** (`baileyWealth()` — cash + savings only, **not** locked fixed terms; thresholds are tunable constants `RENT_WEALTH_*` / `RENT_CAP_*` / `RENT_JUMP_DEMAND`):
 
 | Bailey-visible wealth | Demand |
 | --- | --- |
-| < £1,000,000 | scaled rent, capped at `RENT_CAP_LOW` (**£30,000**) |
-| £1M – £10M | scaled rent, capped at `RENT_CAP_HIGH` (**£70,000**) |
-| £10M – £100M | flat **£150,000** a week |
-| >= £100M | flat **£500,000** a week |
+| < rent threshold | normal vanilla rent, with the rent setting and Robin double-rent applied |
+| < £1,000,000 | rent pressure capped at `RENT_CAP_LOW` (**£30,000**) |
+| £1M – £10M | rent pressure capped at `RENT_CAP_HIGH` (**£70,000**) |
+| £10M – £100M | rent pressure capped at **£150,000** |
+| >= £100M | rent pressure capped at **£500,000** |
 
-"Scaled rent" is `(baseRent + base climb) * rentMultiplier()`. Past the vanilla top rent stage (6), the base grows by `RENT_STAGE_STEP` (default £500) each week, so the weekly demand **ratchets up toward the cap** instead of plateauing; with the continuous multiplier it rises smoothly and only eases as the player's hoard actually depletes. Caps and step are tunable (`RENT_CAP_LOW/HIGH`, `RENT_STAGE_STEP`). The £10M and £100M special tiers can still change immediately when Bailey-visible wealth crosses their thresholds.
+Rent does not multiply or jump directly from wealth. Once Bailey-visible wealth reaches `RENT_INFLATION_PCT` (default +70%, the £2,000,000 tier), successful rent payment advances `$baileyRentInflationSteps` by one. Each step adds `RENT_STAGE_STEP` (default £500, scaled by Bailey's Rent setting and Robin's double-rent state) to the next week's rent, capped by the current wealth tier. If Bailey-visible wealth drops below the threshold, the counter is cleared and rent immediately returns to the normal capped vanilla amount: £2,000 at 100% rent, or £4,000 when Robin's rent is included.
 
 ### `setup.inflation.rentDemandTier()`
 
@@ -157,7 +156,7 @@ The surcharge is clamped so it can never overdraw the player: if they can afford
 
 ### 2. The rent: `rentmod` widget
 
-`game/overworld-town/loc-home/rent.twee`. After the base rent tier is set, `rentmod` multiplies it by `setup.inflation.applyToRent()`. Because `rentmod` runs in every rent path (weekly tick, journal preview, Poppy and Robin variants), the displayed rent equals the charged rent everywhere.
+`game/overworld-town/loc-home/rent.twee`. After the base rent tier is set, `rentmod` applies the current Bailey rent pressure with `setup.inflation.applyToRent()`. The pressure counter advances only inside `<<rentpay>>` after a successful payment; journal previews, deposit calculations, Poppy, and Robin paths only read the current demand. Because the same widget renders every path, the displayed rent equals the charged rent everywhere.
 
 ### 3. The display: `<<printprice>>` widget
 
