@@ -1610,46 +1610,85 @@
 				<<elseif C.npc.Avery.state is "active">>
 					| <<link [[Dismiss Avery|$passage]]>><<dismissAvery>><</link>> |
 				<</if>>
-			<<elseif $avery_fate is undefined>>
-				Avery cannot be dismissed at the moment.
 			<<else>>
-				Avery is currently <<print $avery_fate>>
+				<<if $avery_fate is undefined>>
+					Avery has no set fate.
+				<<else>>
+					Avery is currently <<print $avery_fate>>
+				<</if>>
 				<br>
 
-				<<linkreplace `(C.npc.Avery.state is "dismissed" ? "Reclaim Avery" : "Fell Avery")`>>
-					<<if C.npc.Avery.state is "dismissed">>
-						Choose Avery's fate:
+				<<linkreplace "Choose Avery's fate">>
+					Choose Avery's fate:
+					<br>
+					<<if $avery_fate is "saved" or $avery_fate is "rescued">>
+						<span class="gold">Rescue Avery (current)</span>
 						<br>
-
+					<<else>>
 						<<link [[Rescue Avery|$passage]]>>
+							<<set _previousAveryFate to $avery_fate>>
 							<<set $avery_fate to "saved">>
+							<<set C.npc.Remy.title to "scarred">>
+							<<if _previousAveryFate is "ascended">>
+								<<if $auriga_scar isnot undefined and $auriga_scar gte 1>>
+									<<set $auriga_scar-->>
+								<</if>>
+								<<set C.npc.Avery.title to (C.npc.Avery.pronoun is "m" ? "businessman" : "businesswoman")>>
+								<<set C.npc.Harper.title to "doctor">>
+							<</if>>
+							<<if $avery_mansion_fire_time gte 1>>
+								<<set $avery_mansion_fire_time to 0>>
+							<</if>>
 							<<unDismissAvery>>
-						<</link>> | This will <span class="lblue">give you the Avery's Saviour Trait.</span>
+						<</link>>
 						<br>
+						This will <span class="lblue">give you the Avery's Saviour Trait.</span>
+						<<if $avery_fate is "ascended" and $auriga_scar isnot undefined and $auriga_scar gte 1>>
+							<br>
+							This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
+						<</if>>
+						<br>
+					<</if>>
 
+					<<if $avery_fate is "ascended">>
+						<span class="gold">Ascend Avery (current)</span>
+						<br>
+					<<else>>
 						<<link [[Ascend Avery|$passage]]>>
+							<<set _previousAveryFate to $avery_fate>>
 							<<set $avery_fate to "ascended">>
 							<<set C.npc.Avery.title to "crimson hound">>
 							<<set C.npc.Harper.title to "silver fox">>
 							<<set C.npc.Remy.title to "high elk">>
+							<<if (_previousAveryFate is "rescued" or _previousAveryFate is "saved") and $avery_injury isnot undefined>>
+								<<unset $avery_injury>>
+							<</if>>
 							<<if $auriga_scar is undefined>>
 								<<set $auriga_scar to 0>>
 							<</if>>
 							<<set $auriga_scar++>>
+							<<if $avery_mansion_fire_time gte 1>>
+								<<set $avery_mansion_fire_time to 0>>
+							<</if>>
 							<<unDismissAvery>>
 						<</link>>
-						| This will<<if $auriga_scar is undefined or $auriga_scar lte 0>> <span class="red">give you the Elk-scarred Trait.</span><<else>> <span class="red">worsen your Elk Trait.</span><</if>>
-
-						<<if $avery_mansion_fire_time gte 1>>
-							<<set $avery_mansion_fire_time to 0>>
-						<</if>>
-					<<else>>
-						Choose Avery's fate:
 						<br>
+						This will<<if $auriga_scar is undefined or $auriga_scar lte 0>> <span class="red">give you the Elk-scarred Trait.</span><<else>> <span class="red">worsen your Elk Trait.</span><</if>>
+						<<if $avery_fate is "rescued" or $avery_fate is "saved">>
+							<br>
+							This will <span class="red">remove your Avery's Saviour Trait.</span>
+						<</if>>
+						<br>
+					<</if>>
 
+					<<if $avery_fate is "fallen">>
+						<span class="gold">Let Avery fall (current)</span>
+						<br>
+					<<else>>
 						<<link [[Let Avery fall|$passage]]>>
 							<<set _previousAveryFate to $avery_fate>>
 							<<set $avery_fate to "fallen">>
+							<<set C.npc.Remy.title to "scarred">>
 							<<if (_previousAveryFate is "rescued" or _previousAveryFate is "saved") and $avery_injury isnot undefined>>
 								<<unset $avery_injury>>
 							<</if>>
@@ -1658,23 +1697,30 @@
 								<<if $auriga_scar isnot undefined and $auriga_scar gte 1>>
 									<<set $auriga_scar-->>
 								<</if>>
+								<<set C.npc.Avery.title to (C.npc.Avery.pronoun is "m" ? "businessman" : "businesswoman")>>
 								<<set C.npc.Harper.title to "doctor">>
-								<<set C.npc.Remy.title to "scarred">>
 							<</if>>
 						<</link>>
 
 						<<if $avery_fate is "ascended" and $auriga_scar isnot undefined and $auriga_scar gte 1>>
-							| This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
+							<br>
+							This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
 						<</if>>
 						<<if $avery_fate is "rescued" or $avery_fate is "saved">>
-							| This will <span class="red">remove your Avery's Saviour Trait.</span>
+							<br>
+							This will <span class="red">remove your Avery's Saviour Trait.</span>
 						<</if>>
-
 						<br>
+					<</if>>
 
+					<<if $avery_fate is "kicked">>
+						<span class="gold">Kick Avery (current)</span>
+						<br>
+					<<else>>
 						<<link [[Kick Avery|$passage]]>>
 							<<set _previousAveryFate to $avery_fate>>
 							<<set $avery_fate to "kicked">>
+							<<set C.npc.Remy.title to "scarred">>
 							<<if (_previousAveryFate is "rescued" or _previousAveryFate is "saved") and $avery_injury isnot undefined>>
 								<<unset $avery_injury>>
 							<</if>>
@@ -1683,17 +1729,20 @@
 								<<if $auriga_scar isnot undefined and $auriga_scar gte 1>>
 									<<set $auriga_scar-->>
 								<</if>>
+								<<set C.npc.Avery.title to (C.npc.Avery.pronoun is "m" ? "businessman" : "businesswoman")>>
 								<<set C.npc.Harper.title to "doctor">>
-								<<set C.npc.Remy.title to "scarred">>
 							<</if>>
 						<</link>>
 
 						<<if $avery_fate is "ascended" and $auriga_scar isnot undefined and $auriga_scar gte 1>>
-							| This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
+							<br>
+							This will<<if $auriga_scar is 1>> <span class="lblue">remove your Elk-scarred Trait.</span><<else>> <span class="lblue">weaken your Elk Trait.</span><</if>>
 						<</if>>
 						<<if $avery_fate is "rescued" or $avery_fate is "saved">>
-							| This will <span class="red">remove your Avery's Saviour Trait.</span>
+							<br>
+							This will <span class="red">remove your Avery's Saviour Trait.</span>
 						<</if>>
+						<br>
 					<</if>>
 				<</linkreplace>>
 			<</if>>
