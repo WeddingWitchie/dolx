@@ -1173,6 +1173,65 @@
 		</ul>
 	<</if>>
 
+	<<set _whitneyFcd to $settings.forcedCrossdressingEnabled>>
+	<<if C.npc.Whitney.state is "active" and ($whitneypantiescheck gte 1 or (_whitneyFcd and ($whitneyskirtcheck gte 1 or $whitneyCrossdressSchool gte 1 or $whitneyCrossdressSwimwear gte 1)))>>
+		<hr>
+		<h1 class="header gold bold">Whitney's Rules</h1>
+		<ul class="journal carry">
+			<<set _whitneyWearingSkirt to (clothingData('lower', $worn.lower, "skirt") is 1)>>
+			<<set _whitneyMaleClothes to Object.keys($worn).filter((slot) => {
+				return $worn[slot].gender is "m" and !["genitals", "under_upper", "under_lower"].includes(slot);
+			})>>
+
+			<<if $whitneypantiescheck is 1>>
+				<<set _whitneyRuleOk to $worn.under_lower.type.includes("naked")>>
+				<li>
+					<<if _whitneyRuleOk>><span class='fa-icon fa-selected'></span><<else>><span class='fa-icon fa-unselected'></span><</if>>
+					<<icon "clothes/plain-panties.png">><span @class="_whitneyRuleOk ? '' : 'red'">Wear no <<if $player.gender_appearance is "f">>panties<<else>>underwear<</if>>. Whitney took yours and expects you bare.</span>
+					<<if !_whitneyRuleOk>><br><span class="blue">You're wearing your $worn.under_lower.name.</span><</if>>
+				</li>
+			<<elseif $whitneypantiescheck is 2>>
+				<<set _whitneyRuleOk to !$worn.under_lower.type.includes("naked") and $worn.under_lower.gender is "f">>
+				<li>
+					<<if _whitneyRuleOk>><span class='fa-icon fa-selected'></span><<else>><span class='fa-icon fa-unselected'></span><</if>>
+					<<icon "clothes/plain-panties.png">><span @class="_whitneyRuleOk ? '' : 'red'">Always wear feminine panties.</span>
+					<<if $worn.under_lower.type.includes("naked")>>
+						<br><span class="blue">You're not wearing any underwear.</span>
+					<<elseif $worn.under_lower.gender isnot "f">>
+						<br><span class="blue">Your $worn.under_lower.name isn't feminine.</span>
+					<</if>>
+				</li>
+			<</if>>
+
+			<<if _whitneyFcd and $whitneyskirtcheck gte 1>>
+				<<set _whitneyRuleOk to _whitneyWearingSkirt and $worn.lower.reveal gt 200>>
+				<li>
+					<<if _whitneyRuleOk>><span class='fa-icon fa-selected'></span><<else>><span class='fa-icon fa-unselected'></span><</if>>
+					<<femaleicon>><span @class="_whitneyRuleOk ? '' : 'red'">Wear a short skirt. Nothing too long.</span>
+					<<if !_whitneyWearingSkirt>>
+						<br><span class="blue">You're not wearing a skirt.</span>
+					<<elseif $worn.lower.reveal lte 200>>
+						<br><span class="blue">Your $worn.lower.name isn't short enough.</span>
+					<</if>>
+				</li>
+			<</if>>
+
+			<<if _whitneyFcd and $whitneyCrossdressSchool gte 1>>
+				<li>
+					<<if _whitneyMaleClothes.length>><span class='fa-icon fa-unselected'></span><<else>><span class='fa-icon fa-selected'></span><</if>>
+					<<schoolicon "building">><span @class="_whitneyMaleClothes.length ? 'red' : ''">No boy's clothes at school.</span>
+					<<if _whitneyMaleClothes.length>>
+						<br><span class="blue">You're wearing boys' clothing: <<= _whitneyMaleClothes.map(slot => $worn[slot].name).join(", ")>>.</span>
+					<</if>>
+				</li>
+			<</if>>
+
+			<<if _whitneyFcd and $whitneyCrossdressSwimwear gte 1>>
+				<li><<swimicon>>During swimming, use the girls' changing room and wear girls' swimwear.</li>
+			<</if>>
+		</ul>
+	<</if>>
+
 	<<if $scienceproject is "ongoing">>
 		<hr>
 		<h1 class="header gold bold">Science Fair</h1>
