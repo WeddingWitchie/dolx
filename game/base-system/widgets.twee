@@ -3529,8 +3529,11 @@
 		<<crimeUp 10 "petty">>
 	<<else>>
 		<<rng 5 100>>
-		You steal <<moneyGain $rng>>.
-		<<crimeUp $rng "petty">>
+		/* Above-S skulduggery makes encounter theft more profitable without changing other stolen-money rewards. */
+		<<set _skulduggeryMulti to (1 + (Math.max(Math.clamp($skulduggery, 0, 2000) - 1100, 0) / 900))>>
+		<<set _money_gain to Math.floor($rng * 100 * _skulduggeryMulti)>>
+		You steal <<printmoney _money_gain>>.
+		<<money _money_gain "thievery">><<crimeUp `_money_gain / 100` "petty">>
 	<</if>>
 	<<if !_emptyHanded>>
 		<<combatskulduggeryskilluse>><<combatcontrol 10>><<gcombatcontrol>>
