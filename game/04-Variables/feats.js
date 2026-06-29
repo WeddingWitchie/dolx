@@ -3024,7 +3024,9 @@ DefineMacro("displayFeat", displayFeat);
 
 function playerVirginitiesTakenBySameNamedNpc(npcName) {
 	const virginity = V.player?.virginity;
-	const types = ["vaginal", "penile", "anal", "oral", "handholding", "kiss"];
+	const types = ["anal", "oral", "handholding", "kiss"];
+	if (V.player?.vaginaExist || virginity?.vaginal !== true) types.unshift("vaginal");
+	if (V.player?.penisExist || virginity?.penile !== true) types.unshift("penile");
 	if (!virginity || types.some(type => virginity[type] === true || virginity[type] === false || virginity[type] == null)) return false;
 
 	const taker = npcName || virginity[types[0]];
