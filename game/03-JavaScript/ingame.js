@@ -1451,7 +1451,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			break;
 		case "physique":
 			if (["forest", "moor", "farm", "alex_farm"].includes(V.location)) {
-				if (V.worn.feet.type.includes("heels")) {
+				if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill", disableModifiers + 1) < 1800) {
 					result = Math.floor(result * (1 - V.worn.feet.reveal / 5000));
 				}
 				if (V.worn.feet.type.includes("rugged")) {
@@ -1786,6 +1786,16 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	return result;
 }
 window.currentSkillValue = currentSkillValue;
+
+/**
+ * True once the PC's feet skill reaches 1800 (just past SS), near the top grade.
+ * At this mastery, high heels impose no movement disadvantages so the PC can run, walk and sneak in heels anywhere.
+ * @returns {boolean}
+ */
+function heelsMastered() {
+	return currentSkillValue("feetskill") >= 1800;
+}
+window.heelsMastered = heelsMastered;
 
 /**
  * @param {string} input
