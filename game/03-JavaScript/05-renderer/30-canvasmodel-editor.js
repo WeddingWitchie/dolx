@@ -7,22 +7,71 @@ class CombatEditor {
 
 		const para = document.createElement("div");
 		para.classList.add("d-flex", "flex-row", "p-1", "gap-1", "justify-content-end");
-		para.append(
+
+		// Stack the icon buttons vertically while the row keeps them anchored to the right.
+		const column = document.createElement("div");
+		column.classList.add("d-flex", "flex-column", "gap-1");
+		column.append(
 			CombatEditor.createButtonAsIcon("./img/ui/reload.png", "Reload - Use when animation breaks", () => {
 				CombatEditor.recompileCombatCanvas();
 			})
 		);
 
 		if (V.debug && V.options.showCombatTools) {
-			para.append(
+			column.append(
 				CombatEditor.createButtonAsIcon("./img/ui/refresh.png", "Refresh", () => {
 					CombatEditor.refreshCombatCanvas();
 				})
 			);
 		}
+
+		// Give-up button: instantly end the current encounter as a loss.
+		if (V.combat) {
+			column.append(CombatEditor.createGiveUpButton());
+		}
+
+		para.append(column);
 		fragment.append(para);
 
 		return fragment;
+	}
+
+	/**
+	 * Builds the "give up" control shown beneath the reload icon during combat.
+	 * Clicking it surrenders the encounter, ending it in defeat.
+	 * @returns {HTMLButtonElement}
+	 */
+	static createGiveUpButton() {
+		const button = document.createElement("button");
+		button.classList.add("btn", "btn-info", "btn-icon", "combat-give-up");
+		button.title = "Give up - automatically lose this encounter";
+		button.innerHTML =
+			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">' +
+			'<line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>';
+		button.addEventListener("click", function () {
+			CombatEditor.loseEncounter();
+		});
+		return button;
+	}
+
+	/**
+	 * Surrenders the current encounter.
+	 * Setting $finish ends combat without the player winning (enemy health) or the enemy climaxing (enemy pleasure),
+	 * so the encounter's finish passage resolves through its neutral/defeat branch.
+	 *
+	 * Replaying the passage makes _combatend true, which renders the encounter's end-of-combat "Next" link.
+	 * We read that link's target and jump straight to it in the same tick, so the intermediate combat frame never paints.
+	 * It avoiding the flicker/double transition a deferred link click would cause.
+	 */
+	static loseEncounter() {
+		const v = State.variables;
+		v.finish = 1;
+		Engine.play(State.passage);
+		const nextLink = document.querySelector("#next a");
+		const target = nextLink instanceof HTMLElement ? nextLink.getAttribute("data-passage") : null;
+		if (target && target !== State.passage && Story.has(target)) {
+			Engine.play(target);
+		}
 	}
 
 	/**
