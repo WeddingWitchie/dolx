@@ -171,6 +171,13 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 	const actiondefault = arm + "actiondefault";
 	const otherArm = arm === "left" ? "right" : "left";
 	const altText = {};
+	const hasBreastPump = playerToys.some(toy => toy.type.includes("breastpump"));
+	const hasLowAwarenessBreastPumpReason =
+		playerNormalPregnancyTotal() ||
+		playerIsPregnant() ||
+		(V.settings.breastFeedingEnabled === true && V.lactating === 1 && (V.milk_amount >= 1 || V.milkFullPain > 200));
+	const canUseBreastPumpAtLowAwareness =
+		hasBreastPump && hasLowAwarenessBreastPumpReason && (["home", "alex_farm", "cafe"].includes(V.location) || T.enableSexToys);
 
 	switch (V[arm + "arm"]) {
 		case 0:
@@ -265,8 +272,8 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 						});
 					}
 				}
-			} else if (playerToys.find(toy => toy.type.includes("breastpump")) && playerNormalPregnancyTotal() && ["home", "alex_farm"].includes(V.location)) {
-				// To specifically enable filling bottles for babies, location should be expanded on when required
+			} else if (canUseBreastPumpAtLowAwareness) {
+				// Keep low-awareness pump access practical without unlocking the rest of the sex-toy list.
 				altText.toyDropDown = toyDropDown("breastpump");
 				if (altText.toyDropDown) {
 					result.options.push({
