@@ -2733,6 +2733,30 @@ function initFoodstuff() {
 				tags: ["vegan", "drink"],
 			},
 		},
+		hot_cocoa: {
+			index: 163,
+			name: "hot cocoa",
+			singular: "mug of hot cocoa",
+			plural: "mugs of hot cocoa",
+			icon: "hot-cocoa.png",
+			category: "dish",
+			kitchen_item_type_icon: "recipe-food.png",
+			prop_folder: "drink",
+			shop: {
+				sell_price: 200,
+			},
+			recipe: {
+				recipe_name: "hot cocoa",
+				difficulty: 1,
+				cook_minutes: 5,
+				servings: 2,
+				ingredients: ["bottle_of_milk", "cocoa_powder", "sugar"],
+				tags: [],
+			},
+			food: {
+				tags: ["vegetarian", "sweet", "drink"],
+			},
+		},
 		banana_bread: {
 			index: 128,
 			name: "banana bread",
