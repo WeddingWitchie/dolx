@@ -4256,6 +4256,13 @@
 <</widget>>
 
 <<widget "rebalanceSettings">>
+	<<if $fatigueSkillPenaltyToggle is undefined>>
+		<<set $fatigueSkillPenaltyToggle to 0>>
+	<</if>>
+	<<if $fatigueSkillPenaltyMax is undefined or isNaN($fatigueSkillPenaltyMax)>>
+		<<set $fatigueSkillPenaltyMax to 50>>
+	<</if>>
+	<<set $fatigueSkillPenaltyMax to Math.clamp(Math.round($fatigueSkillPenaltyMax), 0, 100)>>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
@@ -4265,6 +4272,7 @@
 						<<set $tirednessMaxScalingToggle to 1>>
 						<<set $stressMaxScalingToggle to 1>>
 						<<set $athleticsFitnessToggle to 1>>
+						<<set $fatigueSkillPenaltyToggle to 1>>
 
 						<<set $mathsTraitBuffs.antiques to 1>>
 						<<set $mathsTraitBuffs.stolen to 1>>
@@ -4288,6 +4296,7 @@
 						<<set $tirednessMaxScalingToggle to 0>>
 						<<set $stressMaxScalingToggle to 0>>
 						<<set $athleticsFitnessToggle to 0>>
+						<<set $fatigueSkillPenaltyToggle to 0>>
 
 						<<set $mathsTraitBuffs.antiques to 0>>
 						<<set $mathsTraitBuffs.stolen to 0>>
@@ -4322,6 +4331,14 @@
 				<label>
 					<<checkbox "$athleticsFitnessToggle" 0 1 autocheck>> Enable Athletics Fitness <mouse class = "tooltip linkBlue">(?)<span>Athletics will now decrease tiredness gain.</span></mouse>
 				</label>
+				<br>
+				<label>
+					<<checkbox "$fatigueSkillPenaltyToggle" 0 1 autocheck>> Enable Fatigue Skill Penalty <mouse class = "tooltip linkBlue">(?)<span>Skills lose power once tiredness rises above 50% of its maximum.</span></mouse>
+				</label>
+				<br>
+				<div class="small-description numberslider-inline">Maximum skill loss at full tiredness.
+					<<numberslider "$fatigueSkillPenaltyMax" $fatigueSkillPenaltyMax 0 100 5 { value: (v) => v + "%" }>>
+				</div>
 			</div>
 
 			<div class="settingsToggleItem">

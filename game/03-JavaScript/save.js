@@ -1126,6 +1126,8 @@ function settingsObjects(type) {
 				tirednessMaxScalingToggle: { min: 0, max: 1, decimals: 0, displayName: "Tiredness Max Scaling:" },
 				stressMaxScalingToggle: { min: 0, max: 1, decimals: 0, displayName: "Stress Max Scaling:" },
 				athleticsFitnessToggle: { min: 0, max: 1, decimals: 0, displayName: "Athletics Fitness:" },
+				fatigueSkillPenaltyToggle: { min: 0, max: 1, decimals: 0, displayName: "Fatigue Skill Penalty:" },
+				fatigueSkillPenaltyMax: { min: 0, max: 100, decimals: 0, displayName: "Fatigue Skill Penalty Max (%):" },
 				mathsTraitBuffs: {
 					antiques: { min: 0, max: 1, decimals: 0, displayName: "Antique Price Buff:" },
 					stolen: { min: 0, max: 1, decimals: 0, displayName: "Stolen Goods Price Buff:" },

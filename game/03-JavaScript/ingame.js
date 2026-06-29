@@ -1364,10 +1364,22 @@ function clothesIndex(slot, itemToIndex) {
 }
 window.clothesIndex = clothesIndex;
 
+function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf = 0) {
+	if (V.fatigueSkillPenaltyToggle !== 1 || disableModifiers !== 0 || disableStatNerf !== 0) return result;
+
+	const tirednessMax = Number(typeof C !== "undefined" ? C?.tiredness?.max : 2000) || 2000;
+	const tirednessRatio = Math.clamp((Number(V.tiredness) || 0) / tirednessMax, 0, 1);
+	if (tirednessRatio <= 0.5) return result;
+
+	const maxPenalty = Math.clamp(Number(V.fatigueSkillPenaltyMax) || 0, 0, 100) / 100;
+	const penalty = ((tirednessRatio - 0.5) / 0.5) * maxPenalty;
+	return Math.round(result * (1 - penalty));
+}
+
 /**
  * @param {string} skill The name of the requested skill.
  * @param {number} disableModifiers How much of an effect that modifiers will have on the player's current skill. Higher values means a lower effect. Stops at 2.
- * @param {number} [disableStatNerf=0] If 0 (default), multiplies the result by V.options.statNerf/100; pass non-zero to skip the stat nerf.
+ * @param {number} [disableStatNerf=0] If 0 (default), multiplies the result by V.options.statNerf/100; pass non-zero to skip stat nerfs for raw cap calculations.
  * @returns Returns the current value of the requested skill, accounting for potential modifiers.
  */
 function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
@@ -1375,7 +1387,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 		if (V.physique == null && typeof window.updatePhysique === "function") {
 			try { window.updatePhysique(); } catch (e) {}
 		}
-		return (V.physique ?? 0);
+		return fatigueAdjustedSkillValue(V.physique ?? 0, disableModifiers, disableStatNerf);
 	}
 	let result = V[skill];
 	if (disableStatNerf === 0) {
@@ -1783,7 +1795,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	} else if (V.drunk >= 1 && V.substanceRebalance === 1 && !["seductionskill", "willpower"].includes(skill)) {
 		result = Math.round(result * 0.95);
 	}
-	return result;
+	return fatigueAdjustedSkillValue(result, disableModifiers, disableStatNerf);
 }
 window.currentSkillValue = currentSkillValue;
 
