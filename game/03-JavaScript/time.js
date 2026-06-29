@@ -1302,6 +1302,7 @@ function hourPassed(hours) {
 
 	xchangeHourlyCheck(hours); // check for pill expiration and permanence conditions.
 	hourlyClothingFemininityCheck(hours); // take stock of clothing femininity on this hour for the purpose of gender identity shifts.
+	rainWashFluids(hours); // standing outside in the rain gradually rinses lewd fluids off exposed skin.
 
 	if (
 		V.sexStats.vagina.menstruation.running &&

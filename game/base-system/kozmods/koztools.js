@@ -1129,3 +1129,59 @@ function getGenderedPath(path) {
 		return path;
 }
 window.getGenderedPath = getGenderedPath;
+
+/*
+	Returns the list of "outer" bodyliquid parts that the rain can actually reach.
+	Extremities (face, hair, neck, arms, feet) are always exposed to falling rain;
+	the torso, lower body and genitals are only reached when the relevant clothing layers are exposed, using the same `.exposed`/`lower_covering` semantics as bodywritingExposureCheck().
+*/
+function rainExposedBodyparts() {
+	const w = V.worn;
+	if (!w) return [];
+
+	// face, hair, neck, arms and feet are treated as always reached by the rain
+	const parts = ["face", "hair", "neck", "rightarm", "leftarm", "feet"];
+
+	const upperBare = w.over_upper.exposed >= 1 && w.upper.exposed >= 1 && w.under_upper.exposed >= 1;
+	if (upperBare) parts.push("chest", "tummy");
+
+	const lowerBare =
+		w.over_lower.exposed >= 1 &&
+		w.lower.exposed >= 1 &&
+		(w.under_lower.exposed >= 1 || !w.under_lower.type.includes("lower_covering"));
+	if (lowerBare) parts.push("thigh", "bottom");
+
+	const genitalsBare =
+		w.over_lower.vagina_exposed >= 1 && w.lower.vagina_exposed >= 1 && !w.under_lower.type.includes("lower_covering");
+	if (genitalsBare) {
+		if (V.player.vaginaExist) parts.push("vaginaoutside");
+		if (V.player.penisExist) parts.push("penis");
+	}
+
+	return parts;
+}
+window.rainExposedBodyparts = rainExposedBodyparts;
+
+/*
+	Rain gradually washes lewd fluids off exposed skin.
+	Called once per hour-block from hourPassed().
+	Only acts while the player is outdoors in the rain; heavier rain rinses faster, and clothing shields whatever it covers (see rainExposedBodyparts).
+*/
+function rainWashFluids(hours = 1) {
+	if (V.statFreeze || hours < 1) return;
+	if (V.outside !== 1 || Weather.precipitation !== "rain") return;
+	if (!V.player?.bodyliquid) return;
+
+	// precipitationIntensity ~1.3 (drizzle) -> 1, ~2 (rain) -> 2, 3.5 (storm) -> 3 points rinsed per hour
+	const perHour = Math.clamp(Math.round(Weather.precipitationIntensity), 1, 3);
+	const amount = perHour * hours;
+
+	for (const part of rainExposedBodyparts()) {
+		const liquids = V.player.bodyliquid[part];
+		if (!liquids) continue;
+		for (const liquid of setup.bodyliquid.liquidtype) {
+			if (liquids[liquid] > 0) liquids[liquid] = Math.clamp(liquids[liquid] - amount, 0, 5);
+		}
+	}
+}
+window.rainWashFluids = rainWashFluids;
