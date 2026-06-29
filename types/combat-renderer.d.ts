@@ -78,6 +78,7 @@ declare global {
 	export interface Condom {
 		colour: string;
 		state: string;
+		source?: string;
 		type: string;
 		willUse: boolean;
 		worn: boolean;

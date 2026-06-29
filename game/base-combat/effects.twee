@@ -2922,11 +2922,14 @@
 			<<unset $undressLeftTarget>>
 		<</if>>
 
-		<<if $leftaction is "peniscondom" or $rightaction is "peniscondom">>
-			<<if $leftaction is "peniscondom">>
+		<<if $leftaction is "peniscondom" or $rightaction is "peniscondom" or $leftaction is "peniscondomdamaged" or $rightaction is "peniscondomdamaged">>
+			<<set $_damagedCondom to false>>
+			<<if $leftaction is "peniscondom" or $leftaction is "peniscondomdamaged">>
+				<<if $leftaction is "peniscondomdamaged">><<set $_damagedCondom to true>><</if>>
 				<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
 			<</if>>
-			<<if $rightaction is "peniscondom">>
+			<<if $rightaction is "peniscondom" or $rightaction is "peniscondomdamaged">>
+				<<if $rightaction is "peniscondomdamaged">><<set $_damagedCondom to true>><</if>>
 				<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
 			<</if>>
 			<<set _foundnpc to []>>
@@ -2940,7 +2943,7 @@
 			<<if $_stop>>
 				<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $_s)>>
 					<<combatPerson>> tries to stop you from putting the condom on, <span class="green">but you manage to do it anyways.</span>
-					<<equipPlayerCondom>>
+					<<equipPlayerCondom $_damagedCondom>>
 				<<else>>
 					<<combatPerson>> <span class="red">stops you from putting the condom on.</span>
 				<</if>>
@@ -2948,8 +2951,8 @@
 				<span class="lewd">You can't put the condom on over the parasite.</span>
 			<<else>>
 				<<if !$player.condom>>
-					You roll the condom over your penis.
-					<<equipPlayerCondom>>
+					You roll the <<if $_damagedCondom>>worn-looking <</if>>condom over your penis.
+					<<equipPlayerCondom $_damagedCondom>>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -3030,25 +3033,27 @@
 			<</if>>
 		<</if>>
 
-		<<if $leftaction is "npcgivecondom">>
+		<<if $leftaction is "npcgivecondom" or $leftaction is "npcgivecondomdamaged">>
+			<<set $_damagedCondom to $leftaction is "npcgivecondomdamaged">>
 			<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
 			<<set $_target to $lefttarget>><<meek 1 $_target>>
 			<<personselect $_target>>
 			<<set $_npc to $NPCList[$_target]>>
 			<<if $NPCList[$_target].condomCanGive>>
-				You give <<combatperson>> one of your condoms to use.
-				<<giveNPCCondom $_target>>
+				You give <<combatperson>> one of your <<if $_damagedCondom>>worn-looking <</if>>condoms to use.
+				<<giveNPCCondom $_target $_damagedCondom>>
 			<</if>>
 		<</if>>
 
-		<<if $rightaction is "npcgivecondom">>
+		<<if $rightaction is "npcgivecondom" or $rightaction is "npcgivecondomdamaged">>
+			<<set $_damagedCondom to $rightaction is "npcgivecondomdamaged">>
 			<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
 			<<set $_target to $righttarget>><<meek 1 $_target>>
 			<<personselect $_target>>
 			<<set $_npc to $NPCList[$_target]>>
 			<<if $NPCList[$_target].condomCanGive>>
-				You give <<combatperson>> one of your condoms to use.
-				<<giveNPCCondom $_target>>
+				You give <<combatperson>> one of your <<if $_damagedCondom>>worn-looking <</if>>condoms to use.
+				<<giveNPCCondom $_target $_damagedCondom>>
 			<</if>>
 		<</if>>
 

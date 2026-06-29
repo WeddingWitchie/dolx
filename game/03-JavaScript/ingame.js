@@ -108,7 +108,7 @@ const combatActionColours = {
 		],
 		meek: [
 			/* leftaction or rightaction */
-			"behind", "fold", "leftcovervaginameek", "leftcoverpenismeek", "leftcoveranusmeek", "rightcovervaginameek", "rightcoverpenismeek", "rightcoveranusmeek", "leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "pickupSexToy", "leftcamerapose", "rightcamerapose", "peniscondom", "npcgivecondom", "handpenistochest",
+			"behind", "fold", "leftcovervaginameek", "leftcoverpenismeek", "leftcoveranusmeek", "rightcovervaginameek", "rightcoverpenismeek", "rightcoveranusmeek", "leftprotect", "rightprotect", "leftgrip", "rightgrip", "leftcurl", "rightcurl", "pickupSexToy", "leftcamerapose", "rightcamerapose", "peniscondom", "peniscondomdamaged", "npcgivecondom", "npcgivecondomdamaged", "handpenistochest",
 			/* feetaction */
 			"strut", "feetCurl",
 			/* mouthaction */

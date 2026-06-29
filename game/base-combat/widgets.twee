@@ -870,7 +870,9 @@
 		<<else>>
 			<<set _text_output += " " + $_colourName + " ">>
 		<</if>>
-		<<if $_condomDesc.type isnot "plain">>
+		<<if $_condomDesc.source is "damagedVending">>
+			<<set _text_output += "worn-looking ">>
+		<<elseif $_condomDesc.type isnot "plain">>
 			<<set _text_output += $_condomDesc.type + " ">>
 		<</if>>
 		<<set _text_output += "condom">>
@@ -907,12 +909,27 @@
 
 /* For the player equipping their own condom on themselves */
 <<widget "equipPlayerCondom">>
+	<<set $_damagedCondom to _args[0] is "damaged" or _args[0] is true>>
+	<<if $_damagedCondom and ($damagedCondoms || 0) gt 0>>
+		<<set $damagedCondoms -= 1>>
+	<</if>>
+	<<set $_condomState to "normal">>
+	<<if $_damagedCondom>>
+		<<set $_condomState to "defective">>
+		<<if random(1, 5) is 1>><<set $_condomState to "sabotaged">><</if>>
+	<<elseif random(0,100) gt 98>>
+		<<set $_condomState to "defective">>
+	<</if>>
 	<<set $player.condom to {
-		state: (random(0,100) gt 98 ? "defective" : "normal"),
+		state: $_condomState,
 		type: "plain",
 		colour: setup.colours.condom[random(0, (setup.colours.condom.length -1))].csstext,
 		worn: true
 	}>>
+	<<if $_damagedCondom>>
+		<<set $player.condom.source to "damagedVending">>
+		<span class="red">The wrapper looks scuffed and faded.</span>
+	<</if>>
 	<<set $condoms -= 1>>
 <</widget>>
 
@@ -926,13 +943,28 @@
 	<<if $NPCList[$_condomnpc].condom>>
 		<span class="red">ERROR: NPC condom $_condomnpc overlapped with existing condom.</span>
 	<<else>>
+		<<set $_damagedCondom to _args[1] is "damaged" or _args[1] is true>>
+		<<if $_damagedCondom and ($damagedCondoms || 0) gt 0>>
+			<<set $damagedCondoms -= 1>>
+		<</if>>
+		<<set $_condomState to "normal">>
+		<<if $_damagedCondom>>
+			<<set $_condomState to "defective">>
+			<<if random(1, 5) is 1>><<set $_condomState to "sabotaged">><</if>>
+		<<elseif random(0,100) gt 98>>
+			<<set $_condomState to "defective">>
+		<</if>>
 		<<set $NPCList[$_condomnpc].condom to {
 			willUse: true,
-			state: (random(0,100) gt 98 ? "defective" : "normal"),
+			state: $_condomState,
 			type: "plain",
 			colour: setup.colours.condom[random(0, (setup.colours.condom.length -1))].csstext,
 			worn: false
 		}>>
+		<<if $_damagedCondom>>
+			<<set $NPCList[$_condomnpc].condom.source to "damagedVending">>
+			<span class="red">The wrapper looks scuffed and faded.</span>
+		<</if>>
 		<<set $condoms -= 1>>
 		<<set $NPCList[$_condomnpc].condomCanGive to false>>
 		<<npcCondomEquipImmediate $_condomnpc "it">>
