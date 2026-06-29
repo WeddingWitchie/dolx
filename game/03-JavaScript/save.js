@@ -1237,7 +1237,7 @@ function settingsObjects(type) {
 					transformAnimalEnabled: { bool: true, displayName: "Animal Transformations:" },
 					asphyxiaLevel: {
 						min: 0,
-						max: 4,
+						max: 5,
 						decimals: 0,
 						displayName: "Asphyxiation:",
 						textMap: {
@@ -1245,6 +1245,8 @@ function settingsObjects(type) {
 							1: "NPCs may grab you by the neck without impeding breathing",
 							2: "NPCs may try to choke you during consensual encounters",
 							3: "NPCs may try to strangle you during non-consensual encounters",
+							4: "NPCs will often try to strangle you during non-consensual encounters",
+							5: "NPCs will readily strangle you during non-consensual encounters, regardless of their anger",
 						},
 					},
 					penisModifier: { min: -8, max: 8, decimals: 0, displayName: "Average size of NPC penises:", randomize: "encounter" },

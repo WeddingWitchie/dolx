@@ -2384,6 +2384,17 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<combat-set-hand-target _args[0] $handtarget>>
 			<<bodypart_admire_chance pubic>>
 		<</if>>
+	<<elseif $settings.asphyxiaLevel gte 5 and $consensual isnot 1 and $nochoke isnot 1 and ($neckuse isnot "hand" or $otherNPChand is "throat") and ($position isnot "wall" or $walltype is "front") and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and random(1,100) lte 50>>
+		<!-- asphyxiaLevel 5: NPCs reach for the throat readily during non-consensual sex, regardless of anger. Placed ahead of the anger-gated cascade but after strip/hypnosis/bodywriting branches so those systems keep priority. -->
+		<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1 and $NPCList[_n].fullDescription isnot "Gwylan">>
+			<<set $nochoke to 1>>
+			<span class="purple"><<He>> grabs your throat,</span> <span class="green">but immediately recoils as the golden heart on your collar shocks <<him>>.</span>
+			<<defiance 2 _n>><<combat-reset-hand _args[0]>>
+		<<else>>
+			<span class="purple"><<He>> grabs your throat.</span>
+			<<violence 2>><<combat-set-hand-target _args[0] "throat">><<set $neckuse to "hand">>
+		<</if>>
+		<<bodypart_admire_chance random_cheek>>
 	<<elseif $enemyanger + $rng lte 45 and ($consensual is 1 or $combatExtended.stabilityLost is 1 or $combatExtended.standingFightsType is "normal")>>
 		<<if $position is "wall" and $walltype isnot "front">>
 			<<He>> leans against the wall.
@@ -7631,7 +7642,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 	<<set _handname = _hands == 2 ? "hands" : (_left ? "left hand" : "right hand")>>
 	<<set _handvar = _left ? "lefthand" : "righthand">>
 
-	<<if $enemyanger gte 100 or $keepchoke or ($enemyanger + $rng gte 150 and $settings.asphyxiaLevel gte 4)>>
+	<<if $enemyanger gte 100 or $keepchoke or ($enemyanger + $rng gte 150 and $settings.asphyxiaLevel gte 4) or $settings.asphyxiaLevel gte 5>>
 		<<if $underwater isnot 1 and $settings.asphyxiaLevel gte 3>>
 			<<if _hands == 2>>
 				<!-- -200 per turn with both hands: max to 0 oxygen in 6 turns -->

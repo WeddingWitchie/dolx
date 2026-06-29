@@ -52,7 +52,7 @@ declare module "twine-sugarcube" {
 			waspsEnabled: true | false;
 			watersportsEnabled: true | false;
 			toyWhipEnabled: true | false;
-			asphyxiaLevel: 0 | 1 | 2 | 3 | 4;
+			asphyxiaLevel: 0 | 1 | 2 | 3 | 4 | 5;
 			baseNpcPregnancyChance: number;
 			basePlayerPregnancyChance: number;
 			bodyWritingLevel: 0 | 1 | 2 | 3;
