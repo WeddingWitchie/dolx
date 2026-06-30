@@ -5070,6 +5070,20 @@ You nod in response, passing <<him>> by and continuing on your way.
 :: Kitchen
 <<set $outside to 0>><<set $location to "home">><<effects>><<set $bus to "orphanage_kitchen">>
 
+<<if Time.hour gte 6 and Time.hour lte 21 and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lt 80 and $robin.timer.hurt lt 1 and !$robinbreakupCooldown and $robinmissing is 0>>
+	<<set _robinRecipeLesson to "">>
+	<<if Time.season is "winter" and !$robinSeen?.includes("recipeHotCocoa") and $foodstuff.hot_cocoa?.knows_recipe isnot true>>
+		<<set _robinRecipeLesson to "hot_cocoa">>
+	<<elseif Time.season isnot "winter" and !$robinSeen?.includes("recipeLemonade") and $foodstuff.lemonade?.knows_recipe isnot true>>
+		<<set _robinRecipeLesson to "lemonade">>
+	<</if>>
+	<<if _robinRecipeLesson>>
+		<<set $phase to _robinRecipeLesson>>
+		<<include "Robin Recipe Lesson">>
+		<<exitAll>>
+	<</if>>
+<</if>>
+
 You are in the orphanage kitchen. High cupboards line the walls, above spotless wooden counters. A couple of ovens sit beside each other, opposite a fridge, and a large freezer.
 <br><br>
 <<if !$loft_river>>
@@ -5112,7 +5126,7 @@ You are in the orphanage kitchen. High cupboards line the walls, above spotless 
 		<<housekeeping_exam_select>>
 		<<if $chosen_recipe isnot "none">>
 			<span class="gold">You can teach yourself a recipe from your cookbook here.</span> You flip open the book and land on a recipe for <<print $chosen_recipe.replace(/_/g," ")>>.<br><br>
-			<<link [["Learn something new (" + _timeString + ")"|Kitchen Self Teach]]>><<pass _baseTime>><<housekeeping 1 1000>><</link>><<ghousekeeping 1000>>
+			<<skinicon "chef">><<link [["Learn something new (" + _timeString + ")"|Kitchen Self Teach]]>><<pass _baseTime>><<housekeeping 1 1000>><</link>><<ghousekeeping 1000>>
 		<<else>>
 			There's no more recipes you can learn.
 		<</if>>
