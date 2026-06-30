@@ -1117,8 +1117,10 @@ function settingsObjects(type) {
 				enemystatstyle: { strings: ["full", "default"], randomize: "gameplay", displayName: "Enemy stat display:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
 				wardrobeMult: { min: 0, max: 20, decimals: 0, displayName: "Wardrobe Capacity Multiplier:" },
-				bikePersistentLocation: { min: 0, max: 1, decimals: 0, displayName: "Persistent Bike Location:" },
-				bikeSecurity: { min: 0, max: 1, decimals: 0, displayName: "Bike Security:" },
+				bicycle: {
+					persistentLocation: { bool: true, displayName: "Persistent Bike Location:" },
+					theftEnabled: { bool: true, displayName: "Bike Security:" },
+				},
 				combatTimePass: { min: 0, max: 1000000, decimals: 0, displayName: "Combat Time Pass:" },
 				depositMax: { min: 0, max: 12, decimals: 0, displayName: "Deposit Max Weeks:" },
 				depositWithdrawalFee: { min: 0, max: 100, decimals: 0, displayName: "Deposit Withdrawal Fee (%):" },

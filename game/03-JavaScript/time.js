@@ -1130,53 +1130,10 @@ function dayPassed(days) {
 		/* Set flag to determine Kylar's position at lunch */
 		V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
 
-		/* Tick down bike-theft cooldown each day regardless of ownership */
-		if (V.bikeStolenCooldown > 0) {
-			V.bikeStolenCooldown--;
-			if (V.bikeStolenCooldown <= 0) delete V.bikeStolenCooldown;
-		}
-
-		if (V.bike >= 1 && !V.bikeStolenCooldown) {
-			const STREET_LOCATIONS = ["domus", "barb", "danube", "wolf", "connudatus", "cliff", "high", "nightingale", "starfish", "oxford", "mer", "elk", "harvest"];
-
-			/* Daily theft chance (out of 1000) indexed by V.bikeSecurityGear (0 = none, 5 = U-Lock + Alarm).
-			Calibrated so weekly theft chance is:
-				street: 75% / 50% / 30% / 15% / 7%  / 2%
-				lake:   40% / 23% / 13% /  6% / 2.7% / 0.7%
-				farm:   15% /  8% /  4% /  2% / 0.7% / 0%
-			Each tier roughly halves the weekly chance with cheap gear matters, top gear nearly eliminates theft. */
-			const DAILY_BY_TIER = {
-				street: [180, 94, 50, 23, 10, 3],
-				lake:   [72,  38, 20,  9,  4, 1],
-				farm:   [23,  12,  6,  3,  1, 0],
-			};
-			const tier = Math.clamp(V.bikeSecurityGear || 0, 0, 5);
-
-			T.bikeTheftChanceBonus = 0;
-			if (V.bikeLocation == "lake") {
-				T.bikeTheftChance = DAILY_BY_TIER.lake[tier];
-			} else if (STREET_LOCATIONS.includes(V.bikeLocation)) {
-				if (V.baileydefeatedchain >= 1) {
-					/* Bailey's chain gang ups street risk by 30% of the current tier, scales with gear instead of overwhelming it. */
-					T.bikeTheftChanceBonus = Math.floor(DAILY_BY_TIER.street[tier] * 0.3);
-				}
-				T.bikeTheftChance = DAILY_BY_TIER.street[tier] + T.bikeTheftChanceBonus;
-			} else if (V.bikeLocation == "farm" || V.bikeLocation == "alex_farm") {
-				/* Farm aggro at 100 doubles the tier risk on top of the base, so a no-gear bike at full aggro is ~38% weekly, not 100%. */
-				if (V.farm?.aggro) T.bikeTheftChanceBonus = Math.floor(DAILY_BY_TIER.farm[tier] * 2 * (V.farm.aggro / 100));
-				T.bikeTheftChance = DAILY_BY_TIER.farm[tier] + T.bikeTheftChanceBonus;
-			} else {
-				T.bikeTheftChance = 0;
-			}
-
-			if ((random(1, 1000) <= T.bikeTheftChance) && V.bikeSecurity == 1) {
-				V.bikeStolen = 1;
-				V.bike = 0;
-				if (V.bikeSecurityGear >= 1) V.bikeSecurityGearStolen = 1;
-				V.bikeSecurityGear = 0;
-				/* One-week grace period before another theft can occur */
-				V.bikeStolenCooldown = 7;
-			}
+		// DoLP Bike Theft Cooldown
+		if (V.bicycle.stolenCoolDown > 0) {
+			V.bicycle.stolenCoolDown--;
+			if (V.bicycle.stolenCoolDown <= 0) delete V.bicycle.stolenCoolDown;
 		}
 	}
 
@@ -1267,9 +1224,7 @@ function hourPassed(hours) {
 			["orphanage", "garden", "bath"].includes(getRobinLocation()) &&
 			Weather.precipitation !== "rain" &&
 			(Weather.precipitation !== "snow" || V.alex_greenhouse >= 3) &&
-			// eslint-disable-next-line no-undef
 			orphanagePlotsPlanted() &&
-			// eslint-disable-next-line no-undef
 			!orphanagePlotsWatered()
 		) {
 			V.plots.garden?.forEach(plot => (plot.water = 1));
@@ -1288,6 +1243,10 @@ function hourPassed(hours) {
 			if (V.beautyBoost.tan > 0) V.beautyBoost.tan = Math.max(V.beautyBoost.tan - 200, 0);
 		}
 
+		// DOLP Bike Theft
+		if (V.bicycle.theftEnabled === true) {
+			bikeSecurity();
+		}
 		// time checks
 		if (Time.hour === 6) dawnCheck();
 		if (Time.hour === 12) noonCheck();

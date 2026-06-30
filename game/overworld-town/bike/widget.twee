@@ -1,59 +1,84 @@
 :: Widgets Bike [widget]
 
 <<widget "bike">>
-	<<if $location is "town" or $location is "industrial" or $location is "plains">>
-		<<set $bikeStart to $sublocation>>
+	/* Weird location stuff, will need to be edited if location stuff is ever changed. */
+	<<if $location is "town" || $location is "plains" || $location is "forest" || $location is "industrial">>
+		<<set $bicycle.location to $sublocation>>
 	<<else>>
-		<<set $bikeStart to $location>>
+		<<set $bicycle.location to $location>>
 	<</if>>
-	<<if $bikeStart is "alex_farm">><<set $bikeStart to "farm">><</if>>
-	<<set _bikeLocation to $bikeLocation>>
-	<<if _bikeLocation is "alex_farm">><<set _bikeLocation to "farm">><</if>>
-	<<if (_bikeLocation is $bikeStart and $bikePersistentLocation is 1) or $bikePersistentLocation is 0>>
-		<<if (($exposed gte 1 and Time.dayState is "night") or $exposed is 0) and $bike gte 1 and $bikeBroken is undefined and $bikeStolen is undefined>>
-			<<bikeicon>><<link [[Get on your bike (0:01)|Bike]]>><<pass 1>><</link>>
-		<<elseif $bikeStolen isnot undefined>>
-			<span class="red">Your bike is gone.</span>
-			<br>
-			<<if $bikeLocation is "lake">>
-				The spot where you left it is empty. A scuff in the dirt and a tangle of cut cable are all that remain &mdash; some student must have taken it while you were away.
-			<<elseif ["domus", "barb", "danube", "wolf", "connudatus", "cliff", "high", "nightingale", "starfish", "oxford", "mer", "elk", "harvest"].includes($bikeLocation)>>
-				The bike rack is empty. A length of severed lock dangles from the bar where you left your bike, the cut is clean.
-				<br>
-				<<if $baileydefeatedchain gte 1>>
-					Bailey's goons probably had something to do with it. They wouldn't have struck so cleanly otherwise.
-				<<else>>
-					Some townie must have grabbed it the moment your back was turned.
-				<</if>>
-			<<elseif $bikeLocation is "farm" or $bikeLocation is "alex_farm">>
-				The fence post you leaned it against is bare. Tyre tracks lead off down the dirt road and disappear into the fields.
-				<br>
-				<<if $farm?.aggro gte 20>>
-					Remy's people probably had something to do with it &mdash; you can't see them risking the daylight unless they were sure no one would stop them.
-				<<else>>
-					Some bumpkin must have wheeled it off into the back lanes before anyone noticed.
-				<</if>>
+	<<switch $bicycle.location>>
+		<<case "domus" "barb" "danube" "wolf">>
+			<<set $bicycle.locationRegion to "residential">>
+		<<case "connudatus" "cliff" "high" "starfish" "oxford" "nightingale">>
+			<<set $bicycle.locationRegion to "commercial">>
+		<<case "mer" "elk" "harvest">>
+			<<set $bicycle.locationRegion to "industrial">>
+		<<case "cabin" "wolf_cave_yard" "forest">>
+			<<set $bicycle.locationRegion to "forest">>
+		<<case "lake">><<set $bicycle.locationRegion to "lake">>
+		<<case "alex_farm">><<set $bicycle.locationRegion to "alex_farm">>
+		<<case "moor">><<set $bicycle.locationRegion to "moor">>
+		<<default>>
+			<<set _error to 1>>
+	<</switch>>
+	<<set $bicycle.start to $bicycle.locationRegion>>
+	<<if $phase is 1>>
+		<span class="yellow">You make a minor repair to your bike. It should be able to get you a little farther now.</span><br>
+		<<set $phase to 0>><<set $eventskip to 0>>
+	<</if>>
+	<<if $bicycle.stolen is true>>
+		/* Maybe implement some events where you can steal your bike back? */
+		<span class="red">Your bike <<if $bicycle.securityStolen is true>>and security gear were<<else>>was<</if>> stolen!</span>
+		<<if $bicycle.location is "lake">>
+			Some student must've stolen it.
+		<<elseif $bicycle.location is "residential" or $bicycle.location is "commercial" or $bicycle.location is "industrial">>
+			<<if $baileydefeatedchain gte 1>>
+				Bailey's goons probably had something to do with it.
 			<<else>>
-				It's nowhere to be seen. Whoever took it left no trace behind.
+				Some townie must've stolen it.
 			<</if>>
-			<<if $bikeSecurityGearStolen isnot undefined>>
-				<br><span class="red">They took your security gear too.</span>
+		<<elseif $bicycle.location is "alex_farm">>
+			<<if $farm?.aggro gte 20>>
+				Remy's goons probably had something to do with it.
+			<<else>>
+				Some bumpkin must've stolen it.
 			<</if>>
-			<br>You'll have to head to the bike depot if you want a replacement.
-			<<unset $bikeStolen>>
-			<<unset $bikeSecurityGearStolen>>
-		<<elseif $bikeBroken isnot undefined>>
-			<span class="red">Your bike is broken!</span> It's unusable until you repair it back at the bike depot.
-		<<elseif !(($exposed gte 1 and Time.dayState is "night") or $exposed is 0)>>
-			<span class="blue">You're too exposed to ride the bike!</span>
+		<</if>><br>
+		<span class="blue">At least you can always buy a new one...</span>
+		<<set $bicycle.stolen to false>><<set $bicycle.securityStolen to false>>
+	<<elseif $bicycle.durability.current lte 0>>
+		<span class="red">Your bike is broken!</span> It's unusable until you repair it back at the bike depot<<if $bicycle.durability.repair isnot undefined>> or patch it yourself<</if>>.
+		<<if $bicycle.durability.repair gt 0>>
+			<br>
+			<<birdicon "tools">><<link [[Make an emergency repair|$passage]]>><<set $bicycle.durability.repair-->><<set $bicycle.durability.current to (Math.clamp(($bicycle.durability.current + 500), 500, $bicycle.durability.max))>><<set $phase to 1>><<set $eventskip to 1>><</link>>
+			<br>
 		<</if>>
+	<<elseif pcAreArmsBound("both")>>
+		<<if $worn.feet.type.includes("shackle")>>
+			<br>
+			<span class="blue">You can't ride your bike with your arms bound and your feet shackled.</span>
+			<br>
+		<<else>>
+			<br>
+			<span class="blue">You can't ride your bike with your arms bound.</span>
+			<br>
+		<</if>>
+	<<elseif $worn.feet.type.includes("shackle")>>
 		<br>
+		<span class="blue">You can't ride your bike with your feet shackled.</span>
+		<br>
+	<<elseif !(($exposed gte 1 and Time.dayState is "night") or $exposed is 0)>>
+		<span class="blue">You're too exposed to ride your bike!</span>
+	<<elseif $bicycle.own>>
+		<<bikeicon>><<link [[Get on your bike (0:01)|Bike]]>><<pass 1>><</link>>
 	<</if>>
+	<br>
 <</widget>>
 
 <<widget "cancelBike">>
 	<<if $passage isnot "Bike">>
-		<span class="red">This is a bug. Please report it.</span><br>
+		Why are you here? This is a bug, go bother Frostberg.<br>
 		<<link [[Escape this particular hell|$passagePrev]]>><<set $eventskip to 1>><</link>>
 	<<else>>
 		<<bikeicon>><<link [[Get off your bike|$passagePrev]]>><</link>>
@@ -61,50 +86,203 @@
 	<</if>>
 <</widget>>
 
-<<widget "walkBikeFrom">>
-	/* Args: 0 = expected current sublocation, 1 = destination sublocation.
-	   Relocates the bike if it's parked at args[0] under persistent location, and sets $walkingBike for the destination passage to consume */
-	<<if $bike gte 1 and $bikePersistentLocation is 1 and $bikeLocation is _args[0] and $bikeBroken is undefined and $bikeStolen is undefined>>
-		<<set $bikeLocation to _args[1]>>
-		<<set $walkingBike to true>>
-	<</if>>
-<</widget>>
-
 <<widget "destinationBike">>
 	<<set _destination to _args[0]>>
-	<<if _destination is "alex_farm">><<set _destination to "farm">><</if>>
-	<<bikeTime>>
+	<<switch _destination>>
+		<<case "domus" "barb" "danube" "wolf" "nightingale" "forestEntrance">>
+			<<if $bicycle.location isnot "lake" && $bicycle.location isnot "cabin" && $bicycle.location isnot "wolf_cave_yard" && $bicycle.location isnot "forest">>
+				<<if _destination is "nightingale">>
+					<<set _destinationRegion to "commercial">>
+				<<else>>
+					<<set _destinationRegion to "residential">>
+				<</if>>
+			<<else>>
+				<<if _destination is "wolf" || _destination is "nightingale" || _destination is "forestEntrance">>
+					<<set _destinationRegion to "forestEntrance">>
+				<<else>>
+					<<set _destinationRegion to "residential">>
+				<</if>>
+			<</if>>
+		<<case "connudatus" "cliff" "high" "starfish" "oxford">>
+			<<set _destinationRegion to "commercial">>
+		<<case "mer" "elk" "harvest">>
+			<<set _destinationRegion to "industrial">>
+		<<case "cabin" "wolf_cave_yard">>
+			<<set _destinationRegion to "forest">>
+		<<case "lake">><<set _destinationRegion to "lake">>
+		<<case "alex_farm">><<set _destinationRegion to "alex_farm">>
+		<<case "moor">><<set _destinationRegion to "moor">>
+		<<default>>
+			<<set _error to 1>>
+	<</switch>>
+	<<run bikeTime(_destinationRegion)>>
 	<<if _error isnot undefined>>
 		<<unset _error>>
 		<<bikeError>>
 	<<else>>
-		<<if _roughTerrainModifier gt 0>>
-			<<set _roughTerrainModifierDurability to _roughTerrainModifier * 2>>
-			<<if $bikeSuspension is 1>><<set _roughTerrainModifierDurability *= 0.75>><</if>>
-			<<if $bikeTires is 1>><<set _roughTerrainModifierDurability *= 0.85>><</if>>
-			<<if $bikeTubeless is 1>><<set _roughTerrainModifierDurability *= 0.9>><</if>>
-			<<if $bikeBrakes is 1>><<set _roughTerrainModifierDurability *= 0.95>><</if>>
-			<<if $bikePedals is 1>><<set _roughTerrainModifierDurability *= 0.95>><</if>>
-			<<if $bikeGrips is 1>><<set _roughTerrainModifierDurability *= 0.95>><</if>>
+		<<if $bicycle.roughTerrain gt 0>>
+			<<set _roughTerrainModifierDurability to ($bicycle.roughTerrain * 2)>>
+			<<if $bicycle.upgrades.suspension>><<set _roughTerrainModifierDurability *= 0.75>><</if>>
+			<<if $bicycle.upgrades.tires>><<set _roughTerrainModifierDurability *= 0.85>><</if>>
+			<<if $bicycle.upgrades.tubeless>><<set _roughTerrainModifierDurability *= 0.9>><</if>>
+			<<if $bicycle.upgrades.brakes>><<set _roughTerrainModifierDurability *= 0.95>><</if>>
+			<<if $bicycle.upgrades.pedals>><<set _roughTerrainModifierDurability *= 0.95>><</if>>
+			<<if $bicycle.upgrades.grips>><<set _roughTerrainModifierDurability *= 0.95>><</if>>
 		<<else>>
 			<<set _roughTerrainModifierDurability to 0>>
 		<</if>>
-		<<set $bikeDurability to Math.round(Math.max($bikeDurability - (_time + _roughTerrainModifierDurability), 0))>>
-		<<if $bikeDurability is 0>><<set $bikeBroken to 1>><</if>>
-		<<set $bikeLocation to _destination>>
-
-		/* Cycling is tiring, but stat growth should be modest. */
-		<<set _tirednessGain to Math.round(_time / 3)>>
-		<<set _athleticsGain to Math.max(Math.round(_time / 25), 1)>>
-		<<set _physiqueGain to Math.max(Math.round(_time / 30), 1)>>
-		<<silently>><<tiredness _tirednessGain>><<athletics _athleticsGain>><<physique _physiqueGain>><</silently>>
+		<<if $bicycle.durability.current gte ($bicycle.time + _roughTerrainModifierDurability)>>
+		<<set _travelInterrupt to false>>
+		<<set $bicycle.durability.current to Math.round(Math.max($bicycle.durability.current - ($bicycle.time + _roughTerrainModifierDurability), 0))>>
+		<<set $bicycle.location to _destination>>
+		/* The numbers for stat gains/debuffs are arbitrary... For the amount of athletics and physique you gain the tiredness should be comparable. Currently adjusted to compare to running on the harvest road */
+		<<set $bicycle.gains.fatigue to Math.round(($bicycle.time + $bicycle.roughTerrain) / 9)>><<set $bicycle.gains.athletics to Math.round($bicycle.time / 12)>><<set $bicycle.gains.physique to Math.round(($bicycle.time + $bicycle.roughTerrain) / 15)>>
+		<<else>>
+			<<set $bicycle.durability.current to 0>>
+			<<set _travelInterrupt to true>>
+		<</if>>
 	<</if>>
+	<<set $eventskip to 1>>
+	<<switch _travelInterrupt>>
+		<<case false>>
+			<<switch _destination>>
+				<<case "nightingale">>
+				Before long the hospital comes into view.<br><br><<bikeGains>>
+					<<nightingaleicon>><<link [[You arrive at your destination.|Nightingale Street]]>><</link>>
+				<<case "domus">>
+				Before long the view shifts and the buildings around you become familiar houses.<br><br><<bikeGains>>
+					<<domusicon>><<link [[You arrive at your destination.|Domus Street]]>><</link>>
+				<<case "elk">>
+				Before long the acrid smell of the approaching smokestacks fills your nose.<br><br><<bikeGains>>
+					<<elkicon>><<link [[You arrive at your destination.|Elk Street]]>><</link>>
+				<<case "high">>
+				Before long the view shifts and the buildings around you become dense, the tall office building looming ahead.<br><br><<bikeGains>>
+					<<highicon>><<link [[You arrive at your destination.|High Street]]>><</link>>
+				<<case "starfish">>
+				Before long you can smell the fresh salt from the sea.<br><br><<bikeGains>>
+					<<starfishicon>><<link [[You arrive at your destination.|Starfish Street]]>><</link>>
+				<<case "barb">>
+				Before long the towering flats surround you.<br><br><<bikeGains>>
+					<<barbicon>><<link [[You arrive at your destination.|Barb Street]]>><</link>>
+				<<case "connudatus">>
+				Before long the streets turn to stalls and restaurants.<br><br><<bikeGains>>
+					<<connudatusicon>><<link [[You arrive at your destination.|Connudatus Street]]>><</link>>
+				<<case "wolf">>
+				Before long the temple emerges from the forest boundary into view.<br><br><<bikeGains>>
+					<<wolficon>><<link [[You arrive at your destination.|Wolf Street]]>><</link>>
+				<<case "harvest">>
+				Before long you can see the boundary where the town bleeds into the plains beyond.<br><br><<bikeGains>>
+					<<harvesticon>><<link [[You arrive at your destination.|Harvest Street]]>><</link>>
+				<<case "oxford">>
+				Before long the iron-wrought fence of your school comes into view.<br><br><<bikeGains>>
+					<<oxfordicon>><<link [[You arrive at your destination.|Oxford Street]]>><</link>>
+				<<case "danube">>
+				Before long the scenery smooths into wide lawns and stately houses.<br><br><<bikeGains>>
+					<<danubeicon>><<link [[You arrive at your destination.|Danube Street]]>><</link>>
+				<<case "mer">>
+				Before long the docks come into view, the sound of the sea and the creaking ships filling your ears.<br><br><<bikeGains>>
+					<<mericon>><<link [[You arrive at your destination.|Mer Street]]>><</link>>
+				<<case "cliff">>
+				Before long the sight of the cafe comes into view.<br><br><<bikeGains>>
+					<<clifficon>><<link [[You arrive at your destination.|Cliff Street]]>><</link>>
+				<<case "lake">>
+				Before long the treeline breaks, revealing the shore of the lake.<br><br><<bikeGains>>
+					<<lakeicon>><<link [[You arrive at your destination.|Lake Shore]]>><</link>>
+				<<case "alex_farm">>
+				Before long the view shifts, plains giving way to the familiar sight of the farm.<br><br><<bikeGains>>
+					<<farmicon>><<link [[You arrive at your destination.|Farmland]]>><</link>>
+				<<case "forestEntrance">>
+				Before long you reach the forest outskirts, the hidden top of the forest shop coming into view.<br><br><<bikeGains>>
+					<<shopicon "forest">><<link [[You arrive at your destination.|Forest]]>><<set $forest to 0>><</link>>
+				<<case "cabin">>
+				Before long you can smell the smoke from Eden's hearth, the treeline giving way to the familiar cabin.<br><br><<bikeGains>>
+					<<if $edenfreedom gte 1 or $syndromeeden gte 1>>
+						<<if $edenFluidsCheck is "cleanLeave" and ($goocount + $semencount gte 10) and Time.hour gte 7 or $edenFluidsCheck is "run">>
+							<<edenicon>><<link [[You arrive at your destination.|Eden Fluids Punishment]]>><</link>>
+					<<elseif !$edenHotSpring and Weather.isFreezing>>
+							<<edenicon>><<link [[You arrive at your destination.|Eden Hot Spring Creation 1]]>><</link>>
+						<<else>>
+							<<edenicon>><<link [[You arrive at your destination.|Eden Clearing]]>><</link>>
+						<</if>>
+					<</if>>
+				<<case "wolf_cave_yard">>
+				Before long the path becomes little more than an animal trail, the familiar sounds of the wolf pack leading you to their clearing.<br><br><<bikeGains>>
+					<<wolfcaveicon>><<link [[You arrive at your destination.|Wolf Cave Clearing]]>><</link>>
+				<<case "moor">>
+				Before long you spot the castle peeking over a hill ahead, a familiar screech in the distance welcoming you home.<br><br><<bikeGains>>
+					<<mooricon>><<link [[You arrive at your destination.|Moor]]>><<set $moor to 100>><</link>>
+			<</switch>>
+				<br><br>
+				<<endevent>>
+		<<case true>>
+			You are riding along when your bike <<print either("tires go flat.", "chain rattles dangerously.", "handles come loose.", "pedals pop off.")>>
+			<span class="red">Your bike has broken before you reached your destination!</span>
+			<br><br>
+			You will need to get it repaired at the bike depot<<if $bicycle.durability.repair isnot undefined>> or patch it yourself<</if>> before you can continue using it. <span class="yellow">You got a small workout at least.</span>
+			<<set _fatigue to (Math.trunc($bicycle.gains.fatigue*0.35))>><<set _athletics to (Math.trunc($bicycle.gains.athletics*0.35))>>
+			<<tiredness _fatigue>><<athletics _athletics>>
+			<<if $bicycle.roughTerrain gt 0>><<set _physique to (Math.trunc($bicycle.gains.physique*0.35))>><<silently>><<physique _physique>><</silently>><</if>>
+			<<gtiredness>><<gathletics>>
+			<<switch $bicycle.start>>
+				<<case "residential" "commercial">>
+					<<switch _destinationRegion>>
+						<<case "residential" "commercial" "industrial">>
+							<<set _interrupt to either($bicycle.destinations.Residential.random(), $bicycle.destinations.Commercial.random(), $bicycle.destinations.Industrial.random())>>
+						<<case "forest" "forestEntrance" "lake">>
+							<<set _interrupt to either($bicycle.destinations.Commercial.random(), $bicycle.destinations.Commercial.random())>>
+						<<case "alex_farm" "moor">>
+							<<set _interrupt to either($bicycle.destinations.Commercial.random(), $bicycle.destinations.Industrial.random(), "Farm Road 1", "Farm Road 2")>>
+					<</switch>>
+				<<case "industrial">>
+					<<switch _destinationRegion>>
+						<<case "residential" "commercial" "industrial">>
+							<<set _interrupt to either($bicycle.destinations.Residential.random(), $bicycle.destinations.Commercial.random(), $bicycle.destinations.Industrial.random())>>
+						<<case "forest" "forestEntrance" "lake">>
+							<<set _interrupt to either($bicycle.destinations.Commercial.random(), $bicycle.destinations.Commercial.random())>>
+						<<case "alex_farm" "moor">>
+							<<set _interrupt to either($bicycle.destinations.Industrial.random(), "Farm Road 1", "Farm Road 2")>>
+					<</switch>>
+				<<case "forest" "forestEntrance" "lake">>
+					<<switch _destinationRegion>>
+						<<case "residential" "commercial" "industrial">>
+							<<set _interrupt to either($bicycle.destinations.Commercial.random(), $bicycle.destinations.Commercial.random(), "Forest")>>
+						<<case "forest" "forestEntrance">>
+							<<set _interrupt to "Forest">>
+						<<case "alex_farm" "moor">>
+							<<set _interrupt to either($bicycle.destinations.Commercial.random(), $bicycle.destinations.Industrial.random(), "Farm Road 1", "Farm Road 2", "Farm Road 3")>>
+					<</switch>>
+				<<case "alex_farm">>
+					<<switch _destinationRegion>>
+						<<case "residential" "commercial" "industrial">>
+							<<set _interrupt to either($bicycle.destinations.Commercial.random(), $bicycle.destinations.Industrial.random(), "Farm Road 1", "Farm Road 2")>>
+						<<case "forest" "forestEntrance" "lake">>
+							<<set _interrupt to either($bicycle.destinations.Commercial.random(), $bicycle.destinations.Industrial.random(), "Farm Road 1", "Farm Road 2")>>
+						<<case "moor">>
+							<<set _interrupt to "Moor">>
+					<</switch>>
+				<<case "moor">>
+					<<switch _destinationRegion>>
+						<<case "residential" "commercial">>
+							<<set _interrupt to either("Moor", "Farm Road 6", "Farm Road 4", "Farm Road 2", $bicycle.destinations.Industrial.random())>>
+						<<case  "industrial">>
+							<<set _interrupt to either ("Moor", "Farm Road 6", "Farm Road 4", "Farm Road 2")>>
+						<<case "forest" "forestEntrance"  "lake">>
+							<<set _interrupt to either("Moor", "Farm Road 6", "Farm Road 4", "Farm Road 2", $bicycle.destinations.Industrial.random(), $bicycle.destinations.Commercial.random())>>
+						<<case "alex_farm">>
+							<<set _interrupt to "Moor">>
+					<</switch>>
+				<<default>>
+					<<bikeError>>
+				<</switch>>
+			<br><br>
+			<<walkicon>><<link [[Start walking|_interrupt]]>><<unset $phase>><<endevent>><<set $eventskip to 0>><<if _interrupt is "Forest">><<set $forest to random(0,10)>><<elseif _interrupt is "Moor">><<set $moor to random(5, 50)>><</if>><</link>>
+		<</switch>>
 <</widget>>
 
 <<widget "bikeError">>
-	<span class="red">Something went wrong.</span> Please report it and include your save.
+	<span class="red">Something went wrong.</span> Please inform Frostberg and include your save.
 	<br><br>
-	<<print $bikeStart>><br>
+	<<print $bicycle.location>><br>
 	<<print $destination>><br>
 	<<print $rng>><br>
 	<<print Time.season>><br>
@@ -113,917 +291,499 @@
 	<<domusquick>>
 <</widget>>
 
-<<widget "bikeTime">>
-	<<set _townToTown to 1>>
-	<<if $town_projects.road gte 4>>
-		<<set _townToLake to 5>>
-	<<else>>
-		<<set _townToLake to 21>>
-		<<if $bikeSuspension is 1>><<set _townToLake *= 0.9>><</if>>
-		<<if $bikeTires is 1>><<set _townToLake *= 0.95>><</if>>
-		<<if $bikeTubeless is 1>><<set _townToLake *= 0.95>><</if>>
-		<<if $bikePedals is 1>><<set _townToLake *= 0.975>><</if>>
-		<<if $bikeGrips is 1>><<set _townToLake *= 0.975>><</if>>
-		<<set _townToLake to Math.round(_townToLake)>>
-	<</if>>
-	<<set _townToFarm to 19>>
-	<<set _time to 1>>
-	<<set _roughTerrainModifier to 0>>
-	<<set _bikeStart to $bikeStart>>
-	<<if _bikeStart is "alex_farm">><<set _bikeStart to "farm">><</if>>
-
-	<<if _args[0] isnot 1>>
-		<<set _destination to $destination>>
-		<<if _destination is "alex_farm">><<set _destination to "farm">><</if>>
-	<</if>>
-
-	<<if _destination isnot undefined>>
-		<<switch _destination>>
-			<<case "domus" "barb" "danube" "wolf">>
-				<<set _subDestination to "residential">>
-			<<case "connudatus" "cliff" "high" "nightingale" "starfish" "oxford">>
-				<<set _subDestination to "commercial">>
-			<<case "mer" "elk" "harvest">>
-				<<set _subDestination to "industrial">>
-			<<case "lake">>
-				<<set _subDestination to "lake">>
-			<<case "farm" "alex_farm">>
-				<<set _subDestination to "farm">>
-			<<default>>
-				<<set _error to 1>>
-		<</switch>>
-	<<else>>
-		<<set _subDestination to _args[1]>>
-	<</if>>
-
-	<<switch _bikeStart>>
-		<<case "lake">>
-			<<switch _subDestination>>
-				<<case "residential">>
-					<<set _rTime to 1 + _townToLake + _townToTown>><<set _roughTerrainModifier to _townToLake>>
-				<<case "commercial">>
-					<<set _cTime to 1 + _townToLake + _townToTown>><<set _roughTerrainModifier to _townToLake>>
-				<<case "industrial">>
-					<<set _iTime to 1 + _townToLake + _townToTown>><<set _roughTerrainModifier to _townToLake>>
-				<<case "farm">>
-					<<set _aTime to 1 + _townToLake + _townToTown + _townToFarm>><<set _roughTerrainModifier to _townToLake>>
-				<<case "lake">>
-					<<set _lTime to 1>>
-				<<default>>
-					<<set _error to 1>>
-			<</switch>>
-		<<case "domus" "barb" "danube" "wolf">>
-			<<switch _subDestination>>
-				<<case "residential">>
-					<<set _rTime to 1>>
-				<<case "commercial">>
-					<<set _cTime to 1 + _townToTown>>
-				<<case "industrial">>
-					<<set _iTime to 1 + _townToTown + _townToTown>>
-				<<case "lake">>
-					<<if _bikeStart is "wolf">>
-						<<set _lTime to 1 + _townToLake>>
-					<<else>>
-						<<set _lTime to 1 + _townToTown + _townToLake>>
-					<</if>>
-					<<set _roughTerrainModifier to _townToLake>>
-				<<case "farm">>
-					<<set _aTime to 1 + _townToTown + _townToTown + _townToFarm>>
-				<<default>>
-					<<set _error to 1>>
-			<</switch>>
-		<<case "high" "cliff" "nightingale" "starfish" "oxford" "connudatus">>
-			<<switch _subDestination>>
-				<<case "residential">>
-					<<set _rTime to 1 + _townToTown>>
-				<<case "commercial">>
-					<<set _cTime to 1>>
-				<<case "industrial">>
-					<<set _iTime to 1 + _townToTown>>
-				<<case "lake">>
-					<<if _bikeStart is "nightingale">>
-						<<set _lTime to 1 + _townToLake>>
-					<<else>>
-						<<set _lTime to 1 + _townToTown + _townToLake>>
-					<</if>>
-					<<set _roughTerrainModifier to _townToLake>>
-				<<case "farm">>
-					<<set _aTime to 1 + _townToTown + _townToFarm>>
-				<<default>>
-					<<set _error to 1>>
-			<</switch>>
-		<<case "elk" "mer" "harvest">>
-			<<switch _subDestination>>
-				<<case "residential">>
-					<<set _rTime to 1 + _townToTown + _townToTown>>
-				<<case "commercial">>
-					<<set _cTime to 1 + _townToTown>>
-				<<case "industrial">>
-					<<set _iTime to 1>>
-				<<case "lake">>
-					<<set _lTime to 1 + _townToTown + _townToLake>><<set _roughTerrainModifier to _townToLake>>
-				<<case "farm">>
-					<<set _aTime to 1 + _townToFarm>>
-				<<default>>
-					<<set _error to 1>>
-			<</switch>>
-		<<case "farm" "alex_farm">>
-			<<switch _subDestination>>
-				<<case "residential">>
-					<<set _rTime to 1 + _townToFarm + _townToTown + _townToTown>>
-				<<case "commercial">>
-					<<set _cTime to 1 + _townToFarm + _townToTown>>
-				<<case "industrial">>
-					<<set _iTime to 1 + _townToFarm>>
-				<<case "lake">>
-					<<set _lTime to 1 + _townToFarm + _townToTown + _townToLake>><<set _roughTerrainModifier to _townToLake>>
-				<<case "farm">>
-					<<set _aTime to 1>>
-				<<default>>
-					<<set _error to 1>>
-			<</switch>>
-		<<default>>
-			<<set _error to 1>>
-	<</switch>>
-
-	<<if _args[0] is 1>>
-		<<if _rTime isnot undefined>><<set _rTimeString to getTimeString(_rTime)>><</if>>
-		<<if _cTime isnot undefined>><<set _cTimeString to getTimeString(_cTime)>><</if>>
-		<<if _iTime isnot undefined>><<set _iTimeString to getTimeString(_iTime)>><</if>>
-		<<if _lTime isnot undefined>><<set _lTimeString to getTimeString(_lTime)>><</if>>
-		<<if _aTime isnot undefined>><<set _aTimeString to getTimeString(_aTime)>><</if>>
-	<</if>>
-
-	<<switch _subDestination>>
-		<<case "residential">>
-			<<set _time to _rTime>>
-		<<case "commercial">>
-			<<set _time to _cTime>>
-		<<case "industrial">>
-			<<set _time to _iTime>>
-		<<case "lake">>
-			<<set _time to _lTime>>
-		<<case "farm">>
-			<<set _time to _aTime>>
-	<</switch>>
-<</widget>>
-
 <<widget "bikeMenu">>
-	<<bikeTime 1 "residential">>
+	<<run bikeTime("residential")>>
 	Residential:<br>
-		<<if $bikeStart isnot "domus">><<domusicon>><<link [["Domus Street (" + _rTimeString + ") (Home)"|Bike Ride]]>><<pass _rTime>><<set $destination to "domus">><</link>><br><</if>>
-		<<if $bikeStart isnot "barb">><<barbicon>><<link [["Barb Street (" + _rTimeString + ") (Studio)"|Bike Ride]]>><<pass _rTime>><<set $destination to "barb">><</link>><br><</if>>
-		<<if $bikeStart isnot "danube">><<danubeicon>><<link [["Danube Street (" + _rTimeString + ") (Mansions)"|Bike Ride]]>><<pass _rTime>><<set $destination to "danube">><</link>><br><</if>>
-		<<if $bikeStart isnot "wolf">><<wolficon>><<link [["Wolf Street (" + _rTimeString + ") (Temple)"|Bike Ride]]>><<pass _rTime>><<set $destination to "wolf">><</link>><br><</if>>
-		<br>
-	<<bikeTime 1 "commercial">>
-	Commercial:<br>
-		<<if $bikeStart isnot "cliff">><<clifficon>><<link [["Cliff Street (" + _cTimeString + ") (Cafe)"|Bike Ride]]>><<pass _cTime>><<set $destination to "cliff">><</link>><br><</if>>
-		<<if $bikeStart isnot "high">><<highicon>><<link [["High Street (" + _cTimeString + ") (Shopping Centre)"|Bike Ride]]>><<pass _cTime>><<set $destination to "high">><</link>><br><</if>>
-		<<if $bikeStart isnot "connudatus">><<connudatusicon>><<link [["Connudatus Street (" + _cTimeString + ") (Clubs)"|Bike Ride]]>><<pass _cTime>><<set $destination to "connudatus">><</link>><br><</if>>
-		<<if $bikeStart isnot "nightingale">><<nightingaleicon>><<link [["Nightingale Street (" + _cTimeString + ") (Hospital)"|Bike Ride]]>><<pass _cTime>><<set $destination to "nightingale">><</link>><br><</if>>
-		<<if $bikeStart isnot "oxford">><<oxfordicon>><<link [["Oxford Street (" + _cTimeString + ") (School)"|Bike Ride]]>><<pass _cTime>><<set $destination to "oxford">><</link>><br><</if>>
-		<<if $bikeStart isnot "starfish">><<starfishicon>><<link [["Starfish Street (" + _cTimeString + ") (Beach)"|Bike Ride]]>><<pass _cTime>><<set $destination to "starfish">><</link>><br><</if>>
-		<br>
-	<<bikeTime 1 "industrial">>
-	Industrial:<br>
-		<<if $bikeStart isnot "elk">><<elkicon>><<link [["Elk Street (" + _iTimeString + ")"|Bike Ride]]>><<pass _iTime>><<set $destination to "elk">><</link>><br><</if>>
-		<<if $bikeStart isnot "harvest">><<harvesticon>><<link [["Harvest Street (" + _iTimeString + ") (Pub)"|Bike Ride]]>><<pass _iTime>><<set $destination to "harvest">><</link>><br><</if>>
-		<<if $bikeStart isnot "mer">><<mericon>><<link [["Mer Street (" + _iTimeString + ") (Docks)"|Bike Ride]]>><<pass _iTime>><<set $destination to "mer">><</link>><br><</if>>
-		<br>
-	<<bikeTime 1 "lake">>
-	<<if $bikeStart isnot "lake" and ($bikePersistentLocation is 0 or $town_projects.road gte 4)>>
-	Forest:<br>
-		<<lakeicon>><<link [["Lake (" + _lTimeString + ")"|Bike Ride]]>><<pass _lTime>><<set $destination to "lake">><</link>><br>
-		<br>
-	<</if>>
-	Farmlands:<br>
-	<<bikeTime 1 "farm">>
-		<<if $bikeStart isnot "farm" and $bikeStart isnot "alex_farm">><<farmicon>><<link [["Farmland (" + _aTimeString + ")"|Bike Ride]]>><<pass _aTime>><<set $destination to "farm">><</link>><br><</if>>
-<</widget>>
-
-<<widget "bikeArrive">>
-	<<if $bikeJourneyInterrupted isnot 1>>
-	<<switch $destination>>
-		<<case "nightingale">>
-			Before long the hospital comes into view.
-			<br><br>
-			<<nightingaleicon>><<link [[You arrive at your destination|Nightingale Street]]>><</link>>
-		<<case "domus">>
-			Before long the view shifts and the buildings around you become familiar houses.
-			<br><br>
-			<<domusicon>><<link [[You arrive at your destination|Domus Street]]>><</link>>
-		<<case "elk">>
-			Before long the tall smokestacks of the factory come into view.
-			<br><br>
-			<<elkicon>><<link [[You arrive at your destination|Elk Street]]>><</link>>
-		<<case "high">>
-			Before long the view shifts and the buildings around you become dense, the tall office building looming ahead.<br><br>
-			<<highicon>><<link [[You arrive at your destination|High Street]]>><</link>>
-		<<case "starfish">>
-			Before long you can smell the fresh salt from the sea.
-			<br><br>
-			<<starfishicon>><<link [[You arrive at your destination|Starfish Street]]>><</link>>
-		<<case "barb">>
-			<<barbicon>><<link [[You arrive at your destination|Barb Street]]>><</link>>
-		<<case "connudatus">>
-			<<connudatusicon>><<link [[You arrive at your destination|Connudatus Street]]>><</link>>
-		<<case "wolf">>
-			<<wolficon>><<link [[You arrive at your destination|Wolf Street]]>><</link>>
-		<<case "harvest">>
-			<<harvesticon>><<link [[You arrive at your destination|Harvest Street]]>><</link>>
-		<<case "oxford">>
-			<<oxfordicon>><<link [[You arrive at your destination|Oxford Street]]>><</link>>
-		<<case "danube">>
-			<<danubeicon>><<link [[You arrive at your destination|Danube Street]]>><</link>>
-		<<case "mer">>
-			<<mericon>><<link [[You arrive at your destination|Mer Street]]>><</link>>
-		<<case "cliff">>
-			<<clifficon>><<link [[You arrive at your destination|Cliff Street]]>><</link>>
-		<<case "lake">>
-			Before long the treeline breaks, revealing the shore of the lake.
-			<br><br>
-			<<lakeicon>><<link [[You arrive at your destination|Lake Shore]]>><<set $eventskip to 1>><</link>>
-		<<case "farm" "alex_farm">>
-			Before long the view shifts, plains giving way to the familiar sight of the farm.
-			<br><br>
-			<<farmicon>><<link [[You arrive at your destination|Farmland]]>><</link>>
-	<</switch>>
-	<</if>>
-<</widget>>
-
-<<widget "bikeDangerEvent">>
-	<<set _bikeDangerStart to _args[0]>>
-	<<if _bikeDangerStart is "alex_farm">><<set _bikeDangerStart to "farm">><</if>>
-	<<if dangerEvent() and $eventskip isnot 1>>
-		<<set _bikeDangerChance to 5>>
-		<<switch _bikeDangerStart>>
-			<<case "elk" "mer" "harvest">><<set _bikeDangerChance to 7>>
-			<<case "lake" "farm">><<set _bikeDangerChance to 10>>
-		<</switch>>
-		<<if random(1, 1000) lte _bikeDangerChance * 10>>
-			<<cleareventpool>>
-				<<switch _bikeDangerStart>>
-					<<case "lake">>
-						<<addinlineevent "bike_forest_crash" 0.3>>
-							<<set $bikeDangerHappened to 1>><<set $bikeEventHappened to 1>>
-							A dark shape bolts across the forest path. You yank the handlebars aside and hit a hidden root hard enough to throw yourself over the front wheel. The bike lands badly behind you, its frame cracking against the ground.<<stress 12>><<ggstress>><<pain 8>><<ggpain>>
-							<br><span class="red">Your bike breaks!</span>
-							<<set $bikeDurability to 0>><<set $bikeBroken to 1>>
-						<</addinlineevent>>
-						<<addinlineevent "bike_forest_blackout_ambush_sequence">>
-							<<set $bikeDangerHappened to 1>><<set $bikeEventHappened to 1>>
-							<<generate1>><<person1>>
-							A patch sends the bike sideways. Your head slams the hard-packed path, and the world drops away for a few breathless moments.<<pain 10>><<gggpain>>
-							<br><br>
-							When sound returns, someone is crouched nearby, dragging the bike away from your legs.
-							<<stress 18>><<gggstress>><<set $bikeDurability to Math.max($bikeDurability - 45, 0)>><<if $bikeDurability is 0>><<set $bikeBroken to 1>><</if>>
-							<<set $bikeJourneyInterrupted to 1>><<set $bikeDangerRoute to _bikeDangerStart>><<set $bikeDangerDestination to $destination>><<set $bikeDangerType to "blackout">>
-							<br><br>
-							<<link [[Next|Bike Road Ambush]]>><<set $molestationstart to 1>><</link>>
-						<</addinlineevent>>
-
-					<<case "domus" "barb" "danube" "connudatus" "wolf" "high" "cliff" "nightingale" "starfish" "oxford" "elk" "mer" "harvest">>
-						<<addinlineevent "bike_town_crash" 0.3>>
-							<<set $bikeDangerHappened to 1>><<set $bikeEventHappened to 1>>
-							A car cuts across your path without warning. You brake hard, but the tyres slip and the road rushes up beneath you. The driver is gone before you can even shout. You drag yourself and the bike to the kerb, finding the wheel bent and the chain twisted loose.<<stress 12>><<ggstress>><<pain 7>><<ggpain>>
-							<br><span class="red">Your bike breaks!</span>
-							<<set $bikeDurability to 0>><<set $bikeBroken to 1>>
-						<</addinlineevent>>
-						<<addinlineevent "bike_town_ambush_sequence">>
-							<<set $bikeDangerHappened to 1>><<set $bikeEventHappened to 1>>
-							<<generate1>><<person1>>
-							A <<person>> steps off the pavement and grabs your handlebars as you slow near a narrow side street. The bike jerks sideways, your front wheel clips the kerb, and you stumble before you can put a foot down. <<He>> is already too close, one hand clamped around your wrist.
-							<<control -5>><<lcontrol>><<set $bikeDurability to Math.max($bikeDurability - 45, 0)>><<if $bikeDurability is 0>><<set $bikeBroken to 1>><</if>>
-							<<set $bikeJourneyInterrupted to 1>><<set $bikeDangerRoute to _bikeDangerStart>><<set $bikeDangerDestination to $destination>><<set $bikeDangerType to "ambush">>
-							<br><br>
-							<<link [[Next|Bike Road Ambush]]>><<set $molestationstart to 1>><</link>>
-						<</addinlineevent>>
-
-					<<case "farm">>
-						<<addinlineevent "bike_farm_crash" 0.3>>
-							<<set $bikeDangerHappened to 1>><<set $bikeEventHappened to 1>>
-							A lorry thunders past far too close. It shoves you off the road and down the grassy verge. You hit the ditch hard. When you pull it free, the bike refuses to roll straight.<<stress 13>><<ggstress>><<pain 8>><<ggpain>><<lowerwet 40>>
-							<br><span class="red">Your bike breaks!</span>
-							<<set $bikeDurability to 0>><<set $bikeBroken to 1>>
-						<</addinlineevent>>
-						<<addinlineevent "bike_farm_blackout_ambush_sequence">>
-							<<set $bikeDangerHappened to 1>><<set $bikeEventHappened to 1>>
-							<<generate1>><<person1>>
-							The road dips without warning. Your front wheel drops, your body pitches forward, and the world vanishes when you hit the gravel.<<pain 10>><<ggpain>>
-							<br><br>
-							You wake to the smell of damp earth. Someone is standing over you, one hand on your bike, the other reaching down before you can gather yourself.
-							<<control -6>><<lcontrol>><<set $bikeDurability to Math.max($bikeDurability - 45, 0)>><<if $bikeDurability is 0>><<set $bikeBroken to 1>><</if>>
-							<<set $bikeJourneyInterrupted to 1>><<set $bikeDangerRoute to _bikeDangerStart>><<set $bikeDangerDestination to $destination>><<set $bikeDangerType to "blackout">>
-							<br><br>
-							<<link [[Next|Bike Road Ambush]]>><<set $molestationstart to 1>><</link>>
-						<</addinlineevent>>
-
-					<<default>>
-						<<addinlineevent "bike_generic_crash" 0.3>>
-							<<set $bikeDangerHappened to 1>><<set $bikeEventHappened to 1>>
-							The ride turns suddenly dangerous. You lose control, hit the ground hard, and only manage to sit up after several breaths. The bike lies beside you in a sorry state.<<stress 10>><<ggstress>><<pain 5>><<ggpain>>
-							<br><span class="red">Your bike breaks!</span>
-							<<set $bikeDurability to 0>><<set $bikeBroken to 1>>
-						<</addinlineevent>>
-				<</switch>>
-			<<runeventpool>>
+		<<if $bicycle.location is "domus">><<else>><<domusicon>><<link [["Domus Street (" + _time.rTime + ") (Home)"|Bike Ride]]>><<pass $bicycle.travel.rTime>><<set $bicycle.time to $bicycle.travel.rTime>><<set $destination to "domus">><</link>><br><</if>>
+		<<if $bicycle.location is "barb">><<else>><<barbicon>><<link [["Barb Street (" + _time.rTime + ") (Studio)"|Bike Ride]]>><<pass $bicycle.travel.rTime>><<set $bicycle.time to $bicycle.travel.rTime>><<set $destination to "barb">><</link>><br><</if>>
+		<<if $bicycle.location is "danube">><<else>><<danubeicon>><<link [["Danube Street (" + _time.rTime + ") (Mansions)"|Bike Ride]]>><<pass $bicycle.travel.rTime>><<set $bicycle.time to $bicycle.travel.rTime>><<set $destination to "danube">><</link>><br><</if>>
+		<<if $bicycle.location is "wolf">>
+		<<elseif $bicycle.location is "lake" || $bicycle.location is "cabin" || $bicycle.location is "wolf_cave_yard">>
+			<<run bikeTime("forestEntrance")>>
+			<<wolficon>><<link [["Wolf Street (" + _time.fETime + ") (Temple)"|Bike Ride]]>><<pass $bicycle.travel.fETime>><<set $bicycle.time to $bicycle.travel.fETime>><<set $destination to "wolf">><</link>><br>
+		<<else>>
+		<<wolficon>><<link [["Wolf Street (" + _time.rTime + ") (Temple)"|Bike Ride]]>><<pass $bicycle.travel.rTime>><<set $bicycle.time to $bicycle.travel.rTime>><<set $destination to "wolf">><</link>><br>
 		<</if>>
-	<</if>>
+		<br>
+	<<run bikeTime("commercial")>>
+	Commercial:<br>
+		<<if $bicycle.location is "cliff">><<else>><<clifficon>><<link [["Cliff Street (" + _time.cTime + ") (Cafe)"|Bike Ride]]>><<pass $bicycle.travel.cTime>><<set $bicycle.time to $bicycle.travel.cTime>><<set $destination to "cliff">><</link>><br><</if>>
+		<<if $bicycle.location is "high">><<else>><<highicon>><<link [["High Street (" + _time.cTime + ") (Shopping centre)"|Bike Ride]]>><<pass $bicycle.travel.cTime>><<set $bicycle.time to $bicycle.travel.cTime>><<set $destination to "high">><</link>><br><</if>>
+		<<if $bicycle.location is "connudatus">><<else>><<connudatusicon>><<link [["Connudatus Street (" + _time.cTime + ") (Clubs)"|Bike Ride]]>><<pass $bicycle.travel.cTime>><<set $bicycle.time to $bicycle.travel.cTime>><<set $destination to "connudatus">><</link>><br><</if>>
+		<<if $bicycle.location is "nightingale">>
+		<<elseif $bicycle.location is "lake" || $bicycle.location is "cabin" || $bicycle.location is "wolf_cave_yard">>
+			<<run bikeTime("forestEntrance")>>
+			<<nightingaleicon>><<link [["Nightingale Street (" + _time.fETime + ") (Hospital)"|Bike Ride]]>><<pass $bicycle.travel.fETime>><<set $bicycle.time to $bicycle.travel.fETime>><<set $destination to "nightingale">><</link>><br>
+		<<else>>
+			<<nightingaleicon>><<link [["Nightingale Street (" + _time.cTime + ") (Hospital)"|Bike Ride]]>><<pass $bicycle.travel.cTime>><<set $bicycle.time to $bicycle.travel.cTime>><<set $destination to "nightingale">><</link>><br>
+		<</if>>
+		<<run bikeTime("commercial")>>
+		<<if $bicycle.location is "oxford">><<else>><<oxfordicon>><<link [["Oxford Street (" + _time.cTime + ") (School)"|Bike Ride]]>><<pass $bicycle.travel.cTime>><<set $bicycle.time to $bicycle.travel.cTime>><<set $destination to "oxford">><</link>><br><</if>>
+		<<if $bicycle.location is "starfish">><<else>><<starfishicon>><<link [["Starfish Street (" + _time.cTime + ") (Beach)"|Bike Ride]]>><<pass $bicycle.travel.cTime>><<set $bicycle.time to $bicycle.travel.cTime>><<set $destination to "starfish">><</link>><br><</if>>
+		<br>
+	<<run bikeTime("industrial")>>
+	Industrial:<br>
+		<<if $bicycle.location is "elk">><<else>><<elkicon>><<link [["Elk Street (" + _time.iTime + ")"|Bike Ride]]>><<pass $bicycle.travel.iTime>><<set $bicycle.time to $bicycle.travel.iTime>><<set $destination to "elk">><</link>><br><</if>>
+		<<if $bicycle.location is "harvest">><<else>><<harvesticon>><<link [["Harvest Street (" + _time.iTime + ") (Pub)"|Bike Ride]]>><<pass $bicycle.travel.iTime>><<set $bicycle.time to $bicycle.travel.iTime>><<set $destination to "harvest">><</link>><br><</if>>
+		<<if $bicycle.location is "mer">><<else>><<mericon>><<link [["Mer Street (" + _time.iTime + ") (Docks)"|Bike Ride]]>><<pass $bicycle.travel.iTime>><<set $bicycle.time to $bicycle.travel.iTime>><<set $destination to "mer">><</link>><br><</if>>
+		<br>
+	<<if ($edenfreedom gte 1 or $syndromeeden gte 1) || $syndromewolves gte 1 || $forest_shop_intro is 1>>
+	Forest:<br>
+	<<run bikeTime("forestEntrance")>>
+		<<if $bicycle.location is "forest">><<else>><<if $forest_shop_intro is 1>><<shopicon  "forest">><<link [["Forest Shop (" + _time.fETime + ")"|Bike Ride]]>><<pass $bicycle.travel.fETime>><<set $bicycle.time to $bicycle.travel.fETime>><<set $destination to "forestEntrance">><</link>><br><</if>><</if>>
+	<<run bikeTime("lake")>>
+		<<if $bicycle.location is "lake">><<else>><<lakeicon>><<link [["Lake (" + _time.lTime + ")"|Bike Ride]]>><<pass $bicycle.travel.lTime>><<set $bicycle.time to $bicycle.travel.lTime>><<set $destination to "lake">><</link>><br><</if>>
+	<<run bikeTime("forest")>>
+		<<if $edenfreedom gte 1 or $syndromeeden gte 1>><<if $bicycle.location is "cabin">><<else>><<edenicon>><<link [["Eden's Cabin (" + _time.fTime + ")"|Bike Ride]]>><<pass $bicycle.travel.fTime>><<set $bicycle.time to $bicycle.travel.fTime>><<set $destination to "cabin">><</link>><br><</if>><</if>>
+		<<if $syndromewolves gte 1>><<if $caveHumanPregnancyDiscovered isnot 1 or !playerIsPregnant()>>
+			<<if $bicycle.location is "wolf_cave_yard">><<else>><<wolfcaveicon>><<link [["Wolf Cave (" + _time.fTime + ")"|Bike Ride]]>><<pass $bicycle.travel.fTime>><<set $bicycle.time to $bicycle.travel.fTime>><<set $destination to "wolf_cave_yard">><</link>><br><</if>>
+		<<else>><span class="blue">You don't think the wolves would allow you to come back until your pregnancy is over.</span><br><</if>>
+		<</if>>
+		<br>
+	<<else>><</if>>
+	<<if !$farm_stage>><<else>><<if $bicycle.location is "alex_farm">><<else>>
+	Plains:<br>
+	<<run bikeTime("alex_farm")>>
+		<<farmicon>><<link [["Farmland (" + _time.aTime + ")"|Bike Ride]]>><<pass $bicycle.travel.aTime>><<set $bicycle.time to $bicycle.travel.aTime>><<set $destination to "alex_farm">><</link>><br>
+	<</if>><</if>>
+	<br>
+	<<if $syndromebird gte 1>><<if $bicycle.location is "moor">><<else>>
+	Moor:<br>
+	<<run bikeTime("moor")>>
+		<<mooricon>><<link [["Moor Castle (" + _time.mTime + ")"|Bike Ride]]>><<pass $bicycle.travel.mTime>><<set $bicycle.time to $bicycle.travel.mTime>><<set $destination to "moor">><</link>><br>
+	<</if>><</if>>
 <</widget>>
 
-<<widget "bikeEvents">><<set $bikeEventHappened to 0>><<set $bikeDangerHappened to 0>><<set $bikeJourneyInterrupted to 0>>
-<<set _bikeEventStart to $bikeStart>>
-	<<if _bikeEventStart is "alex_farm">><<set _bikeEventStart to "farm">><</if>>
-	<<set _bikeNormalEventChance to 65>>
-	<<if _bikeEventStart is "lake">><<set _bikeNormalEventChance to 75>><</if>>
-	<<if _bikeEventStart is "farm">><<set _bikeNormalEventChance to 70>><</if>>
-	<<set _bikeWeatherType to Weather.type || Weather.weatherType || Weather.weather || Weather.state || Weather.condition || Weather.name || "">>
-	<<set _bikeIsthunderstorm to _bikeWeatherType is "thunderstorm" or Weather.thunder is true or Weather.isThunder is true or Weather.isthunderstorm is true>>
-	<<set _bikeIsStorm to _bikeIsthunderstorm or _bikeWeatherType is "storm" or Weather.storm is true or Weather.isStorm is true>>
-	<<set _bikeIsRain to Weather.precipitation is "rain">>
-	<<set _bikeIsSnow to Weather.precipitation is "snow" or Weather.isSnow is true>>
-	<<set _bikeIsHeavyPrecipitation to _bikeWeatherType is "heavyPrecipitation" or (typeof Weather.precipitationIntensity is "number" and Weather.precipitationIntensity gte 0.5)>>
-	<<set _bikeIsLightClouds to _bikeWeatherType is "lightClouds">>
-
-	<<if _bikeIsRain or _bikeIsSnow>><<set _bikeNormalEventChance += 15>><</if>>
-	<<if _bikeIsStorm>><<set _bikeNormalEventChance += 15>><</if>>
-	<<if Weather.dayState is "night" or Weather.dayState is "bloodMoon">><<set _bikeNormalEventChance += 10>><</if>>
-	<<set _bikeNormalEventChance to Math.min(_bikeNormalEventChance, 90)>>
-
-	<<switch _bikeEventStart>>
-		<<case "lake">>
+<<widget "bikeEvents">>
+	<<switch _args[0]>>
+		<<case "lake" "forestEntrance" "forest">>
 			<<switch Weather.dayState>>
-				<<case "bloodMoon">>
-					<<if _bikeIsthunderstorm>>
-						Thunder rolls through the forest as the blood moon stains the path red before your bike light finds them.
-					<<elseif _bikeIsStorm>>
-						The forest bends beneath the storm, branches scraping above while the blood moon leaks through the canopy.
-					<<elseif _bikeIsRain>>
-						Rain runs black beneath the blood moon, turning the forest path treacherous as your tyres throw up dark sprays of water.
-					<<elseif _bikeIsSnow>>
-						Snow drifts through the blood-red dark, settling over roots and ruts until every turn of the path looks uncertain.
-					<<elseif _bikeIsLightClouds>>
-						Thin clouds drift across the blood moon, the red light flickering between the trees as you follow the forest path.
-					<<elseif Weather.isOvercast is false>>
-						The blood moon hangs clear above the trees, painting the forest path in a dim red glow as you ride.
-					<<else>>
-						Heavy clouds swallow most of the blood moon's light, leaving the forest path dark beneath your bike lamp.
-					<</if>>
 				<<case "night">>
-					<<if _bikeIsthunderstorm>>
-						Thunder shows the path in harsh flashes while rain and wind make the ride tense.
-					<<elseif _bikeIsStorm>>
-						A storm shakes the trees overhead, scattering leaves across the path as you fight to keep the bike steady.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Your bike's tyres send up sprays of water as you carefully navigate the winding forest path.
-						<<else>>
-							Light rain threads through the trees, beading on your handlebars while the forest path glistens beneath your tyres.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Snow falls thickly in the dark, hiding roots and stones as your tyres bite through the fresh layer.
-						<<else>>
-							Your tyres crunch through the fresh snow as you push forward through the forest.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						Clouds drift between the trees and stars, leaving broken patches of night light across the forest path.
+					<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
+						Dark snow falls silently, covering the road in a thin layer. Your tires crunch through the fresh snow as you cautiously push forward through the quiet forest.
+					<<elseif Weather.precipitation is "rain">>
+						Black rain pours down, making the road slick. Your bike's tires send up sprays of water as you carefully navigate the winding forest path.
 					<<elseif Weather.isOvercast is false>>
-						The stars are faint but visible above the trees, offering enough light to guide your way as you ride through the stillness of the forest.
+						The stars are faint but visible above the trees, offering just enough light to guide your way as you ride through the stillness of the forest.
 					<<else>>
 						Thick clouds blanket the sky, making the night even darker as your bike light struggles to illuminate the path ahead.
 					<</if>>
 				<<case "dusk">>
-					<<if _bikeIsthunderstorm>>
-						Thunder grumbles through the orange dusk, and every flash turns the wet forest path white for an instant.
-					<<elseif _bikeIsStorm>>
-						The dusk darkens under a rough storm, wind tugging at the trees as you guide your bike along the forest path.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Evening rain lashes the smooth road, turning the forest path reflective and slick beneath your tyres.
-						<<else>>
-							A light drizzle softens the orange dusk, dampening the forest path as you ride cautiously onward.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow dims the last orange light, building quickly beneath your tyres as dusk falls through the trees.
-						<<else>>
-							Snow begins to settle for the night, creating a soft crunch beneath your tyres as dusk fades to night.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						Bands of cloud catch the dying orange light, breaking it into stripes across the forest road.
+					<<if Weather.precipitation is "rain">>
+						Evening rain glistens on the smooth road, creating a reflective surface as you ride cautiously along the forest path.
+					<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+						Snow begins to settle for the night, creating a soft crunch beneath your tires as dusk fades to night.
 					<<elseif Weather.isOvercast is false>>
 						The setting sun casts a warm, golden light over the road, guiding your way as the day comes to an end.
 					<<else>>
 						Heavy clouds gather overhead, darkening the forest road as the light fades.
 					<</if>>
 				<<case "dawn">>
-					<<if _bikeIsthunderstorm>>
-						Thunder rolls through the pale dawn, the storm turning the forest road into a flashing track.
-					<<elseif _bikeIsStorm>>
-						A rough storm greets the dawn, shaking water from the trees as you pedal through the forest.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy morning rain hammers the road, and your bike kicks up sheets of water as you ride through the cold air.
-						<<else>>
-							The early morning rain shimmers on the road, and your bike kicks up small sprays of water as you ride through the cool air.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow turns the dawn pale and muffled, forcing you to push through the thickening white path.
-						<<else>>
-							A blanket of snow reflects the dawn's light as you make your way through the forest.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						The sun's orange glow peeks through scattered clouds, striping the forest path ahead.
+					<<if Weather.precipitation is "rain">>
+						The early morning rain shimmers on the road, and your bike kicks up small sprays of water as you ride through the fresh, cool air.
+					<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+						A blanket of snow reflects the dawn's light, turning the road into a crisp, white path as you make your way through the peaceful forest.
 					<<elseif Weather.isOvercast is false>>
-						The sun rises between the trees.
+						The sun rises between the trees, casting long shadows across the road, offering a serene start to your ride.
 					<<else>>
-						The sky is thick with clouds, turning the morning grey as you pedal forward through the forest.
+						The sky is thick with clouds, turning the morning gray and cool as you pedal forward through the forest.
 					<</if>>
 				<<default>>
-					<<if _bikeIsthunderstorm>>
-						Lightning brightens the clouds above the forest, and thunder follows as you keep your wheels on the wet path.
-					<<elseif _bikeIsStorm>>
-						A storm churns above the forest, throwing wind and loose leaves across the road as you continue your journey.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Rain pours through the trees, the path slick but manageable as you push through the downpour.
-						<<else>>
-							The rain-soaked road glistens beneath your tyres, the path ahead slick but manageable as you push through the rain.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow obscures the trees ahead, and each turn of the pedals takes more effort.
-						<<else>>
-							The road is lightly dusted with snow, your tyres crunching softly as you ride through the winter landscape.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						Sunlight slips between broken clouds and bare branches.
+					<<if Weather.precipitation is "rain">>
+						The rain-soaked road glistens beneath your tires, the path ahead slick but manageable as you push through the rain.
+					<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+						The road is lightly dusted with snow, your tires crunching softly as you ride through the winter landscape.
 					<<elseif Weather.isOvercast is false>>
 						The sun shines weakly through the trees, its pale light reflecting off the smooth road as you continue your journey.
 					<<else>>
 						Clouds hang low and heavy, dimming the day and casting a cold light over the forest.
 					<</if>>
-			<<gtiredness>><<gathletics>><<gphysique>> <span class="gold">You get a good workout.</span><br><br>
 			<</switch>>
-			<<bikeDangerEvent _bikeEventStart>>
-			<<if $bikeDangerHappened is 0 and random(1, 100) lte _bikeNormalEventChance>>
+			<br>
+			<<if dangerEvent()>><br>
 				<<cleareventpool>>
 					<<switch Time.season>>
 						<<case "spring" "summer">>
-							<<addinlineevent "" 2>>
-								<<if Weather.precipitation is "rain">>
-									While rain pours down from above, you pedal through the forest making your way to your destination. Visibility is low and the road is slippery, and when a sharp turn comes around you almost get into a slide.
-									<br>
-									Luckily you stay in control of your bike and avoid slipping into the stream next to you.<<stress -2>><<lstress>><<control 1>><<gcontrol>>
-								<<else>>
-									Birds are singing in the trees while you ride your bike through the forest. You notice a big swarm of flies directly ahead and swerve a little to the left to avoid it.<<stress -5>><<lstress>>
-								<</if>><<set $bikeEventHappened to 1>>
+							<<addinlineevent 2>>
+							<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+								Birds are singing in the trees while you ride your bike through the forest. You notice a big swarm of flies directly ahead and swerve a little bit to the left to avoid it.<<stress -3>><<lstress>><<set _phase to 1>>
+							<<elseif Weather.precipitation is "rain">>
+								While rain pours down from above, you pedal through the forest making your way to your destination. Visibility is low and the road is slippery and when a sharp turn comes around you almost get into a slide.
+								<br><br>
+								Luckily you stay in control of your bike and avoid slipping into the stream next to you.<<stress -3>><<lstress>><<set _phase to 1>>
+							<</if>>
 							<</addinlineevent>>
 							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									While riding your bike through the forest, rain pours out of the clouds above. The rain makes it hard to see what lies ahead, and when a small rock on the road makes you lose control, you fall from your bike into the stream next to you.
-									<br>
-									Luckily you are still in one piece, but dry you are not.<<pain 3>><<gpain>><<control -2>><<lcontrol>><<trauma 1>><<gtrauma>><<wet_all>><<set $bikeDurability -= 25>>
+							<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+								While riding your bike through the forest your attention is taken away by a weird noise to your right. You turn your head back to the road after trying to find the source and something flies straight in your mouth and nose. 
+								Spitting out the thing that flew in your mouth and rubbing your now itchy nose you look at the road behind you. A swarm of flies are buzzing over the road you just passed.<<stress 3>><<gstress>><<set _phase to 1>>
+							<<elseif Weather.precipitation is "rain">><<dancedifficulty 1 1000 true>>
+								The road curves and bends before you like a snake, mimicking the shape of the stream running alongside it.
+								<br><br>
+								A sudden heavy downpour makes it difficult to see the path ahead, and you don't see the small rock jutting out of the groundcover until it's too late. Your front tire bounces, sending a vicious shock through your hands.
+								<br><br>
+								<<if $danceSuccess>>
+									<span class="green">You manage to keep your balance</span> and your confidence soars.<<lstress>><<stress -6>>
 								<<else>>
-									While riding your bike through the forest your attention is taken away by a weird noise to your right. You turn your head back to the road after trying to find the source, and something flies straight into your mouth and nose.
-									<br>
-									Spitting out the thing that flew into your mouth and rubbing your now itchy nose, you look at the road behind you. A swarm of flies is buzzing over the road you just passed.<<stress 10>><<ggstress>><<arousal -200>><<larousal>>
-								<</if>><<set $bikeEventHappened to 1>>
+									<span class="red">You lose your balance,</span> toppling head over heels into the stream with a splash.<<gpain>><<pain 6>><<wet_all>>
+									<br><br>
+									Luckily you are still in one piece, but dry you are not.<<stress 6>><<gstress>><<set $bicycle.durability -= 10>>
+								<</if>>
+							<<set _phase to 1>>
+							<</if>>
 							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									Spring rain hammers the forest canopy, and a branch weakened by the downpour snaps and falls across the path. You brake hard and skid sideways, your knee slamming into the frame.<<stress 6>><<ggstress>><<pain 3>><<gpain>><<set $bikeDurability -= 18>>
-								<<else>>
-									A warm breeze carries the scent of wildflowers as you coast downhill through the forest. The ride is smooth and the air feels good in your lungs. You arrive feeling refreshed.<<stress -4>><<llstress>><<control 1>><<gcontrol>>
-								<</if>><<set $bikeEventHappened to 1>>
+ 							<<addinlineevent 2>>
+								/* insert lake/forest danger event pool passages? spring/summer would lean towards prey animals/young adults */
 							<</addinlineevent>>
 						<<case "autumn">>
-							<<addinlineevent "" 2>>
-								Damp, rotting leaves carpet the forest trail, turning every curve treacherous. Your tyres slip on the mulch and you fight to keep the handlebars steady, arriving rattled but upright.<<tiredness 6>><<gtiredness>><<set $bikeDurability -= 5>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									Autumn rain and fallen leaves conspire to turn the forest path into a skating rink. Your front tyre locks on a mat of wet leaves and you skid sideways, slamming your knee into a tree root.<<stress 6>><<ggstress>><<pain 4>><<gpain>>
-								<<else>>
-									A hidden branch snaps under your front tyre and jams the wheel. You flip over the handlebars and tumble across the leaf-strewn path.<<stress 5>><<ggstress>><<pain 3>><<ggpain>><<set $bikeDurability -= 15>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								The trail is buried under sodden leaves. Without warning your tyres lose all grip on a steep downhill and you crash hard into the underbrush, your bike crunching beneath you. You lie there, shaking, heart pounding.<<pain 6>><<gpain>><<trauma 3>><<gtrauma>><<set $bikeDurability -= 30>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
+							/* bear/boar events (higher activity prepping for winter) */
 						<<case "winter">>
-							<<addinlineevent "" 2>>
-								<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
-									Snow hides roots and stones beneath the forest path, forcing you to ride slowly while your legs burn from the effort.<<tiredness 6>><<gtiredness>><<set $bikeDurability -= 5>>
-								<<else>>
-									Frost makes the shaded path deceptively slippery. You keep both hands locked on the bars, tense until the trees thin behind you.<<stress 5>><<gstress>><<tiredness 5>><<gtiredness>><<set $bikeDurability -= 5>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
-									Slush hides a rut across the path. Your front wheel drops in hard, and you topple sideways into freezing mud and snow.<<stress 6>><<ggstress>><<pain 4>><<ggpain>><<set $bikeDurability -= 20>><<wet_all>>
-								<<else>>
-									A patch of black ice sends your bike sliding out from under you. You hit the frozen ground hard enough to rattle your teeth.<<stress 7>><<ggstress>><<pain 5>><<gpain>><<set $bikeDurability -= 20>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								The forest path becomes a treacherous ribbon of ice and frozen ruts. Your tyres lose, and you slam into a tree root with the bike crumpling beneath you.<<stress 10>><<ggstress>><<pain 7>><<ggpain>><<set $bikeDurability -= 35>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
+
 						<<default>><<addinlineevent>><</addinlineevent>>
 					<</switch>>
-				<<runeventpool>>
+				<<runeventpool>><br>
 			<</if>>
-			<<if $bikeJourneyInterrupted isnot 1>>
-				<<if $bikeEventHappened is 1>>
-					<br><br>
-					And the rest of the journey is uneventful.
-				<<else>>
-					The journey is uneventful.
-				<</if>>
-			<</if>>
-
 		<<case "domus" "barb" "danube" "connudatus" "wolf" "high" "cliff" "nightingale" "starfish" "oxford" "elk" "mer" "harvest">>
 			<<switch Weather.dayState>>
-				<<case "bloodMoon">>
-					<<if _bikeIsthunderstorm>>
-						Lightning splits the blood-red sky above the town, flashing over wet tarmac and shuttered windows as you ride.
-					<<elseif _bikeIsStorm>>
-						The blood moon glows through racing storm clouds, turning the streets strange beneath your wheels.
-					<<elseif _bikeIsRain>>
-						Rain reflects the blood moon across the streets, making every puddle look red as your tyres cut through them.
-					<<elseif _bikeIsSnow>>
-						Snow falls through the blood moon's glow, softening the town roads while your tyres leave dark tracks behind.
-					<<elseif _bikeIsLightClouds>>
-						Thin clouds cross the blood moon, and the town's streetlights flicker against the red night.
-					<<elseif Weather.isOvercast is false>>
-						The blood moon hangs clear above the rooftops, tinting the streets red as you ride through town.
-					<<else>>
-						Heavy clouds hide most of the blood moon, leaving only a dull red stain over the town.
-					<</if>>
 				<<case "night">>
-					<<if _bikeIsthunderstorm>>
-						Thunder shakes the streets, lightning flashing against shop windows while water runs fast through the gutters.
-					<<elseif _bikeIsStorm>>
-						A storm presses down over the town, wind dragging rubbish across the road as you fight the handlebars.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Rainwater streams down the streets, reflecting the dim streetlights as your tyres send up sprays of water with each turn.
-						<<else>>
-							Light rain beads on the road, turning the streetlights into long lines beneath your tyres.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow blurs the town ahead, muffling traffic and making every corner slower.
-						<<else>>
-							Snow blankets the town as you ride past shops and homes.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						Clouds drift across the stars, but the streetlights keep the sleeping town easy enough to follow.
+					<<if Weather.precipitation is "rain">>
+						Rainwater streams down the streets, reflecting the dim streetlights as your tires send up sprays of water with each turn.
+					<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+						Snow blankets the town, the roads slick under your tires as you ride past quiet shops and homes.
 					<<elseif Weather.isOvercast is false>>
-						The stars are faint in the sky above, with the streetlights providing most of the light as you ride through the town.
+						The stars are faint in the sky above, with the streetlights providing most of the light as you ride through the sleeping town.
 					<<else>>
-						Thick clouds blanket the sky, blocking out any natural light as your bike light on the road ahead.
+						Thick clouds blanket the sky, blocking out any natural light as your bike light flickers on the road ahead.
 					<</if>>
 				<<case "dusk">>
-					<<if _bikeIsthunderstorm>>
-						Thunderheads swallow the last orange light, and the town flashes bright whenever lightning forks above the roofs.
-					<<elseif _bikeIsStorm>>
-						Storm clouds roll over the town at dusk, pushing cold wind down the streets as you ride.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Evening rain hammers the town roads and careful riding keeps you steady through the wet streets.
-						<<else>>
-							A fine evening rain on the town roads as you move through the damp streets.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Snow thickens as dusk fades, forcing your tyres through soft tracks.
-						<<else>>
-							Snow begins to accumulate, softening the sound of your tyres as you ride through the town.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						Streaks of orange light break between the clouds and rooftops as you ride through town.
+					<<if Weather.precipitation is "rain">>
+						The evening rain turns the town roads into glistening paths, and your cautious riding keeps you steady as you move through the wet streets.
+					<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+						Snow begins to accumulate, softening the sound of your tires as you ride through the peaceful, snow-covered town.
 					<<elseif Weather.isOvercast is false>>
 						The sun dips below the rooftops, casting long shadows across the roads as you make your way through the town.
 					<<else>>
 						Dark clouds gather, creating an overcast sky that hides the last rays of daylight as you navigate the town streets.
 					<</if>>
 				<<case "dawn">>
-					<<if _bikeIsthunderstorm>>
-						The storm turning the dawn streets bright with sudden lightning.
-					<<elseif _bikeIsStorm>>
-						A storm roughens the dawn as you pedal on.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy dawn rain runs along the streets, and your tyres splash through puddles in the town.
-						<<else>>
-							The dawn's light glimmers off the rain-soaked streets as you ride through the town.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow catches the first light, slowing your wheels through town.
-						<<else>>
-							Snow reflects the morning light, covering the streets in white as your tyres leave tracks behind.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						The sun rises through thin cloud over the rooftops as you ride through the town.
+					<<if Weather.precipitation is "snow">>
+						Snow reflects the morning light, covering the streets in a blanket of white as your tires leave tracks behind.
+					<<elseif Weather.precipitation is "rain">>
+						The dawn's light glimmers off the rain-soaked streets, and your tires splash through the shallow puddles as you ride through the quiet town.
 					<<elseif Weather.isOvercast is false>>
-						The sun rises over the rooftops, lighting up the town as you pedal through the streets.
+						The sun rises over the rooftops, lighting up the town as you pedal through the calm streets.
 					<<else>>
-						A layer of clouds turns the sky grey as you ride through the early morning.
+						A thick layer of clouds turns the sky gray, casting a cool light over the streets as you ride through the early morning.
 					<</if>>
 				<<default>>
-					<<if _bikeIsthunderstorm>>
-						Lightning brightens the clouds above town that follows you along the wet road.
-					<<elseif _bikeIsStorm>>
-						A storm clasps over the town as you continue your journey.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Rain pours down, soaking the town streets with each passing minute.
-						<<else>>
-							Light rain darkens the town streets, leaving your tyres hissing over the damp road.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow coats the streets, making your ride slower as your tyres struggle for grip.
-						<<else>>
-							The streets are coated in snow, making your ride slower as your tyres struggle to grip the frosty ground.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						The sun shines between clouds, reflecting off windows and the pale town roads as you ride.
+					<<if Weather.precipitation is "snow">>
+						The streets are coated in snow, making your ride slower as your tires struggle to grip the frosty ground.
+					<<elseif Weather.precipitation is "rain">>
+						Rain pours down, soaking the town streets as your clothes grow heavier with each passing minute.
 					<<elseif Weather.isOvercast is false>>
 						The sun shines weakly, offering little warmth as you ride through the chilly town.
 					<<else>>
-						Overcast clouds cover the sky, casting a dull, grey light over the town streets as you ride.
+						Overcast clouds cover the sky, casting a dull, gray light over the town streets as you ride.
 					<</if>>
-			<<gtiredness>><<gathletics>><<gphysique>> <span class="gold">You get a good workout.</span><br><br>
 			<</switch>>
-			<<bikeDangerEvent _bikeEventStart>>
-			<<if $bikeDangerHappened is 0 and random(1, 100) lte _bikeNormalEventChance>>
+			<br>
+			<<if dangerEvent()>><br>
 				<<cleareventpool>>
 					<<switch Time.season>>
 						<<case "spring" "summer">>
-							<<addinlineevent "" 2>>
-								<<if Weather.precipitation is "rain">>
-									Rain is pouring out of the sky while you ride to your destination. The water flows fast through the gutters, which are struggling to handle it all. A car passes by at high speed and splashes water to all sides. Luckily the biggest splash misses you by a few inches.<<stress -4>><<lstress>>
-								<<else>>
-									While riding your bike through town, a swarm of small flies crosses your path. Luckily you saw them in time and dodge out of the way.<<stress -2>><<lstress>>
-								<</if>><<set $bikeEventHappened to 1>>
+							<<addinlineevent 2>>
+							<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+								While riding with your bike through town a swarm of small flies crosses your path. Luckily you saw them on time and can dodge out of the way.<<stress -3>><<lstress>><<set _phase to 1>>
+							<<elseif Weather.precipitation is "rain">>
+								Rain is pouring out of the sky while you ride to your destination. The water flows fast through the gutters which are having a difficult time to handle it all.
+								<br><br>
+								A car passes by at high speed and splashes water to all sides. Luckily the biggest splash misses you by a few inches.<<stress -3>><<lstress>><<set _phase to 1>>
+							<</if>>
 							<</addinlineevent>>
 							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									Rain pours out of the clouds above you while pedalling to your destination. The town drains are struggling with all the rain, and the road is starting to disappear under the water. Suddenly a car speeds by and a big splash hits you in the side, drenching you and shoving the bike a lane over.<<stress 6>><<ggstress>><<control -2>><<lcontrol>><<upperwet 30>><<underupperwet 30>><<lowerwet 30>><<underlowerwet 30>><<set $bikeDurability -= 5>>
-								<<else>>
-									You enjoy the ride through town when suddenly a swarm of little flies crosses your path. Too late you realise it, and while riding through them you swallow a couple. One bangs straight into your eye.<<stress 3>><<gstress>><<arousal -200>><<larousal>><<pain 2>><<gpain>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									A sudden downpour floods the gutters. Your tyre catches a submerged pothole and you wrench the handlebars to stay upright, tweaking your wrist in the process. Water sprays up, soaking your legs.<<stress 5>><<gstress>><<lowerwet 60>><<underlowerwet 60>><<set $bikeDurability -= 12>><<control -1>><<lcontrol>>
-								<<else>>
-									You catch every green light and the streets are clear. A cool breeze takes the edge off the heat. You arrive in good spirits, feeling sharp and alert.<<stress -3>><<lstress>><<control 1>><<gcontrol>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-						<<case "autumn">>
-							<<addinlineevent "" 2>>
-								Wet leaves have piled up along the kerb, spilling onto the road. You swerve around the worst of it but your back tyre fishtails, and the sudden jolt of adrenaline leaves you tense for the rest of the ride.<<stress 4>><<gstress>><<set $bikeDurability -= 5>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									Autumn rain has turned the leaf-covered streets into a hazard. Your front tyre slides on a patch of wet leaves as you round a corner and you crash into the kerb, scraping your hands and knees on the pavement.<<stress 6>><<ggstress>><<pain 4>><<ggpain>><<set $bikeDurability -= 15>><<upperwet 40>><<lowerwet 40>>
-								<<else>>
-									A strong autumn gust funnels between the buildings and hits you broadside. You fight the handlebars, but your tyre catches a storm drain and you tumble onto the road. A car honks and swerves around you.<<stress 7>><<ggstress>><<pain 3>><<ggpain>><<trauma 2>><<gtrauma>><<set $bikeDurability -= 15>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								A gust of wind catches you at an intersection just as a car runs a puddle at full speed. The wave of filthy water hits you square in the face, blinding you. You crash into a parked car, denting your frame and leaving you sprawled on the wet pavement, shaken and bruised.<<pain 6>><<gpain>><<trauma 4>><<ggtrauma>><<upperwet 20>><<underupperwet 20>><<lowerwet 20>><<underlowerwet 20>><<set $bikeDurability -= 30>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-						<<case "winter">>
-							<<addinlineevent "" 2>>
-								<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
-									Snow has been packed into ice by foot traffic on the road shoulders. You ride slowly, teeth chattering, muscles clenched against the cold.<<tiredness 6>><<gtiredness>>
-								<<else>>
-									Frost makes the town streets deceptively slippery. You white-knuckle the handlebars the entire way, arriving stiff and anxious.<<stress 5>><<gstress>><<tiredness 5>><<gtiredness>><<set $bikeDurability -= 5>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
-									Slush and compacted snow hide a pothole. Your front wheel drops in hard, buckling slightly, and you topple sideways into a dirty snowbank. Freezing water soaks through your clothes instantly.<<stress 6>><<ggstress>><<pain 4>><<ggpain>><<set $bikeDurability -= 20>><<wet_all>>
-								<<else>>
-									A patch of black ice at a crosswalk sends your bike sliding. You go down hard on the frozen tarmac, the impact rattling your teeth and scraping your palms raw.<<stress 7>><<ggstress>><<pain 5>><<gpain>><<set $bikeDurability -= 20>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								As you round a corner, your tyres lose on a sheet of ice. You slide helplessly into the path of oncoming traffic. A car screeches to a halt inches from you as you crash into the gutter, your bike crumpling beneath you.<<stress 10>><<ggstress>><<pain 7>><<ggpain>><<set $bikeDurability -= 35>><<set $bikeEventHappened to 1>>
+							<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+								You enjoy the ride through town when suddenly a swarm of little flies crosses your path. Too late you realise it and while riding through them, you swallow a couple of them.
+								<br><br>
+								One of the flies bangs straight into your eye. You spit out some that entered your mouth and with one hand you try to rub the fly out of your eye. <<stress 3>><<gstress>><<pain 1>><<gpain>><<set _phase to 1>>
+							<<elseif Weather.precipitation is "rain">>
+								Rain pours out of the clouds above you while pedaling with your bike to your destination. The town drains are having a difficult time to handle all the rain and the road is starting to disappear under the water. 
+								<br><br>
+								Suddenly a car speeds by at high velocity and a big splash of water hits you in the side, drenching you from top to toe.<<stress 3>><<gstress>><<wet_all>><<set _phase to 1>>
+							<</if>>
 							<</addinlineevent>>
 						<<default>><<addinlineevent>><</addinlineevent>>
 					<</switch>>
-				<<runeventpool>>
+				<<runeventpool>><br>
 			<</if>>
-			<<if $bikeJourneyInterrupted isnot 1>>
-				<<if $bikeEventHappened is 1>>
-					<br><br>
-					And the rest of the journey is uneventful.
+	<<case "alex_farm">>
+		<<switch Weather.dayState>>
+			<<case "night">>
+				<<if Weather.precipitation is "rain">>
+					Rain falls heavily, and the rural road gleams under your bike light as water runs in small streams along the smooth surface.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow drifts across the farmlands, covering the road in a thick blanket as your tires crunch through the accumulating snow.
+				<<elseif Weather.isOvercast is false>>
+					The stars stretch across the wide-open sky, with your bike rolling smoothly down the road as you ride through the silent countryside.
 				<<else>>
-					The journey is uneventful.
+					Thick clouds obscure the night sky, making it even darker as your bike light struggles to cut through the shadows on the rural road.
 				<</if>>
-			<</if>>
+			<<case "dusk">>
+				<<if Weather.precipitation is "rain">>
+					Rain sparkles on the rural road as the sun sets, and your tires send up small sprays of water as you pedal through the farmlands.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow begins to cover the fields and road, and your bike crunches through it as the light fades from the sky.
+				<<elseif Weather.isOvercast is false>>
+					The sun sets over the farmlands, casting long shadows over the fields as you pedal through the tranquil landscape.
+				<<else>>
+					A thick layer of clouds gathers above, dimming the sky as night approaches over the farmlands.
+				<</if>>
+			<<case "dawn">>
+				<<if Weather.precipitation is "rain">>
+					Morning rain glimmers on the rural road as the sun begins to rise, your tires splashing through the wet surface.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow covers the farmlands, reflecting the early morning light as your tires leave deep tracks in the soft snow.
+				<<elseif Weather.isOvercast is false>>
+					The sun rises over the distant hills, lighting up the road and fields as you ride through the serene farmlands.
+				<<else>>
+					Overcast clouds cover the morning sky, casting a gray light over the countryside as you ride through the farmlands.
+				<</if>>
+			<<default>>
+				<<if Weather.precipitation is "rain">>
+					Rain pours down onto the farmlands, the road slick but still manageable as you push forward through the countryside.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow blankets the fields and the road, your tires struggling to push through the deep drifts.
+				<<elseif Weather.isOvercast is false>>
+					The sun shines weakly over the farmlands, its light doing little to ease the cold as you ride through the open landscape.
+				<<else>>
+					Overcast clouds hang low in the sky, casting a dull light over the farmlands as you continue your journey.
+				<</if>>
+		<</switch>>
+		<br>
+		<<if dangerEvent()>><br>
+			<<cleareventpool>>
+				<<switch Time.season>>
+					<<case "spring" "summer">>
+						<<addinlineevent 2>>
+						<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+							The sun shines brightly while riding with your bike through the open landscape. A big swarm of flies appears in eyesight buzzing your way. You swerve out of the way of the incoming swarm just on time.<<stress -3>><<lstress>><<set _phase to 1>>
+						<<elseif Weather.precipitation is "rain">>
+							The skies are cloudy and rain falls down to the ground at a fast rate. Already the drains are overflowing and forming deep streams next to the bicycle path.
+							<br><br>
+							Slippery as it is, you manage to stay on your bike for the whole ride.<<stress -3>><<lstress>><<set _phase to 1>>
+						<</if>>
+						<</addinlineevent>>
+						<<addinlineevent>>
+						<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+							The open landscape passes by while riding through it with your bike. Suddenly a loud honk from a passing car scares the living hell out of you. With your eyes locked at the car and cursing in yourself you don't notice the black mass of flies directly ahead. 
+							<br><br>
+							When you do notice it is already too late. The swarm surrounds your head and flies start to fly into your mouth. After the swarm is gone, you try to spit out as much of it as you can, but a bitter taste remains in your mouth for a long time.<<stress 3>><<gstress>><<set _phase to 1>>
+						<<elseif Weather.precipitation is "rain">>
+							While riding with your bike, pouring rain is coming out of the clouds above you. Visibility is almost non-existent and the bicycle path is slippery. A loud screeching sound comes from behind you. You look and see a big truck slipping hard on the road, some of his wheels already on the bicycle path. 
+							<br><br>
+							Instinctively you turn your bike to the right and crash in a field full of high grass and full of deep puddles from the rain. The trucker gets his grip again and drives by, ignoring you entirely.<<stress 3>><<gstress>><<pain 1>><<gpain>><<wet_all>><<set $bicycle.durability -= 10>><<set _phase to 1>>
+						<</if>>
+						<</addinlineevent>>
+					<<default>><<addinlineevent>><</addinlineevent>>
+				<</switch>>
+			<<runeventpool>><br>
+		<</if>>				
+	<<case "moor">>
+		<<switch Weather.dayState>>
+			<<case "night">>
+				<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow dulls the contours of the moor, covering hidden dips and boggy patches. Your bike crunches through it warily, tires slipping as you ride through the shadowed wild.
+				<<elseif Weather.precipitation is "rain">>
+					The moor is a dark, sodden expanse. Rain lashes your face as your tires sink slightly into the muddy, uneven ground, making every meter a struggle.
+				<<elseif Weather.isOvercast is false>>
+					The stars flicker faintly through breaks in the clouds, barely lighting the marshy terrain ahead. You move slowly, wary of the treacherous footing beneath your wheels.
+				<<else>>
+					The darkness is nearly absolute. With only your bike light to guide you, you cautiously push forward over soaked peat and unseen hollows.
+				<</if>>
+			<<case "dusk">>
+				<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Fresh snow falls over the uneven terrain, making it harder to tell solid ground from hidden bog. You press on carefully, your balance tested with every push.
+				<<elseif Weather.precipitation is "rain">>
+					Rain makes the moor glisten ominously as dusk settles. Each bump and puddle slows your progress as your tires squelch through the boggy land.
+				<<elseif Weather.isOvercast is false>>
+					Faint orange light from the setting sun gives the moor a ghostly glow. The ground is rough, but you manage to pick your way forward.
+				<<else>>
+					Low clouds darken the horizon. The bog stretches ahead in shadow, the path uncertain and treacherous beneath your tires.
+				<</if>>
+			<<case "dawn">>
+				<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Dawn light reflects off the snowy moor, blinding in places but eerie in others. You ride slowly, every turn of the pedal a risk on the soft, uneven ground.
+				<<elseif Weather.precipitation is "rain">>
+					The morning mist clings to your face as rain soaks the moor. Every dip in the earth becomes a trap for your wheels as you grind forward through the sodden terrain.
+				<<elseif Weather.isOvercast is false>>
+					The rising sun paints the moor in pale gold. Despite the beauty, the rough terrain keeps your attention focused downward, scanning for safe passage.
+				<<else>>
+					Gray morning clouds loom above. The moor is quiet, save for the crunch and squelch of your tires as you navigate the marshy path.
+				<</if>>
+			<<default>>
+				<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Blankets of snow hide the worst of the moor's terrain, but you feel every rut and bump as your bike lurches across the rugged land.
+				<<elseif Weather.precipitation is "rain">>
+					Water pools across the moor's uneven surface, your tires spinning and slipping as you force your way across the wet ground.
+				<<elseif Weather.isOvercast is false>>
+					The sun offers little warmth but enough light to trace a way forward. Your path winds across the untamed moorland, unforgiving and raw.
+				<<else>>
+					A dull sky hangs overhead, matching the cold, bleak earth below. You press forward, the moor dragging at your every turn.
+				<</if>>
+		<</switch>>
+		<br>
+		<<if dangerEvent()>><br>
+			<<cleareventpool>>
+			<<switch Time.season>>
+				<<case "spring" "summer">>
+				<<addinlineevent 2>>
+					<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+						The sun shines brightly while riding with your bike through the open landscape. A big swarm of flies appears in eyesight buzzing your way. You swerve out of the way of the incoming swarm just on time.<<stress -3>><<lstress>><<set _phase to 1>>
+					<<elseif Weather.precipitation is "rain">>
+						The skies are cloudy and rain falls down to the ground at a fast rate. Already the drains are overflowing and forming deep streams next to the bicycle path. Slippery as it is, you manage to stay on your bike for the whole ride.<<stress -3>><<lstress>><<set _phase to 1>>
+					<</if>>
+				<</addinlineevent>>
+				<<addinlineevent>>
+					<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+						The open landscape passes by while riding through it with your bike. Suddenly a loud honk from a passing car scares the living hell out of you. With your eyes locked at the car and cursing in yourself you don't notice the black mass of flies directly ahead.
+						<br><br>
+						When you do notice it is already too late. The swarm surrounds your head and flies start to fly into your mouth. After the swarm is gone, you try to spit out as much of it as you can, but a bitter taste remains in your mouth for a long time.<<stress 3>><<gstress>><<set _phase to 1>>
+					<<elseif Weather.precipitation is "rain">>
+						While riding with your bike, pouring rain is coming out of the clouds above you. Visibility is almost non-existent and the bicycle path is slippery. A loud screeching sound comes from behind you. You look and see a big truck slipping hard on the road, some of his wheels already on the bicycle path. 
+						<br><br>
+						Instinctively you turn your bike to the right and crash in a field full of high grass and full of deep puddles from the rain. The trucker gets his grip again and drives by, ignoring you entirely.<<stress 3>><<gstress>><<pain 1>><<gpain>><<wet_all>><<set $bicycle.durability -= 10>><<set _phase to 1>>
+					<</if>>
+				<</addinlineevent>>
+				<<default>><<addinlineevent>><</addinlineevent>>
+			<</switch>>
+			<<runeventpool>><br>
+		<</if>>				
 
-		<<case "farm">>
-			<<switch Weather.dayState>>
-				<<case "bloodMoon">>
-					<<if _bikeIsthunderstorm>>
-						Lightning tears across the blood-red sky above the fields as you ride.
-					<<elseif _bikeIsStorm>>
-						The blood moon glows behind storm clouds over the open land as you ride.
-					<<elseif _bikeIsRain>>
-						Rain shines red beneath the blood moon while your tyres spray water into the dark.
-					<<elseif _bikeIsSnow>>
-						Snow falls through the blood moon's glow, spreading a pale red sheen across the fields.
-					<<elseif _bikeIsLightClouds>>
-						Clouds pass over the blood moon, its red light drifting across the farmlands as you ride.
-					<<elseif Weather.isOvercast is false>>
-						The blood moon clear over the fields, tinting the open road red as you ride.
-					<<else>>
-						Heavy clouds dull the blood moon as you ride.
-					<</if>>
-				<<case "night">>
-					<<if _bikeIsthunderstorm>>
-						Thunder clasps over the fields as you ride.
-					<<elseif _bikeIsStorm>>
-						A storm sweeps over the farmlands, shoving at your bike.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Rain falls heavily as you ride.
-						<<else>>
-							Light rain falls over the farmlands as you ride.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow sweeps across the fields, covering the road until your tyres have to carve their own path.
-						<<else>>
-							Snow drifts across the farmlands as your tyres crunch through the accumulating snow.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						Clouds drift across the wide night sky, but enough starlight remains to outline the road through the fields.
-					<<elseif Weather.isOvercast is false>>
-						The stars stretch across the wide-open sky as you ride.
-					<<else>>
-						Thick clouds obscure the night sky, making it even darker as your bike light the rural road.
-					<</if>>
-				<<case "dusk">>
-					<<if _bikeIsthunderstorm>>
-						Thunderheads darken the sky, lightning flashing over the fields as you pedal through the wind.
-					<<elseif _bikeIsStorm>>
-						A storm rolls over the fields at dusk as you ride.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Your tyres send up steady sprays of water through the farmlands.
-						<<else>>
-							Your tyres send up small sprays of water as you pedal through the farmlands.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow moves over the fields as dusk fades along your journey.
-						<<else>>
-							Snow begins to settle across the fields, softening the sound of your tyres.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						Streaks of orange light catch on scattered clouds above the fields as you follow the road onward.
-					<<elseif Weather.isOvercast is false>>
-						The sinking sun casts long shadows over the fields as you ride.
-					<<else>>
-						Low clouds gather above, dimming the sky as night approaches over the farmlands.
-					<</if>>
-				<<case "dawn">>
-					<<if _bikeIsthunderstorm>>
-						Thunder rolls across the waking fields as you ride.
-					<<elseif _bikeIsStorm>>
-						A storm hangs over the dawn fields as you ride through the morning.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy morning rain runs over the rural road, your tyres splashing through the wet surface.
-						<<else>>
-							Morning rain glimmers on the rural road as the sun begins to rise through your journey.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Heavy snow covers the farmlands while your tyres leave deep, slow tracks.
-						<<else>>
-							Snow covers the farmlands as your tyres leave fresh tracks in the snow.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						The sun rises through scattered clouds over the distant hills as you ride.
-					<<elseif Weather.isOvercast is false>>
-						The sun rises over, lighting up the road and fields as you ride through the farmlands.
-					<<else>>
-						Overcast clouds cover the morning sky as you ride through the farmlands.
-					<</if>>
-				<<default>>
-					<<if _bikeIsthunderstorm>>
-						Lightning brightens the open sky above the farmlands, thunder following across the fields as you ride.
-					<<elseif _bikeIsStorm>>
-						A storm clasps across the countryside, pushing against you on the rural road.
-					<<elseif _bikeIsRain>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Rain pours down onto the farmlands as you push forward through the countryside.
-						<<else>>
-							Light rain drifts across the fields, leaving the rural road damp beneath your tyres.
-						<</if>>
-					<<elseif _bikeIsSnow>>
-						<<if _bikeIsHeavyPrecipitation>>
-							Snow blankets the fields and the road, your tyres struggling to push through the drifts.
-						<<else>>
-							The road is lightly dusted with snow as you ride through the open countryside.
-						<</if>>
-					<<elseif _bikeIsLightClouds>>
-						The sun slips in and out of scattered clouds, flashing across the fields as you ride.
-					<<elseif Weather.isOvercast is false>>
-						The sun shines weakly over the farmlands as you ride through the open landscape.
-					<<else>>
-						Overcast clouds hang low in the sky as you continue your journey.
-					<</if>>
-			<<gtiredness>><<gathletics>><<gphysique>> <span class="gold">You get a good workout.</span><br><br>
-			<</switch>>
-			<<bikeDangerEvent _bikeEventStart>>
-			<<if $bikeDangerHappened is 0 and random(1, 100) lte _bikeNormalEventChance>>
-				<<cleareventpool>>
-					<<switch Time.season>>
-						<<case "spring" "summer">>
-							<<addinlineevent "" 2>>
-								<<if Weather.precipitation is "rain">>
-									The skies are cloudy and rain falls at a fast rate. Already the drains are overflowing and forming deep streams next to the bicycle path. Slippery as it is, you manage to stay on your bike for the whole ride.<<stress -2>><<lstress>><<control 1>><<gcontrol>>
-								<<else>>
-									The sun shines brightly while you ride through the open landscape. A big swarm of flies appears in sight, buzzing your way. You swerve out of the way just in time.<<stress -3>><<llstress>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									While riding your bike, pouring rain comes out of the clouds above you. Visibility is almost non-existent and the bicycle path is slippery. A loud screeching sound comes from behind you. You look and see a big truck slipping hard on the road, some of its wheels already on the bicycle path.
-									<br>
-									Instinctively you turn your bike to the right and crash in a field full of high grass and deep puddles. The trucker gets their grip again and drives by, ignoring you entirely.<<pain 4>><<gpain>><<trauma 3>><<gtrauma>><<upperwet 30>><<underupperwet 30>><<lowerwet 30>><<underlowerwet 30>><<set $bikeDurability -= 25>>
-								<<else>>
-									The open landscape passes by while you ride through it. Suddenly a loud honk from a passing car scares the living hell out of you. With your eyes locked on the car and cursing under your breath, you don't notice the black mass of flies directly ahead.
-									<br>
-									When you do notice, it is already too late. The swarm surrounds your head and flies start to fly into your mouth. After the swarm is gone, you try to spit out as much of it as you can, but a bitter taste remains in your mouth for a long time.<<stress 12>><<ggstress>><<arousal -300>><<larousal>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									A passing lorry clips a deep puddle and sends a wall of muddy water crashing over you. Blinded and sputtering, you swerve and your chain slips off the gears with a sickening clunk. You have to stop and fix it with filthy, shaking hands.<<stress 6>><<ggstress>><<upperwet 70>><<underupperwet 70>><<lowerwet 70>><<underlowerwet 70>><<set $bikeDurability -= 18>><<control -1>><<lcontrol>>
-								<<else>>
-									The heat shimmers off the open road. With no shade for miles, the sun beats down relentlessly. Sweat drips into your eyes and your legs start to cramp. You arrive exhausted and parched.<<tiredness 6>><<gtiredness>><<set $bikeDurability -= 5>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-						<<case "autumn">>
-							<<addinlineevent "" 2>>
-								Strong crosswinds batter you on the exposed farmland road. Fallen leaves swirl around your wheels, and the constant fight to stay straight leaves your arms aching.<<stress 4>><<gstress>><<tiredness 6>><<gtiredness>><<set $bikeDurability -= 5>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "rain">>
-									Autumn rain has turned the road shoulder into a mud slick. A tractor rumbles past, spraying you with a wave of muddy water. Blinded, you ride straight into a ditch and go over the handlebars.<<stress 7>><<ggstress>><<pain 4>><<gpain>><<set $bikeDurability -= 20>><<upperwet 20>><<underupperwet 20>><<lowerwet 20>><<underlowerwet 20>>
-								<<else>>
-									A sudden gust of autumn wind catches you broadside on the open road. You swerve hard, your tyre catches a rut, and you crash onto the gravel shoulder, scraping your side raw.<<stress 6>><<ggstress>><<pain 4>><<gpain>><<set $bikeDurability -= 15>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								The road is a mess of mud, leaves, and standing water from days of rain. A truck barrels past too close, its wake shoving you off the road entirely. You crash through a fence into a waterlogged field, your bike frame bending on impact.<<pain 6>><<ggpain>><<trauma 4>><<gtrauma>><<upperwet 40>><<underupperwet 40>><<lowerwet 40>><<underlowerwet 40>><<set $bikeDurability -= 30>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-						<<case "winter">>
-							<<addinlineevent "" 2>>
-								<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
-									Snow drifts pile across the farmland road, forcing you to dismount and push through the deepest sections. By the time the road clears, your legs are burning and your clothes are soaked from the knees down.<<stress 4>><<gstress>><<lowerwet 60>><<underlowerwet 60>><<set $bikeDurability -= 5>>
-								<<else>>
-									Bitter wind whips across the open farmland, cutting through your clothes. Your fingers go numb and your grip on the handlebars weakens dangerously.<<stress 5>><<gstress>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								<<if Weather.precipitation is "snow" || Weather.isSnow is true>>
-									Compacted snow hides a patch of ice where the road dips. Your tyres spin uselessly and you crash sideways, the frozen ground unforgiving against your body.<<stress 6>><<ggstress>><<pain 5>><<gpain>><<set $bikeDurability -= 20>><<upperwet 40>><<lowerwet 40>>
-								<<else>>
-									Black ice stretches across the exposed farmland road. You don't even see it coming. One moment you're pedalling, the next you're sliding across frozen tarmac on your back, your bike skidding away from you.<<stress 7>><<ggstress>><<pain 5>><<gpain>><<set $bikeDurability -= 20>>
-								<</if>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-							<<addinlineevent>>
-								A blizzard-like squall descends on the open road. Visibility drops to nothing, wind threatens to rip you off the bike, and a sheet of ice sends you careening into a frozen drainage ditch. The impact jars your entire body.<<pain 8>><<ggpain>><<trauma 6>><<ggtrauma>><<set $bikeDurability -= 35>><<set $bikeEventHappened to 1>>
-							<</addinlineevent>>
-						<<default>><<addinlineevent>><</addinlineevent>>
-					<</switch>>
-				<<runeventpool>>
-			<</if>>
-			<<if $bikeJourneyInterrupted isnot 1>>
-				<<if $bikeEventHappened is 1>>
-					<br><br>
-					And the rest of the journey is uneventful.
+	<<case "cabin" "wolf_cave_yard">>
+		<<switch Weather.dayState>>
+			<<case "night">>
+				<<if Weather.precipitation is "rain">>
+					Heavy rain drums on the forest canopy above, dripping in thick drops. The trail is a mess of roots, mud, and low visibility—your ride becomes a slow, exhausting push.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow muffles all sound in the deep forest. The path is nearly invisible under the white blanket, and your tires slide often on hidden obstacles.
+				<<elseif Weather.isOvercast is false>>
+					Faint starlight filters between the trees, barely enough to show the winding path. You ride carefully, the forest silent and dark around you.
 				<<else>>
-					The journey is uneventful.
+					The trees form a black wall of shadow. With clouds above and no moonlight, your bike light is the only guide in a suffocating darkness.
 				<</if>>
-			<</if>>
-		<<default>>
-			<<bikeError>>
+			<<case "dusk">>
+				<<if Weather.precipitation is "rain">>
+					Rain makes the forest trail treacherous, the earth slick and full of tangled roots. Visibility fades quickly, and you slow to a crawl.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow falls thick between the trees, blanketing the forest and muting the sounds of your passage. You fight to stay balanced on the uneven trail.
+				<<elseif Weather.isOvercast is false>>
+					Light seeps through the trees as the sun sets, but the forest grows dark quickly. You navigate by what little you can see between trunks and shadow.
+				<<else>>
+					The dimming light disappears under heavy clouds. The trail is a maze of ridges and roots, made worse by the encroaching night.
+				<</if>>
+			<<case "dawn">>
+				<<if Weather.precipitation is "rain">>
+					Drizzle clings to the leaves and branches as you weave between trees. The trail is soaked and messy, demanding your full attention.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					Snow crunches under your tires as the sun rises weakly through the canopy. You ride slowly, wary of icy patches hidden in shadow.
+				<<elseif Weather.isOvercast is false>>
+					The rising sun breaks through the trees, lighting the trail in strips. It's beautiful, but the terrain remains slow and bumpy.
+				<<else>>
+					Gray morning clouds keep the forest dim. You push forward carefully, your tires bumping over every root and stone.
+				<</if>>
+			<<default>>
+				<<if Weather.precipitation is "rain">>
+					The trail through the deep forest becomes a muddy obstacle course, with puddles and root-knots jerking your tires at every turn.
+				<<elseif Weather.precipitation is "snow" || Weather.isSnow is true>>
+					The ground is slippery with snow, and you struggle to keep control as your tires slide across uneven surfaces.
+				<<elseif Weather.isOvercast is false>>
+					The forest is lit with patches of sun filtering through the leaves. It's peaceful—but the terrain keeps your speed low and your grip tense.
+				<<else>>
+					The forest is dim under the cloudy sky, and the trail is as unpredictable as ever. Every meter is earned with care.
+				<</if>>
+		<</switch>>
+		<br>
+		<<if dangerEvent()>><br>
+			<<cleareventpool>>
+				<<switch Time.season>>
+					<<case "spring" "summer">>
+					<<addinlineevent 2>>
+						<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+							Birds are singing in the trees while riding your bike through the forest. You notice a big swarm of flies directly ahead and swerve a little bit to the left to avoid it.<<stress -3>><<lstress>><<set _phase to 1>>
+						<<elseif Weather.precipitation is "rain">>
+							While rain pours down from above, you pedal through the forest making your way to your destination. Visibility is low and the road is slippery and when a sharp turn comes around you almost get into a slide. 
+							<br><br>
+							Luckily you can stay in control of your bike and avoid slipping into the stream next to you.<<stress -3>><<lstress>><<set _phase to 1>>
+						<</if>>
+					<</addinlineevent>>
+					<<addinlineevent>>
+						<<if Weather.precipitation is "none" && !Weather.isOvercast && Weather.dayState is "day">>
+							While riding your bike through the forest your attention is taken away by a weird noise to your right. You turn your head back to the road after trying to find the source and something flies straight in your mouth and nose.
+							<br><br>
+							Spitting out the thing that flew in your mouth and rubbing your now itchy nose you look at the road behind you. A swarm of flies are buzzing over the road you just passed.<<stress 3>><<gstress>><<set _phase to 1>>
+						<<elseif Weather.precipitation is "rain">>
+							While riding your bike through the forest rain pours out of the clouds above. The rain makes it hard to see what lies ahead and when a small rock on the road makes you lose control, you fall from your bike into the stream next to you. 
+							<br><Br>
+							Luckily you are still in one piece but dry you are not. <<stress 3>><<gstress>><<wet_all>><<set $bicycle.durability -= 10>><<set _phase to 1>>
+						<</if>>
+					<</addinlineevent>>
+					<<default>>
+						<<addinlineevent>><</addinlineevent>>
+				<</switch>>
+			<<runeventpool>><br>
+		<</if>>				
+	<<default>>
+		<<bikeError>>
 	<</switch>>
-	<<unset $bikeEventHappened>><<unset $bikeDangerHappened>>
+<</widget>>
+
+<<widget "bikeTransition">>
+	<<switch $destination>>
+		<<case "lake">>
+			You follow the trail towards the lake.
+		<<case "forestEntrance">>
+			You head towards the forest outskirts.
+		<<case "domus" "barb" "danube" "wolf" "connudatus">>
+			You follow the street signs towards the residential district.
+		<<case "high" "cliff" "nightingale" "starfish" "oxford">>
+			You follow the street signs towards the commercial district.
+		<<case "elk" "mer" "harvest">>
+			You follow the street signs towards the industrial district.
+		<<case "alex_farm">>
+			You enter the plains and leave the town behind you.
+		<<case "moor">>
+			You enter the moor, leaving the town and plains behind you.
+		<<case "cabin" "wolf_cave_yard">>
+			You follow the trails into the deeper parts of the forest.
+	<</switch>>
+<</widget>>
+
+<<widget "bikeGains">>
+	<<if currentSkillValue('danceskill') + currentSkillValue('athletics') gte 1600>>
+		<<if $bicycle.time gt 5>>
+		Your agility and athletic skill made the ride fairly easy.
+		<</if>>
+		<<set _f to Math.trunc($bicycle.gains.fatigue*0.85)>>
+		<<tiredness _f>><<athletics $bicycle.gains.athletics>><<danceskill $bicycle.gains.athletics>>
+		<<physique 1>><<gtiredness>><<gathletics>><<gdanceskill>><<if $bicycle.roughTerrain isnot 0>><<silently>><<physique $bicycle.gains.physique>><</silently>><<gphysique>><</if>><br><br>
+	<<elseif currentSkillValue('danceskill') + currentSkillValue('athletics') gte 1100>>
+		<<if $bicycle.time gt 5>>
+		The trip wasn't too bad due to your decent build.
+		<</if>>
+		<<set _f to Math.trunc($bicycle.gains.fatigue*0.95)>>
+		<<tiredness _f>><<athletics $bicycle.gains.athletics>>
+		<<physique 1>><<ggtiredness>><<gathletics>><<gdanceskill>><<if $bicycle.roughTerrain isnot 0>><<silently>><<physique $bicycle.gains.physique>><</silently>><<gphysique>><</if>><br><br>
+	<<elseif currentSkillValue('danceskill') + currentSkillValue('athletics') gte 650>>
+		<<if $bicycle.time gt 5>>
+		Your lack of muscle makes the trip a lot harder than you originally thought it would be.
+		<</if>>
+		<<tiredness $bicycle.gains.fatigue>><<athletics $bicycle.gains.athletics>><<danceskill $bicycle.gains.athletics>>
+		<<physique 1>><<ggtiredness>><<gathletics>><<gdanceskill>><<if $bicycle.roughTerrain isnot 0>><<silently>><<physique $bicycle.gains.physique>><</silently>><<gphysique>><</if>><br><br>
+	<<else>>
+		<<if $bicycle.time gt 5>>
+		You struggle to maintain a decent speed the entire ride, nearly tipping over several times.
+		<</if>>
+		<<set _f to Math.trunc($bicycle.gains.fatigue*1.25)>><<set _a to Math.trunc($bicycle.gains.athletics*0.85)>><<set _p to Math.trunc($bicycle.gains.physique*0.85)>>
+		<<tiredness _f>><<athletics _a>><<danceskill _a>>
+		<<physique 1>><<gggtiredness>><<gathletics>><<gdanceskill>><<if $bicycle.roughTerrain isnot 0>><<silently>><<physique _p>><</silently>><<gphysique>><</if>><br><br>
+	<</if>>
 <</widget>>

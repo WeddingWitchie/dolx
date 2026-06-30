@@ -1,74 +1,28 @@
 :: Bike
-<<endevent>><<effects>>
+<<endevent>><<effects>><<set $phase to 1>>
+
 You climb onto your bike.
 <br><br>
-<<bikeMenu>>
+<<bikeMenu 1 $bicycle.locationRegion>>
 <br>
 <<cancelBike>>
 
 :: Bike Ride
 <<effects>><<rng>>
-<<if $destination is undefined>>
-	You pause, realising you never settled on where you were headed.
-	<br><br>
-	<<link [[Decide where to go|Bike]]>><</link>>
-<<else>>
-	<<bikeEvents>><<destinationBike $destination>>
-	<br><br>
-	<<bikeArrive>>
-<</if>>
 
-/* EVENTS */
-
-:: Bike Road Ambush
-<<if $molestationstart is 1>>
-	<<set $molestationstart to 0>>
-	<<set $consensual to 0>>
-	<<controlloss>>
-	<<violence 1>>
-	<<neutral 1>>
-	<<molested>>
-	<<set $enemyno to 1>><<set $enemynomax to 1>><<maninit>>
-	<<enable_rescue>>
-<</if>>
-<<effects>>
-<<effectsman>>
-<<man>>
-<<audience>>
-<<stateman>>
-<br><br>
-<<actionsman>>
-<<if _combatend>>
-	<span id="next"><<link [[Next|Bike Road Ambush Finish]]>><</link>></span><<nexttext>>
-<<else>>
-	<span id="next"><<link [[Next|Bike Road Ambush]]>><</link>></span><<nexttext>>
-<</if>>
-
-:: Bike Road Ambush Finish
-<<effects>>
-<<if $enemyhealth lte 0>>
-	Your attacker reels back, giving you enough room to scramble away. You grab your bike and put distance between you before <<he>> recovers.
-<<elseif $enemypleasure gte $enemypleasuremax>>
-	<<ejaculation>>
-	Your attacker backs off with a rough laugh, leaving you shaken beside the road. You force yourself up and look for your bike.
-<<elseif $rescue is 1 and $alarm is 1>>
-	Someone nearby shouts. Your attacker flinches, then bolts before anyone can get a proper look. You use the moment to pull yourself together.
-<<else>>
-	Your attacker finally shoves you away and disappears down a side path, leaving you aching and breathless beside the bike.
-<</if>>
-<<clotheson>><<endcombat>><<fameexhibitionism 1>><br>
-<<link [[Next|Bike Road Recovery]]>><</link>>
-
-:: Bike Road Recovery
-<<effects>>
-<<if $bikeBroken is 1 or $bikeDurability lte 0>>
-	Your bike is in no state to ride. You steady yourself and drag it the rest of the way, every step making the damage feel heavier.
-	<<tiredness 20>><<ggtiredness>><<stress 6>><<gstress>>
-<<else>>
-	Your hands shake as you check the frame and wheels. The bike still moves, though every sound from it makes you flinch.
-	<<stress 4>><<gstress>>
-<</if>>
-<br><br>
-<<unset $bikeJourneyInterrupted>>
-<<unset $bikeDangerRoute>><<unset $bikeDangerDestination>><<unset $bikeDangerType>>
-<<bikeArrive>>
+<<switch $phase>>
+    <<case 1>>
+        <<set $phase to 0>>
+        <<bikeEvents $bicycle.location>>
+        <br>
+        <<bikeTransition>>
+        <br><br>
+        <<link [[Next|$passage]]>><</link>>
+    <<case 0>>
+        <<set $phase to 1>>
+        <<bikeEvents $destination>>
+        <br>
+        <<destinationBike $destination>>
+    <<case 2>>
+        <<link [[Next|Bike Travel Interrupted]]>><</link>>
+<</switch>>

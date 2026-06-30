@@ -1042,44 +1042,85 @@
 		<<set $traumaeyes to false>>
 	<</if>>
 
-	<<if $bike is undefined>>
-		<<set $bike to 0>>
-	<</if>>
+	<<if $bikeUpdate is 1>>
+	<<else>>
+		<<if $bike is undefined>>
+			<<set $bike to 0>>
+		<</if>>
 
-	<<if $bikeDurability is undefined>>
-		<<set $bikeDurability to 0>>
-	<</if>>
+		<<if $bikeDurability is undefined>>
+			<<set $bikeDurability to 0>>
+		<</if>>
 
-	<<if $bikePersistentLocation is undefined>>
-		<<set $bikePersistentLocation to 0>>
-	<</if>>
+		<<if $bikePersistentLocation is undefined>>
+			<<set $bikePersistentLocation to 0>>
+		<</if>>
 
-	<<if $bikeSecurity is undefined>>
-		<<set $bikeSecurity to 0>>
-	<</if>>
+		<<if $bikeSecurity is undefined>>
+			<<set $bikeSecurity to 0>>
+		<</if>>
 
-	<<if $bikeSecurityGear is undefined>>
-		<<set $bikeSecurityGear to 0>>
-	<</if>>
+		<<if $bikeSecurityGear is undefined>>
+			<<set $bikeSecurityGear to 0>>
+		<</if>>
 
-	<<if $bikeLocation is undefined>>
-		<<set $bikeLocation to "">>
-	<</if>>
+		<<if $bikeLocation is undefined>>
+			<<set $bikeLocation to "">>
+		<</if>>
 
-	<<if $bikeStart is undefined>>
-		<<set $bikeStart to "">>
-	<</if>>
+		<<if $bikeStart is undefined>>
+			<<set $bikeStart to "">>
+		<</if>>
 
-	<<if $bikeEndCategory isnot undefined>>
-		<<unset $bikeEndCategory>>
-	<</if>>
+		<<if $bikeStartCategory isnot undefined>>
+			<<unset $bikeStartCategory>>
+		<</if>>
 
-	<<if $bikeDestination isnot undefined>>
-		<<unset $bikeDestination>>
-	<</if>>
+		<<if $bikeEndCategory isnot undefined>>
+			<<unset $bikeEndCategory>>
+		<</if>>
 
-	<<if $bikeBroken isnot undefined and $bikeDurability gte 1>>
-		<<unset $bikeBroken>>
+		<<if $bikeDestination is undefined>>
+			<<set $bikeDestination to "">>
+		<</if>>
+
+		<<if $bikeBroken isnot undefined and $bikeDurability gte 1>>
+			<<unset $bikeBroken>>
+		<</if>>
+
+		<<if $bikeSuspension is undefined>>
+			<<set $bikeSuspension to 0>>
+		<</if>>
+
+		<<if $bikeTires is undefined>>
+			<<set $bikeTires to 0>>
+		<</if>>
+
+		<<if $bikeTubeless is undefined>>
+			<<set $bikeTubeless to 0>>
+		<</if>>
+
+		<<if $bikeBrakes is undefined>>
+			<<set $bikeBrakes to 0>>
+		<</if>>
+
+		<<if $bikePedals is undefined>>
+			<<set $bikePedals to 0>>
+		<</if>>
+
+		<<if $bikeGrips is undefined>>
+			<<set $bikeGrips to 0>>
+		<</if>>
+
+		<<if Number.isNaN($bikeDurability)>>
+			<<if $bike is 3>>
+				<<set $bikeDurability to 12000>>
+			<<elseif $bike is 2>>
+				<<set $bikeDurability to 6000>>
+			<<else>>
+				<<set $bikeDurability to 3000>>
+			<</if>>
+		<</if>>
 	<</if>>
 
 	<<if $combatTimePass isnot undefined>>
@@ -1727,6 +1768,11 @@
 	<<modParasiteCapUpdate>>
 	<<modWardrobeUpdate>>
 	<<amcTraitsUpdate>>
+
+	<<if !$bikeUpdate || $bikeUpdate isnot 1>>
+		<<bikeUpdate>>
+	<</if>>
+
 	<<clamp>>
 <</widget>>
 
@@ -2094,7 +2140,7 @@
 	<<script>>window.dolxRepairMissingJewelleryWornSlots?.();<</script>>
 <</widget>>
 
-/* Guarantee every transformation-trait key exists. 
+/* Guarantee every transformation-trait key exists.
 Reads across the game test `X isnot "disabled"` (and `!["disabled","hidden"].includes(X)`), which treat a MISSING key as active
 so an undefined key shows phantom traits (Dragon Eyes, Predatory Animal...) and triggers their effects (e.g. the dragonEyes always-hallucinate check).
 Trait keys are added to the schema over time, and the backfills for them live in the version-gated <<modupdate>>,
@@ -2117,4 +2163,105 @@ This runs every load (via <<xchange-modupdate>>) to fill only the missing keys w
 	<<if _traits.leviathan is undefined>><<set _traits.leviathan to "disabled">><</if>>
 	/* predatoryAnimal/preyAnimal are derived from current TF levels, never authored recompute them. */
 	<<recomputePredatorPrey>>
+<</widget>>
+
+<<widget "bikeUpdate">>
+	<<set $bicycle to {}>>
+	<<set $bicycle.quality to $bike>>
+	<<set $bicycle.own to true>>
+	<<if $location is "town" || $location is "plains" || $location is "forest" || $location is "industrial">>
+		<<set $bicycle.location to $sublocation>>
+	<<else>>
+		<<set $bicycle.location to $location>>
+	<</if>>
+	<<set $bicycle.durability to {
+		current: 0,
+		max: 0
+	}>>
+	<<switch $bicycle.quality>>
+		<<case 1>>
+			<<set $bicycle.durability.max to 3000>>
+		<<case 2>>
+			<<set $bicycle.durability.max to 6000>>
+		<<case 3>>
+			<<set $bicycle.durability.max to 12000>>
+		<<default>>
+			<<set $bicycle.durability.max to 0>>
+	<</switch>>
+	<<if $bikeBroken isnot undefined>>
+		<<set $bicycle.durability.current to 0>>
+	<<else>>
+		<<set $bicycle.durability.current to $bikeDurability>>
+	<</if>>
+	<<set $bicycle.upgrades to []>>
+	<<if $bikeBrakes is 1>>
+		<<set $bicycle.upgrades.pushUnique("brakes")>>
+	<</if>>
+	<<if $bikeGrips is 1>>
+		<<set $bicycle.upgrades.pushUnique("grips")>>
+	<</if>>
+	<<if $bikePedals is 1>>
+		<<set $bicycle.upgrades.pushUnique("pedals")>>
+	<</if>>
+	<<if $bikeSuspension is 1>>
+		<<set $bicycle.upgrades.pushUnique("suspension")>>
+	<</if>>
+	<<if $bikeTires is 1>>
+		<<set $bicycle.upgrades.pushUnique("tires")>>
+	<</if>>
+	<<if $bikeTubeless is 1>>
+		<<set $bicycle.upgrades.pushUnique("tubeless")>>
+	<</if>>
+	<<switch $bikeSecurityGear>>
+		<<case 5>>
+			<<set $bicycle.security to 0.99>>
+		<<case 4>>
+			<<set $bicycle.security to 0.8>>
+		<<case 3>>
+			<<set $bicycle.security to 0.5>>
+		<<case 2>>
+			<<set $bicycle.security to 0.3>>
+		<<case 1>>
+			<<set $bicycle.security to 0.1>>
+		<<default>>
+			<<set $bicycle.security to 0>>
+	<</switch>>
+	<<if !$bikeStolen>>
+		<<set $bicycle.stolen to false>>
+		<<set $bicycle.securityStolen to false>>
+	<<else>>
+		<<set $bicycle.stolen to true>>
+		<<set $bicycle.own to false>>
+		<<set $bicycle.securityStolen to true>>
+		<<set $bicycle.upgrades to []>>
+	<</if>>
+	<<if $bikeSecurityGearStolen isnot undefined>>
+		<<set $bicycle.security.stolen to true>>
+		<<set $bicycle.security to 0>>
+	<</if>>
+	<<if $bikePersistentLocation is 0>>
+		<<set $bicycle.persistentLocation to false>>
+	<<else>>
+		<<set $bicycle.persistentLocation to true>>
+	<</if>>
+	<<if $bikeSecurity is 0>>
+		<<set $bicycle.theftEnabled to false>>
+	<<else>>
+		<<set $bicycle.theftEnabled to true>>
+	<</if>>
+	<<set $bicycle.travel to {}>>
+	<<set $bicycle.roughTerrain to 0>>
+	<<set $bicycle.gains to {}>>
+	<<set $bicycle.destinations to {
+		Residential: ["Barb Street", "Domus Street", "Danube Street", "Wolf Street"],
+		Commercial: ["High Street", "Connudatus Street", "Cliff Street", "Nightingale Street", "Oxford Street", "Starfish Street"],
+		Industrial: ["Elk Street", "Harvest Street", "Mer Street"],
+		Forest: ["Lake Shore", "Forest", "Eden Clearing", "Eden Hot Spring Creation 1", "Eden Fluids Punishment", "Wolf Cave Clearing"],
+		Plains: ["Farmland", "Moor"],
+	}>>
+
+	<<unset $bikeBrakes, $bikeGrips, $bikePedals, $bikeSuspension, $bikeTires, $bikeTubeless, $bikeSecurityGear, $bikeSecurityGearStolen, $bikeDestination, $bikeEndCategory, $bikeStartCategory, $bike>>
+
+	/* increment this whenever you need to i guess */
+	<<set $bikeUpdate to 1>>
 <</widget>>
