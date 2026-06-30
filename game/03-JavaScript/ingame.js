@@ -578,8 +578,8 @@ function bulkProduceValue(foodstuff, quantity = 250) {
 		const baseCost = (foodstuff.shop.sell_price * quantity) / 2;
 		const seasonBoost = foodstuff.tending?.seasons && !foodstuff.tending.seasons.includes(Time.season) ? 1.1 : 1;
 
-		const qualityControlBoost = V.factoryUpgrades.qualityControl ? V.factoryUpgrades.qualityControl * 0.05 : 0; // +5% per level
-		const packagingBoost = V.factoryUpgrades.packaging ? V.factoryUpgrades.packaging * 0.05 : 0; // +5% per level
+		const qualityControlBoost = V.factoryUpgrades?.qualityControl ? V.factoryUpgrades.qualityControl * 0.05 : 0; // +5% per level
+		const packagingBoost = V.factoryUpgrades?.packaging ? V.factoryUpgrades.packaging * 0.05 : 0; // +5% per level
 
 		const businessBoost = 0.3 * (1 * (V.fame.business / 4000));
 		const socialBoost = 0.1 * (1 * (V.fame.social / 4000));

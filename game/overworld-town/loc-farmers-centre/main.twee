@@ -47,8 +47,8 @@
 	<</if>>
 	<br><br>
 
-	<<if $farmersProduce.money gt 10000>>
-		<<highicon>><<link [[Collect money|Farmers Centre Money Collection]]>><</link>>
+	<<if $farmersProduce.money gt 0>>
+		<<highicon>><<link [[Collect money (<<printmoney $farmersProduce.money>>)|Farmers Centre Money Collection]]>><</link>>
 		<br>
 	<</if>>
 	<<socialiseicon "ask">><<link [[Enquire about selling produce|Farmers Centre Produce Sale]]>><</link>>
@@ -69,7 +69,7 @@ The <<person>> enters the factory proper, and emerges with a wad of notes. You'v
 :: Farmers Centre Produce Sale
 The <<person>> opens a laptop. "So what do you have for me?"
 <br><br>
-<i>You can collect money from sold produce every day at noon. High business fame helps the factory sell produce faster.</i>
+<i>The factory sells some of your produce each day at noon. You can collect your earnings here whenever you like. High business fame helps the factory sell produce faster.</i>
 <br><br>
 <<set $farmersProduce.toSell to {}>>
 <<set _foodstuffKeys to Object.keys($foodstuff)>>
@@ -194,7 +194,7 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 		}
 
 		_foodKeys.pushUnique(key);
-		if (V.foodstuff[key].amount > 250) {
+		if (V.foodstuff[key]?.amount >= 250) {
 			_foodGroups.pushUnique("Sellable Produce");
 		} else {
 			_foundSoldOut to true;
@@ -206,7 +206,7 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 		<<set _open to _category is "Sellable Produce" ? true : false>>
 		<<foldout _open _categoryVar>>
 			<span class="gold"><<print _category.toLocaleUpperFirst()>></span>
-			<<set _keys to _foodKeys.filter(key => (_category isnot "Owned Produce" && $foodstuff[key].amount > 250) ||	(_category is "Owned Produce" && ($foodstuff[key] === undefined || V.foodstuff[key].amount <= 250))
+			<<set _keys to _foodKeys.filter(key => (_category isnot "Owned Produce" && $foodstuff[key]?.amount >= 250) ||	(_category is "Owned Produce" && ($foodstuff[key] === undefined || V.foodstuff[key].amount < 250))
 			)>>
 			<<for $_i, $_key range _keys>>
 				<div @id="$_key" class="item"><<produceDisplayItem $_key>></div>
@@ -297,30 +297,12 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 <<widget "dailySellProduce">>
 	<<if $farmersProduce is undefined>>
 	<<elseif Object.keys($farmersProduce.selling).length gt 0>>
-		<<set _baseSaleQuantity to 250>>
-		/* <<if between($fame.business, 3500, 4000)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 10>>
-		<<elseif between($fame.business, 3000, 3500)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 9>>
-		<<elseif between($fame.business, 2500, 3000)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 8>>
-		<<elseif between($fame.business, 2000, 2500)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 7>>
-		<<elseif between($fame.business, 1900, 2000)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 6>>
-		<<elseif between($fame.business, 1500, 1900)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 5>>
-		<<elseif between($fame.business, 1000, 1500)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 4>>
-		<<elseif between($fame.business, 500, 1000)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 3>>
-		<<elseif between($fame.business, 200, 500)>>
-			<<set _baseSaleQuantity to _baseSaleQuantity * 2>>
-		<</if>> */
-		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.business / 400))>>
-		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.social / 1200))>>
-		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.good / 2400))>>
-		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.model / 2400))>>
+		/* Daily amount the factory shifts per produce type. Tune these knobs to rebalance speed. */
+		<<set _baseSaleQuantity to 500>>
+		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.business / 200))>>
+		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.social / 600))>>
+		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.good / 1200))>>
+		<<set _baseSaleQuantity to _baseSaleQuantity * ( 1 + ($fame.model / 1200))>>
 		<<if $factoryUpgrades.distribution isnot undefined>>
 			<<set _baseSaleQuantity to _baseSaleQuantity * (1 + (0.1 * $factoryUpgrades.distribution))>>
 		<</if>>
@@ -336,6 +318,8 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 			<</if>>
 			<<set _rng to 800 + Math.floor(currentSkillValue('tending') / 5)>>
 			<<set _quantity to Math.floor(_quantity * (random(_rng,_rng + 400)/1000))>>
+			/* Floor: always clear at least 5% of a large stockpile so big backlogs don't crawl. */
+			<<set _quantity to Math.max(_quantity, Math.ceil(_value * 0.05))>>
 			<<if _value lt _quantity>>
 				<<set _quantity to _value>>
 			<</if>>
