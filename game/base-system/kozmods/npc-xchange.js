@@ -51,7 +51,7 @@ window.npcStartingSexIs = npcStartingSexIs;
 /**
  * Whitelist gate for pilling NPCs in combat. Generic (unnamed) enemies stay pillable as before.
  * Named NPCs are restricted:
- *   - Kylar and Robin can always be pilled.
+ *   - Kylar, Robin and Sydney can always be pilled.
  *   - Whitney can only be pilled when fond and not too dominant (love >= 25, dom <= 15).
  *   - Any other named NPC cannot be pilled (they angrily slap the pill away).
  * @param {number|string} id - an NPCList index, or an NPC name / fullDescription
@@ -67,7 +67,7 @@ function npcXchangePillable(id) {
 	}
 	const isNamed = V.NPCNameList && V.NPCNameList.includes(name);
 	if (!isNamed) return true; // generic/unnamed enemies
-	if (name === "Kylar" || name === "Robin") return true;
+	if (name === "Kylar" || name === "Robin" || name === "Sydney") return true;
 	if (name === "Whitney") {
 		const w = C.npc && C.npc.Whitney;
 		return !!w && w.love >= 25 && w.dom <= 15;
