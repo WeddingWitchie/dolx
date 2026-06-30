@@ -160,23 +160,13 @@ so none of it settles into the rafters the other orphans like to hide up in.
 <</if>>
 
 :: Loft Smoke Finish
-<<effects>><<pass 2>>
-/* back-to-back if the last cigarette was under an hour ago, otherwise the chain resets */
-<<if ($timeSinceCigarette ?? 999) lt 60>>
-	<<set $cigaretteChain to ($cigaretteChain ?? 0) + 1>>
-<<else>>
-	<<set $cigaretteChain to 1>>
-<</if>>
-<<set $timeSinceCigarette to 0>>
-<<set $cigaretteAddiction to true>>
-<<set $daily.cigarettesSmoked to ($daily.cigarettesSmoked ?? 0) + 1>>
-
-<<if $cigaretteChain gte 3>>
+<<effects>><<pass 2>><<smokeApply>>
+<<if _smokeOutcome is "passout">>
 	You raise a third cigarette to your lips before the last is even cold, and somewhere between
 	the second drag and the third the world tilts hard. The nicotine slams through you all at once,
 	your head swimming, a cold sweat prickling your neck as the strength drains out of your legs.
 	<br><br>
-	<span class="red">It's too much.</span> The window frame slips from under your hand.<<gggstress>><<stress 20>>
+	<span class="red">It's too much.</span> The window frame slips from under your hand.<<gggstress>>
 	<br><br>
 	<<link [[Next|Loft Smoke Passout]]>><</link>>
 	<br>
@@ -184,14 +174,11 @@ so none of it settles into the rafters the other orphans like to hide up in.
 	You smoke it down to the filter, draw the last of it into your lungs,
 	and crush the stub out against the brickwork outside the window before flicking it away.
 	<br><br>
-	<<hallucinogen 20>>
-	<<if $cigaretteChain is 2>>
-		<<stress 6>><<tiredness -3>>
+	<<if _smokeOutcome is "woozy">>
 		Two so close together leaves your head swimming, a faint nausea curling low in your gut and a
 		woozy lightness behind your eyes. It takes a little of the weight off your tiredness, but your
 		nerves buzz uneasily rather than settle.<<gstress>><<ltiredness>><<ghallucinogens>>
 	<<else>>
-		<<stress -8>><<tiredness -3>>
 		The tightness in your chest eases, the worst of your stress bleeding out with the smoke, and a
 		mellow, herbal lightness settles over you as the tiredness lifts a little.<<lstress>><<ltiredness>><<ghallucinogens>>
 	<</if>>
@@ -225,17 +212,27 @@ so none of it settles into the rafters the other orphans like to hide up in.
 <br>
 
 :: Loft Smoke Passout
-<<set $outside to 0>><<set $location to "home">><<effects>>
+<<effects>>
+<<if $smokeReturn is undefined>><<set $smokeReturn to "Orphanage Loft">><</if>>
 <<set $cigaretteChain to 0>>
-Your knees buckle and you slump down against the wall beneath the window,
-the half-lit world going grey and then black at the edges.
+<<if $smokePlace is "loft" or $smokeReturn is "Orphanage Loft">>
+	Your knees buckle and you slump down against the wall beneath the window,
+	the half-lit world going grey and then black at the edges.
+<<else>>
+	Your knees buckle and the world tilts, going grey and then black at the edges as you crumple where you stand.
+<</if>>
 <br><br>
 <<passout>><<pass 90>>
-You come to slumped on the loft floor some time later, head pounding, mouth dry and foul.
-A couple of orphans hover nearby, unsure whether to fetch help; they scatter the moment you stir.
+<<if $smokePlace is "loft" or $smokeReturn is "Orphanage Loft">>
+	You come to slumped on the loft floor some time later, head pounding, mouth dry and foul.
+	A couple of orphans hover nearby, unsure whether to fetch help; they scatter the moment you stir.
+<<else>>
+	You come to some time later, slumped where you fell, head pounding and your mouth dry and foul.
+	Whoever passed by has left you to sleep it off.
+<</if>>
 You won't be reaching for another cigarette any time soon.<<gtrauma>><<trauma 3>>
 <br><br>
-<<link [[Next|Orphanage Loft]]>><</link>>
+<<link "Next" $smokeReturn>><</link>>
 <br>
 
 :: Loft Smoke Whitney
@@ -528,7 +525,7 @@ which is about as close to tender as <<he>> gets.
 <<silently>><<npcincr Whitney lust -25>><</silently>>
 "Don't go thinking this is gonna be a regular thing, <<slut>>," <<he>> says,
 not meaning a word of it as <<he>> tugs <<his>> clothes back into place.
-"...Though I guess I know where to find you now."<<npcincr Whitney love 3>><<ggglove>>
+"...Though I guess I know where to find you now."<<npcincr Whitney love 2>><<gglove>>
 <br><br>
 <<He>> drops back out the window the way <<he>> came, the winch shrieking the whole way down, and you hear
 <<him>> cursing it fondly all the way to the ground.
@@ -536,11 +533,127 @@ not meaning a word of it as <<he>> tugs <<his>> clothes back into place.
 <<link [[Next|Orphanage Loft]]>><<endevent>><<pass 5>><</link>>
 <br>
 
+:: PC Smoke
+<<effects>>
+<<if $whitney_smoke is undefined>><<set $whitney_smoke to 0>><</if>>
+<<set $cigarettes -= 1>><<pass 5>><<wearProp "cigarette">>
+<<switch $smokePlace>>
+	<<case "eden">>
+		You slip out past the edge of the cabin and set your back to the rough timber wall.
+		Eden doesn't need to smell it on you.
+	<<case "wolfcave">>
+		You pick your way to the mouth of the cave and crouch on the cold stone, the pack's eyes glinting
+		in the dark behind you, and light up where the draught carries the smoke out into the open.
+	<<case "farm">>
+		You wander to the edge of the field and lean on the fence rail, the furrows stretching away beneath
+		the wide sky, and shake a cigarette loose where Alex won't catch you at it.
+	<<case "school">>
+		You tuck yourself into the quiet corner of the rear courtyard, one ear on the doors, and cup the
+		cigarette low in your hand the way the older kids do when a teacher might wander past.
+	<<case "park">>
+		You drop onto a bench at the quiet end of the park and sprawl back,
+		lighting up the way Whitney always did, watching the world drift by.
+	<<default>>
+		You find a quiet spot out of the way and light up.
+<</switch>>
+<br><br>
+<<if $whitney_smoke lt 3>>
+	You pinch the cigarette between fingers, flick the lighter a couple of times before it catches,
+	and draw the first mouthful of smoke. It scratches going down, and you fight not to cough it straight back out.
+<<elseif $whitney_smoke lt 7>>
+	You cup the lighter against the breeze, touch the flame to the tip, and take a slow first drag.
+	It still bites a little, but your throat knows the shape of it now.
+<<else>>
+	You light up with the easy economy of habit, the first drag pulled deep and let go in a thin grey ribbon.
+<</if>>
+<<smokeApply>>
+<br><br>
+<<if _smokeOutcome is "passout">>
+	You reach for another before the last is even out, and the nicotine catches up with you all at once.
+	Your head swims, a cold sweat breaking as your legs turn to water.
+	<br><br>
+	<span class="red">It's too much.</span><<gggstress>>
+	<br><br>
+	<<link [[Next|Loft Smoke Passout]]>><</link>>
+	<br>
+<<else>>
+	<<switch $smokePlace>>
+		<<case "eden">>
+			You smoke it down and grind the stub out under your heel, scattering the ash so nothing lingers for Eden to find.
+		<<case "wolfcave">>
+			You smoke it down to the filter and flick the stub off into the dark, where the wind takes the last of the smoke.
+		<<case "farm">>
+			You smoke it down and crush the stub against the fence post, careful to leave no ember near the dry grass.
+		<<case "school">>
+			You smoke it down fast and grind the stub against the wall,
+			fanning the last of the smoke away before anyone wanders out.
+		<<case "park">>
+			You smoke it down at your leisure and flick the stub into the gutter, watching the smoke thin into the open air.
+		<<default>>
+			You smoke it down and crush the stub out, flicking the rest away.
+	<</switch>>
+	<br><br>
+	<<if _smokeOutcome is "woozy">>
+		Two so close together leaves your head swimming, a faint nausea and a
+		woozy lightness apparent behind your eyes. You feel a little less tired, but your nerves stay restless.
+		<<gstress>><<ltiredness>><<ghallucinogens>>
+	<<else>>
+		The tightness in your chest eases, the worst of your stress bleeding out with the smoke, and a
+		mellow, herbal lightness settles over you as the tiredness lifts a little.<<lstress>><<ltiredness>><<ghallucinogens>>
+	<</if>>
+	<br><br>
+	<<if ($daily.cigarettesSmoked ?? 0) gte 5>>
+		<span class="blue">That's five today. Any more and your chest would punish you for it; you've had enough.</span>
+		<br>
+	<<elseif $cigarettes gte 1>>
+		<<smokeicon>><<link [[Light another|PC Smoke]]>><</link>> | <span class="gold">(<<= $cigarettes>> left)</span>
+		<br>
+	<<else>>
+		<span class="blue">That was your last one.</span>
+		<br>
+	<</if>>
+	<<getouticon>><<link "Stub it out and move on" $smokeReturn>><</link>>
+	<br>
+<</if>>
+
 :: Widgets Smoke [widget]
 <<widget "loftSmokeCaption">>
 	<<if $cigaretteAddiction and ($timeSinceCigarette ?? 0) gte 1440>>
 		<div id="loftSmokeCaption" @title="'No cigarette in ' + Math.floor(($timeSinceCigarette ?? 0) / 60) + 'h'">
 			<span class="pink">You crave a cigarette.</span>
 		</div>
+	<</if>>
+<</widget>>
+
+/* Shared smoking mechanic: chain (back-to-back under an hour), daily cap counter, addiction, and the resulting effects.
+   Sets _smokeOutcome to "passout" / "woozy" / "calm" for the calling passage to narrate.
+   Used by the loft flow and every quick-smoke spot so the numbers stay identical. */
+<<widget "smokeApply">>
+	<<if $whitney_smoke is undefined>><<set $whitney_smoke to 0>><</if>>
+	<<if ($timeSinceCigarette ?? 999) lt 60>>
+		<<set $cigaretteChain to ($cigaretteChain ?? 0) + 1>>
+	<<else>>
+		<<set $cigaretteChain to 1>>
+	<</if>>
+	<<set $timeSinceCigarette to 0>>
+	<<set $cigaretteAddiction to true>>
+	<<set $daily.cigarettesSmoked to ($daily.cigarettesSmoked ?? 0) + 1>>
+	<<if $cigaretteChain gte 3>>
+		<<set _smokeOutcome to "passout">><<stress 20>>
+	<<elseif $cigaretteChain is 2>>
+		<<set _smokeOutcome to "woozy">><<hallucinogen 20>><<stress 6>><<tiredness -3>>
+	<<else>>
+		<<set _smokeOutcome to "calm">><<hallucinogen 20>><<stress -8>><<tiredness -3>>
+	<</if>>
+<</widget>>
+
+/* Gated "smoke here" link for non-loft spots. _args[0] = place key, _args[1] = return passage. */
+<<widget "smokeHere">>
+	<<if ($whitney_smoke gte 1 or $loft_whitney gte 1) and $cigarettes gte 1 and ($daily.cigarettesSmoked ?? 0) lt 5>>
+		<<set _sp to _args[0]>><<set _sr to _args[1]>>
+		<<capture _sp, _sr>>
+			<<smokeicon>><<link [[Smoke a cigarette|PC Smoke]]>><<set $smokePlace to _sp>><<set $smokeReturn to _sr>><</link>> | <span class="gold">(<<= $cigarettes>> left)</span>
+		<</capture>>
+		<br>
 	<</if>>
 <</widget>>
