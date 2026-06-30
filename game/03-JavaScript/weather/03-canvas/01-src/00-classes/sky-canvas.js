@@ -174,8 +174,11 @@ Weather.Renderer.Sky = class {
 	stopAll() {
 		for (const layer of this.layers.values()) {
 			for (const effect of layer.effects) effect.disable();
-			layer.animationGroup?.stop();
-			layer.animationGroup?.reset();
+			if (layer.animationGroup) {
+				layer.animationGroup.stop();
+				Weather.Renderer.ParticleEmitter?.destroyGroup?.(layer.animationGroup);
+				layer.animationGroup.reset();
+			}
 		}
 		this.loaded.value = false;
 	}

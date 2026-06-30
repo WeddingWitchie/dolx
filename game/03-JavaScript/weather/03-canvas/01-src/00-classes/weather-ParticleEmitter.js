@@ -67,6 +67,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	static #emittersByGroup = new Map(); // group -> Set<ParticleEmitter>
 	static #tickersByGroup = new Map(); // group -> Animation
 	static #originalOnUpdate = new WeakMap(); // group -> function
+	static #wrappedOriginalOnUpdate = new WeakMap(); // wrapper -> function
 	static #key = "particleTicker";
 
 	#spawnAccumulator = 0;
@@ -79,7 +80,12 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	 * Dummy ticker
 	 */
 	static #setTicker(group) {
-		if (this.#tickersByGroup.has(group)) return;
+		const existingTicker = this.#tickersByGroup.get(group);
+		if (existingTicker) {
+			if (!group.animations.has(this.#key)) group.add(this.#key, existingTicker);
+			existingTicker.enable();
+			return;
+		}
 		const frameDelay = group.updateRate;
 		const offscreen = new BaseCanvas(1, 1);
 		const ticker = new Weather.Renderer.Animation({
@@ -95,32 +101,68 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 		this.#tickersByGroup.set(group, ticker);
 
 		// Real-time seconds
-		const original = group.onUpdate.bind(group);
+		const currentOnUpdate = typeof group.onUpdate === "function" ? group.onUpdate : () => {};
+		const original = this.#wrappedOriginalOnUpdate.get(currentOnUpdate) || this.#originalOnUpdate.get(group) || currentOnUpdate.bind(group);
 		this.#originalOnUpdate.set(group, original);
 		const nowFn = typeof performance !== "undefined" ? () => performance.now() : () => Date.now();
 		const targetDt = frameDelay / 1000;
 		let last = nowFn();
-		group.onUpdate = () => {
-			const now = nowFn();
-			let dt = (now - last) / 1000;
-			last = now;
-			// Freeze when hidden (alt‑tab/background)
-			const hidden = typeof document !== "undefined" && (document.hidden || document.visibilityState === "hidden");
-			if (hidden) dt = 0;
-			// Treat huge gaps as pauses
-			if (dt > targetDt * 4) dt = 0;
-			if (!Number.isFinite(dt) || dt < 0) dt = targetDt;
-			else if (dt > 0) dt = Math.min(dt, targetDt * 2);
+		let updating = false;
+		const wrappedOnUpdate = () => {
+			if (updating) return;
+			updating = true;
+			try {
+				const now = nowFn();
+				let dt = (now - last) / 1000;
+				last = now;
+				// Freeze when hidden (alt-tab/background)
+				const hidden = typeof document !== "undefined" && (document.hidden || document.visibilityState === "hidden");
+				if (hidden) dt = 0;
+				// Treat huge gaps as pauses
+				if (dt > targetDt * 4) dt = 0;
+				if (!Number.isFinite(dt) || dt < 0) dt = targetDt;
+				else if (dt > 0) dt = Math.min(dt, targetDt * 2);
 
-			const set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(group);
-			if (set && set.size) {
-				for (const em of set) {
-					if (!em.active) continue;
-					em.update(dt);
+				const set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(group);
+				if (set && set.size) {
+					for (const em of set) {
+						if (!em.active) continue;
+						em.update(dt);
+					}
 				}
+				original();
+			} finally {
+				updating = false;
 			}
-			original();
 		};
+		this.#wrappedOriginalOnUpdate.set(wrappedOnUpdate, original);
+		group.onUpdate = wrappedOnUpdate;
+	}
+
+	static #restoreGroup(group) {
+		if (!group) return;
+		const currentOnUpdate = group.onUpdate;
+		const original = Weather.Renderer.ParticleEmitter.#originalOnUpdate.get(group);
+		if (original) group.onUpdate = original;
+		if (typeof currentOnUpdate === "function") {
+			Weather.Renderer.ParticleEmitter.#wrappedOriginalOnUpdate.delete(currentOnUpdate);
+		}
+		Weather.Renderer.ParticleEmitter.#originalOnUpdate.delete(group);
+		Weather.Renderer.ParticleEmitter.#tickersByGroup.get(group)?.disable();
+		group.animations?.delete(Weather.Renderer.ParticleEmitter.#key);
+		Weather.Renderer.ParticleEmitter.#tickersByGroup.delete(group);
+		Weather.Renderer.ParticleEmitter.#emittersByGroup.delete(group);
+	}
+
+	static destroyGroup(group) {
+		if (!group) return;
+		const set = Weather.Renderer.ParticleEmitter.#emittersByGroup.get(group);
+		if (set) {
+			for (const em of Array.from(set)) {
+				em.destroy();
+			}
+		}
+		Weather.Renderer.ParticleEmitter.#restoreGroup(group);
 	}
 
 	constructor(
@@ -280,12 +322,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			if (set) {
 				set.delete(this);
 				if (set.size === 0) {
-					const original = Weather.Renderer.ParticleEmitter.#originalOnUpdate.get(this.group);
-					if (original) this.group.onUpdate = original;
-					Weather.Renderer.ParticleEmitter.#originalOnUpdate.delete(this.group);
-					Weather.Renderer.ParticleEmitter.#tickersByGroup.get(this.group)?.disable();
-					Weather.Renderer.ParticleEmitter.#tickersByGroup.delete(this.group);
-					Weather.Renderer.ParticleEmitter.#emittersByGroup.delete(this.group);
+					Weather.Renderer.ParticleEmitter.#restoreGroup(this.group);
 				}
 			}
 		}

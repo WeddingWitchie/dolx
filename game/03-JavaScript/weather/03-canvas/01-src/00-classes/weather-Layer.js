@@ -60,8 +60,11 @@ Weather.Renderer.Layer = class Layer {
 		this.canvas = new this.renderInstance.Canvas();
 
 		// Reset animations on that layer
-		this.animationGroup?.stop();
-		this.animationGroup?.reset();
+		if (this.animationGroup) {
+			this.animationGroup.stop();
+			Weather.Renderer.ParticleEmitter?.destroyGroup?.(this.animationGroup);
+			this.animationGroup.reset();
+		}
 
 		// Sequentially initialise each effect
 		for (const effect of this.effects) {
