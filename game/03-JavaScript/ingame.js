@@ -90,7 +90,7 @@ const combatActionColours = {
 			/* feetaction */
 			"run", "taunt", "hide", "feetresistW", "legLock", "legLocked", "feetHold", "dodge", "plant", "feetHold",
 			/* mouthaction */
-			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "askPullOut", "disparage", "askoral",
+			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "hiss", "askPullOut", "disparage", "askoral",
 			/* penisaction */
 			"othermouthescape", "escape", "otheranusescape", "fencingescape", "pullOut", "moveHole", "damageCondom",
 			/* vaginaaction */
