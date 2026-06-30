@@ -885,7 +885,7 @@ setup.hbsc.autoPayGamblingUpkeep = function () {
 setup.hbsc.LOAN_CHUNK = 30000000;         // £300,000 advanced per request
 setup.hbsc.LOAN_PRINCIPAL_MAX = 100000000;// £1,000,000 max outstanding principal
 setup.hbsc.LOAN_INTEREST = 0.5;           // repay 1.5x principal (£1,000 -> £1,500)
-setup.hbsc.LOAN_RENT_SURCHARGE = 300000;  // £3000/week collected via Bailey once overdue
+setup.hbsc.LOAN_RENT_SURCHARGE = 150000;  // £1500/week collected via Bailey once overdue
 setup.hbsc.LOAN_OVERDUE_DAYS = 25;        // 25 in-game days with no payment
 
 setup.hbsc.ensureLoanState = function () {
@@ -948,11 +948,21 @@ setup.hbsc.repayLoan = function (amount) {
 	return { ok: true, paid: pay, owed: loan.owed };
 };
 
+setup.hbsc.loanRentSurchargeAmount = function () {
+	if (typeof setup !== "undefined" && setup.inflation && setup.inflation.setting) {
+		return setup.inflation.setting("inflationLoanRentSurcharge");
+	}
+	if (typeof State === "undefined" || !State.variables || !State.variables.settings) return setup.hbsc.LOAN_RENT_SURCHARGE;
+	const amount = Number(State.variables.settings.inflationLoanRentSurcharge);
+	if (!Number.isFinite(amount)) return setup.hbsc.LOAN_RENT_SURCHARGE;
+	return Math.min(Math.max(Math.round(amount), 50000), 300000);
+};
+
 /* Weekly amount Bailey collects toward the loan once it's gone a month unpaid. */
 setup.hbsc.loanRentSurcharge = function () {
 	const loan = setup.hbsc.ensureLoanState();
 	if (!loan.autoRepay || loan.owed <= 0) return 0;
-	return Math.min(setup.hbsc.LOAN_RENT_SURCHARGE, loan.owed);
+	return Math.min(setup.hbsc.loanRentSurchargeAmount(), loan.owed);
 };
 
 /* Called by rentpay AFTER rent (incl. surcharge) is deducted: books the collected surcharge against the loan and resets the overdue clock.

@@ -23,7 +23,7 @@ The base price of everything stays vanilla. Inflation is a read-only multiplier 
 - The displayed price and the charged price must always agree. One rounding function is the single source of truth.
 - Money kept in the bank still counts as wealth, but borrowed "rent money" is neutral, because the cash you receive is cancelled by the principal you owe.
 - Inflation applies to **prices the player pays**, never to income, wages, gambling stakes, cheats, or internal bank transfers.
-- Bailey's rent reacts to wealth and debt, tiered with caps and special demands at extreme wealth. Past a crisis threshold he stops accepting refusals and hunts the player.
+- Bailey's rent reacts to wealth and debt, tiered with caps and special demands at extreme wealth. Past the selected refusal/hunt stage, Bailey stops accepting refusals and hunts the player.
 
 ## Money Units
 
@@ -73,21 +73,33 @@ The system is implemented in `game/overworld-town/loc-hbsc-bank-branch/inflation
 
 ### `setup.inflation.TIERS`
 
-The tier table. Highest qualifying tier wins; below the lowest threshold there is no inflation.
+The default tier thresholds. Highest qualifying tier wins; below the lowest threshold there is no inflation. The wealth thresholds are fixed in code; the percentage for each tier is saved in `$settings` and can be changed from **Rebalance Settings**.
 
 | Net wealth ≥ | Increase | Multiplier | Name |
 | --- | --- | --- | --- |
-| 50000000 (£500,000) | +20% | x1.2 | Onset |
-| 200000000 (£2,000,000) | +70% | x1.7 | Bad economy |
-| 500000000 (£5,000,000) | +150% | x2.5 | Crisis |
-| 1500000000 (£15,000,000) | +300% | x4.0 | Extreme crisis |
-| 10000000000 (£100,000,000) | +5000% | x51.0 | Parody spiral |
+| 50000000 (£500,000) | +10% | x1.1 | Onset |
+| 200000000 (£2,000,000) | +35% | x1.35 | Bad economy |
+| 500000000 (£5,000,000) | +75% | x1.75 | Crisis |
+| 1500000000 (£15,000,000) | +150% | x2.5 | Extreme crisis |
+| 10000000000 (£100,000,000) | +1500% | x16.0 | Parody spiral |
 
-These are stages, not a stacking per-cycle rate. A 3,000 item costs 3,600 / 5,100 / 7,500 / 12,000 / 153,000 across the tiers. Tune the thresholds and percentages here; everything downstream reads the table.
+These are stages, not a stacking per-cycle rate. A 3,000 item costs 3,300 / 4,050 / 5,250 / 7,500 / 48,000 across the current-preset tiers. Everything downstream reads the setting-backed tier values through `setup.inflation.multiplier()`.
+
+### Economy Rebalance Settings
+
+The player-facing controls live under **Settings -> Rebalance Settings**, in the **Economy Inflation** box above the older Rebalancing Settings toggles:
+
+- **Economy Rebalance Preset** applies one of five presets: `Light`, `Mid`, `Current`, `Hard`, or `Harsher`. `Light` keeps prices lower, makes extra rent start as late as possible, and sets refusal/hunt to Parody; `Current` is the default and matches the table above; `Hard` / `Harsher` make wealth bite earlier.
+- **Inflation Percentages** controls the tier increases: `$settings.inflationOnsetPct`, `$settings.inflationBadPct`, `$settings.inflationCrisisPct`, `$settings.inflationExtremePct`, and `$settings.inflationParodyPct`.
+- **Bailey Triggers** controls when extra rent pressure starts (`$settings.inflationBaileyRentPct`) and which economy stage makes Bailey stop accepting refusal / start hunting (`$settings.inflationBaileyCrisisTier`, default `"crisis"`).
+- **Bailey Rent Limits** controls the rent-pressure caps: `$settings.inflationBaileyCapLow`, `$settings.inflationBaileyCapHigh`, `$settings.inflationBaileyDemandJump`, and `$settings.inflationBaileyDemandInvestment`.
+- **Bailey Weekly Pressure** controls the weekly rent step (`$settings.inflationBaileyStep`, default £500) and overdue bank-loan collection (`$settings.inflationLoanRentSurcharge`, default £1,500).
+
+Inflation is always on. `$settings.inflationEnabled` is forced true and only kept as reserved scaffolding for a future toggle. `setup.inflation.ensureSettings()` initializes and clamps these values for old saves. `setup.inflation.applyPreset(name)` writes a full preset into `$settings`.
 
 ### `setup.inflation.multiplier(wealth?)`
 
-Returns the price multiplier (`>= 1`) for the given wealth, or the player's current net wealth if omitted. Capped at the top tier (currently `x51.0`).
+Returns the price multiplier (`>= 1`) for the given wealth, or the player's current net wealth if omitted. Capped at the top tier (currently `x16.0`).
 
 ### `setup.inflation.price(base)`
 
@@ -95,21 +107,21 @@ The **single source of truth**. Returns `Math.round(base * multiplier())`. Both 
 
 ### `setup.inflation.rentDemand(baseRent)`
 
-Bailey's actual weekly rent demand, tiered by **Bailey-visible wealth** (`baileyWealth()` — cash + savings only, **not** locked fixed terms; thresholds are tunable constants `RENT_WEALTH_*` / `RENT_CAP_*` / `RENT_JUMP_DEMAND`):
+Bailey's actual weekly rent demand, tiered by **Bailey-visible wealth** (`baileyWealth()` — cash + savings only, **not** locked fixed terms). The wealth thresholds are fixed, while the caps below are player settings shown with their current-preset defaults:
 
 | Bailey-visible wealth | Demand |
 | --- | --- |
 | < rent threshold | normal vanilla rent, with the rent setting and Robin double-rent applied |
-| < £1,000,000 | rent pressure capped at `RENT_CAP_LOW` (**£30,000**) |
-| £1M – £10M | rent pressure capped at `RENT_CAP_HIGH` (**£70,000**) |
-| £10M – £100M | rent pressure capped at **£150,000** |
-| >= £100M | rent pressure capped at **£500,000** |
+| < £1,000,000 | rent pressure capped at `RENT_CAP_LOW` (**£15,000**) |
+| £1M – £10M | rent pressure capped at `RENT_CAP_HIGH` (**£35,000**) |
+| £10M – £100M | rent pressure capped at **£75,000** |
+| >= £100M | rent pressure capped at **£250,000** |
 
-Rent does not multiply or jump directly from wealth. Once Bailey-visible wealth reaches `RENT_INFLATION_PCT` (default +70%, the £2,000,000 tier), successful rent payment advances `$baileyRentInflationSteps` by one. Each step adds `RENT_STAGE_STEP` (default £500, scaled by Bailey's Rent setting and Robin's double-rent state) to the next week's rent, capped by the current wealth tier. If Bailey-visible wealth drops below the threshold, the counter is cleared and rent immediately returns to the normal capped vanilla amount: £2,000 at 100% rent, or £4,000 when Robin's rent is included.
+Rent does not multiply or jump directly from wealth. Once Bailey-visible wealth reaches `$settings.inflationBaileyRentPct` (default +35%, the Bad economy tier), successful rent payment advances `$baileyRentInflationSteps` by one. Each step adds `$settings.inflationBaileyStep` (default £500, scaled by Bailey's Rent setting and Robin's double-rent state) to the next week's rent, capped by the current wealth tier. If Bailey-visible wealth drops below the trigger, the counter is cleared and rent immediately returns to the normal capped vanilla amount: £2,000 at 100% rent, or £4,000 when Robin's rent is included.
 
 ### `setup.inflation.rentDemandTier()`
 
-`""` (normal), `"jump"` (>= £10M, the flat-£150,000 tier), or `"investment"` (>= £100M, the flat-£500,000 tier). Drives the special Bailey dialogue in the `<<baileyRentFlavour>>` widget.
+`""` (normal), `"jump"` (>= £10M, the £75,000 cap tier), or `"investment"` (>= £100M, the £250,000 cap tier). Drives the special Bailey dialogue in the `<<baileyRentFlavour>>` widget.
 
 ### `setup.inflation.applyToRent(amount)`
 
@@ -121,15 +133,15 @@ Whether a `money()` spend with the given `source` should be inflated. Returns fa
 
 ### `setup.inflation.percent(wealth?)`, `isCrisis(wealth?)`
 
-`percent` returns the inflation as a whole-number percentage above base (for UI). `isCrisis` is true once `percent` reaches `setup.inflation.CRISIS_PCT` (a tunable constant next to `TIERS`, default `150` = the Crisis tier).
+`percent` returns the inflation as a whole-number percentage above base (for UI). `isCrisis` is true once wealth reaches the stage selected by `$settings.inflationBaileyCrisisTier` (default `"crisis"`).
 
-### `setup.inflation.CRISIS_PCT`
+### `$settings.inflationBaileyCrisisTier`
 
-The inflation percentage at or above which Bailey turns aggressive. Set it to one of the tier `pct` values: `20` (onset), `70` (bad economy), `150` (crisis), `300` (extreme), or `5000` (parody spiral). This is the single knob for "how rich before Bailey stops taking no for an answer."
+The economy stage at which Bailey stops accepting refusal and can begin street hunting: `"onset"`, `"bad"`, `"crisis"`, `"extreme"`, or `"parody"`. This follows the stage's wealth threshold, not the stage's percentage slider, so choosing `"parody"` really waits for the £100,000,000 tier.
 
 ### `setup.inflation.hasLoanDebt()`, `baileyAggressionReason()`, `baileyAggressive()`
 
-`baileyAggressionReason()` returns `""`, `"inflation"`, `"loan"`, or `"both"`. Bailey is aggressive (rent unavoidable, street hunting active) when **Bailey-visible** inflation is at or above `CRISIS_PCT` **or** the player owes the bank. He calms down when there is no loan and his visible inflation is back below `CRISIS_PCT`. The "crisis" judgement runs `isCrisis(baileyWealth())`, so money locked in an active fixed term never triggers aggression until it matures into savings.
+`baileyAggressionReason()` returns `""`, `"inflation"`, `"loan"`, or `"both"`. Bailey is aggressive (rent unavoidable, street hunting active) when **Bailey-visible** wealth reaches `$settings.inflationBaileyCrisisTier` **or** the player owes the bank. He calms down when there is no loan and visible wealth is back below that stage. The stage judgement runs `isCrisis(baileyWealth())`, so money locked in an active fixed term never triggers aggression until it matures into savings.
 
 ### `setup.inflation.totalWealth()` vs `baileyWealth()`
 
@@ -203,8 +215,8 @@ Implemented in `game/overworld-town/loc-hbsc-bank-branch/bank.js` (`setup.hbsc.*
 - `LOAN_CHUNK` (30000000): advanced per request.
 - `LOAN_PRINCIPAL_MAX` (100000000): cap on outstanding borrowed principal.
 - `LOAN_INTEREST` (0.5): repay 1.5x principal.
-- `LOAN_RENT_SURCHARGE`: weekly amount Bailey collects toward an overdue loan.
-- `LOAN_OVERDUE_DAYS` (30): one in-game month with no payment before collection passes to Bailey.
+- `LOAN_RENT_SURCHARGE` (150000): fallback weekly amount Bailey collects toward an overdue loan; live saves read `$settings.inflationLoanRentSurcharge`.
+- `LOAN_OVERDUE_DAYS` (25): 25 in-game days with no payment before collection passes to Bailey.
 
 Borrow in chunks until outstanding principal reaches the cap (the last chunk is auto-capped to the remaining room); repaying frees capacity. `ensureLoanState` is wired into `setup.hbsc.ensureState`; `processLoanDay` into `processDay` (daily). UI lives in the `HBSC Bank Loan` / `HBSC Bank Loan Result` passages (`main.twee`) and the `hbscOptions` widget. A savings account is not required to borrow.
 
@@ -242,7 +254,7 @@ A failsafe for the runaway end of the spiral (inflation plus compounding bank in
 
 ## Important Files
 
-- `game/overworld-town/loc-hbsc-bank-branch/inflation.js`: the entire `setup.inflation` API. Tune `TIERS` here.
+- `game/overworld-town/loc-hbsc-bank-branch/inflation.js`: the entire `setup.inflation` API, default presets, setting ranges, and tier thresholds.
 - `game/base-system/stat-changes.js`: the `money()` charge hook (search for "X-Change inflation").
 - `game/base-system/widgets.twee`: the `<<printprice>>` widget (next to `<<printmoney>>`).
 - `game/overworld-town/loc-home/rent.twee`: `rentmod` scaling, and `rentpay` (loan surcharge + the `<<baileyBankDraw>>` savings withdrawal).

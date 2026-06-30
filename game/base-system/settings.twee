@@ -97,6 +97,8 @@
 	<<set $settings.fertilityCycleEnabled to true>>
 	<<set $settings.pregnancyType to "realistic">>
 	<<set $settings.rentCostModifier to 1>>
+	<<set $settings.inflationEnabled to true>>
+	<<script>>setup.inflation?.applyPreset?.("current");<</script>>
 	<<set $settings.condomLevel to 3>>
 	<<set $settings.condomChance to 60>>
 	<<set $settings.condomUseChanceRape to 33>>
@@ -405,6 +407,8 @@
 					<<set $settings.fertilityCycleEnabled to true>>
 					<<set $settings.pregnancyType to "realistic">>
 					<<set $settings.rentCostModifier to 1>>
+					<<set $settings.inflationEnabled to true>>
+					<<script>>setup.inflation?.applyPreset?.("current");<</script>>
 					<<set $settings.condomLevel to 3>>
 					<<set $settings.condomChance to 60>>
 					<<set $settings.condomUseChanceRape to 33>>
@@ -4263,6 +4267,68 @@
 		<<set $fatigueSkillPenaltyMax to 50>>
 	<</if>>
 	<<set $fatigueSkillPenaltyMax to Math.clamp(Math.round($fatigueSkillPenaltyMax), 0, 100)>>
+	<<script>>setup.inflation?.ensureSettings?.();<</script>>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				Economy Inflation <mouse class="tooltip linkBlue">(?)<span>Wealth-based prices and Bailey's inflation pressure are always active. These settings control how hard the economy pushes back.</span></mouse>
+			</div>
+
+			<div class="settingsToggleItemWide">
+				<span class="gold">Economy Rebalance Preset</span> <mouse class="tooltip linkBlue">(?)<span>Applies a full economy tuning set. Light uses the lowest price increases, sets extra rent to start as late as possible, and sets refusal/hunt to Parody. Mid is softer than default. Current is the intended balance. Hard and Harsher make prices and Bailey pressure start biting earlier. You can still adjust individual settings afterward.</span></mouse>
+				<br>
+				<<link "Light">><<run setup.inflation.applyPreset("light")>><<replace #subsectionDiv>><<rebalanceSettings>><</replace>><</link>> |
+				<<link "Mid">><<run setup.inflation.applyPreset("mid")>><<replace #subsectionDiv>><<rebalanceSettings>><</replace>><</link>> |
+				<<link "Current">><<run setup.inflation.applyPreset("current")>><<replace #subsectionDiv>><<rebalanceSettings>><</replace>><</link>> |
+				<<link "Hard">><<run setup.inflation.applyPreset("hard")>><<replace #subsectionDiv>><<rebalanceSettings>><</replace>><</link>> |
+				<<link "Harsher">><<run setup.inflation.applyPreset("harsher")>><<replace #subsectionDiv>><<rebalanceSettings>><</replace>><</link>>
+			</div>
+
+			/%
+			<div class="settingsToggleItemWide">
+				<label>
+					<<checkbox "$settings.inflationEnabled" false true autocheck>> Enable Economy Inflation
+				</label>
+			</div>
+			%/
+
+			<div class="settingsToggleItem">
+				<span class="gold">Inflation Percentages</span>
+				<div class="small-description">Onset <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £500,000.</span></mouse>: <<numberslider "$settings.inflationOnsetPct" $settings.inflationOnsetPct 3 30 1 { value: v => v + "%" }>></div>
+				<div class="small-description">Bad economy <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £2,000,000.</span></mouse>: <<numberslider "$settings.inflationBadPct" $settings.inflationBadPct 10 100 1 { value: v => v + "%" }>></div>
+				<div class="small-description">Crisis <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £5,000,000.</span></mouse>: <<numberslider "$settings.inflationCrisisPct" $settings.inflationCrisisPct 25 200 1 { value: v => v + "%" }>></div>
+				<div class="small-description">Extreme <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £15,000,000.</span></mouse>: <<numberslider "$settings.inflationExtremePct" $settings.inflationExtremePct 50 400 5 { value: v => v + "%" }>></div>
+				<div class="small-description">Parody spiral <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £100,000,000. This is the runaway-comedy tier, not the money-confiscation cap.</span></mouse>: <<numberslider "$settings.inflationParodyPct" $settings.inflationParodyPct 300 3000 100 { value: v => v + "%" }>></div>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Bailey Triggers</span>
+				<div class="small-description">Extra rent starts <mouse class="tooltip linkBlue">(?)<span>Bailey starts adding extra rent after paid weeks once visible money reaches this inflation level. Visible money is cash and HBSC savings, minus bank-loan debt. Higher = starts later. Refuse still works.</span></mouse>: <<numberslider "$settings.inflationBaileyRentPct" $settings.inflationBaileyRentPct 3 400 1 { value: v => v + "%" }>></div>
+				<div class="small-description">Refusal/hunt starts <mouse class="tooltip linkBlue">(?)<span>Choose the economy stage when Bailey stops accepting Refuse. Street hunts can also start from that stage. Later stages are easier.</span></mouse>:<br>
+					<label>Onset <<radiobutton "$settings.inflationBaileyCrisisTier" "onset" autocheck>></label> |
+					<label>Bad economy <<radiobutton "$settings.inflationBaileyCrisisTier" "bad" autocheck>></label> |
+					<label>Crisis <<radiobutton "$settings.inflationBaileyCrisisTier" "crisis" autocheck>></label> |
+					<label>Extreme <<radiobutton "$settings.inflationBaileyCrisisTier" "extreme" autocheck>></label> |
+					<label>Parody <<radiobutton "$settings.inflationBaileyCrisisTier" "parody" autocheck>></label>
+				</div>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Bailey Rent Limits</span>
+				<div class="small-description">Low-wealth cap <mouse class="tooltip linkBlue">(?)<span>Maximum total rent demand while Bailey-visible wealth is below £1,000,000 and extra rent pressure is active.</span></mouse>: <<numberslider "$settings.inflationBaileyCapLow" $settings.inflationBaileyCapLow 500000 5000000 50000 { value: v => formatMoney(v) }>></div>
+				<div class="small-description">High-wealth cap <mouse class="tooltip linkBlue">(?)<span>Maximum total rent demand while Bailey-visible wealth is between £1,000,000 and £10,000,000.</span></mouse>: <<numberslider "$settings.inflationBaileyCapHigh" $settings.inflationBaileyCapHigh 1000000 10000000 50000 { value: v => formatMoney(v) }>></div>
+				<div class="small-description">Jump-tier cap <mouse class="tooltip linkBlue">(?)<span>Maximum total rent demand while Bailey-visible wealth is between £10,000,000 and £100,000,000. This is the special "I want more" demand tier.</span></mouse>: <<numberslider "$settings.inflationBaileyDemandJump" $settings.inflationBaileyDemandJump 2500000 25000000 50000 { value: v => formatMoney(v) }>></div>
+				<div class="small-description">Investment-tier cap <mouse class="tooltip linkBlue">(?)<span>Maximum total rent demand while Bailey-visible wealth is £100,000,000 or higher. This is Bailey treating the player as an investment.</span></mouse>: <<numberslider "$settings.inflationBaileyDemandInvestment" $settings.inflationBaileyDemandInvestment 5000000 100000000 50000 { value: v => formatMoney(v) }>></div>
+			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Bailey Weekly Pressure</span>
+				<div class="small-description">Weekly rent step <mouse class="tooltip linkBlue">(?)<span>How much extra rent Bailey adds after each successful paid week while Extra rent starts is active, until the current rent cap is reached.</span></mouse>: <<numberslider "$settings.inflationBaileyStep" $settings.inflationBaileyStep 10000 200000 10000 { value: v => formatMoney(v) }>></div>
+				<div class="small-description">Overdue loan collection <mouse class="tooltip linkBlue">(?)<span>Weekly amount Bailey adds to rent when HBSC marks an unpaid loan overdue. It pays down the loan and is separate from inflation rent pressure.</span></mouse>: <<numberslider "$settings.inflationLoanRentSurcharge" $settings.inflationLoanRentSurcharge 50000 300000 5000 { value: v => formatMoney(v) }>></div>
+			</div>
+		</div>
+	</div>
+
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">

@@ -14,7 +14,7 @@
  *
  * All money values in this game are stored in PENNIES (the raw $money units), so the tier thresholds below are raw $money values.
  * e.g. 100000 = £1,000 displayed.
- * Tune the tiers to taste.
+ * Tune the live percentages and Bailey pressure from Rebalance Settings; the constants here are current-preset defaults and compatibility fallbacks.
  *
  * Three integration points keep displayed prices and actual charges in sync:
  * - General price hook in `money()` (game/base-system/stat-changes.js): any negative (spend) amount is run through `price()`, except sources in EXCLUDED_SOURCES.
@@ -29,29 +29,221 @@
 
 	setup.inflation = setup.inflation || {};
 
-	/* Tiered inflation.
+	setup.inflation.PRESETS = {
+		light: {
+			inflationOnsetPct: 3,
+			inflationBadPct: 10,
+			inflationCrisisPct: 25,
+			inflationExtremePct: 50,
+			inflationParodyPct: 300,
+			inflationBaileyRentPct: 400,
+			inflationBaileyCrisisPct: 400,
+			inflationBaileyCrisisTier: "parody",
+			inflationBaileyCapLow: 500000,
+			inflationBaileyCapHigh: 1000000,
+			inflationBaileyDemandJump: 2500000,
+			inflationBaileyDemandInvestment: 5000000,
+			inflationBaileyStep: 10000,
+			inflationLoanRentSurcharge: 50000,
+		},
+		mid: {
+			inflationOnsetPct: 6,
+			inflationBadPct: 20,
+			inflationCrisisPct: 50,
+			inflationExtremePct: 100,
+			inflationParodyPct: 1500,
+			inflationBaileyRentPct: 200,
+			inflationBaileyCrisisPct: 200,
+			inflationBaileyCrisisTier: "extreme",
+			inflationBaileyCapLow: 1000000,
+			inflationBaileyCapHigh: 2000000,
+			inflationBaileyDemandJump: 5000000,
+			inflationBaileyDemandInvestment: 12500000,
+			inflationBaileyStep: 30000,
+			inflationLoanRentSurcharge: 100000,
+		},
+		current: {
+			inflationOnsetPct: 10,
+			inflationBadPct: 35,
+			inflationCrisisPct: 75,
+			inflationExtremePct: 150,
+			inflationParodyPct: 1500,
+			inflationBaileyRentPct: 35,
+			inflationBaileyCrisisPct: 75,
+			inflationBaileyCrisisTier: "crisis",
+			inflationBaileyCapLow: 1500000,
+			inflationBaileyCapHigh: 3500000,
+			inflationBaileyDemandJump: 7500000,
+			inflationBaileyDemandInvestment: 25000000,
+			inflationBaileyStep: 50000,
+			inflationLoanRentSurcharge: 150000,
+		},
+		hard: {
+			inflationOnsetPct: 20,
+			inflationBadPct: 70,
+			inflationCrisisPct: 150,
+			inflationExtremePct: 300,
+			inflationParodyPct: 3000,
+			inflationBaileyRentPct: 20,
+			inflationBaileyCrisisPct: 50,
+			inflationBaileyCrisisTier: "bad",
+			inflationBaileyCapLow: 3000000,
+			inflationBaileyCapHigh: 7000000,
+			inflationBaileyDemandJump: 15000000,
+			inflationBaileyDemandInvestment: 50000000,
+			inflationBaileyStep: 100000,
+			inflationLoanRentSurcharge: 300000,
+		},
+		harsher: {
+			inflationOnsetPct: 30,
+			inflationBadPct: 100,
+			inflationCrisisPct: 200,
+			inflationExtremePct: 400,
+			inflationParodyPct: 3000,
+			inflationBaileyRentPct: 3,
+			inflationBaileyCrisisPct: 3,
+			inflationBaileyCrisisTier: "onset",
+			inflationBaileyCapLow: 5000000,
+			inflationBaileyCapHigh: 10000000,
+			inflationBaileyDemandJump: 25000000,
+			inflationBaileyDemandInvestment: 100000000,
+			inflationBaileyStep: 200000,
+			inflationLoanRentSurcharge: 300000,
+		},
+	};
+
+	setup.inflation.SETTING_RANGES = {
+		inflationOnsetPct: { min: 3, max: 30, step: 1 },
+		inflationBadPct: { min: 10, max: 100, step: 1 },
+		inflationCrisisPct: { min: 25, max: 200, step: 1 },
+		inflationExtremePct: { min: 50, max: 400, step: 5 },
+		inflationParodyPct: { min: 300, max: 3000, step: 100 },
+		inflationBaileyRentPct: { min: 3, max: 400, step: 1 },
+		inflationBaileyCrisisPct: { min: 3, max: 400, step: 1 },
+		inflationBaileyCapLow: { min: 500000, max: 5000000, step: 50000 },
+		inflationBaileyCapHigh: { min: 1000000, max: 10000000, step: 50000 },
+		inflationBaileyDemandJump: { min: 2500000, max: 25000000, step: 50000 },
+		inflationBaileyDemandInvestment: { min: 5000000, max: 100000000, step: 50000 },
+		inflationBaileyStep: { min: 10000, max: 200000, step: 10000 },
+		inflationLoanRentSurcharge: { min: 50000, max: 300000, step: 5000 },
+	};
+
+	setup.inflation.settingDefault = function (key) {
+		return setup.inflation.PRESETS.current[key];
+	};
+
+	setup.inflation.BAILEY_CRISIS_TIER_IDS = ["onset", "bad", "crisis", "extreme", "parody"];
+
+	setup.inflation.clampSetting = function (key, value) {
+		const spec = setup.inflation.SETTING_RANGES[key];
+		const fallback = setup.inflation.settingDefault(key);
+		if (!spec) return fallback;
+		let result = Number(value);
+		if (!Number.isFinite(result)) result = fallback;
+		result = Math.min(Math.max(result, spec.min), spec.max);
+		if (spec.step > 0) result = Math.round(result / spec.step) * spec.step;
+		return Math.min(Math.max(result, spec.min), spec.max);
+	};
+
+	setup.inflation.normalizeBaileyCrisisTier = function (tier) {
+		return setup.inflation.BAILEY_CRISIS_TIER_IDS.includes(tier) ? tier : setup.inflation.settingDefault("inflationBaileyCrisisTier");
+	};
+
+	setup.inflation.baileyCrisisTierFromPct = function (pct) {
+		pct = Number(pct);
+		if (!Number.isFinite(pct)) return setup.inflation.settingDefault("inflationBaileyCrisisTier");
+		if (pct <= setup.inflation.settingDefault("inflationOnsetPct")) return "onset";
+		if (pct <= setup.inflation.settingDefault("inflationBadPct")) return "bad";
+		if (pct <= setup.inflation.settingDefault("inflationCrisisPct")) return "crisis";
+		if (pct <= setup.inflation.settingDefault("inflationExtremePct")) return "extreme";
+		return "parody";
+	};
+
+	setup.inflation.ensureSettings = function () {
+		if (typeof V === "undefined") return;
+		if (!V.settings || typeof V.settings !== "object") V.settings = {};
+		V.settings.inflationEnabled = true;
+		for (const key of Object.keys(setup.inflation.SETTING_RANGES)) {
+			if (V.settings[key] === undefined) V.settings[key] = setup.inflation.settingDefault(key);
+			else V.settings[key] = setup.inflation.clampSetting(key, V.settings[key]);
+		}
+		if (!setup.inflation.BAILEY_CRISIS_TIER_IDS.includes(V.settings.inflationBaileyCrisisTier)) {
+			V.settings.inflationBaileyCrisisTier = setup.inflation.baileyCrisisTierFromPct(V.settings.inflationBaileyCrisisPct);
+		}
+		V.settings.inflationBaileyCrisisPct = setup.inflation.baileyCrisisTierPercent();
+	};
+
+	setup.inflation.applyPreset = function (preset) {
+		if (typeof V === "undefined") return;
+		if (!V.settings || typeof V.settings !== "object") V.settings = {};
+		const values = setup.inflation.PRESETS[preset] || setup.inflation.PRESETS.current;
+		for (const [key, value] of Object.entries(values)) {
+			if (key === "inflationBaileyCrisisTier") V.settings[key] = setup.inflation.normalizeBaileyCrisisTier(value);
+			else V.settings[key] = setup.inflation.clampSetting(key, value);
+		}
+		V.settings.inflationBaileyCrisisPct = setup.inflation.baileyCrisisTierPercent();
+	};
+
+	setup.inflation.setting = function (key) {
+		if (key === "inflationBaileyCrisisTier") {
+			if (typeof V === "undefined" || !V.settings) return setup.inflation.settingDefault(key);
+			return setup.inflation.normalizeBaileyCrisisTier(V.settings[key]);
+		}
+		if (typeof V === "undefined" || !V.settings) return setup.inflation.settingDefault(key);
+		return setup.inflation.clampSetting(key, V.settings[key]);
+	};
+
+	/* Tiered inflation current-preset defaults.
 	Each tier: the minimum net wealth (in pennies) to enter it, and the price increase as a percentage.
 	Highest qualifying tier wins; below the lowest threshold there is no inflation.
 	Listed high-to-low for the lookup. */
 	setup.inflation.TIERS = [
-		{ min: 10000000000, pct: 5000 }, // Parody spiral:  £100,000,000+ -> x51.00
-		{ min: 1500000000,  pct: 300 },  // Extreme crisis: £15,000,000+  -> x4.00
-		{ min: 500000000,   pct: 150 },  // Crisis:         £5,000,000+   -> x2.50
-		{ min: 200000000,   pct: 70 },   // Bad economy:    £2,000,000+   -> x1.70
-		{ min: 50000000,    pct: 20 },   // Onset:          £500,000+     -> x1.20
+		{ id: "parody", min: 10000000000, setting: "inflationParodyPct", pct: 1500 }, // Parody spiral:  £100,000,000+ -> x16.00
+		{ id: "extreme", min: 1500000000, setting: "inflationExtremePct", pct: 150 }, // Extreme crisis: £15,000,000+  -> x2.50
+		{ id: "crisis", min: 500000000, setting: "inflationCrisisPct", pct: 75 },     // Crisis:         £5,000,000+   -> x1.75
+		{ id: "bad", min: 200000000, setting: "inflationBadPct", pct: 35 },           // Bad economy:    £2,000,000+   -> x1.35
+		{ id: "onset", min: 50000000, setting: "inflationOnsetPct", pct: 10 },        // Onset:          £500,000+     -> x1.10
 	];
 
-	/* Inflation percentage at or above which Bailey turns aggressive (rent unavoidable + street hunt).
-	   Set this to one of the tier `pct` values above. 20 = onset, 70 = bad economy, 150 = crisis, 300 = extreme, 5000 = parody spiral. */
-	setup.inflation.CRISIS_PCT = 150;
+	setup.inflation.tiers = function () {
+		return setup.inflation.TIERS.map(tier => ({
+			id: tier.id,
+			min: tier.min,
+			pct: setup.inflation.setting(tier.setting),
+		}));
+	};
+
+	setup.inflation.tierForWealth = function (wealth) {
+		const total = typeof wealth === "number" ? wealth : setup.inflation.totalWealth();
+		const tier = setup.inflation.TIERS.find(item => total >= item.min);
+		return tier ? { id: tier.id, min: tier.min, pct: setup.inflation.setting(tier.setting) } : null;
+	};
+
+	setup.inflation.baileyCrisisTier = function () {
+		return setup.inflation.setting("inflationBaileyCrisisTier");
+	};
+
+	setup.inflation.baileyCrisisTierData = function () {
+		const tier = setup.inflation.baileyCrisisTier();
+		return setup.inflation.TIERS.find(item => item.id === tier) || setup.inflation.TIERS.find(item => item.id === "crisis");
+	};
+
+	setup.inflation.baileyCrisisTierPercent = function () {
+		const tier = setup.inflation.baileyCrisisTierData();
+		return tier ? setup.inflation.setting(tier.setting) : setup.inflation.settingDefault("inflationCrisisPct");
+	};
+
+	/* Current-preset fallback for the inflation percentage at which Bailey turns aggressive.
+	   Live saves read `$settings.inflationBaileyCrisisTier`. */
+	setup.inflation.CRISIS_PCT = setup.inflation.settingDefault("inflationCrisisPct");
 
 	/* `money()` spend sources that must NOT be auto-inflated.
 	Rent is handled at its own source so the shown price matches; loan repayments are fixed-value debt. */
 	setup.inflation.EXCLUDED_SOURCES = ["baileyRent", "bankLoan", "tailorDeposit"];
 
 	setup.inflation.isEnabled = function () {
-		/* Default on. Can be force-disabled with `$settings.inflationEnabled = false`. */
-		return !(typeof V !== "undefined" && V.settings && V.settings.inflationEnabled === false);
+		/* Always enabled for now. `$settings.inflationEnabled` is kept reserved for a future UI toggle. */
+		return true;
 	};
 
 	/**
@@ -132,7 +324,7 @@
 		if (!setup.inflation.isEnabled()) return 1;
 		const total = typeof wealth === "number" ? wealth : setup.inflation.totalWealth();
 		for (const tier of setup.inflation.TIERS) {
-			if (total >= tier.min) return 1 + tier.pct / 100;
+			if (total >= tier.min) return 1 + setup.inflation.setting(tier.setting) / 100;
 		}
 		return 1;
 	};
@@ -178,8 +370,9 @@
 		const total = typeof wealth === "number" ? wealth : setup.inflation.totalWealth();
 		/* Ascending (wealth, multiplier) points built from the tiers (which are stored high-to-low). */
 		const pts = [];
-		for (let i = setup.inflation.TIERS.length - 1; i >= 0; i--) {
-			pts.push({ w: setup.inflation.TIERS[i].min, m: 1 + setup.inflation.TIERS[i].pct / 100 });
+		const tiers = setup.inflation.TIERS;
+		for (let i = tiers.length - 1; i >= 0; i--) {
+			pts.push({ w: tiers[i].min, m: 1 + setup.inflation.setting(tiers[i].setting) / 100 });
 		}
 		if (total < pts[0].w) return 1;                 // below onset: no rent inflation
 		for (let i = 1; i < pts.length; i++) {
@@ -202,22 +395,22 @@
 	};
 
 	/* Bailey's rent demand, tiered by Bailey-visible wealth (all thresholds in pennies):
-	     < £1,000,000  : rent pressure capped at £30,000
-	     £1M - £10M    : rent pressure capped at £70,000
-	     £10M - £100M  : rent pressure capped at £150,000 ("don't fool me, I want more")
-	     >= £100M      : rent pressure capped at £500,000 ("my best investment")
+	     < £1,000,000  : rent pressure capped at £15,000
+	     £1M - £10M    : rent pressure capped at £35,000
+	     £10M - £100M  : rent pressure capped at £75,000 ("don't fool me, I want more")
+	     >= £100M      : rent pressure capped at £250,000 ("my best investment")
 	   Rent pressure rises by one step each paid week while Bailey-visible wealth is high enough, then resets once it falls below that threshold. */
 	setup.inflation.RENT_WEALTH_LOW = 100000000;     // £1,000,000
 	setup.inflation.RENT_WEALTH_JUMP = 1000000000;   // £10,000,000
 	setup.inflation.RENT_WEALTH_INVESTMENT = 10000000000; // £100,000,000
-	setup.inflation.RENT_CAP_LOW = 3000000;          // £30,000
-	setup.inflation.RENT_CAP_HIGH = 7000000;         // £70,000
-	setup.inflation.RENT_JUMP_DEMAND = 15000000;     // £150,000
-	setup.inflation.RENT_INVESTMENT_DEMAND = 50000000; // £500,000
-	setup.inflation.RENT_INFLATION_PCT = 70;         // Bailey rent only starts climbing at bad-economy inflation.
-	/* Extra Bailey pressure rises by this much per paid week while Bailey-visible wealth is at RENT_INFLATION_PCT or higher.
+	setup.inflation.RENT_CAP_LOW = setup.inflation.settingDefault("inflationBaileyCapLow");          // £15,000
+	setup.inflation.RENT_CAP_HIGH = setup.inflation.settingDefault("inflationBaileyCapHigh");        // £35,000
+	setup.inflation.RENT_JUMP_DEMAND = setup.inflation.settingDefault("inflationBaileyDemandJump");  // £75,000
+	setup.inflation.RENT_INVESTMENT_DEMAND = setup.inflation.settingDefault("inflationBaileyDemandInvestment"); // £250,000
+	setup.inflation.RENT_INFLATION_PCT = setup.inflation.settingDefault("inflationBaileyRentPct");   // Current-preset fallback.
+	/* Extra Bailey pressure rises by this much per paid week while Bailey-visible wealth is at the rent-pressure setting or higher.
 	The pressure is separate from vanilla $rentstage so it can fall back to normal when the player is poor again. */
-	setup.inflation.RENT_STAGE_STEP = 50000;         // +£500 per paid week
+	setup.inflation.RENT_STAGE_STEP = setup.inflation.settingDefault("inflationBaileyStep");         // +£500 per paid week
 
 	setup.inflation.rentSettingModifier = function () {
 		if (typeof V === "undefined" || !V.settings) return 1;
@@ -238,13 +431,13 @@
 	};
 
 	setup.inflation.rentInflationActive = function (wealth) {
-		return setup.inflation.percent(wealth) >= setup.inflation.RENT_INFLATION_PCT;
+		return setup.inflation.percent(wealth) >= setup.inflation.setting("inflationBaileyRentPct");
 	};
 
 	setup.inflation.rentCap = function (wealth) {
-		if (wealth >= setup.inflation.RENT_WEALTH_INVESTMENT) return setup.inflation.scaleRentFull(setup.inflation.RENT_INVESTMENT_DEMAND);
-		if (wealth >= setup.inflation.RENT_WEALTH_JUMP) return setup.inflation.scaleRentFull(setup.inflation.RENT_JUMP_DEMAND);
-		const baseCap = wealth < setup.inflation.RENT_WEALTH_LOW ? setup.inflation.RENT_CAP_LOW : setup.inflation.RENT_CAP_HIGH;
+		if (wealth >= setup.inflation.RENT_WEALTH_INVESTMENT) return setup.inflation.scaleRentFull(setup.inflation.setting("inflationBaileyDemandInvestment"));
+		if (wealth >= setup.inflation.RENT_WEALTH_JUMP) return setup.inflation.scaleRentFull(setup.inflation.setting("inflationBaileyDemandJump"));
+		const baseCap = wealth < setup.inflation.RENT_WEALTH_LOW ? setup.inflation.setting("inflationBaileyCapLow") : setup.inflation.setting("inflationBaileyCapHigh");
 		return setup.inflation.scaleRentFull(baseCap);
 	};
 
@@ -261,7 +454,7 @@
 	};
 
 	setup.inflation.rentPressureStep = function () {
-		return setup.inflation.scaleRentFull(setup.inflation.RENT_STAGE_STEP);
+		return setup.inflation.scaleRentFull(setup.inflation.setting("inflationBaileyStep"));
 	};
 
 	setup.inflation.rentBaseWithModifiers = function (rawBaseRent) {
@@ -340,9 +533,11 @@
 		return Math.round((setup.inflation.multiplier(wealth) - 1) * 100);
 	};
 
-	/** True once inflation has reached the crisis threshold (CRISIS_PCT). Gates aggressive Bailey. */
+	/** True once inflation has reached the Bailey crisis setting. Gates aggressive Bailey. */
 	setup.inflation.isCrisis = function (wealth) {
-		return setup.inflation.percent(wealth) >= setup.inflation.CRISIS_PCT;
+		const tier = setup.inflation.baileyCrisisTierData();
+		const total = typeof wealth === "number" ? wealth : setup.inflation.totalWealth();
+		return tier ? total >= tier.min : false;
 	};
 
 	/** Whether the player currently owes the bank anything. */
@@ -352,8 +547,8 @@
 	};
 
 	/**
-	 * Bailey turns aggressive (rent becomes unavoidable, he hunts the streets) once the economy reaches the crisis threshold (CRISIS_PCT) OR the player owes the bank.
-	 * He calms back to the normal system when there's no loan and inflation is back below CRISIS_PCT.
+	 * Bailey turns aggressive (rent becomes unavoidable, he hunts the streets) once the economy reaches the Bailey crisis setting OR the player owes the bank.
+	 * He calms back to the normal system when there's no loan and inflation is back below that setting.
 	 * Returns "" (calm), "inflation", "loan", or "both".
 	 */
 	setup.inflation.baileyAggressionReason = function () {

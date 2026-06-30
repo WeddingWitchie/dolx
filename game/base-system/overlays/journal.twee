@@ -23,15 +23,17 @@
 	<</if>>
 	<<if setup.inflation>>
 		<<set _inflPct to setup.inflation.percent()>>
-		<<if _inflPct gte 5000>>
+		<<set _inflTier to setup.inflation.tierForWealth ? setup.inflation.tierForWealth() : null>>
+		<<set _inflTierId to _inflTier ? _inflTier.id : "">>
+		<<if _inflTierId is "parody">>
 			<li><span class="lustful">The town is trapped in a parody spiral. Prices rise by <<print _inflPct>>%.</span></li>
-		<<elseif _inflPct gte 500>>
+		<<elseif _inflTierId is "extreme">>
 			<li><span class="red">The town buckles. Prices rise by <<print _inflPct>>%.</span></li>
-		<<elseif _inflPct gte 200>>
+		<<elseif _inflTierId is "crisis">>
 			<li><span class="orange">The town struggles. Prices rise by <<print _inflPct>>%.</span></li>
-		<<elseif _inflPct gte 100>>
+		<<elseif _inflTierId is "bad">>
 			<li><span class="pink">The town feels strained. Prices rise by <<print _inflPct>>%.</span></li>
-		<<elseif _inflPct gt 0>>
+		<<elseif _inflTierId is "onset">>
 			<li><span class="purple">The town feels a subtle strain. Prices rise by <<print _inflPct>>%.</span></li>
 		<<else>>
 			/* Return nothing */
@@ -452,10 +454,15 @@
 		<h1 class="header gold bold">Reminders</h1>
 		<ul class="journal carry">
 			<<if setup.inflation>>
-				<<set _inflPct to setup.inflation.percent()>>
 				<<if setup.inflation.baileyAggressive()>>
 					<<set _inflReason to setup.inflation.baileyAggressionReason()>>
-					<li><<icon "mark.gif">><span class="orange">Bailey won't take no for an answer.</span> <<nnpc_He "Bailey">> knows what you've been hoarding.</li>
+					<<if _inflReason is "loan">>
+						<li><<icon "mark.gif">><span class="orange">Bailey won't take no for an answer.</span> HBSC has passed your debt to Bailey.</li>
+					<<elseif _inflReason is "both">>
+						<li><<icon "mark.gif">><span class="orange">Bailey won't take no for an answer.</span> Your money and HBSC debt have Bailey's attention.</li>
+					<<else>>
+						<li><<icon "mark.gif">><span class="orange">Bailey won't take no for an answer.</span> Bailey knows about your money.</li>
+					<</if>>
 				<</if>>
 			<</if>>
 			<<if Tamagotchi.exists()>>
