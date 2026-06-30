@@ -41,6 +41,8 @@ const Tamagotchi = (() => {
 		boosterPctMin: 5,
 		boosterPctMax: 20,
 		dungeonTiles: 15,
+		/* Robin will pet-sit through a bad end (captivity) at this much love, sparing the pet what would otherwise be a fatal absence. */
+		robinSitLove: 80,
 	});
 
 	/* Starters: base stats + type + icon. Pets start with no skills; they draft them through training. */
@@ -125,6 +127,17 @@ const Tamagotchi = (() => {
 	const effNote = tm => (tm > 1 ? " Super effective!" : tm < 1 ? " Not very effective..." : "");
 	const monthKey = () => (typeof Time !== "undefined" && Time.year != null ? Time.year + "-" + Time.month : "0");
 	const isBloodMoon = () => typeof Time !== "undefined" && typeof Time.isBloodMoon === "function" && Time.isBloodMoon();
+
+	/* --- Bad-end (captivity) awareness, so a forced absence isn't treated as neglect. --- */
+	const badEndInfo = () => {
+		const arr = typeof V !== "undefined" ? V.badEndStats : null;
+		return Array.isArray(arr) && arr.length ? arr[arr.length - 1] : null;
+	};
+	/* The player is currently locked away in a bad end (the latest record has no recorded end). */
+	const badEndActive = () => { const b = badEndInfo(); return !!b && !b.trackedEnd; };
+	const robinLove = () => { try { return typeof C !== "undefined" && C.npc && C.npc.Robin ? C.npc.Robin.love || 0 : 0; } catch (e) { return 0; } };
+	/* Robin cares enough to look after the pet through a bad end. */
+	const robinWouldSit = () => robinLove() >= Tuning.robinSitLove;
 
 	/* Apply the stat ceilings in-place. Called after anything that raises a stat (training, wins, boosters, evolution). */
 	function clampStats(t) {
@@ -219,6 +232,41 @@ const Tamagotchi = (() => {
 		V.petBackup = tmp;
 		return true;
 	}
+	/* Robin's pet-sitting: a pet looked after through a bad end is paused in good health, with its threat timers reset. */
+	function robinCarePet(t) {
+		if (!t) return;
+		t.hunger = 20;
+		t.happiness = 80;
+		t.energy = 90;
+		t.poops = 0;
+		t.sick = false;
+		t.neglectHours = 0;
+		t.sleepUntil = 0;
+		t.justWoke = false;
+		t.bossPending = false;
+		t.bossDeadline = 0;
+		t.lastBossArm = dayNum();
+		t.nextAttackDay = dayNum() + Tuning.attackIntervalDays;
+		t.lastTick = now();
+	}
+	/* True once the player is back from a bad end Robin sat through, so the homecoming event can fire. */
+	function robinRescuePending() {
+		sync();
+		return exists() && isAlive() && typeof V !== "undefined" && V.petRobinSitting === true && !badEndActive();
+	}
+	/* Acknowledge the homecoming: clear the flag and, if the pet had evolved, grant a dungeon key. */
+	function claimRobinRescue() {
+		const out = { keyGained: false, evolved: false, keys: keysCount() };
+		if (typeof V === "undefined" || V.petRobinSitting !== true) return out;
+		V.petRobinSitting = false;
+		if (isAlive() && V.tamagotchi.evolved) {
+			addKey(1);
+			out.keyGained = true;
+			out.evolved = true;
+			out.keys = keysCount();
+		}
+		return out;
+	}
 
 	function ageDays() {
 		if (!exists()) return 0;
@@ -239,6 +287,16 @@ const Tamagotchi = (() => {
 	/* Advance a single pet's care state by the elapsed time. isActive pets are the only ones who can be killed by an ignored weekly attacker (the benched pet isn't the one under attack). */
 	function syncPet(t, isActive) {
 		if (!t || t.alive !== true) return;
+		/* A bad end is forced captivity, not neglect. If Robin loves the player enough, she pet-sits: the pet is paused
+		 * in good health for the whole absence (decided here so a lazy sync after escaping can't kill it first).
+		 * Without Robin's care a long absence still kills the pet, like ordinary neglect. */
+		const last = badEndInfo();
+		const badEndCovered = badEndActive() || (last && last.trackedEnd && last.trackedEnd > (Number.isFinite(t.lastTick) ? t.lastTick : 0));
+		if (badEndCovered && robinWouldSit()) {
+			robinCarePet(t);
+			if (typeof V !== "undefined") V.petRobinSitting = true;
+			return;
+		}
 		const currentTime = now();
 		let hours = (currentTime - (Number.isFinite(t.lastTick) ? t.lastTick : currentTime)) / 3600;
 		if (hours > 0) {
@@ -1069,6 +1127,7 @@ const Tamagotchi = (() => {
 		elixirCount, addElixir, reviveWithElixir, rollBooster, boosterChancePct,
 		keysCount, dungeonState, dungeonStart, dungeonStep, dungeonMobCleared, dungeonEnd,
 		hasBackup, backupAlive, adopt, switchActive, promoteBackup,
+		robinRescuePending, claimRobinRescue,
 		statusHtml, battleHtml,
 	};
 })();
