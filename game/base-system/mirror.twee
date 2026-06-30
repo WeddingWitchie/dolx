@@ -2202,7 +2202,7 @@
 						× _item.count`>>
 						<<button _name>>
 							<<if $makeup[_itemType] !== _item.colour>>
-								<<set $makeup[_itemType] = _item.colour>>
+								<<ccmodRemove _itemType>><<set $makeup[_itemType] = _item.colour>>
 								<<set _item.count -= 1>>
 								<<if _itemType == 'mascara'>>
 									<<set $makeup.mascara_running = 0>>
@@ -2248,6 +2248,11 @@
 		<<if $makeup.concealer is 1>>
 			<<run _makeup.push("concealer")>>
 		<</if>>
+		<<for _slot range setup.ccmod.categories>>
+			<<if ccmUtils.itemIsValid(ccmod.equipped[_slot])>>
+				<<run _makeup.push(ccmUtils.colorNameFromPreset(ccmod.equipped[_slot].filterString) + " " + _slot)>>
+			<</if>>
+		<</for>>
 		<<set _makeupNames to ["lipstick","eyeshadow","mascara","blusher","browscolour","eyelenses"]>>
 		<<set _makeupData to ["lipstick","eyeshadow","mascara","blusher","hairdye","eyelenses"]>>
 		<<set _ownsMakeup to _makeupData.some(item => $makeup.owned[item].some(colour => colour.count > 0))>>
@@ -2271,6 +2276,7 @@
 					<<set $makeup.mascara to 0>>
 					<<set $makeup.blusher to 0>>
 					<<set $makeup.eyelenses to { left: 0, right: 0 }>>
+					<<ccmodRemoveAll>>
 					<<set $makeup.mascara_running to 0>>
 				<</link>>
 				<<if _makeup.includes("concealer")>>
@@ -2349,10 +2355,22 @@
 			<<mirrorMakeupPart "eyeshadow">>
 		</div>
 		<div class="settingsToggleItem">
+			<<ccmodMirrorPart "lipstick">>
+		</div>
+		<div class="settingsToggleItem">
+			<<ccmodMirrorPart "eyeshadow">>
+		</div>
+		<div class="settingsToggleItem">
 			<<mirrorMakeupPart "mascara">>
 		</div>
 		<div class="settingsToggleItem">
 			<<mirrorMakeupPart "blusher">>
+		</div>
+		<div class="settingsToggleItem">
+			<<ccmodMirrorPart "mascara">>
+		</div>
+		<div class="settingsToggleItem">
+			<<ccmodMirrorPart "blusher">>
 		</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold bold">New Makeup Preset</span>
@@ -2364,6 +2382,10 @@
 			<<link [[Save preset|$passage]]>>
 				<<set _newPresetName to _newPresetName.replace(/[^a-zA-Z\u4e00-\u9fa5 0-9]+/g,"")>>
 				<<set $makeup.presets[_newPresetName] to {
+					lipstick_custom:	clone(ccmod.equipped.lipstick),
+					eyeshadow_custom:	clone(ccmod.equipped.eyeshadow),
+					mascara_custom:		clone(ccmod.equipped.mascara),
+					blusher_custom:		clone(ccmod.equipped.blusher),
 					lipstick:clone($makeup.lipstick),
 					eyeshadow:clone($makeup.eyeshadow),
 					mascara:clone($makeup.mascara),
@@ -2519,29 +2541,29 @@
 <<widget "makeupPresets">>
 	<<set _presetChosen to $makeup.presets[_args[0]]>>
 	<hr>
-	Preset: <<print _args[0]>>
+	Preset: <<print _args[0]>><br><<ccmodMirrorMannequin _presetChosen>>
 	<br>
 	<<for $_label, $_value range _presetChosen>>
 		<<switch $_label>>
 			<<case "browscolour">>
 				Eyebrow Dye: <<makeupPresetsItem "hairdye" $_value>>
 			<<case "lipstick">>
-				Lipstick: <<makeupPresetsItem $_label $_value>>
+				Lipstick: <<if _presetChosen[$_label + '_custom'] isnot undefined and Object.keys(_presetChosen[$_label + '_custom']).length gt 1>> <<ccmodMirrorPresetItem _presetChosen $_label>> <<else>> <<makeupPresetsItem $_label $_value>> <</if>>
 			<<case "eyeshadow">>
-				Eyeshadow: <<makeupPresetsItem $_label $_value>>
+				Eyeshadow: <<if _presetChosen[$_label + '_custom'] isnot undefined and Object.keys(_presetChosen[$_label + '_custom']).length gt 1>> <<ccmodMirrorPresetItem _presetChosen $_label>> <<else>> <<makeupPresetsItem $_label $_value>> <</if>>
 			<<case "mascara">>
-				Mascara: <<makeupPresetsItem $_label $_value>>
+				Mascara: <<if _presetChosen[$_label + '_custom'] isnot undefined and Object.keys(_presetChosen[$_label + '_custom']).length gt 1>> <<ccmodMirrorPresetItem _presetChosen $_label>> <<else>> <<makeupPresetsItem $_label $_value>> <</if>>
 			<<case "blusher">>
-				Blusher: <<makeupPresetsItem $_label $_value>>
+				Blusher: <<if _presetChosen[$_label + '_custom'] isnot undefined and Object.keys(_presetChosen[$_label + '_custom']).length gt 1>> <<ccmodMirrorPresetItem _presetChosen $_label>> <<else>> <<makeupPresetsItem $_label $_value>> <</if>>
 			<<case "eyelenses">>
 				Contact Lenses: <<makeupPresetsItem $_label $_value>>
 		<</switch>>
-		<br>
+		<<if not $_label.includes('custom')>><br><</if>>
 	<</for>>
 	<br>
 	<<link [[Apply preset makeup|$passage]]>>
 		<<for _makeupName range _makeupNames>>
-			<<set _preset to _presetChosen[_makeupName]>>
+			<<set _preset to _presetChosen[_makeupName]>> <<set _presetCustom to _presetChosen[_makeupName + '_custom']>>
 			<<if _makeupName is "eyelenses">>
 				<<if _preset.left is 0 and _preset.right is 0>>
 					<<set $makeup.eyelenses to { left:0, right:0 }>>
@@ -2552,6 +2574,12 @@
 				<</if>>
 			<<elseif _preset is 0 and _makeupName is "hairdye">>
 				/*Do Nothing*/
+			<<elseif setup.ccmod.categories.includes(_makeupName) and ccmUtils.itemIsValid(_presetCustom)>>
+				<<set _target to ccmod.owned[_makeupName].find(invMakeup => ccmUtils.itemCompare(_presetCustom, invMakeup) and not ccmUtils.itemIsEquipped(_makeupName, invMakeup) and invMakeup.count gt 0)>>
+				<<if _target>>
+					<<set _target.count-->>
+					<<ccmodMirrorPresetApply _makeupName _presetCustom>>
+				<</if>>
 			<<elseif _preset is 0>>
 				<<set $makeup[_makeupName] to 0>>
 			<<else>>
@@ -2563,7 +2591,7 @@
 				<</if>>
 			<</if>>
 		<</for>>
-	<</link>> |
+	<<ccmodFixSlots>><</link>> |
 	<<link [[Delete preset|$passage]]>>
 		<<run delete $makeup.presets[_args[0]]>>
 	<</link>>

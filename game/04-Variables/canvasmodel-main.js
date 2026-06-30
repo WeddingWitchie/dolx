@@ -678,6 +678,7 @@ Renderer.CanvasModels.main = {
 		options.filters.lipstick = (options.lipstick_colour) ? lookupColour(
 			options, setup.colours.lipstick_map, options.lipstick_colour, "lipstick", "lipstick_custom", "lipstick"
 		) : empty;
+		options.filters.blusher = (options.blusher_colour && options.blusher_custom) ? lookupColour(options, setup.colours.blusher_map, options.blusher_colour, 'blusher', 'blusher_custom', 'blusher') : empty;
 		options.filters.eyeshadow = (options.eyeshadow_colour) ? lookupColour(
 			options, setup.colours.eyeshadow_map, options.eyeshadow_colour, "eyeshadow", "eyeshadow_custom", "eyeshadow"
 		) : empty;
@@ -1459,12 +1460,11 @@ Renderer.CanvasModels.main = {
 			},
 		},
 		"makeup_blusher": {
-			filters: ["tan"],
 			z: ZIndices.blush + 1,
 
 			srcfn(options) {
 				return `img/face/${options.facestyle}/${options.facevariant}/blusher.png`;
-			},
+			}, filtersfn(options) { return (options.blusher_custom) ? ["blusher"] : ["tan"]; },
 			showfn(options) {
 				return options.show_face && !!options.blusher_colour;
 			},
@@ -5192,7 +5192,7 @@ function lookupColour(options, dict, key, debugName, customFilterName, prefilter
 		filter = clone(record.canvasfilter);
 	}
 
-	if (prefilterName) {
+	if (prefilterName && !options[`${debugName}_custom`]) {
 		Renderer.mergeLayerData(
 			filter,
 			setup.colours.sprite_prefilters[prefilterName],

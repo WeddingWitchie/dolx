@@ -1,0 +1,61 @@
+:: Custom Cosmetics Startup [widget]
+<<widget "ccmodInit">>
+	<<if $ccmod is undefined>>
+		<<set $ccmod = { "version": setup.ccmod.version }>>
+	<</if>>
+
+	<<if $ccmod.owned is undefined>>
+		<<set $ccmod.owned = {
+			mascara: [],
+			eyeshadow: [],
+			lipstick: [],
+			blusher: []
+		}>>
+	<</if>>
+
+	<<if $ccmod.equipped is undefined>>
+		<<set $ccmod.equipped = {
+			mascara: {},
+			eyeshadow: {},
+			lipstick: {},
+			blusher: {}
+		}>>
+	<</if>>
+	
+	<<if $ccmod.userPresets is undefined>>
+		<<set $ccmod.userPresets to {}>>
+	<</if>>
+
+	<<if $ccmod.movedoll is undefined>>
+		<!-- sync mannequin w dye harder when possible -->
+		<<if $dhmod isnot undefined and $dhmod.movedoll isnot undefined>>
+			<<set $ccmod.movedoll to $dhmod.movedoll>>
+		<<else>>
+			<<set $ccmod.movedoll to -75>>
+		<</if>>
+	<</if>>
+
+	<<if $ccmod.cfg is undefined>>
+		<<set $ccmod.cfg = {}>>
+	<</if>>
+
+	<<if $ccmod.cfg.skipDesaturate is undefined>>
+		<<set $ccmod.cfg.skipDesaturate to false>>
+	<</if>>
+
+	<<if $ccmod.cfg.overwrite is undefined>>
+		<<set $ccmod.cfg.overwrite to false>>
+	<</if>>
+<</widget>>
+
+<<widget "ccmodVersionCheck">>
+	<<ccmodInit>>
+	<<if $ccmod.version is undefined or $ccmod.filters isnot undefined>>
+		<<run ccmUtils.versionUpdate()>>
+	<</if>>
+	<<if $ccmod.version is undefined or $ccmod.version lt setup.ccmod.version>>
+		<<set $ccmod.version to setup.ccmod.version>>
+	<</if>>
+
+	<<run ccmUtils.colorCache()>>
+<</widget>>

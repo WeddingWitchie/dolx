@@ -1,0 +1,267 @@
+:: Custom Makeup Presetman [widget]
+<<widget "ccmodManagerMannequin">>
+	<<switch _args[0]>>
+		<<case "tmp">>
+			<<set _color to "tmp1">>
+			<<set _cosmeticType to _presetModetmp>>
+		<<default>>
+			<<set _color to "tmp">>
+			<<set _cosmeticType to _presetModesaved>>
+	<</switch>>
+
+	<!-- {{{ -->
+	<div class="mannequin-inner" @style="'transform: translateX('+ $ccmod.movedoll + 'px);'">
+		<<selectmodel "main" "pman">>
+		<<modelprepare-player-body>>
+		<<modelprepare-player-clothes>>
+		<<set _modeloptions.blush to 0>>
+		<<set _modeloptions.tears to 0>>
+
+		<<for _t range setup.ccmod.categories>>
+			<<set _modeloptions[_t + '_colour'] to 0>>
+			<<set _modeloptions[_t + '_custom'] to 0>>
+		<</for>>
+
+		<<set _modeloptions[_cosmeticType + "_colour"] = _color>>
+		<<set _modeloptions[_cosmeticType + "_custom"] = true>>
+
+		<<rendermodel "canvas-mannequin">>
+	</div>
+	<!-- }}} -->
+<</widget>>
+
+<<widget "ccmodManagerMannequinUpdate">>
+	<<if _args[0] isnot undefined>>
+		<<set _presetType to _args[0]>>
+	<<else>>
+		<<set _presetType to "saved">>
+	<</if>>
+
+	<<replace `'#ccm-presetman-mannequin-' + _presetType`>><<ccmodManagerMannequin _presetType>><</replace>>
+<</widget>>
+
+<!--
+-- copypaste from dhm that is copypasted from vanilla clothingshop
+-->
+<<widget "ccmodManagerButton">>
+	<<furnitureicon "candyPillow">><<link "Custom Makeup mod">>
+		<<replace '#ccmod-options'>><<ccmodManager>><</replace>>
+		<<run linkifyDivs('#ccmod-options')>>
+		<<toggleclass '#ccmod-options' 'hidden'>>
+	<</link>>
+	<div id="ccmod-options" class="no-click-overlay no-numberify hidden" onclick="$(this).addClass('hidden')">
+		<!-- load delayed -->
+	</div>
+<</widget>>
+
+<<widget "ccmodManagerPresetBox">>
+	<!-- generate a listbox -->
+	<<if _args[0] isnot undefined>>
+		<<set _presetType to _args[0]>>
+	<<else>>
+		<<set _presetType to "saved">>
+	<</if>>
+
+	<<switch _presetType>>
+		<<case "saved">>
+			<<set _presetList to ccmod.userPresets>>
+		<<case "tmp">>
+			<<set _presetList to _ccmLoaded.passed>>
+	<</switch>>
+
+	<div class="controls">
+		<<capture _presetList>>
+			<<if Object.keys(_presetList).length gt 0>>
+				<div class="row">
+					<div class="listbox">
+						<label>
+							Selected preset:
+							<<listbox `'_ccmPresetSelected' + _presetType` autoselect>>
+								<<optionsfrom Object.keys(_presetList) >>
+							<</listbox>>
+						</label>
+					</div>
+				</div>
+				<div class="buttons row">
+					<div @id="'ccm-rename' + _presetType" class="btn-rename">
+						<<button "Rename">>
+							<<run ccmShop.pmanBtnRename(T[`ccmPresetSelected${T.presetType}`], T.presetType)>>
+						<</button>>
+					</div>
+					<div @id="'ccm-delete' + _presetType" class="btn-delete">
+						<<button "Delete">>
+							<<if confirm('Delete preset "' + T[`ccmPresetSelected${T.presetType}`] + '"?')>>
+								<<run ccmShop.pmanBtnDelete(T[`ccmPresetSelected${T.presetType}`], T.presetType)>>
+							<</if>>
+						<</button>>
+					</div>
+				</div>
+			<<else>>
+				No presets
+			<</if>>
+		<</capture>>
+	</div>
+<</widget>>
+
+<<widget "ccmodPresetViewer">>
+	<!-- whether the preset is loaded from imported presets, or from saved presets -->
+	<<if _args[0] isnot undefined>>
+		<<set _presetType to _args[0]>>
+	<<else>>
+		<<set _presetType to "saved">>
+	<</if>>
+
+	<<capture _presetType>>
+		<div class="subgrid">
+			<div class="ccm-presetman-container flexitem">
+				<div class="row">
+					<table>
+						<!-- these lines will be replaced once a preset is loaded -->
+						<tr><th>HEX</th><td><span @id="'ccm-presetman-hex' + _presetType">--</span></td></tr>
+						<tr><th>Brightness</th><td><span @id="'ccm-presetman-brightness' + _presetType">--</span></td></tr>
+					</table>
+				</div>
+
+				<div class="row" @id="'ccm-preset-dropdown-container' + _presetType">
+					<<ccmodManagerPresetBox _presetType>>
+				</div>
+			</div>
+
+			<div class="column flexitem">
+				<div @id="'doll-container-' + _presetType" class="no-numberify row">
+					<div @id="'ccm-presetman-mannequin-' + _presetType" class="mannequin">
+						<<ccmodManagerMannequin _presetType>>
+					</div>
+				</div>
+				<div class="row" @id="">
+					<label>
+					View as:
+					<<listbox `'_presetMode' + _presetType` autoselect>>
+						<<optionsfrom setup.ccmod.categories>>
+					<</listbox>>
+					</label>
+				</div>
+			</div>
+		</div>
+	<</capture>>
+<</widget>>
+
+<!-- preset importer -->
+<!-- {{{ -->
+<<widget "ccmodPresetLoader">>
+	<<unset _ccmLoaded>>
+	<label>
+		Import presets file
+		<br>
+		<input type="file" id="ccm-preset-loader" accept=".txt,.json" onchange="ccmShop.presetImport(this.files)" />
+	</label>
+<</widget>>
+
+<<widget "ccmodPresetLoaded">>
+	<<ccmodPresetViewer "tmp">>
+	<hr>
+	<div class="flexitem">
+		<div class="row">
+			<div id="dupe-report"><!-- placeholder --></div>
+			<label id="on-duplicate">
+				<<checkbox "$ccmod.cfg.overwrite" false true autocheck>>
+				Overwrite conflicting names (skip if unchecked)
+			</label>
+		</div>
+		<div class="row buttons">
+			<<button "Confirm Import">>
+				<<run ccmShop.onImportConfirm()>>
+			<</button>>
+			<<button "Cancel Import">>
+				<<replace "#ccm-presetman-loader">><<ccmodPresetLoader>><</replace>>
+			<</button>>
+		</div>
+	</div>
+<</widget>>
+<!-- }}} -->
+
+<!-- saved presets -->
+<!-- {{{ -->
+<<widget "ccmodPresetManager">>
+	<<if Object.keys(ccmod.userPresets).length gt 0>>
+		<<ccmodPresetViewer "saved">>
+		<hr>
+		<div class="flexitem">
+			<div class="row buttons">
+				<<button "Export saved presets">>
+					<<run ccmShop.presetExport()>>
+				<</button>>
+				<div class="background-red">
+					<<button "Delete ALL saved presets">>
+						<<run ccmShop.pmanBtnPurge()>>
+					<</button>>
+				</div>
+			</div>
+		</div>
+
+		<<run $(() => {
+			ccmShop.pmanHook("saved");
+			ccmShop.pmanOnChange(T.ccmPresetSelectedsaved, "saved");
+		});>>	
+	<<else>>
+		You have no presets to manage.
+	<</if>>
+<</widget>>
+<!-- }}} -->
+
+<<widget "ccmodManager">>
+	<<if _presetModesaved is undefined>>
+		<<set _presetModesaved to "eyeshadow">>
+	<</if>>
+	<<if _presetModetmp is undefined>>
+		<<set _presetModetmp to "eyeshadow">>
+	<</if>>
+
+	<div class="ccmod options-div" onclick="event.stopPropagation()">
+		<div id="options-buttons" class="options-buttons-div">
+			<div class="options-button button-apply div-link">
+				<<link "Save and Close">>
+					<<addclass '#ccmod-options' 'hidden'>>
+				<</link>>
+			</div>
+		</div>
+
+		<div class="options-body">
+			<div class="settingsGrid">
+				<div class="settingsHeader">Mod options</div>
+				<div class="settingsToggleItemWide">
+					<label>
+						<<checkbox "$ccmod.cfg.skipDesaturate" false true autocheck>>
+						Skip desaturate filter for custom colors<mouse class="tooltip linkBlue">(?)<span>By default, DoL desaturates the makeup sprites before applying color filters. Skipping this step may solve some issues with transparent pixels, but may also affect color rendering if sprites are not greyscale; results vary.</span></mouse>
+					</label>
+				</div>
+			</div>
+
+			<div id="ccm-preset-manager" class="settingsGrid">
+				<div class="settingsHeader">Preset Manager</div>
+
+				<div class="settingsToggleItem">
+					<span class="gold bold">Saved presets</span><br>
+					<div id="ccm-presetman-saved">
+						<<ccmodPresetManager>>
+					</div>
+				</div>
+
+				<div class="settingsToggleItem">
+					<span class="gold bold">Preset importer</span>
+					<div id="ccm-presetman-loader">
+						<<ccmodPresetLoader>>
+					</div>
+				</div>
+			</div>
+		</div>
+		<<ccmodFooter>>
+		<<run $(() => {
+			$("#checkbox-ccmodcfgskipdesaturate").on("change", function (e) {
+				ccmUtils.colorCache();
+				ccmShop.pmanRefresh("saved");
+				ccmShop.pmanRefresh("tmp");
+			});
+		});>>
+	</div>
+<</widget>>

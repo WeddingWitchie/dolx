@@ -253,12 +253,7 @@ const dhmUtils = {
 	 * @returns	{[string, number]}
 	 */
 	stringDecode(filterString) {
-		if (this.stringIsValid(filterString)) {
-			let arr = filterString.split(";");
-			arr[1] = parseFloat(arr[1]);
-			return arr;
-		}
-		return ["#FFFFFF", 0];
+		return dolxColor.stringDecode(filterString);
 	},
 
 	/**
@@ -272,25 +267,7 @@ const dhmUtils = {
 	 * @returns	{boolean}
 	 */
 	stringIsValid(filterString) {
-		if (typeof filterString !== "string") {
-			return false;
-		}
-
-		let arr = filterString.split(";");
-		if (arr.length < 2) {
-			return false;
-		}
-
-		let hex = tinycolor(arr[0]);
-		if (hex.getFormat() !== "hex") {
-			return false;
-		}
-
-		let number = parseFloat(arr[1]);
-		if (Number.isNaN(number)) {
-			return false;
-		}
-		return true;
+		return dolxColor.stringIsValid(filterString);
 	},
 
 	/**
@@ -302,7 +279,7 @@ const dhmUtils = {
 	 * @returns {string}
 	 */
 	stringFromHex(hexCode) {
-		return `${hexCode.toUpperCase()};0`;
+		return dolxColor.stringFromHex(hexCode);
 	},
 	// }}}
 	// }}}
@@ -338,7 +315,7 @@ const dhmUtils = {
 	 * @param {Canvasfilter} filter
 	 */
 	filterEncode(filter) {
-		return `${filter.blend.toUpperCase()};${filter.brightness.toFixed(1)}`;
+		return dolxColor.filterEncode(filter);
 	},
 
 	/**

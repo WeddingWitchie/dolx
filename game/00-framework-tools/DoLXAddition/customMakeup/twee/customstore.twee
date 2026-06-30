@@ -1,0 +1,102 @@
+:: Custom Makeup Store
+<<switch ccmod.tmp.category>>
+	<<case "lipstick">>
+		<<set _basePrice to 2000>>
+	<<case "eyeshadow">>
+		<<set _basePrice to 3000>>
+	<<case "mascara">>
+		<<set _basePrice to 3000>>
+	<<case "blusher">>
+		<<set _basePrice to 3000>>
+	<<default>>
+		<<set _basePrice to 0>>
+<</switch>>
+<<if _basePrice isnot undefined>><<set _price to _basePrice>><</if>>
+<<set _usesPerBuy to 20>>
+<<set _buyAmount to _usesPerBuy>>
+
+<div class="ccmod">
+	<div id="shop-grid" class="settingsGrid no-numberify">
+		<div id="item1" class="settingsToggleItem grid-item centered">
+			<<ccmodMannequin $ccmod.tmp.category "custom">>
+	
+			<div class="settingsToggleItem">
+				<div class="centered numberslider-inline">
+					<label>
+						Brightness:<br>
+						<div id="brightness-slider">
+							<<numberslider "_ccbrightness" 0 -1 1 0.1>>
+						</div>
+					</label>
+				</div>
+			</div>
+		</div>
+		
+		<div id="item2" class="settingsToggleItem grid-item centered">
+			<div id="color-controls" class="settingsToggleItem">
+				<div id="picker"></div>
+			</div>
+	
+			<div>
+				Hex: <span id="hexString"></span> | <<link "Manual input">><<run ccmShop.setColorHex()>><</link>>
+			</div>
+	
+			<div class="no-numberify">
+				<label><<checkbox "$ccmod.tmp.waterproof" false true autocheck>> Waterproof</label>
+			</div>
+		</div>
+	
+		<div class="no-numberify settingsToggleItemWide">
+			<div id="presets">
+				<div id="presets-toggle" class="gold foldoutHeader">Presets</div>
+	
+				<div id="presets-container" class="foldoutbody" style="display:none;">
+					<<ccmodShopPresetBox>>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<br>
+
+<div>
+	You can order a custom $ccmod.tmp.category for <<printprice _price>> <<if _usesPerBuy > 1>> (_usesPerBuy uses each)<</if>>.
+	<br>
+	Total: <span id="price"><<printprice _price>></span>
+	<<numberStepper " Uses" _usesPerBuy {
+		activeButtons: ["single", "double"],
+		step: _usesPerBuy,
+		max: 1000,
+		valueFormat: (value) => `<b>${value}</b>`,
+		callback: (value) => {
+			T.price = (value/20) * T.basePrice;
+			T.buyAmount = value;
+			Wikifier.wikifyEval("<<replace '#price'>><<printprice _price>><</replace>>");
+			Wikifier.wikifyEval("<<replace '#buy'>><<ccmodBuyLink>><</replace>>");
+		}
+	}>>
+	<br>
+</div>
+
+<div id="buy">
+	<<ccmodBuyLink>>
+</div>
+<br>
+<<link [[ Go back | Cosmetics Store ]]>><<unset $ccmod.tmp>><</link>>
+
+<<run $(() => {
+	ccmShop.pickerGen();
+
+	$("#numberslider-input--ccbrightness").on("input change", function (e) { ccmShop.syncBrightness(T.ccbrightness); });
+	$("#presets-toggle").click(function(){ $("#presets-container").toggle(); });
+	$(window).on('resize', function(event) { if(!!ccmShop.picker) { (ccmShop.picker.resize(ccmShop.pickerAutoWidth())) } });
+
+	if(V.cosmeticsChoice) {
+		ccmShop.syncPicker(ccmod.tmp.choice);
+		delete V.cosmeticsChoice;
+	} else {
+		ccmShop.syncPicker(setup.colours[`${ccmod.tmp.category}_map`].tmp.canvasfilter.blend);
+		ccmShop.syncBrightnessSlider(setup.colours[`${ccmod.tmp.category}_map`].tmp.canvasfilter.brightness);
+	}
+});>>

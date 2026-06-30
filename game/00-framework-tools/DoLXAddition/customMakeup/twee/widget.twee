@@ -1,0 +1,347 @@
+:: Custom Makeup Widgets [widget]
+<!-- Store
+  -- {{{
+  -->
+<!-- mannequin wrapper -->
+<<widget "ccmodMannequin">>
+	<!-- {{{ -->
+	<div class="ccmod">
+		<div id="doll-container" class="settingsToggleItem centered">
+			<div id="mannequin-controls" class="no-numberify">
+				<div class="movedoll">
+					<<button "<">><<set $ccmod.movedoll -=5>><</button>>
+				</div>
+				<div>move</div>
+				<div class="movedoll">
+					<<button ">">><<set $ccmod.movedoll +=5>><</button>>
+				</div>
+			</div>
+
+			<div>
+				<div id="mannequin" class="mannequin">
+					<<ccmodMannequinRender _args[0] _args[1]>>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<<run $(() => {
+		$(".movedoll").click(function() {
+			$(".mannequin-inner").css("transform", `translateX(${ccmod.movedoll}px)`);
+		});
+	});>>
+	<!-- }}} -->
+<</widget>>
+
+<!-- store mannequin -->
+<<widget "ccmodMannequinRender">>
+	<!-- {{{ -->
+	<div class="mannequin-inner" @style="'transform: translateX('+ $ccmod.movedoll + 'px);'">
+		<<selectmodel "main" "shop">>
+		<<modelprepare-player-body>>
+		<<modelprepare-player-clothes>>
+		<<set _modeloptions.blush to 0>>
+		<<set _modeloptions.tears to 0>>
+
+		<<for _t range setup.ccmod.categories>>
+			<<set _modeloptions[_t + '_colour'] to 0>>
+			<<set _modeloptions[_t + '_custom'] to 0>>
+		<</for>>
+
+		<<if _args[1] is "custom">>
+			<<set _modeloptions[_args[0] + "_colour"] = "tmp">>
+			<<set _modeloptions[_args[0] + "_custom"] = true>>
+		<<else>>
+			<<set _modeloptions[_args[0] + "_colour"] = _args[1]>>
+			<<set _modeloptions[_args[0] + "_custom"] = false>>
+		<</if>>
+
+		<<rendermodel "canvas-mannequin">>
+	</div>
+	<!-- }}} -->
+<</widget>>
+
+<<widget "ccmodMannequinUpdate">>
+	<<replace "#mannequin">><<ccmodMannequinRender _args[0] _args[1] _args[2]>><</replace>>
+<</widget>>
+
+<<widget "ccmodBuyLink">>
+	<<if $money gte (setup.inflation ? setup.inflation.price(_price) : _price) or Time.dayState is "night">>
+		<<set _buy = Time.dayState == "night" ? "Steal" : "Buy">>
+
+		<<link [[ _buy | $passage ]]>>
+			<<run ccmShop.buy($ccmod.tmp, _buyAmount)>>
+			<<if Time.dayState is "night">>
+				<<crimeUp `_price / 100` "petty">>
+			<<else>>
+				<<money `-_price `"cosmetics">>
+			<</if>>
+		<</link>>
+		<<if Time.dayState is "night">><<crime "petty">><</if>>
+		<br>
+	
+		<<link [[_buy+" and apply"|$passage]]>>
+			<<run ccmShop.buy($ccmod.tmp, _buyAmount - 1, true)>>
+	
+			<<if Time.dayState is "night">>
+				<<crimeUp `_price / 100` "petty">>
+			<<else>>
+				<<money `-_price` "cosmetics">>
+			<</if>>
+		<</link>>
+		<<if Time.dayState is "night">><<crime "petty">><</if>>
+	<</if>>
+<</widget>>
+
+<<widget "ccmodShopPresetBox">>
+	<!-- {{{ -->
+	<<if _presetSelected is undefined>><<set _presetSelected to {}>><</if>>
+	<div>
+		<<if Object.keys($ccmod.userPresets).length !== 0>>
+			<div id="select">
+				<<listbox "_presetSelected" autoselect>>
+					<<optionsfrom ['', ...Object.keys($ccmod.userPresets)] >>
+				<</listbox>>
+				<span id="delete">
+					<<button "Del">>
+						<<if confirm('Delete preset "' + _presetSelected + '"?')>>
+							<<run ccmShop.presetBtnDelete(_presetSelected)>>
+						<</if>>
+					<</button>>
+				</span>
+			</div>
+		<<else>>
+			No saved presets
+		<</if>>
+
+		<div id="save">
+			<<button "Save">>
+				<<run ccmShop.presetBtnSave()>>
+			<</button>>
+		</div>
+	</div>
+	<<run $(() => {
+			if(Object.keys($ccmod.userPresets).length !== 0) {
+				$("#delete button").prop("disabled", true);
+
+				$("#listbox--presetselected").on("change", function (e) {
+					if(!!T.presetSelected) { ccmShop.presetAutoload(T.presetSelected); $("#delete button").prop("disabled", false); }
+					else { $("#delete button").prop("disabled", true); }
+				});
+			}
+		})>>
+	<!-- }}} -->
+<</widget>>
+<!-- }}} -->
+
+<!--
+  -- basic makeup operations
+  -- {{{
+  -->
+<<widget "ccmodApply">>
+	<<set _itemType to _args[0]>>
+	<<set _item to _args[1]>>
+
+	<<set $makeup[_itemType] to 0>>
+	<<set ccmod.equipped[_itemType] to {
+		filterString: _item.filterString,
+		waterproof: _item.waterproof
+	}>>
+
+	<<run ccmUtils.colorCache()>>
+	<<run ccmUtils.stockUpdate(_itemType)>>
+
+	<<if _itemType is "mascara">>
+		<<set $mascara_running to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "ccmodRemove">>
+	<<set _itemType to _args[0]>>
+
+	<<set $makeup[_itemType] to 0>>
+	<<set ccmod.equipped[_itemType] to {}>>
+
+	<<if _itemType is "mascara">>
+		<<set $mascara_running to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "ccmodRemoveAll">>
+	<!-- remove EVERY custom item -->
+	<<for _slot range setup.ccmod.categories>>
+		<<ccmodRemove _slot>>
+	<</for>>
+<</widget>>
+
+<<widget "ccmodWash">>
+	<!-- remove every custom item that is NOT waterproof -->
+	<<for _slot range setup.ccmod.categories>>
+		<<if ccmUtils.itemIsValid(ccmod.equipped[_slot]) and not ccmod.equipped[_slot].waterproof>>
+			<<ccmodRemove _slot>>
+			<<set $makeupWashed to 1>>
+		<</if>>
+	<</for>>
+<</widget>>
+
+<<widget "ccmodFixSlots">>
+	<!-- avoid double equips when switching from custom to vanilla -->
+	<<for _slot range setup.ccmod.categories>>
+		<<if $makeup[_slot] and ccmUtils.itemIsValid(ccmod.equipped[_slot])>>
+			<<set ccmod.equipped[_slot] to {}>>
+		<</if>>
+	<</for>>
+<</widget>>
+<!-- }}} -->
+
+<!--
+  -- MIRROR MAKEUP SETS
+  --
+-->
+<<widget "ccmodMirrorPart">>
+	<!-- {{{ -->
+	<<set _category = _args[0]>>
+	<<set _items = $ccmod.owned[_category].filter(x => x.count > 0)>>
+
+	<<if $ccmod.owned[_category].length == 0>>
+		<<cosmeticsicon _category>> You don't own any custom _category.
+	<<elseif _items.length == 0>>
+		You ran out of custom _category.
+		<br>
+	<</if>>
+
+	<<if _items.length != 0>>
+		<<cosmeticsicon _category>>
+		<span class="gold bold">Custom _category:</span>
+		<<if ccmUtils.itemIsValid(ccmod.equipped[_category])>>
+			<<capture _category>>
+				<span class="no-numberify">
+					<<link "Remove">>
+						<<ccmodRemove _category>>
+						<<if _category == 'mascara'>>
+							<<set $makeup.mascara_running = 0>>
+						<</if>>
+						<<run Engine.show()>>
+					<</link>>
+				</span>
+			<</capture>>
+		<</if>>
+
+		<div class="makeupList no-numberify capitalize">
+			<<for _i, _item range _items>>
+				<<capture _item, _category>>
+					<span @class="ccmUtils.itemIsEquipped(_category, _item) ? 'makeupWorn' : 'makeupItem'">
+						<<set _name to ccmUtils.colorNameFromPreset(_item.filterString) + `
+							<<if _item.waterproof>> (waterproof)<</if>>
+							<span @class="_itemType + '-custom'">
+								<span class="colour-sample" @style="ccmUtils.string2Css(_item.filterString)"></span>
+							</span>
+							× _item.count
+						`>>
+						<<button _name>>
+							<<handheldon>>
+							<<if _category is "lipstick">>
+								<<set _colour to _item.colour is "dark red" ? "jewel red" : _item.colour is "orange" ? "tangerine" : _item.colour>>
+								<<wearProp _category _colour>>
+							<<else>>
+								<<wearProp _category>>
+							<</if>>
+							<<if !ccmUtils.itemIsEquipped(_category, _item)>>
+								<<ccmodApply _category _item>>
+								<<set _item.count -= 1>>
+								<<if _category == 'mascara'>>
+									<<set $makeup.mascara_running = 0>>
+								<</if>>
+								<<updatesidebarimg>>
+								<<run Engine.show()>>
+							<</if>>
+						<</button>>
+					</span>
+				<</capture>>
+			<</for>>
+		</div>
+	<</if>>
+	<!-- }}} -->
+<</widget>>
+
+<!-- handle custom items in mirror makeup sets -->
+<<widget "ccmodMirrorPresetItem">>
+	<<set _preset to _args[0]>>
+	<<set _itemType to _args[1]>>
+
+	<<set _item to _preset[_itemType + "_custom"]>>
+	<<set _itemName to ccmUtils.colorNameFromPreset(_item.filterString).toUpperFirst()>>
+
+	<span class="colour-sample" @style="ccmUtils.string2Css(_item.filterString)"></span>
+
+	<<set _found to 0>>
+	<<for $_i to 0; $_i lt ccmod.owned[_itemType].length; $_i++>>
+		<<if ccmUtils.itemCompare(ccmod.owned[_itemType][$_i], _item) and $ccmod.owned[_itemType][$_i].count gt 0>>
+			<span class="green">_itemName <<if _item.waterproof>>(Waterproof)<</if>> (<<print "×" + $ccmod.owned[_itemType][$_i].count>>) </span>
+			<<set _found to 1>>
+			<<break>>
+		<</if>>
+	<</for>>
+
+	<<if !_found>>
+		<span class="red">_itemName (× 0)</span>
+	<</if>>
+<</widget>>
+
+<!-- apply custom items from mirror makeup sets -->
+<<widget "ccmodMirrorPresetApply">>
+	<<set _itemType to _args[0]>>
+	<<set _item to _args[1]>>
+
+	<<ccmodApply _itemType _item>>
+<</widget>>
+
+<!-- mirror makeup sets preview -->
+<<widget "ccmodMirrorMannequin">>
+	<!-- {{{ -->
+	<<set _preset to _args[0]>>
+
+	<div class="ccmod">
+		<div id="doll-container">
+		<div class="mannequin" id="mannequin">
+			<div class="mannequin-inner" @style="'transform: translateX('+ $ccmod.movedoll + 'px);'">
+				<<selectmodel "main" "shop">>
+				<<modelprepare-player-body>>
+				<<modelprepare-player-clothes>>
+				<<set _modeloptions.tears to 0>>
+				<<set _modeloptions.mascara_running to 0>>
+				<<set _modeloptions.blush to 0>>
+
+				<<for _slot range setup.ccmod.categories>>
+					<<set _modeloptions[_slot + '_colour'] to 0>>
+					<<if ccmUtils.itemIsValid(_preset[_slot+'_custom'])>>
+						<<set _modeloptions[_slot+'_colour'] to _preset[_slot+'_custom'].filterString>>
+						<<set _modeloptions[_slot+'_custom'] to true>>
+					<<else>>
+						<<set _modeloptions[_slot+'_colour'] to _preset[_slot]>>
+						<<set _modeloptions[_slot+'_custom'] to false>>
+					<</if>>
+				<</for>>
+
+				<<if _preset.eyelenses.left>>
+					<<set _modeloptions.left_eye to _preset.eyelenses.left>>
+				<</if>>
+				<<if _preset.eyelenses.right>>
+					<<set _modeloptions.right_eye to _preset.eyelenses.right>>
+				<</if>>
+
+				<<if _preset.browscolour>>
+					<<set _modeloptions.brows_colour to _preset.browscolour>>
+				<</if>>
+
+				<<rendermodel "canvas-mannequin">>
+			</div>
+		</div>
+		</div>
+	</div>
+	<!-- }}} -->
+<</widget>>
+
+<<widget "ccmodFooter">>
+	<div class="footer"><small>custom makeup mod v<<print $ccmod.version>></small></div>
+<</widget>>

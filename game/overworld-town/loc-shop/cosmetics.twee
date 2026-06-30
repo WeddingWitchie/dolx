@@ -66,7 +66,7 @@ You are in the cosmetics store. Several shelvings stand before you, filled with 
 		<br>
 		<<cosmeticsicon "dyes">><<link [[Look at hair dyes|Cosmetics Dyes]]>><</link>>
 		<br>
-		<<cosmeticsicon "sunscreen">><<link [[Look at sunscreen|Cosmetics Sunscreen]]>><</link>>
+		<<cosmeticsicon "sunscreen">><<link [[Look at sunscreen|Cosmetics Sunscreen]]>><</link>><br><<ccmodManagerButton>>
 		<br><br>
 	<</if>>
 	<<getouticon>><<link [[Leave|Shopping Centre Top]]>><</link>>
@@ -171,7 +171,13 @@ Each bottle costs <<printprice _sunscreen.price>> and has <<print _sunscreen.use
 		<<set _availableColours = _availableColours[0]>>
 	<</if>>
 
-	_textIntro
+	<<if setup.ccmod.categories.includes(_itemType)>>
+		<<ccmodMannequin _itemType $cosmeticsChoice>>
+	<</if>>
+
+	<div>
+		_textIntro
+	</div>
 	<<if _isConsumable isnot true>>
 		<<if $makeup.owned[_itemType].length > 0>>
 			<br>
@@ -264,6 +270,18 @@ Each bottle costs <<printprice _sunscreen.price>> and has <<print _sunscreen.use
 			<span class="purple">You can't afford the purchase.</span>
 			<br><br>
 		<</if>>
+	<</if>>
+	<<if setup.ccmod.categories.includes(T.itemType)>>
+		<<link [[Buy Custom|Custom Makeup Store]]>>
+			<<run ccmShop.newSession(T.itemType)>>
+		<</link>>
+		<br>
+		<<run $(() => {
+			$("input[name='radiobutton-cosmeticschoice']").on("change", () => {
+				Wikifier.wikifyEval('<<ccmodMannequinUpdate _itemType $cosmeticsChoice>>');
+			});
+			Wikifier.wikifyEval('<<ccmodMannequinUpdate _itemType $cosmeticsChoice>>');
+		});>>
 	<</if>>
 	<<link [[Go back|Cosmetics Store]]>><<unset $cosmeticsChoice>><</link>>
 <</widget>>

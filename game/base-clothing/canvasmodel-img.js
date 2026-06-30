@@ -5,7 +5,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.skin_type = Skin.color.natural;
 	T.modeloptions.skin_tone = Skin.color.tan;
 
-	if (V.makeup.eyeshadow != 0) {
+	ccmUtils.rendererSetup(); if (V.makeup.eyeshadow != 0) {
 		T.modeloptions.eyeshadow_colour = V.makeup.eyeshadow;
 	}
 	if (V.makeup.mascara != 0) {

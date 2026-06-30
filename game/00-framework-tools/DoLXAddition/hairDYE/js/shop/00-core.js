@@ -151,11 +151,22 @@ const dhmShop = {
 		this.syncColorValue(index, color, colorName);
 	},
 
+	// throttled live-preview re-render;
+	// keeps the heavy canvas render from firing on every picker / slider tick (lazily built so it works regardless of script load order)
+	mannequinUpdate() {
+		if (!this._mannequinUpdate) {
+			this._mannequinUpdate = dolxColor.throttle(() => {
+				Wikifier.wikifyEval("<<dhmMannequinUpdate>>");
+			}, 150);
+		}
+		this._mannequinUpdate();
+	},
+
 	syncColorValue(index = 0, color = "#FFFFFF", colorName = `tmp${index}`) {
 		dhmod.tmp.colors[index] = colorName;
 		setup.colours.hair_map[`tmp${index}`].canvasfilter.blend = color;
 
-		Wikifier.wikifyEval("<<dhmMannequinUpdate>>");
+		this.mannequinUpdate();
 		$(`#hex${index}`).text("").append(color.toUpperCase());
 	},
 
@@ -180,7 +191,7 @@ const dhmShop = {
 		setup.colours.hair_map[`tmp${index}`].canvasfilter.brightness =
 			brightness;
 		dhmod.tmp.colors[index] = colorName;
-		Wikifier.wikifyEval("<<dhmMannequinUpdate>>");
+		this.mannequinUpdate();
 	},
 
 	/*
