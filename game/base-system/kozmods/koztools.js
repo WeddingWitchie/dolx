@@ -1185,3 +1185,132 @@ function rainWashFluids(hours = 1) {
 	}
 }
 window.rainWashFluids = rainWashFluids;
+
+/* ---------------------------------------------------------------------------
+	Player voiceover configuration
+
+	The audio engine (base-system/kozmods/audio.twee) only has two voice sets:
+	a female set ("v1"/"v2" prefix, full moan/chupa/breath/orgasm) and a male
+	set ("m_" prefix, breath/orgasm only). Vanilla picks between them straight
+	from $player.sex (or gender_posture when $options.postureAffectsVoice is on).
+
+	These helpers add a configurable layer on top so the player can map each
+	body/identity bucket to whichever voice they want (or silence it), and so a
+	herm PC — who is forced into sex "m"/"f" for the rest of the game's systems
+	— gets their own independent voice instead of inheriting male moans.
+
+	Buckets ("categories"):
+		male   - masculine body, masculine/neutral posture
+		female - feminine body, feminine/neutral posture
+		sissy  - masculine body presenting feminine (needs postureAffectsVoice)
+		butch  - feminine body presenting masculine (needs postureAffectsVoice)
+		herm   - X-Change herm effect active (takes priority over the above)
+
+	Per-category config: { voice: "m"|"v1"|"v2", enabled: bool, npc: "all"|"m"|"f"|"off" }
+		voice   - which voice set this bucket uses
+		enabled - whether the player's own voiceover plays at all
+		npc     - which NPC voices the player hears while in this bucket
+--------------------------------------------------------------------------- */
+
+/* True when the PC is currently a herm via the X-Change herm effect. */
+function playerIsHerm() {
+	return !!(
+		typeof playerIsXChanged === "function" &&
+		playerIsXChanged() &&
+		V.xchange &&
+		V.xchange.pill &&
+		V.xchange.pill.hermEffect
+	);
+}
+window.playerIsHerm = playerIsHerm;
+
+/* Resolve the player's current voice bucket from sex + posture + herm effect. */
+function playerVoiceCategory() {
+	if (playerIsHerm()) return "herm";
+	const sex = V.player && V.player.sex;
+	const posture = V.player && V.player.gender_posture;
+	const usePosture = !!(V.options && V.options.postureAffectsVoice);
+	if (sex === "m") return usePosture && posture === "f" ? "sissy" : "male";
+	if (sex === "f") return usePosture && posture === "m" ? "butch" : "female";
+	return "male"; // safety net for unexpected sex values
+}
+window.playerVoiceCategory = playerVoiceCategory;
+
+/* Per-category defaults. These exactly reproduce vanilla routing (male/butch ->
+	male voice, female/sissy -> the chosen female voice) so existing saves are
+	unchanged; only herm is new, defaulting to the v1 female voice. */
+function defaultVoiceConfig() {
+	const fv = (V.options && V.options.f_voice) || "v1";
+	return {
+		male: { voice: "m", enabled: true, npc: "all" },
+		female: { voice: fv, enabled: true, npc: "all" },
+		sissy: { voice: fv, enabled: true, npc: "all" },
+		butch: { voice: "m", enabled: true, npc: "all" },
+		herm: { voice: "v1", enabled: true, npc: "all" },
+	};
+}
+window.defaultVoiceConfig = defaultVoiceConfig;
+
+/* Fill in any missing pieces of $options.voiceConfig without clobbering the
+	player's choices. Called once per load from the version-update widget. */
+function ensureVoiceConfig() {
+	if (!V.options) return;
+	const def = defaultVoiceConfig();
+	const cfg = V.options.voiceConfig;
+	if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) {
+		V.options.voiceConfig = def;
+		return;
+	}
+	for (const cat of Object.keys(def)) {
+		const d = def[cat];
+		let c = cfg[cat];
+		if (!c || typeof c !== "object" || Array.isArray(c)) {
+			cfg[cat] = Object.assign({}, d);
+			continue;
+		}
+		if (c.voice === undefined) c.voice = d.voice;
+		if (c.enabled === undefined) c.enabled = d.enabled;
+		if (c.npc === undefined) c.npc = d.npc;
+	}
+}
+window.ensureVoiceConfig = ensureVoiceConfig;
+
+/* Resolved settings for the player's current bucket, falling back to defaults. */
+function playerVoiceSettings() {
+	const cat = playerVoiceCategory();
+	const def = defaultVoiceConfig()[cat];
+	const cur = (V.options && V.options.voiceConfig && V.options.voiceConfig[cat]) || {};
+	return {
+		category: cat,
+		voice: cur.voice || def.voice, // "m" | "v1" | "v2"
+		enabled: cur.enabled !== false, // player's own voiceover on/off
+		npc: cur.npc || def.npc, // "all" | "m" | "f" | "off"
+	};
+}
+window.playerVoiceSettings = playerVoiceSettings;
+
+/* True when the player's voice should currently use the female set. */
+function playerVoiceIsFemale() {
+	const s = playerVoiceSettings();
+	return s.enabled && (s.voice === "v1" || s.voice === "v2");
+}
+window.playerVoiceIsFemale = playerVoiceIsFemale;
+
+/* True when the player's voice should currently use the male set. */
+function playerVoiceIsMale() {
+	const s = playerVoiceSettings();
+	return s.enabled && s.voice === "m";
+}
+window.playerVoiceIsMale = playerVoiceIsMale;
+
+/* Whether an NPC of the given pronoun ("m"/"f") may be voiced right now,
+	honouring the global NPC toggle and the current bucket's NPC filter. */
+function npcVoiceAllowed(pronoun) {
+	if (!V.options || V.options.npcVoiceoverAudio === 0) return false;
+	const npc = playerVoiceSettings().npc;
+	if (npc === "off") return false;
+	if (npc === "m") return pronoun === "m";
+	if (npc === "f") return pronoun === "f";
+	return true; // "all"
+}
+window.npcVoiceAllowed = npcVoiceAllowed;
