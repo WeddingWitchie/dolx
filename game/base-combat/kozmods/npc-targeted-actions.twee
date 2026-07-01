@@ -359,3 +359,159 @@
             <<runeventpool>>
         <</if>>
     <</widget>>
+
+<!--
+Shared knot reaction. Prints the "locked together" narration plus a personality or situation-flavoured line for the NPC the player is knotted inside.
+_args[0] = hole the knot caught in ("vagina" or "anus").
+_args[1] = NPC index (defaults to the currently selected _n).
+Callers must guard on playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist.
+-->
+<<widget "alphaKnotDialogue">>
+	<!-- Print at most once per render: the speech path (on the player's orgasm) and the ejaculation path (on the NPC's) can both reach here in the same turn. -->
+	<<if not _alphaKnotNarrated>>
+	<<set _alphaKnotNarrated to true>>
+	<<set _akHole to _args[0] is "vagina" ? "vagina" : "anus">>
+	<<set _akIdx to _args[1] isnot undefined ? _args[1] : _n>>
+	<<personselect _akIdx>>
+	<!-- Resolve which reaction bank to use: named NPC, then situational encounter, else generic. -->
+	<<if $NPCList[_akIdx] and setup.NPCNameList.includes($NPCList[_akIdx].fullDescription)>>
+		<<set _knotKey to $NPCList[_akIdx].fullDescription>>
+	<<elseif $NPCList[_akIdx] and $NPCList[_akIdx].type is "plant">>
+		<<set _knotKey to "plant">>
+	<<elseif $position is "wall" and ($walltype is "pillory" or $walltype is "cleanpillory")>>
+		<<set _knotKey to "pillory">>
+	<<elseif $position is "wall">>
+		<<set _knotKey to "wall">>
+	<<elseif $punishmentposition is "gloryhole" or $gloryhole>>
+		<<set _knotKey to "gloryhole">>
+	<<else>>
+		<<set _knotKey to "">>
+	<</if>>
+	<!-- Opening narration. The plant has no pussy/ass to speak of, so it gets its own line. -->
+	<<if _knotKey is "plant">>
+		The plant's fleshy orifice clamps around the knot swollen at the base of your cock, refusing to release you.
+	<<else>>
+		<<He>> tenses as your knot swells and catches <<if _akHole is "vagina">>inside <<his>> pussy<<else>>inside <<his>> ass<</if>>, locking you together.
+	<</if>>
+	<<switch _knotKey>>
+	<<case "Whitney">>
+		<<print [
+			`Whitney's eyes go wide, then <<he>> lets out a breathless laugh. "The hell? What is that... hnng—! Something just got bigger inside me, slut."`,
+			`<<He>> squirms, a grin fighting through the gasp. "You think locking yourself in me puts you in charge? Cute. Ah—!"`,
+			`<<He>> grits <<his>> teeth as it swells. "Nngh—! Fine, stay stuck then. Just means I get to make you regret it up close."`,
+			`<<He>> claws at your back, breathless and grinning all at once. "Did you... hah! Actually knot me? You've got nerve, <<slut>>. I'll make you pay for it slow."`,
+			`<<He>> rocks against the swell, jaw tight. "So this is your game. Lock me down, keep me here. I almost like it. Almost."`
+		][random(0, 4)]>>
+	<<case "Kylar">>
+		<<print [
+			`Kylar gasps and clutches you. "It's swelling inside me! You're locking us together. D-Don't ever pull out. Mark me. I'm yours."`,
+			`<<He>> shudders violently. "I can feel every twitch. This is love, isn't it? You knotted me. Me. Every part of me is yours now."`,
+			`Kylar sobs with joy, grinding down onto the knot. "Breed me, fill me! Don't you dare take it out until every last drop is mine."`,
+			`Kylar's whole body locks around you, tears of joy on <<his>> cheeks. "We're stuck. We're really stuck. This is how it's meant to be! Me and you, joined, no one else ever."`,
+			`<<He>> nuzzles into your neck. "You've claimed me from the inside. I can feel exactly how much of you won't let go. K-Keep me like this forever."`
+		][random(0, 4)]>>
+	<<case "Robin">>
+		<<print [
+			`Robin whimpers. "I-It's getting bigger...! I can't—hnn! It won't come out, will it? P-Please be gentle..."`,
+			`<<He>> gasps, blushing furiously. "Oh gosh, we're—we're stuck together. I-I don't know what to do, just... just hold me until it passes?"`,
+			`Robin buries <<his>> face against you. "It's so much... just don't let go, okay? I-I feel safe if you hold me while we're like this."`,
+			`<<He>> squeaks, then goes quiet and clingy. "W-We have to stay together now? ...That's okay. As long as it's you."`
+		][random(0, 3)]>>
+	<<case "Sydney">>
+		<<print [
+			`Sydney gasps, wide-eyed. "It's swelling, I can't move...? Wh-What is this? God forgive me, why does being trapped like this feel..."`,
+			`<<He>> shivers, torn between panic and something warmer. "We're locked together. This is wrong. This is—hnn—why can't I want it to stop?"`,
+			`Sydney's breath catches on a broken prayer. "I should push you away, I should—oh, but you're locked so deep in me now, and Heaven help me, I don't want you to leave."`,
+			`<<He>> flushes to the ears, hands fluttering uselessly. "It won't... we're joined, we can't part, I—Is it a sin if neither of us can help it?"`
+		][random(0, 3)]>>
+	<<case "Eden">>
+		<<print [
+			`Eden gives a low growl as the knot catches. "So the prey's got teeth. Locking me down, are you? Bold."`,
+			`<<He>> bares <<his>> teeth in a grin. "Stuck together now, city rat. Good. Neither of us is going anywhere."`,
+			`Eden drags you closer by the hips, feral grin widening. "Trapped your own self in the wolf, cub. Reckon you meant to. Good."`,
+			`<<He>> huffs against your ear, pleased. "Can't run now even if you wanted. That's how I like my company. Settle in."`
+		][random(0, 3)]>>
+	<<case "Alex">>
+		<<print [
+			`Alex gasps softly, then steadies you. "Easy now—oh! We're locked together, aren't we? It's alright. We'll wait it out, together."`,
+			`<<He>> flushes but smiles gently. "That's... quite something. Don't fret, we're in no hurry. I've got you."`,
+			`<<He>> presses a slow kiss to your temple as <<he>> settles around you. "Nothin' to do now but breathe and stay close. Suits me just fine."`
+		][random(0, 2)]>>
+	<<case "Leighton">>
+		<<print [
+			`<<He>> stiffens, composure cracking. "How—utterly indecent. You've locked us together like a pair of animals. Hnn—do not look so pleased with yourself!"`,
+			`Leighton exhales sharply through <<his>> nose. "This is most irregular. I trust you understand I cannot simply excuse myself now."`,
+			`Leighton draws a measured breath, colour high on <<his>> cheeks. "You will not breathe a word of this to a soul. Is that understood? ...And do not stop on my account."`
+		][random(0, 2)]>>
+	<<case "Gwylan">>
+		<<print [
+			`Gwylan lets out a slow breath. "Ah. That's the knot, then. Bold of you. Seems we'll be here a while."`,
+			`<<He>> chuckles, unhurried. "Locked in, are we? No sense struggling. Let it run its course."`,
+			`Gwylan settles back with a low, amused hum. "Well. You've committed us both now. I've weathered longer waits than this..."`
+		][random(0, 2)]>>
+	<<case "Avery">>
+		<<print [
+			`Avery's smile falters. "You've—hah—rather literally attached yourself to me. How presumptuous."`,
+			`<<He>> arches a brow, breathing hard. "Locking me in place? That's certainly one way to get your money's worth."`,
+			`Avery exhales through <<his>> nose. "You've made this rather difficult to walk away from. I suppose that was the point."`
+		][random(0, 2)]>>
+	<<case "Morgan">>
+		<<print [
+			`Morgan coos, breathless. "There it is! Ah, <<mummy>> can feel you swelling, keeping yourself right where you belong. Good <<charles>>."`,
+			`<<He>> smiles, dreamy. "Locked to <<mummy>> now. You couldn't leave me if you tried. Isn't that so much better?"`,
+			`Morgan wraps <<his>> legs around you, keeping you buried. "Shh. No squirming. <<Mummy>> wants to feel every second of you locked up tight where you belong."`
+		][random(0, 2)]>>
+	<<case "Zephyr">>
+		<<print [
+			`Zephyr lets out a low whistle even as <<he>> gasps. "Hah—that's some equipment on you. Locked me up tight. Colour me impressed."`,
+			`<<He>> grins through gritted teeth. "Nngh—not bad, <<lass>>. Guess we're cooling down together whether I like it or not."`,
+			`Zephyr huffs a laugh, chest heaving. "Some finish. Can't tap out of this one—clock runs 'til that knot says so. Call it endurance training."`
+		][random(0, 2)]>>
+	<<case "Harper">>
+		<<print [
+			`Harper's breath hitches, but <<his>> tone stays even. "Fascinating, a knotting response. We appear to be locked. I'll note the duration."`,
+			`<<He>> exhales. "Involuntary retention. Remarkable. Do hold still; I'd like clean data on this."`,
+			`Harper's composure slips. "The locking reflex is stronger than the literature suggests. We'll simply have to remain... thorough until it subsides."`
+		][random(0, 2)]>>
+	<<case "Bailey">>
+		<<print [
+			`Bailey grunts. "The hell's this—you've gone and stuck yourself in me. Nngh. That's coming out of what you owe."`,
+			`<<He>> sneers through the gasp. "Locked in, are you? Fine. You weren't leaving 'til I said so anyway."`,
+			`Bailey barks a laugh. "Look at you, chained to me by your own damn cock. Most reliable you've ever been."`
+		][random(0, 2)]>>
+	<<case "gloryhole">>
+		<<print [
+			`A startled voice filters through the partition as your knot seals you into the hole. "The... the hell? It's stuck!"`,
+			`Fingers scrabble at the far side of the wall as your knot swells too thick to pull free. Whoever's back there isn't going anywhere either.`,
+			`The body on the other side jerks, then stills, thoroughly caught on your knot through the glory hole.`
+		][random(0, 2)]>>
+	<<case "wall">>
+		<<print [
+			`Through the wall a muffled voice rises, panicked. "It won't—why won't it come out?!" <<He>> squirms against the partition, thoroughly stuck.`,
+			`<<He>> pounds a fist on the far side of the wall as your knot holds <<him>> fast. "Let me go! What did you do?!"`
+		][random(0, 1)]>>
+	<<case "pillory">>
+		<<print [
+			`<<He>> tries to rise off your cock and can't, the knot holding <<him>> down. "It won't let go! You're the one in the stocks and you've still trapped me!"`,
+			`<<He>> wriggles helplessly, stuck fast on the knot of the very person locked in the pillory. "This is humiliating. For both of us, apparently."`
+		][random(0, 1)]>>
+	<<case "plant">>
+		<<print [
+			`Vines twitch and coil tighter as it throbs slowly around you, in no hurry to let go.`,
+			`The orifice pulses and grips, sealing your cock inside as sap-slick tendrils hold the two of you fast.`
+		][random(0, 1)]>>
+	<<default>>
+		<<if $enemyanger lte 40>>
+			"Careful... I can feel it swelling."
+		<<elseif $enemyanger lte 100>>
+			"You're stuck inside me!"
+		<<else>>
+			"Don't think that means you get to stay there."
+		<</if>>
+	<</switch>>
+	<!-- NPCs that support a lust stat gain 3 lust from being knotted. Situational/unnamed targets aren't whitelisted, so they're skipped. -->
+	<<if _knotKey and setup.lustWhitelist.includes(_knotKey)>>
+		<<npcincr _knotKey lust 3>>
+	<</if>>
+	<</if>>
+<</widget>>
