@@ -48,6 +48,10 @@ function xChangeRepairNoticeOnce(id, message) {
 if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
 if (typeof setup.xChangeRepairNoticeOnce !== "function") setup.xChangeRepairNoticeOnce = xChangeRepairNoticeOnce;
 
+/* Pure validation: never mutates the snapshot. A snapshot that fails this is reported
+	loudly (see the <<error>> in xchange.twee load-body/save-body) instead of being silently
+	"repaired" into a lossy shape. Legacy data (e.g. base-DoL sex/gender_body "h") is fixed
+	once by the flagged migration in version-update.twee, not on every load. */
 function xChangeBodySnapshotUsable(body) {
 	if (!body || typeof body !== "object" || Array.isArray(body)) return false;
 	if (Object.keys(body).length === 0) return false;
@@ -64,6 +68,69 @@ function xChangeBodySnapshotUsable(body) {
 	return true;
 }
 window.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
+
+/* One-time legacy migration, invoked once from version-update.twee behind a _did flag — NOT per load.
+	Body snapshots from old builds can be unloadable in two related ways:
+	  - base-DoL / early X-Change stored the herm value "h" for sex/gender_body (X-Change now uses
+	    gender_body "a" — a two-genital body with an underlying sex of "m"/"f" — and never "h"), or
+	  - very old snapshots predate the sex/gender_body fields entirely, so they're simply missing.
+	load-body already tolerates every OTHER missing field (each is guarded with `isnot undefined`), so
+	the only things that make a legacy body fail validation are gender_body and sex. This derives just
+	those two, once, and touches nothing else — anything else malformed still surfaces loudly via
+	xChangeBodySnapshotUsable rather than being silently reset. */
+function xChangeDeriveSnapshotGenderBody(body) {
+	if (body.gender_body === "h") return "a"; // legacy herm value
+	if (["m", "f", "a"].includes(body.gender_body)) return body.gender_body;
+	const hasPenis = body.penisExist === true;
+	const hasVagina = body.vaginaExist === true;
+	if (hasPenis && hasVagina) return "a";
+	if (hasVagina) return "f";
+	if (hasPenis) return "m";
+	return undefined; // indeterminate — leave it so validation still reports it
+}
+
+function xChangeDeriveSnapshotSex(body, genderBody) {
+	if (["m", "f"].includes(body.sex)) return body.sex;
+	if (genderBody === "f") return "f";
+	if (genderBody === "m") return "m";
+	// Herm ("a") or unknown: the underlying sex isn't recoverable from legacy data. Prefer an explicit
+	// vagina-only signal, otherwise default to "m". The body still reads as a herm via gender_body "a".
+	if (body.vaginaExist === true && body.penisExist !== true) return "f";
+	return "m";
+}
+
+function xChangeMigrateLegacyHermSnapshot(body) {
+	if (!body || typeof body !== "object" || Array.isArray(body)) return false;
+	if (Object.keys(body).length === 0) return false; // empty {} placeholder = "no body saved"; leave it
+	let changed = false;
+	const genderBody = xChangeDeriveSnapshotGenderBody(body);
+	if (genderBody !== undefined && body.gender_body !== genderBody) {
+		body.gender_body = genderBody;
+		changed = true;
+	}
+	if (!["m", "f"].includes(body.sex)) {
+		body.sex = xChangeDeriveSnapshotSex(body, body.gender_body);
+		changed = true;
+	}
+	return changed;
+}
+
+function xChangeMigrateLegacyHermSnapshots() {
+	const pill = V.xchange && V.xchange.pill;
+	if (!pill || typeof pill !== "object" || Array.isArray(pill)) return false;
+	let changed = false;
+	for (const key of ["originalBody", "changedBody", "hermBody"]) {
+		if (xChangeMigrateLegacyHermSnapshot(pill[key])) changed = true;
+	}
+	if (pill.clonedBody && typeof pill.clonedBody === "object") {
+		for (const name of Object.keys(pill.clonedBody)) {
+			if (xChangeMigrateLegacyHermSnapshot(pill.clonedBody[name])) changed = true;
+		}
+	}
+	return changed;
+}
+window.xChangeMigrateLegacyHermSnapshots = xChangeMigrateLegacyHermSnapshots;
+setup.xChangeMigrateLegacyHermSnapshots = xChangeMigrateLegacyHermSnapshots;
 
 function getAntiPillSensitivityBonus(part) {
 	const anti = V.xchange?.antiPillSensitivity;
@@ -180,6 +247,8 @@ function pleasure(amount, source) {
 
 		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
+		const alphaEffectActive = playerIsXChanged() && V.xchange.pill?.alphaEffect && V.player?.penisExist;
+		const holeAddictActive = V.hole_addict_trait === 1 || alphaEffectActive;
 
 		// Apply effect according to source
 		let sensitivity = 0;
@@ -270,7 +339,7 @@ function pleasure(amount, source) {
 			mod += sensitivityMod;
 		}
 
-		if (amount > 0 && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (V.hole_addict_trait === 1 && !holeAddictionFulfilled))) {
+		if (amount > 0 && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled))) {
 			mod *= 0.6;
 		}
 
@@ -298,7 +367,7 @@ function pleasure(amount, source) {
 		// Prevent orgasming unless addictions are fulfilled
 		const addictionsUnmet =
 			(V.penis_addict_trait === 1 && !penisAddictionFulfilled) ||
-			(V.hole_addict_trait === 1 && !holeAddictionFulfilled);
+			(holeAddictActive && !holeAddictionFulfilled);
 
 		// If a breakthrough orgasm was already triggered, let it through until pleasure drops (orgasm processed).
 		// Don't re-clamp.
@@ -361,7 +430,7 @@ function pleasure(amount, source) {
 				}
 
 				// --- Hole Addict: needs the penis INSIDE something ---
-				if (V.hole_addict_trait === 1 && !holeAddictionFulfilled && V.player?.penisExist) {
+				if (holeAddictActive && !holeAddictionFulfilled && V.player?.penisExist) {
 					if (V.penisuse === "stroker") return true;
 					if (arms.includes("mpenisstroker")) return true;
 				}
@@ -406,9 +475,10 @@ function pleasure(amount, source) {
 		if (V.xchange.breederEdgingCount == null) V.xchange.breederEdgingCount = 0;
 		if (V.xchange.breederEdgingStress == null) V.xchange.breederEdgingStress = 0;
 	
-		// Cannot orgasm under breeder unless there is actual internal semen, or a breeder-valid insemination event just occurred.
-		const breederSatisfied = playerIsCreampied() || V.xchange.breederOrgasm || V.breederCreampied;
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect && !breederSatisfied && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
+		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
+		const breederEffectActive = playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
+		const breederSatisfied = playerIsBreederCreampied() || V.xchange.breederOrgasm || V.breederCreampied;
+		if (breederEffectActive && !breederSatisfied && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
 		) {
 			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1); V.xchange.breederEdgingCount++;
 		}
@@ -570,8 +640,9 @@ window.isNumber = isNumber;
 
 function pillTimerPaused() {
 	let vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;
+	let omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats.anus.pregnancy.type !== null;
 	let earSlimeHasGrown = V.earSlime.growth > 50;
-	return V.xchange.pillPermanence !== 1 && (vaginalPregnancy || earSlimeHasGrown);
+	return V.xchange.pillPermanence !== 1 && (vaginalPregnancy || omegaAnalPregnancy || earSlimeHasGrown);
 }
 window.pillTimerPaused = pillTimerPaused;
 
@@ -673,6 +744,18 @@ function playerIsCreampied() {
 	return V.sexStats.vagina.sperm.length > 0 || V.player.bodyliquid.vagina.semen > 0 || V.player.bodyliquid.vagina.nectar > 0;
 }
 window.playerIsCreampied = playerIsCreampied;
+
+function playerIsAnalCreampied() {
+	return V.sexStats.anus.sperm.length > 0 || V.player.bodyliquid.anus.semen > 0 || V.player.bodyliquid.anus.nectar > 0;
+}
+window.playerIsAnalCreampied = playerIsAnalCreampied;
+
+function playerIsBreederCreampied() {
+	const pill = V.xchange?.pill;
+	if (pill?.breederEffect && pill?.omegaEffect) return playerIsCreampied() || playerIsAnalCreampied();
+	return pill?.omegaEffect ? playerIsAnalCreampied() : playerIsCreampied();
+}
+window.playerIsBreederCreampied = playerIsBreederCreampied;
 
 /* Anti X-Change therapy: while a purchased "clean" period is running the player cannot be involuntarily spiked.
 	It does NOT remove effects already active, only blocks new ones. */
@@ -878,9 +961,9 @@ function xchangeHourlyCheck(hours = 1) {
 			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24)
 				wikifier("xchange-setpermanent");
 
-			// If got impregnated in the vagina, or allowed an ear slime to grow to a certain point
-			// then, the change becomes permanent 
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || V.earSlime.growth > 50))
+			// If pregnancy or a pregnancy-enabling parasite locks the body, the change becomes permanent.
+			const omegaAnalPregnancy = pill.omegaEffect && V.sexStats.anus.pregnancy.type !== null;
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || omegaAnalPregnancy || V.earSlime.growth > 50))
 				wikifier("xchange-setpermanent");
 
 			if (pill.innocenceEffect && (V.innocencestate !== 1 || V.awareness >= 0)) {
@@ -1131,11 +1214,12 @@ function xchangeEffectsMessages() {
 
 	if (V.xchangePermanenceMessage) {
 		const vaginalPregnancy = V.sexStats?.vagina?.pregnancy?.type !== null && V.sexStats?.vagina?.pregnancy?.type !== undefined;
+		const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats?.anus?.pregnancy?.type !== null && V.sexStats?.anus?.pregnancy?.type !== undefined;
 
 		if (V.xchange.pillPermanence === 1) {
 			element("span", "Seems you didn't turn back. Your pill's effects have become permanent", "red"); br();
 		}
-		else if (vaginalPregnancy && typeof pillTimerPaused === "function" && pillTimerPaused()) {
+		else if ((vaginalPregnancy || omegaAnalPregnancy) && typeof pillTimerPaused === "function" && pillTimerPaused()) {
 			element("span", "Seems you didn't turn back. The life growing inside you holds the changes in place.", "red"); br();
 		}
 		else {
@@ -1264,8 +1348,9 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.breederEdgingMessage) {
+		const breederTarget = V.xchange?.pill?.omegaEffect && V.xchange?.pill?.breederEffect ? "pussy or ass." : V.xchange?.pill?.omegaEffect ? "ass." : either("pussy.","vagina.");
 		element("span", "Your body refuses to cum like this.", "purple"); 
-		element("span", "You crave some thick gooey semen in your "+ either("pussy.","vagina."), "red");
+		element("span", "You crave some thick gooey semen in your "+ breederTarget, "red");
 		if ((V.xchange.breederEdgingStress ?? 0) > 400)
 			fragment.append(wikifier("ggstress"));
 		else
@@ -1287,8 +1372,9 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.sexual_addiction_message) {
+		const alphaEffectActive = playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player.penisExist;
 		element("span", "Your body refuses to cum like this.", "purple"); 
-		if (V.penis_addict_trait === 1 && V.hole_addict_trait === 1) 
+		if (V.penis_addict_trait === 1 && (V.hole_addict_trait === 1 || alphaEffectActive))
 			element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
 		else if (V.penis_addict_trait === 1)
 			element("span", "You need dick, and you need it deep inside you. Now!", "red");
@@ -1296,6 +1382,8 @@ function xchangeEffectsMessages() {
 			element("span", "Your dick craves some pussy, and it demands it now!", "red");
 		else if (V.hole_addict_trait === 1 && !V.player.penisExist)
 			element("span", "You miss the feeling of some pussy on your dick.", "red");
+		else if (alphaEffectActive)
+			element("span", "Your knot aches to lock inside someone, and it demands it now!", "red");
 		
 		br();
 
@@ -1464,6 +1552,8 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 	const GRAY_STOCK = {
 		xchange_gray_breeder: "X-Change Breeder",
 		xchange_gray_bull: "X-Change Bull",
+		xchange_gray_omega: "X-Change Omega",
+		xchange_gray_alpha: "X-Change Alpha",
 		xchange_gray_swell: "X-Change Swell",
 		xchange_gray_hyper_fertility: "X-Change Hyper Fertility",
 		xchange_gray_fertility: "X-Change Fertility",

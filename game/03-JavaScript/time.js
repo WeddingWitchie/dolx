@@ -1491,7 +1491,7 @@ function minutePassed(minutes) {
 
 	// Arousal
 	const risk = playerPregnancyRisk();
-	const underBreedingEffect = playerIsXChanged() && (!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect);
+	const underBreedingEffect = playerIsXChanged() && (!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
 	const arousalMultiplier = V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect ? 
 		0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));

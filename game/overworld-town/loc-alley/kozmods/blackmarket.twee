@@ -62,6 +62,37 @@ The <<person>> gives off shady vibe as hell, and under normal circumstances you'
 	<</link>>
 	<br>
 <</if>>
+<<set _xchangeSpecialPrice to 50000>>
+<<set _xchangeSpecialCost to -_xchangeSpecialPrice>>
+<<set _xchangeSpecialOffers to []>>
+<<if $player.gender isnot "f" or ($player.penisExist and $player.vaginaExist)>>
+	<<run _xchangeSpecialOffers.push({ pill: "X-Change Pink Omega", label: "X-Change Omega", icon: "xchangePink" })>>
+<</if>>
+<<if $player.gender isnot "m" or ($player.penisExist and $player.vaginaExist)>>
+	<<run _xchangeSpecialOffers.push({ pill: "X-Change Blue Alpha", label: "X-Change Alpha", icon: "xchangeBlue" })>>
+<</if>>
+<<run _xchangeSpecialOffers.push({ pill: "X-Change Purple Alpha-Omega", label: "X-Change Alpha-Omega", icon: "xchangePurple" })>>
+<<if setup.inflation.canAfford(_xchangeSpecialPrice, "blackMarket")>>
+	<<if _xchangeSpecialOffers.length gt 0>>
+		<<run V.sexStats ??= {}; V.sexStats.pills ??= {}; V.sexStats.pills.pills ??= {}; if (typeof ensurePillInventoryRecords === "function") ensurePillInventoryRecords(V.sexStats.pills.pills)>>
+		<<for _xchangeSpecialOffer range _xchangeSpecialOffers>>
+			<<set _xchangeSpecialPill to _xchangeSpecialOffer.pill>>
+			<<set _xchangeSpecialLabel to _xchangeSpecialOffer.label>>
+			<<set _xchangeSpecialIcon to _xchangeSpecialOffer.icon>>
+			<<set _xchangeSpecialText to "Buy an " + _xchangeSpecialLabel + " pill (" + formatMoney(setup.inflation.spendPrice(_xchangeSpecialPrice, "blackMarket")) + ")">>
+			<<pillicon _xchangeSpecialIcon>><<capture _xchangeSpecialPill _xchangeSpecialText _xchangeSpecialCost>><<link _xchangeSpecialText "Residential Shady Person Accept">>
+				<<run V.sexStats ??= {}; V.sexStats.pills ??= {}; V.sexStats.pills.pills ??= {}; if (typeof ensurePillInventoryRecords === "function") ensurePillInventoryRecords(V.sexStats.pills.pills)>>
+				<<set $sexStats.pills.pills[_xchangeSpecialPill].owned += 1>>
+				<<set $sexStats.pills.boughtOnce to true>>
+				<<money _xchangeSpecialCost "blackMarket">>
+			<</link>><</capture>>
+			<br>
+		<</for>>
+	<</if>>
+<<else>>
+	You don't have enough cash for the labelled pills.
+	<br>
+<</if>>
 <<link [[Refuse|Residential Shady Person Refuse]]>><</link>>
 <br>
 

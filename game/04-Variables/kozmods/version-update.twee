@@ -16,6 +16,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			pillSensitivityChange: 1,
 			postPermanenceFertilityReset: 1,
 			grayPillGenderflip: 0,
+			omegaShrinkGenitals: 0,
 			chastityKeepBeltShape: 1,
 			willpowerPoints: Math.max(200, $willpower || 0),
 			breastsize: $player.breastsize,
@@ -34,6 +35,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.pillSensitivityChange is undefined>><<set $xchange.pillSensitivityChange to 1>><</if>>
 	<<if $xchange.postPermanenceFertilityReset is undefined>><<set $xchange.postPermanenceFertilityReset to 1>><</if>>
 	<<if $xchange.grayPillGenderflip is undefined>><<set $xchange.grayPillGenderflip to 0>><</if>>
+	<<if $xchange.omegaShrinkGenitals is undefined>><<set $xchange.omegaShrinkGenitals to 0>><</if>>
 	<<if $xchange.chastityKeepBeltShape is undefined>><<set $xchange.chastityKeepBeltShape to 1>><</if>>
 	<<if $xchange.willpowerPoints is undefined or $xchange.willpowerPoints is null or isNaN($xchange.willpowerPoints)>><<set $xchange.willpowerPoints to Math.max(200, $willpower || 0)>><</if>>
 	<<if $xchange.breastsize is undefined>><<set $xchange.breastsize to $player.breastsize>><</if>>
@@ -149,6 +151,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			innocenceWasNatural: false,
 			cumcureEffect: false,
 			breederEffect: false,
+			omegaEffect: false,
+			alphaEffect: false,
 			swellEffect: false,
 			bimboEffect: false,
 			hyperFertilityEffect: false,
@@ -182,6 +186,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	/* Backfill for old saves that predate the effect. */
 	<<if $xchange.pill isnot undefined and $xchange.pill.hyperFertilityEffect is undefined>><<set $xchange.pill.hyperFertilityEffect to false>><</if>>
+	<<if $xchange.pill isnot undefined and $xchange.pill.omegaEffect is undefined>><<set $xchange.pill.omegaEffect to false>><</if>>
+	<<if $xchange.pill isnot undefined and $xchange.pill.alphaEffect is undefined>><<set $xchange.pill.alphaEffect to false>><</if>>
 	<<if $xchange.pill isnot undefined and $xchange.pill.innocenceWasNatural is undefined>><<set $xchange.pill.innocenceWasNatural to $xchange.pill.innocenceEffect is true and $innocencestate is 1 and typeof $innocenceawareness isnot "number">><</if>>
 	<<if $xchange.spikerates isnot undefined and $xchange.spikerates.fertility is undefined>><<set $xchange.spikerates.fertility to 4>><</if>>
 	
@@ -906,6 +912,17 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
+	/* One-time fix for legacy body snapshots whose gender_body/sex are unloadable: either the old
+		base-DoL herm value "h", or (in very old snapshots) missing entirely. X-Change herm bodies are
+		gender_body "a" (two genitals) with an underlying sex of "m"/"f"; load-body tolerates every other
+		missing field but hard-requires a valid gender_body and sex, so only those two are derived. Runs once. */
+	<<if $xchange._didLegacyBodySexFix is not true and typeof setup.xChangeMigrateLegacyHermSnapshots is "function">>
+		<<set $xchange._didLegacyBodySexFix to true>>
+		<<if setup.xChangeMigrateLegacyHermSnapshots()>>
+			<<run setup.xChangeRepairNoticeOnce("repair_xchange_legacy_body_sex", "<b>Save repair notice</b><br>One or more of your stored X-Change body snapshots had a body-sex value that newer versions can no longer load — either the old herm value <b>\"h\"</b> or, in very old snapshots, no stored sex at all. X-Change has filled in a valid body sex so those bodies load again. Where the original male/female sex of a legacy herm body could not be recovered, it was derived from the body's genitals.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
+		<</if>>
+	<</if>>
+
 	/* permaReflection state object */
 	<<if $xchange.permaReflection is undefined>>
 		<<set $xchange.permaReflection to {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
@@ -1057,7 +1074,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.breederEdgingStress to $xchange.pill.breederEdgingStress>>
 		<<unset $xchange.pill.breederEdgingStress>>
 	<<elseif ndef $xchange.breederEdgingStress>>
-		<<set $xchange.breederEdgingStress to ($xchange.pill.breederEffect ? 100 : 0)>>
+		<<set $xchange.breederEdgingStress to (($xchange.pill.breederEffect or $xchange.pill.omegaEffect) ? 100 : 0)>>
 	<</if>>
 	<<if $xchange.willpowerPoints is undefined or $xchange.willpowerPoints is null or isNaN($xchange.willpowerPoints)>>
 		<<set $xchange.willpowerPoints to 0>>

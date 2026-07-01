@@ -1116,8 +1116,12 @@
 		<<set $xchange.pill.genderificationEffect to false>>
 		<<set $xchange.pill.hermEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
+		<<set $xchange.pill.omegaEffect to false>>
 		<<set $xchange.breederDenial to 0>>
 		<<set $xchange.pill.bullEffect to false>>
+		<<set $xchange.pill.alphaEffect to false>>
+		<<set $xchange.pill.alphaPenisSizeBoost to false>>
+		<<unset $xchange.pill.alphaPenisSizePrevious>>
 		<<set $xchange.pill.xtendEffect to false>>
 		<<unset $xchange.pill.xtendTracker>>
 		<<set $xchange.pill.resistanceEffect to false>>
@@ -1174,7 +1178,7 @@
 				<<set $xchange.pill.fertile to false>>
 				<<set $sexStats.vagina.menstruation.running = false>>
 			<</if>>
-			<<if !$player.penisExist>><<set $xchange.pill.bullEffect to false>><</if>>
+			<<if !$player.penisExist>><<set $xchange.pill.bullEffect to false>><<set $xchange.pill.alphaEffect to false>><</if>>
 			<<if $combat is 1>><<xchangeBodyDesyncCheck>><</if>>
 		<</if>>
 
@@ -1239,12 +1243,28 @@
 
 	<<case "breeder">>
 		<<set $xchange.pill.breederEffect to true>>
-		<<set $xchange.pill.breederEdgingCount to 0>>
-		<<set $xchange.pill.breederEdgingStress to 100>>
+		<<set $xchange.breederEdgingCount to 0>>
+		<<set $xchange.breederEdgingStress to 100>>
 		<<set $xchange.breederDenial to 0>>
 
 	<<case "bull">>
 		<<set $xchange.pill.bullEffect to true>>
+
+	<<case "omega">>
+		<<set $xchange.pill.omegaEffect to true>>
+		<<set $xchange.breederEdgingCount to 0>>
+		<<set $xchange.breederEdgingStress to 100>>
+		<<set $xchange.breederDenial to 0>>
+
+	<<case "alpha">>
+		<<set $xchange.pill.alphaEffect to true>>
+		<<if $player.penisExist and $player.penissize lt 2>>
+			<<if $xchange.pill.alphaPenisSizeBoost isnot true>>
+				<<set $xchange.pill.alphaPenisSizeBoost to true>>
+				<<set $xchange.pill.alphaPenisSizePrevious to $player.penissize>>
+			<</if>>
+			<<set $player.penissize to 2>>
+		<</if>>
 
 	<<case "portal">>
 		<<if $portalPantiesEnabled>>
@@ -1420,6 +1440,23 @@
 			<<unset $breederCreampied>>
 			<<set $xchange.breederEdgingCount to 0>>
 			<<set $xchange.breederEdgingStress to 0>>
+		<<case "omega">>
+			<<set $xchange.pill.omegaEffect to false>>
+			<<set $xchange.breederDenial to 0>>
+			<<set $xchange.breederOrgasm to false>>
+			<<set $breederOrgasm to 0>>
+			<<unset $breederCreampied>>
+			<<set $xchange.breederEdgingCount to 0>>
+			<<set $xchange.breederEdgingStress to 0>>
+		<<case "alpha">>
+			<<set $xchange.pill.alphaEffect to false>>
+			<<if $xchange.pill.alphaPenisSizeBoost>>
+				<<if $player.penisExist and $player.penissize lte 2 and $xchange.pill.alphaPenisSizePrevious isnot undefined>>
+					<<set $player.penissize to $xchange.pill.alphaPenisSizePrevious>>
+				<</if>>
+				<<set $xchange.pill.alphaPenisSizeBoost to false>>
+				<<unset $xchange.pill.alphaPenisSizePrevious>>
+			<</if>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
 				<<set $xchange.pill.portalEffect to false>>
@@ -1705,7 +1742,11 @@
 		<<set $xchange.pill.cumcureEffect to false>>
 		<<set $xchange.pill.hyperFertilityEffect to false>>
 		<<set $xchange.pill.breederEffect to false>>
+		<<set $xchange.pill.omegaEffect to false>>
 		<<set $xchange.pill.bullEffect to false>>
+		<<set $xchange.pill.alphaEffect to false>>
+		<<set $xchange.pill.alphaPenisSizeBoost to false>>
+		<<unset $xchange.pill.alphaPenisSizePrevious>>
 		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.breederDenial to 0>>
 		<<set $xchange.breederOrgasm to false>>
@@ -1738,7 +1779,7 @@
 	<<widget "xchange-orgasm">>
 		<<set _pill to $xchange.pill>>
 
-		<<if _pill and _pill.breederEffect and !playerIsCreampied()>>
+		<<if _pill and (_pill.breederEffect or _pill.omegaEffect) and !playerIsBreederCreampied()>>
 			<<set $xchange.breederOrgasm to false>>
 			<<unset $breederCreampied>>
 		<</if>>
@@ -2038,8 +2079,14 @@
 			<<if $xchange.pill.breederEffect>><li>Breeder Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Triggers orgasms upon insemination. And dimishes stress while sperm remains inside the vagina.</span></mouse>
 			</li><</if>>
+			<<if $xchange.pill.omegaEffect>><li>Omega Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Allows anal pregnancy while active. Triggers orgasms upon anal insemination and diminishes stress while sperm remains in the anus.</span></mouse>
+			</li><</if>>
 			<<if $xchange.pill.bullEffect>><li>Bull Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Enhances your fertility. Almost guarantees successful impregnation of partners.</span></mouse>
+			</li><</if>>
+			<<if $xchange.pill.alphaEffect>><li>Alpha Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Gives your penis a knot in encounter views and makes orgasm demand that your cock be inside something.</span></mouse>
 			</li><</if>>
 			<<if $xchange.pill.hyperFertilityEffect>><li>Hyper Fertility Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Speeds up your pregnancies and greatly raises the odds of twins, triplets or quadruplets. Lasts as long as this pill.</span></mouse>
@@ -2067,7 +2114,7 @@
 					<<if V.xchange.pillPermanence === 1 && !V.xchange.pill.choiceEffect>>
 						<<set _duration += `Your transformation is now permanent.`>>
 					<<else>>
-						<<if V.sexStats.vagina.pregnancy.type !== null>>
+						<<if V.sexStats.vagina.pregnancy.type !== null or (V.xchange.pill.omegaEffect and V.sexStats.anus.pregnancy.type !== null)>>
 							<<set _duration += `Your transformation's timer has been halted while your pregnancy runs its course. `>>
 						<</if>>
 						<<if (V.earSlime.growth > 50)>>
@@ -2140,15 +2187,16 @@
 		<<set _liquids to _args[1]>>
 		<<set _amount to _args[2]>>
 		<<set _hasVaginaTarget to (_bodyparts is "vagina") or (_bodyparts is "vaginaoutside") or (Array.isArray(_bodyparts) and (_bodyparts.includes("vagina") or _bodyparts.includes("vaginaoutside")))>>
+		<<set _hasAnusTarget to (_bodyparts is "anus") or (Array.isArray(_bodyparts) and _bodyparts.includes("anus"))>>
 		<<set _hasBreederLiquid to (_liquids is "cum") or (_liquids is "semen") or (_liquids is "nectar") or (Array.isArray(_liquids) and (_liquids.includes("cum") or _liquids.includes("semen") or _liquids.includes("nectar")))>>
 
-		<<if playerIsXChanged() and $xchange.pill.breederEffect and _hasVaginaTarget and _hasBreederLiquid and _amount gte 1>>
+		<<if playerIsXChanged() and (($xchange.pill.breederEffect and _hasVaginaTarget) or ($xchange.pill.omegaEffect and _hasAnusTarget)) and _hasBreederLiquid and _amount gte 1>>
 			<<set $pleasure to $pleasuremax>>
 			<<set $breederOrgasm to 1>>
 			<<set $breederCreampied to true>>
 			<<set $breederEdgingMessage to 0>>
 			<<set $xchange.breederOrgasm to true>>
-			<<set $xchange.pill.breederEdgingStress to 100>>
+			<<set $xchange.breederEdgingStress to 100>>
 		<</if>>
 	<</widget>>
 

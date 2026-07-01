@@ -367,6 +367,8 @@ window.wornSetupClothes = wornSetupClothes;
 				!!pill.fertile ||
 				!!pill.breederEffect ||
 				!!pill.bullEffect ||
+				!!pill.omegaEffect ||
+				!!pill.alphaEffect ||
 				!!pill.genderflipEffect ||
 				!!pill.genderificationEffect ||
 				!!pill.hermEffect ||
@@ -434,6 +436,19 @@ window.wornSetupClothes = wornSetupClothes;
 		repairBounds("ballssizemin", "ballssizemax", 0, 6);
 	};
 
+	setup.xchangeEnsureAlphaUsable = function () {
+		const V = State?.variables;
+		const pill = V?.xchange?.pill;
+		if (!pill?.active || !pill.alphaEffect || !V.player?.penisExist) return;
+		const penisSize = Number(V.player.penissize);
+		if (Number.isFinite(penisSize) && penisSize >= 2) return;
+		if (pill.alphaPenisSizeBoost !== true) {
+			pill.alphaPenisSizeBoost = true;
+			pill.alphaPenisSizePrevious = Number.isFinite(penisSize) ? penisSize : 0;
+		}
+		V.player.penissize = 2;
+	};
+
 	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled, and prevent "armed" drift/stage from firing later.
 	setup.xchangeEnsureGiSafety = function () {
 		const V = State?.variables;
@@ -476,6 +491,7 @@ window.wornSetupClothes = wornSetupClothes;
 	const runXChangeLoadCompat = () => {
 		try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
 		try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
+		try { setup.xchangeEnsureAlphaUsable(); } catch (e) {}
 		try { setup.xchangeEnsureGiSafety(); } catch (e) {}
 	};
 

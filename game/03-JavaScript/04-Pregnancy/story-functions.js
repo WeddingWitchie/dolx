@@ -538,7 +538,7 @@ function playerHeatMinArousal() {
 		if (Transformations.effectiveLevel("cow") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cow"), 0, 100) * 20 * (2 - risk);
 		if (Transformations.effectiveLevel("fox") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("fox"), 0, 100) * 20 * (2 - risk);
 		if (Transformations.effectiveLevel("bunny") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("bunny"), 0, 100) * 20 * (2 - risk);
-		if (playerIsXChanged() && V.xchange.pill?.breederEffect) minArousal += 100 * 4 * breederDenialRisk;
+		if (playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect)) minArousal += 100 * 4 * breederDenialRisk;
 	}
 	if (minArousal === 0) V.pregnancyStats.heatStillEnabled = !playerIsPregnant();
 
@@ -587,7 +587,8 @@ window.playerRutMinArousal = playerRutMinArousal;
 
 function playerAwareTheyCanBePregnant() {
 	const playerIsXChangedAndAwareTheyCanBePregnant = playerIsXChanged() && V.xchange.pill.fertile && V.xchange.pill.effectsKnown;
-	return (V.player.vaginaExist && ( playerIsXChangedAndAwareTheyCanBePregnant || !playerIsXChanged() )) || (canBeMPregnant() && V.sexStats.anus.pregnancy.totalBirthEvents >= 1) || playerAwareTheyArePregnant();
+	const playerIsAwareOfOmegaPregnancy = playerIsXChanged() && V.xchange.pill.omegaEffect && V.xchange.pill.effectsKnown;
+	return (V.player.vaginaExist && ( playerIsXChangedAndAwareTheyCanBePregnant || !playerIsXChanged() )) || (canBeMPregnant() && (playerIsAwareOfOmegaPregnancy || V.sexStats.anus.pregnancy.totalBirthEvents >= 1)) || playerAwareTheyArePregnant();
 }
 window.playerAwareTheyCanBePregnant = playerAwareTheyCanBePregnant;
 

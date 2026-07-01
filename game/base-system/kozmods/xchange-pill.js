@@ -92,6 +92,27 @@ function buildGrayXChangePills() {
 			effects: [`<<xchange-gray 7 "bull">>`],
 		},
 		{
+			name: "X-Change Omega",
+			subtype: "gray omega",
+			description:
+				"A colourless X-Change capsule carrying only the Omega agent: anal pregnancy compatibility and insemination-triggered pleasure focused on your anus. Acts on whatever body you currently have.",
+			onTakeMessage: teal("A low warmth curls deep in your belly, then settles lower still, strange and insistent. Your body feels as if it has found a new place to hold life, and a new need it expects to be filled."),
+			warning_label:
+				"Warning: Enables anal pregnancy for the duration. Pregnancy may render any active transformation permanent.",
+			canTake: grayGate.always,
+			effects: [`<<xchange-gray 7 "omega">>`],
+		},
+		{
+			name: "X-Change Alpha",
+			subtype: "gray alpha",
+			description:
+				"A colourless X-Change capsule carrying only the Alpha agent: a knotted penis and a need to be buried inside a partner before release. Acts on whatever body you currently have.",
+			onTakeMessage: teal("Pressure builds in your cock, not as simple arousal but as shape, purpose, and a heavy need to lock in place. Your hips twitch with the sudden certainty that release will not come easily unless you are inside someone."),
+			warning_label: "Warning: Requires a penis to take effect.",
+			canTake: grayGate.hasPenis,
+			effects: [`<<xchange-gray 7 "alpha">>`],
+		},
+		{
 			name: "X-Change Swell",
 			subtype: "gray swell",
 			description:
@@ -278,7 +299,7 @@ setup.pills.push(
 			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
@@ -313,10 +334,10 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 && (V.player.gender !== "f" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
 		},
@@ -661,6 +682,47 @@ setup.pills.push(
 			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "m") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
 		},
 		npcEffects: [`<<npc-take-xchange 7 "genderflip" "breeder" "fertile">>`],
+	},
+
+{
+		name: "X-Change Pink Omega",
+		description:
+			"Temporary pill that applies the Omega agent: anal pregnancy compatibility and heightened pleasure during anal insemination. Pill effects may last upto a whole week.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly.<br><br>A low warmth settles deep inside you, lower than the usual X-Change pull, leaving your anus sensitive, needy, and terribly aware of what the Omega formula wants from you.",
+		warning_label:
+			"Warning: Enables anal pregnancy. Pregnancy will result in transformation becoming permanent. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink omega",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchange-pink.png",
+		display_condition() {
+			return this.owned() > 0 && (V.player.gender !== "f" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
+		},
+		take_condition() {
+			const isPregnantForXChange =
+				playerIsPregnant() ||
+				(canBeMPregnant()
+				&& V.sexStats.anus.pregnancy != null
+				&& V.sexStats.anus.pregnancy.type != null);
+			return (!playerIsXChanged() && !isPregnantForXChange) ? 1 : 0;
+		},
+		effects: [`<<if $xchange.omegaShrinkGenitals>><<take-xchange 7 "crossdress" "omega">><<else>><<xchange-pink 7 "omega">><</if>>`],
 	},
 
 {
@@ -1112,7 +1174,7 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 && (V.player.gender !== "m" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
 		},
 		take_condition() {
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
@@ -1376,6 +1438,44 @@ setup.pills.push(
 			return this.owned() > 0 && npcStartingSexIs($xchange.npcTargetNo, $xchange.npcTargetName, "f") && !npcIsXChanged($xchange.npcTargetNo ?? $xchange.npcTargetName) && !npcIsPregnant($xchange.npcTargetName)
 		},
 		npcEffects: [`<<npc-take-xchange 7 "genderflip" "bull">>`],
+	},
+
+{
+		name: "X-Change Blue Alpha",
+		description:
+			"Temporary genderswap pill that gives the user's penis a knot and a need to be inside a partner before release. Pill effects may last upto a whole week.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Then pressure gathers in your cock, reshaping need into something heavier and more possessive. Your body wants to lock inside someone.",
+		warning_label:
+			"Warning: Requires a penis to matter. Known to cause intense urges to penetrate. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "blue alpha",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchange-blue.png",
+		display_condition() {
+			return this.owned() > 0 && (V.player.gender !== "m" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-blue 7 "alpha">>`],
 	},
 
 {
@@ -2008,6 +2108,46 @@ setup.pills.push(
 	},
 
 {
+		name: "X-Change Purple Alpha-Omega",
+		description:
+			"Temporary pill that applies the Alpha and Omega agents together, granting a hermaphroditic body, anal pregnancy compatibility, and a knotted penis with intense urges to penetrate. Pill effects may last upto a whole week.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>A low warmth settles deep inside you while pressure gathers in your cock. Your body wants to be filled, to fill, and to lock inside someone before release.",
+		warning_label:
+			"Warning: Enables anal pregnancy and requires a penis for the Alpha effect. Pregnancy will result in transformation becoming permanent. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple alpha-omega",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchange-purple.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			const isPregnantForXChange =
+				playerIsPregnant() ||
+				(V.sexStats.anus?.pregnancy != null
+				&& V.sexStats.anus.pregnancy.type != null);
+			return (!playerIsXChanged() && !isPregnantForXChange) ? 1 : 0;
+		},
+		effects: [`<<take-xchange 7 "herm" "omega" "alpha">>`],
+	},
+
+{
 		name: "X-Change Purple Hyper Fertility",
 		description:
 			"Temporary genderswap pill that grants the body of a hermaphrodite alongside extreme fertility and accelerated reproductive potency. While active, both your womb and your sperm become far more potent: a single unprotected encounter is almost certain to cause pregnancy, gestation runs much faster, and successful conception is far more likely to result in twins, triplets, or quadruplets.",
@@ -2205,6 +2345,44 @@ setup.pills.push(
 	},
 
 {
+		name: "SWP Anti-omega Pill",
+		description:
+			"A shady pill advertised to deal with omega effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
+		onTakeMessage:
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>The needy warmth low in your body fades first, leaving a cold hollow in its place. Then the backlash hits: <span class=\"red\">a prickling oversensitivity spreads under your skin</span>, harsh enough to make every brush of cloth feel like too much.<br><br>You breathe through it and hope the miserable comedown means the Omega pressure is gone.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.omegaEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "omega">>`, "<<xchange-addsideeffect \"antipill\">>"],
+	},
+
+{
 		name: "SWP Anti-bull Pill",
 		description:
 			"A shady pill advertised to deal with bull effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
@@ -2240,6 +2418,44 @@ setup.pills.push(
 				: 0;
 		},
 		effects: [`<<xchange-removeeffect "bull">>`, "<<xchange-addsideeffect \"antipill\">>"],
+	},
+
+{
+		name: "SWP Anti-alpha Pill",
+		description:
+			"A shady pill advertised to deal with alpha effects, 100% satisfaction guaranteed. <span class=\"red\">Be aware of its side effects!</span>",
+		onTakeMessage:
+			"<span class=\"purple\">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>The heavy pressure in your cock ebbs, leaving the sudden absence almost as distracting as the need itself. <span class=\"red\">Then the comedown crawls across your skin</span>, turning every touch sharp and oversensitive.<br><br>You grit your teeth and hope that means the Alpha marker has been neutralised.",
+		warning_label:
+			"Warning: May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.alphaEffect && V.xchange.pill.effectsKnown
+				? 1
+				: 0;
+		},
+		effects: [`<<xchange-removeeffect "alpha">>`, "<<xchange-addsideeffect \"antipill\">>"],
 	},
 
 {

@@ -1,5 +1,5 @@
 // @ts-check
-/* globals CombatRenderer, XrayCombatMapper, XrayOptions */
+/* globals CombatRenderer, Renderer, XrayCombatMapper, XrayOptions */
 
 /**
  * @type {CanvasModelOptions<XrayOptions>}
@@ -43,7 +43,13 @@ const combatXrayPenis = {
 			srcfn(options) {
 				const playerPenis = options.penis.playerSprite;
 				const size = options.penis.size ? "-size" + options.penis.size : "";
-				return `${options.src}${options.penis.penetrated}/${playerPenis}${size}.png`;
+				const originalSrc = `${options.src}${options.penis.penetrated}/${playerPenis}${size}.png`;
+				if (options.penis.type !== "knotted") {
+					return originalSrc;
+				}
+				const playerKnot = playerPenis.replace(/^knotted(-full)?$/, "knotted$1-player");
+				const playerSrc = `${options.src}${options.penis.penetrated}/${playerKnot}${size}.png`;
+				return Renderer.ImageErrors[playerSrc] ? originalSrc : playerSrc;
 			},
 			showfn(options) {
 				return !!options.showPcPenis;
@@ -69,7 +75,7 @@ const combatXrayPenis = {
 				return `${options.src}${options.penis.penetrated}/cum/${options.penis.base}${size}${cumAmt}.png`;
 			},
 			showfn(options) {
-				return !!options.penis.showCum && V.otherFilled >= 1;
+				return !!options.penis.showCum && V.otherFilled >= 1 && options.penis.base !== "knotting";
 			},
 			animationfn(options) {
 				return options.animKeyPenis;

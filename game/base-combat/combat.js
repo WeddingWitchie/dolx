@@ -47,6 +47,13 @@ function namedNpcComments(npcName) {
 
 	// Do not return any comment while the current pass is silent.
 	if (T.silent) return "";
+
+	if (V.speechAlphaKnot) {
+		const alphaKnotTarget = Number(V.speechAlphaKnotTarget);
+		if (!Number.isFinite(alphaKnotTarget) || V.NPCList?.[alphaKnotTarget]?.fullDescription === npcName) {
+			return "<<alphaknotSpeech>>";
+		}
+	}
 	
 	// Named NPCs with registered handlers resolve to their matching speech macro.
 	if (npcName && Macro.has(`speech-${npcName.toLowerCase()}`) && setup.NPCNameList.includes(npcName)) {

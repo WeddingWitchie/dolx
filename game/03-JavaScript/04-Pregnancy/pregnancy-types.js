@@ -38,10 +38,13 @@ function canImpregnateParasite(genital = "anus") {
 window.canImpregnateParasite = canImpregnateParasite;
 
 function canBeMPregnant() {
+	const omegaMpreg = !!(V.xchange?.pill?.active && V.xchange.pill.omegaEffect);
 	return (
-		!V.player.vaginaExist &&
-		((V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy") ||
+		omegaMpreg ||
+		(!V.player.vaginaExist &&
+			((V.skin.pubic.pen === "magic" && V.skin.pubic.special === "pregnancy") ||
 			(V.earSlime.growth >= 100 && ["pregnancy", "mixed"].includes(V.earSlime.focus)))
+		)
 	);
 }
 window.canBeMPregnant = canBeMPregnant;

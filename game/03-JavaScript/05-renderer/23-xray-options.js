@@ -529,6 +529,14 @@ class XrayCombatMapper {
 			options.filters.parasite = CombatRenderer.lookupColour(setup.colours.tentacle_map, "tentacles-peach", "xrayTentacle", undefined, undefined);
 		}
 		penetrator.base = "sex";
+		const alphaKnotActive = !!(V.xchange?.pill?.active && V.xchange.pill.alphaEffect && V.player.penisExist && !playerHasStrapon() && !playerChastity());
+		const alphaKnotState = ["entrance", "imminent", "penetrated", "otheranusentrance", "otheranusimminent", "otheranus"].includes(penetrator.state);
+		if (alphaKnotActive && alphaKnotState) {
+			penetrator.type = "knotted";
+			penetrator.playerSprite = V.ejaculating === 1 ? "knotted-full" : "knotted";
+			penetrator.size = Math.clamp(penetrator.size, 2, 3);
+			if (V.ejaculating === 1) penetrator.base = "knotting";
+		}
 		options.showNpcVagina = penetrator.penetrated === "vaginal";
 		options.showNpcArse = penetrator.penetrated === "anal";
 
