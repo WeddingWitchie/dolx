@@ -526,7 +526,7 @@ function effects() {
 	}
 
 	// eslint-disable-next-line no-undef
-	if (isPregnancyEnding()) {
+	if (isPregnancyEnding() && V.birth === undefined) {
 		sWikifier(
 			`<span class="red">Your waters have broken.</span> ${
 				["asylum", "prison", "hospital"].includes(V.location) ? "You need to find help, fast!" : "You need to head to the hospital, fast!"

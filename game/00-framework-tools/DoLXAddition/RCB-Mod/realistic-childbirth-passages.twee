@@ -1,0 +1,1021 @@
+:: Childbirth
+
+/* Safety gate: validate $birth and migrate old versions before running the birth.
+   Heavy logic lives in realistic-childbirth-init.js (setup.rcbBirthSafetyCheck). */
+<<set _rcb to setup.rcbBirthSafetyCheck()>>
+<<if _rcb.action is "eject">>
+	/* $birth was missing or from an unsupported version, so the birth minigame can't run safely.
+	Wind the encounter down through the normal end routing for the deduced location instead of leaving the player soft-locked. */
+	<<goto "Childbirth End">>
+<<else>>
+
+<<if $childbirthstart is 1 or $birth.filters is undefined or setup.birthPrompts is undefined or setup.birthDialog is undefined>>
+	<<set $birth["version"] to setup.RCB_BIRTH_VERSION>>
+	<<set _birthRebuildRuntime to ($childbirthstart is 1 or $birth.filters is undefined or setup.birthDialog is undefined)>>
+	<<if $birth is undefined>><<set $birth to {}>><</if>>
+	<<if playerIsPregnant()>>
+		<<set [_pregnancy,$birth.genital] to getPregnancyObject("pc",true)>>
+		<<if _pregnancy.type is "hawk">>
+			<<set $birth["fetuscount"] to _pregnancy.fetus.length>>
+			<<set $birth["father"] to "Great Hawk">>
+			<<set $birth["type"] to "hawk">>
+		<<else>>
+			<<set $birth["fetuscount"] to $sexStats[$birth.genital].pregnancy.fetus.length>>
+			<<set $birth["father"] to $sexStats[$birth.genital].pregnancy.fetus[0].father>>
+			<<set $birth["type"] to $sexStats[$birth.genital].pregnancy.fetus[0].type>>
+		<</if>>
+	<<else>>
+		<<set $birth["fetuscount"] to $harpyEggs.count>>
+		<<set $birth["father"] to "none">>
+		<<set $birth["type"] to "hawk">>
+		<<if $player.vaginaExist>>
+			<<set $birth.genital to "vagina">>
+		<<else>>
+			<<set $birth.genital to "anus">>
+		<</if>>
+	<</if>>
+	<<set $combat to 1>>
+	<<set $birth["filters"] to {"dynamic":{},"static":{},"partner":{}}>>
+	<<set _tagsToUpdate to []>>
+	<<set $enemytype to "childbirth">>
+	<<if $birth.stage is undefined>>
+		<<set $birth["stage"] to 1>>
+	<</if>>
+	<<set $birth["stagechange"] to 1>>
+	<<set $birth["progressrng"] to 1>>
+	<<set $birth["stageprogress"] to 0>>
+	<<set $birth["pace"] to 0>>
+	<<set $birth["pushurge"] to 0>>
+	<<set $birth["waveCeiling"] to 25>>
+	<<set $birth["waveCount"] to 0>>
+	<<set $birth["totalWaveCount"] to 0>>
+	<<set $birth["stageWaveCount"] to 0>>
+	<<set $birth["fetusmovement"] to 0>>
+	<<set $birth["contractions"] to 0>>
+	<<set $birth["delivered"] to 0>>
+	<<if $painmax is undefined>><<set $painmax to 200>><</if>>
+	<<if $tirednessmax is undefined>><<set $tirednessmax to 2000>><</if>>
+	<<if $stressmax is undefined>><<set $stressmax to 10000>><</if>>
+	<<set $pain to Math.min(Number($painmax) || 200, 80)>>
+	<<set $tiredness to Math.min(Number($tirednessmax) || 1000, 1000)>>
+	<<set $stress to Math.min(Number($stressmax) || 10000, 3800)>>
+	<span class="red">Labour begins and your body does not ease you into it. The first contractions hit hard through your lower body, forcing your muscles tight before you can settle yourself. The shock leaves you shaking and exhausted; the pressure of what is coming crowds your thoughts.</span>. | <span class="red">+++++ Pain</span> | <span class="red">+++++ Fatigue</span> | <span class="red">++++ Stress</span><br><br>
+	<<set $birth.movementodds to [[60,75,90,94,96,99,200,200],[50,70,85,90,93,96,200,200],[40,60,80,85,90,95,200,200],[30,40,50,70,80,90,200,200],[30,40,50,70,80,90,200,200],[30,40,50,70,80,90,200,200],[20,35,50,65,75,85,200,200],[0,0,0,0,0,0,200,200],[1,1,1,1,1,1,200,200],[1,1,1,1,1,1,200,200]]>>
+	<<if $birth.inlobby is undefined>>
+		<<switch $birth.location>>
+		<<case "asylum" "hospital" "wolf cave" "bedroom" "tower">>
+			<<set $birth["inlobby"] to "">>
+		<<case "cottage">>
+			<<set $birth["inlobby"] to "Alex">>
+		<<case "prison">>
+			<<if $birth.father is "Kylar" and $prison.kylar is "active">>
+				<<set $birth["inlobby"] to "Kylar">>
+			<<else>>
+				<<set $birth["inlobby"] to "">>
+			<</if>>
+		<</switch>>
+	<</if>>
+	<<if $birth.partner is undefined>>
+		<<set $birth["partner"] to "Alone">>
+	<</if>>
+	<<if $birth.calledPartner is undefined>>
+		<<set $birth["calledPartner"] to 0>>
+	<</if>>
+	<<if $birth.epidural is undefined>>
+		<<set $birth["epidural"] to 0>>
+	<</if>>
+	<<if $birth.type is "hawk">>
+		<<set $position to "doggy">>
+	<<else>>
+		<<set $position to "missionary">>
+		<<set $thighuse to "penis">>
+		<<set $worn.lower.vagina_exposed to $worn.lower.anus_exposed>>
+	<</if>>
+	<!--modloader commented out-->
+	<!--modloader dummy dialog/prompts left disabled. Static childbirth text now lives in setup, not $birth.-->
+	<!--Release note: setup.birthDialog and setup.birthPrompts are cached on setup. After changing childbirth prompt or dialog content, refresh the browser before continuing an in-progress birth.-->
+	<<if setup.birthDialog is undefined or _birthRebuildRuntime>>
+	<<run setup.birthDialog = {"randomFull":[
+[[{"Partner":"Alone","Stage":1},{"Stage":3},{},{}],[["A quiet gap opens between contractions, leaving you alone with the sound of your breathing."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":1},{"Stage":3},{},{}],[["The pressure eases for a moment. Not gone, only waiting."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":1},{"Stage":3},{},{}],[["You count each breath, trying not to think about how many more are coming."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":1},{"Stage":3},{},{}],[["Another dull tightening passes through you, slow enough to make the pause after it feel suspicious."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":1},{"Stage":3},{},{}],[["You shift as much as you can, searching for a position that makes the ache less insistent."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":3},{"Stage":5},{},{}],[["The contractions sharpen, each one arriving with less patience than the last."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":3},{"Stage":5},{},{}],[["A stronger cramp pulls through you, leaving your thoughts scattered when it lets go."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":3},{"Stage":5},{},{}],[["You try to settle your breathing, but the rhythm keeps changing under you."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":3},{"Stage":5},{},{}],[["The room feels too still between pains, as if everything is waiting for the next one with you."],["default"]],{},1],
+[[{"Partner":"Alone","Stage":3},{"Stage":5},{},{}],[["Your body gives another warning squeeze, firmer this time, and you have to ride it out."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":1},{"Stage":3},{},{}],[["Robin keeps close to the bed, eyes flicking from your face to your hands, asking what you need in a careful voice."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":1},{"Stage":3},{},{}],[["Robin tries to smile for you, but <<nnpc_his \"Robin\">> worry keeps showing through as <<nnpc_he \"Robin\">> assures you that you are doing well."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":1},{"Stage":3},{},{}],[["Robin adjusts the bedding near your side, fussing over anything <<nnpc_he \"Robin\">> can reach."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":1},{"Stage":3},{},{}],[["Robin squeezes your hand lightly between contractions, reminding you to breathe and stay with <<nnpc_him \"Robin\">>."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":3},{"Stage":5},{},{}],[["Robin goes quiet when the next contraction hits harder, giving you <<nnpc_his \"Robin\">> hand without needing to be asked."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":3},{"Stage":5},{},{}],[["Robin swallows as <<nnpc_he \"Robin\">> watches you ride out the pain, staying close when it looks worse."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":3},{"Stage":5},{},{}],[["Robin leans closer, voice low, telling you not to worry about sounding brave while the contraction has you."],["default"]],{},1],
+[[{"Partner":"Robin","Stage":3},{"Stage":5},{},{}],[["Robin wipes at your brow, clumsy but careful, while the contraction fades."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":1},{"Stage":3},{},{}],[["Whitney stands near the bed like <<nnpc_he \"Whitney\">> is daring the room to make this worse."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":1},{"Stage":3},{},{}],[["Whitney clicks <<nnpc_his \"Whitney\">> tongue at your breathing and tells you not to start looking pathetic already, though it sounds less sharp than usual."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":1},{"Stage":3},{},{}],[["Whitney watches the monitor with a scowl, then looks back to check you are still with it."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":1},{"Stage":3},{},{}],[["Whitney hovers just close enough for you to grab <<nnpc_him \"Whitney\">>, pretending it was not deliberate."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":3},{"Stage":5},{},{}],[["Whitney's smirk slips when the contraction drags a sound out of you, and <<nnpc_he \"Whitney\">> orders your attention back to <<nnpc_him \"Whitney\">>."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":3},{"Stage":5},{},{}],[["Whitney mutters something under <<nnpc_his \"Whitney\">> breath, then tells you more clearly that you are handling it."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":3},{"Stage":5},{},{}],[["Whitney leans over the rail, rough voice lowered as <<nnpc_he \"Whitney\">> tells you to breathe before you scare yourself."],["default"]],{},1],
+[[{"Partner":"Whitney","Stage":3},{"Stage":5},{},{}],[["Whitney's hand finds yours during the worst of it, grip firm enough to keep you anchored."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":1},{"Stage":3},{},{}],[["Kylar perches close, watching every change in your face as if <<nnpc_he \"Kylar\">> can catch the pain before it reaches you."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":1},{"Stage":3},{},{}],[["Kylar whispers your name between contractions, soft and anxious, promising to stay right where <<nnpc_he \"Kylar\">> is."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":1},{"Stage":3},{},{}],[["Kylar smooths the sheet near your arm, then does it again, nervous hands needing something to do."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":1},{"Stage":3},{},{}],[["Kylar keeps looking to the door, then back to you, as though afraid someone might take <<nnpc_him \"Kylar\">> away."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":3},{"Stage":5},{},{}],[["Kylar flinches when you tense, then leans closer and offers <<nnpc_his \"Kylar\">> hand for you to squeeze."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":3},{"Stage":5},{},{}],[["Kylar's voice trembles, but <<nnpc_his \"Kylar\">> hand stays steady in yours as <<nnpc_he \"Kylar\">> tries to encourage you."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":3},{"Stage":5},{},{}],[["Kylar wipes your face with careful, shaky focus, watching for any sign it helps."],["default"]],{},1],
+[[{"Partner":"Kylar","Stage":3},{"Stage":5},{},{}],[["Kylar bends close, almost too close, worry plain in <<nnpc_his \"Kylar\">> voice as <<nnpc_he \"Kylar\">> asks you to say if it gets worse."],["default"]],{},1],
+[[{"Location":"hospital","Partner":"Alone"},{},{},{}],[["The midwife checks on the heart rate monitor, \"Everything is normal.\""],["default"]],{},-1],
+[[{"Location":"hospital","Partner":"Alone"},{},{},{}],[["The midwife asks you, \"Where is the father?\""],["default"]],{"Stress":100},1],
+[[{"Location":"hospital","Partner":"Alone"},{},{"test":1},{}],[["The midwife asks you, \"Is there anything I can do?\""],["default"]],{},1],
+[[{"Partner":"Robin"},{},{},{}],[["You're amazing!"],["default"]],{"Stress":-5},3],
+[[{"Location":"bedroom","Partner":"Robin","FetusHawk":$birth.fetuscount},{},{},{}],[["Robin's mouth is agape as <<nnpc_he \"Robin\">> continues to stare at your gaping hole"],["default"]],{},-1],
+[[{"Location":"cottage","Partner":"Alex","Stage":3},{},{"AlexTowels":1},{}],[["Harper turns to Alex, \"I'm going to need more towels, can you fetch some?\" Alex jumps to <<nnpc_his \"Alex\">> feet and affirms, \"On it!\""],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex"},{},{},{}],[["\"You got this, cow<<girl>>.\" Alex says to give you confidence. |","- Stress"],["default","green"]],{"Stress":-50},3],
+[[{"Location":"cottage","Partner":"Alex","CottageNursery":1},{},{},{}],[["\"We have everything prepared in the nursery. You have nothing to worry about\" Alex says in reassurance"],["default"]],{},2],
+[[{"Location":"cottage","Partner":"Alone","CottageNursery":1},{"PartnerCalled":1},{},{}],[["\"If you need company, I can always call for Alex\" Harper says calmly, ensuring you are confident in being alone."],["default"]],{},2],
+[[{"Location":"cottage","Partner":"Alex","Stage":2},{"CottageNursery":1},{"AlexUncertain":1},{}],[["Alex's expression doesn't show the most confidence, \"I... We're ready for this, right?\""],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex","Stage":4},{},{},{}],[["\"Breathe, partner, keep it up.\" Alex encourages you."],["default"]],{},-1],
+[[{"Location":"cottage","Partner":"Alex","Stage":5},{},{},{}],[["Alex continues to do <<nnpc_his \"Alex\">> best to coach you, \"You're made of strong stuff, you'll make it, just push and breathe.\""],["default"]],{},-1],
+[[{"Location":"cottage","Partner":"Alex","Stress":80},{"Stage":5},{},{}],[["\"Hey, partner, you're doing great, but don't overexert yourself.\" Alex says with a concerned look"],["default"]],{"Stress":-10},1],
+[[{"Location":"cottage","Partner":"Alex"},{},{},{}],[["\"Hey, Doctor? Is there anything else I can help with?\" Harper looks to Alex, \"I'll let you know. Nothing at the moment.\""],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex","PartnerStat1":10,"Love":70,"Stage":3},{"AlexWantsKids":1},{},{}],[["\"Atta <<girl>>. I can't wait 'til we have a big family.\" Alex says, insinuating this might not be the last time you give birth."],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex","Love":70,"Lust":20,"Stage":3},{"PartnerStat1":-10},{"AlexWantsKids":1},{}],[["\"Atta <<girl>>. Doc? How soon do we have to wait afterwards?\" Alex says, insinuating this might not be the last time you give birth."],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex"},{},{},{}],[["\"How are you holding up, Partner?\" Alex asks, \"Squeeze my hand harder if you need to.\""],["default"]],{},-1],
+[[{"Location":"cottage","Partner":"Alex","Epidural":3},{},{},{}],[["\"Are you feeling any relief yet?\" Alex asks you, \"It's starting to kick in\" you reply, hoping it was faster."],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex","Epidural":10},{},{},{}],[["\"Ohhh, that's so much better.\" You say to Alex, \"That epi does wonders!\""],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex"},{},{"AlexDayDream1":1},{}],[["\"Just think,\" Alex says, hoping to distract you, \"Soon, we will have a family.\""],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex"},{},{"AlexDayDream2":1},{"AlexDayDream1":1}],[["\"I want to raise children just like how my Ma and Pa did.\" Alex continues daydreaming, \"The youngins running around in the fields...\""],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex"},{},{"AlexDayDream3":1},{"AlexDayDream2":1}],[["\"...We're gonna need to make the fields more safe.\" Alex points out, realizing how unsafe the area can be for children, \"Don't worry, we got plenty of time for that later.\""],["default"]],{},1],
+[[{"Location":"cottage","Partner":"Alex"},{},{},{"AlexDayDream3":1}],[["\"We can tame the whole area if we-\" Alex boasts about <<nnpc_his \"Alex\">> dream before getting cut off by you squeezing <<nnpc_his \"Alex\">> hand extra hard, \"Later, Alex.\" you assert, \"Sorry, right, focusing on the now.\""],["default"]],{},1],
+[[{"Location":"hospital","Partner":"Whitney"},{},{},{}],[["Whitney lingers near the bed, glaring at the machines as though one of them might be responsible for this."],["default"]],{},1],
+[[{"Location":"wolf cave","Stage":1},{"Stage":3},{},{}],[["The cave floor is cold beneath you, stealing comfort from every pause between contractions."],["default"]],{},1],
+[[{"Location":"wolf cave","Stage":1,"Partner":"Black Wolf"},{"Stage":3},{},{}],[["The Black Wolf lowers <<bhis>> head beside you, rumbling softly when your breathing turns sharp."],["default"]],{"Stress":-10},1],
+[[{"Location":"wolf cave","Stage":3},{"Stage":5},{},{}],[["A noise from deeper in the cave makes your nerves prickle, but the next contraction gives you no room to look."],["default"]],{"Stress":20},1],
+[[{"Location":"wolf cave","Stage":5},{"Stage":8},{},{}],[["Your hands scrape against the rough ground as your body bears down again, the pups pressing lower with each wave."],["default"]],{},1],
+[[{"Location":"prison","Stage":1},{"Stage":3},{},{}],[["The prison bed creaks under you, thin bedding doing little to soften the ache settling through your hips."],["default"]],{},1],
+[[{"Location":"prison","Stage":1,"Partner":"Alone"},{"Stage":3},{},{}],[["The methodical guard watches you with worried concentration, trying to look more certain than they are."],["default"]],{},1],
+[[{"Location":"prison","Stage":3},{"Stage":5},{},{}],[["Footsteps pass outside the cell. You grit your teeth and keep breathing, unwilling to let them hear how bad it is."],["default"]],{"Stress":15},1],
+[[{"Location":"prison","Stage":5},{"Stage":8},{},{}],[["The frame of the bed rattles as you push, the guard stammering encouragement from far too close."],["default"]],{},1],
+[[{"Location":"asylum","Stage":1},{"Stage":3},{},{}],[["The room smells too clean, sharp enough to make the pause between contractions feel less like rest and more like waiting."],["default"]],{},1],
+[[{"Location":"asylum","Stage":3},{"Stage":5},{},{}],[["Harper's calm voice cuts through the haze, measured and certain while your body refuses to feel either."],["default"]],{},1],
+[[{"Location":"asylum","Stage":5},{"Stage":8},{},{}],[["The restraints and white walls blur at the edge of your vision as you bear down through another punishing wave."],["default"]],{"Stress":20},1],
+[[{"Location":"tower","Stage":1},{"Stage":3},{},{}],[["Straw shifts beneath you as the egg settles lower, the nest warm but unable to soften the pressure."],["default"]],{},1],
+[[{"Location":"tower","Stage":3},{"Stage":5},{},{}],[["The tower air brushes over your skin while your muscles tighten around the smooth weight inside you."],["default"]],{},1],
+[[{"Location":"tower","Stage":5},{"Stage":8},{},{}],[["You dig your fingers into the nest and push, the shell stretching you wider with every stubborn movement."],["default"]],{},1],
+[[{"Location":"bedroom","Partner":"Alone","Stage":1},{"Stage":3},{},{}],[["The familiar room offers no advice. The bedding twists under your hands as you wait out another contraction."],["default"]],{},1],
+[[{"Location":"bedroom","Partner":"Alone","Stage":3},{"Stage":5},{},{}],[["You listen to the house beyond your door, hoping no one hears the sound you fail to swallow."],["default"]],{"Stress":15},1],
+[[{"Location":"bedroom","Stage":5},{"Stage":8},{},{}],[["The bed dips and creaks beneath you as your body takes over, pushing hard despite the privacy of your room."],["default"]],{},1]
+	],"forcedFull":[
+[[{"Location":"hospital","Stage":2},{"Stage":1},{},{}],[["The midwife tells you \"You're doing great.\""],["default"]],{},1,0],
+[[{"Location":"hospital","Stage":1,"Partner":"Alone"},{},{},{}],[["The midwife tells you \"You're doing great.\""],["default"]],{},1,0],
+[[{"Location":"hospital","Partner":"Alone"},{},{},{"test":1}],[["The midwife chuckles, \"Well, besides give birth for you.\""],["default"]],{},1,0],
+[[{"Location":"cottage","Partner":"Alone","PartnerCalled":1},{"ArrivedTogether":1},{},{}],[["Alex opens the door, \"You need something?\" You tell Alex you changed your mind, and for <<nnpc_him \"Alex\">> to hold your hand."],["default"]],{},1,1],
+[[{"Location":"cottage","Partner":"Alex"},{},{},{"AlexTowels":1}],[["Alex returns shortly after raiding the linen closet, dropping an excessive number of towels near Harper before returning to your side."],["default"]],{},1,0],
+[[{"Location":"cottage","Partner":"Alex","Speech":"Bratty"},{},{},{"AlexUncertain":1}],[["Your pain clouds your mind and you don't have the capacity for sympathy, \"You damn well better be ready!\""],["default"]],{},1,1],
+[[{"Location":"cottage","Partner":"Alex","Speech":"Meek"},{},{},{"AlexUncertain":1}],[["Between groans, you tell Alex, \"I don't think we have a choice.\""],["default"]],{},1,1],
+[[{"Location":"cottage","Partner":"Alex","Speech":"Neutral"},{},{},{"AlexUncertain":1}],[["\"Ready or not -\" you groan, \"It's happening!\""],["default"]],{},1,0],
+[[{"Location":"cottage","Partner":"Alex","Arousal":60},{},{},{"AlexWantsKids":1}],[["Harper starts to talk, \"It's recommended to wait-\" before you cut <<nnpc_him \"Harper\">> off in an indecent groan of hormonal lust and birthing pain, \"Fuck another one into me tonight!\""],["default"]],{"Arousal":100},1,0],
+[[{"Location":"cottage","Partner":"Alex","Speech":"Bratty"},{},{},{"AlexWantsKids":1}],[["Harper starts to talk, \"It's recommended to wait-\" before you cut <<nnpc_him \"Harper\">> off in an unusual fit of rage, \"Hey, 'Partner'? How about you quiet down and focus on this one first?\""],["default"]],{},1,0],
+[[{"Location":"cottage","Partner":"Alex","Speech":"Meek"},{},{},{"AlexWantsKids":1}],[["Harper starts to talk, \"It's recommended to wait 4 to 6 weeks to have sex again, and longer if you plan for more children.\" You ask Alex, \"Is that okay?\""],["default"]],{},1,0],
+[[{"Location":"cottage","Partner":"Alex","Speech":"Neutral"},{},{},{"AlexWantsKids":1}],[["Harper starts to talk, \"It's recommended to wait-\" before you cut <<nnpc_him \"Harper\">> off, \"Focus! this one first.\" you say between groans."],["default"]],{},1,0],
+[[{"Location":"cottage","Partner":"Alex","Epidural":"Too expensive"},{},{},{}],[["\"Doc, don't worry about it, I will cover it for <<phim>>.\" You smile through some pain, \"Thank you, really.\"","This will help with the pain."],["default","green"]],{"Epidural":1},1,0],
+[[{"Location":"hospital","Partner":"Alone","PartnerCalled":1},{"ArrivedTogether":1},{"WhitneyArrived":1},{}],[["Whitney appears in the doorway, looking around the room, then at you. <<nnpc_He \"Whitney\">> stands there for an awkward moment, clearly taking in what is happening."],["default"]],{},1,0],
+[[{"Location":"hospital","Partner":"Alone","PartnerCalled":1},{},{"ArrivedTogether":1},{}],[["<<nnpc_He \"Whitney\">> finally steps into the room, but goes straight to the doctor. \"Is this normal?\""],["default"]],{},1,0]
+	]}>>
+	<</if>>
+	<<if setup.birthPrompts is undefined or _birthRebuildRuntime>>
+	<<run setup.birthPrompts = {"mouthaction":{
+    "finished":[["You pant profusely, catching your breath."],["default"]],
+    "groan":[
+        [["You grit your teeth and groan."],["default"]],
+        [["A low groan slips out before you can swallow it."],["default"]],
+        [["You groan through the pressure, jaw tight."],["default"]],
+        [["A rough sound escapes you as the contraction drags on."],["default"]]
+    ],
+    "groanWeak":[["You utter sounds that are a mix of groans and whimpers."],["default"]],
+    "moan":[["You moan as your " + ($birth.genital is "vagina" ? "uterus" : "anus") + " spasms. You can't tell if it's from an orgasm or contraction."],["default"]],
+    "askEpiduralHospitalTooLate":[["You beg the midwife for pain relief. The midwife looks to Harper, who shakes <<nnpc_his \"Harper\">> head. The midwife looks to you apologetically, \"Sorry hun, you're almost done, ","it won't help in time.\""],["default","red"]],
+    "askEpiduralHosiptalSuccess":[["You beg the midwife for pain relief, knowing you'll need it soon. The midwife looks at Harper, who nods. They rush to the medicine already prepped nearby and hand Harper the epidural."," This will make the discomfort much more bearable."],["default","green"]],
+    "askEpiduralHospitalTooExpensive":[["You beg the midwife for pain relief. The midwife looks at you in pity, \"Im really sorry, but that's not covered, if you can't afford it ","you will have to just bear with the pain"],["default","red"]],
+    "askEpiduralCottageTooLate":[["You beg Harper for pain relief. Harper shakes <<nnpc_his \"Harper\">> head rigidly. ","\"There's no point. "," You'll be done soon.\""],["default","red","default"]],
+    "askEpiduralCottageSuccess":[["You beg Harper for pain relief, knowing you'll need it soon. Harper nods, \"It will cost you, but that's fine.\" <<nnpc_He \"Harper\">> turns to the tray of medicine already prepped nearby and grabs the epidural.","This will make the discomfort much more bearable."],["default","green"]],
+    "askEpiduralCottageTooExpensive":[["You beg Harper for pain relief. <<nnpc_He \"Harper\">> looks at you in pity, \"That costs extra, if you can't afford it ","you will have to just bear with the pain.\""],["default","red"]],
+    "askEpiduralWolfCaveHallucinate":[["You beg the " + $birth.partner + " for pain relief. A wolfboy shouts from outside the cave \"I help!\" and runs off to go forage for something."],["default"]],
+    "askEpiduralWolfCave":[["You beg the " + $birth.partner + " for pain relief. Another wolf outside seems to understand and barks in response before running off."],["default"]],
+    "askEpiduralWolfCaveSuccess":[["They come back with a red mushroom. You know this particular mushroom wont help the pain, but hope it ","speeds up the process."],["default","green"]],
+    "askEpiduralWolfCaveFail":[["They come back with a pink mushroom. ","You know this is poisonous to wolves",", and feel terrible at the thought of consuming something that could harm your pups."],["default","red","default"]],
+    "askPartnerHospitalSuccess":[["The midwife motions to a nurse on standby. They leave to go get the father from the lobby."],["default"]],
+    "askPartnerHospitalFail":[["The midwife asks you \"Is the father nearby?\" Between pants, you tell the midwife they aren't. The midwife asserts \"You're gonna deliver before long, hun. I will do the best I can to make sure you're fine\""],["default"]],
+    "askPartnerWolfCaveHallucinate":[["The Black Wolf barks loudly towards the pack outside, \"Where is the father!?\""],["default"]],
+    "askPartnerWolfCave":[["The Black Wolf barks repeatedly, getting the attention of the pack."],["default"]],
+    "askPartnerPrisonSuccess":[["The guard motions to one standing in the doorway nearby, \"Grab the inmate. It's the least we can do.\""],["default"]],
+    "askPartnerPrisonFail":[["The guard looks at you confused, \"We can't even get a doctor here for you in time, let alone the father.\""],["default"]],
+    "askPartnerCottageSuccess":[["Harper acknowledges your request and quickly walks to the door, and shouts \"Alex! Your presence is requested!\""],["default"]],
+    "askPartnerCottageFail":[["Harper looks at you quizzically, \"There's no one besides Alex within miles, let alone the father.\""],["default"]],
+    "restSuccess":[
+        [["You take deep, calm breaths."],["default"]],
+        [["You breathe in slowly, then let it out before panic can catch."],["default"]],
+        [["You steady yourself with a careful breath."],["default"]],
+        [["You manage to keep your breathing even for a moment."],["default"]]
+    ],
+    "restFail":[
+        [["You lose the rhythm of your breathing and groan."],["red"]],
+        [["Your breath catches, turning into a strained groan."],["red"]],
+        [["You try to breathe evenly, but the next sound comes out ragged."],["red"]],
+        [["The contraction steals your careful breathing and leaves you panting."],["red"]]
+    ]
+},
+
+
+
+"pelvisaction":{
+    "finished":[["You rest your sore pelvis."],["default"]],
+    "push":[
+        [["You push hard with your "+($birth.genital is "vagina" ? "vagina." : "anus.")],["default"]],
+        [["You bear down, trying to work with the pressure instead of fighting it."],["default"]],
+        [["You brace yourself and push when your body demands it."],["default"]],
+        [["You force yourself to push, breath catching as the pressure bears down."],["default"]]
+    ],
+    "pushWeak":[["You let your contractions dictate your own muscle control and push weakly with your "+($birth.genital is "vagina" ? "vagina." : "anus.")+ " muscles."],["default"]],
+    "resistSuccess":[["You fight the urge to push and manage to slow your breathing."],["default"]],
+    "resistFail":[["You try to fight the urge to push, but your body bears down anyway."],["red"]],
+    "restFail":[
+        [["You try to relax your "+($birth.genital is "vagina" ? "vagina" : "anus")+" for a moment. ","But your contractions force you to push anyway."],["default","red"]],
+        [["You try to keep your pelvis loose. ","Your body bears down before you can stop it."],["default","red"]],
+        [["You attempt to rest through the pressure. ","The contraction answers by forcing you to clench."],["default","red"]],
+        [["You ease off for a breath. ","Your muscles seize again, dragging the effort out of you."],["default","red"]]
+    ],
+    "restSuccess":[
+        [["You take time to relax your "+($birth.genital is "vagina" ? "vaginal" : "anal")+" muscles."],["default"]],
+        [["You loosen your pelvis as much as the contraction allows."],["default"]],
+        [["You stop bearing down and let your muscles rest for a moment."],["default"]],
+        [["You ease off, trying to give your sore muscles a breath."],["default"]]
+    ]
+},
+"leftaction":{
+    "graspPartner":[["You grip your partner's hand tightly with your left hand in an effort to distract yourself from the pain."],["default"]],
+    "graspBedsheets":[["You grip the bedsheets tightly with your left hand in an effort to distract yourself from the pain."],["default"]],
+    "graspOutside":[["You grip a random nearby stick tightly with your left hand in an effort to distract yourself from the pain."],["default"]],
+    "graspRail":[["You grip the bed's side rails tightly with your left hand in an effort to distract yourself from the pain."],["default"]],
+    "graspWeakPartner":[["You grip your partner's hand weakly with your left hand, unable to put your full strength into it."],["default"]],
+    "graspWeakSheets":[["You grip the bedsheets weakly with your left hand, unable to put your full strength into it."],["default"]],
+    "graspWeakOutside":[["You grip a random nearby stick weakly with your left hand, unable to put your full strength into it."],["default"]],
+    "graspWeakRail":[["You grip the bed's side rails weakly with your left hand, unable to put your full strength into it."],["default"]],
+    "foldPartner":[["You loosely hold onto your partner's hand with your left hand."],["default"]],
+    "foldSheets":[["You loosely hold onto the bedsheets with your left hand."],["default"]],
+    "foldOutside":[["You loosely hold onto a random nearby stick with your left hand."],["default"]],
+    "foldRail":[["You loosely hold onto the bed's side rails with your left hand."],["default"]],
+    "restSuccess":[
+        [["You let your left hand fall limp, taking the brief recovery."],["default"]],
+        [["Your left hand loosens against the bedding while you catch yourself."],["default"]],
+        [["You ease the tension from your left hand for a moment."],["default"]],
+        [["Your left fingers uncurl, sore from gripping so hard."],["default"]]
+    ],
+    "restFail":[
+        [["You try to relax your left hand ","but it clamps down again."],["default","red"]],
+        [["Your left hand refuses to stay loose, ","fingers digging in before you notice."],["default","red"]],
+        [["You will your left hand to rest, ","but the contraction makes it grip hard."],["default","red"]],
+        [["Your left hand twitches, ","then grabs for purchase as the pain rises."],["default","red"]]
+    ],
+    "finished":[["You hold your arms limp, tired but finished."],["default"]]
+},
+"rightaction":{
+    "graspPartner":[["You grip your partner's hand tightly with your right hand in an effort to distract yourself from the pain."],["default"]],
+    "graspBedsheets":[["You grip the bedsheets tightly with your right hand in an effort to distract yourself from the pain."],["default"]],
+    "graspOutside":[["You grip a random nearby stick tightly with your right hand in an effort to distract yourself from the pain."],["default"]],
+    "graspRail":[["You grip the bed's side rails tightly with your right hand in an effort to distract yourself from the pain."],["default"]],
+    "graspWeakPartner":[["You grip your partner's hand weakly with your right hand, unable to put your full strength into it."],["default"]],
+    "graspWeakSheets":[["You grip the bedsheets weakly with your right hand, unable to put your full strength into it."],["default"]],
+    "graspWeakOutside":[["You grip a random nearby stick weakly with your right hand, unable to put your full strength into it."],["default"]],
+    "graspWeakRail":[["You grip the bed's side rails weakly with your right hand, unable to put your full strength into it."],["default"]],
+    "foldPartner":[["You loosely hold onto your partner's hand with your right hand."],["default"]],
+    "foldSheets":[["You loosely hold onto the bedsheets with your right hand."],["default"]],
+    "foldOutside":[["You loosely hold onto a random nearby stick with your right hand."],["default"]],
+    "foldRail":[["You loosely hold onto the bed's side rails with your right hand."],["default"]],
+    "restSuccess":[
+        [["You let your right hand fall limp, taking the brief recovery."],["default"]],
+        [["Your right hand loosens against the bedding while you steady yourself."],["default"]],
+        [["You ease the tension from your right hand for a moment."],["default"]],
+        [["Your right fingers uncurl, sore from gripping so hard."],["default"]]
+    ],
+    "restFail":[
+        [["You try to relax your right hand ","but it clamps down again."],["default","red"]],
+        [["Your right hand refuses to stay loose, ","fingers digging in before you notice."],["default","red"]],
+        [["You will your right hand to rest, ","but the contraction makes it grip hard."],["default","red"]],
+        [["Your right hand twitches, ","then grabs for purchase as the pain rises."],["default","red"]]
+    ],
+    "finished":[["You hold your arms limp, tired but finished."],["default"]]
+},
+"stage":{
+    "hospital":{
+        "human":[
+            [["You sit in stirrups as you get ready for what's to come. Harper informs you to save your strength for now."],["default"]],
+            [["Your body rhythmically tenses up as spasms increase in frequency and strength and Harper informs you that it's perfectly fine."],["default"]],
+            [["Harper makes sure the stirrups hold you safely in place as your muscles clench. <<nnpc_He \"Harper\">> informs you \"It's still not time to push.\""],["default"]],
+            [["Harper continues to monitor your progress. You can hardly pay attention to <<nnpc_him \"Harper\">>, though."],["default"]],
+            [["You pay no attention to Harper as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["All thought is pushed from your mind as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["Harper catches the baby in <<nnpc_his \"Harper\">> arms"],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Exhausted, you feel your body collapse as nurses rush to make sure everyone is healthy."],["default"]]
+        ]
+    },
+    "wolf cave":{
+        "wolf":[
+            [["You count the time between contractions. Considering it's still bearable, you know its not time to push."],["default"]],
+            [["This is still bearable, highly unlikely it's time to push."],["default"]],
+            [["The pain is increasing, but you think you can wait a little while longer."],["default"]],
+            [["You try to keep everything in mind, \"push\", \"breathe\", and hope for the best."],["default"]],
+            [["Your body urges you to push with strong contractions."],["default"]],
+            [["You hope the pain indicates the pups will arrive soon."],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["You are relieved to see the pup wiggling about on the ground."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Having watched from outside and seeing you relax, the Black Wolf takes charge and walks in to check on the new pack members."],["default"]]
+        ]
+    },
+    "cottage":{
+        "human":[
+            [["You lay on the bed as you get ready for what's to come. Harper informs you to save your strength for now."],["default"]],
+            [["Your body rhythmically tenses up as spasms increase in frequency and strength and Harper informs you that it's perfectly fine."],["default"]],
+            [["Harper tells you to keep your feet firmly planted to keep your pelvis in position as your muscles clench. <<nnpc_He \"Harper\">> informs you \"It's still not time to push.\""],["default"]],
+            [["Harper continues to monitor your progress. You can hardly pay attention to <<nnpc_him \"Harper\">>, though."],["default"]],
+            [["You pay no attention to Harper as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["All thought is pushed from your mind as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["Harper catches the baby in <<nnpc_his \"Harper\">> arms"],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Exhausted, you feel your body collapse as nurses rush to make sure everyone is healthy."],["default"]]
+        ]
+    },
+    "tower":{
+        "hawk":[
+            [["You settle into the nest as the contractions come and go. The egg sits heavy inside you, not ready to pass yet."],["default"]],
+            [["The egg shifts lower with each cramp. You chirp under your breath and try to keep still."],["default"]],
+            [["Pressure builds through your pelvis. The smooth shell presses down, making your body tense."],["default"]],
+            [["Your muscles clench around the egg. The urge to push grows harder to ignore."],["default"]],
+            [["Your body works in short, sharp waves. You bear down with each one, trying to guide the egg along."],["default"]],
+            [["The egg begins to crown. You can feel the shell stretching you open with every push."],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["The egg slips free and lands safely beneath you."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Your body finally calms, leaving you trembling in the nest."],["default"]]
+        ]
+    },
+    "asylum":{
+        "human":[
+            [["You sit in stirrups as you get ready for what's to come. Harper informs you to save your strength for now."],["default"]],
+            [["Your body rhythmically tenses up as spasms increase in frequency and strength and Harper informs you that it's perfectly fine."],["default"]],
+            [["Harper makes sure the stirrups hold you safely in place as your muscles clench. <<nnpc_He \"Harper\">> informs you \"It's still not time to push.\""],["default"]],
+            [["Harper continues to monitor your progress. You can hardly pay attention to <<nnpc_him \"Harper\">>, though."],["default"]],
+            [["You pay no attention to Harper as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["All thought is pushed from your mind as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["Harper catches the baby in <<nnpc_his \"Harper\">> arms"],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Exhausted, you feel your body collapse as nurses rush to make sure everyone is healthy."],["default"]]
+        ],
+        "wolf":[
+            [["You sit in stirrups as you get ready for what's to come. Harper informs you to save your strength for now."],["default"]],
+            [["Your body rhythmically tenses up as spasms increase in frequency and strength and Harper informs you that it's perfectly fine."],["default"]],
+            [["Harper makes sure the stirrups hold you safely in place as your muscles clench. <<nnpc_He \"Harper\">> informs you \"It's still not time to push.\""],["default"]],
+            [["Harper continues to monitor your progress. You can hardly pay attention to <<nnpc_him \"Harper\">>, though."],["default"]],
+            [["You pay no attention to Harper as you continue to birth your pup" + ($birth.fetuscount gt 1 ? "pies." : ".")],["default"]],
+            [["All thought is pushed from your mind as you continue to birth your pup" + ($birth.fetuscount gt 1 ? "pies." : ".")],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["Harper catches the pup in <<nnpc_his \"Harper\">> arms"],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Exhausted, you feel your body collapse as nurses rush to make sure everyone is healthy."],["default"]]
+        ],
+        "hawk":[
+            [["Harper watches your contractions with clinical interest. The egg rests low inside you, but it is not ready yet."],["default"]],
+            [["The pressure builds steadily. Harper notes the change while you fight the urge to squirm."],["default"]],
+            [["A sharper contraction forces your body to tense. Harper checks your progress and tells you to keep breathing."],["default"]],
+            [["Harper tells you the egg is low enough to start pushing. Your body seems to agree."],["default"]],
+            [["You push as Harper watches closely, the egg moving with every contraction."],["default"]],
+            [["Harper announces that the egg is crowning and prepares to catch it."],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["With a final push, the egg passes out of you and into Harper's waiting hands."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["You have finally finished laying your egg" + ($birth.fetuscount gt 1 ? "s." : ".")],["default"]]
+        ]
+    },
+    "prison":{
+        "human":[
+            [["You lay down on the uncomfortable bed as you get ready for what's to come. The methodical guard guesses you should save your strength for now."],["default"]],
+            [["Your body rhythmically tenses up as spasms increase in frequency and strength. \"I don't think it's time yet?\" the methodical guard says with little confidence."],["default"]],
+            [["The methodical guard tries to make sure your bedding is as adequate as possible. \"Keep breathing, you're doing good, I think you're still dilating?\""],["default"]],
+            [["The methodical guard continues to monitor your progress. You can hardly pay attention to them, though."],["default"]],
+            [["You pay no attention to the methodical guard as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["All thought is pushed from your mind as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["The methodical guard catches the baby in their arms."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Exhausted, you feel your body collapse as guards rush to make sure everyone is healthy."],["default"]]
+        ],
+        "wolf":[
+            [["You lay down on the uncomfortable bed as you get ready for what's to come. The methodical guard guesses you should save your strength for now."],["default"]],
+            [["Your body rhythmically tenses up as spasms increase in frequency and strength. \"I don't think it's time yet?\" the methodical guard says with little confidence."],["default"]],
+            [["The methodical guard tries to make sure your bedding is as adequate as possible. \"Keep breathing, you're doing good, I think you're still dilating?\""],["default"]],
+            [["The methodical guard continues to monitor your progress. You can hardly pay attention to them, though."],["default"]],
+            [["You pay no attention to the methodical guard as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["All thought is pushed from your mind as you continue to birth your child" + ($birth.fetuscount gt 1 ? "ren." : ".")],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["The methodical guard catches the baby in their arms."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["Exhausted, you feel your body collapse as guards rush to make sure everyone is healthy."],["default"]]
+        ],
+        "hawk":[
+            [["You lie on the uncomfortable bed, breathing through each contraction as the egg settles lower."],["default"]],
+            [["The guard watches nervously as the pressure builds. You can tell neither of you knows exactly what to expect."],["default"]],
+            [["Your legs shift with a sharper contraction. The guard tries to keep you steady."],["default"]],
+            [["The urge to push becomes too strong to ignore. The guard tells you to breathe and get on with it."],["default"]],
+            [["You push with each contraction while the guard hovers nearby, trying to look useful."],["default"]],
+            [["The guard blurts that the egg is crowning, then scrambles to catch it properly."],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["With a final push, the egg slips free into the guard's waiting hands."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["You have finally finished laying your egg" + ($birth.fetuscount gt 1 ? "s." : ".")],["default"]]
+        ]
+    },
+    "bedroom":{
+        "human":[
+            [["You lie on the bed, trying to save your strength while the contractions come and go."],["default"]],
+            [["The contractions grow stronger. You grip the bedding and remind yourself it is not time to push yet."],["default"]],
+            [["Your body clenches around the pressure building inside you."],["default"]],
+            [["The urge to push begins to creep through your body."],["default"]],
+            [["You push with the contractions, too focused on the pain to think about anything else."],["default"]],
+            [["The baby is crowning. You keep pushing, breathless and trembling."],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["With a final push, your child slips free onto the bedding."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["You have finally finished giving birth."],["default"]]
+        ],
+        "wolf":[
+            [["You lie on the bed, tense and breathing hard while the pups settle low inside you."],["default"]],
+            [["The contractions grow stronger. You try to wait, even as your body urges you to move."],["default"]],
+            [["The pressure shifts through your pelvis, low and uncomfortable."],["default"]],
+            [["Your body tells you to push. You brace yourself against the bed."],["default"]],
+            [["You push with the contractions, trying to help the pup along."],["default"]],
+            [["The pup is crowning. You can feel it stretching you with each push."],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["With a final push, the pup slips free onto the bedding."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["You have finally finished giving birth."],["default"]]
+        ],
+        "hawk":[
+            [["You chirp as you can't help but feel an animalistic urge to give birth."],["default"]],
+            [["With each contraction, you rock in place, as if to help your muscles squeeze the egg out."],["default"]],
+            [["You feel a steady pressure building against your cervix."],["default"]],
+            [["You feel an urge to start pushing harder alongside your contractions."],["default"]],
+            [["The urge to push is in full force. You can't focus on anything else."],["default"]],
+            [["The egg is bulging out of your " + ($birth.genital is "vagina" ? either("pussy","cunt") : either("ass","sphincter")) + ". You just need a few good pushes"],["default"]],
+            [["The pressure shifts lower, broader and harder to bear. You steady your breathing and keep pushing."],["default"]],
+            [["You feel satisfied with your work, as the pressure disappears."],["default"]],
+            [["The worst of the pressure eases for a moment. You try to breathe while your body gathers itself for the next one."],["default"]],
+            [["While certainly not a walk in the park, you can't help but feel elated by how good it felt to lay your egg" + ($birth.fetuscount gt 1 ? "s" : "") + "."],["default"]]
+        ]
+    }
+},
+"stageInitial":{
+    "hospital":{
+        "human":[
+            [["Harper checks on your nether regions and announces \"You are 2cm dilated.\" The words land badly. Your body has already been working for a while, every contraction leaving your pelvis sore and your strength frayed before Harper can even tell you to breathe."],["default"]],
+            [["Harper calmly says \"5cm dilated\". You anticipate you'll be pushing soon, but its not yet time."],["default"]],
+            [["Your contractions spike, prompting Harper to check your status again."],["default"]],
+            [["Harper informs you \"You're fully dilated, work with your contractions, push alongside them, remember to breathe\""],["default"]],
+            [["Harper encourages you to keep going."],["default"]],
+            [["You hear Harper assert \"The baby is crowning.\" as <<nnpc_he \"Harper\">> gets ready to catch your child."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, your child passes out of you."],["default"]],
+            [["You aren't done yet, you feel another child descend through your pelvis."],["default"]],
+            [["You have finally finished giving birth!"],["default"]]
+        ]
+    },
+    "wolf cave":{
+        "wolf":[
+            [["With no doctor in sight, let alone one who knows how to deliver puppies, you are left to judge it by the pain. Your body has already been tightening for a while, leaving your pelvis sore and your breath unsteady before you can do much besides rest and breathe."],["default"]],
+            [["The contractions get a little more painful and the time between is decreasing. Hopefully it's not too different with wolf pups."],["default"]],
+            [["\"At least puppies are smaller,\" you think to yourself, \"It should be quicker.\" You assume, and rely solely on how your body is acting to gauge your progress."],["default"]],
+            [["The pain ramps drastically, if ever that was a sign to push, you would think that is it."],["default"]],
+            [["The urge to push is overwhelming, you find it hard to formulate any thoughts beyond \"Push!\""],["default"]],
+            [["You feel a painful stretching, and you presume it's your pup trying to pass your " + ($birth.genital is "vagina" ? "cervix." : "sphincter.")],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, the painful pressure relents, and one of your pups tumbles between your legs."],["default"]],
+            [["You feel tired, yet you feel another pup ready to make its way into the world."],["default"]],
+            [["You have finally finished giving birth."],["default"]]
+        ]
+    },
+    "cottage":{
+        "human":[
+            [["Harper checks on your nether regions and announces \"You are 2cm dilated.\" The words land badly. Your body has already been working for a while, every contraction leaving your pelvis sore and your strength frayed before Harper can even tell you to breathe."],["default"]],
+            [["Harper calmly says \"5cm dilated\". You anticipate you'll be pushing soon, but it is not yet time."],["default"]],
+            [["Your contractions spike, prompting Harper to check your status again."],["default"]],
+            [["Harper informs you \"You're fully dilated, work with your contractions, push alongside them, remember to breathe\""],["default"]],
+            [["Harper encourages you to keep going."],["default"]],
+            [["You hear Harper assert \"The baby is crowning.\" as <<nnpc_he \"Harper\">> gets ready to catch your child."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, your child passes out of you."],["default"]],
+            [["You aren't done yet, another child descends through your pelvis."],["default"]],
+            [["You have finally finished giving birth!"],["default"]]
+        ]
+    },
+    "tower":{
+        "hawk":[
+            [["A contraction rolls through you as the egg settles lower in the nest. The smooth weight has been pressing down for some time, leaving your abdomen sore and your strength worn thin before you can do much besides rest and breathe."],["default"]],
+            [["The egg shifts with the next cramp, heavy and smooth inside you."],["default"]],
+            [["Pressure spreads through your pelvis. Your body tenses around the shell."],["default"]],
+            [["The urge to push takes hold, sharp enough to make you chirp."],["default"]],
+            [["You bear down with the next contraction, guiding the egg along."],["default"]],
+            [["The egg begins to crown, stretching you wider with every push."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["The egg slips out and settles safely beneath you."],["default"]],
+            [["Another weight shifts inside you. You only have a moment to breathe."],["default"]],
+            [["Your body finally settles, the nest quiet around you."],["default"]]
+        ]
+    },
+    "asylum":{
+        "human":[
+            [["Harper checks on your nether regions and announces \"You are 2cm dilated.\" The words land badly. Your body has already been working for a while, every contraction leaving your pelvis sore and your strength frayed before Harper can even tell you to breathe."],["default"]],
+            [["Harper calmly says \"5cm dilated\". You anticipate you'll be pushing soon, but its not yet time."],["default"]],
+            [["Your contractions spike, prompting Harper to check your status again."],["default"]],
+            [["Harper informs you \"You're fully dilated, work with your contractions, push alongside them, remember to breathe\""],["default"]],
+            [["Harper encourages you to keep going."],["default"]],
+            [["You hear Harper assert \"The baby is crowning.\" as <<nnpc_he \"Harper\">> gets ready to catch your child."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, your child passes out of you."],["default"]],
+            [["You aren't done yet, another child descends through your pelvis."],["default"]],
+            [["You have finally finished giving birth!"],["default"]]
+        ],
+        "wolf":[
+            [["Harper checks on your nether regions and announces \"You are 2cm dilated.\" The words land badly. Your body has already been working for a while, every contraction leaving your pelvis sore and your strength frayed before Harper can even tell you to breathe."],["default"]],
+            [["Harper calmly says \"5cm dilated\". You anticipate you'll be pushing soon, but its not yet time."],["default"]],
+            [["Your contractions spike, prompting Harper to check your status again."],["default"]],
+            [["Harper informs you \"You're fully dilated, work with your contractions, push alongside them, remember to breathe\""],["default"]],
+            [["Harper encourages you to keep going."],["default"]],
+            [["You hear Harper assert \"The pup is crowning.\" as <<nnpc_he \"Harper\">> gets ready to catch your puppy."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, your pup passes out of you."],["default"]],
+            [["You aren't done yet, another puppy descends through your pelvis."],["default"]],
+            [["You have finally finished giving birth!"],["default"]]
+        ],
+        "hawk":[
+            [["Harper checks your progress, watching the egg settle lower inside you. The shell has been pressing down for a while, leaving you sore and tired before Harper can do much besides tell you to breathe through it."],["default"]],
+            [["Harper notes the change as the pressure grows more insistent."],["default"]],
+            [["A stronger contraction makes your body tense. Harper tells you to keep breathing."],["default"]],
+            [["Harper says the egg is low enough to push, and your body answers with another cramp."],["default"]],
+            [["You push while Harper keeps watch, hands ready."],["default"]],
+            [["Harper announces that the egg is crowning."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, the egg passes into Harper's waiting hands."],["default"]],
+            [["Another egg shifts lower before you have fully caught your breath."],["default"]],
+            [["You have finally finished laying your egg" + ($birth.fetuscount gt 1 ? "s." : ".")],["default"]]
+        ]
+    },
+    "prison":{
+        "human":[
+            [["The methodical guard checks on your nether regions. \"I don't have any measuring equipment, so I just have to estimate you're maybe two centimetres dilated.\" Your body has already been labouring without proper help, leaving every muscle sore and your strength scraped thin."],["default"]],
+            [["The methodical guard nervously says \"Perhaps four? five centimeters dilated?\". You anticipate you'll be pushing soon."],["default"]],
+            [["Your contractions spike, and your legs shift involuntarily. The guard tries to hold your legs in place for you."],["default"]],
+            [["The methodical guard says to you \"Is it time? Um. Sure, yeah, start pushing... And breathe, always breathe.\""],["default"]],
+            [["The methodical guard encourages you to keep going."],["default"]],
+            [["You hear the methodical guard assert \"Your baby is coming, almost there!\" They get ready to catch your child."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, your child is born."],["default"]],
+            [["You aren't done yet, you feel another child descend through your pelvis"],["default"]],
+            [["You have finally finished giving birth."],["default"]]
+        ],
+        "wolf":[
+            [["The methodical guard checks on your nether regions. \"I don't have any measuring equipment, so I just have to estimate you're maybe two centimetres dilated.\" Your body has already been labouring without proper help, leaving every muscle sore and your strength scraped thin."],["default"]],
+            [["The methodical guard nervously says \"Perhaps four? five centimeters dilated?\". You anticipate you'll be pushing soon."],["default"]],
+            [["Your contractions spike, and your legs shift involuntarily. The guard tries to hold your legs in place for you."],["default"]],
+            [["The methodical guard stammers, \"That's not... that's a puppy's head? Wh- Nevermind! Breathe and push.\""],["default"]],
+            [["The methodical guard encourages you to keep going."],["default"]],
+            [["You hear the methodical guard assert \"Your, uhh... baby is coming, almost there!\" They get ready to catch your unusual child."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, your pup is born."],["default"]],
+            [["You aren't done yet, you feel another puppy descend through your pelvis"],["default"]],
+            [["You have finally finished giving birth."],["default"]]
+        ],
+        "hawk":[
+            [["The guard checks your progress as best they can while the egg settles lower. The shell has been bearing down inside you for a while, leaving you sore, tired, and trying to breathe through what little control you still have."],["default"]],
+            [["The pressure grows, and the guard looks increasingly unsure of what to do."],["default"]],
+            [["A stronger contraction makes your legs shift. The guard tries to keep you steady."],["default"]],
+            [["The urge to push becomes impossible to ignore. The guard tells you to breathe."],["default"]],
+            [["You push while the guard hovers nearby, trying to prepare."],["default"]],
+            [["The guard blurts that the egg is crowning."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, the egg slips into the guard's waiting hands."],["default"]],
+            [["Another egg shifts lower before you can relax properly."],["default"]],
+            [["You have finally finished laying your egg" + ($birth.fetuscount gt 1 ? "s." : ".")],["default"]]
+        ]
+    },
+    "bedroom":{
+        "human":[
+            [["You lie back on the bed, trying to breathe through the first steady contractions. They are only the first you can properly count, not the first your body has suffered through, and your pelvis already aches with the work ahead."],["default"]],
+            [["The pain grows stronger. You grip the bedding and wait for your body to be ready."],["default"]],
+            [["With little time to get comfortable, you push the blankets off."],["default"]],
+            [["The urge to push starts to build, low and insistent."],["default"]],
+            [["You push with the next contraction, bracing yourself against the bed."],["default"]],
+            [["The baby is crowning. You keep pushing, shaking with the effort."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, your child slips free onto the bedding."],["default"]],
+            [["You are not done yet. Another child descends through your pelvis."],["default"]],
+            [["You have finally finished giving birth."],["default"]]
+        ],
+        "wolf":[
+            [["You lie back on the bed, breathing through the first steady contractions. The pups have already settled low enough to make you sore, and your strength feels worn before you can do much besides rest and breathe."],["default"]],
+            [["The pups settle lower as the pain grows stronger."],["default"]],
+            [["Pressure builds through your pelvis, telling you there is not long to wait."],["default"]],
+            [["The urge to push takes hold. You brace yourself against the bed."],["default"]],
+            [["You push with the next contraction, trying to help the pup along."],["default"]],
+            [["The pup is crowning. You keep pushing, shaking with the effort."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["With a final push, the pup slips free onto the bedding."],["default"]],
+            [["You are not done yet. Another pup descends through your pelvis."],["default"]],
+            [["You have finally finished giving birth."],["default"]]
+        ],
+        "hawk":[
+            [["You wake to a deep pressure in your abdomen, strange and heavy enough to drag a chirp from your throat. The egg has already settled low, wearing at you with each cramp before you can do much besides rest and breathe."],["default"]],
+            [["You feel surprisingly content with the contractions, you feel the bulge of an egg descending through your pelvis, but the smooth shape and lack of kicking you'd not otherwise expect makes laying it seem much easier than childbirth."],["default"]],
+            [["While your cervix is still resisting, you can almost feel an uncanny stretching sensation. You thought it would be painful, but it feels stranger than pain, a deep pressure that your body seems to understand before you do."],["default"]],
+            [["The tip of the egg is already causing your " + ($birth.genital is "vagina" ? either("pussy","cunt") : either("ass","sphincter")) + " to gape, but the widest part of the egg has yet to make it past."],["default"]],
+            [["The ease up to this point has vanished, and you struggle to pass the egg, your body urges you to push as Robin continues to stare, mouth agape at the scene in front of them."],["default"]],
+            [["Your body continues to fight against the egg, and it makes you wonder just how sturdy the shell could be to withstand the pressure."],["default"]],
+            [["The widest part begins to pass. There is no rushing it now; you can only work with your body and keep pushing."],["default"]],
+            [["Finally, with a swift plop and a squelch from your " + ($birth.genital is "vagina" ? either("pussy","cunt") : either("ass","sphincter")) + ", it lands safely between your legs."],["default"]],
+            [["You feel another egg descending down your " + ($birth.genital is "vagina" ? "vaginal" : "anal") + " passage."],["default"]],
+            [["You can feel a slight breeze wafting against your nether region, and the feeling of cool air makes you realise your " + ($birth.genital is "vagina" ? either("pussy","cunt") : either("ass","sphincter")) + " is still gaping open. You reflexively clench and finally relax."],["default"]]
+        ]
+    }
+},
+"movement":[
+    ["Your " + ($birth.fetuscount gt 1 ? "babies are" : "baby is") + " calm for the moment.",
+    "You are glad your child" + ($birth.fetuscount gt 1 ? "ren have" : " has") + " calmed down for a bit."],
+    ["You feel a limb pushing against you. They must be agitated in there.",
+    "You feel a slight yet uncomfortable shift in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + "."],
+    ["You feel your " + ($birth.fetuscount-$birth.delivered gt 1 ? "babies" : "baby") + " churn uncomfortably in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+    "Your " + ($birth.fetuscount-$birth.delivered gt 1 ? "babies twist" : "baby twists") + " about inside your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + "."],
+    ["Your " + ($birth.fetuscount-$birth.delivered gt 1 ? "babies resist" : "baby resists") + " your " + ($birth.genital is "vagina" ? "uterine" : "anal") + " contractions.",
+    "The distressing movement inside your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " makes you wish they'd just come out already."],
+    ["You feel your " + ($birth.fetuscount-$birth.delivered gt 1 ? "babies" : "baby") + " fighting against your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+    "You see your belly bulge, the shape of a foot matches the pain you feel in your gut."],
+    [($birth.fetuscount gt 1 ? "A" : "Your") + " baby kicks and pushes against your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+    "Agonizing pain shoots through your body. The baby is not happy."],
+    ["Your babies jerk and push violently against your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+    "Excruciating pain racks your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " as your " + "baby thrashes about."],
+    ["You hear " + ($birth.fetuscount gt 1 ? "all your babies" : "your baby") + " crying, you know it's a good sign but you already feel the motherly urge to soothe their cries."]
+],
+"contractions":{
+    "human":[
+        ["You grimace as a sudden cramp in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " hits you.",
+        "You feel mild cramps in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "Your body relaxes as the cramps relent."],
+        ["You feel the contractions in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "You endure a stronger contraction than usual in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "You take a small moment to catch your breath."],
+        ["Your " + ($birth.genital is "vagina" ? "uterine" : "anal") + " contractions grip your body hard.",
+        "Your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contracts painfully.",
+        "You feel the contraction lessen, but there's little reprieve."],
+        ["The pressure in your pelvis feels immense and unrelenting.",
+        "The constant painful " + ($birth.genital is "vagina" ? "uterine" : "anal") + " contractions leaves you tired.",
+        "The contractions lessen for a moment."],
+        ["You feel like your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " is at your limit, but contractions continue.",
+        "Through the pain, you can feel your " + ($birth.genital is "vagina" ? "cervix" : "sphincter") + " stretching.",
+        "The painful contractions lessen momentarily."],
+        ["The " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contractions continue despite how tiring they are.",
+        "Movement from your child sets off a painful contraction.",
+        "The contractions yield, but not entirely."],
+        ["The " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contractions continue despite how tiring they are.",
+        "Movement from your child sets off a painful contraction.",
+        "The contractions yield, but not entirely."],
+        ["Your " + ($birth.genital is "vagina" ? "cervix" : "sphincter") + " is suddenly relieved of pressure."],
+        ["The contractions ease for a moment while your body gathers itself."],
+        ["The contractions stop."]
+    ],
+    "wolf":[
+        ["You grimace as a sudden cramp in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " hits you.",
+        "You feel mild cramps in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "Your body relaxes as the cramps relent."],
+        ["You feel the contractions in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "You endure a stronger contraction than usual in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "You take a small moment to catch your breath."],
+        ["Your " + ($birth.genital is "vagina" ? "uterine" : "anal") + " contractions grip your body hard.",
+        "Your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contracts painfully.",
+        "You feel the contraction lessen, but there's little reprieve."],
+        ["The pressure in your pelvis feels immense and unrelenting.",
+        "The constant painful " + ($birth.genital is "vagina" ? "uterine" : "anal") + " contractions leaves you tired.",
+        "The contractions lessen for a moment."],
+        ["You feel like your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " is at your limit, but contractions continue.",
+        "Through the pain, you can feel your " + ($birth.genital is "vagina" ? "cervix" : "sphincter") + " stretching.",
+        "The painful contractions lessen momentarily."],
+        ["The " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contractions continue despite how tiring they are.",
+        "Movement from your child sets off a painful contraction.",
+        "The contractions yield, but not entirely."],
+        ["The " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contractions continue despite how tiring they are.",
+        "Movement from your child sets off a painful contraction.",
+        "The contractions yield, but not entirely."],
+        ["Your " + ($birth.genital is "vagina" ? "cervix" : "sphincter") + " is suddenly relieved of pressure."],
+        ["The contractions ease for a moment while your body gathers itself."],
+        ["The contractions stop."]
+    ],
+    "hawk":[
+        ["You grimace as a sudden cramp in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " hits you.",
+        "You feel mild cramps in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "Your body relaxes as the cramps relent."],
+        ["You feel the contractions in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "You endure a stronger contraction than usual in your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + ".",
+        "You take a small moment to catch your breath."],
+        ["Your " + ($birth.genital is "vagina" ? "uterine" : "anal") + " contractions grip your body hard.",
+        "Your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contracts painfully.",
+        "You feel the contraction lessen, but there's little reprieve."],
+        ["The pressure in your pelvis feels immense and unrelenting.",
+        "The constant painful " + ($birth.genital is "vagina" ? "uterine" : "anal") + " contractions leaves you tired.",
+        "The contractions lessen for a moment."],
+        ["You feel like your " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " is at your limit, but contractions continue.",
+        "Through the pain, you can feel your " + ($birth.genital is "vagina" ? "cervix" : "sphincter") + " stretching.",
+        "The painful contractions lessen momentarily."],
+        ["The " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contractions continue despite how tiring they are.",
+        "Movement from your child sets off a painful contraction.",
+        "The contractions yield, but not entirely."],
+        ["The " + ($birth.genital is "vagina" ? either("uterus","womb") : either("anus","colon")) + " contractions continue despite how tiring they are.",
+        "Movement from your child sets off a painful contraction.",
+        "The contractions yield, but not entirely."],
+        ["Your " + ($birth.genital is "vagina" ? "cervix" : "sphincter") + " is suddenly relieved of pressure."],
+        ["The contractions ease for a moment while your body gathers itself."],
+        ["The contractions stop."]
+    ]
+},
+"bound":{
+    "hospital":[
+    "Your right arm jerks against its bonds as the midwife releases you from them.",
+    "Your right arm is released from a painful bind by the midwife.",
+    "Your right arm lies limp as the midwife removes your bonds.",
+    "Your right arm is freed by the midwife."],
+    "asylum":[
+    "Your right arm jerks against its bonds as the midwife releases you from them.",
+    "Your right arm is released from a painful bind by the midwife.",
+    "Your right arm lies limp as the midwife removes your bonds.",
+    "Your right arm is freed by the midwife."],
+    "prison":[
+    "Your right arm jerks against its bonds as the guard releases you from them.",
+    "Your right arm is released from a painful bind by the guard.",
+    "Your right arm lies limp as the guard removes your bonds.",
+    "Your right arm is freed by the guard."],
+    "cottage":[
+    "Your right arm jerks against its bonds as Harper releases you from them.",
+    "Your right arm is released from a painful bind by Harper.",
+    "Your right arm lies limp as Harper removes your bonds.",
+    "Your right arm is freed by Harper."],
+    "tower":[
+    "Your right arm jerks against its bonds as the Great Hawk pecks and tears your free of them.",
+    "The Great Hawk manages to peck and tear away the painful bonds.",
+    "Your right arm lies limp as the Great Hawk manages peck and tear them away for you.",
+    "Your right arm is freed by the Great Hawk by tearing the bonds away with a sharp beak."],
+    "bedroom":[
+    "Your right arm jerks against its bonds as Robin manages to find a way to release you from them.",
+    "Robin manages to find a way to release the painful bonds.",
+    "Your right arm lies limp as Robin manages to release them for you.",
+    "Your right arm is freed by the Robin."],
+    "wolf cave":[
+    "Your right arm jerks against its bonds as the Black Wolf chews through them.",
+    "Your right arm is released from a painful bind by the Black Wolf by chewing through it.",
+    "Your right arm lies limp as the Black Wolf chews through your bonds.",
+    "Your right arm is freed by the Black Wolf chewing through your bonds."]
+}}>>
+	<</if>>
+
+
+
+	<<if _birthRebuildRuntime>>
+		<<set $birth["dialog"] to {"randomPool":[],"forcedPool":[],"randomQueue":[],"forcedQueue":[]}>>
+	<<updateFilters "static">>
+	<<updateFilters "partner">>
+	<<updateFilters "initial">>
+	<<applyDialogFilters "randomFull" "randomPool" "static">>
+	<<applyDialogFilters "forcedFull" "forcedPool" "static">>
+	<<applyDialogFilters "randomPool" "randomPool" "partner">>
+	<<applyDialogFilters "forcedPool" "forcedPool" "partner">>
+	<<resetLastOptions>>
+	<<getCombatDefaultsType>>
+	<</if>>
+	
+	<<unset _birthRebuildRuntime>>
+<</if>>
+<<effects>>
+<<childbirtheffects>>
+<<Childbirth>>
+<<childbirthactions>>
+
+<<if $birth.stage gt 9>>
+	<<set $birth.passout to 0>>
+	<span id="next"><<link [[Next|Childbirth End]]>><</link>></span><<nexttext>>
+<<elseif $stress gte $stressmax>>
+	<<set $birth.passout to 1>>
+	<span id="next"><<link [[Next|Childbirth End]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Childbirth]]>><</link>></span><<nexttext>>
+<</if>>
+
+<</if>> /* end safety-gate macro else */
+
+:: Childbirth End
+<<endcombat>>
+
+<<unset $childbirthstart>>
+<<playerPrebirth>>
+<<if $birth.passout is 1>>
+	Your strength gives out all at once. The room blurs, the noise around you slipping into a dull rush as your body finally stops obeying you.
+	<br><br>
+	By the time your senses return, the worst of it is over. Someone has cleaned you up as best they can, and the ache left behind is deep enough to make every breath feel careful.
+<<else>>
+	<<if $birth.type isnot "hawk">>
+		The final after-pains leave you shaking. Someone helps clean you up, checks the child<<if $birth.fetuscount gt 1>>ren<</if>>, and makes sure the bleeding has slowed before letting you rest.
+		<br><br>
+		You are sore, drained, and unsteady, but the labour is finally over.
+	<<else>>
+		The last of the tension drains from your body, leaving you weak and strangely light. The egg<<if $birth.fetuscount gt 1>>s are<</if>><<if $birth.fetuscount is 1>> is<</if>> gathered carefully while you are cleaned up.
+		<br><br>
+		Your muscles still twitch with after-pains, but the laying is finally over.
+	<</if>>
+<</if>>
+<br><br>
+
+
+<!--modloader commented out-->
+<<switch $birth.location>>
+	<<case "hospital">>
+<!--	<<link [[Next|Pregnancy Birth Hospital Alternate 3]]>><</link>> -->
+		<<link [[Next|Pregnancy Birth Hospital 3]]>><<unset $birth>><</link>>
+	<<case "wolf cave">>
+<!--	<<link [[Next|Pregnancy Birth Wolf Cave Alternate 2]]>><</link>> -->
+		<<link [[Next|Pregnancy Birth Wolf Cave 2]]>><<unset $birth>><</link>>
+	<<case "cottage">>
+		<<link [[Next|Farm PC Birth 5]]>><<unset $birth>><</link>>
+	<<case "asylum">>
+		<<link [[Next|Pregnancy Birth Asylum 3]]>><<unset $birth>><</link>>
+	<<case "prison">>
+		<<if playerNormalPregnancyType() is "human">>
+			<<link [[Next|Pregnancy Birth Prison 3]]>><<unset $birth>><</link>>
+		<<else>>
+			<<link [[Next|Pregnancy Birth Prison Wolf]]>><<unset $birth>><</link>>
+		<</if>>
+	<<case "bedroom">>
+		<<if $birth.partner is "Robin">>
+<!--		<<link [[Next|Robin Bed Egg Laying Alternate]]>><</link>> -->
+			<<link [[Next|Robin Bed Egg Laying]]>><<unset $birth>><</link>>
+		<<elseif $birth.partner is "Kylar">>
+			<<link [[Next|Kylar Bed Egg Laying]]>><<unset $birth>><</link>>
+		<<else>>
+			<<link [[Next|Solo Bed Egg Laying]]>><<unset $birth>><</link>>
+		<</if>>
+	<<case "tower">>
+		<<link [[Next|Bird Tower Player Egg Laying Realistic End]]>><<unset $birth>><</link>>
+<</switch>>
+
+
+:: Kylar Bed Egg Laying
+<<effects>>
+<<set [_eggnant, _eggnantGenital] to getPregnancyObject("pc", true)>>
+<<if playerIsPregnant() and _eggnant.type is "hawk">>
+	<<set $eggLayNumber to _eggnant.fetus.length>>
+<<else>>
+	<<set $eggLayNumber to $harpyEggs.count>>
+<</if>>
+
+Kylar heaves a sigh of relief when you return to normal.<br>
+You shake your head and <<if Transformations.partActive("bird", "plumage")>>puff up your plumage as you <</if>><<if $eggLayNumber gte 2>>gather your eggs into your arms<<else>>pick up your egg<</if>>, mind blank save for an overwhelming sensation of maternal bliss.
+
+<<if playerIsPregnant() and _eggnant.type is "hawk">>
+	<<set _eggIcon to $eggLayNumber>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
+	<span class="lewd">You're certain the <<pluralise $eggLayNumber "egg is" "eggs are">> fertilised.</span> You should bring <<pluralise $eggLayNumber "it">> back to your nest. You pick up <<number $eggLayNumber>> <<birdicon "eggs">> fertilised bird <<pluralise $eggLayNumber "egg">>.
+	<<if $eggLayNumber gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
+	<<pregnancyFeats "pc">>
+	<<endPlayerPregnancy $location "inventory">>
+	<<set $harpyEggsPrevent to 28>>
+<<else>>
+	<<wearProp "bird egg">>
+	<span class="blue">You're fairly certain the <<pluralise $eggLayNumber "egg">> shouldn't be fertilised, though.</span> <<tending_pick bird_egg $eggLayNumber $eggLayNumber>>
+	<<unset $harpyEggs>>
+	<<set $harpyEggsPrevent to 14>>
+<</if>>
+<br><br>
+
+<<link [[Next|Kylar Bed Egg Laying End]]>><<handheldon>><</link>>
+<br>
+
+:: Kylar Bed Egg Laying End
+<<effects>>
+
+<<He>> tries to act indignantly, but <<his>>
+<<if C.npc.Kylar.dom lte 40>>
+	flustered
+<<else>>
+	hungry
+<</if>>
+tone betrays <<him>>. "Can I help you clean up?" <<He>> very obviously wants to. You tell <<him>> that it's okay and request some privacy, and <<he>> leaves your room.
+<br><br>
+<<set $wardrobe_location to "wardrobe">>
+<<wardrobeSelection true>>
+<<radiooutfits>>
+<<unset $kylarbed>><<unset $eggLayNumber>>
+<<endevent>>
+<br><br>
+
+<<if $renttime lte 0>>
+	<<set $bus to "home">>
+	<<getouticon>><<link [[Next|Bedroom Bailey]]>><</link>>
+<<else>>
+	<<getouticon>><<link [[Next|Bedroom]]>><</link>>
+<</if>>
+<br>
+
+:: Solo Bed Egg Laying
+<<effects>>
+<<set [_eggnant, _eggnantGenital] to getPregnancyObject("pc", true)>>
+<<if playerIsPregnant() and _eggnant.type is "hawk">>
+	<<set $eggLayNumber to _eggnant.fetus.length>>
+<<else>>
+	<<set $eggLayNumber to $harpyEggs.count>>
+<</if>>
+
+You shake your head and <<if Transformations.partActive("bird", "plumage")>>puff up your plumage as you <</if>><<if $eggLayNumber gte 2>>gather your eggs into your arms<<else>>pick up your egg<</if>>, mind blank save for an overwhelming sensation of maternal bliss.
+
+<<if playerIsPregnant() and _eggnant.type is "hawk">>
+	<<set _eggIcon to $eggLayNumber>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
+	<span class="lewd">You're certain the <<pluralise $eggLayNumber "egg is" "eggs are">> fertilised.</span> You should bring <<pluralise $eggLayNumber "it">> back to your nest. You pick up <<number $eggLayNumber>> <<birdicon "eggs">> fertilised bird <<pluralise $eggLayNumber "egg">>.
+	<<if $eggLayNumber gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>
+	<<pregnancyFeats "pc">>
+	<<endPlayerPregnancy $location "inventory">>
+	<<set $harpyEggsPrevent to 28>>
+<<else>>
+	<<wearProp "bird egg">>
+	<span class="blue">You're fairly certain the <<pluralise $eggLayNumber "egg">> shouldn't be fertilised, though.</span> <<tending_pick bird_egg $eggLayNumber $eggLayNumber>>
+	<<unset $harpyEggs>>
+	<<set $harpyEggsPrevent to 14>>
+<</if>>
+<br><br>
+
+<<link [[Next|Solo Bed Egg Laying End]]>><<handheldon>><</link>>
+<br>
+
+:: Solo Bed Egg Laying End
+<<effects>>
+
+You take a few slow breaths, waiting until your legs stop trembling. The room is quiet again, save for your own uneven breathing and the soft rustle of clothes as you clean yourself up.
+<br><br>
+
+<<set $wardrobe_location to "wardrobe">>
+<<wardrobeSelection true>>
+<<radiooutfits>>
+<<unset $eggLayNumber>>
+<<endevent>>
+<br><br>
+
+<<if $renttime lte 0>>
+	<<set $bus to "home">>
+	<<getouticon>><<link [[Next|Bedroom Bailey]]>><</link>>
+<<else>>
+	<<getouticon>><<link [[Next|Bedroom]]>><</link>>
+<</if>>
+<br>
+:: Bird Tower Player Egg Laying Realistic End
+<<setTowerTemp>><<effects>>
+<<npc "Great Hawk">>
+<<set [_eggnant, _eggnantGenital] to getPregnancyObject("pc", true)>>
+<<if playerIsPregnant() and _eggnant.type is "hawk">>
+	<<set $eggLayNumber to _eggnant.fetus.length>>
+<<else>>
+	<<set $eggLayNumber to $harpyEggs.count>>
+<</if>>
+
+You gather yourself in the nest, weak from the laying but filled with a powerful maternal calm.
+<br><br>
+
+<<if playerIsPregnant() and _eggnant.type is "hawk">>
+	<<set _eggIcon to $eggLayNumber>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
+	<span class="lewd">You're certain the <<pluralise $eggLayNumber "egg is" "eggs are">> fertilised.</span> <<Number $eggLayNumber>> <<birdicon "eggs">> fertilised bird <<pluralise $eggLayNumber "egg has" "eggs have">> been added to the nest.
+	<<if $eggLayNumber gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering how it fit inside of you to begin with.<</if>>
+	<<if $syndromebird gte 1>>
+		You're flooded with emotion. <<trauma -12>><<lltrauma>>
+	<</if>>
+	<<pregnancyFeats "pc">>
+	<<endPlayerPregnancy "tower" "tower">>
+	<<set $harpyEggsPrevent to 28>>
+<<else>>
+	<<wearProp "bird egg">>
+	<span class="blue">You're fairly certain the <<pluralise $eggLayNumber "egg">> shouldn't be fertilised, though.</span> <<tending_pick bird_egg $eggLayNumber $eggLayNumber>>
+	<<unset $harpyEggs>>
+	<<set $harpyEggsPrevent to 14>>
+<</if>>
+<br><br>
+
+<<link [[Continue|Bird Tower Bed]]>><<endevent>><<unset $eggLayNumber>><</link>>
+<br>

@@ -1,0 +1,2571 @@
+:: Widgets Childbirth Actions Generation [widget]
+<<widget "generateActionsChildbirth">>
+	<<set $combat to 1>>
+	<<if _targetlist is undefined>>
+		<<getTargetList>>
+	<</if>>
+	<div id="listContainer">
+		<div id="leftaction" @class="$options.combatControls + 'Control'">
+			<<leftActionInitChildbirth>>
+		</div>
+
+		<div id="rightaction" @class="$options.combatControls + 'Control'">
+			<<rightActionInitChildbirth>>
+		</div>
+
+		<div id="mouthaction" @class="$options.combatControls + 'Control'">
+			<<mouthActionInitChildbirth>>
+		</div>
+		
+		<<if $birth.genital is "vagina">>
+			<div id="vaginaaction" @class="$options.combatControls + 'Control'">
+				<<vaginaActionInitChildbirth>>
+			</div>
+		<<else>>
+			<div id="anusaction" @class="$options.combatControls + 'Control'">
+				<<anusActionInitChildbirth>>
+			</div>
+		<</if>>
+	</div>
+<</widget>>
+
+<<widget "leftActionInitChildbirth">>
+	<<set $lefttarget to "birth">>
+	<<switch $leftarm>>
+	<<case 0>>
+		<<set $lefttarget to "birth">>
+		<<if $orgasmdown gte 1>>
+			<<set _leftOptions to "orgasm">>
+			<span class="lewd">Your left arm grips as your body spasms.</span>
+		<<elseif $pain gte 100 and $willpowerpain is 0>>
+			<<set _leftOptions to "pain">>
+			<span class="red">Your left arm is free, but hurts to move.</span>
+		<<elseif $dissociation gte 2>>
+			<<set _leftOptions to "unreal">>
+			<span class="pink">Your left arm is free, but doesn't feel real.</span>
+		<<else>>
+			<<if _targetYourself is true and _targetnumber gt 1>>
+				<<set _targetlistarms["Yourself"] to "self">>
+			<</if>>
+			<<if not $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "left" _targetlistarms>>
+			<</if>>
+			<<set _leftOptions to "free">>
+			<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm is free.</span>
+			<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "left" _targetlistarms>>
+				<<if $options.combatControls is "radio">><br><</if>>
+			<</if>>
+		<</if>>
+	<<case "bound">>
+		<<set _leftOptions to "free">>
+		<<switch $birth.location>>
+		<<case "hospital" "asylum">>
+			<<if $orgasmdown gte 1>>
+				<span class="lewd">Your left arm jerks against its bonds as the midwife releases you from them.</span>
+			<<elseif $pain gte 100 and $willpowerpain is 0>>
+				<span class="red">Your left arm is released from a painful bind by the midwife.</span>
+			<<elseif $dissociation gte 2>>
+				<span class="pink">Your left arm lies limp as the midwife removes your bonds.</span>
+			<<else>>
+				<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm freed by the midwife.</span>
+			<</if>>
+		<<case "wolf cave">>
+			<<if $orgasmdown gte 1>>
+				<span class="lewd">Your left arm jerks against its bonds as the Black Wolf chews through them.</span>
+			<<elseif $pain gte 100 and $willpowerpain is 0>>
+				<span class="red">Your left arm is released from a painful bind by the Black Wolf by chewing through it.</span>
+			<<elseif $dissociation gte 2>>
+				<span class="pink">Your left arm lies limp as the Black Wolf chews through your bonds.</span>
+			<<else>>
+				<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm freed by the Black Wolf chewing through your bonds.</span>
+			<</if>>
+		<<case "cottage">>
+			<<if $orgasmdown gte 1>>
+				<span class="lewd">Your left arm jerks against its bonds as Harper releases you from them.</span>
+			<<elseif $pain gte 100 and $willpowerpain is 0>>
+				<span class="red">Your left arm is released from a painful bind by Harper.</span>
+			<<elseif $dissociation gte 2>>
+				<span class="pink">Your left arm lies limp as Harper removes your bonds.</span>
+			<<else>>
+				<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm freed by Harper.</span>
+			<</if>>
+		<<case "prison">>
+			<<if $orgasmdown gte 1>>
+				<span class="lewd">Your left arm jerks against its bonds as the guard releases you from them.</span>
+			<<elseif $pain gte 100 and $willpowerpain is 0>>
+				<span class="red">Your left arm is released from a painful bind by the guard.</span>
+			<<elseif $dissociation gte 2>>
+				<span class="pink">Your left arm lies limp as the guard removes your bonds.</span>
+			<<else>>
+				<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm freed by the guard.</span>
+			<</if>>
+		<<case "bedroom">>
+			<<if $orgasmdown gte 1>>
+				<span class="lewd">Your left arm jerks against its bonds as Robin manages to find a way to release you from them.</span>
+			<<elseif $pain gte 100 and $willpowerpain is 0>>
+				<span class="red">Robin manages to find a way to release the painful bonds.</span>
+			<<elseif $dissociation gte 2>>
+				<span class="pink">Your left arm lies limp as Robin manages to release them for you.</span>
+			<<else>>
+				<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm freed by the Robin.</span>
+			<</if>>
+		<<case "tower">>
+			<<if $orgasmdown gte 1>>
+				<span class="lewd">Your left arm jerks against its bonds as the Great Hawk pecks and tears your free of them.</span>
+			<<elseif $pain gte 100 and $willpowerpain is 0>>
+				<span class="red">The Great Hawk manages to peck and tear away the painful bonds.</span>
+			<<elseif $dissociation gte 2>>
+				<span class="pink">Your left arm lies limp as the Great Hawk manages peck and tear them away for you.</span>
+			<<else>>
+				<span @class="($lastOptions.left isnot _leftOptions ?'gold':'')">Your left arm freed by the Great Hawk by tearing the bonds away with a sharp beak.</span>
+			<</if>>
+		<</switch>>
+	<<case "grappled" "penis" "othervagina" "vagina" "coverpenis" "anus" "behind">>
+		<<set $_changetype to true>><<leftActionInit>>
+	<<case "struggle">>
+		<<set $_changetype to true>><<leftActionInitStruggle>>
+	<<case "swarmgrappled">>
+		<<set $_changetype to true>><<leftActionInitSwarm>>
+	<<case "mechgrappled">>
+		<<set $_changetype to true>><<leftActionInitMachine>>
+	<<default>>
+		<<set $_changetype to true>><<leftActionInitTentacle>>
+	<</switch>>
+	<<if $_changetype isnot true>>
+		<<leftActionsChildbirth>>
+		<<if Object.keys(_leftaction).length gt 0>>
+			<<if !(Object.values(_leftaction).includes($leftactiondefault))>>
+				<<set $leftactiondefault to "rest">>
+			<</if>>
+			<<set $leftaction to $leftactiondefault>>
+			<div class="extraMargin">
+				<<generateCombatAction _leftaction "leftaction" "Childbirth">>
+			</div>
+			<<if $options.combatControls.includes("ists")>>
+				<div id="leftactionDifficultyChildbirth">
+					<<leftactionDifficultyChildbirth>>
+				</div>
+			<</if>>
+		<</if>>
+		<<set $lastOptions.left to clone(_leftOptions)>>
+	<</if>>
+<</widget>>
+
+<<widget "leftactionDifficultyChildbirth">>
+	<<if _args[0] is undefined>>
+		<<set _diffAction to $leftaction>>
+	<<else>>
+		<<set _diffAction to _args[0]>>
+	<</if>>
+	<<if _diffAction is "rest">>
+		<<set _willodds to {}>>
+		<<switch $birth.fetusmovement>>
+		<<case 0>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 100>>
+		<<case 1>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 200>>
+		<<case 2>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 300>>
+		<<case 3>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 400>>
+		<<case 4>>
+			<<set _willodds["min"] to 200>>
+			<<set _willodds["max"] to 600>>
+		<<case 5>>
+			<<set _willodds["min"] to 400>>
+			<<set _willodds["max"] to 800>>
+		<<case 6>>
+			<<set _willodds["min"] to 600>>
+			<<set _willodds["max"] to 1000>>
+		<<default>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 100>>
+		<</switch>>
+		<<set $birth.leftdifficulty to Math.round(Math.clamp(currentSkillValue('willpower') - _willodds.min, 0, _willodds.max) / (_willodds.max - _willodds.min) * 100)>>
+		<<if $birth.leftdifficulty gte 100>>
+			<span class="green">(Very Easy)</span>
+		<<elseif $birth.leftdifficulty gte 80>>
+			<span class="teal">(Easy)</span>
+		<<elseif $birth.leftdifficulty gte 60>>
+			<span class="lblue">(Medium)</span>
+		<<elseif $birth.leftdifficulty gte 40>>
+			<span class="blue">(Challenging)</span>
+		<<elseif $birth.leftdifficulty gte 20>>
+			<span class="purple">(Hard)</span>
+		<<elseif $birth.leftdifficulty gte 1>>
+			<span class="pink">(Very Hard)</span>
+		<<else>>
+			<span class="red">(Impossible)</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "leftActionsChildbirth">>
+	<<set _leftaction to {}>>
+	<<if !(["orgasm", "pain", "unreal"].includes(_leftOptions))>>
+		<<set _leftaction["Rest"] to "rest">>
+	<</if>>
+	<<switch _leftOptions>>
+	<<case "free">>
+		<<set _leftaction["Rest"] to "rest">>
+		<<set _leftaction["Grip"] to "leftgrasp">>
+	<<case "orgasm">>
+		<<set _leftaction["Fold"] to "leftfold">>
+		<<set _leftaction["Grip"] to "leftgrip">>
+	<<case "pain">>
+		<<set _leftaction["Hold limp"] to "leftfold">>
+	<<case "unreal">>
+		<<set _leftaction["Poke your belly"] to "rest">>
+	<</switch>>
+<</widget>>
+
+<<widget "rightActionInitChildbirth">>
+	<<set $righttarget to "birth">>
+	<<switch $rightarm>>
+	<<case 0>>
+		<<if $orgasmdown gte 1>>
+			<<set _rightOptions to "orgasm">>
+			<span class="lewd">Your right arm grips as your body spasms.</span>
+		<<elseif $pain gte 100 and $willpowerpain is 0>>
+			<<set _rightOptions to "pain">>
+			<span class="red">Your right arm is free, but hurts to move.</span>
+		<<elseif $dissociation gte 2>>
+			<<set _rightOptions to "unreal">>
+			<span class="pink">Your right arm is free, but doesn't feel real.</span>
+		<<else>>
+			<<if _targetYourself is true and _targetnumber gt 1>>
+				<<set _targetlistarms["Yourself"] to "self">>
+			<</if>>
+			<<if not $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "right" _targetlistarms>>
+			<</if>>
+			<<set _rightOptions to "free">>
+			<span @class="($lastOptions.right isnot _rightOptions ?'gold':'')">Your right arm is free.</span>
+			<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
+				<<targetListBox "right" _targetlistarms>>
+				<<if $options.combatControls is "radio">><br><</if>>
+			<</if>>
+		<</if>>
+	<<case "bound">>
+		<<set _rightOptions to "free">>
+		<<if $orgasmdown gte 1>>
+			<span class="lewd"><<print setup.birthPrompts.bound[$birth.location][0]>></span>
+		<<elseif $pain gte 100 and $willpowerpain is 0>>
+			<span class="red"><<print setup.birthPrompts.bound[$birth.location][1]>></span>
+		<<elseif $dissociation gte 2>>
+			<span class="pink"><<print setup.birthPrompts.bound[$birth.location][2]>></span>
+		<<else>>
+			<span @class="($lastOptions.right isnot _rightOptions ?'gold':'')"><<print setup.birthPrompts.bound[$birth.location][3]>></span>
+		<</if>>
+	<<case "grappled" "penis" "othervagina" "vagina" "coverpenis" "anus" "behind">>
+		<<set $_changetype to true>><<rightActionInit>>
+	<<case "struggle">>
+		<<set $_changetype to true>><<rightActionInitStruggle>>
+	<<case "swarmgrappled">>
+		<<set $_changetype to true>><<rightActionInitSwarm>>
+	<<case "mechgrappled">>
+		<<set $_changetype to true>><<rightActionInitMachine>>
+	<<default>>
+		<<set $_changetype to true>><<rightActionInitTentacle>>
+	<</switch>>
+	<<if $_changetype isnot true>>
+		<<rightActionsChildbirth>>
+		<<if Object.keys(_rightaction).length gt 0>>
+			<<if !(Object.values(_rightaction).includes($rightactiondefault))>>
+				<<set $rightactiondefault to "rest">>
+			<</if>>
+			<<set $rightaction to $rightactiondefault>>
+			<div class="extraMargin">
+				<<generateCombatAction _rightaction "rightaction" "Childbirth">>
+			</div>
+			<<if $options.combatControls.includes("ists")>>
+				<div id="rightactionDifficultyChildbirth">
+					<<rightactionDifficultyChildbirth>>
+				</div>
+			<</if>>
+		<</if>>
+		<<set $lastOptions.right to clone(_rightOptions)>>
+	<</if>>
+<</widget>>
+
+<<widget "rightactionDifficultyChildbirth">>
+	<<if _args[0] is undefined>>
+		<<set _diffAction to $rightaction>>
+	<<else>>
+		<<set _diffAction to _args[0]>>
+	<</if>>
+	<<if _diffAction is "rest">>
+		<<set _willodds to {}>>
+		<<switch $birth.fetusmovement>>
+		<<case 0>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 100>>
+		<<case 1>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 200>>
+		<<case 2>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 300>>
+		<<case 3>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 400>>
+		<<case 4>>
+			<<set _willodds["min"] to 200>>
+			<<set _willodds["max"] to 600>>
+		<<case 5>>
+			<<set _willodds["min"] to 400>>
+			<<set _willodds["max"] to 800>>
+		<<case 6>>
+			<<set _willodds["min"] to 600>>
+			<<set _willodds["max"] to 1000>>
+		<<default>>
+			<<set _willodds["min"] to 1>>
+			<<set _willodds["max"] to 100>>
+		<</switch>>
+		<<set $birth.rightdifficulty to Math.round(Math.clamp(currentSkillValue('willpower') - _willodds.min, 0, _willodds.max) / (_willodds.max - _willodds.min) * 100)>>
+		<<if $birth.rightdifficulty gte 100>>
+			<span class="green">(Very Easy)</span>
+		<<elseif $birth.rightdifficulty gte 80>>
+			<span class="teal">(Easy)</span>
+		<<elseif $birth.rightdifficulty gte 60>>
+			<span class="lblue">(Medium)</span>
+		<<elseif $birth.rightdifficulty gte 40>>
+			<span class="blue">(Challenging)</span>
+		<<elseif $birth.rightdifficulty gte 20>>
+			<span class="purple">(Hard)</span>
+		<<elseif $birth.rightdifficulty gte 1>>
+			<span class="pink">(Very Hard)</span>
+		<<else>>
+			<span class="red">(Impossible)</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "rightActionsChildbirth">>
+	<<set _rightaction to {}>>
+	<<switch _rightOptions>>
+	<<case "free">>
+		<<set _rightaction["Rest"] to "rest">>
+		<<set _rightaction["Grip"] to "rightgrasp">>
+	<<case "orgasm">>
+		<<set _rightaction["Fold"] to "rightfold">>
+		<<set _rightaction["Grip"] to "rightgrip">>
+	<<case "pain">>
+		<<set _rightaction["Hold limp"] to "rightfold">>
+	<<case "unreal">>
+		<<set _rightaction["Poke your belly"] to "rest">>
+	<</switch>>
+<</widget>>
+
+<<widget "mouthActionInitChildbirth">>
+	<<set $mouthtarget to "birth">>
+	<<if $orgasmdown gte 1>>
+		<<set _mouthOptions to "orgasm">>
+		<span class="lewd">You moan in orgasm despite giving birth.</span>
+	<<elseif $pain gte 100 and $willpowerpain is 0>>
+		<<set _mouthOptions to "pain">>
+		<span class="red">You cry out in overwhelming pain.</span>
+	<<elseif $dissociation gte 2>>
+		<<set _mouthOptions to "unreal">>
+		<span class="pink">You moan reflexively in pain, but you don't acknowledge reality.</span>
+	<<else>>
+		<<set _mouthOptions to "free">>
+		<span @class="($lastOptions.mouth isnot _mouthOptions ?'gold':'')">Your mouth is free.</span>
+	<</if>>
+	<<mouthActionsChildbirth>>
+	<<if Object.keys(_mouthaction).length gt 0>>
+		<<if !(Object.values(_mouthaction).includes($mouthactiondefault))>>
+			<<set $mouthactiondefault to "rest">>
+		<</if>>
+		<<set $mouthaction to $mouthactiondefault>>
+		<div class="extraMargin">
+			<<generateCombatAction _mouthaction "mouthaction" "Childbirth">>
+		</div>
+		<<if $options.combatControls.includes("ists")>>
+			<div id="mouthactionDifficultyChildbirth">
+				<<mouthactionDifficultyChildbirth>>
+			</div>
+		<</if>>
+	<</if>>
+	<<set $lastOptions.mouth to clone(_mouthOptions)>>
+<</widget>>
+
+<<widget "mouthactionDifficultyChildbirth">>
+	<<if _args[0] is undefined>>
+		<<set _diffAction to $mouthaction>>
+	<<else>>
+		<<set _diffAction to _args[0]>>
+	<</if>>
+	<<switch _diffAction>>
+	<<case "rest">>
+		<<set _physodds to {}>>
+		<<switch $birth.contractions>>
+		<<case 0>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 1000>>
+		<<case 1>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 2000>>
+		<<case 2>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 3000>>
+		<<case 3>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 4000>>
+		<<case 4>>
+			<<set _physodds["min"] to 2000>>
+			<<set _physodds["max"] to 6000>>
+		<<case 5>>
+			<<set _physodds["min"] to 4000>>
+			<<set _physodds["max"] to 8000>>
+		<<case 6>>
+			<<set _physodds["min"] to 6000>>
+			<<set _physodds["max"] to 10000>>
+		<<default>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 1000>>
+		<</switch>>
+		<<set $birth.mouthdifficulty to Math.round(Math.clamp(currentSkillValue('physique') - _physodds.min, 0, _physodds.max) / (_physodds.max - _physodds.min) * 100)>>
+		<<if $birth.mouthdifficulty gte 100>>
+			<span class="green">(Very Easy)</span>
+		<<elseif $birth.mouthdifficulty gte 80>>
+			<span class="teal">(Easy)</span>
+		<<elseif $birth.mouthdifficulty gte 60>>
+			<span class="lblue">(Medium)</span>
+		<<elseif $birth.mouthdifficulty gte 40>>
+			<span class="blue">(Challenging)</span>
+		<<elseif $birth.mouthdifficulty gte 20>>
+			<span class="purple">(Hard)</span>
+		<<elseif $birth.mouthdifficulty gte 1>>
+			<span class="pink">(Very Hard)</span>
+		<<else>>
+			<span class="red">(Impossible)</span>
+		<</if>>
+	<<case "ask">>
+		<<listbox "$askAction" autoselect>>
+			<<optionsfrom _askActions>>
+		<</listbox>>
+		<<run $(() => { $('#listbox-askaction').on('change', () => $('#listbox-askaction').parent().click()) })>>
+	<</switch>>
+<</widget>>
+
+<<widget "mouthActionsChildbirth">>
+	<<set _mouthaction to {}>>
+	<<switch _mouthOptions>>
+	<<case "free">>
+		<<set _mouthaction["Breathe"] to "rest">>
+		<<set _mouthaction["Groan"] to "mouthgroan">>
+		<<switch $birth.location>>
+		<<case "hospital" "asylum">>
+			<<if $birth.epidural is 0 or ($birth.calledPartner is 0 and ["","Alone"].contains($birth.partner))>>
+				<<set _mouthaction["Ask for"] to "ask">>
+				<<set _askActions to {"Nothing":"rest"}>>
+				<<if $birth.epidural is 0>>
+					<<set _askActions["pain relief "+formatMoney(100000)] to "epidural">>
+				<</if>>
+				<<if $birth.calledPartner is 0 and ["","Alone"].contains($birth.partner)>>
+					<<set _askActions["the father"] to "callpartner">>
+				<</if>>
+			<</if>>
+		<<case "prison">>
+			<<if $birth.epidural is 0 or ($birth.calledPartner is 0 and ["","Alone"].contains($birth.partner))>>
+				<<set _mouthaction["Ask for"] to "ask">>
+				<<set _askActions to {"Nothing":"rest"}>>
+				<<if $birth.calledPartner is 0 and ["","Alone"].contains($birth.partner)>>
+					<<set _askActions["Kylar"] to "callpartner">>
+				<</if>>
+			<</if>>
+		<<case "wolf cave">>
+			<<if ($birth.epidural is 0 and $birth.partner isnot "Alone") or ($birth.calledPartner is 0 and (($birth.partner is "Black Wolf" and $birth.father isnot "Black Wolf") or ($birth.partner is "Alone" and $birth.inlobby isnot "")))>>
+				<<set _mouthaction["Ask for"] to "ask">>
+				<<set _askActions to {"Nothing":"rest"}>>
+				<<if $birth.epidural is 0>>
+					<<set _askActions["pain relief"] to "epidural">>
+				<</if>>
+				<<if ($birth.calledPartner is 0 and (($birth.partner is "Black Wolf" and $birth.father isnot "Black Wolf") or ($birth.partner is "Alone" and $birth.inlobby isnot "")))>>
+					<<set _askActions["the father"] to "callpartner">>
+				<</if>>
+			<</if>>
+		<<case "cottage">>
+			<<if $birth.epidural is 0 or ($birth.calledPartner is 0 and $birth.partner isnot "Alex")>>
+				<<set _mouthaction["Ask for"] to "ask">>
+				<<set _askActions to {"Nothing":"rest"}>>
+				<<if $birth.epidural is 0>>
+					<<set _askActions["pain relief "+formatMoney(100000)] to "epidural">>
+				<</if>>
+				<<if $birth.calledPartner is 0 and $birth.partner isnot "Alex">>
+					<<set _askActions["Alex"] to "callpartner">>
+				<</if>>
+			<</if>>
+		<<case "bedroom">>
+			<<if $birth.epidural is 0 and $birth.partner is "Robin">>
+				<<set _mouthaction["Ask for"] to "ask">>
+				<<set _askActions to {"Nothing":"rest"}>>
+				<<set _askActions["pain relief"] to "epidural">>
+			<</if>>
+		<</switch>>
+	<<case "orgasm">>
+		<<set _mouthaction["Moan"] to "mouthmoan">>
+	<<case "pain">>
+		<<set _mouthaction["Whimper"] to "rest">>
+		<<set _mouthaction["Scream"] to "mouthgroanweak">>
+	<<case "unreal">>
+		<<set _mouthaction["Hum"] to "rest">>
+	<</switch>>
+<</widget>>
+
+<<widget "vaginaActionInitChildbirth">>
+	<<set $vaginatarget to "birth">>
+	<<if $orgasmdown gte 1>>
+		<<set _vaginaOptions to "orgasm">>
+		<span class="lewd">You moan in orgasm despite giving birth.</span>
+	<<elseif $pain gte 100 and $willpowerpain is 0>>
+		<<set _vaginaOptions to "pain">>
+		<span class="red">You cry out in overwhelming pain.</span>
+	<<elseif $dissociation gte 2>>
+		<<set _vaginaOptions to "unreal">>
+		<span class="pink">You moan reflexively in pain, but you don't acknowledge reality.</span>
+	<<else>>
+		<<set _vaginaOptions to "free">>
+		<span @class="($lastOptions.vagina isnot _vaginaOptions ?'gold':'')">Your vagina is free.</span>
+	<</if>>
+	<<vaginaActionsChildbirth>>
+	<<if Object.keys(_vaginaaction).length gt 0>>
+		<<if !(Object.values(_vaginaaction).includes($vaginaactiondefault))>>
+			<<set $vaginaactiondefault to "rest">>
+		<</if>>
+		<<set $vaginaaction to $vaginaactiondefault>>
+		<div class="extraMargin">
+			<<generateCombatAction _vaginaaction "vaginaaction" "Childbirth">>
+		</div>
+		<<if $options.combatControls.includes("ists")>>
+			<div id="vaginaactionDifficultyChildbirth">
+				<<vaginaactionDifficultyChildbirth>>
+			</div>
+		<</if>>
+	<</if>>
+	<<set $lastOptions.vagina to clone(_vaginaOptions)>>
+<</widget>>
+
+<<widget "vaginaactionDifficultyChildbirth">>
+	<<if _args[0] is undefined>>
+		<<set _diffAction to $vaginaaction>>
+	<<else>>
+		<<set _diffAction to _args[0]>>
+	<</if>>
+	<<if _diffAction is "rest">>
+		<<set _physodds to {}>>
+		<<switch $birth.contractions>>
+		<<case 0>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 1000>>
+		<<case 1>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 2000>>
+		<<case 2>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 3000>>
+		<<case 3>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 4000>>
+		<<case 4>>
+			<<set _physodds["min"] to 2000>>
+			<<set _physodds["max"] to 6000>>
+		<<case 5>>
+			<<set _physodds["min"] to 4000>>
+			<<set _physodds["max"] to 8000>>
+		<<case 6>>
+			<<set _physodds["min"] to 6000>>
+			<<set _physodds["max"] to 10000>>
+		<<default>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 1000>>
+		<</switch>>
+		<<set $birth.pelvisdifficulty to Math.round(Math.clamp(currentSkillValue('physique') - _physodds.min, 0, _physodds.max) / (_physodds.max - _physodds.min) * 100)>>
+		<<if $birth.pelvisdifficulty gte 100>>
+			<span class="green">(Very Easy)</span>
+		<<elseif $birth.pelvisdifficulty gte 80>>
+			<span class="teal">(Easy)</span>
+		<<elseif $birth.pelvisdifficulty gte 60>>
+			<span class="lblue">(Medium)</span>
+		<<elseif $birth.pelvisdifficulty gte 40>>
+			<span class="blue">(Challenging)</span>
+		<<elseif $birth.pelvisdifficulty gte 20>>
+			<span class="purple">(Hard)</span>
+		<<elseif $birth.pelvisdifficulty gte 1>>
+			<span class="pink">(Very Hard)</span>
+		<<else>>
+			<span class="red">(Impossible)</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "vaginaActionsChildbirth">>
+	<<set _vaginaaction to {}>>
+	<<switch _vaginaOptions>>
+	<<case "free">>
+		<<set _vaginaaction["Rest"] to "rest">>
+		<<if $birth.stage gte 5 and $birth.pushurge gte ($birth.waveCeiling - 20)>>
+			<<set _vaginaaction["Push"] to "birthpush">>
+		<</if>>
+		<<if $birth.stage gte 5 and $birth.pushurge gte ($birth.waveCeiling - 20)>>
+			<<set _vaginaaction["Resist pushing"] to "birthresist">>
+		<</if>>
+	<<case "orgasm">>
+		<<set _vaginaaction["Convulse"] to "birthpushweak">>
+	<<case "pain">>
+		<<set _vaginaaction["Convulse"] to "birthpushweak">>
+	<<case "unreal">>
+		<<set _vaginaaction["Disregard"] to "birthpush">>
+	<</switch>>
+<</widget>>
+
+<<widget "anusActionInitChildbirth">>
+	<<set $anustarget to "birth">>
+	<<if $orgasmdown gte 1>>
+		<<set _anusOptions to "orgasm">>
+		<span class="lewd">You moan in orgasm despite giving birth.</span>
+	<<elseif $pain gte 100 and $willpowerpain is 0>>
+		<<set _anusOptions to "pain">>
+		<span class="red">You cry out in overwhelming pain.</span>
+	<<elseif $dissociation gte 2>>
+		<<set _anusOptions to "unreal">>
+		<span class="pink">You moan reflexively in pain, but you don't acknowledge reality.</span>
+	<<else>>
+		<<set _anusOptions to "free">>
+		<span @class="($lastOptions.anus isnot _anusOptions ?'gold':'')">Your anus is free.</span>
+	<</if>>
+	<<anusActionsChildbirth>>
+	<<if Object.keys(_anusaction).length gt 0>>
+		<<if !(Object.values(_anusaction).includes($anusactiondefault))>>
+			<<set $anusactiondefault to "rest">>
+		<</if>>
+		<<set $anusaction to $anusactiondefault>>
+		<div class="extraMargin">
+			<<generateCombatAction _anusaction "anusaction" "Childbirth">>
+		</div>
+		<<if $options.combatControls.includes("ists")>>
+			<div id="anusactionDifficultyChildbirth">
+				<<anusactionDifficultyChildbirth>>
+			</div>
+		<</if>>
+	<</if>>
+	<<set $lastOptions.anus to clone(_anusOptions)>>
+<</widget>>
+
+<!--WIP figure out difficulties-->
+<<widget "anusactionDifficultyChildbirth">>
+	<<if _args[0] is undefined>>
+		<<set _diffAction to $anusaction>>
+	<<else>>
+		<<set _diffAction to _args[0]>>
+	<</if>>
+	<<if _diffAction is "rest">>
+		<<set _physodds to {}>>
+		<<switch $birth.contractions>>
+		<<case 0>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 1000>>
+		<<case 1>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 2000>>
+		<<case 2>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 3000>>
+		<<case 3>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 4000>>
+		<<case 4>>
+			<<set _physodds["min"] to 2000>>
+			<<set _physodds["max"] to 6000>>
+		<<case 5>>
+			<<set _physodds["min"] to 4000>>
+			<<set _physodds["max"] to 8000>>
+		<<case 6>>
+			<<set _physodds["min"] to 6000>>
+			<<set _physodds["max"] to 10000>>
+		<<default>>
+			<<set _physodds["min"] to 1>>
+			<<set _physodds["max"] to 1000>>
+		<</switch>>
+		<<set $birth.pelvisdifficulty to Math.round(Math.clamp(currentSkillValue('physique') - _physodds.min, 0, _physodds.max) / (_physodds.max - _physodds.min) * 100)>>
+		<<if $birth.pelvisdifficulty gte 100>>
+			<span class="green">(Very Easy)</span>
+		<<elseif $birth.pelvisdifficulty gte 80>>
+			<span class="teal">(Easy)</span>
+		<<elseif $birth.pelvisdifficulty gte 60>>
+			<span class="lblue">(Medium)</span>
+		<<elseif $birth.pelvisdifficulty gte 40>>
+			<span class="blue">(Challenging)</span>
+		<<elseif $birth.pelvisdifficulty gte 20>>
+			<span class="purple">(Hard)</span>
+		<<elseif $birth.pelvisdifficulty gte 1>>
+			<span class="pink">(Very Hard)</span>
+		<<else>>
+			<span class="red">(Impossible)</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "anusActionsChildbirth">>
+	<<set _anusaction to {}>>
+	<<switch _anusOptions>>
+	<<case "free">>
+		<<set _anusaction["Rest"] to "rest">>
+		<<if $birth.stage gte 5 and $birth.pushurge gte ($birth.waveCeiling - 20)>>
+			<<set _anusaction["Push"] to "birthpush">>
+		<</if>>
+		<<if $birth.stage gte 5 and $birth.pushurge gte ($birth.waveCeiling - 20)>>
+			<<set _anusaction["Resist pushing"] to "birthresist">>
+		<</if>>
+	<<case "orgasm">>
+		<<set _anusaction["Convulse"] to "birthpushweak">>
+	<<case "pain">>
+		<<set _anusaction["Convulse"] to "birthpushweak">>
+	<<case "unreal">>
+		<<set _anusaction["Disregard"] to "birthpush">>
+	<</switch>>
+<</widget>>
+
+
+:: Widgets Childbirth [widget]
+<<widget "Childbirth">>
+	<!--debug input here-->
+
+	<<rng>>
+	<!-- Birth progress varies each turn to keep early labour from feeling like a fixed press-next loop. -->
+	<<set $birth.progressrng to random(70, 130) / 100>>
+	<!-- This section describes the role of the doctor (Harper, Gwylan, methodical guard, none) -->
+	<<if $birth.stagechange is 1>>
+		<<set $birth.stagechange to 0>>
+		<<if ["bedroom","prison","asylum"].contains($birth.location)>>
+			<<printprompt setup.birthPrompts.stageInitial[$birth.location][$birth.type][$birth.stage-1]>>
+		<<else>>
+			<<printprompt setup.birthPrompts.stageInitial[$birth.location][$birth.type][$birth.stage-1]>>
+		<</if>>
+	<<elseif $birth.stagechange is 2>>
+		<<set $birth.stagechange to 0>>
+		<<printprompt setup.birthPrompts.stageInitial[$birth.location][$birth.type][8]>>
+	<</if>>
+	<<printprompt setup.birthPrompts.stage[$birth.location][$birth.type][$birth.stage-1]>>
+	<br>
+
+	<!-- This section determines how much movement the baby is making-->
+	<!--WIP adjust percent chances-->
+	<<if $birth.type is "hawk">>
+		<<set $birth.fetusmovement to 0>>
+	<<else>>
+		<<rng>>
+		<<if $birth.fetuscount - $birth.delivered gt 0>>
+			<<set $rng += ($birth.fetuscount - $birth.delivered) * 5>>
+		<</if>>
+		<<if $rng lte $birth.movementodds[$birth.stage-1][0]>>
+			<<set $birth.fetusmovement to 0>>
+			<span class="green">
+			<<print setup.birthPrompts.movement[0][either(0,1)]>>
+			</span>
+		<<elseif $rng lte $birth.movementodds[$birth.stage-1][1]>>
+			<<set $birth.fetusmovement to 1>>
+			<span class="teal">
+			<<print setup.birthPrompts.movement[1][either(0,1)]>>
+			</span>
+		<<elseif $rng lte $birth.movementodds[$birth.stage-1][2]>>
+			<<set $birth.fetusmovement to 2>>
+			<span class="lblue">
+			<<print setup.birthPrompts.movement[2][either(0,1)]>>
+			</span>
+		<<elseif $rng lte $birth.movementodds[$birth.stage-1][3]>>
+			<<set $birth.fetusmovement to 3>>
+			<span class="blue">
+			<<print setup.birthPrompts.movement[3][either(0,1)]>>
+			</span>
+		<<elseif $rng lte $birth.movementodds[$birth.stage-1][4]>>
+			<<set $birth.fetusmovement to 4>>
+			<span class="purple">
+			<<print setup.birthPrompts.movement[4][either(0,1)]>>
+			</span>
+		<<elseif $rng lte $birth.movementodds[$birth.stage-1][5]>>
+			<<set $birth.fetusmovement to 5>>
+			<span class="pink">
+			<<print setup.birthPrompts.movement[5][either(0,1)]>>
+			</span>
+		<<elseif $rng lte $birth.movementodds[$birth.stage-1][6]>>
+			<<set $birth.fetusmovement to 6>>
+			<span class="red">
+			<<print setup.birthPrompts.movement[6][either(0,1)]>>
+			</span>
+		<<else>>
+			<<set $birth.fetusmovement to 0>>
+			<span class="green">
+			<<print setup.birthPrompts.movement[7][0]>>
+			</span>
+		<</if>>
+	<</if>>
+
+	<!-- This section determines contraction values-->
+	<!-- WIP adjust frequency of events-->
+	<<switch $birth.stage>>
+	<<case 1>>
+		<<set _contractionOdds to [85,60]>>
+		<<set _contractionResults to [2,1,0]>>
+	<<case 2>>
+		<<set _contractionOdds to [65,45]>>
+		<<set _contractionResults to [2,1,0]>>
+	<<case 3>>
+		<<set _contractionOdds to [55,35]>>
+		<<set _contractionResults to [4,3,1]>>
+	<<case 4>>
+		<<set _contractionOdds to [60,35]>>
+		<<set _contractionResults to [6,4,2]>>
+	<<case 5>>
+		<<set _contractionOdds to [55,35]>>
+		<<set _contractionResults to [5,3,2]>>
+	<<case 6>>
+		<<set _contractionOdds to [80,60]>>
+		<<set _contractionResults to [5,3,2]>>
+	<<case 7>>
+		<<set _contractionOdds to [85,65]>>
+		<<set _contractionResults to [6,4,2]>>
+	<<case 8>>
+		<<set _contractionOdds to [0,0]>>
+		<<set _contractionResults to [0,0,0]>>
+	<<case 9>>
+		<<set _contractionOdds to [0,0]>>
+		<<set _contractionResults to [0,0,0]>>
+	<<default>>
+		<<set _contractionOdds to [0,0]>>
+		<<set _contractionResults to [0,0,0]>>
+	<</switch>>
+	<<rng>>
+	<<if $rng gte _contractionOdds[0]>>
+		<<set $birth.contractions to _contractionResults[0]>>
+		<<set _contractionprompt to 0>>
+	<<elseif $rng gte _contractionOdds[1]>>
+		<<set $birth.contractions to _contractionResults[1]>>
+		<<set _contractionprompt to 1>>
+	<<else>>
+		<<set $birth.contractions to _contractionResults[2]>>
+		<<set _contractionprompt to 2>>
+	<</if>>
+	<<switch $birth.contractions>>
+	<<case 0>>
+		<span class="green">
+		<<print setup.birthPrompts.contractions[$birth.type][$birth.stage-1][_contractionprompt]>>
+		</span>
+	<<case 1>>
+		<span class="teal">
+		<<print setup.birthPrompts.contractions[$birth.type][$birth.stage-1][_contractionprompt]>>
+		</span>
+	<<case 2>>
+		<span class="lblue">
+		<<print setup.birthPrompts.contractions[$birth.type][$birth.stage-1][_contractionprompt]>>
+		</span>
+	<<case 3>>
+		<span class="blue">
+		<<print setup.birthPrompts.contractions[$birth.type][$birth.stage-1][_contractionprompt]>>
+		</span>
+	<<case 4>>
+		<span class="purple">
+		<<print setup.birthPrompts.contractions[$birth.type][$birth.stage-1][_contractionprompt]>>
+		</span>
+	<<case 5>>
+		<span class="pink">
+		<<print setup.birthPrompts.contractions[$birth.type][$birth.stage-1][_contractionprompt]>>
+		</span>
+	<<default>>
+		<span class="red">
+		<<print setup.birthPrompts.contractions[$birth.type][$birth.stage-1][_contractionprompt]>>
+		</span>
+	<</switch>>
+	
+	<br><br>
+
+	<<if $arousal gte $arousalmax and $orgasmdown lte 0 and $birth.stage gte 7>>
+		<<orgasm>>
+		<<if !_tagsToUpdate.includes("orgasm")>><<set _tagsToUpdate.push("orgasm")>><</if>>
+	<<elseif ($birth.filters.dynamic["orgasm"] isnot undefined) and ($birth.filters.dynamic["orgasm"] is 0) and $orgasmdown lte 0>>
+		<<if !_tagsToUpdate.includes("orgasm")>><<set _tagsToUpdate.push("orgasm")>><</if>>
+	<</if>>
+<</widget>>
+
+:: Widgets Childbirth Actions [widget]
+<<widget "childbirthactions">>
+	<<animateCombat>>
+	<<willpowerpain>>
+	<<willpowerorgasm>>
+	<<combatstate>>
+	<<generateActionsChildbirth>>
+	<br>
+<</widget>>
+
+
+<<widget "updatePushUrge">>
+	<<if $birth.pushurge is undefined>>
+		<<set $birth.pushurge to 0>>
+	<</if>>
+	<<if $birth.waveCeiling is undefined>>
+		<<set $birth.waveCeiling to 25>>
+	<<elseif $birth.waveCeiling is 40 and ($birth.waveCount is undefined or $birth.waveCount is 0)>>
+		<<set $birth.waveCeiling to 25>>
+	<</if>>
+	<<if $birth.waveCount is undefined>>
+		<<set $birth.waveCount to 0>>
+	<</if>>
+	<<if $birth.totalWaveCount is undefined>>
+		<<set $birth.totalWaveCount to $birth.waveCount>>
+	<</if>>
+	<<if $birth.stageWaveCount is undefined>>
+		<<set $birth.stageWaveCount to 0>>
+	<</if>>
+	<<if $birth.stage lt 5 or $birth.stage is 9 or $birth.stage is 10>>
+		<<set $birth.pushurge to 0>>
+	<<else>>
+		<<set _stagePressure to Math.max(0, $birth.stage - 5)>>
+		<<set _pushUrgeClimbRate to 6 + (_stagePressure * 3) + Math.floor($birth.pace / 25)>>
+		<<set $birth.pushurge to Math.clamp($birth.pushurge + _pushUrgeClimbRate, 0, 100)>>
+		<<if $birth.genital is "vagina">>
+			<<set _currentPelvisChoice to $vaginaaction>>
+			<!-- This is the only childbirth-urge override for player input. It forces a push only when the urge peaks. -->
+			<<if $birth.pushurge gte 100 and !["birthpush","birthpushweak"].includes(_currentPelvisChoice)>>
+				<<set $vaginaaction to "birthpush">>
+			<</if>>
+		<<else>>
+			<<set _currentPelvisChoice to $anusaction>>
+			<!-- This is the only childbirth-urge override for player input. It forces a push only when the urge peaks. -->
+			<<if $birth.pushurge gte 100 and !["birthpush","birthpushweak"].includes(_currentPelvisChoice)>>
+				<<set $anusaction to "birthpush">>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+
+
+<<widget "birthStats">>
+	<<if $painmax is undefined>><<set $painmax to 200>><</if>>
+	<<if $tirednessmax is undefined>><<set $tirednessmax to 1000>><</if>>
+	<<if $stressmax is undefined>><<set $stressmax to 10000>><</if>>
+	<<set $pain to Math.min(Number($painmax) || 200, Math.max(0, Number($pain) || 0))>>
+	<<set $tiredness to Math.min(Number($tirednessmax) || 1000, Math.max(0, Number($tiredness) || 0))>>
+	<<set $stress to Math.min(Number($stressmax) || 10000, Math.max(0, Number($stress) || 0))>>
+<</widget>>
+
+<<widget "birthApplyStat">>
+	<<set _birthStatName to _args[0]>>
+	<<set _birthStatAmount to Math.round(Number(_args[1]) || 0)>>
+	<<if _birthStatAmount isnot 0>>
+		<<switch _birthStatName>>
+		<<case "pain">>
+			<<pain _birthStatAmount>>
+			<<if _birthStatAmount gt 0>>
+				<<if _birthStatAmount gte 7>><<gggpain>><<elseif _birthStatAmount gte 4>><<ggpain>><<else>><<gpain>><</if>>
+			<<else>>
+				<<if _birthStatAmount lte -7>><<lllpain>><<elseif _birthStatAmount lte -4>><<llpain>><<else>><<lpain>><</if>>
+			<</if>>
+		<<case "tiredness">>
+			<<tiredness _birthStatAmount>>
+			<<if _birthStatAmount gt 0>>
+				<<if _birthStatAmount gte 9>><<gggtiredness>><<elseif _birthStatAmount gte 5>><<ggtiredness>><<else>><<gtiredness>><</if>>
+			<<else>>
+				<<if _birthStatAmount lte -9>><<llltiredness>><<elseif _birthStatAmount lte -5>><<lltiredness>><<else>><<ltiredness>><</if>>
+			<</if>>
+		<<case "stress">>
+			<<stress _birthStatAmount>>
+			<<if _birthStatAmount gt 0>>
+				<<if _birthStatAmount gte 7>><<gggstress>><<elseif _birthStatAmount gte 4>><<ggstress>><<else>><<gstress>><</if>>
+			<<else>>
+				<<if _birthStatAmount lte -7>><<lllstress>><<elseif _birthStatAmount lte -4>><<llstress>><<else>><<lstress>><</if>>
+			<</if>>
+		<</switch>>
+	<</if>>
+	<<birthStats>>
+<</widget>>
+
+:: Widgets Childbirth Effects [widget]
+<<widget "childbirtheffects">>
+	<!-- Contract: call this once per turn. It advances push-urge and labour wave counters. -->
+	<<set _tagsToUpdate to []>>
+	<<rng>>
+	<<effectspain>>
+	<<effectsorgasm>>
+	<<effectsdissociation>>
+	<<birthStats>>
+	<<set _pain to 0>>
+	<<set _tiredness to 0>>
+	<<set _stress to 0>>
+	<<set _progress to 0>>
+	<<set _birthStageAtStart to $birth.stage>>
+	<<if $birth.pace is undefined>>
+		<<set $birth.pace to 0>>
+	<</if>>
+	<<if $birth.pushurge is undefined>>
+		<<set $birth.pushurge to 0>>
+	<</if>>
+	<<if $birth.waveCeiling is undefined>>
+		<<set $birth.waveCeiling to 25>>
+	<<elseif $birth.waveCeiling is 40 and ($birth.waveCount is undefined or $birth.waveCount is 0)>>
+		<<set $birth.waveCeiling to 25>>
+	<</if>>
+	<<if $birth.waveCount is undefined>>
+		<<set $birth.waveCount to 0>>
+	<</if>>
+	<<if $birth.totalWaveCount is undefined>>
+		<<set $birth.totalWaveCount to $birth.waveCount>>
+	<</if>>
+	<<if $birth.stageWaveCount is undefined>>
+		<<set $birth.stageWaveCount to 0>>
+	<</if>>
+	<<set _pushUrgeBucketAtStart to Math.floor($birth.pushurge / 25)>>
+	<<set _waveCountAtStart to $birth.waveCount>>
+	<<set _totalWaveCountAtStart to $birth.totalWaveCount>>
+	<<set _stageWaveCountAtStart to $birth.stageWaveCount>>
+	<<if $birth.filters isnot undefined and $birth.filters.dynamic isnot undefined>>
+		<<if $birth.filters.dynamic["PushUrge"] is undefined>>
+			<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+		<</if>>
+		<<if $birth.filters.dynamic["WaveCount"] is undefined>>
+			<<if !_tagsToUpdate.includes("WaveCount")>><<set _tagsToUpdate.push("WaveCount")>><</if>>
+		<</if>>
+		<<if $birth.filters.dynamic["TotalWaveCount"] is undefined>>
+			<<if !_tagsToUpdate.includes("TotalWaveCount")>><<set _tagsToUpdate.push("TotalWaveCount")>><</if>>
+		<</if>>
+		<<if $birth.filters.dynamic["StageWaveCount"] is undefined>>
+			<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+		<</if>>
+	<</if>>
+	<<updatePushUrge>>
+	<<if _pushUrgeBucketAtStart isnot Math.floor($birth.pushurge / 25)>>
+		<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+	<</if>>
+	<<if _waveCountAtStart isnot $birth.waveCount>>
+		<<if !_tagsToUpdate.includes("WaveCount")>><<set _tagsToUpdate.push("WaveCount")>><</if>>
+	<</if>>
+	<<if _totalWaveCountAtStart isnot $birth.totalWaveCount>>
+		<<if !_tagsToUpdate.includes("TotalWaveCount")>><<set _tagsToUpdate.push("TotalWaveCount")>><</if>>
+	<</if>>
+	<<if _stageWaveCountAtStart isnot $birth.stageWaveCount>>
+		<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+	<</if>>
+	<<if $birth.stage is 10>>
+		<<printprompt setup.birthPrompts["mouthaction"]["finished"]>>
+		<<set $mouthaction to 0>><<set $mouthactiondefault to "rest">>
+	<<else>>
+		<<switch $mouthaction>>
+		<<case "mouthgroan">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "mouthgroan">>
+			<<printpromptvariant setup.birthPrompts.mouthaction["groan"] "mouthaction.groan">>
+			<<set _pain += 5>>
+			<<set _stress += 1>>
+			<<set _progress += 5>>
+		<<case "mouthgroanweak">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "mouthgroanweak">>
+			<<printprompt setup.birthPrompts.mouthaction["groanWeak"]>>
+			<<set _pain -= 1>>
+			<<set _stress -= 1>>
+			<<set _progress += 2>>
+		<<case "mouthmoan">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "mouthmoan">>
+			<<printprompt setup.birthPrompts.mouthaction["moan"]>>
+			<<set _pain += 5>>
+			<<set _stress += 1>>
+			<<set _progress += 2>>
+		<<case "ask">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "rest">>
+			<<if $askAction is "epidural">>
+				<<if !_tagsToUpdate.includes("epidural")>><<set _tagsToUpdate.push("epidural")>><</if>>
+				<<switch $birth.location>>
+				<<case "hospital" "asylum">>
+					<<if $money gte 100000>>
+						<<if $birth.stage gte 5>>
+							<<set $birth.epidural to 1>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralHospitalTooLate"]>>
+							<br>
+						<<else>>
+							<<set $money -= 100000>>
+							<<set $birth.epidural to 11>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralHospitalSuccess"]>>
+							<br>
+						<</if>>
+					<<else>>
+						<<set $birth.epidural to 2>>
+						<<printprompt setup.birthPrompts.mouthaction["askEpiduralHospitalTooExpensive"]>>
+						<br>
+					<</if>>
+				<<case "prison">>
+					<!--PC is given pain relief before the encounter-->
+				<<case "tower">>
+					<!--shouldn't happen, birds don't have painkillers-->
+				<<case "bedroom">>
+					<!--Robin's confidence: if low, fail; if high, fetches acetaminophen-->
+					<<if C.npc.Robin.dom gte 60>>
+						<<set $birth.epidural to 11>>
+						<<printprompt setup.birthPrompts.mouthaction["askEpiduralBedroomSuccess"]>>
+						<br>
+					<<else>>
+						<<set $birth.epidural to 1>>
+						<<printprompt setup.birthPrompts.mouthaction["askEpiduralBedroomFail"]>>
+						<br>
+					<</if>>
+				<<case "cottage">>
+					<<if $money gte 100000>>
+						<<if $birth.stage gte 5>>
+							<<set $birth.epidural to 1>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralCottageTooLate"]>>
+							<br>
+						<<else>>
+							<<set $money -= 100000>>
+							<<set $birth.epidural to 11>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralCottageSuccess"]>>
+							<br>
+						<</if>>
+					<<else>>
+						<<set $birth.epidural to 2>>
+						<<printprompt setup.birthPrompts.mouthaction["askEpiduralCottageTooExpensive"]>>
+						<br>
+					<</if>>
+				<<case "wolf cave">>
+					<<if $birth.partner isnot "Alone">>
+						<<if $monster is 1>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralWolfCaveHallucinate"]>>
+						<<else>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralWolfCave"]>>
+						<</if>>
+						<<if random(0,1) is 1>>
+							<<set $birth.epidural to 31>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralWolfCaveSuccess"]>>
+							<br>
+						<<else>>
+							<<set $birth.epidural to 3>>
+							<<if !_tagsToUpdate.includes("epidural")>><<set _tagsToUpdate.push("epidural")>><</if>>
+							<<printprompt setup.birthPrompts.mouthaction["askEpiduralWolfCaveFail"]>>
+							<br>
+						<</if>>
+					<</if>>
+				<</switch>>
+			<<elseif $askAction is "callpartner">>
+				<<if !_tagsToUpdate.includes("partner")>><<set _tagsToUpdate.push("partner")>><</if>>
+				<<switch $birth.location>>
+				<<case "hospital">>
+					<<if $birth.inlobby isnot "">>
+						<<printprompt setup.birthPrompts.mouthaction["askPartnerHospitalSuccess"]>>
+						<br>
+						<<set $birth.calledPartner to 5>>
+					<<else>>
+						<<printprompt setup.birthPrompts.mouthaction["askPartnerHospitalFail"]>>
+						<br>
+						<<set $birth.calledPartner to 1>>
+					<</if>>
+				<<case "asylum">>
+					<!--shouldn't happen, you call at the start-->
+					<<set $birth.calledPartner to 1>>
+				<<case "bedroom">>
+					<!--always fails, Robin/Kylar isn't leaving your side during egg laying-->
+					<<printprompt setup.birthPrompts.mouthaction["askPartnerBedroomFail"]>>
+					<br>
+					<<set $birth.calledPartner to 1>>
+				<<case "tower">>
+					<!--shouldn't happen, egg laying, greathawk is the father-->
+					<<set $birth.calledPartner to 1>>
+				<<case "wolf cave">>
+					<<if $birth.partner is "Black Wolf">>
+						<<if $monster is 1>>
+							<<printprompt setup.birthPrompts.mouthaction["askPartnerWolfCaveHallucinate"]>>
+							<br>
+						<<else>>
+							<<printprompt setup.birthPrompts.mouthaction["askPartnerWolfCave"]>>
+							<br>
+						<</if>>
+					<</if>>
+					<<set $birth.calledPartner to 5>>
+				<<case "prison">>
+					<<if $birth.inlobby is "Kylar">>
+						<<printprompt setup.birthPrompts.mouthaction["askPartnerPrisonSuccess"]>>
+						<br>
+						<<set $birth.calledPartner to 6>>
+					<<else>>
+						<<printprompt setup.birthPrompts.mouthaction["askPartnerPrisonFail"]>>
+						<br>
+						<<set $birth.calledPartner to 1>>
+					<</if>>
+				<<case "cottage">>
+					<<if $birth.inlobby is "Alex" and $birth.father is "Alex">>
+						<<printprompt setup.birthPrompts.mouthaction["askPartnerCottageSuccess"]>>
+						<br>
+						<<set $birth.calledPartner to 3>>
+					<<else>>
+						<<printprompt setup.birthPrompts.mouthaction["askPartnerCottageFail"]>>
+						<br>
+						<<set $birth.calledPartner to 1>>
+					<</if>>
+				<</switch>>
+			<</if>>
+		<<default>>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "rest">>
+			<<rng>>
+			<<if $birth.mouthdifficulty lte $rng>>
+				<<printpromptvariant setup.birthPrompts["mouthaction"]["restFail"] "mouthaction.restFail">>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 4>>
+					<<set _tiredness -= 1>>
+					<<set _stress -= 1>>
+				<<else>>
+					<<set _pain += 4>>
+					<<set _stress += 1>>
+				<</if>>
+				<<set _progress += 2>>
+			<<else>>
+				<<printpromptvariant setup.birthPrompts["mouthaction"]["restSuccess"] "mouthaction.restSuccess">>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 8>>
+					<<set _tiredness -= 2>>
+					<<set _stress -= 2>>
+				<<else>>
+					<<set _pain -= 1>>
+				<</if>>
+			<</if>>	
+		<</switch>>
+	<</if>>
+
+	<<switch $birth.location>>
+	<<case "hospital" "asylum">>
+		<<if ["Alone",""].contains($birth.partner)>>
+			<<set _lefttarget to "Rail">>
+		<<else>>
+			<<set _lefttarget to "Partner">>
+		<</if>>
+		<<set _righttarget to "Bedsheets">>
+	<<case "wolf cave" "tower">>
+		<<set _lefttarget to "Outside">>
+		<<set _righttarget to "Outside">>
+	<<case "cottage" "bedroom" "prison">>
+		<<if ["Alone",""].contains($birth.partner)>>
+			<<set _lefttarget to "Bedsheets">>
+		<<else>>
+			<<set _lefttarget to "Partner">>
+		<</if>>
+		<<set _righttarget to "Bedsheets">>
+	<</switch>>
+	<<if $birth.stage is 10>>
+		<<printprompt setup.birthPrompts.leftaction["finished"]>>
+	<<else>>
+		<<rng>>
+		<<switch $leftaction>>
+		<<case "leftgrasp">>
+			<<set $leftaction to 0>><<set $leftactiondefault to "leftgrasp">>
+			<<printprompt setup.birthPrompts.leftaction["grasp"+_lefttarget]>>
+			<<set _pain += 2>>
+			<<set _stress += 1>>
+			<<set _progress += 4>>
+		<<case "leftgraspweak">>
+			<<set $leftaction to 0>><<set $leftactiondefault to "leftgraspweak">>
+			<<printprompt setup.birthPrompts.leftaction["graspWeak"+_lefttarget]>>
+			<<set _pain += 2>>
+			<<set _stress += 1>>
+			<<set _progress += 4>>
+		<<case "leftfold">>
+			<<set $leftaction to 0>><<set $leftactiondefault to "leftfold">>
+			<<printprompt setup.birthPrompts.leftaction["fold"+_lefttarget]>>
+			<<set _pain += 2>>
+			<<set _stress += 1>>
+			<<set _progress += 4>>
+		<<case "rest">>
+			<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
+			<<if $birth.leftdifficulty lte $rng>>
+				<<printpromptvariant setup.birthPrompts.leftaction["restFail"] "leftaction.restFail">>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 2>>
+					<<set _tiredness -= 1>>
+					<<set _stress -= 1>>
+				<<else>>
+					<<set _pain += 2>>
+					<<set _stress += 1>>
+				<</if>>
+				<<set _progress += 4>>
+			<<else>>
+				<<printpromptvariant setup.birthPrompts.leftaction["restSuccess"] "leftaction.restSuccess">>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 4>>
+					<<set _tiredness -= 1>>
+					<<set _stress -= 1>>
+				<<else>>
+					<<set _pain -= 1>>
+				<</if>>
+			<</if>>
+		<</switch>>
+		<<rng>>
+		<<switch $rightaction>>
+		<<case "rightgrasp">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "rightgrasp">>
+			<<printprompt setup.birthPrompts.rightaction["grasp"+_righttarget]>>
+			<<set _pain += 2>>
+			<<set _stress += 1>>
+			<<set _progress += 4>>
+		<<case "rightgraspweak">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "rightgraspweak">>
+			<<printprompt setup.birthPrompts.rightaction["graspWeak"+_righttarget]>>
+			<<set _pain += 2>>
+			<<set _stress += 1>>
+			<<set _progress += 4>>
+		<<case "rightfold">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "rightfold">>
+			<<printprompt setup.birthPrompts.rightaction["fold"+_righttarget]>>
+			<<set _pain += 2>>
+			<<set _stress += 1>>
+			<<set _progress += 4>>
+		<<case "rest">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
+			<<if $birth.rightdifficulty lte $rng>>
+				<<printpromptvariant setup.birthPrompts.rightaction["restFail"] "rightaction.restFail">>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 2>>
+					<<set _tiredness -= 1>>
+					<<set _stress -= 1>>
+				<<else>>
+					<<set _pain += 2>>
+					<<set _stress += 1>>
+				<</if>>
+				<<set _progress += 4>>
+			<<else>>
+				<<printpromptvariant setup.birthPrompts.rightaction["restSuccess"] "rightaction.restSuccess">>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 4>>
+					<<set _tiredness -= 1>>
+					<<set _stress -= 1>>
+				<<else>>
+					<<set _pain -= 1>>
+				<</if>>
+			<</if>>
+		<</switch>>
+
+	<</if>>
+
+	<<if $birth.stage is 10>>
+		<<printprompt setup.birthPrompts.pelvisaction["finished"]>>
+	<<else>>
+		<<if $birth.genital is "vagina">>
+			<<set _pelvisaction to $vaginaaction>>
+			<<set $vaginaactiondefault to $vaginaaction>>
+			<<set $vaginaaction to 0>>
+		<<else>>
+			<<set _pelvisaction to $anusaction>>
+			<<set $anusactiondefault to $anusaction>>
+			<<set $anusaction to 0>>
+		<</if>>
+		<<switch _pelvisaction>>
+		<<case "birthpush">>
+			<<printpromptvariant setup.birthPrompts.pelvisaction["push"] "pelvisaction.push">>
+			<<set _progress += 20>>
+			<<set _pain += 7>>
+			<<set _tiredness += 8>>
+			<<set _stress += 1>>
+			<<set $birth.pace to Math.clamp($birth.pace + 20, 0, 100)>>
+			<<set $birth.pushurge to Math.max(0, $birth.pushurge - 60)>>
+			<<set $birth.stageWaveCount += 1>>
+			<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+			<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+		<<case "birthpushweak">>
+			<<printprompt setup.birthPrompts.pelvisaction["pushWeak"]>>
+			<<set _progress += 15>>
+			<<set _pain += 5>>
+			<<set _tiredness += 7>>
+			<<set _stress += 1>>
+			<<set $birth.pace to Math.clamp($birth.pace + 10, 0, 100)>>
+			<<set $birth.pushurge to Math.max(0, $birth.pushurge - 40)>>
+			<<set $birth.stageWaveCount += 1>>
+			<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+			<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+		<<case "birthresist">>
+			<<set _priorBirths to 0>>
+			<<if playerIsPregnant()>>
+				<<set _birthPregnancy to getPregnancyObject()>>
+				<<if _birthPregnancy.totalBirthEvents isnot undefined>>
+					<<set _priorBirths to _birthPregnancy.totalBirthEvents>>
+				<</if>>
+			<</if>>
+			<<set _priorBirthBonus to Math.min(30, _priorBirths * 5)>>
+			<<set _resistChance to Math.clamp(Math.floor(currentSkillValue('willpower') / 10) + _priorBirthBonus - Math.floor($birth.pace / 4), 5, 95)>>
+			<<rng>>
+			<<if $rng lte _resistChance>>
+				<<printprompt setup.birthPrompts.pelvisaction["resistSuccess"]>>
+				<<set $birth.pace to Math.max(0, $birth.pace - 20)>>
+				<<set $birth.pushurge to Math.max(0, $birth.pushurge - 30)>>
+				<<set $birth.waveCeiling to Math.min(100, $birth.waveCeiling + 10)>>
+				<<set $birth.waveCount += 1>>
+				<<set $birth.totalWaveCount += 1>>
+				<<set $birth.stageWaveCount += 1>>
+				<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+				<<if !_tagsToUpdate.includes("WaveCount")>><<set _tagsToUpdate.push("WaveCount")>><</if>>
+				<<if !_tagsToUpdate.includes("TotalWaveCount")>><<set _tagsToUpdate.push("TotalWaveCount")>><</if>>
+				<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+				<<set _progress += 2>>
+				<<set _tiredness += 3>>
+				<<set _stress += 1>>
+			<<else>>
+				<<printprompt setup.birthPrompts.pelvisaction["resistFail"]>>
+				<<set $birth.pace to Math.min(100, $birth.pace + 25)>>
+				<<set $birth.pushurge to Math.max(0, $birth.pushurge - 15)>>
+				<<set $birth.waveCeiling to Math.min(100, $birth.waveCeiling + 15)>>
+				<<set $birth.waveCount += 1>>
+				<<set $birth.totalWaveCount += 1>>
+				<<set $birth.stageWaveCount += 1>>
+				<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+				<<if !_tagsToUpdate.includes("WaveCount")>><<set _tagsToUpdate.push("WaveCount")>><</if>>
+				<<if !_tagsToUpdate.includes("TotalWaveCount")>><<set _tagsToUpdate.push("TotalWaveCount")>><</if>>
+				<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+				<<set _progress += 10>>
+				<<set _pain += 8>>
+				<<set _tiredness += 7>>
+				<<set _stress += 3>>
+			<</if>>
+		<<default>>
+			<!-- Failed pelvic rest means the body bears down despite the attempt, so it advances labour more than a controlled rest. -->
+			<<if $birth.pelvisdifficulty lte $rng>>
+				<<printpromptvariant setup.birthPrompts.pelvisaction["restFail"] "pelvisaction.restFail">>
+				<<set _progress += 15>>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 2>>
+					<<set _tiredness -= 1>>
+					<<set _stress -= 1>>
+				<<else>>
+					<<set _tiredness += 6>>
+					<<set _stress += 1>>
+				<</if>>
+			<<else>>
+				<<printpromptvariant setup.birthPrompts.pelvisaction["restSuccess"] "pelvisaction.restSuccess">>
+				<<set _progress += 10>>
+				<<if _birthStageAtStart lte 4>>
+					<<set _pain -= 6>>
+					<<set _tiredness -= 1>>
+					<<set _stress -= 1>>
+				<<else>>
+					<!-- Late rest prevents extra strain, but should not erase end-of-labour fatigue by itself. -->
+				<</if>>
+			<</if>>
+			<<if $birth.stage gte 5 and $birth.pushurge gte $birth.waveCeiling>>
+				<!-- Resting through a peak can clear the wave. Early rests are a clean recovery, later ones make the next wave harder. -->
+				<<set $birth.pushurge to Math.max(0, $birth.pushurge - 25)>>
+				<<if $birth.waveCount gte 3>>
+					<<set $birth.waveCeiling to Math.min(100, $birth.waveCeiling + 10)>>
+				<</if>>
+				<<set $birth.waveCount += 1>>
+				<<set $birth.totalWaveCount += 1>>
+				<<set $birth.stageWaveCount += 1>>
+				<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+				<<if !_tagsToUpdate.includes("WaveCount")>><<set _tagsToUpdate.push("WaveCount")>><</if>>
+				<<if !_tagsToUpdate.includes("TotalWaveCount")>><<set _tagsToUpdate.push("TotalWaveCount")>><</if>>
+				<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+			<</if>>
+		<</switch>>
+	<</if>>
+	<<if $birth.epidural gt 10>> <!--hospital, cottage, asylum-->
+		<<if $birth.epidural lt 25>>
+			<<set _painrelief to $birth.epidural - 10>>
+			<<set _progressboost to 0>>
+		<<elseif $birth.epidural lt 45>> <!--wolf cave-->
+			<<set _painrelief to 0>>
+			<<set _progressboost to $birth.epidural - 30>>
+		<<else>> <!--prison-->
+			<<set _painrelief to ($birth.epidural - 50)/2>>
+			<<set _progressboost to 0>>
+		<</if>>
+		<<if $birth.epidural % 20 isnot 0>>
+			<<set $birth.epidural +=1>>
+			<<if !_tagsToUpdate.includes("epidural")>><<set _tagsToUpdate.push("epidural")>><</if>>
+		<</if>>
+	<<else>>
+		<<set _painrelief to 0>>
+		<<set _progressboost to 0>>
+	<</if>>
+		
+	<<set $birth.pace to Math.clamp($birth.pace - 5, 0, 100)>>
+	<<set _pain += Math.floor($birth.pace / 10)>>
+	<<if _birthStageAtStart gte 5 and _birthStageAtStart lte 8>>
+		<<set _tiredness += Math.ceil((_birthStageAtStart - 4) / 2)>>
+	<</if>>
+	<<set _birthPainScale to 1>>
+	<<set _birthTirednessScale to 1.5>>
+	<<set _birthStressScale to 1>>
+	<<switch $birth.type>>
+	<<case "wolf">>
+		<<set _birthPainScale to 0.9>>
+		<<set _birthTirednessScale to 1.35>>
+		<<set _birthStressScale to 0.95>>
+	<<case "hawk">>
+		<<set _birthPainScale to 0.75>>
+		<<set _birthTirednessScale to 1.2>>
+		<<set _birthStressScale to 0.85>>
+	<</switch>>
+	<<set _pain to Math.round(((_pain / 5) * _birthPainScale) - _painrelief)>>
+	<<if _pain lt 0>>
+		<<set _pain to Math.clamp(_pain, -6, 0)>>
+	<<else>>
+		<<set _pain to Math.clamp(_pain, 0, 9)>>
+	<</if>>
+	<<if _tiredness lt 0>>
+		<<set _tiredness to Math.clamp(Math.ceil(_tiredness * 0.5), -2, 0)>>
+	<<else>>
+		<<set _tiredness to Math.clamp(Math.round(_tiredness * _birthTirednessScale), 0, 24)>>
+	<</if>>
+	<<if _stress lt 0>>
+		<<set _stress to Math.clamp(Math.ceil(_stress * 0.5), -1, 0)>>
+	<<else>>
+		<<set _stress to Math.clamp(Math.round(_stress * _birthStressScale), 0, 5)>>
+	<</if>>
+	<!-- Birth stat changes are applied once per turn so the feedback stays readable and avoids several g/l icons stacking together. -->
+	<<birthApplyStat "pain" _pain>>
+	<<birthApplyStat "tiredness" _tiredness>>
+	<<birthApplyStat "stress" _stress>>
+	<<if _pain isnot 0>>
+		<<if !_tagsToUpdate.includes("pain")>><<set _tagsToUpdate.push("pain")>><</if>>
+	<</if>>
+	<<if _tiredness isnot 0>>
+		<<if !_tagsToUpdate.includes("fatigue")>><<set _tagsToUpdate.push("fatigue")>><</if>>
+	<</if>>
+	<<if _stress isnot 0>>
+		<<if !_tagsToUpdate.includes("stress")>><<set _tagsToUpdate.push("stress")>><</if>>
+	<</if>>
+	<!--WIP progress rates need to be metered by contractions, fetustype, wolf mushroom-->
+	<<set _stageProgressScale to 1>>
+	<<switch _birthStageAtStart>>
+	<<case 1>>
+		<<set _stageProgressScale to 2.0>>
+	<<case 2>>
+		<<set _stageProgressScale to 1.8>>
+	<<case 3>>
+		<<set _stageProgressScale to 1.5>>
+	<<case 4>>
+		<<set _stageProgressScale to 1.2>>
+	<<case 5>>
+		<<set _stageProgressScale to 1.0>>
+	<<case 6>>
+		<<set _stageProgressScale to 0.9>>
+	<<case 7>>
+		<<set _stageProgressScale to 0.8>>
+	<<case 8 9 10>>
+		<<set _stageProgressScale to 0>>
+	<</switch>>
+	<<set _stageMinimumWaves to 0>>
+	<<switch _birthStageAtStart>>
+	<<case 5>>
+		<<set _stageMinimumWaves to 2>>
+	<<case 6 7>>
+		<<set _stageMinimumWaves to 3>>
+	<</switch>>
+	<<set _progress to Math.floor((_progress + _progressboost) * $birth.progressrng * _stageProgressScale)>>
+	<<set $birth.stageprogress += _progress>>
+	<<if $birth.debugPacing>>
+		<<print "stage="+$birth.stage+" scale="+_stageProgressScale+" rng="+$birth.progressrng+" prog="+$birth.stageprogress+" waves="+$birth.stageWaveCount+"/"+_stageMinimumWaves>>
+		<br>
+	<</if>>
+	<<if _birthStageAtStart is 8>>
+		<<set $birth.delivered += 1>>
+		<<if !_tagsToUpdate.includes("fetus")>><<set _tagsToUpdate.push("fetus")>><</if>>
+		<<if !_tagsToUpdate.includes("stage")>><<set _tagsToUpdate.push("stage")>><</if>>
+		<<set $birth.stageprogress to 0>>
+		<<if $birth.delivered gte $birth.fetuscount>>
+			<<set $birth.stage to 10>>
+			<<set $birth.stagechange to 1>>
+		<<else>>
+			<<set $birth.stage to 9>>
+			<<set $birth.stagechange to 2>>
+		<</if>>
+	<<elseif _birthStageAtStart is 9>>
+		<<birthApplyStat "pain" -10>>
+		<<birthApplyStat "tiredness" -4>>
+		<<birthApplyStat "stress" -1>>
+		<<if !_tagsToUpdate.includes("pain")>><<set _tagsToUpdate.push("pain")>><</if>>
+		<<if !_tagsToUpdate.includes("fatigue")>><<set _tagsToUpdate.push("fatigue")>><</if>>
+		<<if !_tagsToUpdate.includes("stress")>><<set _tagsToUpdate.push("stress")>><</if>>
+		<<set $birth.pace to Math.max(0, $birth.pace - 30)>>
+		<<set $birth.pushurge to 0>>
+		<<set $birth.waveCeiling to 25>>
+		<<set $birth.waveCount to 0>>
+		<<set $birth.stageWaveCount to 0>>
+		<<set $birth.stage to 5>>
+		<<set $birth.stagechange to 1>>
+		<<set $birth.stageprogress to 0>>
+		<<if !_tagsToUpdate.includes("stage")>><<set _tagsToUpdate.push("stage")>><</if>>
+		<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+		<<if !_tagsToUpdate.includes("WaveCount")>><<set _tagsToUpdate.push("WaveCount")>><</if>>
+		<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+	<<elseif $birth.stageprogress gte 100>>
+		<<if $birth.stageWaveCount lt _stageMinimumWaves>>
+			<<set $birth.stageprogress to 99>>
+		<<else>>
+			<<set $birth.stage += 1>>
+			<<set $birth.stagechange to 1>>
+			<<set $birth.stageprogress to 0>>
+			<<set $birth.stageWaveCount to 0>>
+			<<if !_tagsToUpdate.includes("stage")>><<set _tagsToUpdate.push("stage")>><</if>>
+			<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
+		<</if>>
+	<</if>>
+	<<if $birth.calledPartner is 2>>
+		<<set $birth.partner to $birth.inlobby>>
+		<<if !_tagsToUpdate.includes("partner")>><<set _tagsToUpdate.push("partner")>><</if>>
+		<<if $birth.partner is "Black Wolf" and $birth.father isnot "Black Wolf">>
+			<<set $birth.calledPartner to 0>>
+			<<set $birth.inlobby to "wolf">>
+		<</if>>
+	<</if>>
+
+	<br><br>
+
+	<<if _tagsToUpdate.length gt 0 or $childbirthstart is 1>>
+		<<updateFilters "update" _tagsToUpdate>>
+		<<applyDialogFilters "randomPool" "randomQueue" "random">>
+		<<applyDialogFilters "forcedPool" "forcedQueue" "forced">>
+		<<if $childbirthstart is 1>>
+			<<set $childbirthstart to 0>>
+		<</if>>
+	<</if>>
+
+	<!--dialog-->
+	<<set _playline to []>>
+	<<set _useline to "none">>
+	<<if $birth.dialog.forcedQueue.length gt 0>>
+		<<set _lowestDelay to 999>>
+		<<for _i = 0 ; _i < $birth.dialog.forcedQueue.length ; _i++>>
+			<<if $birth.dialog.forcedQueue[_i][4] lt _lowestDelay>>
+				<<set _lowestDelay to $birth.dialog.forcedQueue[_i][4]>>
+			<</if>>
+			<<set $birth.dialog.forcedQueue[_i][4] -=1>>
+		<</for>>
+		<<if _lowestDelay lte 0>>
+			<<set _forcedLine to []>>
+			<<set _forcedIndex to []>>
+			<<for _i = 0 ; _i < $birth.dialog.forcedQueue.length ; _i++>>
+				<<if $birth.dialog.forcedQueue[_i][4] lt _lowestDelay>>
+					<<set _forcedLine[_forcedLine.length] to clone($birth.dialog.forcedQueue[_i])>>
+					<<set _forcedIndex[_forcedIndex.length] to _i>>
+				<</if>>
+			<</for>>
+			<<set _randomnumber to random(0, (_forcedLine.length - 1))>>
+			<<set _playline to clone(_forcedLine[_randomnumber])>>
+			<<set _useline to "forced">>
+			<<set $birth.dialog.forcedQueue.deleteAt(_forcedIndex[_randomnumber])>>
+		<</if>>
+	<</if>>
+	<<if _useline isnot "forced" and $birth.dialog.randomQueue.length gt 0>>
+		<<set _randomnumber to random(0,$birth.dialog.randomQueue.length-1)>>
+		<<set _playline to $birth.dialog.randomQueue[_randomnumber]>>
+		<<set _useline to "random">>
+		<<for _j = 0 ; _j < $birth.dialog.randomPool.length ; _j++>>
+			<<set _sametext to 1>>
+			<<for _k = 0 ; _k < $birth.dialog.randomPool[_j][1][0].length ; _k++>>
+				<<if _playline[1][0][_k] isnot $birth.dialog.randomPool[_j][1][0][_k]>>
+					<<set _sametext to 0>>
+					<<set _k to 999>>
+				<</if>>
+			<</for>>
+			<<if _sametext is 1>>
+				<<set $birth.dialog.randomPool[_j][3] -= 1>>
+				<<if $birth.dialog.randomPool[_j][3] is 0>>
+					<<set $birth.dialog.randomPool.deleteAt(_j)>>
+				<</if>>
+			<</if>>
+		<</for>>
+		<<set $birth.dialog.randomQueue[_randomnumber][3] -= 1>>
+		<<if $birth.dialog.randomQueue[_randomnumber][3] is 0>>
+			<<set $birth.dialog.randomQueue.deleteAt(_randomnumber)>>
+		<</if>>
+	<</if>>
+	<<if _useline is "none">>
+		<<print either(
+			"A quiet stretch passes. You focus on your breathing and wait for the next wave.",
+			"For a moment nothing changes. You gather yourself between contractions.",
+			"The pressure holds steady, then eases a little. You brace for what comes next."
+		)>>
+	<<else>>
+		<<for _i = 0 ; _i < _playline[1][0].length ; _i++>>
+			<<switch _playline[1][1][_i]>>
+			<<case "default">>
+				<<print _playline[1][0][_i]>>
+			<<case "red">>
+				<span class="red">
+				<<print _playline[1][0][_i]>>
+				</span>	
+			<<case "pink">>
+				<span class="pink">
+				<<print _playline[1][0][_i]>>
+				</span>	
+			<<case "purple">>
+				<span class="purple">
+				<<print _playline[1][0][_i]>>
+				</span>	
+			<<case "blue">>
+				<span class="blue">
+				<<print _playline[1][0][_i]>>
+				</span>	
+			<<case "lblue">>
+				<span class="lblue">
+				<<print _playline[1][0][_i]>>
+				</span>	
+			<<case "teal">>
+				<span class="teal">
+				<<print _playline[1][0][_i]>>
+				</span>	
+			<<case "green">>
+				<span class="green">
+				<<print _playline[1][0][_i]>>
+				</span>	
+			<</switch>>
+		<</for>>
+		<<set _triggeringTagNames to Object.keys(_playline[0][2])>>
+		<<if _triggeringTagNames.length gt 0>>
+			<<for _l = 0 ; _l < _triggeringTagNames.length ; _l++>>
+				<<applyDialogFilters "randomPool" "randomQueue" "triggerrandom" _triggeringTagNames[_l] _playline[0][2][_triggeringTagNames[_l]]>>
+				<<applyDialogFilters "forcedPool" "forcedQueue" "triggerforced" _triggeringTagNames[_l] _playline[0][2][_triggeringTagNames[_l]]>>
+			<</for>>
+		<</if>>
+		<<set _effects to Object.keys(_playline[2])>>
+		<<if _effects.length gt 0>>
+			<<for _i = 0 ; _i < _effects.length ; _i++>>
+				<<switch _effects[_i]>>
+				<<case "Pain">>
+					<<set $pain += _playline[2][_effects[_i]]>>
+				<<case "Fatigue">>
+					<<set $tiredness += _playline[2][_effects[_i]]>>
+				<<case "Trauma">>
+					<<set $trauma += _playline[2][_effects[_i]]>>
+				<<case "Stress">>
+					<<set $stress += _playline[2][_effects[_i]]>>
+				<<case "Arousal">>
+					<<set $arousal += _playline[2][_effects[_i]]>>
+				<<case "Progress">>
+					<<set $birth["stageprogress"] += _playline[2][_effects[_i]]>>
+				<<case "Partner">>
+					<<set $birth["partner"] to _playline[2][_effects[_i]]>>
+					<<if !_tagsToUpdate.includes("partner")>><<set _tagsToUpdate.push("partner")>><</if>>
+				<<case "CalledPartner">>
+					<<set $birth["calledPartner"] to _playline[2][_effects[_i]]>>
+					<<if !_tagsToUpdate.includes("partner")>><<set _tagsToUpdate.push("partner")>><</if>>
+				<<case "InLobby">>
+					<<set $birth["inlobby"] to _playline[2][_effects[_i]]>>
+					<<if !_tagsToUpdate.includes("partner")>><<set _tagsToUpdate.push("partner")>><</if>>
+				<<case "Epidural">>
+					<<set $birth["epidural"] to _playline[2][_effects[_i]]>>
+					<<if !_tagsToUpdate.includes("epidural")>><<set _tagsToUpdate.push("epidural")>><</if>>
+				<</switch>>
+			<</for>>
+		<</if>>
+	<</if>>
+	<<if $birth.calledPartner gte 2>>
+		<<set $birth.calledPartner -= 1>>
+	<</if>>
+	<br><br>
+<</widget>>
+
+<<widget "printFilters">>
+	<<if _args[0] isnot undefined>>
+		<<set _filternames to Object.keys($birth.filters[_args[0]])>>
+		<<if _filternames isnot undefined>>
+			<<for _i = 0 ; _i < _filternames.length ; _i++>>
+				_filternames[_i] : $birth.filters[_args[0]][_filternames[_i]]
+			<</for>>
+		<<else>>
+			no filters found
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "updateFilters">>
+	<<if _args[0] isnot undefined>>
+		<<set _pregnancy to getPregnancyObject()>>
+		<<set _potentialPartners to ["Alex", "Avery", "Eden", "Robin", "Sydney", "Whitney", "Kylar", "Great Hawk", "Black Wolf", "wolf"]>>
+		<<if _args[0] is "static">> <!--meant to only be used at the start of combat-->
+			<<if $demontf is 1>>
+				<<set $birth.filters.static["DivineTF"] to "Demon">>
+			<<elseif $angeltf is 1>>
+				<<set $birth.filters.static["DivineTF"] to "Angel">>
+			<<elseif $fallenangeltf is 1 or ($fallenangeltfplus isnot undefined and $fallenangeltf is 1)>>
+				<<set $birth.filters.static["DivineTF"] to "Fallen Angel">>
+			<</if>>
+			<<if $wolftf is 1>>
+				<<set $birth.filters.static["AnimalTF"] to "Wolf">>
+			<<elseif $cattf is 1>>
+				<<set $birth.filters.static["AnimalTF"] to "Cat">>
+			<<elseif $harpytf is 1>>
+				<<set $birth.filters.static["AnimalTF"] to "Bird">>
+			<<elseif $cowtf is 1>>
+				<<set $birth.filters.static["AnimalTF"] to "Cow">>
+			<<elseif $foxtf is 1>>
+				<<set $birth.filters.static["AnimalTF"] to "Fox">>
+			<<elseif ($beartf isnot undefined) and $beartf is 1>>
+				<<set $birth.filters.static["AnimalTF"] to "Bear">>
+			<<elseif ($bunnytf isnot undefined) and $bunnytf is 1>>
+				<<set $birth.filters.static["AnimalTF"] to "Bunny">>
+			<</if>>
+			<<set $birth.filters.static["PCParenthood"] to $parentList.mothers[0].kids>>
+			<<if playerIsPregnant()>>
+				<<set $birth.filters.static["FatherKnown"] to (_pregnancy.fetus[0].fatherKnown is 1 ? 0 : 999)>>
+				<<set $birth.filters.static["Father"] to _pregnancy.fetus[0].father>>
+			<<elseif $harpyEggs>>
+				<<set $birth.filters.static["FatherKnown"] to 999>>
+				<<set $birth.filters.static["Father"] to "none">>
+			<</if>>
+			<<set $birth.filters.static["Willpower"] to 0>> <!--WIP-->
+			<<set $birth.filters.static["Physique"] to 0>> <!--WIP-->
+			<<switch $speech_attitude>>
+			<<case "bratty">>
+				<<set $birth.filters.static["Speech"] to "Bratty">>
+			<<case "meek">>
+				<<set $birth.filters.static["Speech"] to "Meek">>
+			<<default>>
+				<<set $birth.filters.static["Speech"] to "Neutral">>
+			<</switch>>
+			<<set $birth.filters.static["Beast"] to ($beast ? 0 : 999)>>
+			<<switch $fame.prostitution>>
+			<<case lt 30>>
+				<<set $birth.filters.static["Prostitution"] to 0>>
+			<<case lt 100>>
+				<<set $birth.filters.static["Prostitution"] to 1>>
+			<<case lt 200>>
+				<<set $birth.filters.static["Prostitution"] to 2>>
+			<<case lt 400>>
+				<<set $birth.filters.static["Prostitution"] to 3>>
+			<<case lt 600>>
+				<<set $birth.filters.static["Prostitution"] to 4>>
+			<<case lt 1000>>
+				<<set $birth.filters.static["Prostitution"] to 5>>
+			<<default>>
+				<<set $birth.filters.static["Prostitution"] to 6>>
+			<</switch>>
+			<<switch $fame.rape>>
+			<<case lt 30>>
+				<<set $birth.filters.static["Rape"] to 0>>
+			<<case lt 100>>
+				<<set $birth.filters.static["Rape"] to 1>>
+			<<case lt 200>>
+				<<set $birth.filters.static["Rape"] to 2>>
+			<<case lt 400>>
+				<<set $birth.filters.static["Rape"] to 3>>
+			<<case lt 600>>
+				<<set $birth.filters.static["Rape"] to 4>>
+			<<case lt 1000>>
+				<<set $birth.filters.static["Rape"] to 5>>
+			<<default>>
+				<<set $birth.filters.static["Rape"] to 6>>
+			<</switch>>
+			<<switch $fame.pregnancy>>
+			<<case lt 30>>
+				<<set $birth.filters.static["Pregnancy"] to 0>>
+			<<case lt 100>>
+				<<set $birth.filters.static["Pregnancy"] to 1>>
+			<<case lt 200>>
+				<<set $birth.filters.static["Pregnancy"] to 2>>
+			<<case lt 400>>
+				<<set $birth.filters.static["Pregnancy"] to 3>>
+			<<case lt 600>>
+				<<set $birth.filters.static["Pregnancy"] to 4>>
+			<<case lt 1000>>
+				<<set $birth.filters.static["Pregnancy"] to 5>>
+			<<default>>
+				<<set $birth.filters.static["Pregnancy"] to 6>>
+			<</switch>>
+			<<switch $fame.bestiality>>
+			<<case lt 30>>
+				<<set $birth.filters.static["Beastiality"] to 0>>
+			<<case lt 100>>
+				<<set $birth.filters.static["Beastiality"] to 1>>
+			<<case lt 200>>
+				<<set $birth.filters.static["Beastiality"] to 2>>
+			<<case lt 400>>
+				<<set $birth.filters.static["Beastiality"] to 3>>
+			<<case lt 600>>
+				<<set $birth.filters.static["Beastiality"] to 4>>
+			<<case lt 1000>>
+				<<set $birth.filters.static["Beastiality"] to 5>>
+			<<default>>
+				<<set $birth.filters.static["Beastiality"] to 6>>
+			<</switch>>
+			<<if playerIsPregnant()>>
+				<<switch _pregnancy.fetus[0].type>>
+				<<case "human">>
+					<<set $birth.filters.static["FetusHuman"] to _pregnancy.fetus.length>>
+				<<case "wolf">>
+					<<set $birth.filters.static["FetusWolf"] to _pregnancy.fetus.length>>
+				<<case "hawk">>
+					<<if $harpyEggs>>
+						<<set $birth.filters.static["FetusHawk"] to $harpyEggs.count>>
+					<<else>>
+						<<set $birth.filters.static["FetusHawk"] to _pregnancy.fetus.length>>
+					<</if>>
+				<</switch>>
+			<<elseif $harpyEggs>>
+				<<set $birth.filters.static["FetusHawk"] to $harpyEggs.count>>
+			<</if>>
+			<<set $birth.filters.static["Mpreg"] to ($birth.genital is "vagina" ? 999 : 0)>>
+			<<set $birth.filters.static["Location"] to $birth.location>>
+			<<switch $birth.location>>
+			<<case "cottage">>
+				<<set $birth.filters.static["CottageNursery"] to (C.npc.Alex.pregnancy.nursery is true ? 0 : 999)>>
+			<</switch>>
+			<<set $birth.filters.dynamic["ArrivedTogether"] to ($birth.partner is $birth.father ? 1 : 999)>>
+		<<elseif _args[0] is "partner">> <!--this is the filter that gets rid of lines pertaining to irrelevant people-->
+			<<set $birth.filters.npcs to ["Alone"]>>
+			<<if _potentialPartners.contains($birth.partner)>>
+				<<set $birth.filters.npcs.pushUnique($birth.partner)>>
+			<</if>>
+			<<if _potentialPartners.contains($birth.inlobby)>>
+				<<set $birth.filters.npcs.pushUnique($birth.inlobby)>>
+			<</if>>
+			<<if _potentialPartners.contains($birth.father)>>
+				<<set $birth.filters.npcs.pushUnique($birth.father)>>
+			<</if>>
+		<<elseif _args[0] is "initial">> <!--sets the baseline for dynamic filters-->
+			<<set $birth.filters.dynamic["Partner"] to $birth.partner>>
+			<<set $birth.filters.dynamic["FatherPresent"] to ($birth.partner is $birth.father ? 1 : 999)>>
+			<<set $birth.filters.dynamic["FatherInlobby"] to ($birth.inlobby is $birth.father ? 1 : 999)>>
+			<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 999)>>
+			<<if _potentialPartners.includes($birth.partner) and $birth.partner isnot "Wolf">>
+				<<for _i = 0 ; _i < $NPCName.length ; _i++>>
+					<<if $NPCName[_i].description is $birth.partner>>
+						<<set $birth.filters.dynamic["Love"] to $NPCName[_i].love>>
+						<<set $birth.filters.dynamic["Lust"] to $NPCName[_i].lust>>
+						<<switch $NPCName[_i].description>>
+						<<case "Alex">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].dom>>
+							<<set $birth.filters.dynamic["Stat2"] to 999>>
+						<<case "Avery">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].dom>>
+							<<set $birth.filters.dynamic["Stat2"] to $NPCName[_i].rage>>
+						<<case "Eden">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].trust>>
+							<<set $birth.filters.dynamic["Stat2"] to 999>>
+						<<case "Robin">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].dom>>
+							<<set $birth.filters.dynamic["Stat2"] to $NPCName[_i].trauma>>
+						<<case "Whitney">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].dom>>
+							<<set $birth.filters.dynamic["Stat2"] to 999>>
+						<<case "Sydney">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].purity>>
+							<<set $birth.filters.dynamic["Stat2"] to $NPCName[_i].corruption>>
+						<<case "Kylar">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].rage>>
+							<<set $birth.filters.dynamic["Stat2"] to 999>>
+						<<case "Great Hawk">>
+							<<set $birth.filters.dynamic["Stat1"] to $NPCName[_i].dom>>
+							<<set $birth.filters.dynamic["Stat2"] to 999>>
+						<<case "Black Wolf">>
+							<<set $birth.filters.dynamic["Stat1"] to $wolfpackharmony>>
+							<<set $birth.filters.dynamic["Stat2"] to $wolfpackferocity>>
+						<</switch>>
+						<<for _j = 0 ; _j < $parentList.fathers.length ; _j++>>
+							<<if ($parentList.fathers[_j].name isnot undefined) and $parentList.fathers[_j].name is $birth.partner>>
+								<<set $birth.filters.dynamic["PartnerParenthood"] to $parentList.fathers[_j].kids>>
+								<<set _j to 999>>
+							<</if>>
+						<</for>>
+						<<set _i to 999>>
+					<</if>>
+				<</for>>
+			<<else>>
+				<<set $birth.filters.dynamic["Love"] to 999>>
+				<<set $birth.filters.dynamic["Lust"] to 999>>
+				<<set $birth.filters.dynamic["Stat1"] to 999>>
+				<<set $birth.filters.dynamic["Stat2"] to 999>>
+				<<set $birth.filters.dynamic["PartnerParenthood"] to 999>>
+			<</if>>
+			<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 999)>>
+			<<set $birth.filters.dynamic["PainMax"] to ($pain gte $painmax ? 1 : 999)>>
+			<<set $birth.filters.dynamic["FatigueMax"] to ($tiredness gte $tirednessmax ? 1 : 999)>>
+			<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
+			<<set $birth.filters.dynamic["Orgasm"] to $orgasmdown gt 0 ? 1 : 999>>
+			<<set $birth.filters.dynamic["FetusDelivered"] to 0>>
+			<<set $birth.filters.dynamic["Stage"] to 1>>
+			<<set $birth.filters.dynamic["PushUrge"] to Math.floor($birth.pushurge / 25)>>
+			<<set $birth.filters.dynamic["WaveCount"] to $birth.waveCount>>
+			<<set $birth.filters.dynamic["TotalWaveCount"] to $birth.totalWaveCount>>
+			<<set $birth.filters.dynamic["StageWaveCount"] to $birth.stageWaveCount>>
+			<<switch $birth.epidural>>
+			<<case 0>>
+				<<set $birth.filters.dynamic["Epidural"] to "Not taken">>
+			<<case 1>>
+				<<set $birth.filters.dynamic["Epidural"] to "Too late">>
+			<<case 2>>
+				<<set $birth.filters.dynamic["Epidural"] to "Too expensive">>
+			<<case 3>>
+				<<set $birth.filters.dynamic["Epidural"] to "Too dangerous">>
+			<<default>>
+				<<set $birth.filters.dynamic["Epidural"] to (($birth.epidural - 1) % 10 + 1)>>
+			<</switch>>
+		<<elseif _args[0] is "update">> <!--this is the per-round filter check, only checks the tags listed in _args[1]-->
+			<<set _tagsToUpdate to _args[1]>>
+			<<for _i = 0 ; _i < _tagsToUpdate.length ; _i++>>
+				<<switch _tagsToUpdate[_i]>>
+				<<case "stage">>
+					<<set $birth.filters.dynamic["Stage"] to $birth.stage>>
+				<<case "partner">>
+					<<set $birth.filters.dynamic["Partner"] to $birth.partner>>
+					<<set $birth.filters.dynamic["FatherPresent"] to ($birth.partner is $birth.father ? 1 : 999)>>
+					<<set $birth.filters.dynamic["FatherInlobby"] to ($birth.inlobby is $birth.father ? 1 : 999)>>
+					<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 999)>>
+					<<if _potentialPartners.includes($birth.partner) and $birth.partner isnot "Wolf">>
+						<<for _j = 0 ; _j < $NPCName.length ; _j++>>
+							<<if $NPCName[_j].description is $birth.partner>>
+								<<set $birth.filters.dynamic["Love"] to $NPCName[_j].love>>
+								<<set $birth.filters.dynamic["Lust"] to $NPCName[_j].lust>>
+								<<switch $NPCName[_j].description>>
+								<<case "Alex">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].dom>>
+									<<set $birth.filters.dynamic["Stat2"] to 999>>
+								<<case "Avery">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].dom>>
+									<<set $birth.filters.dynamic["Stat2"] to $NPCName[_j].rage>>
+								<<case "Eden">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].trust>>
+									<<set $birth.filters.dynamic["Stat2"] to 999>>
+								<<case "Robin">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].dom>>
+									<<set $birth.filters.dynamic["Stat2"] to $NPCName[_j].trauma>>
+								<<case "Whitney">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].dom>>
+									<<set $birth.filters.dynamic["Stat2"] to 999>>
+								<<case "Sydney">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].purity>>
+									<<set $birth.filters.dynamic["Stat2"] to $NPCName[_j].corruption>>
+								<<case "Kylar">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].rage>>
+									<<set $birth.filters.dynamic["Stat2"] to 999>>
+								<<case "Great Hawk">>
+									<<set $birth.filters.dynamic["Stat1"] to $NPCName[_j].dom>>
+									<<set $birth.filters.dynamic["Stat2"] to 999>>
+								<<case "Black Wolf">>
+									<<set $birth.filters.dynamic["Stat1"] to $wolfpackharmony>>
+									<<set $birth.filters.dynamic["Stat2"] to $wolfpackferocity>>
+								<</switch>>
+								<<for _k = 0 ; _k < $parentList.fathers.length ; _k++>>
+									<<if ($parentList.fathers[_k].name isnot undefined) and $parentList.fathers[_k].name is $birth.partner>>
+										<<set $birth.filters.dynamic["PartnerParenthood"] += $parentList.fathers[_k].kids>>
+										<<set _k to 999>>
+									<</if>>
+								<</for>>
+								<<set _j to 999>>
+							<</if>>
+						<</for>>
+					<<else>>
+						<<set $birth.filters.dynamic["Love"] to 999>>
+						<<set $birth.filters.dynamic["Lust"] to 999>>
+						<<set $birth.filters.dynamic["Stat1"] to 999>>
+						<<set $birth.filters.dynamic["Stat2"] to 999>>
+						<<set $birth.filters.dynamic["PartnerParenthood"] to 999>>
+					<</if>>
+				<<case "pain">>
+					<<if $pain gte $painmax>>
+						<<set $birth.filters.dynamic["PainMax"] to 1>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+					<<else>>
+						<<set $birth.filters.dynamic["PainMax"] to 999>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+					<</if>>
+				<<case "fatigue">>
+					<<if $tiredness gte $tirednessmax>>
+						<<set $birth.filters.dynamic["FatigueMax"] to 1>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+					<<else>>
+						<<set $birth.filters.dynamic["FatigueMax"] to 999>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+					<</if>>
+				<<case "stress">>
+					<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+				<<case "orgasm">>
+					<<if $orgasmdown gt 0>>
+						<<set $birth.filters.dynamic["Orgasm"] to 1>>
+					<<else>>
+						<<set $birth.filters.dynamic["Orgasm"] to 999>>
+					<</if>>
+				<<case "fetus">>
+					<<set $birth.filters.dynamic["FetusDelivered"] to $birth.delivered>>
+				<<case "PushUrge">>
+					<<set $birth.filters.dynamic["PushUrge"] to Math.floor($birth.pushurge / 25)>>
+				<<case "WaveCount">>
+					<<set $birth.filters.dynamic["WaveCount"] to $birth.waveCount>>
+				<<case "TotalWaveCount">>
+					<<set $birth.filters.dynamic["TotalWaveCount"] to $birth.totalWaveCount>>
+				<<case "StageWaveCount">>
+					<<set $birth.filters.dynamic["StageWaveCount"] to $birth.stageWaveCount>>
+				<<case "epidural">>
+					<<switch $birth.epidural>>
+					<<case 0>>
+						<<set $birth.filters.dynamic["Epidural"] to "Not taken">>
+					<<case 1>>
+						<<set $birth.filters.dynamic["Epidural"] to "Too late">>
+					<<case 2>>
+						<<set $birth.filters.dynamic["Epidural"] to "Too expensive">>
+					<<case 3>>
+						<<set $birth.filters.dynamic["Epidural"] to "Too dangerous">>
+					<<default>>
+						<<set $birth.filters.dynamic["Epidural"] to (($birth.epidural - 1) % 10 + 1)>>
+					<</switch>>
+				<</switch>>
+			<</for>>
+		<<else>>
+			<!--something went wrong if it gets here-->
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "applyDialogFilters">>
+	<!--
+	args[0] _sourceList, the name of the list that will be pared down by filters
+	args[1] _destinationListName, the name of the  list that will be replaced by or added to by the pared down list
+	args[2] _filterType, the way the pared down list and destination will be handled
+	args[3] _filter, the list that will determine which lines to remove from _sourceList
+	-->
+	<<if _args[0] isnot undefined>>
+		<<set _sourceListName to _args[0]>>
+		<<if (_sourceListName is "randomFull" or _sourceListName is "forcedFull") and setup.birthDialog isnot undefined>>
+			<<set _sourceList to setup.birthDialog[_sourceListName]>>
+		<<else>>
+			<<set _sourceList to $birth.dialog[_sourceListName]>>
+		<</if>>
+	<</if>>
+	<<if _args[1] isnot undefined>>
+		<<set _destinationListName to _args[1]>>
+	<</if>>
+	<<if _args[2] isnot undefined>>
+		<<set _filterType to _args[2]>>
+	<</if>>
+	<<if _sourceList is undefined>>
+		<<set _sourceList to []>>
+	<</if>>
+	<<if _destinationListName isnot undefined and $birth.dialog[_destinationListName] is undefined>>
+		<<set $birth.dialog[_destinationListName] to []>>
+	<</if>>
+	<<if _filterType is "triggerrandom" or _filterType is "triggerforced">>
+		<<set _triggerTagName to _args[3]>>
+		<<set _triggerTagValue to _args[4]>>
+	<</if>>
+
+	<<set _result to []>>
+	<<switch _filterType>>
+	<<case "static">>
+		<<set _staticTags to ["FatherKnown","ArrivedTogether","CottageNursery","Father","DivineTF","AnimalTF","Willpower","Physique","PCParenthood","Speech","Beast","Beastiality","Prostitution","Rape","Pregnancy","FetusWolf","FetusHuman","FetusHawk","Mpreg","Location"]>>
+		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][0])>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<tagMatch _linetagnames[_j] _sourceList[_i][0][0][_linetagnames[_j]] $birth.filters.static>>
+				<<if _tagMatchResult is 0>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<if _tagMatchResult is 0>>
+				<<continue>>
+			<</if>>
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][1])>>
+			<<if _linetagnames.length > 0>>
+				<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+					<<tagMatch _linetagnames[_j] _sourceList[_i][0][1][_linetagnames[_j]] $birth.filters.static>>
+					<<if _tagMatchResult is 1>>
+						<<set _j to 999>>
+					<</if>>
+				<</for>>
+				<<if _tagMatchResult is 1>>
+					<<continue>>
+				<</if>>
+			<</if>>
+			<<set _result[_result.length] to clone(_sourceList[_i])>>
+		<</for>>
+		<<for _i = 0 ; _i < _result.length ; _i++>>
+			<<set _linetagnames to Object.keys(_result[_i][0][0])>>
+			<<set _positiveTags to {}>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<if !_staticTags.contains(_linetagnames[_j])>>
+					<<set _positiveTags[_linetagnames[_j]] to _result[_i][0][0][_linetagnames[_j]]>>
+				<<else>>
+				<</if>>
+			<</for>>
+			
+			<<set _result[_i][0][0] to clone(_positiveTags)>>
+			<<set _linetagnames to Object.keys(_result[_i][0][1])>>
+			<<set _negativeTags to {}>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<if !_staticTags.contains(_linetagnames[_j])>>
+					<<set _negativeTags[_linetagnames[_j]] to _result[_i][0][1][_linetagnames[_j]]>>
+				<<else>>
+				<</if>>
+			<</for>>
+			<<set _result[_i][0][1] to clone(_negativeTags)>>
+		<</for>>
+		<<set $birth.dialog[_destinationListName] to _result>>
+	<<case "partner">>
+		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<<if _sourceList[_i][0][0]["Partner"] is undefined>>
+				<<set _result.push(_sourceList[_i])>>
+			<<elseif $birth.filters.npcs.contains(_sourceList[_i][0][0]["Partner"]) or $birth.filters.npcs.contains(_sourceList[_i][0][0]["Father"])>>
+				<<set _result.push(_sourceList[_i])>>
+			<</if>>
+		<</for>>
+		<<set $birth.dialog[_destinationListName] to _result>>
+	<<case "random">>
+		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<!--Checking positive tags of a line -->
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][0])>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<tagMatch _linetagnames[_j] _sourceList[_i][0][0][_linetagnames[_j]] $birth.filters.dynamic>>
+				<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+				<<continue>>
+			<</if>>
+			<!--Checking negative tags of a line -->
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][1])>>
+			<<if _linetagnames.length gt 0>>
+				<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+					<<tagMatch _linetagnames[_j] _sourceList[_i][0][1][_linetagnames[_j]] $birth.filters.dynamic>>
+					<<if _tagMatchResult is 1>>
+						<<set _j to 999>>
+					<</if>>
+				<</for>>
+				<<if _tagMatchResult is 1>>
+					<<continue>>
+				<</if>>
+			<</if>>
+			<<set _result[_result.length] to clone(_sourceList[_i])>>
+		<</for>>
+		<!--Adding unique lines to the destination-->
+		<<for _i = 0 ; _i < _result.length ; _i++>>
+			<<set _dontadd to 0>>
+			<<for _j = 0 ; _j < $birth.dialog[_destinationListName].length ; _j++>>
+				<<set _sametext to 1>>
+				<<for _k = 0 ; _k < $birth.dialog[_destinationListName][_j][1][0].length ; _k++>>
+					<<if _result[_i][1][0][_k] isnot $birth.dialog[_destinationListName][_j][1][0][_k]>>
+						<<set _sametext to 0>>
+						<<set _k to 999>>
+					<</if>>
+				<</for>>
+				<<if _sametext is 1>>
+					<<set _dontadd to 1>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<set _triggeredTagNames to Object.keys(_result[_i][0][3])>>
+			<<if _triggeredTagNames.length gt 0>>
+				<<set _dontadd to 1>>
+			<</if>>
+			<<if _dontadd is 0>>
+				<<set $birth.dialog[_destinationListName].push( clone(_result[_i]))>>
+			<</if>>
+		<</for>>
+		<!--Removing lines from destination based on negative tags. -->
+		<<set _result to []>>
+		<<for _i = 0 ; _i < $birth.dialog[_destinationListName].length ; _i++>>
+			<<set _linetagnames to Object.keys($birth.dialog[_destinationListName][_i][0][1])>>
+			<<if _linetagnames gt 0>>
+				<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+					<<tagMatch _linetagnames[_j] $birth.dialog[_destinationListName][0][1][_linetagnames[_j]] $birth.filters.dynamic>>
+					<<if _tagMatchResult is 1>>
+						<<set _j to 999>>
+					<</if>>
+				<</for>>
+				<<if _tagMatchResult is 1>>
+					<<continue>>
+				<</if>>
+			<</if>>
+			<<set _result[_result.length] to clone($birth.dialog[_destinationListName][_i])>>
+		<</for>>
+		<<set $birth.dialog[_destinationListName] to clone(_result)>>
+	<<case "forced">>
+		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][0])>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<tagMatch _linetagnames[_j] _sourceList[_i][0][0][_linetagnames[_j]] $birth.filters.dynamic>>
+				<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+				<<continue>>
+			<</if>>
+			<!--checking negative tags -->
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][1])>>
+			<<if _linetagnames.length gt 0>>
+				<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+					<<tagMatch _linetagnames[_j] _sourceList[_i][0][1][_linetagnames[_j]] $birth.filters.dynamic>>
+					<<if _tagMatchResult is 1>>
+						<<set _j to 999>>
+					<</if>>
+				<</for>>
+				<<if _tagMatchResult is 1>>
+					<<continue>>
+				<</if>>
+			<</if>>
+			<<set _result[_result.length] to clone(_sourceList[_i])>>
+		<</for>>
+		<!--trying to add lines -->
+		<<for _i = 0 ; _i < _result.length ; _i++>>
+			<<set _dontadd to 0>>
+			<<for _j = 0 ; _j < $birth.dialog[_destinationListName].length ; _j++>>
+				<<if _result[_i][0] is $birth.dialog[_destinationListName][_j][0] and _result[_i][1] is $birth.dialog[_destinationListName][_j][1]>>
+					<<set _dontadd to 1>>
+					<<set _j to 999>>
+				<</if>>
+				<<if $birth.dialog[_destinationListName][_j][3] lte 0>> <!--already played too much -->
+					<<set _dontadd to 1>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<set _triggeredTagNames to Object.keys(_result[_i][0][3])>>
+			<<if _triggeredTagNames.length gt 0>>
+				<<set _dontadd to 1>>
+			<</if>>
+			<<if _dontadd is 0>>
+				<<for _j = 0 ; _j < $birth.dialog[_sourceListName].length ; _j++>>
+					<<if $birth.dialog[_sourceListName][_j] is _result[_i]>>
+						<<set $birth.dialog[_sourceListName][_j][3] -= 1>>
+						<<set _j to 999>>
+					<</if>>
+				<</for>>
+				<<set $birth.dialog[_destinationListName].push(clone(_result[_i]))>>
+			<</if>>
+		<</for>>
+	<<case "triggerrandom">>
+		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<!--Checks lines for the trigger -->
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][3])>>
+			<<set _tagmatched to 0>>
+			<<set _tagMatchResult to 2>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<if _linetagnames[_j] is _triggerTagName>>
+					<<if typeof(_sourceList[_i][0][3][_linetagnames[_j]]) is "string" and typeof(_triggerTagValue) is "string" and _sourceList[_i][0][3][_linetagnames[_j]] is _triggerTagValue>>
+						<<set _tagMatchResult to 1>>
+					<<elseif typeof(_sourceList[_i][0][3][_linetagnames[_j]]) is "number" and typeof(_triggerTagValue) is "number" and _sourceList[_i][0][3][_linetagnames[_j]] lte _triggerTagValue>>
+						<<set _tagMatchResult to 1>>
+					<<else>>
+						<<set _tagMatchResult to 0>>
+					<</if>>
+				<</if>>
+				<<if _tagMatchResult is 0>>
+					<<set _j to 999>>
+				<<elseif _tagMatchResult is 1>>
+					<<set _tagmatched to 1>>
+				<</if>>
+			<</for>>
+			<<if (_tagMatchResult is 0 or _tagMatchResult is 2) or _tagmatched is 0>>
+				<<continue>>
+			<</if>>
+			<!--Checks line's positive filters -->
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][0])>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<tagMatch _linetagnames[_j] _sourceList[_i][0][0][_linetagnames[_j]] $birth.filters.dynamic>>
+				<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+				<<continue>>
+			<</if>>
+			<<set _result[_result.length] to clone(_sourceList[_i])>>
+		<</for>>
+		<!--trying to add line -->
+		<<for _i = 0 ; _i < _result.length ; _i++>>
+			<<set _dontadd to 0>>
+			<<for _j = 0 ; _j < $birth.dialog[_destinationListName].length ; _j++>>
+				<<set _sametext to 1>>
+				<<for _k = 0 ; _k < $birth.dialog[_destinationListName][_j][1][0].length ; _k++>>
+					<<if _result[_i][1][0][_k] isnot $birth.dialog[_destinationListName][_j][1][0][_k]>>
+						<<set _sametext to 0>>
+						<<set _k to 999>>
+					<</if>>
+				<</for>>
+				<<if _sametext is 1>>
+					<<set _dontadd to 1>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<if _dontadd is 0>>
+				<<set $birth.dialog[_destinationListName][$birth.dialog[_destinationListName].length] to clone(_result[_i])>>
+			<</if>>
+		<</for>>
+	<<case "triggerforced">>
+		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<!--Checks lines for the trigger -->
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][3])>>
+			<<set _tagmatched to 0>>
+			<<set _tagMatchResult to 2>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<if _linetagnames[_j] is _triggerTagName>>
+					<<if typeof(_sourceList[_i][0][3][_linetagnames[_j]]) is "string" and typeof(_triggerTagValue) is "string" and _sourceList[_i][0][3][_linetagnames[_j]] is _triggerTagValue>>
+						<<set _tagMatchResult to 1>>
+					<<elseif typeof(_sourceList[_i][0][3][_linetagnames[_j]]) is "number" and typeof(_triggerTagValue) is "number" and _sourceList[_i][0][3][_linetagnames[_j]] lte _triggerTagValue>>
+						<<set _tagMatchResult to 1>>
+					<<else>>
+						<<set _tagMatchResult to 0>>
+					<</if>>
+				<</if>>
+				<<if _tagMatchResult is 0>>
+					<<set _j to 999>>
+				<<elseif _tagMatchResult is 1>>
+					<<set _tagmatched to 1>>
+				<</if>>
+			<</for>>
+			<<if (_tagMatchResult is 0 or _tagMatchResult is 2) or _tagmatched is 0>>
+				<<continue>>
+			<</if>>
+			<!--Checks line's positive filters -->
+			<<set _linetagnames to Object.keys(_sourceList[_i][0][0])>>
+			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
+				<<tagMatch _linetagnames[_j] _sourceList[_i][0][0][_linetagnames[_j]] $birth.filters.dynamic>>
+				<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
+				<<continue>>
+			<</if>>
+			<<set _result[_result.length] to clone(_sourceList[_i])>>
+		<</for>>
+		<<for _i = 0 ; _i < _result.length ; _i++>>
+			<<set _dontadd to 0>>
+			<<for _j = 0 ; _j < $birth.dialog[_destinationListName].length ; _j++>>
+				<<if _result[_i][0] is $birth.dialog[_destinationListName][_j][0] and _result[_i][1] is $birth.dialog[_destinationListName][_j][1]>>
+					<<set _dontadd to 1>>
+					<<set _j to 999>>
+				<</if>>
+				<<if $birth.dialog[_destinationListName][_j][3] lte 0>> <!--already played too much -->
+					<<set _dontadd to 1>>
+					<<set _j to 999>>
+				<</if>>
+			<</for>>
+			<<if _dontadd is 0>>
+				<<for _j = 0 ; _j < $birth.dialog[_sourceListName].length ; _j++>>
+					<<if $birth.dialog[_sourceListName][_j] is _result[_i]>>
+						<<set $birth.dialog[_sourceListName][_j][3] -= 1>>
+						<<set _j to 999>>
+					<</if>>
+				<</for>>
+				<<set $birth.dialog[_destinationListName].push(clone(_result[_i]))>>
+			<</if>>
+		<</for>>
+	<</switch>>
+	<<unset _triggerTagName>>
+	<<unset _triggerTagValue>>
+<</widget>>
+
+<<widget "tagMatch">>
+<!--args[0] is the tag name to be matched
+	args[1] is the tag value to be matched
+	args[2] is the filter to be compared to-->
+	<<if _args[0] isnot undefined and _args[1] isnot undefined and _args[2] isnot undefined>>
+		<<set _tagName to _args[0]>>
+		<<set _tagValue to _args[1]>>
+		<<set _filterNames to Object.keys(_args[2])>>
+		<<set _filterValues to _args[2]>>
+		<<set _tagMatchResult to 2>>
+		<<for _n = 0 ; _n < _filterNames.length ; _n++>>
+			<<if _tagName is _filterNames[_n]>>
+				<<if typeof(_tagValue) is "string" and typeof(_filterValues[_filterNames[_n]]) is "string" and _tagValue is _filterValues[_filterNames[_n]]>>
+					<<set _tagMatchResult to 1>>
+				<<elseif typeof(_tagValue) is "number" and typeof(_filterValues[_filterNames[_n]]) is "number" and _tagValue lte _filterValues[_filterNames[_n]]>>
+					<<set _tagMatchResult to 1>>
+				<<else>>
+					<<set _tagMatchResult to 0>>
+				<</if>>
+				<<set _n to 999>>
+			<</if>>
+		<</for>>
+	<</if>>
+<</widget>>
+
+<<widget "printpromptvariant">>
+	<<set _prompt to _args[0]>>
+	<<if _args[1] isnot undefined>>
+		<<set _promptKey to _args[1]>>
+	<<else>>
+		<<set _promptKey to "default">>
+	<</if>>
+	<<if setup.birthLastPrompt is undefined>>
+		<<set setup.birthLastPrompt to {}>>
+	<</if>>
+	<<if _prompt isnot undefined and Array.isArray(_prompt) and _prompt.length gt 0 and Array.isArray(_prompt[0]) and _prompt[0].length gt 0 and Array.isArray(_prompt[0][0])>>
+		<!-- Variant prompt array. Avoid immediately repeating the same variant for the same prompt key. -->
+		<<set _lastPromptIndex to setup.birthLastPrompt[_promptKey]>>
+		<<set _variantIndexPool to []>>
+		<<for _variantIndex = 0 ; _variantIndex < _prompt.length ; _variantIndex++>>
+			<<if _prompt.length is 1 or _variantIndex isnot _lastPromptIndex>>
+				<<set _variantIndexPool.push(_variantIndex)>>
+			<</if>>
+		<</for>>
+		<<if _variantIndexPool.length gt 0>>
+			<<set _selectedPromptIndex to _variantIndexPool[random(0, _variantIndexPool.length - 1)]>>
+		<<else>>
+			<<set _selectedPromptIndex to 0>>
+		<</if>>
+		<<set setup.birthLastPrompt[_promptKey] to _selectedPromptIndex>>
+		<<printprompt _prompt[_selectedPromptIndex]>>
+	<<else>>
+		<<printprompt _prompt>>
+	<</if>>
+<</widget>>
+
+<<widget "printprompt">>
+	<<if _args[0] isnot undefined and Array.isArray(_args[0]) and Array.isArray(_args[0][0])>>
+	<!--[[text1,text2][color1,color2]]-->
+	<<set _line to _args[0]>>
+		<<for _z = 0 ; _z < _line[0].length ; _z++>>
+			<<switch _line[1][_z]>>
+			<<case "red">>
+				<span class="red">
+				<<print _line[0][_z]>>
+				</span>	
+			<<case "pink">>
+				<span class="pink">
+				<<print _line[0][_z]>>
+				</span>	
+			<<case "purple">>
+				<span class="purple">
+				<<print _line[0][_z]>>
+				</span>	
+			<<case "blue">>
+				<span class="blue">
+				<<print _line[0][_z]>>
+				</span>	
+			<<case "lblue">>
+				<span class="lblue">
+				<<print _line[0][_z]>>
+				</span>	
+			<<case "teal">>
+				<span class="teal">
+				<<print _line[0][_z]>>
+				</span>	
+			<<case "green">>
+				<span class="green">
+				<<print _line[0][_z]>>
+				</span>	
+			<<case "default">>
+				<<print _line[0][_z]>>
+			<<default>>
+				<<print "err: " + _line[0][_z]>>
+			<</switch>>
+		<</for>>
+	<</if>>
+<</widget>>
+
+:: Widgets Childbirth Misc [widget]
+<<widget "realisticChildbirth">>
+	<<checkbox "$settings.realisticChildbirthEnabled" false true autocheck>> Enable realistic childbirth
+	<mouse class="tooltip linkBlue">(?)<span>When enabled, supported birth and egg-laying scenes use the realistic labour encounter. When disabled, they use the original birth scenes.</span></mouse>
+<</widget>>
+
+<<widget "playerEggLayEventAlternate">>
+	<<set [$_eggnant, $_eggnantGenital] to getPregnancyObject("pc", true)>>
+	<<set $_eggnantGenital to $_eggnantGenital is "vagina" ? "cervix" : "ass">>
+	<<if $passage is "Bird Tower Sleep" and ($bedGuest is "Great Hawk" or $bird.state is "home" or (playerIsPregnant() and $_eggnant.type is "hawk" and $bird.state is "hunting"))>>
+		<<set _eggLayingWake to true>>
+	<<elseif ($passage is "Robin Sleep" or $passage is "Sleep") and $robinbed>>
+		<<set _eggLayingWake to true>>
+	<<elseif $passage is "Sleep" and $kylarbed is 1>>
+		<<set _eggLayingWake to true>>
+	<<elseif $passage is "Sleep" and $location is "home">>
+		<<set _eggLaying to 1>>
+	<</if>>
+<</widget>>
