@@ -264,7 +264,10 @@ function findOutfitPair(garment, layer) {
 
 	// Makes sure that the clothing slot is not naked and contains the outfitPrimary or outfitSecondary value.
 	if (garment.name !== "naked" && (garment.outfitPrimary || garment.outfitSecondary)) {
-		const tempSet = setup.clothes[layer][garment.index].set;
+		// Resolve the item's true position in setup.clothes rather than trusting the stored .index,
+		// which can drift out of range on updated/modded saves and crash the lookups below.
+		const garmentIndex = clothesIndex(layer, garment);
+		const tempSet = setup.clothes[layer][garmentIndex].set;
 		let costMod;
 		if (layer.includes("under")) costMod = V.settings.underwearCostModifier;
 		else costMod = V.settings.clothingCostModifier;
@@ -272,10 +275,10 @@ function findOutfitPair(garment, layer) {
 		if (layer.includes("upper")) {
 			// We are looking for lower items in this section
 			// Does a quick check of the closest match indexes
-			if (garment.index + 7 < setup.clothes[findLayer].length) {
+			if (garmentIndex + 7 < setup.clothes[findLayer].length) {
 				for (let i = 0; i <= 7; i++) {
-					if (tempSet === setup.clothes[findLayer][garment.index + i].set) {
-						pair = { ...setup.clothes[findLayer][garment.index + i] };
+					if (tempSet === setup.clothes[findLayer][garmentIndex + i].set) {
+						pair = { ...setup.clothes[findLayer][garmentIndex + i] };
 						break;
 					}
 					if (i >= 3) i++;
@@ -291,15 +294,15 @@ function findOutfitPair(garment, layer) {
 				}
 			}
 
-			if (pair) pair.cost = setup.clothes[layer][garment.index].cost * costMod;
+			if (pair) pair.cost = setup.clothes[layer][garmentIndex].cost * costMod;
 		} else if (layer.includes("lower")) {
 			// We are looking for upper items in this section
 			// Does a quick check of the closest match indexes
-			if (garment.index - 7 < setup.clothes[findLayer].length) {
+			if (garmentIndex - 7 < setup.clothes[findLayer].length) {
 				for (let i = 0; i <= 7; i++) {
-					if (garment.index - i < 0) break;
-					if (tempSet === setup.clothes[findLayer][garment.index - i]?.set) {
-						pair = { ...setup.clothes[findLayer][garment.index - i] };
+					if (garmentIndex - i < 0) break;
+					if (tempSet === setup.clothes[findLayer][garmentIndex - i]?.set) {
+						pair = { ...setup.clothes[findLayer][garmentIndex - i] };
 						break;
 					}
 					if (i >= 3) i++;
@@ -315,7 +318,7 @@ function findOutfitPair(garment, layer) {
 				}
 			}
 
-			pair.cost *= costMod;
+			if (pair) pair.cost *= costMod;
 		}
 
 		if (!pair)
