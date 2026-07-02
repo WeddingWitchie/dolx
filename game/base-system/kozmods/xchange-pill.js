@@ -13,6 +13,25 @@
      - Effect names resolve through setup.xchangeEffectFlag() (xchange.js) and <<xchange-addeffect>> (xchange.twee).
 */
 
+/* ---- coloured-pill body gate ----
+   X-Change rewrites $player.sex (anatomy) and never touches $player.gender (identity),
+   so suitability is judged on sex: cuntboys and dickgirls can take whatever their current body can actually be changed from.
+   
+   Pills always stay listed in the medicine drawer while owned, an unsuitable pill greys out for the player but can still be fed to NPCs.
+   allowDualGenitals keeps the old Alpha/Omega/NOW exception where a body with both sets of genitals may take the pill regardless. */
+function xchangePillSuitsBody(color, allowDualGenitals = false) {
+	const redundantSex = color === "pink" ? "f" : "m";
+	if (V.player.sex !== redundantSex) return true;
+	return allowDualGenitals && !!(V.player.penisExist && V.player.vaginaExist);
+}
+window.xchangePillSuitsBody = xchangePillSuitsBody;
+
+function xchangePillBlockedReason(color, allowDualGenitals = false) {
+	if (xchangePillSuitsBody(color, allowDualGenitals)) return "";
+	return "This formula has nothing to change on your current body, so swallowing it would be a waste. Someone else could still be made to take it.";
+}
+window.xchangePillBlockedReason = xchangePillBlockedReason;
+
 function makeGrayXChangePill(cfg) {
 	return {
 		name: cfg.name,
@@ -296,12 +315,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "fertile" "fertility">>`],
 	},
@@ -334,12 +357,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && (V.player.gender !== "f" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink", true)) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink", true);
 		},
 		effects: [`<<xchange-pink 0.25>>`],
 		npc_display_condition() {
@@ -376,12 +403,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1>>`],
 		npc_display_condition() {
@@ -418,12 +449,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7>>`],
 		npc_display_condition() {
@@ -460,12 +495,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 30 "fertile">>`],
 		npc_display_condition() {
@@ -502,12 +541,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 3 "continue">>`],
 		npc_display_condition() {
@@ -544,12 +587,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "xtend" "fertile">>`, `<<set V.sexStats.pills["pills"]["X-Change X-Tend Cancel"].owned++>>`],
 		npc_display_condition() {
@@ -586,7 +633,7 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/pillcure.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
 			return playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null && V.xchange.pill.xtendEffect
@@ -628,12 +675,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "resistance">>`],
 		npc_display_condition() {
@@ -670,12 +721,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "breeder" "fertile">>`],
 		npc_display_condition() {
@@ -712,15 +767,19 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && (V.player.gender !== "f" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink", true)) return 0;
 			const isPregnantForXChange =
 				playerIsPregnant() ||
 				(canBeMPregnant()
 				&& V.sexStats.anus.pregnancy != null
 				&& V.sexStats.anus.pregnancy.type != null);
 			return (!playerIsXChanged() && !isPregnantForXChange) ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink", true);
 		},
 		effects: [`<<if $xchange.omegaShrinkGenitals>><<take-xchange 7 "crossdress" "omega">><<else>><<xchange-pink 7 "omega">><</if>>`],
 	},
@@ -753,12 +812,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "innocence">>`],
 		npc_display_condition() {
@@ -795,12 +858,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "swell">>`],
 		npc_display_condition() {
@@ -837,12 +904,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "bimbo" "swell">>`],
 		npc_display_condition() {
@@ -879,12 +950,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "cumcure">>`],
 		npc_display_condition() {
@@ -921,12 +996,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<take-xchange 1 "crossdress">>`],
 		npc_display_condition() {
@@ -963,12 +1042,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (F)"].owned++>>`],
 		npc_display_condition() {
@@ -1006,7 +1089,7 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" && V.xchange.pill.choiceEffect 
+			return this.owned() > 0 && V.xchange.pill.choiceEffect 
 				? 1 
 				: 0;
 		},
@@ -1046,15 +1129,19 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "f" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("pink")) return 0;
 		const isPregnantForXChange =
 			playerIsPregnant() ||
 			(canBeMPregnant()
 			&& V.sexStats.anus.pregnancy != null
 			&& V.sexStats.anus.pregnancy.type != null);
 		return (!playerIsXChanged() && !isPregnantForXChange) ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("pink");
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {
@@ -1136,12 +1223,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7 "fertile" "fertility">>`],
 	},
@@ -1174,12 +1265,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && (V.player.gender !== "m" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue", true)) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue", true);
 		},
 		effects: [`<<xchange-blue 0.25>>`],
 		npc_display_condition() {
@@ -1216,12 +1311,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1>>`],
 		npc_display_condition() {
@@ -1258,12 +1357,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7>>`],
 		npc_display_condition() {
@@ -1300,12 +1403,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 30>>`],
 		npc_display_condition() {
@@ -1342,12 +1449,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 3 "continue">>`],
 		npc_display_condition() {
@@ -1384,12 +1495,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "resistance">>`],
 		npc_display_condition() {
@@ -1426,12 +1541,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7 "bull">>`],
 		npc_display_condition() {
@@ -1468,12 +1587,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && (V.player.gender !== "m" || (V.player.penisExist && V.player.vaginaExist)) ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue", true)) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue", true);
 		},
 		effects: [`<<xchange-blue 7 "alpha">>`],
 	},
@@ -1506,12 +1629,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "innocence">>`],
 		npc_display_condition() {
@@ -1548,12 +1675,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "swell">>`],
 		npc_display_condition() {
@@ -1590,12 +1721,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "bimbo" "swell">>`],
 		npc_display_condition() {
@@ -1632,12 +1767,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7 "cumcure">>`],
 		npc_display_condition() {
@@ -1674,12 +1813,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null 
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<take-xchange 1 "crossdress">>`],
 		npc_display_condition() {
@@ -1716,12 +1859,16 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
 				? 1
 				: 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (M)"].owned++>>`],
 		npc_display_condition() {
@@ -1759,7 +1906,7 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-pink.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" && V.xchange.pill.choiceEffect 
+			return this.owned() > 0 && V.xchange.pill.choiceEffect 
 				? 1 
 				: 0;
 		},
@@ -2213,15 +2360,19 @@ setup.pills.push(
 		},
 		icon: "img/misc/icon/xchange-blue.png",
 		display_condition() {
-			return this.owned() > 0 && V.player.gender !== "m" ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
+			if (!xchangePillSuitsBody("blue")) return 0;
 		const isPregnantForXChange =
 			playerIsPregnant() ||
 			(canBeMPregnant()
 			&& V.sexStats.anus.pregnancy != null
 			&& V.sexStats.anus.pregnancy.type != null);
 		return (!playerIsXChanged() && !isPregnantForXChange) ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangePillBlockedReason("blue");
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {
