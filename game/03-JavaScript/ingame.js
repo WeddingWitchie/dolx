@@ -118,7 +118,7 @@ const combatActionColours = {
 			/* vaginaaction */
 			"penisthighs",
 			/* anusaction */
-			"bottombay", "penischeeks", "penispussy", "penispussydap", "penisanus", "bottomhandbay", "wiggle",
+			"bottombay", "penischeeks", "penispussy", "penispussydap", "penisanus", "penismouth", "bottomhandbay", "wiggle",
 		],
 		sub: [
 			/* leftaction or rightaction */
