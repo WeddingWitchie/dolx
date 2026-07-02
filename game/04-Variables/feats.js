@@ -3561,6 +3561,62 @@ function setupFeatBoosts(force) {
 			max: 1,
 			missing: "Unlock this boost by obtaining the 'Green Fingered' feat",
 		},
+		orgasmTrait: {
+			name: "Orgasm Addict",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
+		chokeTrait: {
+			name: "Asphyxiophilia",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
+		ejacTrait: {
+			name: "Cum Dump",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
+		molestTrait: {
+			name: "Plaything",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
+		rapeTrait: {
+			name: "Fucktoy",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
+		bestialityTrait: {
+			name: "Bitch",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
+		tentacleTrait: {
+			name: "Prey",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
+		milkDrankTrait: {
+			name: "Milk Addict",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
 		housekeeping: {
 			name: "Housekeeping Grade",
 			required: ["Majordomo", "Demolisher of Filth"],
@@ -3855,6 +3911,14 @@ function applyFeatBoosts() {
 		V.backgroundTraits.pushUnique("greenthumb");
 		if (V.fertiliser) ++V.fertiliser.current;
 	}
+	if (upgrades.orgasmTrait) V.orgasmtrait = 1;
+	if (upgrades.chokeTrait) V.choketrait = 1;
+	if (upgrades.ejacTrait) V.ejactrait = 1;
+	if (upgrades.molestTrait) V.molesttrait = 1;
+	if (upgrades.rapeTrait) V.rapetrait = 1;
+	if (upgrades.bestialityTrait) V.bestialitytrait = 1;
+	if (upgrades.tentacleTrait) V.tentacletrait = 1;
+	if (upgrades.milkDrankTrait) V.milkdranktrait = 1;
 
 	// parasitic pregnancy
 	if (upgrades.newLife) {
