@@ -72,12 +72,6 @@
 		<<set $player.skin_temp to $player.skin>>
 		<<set $player.skin_temp.color to $player.skin.color>>
 	<</if>>
-	<<if $transformationParts.traits.aquatic is undefined>>
-		<<set $transformationParts.traits.aquatic to "disabled">>
-	<</if>>
-	<<if $transformationParts.traits.leviathan is undefined>>
-		<<set $transformationParts.traits.leviathan to "disabled">>
-	<</if>>
 
 	/* persistent UI-state vars, folded out of the mirror so they exist before any render */
 	<<if $hairgelBottles is undefined>>
@@ -1226,16 +1220,6 @@
 			<<set $transformationParts.waterdragon.tail to "disabled">>
 		<</if>>
 	<</if>>
-	<<if $transformationParts.traits.dragonEyes is undefined>>
-		<<if $waterdragon gte 2 or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1>>
-			<<set $transformationParts.traits.dragonEyes to "default">>
-		<<else>>
-			<<set $transformationParts.traits.dragonEyes to "disabled">>
-		<</if>>
-	<</if>>	
-	<<if $transformationParts.traits.strongFeet is undefined>>
-		<<set $transformationParts.traits.strongFeet to ($bunny gte 2 ? "default" : "disabled")>>
-	<</if>>
 
 	<<if $stressBeauty isnot undefined>>
 		<<unset $stressBeauty>>
@@ -1356,10 +1340,6 @@
 
 	<<if $mathsTraitBuffs.aphrodisiacPhials is undefined>>
 		<<set $mathsTraitBuffs.aphrodisiacPhials to 0>>
-	<</if>>
-
-	<<if $transformationParts.traits.tempTolerance is undefined>>
-		<<set $transformationParts.traits.tempTolerance to "disabled">>
 	<</if>>
 
 	<<if $DoLPTFTempTolerance is undefined>>
@@ -2107,4 +2087,29 @@
 
 	/* Jewellery worn-slots repair */
 	<<script>>window.dolxRepairMissingJewelleryWornSlots?.();<</script>>
+<</widget>>
+
+/* Guarantee every transformation-trait key exists. 
+Reads across the game test `X isnot "disabled"` (and `!["disabled","hidden"].includes(X)`), which treat a MISSING key as active
+so an undefined key shows phantom traits (Dragon Eyes, Predatory Animal...) and triggers their effects (e.g. the dragonEyes always-hallucinate check).
+Trait keys are added to the schema over time, and the backfills for them live in the version-gated <<modupdate>>,
+so a same-version save that predates a key never gets it.
+
+This runs every load (via <<xchange-modupdate>>) to fill only the missing keys with TF-appropriate defaults, leaving any value the player already set untouched. */
+<<widget "ensureTransformationTraits">>
+	<<if $transformationParts is undefined>><<setupTransformationPiecesObject>><</if>>
+	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
+	<<set _traits to $transformationParts.traits>>
+	<<if _traits.fangs is undefined>><<set _traits.fangs to (($wolfgirl gte 2 or $cat gte 2 or $fox gte 2) ? "default" : "disabled")>><</if>>
+	<<if _traits.sharpEyes is undefined>><<set _traits.sharpEyes to (($cat gte 2 or $harpy gte 2 or $fox gte 2 or $waterdragon gte 2) ? "default" : "disabled")>><</if>>
+	<<if _traits.dragonEyes is undefined>><<set _traits.dragonEyes to (($waterdragon gte 2 or $waterdragontf is 1 or $waterdragonCosmeticUnlocked is 1) ? "default" : "disabled")>><</if>>
+	<<if _traits.mateForLife is undefined>><<set _traits.mateForLife to (($fox gte 3 or $harpy gte 3) ? "default" : "disabled")>><</if>>
+	<<if _traits.chase is undefined>><<set _traits.chase to "disabled">><</if>>
+	<<if _traits.flaunting is undefined>><<set _traits.flaunting to "disabled">><</if>>
+	<<if _traits.strongFeet is undefined>><<set _traits.strongFeet to ($bunny gte 2 ? "default" : "disabled")>><</if>>
+	<<if _traits.tempTolerance is undefined>><<set _traits.tempTolerance to "disabled">><</if>>
+	<<if _traits.aquatic is undefined>><<set _traits.aquatic to "disabled">><</if>>
+	<<if _traits.leviathan is undefined>><<set _traits.leviathan to "disabled">><</if>>
+	/* predatoryAnimal/preyAnimal are derived from current TF levels, never authored recompute them. */
+	<<recomputePredatorPrey>>
 <</widget>>
