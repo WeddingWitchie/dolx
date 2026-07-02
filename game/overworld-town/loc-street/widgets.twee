@@ -3772,8 +3772,9 @@
 			<</if>>
 		<</if>>
 
-		/* Teeth compliment events; only when teeth recently brushed, up to 3/day */
-		<<if $beautyBoost and $beautyBoost.teeth gt 0 and ($daily.teethCompliment is undefined or $daily.teethCompliment lt 3)>>
+		/* Teeth compliment events; only when teeth recently brushed, up to 3/day.
+		Skipped while exposed: passersby wouldn't remark on a smile when the player is undressed. */
+		<<if $exposed lte 0 and $beautyBoost and $beautyBoost.teeth gt 0 and ($daily.teethCompliment is undefined or $daily.teethCompliment lt 3)>>
 			<<addinlineevent "streetTeethCompliment" 0.8>>
 				<<set $daily.teethCompliment to ($daily.teethCompliment || 0) + 1>>
 				<<generatey1>><<person1>>
@@ -3790,11 +3791,12 @@
 			<</addinlineevent>>
 		<</if>>
 
-		/* Nail ambient events. Gated by <<playerNailsNoticeable>>: 
+		/* Nail ambient events. Gated by <<playerNailsNoticeable>>:
 		long nails (level 2+) or active manicure, and player isn't a cat-TF player.
+		Also skipped while exposed: nobody comments on nails when the player is undressed.
 		Positive event up to 3/day at weight 0.8, negative up to 2/day at weight 0.5, the net social signal stays leaning rewarding. */
 		<<playerNailsNoticeable>>
-		<<if _nailsNoticeable and ($daily.nailCompliment is undefined or $daily.nailCompliment lt 3)>>
+		<<if _nailsNoticeable and $exposed lte 0 and ($daily.nailCompliment is undefined or $daily.nailCompliment lt 3)>>
 			<<addinlineevent "streetNailCompliment" 0.8>>
 				<<set $daily.nailCompliment to ($daily.nailCompliment || 0) + 1>>
 				<<generatey1>><<person1>>
@@ -3811,7 +3813,7 @@
 			<</addinlineevent>>
 		<</if>>
 
-		<<if _nailsNoticeable and ($daily.nailJudgement is undefined or $daily.nailJudgement lt 2)>>
+		<<if _nailsNoticeable and $exposed lte 0 and ($daily.nailJudgement is undefined or $daily.nailJudgement lt 2)>>
 			<<addinlineevent "streetNailJudgement" 0.5>>
 				<<set $daily.nailJudgement to ($daily.nailJudgement || 0) + 1>>
 				<<generate1>><<person1>>
