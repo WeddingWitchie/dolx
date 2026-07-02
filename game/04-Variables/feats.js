@@ -2112,6 +2112,15 @@ setup.feats = {
 		hint: "Hint: Discover intense security on Barb Street.",
 		softLockable: true,
 	},
+	"Porch Pirates": {
+		title: "Porch Pirates",
+		desc: "Stole from mailboxes for thirty days straight.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Check the mail every day.",
+		softLockable: true,
+	},
 	"Lost World": {
 		title: "Lost World",
 		desc: "Discovered an island lost to history.",

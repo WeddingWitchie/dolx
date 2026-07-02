@@ -53,3 +53,38 @@
 	<</if>>
 	<br>
 <</widget>>
+
+
+<<widget "mailboxsteallink">>
+	<<set _street to _args[0]>>
+	<<set _streetName to _args[1]>>
+	<<set _returnPassage to _args[2]>>
+	<<set _min to _args[3]>>
+	<<set _max to _args[4]>>
+	<<set _place to _args[5]>>
+	<<if !$daily.mailboxSteal or typeof $daily.mailboxSteal isnot "object" or Array.isArray($daily.mailboxSteal)>>
+		<<set $daily.mailboxSteal to {}>>
+	<</if>>
+	<<if !$daily.mailboxSteal[_street]>>
+		<<if pcAreArmsBound("both")>>
+			<<crimeicon "mark">><span class="red">You can't steal from a mailbox with your arms bound.</span>
+			<br>
+		<<else>>
+			<<set $skulduggerydifficulty to 800>>
+			<<capture _street, _streetName, _returnPassage, _min, _max, _place>>
+				<<crimeicon "mark">><<link [[Steal from a mailbox (0:02)|Street Mailbox Steal]]>>
+					<<set $mailboxSteal to {
+						street: _street,
+						streetName: _streetName,
+						returnPassage: _returnPassage,
+						min: _min,
+						max: _max,
+						place: _place
+					}>>
+					<<pass 2>><<crimeUp 3 "petty">>
+				<</link>><<skulduggerydifficulty>><<crime "petty">>
+			<</capture>>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>

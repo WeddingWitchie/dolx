@@ -16,3 +16,75 @@ With your pulse racing, you take a step in front of <<him>> and
 <br><br>
 
 With the <<persons>> mouth agape, you run off into the distance in an attempt to lose yourself in the crowd.
+
+:: Street Mailbox Steal
+<<if !$mailboxSteal or typeof $mailboxSteal isnot "object">>
+	<<set $outside to 1>><<set $location to "town">><<effects>>
+	You step away from the mailboxes.
+	<br><br>
+	<<link [[Next|Domus Street]]>><<unset $mailboxSteal>><</link>>
+<<else>>
+	<<set _street to $mailboxSteal.street>>
+	<<set _streetName to $mailboxSteal.streetName>>
+	<<set _returnPassage to $mailboxSteal.returnPassage>>
+	<<set _place to $mailboxSteal.place>>
+	<<set _mailboxDay to Math.max(0, Time.days - (Time.hour lt 6 ? 1 : 0))>>
+	<<set $outside to 1>><<set $location to "town">><<set $bus to _street>><<effects>>
+	<<if !$daily.mailboxSteal or typeof $daily.mailboxSteal isnot "object" or Array.isArray($daily.mailboxSteal)>>
+		<<set $daily.mailboxSteal to {}>>
+	<</if>>
+	<<if $daily.mailboxSteal[_street]>>
+		You already emptied a mailbox here today.
+		<br><br>
+		<<link [[Next|_returnPassage]]>><<unset $mailboxSteal>><<set $eventskip to 1>><</link>>
+	<<else>>
+		<<set $daily.mailboxSteal[_street] to true>>
+		<<if !$daily.mailboxStealStreak>>
+			<<if $mailboxStealLastDay is _mailboxDay - 1>>
+				<<set $mailboxStealStreak to ($mailboxStealStreak or 0) + 1>>
+			<<elseif $mailboxStealLastDay is _mailboxDay>>
+				<<set $mailboxStealStreak to Math.max($mailboxStealStreak or 0, 1)>>
+			<<else>>
+				<<set $mailboxStealStreak to 1>>
+			<</if>>
+			<<set $mailboxStealLastDay to _mailboxDay>>
+			<<set $daily.mailboxStealStreak to true>>
+			<<if $mailboxStealStreak gte 30>>
+				<<earnFeat "Porch Pirates">>
+			<</if>>
+		<</if>>
+		<<set _moneyGain to random($mailboxSteal.min, $mailboxSteal.max) * 100>>
+		You wait for a quiet moment, then slip close to a mailbox on _streetName, near _place. Inside is an envelope containing <<printmoney _moneyGain>>.
+		<<money _moneyGain "thievery">>
+		<br><br>
+		<<set $skulduggerydifficulty to 800>><<skulduggerycheck "silent">>
+		<<if $skulduggerysuccess is 1>>
+			<<skulduggeryuse 800 "target" 2>>
+			You tuck it away and leave before anyone notices.
+			<br><br>
+			<<link [[Next|_returnPassage]]>><<unset $mailboxSteal>><<set $eventskip to 1>><</link>>
+		<<else>>
+			<<skulduggeryuse 800 "target" 2>>
+            <<generatePolice 1>><<generatePolice 2>><<generates3>>
+                A door opens behind you. A <<person3>><<person>> spots the open mailbox, then your hands.
+                "Thief!" <<he>> shouts.
+                <br><br>
+                The word cracks through the street that a few heads turn. Somewhere nearby, a police officer pauses mid-step, eyes snapping toward the commotion.
+                Then <<person1>><<he>> sees you, the mailbox, and the panic spreading across the <<person3>><<persons>> face.
+                <br><br>
+                "Hey! Stop right there!" the officer barks.
+                Another officer looks over from across the road, one hand already reaching for <<person2>><<his>> radio.
+                <br><br>
+                Within seconds, both of them are moving toward you, first at a fast walk, then breaking into a run.
+			<<if currentSkillValue('athletics') gte 600>>
+				You sprint away, <span class="green">fast enough to lose <<him>></span> around the corner.<<athletics 1>><<gathletics>><<stress 6>><<tiredness 6>><<ggstress>><<gtiredness>>
+				<br><br>
+				<<link [[Next|_returnPassage]]>><<unset $mailboxSteal>><<set $eventskip to 1>><</link>>
+			<<else>>
+				You run, but <span class="red">can't keep enough distance.</span> <<He>> catches up and grabs you as you trip.
+				<br><br>
+				<<link [[Next|Street Police Full]]>><<set $phase to 0>><</link>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</if>>
