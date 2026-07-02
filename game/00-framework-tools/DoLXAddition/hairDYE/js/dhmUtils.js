@@ -482,10 +482,10 @@ const dhmUtils = {
 	canvasSetup() {
 		const dhmod = this.dhmStateFixup();
 
-		T.modeloptions.hair_colour = dhmod.hair.is_custom
+		T.modeloptions.hair_colour = dhmod.hair.is_custom && dhmod.hair.colors[0]
 			? dhmod.hair.colors[0]
 			: V.haircolour.replace(" ", "");
-		T.modeloptions.hair_fringe_colour = dhmod.fringe.is_custom
+		T.modeloptions.hair_fringe_colour = dhmod.fringe.is_custom && dhmod.fringe.colors[0]
 			? dhmod.fringe.colors[0]
 			: V.hairfringecolour.replace(" ", "");
 

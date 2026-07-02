@@ -388,6 +388,8 @@ class CombatRenderer {
 	 */
 	static createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
 		const dhmod = this.getDhmState();
+		// dye HARDER custom colours are stored per hair part; the fringe must not read the sides' slots
+		const dhmPart = hairPart === "fringe" ? dhmod.fringe : dhmod.hair;
 		const combatHair = CombatRenderer.getHairGradientType(hairType, gradient);
 		const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
 		const filterPrototype = filterPrototypeLibrary[combatHair] || filterPrototypeLibrary.all;
@@ -396,7 +398,7 @@ class CombatRenderer {
 			// @ts-ignore
 			blend: clone(filterPrototype),
 			brightness: {
-				// @ts-ignore 
+				// @ts-ignore
 				gradient: filterPrototype.gradient,
 				values: filterPrototype.values,
 				// @ts-ignore
@@ -406,18 +408,22 @@ class CombatRenderer {
 		};
 		// @ts-ignore
 		for (const colorIndex in filter.blend.colors) {
+			// custom colors may be sparse (fewer slots than the gradient has stops); fall back per-slot
+			const colourKey = dhmPart.is_custom && dhmPart.colors[colorIndex] ? dhmPart.colors[colorIndex] : gradient.colours[colorIndex];
+			const colourRecord = setup.colours.hair_map[colourKey] || setup.colours.hair_map[gradient.colours[colorIndex]];
+			if (!colourRecord) {
+				console.error("unknown hair gradient colour:", colourKey, "part:", hairPart);
+			}
 			// @ts-ignore
 			filter.brightness.adjustments[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
 			// @ts-ignore
-			filter.brightness.adjustments[colorIndex][1] =
-			// @ts-ignore
-			setup.colours.hair_map[dhmod.hair.is_custom ? dhmod.hair.colors[colorIndex] : gradient.colours[colorIndex]].canvasfilter.brightness || 0;
+			filter.brightness.adjustments[colorIndex][1] = (colourRecord && colourRecord.canvasfilter.brightness) || 0;
 			// @ts-ignore
 			filter.blend.colors[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
-			// @ts-ignore
-			filter.blend.colors[colorIndex][1] =
-			// @ts-ignore
-			setup.colours.hair_map[dhmod.hair.is_custom ? dhmod.hair.colors[colorIndex] : gradient.colours[colorIndex]].canvasfilter.blend;
+			if (colourRecord) {
+				// @ts-ignore
+				filter.blend.colors[colorIndex][1] = colourRecord.canvasfilter.blend;
+			}
 		}
 
 		const prefilter = setup.colours.sprite_prefilters[prefilterName];
@@ -677,7 +683,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.haircolour,
+				dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.haircolour,
 				"hair",
 				"hair_custom",
 				"hair"
@@ -691,7 +697,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.hair.is_custom ? dhmod.hair.colors[index] : V.hairColourGradient.colours[index],
+				dhmod.hair.is_custom && dhmod.hair.colors[index] ? dhmod.hair.colors[index] : V.hairColourGradient.colours[index],
 				"hair",
 				"hair_custom",
 				"hair"
@@ -724,7 +730,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.haircolour,
+				dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.haircolour,
 				"hair",
 				"hair_custom",
 				"hair"
@@ -735,7 +741,7 @@ class CombatRenderer {
 				return CombatRenderer.lookupColour(
 					setup.colours.hair_map,
 					// @ts-ignore
-					dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
+					dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
 					"hair",
 					"hair_custom",
 					"hair"
@@ -744,7 +750,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.hair.is_custom ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
+				dhmod.hair.is_custom && dhmod.hair.colors[1] ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
 				"hair",
 				"hair_custom",
 				"hair"
@@ -755,7 +761,7 @@ class CombatRenderer {
 				return CombatRenderer.lookupColour(
 					setup.colours.hair_map,
 					// @ts-ignore
-					dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
+					dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
 					"hair",
 					"hair_custom",
 					"hair"
@@ -764,7 +770,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.hair.is_custom ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
+				dhmod.hair.is_custom && dhmod.hair.colors[1] ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
 				"hair",
 				"hair_custom",
 				"hair"
@@ -775,7 +781,7 @@ class CombatRenderer {
 				return CombatRenderer.lookupColour(
 					setup.colours.hair_map,
 					// @ts-ignore
-					dhmod.hair.is_custom ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
+					dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
 					"hair",
 					"hair_custom",
 					"hair"
@@ -793,7 +799,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.hair.is_custom ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
+				dhmod.hair.is_custom && dhmod.hair.colors[1] ? dhmod.hair.colors[1] : V.hairColourGradient.colours[1],
 				"hair",
 				"hair_custom",
 				"hair"
@@ -817,7 +823,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.fringe.is_custom ? dhmod.fringe.colors[0] : (V.hairfringecolour || V.haircolour),
+				dhmod.fringe.is_custom && dhmod.fringe.colors[0] ? dhmod.fringe.colors[0] : (V.hairfringecolour || V.haircolour),
 				"hair_fringe",
 				"hair_fringe_custom",
 				"hair_fringe"
@@ -828,7 +834,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.fringe.is_custom ? dhmod.fringe.colors[index] : V.hairFringeColourGradient.colours[index],
+				dhmod.fringe.is_custom && dhmod.fringe.colors[index] ? dhmod.fringe.colors[index] : V.hairFringeColourGradient.colours[index],
 				"hair_fringe",
 				"hair_fringe_custom",
 				"hair_fringe"
