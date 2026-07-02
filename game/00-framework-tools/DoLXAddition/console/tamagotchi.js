@@ -8,10 +8,10 @@
  * 		Win and the enemy grows tougher next week; lose and pet dies, must hatch a new one. */
 const Tamagotchi = (() => {
 	const Tuning = Object.freeze({
-		hungerPerHour: 4,
-		happinessPerHour: 3,
-		energyPerHour: 1.5,
-		poopChancePerHour: 0.15,
+		hungerPerHour: 2,
+		happinessPerHour: 1.5,
+		energyPerHour: 0.75,
+		poopChancePerHour: 0.08,
 		maxPoops: 4,
 		sickThresholdHunger: 90,
 		sickThresholdPoops: 3,
