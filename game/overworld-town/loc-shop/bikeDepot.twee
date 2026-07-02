@@ -1,6 +1,6 @@
 :: Bike Depot Lock
 
-<<set $outside to 0>><<effects>><<set $lock to 0>>
+<<set $outside to 0>><<effects>><<set $lock to 300>>
 
 <<if currentSkillValue('skulduggery') gte $lock>>
 	<<if pcAreArmsBound("both")>>
@@ -30,18 +30,8 @@ You are in the Bike Depot. It has a quite the stock of bikes.
 	<br><br>
 	<<set $phase to 0>>
 <<elseif $phase is 4>>
-	<<switch $bicycle.quality>>
-		<<case 3>>
-			<<set _repairAmount to 12000 / 4>>
-			<<set $bicycle.durability.current to Math.min($bicycle.durability + _repairAmount, 12000)>>
-		<<case 2>>
-			<<set _repairAmount to 6000 / 4>>
-			<<set $bicycle.durability.current to Math.min($bicycle.durability + _repairAmount, 6000)>>
-		<<case 1>>
-			<<set _repairAmount to 3000 / 4>>
-			<<set $bicycle.durability.current to Math.min($bicycle.durability + _repairAmount, 3000)>>
-		<<default>>
-	<</switch>>
+	<<set _repairAmount to Math.round($bicycle.durability.max / 4)>>
+	<<set $bicycle.durability.current to Math.min($bicycle.durability.current + _repairAmount, $bicycle.durability.max)>>
 	Your bike has been given a tune-up, restoring _repairAmount minutes of usage time.
 	<br><br>
 	<<set $phase to 0>><<unset _repairAmount>>
@@ -86,49 +76,68 @@ You are in the Bike Depot. It has a quite the stock of bikes.
 		<<if Time.dayState is "night" and Time.hour isnot 21 and !$weekly.theft.bikeDepot>>
 			<<shopicon "register">><<link [[Examine the cash register|Bike Depot Register]]>><</link>>
 			<br><br>
+		<</if>>
+		<<if $exposed lte 0 and Time.dayState is "night" and Time.hour isnot 21>>
+			You could leave money for a bike before taking it.
+			<br><br>
+			<<if !$bicycle.own or $bicycle.quality lt 3>>
+				<<bikeDepotTrespassPayment "a high-end bike" 250000 3 4800>>
+			<<else>>
+				<span class="black">You already have a high-end bike.</span>
+				<br>
+			<</if>>
+			<<if !$bicycle.own or $bicycle.quality lt 2>>
+				<<bikeDepotTrespassPayment "an intermediate bike" 100000 2 2400>>
+			<<elseif $bicycle.quality is 2>>
+				<span class="black">You already have an intermediate bike.</span>
+				<br>
+			<</if>>
+			<<if !$bicycle.own>>
+				<<bikeDepotTrespassPayment "a basic bike" 50000 1 800>>
+			<<elseif $bicycle.quality is 1>>
+				<span class="black">You already have a basic bike.</span>
+				<br>
+			<</if>>
+			<br>
 		<<elseif $exposed lte 0 and Time.dayState isnot "night" and Time.hour isnot 21>>
-			<<if $bicycle.quality lt 3>>
-				<<if $money gte 250000>>
-					<<bikeicon>><<link [[Purchase a high-end bike (£2500 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 3>><<set $bicycle.quality to 3>><<set $bicycle.durability.current to 12000>><<set $bicycle.durability.max to $bicycle.durability.current>><<set $bicycle.location to "high">><<set $money -= 250000>><</link>>
+			<<if !$bicycle.own or $bicycle.quality lt 3>>
+				<<if $money gte (setup.inflation ? setup.inflation.price(250000) : 250000)>>
+					<<bikeicon>><<link [[Purchase a high-end bike (<<printprice 250000>> 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 3>><<set $bicycle.own to true>><<set $bicycle.stolen to false>><<set $bicycle.quality to 3>><<set $bicycle.durability.current to 4800>><<set $bicycle.durability.max to 4800>><<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">><<money -250000 "bikeDepot">><</link>>
 				<<else>>
-					<span class="red">You don't have the £2500 to purchase a high-end bike.</span>
+					<span class="red">You don't have <<printprice 250000>> to purchase a high-end bike.</span>
 				<</if>>
 				<br>
-			<<elseif $bicycle.quality is 3 && $bicycle.own>>
-				You already have a high-end bike.
+			<<else>>
+				<span class="black">You already have a high-end bike.</span>
 				<br>
 			<</if>>
-			<<if $bicycle.quality lt 2>>
-				<<if $money gte 100000>>
-					<<bikeicon>><<link [[Purchase an intermediate bike (£1000 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 2>><<set $bicycle.quality to 2>><<set $bicycle.durability.current to 6000>><<set $bicycle.durability.max to $bicycle.durability.current>><<set $bicycle.location to "high">><<set $money -= 100000>><</link>>
+			<<if !$bicycle.own or $bicycle.quality lt 2>>
+				<<if $money gte (setup.inflation ? setup.inflation.price(100000) : 100000)>>
+					<<bikeicon>><<link [[Purchase an intermediate bike (<<printprice 100000>> 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 2>><<set $bicycle.own to true>><<set $bicycle.stolen to false>><<set $bicycle.quality to 2>><<set $bicycle.durability.current to 2400>><<set $bicycle.durability.max to 2400>><<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">><<money -100000 "bikeDepot">><</link>>
 				<<else>>
-					<span class="red">You don't have the £1000 to purchase an intermediate bike.</span>
+					<span class="red">You don't have <<printprice 100000>> to purchase an intermediate bike.</span>
 				<</if>>
 				<br>
-			<<elseif $bicycle.quality is 2 && $bicycle.own>>
-				You already have an intermediate bike.
+			<<elseif $bicycle.quality is 2>>
+				<span class="black">You already have an intermediate bike.</span>
 				<br>
 			<</if>>
-			<<if $bicycle.own is "false">>
-				<<if $money gte 50000>>
-					<<bikeicon>><<link [[Purchase a basic bike (£500 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 1>><<set $bicycle.quality to 1>><<set $bicycle.durability.current to 3000>><<set $bicycle.durability.max to $bicycle.durability.current>><<set $bicycle.location to "high">><<set $money -= 50000>><</link>>
+			<<if !$bicycle.own>>
+				<<if $money gte (setup.inflation ? setup.inflation.price(50000) : 50000)>>
+					<<bikeicon>><<link [[Purchase a basic bike (<<printprice 50000>> 0:05)|Bike Depot]]>><<pass 5>><<set $phase to 1>><<set $bicycle.own to true>><<set $bicycle.stolen to false>><<set $bicycle.quality to 1>><<set $bicycle.durability.current to 800>><<set $bicycle.durability.max to 800>><<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">><<money -50000 "bikeDepot">><</link>>
 				<<else>>
-					<span class="red">You don't have the £500 to purchase a basic bike.</span>
+					<span class="red">You don't have <<printprice 50000>> to purchase a basic bike.</span>
 				<</if>>
 				<br>
-			<<elseif $bicycle.quality is 1 && $bicycle.own>>
-				You already have a basic bike.
+			<<elseif $bicycle.quality is 1>>
+				<span class="black">You already have a basic bike.</span>
 				<br>
-			<</if>>			
+			<</if>>
 			<<if $bicycle.theftEnabled && $bicycle.security lt 0.99>>
 				<<bikeicon>><<link [[Browse through the security gear (0:05)|Bike Depot Security Gear]]>><<pass 5>><</link>>
 				<br>
 			<</if>>
-			<<if $bicycle.own && $bicycle.upgrades.length lt 6>>
-				<<bikeicon>><<link [[Browse through the off-road upgrades (0:05)|Bike Depot Off-Road]]>><<pass 5>><</link>>
-				<br>
-			<</if>>
-			<<if ($bicycle.own && ($bicycle.durability.current < $bicycle.durability.max))>>
+			<<if ($bicycle.own && ($bicycle.durability.current lt $bicycle.durability.max))>>
 				<<if $bicycle.durability.repair is undefined>><<generate1>><<person1>>
 					<<if currentSkillValue('skulduggery') gte 600 || currentSkillValue('science') gte 600>>
 						<<set $bicycle.durability.repair to 1>><br>
@@ -147,21 +156,21 @@ You are in the Bike Depot. It has a quite the stock of bikes.
 					<</if>>
 					<<endevent>>
 				<</if>>
-				<<if $money gte 20000>>
-					<<bikeicon>><<link [[Repair your bike (£200 0:20)|Bike Depot]]>><<pass 20>><<set $bicycle.location to "high">><<set $phase to 4>><</link>>
+				<<if $money gte (setup.inflation ? setup.inflation.price(35000) : 35000)>>
+					<<bikeicon>><<link [[Repair your bike (<<printprice 35000>> 0:20)|Bike Depot]]>><<pass 20>><<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">><<money -35000 "bikeDepot">><<set $phase to 4>><</link>>
 				<<else>>
-					You don't have the £200 to repair your bike.
+					<span class="red">You don't have <<printprice 35000>> to repair your bike.</span>
 				<</if>>
-				<<if $bicycle.durability.repair isnot undefined>>
-					<br>
-					<<if $bicycle.durability.repair lt 5>>
-						<<if $money gte 500>>
-							<<birdicon "tools">><<link [[Purchase a repair kit (£50 0:05)|Bike Depot]]>><<pass 5>><<set $bicycle.durability.repair++>><<set $phase to 5>><</link>>
-						<<else>>
-							You don't have the £50 to buy a repair kit.
-						<</if>>
-						<br>
+			<</if>>
+			<<if $bicycle.durability.repair isnot undefined>>
+				<br>
+				<<if $bicycle.durability.repair lt 5>>
+					<<if $money gte (setup.inflation ? setup.inflation.price(5000) : 5000)>>
+						<<birdicon "tools">><<link [[Purchase a repair kit (<<printprice 5000>> 0:05)|Bike Depot]]>><<pass 5>><<money -5000 "bikeDepot">><<set $bicycle.durability.repair++>><<set $phase to 5>><</link>>
+					<<else>>
+						<span class="red">You don't have <<printprice 5000>> to buy a repair kit.</span>
 					<</if>>
+					<br>
 				<</if>>
 			<</if>>
 			<br>
@@ -178,10 +187,10 @@ You browse through the selection of security gears.
 <br><br>
 
 <<if $bicycle.security lt 0.99>>
-	<<if $money gte 100000>>
-		<<link [[Purchase U-Lock with Alarm (£1000)|Bike Depot]]>><<set $money -= 100000>><<set $bicycle.security to 0.99>><</link>><<note "99.9% theft prevention">>
+	<<if $money gte (setup.inflation ? setup.inflation.price(100000) : 100000)>>
+		<<link [[Purchase U-Lock with Alarm (<<printprice 100000>>)|Bike Depot]]>><<money -100000 "bikeDepot">><<set $bicycle.security to 0.99>><</link>><<note "99% theft prevention">>
 	<<else>>
-		<span class="red">You don't have the £1000 to purchase a U-Lock with Alarm.</span>
+		<span class="red">You don't have <<printprice 100000>> to purchase a U-Lock with Alarm.</span>
 	<</if>>
 	<br>
 <<elseif $bicycle.security is 0.99>>
@@ -189,10 +198,10 @@ You browse through the selection of security gears.
 	<br>
 <</if>>
 <<if $bicycle.security lt 0.8>>
-	<<if $money gte 75000>>
-		<<link [[Purchase U-Lock (£750)|Bike Depot]]>><<set $money -= 75000>><<set $bicycle.security to 0.8>><</link>><<note "80% theft prevention">>
+	<<if $money gte (setup.inflation ? setup.inflation.price(75000) : 75000)>>
+		<<link [[Purchase U-Lock (<<printprice 75000>>)|Bike Depot]]>><<money -75000 "bikeDepot">><<set $bicycle.security to 0.8>><</link>><<note "80% theft prevention">>
 	<<else>>
-		<span class="red">You don't have the £750 to purchase a U-Lock.</span>
+		<span class="red">You don't have <<printprice 75000>> to purchase a U-Lock.</span>
 	<</if>>
 	<br>
 <<elseif $bicycle.security is 0.8>>
@@ -200,10 +209,10 @@ You browse through the selection of security gears.
 	<br>
 <</if>>
 <<if $bicycle.security lt 0.5>>
-	<<if $money gte 50000>>
-		<<link [[Purchase Heavy-Duty Chain Lock with Hardened Steel (£500)|Bike Depot]]>><<set $money -= 50000>><<set $bicycle.security to 0.5>><</link>><<note "50% theft prevention">>
+	<<if $money gte (setup.inflation ? setup.inflation.price(50000) : 50000)>>
+		<<link [[Purchase Heavy-Duty Chain Lock with Hardened Steel (<<printprice 50000>>)|Bike Depot]]>><<money -50000 "bikeDepot">><<set $bicycle.security to 0.5>><</link>><<note "50% theft prevention">>
 	<<else>>
-		<span class="red">You don't have the £500 to purchase a heavy-duty chain lock with hardnened steel.</span>
+		<span class="red">You don't have <<printprice 50000>> to purchase a heavy-duty chain lock with hardnened steel.</span>
 	<</if>>
 	<br>
 <<elseif $bicycle.security is 0.5>>
@@ -211,10 +220,10 @@ You browse through the selection of security gears.
 	<br>
 <</if>>
 <<if $bicycle.security lt 0.3>>
-	<<if $money gte 25000>>
-		<<link [[Purchase Standard Chain Lock (£250)|Bike Depot]]>><<set $money -= 25000>><<set $bicycle.security to 0.3>><</link>><<note "30% theft prevention">>
+	<<if $money gte (setup.inflation ? setup.inflation.price(25000) : 25000)>>
+		<<link [[Purchase Standard Chain Lock (<<printprice 25000>>)|Bike Depot]]>><<money -25000 "bikeDepot">><<set $bicycle.security to 0.3>><</link>><<note "30% theft prevention">>
 	<<else>>
-		<span class="red">You don't have the £250 to purchase a standard chain lock.</span>
+		<span class="red">You don't have <<printprice 25000>> to purchase a standard chain lock.</span>
 	<</if>>
 	<br>
 <<elseif $bicycle.security is 0.3>>
@@ -222,10 +231,10 @@ You browse through the selection of security gears.
 	<br>
 <</if>>
 <<if $bicycle.security lt 0.1>>
-	<<if $money gte 10000>>
-		<<link [[Purchase Wheel Lock (£100)|Bike Depot]]>><<set $money -= 10000>><<set $bicycle.security to 0.1>><</link>><<note "10% theft prevention">>
+	<<if $money gte (setup.inflation ? setup.inflation.price(10000) : 10000)>>
+		<<link [[Purchase Wheel Lock (<<printprice 10000>>)|Bike Depot]]>><<money -10000 "bikeDepot">><<set $bicycle.security to 0.1>><</link>><<note "10% theft prevention">>
 	<<else>>
-		<span class="red">You don't have the £100 to purchase a wheel lock.</span>
+		<span class="red">You don't have <<printprice 10000>> to purchase a wheel lock.</span>
 	<</if>>
 	<br>
 <<elseif $bicycle.security is 0.1>>
@@ -235,77 +244,38 @@ You browse through the selection of security gears.
 <br>
 <<getouticon>><<link [[Back|Bike Depot]]>><</link>>
 
-:: Bike Depot Off-Road
-<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
-
-You browse through the selection of Off-Road upgrades.
-<br><br>
-
-<<if !$bicycle.upgrades.suspension>>
-	<<if $money gte 60000>>
-		<<link [[Suspension fork (£600)|Bike Depot Off-Road]]>><<set $money -= 60000>><<set $bicycle.upgrades.pushUnique("suspension")>><</link>><<note "-10% travel time and -25% durability loss in Rough Terrain">>
+<<widget "bikeDepotTrespassPayment">>
+	<<set _bikeName to _args[0]>>
+	<<set _bikePrice to _args[1]>>
+	<<set _bikeLevel to _args[2]>>
+	<<set _bikeDurability to _args[3]>>
+	<<set _bikeCost to (setup.inflation ? setup.inflation.price(_bikePrice) : _bikePrice)>>
+	<<set _bikeExtraBase to Math.ceil(_bikePrice * 1.25)>>
+	<<set _bikeExtraCost to (setup.inflation ? setup.inflation.price(_bikeExtraBase) : _bikeExtraBase)>>
+	<<if $money gte _bikeCost>>
+		<<bikeicon>><<link [["Leave exact change for " + _bikeName + " (0:05)"|Shop Trespass Payment Result]]>>
+			<<pass 5>>
+			<<set $phase to _bikeLevel>>
+			<<set $bicycle.own to true>><<set $bicycle.stolen to false>>
+			<<set $bicycle.quality to _bikeLevel>>
+			<<set $bicycle.durability.current to _bikeDurability>><<set $bicycle.durability.max to _bikeDurability>>
+			<<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">>
+			<<shopTrespassPayment _bikePrice "bikeDepot" false "Bike Depot" _bikeName>>
+		<</link>><<crime "trespassing">>
 	<<else>>
-		<span class="red">You don't have the £600 to upgrade your suspension fork.</span>
+		<span class="red">You don't have enough to leave exact change for _bikeName.</span>
 	<</if>>
 	<br>
-<<else>>
-	You already have a high-quality air fork.
-	<br>
-<</if>>
-<<if !$bicycle.upgrades.tyres>>
-	<<if $money gte 10000>>
-		<<link [[Wider tyres with tread (£100)|Bike Depot Off-Road]]>><<set $money -= 10000>><<set $bicycle.upgrades.pushUnique("tyres")>><</link>><<note "-5% travel time and -15% durability loss in Rough Terrain">>
-	<<else>>
-		<span class="red">You don't have the £100 to upgrade your tyres.</span>
+	<<if $money gte _bikeExtraCost>>
+		<<bikeicon>><<link [["Leave extra for " + _bikeName + " (0:05)"|Shop Trespass Payment Result]]>>
+			<<pass 5>>
+			<<set $phase to _bikeLevel>>
+			<<set $bicycle.own to true>><<set $bicycle.stolen to false>>
+			<<set $bicycle.quality to _bikeLevel>>
+			<<set $bicycle.durability.current to _bikeDurability>><<set $bicycle.durability.max to _bikeDurability>>
+			<<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">>
+			<<shopTrespassPayment _bikePrice "bikeDepot" true "Bike Depot" _bikeName>>
+		<</link>><<crime "trespassing">>
+		<br>
 	<</if>>
-	<br>
-<<else>>
-	You already have durable off-road tyres.
-	<br>
-<</if>>
-<<if !$bicycle.upgrades.tubeless>>
-	<<if $money gte 10000>>
-		<<link [[Tubeless Setup (£100)|Bike Depot Off-Road]]>><<set $money -= 10000>><<set $bicycle.upgrades.pushUnique("tubeless")>><</link>><<note "-5% travel time and -10% durability loss in Rough Terrain">>
-	<<else>>
-		<span class="red">You don't have the £100 to upgrade to a tubeless setup.</span>
-	<</if>>
-	<br>
-<<else>>
-	You already have a tubeless setup.
-	<br>
-<</if>>
-<<if !$bicycle.upgrades.brakes>>
-	<<if $money gte 30000>>
-		<<link [[Hydraulic Disk Brakes (£300)|Bike Depot Off-Road]]>><<set $money -= 30000>><<set $bicycle.upgrades.pushUnique("brakes")>><</link>><<note "-5% durability loss in Rough Terrain">>
-	<<else>>
-		<span class="red">You don't have the £300 to upgrade your brakes.</span>
-	<</if>>
-	<br>
-<<else>>
-	You already have hydraulic disk brakes.
-	<br>
-<</if>>
-<<if !$bicycle.upgrades.pedals>>
-	<<if $money gte 8000>>
-		<<link [[Grippy pedals (£80)|Bike Depot Off-Road]]>><<set $money -= 8000>><<set $bicycle.upgrades.pushUnique("pedals")>><</link>><<note "-2.5% travel time and -5% durability loss in Rough Terrain">>
-	<<else>>
-		<span class="red">You don't have the £80 to upgrade your pedals.</span>
-	<</if>>
-	<br>
-<<else>>
-	You already have flat grippy pedals.
-	<br>
-<</if>>
-<<if !$bicycle.upgrades.grips>>
-	<<if $money gte 6000>>
-		<<link [[Ergonomic grips and bar ends (£60)|Bike Depot Off-Road]]>><<set $money -= 6000>><<set $bicycle.upgrades.pushUnique("grips")>><</link>><<note "-2.5% travel time and -5% durability loss in Rough Terrain">>
-	<<else>>
-		<span class="red">You don't have the £60 to upgrade your cockpit.</span>
-	<</if>>
-	<br>
-<<else>>
-	You already have ergonomic grips and bar ends.
-	<br>
-<</if>>
-<br>
-<<getouticon>><<link [[Back|Bike Depot]]>><</link>>
+<</widget>>

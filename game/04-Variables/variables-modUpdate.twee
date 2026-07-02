@@ -1042,7 +1042,8 @@
 		<<set $traumaeyes to false>>
 	<</if>>
 
-	<<if $bikeUpdate is 1>>
+	<<if $bikeUpdate gte 1>>
+		<<bikeUpdate2>>
 	<<else>>
 		<<if $bike is undefined>>
 			<<set $bike to 0>>
@@ -1769,8 +1770,10 @@
 	<<modWardrobeUpdate>>
 	<<amcTraitsUpdate>>
 
-	<<if !$bikeUpdate || $bikeUpdate isnot 1>>
+	<<if !$bikeUpdate>>
 		<<bikeUpdate>>
+	<<elseif $bikeUpdate is 1>>
+		<<bikeUpdate2>>
 	<</if>>
 
 	<<clamp>>
@@ -2146,7 +2149,7 @@ so an undefined key shows phantom traits (Dragon Eyes, Predatory Animal...) and 
 Trait keys are added to the schema over time, and the backfills for them live in the version-gated <<modupdate>>,
 so a same-version save that predates a key never gets it.
 
-This runs every load (via <<xchange-modupdate>>) to fill only the missing keys with TF-appropriate defaults, leaving any value the player already set untouched. */
+This runs every load (via xchange-modupdate) to fill only the missing keys with TF-appropriate defaults, leaving any value the player already set untouched. */
 <<widget "ensureTransformationTraits">>
 	<<if $transformationParts is undefined>><<setupTransformationPiecesObject>><</if>>
 	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
@@ -2167,51 +2170,41 @@ This runs every load (via <<xchange-modupdate>>) to fill only the missing keys w
 
 <<widget "bikeUpdate">>
 	<<set $bicycle to {}>>
-	<<set $bicycle.quality to $bike>>
-	<<set $bicycle.own to true>>
+	<<set $bicycle.quality to ($bike || 0)>>
+	/* Only saves that actually had a bike own one after migration. */
+	<<set $bicycle.own to $bike gte 1>>
 	<<if $location is "town" || $location is "plains" || $location is "forest" || $location is "industrial">>
 		<<set $bicycle.location to $sublocation>>
 	<<else>>
 		<<set $bicycle.location to $location>>
 	<</if>>
+	/* Only real parking spots are valid; a save migrated anywhere else has the bike waiting at home.
+	Region must be set here too: the hourly theft check reads it before the first <<bike>> render, and an unknown region counts as maximum risk. */
+	<<if !["domus", "barb", "danube", "wolf", "connudatus", "cliff", "high", "starfish", "oxford", "nightingale", "mer", "elk", "harvest", "lake", "alex_farm"].includes($bicycle.location)>>
+		<<set $bicycle.location to "domus">>
+	<</if>>
+	<<bikeSetRegion>>
 	<<set $bicycle.durability to {
 		current: 0,
 		max: 0
 	}>>
 	<<switch $bicycle.quality>>
 		<<case 1>>
-			<<set $bicycle.durability.max to 3000>>
+			<<set $bicycle.durability.max to 800>>
 		<<case 2>>
-			<<set $bicycle.durability.max to 6000>>
+			<<set $bicycle.durability.max to 2400>>
 		<<case 3>>
-			<<set $bicycle.durability.max to 12000>>
+			<<set $bicycle.durability.max to 4800>>
 		<<default>>
 			<<set $bicycle.durability.max to 0>>
 	<</switch>>
 	<<if $bikeBroken isnot undefined>>
 		<<set $bicycle.durability.current to 0>>
 	<<else>>
-		<<set $bicycle.durability.current to $bikeDurability>>
+		<<set $bicycle.durability.current to Math.clamp($bikeDurability || 0, 0, $bicycle.durability.max)>>
 	<</if>>
+	/* DoLX has no off-road upgrade shop; the field stays as an empty array for compatibility. */
 	<<set $bicycle.upgrades to []>>
-	<<if $bikeBrakes is 1>>
-		<<set $bicycle.upgrades.pushUnique("brakes")>>
-	<</if>>
-	<<if $bikeGrips is 1>>
-		<<set $bicycle.upgrades.pushUnique("grips")>>
-	<</if>>
-	<<if $bikePedals is 1>>
-		<<set $bicycle.upgrades.pushUnique("pedals")>>
-	<</if>>
-	<<if $bikeSuspension is 1>>
-		<<set $bicycle.upgrades.pushUnique("suspension")>>
-	<</if>>
-	<<if $bikeTires is 1>>
-		<<set $bicycle.upgrades.pushUnique("tyres")>>
-	<</if>>
-	<<if $bikeTubeless is 1>>
-		<<set $bicycle.upgrades.pushUnique("tubeless")>>
-	<</if>>
 	<<switch $bikeSecurityGear>>
 		<<case 5>>
 			<<set $bicycle.security to 0.99>>
@@ -2236,32 +2229,68 @@ This runs every load (via <<xchange-modupdate>>) to fill only the missing keys w
 		<<set $bicycle.upgrades to []>>
 	<</if>>
 	<<if $bikeSecurityGearStolen isnot undefined>>
-		<<set $bicycle.security.stolen to true>>
+		<<set $bicycle.securityStolen to true>>
 		<<set $bicycle.security to 0>>
 	<</if>>
-	<<if $bikePersistentLocation is 0>>
-		<<set $bicycle.persistentLocation to false>>
-	<<else>>
+	/* Treat missing legacy toggles as off: saves that never touched the old bike system get the safe defaults. */
+	<<if $bikePersistentLocation is 1>>
 		<<set $bicycle.persistentLocation to true>>
-	<</if>>
-	<<if $bikeSecurity is 0>>
-		<<set $bicycle.theftEnabled to false>>
 	<<else>>
+		<<set $bicycle.persistentLocation to false>>
+	<</if>>
+	<<if $bikeSecurity is 1>>
 		<<set $bicycle.theftEnabled to true>>
+	<<else>>
+		<<set $bicycle.theftEnabled to false>>
 	<</if>>
 	<<set $bicycle.travel to {}>>
 	<<set $bicycle.roughTerrain to 0>>
 	<<set $bicycle.gains to {}>>
+	/* Passages the broken-bike walk can strand you at; only the town districts are used. */
 	<<set $bicycle.destinations to {
 		Residential: ["Barb Street", "Domus Street", "Danube Street", "Wolf Street"],
 		Commercial: ["High Street", "Connudatus Street", "Cliff Street", "Nightingale Street", "Oxford Street", "Starfish Street"],
 		Industrial: ["Elk Street", "Harvest Street", "Mer Street"],
-		Forest: ["Lake Shore", "Forest", "Eden Clearing", "Eden Hot Spring Creation 1", "Eden Fluids Punishment", "Wolf Cave Clearing"],
-		Plains: ["Farmland", "Moor"],
 	}>>
 
 	<<unset $bikeBrakes, $bikeGrips, $bikePedals, $bikeSuspension, $bikeTires, $bikeTubeless, $bikeSecurityGear, $bikeSecurityGearStolen, $bikeDestination, $bikeEndCategory, $bikeStartCategory, $bike>>
 
 	/* increment this whenever you need to i guess */
-	<<set $bikeUpdate to 1>>
+	<<set $bikeUpdate to 2>>
+<</widget>>
+
+<<widget "bikeUpdate2">>
+	/* One-time fixup for saves migrated by the first bikeUpdate pass:
+	rescale durability to the DoLX 800/2400/4800 balance and clear phantom ownership on bikeless saves. */
+	<<if $bicycle is undefined>>
+		<<bikeUpdate>>
+	<<else>>
+		<<if $bicycle.quality lte 0 or $bicycle.quality is undefined>>
+			<<set $bicycle.own to false>>
+			<<set $bicycle.quality to 0>>
+		<</if>>
+		/* First pass could park the bike at a non-parking spot and left the theft region unset (unknown region = maximum theft risk). */
+		<<if !["domus", "barb", "danube", "wolf", "connudatus", "cliff", "high", "starfish", "oxford", "nightingale", "mer", "elk", "harvest", "lake", "alex_farm"].includes($bicycle.location)>>
+			<<set $bicycle.location to "domus">>
+		<</if>>
+		<<bikeSetRegion>>
+		<<switch $bicycle.quality>>
+			<<case 1>><<set _bikeMax to 800>>
+			<<case 2>><<set _bikeMax to 2400>>
+			<<case 3>><<set _bikeMax to 4800>>
+			<<default>><<set _bikeMax to 0>>
+		<</switch>>
+		<<if $bicycle.durability is undefined>>
+			<<set $bicycle.durability to { current: 0, max: 0 }>>
+		<</if>>
+		/* The first-pass depot repair could corrupt durability into NaN; the player paid for those repairs, so restore a full bar. */
+		<<if !Number.isFinite($bicycle.durability.current)>>
+			<<set $bicycle.durability.current to _bikeMax>>
+			<<set $bicycle.durability.max to _bikeMax>>
+		<<elseif $bicycle.durability.max isnot _bikeMax>>
+			<<set $bicycle.durability.current to Math.round(_bikeMax * ($bicycle.durability.max gt 0 ? Math.clamp($bicycle.durability.current / $bicycle.durability.max, 0, 1) : 0))>>
+			<<set $bicycle.durability.max to _bikeMax>>
+		<</if>>
+		<<set $bikeUpdate to 2>>
+	<</if>>
 <</widget>>
