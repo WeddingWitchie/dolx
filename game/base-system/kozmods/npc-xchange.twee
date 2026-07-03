@@ -276,6 +276,8 @@
 		<<case "genderflip">>
 			<<if !_pill.genderflipEffect>>
 				<<set _pill.genderflipEffect to true>>
+				/* Record whether this pill also flipped the NPC's gender (pronouns/description), for UI display. */
+				<<set _pill.genderChanged to $xchange.npcPillChangesGender isnot 0>>
 
 				<<if npcStartingSexIs(_targetNo, _targetName, "m")>>
 					<<npc-become-girl>>
@@ -500,9 +502,23 @@
         <<unset $xchange.npcTargetNameIndex>>
     <</widget>>
 
+    /* Small hoverable "X-Changed" tag shown next to a pilled Named NPC's name in the Social overlay.
+	Hover text covers what changed, whether their gender flipped with it, and the remaining duration. Expects the $NPCName entry as arg 0. */
+    <<widget "npc-xchange-relation-tag">>
+        <<set _xcTagStatus to npcXchangePillStatus(_args[0] ? _args[0].nam : undefined)>>
+        <<if _xcTagStatus>>
+            <mouse class="tooltip"><small @class="'relation-title ' + _xcTagStatus.colour"><i>_xcTagStatus.label</i></small><span><<print _xcTagStatus.text>></span></mouse>
+        <</if>>
+    <</widget>>
+
     <<widget "npc-become-girl">>
 		<<set _npcTemp to $NPCList[_targetNo]>>
         <<set _npc to $NPCName[_targetNameIndex]>>
+
+        /* Sex-only pilling: snapshot the current identity so it can be reapplied after the body swap. */
+        <<set _keepNpcGender to $xchange.npcPillChangesGender is 0>>
+        <<set _keptNpcPronoun to _npc ? _npc.pronoun : (_npcTemp ? _npcTemp.pronoun : undefined)>>
+        <<set _keptNpcFullDescription to _npcTemp ? _npcTemp.fullDescription : undefined>>
 
         <<set _brdes to ["nipple","budding","tiny","small","pert","modest","full","large","ample","massive","huge","gigantic","enormous"]>>
 
@@ -559,12 +575,19 @@
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>
 		<</if>>
+		<<npc-xchange-keep-gender "f">>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
     <</widget>>
 
     <<widget "npc-become-boy">>
 		<<set _npcTemp to $NPCList[_targetNo]>>
         <<set _npc to $NPCName[_targetNameIndex]>>
+
+        /* Sex-only pilling: snapshot the current identity so it can be reapplied after the body swap. */
+        <<set _keepNpcGender to $xchange.npcPillChangesGender is 0>>
+        <<set _keptNpcPronoun to _npc ? _npc.pronoun : (_npcTemp ? _npcTemp.pronoun : undefined)>>
+        <<set _keptNpcFullDescription to _npcTemp ? _npcTemp.fullDescription : undefined>>
+
         <<set _swap to undefined>>
         <<if $xchange.savedNpcBodies[_targetName]>>
             <<set _swap to $xchange.savedNpcBodies[_targetName].genderswap>>
@@ -640,7 +663,31 @@
 			<<set _npcTemp.penisdesc to _penisdescs[_npcTemp.penissize-1]>>
 			<<set _npcTemp.vagina to "none">>
 		<</if>>
+		<<npc-xchange-keep-gender "m">>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
+    <</widget>>
+
+    <<widget "npc-xchange-keep-gender">>
+		<<if _keepNpcGender and _keptNpcPronoun isnot undefined>>
+			<<if _npc>>
+				<<set _npc.pronoun to _keptNpcPronoun>>
+				<<generatePronouns _npc>>
+			<</if>>
+			<<if _npcTemp>>
+				<<set _npcTemp.pronoun to _keptNpcPronoun>>
+				<<generatePronouns _npcTemp>>
+				<<if _keptNpcFullDescription isnot undefined>><<set _npcTemp.fullDescription to _keptNpcFullDescription>><</if>>
+			<</if>>
+		<<elseif !_keepNpcGender and _args[0]>>
+			<<if _npc and _npc.pronoun isnot _args[0]>>
+				<<set _npc.pronoun to _args[0]>>
+				<<generatePronouns _npc>>
+			<</if>>
+			<<if _npcTemp and _npcTemp.pronoun isnot _args[0]>>
+				<<set _npcTemp.pronoun to _args[0]>>
+				<<generatePronouns _npcTemp>>
+			<</if>>
+		<</if>>
     <</widget>>
 
     <<widget "npc-sissify">>

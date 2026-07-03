@@ -76,6 +76,58 @@ function npcXchangePillable(id) {
 }
 window.npcXchangePillable = npcXchangePillable;
 
+/**
+ * Live pill status for a Named NPC, for UI display (social tab tag, traits overlay).
+ * Returns null when the NPC has no active pill, otherwise {label, colour, text}.
+ * @param {string} name
+ */
+function npcXchangePillStatus(name) {
+	const npc = name ? C.npc[name] : undefined;
+	const pill = npc?.xchange;
+	if (!pill) return null;
+
+	const toFemale = npc.startingSex === "m";
+	let colour = "grey";
+	let body;
+	if (pill.hermEffect) {
+		colour = "purple";
+		body = "a hermaphrodite body";
+	} else if (pill.genderflipEffect) {
+		colour = toFemale ? "pink" : "lblue";
+		body = toFemale ? "a female body" : "a male body";
+	} else if (pill.genderificationEffect) {
+		colour = "teal";
+		body = toFemale ? "a feminised body" : "a masculinised body";
+	}
+
+	let text = body
+		? `${name} is under an X-Change pill and currently has ${body}.`
+		: `${name} is under an effect-only X-Change pill.`;
+	if (pill.genderflipEffect) {
+		const pronouns = npc.pronoun === "f" ? "she/her" : "he/him";
+		/* genderChanged is only recorded since the "sex only" setting exists; older pills always flipped gender. */
+		text += pill.genderChanged === false
+			? ` Only ${name}'s sex changed: still referred to as ${pronouns}.`
+			: ` ${name}'s gender changed too: now referred to as ${pronouns}.`;
+	}
+
+	if (pill.duration <= -1) {
+		text += " The change is permanent.";
+	} else if (V.xchange.pillPermanence !== 1 && !!npc.pregnancy?.type) {
+		text += " The pill timer is paused by pregnancy.";
+	} else {
+		const days = Math.floor(pill.duration / 24);
+		const hours = pill.duration % 24;
+		const parts = [];
+		if (days > 0) parts.push(`${days} day${days === 1 ? "" : "s"}`);
+		if (hours > 0) parts.push(`${hours} hour${hours === 1 ? "" : "s"}`);
+		text += ` Wears off in ${parts.length ? parts.join(" and ") : "less than an hour"}.`;
+	}
+
+	return { label: "X-Changed", colour, text };
+}
+window.npcXchangePillStatus = npcXchangePillStatus;
+
 function npcIsXChanged(id) {
 	if ((typeof id) === "number") {
 		return !!V.NPCList[id]?.xchange;

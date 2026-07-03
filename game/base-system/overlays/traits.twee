@@ -2274,6 +2274,22 @@
 		},
 	]>>
 
+	/* X-Change: append a live status entry to "NPC Traits" for every pilled Named NPC, covering the body change, whether their gender flipped with it, and time remaining. */
+	<<run (function () {
+		const list = T.traitLists.find(l => l.title === "NPC Traits");
+		if (!list || !Array.isArray(V.NPCNameList)) return;
+		for (const name of V.NPCNameList) {
+			const status = npcXchangePillStatus(name);
+			if (!status) continue;
+			list.traits.push({
+				name: `${status.label}: ${name}`,
+				colour: status.colour,
+				has: true,
+				text: status.text,
+			});
+		}
+	})()>>
+
 	<div id="traitListsSearch">
 		<<traitListsSearch>>
 	</div>
