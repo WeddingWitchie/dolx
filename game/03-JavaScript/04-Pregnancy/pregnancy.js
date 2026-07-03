@@ -402,7 +402,20 @@ function pregnancyProgress(genital = "vagina") {
 
 // eslint-disable-next-line no-unused-vars
 function playerEndWaterProgress() {
-	const pregnancy = getPregnancyObject();
+	const pregnancy = getPlayerPregnancyForBirth();
+	if (
+		pregnancy?.gaveBirth &&
+		V.birth === undefined &&
+		pregnancy.type &&
+		pregnancy.type !== "parasite" &&
+		Array.isArray(pregnancy.fetus) &&
+		pregnancy.fetus.length > 0 &&
+		pregnancy.timerEnd !== undefined &&
+		pregnancy.timerEnd !== null &&
+		Number(pregnancy.timer) >= Number(pregnancy.timerEnd)
+	) {
+		delete pregnancy.gaveBirth;
+	}
 	if (!pregnancy || !pregnancy.type || pregnancy.type === "parasite" || pregnancy.timer < pregnancy.timerEnd || V.statFreeze) {
 		// Fixes an issue when the above "parasite" was "parasites"
 		if (pregnancy && (!pregnancy.type || pregnancy.type === "parasite") && pregnancy.waterBreaking) pregnancy.waterBreaking = false;
@@ -447,7 +460,7 @@ function playerEndWaterBreaking() {
 DefineMacro("playerEndWaterBreaking", playerEndWaterBreaking);
 
 function endPlayerPregnancy(birthLocation, location) {
-	const [pregnancy, genital] = getPregnancyObject("pc", true);
+	const [pregnancy, genital] = getPlayerPregnancyForBirth(true);
 	const menstruation = V.sexStats.vagina.menstruation;
 
 	if (!pregnancy || !Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
@@ -535,6 +548,9 @@ function endPlayerPregnancy(birthLocation, location) {
 
 	delete V.templeVirginPregnancy;
 	delete V.caveHumanPregnancyDiscovered;
+
+	delete V.birth;
+	delete V.childbirthstart;
 
 	return validBirth;
 }
@@ -1548,7 +1564,8 @@ function wearingCondom(npcNumber) {
 window.wearingCondom = wearingCondom;
 
 function makeAwareOfDetails() {
-	const pregnancy = getPregnancyObject();
+	const pregnancy = getPlayerPregnancyForBirth();
+	if (!pregnancy?.fetus?.length) return;
 	pregnancy.awareOfDetails = true;
 	if (pregnancy.fetus[0].fatherKnown !== true) {
 		pregnancy.potentialFathers = pregnancy.potentialFathers.filter(s => s.type.includes(pregnancy.fetus[0].type));

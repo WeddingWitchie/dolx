@@ -2106,7 +2106,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 <<methodical_guard 0 cap>> places a mask over your face. You feel your consciousness fade again.
 <br><br>
 
-<<set _pregnancy to getPregnancyObject()>>
+<<set [_pregnancy, _pregnancyGenital] to getPlayerPregnancyForBirth(true)>>
 <<set _birthTimingValid to true>>
 <<set _birthEvents to undefined>>
 <<set _fetusLength to undefined>>
@@ -2167,7 +2167,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 	<</if>>
 <</if>>
 
-<<switch playerNormalPregnancyType()>>
+<<switch _pregnancy.type>>
 	<<case "human">>
 		<<methodical_guard 0 capo>> voice floats through the fog. "Its head is down. We're lucky. I'm going to need you to..."
 		<br><br>
@@ -2177,7 +2177,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 
 		<<if _birthTimingValid>>
 			<<if $settings.realisticChildbirthEnabled is true>>
-				<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"prison","partner":"Alone","epidural":50}>><<endevent>><<pass _timeCalc>><</link>>
+				<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"prison","partner":"Alone","epidural":50,"genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 			<<else>>
 				<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Prison 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 			<</if>>
@@ -2196,7 +2196,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 
 		<<if _birthTimingValid>>
 			<<if $settings.realisticChildbirthEnabled is true>>
-				<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"prison","partner":"Alone","epidural":50}>><<endevent>><<pass _timeCalc>><</link>>
+				<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"prison","partner":"Alone","epidural":50,"genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 			<<else>>
 				<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Prison Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 			<</if>>
@@ -2225,7 +2225,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 :: Pregnancy Birth Prison 3
 <<effects>>
 <<generate5>><<person5>>
-<<set $litter_size to getPregnancyObject().fetus.length>>
+<<set $litter_size to getPlayerPregnancyForBirth().fetus.length>>
 You awaken in the medical room. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled baby in <<his>> arms.
@@ -2260,7 +2260,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 <</if>>
 
 <<set $bornChildrenIds to []>>
-<<run getPregnancyObject().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
+<<run getPlayerPregnancyForBirth().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
 
 <<setBabyIntro "pc" "Bailey">>
 <<birthUi "pc" "prison" "home" "Pregnancy Birth Prison 4" 120>>
@@ -2366,7 +2366,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 "Your children will be sent to the orphanage for temporary care until your release, at which point they will be returned to your custody."
 <br><br>
 
-<<link [[Next|Pregnancy Birth Prison 6]]>><<endevent>><</link>>
+<<link [[Next|Pregnancy Birth Prison 6]]>><<endevent>><<endcombat>><</link>>
 
 :: Pregnancy Birth Prison 6
 <<effects>>
@@ -2379,10 +2379,10 @@ You're returned to your cell. You already miss the embrace of <<childrenNames $b
 
 :: Pregnancy Birth Prison Wolf
 <<set $outside to 0>><<effects>>
-<<endevent>>
+<<endevent>><<endcombat>>
 <<generate1>><<person1>>
-<<set $litter_size to getPregnancyObject().fetus.length>>
-<<set _baby_type to getPregnancyObject().fetus[0].type>>
+<<set $litter_size to getPlayerPregnancyForBirth().fetus.length>>
+<<set _baby_type to getPlayerPregnancyForBirth().fetus[0].type>>
 You awaken in another room. You hear faint whimpering. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled _baby_type pup in <<his>> arms.
@@ -2407,7 +2407,7 @@ You awaken in another room. You hear faint whimpering. A smiling midwife stands 
 <</if>>
 
 <<set $bornChildrenIds to []>>
-<<run getPregnancyObject().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
+<<run getPlayerPregnancyForBirth().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
 
 <<birthUi "pc" "prison" "wolf_cave" "Pregnancy Birth Prison Wolf 2" 180>>
 

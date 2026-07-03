@@ -356,14 +356,14 @@
 
 /* Used for the passage where the player has given birth in */
 <<widget "playerPrebirth">>
-	<<set getPregnancyObject().gaveBirth to true>>
+	<<set _prebirthPregnancy to getPlayerPregnancyForBirth()>><<if _prebirthPregnancy.fetus>><<set _prebirthPregnancy.gaveBirth to true>><</if>>
 <</widget>>
 
 /*args[0] - mother, args[1] - birth location, args[2] - location of where the clildren should go to, _args[3] - next passage, _args[4] - time passage*/
 <<widget "birthUi">>
 	<<if _args[0] is "pc">>
 		<<makeAwareOfDetails>>
-		<<set _pregnancyBirth to getPregnancyObject()>>
+		<<set _pregnancyBirth to getPlayerPregnancyForBirth()>>
 	<<elseif C.npc[_args[0]]>>
 		<<set _pregnancyBirth to getPregnancyObject(_args[0])>>
 	<</if>>
@@ -501,7 +501,7 @@
 
 <<widget "pregnancyFeats">>
 	<<if _args[0] is "pc">>
-		<<set $_pregnancy to getPregnancyObject()>>
+		<<set $_pregnancy to getPlayerPregnancyForBirth()>>
 		<<earnFeat "Miracle of Life">>
 		<<if $_pregnancy.potentialFathers.filter(npc => npc.type === $_pregnancy.type).length gte 5>>
 			<<earnFeat "Bicycle Mother">>
@@ -716,7 +716,7 @@
 
 /*ToDo: Pregnancy Story Content: Lacks content, small unique events for when the player's stress passes out due to their pregnancy*/
 <<widget "pregnancyPassout">>
-	<<set $_pregnancy to getPregnancyObject()>>
+	<<set $_pregnancy to getPlayerPregnancyForBirth()>>
 	<<if $_pregnancy.fetus>>
 		<<set $_pregnancy.waterBreaking to false>>
 		/*ToDo: Pregnancy - fill out for specific pregnancy passout events*/

@@ -31,6 +31,37 @@ function getPregnancyObject(mother = "pc", returnGenital = false) {
 }
 window.getPregnancyObject = getPregnancyObject;
 
+function getPlayerPregnancyForBirth(returnGenital = false) {
+	const candidates = [
+		["vagina", V?.sexStats?.vagina?.pregnancy],
+		["anus", V?.sexStats?.anus?.pregnancy],
+	];
+	const valid = ([, pregnancy]) =>
+		pregnancy && pregnancy.type !== null && pregnancy.type !== "parasite" && Array.isArray(pregnancy.fetus) && pregnancy.fetus.length > 0;
+	const due = pregnancy => {
+		if (pregnancy?.timerEnd === undefined || pregnancy.timerEnd === null) return false;
+		const timer = Number(pregnancy.timer);
+		const timerEnd = Number(pregnancy.timerEnd);
+		return Number.isFinite(timer) && Number.isFinite(timerEnd) && timer >= timerEnd;
+	};
+	const finish = entry => (returnGenital ? [entry[1], entry[0]] : entry[1]);
+
+	const birthGenital = V?.birth?.genital;
+	if (birthGenital === "vagina" || birthGenital === "anus") {
+		const entry = candidates.find(([genital]) => genital === birthGenital);
+		if (entry && valid(entry)) return finish(entry);
+	}
+
+	const entry =
+		candidates.find(entry => valid(entry) && entry[1].gaveBirth) ||
+		candidates.find(entry => valid(entry) && entry[1].waterBreaking) ||
+		candidates.find(entry => valid(entry) && due(entry[1]));
+	if (entry) return finish(entry);
+
+	return getPregnancyObject("pc", returnGenital);
+}
+window.getPlayerPregnancyForBirth = getPlayerPregnancyForBirth;
+
 // Determins how used to being pregnant the player is
 function playerNormalPregnancyTotal() {
 	const result = V.sexStats.vagina.pregnancy.totalBirthEvents + V.sexStats.anus.pregnancy.totalBirthEvents;
@@ -593,7 +624,7 @@ function playerAwareTheyCanBePregnant() {
 window.playerAwareTheyCanBePregnant = playerAwareTheyCanBePregnant;
 
 function playerAwareTheyArePregnant() {
-	return getPregnancyObject().awareOf;
+	return getPlayerPregnancyForBirth().awareOf;
 }
 window.playerAwareTheyArePregnant = playerAwareTheyArePregnant;
 

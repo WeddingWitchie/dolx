@@ -2984,7 +2984,7 @@ You awaken in a hospital bed. Several blurry figures move around. One leans clos
 The midwife places a mask over your face. You feel your consciousness fade. Several other figures appear around you, their forms ablur.
 <br><br>
 
-<<set _pregnancy to getPregnancyObject()>>
+<<set [_pregnancy, _pregnancyGenital] to getPlayerPregnancyForBirth(true)>>
 <<if _pregnancy.totalBirthEvents gte 5>>
 	<<set _min to 15>>
 	<<set _max to 60>>
@@ -3003,7 +3003,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 <<set _hours to Math.floor(_timeCalc / 60)>>
 <<set _minutes to _timeCalc % 60>>
 
-<<switch playerNormalPregnancyType()>>
+<<switch _pregnancy.type>>
 	<<case "human">>
 		Harper's voice floats through the fog. "Normal human<<if !$player.vaginaExist>>, abnormal delivery<</if>>, but keep the others on the line, just in case..."
 		<br><br>
@@ -3012,7 +3012,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 		<br><br>
 
 		<<if $settings.realisticChildbirthEnabled is true>>
-			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"asylum"}>><<endevent>><<pass _timeCalc>><</link>>
+			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"asylum","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 		<<else>>
 			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Asylum 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 		<</if>>
@@ -3036,9 +3036,9 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 
 :: Pregnancy Birth Asylum 3
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
-<<endevent>>
+<<endevent>><<endcombat>>
 <<generate1>><<person1>>
-<<set $litter_size to getPregnancyObject().fetus.length>>
+<<set $litter_size to getPlayerPregnancyForBirth().fetus.length>>
 You awaken in another room. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled baby in <<his>> arms.
@@ -3073,8 +3073,8 @@ You awaken in another room. A smiling midwife stands beside your bed,
 <</if>>
 
 <<set $bornChildrenIds to []>>
-<<run getPregnancyObject().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
-<<set $recentBirthId to getPregnancyObject().fetus[0].birthId>>
+<<run getPlayerPregnancyForBirth().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
+<<set $recentBirthId to getPlayerPregnancyForBirth().fetus[0].birthId>>
 <<birthUi "pc" "asylum" "home" "Pregnancy Birth Asylum 4" 120>>
 
 :: Pregnancy Birth Asylum 4
@@ -3247,8 +3247,8 @@ The engine comes to life.
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
 <<endevent>>
 <<generate1>><<person1>>
-<<set $litter_size to getPregnancyObject().fetus.length>>
-<<set _baby_type to getPregnancyObject().fetus[0].type>>
+<<set $litter_size to getPlayerPregnancyForBirth().fetus.length>>
+<<set _baby_type to getPlayerPregnancyForBirth().fetus[0].type>>
 You awaken in another room. You hear faint whimpering. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled _baby_type pup in <<his>> arms.
@@ -3273,7 +3273,7 @@ You awaken in another room. You hear faint whimpering. A smiling midwife stands 
 <</if>>
 
 <<set $bornChildrenIds to []>>
-<<run getPregnancyObject().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
+<<run getPlayerPregnancyForBirth().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
 
 <<birthUi "pc" "asylum" "wolf_cave" "Pregnancy Birth Asylum Wolf 2" 180>>
 

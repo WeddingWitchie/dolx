@@ -159,34 +159,17 @@
 		<<set _diffAction to _args[0]>>
 	<</if>>
 	<<if _diffAction is "rest">>
-		<<set _willodds to {}>>
-		<<switch $birth.fetusmovement>>
-		<<case 0>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 100>>
-		<<case 1>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 200>>
-		<<case 2>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 300>>
-		<<case 3>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 400>>
-		<<case 4>>
-			<<set _willodds["min"] to 200>>
-			<<set _willodds["max"] to 600>>
-		<<case 5>>
-			<<set _willodds["min"] to 400>>
-			<<set _willodds["max"] to 800>>
-		<<case 6>>
-			<<set _willodds["min"] to 600>>
-			<<set _willodds["max"] to 1000>>
-		<<default>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 100>>
-		<</switch>>
-		<<set $birth.leftdifficulty to Math.round(Math.clamp(currentSkillValue('willpower') - _willodds.min, 0, _willodds.max) / (_willodds.max - _willodds.min) * 100)>>
+		<!-- Main curve comes from labour progress; stats nudge it without overriding the phase. -->
+		<<set _birthStageForDifficulty to Math.clamp(Number($birth.stage) || 1, 1, 8)>>
+		<<set _birthProgressForDifficulty to Math.clamp(Number($birth.stageprogress) || 0, 0, 99)>>
+		<<set _birthBaseDifficulty to Math.round(Math.clamp(((_birthStageForDifficulty - 1) * 100 + _birthProgressForDifficulty) / 7, 0, 100))>>
+		<<set _birthStatRatio to Math.clamp(currentSkillValue('willpower') / ((Number($willpowermax) || 1000) * (($AMCTraits && $AMCTraits.willpower) || 1)), 0, 1)>>
+		<<if _birthStatRatio lt 0.5>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 50)>>
+		<<else>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 24)>>
+		<</if>>
+		<<set $birth.leftdifficulty to Math.round(Math.clamp(_birthBaseDifficulty + _birthStatModifier, 0, 100))>>
 		<<if $birth.leftdifficulty gte 100>>
 			<span class="green">(Very Easy)</span>
 		<<elseif $birth.leftdifficulty gte 80>>
@@ -300,34 +283,17 @@
 		<<set _diffAction to _args[0]>>
 	<</if>>
 	<<if _diffAction is "rest">>
-		<<set _willodds to {}>>
-		<<switch $birth.fetusmovement>>
-		<<case 0>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 100>>
-		<<case 1>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 200>>
-		<<case 2>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 300>>
-		<<case 3>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 400>>
-		<<case 4>>
-			<<set _willodds["min"] to 200>>
-			<<set _willodds["max"] to 600>>
-		<<case 5>>
-			<<set _willodds["min"] to 400>>
-			<<set _willodds["max"] to 800>>
-		<<case 6>>
-			<<set _willodds["min"] to 600>>
-			<<set _willodds["max"] to 1000>>
-		<<default>>
-			<<set _willodds["min"] to 1>>
-			<<set _willodds["max"] to 100>>
-		<</switch>>
-		<<set $birth.rightdifficulty to Math.round(Math.clamp(currentSkillValue('willpower') - _willodds.min, 0, _willodds.max) / (_willodds.max - _willodds.min) * 100)>>
+		<!-- Main curve comes from labour progress; stats nudge it without overriding the phase. -->
+		<<set _birthStageForDifficulty to Math.clamp(Number($birth.stage) || 1, 1, 8)>>
+		<<set _birthProgressForDifficulty to Math.clamp(Number($birth.stageprogress) || 0, 0, 99)>>
+		<<set _birthBaseDifficulty to Math.round(Math.clamp(((_birthStageForDifficulty - 1) * 100 + _birthProgressForDifficulty) / 7, 0, 100))>>
+		<<set _birthStatRatio to Math.clamp(currentSkillValue('willpower') / ((Number($willpowermax) || 1000) * (($AMCTraits && $AMCTraits.willpower) || 1)), 0, 1)>>
+		<<if _birthStatRatio lt 0.5>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 50)>>
+		<<else>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 24)>>
+		<</if>>
+		<<set $birth.rightdifficulty to Math.round(Math.clamp(_birthBaseDifficulty + _birthStatModifier, 0, 100))>>
 		<<if $birth.rightdifficulty gte 100>>
 			<span class="green">(Very Easy)</span>
 		<<elseif $birth.rightdifficulty gte 80>>
@@ -403,34 +369,17 @@
 	<</if>>
 	<<switch _diffAction>>
 	<<case "rest">>
-		<<set _physodds to {}>>
-		<<switch $birth.contractions>>
-		<<case 0>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 1000>>
-		<<case 1>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 2000>>
-		<<case 2>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 3000>>
-		<<case 3>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 4000>>
-		<<case 4>>
-			<<set _physodds["min"] to 2000>>
-			<<set _physodds["max"] to 6000>>
-		<<case 5>>
-			<<set _physodds["min"] to 4000>>
-			<<set _physodds["max"] to 8000>>
-		<<case 6>>
-			<<set _physodds["min"] to 6000>>
-			<<set _physodds["max"] to 10000>>
-		<<default>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 1000>>
-		<</switch>>
-		<<set $birth.mouthdifficulty to Math.round(Math.clamp(currentSkillValue('physique') - _physodds.min, 0, _physodds.max) / (_physodds.max - _physodds.min) * 100)>>
+		<!-- Main curve comes from labour progress; stats nudge it without overriding the phase. -->
+		<<set _birthStageForDifficulty to Math.clamp(Number($birth.stage) || 1, 1, 8)>>
+		<<set _birthProgressForDifficulty to Math.clamp(Number($birth.stageprogress) || 0, 0, 99)>>
+		<<set _birthBaseDifficulty to Math.round(Math.clamp(((_birthStageForDifficulty - 1) * 100 + _birthProgressForDifficulty) / 7, 0, 100))>>
+		<<set _birthStatRatio to Math.clamp(currentSkillValue('physique') / ((Number($physiquesize) || Number($physiquemax) || 20000) * (($AMCTraits && $AMCTraits.physique) || 1)), 0, 1)>>
+		<<if _birthStatRatio lt 0.5>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 50)>>
+		<<else>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 24)>>
+		<</if>>
+		<<set $birth.mouthdifficulty to Math.round(Math.clamp(_birthBaseDifficulty + _birthStatModifier, 0, 100))>>
 		<<if $birth.mouthdifficulty gte 100>>
 			<span class="green">(Very Easy)</span>
 		<<elseif $birth.mouthdifficulty gte 80>>
@@ -559,34 +508,17 @@
 		<<set _diffAction to _args[0]>>
 	<</if>>
 	<<if _diffAction is "rest">>
-		<<set _physodds to {}>>
-		<<switch $birth.contractions>>
-		<<case 0>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 1000>>
-		<<case 1>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 2000>>
-		<<case 2>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 3000>>
-		<<case 3>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 4000>>
-		<<case 4>>
-			<<set _physodds["min"] to 2000>>
-			<<set _physodds["max"] to 6000>>
-		<<case 5>>
-			<<set _physodds["min"] to 4000>>
-			<<set _physodds["max"] to 8000>>
-		<<case 6>>
-			<<set _physodds["min"] to 6000>>
-			<<set _physodds["max"] to 10000>>
-		<<default>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 1000>>
-		<</switch>>
-		<<set $birth.pelvisdifficulty to Math.round(Math.clamp(currentSkillValue('physique') - _physodds.min, 0, _physodds.max) / (_physodds.max - _physodds.min) * 100)>>
+		<!-- Main curve comes from labour progress; stats nudge it without overriding the phase. -->
+		<<set _birthStageForDifficulty to Math.clamp(Number($birth.stage) || 1, 1, 8)>>
+		<<set _birthProgressForDifficulty to Math.clamp(Number($birth.stageprogress) || 0, 0, 99)>>
+		<<set _birthBaseDifficulty to Math.round(Math.clamp(((_birthStageForDifficulty - 1) * 100 + _birthProgressForDifficulty) / 7, 0, 100))>>
+		<<set _birthStatRatio to Math.clamp(currentSkillValue('physique') / ((Number($physiquesize) || Number($physiquemax) || 20000) * (($AMCTraits && $AMCTraits.physique) || 1)), 0, 1)>>
+		<<if _birthStatRatio lt 0.5>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 50)>>
+		<<else>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 24)>>
+		<</if>>
+		<<set $birth.pelvisdifficulty to Math.round(Math.clamp(_birthBaseDifficulty + _birthStatModifier, 0, 100))>>
 		<<if $birth.pelvisdifficulty gte 100>>
 			<span class="green">(Very Easy)</span>
 		<<elseif $birth.pelvisdifficulty gte 80>>
@@ -666,34 +598,17 @@
 		<<set _diffAction to _args[0]>>
 	<</if>>
 	<<if _diffAction is "rest">>
-		<<set _physodds to {}>>
-		<<switch $birth.contractions>>
-		<<case 0>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 1000>>
-		<<case 1>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 2000>>
-		<<case 2>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 3000>>
-		<<case 3>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 4000>>
-		<<case 4>>
-			<<set _physodds["min"] to 2000>>
-			<<set _physodds["max"] to 6000>>
-		<<case 5>>
-			<<set _physodds["min"] to 4000>>
-			<<set _physodds["max"] to 8000>>
-		<<case 6>>
-			<<set _physodds["min"] to 6000>>
-			<<set _physodds["max"] to 10000>>
-		<<default>>
-			<<set _physodds["min"] to 1>>
-			<<set _physodds["max"] to 1000>>
-		<</switch>>
-		<<set $birth.pelvisdifficulty to Math.round(Math.clamp(currentSkillValue('physique') - _physodds.min, 0, _physodds.max) / (_physodds.max - _physodds.min) * 100)>>
+		<!-- Main curve comes from labour progress; stats nudge it without overriding the phase. -->
+		<<set _birthStageForDifficulty to Math.clamp(Number($birth.stage) || 1, 1, 8)>>
+		<<set _birthProgressForDifficulty to Math.clamp(Number($birth.stageprogress) || 0, 0, 99)>>
+		<<set _birthBaseDifficulty to Math.round(Math.clamp(((_birthStageForDifficulty - 1) * 100 + _birthProgressForDifficulty) / 7, 0, 100))>>
+		<<set _birthStatRatio to Math.clamp(currentSkillValue('physique') / ((Number($physiquesize) || Number($physiquemax) || 20000) * (($AMCTraits && $AMCTraits.physique) || 1)), 0, 1)>>
+		<<if _birthStatRatio lt 0.5>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 50)>>
+		<<else>>
+			<<set _birthStatModifier to Math.round((_birthStatRatio - 0.5) * 24)>>
+		<</if>>
+		<<set $birth.pelvisdifficulty to Math.round(Math.clamp(_birthBaseDifficulty + _birthStatModifier, 0, 100))>>
 		<<if $birth.pelvisdifficulty gte 100>>
 			<span class="green">(Very Easy)</span>
 		<<elseif $birth.pelvisdifficulty gte 80>>
@@ -738,8 +653,8 @@
 	<!--debug input here-->
 
 	<<rng>>
-	<!-- Birth progress varies each turn to keep early labour from feeling like a fixed press-next loop. -->
-	<<set $birth.progressrng to random(70, 130) / 100>>
+	<!-- Birth progress varies each turn, but the floor stays high so labour doesn't drag into repeated empty turns. -->
+	<<set $birth.progressrng to random(90, 125) / 100>>
 	<!-- This section describes the role of the doctor (Harper, Gwylan, methodical guard, none) -->
 	<<if $birth.stagechange is 1>>
 		<<set $birth.stagechange to 0>>
@@ -948,10 +863,10 @@
 
 <<widget "birthStats">>
 	<<if $painmax is undefined>><<set $painmax to 200>><</if>>
-	<<if $tirednessmax is undefined>><<set $tirednessmax to 1000>><</if>>
+	<<if $tirednessmax is undefined>><<set $tirednessmax to 2000>><</if>>
 	<<if $stressmax is undefined>><<set $stressmax to 10000>><</if>>
 	<<set $pain to Math.min(Number($painmax) || 200, Math.max(0, Number($pain) || 0))>>
-	<<set $tiredness to Math.min(Number($tirednessmax) || 1000, Math.max(0, Number($tiredness) || 0))>>
+	<<set $tiredness to Math.min(Number($tirednessmax) || 2000, Math.max(0, Number($tiredness) || 0))>>
 	<<set $stress to Math.min(Number($stressmax) || 10000, Math.max(0, Number($stress) || 0))>>
 <</widget>>
 
@@ -1382,7 +1297,7 @@
 		<<case "birthresist">>
 			<<set _priorBirths to 0>>
 			<<if playerIsPregnant()>>
-				<<set _birthPregnancy to getPregnancyObject()>>
+				<<set _birthPregnancy to getPlayerPregnancyForBirth()>>
 				<<if _birthPregnancy.totalBirthEvents isnot undefined>>
 					<<set _priorBirths to _birthPregnancy.totalBirthEvents>>
 				<</if>>
@@ -1488,16 +1403,16 @@
 		<<set _tiredness += Math.ceil((_birthStageAtStart - 4) / 2)>>
 	<</if>>
 	<<set _birthPainScale to 1>>
-	<<set _birthTirednessScale to 1.5>>
+	<<set _birthTirednessScale to 1>>
 	<<set _birthStressScale to 1>>
 	<<switch $birth.type>>
 	<<case "wolf">>
 		<<set _birthPainScale to 0.9>>
-		<<set _birthTirednessScale to 1.35>>
+		<<set _birthTirednessScale to 0.9>>
 		<<set _birthStressScale to 0.95>>
 	<<case "hawk">>
 		<<set _birthPainScale to 0.75>>
-		<<set _birthTirednessScale to 1.2>>
+		<<set _birthTirednessScale to 0.75>>
 		<<set _birthStressScale to 0.85>>
 	<</switch>>
 	<<set _pain to Math.round(((_pain / 5) * _birthPainScale) - _painrelief)>>
@@ -1507,12 +1422,12 @@
 		<<set _pain to Math.clamp(_pain, 0, 9)>>
 	<</if>>
 	<<if _tiredness lt 0>>
-		<<set _tiredness to Math.clamp(Math.ceil(_tiredness * 0.5), -2, 0)>>
+		<<set _tiredness to Math.clamp(Math.ceil(_tiredness * 0.5), -4, 0)>>
 	<<else>>
-		<<set _tiredness to Math.clamp(Math.round(_tiredness * _birthTirednessScale), 0, 24)>>
+		<<set _tiredness to Math.clamp(Math.round(_tiredness * _birthTirednessScale), 0, 12)>>
 	<</if>>
 	<<if _stress lt 0>>
-		<<set _stress to Math.clamp(Math.ceil(_stress * 0.5), -1, 0)>>
+		<<set _stress to Math.clamp(Math.ceil(_stress * 0.5), -2, 0)>>
 	<<else>>
 		<<set _stress to Math.clamp(Math.round(_stress * _birthStressScale), 0, 5)>>
 	<</if>>
@@ -1529,32 +1444,26 @@
 	<<if _stress isnot 0>>
 		<<if !_tagsToUpdate.includes("stress")>><<set _tagsToUpdate.push("stress")>><</if>>
 	<</if>>
-	<!--WIP progress rates need to be metered by contractions, fetustype, wolf mushroom-->
+	<!-- Stage pacing: early labour should move briskly into pushing, while active pushing still needs a few meaningful waves. -->
 	<<set _stageProgressScale to 1>>
 	<<switch _birthStageAtStart>>
-	<<case 1>>
-		<<set _stageProgressScale to 2.0>>
-	<<case 2>>
-		<<set _stageProgressScale to 1.8>>
-	<<case 3>>
-		<<set _stageProgressScale to 1.5>>
-	<<case 4>>
-		<<set _stageProgressScale to 1.2>>
+	<<case 1 2 3 4>>
+		<<set _stageProgressScale to 12.0>>
 	<<case 5>>
-		<<set _stageProgressScale to 1.0>>
+		<<set _stageProgressScale to 3.0>>
 	<<case 6>>
-		<<set _stageProgressScale to 0.9>>
+		<<set _stageProgressScale to 2.7>>
 	<<case 7>>
-		<<set _stageProgressScale to 0.8>>
+		<<set _stageProgressScale to 2.4>>
 	<<case 8 9 10>>
 		<<set _stageProgressScale to 0>>
 	<</switch>>
 	<<set _stageMinimumWaves to 0>>
 	<<switch _birthStageAtStart>>
 	<<case 5>>
-		<<set _stageMinimumWaves to 2>>
+		<<set _stageMinimumWaves to 1>>
 	<<case 6 7>>
-		<<set _stageMinimumWaves to 3>>
+		<<set _stageMinimumWaves to 2>>
 	<</switch>>
 	<<set _progress to Math.floor((_progress + _progressboost) * $birth.progressrng * _stageProgressScale)>>
 	<<set $birth.stageprogress += _progress>>
@@ -1575,9 +1484,10 @@
 			<<set $birth.stagechange to 2>>
 		<</if>>
 	<<elseif _birthStageAtStart is 9>>
-		<<birthApplyStat "pain" -10>>
-		<<birthApplyStat "tiredness" -4>>
-		<<birthApplyStat "stress" -1>>
+		<!-- The lull between deliveries is a genuine respite: pain and nerves settle noticeably, though the accumulated fatigue mostly stays. -->
+		<<birthApplyStat "pain" -8>>
+		<<birthApplyStat "tiredness" -3>>
+		<<birthApplyStat "stress" -12>>
 		<<if !_tagsToUpdate.includes("pain")>><<set _tagsToUpdate.push("pain")>><</if>>
 		<<if !_tagsToUpdate.includes("fatigue")>><<set _tagsToUpdate.push("fatigue")>><</if>>
 		<<if !_tagsToUpdate.includes("stress")>><<set _tagsToUpdate.push("stress")>><</if>>
@@ -1776,7 +1686,7 @@
 
 <<widget "updateFilters">>
 	<<if _args[0] isnot undefined>>
-		<<set _pregnancy to getPregnancyObject()>>
+		<<set _pregnancy to getPlayerPregnancyForBirth()>>
 		<<set _potentialPartners to ["Alex", "Avery", "Eden", "Robin", "Sydney", "Whitney", "Kylar", "Great Hawk", "Black Wolf", "wolf"]>>
 		<<if _args[0] is "static">> <!--meant to only be used at the start of combat-->
 			<<if $demontf is 1>>
@@ -2557,7 +2467,7 @@
 <</widget>>
 
 <<widget "playerEggLayEventAlternate">>
-	<<set [$_eggnant, $_eggnantGenital] to getPregnancyObject("pc", true)>>
+	<<set [$_eggnant, $_eggnantGenital] to getPlayerPregnancyForBirth(true)>>
 	<<set $_eggnantGenital to $_eggnantGenital is "vagina" ? "cervix" : "ass">>
 	<<if $passage is "Bird Tower Sleep" and ($bedGuest is "Great Hawk" or $bird.state is "home" or (playerIsPregnant() and $_eggnant.type is "hawk" and $bird.state is "hunting"))>>
 		<<set _eggLayingWake to true>>

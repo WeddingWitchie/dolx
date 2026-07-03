@@ -453,3 +453,90 @@ Ends the named npc's pregnancy.
 #### randomPregnancyProgress()
 
 Requires update to add new species. Progresses random npc pregnancies as well as ending them.
+
+-------------------------------------------------------------------------------------------------------------------------------
+======================================================
+# MODDED BEHAVIOUR
+======================================================
+
+## Pregnancy Settings
+
+The pregnancy mode remains controlled by `$settings.pregnancyType` and can be one of `realistic`, `fetish`, or `silly`.
+
+-   `realistic` records sperm first, then attempts pregnancy later. The player might not know they are pregnant immediately, and the father might not be known at first.
+-   `fetish` can create pregnancy as soon as semen gets inside the player. The player immediately knows the pregnancy and father.
+-   `silly` uses non-standard triggers such as kissing or holding hands. Some pregnancy feats are disabled while this mode is active.
+
+Realistic childbirth is separate from pregnancy mode. It is controlled by `$settings.realisticChildbirthEnabled`, shown as `Enable realistic childbirth` under the pregnancy settings. Turning it on does not change how pregnancy starts; it only changes eligible birth scenes so they route through the `:: Childbirth` encounter.
+
+## Realistic Childbirth
+
+The realistic childbirth feature is built around the `$birth` object. Entry passages create `$birth`, the `:: Childbirth` passage validates it, the encounter widgets update it, and `:: Childbirth End` sends the player back to the correct recovery passage.
+
+Main files:
+
+-   `game/00-framework-tools/DoLXAddition/RCB-Mod/realistic-childbirth-passages.twee` - `:: Childbirth`, safety gate call, end routing, and egg-laying recovery passages.
+-   `game/00-framework-tools/DoLXAddition/RCB-Mod/realistic-childbirth-encounter.twee` - childbirth actions, stage progress, push urge, give-up handling, and the settings widget.
+-   `game/00-framework-tools/DoLXAddition/RCB-Mod/realistic-childbirth-init.js` - version and safety gate via `setup.rcbBirthSafetyCheck()`.
+-   `game/base-system/pregnancy/pregnancy.twee` and `game/03-JavaScript/04-Pregnancy/pregnancy.js` - shared birth widgets and final pregnancy cleanup.
+
+The encounter currently uses stages 1-4 for early labour, stages 5-7 for active pushing, stage 8 for delivery, stage 9 as the pause between multiple births, and stage 10 as finished. Early labour is intentionally short: with normal rest actions it should move into pushing after only a few `Next` clicks. Active pushing still has wave requirements, but they are kept short to avoid repetitive loops.
+
+The combat `Give up` button sets `$finish`. `:: Childbirth` catches this before running another labour turn, sets `$birth.giveup`, and sends the player to `:: Childbirth End`. This still resolves the birth; it changes the end text and avoids trapping the player in the normal labour loop.
+
+## `$birth` Contract
+
+Every realistic childbirth entry should create `$birth` before sending the player to `Childbirth`.
+
+Expected fields:
+
+-   `location` - required. Used by `Childbirth End` to choose the recovery passage.
+-   `genital` - strongly recommended for player births, especially herm saves. Use the value returned by `getPlayerPregnancyForBirth(true)`.
+-   `partner`, `inlobby`, or route-specific fields - optional, but used by some location dialogue.
+-   `epidural` - optional. Prison starts with pain relief by setting this before the encounter.
+
+Known recovery locations:
+
+-   `hospital` -> `Pregnancy Birth Hospital 3`
+-   `wolf cave` -> `Pregnancy Birth Wolf Cave 2`
+-   `cottage` -> `Farm PC Birth 5`
+-   `asylum` -> `Pregnancy Birth Asylum 3`
+-   `prison` -> `Pregnancy Birth Prison 3` or `Pregnancy Birth Prison Wolf`
+-   `bedroom` -> bedroom egg-laying recovery passages
+-   `tower` -> `Bird Tower Player Egg Laying Realistic End`
+
+If `$birth` is missing, unsupported, or not routable, `setup.rcbBirthSafetyCheck()` ejects to `Childbirth End` with a safe location where possible. This is intended to prevent soft-locks on old saves or bad entry states.
+
+## Birth-Aware Pregnancy Selection
+
+Use `getPlayerPregnancyForBirth(returnGenital = false)` when resolving player birth state. It exists because herm saves can have separate vaginal and anal pregnancy objects, and generic `getPregnancyObject()` can select the wrong one during birth or recovery.
+
+Selection order:
+
+-   If `$birth.genital` is set to `vagina` or `anus`, that slot is used.
+-   Otherwise, a pregnancy marked `gaveBirth` is preferred.
+-   Otherwise, a pregnancy with `waterBreaking` is preferred.
+-   Otherwise, an overdue pregnancy is preferred.
+-   If none of those apply, it falls back to `getPregnancyObject("pc", returnGenital)`.
+
+Normal childbirth also uses this helper in shared birth widgets. This keeps normal and realistic birth recovery aligned: the displayed baby count, child IDs, feats, and final cleanup should all use the same pregnancy slot that actually gave birth.
+
+## Normal Birth And Realistic Birth Compatibility
+
+Normal childbirth still uses the existing recovery passages. The realistic toggle only changes routes that explicitly check `$settings.realisticChildbirthEnabled` and link to `Childbirth`.
+
+For compatibility, normal birth links should still call `<<playerPrebirth>>` before recovery. Realistic childbirth calls `<<playerPrebirth>>` inside `Childbirth End`. Both paths then use the shared `birthUi`, `pregnancyFeats`, and `endPlayerPregnancy` flow.
+
+When adding or changing a player birth route:
+
+-   Use `getPlayerPregnancyForBirth(true)` before deciding species or creating `$birth`.
+-   Store the returned genital in `$birth.genital` for realistic childbirth.
+-   Keep the normal route's `<<playerPrebirth>>` call if it bypasses `Childbirth`.
+-   Make sure the recovery passage exists in the `Childbirth End` switch.
+-   Use `getPlayerPregnancyForBirth()` in recovery text that reads fetus count, father, type, birth ID, or child IDs.
+
+## Old Save Notes
+
+`playerEndWaterProgress()` repairs a specific stuck-birth state where an unresolved pregnancy was left with `gaveBirth` set, no active `$birth`, and an overdue timer. This is intentionally narrow: it clears the stale `gaveBirth` marker so the water-breaking and birth trigger can run again, without resetting unrelated pregnancy state.
+
+`endPlayerPregnancy()` clears `V.birth` and `V.childbirthstart` after the selected pregnancy is resolved. This prevents a finished birth from affecting a later pregnancy on the same save.

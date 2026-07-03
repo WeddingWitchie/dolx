@@ -4775,7 +4775,8 @@ Tears roll down <<his>> face, but <<he>> does <<his>> best to keep up <<his>> st
 
 <<if !$ambulance>>
 	<<wearProp "tea">>
-	<<set $pcBabyCount to getPregnancyObject("pc").fetus.length>>
+	<<set [_farmBirthPregnancy, _farmBirthGenital] to getPlayerPregnancyForBirth(true)>>
+	<<set $pcBabyCount to _farmBirthPregnancy.fetus.length>>
 
 	<<He>> grabs <<his>> phone and makes the call, explaining the situation and where the farm is located.
 	<br><br>
@@ -4900,14 +4901,16 @@ You start to push with all the strength you have. The pain overwhelms you. <<ggp
 The pain becomes too much for you to endure as you continue pushing. Everything fades away.
 <br><br>
 
+<<set [_farmBirthPregnancy, _farmBirthGenital] to getPlayerPregnancyForBirth(true)>>
 <<if $settings.realisticChildbirthEnabled is true>>
-	<<link [[Next (2:00)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"cottage","partner":"Alone"}>><<if $phase is 1>><<set $birth.partner to "Alex">><<else>><<set $birth.inlobby to "Alex">><</if>><<endevent>><<pass 120>><</link>>
+	<<link [[Next (2:00)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"cottage","partner":"Alone","genital":_farmBirthGenital}>><<if $phase is 1>><<set $birth.partner to "Alex">><<else>><<set $birth.inlobby to "Alex">><</if>><<endevent>><<pass 120>><</link>>
 <<else>>
 	<<link [[Next (2:00)|Farm PC Birth 5]]>><<playerPrebirth>><<pass 120>><</link>>
 <</if>>
 
 :: Farm PC Birth 5
 <<effects>>
+<<set _farmBirthPregnancy to getPlayerPregnancyForBirth()>>
 
 <<if $phase is 1>>
 	You look around and see Alex, who is still holding your hand. "Next time, tell me if you plan on breaking my hand," <<he>> laughs.
@@ -4934,7 +4937,7 @@ Harper stands up and brings your <<pluralise $pcBabyCount "baby">> over to you a
 "I've run all the tests," Harper says. "There's not a single health problem. Have you two thought of <<pluralise $pcBabyCount "a name" "their names">>?"
 <br><br>
 
-"Well," Alex says. "You did all the hard work, you should name <<if $pcBabyCount is 1>><<if getPregnancyObject().fetus[0].gender is "m">>him<<else>>her<</if>><<else>>them<</if>>."
+"Well," Alex says. "You did all the hard work, you should name <<if $pcBabyCount is 1>><<if _farmBirthPregnancy.fetus[0].gender is "m">>him<<else>>her<</if>><<else>>them<</if>>."
 <br><br>
 
 <<birthUi "pc" "alex_cottage" "alex_cottage" "Farm PC Birth 6" 10>>
@@ -4972,7 +4975,7 @@ Harper smiles and leaves, pulling <<his>> phone out of <<his>> pocket as if <<he
 	<br><br>
 
 <</if>>
-
+<<endcombat>>
 <<if (pregnancyCountBetweenParents("Alex","pc") is 1 or pregnancyCountBetweenParents("pc","Alex") is 1) or C.npc.Alex.pregnancy.nursery isnot true>>
 	<<link [[Next|Farm PC Birth 7]]>><<endevent>><</link>>
 
