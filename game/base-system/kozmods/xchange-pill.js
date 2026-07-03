@@ -2255,6 +2255,84 @@ setup.pills.push(
 	},
 
 {
+		name: "X-Change Purple Omega",
+		description:
+			"Temporary pill that grants a hermaphroditic body alongside the Omega agent: anal pregnancy compatibility and heightened pleasure during anal insemination. Pill effects may last upto a whole week.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>A low warmth settles deep inside you, lower than the usual X-Change pull, leaving your anus sensitive, needy, and terribly aware of what the Omega formula wants from you.",
+		warning_label:
+			"Warning: Enables anal pregnancy. Pregnancy will result in transformation becoming permanent. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple omega",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchange-purple.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			const isPregnantForXChange =
+				playerIsPregnant() ||
+				(V.sexStats.anus?.pregnancy != null
+				&& V.sexStats.anus.pregnancy.type != null);
+			return (!playerIsXChanged() && !isPregnantForXChange) ? 1 : 0;
+		},
+		effects: [`<<take-xchange 7 "herm" "omega">>`],
+	},
+
+{
+		name: "X-Change Purple Alpha",
+		description:
+			"Temporary pill that grants a hermaphroditic body alongside the Alpha agent: a knotted penis and a need to be inside a partner before release. Pill effects may last upto a whole week.",
+		onTakeMessage:
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Then pressure gathers in your cock, reshaping need into something heavier and more possessive. Your body wants to lock inside someone.",
+		warning_label:
+			"Warning: Known to cause intense urges to penetrate. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills["pills"][this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills["pills"][this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "purple alpha",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills["pills"][this.name].overdose;
+		},
+		icon: "img/misc/icon/xchange-purple.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null
+				? 1
+				: 0;
+		},
+		effects: [`<<take-xchange 7 "herm" "alpha">>`],
+	},
+
+{
 		name: "X-Change Purple Alpha-Omega",
 		description:
 			"Temporary pill that applies the Alpha and Omega agents together, granting a hermaphroditic body, anal pregnancy compatibility, and a knotted penis with intense urges to penetrate. Pill effects may last upto a whole week.",

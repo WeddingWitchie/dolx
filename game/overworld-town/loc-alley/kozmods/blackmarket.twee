@@ -67,10 +67,9 @@ The <<person>> gives off shady vibe as hell, and under normal circumstances you'
 <<set _xchangeSpecialPrice to 50000>>
 <<set _xchangeSpecialCost to -_xchangeSpecialPrice>>
 <<set _xchangeSpecialOffers to []>>
-/* All three labelled pills are always on offer: what your body can't use can still be slipped to someone else. */
+/* Pink and Blue labelled pills sell on the spot: what your body can't use can still be slipped to someone else. The purple line gets its own pitch. */
 <<run _xchangeSpecialOffers.push({ pill: "X-Change Pink Omega", label: "X-Change Omega", icon: "xchangePink" })>>
 <<run _xchangeSpecialOffers.push({ pill: "X-Change Blue Alpha", label: "X-Change Alpha", icon: "xchangeBlue" })>>
-<<run _xchangeSpecialOffers.push({ pill: "X-Change Purple Alpha-Omega", label: "X-Change Alpha-Omega", icon: "xchangePurple" })>>
 <<if setup.inflation.canAfford(_xchangeSpecialPrice, "blackMarket")>>
 	<<if _xchangeSpecialOffers.length gt 0>>
 		<<run V.sexStats ??= {}; V.sexStats.pills ??= {}; V.sexStats.pills.pills ??= {}; if (typeof ensurePillInventoryRecords === "function") ensurePillInventoryRecords(V.sexStats.pills.pills)>>
@@ -88,6 +87,8 @@ The <<person>> gives off shady vibe as hell, and under normal circumstances you'
 			<br>
 		<</for>>
 	<</if>>
+	<<pillicon "xchangePurple">><<link [[Buy special purple variant|Residential Shady Person Purple]]>><</link>>
+	<br>
 <<else>>
 	You don't have enough cash for the labelled pills.
 	<br>
@@ -117,6 +118,45 @@ You tell you're not interested in the offer, and turn to leave.
 
 <<endevent>>
 <<link [[Leave|Residential Alleyways]]>><</link>>
+
+:: Residential Shady Person Purple
+<<effects>>
+
+"Oho? Going straight for the purple stuff?" The <<person>> pauses for a beat, then breaks into an amused grin. "I knew it the moment I laid eyes on you. You really are a fun-looking <<lady>>. The kind that likes to have <i>fun</i>. With a capital F." <<He>> chuckles to <<himself>>, clearly pleased with <<his>> own read on you.
+<br><br>
+
+From an inner pocket of <<his>> coat, <<he>> produces three small cases, each stamped with a different mark. "The purple line comes in three flavours, my discerning friend. Omega, for those who want to be filled. Alpha, for those who'd rather do the filling. And the Alpha-Omega combo, for the greedy ones who refuse to choose." <<He>> fans them out like a card trick. "All <<printprice 50000>> apiece."
+<br><br>
+
+"So," <<his>> grin widens, "which kind of fun will it be?"
+<br><br>
+
+<<set _xchangeSpecialPrice to 50000>>
+<<set _xchangeSpecialCost to -_xchangeSpecialPrice>>
+<<set _xchangePurpleOffers to []>>
+<<run _xchangePurpleOffers.push({ pill: "X-Change Purple Omega", label: "Purple Omega" })>>
+<<run _xchangePurpleOffers.push({ pill: "X-Change Purple Alpha", label: "Purple Alpha" })>>
+<<run _xchangePurpleOffers.push({ pill: "X-Change Purple Alpha-Omega", label: "Purple Alpha-Omega" })>>
+<<if setup.inflation.canAfford(_xchangeSpecialPrice, "blackMarket")>>
+	<<run V.sexStats ??= {}; V.sexStats.pills ??= {}; V.sexStats.pills.pills ??= {}; if (typeof ensurePillInventoryRecords === "function") ensurePillInventoryRecords(V.sexStats.pills.pills)>>
+	<<for _xchangePurpleOffer range _xchangePurpleOffers>>
+		<<set _xchangePurplePill to _xchangePurpleOffer.pill>>
+		<<set _xchangePurpleText to "Buy a " + _xchangePurpleOffer.label + " pill (" + formatMoney(setup.inflation.spendPrice(_xchangeSpecialPrice, "blackMarket")) + ")">>
+		<<pillicon "xchangePurple">><<capture _xchangePurplePill _xchangePurpleText _xchangeSpecialCost>><<link _xchangePurpleText "Residential Shady Person Accept">>
+			<<run V.sexStats ??= {}; V.sexStats.pills ??= {}; V.sexStats.pills.pills ??= {}; if (typeof ensurePillInventoryRecords === "function") ensurePillInventoryRecords(V.sexStats.pills.pills)>>
+			<<set $sexStats.pills.pills[_xchangePurplePill].owned += 1>>
+			<<set $sexStats.pills.boughtOnce to true>>
+			<<money _xchangeSpecialCost "blackMarket">>
+		<</link>><</capture>>
+		<br>
+	<</for>>
+<<else>>
+	You don't have enough cash.
+	<br>
+<</if>>
+<br>
+<<link [[Never mind|Residential Shady Person Refuse]]>><</link>>
+<br>
 
 :: Park Shady Person
 <<effects>><<generate1>>
