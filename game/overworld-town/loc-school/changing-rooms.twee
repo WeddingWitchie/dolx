@@ -54,13 +54,19 @@ You are in the $changingRoomGender' changing room.
 			<<addinlineevent "schoolChangingRoomBoysComment">>
 				One of them approaches you, eyeing you up and down. "Wow, you <<print either("really ", "kinda ", "almost ", "")>>look like a <<girl>> wearing that."
 			<</addinlineevent>>
-		<<elseif $player.sex isnot "h">>
+		<<elseif $player.penisExist and $player.vaginaExist>>
 			<<addinlineevent "schoolChangingRoomBoysComment">>
-				"What's with those clothes?" one of them asks you. "I thought you were supposed to be a crossdresser."
+				One of them sidles up to you. "So, I have to know... have you ever been in the girls' changing room?" he asks. "<<print either("Please tell me they compare boob sizes!", $player.perceived_breastsize gte 3 ? "With tits like that, I'm sure you fit right in.<<set _breastInsecurity to true>>" : "I bet they'd all laugh at a flatty like you.<<set _breastInsecurity to true>>")>>"
+			<</addinlineevent>>
+		<<elseif $player.sex is _changingRoomGenderType>>
+			/* Their body now matches the room; the crossdressing rumours no longer fit what the students see */
+			<<addinlineevent "schoolChangingRoomBoysComment">>
+				One of them watches you change, frowning. "People keep saying you're really a girl," he says. "They must be blind." <span class="green">The crossdressing rumours seem shakier now.</span>
+				<<schoolrep crossdress -1>>
 			<</addinlineevent>>
 		<<else>>
 			<<addinlineevent "schoolChangingRoomBoysComment">>
-				One of them sidles up to you. "So, I have to know... have you ever been in the girls' changing room?" he asks. "<<print either("Please tell me they compare boob sizes!", $player.perceived_breastsize gte 3 ? "With tits like that, I'm sure you fit right in.<<set _breastInsecurity to true>>" : "I bet they'd all laugh at a flatty like you.<<set _breastInsecurity to true>>")>>"
+				"What's with those clothes?" one of them asks you. "I thought you were supposed to be a crossdresser."
 			<</addinlineevent>>
 		<</if>>
 	<</if>>
@@ -227,13 +233,19 @@ You are in the $changingRoomGender' changing room.
 			<<addinlineevent "schoolChangingRoomGirlsComment">>
 				One of them approaches you, eyeing you up and down. "Wow, you <<print either("really ", "kinda ", "almost ", "")>>look like a <<girl>> wearing that."
 			<</addinlineevent>>
-		<<elseif $player.sex isnot "h">>
-			<<addinlineevent "schoolChangingRoomGirlsComment">>
-				"What's with those clothes?" one of them asks you. "I thought you were supposed to be a crossdresser."
-			<</addinlineevent>>
-		<<else>>
+		<<elseif $player.penisExist and $player.vaginaExist>>
 			<<addinlineevent "schoolChangingRoomGirlsComment">>/* Intended usage of She */
 				One of them sidles up to you. "So, I have to know... have you ever been in the boys' changing room?" she asks. <<print either(`"Please tell me they compare dick sizes!" <<incgpenisinsecurity>>`, $player.perceived_breastsize gte 3 ? `"I bet they loved getting an eyeful of those tits!"<<set _breastInsecurity to true>>` : `"I'm sure a flatty like you fit right in."<<set _breastInsecurity to true>>`)>>
+			<</addinlineevent>>
+		<<elseif $player.sex is _changingRoomGenderType>>
+			/* Their body now matches the room; the crossdressing rumours no longer fit what the students see */
+			<<addinlineevent "schoolChangingRoomGirlsComment">>
+				One of them watches you change, frowning. "People keep saying you're really a boy," she says. "They must be blind." <span class="green">The crossdressing rumours seem shakier now.</span>
+				<<schoolrep crossdress -1>>
+			<</addinlineevent>>
+		<<else>>
+			<<addinlineevent "schoolChangingRoomGirlsComment">>
+				"What's with those clothes?" one of them asks you. "I thought you were supposed to be a crossdresser."
 			<</addinlineevent>>
 		<</if>>
 	<</if>>
@@ -782,24 +794,24 @@ Mason seems unconvinced.
 
 <<if $exposed gte 1>>
 	<<if $genderknown.includes("Mason")>>
-		<<if $player.gender_appearance is "m" and $changingRoomGender is "girls">>
-			"Y-you should go back to the boys' room, and get dressed."
-		<<elseif $player.gender_appearance is "f" and $changingRoomGender is "boys">>
-			"Y-you should go back to the girls' room, and get dressed."
+		<<if $player.sex is "m" and $changingRoomGender is "girls">>
+			"Y-You should go back to the boys' room, and get dressed."
+		<<elseif $player.sex is "f" and $changingRoomGender is "boys">>
+			"Y-You should go back to the girls' room, and get dressed."
 		<<else>>
-			"Y-you should get dressed."
+			"Y-You should get dressed."
 		<</if>>
 	<<else>>
 		<<if $player.gender_appearance is "m" and $changingRoomGender is "girls">>
-			"Y-you should go back to the boys' room, and get dressed."
+			"Y-You should go back to the boys' room, and get dressed."
 		<<elseif $player.gender_appearance is "f" and $changingRoomGender is "boys">>
-			"Y-you should go back to the girls' room, and get dressed."
+			"Y-You should go back to the girls' room, and get dressed."
 		<<else>>
-			"Y-you should get dressed."
+			"Y-You should get dressed."
 		<</if>>
 	<</if>>
 <<else>>
-	<<if $genderknown.includes("Mason") and isHermOrCrossdresser()>>
+	<<if $genderknown.includes("Mason")>>
 		<<if $player.sex is "m" and $changingRoomGender is "girls">>
 			"Let's not meet in the girls' changing room again."
 		<<elseif $player.sex is "f" and $changingRoomGender is "boys">>

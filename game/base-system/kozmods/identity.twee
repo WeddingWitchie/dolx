@@ -1362,7 +1362,11 @@
 					/* Guard: don't change body unless identity TARGET matches direction */
 					<<set _targetOnFeminineSide to ($xchange.giTarget gt _mid)>>
 
-					<<if (_feminising and not _targetOnFeminineSide) or ((not _feminising) and _targetOnFeminineSide)>>
+					/* Like the X-Change pill (pillTimerPaused), the shift halts while a pregnancy runs its course or an ear slime occupies the genitals.
+					Otherwise masculinising could remove a pregnant or slime-filled vagina. */
+					<<set _giShiftBlocked to ($sexStats.vagina.pregnancy.type isnot null or $sexStats.anus.pregnancy.type isnot null or ($earSlime and $earSlime.growth gt 50))>>
+
+					<<if _giShiftBlocked or (_feminising and not _targetOnFeminineSide) or ((not _feminising) and _targetOnFeminineSide)>>
 						<<set $xchange.giDrift to 0>>
 					<<else>>
 						/* Reset stage machine when direction flips */
@@ -1459,6 +1463,12 @@
 			<</if>>
 		<</if>>
 
+		/* Sex follows anatomy. Scenes that expose the player's body read $player.sex, so the flip can't wait for stage 3 (after all the slow secondary changes). */
+		<<if $player.sex is "m" and $player.vaginaExist and !$player.penisExist>>
+			<<set $player.sex to "f">>
+			<<gi-note "Your body now reads as female.">>
+		<</if>>
+
 		/* Stage 2: secondary characteristics — grow toward preferred targets */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
 			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
@@ -1548,6 +1558,12 @@
 			<<else>>
 				<<set $xchange.giShiftStage to 2>>
 			<</if>>
+		<</if>>
+
+		/* Sex follows anatomy. Scenes that expose the player's body read $player.sex, so the flip can't wait for stage 3 (after all the slow secondary changes). */
+		<<if $player.sex is "f" and $player.penisExist and !$player.vaginaExist>>
+			<<set $player.sex to "m">>
+			<<gi-note "Your body now reads as male.">>
 		<</if>>
 
 		/* Stage 2: secondary characteristics — grow penis, shrink breasts/bottom toward targets */

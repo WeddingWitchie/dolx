@@ -1367,6 +1367,19 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.saveWasLoadedAsHerm to 1>>
 	<</if>>
 
+	<!-- One-time realign: the gender-identity shift used to leave $player.sex stale until every secondary change finished, so mid-shift saves can carry fully swapped genitals under the old sex label.
+	Sex means anatomy everywhere else, so realign the unambiguous cases once. -->
+	<<if !$xchange.fixGiStaleSex>>
+		<<set $xchange.fixGiStaleSex to true>>
+		<<if $player.sex is "m" and $player.vaginaExist and !$player.penisExist>>
+			<<set $player.sex to "f">>
+			<<run $xchange.errorLog.push("Physical sex was still recorded as male on a fully female body (stale mid-shift data) and has been corrected.")>>
+		<<elseif $player.sex is "f" and $player.penisExist and !$player.vaginaExist>>
+			<<set $player.sex to "m">>
+			<<run $xchange.errorLog.push("Physical sex was still recorded as female on a fully male body (stale mid-shift data) and has been corrected.")>>
+		<</if>>
+	<</if>>
+
 	<!-- Adapt any leftover non-DoLX herm NPCs (gender not m/f) to a single available sex, mirroring the player pass above.
 	     Routes by the NPC's canonical startingSex so they return to their normal sex (default male).
 		 Skips NPCs that are herm via a live DoLX pill (.xchange), since that's an intended, temporary state, not stale cross-mod data. -->
