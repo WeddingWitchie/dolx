@@ -243,13 +243,21 @@ release_job:
       Test-PackageLink "Images" $imageObj.url
       Test-PackageLink "Audio" $audioObj.url
 
-      & "C:\GitLab-Runner\release-cli.exe" create `
-        --name "DoL:X-Change Edition $VERSION" `
-        --description "$desc" `
-        --ref "$env:CI_COMMIT_SHA" `
-        --tag-name "$VERSION" `
-        --assets-link "$htmlJSON" `
-        --assets-link "$imageJSON" `
-        --assets-link "$audioJSON"
+      $releaseArgs = @(
+        "create",
+        "--name", "DoL:X-Change Edition $VERSION",
+        "--description", "$desc",
+        "--ref", "$env:CI_COMMIT_SHA",
+        "--tag-name", "$VERSION",
+        "--assets-link", "$htmlJSON",
+        "--assets-link", "$imageJSON",
+        "--assets-link", "$audioJSON"
+      )
+
+      & "C:\GitLab-Runner\release-cli.exe" @releaseArgs
+
+      if ($LASTEXITCODE -ne 0) {
+        throw "release-cli failed."
+      }
   after_script:
     - echo "Finished creating release."
