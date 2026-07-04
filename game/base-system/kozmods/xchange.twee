@@ -545,10 +545,13 @@
 			<<load-body "herm">>
 		<<else>>
 			<<set _body to $xchange.pill.originalBody>>
-			<<if $player.gender is "m">>
+			/* Restore whatever the genderflip-first step (become-boy/become-girl) destroyed, keyed on the ORIGINAL body sex NOT $player.gender identity.
+			The two can legitimately disagree (e.g. a female-identifying male: sex "m", gender "f"), and keying on identity used to run the wrong branch, leaving the herm's newly-gained penis stuck at size 0 (Micro). */
+			<<set _origSex to (_body and (_body.sex || _body.gender_body)) || $player.gender>>
+			<<if _origSex is "m">>
 				<<set $player.penissize to _body.penissize>>
 				<<set $ballssize to _body.ballssize>>
-			<<elseif $player.gender is "f">>
+			<<elseif _origSex is "f">>
 				<<set $player.breastsize to _body.breastsize>>
 				<<set $player.bottomsize to _body.bottomsize>>
 			<</if>>
@@ -583,6 +586,18 @@
 		<<set $player.ballsExist to $xchange.useHermBalls eq 1>>
 		<<set $player.penisExist to true>>
 		<<set $player.vaginaExist to true>>
+		/* Safety net: a herm always has a penis, so never leave it stuck at 0 (Micro) or invalid e.g. from a stale cached body, an odd origin sex, or a low genderflip roll.
+		Give it at least Normal, capped to the configured penis-size range. */
+		<<if $player.penisExist and (!Number.isInteger($player.penissize) or $player.penissize lt 1)>>
+			<<if Number.isInteger($penissizemin) and Number.isInteger($penissizemax) and $penissizemax gte $penissizemin>>
+				<<set $player.penissize to random(Math.clamp(4, $penissizemin, $penissizemax), $penissizemax)>>
+			<<else>>
+				<<set $player.penissize to 4>>
+			<</if>>
+			<<if $player.ballsExist and (!Number.isInteger($ballssize) or $ballssize lt 1)>>
+				<<set $ballssize to random(1,5)>>
+			<</if>>
+		<</if>>
 		/* Herm body has a vagina; preserve menstruation if the original body had one (so pregnancy still works) */
 		<<if $xchange.pill.baseGenitals and $xchange.pill.baseGenitals.vagina>>
 			<<set $sexStats.vagina.menstruation.running = true>>
