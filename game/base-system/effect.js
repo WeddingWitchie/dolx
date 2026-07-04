@@ -1117,6 +1117,24 @@ function effects() {
 			}
 		});
 
+		if (V.insanityTraitMessage) {
+			if (V.insanityTraitMessage === "gain") {
+				element(
+					"span",
+					'The weight of everything you\'ve endured finally cracks something inside. Your grip on reality is slipping. You\'ve gained the',
+					"red"
+				);
+				element("span", '"Insanity"', "red");
+				element("span", "trait.", "red");
+			} else if (V.insanityTraitMessage === "loss") {
+				element("span", "As the worst of your trauma fades, your mind slowly knits itself back together. You've lost the", "lblue");
+				element("span", '"Insanity"', "red");
+				element("span", "trait.", "lblue");
+			}
+			br();
+			delete V.insanityTraitMessage;
+		}
+
 		if (V.nectarmessage) {
 			switch (V.nectarmessage) {
 				case "traitGain":

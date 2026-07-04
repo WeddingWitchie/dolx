@@ -1074,6 +1074,7 @@ function settingsObjects(type) {
 					transgender: { bool: true, displayName: "Transgender background:" },
 					lustful: { bool: true, displayName: "Lustful background:" },
 					plantlover: { bool: true, displayName: "Dendrophile background:" },
+					insanity: { bool: true, displayName: "Insanity background:" },
 				},
 				startingseason: {
 					strings: ["spring", "summer", "autumn", "winter", "random"],
