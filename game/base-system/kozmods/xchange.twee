@@ -55,8 +55,10 @@
 		<<set $bodysize to setup.stepBodySize($bodysize, -1)>>
 
 		/* Loading existing values, or generating new ones */
+		<<set _xchangeLoadedBody to false>>
 		<<if $player.sex !== "f" && setup.xChangeCachedBodyUsable("genderswapped")>>
 			<<load-body "genderswapped">>
+			<<set _xchangeLoadedBody to true>>
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
 				/* Optional: allow wraith appearance even on loaded bodies */
 				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
@@ -265,11 +267,13 @@
 			<</if>>
 		<</if>>
 
-		/* Parasites */
-		<<set $parasite.clit to $parasite.penis>>
-		<<set $parasite.labia to $parasite.balls>>
-		<<set $parasite.penis to {}>>
-		<<set $parasite.balls to {}>>
+		/* Wild parasites are body-scoped: cached bodies restore theirs in load-body, fresh bodies start clean.
+		   Ear slime is global (lives in your head), so preserve its ear slots across the wipe and leave $earSlime untouched. */
+		<<if !_xchangeLoadedBody>>
+			<<set _xchangeEarKeep to setup.xchangeCaptureEarParasites()>>
+			<<parasiteinit>>
+			<<run setup.xchangeRestoreEarParasites(_xchangeEarKeep)>>
+		<</if>>
 
 		<<run updatePhysique()>>
 		<<updatesidebarimg>>
@@ -316,8 +320,10 @@
 		<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
 
 		/* Loading existing values, or generating new ones */
+		<<set _xchangeLoadedBody to false>>
 		<<if $player.sex !== "m" && setup.xChangeCachedBodyUsable("genderswapped")>>
 			<<load-body "genderswapped">>
+			<<set _xchangeLoadedBody to true>>
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
 				/* Optional: allow wraith appearance even on loaded bodies */
 				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
@@ -524,11 +530,13 @@
 			<</if>>
 		<</if>>
 
-		/* Parasites (reverse of become-girl: move clit/labia back into penis/balls, then clear clit/labia) */
-		<<set $parasite.penis to $parasite.clit>>
-		<<set $parasite.balls to ($parasite.labia isnot {} ? $parasite.labia : $parasite.vagina)>>
-		<<set $parasite.clit to {}>>
-		<<set $parasite.labia to {}>>
+		/* Wild parasites are body-scoped: cached bodies restore theirs in load-body, fresh bodies start clean.
+		   Ear slime is global (lives in your head), so preserve its ear slots across the wipe and leave $earSlime untouched. */
+		<<if !_xchangeLoadedBody>>
+			<<set _xchangeEarKeep to setup.xchangeCaptureEarParasites()>>
+			<<parasiteinit>>
+			<<run setup.xchangeRestoreEarParasites(_xchangeEarKeep)>>
+		<</if>>
 
 		<<run updatePhysique()>>
 		<<updatesidebarimg>>
@@ -541,8 +549,10 @@
 			<<set $player.bodyshape to "slender">>
 		<</if>>
 
+		<<set _xchangeLoadedBody to false>>
 		<<if setup.xChangeCachedBodyUsable("herm")>>
 			<<load-body "herm">>
+			<<set _xchangeLoadedBody to true>>
 		<<else>>
 			<<set _body to $xchange.pill.originalBody>>
 			/* Restore whatever the genderflip-first step (become-boy/become-girl) destroyed, keyed on the ORIGINAL body sex NOT $player.gender identity.
@@ -603,6 +613,13 @@
 			<<set $sexStats.vagina.menstruation.running = true>>
 		<<else>>
 			<<set $sexStats.vagina.menstruation.running = false>>
+		<</if>>
+		/* Wild parasites are body-scoped: cached bodies restore theirs in load-body, fresh bodies start clean.
+		   Ear slime is global (lives in your head), so preserve its ear slots across the wipe and leave $earSlime untouched. */
+		<<if !_xchangeLoadedBody>>
+			<<set _xchangeEarKeep to setup.xchangeCaptureEarParasites()>>
+			<<parasiteinit>>
+			<<run setup.xchangeRestoreEarParasites(_xchangeEarKeep)>>
 		<</if>>
 		<<set $beauty += 10000>>
 		<<clamp>>
@@ -749,7 +766,8 @@
 			<<exit>>
 		<</if>>
 
-		/* Parasites (deep clone to avoid reference mutation) */
+		/* Wild parasites are body-scoped (deep clone to avoid reference mutation).
+		Ear slots ride along in the clone but are overwritten with the current global ear slime on load-body, so ear slime stays global regardless of what's stored here. */
 		<<run _savedbody.parasite = (typeof clone === "function") ? clone(V.parasite) : JSON.parse(JSON.stringify(V.parasite)) >>
 
 		/* DHM ("dye HARDER" mod) custom hair / fringe colour state */
@@ -884,6 +902,17 @@
 		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
 		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
 		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
+
+		/* Wild parasites are body-scoped; ear slime (both $earSlime state and its ear slots) is global and rides along with the player.
+		   Capture the current ear slots before the whole-object replacement below wipes them, then re-apply. $earSlime is left untouched. */
+		<<set _xchangeEarKeep to setup.xchangeCaptureEarParasites()>>
+		<<if _body.parasite isnot undefined and _body.parasite isnot null and typeof _body.parasite is "object">>
+			<<run V.parasite = (typeof clone === "function") ? clone(_body.parasite) : JSON.parse(JSON.stringify(_body.parasite)) >>
+		<<else>>
+			<<parasiteinit>>
+		<</if>>
+		<<run setup.xchangeRestoreEarParasites(_xchangeEarKeep)>>
+		<<run if (setup.xchangeRepairParasiteDisplayCache) setup.xchangeRepairParasiteDisplayCache() >>
 
 		/* Apply this body's stored genital virginity from the stable store.
 		   Entering a body restores its own record; a body that has never existed before is seeded (X-Change/herm => virgin, real => keeps current). */
@@ -1096,11 +1125,6 @@
 
 			<<set $xchangeFameMerged to true>>
 		<</if>> */
-
-		/* Parasites restore */
-		<<if _body.parasite isnot undefined>>
-			<<run V.parasite = (typeof clone === "function") ? clone(_body.parasite) : JSON.parse(JSON.stringify(_body.parasite)) >>
-		<</if>>
 
 		<<calchairlengthstage>>
 		<<run updatePhysique()>>

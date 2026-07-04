@@ -449,6 +449,70 @@ window.wornSetupClothes = wornSetupClothes;
 		V.player.penissize = 2;
 	};
 
+	setup.xchangeRepairParasiteDisplayCache = function () {
+		const V = State?.variables;
+		const parasite = V?.parasite;
+		if (!parasite || typeof parasite !== "object" || Array.isArray(parasite)) return false;
+
+		// Fallbacks mirror <<parasiteinit>> (game/base-system/parasites.twee) exactly; keep them in sync if base-DoL adds body parts.
+		const bodyparts = Array.isArray(parasite.bodyparts)
+			? parasite.bodyparts
+			: ["nipples", "bottom", "breasts", "penis", "balls", "clit", "anus", "vagina", "labia", "left_thigh", "right_thigh", "left_foot", "right_foot", "left_arm", "right_arm", "left_hand", "right_hand", "tummy", "back", "face", "mouth", "left_ear", "right_ear", "hair"];
+		const types = Array.isArray(parasite.types) ? parasite.types : ["urchin", "slime", "maggot", "parasite"];
+		// The "parasite" type (chastity/ear-slime genital parasite) is always applied with the "noSuck" flag, so base-DoL never lists it in the display-cache arrays and renders it separately from slots (caption.twee).
+		// Rebuilding it here would double-display it, so it is deliberately excluded and its array is forced empty below.
+		const displayTypes = types.filter(type => type !== "parasite");
+		const rebuilt = {};
+
+		for (const type of types) rebuilt[type] = [];
+
+		for (const part of bodyparts) {
+			if (part === "left_ear" || part === "right_ear") continue;
+			const slot = parasite[part];
+			if (!slot || typeof slot !== "object" || Array.isArray(slot)) continue;
+			const name = slot.name;
+			if (!displayTypes.includes(name)) continue;
+			const label = part.replace(/_/g, " ");
+			if (!rebuilt[name].includes(label)) rebuilt[name].push(label);
+		}
+
+		let changed = false;
+		for (const type of types) {
+			const current = Array.isArray(parasite[type]) ? parasite[type] : [];
+			const next = rebuilt[type] || [];
+			if (current.length !== next.length || current.some((value, index) => value !== next[index])) changed = true;
+			parasite[type] = next;
+		}
+
+		return changed;
+	};
+
+	// Ear slime is GLOBAL (it lives in the player's head, not a body), so it must survive body swaps even though wild parasites are body-scoped.
+	// Both parasiteinit and restoring a body's parasite snapshot replace the whole $parasite object and would wipe the ear slots;
+	// capture them first, then re-apply with xchangeRestoreEarParasites so the ear slime rides along.
+	setup.xchangeCaptureEarParasites = function () {
+		const V = State?.variables;
+		const parasite = V?.parasite;
+		const cloneFn = (typeof clone === "function") ? clone : (o) => JSON.parse(JSON.stringify(o));
+		const grab = part => {
+			const slot = parasite && parasite[part];
+			return (slot && typeof slot === "object" && !Array.isArray(slot)) ? cloneFn(slot) : {};
+		};
+		return { left_ear: grab("left_ear"), right_ear: grab("right_ear") };
+	};
+
+	setup.xchangeRestoreEarParasites = function (captured) {
+		const V = State?.variables;
+		const parasite = V?.parasite;
+		if (!parasite || typeof parasite !== "object" || Array.isArray(parasite)) return;
+		if (!captured || typeof captured !== "object") return;
+		const cloneFn = (typeof clone === "function") ? clone : (o) => JSON.parse(JSON.stringify(o));
+		for (const part of ["left_ear", "right_ear"]) {
+			const slot = captured[part];
+			parasite[part] = (slot && typeof slot === "object" && !Array.isArray(slot)) ? cloneFn(slot) : {};
+		}
+	};
+
 	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled, and prevent "armed" drift/stage from firing later.
 	setup.xchangeEnsureGiSafety = function () {
 		const V = State?.variables;
@@ -492,6 +556,7 @@ window.wornSetupClothes = wornSetupClothes;
 		try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
 		try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
 		try { setup.xchangeEnsureAlphaUsable(); } catch (e) {}
+		try { setup.xchangeRepairParasiteDisplayCache(); } catch (e) {}
 		try { setup.xchangeEnsureGiSafety(); } catch (e) {}
 	};
 
