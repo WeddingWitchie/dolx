@@ -67,8 +67,17 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	static #emittersByGroup = new Map(); // group -> Set<ParticleEmitter>
 	static #tickersByGroup = new Map(); // group -> Animation
 	static #originalOnUpdate = new WeakMap(); // group -> function
-	static #wrappedOriginalOnUpdate = new WeakMap(); // wrapper -> function
+	static #wrapperKey = Symbol("particleWrapperOriginal"); // tag stored on our wrapper -> the true (unwrapped) onUpdate
 	static #key = "particleTicker";
+
+	// Peel off any of our own wrappers so we never wrap a wrapper (prevents stacked update loops -> "too much recursion")
+	static #unwrapOnUpdate(fn) {
+		let current = fn;
+		while (typeof current === "function" && current[Weather.Renderer.ParticleEmitter.#wrapperKey]) {
+			current = current[Weather.Renderer.ParticleEmitter.#wrapperKey];
+		}
+		return current;
+	}
 
 	#spawnAccumulator = 0;
 	#spawnTimer = 0;
@@ -102,7 +111,8 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 
 		// Real-time seconds
 		const currentOnUpdate = typeof group.onUpdate === "function" ? group.onUpdate : () => {};
-		const original = this.#wrappedOriginalOnUpdate.get(currentOnUpdate) || this.#originalOnUpdate.get(group) || currentOnUpdate.bind(group);
+		// Always resolve to the genuine (unwrapped) callback so a stale wrapper is never re-wrapped.
+		const original = ParticleEmitter.#unwrapOnUpdate(currentOnUpdate);
 		this.#originalOnUpdate.set(group, original);
 		const nowFn = typeof performance !== "undefined" ? () => performance.now() : () => Date.now();
 		const targetDt = frameDelay / 1000;
@@ -130,23 +140,24 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 						em.update(dt);
 					}
 				}
-				original();
+				original.call(group);
 			} finally {
 				updating = false;
 			}
 		};
-		this.#wrappedOriginalOnUpdate.set(wrappedOnUpdate, original);
+		// Tag the wrapper with the genuine callback so it can always be unwrapped, even if the maps fall out of sync.
+		wrappedOnUpdate[ParticleEmitter.#wrapperKey] = original;
 		group.onUpdate = wrappedOnUpdate;
 	}
 
 	static #restoreGroup(group) {
 		if (!group) return;
 		const currentOnUpdate = group.onUpdate;
-		const original = Weather.Renderer.ParticleEmitter.#originalOnUpdate.get(group);
-		if (original) group.onUpdate = original;
-		if (typeof currentOnUpdate === "function") {
-			Weather.Renderer.ParticleEmitter.#wrappedOriginalOnUpdate.delete(currentOnUpdate);
-		}
+		// Prefer unwrapping the live callback directly; fall back to the stored original.
+		const original =
+			(typeof currentOnUpdate === "function" && currentOnUpdate[Weather.Renderer.ParticleEmitter.#wrapperKey]) ||
+			Weather.Renderer.ParticleEmitter.#originalOnUpdate.get(group);
+		if (original) group.onUpdate = ParticleEmitter.#unwrapOnUpdate(original);
 		Weather.Renderer.ParticleEmitter.#originalOnUpdate.delete(group);
 		Weather.Renderer.ParticleEmitter.#tickersByGroup.get(group)?.disable();
 		group.animations?.delete(Weather.Renderer.ParticleEmitter.#key);
