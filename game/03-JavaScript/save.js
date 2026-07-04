@@ -730,9 +730,6 @@ function importSettingsData(data) {
 	}
 
 	if (overrides.general != null) {
-		const listObject = settingsObjects("general");
-		const listKey = Object.keys(listObject);
-		const namedObjects = ["map", "shopDefaults", "settings", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
 		// correct swapped min/max values
 		if (overrides.general.breastsizemin > overrides.general.breastsizemax) {
 			const temp = overrides.general.breastsizemin;
@@ -744,24 +741,7 @@ function importSettingsData(data) {
 			overrides.general.penissizemin = overrides.general.penissizemax;
 			overrides.general.penissizemax = temp;
 		}
-		for (let i = 0; i < listKey.length; i++) {
-			if (namedObjects.includes(listKey[i]) && overrides.general[listKey[i]] != null) {
-				const itemKey = Object.keys(listObject[listKey[i]]);
-				for (let j = 0; j < itemKey.length; j++) {
-					if (V[listKey[i]][itemKey[j]] != null && overrides.general[listKey[i]][itemKey[j]] != null) {
-						if (validateValue(listObject[listKey[i]][itemKey[j]], overrides.general[listKey[i]][itemKey[j]])) {
-							V[listKey[i]][itemKey[j]] = overrides.general[listKey[i]][itemKey[j]];
-						}
-					}
-				}
-			} else if (!namedObjects.includes(listKey[i])) {
-				if (V[listKey[i]] != null && overrides.general[listKey[i]] != null) {
-					if (validateValue(listObject[listKey[i]], overrides.general[listKey[i]])) {
-						V[listKey[i]] = overrides.general[listKey[i]];
-					}
-				}
-			}
-		}
+		importSettingsWalk(settingsObjects("general"), overrides.general, V);
 	}
 
 	if (overrides.npc != null) {
@@ -828,21 +808,114 @@ function validateValue(configuration, value) {
 			valid = true;
 		}
 	}
+	if (keyArray.includes("number")) {
+		if (typeof value === "number" && Number.isFinite(value)) {
+			valid = true;
+		}
+	}
 	return valid;
 }
 window.validateValue = validateValue;
 
+/**
+ * A config node is a "leaf" (a single setting descriptor) when it declares a value type.
+ * Otherwise it is a container whose children are traversed recursively.
+ * @param {object} config
+ * @returns {boolean}
+ */
+function isSettingLeaf(config) {
+	if (config == null || typeof config !== "object") {
+		return false;
+	}
+	return ["min", "max", "bool", "boolLetter", "strings", "number"].some(key => key in config);
+}
+window.isSettingLeaf = isSettingLeaf;
+
+/**
+ * Recursively copy valid setting values from a live variable tree into an export object,
+ * driven by the settings schema so only known keys (never runtime state) are written.
+ * @param {object} config schema node
+ * @param {object} source live variable node (usually V or a sub-object)
+ * @param {object} output destination node
+ */
+function exportSettingsWalk(config, source, output) {
+	if (config == null || source == null || typeof source !== "object") {
+		return;
+	}
+	for (const key of Object.keys(config)) {
+		const cfg = config[key];
+		if (cfg == null) continue;
+		if (isSettingLeaf(cfg)) {
+			if (source[key] != null && validateValue(cfg, source[key])) {
+				output[key] = source[key];
+			}
+		} else if (source[key] != null && typeof source[key] === "object") {
+			const sub = {};
+			exportSettingsWalk(cfg, source[key], sub);
+			if (Object.keys(sub).length > 0) {
+				output[key] = sub;
+			}
+		}
+	}
+}
+window.exportSettingsWalk = exportSettingsWalk;
+
+/**
+ * Recursively write valid setting values from an imported object into the live variable tree,
+ * driven by the settings schema. Only overwrites settings that already exist, mirroring legacy behaviour.
+ * @param {object} config schema node
+ * @param {object} override imported node
+ * @param {object} target live variable node (usually V or a sub-object)
+ */
+function importSettingsWalk(config, override, target) {
+	if (config == null || override == null || target == null || typeof override !== "object" || typeof target !== "object") {
+		return;
+	}
+	for (const key of Object.keys(config)) {
+		const cfg = config[key];
+		if (cfg == null) continue;
+		if (isSettingLeaf(cfg)) {
+			if (override[key] != null && target[key] != null && validateValue(cfg, override[key])) {
+				target[key] = override[key];
+			}
+		} else if (override[key] != null && target[key] != null && typeof override[key] === "object" && typeof target[key] === "object") {
+			importSettingsWalk(cfg, override[key], target[key]);
+		}
+	}
+}
+window.importSettingsWalk = importSettingsWalk;
+
+/**
+ * Flatten every schema leaf present in an imported data node into a display list,
+ * used by the import-confirmation UI for settings groups that are nested.
+ * @param {object} config schema node
+ * @param {object} data imported node
+ * @param {Array<{name: string, value: any, valid: boolean}>} out
+ * @returns {Array<{name: string, value: any, valid: boolean}>}
+ */
+function settingsPreviewLeaves(config, data, out) {
+	out = out || [];
+	if (config == null || data == null || typeof data !== "object") {
+		return out;
+	}
+	for (const key of Object.keys(config)) {
+		const cfg = config[key];
+		if (cfg == null) continue;
+		if (isSettingLeaf(cfg)) {
+			if (data[key] !== undefined) {
+				out.push({ name: cfg.displayName || key, value: data[key], valid: validateValue(cfg, data[key]) });
+			}
+		} else if (data[key] != null && typeof data[key] === "object") {
+			settingsPreviewLeaves(cfg, data[key], out);
+		}
+	}
+	return out;
+}
+window.settingsPreviewLeaves = settingsPreviewLeaves;
+
 function exportSettings(data, type) {
 	const output = {
-		general: {
-			map: {},
-			shopDefaults: {},
-			options: {},
-			settings: {},
-			wardrobeDefaults: {},
-			combatExtended: {},
-			AMCTraits: {},
-		},
+		general: {},
 		npc: {},
 	};
 	let listObject;
@@ -861,28 +934,9 @@ function exportSettings(data, type) {
 		output.starting = startingOutput;
 	}
 
-	listObject = settingsObjects("general");
-	listKey = Object.keys(listObject);
-	const namedObjects = ["map", "shopDefaults", "settings", "options", "wardrobeDefaults", "combatExtended", "AMCTraits"];
+	output.general = {};
+	exportSettingsWalk(settingsObjects("general"), V, output.general);
 
-	for (let i = 0; i < listKey.length; i++) {
-		if (namedObjects.includes(listKey[i]) && V[listKey[i]] != null) {
-			const itemKey = Object.keys(listObject[listKey[i]]);
-			for (let j = 0; j < itemKey.length; j++) {
-				if (V[listKey[i]][itemKey[j]] != null) {
-					if (validateValue(listObject[listKey[i]][itemKey[j]], V[listKey[i]][itemKey[j]])) {
-						output.general[listKey[i]][itemKey[j]] = V[listKey[i]][itemKey[j]];
-					}
-				}
-			}
-		} else if (!namedObjects.includes(listKey[i])) {
-			if (V[listKey[i]] != null) {
-				if (validateValue(listObject[listKey[i]], V[listKey[i]])) {
-					output.general[listKey[i]] = V[listKey[i]];
-				}
-			}
-		}
-	}
 	listObject = settingsObjects("npc");
 	listKey = Object.keys(listObject);
 	for (let i = 0; i < V.NPCNameList.length; i++) {
@@ -914,7 +968,7 @@ function exportSettings(data, type) {
 }
 window.exportSettings = exportSettings;
 
-const settingContainers = ["player", "skin", "settings"];
+const settingContainers = ["player", "skin", "settings", "background"];
 
 function settingsObjects(type) {
 	let result;
@@ -938,34 +992,34 @@ function settingsObjects(type) {
 				},
 				breastsensitivity: {
 					min: 1,
-					max: 3,
+					max: 4,
 					displayName: "Breast sensitivity:",
 					decimals: 0,
-					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive", 4: "Hyper Sensitive" },
 					randomize: "characterTrait",
 				},
 				genitalsensitivity: {
 					min: 1,
-					max: 3,
+					max: 4,
 					displayName: "Genital sensitivity:",
 					decimals: 0,
-					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive", 4: "Hyper Sensitive" },
 					randomize: "characterTrait",
 				},
 				mouthsensitivity: {
 					min: 1,
-					max: 3,
+					max: 4,
 					decimals: 0,
 					displayName: "Mouth sensitivity:",
-					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive", 4: "Hyper Sensitive" },
 					randomize: "characterTrait",
 				},
 				bottomsensitivity: {
 					min: 1,
-					max: 3,
+					max: 4,
 					decimals: 0,
 					displayName: "Bottom sensitivity:",
-					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive" },
+					textMap: { 1: "Normal", 2: "Sensitive", 3: "Very Sensitive", 4: "Hyper Sensitive" },
 					randomize: "characterTrait",
 				},
 				alcoholMod: {
@@ -1009,9 +1063,17 @@ function settingsObjects(type) {
 					randomize: "characterTrait",
 				},
 				background: {
-					strings: ["waif", "nerd", "athlete", "delinquent", "promiscuous", "exhibitionist", "deviant", "beautiful", "crossdresser", "lustful", "plantlover"],
-					displayName: "Background:",
-					randomize: "characterTrait",
+					nerd: { bool: true, displayName: "Nerd background:" },
+					athlete: { bool: true, displayName: "Athlete background:" },
+					delinquent: { bool: true, displayName: "Delinquent background:" },
+					promiscuous: { bool: true, displayName: "Promiscuous background:" },
+					exhibitionist: { bool: true, displayName: "Exhibitionist background:" },
+					deviant: { bool: true, displayName: "Deviant background:" },
+					crossdresser: { bool: true, displayName: "Crossdresser background:" },
+					genderAnxious: { bool: true, displayName: "Gender-Anxious background:" },
+					transgender: { bool: true, displayName: "Transgender background:" },
+					lustful: { bool: true, displayName: "Lustful background:" },
+					plantlover: { bool: true, displayName: "Dendrophile background:" },
 				},
 				startingseason: {
 					strings: ["spring", "summer", "autumn", "winter", "random"],
@@ -1207,6 +1269,8 @@ function settingsObjects(type) {
 					halfGain: { min: 0, max: 1, decimals: 0, displayName: "Half Gain:" },
 					physique: { min: 1, max: 2, decimals: 0, displayName: "Tempered Physique:" },
 					willpower: { min: 1, max: 2, decimals: 0, displayName: "Tempered Willpower:" },
+					milk: { min: 1, max: 2, decimals: 0, displayName: "Tempered Milk Volume:" },
+					semen: { min: 1, max: 2, decimals: 0, displayName: "Tempered Semen Volume:" },
 					skulduggery: { min: 1, max: 2, decimals: 0, displayName: "Tempered Skulduggery:" },
 					dancing: { min: 1, max: 2, decimals: 0, displayName: "Tempered Dancing:" },
 					swimming: { min: 1, max: 2, decimals: 0, displayName: "Tempered Swimming:" },
@@ -1221,16 +1285,16 @@ function settingsObjects(type) {
 					maths: { min: 1, max: 2, decimals: 0, displayName: "Tempered Maths:" },
 					english: { min: 1, max: 2, decimals: 0, displayName: "Tempered English:" },
 					history: { min: 1, max: 2, decimals: 0, displayName: "Tempered History:" },
-					seduction: { min: 1, max: 2, decimals: 0, displayName: "Tempered Seduction Skill:" },
-					oral: { min: 1, max: 2, decimals: 0, displayName: "Tempered Oral Skill:" },
-					chest: { min: 1, max: 2, decimals: 0, displayName: "Tempered Chest Skill:" },
-					hands: { min: 1, max: 2, decimals: 0, displayName: "Tempered Hands Skill:" },
-					buttocks: { min: 1, max: 2, decimals: 0, displayName: "Tempered Buttocks Skill:" },
-					penile: { min: 1, max: 2, decimals: 0, displayName: "Tempered Penile Skill:" },
-					vaginal: { min: 1, max: 2, decimals: 0, displayName: "Tempered Vaginal Skill:" },
-					anal: { min: 1, max: 2, decimals: 0, displayName: "Tempered Anal Skill:" },
-					thighs: { min: 1, max: 2, decimals: 0, displayName: "Tempered Thighs Skill:" },
-					feet: { min: 1, max: 2, decimals: 0, displayName: "Tempered Feet Skill:" }
+					seductionskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Seduction Skill:" },
+					oralskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Oral Skill:" },
+					chestskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Chest Skill:" },
+					handskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Hands Skill:" },
+					bottomskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Buttocks Skill:" },
+					penileskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Penile Skill:" },
+					vaginalskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Vaginal Skill:" },
+					analskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Anal Skill:" },
+					thighskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Thighs Skill:" },
+					feetskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Feet Skill:" }
 				},
 				multiOrgasmToggle: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm:" },
 				multiOrgasmLustScaling: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm Lust Scaling:" },
@@ -1377,6 +1441,21 @@ function settingsObjects(type) {
 					watersportsEnabled: { bool: true, displayName: "Watersports:" },
 					toyWhipEnabled: { bool: true, displayName: "Whips:" },
 					wolfPregnancyWeeks: { min: 2, max: 12, decimals: 0, displayName: "Wolf pregnancy length:" },
+					realisticChildbirthEnabled: { bool: true, displayName: "Realistic childbirth:" },
+					inflationEnabled: { bool: true, displayName: "Economy inflation:" },
+					inflationOnsetPct: { min: 3, max: 30, decimals: 0, displayName: "Inflation onset (%):" },
+					inflationBadPct: { min: 10, max: 100, decimals: 0, displayName: "Inflation bad economy (%):" },
+					inflationCrisisPct: { min: 25, max: 200, decimals: 0, displayName: "Inflation crisis (%):" },
+					inflationExtremePct: { min: 50, max: 400, decimals: 0, displayName: "Inflation extreme (%):" },
+					inflationParodyPct: { min: 300, max: 3000, decimals: 0, displayName: "Inflation parody spiral (%):" },
+					inflationBaileyRentPct: { min: 3, max: 300, decimals: 0, displayName: "Inflation extra rent start (%):" },
+					inflationBaileyCrisisTier: { strings: ["onset", "bad", "crisis", "extreme", "parody"], displayName: "Inflation refusal/hunt tier:" },
+					inflationBaileyCapLow: { min: 500000, max: 5000000, decimals: 0, displayName: "Inflation low-wealth rent cap:" },
+					inflationBaileyCapHigh: { min: 1000000, max: 10000000, decimals: 0, displayName: "Inflation high-wealth rent cap:" },
+					inflationBaileyDemandJump: { min: 2500000, max: 25000000, decimals: 0, displayName: "Inflation jump-tier rent cap:" },
+					inflationBaileyDemandInvestment: { min: 5000000, max: 100000000, decimals: 0, displayName: "Inflation investment-tier rent cap:" },
+					inflationBaileyStep: { min: 10000, max: 200000, decimals: 0, displayName: "Inflation weekly rent step:" },
+					inflationLoanRentSurcharge: { min: 50000, max: 300000, decimals: 0, displayName: "Inflation overdue loan collection:" },
 				},
 				blackwolfmonster: {
 					min: 0,
@@ -1521,6 +1600,160 @@ function settingsObjects(type) {
 					genderBody: { strings: ["default", "m", "a", "f"], displayName: "Body type displayed:" },
 					notesAutoSave: { bool: true, displayName: "Notes auto saving:" },
 					dateFormat: { strings: ["en-GB", "en-US", "zh-CN"], displayName: "Date format:" },
+				},
+				multiOrgasmGender: { strings: ["all", "f", "m"], displayName: "NPC multi-orgasm applies to:" },
+				NNPCMultiOrgasmGender: { strings: ["all", "f", "m"], displayName: "NNPC multi-orgasm applies to:" },
+				xchangeStatSplit: { bool: true, displayName: "Lewd stat split:" },
+				whackRandom: { bool: true, displayName: "Whack actions can fail:" },
+				portalPantiesEnabled: { min: 0, max: 1, decimals: 0, displayName: "Portal spike effect:" },
+				angryHypnotist: { bool: true, displayName: "Angered hypnotists more likely:" },
+				deviantHypnotist: { bool: true, displayName: "Hypnotic deviancy:" },
+				hypnotistChance: { min: 0, max: 100, decimals: 0, displayName: "Enemy hypnotist chance (%):" },
+				willpowerCum: { min: 0, max: 1, decimals: 0, displayName: "Cum even if you resist the stun:" },
+				xchange: {
+					pillPermanence: { min: 0, max: 1, decimals: 0, displayName: "Pill permanence:" },
+					postPermanenceFertilityReset: { min: 0, max: 1, decimals: 0, displayName: "Reset fertility after permanence:" },
+					grayPillGenderflip: { min: 0, max: 1, decimals: 0, displayName: "Gray pills flip sex:" },
+					omegaShrinkGenitals: { min: 0, max: 1, decimals: 0, displayName: "Omega Sissy-style shrinking:" },
+					npcPillChangesGender: { min: 0, max: 1, decimals: 0, displayName: "Pilled NPCs change gender:" },
+					nonconEnabled: { min: 0, max: 1, decimals: 0, displayName: "Non-con pill spiking:" },
+					spikeSideEffectsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Suspicious pill side effects:" },
+					disregardGender: { min: 0, max: 1, decimals: 0, displayName: "Ignore gender checks:" },
+					faceChangesEnabled: { min: 0, max: 1, decimals: 0, displayName: "Face changes for pills:" },
+					genitalAddictTraitsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Cock/hole addict traits:" },
+					useHermBalls: { min: 0, max: 1, decimals: 0, displayName: "Purple pillers have testes:" },
+					chastityKeepBeltShape: { min: 0, max: 1, decimals: 0, displayName: "Keep chastity belt shape:" },
+					combatPillingEnabled: { min: 0, max: 1, decimals: 0, displayName: "Combat pilling:" },
+					restrictedSexCombatPilling: { min: 0, max: 1, decimals: 0, displayName: "Combat pills same-sex NPCs only:" },
+					NNPCcombatPillingEnabled: { min: 0, max: 1, decimals: 0, displayName: "NNPC noncon combat pilling:" },
+					combatPillingIfPilled: { min: 0, max: 1, decimals: 0, displayName: "Combat pills if already pilled:" },
+					combatPillingBeastsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Beasts carry combat pills:" },
+					combatPillingChance: { min: 0, max: 100, decimals: 0, displayName: "NPC pill chance (%):" },
+					combatPillingDrawChance: { min: 1, max: 50, decimals: 0, displayName: "Pill use chance per turn:" },
+					combatPillingPureRatio: { min: 0, max: 100, decimals: 0, displayName: "Clean pill ratio (%):" },
+					customisedEyeColour: {
+						strings: ["nochange", "black", "purple", "dark blue", "light blue", "amber", "hazel", "green", "lime green", "red", "pink", "grey", "light grey", "random"],
+						displayName: "Sexflipped eye colour:",
+					},
+					customisedHairColour: {
+						strings: [
+							"nochange", "red", "jetblack", "black", "brown", "softbrown", "lightbrown", "burntorange", "strawberryblond", "ginger", "blond", "softblond",
+							"platinumblond", "ashyblond", "bloodorange", "blue", "deepblue", "neonblue", "green", "darklime", "toxicgreen", "teal", "pink", "brightpink",
+							"hotpink", "softpink", "crimson", "purple", "mediumpurple", "brightpurple", "white", "snowwhite", "random",
+						],
+						displayName: "Sexflipped hair colour:",
+					},
+					sizeOverride: {
+						strings: ["default", "miniature", "tiny", "small", "normal", "tall", "large", "giant"],
+						displayName: "Physique size override:",
+					},
+					physiqueChangePercent: { number: true, displayName: "Transformation multiplier (%):" },
+					pillSensitivityChange: { number: true, displayName: "Sensitivity boost due to pill:" },
+					impuritySensitivityBonus: { number: true, displayName: "Sensitivity boost due to impurity:" },
+					pregnancyMultPercent: { number: true, displayName: "Pilled pregnancy chance modifier (%):" },
+					resistanceOrgasmPenalty: { min: 0.5, max: 0.99, decimals: 2, displayName: "Resistance odds reduction per orgasm:" },
+					resistanceDaysPenalty: { number: true, displayName: "Resistance pill-end failure penalty (days):" },
+					portalFrequency: { number: true, displayName: "Portal frequency (%):" },
+					cumcureTime: { min: 1, max: 24, decimals: 0, displayName: "CumCure time reduction:" },
+					breederOrgasmLock: { bool: true, displayName: "Breeder creampie-only orgasms:" },
+					willpowerSystemEnabled: { min: 0, max: 1, decimals: 0, displayName: "Willpower system:" },
+					willpowerSuccessCost: { number: true, displayName: "Willpower success cost:" },
+					willpowerFailureCost: { number: true, displayName: "Willpower failure cost:" },
+					giAutoEnabled: { bool: true, displayName: "Update Gender Identity from Identity system:" },
+					giTransformEnabled: { bool: true, displayName: "Slow body changes follow Gender Identity:" },
+					giBreastSizeEnabled: { bool: true, displayName: "Body identity: breast size:" },
+					giAssSizeEnabled: { bool: true, displayName: "Body identity: ass size:" },
+					giGenitalsEnabled: { bool: true, displayName: "Body identity: genitals:" },
+					giHairLengthEnabled: { bool: true, displayName: "Body identity: hair length:" },
+					giBodySizeEnabled: { bool: true, displayName: "Body identity: body size:" },
+					giFecundityEnabled: { bool: true, displayName: "Body identity: fecundity:" },
+					heat: {
+						systemOn: { min: 0, max: 1, decimals: 0, displayName: "Forceful heat:" },
+						permanentOn: { min: 0, max: 1, decimals: 0, displayName: "Permanent heat/rut:" },
+					},
+					spikepool: {
+						herm: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Herm:" },
+						crossdresser: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Sissy/Butch:" },
+						bull: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Bull:" },
+						breeder: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Breeder:" },
+						resistance: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Resistance:" },
+						continue: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Continue:" },
+						passion: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Passion:" },
+						dumbbitch: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Dumb Bitch:" },
+						innocence: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Innocence:" },
+						swell: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Swell:" },
+						bimbo: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Bimbo:" },
+						cumcure: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - CumCure:" },
+						fertility: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Hyper Fertility:" },
+					},
+					spikerates: {
+						herm: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Herm:" },
+						crossdress: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Sissy/Butch:" },
+						bull: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Bull:" },
+						breeder: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Breeder:" },
+						resistance: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Resistance:" },
+						continue: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Continue:" },
+						passion: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Passion:" },
+						"dumb-bitch": { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Dumb Bitch:" },
+						innocence: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Innocence:" },
+						swell: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Swell:" },
+						bimbo: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Bimbo:" },
+						cumcure: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - CumCure:" },
+						fertility: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Hyper Fertility:" },
+						portal: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Portal:" },
+					},
+				},
+				identity: {
+					presentation: {
+						pronouns: {
+							masculine: {
+								reject: { bool: true, displayName: "Masculine pronouns rejected:" },
+								acceptance: { bool: true, displayName: "Masculine pronouns accepted:" },
+							},
+							feminine: {
+								reject: { bool: true, displayName: "Feminine pronouns rejected:" },
+								acceptance: { bool: true, displayName: "Feminine pronouns accepted:" },
+							},
+							neutral: {
+								reject: { bool: true, displayName: "Neutral pronouns rejected:" },
+								acceptance: { bool: true, displayName: "Neutral pronouns accepted:" },
+							},
+							preferredMasculine: { bool: true, displayName: "Masculine pronouns preferred:" },
+							preferredFeminine: { bool: true, displayName: "Feminine pronouns preferred:" },
+							preferredNeutral: { bool: true, displayName: "Neutral pronouns preferred:" },
+							pronounDynamicMode: { strings: ["", "body", "clothing", "appearance", "posture"], displayName: "Dynamic pronoun mode:" },
+						},
+						appearance: {
+							masculine: {
+								reject: { bool: true, displayName: "Masculine appearance rejected:" },
+								acceptance: { bool: true, displayName: "Masculine appearance accepted:" },
+							},
+							feminine: {
+								reject: { bool: true, displayName: "Feminine appearance rejected:" },
+								acceptance: { bool: true, displayName: "Feminine appearance accepted:" },
+							},
+							preferred: { strings: ["m", "f"], displayName: "Preferred appearance:" },
+						},
+						clothing: {
+							masculine: {
+								reject: { bool: true, displayName: "Masculine clothing rejected:" },
+								acceptance: { bool: true, displayName: "Masculine clothing accepted:" },
+							},
+							feminine: {
+								reject: { bool: true, displayName: "Feminine clothing rejected:" },
+								acceptance: { bool: true, displayName: "Feminine clothing accepted:" },
+							},
+							preferred: { strings: ["m", "f"], displayName: "Preferred clothing:" },
+						},
+					},
+				},
+				wli: {
+					cfg: {
+						bodywritinglvl: { min: 0, max: 2, decimals: 0, displayName: "Wraith supernatural bodywriting:" },
+						tattoodream: { bool: true, displayName: "Wraith tattoo during nightmares:" },
+						tattoobypass: { bool: true, displayName: "Wraith can overwrite tattoos:" },
+						nosocialrng: { bool: true, displayName: "Wraith disable social tab RNG:" },
+					},
 				},
 				shopDefaults: {
 					alwaysBackToShopButton: { bool: true },
