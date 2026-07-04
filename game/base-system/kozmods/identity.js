@@ -909,3 +909,20 @@ function playerFeelsGirllike() {
 	return current >= Math.round(range * (9 / 15));
 }
 window.playerFeelsGirllike = playerFeelsGirllike;
+
+/* Which way a "crossdress"/genderification body push goes.
+   X-Change judges the body on anatomy ($player.sex), never on gender identity (see the note atop xchange-pill.js),
+   so trans women, dickgirls, cuntboys and slow-body-change players all get the change that matches their body:
+   a male body is feminised (sissy), a female body is masculinised (butch).
+   
+   The push only happens on a plain crossdress effect that is NOT combined with a full genderflip or herm change (see the "crossdress" case in xchange.twee),
+   so mirror that guard here to keep the trait labels in step with the body.
+   Returns "sissy" | "butch" | "none". */
+function xchangeGenderificationDirection() {
+	const pill = V.xchange?.pill;
+	if (pill && (pill.genderflipEffect || pill.hermEffect)) return "none";
+	if (V.player?.sex === "m") return "sissy";
+	if (V.player?.sex === "f") return "butch";
+	return "none";
+}
+window.xchangeGenderificationDirection = xchangeGenderificationDirection;
