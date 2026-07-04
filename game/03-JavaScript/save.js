@@ -1685,6 +1685,8 @@ function settingsObjects(type) {
 						bimbo: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Bimbo:" },
 						cumcure: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - CumCure:" },
 						fertility: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Hyper Fertility:" },
+						omega: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Omega:" },
+						alpha: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Alpha:" },
 					},
 					spikerates: {
 						herm: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Herm:" },
@@ -1701,6 +1703,8 @@ function settingsObjects(type) {
 						cumcure: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - CumCure:" },
 						fertility: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Hyper Fertility:" },
 						portal: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Portal:" },
+						omega: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Omega:" },
+						alpha: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Alpha:" },
 					},
 				},
 				identity: {
