@@ -1359,32 +1359,32 @@
 	<</if>>
 <</widget>>
 
+/*
+Gate added: a romance partner only robs you when angry or in pain.
+- _args[0] (optional): NPC name to check. If omitted, auto-detects the active named combat NPC via $NPCList[0].fullDescription.
+- A romance partner who is calm ($enemyanger lte 0) will NOT steal.
+	Health-vs-max is deliberately NOT used: $enemyhealthmax persists and only ratchets UP across fights (see combatstart: Math.max(_ehm, _eh)), so a full-health NPC can falsely read as "hurt" and silently re-enable the steal.
+	Fighting an NPC raises $enemyanger, so anger alone already covers both "angry" and "in pain".
+- Partner detection uses isPossibleLoveInterest(), NOT isLoveInterest(). 
+	isLoveInterest() only sees NPCs the player manually assigned to a $loveInterest slot (awareness-gated), so a romanced-but-unassigned partner (e.g. $whitneyromance is 1) fell through and kept robbing you.
+	isPossibleLoveInterest() reads the per-NPC romance flags directly, which is the real relationship.
+- The Kylar abduction is an unconditional block, NOT anger-gated. Combat $enemyanger climbs during the abduction rape (the scene involves struggling), but Kylar's obsessive "love" is the whole premise there, robbing you makes no sense regardless of the anger meter.
+	isPossibleLoveInterest("Kylar") can also miss it (it needs kylarenglish gte 1), so the passage check is the authoritative signal for this arc.
+- Strangers/unnamed attackers, and any angry non-abduction partner, steal as before.
+
+The surrounding scene wording is untouched; only the pocket-rifling + money transfer below are suppressed when blocked.
+*/
 <<widget "npcStealMoney">>
-	/*
-		Gate added: a love interest only robs you when angry or in pain.
-		- _args[0] (optional): NPC name to check. If omitted, auto-detects the active named combat NPC via $NPCList[0].fullDescription.
-		- A love interest who is calm ($enemyanger lte 0) will NOT steal.
-		  Health-vs-max is deliberately NOT used: $enemyhealthmax persists and only ratchets UP across fights (see combatstart: Math.max(_ehm, _eh)),
-		  so a full-health NPC can falsely read as "hurt" and silently re-enable the steal.
-		  Fighting an NPC raises $enemyanger, so anger alone already covers both "angry" and "in pain".
-		- The Kylar abduction is ALSO treated as a calm-lover context,
-		  because the engine's isLoveInterest("Kylar") returns false there (the abduction kiss even logs as "rape", not "loveRape"), so the LI gate alone never covers it.
-		- Strangers/unnamed attackers, and anyone who is angry, steal as before.
-		  The surrounding scene wording is untouched; only the pocket-rifling + money transfer below are suppressed when blocked.
-	*/
 	/* Name-list fallback: combat code uses setup.NPCNameList, other code uses $NPCNameList */
 	<<set _nameList to (setup.NPCNameList ? setup.NPCNameList : ($NPCNameList ? $NPCNameList : []))>>
 	<<set _stealNpc to (_args[0] isnot undefined ? _args[0] : (($NPCList[0] and _nameList.includes($NPCList[0].fullDescription)) ? $NPCList[0].fullDescription : undefined))>>
-	/* typeof guard so a renamed/missing isLoveInterest can't throw and abort the widget */
-	<<set _stealLoveInterest to (_stealNpc isnot undefined and _nameList.includes(_stealNpc) and typeof isLoveInterest is "function" and isLoveInterest(_stealNpc))>>
+	/* typeof guard so a renamed/missing isPossibleLoveInterest can't throw and abort the widget */
+	<<set _stealLoveInterest to (_stealNpc isnot undefined and _nameList.includes(_stealNpc) and typeof isPossibleLoveInterest is "function" and isPossibleLoveInterest(_stealNpc))>>
 	/* undefined/NaN anger counts as calm (0); avoids JS quirk where undefined lte 0 is false */
 	<<set _stealAnger to (Number.isFinite(Number($enemyanger)) ? Number($enemyanger) : 0)>>
-	/* isLoveInterest("Kylar") is false during the abduction, so detect that arc directly */
 	<<set _stealKylarAbduction to (passage().includes("Kylar Abduction"))>>
-	<<set _stealBlocked to ((_stealLoveInterest or _stealKylarAbduction) and _stealAnger lte 0)>>
-	/* DIAGNOSTIC — uncomment, run the scene, then remove:
-	DEBUG npc=<<= _stealNpc>> li=<<= _stealLoveInterest>> anger=<<= _stealAnger>> blocked=<<= _stealBlocked>> | rawAnger=<<= $enemyanger>> name=<<= ($NPCList[0] ? $NPCList[0].fullDescription : "noNPC")>> setupList=<<= (setup.NPCNameList ? "y" : "n")>> fn=<<= (typeof isLoveInterest)>>
-	*/
+	/* Abduction blocks unconditionally; every other partner only when calm (anger lte 0). */
+	<<set _stealBlocked to (_stealKylarAbduction or (_stealLoveInterest and _stealAnger lte 0))>>
 	<<if $npcStealMoneyToggle is 1 and $npcStolenMoney is undefined and _stealBlocked is false>>
 		<br>
 		<<if $npcStealMoneyRandomToggle is 1>>
