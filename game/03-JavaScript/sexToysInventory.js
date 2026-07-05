@@ -57,6 +57,31 @@ function sexToysInventoryInit() {
 }
 window.sexToysInventoryInit = sexToysInventoryInit;
 
+function sexToyUsesVaginalWornSlot(toy, setupToy) {
+	return (
+		!!toy &&
+		!!setupToy &&
+		setupToy.category === "dildo" &&
+		Array.isArray(toy.type) &&
+		toy.type.includes("dildo") &&
+		!toy.type.includes("anal")
+	);
+}
+
+function sexToyCanWear(toy, setupToy) {
+	if (sexToyUsesVaginalWornSlot(toy, setupToy)) return !!V.player.vaginaExist || !!toy.worn;
+	return setupToy.wearable === 1;
+}
+
+function sexToyWornCategory(toy, setupToy) {
+	return sexToyUsesVaginalWornSlot(toy, setupToy) ? "vaginal_dildo" : setupToy.category;
+}
+
+function sexToyWearButtonText(toy, setupToy) {
+	if (sexToyUsesVaginalWornSlot(toy, setupToy)) return toy.worn ? "Remove it" : "Insert it";
+	return toy.worn ? "Take off" : "Wear it";
+}
+
 function sexToysInventoryOnItemClick(index, category) {
 	const setupItem = setup.sextoys.find(t => t.name === category);
 	if (!setupItem) throw new Error(`Sex toy not found! index: ${index}, category: ${category}`);
@@ -104,8 +129,8 @@ function sexToysInventoryOnItemClick(index, category) {
 	const wearButton = $("<a>", {
 		id: "stiWearButton",
 		class: "sti_wear_button",
-		style: setupItem.wearable === 1 ? "" : "display:none",
-		text: invItem.worn ? "Take it off" : "Wear it",
+		style: sexToyCanWear(invItem, setupItem) ? "" : "display:none",
+		text: sexToyWearButtonText(invItem, setupItem),
 		click: () => window.sexToysInventoryOnWearClick(index, category),
 	});
 
@@ -138,6 +163,7 @@ function sexToysInventoryOnCarryClick(index, category) {
 	const toy = V.player.inventory.sextoys[category][index];
 	const setupToy = setup.sextoys[toy.index];
 	const setupCategory = setupToy.category;
+	const wornCategory = sexToyWornCategory(toy, setupToy);
 	const colour = toy.colour === "lime-green" ? "lime" : toy.colour || "";
 	// Since the prop rework, setup.props is an OBJECT keyed by snake_case (e.g. "small_dildo"), while toy names use spaces (e.g. "small dildo").
 	// The old array-style `setup.props.find(item => item === toy.name)` could therefore never match multi-word toys.
@@ -169,11 +195,11 @@ function sexToysInventoryOnCarryClick(index, category) {
 			V.worn.under_lower = setup.clothes.under_lower[0];
 			Wikifier.wikifyEval(" <<updatesidebarimg>>");
 		} else {
-			delete V.worn[setupCategory];
+			delete V.worn[wornCategory];
 		}
 	}
 
-	document.getElementById("stiWearButton").textContent = toy.worn ? "Take off" : "Wear it"; // update button text value
+	document.getElementById("stiWearButton").textContent = sexToyWearButtonText(toy, setupToy); // update button text value
 	document.getElementById("stiCarryButton").textContent = toy.carried ? "Put back in the cupboard" : "Carry it"; // update button text value
 	// update worn/carried tag on cell
 	document.getElementById("sti_already_owned_" + category.replace(/\s/g, "_") + "_" + index).textContent = toy.worn ? "worn" : toy.carried ? "carried" : "";
@@ -203,6 +229,9 @@ function sexToysInventoryOnWearClick(index, category) {
 
 	const setupToy = setup.sextoys[toy.index];
 	const setupCategory = setupToy.category;
+	const wornCategory = sexToyWornCategory(toy, setupToy);
+
+	if (!sexToyCanWear(toy, setupToy)) return;
 
 	// if player tries to wear a strapon but that under_lower is cursed
 	if (setupCategory === "strap-on" && V.worn.under_lower.cursed === 1) {
@@ -220,13 +249,21 @@ function sexToysInventoryOnWearClick(index, category) {
 		}
 	}
 
+	if (sexToyUsesVaginalWornSlot(toy, setupToy) && !V.player.vaginaExist && !toy.worn) {
+		const cursedText = document.getElementById("stiCursedText");
+		if (cursedText) {
+			cursedText.outerHTML = `<div id="stiCursedText" class="ssm_fade_in">You can't insert the ${toy.name} without a vagina.</div>`;
+		}
+		return;
+	}
+
 	if (!toy.carried && countCarriedSextoys() >= maxCarried) {
 		// if player has reached maximum item carried, stop the function
 		return;
 	}
 
 	if (setupCategory !== "strap-on" && toy.worn) {
-		delete V.worn[setupCategory];
+		delete V.worn[wornCategory];
 	}
 	// If player chose "Wear it"
 	let cat;
@@ -254,12 +291,12 @@ function sexToysInventoryOnWearClick(index, category) {
 	}
 	// then wear chose item.
 	toy.worn = !toy.worn;
-	if (setupCategory !== "strap-on") {
-		V.worn[setupCategory] = toy;
-		V.worn[setupCategory].state = "worn";
+	if (setupCategory !== "strap-on" && toy.worn) {
+		V.worn[wornCategory] = toy;
+		V.worn[wornCategory].state = "worn";
 	}
 	toy.carried = true; // also carry the item if not done alreadys
-	document.getElementById("stiWearButton").textContent = toy.worn ? "Take off" : "Wear it"; // update button text value
+	document.getElementById("stiWearButton").textContent = sexToyWearButtonText(toy, setupToy); // update button text value
 	document.getElementById("stiCarryButton").textContent = !toy.carried ? "Carry it" : "Put back in the cupboard"; // update button text value
 	document.getElementById("sti_already_owned_" + category.replace(/\s/g, "_") + "_" + index).textContent = toy.worn ? "worn" : toy.carried ? "carried" : "";
 	$("[id*='sti_already_owned_']").each(function (i, element) {
@@ -290,7 +327,7 @@ function sexToysInventoryOnWearClick(index, category) {
 			V.worn.under_lower = setup.clothes.under_lower[0];
 		}
 	}
-	if (setupToy.wearable === 1) Wikifier.wikifyEval(" <<updatesidebarimg>>");
+	if (sexToyCanWear(toy, setupToy)) Wikifier.wikifyEval(" <<updatesidebarimg>>");
 	updateCarryCountUI();
 	greyButtonsIfCarryLimitReached(index, category);
 }
@@ -298,7 +335,9 @@ window.sexToysInventoryOnWearClick = sexToysInventoryOnWearClick;
 
 function sexToysInventoryOnThrowClick(index, category) {
 	const playerItem = V.player.inventory.sextoys[category][index];
-	const setupCategory = setup.sextoys[playerItem.index].category;
+	const setupToy = setup.sextoys[playerItem.index];
+	const setupCategory = setupToy.category;
+	const wornCategory = sexToyWornCategory(playerItem, setupToy);
 	const lastIndex = document.getElementById("sti_grid").childElementCount - 1;
 	const categoryName = category.replace(/\s/g, "_");
 	/* remove div */
@@ -308,7 +347,7 @@ function sexToysInventoryOnThrowClick(index, category) {
 	/* close description */
 	sextoysOnCloseDesc("stiDescPillContainer");
 	if (playerItem.worn && setupCategory !== "strap-on") {
-		delete V.worn[setupCategory];
+		delete V.worn[wornCategory];
 	}
 	/* handle strapons */
 	if (setupCategory === "strap-on") {

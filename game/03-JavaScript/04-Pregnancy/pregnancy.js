@@ -1348,6 +1348,7 @@ window.recordSperm = recordSperm;
 function updateRecordedSperm(genital, target, period = 1) {
 	let sperm;
 	if (genital !== "vagina" && target !== "pc") return null;
+	if (target === "pc" && typeof playerGenitalFluidRetained === "function" && playerGenitalFluidRetained(genital)) return null;
 	if (target === "pc") {
 		sperm = V.sexStats[genital].sperm;
 	} else if (C.npc[target] && C.npc[target].pregnancy && C.npc[target].pregnancy.enabled) {
@@ -1380,6 +1381,7 @@ DefineMacro("updateRecordedSperm", updateRecordedSperm);
 
 function washRecordedSperm(genital, target) {
 	if (genital !== "vagina" && target !== "pc") return null;
+	if (target === "pc" && typeof playerGenitalFluidRetained === "function" && playerGenitalFluidRetained(genital)) return null;
 	if (target === "pc") {
 		V.sexStats[genital].sperm = V.sexStats[genital].sperm.filter(s => !s.tag || (s.tag && !s.tag.includes("canWash")));
 	} else if (C.npc[target] && C.npc[target].pregnancy && C.npc[target].pregnancy.enabled) {

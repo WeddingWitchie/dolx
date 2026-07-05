@@ -416,6 +416,7 @@ function pleasure(amount, source) {
 								for (const item of category) {
 									if (!item?.worn || !Array.isArray(item.type)) continue;
 									if (item.type.includes("strap-on")) continue;
+									if (item.type.includes("dildo") && setup.sextoys[item.index]?.category === "dildo") return true;
 									if (item.type.some(t => /vibrator|plug|bead|egg/i.test(String(t)))) return true;
 								}
 							}

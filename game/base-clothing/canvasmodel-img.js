@@ -689,11 +689,13 @@ DefineMacro("modelprepare-player-body", function () {
 
 	// Vagina
 	let _liquidamt = Math.clamp(setup.bodyliquid.combined("vagina"), 0, 5);
-	T.modeloptions.drip_vaginal = dripspeeds[_liquidamt];
+	T.modeloptions.drip_vaginal =
+		typeof playerGenitalFluidLeakBlocked === "function" && playerGenitalFluidLeakBlocked("vagina") ? "" : dripspeeds[_liquidamt];
 
 	// Anus
 	_liquidamt = Math.clamp(setup.bodyliquid.combined("anus"), 0, 5);
-	T.modeloptions.drip_anal = dripspeeds[_liquidamt];
+	T.modeloptions.drip_anal =
+		typeof playerGenitalFluidLeakBlocked === "function" && playerGenitalFluidLeakBlocked("anus") ? "" : dripspeeds[_liquidamt];
 
 	// Mouth
 	_liquidamt = Math.clamp(setup.bodyliquid.combined("mouth"), 0, 5);

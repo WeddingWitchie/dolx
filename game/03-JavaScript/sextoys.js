@@ -77,6 +77,78 @@ function playerHasButtPlug() {
 }
 window.playerHasButtPlug = playerHasButtPlug;
 
+function playerMasturbationToyByIndex(index) {
+	if (index === undefined || index === null || index === "none" || Number.isNaN(Number(index)) || typeof listUniqueCarriedSextoys !== "function") return null;
+	const toys = listUniqueCarriedSextoys().filter(toy => {
+		if (!Array.isArray(toy.type)) return false;
+		return (
+			(V.player.penisExist && !playerChastity("penis") && toy.type.includes("stroker")) ||
+			toy.type.includes("dildo") ||
+			toy.type.includes("breastpump") ||
+			toy.type.includes("vibrator")
+		);
+	});
+	return toys[Number(index)] || null;
+}
+
+function sexToyIsDildo(toy) {
+	return !!toy && Array.isArray(toy.type) && toy.type.includes("dildo");
+}
+
+function sexToyIsSmallDildo(toy) {
+	return sexToyIsDildo(toy) && ((toy.name || "").includes("small") || (typeof toy.size === "number" && toy.size <= 1));
+}
+
+function sexToyIsVaginalWornInventoryDildo(toy) {
+	return !!toy && setup.sextoys[toy.index]?.category === "dildo" && sexToyIsDildo(toy) && !toy.type.includes("anal");
+}
+
+function playerHasWornVaginalDildo() {
+	return V.player.vaginaExist && V.worn.vaginal_dildo != null && V.worn.vaginal_dildo.state === "worn" && V.worn.vaginal_dildo.worn;
+}
+window.playerHasWornVaginalDildo = playerHasWornVaginalDildo;
+
+// Dildos the player currently has inserted (worn or actively using, not merely carrying) in the given hole.
+// Covers persistent vaginal worn dildos, hands-free "floor" masturbation (vaginause/anususe === "mdildopenetrate"),
+// handheld masturbation (arm === "mvaginadildo"/"manusdildo"), and combat self-fucking (arm === "dildoSelfPussy"/"dildoSelfAnus").
+// Only fully-inserted states count; the "*entrancedildo" tease states are intentionally excluded.
+function playerInsertedDildos(genital) {
+	const toys = [];
+	if (genital === "vagina") {
+		if (!V.player.vaginaExist) return [];
+		if (playerHasWornVaginalDildo()) toys.push(V.worn.vaginal_dildo);
+		if (V.vaginause === "mdildopenetrate") toys.push(playerMasturbationToyByIndex(V.currentToyVagina));
+		if (V.leftarm === "mvaginadildo") toys.push(playerMasturbationToyByIndex(V.currentToyLeft));
+		if (V.rightarm === "mvaginadildo") toys.push(playerMasturbationToyByIndex(V.currentToyRight));
+		if (V.leftarm === "dildoSelfPussy") toys.push(V.currentSexToyLeft);
+		if (V.rightarm === "dildoSelfPussy") toys.push(V.currentSexToyRight);
+	} else if (genital === "anus") {
+		if (V.anususe === "mdildopenetrate") toys.push(playerMasturbationToyByIndex(V.currentToyAnus));
+		if (V.leftarm === "manusdildo") toys.push(playerMasturbationToyByIndex(V.currentToyLeft));
+		if (V.rightarm === "manusdildo") toys.push(playerMasturbationToyByIndex(V.currentToyRight));
+		if (V.leftarm === "dildoSelfAnus") toys.push(V.currentSexToyLeft);
+		if (V.rightarm === "dildoSelfAnus") toys.push(V.currentSexToyRight);
+	}
+	return toys.filter(sexToyIsDildo);
+}
+window.playerInsertedDildos = playerInsertedDildos;
+
+// Whether recorded/stored fluid is held in and shielded from washing/decay: a worn butt plug, or any
+// inserted dildo (small dildos still retain, matching a real plug's seal even if they visibly leak).
+function playerGenitalFluidRetained(genital) {
+	if (genital === "anus" && playerHasButtPlug()) return true;
+	return playerInsertedDildos(genital).length > 0;
+}
+window.playerGenitalFluidRetained = playerGenitalFluidRetained;
+
+// Whether the visible leak/drip is stopped: a worn butt plug, or a non-small inserted dildo.
+// A small dildo doesn't seal tightly, so it retains fluid but still drips.
+function playerGenitalFluidLeakBlocked(genital) {
+	if (genital === "anus" && playerHasButtPlug()) return true;
+	return playerInsertedDildos(genital).some(toy => !sexToyIsSmallDildo(toy));
+}
+window.playerGenitalFluidLeakBlocked = playerGenitalFluidLeakBlocked;
+
 function playerHasVibrator() {
 	return V.worn.vibrator != null && V.worn.vibrator.state === "worn" && !!V.worn.vibrator.worn;
 	// V.worn.vibrator.worn is just as a safeguard for now
@@ -167,6 +239,11 @@ function sexToysInventoryDelete(name, colour) {
 		if (item.worn && item.type.includes("anal")) {
 			delete V.worn.butt_plug;
 		}
+		if (item.worn && sexToyIsVaginalWornInventoryDildo(item)) {
+			if (V.worn.vaginal_dildo && (V.worn.vaginal_dildo.name === item.name || V.worn.vaginal_dildo.name_underscore === item.name_underscore)) {
+				delete V.worn.vaginal_dildo;
+			}
+		}
 		if (item.worn && item.type.includes("strap-on")) {
 			V.worn.under_lower = clone(setup.clothes.under_lower[0]);
 			setLowerVisibility(true);
@@ -179,6 +256,11 @@ function sexToysInventoryDelete(name, colour) {
 	const item = V.player.inventory.sextoys[name][0];
 	if (item.worn && item.type.includes("anal")) {
 		delete V.worn.butt_plug;
+	}
+	if (item.worn && sexToyIsVaginalWornInventoryDildo(item)) {
+		if (V.worn.vaginal_dildo && (V.worn.vaginal_dildo.name === item.name || V.worn.vaginal_dildo.name_underscore === item.name_underscore)) {
+			delete V.worn.vaginal_dildo;
+		}
 	}
 	if (item.worn && item.type.includes("vibrator")) {
 		if (V.worn.vibrator && (V.worn.vibrator.name === item.name || V.worn.vibrator.name_underscore === item.name_underscore)) {

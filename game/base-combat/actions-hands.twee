@@ -2892,6 +2892,39 @@
 	<</if>>
 <</widget>>
 
+<<widget "removeVaginalDildo">>
+	<<if _args[0] and ($lefttarget is "self" or $options.targetYourself is false or _targetnumber is 1) and playerHasWornVaginalDildo() and !playerChastity("vagina")>>
+
+		<<set _lowerIndex to clothesIndex('lower', $worn.lower)>>
+
+		<<set _canReachDildo to (
+			(
+				$worn.over_lower.exposed gte 1 and
+				$worn.lower.exposed gte 1
+			)
+			or
+			(
+				setup.clothes.lower[_lowerIndex] and
+				setup.clothes.lower[_lowerIndex].skirt is 1
+			)
+			or
+			(
+				$worn.lower.type.includes("naked")
+			)
+		) and !["othermouthImminent","othermouth","imminent","doubleimminent","penetrated","doublepenetrated"].includes($vaginastate)>>
+
+		<<if _canReachDildo>>
+			<<set _label to "Remove your " + $worn.vaginal_dildo.name>>
+			<<if _args[0] is "left">>
+				<<set _leftaction[_label] to "removevaginaldildo">>
+			<<elseif _args[0] is "right">>
+				<<set _rightaction[_label] to "removevaginaldildo">>
+			<</if>>
+		<</if>>
+
+	<</if>>
+<</widget>>
+
 <<widget "effectsremovevibrator">>
 	<<if !playerChastity("vagina")>>
 		<<if $leftaction is "removevibrator" and playerHasVibrator()>>
@@ -2904,6 +2937,20 @@
 			You slip your $worn.vibrator.name out, leaving your crotch free.
 			<<set $worn.vibrator.state to "removed">>
 			<<set $worn.vibrator.vibrating to 0>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "effectsremovevaginaldildo">>
+	<<if !playerChastity("vagina")>>
+		<<if $leftaction is "removevaginaldildo" and playerHasWornVaginalDildo()>>
+			<<set $leftaction to 0>>
+			You slip your $worn.vaginal_dildo.name out, leaving your <<pussy>> free.
+			<<set $worn.vaginal_dildo.state to "removed">>
+		<<elseif $rightaction is "removevaginaldildo" and playerHasWornVaginalDildo()>>
+			<<set $rightaction to 0>>
+			You slip your $worn.vaginal_dildo.name out, leaving your <<pussy>> free.
+			<<set $worn.vaginal_dildo.state to "removed">>
 		<</if>>
 	<</if>>
 <</widget>>
