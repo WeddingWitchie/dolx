@@ -3249,6 +3249,11 @@ function tendingDay() {
 		}
 
 		plots.forEach(plot => {
+			// Rain waters the plot.
+			// The :onWeatherChange event only fires on a weather transition and runs once per day, so it misses rain that continues across the day rollover (still raining, no new transition).
+			// Re-check current rain here so continuous rain keeps the crops watered instead of stalling growth.
+			if (Weather.precipitation === "rain") plot.water = 1;
+
 			// Growth check
 			if (plot.stage >= 1 && (plot.water === 1 || plot.bed === "water")) {
 				plot.days += 1;
