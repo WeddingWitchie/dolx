@@ -133,6 +133,7 @@ window.xChangeMigrateLegacyHermSnapshots = xChangeMigrateLegacyHermSnapshots;
 setup.xChangeMigrateLegacyHermSnapshots = xChangeMigrateLegacyHermSnapshots;
 
 function getAntiPillSensitivityBonus(part) {
+	if (activeInsanityTrait()) return 0;
 	const anti = V.xchange?.antiPillSensitivity;
 	if (!anti || typeof anti.hours !== "number" || anti.hours <= 0) return 0;
 
@@ -166,18 +167,18 @@ function getAntiPillSensitivityBonus(part) {
 window.getAntiPillSensitivityBonus = getAntiPillSensitivityBonus;
 
 function getGeneralSensitivity(part) {
-	const antiPillMod = getAntiPillSensitivityBonus(part);
+	const antiPillMod = insanitySensitivityAdjustment(getAntiPillSensitivityBonus(part));
 	return Math.clamp(1 + antiPillMod, 0.25, 6);
 }
 window.getGeneralSensitivity = getGeneralSensitivity;
 
 function getSensitivity(part) {
-	let purityMod = (1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000;
-	const xchangeMod = playerIsXChanged()
+	let purityMod = insanitySensitivityAdjustment((1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000);
+	const xchangeMod = insanitySensitivityAdjustment(playerIsXChanged()
 		? (V.player.sex === "f" ? 1 : -1) * V.xchange.pillSensitivityChange
-		: 0;
-	const orgasmingMod = V.orgasmCum > 0 ? 1 : 0;
-	const antiPillMod = getAntiPillSensitivityBonus(part);
+		: 0);
+	const orgasmingMod = insanitySensitivityAdjustment(V.orgasmCum > 0 ? 1 : 0);
+	const antiPillMod = insanitySensitivityAdjustment(getAntiPillSensitivityBonus(part));
 
 	switch (part) {
 		case "mouth":
@@ -278,7 +279,7 @@ function pleasure(amount, source) {
 			case "chest_grope":
 				sensitivity += getSensitivity("breast");
 				fragment.append(wikifier("playWithBreasts"));
-				if (playerIsPregnant()) sensitivity += 0.5;
+				if (playerIsPregnant()) sensitivity += insanitySensitivityAdjustment(0.5);
 				break;
 			case "bottom":
 			case "anus":
@@ -292,7 +293,7 @@ function pleasure(amount, source) {
 				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
 					statChange.pain(V.analPain || 0);
 					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
-					if (V.penis_addict_trait === 1) sensitivity += 0.5;
+					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("bottom");
 				break;
@@ -312,10 +313,10 @@ function pleasure(amount, source) {
 				if (amount > 0 && V.player.vaginaExist === true && beingPenetrated.includes(V.vaginause)) {
 					statChange.pain(V.vaginalPain);
 					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
-					if (V.penis_addict_trait === 1) sensitivity += 0.5;
+					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("genital");
-				if (playerIsPregnant()) sensitivity += 0.5;
+				if (playerIsPregnant()) sensitivity += insanitySensitivityAdjustment(0.5);
 				break;
 			case "time":
 				pleasure = Math.clamp(V.pleasure + amount * (amount > 0? mod : 1), 0, V.pleasuremax);
@@ -615,6 +616,44 @@ function updatePhysique() {
 window.updatePhysique = updatePhysique;
 
 if (typeof updatePhysique === "function") updatePhysique();
+
+const permanentInsanityTalentKeys = [
+	"physique", "willpower", "milk", "semen",
+	"skulduggery", "dancing", "swimming", "athletics", "tending", "housekeeping", "brawling", "footwork", "striking", "kicking",
+	"science", "maths", "english", "history",
+	"seductionskill", "oralskill", "chestskill", "handskill", "bottomskill", "penileskill", "vaginalskill", "analskill", "thighskill", "feetskill",
+];
+
+function permanentInsanityTalentLockActive() {
+	return V.insanityPermanent === true;
+}
+window.permanentInsanityTalentLockActive = permanentInsanityTalentLockActive;
+
+function activeInsanityTrait() {
+	return permanentInsanityTalentLockActive() || V.backgroundTraits?.includes("insanity") === true;
+}
+window.activeInsanityTrait = activeInsanityTrait;
+
+function insanitySensitivityAdjustment(amount) {
+	const value = Number(amount);
+	if (!Number.isFinite(value)) return 0;
+	return activeInsanityTrait() && value > 0 ? 0 : value;
+}
+window.insanitySensitivityAdjustment = insanitySensitivityAdjustment;
+
+function applyPermanentInsanityTalents() {
+	if (!V.AMCTraits || typeof V.AMCTraits !== "object" || Array.isArray(V.AMCTraits)) return;
+	if (V.insanityTalentBackup !== undefined) delete V.insanityTalentBackup;
+
+	if (!permanentInsanityTalentLockActive()) {
+		return;
+	}
+
+	permanentInsanityTalentKeys.forEach(key => {
+		V.AMCTraits[key] = 2;
+	});
+}
+window.applyPermanentInsanityTalents = applyPermanentInsanityTalents;
 
 function sumTalents() {
 	return V.AMCTraits.skulduggery + V.AMCTraits.dancing + V.AMCTraits.swimming + V.AMCTraits.athletics + V.AMCTraits.tending + V.AMCTraits.housekeeping + V.AMCTraits.brawling + V.AMCTraits.footwork + V.AMCTraits.striking + V.AMCTraits.kicking + V.AMCTraits.science + V.AMCTraits.maths + V.AMCTraits.english + V.AMCTraits.history;
@@ -1150,6 +1189,18 @@ function xchangeEffectsMessages() {
 				break;
 			case "dumbbitch":
 				element("span", "The pill does more than dull your wits; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();
+				break;
+			case "suspicious-insanity":
+				element("span", "The suspicious pill triggers a torturous itch, swallowed by your psychopathy.", "pink"); br();
+				break;
+			case "antipill-insanity":
+				element("span", "The anti-pill burns your skin, but your shattered perception numbs the itch.", "pink"); br();
+				break;
+			case "dumbbitch-insanity":
+				element("span", "The pill dulls your wits and sparks a painful itch, drowned out by absolute darkness.", "pink"); br();
+				break;
+			case "generic-insanity":
+				element("span", "The pill goes wrong, leaving a burning itch ignored by the weight of your insanity.", "pink"); br();
 				break;
 			default:
 				element("span", "The pill goes wrong; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();

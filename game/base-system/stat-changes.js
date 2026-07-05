@@ -385,6 +385,7 @@ const statChange = (() => {
 	function sensitivity(amount, key) {
 		if (isNaN(amount)) paramError("sensitivity", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		if (typeof insanitySensitivityAdjustment === "function") amount = insanitySensitivityAdjustment(amount);
 		const sens = V[key + "sensitivity"];
 		if (!sens) paramError("sensitivity", "key", key + "sensitivity", "Expected an existing sensitivity.");
 
@@ -1007,7 +1008,11 @@ const statChange = (() => {
 		if (V.backgroundTraits.includes("nerd")) {
 			amount *= 2;
 		}
-		
+		// Insanity trait: a fractured mind struggles to build any mental grip, so willpower gains are cut by 75%. Losses are untouched.
+		if (amount > 0 && V.backgroundTraits.includes("insanity")) {
+			amount *= 0.25;
+		}
+
 		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1)
 			amount = Number(amount) / V.AMCTraits.willpower;
 		else

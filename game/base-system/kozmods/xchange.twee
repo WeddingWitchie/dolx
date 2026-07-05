@@ -1593,23 +1593,25 @@
 	<<set _validSources to ["suspicious", "antipill", "dumbbitch"]>>
 	<<set _source to _args.find((a) => _validSources.includes(a)) || "generic">>
 
-	<<set $xchange.antiPillSensitivity to $xchange.antiPillSensitivity || {}>>
-
 	<<set _hoursAdded to 12>>
 	<<set _maxHours to 36>>
 	<<set _bonus to 2>>
+	<<set _sensitivityNulled to typeof activeInsanityTrait === "function" and activeInsanityTrait()>>
 
-	<<set $xchange.antiPillSensitivity.globalBonus to _bonus>>
-	<<set $xchange.antiPillSensitivity.hours to Math.clamp(($xchange.antiPillSensitivity.hours || 0) + _hoursAdded, _hoursAdded, _maxHours)>>
-	/* Remember the most recent cause so the fade notice (fired later, on sleep/time pass) matches. */
-	<<set $xchange.antiPillSensitivity.source to _source>>
+	<<if !_sensitivityNulled>>
+		<<set $xchange.antiPillSensitivity to $xchange.antiPillSensitivity || {}>>
+		<<set $xchange.antiPillSensitivity.globalBonus to _bonus>>
+		<<set $xchange.antiPillSensitivity.hours to Math.clamp(($xchange.antiPillSensitivity.hours || 0) + _hoursAdded, _hoursAdded, _maxHours)>>
+		/* Remember the most recent cause so the fade notice (fired later, on sleep/time pass) matches. */
+		<<set $xchange.antiPillSensitivity.source to _source>>
+	<</if>>
 
 	/* Use the game's own pain macro, not raw $pain edits */
 	<<pain 65>>
 
 	<<if !_silent>>
 		<<set $effectsmessage to 1>>
-		<<set $antiPillSensitivityMessage to _source>>
+		<<set $antiPillSensitivityMessage to _sensitivityNulled ? _source + "-insanity" : _source>>
 	<</if>>
 <</widget>>
 
