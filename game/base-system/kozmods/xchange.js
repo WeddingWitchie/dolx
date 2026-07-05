@@ -843,7 +843,10 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 	const pill = V.xchange?.pill;
 	if (!pill?.active || !pill.xtendEffect) return;
 	if (!pill.originalBody || typeof pill.originalBody.penissize !== "number") return;
-	if (!pill.xtendTracker || typeof pill.xtendTracker.penisSizeGains !== "number") return;
+	/* Self-heal a missing/corrupt tracker so an active X-Tend can still record growth rather than silently doing nothing. */
+	if (!pill.xtendTracker || typeof pill.xtendTracker.penisSizeGains !== "number") {
+		pill.xtendTracker = { orgasmed: 0, penisSizeGains: 0 };
+	}
 	if (!spermOwner || typeof spermOwner.penissize !== "number") return;
 
 	if ((pill.originalBody.penissize - 2) + Math.floor(pill.xtendTracker.penisSizeGains / 1000) < spermOwner.penissize) {

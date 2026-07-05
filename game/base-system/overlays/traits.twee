@@ -1100,12 +1100,16 @@
 					colour: "lewd",
 					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && V.xchange.pill?.xtendEffect,
 					text: () => {
+						/* Tracker can be missing on hand-authored/older saves that set xtendEffect without it; never let that throw and drop the whole trait list. Local names must not start with "_" (SugarCube would rewrite them as temp vars). */
+						const tracker = V.xchange.pill?.xtendTracker || {};
+						const orgasmed = tracker.orgasmed || 0;
+						const gains = tracker.penisSizeGains || 0;
 						let change = 0;
-						if (V.xchange.pill.xtendTracker.orgasmed) {
-							change = -3 * V.xchange.pill.xtendTracker.orgasmed;
+						if (orgasmed) {
+							change = -3 * orgasmed;
 
 						} else {
-							change = 3 * Math.trunc(V.xchange.pill.xtendTracker.penisSizeGains / 1000) + (V.xchange.pill.xtendTracker.penisSizeGains % 1000) / 500;
+							change = 3 * Math.trunc(gains / 1000) + (gains % 1000) / 500;
 						}
 
 						return `Let's you grow your original penis with every creampie you receive from a bigger dick that yours. At the risk of forfeiting your gains and shrinking your size if you happen to orgasm. <span class="gold">Current change:</span> ${change > 0? '+'+change.toFixed(2): change.toFixed(2)}cm`;
