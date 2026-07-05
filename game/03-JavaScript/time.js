@@ -564,6 +564,10 @@ function weekPassed() {
 		} else {
 			V.robin.weeksSinceProtector = 1;
 		}
+		if (ensureRobinStand().selfSufficient === 1) {
+			/* Robin took their rent back from the player and pays Bailey directly. */
+			V.robinmoney = Math.max(V.robinmoney - setup.robinStand.rent, 0);
+		}
 	} else {
 		V.robinmoney -= 400;
 		if (V.robinmoney <= 0 && V.robindebt >= 0) {
@@ -576,7 +580,9 @@ function weekPassed() {
 		V.robineventnote = 1;
 		V.robindebt = 0;
 	}
-	V.robinmoney += (V.robin.stayup >= 1 ? 250 : 300) + V.robin.moneyModifier;
+	/* Stand income from tier, upgrades, skill and weather; also handles Robin's own weekly stand purchases.
+	See robin-stand.js. */
+	V.robinmoney += robinStandWeeklyTick();
 	// if (V.robinmoney > 4000) V.robinmoney = 4000;
 	if (V.edenfreedom >= 1 && V.edenshopping === 2) V.edenshopping = 0;
 	if (V.loft_kylar || V.loft_independentLab) V.loft_spray = 0;

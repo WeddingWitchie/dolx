@@ -30,6 +30,31 @@
 		<<set $_rentSeduce to true>>
 	<</if>>
 
+	<<if $robinpaid is 1 and $robinStand?.selfSufficient isnot 1 and ($robinStand?.lastIncome or 0) gte setup.robinStand.selfSufficiencyIncome and $robinmissing is 0 and $_robinWasInRoom isnot 1 and getRobinLocation() is "orphanage" and C.npc.Robin.trauma lt 60>>
+		/* Robin's stand now earns far more than the rent: they take their debt back from the player. */
+		Before you can respond, footsteps hurry down the hall. <span class="purple">It's Robin</span>, clutching a worn envelope.
+		<br><br>
+		"Wait!" <<nnpc_he "Robin">> says, stepping between you and Bailey. "You're not taking <<pher>> money for me.
+		I'll be paying my own way from now on."
+		<br><br>
+		Bailey frown. <<nnpc_He "Bailey">> looks Robin up and down, unamused, and for a moment says nothing at all.
+		<br><br>
+		Robin holds out the envelope. It's thick. Bailey grabs it and skims the notes inside, scoffs, then pockets it.
+		"The lemonade brat, all grown up," <<nnpc_he "Bailey">> says.
+		"Fine. But if you're ever short, even once, I'll take it out of both of you. And I won't be polite about it."
+		<br><br>
+		<<run ensureRobinStand().selfSufficient = 1>>
+		<<set $robinmoney to Math.max($robinmoney - 600, 0)>>
+		/* Re-derive the player's demand now that the doubling no longer applies. */
+		<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>>
+		<<rentmod>>
+		<<nnpc_He "Bailey">> turns back to you. "Don't look so pleased. Your own rent is still due: <span class="gold"><<printmoney $rentmoney>></span>."
+		<br><br>
+		Robin catches your eye and hugs you, heedless of Bailey watching. "We'll talk later," <<nnpc_he "Robin">> whispers.
+		"About the stand. About sharing what it makes. You've earned that and more." <span class="green">You no longer pay Robin's share of the rent.</span>
+		<br><br>
+	<</if>>
+
 	<<if $babyIntros and $babyIntros.Bailey and $babyIntros.Bailey.length gt 0>>
 		<<set _homeBabyRent to true>>
 		<<homeBabyIntro>>
@@ -295,7 +320,7 @@
 
 <<widget "rentmod">>
 	<<set $rentmoney to Math.floor($rentmoney * $settings.rentCostModifier)>>
-	<<if $robinpaid is 1>>
+	<<if $robinpaid is 1 and $robinStand?.selfSufficient isnot 1>>
 		<<set $rentmoney *= 2>>
 	<</if>>
 	/* Wealth-driven rent pressure is applied here, but advanced only after rent is paid. */

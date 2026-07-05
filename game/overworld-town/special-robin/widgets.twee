@@ -84,7 +84,7 @@
 		You knock on the door. Robin opens it and smiles. <<His>> eyes are red. "Hey," <<he>> says. "Come in." You enter and sit on the bed. <<He>> sits beside you.
 		<br><br>
 
-	<<elseif $robinpaid is 1 and $robinPayout is 0 and $robinmoney gte 20 and _robin.love gte 80 and _robin.trauma lte 20 and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
+	<<elseif $robinpaid is 1 and $robinPayout is 0 and ($robinStand?.selfSufficient is 1 ? $robinmoney gte 900 : $robinmoney gte 20) and _robin.love gte 80 and _robin.trauma lte 20 and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
 		<<robinPayout>>
 		<br><br>
 
@@ -891,6 +891,10 @@
 		<<socialiseicon "angry">><<link [[Persecute Robin|Robin Persecute]]>><<set $robinroomentered to 1>><<set $phase to 3>><<set $daily.robin.persecute to 1>><<trauma -12>><<stress -12>><<npcincr Robin trauma 4>><<npcincr Robin love -1>><<npcincr Robin dom -1>><</link>><<lltrauma>><<llstress>><<ggrtrauma>><<llove>><<ldom>>
 		<br>
 	<</if>>
+	<<if $robinpaid isnot 1 and $robindebtknown is 1 and $money gte 100>>
+		<<highicon>><<link [[Give money|Robin Give Money]]>><<set $robinroomentered to 1>><</link>><<note "Helps Robin pay Bailey" "green">>
+		<br>
+	<</if>>
 	<<if $robinmoney gt 0 and !$robinromance>>
 		<<highicon>><<link [[Ask for money|Robin Money]]>><<set $robinroomentered to 1>><</link>>
 		<br>
@@ -929,30 +933,49 @@
 
 <<widget "robinPayout">>
 	<<set $robinPayout to 1>>
-	You knock on the door. Robin throws it open and hugs you. "Come in," <<he>> says, pulling you inside. <<He>> fumbles around in <<his>> drawer for a moment, before handing you <span class="gold">£<<print $robinmoney>></span>.
-	<br><br>
-	<<money `($robinmoney * 100)` "robin">><<set $robinmoney to 0>>
-	<<if $robinPayoutIntro is undefined>>
-		<<set $robinPayoutIntro to 0>>
-		You look down at the money, confused. <<He>> gently places it into your hands, and looks you in the eyes. "You're paying for me. I'd be a lousy <<if $robinromance is 1>><<nnpc_girlfriend "Robin">><<else>>friend<</if>> if I didn't at least try to help."
+	<<if $robinStand?.selfSufficient is 1>>
+		/* Robin pays their own way now: they share the stand's profits instead of handing over everything. */
+		<<set _share to Math.floor(($robinmoney - 800) / 2)>>
+		You knock on the door. Robin throws it open and hugs you. "Come in," <<he>> says, pulling you inside.
+		<<He>> counts out a stack of notes, then presses <span class="gold">£<<print _share>></span> into your hand.
+		<<money `(_share * 100)` "robin">><<set $robinmoney -= _share>>
+		<<if $robinShareIntro isnot 1>>
+			<<set $robinShareIntro to 1>>
+			"Your half," <<he>> says, standing tall. "Of the profits. I told you we'd share them...
+			the stand wouldn't exist without you. And I still get to keep a cushion for Bailey,
+			so don't even try to give it back."
+			<<npcincr Robin dom 1>><<gdom>>
+		<<else>>
+			"Your half of the profits," <<he>> says with an easy smile. "Business is good."
+		<</if>>
+		<br><br>
 	<<else>>
-		"<<print either(
-		"I hope this helps, at least a little.",
-		"Bailey keeps reminding me that I'm dead weight now. I'm a little worried, but not scared. Not anymore.",
-		"I wish I could make more, so I could help you more.",
-		"How do you make so much? I want to be more useful to you.",
-		"Maybe one day, I'll be paying for you instead!",
-		"I don't have much to spend it on, I have everything I need right here.<<set _hand to 1>>",
-		"Thank you, so much. I'm really lucky to have you.",
-		"I always keep £20 in case of an emergency. I hope that's alright.",
-		"Do you ever think about running away? I used to think about it a lot.",
-		"Some day, we won't have to pay anymore. Bad people always get what's coming to them, right?",
-		"That's all I have, is it enough? I can work harder next week!",
-		"You're worth every penny, and more."
-		)>>"
-		<<if _hand is 1>><<He>> squeezes your hand. <<takeHandholdingVirginity "Robin" "consensual">><</if>><<npcincr Robin dom 3>><<gdom>>
+		You knock on the door. Robin throws it open and hugs you. "Come in," <<he>> says, pulling you inside.
+		<<He>> fumbles around in <<his>> drawer for a moment, before handing you <span class="gold">£<<print $robinmoney>></span>.
+		<br><br>
+		<<money `($robinmoney * 100)` "robin">><<set $robinmoney to 0>>
+		<<if $robinPayoutIntro is undefined>>
+			<<set $robinPayoutIntro to 0>>
+			You look down at the money, confused. <<He>> gently places it into your hands, and looks you in the eyes. "You're paying for me. I'd be a lousy <<if $robinromance is 1>><<nnpc_girlfriend "Robin">><<else>>friend<</if>> if I didn't at least try to help."
+		<<else>>
+			"<<print either(
+			"I hope this helps, at least a little.",
+			"Bailey keeps reminding me that I'm dead weight now. I'm a little worried, but not scared. Not anymore.",
+			"I wish I could make more, so I could help you more.",
+			"How do you make so much? I want to be more useful to you.",
+			"Maybe one day, I'll be paying for you instead!",
+			"I don't have much to spend it on, I have everything I need right here.<<set _hand to 1>>",
+			"Thank you, so much. I'm really lucky to have you.",
+			"I always keep £20 in case of an emergency. I hope that's alright.",
+			"Do you ever think about running away? I used to think about it a lot.",
+			"Some day, we won't have to pay anymore. Bad people always get what's coming to them, right?",
+			"That's all I have, is it enough? I can work harder next week!",
+			"You're worth every penny, and more."
+			)>>"
+			<<if _hand is 1>><<He>> squeezes your hand. <<takeHandholdingVirginity "Robin" "consensual">><</if>><<npcincr Robin dom 3>><<gdom>>
+		<</if>>
+		<br><br>
 	<</if>>
-	<br><br>
 	<<He>> sits on the bed beside the television<<if $robinconsole is 1>> and picks up the controller<<else>> and reaches for something, quickly realising nothing is there to grab. A look of boredom washes over <<him>><</if>>.
 <</widget>>
 
@@ -1064,8 +1087,12 @@
 			<<foodicon "lemonade">><<link [[Buy lemonade (0:15 <<printprice 100>>)|Robin's Lemonade Purchase]]>><<endevent>><<stress -6>><<trauma -1>><<pass 15>><</link>><<lstress>><<ltrauma>>
 			<br>
 		<</if>>
-		<<robinicon "lemonade">><<link [[Offer help (0:30)|Robin's Lemonade Help]]>><<endevent>><<npcincr Robin love 1>><<npcincr Robin trauma -1>><<pass 30>><</link>><<glove>><<lrtrauma>>
+		<<robinicon "lemonade">><<link [[Offer help (0:30)|Robin's Lemonade Help]]>><<endevent>><<npcincr Robin love 1>><<npcincr Robin trauma -1>><<pass 30>><<run robinStandRecordHelp()>><</link>><<glove>><<lrtrauma>>
 		<br>
+		<<if $robin.timer.hurt is 0 and !$robinbreakupCooldown and $passage isnot "Robin Stand Business">>
+			<<highicon>><<link [[Discuss the stand (0:05)|Robin Stand Business]]>><<endevent>><<set $robinStandVenue to "beach">><<pass 5>><</link>>
+			<br>
+		<</if>>
 		<<getouticon>><<link [[Leave|Beach]]>><<endevent>><</link>>
 	<</if>>
 <</widget>>

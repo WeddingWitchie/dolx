@@ -239,7 +239,7 @@
 
 	/* `money()` spend sources that must NOT be auto-inflated.
 	Rent is handled at its own source so the shown price matches; loan repayments are fixed-value debt. */
-	setup.inflation.EXCLUDED_SOURCES = ["baileyRent", "bankLoan", "tailorDeposit"];
+	setup.inflation.EXCLUDED_SOURCES = ["baileyRent", "bankLoan", "tailorDeposit", "robinGift"];
 
 	setup.inflation.isEnabled = function () {
 		/* Always enabled for now. `$settings.inflationEnabled` is kept reserved for a future UI toggle. */
@@ -423,6 +423,8 @@
 	};
 
 	setup.inflation.rentRobinModifier = function () {
+		/* Once Robin's stand earns enough, they pay Bailey directly and the player's rent drops back to single. */
+		if (typeof V !== "undefined" && V.robinStand && V.robinStand.selfSufficient === 1) return 1;
 		return typeof V !== "undefined" && V.robinpaid === 1 ? 2 : 1;
 	};
 

@@ -13,8 +13,12 @@
 			<<foodicon "cocoa">><<link [[Buy hot chocolate (0:15 <<printprice 200>>)|Robin Chocolate Purchase]]>><<stress -6>><<trauma -1>><<pass 15>><<clotheson>><<endevent>><</link>><<lstress>><<ltrauma>>
 			<br>
 		<</if>>
-		<<robinicon "cocoa">><<link [[Offer help (0:30)|Robin Chocolate Help]]>><<endevent>><<npcincr Robin love 1>><<npcincr Robin trauma -1>><<pass 30>><<clotheson>><</link>><<glove>><<lrtrauma>>
+		<<robinicon "cocoa">><<link [[Offer help (0:30)|Robin Chocolate Help]]>><<endevent>><<npcincr Robin love 1>><<npcincr Robin trauma -1>><<pass 30>><<clotheson>><<run robinStandRecordHelp()>><</link>><<glove>><<lrtrauma>>
 		<br>
+		<<if $robin.timer.hurt is 0 and !$robinbreakupCooldown and $passage isnot "Robin Stand Business">>
+			<<highicon>><<link [[Discuss the stand (0:05)|Robin Stand Business]]>><<endevent>><<set $robinStandVenue to "park">><<pass 5>><<clotheson>><</link>>
+			<br>
+		<</if>>
 		<<getouticon>><<link [[Leave|Park]]>><<endevent>><<clotheson>><</link>>
 	<</if>>
 <</widget>>
@@ -37,6 +41,7 @@
 	<<print $robin.timer.hurt gte 1 or $robinbreakupCooldown ? "<<He>> glances away when <<he>> sees you." : C.npc.Robin.trauma gte 40 ? "<<He>> flinches whenever somebody passes <<him>>. When <<he>> sees you, <<he>> gives a timid wave." : $robin.stayup is 2 ? "<<He>> startles awake when you approach <<him>>." : "<<He>> waves when <<he>> sees you.">>
 <</if>>
 <br><br>
+<<robinStandNotice>>
 <<robinChocolateOfferHelp>>
 
 :: Robin Chocolate Purchase
@@ -56,7 +61,11 @@ You slip <<printprice 200>> across the counter to <<him>>, and accept the offere
 
 <<elseif $robinpaid is 1 and $daily.robin.freeDrink isnot 1>>
 	<<set $daily.robin.freeDrink to 1>>
-	"I-I can't take this from you..." <<he>> says, sliding the money back across the counter to you. "You're already paying Bailey for me. Besides, I'd just end up giving it back to you."
+	<<if $robinStand?.selfSufficient is 1>>
+		"Partners drink free," <<he>> says, sliding the money back across the counter with a grin. "House rules. I made them up just now."
+	<<else>>
+		"I-I can't take this from you..." <<he>> says, sliding the money back across the counter to you. "You're already paying Bailey for me. Besides, I'd just end up giving it back to you."
+	<</if>>
 	<<money 200>>
 
 <<elseif $robinpaid is 1>>
