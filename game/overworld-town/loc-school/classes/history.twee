@@ -249,7 +249,10 @@
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 <<set $daily.school.attended.history to true>>
 
-<<if Time.weekDay is 6 and Time.minute gte 37>>
+<<if $schoolstate isnot "fourth" or Time.minute gte 59>>
+	<!-- lesson time is already up, e.g. after an event or encounter that overran the hour -->
+	<<lessonEnd "historyClassroom">>
+<<elseif Time.weekDay is 6 and Time.minute gte 37>>
 	<<npc Winter>><<person1>>
 	"Time to prove you've been paying attention," Winter says, placing a stack of booklets on <<his>> desk. "Form an orderly queue. Anyone who begins before I give the go ahead will be disciplined."<<gstress>><<stress 6>>
 	<br><br>
@@ -309,7 +312,9 @@
 		<<bedicon "zzz">><<link [[Sleep at your desk|History Lesson Sleep]]>><</link>><<lltiredness>>
 		<br>
 	<</if>>
-	<<if hasSexStat("exhibitionism", 5, true)>>
+	<<if Time.minute gt 36>>
+		<!-- not enough time left in the lesson to risk touching yourself -->
+	<<elseif hasSexStat("exhibitionism", 5, true)>>
 		<<if $robinhistory is "seat">>
 			<<if C.npc.Robin.dom gte 60>>
 				<<skinicon "masturbate">><<link [[Masturbate|History Lesson Masturbate Robin]]>><</link>>
