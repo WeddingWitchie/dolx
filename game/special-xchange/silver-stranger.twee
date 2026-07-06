@@ -3,6 +3,21 @@
 	<<if $xchange.silverStranger is undefined or typeof $xchange.silverStranger isnot "object" or Array.isArray($xchange.silverStranger)>>
 		<<set $xchange.silverStranger to { unlocked: false, met: false }>>
 	<</if>>
+	/* Register the stranger as a hidden named NPC "Luchifen" so their relationship uses the standard C.npc / npcincr system (easy to promote to a love interest later).
+	Shown in the UI only as "???". Idempotent, only adds once. */
+	<<if Array.isArray($NPCNameList) and !$NPCNameList.includes("Luchifen")>>
+		<<set _luchifenDef to {nam: "Luchifen", title: "architect", insecurity: "looks", adult: 1}>>
+		<<newNamedNpc _luchifenDef>>
+	<</if>>
+	/* Reveal them in the social tab (as "???") once they've been met. */
+	<<if $xchange.silverStranger.met and $NPCNameList.includes("Luchifen") and C.npc.Luchifen.init isnot 1>>
+		<<set C.npc.Luchifen.init to 1>>
+	<</if>>
+<</widget>>
+
+/* Renders the stranger's hidden name as a glowing silver "???". Used in the social tab and dialogue. */
+<<widget "silverName">>
+	<span class="silverStranger">???</span>
 <</widget>>
 
 <<widget "silverStrangerCheck">>
@@ -42,7 +57,13 @@
 	<<if _silverActive and $xchange.silverStranger.met is true>>
 		Near the edge of the water, a <span class="purple">figure of silver</span> watches the tide, in no hurry to be anywhere.
 		<br>
-		<<icon "mark.gif">><<link [[Approach the silver figure (0:05)|Silver Stranger]]>><<pass 5>><</link>>
+		/* If they've kept Mickey's earpiece but never had the confrontation (e.g. first met via fame, heist done later),
+		   route the approach into that scene first, before the normal question sequence. */
+		<<if $xchange.bankHeist and $xchange.bankHeist.keptEarpiece and !$xchange.silverStranger.mickeyConfronted>>
+			<<icon "mark.gif">><<link [[Approach the silver figure (0:05)|Silver Stranger Meet 2]]>><<pass 5>><</link>>
+		<<else>>
+			<<icon "mark.gif">><<link [[Approach the silver figure (0:05)|Silver Stranger]]>><<pass 5>><</link>>
+		<</if>>
 		<br><br>
 	<</if>>
 <</widget>>
@@ -106,6 +127,7 @@ so you can never quite read what they're thinking.
 
 :: Silver Stranger Meet 2
 <<effects>>
+<<set $xchange.silverStranger.mickeyConfronted to true>>
 "Mickey," they say.
 <br><br>
 You freeze. Your hand twitches toward the place you keep the earpiece hidden, your fingers clenching into a fist.
@@ -128,10 +150,16 @@ They lift one pale hand, stopping you before the threat can finish.
 "Relax. I won't." Their voice stays calm, almost bored. "To get rid of Mickey, I'd first have to call them a threat,
 and they simply aren't one. I dislike giving people that much credit."
 <br><br>
-<<link [[Ask what they actually want|Silver Stranger Meet 3]]>><</link>>
+<<if $xchange.silverStranger.introDone>>
+	/* Later confrontation (already met and heard the trade intro): return to the hub. */
+	<<link [[Next|Silver Stranger]]>><</link>>
+<<else>>
+	<<link [[Ask what they actually want|Silver Stranger Meet 3]]>><</link>>
+<</if>>
 
 :: Silver Stranger Meet 3
 <<effects>>
+<<set $xchange.silverStranger.introDone to true>>
 You force yourself to keep looking at them without looking away. "Stop circling around it. What do you want from me?"
 <br><br>
 "To watch, mainly. You're a rare sort of thing, and I do enjoy a rare thing."
@@ -262,7 +290,7 @@ You change when you need to, and that makes you useful." They watch you closely.
 	You stay quiet and let them speak.
 	<br><br>
 	That seems to please them. "Hmm? You didn't push. Patience will help you with what comes next."
-	<<set $xchange.elkkarma to ($xchange.elkkarma || 0) + 1>>| <span class="elk">+ ???</span>
+	<<npcincr Luchifen love 1>>| <span class="silverStranger">+ ???</span>
 <</if>>
 <br><br>
 Whatever they mean, they clearly aren't going to explain it now.
@@ -336,7 +364,7 @@ You nod, admitting that you actually enjoy the thrill of it all.
 	Sometimes you attend because saying no would cause more trouble."
 	<br><br>
 	They look back at you. "You'll understand that eventually."
-	<<set $xchange.elkkarma to ($xchange.elkkarma || 0) + 1>>| <span class="elk">+ ???</span>
+	<<npcincr Luchifen love 1>>| <span class="silverStranger">+ ???</span>
 <</if>>
 <br><br>
 <<socialiseicon "ask">><<link [[Ask something else|Silver Stranger]]>><</link>>
@@ -528,3 +556,11 @@ Otherwise it's charged at the marked-up, inflation-adjusted price.
 	/* Daily purchase cap: at most 3 pills a day (free or paid both count). Resets with $daily. */
 	<<set $daily.silverBought to ($daily.silverBought or 0) + 1>>
 <</widget>>
+
+
+:: Silver Stranger Styles [stylesheet]
+.silverStranger {
+	color: #e6e8f4;
+	font-weight: bold;
+	text-shadow: 0 0 4px #cfd3e6, 0 0 10px #9aa0c0, 0 0 16px #6b70a0;
+}
