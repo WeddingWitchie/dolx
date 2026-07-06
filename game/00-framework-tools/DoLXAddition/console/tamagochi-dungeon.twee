@@ -41,14 +41,17 @@
 	<span class="small-description"><i>Found so far: £<<= Math.floor(_d.money / 100)>>,
 	_d.items <<= _d.items is 1 ? "item" : "items">>, _d.kills <<= _d.kills is 1 ? "kill" : "kills">>.</i></span>
 	<br>
-	<<link [[Step deeper|Home Console Dungeon Step]]>><<set $_dstep to Tamagotchi.dungeonStep()>><<pass 5>><</link>>
+	<<link [[Step deeper|Home Console Dungeon Step]]>><<set $dungeonStep to Tamagotchi.dungeonStep()>><<pass 5>><</link>>
 	<br>
 	<<link [[Climb back out|Home Console Dungeon Exit]]>><<pass 1>><</link>>
 <</if>>
 
 :: Home Console Dungeon Step
-<<effects>><<pass 1>>
-<<set _step to $_dstep>><<unset $_dstep>>
+<<effects>>
+/* $dungeonStep must be a plain story variable: in DoL's SugarCube fork, "$_name" is a widget-local (State.local) that does not survive passage navigation. */
+<<set _step to $dungeonStep>><<unset $dungeonStep>>
+/* Re-rendering this passage (save load, refresh, history) arrives with $dungeonStep already unset; fall through to the harmless default case instead of crashing the <<switch>>. */
+<<if _step is undefined or _step is null>><<set _step to { type: "none" }>><</if>>
 <<set _t to Tamagotchi.status()>>
 
 <<switch _step.type>>
@@ -107,7 +110,7 @@
 <</switch>>
 
 :: Home Console Dungeon Exit
-<effects>><<set _d to Tamagotchi.dungeonEnd()>>
+<<effects>><<set _d to Tamagotchi.dungeonEnd()>>
 You climb back out of the dungeon and switch the game off for now.
 <br><br>
 <span class="teal">This run you gathered <span class="gold">£<<= Math.floor(_d.money / 100)>></span>,
