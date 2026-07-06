@@ -1632,7 +1632,7 @@ You turn around. Gwylan sits in front of you amid a bed of <<if isLoveInterest("
 	<<set _continue to true>>
 	<span class="blue">You're no stranger to nightmares.</span> <<trauma 12>><<set $hypnosis_potency++>><<gtrauma>><<gwylanHypnoEffect>>
 <<elseif $willpowerSuccess and $phase isnot "wake">>
-	<<set _continue to true>><<set $slumberDifficultyLow += 200>><<set $slumberDifficultyHigh += 200>>
+	<<set _continue to true>><<gwylanSlumberDifficulty 200>>
 	<span class="green">You shake away the tingling fear shooting through your fingertips.</span> They yearn to hold something. <<trauma 50>><<set $hypnosis_potency++>><<gggtrauma>><<gwylanHypnoEffect>>
 <<else>>
 	<<if $phase isnot "wake">>
@@ -1689,7 +1689,7 @@ You turn around. Gwylan sits in front of you amid a bed of <<if isLoveInterest("
 	<<set _continue to true>>
 	<span class="blue">You've been in darker places and seen what lies within.</span> You squeeze Gwylan's hand back.
 <<elseif $willpowerSuccess and $phase isnot "wake">>
-	<<set _continue to true>><<set $slumberDifficultyLow += 200>><<set $slumberDifficultyHigh += 200>>
+	<<set _continue to true>><<gwylanSlumberDifficulty 200>>
 	<span class="green">You squeeze Gwylan's hand back.</span>
 <<else>>
 	<<if $phase isnot "wake">>
@@ -1717,18 +1717,18 @@ You turn around. Gwylan sits in front of you amid a bed of <<if isLoveInterest("
 	<br>
 	The water laps at your waist,
 	<<if currentSkillValue('willpower') gte $slumberDifficultyLow>>
-		<<set $slumberDifficultyLow += 50>><<set $slumberDifficultyHigh += 50>>
+		<<gwylanSlumberDifficulty 50>>
 		but <span class="witch">you resist the call.</span> You slowly pull upwards. <<trauma 12>><<set $hypnosis_potency++>><<gtrauma>><<gwylanHypnoEffect>>
 		<br>
 		Your chest goes numb from the cold,
 		<<if currentSkillValue('willpower') gte $slumberDifficultyLow>>
-			<<set $slumberDifficultyLow += 75>><<set $slumberDifficultyHigh += 75>>
+			<<gwylanSlumberDifficulty 75>>
 			but <span class="witch">you resist the call.</span> You exhale slowly as the red water flows faster. <<trauma 24>><<set $hypnosis_potency++>><<ggtrauma>><<gwylanHypnoEffect>>
 			<br>
 			You have to fight to keep your head above water,
 			<<if currentSkillValue('willpower') gte $slumberDifficultyLow>>
 				<<set _unbloodied to true>>
-				<<set $slumberDifficultyLow += 100>><<set $slumberDifficultyHigh += 100>>
+				<<gwylanSlumberDifficulty 100>>
 				but <span class="witch">you resist the call.</span> The knife is nearly free. <<trauma 50>><<set $hypnosis_potency++>><<gggtrauma>><<gwylanHypnoEffect>>
 				<br>
 				The waves close over your head,
@@ -1777,7 +1777,7 @@ You turn around. Gwylan sits in front of you amid a bed of <<if isLoveInterest("
 	<<set _continue to true>>
 	<span class="blue">You've been more afraid.</span> <<trauma 12>><<set $hypnosis_potency++>><<gtrauma>><<gwylanHypnoEffect>>
 <<elseif $willpowerSuccess and $phase isnot "wake">>
-	<<set _continue to true>><<set $slumberDifficultyLow += 200>><<set $slumberDifficultyHigh += 200>>
+	<<set _continue to true>><<gwylanSlumberDifficulty 200>>
 	<span class="green">You keep your eyes open,</span> although it's hard to tell. Everything is pitch black. <<trauma 50>><<set $hypnosis_potency++>><<gggtrauma>><<gwylanHypnoEffect>>
 <<else>>
 	<<if $phase isnot "wake">>
@@ -1828,7 +1828,7 @@ You turn around. Gwylan sits in front of you amid a bed of <<if isLoveInterest("
 	<<set _continue to true>>
 	<span class="blue">You remember being through this.</span> <<trauma 12>><<set $hypnosis_potency++>><<gtrauma>><<gwylanHypnoEffect>>
 <<elseif $willpowerSuccess and $phase isnot "wake">>
-	<<set _continue to true>><<set $slumberDifficultyLow += 200>><<set $slumberDifficultyHigh += 200>>
+	<<set _continue to true>><<gwylanSlumberDifficulty 200>>
 	<span class="green">You remember who, and where, you are. You remember that this was all painfully real, once.</span> <<trauma 50>><<set $hypnosis_potency++>><<gggtrauma>><<gwylanHypnoEffect>>
 <<else>>
 	<span class="red">You forget the violation, but the emptiness remains. You forget the pain, but your skin still stings.</span> You tell yourself that you're better. A comforting lie.
@@ -1901,7 +1901,7 @@ You turn around. Gwylan sits in front of you amid a bed of <<if isLoveInterest("
 	<<set _continue to true>>
 	<span class="blue">Nobody knows you. Nobody knows you better than anybody.</span> <<trauma 25>><<set $hypnosis_potency++>><<ggtrauma>><<gwylanHypnoEffect>>
 <<elseif $willpowerSuccess and $phase isnot "wake">>
-	<<set _continue to true>><<set $slumberDifficultyLow += 200>><<set $slumberDifficultyHigh += 200>>
+	<<set _continue to true>><<gwylanSlumberDifficulty 200>>
 	<span class="green">You grip the handle of the knife tighter, until it hurts. You're still here.</span> <<trauma 50>><<set $hypnosis_potency++>><<gggtrauma>><<gwylanHypnoEffect>>
 <<else>>
 	<span class="red">You step the wrong way, and you fall.</span> Perhaps you did it on purpose. Perhaps you weren't ready to see what lays at the end, at your core.
@@ -3833,6 +3833,21 @@ Not only will you have to hold your breath for a very long time, <span class="re
 	<<if !$sexRitual?.bondage>>
 		<<canvas-model-override "arm_left" "idle">>
 		<<canvas-model-override "arm_right" "idle">>
+	<</if>>
+<</widget>>
+
+/* Raises the slumber willpower difficulty by _args[0], clamped against the player's willpower cap.
+The raw escalation (up to 1525) is only reachable with the doubled Tempered Willpower cap; without this clamp the deeper checks are mathematically impossible at the base 1000 cap.
+Clamping keeps them winnable (at worst ~50% with full willpower) while leaving Tempered Willpower players' checks untouched. */
+<<widget "gwylanSlumberDifficulty">>
+	<<set $_step to Number(_args[0]) || 0>>
+	<<set $slumberDifficultyLow += $_step>>
+	<<set $slumberDifficultyHigh += $_step>>
+	<<set $_range to $slumberDifficultyHigh - $slumberDifficultyLow>>
+	<<set $_cap to ($willpowermax || 1000) * (($AMCTraits && $AMCTraits.willpower) || 1)>>
+	<<if $slumberDifficultyLow gt $_cap - $_range / 2>>
+		<<set $slumberDifficultyLow to Math.round($_cap - $_range / 2)>>
+		<<set $slumberDifficultyHigh to $slumberDifficultyLow + $_range>>
 	<</if>>
 <</widget>>
 
