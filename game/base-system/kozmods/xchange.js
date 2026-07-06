@@ -607,10 +607,16 @@ function updatePhysique() {
 		}
 	}
 
-	V.physique = Math.round(
-		V.xchange.baseStats.physique *
-		(V.physiquesize / V.xchange.baseStats.physiquesize) *
-		(genderMismatch ? pct : 1)
+	// Respect the same ceiling as clamp; this runs on :passageend and would otherwise overwrite the clamped value with an uncapped one.
+	const cap = V.physiquesize * (Number(V.AMCTraits?.physique) || 1);
+	V.physique = Math.clamp(
+		Math.round(
+			V.xchange.baseStats.physique *
+			(V.physiquesize / V.xchange.baseStats.physiquesize) *
+			(genderMismatch ? pct : 1)
+		),
+		0,
+		cap
 	);
 }
 window.updatePhysique = updatePhysique;
