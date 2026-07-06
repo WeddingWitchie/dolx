@@ -329,6 +329,7 @@ Keeping that boundary intact is the core of this system.
 ======================================================
 # Future Balance Note: Fixed-Term Shelter Loop
 ======================================================
+
 The fixed-term deposit loophole is intentional for now.
 
 A player who understands the HBSC bank system should be able to use active fixed-term deposits as a temporary shelter from Bailey. Locked terms still count toward general economic inflation, so the city reacts to the player's hidden wealth through higher prices, but Bailey himself only reacts to liquid, visible money: cash and normal savings. This creates a deliberate strategic gap between "the economy knows the player is rich" and "Bailey can personally reach the money."
