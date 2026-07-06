@@ -11,184 +11,202 @@
 
 ## Changelog
 ## Changes and Additions:
-* Player-controlled economy rebalance settings
-  * Added Economy Inflation presets: Light, Mid, Current, Hard, and Harsher.
-  * Players can now tune inflation strength, Bailey rent pressure, refusal and hunt timing, rent caps, weekly rent growth, and overdue bank-loan collection.
-  * The default economy has been softened by halving the harshest inflation and rent values.
-  * Current remains available as the intended balance preset.
-* Harvest Street factory speed-up
-  * The factory now sells stockpiled produce much faster.
-  * Business fame now has a stronger effect.
-  * Large backlogs that used to take weeks should now clear in days.
-  * The factory now always sells at least 5% of a produce pile each day.
-* Factory earnings collection
-  * You can now collect factory earnings whenever you visit.
-  * The collection button now shows exactly how much money is owed.
-  * You no longer need to wait for earnings to pass $10,000.
-* Sydney X-Change pilling
-  * Sydney can now be fed X-Change pills during encounters.
-  * Sydney reacts when you draw a pill, when they take it, and when it reshapes them.
-  * Sydney has different lines depending on how devout or corrupted they currently are.
-  * Herm pills have a special reaction.
-* Custom Makeup v.201
-  * Added Custom Makeup v.201 by Sasa.
-  * Bug fixes by D.N.A.
-* Quick smoking locations
-  * Added quick smoking to Eden’s cabin.
-  * Added quick smoking to the wolf cave.
-  * Added quick smoking to Alex’s farm.
-  * Added quick smoking to the school rear courtyard.
-  * Added quick smoking to the park.
+* Blue Omega pill
+  * Added the new Blue Omega pill.
+* Expanded Alpha and Omega X-Change effects
+  * Alpha and Omega X-Change effects can now appear in non-consensual spiking.
+  * Each effect has its own on/off toggle and frequency slider under **X-Change Settings > Spiking Preferences**.
+  * Both are disabled by default.
+  * Omega can roll on any body.
+  * Alpha only rolls when the player has a penis.
+  * These options are now included in Settings Export/Import.
+  * NPCs no longer waste random pill rolls on Alpha or Omega, since these are player-only effects.
+* Expanded Settings Export/Import
+  * Settings Export/Import now covers more X-Change options.
+  * Added support for previously missing settings, including the new Alpha/Omega spiking preferences.
+* New event: the mysterious person
+  * A mysterious person can now appear after certain X-Change story milestones.
+  * They may appear once you keep Mickey’s earpiece after the bank heist, have it seized by the police, or reach maximum X-Change fame.
+  * You first meet them loitering in the park during the day.
+  * After the first meeting, they wait down by the docks.
+  * Their appearance chance is rolled daily.
+  * They sell the full range of pills at a markup, including X-Change pills, premium pills, antidotes, tests, and suspicious unlabelled pills.
+  * They never run out of stock, never ask questions, and do not bring extra consequences beyond the pills themselves.
+  * On generous days, they may hand over a free pill, though this is limited.
+  * After finishing the heist with Landry, you can ask them several one-time questions about Mickey, themselves, why they are interested in you, and how you first became involved.
+  * Their replies change depending on whether your heist route began through the gala, the premium pill route, or blackmail.
+* Silver Stranger NPC support
+  * The Silver Stranger is now a proper NPC in the NPC list.
+* New trait: Insanity
+  * Added the new **Insanity** mental trait.
+  * It can be selected under Mental Attributes when starting a new game.
+  * Insanity gives every drawback of the Nerd and Delinquent backgrounds without granting their perks.
+  * It heavily reduces physical, combat, and academic gains.
+  * It causes faster physique loss.
+  * It increases the pull toward crime and delinquency.
+  * When chosen at character creation, Insanity is permanent.
+  * Insanity can also develop mid-game if trauma stays at 70% or higher for more than 7 days.
+  * The mid-game version fades once trauma finally subsides.
+  * Insanity appears in red in the Trauma Traits panel.
+  * Permanent Insanity keeps the player constantly affected by trauma-related conditions, including Insomnia, Nightmares, severe Anxiety, Panic Attacks, and Hallucinations.
+* Insanity talent lock and sensitivity resistance
+  * Permanent Insanity now forces all character talents active.
+  * The talent menu is locked while permanent Insanity is active.
+  * Active Insanity now blocks positive sensitivity increases.
+  * This includes X-Change and anti-pill side effects.
+  * Sensitivity reductions are still preserved.
+* Robin’s stand expansion
+  * You can now give Robin money directly in their room to help them stay ahead of Bailey’s toll once you know about their debt.
+  * You can now learn about Robin’s debt early by overhearing orphans in the main hall, provided Robin’s love is 40 or higher.
+  * This unlocks **Take on Robin’s debt** before Robin is ever taken to the docks.
+  * Robin’s lemonade and hot chocolate stand now has 4 stand tiers and 24 upgrades.
+  * Stand upgrades are shared between the summer and winter stand.
+  * Stand income now depends on stand tier, upgrades, Robin’s serving skill, the weather, and the temperature.
+  * You can fund stand upgrades yourself at the stand.
+  * You can train Robin’s serving skill once per day.
+  * Once the pressure is off, Robin can begin saving up and buying upgrades on their own.
+  * Helping at the stand, paying Robin’s rent, or gifting them a real cushion can help push Robin toward independence.
+  * A confident Robin invests in the stand faster.
+  * Handouts hurt Robin’s confidence, while earned progress and self-funded upgrades build it.
+  * If Robin’s stand earns more than £2,000 a week while you are carrying their debt, Robin confronts Bailey at rent time and takes their payments back.
+  * After this, your rent returns to normal and Robin begins sharing stand profits with you.
+* Wardrobe Favorites tab
+  * Added a new Favorites tab to the wardrobe.
+  * Players can now favorite individual clothing pieces.
+  * Favorited items are easier to equip quickly without digging through categories.
+  * This supports items such as umbrellas, masks, gloves, boots, heels, outerwear, jewellery, and underwear.
+* Sex toy functionality expansion
+  * Butt plugs and dildos now hold fluids inside while worn.
+  * Fluids no longer leak out, wash away, or fade over time while a plug or inserted dildo is in place.
+  * Removing the toy causes everything to drain and wash normally again.
+  * Small dildos still visually drip for appearance purposes, but the fluids remain safely held inside.
+  * Dildos can now be inserted and worn vaginally like butt plugs.
+  * Worn dildos can be removed from the sex toy inventory or slipped out during combat.
 * Pet minigame update
-  * If Robin loves you enough, they will now look after your pet while you are held captive in a bad end.
-  * Slowed down pet-care time in the Tamagotchi minigame.
-* Robin recipe teaching tweak
-  * Robin now teach you how to make lemonade or hot cocoa only when you visit the orphanage kitchen while Robin is at the orphanage.
-* Cat TF “Hiss” combat action
-  * Cat transformation level 2+ can now Hiss during combat.
-  * Hiss mirrors the wolf’s Growl action.
-  * It is a bratty action that can make a beast flinch.
-  * A flinching beast may hesitate to pounce for a turn instead of attacking.
-* Per-body voice settings
-  * Herm characters now use their own voice instead of borrowing the male voice.
-  * By default, herm characters now moan with the female Hentai voice.
-  * This can be changed at any time in Options.
-  * Added new “Voice per body & identity” settings for Male, Female, Sissy, Butch, and Herm states.
-  * For each state, players can choose which player voice plays, mute their own voice, and choose which NPC voices they hear.
-  * The Herm row only appears once the player is actually a herm.
-  * Cleaned up unused voice-audio code.
-* Omega and Alpha X-Change pill effects
-  * Added Omega pill effects, enabling anal pregnancy mechanics.
-  * Added Alpha pill effects, adding a knotted penis with specific arousal requirements.
-  * Added new pill variants: Pink Omega, Blue Alpha, and Purple Alpha and/or Omega.
-  * Added related anti-pills.
-  * Added new xray image for knotted anatomy.
-  * Added migration support for legacy body snapshots.
-  * Added a setting to control Omega’s body transformation style.
-* NPC reaction to being knotted
-  * Added NPC reactions to being knotted by the player.
-* Brothel Re-Virginity update
-  * Re-Virginity now restores purity fully.
-  * This gives players a chance to become an angel TF again.
-* Realistic Childbirth
-  * Added Realistic Childbirth by Psayne.
-  * Bug fixes and completion by D.N.A.
-  * Realistic pregnancy is now available in Pregnancy setting.
-  * Added safety checks so interrupted or invalid childbirth states recover through valid birth endings instead of breaking the game.
-  * Players can now opt into detailed labour scenes in any Pregnancy type if you turn on the setting.
-* Mailbox stealing
-  * Added an option to steal mail from mailboxes in Danube, Domus, and Barb Flats across the canal.
-  * Stealing mail for 30 days straight unlocks a feat.
-  * Each location has its own daily stealing limit.
-  * Crime increases only slightly with each theft.
-  * Crime increase can be almost zero with high skulduggery.
-  * Players can now steal from mailboxes when the door is locked at night.
-  * Players can also steal from mailboxes during the day after knocking and receiving no response.
-* “Offer your mouth” combat action
-  * Added an “Offer your mouth” combat action.
-  * This lets players redirect genital threats to oral when their mouth is free.
-  * The option is wired into combat menus, action defaults, difficulty display, input coloring, and X-Change heat behavior.
-* New feat boost traits
-  * Added new feat boost options for sexual traits.
-  * After unlocking the “A Special Trait” feat, players can buy Orgasm Addict, Asphyxiophilia, Cum Dump, Plaything, Fucktoy, Bitch, Prey, and Milk Addict.
-  * Each trait costs 20 Vrel Coins.
-* Bike Rework
-  * Added the Bike Rework by Bec.
-  * Bug fixing and tweaked by D.N.A.
-* X-Change Pills medicine drawer update
-  * Player now can buy all coloured X-Change pills.
-  * All owned X-Change pills now remain visible in the medicine drawer no matter what body the player currently has.
-  * If pills can't be used by current body, they are greyed out with an explanation.
-  * Greyed-out pills can still be kept to feed to NPCs.
-  * Pill suitability now checks the player’s actual body instead of gender identity.
-  * Cuntboys and dickgirls are now offered pills that work on their current bodies.
-  * Forced pill events now check the player’s body (sex).
-  * Bailey, combat spiking, and the portal deal now pick pills based on the player’s physical body (sex).
-  * Fixed the medicine drawer layout where long pill names, such as Purple Alpha-Omega, could push the count number onto its own empty row.
-* Pirate ship demon event
-  * Added a new pirate ship event.
-  * Demon players may now trigger a daily group-sex event there.
-* NPC pilling feature update
-  * Added a new setting in X-Change Settings > Pill Behaviour: “Pilled NPCs also change gender.”
-  * The setting is on by default, matching previous behavior.
-  * When turned off, genderswap pills only change an NPC’s body (sex/genital).
-  * A pilled man can gain a female body while keeping his pronouns and still being described as a man, and vice versa.
-  * Works on both random NPCs and Named NPCs.
-  * Pilled crossdresser NPCs now keep their presented gender too.
-  * The Social tab now shows an “X-Changed” tag next to pilled Named NPCs.
-  * Hovering the tag shows their current body, whether their gender changed with it, and how long the pill has left.
-  * The Traits overlay now lists live X-Change status for every pilled Named NPC.
-  * NPCs now revert to their exact original identity when a pill ends, even if the setting was toggled while the pill was active.
+  * Once every living pet is fully grown, a new egg from an unowned element can be adopted.
+  * Players can now collect all four elements.
+  * Active pets can be switched more freely.
+  * One benched teammate can still tag in if the active pet falls in battle.
+  * Battles now deal more meaningful minimum damage.
+  * Wild enemies, dungeon mobs, minibosses, and the blood-moon boss now scale damage more aggressively.
+  * Type matchups now affect this scaling.
+  * Rest stalling is no longer a free win strategy.
+  * The blood-moon Mirror boss now fully copies your pet’s attack skills.
+  * The Mirror boss can use heals twice per fight.
+  * The Mirror boss can also revive once, just like your pet.
+  * Elixirs can now revive dead benched pets, not only the active pet.
+  * Fully grown pets now look after themselves.
+  * Fully grown pets no longer need feeding, cleaning, or sickness care.
+  * Weekly attacks and the blood moon boss can still threaten them.
 
 ## Rebalancing and Fixes:
-* Harvest Street factory fixes
-  * Produce sitting at exactly 250 now correctly shows as sellable.
-  * Fixed old factory code that could occasionally throw an error.
-* Rare weather animation crash fix
-  * Fixed a rare crash caused by stale weather animation update loops.
-  * Rain, fog, snow, and smoke particle animations now clean up correctly after weather refreshes.
-  * This prevents a “too much recursion” error that could persist until reopening the tab.
-* Premium pill Hyper Fertility fix
-  * Fixed Hyper Fertility in Premium pills not giving the fertile effect.
-* Clothing caption crash fix
-  * Fixed the “Cannot read properties of undefined (reading 'word')” error.
-  * This error could appear when opening the wardrobe or viewing clothing descriptions.
-  * Clothing lookups now resolve items by what they actually are instead of trusting stale saved indexes.
-  * No save data is reset or changed.
-  * Stale clothing positions are resolved safely on the fly.
-  * Hardened clothing captions in the wardrobe and sidebar.
-  * Hardened outfit-pair detection.
-  * Added a null-safety guard on outfit-pair cost checks.
-  * Hardened bird-hunt clothing loot.
-  * Hardened bird-nest loot display.
-* Whitney X-Change pill fix
-  * Whitney’s pink and blue pills no longer reveal too much information.
-  * Pills handed or forced by Whitney no longer immediately appear its variants in character and trait screens.
-* Fallen Angel TF fixes
-  * Fixed Fallen Angel TF not triggering immediately after losing vaginal, penile, or both virginities.
-  * Removed the fallen angel fallback from the mirror.
-* TF trait new-game fix
-  * Fixed some TF traits appearing in new games.
-* Beast combat text fix
-  * Fixed beast “await its turn” text appearing twice.
-* Street event tweak
-  * NPCs no longer compliment the player for being exposed in public.
-* Orgasm tracking fix
-  * Fixed orgasms while penetrating others stat not increasing correctly.
-* Ivory Wraith possession fix
-  * Fixed inconsistent Wraith hunt and Wraith possession states.
-  * This could previously cause outdated hunt warnings, missing Wraith influence text, or incorrect possession paths.
-  * Old hunt states are now cleared properly.
-  * Both current and older Wraith state names are now recognised.
-  * Wraith influence text is now clearer when it applies.
-* Custom dyed hair combat fix
-  * Fixed a combat “canvasfilter” crash when gradient hair was combined with Dye HARDER custom colours.
-  * The fringe now uses its own custom dye in combat instead of borrowing the sides’ colours.
-  * Missing custom dye slots now fall back to the player’s normal hair colour instead of rendering grey or uncoloured.
-* Poppy gift fix
-  * Giving Poppy a drink no longer makes Poppy “eat” it.
-* Landry gray pill fix
-  * The pub option now appears one week after reporting the heist to Landry.
-  * Existing saves that already reported the heist unlock it immediately.
-* Horse race UI cleanup
-  * Tidied the horse race UI.
-  * Trauma and Stress gain text no longer appears in awkward positions.
-* Missing link fix
-  * Fixed a missing link when using the “lose the encounter” or “skip” button.
-* School changing rooms fix
-  * The changing rooms now judge the player by their current body instead of the sex they started the game with.
-  * Slow body change now updates physical sex as soon as genitals finish changing.
-  * The game no longer waits for breasts, hips, and hair to finish before updating physical sex.
-  * Strip punishments now react to what students actually see.
-  * X-Changed, cuntboy, dickgirl, and herm bodies now receive the correct scenes.
-  * Students who heard old crossdresser or freak rumours can now notice when the player’s body proves those rumours wrong.
-  * Those rumours can now fade.
-  * Body changes now pause during pregnancy and while an ear slime is blocking the change.
-  * Old saves stuck mid-change are now fixed automatically on load.
-  * Fixed Mason mixing up who they caught in the wrong changing room.
-* Composting init fix
-  * Fixed missing composting init that could cause an error while sleeping.
-* Encounter stalking fix
-  * Fixed encounter stalking logic rolling a willpower check for ear slime without checking whether the player actually has an ear slime.
-* Poppy hallway event fix
-  * Poppy hallway events can no longer trigger while the player is exposed.
+* Sissy and Butch pill fixes
+  * The Sissy pill now always feminises a male body.
+  * The Butch pill now always masculinises a female body.
+  * These changes are based on the player’s actual anatomy rather than gender identity.
+  * Trans characters, dickgirls, cuntboys, and slow-body-change players now receive the body change that matches the pill’s description.
+  * The on-screen **Sissification** and **Butchification** labels now correctly match what happened to the body.
+* Alpha/Omega spike anatomy fixes
+  * Spiked X-Change effects now match the player’s actual anatomy.
+  * Breeder and Fertile can no longer land on a body without a vagina.
+  * Bull can no longer land on a body without a penis.
+  * This prevents broken spike results, including cases where a body could be left unable to climax because the required anatomy was missing.
+* Herm pill fixes
+  * Fixed Herm and futa transformations leaving the penis stuck at Micro.
+  * Herm bodies now always receive a properly sized penis.
+  * The size is at least Normal and still respects the player’s size settings.
+  * Existing affected saves are repaired on load, including permanent herm saves.
+  * Legacy herm data handling has been hardened.
+  * Unsupported leftover herm body-gender values are now cleared properly.
+  * Old saves frozen with stray legacy herm data are healed on load.
+* NPC X-Change pilling fixes
+  * NPCs pilled mid-encounter now stop using body parts they no longer have.
+  * This also repairs old corrupted saves that could show “none” anatomy text.
+  * Fixed combat crashes that could happen after Kylar or other NPCs were X-Changed.
+* X-Change parasite body tracking fix
+  * Parasites now stay attached to the body they were on during X-Change swaps.
+  * Old saves with stale parasite notices are repaired on load.
+  * Sidebar parasite messages and hospital removal options should now match correctly again.
+* Water dragon trait fix
+  * Fixed the Water Dragon trait.
+  * Aquatic Lungs and Dragon Grace now appear correctly in new saves.
+* Green manure planting fix
+  * Fixed green manure not showing when trying to plant it.
+* VIP Spa rebalance
+  * VIP Spa prices have been reduced by 25%.
+* Weather animation crash fix
+  * Fixed a crash that could occur after long play sessions.
+  * Rain, fog, snow, and smoke could previously stack hidden update loops whenever the weather changed.
+  * After enough weather changes, this could cause a “too much recursion” error and freeze the scene until the tab was reopened.
+  * The particle system now reuses a single update loop instead of layering new ones.
+  * Weather animations now clean up correctly after refreshes.
+* Rain watering fix
+  * Fixed rain not watering the player’s plot.
+* X-Tend trait visibility fix
+  * Fixed X-Tend appearing active in the cheat/test panel but missing from the trait menu.
+  * This could happen if a save had `xtendEffect` without matching `xtendTracker` data.
+  * Missing tracker data could crash the trait text while the trait menu was being built.
+  * This could also prevent traits listed after X-Tend, such as Portal, from appearing.
+  * X-Tend trait text now safely falls back to +0.00cm if tracker data is missing.
+  * Turn-back payout checks now confirm tracker data exists before reading it.
+  * Creampie growth now recreates missing tracker data so gains can record again.
+  * Normal saves are unaffected, since they already create the effect and tracker together.
+* Beast multi-orgasm fix
+  * Beast penetration state is now preserved while the beast still has orgasms left in a multi-orgasm sequence.
+  * This prevents player-side slots from being cleared too early.
+  * Fixed cases where the beast’s penis could become un-interactable after the first orgasm.
+* Whitney collar fix
+  * Fixed the Whitney collar issue again.
+  * For real this time.
+* NPC stealing fix
+  * Fixed NPC stealing again.
+  * Also for real this time.
+* Avery second first meeting fix
+  * Avery’s second first-meeting event now waits until after day 20.
+  * It should no longer jumpscare players on day 1.
+* Avery party guess wording fix
+  * Improved bad wording from Brown Fox and the journal when Avery is invited to the gala.
+* Avery gardening plot fix
+  * Fixed Avery’s gardening plot.
+* Mansion housework cream lick tweak
+  * The Mansion housework cream lick scene now gives Avery an additional stat effect.
+* Kylar prison canteen pronoun fix
+  * Fixed a missing Kylar pronoun in the prison canteen.
+* Riley lockpicking event fix
+  * Fixed the Riley lockpicking event narration always assuming it was night.
+* Whitney outing event fix
+  * Fixed the Whitney outing event.
+* Hallway pantsed event fix
+  * Fixed the hallway pantsed event.
+* Class timing flow fixes
+  * Masturbation and event encounters now preserve lesson-over flow correctly.
+  * Lesson advancement now runs after combat or event cleanup.
+  * This prevents the lesson-over flag from being cleared before the bell can ring.
+  * Science, maths, English, housekeeping, history, and swimming lesson menus now immediately end the period once the hour is over or the clock reaches :59.
+  * Swimming now exits to the changing room instead.
+  * The Masturbate option is now hidden when there is not enough class time left.
+  * This matches existing action timing rules and prevents late-class time skips.
+* X-Changed NPC social tab UI cleanup
+  * Tidied up the X-Changed NPC social tab.
+  * The UI should now be less oversized and easier to read.
+* Minigame dungeon search fixes
+  * Fixed dungeon searches always finding nothing.
+  * Fixed dungeon loot not paying out.
+  * Fixed dungeon passage crashes and dead links.
+* Pet minigame benching fixes
+  * Fixed pets dying instantly from “abandonment” after being brought back from a long time on the bench.
+* Physique multiplier setting fix
+  * The transformation physique multiplier now respects the same maximum physique limit used elsewhere.
+  * Very high multiplier values now cap at the maximum physique for the player’s body size.
+  * Negative values now floor at 0 instead of creating invalid negative physique.
+  * Normal multiplier values, such as 50% or 150%, behave the same as before.
+* Gwylan slumber check fix
+  * Fixed Gwylan’s slumber sequence raising willpower checks beyond the player’s actual maximum willpower.
+  * Deeper checks should remain difficult but possible instead of becoming guaranteed failures.
+  * Characters with AMC Tempered Willpower keep the same balance as before.
+  * X-Change willpower points are no longer capped too low for Tempered Willpower players.
+* Skulduggery gain fix
+  * Fixed Skulduggery gain past S grade.
+* Code cleanup
+  * Cleaned up several X-Change and event-related code paths.
+  * Hardened old save handling for several legacy transformation cases.

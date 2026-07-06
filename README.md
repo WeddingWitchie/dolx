@@ -8,7 +8,7 @@ The original hook is simple: X-Change is a fictional brand of sex-swapping pills
 **Join DoL:X today!** 
 And start enjoying both sexes!
 
-For spoilers, routes, and more specific mechanics, see the **[Content Guide](CONTENT_GUIDE.md)**.
+For spoilers, routes, and more specific mechanics, see the **[Wiki](https://dolmodding.miraheze.org/wiki/DoL_Plus/X-Change)**.
 
 ---
 
