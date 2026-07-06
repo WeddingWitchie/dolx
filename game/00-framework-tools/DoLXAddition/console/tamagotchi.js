@@ -21,6 +21,14 @@ const Tamagotchi = (() => {
 		skillEveryTrainings: 3,
 		sleepHours: 6,
 		damageScale: 0.5,
+		/* Damage floors: a hit always lands for at least this fraction of the TARGET side's max HP (scaled by type effectiveness), so grown pets can't stat-wall fights down to chip damage.
+		 * Enemy floors sit near/above the 12% battle Rest heal so sustain is a choice, not an auto-win. */
+		attackDamageFloor: 0.045,
+		skillDamageFloor: 0.09,
+		wildDamageFloor: 0.07,
+		dungeonDamageFloor: 0.085,
+		minibossDamageFloor: 0.1,
+		bossDamageFloor: 0.125,
 		guardMpFrac: 0.2,
 		restHpFrac: 0.12,
 		restMpFrac: 0.4,
@@ -28,13 +36,23 @@ const Tamagotchi = (() => {
 		winStatBoostStep: 10,
 		boosterHp: 100,
 		boosterMp: 50,
-		/* Stat ceilings. A pet that reaches all of these can grow no further (and the player may adopt a second pet). */
+		/* Stat ceilings. A pet that reaches all of these can grow no further (and the player may adopt another pet). */
 		capHp: 5000,
 		capMp: 2500,
 		capStat: 500,
 		/* Combat scaling for the tougher post-launch enemies. */
-		enemyBaseHp: 100,
-		minibossHpMult: 2,
+		enemyBaseHp: 120,
+		enemyHpFloorMult: 0.3,
+		enemyHpCapMult: 1.25,
+		enemyAtkCapMult: 1.15,
+		enemyDefCapMult: 0.9,
+		enemySpdCapMult: 1.1,
+		minibossHpMult: 2.25,
+		minibossAtkMult: 1.2,
+		minibossDefMult: 1.05,
+		bossHpMult: 1.5,
+		bossAtkMult: 1.3,
+		bossDefMult: 1.1,
 		evolveSkillCost: 10,
 		evolveStatMult: 10,
 		minibossChance: 0.35,
@@ -149,8 +167,21 @@ const Tamagotchi = (() => {
 		t.spd = Math.min(t.spd, Tuning.capStat);
 	}
 	/* True once every stat sits at its ceiling: the pet can grow no further. */
+	function capMissing(t) {
+		if (!t) return [];
+		return [
+			{ label: "HP", current: t.maxHp || 0, cap: Tuning.capHp },
+			{ label: "MP", current: t.maxMp || 0, cap: Tuning.capMp },
+			{ label: "ATK", current: t.atk || 0, cap: Tuning.capStat },
+			{ label: "DEF", current: t.def || 0, cap: Tuning.capStat },
+			{ label: "SPD", current: t.spd || 0, cap: Tuning.capStat },
+		].filter(stat => stat.current < stat.cap);
+	}
+	function capMissingText(t) {
+		return capMissing(t).map(stat => stat.label + " " + stat.current + "/" + stat.cap).join(", ");
+	}
 	function atCap(t) {
-		return !!t && t.maxHp >= Tuning.capHp && t.maxMp >= Tuning.capMp && t.atk >= Tuning.capStat && t.def >= Tuning.capStat && t.spd >= Tuning.capStat;
+		return !!t && capMissing(t).length === 0;
 	}
 	const speciesIcon = id => { const d = speciesDef(id); return d && d.icon ? "mini-game/" + d.icon + ".png" : ""; };
 
@@ -205,31 +236,85 @@ const Tamagotchi = (() => {
 	}
 	function hatch(name, speciesId) {
 		V.tamagotchi = makePet(name, speciesId);
+		delete V.petBackup;
+		delete V.petBackups;
 		delete V.petBattle;
 		return V.tamagotchi;
 	}
 
-	/* --- Multi-pet (tag-team). The active pet lives on V.tamagotchi; an optional second pet benches on V.petBackup. --- */
+	/* --- Multi-pet (tag-team). The active pet lives on V.tamagotchi; other collected pets bench on V.petBackups. --- */
+	function backupList() {
+		if (typeof V === "undefined") return [];
+		if (!Array.isArray(V.petBackups)) V.petBackups = [];
+		if (V.petBackup != null && typeof V.petBackup === "object") {
+			if (!V.petBackups.includes(V.petBackup)) V.petBackups.push(V.petBackup);
+			delete V.petBackup;
+		}
+		V.petBackups = V.petBackups.filter(pet => pet != null && typeof pet === "object");
+		return V.petBackups;
+	}
 	function hasBackup() {
-		return typeof V !== "undefined" && V.petBackup != null && typeof V.petBackup === "object";
+		return backupList().length > 0;
 	}
 	function backupAlive() {
-		return hasBackup() && V.petBackup.alive === true;
+		return backupList().some(pet => pet.alive === true);
 	}
-	/* Adopt a second pet, allowed once the active pet has maxed out and there's no backup yet.
-	 * The new pet can't be the same species line as the one you already have. */
+	function allPets() {
+		const pets = exists() ? [V.tamagotchi] : [];
+		return pets.concat(backupList());
+	}
+	function allLivingPetsAtCap() {
+		const pets = allPets().filter(pet => pet.alive === true);
+		return pets.length > 0 && pets.every(atCap);
+	}
+	function ownedSpeciesIds() {
+		return [...new Set(allPets().map(pet => baseSpeciesOf(pet.species)).filter(id => SPECIES[id]))];
+	}
+	function canAdopt() {
+		return isAlive() && atCap(V.tamagotchi) && allLivingPetsAtCap() && adoptableSpecies().length > 0;
+	}
+	/* Adopt another pet once every living pet in the collection has maxed out.
+	 * Each adopted pet must add a new elemental line to the collection. */
 	function adopt(name, speciesId) {
-		if (!isAlive() || !atCap(V.tamagotchi) || hasBackup()) return false;
-		if (!SPECIES[speciesId] || speciesId === baseSpeciesOf(V.tamagotchi.species)) return false;
-		V.petBackup = makePet(name, speciesId);
+		if (!canAdopt()) return false;
+		if (!SPECIES[speciesId] || ownedSpeciesIds().includes(speciesId)) return false;
+		backupList().push(makePet(name, speciesId));
 		return true;
 	}
-	/* Swap which pet the care UI targets. Both keep living; sync() ticks both. */
-	function switchActive() {
-		if (!hasBackup()) return false;
+	/* Threat timers only tick (and kill) for the active pet, so a benched pet's deadlines freeze in the past.
+	 * Clamp them whenever a pet becomes active: an overdue weekly attacker is waiting (due today, not instantly lethal), and an armed boss gets its week back rather than executing the pet on the next sync. */
+	function refreshThreatTimers(t) {
+		if (!t || t.alive !== true) return;
+		t.nextAttackDay = Math.max(t.nextAttackDay || 0, dayNum());
+		if (t.bossPending) t.bossDeadline = Math.max(t.bossDeadline || 0, dayNum() + Tuning.attackIntervalDays);
+	}
+	/* Swap which pet the care UI targets. All pets keep living; sync() ticks the bench as well. */
+	function switchActive(index) {
+		const backups = backupList();
+		if (!backups.length) return false;
+		let i = Number.isFinite(index) ? Math.trunc(index) : backups.findIndex(pet => pet.alive === true);
+		if (i < 0) i = 0;
+		if (!backups[i]) return false;
 		const tmp = V.tamagotchi;
-		V.tamagotchi = V.petBackup;
-		V.petBackup = tmp;
+		V.tamagotchi = backups[i];
+		backups[i] = tmp;
+		refreshThreatTimers(V.tamagotchi);
+		return true;
+	}
+	function bringInBackup() {
+		const backups = backupList();
+		const i = backups.findIndex(pet => pet.alive === true);
+		if (i < 0) return null;
+		const fallen = V.tamagotchi;
+		V.tamagotchi = backups[i];
+		backups[i] = fallen;
+		backups[i].faintedInBattle = true;
+		refreshThreatTimers(V.tamagotchi);
+		return V.tamagotchi;
+	}
+	function buryDeadBackups() {
+		if (typeof V === "undefined") return false;
+		V.petBackups = backupList().filter(pet => pet.alive === true);
 		return true;
 	}
 	/* Robin's pet-sitting: a pet looked after through a bad end is paused in good health, with its threat timers reset. */
@@ -301,18 +386,30 @@ const Tamagotchi = (() => {
 		let hours = (currentTime - (Number.isFinite(t.lastTick) ? t.lastTick : currentTime)) / 3600;
 		if (hours > 0) {
 			hours = Math.min(hours, Tuning.maxElapsedHours);
+			/* A fully grown pet fends for itself: no hunger, mess, sickness or neglect. Endgame threats
+			 * (the weekly attacker and the blood-moon boss below) still apply — those are battles, not care. */
+			const selfSufficient = atCap(t);
 			const sleepingNow = (t.sleepUntil || 0) > currentTime;
-			t.hunger = clamp(t.hunger + Tuning.hungerPerHour * hours);
-			/* A sleeping pet rests: its mood and energy hold steady while it naps. */
-			if (!sleepingNow) {
-				t.happiness = clamp(t.happiness - Tuning.happinessPerHour * hours);
-				t.energy = clamp(t.energy - Tuning.energyPerHour * hours);
-			}
-			for (let h = 0; h < Math.floor(hours); h++) {
-				if (Math.random() < Tuning.poopChancePerHour && t.poops < Tuning.maxPoops) t.poops++;
-			}
-			if (t.hunger >= Tuning.sickThresholdHunger || t.poops >= Tuning.sickThresholdPoops) {
-				if (Math.random() < 0.25 * hours) t.sick = true;
+			if (selfSufficient) {
+				t.hunger = Math.min(t.hunger, 30);
+				t.happiness = Math.max(t.happiness, 70);
+				t.energy = Math.max(t.energy, 80);
+				t.poops = 0;
+				t.sick = false;
+				t.neglectHours = 0;
+			} else {
+				t.hunger = clamp(t.hunger + Tuning.hungerPerHour * hours);
+				/* A sleeping pet rests: its mood and energy hold steady while it naps. */
+				if (!sleepingNow) {
+					t.happiness = clamp(t.happiness - Tuning.happinessPerHour * hours);
+					t.energy = clamp(t.energy - Tuning.energyPerHour * hours);
+				}
+				for (let h = 0; h < Math.floor(hours); h++) {
+					if (Math.random() < Tuning.poopChancePerHour && t.poops < Tuning.maxPoops) t.poops++;
+				}
+				if (t.hunger >= Tuning.sickThresholdHunger || t.poops >= Tuning.sickThresholdPoops) {
+					if (Math.random() < 0.25 * hours) t.sick = true;
+				}
 			}
 			/* The blood-moon boss arms once per moon (any time on the month's last day, or during the blood moon itself) and, like an ignored attacker, must be beaten within a week or it kills the pet.
 			The 20-day guard dedupes the month-end/day-one window and keeps the cadence roughly monthly. */
@@ -344,19 +441,21 @@ const Tamagotchi = (() => {
 				t.neglectHours = Math.max(0, t.neglectHours - hours * 0.5);
 			}
 		}
-		/* The pet wakes once its 6h nap is over: rested, but ravenous and messy. */
+		/* The pet wakes once its 6h nap is over: rested, but ravenous and messy (unless it's fully grown and fends for itself). */
 		if (t.alive && (t.sleepUntil || 0) > 0 && currentTime >= t.sleepUntil) {
 			t.sleepUntil = 0;
 			t.energy = 100;
-			t.hunger = clamp(t.hunger + 12);
-			if (t.poops < Tuning.maxPoops) t.poops++;
+			if (!atCap(t)) {
+				t.hunger = clamp(t.hunger + 12);
+				if (t.poops < Tuning.maxPoops) t.poops++;
+			}
 			t.justWoke = true;
 		}
 		t.lastTick = currentTime;
 	}
 	function sync() {
 		if (exists()) syncPet(V.tamagotchi, true);
-		if (hasBackup()) syncPet(V.petBackup, false);
+		for (const pet of backupList()) syncPet(pet, false);
 		if (!isAlive()) delete V.petBattle;
 	}
 
@@ -558,8 +657,8 @@ const Tamagotchi = (() => {
 		d = Math.floor(d * stab * tm * (0.85 + Math.random() * 0.15));
 		return { dmg: Math.max(1, d), tm };
 	}
-	/* Tougher wild enemy: HP starts at 100 and DOUBLES per wave (100, 200, 400...), and it can use mid-to-high elemental skills from the very first encounter.
-	 * Softer late-game curve: any stat that would exceed the player's is capped to the player's, so a mob is never stronger than the pet it's fighting (at worst a mirror match). */
+	/* Wild enemies scale toward the pet instead of staying tiny beside a capped monster.
+	 * Defence stays under the pet's ceiling so fights have bite without turning into pure HP walls. */
 	function makeEnemy(wave, pet) {
 		const types = ["fire", "water", "grass", "electric"];
 		const ty = types[rand(types.length)];
@@ -569,10 +668,12 @@ const Tamagotchi = (() => {
 		let def = Math.round(5 + wave * 1.2);
 		let spd = Math.round(5 + wave);
 		if (pet) {
-			maxHp = Math.min(maxHp, pet.maxHp);
-			atk = Math.min(atk, pet.atk);
-			def = Math.min(def, pet.def);
-			spd = Math.min(spd, pet.spd);
+			const wavePressure = Math.min(1, 0.45 + wave * 0.06);
+			maxHp = Math.min(maxHp, Math.round(pet.maxHp * Tuning.enemyHpCapMult));
+			maxHp = Math.max(maxHp, Math.round(pet.maxHp * Tuning.enemyHpFloorMult));
+			atk = Math.max(atk, Math.round(pet.atk * Math.min(Tuning.enemyAtkCapMult, wavePressure + 0.15)));
+			def = Math.max(def, Math.round(pet.def * Math.min(Tuning.enemyDefCapMult, wavePressure)));
+			spd = Math.max(spd, Math.round(pet.spd * Math.min(Tuning.enemySpdCapMult, wavePressure + 0.05)));
 		}
 		return {
 			name: names[rand(names.length)],
@@ -583,11 +684,12 @@ const Tamagotchi = (() => {
 			def: def,
 			spd: spd,
 			usesSkills: true,
-			skillPower: 22,
+			skillPower: 24,
+			skillChance: 0.5,
 			kind: "wild",
 		};
 	}
-	/* Miniboss: double the player's HP, but only basic strikes (no skills). Beating it yields a dungeon key. */
+	/* Miniboss: a heavier stat check that can throw elemental blows. Beating it yields a dungeon key. */
 	function makeMiniboss(pet) {
 		const types = ["fire", "water", "grass", "electric"];
 		const ty = types[rand(types.length)];
@@ -597,28 +699,39 @@ const Tamagotchi = (() => {
 			type: ty,
 			maxHp: maxHp,
 			hp: maxHp,
-			atk: Math.max(pet.atk, Math.round(10 + pet.wave * 2)),
-			def: Math.max(pet.def, Math.round(8 + pet.wave * 1.2)),
-			spd: Math.round(5 + pet.wave),
-			usesSkills: false,
+			atk: Math.max(Math.round(pet.atk * Tuning.minibossAtkMult), Math.round(10 + pet.wave * 2)),
+			def: Math.max(Math.round(pet.def * Tuning.minibossDefMult), Math.round(8 + pet.wave * 1.2)),
+			spd: Math.max(pet.spd, Math.round(5 + pet.wave)),
+			usesSkills: true,
+			skillPower: 28,
+			skillChance: 0.55,
 			icon: MINIBOSS_ICON,
 			kind: "miniboss",
 		};
 	}
-	/* Monthly blood-moon boss: a mirror of the player's own pet (same stats, type and damaging skills). */
+	/* Monthly blood-moon boss: a stronger mirror of the player's own pet; same type, damaging skills, heal skills (as limited charges, since enemies have no MP bar) and even the passive Revive.
+	 * Fighting it should feel like fighting yourself. */
 	function makeBoss(pet) {
-		const dmgSkills = (Array.isArray(pet.skills) ? pet.skills : []).filter(id => SKILLS[id] && !SKILLS[id].passive && SKILLS[id].effect !== "heal");
+		const owned = (Array.isArray(pet.skills) ? pet.skills : []).filter(id => SKILLS[id]);
+		const dmgSkills = owned.filter(id => !SKILLS[id].passive && SKILLS[id].effect !== "heal");
+		const healSkills = owned.filter(id => SKILLS[id].effect === "heal");
 		const sd = speciesDef(pet.species);
 		return {
 			name: "Mirror " + (sd ? sd.name : "Beast"),
 			type: pet.type,
-			maxHp: pet.maxHp,
-			hp: pet.maxHp,
-			atk: pet.atk,
-			def: pet.def,
+			maxHp: Math.round(pet.maxHp * Tuning.bossHpMult),
+			hp: Math.round(pet.maxHp * Tuning.bossHpMult),
+			atk: Math.round(pet.atk * Tuning.bossAtkMult),
+			def: Math.round(pet.def * Tuning.bossDefMult),
 			spd: pet.spd,
-			usesSkills: dmgSkills.length > 0,
+			usesSkills: true,
 			skills: dmgSkills,
+			heals: healSkills,
+			healsLeft: healSkills.length ? 2 : 0,
+			canRevive: owned.includes("revive"),
+			reviveUsed: false,
+			skillPower: 32,
+			skillChance: 0.65,
 			icon: BOSS_ICON,
 			kind: "boss",
 		};
@@ -690,22 +803,47 @@ const Tamagotchi = (() => {
 
 	/* Pick the enemy's move: a known skill, a generic elemental blast, or a basic strike. */
 	function enemyMove(e) {
-		if (Array.isArray(e.skills) && e.skills.length && Math.random() < 0.45) {
-			const sk = SKILLS[e.skills[rand(e.skills.length)]];
-			if (sk) return { name: sk.name, type: sk.type, power: sk.power };
-		}
-		if (e.usesSkills && Math.random() < 0.4) {
-			return { name: cap(e.type) + " Blast", type: e.type, power: e.skillPower || 22 };
+		const skillChance = e.skillChance == null ? 0.4 : e.skillChance;
+		if (e.usesSkills && Math.random() < skillChance) {
+			if (Array.isArray(e.skills) && e.skills.length) {
+				const sk = SKILLS[e.skills[rand(e.skills.length)]];
+				if (sk) return { name: sk.name, type: sk.type, power: sk.power };
+			}
+			return { name: cap(e.type) + " Blast", type: e.type, power: e.skillPower || 24 };
 		}
 		return { name: "Strike", type: "normal", power: 12 };
+	}
+	function enemyDamageFloor(kind, maxHp) {
+		const floors = {
+			wild: Tuning.wildDamageFloor,
+			dungeon: Tuning.dungeonDamageFloor,
+			miniboss: Tuning.minibossDamageFloor,
+			boss: Tuning.bossDamageFloor,
+		};
+		return Math.ceil(maxHp * (floors[kind] || Tuning.wildDamageFloor));
+	}
+	function playerDamageFloor(kind, maxHp) {
+		return Math.ceil(maxHp * (kind === "skill" ? Tuning.skillDamageFloor : Tuning.attackDamageFloor));
 	}
 	function enemyTurn(b, log) {
 		const pet = V.tamagotchi;
 		const e = b.enemy;
+		/* A mirror boss uses its copied heal skills like a player would: when badly hurt, spending the turn. */
+		if (e.healsLeft > 0 && Array.isArray(e.heals) && e.heals.length && e.hp <= e.maxHp * 0.35 && Math.random() < 0.5) {
+			const sk = SKILLS[e.heals[rand(e.heals.length)]];
+			if (sk) {
+				e.healsLeft--;
+				const h = Math.ceil(e.maxHp * (sk.healFrac || Tuning.recoverHpFrac));
+				e.hp = Math.min(e.maxHp, e.hp + h);
+				log.push("The " + e.name + " mirrors " + sk.name + ", restoring " + h + " HP!");
+				/* b.guarding is left braced: no blow landed, so the guard holds for the next real attack. */
+				return;
+			}
+		}
 		const mv = enemyMove(e);
 		const stab = mv.type === e.type ? 1.5 : 1;
 		const r = dmgCalc(e.atk, pet.def, mv.power, mv.type, pet.type, stab);
-		let dmg = r.dmg;
+		let dmg = Math.max(r.dmg, Math.max(1, Math.round(enemyDamageFloor(b.kind, b.maxHp) * r.tm)));
 		if (b.guarding) dmg = Math.ceil(dmg / 2);
 		b.hp = Math.max(0, b.hp - dmg);
 		log.push("The " + e.name + " uses " + mv.name + " for " + dmg + "." + effNote(r.tm) + (b.guarding ? " (guarded)" : ""));
@@ -724,8 +862,9 @@ const Tamagotchi = (() => {
 		if (action.kind === "attack") {
 			const stab = pet.type === "normal" ? 1.5 : 1;
 			const r = dmgCalc(pAtk, e.def, 9, "normal", e.type, stab);
-			e.hp = Math.max(0, e.hp - r.dmg);
-			log.push("You attack for " + r.dmg + " damage." + effNote(r.tm));
+			const dmg = Math.max(r.dmg, Math.max(1, Math.round(playerDamageFloor("attack", e.maxHp) * r.tm)));
+			e.hp = Math.max(0, e.hp - dmg);
+			log.push("You attack for " + dmg + " damage." + effNote(r.tm));
 		} else if (action.kind === "guard") {
 			b.guarding = true;
 			const gain = Math.ceil(b.maxMp * Tuning.guardMpFrac);
@@ -749,13 +888,20 @@ const Tamagotchi = (() => {
 			} else {
 				const stab = sk.type === pet.type ? 1.5 : 1;
 				const r = dmgCalc(pAtk, e.def, sk.power, sk.type, e.type, stab);
-				e.hp = Math.max(0, e.hp - r.dmg);
-				log.push("You use " + sk.name + " for " + r.dmg + " damage." + effNote(r.tm));
+				const dmg = Math.max(r.dmg, Math.max(1, Math.round(playerDamageFloor("skill", e.maxHp) * r.tm)));
+				e.hp = Math.max(0, e.hp - dmg);
+				log.push("You use " + sk.name + " for " + dmg + " damage." + effNote(r.tm));
 			}
 		} else {
 			return b;
 		}
 
+		if (e.hp <= 0 && e.canRevive && !e.reviveUsed) {
+			/* The mirror copied your Revive: it gets back up once, just like your pet would. */
+			e.reviveUsed = true;
+			e.hp = Math.ceil(e.maxHp * 0.5);
+			log.push("The " + e.name + " collapses... but a mirrored Revive drags it back up with " + e.hp + " HP!");
+		}
 		if (e.hp <= 0) {
 			b.over = true; b.result = "win";
 			log.push("The " + enemyLabel(e) + " is defeated!");
@@ -773,9 +919,7 @@ const Tamagotchi = (() => {
 				/* Tag-team: the benched pet charges in to keep the fight going. */
 				b.usedBackup = true;
 				const fallenName = pet.name;
-				switchActive();
-				V.petBackup.faintedInBattle = true; /* the pet that just fell is now benched */
-				const fresh = V.tamagotchi;
+				const fresh = bringInBackup();
 				b.maxHp = fresh.maxHp; b.hp = fresh.maxHp;
 				b.maxMp = fresh.maxMp; b.mp = fresh.maxMp;
 				b.reviveUsed = false; /* the fresh pet has its own Revive */
@@ -814,13 +958,16 @@ const Tamagotchi = (() => {
 		if (b.result === "win") {
 			pet.happiness = clamp(pet.happiness + 15);
 			/* The team pulled through: a teammate that fainted mid-battle survives, just exhausted. */
-			if (hasBackup() && V.petBackup.faintedInBattle) {
-				V.petBackup.alive = true;
-				V.petBackup.faintedInBattle = false;
-				V.petBackup.hunger = clamp(60);
-				V.petBackup.energy = clamp(25);
-				V.petBackup.happiness = clamp(45);
-				V.petBackup.lastTick = now();
+			const fainted = backupList().filter(benchPet => benchPet.faintedInBattle);
+			if (fainted.length) {
+				for (const benchPet of fainted) {
+					benchPet.alive = true;
+					benchPet.faintedInBattle = false;
+					benchPet.hunger = clamp(60);
+					benchPet.energy = clamp(25);
+					benchPet.happiness = clamp(45);
+					benchPet.lastTick = now();
+				}
 				summary.teammateRevived = true;
 			}
 			if (kind === "boss") {
@@ -851,9 +998,10 @@ const Tamagotchi = (() => {
 			/* Total wipe: the active (last) pet dies, and any teammate who fell earlier perishes too. */
 			pet.alive = false;
 			pet.deathCause = "battle";
-			if (hasBackup() && V.petBackup.faintedInBattle) {
-				V.petBackup.alive = false;
-				V.petBackup.deathCause = "battle";
+			for (const benchPet of backupList().filter(p => p.faintedInBattle)) {
+				benchPet.alive = false;
+				benchPet.deathCause = "battle";
+				benchPet.faintedInBattle = false;
 			}
 		}
 		pet.lastTick = now();
@@ -872,12 +1020,12 @@ const Tamagotchi = (() => {
 		return V.petElixirs;
 	}
 	/* Spend one elixir to bring a dead pet back to life. Works for any cause of death (battle or neglect). */
-	function reviveWithElixir() {
-		if (!exists() || V.tamagotchi.alive || elixirCount() <= 0) return false;
-		const t = V.tamagotchi;
+	function revivePetWithElixir(t) {
+		if (!t || t.alive === true || elixirCount() <= 0) return false;
 		V.petElixirs = elixirCount() - 1;
 		t.alive = true;
 		t.deathCause = null;
+		t.faintedInBattle = false;
 		t.hunger = 30;
 		t.happiness = 60;
 		t.energy = 80;
@@ -888,8 +1036,18 @@ const Tamagotchi = (() => {
 		t.justWoke = false;
 		t.lastTick = now();
 		t.nextAttackDay = dayNum() + Tuning.attackIntervalDays;
+		return true;
+	}
+	function reviveWithElixir() {
+		if (!exists() || !revivePetWithElixir(V.tamagotchi)) return false;
 		delete V.petBattle;
 		return true;
+	}
+	/* Elixirs work on the bench too: revive a dead benched pet by its bench index. */
+	function reviveBackupWithElixir(index) {
+		const backups = backupList();
+		const i = Number.isFinite(index) ? Math.trunc(index) : -1;
+		return revivePetWithElixir(backups[i]);
 	}
 	/* Robin's booster pack: applies one random reward and returns a descriptor for the event text.
 	 * With a living pet the full pool is available; otherwise only an elixir can be banked for a future pet. */
@@ -1001,10 +1159,10 @@ const Tamagotchi = (() => {
 	function listSpecies() {
 		return Object.keys(SPECIES).map(id => ({ id, name: SPECIES[id].name, type: SPECIES[id].type, typeLabel: cap(SPECIES[id].type), blurb: SPECIES[id].blurb }));
 	}
-	/* Species offered when adopting a second pet: everything except the line you already own. */
+	/* Species offered for adoption: every elemental line not already in the collection. */
 	function adoptableSpecies() {
-		const owned = exists() ? baseSpeciesOf(V.tamagotchi.species) : null;
-		return listSpecies().filter(s => s.id !== owned);
+		const owned = ownedSpeciesIds();
+		return listSpecies().filter(s => !owned.includes(s.id));
 	}
 	function skillInfo(id) {
 		const s = SKILLS[id];
@@ -1028,18 +1186,28 @@ const Tamagotchi = (() => {
 			name: t.name || (s ? s.name : "Pet"),
 			alive: t.alive === true,
 			speciesLabel: s ? s.name : "",
+			type: t.type || (s ? s.type : ""),
+			typeLabel: cap(t.type || (s ? s.type : "")),
 			icon: speciesIcon(t.species),
 			hunger: t.hunger, energy: t.energy, sick: !!t.sick, poops: t.poops, evolved: !!t.evolved,
 			needsCare: t.alive === true && (t.sick || t.hunger >= 80 || t.poops > 0 || t.energy <= 15),
-			maxHp: t.maxHp, maxMp: t.maxMp, atk: t.atk, def: t.def, spd: t.spd,
+			atCap: atCap(t), capMissingText: capMissingText(t), maxHp: t.maxHp, maxMp: t.maxMp, atk: t.atk, def: t.def, spd: t.spd,
 		};
 	}
 	function status() {
-		if (!exists()) return { exists: false, keys: keysCount(), elixirs: elixirCount(), hasBackup: hasBackup() };
+		const backups = backupList();
+		const backupBriefs = backups.map((pet, index) => Object.assign({ index }, petBrief(pet)));
+		const aliveBackups = backupBriefs.filter(pet => pet.alive);
+		if (!exists()) return {
+			exists: false, keys: keysCount(), elixirs: elixirCount(), hasBackup: backups.length > 0, backupAlive: aliveBackups.length > 0,
+			backups: backupBriefs, backup: aliveBackups[0] || backupBriefs[0] || null,
+		};
 		const t = V.tamagotchi;
 		const s = speciesDef(t.species);
 		const skills = Array.isArray(t.skills) ? t.skills.filter(id => SKILLS[id]) : [];
 		const boss = bossDue();
+		const adoptionOpen = canAdopt();
+		const collection = ownedSpeciesIds();
 		return {
 			exists: true, alive: t.alive, name: t.name || (s ? s.name : "Pet"), stage: stage(), stageLabel: stageLabel[stage()] || "",
 			ageDays: Math.floor(ageDays()), hunger: t.hunger, happiness: t.happiness, energy: t.energy,
@@ -1048,6 +1216,7 @@ const Tamagotchi = (() => {
 			species: t.species, speciesLabel: s ? s.name : "", type: t.type, typeLabel: cap(t.type),
 			icon: speciesIcon(t.species), evolved: !!t.evolved,
 			maxHp: t.maxHp, maxMp: t.maxMp, atk: t.atk, def: t.def, spd: t.spd,
+			capHp: Tuning.capHp, capMp: Tuning.capMp, capStat: Tuning.capStat, capMissingText: capMissingText(t),
 			trainCount: t.trainCount, wave: t.wave, wins: t.wins || 0,
 			skills: skills.map(id => SKILLS[id].name), skillCount: skills.length,
 			pendingSkillChoice: t.pendingSkillChoice, pendingAttack: attackDue() || boss,
@@ -1057,30 +1226,42 @@ const Tamagotchi = (() => {
 			elixirs: elixirCount(), autoRevive: skills.includes("revive"),
 			canEvolve: canEvolve(t), evolveCost: Tuning.evolveSkillCost, atCap: atCap(t),
 			keys: keysCount(), inDungeon: !!dungeonState(),
-			hasBackup: hasBackup(), backupAlive: backupAlive(), backup: hasBackup() ? petBrief(V.petBackup) : null,
+			hasBackup: backups.length > 0, backupAlive: aliveBackups.length > 0, backup: aliveBackups[0] || backupBriefs[0] || null,
+			backups: backupBriefs, backupCount: backups.length, backupAliveCount: aliveBackups.length,
+			canAdopt: adoptionOpen, adoptableCount: adoptableSpecies().length,
+			collectionCount: collection.length, collectionTotal: Object.keys(SPECIES).length,
+			collectionComplete: collection.length >= Object.keys(SPECIES).length,
 		};
 	}
-	/* Full restart: clear both pets. */
+	/* Full restart: clear every collected pet. */
 	function bury() {
 		if (typeof V !== "undefined") {
 			delete V.tamagotchi;
 			delete V.petBackup;
+			delete V.petBackups;
 			delete V.petBattle;
 		}
 	}
 	/* Promote the benched pet to active (used when the active pet dies but a teammate survives). */
-	function promoteBackup() {
-		if (typeof V === "undefined" || !hasBackup()) return false;
-		V.tamagotchi = V.petBackup;
-		delete V.petBackup;
+	function promoteBackup(index) {
+		if (typeof V === "undefined") return false;
+		const backups = backupList();
+		let i = Number.isFinite(index) ? Math.trunc(index) : backups.findIndex(pet => pet.alive === true);
+		if (i < 0 || !backups[i]) return false;
+		V.tamagotchi = backups.splice(i, 1)[0];
+		refreshThreatTimers(V.tamagotchi);
 		delete V.petBattle;
 		return true;
 	}
 
 	/* --- HTML renderers (styled by tamagotchi.css; printed in twee via <<= ...>>) --- */
-	function careClass(scale, kind) {
-		if (kind === "hunger") return scale >= 80 ? "bad" : scale >= 50 ? "warn" : "good";
-		return scale <= 20 ? "bad" : scale <= 50 ? "warn" : "good";
+	/* Red ("bad") strictly means the stat is in death range, mirroring syncPet's critical check:
+	 * hunger >= 95, or misery <= 10 while sick. Everything else that needs care shows orange ("warn").
+	 * Energy can never kill, so it never shows red. */
+	function careClass(scale, kind, sick) {
+		if (kind === "hunger") return scale >= 95 ? "bad" : scale >= 50 ? "warn" : "good";
+		if (kind === "happiness") return sick && scale <= 10 ? "bad" : scale <= 50 ? "warn" : "good";
+		return scale <= 50 ? "warn" : "good";
 	}
 	/* Inline <img> for a mini-game icon path (e.g. "mini-game/embit.png"), honouring the image-display option. */
 	function iconImg(icon, cls) {
@@ -1095,9 +1276,9 @@ const Tamagotchi = (() => {
 		let h = `<div class="tama-card">`;
 		h += `<div class="tama-head">${iconImg(s.icon, "tama-portrait")}<span class="tama-name">${esc(s.name)}</span> <span class="tama-sub">${esc(s.stageLabel)} &middot; ${esc(s.speciesLabel)} (${esc(s.typeLabel)})${s.evolved ? " &middot; evolved" : ""}</span></div>`;
 		h += `<div class="tama-row">${chip("HP", s.maxHp)}${chip("MP", s.maxMp)}${chip("ATK", s.atk)}${chip("DEF", s.def)}${chip("SPD", s.spd)}</div>`;
-		h += `<div class="tama-row">${care("Hunger", s.hungerWord, careClass(s.hunger, "hunger"))}${care("Mood", s.happinessWord, careClass(s.happiness, "happiness"))}${care("Energy", s.energyWord, careClass(s.energy, "energy"))}</div>`;
+		h += `<div class="tama-row">${care("Hunger", s.hungerWord, careClass(s.hunger, "hunger", s.sick))}${care("Mood", s.happinessWord, careClass(s.happiness, "happiness", s.sick))}${care("Energy", s.energyWord, careClass(s.energy, "energy", s.sick))}</div>`;
 		h += `<div class="tama-meta">Trainings: ${s.trainCount} &middot; Wins: ${s.wins} &middot; Age: ${s.ageDays}d${s.elixirs ? " &middot; Elixirs: " + s.elixirs : ""}${s.keys ? " &middot; Keys: " + s.keys : ""} &middot; Skills: ${s.skillCount ? esc(s.skills.join(", ")) : "none yet"}</div>`;
-		if (s.atCap) h += `<div class="tama-meta gold">Fully grown &mdash; this pet has reached its limits.</div>`;
+		if (s.atCap) h += `<div class="tama-meta gold">Fully grown &mdash; this pet has reached its limits and looks after itself now.</div>`;
 		h += `</div>`;
 		return h;
 	}
@@ -1124,9 +1305,9 @@ const Tamagotchi = (() => {
 		listSpecies, adoptableSpecies, trainingTypes, canTrain, train, skillOfferList, chooseSkill, learnedSkills, battleSkills,
 		canEvolve, evolve,
 		attackDue, bossDue, bossDaysLeft, startBattle, startWeeklyBattle: startBattle, startDungeonBattle, battleState, battleAttack, battleGuard, battleRest, battleSkill, endBattle,
-		elixirCount, addElixir, reviveWithElixir, rollBooster, boosterChancePct,
+		elixirCount, addElixir, reviveWithElixir, reviveBackupWithElixir, rollBooster, boosterChancePct,
 		keysCount, dungeonState, dungeonStart, dungeonStep, dungeonMobCleared, dungeonEnd,
-		hasBackup, backupAlive, adopt, switchActive, promoteBackup,
+		hasBackup, backupAlive, canAdopt, adopt, switchActive, promoteBackup, buryDeadBackups,
 		robinRescuePending, claimRobinRescue,
 		statusHtml, battleHtml,
 	};

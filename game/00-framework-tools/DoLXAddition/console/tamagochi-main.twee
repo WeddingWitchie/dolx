@@ -86,12 +86,19 @@
 		<br><br>
 	<</if>>
 	<<if _t.backupAlive>>
-		<span class="green">Your other pet, <span class="blue">_t.backup.name</span>, is still with you.</span>
+		<span class="green">One of your other pets is still with you.</span>
 		<br>
-		<<link [[Continue with _t.backup.name|Home Console Pet]]>><<run Tamagotchi.promoteBackup()>><</link>>
-		<br><br>
+		<<for _p range _t.backups>>
+			<<if _p.alive>>
+				<<capture _p>>
+					<<link [["Continue with " + _p.name|Home Console Pet]]>><<run Tamagotchi.promoteBackup(_p.index)>><</link>>
+				<</capture>>
+				<br>
+			<</if>>
+		<</for>>
+		<br>
 	<</if>>
-	<<link [[Lay it to rest and start over|Home Console Pet]]>><<run Tamagotchi.bury()>><</link>>
+	<<link [[Lay them to rest and start over|Home Console Pet]]>><<run Tamagotchi.bury()>><</link>><<if _t.backupAlive>> <span class="red">(this buries your living pets too!)</span><</if>>
 	<br>
 	<<link "Turn it off" _ret>><</link>>
 
@@ -117,7 +124,7 @@
 			<span class="red">An enemy is attacking <<= _t.name>> right now! You have to defend it!</span>
 		<</if>>
 		<<if _t.backupAlive>>
-			<br><span class="green">Both your pets stand together! If one falls in battle, the other charges in.</span>
+			<br><span class="green">A teammate stands ready. If <<= _t.name>> falls, one other pet can charge in.</span>
 		<</if>>
 		<br>
 		<<link [[Defend your pet!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
@@ -179,23 +186,45 @@
 			<<furnitureicon "controller">><<link [[Enter the dungeon|Home Console Dungeon Enter]]>><</link>> <i>(_t.keys <<= _t.keys is 1 ? "key" : "keys">>)</i>
 			<br><br>
 		<</if>>
-		<<if _t.hasBackup and _t.backupAlive>>
-			<span class="small-description"><i>Your other pet:
-			<span class="blue">_t.backup.name</span><<if _t.backup.needsCare>>
-			<span class="red">(needs care)</span><</if>>.</i></span>
+		<<if _t.hasBackup>>
+			<span class="small-description"><i>Your other pets:</i></span>
 			<br>
-			<<link [[Switch to your other pet|Home Console Pet]]>><<run Tamagotchi.switchActive()>><</link>>
-			<br><br>
-		<<elseif _t.hasBackup>>
-			<span class="red">Your other pet, <span class="blue">_t.backup.name</span>, has passed away.</span>
+			<<for _p range _t.backups>>
+				<<capture _p>>
+					<<if _p.alive>>
+						<span class="blue">_p.name</span> <span class="teal">(_p.typeLabel)</span><<if _p.atCap>> <span class="gold">(maxed)</span><</if>><<if _p.needsCare>> <span class="red">(needs care)</span><</if>>
+						<br>
+						<<link [["Switch to " + _p.name|Home Console Pet]]>><<run Tamagotchi.switchActive(_p.index)>><</link>>
+					<<else>>
+						<span class="red">_p.name <span class="teal">(_p.typeLabel)</span> has passed away.</span>
+						<<if _t.elixirs gt 0>>
+							<br>
+							<<link [["Use an Elixir to revive " + _p.name|Home Console Pet]]>><<run Tamagotchi.reviveBackupWithElixir(_p.index)>><</link>>
+						<</if>>
+					<</if>>
+				<</capture>>
+				<br>
+			<</for>>
+			<<if _t.backupCount gt _t.backupAliveCount>>
+				<<link [[Lay dead pets to rest|Home Console Pet]]>><<run Tamagotchi.buryDeadBackups()>><</link>>
+				<br>
+			<</if>>
 			<br>
-			<<link [[Lay your other pet to rest|Home Console Pet]]>><<unset $petBackup>><</link>>
-			<br><br>
-		<<elseif _t.atCap>>
-			<span class="gold"><<= _t.name>> has grown as strong as it possibly can and can't get any stronger.
-			You could adopt a second pet to raise alongside it.</span>
+		<</if>>
+		<<if _t.canAdopt>>
+			<span class="gold">Your collection has room for a new element. All your living pets are fully grown.</span>
 			<br>
 			<<link [[Adopt another pet|Home Console Pet Adopt]]>><</link>>
+			<br><br>
+		<<elseif _t.collectionComplete and _t.atCap>>
+			<span class="gold"><<= _t.name>> has reached its limits, and your collection already includes all four elements.</span>
+			<br><br>
+		<<elseif _t.atCap and _t.adoptableCount gt 0>>
+			<span class="gold"><<= _t.name>> has grown as strong as it possibly can and can't get any stronger.
+			Raise every living pet in your collection to its limit to adopt another element.</span>
+			<br><br>
+		<<elseif _t.adoptableCount gt 0 and _t.capMissingText>>
+			<span class="small-description"><i>Adoption unlocks when this pet reaches every stat cap. Still needs: <<= _t.capMissingText>>.</i></span>
 			<br><br>
 		<</if>>
 		<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
@@ -481,16 +510,17 @@
 :: Home Console Pet Adopt
 <<set $outside to 0>><<effects>>
 <<set _t to Tamagotchi.status()>>
-<<if _t.hasBackup or not _t.atCap>>
+<<set _adoptable to Tamagotchi.adoptableSpecies()>>
+<<if not _t.canAdopt or _adoptable.length is 0>>
 	You can't adopt another pet right now.
 	<br><br>
 	<<link [[Back|Home Console Pet]]>><</link>>
 <<else>>
-	A second egg appears on the screen, ready to hatch alongside <span class="blue">_t.name</span>. It won't be the same kind as <span class="blue">_t.name</span>. What will you name it?
+	A new egg appears on the screen, ready to hatch alongside your other pets. It belongs to an elemental line you haven't collected yet. What will you name it?
 	<br>
 	<<textbox "_petname" "Pixel">>
 	<br><br>
-	<<for _sp range Tamagotchi.adoptableSpecies()>>
+	<<for _sp range _adoptable>>
 		<<capture _sp>>
 			<<link [["Choose " + _sp.name|Home Console Pet]]>><<run Tamagotchi.adopt(_petname, _sp.id)>><</link>>|
 			<span class="teal">_sp.typeLabel</span> type. <i>_sp.blurb</i>

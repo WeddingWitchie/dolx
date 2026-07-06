@@ -1299,13 +1299,13 @@ Water Dragon chimeras:
 
 ### Virtual Pet Console
 
-The furniture shop sells a **console** for **£50**. It includes a virtual pet system that now has care, training, battles, evolution, second pets, dungeons, and blood moon risk.
+The furniture shop sells a **console** for **£50**. It includes a virtual pet system that now has care, training, battles, evolution, elemental pet collection, dungeons, and blood moon risk.
 
 Core loop:
 - Feed, play, clean, rest, and cure your pet to keep it alive.
 - Neglect can kill the pet.
 - Training is daily. Every few training sessions, the pet can learn or improve skills.
-- Weekly attacks start turn-based battles with Attack, Guard, Rest, and MP skills.
+- Weekly attacks start turn-based battles with Attack, Guard, Rest, and MP skills. Later enemies hit much harder against fully raised pets.
 - Winning battles increases pet stats.
 
 Starter pets:
@@ -1321,7 +1321,9 @@ Progression and danger:
 - Minibosses can drop dungeon keys.
 - Dungeons are 15-tile runs with enemies, money, fruit, rare pills, and other rewards.
 - A monthly blood moon boss can appear. If the boss is not defeated within the week, your pet can die.
-- You can eventually have a second pet. The backup pet can tag in if the active pet falls.
+- Once every living pet in your collection reaches the stat caps, you can adopt another pet from an uncollected element.
+- Fully grown pets look after themselves: no more feeding, cleaning, or sickness. Weekly attacks and the blood moon boss still threaten them.
+- You can eventually collect all four elements. In battle, one living benched pet can tag in if the active pet falls.
 
 Robin and boosters:
 - If you own a console, Robin can interact with it during arcade/date content.
