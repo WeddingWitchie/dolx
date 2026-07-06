@@ -144,3 +144,145 @@
 		<</link>>
 	<</capture>>
 <</widget>>
+
+
+<<widget "wardrobeFavoriteLink">>
+	<<set _favoriteSlot to _args[0]>>
+	<<set _favoriteItem to _args[1]>>
+	<<set _favoriteId to _args[2]>>
+	<<capture _favoriteSlot _favoriteItem _favoriteId>>
+		<<if isWardrobeFavorite(_favoriteSlot, _favoriteItem)>>
+			<<link "Unfavorite">>
+				<<run toggleWardrobeFavorite(_favoriteSlot, _favoriteItem, _favoriteId)>>
+				<<updatewardrobe>>
+			<</link>>
+		<<else>>
+			<<link "Favorite">>
+				<<run toggleWardrobeFavorite(_favoriteSlot, _favoriteItem)>>
+				<<updatewardrobe>>
+			<</link>>
+		<</if>>
+	<</capture>>
+<</widget>>
+
+<<widget "wardrobeFavoriteWearLink">>
+	<<set _favoriteLabel to _args[0]>>
+	<<set _favoriteIndex to _args[1]>>
+	<<set _favoriteWear to _args[2]>>
+	<<set _favoriteSource to _args[3]>>
+	<<capture _favoriteLabel _favoriteIndex _favoriteWear _favoriteSource>>
+		<<link _favoriteLabel>>
+			<<set V[_favoriteWear] = _favoriteIndex>>
+			<<set $wardrobeFavoriteRestoreOption to $wardrobeOption>>
+			<<set $wardrobeOption to "wear">>
+			<<if _favoriteSource is "inventory">>
+				<<set $equipFromInventory to _favoriteWear.slice(5)>>
+			<</if>>
+			<<updatewardrobe undefined _favoriteWear>>
+		<</link>>
+	<</capture>>
+<</widget>>
+
+<<widget "wardrobeFavoritesList">>
+	<<set _hasHandbag to $settings.multipleWardrobes and $worn.handheld.type.includes("bookbag")>>
+	<<set _favoriteItems to wardrobeFavoriteItems(_selectedWardrobe, _hasHandbag)>>
+	__Favorites__ <i>_favoriteItems.length item<<if _favoriteItems.length isnot 1>>s<</if>></i>
+	<br><br>
+	__Strip__
+	<div class="wardrobe-favorite-strip-actions">
+		<<set _stripLinks to 0>>
+		<<for _slot range setup.clothingLayer.all>>
+			<<if $worn[_slot].name isnot "naked">>
+				<<set _stripLinks++>>
+				<<capture _slot>>
+					<div class="wardrobe-action no-numberify"><<wearlink_norefresh `wardrobeSlotName(_slot)` "strip" `"wear_" + _slot`>></div>
+				<</capture>>
+			<</if>>
+		<</for>>
+		<<if _stripLinks is 0>>
+			nothing equipped
+		<</if>>
+	</div>
+	<br>
+
+	<<if _favoriteItems.length is 0>>
+		No favorite clothing has been marked in this wardrobe.
+	<<else>>
+		<<for _favorite range _favoriteItems>>
+			<<set _wardrobe_list to _favorite.slot>>
+			<<set _item to _favorite.item>>
+			<<set _i to _favorite.index>>
+			<<set _wear to "wear_"+_wardrobe_list>>
+			<<set _itemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)]>>
+
+			<div class="wardrobeItem wardrobe-action no-numberify">
+				<div>
+					<<clothingicon _item _wardrobe_list>>
+					<<if _favorite.source is "inventory">>
+						<<wardrobeFavoriteWearLink _itemData.name_cap _i _wear "inventory">>
+						<span class="gold">(In Handbag)</span>
+					<<elseif _favorite.source is "worn">>
+						<<print _itemData.name_cap>>
+						<span class="gold">(Equipped)</span>
+					<<else>>
+						<<wardrobeFavoriteWearLink _itemData.name_cap _i _wear>>
+					<</if>>
+					<span><<print wardrobeSlotName(_wardrobe_list)>></span>
+				</div>
+
+				<div class="small-description">
+					<<if _item.colour and _item.colour isnot 0>>
+						<span @class="_item.colour?.replace(' ','-') + ' noDivider'">
+							<<if _item.pattern and ![0, "plain"].includes(_item.pattern) and _itemData.pattern_options?.length gt 1>>
+								(_item.colour _item.pattern)
+							<<else>>
+								(_item.colour)
+							<</if>>
+						</span>
+					<<elseif _item.pattern and _item.pattern isnot 0 and _itemData.pattern_options?.length gt 1>>
+						<span @class="_item.pattern?.replace(' ','-') + ' noDivider'">(_item.pattern)</span>
+					<</if>>
+					<<if _item.outfitPrimary isnot undefined>>
+						<<set _keys to Object.keys(_item.outfitPrimary)>>
+						<<set _broken to 0>>
+						<<for _j to 0; _j lt _keys.length; _j++>>
+							<<if _item.outfitPrimary[_keys[_j]] is "broken">>
+								<<set _broken++>>
+							<</if>>
+						<</for>>
+						<<if _broken is 0>>
+							<span @class="(!_item.colour || _item.colour === 0? ' noDivider': '')">(Outfit)</span>
+						<<elseif _broken lt _keys.length>>
+							<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Partly Broken)</span>
+						<<else>>
+							<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Broken)</span>
+						<</if>>
+						<<if _item.one_piece is "split">>
+							<span @class="'separated-indicator' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Separated)</span>
+						<</if>>
+					<</if>>
+					<<if _item.outfitSecondary isnot undefined>>
+						<<if _item.one_piece is "split">>
+							<span @class="'separated-indicator' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Separated)</span>
+						<<else>>
+							<span @class="'red' + (!_item.colour || _item.colour === 0? ' noDivider': '')">(Broken)</span>
+						<</if>>
+					<</if>>
+					<<wardrobeintegrity _item _wardrobe_list>>
+					<<reveal _item.reveal>>
+
+					<<if _item.gender is "m">><span class="blue noDivider">&#9794;</span><<elseif _item.gender is "f">><span class="pink noDivider">&#9792;</span><</if>>
+
+					| <span class="cold-resist-icon noDivider"><<print getTrueWarmth(_item)>></span>
+					<<if $wardrobeDefaults.showTraits>>
+						| <span class="wardrobe-traits noDivider"><<for _n, _trait range _item.type>>
+							<<clothingtrait _trait>>
+						<</for>></span>
+					<</if>>
+					| <<wardrobeFavoriteLink _wardrobe_list _item _favorite.favorite.id>>
+				</div>
+			</div>
+		<</for>>
+		<div style="clear:both;"></div>
+	<</if>>
+<</widget>>

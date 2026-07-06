@@ -2994,6 +2994,29 @@
 	<<if $wardrobeDefaults.extraInfo is undefined>>
 		<<set $wardrobeDefaults.extraInfo to false>>
 	<</if>>
+	<<if $wardrobeFavorites is undefined or !Array.isArray($wardrobeFavorites)>>
+		<<set $wardrobeFavorites to []>>
+	<</if>>
+	<<run (() => {
+		const seen = new Set();
+		V.wardrobeFavorites = V.wardrobeFavorites.filter(favorite => {
+			if (!favorite || typeof favorite !== "object") return false;
+			const key = favorite.itemId || JSON.stringify([
+				favorite.slot ?? "",
+				favorite.variable ?? favorite.name ?? "",
+				favorite.modder ?? "",
+				favorite.colour ?? "",
+				favorite.colourCustom ?? "",
+				favorite.accessory_colour ?? "",
+				favorite.accessory_colourCustom ?? "",
+				favorite.pattern ?? "",
+				favorite.condition ?? "",
+			]);
+			if (seen.has(key)) return false;
+			seen.add(key);
+			return true;
+		});
+	})()>>
 
 	<!-- add $hourly -->
 	<<if !$hourly>>

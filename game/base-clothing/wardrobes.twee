@@ -332,6 +332,10 @@
 	<<if $wardrobeOption is "wear" and _eIndextemNames.length gte 1>>
 		You put on the <<print formatList(_eIndextemNames)>>.
 	<</if>>
+	<<if $wardrobeFavoriteRestoreOption isnot undefined>>
+		<<set $wardrobeOption to $wardrobeFavoriteRestoreOption>>
+	<</if>>
+	<<unset $wardrobeFavoriteRestoreOption>>
 	<<if _wearAction is "dry">>
 		<<dry>>
 		You wring out your clothes.
@@ -622,7 +626,9 @@
 <</widget>>
 
 <<widget "wardrobeContents">>
-	<<if $lastWardrobeSlot is "NewOutfit">>
+	<<if $lastWardrobeSlot is "favorites">>
+		<<wardrobeFavoritesList>>
+	<<elseif $lastWardrobeSlot is "NewOutfit">>
 		<<wardrobeNewOutfit>>
 	<<else>>
 		<<wardrobeList $lastWardrobeSlot>>
@@ -631,6 +637,7 @@
 
 <<widget "wardrobeLinks">>
 	<<set _wardrobeLinks=[
+		{ id: 'favorites', label: 'Favorites' },
 		{ id: 'over_head', label: 'Over Head', disabled: !$debug },
 		{ id: 'over_upper', label: 'Over Upper', disabled: !$debug },
 		{ id: 'over_lower', label: 'Over Lower', disabled: !$debug },
@@ -655,7 +662,9 @@
 				@class="($lastWardrobeSlot is _wardrobeLink.id ? 'selected' : '')"
 				@id="Dynamic.eventBinder(_wardrobeLink.id)"
 				onclick="(id) => $lastWardrobeSlot = id"
-			>_wardrobeLink.label</a><<if _i < _wardrobeLinks.length - 1>> | <</if>>
+			>
+				<<if _wardrobeLink.id is "favorites">><<hearticon>> <</if>>_wardrobeLink.label
+			</a><<if _i < _wardrobeLinks.length - 1>> | <</if>>
 		<</if>>
 	<</for>>
 <</widget>>
@@ -1238,6 +1247,7 @@
 				<</if>>
 			<</if>>
 			<<wardrobeintegrity _wornItem _wardrobe_list>>
+			| <<wardrobeFavoriteLink _wardrobe_list _wornItem>> |
 			<a onclick="document.getElementById('wardrobeItemDetails').classList.toggle('hidden')">Extra Info</a>
 			<br>
 			<div id="wardrobeItemDetails" @class="$wardrobeDefaults.extraInfo?'':'hidden'">
@@ -1420,6 +1430,7 @@
 								<<clothingtrait _trait>>
 							<</for>></span>
 						<</if>>
+						| <<wardrobeFavoriteLink _wardrobe_list _item>>
 						
 						<<unset _slotsFull>>
 						/*Set the target wardrobe*/
@@ -1559,6 +1570,7 @@
 							<<clothingtrait _trait>>
 						<</for>></span>
 					<</if>>
+					| <<wardrobeFavoriteLink _wardrobe_list _item>>
 					
 					<<if $settings.multipleWardrobes>>
 						<<set _handbagIsFull to getWardrobeItemCount("inventory") gte $wardrobes.inventory.space>>
@@ -1597,7 +1609,7 @@
 				<<set V[_wear] = _args[1]>>
 			<</if>>
 			<<if _args[3] is "inventory">>
-				<<set $equipFromInventory to _wear.slice(5)>>
+				<<set $equipFromInventory to (_args[2] || _wear).slice(5)>>
 			<</if>>
 			<<updatewardrobe undefined _args[2]>>
 		<</link>>
@@ -1752,6 +1764,7 @@
 				<span @class="_item.colour?.replace(' ','-')">(_item.colour)</span>
 			<</if>>
 			<<wardrobeintegrity _item _wardrobe_list>>
+			| <<wardrobeFavoriteLink _wardrobe_list _item>>
 			</li>
 		<</for>>
 		</ul>
