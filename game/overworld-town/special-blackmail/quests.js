@@ -162,11 +162,11 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck: function() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
-			else if (V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -176,7 +176,7 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 		failMessage: function() { },
 		includesItems: true,
 		receiveItems: function() { 
-			if (V.player.gender == "m") {
+			if (V.player.sex == "m") {
 				wikifier("xchange-pink", 1, "spike", "passion");
 				wikifier("drugs", 1000);
 			}
@@ -335,7 +335,7 @@ blackmailQuests.mid.push( // Go for a run naked at park
 blackmailQuests.low.push( // Take a pill and wear a skirt
 	{
 		id: 8, // Implemented
-		prerequisites: function() { return V.player.gender === "m" && !playerIsXChanged(); },
+		prerequisites: function() { return V.player.sex === "m" && !playerIsXChanged(); },
 		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
 			"Take the pill we've included in this envelope.",
@@ -358,10 +358,10 @@ blackmailQuests.low.push( // Take a pill and wear a skirt
 		},
 		failCheck: function() { 
 			if (this.failCondition()) {
-				this.failed = true; 
+				this.failed = true;
 				this.worn = clone(V.worn);
 			}
-			else if (V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -571,11 +571,11 @@ blackmailQuests.low.push( // Wear no shirt if male
 blackmailQuests.low.push( // Sell flowers on a market stall, without any lower clothing (undies allowed)
 	{
 		id: 13,
-		prerequisites: function() { return Time.dayState == "dawn"; },
+		prerequisites: function() { return Time.dayState == "dawn" && !playerIsXChanged(); },
 		reward: function() { return blackmailReward(V.rentmoney / 3); },
 		instructions: [
-			"Take this pill and these 200 flowers we've provided.", 
-			"Drink the pill, and go sell flowers on Connadatus Street.",
+			"Swallow the pill we've provided, and take these 200 flowers to sell.",
+			"Go sell flowers on Connudatus Street.",
 			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
 			`<span class="red">You're not allowed to test the effects of the pill</span>`,
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
@@ -593,6 +593,9 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 			if (this.failCondition()) {
 				this.failed = true;
 			}
+			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+				this.failed = true;
+			}
 		},
 		cleared: false,
 		failed: false,
@@ -602,15 +605,8 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 		soldFlowers: false,
 		profit: 0,
 		receiveItems: function() { 
+			blackmailGiveDaisies(200);
 			wikifier("xchange-random-spike", "suppress");
-
-			const daisy = setup.foodstuff.daisy;
-			if (V.foodstuff.daisy === undefined)
-				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": 0};
-			else if (V.foodstuff.daisy.name === undefined)
-				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": V.foodstuff.daisy.amount};
-			V.foodstuff.daisy.amount += 200;
-
 			this.tookPill = true;
 		},
 		onDayCleared: function() { 
@@ -625,11 +621,11 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower clothing (undies allowed), and masturbate at least once
 	{
 		id: 14,
-		prerequisites: function() { return Time.dayState == "dawn" && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1; },
+		prerequisites: function() { return Time.dayState == "dawn" && !playerIsXChanged() && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1; },
 		reward: function() { return blackmailReward(V.rentmoney / 2); },
 		instructions: [
 			"Masturbate (and orgasm) at least once while selling flowers at a market stall.",
-			"Take this pill and these 200 flowers we've provided.", 
+			"Swallow the pill we've provided, and take these 200 flowers to sell.",
 			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
 			`<span class="red">You're not allowed to test the effects of the pill</span>`,
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
@@ -647,6 +643,9 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 			if (this.failCondition()) {
 				this.failed = true;
 			}
+			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+				this.failed = true;
+			}
 		},
 		cleared: false,
 		failed: false,
@@ -657,15 +656,8 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 		masturbatedOnce: false,
 		profit: 0,
 		receiveItems: function() { 
+			blackmailGiveDaisies(200);
 			wikifier("xchange-random-spike", "suppress");
-
-			const daisy = setup.foodstuff.daisy;
-			if (V.foodstuff.daisy === undefined)
-				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": 0};
-			else if (V.foodstuff.daisy.name === undefined)
-				V.foodstuff.daisy = {"name": daisy.name, "plural": daisy.plural, "amount": V.foodstuff.daisy.amount};
-			V.foodstuff.daisy.amount += 200;
-
 			this.tookPill = true;
 		},
 		onDayCleared: function() { 
@@ -734,12 +726,19 @@ blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully
 			if (this.failCondition()) {
 				this.failed = true;
 			}
+			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+				this.failed = true;
+			}
 		},
 		cleared: false,
 		failed: false,
 		failMessage: function() { },
 		includesItems: true,
-		receiveItems: function() { wikifier("xchange-random-spike", "suppress"); },
+		tookPill: false,
+		receiveItems: function() {
+			wikifier("xchange-random-spike", "suppress");
+			this.tookPill = true;
+		},
 		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
 		onDayFailed: function() { },
 		finishedGame: false,
