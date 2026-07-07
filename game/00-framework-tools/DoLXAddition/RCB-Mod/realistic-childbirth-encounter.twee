@@ -1450,20 +1450,18 @@
 	<<case 1 2 3 4>>
 		<<set _stageProgressScale to 12.0>>
 	<<case 5>>
-		<<set _stageProgressScale to 3.0>>
+		<<set _stageProgressScale to 4.0>>
 	<<case 6>>
-		<<set _stageProgressScale to 2.7>>
+		<<set _stageProgressScale to 3.5>>
 	<<case 7>>
-		<<set _stageProgressScale to 2.4>>
+		<<set _stageProgressScale to 3.0>>
 	<<case 8 9 10>>
 		<<set _stageProgressScale to 0>>
 	<</switch>>
 	<<set _stageMinimumWaves to 0>>
 	<<switch _birthStageAtStart>>
-	<<case 5>>
+	<<case 5 6 7>>
 		<<set _stageMinimumWaves to 1>>
-	<<case 6 7>>
-		<<set _stageMinimumWaves to 2>>
 	<</switch>>
 	<<set _progress to Math.floor((_progress + _progressboost) * $birth.progressrng * _stageProgressScale)>>
 	<<set $birth.stageprogress += _progress>>
@@ -1496,7 +1494,8 @@
 		<<set $birth.waveCeiling to 25>>
 		<<set $birth.waveCount to 0>>
 		<<set $birth.stageWaveCount to 0>>
-		<<set $birth.stage to 5>>
+		<!-- Later siblings descend faster: skip straight to stage 6 instead of restarting the full push sequence. -->
+		<<set $birth.stage to 6>>
 		<<set $birth.stagechange to 1>>
 		<<set $birth.stageprogress to 0>>
 		<<if !_tagsToUpdate.includes("stage")>><<set _tagsToUpdate.push("stage")>><</if>>
@@ -1511,6 +1510,10 @@
 			<<set $birth.stagechange to 1>>
 			<<set $birth.stageprogress to 0>>
 			<<set $birth.stageWaveCount to 0>>
+			<<if $birth.stage gte 5 and $birth.stage lte 8>>
+				<<set $birth.pushurge to Math.max($birth.pushurge, Math.max(0, $birth.waveCeiling - 20))>>
+				<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
+			<</if>>
 			<<if !_tagsToUpdate.includes("stage")>><<set _tagsToUpdate.push("stage")>><</if>>
 			<<if !_tagsToUpdate.includes("StageWaveCount")>><<set _tagsToUpdate.push("StageWaveCount")>><</if>>
 		<</if>>
@@ -1586,11 +1589,33 @@
 		<</if>>
 	<</if>>
 	<<if _useline is "none">>
-		<<print either(
-			"A quiet stretch passes. You focus on your breathing and wait for the next wave.",
-			"For a moment nothing changes. You gather yourself between contractions.",
-			"The pressure holds steady, then eases a little. You brace for what comes next."
-		)>>
+		<<if $birth.partner isnot "Alone" and $birth.partner isnot "">>
+			<<print either(
+				$birth.partner + " stays close, watching for what you need before the next contraction hits.",
+				$birth.partner + " talks you through the pause, trying to keep your attention steady.",
+				$birth.partner + " squeezes your hand and reminds you to breathe."
+			)>>
+		<<elseif $birth.location is "hospital">>
+			<<if $birth.stage gte 5 and $birth.stage lte 8>>
+				<<print either(
+					"The midwife says, \"That's it. Push when your body tells you to.\"",
+					"Harper watches your progress and says, \"Keep going. You're getting there.\"",
+					"The midwife keeps her voice calm. \"Breathe first, then push with the pressure.\""
+				)>>
+			<<else>>
+				<<print either(
+					"The midwife checks on you, speaking softly through the lull.",
+					"Harper watches the monitor, then tells you everything still looks steady.",
+					"The midwife reminds you to save your strength for the next contraction."
+				)>>
+			<</if>>
+		<<else>>
+			<<print either(
+				"A quiet stretch passes. You focus on your breathing and wait for the next wave.",
+				"For a moment nothing changes. You gather yourself between contractions.",
+				"The pressure holds steady, then eases a little. You brace for what comes next."
+			)>>
+		<</if>>
 	<<else>>
 		<<for _i = 0 ; _i < _playline[1][0].length ; _i++>>
 			<<switch _playline[1][1][_i]>>
@@ -1810,13 +1835,13 @@
 			<<elseif $harpyEggs>>
 				<<set $birth.filters.static["FetusHawk"] to $harpyEggs.count>>
 			<</if>>
-			<<set $birth.filters.static["Mpreg"] to ($birth.genital is "vagina" ? 999 : 0)>>
+			<<set $birth.filters.static["Mpreg"] to ($birth.genital is "vagina" ? 0 : 1)>>
 			<<set $birth.filters.static["Location"] to $birth.location>>
 			<<switch $birth.location>>
 			<<case "cottage">>
-				<<set $birth.filters.static["CottageNursery"] to (C.npc.Alex.pregnancy.nursery is true ? 0 : 999)>>
+				<<set $birth.filters.static["CottageNursery"] to (C.npc.Alex.pregnancy.nursery is true ? 1 : 0)>>
 			<</switch>>
-			<<set $birth.filters.dynamic["ArrivedTogether"] to ($birth.partner is $birth.father ? 1 : 999)>>
+			<<set $birth.filters.static["ArrivedTogether"] to ($birth.partner is $birth.father ? 1 : 0)>>
 		<<elseif _args[0] is "partner">> <!--this is the filter that gets rid of lines pertaining to irrelevant people-->
 			<<set $birth.filters.npcs to ["Alone"]>>
 			<<if _potentialPartners.contains($birth.partner)>>
@@ -1830,9 +1855,9 @@
 			<</if>>
 		<<elseif _args[0] is "initial">> <!--sets the baseline for dynamic filters-->
 			<<set $birth.filters.dynamic["Partner"] to $birth.partner>>
-			<<set $birth.filters.dynamic["FatherPresent"] to ($birth.partner is $birth.father ? 1 : 999)>>
-			<<set $birth.filters.dynamic["FatherInlobby"] to ($birth.inlobby is $birth.father ? 1 : 999)>>
-			<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 999)>>
+			<<set $birth.filters.dynamic["FatherPresent"] to ($birth.partner is $birth.father ? 1 : 0)>>
+			<<set $birth.filters.dynamic["FatherInlobby"] to ($birth.inlobby is $birth.father ? 1 : 0)>>
+			<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 0)>>
 			<<if _potentialPartners.includes($birth.partner) and $birth.partner isnot "Wolf">>
 				<<for _i = 0 ; _i < $NPCName.length ; _i++>>
 					<<if $NPCName[_i].description is $birth.partner>>
@@ -1883,11 +1908,11 @@
 				<<set $birth.filters.dynamic["Stat2"] to 999>>
 				<<set $birth.filters.dynamic["PartnerParenthood"] to 999>>
 			<</if>>
-			<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 999)>>
-			<<set $birth.filters.dynamic["PainMax"] to ($pain gte $painmax ? 1 : 999)>>
-			<<set $birth.filters.dynamic["FatigueMax"] to ($tiredness gte $tirednessmax ? 1 : 999)>>
+			<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 0)>>
+			<<set $birth.filters.dynamic["PainMax"] to ($pain gte $painmax ? 1 : 0)>>
+			<<set $birth.filters.dynamic["FatigueMax"] to ($tiredness gte $tirednessmax ? 1 : 0)>>
 			<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
-			<<set $birth.filters.dynamic["Orgasm"] to $orgasmdown gt 0 ? 1 : 999>>
+			<<set $birth.filters.dynamic["Orgasm"] to $orgasmdown gt 0 ? 1 : 0>>
 			<<set $birth.filters.dynamic["FetusDelivered"] to 0>>
 			<<set $birth.filters.dynamic["Stage"] to 1>>
 			<<set $birth.filters.dynamic["PushUrge"] to Math.floor($birth.pushurge / 25)>>
@@ -1914,9 +1939,9 @@
 					<<set $birth.filters.dynamic["Stage"] to $birth.stage>>
 				<<case "partner">>
 					<<set $birth.filters.dynamic["Partner"] to $birth.partner>>
-					<<set $birth.filters.dynamic["FatherPresent"] to ($birth.partner is $birth.father ? 1 : 999)>>
-					<<set $birth.filters.dynamic["FatherInlobby"] to ($birth.inlobby is $birth.father ? 1 : 999)>>
-					<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 999)>>
+					<<set $birth.filters.dynamic["FatherPresent"] to ($birth.partner is $birth.father ? 1 : 0)>>
+					<<set $birth.filters.dynamic["FatherInlobby"] to ($birth.inlobby is $birth.father ? 1 : 0)>>
+					<<set $birth.filters.dynamic["PartnerCalled"] to ($birth.calledPartner gt 2 ? 1 : 0)>>
 					<<if _potentialPartners.includes($birth.partner) and $birth.partner isnot "Wolf">>
 						<<for _j = 0 ; _j < $NPCName.length ; _j++>>
 							<<if $NPCName[_j].description is $birth.partner>>
@@ -1972,7 +1997,7 @@
 						<<set $birth.filters.dynamic["PainMax"] to 1>>
 						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
 					<<else>>
-						<<set $birth.filters.dynamic["PainMax"] to 999>>
+						<<set $birth.filters.dynamic["PainMax"] to 0>>
 						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
 					<</if>>
 				<<case "fatigue">>
@@ -1980,7 +2005,7 @@
 						<<set $birth.filters.dynamic["FatigueMax"] to 1>>
 						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
 					<<else>>
-						<<set $birth.filters.dynamic["FatigueMax"] to 999>>
+						<<set $birth.filters.dynamic["FatigueMax"] to 0>>
 						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
 					<</if>>
 				<<case "stress">>
@@ -1989,7 +2014,7 @@
 					<<if $orgasmdown gt 0>>
 						<<set $birth.filters.dynamic["Orgasm"] to 1>>
 					<<else>>
-						<<set $birth.filters.dynamic["Orgasm"] to 999>>
+						<<set $birth.filters.dynamic["Orgasm"] to 0>>
 					<</if>>
 				<<case "fetus">>
 					<<set $birth.filters.dynamic["FetusDelivered"] to $birth.delivered>>
@@ -2185,7 +2210,11 @@
 		<</for>>
 		<<set $birth.dialog[_destinationListName] to clone(_result)>>
 	<<case "forced">>
+		<<set _resultPoolIndex to []>>
 		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<<if _sourceList[_i][3] is 0>>
+				<<continue>>
+			<</if>>
 			<<set _linetagnames to Object.keys(_sourceList[_i][0][0])>>
 			<<for _j = 0 ; _j < _linetagnames.length ; _j++>>
 				<<tagMatch _linetagnames[_j] _sourceList[_i][0][0][_linetagnames[_j]] $birth.filters.dynamic>>
@@ -2209,17 +2238,21 @@
 					<<continue>>
 				<</if>>
 			<</if>>
+			<<set _resultPoolIndex[_result.length] to _i>>
 			<<set _result[_result.length] to clone(_sourceList[_i])>>
 		<</for>>
-		<!--trying to add lines -->
+		<!--trying to add lines. Clones break reference equality, so dedupe by text and spend the pool line's play count by index.-->
 		<<for _i = 0 ; _i < _result.length ; _i++>>
 			<<set _dontadd to 0>>
 			<<for _j = 0 ; _j < $birth.dialog[_destinationListName].length ; _j++>>
-				<<if _result[_i][0] is $birth.dialog[_destinationListName][_j][0] and _result[_i][1] is $birth.dialog[_destinationListName][_j][1]>>
-					<<set _dontadd to 1>>
-					<<set _j to 999>>
-				<</if>>
-				<<if $birth.dialog[_destinationListName][_j][3] lte 0>> <!--already played too much -->
+				<<set _sametext to 1>>
+				<<for _k = 0 ; _k < $birth.dialog[_destinationListName][_j][1][0].length ; _k++>>
+					<<if _result[_i][1][0][_k] isnot $birth.dialog[_destinationListName][_j][1][0][_k]>>
+						<<set _sametext to 0>>
+						<<set _k to 999>>
+					<</if>>
+				<</for>>
+				<<if _sametext is 1>>
 					<<set _dontadd to 1>>
 					<<set _j to 999>>
 				<</if>>
@@ -2229,12 +2262,7 @@
 				<<set _dontadd to 1>>
 			<</if>>
 			<<if _dontadd is 0>>
-				<<for _j = 0 ; _j < $birth.dialog[_sourceListName].length ; _j++>>
-					<<if $birth.dialog[_sourceListName][_j] is _result[_i]>>
-						<<set $birth.dialog[_sourceListName][_j][3] -= 1>>
-						<<set _j to 999>>
-					<</if>>
-				<</for>>
+				<<set _sourceList[_resultPoolIndex[_i]][3] -= 1>>
 				<<set $birth.dialog[_destinationListName].push(clone(_result[_i]))>>
 			<</if>>
 		<</for>>
@@ -2297,7 +2325,11 @@
 			<</if>>
 		<</for>>
 	<<case "triggerforced">>
+		<<set _resultPoolIndex to []>>
 		<<for _i = 0 ; _i < _sourceList.length ; _i++>>
+			<<if _sourceList[_i][3] is 0>>
+				<<continue>>
+			<</if>>
 			<!--Checks lines for the trigger -->
 			<<set _linetagnames to Object.keys(_sourceList[_i][0][3])>>
 			<<set _tagmatched to 0>>
@@ -2332,27 +2364,27 @@
 			<<if _tagMatchResult is 0 or _tagMatchResult is 2>>
 				<<continue>>
 			<</if>>
+			<<set _resultPoolIndex[_result.length] to _i>>
 			<<set _result[_result.length] to clone(_sourceList[_i])>>
 		<</for>>
+		<!--Clones break reference equality, so dedupe by text and spend the pool line's play count by index.-->
 		<<for _i = 0 ; _i < _result.length ; _i++>>
 			<<set _dontadd to 0>>
 			<<for _j = 0 ; _j < $birth.dialog[_destinationListName].length ; _j++>>
-				<<if _result[_i][0] is $birth.dialog[_destinationListName][_j][0] and _result[_i][1] is $birth.dialog[_destinationListName][_j][1]>>
-					<<set _dontadd to 1>>
-					<<set _j to 999>>
-				<</if>>
-				<<if $birth.dialog[_destinationListName][_j][3] lte 0>> <!--already played too much -->
+				<<set _sametext to 1>>
+				<<for _k = 0 ; _k < $birth.dialog[_destinationListName][_j][1][0].length ; _k++>>
+					<<if _result[_i][1][0][_k] isnot $birth.dialog[_destinationListName][_j][1][0][_k]>>
+						<<set _sametext to 0>>
+						<<set _k to 999>>
+					<</if>>
+				<</for>>
+				<<if _sametext is 1>>
 					<<set _dontadd to 1>>
 					<<set _j to 999>>
 				<</if>>
 			<</for>>
 			<<if _dontadd is 0>>
-				<<for _j = 0 ; _j < $birth.dialog[_sourceListName].length ; _j++>>
-					<<if $birth.dialog[_sourceListName][_j] is _result[_i]>>
-						<<set $birth.dialog[_sourceListName][_j][3] -= 1>>
-						<<set _j to 999>>
-					<</if>>
-				<</for>>
+				<<set _sourceList[_resultPoolIndex[_i]][3] -= 1>>
 				<<set $birth.dialog[_destinationListName].push(clone(_result[_i]))>>
 			<</if>>
 		<</for>>

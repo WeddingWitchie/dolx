@@ -63,8 +63,14 @@
 	<<set $birth.movementodds to [[60,75,90,94,96,99,200,200],[50,70,85,90,93,96,200,200],[40,60,80,85,90,95,200,200],[30,40,50,70,80,90,200,200],[30,40,50,70,80,90,200,200],[30,40,50,70,80,90,200,200],[20,35,50,65,75,85,200,200],[0,0,0,0,0,0,200,200],[1,1,1,1,1,1,200,200],[1,1,1,1,1,1,200,200]]>>
 	<<if $birth.inlobby is undefined>>
 		<<switch $birth.location>>
-		<<case "asylum" "hospital" "wolf cave" "bedroom" "tower">>
+		<<case "asylum" "wolf cave" "bedroom" "tower">>
 			<<set $birth["inlobby"] to "">>
+		<<case "hospital">>
+			<<if ["Alex","Avery","Eden","Robin","Sydney","Whitney","Kylar"].includes($birth.father) and knowsAboutPregnancy("pc", $birth.father)>>
+				<<set $birth["inlobby"] to $birth.father>>
+			<<else>>
+				<<set $birth["inlobby"] to "">>
+			<</if>>
 		<<case "cottage">>
 			<<set $birth["inlobby"] to "Alex">>
 		<<case "prison">>
@@ -133,6 +139,9 @@
 [[{"Location":"hospital","Partner":"Alone"},{},{},{}],[["The midwife checks on the heart rate monitor, \"Everything is normal.\""],["default"]],{},-1],
 [[{"Location":"hospital","Partner":"Alone"},{},{},{}],[["The midwife asks you, \"Where is the father?\""],["default"]],{"Stress":100},1],
 [[{"Location":"hospital","Partner":"Alone"},{},{"test":1},{}],[["The midwife asks you, \"Is there anything I can do?\""],["default"]],{},1],
+[[{"Location":"hospital","Stage":1},{"Stage":5},{},{}],[["The midwife keeps near the bed, talking you through the quiet between contractions."],["default"]],{},-1],
+[[{"Location":"hospital","Stage":5},{"Stage":8},{},{}],[["The midwife watches the next wave build. \"Push with it when it peaks.\""],["default"]],{},-1],
+[[{"Location":"hospital","Stage":5},{"Stage":8},{},{}],[["Harper checks your progress, then nods to the midwife. \"Keep going. It's moving.\""],["default"]],{},-1],
 [[{"Partner":"Robin"},{},{},{}],[["You're amazing!"],["default"]],{"Stress":-5},3],
 [[{"Location":"bedroom","Partner":"Robin","FetusHawk":$birth.fetuscount},{},{},{}],[["Robin's mouth is agape as <<nnpc_he \"Robin\">> continues to stare at your gaping hole"],["default"]],{},-1],
 [[{"Location":"cottage","Partner":"Alex","Stage":3},{},{"AlexTowels":1},{}],[["Harper turns to Alex, \"I'm going to need more towels, can you fetch some?\" Alex jumps to <<nnpc_his \"Alex\">> feet and affirms, \"On it!\""],["default"]],{},1],
@@ -172,8 +181,8 @@
 [[{"Location":"bedroom","Partner":"Alone","Stage":3},{"Stage":5},{},{}],[["You listen for footsteps beyond your door, hoping nobody heard the groan you couldn't hold in."],["default"]],{"Stress":15},1],
 [[{"Location":"bedroom","Stage":5},{"Stage":8},{},{}],[["The bed dips and creaks beneath you as your body takes over, pushing hard despite the privacy of your room."],["default"]],{},1]
 	],"forcedFull":[
-[[{"Location":"hospital","Stage":2},{"Stage":1},{},{}],[["The midwife tells you \"You're doing great.\""],["default"]],{},1,0],
-[[{"Location":"hospital","Stage":1,"Partner":"Alone"},{},{},{}],[["The midwife tells you \"You're doing great.\""],["default"]],{},1,0],
+[[{"Location":"hospital","Stage":2},{"Stage":1},{},{}],[["The midwife tells you, \"You're doing great.\""],["default"]],{},1,0],
+[[{"Location":"hospital","Stage":1,"Partner":"Alone"},{},{},{}],[["The midwife tells you, \"You're doing great.\""],["default"]],{},1,0],
 [[{"Location":"hospital","Partner":"Alone"},{},{},{"test":1}],[["The midwife chuckles, \"Well, besides give birth for you.\""],["default"]],{},1,0],
 [[{"Location":"cottage","Partner":"Alone","PartnerCalled":1},{"ArrivedTogether":1},{},{}],[["Alex opens the door, \"You need something?\" You tell Alex you changed your mind, and for <<nnpc_him \"Alex\">> to hold your hand."],["default"]],{},1,1],
 [[{"Location":"cottage","Partner":"Alex"},{},{},{"AlexTowels":1}],[["Alex returns shortly after raiding the linen closet, dropping an excessive number of towels near Harper before returning to your side."],["default"]],{},1,0],
@@ -185,8 +194,8 @@
 [[{"Location":"cottage","Partner":"Alex","Speech":"Meek"},{},{},{"AlexWantsKids":1}],[["Harper starts to talk, \"It's recommended to wait 4 to 6 weeks to have sex again, and longer if you plan for more children.\" You ask Alex, \"Is that okay?\""],["default"]],{},1,0],
 [[{"Location":"cottage","Partner":"Alex","Speech":"Neutral"},{},{},{"AlexWantsKids":1}],[["Harper starts to talk, \"It's recommended to wait-\" before you cut <<nnpc_him \"Harper\">> off, \"Focus! this one first.\" you say between groans."],["default"]],{},1,0],
 [[{"Location":"cottage","Partner":"Alex","Epidural":"Too expensive"},{},{},{}],[["\"Doc, don't worry about it, I will cover it for <<phim>>.\" You smile through some pain, \"Thank you, really.\"","This will help with the pain."],["default","green"]],{"Epidural":1},1,0],
-[[{"Location":"hospital","Partner":"Alone","PartnerCalled":1},{"ArrivedTogether":1},{"WhitneyArrived":1},{}],[["Whitney appears in the doorway, looking around the room, then at you. <<nnpc_He \"Whitney\">> stands there for an awkward moment, clearly taking in what is happening."],["default"]],{},1,0],
-[[{"Location":"hospital","Partner":"Alone","PartnerCalled":1},{},{"ArrivedTogether":1},{}],[["<<nnpc_He \"Whitney\">> finally steps into the room, but goes straight to the doctor. \"Is this normal?\""],["default"]],{},1,0]
+[[{"Location":"hospital","Partner":"Alone","PartnerCalled":1},{"ArrivedTogether":1},{"PartnerArrived":1},{}],[[$birth.inlobby + " appears in the doorway, looking around the room, then at you. <<nnpc_He \"" + $birth.inlobby + "\">> stands there for an awkward moment, clearly taking in what is happening."],["default"]],{},1,1],
+[[{"Location":"hospital","Partner":"Alone","PartnerCalled":1},{},{"ArrivedTogether":1},{"PartnerArrived":1}],[["<<nnpc_He \"" + $birth.inlobby + "\">> finally steps into the room, but goes straight to the doctor. \"Is this normal?\""],["default"]],{},1,0]
 	]}>>
 	<</if>>
 	<<if setup.birthPrompts is undefined or _birthRebuildRuntime>>
