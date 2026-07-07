@@ -98,8 +98,62 @@
   * Fully grown pets now look after themselves.
   * Fully grown pets no longer need feeding, cleaning, or sickness care.
   * Weekly attacks and the blood moon boss can still threaten them.
+* Water Dragon transformation updates
+  * Removed the Sea Dragon derail from sea rocks.
+  * Daytime swimming now uses the vanilla sea chest roll again.
+  * The antique coral ring can now be found normally during swims.
+  * Added a new clear-night beach action: **Comb the beach (0:30)**.
+  * Beach combing lets players search the shore for small treasures, including:
+    * **Black pearl**: swallow for waterdragon progress or keep for £400.
+    * **Moonstone**: swallow for waterdragon progress or keep for £100.
+    * **Tide-worn coins**: keep for £5–£10.
+  * Beach combing only appears at night when the weather is clear, matching beach party conditions.
+  * The new waterdragon transformation options keep the old necklace’s role, flavour, and small stress relief while fitting better with beach and island pearl-diving lore.
 
 ## Rebalancing and Fixes:
+* Realistic childbirth fixes
+  * Partners no longer appear at hospital births unless they are actually the baby’s parent, know about the pregnancy, and were called in by the midwife.
+  * Whitney no longer incorrectly appears during every hospital birth.
+  * The partner arrival scene now uses the correct character name instead of hardcoded Whitney text.
+  * Fixed hospital lobby handling so eligible main love interests can actually wait outside and be called in.
+  * Fixed forced childbirth dialogue repeating forever, such as the midwife saying “You’re doing great.” every turn.
+  * Improved push-stage pacing so births should feel less dragged out.
+  * Multiple births now resume closer to the final pushing stage after the first baby, instead of restarting too far back.
+  * Fixed several childbirth dialogue condition checks, including nursery state, pain, fatigue, orgasm, arrived-together, and cottage birth flags.
+* Whitney chastity fixes for penis-less bodies
+  * Fixed several Whitney chastity scenes incorrectly assuming the player always has a penis.
+  * Whitney no longer fits a phantom chastity cage onto vagina-only bodies.
+  * If the player has no penis, Whitney now uses chastity belt text instead of cage text.
+  * Fixed the school chastity check so it does not trigger incorrectly when the player has no penis and no active chastity rule.
+  * Fixed Whitney’s replacement chastity scene to choose the correct device and wording.
+  * Fixed the “your cock’s too small for that cage” check so it only appears when the player actually has a penis.
+  * Fixed a Whitney spitroast scene that could incorrectly unlock the device and describe penis-based actions on penis-less bodies.
+  * Whitney’s chastity rule now properly supports DoLX body changes from X-Change pills.
+* X-Change blackmail quest reward fixes
+  * Fixed an issue where active blackmail quests could break after saving and loading the game.
+  * After loading a save, some quest reward logic was being lost, causing **Take contents** links to consume the reward without actually giving the player the items.
+  * Fixed blackmail quest rewards failing after save/load.
+  * Fixed conclusion-letter rewards using the wrong quest reward data.
+  * Fixed blackmail daisies not appearing as sellable at the market stall.
+  * Fixed orphaned or outdated blackmail quests causing errors after updates.
+  * Fixed several pill-check quests failing incorrectly because of unrelated pills the player had already taken.
+  * Fixed some blackmail quest text and typo issues.
+  * Improved save-load handling so active blackmail quests restore properly before they are used.
+  * Blackmail quest rewards, pill checks, and flower delivery should now be much more reliable across saves.
+* X-Change virginity tracking fixes
+  * Fixed an issue where being spiked with a purple X-Change pill while already transformed could incorrectly restore lost virginity and first kiss history.
+  * The purple-spike transformation path now saves the current body’s live virginity state before applying the new body state.
+  * Fixed purple pill spiking incorrectly restoring virginity records.
+  * Fixed first kiss and other virginity-related history being lost during certain X-Change body transitions.
+  * Added safer tracking when virginity is changed during encounters, so stored X-Change body records stay updated.
+  * Cheat-menu virginity fixes now also preserve the corrected state properly across X-Change transformations.
+  * Transformed bodies should no longer accidentally become “fresh” again after purple pill effects or later body restores.
+* Beast gangbang reverse rape fix
+  * Fixed a beast gangbang reverse rape scene displaying “undefined”.
+* Banish action fix
+  * Fixed a broken **banish** action.
+* Avery date flow fix
+  * Fixed issues with Avery’s date flow.
 * Sissy and Butch pill fixes
   * The Sissy pill now always feminises a male body.
   * The Butch pill now always masculinises a female body.
