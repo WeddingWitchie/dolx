@@ -3066,14 +3066,17 @@
 				<<link [[Fight|Bully Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
 				<br>
 			<</if>>
-		<<elseif $worn.genitals.name is "naked">>
+		<<elseif $worn.genitals.name is "naked" and ($whitneychastity is 1 or $player.penisExist)>>
+			<!-- Whitney's chastity rule is penis-motivated; a pill-feminized PC without an existing rule falls through to the panty check instead. With the rule active, the device adapts to the body like X-Change chastity does: belt for a penis-less PC. -->
 			A pair of hands grab you from behind and shove you into an empty classroom. You hear a click as the door is locked, and Whitney backs you into the corner.
 			<br><br>
 			<<if $whitneychastity is 1>>
-				<<He>> roughly places a hand on your groin, feeling for something. "Where's your cage, <<bitch>>? Need a new one?" <<arousal 10>><<garousal>>
+				<<He>> roughly places a hand on your groin, feeling for something. "Where's your <<= $player.penisExist ? "cage" : "belt">>, <<bitch>>? Need a new one?" <<arousal 10>><<garousal>>
 				<br><br>
 				<<link [[Say yes|Bully Chastity]]>>
-					<<if $player.penissize is 0>>
+					<<if !$player.penisExist>>
+						<<genitalswear 1>>
+					<<elseif $player.penissize is 0>>
 						<<genitalswear 7 "pink">>
 					<<elseif $player.penissize lte 2>>
 						<<genitalswear 6 "pink">>
@@ -4375,7 +4378,7 @@
 
 <<widget "WhitneyChastityCheck">>
 	<<if $worn.genitals.origin is "Whitney">>
-		<<if ($player.penissize lte 2 and $worn.genitals.name is "chastity cage") or ($player.penissize is 0 and $worn.genitals.name is "small chastity cage")>>
+		<<if $player.penisExist and (($player.penissize lte 2 and $worn.genitals.name is "chastity cage") or ($player.penissize is 0 and $worn.genitals.name is "small chastity cage"))>>
 			<<He>> inspects the $worn.genitals.name. "Your cock's looking a little small for the chastity cage you got on. Let's go ahead and fix that."
 			<br><br>
 			<<set $worn.genitals.type.push("broken")>>

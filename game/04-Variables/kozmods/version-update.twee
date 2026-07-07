@@ -940,6 +940,24 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
+	/* One-time fix: Whitney's re-cage events used to fit a penis chastity cage onto a pill-feminized body with no penis. Adapt an already-worn cage into the belt shape, the same way the pill transformation itself does. Chastity parasites are living slime, not a metal cage, and keep their shape. */
+	<<if $xchange._didCageOnFemaleFix isnot true>>
+		<<set $xchange._didCageOnFemaleFix to true>> /* delete later */
+		<<if !$player.penisExist and $worn isnot undefined and $worn.genitals isnot undefined and Array.isArray($worn.genitals.type)>>
+			<<if $worn.genitals.name isnot "chastity parasite" and $worn.genitals.type.includes("chastity") and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
+				<<set _cageIdx to $worn.genitals.type.indexOf("cage")>>
+				<<run $worn.genitals.type.splice(_cageIdx, 1)>>
+				<<run $worn.genitals.type.push("hidden")>>
+				<<set $worn.genitals.exposed to 0>>
+				<<set $worn.genitals.exposed_base to 0>>
+				<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("cage")>>
+					<<set $worn.genitals.name to $worn.genitals.name.replace(/\bcage\b/gi, "belt")>>
+				<</if>>
+				<<set $xchange.chastityAdaptedMessage to "feminize">>
+			<</if>>
+		<</if>>
+	<</if>>
+
 	/* permaReflection state object */
 	<<if $xchange.permaReflection is undefined>>
 		<<set $xchange.permaReflection to {pending: false, lastShownDay: -1, answer: null, snapshot: null, lastReminderDay: -1}>>
