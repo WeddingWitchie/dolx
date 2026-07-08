@@ -713,6 +713,84 @@ function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 }
 window.dolxRepairMissingJewelleryWornSlots = dolxRepairMissingJewelleryWornSlots;
 
+/* NaN/Infinity repair for core numerics the game derives other state from. */
+function dolxRepairNonFiniteNumerics() {
+	if (!V) return;
+
+	const repaired = [];
+	const fix = (name, value) => {
+		if (Number.isFinite(V[name])) return;
+		repaired.push(`${name}=${V[name]}`);
+		V[name] = value;
+	};
+
+	fix("hairlength", 200);
+	fix("fringelength", 200);
+	const hairRepaired = repaired.length > 0;
+
+	const giRange = Number.isFinite(V.xchange?.giRange) ? V.xchange.giRange : 1500;
+	fix("genderidentitymax", giRange);
+	fix("genderidentity", V.player?.gender === "f" ? giRange : 0);
+
+	for (const mult of ["npcHealthMult", "npcArousalMult", "nnpcHealthMult", "nnpcArousalMult", "beastHealthMult", "beastArousalMult", "tentacleHealthMult", "struggleHealthMult"]) {
+		fix(mult, 100);
+	}
+
+	/* A save made inside an already-poisoned fight would stay endless without this. */
+	if (V.combat === 1) {
+		const enemyno = Number.isFinite(V.enemyno) && V.enemyno > 0 ? V.enemyno : 1;
+		fix("enemyno", enemyno);
+		const named = Array.isArray(V.NPCList) && V.NPCList[0] && setup.NPCNameList?.includes(V.NPCList[0].fullDescription);
+		fix("enemyarousalmax", 500 * enemyno * ((named ? V.nnpcArousalMult : V.npcArousalMult) / 100));
+		fix("enemyarousal", 0);
+	}
+
+	if (hairRepaired && typeof window.calchairlengthstage === "function") window.calchairlengthstage();
+	if (repaired.length) console.warn(`[DoLX] Repaired non-finite save numerics: ${repaired.join(", ")}`);
+}
+window.dolxRepairNonFiniteNumerics = dolxRepairNonFiniteNumerics;
+
+/* Guarantee every transformationParts species/part key exists. */
+function dolxEnsureTransformationParts() {
+	const parts = V?.transformationParts;
+	if (!parts || typeof parts !== "object") return;
+
+	const lvl = name => (Number.isFinite(V[name]) ? V[name] : 0);
+	const special = V.specialTransform === 1;
+	const physical = V.physicalTransform === 1;
+
+	/* Rules mirror setupTransformationPiecesObject; parts it leaves inactive on a fresh setup have no rule and fill as "disabled". */
+	const defaults = {
+		angel: { halo: () => special && lvl("angel") >= 4, wings: () => special && lvl("angel") >= 6 },
+		fallenAngel: { halo: () => special && lvl("fallenangel") >= 2, wings: () => special && lvl("fallenangel") >= 2 },
+		demon: { horns: () => special && lvl("demon") >= 2, wings: () => special && lvl("demon") >= 6, tail: () => special && lvl("demon") >= 4 },
+		cat: { ears: () => physical && lvl("cat") >= 4, tail: () => physical && lvl("cat") >= 6, heterochromia: () => physical && lvl("cat") >= 7 },
+		cow: { horns: () => physical && lvl("cow") >= 2, ears: () => physical && lvl("cow") >= 4, tail: () => physical && lvl("cow") >= 6 },
+		waterdragon: { horns: () => physical && lvl("waterdragon") >= 2, ears: () => physical && lvl("waterdragon") >= 4, tail: () => physical && lvl("waterdragon") >= 7 },
+		bear: { plumage: null, pubes: null, ears: () => physical && lvl("bear") >= 4, tail: () => physical && lvl("bear") >= 6 },
+		wolf: { ears: () => physical && lvl("wolfgirl") >= 4, tail: () => physical && lvl("wolfgirl") >= 6, pubes: () => physical && lvl("wolfgirl") >= 4, pits: () => physical && lvl("wolfgirl") >= 4, cheeks: () => (lvl("wolfgirl") >= 5 ? "feral" : false) },
+		bird: { tail: null, wings: null, eyes: null, malar: null, plumage: null, pubes: null },
+		fox: { ears: null, tail: null, cheeks: null },
+		bunny: { ears: () => physical && lvl("bunny") >= 4, tail: () => physical && lvl("bunny") >= 6 },
+		okami: { ears: null, tail: null, wings: null, misc: null },
+		seraphim: { wings: null, plumage: null, eyes: null },
+		kitsune: { ears: null, tail: null, cheeks: null, misc: null },
+	};
+
+	const filled = [];
+	for (const [species, rules] of Object.entries(defaults)) {
+		if (!parts[species] || typeof parts[species] !== "object") parts[species] = {};
+		for (const [part, rule] of Object.entries(rules)) {
+			if (parts[species][part] !== undefined) continue;
+			const active = typeof rule === "function" ? rule() : false;
+			parts[species][part] = active === true ? "default" : typeof active === "string" ? active : "disabled";
+			filled.push(`${species}.${part}`);
+		}
+	}
+	if (filled.length) console.warn(`[DoLX] Backfilled missing transformationParts keys: ${filled.join(", ")}`);
+}
+window.dolxEnsureTransformationParts = dolxEnsureTransformationParts;
+
 if (Array.isArray(V.NPCList)) {
 	V.NPCList.forEach(npc => {if (npc && typeof npc === "object") {delete npc.orgasms; delete npc.maxOrgasms;}});
 }
@@ -1317,9 +1395,8 @@ function playerVoiceCategory() {
 }
 window.playerVoiceCategory = playerVoiceCategory;
 
-/* Per-category defaults. These exactly reproduce vanilla routing (male/butch ->
-	male voice, female/sissy -> the chosen female voice) so existing saves are
-	unchanged; only herm is new, defaulting to the v1 female voice. */
+/* Per-category defaults. These exactly reproduce vanilla routing (male/butch -> male voice, female/sissy -> the chosen female voice) so existing saves are unchanged;
+only herm is new, defaulting to the v1 female voice. */
 function defaultVoiceConfig() {
 	const fv = (V.options && V.options.f_voice) || "v1";
 	return {
@@ -1332,8 +1409,7 @@ function defaultVoiceConfig() {
 }
 window.defaultVoiceConfig = defaultVoiceConfig;
 
-/* Fill in any missing pieces of $options.voiceConfig without clobbering the
-	player's choices. Called once per load from the version-update widget. */
+/* Fill in any missing pieces of $options.voiceConfig without clobbering the player's choices. Called once per load from the version-update widget. */
 function ensureVoiceConfig() {
 	if (!V.options) return;
 	const def = defaultVoiceConfig();
@@ -1384,8 +1460,7 @@ function playerVoiceIsMale() {
 }
 window.playerVoiceIsMale = playerVoiceIsMale;
 
-/* Whether an NPC of the given pronoun ("m"/"f") may be voiced right now,
-	honouring the global NPC toggle and the current bucket's NPC filter. */
+/* Whether an NPC of the given pronoun ("m"/"f") may be voiced right now, honouring the global NPC toggle and the current bucket's NPC filter. */
 function npcVoiceAllowed(pronoun) {
 	if (!V.options || V.options.npcVoiceoverAudio === 0) return false;
 	const npc = playerVoiceSettings().npc;
