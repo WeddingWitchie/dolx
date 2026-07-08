@@ -3928,10 +3928,13 @@
 		<<set $alexSeen to []>>
 	<</if>>
 
-	/* Fixed Butterfly Eyepatch not being unlocked */
-	<<if $specialClothes[133] isnot undefined and $specialClothes[125]?.unlocked is 3>>
-		<<set $specialClothes[133].unlocked to 3>>
-	<</if>>
+	/* Fixed Butterfly Eyepatch not being unlocked. Look entries up by name: save arrays don't share setup's order across versions, so fixed indexes hit other items (133 is the sage witch hat here). */
+	<<run (() => {
+		if (!Array.isArray(V.specialClothes)) return;
+		const dress = V.specialClothes.find(c => c.name === "butterfly dress");
+		const eyepatch = V.specialClothes.find(c => c.name === "butterfly eyepatch");
+		if (dress?.unlocked === 3 && eyepatch && eyepatch.unlocked < 3) eyepatch.unlocked = 3;
+	})()>>
 
 	/* Remove Duplicate Sunflower from $plants_known */
 	<<if $plants_known.filter(seed => seed === 'sunflower').length gt 1>>
