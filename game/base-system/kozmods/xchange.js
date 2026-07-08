@@ -643,7 +643,9 @@ window.activeInsanityTrait = activeInsanityTrait;
 function insanitySensitivityAdjustment(amount) {
 	const value = Number(amount);
 	if (!Number.isFinite(value)) return 0;
-	return activeInsanityTrait() && value > 0 ? 0 : value;
+	// A fractured mind is numb: while Insane, every sensitivity modifier is fully nullified regardless of sign.
+	// Nullifying only positives let sex-flipped modifiers (e.g. -1 * pillSensitivityChange) slip through as a sensitivity *decrease*, the "reflection" bug where +1 became -1.
+	return activeInsanityTrait() ? 0 : value;
 }
 window.insanitySensitivityAdjustment = insanitySensitivityAdjustment;
 

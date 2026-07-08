@@ -196,6 +196,9 @@ const statChange = (() => {
 		} else {
 			V.dissociation = 0;
 		}
+
+		// Insanity trait (permanent or active temporary): dissociation ("nothing feels real") is a hallmark of the fractured mind, so it manifests at full severity while the trait is present.
+		if (V.backgroundTraits?.includes("insanity")) V.dissociation = 2;
 	}
 	DefineMacro("updatePlayerTraumaState", updatePlayerTraumaState);
 

@@ -1359,6 +1359,16 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
+	/* One-time repair for the pre-fix insanity sensitivity bug, which reflected positive sensitivity changes into negatives and pushed some players' base sensitivity below its normal floor of 1 (down to 0.25).
+	Restore any sub-floor value to 1; values at or above 1 are legitimate and left alone. NaN/undefined compare false against "lt 1" and are intentionally left for the dedicated numeric repair. */
+	<<if $xchange.backComp["insanitySensRepair"] is undefined>>
+		<<set $xchange.backComp["insanitySensRepair"] to true>> /* delete later */
+		<<if $breastsensitivity lt 1>><<set $breastsensitivity to 1>><</if>>
+		<<if $bottomsensitivity lt 1>><<set $bottomsensitivity to 1>><</if>>
+		<<if $genitalsensitivity lt 1>><<set $genitalsensitivity to 1>><</if>>
+		<<if $mouthsensitivity lt 1>><<set $mouthsensitivity to 1>><</if>>
+	<</if>>
+
 	<<for _cr range Object.keys(setup.crimeNames)>>
 		<<if ndef $crime[_cr]>>
 			<<set $crime[_cr] to {
