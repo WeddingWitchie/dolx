@@ -674,6 +674,72 @@ function pruneNPCName() {
 }
 window.pruneNPCName = pruneNPCName;
 
+function pruneFoodstuff() {
+  const V = State.variables;
+  const catalog = setup.foodstuff;
+  if (!catalog || typeof catalog !== "object") return;
+
+  const allowed = new Set(Object.keys(catalog));
+  const pruned = new Set();
+
+  for (const dictName of ["foodstuff", "stall_stats"]) {
+	const dict = V[dictName];
+	if (!dict || typeof dict !== "object" || Array.isArray(dict)) continue;
+	for (const key of Object.keys(dict)) {
+	  if (allowed.has(key)) continue;
+	  delete dict[key];
+	  pruned.add(key);
+	}
+  }
+
+  if (Array.isArray(V.plants_known)) {
+	for (let i = V.plants_known.length - 1; i >= 0; i--) {
+	  const key = V.plants_known[i];
+	  if (typeof key === "string" && allowed.has(key)) continue;
+	  V.plants_known.splice(i, 1);
+	  pruned.add(key);
+	}
+  }
+
+  /* Beds planted with a foreign crop: reset the bed (mirrors clear_plot), never delete it. */
+  if (V.plots && typeof V.plots === "object") {
+	for (const plots of Object.values(V.plots)) {
+	  if (!Array.isArray(plots)) continue;
+	  for (const plot of plots) {
+		if (!plot || typeof plot !== "object") continue;
+		if (plot.plant === undefined || plot.plant === "none" || allowed.has(plot.plant)) continue;
+		pruned.add(plot.plant);
+		plot.plant = "none";
+		plot.stage = 0;
+		plot.days = 0;
+		plot.water = 0;
+		plot.till = 0;
+	  }
+	}
+  }
+
+  /* Scalar foodstuff-key vars. Stall selection uses unset as its idle state;
+	 Avery's dinner request falls back to its routine-start default. */
+  for (const varName of ["stall_foodstuff", "stall_expensive", "lastRecipeViewed"]) {
+	if (V[varName] === undefined || allowed.has(V[varName])) continue;
+	pruned.add(V[varName]);
+	delete V[varName];
+  }
+  if (V.avery_mansion && typeof V.avery_mansion === "object") {
+	if (V.avery_mansion.food !== undefined && V.avery_mansion.food !== "none" && !allowed.has(V.avery_mansion.food)) {
+	  pruned.add(V.avery_mansion.food);
+	  V.avery_mansion.food = "hamburger";
+	}
+	if (V.avery_mansion.food_last !== undefined && V.avery_mansion.food_last !== "none" && !allowed.has(V.avery_mansion.food_last)) {
+	  pruned.add(V.avery_mansion.food_last);
+	  V.avery_mansion.food_last = "none";
+	}
+  }
+
+  if (pruned.size) console.warn("Pruned foodstuff entries unknown to this mod from the save.", [...pruned]);
+}
+window.pruneFoodstuff = pruneFoodstuff;
+
 function updateDynamicStatCaps() {
 	const V = State.variables; if (!window.C || !C.tiredness) return;
 	if (V.tirednessMaxScalingToggle && typeof currentSkillValue === "function") {
