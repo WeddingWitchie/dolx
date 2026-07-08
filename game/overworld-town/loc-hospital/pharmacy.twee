@@ -592,17 +592,29 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 			<<link [[Hand over the money|Pharmacy]]>><<money `-$pharmacyItem.price` "pharmacyPills">><<pharmacyAddOwned 14>><<boughtOnce>><</link>>
 	<</switch>>
 	<br>
-	<<if setup.inflation.canAfford($pharmacyItem.price * 5) and _singlexchangepills.includes($pharmacyItem.type)>>
-		<<link [[Buy 5 at once|Pharmacy]]>><<handheldon>><<money `-$pharmacyItem.price * 5` "pharmacyXChange">><<pharmacyAddOwned 5>><<boughtOnce>><</link>><br>
-	<<elseif not setup.inflation.canAfford($pharmacyItem.price * 5)>>
-		<span class="purple">You cannot afford 5 at once.</span>
-		<br>
+	/* Pills per purchase: Basic variants are packs of 3, listed single pills are 1, everything else is not bulk-buyable. */
+	<<if ["X-Change Pink Basic", "X-Change Blue Basic", "X-Change Purple Basic"].includes($pharmacyItem.type)>>
+		<<set _bulkPillsEach to 3>>
+		<<set _bulkUnit to " packs">>
+	<<elseif _singlexchangepills.includes($pharmacyItem.type)>>
+		<<set _bulkPillsEach to 1>>
+		<<set _bulkUnit to "">>
+	<<else>>
+		<<set _bulkPillsEach to 0>>
 	<</if>>
-	<<if setup.inflation.canAfford($pharmacyItem.price * 10) and _singlexchangepills.includes($pharmacyItem.type)>>
-		<<link [[Buy 10 at once|Pharmacy]]>><<handheldon>><<money `-$pharmacyItem.price * 10` "pharmacyXChange">><<pharmacyAddOwned 10>><<boughtOnce>><</link>><br><br>
-	<<elseif not setup.inflation.canAfford($pharmacyItem.price * 10)>>
-		<span class="purple">You cannot afford 10 at once.</span>
-		<br><br>
+	<<if _bulkPillsEach gt 0>>
+		<<if setup.inflation.canAfford($pharmacyItem.price * 5)>>
+			<<link `"Buy 5" + _bulkUnit + " at once"` "Pharmacy">><<handheldon>><<money `-$pharmacyItem.price * 5` "pharmacyXChange">><<pharmacyAddOwned `_bulkPillsEach * 5`>><<boughtOnce>><</link>><br>
+		<<else>>
+			<span class="purple">You cannot afford 5<<print _bulkUnit>> at once.</span>
+			<br>
+		<</if>>
+		<<if setup.inflation.canAfford($pharmacyItem.price * 10)>>
+			<<link `"Buy 10" + _bulkUnit + " at once"` "Pharmacy">><<handheldon>><<money `-$pharmacyItem.price * 10` "pharmacyXChange">><<pharmacyAddOwned `_bulkPillsEach * 10`>><<boughtOnce>><</link>><br><br>
+		<<else>>
+			<span class="purple">You cannot afford 10<<print _bulkUnit>> at once.</span>
+			<br><br>
+		<</if>>
 	<</if>>
 <<else>>
 	<span class="purple">You cannot afford them.</span>
