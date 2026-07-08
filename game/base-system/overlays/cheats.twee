@@ -793,10 +793,18 @@
 				<<if $penis_addict_trait gte 2>>
 					<<set $penis_addict_trait to -1>>
 				<</if>>
+				<<if $penis_addict_trait is 1 and $hole_addict_trait is 1>>
+					<<set $hole_addict_trait to 0>>
+				<</if>>
 				<<replace "#statspenisaddicttrait">>
 					<<set _penis_addict_trait to _traitValue[$penis_addict_trait.toString()]>>
 					<<= _penis_addict_trait>>
 					<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
+				<</replace>>
+				<<replace "#statsholeaddicttrait">>
+					<<set _hole_addict_trait to _traitValue[$hole_addict_trait.toString()]>>
+					<<= _hole_addict_trait>>
+					<<changeCheatClass "#statsholeaddicttrait" _hole_addict_trait>>
 				<</replace>>
 			<</link>>
 			<br>
@@ -807,10 +815,18 @@
 				<<if $hole_addict_trait gte 2>>
 					<<set $hole_addict_trait to -1>>
 				<</if>>
+				<<if $hole_addict_trait is 1 and $penis_addict_trait is 1>>
+					<<set $penis_addict_trait to 0>>
+				<</if>>
 				<<replace "#statsholeaddicttrait">>
 					<<set _hole_addict_trait to _traitValue[$hole_addict_trait.toString()]>>
 					<<= _hole_addict_trait>>
 					<<changeCheatClass "#statsholeaddicttrait" _hole_addict_trait>>
+				<</replace>>
+				<<replace "#statspenisaddicttrait">>
+					<<set _penis_addict_trait to _traitValue[$penis_addict_trait.toString()]>>
+					<<= _penis_addict_trait>>
+					<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
 				<</replace>>
 			<</link>>
 			<br>
@@ -932,42 +948,41 @@
 			<<link "Change">>
 				<<if !$backgroundTraits.includes("crossdresser") or $background.transgender>>
 					<<set $backgroundTraits.pushUnique("crossdresser")>><<set $crossdressingTrait to 100>>
-					<<set $background.transgender to false>>
+					<<set $background.transgender to false>><<set $background.crossdresser to true>>
+					<<set $backgroundTraits.delete("genderAnxious")>><<set $background.genderAnxious to false>>
 				<<else>>
 					<<set $backgroundTraits.delete("crossdresser")>><<if $crossdressingTrait gt 80>><<set $crossdressingTrait to 80>><</if>>
+					<<set $background.crossdresser to false>>
 				<</if>>
-				<<replace "#statscrossdresser">>
-					<<set _crossdresser to $backgroundTraits.includes("crossdresser") and !$background.transgender ? "On" : "Off">>
-					<<= _crossdresser>>
-					<<changeCheatClass "#statscrossdresser" _crossdresser>>
-				<</replace>>
-				<<replace "#statstransgender">>
-					<<set _transgender to $background.transgender is true ? "On" : "Off">>
-					<<= _transgender>>
-					<<changeCheatClass "#statstransgender" _transgender>>
-				<</replace>>
+				<<updateGenderTraitCheats>>
 			<</link>>
 			<br>
 
 			Transgender: <span id="statstransgender" @class="$background.transgender is true ? 'green' : 'red'"><<= $background.transgender is true ? "On" : "Off">></span> |
 			<<link "Change">>
 				<<if !$background.transgender>>
-					<<set $background.transgender to true>>
+					<<set $background.transgender to true>><<set $background.crossdresser to false>>
 					<<set $backgroundTraits.pushUnique("crossdresser")>><<set $crossdressingTrait to 100>>
+					<<set $backgroundTraits.delete("genderAnxious")>><<set $background.genderAnxious to false>>
 				<<else>>
 					<<set $background.transgender to false>>
 					<<set $backgroundTraits.delete("crossdresser")>><<if $crossdressingTrait gt 80>><<set $crossdressingTrait to 80>><</if>>
 				<</if>>
-				<<replace "#statstransgender">>
-					<<set _transgender to $background.transgender is true ? "On" : "Off">>
-					<<= _transgender>>
-					<<changeCheatClass "#statstransgender" _transgender>>
-				<</replace>>
-				<<replace "#statscrossdresser">>
-					<<set _crossdresser to $backgroundTraits.includes("crossdresser") and !$background.transgender ? "On" : "Off">>
-					<<= _crossdresser>>
-					<<changeCheatClass "#statscrossdresser" _crossdresser>>
-				<</replace>>
+				<<updateGenderTraitCheats>>
+			<</link>>
+			<br>
+
+			Gender-Anxious: <span id="statsgenderanxious" @class="$backgroundTraits.includes('genderAnxious') ? 'green' : 'red'"><<= $backgroundTraits.includes("genderAnxious") ? "On" : "Off">></span> |
+			<<link "Change">>
+				<<if !$backgroundTraits.includes("genderAnxious")>>
+					<<set $backgroundTraits.pushUnique("genderAnxious")>><<set $background.genderAnxious to true>>
+					<<set $background.transgender to false>>
+					<<set $backgroundTraits.delete("crossdresser")>><<if $crossdressingTrait gt 80>><<set $crossdressingTrait to 80>><</if>>
+					<<set $background.crossdresser to false>>
+				<<else>>
+					<<set $backgroundTraits.delete("genderAnxious")>><<set $background.genderAnxious to false>>
+				<</if>>
+				<<updateGenderTraitCheats>>
 			<</link>>
 			<br>
 
@@ -1099,6 +1114,24 @@
 			<<link "Clear Crime events">><<crimeClearEvent "all">><<replace #statscrimeevents>><<listCrimeCheats>><</replace>><</link>>
 		</div>
 	</div>
+<</widget>>
+
+<<widget "updateGenderTraitCheats">>
+	<<replace "#statscrossdresser">>
+		<<set _crossdresser to $backgroundTraits.includes("crossdresser") and !$background.transgender ? "On" : "Off">>
+		<<= _crossdresser>>
+		<<changeCheatClass "#statscrossdresser" _crossdresser>>
+	<</replace>>
+	<<replace "#statstransgender">>
+		<<set _transgender to $background.transgender is true ? "On" : "Off">>
+		<<= _transgender>>
+		<<changeCheatClass "#statstransgender" _transgender>>
+	<</replace>>
+	<<replace "#statsgenderanxious">>
+		<<set _genderanxious to $backgroundTraits.includes("genderAnxious") ? "On" : "Off">>
+		<<= _genderanxious>>
+		<<changeCheatClass "#statsgenderanxious" _genderanxious>>
+	<</replace>>
 <</widget>>
 
 <<widget "cheat-set-pill-duration">>
