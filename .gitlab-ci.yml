@@ -219,25 +219,23 @@ release_job:
         }
       }
 
-      $desc = Get-Content -Raw "./DoLX_Changelog.md"
-
       $htmlObj = @{
         name = "DownloadMe_DoLX_HTML_$VERSION"
         url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_HTML/$VERSION/DoLX_HTML_$VERSION.zip"
       }
-      $htmlJSON = $htmlObj | ConvertTo-Json -Compress
+      $htmlJSON = ($htmlObj | ConvertTo-Json -Compress) -replace '"', '\"'
 
       $imageObj = @{
         name = "DownloadMe_DoLX_Images_$MINOR"
         url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Images/$MINOR/DoLX_Images_$MINOR.zip"
       }
-      $imageJSON = $imageObj | ConvertTo-Json -Compress
+      $imageJSON = ($imageObj | ConvertTo-Json -Compress) -replace '"', '\"'
 
       $audioObj = @{
         name = "DownloadMe_DoLX_Audio_$AUDIO_VERSION"
         url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$AUDIO_VERSION/DoLX_Audio_$AUDIO_VERSION.zip"
       }
-      $audioJSON = $audioObj | ConvertTo-Json -Compress
+      $audioJSON = ($audioObj | ConvertTo-Json -Compress) -replace '"', '\"'
 
       Test-PackageLink "HTML" $htmlObj.url
       Test-PackageLink "Images" $imageObj.url
@@ -246,7 +244,7 @@ release_job:
       $releaseArgs = @(
         "create",
         "--name", "DoL:X-Change Edition $VERSION",
-        "--description", "$desc",
+        "--description", "DoLX_Changelog.md",
         "--ref", "$env:CI_COMMIT_SHA",
         "--tag-name", "$VERSION",
         "--assets-link", "$htmlJSON",
