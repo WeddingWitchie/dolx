@@ -125,6 +125,9 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 	if (pregnancy && pregnancy.type === null) {
 		let chance = 100 / (target === "pc" ? 100 - V.settings.basePlayerPregnancyChance : 20 - V.settings.baseNpcPregnancyChance);
 
+		// Fake Breeder (infertile): a breeder pill without fertility can never make the player conceive.
+		if (target === "pc" && typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile()) return false;
+
 		const xchangeRealBreederPregnancy = target === "pc" && playerIsXChanged() && V.xchange.pill?.breederEffect && V.xchange.pill?.fertile;
 		if (playerIsXChanged()) chance *= V.xchange.pregnancyMultPercent / 100;
 		if (xchangeRealBreederPregnancy) {multi = Math.max(multi, 1);}
@@ -160,8 +163,13 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	const pregnancy = V.sexStats[genital].pregnancy;
 
+	// Fake Breeder (infertile): a breeder pill without fertility can never make the player conceive.
+	if (typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile()) return false;
+
 	// Hyper Fertility: treat the PC as fully fertile regardless of cycle timing, so conception isn't blocked off-ovulation (and works even while X-Changed, when the menstrual cycle is paused). baseMulti < 1 would otherwise bail here.
 	if (typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) baseMulti = Math.max(baseMulti, 1);
+	// Always fertile: while X-Changed, keep conception possible regardless of cycle timing, just like a running fertile cycle.
+	if (typeof xchangeAlwaysFertileActive === "function" && xchangeAlwaysFertileActive()) baseMulti = Math.max(baseMulti, 1);
 
 	if (pregnancy.fetus.length || isNaN(baseMulti) || baseMulti < 1 || V.settings.pregnancyType !== "realistic") return false;
 
@@ -181,17 +189,21 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 
 	// Under X-Change, pregnancy is 4 times less likely to occur. 
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
-	let xchangePregnancyModifier = playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !V.xchange.pill.breederEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
+	// The breeder pregnancy boost only applies to a "real" breeder (breeder effect + fertility); a Fake Breeder is treated like a normal X-Changed body.
+	const xchangeBreederFertile = V.xchange.pill.breederEffect && V.xchange.pill.fertile;
+	let xchangePregnancyModifier = playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !xchangeBreederFertile ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* The lower basePenalty is, the easier it is for the player to get pregnant */
-	let basePenalty = V.xchange.pill.breederEffect? 5 : Math.floor((100 - V.settings.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
+	let basePenalty = xchangeBreederFertile ? 5 : Math.floor((100 - V.settings.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
 
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") basePenalty = Math.floor(basePenalty / 2);
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") basePenalty = Math.floor(basePenalty * 2);
 
 	// Hyper Fertility: make conception highly reliable within realistic mode, ignoring the cycle window (a very low penalty, like the breeder pill).
-	// Stays on the realistic path so pregnancy feats still count.
-	if (typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) basePenalty = Math.min(basePenalty, 2);
+	// The "Fertility strength" setting scales just how low that penalty goes. Stays on the realistic path so pregnancy feats still count.
+	if (typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) {
+		basePenalty = Math.min(basePenalty, typeof xchangeFertilityPenaltyCap === "function" ? xchangeFertilityPenaltyCap(2) : 2);
+	}
 
 	/*
 		When spermArray.length - 1 is lower than basePenalty, it uses basePenalty to determin if the pregnancy should occur or not
@@ -672,7 +684,7 @@ function namedNpcPregnancyAttempt(npcName, forcePregnancy = false) {
 	let xchangePregnancyModifier = playerIsXChanged() && !V.xchange.pill.bullEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* Works in a similar way to playerPregnancyAttempt */
-	const basePenalty = playerIsXChanged() && V.xchange.pill?.bullEffect ? 2 : ((typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) ? 1 : Math.floor((20 - V.settings.baseNpcPregnancyChance * xchangePregnancyModifier) * fertility));
+	const basePenalty = playerIsXChanged() && V.xchange.pill?.bullEffect ? 2 : ((typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) ? (typeof xchangeFertilityPenaltyCap === "function" ? xchangeFertilityPenaltyCap(1) : 1) : Math.floor((20 - V.settings.baseNpcPregnancyChance * xchangePregnancyModifier) * fertility));
 	let rng = random(0, spermArray.length > basePenalty ? spermArray.length : basePenalty);
 	if (forcePregnancy && !spermArray[rng]) rng = 0;
 

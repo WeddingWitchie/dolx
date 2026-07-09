@@ -478,8 +478,9 @@ function pleasure(amount, source) {
 		if (V.xchange.breederEdgingStress == null) V.xchange.breederEdgingStress = 0;
 	
 		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
+		// Skipped entirely when the player has enabled free orgasms (breederOrgasmDenied() returns false).
 		const breederEffectActive = playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
-		const breederSatisfied = playerIsBreederCreampied() || V.xchange.breederOrgasm || V.breederCreampied;
+		const breederSatisfied = !breederOrgasmDenied() || V.xchange.breederOrgasm || V.breederCreampied;
 		if (breederEffectActive && !breederSatisfied && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
 		) {
 			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1); V.xchange.breederEdgingCount++;
@@ -727,6 +728,30 @@ function fertilityTreatmentActive() {
 }
 window.fertilityTreatmentActive = fertilityTreatmentActive;
 
+// "Always fertile" setting: while X-Changed with a womb/vagina, treat the player as fertile regardless of cycle timing or the pill's own effects.
+// Only affects the pilled body; the natural body is untouched. Off during statFreeze / hopeless cycle like the other fertility gates.
+function xchangeAlwaysFertileActive() {
+	return !!(V.xchange?.alwaysFertile && playerIsXChanged() && V.player?.vaginaExist && !V.statFreeze && !V.hc);
+}
+window.xchangeAlwaysFertileActive = xchangeAlwaysFertileActive;
+
+// "Fake breeder (infertile)" setting: a breeder pill grants its behavioural effect but no fertility, so it can never cause pregnancy.
+// Hyper Fertility on the same pill, or the Always-fertile override, both win over this and keep the player fertile.
+function xchangeFakeBreederInfertile() {
+	return !!(V.xchange?.breederInfertile && playerIsXChanged() && V.xchange.pill?.breederEffect
+		&& !V.xchange.pill?.hyperFertilityEffect && !(V.xchange?.alwaysFertile && V.player?.vaginaExist));
+}
+window.xchangeFakeBreederInfertile = xchangeFakeBreederInfertile;
+
+// "Fertility strength" setting: player multiplier (%) scaling how potent the Fertility / Hyper Fertility course is at causing conception.
+// Higher strength lowers the pregnancy "penalty" cap (conception is more reliable). 100% reproduces the default behaviour.
+function xchangeFertilityPenaltyCap(baseCap = 2) {
+	const raw = Number(V.xchange?.fertilityStrengthPercent);
+	const strength = Number.isFinite(raw) && raw > 0 ? raw : 100;
+	return Math.max(1, Math.round(baseCap * 100 / strength));
+}
+window.xchangeFertilityPenaltyCap = xchangeFertilityPenaltyCap;
+
 function fertilityTreatmentApplyMultiples(baseCount, max = 4) {
 	if (!fertilityTreatmentActive()) return baseCount;
 	const cfg = setup.xchangeHyperFertility;
@@ -804,6 +829,15 @@ function playerIsBreederCreampied() {
 	return pill?.omegaEffect ? playerIsAnalCreampied() : playerIsCreampied();
 }
 window.playerIsBreederCreampied = playerIsBreederCreampied;
+
+// Whether the breeder/omega "you can't climax unless there's cum inside you" restriction is currently in force.
+// The "Orgasm freely" setting (breederFreeOrgasm) lifts it, so the denial can be skipped consistently everywhere it's checked.
+function breederOrgasmDenied() {
+	if (!playerIsXChanged() || V.xchange?.breederFreeOrgasm) return false;
+	const pill = V.xchange?.pill;
+	return !!((pill?.breederEffect || pill?.omegaEffect) && !playerIsBreederCreampied());
+}
+window.breederOrgasmDenied = breederOrgasmDenied;
 
 /* Anti X-Change therapy: while a purchased "clean" period is running the player cannot be involuntarily spiked.
 	It does NOT remove effects already active, only blocks new ones. */

@@ -563,9 +563,21 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.heat.systemOn to false>>
 	<</if>>
 
-	<<if $xchange.breederOrgasmLock is undefined>>
-		<<set $xchange.breederOrgasmLock to false>>
-	<</if>>		
+	<<if $xchange.breederFreeOrgasm is undefined>>
+		<<set $xchange.breederFreeOrgasm to false>>
+	<</if>>
+
+	<<if $xchange.breederInfertile is undefined>>
+		<<set $xchange.breederInfertile to false>>
+	<</if>>
+
+	<<if $xchange.alwaysFertile is undefined>>
+		<<set $xchange.alwaysFertile to false>>
+	<</if>>
+
+	<<if $xchange.fertilityStrengthPercent is undefined>>
+		<<set $xchange.fertilityStrengthPercent to 100>>
+	<</if>>
 	
 	<<if $identity is undefined>>
 		<<set $identity to {
@@ -1081,6 +1093,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<wliInit>>
 	<<xchange-init>>
 	<<xchange-init2>>
+	/* Re-resolve fertility so toggling the Fake Breeder / Always fertile settings mid-session takes effect on the running pill. */
+	<<if playerIsXChanged()>><<xchange-fertility-override>><</if>>
 	<<ccmodVersionCheck>>
 	<<ensureTransformationTraits>>
 	<<run restoreActiveBlackmailQuest()>>
@@ -1544,6 +1558,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			combatPillingDrawChance: { min: 1, max: 50, def: 15 },
 			cumcureTime: { min: 1, max: 24, def: 3 },
 			resistanceOrgasmPenalty: { min: 0.5, max: 0.99, def: 0.7 },
+			fertilityStrengthPercent: { min: 25, max: 400, def: 100 },
 		};
 		for (const k of Object.keys(scalarSliders)) {
 			const s = scalarSliders[k];

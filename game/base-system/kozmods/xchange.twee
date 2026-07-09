@@ -1188,6 +1188,24 @@
 			<<xchange-addeffect _effect _days>>
 
 		<</for>>
+
+		<<xchange-fertility-override>>
+		<</if>>
+	<</widget>>
+
+	/* Central fertility resolution, applied after all X-Change effects for a body are in place.
+	   - Always fertile (setting): while X-Changed with a womb/vagina, force a running fertile cycle so conception stays possible whatever the pill did.
+	   - Fake Breeder (setting): a breeder pill without Hyper Fertility grants only its behavioural effect, with no fertility, so it can't cause pregnancy.
+	   Always-fertile takes precedence over Fake Breeder when both are enabled. Safe to call every load. */
+	<<widget "xchange-fertility-override">>
+		<<if $xchange.pill and $xchange.pill.active>>
+			<<if $player.vaginaExist and $xchange.alwaysFertile>>
+				<<set $xchange.pill.fertile to true>>
+				<<set $sexStats.vagina.menstruation.running = true>>
+			<<elseif $xchange.breederInfertile and $xchange.pill.breederEffect and !$xchange.pill.hyperFertilityEffect>>
+				<<set $xchange.pill.fertile to false>>
+				<<set $sexStats.vagina.menstruation.running = false>>
+			<</if>>
 		<</if>>
 	<</widget>>
 
@@ -1809,6 +1827,8 @@
 			<<set $sexStats.vagina.menstruation.running = true>>
 			<<set $xchange.pill.fertile to true>>
 		<</if>>
+		/* Keep Fake Breeder infertile / Always fertile honoured even once the transformation locks in. */
+		<<xchange-fertility-override>>
 		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.resistanceEffect to false>>
 		<<if $background.transgender>>
@@ -1987,6 +2007,7 @@
 					<<xchange-addeffect _effectPool.random()>>
 				<</if>>
 			<</if>>
+			<<xchange-fertility-override>>
 			<<xchange-addeffect "unknown">>
 			<<xchange-fame 1>>
 			/* A Suspicious pill inflicts the side-effect kick (pain + hypersensitivity) when the player has enabled this in settings.
