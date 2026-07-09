@@ -32,6 +32,17 @@ function xchangePillBlockedReason(color, allowDualGenitals = false) {
 }
 window.xchangePillBlockedReason = xchangePillBlockedReason;
 
+/* Sex of the body the player returns to when no pill is active.
+Suspicious pills can only be taken untransformed, so sellers picking a colour for the player must use this instead of V.player.sex, which reflects the current (possibly X-Changed) body. */
+function xchangePlayerBaseSex() {
+	if (playerIsXChanged()) {
+		const origSex = V.xchange?.pill?.originalBody?.sex;
+		if (["m", "f"].includes(origSex)) return origSex;
+	}
+	return V.player.sex;
+}
+window.xchangePlayerBaseSex = xchangePlayerBaseSex;
+
 function makeGrayXChangePill(cfg) {
 	return {
 		name: cfg.name,
