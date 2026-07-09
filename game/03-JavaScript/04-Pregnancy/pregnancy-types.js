@@ -308,7 +308,7 @@ function skinColourCalc(colour) {
 // PC's TF takes priority; otherwise certain named NPC parents pass their own.
 function beastTransform(mother, father) {
 	if (mother === "pc" || father === "pc") {
-		if (Transformations.effectiveLevel("cat") >= 10) return "cat";
+		if (Transformations.effectiveLevel("cat") >= 6) return "cat";
 		if (Transformations.effectiveLevel("cow") >= 6) return "cow";
 		if (Transformations.effectiveLevel("bear") >= 6) return "bear";
 		if (Transformations.effectiveLevel("wolf") >= 6) return "wolf";

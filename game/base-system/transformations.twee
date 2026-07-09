@@ -893,8 +893,14 @@
 				<<if $catbuild gte 55>>
 					<<set $cat to 7>>
 					<<run $timeMessages.pushUnique("catUp7")>>
-					<<run window.determineCatEyeStages()>>
-					<<set $original_colour = [$leftEyeColour, $rightEyeColour]>>
+					/* Roll the random heterochromia colours only on the first transformation into a cat.
+					   Re-crossing the level 6/7 boundary (build decays each tick) must reuse the existing roll, otherwise the "one-time" eye colours change every time. */
+					<<if V.custom_eyecolours.findIndex(c => c.variable && c.variable.startsWith("cat_tf_stage_")) === -1>>
+						<<run window.determineCatEyeStages()>>
+						<<set $original_colour = [$leftEyeColour, $rightEyeColour]>>
+					<<elseif $original_colour is undefined>>
+						<<set $original_colour = [$eyeselect, $eyeselect]>>
+					<</if>>
 					<<set $transformationParts.cat.heterochromia to "default">>
 					<<catHeterochromiaTF 0>>
 				<<elseif $catbuild lt 50>>
