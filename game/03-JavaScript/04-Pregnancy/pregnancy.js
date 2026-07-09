@@ -200,16 +200,23 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	const rng = random(0, spermArray.length - 1 > basePenalty ? spermArray.length - 1 : basePenalty);
 
 	/* When spermArray[rng] is undefined, the player failed to get pregnant */
+	let result = false;
 	if (spermArray[rng]) {
 		const fatherKnown = Object.keys(trackedNPCs).length === 1;
 
 		// Reduce the chance for standard impregnation of Great Hawk children
-		if (["hawk", "harpy"].includes(spermArray[rng].type) && !random(0, 3)) return false;
-
-		// Player becomes pregnant
-		return playerPregnancy(spermArray[rng].source, spermArray[rng].type, fatherKnown, genital, trackedNPCs);
+		if (!(["hawk", "harpy"].includes(spermArray[rng].type) && !random(0, 3))) {
+			// Player becomes pregnant
+			result = playerPregnancy(spermArray[rng].source, spermArray[rng].type, fatherKnown, genital, trackedNPCs);
+		}
 	}
-	return false;
+
+	// X-Change Omega: a vagina-bearing player can also conceive anally within the same fertile window.
+	// Only roll the anus when the vaginal roll didn't take, so a single pregnancy results; pregPrep's cross-hole guard blocks it outright if a pregnancy already exists elsewhere.
+	if (!result && genital === "vagina" && typeof canBeMPregnant === "function" && canBeMPregnant()) {
+		return playerPregnancyAttempt(baseMulti, "anus");
+	}
+	return result;
 }
 DefineMacro("playerPregnancyAttempt", playerPregnancyAttempt);
 window.playerPregnancyAttemptTest = (baseMulti, genital) => {

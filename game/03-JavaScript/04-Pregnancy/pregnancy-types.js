@@ -154,6 +154,17 @@ function pregPrep({ motherObject, fatherObject, parasiteType = null, genital = n
 
 		pregnancy = V.sexStats[genital].pregnancy;
 
+		// Only one real (non-parasite) pregnancy at a time across both holes: a vaginal pregnancy blocks an anal (Omega) one and vice versa.
+		// Both holes can still conceive freely while the player is not yet pregnant.
+		// Parasites are unaffected and may still coexist alongside a pregnancy in the other hole.
+		if (!parasiteType) {
+			const otherGenital = genital === "vagina" ? "anus" : "vagina";
+			const otherPregnancy = V.sexStats[otherGenital] && V.sexStats[otherGenital].pregnancy;
+			if (otherPregnancy && otherPregnancy.type !== null && otherPregnancy.type !== "parasite" && otherPregnancy.fetus.length) {
+				return ["Player already carrying a pregnancy in the other hole"];
+			}
+		}
+
 		// Prevent any pregnancy if a Non-parasitic pregnancy already exists unless a specific override is provided
 		if (override === "hawk" && pregnancy.type === "hawk") {
 			if (pregnancy.fetus.length && pregnancy.fetus[0] && pregnancy.fetus[0].eggTimer) return ["Hawk eggs already fertilised"];

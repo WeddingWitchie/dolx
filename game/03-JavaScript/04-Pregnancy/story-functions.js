@@ -268,6 +268,7 @@ function wakingPregnancyEvent() {
 		return "bellySize";
 	} else if (
 		V.settings.fertilityCycleEnabled === true &&
+		V.player.vaginaExist && // A "late period" realisation only makes sense with a vagina; a no-vagina (e.g. Omega butt) pregnancy is realised via the growing belly instead.
 		!menstruation.awareOfPeriodDelay &&
 		V.awareness >= 200 &&
 		!pregnancy.awareOf &&
