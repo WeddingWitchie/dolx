@@ -69,11 +69,15 @@ function makeGrayXChangePill(cfg) {
 			return V.sexStats.pills["pills"][this.name].overdose;
 		},
 		icon: cfg.icon || "img/misc/icon/xchange-gray.png",
+		/* An owned pill always lists in the drawer (matching the coloured pills); it greys out when it can't currently be taken rather than vanishing. The old cfg.display gate hid stack-only pills like Resistance/Continue when no session was active, which made freshly-bought pills look lost. */
 		display_condition() {
-			return this.owned() > 0 && (cfg.display ? cfg.display() : true) ? 1 : 0;
+			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
 			return cfg.canTake() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return cfg.canTake() ? "" : (cfg.blockedReason || "");
 		},
 		effects: cfg.effects,
 	};
@@ -109,6 +113,7 @@ function buildGrayXChangePills() {
 			warning_label:
 				"Warning: Requires a fertile body to take effect. Pregnancy may render any active transformation permanent.",
 			canTake: grayGate.canConceive,
+			blockedReason: "Needs a fertile body that can currently conceive. It stays in your drawer until you have one.",
 			effects: [`<<xchange-gray 7 "breeder" "fertile">>`],
 		},
 		{
@@ -119,6 +124,7 @@ function buildGrayXChangePills() {
 			onTakeMessage: teal("Heat gathers heavily between your legs. Your pulse grows rougher, more demanding, as though some blunt animal certainty has shouldered its way into your thoughts. You feel ready to rut, to spend, to mark something with yourself."),
 			warning_label: "Warning: Requires a penis to take effect.",
 			canTake: grayGate.hasPenis,
+			blockedReason: "Needs a penis to do anything on your current body. It stays in your drawer until then.",
 			effects: [`<<xchange-gray 7 "bull">>`],
 		},
 		{
@@ -140,6 +146,7 @@ function buildGrayXChangePills() {
 			onTakeMessage: teal("Pressure builds in your cock, not as simple arousal but as shape, purpose, and a heavy need to lock in place. Your hips twitch with the sudden certainty that release will not come easily unless you are inside someone."),
 			warning_label: "Warning: Requires a penis to take effect.",
 			canTake: grayGate.hasPenis,
+			blockedReason: "Needs a penis to do anything on your current body. It stays in your drawer until then.",
 			effects: [`<<xchange-gray 7 "alpha">>`],
 		},
 		{
@@ -161,6 +168,7 @@ function buildGrayXChangePills() {
 			warning_label:
 				"Warning: Pregnancy will render any active transformation permanent. Multiple births are common and intended.",
 			canTake: grayGate.canConceive,
+			blockedReason: "Needs a fertile body that can currently conceive. It stays in your drawer until you have one.",
 			effects: [`<<xchange-gray 7 "fertile" "fertility">>`],
 		},
 		{
@@ -171,6 +179,7 @@ function buildGrayXChangePills() {
 			onTakeMessage: teal("The change is subtler than you expected. A gentle warmth settles deep inside you as your body quietly readies itself. You feel your cycle shift."),
 			warning_label: "Warning: Requires a fertile body. Pregnancy may render an active transformation permanent.",
 			canTake: grayGate.canConceive,
+			blockedReason: "Needs a fertile body that can currently conceive. It stays in your drawer until you have one.",
 			effects: [`<<xchange-gray 7 "fertile">>`],
 		},
 		{
@@ -219,8 +228,8 @@ function buildGrayXChangePills() {
 				"A colourless capsule carrying only the Portal agent, tied to the portal panties system.",
 			onTakeMessage: teal("For a moment, the air around you feels thin and badly stitched. The space near your underwear gives a faint, impossible shiver, as if reality has found a shortcut it was not supposed to have.<br><br>A cool tingle lingers against your skin. The Portal agent is active, and the world feels a little less certain than it did a moment ago."),
 			warning_label: "Warning: Requires the portal panties system to be enabled.",
-			display: grayGate.portalEnabled,
 			canTake: grayGate.portalEnabled,
+			blockedReason: "Requires the portal panties system to be enabled in the settings.",
 			effects: [`<<xchange-gray 1 "portal">>`],
 		},
 		{
@@ -243,6 +252,7 @@ function buildGrayXChangePills() {
 			onTakeMessage: teal("A slow, stubborn tension takes root below your belly, coiling tighter with every breath. It feels like a wager written directly into your nerves: hold out, and be rewarded; give in, and pay for it.<br><br>You notice the companion pill still waiting in the packaging. | <span class='blue'>+1 X-Change X-Tend Cancel</span>"),
 			warning_label: "Warning: Orgasming while active forfeits gains. Pays out on the body you return to.",
 			canTake: grayGate.xtendEligible,
+			blockedReason: "Pays out on a body with a penis; you need one now or on the body you return to. It stays in your drawer until then.",
 			effects: [
 				`<<xchange-gray 7 "xtend">>`,
 				`<<set V.sexStats.pills["pills"]["X-Change X-Tend Cancel"].owned++>>`,
@@ -257,8 +267,8 @@ function buildGrayXChangePills() {
 				"A colourless capsule carrying only the Resistance agent: a chance that your current transformation refuses to wear off when it should.",
 			onTakeMessage: teal("Your current transformation gives a strange shudder, then time seems to stretch around it. Every lingering pulse suggests the change could be fed, extended, and made harder to shake loose."),
 			warning_label: "Warning: Has no effect without an active gender transformation. May extend the change against your will.",
-			display: grayGate.gendered,
 			canTake: grayGate.gendered,
+			blockedReason: "Only works while an X-Change gender transformation is active. Take it during a session; it stays in your drawer until then.",
 			effects: [`<<xchange-gray 1 "resistance">>`],
 		},
 		{
@@ -268,8 +278,8 @@ function buildGrayXChangePills() {
 				"A colourless capsule carrying only the Continue agent: prolongs an active gender transformation and, left unchecked, can make it permanent.",
 			onTakeMessage: teal("Your current form warms from the inside out, the active X-Change chemistry brightening instead of fading."),
 			warning_label: "Warning: Has no effect without an active gender transformation. Prolonged use leads to permanence.",
-			display: grayGate.gendered,
 			canTake: grayGate.gendered,
+			blockedReason: "Only works while an X-Change gender transformation is active. Take it during a session; it stays in your drawer until then.",
 			effects: [`<<xchange-gray 3 "continue">>`],
 		},
 
@@ -282,6 +292,7 @@ function buildGrayXChangePills() {
 			onTakeMessage: teal("The familiar X-Change warmth stirs again to deepen what is already there. The active formula settles into your body like a second dose of borrowed time. The countdown feels further away now."),
 			warning_label: "Warning: Has no effect unless an X-Change pill is already active.",
 			canTake: () => playerIsXChanged(),
+			blockedReason: "Only works while an X-Change session is active. It stays in your drawer until then.",
 			effects: [`<<xchange-extend 7>>`],
 		},
 	];
