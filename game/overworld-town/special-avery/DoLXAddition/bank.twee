@@ -496,11 +496,12 @@ The case sits for one exposed on the corner of the sideboard while the three of 
 	<<link [[Back away|Mansion Party HBSC Gala Ignore]]>><</link>>
 	<br>
 <<else>>
-	<<if currentSkillValue('skulduggery') gte 1000>>
+	/* Set skulduggerydifficulty here so the skulduggerydifficulty gauge below reflects THIS steal, not a stale value left over from lockpicking or another skulduggery action. */
+	<<set $skulduggerydifficulty to 1000>>
+	<<if currentSkillValue('skulduggery') gte $skulduggerydifficulty>>
 		<span class="green">You could probably lift it before they look back.</span>
 	<<else>>
-		<span class="red">It would take quick, careful fingers to steal it cleanly.</span> 
-		<br><<skulduggeryrequired>>
+		<span class="red">It would take quick, careful fingers to steal it cleanly.</span>
 	<</if>>
 	<br><br>
 	<<link [[Try to take the anti pill|Mansion Party HBSC Gala Steal]]>><</link>><<skulduggerydifficulty>>
@@ -513,7 +514,9 @@ The case sits for one exposed on the corner of the sideboard while the three of 
 <<effects>>
 You wait for the smallest opening: one stranger turning to hiss at the other, the employee glancing toward the hall.
 <br><br>
-<<if currentSkillValue('skulduggery') gte 1000 and !pcAreArmsBound("both")>>
+/* Use the standard skulduggery check (difficulty 1000) so odds scale smoothly with skill and match the gauge shown on the previous screen. At S rank the gap guaranteeing success; a still-caught path exists for lower skill. */
+<<set $skulduggerydifficulty to 1000>><<skulduggerycheck "silent">>
+<<if $skulduggerysuccess is 1 and !pcAreArmsBound("both")>>
 	Your hand darts out and back again in one smooth motion. The case disappears into your sleeve before anyone turns.
 	<br><br>
 	<<set $avery_party.hbsc.pillTaken to true>>
