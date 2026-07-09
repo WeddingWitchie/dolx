@@ -59,6 +59,9 @@ const Tamagotchi = (() => {
 		boosterPctMin: 5,
 		boosterPctMax: 20,
 		dungeonTiles: 15,
+		/* Dungeon money-tile roll, in pennies: £1..£10, averaging about a fiver. */
+		dungeonMoneyMin: 100,
+		dungeonMoneySpread: 901,
 		/* Robin will pet-sit through a bad end (captivity) at this much love, sparing the pet what would otherwise be a fatal absence. */
 		robinSitLove: 80,
 	});
@@ -1115,7 +1118,7 @@ const Tamagotchi = (() => {
 		const base = { tile: d.tile, tiles: d.tiles };
 		const roll = rand(100);
 		if (roll < 70) {
-			const amount = 100 + rand(49901); /* £1..£500 in pennies (100..50000) */
+			const amount = Tuning.dungeonMoneyMin + rand(Tuning.dungeonMoneySpread);
 			d.money += amount;
 			return Object.assign(base, { type: "money", amount });
 		}
@@ -1129,7 +1132,7 @@ const Tamagotchi = (() => {
 				d.items++;
 				return Object.assign(base, { type: "item", key, name: setup.foodstuff[key].name || key });
 			}
-			const amount = 100 + rand(49901);
+			const amount = Tuning.dungeonMoneyMin + rand(Tuning.dungeonMoneySpread);
 			d.money += amount;
 			return Object.assign(base, { type: "money", amount });
 		}
