@@ -760,7 +760,8 @@ function importSettingsData(data) {
 						V.NPCName[i][listKey[j]] = overrides.npc[V.NPCNameList[i]][listKey[j]];
 					}
 					// Prevent the changing of gender with pregnant npc's
-					if (V.NPCName[i].pregnancy.type) {
+					// pregnancy can be undefined for NPCs registered mid-session before npcPregnancyUpdater runs (e.g. the Silver Stranger)
+					if (V.NPCName[i].pregnancy?.type) {
 						V.NPCName[i].gender = "f";
 					}
 				}
@@ -940,6 +941,8 @@ function exportSettings(data, type) {
 	listObject = settingsObjects("npc");
 	listKey = Object.keys(listObject);
 	for (let i = 0; i < V.NPCNameList.length; i++) {
+		// The Silver Stranger (Luchifen) is a hidden mystery NPC; never expose their name in exported settings.
+		if (V.NPCNameList[i] === "Luchifen") continue;
 		output.npc[V.NPCNameList[i]] = {};
 		for (let j = 0; j < listKey.length; j++) {
 			// Overwrite to allow for "none" default value in the start passage to allow for rng to decide
