@@ -1800,8 +1800,13 @@ function dailyNPCEffects() {
 			if (V.avery_mansion.jobs.includes("dining") && V.avery_mansion.dining < 4) {
 				V.avery_mansion.dining++;
 			}
-			if (V.avery_mansion.jobs.includes("garden") && V.avery_mansion.garden < 4) {
-				V.avery_mansion.garden++;
+			if (V.avery_mansion.jobs.includes("garden")) {
+				if (V.avery_fate === "saved") {
+					// Saved route: Avery enjoys tending the garden himself, so it never falls into disorder
+					if (V.avery_mansion.garden > 0) V.avery_mansion.garden--;
+				} else if (V.avery_mansion.garden < 4) {
+					V.avery_mansion.garden++;
+				}
 			}
 
 			if (V.avery_mansion.bedroom_state === "locked") {

@@ -607,6 +607,10 @@
 			<span class="blue">The topiary could use a trim.</span>
 		<<else>>
 			<span class="green">The plants are prim and proper.</span>
+			<<if $avery_fate is "saved" and _args[0] is "garden">>
+				<span class="gold">Fresh snips in the topiary and a set of kneeling-prints in the soil give it away,
+				Avery has been out here tending the garden again, and seems to genuinely enjoy the work.</span>
+			<</if>>
 			<<if !_avery_housework_count and $avery_mansion.bedroom is 0>>
 				<<if $avery_mansion.pool gte 1>>
 					<span class="blue">The rest of the mansion is spick and span, except for the pool.</span>
@@ -891,6 +895,13 @@
 
 <<widget "avery_housework_assess">>
 	<<avery_rage_assess>>
+	/* Saved route: Avery forgives a missed meal outright, so it no longer feeds his anger */
+	<<if $avery_fate is "saved" and $avery_mansion.rage.dinner_missed gte 1>>
+		<<set $avery_mansion.rage.assess -= $avery_mansion.rage.dinner_missed>>
+		<<set $avery_mansion.rage.dinner_missed to 0>>
+		<<set _avery_saved_dinner_forgiven to true>>
+		<<if $avery_mansion.rage.assess lt 0>><<set $avery_mansion.rage.assess to 0>><</if>>
+	<</if>>
 	<<if $avery_mansion.kneel is "prostrate">>
 		You fall to your knees before <<him>>, and press your forehead against the ground. <<He>> strides up to you, and rests <<his>> foot on your back.
 	<<elseif $avery_mansion.kneel is "kneel">>
@@ -907,18 +918,27 @@
 		You watch as <<he>> strides up to you.
 	<</if>>
 
+	/* Saved route: Avery has learned to hold himself back, so the same failings raise his rage far less */
+	<<set _rageGain to $avery_fate is "saved" ? Math.ceil($avery_mansion.rage.assess / 2) : $avery_mansion.rage.assess>>
 	<<if !$avery_mansion.rage.apologetic>>
 		<<if $avery_mansion.rage.assess gte 18>>
-			<span class="red">There's malice in <<his>> eyes.</span><<gggarage>><<npcincr Avery rage $avery_mansion.rage.assess>>
+			<span class="red">There's malice in <<his>> eyes.</span><<gggarage>><<npcincr Avery rage _rageGain>>
 		<<elseif $avery_mansion.rage.assess gte 9>>
-			<span class="pink">There's anger in <<his>> eyes.</span><<ggarage>><<npcincr Avery rage $avery_mansion.rage.assess>>
+			<span class="pink">There's anger in <<his>> eyes.</span><<ggarage>><<npcincr Avery rage _rageGain>>
 		<<elseif $avery_mansion.rage.assess gte 1>>
-			<span class="purple"><<He>> looks frustrated.</span><<garage>><<npcincr Avery rage $avery_mansion.rage.assess>>
+			<span class="purple"><<He>> looks frustrated.</span><<garage>><<npcincr Avery rage _rageGain>>
 		<<else>>
 			<<He>> looks tired, <span class="green">but calm.</span><<larage>><<npcincr Avery rage -1>>
 		<</if>>
 	<</if>>
 	<br><br>
+
+	<<if _avery_saved_dinner_forgiven>>
+		<<He>> glances toward the kitchen, notices there's nothing waiting for <<him>>, and only shrugs.
+		"Don't fret over the food. I can always pick something up in town." Then <<his>> eyes drift over the rooms, and <<his>> tone firms.
+		"The house, though, I'd rather that stayed in order. I quite enjoy keeping things just so. <span class="gold">You should see me tend the garden.</span>"
+		<br><br>
+	<</if>>
 
 	<<if !playerIsXChanged() and C.npc.Avery.gender is $player.sex>>
 
@@ -950,6 +970,9 @@
 		<br>
 	<<elseif $averyragerevealed gte 1 and C.npc.Avery.rage gte 20 and $avery_mansion.rage.assess gte 1 and $avery_mansion.rage.timer lte 0>>
 		<<if $avery_mansion.rage.assess gte random(1, 12)>>
+			<<if $avery_fate is "saved" and random(1, 100) lte 38 and random(1, 100) lte 62>>
+				<<avery_saved_swallow>>
+			<<else>>
 
 			<<if _args[0] is "work">>
 				"I work so fucking hard for you," <<he>> says. "And this is how you repay me." <span class="red"><<He>> grasps your arm.</span>
@@ -971,6 +994,7 @@
 			<br>
 			<<link [[Run|Mansion Chase Run]]>><</link>>
 			<br>
+			<</if>>
 		<<else>>
 			<<His>> smile is forced.
 			<br><br>
@@ -987,6 +1011,9 @@
 		<</if>>
 	<<else>>
 		<<if !$averyragerevealed and C.npc.Avery.rage gte random(20, 100) and $avery_mansion.rage.assess gte 1>>
+			<<if $avery_fate is "saved" and random(1, 100) lte 45 and random(1, 100) lte 70>>
+				<<avery_saved_swallow>>
+			<<else>>
 			<<set $averyragerevealed to 1>>
 			<<if _args[0] is "work">>
 				"So that's how it is?" <<he>> asks, <<his>> voice shaking with fury. "I work my arse off all day, only to come home to this." <span class="red"><<He>> grasps your arm.</span>
@@ -1007,6 +1034,7 @@
 			<br>
 			<<link [[Run|Mansion Chase Run]]>><</link>>
 			<br>
+			<</if>>
 		<<else>>
 			"Long day," <<he>> says, managing a weak smile.
 
