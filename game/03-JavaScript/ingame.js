@@ -3254,6 +3254,9 @@ function tendingDay() {
 			case "garden":
 				if (V.farm?.greenhouse) irrigation = plots.length;
 				break;
+			case "avery_mansion":
+				if (V.avery_mansion?.greenhouse) irrigation = plots.length;
+				break;
 		}
 
 		plots.forEach(plot => {
