@@ -85,14 +85,21 @@ The default tier thresholds. Highest qualifying tier wins; below the lowest thre
 
 These are stages, not a stacking per-cycle rate. A 3,000 item costs 3,300 / 4,050 / 5,250 / 7,500 / 48,000 across the current-preset tiers. Everything downstream reads the setting-backed tier values through `setup.inflation.multiplier()`.
 
+**Relentless Bailey** (`$settings.inflationBaileyRelentless`, a plain on/off toggle, **off by default**) is the way to make Bailey bite before any wealth tier is reached. When on:
+- `baileyAggressive()` is forced true — he never accepts a refusal, and street hunts are live, from the start.
+- `rentInflationActive()` is forced true — his weekly rent step climbs from £0 wealth up, so rent never sits stuck at the vanilla £2,000 / £4,000-with-Robin.
+- `rentCap()` returns `Infinity` — there is **no ceiling**, so rent keeps rising one step every paid week forever. The whole **Bailey Rent Limits** settings box is ignored and is greyed-out/disabled in the UI while this is on.
+
+Presets never touch this toggle; it is purely a manual switch. When it's on but the player isn't genuinely rich, `baileyAggressionReason()` returns `"relentless"` (a plain bully-squeeze) instead of `"inflation"` (which would falsely claim they're hoarding).
+
 ### Economy Rebalance Settings
 
 The player-facing controls live under **Settings -> Rebalance Settings**, in the **Economy Inflation** box above the older Rebalancing Settings toggles:
 
 - **Economy Rebalance Preset** applies one of five presets: `Light`, `Mid`, `Current`, `Hard`, or `Harsher`. `Light` keeps prices lower, makes extra rent start as late as possible, and sets refusal/hunt to Parody; `Current` is the default and matches the table above; `Hard` / `Harsher` make wealth bite earlier.
 - **Inflation Percentages** controls the tier increases: `$settings.inflationOnsetPct`, `$settings.inflationBadPct`, `$settings.inflationCrisisPct`, `$settings.inflationExtremePct`, and `$settings.inflationParodyPct`.
-- **Bailey Triggers** controls when extra rent pressure starts (`$settings.inflationBaileyRentPct`) and which economy stage makes Bailey stop accepting refusal / start hunting (`$settings.inflationBaileyCrisisTier`, default `"crisis"`).
-- **Bailey Rent Limits** controls the rent-pressure caps: `$settings.inflationBaileyCapLow`, `$settings.inflationBaileyCapHigh`, `$settings.inflationBaileyDemandJump`, and `$settings.inflationBaileyDemandInvestment`.
+- **Bailey Triggers** leads with the **Relentless Bailey** toggle (`$settings.inflationBaileyRelentless`, off by default — the manual "bite from the start" switch). Below it are *Extra rent starts* (`$settings.inflationBaileyRentPct`) and *Refusal/hunt starts* (`$settings.inflationBaileyCrisisTier`, default `"crisis"`) — both are threshold settings that Relentless Bailey overrides, so both are greyed-out/disabled while it is on.
+- **Bailey Rent Limits** controls the rent-pressure caps: `$settings.inflationBaileyCapLow`, `$settings.inflationBaileyCapHigh`, `$settings.inflationBaileyDemandJump`, and `$settings.inflationBaileyDemandInvestment`. This entire box is greyed-out/disabled while **Relentless Bailey** is on (that mode is uncapped).
 - **Bailey Weekly Pressure** controls the weekly rent step (`$settings.inflationBaileyStep`, default £500) and overdue bank-loan collection (`$settings.inflationLoanRentSurcharge`, default £1,500).
 
 Inflation is always on. `$settings.inflationEnabled` is forced true and only kept as reserved scaffolding for a future toggle. `setup.inflation.ensureSettings()` initializes and clamps these values for old saves. `setup.inflation.applyPreset(name)` writes a full preset into `$settings`.
@@ -112,12 +119,14 @@ Bailey's actual weekly rent demand, tiered by **Bailey-visible wealth** (`bailey
 | Bailey-visible wealth | Demand |
 | --- | --- |
 | < rent threshold | normal vanilla rent, with the rent setting and Robin double-rent applied |
-| < £1,000,000 | rent pressure capped at `RENT_CAP_LOW` (**£15,000**) |
+| < £1M | rent pressure capped at `RENT_CAP_LOW` (**£15,000**) |
 | £1M – £10M | rent pressure capped at `RENT_CAP_HIGH` (**£35,000**) |
 | £10M – £100M | rent pressure capped at **£75,000** |
 | >= £100M | rent pressure capped at **£250,000** |
 
-Rent does not multiply or jump directly from wealth. Once Bailey-visible wealth reaches `$settings.inflationBaileyRentPct` (default +35%, the Bad economy tier), successful rent payment advances `$baileyRentInflationSteps` by one. Each step adds `$settings.inflationBaileyStep` (default £500, scaled by Bailey's Rent setting and Robin's double-rent state) to the next week's rent, capped by the current wealth tier. If Bailey-visible wealth drops below the trigger, the counter is cleared and rent immediately returns to the normal capped vanilla amount: £2,000 at 100% rent, or £4,000 when Robin's rent is included.
+If **Relentless Bailey** is on, `rentCap()` returns `Infinity` and the table above does not apply — rent climbs one step every paid week with no ceiling.
+
+Rent does not multiply or jump directly from wealth. Once Bailey-visible wealth reaches `$settings.inflationBaileyRentPct` (default +35%, the Bad economy tier) — **or always, if Relentless Bailey is toggled on** — successful rent payment advances `$baileyRentInflationSteps` by one. Each step adds `$settings.inflationBaileyStep` (default £500, scaled by Bailey's Rent setting and Robin's double-rent state) to the next week's rent, capped by the current wealth tier. If Bailey-visible wealth drops below the trigger, the counter is cleared and rent immediately returns to the normal capped vanilla amount: £2,000 at 100% rent, or £4,000 when Robin's rent is included.
 
 ### `setup.inflation.rentDemandTier()`
 

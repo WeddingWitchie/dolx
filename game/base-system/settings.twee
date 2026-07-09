@@ -99,6 +99,7 @@
 	<<set $settings.realisticChildbirthEnabled to false>>
 	<<set $settings.rentCostModifier to 1>>
 	<<set $settings.inflationEnabled to true>>
+	<<set $settings.inflationBaileyRelentless to false>>
 	<<script>>setup.inflation?.applyPreset?.("current");<</script>>
 	<<set $settings.condomLevel to 3>>
 	<<set $settings.condomChance to 60>>
@@ -410,6 +411,7 @@
 					<<set $settings.realisticChildbirthEnabled to false>>
 					<<set $settings.rentCostModifier to 1>>
 					<<set $settings.inflationEnabled to true>>
+					<<set $settings.inflationBaileyRelentless to false>>
 					<<script>>setup.inflation?.applyPreset?.("current");<</script>>
 					<<set $settings.condomLevel to 3>>
 					<<set $settings.condomChance to 60>>
@@ -4341,8 +4343,10 @@
 
 			<div class="settingsToggleItem">
 				<span class="gold">Bailey Triggers</span>
-				<div class="small-description">Extra rent starts <mouse class="tooltip linkBlue">(?)<span>Bailey starts adding extra rent after paid weeks once visible money reaches this inflation level. Visible money is cash and HBSC savings, minus bank-loan debt. Higher = starts later. Refuse still works.</span></mouse>: <<numberslider "$settings.inflationBaileyRentPct" $settings.inflationBaileyRentPct 3 300 1 { value: v => v + "%" }>></div>
-				<div class="small-description">Refusal/hunt starts <mouse class="tooltip linkBlue">(?)<span>Choose the economy stage when Bailey stops accepting Refuse. Street hunts can also start from that stage. Later stages are easier.</span></mouse>:<br>
+				<div class="red"><label><<checkbox "$settings.inflationBaileyRelentless" false true autocheck>> Relentless Bailey</label> <mouse class="tooltip linkBlue">(?)<span>When on, Bailey never accepts "no" and starts hunting you from the very start, and rent climbs a little every paid week no matter how poor you are, with <b>no cap</b> so it keeps rising forever. This overrides the two settings below and the Bailey Rent Limits caps (all greyed out). Only the weekly rent step controls how fast it climbs. Off by default; presets never change this.</span></mouse></div>
+				<br>
+				<div class="small-description" data-target='["settings.inflationBaileyRelentless"]' data-disabledif="V.settings.inflationBaileyRelentless">Extra rent starts <mouse class="tooltip linkBlue">(?)<span>Bailey starts adding extra rent after paid weeks once visible money reaches this inflation level. Visible money is cash and HBSC savings, minus bank-loan debt. Higher = starts later. Refuse still works.</span></mouse>: <<numberslider "$settings.inflationBaileyRentPct" $settings.inflationBaileyRentPct 3 300 1 { value: v => v + "%" }>></div>
+				<div class="small-description" data-target='["settings.inflationBaileyRelentless"]' data-disabledif="V.settings.inflationBaileyRelentless">Refusal/hunt starts <mouse class="tooltip linkBlue">(?)<span>Choose the economy stage when Bailey stops accepting Refuse. Street hunts can also start from that stage. Later stages are easier.</span></mouse>:<br>
 					<label>Onset <<radiobutton "$settings.inflationBaileyCrisisTier" "onset" autocheck>></label> |
 					<label>Bad economy <<radiobutton "$settings.inflationBaileyCrisisTier" "bad" autocheck>></label> |
 					<label>Crisis <<radiobutton "$settings.inflationBaileyCrisisTier" "crisis" autocheck>></label> |
@@ -4351,8 +4355,8 @@
 				</div>
 			</div>
 
-			<div class="settingsToggleItem">
-				<span class="gold">Bailey Rent Limits</span>
+			<div class="settingsToggleItem" data-target='["settings.inflationBaileyRelentless"]' data-disabledif="V.settings.inflationBaileyRelentless">
+				<span class="gold">Bailey Rent Limits</span> <mouse class="tooltip linkBlue">(?)<span>These caps bound how high Bailey's weekly rent can climb.</span></mouse>
 				<div class="small-description">Low-wealth cap <mouse class="tooltip linkBlue">(?)<span>Maximum total rent demand while Bailey-visible wealth is below £1,000,000 and extra rent pressure is active.</span></mouse>: <<numberslider "$settings.inflationBaileyCapLow" $settings.inflationBaileyCapLow 500000 5000000 50000 { value: v => formatMoney(v) }>></div>
 				<div class="small-description">High-wealth cap <mouse class="tooltip linkBlue">(?)<span>Maximum total rent demand while Bailey-visible wealth is between £1,000,000 and £10,000,000.</span></mouse>: <<numberslider "$settings.inflationBaileyCapHigh" $settings.inflationBaileyCapHigh 1000000 10000000 50000 { value: v => formatMoney(v) }>></div>
 				<div class="small-description">Jump-tier cap <mouse class="tooltip linkBlue">(?)<span>Maximum total rent demand while Bailey-visible wealth is between £10,000,000 and £100,000,000. This is the special "I want more" demand tier.</span></mouse>: <<numberslider "$settings.inflationBaileyDemandJump" $settings.inflationBaileyDemandJump 2500000 25000000 50000 { value: v => formatMoney(v) }>></div>
@@ -4530,6 +4534,8 @@
 			</div>
 		</div>
 	</div>
+	/* Re-apply data-disabledif greying (e.g. Bailey Rent Limits while Relentless Bailey is on) after any in-place re-render of this widget, such as the preset buttons. */
+	<<run settingsDisableElement()>>
 <</widget>>
 
 <<widget "npcDoLPSettings">>

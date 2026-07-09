@@ -1444,6 +1444,7 @@ function settingsObjects(type) {
 					wolfPregnancyWeeks: { min: 2, max: 12, decimals: 0, displayName: "Wolf pregnancy length:" },
 					realisticChildbirthEnabled: { bool: true, displayName: "Realistic childbirth:" },
 					inflationEnabled: { bool: true, displayName: "Economy inflation:" },
+					inflationBaileyRelentless: { bool: true, displayName: "Relentless Bailey:" },
 					inflationOnsetPct: { min: 3, max: 30, decimals: 0, displayName: "Inflation onset (%):" },
 					inflationBadPct: { min: 10, max: 100, decimals: 0, displayName: "Inflation bad economy (%):" },
 					inflationCrisisPct: { min: 25, max: 200, decimals: 0, displayName: "Inflation crisis (%):" },

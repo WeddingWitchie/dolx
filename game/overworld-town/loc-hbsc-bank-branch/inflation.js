@@ -163,6 +163,8 @@
 		if (typeof V === "undefined") return;
 		if (!V.settings || typeof V.settings !== "object") V.settings = {};
 		V.settings.inflationEnabled = true;
+		/* Opt-in "relentless Bailey" toggle. Off by default; presets never touch it. */
+		if (typeof V.settings.inflationBaileyRelentless !== "boolean") V.settings.inflationBaileyRelentless = false;
 		for (const key of Object.keys(setup.inflation.SETTING_RANGES)) {
 			if (V.settings[key] === undefined) V.settings[key] = setup.inflation.settingDefault(key);
 			else V.settings[key] = setup.inflation.clampSetting(key, V.settings[key]);
@@ -395,11 +397,12 @@
 	};
 
 	/* Bailey's rent demand, tiered by Bailey-visible wealth (all thresholds in pennies):
-	     < £1,000,000  : rent pressure capped at £15,000
+	     < £1M         : rent pressure capped at £15,000
 	     £1M - £10M    : rent pressure capped at £35,000
 	     £10M - £100M  : rent pressure capped at £75,000 ("don't fool me, I want more")
 	     >= £100M      : rent pressure capped at £250,000 ("my best investment")
-	   Rent pressure rises by one step each paid week while Bailey-visible wealth is high enough, then resets once it falls below that threshold. */
+	   Rent pressure rises by one step each paid week while Bailey-visible wealth is high enough, then resets once it falls below that threshold.
+	   When the Relentless Bailey toggle is on, all of these caps are bypassed (rentCap returns Infinity) so rent climbs forever. */
 	setup.inflation.RENT_WEALTH_LOW = 100000000;     // £1,000,000
 	setup.inflation.RENT_WEALTH_JUMP = 1000000000;   // £10,000,000
 	setup.inflation.RENT_WEALTH_INVESTMENT = 10000000000; // £100,000,000
@@ -432,11 +435,24 @@
 		return setup.inflation.scaleRentSetting(amount) * setup.inflation.rentRobinModifier();
 	};
 
+	/**
+	 * Player opt-in: when the "relentless Bailey" toggle is on, Bailey never accepts a refusal and rent climbs every paid week from the very start, regardless of wealth.
+	 * Off by default.
+	 */
+	setup.inflation.baileyRelentless = function () {
+		return typeof V !== "undefined" && V.settings && V.settings.inflationBaileyRelentless === true;
+	};
+
 	setup.inflation.rentInflationActive = function (wealth) {
+		/* Relentless toggle forces weekly rent pressure on from wealth £0 up, so rent never sits stuck at the vanilla base (£2,000, or £4,000 with Robin). */
+		if (setup.inflation.baileyRelentless()) return true;
 		return setup.inflation.percent(wealth) >= setup.inflation.setting("inflationBaileyRentPct");
 	};
 
 	setup.inflation.rentCap = function (wealth) {
+		/* Relentless Bailey removes the ceiling entirely: rent keeps climbing one step every paid week with no cap, regardless of wealth.
+		The "Bailey Rent Limits" settings are ignored (and disabled in the UI) while this is on. */
+		if (setup.inflation.baileyRelentless()) return Infinity;
 		if (wealth >= setup.inflation.RENT_WEALTH_INVESTMENT) return setup.inflation.scaleRentFull(setup.inflation.setting("inflationBaileyDemandInvestment"));
 		if (wealth >= setup.inflation.RENT_WEALTH_JUMP) return setup.inflation.scaleRentFull(setup.inflation.setting("inflationBaileyDemandJump"));
 		const baseCap = wealth < setup.inflation.RENT_WEALTH_LOW ? setup.inflation.setting("inflationBaileyCapLow") : setup.inflation.setting("inflationBaileyCapHigh");
@@ -554,12 +570,16 @@
 	 * Returns "" (calm), "inflation", "loan", or "both".
 	 */
 	setup.inflation.baileyAggressionReason = function () {
-		/* Judge "crisis" on the wealth Bailey can actually see (liquid), so money hidden in an active fixed term never tips him into aggression until it matures into savings. */
-		const crisis = setup.inflation.isCrisis(setup.inflation.baileyWealth());
+		/* The relentless toggle makes Bailey aggressive from the start; otherwise judge "crisis" on the wealth Bailey can actually see (liquid),
+		so money hidden in an active fixed term never tips him into aggression until it matures into savings.
+		When relentless is on but the player isn't genuinely rich, the reason is "relentless" (a plain bully squeeze) rather than "inflation" (which claims the player is hoarding a fortune). */
+		const relentless = setup.inflation.baileyRelentless();
+		const realCrisis = setup.inflation.isCrisis(setup.inflation.baileyWealth());
 		const loan = setup.inflation.hasLoanDebt();
-		if (crisis && loan) return "both";
+		if ((relentless || realCrisis) && loan) return "both";
 		if (loan) return "loan";
-		if (crisis) return "inflation";
+		if (realCrisis) return "inflation";
+		if (relentless) return "relentless";
 		return "";
 	};
 
