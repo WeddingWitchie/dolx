@@ -66,6 +66,17 @@ function restoreBlackmailQuest(quest) {
 
 	if (typeof quest.includesItems !== "boolean") restored.includesItems = template.includesItems;
 
+	// Saves from before pillLanded existed armed the pill-test fail off tookPill alone,
+	// so a no-op quest spike (unspikeable player) plus a pre-existing known pill auto-failed the quest.
+	// Backfill the flag and, while the quest is still running, clear such phantom fails.
+	if ("pillLanded" in template && !("pillLanded" in quest)) {
+		restored.pillLanded = !!(restored.tookPill && V.xchange?.pill?.active && !V.xchange?.pill?.effectsKnown);
+		const pillFail = restored.pillLanded && V.xchange?.pill?.active && V.xchange?.pill?.effectsKnown;
+		if (restored.failed && !V.xchange?.blackmail?.conclusionPending && !restored.failCondition() && !pillFail) {
+			restored.failed = false;
+		}
+	}
+
 	return restored;
 }
 window.restoreBlackmailQuest = restoreBlackmailQuest;

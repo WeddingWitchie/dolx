@@ -589,11 +589,11 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck: function() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
-			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -602,14 +602,18 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 		failMessage: function() { },
 		includesItems: true,
 		tookPill: false,
+		pillLanded: false,
 		soldFlowers: false,
 		profit: 0,
-		receiveItems: function() { 
+		receiveItems: function() {
+			// The spike no-ops when the player can't be spiked (noncon spiking disabled, therapy, pregnancy); only a landed spike can be "tested", so only that may fail.
+			const landed = playerMayBeSpiked();
 			blackmailGiveDaisies(200);
 			wikifier("xchange-random-spike", "suppress");
 			this.tookPill = true;
+			this.pillLanded = landed;
 		},
-		onDayCleared: function() { 
+		onDayCleared: function() {
 			if (this.profit >= 25000) wikifier("famebusiness", 50);
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 2;
@@ -639,11 +643,11 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck: function() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
-			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -652,13 +656,17 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 		failMessage: function() { },
 		includesItems: true,
 		tookPill: false,
+		pillLanded: false,
 		soldFlowers: false,
 		masturbatedOnce: false,
 		profit: 0,
-		receiveItems: function() { 
+		receiveItems: function() {
+			// See quest 13: a no-op spike (unspikeable player) must not arm the pill-test fail.
+			const landed = playerMayBeSpiked();
 			blackmailGiveDaisies(200);
 			wikifier("xchange-random-spike", "suppress");
 			this.tookPill = true;
+			this.pillLanded = landed;
 		},
 		onDayCleared: function() { 
 			if (this.profit >= 25000) wikifier("famebusiness", 50);
@@ -722,11 +730,11 @@ blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck: function() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
-			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -735,9 +743,15 @@ blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully
 		failMessage: function() { },
 		includesItems: true,
 		tookPill: false,
+		pillLanded: false,
 		receiveItems: function() {
+			// This quest has no !playerIsXChanged prerequisite, so the player may already be on a knowingly-taken pill (effectsKnown true).
+			// If the spike can't land it no-ops, and the old tookPill-based fail check then instantly failed the quest off that pre-existing pill.
+			// Only a landed spike arms the pill-test fail.
+			const landed = playerMayBeSpiked();
 			wikifier("xchange-random-spike", "suppress");
 			this.tookPill = true;
+			this.pillLanded = landed;
 		},
 		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
 		onDayFailed: function() { },
