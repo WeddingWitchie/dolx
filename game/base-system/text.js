@@ -103,6 +103,12 @@ statDisplay.create("gpain", () => statDisplay.statChange("Pain", 1, "red"));
 statDisplay.create("ggpain", () => statDisplay.statChange("Pain", 2, "red"));
 statDisplay.create("gggpain", () => statDisplay.statChange("Pain", 3, "red"));
 
+statDisplay.create("gmasochism", () => statDisplay.statChange("Masochism", 1, "lewd"));
+statDisplay.create("ggmasochism", () => statDisplay.statChange("Masochism", 2, "lewd"));
+statDisplay.create("gggmasochism", () => statDisplay.statChange("Masochism", 3, "lewd"));
+statDisplay.create("ggggmasochism", () => statDisplay.statChange("Masochism", 4, "lewd"));
+statDisplay.create("gggggmasochism", () => statDisplay.statChange("Masochism", 5, "lewd"));
+
 statDisplay.create("lpurity", () => statDisplay.statChange("Purity", -1, Transformations.effectiveLevel("demon") >= 6 ? "green demon-tf-purity" : "red"));
 statDisplay.create("llpurity", () => statDisplay.statChange("Purity", -2, Transformations.effectiveLevel("demon") >= 6 ? "green demon-tf-purity" : "red"));
 statDisplay.create("lllpurity", () => statDisplay.statChange("Purity", -3, Transformations.effectiveLevel("demon") >= 6 ? "green demon-tf-purity" : "red"));
