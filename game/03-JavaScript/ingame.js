@@ -1364,15 +1364,23 @@ function clothesIndex(slot, itemToIndex) {
 }
 window.clothesIndex = clothesIndex;
 
-function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf = 0) {
-	if (V.fatigueSkillPenaltyToggle !== 1 || disableModifiers !== 0 || disableStatNerf !== 0) return result;
+/* Current fatigue skill penalty as a fraction (0 to 1), so displays can mirror the reduction applied in checks. */
+function fatigueSkillPenaltyFraction() {
+	if (V.fatigueSkillPenaltyToggle !== 1) return 0;
 
 	const tirednessMax = Number(typeof C !== "undefined" ? C?.tiredness?.max : 2000) || 2000;
 	const tirednessRatio = Math.clamp((Number(V.tiredness) || 0) / tirednessMax, 0, 1);
-	if (tirednessRatio <= 0.5) return result;
+	if (tirednessRatio <= 0.5) return 0;
 
 	const maxPenalty = Math.clamp(Number(V.fatigueSkillPenaltyMax) || 0, 0, 100) / 100;
-	const penalty = ((tirednessRatio - 0.5) / 0.5) * maxPenalty;
+	return ((tirednessRatio - 0.5) / 0.5) * maxPenalty;
+}
+window.fatigueSkillPenaltyFraction = fatigueSkillPenaltyFraction;
+
+function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf = 0) {
+	if (disableModifiers !== 0 || disableStatNerf !== 0) return result;
+	const penalty = fatigueSkillPenaltyFraction();
+	if (penalty <= 0) return result;
 	return Math.round(result * (1 - penalty));
 }
 
