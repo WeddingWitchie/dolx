@@ -1,6 +1,6 @@
 This Is A Compilation Of Goose Mod Submissions ! 
 Please don't reupload without permission !! 
-Last Updated: 7/6/26
+Last Updated: 7/10/26
 
 Thank you to all the creators who contributed 💖💖
 
@@ -206,7 +206,7 @@ Rye: pimp set
 
 Sage: arm sleeves, seaweed set, plants set, gothic witch set
 
-Sam Storiez: balloon / banana / bear / bee / beer / bomb / bone / boombox / bullseye / bunny / butterfly / cactus / car / chilli pepper / cloud / cock / crab / crown / cupcake / dino / dolphin / doughnut / ducky / eggplant / flame / football / foxtail / goldfish / guitar / hamburger / key / lion / music / nut / peach / penguin / piggy / pizza / planet / pony / puppy / rice ball / rocket / shooting star / sparkles / sun / sushi / thunderbolt / turtle / watermelon / wolf graphic earrings
+Sam Storiez: balloon / banana / bear / bee / beer / bomb / bone / boombox / bullseye / bunny / butterfly / cactus / car / chilli pepper / cloud / cock / crab / crown / cupcake / dino / dolphin / doughnut / ducky / eggplant / flame / football / foxtail / goldfish / guitar / hamburger / key / lion / music / nut / peach / penguin / piggy / pizza / planet / pony / puppy / rice ball / rocket / shooting star / sparkles / sun / sushi / thunderbolt / turtle / watermelon / wolf graphic earrings, water dragon chimeras, heart hairpin, small heart hairpin, small bunny hairpin, tulip hairpin, small tulip hairpin
 
 Sansongjang: spirit mask, fox tf
 
