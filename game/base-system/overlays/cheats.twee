@@ -137,21 +137,7 @@
 		<div class="settingsToggleItemWide">
 			<span class="gold">Miscellaneous</span>
 			<br>
-			<<if Browser.isMobile.any()>>
-				<<link "<<<<<">><<set $money -= 10000000>><<set $moneyStats.cheats.earned -= 10000000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>> |
-				<<link "<<<<">><<set $money -= 1000000>><<set $moneyStats.cheats.earned -= 1000000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>> |
-				<<link "<<<">><<set $money -= 100000>><<set $moneyStats.cheats.earned -= 100000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>> |
-				<<link "<<">><<set $money -= 10000>><<set $moneyStats.cheats.earned -= 10000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>> |
-				<<link "<">><<set $money -= 1000>><<set $moneyStats.cheats.earned -= 1000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>> |
-				Money: <span id="statsmoney"><<print Math.trunc($money)>></span>
-				| <<link ">">><<set $money += 1000>><<set $moneyStats.cheats.earned += 1000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>>
-				| <<link ">>">><<set $money += 10000>><<set $moneyStats.cheats.earned += 10000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>>
-				| <<link ">>>">><<set $money += 100000>><<set $moneyStats.cheats.earned += 100000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>>
-				| <<link ">>>>">><<set $money += 1000000>><<set $moneyStats.cheats.earned += 1000000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>>
-				| <<link ">>>>>">><<set $money += 10000000>><<set $moneyStats.cheats.earned += 10000000>><<clamp>><<replace "#statsmoney">><<print Math.trunc($money)>><</replace>><</link>>
-				<br>
-			<<else>>
-				<<numberStepper "Money" $money {
+			<<numberStepper "💷 Money" $money {
 					activeButtons: ["single", "double", "triple", "quad", "penta"],
 					step: 1000,
 					max: 100000000000,
@@ -163,25 +149,23 @@
 						V.moneyStats.cheats.earned += difference;
 						V.money = value;
 					}
-				}>>
-			<</if>>
+			}>>
 
 			<<if $location is "prison">>
 				<<set $prison.teeth to $prison.teeth or 0>>
-				<<numberStepper "Teeth" $prison.teeth {callback: (value) => V.prison.teeth = value, disableMinMax: true, step: 1, max: 1000000, colorArr:["--yellow"], percentage: false}>>
+				<<numberStepper "🦷 Teeth" $prison.teeth {callback: (value) => V.prison.teeth = value, disableMinMax: true, step: 1, max: 1000000, colorArr:["--yellow"], percentage: false}>>
 			<</if>>
 
-			Infinite spray: <span id="statsinfinitespray"><<= ($infinitespray ? "On" : "Off")>></span> |
-			<<link "Change">>
-				<<if $infinitespray is 1>>
-					<<set $infinitespray to 0>>
-				<<else>>
-					<<spray 5>>
-					<<set $infinitespray to 1>>
-				<</if>>
-				<<replace "#statsinfinitespray">><<= ($infinitespray ? "On" : "Off")>><</replace>>
-			<</link>>
-			<br>
+			<<numberStepper "Infinite Spray" `$infinitespray ? 1 : 0` {
+				callback: value => {
+					if (value === 1 && !V.infinitespray) Wikifier.wikifyEval("<<spray 5>>");
+					V.infinitespray = value;
+				},
+				min: 0, max: 1, step: 1, percentage: false,
+				valueFormat: value => value ? "On" : "Off"
+			}>>
+			💤 <<link [[Pass Out Now|$passage]]>><<set $stress to $stressmax>><</link>>
+			| <span class="description">Immediately starts the pass-out sequence for your current location.</span>
 
 			<<if $debug is 1>>
 				Pheromones (DEBUG): <span id="statsalluretest"><<= $alluretest ? "On" : "Off">></span> |
@@ -718,7 +702,7 @@
 		<div class="settingsToggleItem">
 			<<set V.cheats to V.cheats or {}>>
 			<<set _hypnosis to ["scream", "cover", "deviancy", "crossdressing"]>>
-			<span class="gold">Hypnosis Traits</span>
+			<span class="gold">Hypnosis Traits</span><br>
 			<<link "Set all to 0">>
 				<<for _i range _hypnosis>>
 					<<set V.hypnosis_traits[_i] to 0>><<clamp>>
@@ -1542,9 +1526,9 @@
 			<<tficon "cow">>Cow: <<link "Set">><<clearAnimalTransformations>><<cowTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<cowTransform 99>><<updatesidebarimg>><</link>><br>
 			<<tficon "bird">>Bird: <<link "Set">><<clearAnimalTransformations>><<harpyTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<harpyTransform 99>><<updatesidebarimg>><</link>><br>
 			<<tficon "fox">>Fox: <<link "Set">><<clearAnimalTransformations>><<foxTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<foxTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "bear">>Bear: <<link "Set">><<clearAnimalTransformations>><<bearTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<bearTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "waterdragon">>Water Dragon: <<link "Set">><<clearAnimalTransformations>><<waterdragonTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<waterdragonTransform 99>><<updatesidebarimg>><</link>><br>
-			<<tficon "bunny">>Bunny: <<link "Set">><<clearAnimalTransformations>><<bunnyTransform>><<updatesidebarimg>><</link>> / <<link "Clear">><<bunnyTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "bear">>Bear: <<link "Set">><<clearAnimalTransformations>><<bearTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<bearTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "waterdragon">>Water Dragon: <<link "Set">><<clearAnimalTransformations>><<waterdragonTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<waterdragonTransform 99>><<updatesidebarimg>><</link>><br>
+			<<tficon "bunny">>Bunny: <<link "Set">><<clearAnimalTransformations>><<bunnyTransform>><<updatesidebarimg>><</link>> | <<link "Clear">><<bunnyTransform 99>><<updatesidebarimg>><</link>><br>
 		</div>
 	<div class="settingsToggleItem">
 		<span class="gold">Transformation Points</span>
@@ -2489,8 +2473,8 @@
 		<div class="settingsToggleItemWide">
 			<span class="gold">Temperature</span>
 			<br>
-			<span class="description">Will increase or decrease the base temperature until the next day - then go back to the proper temperature over time.<br>
-			The base temperature will still be modified by other factors such as time of day - and will not be constant throughout the day.</span>
+			<span class="description">Will increase or decrease the base temperature until the next day, then go back to the proper temperature over time.<br>
+			The base temperature will still be modified by other factors such as time of day and will not be constant throughout the day.</span>
 			<<numberStepper "Outside Temperature" `Weather.toSelected(Weather.temperature)` {
 				callback: value => {
 					Weather.Temperature.set(V.options.fahrenheit ? Weather.Temperature.toCelsius(value) : value);
@@ -2504,59 +2488,71 @@
 		</div>
 	</div>
 
-	<br><br>
-	<<link "Unlock All Seeds">><<run unlockAllSeeds()>><</link>>
-	<br>
-	<<link "Unlock All Recipes">><<learn_recipe_all>><</link>>
-	<br>
-	<<link "Get 100 All Ingredients">>
-		<<for _ingredient range Object.keys(setup.foodstuff)>>
-			<<set $foodstuff[_ingredient].amount += 100>>
-		<</for>>
-	<</link>>
-	<br><br>
-	<span class="gold">Great Hawk Tower</span>
-	<br>
-	<<if $bird and $bird.materials>>
-		<<link "Get 100 Tower Materials">>
-			<<for _birdMat range ["wood", "fabric", "sticks", "leaves", "junk", "lurkers", "leather", "feathers"]>>
-				<<set $bird.materials[_birdMat] += 100>>
-			<</for>>
-		<</link>>
-		<br>
-		<<link "Get 20 Tower Valuables">>
-			<<if $bird.materials.valuables is undefined>><<set $bird.materials.valuables to {}>><</if>>
-			<<for _birdVal range ["bracelet", "wallet", "ring", "watch", "necklace", "antique bullet"]>>
-				<<if $bird.materials.valuables[_birdVal] is undefined>>
-					<<set $bird.materials.valuables[_birdVal] to 0>>
-				<</if>>
-				<<set $bird.materials.valuables[_birdVal] += 20>>
-			<</for>>
-		<</link>>
-		<br>
-		<<link "Quick-Complete Tower (keeps legendary trophy event)">>
-			<<run Object.assign($bird.upgrades, {
-				mirror: 1, tools: 1, tarp: 1, telescope: 1,
-				shelter: 3, nest: 3, firepit: 3, pot: 3,
-				rack: 3, snare: 1, decor: 4, wardrobe: 1
-			})>>
-			<<run Object.assign($bird.hunts, {
-				unlocked: true, lurkers: true, materials: true, valuables: true, estate: "unlocked"
-			})>>
-		<</link>>
-	<<else>>
-		<span class="grey">Progress the Great Hawk's tower story to unlock these cheats.</span>
-	<</if>>
-	<br><br>
-	<<link "<<<">><<set $swimnudecounter -= 100>><<set $swimnudecounter = Math.clamp($swimnudecounter, 0, 100)>><<replace "#statswimnudecounter">><<print Math.trunc($swimnudecounter)>><</replace>><</link>> |
-	<<link "<<">><<set $swimnudecounter -= 10>><<set $swimnudecounter = Math.clamp($swimnudecounter, 0, 100)>><<replace "#statswimnudecounter">><<print Math.trunc($swimnudecounter)>><</replace>><</link>> |
-	<<link "<">><<set $swimnudecounter -= 1>><<set $swimnudecounter = Math.clamp($swimnudecounter, 0, 100)>><<replace "#statswimnudecounter">><<print Math.trunc($swimnudecounter)>><</replace>><</link>> |
-	School Pool Swim Nude Counter: <span id="statswimnudecounter"><<print Math.trunc($swimnudecounter)>></span>
-	| <<link ">">><<set $swimnudecounter += 1>><<set $swimnudecounter = Math.clamp($swimnudecounter, 0, 100)>><<replace "#statswimnudecounter">><<print Math.trunc($swimnudecounter)>><</replace>><</link>>
-	| <<link ">>">><<set $swimnudecounter += 10>><<set $swimnudecounter = Math.clamp($swimnudecounter, 0, 100)>><<replace "#statswimnudecounter">><<print Math.trunc($swimnudecounter)>><</replace>><</link>>
-	| <<link ">>>">><<set $swimnudecounter += 100>><<set $swimnudecounter = Math.clamp($swimnudecounter, 0, 100)>><<replace "#statswimnudecounter">><<print Math.trunc($swimnudecounter)>><</replace>><</link>>
-	<br><br>
-	Note: Greater than 10 will trigger the Pool Leighton Nude Punishment event.
+	<div class="settingsGrid">
+		<div class="settingsHeader options">Farming & Cooking</div>
+		<div class="settingsToggleItem">
+			<span class="gold">🌱 Seeds</span><br>
+			<<link "Unlock All Seeds">><<run unlockAllSeeds()>><</link>>
+		</div>
+		<div class="settingsToggleItem">
+			<span class="gold">📖 Recipes</span><br>
+			<<link "Unlock All Recipes">><<learn_recipe_all>><</link>>
+		</div>
+		<div class="settingsToggleItemWide">
+			<span class="gold">🥕 Ingredients</span><br>
+			<<link "Get 100 of Every Ingredient">>
+				<<for _ingredient range Object.keys(setup.foodstuff)>>
+					<<set $foodstuff[_ingredient].amount += 100>>
+				<</for>>
+			<</link>>
+		</div>
+	</div>
+
+	<div class="settingsGrid">
+		<div class="settingsHeader options">Great Hawk Tower</div>
+		<<if $bird and $bird.materials>>
+			<div class="settingsToggleItem">
+				<span class="gold">🪵 Materials</span><br>
+				<<link "Get 100 Tower Materials">>
+					<<for _birdMat range ["wood", "fabric", "sticks", "leaves", "junk", "lurkers", "leather", "feathers"]>>
+						<<set $bird.materials[_birdMat] += 100>>
+					<</for>>
+				<</link>>
+			</div>
+			<div class="settingsToggleItem">
+				<span class="gold">💎 Valuables</span><br>
+				<<link "Get 20 Tower Valuables">>
+					<<set $bird.materials.valuables ||= {}>>
+					<<for _birdVal range ["bracelet", "wallet", "ring", "watch", "necklace", "antique bullet"]>>
+						<<set $bird.materials.valuables[_birdVal] ||= 0>>
+						<<set $bird.materials.valuables[_birdVal] += 20>>
+					<</for>>
+				<</link>>
+			</div>
+			<div class="settingsToggleItemWide">
+				<span class="gold">🗼 Tower Progress</span><br>
+				<<link "Quick-Complete Tower">>
+					<<run Object.assign($bird.upgrades, {
+						mirror: 1, tools: 1, tarp: 1, telescope: 1,
+						shelter: 3, nest: 3, firepit: 3, pot: 3,
+						rack: 3, snare: 1, decor: 4, wardrobe: 1
+					})>>
+					<<run Object.assign($bird.hunts, {
+						unlocked: true, lurkers: true, materials: true, valuables: true, estate: "unlocked"
+					})>>
+				<</link>>
+				| <span class="description">Keeps the legendary trophy event available.</span>
+			</div>
+		<<else>>
+			<div class="settingsToggleItemWide grey">Progress the Great Hawk's tower story to unlock these cheats.</div>
+		<</if>>
+	</div>
+
+	<div class="settingsGrid">
+		<div class="settingsHeader options">School Pool</div>
+		<<numberStepper "🏊 Nude Swim Counter" $swimnudecounter {callback: value => V.swimnudecounter = value, min: 0, max: 100, step: 1, percentage: false}>>
+		<span class="description">Values above 10 trigger Leighton's nude swimming punishment event.</span>
+	</div>
 
 	<hr>
 	<div class="settingsGrid">
@@ -2756,15 +2752,22 @@
 				You have <span id="cheatSpermSources"><span class="gold"><span class="gold">$sexStats[_womb].sperm.length</span></span> <<pluralise $sexStats[_womb].sperm.length "sperm source">></span> contributing to your chances of getting pregnant.
 			<</if>>
 			<br><br>
-			Menstruation:
-			<br>
-			<<link "<<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
-			<<link "<">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay - 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>> |
-			Day <span id="cheatMenstruationDay"><<= Math.trunc(_menstruation.currentDay)>></span> of _menstruation.currentDaysMax
-			| <<link "Ovulate">><<set _menstruation.currentDay to _menstruation.stages[2]>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
-			| <<link ">">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 1, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
-			| <<link ">>">><<set _menstruation.currentDay to Math.clamp(_menstruation.currentDay + 5, 0, _menstruation.currentDaysMax)>><<replace "#cheatMenstruationDay">><<= Math.trunc(_menstruation.currentDay)>><</replace>><</link>>
-			<br><br>
+			<div class="settingsGrid">
+				<div class="settingsHeader options">Menstruation</div>
+				<<numberStepper "🩸 Cycle Day" _menstruation.currentDay {
+					callback: value => V.sexStats.vagina.menstruation.currentDay = value,
+					min: 0, max: _menstruation.currentDaysMax, step: 1, percentage: false,
+					valueFormat: value => `Day ${Math.trunc(value)} of ${V.sexStats.vagina.menstruation.currentDaysMax}`
+				}>>
+				<div class="settingsToggleItem">
+					<span class="gold">🥚 Ovulation</span><br>
+					<<link "Ovulate Now">>
+						<<set _menstruation.currentDay to _menstruation.stages[2]>>
+						<<replace "#cheatsPregnancyOptions">><<cheatsPregnancyOptions>><</replace>>
+					<</link>>
+				</div>
+			</div>
+			<hr>
 		<</if>>
 		<<if playerIsPregnant()>>
 			You are pregnant.
