@@ -72,8 +72,6 @@
 <<if $loiterReturnPassage is undefined or $loiterReturnPassage is "">>
 	<<set $loiterReturnPassage to passage()>>
 <</if>>
-<<set _dest to $loiterReturnPassage>>
-<<unset $loiterReturnPassage>>
 <<print either(
 	"You linger where you are, watching people pass by and letting the minutes slip away.",
 	"You loiter around, in no particular hurry to be anywhere else.",
@@ -84,16 +82,64 @@
 <br><br>
 How long do you want to loiter for?
 <br>
-<<link "Loiter for a minute (0:01)" _dest>><<pass 1>><</link>>
+<<link "Loiter for a minute (0:01)" "Loiter Result">><<set $loiterDuration to 1>><</link>>
 <br>
-<<link "Loiter for 5 minutes (0:05)" _dest>><<pass 5>><</link>>
+<<link "Loiter for 5 minutes (0:05)" "Loiter Result">><<set $loiterDuration to 5>><</link>>
 <br>
-<<link "Loiter for 10 minutes (0:10)" _dest>><<pass 10>><</link>>
+<<link "Loiter for 10 minutes (0:10)" "Loiter Result">><<set $loiterDuration to 10>><</link>>
 <br>
-<<link "Loiter for 30 minutes (0:30)" _dest>><<pass 30>><</link>>
+<<link "Loiter for 30 minutes (0:30)" "Loiter Result">><<set $loiterDuration to 30>><</link>>
 <br>
-<<link "Loiter for an hour (1:00)" _dest>><<pass 60>><</link>>
+<<link "Loiter for an hour (1:00)" "Loiter Result">><<set $loiterDuration to 60>><</link>>
 <br>
-<<link "Loiter for 2 hours (2:00)" _dest>><<pass 120>><</link>>
+<<link "Loiter for 2 hours (2:00)" "Loiter Result">><<set $loiterDuration to 120>><</link>>
 <br>
-<<link "Loiter for 3 hours (3:00)" _dest>><<pass 180>><</link>>
+<<link "Loiter for 3 hours (3:00)" "Loiter Result">><<set $loiterDuration to 180>><</link>>
+
+:: Loiter Result
+<<effects>>
+<<set _dest to $loiterReturnPassage is undefined or $loiterReturnPassage is "" ? "Danube Street" : $loiterReturnPassage>>
+<<set _duration to Number.isFinite($loiterDuration) ? $loiterDuration : 1>>
+<<unset $loiterReturnPassage, $loiterDuration>>
+<<switch _duration>>
+	<<case 1>><<set _interruptChance to 1>>
+	<<case 5>><<set _interruptChance to 5>>
+	<<case 10>><<set _interruptChance to 10>>
+	<<case 30>><<set _interruptChance to 20>>
+	<<case 60>><<set _interruptChance to 40>>
+	<<case 120>><<set _interruptChance to 60>>
+	<<default>><<set _interruptChance to 80>>
+<</switch>>
+<<set _interrupted to random(1, 100) lte _interruptChance>>
+<<set _elapsed to _interrupted ? Math.max(1, Math.round(_duration * random(30, 60) / 100)) : _duration>>
+<<pass _elapsed>>
+
+<<if !_interrupted>>
+	You loiter undisturbed for the whole time.
+	<br><br>
+	<<link "Next" _dest>><</link>>
+<<else>>
+	<<set _outcome to random(1, 100)>>
+	<<if _outcome lte 20>>
+		<<generate1>><<person1>>
+		Someone who has been watching you finally approaches. Before you can move away, they grab you.
+		<br><br>
+		<<if _dest is "Pub">>
+			<<link [[Next|Pub Approach Sex]]>><<set $phase to 1>><<set $molestationstart to 1>><</link>>
+		<<else>>
+			<<link [[Next|Street Molestation]]>><<set $molestationstart to 1>><</link>>
+		<</if>>
+	<<elseif _outcome lte 45>>
+		A suspicious passer-by stops to question why you have been hanging around. You decide it is time to move on.
+		<br><br>
+		<<link "Next" _dest>><</link>>
+	<<elseif _outcome lte 70>>
+		A stranger starts pestering you for attention, making it impossible to keep loitering in peace.
+		<br><br>
+		<<link "Leave them behind" _dest>><</link>>
+	<<else>>
+		A nearby commotion forces you out of your spot before you can finish loitering.
+		<br><br>
+		<<link "Next" _dest>><</link>>
+	<</if>>
+<</if>>
