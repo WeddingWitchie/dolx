@@ -613,6 +613,8 @@ DoLX adds two traits that control what your character needs to orgasm.
 - **Cock addict:** your character needs to be penetrated to properly orgasm.
 - **Hole addict:** your character needs to penetrate someone or something to properly orgasm.
 
+These traits are mutually exclusive. Unlocking either one permanently locks the other for that character, including if trait acquisition is later switched off and back on.
+
 These traits can make encounters more difficult, especially when pills, aphrodisiacs, high arousal, or low willpower are involved. Toys may still trigger an orgasm in some cases, but they do not fully satisfy the trait. The result may feel forced or unpleasant instead of properly relieving.
 
 > Breeder's creampie-only orgasm rule is separate from Cock addict and Hole addict.

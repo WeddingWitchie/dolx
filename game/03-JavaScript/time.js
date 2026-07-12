@@ -2051,20 +2051,22 @@ function dailyPlayerEffects() {
 		V.orgasm_trait_message = 1;
 		V.orgasmtrait = 1;
 	}
-	if ((V.beingPenetratedOrgasmStat >= 500 || (V.orgasmtrait && V.beingPenetratedOrgasmStat >= 50)) && V.penis_addict_trait === 0 && V.xchange.genitalAddictTraitsEnabled) {
+	if ((V.beingPenetratedOrgasmStat >= 500 || (V.orgasmtrait && V.beingPenetratedOrgasmStat >= 50)) && V.penis_addict_trait === 0 && V.hole_addict_trait !== 1 && V.xchange.genitalAddictTraitsEnabled) {
 		V.effectsmessage = 1;
 		V.penis_addict_trait_message = 1;
 		V.penis_addict_trait = 1;
+		V.hole_addict_trait = -1;
 	}
-	else if (!V.xchange.genitalAddictTraitsEnabled) {
+	else if (!V.xchange.genitalAddictTraitsEnabled && V.penis_addict_trait === 1) {
 		V.penis_addict_trait = 0;
 	}
-	if ((V.penetratingOrgasmStat >= 500 || (V.orgasmtrait && V.penetratingOrgasmStat >= 50)) && V.hole_addict_trait === 0 && V.xchange.genitalAddictTraitsEnabled) {
+	if ((V.penetratingOrgasmStat >= 500 || (V.orgasmtrait && V.penetratingOrgasmStat >= 50)) && V.hole_addict_trait === 0 && V.penis_addict_trait !== 1 && V.xchange.genitalAddictTraitsEnabled) {
 		V.effectsmessage = 1;
 		V.hole_addict_trait_message = 1;
 		V.hole_addict_trait = 1;
+		V.penis_addict_trait = -1;
 	}
-	else if (!V.xchange.genitalAddictTraitsEnabled) {
+	else if (!V.xchange.genitalAddictTraitsEnabled && V.hole_addict_trait === 1) {
 		V.hole_addict_trait = 0;
 	}
 	if (V.ejacstat >= 300 && V.ejactrait === 0) {
