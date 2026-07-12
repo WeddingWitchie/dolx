@@ -1156,7 +1156,7 @@ You start chewing. It tastes warm. You feel your body start to relax. <<pain -8>
 The sound and scent wrap around you together. Suddenly you feel tired... more than you've ever felt before. As the pain begins to ebb at the edges, you sink deeper into the pillows and quilts around you, your thoughts loosening one by one until your consciousness starts to slip away.
 <br><br>
 
-<<set _pregnancy to getPregnancyObject()>>
+<<set [_pregnancy, _pregnancyGenital] to getPlayerPregnancyForBirth(true)>>
 <<if _pregnancy.totalBirthEvents gte 5>>
 	<<set _min to 15>>
 	<<set _max to 60>>
@@ -1198,9 +1198,17 @@ You hear a deep breath. You think it's yours. "Good. Breathe." Gwylan's voice is
 
 <<switch playerNormalPregnancyType()>>
 	<<case "human">>
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop 4]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<if $settings.realisticChildbirthEnabled is true>>
+			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"forest shop","partner":"Gwylan","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
+		<<else>>
+			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop 4]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<</if>>
 	<<case "wolf">>
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<if $settings.realisticChildbirthEnabled is true>>
+			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"forest shop","partner":"Gwylan","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
+		<<else>>
+			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<</if>>
 	<<default>>
 		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop 4]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 <</switch>>

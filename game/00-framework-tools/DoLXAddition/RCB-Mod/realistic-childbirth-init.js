@@ -32,12 +32,14 @@
 	const RCB_BIRTH_VERSION = 1;
 
 	/* Birth locations the encounter knows how to wind down (must match the `<<switch $birth.location>>` in the `Childbirth End` passage). */
-	const RCB_LOCATIONS = ["hospital", "asylum", "wolf cave", "cottage", "prison", "bedroom", "tower"];
+	const RCB_LOCATIONS = ["hospital", "asylum", "wolf cave", "forest shop", "cottage", "prison", "bedroom", "tower"];
 
 	/* Map the player's current game location (`V.location`) onto a birth location, used to deduce where to route the player when `$birth.location` is missing. */
 	const LOCATION_FROM_GAME = {
 		hospital: "hospital",
 		asylum: "asylum",
+		forest_shop: "forest shop",
+		forest_shop_garden: "forest shop",
 		wolf_cave: "wolf cave",
 		farm: "cottage",
 		cottage: "cottage",
