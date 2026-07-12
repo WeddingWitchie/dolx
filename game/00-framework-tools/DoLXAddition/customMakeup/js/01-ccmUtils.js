@@ -1,6 +1,5 @@
 const ccmUtils = {
 	versionUpdate() {
-		// {{{
 		// filters are handled differently now
 		if (!!ccmod.filters) {
 			delete ccmod.filters;
@@ -63,16 +62,9 @@ const ccmUtils = {
 				);
 			}
 		}
-		// }}}
 
 		this.colorCache();
 	},
-
-	/**
-	 ** STRINGS STRINGS STRINGS
-	 **
-	 ** {{{
-	 */
 
 	/**
 	 * @param {string} hexCode
@@ -123,12 +115,30 @@ const ccmUtils = {
 	/**
 	 ** COLORS COLORS COLORS COLORS
 	 ** added 200
-	 **
-	 ** {{{
 	 */
 	colorCache() {
+		this.ensurePickerSlots();
 		this.colorCachePrepare();
 		this.colorCachePush();
+	},
+
+	/**
+	 * The "tmp"/"tmp1" picker slots in setup.colours are normally seeded by colorCache() during the load-time mod update.
+	 * Boot orders that skip that pass (e.g. mod-loader builds) leave them missing and the first picker sync crashes on `.tmp.canvasfilter`, so every UI entry point re-ensures them here.
+	 */
+	ensurePickerSlots() {
+		for (const category of setup.ccmod.categories) {
+			if (!setup.colours[`${category}_map`]) {setup.colours[`${category}_map`] = {};}
+			const map = setup.colours[`${category}_map`];
+			for (const slot of ["tmp", "tmp1"]) {
+				if (!map[slot]?.canvasfilter) {
+					map[slot] = {
+						name: "color picker slot",
+						canvasfilter: this.filterGen(),
+					};
+				}
+			}
+		}
 	},
 
 	colorCachePrepare() {
@@ -194,14 +204,6 @@ const ccmUtils = {
 		let key = this.presetCheckDuplicate(filterString);
 		return key ? key : "custom";
 	},
-	// }}}
-
-	/*
-	 **
-	 ** FILTERS FILTERS FILTERS
-	 **
-	 ** {{{
-	 */
 
 	/**
 	 * @param {string} blend
@@ -234,14 +236,6 @@ const ccmUtils = {
 		let colordata = this.stringDecode(filterString);
 		return this.filterGen(colordata[0], colordata[1]);
 	},
-
-	// }}}
-
-	/**
-	 ** ITEMS ITEMS ITEMS
-	 **
-	 ** {{{
-	 */
 
 	/**
 	 * @param {Canvasfilter} filter
@@ -361,12 +355,6 @@ const ccmUtils = {
 	},
 
 	/**
-	 **
-	 ** PRESET PRESET PRESET
-	 ** {{{
-	 */
-
-	/**
 	 * @param {string} name
 	 * @param {string} filterString
 	 */
@@ -409,12 +397,6 @@ const ccmUtils = {
 	presetPurge() {
 		ccmod.userPresets = {};
 	},
-	// }}}
-
-	/*
-	 ** PRESET IMPORTER FUNCTIONS
-	 ** added 200
-	 * {{{ */
 
 	/**
 	 * @param {string} presetName
@@ -506,7 +488,6 @@ const ccmUtils = {
 		}
 		return log;
 	},
-	// }}}
 };
 
 Object.defineProperty(window, "ccmUtils", { get: () => ccmUtils });

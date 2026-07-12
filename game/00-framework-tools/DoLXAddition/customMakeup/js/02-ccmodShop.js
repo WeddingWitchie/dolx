@@ -6,6 +6,7 @@ const ccmShop = {
 	 ** @param {string} category
 	 */
 	newSession(category) {
+		ccmUtils.ensurePickerSlots();
 		// create a temporary item
 		//
 		let _choice =
@@ -13,7 +14,7 @@ const ccmShop = {
 			setup.colours[`${category}_map`] &&
 			setup.colours[`${category}_map`][V.cosmeticsChoice] &&
 			setup.colours[`${category}_map`][V.cosmeticsChoice].canvasfilter
-				.blend
+				?.blend
 				? setup.colours[`${category}_map`][V.cosmeticsChoice]
 						.canvasfilter.blend
 				: "#FFFFFF";
