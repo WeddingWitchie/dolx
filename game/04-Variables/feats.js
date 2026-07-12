@@ -3870,7 +3870,7 @@ function setupFeatBoosts(force) {
 	});
 	Object.entries(boostData).forEach(([k, f]) => {
 		const maxEarned = !f.required.length ? 1 : f.required.filter(x => earnedFeats.includes(x)).length;
-		const max = !maxEarned ? 0 : f.max ?? (f.maxMultiplier * maxEarned || maxEarned);
+		const max = !maxEarned ? 0 : f.max ?? (Math.floor(f.maxMultiplier * maxEarned) || maxEarned);
 
 		V.featsBoosts.upgrades[k] = 0;
 		V.featsBoosts.upgradeDetails[k] = { cost: f.cost, max, purchased: 0, ...(f.exclusive ? { exclusive: f.exclusive } : {}) };

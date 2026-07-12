@@ -144,4 +144,56 @@ test.describe("Physique boost", () => {
 		// total gain = 1 (purchased) * 1500 (gain per purchase) = 1500
 		expect(result.after - result.before).toBe(1500);
 	});
+
+	test("only offers whole-number upgrades", async ({ page }) => {
+		const now = new Date().toJSON();
+		await openGameWithFeats(page, {
+			Powerful: now,
+			points: 0,
+		});
+		await navigateTo(page, "Start2");
+		await wikifyEval(page, "<<setupFeatBoosts true>>");
+
+		const max = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return V.featsBoosts.upgradeDetails.physique.max;
+		});
+
+		expect(max).toBe(2);
+	});
+});
+
+test.describe("Sex skill boosts", () => {
+	test.afterEach(async ({ page }) => {
+		await assertNoErrors(page);
+	});
+
+	test("only offers whole-number upgrades", async ({ page }) => {
+		const now = new Date().toJSON();
+		const sexSkills = ["oral", "chest", "hands", "buttocks", "penile", "anal", "vaginal", "feet", "thighs"];
+		await openGameWithFeats(page, {
+			"Sex Specialist": now,
+			points: 0,
+		});
+		await navigateTo(page, "Start2");
+		await wikifyEval(page, "<<setupFeatBoosts true>>");
+
+		const firstFeatMaxes = await page.evaluate(skills => {
+			const V = (window as any).SugarCube.State.variables;
+			return skills.map(skill => V.featsBoosts.upgradeDetails[skill].max);
+		}, sexSkills);
+		expect(firstFeatMaxes).toEqual(sexSkills.map(() => 2));
+
+		await page.evaluate(date => {
+			const V = (window as any).SugarCube.State.variables;
+			V.feats.allSaves["God of Lust"] = date;
+		}, now);
+		await wikifyEval(page, "<<setupFeatBoosts true>>");
+
+		const bothFeatsMaxes = await page.evaluate(skills => {
+			const V = (window as any).SugarCube.State.variables;
+			return skills.map(skill => V.featsBoosts.upgradeDetails[skill].max);
+		}, sexSkills);
+		expect(bothFeatsMaxes).toEqual(sexSkills.map(() => 5));
+	});
 });
