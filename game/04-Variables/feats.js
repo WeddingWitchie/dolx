@@ -1238,6 +1238,15 @@ setup.feats = {
 		filter: ["All", "Pregnancy"],
 		pregnancyLockable: true,
 	},
+	"Rear Delivery": {
+		title: "Rear Delivery",
+		desc: "Gave birth to a child through your anus.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Pregnancy"],
+		hint: "Hint: Take the Omega route to parenthood.",
+		pregnancyLockable: true,
+	},
 	"First Fatherhood": {
 		title: "First Fatherhood",
 		desc: "Became a father to your first child.",
