@@ -29,6 +29,7 @@ window.getWarmthInfo = getWarmthInfo;
 
 // for outfits it adds the lower piece's warmth too
 function getTrueWarmth(item) {
+	if (!item) return 0;
 	let warmth = item.warmth || 0;
 
 	if (item.outfitPrimary) {
@@ -37,7 +38,14 @@ function getTrueWarmth(item) {
 		warmth += Object.keys(item.outfitPrimary) // loop through secondary items list
 			.filter(x => item.outfitPrimary[x] !== "broken" && item.outfitPrimary[x] !== "split") // filter out broken pieces
 			.map(x => setup.clothes[x].find(z => z.name === item.outfitPrimary[x] && z.modder === item.modder)) // find items in setup.clothes
-			.reduce((sum, x) => sum + (x.warmth || 0), 0); // calculate sum of their warmth field
+			.reduce((sum, x) => {
+				// a piece can fail to resolve if it was renamed/removed or its modder tag changed
+				if (!x) {
+					console.log("WARNING: getTrueWarmth - could not resolve an outfitPrimary piece of '" + item.name + "' (modder: '" + item.modder + "')");
+					return sum;
+				}
+				return sum + (x.warmth || 0);
+			}, 0); // calculate sum of their warmth field
 	}
 
 	if (item.outfitSecondary) {
@@ -46,7 +54,12 @@ function getTrueWarmth(item) {
 		// outfitSecondary looks like this ['upper', 'item_name', 'head', 'item_name']
 		item.outfitSecondary.forEach((x, i) => {
 			if (i % 2 === 0 && item.outfitSecondary[i + 1] !== "broken" && item.outfitSecondary[i + 1] !== "split") {
-				warmth += setup.clothes[x].find(z => z.name === item.outfitSecondary[i + 1] && z.modder === item.modder).warmth || 0;
+				const piece = setup.clothes[x].find(z => z.name === item.outfitSecondary[i + 1] && z.modder === item.modder);
+				if (piece) {
+					warmth += piece.warmth || 0;
+				} else {
+					console.log("WARNING: getTrueWarmth - could not resolve outfitSecondary piece '" + item.outfitSecondary[i + 1] + "' (" + x + ") of '" + item.name + "' (modder: '" + item.modder + "')");
+				}
 			}
 		});
 	}
