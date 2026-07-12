@@ -359,6 +359,38 @@
 
 :: Widgets Effects Dissociation [widget]
 <<widget "effectsdissociation">>
+	/* Insanity trait: forced full dissociation only paralyses the opening turns of an encounter, tracked by $insanityDissociationTurns.
+	The first call initialises the counter (it fires in the same passage as combat init, before the player has acted), so the countdown only ticks on real turns.
+	High willpower anchors the mind enough to skip the helpless phase outright, and gaining focus (poking yourself, forcing out words) shaves an extra turn off it.
+	Once $insanityDissociationLucid is set, updatePlayerTraumaState() keeps the trait's dissociation at mild severity for the rest of the fight.
+	Trauma genuinely high enough for full dissociation is left to the normal focus-escape mechanic instead. */
+	<<if $combat is 1 and $dissociation gte 2 and !$insanityDissociationLucid and $backgroundTraits.includes("insanity") and $trauma lt ($traumamax / 10) * 9.5>>
+		<<if $insanityDissociationTurns is undefined>>
+			<<if currentSkillValue("willpower") gte ($willpowermax / 10) * 7>>
+				<<set $insanityDissociationLucid to 1>>
+				<<set $dissociation to 1>>
+				<span class="green">Your fractured mind tries to drift away, but your hardened will anchors you in the present.</span>
+				<br><br>
+			<<elseif currentSkillValue("willpower") gte ($willpowermax / 10) * 3.5>>
+				<<set $insanityDissociationTurns to 1>>
+			<<else>>
+				<<set $insanityDissociationTurns to 2>>
+			<</if>>
+		<<else>>
+			<<set $insanityDissociationTurns -= 1>>
+			<<if ($leftaction is "leftpoke" or $rightaction is "rightpoke" or $mouthaction is "speak") and $insanityDissociationTurns gte 1>>
+				<<set $insanityDissociationTurns -= 1>>
+			<</if>>
+			<<if $insanityDissociationTurns lte 0>>
+				<<unset $insanityDissociationTurns>>
+				<<set $insanityDissociationLucid to 1>>
+				<<set $dissociation to 1>>
+				<span class="green">You claw your way back to the present. Your body is your own again.</span>
+				<br><br>
+			<</if>>
+		<</if>>
+	<</if>>
+
 	<<if $leftaction == "leftcurl" && $rightaction == "rightcurl">>
 		<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcurl">><<set $rightactiondefault to "rightcurl">>
 		You hold your arms to the side and curl your fingers.

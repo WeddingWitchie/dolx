@@ -198,7 +198,11 @@ const statChange = (() => {
 		}
 
 		// Insanity trait (permanent or active temporary): dissociation ("nothing feels real") is a hallmark of the fractured mind, so it manifests at full severity while the trait is present.
-		if (V.backgroundTraits?.includes("insanity")) V.dissociation = 2;
+		// In combat the forced severity only paralyses the opening turns: once the player surfaces ($insanityDissociationLucid, managed by <<effectsdissociation>>),
+		// the trait merely guarantees mild dissociation and full paralysis must come from real trauma, so insane players aren't helpless for entire encounters.
+		if (V.backgroundTraits?.includes("insanity")) {
+			V.dissociation = V.combat === 1 && V.insanityDissociationLucid ? Math.max(V.dissociation, 1) : 2;
+		}
 	}
 	DefineMacro("updatePlayerTraumaState", updatePlayerTraumaState);
 
