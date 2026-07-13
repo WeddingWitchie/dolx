@@ -87,6 +87,13 @@ Renderer.CanvasModels.sexdemo = {
 			 * Cumming inside vagina.
 			 */
 			vagina_cumming: false,
+			worn: {
+				under_lower: {
+					index: 0,
+					state: "",
+					colour: "white",
+				},
+			},
 			/**
 			 * User-supplied filters go here; typically this is empty in default options.
 			 */
@@ -219,9 +226,7 @@ Renderer.CanvasModels.sexdemo = {
 						? "img/sex/close/" + options.position + "/vaginapenetratebig.png"
 						: "img/sex/close/" + options.position + "/vaginapenetrate.png";
 				} else {
-					return options.vagina_aroused
-						? "img/sex/close/" + options.position + "/vaginaaroused.png"
-						: "img/sex/close/" + options.position + "/vagina.png";
+					return options.vagina_aroused ? "img/sex/close/" + options.position + "/vaginaaroused.png" : "img/sex/close/" + options.position + "/vagina.png";
 				}
 			},
 			filters: ["close_vagina"],

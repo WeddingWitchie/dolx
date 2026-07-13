@@ -1,5 +1,6 @@
 /* eslint-disable no-new */
 /* eslint-disable jsdoc/require-description-complete-sentence */
+/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked */
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -142,10 +143,12 @@ function perceivedGender() {
 	// Are the genitals actually on display?
 	const lowerOpen = V.worn.lower.exposed >= 2;
 	const underOpen = V.worn.under_lower.exposed >= 2;
-	const hidden = (typeof playerChastity === "function") && playerChastity("hidden");
+	const hidden = typeof playerChastity === "function" && playerChastity("hidden");
 	const genitalsExposed = lowerOpen && underOpen && !hidden;
 
-	if (!genitalsExposed) {return V.player.gender_appearance;}
+	if (!genitalsExposed) {
+		return V.player.gender_appearance;
+	}
 
 	// Genitals visible then reconsider.
 	if (setting === 2) {
@@ -183,9 +186,7 @@ function genderappearancecheck() {
 	/* Determine how visible the player's bottom is */
 	if (
 		(wornSetupClothes("lower").skirt === 1 && V.worn.lower.skirt_down === 1 && V.worn.lower.state === "waist") ||
-		(wornSetupClothes("over_lower").skirt === 1 &&
-			V.worn.over_lower.skirt_down === 1 &&
-			V.worn.over_lower.state === "waist")
+		(wornSetupClothes("over_lower").skirt === 1 && V.worn.over_lower.skirt_down === 1 && V.worn.over_lower.state === "waist")
 	) {
 		T.bottom_visibility = 0;
 	} else {
@@ -236,9 +237,9 @@ function genderappearancecheck() {
 	/* Sexswap fame */
 	if (playerIsXChanged() && V.xchange_fame >= 2) {
 		if (V.player.sex === "m") {
-			addfemininityfromfactor(V.xchange_fame / 2, "Sex flipped")
+			addfemininityfromfactor(V.xchange_fame / 2, "Sex flipped");
 		} else {
-			addfemininityfromfactor(0 - V.xchange_fame / 2, "Sex flipped")
+			addfemininityfromfactor(0 - V.xchange_fame / 2, "Sex flipped");
 		}
 	}
 	/* Special handling for calculating topless gender */
@@ -250,15 +251,9 @@ function genderappearancecheck() {
 	/* Calculate gender appearance with no clothes on */
 	T.apparent_femininity_nude = T.apparent_femininity;
 
-	T.over_lower_femininity = wornSetupClothes("over_lower").femininity
-		? wornSetupClothes("over_lower").femininity
-		: 0;
-	T.lower_femininity = wornSetupClothes("lower").femininity
-		? wornSetupClothes("lower").femininity
-		: 0;
-	T.under_lower_femininity = wornSetupClothes("under_lower").femininity
-		? wornSetupClothes("under_lower").femininity
-		: 0;
+	T.over_lower_femininity = wornSetupClothes("over_lower").femininity ? wornSetupClothes("over_lower").femininity : 0;
+	T.lower_femininity = wornSetupClothes("lower").femininity ? wornSetupClothes("lower").femininity : 0;
+	T.under_lower_femininity = wornSetupClothes("under_lower").femininity ? wornSetupClothes("under_lower").femininity : 0;
 	/* find maximum possible femininity of the last lower piece you can strip down to, and add it to the counter */
 	addfemininityfromfactor(Math.max(T.over_lower_femininity, T.lower_femininity, T.under_lower_femininity), "Lower clothes", "noow");
 	/* bulge and genitals checks for topless gender */
@@ -360,10 +355,7 @@ function genderappearancecheck() {
 	} else if (playerBellySize() >= 18) {
 		addfemininityfromfactor(Math.clamp(10000, 0, Infinity), playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly");
 	} else if (playerBellySize() >= 8) {
-		addfemininityfromfactor(
-			Math.clamp((playerBellySize() - 7) * 250, 0, Infinity),
-			playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly"
-		);
+		addfemininityfromfactor(Math.clamp((playerBellySize() - 7) * 250, 0, Infinity), playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly");
 	}
 	/* Body writing */
 	bodywritingExposureCheck(true);
@@ -646,9 +638,10 @@ function calculateallure() {
 	if (partsDisabled("wolf", ["tail", "ears"]) < 2) attractiveness += 500 - 150 * partsDisabled("wolf", ["tail", "ears"]);
 	if (partsDisabled("cat", ["tail", "ears"]) < 2) attractiveness += 500 - 150 * partsDisabled("cat", ["tail", "ears"]);
 	if (partsDisabled("cow", ["ears", "horns", "tail"]) < 3) attractiveness += 500 - 100 * partsDisabled("cow", ["ears", "horns", "tail"]);
-	if (partsDisabled("bird", ["tail", "eyes", "wings", "malar", "plumage"]) < 5) attractiveness += 500 - 60 * partsDisabled("bird", ["tail", "eyes", "wings", "malar", "plumage"]);
+	if (partsDisabled("bird", ["tail", "eyes", "wings", "malar", "plumage"]) < 5)
+		attractiveness += 500 - 60 * partsDisabled("bird", ["tail", "eyes", "wings", "malar", "plumage"]);
 	if (partsDisabled("fox", ["ears", "tail"]) < 2) attractiveness += 750 - 225 * partsDisabled("fox", ["ears", "tail"]);
-	if (partsDisabled("bunny", ["ears","tail"]) < 2) attractiveness += 500 - 225 * partsDisabled("bunny", ["ears","tail"]);
+	if (partsDisabled("bunny", ["ears", "tail"]) < 2) attractiveness += 500 - 225 * partsDisabled("bunny", ["ears", "tail"]);
 	if (partsDisabled("okami", ["ears", "tail", "wings"]) < 3) attractiveness += 1000 - 225 * partsDisabled("okami", ["ears", "tail", "wings"]);
 	if (partsDisabled("seraphim", ["wings", "plumage"]) < 2) attractiveness += 1000 - 400 * partsDisabled("seraphim", ["wings", "plumage"]);
 	if (partsDisabled("kitsune", ["ears", "tail", "cheeks"]) < 3) attractiveness += 1000 - 225 * partsDisabled("kitsune", ["ears", "tail", "cheeks"]);
@@ -692,26 +685,26 @@ function calculateallure() {
 	/* ear slime */
 	if (V.earSlime.growth > 50) allure += (V.earSlime.growth - 50) * 10;
 	/* fame mods */
-	let reputation_mod = 1;
+	let reputationMod = 1;
 	if (!["island"].includes(V.location)) {
-		reputation_mod = 0;
-		reputation_mod = Math.max(reputation_mod, V.fame.sex * 1.5 / 1000);
-		reputation_mod = Math.max(reputation_mod, V.fame.prostitution * 3 / 1000);
-		reputation_mod = Math.max(reputation_mod, V.fame.rape * 2 / 1000);
-		reputation_mod = Math.max(reputation_mod, V.fame.bestiality * 2 / 1000);
-		reputation_mod = Math.max(reputation_mod, V.fame.exhibitionism / 1000);
-		reputation_mod = Math.max(reputation_mod, V.fame.pregnancy / 1000);
-		reputation_mod = Math.max(reputation_mod, V.fame.impreg / 1000);
+		reputationMod = 0;
+		reputationMod = Math.max(reputationMod, (V.fame.sex * 1.5) / 1000);
+		reputationMod = Math.max(reputationMod, (V.fame.prostitution * 3) / 1000);
+		reputationMod = Math.max(reputationMod, (V.fame.rape * 2) / 1000);
+		reputationMod = Math.max(reputationMod, (V.fame.bestiality * 2) / 1000);
+		reputationMod = Math.max(reputationMod, V.fame.exhibitionism / 1000);
+		reputationMod = Math.max(reputationMod, V.fame.pregnancy / 1000);
+		reputationMod = Math.max(reputationMod, V.fame.impreg / 1000);
 
-		let mitigator_mod = 1;
-		mitigator_mod *= 1 - (V.fame.scrap / 4000);
-		mitigator_mod *= 1 - (V.fame.good / 4000);
-		mitigator_mod *= 1 - (V.fame.business / 4000);
-		mitigator_mod *= 1 - (V.fame.social / 4000);
-		mitigator_mod *= 1 - (V.fame.model / 4000);
-		mitigator_mod *= 1 - (V.fame.pimp / 4000);
-		
-		reputation_mod *= mitigator_mod;
+		let mitigatorMod = 1;
+		mitigatorMod *= 1 - V.fame.scrap / 4000;
+		mitigatorMod *= 1 - V.fame.good / 4000;
+		mitigatorMod *= 1 - V.fame.business / 4000;
+		mitigatorMod *= 1 - V.fame.social / 4000;
+		mitigatorMod *= 1 - V.fame.model / 4000;
+		mitigatorMod *= 1 - V.fame.pimp / 4000;
+
+		reputationMod *= mitigatorMod;
 		// for (const badfame of ["sex", "prostitution", "rape", "bestiality", "exhibitionism", "pregnancy", "impreg"]) allure += V.fame[badfame] / 10;
 		// for (const goodfame of ["good", "scrap", "business", "social", "model", "pimp"]) allure -= V.fame[goodfame] / 2;
 	}
@@ -720,18 +713,20 @@ function calculateallure() {
 	/* Elk-scarred trait */
 	if (V.auriga_scar) allure += V.auriga_scar * 500;
 	allure = Math.clamp(allure, 0, 8000);
-	let baseAllure = Math.floor(allure);
+	const baseAllure = Math.floor(allure);
 	V.baseAllure = baseAllure;
 
 	/* weighted distribution */
 	allure = baseAllure * 0.05;
-	allure += baseAllure * reputation_mod * 0.95;
+	allure += baseAllure * reputationMod * 0.95;
 	allure += V.arousal / 5;
-	
-	if (V.hallucinogen >= 1 && V.substanceRebalance == 1) allure *= 1 + (0.25 * (V.hallucinogen / 250))
+
+	if (V.hallucinogen >= 1 && V.substanceRebalance === 1) allure *= 1 + 0.25 * (V.hallucinogen / 250);
 	/* extra modifiers */
 	allure *= V.settings.allureModifier;
 	if (V.moorLuck > 0) allure *= 1 - V.moorLuck / 100;
+	if (V.alluretest === 1) allure = 8000 * V.settings.allureModifier;
+	else if (V.alluretest === 2) allure = 0;
 
 	V.allure = Math.floor(allure);
 }
@@ -862,14 +857,9 @@ function inappropriatePlayerState(check = ["all"]) {
 				["naked", "fetish"].includes(V.worn.lower.type) ||
 				V.worn.lower.reveal >= 700 ||
 				integrityKeyword(V.worn.lower, "lower") === "tattered" ||
-				[
-					"large towel bottom",
-					"towel skirt",
-					"bathrobe bottom",
-					"catsuit bottoms",
-					"oversized button-down bottom",
-					"oversized sweater bottom",
-				].includes(V.worn.lower.name)
+				["large towel bottom", "towel skirt", "bathrobe bottom", "catsuit bottoms", "oversized button-down bottom", "oversized sweater bottom"].includes(
+					V.worn.lower.name
+				)
 			)
 				return true;
 		}
@@ -882,13 +872,9 @@ function inappropriatePlayerState(check = ["all"]) {
 		Object.keys(V.skin).forEach(label => {
 			if (T.skin_array.includes(label)) {
 				if (
-					(!["none", "Robin", "Whitney", "Kylar", "Sydney", "Avery", "Eden", "Gwylan", "Black Wolf", "Alex", "Great Hawk"].includes(
-						V.skin[label].special
-					) &&
+					(!["none", "Robin", "Whitney", "Kylar", "Sydney", "Avery", "Eden", "Gwylan", "Black Wolf", "Alex", "Great Hawk"].includes(V.skin[label].special) &&
 						V.skin[label].lewd === 1) ||
-					["slut", "bitch", "whore", "sex", "fuck", "rape", "cock", "cum", "size queen"].some(text =>
-						V.skin[label].writing.toLowerCase().includes(text)
-					)
+					["slut", "bitch", "whore", "sex", "fuck", "rape", "cock", "cum", "size queen"].some(text => V.skin[label].writing.toLowerCase().includes(text))
 				)
 					T.lewd_bodywriting_visible = true;
 			}

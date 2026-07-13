@@ -2226,6 +2226,7 @@
 
 <<widget "hand_section">>
 	<!-- This widget is for NPC hands. -->
+	<<if _args[0] isnot undefined>><<set _n to _args[0]>><</if>>
 
 	<!-- Section for widgets that have special output when both hands are performing the same action. -->
 	<!-- These widgets should set _bothHandsUsed to true when they are done if you want them to only run once. -->
@@ -2244,23 +2245,31 @@
 
 	<<if !$_bothHandsUsed>>
 		<<if random(0,1) is 1>>
-			<<hand_section_two "left">>
-			<<hand_section_two "right">>
+			<<hand_section_two "left" _n>>
+			<<hand_section_two "right" _n>>
 		<<else>>
-			<<hand_section_two "right">>
-			<<hand_section_two "left">>
+			<<hand_section_two "right" _n>>
+			<<hand_section_two "left" _n>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "hand_section_two">>
+	<<if _args[1] isnot undefined>><<set _n to _args[1]>><</if>>
 	<<rng>>
 	<<set $_hand to _args[0]>>
-	<<set $_npcHand to $NPCList[_n][$_hand + "hand"]>>
+	<<set $_npcHand to $NPCList[_n] ? $NPCList[_n][$_hand + "hand"] : undefined>>
+
+	<!-- A missing hand value means the NPC slot is broken or stale (e.g. loaded from an old save), recover to the idle state instead of crashing the whole combat render. -->
+	<<if $_npcHand is undefined or $_npcHand is null>>
+		<<run console.error("[DoLX] NPC hand value missing, resetting. Hand: " + $_hand + " NPC: " + _n + " in " + V.passage)>>
+		<<set $_npcHand to 0>>
+		<<if $NPCList[_n]>><<set $NPCList[_n][$_hand + "hand"] to 0>><</if>>
+	<</if>>
 
 	<!-- Note for future coders: this is an EXCEPTION because there are a LOT of pen_x states, and this is the best way to handle it. -->
 	<!-- If you are adding new states, add them to the switch. Do your BEST to NOT ADD EXTRA CODE TO THIS WIDGET outside of the switch. -->
-	<<if $_npcHand isnot 0 and $_npcHand.startsWith("pen_")>>
+	<<if typeof $_npcHand is "string" and $_npcHand.startsWith("pen_")>>
 		<<set $_penbodypart to $_npcHand.slice(4)>>
 		<<set $_npcHand to "pen_">>
 	<</if>>

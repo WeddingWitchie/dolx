@@ -536,6 +536,19 @@ PenActiv: <span class="gold">$NPCList[_x].penis</span> VagActiv: <span class="go
 
 <<link [[It was just a dream|Bedroom]]>><</link>>
 
+:: Named NPC Gangbang Widgets [widget]
+
+<<widget "debugGangbangRebuild">>
+	/* Removing a middle NPC with endnpc leaves a blanked hole in $NPCList, but combat iterates slots 0..$enemyno-1 as a contiguous prefix and would walk into the hole.
+	Rebuild the roster from scratch so the remaining NPCs occupy the leading slots. */
+	<<set _keepNPCs to clone($npc)>>
+	<<if _args[0] isnot undefined>><<run _keepNPCs.splice(_args[0], 1)>><</if>>
+	<<endnpc>>
+	<<for _rebuild to 0; _rebuild lt _keepNPCs.length; _rebuild++>>
+		<<npc _keepNPCs[_rebuild] -1>>
+	<</for>>
+<</widget>>
+
 :: Named NPC Gangbang Select
 
 Add the NPCs you want.<br>
@@ -630,21 +643,21 @@ Add the NPCs you want.<br>
 	<<for _lll to 0; _lll lt $enemyno; _lll++>>
 		$npc[_lll] is active.<br>
 	<</for>><br>
-	<<link "Remove $npc[0]"$passage>><<endnpc `$npc[0]`>><</link>><br>
+	<<link "Remove $npc[0]"$passage>><<debugGangbangRebuild 0>><</link>><br>
 	<<if $enemyno gte 2>>
-		<<link "Remove $npc[1]"$passage>><<endnpc `$npc[1]`>><</link>><br>
+		<<link "Remove $npc[1]"$passage>><<debugGangbangRebuild 1>><</link>><br>
 	<</if>>
 	<<if $enemyno gte 3>>
-		<<link "Remove $npc[2]"$passage>><<endnpc `$npc[2]`>><</link>><br>
+		<<link "Remove $npc[2]"$passage>><<debugGangbangRebuild 2>><</link>><br>
 	<</if>>
 	<<if $enemyno gte 4>>
-		<<link "Remove $npc[3]"$passage>><<endnpc `$npc[3]`>><</link>><br>
+		<<link "Remove $npc[3]"$passage>><<debugGangbangRebuild 3>><</link>><br>
 	<</if>>
 	<<if $enemyno gte 5>>
-		<<link "Remove $npc[4]"$passage>><<endnpc `$npc[4]`>><</link>><br>
+		<<link "Remove $npc[4]"$passage>><<debugGangbangRebuild 4>><</link>><br>
 	<</if>>
 	<<if $enemyno is 6>>
-		<<link "Remove $npc[5]"$passage>><<endnpc `$npc[5]`>><</link>><br>
+		<<link "Remove $npc[5]"$passage>><<debugGangbangRebuild 5>><</link>><br>
 	<</if>>
 	<<if $enemyno gte 2>>
 		<<link [[Remove all NPCs|$passage]]>><<endnpc>><</link>><br>
@@ -655,6 +668,15 @@ Add the NPCs you want.<br>
 
 :: Named NPC Gangbang
 <<if $sexstart is 1>>
+	<!-- Repair a roster created before the free-slot fix, or one left non-contiguous by an older remove link, before shared combat code sees it. -->
+	<<set _gangbangRosterInvalid to $enemyno isnot $npc.length>>
+	<<for _gangbangSlot to 0; _gangbangSlot lt $npc.length; _gangbangSlot++>>
+		<<if !$NPCList[_gangbangSlot] or $NPCList[_gangbangSlot].fullDescription isnot $npc[_gangbangSlot]>>
+			<<set _gangbangRosterInvalid to true>>
+			<<break>>
+		<</if>>
+	<</for>>
+	<<if _gangbangRosterInvalid>><<debugGangbangRebuild>><</if>>
 	<<set $sexstart to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
@@ -1307,6 +1329,8 @@ A terminal is attached to the tube. You look at the prompts.
 :: NPCInsertionAssert
 Generating two NPCs both at slot 0.
 <<generate1>><<generate1>>
+<br><br>
+<<link [[Back Home|Bedroom]]>><<endevent>><</link>>
 
 :: TimeTest
 Manipulating time itself.

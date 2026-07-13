@@ -5,6 +5,11 @@ const stayOnPassageFn = function () {
 	return V.passage;
 };
 
+/* Condition for entries that mutate the current enemy — only usable mid-combat. */
+const hasActiveEnemyFn = function () {
+	return V.enemyno >= 1 && V.NPCList != null && V.NPCList[V.enemyno - 1] != null;
+};
+
 setup.debugMenu = {
 	cacheDebugDiv: {},
 };
@@ -149,8 +154,8 @@ setup.debugMenu.eventList = {
 			],
 		},
 		{
-			link: [`Replay current passage with new RNG`, ""],
-			widgets: [`<<run updateSessionRNG()>>`],
+			link: [`Replay current passage with new RNG`, stayOnPassageFn],
+			widgets: [`<<run State.random()>>`],
 		},
 		{
 			link: [`RNG 1`, stayOnPassageFn],
@@ -245,11 +250,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Make all beasts dickgirls`, stayOnPassageFn],
-			widgets: [
-				`<<set $settings.beastMaleChanceMale to 0>>`,
-				`<<set $settings.beastMaleChanceFemale to 0>>`,
-				`<<set $settings.femaleNPCPenisChance to 100>>`,
-			],
+			widgets: [`<<set $settings.beastMaleChanceMale to 0>>`, `<<set $settings.beastMaleChanceFemale to 0>>`, `<<set $settings.femaleNPCPenisChance to 100>>`],
 		},
 		{
 			link: [`Make all beasts monster people`, stayOnPassageFn],
@@ -291,19 +292,27 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Pregnancy Progress Day`, stayOnPassageFn],
-			widgets: [`<<parasiteProgressDay>>`],
+			widgets: [`<<parasiteProgressDay>>`, `<<parasiteProgressDay "vagina">>`],
 		},
 		{
 			link: [`Pregnancy Progress Week`, stayOnPassageFn],
 			widgets: [
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 				`<<parasiteProgressDay>>`,
+				`<<parasiteProgressDay "vagina">>`,
 			],
 		},
 		{
@@ -444,8 +453,7 @@ setup.debugMenu.eventList = {
 
 					if (Object.keys(testList).length != 0) compressionVerifier(testList, false, true);
 					if (Object.keys(invalidList).length != 0) console.log("The following NPC(s) in $NPCList could not be tested: " + invalidList.join(", "));
-					else if (Object.keys(testList).length === 0 && Object.keys(invalidList).length === 0)
-						console.log("There are no NPCs in the NPCList to test.");
+					else if (Object.keys(testList).length === 0 && Object.keys(invalidList).length === 0) console.log("There are no NPCs in the NPCList to test.");
 
 					return "";
 				},
@@ -490,7 +498,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Rape Me`, `Molestation`],
-			widgets: [`<<endcombat>>`, `<<set $molestationstart to 1>>`],
+			widgets: [`<<endcombat>>`, `<<set $debugRapeMe to 1>>`, `<<set $molestationstart to 1>>`],
 		},
 		{
 			link: [`Double Rape Me`, `Forest Molestation`],
@@ -608,7 +616,7 @@ setup.debugMenu.eventList = {
 				`<<set $sexstart to 1>>`,
 				`<<beastNEWinit 3 dolphin>>`,
 				`<<set $outside to 1>>`,
-				`<<location to "sea">>`,
+				`<<location "sea">>`,
 				`<<set $bus to "sea">>`,
 			],
 		},
@@ -671,6 +679,9 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Distract Robin Crowd`, stayOnPassageFn],
 			widgets: [`<<set $robinPillory.distracted to 1>>`],
+			condition() {
+				return V.robinPillory != null;
+			},
 		},
 		{
 			link: [`Briar Pay Refuse`, `Brothel Pay Refuse`],
@@ -903,11 +914,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Summon the Wraith`, `Wraith Test Start`],
-			widgets: [
-				`<<endcombat>>`,
-				`<<run Time.timeTravel(new DateTime(Time.year, Time.month, Time.lastDayOfMonth, 21, 0))>>`,
-				`<<set $moonstate to "evening">>`,
-			],
+			widgets: [`<<endcombat>>`, `<<run Time.timeTravel(new DateTime(Time.year, Time.month, Time.lastDayOfMonth, 21, 0))>>`, `<<set $moonstate to "evening">>`],
 		},
 		{
 			link: [`Possessed Fight`, `Possessed Fight Test`],
@@ -917,8 +924,8 @@ setup.debugMenu.eventList = {
 			text_only: "\n\nBeast encounters",
 		},
 		{
-			link: ["Horse", "Livestock Field Horse Lewd Sex"],
-			widgets: ["<<endcombat>>", "<<set $sexstart to 1>>"],
+			link: ["Horse", "Livestock Field Deviancy Sex"],
+			widgets: ["<<endcombat>>", "<<beastNEWinit 1 'horse'>>", "<<person1>>", "<<set $phase to 2>>", "<<set $sexstart to 1>>"],
 		},
 		{
 			link: ["Pig", "Livestock Job Pig Rape"],
@@ -942,38 +949,47 @@ setup.debugMenu.eventList = {
 		},
 		{
 			text_only: "\n\nTurn beast into: ",
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Creature`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "creature">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Dog`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "dog">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Wolf`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "wolf">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Dolphin`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "dolphin">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Bear`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "bear">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Boar`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "boar">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Pig`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "pig">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			link: [`Lizard`, stayOnPassageFn],
 			widgets: [`<<set _xy to $enemyno-1>>`, `<<set $NPCList[_xy].type to "lizard">>`],
+			condition: hasActiveEnemyFn,
 		},
 		{
 			text_only: "\n\nSwarm Encounters:",
@@ -984,11 +1000,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Lake Fish`, `Swarm Test`],
-			widgets: [
-				`<<set $molestationstart to 1>>`,
-				`<<swarminit "fish" "swarm" "moving towards you" "encircle you" "fend off" 1 7>>`,
-				`<<set $water to 1>>`,
-			],
+			widgets: [`<<set $molestationstart to 1>>`, `<<swarminit "fish" "swarm" "moving towards you" "encircle you" "fend off" 1 7>>`, `<<set $water to 1>>`],
 		},
 		{
 			link: [`Forest Snakes`, `Swarm Test`],
@@ -1012,11 +1024,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Sea Eels`, `Swarm Test`],
-			widgets: [
-				`<<set $molestationstart to 1>>`,
-				`<<swarminit "eels" "swarm" "moving towards you" "encircle you" "fend off" 1 9>>`,
-				`<<set $water to 1>>`,
-			],
+			widgets: [`<<set $molestationstart to 1>>`, `<<swarminit "eels" "swarm" "moving towards you" "encircle you" "fend off" 1 9>>`, `<<set $water to 1>>`],
 		},
 		{
 			link: [`Crate Worms`, `Swarm Test`],
@@ -1104,21 +1112,21 @@ setup.debugMenu.eventList = {
 			link: [`Default allure`, stayOnPassageFn],
 			widgets: [`<<set $alluretest to 0>>`],
 			condition() {
-				return V.alluretest >= 1;
+				return V.alluretest !== 0;
 			},
 		},
 		{
 			link: [`Become Alluring`, stayOnPassageFn],
 			widgets: [`<<set $alluretest to 1>>`],
 			condition() {
-				return V.alluretest < 1;
+				return V.alluretest !== 1;
 			},
 		},
 		{
 			link: [`Become Unalluring`, stayOnPassageFn],
 			widgets: [`<<set $alluretest to 2>>`],
 			condition() {
-				return V.alluretest < 1;
+				return V.alluretest !== 2;
 			},
 		},
 		{
@@ -1165,7 +1173,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Full Lewd Characteristics`, stayOnPassageFn],
-			widgets: [`<<set $promiscuity += 100>>`, `<<set $exhibitionism += 100>>`, `<<set $deviancy += 100>>`],
+			widgets: [`<<set $promiscuity to 100>>`, `<<set $exhibitionism to 100>>`, `<<set $deviancy to 100>>`],
 		},
 		{
 			link: [`Exhibitionism`, stayOnPassageFn],
@@ -1644,14 +1652,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Drench me`, stayOnPassageFn],
-			widgets: [
-				`<<overupperwet 200>>`,
-				`<<overlowerwet 200>>`,
-				`<<upperwet 200>>`,
-				`<<lowerwet 200>>`,
-				`<<underupperwet 200>>`,
-				`<<underlowerwet 200>>`,
-			],
+			widgets: [`<<overupperwet 200>>`, `<<overlowerwet 200>>`, `<<upperwet 200>>`, `<<lowerwet 200>>`, `<<underupperwet 200>>`, `<<underlowerwet 200>>`],
 		},
 		{
 			link: [`Drench over-outfit only`, stayOnPassageFn],
@@ -1769,17 +1770,6 @@ function getNameAndPassage(section, index) {
 }
 window.getNameAndPassage = getNameAndPassage;
 
-function runWidgetsInsideLink(section, index) {
-	let widget = 0;
-	for (widget in setup.debugMenu.eventList[section][index].widgets)
-		Wikifier.wikifyEval(
-			typeof setup.debugMenu.eventList[section][index].widgets[widget] === "function"
-				? setup.debugMenu.eventList[section][index].widgets[widget]()
-				: setup.debugMenu.eventList[section][index].widgets[widget]
-		);
-}
-window.runWidgetsInsideLink = runWidgetsInsideLink;
-
 function changeBorderColor() {
 	const inputVal = document.getElementById("formChangeColor");
 	$(inputVal).toggleClass("searchBorderColour");
@@ -1848,7 +1838,7 @@ function addFavouriteIcon(section, index, id) {
 
 		input.type = "image";
 		input.className = "heart";
-		input.src = "img/ui/heart-favourite.png";
+		input.src = "img/misc/icon/heart.png";
 		for (let i = 0; i < V.debug_favourite.length; i++) {
 			if (V.debug_favourite[i].link[0] === setup.debugMenu.eventList[section][index].link[0]) input.classList.toggle("liked"); // on load up if already favourite set heart red
 		}
@@ -1923,41 +1913,33 @@ function loadCachedDebugDiv() {
 }
 window.loadCachedDebugDiv = loadCachedDebugDiv;
 
-function debugCreateLinkAndRedirect(section, index, id) {
+function debugCreateLinkAndRedirect(section, index) {
 	$(function () {
-		const target = document.getElementById(id).children[0];
-		if (typeof $._data($(target).get(0), "events") === "undefined" || $._data($(target).get(0), "events").length === 0) {
-			const passageTitle =
-				typeof setup.debugMenu.eventList[section][index].link[0] === "function"
-					? setup.debugMenu.eventList[section][index].link[0]()
-					: setup.debugMenu.eventList[section][index].link[0];
-			const passageName =
-				typeof setup.debugMenu.eventList[section][index].link[1] === "function"
-					? setup.debugMenu.eventList[section][index].link[1]()
-					: setup.debugMenu.eventList[section][index].link[1];
-			let widgets = "";
+		let event = setup.debugMenu.eventList[section]?.[index];
+		if (event == null || event.link == null) return;
 
-			for (const widget of setup.debugMenu.eventList[section][index].widgets) widgets += typeof widget === "function" ? widget() : widget;
-			const newLink = new Wikifier(
-				null,
-				`<<link ${passageName ? "[[" + passageTitle + "|" + passageName + "]]" : '"' + passageTitle + '"'}>>${widgets}<</link>>`
-			);
-			newLink.output.children[0].click();
+		// Favourites are persisted in save data, which strips function members (dynamic passage names / widget builders).
+		// Run the canonical entry when one still exists.
+		if (section === "Favourites") {
+			for (const canonicalSection of ["Main", "Character", "Events"]) {
+				const original = setup.debugMenu.eventList[canonicalSection].find(item => item.link != null && item.link[0] === event.link[0]);
+				if (original != null) {
+					event = original;
+					break;
+				}
+			}
 		}
+
+		for (const widget of event.widgets) {
+			const code = typeof widget === "function" ? widget() : widget;
+			if (typeof code === "string" && code.length > 0) Wikifier.wikifyEval(code);
+		}
+
+		const passageName = typeof event.link[1] === "function" ? event.link[1]() : event.link[1];
+		if (passageName) Engine.play(passageName);
 	});
 }
 window.debugCreateLinkAndRedirect = debugCreateLinkAndRedirect;
-
-function addonClickDivPassage(section, index, id) {
-	$(function () {
-		const target = document.getElementById(id).children[0];
-		target.setAttribute(
-			"onclick",
-			"window.debugCreateLinkAndRedirect(" + "'" + section + "'" + "," + index + "," + "'" + section + "-" + index + "'" + ");"
-		);
-	});
-}
-window.addonClickDivPassage = addonClickDivPassage;
 
 function toggleClassDebug(selected, mode) {
 	$(function () {
@@ -1971,9 +1953,7 @@ function toggleClassDebug(selected, mode) {
 		} else if (mode === "hideWhileSearching") {
 			if (selected === "debugFavourites" || selected === "debugAdd") {
 				for (const div of list)
-					div !== "debugFavourites" || div !== "debugAdd"
-						? document.getElementById(div).classList.add("hidden")
-						: document.getElementById(div).classList.remove("hidden");
+					div !== selected ? document.getElementById(div).classList.add("hidden") : document.getElementById(div).classList.remove("hidden");
 			} else {
 				for (const div of list)
 					div === "debugFavourites" || div === "debugAdd"
@@ -1981,8 +1961,7 @@ function toggleClassDebug(selected, mode) {
 						: document.getElementById(div).classList.remove("hidden");
 			}
 		} else if (mode === "classicHide") {
-			for (const div of list)
-				div !== selected ? document.getElementById(div).classList.add("hidden") : document.getElementById(div).classList.remove("hidden");
+			for (const div of list) div !== selected ? document.getElementById(div).classList.add("hidden") : document.getElementById(div).classList.remove("hidden");
 		}
 	});
 }
@@ -1990,30 +1969,26 @@ window.toggleClassDebug = toggleClassDebug;
 
 function patchDebugMenu() {
 	const catg = ["debugEventsMain", "debugEventsCharacter", "debugEventsEvents", "debugEventsFavourites"];
-	let breakIfAllGood;
 
 	for (const cat of catg) {
 		let haystack = document.getElementById(cat);
-		if (haystack == null) return;
+		if (haystack == null) continue;
 		else haystack = haystack.children;
 		for (let i = 0; i < haystack.length; i++) {
 			const value = haystack[i].id;
 
-			breakIfAllGood = 0;
-			if (haystack[i].children.length < 1) break;
+			if (haystack[i].children.length < 1) continue;
 			if (haystack[i].children.length < 2) window.addFavouriteIcon(value.split("-")[0], value.split("-")[1], value);
-			else breakIfAllGood += 1;
 			if (haystack[i].children[0].getAttribute("onclick") == null)
 				haystack[i].children[0].setAttribute(
 					"onclick",
 					"window.debugCreateLinkAndRedirect('" + value.split("-")[0] + "'," + value.split("-")[1] + ",'" + value + "');"
 				);
-			else breakIfAllGood += 1;
-			if (breakIfAllGood === 2) break;
 		}
 	}
-	document.getElementById("MainDebugInfo").innerHTML =
-		"Allure: " + V.allure + "<br>Rng: " + V.rng + "<br>Danger: " + V.danger + "<br>Passage: " + V.passage + "<br>";
+	const mainDebugInfo = document.getElementById("MainDebugInfo");
+	if (mainDebugInfo != null)
+		mainDebugInfo.innerHTML = "Allure: " + V.allure + "<br>Rng: " + V.rng + "<br>Danger: " + V.danger + "<br>Passage: " + V.passage + "<br>";
 	window.cacheDebugDiv();
 }
 window.patchDebugMenu = patchDebugMenu;
@@ -2023,12 +1998,13 @@ function checkEventCondition() {
 		for (const section of ["Character", "Events", "Favourites", "Main"]) {
 			const ev = setup.debugMenu.eventList[section];
 			for (const i in ev) {
-				if (Object.hasOwn(ev[i], "condition")) {
+				// condition functions on favourites are stripped by save serialization; treat as unconditional
+				if (Object.hasOwn(ev[i], "condition") && ev[i].condition != null) {
 					if ((typeof ev[i].condition === "function" && ev[i].condition()) || (typeof ev[i].condition !== "function" && ev[i].condition)) {
-						if (document.getElementById(section + "-" + i) == null) return;
+						if (document.getElementById(section + "-" + i) == null) continue;
 						document.getElementById(section + "-" + i).classList.remove("condhide");
 					} else {
-						if (document.getElementById(section + "-" + i) == null) return;
+						if (document.getElementById(section + "-" + i) == null) continue;
 						document.getElementById(section + "-" + i).classList.add("condhide");
 					}
 				}
@@ -2143,7 +2119,10 @@ function syncDebugAddedEvents() {
 	if (V.debug_custom_events == null) V.debug_custom_events = { Main: [], Character: [], Events: [] };
 	for (const section of ["Main", "Character", "Events"]) {
 		if (Object.hasOwn(V.debug_custom_events, section) === false) V.debug_custom_events[section] = [];
-		for (const ev of V.debug_custom_events[section]) setup.debugMenu.eventList[section].unshift(ev);
+		for (const ev of V.debug_custom_events[section]) {
+			const alreadyAdded = setup.debugMenu.eventList[section].some(item => item.link != null && item.link[0] === ev.link[0]);
+			if (!alreadyAdded) setup.debugMenu.eventList[section].unshift(ev);
+		}
 	}
 }
 window.syncDebugAddedEvents = syncDebugAddedEvents;

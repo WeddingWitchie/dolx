@@ -1635,7 +1635,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 	<<if $combatgoal isnot "strip" and $_lower_open and $_lower_short and !$worn.lower.skirt_down>>
 		<<combat-reset-hand $_hand>>
-		<<hand_section_two $_hand>>
+		<<hand_section_two $_hand _n>>
 		<<exit>>
 	<</if>>
 
@@ -1747,7 +1747,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 		/* <<cast_aside_clothes>> */
 		<<combat-reset-hand $_hand>>
-		<<hand_section_two $_hand>>
+		<<hand_section_two $_hand _n>>
 		<<exit>>
 	<</if>>
 
@@ -1757,7 +1757,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		<<if $worn[$_slot].state is 0>>
 			<span class="red">[BUG] Invalid clothing state=0 — slot: <<print $_slot>>, item: <<print $worn[$_slot].name>></span>
 			<<combat-reset-hand $_hand>>
-			<<hand_section_two $_hand>>
+			<<hand_section_two $_hand _n>>
 			<<exit>>
 		<</if>>
 	<</if>>
@@ -1771,7 +1771,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		<<combat-reset-hand $_hand>>
 	<<elseif $combatgoal isnot "strip" and $_slot is "lower" and $worn[$_slot].skirt is 1 and _lowerOffersEasyAccess>>
 		<<combat-reset-hand $_hand>>
-		<<hand_section_two $_hand>>
+		<<hand_section_two $_hand _n>>
 		<<exit>>
 	<<elseif V[$_strugglevar] is 1>>
 		<<set V[$_strugglevar] to 0>>
@@ -1954,10 +1954,10 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		/* _args[0] may be "left", "right", or "both" (from hand_section's both-hands path).
 		   hand_section_two only accepts "left" or "right", so split "both" into two calls. */
 		<<if _args[0] is "both">>
-			<<hand_section_two "left">>
-			<<hand_section_two "right">>
+			<<hand_section_two "left" _n>>
+			<<hand_section_two "right" _n>>
 		<<else>>
-			<<hand_section_two _args[0]>>
+			<<hand_section_two _args[0] _n>>
 		<</if>>
 		<<exit>>
 	<<else>>
@@ -3302,7 +3302,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 
 			<!-- HAND SECTION -->
 
-			<<hand_section>>
+			<<hand_section _n>>
 
 			<!-- PENIS START -->
 
@@ -7535,6 +7535,12 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 <</widget>>
 
 <<widget "chest_section">>
+	<!-- Named NPCs written by old saves can carry chest/vagina/penis as undefined, normalise before the toString/includes checks below or the whole render errors. -->
+	<<if $NPCList[_n]>>
+		<<if $NPCList[_n].chest is undefined>><<set $NPCList[_n].chest to 0>><</if>>
+		<<if $NPCList[_n].vagina is undefined>><<set $NPCList[_n].vagina to 0>><</if>>
+		<<if $NPCList[_n].penis is undefined>><<set $NPCList[_n].penis to 0>><</if>>
+	<</if>>
 	<<if $NPCList[_n].chest isnot "none">>
 		<<if $NPCList[_n].breastsize lte 1>>
 			<<set $_NPCBreastDesc to "chest">>

@@ -15,7 +15,6 @@ function fertiliseParasites(genital = "anus") {
 }
 DefineMacro("fertiliseParasites", fertiliseParasites);
 
-// eslint-disable-next-line no-unused-vars
 function parasiteProgressDay(genital = "anus") {
 	const pregnancy = V.sexStats[genital].pregnancy;
 	V.pregnancyStats.namesParasitesChild = V.deviancy >= 75;
@@ -36,6 +35,7 @@ function parasiteProgressDay(genital = "anus") {
 		if (!pregnancy.fetus.length) pregnancy.type = null;
 	}
 }
+DefineMacro("parasiteProgressDay", parasiteProgressDay);
 
 // eslint-disable-next-line no-unused-vars
 function parasiteProgressTime(pass, genital = "anus") {

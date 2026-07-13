@@ -37,8 +37,9 @@
 			<<set $NPCList[_ii].type to 0>>
 			<<set $NPCList[_ii].stance to 0>>
 			<<set $NPCList[_ii].monster to 0>>
-			/* Named NPC orgasm combat state lives in $npcOrgasmState, not $NPCList. */
-			<<if $npcOrgasmState and typeof $npcOrgasmState is "object" and !Array.isArray($npcOrgasmState)>><<unset $npcOrgasmState[_ii]>><</if>>
+			/* Named NPC orgasm combat state lives in $npcOrgasmState, not $NPCList.
+			unset cannot take a temp-var index ("[_ii]" breaks its delete rewrite), so use run delete. */
+			<<if $npcOrgasmState and typeof $npcOrgasmState is "object" and !Array.isArray($npcOrgasmState)>><<run delete $npcOrgasmState[_ii]>><</if>>
 			<<set $NPCList[_ii].paid to 0>>
 			<<if _ii < 1>>
 				<<set $NPCList[_ii].breastsize to 3>>
@@ -871,8 +872,8 @@ Zohar
 				<<set _overwrite to true>>
 				<<break>> <!-- Always remember to break the for loop when the condition is met -->
 			<</if>>
-			<<if !$NPCList[_controller] or ($NPCList[_controller].gender is undefined and $NPCList[_controller].description is undefined)>>
-				<!-- These comparisons could be changed to a proper variable, for example $NPCList[x].active which would store if NPC x is active or not. To make things simple, we compare to .gender and .description since those two are always set to something other than 0 if the NPC in question is in fact active -->
+			<!-- Active NPCs always have both gender and description. If either is missing, the slot is an incomplete/stale record and must be reused rather than leaving a hole. -->
+			<<if !$NPCList[_controller] or !$NPCList[_controller].gender or !$NPCList[_controller].description>>
 				<<set _npcno to clone(_controller)>>
 				<<break>> <!-- Always remember to break the for loop when the condition is met -->
 			<</if>>
@@ -1178,7 +1179,8 @@ Zohar
 
 	<<set $NPCList[_npcno].chastity to clone($NPCName[_i].chastity)>>
 	<<set $NPCList[_npcno].clothes to clone($NPCName[_i].clothes)>>
-	<<set $NPCList[_npcno].chest to clone($NPCName[_i].chest)>>
+	<!-- Most persistent named-NPC records have no combat chest state. Keep the combat-safe zero set above unless a scene/NPC explicitly provides one. -->
+	<<set $NPCList[_npcno].chest to clone($NPCName[_i].chest ?? 0)>>
 
 	<<if $NPCList[_npcno].penis is "none" and $NPCName[_i].strapons and $NPCName[_i].strapons.length gt 0 and random(0,99) lt $settings.straponChance>>
 		<<set $NPCList[_npcno].penis to $NPCList[_npcno].vagina>>
