@@ -1268,7 +1268,7 @@ setup.pills.push(
 		description:
 			"A significantly diluted version of X-Change Basic, intended for those on a tight schedule. Lasts about 6 hours.",
 		onTakeMessage: 
-			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman's body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.",
+			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:
 			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
