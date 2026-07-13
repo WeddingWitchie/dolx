@@ -19,11 +19,18 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 
 	// Strict validation only (no silent auto-initialization here)
 	const missing =
-		!V.daily || !V.daily.poppy ||
-		!poppy.timer || poppy.timer.lastInteraction == null || poppy.timer.lastInteraction === "" ||
-		typeof poppy.patience !== "number" || Number.isNaN(poppy.patience) ||
+		!V.daily ||
+		!V.daily.poppy ||
+		!poppy.timer ||
+		poppy.timer.lastInteraction == null ||
+		poppy.timer.lastInteraction === "" ||
+		typeof poppy.patience !== "number" ||
+		Number.isNaN(poppy.patience) ||
 		!Array.isArray(V.poppySeen);
-	if (missing) {T.poppyStatus = ["DataInvalid"]; return T.poppyStatus;}
+	if (missing) {
+		T.poppyStatus = ["DataInvalid"];
+		return T.poppyStatus;
+	}
 
 	// LI availability (used by decay + lust lock)
 	const liAvailable = typeof V.poppyromance === "number" && V.poppyromance >= 0;
@@ -125,10 +132,7 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 	const processedDays = Math.max(0, Number(daysPassed) || 0);
 	if (processedDays <= 0) return;
 
-	const lastInteractionDay =
-		typeof poppy.timer.lastInteractionDay === "number"
-			? poppy.timer.lastInteractionDay
-			: -999999;
+	const lastInteractionDay = typeof poppy.timer.lastInteractionDay === "number" ? poppy.timer.lastInteractionDay : -999999;
 
 	/*
 		We are currently on Time.days.
@@ -175,7 +179,9 @@ function poppySchedule() {
 	if (!poppy) return "nowhere";
 
 	const clearSchedule = () => {
-		T.poppy_location = "nowhere"; T.poppy_location_message = ""; T.poppy_night_active = 0;
+		T.poppy_location = "nowhere";
+		T.poppy_location_message = "";
+		T.poppy_night_active = 0;
 		// Reset flat presence so stale home/room/meal state cannot leak into the flat UI.
 		if (V.poppyFlat) {
 			if (V.poppyFlat.home !== false) V.poppyFlat.home = false;
@@ -194,11 +200,15 @@ function poppySchedule() {
 	poppyStatusCheck(poppy);
 
 	// If data is invalid, fail safely instead of running a half-broken schedule.
-	if (T.poppyStatus?.includes("DataInvalid")) { return clearSchedule(); }
+	if (T.poppyStatus?.includes("DataInvalid")) {
+		return clearSchedule();
+	}
 
 	// Blood Moon override: Poppy stays home all day (cancels all outside activities).
 	if (Time.isBloodMoon()) {
-		T.poppy_location = "flatApartment"; T.poppy_location_message = "apartment"; T.poppy_night_active = 0;
+		T.poppy_location = "flatApartment";
+		T.poppy_location_message = "apartment";
+		T.poppy_night_active = 0;
 		if (!V.poppyFlat) V.poppyFlat = {};
 		if (V.poppyFlat.home !== true) V.poppyFlat.home = true;
 		if (V.poppyFlat.room !== "living_room") V.poppyFlat.room = "living_room";
@@ -206,13 +216,14 @@ function poppySchedule() {
 		return T.poppy_location;
 	}
 
-
 	// Poppy birth handoff override: after Poppy gives birth to a PC-linked child,
 	// keep her at the orphanage until the handoff scene fires.
 	const handoffDay = poppy.pregnancy && poppy.pregnancy.handoffDay;
 	const handoffMet = poppy.pregnancy && poppy.pregnancy.handoffMet;
 	if (handoffDay !== undefined && !handoffMet && (Time.days === handoffDay || Time.days === handoffDay + 1)) {
-		T.poppy_location = "orphanage"; T.poppy_location_message = "orphanage"; T.poppy_night_active = 0;
+		T.poppy_location = "orphanage";
+		T.poppy_location_message = "orphanage";
+		T.poppy_night_active = 0;
 		if (V.poppyFlat) {
 			if (V.poppyFlat.home !== false) V.poppyFlat.home = false;
 			if (V.poppyFlat.room !== "") V.poppyFlat.room = "";
@@ -238,37 +249,47 @@ function poppySchedule() {
 	// otherwise the player has no way to bump into her at the lake / cafe / soup kitchen during the weeks-long holiday breaks.
 	const useWeekendTimetable = isWeekend || onHoliday;
 
-	let loc = "flatApartment"; let msg = "apartment"; let nightActive = 0;
+	let loc = "flatApartment";
+	let msg = "apartment";
+	let nightActive = 0;
 
 	// ---------- Shared daily timetable (applies every day) ----------
 	if ((mins >= 1380 && mins < 1440) || (mins >= 0 && mins < 60)) {
 		// 11PM–midnight  and  midnight–1AM: nightly activities (streets / pub)
-		loc = "nightly"; msg = "night";
+		loc = "nightly";
+		msg = "night";
 		nightActive = 1;
 	} else if (mins >= 60 && mins < 360) {
 		// 1AM–6AM: sleep
-		loc = "flatApartment"; msg = "sleep";
+		loc = "flatApartment";
+		msg = "sleep";
 	} else if (mins >= 360 && mins < 420) {
 		// 6AM–7AM: breakfast (both weekday and weekend)
-		loc = "flatKitchen"; msg = "breakfast";
+		loc = "flatKitchen";
+		msg = "breakfast";
 	} else if (mins >= 1080 && mins < 1260) {
 		// 6PM–9PM: charity / soup kitchen (both weekday and weekend)
-		loc = "soupKitchen"; msg = "charity";
+		loc = "soupKitchen";
+		msg = "charity";
 	} else if (mins >= 1260 && mins < 1320) {
 		// 9PM–10PM: dinner (both weekday and weekend)
-		loc = "flatKitchen"; msg = "dinner";
+		loc = "flatKitchen";
+		msg = "dinner";
 	}
 	// ---------- School-day timetable ----------
 	else if (isSchoolDay) {
 		if ((mins >= 420 && mins < 540) || (mins >= 720 && mins < 780) || (mins >= 900 && mins < 960)) {
 			// 7–9AM, 12–1PM, 3–4PM: prep in housekeeping classroom
-			loc = "housekeepingClassroom"; msg = "prep";
+			loc = "housekeepingClassroom";
+			msg = "prep";
 		} else if (isLessonDay && mins >= 600 && mins < 660) {
 			// 10–11AM on Tue/Thu: housekeeping lesson
-			loc = "housekeepingLesson"; msg = "lesson";
+			loc = "housekeepingLesson";
+			msg = "lesson";
 		} else if (mins >= 540 && mins < 900) {
 			// 9AM–3PM (gaps not covered by prep/lesson): skipping / hallways
-			loc = "schoolHallways"; msg = "skipping";
+			loc = "schoolHallways";
+			msg = "skipping";
 		}
 		// 4PM–6PM on school days: no explicit slot → stays at flatApartment (home after prep)
 	}
@@ -276,23 +297,28 @@ function poppySchedule() {
 	// Same slots whether it's a normal weekend day or a weekday during a school holiday
 	// Poppy isn't at school either way, so their routine is the same.
 	else if (useWeekendTimetable) {
-		if (mins >= 420 && mins < 540) {
-			// 7–9AM: visiting Bailey's office
-			loc = "baileyOffice"; msg = "bailey";
+		if (mins >= 420 && mins < 540 && (V.daily.poppy.baileyVisitDuration ??= random(25, 60)) > mins - 420) {
+			// From 7AM: visit Bailey's office for a daily-randomised 25–60 minutes.
+			loc = "baileyOffice";
+			msg = "bailey";
 		} else if (mins >= 540 && mins < 720) {
 			// 9AM–12PM: nature time at the lake, unless weather cancels it
 			const precip = Weather.precipitation;
 			if (precip === "rain" || precip === "snow") {
-				loc = "flatApartment"; msg = "lounging";
+				loc = "flatApartment";
+				msg = "lounging";
 			} else {
-				loc = "lake"; msg = "lake";
+				loc = "lake";
+				msg = "lake";
 			}
 		} else if (mins >= 780 && mins < 900) {
 			// 1–3PM: tea time at the café
-			loc = "cafe"; msg = "tea";
+			loc = "cafe";
+			msg = "tea";
 		} else if (mins >= 960 && mins < 1020) {
 			// 4–5PM: lounging at home
-			loc = "flatApartment"; msg = "lounging";
+			loc = "flatApartment";
+			msg = "lounging";
 		}
 		// 12–1PM, 3–4PM, 5–6PM gaps: no explicit slot → flatApartment (transitioning/resting)
 	}
@@ -315,7 +341,9 @@ function poppySchedule() {
 	}
 
 	// ---------- Commit location to temp vars ----------
-	T.poppy_location = loc; T.poppy_location_message = msg; T.poppy_night_active = nightActive;
+	T.poppy_location = loc;
+	T.poppy_location_message = msg;
+	T.poppy_night_active = nightActive;
 
 	// ---------- Update flat presence state ----------
 	// These drive $poppyFlat.home / .room / .meal checks in the flat passages.
@@ -332,7 +360,6 @@ function poppySchedule() {
 }
 window.poppySchedule = poppySchedule;
 DefineMacro("poppySchedule", poppySchedule);
-
 
 /*
  * ==============================================================
@@ -463,7 +490,7 @@ DefineMacro("poppySchedule", poppySchedule);
 		const data = ensurePoppyTraitData();
 		const wasKnown = data.knowledge === 1;
 
-		const known = updateOpiumKnowledge(forceKnown) === 1;
+		updateOpiumKnowledge(forceKnown);
 
 		data.addiction = Math.clamp(data.addiction + 1, 0, 200);
 		// Relief requires actual pain to relieve. Knowledge alone no longer forces
