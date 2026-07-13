@@ -226,6 +226,7 @@
 
 	<<widget "npc-xchange-repair-active-genital-targets">>
 		<<if !$NPCList>><<exit>><</if>>
+		<<set _xPenisTargetValid to Number.isInteger($penistarget) and $NPCList[$penistarget] and typeof $NPCList[$penistarget] is "object">>
 		<<for _xSlotIndex, _xSlot range $NPCList>>
 			<<if _xSlot and typeof _xSlot is "object">>
 				<<set _xSource to undefined>>
@@ -255,6 +256,16 @@
 						<<set _xSlot.vagina to "none">>
 					<</if>>
 				<</if>>
+
+				/* Older versions could free the player's penis while leaving a second NPC's anal state behind. */
+				<<if _xPenisTargetValid and $penistarget isnot _xSlotIndex and ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xSlot.penis)>>
+					<<set _xSlot.penis to 0>>
+					<<if _xSlot.location>><<set _xSlot.location.genitals to 0>><</if>>
+				<</if>>
+				<<if _xPenisTargetValid and $penistarget isnot _xSlotIndex and ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xSlot.vagina)>>
+					<<set _xSlot.vagina to 0>>
+					<<if _xSlot.location>><<set _xSlot.location.genitals to 0>><</if>>
+				<</if>>
 			<</if>>
 		<</for>>
 	<</widget>>
@@ -266,6 +277,8 @@
 		<<if !_xNpc or typeof _xNpc isnot "object">><<exit>><</if>>
 		<<set _xInitialPosition to _xNpc[_xPart]>>
 		<<set _xClearedByTarget to false>>
+		<<set _xAnalStoredOnPenis to ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xNpc.penis)>>
+		<<set _xAnalStoredOnVagina to ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xNpc.vagina)>>
 
 		<<if _xPart is "penis">>
 			<<switch _xNpc.penis>>
@@ -343,7 +356,7 @@
 				<<if ($anustarget is _xSlotIndex or $anusdoubletarget is _xSlotIndex) and ($anususe is "penis" or $anususe is "penisdouble" or $bottomuse is "penis")>>
 					<<set $bottomuse to 0>><<set $anususe to 0>><<set $anusstate to 0>><<set $anusaction to 0>><<set _xClearedByTarget to true>>
 				<</if>>
-				<<if $penistarget is _xSlotIndex and ["otherpenis","otheranus","otheranusrub"].includes($penisuse)>>
+				<<if $penistarget is _xSlotIndex and ($penisuse is "otherpenis" or (["otheranus","otheranusrub"].includes($penisuse) and !_xAnalStoredOnVagina))>>
 					<<set $penisuse to 0>><<set $penisstate to 0>><<set $penisaction to 0>><<set _xClearedByTarget to true>>
 				<</if>>
 				<<if $thightarget is _xSlotIndex and $thighuse is "penis">>
@@ -396,7 +409,7 @@
 				<<if $vaginatarget is _xSlotIndex and $vaginause is "othervagina">>
 					<<set $vaginause to 0>><<set $vaginastate to 0>><<set $vaginaaction to 0>><<set _xClearedByTarget to true>>
 				<</if>>
-				<<if $penistarget is _xSlotIndex and ["othervagina","otheranus","otheranusrub"].includes($penisuse)>>
+				<<if $penistarget is _xSlotIndex and ($penisuse is "othervagina" or (["otheranus","otheranusrub"].includes($penisuse) and !_xAnalStoredOnPenis))>>
 					<<set $penisuse to 0>><<set $penisstate to 0>><<set $penisaction to 0>><<set _xClearedByTarget to true>>
 				<</if>>
 				<<if $feettarget is _xSlotIndex and $feetuse is "othervagina">>

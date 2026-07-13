@@ -370,6 +370,44 @@ function pleasure(amount, source) {
 			(V.penis_addict_trait === 1 && !penisAddictionFulfilled) ||
 			(holeAddictActive && !holeAddictionFulfilled);
 
+		const cap = V.pleasuremax * 4 / 5 - 1;
+
+		// NPC-wielded toys in combat live on the NPCs' hand slots ($NPCList[n].lefthand/righthand, set by combat-set-hand-target), NOT on the player's action vars, so toy detection must read them too.
+		const npcHands = Array.isArray(V.NPCList) ? V.NPCList.flatMap(npc => (npc ? [npc.lefthand, npc.righthand] : [])) : [];
+
+		// A processed orgasm (or letting arousal fade out of the session) drops pleasure well below the edge;
+		// the breakthrough pity counter resets with it.
+		if (V.xchange?.toyEdgingCount && V.pleasure < V.pleasuremax * 2 / 5) delete V.xchange.toyEdgingCount;
+
+		/*
+			Shared escalating "pity" roll for toy relief.
+			Each denied roll at the edge raises the next chance (10%, 25%, 40%... guaranteed by the 7th), so the hollow forced orgasm reliably arrives within a few combat turns.
+			The old flat 10% only LOOKED functional in masturbation because the "To orgasm" skip-loop ran up to 100 iterations of pleasure() calls; combat gets roughly one roll per turn and encounters ended long before the orgasm ever fired.
+			messageKind: 1 = addiction/alpha gate, 2 = breeder/omega gate (picks the notice flavour).
+		*/
+		let toyBreakthroughRolled = false;
+		const rollToyBreakthrough = messageKind => {
+			// Combined effects can reach both gates in one pleasure() call, but should only get one roll per stimulation.
+			if (toyBreakthroughRolled) return false;
+			toyBreakthroughRolled = true;
+			V.xchange = V.xchange || {};
+			const priorDenials = Number.isFinite(Number(V.xchange.toyEdgingCount)) ? Number(V.xchange.toyEdgingCount) : 0;
+			const roll = Math.floor(Math.random() * 100) + 1;
+
+			if (roll <= 10 + priorDenials * 15) {
+				// Real orgasm; hollow and unsatisfying, but it IS an orgasm.
+				// Set bypass flag so subsequent pleasure() calls don't re-clamp.
+				V.pleasure = V.pleasuremax;
+				V.xchange.breakthroughOrgasm = true;
+				delete V.xchange.toyEdgingCount;
+				V.effectsmessage = 1;
+				V.sexual_addiction_toy_breakthrough_message = messageKind;
+				return true;
+			}
+			V.xchange.toyEdgingCount = priorDenials + 1;
+			return false;
+		};
+
 		// If a breakthrough orgasm was already triggered, let it through until pleasure drops (orgasm processed).
 		// Don't re-clamp.
 		if (V.xchange.breakthroughOrgasm && V.pleasure >= V.pleasuremax * 4 / 5) {
@@ -414,18 +452,21 @@ function pleasure(amount, source) {
 
 					// Riding a toy placed on the floor
 					if (V.vaginause === "mdildopenetrate" || V.anususe === "mdildopenetrate") return true;
+
+					// An NPC actively fucking the player with a dildo in combat
+					if (npcHands.includes("vaginadildo") || npcHands.includes("anusdildo")) return true;
 				}
 
 				// --- Hole Addict: needs the penis INSIDE something ---
 				if (holeAddictActive && !holeAddictionFulfilled && V.player?.penisExist) {
 					if (V.penisuse === "stroker" || V.penisuse === "strokerSelfPenis") return true;
 					if (arms.some(a => ["mpenisstroker", "strokerSelfPenis"].includes(a))) return true;
+					// An NPC working a stroker over the player's penis in combat
+					if (npcHands.includes("penisstroker")) return true;
 				}
 
 				return false;
 			})();
-
-			const cap = V.pleasuremax * 4 / 5 - 1;
 
 			const showBlockedMsg = () => {
 				V.effectsmessage = 1;
@@ -433,24 +474,11 @@ function pleasure(amount, source) {
 			};
 
 			if (usingSexToy) {
-				// Soft gate: clamp to cap, with small chance of breakthrough orgasm
+				// Soft gate: clamp to cap, with an escalating chance of breakthrough orgasm
 				if (V.pleasure > cap) V.pleasure = cap;
 
-				if (V.pleasure >= cap) {
-					const breakthroughChance = 10;
-					const roll = Math.floor(Math.random() * 100) + 1;
-
-					if (roll <= breakthroughChance) {
-						// Real orgasm; hollow and unsatisfying, but it IS an orgasm.
-						// Set bypass flag so subsequent pleasure() calls don't re-clamp.
-						V.pleasure = V.pleasuremax;
-						V.xchange = V.xchange || {};
-						V.xchange.breakthroughOrgasm = true;
-						V.effectsmessage = 1;
-						V.sexual_addiction_toy_breakthrough_message = 1;
-					} else {
-						showBlockedMsg();
-					}
+				if (V.pleasure >= cap && !rollToyBreakthrough(1)) {
+					showBlockedMsg();
 				}
 			} else {
 				// Hard block without appropriate toy
@@ -464,11 +492,49 @@ function pleasure(amount, source) {
 	
 		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
 		// Skipped entirely when the player has enabled free orgasms (breederOrgasmDenied() returns false).
+		// Also skipped when a breakthrough orgasm already fired this call (addiction/alpha toy gate above); re-clamping here used to silently eat that orgasm along with its message and stress.
 		const breederEffectActive = playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
 		const breederSatisfied = !breederOrgasmDenied() || V.xchange.breederOrgasm || V.breederCreampied;
-		if (breederEffectActive && !breederSatisfied && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
+		if (breederEffectActive && !breederSatisfied && !V.xchange.breakthroughOrgasm && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
 		) {
-			V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 4/5 - 1); V.xchange.breederEdgingCount++;
+			// Toy relief: a toy working the needy hole turns the hard denial into the same soft gate the addiction traits get, clamped at the edge with an escalating chance of a hollow forced orgasm.
+			// It is NOT satisfaction: no blissful creampie payoff, breederDenial keeps building, and the forced release costs stress (see the toy breakthrough message).
+			const usingBreederToy = (() => {
+				const pill = V.xchange.pill || {};
+				const arms = [V.leftarm, V.rightarm];
+
+				// Omega craves the ass: worn plug/beads, a hand-held toy actually inserted (masturbation or combat self-use), riding a floor toy, or an NPC working a dildo in.
+				if (pill.omegaEffect) {
+					try {
+						if (playerHasButtPlug()) return true;
+					} catch (e) {}
+					if (arms.some(a => ["manusdildo", "dildoSelfAnus"].includes(a))) return true;
+					if (V.anususe === "mdildopenetrate") return true;
+					if (npcHands.includes("anusdildo")) return true;
+				}
+
+				// Breeder craves the womb: same logic for the vagina.
+				if (pill.breederEffect && V.player?.vaginaExist) {
+					try {
+						if (playerHasWornVaginalDildo()) return true;
+						if (playerHasVibrator()) return true;
+					} catch (e) {}
+					if (arms.some(a => ["mvaginadildo", "dildoSelfPussy"].includes(a))) return true;
+					if (V.vaginause === "mdildopenetrate") return true;
+					if (npcHands.includes("vaginadildo")) return true;
+				}
+
+				return false;
+			})();
+
+			if (usingBreederToy) {
+				if (V.pleasure > cap) V.pleasure = cap;
+				if (V.pleasure >= cap && !rollToyBreakthrough(2)) {
+					V.xchange.breederEdgingCount++;
+				}
+			} else {
+				V.pleasure = Math.clamp(V.pleasure, 0, cap); V.xchange.breederEdgingCount++;
+			}
 		}
 
 		if (V.xchange.breederEdgingCount > 10) {
@@ -1444,8 +1510,19 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.sexual_addiction_toy_breakthrough_message) {
+		// 2 = the breeder/omega gate forced the orgasm, anything else = the addiction/alpha gate did.
+		const fromBreederGate = V.sexual_addiction_toy_breakthrough_message === 2;
+		const pill = playerIsXChanged() ? V.xchange?.pill : null;
+
 		element("span", "The toy pushes you over the edge, and your body finally gives in.", "purple");
-		element("span", "The orgasm washes through you, but it feels hollow; your body craves the real thing.", "blue");
+		if (fromBreederGate) {
+			const breederTarget = pill?.omegaEffect && pill?.breederEffect ? "holes" : pill?.omegaEffect ? "ass" : "womb";
+			element("span", `The forced orgasm washes through you, but it feels hollow; your ${breederTarget} ${breederTarget === "holes" ? "still ache" : "still aches"} for hot seed.`, "blue");
+		} else if (pill?.alphaEffect && V.player.penisExist) {
+			element("span", "The forced orgasm washes through you, but it feels hollow; your knot aches to lock inside a real partner.", "blue");
+		} else {
+			element("span", "The orgasm washes through you, but it feels hollow; your body craves the real thing.", "blue");
+		}
 		fragment.append(wikifier("ggstress"));
 		fragment.append(wikifier("stress", 15));
 		br();
