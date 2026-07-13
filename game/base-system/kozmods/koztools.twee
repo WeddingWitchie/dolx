@@ -292,6 +292,45 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "breeder-heat-chastity">>
+		<<willpowercombatcheck>>
+		<<if !$willpowerSuccess>>
+			<<if playerAwareTheyAreInHeat()>>
+				<span class="red">Your heat consumes you,</span> <span class="pink">but your $worn.genitals.name keeps you from being bred.</span>
+			<<else>>
+				<span class="red">An overwhelming need to breed overcomes you,</span> <span class="pink">but your $worn.genitals.name is in the way.</span>
+			<</if>>
+			<<if $leftarm isnot "bound" and $rightarm isnot "bound" and $worn.lower.state is wornSetupClothes("lower").state_base and (wornSetupClothes("lower").skirt isnot 1 or (wornSetupClothes("lower").skirt is 1 and $worn.lower.skirt_down is 1)) and !$worn.lower.type.includes("naked")>>
+				/* The device is still hidden: tear at the clothes covering it, mirroring the unlocked undress compulsion */
+				<span class="purple">Your hands tear at the clothes covering it.</span>
+				<<set $leftaction to "lower">><<set $rightaction to "lower">>
+				<<if $worn.under_lower.state is wornSetupClothes("under_lower").state_base and !$worn.under_lower.type.includes("naked") and !($penisstate isnot 0 and playerHasStrapon())>>
+					<<set $rightaction to "under_lower">>
+				<</if>>
+			<<elseif $leftarm isnot "bound" and $rightarm isnot "bound" and $worn.under_lower.state is wornSetupClothes("under_lower").state_base and !$worn.under_lower.type.includes("naked") and !($penisstate isnot 0 and playerHasStrapon())>>
+				<span class="purple">Your hands tear at the clothes covering it.</span>
+				<<set $rightaction to "under_lower">>
+			<<elseif $worn.genitals.name is "chastity parasite">>
+				<span class="purple">You grab at the creature clinging to your groin and try to pull it away,</span> <span class="lewd">but it tightens around you, making your arousal worse.</span>
+				<<set $worn.genitals.integrity -= 5>><<arousal 100 "genitals">>
+				<<integritycheck>>
+			<<elseif $leftarm isnot "bound" and $rightarm isnot "bound">>
+				<span class="purple">Your hands claw and wrench at the device, straining against its lock.</span>
+				<<set $worn.genitals.integrity -= 20>>
+				<<integritycheck>>
+			<<elseif $leftarm isnot "bound" or $rightarm isnot "bound">>
+				<span class="purple">Your free hand claws and tugs at the device, straining against its lock.</span>
+				<<set $worn.genitals.integrity -= 10>>
+				<<integritycheck>>
+			<<else>>
+				<span class="purple">Restrained, you can only writhe and grind against the device.</span>
+			<</if>>
+			<<if playerAwareTheyCanBePregnant()>>
+				<span class="lewd">Part of you desperately wants someone to come over the seams, hoping some of it slips through.</span>
+			<</if>>
+		<</if>>
+	<</widget>>
+
 	<<widget "effectsman-xchange">>
 		/*Heat Message */
 		<<if $xchange.heat.systemOn and playerHeatMinArousal() and $position isnot "stalk">>
@@ -310,6 +349,12 @@
 			<</if>>
 			<<if _heatVaginalTrigger or _heatAnalTrigger>>
 				<<breeder-heat>>
+			<<elseif !($player.vaginaExist and !playerChastity("vagina")) and !(canBeMPregnant() and !playerChastity("anus"))>>
+				/* Every eligible breeding hole is locked behind chastity: heat rails against the device instead of going quiet */
+				<<set _heatLockedNpcPresent to $NPCList.some(npc => npc && npc.active === "active" && npc.penis !== "none" && !(npc.chastity && npc.chastity.penis && npc.chastity.penis.includes("chastity")))>>
+				<<if _heatLockedNpcPresent>>
+					<<breeder-heat-chastity>>
+				<</if>>
 			<</if>>
 		<</if>>
 		<<if $xchange.heat.message>>
