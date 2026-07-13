@@ -44,7 +44,13 @@ window.npcPillIsPermanent = npcPillIsPermanent;
  * @param {string} sex - "f" or "m"
  */
 function npcStartingSexIs(npcno, npcname, sex) {
-    return (npcname !== undefined && C.npc[npcname]?.startingSex === sex) || (npcno !== undefined && V.NPCList[npcno].startingSex === sex);
+	const npc = npcname !== undefined && C.npc[npcname]
+		? C.npc[npcname]
+		: (npcno !== undefined ? V.NPCList[npcno] : undefined);
+	if (!npc) return false;
+	/* Use the live, pre-pill body to choose a transformation direction.
+	Once pilled, startingSex remains the stable baseline used by removal/restoration paths. */
+	return (npc.xchange ? npc.startingSex : npc.gender) === sex;
 }
 window.npcStartingSexIs = npcStartingSexIs;
 
@@ -86,7 +92,7 @@ function npcXchangePillStatus(name) {
 	const pill = npc?.xchange;
 	if (!pill) return null;
 
-	const toFemale = npc.startingSex === "m";
+	const toFemale = npc.gender === "f";
 	let colour = "grey";
 	let body;
 	if (pill.hermEffect) {
