@@ -42,7 +42,20 @@ audio_job:
         if ($null -eq $rawAudioSize) { $rawAudioSize = 0 }
         Write-Host ("Raw audio size: {0:N2} MB" -f ($rawAudioSize / 1MB))
 
-        Compress-Archive -Path "$buildDir/*" -DestinationPath $zipPath -Force
+        tar.exe -a -cf $zipPath -C $buildDir audio
+        if ($LASTEXITCODE -ne 0) { throw "Audio archive creation failed." }
+
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $archive = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $zipPath).Path)
+        try {
+          $invalidEntries = @($archive.Entries | Where-Object { $_.FullName -match '\\' } | ForEach-Object FullName)
+        }
+        finally {
+          $archive.Dispose()
+        }
+        if ($invalidEntries) {
+          throw "Audio archive contains Windows-style paths: $($invalidEntries -join ', ')"
+        }
 
         $zipSize = (Get-Item $zipPath).Length
         Write-Host ("Audio zip size: {0:N2} MB" -f ($zipSize / 1MB))
@@ -96,7 +109,20 @@ img_job:
         if ($null -eq $rawImageSize) { $rawImageSize = 0 }
         Write-Host ("Raw images size: {0:N2} MB" -f ($rawImageSize / 1MB))
 
-        Compress-Archive -Path "$buildDir/*" -DestinationPath $zipPath -Force
+        tar.exe -a -cf $zipPath -C $buildDir img img2
+        if ($LASTEXITCODE -ne 0) { throw "Images archive creation failed." }
+
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        $archive = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $zipPath).Path)
+        try {
+          $invalidEntries = @($archive.Entries | Where-Object { $_.FullName -match '\\' } | ForEach-Object FullName)
+        }
+        finally {
+          $archive.Dispose()
+        }
+        if ($invalidEntries) {
+          throw "Images archive contains Windows-style paths: $($invalidEntries -join ', ')"
+        }
 
         $zipSize = (Get-Item $zipPath).Length
         Write-Host ("Images zip size: {0:N2} MB" -f ($zipSize / 1MB))
