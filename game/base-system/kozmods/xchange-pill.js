@@ -89,6 +89,11 @@ const grayGate = {
 	always: () => true,
 	hasVagina: () => !!V.player.vaginaExist,
 	canConceive: () => !!V.player.vaginaExist && V.sexStats.vagina.pregnancy.type === null,
+	/* Omega (or another mpreg source) lets a vagina-less body conceive anally. */
+	canConceiveAnally: () => typeof canBeMPregnant === "function" && canBeMPregnant() && V.sexStats.anus.pregnancy.type === null,
+	canConceiveAnyHole: () => grayGate.canConceive() || grayGate.canConceiveAnally(),
+	/* The fertility course also potentiates sperm, so a penis qualifies on its own. */
+	fertilityCourse: () => grayGate.hasPenis() || grayGate.canConceiveAnyHole(),
 	hasPenis: () => !!V.player.penisExist,
 	/* xtend pays out on the body you RETURN to, so allow it if you currently have a penis or your saved base body did. */
 	xtendEligible: () =>
@@ -111,9 +116,9 @@ function buildGrayXChangePills() {
 				"A colourless X-Change capsule carrying only the Breeder agent: heightened fertility and intense cravings for insemination. Acts on whatever body you currently have.",
 			onTakeMessage: teal("At first, nothing dramatic happens. Then a thick, low warmth spreads through your abdomen as if your body has remembered a purpose it was never meant to forget. Your breathing turns shallow."),
 			warning_label:
-				"Warning: Requires a fertile body to take effect. Pregnancy may render any active transformation permanent.",
-			canTake: grayGate.canConceive,
-			blockedReason: "Needs a fertile body that can currently conceive. It stays in your drawer until you have one.",
+				"Warning: Requires a body that can conceive to take effect. Pregnancy may render any active transformation permanent.",
+			canTake: grayGate.canConceiveAnyHole,
+			blockedReason: "Needs a body that can currently conceive or a fertile womb. It stays in your drawer until you have one.",
 			effects: [`<<xchange-gray 7 "breeder" "fertile">>`],
 		},
 		{
@@ -163,12 +168,12 @@ function buildGrayXChangePills() {
 			name: "X-Change Hyper Fertility",
 			subtype: "gray hyper fertility",
 			description:
-				"A colourless capsule carrying only the Hyper Fertility course: near-guaranteed conception, accelerated pregnancy, and a high chance of multiples.",
+				"A colourless capsule carrying only the Hyper Fertility course: near-guaranteed conception, accelerated pregnancy, and a high chance of multiples. It works with whatever equipment your body offers: a womb conceives, an Omega-primed body conceives anally, and a penis sires with supercharged seed.",
 			onTakeMessage: teal("The formula hits like a fever. Heat blooms in your belly, spreading outward until your whole body feels flushed, tuned, and dangerously ready to turn the smallest chance into something lasting."),
 			warning_label:
-				"Warning: Pregnancy will render any active transformation permanent. Multiple births are common and intended.",
-			canTake: grayGate.canConceive,
-			blockedReason: "Needs a fertile body that can currently conceive. It stays in your drawer until you have one.",
+				"Warning: Pregnancy will render any active transformation permanent. Multiple births are common and intended. On a body with a penis, greatly increases reproductive potency.",
+			canTake: grayGate.fertilityCourse,
+			blockedReason: "Needs a penis, or a body that can currently conceive.",
 			effects: [`<<xchange-gray 7 "fertile" "fertility">>`],
 		},
 		{
