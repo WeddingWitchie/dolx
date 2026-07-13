@@ -99,9 +99,8 @@ const grayGate = {
 	xtendEligible: () =>
 		!!V.player.penisExist || (V.xchange.pill?.baseGenitals && V.xchange.pill.baseGenitals.penis),
 	portalEnabled: () => !!V.portalPantiesEnabled,
-	/* Resistance & Continue only do anything on a gendered/herm session, so only offer them while such a session is running (stack-only). */
-	gendered: () =>
-		playerIsXChanged() && (V.xchange.pill.genderflipEffect || V.xchange.pill.hermEffect),
+	/* Resistance & Continue act on the running session's duration/permanence, so any active session qualifies (stack-only). */
+	activeSession: () => playerIsXChanged(),
 };
 
 /* ---- the data table: one row per effect ----
@@ -264,27 +263,27 @@ function buildGrayXChangePills() {
 			],
 		},
 
-		/* ---- stack-only: only useful layered onto an active gender/herm session ---- */
+		/* ---- stack-only: only useful layered onto an active X-Change session ---- */
 		{
 			name: "X-Change Resistance",
 			subtype: "gray resistance",
 			description:
-				"A colourless capsule carrying only the Resistance agent: a chance that your current transformation refuses to wear off when it should.",
+				"A colourless capsule carrying only the Resistance agent: a chance that your current X-Change effects refuse to wear off when they should.",
 			onTakeMessage: teal("Your current transformation gives a strange shudder, then time seems to stretch around it. Every lingering pulse suggests the change could be fed, extended, and made harder to shake loose."),
-			warning_label: "Warning: Has no effect without an active gender transformation. May extend the change against your will.",
-			canTake: grayGate.gendered,
-			blockedReason: "Only works while an X-Change gender transformation is active. Take it during a session; it stays in your drawer until then.",
+			warning_label: "Warning: Has no effect without an active X-Change session. May extend the change against your will.",
+			canTake: grayGate.activeSession,
+			blockedReason: "Only works while an X-Change session is active. Take it during a session; it stays in your drawer until then.",
 			effects: [`<<xchange-gray 1 "resistance">>`],
 		},
 		{
 			name: "X-Change Continue",
 			subtype: "gray continue",
 			description:
-				"A colourless capsule carrying only the Continue agent: prolongs an active gender transformation and, left unchecked, can make it permanent.",
+				"A colourless capsule carrying only the Continue agent: prolongs an active X-Change session and, left unchecked, can make it permanent.",
 			onTakeMessage: teal("Your current form warms from the inside out, the active X-Change chemistry brightening instead of fading."),
-			warning_label: "Warning: Has no effect without an active gender transformation. Prolonged use leads to permanence.",
-			canTake: grayGate.gendered,
-			blockedReason: "Only works while an X-Change gender transformation is active. Take it during a session; it stays in your drawer until then.",
+			warning_label: "Warning: Has no effect without an active X-Change session. Prolonged use leads to permanence.",
+			canTake: grayGate.activeSession,
+			blockedReason: "Only works while an X-Change session is active. Take it during a session; it stays in your drawer until then.",
 			effects: [`<<xchange-gray 3 "continue">>`],
 		},
 
