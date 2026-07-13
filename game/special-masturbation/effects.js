@@ -78,7 +78,7 @@ function masturbationEffects() {
 			fragment.append(" ");
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
-		} else if (V.penis_addict_trait === 1 || V.hole_addict_trait === 1 || (V.xchange?.pill?.alphaEffect && V.player?.penisExist) || breederOrgasmDenied()) {
+		} else if (V.penis_addict_trait === 1 || (V.hole_addict_trait === 1 && V.player?.penisExist) || (V.xchange?.pill?.alphaEffect && V.player?.penisExist) || breederOrgasmDenied()) {
 			sWikifier(
 				`The slime in your ears gets frustrated as it notices that, despite its best effort, you're unable to cum. And making no progress, <span class="blue">it gives up.</span><<arousal 600 "masturbation">><<pain 4>><<stress 6>><<gstress>><<gpain>>`
 			);
@@ -291,7 +291,7 @@ function masturbationEffects() {
 		V.corruptionMasturbation === undefined &&
 		!V.hypnosis_traits?.silence &&
 		V.penis_addict_trait !== 1 &&
-		V.hole_addict_trait !== 1 &&
+		!(V.hole_addict_trait === 1 && V.player?.penisExist) &&
 		!(V.xchange?.pill?.alphaEffect && V.player?.penisExist) &&
 		!breederOrgasmDenied()
 	) {
@@ -347,7 +347,7 @@ function masturbationEffectsArms(
 			V.corruptionMasturbation === undefined &&
 			!V.hypnosis_traits?.silence &&
 			V.penis_addict_trait !== 1 &&
-			V.hole_addict_trait !== 1 &&
+			!(V.hole_addict_trait === 1 && V.player?.penisExist) &&
 			!(V.xchange?.pill?.alphaEffect && V.player?.penisExist) &&
 			!breederOrgasmDenied()
 		) {

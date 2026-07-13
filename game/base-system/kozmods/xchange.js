@@ -249,7 +249,8 @@ function pleasure(amount, source) {
 		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
 		const alphaEffectActive = playerIsXChanged() && V.xchange.pill?.alphaEffect && V.player?.penisExist;
-		const holeAddictActive = V.hole_addict_trait === 1 || alphaEffectActive;
+		// The hole addiction craves getting the player's own cock into something; with no penis (e.g. genderflipped by a pill) it cannot possibly be fulfilled, so it lies dormant instead of soft-locking every orgasm.
+		const holeAddictActive = (V.hole_addict_trait === 1 && V.player?.penisExist === true) || alphaEffectActive;
 
 		// Apply effect according to source
 		let sensitivity = 0;
@@ -1539,8 +1540,6 @@ function xchangeEffectsMessages() {
 			element("span", "You need dick, and you need it deep inside you. Now!", "red");
 		else if (V.hole_addict_trait === 1 && V.player.penisExist)
 			element("span", "Your dick craves some pussy, and it demands it now!", "red");
-		else if (V.hole_addict_trait === 1 && !V.player.penisExist)
-			element("span", "You miss the feeling of some pussy on your dick.", "red");
 		else if (alphaEffectActive)
 			element("span", "Your knot aches to lock inside someone, and it demands it now!", "red");
 		
