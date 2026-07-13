@@ -58,7 +58,17 @@ function getTrueWarmth(item) {
 				if (piece) {
 					warmth += piece.warmth || 0;
 				} else {
-					console.log("WARNING: getTrueWarmth - could not resolve outfitSecondary piece '" + item.outfitSecondary[i + 1] + "' (" + x + ") of '" + item.name + "' (modder: '" + item.modder + "')");
+					console.log(
+						"WARNING: getTrueWarmth - could not resolve outfitSecondary piece '" +
+							item.outfitSecondary[i + 1] +
+							"' (" +
+							x +
+							") of '" +
+							item.name +
+							"' (modder: '" +
+							item.modder +
+							"')"
+					);
 				}
 			}
 		});
@@ -180,13 +190,14 @@ function getCustomColourStyle(type, valueOnly = false) {
 window.getCustomColourStyle = getCustomColourStyle;
 
 function saveCustomColourPreset(slot = "primary") {
-	// const setName = prompt("Enter new colour preset name", "New preset");
-	const setName = T.preset_choice[slot];
-	if (setName != null) {
-		// if (Object.keys(V.customColors.presets).includes(setName)) {
-		// 	alert("Preset '" + setName + "' already exists!");
-		// 	return;
-		// }
+	const presetName = prompt("Enter new colour preset name", "New preset");
+	if (presetName != null) {
+		const setName = presetName.trim();
+		if (!setName) return;
+		if (Object.keys(V.customColors.presets).includes(setName)) {
+			alert("Preset '" + setName + "' already exists!");
+			return;
+		}
 
 		V.customColors.presets[setName] = {
 			ver: 3,
@@ -196,6 +207,7 @@ function saveCustomColourPreset(slot = "primary") {
 			saturation: V.customColors.saturation[slot],
 			contrast: V.customColors.contrast[slot],
 		};
+		T.preset_choice[slot] = setName;
 	}
 }
 window.saveCustomColourPreset = saveCustomColourPreset;
@@ -432,8 +444,7 @@ function importCustomColour(acc) {
 				<span class="export-custom-colour-alert">Imported!</span>
 			</div>`;
 			window.setTimeout(() => {
-				if (document.getElementById("export-custom-colour-box"))
-					document.getElementById("export-custom-colour-box").classList.add("successfully-exported");
+				if (document.getElementById("export-custom-colour-box")) document.getElementById("export-custom-colour-box").classList.add("successfully-exported");
 			}, 100);
 			updateMannequin();
 		} else {
