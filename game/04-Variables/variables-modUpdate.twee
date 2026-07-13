@@ -1974,6 +1974,31 @@
 		<<set $AMCTraits.kicking to 1>>
 	<</if>>
 
+	/* HBSC gala load compatibility. Keep the sudden invitation separate from the guest it delays. */
+	<<if $avery_mansion>>
+		<<if $avery_mansion.hbsc_gala_seen is undefined>><<set $avery_mansion.hbsc_gala_seen to false>><</if>>
+		<<if $avery_mansion.hbsc_gala_cooldown is undefined>><<set $avery_mansion.hbsc_gala_cooldown to 0>><</if>>
+		<<if $avery_mansion.hbsc_gala_pending is undefined>><<set $avery_mansion.hbsc_gala_pending to false>><</if>>
+		<<if $avery_mansion.guest is "HBSC Gala">>
+			<<run const previousGuest = V.avery_mansion.party_guests_seen && V.avery_mansion.party_guests_seen.last();
+			const rotation = {
+				Bailey: "Quinn",
+				Quinn: "Remy",
+				Remy: "Briar",
+				Briar: "Harper",
+				Harper: V.avery_mansion.jordan_intro ? "Jordan" : "Quinn",
+				Jordan: "Quinn",
+			};
+			V.avery_mansion.guest = rotation[previousGuest] || "Quinn";
+			if (V.avery_mansion.party_state !== "started" && V.avery_mansion.fox?.task === "HBSC Gala") {
+				delete V.avery_mansion.fox.task;
+				delete V.avery_mansion.fox.task_complete;
+				delete V.avery_mansion.fox.task_detail;
+			}
+			V.avery_mansion.hbsc_gala_pending = true;>>
+		<</if>>
+	<</if>>
+
 	<<run if (typeof applyPermanentInsanityTalents === "function") applyPermanentInsanityTalents()>>
 <</widget>>
 

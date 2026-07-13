@@ -1700,28 +1700,40 @@ function dailyNPCEffects() {
 			if (Time.weekDay === 2 && !V.avery_injury) {
 				if (["waiting", "skipped"].includes(V.avery_mansion.party_state)) {
 					V.avery_mansion.party_state = "missed";
-					V.avery_mansion.party_missed_guest = V.avery_mansion.guest;
+					V.avery_mansion.party_missed_guest = V.avery_mansion.hbsc_gala_pending ? "HBSC Gala" : V.avery_mansion.guest;
 				}
 
 				// We skipped/missed, if the party is finished properly we handle the next guest SOMEWHERE ELSE
 				if (V.avery_mansion.party_state !== "finished") {
-					// If Bailey is the guest we repeat Bailey, otherwise we rotate, skipping Jordan as appropriate
-					const rotation = {
-						Bailey: "Bailey",
-						Quinn: "Remy",
-						Remy: "Briar",
-						Briar: "Harper",
-						Harper: V.avery_mansion.jordan_intro ? "Jordan" : "Quinn",
-						Jordan: "Quinn",
-					};
-
-					if (V.avery_mansion.guest === "HBSC Gala") {
-						V.avery_mansion.guest = "Quinn";
+					if (V.avery_mansion.hbsc_gala_pending) {
+						// The surprise gala delayed the announced guest until the next party.
+						V.avery_mansion.hbsc_gala_pending = false;
+						V.avery_mansion.hbsc_gala_cooldown = 8;
 					} else {
-						V.avery_mansion.guest = rotation[V.avery_mansion.guest] || "Quinn";
-					}
+						// If Bailey is the guest we repeat Bailey, otherwise we rotate, skipping Jordan as appropriate
+						const rotation = {
+							Bailey: "Bailey",
+							Quinn: "Remy",
+							Remy: "Briar",
+							Briar: "Harper",
+							Harper: V.avery_mansion.jordan_intro ? "Jordan" : "Quinn",
+							Jordan: "Quinn",
+						};
 
-					V.avery_mansion.guest = rotation[V.avery_mansion.guest];
+						V.avery_mansion.guest = rotation[V.avery_mansion.guest] || "Quinn";
+
+						V.avery_mansion.guest = rotation[V.avery_mansion.guest];
+						if (V.avery_mansion.hbsc_gala_cooldown > 0) V.avery_mansion.hbsc_gala_cooldown--;
+						if (
+							V.avery_mansion.guest !== "Bailey" &&
+							V.hbsc?.account?.level >= 1 &&
+							V.hbsc.averyAccountUnlockNoticeSeen &&
+							V.avery_mansion.hbsc_gala_cooldown <= 0 &&
+							random(1, 100) <= 30
+						) {
+							V.avery_mansion.hbsc_gala_pending = true;
+						}
+					}
 				}
 
 				// If the state is still "missed" we don't reset the state. We still need to trigger Avery being angry we missed a party

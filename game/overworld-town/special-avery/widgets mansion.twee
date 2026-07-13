@@ -20,7 +20,8 @@
 	<<else>>
 		None<br>
 	<</if>>
-	Guest: <<= $avery_mansion.guest is "HBSC Gala" ? "Unannounced guest" : $avery_mansion.guest>><br>
+	Guest: <<= $avery_mansion.guest>><br>
+	HBSC gala pending: <<= !!$avery_mansion.hbsc_gala_pending>><br>
 	/*Date: <<print $averydate>><br>*/
 	Avery passage: $avery_passage<br>
 	Avery mansion pool: <<print $avery_mansion.pool>><br>
@@ -158,6 +159,7 @@
 	<<set $avery_mansion.vault_progress to 0>>
 	<<set $avery_mansion.hbsc_gala_seen to false>>
 	<<set $avery_mansion.hbsc_gala_cooldown to 0>>
+	<<set $avery_mansion.hbsc_gala_pending to false>>
 
 	<<set $avery_mansion.kitchen_stock to {
 		normal: ["salt", "vegetable_oil", "bottle_of_milk", "flour", "chicken_egg", "beef", "pork", "truffle", "cream", "tomato", "red_wine", "white_wine", "rice", "chilli_pepper", "banana"],
@@ -2787,7 +2789,7 @@
 		<br><br>
 		<<link [[Next|Mansion Party Briar]]>><</link>>
 		<br>
-	<<elseif $avery_mansion.guest is "HBSC Gala">>
+	<<elseif $avery_mansion.hbsc_gala_pending>>
 		Avery keeps walking past the atrium and out through the front doors. A polished black car waits at the bottom of the steps, its driver already holding the rear door open.
 		<br><br>
 		"The mansion can survive one evening without a receiving line," Avery says, settling into the back seat as you follow.
@@ -2828,7 +2830,7 @@
 	/* The party intro scenes always involve Avery bringing the player to the atrium */
 	<<set $outside to 0>>
 
-	<<if $avery_mansion.fox.task is $avery_mansion.guest and !$avery_mansion.fox.task_complete and !$avery_fate>>
+	<<if !$avery_mansion.hbsc_gala_pending and $avery_mansion.fox.task is $avery_mansion.guest and !$avery_mansion.fox.task_complete and !$avery_fate>>
 		<<set $avery_party.task to true>>
 	<</if>>
 <</widget>>
@@ -2842,15 +2844,17 @@
 	<<if !$avery_mansion.party_guests_seen>>
 		<<set $avery_mansion.party_guests_seen to []>>
 	<</if>>
+	<<set _hbscGalaFinished to !!$avery_mansion.hbsc_gala_pending>>
 
-	<<if $avery_mansion.guest isnot "HBSC Gala">>
+	<<if !_hbscGalaFinished>>
 		<<set $avery_mansion.party_guests_seen.pushUnique($avery_mansion.guest)>>
 	<<else>>
-		/* Mark gala as attended at least once; set cooldown before it can trigger again */
-		<<set $avery_mansion.hbsc_gala_seen to true>><<set $avery_mansion.hbsc_gala_cooldown to 5>>
+		/* The scheduled guest was delayed, not replaced. */
+		<<set $avery_mansion.hbsc_gala_seen to true>><<set $avery_mansion.hbsc_gala_cooldown to 8>><<set $avery_mansion.hbsc_gala_pending to false>>
 	<</if>>
 
-	<<run const finishedGuest = V.avery_mansion.guest;
+	<<run const galaFinished = State.temporary.hbscGalaFinished;
+	const finishedGuest = V.avery_mansion.guest;
 	const rotation = {
 		Bailey: "Quinn",
 		Quinn: "Remy",
@@ -2860,16 +2864,16 @@
 		Jordan: "Quinn",
 	};
 
-	let nextGuest = finishedGuest === "HBSC Gala" ? "Quinn" : (rotation[finishedGuest] || "Quinn");
+	let nextGuest = galaFinished ? finishedGuest : (rotation[finishedGuest] || "Quinn");
 
-	/* Gala cooldown tick */
-	if (V.avery_mansion.hbsc_gala_cooldown > 0) {V.avery_mansion.hbsc_gala_cooldown--;}
+	/* Completed scheduled parties count down the gap between gala invitations. */
+	if (!galaFinished && V.avery_mansion.hbsc_gala_cooldown > 0) {V.avery_mansion.hbsc_gala_cooldown--;}
 
 	/* HBSC Gala surprise injection */
-	/* Replaces the next scheduled guest (except Bailey) with a sudden gala invitation. 1-in-3 chance each cycle, only when the cooldown has expired. */
+	/* Keep the scheduled guest secret-free in the journal. The invitation is only revealed when the party begins. */
 	if (nextGuest !== "Bailey"
-		&& V.hbsc && V.hbsc.account && V.hbsc.account.level >= 1 && V.hbsc.averyAccountUnlockNoticeSeen && V.avery_mansion.hbsc_gala_cooldown <= 0 && finishedGuest !== "HBSC Gala"
-		&& random(1, 3) === 1) {nextGuest = "HBSC Gala";}
+		&& V.hbsc && V.hbsc.account && V.hbsc.account.level >= 1 && V.hbsc.averyAccountUnlockNoticeSeen && V.avery_mansion.hbsc_gala_cooldown <= 0 && !galaFinished
+		&& random(1, 100) <= 15) {V.avery_mansion.hbsc_gala_pending = true;}
 	V.avery_mansion.guest = nextGuest;>>
 <</widget>>
 
@@ -3912,7 +3916,7 @@
 	<</for>>
 	<<set $NPCList.length to 6>>
 
-	<<if $avery_mansion.guest is "HBSC Gala">>
+	<<if $avery_mansion.hbsc_gala_pending>>
 		<<if $worn.upper.type.includes("formal") and $worn.lower.type.includes("formal")>>
 			"Change of plans. An invitation arrived. The sort one doesn't refuse."
 			Avery pulls a card from <<his>> breast pocket and holds it for you to read the gold lettering: <span class="gold">HBSC Charity Gala.</span> "We mustn't keep them waiting."
