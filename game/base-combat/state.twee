@@ -139,9 +139,19 @@
 				<<set $panicparalysis to 5>>
 			<</if>>
 			<<set _panicchecked to true>>
-			<<if $panicattacks gte 2 and _paniccheckedviolence isnot true and random(1, 100) is 100>>
-				<<set $panicviolence to 3>>
-				<<if $position is "stalk">>
+			<<if $panicattacks gte 2 and _paniccheckedviolence isnot true>>
+				/* Insanity guarantees the symptoms that enable violent panic. During consensual encounters, roll once per encounter instead of once per turn so lashing out remains a rare 13% event. */
+				<<if $consensual is 1 and typeof activeInsanityTrait === "function" and activeInsanityTrait()>>
+					<<if $insanityConsensualPanicChecked is undefined>>
+						<<set $insanityConsensualPanicChecked to true>>
+						<<if random(1, 100) lte 13>>
+							<<set $panicviolence to 3>>
+						<</if>>
+					<</if>>
+				<<elseif random(1, 100) is 100>>
+					<<set $panicviolence to 3>>
+				<</if>>
+				<<if $panicviolence gte 1 and $position is "stalk">>
 					<<set $feetuse to "run">>
 				<</if>>
 			<</if>>
