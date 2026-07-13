@@ -111,7 +111,8 @@ setup.sextoys = [
 		name: "bullet vibe",
 		namecap: "Bullet vibe",
 		name_underscore: "bullet_vibe",
-		description: "A wearable bullet vibe you can keep snug in your underwear, ready to grind against your clit and anus to buzz you into a fast, powerful orgasm. Good for people new to sex toys.",
+		description:
+			"A wearable bullet vibe you can keep snug in your underwear, ready to grind against your clit and anus to buzz you into a fast, powerful orgasm. Good for people new to sex toys.",
 		cost: 12000,
 		wearable: 1,
 		vibrating: 0,
@@ -234,7 +235,7 @@ setup.sextoys = [
 		name: "lube",
 		namecap: "Lube",
 		name_underscore: "lube",
-		description: "Lubricant suitable for sexual purposes. 3 uses per bottle.",
+		description: "Lubricant suitable for sexual purposes. 5 uses per bottle.",
 		cost: 2000,
 		wearable: 0,
 		size: 3,
@@ -243,7 +244,7 @@ setup.sextoys = [
 		icon: "sex-toys/lube.png",
 		iconFront: "sex-toys/lube-front.png",
 		colour: 1,
-		uses: 3,
+		uses: 5,
 		colour_options: ["pink"],
 		default_colour: "pink",
 		owned: setup.sextoyFunctions.owned,
@@ -550,6 +551,29 @@ setup.sextoys = [
 		shop: ["forest"],
 		display_condition: () => V.shopName === "forest",
 	},
+	{
+		index: 22,
+		name: "lube tube",
+		namecap: "Lube tube",
+		name_underscore: "lube_tube",
+		description: "A small tube of lubricant suitable for sexual purposes. 3 uses per tube.",
+		cost: 2000,
+		wearable: 0,
+		size: 2,
+		category: "lube",
+		type: ["lube"],
+		icon: "hairgel.png",
+		colour: 0,
+		uses: 3,
+		colour_options: [],
+		owned: setup.sextoyFunctions.owned,
+		isCarried: setup.sextoyFunctions.isCarried,
+		isWorn: setup.sextoyFunctions.isWorn,
+		unWear: setup.sextoyFunctions.unWear,
+		unCarry: setup.sextoyFunctions.unCarry,
+		shop: ["pharmacy"],
+		display_condition: () => false,
+	},
 ];
 
 function sexShopGridInit() {
@@ -818,9 +842,7 @@ function sexShopOnGiftClick(index) {
 
 	/* fade in/out bought green text indicator */
 	if (document.getElementById("ssmGiftButton")) {
-		document.getElementById(
-			"ssmGiftButton"
-		).outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">Bought!</span>`;
+		document.getElementById("ssmGiftButton").outerHTML = `<span class="ssm_gift_button ssm_fade_in" id="ssmGiftButton" style="color:#97de97">Bought!</span>`;
 	}
 
 	document.getElementById("recipientList").remove();

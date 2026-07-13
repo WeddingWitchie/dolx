@@ -3296,6 +3296,10 @@
 		<<effectsPickupSexToy>>
 		<<effectsDropSexToy>>
 
+		<<if ["lubeanus","lubepussy","lubepenis"].includes($leftaction) or ["lubeanus","lubepussy","lubepenis"].includes($rightaction)>>
+			<<set $_lubeWord to window.listUniqueCarriedSextoys().find(item => item.type.includes("lube"))?.name === "lube tube" ? "tube" : "bottle">>
+		<</if>>
+
 		<<if $leftaction is "lubeanus" or $rightaction is "lubeanus">>
 			<<if $leftaction is "lubeanus">>
 				<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
@@ -3304,7 +3308,7 @@
 				<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
 			<</if>>
 			<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
-			You squeeze your bottle of lube over your anus.
+			You squeeze your <<= $_lubeWord>> of lube over your anus.
 			<<bodyliquid "bottom" "goo">>
 			<<useLube>>
 			<<submission 3>>
@@ -3317,7 +3321,7 @@
 			<<if $rightaction is "lubepussy">>
 				<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
 			<</if>>
-			You squeeze your bottle of lube over your pussy.
+			You squeeze your <<= $_lubeWord>> of lube over your pussy.
 			<<bodyliquid "vaginaoutside" "goo">>
 			<<useLube>>
 			<<submission 3>>
@@ -3331,7 +3335,7 @@
 				<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
 			<</if>>
 			<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
-			You squeeze your bottle of lube over your penis.
+			You squeeze your <<= $_lubeWord>> of lube over your penis.
 			<<bodyliquid "penis" "goo">>
 			<<useLube>>
 			<<submission 3>>
@@ -8729,13 +8733,18 @@
 <</widget>>
 
 <<widget "useLube">>
-	<<set $_lube to $player.inventory.sextoys["lube"][0]>>
-	<<set $_lube.uses -= 1>>
-	<<if $debug is 1>><<run console.log("using lube? " + V.player.inventory.sextoys["lube"][0].name + " " + V.player.inventory.sextoys["lube"][0].uses)>><</if>>
-	<<if $_lube.uses lte 0>>
-		<<run V.player.inventory.sextoys["lube"].splice(0,1)>>
-		<<if $debug is 1>><<run console.log("used up all the lube")>><</if>>
-		You squeeze the last of the lube out of the bottle.
+	<<set $_lube to window.listUniqueCarriedSextoys().find(item => item.type.includes("lube"))>>
+	<<if $_lube>>
+		<<if $_lube.uses is undefined or Number.isNaN($_lube.uses)>>
+			<<set $_lube.uses to setup.sextoys.find(toy => toy.name === $_lube.name)?.uses || 3>>
+		<</if>>
+		<<set $_lube.uses -= 1>>
+		<<if $debug is 1>><<run console.log("using lube? " + $_lube.name + " " + $_lube.uses)>><</if>>
+		<<if $_lube.uses lte 0>>
+			<<run V.player.inventory.sextoys[$_lube.name].splice(V.player.inventory.sextoys[$_lube.name].indexOf($_lube), 1)>>
+			<<if $debug is 1>><<run console.log("used up all the lube")>><</if>>
+			You squeeze the last of the lube out of the <<= $_lube.name is "lube tube" ? "tube" : "bottle">>.
+		<</if>>
 	<</if>>
 <</widget>>
 
