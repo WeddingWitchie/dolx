@@ -896,7 +896,13 @@ function inappropriatePlayerState(check = ["all"]) {
 		return T.lewd_bodywriting_visible;
 	}
 	if (["all", "fluids"].includesAny(check)) {
-		if (V.liquidcount >= 1) return true;
+		/* Only visible fluid counts; fluid sealed behind a plug or inserted dildo can't be seen or leak */
+		let liquid = setup.bodyliquid.outerbodyparts.reduce((sum, part) => sum + setup.bodyliquid.combined(part), 0);
+		for (const part of setup.bodyliquid.innerbodyparts) {
+			if (["vagina", "anus"].includes(part) && playerGenitalFluidLeakBlocked(part)) continue;
+			liquid += setup.bodyliquid.combined(part);
+		}
+		if (liquid >= 1) return true;
 	}
 	if (["all", "drugs"].includesAny(check)) {
 		if (V.drunk >= 240 || V.drugged >= 200) return true;
