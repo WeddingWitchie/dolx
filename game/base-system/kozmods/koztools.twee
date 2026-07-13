@@ -334,6 +334,8 @@
 	<<widget "effectsman-xchange">>
 		/*Heat Message */
 		<<if $xchange.heat.systemOn and playerHeatMinArousal() and $position isnot "stalk">>
+			/* A combined Alpha/Breeder/Omega body follows its dominant rut while its penis is usable. If caged, receptive heat can still take over. */
+			<<set _alphaDominantHeat to playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist and !playerChastity("penis")>>
 			<<set _heatVaginalTrigger to false>>
 			<<set _heatAnalTrigger to false>>
 			<<if $player.vaginaExist and !playerChastity("vagina") and $vaginatarget isnot undefined>>
@@ -347,9 +349,9 @@
 				<<set _anusNpcPenisLocked to (_anusNpc and _anusNpc.chastity and _anusNpc.chastity.penis and _anusNpc.chastity.penis.includes("chastity"))>>
 				<<set _heatAnalTrigger to _anusNpc isnot undefined and _anusNpc.penis isnot "none" and $anusstate isnot "othermouth" and !_anusNpcPenisLocked>>
 			<</if>>
-			<<if _heatVaginalTrigger or _heatAnalTrigger>>
+			<<if (_heatVaginalTrigger or _heatAnalTrigger) and !_alphaDominantHeat>>
 				<<breeder-heat>>
-			<<elseif !($player.vaginaExist and !playerChastity("vagina")) and !(canBeMPregnant() and !playerChastity("anus"))>>
+			<<elseif !_alphaDominantHeat and !($player.vaginaExist and !playerChastity("vagina")) and !(canBeMPregnant() and !playerChastity("anus"))>>
 				/* Every eligible breeding hole is locked behind chastity: heat rails against the device instead of going quiet */
 				<<set _heatLockedNpcPresent to $NPCList.some(npc => npc && npc.active === "active" && npc.penis !== "none" && !(npc.chastity && npc.chastity.penis && npc.chastity.penis.includes("chastity")))>>
 				<<if _heatLockedNpcPresent>>

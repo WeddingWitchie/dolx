@@ -148,7 +148,7 @@ function buildGrayXChangePills() {
 			description:
 				"A colourless X-Change capsule carrying only the Alpha agent: a knotted penis and a need to be buried inside a partner before release. Acts on whatever body you currently have.",
 			onTakeMessage: teal("Pressure builds in your cock, not as simple arousal but as shape, purpose, and a heavy need to lock in place. Your hips twitch with the sudden certainty that release will not come easily unless you are inside someone."),
-			warning_label: "Warning: Requires a penis to take effect.",
+			warning_label: "Warning: Requires a penis to take effect. Overrides normal inhibitions against initiating penetration and takes priority over receptive heat compulsions while the penis is usable.",
 			canTake: grayGate.hasPenis,
 			blockedReason: "Needs a penis to do anything on your current body. It stays in your drawer until then.",
 			effects: [`<<xchange-gray 7 "alpha">>`],
@@ -1592,7 +1592,7 @@ setup.pills.push(
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Then pressure gathers in your cock, reshaping need into something heavier and more possessive. Your body wants to lock inside someone.",
 		warning_label:
-			"Warning: Requires a penis to matter. Known to cause intense urges to penetrate. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
+			"Warning: Requires a penis to matter. Known to cause intense urges to penetrate that override the user's normal inhibitions against initiating penetration. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
 			return false;
 		},
@@ -2372,7 +2372,7 @@ setup.pills.push(
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Then pressure gathers in your cock, reshaping need into something heavier and more possessive. Your body wants to lock inside someone.",
 		warning_label:
-			"Warning: Known to cause intense urges to penetrate. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
+			"Warning: Known to cause intense urges to penetrate that override normal inhibitions and receptive heat compulsions while the penis is usable. Certain parasitic infections might result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
 			return false;
 		},
@@ -2410,7 +2410,7 @@ setup.pills.push(
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>A low warmth settles deep inside you while pressure gathers in your cock. Your body wants to be filled, to fill, and to lock inside someone before release.",
 		warning_label:
-			"Warning: Enables anal pregnancy and requires a penis for the Alpha effect. Pregnancy will result in transformation becoming permanent. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
+			"Warning: Enables anal pregnancy and requires a penis for the Alpha effect. Alpha's dominant urge takes priority over receptive heat compulsions while the penis is usable. Pregnancy will result in transformation becoming permanent. Certain parasitic infections might also result in permanence, in particular those affecting the genitalia.",
 		autoTake() {
 			return false;
 		},
