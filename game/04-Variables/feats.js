@@ -2812,6 +2812,22 @@ setup.feats = {
 		filter: ["All", "Discoveries-Town"],
 		hint: "Hint: Finish a grand theft.",
 	},
+	"How They Get You": {
+		title: "How They Get You",
+		desc: "Earned payment from the Gentleman's Club.",
+		difficulty: 1,
+		series: "Gentleman's Club",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Comply with a very persuasive request.",
+	},
+	"They Got You": {
+		title: "They Got You",
+		desc: "The Gentleman's Club decided your cooperation no longer required payment.",
+		difficulty: 1,
+		series: "Gentleman's Club",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Keep complying with their requests.",
+	},
 };
 
 async function featsMergePre() {
