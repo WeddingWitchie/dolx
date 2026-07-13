@@ -77,6 +77,26 @@ function playerHasButtPlug() {
 }
 window.playerHasButtPlug = playerHasButtPlug;
 
+// Reconcile the inventory items' `worn` bookkeeping flags with the V.worn slots for the source of truth for what's actually on/in the body.
+// The two copies desync when code outside the toy inventory UI clears a worn slot (e.g. visionPrepMorph), and once a save/load has broken the slot↔item object alias nothing repairs the flag, leaving a phantom "worn" toy that's only carried.
+// Presence in a slot is enough to keep the flag: a combat-"removed" plug (state !== "worn") still occupies its slot and gets re-inserted by buttplugon, so its flag must survive.
+// Strap-ons are skipped; they're synced against V.worn.under_lower elsewhere.
+function dolxSyncSexToyWornFlags() {
+	const inv = V.player?.inventory?.sextoys;
+	if (!inv) return;
+	const slotToys = [V.worn?.butt_plug, V.worn?.vaginal_dildo, V.worn?.vibrator, V.worn?.bullet_vibe].filter(Boolean);
+	for (const items of Object.values(inv)) {
+		if (!Array.isArray(items)) continue;
+		for (const item of items) {
+			if (!item?.worn) continue;
+			if (Array.isArray(item.type) && item.type.includes("strap-on")) continue;
+			const inSlot = slotToys.some(w => w === item || (w.name === item.name && w.colour === item.colour));
+			if (!inSlot) item.worn = false;
+		}
+	}
+}
+window.dolxSyncSexToyWornFlags = dolxSyncSexToyWornFlags;
+
 function playerMasturbationToyByIndex(index) {
 	if (index === undefined || index === null || index === "none" || Number.isNaN(Number(index)) || typeof listUniqueCarriedSextoys !== "function") return null;
 	const toys = listUniqueCarriedSextoys().filter(toy => {

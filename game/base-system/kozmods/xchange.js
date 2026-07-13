@@ -388,16 +388,18 @@ function pleasure(amount, source) {
 				//   V.penisuse              — "stroker" while the penis is inside a stroker
 				// These only hold toy values while the toy is actually IN USE, so a toy that is merely carried in the inventory can never satisfy the check.
 
-				// NOTE: deliberately NOT using V.currentToyLeft/Right/Vagina/Anus here those are indices into the carried-toys list,
-				// are set the moment a toy is picked up, and can go stale; they don't prove anything is inserted.
+				// NOTE: deliberately NOT using V.currentToyLeft/Right/Vagina/Anus here those are indices into the carried-toys list, are set the moment a toy is picked up, and can go stale; they don't prove anything is inserted.
 				const arms = [V.leftarm, V.rightarm];
 
 				// --- Penis Addict: needs something INSIDE the player ---
 				if (V.penis_addict_trait === 1 && !penisAddictionFulfilled) {
-					// Worn (inserted) butt plug
+					// Worn (inserted) toys: the V.worn slots are the single source of truth for what's actually in the body, and these helpers verify state === "worn".
+					// The per-item inventory `worn` flags are shop-UI bookkeeping that other systems (combat "removed" state, vision morphs, save/load breaking the slot↔item alias) don't maintain, so they must never be read here as a stale flag made merely carried toys count as inserted.
+					// Every insertable worn toy lands in one of these three slots (anal beads share butt_plug; all vibes share vibrator).
 					try {
-						if (typeof window.playerHasButtPlug === "function" && window.playerHasButtPlug()) return true;
-						if (V.worn?.butt_plug?.name && !["none", "naked"].includes(String(V.worn.butt_plug.name).toLowerCase())) return true;
+						if (playerHasButtPlug()) return true;
+						if (playerHasWornVaginalDildo()) return true;
+						if (playerHasVibrator()) return true;
 					} catch (e) {}
 
 					// Worn insertive genital accessory (vibe/egg in the genitals slot)
@@ -407,25 +409,8 @@ function pleasure(amount, source) {
 						}
 					} catch (e) {}
 
-					// Worn insertive toy from the sextoys inventory (worn = on/in the body; strap-ons are worn externally and excluded).
-					// Carried alone never counts.
-					try {
-						const inv = V.player?.inventory?.sextoys;
-						if (inv) {
-							for (const category of Object.values(inv)) {
-								if (!Array.isArray(category)) continue;
-								for (const item of category) {
-									if (!item?.worn || !Array.isArray(item.type)) continue;
-									if (item.type.includes("strap-on")) continue;
-									if (item.type.includes("dildo") && setup.sextoys[item.index]?.category === "dildo") return true;
-									if (item.type.some(t => /vibrator|plug|bead|egg/i.test(String(t)))) return true;
-								}
-							}
-						}
-					} catch (e) {}
-
-					// Hand-held toy actually inserted ("entrance" tease states don't count)
-					if (arms.includes("mvaginadildo") || arms.includes("manusdildo")) return true;
+					// Hand-held toy actually inserted ("entrance" tease states don't count): masturbation states plus the combat self-use equivalents
+					if (arms.some(a => ["mvaginadildo", "manusdildo", "dildoSelfPussy", "dildoSelfAnus"].includes(a))) return true;
 
 					// Riding a toy placed on the floor
 					if (V.vaginause === "mdildopenetrate" || V.anususe === "mdildopenetrate") return true;
@@ -433,8 +418,8 @@ function pleasure(amount, source) {
 
 				// --- Hole Addict: needs the penis INSIDE something ---
 				if (holeAddictActive && !holeAddictionFulfilled && V.player?.penisExist) {
-					if (V.penisuse === "stroker") return true;
-					if (arms.includes("mpenisstroker")) return true;
+					if (V.penisuse === "stroker" || V.penisuse === "strokerSelfPenis") return true;
+					if (arms.some(a => ["mpenisstroker", "strokerSelfPenis"].includes(a))) return true;
 				}
 
 				return false;
