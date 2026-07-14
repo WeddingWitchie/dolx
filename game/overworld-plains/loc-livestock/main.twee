@@ -431,7 +431,7 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 	"Keep your arms at your side," <<he>> commands. You move your arms, exposing your naked body.
 	<<if $uncomfortable.nude is true>>You look away and close your eyes, unable to take the shame.<</if>>
 <<else>>
-	"Keep your arms at your side," <<he>> commands. You feel a thrill as <<his>> eyes flicker over your body.
+	"Keep your arms at your side," <<he>> commands. You feel a thrill as <<his>> eyes glance over your body.
 <</if>>
 
 <<if _isGettingPilled>>
@@ -455,26 +455,66 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 		Since you're pilled already, this pill would have no effect. Even Remy pauses seeing you. "No change? Nevermind."
 	<<else>>
 
+		/* Remy wants a cow they can milk at both ends: a herm dose keeps the breasts AND the cock in working order.
+		   This is Remy's own deliberate dose, so it applies regardless of the herm spikepool setting. */
+		<<set _wasHerm to !!$xchange.pill.hermEffect>>
+		<<set _hadPenis to !!$player.penisExist>><<set _hadVagina to !!$player.vaginaExist>>
+
 		/* Choice Pill only if you misbehave (obey < 10) */
 		<<if $livestock.obey lt 10 and (!playerIsXChanged() or !pillIsPermanent())>>
 			<<set $xchange.remyChoicePill to 1>>
 			<<set _remyChoiceFlag to 1>>
 
-			/* passage-side reliability: ensure xchange-choice isn't skipped by a stale flag */
-			<<set _oldGF to $xchange.pill.genderflipEffect>>
-			<<set $xchange.pill.genderflipEffect to 0>>
-			<<xchange-choice>>
-			<<set $xchange.pill.genderflipEffect to _oldGF>>
+			<<if playerIsXChanged() and !$xchange.pill.hermEffect>>
+				/* Already mid-session: dose the herm on top before the Choice effect locks it in. */
+				<<xchange-addeffect "herm">><<xchange-fertility-override>>
+			<</if>>
+			<<xchange-choice "herm">>
 
-		/* Random spike only if settings allow spikes */
+		/* Deliberate dose otherwise, if settings allow spiking */
 		<<elseif playerMayBeSpiked()>>
-			<<xchange-random-spike>><<xchange-seen 2>>
+			<<if !playerIsXChanged()>>
+				/* Same duration likelihoods as a random spike */
+				<<set _durations to []>>
+				<<for _i to 0; _i lt 10; _i++>><<run _durations.push(1)>><</for>>
+				<<for _i to 0; _i lt 5; _i++>><<run _durations.push(3)>><</for>>
+				<<for _i to 0; _i lt 1; _i++>><<run _durations.push(7)>><</for>>
+				<<set _duration to _durations.random()>>
+				<<take-xchange _duration "herm">>
+			<<elseif !$xchange.pill.hermEffect>>
+				/* Already mid-session on a temporary pill: add the herm effect on top. */
+				<<xchange-addeffect "herm">><<xchange-fertility-override>>
+			<</if>>
+			<<if !_wasHerm and $xchange.pill.hermEffect>>
+				<<xchange-fame 1>>
+				<<if $xchange.spikeSideEffectsEnabled !== undefined ? $xchange.spikeSideEffectsEnabled : 1>>
+					<<xchange-addsideeffect "suspicious">>
+				<</if>>
+			<</if>>
+			<<xchange-seen 2>>
 		<</if>>
 
 		<<set _afterX to playerIsXChanged()>>
+		<<set _becameHerm to !_wasHerm and !!$xchange.pill.hermEffect>>
 
-		<<if !_beforeX and _afterX>>
-			<br>
+		/* Remy's dose is cut with his growth formula: a herm cow leaves with fuller udders. */
+		<<set _remyBreastBoost to false>>
+		<<if _becameHerm and $player.breastsize lt $breastsizemax>>
+			<<set $player.breastsize += 2>>
+			<<set $breastgrowthmessage to $player.breastsize>><<set $effectsmessage to 1>>
+			<<set _remyBreastBoost to true>>
+		<</if>>
+
+		<<if _becameHerm>>
+			<br><br>
+			You feel the characteristic warmth of an X-Change pill spreading throughout your body, as your figure molds and reshapes itself into something in-between.
+			<<if !_hadVagina>>A strange heat blossoms beneath your <<penis>>, where new folds now nestle.<</if>>
+			<<if !_hadPenis>>An unfamiliar weight swells above your <<pussy>>, jutting from your crotch.<</if>>
+			<<if _remyBreastBoost>>Your chest tightens as your <<breasts>> swell fuller still.<</if>>
+			<br><br>
+			Remy looks you over with open satisfaction. "There we go. Milkable at both ends."
+		<<elseif !_beforeX and _afterX>>
+			<br><br>
 			You feel the characteristic warmth of an X-Change pill spreading throughout your body, as your figure molds and changes itself into the
 			<<if $player.gender is "f">>handsome form of a man<<elseif $player.gender is "m">>beautiful shape of a woman<</if>>.
 		<<else>>
