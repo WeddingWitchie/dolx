@@ -1,164 +1,233 @@
-> **If the normal pipeline links at the bottom fail, use these backup downloads instead:**
-> [Images](https://gitgud.io/Akoz/dol-xchange/-/archive/master/dol-xchange-master.zip?ref_type=heads&path=img) | [Audio](https://gitgud.io/Akoz/dol-xchange/-/archive/master/dol-xchange-master.zip?ref_type=heads&path=audio)
+> **If the normal pipeline links at the bottom fail, use these backup downloads instead:** > [Images](https://gitgud.io/Akoz/dol-xchange/-/archive/master/dol-xchange-master.zip?ref_type=heads&path=img) | [Audio](https://gitgud.io/Akoz/dol-xchange/-/archive/master/dol-xchange-master.zip?ref_type=heads&path=audio)
 
 ## Instructions:
-  * Download DoLX_HTML.
-  * Download DoLX_Images.
-  * Download DoLX_Audio.
-  * Extract all 3 downloaded packages into the same folder.
-  * Run "Degrees of Lewdity VERSION.html".
-  * Enjoy!
+
+- Download DoLX_HTML.
+- Download DoLX_Images.
+- Download DoLX_Audio.
+- Extract all 3 downloaded packages into the same folder.
+- Run "Degrees of Lewdity VERSION.html".
+- Enjoy!
 
 ## Changelog
-## Changes and Additions:
-* Breeder and Fertility settings
-  * Added a **Fake breeder (infertile)** toggle under **X-Change Settings > Breeder Settings**.
-    * When enabled, breeder pills give only the behavioural breeder effect, including cravings, creampie-focused pleasure, and stress relief.
-    * Fake breeder pills do not make the player fertile and can no longer cause pregnancy.
-  * Added a new **Fertility Settings** block.
-    * Added an **Always fertile while X-Changed** toggle.
-    * Added a **Fertility strength (%)** slider that controls how reliably Fertility and Hyper Fertility courses cause conception.
-  * **Always fertile** and Hyper Fertility effects take priority over **Fake breeder**.
-  * Clarified breeder tooltips so they now explain that the breeder effect only works while the player has a womb and vagina.
-  * Replaced the old non-functional **Creampie-only orgasms** breeder toggle with a working **Orgasm without creampie** toggle.
-    * When enabled, breeder and omega pills no longer prevent orgasm when there is no cum inside the player.
-    * Creampie-specific pleasure and stress relief still require an actual creampie.
-  * All new breeder and fertility options are included in Settings Export/Import.
-* Added “Relentless Bailey” rent option
-  * Added a new optional toggle under **Settings > Rebalance Settings > Bailey Triggers**.
-  * This setting is disabled by default.
-  * When enabled, Bailey never accepts “no” for rent and starts hunting the player from the beginning.
-  * Weekly rent continues rising with no cap instead of stopping at the usual limit.
-  * Rent-threshold and rent-cap settings are greyed out while this option is enabled.
-* Added Avery confrontation scenes
-  * Players can now confront Avery after the skyscraper car chase instead of being sent straight back to the mansion garage.
-  * Added immediate and delayed confrontation variants depending on how the chase ends.
-  * Avery’s response changes based on love and rage.
-    * Avery may punish the player, blame them, brush them off, or offer manipulative comfort.
-  * The scene now accounts for speech attitude, pregnancy, and existing Avery mansion punishment routes.
-* Updated Avery’s “saved” route
-  * Saved Avery now gains rage more slowly from failed housework.
-  * Saved Avery now forgives missed cooking entirely.
-  * Avery now focuses more on keeping the mansion clean.
-  * Avery now hints that they enjoy tending the garden.
-  * The mansion garden description now reflects Avery’s care.
-  * When saved Avery would explode over housework, they now have a chance to stop their own selves instead.
-* Updated Avery “adoption”
-  * Avery can now adopt the player into the mansion if Avery is selected as the player’s love interest in the Social Menu.
-* Updated Avery’s mansion greenhouse
-  * Players can now ask Avery to update the mansion greenhouse while Avery is in the garden.
-  * This becomes available one month after unlocking the greenhouse.
-  * Players who already unlocked the greenhouse before this update can ask Avery immediately.
-* Updated Avery dungeon choice
-  * The free-choice menu in Avery’s dungeon now grants masochism points.
-  * Other dungeon entry points do not grant masochism points because they do not offer a real choice for PC.
-* Added prison meditation option
-  * Added a meditation option in prison.
-  * This uses the same mechanic as meditation at the lake.
-* Added teleport option to cheat menu
-  * Added a cheat menu teleport option for the park.
-* Added Gender-Anxious to cheat menu
-  * Added **Gender-Anxious** to the cheat menu.
-  * Also fixed **Cock Addict** and **Hole Addict** entries in the same menu.
-* Updated Insanity trait
-  * The Insanity trait now includes dissociation.
-  * Insane player characters are now completely numb.
-  * Sensitivity changes are now fully blocked while insane, whether they would increase or decrease sensitivity.
-  * This fixes reflected sensitivity loss caused by pills, purity, orgasms, anti-pill effects, and version-update migration changes.
-  * Existing saves now repair clearly broken sensitivity values once on load.
-  * Valid sensitivity values are left unchanged.
-* Added foodstuff pruning
-  * Added cleanup for unknown food items left behind by removed mods or inactive game setups.
-  * These invalid food entries could crash shops, kitchens, stalls, or tending tasks.
-  * The cleanup removes only missing outside-mod food entries.
-  * Valid food data from the current setup is left untouched.
-* Updated loitering
-  * Loitering is now a proper action.
-  * Players can now choose how long they want to loiter.
-* Added new school hallway event
-  * Added a school hallway event where other students can sense the player’s divine transformation.
 
-## Rebalancing and Fixes:
-* Broken save repairs
-  * Added save repair for missing transformation part keys.
-  * Added repair for non-finite numeric values.
-* Pharmacy bulk-buy fixes
-  * Basic X-Change pill packs can now be bought in bulk from the pharmacy.
-    * 5 packs cost £500.
-    * 10 packs cost £1000.
-  * Basic packs no longer show misleading “cannot afford” messages when the player has enough money.
-* Blackmail Gentleman’s Club quest fixes
-  * Fixed pill-related quests failing after the player took the envelope contents when the free pill was blocked and never actually affected the character.
-  * This mostly affected the arcade pill quest.
-  * The issue could happen when non-consensual spiking was disabled, X-Change therapy was active, or the character was pregnant.
-  * Quests now track whether the pill actually landed before allowing the “tested the pill” failure condition to trigger.
-  * Older saves are repaired when possible.
-  * Reloading before the in-game day ends should now clear the false failure and allow the quest to continue normally.
-  * The intended failure still works if the pill really takes effect and the player tests it at the pharmacy machine.
-* Omega X-Change pregnancy fixes
-  * Omega can now actually get pregnant, including with the Hyper Fertility pill.
-  * Omega can now conceive through the butt and carry a real human baby to term.
-  * Omega pregnancies now show a visible growing belly instead of only ever resulting in slimes.
-  * Omega characters who also have a vagina can now get pregnant in either hole.
-    * Whichever hole receives the sperm is the one that takes.
-    * Once one pregnancy sticks, the other is blocked.
-    * Omega can only carry one pregnancy at a time.
-  * The pregnancy/status screen now correctly shows vaginal pregnancy for Omega.
-  * No-vagina characters no longer receive the odd “your period is late” message.
-    * They notice pregnancy through their growing belly instead.
-* Gray X-Change pill fixes
-  * Gray X-Change Resistance, Continue, and Portal pills no longer vanish from the medicine drawer after being bought.
-  * Owned gray pills now always remain visible in the medicine drawer.
-  * Unavailable pills now explain why they cannot be used.
-* Shady dealer suspicious pill fixes
-  * The shady dealer now gives suspicious pills based on the player’s original body instead of their current X-Changed body.
-* Cat transformation fixes
-  * Cat children can now correctly inherit the cat trait from a full-cat parent.
-  * Cat heterochromia is no longer rerolled every time the player crosses the cat transformation threshold.
-  * The mirror option can still deliberately reroll cat eye colours.
-* Robin crossdressing gender reference fixes
-  * Fixed Robin’s crossdressing scenes using the wrong gender references after X-Change.
-* Robin NPC generation cleanup
-  * Fixed redundant Robin NPC generation when talking about the stand business.
-  * Tidied up the related link.
-* Silver Stranger settings fixes
-  * The Silver Stranger is now hidden in settings where appropriate.
-  * The Silver Stranger is now treated as infertile like other non-pregnancy NPCs.
-  * Settings import/export now safely handles NPCs with missing pregnancy data.
-  * The Silver Stranger’s hidden identity no longer leaks in settings exports, import previews, or bulk named-NPC gender presets.
-* Skill display fatigue fixes
-  * Fatigue was already lowering effective skills during checks, but some UI screens still showed the unpenalized grade.
-  * Skill displays now include fatigue penalties wherever relevant.
-  * This includes the Characteristics screen and seduction encounter checks.
-  * Players can now see when fatigue is lowering their effective skill grade.
-* Sage hat relock fix
-  * Fixed a previous save migration accidentally unlocking the sage witch hat for some players.
-  * Players who legitimately unlocked it through Gwylan’s ritual scene keep it.
-  * Players who have not unlocked it yet can still earn it normally.
-* Landry warning box fix
-  * Fixed Landry’s red warning box.
-  * Removed a leftover variable and tidied the related handling.
-* Setting crash fix
-  * Improved handling for import/export and named-NPC gender presets.
-* Fixed a missing navigation link.
-* Skullduggery HBSC Gala fix
-  * Fixed an issue with Skullduggery appear impossible when infact it isn't during the HBSC Gala.
-* Minigame money rebalance
-  * Dungeon rewards should now better fit the scale of a small console game.
+## Changes and Additions
+
+- New feats
+  - Added a feat for giving birth anally while affected by an Omega pill.
+  - Added two new feats related to complying with requests at the Gentleman’s Club.
+- Realistic childbirth content
+  - Added realistic childbirth to Gwylan’s birth scene.
+  - Portal effects can no longer cause sexual encounters during realistic childbirth.
+- Added lube to the hospital pharmacy
+  - The hospital pharmacy now sells a separate three-use lube tube.
+  - Adult-shop lube bottles now provide five uses.
+  - Lube tubes are stored separately from bottled lube.
+  - Lube tubes cannot be used to refill the brothel vending machine.
+  - Combat now consumes the correct carried lube type and removes the correct container when empty.
+- More plums and peaches
+  - Added a random forest encounter of finding wild plum and peach trees.
+  - Avery’s garden now displays separate **Steal oranges** and **Steal plums** options.
+- Updated Remy’s spiking scene
+  - Remy’s pill in the **Livestock Milking Obey** scene now gives the player a hermaphroditic body instead of simply reversing their sex.
+  - Remy now mixes growth formula into the pill, immediately increasing breast size by two stages unless the player is already at the maximum.
+  - The scene now ends with Remy declaring the player “milkable at both ends.”
+- Updated Water Dragon content
+  - Expanded the Water Dragon lore provided by the island elder.
+  - Restored a missing Water Dragon travel link.
+- Updated loitering
+  - The player can now be interrupted while loitering.
+  - When an interruption occurs, the waiting period ends immediately.
+- Updated Poppy’s schedule
+  - Poppy now visits Bailey from 7:00 AM on weekends and school holidays.
+  - Each visit lasts a randomized 25–60 minutes.
+  - Bailey’s normal office interactions become available after Poppy’s visit ends.
+- Increased the randomness of maths-envelope delivery events.
+
+## Rebalancing and Fixes
+
+- Reworked Insanity-trait in combat
+  - Permanent and temporary Insanity now paralyses the player for the first two turns of combat.
+  - Gaining focus while dissociated, such as by poking yourself or attempting to speak, removes an additional turn from the paralysis.
+  - Willpower now counters Insanity-based combat dissociation:
+    - At 350 or more willpower, paralysis is reduced to one turn.
+    - At 700 or more willpower, paralysis is prevented entirely.
+  - Mild dissociation remains for the rest of the encounter after the player surfaces.
+- Tweaked consensual Insanity lash-outs
+  - Active permanent or temporary Insanity now makes one 13% lash-out roll per consensual encounter.
+  - Non-consensual encounters retain their original behaviour.
+- Updated Omega and Breeder heat behaviour
+  - X-Change heat now treats every pregnancy-capable hole as a valid breeding target.
+  - Previously, combat heat only checked vaginal penetration.
+    - This could leave Omegas being bred anally unsatisfied.
+    - It could also trigger repeated compulsion messages or redirect their actions toward vaginal penetration.
+  - Anal breeding now supports the same heat behaviours as vaginal breeding, including:
+    - Leg-locking.
+    - Condom removal.
+    - Undressing.
+    - Guiding penetration.
+  - Omegas no longer request that partners avoid anal sex while in heat.
+  - Omega combat heat can now activate for characters without a vagina.
+  - Non-Omega Breeder heat continues to redirect penetration toward the vagina.
+- Updated forceful heat
+  - Forceful heat now recognizes all pregnancy-capable holes, including anal pregnancy for Omegas.
+  - Characters without a vagina are no longer directed toward vaginal actions.
+  - Being bred through either eligible hole now satisfies the heat compulsion.
+  - Chastity belts no longer disable forceful heat completely.
+  - When every eligible hole is locked, the player may:
+    - Remove concealing clothing.
+    - Struggle against the chastity device.
+    - Gradually damage the device.
+  - Normal forceful-heat behaviour resumes after the belt breaks.
+  - Added appropriate behaviour for chastity parasites and characters whose arms are restrained.
+  - Updated the forceful-heat setting description to explain its interaction with chastity devices.
+  - Pregnancy from semen deposited outside a chastity belt has not been added, as external semen is not currently a valid conception method.
+- Updated the Alpha pill
+  - When Alpha is combined with Breeder or Omega, Alpha’s dominant urge now takes priority while the player’s penis is usable.
+  - Forceful heat will no longer override the player with receptive actions in this situation.
+- Updated Resistance and Continue pills
+  - Resistance and Continue can now be used during any active X-Change session.
+- Reworked the Gentleman’s Club introduction at the pub
+  - Rewrote Landry’s explanation to better match their characterization.
+  - The “top-notch material” description can now be received when the player has a good reputation and low allure, reinforcing their good standing instead make Landry behave not like themselves.
+- Tweaked Avery’s bank gala flow
+  - Bank gala now totally hidden.
+  - After the gala, Avery confirms that the original guest will attend the next party.
+  - Reduced the gala invitation chance from 33% to 30%.
+  - Added an eight-party cooldown between gala invitations.
+- Updated Whitney’s special orphanage visit
+  - Added two hallway interactions after the player rejects Whitney.
+  - Added a park interaction when the player attempts to apologize.
+- Fixed missing outfit pieces
+  - Added protection for missing clothing items and missing outfit counterparts.
+  - Clothing pieces that cannot be resolved now contribute zero warmth instead of crashing the wardrobe list.
+- Fixed costume makeup
+  - The Custom Makeup colour picker now initializes its temporary colour records directly.
+- Fixed the Statistics overlay
+  - Corrected displayed health and scaling values.
+  - Capped health bonuses are now calculated using the configured multiplier instead of the number of buffs.
+  - Day, defeat, and level scaling display 0% when disabled.
+  - Level-scaling enable toggles are now respected.
+  - Defeat-level bonuses are now compared against the configured limit.
+  - Displayed encounter scaling now mirrors the logic used to apply encounter scaling.
+- Fixed bank gala time progression
+  - Time now passes correctly during the bank gala.
+- Fixed sudden time jumps during Avery’s party events
+  - Avery’s party event now waits for the appropriate time instead of dragging the player forward with the clock.
+- Fixed Avery’s consensual sex scene
+  - This prevents the broken “mysterious stat creature” from appearing.
+- Fixed Avery’s garden text
+  - Corrected missing sentence breaks and related formatting.
+- Fixed a missing pronoun after giving birth at Alex’s cottage.
+- Fixed a missing pronoun in Poppy’s flat dialogue.
+- Fixed Whitney’s special orphanage dialogue
+  - Whitney now refers to their actual genitals instead of always saying, “My dick’s still out.”
+- Fixed Whitney’s toilet rule
+  - Removed the 25% chance that Whitney assigned the player to the toilets they would already naturally use.
+  - Whitney now always assigns the opposite toilets based on the player’s current body.
+  - X-Change body effects are included when determining the assignment.
+- Fixed the HBSC **Deposit maximum** option
+  - Fractional-penny cash values can no longer round above the player’s actual balance.
+- Fixed the Dye Harder hair-colour mismatch
+  - Mirror hairstyle previews now use the saved custom Dye Harder filter.
+  - Hairdresser mannequin previews now use the correct filter.
+  - Simple and gradient custom dyes are supported.
+- Fixed custom-colour preset saving
+  - Clicking the save icon now opens a text box asking for a preset name.
+  - Blank names are rejected.
+  - Duplicate names are rejected.
+  - The colour is saved and automatically selected in the dropdown.
+- Fixed X-Change Blue NOW transformation text
+- Fixed Gray pill use
+- Fixed NPC pill transformations
+  - A female NPC given a Blue pill now receives a male body.
+  - A male NPC given a Pink pill now receives a female body.
+  - Restoration continues to return the NPC to their original body.
+  - The traits overlay now reports the NPC’s actual transformed body.
+- Fixed a missing NPC in the prison pill scene.
+- Fixed sex-toy addiction checks
+  - Sex toys no longer count as worn after they have been:
+    - Removed normally.
+    - Returned to the inventory.
+    - Removed during combat.
+    - Cleared by a body transformation.
+- Fixed Cock Addict and Hole Addict compatibility
+  - Cock Addict and Hole Addict can no longer be active at the same time.
+- Fixed Hole Addict orgasm blocking
+  - Hole Addict no longer prevent orgasm while the player has no penis.
+  - This includes bodies created by gender-flipping X-Change pills.
+  - Since the player has no penis to insert, the craving remains dormant until their penis returns.
+  - Trait descriptions now explain this behaviour.
+  - Also fixed the following encounters incorrectly treating the player as unable to orgasm:
+    - Ear slime.
+    - Moor phallus plant.
+    - Lake ruin wraith.
+  - These encounters now distinguish between an active trait and a trait merely locked by its counterpart.
+- Fixed combat anatomy conflicts
+  - Prevented multiple NPCs from claiming the player’s penis simultaneously.
+  - Stale X-ray frames no longer display duplicated anatomy.
+  - Insertable toys and strokers now reliably force hollow orgasms for addiction and X-Change effects.
+  - Updated the related trait descriptions to match the corrected behaviour.
+- Fixed cleanliness checks for plugs and dildos
+  - Fluids sealed inside the player by a plug or sufficiently large dildo no longer prevent entry to wards or babysitting events.
+  - Small dildos still allow fluids to leak and therefore continue to affect cleanliness checks.
+- Fixed unknown-father skin-colour probability
+  - The slider now works as expected:
+    - 0% means the unknown father will never have dark skin.
+    - 100% means the unknown father will always have dark skin.
+  - This change only affects new conceptions.
+  - Existing children retain the skin colour stored in their save data.
+- Fixed the pet-shop parasite-birth check
+  - The pet shop now counts parasite births from either hole.
+- Fixed the shady dealer
+  - The player can no longer interact with the shady dealer if naked.
+- Fixed the MMA Gym closing time
+  - Entering the gym at 9:00 PM now reaches the closing-time scene instead of the empty nighttime version.
+- Fixed a missing tutorial link
+  - Restored the missing link after selecting the skip or lose-encounter option.
+- Fixed the bedroom poster.
+- Fixed broken soup-kitchen combat.
+- Fixed feat boost 2.5
+- Tidied the cheat menu
+- Fixed the debug menu
+  - Corrected errors affecting debug-menu entries, including:
+    - **Rape Me**.
+    - **Gang Rape Me w/ Audience**.
+    - Beast encounters.
+    - Pregnancy progress by day or week.
+    - Leighton inspections.
+    - NNPC Parade.
+    - Forest Shop.
+    - Swarm tests.
+  - Options that only work during combat, such as **Turn beast into...** and **Distract Robin Crowd**, are now hidden when they do not apply.
+  - Favourited debug entries continue working after saving and loading.
+  - **Become Alluring** and **Become Unalluring** now correctly change the player’s allure.
+  - A single damaged NPC slot no longer causes the entire combat turn to error.
+- Added automated debug-menu tests
+  - The tests automatically click through every debug-menu entry.
+- Improved YAML compatibility so generated ZIP files work correctly on Linux.
 
 ## Imagepack update
-* Updated Goose image pack by Snowy
-  * Added ankle strap sandals, ankle strap sneakers, ankle trainers, ballet pumps, butterfly heels, clogs, double strap sandals, flat sandals, floral rain boots, floral ribbon trainers, fuzzy bow boots, heeled trainers, high heel ankle boots, knee fur boots, knit cuff ankle boots, lace-up heels, long puff boots, mary jane heels, over-the-knee boots, platform ankle boots, platform clogs with fur, platform heel boots, polka dot train boots, puff boots, rose pumps, satin ribbon heels, shark slippers, snowball heels, soft slippers, suede pumps, t-strap heels, and wrinkled long boots by Rinnarunnn.
-  * Added asymmetrical garter, asymmetrical loose socks, asymmetrical striped socks, fishnet ankle socks, fishnet knee highs, floral socks, lace over-the-knee socks, lace socks with bows, lace socks with ribbons, lace tights, and plain over-the-knee socks by Froggy.
-  * Added lolita dress, lolita bonnet, rose platform heels, butterfly eyepatch, and rose eyepatch by Fox Familiar.
-  * Added vintage suitcase, luggage, totebag, and one-shoulder crop top by Leni.
-  * Added babydoll top by Yams.
-  * Added strawberry slippers by Pudding.
-  * Added familiar collar by Knepo.
-  * Added checkered skirt by MY.
-  * Added balloon, banana, bear, bee, beer, bomb, bone, boombox, butterfly, car, cloud, cupcake, doughnut, eggplant, flame, football, foxtail, goldfish, guitar, lion, nut, peach, penguin, rice ball, rocket, shooting star, sparkles, sun, sushi, thunderbolt, turtle, and watermelon graphic earrings by Sam Storeiz.
-  * Cleaned up several image pack entries.
-* Goose image pack fixes
-  * Fixed an elegant socks naming error.
-  * Slightly edited curls and curly side-up side sprites.
-  * Added back sprites to curls, default, defined curl, dreads, half-up, half-up twintails, loose, and space buns side hairstyles.
+
+- Updated Goose Masc image pack by Snowy
+  - Added bodywriting by F4ll.
+  - Added the flat side ponytail hairstyle by Psyncer.
+  - Added flippers, ice skates, light-up trainers, long boots, paddock boots, wellies, and a cow onesie by Jaune.
+  - Added new modded Goose faces:
+    - Modded 2 by momo (uminaoushi).
+    - Modded 4 by Bibi (x.chirou.x).
+    - Modded 5 by 邪恶辣椒加加加 (jiajiajiaxieelajiao).
+    - Modded 9 by ྀི◟ ͜ Mars ᰍᰍ 🪽 (toxicbureaucracy).
+  - Added a Goosefem harness by Rin (rinnarunnn).
+  - Updated the transformation plushie icon by LorePotato.
+  - Updated the image-pack credit list.
+  - Fixed Goose hair sprites.
+  - Fixed missing hoodie sprites.
+  - Fixed the masculine fur cap, or raccoon cap, mask.
+  - Fixed several missing icons.
+  - Fixed the paper fan and paper parasol.
+    - Only the plain variants are currently available.
+  - Fixed missing right-facing idle and arm-covering mannequin sprites.
+  - Edited dreads so they no longer have gaps around the arms.
+  - Added missing back sprites for dreads and the ruffled hairstyle.
+- Add Water Dragon graphic for Beesss by Samz and RRds
