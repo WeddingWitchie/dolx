@@ -10,7 +10,7 @@
 
 <<if $mmagymintro isnot 1 and _openinghours is 1>>
 	<<mmaGymIntro "MMA Gym">>
-<<elseif _openinghours is 0>>
+<<elseif _openinghours is 0 and Time.hour isnot $closinghour>>
 	The building is dark outside opening hours. Without the music and shouting, the place feels bigger. But you spot a standard cash register sits on a counter. It's locked tight.
 	<br><br><<set $lock to 200>>
 	<<if currentSkillValue('skulduggery') gte $lock>>
@@ -42,9 +42,17 @@
 			<<lockericon>><<link [[Changing room|MMA Gym Changing Room]]>><</link>>
 			<br><<mmaGymAveryWhitneyHook>><br>
 		<</if>>
-		<<if Time.hour is 21>>
+		<<if Time.hour is $closinghour>>
 			It is closing time. Riley starts shooing everyone toward the door.<<if $exposed gte 1>> Your stomach drops as you remember what state of dress you are in.<</if>>
 			<br>
+			<<storeon "mma_gym" "check">>
+			<<if _store_check is 1>>
+				<br>
+				You remember you left your clothes in the changing room.
+				<br>
+				<<nightingaleicon>><<link [[Dress before leaving|Nightingale Street]]>><<storeon "mma_gym">><<endevent>><</link>>
+				<br>
+			<</if>>
 		<<elseif $exposed gte 1>>
 			<span class="blue">You're too exposed to use anything or interact with anyone.</span>
 			<<covered>><br>
@@ -106,7 +114,7 @@
 			<<socialiseicon>><<link [[Spar with the regulars (0:45)|MMA Regular Sparring]]>><</link>><<gathletics>><<note " Moderate fatigue" "red">>
 			<br>
 		<</if>>
-		<<if $mmaGymSparUnlocked is 1 and $exposed lt 1>>
+		<<if _openinghours is 1 and $mmaGymSparUnlocked is 1 and $exposed lt 1>>
 			<<socialiseicon>><<link [[Spar with Riley (0:30)|MMA Riley Challenge Start]]>><<set $mmaRileyChallengeMode to "spar">><<set $phase to 0>><<pass 30>><</link>>
 			<br>
 		<</if>>
