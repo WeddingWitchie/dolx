@@ -7536,33 +7536,35 @@ You shouldn't bother <<him>> anymore for today.
 <<avery_mansion_end_links>>
 
 :: Avery Garden Steal
-<<effects>><<set $daily.avery.oranges to true>>
+<<effects>>
+<<set _avery_garden_fruit to ["orange", "plum"].includes($phase) ? $phase : "orange">>
+<<set $daily.avery[setup.foodstuff[_avery_garden_fruit].plural] to true>><<unset $phase>>
 <<npc "Avery">><<person1>>
 <<skulduggerycheck>>
 <br><br>
 
 <<if $tendingSuccess is 1 and $skulduggerysuccess isnot 1>>
-	<<wearProp "orange basket">>
-	<<tending_pick orange 5 20>>
+	<<wearProp `_avery_garden_fruit + " basket"`>>
+	<<tending_pick _avery_garden_fruit 5 20>>
 
-	<<set _lost_oranges to 1 + Math.floor(Math.random()* _tending_amount/2)>>
-	<<set $foodstuff.orange.amount -= _lost_oranges>>
+	<<set _lost_fruit to 1 + Math.floor(Math.random() * _tending_amount / 2)>>
+	<<set $foodstuff[_avery_garden_fruit].amount -= _lost_fruit>>
 	<br><br>
-	You climb up the tree and pick _tending_amount oranges. <span class= "red">However, you slip and fall</span>, bringing the oranges with you. <<if $tending lt 1000>><<gtending>><<tending 5>><</if>>
+	You climb up the tree and pick _tending_amount <<print setup.foodstuff[_avery_garden_fruit].plural>>. <span class="red">However, you slip and fall</span>, bringing the fruit with you. <<if $tending lt 1000>><<gtending>><<tending 5>><</if>>
 	<br><br>
-	You check the fallen oranges and discard _lost_oranges of the bruised ones. | <span class="red">- _lost_oranges <<pluralise _lost_oranges "orange">></span>
+	You check the fallen fruit and discard _lost_fruit of the bruised ones. | <span class="red">- _lost_fruit <<print _lost_fruit is 1 ? setup.foodstuff[_avery_garden_fruit].singular : setup.foodstuff[_avery_garden_fruit].plural>></span>
 	<br><br>
 	<<if !["away","work","sleep","bath","study"].includes($avery_mansion.schedule)>>
 		Avery rushes to you. "Are you alright, <<pcpetname "Avery">>?"
 		<br><br>
-		<<He>> sees the oranges in your hands, and <<his>> expression changes. "Were you trying to steal from me?" <<garage>><<npcincr Avery rage 1>>
+		<<He>> sees the fruit in your hands, and <<his>> expression changes. "Were you trying to steal from me?" <<garage>><<npcincr Avery rage 1>>
 	<<else>>
 		Thankfully, no one catches you in the act. <<if $tending lt 1000>><<gtending>><<tending 5>><</if>>
 	<</if>>
 	<br><br>
 	<<skulduggeryuse>>
 <<elseif $skulduggerysuccess is 1 and $tendingSuccess isnot 1>>
-	You climb up the tree successfully, <span class= "red">but fail to pick any oranges</span>. You feel a bit sheepish, climbing down with empty hands.
+	You climb up the tree successfully, <span class="red">but fail to pick any <<print setup.foodstuff[_avery_garden_fruit].plural>></span>. You feel a bit sheepish, climbing down with empty hands.
 	<<if $tending lt 1000>><<gtending>><<tending 5>><</if>>
 	<br><br>
 	<<skulduggeryuse>>
@@ -7599,10 +7601,10 @@ You shouldn't bother <<him>> anymore for today.
 	<br><br>
 	<<skulduggeryuse>>
 <<else>>
-	<<wearProp "orange basket">>
-	<<tending_pick orange 5 20>>
+	<<wearProp `_avery_garden_fruit + " basket"`>>
+	<<tending_pick _avery_garden_fruit 5 20>>
 	<br><br>
-	You climb up the tree and pick _tending_amount oranges.
+	You climb up the tree and pick _tending_amount <<print setup.foodstuff[_avery_garden_fruit].plural>>.
 	<br><br>
 <</if>>
 <<endevent>>
