@@ -43,7 +43,7 @@
 
 /* Place '<<portalPantiesPass $pass>>' within <<widget "pass">> */
 <<widget "portalPantiesPass">>
-	<<if $event or playerChastity("hidden")>>/*Prevents it from running during events or if the player has a chastity belt*/
+	<<if $event or playerChastity("hidden") or def $birth>>/*Prevents it from running during events, if the player has a chastity belt, or during childbirth ($birth exists from the start of labour until the birth resolves)*/
 	<<elseif $portalPantiesEnabled and ($worn.under_lower.type.includes("portal") or $xchange.pill.portalEffect)>>
 		<<set $portalPanties.totalPassed += _args[0]>>
 		<<set _totalToPass to _args[0]>>
@@ -150,7 +150,8 @@
 <</widget>>
 
 /* Place '<<portalPantiesDisplay>>' within '<<effects>>' */
-<<widget "portalPantiesDisplay">><<silently>>
+<<widget "portalPantiesDisplay">><<if ndef $birth>><<silently>>
+	/* The whole portal effect is paused during childbirth ($birth defined), so nothing here may run */
 	/*Runs the 'fucking' effect */
 	<<set $_penisLocation to ["anus","vagina"].find((location) => $portalPanties.state[location] and $portalPanties.state[location].owner is "pc")>>
 	<<if $player.vaginaExist>>
@@ -168,7 +169,7 @@
 	<</silently>><<portalPantiesDisplayMessage>>
 
 	<<set $portalPanties.toPass to 0>>
-<</widget>>
+<</if>><</widget>>
 
 <<widget "portalPantiesDisplayItem">>
 	<<if $portalPanties.state[_args[0]]>>
