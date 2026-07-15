@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity wornSetupClothes pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -108,7 +108,7 @@ const Time = (() => {
 	   which fire from the sidebar and many widgets per passage. 
 	   The result is stable for a calendar day, so a single-entry cache keyed on year*10000 + month*100 + day is correct.
 	   Returns a primitive bool, so there is no aliasing risk. Re-apply on upstream merges. */
-	let _schoolTermCache = { key: -1, value: false };
+	const _schoolTermCache = { key: -1, value: false };
 	/* PERF PATCH END */
 
 	function set(time = V.timeStamp) {
@@ -148,71 +148,71 @@ const Time = (() => {
 	 * @param {number} seconds
 	 */
 	function pass(seconds) {
-	if (seconds < 0) return;
+		if (seconds < 0) return;
 
-	V.timeMessages ||= [];
+		V.timeMessages ||= [];
 
-	const prevDate = new DateTime(currentDate);
-	const minutes = Math.floor((prevDate.second + seconds) / 60);
-	const hours = Math.floor((prevDate.minute + minutes) / 60);
-	const days = Math.floor((prevDate.hour + hours) / 24);
+		const prevDate = new DateTime(currentDate);
+		const minutes = Math.floor((prevDate.second + seconds) / 60);
+		const hours = Math.floor((prevDate.minute + minutes) / 60);
+		const days = Math.floor((prevDate.hour + hours) / 24);
 
-	try {
-		// it is safe to let secondPassed handle all seconds at once
-		secondPassed(seconds);
+		try {
+			// it is safe to let secondPassed handle all seconds at once
+			secondPassed(seconds);
 
-		// the pyramid. pass minutes until next hour, then next hour might affect some stats affecting things in minutePassed, so pass hours until next day, then pass the day, then pass the rest of the hours, then minutes
-		const minsToNextHour = 60 - prevDate.minute;
-		if (minutes < minsToNextHour) {
-			minutePassed(minutes);
-		} else {
-			minutePassed(minsToNextHour);
-			// temporarily update Time with just enough accuracy to be useful in hourPassed
-			set(V.timeStamp + minsToNextHour * 60);
-			const hoursToNextDay = 24 - prevDate.hour;
-			if (hours < hoursToNextDay) {
-				hourPassed(hours);
+			// the pyramid. pass minutes until next hour, then next hour might affect some stats affecting things in minutePassed, so pass hours until next day, then pass the day, then pass the rest of the hours, then minutes
+			const minsToNextHour = 60 - prevDate.minute;
+			if (minutes < minsToNextHour) {
+				minutePassed(minutes);
 			} else {
-				hourPassed(hoursToNextDay);
-				// todo: maybe do it in a better order than week -> day -> year
-				for (let day = 0; day < days; ++day) {
-					if (day !== 0) {
-						// we're here for a long haul, give pc some rest
-						statChange.tiredness(-120);
-						hourPassed(24);
-						statChange.tiredness(-120);
+				minutePassed(minsToNextHour);
+				// temporarily update Time with just enough accuracy to be useful in hourPassed
+				set(V.timeStamp + minsToNextHour * 60);
+				const hoursToNextDay = 24 - prevDate.hour;
+				if (hours < hoursToNextDay) {
+					hourPassed(hours);
+				} else {
+					hourPassed(hoursToNextDay);
+					// todo: maybe do it in a better order than week -> day -> year
+					for (let day = 0; day < days; ++day) {
+						if (day !== 0) {
+							// we're here for a long haul, give pc some rest
+							statChange.tiredness(-120);
+							hourPassed(24);
+							statChange.tiredness(-120);
+						}
+						if (prevDate.weekDay === 7 && currentDate.weekDay === 1) weekPassed();
+						dayPassed(1);
+						if (prevDate.month === currentDate.month - 1) monthPassed();
+						if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) yearPassed();
 					}
-					if (prevDate.weekDay === 7 && currentDate.weekDay === 1) weekPassed();
-					dayPassed(1);
-					if (prevDate.month === currentDate.month - 1) monthPassed();
-					if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) yearPassed();
+					// pass the remaining hours
+					hourPassed((hours - hoursToNextDay) % 24);
+					// reset BodyTemperature effects
+					delete T.bodyActivity;
 				}
-				// pass the remaining hours
-				hourPassed((hours - hoursToNextDay) % 24);
-				// reset BodyTemperature effects
-				delete T.bodyActivity;
+				// pass the remaining minutes
+				minutePassed((minutes - minsToNextHour) % 60);
 			}
-			// pass the remaining minutes
-			minutePassed((minutes - minsToNextHour) % 60);
+		} catch (ex) {
+			// we only need to catch it so "finally" can run, so, right back at you
+			throw new Error(ex);
+		} finally {
+			// finally, set the time where it should be
+			setDate(new DateTime(prevDate.timeStamp + seconds));
 		}
-	} catch (ex) {
-		// we only need to catch it so "finally" can run, so, right back at you
-		throw new Error(ex);
-	} finally {
-		// finally, set the time where it should be
-		setDate(new DateTime(prevDate.timeStamp + seconds));
-	}
 
-	if (V.godClothes === 1) {
-		for (const slot of ["upper", "over_upper", "over_lower", "lower", "under_lower", "under_upper"]) {
-			if (V.worn[slot].name !== "naked") {
-				V.worn[slot].integrity = 2000;
+		if (V.godClothes === 1) {
+			for (const slot of ["upper", "over_upper", "over_lower", "lower", "under_lower", "under_upper"]) {
+				if (V.worn[slot].name !== "naked") {
+					V.worn[slot].integrity = 2000;
+				}
 			}
 		}
 	}
-}
 
-function getNextSchoolTermStartDate(date) {
+	function getNextSchoolTermStartDate(date) {
 		const newDate = new DateTime(date);
 		while (newDate.weekEnd) {
 			newDate.addDays(1);
@@ -646,9 +646,11 @@ function weekPassed() {
 
 	supermarketWeekly();
 
-	// HBSC standing orders: 
+	// HBSC standing orders:
 	// settle farm-guard wages and gambling-ring upkeep from savings before the unpaid-gambling penalty fires in xchangeWeeklyCheck().
-	if (setup.hbsc && typeof setup.hbsc.runStandingOrders === "function") {setup.hbsc.runStandingOrders();}
+	if (setup.hbsc && typeof setup.hbsc.runStandingOrders === "function") {
+		setup.hbsc.runStandingOrders();
+	}
 
 	xchangeWeeklyCheck();
 
@@ -669,8 +671,10 @@ function dayPassed(days) {
 	if (V.statFreeze) return;
 
 	for (let i = 0; i < days; i++) {
-		if (window.poppyDailyPatienceDecay) {window.poppyDailyPatienceDecay(1);}
-		
+		if (window.poppyDailyPatienceDecay) {
+			window.poppyDailyPatienceDecay(1);
+		}
+
 		// Lose one day of tanning
 		Skin.applyTanningLoss(1440);
 
@@ -860,9 +864,7 @@ function dayPassed(days) {
 			V.pound.tasks = [];
 		}
 
-		V.rentmoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][
-			Math.min(Math.max(V.rentstage - 1, 0), 6)
-		];
+		V.rentmoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.min(Math.max(V.rentstage - 1, 0), 6)];
 		wikifier("rentmod");
 
 		if (V.valentines && Time.monthDay === 13) V.timeMessages.pushUnique("valentinesTomorrow");
@@ -1023,8 +1025,7 @@ function dayPassed(days) {
 		else if (V.adultshopgrandopening) {
 			T.disableUnlockAdultShopFeat = true;
 			wikifier("unlockAdultShop");
-		}
-		else if (V.adultshopprogress >= 22 && !V.adultshopunlocked) V.adultshopgrandopening = true;
+		} else if (V.adultshopprogress >= 22 && !V.adultshopunlocked) V.adultshopgrandopening = true;
 		else if (V.adultshopdegree < 15) V.adultshopdegree += 0.1;
 		delete V.adultshophelped;
 
@@ -1064,6 +1065,7 @@ function dayPassed(days) {
 		dailyMasochismSadismEffects();
 		dailySchoolEffects();
 		dailyFarmEvents();
+		dailyDockEffects();
 		dailyLiquidEffects();
 		dailyTransformationEffects();
 		dailyNPCEffects();
@@ -1456,19 +1458,22 @@ function minutePassed(minutes) {
 
 	// Arousal
 	const risk = playerPregnancyRisk();
-	const underBreedingEffect = playerIsXChanged() && (!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
-	const arousalMultiplier = V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect ? 
-		0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
+	const underBreedingEffect =
+		playerIsXChanged() && (!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
+	const arousalMultiplier =
+		V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
 
+	// An insane mind is too preoccupied to notice how sensitive the body is; passive fabric-rub arousal never registers.
+	const tooInsaneToNoticeRubbing = typeof activeInsanityTrait === "function" && activeInsanityTrait();
+
 	// Nipple Sensitive Rubbing
-	const nipplesAreSensitive = getSensitivity("breasts") >= 4;
+	const nipplesAreSensitive = !tooInsaneToNoticeRubbing && getSensitivity("breasts") >= 4;
 	const wearingLooseBra = !V.worn.under_upper.type.includes("naked");
 	const wearingLooseUpper = !V.worn.upper.type.includes("naked");
-	const thereIsFabricRubbing = 
-		(wearingLooseBra && V.worn.under_upper.exposed < 2) || (wearingLooseUpper && V.worn.upper.exposed < 2);
-	
+	const thereIsFabricRubbing = (wearingLooseBra && V.worn.under_upper.exposed < 2) || (wearingLooseUpper && V.worn.upper.exposed < 2);
+
 	if (nipplesAreSensitive && thereIsFabricRubbing) {
 		statChange.arousal(10 * minutes, "nipples");
 		V.breastSensitiveRubMessage = (V.breastSensitiveRubMessage ?? 0) + 1;
@@ -1476,7 +1481,7 @@ function minutePassed(minutes) {
 	}
 
 	// Genital Sensitive Rubbing
-	const genitalsAreSensitive = getSensitivity("genitals") >= 4;
+	const genitalsAreSensitive = !tooInsaneToNoticeRubbing && getSensitivity("genitals") >= 4;
 	const wearingUnderwear = !V.worn.under_lower.type.includes("naked");
 	const wearingPants = !V.worn.lower.type.includes("naked") && wornSetupClothes("lower").skirt !== 1;
 
@@ -1489,7 +1494,7 @@ function minutePassed(minutes) {
 	pleasure(minutes * -25 + getPleasure(minutes));
 
 	if (V.player.vaginaExist) passArousalWetness(minutes);
-	
+
 	xchangeTimePassedCheck(minutes);
 
 	passWater(minutes);
@@ -1623,7 +1628,7 @@ function dailyNPCEffects() {
 	if (V.robindebtevent === 0) V.robinmissing = 0;
 	if (V.robinpaid >= 1) statChange.trauma(-25);
 	if ((V.robinromance === 1 || V.robinsexfriend === 1) && C.npc.Robin.dom >= 40) wikifier("npcincr", "Robin", "lust", 1);
-	if ((getEffectiveBeauty() >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing)) wikifier("npcincr", "Robin", "lust", 2);
+	if (getEffectiveBeauty() >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing) wikifier("npcincr", "Robin", "lust", 2);
 	if (V.robinPilloryFail) {
 		delete V.robinPilloryFail;
 		delete V.robinPillory;
@@ -2025,16 +2030,11 @@ function dailyPlayerEffects() {
 	}
 
 	if (V.physique >= 1000) {
-		if (V.farm_stage >= 6) 
-			V.xchange.baseStats.physique = V.xchange.baseStats.physique - V.xchange.baseStats.physique * 4 / V.xchange.baseStats.physiquesize;
-		else 
-			V.xchange.baseStats.physique = V.xchange.baseStats.physique - V.xchange.baseStats.physique * 5 / V.xchange.baseStats.physiquesize;
+		if (V.farm_stage >= 6) V.xchange.baseStats.physique = V.xchange.baseStats.physique - (V.xchange.baseStats.physique * 4) / V.xchange.baseStats.physiquesize;
+		else V.xchange.baseStats.physique = V.xchange.baseStats.physique - (V.xchange.baseStats.physique * 5) / V.xchange.baseStats.physiquesize;
 	}
-	
-	let genderFactor = !V.xchange.genderIdentityEnabled ?
-		1 : V.player.gender === "m"?
-		1 + (1000 - V.genderidentity) / 1000 :
-		1 + V.genderidentity / 1000;
+
+	let genderFactor = !V.xchange.genderIdentityEnabled ? 1 : V.player.gender === "m" ? 1 + (1000 - V.genderidentity) / 1000 : 1 + V.genderidentity / 1000;
 	/* A corrupted $genderidentity must not poison $hairlength/$fringelength into NaN. */
 	if (!Number.isFinite(genderFactor)) genderFactor = 1;
 	V.hairlength += 3 * genderFactor;
@@ -2053,7 +2053,7 @@ function dailyPlayerEffects() {
 	else if (V.nailsgrowth >= 7) V.nailslevel = 2;
 	else if (V.nailsgrowth >= 3) V.nailslevel = 1;
 	else V.nailslevel = 0;
-	
+
 	// statChange.skill("beauty", (100 - (V.trauma / V.traumamax) * 100) * V.beautyMult);
 	// if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
 	lustfulUpdate();
@@ -2063,22 +2063,30 @@ function dailyPlayerEffects() {
 		V.orgasm_trait_message = 1;
 		V.orgasmtrait = 1;
 	}
-	if ((V.beingPenetratedOrgasmStat >= 500 || (V.orgasmtrait && V.beingPenetratedOrgasmStat >= 50)) && V.penis_addict_trait === 0 && V.hole_addict_trait !== 1 && V.xchange.genitalAddictTraitsEnabled) {
+	if (
+		(V.beingPenetratedOrgasmStat >= 500 || (V.orgasmtrait && V.beingPenetratedOrgasmStat >= 50)) &&
+		V.penis_addict_trait === 0 &&
+		V.hole_addict_trait !== 1 &&
+		V.xchange.genitalAddictTraitsEnabled
+	) {
 		V.effectsmessage = 1;
 		V.penis_addict_trait_message = 1;
 		V.penis_addict_trait = 1;
 		V.hole_addict_trait = -1;
-	}
-	else if (!V.xchange.genitalAddictTraitsEnabled && V.penis_addict_trait === 1) {
+	} else if (!V.xchange.genitalAddictTraitsEnabled && V.penis_addict_trait === 1) {
 		V.penis_addict_trait = 0;
 	}
-	if ((V.penetratingOrgasmStat >= 500 || (V.orgasmtrait && V.penetratingOrgasmStat >= 50)) && V.hole_addict_trait === 0 && V.penis_addict_trait !== 1 && V.xchange.genitalAddictTraitsEnabled) {
+	if (
+		(V.penetratingOrgasmStat >= 500 || (V.orgasmtrait && V.penetratingOrgasmStat >= 50)) &&
+		V.hole_addict_trait === 0 &&
+		V.penis_addict_trait !== 1 &&
+		V.xchange.genitalAddictTraitsEnabled
+	) {
 		V.effectsmessage = 1;
 		V.hole_addict_trait_message = 1;
 		V.hole_addict_trait = 1;
 		V.penis_addict_trait = -1;
-	}
-	else if (!V.xchange.genitalAddictTraitsEnabled && V.hole_addict_trait === 1) {
+	} else if (!V.xchange.genitalAddictTraitsEnabled && V.hole_addict_trait === 1) {
 		V.hole_addict_trait = 0;
 	}
 	if (V.ejacstat >= 300 && V.ejactrait === 0) {
@@ -2133,7 +2141,7 @@ function dailyPlayerEffects() {
 	else if (V.xchange_fame < 1000 && V.xchange_discovered) V.xchange_fame_message = 0;
 	if (V.xchange_fame_message) V.effectsmessage = 1;
 
-	if (V.settings.pubicHairEnabled === true) { 
+	if (V.settings.pubicHairEnabled === true) {
 		V.pbgrowth++;
 		if (V.pbgrowth >= 24) V.pblevel = 9;
 		else if (V.pbgrowth >= 19) V.pblevel = 8;
@@ -2325,7 +2333,7 @@ function dailyLiquidEffects() {
 			V.nectar_timer = 21;
 		}
 	}
-	
+
 	/* Poppy opium / Pavlov daily trait processing */
 	if (window.poppyDailyTraits) {
 		poppyDailyTraits();
@@ -2449,7 +2457,7 @@ function moonState() {
 window.moonState = moonState;
 
 function dailySchoolEffects() {
-	if(V.xchange.pill.bimboEffect === false) {
+	if (V.xchange.pill.bimboEffect === false) {
 		if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
 			V.effectsmessage = 1;
 			V.science_up_message = 1;
@@ -2880,7 +2888,7 @@ function dailyFarmEvents() {
 }
 
 function dailyDockEffects() {
-	if (typeof V.docks.pub.cooldown !== "undefined" && V.docks.pub.cooldown >= 1) {
+	if (V.docks?.pub?.cooldown >= 1) {
 		V.docks.pub.cooldown--;
 	}
 }
@@ -2988,8 +2996,8 @@ function getArousal(passMinutes) {
 	if (V.drugged > 1) addedArousal += minuteMultiplier;
 	if (playerHasButtPlug()) addedArousal += minuteMultiplier;
 	if (playerVibratorOn()) {
-		const sens = (typeof V.genitalsensitivity === "number") ? V.genitalsensitivity : 1;
-		const power = (V.worn.vibrator && typeof V.worn.vibrator.power === "number") ? V.worn.vibrator.power : 1;
+		const sens = typeof V.genitalsensitivity === "number" ? V.genitalsensitivity : 1;
+		const power = V.worn.vibrator && typeof V.worn.vibrator.power === "number" ? V.worn.vibrator.power : 1;
 		addedArousal += minuteMultiplier * (3 + power * 2) * sens;
 	}
 	if (numberOfEarSlime()) {
