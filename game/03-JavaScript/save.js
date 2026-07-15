@@ -821,6 +821,7 @@ window.validateValue = validateValue;
 /**
  * A config node is a "leaf" (a single setting descriptor) when it declares a value type.
  * Otherwise it is a container whose children are traversed recursively.
+ *
  * @param {object} config
  * @returns {boolean}
  */
@@ -835,6 +836,7 @@ window.isSettingLeaf = isSettingLeaf;
 /**
  * Recursively copy valid setting values from a live variable tree into an export object,
  * driven by the settings schema so only known keys (never runtime state) are written.
+ *
  * @param {object} config schema node
  * @param {object} source live variable node (usually V or a sub-object)
  * @param {object} output destination node
@@ -864,6 +866,7 @@ window.exportSettingsWalk = exportSettingsWalk;
 /**
  * Recursively write valid setting values from an imported object into the live variable tree,
  * driven by the settings schema. Only overwrites settings that already exist, mirroring legacy behaviour.
+ *
  * @param {object} config schema node
  * @param {object} override imported node
  * @param {object} target live variable node (usually V or a sub-object)
@@ -889,6 +892,7 @@ window.importSettingsWalk = importSettingsWalk;
 /**
  * Flatten every schema leaf present in an imported data node into a display list,
  * used by the import-confirmation UI for settings groups that are nested.
+ *
  * @param {object} config schema node
  * @param {object} data imported node
  * @param {Array<{name: string, value: any, valid: boolean}>} out
@@ -919,8 +923,6 @@ function exportSettings(data, type) {
 		general: {},
 		npc: {},
 	};
-	let listObject;
-	let listKey;
 	if (V.passage === "Start") {
 		const startingConfig = settingsObjects("starting");
 		const startingOutput = traversePair(startingConfig, V, "root", settingContainers, (source, target, key) => {
@@ -938,8 +940,8 @@ function exportSettings(data, type) {
 	output.general = {};
 	exportSettingsWalk(settingsObjects("general"), V, output.general);
 
-	listObject = settingsObjects("npc");
-	listKey = Object.keys(listObject);
+	const listObject = settingsObjects("npc");
+	const listKey = Object.keys(listObject);
 	for (let i = 0; i < V.NPCNameList.length; i++) {
 		// The Silver Stranger (Luchifen) is a hidden mystery NPC; never expose their name in exported settings.
 		if (V.NPCNameList[i] === "Luchifen") continue;
@@ -1034,7 +1036,22 @@ function settingsObjects(type) {
 					randomize: "characterTrait",
 				},
 				eyeselect: {
-					strings: ["purple", "dark blue", "light blue", "amber", "hazel", "brown", "green", "lime green", "red", "pink", "black", "grey", "light grey", "random"],
+					strings: [
+						"purple",
+						"dark blue",
+						"light blue",
+						"amber",
+						"hazel",
+						"brown",
+						"green",
+						"lime green",
+						"red",
+						"pink",
+						"black",
+						"grey",
+						"light grey",
+						"random",
+					],
 					randomize: "characterAppearance",
 					displayName: "Eye colour:",
 				},
@@ -1174,12 +1191,6 @@ function settingsObjects(type) {
 			break;
 		case "general":
 			result = {
-				npcHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "NPC Health Max Multiplier:" },
-				npcArousalMult: { min: 1, max: 1000000, decimals: 0, displayName: "NPC Arousal Max Multiplier:" },
-				beastHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Beast Health Max Multiplier:" },
-				beastArousalMult: { min: 1, max: 1000000, decimals: 0, displayName: "Beast Arousal Max Multiplier:" },
-				tentacleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Tentacle Health Max Multiplier:" },
-				struggleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Struggle Health Max Multiplier:" },
 				enemystatstyle: { strings: ["full", "default"], randomize: "gameplay", displayName: "Enemy stat display:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
 				wardrobeMult: { min: 0, max: 20, decimals: 0, displayName: "Wardrobe Capacity Multiplier:" },
@@ -1214,9 +1225,7 @@ function settingsObjects(type) {
 				statGainMult: { min: 10, max: 1000, decimals: 0, displayName: "Stat Gain Multiplier:" },
 				stressBeauty: { min: 0, max: 1, decimals: 0, displayName: "Low Stress Beauty Gain:" },
 				beautyMult: { min: 1, max: 10, decimals: 0, displayName: "Daily Beauty Gain:" },
-				multiOrgasmToggle: { min: 0, max: 1, decimals: 0, displayName: "NPC multi-orgasm:" },
 				NNPCMultiOrgasmToggle: { min: 0, max: 1, decimals: 0, displayName: "NNPC multi-orgasm:" },
-				multiOrgasmLustScaling: { min: 0, max: 1, decimals: 0, displayName: "NNPC lust scaling:" },
 				nnpcHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Named NPC Health Max Multiplier (%):" },
 				nnpcArousalMult: { min: 1, max: 1000000, decimals: 0, displayName: "Named NPC Arousal Max Multiplier (%):" },
 				npcHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "NPC Health Max Multiplier (%):" },
@@ -1298,7 +1307,7 @@ function settingsObjects(type) {
 					vaginalskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Vaginal Skill:" },
 					analskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Anal Skill:" },
 					thighskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Thighs Skill:" },
-					feetskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Feet Skill:" }
+					feetskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Feet Skill:" },
 				},
 				multiOrgasmToggle: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm:" },
 				multiOrgasmLustScaling: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm Lust Scaling:" },
@@ -1637,14 +1646,59 @@ function settingsObjects(type) {
 					combatPillingDrawChance: { min: 1, max: 50, decimals: 0, displayName: "Pill use chance per turn:" },
 					combatPillingPureRatio: { min: 0, max: 100, decimals: 0, displayName: "Clean pill ratio (%):" },
 					customisedEyeColour: {
-						strings: ["nochange", "black", "purple", "dark blue", "light blue", "amber", "hazel", "green", "lime green", "red", "pink", "grey", "light grey", "random"],
+						strings: [
+							"nochange",
+							"black",
+							"purple",
+							"dark blue",
+							"light blue",
+							"amber",
+							"hazel",
+							"green",
+							"lime green",
+							"red",
+							"pink",
+							"grey",
+							"light grey",
+							"random",
+						],
 						displayName: "Sexflipped eye colour:",
 					},
 					customisedHairColour: {
 						strings: [
-							"nochange", "red", "jetblack", "black", "brown", "softbrown", "lightbrown", "burntorange", "strawberryblond", "ginger", "blond", "softblond",
-							"platinumblond", "ashyblond", "bloodorange", "blue", "deepblue", "neonblue", "green", "darklime", "toxicgreen", "teal", "pink", "brightpink",
-							"hotpink", "softpink", "crimson", "purple", "mediumpurple", "brightpurple", "white", "snowwhite", "random",
+							"nochange",
+							"red",
+							"jetblack",
+							"black",
+							"brown",
+							"softbrown",
+							"lightbrown",
+							"burntorange",
+							"strawberryblond",
+							"ginger",
+							"blond",
+							"softblond",
+							"platinumblond",
+							"ashyblond",
+							"bloodorange",
+							"blue",
+							"deepblue",
+							"neonblue",
+							"green",
+							"darklime",
+							"toxicgreen",
+							"teal",
+							"pink",
+							"brightpink",
+							"hotpink",
+							"softpink",
+							"crimson",
+							"purple",
+							"mediumpurple",
+							"brightpurple",
+							"white",
+							"snowwhite",
+							"random",
 						],
 						displayName: "Sexflipped hair colour:",
 					},
@@ -1678,6 +1732,7 @@ function settingsObjects(type) {
 					heat: {
 						systemOn: { min: 0, max: 1, decimals: 0, displayName: "Forceful heat:" },
 						permanentOn: { min: 0, max: 1, decimals: 0, displayName: "Permanent heat/rut:" },
+						resistWithWillpower: { min: 0, max: 1, decimals: 0, displayName: "Heat resisted by willpower:" },
 					},
 					spikepool: {
 						herm: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Herm:" },

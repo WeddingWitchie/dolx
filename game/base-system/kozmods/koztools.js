@@ -417,6 +417,11 @@ window.wornSetupClothes = wornSetupClothes;
 		if (V.xchange.heat.permanentOn === undefined) {
 			V.xchange.heat.permanentOn = 0;
 		}
+		// Default: heat is resisted by high willpower (the vanilla behavior).
+		// Missing reads as falsy, which would make heat always override, so restore the intended default here.
+		if (V.xchange.heat.resistWithWillpower === undefined) {
+			V.xchange.heat.resistWithWillpower = 1;
+		}
 
 		// story-functions.js uses V.xchange.breederDenial in arithmetic.
 		// If it's missing or invalid, recover the bounded feature default so heat math doesn't become NaN.
