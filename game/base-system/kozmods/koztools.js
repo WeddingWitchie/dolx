@@ -7,33 +7,32 @@
  * =========================
  * Important!
  * If what you're looking for isn't defined here, check other files too.
-**/
+ */
 
 function kofiValidate(code) {
-	let versionNumber = window.StartConfig.version;
+	const versionNumber = window.StartConfig.version;
 
-	let versionMatch = versionNumber.match(/DoLX (\d+)\.(\d+)\.(\d+)\w{0,1}/);
+	const versionMatch = versionNumber.match(/DoLX (\d+)\.(\d+)\.(\d+)\w{0,1}/);
 	if (!versionMatch) {
 		throw new Error("Version number doesn't match convention.");
 	}
-	
-	let codeMatch = code.match(/(\d+)[A-Z]{3}(\w)[A-Z]{1}(\w)[A-Z]{1,3}(\d+)/);
+
+	const codeMatch = code.match(/(\d+)[A-Z]{3}(\w)[A-Z]{1}(\w)[A-Z]{1,3}(\d+)/);
 	if (codeMatch === null) return 0;
 
-	var verMajor = codeMatch[1];
-	var codeMajor = codeMatch[2];
-	var codeMinor = codeMatch[3];
-	var verMinor = Math.sqrt(codeMatch[4]);
+	const verMajor = codeMatch[1];
+	const codeMajor = codeMatch[2];
+	const codeMinor = codeMatch[3];
+	const verMinor = Math.sqrt(codeMatch[4]);
 
-	var majorHash = String.fromCharCode( (verMajor << 11) % 25 + 65 );
-	var minorHash = String.fromCharCode( (verMinor << 11) % 25 + 65 );
+	const majorHash = String.fromCharCode(((verMajor << 11) % 25) + 65);
+	const minorHash = String.fromCharCode(((verMinor << 11) % 25) + 65);
 
-	let isValid = (versionMatch[1] >= verMajor && versionMatch[2] >= verMinor) && (codeMajor == majorHash && codeMinor == minorHash);
+	const isValid = versionMatch[1] >= verMajor && versionMatch[2] >= verMinor && codeMajor === majorHash && codeMinor === minorHash;
 
 	if (isValid) {
 		return +verMajor * 1000 + +verMinor;
-	}
-	else {
+	} else {
 		return 0;
 	}
 }
@@ -56,249 +55,271 @@ window.wornSetupClothes = wornSetupClothes;
 	window.STAT_EXPLOIT_DISABLE = false;
 	window.STAT_EXPLOIT_DEBUG = false;
 
-  const log = (...args) => { if (window.STAT_EXPLOIT_DEBUG) console.log("[DoLP]", ...args); };
-  const warn = (...args) => console.warn("[DoLP]", ...args);
+	const log = (...args) => {
+		if (window.STAT_EXPLOIT_DEBUG) console.log("[DoLP]", ...args);
+	};
+	const warn = (...args) => console.warn("[DoLP]", ...args);
 
-  const EPS_MAX = 1e-6;
+	const EPS_MAX = 1e-6;
 
-  // If in-game time advances by at least this many seconds between two
-  // passage displays, treat any fatigue/stress drop as legitimate (sleep,
-  // class, work, time-skip event). Cheats and reloads never advance time.
-  const SIGNIFICANT_TIME_GAP_SECONDS = 15 * 60;
+	// If in-game time advances by at least this many seconds between two
+	// passage displays, treat any fatigue/stress drop as legitimate (sleep,
+	// class, work, time-skip event). Cheats and reloads never advance time.
+	const SIGNIFICANT_TIME_GAP_SECONDS = 15 * 60;
 
-  let cheatOverlaySeen = false;
+	let cheatOverlaySeen = false;
 
-  function passageName() {
-	try { return String(State.passage || ""); } catch (e) { return ""; }
-  }
-  function tagsLower() {
-	try {
-	  const story = window.Story?.get ? Story.get(passageName()) : null;
-	  const tags = Array.isArray(story?.tags) ? story.tags : [];
-	  return tags.map(t => String(t).toLowerCase());
-	} catch (e) { return []; }
-  }
-  function inContext(reWordBoundary) {
-	const p = passageName().toLowerCase();
-	const t = tagsLower().join(" ");
-	return reWordBoundary.test(p) || reWordBoundary.test(t);
-  }
-
-  function excludedForRecoveryOrConsequences() {
-	if (inContext(/\bcheats?\b/i) || inContext(/\bdebug\b/i)) return true;
-	return (
-	  inContext(/\bpassout\b/i) || inContext(/\bsleep\b/i)  ||
-	  inContext(/\bnap\b/i)     || inContext(/\brest\b/i)   ||
-	  inContext(/\bbed\b/i)     || inContext(/\bwake\b/i)   ||
-	  inContext(/\bdream\b/i)   || inContext(/\basylum\b/i) ||
-	  inContext(/\bhospital\b/i)|| inContext(/\bclinic\b/i) ||
-	  inContext(/\btherapy\b/i) ||
-	  inContext(/\bpainting-snake\b/i)   || inContext(/\bhopelesscycle\b/i) ||
-	  inContext(/\bhopeless[_-]?cycle\b/i)|| inContext(/\bhopeless\s*cycle\b/i) ||
-	  inContext(/\bfayne\b/i)   || inContext(/\bgaoler\b/i)
-	);
-  }
-
-  function numberOrNull(x) {
-	const n = Number(x);
-	return Number.isFinite(n) ? n : null;
-  }
-  function getFatigueMax() {
-	const m = window.C?.tiredness?.max;
-	return (typeof m === "number" && Number.isFinite(m)) ? m : null;
-  }
-  function getStressMax() {
-	const v = numberOrNull(State.variables.stressmax);
-	if (v !== null) return v;
-	const c = window.C?.stress?.max;
-	if (typeof c === "number" && Number.isFinite(c)) return c;
-	return null;
-  }
-  function getInGameTimestamp() {
-	try {
-	  const T = window.Time;
-	  if (!T) return null;
-	  if (T.date && typeof T.date.timeStamp === "number" && Number.isFinite(T.date.timeStamp)) {
-		return T.date.timeStamp;
-	  }
-	  if (T.date && typeof window.DateTime === "function") {
-		const dt = new window.DateTime(T.date);
-		if (typeof dt.timeStamp === "number" && Number.isFinite(dt.timeStamp)) return dt.timeStamp;
-	  }
-	  const d = numberOrNull(T.days)   ?? numberOrNull(T.day)    ?? 0;
-	  const h = numberOrNull(T.hour)   ?? 0;
-	  const m = numberOrNull(T.minute) ?? 0;
-	  return d * 86400 + h * 3600 + m * 60;
-	} catch (e) { return null; }
-  }
-
-  function syncTrackers(why) {
-	const V = State.variables;
-	const t = numberOrNull(V.tiredness);
-	if (t !== null) V.__fix_prev_tiredness = t;
-	V.__fix_prevMax_tiredness = getFatigueMax() ?? V.__fix_prevMax_tiredness;
-	const s = numberOrNull(V.stress);
-	if (s !== null) V.__fix_prev_stress = s;
-	V.__fix_prevMax_stress = getStressMax() ?? V.__fix_prevMax_stress;
-	const ts = getInGameTimestamp();
-	if (ts !== null) V.__fix_prev_timestamp = ts;
-	log(`sync (${why}): tiredness=${V.tiredness}, stress=${V.stress}, ts=${ts}`);
-  }
-
-  // Core decision: should we revert this drop, and if so, to what value?
-  // Returns { revert: bool, target: number, reason: string }
-  function evaluateDrop(prev, prevMax, cur, statName) {
-	if (prev === null || prevMax === null || cur === null) {
-	  return { revert: false, reason: "missing-data" };
+	function passageName() {
+		try {
+			return String(State.passage || "");
+		} catch (e) {
+			return "";
+		}
+	}
+	function tagsLower() {
+		try {
+			const story = window.Story?.get ? Story.get(passageName()) : null;
+			const tags = Array.isArray(story?.tags) ? story.tags : [];
+			return tags.map(t => String(t).toLowerCase());
+		} catch (e) {
+			return [];
+		}
+	}
+	function inContext(reWordBoundary) {
+		const p = passageName().toLowerCase();
+		const t = tagsLower().join(" ");
+		return reWordBoundary.test(p) || reWordBoundary.test(t);
 	}
 
-	// Over-max state: buffs have pushed the stat above the cap.
-	// Any drop is a recompute/clamp fluctuation we want to suppress so the
-	// displayed value stays stable.
-	if (prev > prevMax + EPS_MAX) {
-	  if (cur < prev - EPS_MAX) {
-		return { revert: true, target: prev, reason: `over-max-fluctuation (prev=${prev} > cap=${prevMax}, cur=${cur})` };
-	  }
-	  return { revert: false, reason: "over-max-no-drop" };
+	function excludedForRecoveryOrConsequences() {
+		if (inContext(/\bcheats?\b/i) || inContext(/\bdebug\b/i)) return true;
+		return (
+			inContext(/\bpassout\b/i) ||
+			inContext(/\bsleep\b/i) ||
+			inContext(/\bnap\b/i) ||
+			inContext(/\brest\b/i) ||
+			inContext(/\bbed\b/i) ||
+			inContext(/\bwake\b/i) ||
+			inContext(/\bdream\b/i) ||
+			inContext(/\basylum\b/i) ||
+			inContext(/\bhospital\b/i) ||
+			inContext(/\bclinic\b/i) ||
+			inContext(/\btherapy\b/i) ||
+			inContext(/\bpainting-snake\b/i) ||
+			inContext(/\bhopelesscycle\b/i) ||
+			inContext(/\bhopeless[_-]?cycle\b/i) ||
+			inContext(/\bhopeless\s*cycle\b/i) ||
+			inContext(/\bfayne\b/i) ||
+			inContext(/\bgaoler\b/i)
+		);
 	}
 
-	// At-max state: classic cheat/exploit detection.
-	// A large drop (>=10% of cap) from exactly the cap is the console-edit cheat signature.
-	const prevWasAtMax = prev >= (prevMax - EPS_MAX);
-	if (prevWasAtMax) {
-	  const largeDrop = cur <= (prevMax * 0.9);
-	  if (largeDrop) {
-		return { revert: true, target: prevMax, reason: `at-max large-drop (prev=${prev}≈cap=${prevMax}, cur=${cur})` };
-	  }
+	function numberOrNull(x) {
+		const n = Number(x);
+		return Number.isFinite(n) ? n : null;
+	}
+	function getFatigueMax() {
+		const m = window.C?.tiredness?.max;
+		return typeof m === "number" && Number.isFinite(m) ? m : null;
+	}
+	function getStressMax() {
+		const v = numberOrNull(State.variables.stressmax);
+		if (v !== null) return v;
+		const c = window.C?.stress?.max;
+		if (typeof c === "number" && Number.isFinite(c)) return c;
+		return null;
+	}
+	function getInGameTimestamp() {
+		try {
+			const T = window.Time;
+			if (!T) return null;
+			if (T.date && typeof T.date.timeStamp === "number" && Number.isFinite(T.date.timeStamp)) {
+				return T.date.timeStamp;
+			}
+			if (T.date && typeof window.DateTime === "function") {
+				const dt = new window.DateTime(T.date);
+				if (typeof dt.timeStamp === "number" && Number.isFinite(dt.timeStamp)) return dt.timeStamp;
+			}
+			const d = numberOrNull(T.days) ?? numberOrNull(T.day) ?? 0;
+			const h = numberOrNull(T.hour) ?? 0;
+			const m = numberOrNull(T.minute) ?? 0;
+			return d * 86400 + h * 3600 + m * 60;
+		} catch (e) {
+			return null;
+		}
 	}
 
-	return { revert: false, reason: "no-trigger" };
-  }
+	function syncTrackers(why) {
+		const V = State.variables;
+		const t = numberOrNull(V.tiredness);
+		if (t !== null) V.__fix_prev_tiredness = t;
+		V.__fix_prevMax_tiredness = getFatigueMax() ?? V.__fix_prevMax_tiredness;
+		const s = numberOrNull(V.stress);
+		if (s !== null) V.__fix_prev_stress = s;
+		V.__fix_prevMax_stress = getStressMax() ?? V.__fix_prevMax_stress;
+		const ts = getInGameTimestamp();
+		if (ts !== null) V.__fix_prev_timestamp = ts;
+		log(`sync (${why}): tiredness=${V.tiredness}, stress=${V.stress}, ts=${ts}`);
+	}
 
-  $(document).one(":storyready", () => {
-	log("statExploitFixes loaded — DEBUG=" + window.STAT_EXPLOIT_DEBUG + ", DISABLE=" + window.STAT_EXPLOIT_DISABLE);
+	// Core decision: should we revert this drop, and if so, to what value?
+	// Returns { revert: bool, target: number, reason: string }
+	function evaluateDrop(prev, prevMax, cur, statName) {
+		if (prev === null || prevMax === null || cur === null) {
+			return { revert: false, reason: "missing-data" };
+		}
 
-	try {
-	  const containsCheatsShown = (node) => {
-		if (!node || node.nodeType !== 1) return false;
-		if (node.id === "cheatsShown") return true;
-		return !!(node.querySelector && node.querySelector("#cheatsShown"));
-	  };
-	  const observer = new MutationObserver((mutations) => {
-		for (const m of mutations) {
-		  if (m.type !== "childList") continue;
-		  for (const node of m.addedNodes) {
-			if (containsCheatsShown(node)) {
-			  cheatOverlaySeen = true;
-			  log("MutationObserver: #cheatsShown was inserted");
-			  return;
+		// Over-max state: buffs have pushed the stat above the cap.
+		// Any drop is a recompute/clamp fluctuation we want to suppress so the
+		// displayed value stays stable.
+		if (prev > prevMax + EPS_MAX) {
+			if (cur < prev - EPS_MAX) {
+				return { revert: true, target: prev, reason: `over-max-fluctuation (prev=${prev} > cap=${prevMax}, cur=${cur})` };
 			}
-		  }
+			return { revert: false, reason: "over-max-no-drop" };
 		}
-	  });
-	  observer.observe(document.body, { childList: true, subtree: true });
-	} catch (e) { warn("MutationObserver failed:", e); }
 
-	$(document).on(":passagedisplay", () => {
-	  const V = State.variables;
-	  const passage = passageName();
-	  const curTime = getInGameTimestamp();
-	  const prevTime = numberOrNull(V.__fix_prev_timestamp);
-
-	  log(`--- :passagedisplay [${passage}] tiredness=${V.tiredness}/${getFatigueMax()} stress=${V.stress}/${getStressMax()} time=${curTime} prevTime=${prevTime}`);
-
-	  // Read & consume cheat signals (one-shot semantics).
-	  const cheatJustHappened = (V.cheatReload === true) || cheatOverlaySeen;
-	  cheatOverlaySeen = false;
-	  if (V.cheatReload === true) V.cheatReload = false;
-
-	  if (cheatJustHappened) {
-		log("path=CHEAT (cheatReload or overlay seen) → sync & exit");
-		syncTrackers("cheat");
-		return;
-	  }
-
-	  if (excludedForRecoveryOrConsequences()) {
-		log(`path=EXCLUDED (passage="${passage}") → sync & exit`);
-		syncTrackers("excluded");
-		return;
-	  }
-
-	  if (curTime !== null && prevTime !== null) {
-		const delta = curTime - prevTime;
-		if (delta >= SIGNIFICANT_TIME_GAP_SECONDS) {
-		  log(`path=TIME-GAP (delta=${delta}s ≥ ${SIGNIFICANT_TIME_GAP_SECONDS}s) → sync & exit`);
-		  syncTrackers("time-gap");
-		  return;
-		}
-		log(`time-gap delta=${delta}s (under threshold)`);
-	  }
-
-	  log("path=NORMAL — running checks");
-
-	  // ---- FATIGUE ----
-	  {
-		const cur = numberOrNull(V.tiredness);
-		const curMax = getFatigueMax();
-		const prev = numberOrNull(V.__fix_prev_tiredness);
-		const prevMax = numberOrNull(V.__fix_prevMax_tiredness);
-		log(`  fatigue: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
-
-		if (cur !== null) {
-		  const decision = evaluateDrop(prev, prevMax, cur, "fatigue");
-		  log(`  fatigue decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
-
-		  if (decision.revert) {
-			if (window.STAT_EXPLOIT_DISABLE) {
-			  warn(`WOULD HAVE reverted FATIGUE: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
-			  V.__fix_prev_tiredness = cur;
-			  if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
-			} else {
-			  warn(`reverted FATIGUE: ${decision.reason} → ${decision.target}. passage=${passage}`);
-			  V.tiredness = decision.target;
-			  V.__fix_prev_tiredness = decision.target;
-			  if (curMax !== null) V.__fix_prevMax_tiredness = Math.max(curMax, V.__fix_prevMax_tiredness ?? 0);
+		// At-max state: classic cheat/exploit detection.
+		// A large drop (>=10% of cap) from exactly the cap is the console-edit cheat signature.
+		const prevWasAtMax = prev >= prevMax - EPS_MAX;
+		if (prevWasAtMax) {
+			const largeDrop = cur <= prevMax * 0.9;
+			if (largeDrop) {
+				return { revert: true, target: prevMax, reason: `at-max large-drop (prev=${prev}≈cap=${prevMax}, cur=${cur})` };
 			}
-		  } else {
-			V.__fix_prev_tiredness = cur;
-			if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
-		  }
 		}
-	  }
 
-	  // ---- STRESS ----
-	  {
-		const cur = numberOrNull(V.stress);
-		const curMax = getStressMax();
-		const prev = numberOrNull(V.__fix_prev_stress);
-		const prevMax = numberOrNull(V.__fix_prevMax_stress);
-		log(`  stress: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
+		return { revert: false, reason: "no-trigger" };
+	}
 
-		if (cur !== null) {
-		  const decision = evaluateDrop(prev, prevMax, cur, "stress");
-		  log(`  stress decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
+	$(document).one(":storyready", () => {
+		log("statExploitFixes loaded — DEBUG=" + window.STAT_EXPLOIT_DEBUG + ", DISABLE=" + window.STAT_EXPLOIT_DISABLE);
 
-		  if (decision.revert) {
-			if (window.STAT_EXPLOIT_DISABLE) {
-			  warn(`WOULD HAVE reverted STRESS: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
-			  V.__fix_prev_stress = cur;
-			  if (curMax !== null) V.__fix_prevMax_stress = curMax;
-			} else {
-			  warn(`reverted STRESS: ${decision.reason} → ${decision.target}. passage=${passage}`);
-			  V.stress = decision.target;
-			  V.__fix_prev_stress = decision.target;
-			  if (curMax !== null) V.__fix_prevMax_stress = Math.max(curMax, V.__fix_prevMax_stress ?? 0);
+		try {
+			const containsCheatsShown = node => {
+				if (!node || node.nodeType !== 1) return false;
+				if (node.id === "cheatsShown") return true;
+				return !!(node.querySelector && node.querySelector("#cheatsShown"));
+			};
+			const observer = new MutationObserver(mutations => {
+				for (const m of mutations) {
+					if (m.type !== "childList") continue;
+					for (const node of m.addedNodes) {
+						if (containsCheatsShown(node)) {
+							cheatOverlaySeen = true;
+							log("MutationObserver: #cheatsShown was inserted");
+							return;
+						}
+					}
+				}
+			});
+			observer.observe(document.body, { childList: true, subtree: true });
+		} catch (e) {
+			warn("MutationObserver failed:", e);
+		}
+
+		$(document).on(":passagedisplay", () => {
+			const V = State.variables;
+			const passage = passageName();
+			const curTime = getInGameTimestamp();
+			const prevTime = numberOrNull(V.__fix_prev_timestamp);
+
+			log(
+				`--- :passagedisplay [${passage}] tiredness=${V.tiredness}/${getFatigueMax()} stress=${V.stress}/${getStressMax()} time=${curTime} prevTime=${prevTime}`
+			);
+
+			// Read & consume cheat signals (one-shot semantics).
+			const cheatJustHappened = V.cheatReload === true || cheatOverlaySeen;
+			cheatOverlaySeen = false;
+			if (V.cheatReload === true) V.cheatReload = false;
+
+			if (cheatJustHappened) {
+				log("path=CHEAT (cheatReload or overlay seen) → sync & exit");
+				syncTrackers("cheat");
+				return;
 			}
-		  } else {
-			V.__fix_prev_stress = cur;
-			if (curMax !== null) V.__fix_prevMax_stress = curMax;
-		  }
-		}
-	  }
 
-	  if (curTime !== null) V.__fix_prev_timestamp = curTime;
+			if (excludedForRecoveryOrConsequences()) {
+				log(`path=EXCLUDED (passage="${passage}") → sync & exit`);
+				syncTrackers("excluded");
+				return;
+			}
+
+			if (curTime !== null && prevTime !== null) {
+				const delta = curTime - prevTime;
+				if (delta >= SIGNIFICANT_TIME_GAP_SECONDS) {
+					log(`path=TIME-GAP (delta=${delta}s ≥ ${SIGNIFICANT_TIME_GAP_SECONDS}s) → sync & exit`);
+					syncTrackers("time-gap");
+					return;
+				}
+				log(`time-gap delta=${delta}s (under threshold)`);
+			}
+
+			log("path=NORMAL — running checks");
+
+			// ---- FATIGUE ----
+			{
+				const cur = numberOrNull(V.tiredness);
+				const curMax = getFatigueMax();
+				const prev = numberOrNull(V.__fix_prev_tiredness);
+				const prevMax = numberOrNull(V.__fix_prevMax_tiredness);
+				log(`  fatigue: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
+
+				if (cur !== null) {
+					const decision = evaluateDrop(prev, prevMax, cur, "fatigue");
+					log(`  fatigue decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
+
+					if (decision.revert) {
+						if (window.STAT_EXPLOIT_DISABLE) {
+							warn(`WOULD HAVE reverted FATIGUE: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
+							V.__fix_prev_tiredness = cur;
+							if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
+						} else {
+							warn(`reverted FATIGUE: ${decision.reason} → ${decision.target}. passage=${passage}`);
+							V.tiredness = decision.target;
+							V.__fix_prev_tiredness = decision.target;
+							if (curMax !== null) V.__fix_prevMax_tiredness = Math.max(curMax, V.__fix_prevMax_tiredness ?? 0);
+						}
+					} else {
+						V.__fix_prev_tiredness = cur;
+						if (curMax !== null) V.__fix_prevMax_tiredness = curMax;
+					}
+				}
+			}
+
+			// ---- STRESS ----
+			{
+				const cur = numberOrNull(V.stress);
+				const curMax = getStressMax();
+				const prev = numberOrNull(V.__fix_prev_stress);
+				const prevMax = numberOrNull(V.__fix_prevMax_stress);
+				log(`  stress: cur=${cur}, prev=${prev}, prevMax=${prevMax}, curMax=${curMax}`);
+
+				if (cur !== null) {
+					const decision = evaluateDrop(prev, prevMax, cur, "stress");
+					log(`  stress decision: ${decision.reason}${decision.revert ? ` → revert to ${decision.target}` : ""}`);
+
+					if (decision.revert) {
+						if (window.STAT_EXPLOIT_DISABLE) {
+							warn(`WOULD HAVE reverted STRESS: ${decision.reason} → ${decision.target} (DISABLE=true, doing nothing). passage=${passage}`);
+							V.__fix_prev_stress = cur;
+							if (curMax !== null) V.__fix_prevMax_stress = curMax;
+						} else {
+							warn(`reverted STRESS: ${decision.reason} → ${decision.target}. passage=${passage}`);
+							V.stress = decision.target;
+							V.__fix_prev_stress = decision.target;
+							if (curMax !== null) V.__fix_prevMax_stress = Math.max(curMax, V.__fix_prevMax_stress ?? 0);
+						}
+					} else {
+						V.__fix_prev_stress = cur;
+						if (curMax !== null) V.__fix_prevMax_stress = curMax;
+					}
+				}
+			}
+
+			if (curTime !== null) V.__fix_prev_timestamp = curTime;
+		});
 	});
-  });
 })();
 
 (() => {
@@ -325,7 +346,10 @@ window.wornSetupClothes = wornSetupClothes;
 
 		for (const s of setup.bodySizeSteps) {
 			const d = Math.abs(v - s);
-			if (d < bestD) { best = s; bestD = d; }
+			if (d < bestD) {
+				best = s;
+				bestD = d;
+			}
 		}
 		return best;
 	};
@@ -348,10 +372,14 @@ window.wornSetupClothes = wornSetupClothes;
 
 (() => {
 	// Ensure setup exists
-	if (typeof window.setup !== "object" || window.setup === null) {window.setup = {};}
+	if (typeof window.setup !== "object" || window.setup === null) {
+		window.setup = {};
+	}
 
 	// Ensure Math.clamp exists
-	if (typeof Math.clamp !== "function") {Math.clamp = (n, min, max) => Math.min(max, Math.max(min, n));}
+	if (typeof Math.clamp !== "function") {
+		Math.clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+	}
 
 	// Back-compat: old saves may be missing newer X-Change pill fields.
 	// We only fill in missing fields; we don't wipe or rewrite existing data.
@@ -389,7 +417,7 @@ window.wornSetupClothes = wornSetupClothes;
 		if (V.xchange.heat.permanentOn === undefined) {
 			V.xchange.heat.permanentOn = 0;
 		}
-		
+
 		// story-functions.js uses V.xchange.breederDenial in arithmetic.
 		// If it's missing or invalid, recover the bounded feature default so heat math doesn't become NaN.
 		const bd = Number(V.xchange.breederDenial);
@@ -403,7 +431,7 @@ window.wornSetupClothes = wornSetupClothes;
 		V.pregnancyStats ??= {};
 		if (typeof V.pregnancyStats.heatStillEnabled !== "boolean") {
 			try {
-				V.pregnancyStats.heatStillEnabled = (typeof playerIsPregnant === "function") ? !playerIsPregnant() : true;
+				V.pregnancyStats.heatStillEnabled = typeof playerIsPregnant === "function" ? !playerIsPregnant() : true;
 			} catch (e) {
 				V.pregnancyStats.heatStillEnabled = true;
 			}
@@ -457,7 +485,32 @@ window.wornSetupClothes = wornSetupClothes;
 		// Fallbacks mirror <<parasiteinit>> (game/base-system/parasites.twee) exactly; keep them in sync if base-DoL adds body parts.
 		const bodyparts = Array.isArray(parasite.bodyparts)
 			? parasite.bodyparts
-			: ["nipples", "bottom", "breasts", "penis", "balls", "clit", "anus", "vagina", "labia", "left_thigh", "right_thigh", "left_foot", "right_foot", "left_arm", "right_arm", "left_hand", "right_hand", "tummy", "back", "face", "mouth", "left_ear", "right_ear", "hair"];
+			: [
+					"nipples",
+					"bottom",
+					"breasts",
+					"penis",
+					"balls",
+					"clit",
+					"anus",
+					"vagina",
+					"labia",
+					"left_thigh",
+					"right_thigh",
+					"left_foot",
+					"right_foot",
+					"left_arm",
+					"right_arm",
+					"left_hand",
+					"right_hand",
+					"tummy",
+					"back",
+					"face",
+					"mouth",
+					"left_ear",
+					"right_ear",
+					"hair",
+			  ];
 		const types = Array.isArray(parasite.types) ? parasite.types : ["urchin", "slime", "maggot", "parasite"];
 		// The "parasite" type (chastity/ear-slime genital parasite) is always applied with the "noSuck" flag, so base-DoL never lists it in the display-cache arrays and renders it separately from slots (caption.twee).
 		// Rebuilding it here would double-display it, so it is deliberately excluded and its array is forced empty below.
@@ -493,10 +546,10 @@ window.wornSetupClothes = wornSetupClothes;
 	setup.xchangeCaptureEarParasites = function () {
 		const V = State?.variables;
 		const parasite = V?.parasite;
-		const cloneFn = (typeof clone === "function") ? clone : (o) => JSON.parse(JSON.stringify(o));
+		const cloneFn = typeof clone === "function" ? clone : o => JSON.parse(JSON.stringify(o));
 		const grab = part => {
 			const slot = parasite && parasite[part];
-			return (slot && typeof slot === "object" && !Array.isArray(slot)) ? cloneFn(slot) : {};
+			return slot && typeof slot === "object" && !Array.isArray(slot) ? cloneFn(slot) : {};
 		};
 		return { left_ear: grab("left_ear"), right_ear: grab("right_ear") };
 	};
@@ -506,10 +559,10 @@ window.wornSetupClothes = wornSetupClothes;
 		const parasite = V?.parasite;
 		if (!parasite || typeof parasite !== "object" || Array.isArray(parasite)) return;
 		if (!captured || typeof captured !== "object") return;
-		const cloneFn = (typeof clone === "function") ? clone : (o) => JSON.parse(JSON.stringify(o));
+		const cloneFn = typeof clone === "function" ? clone : o => JSON.parse(JSON.stringify(o));
 		for (const part of ["left_ear", "right_ear"]) {
 			const slot = captured[part];
-			parasite[part] = (slot && typeof slot === "object" && !Array.isArray(slot)) ? cloneFn(slot) : {};
+			parasite[part] = slot && typeof slot === "object" && !Array.isArray(slot) ? cloneFn(slot) : {};
 		}
 	};
 
@@ -520,7 +573,7 @@ window.wornSetupClothes = wornSetupClothes;
 		V.xchange ??= {};
 		const x = V.xchange;
 
-		const toStrictBool = (v) => (v === true || v === 1 || v === "true");
+		const toStrictBool = v => v === true || v === 1 || v === "true";
 
 		if (x.genderIdentityEnabled === undefined) x.genderIdentityEnabled = true;
 		x.genderIdentityEnabled = toStrictBool(x.genderIdentityEnabled);
@@ -537,7 +590,7 @@ window.wornSetupClothes = wornSetupClothes;
 		// Lock behind the same unlock the UI uses.
 		// identityCap is NOT checked here; it controls how far the meter can drift, not whether the system is enabled.
 		// The genderidentity widget already enforces the cap floor when identityCap is true.
-		const unlocked = (V.attitudesControl?.unlockGender === true);
+		const unlocked = V.attitudesControl?.unlockGender === true;
 		if (!unlocked) {
 			x.giAutoEnabled = false;
 			x.giTransformEnabled = false;
@@ -553,11 +606,21 @@ window.wornSetupClothes = wornSetupClothes;
 	};
 
 	const runXChangeLoadCompat = () => {
-		try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
-		try { setup.xchangeEnsureCompatGlobals(); } catch (e) {}
-		try { setup.xchangeEnsureAlphaUsable(); } catch (e) {}
-		try { setup.xchangeRepairParasiteDisplayCache(); } catch (e) {}
-		try { setup.xchangeEnsureGiSafety(); } catch (e) {}
+		try {
+			setup.xchangeEnsurePillDefaults();
+		} catch (e) {}
+		try {
+			setup.xchangeEnsureCompatGlobals();
+		} catch (e) {}
+		try {
+			setup.xchangeEnsureAlphaUsable();
+		} catch (e) {}
+		try {
+			setup.xchangeRepairParasiteDisplayCache();
+		} catch (e) {}
+		try {
+			setup.xchangeEnsureGiSafety();
+		} catch (e) {}
 	};
 
 	// Run once now, then when a save is loaded. These are compatibility fills for old/missing setup, not an every-passage data cleaner.
@@ -566,15 +629,19 @@ window.wornSetupClothes = wornSetupClothes;
 	if (typeof jQuery === "function") {
 		jQuery(document).on(":onloadsave", runXChangeLoadCompat);
 		jQuery(document).on(":passagestart", () => {
-			try { setup.xchangeEnsurePillDefaults(); } catch (e) {}
-			try { setup.xchangeEnsureGiSafety(); } catch (e) {}
+			try {
+				setup.xchangeEnsurePillDefaults();
+			} catch (e) {}
+			try {
+				setup.xchangeEnsureGiSafety();
+			} catch (e) {}
 		});
 	}
 })();
 
 // ---------- X-CHANGE SAVE REPAIR NOTICE ----------
 window.xChangeQueueNotice = function (id, html) {
-	const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+	const V = typeof State !== "undefined" && State.variables ? State.variables : window.V;
 	if (!V) return;
 
 	V.xChangeFlags ??= {};
@@ -586,7 +653,7 @@ window.xChangeQueueNotice = function (id, html) {
 
 (function () {
 	function renderNotices() {
-		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+		const V = typeof State !== "undefined" && State.variables ? State.variables : window.V;
 		if (!V?.xChangeNotices?.length) return;
 
 		V.xChangeFlags ??= {};
@@ -613,7 +680,7 @@ window.xChangeQueueNotice = function (id, html) {
 				"line-height:1.4",
 				"word-break:break-word",
 				"overflow-wrap:anywhere",
-				"box-sizing:border-box"
+				"box-sizing:border-box",
 			].join(";");
 
 			passEl.prepend(box);
@@ -635,9 +702,9 @@ function xChangeCachedBodyUsable(slotName) {
 	const body = pill[prop];
 	if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).length === 0) return false;
 
-	if (xChangeBodySnapshotUsable(body)) return true;
+	if (window.xChangeBodySnapshotUsable(body)) return true;
 
-	xChangeRepairNoticeOnce(
+	setup.xChangeRepairNoticeOnce(
 		`xchange_invalid_cached_${prop}`,
 		`<b>X-Change cache notice</b><br>X-Change found an invalid generated body cache (<b>${slotName}</b>). It was not loaded; the body will be regenerated through the normal X-Change path.<br><br><b>Please report this with your save and steps if the new body looks wrong.</b>`
 	);
@@ -651,97 +718,98 @@ function xChangeCachedBodyUsable(slotName) {
 	return false;
 }
 window.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
-setup.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
+setup.xChangeBodySnapshotUsable = window.xChangeBodySnapshotUsable;
 setup.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
 
 // ==================================================
 // OTHER FUNCTIONAL HELPER
 // ==================================================
 function pruneNPCName() {
-  const V = State.variables;
-  if (!Array.isArray(V.NPCName) || !Array.isArray(V.NPCNameList)) return;
+	const V = State.variables;
+	if (!Array.isArray(V.NPCName) || !Array.isArray(V.NPCNameList)) return;
 
-  const allowed = new Set(setup.NPCNameList);
-  for (let i = V.NPCName.length - 1; i >= 0; i--) {
-	const nam = V.NPCName[i]?.nam;
-	if (typeof nam !== "string" || !allowed.has(nam)) V.NPCName.splice(i, 1);
-  }
+	const allowed = new Set(setup.NPCNameList);
+	for (let i = V.NPCName.length - 1; i >= 0; i--) {
+		const nam = V.NPCName[i]?.nam;
+		if (typeof nam !== "string" || !allowed.has(nam)) V.NPCName.splice(i, 1);
+	}
 
-  const have = new Set(V.NPCName.map(n => n?.nam).filter(n => typeof n === "string"));
-  for (let i = V.NPCNameList.length - 1; i >= 0; i--) {
-	if (!have.has(V.NPCNameList[i])) V.NPCNameList.splice(i, 1);
-  }
+	const have = new Set(V.NPCName.map(n => n?.nam).filter(n => typeof n === "string"));
+	for (let i = V.NPCNameList.length - 1; i >= 0; i--) {
+		if (!have.has(V.NPCNameList[i])) V.NPCNameList.splice(i, 1);
+	}
 }
 window.pruneNPCName = pruneNPCName;
 
 function pruneFoodstuff() {
-  const V = State.variables;
-  const catalog = setup.foodstuff;
-  if (!catalog || typeof catalog !== "object") return;
+	const V = State.variables;
+	const catalog = setup.foodstuff;
+	if (!catalog || typeof catalog !== "object") return;
 
-  const allowed = new Set(Object.keys(catalog));
-  const pruned = new Set();
+	const allowed = new Set(Object.keys(catalog));
+	const pruned = new Set();
 
-  for (const dictName of ["foodstuff", "stall_stats"]) {
-	const dict = V[dictName];
-	if (!dict || typeof dict !== "object" || Array.isArray(dict)) continue;
-	for (const key of Object.keys(dict)) {
-	  if (allowed.has(key)) continue;
-	  delete dict[key];
-	  pruned.add(key);
+	for (const dictName of ["foodstuff", "stall_stats"]) {
+		const dict = V[dictName];
+		if (!dict || typeof dict !== "object" || Array.isArray(dict)) continue;
+		for (const key of Object.keys(dict)) {
+			if (allowed.has(key)) continue;
+			delete dict[key];
+			pruned.add(key);
+		}
 	}
-  }
 
-  if (Array.isArray(V.plants_known)) {
-	for (let i = V.plants_known.length - 1; i >= 0; i--) {
-	  const key = V.plants_known[i];
-	  if (typeof key === "string" && allowed.has(key)) continue;
-	  V.plants_known.splice(i, 1);
-	  pruned.add(key);
+	if (Array.isArray(V.plants_known)) {
+		for (let i = V.plants_known.length - 1; i >= 0; i--) {
+			const key = V.plants_known[i];
+			if (typeof key === "string" && allowed.has(key)) continue;
+			V.plants_known.splice(i, 1);
+			pruned.add(key);
+		}
 	}
-  }
 
-  /* Beds planted with a foreign crop: reset the bed (mirrors clear_plot), never delete it. */
-  if (V.plots && typeof V.plots === "object") {
-	for (const plots of Object.values(V.plots)) {
-	  if (!Array.isArray(plots)) continue;
-	  for (const plot of plots) {
-		if (!plot || typeof plot !== "object") continue;
-		if (plot.plant === undefined || plot.plant === "none" || allowed.has(plot.plant)) continue;
-		pruned.add(plot.plant);
-		plot.plant = "none";
-		plot.stage = 0;
-		plot.days = 0;
-		plot.water = 0;
-		plot.till = 0;
-	  }
+	/* Beds planted with a foreign crop: reset the bed (mirrors clear_plot), never delete it. */
+	if (V.plots && typeof V.plots === "object") {
+		for (const plots of Object.values(V.plots)) {
+			if (!Array.isArray(plots)) continue;
+			for (const plot of plots) {
+				if (!plot || typeof plot !== "object") continue;
+				if (plot.plant === undefined || plot.plant === "none" || allowed.has(plot.plant)) continue;
+				pruned.add(plot.plant);
+				plot.plant = "none";
+				plot.stage = 0;
+				plot.days = 0;
+				plot.water = 0;
+				plot.till = 0;
+			}
+		}
 	}
-  }
 
-  /* Scalar foodstuff-key vars. Stall selection uses unset as its idle state;
+	/* Scalar foodstuff-key vars. Stall selection uses unset as its idle state;
 	 Avery's dinner request falls back to its routine-start default. */
-  for (const varName of ["stall_foodstuff", "stall_expensive", "lastRecipeViewed"]) {
-	if (V[varName] === undefined || allowed.has(V[varName])) continue;
-	pruned.add(V[varName]);
-	delete V[varName];
-  }
-  if (V.avery_mansion && typeof V.avery_mansion === "object") {
-	if (V.avery_mansion.food !== undefined && V.avery_mansion.food !== "none" && !allowed.has(V.avery_mansion.food)) {
-	  pruned.add(V.avery_mansion.food);
-	  V.avery_mansion.food = "hamburger";
+	for (const varName of ["stall_foodstuff", "stall_expensive", "lastRecipeViewed"]) {
+		if (V[varName] === undefined || allowed.has(V[varName])) continue;
+		pruned.add(V[varName]);
+		delete V[varName];
 	}
-	if (V.avery_mansion.food_last !== undefined && V.avery_mansion.food_last !== "none" && !allowed.has(V.avery_mansion.food_last)) {
-	  pruned.add(V.avery_mansion.food_last);
-	  V.avery_mansion.food_last = "none";
+	if (V.avery_mansion && typeof V.avery_mansion === "object") {
+		if (V.avery_mansion.food !== undefined && V.avery_mansion.food !== "none" && !allowed.has(V.avery_mansion.food)) {
+			pruned.add(V.avery_mansion.food);
+			V.avery_mansion.food = "hamburger";
+		}
+		if (V.avery_mansion.food_last !== undefined && V.avery_mansion.food_last !== "none" && !allowed.has(V.avery_mansion.food_last)) {
+			pruned.add(V.avery_mansion.food_last);
+			V.avery_mansion.food_last = "none";
+		}
 	}
-  }
 
-  if (pruned.size) console.warn("Pruned foodstuff entries unknown to this mod from the save.", [...pruned]);
+	if (pruned.size) console.warn("Pruned foodstuff entries unknown to this mod from the save.", [...pruned]);
 }
 window.pruneFoodstuff = pruneFoodstuff;
 
 function updateDynamicStatCaps() {
-	const V = State.variables; if (!window.C || !C.tiredness) return;
+	const V = State.variables;
+	if (!window.C || !C.tiredness) return;
 	if (V.tirednessMaxScalingToggle && typeof currentSkillValue === "function") {
 		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique", 0, 1) / 32);
 	} else {
@@ -758,9 +826,8 @@ window.updateDynamicStatCaps = updateDynamicStatCaps;
 function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 	if (!V?.worn || !setup?.clothes) return;
 
-	const warn = typeof window.dolxWarnOnce === "function"
-		? (key, msg, value) => window.dolxWarnOnce(key, msg, value)
-		: (_key, msg, value) => console.warn(msg, value);
+	const warn =
+		typeof window.dolxWarnOnce === "function" ? (key, msg, value) => window.dolxWarnOnce(key, msg, value) : (_key, msg, value) => console.warn(msg, value);
 
 	for (const slot of ["earrings", "rings"]) {
 		if (V.worn[slot] && typeof V.worn[slot] === "object") continue;
@@ -768,11 +835,7 @@ function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 		const fallback = setup.clothes[slot]?.[0];
 		if (!fallback) continue;
 
-		warn(
-			`missing-worn-jewellery:${slot}`,
-			`[DoLX] Missing $worn.${slot} during ${context}; repairing with default naked ${slot}.`,
-			V.worn[slot]
-		);
+		warn(`missing-worn-jewellery:${slot}`, `[DoLX] Missing $worn.${slot} during ${context}; repairing with default naked ${slot}.`, V.worn[slot]);
 
 		V.worn[slot] = clone(fallback);
 	}
@@ -798,7 +861,16 @@ function dolxRepairNonFiniteNumerics() {
 	fix("genderidentitymax", giRange);
 	fix("genderidentity", V.player?.gender === "f" ? giRange : 0);
 
-	for (const mult of ["npcHealthMult", "npcArousalMult", "nnpcHealthMult", "nnpcArousalMult", "beastHealthMult", "beastArousalMult", "tentacleHealthMult", "struggleHealthMult"]) {
+	for (const mult of [
+		"npcHealthMult",
+		"npcArousalMult",
+		"nnpcHealthMult",
+		"nnpcArousalMult",
+		"beastHealthMult",
+		"beastArousalMult",
+		"tentacleHealthMult",
+		"struggleHealthMult",
+	]) {
 		fix(mult, 100);
 	}
 
@@ -832,9 +904,19 @@ function dolxEnsureTransformationParts() {
 		demon: { horns: () => special && lvl("demon") >= 2, wings: () => special && lvl("demon") >= 6, tail: () => special && lvl("demon") >= 4 },
 		cat: { ears: () => physical && lvl("cat") >= 4, tail: () => physical && lvl("cat") >= 6, heterochromia: () => physical && lvl("cat") >= 7 },
 		cow: { horns: () => physical && lvl("cow") >= 2, ears: () => physical && lvl("cow") >= 4, tail: () => physical && lvl("cow") >= 6 },
-		waterdragon: { horns: () => physical && lvl("waterdragon") >= 2, ears: () => physical && lvl("waterdragon") >= 4, tail: () => physical && lvl("waterdragon") >= 7 },
+		waterdragon: {
+			horns: () => physical && lvl("waterdragon") >= 2,
+			ears: () => physical && lvl("waterdragon") >= 4,
+			tail: () => physical && lvl("waterdragon") >= 7,
+		},
 		bear: { plumage: null, pubes: null, ears: () => physical && lvl("bear") >= 4, tail: () => physical && lvl("bear") >= 6 },
-		wolf: { ears: () => physical && lvl("wolfgirl") >= 4, tail: () => physical && lvl("wolfgirl") >= 6, pubes: () => physical && lvl("wolfgirl") >= 4, pits: () => physical && lvl("wolfgirl") >= 4, cheeks: () => (lvl("wolfgirl") >= 5 ? "feral" : false) },
+		wolf: {
+			ears: () => physical && lvl("wolfgirl") >= 4,
+			tail: () => physical && lvl("wolfgirl") >= 6,
+			pubes: () => physical && lvl("wolfgirl") >= 4,
+			pits: () => physical && lvl("wolfgirl") >= 4,
+			cheeks: () => (lvl("wolfgirl") >= 5 ? "feral" : false),
+		},
 		bird: { tail: null, wings: null, eyes: null, malar: null, plumage: null, pubes: null },
 		fox: { ears: null, tail: null, cheeks: null },
 		bunny: { ears: () => physical && lvl("bunny") >= 4, tail: () => physical && lvl("bunny") >= 6 },
@@ -858,7 +940,12 @@ function dolxEnsureTransformationParts() {
 window.dolxEnsureTransformationParts = dolxEnsureTransformationParts;
 
 if (Array.isArray(V.NPCList)) {
-	V.NPCList.forEach(npc => {if (npc && typeof npc === "object") {delete npc.orgasms; delete npc.maxOrgasms;}});
+	V.NPCList.forEach(npc => {
+		if (npc && typeof npc === "object") {
+			delete npc.orgasms;
+			delete npc.maxOrgasms;
+		}
+	});
 }
 if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V.npcOrgasmState)) {
 	V.npcOrgasmState = {};
@@ -868,20 +955,20 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 	// Ensure setup exists (defensive; other blocks in this file already do this)
 	if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
 	// Internal helper, closure-scoped (not used outside this block).
-	const stateInvalid = (...states) => states.some((state) => state === undefined);
+	const stateInvalid = (...states) => states.some(state => state === undefined);
 
-	// Pain multiplier per bodysize step. 
+	// Pain multiplier per bodysize step.
 	// Keyed by VALUE, not array index, so it stays aligned with setup.bodySizeSteps = [-1, 0, 1, 2, 2.5, 3, 4].
 	// The old [2, 1, 0.5, 0] array silently returned undefined for bodysize -1, 2.5, and 4, which the `|| 0` then swallowed into zero pain.
 	// Adjust the -1 / 2.5 / 4 entries if the game-design intent differs.
 	const BODY_SIZE_PAIN_MODIFIER = new Map([
-		[-1,  3],     // very small frame: extra pain
-		[0,   2],
-		[1,   1],
-		[2,   0.5],
-		[2.5, 0.25],  // between 2 and 3
-		[3,   0],
-		[4,   0],     // very large frame: no extra pain
+		[-1, 3], // very small frame: extra pain
+		[0, 2],
+		[1, 1],
+		[2, 0.5],
+		[2.5, 0.25], // between 2 and 3
+		[3, 0],
+		[4, 0], // very large frame: no extra pain
 	]);
 
 	// Increase pain based on penetration states every turn in combat.
@@ -898,8 +985,8 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		// Wetness eases penetration pain. Maps a hole's wetness (0-100) to a multiplier:
 		//   dry (0)        -> WET_PAIN_MAX_MULT (full pain)
 		//   drenched (100) -> WET_PAIN_MIN_MULT (reduced, but never zero; penetration still hurts)
-		const WET_PAIN_MAX_MULT = 1;    // pain multiplier when completely dry
-		const WET_PAIN_MIN_MULT = 0.4;  // pain multiplier when fully wet (floor: stays hurtful)
+		const WET_PAIN_MAX_MULT = 1; // pain multiplier when completely dry
+		const WET_PAIN_MIN_MULT = 0.4; // pain multiplier when fully wet (floor: stays hurtful)
 		const wetnessMult = wetness => {
 			const w = Math.clamp(wetness ?? 0, 0, 100) / 100;
 			return WET_PAIN_MAX_MULT - w * (WET_PAIN_MAX_MULT - WET_PAIN_MIN_MULT);
@@ -965,9 +1052,9 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		if (V.consensual === 1) {
 			// CONSENSUAL: after enough orgasms the PC acclimates and pain eases off each turn,
 			// faster the wetter things are (can fully null pain over time). "How wet during the action."
-			const ADAPT_ORGASM_THRESHOLD = 3;  // orgasms required before adaptation kicks in
-			const ADAPT_BASE = 1;              // pain removed per turn once adapted, when dry
-			const ADAPT_WET_BONUS = 4;         // extra removal that scales up to full wetness
+			const ADAPT_ORGASM_THRESHOLD = 3; // orgasms required before adaptation kicks in
+			const ADAPT_BASE = 1; // pain removed per turn once adapted, when dry
+			const ADAPT_WET_BONUS = 4; // extra removal that scales up to full wetness
 			if ((V.orgasmcount || 0) >= ADAPT_ORGASM_THRESHOLD) {
 				const wet = Math.clamp(Math.max(V.vaginaWetness ?? 0, V.anusWetness ?? 0), 0, 100) / 100;
 				const adapt = ADAPT_BASE + wet * ADAPT_WET_BONUS;
@@ -1002,7 +1089,7 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		return -Math.min(PAIN_DECAY_MIN + steps * PAIN_DECAY_STEP, PAIN_DECAY_MAX);
 	};
 
-	// Multiplier on tiredness gain due to pain. 
+	// Multiplier on tiredness gain due to pain.
 	// Used as a per-tick multiplier in stat-changes.js, where the fallback when this is missing is 1.
 	// Floor of 1 is intentional: pain only ever amplifies tiredness gain, never reduces it.
 	setup.tirednessChangeByPain = function tirednessChangeByPain(currentPain) {
@@ -1016,20 +1103,8 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		if (stateInvalid(V.pain, V.tiredness)) return 1;
 		const currentPain = V.pain;
 		const currentTiredness = V.tiredness;
-		const tirednessModifier = Math.min(
-			-0.0000001 * currentTiredness * currentTiredness
-				- 0.0002 * currentTiredness
-				+ 1,
-			1
-		);
-		const painModifier = Math.min(
-			-0.000000001 * currentPain ** 4
-				+ 0.0000007  * currentPain ** 3
-				- 0.0001275  * currentPain ** 2
-				+ 0.00075    * currentPain
-				+ 1,
-			1
-		);
+		const tirednessModifier = Math.min(-0.0000001 * currentTiredness * currentTiredness - 0.0002 * currentTiredness + 1, 1);
+		const painModifier = Math.min(-0.000000001 * currentPain ** 4 + 0.0000007 * currentPain ** 3 - 0.0001275 * currentPain ** 2 + 0.00075 * currentPain + 1, 1);
 		return painModifier * tirednessModifier;
 	};
 })();
@@ -1130,7 +1205,7 @@ function xChangeSeedBodyVirginity(role) {
 
 	// The original body should already have been recorded by save-body before transformation.
 	// If not, only seed it from the live player when we are not currently transformed.
-	const transformed = typeof playerIsXChanged === "function" && playerIsXChanged();
+	const transformed = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
 	if (role === "real" && !transformed) {
 		return xChangeVirginityEntryFrom(V.player && V.player.virginity, V.player && V.player.virginityDetails);
 	}
@@ -1167,7 +1242,7 @@ setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
 
 // Role of the body the player is currently in, by configuration not flags.
 setup.xChangeActiveBodyVirginityRole = function xChangeActiveBodyVirginityRole() {
-	if (!(typeof playerIsXChanged === "function" && playerIsXChanged())) return "real";
+	if (!(typeof window.playerIsXChanged === "function" && window.playerIsXChanged())) return "real";
 	return setup.xChangeTransformedRole(V.player && V.player.gender_body);
 };
 
@@ -1178,7 +1253,7 @@ setup.xChangeRecordActiveBodyVirginity = function xChangeRecordActiveBodyVirgini
 function xChangeOtherBodyVirginity() {
 	const pill = V.xchange && V.xchange.pill;
 	if (!pill) return undefined;
-	const transformed = typeof playerIsXChanged === "function" && playerIsXChanged();
+	const transformed = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
 	const store = pill.bodyVirginity;
 	let role;
 	if (transformed) {
@@ -1205,9 +1280,9 @@ function bodyIsGenitalVirgin(virginity, keys) {
 window.bodyIsGenitalVirgin = bodyIsGenitalVirgin;
 
 function playerCountsAsVirgin() {
-	const transformed = typeof playerIsXChanged === "function" && playerIsXChanged();
-	const permanent = typeof pillIsPermanent === "function" && pillIsPermanent();
-	const paused = typeof pillTimerPaused === "function" && pillTimerPaused();
+	const transformed = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
+	const permanent = typeof window.pillIsPermanent === "function" && window.pillIsPermanent();
+	const paused = typeof window.pillTimerPaused === "function" && window.pillTimerPaused();
 	const tempXChanged = transformed && !permanent && !paused;
 
 	let trueForm = V.player && V.player.virginity;
@@ -1313,7 +1388,8 @@ $(document).on(":passageinit", () => {
 	if (!Number.isFinite(V.beautyBoost.spa.expires)) V.beautyBoost.spa.expires = 0;
 	if (typeof V.beautyBoost.spa.treatment !== "string") V.beautyBoost.spa.treatment = "spa treatment";
 	if (V.beautyBoost.spa.amount > 0 && V.beautyBoost.spa.expires > 0 && Time.days > V.beautyBoost.spa.expires) {
-		V.beautyBoost.spa.amount = 0; V.beautyBoost.spa.expiredNotice = true;
+		V.beautyBoost.spa.amount = 0;
+		V.beautyBoost.spa.expiredNotice = true;
 	}
 
 	/* Salon manicure boost, parallel slot to spa */
@@ -1329,7 +1405,8 @@ $(document).on(":passageinit", () => {
 	if (!Number.isFinite(V.beautyBoost.nails.expires)) V.beautyBoost.nails.expires = 0;
 	if (typeof V.beautyBoost.nails.treatment !== "string") V.beautyBoost.nails.treatment = "salon manicure";
 	if (V.beautyBoost.nails.amount > 0 && V.beautyBoost.nails.expires > 0 && Time.days > V.beautyBoost.nails.expires) {
-		V.beautyBoost.nails.amount = 0; V.beautyBoost.nails.expiredNotice = true;
+		V.beautyBoost.nails.amount = 0;
+		V.beautyBoost.nails.expiredNotice = true;
 	}
 });
 
@@ -1338,20 +1415,18 @@ $(document).on(":passageinit", () => {
 	 - path: type string, representing the relative path to an 'img' asset.
 */
 function getGenderedPath(path) {
-	if (typeof path === 'string' && V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender) {
-		let sub = path.substring(4);   // strip leading "img/"
-		if (sub[0] === '/') {
+	if (typeof path === "string" && (V.options?.altImgAlways === 1 || (V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender))) {
+		let sub = path.substring(4); // strip leading "img/"
+		if (sub[0] === "/") {
 			sub = sub.substring(1);
 		}
 		// Folders shared with the main 'img' set ; never redirect these to img2
-		const sharedFolders = ['decorations', 'sex', 'ui', 'misc'];
-		if (sharedFolders.includes(sub.split('/')[0])) {
-			return path;   // keep the original img/ path untouched
+		const sharedFolders = ["decorations", "sex", "ui", "misc"];
+		if (sharedFolders.includes(sub.split("/")[0])) {
+			return path; // keep the original img/ path untouched
 		}
-		return 'img2/' + sub;
-	}
-	else
-		return path;
+		return "img2/" + sub;
+	} else return path;
 }
 window.getGenderedPath = getGenderedPath;
 
@@ -1370,14 +1445,10 @@ function rainExposedBodyparts() {
 	const upperBare = w.over_upper.exposed >= 1 && w.upper.exposed >= 1 && w.under_upper.exposed >= 1;
 	if (upperBare) parts.push("chest", "tummy");
 
-	const lowerBare =
-		w.over_lower.exposed >= 1 &&
-		w.lower.exposed >= 1 &&
-		(w.under_lower.exposed >= 1 || !w.under_lower.type.includes("lower_covering"));
+	const lowerBare = w.over_lower.exposed >= 1 && w.lower.exposed >= 1 && (w.under_lower.exposed >= 1 || !w.under_lower.type.includes("lower_covering"));
 	if (lowerBare) parts.push("thigh", "bottom");
 
-	const genitalsBare =
-		w.over_lower.vagina_exposed >= 1 && w.lower.vagina_exposed >= 1 && !w.under_lower.type.includes("lower_covering");
+	const genitalsBare = w.over_lower.vagina_exposed >= 1 && w.lower.vagina_exposed >= 1 && !w.under_lower.type.includes("lower_covering");
 	if (genitalsBare) {
 		if (V.player.vaginaExist) parts.push("vaginaoutside");
 		if (V.player.penisExist) parts.push("penis");
@@ -1439,13 +1510,7 @@ window.rainWashFluids = rainWashFluids;
 
 /* True when the PC is currently a herm via the X-Change herm effect. */
 function playerIsHerm() {
-	return !!(
-		typeof playerIsXChanged === "function" &&
-		playerIsXChanged() &&
-		V.xchange &&
-		V.xchange.pill &&
-		V.xchange.pill.hermEffect
-	);
+	return !!(typeof window.playerIsXChanged === "function" && window.playerIsXChanged() && V.xchange && V.xchange.pill && V.xchange.pill.hermEffect);
 }
 window.playerIsHerm = playerIsHerm;
 
@@ -1486,7 +1551,7 @@ function ensureVoiceConfig() {
 	}
 	for (const cat of Object.keys(def)) {
 		const d = def[cat];
-		let c = cfg[cat];
+		const c = cfg[cat];
 		if (!c || typeof c !== "object" || Array.isArray(c)) {
 			cfg[cat] = Object.assign({}, d);
 			continue;
