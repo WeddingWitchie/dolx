@@ -1,4 +1,5 @@
 /* eslint-disable dot-notation */
+/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangeTherapyActive */
 /*
  * if display_condition is 1, item is displayed, else it's not
  * current max doses for Harper/Asylum pills is 1; 2 for every other pills
@@ -39,8 +40,7 @@ setup.pills = [
 		description:
 			"Each pill contains 500mg of Praberrhol, a derived molecule crafted specifically to attach to the triglyceride present in your buttocks and dissolve them over time.",
 		onTakeMessage: "You take the pills intended to reduce your butt's size. You hope it will be as effective as advertised.",
-		warning_label:
-			"Warning: Severe side effects upon exceeding the maximum dose prescribed per day. Not to be associated with any other hormonal treatment.",
+		warning_label: "Warning: Severe side effects upon exceeding the maximum dose prescribed per day. Not to be associated with any other hormonal treatment.",
 		autoTake() {
 			return V.sexStats.pills["pills"][this.name].autoTake;
 		},
@@ -62,9 +62,7 @@ setup.pills = [
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return this.doseTaken() < 2 &&
-				V.sexStats.pills["pills"]["bottom growth"].doseTaken === 0 &&
-				V.sexStats.pills["pills"]["bottom blocker"].doseTaken === 0
+			return this.doseTaken() < 2 && V.sexStats.pills["pills"]["bottom growth"].doseTaken === 0 && V.sexStats.pills["pills"]["bottom blocker"].doseTaken === 0
 				? 1
 				: 0;
 		},
@@ -170,9 +168,7 @@ setup.pills = [
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return this.doseTaken() < 2 &&
-				V.sexStats.pills["pills"]["breast growth"].doseTaken === 0 &&
-				V.sexStats.pills["pills"]["breast blocker"].doseTaken === 0
+			return this.doseTaken() < 2 && V.sexStats.pills["pills"]["breast growth"].doseTaken === 0 && V.sexStats.pills["pills"]["breast blocker"].doseTaken === 0
 				? 1
 				: 0;
 		},
@@ -278,9 +274,7 @@ setup.pills = [
 			return V.player.penisExist && this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return this.doseTaken() < 2 &&
-				V.sexStats.pills["pills"]["penis growth"].doseTaken === 0 &&
-				V.sexStats.pills["pills"]["penis blocker"].doseTaken === 0
+			return this.doseTaken() < 2 && V.sexStats.pills["pills"]["penis growth"].doseTaken === 0 && V.sexStats.pills["pills"]["penis blocker"].doseTaken === 0
 				? 1
 				: 0;
 		},
@@ -314,9 +308,7 @@ setup.pills = [
 			return V.player.penisExist && this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return this.doseTaken() < 2 &&
-				V.sexStats.pills["pills"]["penis reduction"].doseTaken === 0 &&
-				V.sexStats.pills["pills"]["penis blocker"].doseTaken === 0
+			return this.doseTaken() < 2 && V.sexStats.pills["pills"]["penis reduction"].doseTaken === 0 && V.sexStats.pills["pills"]["penis blocker"].doseTaken === 0
 				? 1
 				: 0;
 		},
@@ -350,9 +342,7 @@ setup.pills = [
 			return V.player.penisExist && this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return this.doseTaken() === 0 &&
-				V.sexStats.pills["pills"]["penis growth"].doseTaken === 0 &&
-				V.sexStats.pills["pills"]["penis reduction"].doseTaken === 0
+			return this.doseTaken() === 0 && V.sexStats.pills["pills"]["penis growth"].doseTaken === 0 && V.sexStats.pills["pills"]["penis reduction"].doseTaken === 0
 				? 1
 				: 0;
 		},
@@ -376,9 +366,7 @@ setup.pills = [
 		},
 		hpi_doseTaken() {
 			if (V.sexStats.pills["pills"][this.name].doseTaken) {
-				return (
-					"Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "")
-				);
+				return "Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "");
 			} else {
 				return "Not Applied";
 			}
@@ -419,9 +407,7 @@ setup.pills = [
 		},
 		hpi_doseTaken() {
 			if (V.sexStats.pills["pills"][this.name].doseTaken) {
-				return (
-					"Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "")
-				);
+				return "Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "");
 			} else {
 				return "Not Applied";
 			}
@@ -465,9 +451,7 @@ setup.pills = [
 		},
 		hpi_doseTaken() {
 			if (V.sexStats.pills["pills"][this.name].doseTaken) {
-				return (
-					"Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "")
-				);
+				return "Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "");
 			} else {
 				return "Not Applied";
 			}
@@ -551,6 +535,89 @@ setup.pills = [
 		effects: [`<<awareness -1>>`, `<<control 10>>`, `<<set $medicated += 1>>`],
 	},
 	{
+		name: "sensitivity-decreasing cream",
+		description:
+			"A fast-acting topical neural dampener that temporarily reduces tactile sensation throughout the body. One application remains effective for 16 hours.",
+		onTakeMessage: "You rub the sensitivity-decreasing cream into your skin. The constant press of your clothes soon fades into the background.",
+		warning_label: "Warning: Do not apply more than once per day. This cream replaces the effect of any active sensitivity-increasing cream.",
+		indicators: ["<span class='hpi_indic_blue'>--- Sensitivity</span>"],
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_doseTaken() {
+			const medication = getSensitivityMedication();
+			const hours = sensitivityMedicationRemainingHours();
+			return medication?.type === this.subtype ? `Effective for ${hours} hour${hours === 1 ? "" : "s"}` : "Not active";
+		},
+		type: "sensitivity",
+		subtype: "suppressant",
+		shape: "cream",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/cream.png",
+		hpi_take_pills() {
+			return "Apply cream";
+		},
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return this.doseTaken() === 0 && getSensitivityMedication()?.type !== this.subtype ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return this.doseTaken() > 0 ? "The label permits only one application per day." : "This cream is already active.";
+		},
+		effects: [`<<run applySensitivityCream("suppressant")>>`],
+	},
+	{
+		name: "sensitivity-increasing cream",
+		description: "A fast-acting topical neural stimulant that heightens tactile sensation throughout the body. One application remains effective for 16 hours.",
+		onTakeMessage: "You rub the sensitivity-increasing cream into your skin. Before long, every brush against it feels vivid and distracting.",
+		warning_label: "Warning: Do not apply more than once per day. This cream replaces the effect of any active sensitivity-decreasing cream.",
+		indicators: ["<span class='hpi_indic_green'>+++ Sensitivity</span>"],
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_doseTaken() {
+			const medication = getSensitivityMedication();
+			const hours = sensitivityMedicationRemainingHours();
+			return medication?.type === this.subtype ? `Effective for ${hours} hour${hours === 1 ? "" : "s"}` : "Not active";
+		},
+		type: "sensitivity",
+		subtype: "stimulant",
+		shape: "cream",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/cream.png",
+		hpi_take_pills() {
+			return "Apply cream";
+		},
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return this.doseTaken() === 0 && getSensitivityMedication()?.type !== this.subtype ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return this.doseTaken() > 0 ? "The label permits only one application per day." : "This cream is already active.";
+		},
+		effects: [`<<run applySensitivityCream("stimulant")>>`],
+	},
+	{
 		name: "Hair Growth Formula",
 		description:
 			"A spray containing Minoxidil and other ingredients to promote faster growth and healthier hair when applied directly to hair. Effective for 3 days on application.",
@@ -571,9 +638,7 @@ setup.pills = [
 		},
 		hpi_doseTaken() {
 			if (V.sexStats.pills["pills"][this.name].doseTaken) {
-				return (
-					"Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "")
-				);
+				return "Effective for " + V.sexStats.pills["pills"][this.name].doseTaken + " day" + (V.sexStats.pills["pills"][this.name].doseTaken > 1 ? "s" : "");
 			} else {
 				return "Not Applied";
 			}
@@ -595,7 +660,7 @@ setup.pills = [
 			return this.doseTaken() === 0 ? 1 : 0;
 		},
 		effects: [],
-	}
+	},
 ];
 // ToDo: figure out a means to allow applying the Hair Growth Formula to pubic hair as well
 
@@ -603,7 +668,7 @@ function generateHomePillsInventory() {
 	$(function () {
 		T.disableGridClick = false;
 		for (const item of setup.pills) {
-			if (item.display_condition() == 1) window.addElementToGrid(item);
+			if (item.display_condition() === 1) window.addElementToGrid(item);
 		}
 	});
 }
@@ -653,9 +718,7 @@ function onHomePillItemClick(itemName) {
 				</div>`;
 				window.initPillContextButtons(item);
 				document.getElementById("hpi_desc_img").innerHTML =
-					(item.frontIcon
-						? `<img${item.shape === "galenic" ? ` style="margin-left: 17%;"` : ""} class="icon infront" src="${item.frontIcon}"/>`
-						: "") +
+					(item.frontIcon ? `<img${item.shape === "galenic" ? ` style="margin-left: 17%;"` : ""} class="icon infront" src="${item.frontIcon}"/>` : "") +
 					`<img${item.shape === "galenic" ? ` style="margin-left: 17%;"` : ""} src="${item.icon}" />` +
 					`<div id="hpi_indicator" class="hpi_indicator"></div>`;
 				window.addIndicators(item);
@@ -681,8 +744,8 @@ function initPillContextButtons(item) {
 		document.getElementById("hpi_take_every_morning").innerHTML = item.autoTake() ? "Stop taking them" : "Take every morning";
 	}
 
-	// special case if pill type is "asylum" or "harper"
-	if (item.type === "asylum" || item.type === "harper") {
+	// Hide auto-use for medication that must be taken manually.
+	if (["asylum", "harper", "sensitivity"].includes(item.type)) {
 		document.getElementById("hpi_take_every_morning").className = "hidden"; // prevent 'Take every Morning' option to be displayed for those type of pills
 		document.getElementById("hpi_take_pills").classList.add("hpi_take_me_single"); // readapt css since there's only one button now
 	}
@@ -716,7 +779,9 @@ function initPillContextButtons(item) {
 		/* Pills can self-report why they're blocked (e.g. X-Change body mismatch) so the grey button isn't unexplained. */
 		const blockedReason = typeof item.take_blocked_reason === "function" ? item.take_blocked_reason() : "";
 		if (blockedReason && document.getElementById("hpi_blocked_reason") == null) {
-			document.getElementById("hpi_desc_action").insertAdjacentHTML("beforebegin", `<div id="hpi_blocked_reason" class="hpi_notice_label">${blockedReason}</div>`);
+			document
+				.getElementById("hpi_desc_action")
+				.insertAdjacentHTML("beforebegin", `<div id="hpi_blocked_reason" class="hpi_notice_label">${blockedReason}</div>`);
 		}
 	}
 }
@@ -782,6 +847,10 @@ function onTakeClick(itemName) {
 		case "Hair Growth Formula":
 			V.sexStats.pills["pills"][itemName].doseTaken += 3;
 			break;
+		case "sensitivity-decreasing cream":
+		case "sensitivity-increasing cream":
+			V.sexStats.pills["pills"][itemName].doseTaken += 1;
+			break;
 		default:
 			// Stat for total pills consumption
 			V.pillsConsumed = (V.pillsConsumed || 0) + 1;
@@ -812,9 +881,10 @@ function onTakeClick(itemName) {
 				}
 			}
 			/* Anti X-Change therapy: a clean window neutralises any X-Change pill. The pill is still consumed, but it dissolves to nothing, so override the effect flavour with a no-effect line. */
-			V.lastPillTakenDescription = (item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive())
-				? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
-				: item.onTakeMessage;
+			V.lastPillTakenDescription =
+				item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive()
+					? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
+					: item.onTakeMessage;
 		}
 	}
 	Engine.play("Take Pill From Medicine Drawer");
@@ -835,6 +905,10 @@ function onTakeClickSilent(itemName) {
 		case "Hair Growth Formula":
 			V.sexStats.pills.pills[itemName].doseTaken += 3;
 			break;
+		case "sensitivity-decreasing cream":
+		case "sensitivity-increasing cream":
+			V.sexStats.pills.pills[itemName].doseTaken += 1;
+			break;
 		default:
 			V.pillsConsumed = (V.pillsConsumed || 0) + 1;
 			V.sexStats.pills.pills[itemName].doseTaken += 1;
@@ -850,9 +924,10 @@ function onTakeClickSilent(itemName) {
 			V.sexStats.pills.lastTaken[item.type] = item.subtype;
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
 			/* Anti X-Change therapy: a clean window neutralises any X-Change pill. The pill is still consumed, but it dissolves to nothing, so override the effect flavour with a no-effect line. */
-			V.lastPillTakenDescription = (item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive())
-				? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
-				: item.onTakeMessage;
+			V.lastPillTakenDescription =
+				item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive()
+					? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
+					: item.onTakeMessage;
 
 			/* Reuse original daily notice path */
 			V.pillsTaken = 1;
@@ -1013,6 +1088,8 @@ function backCompPillsInventory() {
 		"asylum's prescription": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"Dr Harper's prescription": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"Anti-Parasite Cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+		"sensitivity-decreasing cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
+		"sensitivity-increasing cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 	});
 	ensurePillInventoryRecords(pills);
 	if (typeof oPills === "undefined") {

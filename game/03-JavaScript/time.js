@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity wornSetupClothes pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1470,24 +1470,21 @@ function minutePassed(minutes) {
 
 	// Nipple Sensitive Rubbing
 	const nipplesAreSensitive = !tooInsaneToNoticeRubbing && getSensitivity("breasts") >= 4;
-	const wearingLooseBra = !V.worn.under_upper.type.includes("naked");
-	const wearingLooseUpper = !V.worn.upper.type.includes("naked");
-	const thereIsFabricRubbing = (wearingLooseBra && V.worn.under_upper.exposed < 2) || (wearingLooseUpper && V.worn.upper.exposed < 2);
+	const breastRubSlot = getBreastSensitiveRubSlot();
 
-	if (nipplesAreSensitive && thereIsFabricRubbing) {
+	if (nipplesAreSensitive && breastRubSlot) {
 		statChange.arousal(10 * minutes, "nipples");
-		V.breastSensitiveRubMessage = (V.breastSensitiveRubMessage ?? 0) + 1;
+		V.breastSensitiveRubMessage = breastRubSlot;
 		V.effectsmessage = 1;
 	}
 
 	// Genital Sensitive Rubbing
 	const genitalsAreSensitive = !tooInsaneToNoticeRubbing && getSensitivity("genitals") >= 4;
-	const wearingUnderwear = !V.worn.under_lower.type.includes("naked");
-	const wearingPants = !V.worn.lower.type.includes("naked") && wornSetupClothes("lower").skirt !== 1;
+	const genitalRubSlot = getGenitalSensitiveRubSlot();
 
-	if (genitalsAreSensitive && (wearingPants || wearingUnderwear)) {
+	if (genitalsAreSensitive && genitalRubSlot) {
 		statChange.arousal(10 * minutes, "genitals");
-		V.genitalSensitiveRubMessage = (V.genitalSensitiveRubMessage ?? 0) + 1;
+		V.genitalSensitiveRubMessage = genitalRubSlot;
 		V.effectsmessage = 1;
 	}
 
@@ -2979,14 +2976,26 @@ function passArousalWetness(passMinutes) {
 function getArousal(passMinutes) {
 	const minuteMultiplier = passMinutes * 10;
 	let addedArousal = 0;
+	const vibratorOn = playerVibratorOn();
+	const genitalSensitivity =
+		V.penilechastityparasite ||
+		V.vaginalchastityparasite ||
+		(V.parasite.penis.name && V.parasite.penis.name !== "parasite") ||
+		(V.parasite.clit.name && V.parasite.clit.name !== "parasite") ||
+		vibratorOn ||
+		V.earSlime.vibration > 0
+			? getSensitivity("genitals")
+			: 1;
+	const breastSensitivity = V.parasite.nipples.name ? getSensitivity("breasts") : 1;
+	const bottomSensitivity = V.parasite.bottom.name ? getSensitivity("bottom") : 1;
 
-	if (V.penilechastityparasite) addedArousal += minuteMultiplier * V.genitalsensitivity;
-	if (V.vaginalchastityparasite) addedArousal += minuteMultiplier * V.genitalsensitivity;
-	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * V.breastsensitivity;
-	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
-	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * V.genitalsensitivity;
+	if (V.penilechastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
+	if (V.vaginalchastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
+	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * breastSensitivity;
+	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
+	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
 	if (V.parasite.tummy.name) addedArousal += minuteMultiplier / 4;
-	if (V.parasite.bottom.name) addedArousal += minuteMultiplier * V.bottomsensitivity;
+	if (V.parasite.bottom.name) addedArousal += minuteMultiplier * bottomSensitivity;
 	if (V.analchastityparasite) addedArousal += minuteMultiplier;
 	if (V.parasite.tummy.name) addedArousal += minuteMultiplier;
 	if (V.parasite.left_arm.name) addedArousal += minuteMultiplier;
@@ -2995,10 +3004,9 @@ function getArousal(passMinutes) {
 	if (V.parasite.right_thigh.name) addedArousal += minuteMultiplier;
 	if (V.drugged > 1) addedArousal += minuteMultiplier;
 	if (playerHasButtPlug()) addedArousal += minuteMultiplier;
-	if (playerVibratorOn()) {
-		const sens = typeof V.genitalsensitivity === "number" ? V.genitalsensitivity : 1;
+	if (vibratorOn) {
 		const power = V.worn.vibrator && typeof V.worn.vibrator.power === "number" ? V.worn.vibrator.power : 1;
-		addedArousal += minuteMultiplier * (3 + power * 2) * sens;
+		addedArousal += minuteMultiplier * (3 + power * 2) * genitalSensitivity;
 	}
 	if (numberOfEarSlime()) {
 		if (V.parasite.left_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));
@@ -3027,7 +3035,7 @@ function getArousal(passMinutes) {
 					V.penisgrowthtimer += Math.floor(Math.clamp(passMinutes / 8, 0, (passMinutes * 60) / V.earSlime.defyCooldown));
 				}
 			} else if (V.earSlime.vibration > 0) {
-				addedArousal += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * V.genitalsensitivity;
+				addedArousal += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * genitalSensitivity;
 				V.earSlime.vibration -= Math.clamp(passMinutes, 0, V.earSlime.vibration);
 				V.earSlime.lastVibration = Math.clamp(passMinutes - V.earSlime.vibration, 0, Infinity);
 			}

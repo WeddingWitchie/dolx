@@ -1,3 +1,4 @@
+/* globals wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck */
 /**
  * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
@@ -6,7 +7,7 @@
  * =========================
  * Important!
  * If what you're looking for isn't defined here, check other files too.
-**/
+ */
 
 function paramError(functionName = "", param = "", value, expectedValues = "") {
 	if (typeof value === "object") value = JSON.stringify(value);
@@ -17,16 +18,14 @@ function paramError(functionName = "", param = "", value, expectedValues = "") {
 		}`
 	);
 	throw new Error(
-		`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${
-			expectedValues ? ` ${expectedValues}` : ""
-		}`
+		`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${expectedValues ? ` ${expectedValues}` : ""}`
 	);
 }
 
 function xChangeRepairNoticeOnce(id, message) {
 	const clean = String(message ?? "").replace(/<[^>]*>/g, " ");
 	try {
-		const existing = (typeof setup !== "undefined") ? setup.xChangeRepairNoticeOnce : null;
+		const existing = typeof setup !== "undefined" ? setup.xChangeRepairNoticeOnce : null;
 		if (typeof existing === "function" && existing !== xChangeRepairNoticeOnce) {
 			existing(id, message);
 			return;
@@ -35,7 +34,7 @@ function xChangeRepairNoticeOnce(id, message) {
 			window.xChangeQueueNotice(id, message);
 			return;
 		}
-		const SV = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+		const SV = typeof State !== "undefined" && State.variables ? State.variables : window.V;
 		if (SV) {
 			SV.xChangeFlags ??= {};
 			SV.xChangeNotices ??= [];
@@ -168,29 +167,84 @@ window.getAntiPillSensitivityBonus = getAntiPillSensitivityBonus;
 
 function getGeneralSensitivity(part) {
 	const antiPillMod = insanitySensitivityAdjustment(getAntiPillSensitivityBonus(part));
-	return Math.clamp(1 + antiPillMod, 0.25, 6);
+	return applySensitivityMedication(1 + antiPillMod, 6);
 }
 window.getGeneralSensitivity = getGeneralSensitivity;
 
+function getSensitivityMedication() {
+	const medication = V.sensitivityMedication;
+	if (!medication || !["suppressant", "stimulant"].includes(medication.type)) return null;
+	if (!Number.isFinite(medication.endsAt) || medication.endsAt <= V.timeStamp) return null;
+	return medication;
+}
+window.getSensitivityMedication = getSensitivityMedication;
+
+function sensitivityMedicationRemainingHours() {
+	const medication = getSensitivityMedication();
+	return medication ? Math.ceil((medication.endsAt - V.timeStamp) / 3600) : 0;
+}
+window.sensitivityMedicationRemainingHours = sensitivityMedicationRemainingHours;
+
+function applySensitivityMedication(value, max) {
+	const medication = getSensitivityMedication();
+	if (medication?.type === "suppressant") return 0.25;
+	return Math.clamp(value + (medication?.type === "stimulant" ? 3 : 0), 0.25, max);
+}
+window.applySensitivityMedication = applySensitivityMedication;
+
+// Number of consecutive daily suppressant applications. Drives the escalating stress penalty and the status hint.
+function sensitivitySuppressantStreakCount() {
+	const streak = V.sensitivitySuppressantStreak;
+	return streak && Number.isFinite(streak.count) ? streak.count : 0;
+}
+window.sensitivitySuppressantStreakCount = sensitivitySuppressantStreakCount;
+
+// Applies a sensitivity cream: sets up the 16h timed effect, tracks the consecutive-day suppressant streak, and rolls whether this application came from a tampered batch that hoards arousal instead of blocking it.
+function applySensitivityCream(type) {
+	if (!["suppressant", "stimulant"].includes(type)) return;
+	const durationSeconds = 16 * 3600;
+	const endsAt = V.timeStamp + durationSeconds;
+
+	if (type === "stimulant") {
+		// A stimulant replaces any active suppressant and breaks its dependency streak.
+		delete V.sensitivitySuppressantStreak;
+		V.sensitivityMedication = { type, endsAt };
+		return;
+	}
+
+	// Suppressant: extend the consecutive-day streak if the last dose was yesterday/today, otherwise restart it.
+	const today = Time.days;
+	const streak = V.sensitivitySuppressantStreak;
+	if (streak && Number.isFinite(streak.lastDay) && today - streak.lastDay <= 1) {
+		streak.count = (Number.isFinite(streak.count) ? streak.count : 0) + 1;
+		streak.lastDay = today;
+	} else {
+		V.sensitivitySuppressantStreak = { count: 1, lastDay: today };
+	}
+
+	// ~15% of applications are tampered: sensation is still numbed, but the blocked arousal is quietly stockpiled.
+	const tampered = random(1, 100) <= 15;
+	V.sensitivityMedication = { type, endsAt, tampered, stockpile: 0 };
+}
+window.applySensitivityCream = applySensitivityCream;
+
 function getSensitivity(part) {
-	let purityMod = insanitySensitivityAdjustment((1000 - V.purity) * V.xchange.impuritySensitivityBonus / 1000);
-	const xchangeMod = insanitySensitivityAdjustment(playerIsXChanged()
-		? (V.player.sex === "f" ? 1 : -1) * V.xchange.pillSensitivityChange
-		: 0);
+	const purityMod = insanitySensitivityAdjustment(((1000 - V.purity) * V.xchange.impuritySensitivityBonus) / 1000);
+	const xchangeMod = insanitySensitivityAdjustment(playerIsXChanged() ? (V.player.sex === "f" ? 1 : -1) * V.xchange.pillSensitivityChange : 0);
 	const orgasmingMod = insanitySensitivityAdjustment(V.orgasmCum > 0 ? 1 : 0);
 	const antiPillMod = insanitySensitivityAdjustment(getAntiPillSensitivityBonus(part));
 
 	switch (part) {
 		case "mouth":
-			return Math.clamp(V.mouthsensitivity + antiPillMod, 0.25, 6);
+			return applySensitivityMedication(V.mouthsensitivity + antiPillMod, 6);
 		case "breast":
 		case "breasts":
-			return Math.clamp(V.breastsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 0.25, 8);
+			return applySensitivityMedication(V.breastsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 8);
 		case "bottom":
-			return Math.clamp(V.bottomsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 0.25, 5);
+			return applySensitivityMedication(V.bottomsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 5);
 		case "genital":
 		case "genitals":
-			return Math.clamp(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod + antiPillMod, 0.25, 12);
+			return applySensitivityMedication(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod + antiPillMod, 12);
 		default:
 			paramError("getSensitivity", "part", part, "Expected a string, see function for accepted values");
 			break;
@@ -198,24 +252,58 @@ function getSensitivity(part) {
 }
 window.getSensitivity = getSensitivity;
 
+function getBreastSensitiveRubSlot() {
+	const under = V.worn.under_upper;
+	const upper = V.worn.upper;
+	const underSetup = wornSetupClothes("under_upper");
+	const upperSetup = wornSetupClothes("upper");
+	const underTypes = under.type || [];
+	const upperTypes = upper.type || [];
+	const protectedByUnder =
+		under.exposed < 2 && (underTypes.includes("sticky") || underTypes.includes("chest_bind") || underSetup.formfitting === 1 || under.name === "swim shirt");
+
+	if (protectedByUnder) return null;
+	if (!underTypes.includes("naked") && under.exposed < 2) return "under_upper";
+	if (upper.exposed < 2 && (upperTypes.includes("sticky") || upperTypes.includes("chest_bind") || upperSetup.formfitting === 1 || upper.name === "swim shirt"))
+		return null;
+	if (!upperTypes.includes("naked") && upper.exposed < 2) return "upper";
+	return null;
+}
+window.getBreastSensitiveRubSlot = getBreastSensitiveRubSlot;
+
+function getGenitalSensitiveRubSlot() {
+	const under = V.worn.under_lower;
+	const lower = V.worn.lower;
+	const underSetup = wornSetupClothes("under_lower");
+	const lowerSetup = wornSetupClothes("lower");
+	const underTypes = under.type || [];
+	const lowerTypes = lower.type || [];
+	const protectedByUnder = under.exposed < 2 && (underSetup.one_piece === 1 || (under.name === "boxers" && !V.player.penisExist));
+
+	if (protectedByUnder) return null;
+	if (!underTypes.includes("naked") && under.exposed < 2) return "under_lower";
+	if (!lowerTypes.includes("naked") && lower.exposed < 2 && lowerSetup.skirt !== 1) return "lower";
+	return null;
+}
+window.getGenitalSensitiveRubSlot = getGenitalSensitiveRubSlot;
+
 function pleasure(amount, source) {
 	if (isNaN(amount)) paramError("pleasure", "amount", amount, "Expected a number.");
-		amount = Number(amount);
+	amount = Number(amount);
 	const fragment = document.createDocumentFragment();
 
 	if (amount) {
-		let mod = 1; 
+		let mod = 1;
 
 		// If currently under the refractory period post-orgasm, prevent arousal from raising.
 		if (V.refractoryPeriod > 0 && amount > 0) {
 			if (V.drugged > 0) {
 				V.refractoryPeriod--;
 				V.refractoryPeriodMessage = 2;
-			}
-			else {
+			} else {
 				V.refractoryPeriodMessage = 1;
 			}
-			
+
 			amount = 0;
 			V.effectsmessage = 1;
 		}
@@ -233,7 +321,7 @@ function pleasure(amount, source) {
 				so that the aphrodisiacs become quite threatening during nonconsensual use,
 				and more thrilling when used intentionally
 			*/
-			if (V.substanceRebalance == 1) {
+			if (V.substanceRebalance === 1) {
 				mod *= 1 + V.drugged / 250;
 			} else {
 				mod *= 1 + V.drugged / 1000;
@@ -242,9 +330,14 @@ function pleasure(amount, source) {
 
 		const beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
 		const penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
-		
+
 		const playerIsBeingPenetrated =
-			beingPenetrated.includes(V.vaginause) || beingPenetrated.includes(V.anususe) || [0,3].includes(V.portalPanties.state.vagina?.new) || [0,3].includes(V.portalPanties.state.anus?.new) || V.portalejacvagina || V.portalejacanus;
+			beingPenetrated.includes(V.vaginause) ||
+			beingPenetrated.includes(V.anususe) ||
+			[0, 3].includes(V.portalPanties.state.vagina?.new) ||
+			[0, 3].includes(V.portalPanties.state.anus?.new) ||
+			V.portalejacvagina ||
+			V.portalejacanus;
 
 		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
@@ -268,7 +361,7 @@ function pleasure(amount, source) {
 			case "masturbationMouth":
 			case "masturbationOral":
 			case "kiss":
-				sensitivity += getSensitivity("mouth"); 
+				sensitivity += getSensitivity("mouth");
 				break;
 			case "breast":
 			case "breasts":
@@ -290,10 +383,8 @@ function pleasure(amount, source) {
 			case "masturbationAnal":
 			case "masturbationAss":
 			case "bottom_grope":
-				let analWetnessPenalty = 1;
 				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
 					statChange.pain(V.analPain || 0);
-					analWetnessPenalty = Math.min(V.anusWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("bottom");
@@ -310,17 +401,15 @@ function pleasure(amount, source) {
 			case "masturbationVagina":
 			case "pussy_grope":
 			case "penis_grope":
-				let wetnessPenalty = 1;
 				if (amount > 0 && V.player.vaginaExist === true && beingPenetrated.includes(V.vaginause)) {
 					statChange.pain(V.vaginalPain);
-					wetnessPenalty = Math.min(V.vaginaWetness/60, 1);
 					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("genital");
 				if (playerIsPregnant()) sensitivity += insanitySensitivityAdjustment(0.5);
 				break;
 			case "time":
-				pleasure = Math.clamp(V.pleasure + amount * (amount > 0? mod : 1), 0, V.pleasuremax);
+				pleasure = Math.clamp(V.pleasure + amount * (amount > 0 ? mod : 1), 0, V.pleasuremax);
 				if (V.trackedArousal.length > 4) {
 					V.trackedArousal.deleteAt(0);
 					V.trackedArousal[V.trackedArousal.length - 1] += (pleasure * pleasure) / (V.pleasuremax * 0.8);
@@ -332,13 +421,18 @@ function pleasure(amount, source) {
 				break;
 		}
 
-		// Adjusts modifier for body part sensitivity, if applicable
+		// Adjusts modifier for body part sensitivity, if applicable.
+		// sensitivity === 0 is the "no source" sentinel (undefined/masturbation/maso/other) and must be treated as "no sensitivity modifier" (the old quadratic gives +0.25), NOT multiplied to zero.
 		if (amount > 0) {
-			let sensitivityMod = (sensitivity - 1) ** 2 / 4;
-			// Halve sensitivity boosts during chef job
-			// todo: rebalance chef job better
-			if (V.masturbation_bowl) sensitivityMod /= 2;
-			mod += sensitivityMod;
+			if (sensitivity > 0 && sensitivity < 1) {
+				mod *= sensitivity;
+			} else {
+				let sensitivityMod = (sensitivity - 1) ** 2 / 4;
+				// Halve sensitivity boosts during chef job
+				// todo: rebalance chef job better
+				if (V.masturbation_bowl) sensitivityMod /= 2;
+				mod += sensitivityMod;
+			}
 		}
 
 		if (amount > 0 && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled))) {
@@ -348,10 +442,9 @@ function pleasure(amount, source) {
 		// Concentration reduces incoming arousal by half
 		// Whilst failed concentration adds half a point of sensitivity to all incoming arousal
 		if (V.xchange.resistCombatArousal === 1 && amount > 0) {
-			mod *= 0.50;
-		}
-		else if (V.xchange.resistCombatArousal === -1 && amount > 0) {
-			mod += 0.50;
+			mod *= 0.5;
+		} else if (V.xchange.resistCombatArousal === -1 && amount > 0) {
+			mod += 0.5;
 		}
 
 		// Reduce the mod if masturbating while in heat and/or rut
@@ -362,23 +455,21 @@ function pleasure(amount, source) {
 		// Scale down stimulation according to current arousal
 		mod *= V.arousal / V.arousalmax;
 
-		let oldPleasure = V.pleasure;
-		let pleasureChange = amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1);
+		const oldPleasure = V.pleasure;
+		const pleasureChange = amount * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1);
 		V.pleasure += pleasureChange;
 
 		// Prevent orgasming unless addictions are fulfilled
-		const addictionsUnmet =
-			(V.penis_addict_trait === 1 && !penisAddictionFulfilled) ||
-			(holeAddictActive && !holeAddictionFulfilled);
+		const addictionsUnmet = (V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled);
 
-		const cap = V.pleasuremax * 4 / 5 - 1;
+		const cap = (V.pleasuremax * 4) / 5 - 1;
 
 		// NPC-wielded toys in combat live on the NPCs' hand slots ($NPCList[n].lefthand/righthand, set by combat-set-hand-target), NOT on the player's action vars, so toy detection must read them too.
 		const npcHands = Array.isArray(V.NPCList) ? V.NPCList.flatMap(npc => (npc ? [npc.lefthand, npc.righthand] : [])) : [];
 
 		// A processed orgasm (or letting arousal fade out of the session) drops pleasure well below the edge;
 		// the breakthrough pity counter resets with it.
-		if (V.xchange?.toyEdgingCount && V.pleasure < V.pleasuremax * 2 / 5) delete V.xchange.toyEdgingCount;
+		if (V.xchange?.toyEdgingCount && V.pleasure < (V.pleasuremax * 2) / 5) delete V.xchange.toyEdgingCount;
 
 		/*
 			Shared escalating "pity" roll for toy relief.
@@ -411,9 +502,9 @@ function pleasure(amount, source) {
 
 		// If a breakthrough orgasm was already triggered, let it through until pleasure drops (orgasm processed).
 		// Don't re-clamp.
-		if (V.xchange.breakthroughOrgasm && V.pleasure >= V.pleasuremax * 4 / 5) {
+		if (V.xchange.breakthroughOrgasm && V.pleasure >= (V.pleasuremax * 4) / 5) {
 			// Let it ride, orgasm processing will handle it
-		} else if (V.xchange.breakthroughOrgasm && V.pleasure < V.pleasuremax * 4 / 5) {
+		} else if (V.xchange.breakthroughOrgasm && V.pleasure < (V.pleasuremax * 4) / 5) {
 			// Orgasm processed, clear the bypass
 			delete V.xchange.breakthroughOrgasm;
 		} else if (addictionsUnmet) {
@@ -490,14 +581,13 @@ function pleasure(amount, source) {
 
 		if (V.xchange.breederEdgingCount == null) V.xchange.breederEdgingCount = 0;
 		if (V.xchange.breederEdgingStress == null) V.xchange.breederEdgingStress = 0;
-	
+
 		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
 		// Skipped entirely when the player has enabled free orgasms (breederOrgasmDenied() returns false).
 		// Also skipped when a breakthrough orgasm already fired this call (addiction/alpha toy gate above); re-clamping here used to silently eat that orgasm along with its message and stress.
 		const breederEffectActive = playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
 		const breederSatisfied = !breederOrgasmDenied() || V.xchange.breederOrgasm || V.breederCreampied;
-		if (breederEffectActive && !breederSatisfied && !V.xchange.breakthroughOrgasm && oldPleasure + pleasureChange >= V.pleasuremax * 4/5
-		) {
+		if (breederEffectActive && !breederSatisfied && !V.xchange.breakthroughOrgasm && oldPleasure + pleasureChange >= (V.pleasuremax * 4) / 5) {
 			// Toy relief: a toy working the needy hole turns the hard denial into the same soft gate the addiction traits get, clamped at the edge with an escalating chance of a hollow forced orgasm.
 			// It is NOT satisfaction: no blissful creampie payoff, breederDenial keeps building, and the forced release costs stress (see the toy breakthrough message).
 			const usingBreederToy = (() => {
@@ -534,7 +624,8 @@ function pleasure(amount, source) {
 					V.xchange.breederEdgingCount++;
 				}
 			} else {
-				V.pleasure = Math.clamp(V.pleasure, 0, cap); V.xchange.breederEdgingCount++;
+				V.pleasure = Math.clamp(V.pleasure, 0, cap);
+				V.xchange.breederEdgingCount++;
 			}
 		}
 
@@ -548,12 +639,21 @@ function pleasure(amount, source) {
 			fragment.append(wikifier("stress", V.xchange.breederEdgingStress, 1));
 		}
 
-		fragment.append(wikifier("arousal-moan", amount * (amount > 0? mod : 1) * (amount > 0? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
+		fragment.append(wikifier("arousal-moan", amount * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
 
 		// Add to the tracker
 		if (amount > 0) {
-			V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * (amount > 0? mod : 1));
+			V.trackedArousal[V.trackedArousal.length - 1] += Math.round(amount * (amount > 0 ? mod : 1));
 			V.timeSinceArousal = 0;
+		}
+
+		// Tampered suppressant: the sensation you don't feel is quietly hoarded, capped, and dumped when the cream wears off.
+		if (amount > 0) {
+			const med = getSensitivityMedication();
+			if (med?.type === "suppressant" && med.tampered) {
+				const stored = Number.isFinite(med.stockpile) ? med.stockpile : 0;
+				med.stockpile = Math.clamp(stored + amount, 0, V.arousalmax * 3);
+			}
 		}
 
 		V.pleasure = Math.max(V.pleasure, 0);
@@ -593,7 +693,7 @@ function getPleasure(passMinutes) {
 					V.penisgrowthtimer += Math.floor(Math.clamp(passMinutes / 8, 0, (passMinutes * 60) / V.earSlime.defyCooldown));
 				}
 			} else if (V.earSlime.vibration > 0) {
-				addedPleasure += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * V.genitalsensitivity;
+				addedPleasure += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * getSensitivity("genitals");
 				V.earSlime.vibration -= Math.clamp(passMinutes, 0, V.earSlime.vibration);
 				V.earSlime.lastVibration = Math.clamp(passMinutes - V.earSlime.vibration, 0, Infinity);
 			}
@@ -605,6 +705,7 @@ function getPleasure(passMinutes) {
 
 	return addedPleasure;
 }
+window.getPleasure = getPleasure;
 
 function updatePhysique() {
 	// Vanilla physique ceiling per bodysize (indexed 0..4):
@@ -642,18 +743,13 @@ function updatePhysique() {
 	if (typeof ps !== "number" || Number.isNaN(ps) || ps <= 0) return;
 	V.physiquesize = ps;
 
-	const pct = (typeof V.xchange.physiqueChangePercent === "number")
-		? (V.xchange.physiqueChangePercent / 100)
-		: 1;
-	const genderMismatch =
-		V.player?.gender != null && V.player?.sex != null && (V.player.gender !== V.player.sex);
+	const pct = typeof V.xchange.physiqueChangePercent === "number" ? V.xchange.physiqueChangePercent / 100 : 1;
+	const genderMismatch = V.player?.gender != null && V.player?.sex != null && V.player.gender !== V.player.sex;
 
 	// Cheat target: convert desired final physique into baseStats.physique
 	const target = V.xchange?.physiqueCheatTarget;
 	if (typeof target === "number" && !Number.isNaN(target)) {
-		const factor =
-			(V.physiquesize / V.xchange.baseStats.physiquesize) *
-			(genderMismatch ? pct : 1);
+		const factor = (V.physiquesize / V.xchange.baseStats.physiquesize) * (genderMismatch ? pct : 1);
 
 		if (factor > 0) {
 			V.xchange.baseStats.physique = Math.max(0, Math.round(target / factor));
@@ -662,25 +758,41 @@ function updatePhysique() {
 
 	// Respect the same ceiling as clamp; this runs on :passageend and would otherwise overwrite the clamped value with an uncapped one.
 	const cap = V.physiquesize * (Number(V.AMCTraits?.physique) || 1);
-	V.physique = Math.clamp(
-		Math.round(
-			V.xchange.baseStats.physique *
-			(V.physiquesize / V.xchange.baseStats.physiquesize) *
-			(genderMismatch ? pct : 1)
-		),
-		0,
-		cap
-	);
+	V.physique = Math.clamp(Math.round(V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physiquesize) * (genderMismatch ? pct : 1)), 0, cap);
 }
 window.updatePhysique = updatePhysique;
 
 if (typeof updatePhysique === "function") updatePhysique();
 
 const permanentInsanityTalentKeys = [
-	"physique", "willpower", "milk", "semen",
-	"skulduggery", "dancing", "swimming", "athletics", "tending", "housekeeping", "brawling", "footwork", "striking", "kicking",
-	"science", "maths", "english", "history",
-	"seductionskill", "oralskill", "chestskill", "handskill", "bottomskill", "penileskill", "vaginalskill", "analskill", "thighskill", "feetskill",
+	"physique",
+	"willpower",
+	"milk",
+	"semen",
+	"skulduggery",
+	"dancing",
+	"swimming",
+	"athletics",
+	"tending",
+	"housekeeping",
+	"brawling",
+	"footwork",
+	"striking",
+	"kicking",
+	"science",
+	"maths",
+	"english",
+	"history",
+	"seductionskill",
+	"oralskill",
+	"chestskill",
+	"handskill",
+	"bottomskill",
+	"penileskill",
+	"vaginalskill",
+	"analskill",
+	"thighskill",
+	"feetskill",
 ];
 
 function permanentInsanityTalentLockActive() {
@@ -717,32 +829,55 @@ function applyPermanentInsanityTalents() {
 window.applyPermanentInsanityTalents = applyPermanentInsanityTalents;
 
 function sumTalents() {
-	return V.AMCTraits.skulduggery + V.AMCTraits.dancing + V.AMCTraits.swimming + V.AMCTraits.athletics + V.AMCTraits.tending + V.AMCTraits.housekeeping + V.AMCTraits.brawling + V.AMCTraits.footwork + V.AMCTraits.striking + V.AMCTraits.kicking + V.AMCTraits.science + V.AMCTraits.maths + V.AMCTraits.english + V.AMCTraits.history;
+	return (
+		V.AMCTraits.skulduggery +
+		V.AMCTraits.dancing +
+		V.AMCTraits.swimming +
+		V.AMCTraits.athletics +
+		V.AMCTraits.tending +
+		V.AMCTraits.housekeeping +
+		V.AMCTraits.brawling +
+		V.AMCTraits.footwork +
+		V.AMCTraits.striking +
+		V.AMCTraits.kicking +
+		V.AMCTraits.science +
+		V.AMCTraits.maths +
+		V.AMCTraits.english +
+		V.AMCTraits.history
+	);
 }
 window.sumTalents = sumTalents;
 
 function sumSexTalents() {
-	return V.AMCTraits.seductionskill + V.AMCTraits.oralskill + V.AMCTraits.chestskill + V.AMCTraits.handskill + V.AMCTraits.bottomskill + V.AMCTraits.penileskill + V.AMCTraits.vaginalskill + V.AMCTraits.analskill + V.AMCTraits.thighskill + V.AMCTraits.feetskill;
+	return (
+		V.AMCTraits.seductionskill +
+		V.AMCTraits.oralskill +
+		V.AMCTraits.chestskill +
+		V.AMCTraits.handskill +
+		V.AMCTraits.bottomskill +
+		V.AMCTraits.penileskill +
+		V.AMCTraits.vaginalskill +
+		V.AMCTraits.analskill +
+		V.AMCTraits.thighskill +
+		V.AMCTraits.feetskill
+	);
 }
 window.sumSexTalents = sumSexTalents;
 
 function playerIsXChanged() {
-	return (
-		V.xchange.pill && V.xchange.pill.active
-	);
+	return V.xchange.pill && V.xchange.pill.active;
 }
 window.playerIsXChanged = playerIsXChanged;
 
 function isNumber(value) {
-	return typeof value == 'number' ||
-	(isObjectLike(value) && baseGetTag(value) == numberTag);
+	return typeof value === "number" || value instanceof Number;
 }
 window.isNumber = isNumber;
 
 function pillTimerPaused() {
-	let vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;
-	let omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats.anus.pregnancy.type !== null;
-	let earSlimeHasGrown = V.earSlime.growth > 50;
+	const vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;
+	const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats.anus.pregnancy.type !== null;
+	const earSlimeHasGrown = V.earSlime.growth > 50;
 	return V.xchange.pillPermanence !== 1 && (vaginalPregnancy || omegaAnalPregnancy || earSlimeHasGrown);
 }
 window.pillTimerPaused = pillTimerPaused;
@@ -772,8 +907,8 @@ function xchangeHyperFertilityActive() {
 window.xchangeHyperFertilityActive = xchangeHyperFertilityActive;
 
 // xchangeHyperFertilityActive() is whether the effect is on the pill (still true during a flashback / hopeless cycle).
-// This gate decides whether the effect should *apply right now*: never during statFreeze or hopeless cycle, so those sequences can't trigger conception/acceleration. 
-// The instant-conception roll fires at insemination and would otherwise bypass the time system that statFreeze halts. 
+// This gate decides whether the effect should *apply right now*: never during statFreeze or hopeless cycle, so those sequences can't trigger conception/acceleration.
+// The instant-conception roll fires at insemination and would otherwise bypass the time system that statFreeze halts.
 // Off if EITHER state is set.
 function fertilityTreatmentActive() {
 	return xchangeHyperFertilityActive() && !V.statFreeze && !V.hc;
@@ -790,8 +925,13 @@ window.xchangeAlwaysFertileActive = xchangeAlwaysFertileActive;
 // "Fake breeder (infertile)" setting: a breeder pill grants its behavioural effect but no fertility, so it can never cause pregnancy.
 // Hyper Fertility on the same pill, or the Always-fertile override, both win over this and keep the player fertile.
 function xchangeFakeBreederInfertile() {
-	return !!(V.xchange?.breederInfertile && playerIsXChanged() && V.xchange.pill?.breederEffect
-		&& !V.xchange.pill?.hyperFertilityEffect && !(V.xchange?.alwaysFertile && V.player?.vaginaExist));
+	return !!(
+		V.xchange?.breederInfertile &&
+		playerIsXChanged() &&
+		V.xchange.pill?.breederEffect &&
+		!V.xchange.pill?.hyperFertilityEffect &&
+		!(V.xchange?.alwaysFertile && V.player?.vaginaExist)
+	);
 }
 window.xchangeFakeBreederInfertile = xchangeFakeBreederInfertile;
 
@@ -800,7 +940,7 @@ window.xchangeFakeBreederInfertile = xchangeFakeBreederInfertile;
 function xchangeFertilityPenaltyCap(baseCap = 2) {
 	const raw = Number(V.xchange?.fertilityStrengthPercent);
 	const strength = Number.isFinite(raw) && raw > 0 ? raw : 100;
-	return Math.max(1, Math.round(baseCap * 100 / strength));
+	return Math.max(1, Math.round((baseCap * 100) / strength));
 }
 window.xchangeFertilityPenaltyCap = xchangeFertilityPenaltyCap;
 
@@ -861,7 +1001,7 @@ function fertilityTreatmentDailyTick(days = 1) {
 window.fertilityTreatmentDailyTick = fertilityTreatmentDailyTick;
 
 function wondersAboutPillEnd() {
-	return V.xchange.pill.shouldHaveEnded === true && V.xchange.pill.countdown < 24; 
+	return V.xchange.pill.shouldHaveEnded === true && V.xchange.pill.countdown < 24;
 }
 window.wondersAboutPillEnd = wondersAboutPillEnd;
 
@@ -906,15 +1046,22 @@ function playerMayBeSpiked() {
 window.playerMayBeSpiked = playerMayBeSpiked;
 
 function updateRemoverPillCatalogue() {
-	V.xchange ??= {}; const antiTypes = [];
+	V.xchange ??= {};
+	const antiTypes = [];
 
 	for (const pill of setup.pills ?? []) {
-		if (!pill || pill.type !== "xchange" || pill.subtype !== "anti-pill") continue; if (typeof pill.name !== "string") continue;
-		const match = pill.name.match(/^SWP Anti-(.+) Pill$/); if (!match) continue;
-		const type = match[1]; antiTypes.push(type);
+		if (!pill || pill.type !== "xchange" || pill.subtype !== "anti-pill") continue;
+		if (typeof pill.name !== "string") continue;
+		const match = pill.name.match(/^SWP Anti-(.+) Pill$/);
+		if (!match) continue;
+		const type = match[1];
+		antiTypes.push(type);
 	}
 
-	const filtered = antiTypes.filter(type => {if (type === "portal" && !V.portalPantiesEnabled) return false; return true;});
+	const filtered = antiTypes.filter(type => {
+		if (type === "portal" && !V.portalPantiesEnabled) return false;
+		return true;
+	});
 	const uniqueTypes = [...new Set(filtered)];
 	const shownTypes = 2;
 	const stockPerType = 1;
@@ -926,7 +1073,9 @@ function updateRemoverPillCatalogue() {
 
 	for (let i = 0; i < picks; i++) {
 		const type = pool.pluck(); // random unique pick
-		for (let j = 0; j < stockPerType; j++) {V.xchange.removerPillCatalogue.push(type);}
+		for (let j = 0; j < stockPerType; j++) {
+			V.xchange.removerPillCatalogue.push(type);
+		}
 	}
 }
 window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
@@ -943,11 +1092,10 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 	}
 	if (!spermOwner || typeof spermOwner.penissize !== "number") return;
 
-	if ((pill.originalBody.penissize - 2) + Math.floor(pill.xtendTracker.penisSizeGains / 1000) < spermOwner.penissize) {
+	if (pill.originalBody.penissize - 2 + Math.floor(pill.xtendTracker.penisSizeGains / 1000) < spermOwner.penissize) {
 		pill.xtendTracker.penisSizeGains += 250 + Math.random() * 250;
 		V.xtendMessage = 1;
-	}
-	else {
+	} else {
 		V.xtendMessage = 6;
 	}
 	V.effectsmessage = 1;
@@ -955,18 +1103,14 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 window.xchangeXtendGrowth = xchangeXtendGrowth;
 
 function xchangeTimePassedCheck(minutes = 1) {
-	
-	if (V.arousal >= V.arousalmax * 2/5) 
-		wikifier("willpower-spending", minutes * 0.5 * Math.ceil( (V.arousal - V.arousalmax*2/5) / (V.arousalmax/10) ));
-	else if (V.xchange.willpowerPoints < V.willpower * 0.5) 
-		wikifier("willpower-recovery", minutes * 0.5 * Math.ceil( (V.arousalmax*2/5 - V.arousal) / (V.arousalmax/10) ));
-	
-	if (V.drugged > 200 && V.arousal < V.arousalmax * 4/5) 
-		wikifier("arousal", (V.drugged / 10) * 3 * minutes);
-	else if (V.drugged > 100 && V.arousal < V.arousalmax * 3/5) 
-		wikifier("arousal", (V.drugged / 10) * 2 * minutes);
-	else if (V.drugged > 0 && V.arousal < V.arousalmax * 2/5)
-		wikifier("arousal", (V.drugged / 10) * minutes);
+	if (V.arousal >= (V.arousalmax * 2) / 5)
+		wikifier("willpower-spending", minutes * 0.5 * Math.ceil((V.arousal - (V.arousalmax * 2) / 5) / (V.arousalmax / 10)));
+	else if (V.xchange.willpowerPoints < V.willpower * 0.5)
+		wikifier("willpower-recovery", minutes * 0.5 * Math.ceil(((V.arousalmax * 2) / 5 - V.arousal) / (V.arousalmax / 10)));
+
+	if (V.drugged > 200 && V.arousal < (V.arousalmax * 4) / 5) wikifier("arousal", (V.drugged / 10) * 3 * minutes);
+	else if (V.drugged > 100 && V.arousal < (V.arousalmax * 3) / 5) wikifier("arousal", (V.drugged / 10) * 2 * minutes);
+	else if (V.drugged > 0 && V.arousal < (V.arousalmax * 2) / 5) wikifier("arousal", (V.drugged / 10) * minutes);
 
 	wikifier("blackmail-timepassed");
 
@@ -992,6 +1136,28 @@ function xchangeTimePassedCheck(minutes = 1) {
 			else V.xchange.pubtimer = next;
 		}
 	}
+
+	// Sensitivity-decreasing cream: escalating stress from repeated daily use, plus the tampered-batch arousal dump on expiry.
+	const suppressant = V.sensitivityMedication;
+	if (suppressant && suppressant.type === "suppressant") {
+		const active = Number.isFinite(suppressant.endsAt) && suppressant.endsAt > V.timeStamp;
+		if (active) {
+			// From the second consecutive daily dose onward, the forced numbness wears on the mind. 0.8 raw stress/min per extra dose (tunable).
+			const streakCount = sensitivitySuppressantStreakCount();
+			if (streakCount >= 2 && !V.statFreeze) {
+				statChange.stress((streakCount - 1) * 0.8 * minutes, 1);
+			}
+		} else {
+			// The cream has worn off. A tampered batch releases everything it hoarded, all at once.
+			if (suppressant.tampered && Number.isFinite(suppressant.stockpile) && suppressant.stockpile > 0) {
+				V.arousal = Math.clamp(V.arousal + suppressant.stockpile, 0, V.arousalmax);
+				// 2 = the flood overflowed past the edge and forces a release; 1 = a hard, unwanted spike short of it.
+				V.sensitivityFloodMessage = V.arousal >= (V.arousalmax * 4) / 5 ? 2 : 1;
+				V.effectsmessage = 1;
+			}
+			delete V.sensitivityMedication;
+		}
+	}
 }
 window.xchangeTimePassedCheck = xchangeTimePassedCheck;
 
@@ -1000,11 +1166,11 @@ function xchangeWeeklyCheck(weeks = 1) {
 		if (V.xchange.pubGamblingEnabled && !V.weekly.gamblingUpkeepPaid) {
 			V.xchange.gamblingUpkeepFailed = 1;
 			V.xchange.pubGamblingEnabled = 0;
-	
-			if (V.location != "prison") {
+
+			if (V.location !== "prison") {
 				wikifier("crimeUp", 3000, "obstruction");
 				wikifier("crimeUpFlat", V.xchange.gamblingEarnings, "thievery");
-		
+
 				V.gamblingUpkeepFailedMessage = 1;
 				V.effectsmessage = 1;
 			}
@@ -1021,44 +1187,44 @@ window.xchangeWeeklyCheck = xchangeWeeklyCheck;
 
 function xchangeDailyCheck(days = 1) {
 	if (!V.statFreeze) {
-		const useIdentityMeterDrift = !!(V.xchange?.genderIdentityEnabled);
+		const useIdentityMeterDrift = !!V.xchange?.genderIdentityEnabled;
 		if (!useIdentityMeterDrift) {
-			if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m"))
-				wikifier("genderidentity", 1 * days);
+			if ((V.hourlyFemininity > 0 && V.player.gender === "f") || (V.hourlyFemininity < 0 && V.player.gender === "m")) wikifier("genderidentity", 1 * days);
 			else if ((V.hourlyFemininity > 0 && V.player.gender === "m") || (V.hourlyFemininity < 0 && V.player.gender === "f"))
 				wikifier("genderidentity", -1 * days);
-		
-			if (playerIsXChanged())
-				wikifier("genderidentity", -2 * days);
-		
+
+			if (playerIsXChanged()) wikifier("genderidentity", -2 * days);
+
 			V.effectsmessage = 1;
-			V.genderIdentityMessage = V.hourlyFemininity > 0 ? "f" : (V.hourlyFemininity < 0 ? "m" : 0);
+			V.genderIdentityMessage = V.hourlyFemininity > 0 ? "f" : V.hourlyFemininity < 0 ? "m" : 0;
 		}
 		V.hourlyFemininity = 0;
-	
+
 		wikifier("blackmail-daypassed");
-	
+
 		V.recentmolest = Math.max(V.recentmolest - 1 * days, 0);
 		V.recentrape = Math.max(V.recentrape - 1 * days, 0);
-	
+
 		if (V.robinbreakupCooldown > 0) {
 			V.robinbreakupCooldown -= 1 * days;
 		}
-	
+
 		V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1 * days);
-				
+
 		wikifier("dailyIdentityEffects");
 
 		const isTrans = !!(V.background && V.background.transgender);
 
 		try {
 			const refl = V.xchange?.permaReflection;
-			const today = (typeof Time !== "undefined" && Time && typeof Time.days === "number") ? Time.days : 0;
+			const today = typeof Time !== "undefined" && Time && typeof Time.days === "number" ? Time.days : 0;
 			if (isTrans && refl && refl.pending && !refl.answer && pillIsPermanent() && today > (refl.lastShownDay ?? -1)) {
 				V.xchangePermaReflectionMessage = 1;
 				V.effectsmessage = 1;
 			}
-		} catch (e) { /* defensive: never let scheduling break the daily tick */ }
+		} catch (e) {
+			/* defensive: never let scheduling break the daily tick */
+		}
 
 		try {
 			const refl2 = V.xchange?.permaReflection;
@@ -1070,11 +1236,15 @@ function xchangeDailyCheck(days = 1) {
 					wikifier("stress", -5 * days);
 				}
 			}
-		} catch (e) { /* defensive */ }
+		} catch (e) {
+			/* defensive */
+		}
 	}
 
 	// Effect Remover Pill Dealer now restocks daily instead of weekly, but availability stays in weekly check.
-	if (V.xchange?.weeklyShadyDealer & 4) {updateRemoverPillCatalogue();}
+	if (V.xchange?.weeklyShadyDealer & 4) {
+		updateRemoverPillCatalogue();
+	}
 
 	// Hyper Fertility: accelerate PC-carried pregnancies while the X-Change effect is active.
 	if (typeof fertilityTreatmentDailyTick === "function") fertilityTreatmentDailyTick(days);
@@ -1084,19 +1254,16 @@ window.xchangeDailyCheck = xchangeDailyCheck;
 function xchangeHourlyCheck(hours = 1) {
 	if (!V.statFreeze) {
 		const pill = V.xchange.pill;
-		if (pill?.active)
-		{
+		if (pill?.active) {
 			// Tick the pill's duration down if the pill isn't permanent
 			if (!pillIsPermanent()) pill.duration = Math.max(pill.duration - 1 * hours, 0);
-	
+
 			// Clamp the pill duration to only ever save up to 30 days (in particular for Continue pills)
-			if (pill.continueEffect)
-				pill.duration = Math.min(pill.duration, 30*24);
-			
+			if (pill.continueEffect) pill.duration = Math.min(pill.duration, 30 * 24);
+
 			// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
 			// then, the change becomes permanent
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24)
-				wikifier("xchange-setpermanent");
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24) wikifier("xchange-setpermanent");
 
 			// If pregnancy or a pregnancy-enabling parasite locks the body, the change becomes permanent.
 			const omegaAnalPregnancy = pill.omegaEffect && V.sexStats.anus.pregnancy.type !== null;
@@ -1125,11 +1292,10 @@ function xchangeHourlyCheck(hours = 1) {
 			}
 
 			// Check if the pill should expire
-			if (pill.duration == 0)
-			{
+			if (pill.duration === 0) {
 				pill.shouldHaveEnded = true;
 
-				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0,100) > pill.resistanceChance) {
+				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0, 100) > pill.resistanceChance) {
 					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
 					else {
 						pill.duration += Math.max(1, V.xchange.resistanceDaysPenalty) * 24;
@@ -1137,40 +1303,35 @@ function xchangeHourlyCheck(hours = 1) {
 						pill.fertile = true;
 						pill.resistanceFakeout = true;
 					}
-				}
-				else if (!pillIsPermanent() && !pillTimerPaused()) {
+				} else if (!pillIsPermanent() && !pillTimerPaused()) {
 					if (V.xchange.pill.clone === "none") {
 						wikifier("xchange-restore");
-					} 
-					else {
+					} else {
 						wikifier("xchange-restore", "nosave");
 					}
 				}
-			} 
-			
+			}
+
 			// Force the pill to expire if pill permanence is disabled, and no condition is preventing it from expiring
 			else if (V.xchange.pillPermanence !== 1 && pillIsPermanent() && !V.xchange.pill.choiceEffect) {
 				pill.duration = 0;
 				if (!pillTimerPaused()) {
 					if (V.xchange.pill.clone === "none") {
 						wikifier("xchange-restore");
-					} 
-					else {
+					} else {
 						wikifier("xchange-restore", "nosave");
 					}
 				}
 			}
 
 			// Progress the fakeout timer for as long as the "should have ended" flag stands, else reset it.
-			if (pill.shouldHaveEnded) 
-				pill.countdown += 1 * hours;
-			else
-				pill.countdown = 0;
+			if (pill.shouldHaveEnded) pill.countdown += 1 * hours;
+			else pill.countdown = 0;
 
 			// Reveal that you didn't turn back
 			if (pill.shouldHaveEnded && !wondersAboutPillEnd()) {
 				V.xchangePermanenceMessage = 1;
-				delete pill.shouldHaveEnded; 
+				delete pill.shouldHaveEnded;
 			}
 
 			// Drop the resistance facade when the uncertain period has expired
@@ -1204,13 +1365,13 @@ function xchangeHourlyCheck(hours = 1) {
 
 		// Apply hour-random passion effect
 		for (let i = 0; i < hours; i++) {
-			if (pill?.passionEffect && ((V.substanceRebalance == 1 && random(0,10) == 0) || random(0,8) == 0)) {
-				wikifier("drugs", V.substanceRebalance == 1? 120 : 200); 
+			if (pill?.passionEffect && ((V.substanceRebalance === 1 && random(0, 10) === 0) || random(0, 8) === 0)) {
+				wikifier("drugs", V.substanceRebalance === 1 ? 120 : 200);
 				V.effectsmessage = 1;
 				V.xchange_passion_message = 1;
 			}
 		}
-		
+
 		// Tick portal effect timer, and end the effect if timer lapses
 		if (pill?.portalEffect && pill?.portalEffectTimer >= 0) {
 			pill.portalEffectTimer = Math.max(pill.portalEffectTimer - 1 * hours, 0);
@@ -1236,14 +1397,26 @@ function xchangeEffectsMessages() {
 
 	if (V.hermSaveWarningMessage) {
 		element("span", "WARNING:", "yellow");
-		element("span", "You've just loaded a save file featuring a character of unsupported sex or gender (quite likely a Vanilla herm). You've been forcefully turned into the available one to attempt to keep the mod's systems working, but proceeding from here onward is entirely ill-adviced and if you run into odd behaviour, that is expected.", "red"); br(); br();
+		element(
+			"span",
+			"You've just loaded a save file featuring a character of unsupported sex or gender (quite likely a Vanilla herm). You've been forcefully turned into the available one to attempt to keep the mod's systems working, but proceeding from here onward is entirely ill-adviced and if you run into odd behaviour, that is expected.",
+			"red"
+		);
+		br();
+		br();
 		delete V.hermSaveWarningMessage;
 	}
 
 	if (V.identityWarningMessage) {
 		if (V.identity.init < 2 && !(V.background && V.background.transgender)) {
 			element("span", "WARNING:", "yellow");
-			element("span", "You haven't locked in your identity preferences yet. Please, head to your room and into Gameplay Settings > Modded Settings > Identity Settings, and check the box at the bottom that says 'Lock Choices'. Make sure to review your character's identity preferences before saving your settings.", "red"); br(); br();
+			element(
+				"span",
+				"You haven't locked in your identity preferences yet. Please, head to your room and into Gameplay Settings > Modded Settings > Identity Settings, and check the box at the bottom that says 'Lock Choices'. Make sure to review your character's identity preferences before saving your settings.",
+				"red"
+			);
+			br();
+			br();
 		}
 		delete V.identityWarningMessage;
 	}
@@ -1261,17 +1434,20 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.xchange_passion_message) {
-		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink"); br();
+		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink");
+		br();
 		delete V.xchange_passion_message;
 	}
 
 	if (V.xchange_therapy_expired_message) {
-		element("span", `Your X-Change cleansing treatment has worn off. You're no longer protected against being pilled.`, "blue"); br();
+		element("span", `Your X-Change cleansing treatment has worn off. You're no longer protected against being pilled.`, "blue");
+		br();
 		delete V.xchange_therapy_expired_message;
 	}
 
 	if (V.xchangeFameMessage) {
-		element("span", "People have been gossiping about your X-Change escapades, and even the law has fully caught on."); br();
+		element("span", "People have been gossiping about your X-Change escapades, and even the law has fully caught on.");
+		br();
 		element("span", "You no longer benefit from having two identities.", "red");
 		delete V.xchangeFameMessage;
 	}
@@ -1279,28 +1455,36 @@ function xchangeEffectsMessages() {
 	if (V.antiPillSensitivityMessage) {
 		switch (V.antiPillSensitivityMessage) {
 			case "suspicious":
-				element("span", "The suspicious pill goes wrong; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();
+				element("span", "The suspicious pill goes wrong; it leaves your skin itchy to the point of pain and oversensitive.", "pink");
+				br();
 				break;
 			case "antipill":
-				element("span", "The anti-pill reacts badly; your skin turns itchy to the point of pain and oversensitive.", "pink"); br();
+				element("span", "The anti-pill reacts badly; your skin turns itchy to the point of pain and oversensitive.", "pink");
+				br();
 				break;
 			case "dumbbitch":
-				element("span", "The pill does more than dull your wits; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();
+				element("span", "The pill does more than dull your wits; it leaves your skin itchy to the point of pain and oversensitive.", "pink");
+				br();
 				break;
 			case "suspicious-insanity":
-				element("span", "The suspicious pill triggers a torturous itch, swallowed by your psychopathy.", "pink"); br();
+				element("span", "The suspicious pill triggers a torturous itch, swallowed by your psychopathy.", "pink");
+				br();
 				break;
 			case "antipill-insanity":
-				element("span", "The anti-pill burns your skin, but your shattered perception numbs the itch.", "pink"); br();
+				element("span", "The anti-pill burns your skin, but your shattered perception numbs the itch.", "pink");
+				br();
 				break;
 			case "dumbbitch-insanity":
-				element("span", "The pill dulls your wits and sparks a painful itch, drowned out by absolute darkness.", "pink"); br();
+				element("span", "The pill dulls your wits and sparks a painful itch, drowned out by absolute darkness.", "pink");
+				br();
 				break;
 			case "generic-insanity":
-				element("span", "The pill goes wrong, leaving a burning itch ignored by the weight of your insanity.", "pink"); br();
+				element("span", "The pill goes wrong, leaving a burning itch ignored by the weight of your insanity.", "pink");
+				br();
 				break;
 			default:
-				element("span", "The pill goes wrong; it leaves your skin itchy to the point of pain and oversensitive.", "pink"); br();
+				element("span", "The pill goes wrong; it leaves your skin itchy to the point of pain and oversensitive.", "pink");
+				br();
 		}
 		delete V.antiPillSensitivityMessage;
 	}
@@ -1308,16 +1492,20 @@ function xchangeEffectsMessages() {
 	if (V.antiPillSensitivityEndMessage) {
 		switch (V.antiPillSensitivityEndMessage) {
 			case "suspicious":
-				element("span", "The suspicious pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+				element("span", "The suspicious pill's itchy, painful hypersensitivity finally fades.", "blue");
+				br();
 				break;
 			case "antipill":
-				element("span", "The anti-pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+				element("span", "The anti-pill's itchy, painful hypersensitivity finally fades.", "blue");
+				br();
 				break;
 			case "dumbbitch":
-				element("span", "The pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+				element("span", "The pill's itchy, painful hypersensitivity finally fades.", "blue");
+				br();
 				break;
 			default:
-				element("span", "The botched pill's itchy, painful hypersensitivity finally fades.", "blue"); br();
+				element("span", "The botched pill's itchy, painful hypersensitivity finally fades.", "blue");
+				br();
 		}
 		delete V.antiPillSensitivityEndMessage;
 	}
@@ -1325,25 +1513,32 @@ function xchangeEffectsMessages() {
 	if (V.alcoholToleranceMessage) {
 		switch (V.alcoholToleranceMessage) {
 			case "developing":
-				element("span", "Your body is starting to adapt to being drunk.", "pink"); br();
+				element("span", "Your body is starting to adapt to being drunk.", "pink");
+				br();
 				break;
 			case "moderate":
-				element("span", "Drunkenness has become something your body recognises.", "blue"); br();
+				element("span", "Drunkenness has become something your body recognises.", "blue");
+				br();
 				break;
 			case "high":
-				element("span", "You've developed a strong tolerance to intoxication.", "green"); br();
+				element("span", "You've developed a strong tolerance to intoxication.", "green");
+				br();
 				break;
 			case "full":
-				element("span", "Your body has fully adapted to being drunk.", "gold"); br();
+				element("span", "Your body has fully adapted to being drunk.", "gold");
+				br();
 				break;
 			case "withdrawal":
-				element("span", "Without anything fogging your head, your nerves feel restless.", "red"); br();
+				element("span", "Without anything fogging your head, your nerves feel restless.", "red");
+				br();
 				break;
 			case "fading":
-				element("span", "Without getting drunk regularly, your body's adaptation is beginning to fade.", "blue"); br();
+				element("span", "Without getting drunk regularly, your body's adaptation is beginning to fade.", "blue");
+				br();
 				break;
 			case "recovered":
-				element("span", "Your body has fully recovered from chronic drunkenness.", "green"); br();
+				element("span", "Your body has fully recovered from chronic drunkenness.", "green");
+				br();
 				break;
 		}
 		delete V.alcoholToleranceMessage;
@@ -1352,10 +1547,12 @@ function xchangeEffectsMessages() {
 	if (V.cigaretteCravingMessage) {
 		switch (V.cigaretteCravingMessage) {
 			case "craving":
-				element("span", "You crave a cigarette.", "pink"); br();
+				element("span", "You crave a cigarette.", "pink");
+				br();
 				break;
 			case "quit":
-				element("span", "The craving for cigarettes has finally left you.", "green"); br();
+				element("span", "The craving for cigarettes has finally left you.", "green");
+				br();
 				break;
 		}
 		delete V.cigaretteCravingMessage;
@@ -1366,13 +1563,14 @@ function xchangeEffectsMessages() {
 		const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats?.anus?.pregnancy?.type !== null && V.sexStats?.anus?.pregnancy?.type !== undefined;
 
 		if (V.xchange.pillPermanence === 1) {
-			element("span", "Seems you didn't turn back. Your pill's effects have become permanent", "red"); br();
-		}
-		else if ((vaginalPregnancy || omegaAnalPregnancy) && typeof pillTimerPaused === "function" && pillTimerPaused()) {
-			element("span", "Seems you didn't turn back. The life growing inside you holds the changes in place.", "red"); br();
-		}
-		else {
-			element("span", "Seems you didn't turn back...", "red"); br();
+			element("span", "Seems you didn't turn back. Your pill's effects have become permanent", "red");
+			br();
+		} else if ((vaginalPregnancy || omegaAnalPregnancy) && typeof pillTimerPaused === "function" && pillTimerPaused()) {
+			element("span", "Seems you didn't turn back. The life growing inside you holds the changes in place.", "red");
+			br();
+		} else {
+			element("span", "Seems you didn't turn back...", "red");
+			br();
 		}
 		delete V.xchangePermanenceMessage;
 	}
@@ -1383,11 +1581,12 @@ function xchangeEffectsMessages() {
 			if (isTrans && pillIsPermanent() && V.xchange?.permaReflection?.pending && !V.xchange.permaReflection.answer) {
 				fragment.append(wikifier("perma-reflection-prompt"));
 				if (V.xchange.permaReflection) {
-					V.xchange.permaReflection.lastShownDay =
-						(typeof Time !== "undefined" && Time && typeof Time.days === "number") ? Time.days : 0;
+					V.xchange.permaReflection.lastShownDay = typeof Time !== "undefined" && Time && typeof Time.days === "number" ? Time.days : 0;
 				}
 			}
-		} catch (e) { /* defensive */ }
+		} catch (e) {
+			/* defensive */
+		}
 		delete V.xchangePermaReflectionMessage;
 	}
 
@@ -1396,19 +1595,24 @@ function xchangeEffectsMessages() {
 		if (isTrans && pillIsPermanent() && V.xchange?.permaReflection?.answer) {
 			fragment.append(wikifier("perma-reflection-daily-reminder"));
 		}
-	} catch (e) { /* defensive */ }
+	} catch (e) {
+		/* defensive */
+	}
 
 	switch (V.xchangeRestoreMessage) {
 		case 1:
-			element("span", "Your body twists and turns as it returns to its original form.", "blue"); br();
+			element("span", "Your body twists and turns as it returns to its original form.", "blue");
+			br();
 			delete V.xchangeRestoreMessage;
 			break;
 		case 2:
-			element("span", "Despite having climaxed under the effects of Resistance, the pill did not become permanent.", "blue"); br();
+			element("span", "Despite having climaxed under the effects of Resistance, the pill did not become permanent.", "blue");
+			br();
 			delete V.xchangeRestoreMessage;
 			break;
 		case 3:
-			element("span", "The pill's effects should be running out right about now.", "blue"); br();
+			element("span", "The pill's effects should be running out right about now.", "blue");
+			br();
 			delete V.xchangeRestoreMessage;
 			break;
 		default:
@@ -1418,22 +1622,28 @@ function xchangeEffectsMessages() {
 	switch (V.genderificationStressMessage) {
 		case 1:
 			element("span", "You have an urge to dress cute.", "purple");
-			fragment.append(wikifier("gggstress")); br();
+			fragment.append(wikifier("gggstress"));
+			br();
 			delete V.genderificationStressMessage;
 			break;
 		case 2:
 			element("span", "You are feeling cute and refreshed with your outfit.", "light-pink");
-			fragment.append(wikifier("lstress")); fragment.append(wikifier("ltiredness")); br();
+			fragment.append(wikifier("lstress"));
+			fragment.append(wikifier("ltiredness"));
+			br();
 			delete V.genderificationStressMessage;
 			break;
 		case 3:
 			element("span", "You have an urge to dress more manly.", "purple");
-			fragment.append(wikifier("gggstress")); br();
+			fragment.append(wikifier("gggstress"));
+			br();
 			delete V.genderificationStressMessage;
 			break;
 		case 4:
 			element("span", "You are feeling manly and vigourous in your fit.", "blue");
-			fragment.append(wikifier("lstress")); fragment.append(wikifier("ltiredness")); br();
+			fragment.append(wikifier("lstress"));
+			fragment.append(wikifier("ltiredness"));
+			br();
 			delete V.genderificationStressMessage;
 			break;
 		default:
@@ -1443,22 +1653,26 @@ function xchangeEffectsMessages() {
 	switch (V.genderStressMessage) {
 		case 1:
 			element("span", "You feel awkward dressed up girly like this.", "purple");
-			fragment.append(wikifier("ggstress")); br();
+			fragment.append(wikifier("ggstress"));
+			br();
 			delete V.genderStressMessage;
 			break;
 		case 2:
 			element("span", "You feel gross in these girly clothes.", "red");
-			fragment.append(wikifier("gggstress")); br();
+			fragment.append(wikifier("gggstress"));
+			br();
 			delete V.genderStressMessage;
 			break;
 		case 3:
 			element("span", "You feel awkward dressed up boyish like this.", "purple");
-			fragment.append(wikifier("ggstress")); br();
+			fragment.append(wikifier("ggstress"));
+			br();
 			delete V.genderStressMessage;
 			break;
 		case 4:
 			element("span", "You feel gross in these boyish clothes.", "red");
-			fragment.append(wikifier("gggstress")); br();
+			fragment.append(wikifier("gggstress"));
+			br();
 			delete V.genderStressMessage;
 			break;
 		default:
@@ -1466,45 +1680,52 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.giDriftMessage) {
-		element("span", V.giDriftMessage, "purple"); br();
+		element("span", V.giDriftMessage, "purple");
+		br();
 		delete V.giDriftMessage;
 	}
 
 	if (V.breastSensitiveRubMessage) {
-		if (!V.worn.under_upper.type.includes("naked") && V.worn.under_upper.exposed < 2) {
+		const rubSlot = typeof V.breastSensitiveRubMessage === "string" ? V.breastSensitiveRubMessage : getBreastSensitiveRubSlot();
+		if (rubSlot) {
 			wikifier("breastsensitivity");
-			element("span", `Your ${T.text_output2 ?? " "}nipples are rubbing against your ${V.worn.under_upper.name}.`, "pink");
+			element("span", `Your ${T.text_output2 ?? " "}nipples are rubbing against your ${V.worn[rubSlot].name}.`, "pink");
+			br();
 		}
-		else {
-			wikifier("breastsensitivity");
-			element("span", `Your ${T.text_output2 ?? " "}nipples are rubbing against your ${V.worn.upper.name}.`, "pink");
-		}
-		br();
 		delete V.breastSensitiveRubMessage;
 	}
 
 	if (V.genitalSensitiveRubMessage) {
-		if (!V.worn.under_lower.type.includes("naked") && V.worn.under_lower.exposed < 2) {
+		const rubSlot = typeof V.genitalSensitiveRubMessage === "string" ? V.genitalSensitiveRubMessage : getGenitalSensitiveRubSlot();
+		if (rubSlot) {
 			wikifier("genitalsensitivity");
-			element("span", `Your ${T.text_output2 ?? " "}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.under_lower.name}.`, "pink");
+			element("span", `Your ${T.text_output2 ?? " "}${V.player.penisExist ? "penis" : "clit"} is rubbing against your ${V.worn[rubSlot].name}.`, "pink");
+			br();
 		}
-		else {
-			wikifier("genitalsensitivity");
-			element("span", `Your ${T.text_output2 ?? " "}${V.player.penisExist? "penis" : "clit"} is rubbing against your ${V.worn.lower.name}.`, "pink");
-		}
-		br();
 		delete V.genitalSensitiveRubMessage;
 	}
 
+	// Tampered sensitivity-decreasing cream wearing off: the hoarded arousal crashes back all at once.
+	if (V.sensitivityFloodMessage) {
+		element("span", "The cream's numbness abruptly lifts,", "pink");
+		element("span", "and every sensation it had been quietly holding back floods over you all at once.", "red");
+		br();
+		if (V.sensitivityFloodMessage === 2) {
+			element("span", "It's far too much to hold against! Your body seizes and gives in.", "pink");
+			fragment.append(wikifier("orgasm"));
+			br();
+		}
+		delete V.sensitivityFloodMessage;
+	}
+
 	if (V.breederEdgingMessage) {
-		const breederTarget = V.xchange?.pill?.omegaEffect && V.xchange?.pill?.breederEffect ? "pussy or ass." : V.xchange?.pill?.omegaEffect ? "ass." : either("pussy.","vagina.");
-		element("span", "Your body refuses to cum like this.", "purple"); 
-		element("span", "You crave some thick gooey semen in your "+ breederTarget, "red");
-		if ((V.xchange.breederEdgingStress ?? 0) > 400)
-			fragment.append(wikifier("ggstress"));
-		else
-			fragment.append(wikifier("gstress")); 
-		
+		const breederTarget =
+			V.xchange?.pill?.omegaEffect && V.xchange?.pill?.breederEffect ? "pussy or ass." : V.xchange?.pill?.omegaEffect ? "ass." : either("pussy.", "vagina.");
+		element("span", "Your body refuses to cum like this.", "purple");
+		element("span", "You crave some thick gooey semen in your " + breederTarget, "red");
+		if ((V.xchange.breederEdgingStress ?? 0) > 400) fragment.append(wikifier("ggstress"));
+		else fragment.append(wikifier("gstress"));
+
 		br();
 
 		delete V.breederEdgingMessage;
@@ -1518,7 +1739,13 @@ function xchangeEffectsMessages() {
 		element("span", "The toy pushes you over the edge, and your body finally gives in.", "purple");
 		if (fromBreederGate) {
 			const breederTarget = pill?.omegaEffect && pill?.breederEffect ? "holes" : pill?.omegaEffect ? "ass" : "womb";
-			element("span", `The forced orgasm washes through you, but it feels hollow; your ${breederTarget} ${breederTarget === "holes" ? "still ache" : "still aches"} for hot seed.`, "blue");
+			element(
+				"span",
+				`The forced orgasm washes through you, but it feels hollow; your ${breederTarget} ${
+					breederTarget === "holes" ? "still ache" : "still aches"
+				} for hot seed.`,
+				"blue"
+			);
 		} else if (pill?.alphaEffect && V.player.penisExist) {
 			element("span", "The forced orgasm washes through you, but it feels hollow; your knot aches to lock inside a real partner.", "blue");
 		} else {
@@ -1533,16 +1760,13 @@ function xchangeEffectsMessages() {
 
 	if (V.sexual_addiction_message) {
 		const alphaEffectActive = playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player.penisExist;
-		element("span", "Your body refuses to cum like this.", "purple"); 
+		element("span", "Your body refuses to cum like this.", "purple");
 		if (V.penis_addict_trait === 1 && (V.hole_addict_trait === 1 || alphaEffectActive))
 			element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
-		else if (V.penis_addict_trait === 1)
-			element("span", "You need dick, and you need it deep inside you. Now!", "red");
-		else if (V.hole_addict_trait === 1 && V.player.penisExist)
-			element("span", "Your dick craves some pussy, and it demands it now!", "red");
-		else if (alphaEffectActive)
-			element("span", "Your knot aches to lock inside someone, and it demands it now!", "red");
-		
+		else if (V.penis_addict_trait === 1) element("span", "You need dick, and you need it deep inside you. Now!", "red");
+		else if (V.hole_addict_trait === 1 && V.player.penisExist) element("span", "Your dick craves some pussy, and it demands it now!", "red");
+		else if (alphaEffectActive) element("span", "Your knot aches to lock inside someone, and it demands it now!", "red");
+
 		br();
 
 		delete V.sexual_addiction_message;
@@ -1561,14 +1785,14 @@ function xchangeEffectsMessages() {
 				element("span", "Your original body's dick just shrank even further.", "red");
 				break;
 			case 4:
-				element("span", V.options.showExactMeasurements? `Your dick shrank by ${V.xtendMessageValue}cm.` : "Your dick is smaller than it used to be.", "red");
+				element("span", V.options.showExactMeasurements ? `Your dick shrank by ${V.xtendMessageValue}cm.` : "Your dick is smaller than it used to be.", "red");
 				break;
 			case 5:
-				element("span", V.options.showExactMeasurements? `Your dick grew by ${V.xtendMessageValue}cm.` : "Your dick is larger than it used to be.", "green");
+				element("span", V.options.showExactMeasurements ? `Your dick grew by ${V.xtendMessageValue}cm.` : "Your dick is larger than it used to be.", "green");
 				break;
 			case 6:
 				element("span", "That genetic material was of inferior quality.", "gold");
-				element("span", "Your projected penis size remains unchanged.", "blue"); 
+				element("span", "Your projected penis size remains unchanged.", "blue");
 				break;
 			default:
 				break;
@@ -1579,34 +1803,33 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.dumbBitchOrgasmMessage) {
-		element("span", "Your orgasm is frying your brain.", "red"); 
+		element("span", "Your orgasm is frying your brain.", "red");
 		fragment.append(wikifier("llstress"));
 		fragment.append(wikifier("lwillpower"));
 		if (V.dumbBitchOrgasmMessage === 1) {
-			element("span", "|",);
+			element("span", "|");
 			element("span", "- School Grades", "red");
 			br();
 		}
 		if (V.dumbBitchOrgasmMessage === 2) {
-			element("span", 
-				either(
-					"Lockpicking is now like... just so hard or something.",
-					"Everyone seems like... so trustworthy now.",
-					"Malice?... Like... what's that?"
-				), 
-			"red");
+			element(
+				"span",
+				either("Lockpicking is now like... just so hard or something.", "Everyone seems like... so trustworthy now.", "Malice?... Like... what's that?"),
+				"red"
+			);
 			fragment.append(wikifier("lskulduggery"));
 			br();
-		}
-		else if (V.dumbBitchOrgasmMessage === 3) {
-			element("span", 
+		} else if (V.dumbBitchOrgasmMessage === 3) {
+			element(
+				"span",
 				either(
 					"Everyone's so nice... Like, you should totally fuck more.",
 					"Sex is like... so yummy right now. You want it all.",
 					"You want to, like... feel g- good-er? Better? Oh just fuck~"
-				), 
-			"lewd");
-			element("span", "|",);
+				),
+				"lewd"
+			);
+			element("span", "|");
 			element("span", "+ Lewdness", "lewd");
 			br();
 		}
@@ -1615,14 +1838,13 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.refractoryPeriodMessage) {
-		element("span", "Your body is still recovering from your last orgasm.", "blue"); br();
+		element("span", "Your body is still recovering from your last orgasm.", "blue");
+		br();
 		delete V.refractoryPeriodMessage;
 	}
 
 	if (V.dysphoriaReasonMessage) {
-		const msgs = Array.isArray(V.dysphoriaReasonMessage)
-			? V.dysphoriaReasonMessage
-			: [V.dysphoriaReasonMessage];
+		const msgs = Array.isArray(V.dysphoriaReasonMessage) ? V.dysphoriaReasonMessage : [V.dysphoriaReasonMessage];
 
 		for (const msg of msgs) {
 			if (typeof msg === "string" && msg.trim().length) {
@@ -1635,19 +1857,21 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.dysphoriaMessage) {
-		element("span", "You suffer from dysphoria.", "purple"); br();
+		element("span", "You suffer from dysphoria.", "purple");
+		br();
 		delete V.dysphoriaMessage;
 	}
 
 	if (V.dysphoriaProcessingMessage) {
-		element("span", "You're slowly processing how you feel about your current self.", "blue"); 
+		element("span", "You're slowly processing how you feel about your current self.", "blue");
 		fragment.append(wikifier("lwillpower"));
 		br();
 		delete V.dysphoriaProcessingMessage;
 	}
 
 	if (V.identityAcceptanceMessage) {
-		element("span", "You have learned to embrace a new aspect of yourself.", "green"); br();
+		element("span", "You have learned to embrace a new aspect of yourself.", "green");
+		br();
 		delete V.identityAcceptanceMessage;
 	}
 	if (Array.isArray(V.giBodyChangeMessages) && V.giBodyChangeMessages.length) {
@@ -1660,32 +1884,36 @@ function xchangeEffectsMessages() {
 		delete V.giBodyChangeMessages;
 	}
 
-
 	if (V.breakdownMessage) {
-		element("span", "The dysphoria has become too much.", "purple"); 
-		element("span", "You begrudgingly surrender yourself to being this way.", "red"); 
+		element("span", "The dysphoria has become too much.", "purple");
+		element("span", "You begrudgingly surrender yourself to being this way.", "red");
 		fragment.append(wikifier("lllwillpower"));
 		br();
 		delete V.breakdownMessage;
 	}
 
 	if (V.breakdownEndMessage) {
-		element("span", "You recover from your begrudging acceptance.", "green"); br();
+		element("span", "You recover from your begrudging acceptance.", "green");
+		br();
 		delete V.breakdownEndMessage;
 	}
 
 	if (V.suspiciousPillDebuffMessage) {
 		const skills = V.suspiciousPillDebuffMessage;
-		element("span", "Something went wrong with the suspicious pill.", "red"); br();
-		element("span", `The botched transformation has weakened your ${skills.join(", ")}.`, "purple"); br();
+		element("span", "Something went wrong with the suspicious pill.", "red");
+		br();
+		element("span", `The botched transformation has weakened your ${skills.join(", ")}.`, "purple");
+		br();
 		delete V.suspiciousPillDebuffMessage;
 	}
 
 	if (V.xchange?.chastityAdaptedMessage) {
 		if (V.xchange.chastityAdaptedMessage === "feminize") {
-			element("span", "You feel your chastity device shift and reshape around your new anatomy, enclosing your new sex tightly.", "teal"); br();
+			element("span", "You feel your chastity device shift and reshape around your new anatomy, enclosing your new sex tightly.", "teal");
+			br();
 		} else if (V.xchange.chastityAdaptedMessage === "butchify") {
-			element("span", "You feel your chastity device constrict and reform into a cage around your new anatomy, locking your new sex in place.", "teal"); br();
+			element("span", "You feel your chastity device constrict and reform into a cage around your new anatomy, locking your new sex in place.", "teal");
+			br();
 		}
 		delete V.xchange.chastityAdaptedMessage;
 	}
