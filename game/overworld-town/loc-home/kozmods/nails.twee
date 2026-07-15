@@ -57,24 +57,30 @@
 <<widget "playerClawType">>
 	/* Single source of truth for "does the player have functional animal claws,
 	   and from which TF?" Returns:
-	     _clawType — "cat" | "wolf" | "fox" | "bear" | ""   (first match wins)
+	     _clawTypes — every available claw TF
+	     _clawType — the chosen claw TF, falling back to the first available type
 	     _hasClaws — boolean convenience (true if _clawType isnot "")
 	   Each animal counts as "clawed" when awakened (gte 6) OR displaying a tail
 	   that isn't hidden/disabled, matching the canonical per-animal checks.
 	   Claws are retractable/always-present: a clawed PC scratches at claw tier
 	   regardless of natural nail length. */
-	<<set _clawType to "">>
+	<<set _clawTypes to []>>
 	<<if effectiveTransformationLevel("cat") gte 6>>
-		<<set _clawType to "cat">>
-	<<elseif effectiveTransformationLevel("wolf") gte 6>>
-		<<set _clawType to "wolf">>
-	<<elseif effectiveTransformationLevel("fox") gte 6>>
-		<<set _clawType to "fox">>
-	<<elseif effectiveTransformationLevel("bear") gte 6>>
-		<<set _clawType to "bear">>
-	<<elseif effectiveTransformationLevel("waterdragon") gte 7 or Transformations.partActive("traits", "aquatic")>>
-		<<set _clawType to "waterdragon">>
+		<<run _clawTypes.push("cat")>>
 	<</if>>
+	<<if effectiveTransformationLevel("wolf") gte 6>>
+		<<run _clawTypes.push("wolf")>>
+	<</if>>
+	<<if effectiveTransformationLevel("fox") gte 6>>
+		<<run _clawTypes.push("fox")>>
+	<</if>>
+	<<if effectiveTransformationLevel("bear") gte 6>>
+		<<run _clawTypes.push("bear")>>
+	<</if>>
+	<<if effectiveTransformationLevel("waterdragon") gte 7 or Transformations.partActive("traits", "aquatic")>>
+		<<run _clawTypes.push("waterdragon")>>
+	<</if>>
+	<<set _clawType to _clawTypes.includes($clawType) ? $clawType : (_clawTypes[0] || "")>>
 	<<set _hasClaws to (_clawType isnot "")>>
 <</widget>>
 
@@ -160,10 +166,10 @@
 		<<set _hand to "heavy claws">>
 	<<elseif _clawType is "cat">>
 		<<set _hand to "long claws">>
-	<<elseif def $nailslevel and $nailslevel gte 3>>
-		<<set _hand to "claws">>
 	<<elseif _clawType is "waterdragon">>
 		<<set _hand to "glassy claws">>
+	<<elseif def $nailslevel and $nailslevel gte 3>>
+		<<set _hand to "claws">>
 	<<else>>
 		<<set _hand to "nails">>
 	<</if>>

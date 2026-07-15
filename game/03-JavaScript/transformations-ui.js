@@ -7,10 +7,12 @@ const TransformationsInterface = (() => {
 	let current = null;
 
 	function generateColourPicker() {
-		let currentWidth = 0;
 		const container = document.createElement("div");
+		const passageWidth = document.querySelector("#passages")?.clientWidth || window.innerWidth;
 		const picker = new iro.ColorPicker(container, {
 			color: defaultColour,
+			// The picker is created inside a closed, hidden menu, so it cannot measure its own width reliably.
+			width: Math.max(160, Math.min(300, passageWidth - 24)),
 			layout: [
 				{
 					component: iro.ui.Slider,
@@ -37,22 +39,11 @@ const TransformationsInterface = (() => {
 			const checkedItems = document.querySelectorAll('input[name="colour-selector"]:checked');
 			for (const item of checkedItems) {
 				const { h, s, l } = colour.hsl;
-				const objStr = `{h:${h},s:${s},l:${l}}`;
-				Scripting.evalTwineScript(item.dataset.target + " = " + objStr);
+				State.setVar(item.dataset.target, { h, s, l });
 				hasMutated = true;
 			}
-			if (hasMutated) Wikifier.wikifyEval("<<updatesidebarimg>>");
+			if (hasMutated) Wikifier.wikifyEval("<<updatesidebarimg true>>");
 		});
-		const resizeObserver = new ResizeObserver(entries => {
-			for (const entry of entries) {
-				const width = entry.contentRect.width;
-				if (currentWidth !== width) {
-					picker.resize(width);
-					currentWidth = width;
-				}
-			}
-		});
-		resizeObserver.observe(picker.base);
 		current = picker;
 		return {
 			element: container.children[0],
@@ -62,8 +53,10 @@ const TransformationsInterface = (() => {
 
 	// Hide the colour picker unless TF parts are checked
 	function colourPickerVisibility() {
-		const menuWarning = document.querySelector(".menuWarning");
-		const menuContent = document.querySelector(".menuContent");
+		const colourMenu = document.querySelector(".tf-custom-colours");
+		if (!colourMenu) return;
+		const menuWarning = colourMenu.querySelector(".menuWarning");
+		const menuContent = colourMenu.querySelector(".menuContent");
 		const checkboxes = document.querySelectorAll('input[name="colour-selector"]');
 
 		const isVisible = Array.from(checkboxes).some(checkbox => checkbox.checked);

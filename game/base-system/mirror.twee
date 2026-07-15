@@ -2933,6 +2933,7 @@
 					<<set _tempToleranceChoice to _options["Bunny"]>>
 				<</if>>
 			<</if>>
+			<br>
 			<<if !_tempToleranceChoice>>
 				<<set _tempToleranceChoice to 0>>
 			<</if>>
@@ -2947,6 +2948,23 @@
 				<br>
 			<</if>>
 		<</if>>
+	<</if>>
+
+	<<playerClawType>>
+	<<if _clawTypes.length > 1>>
+		<<set _clawLabels to { cat : "Cat", wolf : "Wolf", fox : "Fox", bear : "Bear", waterdragon : "Water Dragon" }>>
+		<<set _clawOptions to {}>>
+		<<for _claw range _clawTypes>>
+			<<set _clawOptions[_clawLabels[_claw]] to _claw>>
+		<</for>>
+		<<set _clawChoice to _clawType>>
+		<label>Claws:
+			<div class="tf-claws">
+				<<listbox "_clawChoice" autoselect>>
+					<<optionsfrom _clawOptions>>
+				<</listbox>>
+			</div>
+		</label>
 		<br>
 	<</if>>
 
@@ -3341,7 +3359,7 @@
 				<<listbox "_divineHornsChoice" autoselect>>
 					<<optionsfrom _options>>
 				<</listbox>>
-				<<gencolourselector "_demon.horns_colour">>
+				<span class="small-description">Demon colour:</span> <<gencolourselector "$transformationParts.demon.horns_colour">>
 			</div>
 		</label>
 		<br>
@@ -3418,7 +3436,9 @@
 				<<listbox "_divineTailChoice" autoselect>>
 					<<optionsfrom _options>>
 				<</listbox>>
-				<<gencolourselector "_demon.tail_colour">>
+				<<if _demonPartialCheck>>
+					<span class="small-description">Demon colour:</span> <<gencolourselector "$transformationParts.demon.tail_colour">>
+				<</if>>
 			</div>
 		</label>
 		<br>
@@ -3588,7 +3608,9 @@
 				<<listbox "_divineWingsChoice" autoselect>>
 					<<optionsfrom _options>>
 				<</listbox>>
-				<<gencolourselector "_demon.wings_colour">>
+				<<if _demonFullCheck>>
+					<span class="small-description">Demon colour:</span> <<gencolourselector "$transformationParts.demon.wings_colour">>
+				<</if>>
 			</div>
 		</label>
 		<br>
@@ -3620,9 +3642,10 @@
 	/* Chimera */
 	<span id="tf-chimera"><<renderTfChimera>></span>
 
+	<br>
 	<<if ($traumatized isnot undefined)>>
-		__Trauma__<br>
-		<<link [[Set|$passage]]>><<set $traumaeyes to true>><<updatesidebarimg>><</link>> / <<link [[Clear|$passage]]>><<set $traumaeyes to false>><<updatesidebarimg>><</link>><br>
+		__Traumatic Eyes__<br>
+		<<link [[Set|$passage]]>><<set $traumaeyes to true>><<updatesidebarimg>><</link>> | <<link [[Clear|$passage]]>><<set $traumaeyes to false>><<updatesidebarimg>><</link>><br>
 		<br>
 	<</if>>
 
@@ -3692,10 +3715,10 @@
 	</div>
 
 	<<if _isMenuEnabled>>
-		<details class="expandMenu">
-			<summary class="expandMenu">Custom Colours</summary>
+		<details class="expandMenu tf-custom-colours">
+			<summary class="expandMenu">Custom Demon Colours</summary>
 			<div class="menuWarning">
-				You haven't chosen any transformation parts! Select the checkboxes for the parts you'd like to recolour.
+				Select the demon horns, tail or wings checkboxes you'd like to recolour.
 			</div>
 			<div class="menuContent hidden">
 				<<set _options to ['ffffff', 'ff0000', '00ff00', '0000ff', '590099', '000000']>>
@@ -3725,6 +3748,9 @@
 	*/
 	<!-- Attach an event to every listbox item to update the PC on the sidebar. -->
 	<<script>>
+		jQuery('.passage').on('change', 'div.tf-claws select.macro-listbox', function (e) {
+			Wikifier.wikifyEval('<<set $clawType = _clawChoice>>');
+		});
 		jQuery('.passage').on('change', 'div.tf-tempTolerance select.macro-listbox', function (e) {
 			Wikifier.wikifyEval('<<set _traits.tempTolerance = _tempToleranceChoice>>');
 		});

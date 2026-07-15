@@ -174,7 +174,14 @@
 		<<link [[Be good|Forest Cabin Good]]>><<sub 1>><</link>>
 		<br>
 		<<if $forestleashed is 1>>
-			<<link [[Weaken the leash|Forest Cabin Weaken]]>><<def 1>><</link>>
+			<<playerClawType>>
+			<<if _hasClaws>>
+				<<link [[Cut at the leash with your claws|Forest Cabin Weaken]]>><<def 1>><</link>>
+			<<elseif def $nailslevel and $nailslevel gte 2>>
+				<<link [[Pick at the leash with your nails|Forest Cabin Weaken]]>><<def 1>><</link>>
+			<<else>>
+				<<link [[Weaken the leash|Forest Cabin Weaken]]>><<def 1>><</link>>
+			<</if>>
 			<br>
 		<</if>>
 
@@ -262,7 +269,14 @@
 
 	<<link [[Sleep|Cabin Night Sleep]]>><<cabintime>><</link>><<ltiredness>>
 	<br>
-	<<link [[Weaken the leash|Cabin Night Leash]]>><<cabintime true>><</link>>
+	<<playerClawType>>
+	<<if _hasClaws>>
+		<<link [[Cut at the leash with your claws|Cabin Night Leash]]>><<cabintime true>><</link>>
+	<<elseif def $nailslevel and $nailslevel gte 2>>
+		<<link [[Pick at the leash with your nails|Cabin Night Leash]]>><<cabintime true>><</link>>
+	<<else>>
+		<<link [[Weaken the leash|Cabin Night Leash]]>><<cabintime true>><</link>>
+	<</if>>
 	<br>
 <<else>>
 	Eden is asleep. You could escape if you wanted.
@@ -290,14 +304,24 @@ You are awoken a while later by Eden kissing you on the cheek. "Good morning." <
 :: Cabin Night Leash
 <<set $outside to 0>><<set $location to "cabin">><<effects>>
 
-<<if $forestleashedwear gte 1>>
-	<<set $forestleashedwear += 1>>
+<<playerClawType>>
+<<set _leashWearGain to 1>>
+<<if _hasClaws>>
+	<<set _leashWearGain to 2>>
+	You hook your claws into the leash and saw through its fibres. It frays much faster than it would against the headboard.
+<<elseif def $nailslevel and $nailslevel gte 2>>
+	<<set _leashWearGain to 2>>
+	You dig your long nails into the leash and pull at its fibres. They bite painfully into your fingertips as you work, but the leash frays much faster.<<pain 2>><<gpain>>
 <<else>>
-	<<set $forestleashedwear to 1>>
+	You rub the leash against the headboard, hoping to wear it through. You think you feel it becoming thinner.
 <</if>>
-
-You rub the leash against the headboard, hoping to wear it through. You think you feel it becoming thinner.
 <br><br>
+
+<<if $forestleashedwear gte 1>>
+	<<set $forestleashedwear += _leashWearGain>>
+<<else>>
+	<<set $forestleashedwear to _leashWearGain>>
+<</if>>
 
 <<if $forestleashedwear gte 3>>
 	Sunlight caresses your face when the leash snaps, freeing you.<<stress -24>><<lllstress>>
@@ -426,14 +450,24 @@ You remove your clothing and get in the bath. Using a sponge, you wash <<his>> b
 :: Forest Cabin Weaken
 <<set $outside to 0>><<set $location to "cabin">><<effects>>
 
-You grind the leash against the tree, careful not to be noticed. You think you feel the leash become thinner.
+<<playerClawType>>
+<<set _leashWearGain to 1>>
+<<if _hasClaws>>
+	You score the leash with your claws whenever Eden looks away, then grind the damaged fibres against the tree. It thins faster under their sharp edges.
+	<<set _leashWearGain to 2>>
+<<elseif def $nailslevel and $nailslevel gte 2>>
+	You pick at the leash with your long nails whenever Eden looks away, tearing loose fibres before grinding it against the tree. Your fingertips throb by the time it starts to thin.<<pain 2>><<gpain>>
+	<<set _leashWearGain to 2>>
+<<else>>
+	You grind the leash against the tree, careful not to be noticed. You think you feel the leash become thinner.
+<</if>>
 <br><br>
 
 Some time later, Eden pants and stretches while looking at the setting sun. "I need a bath. Come on, let's go home."
 <<if $forestleashedwear gte 1>>
-	<<set $forestleashedwear += 1>>
+	<<set $forestleashedwear += _leashWearGain>>
 <<else>>
-	<<set $forestleashedwear to 1>>
+	<<set $forestleashedwear to _leashWearGain>>
 <</if>>
 <br><br>
 
