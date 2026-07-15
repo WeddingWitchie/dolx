@@ -41,87 +41,79 @@
 
 		/* Update BGM */
 		<<set _npcWithTheme to ["Ivory Wraith", "Eden", "Avery", "Bailey", "Wren", "Gwylan", "Whitney", "Zephyr", "Kylar", "Robin", "Sydney", "Poppy"]>>
+		<<set _npcDescriptions to $NPCList.flatMap((n)=> n.fullDescription)>>
 		<<for _name range _npcWithTheme>>
-			<<if $NPCList.flatMap((n)=> n.fullDescription).includes(_name)>>
+			<<if _npcDescriptions.includes(_name)>>
 				<<set _npcFound to 1>>
-				<<set _nameNoSpace to _name.replace(/\s+/g, "")>>
-				<<bgm-intermission _nameNoSpace>>
+				<<set _npcTheme to _name.replace(/\s+/g, "")>>
 				<<break>>
 			<</if>>
 		<</for>>
-		<<if _npcFound isnot 1>>
-			<<if $combat is 1 or $masturbating is 1>>
-				<<if $consensual is 1 or $masturbating is 1>>
-					<<bgm-intermission "encounter-consensual">>
-				<<else>>
-					<<bgm-intermission "encounter-noncon">>
-				<</if>>
-			<<else>>
-				<<switch $location>>
-					<<case "town" "alley" "canals" "canal" "police_station" "market" "spa" "chalets" "home" "museum" "docks" "avery_mansion" "landfill" "compound" "factory" "pound" "townhall" "kylarmanor_outside" "kylarmanor_grounds" "industrial">>
-						<<if Time.dayState is "night" or Time.dayState is "dusk">>
-							<<bgm "town-night">>
-						<<else>>
-							<<bgm "town-day">>
-						<</if>>
-					<<case "flats">>
-						<<bgm "cafe">>
-					<<case "drain" "sewers" "underground" "catacombs" "sepulchre" "mines" "kylarmanor">>
-						<<bgm "sewers">>
-					<<case "farm" "alex_cottage" "alex_farm" "estate" "farm_manors">>
-						<<if Time.dayState is "night" or Time.dayState is "dusk">>
-							<<bgm "farm-night">>
-						<<else>>
-							<<bgm "farm-day">>
-						<</if>>
-					<<case "park">>
-						<<if Time.dayState is "night" or Time.dayState is "dusk">>
-							<<bgm "park-night">>
-						<<else>>
-							<<bgm "park-day">>
-						<</if>>
-					<<case "meadow" "coastpath" "riding_school" "farmroad3">>
-						<<bgm "meadow">>
-					<<case "school" "pool" "school_rear_courtyard">>
-						<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
-							<<bgm "school">>
-						<<else>>
-							<<bgm "afterschool">>
-						<</if>>
-					<<case "forest" "lake" "bog" "wolf_cave" "churchyard" "lake_ruin" "cabin" "lake_office">>
-						<<bgm "forest">>
-					<<case "sea" "seabeach" "searocks" "seacliffs" "pirate_ship" "prison_beach">>
-						<<bgm "sea">>
-					<<case "old_temple">>
-						<<if ["cell","guardhouse"].includes($bus)>>
-							<<bgm "sewers">>
-						<<else>>
-							<<bgm "old_temple">> 
-						<</if>>
-					<<case "tower" "moor" "castle">>
-						<<bgm "moor">>
-					<<case "adult_shop" "brothel">>
-						<<bgm "brothel">>
-					<<case "officeBuilding" "office" "office_building">>
-						<<bgm "office">>
-					<<case "shopping_centre" "changingroom">>
-						<<bgm "shopping_centre">>
-					<<case "pub" "beach" "asylum" "arcade" "cafe" "dance_studio" "shopping_centre" "mma_gym" "studio" "strip_club" "temple" "hospital" "island" "meadow" "tentworld" "prison" "home">>
-						<<bgm $location>>
-					<<case "forest_shop" "forest_shop_garden">>
-						<<bgm "Gwylan">>
-					<<case "avery_skyscraper">>
-						<<bgm "Avery">>
-					<<default>>
-						<<bgm "stop">>
-				<</switch>>
-			<</if>>
+		<<if $combat is 1 and $consensual isnot 1>>
+			<<bgm-intermission "encounter-noncon">>
+		<<elseif _npcFound is 1>>
+			<<bgm-intermission _npcTheme>>
+		<<elseif $combat is 1 or $masturbating is 1>>
+			<<bgm-intermission "encounter-consensual">>
 		<<else>>
-			<<if $combat is 1>>
-				<<if $consensual isnot 1>>
-					<<bgm-intermission "encounter-noncon">>
-				<</if>>
-			<</if>>
+			<<switch $location>>
+				<<case "town" "alley" "canals" "canal" "police_station" "market" "spa" "chalets" "home" "museum" "docks" "avery_mansion" "landfill" "compound" "factory" "pound" "townhall" "kylarmanor_outside" "kylarmanor_grounds" "industrial">>
+					<<if Time.dayState is "night" or Time.dayState is "dusk">>
+						<<bgm "town-night">>
+					<<else>>
+						<<bgm "town-day">>
+					<</if>>
+				<<case "flats">>
+					<<bgm "cafe">>
+				<<case "drain" "sewers" "underground" "catacombs" "sepulchre" "mines" "kylarmanor">>
+					<<bgm "sewers">>
+				<<case "farm" "alex_cottage" "alex_farm" "estate" "farm_manors">>
+					<<if Time.dayState is "night" or Time.dayState is "dusk">>
+						<<bgm "farm-night">>
+					<<else>>
+						<<bgm "farm-day">>
+					<</if>>
+				<<case "park">>
+					<<if Time.dayState is "night" or Time.dayState is "dusk">>
+						<<bgm "park-night">>
+					<<else>>
+						<<bgm "park-day">>
+					<</if>>
+				<<case "meadow" "coastpath" "riding_school" "farmroad3">>
+					<<bgm "meadow">>
+				<<case "school" "pool" "school_rear_courtyard">>
+					<<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
+						<<bgm "school">>
+					<<else>>
+						<<bgm "afterschool">>
+					<</if>>
+				<<case "forest" "lake" "bog" "wolf_cave" "churchyard" "lake_ruin" "cabin" "lake_office">>
+					<<bgm "forest">>
+				<<case "sea" "seabeach" "searocks" "seacliffs" "pirate_ship" "prison_beach">>
+					<<bgm "sea">>
+				<<case "old_temple">>
+					<<if ["cell","guardhouse"].includes($bus)>>
+						<<bgm "sewers">>
+					<<else>>
+						<<bgm "old_temple">>
+					<</if>>
+				<<case "tower" "moor" "castle">>
+					<<bgm "moor">>
+				<<case "adult_shop" "brothel">>
+					<<bgm "brothel">>
+				<<case "officeBuilding" "office" "office_building">>
+					<<bgm "office">>
+				<<case "shopping_centre" "changingroom">>
+					<<bgm "shopping_centre">>
+				<<case "pub" "beach" "asylum" "arcade" "cafe" "dance_studio" "shopping_centre" "mma_gym" "studio" "strip_club" "temple" "hospital" "island" "meadow" "tentworld" "prison" "home">>
+					<<bgm $location>>
+				<<case "forest_shop" "forest_shop_garden">>
+					<<bgm "Gwylan">>
+				<<case "avery_skyscraper">>
+					<<bgm "Avery">>
+				<<default>>
+					<<bgm "stop">>
+			<</switch>>
 		<</if>>
 
 		/* Consider adding a check for NPC genitals being rubbed/penetrated by checking $NPCList[_n].vagina is "penis" for example, but remember to check if $NPCList[_n].vagina isnot "none"	 */
@@ -201,29 +193,53 @@
 	<</if>>
 <</widget>>
 
+<<widget "audio-release-playlist">>
+	<<if _args[0] isnot undefined and _args[0] isnot "none" and SimpleAudio.lists.has(_args[0])>>
+		<<playlist _args[0] stop>>
+		<<playlist _args[0] unload>>
+		<<removeplaylist _args[0]>>
+		<<run setup.initializedPlaylists.delete(_args[0])>>
+	<</if>>
+<</widget>>
+
 <<widget "bgm">>
 	<<if $debug is 1>><<run console.log("Now playing: "+_args[0])>><</if>>
 	<<if setup.bgmCurrentPlaylist is undefined>>
 		<<set setup.bgmCurrentPlaylist to "none">>
 	<</if>>
+	<<if setup.bgmPausedPlaylist is undefined>>
+		<<set setup.bgmPausedPlaylist to "none">>
+	<</if>>
 
-	<<if _args[0] is "stop" and setup.bgmCurrentPlaylist isnot "none">>
-		/* Stop the current BGM playlist */
-		<<playlist setup.bgmCurrentPlaylist stop>>
+	<<if _args[0] is "stop">>
+		/* Release both the current theme and any ambient theme paused by an intermission. */
+		<<audio-release-playlist setup.bgmCurrentPlaylist>>
+		<<if setup.bgmPausedPlaylist isnot setup.bgmCurrentPlaylist>>
+			<<audio-release-playlist setup.bgmPausedPlaylist>>
+		<</if>>
 		<<set setup.bgmCurrentPlaylist to "none">>
+		<<set setup.bgmPausedPlaylist to "none">>
 	
 	<<elseif _args[0] isnot "stop" and _args[0] isnot setup.bgmCurrentPlaylist>>
-		/* Stop the previous BGM playlist */
-		<<if setup.bgmCurrentPlaylist isnot "none">>
-			<<playlist setup.bgmCurrentPlaylist stop>>
+		<<if _args[0] is setup.bgmPausedPlaylist>>
+			/* Resume the exact ambient track paused for the intermission. */
+			<<audio-release-playlist setup.bgmCurrentPlaylist>>
+			<<set setup.bgmCurrentPlaylist to setup.bgmPausedPlaylist>>
+			<<set setup.bgmPausedPlaylist to "none">>
+			<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
+			<<playlist setup.bgmCurrentPlaylist play loop>>
+		<<else>>
+			/* A real location change supersedes both the active and paused themes. */
+			<<audio-release-playlist setup.bgmCurrentPlaylist>>
+			<<if setup.bgmPausedPlaylist isnot setup.bgmCurrentPlaylist>>
+				<<audio-release-playlist setup.bgmPausedPlaylist>>
+			<</if>>
+			<<set setup.bgmCurrentPlaylist to _args[0]>>
+			<<set setup.bgmPausedPlaylist to "none">>
+			<<init-playlist setup.bgmCurrentPlaylist>>
+			<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
+			<<playlist setup.bgmCurrentPlaylist play loop shuffle>>
 		<</if>>
-
-		/* Start playing the current BGM playlist */
-		<<set setup.bgmCurrentPlaylist to _args[0]>>
-		<<init-playlist setup.bgmCurrentPlaylist>>
-		<<playlist setup.bgmCurrentPlaylist volume 0>>
-		<<playlist setup.bgmCurrentPlaylist fadeto $options.bgm_volume loop shuffle>>
-		
 	<</if>>	
 <</widget>>
 
@@ -232,11 +248,17 @@
 	<<if setup.bgmCurrentPlaylist is undefined>>
 		<<set setup.bgmCurrentPlaylist to "none">>
 	<</if>>
+	<<if setup.bgmPausedPlaylist is undefined>>
+		<<set setup.bgmPausedPlaylist to "none">>
+	<</if>>
 
 	<<if _args[0] isnot setup.bgmCurrentPlaylist>>
-		/* Pause the previous BGM playlist */
-		<<if setup.bgmCurrentPlaylist isnot "none">>
+		/* Preserve one ambient theme. Superseded intermission themes are released. */
+		<<if setup.bgmPausedPlaylist is "none" and setup.bgmCurrentPlaylist isnot "none">>
+			<<set setup.bgmPausedPlaylist to setup.bgmCurrentPlaylist>>
 			<<playlist setup.bgmCurrentPlaylist pause>>
+		<<else>>
+			<<audio-release-playlist setup.bgmCurrentPlaylist>>
 		<</if>>
 
 		/* Start playing the intermission BGM playlist */
@@ -244,7 +266,6 @@
 		<<init-playlist setup.bgmCurrentPlaylist>>
 		<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
 		<<playlist setup.bgmCurrentPlaylist play loop shuffle>>
-		
 	<</if>>	
 <</widget>>
 
@@ -258,21 +279,18 @@
 
 	<<if _args[0] is "stop" and setup.bgsCurrentPlaylist isnot "none">>
 		/* Stop the current BGS playlist */
-		<<playlist setup.bgsCurrentPlaylist stop>>
+		<<audio-release-playlist setup.bgsCurrentPlaylist>>
 		<<set setup.bgsCurrentPlaylist to "none">>
 	
 	<<elseif _args[0] isnot "stop" and _args[0] isnot setup.bgsCurrentPlaylist and $voiceoverActive is "f">>
-		/* Stop the previous BGS playlist */
-		<<if setup.bgsCurrentPlaylist isnot "none">>
-			<<playlist setup.bgsCurrentPlaylist stop>>
-		<</if>>
+		/* Release the previous BGS playlist. */
+		<<audio-release-playlist setup.bgsCurrentPlaylist>>
 
 		/* Start playing the current BGS playlist */
 		<<set setup.bgsCurrentPlaylist to _args[0]>>
 		<<init-playlist setup.bgsCurrentPlaylist>>
-		<<playlist setup.bgsCurrentPlaylist volume 0>>
-		<<playlist setup.bgsCurrentPlaylist fadeto $options.bgs_volume loop shuffle>>
-		
+		<<playlist setup.bgsCurrentPlaylist volume $options.bgs_volume>>
+		<<playlist setup.bgsCurrentPlaylist play loop shuffle>>
 	<</if>>	
 <</widget>>
 
@@ -280,7 +298,7 @@
 	<<if setup.bgvCurrentPlaylist isnot undefined and setup.bgvCurrentPlaylist isnot "none">>
 		<<init-playlist setup.bgvCurrentPlaylist>>
 		<<if SimpleAudio.lists.has(setup.bgvCurrentPlaylist)>>
-			<<playlist setup.bgvCurrentPlaylist stop>>
+			<<audio-release-playlist setup.bgvCurrentPlaylist>>
 		<</if>>
 	<</if>>
 	<<set setup.bgvCurrentPlaylist to "none">>
@@ -325,22 +343,16 @@
 		/* Start playing the current BGV playlist */
 		<<set setup.bgvCurrentPlaylist to _bgvTarget>>
 		<<init-playlist setup.bgvCurrentPlaylist>>
-		<<playlist setup.bgvCurrentPlaylist volume 0>>
-		<<playlist setup.bgvCurrentPlaylist fadeoverto 2 $options.voice_volume loop shuffle>>
-	
+		<<playlist setup.bgvCurrentPlaylist volume $options.voice_volume>>
+		<<playlist setup.bgvCurrentPlaylist play loop shuffle>>
 	<</if>>	
 <</widget>>
 
 <<widget "voiceover">>
 	<<if ($options.audio is 1 and $options.voiceoverAudio is 1) and _args[1] is undefined>>
-		/* Fade out the BGV */
+		/* Stop and release the BGV before the one-shot voiceover. */
 		<<if setup.bgvCurrentPlaylist isnot "none" and setup.bgvCurrentPlaylist isnot undefined>>
-			<<init-playlist setup.bgvCurrentPlaylist>>
-			<<if SimpleAudio.lists.has(setup.bgvCurrentPlaylist)>>
-				<<playlist setup.bgvCurrentPlaylist volume 1>>
-				<<playlist setup.bgvCurrentPlaylist fadeout>>
-			<</if>>
-			<<set setup.bgvCurrentPlaylist to "none">>
+			<<bgv-halt-current>>
 		<</if>>
 		<<set $voiceoverActiveSince to Date.now()>>
 		<<set $voiceoverActive to "t">>
@@ -362,7 +374,7 @@
 			<</if>>
 			
 			<<if $fingersInVagina gte 1 and setup.bgsCurrentPlaylist isnot "none">>
-				<<playlist setup.bgsCurrentPlaylist fadeout>>
+				<<audio-release-playlist setup.bgsCurrentPlaylist>>
 				<<set setup.bgsCurrentPlaylist to "none">>
 			<</if>>
 
