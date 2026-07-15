@@ -1,4 +1,4 @@
-/* globals traverse, traversePair */
+/* globals traversePair */
 
 const DoLSave = ((Story, Save) => {
 	"use strict";
@@ -741,6 +741,11 @@ function importSettingsData(data) {
 			overrides.general.penissizemin = overrides.general.penissizemax;
 			overrides.general.penissizemax = temp;
 		}
+		if (overrides.general.bottomsizemin > overrides.general.bottomsizemax) {
+			const temp = overrides.general.bottomsizemin;
+			overrides.general.bottomsizemin = overrides.general.bottomsizemax;
+			overrides.general.bottomsizemax = temp;
+		}
 		importSettingsWalk(settingsObjects("general"), overrides.general, V);
 	}
 
@@ -981,6 +986,7 @@ function settingsObjects(type) {
 	switch (type) {
 		case "starting":
 			result = {
+				beauty: { min: 0, max: 10000, decimals: 0, displayName: "Beauty:" },
 				bodysize: {
 					min: 0,
 					max: 3,
@@ -1192,6 +1198,8 @@ function settingsObjects(type) {
 		case "general":
 			result = {
 				enemystatstyle: { strings: ["full", "default"], randomize: "gameplay", displayName: "Enemy stat display:" },
+				ModExclusiveLIEnabled: { min: 0, max: 1, decimals: 0, displayName: "Mod-exclusive love interests:" },
+				disableAutoSelect: { bool: true, displayName: "Disable settings text auto-select:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
 				wardrobeMult: { min: 0, max: 20, decimals: 0, displayName: "Wardrobe Capacity Multiplier:" },
 				bicycle: {
@@ -1245,6 +1253,7 @@ function settingsObjects(type) {
 				struggleHealthMult: { min: 1, max: 1000000, decimals: 0, displayName: "Struggle Health Max Multiplier (%):" },
 				combatExtended: {
 					standingFights: { min: 0, max: 1, decimals: 0, displayName: "Standing Fights:" },
+					standingFightsType: { strings: ["normal", "hostile"], displayName: "Standing Fight Type:" },
 					reverseRape: { min: 0, max: 1, decimals: 0, displayName: "Reverse Rape:" },
 					passiveDodging: { min: 0, max: 1, decimals: 0, displayName: "Passive Dodging:" },
 					activeDodging: { min: 0, max: 1, decimals: 0, displayName: "Active Dodging:" },
@@ -1263,6 +1272,12 @@ function settingsObjects(type) {
 					enemyBlocking: { min: 0, max: 1, decimals: 0, displayName: "Enemy Blocking:" },
 					enemyCountering: { min: 0, max: 1, decimals: 0, displayName: "Enemy Countering:" },
 					enemyFeinting: { min: 0, max: 1, decimals: 0, displayName: "Enemy Feinting:" },
+					enemyBaseDodgeChance: { min: 0, max: 1, decimals: 0, displayName: "Enemy Base Dodge Chance:" },
+					enemyBaseDodgeChanceMult: { number: true, displayName: "Enemy Base Dodge Chance Level Scaling (%):" },
+					enemyMartialArts: { min: 0, max: 1, decimals: 0, displayName: "Enemy Martial Arts:" },
+					enemyMartialArtsScaling: { strings: ["random", "level", "both"], displayName: "Enemy Martial Arts Scaling:" },
+					enemyMartialArtsLevelScalingMult: { number: true, displayName: "Enemy Martial Arts Level Scaling:" },
+					enemyMartialArtsBadass: { min: 0, max: 1, decimals: 0, displayName: "Enemy Martial Arts Badass Mode:" },
 					enemyLevelDayScaling: { min: 0, max: 1, decimals: 0, displayName: "Enemy Level Day Scaling:" },
 					enemyLevelDayScalingMult: { min: 1, max: 1000000, decimals: 1, displayName: "Enemy Level Day Scaling Multiplier:" },
 					enemyHealthDayScaling: { min: 0, max: 1, decimals: 0, displayName: "Enemy Health Day Scaling:" },
@@ -1369,6 +1384,9 @@ function settingsObjects(type) {
 						},
 						randomize: "gameplay",
 					},
+					condomChance: { min: 0, max: 100, decimals: 0, displayName: "Chance of NPCs having condoms:" },
+					condomUseChanceRape: { min: 0, max: 100, decimals: 0, displayName: "NPC condom use during rape:" },
+					condomUseChanceConsensual: { min: 0, max: 100, decimals: 0, displayName: "NPC condom use during consensual sex:" },
 					clothingCostModifier: { min: 1, max: 10, decimals: 1, displayName: "Cost of clothing:", randomize: "gameplay" },
 					furnitureCostModifier: { min: 0.6, max: 5, decimals: 1, displayName: "Cost of furniture:", randomize: "gameplay" },
 					lewdClothingCostModifier: { min: 0.1, max: 2, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },
@@ -1396,6 +1414,7 @@ function settingsObjects(type) {
 					multipleWardrobes: { strings: [false, "isolated"], displayName: "Multiple wardrobes:" }, //, "all"
 					maleChanceSplit: { bool: true, displayName: "NPC attraction split by gender appearance:" },
 					npcPregnancyEnabled: { bool: true, displayName: "NPC pregnancy:" },
+					incompletePregnancyEnabled: { bool: true, displayName: "Incomplete pregnancy content:" },
 					maleChanceMale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to men:", randomize: "encounter" },
 					maleChanceFemale: { min: 0, max: 100, decimals: 0, displayName: "NPCs who are attracted to women:", randomize: "encounter" },
 					nudeGenderPerception: {
@@ -1702,6 +1721,33 @@ function settingsObjects(type) {
 						],
 						displayName: "Sexflipped hair colour:",
 					},
+					customisedSkinColour: {
+						strings: [
+							"nochange",
+							"light",
+							"medium",
+							"dark",
+							"gyaru",
+							"rlight",
+							"rmedium",
+							"rdark",
+							"rgyaru",
+							"glight",
+							"gmedium",
+							"gdark",
+							"ggyaru",
+							"ylight",
+							"ymedium",
+							"ydark",
+							"ygyaru",
+							"blight",
+							"bmedium",
+							"bdark",
+							"bgyaru",
+							"random",
+						],
+						displayName: "Sexflipped skin colour:",
+					},
 					sizeOverride: {
 						strings: ["default", "miniature", "tiny", "small", "normal", "tall", "large", "giant"],
 						displayName: "Physique size override:",
@@ -1980,27 +2026,35 @@ function randomizeSettings(filter) {
 	const result = {};
 
 	/**
-	 * @param {object} source
-	 * @param {string} key
-	 * @returns {any?}
+	 * Recursively randomise every setting with a concrete set of valid values.
+	 * A filter keeps the existing category links scoped to explicitly tagged settings;
+	 * the full random game mode deliberately includes every toggle, slider and choice.
+	 *
+	 * @param {object} config
+	 * @returns {object}
 	 */
-	const setRandomValue = (source, key) => {
-		const value = source[key];
-		if ((!filter && value.randomize) || (filter && filter === value.randomize)) {
-			return randomizeSettingSet(value);
+	const randomizeSettingsWalk = config => {
+		const output = {};
+		for (const key of Object.keys(config)) {
+			const setting = config[key];
+			if (setting == null) continue;
+			if (isSettingLeaf(setting)) {
+				if (filter && filter !== setting.randomize) continue;
+				const randomValue = randomizeSettingSet(setting);
+				if (randomValue !== undefined) output[key] = randomValue;
+			} else {
+				const group = randomizeSettingsWalk(setting);
+				if (Object.keys(group).length > 0) output[key] = group;
+			}
 		}
-		return null;
+		return output;
 	};
 
 	if (V.passage === "Start") {
-		const startingConfig = settingsObjects("starting");
-		const starting = traverse(startingConfig, "root", settingContainers, setRandomValue);
-		result.starting = starting;
+		result.starting = randomizeSettingsWalk(settingsObjects("starting"));
 	}
 
-	const generalConfig = settingsObjects("general");
-	const general = traverse(generalConfig, "root", settingContainers, setRandomValue);
-	result.general = general;
+	result.general = randomizeSettingsWalk(settingsObjects("general"));
 
 	return JSON.stringify(result);
 }
@@ -2008,9 +2062,9 @@ window.randomizeSettings = randomizeSettings;
 
 const randomNumber = function (min, max, decimals = 0) {
 	const decimalsMult = Math.pow(10, decimals);
-	const minMult = min * decimalsMult;
-	const maxMult = (max + 1) * decimalsMult;
-	const rn = Math.floor(Math.random() * (maxMult - minMult)) / decimalsMult + min;
+	const minMult = Math.ceil(min * decimalsMult);
+	const maxMult = Math.floor(max * decimalsMult);
+	const rn = (Math.floor(Math.random() * (maxMult - minMult + 1)) + minMult) / decimalsMult;
 	return parseFloat(rn.toFixed(decimals));
 };
 
