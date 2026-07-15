@@ -870,3 +870,88 @@ There's <<printmoney $tip>>.
 	<br>
 	<<link [[Leave it|Jewellery Store]]>><</link>>
 <</if>>
+
+:: Boutique Register
+<<set $outside to 0>><<effects>><<set $lock to 500>>
+An expensive cash register sits behind the counter. Its reinforced lock is built to resist tampering.
+<br><br>
+<<if currentSkillValue('skulduggery') gte $lock>>
+	<<if pcAreArmsBound("both")>>
+		You think you'd be able to pick the lock, <span class="blue">if your arms weren't bound.</span>
+		<br><br>
+	<<else>>
+		<<wearProp "lockpick">>
+		<span class="green">The lock looks easy to pick.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Pick it (0:10)|Boutique Register Sneak]]>><<handheldon>><<pass 10>><<crimeUp 10 "thievery">><</link>><<crime "thievery">>
+		<br>
+	<</if>>
+<<else>>
+	<span class="red">The lock looks beyond your ability to pick.</span><<skulduggeryrequired>>
+	<br><br>
+<</if>>
+<<getouticon>><<link [[Leave|Boutique]]>><<handheldon>><</link>>
+<br>
+
+:: Boutique Register Sneak
+<<set $outside to 0>><<effects>><<set $lock to 500>>
+<<set $weekly.theft.boutique to true>>
+<<set $tip to random(90000, 180000)>>
+You deftly open the cash register and count out the money inside.
+There's <<printmoney $tip>>.
+<br><br>
+<<skulduggeryuse 300 "locks">>
+<<generateSecurity 1>><<generateSecurity 2>><<generateSecurity 3>><<generateSecurity 4>><<person1>>
+Before you can take the money, the lights snap on. Two bodyguards block your escape, batons already drawn.
+"Step away from the register," the <<person>> orders.
+<br><br>
+And then you see more guards coming in.
+<br><br>
+<<link [[Next|Boutique Register Fight]]>><<set $fightstart to 1>><<crimeUp 200 "assault">><</link>>
+<br>
+
+:: Boutique Register Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 200>>
+	<<set $enemyanger += 300>>
+	<<npcidlegenitals>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Boutique Register Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Boutique Register Fight]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Boutique Register Fight Finish
+<<set $outside to 0>><<effects>>
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The bodyguards slump against the counter, too spent to stop you. <<tearful>> you snatch the money from the register and flee into the night.
+	<<money $tip "thievery">><<crimeUp `$tip / 1000` "thievery">><<crime "thievery">>
+	<br><br>
+	<<clotheson>><<endcombat>>
+	<<link [[Escape|Danube Street]]>><<endevent>><</link>>
+<<elseif $enemyhealth lte 0>>
+	The bodyguards stagger back, giving you the opening you need. <<tearful>> you snatch the money from the register and flee into the night.
+	<<money $tip "thievery">><<crimeUp `$tip / 1000` "thievery">><<crime "thievery">>
+	<br><br>
+	<<clotheson>><<endcombat>>
+	<<link [[Escape|Danube Street]]>><<endevent>><</link>>
+<<else>>
+	<<tearful>> you collapse, too hurt to keep fighting. The bodyguards restrain you until the police arrive.
+	<br><br>
+	<<clotheson>><<endcombat>>
+	<<generatePolice 1>><<generatePolice 2>><<person1>>
+	<<link [[Next|Hospital Arrest Journey]]>><</link>>
+<</if>>
+<br>
