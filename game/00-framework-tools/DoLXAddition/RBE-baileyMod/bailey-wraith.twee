@@ -1,0 +1,516 @@
+/* ================================================================
+   BAILEY WRAITH INTERCEPT
+   Plays during an Ivory Wraith blood-moon possession at the orphanage:
+   Bailey catches the possessed PC at the bedroom window. Each round PC
+   can Stand up (the wraith drives PC to flee and Bailey forces them back)
+   or Stay still (PC resists the wraith from the inside).
+   ================================================================ */
+
+:: Wraith Snatched Home Bailey
+<<pass 10>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+/* Build the pool of wraith lines to draw from. */
+<<set $wraithPool to []>>
+<<run $wraithPool.push(
+	"The hand that feeds. The hand that strikes. The same hand.",
+	"Product. Commodity. Ward.",
+	"It counts them at night. The children. The money. The doors.",
+	"The serpent coils tighter when it sleeps."
+)>>
+<<if $bailey_dom lte 15>>
+	<<run $wraithPool.push(
+		"The serpent holds on with its fangs now."
+	)>>
+<</if>>
+<<if $bailey_dom lt 30>>
+	<<run $wraithPool.push(
+		"It holds on so tightly. It knows.",
+		"You can feel it slipping. Can't you?",
+		"Its grip loosens. The serpent pretends not to notice."
+	)>>
+<</if>>
+<<if $bailey_dom gte 70>>
+	<<run $wraithPool.push(
+		"The serpent counts the bars to its cage. It knows the number by heart.",
+		"The serpent lies in wait. Hungry. Lonely."
+	)>>
+<</if>>
+<<if $hcEndings and $hcEndings.length gte 1>>
+	<<run $wraithPool.push(
+		"The gaoler locked <<nnpc_himself 'Bailey'>> in the cage.",
+		"Prisoners and gaolers of one another."
+	)>>
+<</if>>
+<<if $hcEndings and $hcEndings.includes("S")>>
+	<<run $wraithPool.push("The gaoler's chains were never for the prisoner.")>>
+<</if>>
+<<if $stockholm_active>>
+	<<run $wraithPool.push(
+		"<<pShe>> doesn't want to leave.",
+		"<<pShe>>'s home.",
+		"Two serpents in the same pit."
+	)>>
+<</if>>
+<<if $stockholm_bailey gte 1>>
+	<<run $wraithPool.push(
+		"<<pShe>> defended you.",
+		"<<pShe>> understands the cage."
+	)>>
+<</if>>
+<<if $stockholm_bailey gte 3>>
+	<<run $wraithPool.push(
+		"The serpent doesn't know what to do with forgiveness."
+	)>>
+<</if>>
+<<if $player.elkscarred>>
+	<<run $wraithPool.push(
+		"The Elk sees you too, serpent.",
+	)>>
+<</if>>
+<<if $children.length gte 1>>
+	<<run $wraithPool.push("Eggs in the serpent's nest.")>>
+<</if>>
+<<if $baileydefeated gte 5>>
+	<<run $wraithPool.push("<<pShe>>'s stronger than you now.")>>
+	<<if !$baileySeen?.includes("wraithMock")>><<baileySeenAdd "wraithMock">><<npcincr Bailey dom -1>><<set $bailey_dom -= 1>><</if>>
+<</if>>
+<<if C.npc["Ivory Wraith"].lust gte 15>>
+	<<run $wraithPool.push(
+		"I was here first, serpent."
+	)>>
+<</if>>
+<<if $awareness gte 400>>
+	<<run $wraithPool.push("<<pShe>>'s seen the holes. <<pShe>> knows what you are.")>>
+<</if>>
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 2>>
+	<<run $wraithPool.push(
+		"Again. Always again. The serpent never learns.",
+		"It pretends not to see."
+	)>>
+<</if>>
+<<if $renttime lte 0>>
+	<<run $wraithPool.push("<<pShe>> owes. <<pShe>> always owes. The serpent makes sure of it.")>>
+<</if>>
+<<if $money gte 5000000>>
+	<<run $wraithPool.push("Richer than the serpent now. Does it know?")>>
+<</if>>
+<<if C.npc.Robin and C.npc.Robin.love gte 60>>
+	<<run $wraithPool.push("The little bird sings for it. The serpent will consume them both.")>>
+<</if>>
+<<if $bailey_love gte 30>>
+	<<run $wraithPool.push("It loves the serpent. The serpent only knows how to devour.")>>
+<</if>>
+<<if $bailey_dom gte 90>>
+	<<run $wraithPool.push("Total. Absolute. The serpent owns even the air it breathes.")>>
+<</if>>
+
+
+/* Intro. After 3+ encounters, Bailey enters without a word. */
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 3>>
+	Your door swings open. <span class="bailey-red">It's Bailey.</span>
+	<br><br>
+
+	<<He>> doesn't speak. <<He>> crosses the room towards you unhurriedly.
+	<br><br>
+<<elseif $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	Your door swings open. <span class="bailey-red">It's Bailey.</span>
+	<br><br>
+
+	"This again," <<he>> says. <<He>> enters your room. <<His>> jaw is set.
+	<br><br>
+<<else>>
+	Your door swings open violently. <span class="bailey-red">It's Bailey.</span>
+	<br><br>
+
+	"You're being noisy," <<he>> says. <<He>>'s holding an envelope in the hand that isn't on your doorknob. <<He>> looks at the one leg you hung outside your open window with a frown.
+	<br><br>
+
+	Your head tilts at an angle that makes your neck crack. <<He>> meets your eyes and <<his>> widen for just one moment before <<he>> steps forward.
+	<br><br>
+<</if>>
+
+<<set _wraith to $wraithPool.pluck()>>
+Your mouth opens.
+<br><br>
+
+"<span class="wraith"><<print _wraith>></span>"
+<br><br>
+
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	Bailey grabs your arm. <<He>> avoids looking you in the eye.
+	<br><br>
+
+	"Shut up," <<he>> says.
+	<br><br>
+<<else>>
+	<<if $bailey_dom gte 70>>
+		Bailey's jaw tightens. <<He>> frowns at you for a long moment before grabbing your arm. Hard.
+		<br><br>
+	<<else>>
+		Bailey takes a half-step back. Then <<his>> hand closes around your wrist.
+		<br><br>
+	<</if>>
+
+	"Shut up," <<he>> says.
+	<br><br>
+<</if>>
+
+<<link [[Next|Wraith Snatched Home Bailey 2]]>><</link>>
+<br>
+
+:: Wraith Snatched Home Bailey 2
+<<pass 5>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+<<He>> drags you down the hallway to <<his>> office. Your feet scrape against the floor. Your free hand claws at the doorframe. A translucent limb reaches from a window. Bailey kicks the door shut behind you.
+<br><br>
+
+<<He>> pulls you around <<his>> desk.
+<br><br>
+
+<<set $wraithResisted to 0>>
+<<set _wraith to $wraithPool.length gt 0 ? $wraithPool.pluck() : "...">>
+"<span class="wraith"><<print _wraith>></span>"
+<br><br>
+
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	Bailey ignores you. <<He>> shoves you onto your knees next to <<his>> desk chair, before sitting down. <<He>> picks up a pen, refusing to look at you.<<npcincr Bailey lust 1>><<glust "Bailey">>
+	<br><br>
+<<else>>
+	<<He>> slaps you across the face.<<gpain>><<pain 4>><<gstress>><<stress 6>>
+	<br><br>
+
+	Your head reels for a moment before it turns back toward <<him>>, slowly.
+	<br><br>
+
+	"<span class="wraith">That won't work, serpent. This one's mine tonight.</span>"
+	<br><br>
+
+	Bailey sneers before <<he>> catches <<himself>>. <<He>> shoves you onto your knees next to <<his>> desk chair and sits down. <<He>> picks up a pen and starts writing. <<He>> glares at you from the corner of <<his>> eyes.
+	<br><br>
+<</if>>
+
+Something in you lurches. Your hands curl into fists against the carpet.
+<br><br>
+
+<<link [[Stand up.|Wraith Snatched Home Bailey Stand 1]]>><</link>>
+<br>
+<<link [[Stay still.|Wraith Snatched Home Bailey Still 1]]>><<set $wraithResisted += 1>><<control `Math.floor(currentSkillValue('willpower') / 10)`>><<ggcontrol>><</link>>
+<br>
+
+
+:: Wraith Snatched Home Bailey Stand 1
+<<pass 5>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+Your body rises from the floor. Your legs carry you toward the door.
+<br><br>
+
+Bailey shoves you down by your shoulders, forcing you back onto your knees.<<gpain>><<pain 3>><<gstress>><<stress 4>>
+<br><br>
+
+"<span class="wraith">Persistent,</span>" your mouth says. "<span class="wraith">Like all vermin.</span>"
+<br><br>
+
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	<<He>> doesn't respond.
+<<else>>
+	"Sit," <<he>> snarls.
+<</if>>
+<br><br>
+
+<<link [[Next|Wraith Snatched Home Bailey 3]]>><</link>>
+<br>
+
+
+:: Wraith Snatched Home Bailey Still 1
+<<pass 5>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+You fight it. A pressure behind your ribs, pushing outward. Your fingers dig into your palms until your knuckles go white.<<gstress>><<stress 6>><<gtrauma>><<trauma 6>>
+<br><br>
+
+You stay on your knees.
+<br><br>
+
+<<if $stockholm_bailey gte 1>>
+	Bailey is watching you over the top of <<his>> papers. <<He>> goes back to writing. <<npcincr Bailey lust 1>><<glust "Bailey">>
+<<else>>
+	Bailey doesn't look up from <<his>> papers.
+<</if>>
+<br><br>
+
+<<link [[Next|Wraith Snatched Home Bailey 3]]>><</link>>
+<br>
+
+
+:: Wraith Snatched Home Bailey 3
+<<pass 15>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+Time passes. You don't know how much. The office clock ticks.
+<br><br>
+
+<<if $stockholm_bailey gte 1>>
+	Bailey rests a hand on the back of your neck. It's more gentle than you expect.
+	<br><br>
+<</if>>
+
+Something lurches again. Stronger this time. Your legs tense.
+<br><br>
+
+<<willpowerdifficulty 200 800 true>>
+<<if $willpowerSuccess>>
+	<<link [[Stand up.|Wraith Snatched Home Bailey Stand 2]]>><</link>>
+	<br>
+	<<link [[Stay still.|Wraith Snatched Home Bailey Still 2]]>><<set $wraithResisted += 1>><<control `Math.floor(currentSkillValue('willpower') / 10)`>><<ggcontrol>><</link>> | <span class="green">Willpower</span>
+<<else>>
+	<span class="wraith"><<link [[Stand up.|Wraith Snatched Home Bailey Stand 2]]>><</link>></span>
+	<br>
+	<<link [[Stay still.|Wraith Snatched Home Bailey Stand 2]]>><<set $_wraith_override to true>><</link>> | <span class="red">Willpower</span>
+<</if>>
+<br>
+
+
+:: Wraith Snatched Home Bailey Stand 2
+<<pass 5>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+<<if $_wraith_override>>
+	<span class="red">Your body does not obey.</span>
+	<br><br>
+<</if>>
+You lunge from the floor. Your hands slam flat against the desk, scattering papers.
+<br><br>
+
+<<set _wraith to $wraithPool.length gt 0 ? $wraithPool.pluck() : "...">>
+"<span class="wraith"><<print _wraith>></span>"
+<br><br>
+
+Bailey stands slowly. <<He>> grabs you by the back of the neck and forces you back onto the floor.<<gpain>><<pain 4>><<gstress>><<stress 4>>
+<br><br>
+
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	<<His>> hand rests on your neck, holding you down. <<He>> only lets go when <<he>> sits back down.
+<<else>>
+	<<He>> holds you there. You can feel <<his>> grip through the fog.
+	<br><br>
+
+	"I told you to sit," <<he>> says quietly.
+<</if>>
+<br><br>
+
+<<link [[Next|Wraith Snatched Home Bailey 4]]>><</link>>
+<br>
+
+
+:: Wraith Snatched Home Bailey Still 2
+<<pass 5>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+You clench every muscle you can feel. The pressure behind your ribs is worse now. Your head throbs.<<gstress>><<stress 8>><<gtrauma>><<trauma 4>>
+<br><br>
+
+"<span class="wraith">Stubborn,</span>" it hisses from somewhere behind your teeth. "<span class="wraith">Just like the serpent.</span>"<<gpain>><<pain 2>>
+<br><br>
+
+<<if $stockholm_bailey gte 1>>
+	Bailey's hand rests on the base of your hair.
+	<br><br>
+<</if>>
+
+Bailey continues writing.
+<br><br>
+
+<<link [[Next|Wraith Snatched Home Bailey 4]]>><</link>>
+<br>
+
+
+:: Wraith Snatched Home Bailey 4
+<<pass 10>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 3>>
+	Bailey doesn't look up. <<His>> pen doesn't stop. <<He>> knows what comes next.
+<<elseif $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	Bailey turns a page. <<His>> posture shifts. <<His>> free hand is flat on the desk, braced.
+<<else>>
+	Bailey says nothing. <<His>> pen keeps moving. <<His>> eyes meet yours.
+<</if>>
+<br><br>
+
+One final pull tugs at you, the strongest one yet. Every muscle in your body tenses. Your vision tunnels.
+<br><br>
+
+<<willpowerdifficulty 400 1000 true>>
+<<if $willpowerSuccess>>
+	<<link [[Stand up.|Wraith Snatched Home Bailey Stand 3]]>><</link>>
+	<br>
+	<<link [[Stay still.|Wraith Snatched Home Bailey Still 3]]>><<set $wraithResisted += 1>><<control `Math.floor(currentSkillValue('willpower') / 10)`>><<ggcontrol>><</link>> | <span class="green">Willpower</span>
+<<else>>
+	<span class="wraith"><<link [[Stand up.|Wraith Snatched Home Bailey Stand 3]]>><</link>></span>
+	<br>
+	<<link [[Stay still.|Wraith Snatched Home Bailey Stand 3]]>><<set $_wraith_override to true>><</link>> | <span class="red">Willpower</span>
+<</if>>
+<br>
+
+
+:: Wraith Snatched Home Bailey Stand 3
+<<pass 5>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+<<if $_wraith_override>>
+	<span class="red">Your body does not obey.</span>
+	<br><br>
+<</if>>
+Your body throws itself from the floor. You hit the ground. Your fingers scrabble at the door.
+<br><br>
+
+Bailey's boot comes down hard on your hand.<<gpain>><<pain 5>><<gstress>><<stress 4>>
+<br><br>
+
+"<span class="wraith">Let me go,</span>" your voice whimpers. It almost sounds like you. "<span class="wraith">Please. It hurts.</span>"
+<br><br>
+
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	Bailey doesn't move <<his>> boot. "Nice try," <<he>> says. <<He>> crouches, picks you up off the floor, and carries you back to <<his>> desk.
+	<br><br>
+<<else>>
+	Bailey doesn't move <<his>> boot. <<He>> sneers down at you. <<He>> crouches, grabs you by the arm, and drags you back to <<his>> desk.
+	<br><br>
+<</if>>
+
+<<link [[Next|`${$control >= $controlmax ? "Wraith Snatched Home Bailey Expelled" : "Wraith Snatched Home Bailey 5"}`]]>><</link>>
+<br>
+
+
+:: Wraith Snatched Home Bailey Still 3
+<<pass 5>><<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+Your whole body shakes. Your vision goes white at the edges.<<gstress>><<stress 10>><<gtrauma>><<trauma 6>><<gpain>><<pain 3>>
+<br><br>
+
+Then it stops. The pressure in your chest vanishes.
+<br><br>
+
+<<if $stockholm_bailey gte 1>>
+	Bailey is standing over you. <<He>> puts <<his>> hand on the top of your head before pulling away.
+	<br><br>
+<</if>>
+
+Bailey shuffles some paper together.
+<br><br>
+
+<<link [[Next|`${$control >= $controlmax ? "Wraith Snatched Home Bailey Expelled" : "Wraith Snatched Home Bailey 5"}`]]>><</link>>
+<br>
+
+
+:: Wraith Snatched Home Bailey 5
+<<effects>><<getTarget>>
+<<npc Bailey>><<person1>>
+
+/* Jump time forward to sunrise. */
+<<set Time.setTime(6, 0)>><<set $moonstate to "morning">>
+
+The office window lightens. Grey, then pale gold. The light falls across <<his>> desk and onto the floor, where you sit.
+<br><br>
+
+Your fingers twitch. You're back in control. You look up. Bailey is sitting behind <<his>> desk. <<His>> pen is down. <<He>>'s watching you. <<He>>'s been awake all night.
+<br><br>
+
+<<if $wraithResisted gte 3>>
+	<<npcincr Bailey love 3>><<set $bailey_love += 3>><<ggglove "Bailey">>
+<</if>>
+<<if $bailey_wraith_seen and $bailey_wraith_seen gte 3>>
+	<<He>> turns back to <<his>> work, unbothered. <<He>> nods towards the office door.
+	<br><br>
+	"Go to your room."
+	<br><br>
+<<elseif $bailey_wraith_seen and $bailey_wraith_seen gte 1>>
+	"Damn brat," <<he>> says. <<He>> nods towards the office door. "Always wasting my time."
+	<br><br>
+<<else>>
+	<<He>> straightens <<his>> collar. You can make out bags under <<his>> eyes.
+	<br><br>
+	"<span class="red">Don't go to sleep during the blood moon,</span>" <<he>> says. <<He>> turns back to <<his>> work, nodding towards the office door.
+	<br><br>
+<</if>>
+
+<span class="blue"><i>You're safe until the next blood moon.</i></span>
+<br><br>
+
+/* Count this encounter (first time sets it to 1, later visits add 1). */
+<<if $bailey_wraith_seen is undefined>>
+	<<set $bailey_wraith_seen to 1>>
+<<else>>
+	<<set $bailey_wraith_seen += 1>>
+<</if>>
+
+<<unset $wraithPool>><<unset $wraithResisted>>
+<<endWraith>>
+<<clearWraith>>
+<<link [[Go to bed|Sleep]]>><<set $sleephour to 1>><<unset $possessed>><<canvas-model-override "clear">><</link>><<ltiredness>>
+<br>
+
+
+:: Wraith Snatched Home Bailey Expelled
+<<pass 5>><<effects>>
+<<npc Bailey>><<person1>>
+
+<span class="gold">You stop.</span>
+<br><br>
+
+You can feel it pushing against you. It knows it's losing. You dig in. You're not letting go.
+<br><br>
+
+You double over. It tears itself out of you, knowing it's been bested. A pair of pale, translucent arms erupt from your chest.<<gggtrauma>><<trauma 50>>
+<br><br>
+
+The pale figure floats before you.
+<<if $wraith.state is "haunt">>
+	It scratches at its scarred neck.
+	<br><br>
+
+	"<span class="wraith">You don't know the cost, thief.</span>"
+<<elseif $wraith.state is "despair">>
+	It scratches at its bare neck.
+	<br><br>
+
+	"<span class="wraith">You felt it too. You know what it is to lose yourself.</span>"
+<<else>>
+	It looks at you with something like interest.
+	<br><br>
+
+	"<span class="wraith">Impressive. Stubborn. You'll be mine yet.</span>"
+<</if>>
+<br><br>
+
+A torrent of water erupts from nowhere, engulfing it. Its pale eyes hold yours through it. Then it's gone with the water.
+<br><br>
+
+The office is quiet. The blood moon still outside. Your hands are on the hard floor. You're yourself.
+<br><br>
+
+Bailey shifts in <<his>> chair. You look at <<him>>. <<He>>'s looking right back at you with unreadable eyes. You can make out bags under <<his>> eyes.
+<br><br>
+
+"<span class="red">Don't go to sleep during the blood moon,</span>" <<he>> says. <<He>> turns back to <<his>> work, nodding towards the office door. "Get out."<<npcincr Bailey love 3>><<set $bailey_love += 3>><<ggglove "Bailey">>
+<br><br>
+
+<span class="blue"><i>You're safe until the next blood moon.</i></span>
+<br><br>
+
+<<if $bailey_wraith_seen is undefined>>
+	<<set $bailey_wraith_seen to 1>>
+<<else>>
+	<<set $bailey_wraith_seen += 1>>
+<</if>>
+<<unset $wraithPool>><<unset $wraithResisted>>
+<<endWraith>>
+<<set $wraith.state to "">>
+<<clearWraith>>
+<<set $wraithSkip to true>>
+<<link [[Go to bed|Sleep]]>><<set $sleephour to 1>><<unset $possessed>><<canvas-model-override "clear">><</link>><<ltiredness>>
+<br>

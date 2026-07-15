@@ -1,0 +1,239 @@
+/* ══════════════════════════════════════════════════════
+   <<baileyTitle>> — prints what PC calls Bailey (e.g. "Daddy").
+   Use it in PC speech or thoughts, never in narration. When writing
+   "It's <<baileyTitle>>.", gate it behind $stockholm_active AND
+   $bailey_title_unlocked.
+   ══════════════════════════════════════════════════════ */
+:: Bailey Title Widget [widget]
+<<widget "baileyTitle">><<silently>>
+	<<if typeof $bailey_title is "string" and $bailey_title and $bailey_title isnot "Bailey">>
+		<<set _bt_out to $bailey_title>>
+	<<else>>
+		<<set _bt_out to "Bailey">>
+	<</if>>
+<</silently>><<print Util.escapeMarkup(_bt_out)>><</widget>>
+
+/* Same as baileyTitle but capitalised, for the start of a sentence. */
+<<widget "BaileyTitle">><<silently>>
+	<<if typeof $bailey_title is "string" and $bailey_title and $bailey_title isnot "Bailey">>
+		<<set _bt_out to $bailey_title.charAt(0).toUpperCase() + $bailey_title.slice(1)>>
+	<<else>>
+		<<set _bt_out to "Bailey">>
+	<</if>>
+<</silently>><<print Util.escapeMarkup(_bt_out)>><</widget>>
+
+/* Narration version: only prints the title while Stockholm and the title system are active. */
+<<widget "baileyTitleNarration">><<silently>>
+	<<if $stockholm_active and $bailey_title_unlocked and typeof $bailey_title is "string" and $bailey_title and $bailey_title isnot "Bailey">>
+		<<set _bt_out to $bailey_title>>
+	<<else>>
+		<<set _bt_out to "Bailey">>
+	<</if>>
+<</silently>><<print Util.escapeMarkup(_bt_out)>><</widget>>
+
+
+:: Bailey Title Choose
+<<npc Bailey>><<person1>>
+<span class="gold">What do you call <<him>>?</span>
+<br><br>
+
+<<if $bailey_title and $bailey_title isnot "Bailey">>
+	You currently call <<him>>: <span class="lewd"><<print Util.escapeMarkup($bailey_title)>></span>
+	<br><br>
+<</if>>
+
+<<link [[<<if C.npc.Bailey.pronoun is "m">>Daddy<<else>>Mommy<</if>>|Bailey Title Set]]>><<set $bailey_title to (C.npc.Bailey.pronoun is "m" ? "Daddy" : "Mommy")>><</link>>
+<br>
+<<link [[<<if C.npc.Bailey.pronoun is "m">>Sir<<else>>Ma'am<</if>>|Bailey Title Set]]>><<set $bailey_title to (C.npc.Bailey.pronoun is "m" ? "Sir" : "Ma'am")>><</link>>
+<br>
+<<link [[<<if C.npc.Bailey.pronoun is "m">>Master<<else>>Mistress<</if>>|Bailey Title Set]]>><<set $bailey_title to (C.npc.Bailey.pronoun is "m" ? "Master" : "Mistress")>><</link>>
+<br>
+<<link [[Boss|Bailey Title Set]]>><<set $bailey_title to "Boss">><</link>>
+<br>
+<<link [[Something else...|Bailey Title Custom]]>><</link>>
+<br>
+<<link [[Bailey (default)|Bailey Title Set]]>><<set $bailey_title to "Bailey">><</link>>
+<br><br>
+
+
+<<if $bailey_title_from is "office">>
+	<<link [[Back|Bailey's Office]]>><</link>>
+<<elseif $bailey_title_from is "date_menu">>
+	<<link [[Back|Bailey Date Menu]]>><</link>>
+<<else>>
+	<<link [[Back|Bailey's Office]]>><</link>>
+<</if>>
+<br>
+
+
+:: Bailey Title Custom
+<<npc Bailey>><<person1>>
+<span class="gold">What do you call <<him>>?</span>
+<br><br>
+
+Type a name (15 characters max):
+<br>
+<<textbox "$bailey_title" "Bailey" autofocus>>
+<br><br>
+<<link [[Confirm|Bailey Title Set]]>><</link>>
+<br>
+<<link [[Back|Bailey Title Choose]]>><</link>>
+<br>
+
+
+:: Bailey Title Set
+<<npc Bailey>><<person1>>
+<<set $bailey_title to String($bailey_title || "Bailey").replace(/[<>]/g, "").trim().slice(0, 15)>><<if !$bailey_title>><<set $bailey_title to "Bailey">><</if>>
+<<if $bailey_title is "Bailey">>
+	<<set $bailey_title_unlocked to false>>
+	You call <<him>> Bailey. Just Bailey. Nothing more.
+<<else>>
+	<<set $bailey_title_unlocked to true>>
+	You call <<him>> <span class="lewd"><<print Util.escapeMarkup($bailey_title)>></span> now. The word sits in your mouth like it belongs there.
+	<<if $stockholm_active>>
+		<<Him>>. Yours. <<BaileyTitle>>.
+	<</if>>
+<</if>>
+<br><br>
+<<if $bailey_title_from is "office">>
+	<<link [[Back|Bailey's Office]]>><</link>>
+<<elseif $bailey_title_from is "date_menu">>
+	<<link [[Back|Bailey Date Menu]]>><</link>>
+<<else>>
+	<<link [[Back|Bailey's Office]]>><</link>>
+<</if>>
+<br>
+
+
+/* ══════════════════════════════════════════════════════
+   <<baileyofficeoptions>> — the mod's shared menu of office actions.
+   Called from the native office passage and from
+   sub-passages like Flirt, so PC can keep interacting without
+   re-entering the office and bumping the visit counter ($daily.baileyVisit).
+   ══════════════════════════════════════════════════════ */
+:: Bailey Office Options Widget [widget]
+<<widget "baileyofficeoptions">>
+	<<if $stockholm_bailey gte 1 and $renttime gt 0>>
+		<<socialiseicon>><<link [[Spend time with Bailey|Bailey Date Menu]]>><</link>>
+		<br>
+	<</if>>
+
+	<<if $stockholm_bailey gte 1 and !$daily.baileyFlirt and hasSexStat("promiscuity", 1)>>
+		<<brothelicon>><<link [[Flirt (0:15)|Bailey Office Flirt]]>><<pass 15>><<npcincr Bailey love 1>><<npcincr Bailey lust 1>><<set $daily.baileyFlirt to 1>><<handheldon 1>><</link>><<promiscuous1>><<glove>><<glust>>
+		<br>
+	<</if>>
+
+	<<if $stockholm_active>>
+		<<ind>><<link [[Change what you call <<him>>|Bailey Title Choose]]>><<set $bailey_title_from to "office">><</link>>
+		<br>
+	<</if>>
+
+	<<if $renttime lte 0 and $bailey_office_seduced_this_cycle isnot true>>
+		<<ind>><<link [[Seduce Bailey<<if $baileyseduced is 1>> (again)<</if>>|Bailey Office Seduce Mod]]>><</link>><<seductiondifficulty>>
+		<br>
+	<</if>>
+
+	<<if $stockholm_bailey gte 1 and !$daily.baileyOfficeSex and C.npc.Bailey.lust gte 20 and hasSexStat("promiscuity", 2)>>
+		<<officeicon>><<link [[Offer stress relief|Bailey Desk Offer]]>><</link>><<promiscuous2>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* ══════════════════════════════════════════════════════
+   <<baileyDateWaiting>> — shows Bailey waiting at the Orphanage door
+   at 7PM for a scheduled Medium or All Night date, and plays the
+   stand-up scene if PC never showed. Injected into the Orphanage
+   passage directly.
+   ══════════════════════════════════════════════════════ */
+:: Bailey Date Waiting Widget [widget]
+<<widget "baileyDateWaiting">><<if $bailey_date_missed is 1>><<include "Bailey Date Stood Up">><<elseif $bailey_date_allnight_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $renttime gt 0>><<npc Bailey>><<person1>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
+<br>
+<<icon "baileys-car.png">><<link [[Date with Bailey|Bailey Date All Night Pickup]]>><</link>>
+<br><br>
+<<elseif $bailey_date_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $renttime gt 0>><<npc Bailey>><<person1>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
+<br>
+<<icon "baileys-car.png">><<link [[Date with Bailey|Bailey Date Medium Pickup]]>><</link>>
+<br><br>
+<</if>><</widget>>
+
+
+:: Bailey Date Stood Up
+<<effects>>
+<<set $bailey_date_missed to 0>>
+<<npc Bailey>><<person1>>
+
+You are in the main hall of the orphanage.
+<br><br>
+
+A hand circles your arm. <span class="bailey-red">It's Bailey.</span>
+<br><br>
+
+<<if $bailey_dom gte 70>>
+	"I waited." <<He>> says flatly. "You didn't show."
+<<elseif $bailey_dom gte 30>>
+	"You stood me up." <<He>> says calmly. <<His>> jaw is set. "You wasted my time."
+<<else>>
+	"You wasteful little shit." <<He>> sneers at you. "You stood me up."
+<</if>><<npcincr Bailey love -1>><<set $bailey_love -= 1>><<llove "Bailey">>
+<br><br>
+
+<<link [[Apologise|Bailey Date Stood Up Apologise]]>><</link>>
+<br>
+<<link [[Stay silent|Bailey Date Stood Up Silent]]>><</link>>
+<br>
+
+
+:: Bailey Date Stood Up Apologise
+<<effects>>
+<<npc Bailey>><<person1>>
+
+You apologise for standing Bailey up.
+<br><br>
+
+<<if $bailey_dom gte 70>>
+	<<He>> studies you for a long moment. "Don't let it happen again." <<He>> lets go of your arm.
+<<elseif $bailey_dom gte 30>>
+	<<He>> sneers at you. "Save it. Don't let it happen again." <<He>> releases your arm.
+<<else>>
+	"At least you paid for it." <<His>> lip curls. <<He>> lets you go. "Don't waste my time again, brat."
+<</if>>
+<br><br>
+Bailey stomps away, leaving you alone in the hallway.
+<br><br>
+
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+<br>
+
+
+:: Bailey Date Stood Up Silent
+<<effects>>
+<<npc Bailey>><<person1>>
+
+You say nothing.<<npcincr Bailey love -1>><<set $bailey_love -= 1>><<llove "Bailey">>
+<br><br>
+
+<<if $bailey_dom gte 70>>
+	The silence stretches. <<He>> lets go of your arm. "Don't let it happen again."
+<<elseif $bailey_dom gte 30>>
+	<<He>> releases your arm. "Don't waste my time again."
+<<else>>
+	<<He>> glowers at you. <<He>> slaps you across the face.<<pain 4>><<gpain>><<stress 6>><<gstress>><<trauma 3>><<gtrauma>>
+	<br><br>
+	<<He>> lets you go. "See what happens next time, damn brat."
+<</if>>
+<br><br>
+Bailey stomps away, leaving you alone in the hallway.
+<br><br>
+
+<<link [[Next|Orphanage]]>><<endevent>><</link>>
+<br>
+
+/* ══════════════════════════════════════════════════════
+   <<baileySeenAdd "eventName">> — records that an event happened, in
+   the $baileySeen array (the mod's version of vanilla's <npc>Seen
+   arrays). It creates the array if missing (safe on old saves), and
+   pushUnique skips duplicates so calling it again is harmless.
+   Read it back with: $baileySeen?.includes("eventName")
+   ══════════════════════════════════════════════════════ */
+:: Bailey Seen Widget [widget]
+<<widget "baileySeenAdd">><<if $baileySeen is undefined>><<set $baileySeen to []>><</if>><<set $baileySeen.pushUnique(_args[0])>><</widget>>

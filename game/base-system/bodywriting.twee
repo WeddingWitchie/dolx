@@ -262,8 +262,10 @@
 		<<bodywriting_npc_kylar _args[0] _args[1]>>
 	<<elseif $npc[$npcrow.indexOf(_n)] is "Sydney">>
 		<<bodywriting_npc_sydney _args[0] _args[1]>>
-	<<elseif $npc[$npcrow.indexOf(_n)] is "Gwylan">>
+<<elseif $npc[$npcrow.indexOf(_n)] is "Gwylan">>
 		<<bodywriting_npc_gwylan _args[0] _args[1]>>
+	<<elseif $npc[$npcrow.indexOf(_n)] is "Bailey">>
+		<<bodywriting_npc_bailey _args[0] _args[1]>>
 	<<elseif $NPCList[_n].type is "plant">>
 		<<bodywriting_npc_picture _args[0] _args[1]>>
 	<<elseif $role is "islander">>
@@ -2004,18 +2006,73 @@
 		<<case "Bailey">>
 			<<switch $skin[_args[0]].special>>
 				<<case "Robin">>
-					<<switch $skin[_args[0]].writing>>
-						<<case "Robin & I">>
-							<<He>> sneers.
-							<<set _text_output to "Good thinking. They'll pay double for a package deal.">>
-						<<default>>
-							<<if $speechadmired>>
-								<<He>> glares.
-							<<else>>
-								<<He>> smiles.
-							<</if>>
-							<<set _text_output to "Don't worry, I'll be paying <<nnpc_him 'Robin'>> a visit soon.">>
-					<</switch>>
+					<<if $stockholm_active and $skin[_args[0]].writing isnot "Robin & I">>
+						<<His>> eyes darken.
+						<<set _text_output to "Maybe I should sell <<nnpc_him 'Robin'>> somewhere you can't find <<nnpc_him 'Robin'>>.">>
+					<<elseif random(1) and $skin[_args[0]].writing isnot "Robin & I">>
+						<<set _strings to ["That worthless brat can't save you.", "Good thinking. They'll pay double for a package deal.", "Keep bringing <<nnpc_him 'Robin'>> around. I'll find a use for <<nnpc_him 'Robin'>> too.", "Don't worry, I'll be paying <<nnpc_him 'Robin'>> a visit soon."]>>
+						<<if $bailey_dom lte 30>><<run _strings.push("Useless. Both of you.")>><</if>>
+						<<He>> sneers.
+						<<set _text_output to _strings[random(0, _strings.length - 1)]>>
+					<<else>>
+						<<switch $skin[_args[0]].writing>>
+							<<case "Robin & I">>
+								<<He>> sneers.
+								<<set _text_output to "Good thinking. They'll pay double for a package deal.">>
+							<<default>>
+								<<if $speechadmired>>
+									<<He>> glares.
+								<<else>>
+									<<He>> smiles.
+								<</if>>
+								<<set _text_output to "Don't worry, I'll be paying <<nnpc_him 'Robin'>> a visit soon.">>
+						<</switch>>
+					<</if>>
+				<<case "Eden">>
+					<<if $stockholm_active>>
+						<<set _strings to ["Get <<nnpc_his 'Eden'>> name off of you.", "Get rid of it."]>>
+						<<if random(1)>>
+							<<He>> growls, gripping the mark hard enough to hurt.
+						<<else>>
+							<<He>> traces Eden's mark with <<his>> thumb. Slowly. Then <<his>> nail digs in.
+						<</if>>
+						<<set _text_output to _strings[random(0, _strings.length - 1)]>>
+					<<else>>
+						<<if random(1)>>
+							<<He>> snarls.
+							<<set _text_output to "<<nnpc_He 'Eden'>> chose the trees over people. Over you. Over everyone.">>
+						<<else>>
+							<<His>> fingers close around the marked skin.
+							<<set _text_output to "<<nnpc_He 'Eden'>> doesn't get to keep anything.">>
+						<</if>>
+					<</if>>
+				<<case "Sydney">>
+					<<He>> sneers.
+					<<set _text_output to "Your little saint isn't here.">>
+				<<case "Avery">>
+					<<if $avery_mansion>>
+						<<He>> smirks.
+						<<set _text_output to "<<nnpc_He 'Avery'>> paid and still needs to write <<nnpc_his 'Avery'>> name on it?">>
+					<<else>>
+						<<His>> lip curls. <<His>> fingers dig painfully into the mark.
+					<</if>>
+				<<case "Whitney">>
+					<<if random(1)>>
+						<<He>> snickers.
+						<<set _text_output to "I'll let <<nnpc_him 'Whitney'>> keep pretending.">>
+					<<else>>
+						<<He>> exhales.
+						<<set _text_output to "That brat can't afford you.">>
+					<</if>>
+				<<case "Kylar">>
+					<<He>> reads it.
+					<<set _text_output to "Obsessive little shit.">>
+				<<case "Alex">>
+					<<He>> scoffs.
+					<<set _text_output to "That idiot farmer? At least cattle know their place.">>
+				<<case "Remy">>
+					<<He>> sneers at the mark with disgust.
+					<<set _text_output to "Looks like Remy got <<nnpc_his 'Remy'>> money's worth.">>
 				<<case "Gwylan">>
 					<<switch $skin[_args[0]].writing>>
 						<<case "Witch's Ward" "Witch's Familiar">>
@@ -2025,11 +2082,34 @@
 							<<He>> sneers.
 							<<set _text_output to "A foolish name to mark yourself with.">>
 						<<default>>
-							<<He>> scoffs.
-							<<set _text_output to "You're in over your head.">>
+							<<if random(1)>>
+								<<He>> scoffs.
+								<<set _text_output to "You're in over your head.">>
+							<<else>>
+								<<He>> traces the mark.
+								<<set _text_output to "<<nnpc_He 'Gwylan'>> can take what <<nnpc_he 'Gwylan'>> wants from your head. I'll take what I want from the rest of you.">>
+							<</if>>
 					<</switch>>
 				<<case "prostitution">>
-					<<if $skin[_args[0]].degree gte 10000>>
+					<<if $skin[_args[0]].owner is "Bailey">>
+						/* Bailey sees his own price tag */
+						<<if $stockholm_active>>
+							<<He>> exhales.
+							<<set $_strings to [
+								`"Still accurate."`,
+								`"Mine."`,
+								`<<He>> looks satisfied.`,
+							]>>
+						<<else>>
+							<<He>> exhales.
+							<<set $_strings to [
+								`"Don't wash that off."`,
+								`"About right."`,
+								`"Still there. Good."`,
+							]>>
+						<</if>>
+						<<set _text_output to $_strings[random(0, $_strings.length - 1)]>>
+					<<elseif $skin[_args[0]].degree gte 10000>>
 						<<He>> nods.
 						<<if random(1)>>
 							<<set _text_output to "Decent price.">>
@@ -2044,6 +2124,22 @@
 							<<set _text_output to "At least you know what you're good for.">>
 						<</if>>
 					<</if>>
+				<<case "Bailey">>
+					/* Bailey sees his own non-price identity marks */
+					<<if $stockholm_active>>
+						<<set $_strings to [
+							`<<He>> exhales. "That's right."`,
+							`<<His>> eyes linger on the mark.`,
+							`<<He>> traces it with <<his>> thumb. "Mine."`,
+						]>>
+					<<else>>
+						<<set $_strings to [
+							`<<He>> exhales. "So you do know who you belong to."`,
+							`<<He>> scoffs. "Don't forget it."`,
+							`<<He>> exhales. "Right where you belong."`,
+						]>>
+					<</if>>
+					<<set _text_output to $_strings[random(0, $_strings.length - 1)]>>
 				<<case "rape">>
 					<<He>> curls <<his>> lip.
 					<<if random(1)>>

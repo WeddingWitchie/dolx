@@ -2898,10 +2898,13 @@ They argue for a while, the topic of conversation moving away from you. You're l
 You hold Robin close and move away from the docks. You're trying to work out where to find something to keep Robin warm when a car pulls up. <span class="purple">It's Bailey.</span>
 <br><br>
 
-"You got away sooner than I expected," <<nnpc_he "Bailey">> says to Robin, who doesn't respond. Bailey looks at you. "I'll take <<him>> from here. Or would you rather <<he>> walk through town like that? You can walk."
+<<if $bailey_dom gte 70>>"Sooner than I expected," <<nnpc_he "Bailey">> says to you. Bailey glances at Robin. "I'll take <<him>> from here. You can walk."
 <br><br>
 
-Bailey shoves Robin into the back seat, and drives away.
+Bailey places Robin into the back seat, and drives away.<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">><<else>>"You got away sooner than I expected," <<nnpc_he "Bailey">> says to Robin, who doesn't respond. Bailey looks at you. "I'll take <<him>> from here. Or would you rather <<he>> walk through town like that? You can walk."
+<br><br>
+
+Bailey shoves Robin into the back seat, and drives away.<</if>>
 <br><br>
 <<endevent>>
 
@@ -2947,6 +2950,52 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 	You enter Bailey's office. <<Hes>> not there. <<He>> should be around between 7 and 9 in the morning.
 	<br><br>
 
+	<<if $bailey_office_gift is "vodka">>
+		<span class="blue">A bottle of winter reserve vodka sits on the shelf behind <<his>> desk. The seal is unbroken.</span>
+		<br><br>
+	<<elseif $bailey_office_gift is "lure">>
+		<span class="blue">A small fishing lure shaped like a snake hangs from the desk lamp. Its scales catch the light.</span>
+		<br><br>
+	<<elseif $bailey_office_gift is "chessboard">>
+		<span class="blue">The ebony-and-ivory chessboard sits open on the corner of <<his>> desk. The pieces are set up. A game is in progress against no one, as far as you can tell.</span>
+		<<set _chessDetails to []>>
+		<<if $avery_fate is "ascended">>
+			<<run _chessDetails.push("The black queen is in a powerful position at the centre of the board.")>>
+		<<elseif $avery_fate is "saved">>
+			<<run _chessDetails.push("The black queen has retreated to a corner. It's not threatening anything.")>>
+		<<elseif $avery_fate is "fallen" or $avery_fate is "kicked">>
+			<<run _chessDetails.push("The black queen's square is empty. The piece seems to be missing.")>>
+		<</if>>
+		<<if $brownFoxWounded>>
+			<<run _chessDetails.push("One of the black rooks is pushed ajar, as if it took a blow it couldn't recover from.")>>
+		<</if>>
+		<<if $headblackmailed is 1>>
+			<<run _chessDetails.push("A black knight is out of play, moved to the back row, but not removed.")>>
+		<<elseif $pillory.tenant.special.name is "Leighton">>
+			<<run _chessDetails.push("A black knight is turned sideways on its square.")>>
+		<</if>>
+		<<if $whitney_bailey_met gte 1>>
+			<<run _chessDetails.push("One white pawn has been promoted and moved ahead of the others.")>>
+		<</if>>
+		<<if _chessDetails.length gte 1>>
+			<span class="blue"> <<print _chessDetails.join(" ")>></span>
+		<</if>>
+		<br><br>
+	<<elseif $bailey_office_gift is "lotus">>
+		<<if $christmas_bailey_lotus_day gte 0 and (Time.days - $christmas_bailey_lotus_day) lt 3>>
+			<span class="blue">A lotus flower arrangement sits on the corner of <<his>> desk. The petals are still open.</span>
+		<<elseif $christmas_bailey_lotus_day gte 0 and (Time.days - $christmas_bailey_lotus_day) lt 14>>
+			<span class="blue">A lotus flower arrangement sits on the corner of <<his>> desk. The petals have begun to curl inward.</span>
+		<<else>>
+			<span class="blue">A glass frame hangs behind <<his>> desk. Inside is a lotus flower, pressed flat and perfectly preserved. It's the only thing on the wall.</span>
+		<</if>>
+		<br><br>
+	<</if>>
+
+	<<if hasSexStat("exhibitionism", 3) and $daily.baileyVisit isnot 100 and $daily.baileyOfficeMast isnot true>>
+		<<link [[Masturbate in Bailey's chair|Bailey Office Masturbation]]>><<set $masturbationstart to 1>><</link>><<exhibitionist3>>
+		<br>
+	<</if>>
 	<<if $kylar_camera is 3>>
 		<span class="blue">Kylar's owl, the one you gave to the orphan, watches you from atop a cabinet in the corner.</span> Bailey must have confiscated it.
 		<br>
@@ -2955,20 +3004,72 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 	<</if>>
 <<else>>
 	You enter Bailey's office and find <<him>> sitting at <<his>> desk.
+	<<baileyTownReaction>>
 
 	<<if !$daily.baileyVisit>>
 		<<set $daily.baileyVisit to 0>>
 		<<set _options to 1>>
 		<<if $dissociation gte 1>>
-			<<He>> looks at your eyes and grimaces. "I'm sure someone's into it," <<he>> mutters, shifting aside a paper <<he>> had been reading.
+			<<if $bailey_dom gte 70 or $stockholm_active>>
+				<<He>> looks at your eyes. <<He>> gets up and rounds <<his>> desk to you. <<His>> hand finds your jaw and <<he>> turns your face toward <<his>>.
+				<br><br>
+				"Look at me."
+				<br><br>
+				<<He>> waits until your eyes focus on <<him>>.
+				<br><br>
+				<<if $stockholm_active>>
+					<span class="bailey-red"><<nnpc_He "Bailey">> is looking right at you.</span> You're home.<<lstress>><<ltrauma>><<stress -6>><<trauma -6>>
+				<</if>>
+				<br><br>
+				"There you are." <<He>> says, letting go of your jaw.
+				<br><br>
+			<<else>>
+				<<He>> looks at your eyes and grimaces. "I'm sure someone's into it," <<he>> mutters, shifting aside a paper <<he>> had been reading.
+			<</if>>
 		<<elseif $pain gte 40>>
-			<<He>> looks at your tear-covered face and sneers. "There are bandages in the bathroom."
+			<<if $bailey_dom gte 70 or $stockholm_active>>
+				<<He>> looks at your tear-covered face. <<He>> opens the bottom drawer of <<his>> desk and tosses a first aid kit onto the desk in front of you. "Sort yourself out."
+				<br><br>
+				You grab and use what you need.<<lpain>><<pain -10>>
+				<br><br>
+			<<else>>
+				<<He>> looks at your tear-covered face and sneers. "There are bandages in the bathroom."
+			<</if>>
 		<<elseif $goooutsidecount + $semenoutsidecount gte 25>>
 			<<He>> looks at your body, covered in <<if $semenoutsidecount gte 1 and $goooutsidecount gte 1>>slime and semen<<elseif $semenoutsidecount gte 1>>semen<<else>>slime<</if>>, and turns away. "Get yourself cleaned up, you're a disgrace."
 		<<elseif $arousal gte ($arousalmax / 5) * 3>>
-			<<He>> looks at your flushed face. "You could<<if $beauty lte 3000>> probably<</if>> find someone to take care of that for you," <<he>> says, returning to <<his>> paperwork. "Make some money out of it too, while you're at it."
+			<<if C.npc.Bailey.lust gte 10 and ($bailey_dom gte 70 or $stockholm_active)>>
+				<<He>> looks at your flushed face. <<He>> stops typing and gets up from <<his>> desk.
+				<br><br>
+				"Lock the door," <<he>> says.
+				<br><br>
+				You turn around to lock it as <<he>> asks. By the time you turn around, <<he>>'s already on you, a fierce look in <<his>> eyes.
+				<br><br>
+				<<set _options to 2>>
+				<<link [[Next|Bailey Office Visit Sex Willing]]>><<set $molestationstart to 1>><</link>>
+				<br>
+			<<else>>
+				<<He>> looks at your flushed face. "You could<<if $beauty lte 3000>> probably<</if>> find someone to take care of that for you," <<he>> says, returning to <<his>> paperwork. "Make some money out of it too, while you're at it."
+			<</if>>
 		<<else>>
-			<<He>> looks at you. "You better not waste my time."
+			<<if $bailey_dom gte 70 or $stockholm_active>>
+				<<He>> glances at you before going back to <<his>> paperwork.
+				<<if $bailey_office_gift is "lotus" and $christmas_bailey_lotus_day gte 0>>
+					<br><br>
+					<span class="bailey-red">The lotus is on <<his>> desk.</span>
+				<<elseif $bailey_office_gift is "vodka">>
+					<br><br>
+					<span class="bailey-red">The vodka is on <<his>> shelf. The seal is still unbroken.</span>
+				<<elseif $bailey_office_gift is "lure">>
+					<br><br>
+					<span class="bailey-red">The lure is still hanging from the desk lamp.</span>
+				<<elseif $bailey_office_gift is "chessboard">>
+					<br><br>
+					<span class="bailey-red">The chessboard is open on <<his>> desk. The game is still in progress.</span>
+				<</if>>
+			<<else>>
+				<<He>> looks at you. "You better not waste my time."
+			<</if>>
 		<</if>>
 	<<elseif $daily.baileyVisit is 1>>
 		<<set _options to 1>>
@@ -2976,21 +3077,77 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 			<<He>> stares at you. "This better be about that payment you mentioned."
 		<<elseif $mason_pond is 2>>
 			<<He>> stares at you. "Is this about the spring? You better have the money."
+		<<elseif $bailey_dom gte 70 or $stockholm_active>>
+			<<He>> doesn't glance at you this time. <<He>> continues working.
 		<<else>>
 			<<He>> glares at you. "You again? Piss off."
 		<</if>>
 	<<elseif $daily.baileyVisit is 2>>
 		<<set _options to 1>>
-		<<He>> glares at you. "Stop bothering me, brat."
+		<<if $bailey_dom gte 70 or $stockholm_active>>
+			<<He>> doesn't look up from <<his>> work. "Don't push it."
+		<<else>>
+			<<He>> glares at you. "Stop bothering me, brat."
+		<</if>>
 	<<elseif $daily.baileyVisit is 3>>
 		<<set _options to 2>>
-		<<He>> glares at you, then storms out of <<his>> chair and marches your way. "I told you to stop bothering me," <<he>> hisses. "Couldn't leave well enough alone, could you?" <<He>> grabs you before you can react and bends you over <<his>> desk.
-		<br><br>
-		<<link [[Next|Bailey Beating]]>><<set $molestationstart to 1>><<set $phase to 0>><</link>>
+		<<if $stockholm_active>>
+			<<set _options to 1>>
+			<<He>> looks up from <<his>> computer. The corner of <<his>> mouth moves just a fraction.
+			<br><br>
+			<<if C.npc.Bailey.lust gte 20>>
+				"On your knees."
+				<br><br>
+				<<He>> gets up.
+				<br><br>
+				<<link [[Next|Bailey Office Visit Sex]]>><<set $molestationstart to 1>><</link>>
+			<<else>>
+				<<He>> doesn't look up from <<his>> work. <<He>> seems busy. "I'll deal with you later."
+			<</if>>
+		<<elseif $bailey_dom gte 70>>
+			<<He>> looks up from <<his>> computer. The corner of <<his>> mouth moves just a fraction.
+			<br><br>
+			<<if C.npc.Bailey.lust gte 20>>
+				"On your knees."
+				<br><br>
+				<<He>> gets up.
+				<br><br>
+				<<link [[Next|Bailey Office Visit Sex]]>><<set $molestationstart to 1>><</link>>
+			<<else>>
+				"Begging for a spanking, are we?"
+				<br><br>
+				<<He>> gets up.
+				<br><br>
+				<<link [[Next|Bailey Office Spanking]]>><<set $molestationstart to 1>><</link>>
+			<</if>>
+		<<else>>
+			<<He>> glares at you, then storms out of <<his>> chair and marches your way. "I told you to stop bothering me," <<he>> hisses. "Couldn't leave well enough alone, could you?" <<He>> grabs you before you can react and bends you over <<his>> desk.
+			<br><br>
+			<<link [[Next|Bailey Beating]]>><<set $molestationstart to 1>><<set $phase to 0>><</link>>
+		<</if>>
 	<<elseif $daily.baileyVisit is 100>>
-		<<He>> looks tired. "Don't you have anything better to do?"
+		<<if $daily.baileyOfficeSex>>
+			<<He>> shoots a level stare your way.
+			<br><br>
+			<<if $bailey_dom lte 30>>
+				<<He>> sneers. "Get out."
+			<<elseif $bailey_dom gte 70>>
+				A smirk crosses <<his>> face before it's gone. "Not today." <<He>> turns back to <<his>> computer. "Maybe tomorrow."
+			<<else>>
+				<<He>> turns back to <<his>> work. "I'm busy. Leave."
+			<</if>>
+		<<elseif $bailey_dom gte 70 or $stockholm_active>>
+			<<He>> doesn't look up from <<his>> computer. "You're becoming a habit."
+		<<else>>
+			<<He>> looks tired. "Don't you have anything better to do?"
+		<</if>>
 	<<else>>
-		<<He>> ignores you.
+		<<if $stockholm_active or $bailey_dom gte 70>>
+			<<set _options to 1>>
+			<<He>> doesn't look up from <<his>> work.
+		<<else>>
+			<<He>> ignores you.
+		<</if>>
 		<<if ($robinpaid isnot 1 and $robindebtknown is 1) or ($pub_hack_job is 3 and not $hacker_tasks.includes("bailey")) or $mason_pond is 1 or $mason_pond is 2 or $bailey_pound is 1 or isPubfameTaskAccepted("bailey")>>
 			<span class="blue">You've bothered <<him>> too much today for <<him>> to listen to anything you say.</span>
 		<</if>>
@@ -3049,11 +3206,15 @@ Robin watches as you leave <<him>> on the table. <<His>> soulless eyes stare at 
 	<<if $money gt 0 or $baileyDeposit gt 0>>
 		<<shopicon "register">><<link [[Manage your deposit|Bailey Deposit]]>><</link>>
 		<br>
-	<</if>>	
+	<</if>>
+
+	<<baileyofficeoptions>>
 <</if>>
 
 <<if _options isnot 2>>
-	<<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<endevent>><</link>>
+	<<if $stockholm_active and $baileycollar is 1 and $worn.neck.name isnot "Bailey's collar" and Time.hour gte 7 and Time.hour lte 9>><<lockicon>><<link [[Ask Bailey for another collar (0:05)|Bailey Collar Request]]>><</link>>
+	<br>
+	<</if>><<main_hall_icon>><<link [[Main hall (0:01)|Orphanage]]>><<pass 1>><<endevent>><</link>>
 	<br>
 <</if>>
 <</if>> /* closes poppyBaileyBlock */
@@ -3074,6 +3235,7 @@ You place the document in front of Bailey. <<He>> regards it with little interes
 <</if>>
 <br><br>
 The ghost of a frown crosses Bailey's face. <<He>> pulls <<his>> phone from <<his>> pocket. "You can leave," <<he>> says. "Go."
+<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
 <br><br>
 
 <<link [[Next|Orphanage]]>><<endevent>><</link>>
@@ -3097,20 +3259,40 @@ You produce the photo of you, Robin, Bailey, and someone else.
 "Do you know who that is behind us?"
 <br><br>
 
-<<He>> doesn't answer, and grabs the photo from the top <span class="red">as if <<hes>> about to rip it</span>. <<He>> hesitates, though. Instead, <<he>> opens <<his>> desk drawer and pulls out a pair of scissors.
-<<He>> cuts part of the picture away, and hands it back to you. "I fixed it for you. Now piss off."
-<br><br>
+<<set $bailey_photo_seen to true>>
+<<if $stockholm_active and $bailey_dom gte 70>>
+	<<He>> doesn't answer, and grabs the photo from the top <span class="red">as if <<hes>> about to rip it</span>. <<He>> hesitates. <<His>> jaw tightens. <<His>> crushing grip on the photo relaxes, marginally. <<He>> hands it back to you.
+	<br><br>
 
-Bailey's no longer in the picture. It's now just you, Robin, and someone else.
-<<if $hallucinations gte 2>>
-	<span class="blue">For a split second, it looks like they're no longer smiling.</span> It returns when you blink. You must have imagined it.
+	<<He>> doesn't look at you. <<He>> nods towards the door. "Leave."
+	<br><br>
+
+	You clutch the photo close to your chest as you leave. The laminate is permanently creased from the way <<he>> had it clenched, but it's intact otherwise.
+	<<if $hallucinations gte 2>>
+		<span class="blue">For a split second, it looks like they're no longer smiling.</span> It returns when you blink. You must have imagined it.
+	<</if>>
+	<br><br>
+
+	<<set $saved_orphanage_picture to 3>>
+
+	<<link [[Next|Orphanage]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<He>> doesn't answer, and grabs the photo from the top <span class="red">as if <<hes>> about to rip it</span>. <<He>> hesitates, though. Instead, <<he>> opens <<his>> desk drawer and pulls out a pair of scissors.
+	<<He>> cuts part of the picture away, and hands it back to you. "I fixed it for you. Now piss off."
+	<br><br>
+
+	Bailey's no longer in the picture. It's now just you, Robin, and someone else.
+	<<if $hallucinations gte 2>>
+		<span class="blue">For a split second, it looks like they're no longer smiling.</span> It returns when you blink. You must have imagined it.
+	<</if>>
+	<br><br>
+
+	<<set $saved_orphanage_picture to 2>>
+
+	<<link [[Next|Orphanage]]>><<endevent>><</link>>
+	<br>
 <</if>>
-<br><br>
-
-<<set $saved_orphanage_picture to 2>>
-
-<<link [[Next|Orphanage]]>><<endevent>><</link>>
-<br>
 
 
 :: Bailey Pond
@@ -3228,24 +3410,50 @@ You put the cash on the desk. Bailey snatches it, and reclines in <<his>> chair 
 <<set $outside to 0>><<set $location to "home">><<effects>>
 
 <<if $enemypleasure gte $enemypleasuremax>>
-	<<ejaculation>><<earnFeat "Bailey's Trouble Maker">>
-	Bailey sighs and looks over at you. <<His>> expression changes to one of horror.
-	<br>
-	"Shit," <<he>> mutters as <<he>> gets off of you. "Shit! What the fuck did I just do?"
-	<br><br>
-
-	A look of fury spreads across the caretaker's face. <<He>> grasps you by the hair, yanking you up until you're eye level with <<him>>.
-	<br>
-	<span class="green">"You get one day,"</span> growls Bailey. <<He>> releases you and gives you a shove. "Out, now!"
+	<<ejaculation>><<earnFeat "Bailey's Trouble Maker">><<npcincr Bailey lust -20>><<npcincr Bailey love 2>><<set $bailey_love += 2>>
 	<<set $renttime += 1>>
 	<<if $rentday is 7>>
 		<<set $rentday to 1>>
 	<<else>>
 		<<set $rentday += 1>>
 	<</if>>
-	<br><br>
-
-	<<tearful>> you leave the office.
+	<<if $stockholm_active>>
+		Bailey sighs and looks over at you. <<He>> seems satisfied.
+		<br><br>
+		"Good," <<he>> mutters. "Right where you belong."
+		<br><br>
+		<<He>> gets off of you slowly. <<He>> grabs you by the chin and tilts it away from <<him>>, as if inspecting you.
+		<br><br>
+		<span class="green">"One day,"</span> Bailey says calmly. <<He>> releases you. "Now, go."
+		<br><br>
+		You leave.
+	<<elseif $bailey_dom gte 70>>
+		Bailey sighs and looks over at you. Then, <<he>> goes still. <<He>> gets off of you and straightens <<his>> collar. <<His>> expression gives nothing away.
+		<br><br>
+		<<He>> sits back down at <<his>> desk.
+		<br><br>
+		<span class="green">"One day,"</span> <<he>> says without looking up. "Don't make a habit out of this."
+		<br><br>
+		You leave.
+	<<elseif $bailey_dom gte 30>>
+		Bailey exhales. <<He>> looks at you, then away.
+		<br><br>
+		"Shit," <<he>> says quietly. <<He>> gets off of you and straightens <<his>> clothes. <<His>> hands are steady, but <<his>> jaw is tight.
+		<br><br>
+		<span class="green">"One day,"</span> <<he>> says. <<He>> doesn't look at you. "Get out of my office."
+		<br><br>
+		You leave.
+	<<else>>
+		Bailey sighs and looks over at you. <<His>> expression changes to one of horror.
+		<br>
+		"Shit," <<he>> mutters as <<he>> gets off of you. "Shit! What the fuck did I just do?"
+		<br><br>
+		A look of fury spreads across the caretaker's face. <<He>> grasps you by the hair, yanking you up until you're eye level with <<him>>.
+		<br>
+		<span class="green">"You get one day,"</span> growls Bailey. <<He>> releases you and gives you a shove. "Out, now!"
+		<br><br>
+		<<tearful>> you leave the office.
+	<</if>>
 	<<clotheson>>
 	<<endcombat>>
 
@@ -5051,23 +5259,47 @@ When it's done, Robin looks a little relieved. "Are you feeling better now?" <<h
 <<elseif $phase is 1>>
 	<<set $robinbaileyhelp to 1>>
 	You curl up into a foetal position and place your hands over your face as you continue to sob.
-	A few minutes later you hear someone come stomping in, and you are pulled up to a sitting position by your hair.
-	<span class="red">It's Bailey.</span>
-	<br><br>
-
 	<<npc Bailey 2>><<person2>>
-	"What the hell is your problem?" <<He>> growls at you. Robin stands in the doorframe. Bailey looks you over with a harsh gaze and then slaps you across the face.
-	It hurts, and you stop crying out of shock.<<pain 2>>
-	<br>
-	"Shut up. You got this waif worried enough to bother me. I'm not wasting my time on you."
-	<br><br>
+	<<if $bailey_dom gte 70 or $stockholm_active>>
+		A few minutes later you hear a pair of footsteps coming down the hall. A rough hand grabs you by the chin and pulls you up into a sitting position.
+		<span class="red">It's Bailey.</span>
+		<br><br>
 
-	"Stop bothering me with useless crap," <<he>> says to Robin as <<he>> barges from the room.
-	<br><br>
+		"That's enough." <<He>> says, meeting your teary eyes with <<his>> own. Robin stands at the doorframe. Bailey looks you over with an assessing gaze. "Look at me. Stop crying." <<He>> squeezes your chin hard enough to hurt and you stop crying from pain grounding you. "You've been through worse."
+		<br><br>
 
-	<<person1>>
-	Robin rushes over to you and holds your arm. <<He>> stares out the door in disbelief as you gather yourself.
-	You are disgusted by the whole scenario and run back to your room.
+		<<if $stockholm_active>>
+			<span class="bailey-red">You're home.</span><<stress -6>><<lstress>><<trauma -6>><<ltrauma>><<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
+			<br><br>
+		<</if>>
+
+		<<He>> searches your eyes for something before <<he>> lets go of your chin.
+		<br><br>
+
+		"Don't waste my time again," <<he>> says, bumping past Robin to leave the room.
+		<br><br>
+
+		<<person1>>
+		Robin rushes over to you and holds your arm. <<He>> stares out the door with an uneasy expression.
+		You can't bear feeling this pathetic. You run back to your room.
+	<<else>>
+		A few minutes later you hear someone come stomping in, and you are pulled up to a sitting position by your hair.
+		<span class="red">It's Bailey.</span>
+		<br><br>
+
+		"What the hell is your problem?" <<He>> growls at you. Robin stands in the doorframe. Bailey looks you over with a harsh gaze and then slaps you across the face.
+		It hurts, and you stop crying out of shock.<<pain 2>>
+		<br>
+		"Shut up. You got this waif worried enough to bother me. I'm not wasting my time on you."
+		<br><br>
+
+		"Stop bothering me with useless crap," <<he>> says to Robin as <<he>> barges from the room.
+		<br><br>
+
+		<<person1>>
+		Robin rushes over to you and holds your arm. <<He>> stares out the door in disbelief as you gather yourself.
+		You are disgusted by the whole scenario and run back to your room.
+	<</if>>
 	<br><br>
 
 	<<endevent>>
@@ -6046,6 +6278,7 @@ You install the USB, and a file folder automatically pops up a second later. You
 	<br><br>
 
 	Finally, <<he>> looks up at you. "I see." <<He>> stares at you for an uncomfortably long time. "You can go." You feel <<his>> eyes on you as you leave.
+	<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">><<npcincr Bailey dom -3>><<set $bailey_dom += -3>><<llldom "Bailey">>
 	<br><br>
 
 	<<link [[Next|Orphanage]]>><<endevent>><</link>>

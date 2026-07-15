@@ -1,0 +1,46 @@
+:: Bailey Cheats [widget]
+
+<<widget "cheats-bailey">>
+	/* Make sure Bailey's stats are real numbers. Old or broken saves can leave them as text, NaN, or missing, so reset those to defaults (dom 50, love 0). */
+	<<run V.bailey_dom = typeof V.bailey_dom === "number" && !isNaN(V.bailey_dom) ? V.bailey_dom : 50>>
+	<<run C.npc.Bailey.dom = V.bailey_dom>>
+	<<run V.bailey_love = typeof V.bailey_love === "number" && !isNaN(V.bailey_love) ? V.bailey_love : 0>>
+	<<run C.npc.Bailey.love = V.bailey_love>>
+	<<run V.stockholm_bailey = typeof V.stockholm_bailey === "number" && !isNaN(V.stockholm_bailey) ? V.stockholm_bailey : 0>>
+	<<run V.bailey_offered = typeof V.bailey_offered === "number" && !isNaN(V.bailey_offered) ? V.bailey_offered : 0>>
+	<<run V.bailey_wraith_seen = typeof V.bailey_wraith_seen === "number" && !isNaN(V.bailey_wraith_seen) ? V.bailey_wraith_seen : 0>>
+	<<if $stockholm_active is undefined>><<set $stockholm_active to false>><</if>>
+	<<if $bailey_title_unlocked is undefined>><<set $bailey_title_unlocked to false>><</if>>
+	<<if $bailey_title is undefined>><<set $bailey_title to "Bailey">><</if>>
+	<<if $stockholm_points is undefined>><<set $stockholm_points to {}>><</if>>
+	<div class="settingsToggleItem">
+		<span class="gold">Core Stats</span>
+		<<numberStepper "<<symbol dominance>> Dominance" `V.bailey_dom` { callback: value => { V.bailey_dom = value; C.npc.Bailey.dom = value }, min: 0, max: 100 }>>
+		<<numberStepper "<<symbol love>> Respect" `V.bailey_love` { callback: value => { V.bailey_love = value; C.npc.Bailey.love = value }, min: 0, max: 100 }>>
+		<<numberStepper "<<symbol lust>> Lust" `C.npc.Bailey.lust` { callback: value => { C.npc.Bailey.lust = value }, min: 0, max: 100 }>>
+	</div>
+	<div class="settingsToggleItem">
+		<span class="gold">Stockholm Syndrome</span>
+		<<numberStepper "Stockholm Points" `V.stockholm_bailey` { callback: value => { V.stockholm_bailey = value }, min: 0, max: 10, step: 1, percentage: false }>>
+		<<numberStepper "Times Offered" `V.bailey_offered` { callback: value => { V.bailey_offered = value }, min: 0, step: 1, percentage: false }>>
+		<<numberStepper "Wraith Encounters" `V.bailey_wraith_seen` { callback: value => { V.bailey_wraith_seen = value }, min: 0, step: 1, percentage: false }>>
+		<<if $stockholm_active>>
+			<<link [[Deactivate Stockholm|$passage]]>><<set $stockholm_active to false>><<set $bailey_title to "Bailey">><</link>>
+		<<else>>
+			<<link [[Activate Stockholm|$passage]]>><<set $stockholm_active to true>><<set $stockholm_bailey to Math.max($stockholm_bailey, 5)>><<set $bailey_dom to Math.max($bailey_dom, 100)>><<run C.npc.Bailey.dom = Math.max(C.npc.Bailey.dom, 100)>><<set $stockholm_points to ($stockholm_points || {})>><<set $baileycollar to 1>><<if $worn.neck.name isnot "naked" and $worn.neck.name isnot "Bailey's collar">><<set $worn.neck.type.push("broken")>><<neckruined>><</if>><<if $worn.neck.name isnot "Bailey's collar">><<set _collarIdx to setup.clothes.neck.findIndex(function(item) { return item.name === "Bailey's collar"; })>><<if _collarIdx gte 0>><<neckwear _collarIdx>><</if>><</if>><</link>>
+		<</if>>
+	</div>
+	<div class="settingsToggleItemWide">
+		<span class="gold">Title System</span> <mouse class="tooltip linkBlue">(?)<span>Lets you pick a custom name for the player to call Bailey (a pet name or honorific), used in Bailey's dialogue. Normally earned through the Stockholm storyline, unlock it here to set a title without progressing that content.</span></mouse>
+		<br>
+		<<if $bailey_title_unlocked>>
+			<<link [[Lock Title System|$passage]]>><<set $bailey_title_unlocked to false>><<set $bailey_title to "Bailey">><</link>>
+		<<else>>
+			<<link [[Unlock Title System|$passage]]>><<set $bailey_title_unlocked to true>><</link>>
+		<</if>>
+		<<if $bailey_title_unlocked>>
+			<br>
+			<span class="description">Current title: <<= $bailey_title>></span>
+		<</if>>
+	</div>
+<</widget>>

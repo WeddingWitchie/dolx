@@ -771,44 +771,44 @@
 			<</link>>
 			<br>
 
-			Cock Addict: <span id="statspenisaddicttrait" @class="$penis_addict_trait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["penis_addict"].toString()]>></span> |
+			Cock Addict: <span id="statspenisaddicttrait" @class="$penis_addict_trait is 1 ? 'green' : 'red'"><<= $penis_addict_trait is 1 ? "On" : "Off">></span> |
 			<<link "Change">>
-				<<set $penis_addict_trait += 1>>
-				<<if $penis_addict_trait gte 2>>
-					<<set $penis_addict_trait to -1>>
-				<</if>>
-				<<if $penis_addict_trait is 1 and $hole_addict_trait is 1>>
-					<<set $hole_addict_trait to 0>>
+				<<if $penis_addict_trait is 1>>
+					<<set $penis_addict_trait to 0>>
+					<<if $hole_addict_trait is -1>><<set $hole_addict_trait to 0>><</if>>
+				<<else>>
+					<<set $penis_addict_trait to 1>>
+					<<set $hole_addict_trait to -1>>
 				<</if>>
 				<<replace "#statspenisaddicttrait">>
-					<<set _penis_addict_trait to _traitValue[$penis_addict_trait.toString()]>>
+					<<set _penis_addict_trait to $penis_addict_trait is 1 ? "On" : "Off">>
 					<<= _penis_addict_trait>>
 					<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
 				<</replace>>
 				<<replace "#statsholeaddicttrait">>
-					<<set _hole_addict_trait to _traitValue[$hole_addict_trait.toString()]>>
+					<<set _hole_addict_trait to $hole_addict_trait is 1 ? "On" : "Off">>
 					<<= _hole_addict_trait>>
 					<<changeCheatClass "#statsholeaddicttrait" _hole_addict_trait>>
 				<</replace>>
 			<</link>>
 			<br>
 
-			Hole Addict: <span id="statsholeaddicttrait" @class="$hole_addict_trait is 1 ? 'green' : 'red'"><<= _traitValue[$_traits["hole_addict"].toString()]>></span> |
+			Hole Addict: <span id="statsholeaddicttrait" @class="$hole_addict_trait is 1 ? 'green' : 'red'"><<= $hole_addict_trait is 1 ? "On" : "Off">></span> |
 			<<link "Change">>
-				<<set $hole_addict_trait += 1>>
-				<<if $hole_addict_trait gte 2>>
-					<<set $hole_addict_trait to -1>>
-				<</if>>
-				<<if $hole_addict_trait is 1 and $penis_addict_trait is 1>>
-					<<set $penis_addict_trait to 0>>
+				<<if $hole_addict_trait is 1>>
+					<<set $hole_addict_trait to 0>>
+					<<if $penis_addict_trait is -1>><<set $penis_addict_trait to 0>><</if>>
+				<<else>>
+					<<set $hole_addict_trait to 1>>
+					<<set $penis_addict_trait to -1>>
 				<</if>>
 				<<replace "#statsholeaddicttrait">>
-					<<set _hole_addict_trait to _traitValue[$hole_addict_trait.toString()]>>
+					<<set _hole_addict_trait to $hole_addict_trait is 1 ? "On" : "Off">>
 					<<= _hole_addict_trait>>
 					<<changeCheatClass "#statsholeaddicttrait" _hole_addict_trait>>
 				<</replace>>
 				<<replace "#statspenisaddicttrait">>
-					<<set _penis_addict_trait to _traitValue[$penis_addict_trait.toString()]>>
+					<<set _penis_addict_trait to $penis_addict_trait is 1 ? "On" : "Off">>
 					<<= _penis_addict_trait>>
 					<<changeCheatClass "#statspenisaddicttrait" _penis_addict_trait>>
 				<</replace>>
@@ -1820,6 +1820,11 @@
 	</div>
 	<hr>
 	<div class="settingsGrid">
+		<div class="settingsHeader options"><span class="gold">Bailey Expansion</span></div>
+		<<cheats-bailey>>
+	</div>
+	<hr>
+	<div class="settingsGrid">
 		<div class="settingsHeader options">People of Interest</div>
 		<div class="settingsToggleItem">
 			<span class="gold">Mason</span>
@@ -1863,15 +1868,27 @@
 	</div>
 	<hr>
 	<div class="settingsGrid">
-		<div class="settingsHeader options">Hopeless Cycle Setting</div>
-		<div class="settingsToggleItemWide">
-			<span class="gold">Suspicion and Loved</span>
-			<br>|
-			<<link [[Set loved to true|$passage]]>><<set $hc.loved to true>><</link>> |
-			<<link [[Set loved to false|$passage]]>><<set $hc.loved to false>><</link>> |
-			<<link [[Reset suspicion level|$passage]]>><<set $_susPlus to 1>><<set $hc.suspicion to 0>><</link>> |
-			<<link [[Max suspicion level|$passage]]>><<set $hc.suspicion to 100>><</link>> |
-		</div>
+		<div class="settingsHeader options">Hopeless Cycle</div>
+		<<if $hc>>
+			<div class="settingsToggleItemWide">
+				<span class="gold">The Hand's Suspicion</span>
+				<br>
+				<span class="description">How much your captor (the Hand) suspects you? It climbs when you sneak, steal, or leave signs of tampering; high suspicion brings searches and punishments.</span>
+				<br>|
+				<<link [[Set to 0|$passage]]>><<set $hc.suspicion to 0>><<set $cheatReload to true>><</link>> |
+				<<link [[Set to 100|$passage]]>><<set $hc.suspicion to 100>><<set $cheatReload to true>><</link>> |
+			</div>
+			<div class="settingsToggleItemWide">
+				<span class="gold">Loved the Witch</span>
+				<br>
+				<span class="description">Whether you chose to spare and love the fellow prisoner (the witch) during the blood event. Gates her bond and its unique endings.</span>
+				<br>|
+				<<link [[Set loved: yes|$passage]]>><<set $hc.loved to true>><<set $cheatReload to true>><</link>> |
+				<<link [[Set loved: no|$passage]]>><<set $hc.loved to false>><<set $cheatReload to true>><</link>> |
+			</div>
+		<<else>>
+			<div class="settingsToggleItemWide grey">Only available while you're in the Hopeless Cycle (the snake painting's dungeon).</div>
+		<</if>>
 	</div>
 		<hr>
 	<div class="settingsGrid">
@@ -2492,15 +2509,15 @@
 		<div class="settingsHeader options">Farming & Cooking</div>
 		<div class="settingsToggleItem">
 			<span class="gold">🌱 Seeds</span><br>
-			<<link "Unlock All Seeds">><<run unlockAllSeeds()>><</link>>
+			<<link [[Unlock All Seeds|$passage]]>><<set $cheatReload to true>><<run unlockAllSeeds()>><</link>>
 		</div>
 		<div class="settingsToggleItem">
 			<span class="gold">📖 Recipes</span><br>
-			<<link "Unlock All Recipes">><<learn_recipe_all>><</link>>
+			<<link [[Unlock All Recipes|$passage]]>><<set $cheatReload to true>><<learn_recipe_all>><</link>>
 		</div>
 		<div class="settingsToggleItemWide">
 			<span class="gold">🥕 Ingredients</span><br>
-			<<link "Get 100 of Every Ingredient">>
+			<<link [[Get 100 of Every Ingredient|$passage]]>><<set $cheatReload to true>>
 				<<for _ingredient range Object.keys(setup.foodstuff)>>
 					<<set $foodstuff[_ingredient].amount += 100>>
 				<</for>>
@@ -2513,7 +2530,7 @@
 		<<if $bird and $bird.materials>>
 			<div class="settingsToggleItem">
 				<span class="gold">🪵 Materials</span><br>
-				<<link "Get 100 Tower Materials">>
+				<<link [[Get 100 Tower Materials|$passage]]>><<set $cheatReload to true>>
 					<<for _birdMat range ["wood", "fabric", "sticks", "leaves", "junk", "lurkers", "leather", "feathers"]>>
 						<<set $bird.materials[_birdMat] += 100>>
 					<</for>>
@@ -2521,7 +2538,7 @@
 			</div>
 			<div class="settingsToggleItem">
 				<span class="gold">💎 Valuables</span><br>
-				<<link "Get 20 Tower Valuables">>
+				<<link [[Get 20 Tower Valuables|$passage]]>><<set $cheatReload to true>>
 					<<set $bird.materials.valuables ||= {}>>
 					<<for _birdVal range ["bracelet", "wallet", "ring", "watch", "necklace", "antique bullet"]>>
 						<<set $bird.materials.valuables[_birdVal] ||= 0>>
@@ -2531,7 +2548,7 @@
 			</div>
 			<div class="settingsToggleItemWide">
 				<span class="gold">🗼 Tower Progress</span><br>
-				<<link "Quick-Complete Tower">>
+				<<link [[Quick-Complete Tower|$passage]]>><<set $cheatReload to true>>
 					<<run Object.assign($bird.upgrades, {
 						mirror: 1, tools: 1, tarp: 1, telescope: 1,
 						shelter: 3, nest: 3, firepit: 3, pot: 3,

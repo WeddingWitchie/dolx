@@ -1,0 +1,182 @@
+:: Bailey Combat Widgets [widget]
+
+<<widget "bodywriting_npc_bailey">>
+	<<if $npc.includes("Bailey") and $NPCList and $NPCList[0] and $NPCList[0].fullDescription>>
+		<<set $_text_output to "">>
+		<<set _bwEntry to $skin[_args[0]]>>
+		<<set _bwOwner to (_bwEntry && (_bwEntry.owner || _bwEntry.special)) ? (_bwEntry.owner || _bwEntry.special) : "">>
+
+		/* This spot is blank — check if Bailey signed PC elsewhere. */
+		<<if !_bwOwner>>
+			<<set _bwExisting to Object.values($skin).find(s => s && (s.owner === "Bailey" || s.special === "Bailey"))>>
+			/* Named mark elsewhere → reassert ownership. Price elsewhere → leave the slot clean so he writes a fresh price below. */
+			<<if _bwExisting and !(_bwExisting.writing and _bwExisting.writing.startsWith("£"))>>
+				<<set _bwOwner to "Bailey">>
+				<<set _bwEntry to _bwExisting>>
+			<</if>>
+		<</if>>
+
+		<<if _bwOwner is "Bailey">>
+			<<if $stockholm_active>><<set $_text_output to `<<He>> has a fierce look in <<his>> eyes. "That's right. Mine."`>>
+			<<elseif $bailey_dom gte 70>><<set $_strings to [
+				`<<He>> growls. "Who else has seen that?"`,
+				`<<He>> growls. "Good <<girl>>."`,
+				`<<His>> eyes burn. "Mine."`,
+			]>><<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+			<<elseif $bailey_dom lte 30>><<set $_text_output to `<<He>> scoffs. "Don't you forget it."`>>
+			<<else>><<set $_strings to [
+				`<<He>> murmurs. "Right where you belong."`,
+				`<<He>> thumbs it. "Don't wash that off."`,
+				`<<He>> says nothing. <<He>> looks satisfied.`,
+				`<<He>> exhales. "So you do know who you belong to."`,
+			]>><<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+			<</if>>
+
+		<<elseif _bwOwner is "Robin">>
+			<<if $stockholm_active>>
+				<<set $_text_output to `<<His>> eyes darken. "Maybe I should sell <<nnpc_him "Robin">> somewhere you can't find <<nnpc_him "Robin">>."`>>
+			<<else>>
+				<<set $_strings to [
+					`<<He>> sneers. "That worthless brat can't save you."`,
+					`<<He>> snickers. "Good thinking. They'll pay double for a package deal."`,
+					`<<He>> snickers. "Keep bringing <<nnpc_him "Robin">> around. I'll find a use for <<nnpc_him "Robin">> too."`,
+				]>>
+				<<if $bailey_dom lte 30>>
+					<<run $_strings.push(`<<He>> sneers. "Useless. Both of you."`)>>
+				<</if>>
+				<<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+			<</if>>
+
+		<<elseif _bwOwner is "Eden">>
+			<<if $stockholm_active>>
+				<<set $_strings to [
+					`<<He>> growls, gripping the mark hard enough to hurt. "Get <<nnpc_his "Eden">> name off of you."`,
+					`<<He>> traces Eden's mark with <<his>> thumb. Slowly. Then <<his>> nail digs in. "Get rid of it."`,
+				]>>
+				<<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+			<<else>>
+				<<set $_strings to [
+					`<<He>> snarls. "<<nnpc_He "Eden">> chose the trees over people. Over you. Over everyone."`,
+					`<<His>> fingers close around the marked skin. "<<nnpc_He "Eden">> doesn't get to keep anything."`,
+				]>>
+				<<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+			<</if>>
+
+		<<elseif _bwOwner is "Sydney">>
+			<<set $_text_output to `<<He>> sneers. "Your little saint isn't here."`>>
+
+		<<elseif _bwOwner is "Avery">>
+			<<if $avery_mansion>>
+				<<set $_text_output to `<<He>> smirks. "<<nnpc_He "Avery">> paid and still needs to write <<nnpc_his "Avery">> name on it?"`>>
+			<<else>>
+				<<set $_text_output to `<<His>> lip curls. <<His>> fingers dig painfully into the mark.`>>
+			<</if>>
+
+		<<elseif _bwOwner is "Alex">>
+			<<set $_text_output to `<<He>> scoffs. "That idiot farmer? At least cattle know their place."`>>
+
+		<<elseif _bwOwner is "Whitney">>
+			<<set $_strings to [
+				`<<He>> snickers. "I'll let <<nnpc_him "Whitney">> keep pretending."`,
+				`<<He>> exhales. "That brat can't afford you."`,
+			]>>
+			<<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+
+		<<elseif _bwOwner is "Kylar">>
+			<<set $_text_output to `<<He>> reads it. "Obsessive little shit."`>>
+
+		<<elseif _bwOwner is "Remy">>
+			<<set $_text_output to `<<He>> sneers at the mark with disgust. "Looks like Remy got <<nnpc_his "Remy">> money's worth."`>>
+
+		<<elseif _bwOwner is "Gwylan">>
+			<<set $_text_output to `<<He>> traces the mark. "<<nnpc_He "Gwylan">> can take what <<nnpc_he "Gwylan">> wants from your head. I'll take what I want from the rest of you."`>>
+
+		<<elseif _bwOwner is "rape">>
+			<<set $_strings to [
+				`<<He>> curls <<his>> lip. "What a waste."`,
+				`<<He>> curls <<his>> lip. "Throwing your body away like garbage. Pathetic."`,
+			]>>
+			<<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+
+		<<elseif _bwOwner is "prostitution">>
+			<<set _bp_looks     to (Math.min($beauty || 0, $beautymax || 10000) / ($beautymax || 10000) + Math.min($allure || 0, 8000) / 8000) / 2>>
+			<<set _bp_seduction to Math.min($seductionskill || 0, 10000) / 10000>>
+			<<set _bp_physique  to Math.min($physique || 0, $physiquesize || 12000) / ($physiquesize || 12000)>>
+			<<set _bp_school    to Math.min(($maths||0)+($english||0)+($science||0)+($history||0), 4000) / 4000>>
+			<<set _bp_skuld     to Math.min($skulduggery || 0, 1000) / 1000>>
+			<<set _bp_raw to (_bp_looks*3000) + (_bp_seduction*2000) + (_bp_physique*1000) + (_bp_school*500) + (_bp_skuld*500)>>
+			<<set _baileyPrice to Math.max(5, Math.min(1000, Math.floor((_bp_raw / 7000) * 1000 / 5) * 5))>>
+			<<set _oldDegree to _bwEntry.degree || 0>>
+			<<add_bodywriting _args[0] "baileys_asset" _args[1]>>
+			<<set $skin[_args[0]].owner to "Bailey">>
+			<<set $skin[_args[0]].writing to "£" + _baileyPrice>>
+			<<set $skin[_args[0]].degree to _baileyPrice * 10>>
+			<<if $stockholm_active>>
+				<<set $skin[_args[0]].special to "prostitution">>
+			<</if>>
+			<<bodywriting_finalisation _args[0]>>
+			<<if (_baileyPrice * 10) gt _oldDegree>>
+				<<set $_strings to [
+					`<<He>> scoffs at the old price and scratches it out. "Wrong." <<He>> writes a new number. "You're worth more than that."`,
+					`<<He>> crosses out the mark. "Whoever wrote that doesn't know what they have." <<He>> writes <<his>> own price.`,
+				]>>
+			<<elseif (_baileyPrice * 10) lt _oldDegree>>
+				<<set $_strings to [
+					`<<He>> sneers at the number. "Overpaying." <<He>> scratches it out and writes a lower one.`,
+					`<<He>> crosses out the mark with a scoff. "Flattering yourself." <<He>> writes <<his>> own appraisal.`,
+				]>>
+			<<else>>
+				<<set $_strings to [
+					`<<He>> reads the old price. <<He>> crosses it out anyway and writes the same number in <<his>> own hand.`,
+				]>>
+			<</if>>
+			<<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+
+		<<elseif _bwEntry && (_bwEntry.owner || _bwEntry.special)>>
+			<<set $_strings to [
+				`<<He>> eyes it. "If they cared, they'd have paid for you."`,
+				`<<He>> glances at it, then at you. "Cheap."`,
+				`<<He>> looks unimpressed. "That cost them nothing."`,
+			]>>
+			<<set $_text_output to $_strings[random(0, $_strings.length - 1)]>>
+
+		<</if>>
+
+		<<if $_text_output>>
+			<<print $_text_output>>
+		<<else>>
+			/* PC is unmarked, so Bailey writes a price tag based on their stats. */
+			<<set _bp_looks     to (Math.min($beauty || 0, $beautymax || 10000) / ($beautymax || 10000) + Math.min($allure || 0, 8000) / 8000) / 2>>
+			<<set _bp_seduction to Math.min($seductionskill || 0, 10000) / 10000>>
+			<<set _bp_physique  to Math.min($physique || 0, $physiquesize || 12000) / ($physiquesize || 12000)>>
+			<<set _bp_school    to Math.min(($maths||0)+($english||0)+($science||0)+($history||0), 4000) / 4000>>
+			<<set _bp_skuld     to Math.min($skulduggery || 0, 1000) / 1000>>
+			<<set _bp_raw to (_bp_looks*3000) + (_bp_seduction*2000) + (_bp_physique*1000) + (_bp_school*500) + (_bp_skuld*500)>>
+			<<set _baileyPrice to Math.max(5, Math.min(1000, Math.floor((_bp_raw / 7000) * 1000 / 5) * 5))>>
+			<<add_bodywriting _args[0] "baileys_asset" _args[1]>>
+			<<set $skin[_args[0]].owner to "Bailey">>
+			<<set $skin[_args[0]].writing to "£" + _baileyPrice>>
+			<<set $skin[_args[0]].degree to _baileyPrice * 10>>
+			<<if $stockholm_active>>
+				/* With Stockholm active, the price becomes prostitution writing, enabling the native paid-reaction path. */
+				<<set $skin[_args[0]].special to "prostitution">>
+			<</if>>
+			<<bodywriting_finalisation _args[0]>>
+			<<if _baileyPrice gte 800>><<set $_strings to [
+				`"Good." <<He>> looks satisfied.`,
+				`"You lived up to your potential." <<He>> looks satisfied.`,
+			]>><<print $_strings[random(0, $_strings.length - 1)]>>
+			<<elseif _baileyPrice gte 500>><<set $_strings to [
+				`"Not bad," <<he>> says. "For now."`,
+				`"Could be worse."`,
+				`"Still room to grow."`,
+			]>><<print $_strings[random(0, $_strings.length - 1)]>>
+			<<elseif _baileyPrice gte 200>><<set $_strings to [
+				`<<He>> shrugs. "I've sold cheaper."`,
+				`"Middling."`,
+			]>><<print $_strings[random(0, $_strings.length - 1)]>>
+			<<else>><<if $bailey_dom lte 30>>"Worthless." <<He>> caps the pen.<<else>>"Disappointing." <<He>> caps the pen.<</if>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>

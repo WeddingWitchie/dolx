@@ -1,0 +1,160 @@
+/* ================================================================
+   BAILEY UNDER-DESK SCENE
+   PC offers Bailey oral "stress relief" during an office visit.
+   The "Offer stress relief" link only appears when:
+     Stockholm >= 1, promiscuity >= 2, Bailey's lust >= 20,
+     and PC hasn't already had office sex today.
+   (Built to mirror the vanilla Avery Office Oral scene.)
+   ================================================================ */
+
+:: Bailey Desk Offer
+<<effects>>
+<<npc Bailey>><<person1>>
+
+<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+	You hover near the edge of <<his>> desk. Your fingers find the corner of it.
+	<br><br>
+	"You look, uhm... tense," you say quietly. "I could... I-I could help. If you wanted."
+<<elseif $speech_attitude is "bratty">>
+	You lean against <<his>> desk with both hands.
+	<br><br>
+	"You look like shit," you say. "Let me take care of it. You'll work better after."
+<<else>>
+	You stop in front of <<his>> desk.
+	<br><br>
+	"You're tense," you say. "Let me help."
+<</if>>
+<br><br>
+
+<<if $bailey_dom lt 30>>
+	<<He>> stops what <<he>>'s doing to glare at you.
+	<br><br>
+	"No," <<he>> says flatly. "Get out."
+	<br><br>
+	<<link [[Next|Orphanage]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<if $bailey_dom gte 70 or $stockholm_active>>
+		Bailey doesn't look up from <<his>> computer monitor.
+		<br><br>
+		<<He>> leans back in <<his>> chair to make room for you.
+	<<else>>
+		Bailey's pen stops. <<He>> looks up at you.
+		<br><br>
+		<<He>> goes back to the computer. <<His>> chair shifts back an inch from the desk.
+	<</if>>
+	<br><br>
+
+	You kneel. The floor is cold, but clean. You crawl under <<his>> desk.<<npcincr Bailey lust 1>><<glust "Bailey">>
+	<br><br>
+
+	It's dark under here. You can see <<his>> legs, the base of the chair, <<his>> shoes. The underside of the desk presses close above you.
+	<br><br>
+
+	<<if $bailey_dom gte 70 or $stockholm_active>>
+		<<He>> spreads <<his>> legs slightly.
+	<<else>>
+		<<His>> leg tenses when your hand finds <<his>> knee.
+	<</if>>
+	<br><br>
+
+	You undo <<his>> belt. <<He>> scoots <<his>> chair forward, closing you in, <<his>> <<= $NPCList[0].penis isnot "none" ? "hardening cock" : "wet pussy">> right in front of your face.
+	<br><br>
+
+	<<link [[Next|Bailey Desk Oral]]>><<set $sexstart to 1>><</link>>
+	<br>
+<</if>>
+
+
+:: Bailey Desk Oral
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<npc Bailey>><<person1>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $position to "doggy">>
+	<<npcoral>>
+	<<set $enemytrust to 0>>
+	<<set $enemyanger to 0>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
+	<<healthMultiplier>>
+	<<promiscuity1>>
+<</if>>
+
+<<effects>>
+<<print either(
+	`You hear typing above you. <<His>> thighs muffle your ears.`,
+	`<<His>> hand finds the back of your head. <<His>> fingers curl into your hair.`,
+	`You hear <<him>> pick up the phone. "Speaking." <<His>> hand tightens in your hair.`,
+	`<<His>> typing stops just for a moment. <<He>> exhales slowly before <<he>> continues working.`,
+	`<<His>> breathing changes. <<He>> covers it with a cough. The chair creaks.`,
+	`You see <<his>> hand gripping the edge of the desk. <<His>> thigh tenses against your cheek.`
+)>>
+<br><br>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Bailey Desk Oral Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Bailey Desk Oral]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+:: Bailey Desk Oral Finish
+<<pass 10>><<set $outside to 0>><<set $location to "home">><<effects>>
+
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>><<npcincr Bailey lust -10>><<earnFeat "Bailey's Trouble Maker">><<npcincr Bailey dom 1>><<set $bailey_dom += 1>><<npcincr Bailey love 1>><<set $bailey_love += 1>><<set $daily.baileyOfficeSex to 1>>
+	<br><br>
+	<<He>> groans. <<His>> hand tightens in your hair. <<His>> legs go rigid. A pen clatters to the desk before <<his>> other hand reaches down to grip at the edge of <<his>> desk.
+	<br><br>
+	After a tense moment, <<he>> exhales slowly and <<his>> whole body seems to relax.
+	<br><br>
+	<<if $stockholm_bailey gt 1>><<He>> strokes your hair before letting go of your head. "Good <<girl>>."<<else>><<He>> lets go of your hair.<</if>> You hear <<him>> straighten <<his>> clothes above you.
+	<br><br>
+	"Come out from under there."
+	<br><br>
+	You move out from under the desk and stand up.
+	<br><br>
+	Bailey looks noticeably less angry than usual. <<He>> glances at you before nodding towards the door. "Out."<<lllust "Bailey">><<gdom "Bailey">><<glove "Bailey">>
+	<br><br>
+	<<clotheson>><<endcombat>><<set $daily.baileyVisit to 100>>
+	<<link [[Next|Orphanage]]>><<endevent>><</link>>
+	<br>
+
+<<elseif $enemyhealth lte 0>>
+	<<npcincr Bailey dom -1>><<set $bailey_dom -= 1>><<npcincr Bailey love -2>><<set $bailey_love -= 2>><<set $daily.baileyOfficeSex to 1>>
+	<<He>> grunts in pain before kicking you hard.<<pain 4>><<gpain>>
+	<br><br>
+	You scramble back from under the desk. <<He>> shoves the chair back and stands. <<His>> hands are shaking.
+	<br><br>
+	"Out." <<He>> scowls at you, <<his>> eyes burning. "Now."
+	<br><br>
+	<<tearful>> you waste no time scrambling out of <<his>> office.<<ldom "Bailey">><<llove "Bailey">>
+	<br><br>
+	<<clotheson>><<endcombat>><<set $daily.baileyVisit to 100>>
+	<<link [[Next|Orphanage]]>><<endevent>><</link>>
+	<br>
+
+<<else>>
+	<<npcincr Bailey lust -2>><<set $daily.baileyOfficeSex to 1>>
+	<br><br>
+	You start to pull away. <<His>> hand tightens in your hair.
+	<br><br>
+	"Damn brat." <<He>> releases your hair and pushes <<his>> chair back.
+	<br><br>
+	You crawl out from under the desk and stand up.
+	<br><br>
+	"Finish what you started next time." Bailey sneers at you. <<He>> gestures at the door. "Get out."<<llust "Bailey">>
+	<br><br>
+	<<clotheson>><<endcombat>><<set $daily.baileyVisit to 100>>
+	<<link [[Next|Orphanage]]>><<endevent>><</link>>
+	<br>
+<</if>>
