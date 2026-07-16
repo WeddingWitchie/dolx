@@ -1654,3 +1654,20 @@ function blackMoneySaleValue() {
 	return Math.round(base * mathsBuff * skulduggeryBuff);
 }
 window.blackMoneySaleValue = blackMoneySaleValue;
+
+/**
+ * Extra "allure" folded into office danger rolls when the player chooses to work a temp assignment in a revealing outfit.
+ * Dressing provocatively at the agency is allowed, but it draws far more harassment on the upper floors.
+ * Derived live from the current outfit, so clothes torn mid-assignment ramp the danger up too.
+ *
+ * @returns {number} bonus allure (0 when decently dressed)
+ */
+function officeSluttyAllure() {
+	// eslint-disable-next-line no-undef
+	if (!inappropriatePlayerState("clothes")) return 0;
+	let bonus = 1200; // a revealing, work-inappropriate outfit
+	if (V.exposed >= 1) bonus += 900; // underwear or lewd parts on show
+	if (V.exposed >= 2) bonus += 900; // fully exposed
+	return bonus;
+}
+window.officeSluttyAllure = officeSluttyAllure;
