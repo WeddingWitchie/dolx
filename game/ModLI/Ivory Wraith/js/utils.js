@@ -1,19 +1,15 @@
 W.countPaleBabies = () => {
-	Wikifier.wikifyEval(
-		"<<getChildrenIds `{location:'home', father:'Ivory Wraith'}`>>",
-	);
+	Wikifier.wikifyEval("<<getChildrenIds `{location:'home', father:'Ivory Wraith'}`>>");
 	return T.childrenIds.length;
 };
 
 W.countPaleCritters = () => {
-	let containers = V.container.list;
+	const containers = V.container.list;
 	let pales = 0;
 
-	for (let container of containers) {
+	for (const container of containers) {
 		if (V.container[container].count > 0) {
-			for (let critter of Object.values(
-				V.container[container].creatures,
-			)) {
+			for (const critter of Object.values(V.container[container].creatures)) {
 				if (critter.creature.includes("Pale")) {
 					pales++;
 				}
@@ -26,7 +22,7 @@ W.countPaleCritters = () => {
 W.countSpecialTattoos = () => {
 	let total = 0;
 
-	for (let bodywriting of Object.values(V.skin)) {
+	for (const bodywriting of Object.values(V.skin)) {
 		if (bodywriting.special === "Ivory Wraith") {
 			total++;
 		}
@@ -36,11 +32,7 @@ W.countSpecialTattoos = () => {
 };
 
 W.wraithIsAngry = () => {
-	if (
-		V.wraith.state === "haunt" ||
-		V.necklaceThief === "player" ||
-		["dead", "sold"].includes(V.wraith.offspring)
-	) {
+	if (V.wraith.state === "haunt" || V.necklaceThief === "player" || ["dead", "sold"].includes(V.wraith.offspring)) {
 		return true;
 	}
 	return false;

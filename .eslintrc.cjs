@@ -57,6 +57,8 @@ module.exports = {
 		globals: "readonly",
 		T: "readonly",
 		V: "readonly",
+		W: "readonly", // ModLI widget-namespace (window.W -> WLI)
+		WOpts: "readonly", // ModLI config (window.WOpts -> State.variables.wli.cfg)
 		statChange: "readonly",
 		// DoL main namespaces
 		DOL: "readonly",

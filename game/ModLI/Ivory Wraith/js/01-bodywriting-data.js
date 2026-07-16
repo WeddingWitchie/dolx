@@ -111,10 +111,8 @@ setup.bodywritingwli = {
 	},
 	asone: {
 		index: 11,
-		writing:
-			'<span class="wraith">As two,</span> <span class="tentacle">As One.</span>',
-		writ_cn:
-			'<span class="wraith">我们两个人，</span> <span class="tentacle">合二为一</span>',
+		writing: '<span class="wraith">As two,</span> <span class="tentacle">As One.</span>',
+		writ_cn: '<span class="wraith">我们两个人，</span> <span class="tentacle">合二为一</span>',
 		type: "text",
 		arrow: 0,
 		special: "Ivory Wraith",
