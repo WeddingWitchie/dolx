@@ -5683,6 +5683,14 @@
 	<<moneyGain 1 true true>> will give between £0.80 and £1.20 which is stolen and can scale further with skulduggery.
 	<<moneyGain 1 false true>> will give £1.00 which is stolen and can scale with skulduggery.
 */
+<<widget "wage">><<silently>>
+	/* X-Change skill-scaled job wage. _args[0] = base pounds, _args[1] = governing skill name
+	   (e.g. "housekeeping"). Applies the S+ income bonus, then hands off to <<moneyGain>> so the
+	   displayed amount, money stats and source all behave exactly as a normal wage. It is a no-op
+	   below grade S, so low-skill players keep the vanilla rebalanced payout. */
+	<<set _wageBase to Math.round((_args[0] ? _args[0] : 0) * skillIncomeMultiplier(_args[1]))>>
+<</silently>><<moneyGain _wageBase>><</widget>>
+
 <<widget "moneyGain">><<silently>>
 	<<if _args[0]>>
 		<<set _base_amount to _args[0] * 100>>

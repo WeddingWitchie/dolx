@@ -1606,3 +1606,31 @@ function npcVoiceAllowed(pronoun) {
 	return true; // "all"
 }
 window.npcVoiceAllowed = npcVoiceAllowed;
+
+/**
+ * X-Change skill-scaled income bonus.
+ *
+ * The 0.5.11 vanilla "Balance proposal" nerfed many low/mid income sources.
+ * To give players a reason to push a skill past its S grade, income from a nerfed source is boosted once its governing skill reaches grade S (value 1000), scaling from +10% at S up to +50% at SSS (2000).
+ * Below S there is no bonus, so the rebalance stands for anyone who hasn't specialised.
+ *
+ * Grade thresholds (see characteristics.twee): S 1000, S+ 1250, SS 1500, SS+ 1750, SSS 2000.
+ *
+ * @param {string|number} skill a skill name understood by currentSkillValue (e.g. "housekeeping"),
+ *                              or a raw numeric skill value.
+ * @returns {number} an income multiplier >= 1.
+ */
+function skillIncomeMultiplier(skill) {
+	let value;
+	if (typeof skill === "number") {
+		value = skill;
+	} else if (typeof currentSkillValue === "function") {
+		value = currentSkillValue(skill);
+	} else {
+		value = V[skill];
+	}
+	if (!Number.isFinite(value) || value < 1000) return 1;
+	// +10% at S (1000), ramping linearly to +50% at SSS (2000).
+	return 1 + 0.1 + 0.4 * Math.clamp((value - 1000) / 1000, 0, 1);
+}
+window.skillIncomeMultiplier = skillIncomeMultiplier;
