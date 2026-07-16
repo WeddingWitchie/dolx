@@ -417,7 +417,13 @@ Poppy pulls you into a tight hug. You can feel <<him>> shaking with excitement.
 
 :: Poppy Idle Pregnant Flat
 <<effects>><<endevent>><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>>
-You see Poppy sitting on the couch with <<his>> eyes closed, listening to a gentle tune being played on the radio as <<he>> caresses <<his>> baby bump with a serene expression. The sight before you fills you with contentment.<<lstress>><<stress -4>>
+<<if playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc", "Poppy")>>
+	Poppy is sitting sideways on the couch, leaving room for you beside <<him>>. <<He>> pats the empty cushion, then rests a hand over <<his>> bump. When you sit, <<his>> other hand finds yours. The two of you stay like that while the radio plays.<<llstress>><<stress -6>>
+<<elseif random(1,2) is 1>>
+	Poppy is sitting on the couch with <<his>> eyes closed, listening to a gentle tune on the radio. One hand moves slowly over <<his>> baby bump. The sight fills you with contentment.<<lstress>><<stress -4>>
+<<else>>
+	Poppy shifts against the cushions, trying one position after another before giving up with a huff. <<He>> catches you watching and smiles. "Comfortable for two seconds. That's all I ask."<<lstress>><<stress -4>>
+<</if>>
 <<poppyOpiumPulse>>
 <<socialiseicon>><<link [[Approach Poppy|Flats Poppy Social]]>><<set $eventskip to 0>><</link>>
 <br>
@@ -425,9 +431,99 @@ You see Poppy sitting on the couch with <<his>> eyes closed, listening to a gent
 :: Poppy Idle Pregnant Lake
 <<effects>><<endevent>><<lakeeffects>><<npc "Poppy">><<person1>>
 <<run poppySchedule()>><<run markPoppyInteraction()>>
-You see Poppy sitting by the lake with <<his>> eyes closed, humming a gentle tune as <<he>> caresses <<his>> baby bump with a serene expression. The sight before you fills you with contentment.<<lstress>><<stress -4>>
+<<if playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc", "Poppy")>>
+	Poppy sits by the lake with <<his>> knees drawn up as far as <<his>> belly allows. <<He>> smiles at your approach and spreads part of the blanket for you. Once you settle beside <<him>>, <<he>> leans against you with a contented sigh.<<llstress>><<stress -6>>
+<<elseif random(1,2) is 1>>
+	Poppy sits by the lake with <<his>> eyes closed, humming softly as <<he>> caresses <<his>> baby bump. The sight fills you with contentment.<<lstress>><<stress -4>>
+<<else>>
+	Poppy watches a line of ducklings cross the water. <<He>> rubs <<his>> belly and counts them under <<his>> breath, then laughs when <<he>> notices you. "Just making sure I'm prepared."<<lstress>><<stress -4>>
+<</if>>
 <<poppyOpiumPulse>>
 <<poppyLakeMenu>>
+
+:: Poppy Pregnancy Chat
+<<effects>><<speechresolve>><<endevent "phaseless">><<npc "Poppy">><<person1>>
+<<run poppySchedule()>><<run markPoppyInteraction()>><<run statusCheck("Poppy")>>
+<<set _poppyPregnant to npcIsPregnant("Poppy") and knowsAboutPregnancy("Poppy", "pc")>>
+<<set _pcPregnant to playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc", "Poppy")>>
+<<set _poppyFather to _pcPregnant and C.npc.Poppy.pregnancy.pcKnowledge is true>>
+<<if T.poppyStatus.includes("LowPatience")>>
+	You try to bring up the pregnancy. Poppy's expression turns gloom. "Not now." <<He>> turns away, one hand held protectively over <<if _poppyPregnant>><<his>> own belly<<else>>your stomach<</if>>.
+<<elseif _poppyPregnant and _pcPregnant>>
+	<<if random(1,2) is 1>>
+		Poppy looks from <<his>> belly to yours. "We're going to need more cushions," <<he>> says.
+		<br><br>
+		You laugh, but Poppy remains serious. <<He>> gathers the nearest cushions and arranges them behind you before settling down at your side.
+		Only then does <<he>> look satisfied.<<llstress>><<stress -6>><<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gt 0>><<gpatience>><<else>><<langer>><</if>>
+	<<else>>
+		Poppy takes your hand and places it against <<his>> belly. <<He>> lays <<his>> palm over yours in return.
+		<br><br>
+		"Think they'll get along?" <<he>> asks.
+		<br><br>
+		"They'd better," you say. Poppy giggles, and the worry leaves <<his>> face.<<llstress>><<stress -6>><<npcincr Poppy love 1>><<glove>>
+	<</if>>
+<<elseif _poppyPregnant>>
+	<<if npcPregnancyProgress("Poppy") lt 0.49>>
+		<<if random(1,2) is 1>>
+		Poppy wrinkles <<his>> nose and pushes a half-finished drink away. "It tasted fine yesterday. Now it tastes like pond water."
+		<br><br>
+		You fetch <<him>> a glass of water instead. <<He>> sips it carefully, then gives you a grateful smile. "This one sure is better."
+		<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gt 0>><<gpatience>><<else>><<langer>><</if>>
+		<<else>>
+		Poppy sits with one hand splayed over <<his>> stomach. "I keep forgetting, then remembering. It still doesn't feel real."
+		<br><br>
+		You settle in beside <<him>>, and <<he>> leans into you without a word.<<lstress>><<stress -4>>
+		<</if>>
+	<<else>>
+		<<if random(1,2) is 1>>
+		Poppy grasps your wrist. "Wait."
+		<br><br>
+		<<He>> presses your hand to the side of <<his>> belly. Something nudges your palm from within. Poppy's face lights up. "There! Did you feel that?"
+		<br><br>
+		Before you can answer, it happens again. Poppy laughs and keeps your hand where it is.<<glove>><<npcincr Poppy love 1>>
+		<<else>>
+		Poppy shifts against the cushions with a soft grunt, one hand braced at <<his>> lower back. "Whoever said this part was the easy part was lying."
+		<br><br>
+		<<He>> catches you watching and softens. "Don't fuss over me. I'm alright."<<lstress>><<stress -4>>
+		<</if>>
+	<</if>>
+<<elseif _pcPregnant>>
+	<<if playerBellySize() lt 7>>
+		<<if random(1,2) is 1>>
+		Poppy asks how you've been feeling. You barely finish answering before <<he>> starts fussing with the cushions behind you.
+		<br><br>
+		"I'm comfortable," you insist.
+		<br><br>
+		"You could be more comfortable," <<he>> says, adding one more.<<npcincr Poppy patience 1>><<if C.npc.Poppy.patience gt 0>><<gpatience>><<else>><<langer>><</if>>
+		<<else>>
+		Poppy sets a small plate in front of you before you can ask for anything that full of plain crackers, a peeled orange, sliced neatly. "Eat. For both of you."
+		<br><br>
+		<<He>> won't hear a word of protest until you've had a few bites.<<lstress>><<stress -4>>
+		<</if>>
+	<<else>>
+		<<if random(1,2) is 1>>
+			Poppy rests a hand on your belly. <<if getPregnancyObject().fetus.length gt 1>>The babies stir<<else>>The baby stirs<</if>> beneath <<his>> palm, making <<him>> gasp.
+			<br><br>
+			<<if _poppyFather>>
+				"Strong little thing," <<he>> says, beaming. "Takes after me."
+			<<else>>
+				"Easy in there," <<he>> murmurs. "Give your <<if $player.gender_appearance is "f">>mama<<else>>papa<</if>> a break."
+			<</if>>
+			<br><br>
+			<<He>> keeps <<his>> hand there until everything is still again.<<llstress>><<stress -6>>
+		<<else>>
+		Poppy leans down and talks to your belly more than to you now. "Behave for your <<if _poppyFather>><<if $player.gender_appearance is "f">>mama<<else>>papa<</if>><<else>>parent<</if>>," <<he>> murmurs against it.
+		<br><br>
+		<<He>> glances up, a little sheepish. "...They can hear me. I read about it."<<llstress>><<stress -6>><<npcincr Poppy love 1>><<glove>>
+		<</if>>
+	<</if>>
+<</if>>
+<<poppyOpiumPulse>>
+<<if $location is "lake">>
+	<<link [[Next|Lake Poppy]]>><<set $eventskip to 1>><</link>>
+<<else>>
+	<<link [[Next|Flats Poppy Social]]>><<set $eventskip to 1>><</link>>
+<</if>>
 
 /* ==============================================================
  * Poppy orphanage handoff and nursery scenes 

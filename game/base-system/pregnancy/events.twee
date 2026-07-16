@@ -631,6 +631,18 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<</if>>
 <</if>>
 
+/* Poppy variables (mirrors Alex; cleared when Poppy isn't the sole father so the reunion can't misfire) */
+<<if _pregnancy.fetus and _pregnancy.fetus[0] and _pregnancy.fetus[0].father is "Poppy" and (!_pregnancy.potentialFathers or _pregnancy.potentialFathers.length is 1 or _pregnancy.potentialFathers.length is undefined)>>
+	<<if $poppy_pregnancy is undefined or typeof $poppy_pregnancy isnot "object" or Array.isArray($poppy_pregnancy)>>
+		<<set $poppy_pregnancy to {}>>
+	<</if>>
+	<<set $poppy_pregnancy.knows to knowsAboutPregnancy("pc","Poppy")>>
+	<<set $poppy_pregnancy.talked to talkedAboutPregnancy("pc","Poppy")>>
+	<<set $poppy_pregnancy.source to _pregnancy.fetus[0].father>>
+<<else>>
+	<<run delete $poppy_pregnancy>>
+<</if>>
+
 <<set _timeCalc to birthLaborTime(_pregnancy)>>
 
 /* Note: Pregnancy species */
@@ -786,32 +798,31 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 "Someone's waiting for you.
 
 <<if $alex_pregnancy isnot undefined and $litter_potention_fathers is 1 and $alex_pregnancy.source is "Alex">>
-
 	<<if C.npc.Alex.pregnancy.nursery is true>>
 		Your <<nnpc_girlfriend "Alex">> I think."
 		<br><br>
-
 		<<link [[Next|Pregnancy Birth Hospital Alex]]>><</link>>
-
 	<<else>>
 		<<set C.npc.Alex.pregnancy.hospitalBirth to true>>
 		Your <<nnpc_mum "Bailey">> I think."
 		<br><br>
 
 		<<link [[Next|Pregnancy Birth Hospital 6]]>><<endevent>><</link>>
-
 	<</if>>
+
+<<elseif $poppy_pregnancy isnot undefined and $litter_potention_fathers is 1 and $poppy_pregnancy.source is "Poppy" and $poppy_pregnancy.knows>>
+	Your partner, I think."
+	<br><br>
+	<<link [[Next|Pregnancy Birth Hospital Poppy]]>><</link>>
 
 <<else>>
 	Your <<nnpc_mum "Bailey">> I think."
 	<br><br>
-
 	<<link [[Next|Pregnancy Birth Hospital 6]]>><<endevent>><</link>>
 <</if>>
 
 :: Pregnancy Birth Hospital 6
 <<set $location to "town">><<effects>>
-
 <<npc "Bailey">><<person1>>
 <<getChildrenIds>><<childSelect _childrenIds.last()>>
 Bailey waits for you in the hospital foyer. <<He>> smiles when <<he>> sees you. It almost looks real. "We've a place prepared," <<he>> says.
