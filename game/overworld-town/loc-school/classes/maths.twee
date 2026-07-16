@@ -36,16 +36,32 @@
 			and take your seat.
 		<<elseif Time.minute lt 5>>
 			You enter the maths classroom.
-			<<npc River>><<person1>>
+			<<npc Whitney>><<person1>>
 			River is preparing at the front of the room while the seats fill.
-			/* <<if !$xchange.known.includes("Whitney") and $xchangewhitneypunishment is undefined and playerIsXChanged() and $forcedcrossdressingdisable is "f" and $player.gender_appearance is "f">>
-				<span class="purple">Whitney's gaze is fixated on you as you sit down in your usual seat.</span>
+			<!-- An active pill is not enough: the PC must have flipped from their original binary sex, and be wearing gendered clothing that now matches the changed body. -->
+			<<set _xchangeBaseSex to xchangePlayerBaseSex()>>
+			<<set _xchangeClothesNowFit to ["m", "f"].includes($player.sex) and _xchangeBaseSex isnot $player.sex and getVisibleClothesList().some(item => item.gender === V.player.sex)>>
+			<<if playerIsXChanged() and _xchangeClothesNowFit and !$xchange.genderChangeReacted.includes("Whitney") and C.npc.Whitney.init is 1 and C.npc.Whitney.state is "active">>
 				<br><br>
-				<span class="red"><i>Whitney now knows you lied about your identity.</i></span>
-				<<set $whitneymaths to "active">> <!-- Prevent Whitney from appearing mid-lesson -->
+				<span class="purple">Whitney's gaze remains fixed on you as you take your usual seat</span>. <<He>> strides over, looking ready to complain about your clothes, but stops after giving you a proper look.
+				<br><br>
+				"What the fuck are you wearing?" <<he>> starts. Then <<his>> expression falters. "Wait. You weren't&mdash;" Whitney looks you up and down again, visibly struggling to make the usual accusation fit.
+				<br><br>
+				<<if $speech_attitude is "bratty">>
+					"What's wrong?" you ask, grinning. "You always get mad when I dress like this, but now X-Change says it fits."
+				<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+					"Y-you're the one who showed me X-Change," you remind <<him>>, unable to keep a little satisfaction from your voice.
+				<<else>>
+					"You introduced me to X-Change," you remind <<him>>. "You can't complain now that the clothes fit."
+				<</if>>
+				<br><br>
+				Whitney's face reddens. "That doesn't mean you were supposed to change at school, idiot!" <<He>> glances around at the other students, then lowers <<his>> voice. "And don't act like this gets you out of anything."
+				<br><br>
+				Despite the threat, Whitney returns to <<his>> seat without finding a reason to punish you. <span class="green">For once, your changed body has left Whitney too confused to complain about your clothes.</span>
+				<<set $xchange.genderChangeReacted.pushUnique("Whitney")>>
 				<<set $xchange.known.pushUnique("Whitney")>>
-				<<set $xchangewhitneypunishment to 0>>
-			<</if>> */
+				<<set $xchange.expectedGenderBy.Whitney to $player.sex>>
+			<</if>>
 			<<if $worn.over_upper.name isnot "naked" or $worn.over_lower.name isnot "naked" or $worn.over_head.name isnot "naked">>
 				<<undressOverClothes "mathsClassroom">>
 				You hang your coat at the back of the class and take your seat.
