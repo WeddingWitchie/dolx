@@ -656,7 +656,8 @@ function pleasure(amount, source) {
 			}
 		}
 
-		V.pleasure = Math.max(V.pleasure, 0);
+		// Bounded overshoot: the headroom above pleasuremax keeps violent-action orgasms reachable (statChange.pain drains pleasure below 100 masochism, so a hard clamp at max let each hit pull the value back under the orgasm threshold), while an unbounded value let single huge gains (e.g. <<arousal $arousalmax*2>>) bank tens of thousands of pleasure that dozens of orgasms couldn't drain.
+		V.pleasure = Math.clamp(V.pleasure, 0, V.pleasuremax * 1.25);
 
 		return fragment;
 	}
