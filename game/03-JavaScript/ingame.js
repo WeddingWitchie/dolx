@@ -1809,6 +1809,21 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 window.currentSkillValue = currentSkillValue;
 
 /**
+ * Returns a Combat Extended (modded) skill value (brawling, striking, kicking, footwork, etc.) with the Stat Nerf Multiplier applied, mirroring currentSkillValue so the "see what happens when you fail" option also weakens the modded combat skills, not just the base ones.
+ *
+ * @param {string} skill Key inside V.combatExtended.
+ * @returns {number} The nerfed skill value (the raw value when statNerf is 100 or unset).
+ */
+function combatExtendedSkillValue(skill) {
+	const ce = V.combatExtended;
+	const raw = ce && Number.isFinite(Number(ce[skill])) ? Number(ce[skill]) : 0;
+	const nerf = V.options ? V.options.statNerf : undefined;
+	if (nerf === undefined || nerf === 100) return raw;
+	return raw * (nerf / 100);
+}
+window.combatExtendedSkillValue = combatExtendedSkillValue;
+
+/**
  * True once the PC's feet skill reaches 1800 (just past SS), near the top grade.
  * At this mastery, high heels impose no movement disadvantages so the PC can run, walk and sneak in heels anywhere.
  *
