@@ -2030,7 +2030,9 @@ function dailyPlayerEffects() {
 		}
 	}
 
-	if (V.willpowerDecay === 1 && Transformations.effectiveLevel("fallen") < 4) {
+	// Iron Will: willpower stops decaying once the fallen-angel TF is complete.
+	// $fallenangelplustf stays set even after a genome dump resets the manifestation, so the buff persists for former fallen angels.
+	if (V.willpowerDecay === 1 && Transformations.effectiveLevel("fallen") < 4 && V.fallenangelplustf !== 1) {
 		V.willpower *= 0.99;
 	}
 
