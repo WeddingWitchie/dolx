@@ -3,7 +3,7 @@
 function initOverLower() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "over_lower",
 			name: "naked",
@@ -44,9 +44,8 @@ function initOverLower() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "over_lower",
 			name: "froggy skirt",
@@ -95,9 +94,8 @@ function initOverLower() {
 			iconFile: 0,
 			accIcon: 0,
 			outfitSecondary: ["over_upper", "froggy coat"],
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "over_lower",
 			name: "cream",
@@ -145,7 +143,54 @@ function initOverLower() {
 			location: 0,
 			iconFile: 0,
 			accIcon: 0,
-		},
+		}),
+		new ClothesItem({
+			index: 3,
+			slot: "over_lower",
+			name: "kaiju bottoms",
+			name_cap: "Kaiju bottoms",
+			variable: "kaiju",
+			integrity: 500,
+			integrity_max: 500,
+			fabric_strength: 30,
+			reveal: 100,
+			rearresize: -4,
+			word: "a",
+			one_piece: 1,
+			skirt: 0,
+			skirt_down: 0,
+			zip: 0,
+			state: "waist",
+			state_base: "waist",
+			plural: 0,
+			colour: 0,
+			colour_options: [],
+			colour_combat: "green",
+			exposed: 0,
+			exposed_base: 0,
+			vagina_exposed: 0,
+			vagina_exposed_base: 0,
+			anus_exposed: 0,
+			anus_exposed_base: 0,
+			type: ["costume", "rainproof"],
+			set: "kaiju",
+			gender: "n",
+			femininity: 0,
+			warmth: 10,
+			cost: 0,
+			description: "It's Godazaur!",
+			shop: [],
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			high_img: 0,
+			back_img: 1,
+			cursed: 0,
+			location: 0,
+			iconFile: 0,
+			accIcon: 0,
+			outfitSecondary: ["over_upper", "kaiju costume"],
+		}),
 	];
 	setup.clothes.over_lower = clothing;
 

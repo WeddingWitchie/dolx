@@ -111,6 +111,21 @@ function restructureEyeColourVariable() {
 }
 window.restructureEyeColourVariable = restructureEyeColourVariable;
 
+/* Old saves stored some children's eyeColour as a parent's name instead of a colour, so swap those for a real inherited one. */
+function fixChildEyeColours() {
+	const validEyeColours = [...setup.colours.eyes.map(e => e.variable), ...(V.custom_eyecolours ?? []).map(e => e.variable)];
+	const fixEye = record => {
+		if (!record.features || validEyeColours.includes(record.features.eyeColour)) return;
+		const known = [record.mother, record.father].map(p => (p === "pc" ? V.eyeselect : C.npc[p] ? C.npc[p].eyeColour : undefined)).filter(Boolean);
+		record.features.eyeColour = eyeColourCalc(known.length ? known[random(0, known.length - 1)] : undefined);
+	};
+	Object.values(V.children).forEach(fixEye);
+	[V.sexStats?.vagina?.pregnancy, V.sexStats?.anus?.pregnancy].forEach(p => p?.fetus?.forEach(fixEye));
+	(V.NPCName ?? []).forEach(npc => npc?.pregnancy?.fetus?.forEach(fixEye));
+	Object.values(V.storedNPCs ?? {}).forEach(npc => npc?.pregnancy?.fetus?.forEach(fixEye));
+}
+window.fixChildEyeColours = fixChildEyeColours;
+
 window.patchCorruptLensesColors = function () {
 	if (V.custom_eyecolours != null) {
 		for (const index in V.custom_eyecolours)
@@ -246,8 +261,7 @@ window.defineCustomEyeColourStyle = function () {
 			const colourArray = normalEyes[side].includes("cat_tf_stage") ? V.custom_eyecolours : setup.colours.eyes;
 			for (const colour of colourArray) {
 				/* this does this for left and right */
-				if (colour.variable === normalEyes[side])
-					T[varSideStyle] = "filter: " + window.colorNameTranslate(window.colorNamer(colour.canvasfilter.blend), "hue");
+				if (colour.variable === normalEyes[side]) T[varSideStyle] = "filter: " + window.colorNameTranslate(window.colorNamer(colour.canvasfilter.blend), "hue");
 			}
 		}
 	}

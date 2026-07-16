@@ -2763,28 +2763,30 @@
 	<<if $player.vaginaExist or canBeMPregnant()>>
 		<<set _menstruation to $sexStats.vagina.menstruation>>
 		<<set $_pregnancy to getPregnancyObject()>>
-		<<if !playerIsPregnant() and $settings.fertilityCycleEnabled>>
+		<<if !playerIsPregnant()>>
 			You aren't pregnant.
 			<<if $settings.pregnancyType is "realistic">>
 				You have <span id="cheatSpermSources"><span class="gold"><span class="gold">$sexStats[_womb].sperm.length</span></span> <<pluralise $sexStats[_womb].sperm.length "sperm source">></span> contributing to your chances of getting pregnant.
 			<</if>>
 			<br><br>
-			<div class="settingsGrid">
-				<div class="settingsHeader options">Menstruation</div>
-				<<numberStepper "🩸 Cycle Day" _menstruation.currentDay {
-					callback: value => V.sexStats.vagina.menstruation.currentDay = value,
-					min: 0, max: _menstruation.currentDaysMax, step: 1, percentage: false,
-					valueFormat: value => `Day ${Math.trunc(value)} of ${V.sexStats.vagina.menstruation.currentDaysMax}`
-				}>>
-				<div class="settingsToggleItem">
-					<span class="gold">🥚 Ovulation</span><br>
-					<<link "Ovulate Now">>
-						<<set _menstruation.currentDay to _menstruation.stages[2]>>
-						<<replace "#cheatsPregnancyOptions">><<cheatsPregnancyOptions>><</replace>>
-					<</link>>
+			<<if $settings.fertilityCycleEnabled>>
+				<div class="settingsGrid">
+					<div class="settingsHeader options">Menstruation</div>
+					<<numberStepper "🩸 Cycle Day" _menstruation.currentDay {
+						callback: value => V.sexStats.vagina.menstruation.currentDay = value,
+						min: 0, max: _menstruation.currentDaysMax, step: 1, percentage: false,
+						valueFormat: value => `Day ${Math.trunc(value)} of ${V.sexStats.vagina.menstruation.currentDaysMax}`
+					}>>
+					<div class="settingsToggleItem">
+						<span class="gold">🥚 Ovulation</span><br>
+						<<link "Ovulate Now">>
+							<<set _menstruation.currentDay to _menstruation.stages[2]>>
+							<<replace "#cheatsPregnancyOptions">><<cheatsPregnancyOptions>><</replace>>
+						<</link>>
+					</div>
 				</div>
-			</div>
-			<hr>
+				<hr>
+			<</if>>
 		<</if>>
 		<<if playerIsPregnant()>>
 			You are pregnant.

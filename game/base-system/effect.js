@@ -173,7 +173,7 @@ function effectsWater(waterType = "liquid") {
 
 	if (!V.worn.under_lower.type.includes("naked") && !playerChastity() && !waterproofCheck(V.worn.under_lower)) {
 		capWetStage("under_lower", "underlowerwetstage", true);
-		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && (V.player.sex == "f" && V.pantiesSoaked) && wetStageReveals("under_lower", 20, true)) {
+		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.player.sex === "f" && V.pantiesSoaked && wetStageReveals("under_lower", 20, true)) {
 			V.underlowerwetstage = 3;
 			if (V.lowerwetstage === 3 || V.worn.lower.type.includes("naked")) {
 				// If clothing above underwear is also wet, or missing
@@ -189,7 +189,9 @@ function effectsWater(waterType = "liquid") {
 		} else if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && wetStageReveals("under_lower", 20, true)) {
 			V.underlowerwetstage = 3;
 			wetIntro = 2;
-			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_lower.name}, exposing your <<genitals>> through its fabric.</span>`);
+			sWikifier(
+				`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_lower.name}, exposing your <<genitals>> through its fabric.</span>`
+			);
 		} else if (V.underlowerwet < 90 && V.underlowerwetstage >= 3) {
 			V.underlowerwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.under_lower.name} <<underlowerhas>> dried, concealing your <<genitals>> once again. </span>`);
@@ -214,7 +216,9 @@ function effectsWater(waterType = "liquid") {
 		if (V.underupperwet >= 100 && V.underupperwetstage < 3 && wetStageReveals("under_upper", 20, true)) {
 			V.underupperwetstage = 3;
 			wetIntro = 2;
-			sWikifier(`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_upper.name}, exposing your <<breasts>> through its fabric.</span>`);
+			sWikifier(
+				`<span class="lewd">${waterType.toUpperFirst()} soaks through your ${V.worn.under_upper.name}, exposing your <<breasts>> through its fabric.</span>`
+			);
 		} else if (V.underupperwet < 90 && V.underupperwetstage >= 3) {
 			V.underupperwetstage = 2;
 			sWikifier(`<span class="green">Your ${V.worn.under_upper.name} <<underupperhas>> dried, concealing your <<breasts>>. </span>`);
@@ -295,7 +299,12 @@ function effectsMakeup() {
 	if (V.makeupWashed) {
 		delete V.makeupWashed;
 		const hadBeautyBoost = typeof getBeautyBoost === "function" && getBeautyBoost() > 0;
-		span(`Your makeup is washed away${V.beauty >= (V.beautymax / 7) * 4 ? ", revealing your natural beauty" : hadBeautyBoost ? "" : ", and you feel a little plainer"}.`, "teal");
+		span(
+			`Your makeup is washed away${
+				V.beauty >= (V.beautymax / 7) * 4 ? ", revealing your natural beauty" : hadBeautyBoost ? "" : ", and you feel a little plainer"
+			}.`,
+			"teal"
+		);
 		br();
 	}
 
@@ -968,9 +977,7 @@ function effects() {
 		if (V.rebuy_failure.length) {
 			element(
 				"span",
-				`Your ${formatList(V.rebuy_failure, "and", true)} signal${
-					V.rebuy_failure.length > 1 ? "" : "s"
-				} for a replacement, but you don't have enough money.`,
+				`Your ${formatList(V.rebuy_failure, "and", true)} signal${V.rebuy_failure.length > 1 ? "" : "s"} for a replacement, but you don't have enough money.`,
 				"purple"
 			);
 			V.rebuy_failure = [];
@@ -1082,11 +1089,7 @@ function effects() {
 					element("span", "Rumours of your unique genitalia have spread throughout the school.", "pink");
 					break;
 				case 3:
-					element(
-						"span",
-						"It sounds far-fetched to many, but the school is rife with gossip about a student with both boy and girl parts.",
-						"purple"
-					);
+					element("span", "It sounds far-fetched to many, but the school is rife with gossip about a student with both boy and girl parts.", "purple");
 					break;
 				case 2:
 					element("span", "Rumours of a student with both boy and girl parts are spreading through the school.", "blue");
@@ -1109,7 +1112,7 @@ function effects() {
 			["milk", "Milk Enthusiast", "Milk Addict"],
 			["cum", "Cumoisseur", "Cum Dump"],
 			["penis_addict", "Cock Enthusiast", "Cock Addict"],
-			["hole_addict", "Hole Enthusiast", "Hole Addict"]
+			["hole_addict", "Hole Enthusiast", "Hole Addict"],
 		].forEach(([variable, defiantName, submissiveName]) => {
 			if (V[`${variable}_trait_message`]) {
 				element("span", `You've gained the "${V.submissive <= 850 ? defiantName : submissiveName}" trait.`, "gold");
@@ -1119,11 +1122,7 @@ function effects() {
 
 		if (V.insanityTraitMessage) {
 			if (V.insanityTraitMessage === "gain") {
-				element(
-					"span",
-					'The weight of everything you\'ve endured finally cracks something inside. Your grip on reality is slipping. You\'ve gained the',
-					"red"
-				);
+				element("span", "The weight of everything you've endured finally cracks something inside. Your grip on reality is slipping. You've gained the", "red");
 				element("span", '"Insanity"', "red");
 				element("span", "trait.", "red");
 			} else if (V.insanityTraitMessage === "loss") {
@@ -1147,11 +1146,7 @@ function effects() {
 					element("span", "traits.", "purple");
 					break;
 				case "traitLost":
-					element(
-						"span",
-						`The cravings for nectar finally subside. You've lost the "${V.submissive <= 850 ? "Dendrophile" : "Plant Lover"}" and`,
-						"lblue"
-					);
+					element("span", `The cravings for nectar finally subside. You've lost the "${V.submissive <= 850 ? "Dendrophile" : "Plant Lover"}" and`, "lblue");
 					element("span", '"Nectar Addict"', "red");
 					element("span", "traits.", "lblue");
 					break;
@@ -1175,11 +1170,7 @@ function effects() {
 					br();
 					break;
 				case "traitGainUnknown":
-					element(
-						"span",
-						"You find yourself inexplicably craving Poppy's presence, and you can't really figure out why.",
-						"purple"
-					);
+					element("span", "You find yourself inexplicably craving Poppy's presence, and you can't really figure out why.", "purple");
 					br();
 					break;
 				case "traitLostKnown":
@@ -1207,11 +1198,7 @@ function effects() {
 			}
 		}
 		if (window.poppyConsumePendingPavlovMessage && poppyConsumePendingPavlovMessage()) {
-			element(
-				"span",
-				"Now that Poppy is your love interest, you can't help but feel drawn to them like a moth to a flame. You've gained the ",
-				"purple"
-			);
+			element("span", "Now that Poppy is your love interest, you can't help but feel drawn to them like a moth to a flame. You've gained the ", "purple");
 			element("span", '"Pavlov: Poppy"', "red");
 			element("span", " trait.", "purple");
 			br();
@@ -1251,19 +1238,19 @@ function effects() {
 			element("i", "Your mind is open to the possibility of another lover. You may now choose a second love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 1;
-		} else if (V.loveInterest_message === 3 && V.loveInterestAwareMessage == 1) {
+		} else if (V.loveInterest_message === 3 && V.loveInterestAwareMessage === 1) {
 			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a third love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 2;
-		} else if (V.loveInterest_message === 4 && V.loveInterestAwareMessage == 2) {
+		} else if (V.loveInterest_message === 4 && V.loveInterestAwareMessage === 2) {
 			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a fourth love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 3;
-		} else if (V.loveInterest_message === 5 && V.loveInterestAwareMessage == 3) {
+		} else if (V.loveInterest_message === 5 && V.loveInterestAwareMessage === 3) {
 			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a fifth love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 4;
-		} else if (V.loveInterest_message === 6 && V.loveInterestAwareMessage == 4) {
+		} else if (V.loveInterest_message === 6 && V.loveInterestAwareMessage === 4) {
 			element("i", "Your mind is open to the possibility of multiple lovers. You may now choose a sixth love interest.", "pink");
 			delete V.loveInterest_message;
 			V.loveInterestAwareMessage = 5;
@@ -1469,9 +1456,9 @@ function effects() {
 					case "anus2":
 					case "vagina2":
 						sWikifier(
-							`Your ${
-								event === "anus2" ? "stomach" : "uterus"
-							} rumbles a little. You hope the noise hasn't attracted any attention. <<garousal>>${stressMulti ? "<<gstress>>" : ""}`
+							`Your ${event === "anus2" ? "stomach" : "uterus"} rumbles a little. You hope the noise hasn't attracted any attention. <<garousal>>${
+								stressMulti ? "<<gstress>>" : ""
+							}`
 						);
 						arousalGain += (arousalMulti * 250) / (minDaysLeft + 1);
 						V.stress += 200 * stressMulti;
@@ -1496,9 +1483,9 @@ function effects() {
 		console.log("Crime event types:", Object.keys(V.crime.events));
 	}
 	// for (let i = 0; i < Object.keys(V.crime.events).length; i++) {
-	// 	// This will intentionally trigger an error when crime events gets wiped, 
+	// 	// This will intentionally trigger an error when crime events gets wiped,
 	// 	// and will let me get save files closer to the source when somebody reports it again.
-	// } 
+	// }
 
 	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
@@ -1768,21 +1755,13 @@ function effects() {
 					element("span", "Your ears tingle.", "gold");
 					break;
 				case "cowUp4":
-					element(
-						"span",
-						"Your ears itch. You reach up to scratch them and find them much bigger than you expected. You've grown a pair of cow ears.",
-						"gold"
-					);
+					element("span", "Your ears itch. You reach up to scratch them and find them much bigger than you expected. You've grown a pair of cow ears.", "gold");
 					break;
 				case "cowUp5":
 					element("span", "Your lower back tingles.", "gold");
 					break;
 				case "cowUp6":
-					element(
-						"span",
-						"Your bottom feels heavier than usual. You reach behind you and feel your new cow tail. You suppress the urge to moo.",
-						"gold"
-					);
+					element("span", "Your bottom feels heavier than usual. You reach behind you and feel your new cow tail. You suppress the urge to moo.", "gold");
 					fragment.append(wikifier("earnFeat", "'Cattle'"));
 					break;
 				case "cowDown0":
@@ -1850,31 +1829,19 @@ function effects() {
 					element("span", "You have a strange toothache and a strange craving for honey.", "gold");
 					break;
 				case "bearUp2":
-					element(
-						"span",
-						"Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.",
-						"gold"
-					);
+					element("span", "Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.", "gold");
 					break;
 				case "bearUp3":
 					element("span", "Your scalp and neck itch.", "gold");
 					break;
 				case "bearUp4":
-					element(
-						"span",
-						"Your scalp twitches. You reach up and feel your new pair of bear ears and a patch of fur covering your neck.",
-						"gold"
-					);
+					element("span", "Your scalp twitches. You reach up and feel your new pair of bear ears and a patch of fur covering your neck.", "gold");
 					break;
 				case "bearUp5":
 					element("span", "Your lower back tingles.", "gold");
 					break;
 				case "bearUp6":
-					element(
-						"span",
-						"Your bottom feels fluffier than usual. You reach behind you and feel your new bear tail. You suppress the urge to growl.",
-						"gold"
-					);
+					element("span", "Your bottom feels fluffier than usual. You reach behind you and feel your new bear tail. You suppress the urge to growl.", "gold");
 					fragment.append(wikifier("earnFeat", "'Bear'"));
 					break;
 
@@ -1895,7 +1862,7 @@ function effects() {
 					break;
 				case "bearDown5":
 					element("span", "Your balance feels different. Your bear tail has disappeared.", "gold");
-					break;					
+					break;
 				case "harpyUp1":
 					element("span", "Your vision feels sharper.", "gold");
 					break;
@@ -1908,9 +1875,7 @@ function effects() {
 						`Your lower back and neck itch. ${
 							V.loveInterest.primary !== "None"
 								? `Your thoughts turn to ${
-										["Black Wolf", "Great Hawk"].includes(V.loveInterest.primary)
-											? `the ${V.loveInterest.primary},`
-											: `${V.loveInterest.primary},`
+										["Black Wolf", "Great Hawk"].includes(V.loveInterest.primary) ? `the ${V.loveInterest.primary},` : `${V.loveInterest.primary},`
 								  } and you have a primal, almost animalistic, urge to be with ${C.npc[V.loveInterest.primary].pronouns.him}.`
 								: "You suddenly crave a true partner to be with."
 						}`,
@@ -1959,11 +1924,7 @@ function effects() {
 					element("span", "You have a strange toothache, and your eyes feel a little sharper. You have the urge to steal something.", "gold");
 					break;
 				case "foxUp2":
-					element(
-						"span",
-						"Your mouth and eyes feel different. You explore your mouth and yip as your tongue presses against your new fangs.",
-						"gold"
-					);
+					element("span", "Your mouth and eyes feel different. You explore your mouth and yip as your tongue presses against your new fangs.", "gold");
 					break;
 				case "foxUp3":
 					element(
@@ -1971,9 +1932,7 @@ function effects() {
 						`Your scalp itches. ${
 							V.loveInterest.primary !== "None"
 								? `Your thoughts turn to ${
-										["Black Wolf", "Great Hawk"].includes(V.loveInterest.primary)
-											? `the ${V.loveInterest.primary},`
-											: `${V.loveInterest.primary},`
+										["Black Wolf", "Great Hawk"].includes(V.loveInterest.primary) ? `the ${V.loveInterest.primary},` : `${V.loveInterest.primary},`
 								  } and you have a primal, almost animalistic, urge to be with ${C.npc[V.loveInterest.primary].pronouns.him}.`
 								: "You suddenly crave a true partner to be with."
 						}`,
@@ -1991,11 +1950,7 @@ function effects() {
 					);
 					break;
 				case "foxUp6":
-					element(
-						"span",
-						"Your bottom feels heavier than usual. You give it a wiggle and feel your new fox tail. It's extremely comforting to touch.",
-						"gold"
-					);
+					element("span", "Your bottom feels heavier than usual. You give it a wiggle and feel your new fox tail. It's extremely comforting to touch.", "gold");
 					fragment.append(wikifier("specialClothesUnlock", "'set'", "'shrine'"));
 					fragment.append(wikifier("earnFeat", "'Fox'"));
 					break;
@@ -2027,18 +1982,10 @@ function effects() {
 					element("span", "Your scalp begins to itch.", "gold");
 					break;
 				case "bunnyUp4":
-					element(
-						"span",
-						"You feel the urge to scratch at your head and when you do, you discover a pair of bunny ears. You tug at them.",
-						"gold"
-					);
+					element("span", "You feel the urge to scratch at your head and when you do, you discover a pair of bunny ears. You tug at them.", "gold");
 					break;
 				case "bunnyUp5":
-					element(
-						"span",
-						"Your lower back begins to itch. You can barely scratch at it without being obvious.",
-						"gold"
-					);
+					element("span", "Your lower back begins to itch. You can barely scratch at it without being obvious.", "gold");
 					break;
 				case "bunnyUp6":
 					element(
@@ -2066,7 +2013,7 @@ function effects() {
 					break;
 				case "bunnyDown5":
 					element("span", "Your bunny tail has disappeared.", "gold");
-					break;					
+					break;
 				// Clothes
 				case "bimboMessage1":
 					element(
@@ -2157,27 +2104,24 @@ function effects() {
 
 	sWikifier("<<integritycheck>>");
 
-	if (V.orgasmCum > 0) 
-	{
+	if (V.orgasmCum > 0) {
 		let arousalDrop = 0;
 		if (V.player.sex === "m") {
-			arousalDrop = -2000 - (V.orgasmcount * 1000);
+			arousalDrop = -2000 - V.orgasmcount * 1000;
+		} else {
+			arousalDrop = -1000 - V.orgasmcount * 500;
 		}
-		else {
-			arousalDrop = -1000 - (V.orgasmcount * 500);
-		}
-		
+
 		if (V.drugged > 0) {
 			fragment.append(wikifier("pleasure", arousalDrop));
-		}
-		else {
-			fragment.append(wikifier("pleasure", arousalDrop*2));
+		} else {
+			fragment.append(wikifier("pleasure", arousalDrop * 2));
 		}
 
 		if (V.orgasmCum === 1) {
 			V.refractoryPeriod = V.player.penisExist ? 5 : 0;
 		}
-		
+
 		sWikifier(`<span class="light-pink">Your body continues to convulse as it releases the tension from your orgasm.</span> <<llarousal>>`);
 		br();
 		sWikifier(`<span class="pink">Your body is extra sensitive due to the current orgasm.</span>`);
@@ -2194,25 +2138,6 @@ function effects() {
 
 	if (V.worn.genitals.cursed === 1 && V.worn.genitals.integrity <= 0) V.worn.genitals.type.push("broken");
 
-	if (V.worn.feet.type.includes("heels") && currentSkillValue("feetskill") < V.worn.feet.reveal) {
-		const stamp = Number(Time?.date?.timeStamp); V.effectsTimeGuard ??= {};
-		if (Number.isFinite(stamp)) {
-			const last = Number(V.effectsTimeGuard.heelsFatigueTimestamp);
-
-			/* First render after installing/loading: seed only. This prevents F5/history from applying fatigue during render. */
-			if (!Number.isFinite(last)) {V.effectsTimeGuard.heelsFatigueTimestamp = stamp;}
-			else if (stamp > last) {
-				const elapsedHours = Math.min((stamp - last) / 3600, 24); V.effectsTimeGuard.heelsFatigueTimestamp = stamp;
-				const feetFatigue = ((V.worn.feet.reveal - currentSkillValue("feetskill")) / 150) * elapsedHours;
-				/*
-				* Route heel fatigue through the tiredness macro rather than direct V.tiredness writes.
-				* Positive tiredness macro values are multiplied by 15, so feetFatigue / 15 preserves the old raw value before normal modifiers.
-				*/
-				if (Number.isFinite(feetFatigue) && feetFatigue > 0) {wikifier("tiredness", feetFatigue / 15, 1);}
-			}
-		}
-	}
-
 	sWikifier("<<exposure>>");
 
 	if (V.combat) sWikifier("<<pass 10 seconds>>");
@@ -2225,8 +2150,8 @@ function effects() {
 
 	sWikifier("<<blackmail-effects>>");
 	sWikifier("<<portalPantiesDisplay>>");
-	
-	if (V.trauma >= (V.traumamax * 0.9)) V.traumatized = true;
+
+	if (V.trauma >= V.traumamax * 0.9) V.traumatized = true;
 
 	return fragment;
 }
@@ -2241,8 +2166,6 @@ Macro.add("effects", {
 			console.error(e?.stack || "(no stack)");
 			// Keeps the game playable while you debug:
 			this.output.append(document.createDocumentFragment());
-			// Optional: drop into debugger at the exact throw site (Chrome/Firefox)
-			debugger;
 			return;
 		}
 
@@ -2296,11 +2219,11 @@ Macro.add("effects", {
 				}
 			});
 		if (document.getElementById("ui-bar") && !window.uiBarObserver) {
-			window.uiBarObserver = new MutationObserver((mutations) => {
+			window.uiBarObserver = new MutationObserver(mutations => {
 				for (const mutation of mutations) {
 					if (mutation.type === "attributes" && mutation.attributeName === "class") {
 						if (document.getElementById("ui-bar").classList.contains("stowed")) {
-							if (V.options.bigCanvas == true) {
+							if (V.options.bigCanvas === true) {
 								document.querySelector("#ui-bar").style.left = "-22.5em";
 							} else {
 								document.querySelector("#ui-bar").style.left = "-15.5em";

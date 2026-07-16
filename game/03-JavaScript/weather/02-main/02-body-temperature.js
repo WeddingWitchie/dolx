@@ -81,7 +81,7 @@ Weather.BodyTemperature = (() => {
 	 * @param {number} minutes The time elapsed in minutes.
 	 */
 	function update(temperature, minutes) {
-		if (V.timeSkip == undefined) {
+		if (V.timeSkip === undefined) {
 			adjustTemperatureThresholds();
 
 			if (T.bodyActivity === undefined) resetActivity();
@@ -220,7 +220,7 @@ Weather.BodyTemperature = (() => {
 	}
 
 	function adjustTemperatureThresholds() {
-		if (V.transformationParts.traits.tempTolerance == "disabled" || V.DoLPTFTempTolerance == 0) {
+		if (V.transformationParts.traits.tempTolerance === "disabled" || V.DoLPTFTempTolerance === 0) {
 			settings.effects.lowerThresholdStart = 36;
 			settings.effects.lowerThresholdEnd = 33;
 			settings.minTemperature = 33;
@@ -232,42 +232,60 @@ Weather.BodyTemperature = (() => {
 
 		const transformationAdjustments = {
 			wolf: {
-				coldTolerance: -20, coldToleranceEnd: -25,
-				heatTolerance: 0, heatToleranceEnd: 0
+				coldTolerance: -20,
+				coldToleranceEnd: -25,
+				heatTolerance: 0,
+				heatToleranceEnd: 0,
 			},
 			cat: {
-				coldTolerance: 0, coldToleranceEnd: 0,
-				heatTolerance: 5, heatToleranceEnd: 10
+				coldTolerance: 0,
+				coldToleranceEnd: 0,
+				heatTolerance: 5,
+				heatToleranceEnd: 10,
 			},
 			cow: {
-				coldTolerance: -5, coldToleranceEnd: -10,
-				heatTolerance: 8, heatToleranceEnd: 12
+				coldTolerance: -5,
+				coldToleranceEnd: -10,
+				heatTolerance: 8,
+				heatToleranceEnd: 12,
 			},
 			bear: {
-				coldTolerance: -30, coldToleranceEnd: -35,
-				heatTolerance: 5, heatToleranceEnd: 10
+				coldTolerance: -30,
+				coldToleranceEnd: -35,
+				heatTolerance: 5,
+				heatToleranceEnd: 10,
 			},
 			bird: {
-				coldTolerance: 0, coldToleranceEnd: 0,
-				heatTolerance: 15, heatToleranceEnd: 20
+				coldTolerance: 0,
+				coldToleranceEnd: 0,
+				heatTolerance: 15,
+				heatToleranceEnd: 20,
 			},
 			bunny: {
-				coldTolerance: 0, coldToleranceEnd: 0,
-				heatTolerance: 0, heatToleranceEnd: 0
+				coldTolerance: 0,
+				coldToleranceEnd: 0,
+				heatTolerance: 0,
+				heatToleranceEnd: 0,
 			},
 			fox: {
-				coldTolerance: -10, coldToleranceEnd: -15,
-				heatTolerance: 5, heatToleranceEnd: 10
+				coldTolerance: -10,
+				coldToleranceEnd: -15,
+				heatTolerance: 5,
+				heatToleranceEnd: 10,
 			},
 			waterdragon: {
-				coldTolerance: -40, coldToleranceEnd: -45,
-				heatTolerance: -1, heatToleranceEnd: -2
+				coldTolerance: -40,
+				coldToleranceEnd: -45,
+				heatTolerance: -1,
+				heatToleranceEnd: -2,
 			},
 		};
 
 		const mod = transformationAdjustments[V.transformationParts.traits.tempTolerance] ?? {
-			coldTolerance: 0, coldToleranceEnd: 0,
-			heatTolerance: 0, heatToleranceEnd: 0
+			coldTolerance: 0,
+			coldToleranceEnd: 0,
+			heatTolerance: 0,
+			heatToleranceEnd: 0,
 		};
 
 		// Apply modifications
@@ -318,6 +336,7 @@ Weather.BodyTemperature = (() => {
 			if (this.get() < 39) return "warm";
 			return "hot";
 		},
+		// Goes from 1 (no change) to 3 (+200% increase)
 		get fatigueModifier() {
 			const factor = temperatureFactor();
 			return this.get() > settings.baseBodyTemperature ? interpolate(1, settings.effects.maxFatigueGainMultiplier, factor) : 1;

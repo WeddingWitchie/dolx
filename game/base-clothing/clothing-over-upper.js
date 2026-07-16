@@ -5,7 +5,7 @@ plural - widget will output "are" if 1 and "is" if 0. eg - Your hat <<upperplura
 function initOverUpper() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "over_upper",
 			name: "naked",
@@ -45,8 +45,8 @@ function initOverUpper() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "over_upper",
 			name: "froggy coat",
@@ -90,8 +90,8 @@ function initOverUpper() {
 			iconFile: "",
 			accIcon: 0,
 			outfitPrimary: { over_lower: "froggy skirt", over_head: "froggy hood" },
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "over_upper",
 			name: "cream",
@@ -133,8 +133,8 @@ function initOverUpper() {
 			location: 0,
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 3,
 			slot: "over_upper",
 			name: "barber chair",
@@ -177,7 +177,52 @@ function initOverUpper() {
 			notuck: 1,
 			pregType: 0,
 			back_img: 1,
-		},
+		}),
+		new ClothesItem({
+			index: 4,
+			slot: "over_upper",
+			name: "kaiju costume",
+			name_cap: "Kaiju costume",
+			variable: "kaiju",
+			integrity: 500,
+			integrity_max: 500,
+			fabric_strength: 30,
+			reveal: 100,
+			bustresize: -4,
+			word: "a",
+			one_piece: 1,
+			strap: 0,
+			open: 0,
+			zip: 0,
+			state: "waist",
+			state_base: "waist",
+			state_top: "chest",
+			state_top_base: "chest",
+			plural: 0,
+			colour: 0,
+			colour_options: [],
+			colour_combat: "green",
+			exposed: 0,
+			exposed_base: 0,
+			type: ["costume", "rainproof"],
+			set: "kaiju",
+			gender: "n",
+			femininity: 0,
+			warmth: 10,
+			cost: 12000,
+			description: "It's Godazaur!",
+			shop: [],
+			accessory: 0,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			sleeve_img: 1,
+			breast_img: 0,
+			cursed: 0,
+			location: 0,
+			iconFile: "",
+			accIcon: 0,
+			outfitPrimary: { over_lower: "kaiju bottoms", over_head: "kaiju hood" },
+		}),
 	];
 	setup.clothes.over_upper = clothing;
 

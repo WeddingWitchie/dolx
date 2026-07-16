@@ -47,7 +47,7 @@ setup.shopDetails = {
 	serving: {
 		name: "Serving",
 		desc: "Encourages tips when working as a bartender, waiter or waitress if visible.",
-		details: "Increases the amount of money gained from each tip by 20% per item with the trait.",
+		details: "Increases the amount of money gained from tips by 25% when wearing an item with the trait. Each additional item is 33% less effective.",
 	},
 	fetish: {
 		name: "Fetish",
@@ -107,8 +107,7 @@ setup.shopDetails = {
 	heels: {
 		name: "High heeled",
 		desc: "Difficult to get around in, unless you have skilled feet.",
-		details:
-			"Improves kicking power during combat. Reduces travel speed. May cause fatigue and failed athletics checks in the farmlands, moor, and forest.",
+		details: "Improves kicking power during combat. Reduces travel speed. May cause fatigue and failed athletics checks in the farmlands, moor, and forest.",
 	},
 	rugged: {
 		name: "Rugged",
@@ -271,7 +270,7 @@ setup.shopDetails = {
 	antitransparent: {
 		name: "Anti-Transparent",
 		desc: "Opaque",
-		details: "Still gets wet but doesn't go transparent."
+		details: "Still gets wet but doesn't go transparent.",
 	},
 	heavy: {
 		name: "Heavy",
@@ -309,8 +308,7 @@ setup.shopDetails = {
 	jewelled: {
 		name: "Jewelled",
 		desc: "Eyecatching with sharp edges.",
-		details:
-			"Improves punching power during combat slightly. Increases allure.",
+		details: "Improves punching power during combat slightly. Increases allure.",
 	},
 	expensive: {
 		name: "Expensive",

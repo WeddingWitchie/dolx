@@ -419,7 +419,6 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 <</if>>
 
 :: Forest Wolf Molestation Resist
-
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
 	<<controlloss>>
@@ -429,7 +428,7 @@ Six pairs of eyes stare at you through the dim light. The pack advances on you.
 	<<npc "Black Wolf">>
 	<<beastCombatInit>>
 
-	/*<<beastNNPCinit>>*/<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>><<set $enemytrust -= 40>><<set $enemyanger += 200>>
+	<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>><<set $enemytrust -= 40>><<set $enemyanger += 200>>
 	<<healthMultiplier>>
 	<<forestRescueSetup>>
 <</if>>
@@ -2703,8 +2702,8 @@ You pause and look up at the hive again, before deciding to lather yourself with
 
 <<if $struggle_start is 1>>
 	<<struggle_init>>
-	<<set $struggle.creature to "bee">>/*Creature species*/
-	<<struggle_creatures 4 2>>/*How many creatures will be involved, and their health.*/
+	<<set $struggle.creature to "bee">> <!-- Creature species -->
+	<<struggle_creatures 4 2>> <!-- How many creatures will be involved, and their health. -->
 	<<set $combat to 1>>
 	<<controlloss>>
 	<<violence 1>>
@@ -3561,6 +3560,7 @@ You hide and wait, watching the nest intently.
 		<<link [[Challenge|Forest Fox Nest Challenge]]>><</link>><<physiquedifficulty 1 $physiquemax>>
 		<br>
 	<</if>>
+	<<set $skulduggerydifficulty to 300>>
 	<<link [[Sneak up|Forest Fox Nest Sneak]]>><</link>><<skulduggerydifficulty>>
 	<br>
 	<<if (effectiveTransformationLevel("fox") gte 6)>>
@@ -5361,7 +5361,7 @@ You shout for help out the top of your lungs, hoping for the best. Besides some 
 
 :: Forest Eden Snare Oral
 
-<<if $phase is 0>> /* Help Eden pull pants down */
+<<if $phase is 0>> <!-- Help Eden pull pants down -->
 	<<set $edenFluidsCheck to "Eden">>
 	<<if $NPCList[0].penis isnot "none">>
 		Eden releases <<his>> <<print $NPCList[0].penisdesc>> from <<his>> torn pants. It's already hard.
@@ -5387,7 +5387,7 @@ You shout for help out the top of your lungs, hoping for the best. Besides some 
 	You're dizzy now from the blood rushing to your head and the lack of air. "Good <<girl>>."
 	<br><br>
 	Eden takes a moment to fix <<himself>> up before returning to you. This time, <<he>> lets you down from the snare.
-<<else>> /* Push Eden away */
+<<else>> <!-- Push Eden away -->
 	"I don't want to," you say as you push at Eden's thighs.
 	<br><br>
 	<<if C.npc.Eden.love gte 150>>
@@ -5458,7 +5458,7 @@ You try to tear your gaze from the tree, but a visage catches your eye, formed b
 
 :: Forest Snow Call
 <<effects>>
-/* Todo: Gwylan */
+<!-- TODO: Gwylan -->
 <<if $forestHunter is "Eden" and $foresthunt gte 7>>
 	<<npc Eden>><<person1>>
 	<<if $edenCagedEscape>>
@@ -6477,7 +6477,7 @@ You cautiously release <<him>> and help <<him>> stand. <<He>> fixes <<his>> clot
 
 :: Forest Gwylan Stalk Sex
 <<run statusCheck("Gwylan")>>
-/* maninit skipped since this comes from an active stalking encounter */
+<!-- maninit skipped since this comes from an active stalking encounter -->
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
 	<<consensual>>
@@ -6861,7 +6861,11 @@ You cautiously release <<him>> and help <<him>> stand. <<He>> fixes <<his>> clot
 	<br><br>
 	<<set $forest to $gwylan.lureDistance + 5>>
 	<<run delete $gwylan.lureWill>><<run delete $gwylan.lureDistance>>
-	<<foresthuntstart "Gwylan">>
+	<<if ["garden", "shop"].includes(gwylanSchedule())>>
+		<<foresthuntstart "Gwylan">>
+	<<else>>
+		<<link [[Next|Forest]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<</if>>
 <<elseif $gwylan.lureDistance lte 0>>
 	You see a small hole in the ground, just big enough to crawl through. It yawns open wider before your eyes.
 	<br><br>

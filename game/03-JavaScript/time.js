@@ -195,6 +195,7 @@ const Time = (() => {
 				// pass the remaining minutes
 				minutePassed((minutes - minsToNextHour) % 60);
 			}
+			/* eslint-disable no-useless-catch */
 		} catch (ex) {
 			// we only need to catch it so "finally" can run, so, right back at you
 			throw new Error(ex);
@@ -335,7 +336,7 @@ const Time = (() => {
 	/**
 	 *
 	 * @param {number} from starting hour
-	 * @param {number} to ending hour, inclusive, so Time.betweenHours(5,5) won't be always false. keep in mind when thinking about opeining hours advertised as 8:00 to 21:00 - they are not actually open at 21:00, it's a lie! at best it's 8:00 to 20:59, so use (8, 20) when you see those
+	 * @param {number} to ending hour, inclusive, so Time.betweenHours(5,5) won't be always false. keep in mind when thinking about opening hours advertised as 8:00 to 21:00 - they are not actually open at 21:00, it's a lie! at best it's 8:00 to 20:59, so use (8, 20) when you see those
 	 * @param {?number} pass minutes to pass before checking
 	 * @returns {boolean} whether current time after passing `pass` minutes will be between specified hours
 	 */
@@ -601,6 +602,7 @@ function weekPassed() {
 	if (V.syndromewolves === 1) V.wolfcavepatrol = 1;
 	if (V.photo) {
 		if (V.photo.silly === "paid") V.photo.silly = 0;
+		V.photo.job = 0;
 		V.photo.shoot = 0;
 	}
 	if (V.nightmareTimer && V.nightmareTimer > 0) {
@@ -791,7 +793,7 @@ function dayPassed(days) {
 		if (V.lake_ice_broken >= 1) V.lake_ice_broken--;
 		if (V.lake_ice_broken < 1) delete V.lake_ice_broken;
 		if (V.community_service >= 1) {
-			if (V.community_service_done !== 1 && !["asylum", "prison"].includes(V.location)) {
+			if (V.community_service_done !== 1 && !["asylum", "prison"].includes(V.location) && !V.daily?.asylumPrison) {
 				wikifier("crimeUp", 200, "obstruction");
 				V.effectsmessage = 1;
 				V.community_message = "missed";
@@ -1157,6 +1159,11 @@ function dayPassed(days) {
 	}
 
 	localStorage.removeItem("gwylanTalk");
+
+	delete V.daily.asylumPrison;
+	if (["asylum", "prison"].includes(V.location)) {
+		V.daily.asylumPrison = 1;
+	}
 }
 
 function hourPassed(hours) {
@@ -1335,7 +1342,10 @@ function minutePassed(minutes) {
 	// Body temperature
 	const temperature = V.outside ? Weather.apparentTemperature : Weather.insideTemperature;
 	if (!V.possessed) Weather.BodyTemperature.update(temperature, minutes);
-	if (V.timeSkip === undefined) V.stress += Math.round(Weather.BodyTemperature.stressModifier * minutes);
+	if (V.timeSkip === undefined) {
+		V.stress += Math.round(Weather.BodyTemperature.stressModifier * minutes);
+		statChange.stressClamp();
+	}
 
 	// Snow & ice
 	Weather.setAccumulatedSnow(minutes);
@@ -1455,6 +1465,8 @@ function minutePassed(minutes) {
 	} else {
 		V.painDuration = 0;
 	}
+
+	// If passive Trauma decreases ever get implemented, they will need to be handled in a way that prevents the "trauma" widget from automatically updating the PC's trauma traits during combat.
 
 	// Arousal
 	const risk = playerPregnancyRisk();
@@ -1623,7 +1635,11 @@ function dailyNPCEffects() {
 	if (C.npc.Robin.trauma > 0) wikifier("npcincr", "Robin", "trauma", -1);
 
 	if (V.robindebtevent === 0) V.robinmissing = 0;
-	if (V.robinpaid >= 1) statChange.trauma(-25);
+	if (V.robinpaid >= 1) {
+		// Avoid updating non-combat trauma state while combat is still resolving at midnight.
+		if (V.combat === 1) statChange.trauma(-25, "combat");
+		else statChange.trauma(-25);
+	}
 	if ((V.robinromance === 1 || V.robinsexfriend === 1) && C.npc.Robin.dom >= 40) wikifier("npcincr", "Robin", "lust", 1);
 	if (getEffectiveBeauty() >= V.beautymax && C.npc.Robin.trauma <= 0 && !V.robinmissing) wikifier("npcincr", "Robin", "lust", 2);
 	if (V.robinPilloryFail) {
@@ -1682,7 +1698,7 @@ function dailyNPCEffects() {
 		V.averyseen = 0;
 		if (V.averydate && Time.weekDay === 1) {
 			V.averydate = 0;
-			if (V.averydateattended !== 1) V.averydatemissed = 1;
+			if (V.averydateattended !== 1 && !V.avery_injury) V.averydatemissed = 1;
 			V.averydateattended = 0;
 		}
 		delete V.averydatedone;
@@ -1706,7 +1722,7 @@ function dailyNPCEffects() {
 				}
 
 				// We skipped/missed, if the party is finished properly we handle the next guest SOMEWHERE ELSE
-				if (V.avery_mansion.party_state !== "finished") {
+				if (V.avery_mansion.party_state !== "finished" && V.avery_mansion.party_state !== "started") {
 					if (V.avery_mansion.hbsc_gala_pending) {
 						// The surprise gala delayed the announced guest until the next party.
 						V.avery_mansion.hbsc_gala_pending = false;
@@ -1723,8 +1739,6 @@ function dailyNPCEffects() {
 						};
 
 						V.avery_mansion.guest = rotation[V.avery_mansion.guest] || "Quinn";
-
-						V.avery_mansion.guest = rotation[V.avery_mansion.guest];
 						if (V.avery_mansion.hbsc_gala_cooldown > 0) V.avery_mansion.hbsc_gala_cooldown--;
 						if (
 							V.avery_mansion.guest !== "Bailey" &&
@@ -1739,7 +1753,8 @@ function dailyNPCEffects() {
 				}
 
 				// If the state is still "missed" we don't reset the state. We still need to trigger Avery being angry we missed a party
-				if (V.avery_mansion.party_state !== "missed") {
+				// Do not reset the state if the party is still on going
+				if (V.avery_mansion.party_state !== "missed" && V.avery_mansion.party_state !== "started") {
 					V.avery_mansion.party_state = "waiting";
 				}
 			}
@@ -1937,7 +1952,11 @@ function dailyNPCEffects() {
 					V.gwylan.request.timer = V.gwylan.request.missed ? new DateTime(Time.date).addDays(4).timeStamp : new DateTime(Time.date).addDays(2).timeStamp;
 					const traumaDevotion = 15 * V.hypnosis_traits.devotion;
 					const hallucinogenDevotion = 40 * V.hypnosis_traits.devotion;
-					statChange.trauma(traumaDevotion);
+
+					// Edge case for when the PC is in combat at midnight.
+					if (V.combat === 1) statChange.trauma(traumaDevotion, "combat");
+					else statChange.trauma(traumaDevotion);
+
 					statChange.hallucinogen(hallucinogenDevotion);
 					if (["meetAtShop", "meetAtCafe"].includes(V.gwylan.request.event)) {
 						V.hypnosis_devotion_message = V.gwylan.request.event;
@@ -2011,7 +2030,7 @@ function dailyPlayerEffects() {
 		}
 	}
 
-	if (V.willpowerDecay === 1) {
+	if (V.willpowerDecay === 1 && Transformations.effectiveLevel("fallen") < 4) {
 		V.willpower *= 0.99;
 	}
 
@@ -2180,7 +2199,10 @@ function dailyPlayerEffects() {
 	*/
 	if (playerBellySize() < 8) {
 		statChange.insecurity("pregnancy", -5);
-		statChange.acceptance("pregnancy", -5);
+		// after third pregnancy, acceptance no longer decays
+		if (playerNormalPregnancyTotal() < 3) {
+			statChange.acceptance("pregnancy", -5);
+		}
 	}
 
 	for (const bodypart of setup.bodyparts) {
@@ -2260,7 +2282,13 @@ function dailyTransformationEffects() {
 		const scarTrauma = V.auriga_scar * 25;
 		const scarAwareness = V.auriga_scar;
 		const scarPurity = V.auriga_scar * -5;
-		if (V.trauma <= (V.traumamax / 5) * 3) statChange.trauma(scarTrauma);
+
+		if (V.trauma <= (V.traumamax / 5) * 3) {
+			// Edge case for when the PC is in combat at midnight.
+			if (V.combat === 1) statChange.trauma(scarTrauma, "combat");
+			else statChange.trauma(scarTrauma);
+		}
+
 		statChange.awareness(scarAwareness);
 		statChange.purity(scarPurity);
 	}
@@ -2523,15 +2551,19 @@ function dailySchoolEffects() {
 			V.englishPlay = "missed";
 		}
 	}
-	if (V.schooltrait >= 8) statChange.trauma(-150);
-	else if (V.schooltrait === 7) statChange.trauma(-125);
-	else if (V.schooltrait === 6) statChange.trauma(-100);
-	else if (V.schooltrait === 5) statChange.trauma(-75);
-	else if (V.schooltrait === 4) statChange.trauma(-50);
-	else if (V.schooltrait === 3) statChange.trauma(-40);
-	else if (V.schooltrait === 2) statChange.trauma(-30);
-	else if (V.schooltrait === 1) statChange.trauma(-20);
-	else statChange.trauma(-10);
+	let schoolTrauma = -10;
+	if (V.schooltrait >= 8) schoolTrauma = -150;
+	else if (V.schooltrait === 7) schoolTrauma = -125;
+	else if (V.schooltrait === 6) schoolTrauma = -100;
+	else if (V.schooltrait === 5) schoolTrauma = -75;
+	else if (V.schooltrait === 4) schoolTrauma = -50;
+	else if (V.schooltrait === 3) schoolTrauma = -40;
+	else if (V.schooltrait === 2) schoolTrauma = -30;
+	else if (V.schooltrait === 1) schoolTrauma = -20;
+
+	// Avoid updating non-combat trauma state while combat is still resolving at midnight.
+	if (V.combat === 1) statChange.trauma(schoolTrauma, "combat");
+	else statChange.trauma(schoolTrauma);
 
 	if (Time.isSchoolDay(Time.yesterday) && V.location !== "prison") {
 		const attended = Object.keys(V.daily.school.attended).length;
@@ -2824,6 +2856,11 @@ function dailyFarmEvents() {
 			wikifier("farm_stock", "eggs", 20, 40);
 		}
 		if (V.farm.kennel >= 1) {
+			/**
+			 * I think it would be very funny if the Kennel also gave -1 Horse Respect per day. That way, if the player returns to the farm with every animal at -30 respect, there will be an Animal Farm easter egg saying stuff like, "The animals are plotting." or "You hear singing in the barn +Stress" after midnight.
+			 *
+			 * Probably too political for DOL, though.
+			 */
 			wikifier("farm_dogs", -1);
 			wikifier("farm_cattle", -1);
 		}
@@ -3104,7 +3141,7 @@ function earSlimeDaily(passageEffects = false) {
 			}
 		}
 
-		// Breaks chastity gear over time, attempts to equip a chastity parasite if it aplies
+		// Breaks chastity gear over time, attempts to equip a chastity parasite if it applies
 		if (!["naked", "chastity parasite"].includes(V.worn.genitals.name) && playerChastity()) {
 			V.worn.genitals.integrity -= 500;
 			if (V.worn.genitals.integrity <= 0) {

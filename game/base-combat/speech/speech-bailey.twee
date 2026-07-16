@@ -63,21 +63,34 @@
 		<<set $speechnamedrop to 0>>
 		<<switch _loveInterest>>
 			<<case "Robin">>
-				<<set $_strings to [
-					`"That worthless brat can't save you."`,
-					`"Robin can't pay what you owe. Sentiment doesn't clear debt."`,
-					`"If Robin wants you back, <<nnpc_he "Robin">> should bring cash."`
-				]>>
-				<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+				<<if $robinpaid is 1>>
+					<<print $_stringsPre + `"You pay <<nnpc_his 'Robin'>> debt and <<nnpc_he 'Robin'>> can't even watch."`>>
+				<<elseif C.npc.Robin.dom gte 50>>
+					<<print $_stringsPre + `"That waif's grown a spine thanks to you. Shame <<nnpc_he 'Robin'>> won't save you."`>>
+				<<else>>
+					<<set $_strings to [
+						`"That worthless brat can't save you."`,
+						`"What do you expect that waif to do? Cry until I stop?"`,
+						`"Robin can't pay what you owe. Sentiment doesn't clear debt."`,
+						`"If Robin wants you back, <<nnpc_he "Robin">> should bring cash."`
+					]>>
+					<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+				<</if>>
 			<<case "Whitney">>
-				<<set $_strings to [
-					`"Whitney? That one makes trouble for free. I make money from it."`,
-					`"Don't hide behind that brat. <<nnpc_He "Whitney">> has debts of <<nnpc_his "Whitney">> own."`
-				]>>
-				<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+				<<if $whitney_bailey_met gte 1>>
+					<<set $_strings to [
+						`"That idiot's useful. Don't confuse that with important."`,
+						`"Whitney? That one makes trouble for free. I make money from it."`,
+						`"Don't hide behind that brat. <<nnpc_He "Whitney">> has debts of <<nnpc_his "Whitney">> own."`
+					]>>
+					<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
+				<<else>>
+					<<print $_stringsPre + `"If <<nnpc_he _loveInterest>> cared about you, <<nnpc_he _loveInterest>> would pay for you."`>>
+				<</if>>
 			<<case "Black Wolf" "Great Hawk">>
 				<<set $_strings to [
 					`"People would pay extra to see you ${$player.penisExist ? "fuck" : "get fucked by"} some beast."`,
+					`"Animals get put down. You get put to work."`,
 					`"Animals, now? There's a market for everything, I suppose."`,
 					`"Keep that thing away from my property unless someone pays first."`
 				]>>
@@ -94,6 +107,40 @@
 					`"<<He>> goes still. \"Some names are more expensive than others. That one is dangerous.\""`
 				]>>
 				<<print $_strings[random(0, $_strings.length - 1)]>>
+			<<case "Kylar">>
+				<<if $kylar_abduction_bailey is 1>>
+					<<print $_stringsPre + either(
+						`"Call for <<nnpc_him 'Kylar'>> louder. Maybe <<nnpc_hes 'Kylar'>> outside the window."`,
+						`"That little freak is probably watching. Let <<nnpc_him 'Kylar'>>."`
+					)>>
+				<<else>>
+					<<print $_stringsPre + `"If <<nnpc_he _loveInterest>> cared about you, <<nnpc_he _loveInterest>> would pay for you."`>>
+				<</if>>
+			<<case "Sydney">>
+				<<if $temple_bailey>>
+					<<print $_stringsPre + either(
+						`"Save it for confession."`,
+						`"That brat would pray for you. I'd rather <<nnpc_he 'Sydney'>> paid for you."`
+					)>>
+				<<else>>
+					<<print $_stringsPre + `"If <<nnpc_he _loveInterest>> cared about you, <<nnpc_he _loveInterest>> would pay for you."`>>
+				<</if>>
+			<<case "Avery">>
+				<<if $avery_fate is "saved">>
+					<<print $_stringsPre + `"<<nnpc_He 'Avery'>>'d have let you fall."`>>
+				<<elseif $avery_mansion and $avery_fate isnot "fallen" and $avery_fate isnot "kicked" and $renttime lte 0>>
+					<<print $_stringsPre + `"I had a deal with <<nnpc_him 'Avery'>>, but <<nnpc_he 'Avery'>> dried up. Take it up with <<nnpc_him 'Avery'>>."`>>
+				<<elseif $bailey_avery_met>>
+					<<print $_stringsPre + `"Keep calling for that idiot. See if <<nnpc_his 'Avery'>> money reaches this far."`>>
+				<<else>>
+					<<print $_stringsPre + `"If <<nnpc_he _loveInterest>> cared about you, <<nnpc_he _loveInterest>> would pay for you."`>>
+				<</if>>
+			<<case "Alex">>
+				<<print $_stringsPre + either(
+					`"What do you think that idiot ${C.npc.Alex.pronoun is "f" ? "cowgirl" : "cowboy"} is going to do?"`,
+					`"Your farmer's probably face-down in a bottle somewhere."`,
+					`"That drunk couldn't find you if you were standing in <<nnpc_his 'Alex'>> field."`
+				)>>
 			<<default>>
 				<<set $_strings to [
 					`"If <<nnpc_he _loveInterest>> cared about you, <<nnpc_he _loveInterest>> would pay for you."`,
@@ -144,6 +191,122 @@
 				`"Hit, scratch, bite, it doesn't matter. Debt still gets collected."`
 			]>>
 			<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>><<set $enemyanger += 10>><<set $enemytrust -= 20>>
+		<</if>>
+	<<elseif $speechgenitals is 1>>
+		<<print either(
+			`<<He>> looks at your <<genitals>>. "That'll sell."`,
+			`<<He>> looks at your <<genitals>>. "You'll earn your keep."`
+		)>>
+	<<elseif $speechbreasts is 1>>
+		<<print either(
+			`<<He>> looks at your <<breasts>>. "That'll sell."`,
+			`<<He>> looks at your <<breasts>>. "You'll earn your keep."`
+		)>>
+	<<elseif $speechpregnant is 1 and $settings.pregnancySpeechEnabled>>
+		<<if Object.values($children).some(child => child.location === "home")>>
+			<<print `<<He>> sighs at your pregnant belly. "Knocked up. Typical."`>>
+		<<else>>
+			<<print `<<He>> looks at your pregnant belly. "Couldn't keep your legs together, could you?"`>>
+		<</if>>
+	<<elseif $speechplead is 1>>
+		<<if $enemyanger lte 60>>
+			<<print $_stringsPre + either(
+				`"Save your breath."`,
+				`"Quit whining. You'll live."`,
+				`"Begging won't change what you owe me."`,
+				`"Beg harder, maybe I'm feeling generous."`
+			)>>
+		<<else>>
+			<<print $_stringsPre + either(
+				`"Every word out of your mouth adds to what you owe."`,
+				`"You'll shut up and take it if you know what's good for you."`,
+				`"Begging won't save you, you little shit."`
+			)>>
+		<</if>>
+	<<elseif $speechmoan is 1>>
+		<<if $enemyanger lte 60>>
+			<<print $_stringsPre + either(
+				`"Keep it down."`,
+				`"Save the moaning for clients."`,
+				`"Save the racket for someone who pays."`
+			)>>
+		<<else>>
+			<<print $_stringsPre + either(
+				`"Shut your mouth, brat."`,
+				`"Not another sound, you little shit."`,
+				`"One more sound and I'll give you something to moan about."`
+			)>>
+		<</if>>
+	<<elseif $speechdemand is 1>>
+		<<if $enemyanger lte 60>>
+			<<print $_stringsPre + either(
+				`"You don't give orders here."`,
+				`"You're in no position to negotiate."`,
+				`"That mouth is going to cost you, brat."`
+			)>>
+		<<else>>
+			<<print $_stringsPre + either(
+				`"Mouthy little shit."`,
+				`"Shut your goddamn mouth."`,
+				`"You don't get to make demands. You never did."`
+			)>>
+		<</if>>
+	<<elseif $speechscream is 1>>
+		<<set $speechscream to 0>>
+		<<if $enemyanger lte 60>>
+			<<print $_stringsPre + either(`"Shut up."`, `"Be quiet."`, `"No one's coming."`, `"Who exactly do you think is going to help you?"`)>>
+		<<else>>
+			<<print $_stringsPre + either(`"Shut up."`, `"Be. Quiet."`, `"Noisy little shit."`)>>
+		<</if>>
+	<<elseif $speechforgive is 1>>
+		<<print `<<He>> sneers. ` + either(
+			`"I don't need your forgiveness."`,
+			`"Forgive me? For what?"`,
+			`"Close your damn mouth, or I'll close it for you."`
+		)>>
+	<<elseif $speechapologiseunforgiving is 1>>
+		<<print $_stringsPre + either(
+			`"Shut up. I've heard it all before."`,
+			`"Did you really think I would fall for that?"`,
+			`"Do you think I give a damn, you little shit?"`,
+			`"Save it. If you were sorry, you'd stop struggling."`
+		)>>
+	<<elseif $speechgrowl is 1 or $speechgrowlheat is 1 or $speechgrowlrut is 1>>
+		<<print $_stringsPre + either(
+			`"You little mutt."`,
+			`"I'll muzzle you if I have to."`,
+			`"Bite if you want. See what it costs you."`,
+			`"This is what I get for taking in strays."`
+		)>>
+	<<elseif $speechstruggle is 1>>
+		<<if $enemyanger lte 60>>
+			<<print $_stringsPre + either(
+				`"Stop struggling."`,
+				`"You're wasting both our time."`,
+				`"You're not going anywhere."`,
+				`"Don't make this difficult."`,
+				`"Stop fighting me."`
+			)>>
+		<<else>>
+			<<print $_stringsPre + either(
+				`"Quit moving, you little shit."`,
+				`"Stop squirming, damn brat."`,
+				`"That's enough."`,
+				`"Don't test my patience."`,
+				`"You're only making it worse for yourself."`
+			)>>
+		<</if>>
+	<<elseif $speechspank is 1>>
+		<<if $enemyanger lte 60>>
+			<<print $_stringsPre + either(`"What have we learned?"`, `"Count it against what you owe."`)>>
+		<<else>>
+			<<print $_stringsPre + either(
+				`"Harder? Fine."`,
+				`"You asked for this."`,
+				`"This is for wasting my time."`,
+				`"I'll stop when you've learned your lesson."`,
+				`"You've been difficult. This is what happens."`
+			)>>
 		<</if>>
 	<<elseif $speechcum is 1>>
 		<<set $_strings to [
@@ -224,7 +387,12 @@
 			<<set $_strings to [
 				`"It's easier this way. Trust me."`,
 				`"There are worse people than me waiting outside."`,
-				`"You don't need to know who asked for you."`
+				`"You don't need to know who asked for you."`,
+				`"Stay still."`,
+				`"You're learning. Good."`,
+				`"Keep still. I'm almost done with you."`,
+				`"Hold still. You're wasting both our time."`,
+				`"You've always been the most difficult one. I hope you know that."`
 			]>>
 			<<print $_stringsPre + $_strings[random(0, $_strings.length - 1)]>>
 		<</if>>
@@ -248,7 +416,13 @@
 				`Keep fighting and I'll put the damage on your account.`,
 				`Someone already asked for you. Don't make me disappoint them.`,
 				`I know things about you that you never told me.`,
-				`Stop struggling. You're only lowering your price.`
+				`Stop struggling. You're only lowering your price.`,
+				`You owe me for the inconvenience.`,
+				`Keep fighting. See where it gets you.`,
+				`You're costing me money every time you move.`,
+				`This would be over already if you'd just behave.`,
+				`Stop squirming, you're not going anywhere.`,
+				`Every second you fight me is a second you owe me.`
 			]>>
 			<<print $_stringsPre + '"' + $_strings[random(0, $_strings.length - 1)] + '"'>>
 		<</if>>

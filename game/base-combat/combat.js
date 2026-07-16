@@ -15,7 +15,7 @@ function namedNpcEjaculation(index, ...args) {
 	const npcName = V.npc[V.npcrow.indexOf(index)];
 	// @ts-ignore
 	const npc = V.NPCList[index];
-	if (!npc) return '';
+	if (!npc) return "";
 	const output = args[0] ? " " + args[0] : "";
 	// Prefer NPC-specific ejaculation macros when available.
 	if (npcName && Macro.has(`ejaculation-${npcName.toLowerCase()}`) && setup.NPCNameList.includes(npcName)) {
@@ -54,7 +54,7 @@ function namedNpcComments(npcName) {
 			return "<<alphaknotSpeech>>";
 		}
 	}
-	
+
 	// Named NPCs with registered handlers resolve to their matching speech macro.
 	if (npcName && Macro.has(`speech-${npcName.toLowerCase()}`) && setup.NPCNameList.includes(npcName)) {
 		return `<<speech-${npcName.toLowerCase()}>>`;

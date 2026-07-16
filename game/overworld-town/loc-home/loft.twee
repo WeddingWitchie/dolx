@@ -163,6 +163,7 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 	<<case 4>>A <<generatey1>><<person1>><<person>> falls asleep in the nook.
 	<<default>>A group of orphans are doing arts and crafts.
 <</switch>>
+
 <<endevent>>
 <br><br>
 <<if !$daily.reading_nook>>
@@ -179,6 +180,8 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 	<<link [[Study with the flash cards (0:20)|Orphanage Loft Reading Nook 2]]>><<set $phase to "flashcards">><<pass 20>><</link>><<gtiredness>>
 	<br>
 	<<link [[Do arts and crafts (0:20)|Orphanage Loft Reading Nook 2]]>><<set $phase to "crafts">><<pass 20>><</link>><<lstress>><<ltrauma>><<gtiredness>>
+	<br>
+	<<link [[Practise writing (0:20)|Orphanage Loft Reading Nook 2]]>><<set $phase to "write">><<pass 20>><</link>><<lstress>><<ltrauma>><<gtiredness>><<genglish>>
 	<br>
 	<<if ($worn.lower.name !== "naked" and ($worn.lower.integrity lte (clothingData('lower',$worn.lower,'integrity_max')/5))) or 
 			($worn.upper.name !== "naked" and ($worn.upper.integrity lte (clothingData('upper',$worn.upper,'integrity_max')/5))) or 
@@ -301,6 +304,9 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 <<elseif $phase is "flashcards">>
 	<<tiredness 10>>
 	You study using flash cards. You feel your memorisation is getting better.<<= either(`<<gggenglish>><<englishskill 18>>`, `<<ggghistory>><<historyskill 18>>`, `<<gggmaths>><<mathsskill 18>>`, `<<gggscience>><<scienceskill 18>>`)>>
+<<elseif $phase is "write">>
+	<<tiredness 10>><<englishskill>>
+	You practise writing <<= either("poems","short stories")>>. It turns out <<=("awful","so-so","alright","great","amazing")>>.
 <<elseif $phase is "nap">>
 	<<tiredness -12>>
 	You snuggle up and doze off, giving in to the sleepiness weighing on your eyes. You wake up later feeling refreshed and well-rested.
@@ -396,7 +402,7 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 			<<continue>>
 		<</if>>
 
-		<<if $worn[_tatteredOutfit].integrity lt clothingData(_tatteredOutfit,$worn[_tatteredOutfit],'integrity_max')/5>>
+		<<if $worn[_tatteredOutfit].integrity lte clothingData(_tatteredOutfit,$worn[_tatteredOutfit],'integrity_max')/5>>
 			<<run _equip.push(_tatteredOutfit)>>
 		<</if>>
 	<</for>>
@@ -594,9 +600,9 @@ You stand before the cosy reading nook, by a window. The shelves are filled with
 	<br><br>
 	"Goodbye," the group unanimously says. They scurry away.
 <</if>>
-<<endevent>>
+
 <br><br>
-<<link [[Next|Orphanage Loft Reading Nook]]>><</link>>
+<<link [[Next|Orphanage Loft Reading Nook]]>><<endevent>><</link>>
 
 :: Orphanage Loft Bay Window
 <<effects>>
@@ -1065,16 +1071,16 @@ You make yourself a _coffee. The scent of freshly brewed coffee fills the air.
 	<<default>>You feel a bit jittery. Maybe it wasn't a good idea to make yourself a coffee. At least the taste is good.
 <</switch>>
 <br><br>
-You finish the drink and clean up after yourself.
-<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
-	The small routine leaves you feeling steadier.
-<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	You leave the machine spotless, refreshed and a little more awake.
-<<elseif (_speechAttitudeResolved is "cruel" or _speechAttitudeResolved is "bratty")>>
-	The caffeine settles in like a sharpened thought.
+<<if Time.betweenHours(6,11)>>
+	<<set _daytime to "morning">>
+<<elseif Time.betweenHours(12,17)>>
+	<<set _daytime to "afternoon">>
+<<elseif Time.betweenHours(18,20)>>
+	<<set _daytime to "evening">>
 <<else>>
-	You feel refreshed after the morning coffee.
+	<<set _daytime to "nighttime">>
 <</if>>
+You finish the drink, and clean up after yourself. You feel refreshed after the _daytime coffee.
 <br><br>
 
 <<link [[Next|Orphanage Loft Coffee Pot]]>><<endevent>><</link>>

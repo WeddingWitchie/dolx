@@ -5,6 +5,8 @@
 	softLockable: true, //Will disable the unlocking of the feat if softmode is enabled
 	pregnancyLockable: true, //Will disable the unlocking of the feat if certain pregnancy settings are too low
 	hidden: true, //Will hide the feat at all times unless unlocked, best for feats for unreleased content
+	alt: "altTitle", //Alternate title to display if the feat is unlocked and altCond is met
+	altCond: "conditional" //Conditional evaluated to decide whether or not to display the altTitle (the feat must be owned in the current save for this to happen, regardless of the conditional)
 */
 setup.feats = {
 	"Meet the Dev": {
@@ -277,8 +279,17 @@ setup.feats = {
 		title: "Science Fair Winner",
 		desc: "Blind them with science.",
 		difficulty: 2,
-		series: "",
+		series: "scienceFair",
 		filter: ["All", "General"],
+		softLockable: true,
+	},
+	"Thesis Offence": {
+		title: "Thesis Offence",
+		desc: "You maintained your scientific integrity by force.",
+		difficulty: 3,
+		series: "scienceFair",
+		filter: ["All", "General"],
+		hint: "Hint: Blind them with something not-quite-scientific.",
 		softLockable: true,
 	},
 	"Maths Competition Winner": {
@@ -299,11 +310,11 @@ setup.feats = {
 	},
 	"50 Shades of Tan": {
 		title: "50 Shades of Tan",
-		desc: "Achieved 5 distinct tanlines at once.",
+		desc: "Achieved 5 distinct tan lines at once.",
 		difficulty: 2,
 		series: "",
 		filter: ["All", "Special"],
-		hint: "?????",
+		hint: "Hint: Spend some time in the sun.",
 	},
 	"Most Aware": {
 		title: "Most Aware",
@@ -403,6 +414,8 @@ setup.feats = {
 		difficulty: 3,
 		series: "",
 		filter: ["All", "Stats"],
+		alt: "Degree in Lewdity",
+		altCond: "random(100) is 100",
 	},
 	"Perfect Record": {
 		title: "Perfect Record",
@@ -709,7 +722,8 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
-	"Mate for life": { // FIX: was duplicate key "Great Hawk the Terror" - rename as needed
+	"Mate for life": {
+		// FIX: was duplicate key "Great Hawk the Terror" - rename as needed
 		title: "Mate for life",
 		desc: "You can't change your partner, as this species mates for life.",
 		difficulty: 2,
@@ -2220,6 +2234,24 @@ setup.feats = {
 		hint: "Hint: Date your way into the town's upper echelons.",
 		softLockable: true,
 	},
+	"Stomping Down The Street": {
+		title: "Stomping Down The Street",
+		desc: "Handed out lots of flyers on the High Street.",
+		difficulty: 1,
+		series: "Flyers",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Work with Niki.",
+		softLockable: true,
+	},
+	"Hear Me Roar": {
+		title: "Hear Me Roar",
+		desc: "Handed out even more flyers on the High Street.",
+		difficulty: 2,
+		series: "Flyers",
+		filter: ["All", "Discoveries-Town"],
+		hint: "Hint: Work with Niki.",
+		softLockable: true,
+	},
 	"Max Those Shots": {
 		title: "Max Those Shots",
 		desc: "Holding a lot of pepper spray.",
@@ -2858,7 +2890,8 @@ async function featsMergePre() {
 	// Count the index db saves
 	try {
 		// eslint-disable-next-line no-undef
-		idb.getSaveDetails()
+		idb
+			.getSaveDetails()
 			.then(saveDataDetails => {
 				T.saveDataImportCount += saveDataDetails.length;
 			})
@@ -2891,9 +2924,7 @@ function featsMerge() {
 	const loadFeats = (data = {}) => {
 		Object.entries(data).forEach(([key, date]) => {
 			if (key === "specialClothes") {
-				const clothes = Array.isArray(date)
-					? date
-					: getUnlockedSpecialSets(updateSpecialClothesNames(date)).filter(set => setup.specialClothesSets[set].feat);
+				const clothes = Array.isArray(date) ? date : getUnlockedSpecialSets(updateSpecialClothesNames(date)).filter(set => setup.specialClothesSets[set].feat);
 				clothes.forEach(a => featData.specialClothes.pushUnique(a));
 				return;
 			}
@@ -2926,7 +2957,12 @@ function featsMerge() {
 	if (localStorageSaves) {
 		if (localStorageSaves.autosave) {
 			localStorageSaves.autosave.state.history = State.deltaDecode(localStorageSaves.autosave.state.delta);
-			DoLSave.decompressIfNeeded(localStorageSaves.autosave);
+			try {
+				DoLSave.decompressIfNeeded(localStorageSaves.autosave);
+			} catch (e) {
+				// a save that cannot be decompressed has no feats to read, skip it
+				console.warn("Couldn't decompress a save while loading feats, skipping it.", e);
+			}
 
 			if (localStorageSaves.autosave.state?.history?.[localStorageSaves.autosave.state.index]?.variables) {
 				const variables = localStorageSaves.autosave.state.history[localStorageSaves.autosave.state.index].variables;
@@ -2942,7 +2978,12 @@ function featsMerge() {
 			localStorageSaves.slots.forEach(slot => {
 				if (slot) {
 					slot.state.history = State.deltaDecode(slot.state.delta);
-					DoLSave.decompressIfNeeded(slot);
+					try {
+						DoLSave.decompressIfNeeded(slot);
+					} catch (e) {
+						// a save that cannot be decompressed has no feats to read, skip it
+						console.warn("Couldn't decompress a save while loading feats, skipping it.", e);
+					}
 					if (slot.state.history?.[slot.state.index]?.variables) {
 						const variables = slot.state.history[slot.state.index].variables;
 						if (variables.feats) {
@@ -2960,7 +3001,8 @@ function featsMerge() {
 	// Read the index db saves
 	try {
 		// eslint-disable-next-line no-undef
-		idb.getAllSaves()
+		idb
+			.getAllSaves()
 			.then(saves =>
 				saves.forEach((slot, index) => {
 					// auto-detect between uncompressed and compressed saves
@@ -2987,7 +3029,11 @@ function earnFeat(featName) {
 	if (!featName) return;
 	/* "Meet the Dev" is awarded by the parody money-cap event, which only fires in an exploit/cheat state.
 	It is the single feat allowed to bypass the normal cheat/debug/soft-mode lockout. */
-	if (featName !== "Meet the Dev" && (V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings?.allureModifier < 1 || V.statFreeze)) return;
+	if (
+		featName !== "Meet the Dev" &&
+		(V.feats.locked || V.cheatsEnabled === true || V.debug || V.gamemode === "soft" || V.settings?.allureModifier < 1 || V.statFreeze)
+	)
+		return;
 
 	if (
 		V.feats.currentSave[featName] !== undefined ||
@@ -3082,7 +3128,7 @@ function earnHourlyFeats() {
 
 	// Feats that can only be earned after 50 days
 	if (Time.days >= 50) {
-		// A hermaphrodite is anyone with both a penis and a vagina. 
+		// A hermaphrodite is anyone with both a penis and a vagina.
 		// Keying off the body rather than V.player.sex keeps this working when "h" doesn't exist as DoLX base sex
 		// (e.g. the xchange system only ever uses "m"/"f"), while still catching vanilla herms.
 		const isHerm = V.player.sex === "h" || (V.player.penisExist === true && V.player.vaginaExist === true);
@@ -3158,7 +3204,7 @@ function earnHourlyFeats() {
 	if (V.cow >= 6) earnFeat("Cattle");
 	if (V.waterdragon >= 7) earnFeat("Lost Legacy");
 	if (V.bear >= 6) earnFeat("Bear");
-	if ((V.harpy >= 6 || V.transformationParts.bird.wings == "default")) earnFeat("Harpy");
+	if (V.harpy >= 6 || V.transformationParts.bird.wings === "default") earnFeat("Harpy");
 	if (V.fox >= 6) earnFeat("Fox");
 	if (V.bunny >= 6) earnFeat("Bunny");
 
@@ -3190,7 +3236,8 @@ function earnHourlyFeats() {
 		earnFeat("Broodmother Host");
 	}
 
-	if (V.spraymax >= 7) earnFeat("Max Those Shots");
+	if (V.spraymax >= 8) earnFeat("Max Those Shots");
+	if (V.spraymax > 8) console.warn("pepper spray count above 8! does feat threshold need to be increased?");
 	if ((V.semen_volume >= 2000 && V.semen_amount >= V.semen_volume) || (V.milk_volume >= 2000 && V.milk_amount >= V.milk_volume)) earnFeat("Feeling Full");
 	if (V.cool >= 400) earnFeat("Social Butterfly");
 	if (V.cool <= 2 && !V.backgroundTraits.includes("nerd")) earnFeat("Anti-Social Moth");
@@ -3215,9 +3262,9 @@ function earnHourlyFeats() {
 	if (V.produce_sold >= 100) earnFeat("Hawker");
 	if (V.produce_sold >= 1000) earnFeat("Vendor");
 	if (V.produce_sold >= 5000) earnFeat("Merchant");
-	let total_seeds = Object.values(setup.foodstuff).filter(plant => plant.tending?.has_seeds).length;
-	if (V.plants_known.length >= total_seeds / 2) earnFeat("Seedy");
-	if (V.plants_known.length >= total_seeds) earnFeat("Breedy");
+	const totalSeeds = Object.values(setup.foodstuff).filter(plant => plant.tending?.has_seeds).length;
+	if (V.plants_known.length >= totalSeeds / 2) earnFeat("Seedy");
+	if (V.plants_known.length >= totalSeeds) earnFeat("Breedy");
 	if (V.daily.ex.road === 1 && V.daily.ex.cream === 1 && V.daily.ex.flyover === 1) earnFeat("A Lewd Adventure");
 	if (V.athletics >= 1000) earnFeat("Swift");
 
@@ -3296,7 +3343,7 @@ function earnHourlyFeats() {
 		V.fame.model >= 4000
 	) {
 		earnFeat("Luminous Reputation");
-	}	
+	}
 
 	if (
 		Object.values(V.children).reduce((prev, curr) => {
@@ -3332,7 +3379,7 @@ function earnHourlyFeats() {
 	if (V.seductionskill >= 1000) earnFeat("Seductress");
 	if (V.tending >= 1000) earnFeat("Green Fingered");
 	if (V.housekeeping >= 1000) earnFeat("Majordomo");
-	/* fishing release if (V.fishing >= 1000) earnFeat("Profishional");*/
+	/* fishing release if (V.fishing >= 1000) earnFeat("Profishional"); */
 	if (V.baseAllure >= 7000 && V.outside === 1 && !Time.isBloodMoon()) earnFeat("Alluring");
 	if (V.science >= 1000 && V.maths >= 1000 && V.english >= 1000 && V.history >= 1000) earnFeat("Perfect Record");
 	if (V.earSlime.corruption >= 100) earnFeat("Ear Slime Lover");
@@ -3346,7 +3393,7 @@ function earnHourlyFeats() {
 	if (V.athletics >= 2000) earnFeat("Ludicrous Speed");
 	if (V.tending >= 2000) earnFeat("Grass Toucher");
 	if (V.housekeeping >= 2000) earnFeat("Demolisher of Filth");
-	/*if fishing release (V.fishing >= 2000) earnFeat("Master Baiter");*/
+	/* if fishing release (V.fishing >= 2000) earnFeat("Master Baiter"); */
 	if (V.sciencetrait >= 8) earnFeat("Smarter than Einstein");
 	if (V.mathstrait >= 8) earnFeat("Human Calculator");
 	if (V.englishtrait >= 8) earnFeat("Voice of All Things");
@@ -3374,14 +3421,19 @@ function earnHourlyFeats() {
 	if (V.combatExtended.striking >= 2000) earnFeat("Knockout Artist");
 	if (V.combatExtended.kicking >= 1000) earnFeat("Steel Legs");
 	if (V.combatExtended.kicking >= 2000) earnFeat("Bladed Legs");
-	if (V.birdFly == 1) earnFeat("Catch the Wind");
+	if (V.birdFly === 1) earnFeat("Catch the Wind");
 	if (V.beauty >= 20000) earnFeat("Aphrodite");
 	if (V.milk_volume >= 12000) earnFeat("Rivers of White");
 	if (V.semen_volume >= 12000) earnFeat("Sticky Fountain");
-	if ((V.demon >= 6 || V.transformationParts.demon.wings == "default" || V.transformationParts.demon.wings == "succubus" || V.demontf == 1) && V.player.virginity.vaginal == true && V.player.virginity.penile == true) earnFeat("Demon of Purity");
+	if (
+		(V.demon >= 6 || V.transformationParts.demon.wings === "default" || V.transformationParts.demon.wings === "succubus" || V.demontf === 1) &&
+		V.player.virginity.vaginal === true &&
+		V.player.virginity.penile === true
+	)
+		earnFeat("Demon of Purity");
 	if (!V.activeNightmare && playerVirginitiesTakenBySameNamedNpc()) earnFeat("Monogamous");
 
-	if (V.whitneycollar == 1) earnFeat("Owned");
+	if (V.whitneycollar === 1) earnFeat("Owned");
 
 	if (V.farmersProduce) {
 		if (V.farmersProduce.totalSold >= 5000) earnFeat("Peddler");
@@ -3393,7 +3445,7 @@ function earnHourlyFeats() {
 	}
 
 	if (V.unlockAllFeats) {
-		for (const key of Object.keys(setup.feats)){
+		for (const key of Object.keys(setup.feats)) {
 			if (!V.feats.currentSave[key]) fragment.append(wikifier("earnFeat", `"${key}"`));
 		}
 	}
@@ -3419,7 +3471,7 @@ function earnHourlyFeats() {
 	if (V.fame.impreg >= 2000) earnFeat("Stud");
 
 	// Should be last
-	let currentMax = Object.values(setup.feats).reduce((sum, feat) => sum + feat.difficulty, 0);
+	const currentMax = Object.values(setup.feats).reduce((sum, feat) => sum + feat.difficulty, 0);
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.5)) earnFeat("My Collection of Feats");
 	if (V.feats.allSaves.points >= Math.floor(currentMax * 0.95)) earnFeat("My Timeless Collection of Feats");
 
@@ -3860,27 +3912,61 @@ function setupFeatBoosts(force) {
 		transcend: {
 			name: "Transcendence",
 			required: [
-				"Unstoppable Force", "Immovable Object", "Agent 47", "Can't Touch This", "Atlantean", "Ludicrous Speed",
-				"Grass Toucher", "Demolisher of Filth", "Smarter than Einstein", "Human Calculator", "Voice of All Things",
-				"Errm, ackshually", "Irresistible", "God of Lust", "Rivers of White", "Sticky Fountain",
-				"Many Punch Man", "Fleet-Footed", "Knockout Artist", "Bladed Legs"
+				"Unstoppable Force",
+				"Immovable Object",
+				"Agent 47",
+				"Can't Touch This",
+				"Atlantean",
+				"Ludicrous Speed",
+				"Grass Toucher",
+				"Demolisher of Filth",
+				"Smarter than Einstein",
+				"Human Calculator",
+				"Voice of All Things",
+				"Errm, ackshually",
+				"Irresistible",
+				"God of Lust",
+				"Rivers of White",
+				"Sticky Fountain",
+				"Many Punch Man",
+				"Fleet-Footed",
+				"Knockout Artist",
+				"Bladed Legs",
 			],
 			cost: 100,
-			max: Math.floor([
-				"Unstoppable Force", "Immovable Object", "Agent 47", "Can't Touch This", "Atlantean", "Ludicrous Speed",
-				"Grass Toucher", "Demolisher of Filth", "Smarter than Einstein", "Human Calculator", "Voice of All Things",
-				"Errm, ackshually", "Irresistible", "God of Lust", "Rivers of White", "Sticky Fountain",
-				"Many Punch Man", "Fleet-Footed", "Knockout Artist", "Bladed Legs"
-			].filter(hasFeat).length / 10),
+			max: Math.floor(
+				[
+					"Unstoppable Force",
+					"Immovable Object",
+					"Agent 47",
+					"Can't Touch This",
+					"Atlantean",
+					"Ludicrous Speed",
+					"Grass Toucher",
+					"Demolisher of Filth",
+					"Smarter than Einstein",
+					"Human Calculator",
+					"Voice of All Things",
+					"Errm, ackshually",
+					"Irresistible",
+					"God of Lust",
+					"Rivers of White",
+					"Sticky Fountain",
+					"Many Punch Man",
+					"Fleet-Footed",
+					"Knockout Artist",
+					"Bladed Legs",
+				].filter(hasFeat).length / 10
+			),
 			missing: "Unlock this boost by obtaining at least 10 skill-related and fluid production AMC feats",
 		},
 		adaptiveGenes: {
 			name: "Adaptive Genes",
 			required: ["Angel", "Fallen Angel", "Demon", "Demon of Purity", "Neko", "Wolf", "Cattle", "Harpy", "Fox"],
 			cost: 50,
-			max: Math.floor([
-				"Angel", "Fallen Angel", "Demon", "Demon of Purity", "Neko", "Wolf", "Cattle", "Harpy", "Fox", "Bear", "Bunny"
-			].filter(hasFeat).length / 5),
+			max: Math.floor(
+				["Angel", "Fallen Angel", "Demon", "Demon of Purity", "Neko", "Wolf", "Cattle", "Harpy", "Fox", "Bear", "Bunny"].filter(hasFeat).length / 5
+			),
 			missing: "Unlock this boost by obtaining at least 5 transformation feats",
 		},
 	});
@@ -4100,12 +4186,28 @@ function applyFeatBoosts() {
 
 		// make normal clothes and underwear more likely to appear than accessories
 		const weightedSlots = [
-			"head", "face", "neck",
-			"upper", "upper", "upper", "upper", "upper",
-			"lower", "lower", "lower", "lower", "lower",
-			"under_upper", "under_upper", "under_upper",
-			"under_lower", "under_lower", "under_lower",
-			"hands", "legs", "feet",
+			"head",
+			"face",
+			"neck",
+			"upper",
+			"upper",
+			"upper",
+			"upper",
+			"upper",
+			"lower",
+			"lower",
+			"lower",
+			"lower",
+			"lower",
+			"under_upper",
+			"under_upper",
+			"under_upper",
+			"under_lower",
+			"under_lower",
+			"under_lower",
+			"hands",
+			"legs",
+			"feet",
 		];
 		for (let i = 0; i < clothingItems; ++i) {
 			const slot = weightedSlots.random();
@@ -4137,13 +4239,7 @@ function applyFeatBoosts() {
 				}
 				item.accessory_colour = colors.random();
 				if (V.featsBoosts.clothingCustomColors === true && item.accessory_colour === "custom") {
-					item.accessory_colourCustom = customColour(
-						random(0, 360),
-						random(0, 20) / 10,
-						random(5, 40) / 10,
-						random(0, 20) / 10,
-						random(0, 100) / 100
-					);
+					item.accessory_colourCustom = customColour(random(0, 360), random(0, 20) / 10, random(5, 40) / 10, random(0, 20) / 10, random(0, 100) / 100);
 				}
 			}
 			// pick the pattern
@@ -4280,9 +4376,19 @@ function applyFeatBoosts() {
 	}
 
 	// cleanup
-	["name", "missing", "clothingCustomColors", "clothingGender", "upgradeDetails", "tattoos", "sexToys", "hidden", "purchased", "specialClothesSets", "hopelessEndings"].forEach(
-		k => delete V.featsBoosts[k]
-	);
+	[
+		"name",
+		"missing",
+		"clothingCustomColors",
+		"clothingGender",
+		"upgradeDetails",
+		"tattoos",
+		"sexToys",
+		"hidden",
+		"purchased",
+		"specialClothesSets",
+		"hopelessEndings",
+	].forEach(k => delete V.featsBoosts[k]);
 }
 DefineMacro("applyFeatBoosts", applyFeatBoosts);
 

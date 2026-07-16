@@ -13,6 +13,7 @@ const statChange = (() => {
 			`Unexpected value for the function "${functionName}". Param "${param}" had unexpected value of "${value}".${expectedValues ? ` ${expectedValues}` : ""}`
 		);
 	}
+	// Overflow (Clamp) Code Section
 
 	function getSpaBeautyBoost() {
 		const spaBoost = V.beautyBoost?.spa;
@@ -38,15 +39,16 @@ const statChange = (() => {
 	function getBeautyBoost() {
 		let boost = 0;
 		if (V.beautyBoost) {
-			boost += (V.beautyBoost.bath || 0)
-				+ (V.beautyBoost.teeth || 0)
-				+ (V.beautyBoost.face || 0)
-				+ (V.beautyBoost.hands || 0)
-				+ (V.beautyBoost.hygiene || 0)
-				+ (V.beautyBoost.tan || 0)
-				+ getSpaBeautyBoost();
+			boost +=
+				(V.beautyBoost.bath || 0) +
+				(V.beautyBoost.teeth || 0) +
+				(V.beautyBoost.face || 0) +
+				(V.beautyBoost.hands || 0) +
+				(V.beautyBoost.hygiene || 0) +
+				(V.beautyBoost.tan || 0) +
+				getSpaBeautyBoost();
 		}
-		// Makeup boost: calculated dynamically (350 per cosmetic, 170 for concealer, up to total of 1350) 
+		// Makeup boost: calculated dynamically (350 per cosmetic, 170 for concealer, up to total of 1350)
 		// No decay since it's consumed on use
 		if (V.makeup) {
 			if (V.makeup.lipstick && V.makeup.lipstick !== 0) boost += 350;
@@ -73,11 +75,12 @@ const statChange = (() => {
 			if (getSpaBeautyBoost() > 0) sources.push(V.beautyBoost.spa?.treatment || "spa treatment");
 		}
 		if (V.makeup) {
-			const hasMakeup = (V.makeup.lipstick && V.makeup.lipstick !== 0)
-				|| (V.makeup.eyeshadow && V.makeup.eyeshadow !== 0)
-				|| (V.makeup.mascara && V.makeup.mascara !== 0)
-				|| (V.makeup.blusher && V.makeup.blusher !== 0)
-				|| (V.makeup.concealer && V.makeup.concealer !== 0);
+			const hasMakeup =
+				(V.makeup.lipstick && V.makeup.lipstick !== 0) ||
+				(V.makeup.eyeshadow && V.makeup.eyeshadow !== 0) ||
+				(V.makeup.mascara && V.makeup.mascara !== 0) ||
+				(V.makeup.blusher && V.makeup.blusher !== 0) ||
+				(V.makeup.concealer && V.makeup.concealer !== 0);
 			if (hasMakeup) sources.push("makeup");
 		}
 		return sources;
@@ -92,30 +95,169 @@ const statChange = (() => {
 		return Math.clamp((V.beauty || 0) + getBeautyBoost(), 0, max);
 	}
 
-	function trauma(amount) {
+	function traumaClamp() {
+		if (V.innocencestate === 1 && V.trauma > 0) {
+			V.innocencetrauma += V.trauma;
+			V.trauma = 0;
+		}
+		V.trauma = Math.clamp(V.trauma, 0, V.traumamax);
+	}
+	DefineMacro("traumaClamp", traumaClamp);
+	/* Compatibility for X-Change passages that still use the legacy macro casing. */
+	DefineMacro("traumaclamp", traumaClamp);
+
+	function stressClamp() {
+		const overflow = V.stress - V.stressmax;
+		if (Number.isFinite(overflow) && overflow > 0) {
+			const controlMod = 2 - V.control / V.controlmax;
+			V.trauma += overflow * 0.01 * controlMod;
+		}
+		V.stress = Math.clamp(V.stress, 0, V.stressmax);
+		traumaClamp();
+	}
+	DefineMacro("stressClamp", stressClamp);
+
+	function fatigueClamp() {
+		if (typeof updateDynamicStatCaps === "function") updateDynamicStatCaps();
+		const tirednessMax = Number(C?.tiredness?.max) || 2000;
+		const overflow = V.tiredness - tirednessMax;
+
+		if (Number.isFinite(overflow) && overflow > 0) {
+			if (V.xchange?.willpowerSystemEnabled && V.xchange.willpowerPoints > 0) {
+				wikifier("willpower-spending", overflow);
+			} else {
+				/* Preserve X-Change's fatigue overflow rates. */
+				stress(overflow, 16);
+				straighttrauma(overflow / 3);
+			}
+		}
+
+		V.tiredness = Math.clamp(V.tiredness, 0, tirednessMax);
+		stressClamp();
+	}
+	DefineMacro("fatigueClamp", fatigueClamp);
+
+	function alcoholClamp() {
+		const overflow = V.drunk - 1000;
+		if (Number.isFinite(overflow) && overflow > 0) {
+			V.tiredness += overflow;
+			const controlMod = 2 - V.control / V.controlmax;
+			V.trauma += overflow * 0.25 * controlMod;
+		}
+		V.drunk = Math.clamp(V.drunk, 0, 1000);
+		fatigueClamp();
+	}
+	DefineMacro("alcoholClamp", alcoholClamp);
+
+	function alcohol(amount) {
+		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		let mod = Number(V.alcoholMod);
+		if (!Number.isFinite(mod)) {
+			V.alcoholMod = 1;
+			mod = 1;
+			if (typeof updateMoment === "function") updateMoment();
+		}
+		if ((V.backgroundTraits.includes("plantlover") || V.backgroundTraits.includes("opiumaddict")) && amount > 0) mod *= 1.5;
+		V.drunk += amount * mod;
+		alcoholClamp();
+	}
+	DefineMacro("alcohol", alcohol);
+
+	function tiredness(amount, source) {
+		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+
+		let fatigueMod = 1;
+		if (amount > 0) {
+			if ((V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) fatigueMod += 0.5;
+
+			const footSkill = currentSkillValue("feetskill");
+			if (V.worn.feet.type.includes("heels") && V.worn.feet.reveal > footSkill) {
+				fatigueMod += (V.worn.feet.reveal - footSkill) / 1000;
+			}
+
+			fatigueMod += Weather.BodyTemperature.fatigueModifier - 1;
+			if (V.athleticsFitnessToggle === 1) fatigueMod *= 1 - (V.athletics * 5) / 40000;
+			if (setup.tirednessChangeByPain) fatigueMod *= setup.tirednessChangeByPain(V.pain);
+		}
+
+		if (source === "pass") V.tiredness += amount * fatigueMod;
+		else if (amount > 0) V.tiredness += amount * 15 * fatigueMod;
+		else if (amount < 0) V.tiredness += amount * 20;
+
+		fatigueClamp();
+	}
+	DefineMacro("tiredness", tiredness);
+
+	function stress(amount, multiplierOverride) {
+		if (isNaN(amount)) paramError("stress", "amount", amount, "Expected a number.");
+		if (multiplierOverride && isNaN(multiplierOverride)) paramError("stress", "multiplierOverride", multiplierOverride, "Expected a number.");
+		amount = Number(amount);
+		multiplierOverride = Number(multiplierOverride);
+		if (amount) {
+			if (multiplierOverride) {
+				V.stress += amount * multiplierOverride;
+			} else if (amount < 0) {
+				V.stress += amount * 80;
+			} else {
+				let stressMod;
+				if (V.drunk <= 0) {
+					stressMod = 40;
+				} else if (V.substanceRebalance === 1) {
+					const drunkMod = Math.floor(V.drunk / 120);
+					stressMod = Math.max(1 - 0.15 * (1 + drunkMod), 0);
+				} else {
+					const drunkMod = Math.clamp(V.drunk / 120, 0, 4);
+					stressMod = 30 - drunkMod * 5;
+				}
+
+				if (playerIsXChanged() && (V.xchange.pill.breederEffect || V.xchange.pill.omegaEffect) && playerIsBreederCreampied()) {
+					stressMod *= 0.1;
+				}
+				V.stress += amount * stressMod;
+			}
+		}
+		stressClamp();
+	}
+	DefineMacro("stress", stress);
+
+	function trauma(amount, source) {
 		if (isNaN(amount)) return paramError("trauma", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
 			let traumaMod = 1;
 			if (amount >= 0) {
+				// Reduce the PC's trauma gains by 0.7x if they have the "Fucktoy" / "Survivor" trait
 				if (V.rapetrait) traumaMod *= 0.7;
+				// Reduce the PC's trauma gains by 0.7x if they have the "Bitch" / "Tamer" trait while being fucked by beasts.
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
+				// Reduce the PC's trauma gains by 0.7x if they have the "Prey" / "Witch" trait while being fucked by tentacles.
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
 				if (V.drunk >= 1 && V.substanceRebalance === 1) traumaMod *= 1 - 0.1 * Math.round(V.drunk / 120);
 
-				// increase trauma by 3x amount at 0 control, 1.5x at full, then apply modifiers
-				V.trauma += Math.trunc(amount * (3 - 1.5 * (V.control / V.controlmax)) * traumaMod);
+				// Increase trauma gains by up to 2x if the player is at low control.
+				const controlMod = 2 - V.control / V.controlmax;
+
+				// +1 point of "amount" = +1.5 points of $trauma. Amplified by "traumaMod" and "controlMod".
+				V.trauma += amount * 1.5 * traumaMod * controlMod;
 			} else {
-				// good doctors know how to help you
-				if (["asylum", "hospital"].includes(V.location)) traumaMod *= 2;
-				// decrease trauma by 1.5x amount with no control, 3x with full control
-				V.trauma += Math.trunc(amount * (1.5 + 1.5 * (V.control / V.controlmax)) * traumaMod);
+				// Increase the PC's trauma losses by 2x if they are at the Asylum or the Hospital, but not during combat.
+				if (["asylum", "hospital"].includes(V.location) && source !== "combat") traumaMod *= 2;
+
+				// Increase trauma losses by up to 2x if the player is at high control.
+				const controlMod = 1 + V.control / V.controlmax;
+
+				// -1 point of "amount" = -1.5 points of $trauma. Amplified by "traumaMod" and "controlMod".
+				V.trauma += amount * 1.5 * traumaMod * controlMod;
 			}
 		}
 
-		updatePlayerTraumaState();
-		updateHallucinations();
 		traumaClamp();
+		if (source !== "combat") {
+			updatePlayerTraumaState();
+			updateHallucinations();
+		}
 	}
 	DefineMacro("trauma", trauma);
 
@@ -123,21 +265,11 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("combattrauma", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			if (amount >= 0) {
-				let traumaMod = 1;
-
-				if (V.rapetrait) traumaMod *= 0.7;
-				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
-				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
-				if (V.drunk >= 1 && V.substanceRebalance === 1) traumaMod *= 1 - 0.1 * Math.round(V.drunk / 120);
-
-				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc(((amount * 1) - ((amount * 0.5) * (V.control / V.controlmax))) * traumaMod)
+			if (amount > 0) {
+				trauma(amount / 2, "combat");
 			} else {
-				// eslint-disable-next-line prettier/prettier
-				V.trauma += Math.trunc((amount * 1) + ((amount * 0.5) * (V.control / V.controlmax)));
+				trauma(amount);
 			}
-			traumaClamp();
 		}
 	}
 	DefineMacro("combattrauma", combattrauma);
@@ -151,17 +283,6 @@ const statChange = (() => {
 		}
 	}
 	DefineMacro("straighttrauma", straighttrauma);
-
-	function traumaClamp() {
-		// if (V.trauma >= V.traumamax) V.beauty -= (V.trauma - V.traumamax) / 5;
-		V.beauty = Math.clamp(V.beauty, 0, V.beauty * V.AMCTraits.beauty);
-		if (V.innocencestate === 1 && V.trauma > 0) {
-			V.innocencetrauma += V.trauma;
-			V.trauma = 0;
-		}
-		V.trauma = Math.clamp(V.trauma, 0, V.traumamax);
-	}
-	DefineMacro("traumaclamp", traumaClamp);
 
 	function updatePlayerTraumaState() {
 		// Permanent Insanity trait: symptoms behave as if trauma were at least 70% (the same level that spawns the temporary version), without touching the real trauma value.
@@ -276,7 +397,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		if (V.player.penisExist && amount) {
 			amount *= 3;
-			if (Transformations.effectiveLevel("cow") >= 6) amount *= 2;
+			if (Transformations.effectiveLevel("cow") >= 6) amount *= 1.25;
 			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain === 1) amount /= 2;
 			/* Prevents those who can only have "female climax" increase their cum volume */
 			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
@@ -301,7 +422,7 @@ const statChange = (() => {
 		if (amount) {
 			if (amount > 0) lactationPressure(Transformations.effectiveLevel("cow") >= 6 ? 2 : 1);
 			if (V.lactating) {
-				if (Transformations.effectiveLevel("cow") >= 6) amount *= 2;
+				if (Transformations.effectiveLevel("cow") >= 6) amount *= 1.25;
 				if (V.milk_volume >= V.milk_max || V.AMCTraits.halfGain === 1) amount /= 2;
 				V.milk_volume = Math.clamp(V.milk_volume + amount * (V.statGainMult / 100), 24, V.milk_max * V.AMCTraits.milk);
 			}
@@ -337,41 +458,6 @@ const statChange = (() => {
 		}
 	}
 	DefineMacro("lactation_pressure", lactationPressure);
-
-	function stress(amount, multiplierOverride) {
-		if (isNaN(amount)) paramError("stress", "amount", amount, "Expected a number.");
-		if (multiplierOverride && isNaN(multiplierOverride)) paramError("stress", "multiplierOverride", multiplierOverride, "Expected a number.");
-		amount = Number(amount);
-		multiplierOverride = Number(multiplierOverride);
-		if (amount) {
-			if (multiplierOverride) {
-				V.stress += amount * multiplierOverride;
-			} else if (amount < 0) {
-				// if stress is being lowered, and a custom multiplier was not provided, multiply it by 80
-				V.stress += amount * 80;
-			} else {
-				let stressMod;
-				if (V.drunk <= 0) {
-					stressMod = 40;
-				} else {
-					if (V.substanceRebalance === 1) {
-						const drunkMod = Math.floor(V.drunk / 120);
-						stressMod = Math.max(1 - 0.15 * (1 + drunkMod), 0);
-					} else {
-						const drunkMod = Math.clamp(Math.floor(V.drunk / 120), 0, 4);
-						stressMod = 30 - drunkMod * 5;
-					}
-				}
-				
-				if (playerIsXChanged() && (V.xchange.pill.breederEffect || V.xchange.pill.omegaEffect) && playerIsBreederCreampied()) {
-					stressMod *= 0.1;
-				}
-				V.stress += amount * stressMod;
-			}
-			V.stress = Math.clamp(V.stress, 0, V.stressmax);
-		}
-	}
-	DefineMacro("stress", stress);
 
 	/* See wolfDefiant in twee-config for information */
 	function wolfDefiant(amount) {
@@ -409,8 +495,7 @@ const statChange = (() => {
 		amount = Number(amount);
 		const fragment = document.createDocumentFragment();
 		if (amount) {
-
-			let sexModifier = V.player.sex === "m" && amount > 0? 2 : 1;
+			const sexModifier = V.player.sex === "m" && amount > 0 ? 2 : 1;
 			let mod = 1;
 
 			// adds up to +1 to the arousal modifier when suffocating
@@ -430,53 +515,8 @@ const statChange = (() => {
 				}
 			}
 
-			// Apply effect according to source
-			let sensitivity = 0;
-			let arousal;
+			// Apply source-specific side effects. Sensitivity/arousal modifiers are handled by the <<pleasure>> widget below.
 			switch (source) {
-				case undefined:
-				case "masturbation":
-					// No modifier. The usual behaviour for this widget
-					break;
-				case "mouth":
-				case "oral":
-				case "lips":
-				case "masturbationMouth":
-				case "masturbationOral":
-					sensitivity += V.mouthsensitivity;
-					break;
-				case "breast":
-				case "breasts":
-				case "chest":
-				case "nipple":
-				case "nipples":
-				case "masturbationBreasts":
-				case "masturbationNipples":
-					sensitivity += V.breastsensitivity;
-					if (playerIsPregnant()) sensitivity += 0.5;
-					break;
-				case "bottom":
-				case "anus":
-				case "anal":
-				case "ass":
-				case "butt":
-				case "masturbationAnal":
-				case "masturbationAss":
-					sensitivity += V.bottomsensitivity;
-					break;
-				case "genital":
-				case "genitals":
-				case "penis":
-				case "penile":
-				case "pussy":
-				case "vaginal":
-				case "vagina":
-				case "masturbationGenital":
-				case "masturbationPenis":
-				case "masturbationVagina":
-					sensitivity += V.genitalsensitivity;
-					if (playerIsPregnant()) sensitivity += 0.5;
-					break;
 				case "maso":
 					V.arousalmasochism += amount;
 					break;
@@ -491,16 +531,14 @@ const statChange = (() => {
 				}
 			}
 
-			let oldArousal = V.arousal;
-			let arousalChange = amount * sexModifier * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1);
+			const arousalChange = amount * sexModifier * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1);
 			V.arousal += arousalChange;
-			
+
 			fragment.append(wikifier("pleasure", amount, source));
 			fragment.append(wikifier("arousalclamp"));
 			// fragment.append(wikifier("arousal-wetness"));
-			
 		}
-		
+
 		return fragment;
 	}
 	Macro.add("arousal", {
@@ -525,44 +563,8 @@ const statChange = (() => {
 			return prev;
 		}, 0);
 
-		return Math.clamp(result, 0, V.arousalmax/2);
+		return Math.clamp(result, 0, V.arousalmax / 2);
 	}
-
-	function tiredness(amount, source) {
-		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
-		amount = Number(amount);
-		if (amount > 0 && (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) && !V.statFreeze) {
-			amount *= 1.5;
-		}
-		if (amount) {
-			if (V.athleticsFitnessToggle === 1) {
-				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20) * (1 - (V.athletics * 5) / 40000) * (setup.tirednessChangeByPain && amount > 0 ? setup.tirednessChangeByPain(V.pain) : 1));
-			} else {
-				V.tiredness += Math.round(amount * Weather.BodyTemperature.fatigueModifier * (amount > 0 ? 15 : 20) * (setup.tirednessChangeByPain && amount > 0 ? setup.tirednessChangeByPain(V.pain) : 1));
-			}
-		}
-
-		/*
-		* Make sure dynamic max fatigue is current before overflow handling.
-		* This prevents scaled-max saves from being clamped against the base 2000 cap.
-		*/
-		if (typeof updateDynamicStatCaps === "function") updateDynamicStatCaps();
-		const overflow = V.tiredness - C.tiredness.max;
-
-		if (Number.isFinite(overflow) && overflow > 0) {
-			if (V.xchange?.willpowerSystemEnabled && V.xchange.willpowerPoints > 0) {
-				wikifier("willpower-spending", overflow);
-			} else {
-				/*
-				* Preserve the DoLX overflow behaviour from the fatigue caption:
-				* excess fatigue becomes stress/trauma instead of silently vanishing.
-				*/
-				stress(overflow, 16); straighttrauma(overflow / 3);
-			}
-			V.tiredness = C.tiredness.max;
-		}
-	}
-	DefineMacro("tiredness", tiredness);
 
 	function pain(amount, modifier = 4) {
 		if (isNaN(amount)) paramError("pain", "amount", amount, "Expected a number.");
@@ -646,7 +648,7 @@ const statChange = (() => {
 				amount *= 1.25;
 			}
 			if (V.backgroundTraits.includes("nerd")) {
-				amount *= 0.20;
+				amount *= 0.2;
 			}
 			if (amount > 0) V.detention += amount * 10;
 			V.delinquency = Math.clamp(V.delinquency + amount * 4, 0, 1000);
@@ -690,8 +692,8 @@ const statChange = (() => {
 		if (V.backgroundTraits.includes("nerd")) {
 			amount *= 0.75;
 		}
-		amount *= 1 + 0.50 * (getEffectiveBeauty() / V.beautymax);
-		
+		amount *= 1 + 0.5 * (getEffectiveBeauty() / V.beautymax);
+
 		if (amount > 0) {
 			V.cool += amount;
 
@@ -727,8 +729,8 @@ const statChange = (() => {
 	function awareness(amount) {
 		if (isNaN(amount)) paramError("awareness", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (V.backgroundTraits.includesAny("promiscuous","exhibitionist","deviant")) {
-			amount *= amount > 0 ? 1.25 : 0.50;
+		if (V.backgroundTraits.includesAny("promiscuous", "exhibitionist", "deviant")) {
+			amount *= amount > 0 ? 1.25 : 0.5;
 		}
 		if (amount) {
 			const mod = Object.values(V.worn).reduce((prev, item) => {
@@ -829,7 +831,7 @@ const statChange = (() => {
 			V.submissive = Math.clamp(V.submissive + amount * modifier, 0, 2000);
 			subCheck();
 		}
-		if (V.xchange.blackmail.activeQuest?.id == 10 && amount < 0) {
+		if (V.xchange.blackmail.activeQuest?.id === 10 && amount < 0) {
 			V.xchange.blackmail.activeQuest.behavedDefiantly = true;
 		}
 	}
@@ -1020,10 +1022,8 @@ const statChange = (() => {
 			amount *= 0.25;
 		}
 
-		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1)
-			amount = Number(amount) / V.AMCTraits.willpower;
-		else
-			amount = Number(amount);
+		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1) amount = Number(amount) / V.AMCTraits.willpower;
+		else amount = Number(amount);
 		if (amount) {
 			V.willpower = Math.clamp(V.willpower + amount * 2, 0, V.willpowermax * V.AMCTraits.willpower);
 		}
@@ -1141,30 +1141,24 @@ const statChange = (() => {
 		amount = Number(amount);
 
 		/* Background trait bonuses */
-		if ([
-			"oralskill",
-			"vaginalskill",
-			"penileskill",
-			"handskill",
-			"analskill",
-			"feetskill",
-			"bottomskill",
-			"thighskill",
-			"chestskill",
-			"seductionskill"
-		].includes(type) && V.backgroundTraits.includes("promiscuous")) {
+		if (
+			["oralskill", "vaginalskill", "penileskill", "handskill", "analskill", "feetskill", "bottomskill", "thighskill", "chestskill", "seductionskill"].includes(
+				type
+			) &&
+			V.backgroundTraits.includes("promiscuous")
+		) {
 			amount *= amount > 0 ? 1.25 : 0.25;
-		}
-		else if (type === "beauty" && V.backgroundTraits.includes("beautiful")) {
+		} else if (type === "beauty" && V.backgroundTraits.includes("beautiful")) {
 			amount *= amount > 0 ? 1.25 : 0.25;
-		}
-		else if (type === "skulduggery" && V.backgroundTraits.includes("delinquent")) {
+		} else if (type === "skulduggery" && V.backgroundTraits.includes("delinquent")) {
 			amount *= amount > 0 ? 1.25 : 0.25;
 		}
 
 		if (amount) {
-			if (V[type] >= V[type + "max"] || V.AMCTraits.halfGain === 1) amount /= 2;
-			V[type] = Math.clamp(V[type] + amount * (V.statGainMult / 100), 0, V[type + "max"] * V.AMCTraits[type] || 1000);
+			const maxValue = (type === "beauty" ? V.beautymax : V[type + "max"]) || 1000;
+			const maxMultiplier = V.AMCTraits?.[type] || 1;
+			if (V[type] >= maxValue || V.AMCTraits?.halfGain === 1) amount /= 2;
+			V[type] = Math.clamp(V[type] + amount * (V.statGainMult / 100), 0, maxValue * maxMultiplier);
 		}
 	}
 	DefineMacro("oralskill", amount => skill("oralskill", amount));
@@ -1199,22 +1193,6 @@ const statChange = (() => {
 	}
 	DefineMacro("locker_suspicion", lockerSuspicion);
 
-	function alcohol(amount) {
-		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
-		amount = Number(amount);
-		if (amount) {
-			let mod = Number(V.alcoholMod);
-			if (!Number.isFinite(mod)) {
-				V.alcoholMod = 1;
-				mod = 1;
-				if (typeof updateMoment === "function") updateMoment();
-			}
-			if ((V.backgroundTraits.includes("plantlover") || V.backgroundTraits.includes("opiumaddict")) && amount > 0) mod = 1.5;
-			V.drunk = Math.clamp(V.drunk + amount * mod, 0, 1000);
-		}
-	}
-	DefineMacro("alcohol", alcohol);
-
 	function drugs(amount) {
 		if (isNaN(amount)) paramError("drugs", "amount", amount, "Expected a number.");
 		amount = Number(amount);
@@ -1235,6 +1213,15 @@ const statChange = (() => {
 		}
 	}
 	DefineMacro("hallucinogen", hallucinogen);
+
+	function lewdity(amount) {
+		if (isNaN(amount)) paramError("lewdity", "amount", amount, "Expected a number.");
+		amount = Number(amount);
+		if (amount) {
+			V.daily.stall_lewdity = Math.clamp(V.daily.stall_lewdity + amount, 0, 4);
+		}
+	}
+	DefineMacro("lewdity", lewdity);
 
 	function wet(type, amount) {
 		if (isNaN(amount)) paramError("wet", "amount", amount, "Expected a number.");
@@ -1518,10 +1505,16 @@ const statChange = (() => {
 	DefineMacro("badEndTrackingEnd", (source, optional) => badEndTrackingEnd(source, optional));
 
 	return {
+		alcoholClamp,
+		fatigueClamp,
+		stressClamp,
+		traumaClamp,
+		alcohol,
+		tiredness,
+		stress,
 		trauma,
 		combattrauma,
 		straighttrauma,
-		traumaClamp,
 		updatePlayerTraumaState,
 		updateHallucinations,
 		control,
@@ -1531,12 +1524,10 @@ const statChange = (() => {
 		milkvolume,
 		milkAmount,
 		lactationPressure,
-		stress,
 		sensitivity,
 		arousal,
 		arousalClamp,
 		minArousal,
-		tiredness,
 		pain,
 		masopain,
 		painClamp,
@@ -1572,7 +1563,6 @@ const statChange = (() => {
 		skill,
 		prof,
 		lockerSuspicion,
-		alcohol,
 		drugs,
 		hallucinogen,
 		wet,

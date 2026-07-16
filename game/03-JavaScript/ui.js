@@ -377,8 +377,9 @@ function settingsGenericGenders(id) {
 					text = `<span class='gold inline-colour'>All</span> <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>no</span> <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
 					break;
 				default:
-					text = `<span class='gold inline-colour'>${100 - val
-						}%</span> of <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>${val}%</span> of <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
+					text = `<span class='gold inline-colour'>${
+						100 - val
+					}%</span> of <span class='pink inline-colour'>${women}</span> and <span class='gold inline-colour'>${val}%</span> of <span class='blue inline-colour'>${men}</span> will be ${attraction}.`;
 					break;
 			}
 		} else {
@@ -517,27 +518,17 @@ function settingsPlayerGender() {
 		const val = V.genderidentity;
 		let text = "Despite appearances, you see yourself as a: ";
 
-		if (val === 1000)
-			text += "<span class='pink inline-colour'>Femme</span>";
-		else if (val >= 875)
-			text += "<span class='pink inline-colour'>Woman</span>";
-		else if (val >= 750)
-			text += "<span class='pink inline-colour'>Tomboy</span>";
-		else if (val >= 625)
-			text += "<span class='pink inline-colour'>Butch</span>";
-		else if (val >= 375)
-			text += "<span class='green inline-colour'>Non-binary</span>";
-		else if (val >= 250)
-			text += "<span class='blue inline-colour'>Sissy</span>";
-		else if (val >= 125)
-			text += "<span class='blue inline-colour'>Twink</span>";
-		else if (val >= 1)
-			text += "<span class='blue inline-colour'>Man</span>";
-		else
-			text += "<span class='blue inline-colour'>Macho</span>";
+		if (val === 1000) text += "<span class='pink inline-colour'>Femme</span>";
+		else if (val >= 875) text += "<span class='pink inline-colour'>Woman</span>";
+		else if (val >= 750) text += "<span class='pink inline-colour'>Tomboy</span>";
+		else if (val >= 625) text += "<span class='pink inline-colour'>Butch</span>";
+		else if (val >= 375) text += "<span class='green inline-colour'>Non-binary</span>";
+		else if (val >= 250) text += "<span class='blue inline-colour'>Sissy</span>";
+		else if (val >= 125) text += "<span class='blue inline-colour'>Twink</span>";
+		else if (val >= 1) text += "<span class='blue inline-colour'>Man</span>";
+		else text += "<span class='blue inline-colour'>Macho</span>";
 
-		jQuery("#numberslider-value-genderidentity").text("").append(text)
-		.addClass("small-description");
+		jQuery("#numberslider-value-genderidentity").text("").append(text).addClass("small-description");
 	};
 
 	$(() => {
@@ -620,23 +611,15 @@ function settingsPlayerBeauty() {
 		const val = V.beauty;
 		let text = "Anybody looking at you would agree that you're: ";
 
-		if (val >= (V.beautymax / 7) * 6)
-			text += "<span class='gold inline-colour'>Divine</span>";
-		else if (val >= (V.beautymax / 7) * 5)
-			text += "<span class='pink inline-colour'>Ravishing</span>";
-		else if (val >= (V.beautymax / 7) * 4)
-			text += "<span class='purple inline-colour'>Beautiful</span>";
-		else if (val >= (V.beautymax / 7) * 3)
-			text += "<span class='blue inline-colour'>Charming</span>";
-		else if (val >= (V.beautymax / 7) * 2)
-			text += "<span class='lblue inline-colour'>Pretty</span>";
-		else if (val >= (V.beautymax / 7) * 1)
-			text += "<span class='teal inline-colour'>Cute</span>";
-		else
-			text += "<span class='green inline-colour'>Plain</span>";
+		if (val >= (V.beautymax / 7) * 6) text += "<span class='gold inline-colour'>Divine</span>";
+		else if (val >= (V.beautymax / 7) * 5) text += "<span class='pink inline-colour'>Ravishing</span>";
+		else if (val >= (V.beautymax / 7) * 4) text += "<span class='purple inline-colour'>Beautiful</span>";
+		else if (val >= (V.beautymax / 7) * 3) text += "<span class='blue inline-colour'>Charming</span>";
+		else if (val >= (V.beautymax / 7) * 2) text += "<span class='lblue inline-colour'>Pretty</span>";
+		else if (val >= (V.beautymax / 7) * 1) text += "<span class='teal inline-colour'>Cute</span>";
+		else text += "<span class='green inline-colour'>Plain</span>";
 
-		jQuery("#numberslider-value-beauty").text("").append(text)
-		.addClass("small-description");
+		jQuery("#numberslider-value-beauty").text("").append(text).addClass("small-description");
 	};
 
 	$(() => {
@@ -765,7 +748,10 @@ function updateOptions() {
 			V.options = optionsData;
 
 			console.warn("[DoLX] Skipped options passage refresh while viewing history state.", {
-				passage: V.passage, statePassage: State.passage, stateLength: State.length, stateSize: State.size,
+				passage: V.passage,
+				statePassage: State.passage,
+				stateLength: State.length,
+				stateSize: State.size,
 			});
 		} else {
 			if (!State.restore(true)) return; // don't do anything if state couldn't be restored
@@ -902,8 +888,7 @@ $(() => updateCaptionTooltip());
 window.updateCaptionTooltip = updateCaptionTooltip;
 
 function returnTimeFormat() {
-	if (!V || !V.options) return "en-GB";
-	return V.options.dateFormat;
+	return V?.options?.dateFormat ?? "en-GB";
 }
 window.returnTimeFormat = returnTimeFormat;
 
@@ -1080,7 +1065,7 @@ function getLargestSexStatModifierCssClasses(input, requiredLevel = 0) {
 			{ value: drunkSexStatModifierValue, class: "drunk" },
 			{ value: hallucinogenSexStatModifierValue, class: "drunk" },
 			{ value: heatRutSexStatModifierValue, class: "jitter" },
-			{ value: innocenceSexStatModifierValue, class: "innocence"},
+			{ value: innocenceSexStatModifierValue, class: "innocence" },
 		];
 
 		// Gets the largest modifier.

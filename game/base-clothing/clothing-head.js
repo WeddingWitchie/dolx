@@ -18,7 +18,7 @@ Warmth checklist:
 function initHead() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "head",
 			name: "naked",
@@ -49,8 +49,8 @@ function initHead() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "head",
 			name: "hairpin",
@@ -85,8 +85,8 @@ function initHead() {
 			location: 0,
 			iconFile: "hairpin.png",
 			accIcon: "hairpin_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "head",
 			name: "beanie",
@@ -111,6 +111,7 @@ function initHead() {
 			cost: 3000,
 			description: "Makes status rise faster at school.",
 			shop: ["clothing"],
+			shopGroup: "beanie",
 			accessory: 0,
 			accessory_colour: 0,
 			accessory_colour_options: [],
@@ -119,8 +120,8 @@ function initHead() {
 			location: 0,
 			iconFile: "beanie.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 3,
 			slot: "head",
 			name: "bunny ears",
@@ -154,8 +155,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bunny_ears.png",
 			accIcon: "bunny_ears_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 4,
 			slot: "head",
 			name: "nun's veil",
@@ -190,8 +191,8 @@ function initHead() {
 			location: 0,
 			iconFile: "nuns_veil.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 5,
 			slot: "head",
 			name: "bow",
@@ -223,8 +224,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bow.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 6,
 			slot: "head",
 			name: "cap",
@@ -257,9 +258,9 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "cap.png",
-			accIcon: 0,
-		},
-		{
+			accIcon: "cap-acc.png",
+		}),
+		new ClothesItem({
 			index: 7,
 			slot: "head",
 			name: "witch hat",
@@ -298,8 +299,8 @@ function initHead() {
 			iconFile: "witch_hat.png",
 			accIcon: "witch_hat_acc.png",
 			detailIcon: "witch_hat_detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 8,
 			slot: "head",
 			name: "christmas hat",
@@ -331,8 +332,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "christmas_hat.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 9,
 			slot: "head",
 			name: "chef hat",
@@ -369,8 +370,8 @@ function initHead() {
 			location: 0,
 			iconFile: "chef_hat.png",
 			accIcon: "chef_hat_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 10,
 			slot: "head",
 			name: "cowboy hat",
@@ -405,8 +406,8 @@ function initHead() {
 			location: 0,
 			iconFile: "cowboy_hat.png",
 			accIcon: "cowboy_hat_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 11,
 			slot: "head",
 			name: "fedora",
@@ -439,8 +440,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "fedora.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 12,
 			slot: "head",
 			name: "beatnik hat",
@@ -472,8 +473,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "beatnik_hat.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 13,
 			slot: "head",
 			name: "sou'wester",
@@ -505,8 +506,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "souwester.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 14,
 			slot: "head",
 			name: "flower crown",
@@ -536,8 +537,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "flower_crown.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 15,
 			slot: "head",
 			name: "backwards cap",
@@ -570,8 +571,8 @@ function initHead() {
 			location: 0,
 			iconFile: "backwards_cap.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 16,
 			slot: "head",
 			name: "alice band",
@@ -603,8 +604,8 @@ function initHead() {
 			location: 0,
 			iconFile: "alice_band.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 17,
 			slot: "head",
 			name: "straw hat",
@@ -641,8 +642,8 @@ function initHead() {
 			location: 0,
 			iconFile: "straw_hat.png",
 			accIcon: "straw_hat_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 18,
 			slot: "head",
 			name: "straw flower hat",
@@ -679,8 +680,8 @@ function initHead() {
 			location: 0,
 			iconFile: "straw_hat.png",
 			accIcon: "straw_hat_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 19,
 			slot: "head",
 			name: "maid band",
@@ -700,7 +701,7 @@ function initHead() {
 			type: ["maid", "costume", "serving"],
 			gender: "f",
 			femininity: 200,
-			warmth: 0,
+			warmth: 1,
 			cost: 1200,
 			description: "For looking cute while cleaning.",
 			shop: ["clothing", "adult"],
@@ -713,8 +714,8 @@ function initHead() {
 			location: 0,
 			iconFile: "maid_band.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 20,
 			slot: "head",
 			name: "bun covers",
@@ -749,8 +750,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bun_covers.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 21,
 			slot: "head",
 			name: "headband",
@@ -782,8 +783,8 @@ function initHead() {
 			location: 0,
 			iconFile: "headband.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 22,
 			slot: "head",
 			name: "feathered cap",
@@ -817,8 +818,8 @@ function initHead() {
 			location: 0,
 			iconFile: "feathered_cap.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 23,
 			slot: "head",
 			name: "large sailor's hat",
@@ -852,8 +853,8 @@ function initHead() {
 			location: 0,
 			iconFile: "large_sailors_hat.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 24,
 			slot: "head",
 			name: "small sailor's hat",
@@ -886,8 +887,8 @@ function initHead() {
 			location: 0,
 			iconFile: "small_sailors_hat.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 25,
 			slot: "head",
 			name: "foreign football helmet",
@@ -922,8 +923,8 @@ function initHead() {
 			location: 0,
 			iconFile: "football_helmet.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 26,
 			slot: "head",
 			name: "big bow",
@@ -955,8 +956,8 @@ function initHead() {
 			location: 0,
 			iconFile: "big_bow.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 27,
 			slot: "head",
 			name: "riding helmet",
@@ -996,8 +997,8 @@ function initHead() {
 			iconFile: "riding_helmet.png",
 			accIcon: "riding_helmet_acc.png",
 			detailIcon: "riding_helmet_detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 28,
 			slot: "head",
 			name: "top hat",
@@ -1032,8 +1033,8 @@ function initHead() {
 			location: 0,
 			iconFile: "top_hat.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 29,
 			slot: "head",
 			name: "umbrella hat",
@@ -1067,8 +1068,8 @@ function initHead() {
 			location: 0,
 			iconFile: "umbrella_hat.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 30,
 			slot: "head",
 			name: "racing helmet",
@@ -1108,8 +1109,8 @@ function initHead() {
 			iconFile: "riding_helmet.png",
 			accIcon: "riding_helmet_acc.png",
 			detailIcon: "racing_helmet_detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 31,
 			slot: "head",
 			name: "feathered hair clip",
@@ -1142,8 +1143,8 @@ function initHead() {
 			location: 0,
 			iconFile: "feathered_hair_clip.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 32,
 			slot: "head",
 			name: "hoodie hood",
@@ -1211,8 +1212,8 @@ function initHead() {
 			outfitSecondary: ["upper", "hoodie"],
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 33,
 			slot: "head",
 			name: "tam o' shanter",
@@ -1253,8 +1254,8 @@ function initHead() {
 			iconFile: "tam_o_shanter.png",
 			accIcon: "tam_o_shanter_acc.png",
 			detailIcon: "tam_o_shanter_pompom.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 34,
 			slot: "head",
 			name: "cat hat",
@@ -1290,8 +1291,8 @@ function initHead() {
 			location: 0,
 			iconFile: "cat_hat.png",
 			accIcon: "cat_hat_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 35,
 			slot: "head",
 			name: "monster hood",
@@ -1312,7 +1313,7 @@ function initHead() {
 			hood: 1,
 			mask_img: 1,
 			colour: 0,
-			colour_options: ["apocalypse", "custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			type: ["costume"],
 			set: "monsterhoodie",
@@ -1323,7 +1324,8 @@ function initHead() {
 			shop: ["clothing"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "yellow", "custom"],
+			accessory_colour_sidebar: 1,
 			back_img: 1,
 			back_img_colour: "primary",
 			cursed: 0,
@@ -1331,8 +1333,8 @@ function initHead() {
 			iconFile: "",
 			outfitSecondary: ["upper", "monster hoodie"],
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 36,
 			slot: "head",
 			name: "kitty ears",
@@ -1369,8 +1371,8 @@ function initHead() {
 			location: 0,
 			iconFile: "kitty_ears.png",
 			accIcon: "kitty_ears_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 37,
 			slot: "head",
 			name: "mini snowman",
@@ -1403,8 +1405,8 @@ function initHead() {
 			location: 0,
 			iconFile: "mini_snowman.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 38,
 			slot: "head",
 			name: "cow onesie hood",
@@ -1443,8 +1445,8 @@ function initHead() {
 			iconFile: "cow_onesie.png",
 			outfitSecondary: ["upper", "cow onesie"],
 			accIcon: "cow_onesie_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 39,
 			slot: "head",
 			name: "baseball cap",
@@ -1478,8 +1480,8 @@ function initHead() {
 			location: 0,
 			iconFile: "baseball_cap.png",
 			accIcon: "baseball_cap_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 40,
 			slot: "head",
 			name: "rose",
@@ -1515,8 +1517,8 @@ function initHead() {
 			location: 0,
 			iconFile: "rose.png",
 			accIcon: "rose_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 41,
 			slot: "head",
 			name: "scarecrow hat",
@@ -1547,8 +1549,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "scarecrow_hat.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 42,
 			slot: "head",
 			name: "fish hairpin",
@@ -1580,8 +1582,8 @@ function initHead() {
 			location: 0,
 			iconFile: "fish_hairpin.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 43,
 			slot: "head",
 			name: "nurse hat",
@@ -1619,8 +1621,8 @@ function initHead() {
 			location: 0,
 			iconFile: "pink_nurse.png",
 			accIcon: "pink_nurse_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 44,
 			slot: "head",
 			name: "plastic nurse hat",
@@ -1658,8 +1660,8 @@ function initHead() {
 			location: 0,
 			iconFile: "plastic_nurse.png",
 			accIcon: "plastic_nurse_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 45,
 			slot: "head",
 			name: "transparent nurse hat",
@@ -1691,8 +1693,8 @@ function initHead() {
 			location: 0,
 			iconFile: "transparent_nurse.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 46,
 			slot: "head",
 			name: "bunny headband",
@@ -1724,8 +1726,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bunny_headband.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 47,
 			slot: "head",
 			name: "daisy",
@@ -1755,8 +1757,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "daisy.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 48,
 			slot: "head",
 			name: "spirit mask",
@@ -1789,9 +1791,8 @@ function initHead() {
 			location: 0,
 			iconFile: "spirit_mask.png",
 			accIcon: "spirit_mask_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 49,
 			slot: "head",
 			name: "raccoon cap",
@@ -1828,9 +1829,8 @@ function initHead() {
 			location: 0,
 			iconFile: "furcapm.png",
 			accIcon: "furcapm_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 50,
 			slot: "head",
 			name: "fur cap",
@@ -1869,9 +1869,8 @@ function initHead() {
 			location: 0,
 			iconFile: "furcapf.png",
 			accIcon: "furcapf_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 51,
 			slot: "head",
 			name: "conical hat",
@@ -1903,9 +1902,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "conical_hat.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 52,
 			slot: "head",
 			name: "cat hoodie hood",
@@ -1947,9 +1945,8 @@ function initHead() {
 			outfitSecondary: ["upper", "cat hoodie"],
 			iconFile: 0,
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 53,
 			slot: "head",
 			name: "bat beanie",
@@ -1985,9 +1982,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bat_beanie.png",
 			accIcon: "bat_beanie_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 54,
 			slot: "head",
 			name: "mini pumpkin",
@@ -2020,9 +2016,8 @@ function initHead() {
 			location: 0,
 			iconFile: "jackolantern.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 55,
 			slot: "head",
 			name: "butterfly hairpin",
@@ -2057,9 +2052,8 @@ function initHead() {
 			location: 0,
 			iconFile: "butterfly_hairpin.png",
 			accIcon: "butterfly_hairpin_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 56,
 			slot: "head",
 			name: "star hairpin",
@@ -2093,9 +2087,8 @@ function initHead() {
 			location: 0,
 			iconFile: "star_hairpin.png",
 			accIcon: "star_hairpin_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 57,
 			slot: "head",
 			name: "durag",
@@ -2133,9 +2126,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bandanna.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 58,
 			slot: "head",
 			name: "kittycat hat",
@@ -2171,9 +2163,8 @@ function initHead() {
 			location: 0,
 			iconFile: "cat_hat.png",
 			accIcon: "cat_hat_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 59,
 			slot: "head",
 			name: "sexy nun's veil",
@@ -2208,9 +2199,8 @@ function initHead() {
 			location: 0,
 			iconFile: "sexy_nuns_veil.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 60,
 			slot: "head",
 			name: "sexy nun's ornate veil",
@@ -2246,9 +2236,8 @@ function initHead() {
 			location: 0,
 			iconFile: "sexy_nuns_ornate_veil.png",
 			accIcon: "sexy_nuns_ornate_veil_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 61,
 			slot: "head",
 			name: "newsboy cap",
@@ -2300,9 +2289,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "newsboy_cap.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 62,
 			slot: "head",
 			name: "visor",
@@ -2337,9 +2325,8 @@ function initHead() {
 			location: 0,
 			iconFile: "visor.png",
 			accIcon: "visor_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 63,
 			slot: "head",
 			name: "lolita headband",
@@ -2357,22 +2344,7 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"light pink",
-				"lilac",
-				"black",
-				"blue",
-				"brown",
-				"green",
-				"pink",
-				"purple",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
+			colour_options: ["light pink", "lilac", "black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			type: ["costume"],
 			gender: "f",
@@ -2406,9 +2378,8 @@ function initHead() {
 			location: 0,
 			iconFile: "lolita_headband.png",
 			accIcon: "lolita_headband_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 64,
 			slot: "head",
 			name: "gold hairpin",
@@ -2444,9 +2415,8 @@ function initHead() {
 			location: 0,
 			iconFile: "hairpin.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 65,
 			slot: "head",
 			name: "classic lolita headband",
@@ -2464,22 +2434,7 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"light pink",
-				"lilac",
-				"black",
-				"blue",
-				"brown",
-				"green",
-				"pink",
-				"purple",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
+			colour_options: ["light pink", "lilac", "black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			type: ["costume"],
 			gender: "f",
@@ -2513,8 +2468,8 @@ function initHead() {
 			location: 0,
 			iconFile: "lolita_headband.png",
 			accIcon: "lolita_headband_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 66,
 			slot: "head",
 			name: "pimp hat",
@@ -2548,8 +2503,8 @@ function initHead() {
 			location: 0,
 			iconFile: "pimp_hat.png",
 			accIcon: "pimp_hat_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 67,
 			slot: "head",
 			name: "traditional maid band",
@@ -2581,8 +2536,8 @@ function initHead() {
 			location: 0,
 			iconFile: "traditional_maid_band.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 68,
 			slot: "head",
 			name: "Victorian maid cap",
@@ -2616,8 +2571,8 @@ function initHead() {
 			location: 0,
 			iconFile: "victorian_maid_cap.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 69,
 			slot: "head",
 			name: "bowler hat",
@@ -2654,8 +2609,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bowler_hat.png",
 			accIcon: "bowler_hat_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 70,
 			slot: "head",
 			name: "military beret",
@@ -2691,16 +2646,15 @@ function initHead() {
 			location: 0,
 			iconFile: "military_beret.png",
 			accIcon: "military_beret_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 71,
 			slot: "head",
 			name: "cake hat",
 			name_cap: "Cake hat",
 			variable: "cake",
 			combat: {
-				reference: "naked", /* TODO: create missionary and doggystyle sprites, then remove */
+				reference: "naked" /* TODO: create missionary and doggystyle sprites, then remove */,
 			},
 			state: 0,
 			state_base: 0,
@@ -2728,8 +2682,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "cake_hat.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 72,
 			slot: "head",
 			name: "long nun's veil",
@@ -2767,8 +2721,8 @@ function initHead() {
 			location: 0,
 			iconFile: "nuns_veil.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 73,
 			slot: "head",
 			name: "novice nun's veil",
@@ -2806,8 +2760,8 @@ function initHead() {
 			location: 0,
 			iconFile: "nuns_veil.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 74,
 			slot: "head",
 			name: "lolita nun's veil",
@@ -2842,8 +2796,8 @@ function initHead() {
 			location: 0,
 			iconFile: "nuns_veil_lolita.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 75,
 			slot: "head",
 			name: "avowed nun's veil",
@@ -2881,8 +2835,8 @@ function initHead() {
 			location: 0,
 			iconFile: "nuns_veil_avowed.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 76,
 			slot: "head",
 			name: "gothic witch hat",
@@ -2916,8 +2870,8 @@ function initHead() {
 			location: 0,
 			iconFile: "witch_hat_gothic.png",
 			accIcon: "witch_hat_gothic_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 77,
 			slot: "head",
 			name: "starry witch hat",
@@ -2953,8 +2907,8 @@ function initHead() {
 			location: 0,
 			iconFile: "witch_hat_starry.png",
 			accIcon: "witch_hat_starry_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 78,
 			slot: "head",
 			name: "pumpkin hat",
@@ -2987,8 +2941,8 @@ function initHead() {
 			location: 0,
 			iconFile: "pumpkin_hat.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 79,
 			slot: "head",
 			name: "rose wedding veil",
@@ -3025,8 +2979,8 @@ function initHead() {
 			location: 0,
 			iconFile: "rose_veil.png",
 			accIcon: "rose_veil_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 80,
 			slot: "head",
 			name: "long rose wedding veil",
@@ -3063,8 +3017,8 @@ function initHead() {
 			location: 0,
 			iconFile: "rose_veil_long.png",
 			accIcon: "rose_veil_long_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 81,
 			slot: "head",
 			name: "gift wrap bow",
@@ -3096,8 +3050,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bow.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 82,
 			slot: "head",
 			name: "gothic crown",
@@ -3129,8 +3083,8 @@ function initHead() {
 			location: 0,
 			iconFile: "gothic_crown.png",
 			accIcon: "gothic_crown_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 83,
 			slot: "head",
 			name: "swan feathers",
@@ -3160,8 +3114,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "swan_feather.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 84,
 			slot: "head",
 			name: "swan tiara",
@@ -3193,8 +3147,8 @@ function initHead() {
 			location: 0,
 			iconFile: "swan_tiara.png",
 			accIcon: "swan_tiara_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 85,
 			slot: "head",
 			name: "butterfly bow",
@@ -3230,8 +3184,8 @@ function initHead() {
 			accIcon: "butterfly_bow_acc.png",
 			mainImage: 0,
 			accImage: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 86,
 			slot: "head",
 			name: "sage witch hat",
@@ -3263,8 +3217,8 @@ function initHead() {
 			location: 0,
 			iconFile: "witch_hat_sage.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 87,
 			slot: "head",
 			name: "hair clips",
@@ -3299,8 +3253,8 @@ function initHead() {
 			location: 0,
 			iconFile: "hairclip.png",
 			accIcon: "hairclip_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 88,
 			slot: "head",
 			name: "flower hairpin",
@@ -3334,8 +3288,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 89,
 			slot: "head",
 			name: "oversized hoodie hood",
@@ -3376,8 +3330,8 @@ function initHead() {
 			outfitSecondary: ["upper", "oversized hoodie"],
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 90,
 			slot: "head",
 			name: "bear hood",
@@ -3399,19 +3353,11 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 5,
@@ -3420,8 +3366,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bear-hood.png",
 			accIcon: "bear-hood-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 91,
 			slot: "head",
 			name: "apple hairpin",
@@ -3461,8 +3407,8 @@ function initHead() {
 			iconFile: "apple-hairpin.png",
 			accIcon: 0,
 			shopGroup: "apple hairpin",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 92,
 			slot: "head",
 			name: "bandana hat",
@@ -3484,11 +3430,7 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 0,
 			accessory_colour: 0,
@@ -3503,8 +3445,8 @@ function initHead() {
 			altdisabled: [],
 			iconFile: "bandana-hat.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 93,
 			slot: "head",
 			name: "doggy sou'wester",
@@ -3541,8 +3483,8 @@ function initHead() {
 			location: 0,
 			iconFile: "doggy-souwester.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 94,
 			slot: "head",
 			name: "bear sou'wester",
@@ -3579,8 +3521,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bear-souwester.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 95,
 			slot: "head",
 			name: "bunny earmuffs",
@@ -3602,19 +3544,11 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 4,
@@ -3622,8 +3556,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bunny-earmuffs.png",
 			accIcon: "bunny-earmuffs-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 96,
 			slot: "head",
 			name: "bunny hairpin",
@@ -3647,11 +3581,7 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
@@ -3662,8 +3592,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bunny-hairpin.png",
 			accIcon: "bunny-hairpin-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 97,
 			slot: "head",
 			name: "bunny sou'wester",
@@ -3700,8 +3630,8 @@ function initHead() {
 			location: 0,
 			iconFile: "bunny-souwester.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 98,
 			slot: "head",
 			name: "froggy sou'wester",
@@ -3738,8 +3668,8 @@ function initHead() {
 			location: 0,
 			iconFile: "froggy-souwester.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 99,
 			slot: "head",
 			name: "fur beret",
@@ -3761,11 +3691,7 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 0,
 			accessory_colour: 0,
@@ -3779,8 +3705,8 @@ function initHead() {
 			location: 0,
 			iconFile: "fur-beret.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 100,
 			slot: "head",
 			name: "fur beret with pompom",
@@ -3802,19 +3728,11 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 4,
@@ -3825,8 +3743,8 @@ function initHead() {
 			location: 0,
 			iconFile: "fur-beret-with-pompom.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 101,
 			slot: "head",
 			name: "green apple hairpin",
@@ -3866,8 +3784,8 @@ function initHead() {
 			iconFile: "green-apple-hairpin.png",
 			accIcon: 0,
 			shopGroup: "apple hairpin",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 102,
 			slot: "head",
 			name: "heart hairpin",
@@ -3901,8 +3819,8 @@ function initHead() {
 			location: 0,
 			iconFile: "heart-hairpin.png",
 			accIcon: "heart-hairpin-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 103,
 			slot: "head",
 			name: "kitty sou'wester",
@@ -3939,8 +3857,8 @@ function initHead() {
 			location: 0,
 			iconFile: "kitty-souwester.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 104,
 			slot: "head",
 			name: "large beret",
@@ -3976,8 +3894,8 @@ function initHead() {
 			location: 0,
 			iconFile: "large-beret.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 105,
 			slot: "head",
 			name: "large bow beret",
@@ -4016,8 +3934,8 @@ function initHead() {
 			location: 0,
 			iconFile: "large-bow-beret.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 106,
 			slot: "head",
 			name: "large lace bow",
@@ -4052,8 +3970,8 @@ function initHead() {
 			location: 0,
 			iconFile: "large lace bow.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 107,
 			slot: "head",
 			name: "wide brim sun hat",
@@ -4062,7 +3980,7 @@ function initHead() {
 			description: "A hat worn just so.",
 			cost: 13000,
 			shop: ["clothing"],
-			type: ["normal", "costume", "formal"],
+			type: ["normal", "costume", "formal", "hat"],
 			combat: {
 				reference: "placeholder",
 			},
@@ -4090,8 +4008,8 @@ function initHead() {
 			location: 0,
 			iconFile: "wide-brim-sun-hat.png",
 			accIcon: "wide-brim-sun-hat-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 108,
 			slot: "head",
 			name: "tulip hairpin",
@@ -4126,8 +4044,8 @@ function initHead() {
 			location: 0,
 			iconFile: "tulip hairpin.png",
 			accIcon: "tulip hairpin-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 109,
 			slot: "head",
 			name: "small tulip hairpin",
@@ -4162,8 +4080,8 @@ function initHead() {
 			location: 0,
 			iconFile: "small-tulip-hairpin.png",
 			accIcon: "small-tulip-hairpin-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 110,
 			slot: "head",
 			name: "small heart hairpin",
@@ -4198,8 +4116,8 @@ function initHead() {
 			location: 0,
 			iconFile: "small heart hairpin.png",
 			accIcon: "small heart hairpin-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 111,
 			slot: "head",
 			name: "small bunny hairpin",
@@ -4233,8 +4151,8 @@ function initHead() {
 			location: 0,
 			iconFile: "small-bunny-hairpin.png",
 			accIcon: "small-bunny-hairpin-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 112,
 			slot: "head",
 			name: "lolita bonnet",
@@ -4274,8 +4192,8 @@ function initHead() {
 			iconFile: "lolita-bonnet.png",
 			accIcon: "lolita-bonnet-acc.png",
 			detailIcon: "pattern",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 113,
 			slot: "head",
 			name: "lolita maid headband",
@@ -4310,8 +4228,8 @@ function initHead() {
 			iconFile: "lolita-maid-headband.png",
 			accIcon: 0,
 			shopGroup: "maidband",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 114,
 			slot: "head",
 			name: "lolita night cap",
@@ -4347,8 +4265,8 @@ function initHead() {
 			location: 0,
 			iconFile: "lolita-night-cap.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 115,
 			slot: "head",
 			name: "night cap",
@@ -4360,7 +4278,7 @@ function initHead() {
 			description: "A sleep-time cap.",
 			cost: 4000,
 			shop: ["clothing"],
-			type: ["normal", "sleep"],
+			type: ["normal", "sleep", "hat"],
 			state: 0,
 			state_base: 0,
 			integrity: 100,
@@ -4382,8 +4300,8 @@ function initHead() {
 			location: 0,
 			iconFile: "night-cap.png",
 			accIcon: "night-cap-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 116,
 			slot: "head",
 			name: "silky hair bow",
@@ -4417,8 +4335,8 @@ function initHead() {
 			iconFile: "silky-hair-bow.png",
 			accIcon: 0,
 			back_img: 1,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 117,
 			slot: "head",
 			name: "badge hat",
@@ -4430,7 +4348,7 @@ function initHead() {
 			description: "Personalized with pins.",
 			cost: 3500,
 			shop: ["clothing"],
-			type: ["normal"],
+			type: ["normal", "hat"],
 			state: 0,
 			state_base: 0,
 			integrity: 100,
@@ -4440,29 +4358,21 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
-			warmth: 1,
+			warmth: 4,
 			set: "head",
 			cursed: 0,
 			location: 0,
 			iconFile: "badge-hat.png",
 			accIcon: "badge-hat-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 118,
 			slot: "head",
 			name: "hat with pompom",
@@ -4474,7 +4384,7 @@ function initHead() {
 			description: "Warm hat for winter.",
 			cost: 4500,
 			shop: ["clothing"],
-			type: ["normal"],
+			type: ["normal", "hat"],
 			state: 0,
 			state_base: 0,
 			integrity: 100,
@@ -4484,30 +4394,22 @@ function initHead() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
-			warmth: 3,
+			warmth: 4,
 			mask_img: 1,
 			set: "head",
 			cursed: 0,
 			location: 0,
 			iconFile: "hatwithpompom.png",
 			accIcon: "hatwithpompom-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 119,
 			/* TODO: Temporary placeholder for items missing combat sprites. Remove when it won't affect the index and is no longer needed. */
 			slot: "head",
@@ -4537,7 +4439,90 @@ function initHead() {
 			accessory_colour_options: [],
 			location: 0,
 			iconFile: 0,
-		},
+		}),
+		new ClothesItem({
+			index: 120,
+			slot: "head",
+			name: "aviator hat",
+			variable: "aviator hat",
+			description: "Keeps your ears warm.",
+			cost: 3500,
+			shop: ["clothing"],
+			type: ["hat"],
+			combat: {
+				reference: "placeholder",
+			},
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 25,
+			reveal: 200,
+			word: "an",
+			plural: 0,
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			accessory: 1,
+			accessory_colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			gender: "n",
+			warmth: 4,
+			mask_img: 1,
+			back_img: 1,
+			back_img_colour: "primary",
+			back_img_acc: 1,
+			back_img_acc_colour: "secondary",
+			iconFile: "aviator-hat.png",
+			accIcon: "aviator-hat-acc.png",
+		}),
+		new ClothesItem({
+			index: 121,
+			slot: "head",
+			name: "sun hat",
+			variable: "sun hat",
+			description: "For sunny days.",
+			cost: 1500,
+			shop: ["clothing"],
+			type: ["normal", "shade", "hat"],
+			combat: {
+				reference: "placeholder",
+			},
+			integrity: 50,
+			integrity_max: 50,
+			fabric_strength: 20,
+			reveal: 1,
+			word: "a",
+			plural: 0,
+			accessory: 1,
+			accessory_colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			pattern_options: ["bow", "ribbon"],
+			pattern_layer: "secondary",
+			shopGroup: "straw",
+			gender: "n",
+			warmth: 1,
+			back_img: 1,
+			mask_img: 1,
+			iconFile: "sun-hat.png",
+			accIcon: "sun-hat-acc.png",
+		}),
+		new ClothesItem({
+			index: 122,
+			slot: "head",
+			name: "loose beanie",
+			variable: "loose beanie",
+			description: "Makes status rise faster at school.",
+			warmth: 3,
+			cost: 3000,
+			gender: "n",
+			combat: {
+				reference: "placeholder",
+			},
+			reveal: 1,
+			word: "a",
+			plural: 0,
+			mask_img: 1,
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			type: ["cool", "hat"],
+			shop: ["clothing"],
+			shopGroup: "beanie",
+			iconFile: "beanie.png",
+		}),
 	];
 	setup.clothes.head = clothing;
 
@@ -4617,8 +4602,7 @@ function initHead() {
 			location: 0,
 			iconFile: "carrot_pin.png",
 			accIcon: "carrot_pin_acc.png",
-		}
-
+		},
 	];
 
 	setup.moddedClothes.head.forEach((x, i) => (x.index = setup.clothes.head.length + i));

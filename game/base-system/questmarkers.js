@@ -17,6 +17,7 @@ const events = [
 		text: "<<schoolday>>",
 		// text shown if condition() is still met, but it's past the time to attend
 		failuretext:
+			// eslint-disable-next-line no-template-curly-in-string -- the ${} is SugarCube <<number>> macro syntax, evaluated at runtime
 			"You have missed <<print Object.keys(V.daily.school.attended).length === 4 ? 'a lesson' : `<<number ${5 - Object.keys(V.daily.school.attended).length}>>` + ' lessons'>> today.",
 	},
 	{
@@ -199,7 +200,7 @@ const events = [
 			return V.englishPlayDays === 0 && V.englishPlay === "ongoing";
 		},
 		starthour: 17,
-		endhour: 20,
+		endhour: 21,
 		priority: 5,
 		text: "The school plays are being held today at Cliff Street from <<ampm 17 00>> until <<ampm 21 00>>.",
 		failuretext: "The last of the school plays has finished by now. You didn't attend.",

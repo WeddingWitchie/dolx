@@ -361,7 +361,7 @@ window.combatSkillCheck = combatSkillCheck;
 function hairdressersReset() {
 	$(() =>
 		$("#hairDressers").on("change", ".macro-listbox, .macro-radiobutton, .macro-checkbox", function (e) {
-			Wikifier.wikifyEval('<<replace #hairDressers>><<dhmUiReload>><</replace>>');
+			Wikifier.wikifyEval("<<replace #hairDressers>><<dhmUiReload>><</replace>>");
 			Wikifier.wikifyEval('<<numberify "#passages > .passage">>');
 		})
 	);
@@ -737,7 +737,8 @@ function isInPark(name) {
 			// prettier-ignore
 			return C.npc.Kylar.state === "active"
 				&& Weather.precipitation === "none"
-				&& Time.dayState === "day" && V.kylarwatched !== 1;
+				&& Time.dayState === "day" && !Time.schoolTime
+				&& V.kylarwatched !== 1;
 		case "robin":
 			return getRobinLocation() === "park";
 		case "whitney":
@@ -754,7 +755,7 @@ function isInPark(name) {
 		case "sam":
 			// prettier-ignore
 			return C.npc.Sam.init === 1
-				&& (Time.hour >= 6 && Time.hour < 7)
+				&& (Time.hour >= 6 && Time.hour < 7 && Time.minute <= 55)
 				&& Weather.precipitation === "none";
 		default:
 			return false;
@@ -955,7 +956,6 @@ function selectWardrobe(targetLocation = V.wardrobe_location, type) {
 	const currentLocationMatchesRequirements = wardrobeHasLocationRequirement && wardrobe.locationRequirement.includes(V.location);
 
 	if (type !== "return" && wardrobeHasLocationRequirement && !currentLocationMatchesRequirements) {
-
 		V.wardrobe_location = "wardrobe";
 		wardrobe = V.wardrobe;
 	}
@@ -1393,7 +1393,9 @@ function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf
 function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	if (skill === "physique") {
 		if (V.physique == null && typeof window.updatePhysique === "function") {
-			try { window.updatePhysique(); } catch (e) {}
+			try {
+				window.updatePhysique();
+			} catch (e) {}
 		}
 		return fatigueAdjustedSkillValue(V.physique ?? 0, disableModifiers, disableStatNerf);
 	}
@@ -1640,19 +1642,18 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 		case "willpower":
 			if (V.xchange && V.xchange.willpowerSystemEnabled === 1 && Number.isFinite(V.xchange.willpowerPoints)) {
 				result = V.xchange.willpowerPoints;
-			}
-			else {
+			} else {
 				result = V.willpower;
 			}
 			result = Math.max(result, 0);
 			if (V.substanceRebalance === 1) {
-				// Rebalance: keep willpower checks passable while heavily intoxicated. 
+				// Rebalance: keep willpower checks passable while heavily intoxicated.
 				// Drunk or drugged at max would otherwise multiply willpower to 0 and softlock willpower-gated scenes,
 				// so the combined intoxication penalty is floored at 25% of base willpower.
 				const intoxFactor = Math.max(((1000 - V.drunk) / 1000) * ((1000 - V.drugged) / 1000), 0.25);
 				result = Math.floor(result * intoxFactor);
 			} else {
-				result = Math.floor(result * (1000-V.drunk)/1000 * (1000-V.drugged)/1000);
+				result = Math.floor((((result * (1000 - V.drunk)) / 1000) * (1000 - V.drugged)) / 1000);
 			}
 
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
@@ -1810,6 +1811,7 @@ window.currentSkillValue = currentSkillValue;
 /**
  * True once the PC's feet skill reaches 1800 (just past SS), near the top grade.
  * At this mastery, high heels impose no movement disadvantages so the PC can run, walk and sneak in heels anywhere.
+ *
  * @returns {boolean}
  */
 function heelsMastered() {
@@ -1917,7 +1919,7 @@ function innocenceSexStatModifier() {
 	if (!V.innocencestate) return 0;
 
 	const maxValue = 100; // max innoncence makes you oblivious to dangers of your actions
-	const obliviousness = -(V.awareness) / 200; // how oblivious PC is
+	const obliviousness = -V.awareness / 200; // how oblivious PC is
 	const curveExponential = 2; // 2 makes the function start slow, but ramp up faster at higher innocence values
 
 	return Math.floor(maxValue * obliviousness ** curveExponential);
@@ -1948,7 +1950,7 @@ function hasSexStat(input, required, modifiers = 2) {
 		});
 		return false;
 	}
-	if (modifiers == 1) {
+	if (modifiers === 1) {
 		// modify effective stat value based on inebriation.
 		statValue += drunkSexStatModifier(statValue);
 
@@ -1956,7 +1958,6 @@ function hasSexStat(input, required, modifiers = 2) {
 
 		// modify effective stat value based on heat/rut/minArousal.
 		statValue += heatRutSexStatModifier(statName);
-		
 	}
 	if (modifiers >= 2) {
 		// use whichever value is highest: the effective stat value, or the obliviousness value
@@ -2147,7 +2148,7 @@ function isPossibleLoveInterest(name) {
 			return V.syndromebird === 1;
 		case "Alex":
 			return V.farm_stage >= 7 && V.alex_countdown === undefined;
-		case 'Ivory Wraith':
+		case "Ivory Wraith":
 			return !!V.wli.criteria;
 		case "Gwylan":
 			return V.gwylanSeen?.includes("partners") || V.gwylanSeen?.includes("romance");
@@ -2159,15 +2160,13 @@ function isPossibleLoveInterest(name) {
 }
 window.isPossibleLoveInterest = isPossibleLoveInterest;
 
-window.isPossibleLoveInterestVirginity = function(taker) {
+function isPossibleLoveInterestVirginity(taker) {
 	if (typeof taker !== "string") return false;
 	if (taker.includes(" and ")) {
-		return taker.split(" and ").some(name => 
-			isPossibleLoveInterest(name.trim())
-		);
+		return taker.split(" and ").some(name => isPossibleLoveInterest(name.trim()));
 	}
 	return isPossibleLoveInterest(taker);
-};
+}
 window.isPossibleLoveInterestVirginity = isPossibleLoveInterestVirginity;
 
 function fameTotal() {
@@ -2931,8 +2930,8 @@ function calculateSemenReleased() {
 	released += V.semen_volume / 30;
 
 	if (V.femaleclimax === 1) released /= 30;
-	if (V.orgasmtrait >= 1) released *= 2.5;
-	if (Transformations.effectiveLevel("cow") >= 6) released *= 2;
+	if (V.orgasmtrait >= 1) released *= 1.5;
+	if (Transformations.effectiveLevel("cow") >= 6) released *= 1.2;
 
 	/* if the player doesn't have enough semen, set $_semen_released to whatever they have left */
 	if (V.semen_amount < released) released = V.semen_amount;
@@ -3134,10 +3133,7 @@ function earSlimeCorruptionClothes() {
 			});
 		}
 
-		const baseCorruption = Math.max(
-			0,
-			Math.floor((Number.isFinite(rawCorruption) ? rawCorruption : 0) + (Number.isFinite(rawGrowth) ? rawGrowth : 0))
-		);
+		const baseCorruption = Math.max(0, Math.floor((Number.isFinite(rawCorruption) ? rawCorruption : 0) + (Number.isFinite(rawGrowth) ? rawGrowth : 0)));
 
 		let min = baseCorruption;
 		let max = Math.floor(baseCorruption * 5);
@@ -3161,11 +3157,7 @@ function earSlimeCorruptionClothes() {
 	T.allowSchoolClothes =
 		!!Time.schoolDay || (V.location === "brothel" && Time.weekDay === 6 && V.brothelshowdata?.type === "gangbang" && !V.brothelshowdata?.done);
 
-	return Math.clamp(
-		V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0),
-		0,
-		cap
-	);
+	return Math.clamp(V.daily.corruptionSlimeClothes + (V.earSlime.growth >= 100 && V.earSlime.defyCooldown ? V.earSlime.defyCooldown * 25 : 0), 0, cap);
 }
 window.earSlimeCorruptionClothes = earSlimeCorruptionClothes;
 
@@ -3338,7 +3330,9 @@ function unableTakeVirginity(virginity) {
 		case "vaginal":
 			return (
 				V.settings.straponChance === 0 &&
-				((V.settings.maleNPCVaginaChance === 100 && V.settings.femaleNPCPenisChance === 0) || (maleChance() === 100 && V.settings.maleNPCVaginaChance === 100) || (maleChance() === 0 && V.settings.femaleNPCPenisChance === 0))
+				((V.settings.maleNPCVaginaChance === 100 && V.settings.femaleNPCPenisChance === 0) ||
+					(maleChance() === 100 && V.settings.maleNPCVaginaChance === 100) ||
+					(maleChance() === 0 && V.settings.femaleNPCPenisChance === 0))
 			);
 		default:
 			return false;
@@ -3501,19 +3495,11 @@ function kitchenFilter() {
 			const matchesAnyTerm = terms.some(term => {
 				const matchesInfo =
 					V.options.ingredientsSearch !== "ingredients" &&
-					(
-						norm(item.name).includes(term) ||
-						norm(item.category).includes(term) ||
-						norm(item.plural).includes(term) ||
-						norm(item.singular).includes(term)
-					);
+					(norm(item.name).includes(term) || norm(item.category).includes(term) || norm(item.plural).includes(term) || norm(item.singular).includes(term));
 
 				const matchesRecipe =
 					V.options.ingredientsSearch !== "recipes" &&
-					(item.recipe?.ingredients ?? []).some(ingredient =>
-						norm(ingredient).includes(term) ||
-						norm(ingredientUsed(ingredient, recipe)).includes(term)
-					);
+					(item.recipe?.ingredients ?? []).some(ingredient => norm(ingredient).includes(term) || norm(ingredientUsed(ingredient, recipe)).includes(term));
 
 				return matchesInfo || matchesRecipe;
 			});
@@ -3545,7 +3531,7 @@ function kitchenFilter() {
 		}
 
 		let missingIngredientsFound = false;
-		item.recipe.ingredients.forEach((ingredient) => {
+		item.recipe.ingredients.forEach(ingredient => {
 			if (ingredientsTotal(ingredient, recipe, true) <= 0 && !ingredientsProvided(ingredient, recipe)) {
 				missingIngredientsFound = true;
 			}
@@ -3654,8 +3640,15 @@ function isBeastSceneAllowed(rng = random(1, 100)) {
 window.isBeastSceneAllowed = isBeastSceneAllowed;
 
 /**
- * check if event is going to be dangerous based on rng and player allure
- * for consistency, danger rng is rolled once per passage, unless specified otherwise
+ * Check if an event is going to be dangerous based on rng and the player's Allure. Another target's Allure can
+ * be substitued as needed.
+ *
+ * For consistency, danger rng is rolled once per passage, unless specified through the "reroll" parameter.
+ *
+ * Lowering the floor increases the player's flat probability of triggering an event. Changing the mod
+ * increases / decreases the chance of triggering the event with increasing / decreasing Allure.
+ *
+ * For a guaranteed activation at 8,000 Allure, set a mod of 1.25, or a floor of 8,000.
  *
  * @param {number} mod allure multiplier
  * @param {number} floor how high of a bar rng(1,10000) needs to pass to qualify as dangerous with 0 allure. default is 9900 (1% chance of danger event)
@@ -3664,6 +3657,17 @@ window.isBeastSceneAllowed = isBeastSceneAllowed;
  * @returns {boolean} whether the roll is dangerous
  */
 function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
+	/**
+	 * (mod = 1, floor = 8,000)
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	80% pass chance
+	 * 0 Allure:		20% pass chance
+	 *
+	 * (mod = 1.25, floor = 9,900)
+	 * 8,000 Allure:	100% pass chance
+	 * 6,000 Allure:	76% pass chance
+	 * 0 Allure:		1% pass chance
+	 */
 	if (!T.danger || reroll) T.danger = random(1, 10000);
 	return T.danger >= floor - allure * mod;
 }
@@ -3719,3 +3723,48 @@ function breakableSoftBinding() {
 }
 
 window.breakableSoftBinding = breakableSoftBinding;
+
+function averageBunPrice(toSell = T.buns_sold) {
+	/* Calculates the average price of a bun with diminishing returns */
+	let totalRevenue = 0;
+	let remaining = toSell;
+	if (V.daily.buns_sold === undefined) {
+		V.daily.buns_sold = 0;
+	}
+	let batch = 1;
+	let harmonics = 1;
+
+	/* Calculates the current divisor for buns */
+	for (let soldToday = 20; soldToday <= V.daily.buns_sold; soldToday += 20) {
+		if (batch === 1) {
+			harmonics += 0.5;
+		} else {
+			harmonics += 1 / Math.max(batch / 20, 1);
+		}
+		batch++;
+	}
+	let doneToday = V.daily.buns_sold % 20;
+	let pricePerBun = V.bun_value / harmonics;
+	let bunsInBatch = 0;
+
+	/* Sells the new buns */
+	while (remaining > 0) {
+		bunsInBatch = Math.min(20 - doneToday, remaining);
+		doneToday = 0;
+
+		totalRevenue += bunsInBatch * pricePerBun;
+		remaining -= bunsInBatch;
+		if (batch === 1) {
+			harmonics += 0.5;
+		} else {
+			harmonics += 1 / Math.max(batch / 20, 1);
+		}
+		batch++;
+		pricePerBun = V.bun_value / harmonics;
+	}
+
+	V.daily.buns_sold += T.buns_sold;
+
+	return totalRevenue / toSell;
+}
+window.averageBunPrice = averageBunPrice;

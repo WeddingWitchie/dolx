@@ -19,7 +19,7 @@ You enter the small office responsible for the Connudatus market. A <<generate1>
 	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endstall>><<endevent>><<clotheson>><</link>>
 	<br>
 <<else>>
-	<<money -1500 "marketStall">><<set $daily.stallRented to 1>><<set $stall_money to 0>><<if !$stall_stats>><<set $stall_stats to {}>><</if>>
+	<<money -1500 "marketStall">><<set $daily.stallRented to 1>><<set $stall_money to 0>><<if !$stall_stats>><<set $stall_stats to {}>><</if>><<set $daily.stall_lewdity to 0>>
 	You show <<him>> one of your _foodstuffSample. It seems to satisfy. You sign the paperwork, hand over the money, and leave to find your stall.
 	<br><br>
 	<<endevent>>
@@ -92,7 +92,9 @@ How much are you going to deposit? (£)
 :: Stall Rent 2
 <<set $outside to 0>><<set $location to "market">><<effects>>
 
-You lay your goods over the table, trying to arrange them in a pleasing way. There's a little roof to protect you from any rain, and a stool should your legs get tired. Other traders are setting up either side of you.
+You lay your goods over the table, trying to arrange them in a pleasing way.
+There's a little roof to protect you from any rain, and a stool should your legs get tired.
+Other traders are setting up either side of you.
 <br><br>
 
 You finish just as the first customers trickle onto the street.
@@ -114,21 +116,33 @@ What goods do you want to present for sale?
 
 <<stall_inventory>>
 <br><br>
+<<set _stall_attention to 0>>
 
-<<stall_chance>>
-<br><br>
-
-<<for _r to 0; _r lt 4; _r++>>
-	<<if $attractiveness + $fame.business + currentSkillValue('tending') + ($foodstuff_inventory.length * 100) + ($stall_rejected * 10) gte random(1, 10000)>>
-		<<set _stall_attention to 1>>
+/* 2.5 automatic sale on average */
+<<for _autostall to 0; _autostall lt 5; _autostall++>>
+	<<if random(1,2) is 2 and _inventory_found is 1 and _inventory_in_stall is 1>>
+		<<stall_autosale>>
+		<<set _inventory_found to 0>>
+		<<stall_inventory>>
 	<</if>>
 <</for>>
+
+<<if _stall_attention is 2>> /* <<stall_autosale>> already ends with one <br>  */
+<br>
+<</if>>
+
 <<set _foodstuffKeys to Object.keys($foodstuff)>>
 <<for _t to 0; _t lt _foodstuffKeys.length; _t++>>
 	<<if $foodstuff[_foodstuffKeys[_t]].amount gte 1>>
 		<<set _foodstuffSample to clone(setup.foodstuff[_foodstuffKeys[_t]].plural)>>
 	<</if>>
 <</for>>
+<<if 3000 + $attractiveness/2 + $fame.business + (currentSkillValue('tending') * 2) + (Math.min($foodstuff_inventory.length,10) * 500) gte random(1, 10000)>>
+	/* At least 1/3 to get a customer. Attractiveness and inventory have 2.5 times the weight of tending and business fame.
+	Very high stats are needed to have 100% chance to get customers with only 1 item. */
+	<<set _stall_attention to 1>>
+<</if>>
+
 
 <<if Time.dayState is "night">>
 	An official arrives to announce that the market's business hours are over.
@@ -157,7 +171,7 @@ What goods do you want to present for sale?
 	<br>
 <<elseif _stall_attention is 1>>
 	<<eventsstall>>
-<<else>>
+<<elseif _stall_attention is 0>>
 	<<if $rng gte 81>>
 		A few people glance over, but you fail to attract any real attention.
 	<<elseif $rng gte 61>>
@@ -170,6 +184,8 @@ What goods do you want to present for sale?
 		You fail to attract attention.
 	<</if>>
 	<br><br>
+	<<stall_actions>>
+<<else>>
 	<<stall_actions>>
 <</if>>
 
@@ -209,6 +225,7 @@ You review the products you're selling.
 :: Stall Bottoms Strip
 
 <<effects>>
+<<silently>><<stall_inventory>><</silently>>
 <<if $worn.under_lower.name is "naked">>
 	<<flaunting>> you peel your $worn.lower.name down your legs, leaving you naked below the waist. You feel the breeze against your <<genitals 1>>. There are so many people around, but no one noticed.
 	<<if $daily.ex.stall isnot 1>>
@@ -257,6 +274,10 @@ You review the products you're selling.
 	<<masturbationstart>>
 	<<set $mouth to "disabled">>
 	You crouch behind your stall. You're in a busy public place, with movement all around, yet you're hidden from view. Just about. You start touching yourself.
+	<<if $daily.stall_lewdity is 0>>
+		<<lewdity 1>>
+		<<set $phase to 1>>
+	<</if>>
 	<<if $daily.ex.stall isnot 1>>
 		<<set $daily.ex.stall to 1>>
 		<<if $exhibitionism lte 60>>
@@ -274,25 +295,18 @@ You review the products you're selling.
 	<<set $xchange.blackmail.activeQuest.masturbatedOnce to true>>
 <</if>>
 
-<<if $corruptionMasturbation>>
-	<span class="red">The slime in your ear will not allow you to stop.</span>
+<<if $orgasmdown is 3 and $orgasmcurrent is 1>>
+	With the <span class='lewd'>lewd aura</span> hanging over the market, your orgasm is bound to attract attention.
+	<br><br>
 <</if>>
-<div id="masturbationButtons">
-	<<if $attractiveness + $fame.business + currentSkillValue('tending') + ($stall_rejected * 10) gte random(1, 300000)>>
-		<div id="next"><<link [[Continue|$passage + " Finish"]]>><<set $phase to 1>><</link>><<nexttext>></div>
-	<<else>>
-		<div id="next"><<link [[Continue|$passage]]>><</link>><<nexttext>></div>
-	<</if>>
-	<<masturbationStopControls>>
-</div>
-<br><br><br><br><br>
+<<masturbationControls "stallInterrupt">>
 
 :: Stall Masturbation Finish
 
 <<effects>>
 
-<<if $phase is 1>>
-	<span class="lewd">Someone's coming.</span> <<tearful>> you scramble back to your place behind the stall.<<if $orgasmdown gte 1>><<set _stall_masturbation_caught to 1>><</if>>
+<<if $phase gte 2>>
+	<span class="lewd">Someone's coming.</span> <<tearful>> you scramble back to your place behind the stall.<<if $phase is 2>><<glewdity>><<lewdity 1>><</if>><<if $orgasmdown gte 1>><<set _stall_masturbation_caught to 1>><</if>>
 	<br><br>
 
 	<<endmasturbation>>
@@ -326,9 +340,6 @@ You review the products you're selling.
 	<<else>>
 
 		<<stall_inventory>>
-		<br><br>
-
-		<<stall_chance>>
 		<br><br>
 
 		<<eventsstall>>
@@ -377,7 +388,6 @@ The <<person>> lingers for a moment, looking you over as though deciding whether
 <br><br>
 
 "I know a lewd <<girl>> when I see one," <<he>> says. "I'll see you around."
-<<glewdity>><<set $stall_rejected += 1>>
 <br><br>
 
 <<stall_actions>>
@@ -454,6 +464,10 @@ You remain silent. The <<person1>><<person>> doesn't stop.
 
 :: Stall Sell
 <<effects>>
+
+<<if random(1,4) is 1>>
+	<<stallCustomerArousal>>
+<</if>>
 
 <<stall_sell_man>>
 
@@ -794,7 +808,7 @@ Panting, you look around. People from all over stare in your direction. Those wh
 <<effects>>
 
 You shove the <<person1>><<person>> away from you. <<His>> friends laugh. "Playing hard to get? Fine, but we'll be watching you."
-<<glewdity>><<set $stall_rejected += 1>>
+<<glewdity>><<lewdity 1>>
 <br><br>
 
 You return to your stall as if nothing were amiss.
@@ -812,6 +826,12 @@ You return to your stall as if nothing were amiss.
 	<<maninit>>
 	<<set $enemytrust += 100>><<promiscuity5>>
 	<<enable_rescue>>
+	<<if $worn.lower.name is "naked">>
+		<<set $striplower to true>>
+		<<if $worn.under_lower.name is "naked">>
+			<<set $stripunderlower to true>>
+		<</if>>
+	<</if>>
 <</if>>
 
 <<effects>>
@@ -836,19 +856,36 @@ You return to your stall as if nothing were amiss.
 	<<ejaculation>>
 	<br><br>
 	<<tearful>> you return to your stall.
+	<<glewdity>><<lewdity 1>>
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<elseif $enemyhealth lte 0>>
 	You shove the <<person1>><<person>> into the road, where <<he>> trips and falls. You seize the opportunity and escape through the crowd.
-	<<glewdity>><<set $stall_rejected += 1>>
+	<<glewdity>><<lewdity 1>>
 	<br><br>
 	<<tearful>> you return to your stall.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<elseif $alarm is 1 and $rescue is 1>><<set $rescued += 1>>
 	"Leave <<phim>> alone you creeps."
 	<br>
@@ -857,22 +894,38 @@ You return to your stall as if nothing were amiss.
 	"I'm calling the police."
 	<br><br>
 	The <<person1>><<person>> shoves you away, and disappears into the crowd.
-	<<glewdity>><<set $stall_rejected += 1>>
+	<<glewdity>><<lewdity 1>>
 	<br><br>
 	<<tearful>> you return to your stall.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<else>>
 	"You little tease," the <<person1>><<person>> says. "We'll be watching you."
-	<<glewdity>><<set $stall_rejected += 1>>
+	<<glewdity>><<lewdity 1>>
 	<br><br>
 	<<tearful>> you return to your stall.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <</if>>
 
 :: Stall Chase
@@ -964,7 +1017,8 @@ You chase the <<person1>><<person>> through the market.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<stall_actions>>
+	<br><br>
+	<<link [[Next|Stall Ready]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
 	The <<person1>><<person>> drops the <<print $stall_expensive.replace(/_/g," ")>> and runs.
@@ -975,7 +1029,8 @@ You chase the <<person1>><<person>> through the market.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<stall_actions>>
+	<br><br>
+	<<link [[Next|Stall Ready]]>><</link>>
 
 <<else>>
 	You fall back, too hurt to continue fighting. The <<person1>><<person>> flees the alley, your <<print $stall_expensive.replace(/_/g," ")>> in hand.
@@ -986,7 +1041,8 @@ You chase the <<person1>><<person>> through the market.
 	<<clotheson>>
 	<<endcombat>>
 
-	<<stall_actions>>
+	<br><br>
+	<<link [[Next|Stall Ready]]>><</link>>
 
 <</if>>
 
@@ -1231,7 +1287,7 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 	<br><br>
 	<<He>> returns to the table. You clasp <<his>> hands in your own, lean forward, and plant a kiss on <<his>> cheek.
 	<<promiscuity2>>
-<<else>>
+<<elseif $stall_seduced is 3>>
 	<<if $worn.under_lower.type.includes("naked")>><<set $seductiondifficulty to 8000>>
 		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 			"I like attending this stall," you say. "No one knows I'm naked below the waist."
@@ -1248,16 +1304,22 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 		<</if>>
 		<<exhibitionism2>>
 	<</if>>
+<<else>>
+	<<set $seductiondifficulty to 10000>>
+	"Don't you want to see what no one else gets to see?" you ask.
+	<br>
+	You slowly spread your legs under the stall table, giving <<him>> a clear, unobstructed view of your completely exposed <<genitals>>.
+	<<exhibitionism4>>
 <</if>>
 
 <<seductioncheck>>
 <<seductionskilluptext>>
-<<seductionskilluse>>
+<<stallCustomerArousal>>
+<<seductionskill 5>>
 
 <<if $seductionrating gte $seductionrequired>>
 	<<set $stall_seduced += 1>>
 	<<He>> blushes and looks away, <span class="green">but no longer seems keen on leaving.</span>
-	<<set $enemyarousal += 20>>
 	<br><br>
 
 	<<set $stall_foodstuff to $foodstuff_inventory.random()>>
@@ -1286,6 +1348,12 @@ You decide <<he>> isn't worth leaving your stall unattended for.
 You glance around to make sure no one's watching, then slip beneath the table.
 
 <<if $rng gte 51>>
+	<<if $worn.lower.name is "naked">>
+		<<set $striplower to true>>
+		<<if $worn.under_lower.name is "naked">>
+			<<set $stripunderlower to true>>
+		<</if>>
+	<</if>>
 	You hitch the table's cover up on the other side,
 
 	<<if $pronoun is "m">>
@@ -1350,7 +1418,6 @@ The <<person1>><<person>> ignores you and gropes instead, greedy hands roaming w
 <br><br>
 
 You kick <<him>> hard in the shin, giving you an opening. You crawl out from beneath the table. The <<person>> soon appears on the other side. <<He>> glares at you before walking away.
-<<glewdity>><<set $stall_rejected += 1>>
 <br><br>
 
 <<stall_actions>>
@@ -1365,6 +1432,12 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	<<maninit>>
 	<<set $enemytrust += 100>>
 	<<enable_rescue>>
+	<<if $worn.lower.name is "naked">>
+		<<set $striplower to true>>
+		<<if $worn.under_lower.name is "naked">>
+			<<set $stripunderlower to true>>
+		<</if>>
+	<</if>>
 <</if>>
 <<effects>>
 <<effectsman>>
@@ -1390,35 +1463,64 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	"Thanks <<girl>>," <<he>> says, adjusting <<his>> <<if $pronoun is "f">>skirt<<else>>trousers<</if>>. "See you around."
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
-<<elseif $enemyhealth lte 0>><<set $stall_rejected += 1>>
+	<<link [[Next|Stall Ready]]>><</link>>
+<<elseif $enemyhealth lte 0>>
 	You shove the <<person1>><<person>> away from you. <<He>> tumbles through the cover and out into the open.
 	<br><br>
 	<<tearful>> you return to your side of the table. The <<person1>><<person>> is busy struggling to <<if $pronoun is "f">>lower <<his>> skirt<<else>>zip <<his>> fly<</if>>, while others watch with amusement.
-	<<glewdity>>
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
-<<elseif $alarm is 1 and $rescue is 1>><<set $rescued += 1>><<set $stall_rejected += 1>>
+	<<link [[Next|Stall Ready]]>><</link>>
+<<elseif $alarm is 1 and $rescue is 1>><<set $rescued += 1>>
 	Too nervous to continue, the <<person>> crawls away from you. The table cover falls behind <<him>>, blocking your view.
 	<br><br>
 	<<tearful>> you return to your side of the table. <<Hes>> gone by the time you get to your feet. People up and down the market look over, concerned about the source of the scream.
-	<<glewdity>>
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
-<<else>><<set $stall_rejected += 1>>
+	<<link [[Next|Stall Ready]]>><</link>>
+<<else>>
 	The <<person>> crawls away from you. The table cover falls behind <<him>>, blocking your view.
 	<br><br>
 	<<tearful>> you return to your side of the table. <<Hes>> gone by the time you get to your feet.
-	<<glewdity>>
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <</if>>
 
 :: Stall Oral Sex
@@ -1431,6 +1533,12 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	<<maninit>>
 	<<set $enemytrust += 100>><<promiscuity5>>
 	<<enable_rescue>>
+	<<if $worn.lower.name is "naked">>
+		<<set $striplower to true>>
+		<<if $worn.under_lower.name is "naked">>
+			<<set $stripunderlower to true>>
+		<</if>>
+	<</if>>
 	<<npcoral>>
 <</if>>
 
@@ -1459,38 +1567,65 @@ You kick <<him>> hard in the shin, giving you an opening. You crawl out from ben
 	"Thanks <<girl>>," <<he>> says, adjusting <<his>> <<if $pronoun is "f">>skirt<<else>>trousers<</if>>. "See you around."
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<elseif $enemyhealth lte 0>>
-	<<set $stall_rejected += 1>>
 	You shove the <<person1>><<person>> away from you. <<He>> stumbles and crashes through a stall opposite, sending fruit rolling down the street.
 	<br><br>
 	<<tearful>> you return to your side of the table. The <<person1>><<person>> is busy struggling to <<if $pronoun is "f">>lower <<his>> skirt<<else>>zip <<his>> fly<</if>>, while the fruit stall owner admonishes <<him>>.
-	<<glewdity>>
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<elseif $alarm is 1 and $rescue is 1>>
-	<<set $rescued += 1>><<set $stall_rejected += 1>>
+	<<set $rescued += 1>>
 	The <<person>> backs away, and the table cover falls, blocking your view.
 	<br><br>
 	<<tearful>> you return to your side of the table. <<Hes>> gone by the time you get to your feet. People up and down the market look over, concerned about the source of the scream.
-	<<glewdity>>
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<else>>
-	<<set $stall_rejected += 1>>
 	The <<person>> sticks a hand under the table, and shoves you to the ground.
 	<br><br>
 	<<tearful>> you return to your side of the table. <<Hes>> gone by the time you get to your feet.
-	<<glewdity>>
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <</if>>
 
 :: Stall Pull
@@ -1512,9 +1647,9 @@ You pull away from the <<person>>.
 <<else>>
 	"I'm sorry for the misunderstanding," you say. "But I only sell produce here."
 <</if>>
-<<set $stall_rejected += 1>>
 <br><br>
 The <<person>> glares at you, then glances around. "You led me on," <<he>> whispers. "You're gonna pay. Sooner or later." <<He>> walks away.
+<<stress 3>><<gstress>>
 <br><br>
 
 <<stall_actions>>
@@ -1628,6 +1763,12 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<molested>>
 	<<maninit>>
 	<<enable_rescue>>
+	<<if $worn.lower.name is "naked">>
+		<<set $striplower to true>>
+		<<if $worn.under_lower.name is "naked">>
+			<<set $stripunderlower to true>>
+		<</if>>
+	<</if>>
 	<<npcoral>>
 	<<set $enemyanger += 20>>
 	<<set $enemytrust -= 20>>
@@ -1656,9 +1797,16 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<tearful>> you climb to your feet.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 
 <<elseif $enemyhealth lte 0>>
 	You shove the <<person1>><<person>> to the side, where <<he>> collides with a neighbouring stall. The stall's owner isn't the only one to notice.
@@ -1668,8 +1816,16 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<tearful>> you take your place behind your stall.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 
 <<else>>
 	<<set $rescued += 1>>
@@ -1686,8 +1842,16 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<tearful>> you return to your place behind the display.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 
 <</if>>
 
@@ -1701,6 +1865,12 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<molested>>
 	<<maninit>>
 	<<enable_rescue>>
+	<<if $worn.lower.name is "naked">>
+		<<set $striplower to true>>
+		<<if $worn.under_lower.name is "naked">>
+			<<set $stripunderlower to true>>
+		<</if>>
+	<</if>>
 	<<hand_gag 0 left>>
 	<<set $enemyanger += 20>>
 	<<set $enemytrust -= 20>>
@@ -1730,8 +1900,16 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<tearful>> you climb to your feet.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<elseif $enemyhealth lte 0>>
 	You shove the <<person1>><<person>> to the side, where <<he>> collides with a neighbouring stall. The stall's owner isn't the only one to notice.
 	<br><br>
@@ -1740,8 +1918,16 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<tearful>> you take your place behind your stall.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <<else>>
 	<<set $rescued += 1>>
 	"Did you hear that scream?"
@@ -1755,8 +1941,16 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 	<<tearful>> you return to your place behind the display.
 	<br><br>
 	<<clotheson>>
+	<<if $worn.lower.name isnot "naked" and $striplower>>
+		<<lowerstrip>>
+	<</if>>
+	<<if $worn.under_lower.name isnot "naked" and $stripunderlower>>
+		<<underlowerstrip>>
+	<</if>>
+	<<unset $striplower>>
+	<<unset $stripunderlower>>
 	<<endcombat>>
-	<<stall_actions>>
+	<<link [[Next|Stall Ready]]>><</link>>
 <</if>>
 
 :: Market Street Urchin Help
@@ -1881,7 +2075,28 @@ In the chaos that ensues, you both get away.
 
 :: Stall Whitelist
 <<effects>>
-
 <<stall_inventory>>
-
 <<stall_actions>>
+
+:: Stall Ready
+<<effects>>
+
+<<silently>><<stall_inventory>><</silently>>
+
+<<if _inventory_in_stall isnot 1>>
+	With nothing on display, there's little reason to attend your stall.
+	<br><br>
+	<<icon "project-maths.png">><<link [[Manage your stall|Stall Manage]]>><</link>>
+	<br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
+<<elseif _inventory_found isnot 1>>
+	With nothing to sell, there's little reason to attend your stall.
+	<br><br>
+	<<connudatusicon>><<link [[Leave|Connudatus Street]]>><<endevent>><<endstall>><<clotheson>><</link>>
+	<br>
+<<else>>
+	Your stall is open and you wait for potential customers.
+	<br><br>
+	<<stall_actions>>
+<</if>>

@@ -220,7 +220,7 @@ function playerPregnancyProgress(percent = true) {
 
 	if (!vpregnancy && !apregnancy) return null;
 
-	const read = (p) => {
+	const read = p => {
 		if (!p?.timerEnd) return null;
 		return percent ? Math.clamp(p.timer / p.timerEnd, 0, 1) : p.timer;
 	};
@@ -240,9 +240,9 @@ function isPregnancyEnding() {
 window.isPregnancyEnding = isPregnancyEnding;
 
 function playerNormalPregnancyType() {
-// Note: do not gate the vagina branch behind V.player.vaginaExist.
-// A PC who is sexflipped (e.g. X-Change) while carrying a vaginal pregnancy keeps the pregnancy and still gives birth, so the type must be reported regardless of current anatomy.
-// Otherwise birth passages (asylum/prison/forest) switch on a null type and dead-end with "no usable links".
+	// Note: do not gate the vagina branch behind V.player.vaginaExist.
+	// A PC who is sexflipped (e.g. X-Change) while carrying a vaginal pregnancy keeps the pregnancy and still gives birth, so the type must be reported regardless of current anatomy.
+	// Otherwise birth passages (asylum/prison/forest) switch on a null type and dead-end with "no usable links".
 	if (V.sexStats.vagina.pregnancy.type !== null && V.sexStats.vagina.pregnancy.type !== "parasite") {
 		return V.sexStats.vagina.pregnancy.type;
 	} else if (V.sexStats.anus.pregnancy.type !== null && V.sexStats.anus.pregnancy.type !== "parasite") {
@@ -277,15 +277,9 @@ function wakingPregnancyEvent() {
 		(random(0, 100) >= 105 - V.sciencetrait * 5 || playerNormalPregnancyTotal() >= 3)
 	) {
 		return "missedPeriod";
-	} else if (
-		playerBellySize() >= 12 &&
-		["genitals", "under_upper", "upper", "under_lower", "lower"].find(slot => V.worn[slot].type.includes("constricting"))
-	) {
+	} else if (playerBellySize() >= 12 && ["genitals", "under_upper", "upper", "under_lower", "lower"].find(slot => V.worn[slot].type.includes("constricting"))) {
 		return "clothesRemoval";
-	} else if (
-		V.settings.playerPregnancyEggLayingEnabled === true &&
-		((pregnancy.type === "hawk" && pregnancyStage >= 1) || V.harpyEggs?.daysTillLaying <= 0)
-	) {
+	} else if (V.settings.playerPregnancyEggLayingEnabled === true && ((pregnancy.type === "hawk" && pregnancyStage >= 1) || V.harpyEggs?.daysTillLaying <= 0)) {
 		return "eggLaying";
 	} else if (normalPregnancyEvents && between(pregnancyStage, 0.9, 1)) {
 		wakingEffects = "nearBirthEvent";
@@ -596,7 +590,7 @@ function playerRutMinArousal() {
 	let minArousal = 0;
 
 	// Bull should intensify rut, not bypass the rut cycle entirely.
-	if (pills.contraceptive.doseTaken === 0 && (V.player.beastRut !== undefined && V.player.beastRut <= 1)) {
+	if (pills.contraceptive.doseTaken === 0 && V.player.beastRut !== undefined && V.player.beastRut <= 1) {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "impregnation" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5;
 		}
@@ -620,7 +614,11 @@ window.playerRutMinArousal = playerRutMinArousal;
 function playerAwareTheyCanBePregnant() {
 	const playerIsXChangedAndAwareTheyCanBePregnant = playerIsXChanged() && V.xchange.pill.fertile && V.xchange.pill.effectsKnown;
 	const playerIsAwareOfOmegaPregnancy = playerIsXChanged() && V.xchange.pill.omegaEffect && V.xchange.pill.effectsKnown;
-	return (V.player.vaginaExist && ( playerIsXChangedAndAwareTheyCanBePregnant || !playerIsXChanged() )) || (canBeMPregnant() && (playerIsAwareOfOmegaPregnancy || V.sexStats.anus.pregnancy.totalBirthEvents >= 1)) || playerAwareTheyArePregnant();
+	return (
+		(V.player.vaginaExist && (playerIsXChangedAndAwareTheyCanBePregnant || !playerIsXChanged())) ||
+		(canBeMPregnant() && (playerIsAwareOfOmegaPregnancy || V.sexStats.anus.pregnancy.totalBirthEvents >= 1)) ||
+		playerAwareTheyArePregnant()
+	);
 }
 window.playerAwareTheyCanBePregnant = playerAwareTheyCanBePregnant;
 
@@ -685,13 +683,13 @@ function knowsAboutPregnancy(mother, whoToCheck, existingId) {
 
 	// PC pregnancy
 	if (mother === "pc" && typeof playerIsPregnant === "function" && playerIsPregnant()) {
-		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject() : null;
+		const preg = typeof getPregnancyObject === "function" ? getPregnancyObject() : null;
 		const bid = ensureBirthId(preg, "pc"); // <- safe (creates fetus[0]/birthId if missing)
 		if (bid != null) keyToCheck = "pc" + bid;
 	}
 	// NPC pregnancy
 	else if (C && C.npc && C.npc[mother] && typeof npcIsPregnant === "function" && npcIsPregnant(mother)) {
-		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject(mother) : null;
+		const preg = typeof getPregnancyObject === "function" ? getPregnancyObject(mother) : null;
 		const bid = ensureBirthId(preg, mother);
 		if (bid != null) keyToCheck = mother + bid;
 	}
@@ -756,8 +754,8 @@ function setKnowsAboutPregnancy(mother, whoNowKnows, existingId, track, pregnanc
 			const kids = Object.values(V.children).filter(c => c && c.mother === mother && c.birthId === existing);
 			tracked = {
 				birthId: existing,
-				mother: mother,
-				children: kids.length
+				mother,
+				children: kids.length,
 			};
 		}
 	} else {
@@ -767,18 +765,23 @@ function setKnowsAboutPregnancy(mother, whoNowKnows, existingId, track, pregnanc
 		if (!preg) {
 			if (mother === "pc") {
 				if (typeof playerIsPregnant === "function" && playerIsPregnant()) {
-					preg = (typeof getPregnancyObject === "function") ? getPregnancyObject() : null;
+					preg = typeof getPregnancyObject === "function" ? getPregnancyObject() : null;
 				}
 			} else if (C && C.npc && C.npc[mother] && typeof npcIsPregnant === "function" && npcIsPregnant(mother)) {
-				preg = (typeof getPregnancyObject === "function") ? getPregnancyObject(mother) : C.npc[mother].pregnancy;
+				preg = typeof getPregnancyObject === "function" ? getPregnancyObject(mother) : C.npc[mother].pregnancy;
 			}
 		}
 
 		if (Array.isArray(preg)) preg = preg[0];
 
 		if (preg && Array.isArray(preg.fetus) && preg.fetus.length > 0) {
-			const _ensure = (typeof ensureBirthId === "function") ? ensureBirthId : (typeof window !== "undefined" && typeof window.ensureBirthId === "function" ? window.ensureBirthId : null);
-			const bid = _ensure ? _ensure(preg, mother) : (preg.fetus[0] ? preg.fetus[0].birthId : null);
+			const _ensure =
+				typeof ensureBirthId === "function"
+					? ensureBirthId
+					: typeof window !== "undefined" && typeof window.ensureBirthId === "function"
+					? window.ensureBirthId
+					: null;
+			const bid = _ensure ? _ensure(preg, mother) : preg.fetus[0] ? preg.fetus[0].birthId : null;
 
 			if (bid != null) {
 				birthKey = mother + bid;
@@ -787,8 +790,8 @@ function setKnowsAboutPregnancy(mother, whoNowKnows, existingId, track, pregnanc
 					if (!preg.fetus[0]) preg.fetus[0] = {};
 					tracked = {
 						birthId: bid,
-						mother: (preg.fetus[0].mother != null) ? preg.fetus[0].mother : mother,
-						children: preg.fetus.length
+						mother: preg.fetus[0].mother != null ? preg.fetus[0].mother : mother,
+						children: preg.fetus.length,
 					};
 				}
 			}
@@ -855,6 +858,24 @@ function setKnowsAboutPregnancyInLocation(motherOrFather, whoNowKnows, location,
 }
 DefineMacro("setKnowsAboutPregnancyInLocation", setKnowsAboutPregnancyInLocation);
 
+/*
+	Groups every child under a "mother|birthId" key so the totals below can look one
+	up instantly, instead of rescanning all of V.children for every birth the player's
+	aware of (a loop-in-loop that got slow on big families). Children keep their
+	V.children order, so the first of a group acts like the old .find() and the whole
+	group like the old .filter(). The map is made with Object.create(null) so a parent
+	named something like "toString" can't accidentally break the lookup.
+*/
+function childrenByBirth() {
+	const map = Object.create(null);
+	for (const child of Object.values(V.children)) {
+		const key = child.mother + "|" + child.birthId;
+		if (!map[key]) map[key] = [];
+		map[key].push(child);
+	}
+	return map;
+}
+
 function knowsAboutPregnancyTotal(motherOrFather, whoToCheck, location) {
 	let whoToCheckConverted;
 	if (whoToCheck === "pc") {
@@ -865,10 +886,13 @@ function knowsAboutPregnancyTotal(motherOrFather, whoToCheck, location) {
 		return false;
 	}
 	const awareOfBirthId = Object.entries(V.pregnancyStats.awareOfBirthId).filter(awareOf => awareOf[1].includes(whoToCheckConverted));
+	if (!awareOfBirthId.length) return 0; // nothing to count — skip building the lookup entirely
+	const childrenByMotherBirth = childrenByBirth();
 
 	return awareOfBirthId.reduce((prev, curr) => {
 		const splitId = curr[0].split(/(\d+)/);
-		const child = Object.values(V.children).find(child => child.mother === splitId[0] && child.birthId === parseInt(splitId[1]));
+		const group = childrenByMotherBirth[splitId[0] + "|" + parseInt(splitId[1])];
+		const child = group && group[0]; // first child of this birth — matches the old .find()
 		if (child && (child.mother === motherOrFather || child.father === motherOrFather) && (!location || child.location === location)) return prev + 1;
 		return prev;
 	}, 0);
@@ -900,10 +924,12 @@ function knowsAboutChildrenTotal(motherOrFather, whoToCheck, location) {
 		return false;
 	}
 	const awareOfBirthId = Object.entries(V.pregnancyStats.awareOfBirthId).filter(awareOf => awareOf[1].includes(whoToCheckConverted));
+	if (!awareOfBirthId.length) return 0; // nothing to count — skip building the lookup entirely
+	const childrenByMotherBirth = childrenByBirth();
 
 	return awareOfBirthId.reduce((prev, curr) => {
 		const splitId = curr[0].split(/(\d+)/);
-		const children = Object.values(V.children).filter(child => child.mother === splitId[0] && child.birthId === parseInt(splitId[1]));
+		const children = childrenByMotherBirth[splitId[0] + "|" + parseInt(splitId[1])] || []; // all children of this birth — matches the old .filter()
 		let count = 0;
 		children.forEach(child => {
 			if (child && (child.mother === motherOrFather || child.father === motherOrFather) && (!location || child.location === location)) count++;
@@ -1010,13 +1036,13 @@ function talkedAboutPregnancy(mother, whoToCheck, existingId) {
 
 	// PC pregnancy
 	if (mother === "pc" && typeof playerIsPregnant === "function" && playerIsPregnant()) {
-		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject() : null;
+		const preg = typeof getPregnancyObject === "function" ? getPregnancyObject() : null;
 		const bid = ensureBirthId(preg, "pc"); // SAFE
 		if (bid != null) keyToCheck = "pc" + bid;
 	}
 	// NPC pregnancy
 	else if (C && C.npc && C.npc[mother] && typeof npcIsPregnant === "function" && npcIsPregnant(mother)) {
-		const preg = (typeof getPregnancyObject === "function") ? getPregnancyObject(mother) : null;
+		const preg = typeof getPregnancyObject === "function" ? getPregnancyObject(mother) : null;
 		const bid = ensureBirthId(preg, mother); // SAFE
 		if (bid != null) keyToCheck = mother + bid;
 	}
@@ -1068,17 +1094,22 @@ function setTalkedAboutPregnancy(mother, whoToIncrement, existingId) {
 
 		if (mother === "pc") {
 			if (typeof playerIsPregnant === "function" && playerIsPregnant()) {
-				preg = (typeof getPregnancyObject === "function") ? getPregnancyObject() : null;
+				preg = typeof getPregnancyObject === "function" ? getPregnancyObject() : null;
 			}
 		} else if (C && C.npc && C.npc[mother] && typeof npcIsPregnant === "function" && npcIsPregnant(mother)) {
-			preg = (typeof getPregnancyObject === "function") ? getPregnancyObject(mother) : C.npc[mother].pregnancy;
+			preg = typeof getPregnancyObject === "function" ? getPregnancyObject(mother) : C.npc[mother].pregnancy;
 		}
 
 		if (Array.isArray(preg)) preg = preg[0];
 
 		if (preg && Array.isArray(preg.fetus) && preg.fetus.length > 0) {
-			const _ensure = (typeof ensureBirthId === "function") ? ensureBirthId : (typeof window !== "undefined" && typeof window.ensureBirthId === "function" ? window.ensureBirthId : null);
-			const bid = _ensure ? _ensure(preg, mother) : (preg.fetus[0] ? preg.fetus[0].birthId : null);
+			const _ensure =
+				typeof ensureBirthId === "function"
+					? ensureBirthId
+					: typeof window !== "undefined" && typeof window.ensureBirthId === "function"
+					? window.ensureBirthId
+					: null;
+			const bid = _ensure ? _ensure(preg, mother) : preg.fetus[0] ? preg.fetus[0].birthId : null;
 
 			if (bid != null) key = mother + bid;
 		}

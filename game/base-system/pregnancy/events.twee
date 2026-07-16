@@ -535,6 +535,8 @@ You feel yourself being lifted. You hear a voice, but the words don't make sense
 <<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Hospital]]>><<pass _time>><<set $phase to 1>><</link>>
 
 :: Pregnancy Birth Hospital
+/* Hospital birth (human). 2-4 = the birth, 6-8 = Bailey drives you home; if Alex
+   is the father, 5 branches to the Alex chain. Shared bits in pregnancy-widgets.twee. */
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<set $first_birth to !$pregnancyStats.humanToysUnlocked>>
 <<npc "Harper">><<person1>>
@@ -629,24 +631,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<</if>>
 <</if>>
 
-<<if _pregnancy.totalBirthEvents gte 5>>
-	<<set _min to 15>>
-	<<set _max to 60>>
-<<elseif _pregnancy.totalBirthEvents gte 3>>
-	<<set _min to 30>>
-	<<set _max to 120>>
-<<else>>
-	<<set _min to 60>>
-	<<set _max to 180>>
-<</if>>
-
-<<set _fetusCount to (_pregnancy.fetus and _pregnancy.fetus.length) ? _pregnancy.fetus.length : 0>>
-<<set _max to Math.floor(_max * (1 + Math.floor(_fetusCount * 0.2)))>>
-<<set _min to Math.floor(_min * (1 + Math.floor(_fetusCount * 0.2)))>>
-
-<<set _timeCalc to random(_min, _max)>>
-<<set _hours to Math.floor(_timeCalc / 60)>>
-<<set _minutes to _timeCalc % 60>>
+<<set _timeCalc to birthLaborTime(_pregnancy)>>
 
 /* Note: Pregnancy species */
 <<switch _pregType>>
@@ -658,25 +643,22 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 		<br><br>
 
 		<<if $dissociation gte 1>>
-			Everything slowly fades away once again. You stand in a black abyss. Your whole body feels fuzzy, and the pain is gone. You stand there, alone in the dark. In the distance, a bright white light hovers. It must be several kilometres away. You begin walking towards it, when you suddenly realise that you're stepping in shallow water. You step forward again to the sound of sloshing. Another step. Another. You need to get to the light. You aren't sure why, but you know you must. Something's waiting for you there, you can feel it.
-			<br><br>
-			You start to run. As you get closer, the darkness around you dissipates until only the light surrounds you. You continue running until you come to a wooden door with a golden handle. You grasp it and open it slowly. The light drowns you.
-			<br><br>
+			<<birthDissociationVision>>
 		<</if>>
 		<<if $settings.realisticChildbirthEnabled is true>>
-			<<link [["Next (" + _hours + ":" + (_minutes lt 10 ? "0" : "") + _minutes + ")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"hospital","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"hospital","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 		<<else>>
-			<<link [["Next (" + _hours + ":" + (_minutes lt 10 ? "0" : "") + _minutes + ")"|Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 		<</if>>
 
 	<<case "wolf">>
 		Harper's voice floats through the fog. "Not human. This will be an abnormal delivery. Follow my instructions to the letter..."
 		<br><br>
-		<<link [["Next (" + _hours + ":" + (_minutes lt 10 ? "0" : "") + _minutes + ")"|Pregnancy Birth Hospital Wolf]]>><<endevent>><<pass _timeCalc>><</link>>
+		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Hospital Wolf]]>><<endevent>><<pass _timeCalc>><</link>>
 	<<default>>
 		Harper's voice floats through the fog. "Something is unusual about this delivery. Stay calm and follow my instructions."
 		<br><br>
-		<<link [["Next (" + _hours + ":" + (_minutes lt 10 ? "0" : "") + _minutes + ")"|Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 <</switch>>
 
 :: Pregnancy Birth Hospital 3
@@ -692,24 +674,16 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<br><br>
 
 	"Looks like mummy's awake," <<he>> says, passing you the _baby.
-	<<switch $litter_size>>
-		<<case 3>> As you cradle one in each arm, the midwife places the third directly on your chest.
-		<<case 2>> You cradle one in each arm.
-		<<default>> You cradle your baby in your arms.
-	<</switch>>
-	You feel a rush of pure glee and maternal bliss. Your parental instinct kicks in, washing away your worries and trauma in a flood of joy. The precious gift in front of you is now your whole world, and at last, something feels real to you again.
-	Their eyes are shut, <<= _baby is "babies" ? "chests" : "chest">> rising and falling with gentle breaths. <<trauma -100>><<llltrauma>>
+	<<birthCradle "the midwife">>
+	<<birthDissociationGlee>>
+	<<birthBabySleeps>> <<trauma -100>><<llltrauma>>
 <<else>>
 	You awaken in another room. A smiling midwife stands beside your bed, holding <<= $litter_size is 3 ? "a trio of" : $litter_size is 2 ? "two" : "a">> bundled _baby in <<his>> arms.
 	<br><br>
 
 	"Looks like mummy's awake," <<he>> says, passing you the _baby.
-	<<switch $litter_size>>
-		<<case 3>> As you cradle one in each arm, the midwife places the third directly on your chest.
-		<<case 2>> You cradle one in each arm.
-		<<default>> You cradle your baby in your arms.
-	<</switch>>
-	Their eyes are shut, <<= _baby is "babies" ? "chests" : "chest">> rising and falling with gentle breaths.
+	<<birthCradle "the midwife">>
+	<<birthBabySleeps>>
 <</if>>
 <br><br>
 
@@ -732,11 +706,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<br><br>
 	The midwife returns.
 
-	<<if $first_birth>>
-		<<He>> teaches you how to change <<childname>>'s nappy and how to bathe <<childhim>>.
-	<<else>>
-		<<He>> assists you with changing <<childname>>'s nappy and bathing <<childhim>>.
-	<</if>>
+	<<birthAftercareNappy>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your baby in the meantime."
 	<br><br>
 	You want nothing more than to hold <<childname>>, but you find yourself dozing all the same.
@@ -746,11 +716,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<br><br>
 	The midwife returns.
 
-	<<if $first_birth>>
-		<<He>> teaches you how to change their nappies and how to bathe them.
-	<<else>>
-		<<He>> assists you with changing their nappies and with bathing them.
-	<</if>>
+	<<birthAftercareNappy>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your babies in the meantime."
 	<br><br>
 	You want nothing more than to hold the twins, but you find yourself dozing all the same.
@@ -760,11 +726,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<br><br>
 	The midwife returns.
 
-	<<if $first_birth>>
-		<<He>> teaches you how to change their nappies and how to bathe them.
-	<<else>>
-		<<He>> assists you with changing their nappies and with bathing them.
-	<</if>>
+	<<birthAftercareNappy>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your babies in the meantime."
 	<br><br>
 	You want nothing more than to hold the triplets, but you find yourself dozing all the same.
@@ -1045,6 +1007,8 @@ Upon noticing that you're awake, <<he>> smiles at you, and kneels down. "Stay he
 <<link [[Next|Pregnancy Birth Forest Shop]]>><<endevent>><</link>>
 
 :: Pregnancy Birth Forest Shop
+/* Forest shop birth (human). Gwylan delivers with herbs. 3-4 = the birth.
+   Shares prose with the hospital chain via pregnancy-widgets.twee. */
 <<set $outside to 0>><<set $location to "forest_shop_garden">><<effects>><<run statusCheck("Gwylan")>>
 <<set $first_birth to !$pregnancyStats.humanToysUnlocked>>
 <<npc Gwylan>><<person1>>
@@ -1163,23 +1127,7 @@ The sound and scent wrap around you together. Suddenly you feel tired... more th
 <br><br>
 
 <<set [_pregnancy, _pregnancyGenital] to getPlayerPregnancyForBirth(true)>>
-<<if _pregnancy.totalBirthEvents gte 5>>
-	<<set _min to 15>>
-	<<set _max to 60>>
-<<elseif _pregnancy.totalBirthEvents gte 3>>
-	<<set _min to 30>>
-	<<set _max to 120>>
-<<else>>
-	<<set _min to 60>>
-	<<set _max to 180>>
-<</if>>
-
-<<set _max to Math.floor(_max * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
-<<set _min to Math.floor(_min * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
-
-<<set _timeCalc to random(_min, _max)>>
-<<set _hours to Math.floor(_timeCalc / 60)>>
-<<set _minutes to _timeCalc % 60>>
+<<set _timeCalc to birthLaborTime(_pregnancy)>>
 
 /* Note: Pregnancy species */
 <<switch playerNormalPregnancyType()>>
@@ -1195,28 +1143,24 @@ You hear a deep breath. You think it's yours. "Good. Breathe." Gwylan's voice is
 <br><br>
 
 <<if $dissociation gte 1>>
-	Everything slowly fades away once again. You stand in a black abyss. Your whole body feels fuzzy, and the pain is gone. You stand there, alone in the dark. In the distance, a bright white light hovers. It must be several kilometres away. You begin walking towards it, when you suddenly realise that you're stepping in shallow water. You step forward again to the sound of sloshing. Another step. Another. You need to get to the light. You aren't sure why, but you know you must. Something's waiting for you there, you can feel it.
-	<br><br>
-
-	You start to run. As you get closer, the darkness around you dissipates until only the light surrounds you. You continue running until you come to a wooden door with a golden handle. You grasp it and open it slowly. The light drowns you.
-	<br><br>
+	<<birthDissociationVision>>
 <</if>>
 
 <<switch playerNormalPregnancyType()>>
 	<<case "human">>
 		<<if $settings.realisticChildbirthEnabled is true>>
-			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"forest shop","partner":"Gwylan","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"forest shop","partner":"Gwylan","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 		<<else>>
-			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop 4]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Forest Shop 4]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 		<</if>>
 	<<case "wolf">>
 		<<if $settings.realisticChildbirthEnabled is true>>
-			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"forest shop","partner":"Gwylan","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"forest shop","partner":"Gwylan","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 		<<else>>
-			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Forest Shop Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 		<</if>>
 	<<default>>
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Pregnancy Birth Forest Shop 4]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Forest Shop 4]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 <</switch>>
 
 :: Pregnancy Birth Forest Shop 4
@@ -1234,24 +1178,16 @@ You hear that familiar humming again.
 	<br><br>
 
 	"Rise and shine, mummy," <<he>> says, passing you the _baby.
-	<<switch $litter_size>>
-		<<case 3>> As you cradle one in each arm, <<he>> places the third directly on your chest.
-		<<case 2>> You cradle one in each arm.
-		<<default>> You cradle your baby in your arms.
-	<</switch>>
-	You feel a rush of pure glee and maternal bliss. Your parental instinct kicks in, washing away your worries and trauma in a flood of joy. The precious gift in front of you is now your whole world, and at last, something feels real to you again.
-	Their eyes are shut, <<= _baby is "babies" ? "chests" : "chest">> rising and falling with gentle breaths. <<trauma -100>><<llltrauma>>
+	<<birthCradle>>
+	<<birthDissociationGlee>>
+	<<birthBabySleeps>> <<trauma -100>><<llltrauma>>
 <<else>>
 	You awaken wrapped up tightly in blankets. Gwylan stands beside you, holding <<= $litter_size is 3 ? "a trio of" : $litter_size is 2 ? "two" : "a">> bundled _baby in <<his>> arms.
 	<br><br>
 
 	"Rise and shine, mummy," <<he>> says, passing you the _baby.
-	<<switch $litter_size>>
-		<<case 3>> As you cradle one in each arm, <<he>> places the third directly on your chest.
-		<<case 2>> You cradle one in each arm.
-		<<default>> You cradle your baby in your arms.
-	<</switch>>
-	Their eyes are shut, <<= _baby is "babies" ? "chests" : "chest">> rising and falling with gentle breaths.
+	<<birthCradle>>
+	<<birthBabySleeps>>
 <</if>>
 <br><br>
 
@@ -1270,11 +1206,7 @@ You hear that familiar humming again.
 	You cradle your baby for a while longer, enjoying <<childhis>> tiny breaths and movements. <<childHe>> spends most of the time sleeping, but opens <<childhis>> eyes occasionally and gazes into yours.
 	<br><br>
 	Gwylan rubs your shoulders.
-	<<if $first_birth>>
-		<<He>> teaches you how to change <<childname>>'s nappy and how to bathe <<childhim>>.
-	<<else>>
-		<<He>> assists you with changing <<childname>>'s nappy and bathing <<childhim>>.
-	<</if>>
+	<<birthAftercareNappy>>
 	"If you want to rest," <<he>> starts. "I can take care of <<childhim>> in the meantime. We'll be right here next to you, dear. I can go put on some tea, too."
 	<br><br>
 	You want nothing more than to hold <<childname>>, but you find yourself dozing all the same.
@@ -1283,11 +1215,7 @@ You hear that familiar humming again.
 	You cradle your babies for a while longer, enjoying their tiny breaths and movements. They spend most of the time sleeping, but open their eyes occasionally and gaze into yours.
 	<br><br>
 	Gwylan rubs your shoulders.
-	<<if $first_birth>>
-		<<He>> teaches you how to change their nappies and how to bathe them.
-	<<else>>
-		<<He>> assists you with changing their nappies and with bathing them.
-	<</if>>
+	<<birthAftercareNappy>>
 	"If you want to rest," <<he>> starts. "I can take care of them in the meantime. We'll be right here next to you, dear. I can go put on some tea, too."
 	<br><br>
 	You want nothing more than to hold the twins, but you find yourself dozing all the same.
@@ -1296,11 +1224,7 @@ You hear that familiar humming again.
 	You cradle your babies for a while longer, enjoying their tiny breaths and movements. They spend most of the time sleeping, but open their eyes occasionally and gaze into yours.
 	<br><br>
 	Gwylan rubs your shoulders.
-	<<if $first_birth>>
-		<<He>> teaches you how to change their nappies and how to bathe them.
-	<<else>>
-		<<He>> assists you with changing their nappies and with bathing them.
-	<</if>>
+	<<birthAftercareNappy>>
 	"If you want to rest," <<he>> starts. "I can take care of them in the meantime. We'll be right here next to you, dear. I can go put on some tea, too."
 	<br><br>
 	You want nothing more than to hold the triplets, but you find yourself dozing all the same.
@@ -1735,7 +1659,7 @@ You strip and lie down.
 	<<if C.npc.Alex.pregnancy.ultraSound is "requested">><<set C.npc.Alex.pregnancy.ultraSound to "collected">><</if>>
 	/* Player has pictures of the babies */
 	<<set _pregnancy.ultrasoundDone to true>>
-	<<bodyliquid "vaginaoutside" "goo" 2>>
+	<<bodyliquid "tummy" "goo" 2>>
 	Doctor Harper prepares the gel and wand for the procedure. You find the gel to be comfortably warm as <<he>> slathers it on your abdomen.
 	<br><br>
 
@@ -2102,12 +2026,15 @@ You strip and lie down.
 <<set $outside to 0>><<set $location to "hospital">><<effects>><<wearProp "rag">>
 
 You thank Doctor Harper for the scan as <<he>> hands you a warm towel. You wipe off the gel, but some still sticks.
-<br><br> <<bodyliquid "vaginaoutside" "goo" -1>>
+<br><br> <<bodyliquid "tummy" "goo" -1>>
 <<clotheson>>
 
 <<link [[Return to foyer|Hospital Foyer]]>><<endevent>><</link>>
 
 :: Pregnancy Birth Hospital Alex
+/* Alex drive-home. Branches in from Hospital 5 when Alex is the father; reuses the
+   hospital birth passages, only the drive home differs. Not merged with Bailey's
+   drive-home (it's a separate scene, not duplicated prose). */
 <<effects>>
 <<npc "Alex">>
 <<getChildrenIds>><<childSelect _childrenIds.last()>>

@@ -12,7 +12,7 @@ Warmth checklist:
 function initNeck() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "neck",
 			name: "naked",
@@ -43,9 +43,8 @@ function initNeck() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "neck",
 			name: "collar",
@@ -79,9 +78,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "neck",
 			name: "bunny collar",
@@ -118,9 +116,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "bunny_collar.png",
 			accIcon: "bunny_collar_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 3,
 			slot: "neck",
 			name: "holy pendant",
@@ -154,9 +151,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "holy-pendant.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 4,
 			slot: "neck",
 			name: "dark pendant",
@@ -190,9 +186,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "dark_pendant.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 5,
 			slot: "neck",
 			name: "stone pendant",
@@ -226,9 +221,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "stone-pendant.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 6,
 			slot: "neck",
 			name: "gold choker",
@@ -263,9 +257,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "gold_choker.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 7,
 			slot: "neck",
 			name: "cat bell collar",
@@ -301,9 +294,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "cat_bell_collar.png",
 			accIcon: "cat_bell_collar_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 8,
 			slot: "neck",
 			name: "cow bell",
@@ -336,9 +328,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "cow_bell.png",
 			accIcon: "cow_bell_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 9,
 			slot: "neck",
 			name: "lace choker",
@@ -375,9 +366,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "lace_choker.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 10,
 			slot: "neck",
 			name: "spiked collar",
@@ -413,9 +403,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "spiked_collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 11,
 			slot: "neck",
 			name: "heart choker",
@@ -454,9 +443,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "heart_choker.png",
 			accIcon: "heart_choker_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 12,
 			slot: "neck",
 			name: "ringed collar",
@@ -492,9 +480,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "ringed_collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 13,
 			slot: "neck",
 			name: "necktie",
@@ -533,9 +520,8 @@ function initNeck() {
 			altdisabled: [],
 			iconFile: "necktie.png",
 			accIcon: "necktie_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 14,
 			slot: "neck",
 			name: "suspenders",
@@ -575,9 +561,8 @@ function initNeck() {
 			accIcon: 0,
 			altposition: "none",
 			altdisabled: [],
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 15,
 			slot: "neck",
 			name: "cloth choker",
@@ -609,9 +594,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "cloth_choker.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 16,
 			slot: "neck",
 			name: "scarf",
@@ -662,9 +646,8 @@ function initNeck() {
 			iconFile: "scarf.png",
 			accIcon: 0,
 			zIndex: "head",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 17,
 			slot: "neck",
 			name: "gold chain",
@@ -700,9 +683,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "gold_chain.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 18,
 			slot: "neck",
 			name: "iron chain",
@@ -737,9 +719,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "iron_chain.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 19,
 			slot: "neck",
 			name: "holy stole",
@@ -775,9 +756,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "holy_stole.png",
 			accIcon: "holy_stole_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 20,
 			slot: "neck",
 			name: "free use collar",
@@ -812,9 +792,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 21,
 			slot: "neck",
 			name: "collar with leash",
@@ -850,9 +829,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 22,
 			slot: "neck",
 			name: "free use collar with leash",
@@ -888,9 +866,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 23,
 			slot: "neck",
 			name: "ivory necklace",
@@ -924,9 +901,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "ivory_necklace.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 24,
 			slot: "neck",
 			name: "leather collar with leash",
@@ -962,9 +938,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 25,
 			slot: "neck",
 			name: "leather collar",
@@ -999,9 +974,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "collar_no_leash.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 26,
 			slot: "neck",
 			name: "spiked collar with leash",
@@ -1038,9 +1012,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "spiked_collar.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 27,
 			slot: "neck",
 			name: "short tie",
@@ -1077,9 +1050,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "necktie.png",
 			accIcon: "necktie_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 28,
 			slot: "neck",
 			name: "fur boa",
@@ -1130,9 +1102,8 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "boa.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 29,
 			slot: "neck",
 			name: "sailor ribbon",
@@ -1167,9 +1138,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "serafuku_ribbon.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 30,
 			slot: "neck",
 			name: "love locket",
@@ -1205,8 +1175,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "love_locket.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 31,
 			slot: "neck",
 			name: "classic lace choker",
@@ -1243,8 +1213,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "lace_choker.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 32,
 			slot: "neck",
 			name: "bowtie",
@@ -1281,8 +1251,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "bowtie.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 33,
 			slot: "neck",
 			name: "ribbon tie",
@@ -1319,8 +1289,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "ribbon_tie.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 34,
 			slot: "neck",
 			name: "whistle",
@@ -1355,8 +1325,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "whistle.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 35,
 			slot: "neck",
 			name: "large ribbon tie",
@@ -1393,8 +1363,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "large_ribbon_tie.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 36,
 			slot: "neck",
 			name: "bolo tie",
@@ -1431,9 +1401,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "bolo_tie.png",
 			accIcon: "bolo_tie_acc.png",
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 37,
 			slot: "neck",
 			name: "long holy stole",
@@ -1469,8 +1438,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "holy_stole.png",
 			accIcon: "holy_stole_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 38,
 			slot: "neck",
 			name: "feather necklace",
@@ -1503,8 +1472,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "feather_necklace.png",
 			accIcon: "feather_necklace_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 39,
 			slot: "neck",
 			name: "jasper pendant",
@@ -1538,9 +1507,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "jasper_pendant.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 40,
 			slot: "neck",
 			name: "familiar collar",
@@ -1577,8 +1545,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "familiar_collar.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 41,
 			slot: "neck",
 			name: "wool scarf",
@@ -1614,8 +1582,8 @@ function initNeck() {
 			iconFile: "woolscarf.png",
 			accIcon: 0,
 			zIndex: "head",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 42,
 			slot: "neck",
 			name: "flannel scarf",
@@ -1652,12 +1620,12 @@ function initNeck() {
 			iconFile: "flannelscarf.png",
 			accIcon: "flannelscarf_acc.png",
 			zIndex: "head",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 43,
 			slot: "neck",
 			name: "fox scarf",
-			name_cap: "fox scarf",
+			name_cap: "Fox scarf",
 			variable: "foxscarf",
 			combat: {
 				reference: "scarf",
@@ -1689,8 +1657,8 @@ function initNeck() {
 			iconFile: "foxscarf.png",
 			accIcon: "foxscarf_acc.png",
 			zIndex: "head",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 44,
 			slot: "neck",
 			name: "pompom scarf",
@@ -1726,8 +1694,8 @@ function initNeck() {
 			iconFile: "pompomscarf.png",
 			accIcon: 0,
 			zIndex: "head",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 45,
 			slot: "neck",
 			name: "ribbon scarf",
@@ -1779,8 +1747,8 @@ function initNeck() {
 			iconFile: "ribbonscarf.png",
 			accIcon: 0,
 			zIndex: "head",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 46,
 			slot: "neck",
 			name: "cashmere scarf",
@@ -1832,8 +1800,8 @@ function initNeck() {
 			iconFile: "cashmerescarf.png",
 			accIcon: 0,
 			zIndex: "head",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 47,
 			slot: "neck",
 			name: "bow brooch",
@@ -1899,8 +1867,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "bow-brooch.png",
 			accIcon: "bow-brooch-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 48,
 			slot: "neck",
 			name: "gothic choker",
@@ -1966,8 +1934,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "gothic-choker.png",
 			accIcon: "gothic-choker-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 49,
 			slot: "neck",
 			name: "kitty neck cushion",
@@ -2017,8 +1985,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "kitty-neck-cushion.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 50,
 			slot: "neck",
 			name: "puppy neck cushion",
@@ -2068,8 +2036,8 @@ function initNeck() {
 			location: 0,
 			iconFile: "puppy-neck-cushion.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 51,
 			slot: "neck",
 			name: "gemstone necklace",
@@ -2119,7 +2087,7 @@ function initNeck() {
 			location: 0,
 			iconFile: "gemstone necklace.png",
 			accIcon: "gemstone necklace-acc.png",
-		},
+		}),
 	];
 	setup.clothes.neck = clothing;
 

@@ -16,7 +16,7 @@ Warmth checklist:
 function initFeet() {
 	/** @type {ClothesItem[]} */
 	const clothing = [
-		{
+		new ClothesItem({
 			index: 0,
 			slot: "feet",
 			name: "naked",
@@ -47,8 +47,8 @@ function initFeet() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 1,
 			slot: "feet",
 			name: "school shoes",
@@ -84,8 +84,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "school_shoes.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 2,
 			slot: "feet",
 			name: "tuxedo shoes",
@@ -122,8 +122,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "tuxedo_shoes.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 3,
 			slot: "feet",
 			name: "ankle cuffs",
@@ -158,8 +158,8 @@ function initFeet() {
 			location: 0,
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 4,
 			slot: "feet",
 			name: "sandals",
@@ -195,8 +195,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "sandals.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 5,
 			slot: "feet",
 			name: "dress sandals",
@@ -232,8 +232,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "dress_sandals.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 6,
 			slot: "feet",
 			name: "trainers",
@@ -270,8 +270,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "trainers.png",
 			accIcon: "trainers_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 7,
 			slot: "feet",
 			name: "witch shoes",
@@ -307,8 +307,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "witch_shoes.png",
 			accIcon: "witch_shoes_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 8,
 			slot: "feet",
 			name: "wellies",
@@ -342,8 +342,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "wellies.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 9,
 			slot: "feet",
 			name: "platform heels",
@@ -375,8 +375,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "platform_heels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 10,
 			slot: "feet",
 			name: "kitten heels",
@@ -408,8 +408,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "kitten_heels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 11,
 			slot: "feet",
 			name: "wedge sandals",
@@ -445,8 +445,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "wedge_sandals.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 12,
 			slot: "feet",
 			name: "court heels",
@@ -478,8 +478,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "court_heels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 13,
 			slot: "feet",
 			name: "heeled boots",
@@ -511,8 +511,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "heeled_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 14,
 			slot: "feet",
 			name: "stripper heels",
@@ -545,8 +545,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "stripper_heels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 15,
 			slot: "feet",
 			name: "horsebit loafers",
@@ -583,8 +583,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "horsebit_loafers.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 16,
 			slot: "feet",
 			name: "cordovan loafers",
@@ -621,8 +621,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "cordovan_loafers.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 17,
 			slot: "feet",
 			name: "animal slippers",
@@ -661,8 +661,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "pattern",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 18,
 			slot: "feet",
 			name: "combat boots",
@@ -697,8 +697,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "combat_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 19,
 			slot: "feet",
 			name: "field boots",
@@ -734,8 +734,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "field_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 20,
 			slot: "feet",
 			name: "paddock boots",
@@ -771,8 +771,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "paddock_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 21,
 			slot: "feet",
 			name: "work boots",
@@ -808,8 +808,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "work_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 22,
 			slot: "feet",
 			name: "flippers",
@@ -846,8 +846,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "flippers.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 23,
 			slot: "feet",
 			name: "ice skates",
@@ -882,8 +882,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "ice_skates.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 24,
 			slot: "feet",
 			name: "long boots",
@@ -918,8 +918,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "long_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 25,
 			slot: "feet",
 			name: "light-up trainers",
@@ -953,8 +953,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "light-up_trainers.png",
 			accIcon: "light-up_trainers_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 26,
 			slot: "feet",
 			name: "ball and chain",
@@ -985,8 +985,8 @@ function initFeet() {
 			location: 0,
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 27,
 			slot: "feet",
 			name: "cowboy boots",
@@ -1022,8 +1022,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "cowboy_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 28,
 			slot: "feet",
 			name: "high top trainers",
@@ -1059,8 +1059,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "trainers.png",
 			accIcon: "trainers_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 29,
 			slot: "feet",
 			name: "belly dancer's shoes",
@@ -1095,9 +1095,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "belly_dancers_shoes.png",
 			accIcon: 0,
-		},
-
-		{
+		}),
+		new ClothesItem({
 			index: 30,
 			slot: "feet",
 			name: "canvas loafers",
@@ -1133,8 +1132,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "canvas_loafers.png",
 			accIcon: "canvas_loafers_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 31,
 			slot: "feet",
 			name: "thigh-high heeled boots",
@@ -1169,8 +1168,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "thighhigh_heels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 32,
 			slot: "feet",
 			name: "fur boots",
@@ -1206,8 +1205,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "fur_boots.png",
 			accIcon: "fur_boots_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 33,
 			slot: "feet",
 			name: "mary janes",
@@ -1243,8 +1242,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "mary_janes.png",
 			accIcon: "mary_janes_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 34,
 			slot: "feet",
 			name: "platform mary janes",
@@ -1281,8 +1280,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "platform_mary_janes.png",
 			accIcon: "platform_mary_janes_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 35,
 			slot: "feet",
 			name: "geta",
@@ -1317,8 +1316,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "geta.png",
 			accIcon: "geta_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 36,
 			slot: "feet",
 			name: "zori",
@@ -1353,8 +1352,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "zori.png",
 			accIcon: "zori_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 37,
 			slot: "feet",
 			name: "ribbon platform heels",
@@ -1391,8 +1390,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "ribbon_platform_heels.png",
 			accIcon: "ribbon_platform_heels_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 38,
 			slot: "feet",
 			name: "penny loafers",
@@ -1430,8 +1429,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "loafers.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 39,
 			slot: "feet",
 			name: "wingtips",
@@ -1470,8 +1469,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "wingtips.png",
 			accIcon: "wingtips_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 40,
 			slot: "feet",
 			name: "laced-up heeled boots",
@@ -1508,8 +1507,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "laced-up_heeled_boots.png",
 			accIcon: "laced-up_heeled_boots_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 41,
 			slot: "feet",
 			name: "belted boots",
@@ -1563,8 +1562,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "belted_boots.png",
 			accIcon: "belted_boots_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 42,
 			slot: "feet",
 			name: "basketball sneakers",
@@ -1597,21 +1596,7 @@ function initFeet() {
 			shop: ["clothing"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black",
-				"blue",
-				"brown",
-				"green",
-				"pink",
-				"purple",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"neon blue",
-				"custom",
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "neon blue", "custom"],
 			accessory_colour_sidebar: 1,
 			cursed: 0,
 			notuck: 0,
@@ -1619,8 +1604,8 @@ function initFeet() {
 			iconFile: "basketball_sneakers.png",
 			accIcon: "basketball_sneakers_acc.png",
 			detailIcon: "basketball_sneakers_detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 43,
 			slot: "feet",
 			name: "chain boots",
@@ -1654,8 +1639,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "chainmail_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 44,
 			slot: "feet",
 			name: "ropes",
@@ -1689,8 +1674,8 @@ function initFeet() {
 			location: 0,
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 45,
 			slot: "feet",
 			name: "reindeer slippers",
@@ -1726,8 +1711,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "animal_slippers_reindeer.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 46,
 			slot: "feet",
 			name: "gift wrap footwrap",
@@ -1760,8 +1745,8 @@ function initFeet() {
 			notuck: 0,
 			location: 0,
 			iconFile: "giftwrap_feet.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 47,
 			slot: "feet",
 			name: "ballet shoes",
@@ -1796,8 +1781,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "ballet_shoes.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 48,
 			slot: "feet",
 			name: "succubus heels",
@@ -1832,8 +1817,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "succubus_heels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 49,
 			slot: "feet",
 			name: "christmas boots",
@@ -1868,8 +1853,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "christmas_boots.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 50,
 			slot: "feet",
 			name: "vines",
@@ -1903,8 +1888,8 @@ function initFeet() {
 			location: 0,
 			iconFile: 0,
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 51,
 			slot: "feet",
 			name: "ankle strap sandals",
@@ -1939,8 +1924,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "anklestrapsandals.png",
 			accIcon: "anklestrapsandals-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 52,
 			slot: "feet",
 			name: "ankle strap sneakers",
@@ -1979,8 +1964,8 @@ function initFeet() {
 			iconFile: "anklestrapsneakers.png",
 			accIcon: "anklestrapsneakers-acc.png",
 			detailIcon: "anklestrapsneakers-detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 53,
 			slot: "feet",
 			name: "ankle trainers",
@@ -2015,15 +2000,15 @@ function initFeet() {
 			location: 0,
 			iconFile: "ankletrainers.png",
 			accIcon: "ankletrainers-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 54,
 			slot: "feet",
 			name: "ballet pumps",
 			name_cap: "Ballet pumps",
 			variable: "balletpumps",
 			combat: {
-			reference: "stripperheels",
+				reference: "stripperheels",
 			},
 			state: 0,
 			state_base: 0,
@@ -2035,7 +2020,7 @@ function initFeet() {
 			plural: 1,
 			colour: 0,
 			colour_sidebar: 1,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_combat: 0,
 			type: ["dance"],
 			gender: "n",
@@ -2045,21 +2030,21 @@ function initFeet() {
 			shop: ["clothing"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			notuck: 1,
 			location: 0,
 			iconFile: "balletpumps.png",
 			accIcon: "balletpumps-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 55,
 			slot: "feet",
 			name: "butterfly heels",
 			name_cap: "Butterfly heels",
 			variable: "butterflyheels",
 			combat: {
-			reference: "stripperheels",
+				reference: "stripperheels",
 			},
 			state: 0,
 			state_base: 0,
@@ -2070,10 +2055,10 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
-			type: ["formal","heels"],
+			type: ["formal", "heels"],
 			gender: "f",
 			femininity: 200,
 			warmth: 1,
@@ -2082,14 +2067,14 @@ function initFeet() {
 			shop: ["clothing"],
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			notuck: 1,
 			location: 0,
 			iconFile: "butterflyheels.png",
 			accIcon: "butterflyheels-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 56,
 			slot: "feet",
 			name: "clogs",
@@ -2114,7 +2099,7 @@ function initFeet() {
 			description: "Full of charms.",
 			shop: ["clothing"],
 			colour: 0,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
 			accessory: 0,
@@ -2128,16 +2113,16 @@ function initFeet() {
 			location: 0,
 			iconFile: "clogs.png",
 			accIcon: "clogs-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 57,
 			slot: "feet",
 			name: "double strap sandals",
 			name_cap: "Double strap sandals",
 			variable: "doublestrapsandals",
 			combat: {
-			reference: "wedgesandals",
-			accColour: "primary",
+				reference: "wedgesandals",
+				accColour: "primary",
 			},
 			state: 0,
 			state_base: 0,
@@ -2154,7 +2139,7 @@ function initFeet() {
 			description: "Doubly secure.",
 			shop: ["clothing"],
 			colour: 0,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
 			accessory: 1,
@@ -2165,16 +2150,16 @@ function initFeet() {
 			location: 0,
 			iconFile: "doublestrapsandals.png",
 			accIcon: "doublestrapsandals-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 58,
 			slot: "feet",
 			name: "flat sandals",
 			name_cap: "Flat sandals",
 			variable: "flatsandals",
 			combat: {
-			reference: "wedgesandals",
-			accColour: "#cdb493",
+				reference: "wedgesandals",
+				accColour: "#cdb493",
 			},
 			state: 0,
 			state_base: 0,
@@ -2191,7 +2176,7 @@ function initFeet() {
 			description: "Good for the beach.",
 			shop: ["clothing"],
 			colour: 0,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
 			accessory: 1,
@@ -2202,15 +2187,15 @@ function initFeet() {
 			location: 0,
 			iconFile: "flatsandals.png",
 			accIcon: "flatsandals-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 59,
 			slot: "feet",
 			name: "floral rain boots",
 			name_cap: "Floral rain boots",
 			variable: "floralrainboots",
 			combat: {
-			reference: "bootheels",
+				reference: "bootheels",
 			},
 			state: 0,
 			state_base: 0,
@@ -2220,34 +2205,34 @@ function initFeet() {
 			reveal: 150,
 			word: "n",
 			plural: 1,
-			type: ["normal","waterproof"],
+			type: ["normal", "waterproof"],
 			gender: "n",
 			warmth: 3,
 			cost: 4500,
 			description: "Brightens rainy days.",
 			shop: ["clothing"],
 			colour: 0,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			notuck: 0,
 			location: 0,
 			iconFile: "floralrainboots.png",
 			accIcon: "floralrainboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 60,
 			slot: "feet",
 			name: "floral ribbon trainers",
 			name_cap: "Floral ribbon trainers",
 			variable: "floralribbontrainers",
 			combat: {
-			reference: "lightuptrainers",
-			accColour: "primary",
+				reference: "lightuptrainers",
+				accColour: "primary",
 			},
 			state: 0,
 			state_base: 0,
@@ -2265,12 +2250,12 @@ function initFeet() {
 			description: "Laced up.",
 			shop: ["clothing"],
 			colour: 0,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			pattern: 0,
 			pattern_options: ["detail"],
@@ -2281,15 +2266,15 @@ function initFeet() {
 			iconFile: "floralribbontrainers.png",
 			accIcon: "floralribbontrainers-acc.png",
 			detailIcon: "floralribbontrainers-detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 61,
 			slot: "feet",
 			name: "fuzzy-bow boots",
 			name_cap: "Fuzzy-bow boots",
 			variable: "fuzzybowboots",
 			combat: {
-			reference: "bootheels",
+				reference: "bootheels",
 			},
 			state: 0,
 			state_base: 0,
@@ -2307,19 +2292,19 @@ function initFeet() {
 			description: "Cuteness overload.",
 			shop: ["clothing"],
 			colour: 0,
-			colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: ["black","blue","brown","green","pink","purple","red","tangerine","teal","white","yellow","custom"],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			notuck: 0,
 			location: 0,
 			iconFile: "fuzzybowboots.png",
 			accIcon: "fuzzybowboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 62,
 			slot: "feet",
 			name: "heeled trainers",
@@ -2328,7 +2313,7 @@ function initFeet() {
 			description: "Won't help you run.",
 			cost: 5500,
 			shop: ["clothing"],
-			type: ["normal","heels"],
+			type: ["normal", "heels"],
 			combat: {
 				reference: "none",
 			},
@@ -2341,19 +2326,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 100,
@@ -2363,8 +2340,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "heeledtrainers.png",
 			accIcon: "heeledtrainers-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 63,
 			slot: "feet",
 			name: "high heel ankle boots",
@@ -2373,7 +2350,7 @@ function initFeet() {
 			description: "Classic.",
 			cost: 9500,
 			shop: ["clothing"],
-			type: ["normal","heels","formal"],
+			type: ["normal", "heels", "formal"],
 			combat: {
 				reference: "anklecuffs",
 			},
@@ -2386,19 +2363,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 100,
@@ -2408,8 +2377,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "highheelankleboots.png",
 			accIcon: "highheelankleboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 64,
 			slot: "feet",
 			name: "knee fur boots",
@@ -2418,7 +2387,7 @@ function initFeet() {
 			description: "Zippers on the back.",
 			cost: 9500,
 			shop: ["clothing"],
-			type: ["normal","heels"],
+			type: ["normal", "heels"],
 			combat: {
 				reference: "anklecuffs",
 			},
@@ -2431,19 +2400,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 4,
@@ -2452,8 +2413,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "kneefurboots.png",
 			accIcon: "kneefurboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 65,
 			slot: "feet",
 			name: "knit cuff ankle boots",
@@ -2475,19 +2436,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 4,
@@ -2496,8 +2449,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "knitcuffankleboots.png",
 			accIcon: "knitcuffankleboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 66,
 			slot: "feet",
 			name: "lace up heels",
@@ -2506,7 +2459,7 @@ function initFeet() {
 			description: "Beauty takes time.",
 			cost: 10500,
 			shop: ["clothing"],
-			type: ["normal","heels"],
+			type: ["normal", "heels"],
 			combat: {
 				reference: "anklecuffs",
 			},
@@ -2519,19 +2472,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 200,
@@ -2541,8 +2486,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "laceupheels.png",
 			accIcon: "laceupheels-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 67,
 			slot: "feet",
 			name: "lace up mary janes",
@@ -2551,7 +2496,7 @@ function initFeet() {
 			description: "Laced with elegance.",
 			cost: 18000,
 			shop: ["clothing"],
-			type: ["normal","heels","formal"],
+			type: ["normal", "heels", "formal"],
 			combat: {
 				reference: "stripperheels",
 			},
@@ -2564,19 +2509,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 200,
@@ -2586,8 +2523,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "laceupmaryjanes.png",
 			accIcon: "laceupmaryjanes-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 68,
 			slot: "feet",
 			name: "long puff boots",
@@ -2609,19 +2546,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 6,
@@ -2630,8 +2559,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "longpuffboots.png",
 			accIcon: "longpuffboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 69,
 			slot: "feet",
 			name: "mary jane heels",
@@ -2640,7 +2569,7 @@ function initFeet() {
 			description: "Vintage charm.",
 			cost: 10500,
 			shop: ["clothing"],
-			type: ["normal","formal"],
+			type: ["normal", "formal"],
 			combat: {
 				reference: "kittenheels",
 			},
@@ -2653,11 +2582,7 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 0,
 			accessory_colour: 0,
@@ -2670,8 +2595,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "maryjaneheels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 70,
 			slot: "feet",
 			name: "over-the-knee boots",
@@ -2680,7 +2605,7 @@ function initFeet() {
 			description: "Hugs the legs.",
 			cost: 14000,
 			shop: ["clothing"],
-			type: ["normal","heels"],
+			type: ["normal", "heels"],
 			combat: {
 				reference: "bootheels",
 			},
@@ -2693,19 +2618,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 100,
@@ -2715,8 +2632,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "overthekneeboots.png",
 			accIcon: "overthekneeboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 71,
 			slot: "feet",
 			name: "platform ankle boots",
@@ -2738,19 +2655,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 2,
@@ -2759,8 +2668,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "platformankleboots.png",
 			accIcon: "platformankleboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 72,
 			slot: "feet",
 			name: "platform clogs with fur",
@@ -2779,19 +2688,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			pattern: 0,
 			pattern_options: ["detail"],
@@ -2804,8 +2705,8 @@ function initFeet() {
 			iconFile: "platformclogswithfur.png",
 			accIcon: "platformclogswithfur-acc.png",
 			detailIcon: "platformclogswithfur-detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 73,
 			slot: "feet",
 			name: "platform loafers",
@@ -2827,19 +2728,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			pattern: 0,
 			pattern_options: ["detail"],
@@ -2852,8 +2745,8 @@ function initFeet() {
 			iconFile: "platformloafers.png",
 			accIcon: "platformloafers-acc.png",
 			detailIcon: "platformloafers-detail.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 74,
 			slot: "feet",
 			name: "polka dot rain boots",
@@ -2862,7 +2755,7 @@ function initFeet() {
 			description: "Ready for puddles.",
 			cost: 5500,
 			shop: ["clothing"],
-			type: ["normal","waterproof"],
+			type: ["normal", "waterproof"],
 			combat: {
 				reference: "bootheels",
 			},
@@ -2875,19 +2768,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 3,
@@ -2896,8 +2781,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "polkadotrainboots.png",
 			accIcon: "polkadotrainboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 75,
 			slot: "feet",
 			name: "puff boots",
@@ -2919,19 +2804,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 4,
@@ -2940,8 +2817,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "puffboots.png",
 			accIcon: "puffboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 76,
 			slot: "feet",
 			name: "rose platform heels",
@@ -2950,7 +2827,7 @@ function initFeet() {
 			description: "Smell the roses.",
 			cost: 21000,
 			shop: ["clothing"],
-			type: ["normal","formal"],
+			type: ["normal", "formal"],
 			combat: {
 				reference: "stripperheels",
 			},
@@ -2963,19 +2840,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 200,
@@ -2985,8 +2854,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "roseplatformheels.png",
 			accIcon: "roseplatformheels-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 77,
 			slot: "feet",
 			name: "rose pumps",
@@ -3008,19 +2877,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 100,
@@ -3030,8 +2891,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "rosepumps.png",
 			accIcon: "rosepumps-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 78,
 			slot: "feet",
 			name: "satin ribbon heels",
@@ -3040,7 +2901,7 @@ function initFeet() {
 			description: "Wraps the ankles.",
 			cost: 19500,
 			shop: ["clothing"],
-			type: ["normal","formal"],
+			type: ["normal", "formal"],
 			combat: {
 				reference: "stripperheels",
 			},
@@ -3053,19 +2914,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 200,
@@ -3075,8 +2928,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "satinribbonheels.png",
 			accIcon: "satinribbonheels-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 79,
 			slot: "feet",
 			name: "shark slippers",
@@ -3098,11 +2951,7 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
@@ -3114,8 +2963,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "sharkslippers.png",
 			accIcon: "sharkslippers-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 80,
 			slot: "feet",
 			name: "snowball heels",
@@ -3124,7 +2973,7 @@ function initFeet() {
 			description: "Watch for bouncing pom-poms.",
 			cost: 11500,
 			shop: ["clothing"],
-			type: ["normal","heels"],
+			type: ["normal", "heels"],
 			combat: {
 				reference: "stripperheels",
 			},
@@ -3137,19 +2986,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "f",
 			femininity: 200,
@@ -3159,8 +3000,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "snowballheels.png",
 			accIcon: "snowballheels-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 81,
 			slot: "feet",
 			name: "bow snow boots",
@@ -3179,19 +3020,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			pattern: 0,
 			pattern_options: ["detail"],
@@ -3203,8 +3036,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "bowsnowboots.png",
 			accIcon: "bowsnowboots-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 82,
 			slot: "feet",
 			name: "soft slippers",
@@ -3226,19 +3059,11 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
-			accessory_colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			accessory_colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			accessory_colour_sidebar: 1,
 			gender: "n",
 			warmth: 2,
@@ -3247,8 +3072,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "softslippers.png",
 			accIcon: "softslippers-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 83,
 			slot: "feet",
 			name: "strawberry slippers",
@@ -3270,11 +3095,7 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 1,
 			accessory_colour: 0,
@@ -3286,8 +3107,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "strawberryslippers.png",
 			accIcon: "strawberryslippers-acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 84,
 			slot: "feet",
 			name: "suede pumps",
@@ -3296,7 +3117,7 @@ function initFeet() {
 			description: "Office ready.",
 			cost: 12000,
 			shop: ["clothing"],
-			type: ["normal","formal"],
+			type: ["normal", "formal"],
 			combat: {
 				reference: "kittenheels",
 			},
@@ -3309,11 +3130,7 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 0,
 			accessory_colour: 0,
@@ -3326,8 +3143,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "suedepumps.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 85,
 			slot: "feet",
 			name: "t-strap heels",
@@ -3336,7 +3153,7 @@ function initFeet() {
 			description: "Timeless elegance.",
 			cost: 13500,
 			shop: ["clothing"],
-			type: ["normal","formal","heels"],
+			type: ["normal", "formal", "heels"],
 			combat: {
 				reference: "kittenheels",
 			},
@@ -3349,11 +3166,7 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 0,
 			accessory_colour: 0,
@@ -3366,8 +3179,8 @@ function initFeet() {
 			location: 0,
 			iconFile: "tstrapheels.png",
 			accIcon: 0,
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 86,
 			slot: "feet",
 			name: "wrinkled long boots",
@@ -3376,7 +3189,7 @@ function initFeet() {
 			description: "Made with soft leather.",
 			cost: 16000,
 			shop: ["clothing"],
-			type: ["normal","heels"],
+			type: ["normal", "heels"],
 			combat: {
 				reference: "bootheels",
 			},
@@ -3389,11 +3202,7 @@ function initFeet() {
 			word: "n",
 			plural: 1,
 			colour: 0,
-			colour_options: [
-				"black", "navy blue", "wine", "brown", "olive",
-				"pink", "light pink", "purple", "lilac", "red",
-				"tangerine", "teal", "white", "yellow", "custom"
-			],
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
 			colour_sidebar: 1,
 			accessory: 0,
 			accessory_colour: 0,
@@ -3406,7 +3215,30 @@ function initFeet() {
 			location: 0,
 			iconFile: "wrinkledlongboots.png",
 			accIcon: 0,
-		},
+		}),
+		new ClothesItem({
+			index: 87,
+			slot: "feet",
+			name: "spat shoes",
+			variable: "spat shoes",
+			description: "Classic vintage style.",
+			cost: 10000,
+			shop: ["clothing"],
+			type: ["formal"],
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 25,
+			reveal: 200,
+			word: "n",
+			plural: 1,
+			colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			accessory: 1,
+			accessory_colour_options: ["black", "white", "navy blue", "wine", "brown", "light pink", "lilac", "red", "tangerine", "teal", "yellow", "custom"],
+			gender: "n",
+			warmth: 2,
+			iconFile: "spat-shoes.png",
+			accIcon: "spat-shoes-acc.png",
+		}),
 	];
 	setup.clothes.feet = clothing;
 

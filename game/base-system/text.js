@@ -273,18 +273,42 @@ statDisplay.create("gggperlove", (npc, simple) => {
 	return statDisplay.statChange(selectedNPC && !simple && (npc || V.enemyno >= 2) ? `${NPCName}'s ${loveAlias}` : loveAlias, 3, "green");
 });
 
-statDisplay.create("gpatience", () => {return statDisplay.statChange("Patience", 1, "green");});
-statDisplay.create("ggpatience", () => {return statDisplay.statChange("Patience", 2, "green");});
-statDisplay.create("gggpatience", () => {return statDisplay.statChange("Patience", 3, "green");});
-statDisplay.create("lpatience", () => {return statDisplay.statChange("Patience", -1, "red");});
-statDisplay.create("llpatience", () => {return statDisplay.statChange("Patience", -2, "red");});
-statDisplay.create("lllpatience", () => {return statDisplay.statChange("Patience", -3, "red");});
-statDisplay.create("ganger", () => {return statDisplay.statChange("Anger", 1, "red");});
-statDisplay.create("gganger", () => {return statDisplay.statChange("Anger", 2, "red");});
-statDisplay.create("ggganger", () => {return statDisplay.statChange("Anger", 3, "red");});
-statDisplay.create("langer", () => {return statDisplay.statChange("Anger", -1, "green");});
-statDisplay.create("llanger", () => {return statDisplay.statChange("Anger", -2, "green");});
-statDisplay.create("lllanger", () => {return statDisplay.statChange("Anger", -3, "green");});
+statDisplay.create("gpatience", () => {
+	return statDisplay.statChange("Patience", 1, "green");
+});
+statDisplay.create("ggpatience", () => {
+	return statDisplay.statChange("Patience", 2, "green");
+});
+statDisplay.create("gggpatience", () => {
+	return statDisplay.statChange("Patience", 3, "green");
+});
+statDisplay.create("lpatience", () => {
+	return statDisplay.statChange("Patience", -1, "red");
+});
+statDisplay.create("llpatience", () => {
+	return statDisplay.statChange("Patience", -2, "red");
+});
+statDisplay.create("lllpatience", () => {
+	return statDisplay.statChange("Patience", -3, "red");
+});
+statDisplay.create("ganger", () => {
+	return statDisplay.statChange("Anger", 1, "red");
+});
+statDisplay.create("gganger", () => {
+	return statDisplay.statChange("Anger", 2, "red");
+});
+statDisplay.create("ggganger", () => {
+	return statDisplay.statChange("Anger", 3, "red");
+});
+statDisplay.create("langer", () => {
+	return statDisplay.statChange("Anger", -1, "green");
+});
+statDisplay.create("llanger", () => {
+	return statDisplay.statChange("Anger", -2, "green");
+});
+statDisplay.create("lllanger", () => {
+	return statDisplay.statChange("Anger", -3, "green");
+});
 
 statDisplay.create("llust", npc => statDisplay.statChange(npc ? `${npc}'s Lust` : "Lust", -1, "teal"));
 statDisplay.create("lllust", npc => statDisplay.statChange(npc ? `${npc}'s Lust` : "Lust", -2, "teal"));
@@ -695,9 +719,15 @@ statDisplay.create("ggghistory", () => {
 });
 
 statDisplay.create("lhousekeeping", () => statDisplay.statChange("Housekeeping", -1, "red"));
-statDisplay.create("ghousekeeping", amount => statDisplay.statChange("Housekeeping", 1, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1));
-statDisplay.create("gghousekeeping", amount => statDisplay.statChange("Housekeeping", 2, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1));
-statDisplay.create("ggghousekeeping", amount => statDisplay.statChange("Housekeeping", 3, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1));
+statDisplay.create("ghousekeeping", amount =>
+	statDisplay.statChange("Housekeeping", 1, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1)
+);
+statDisplay.create("gghousekeeping", amount =>
+	statDisplay.statChange("Housekeeping", 2, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1)
+);
+statDisplay.create("ggghousekeeping", amount =>
+	statDisplay.statChange("Housekeeping", 3, "green", () => amount === undefined || V.housekeeping < amount || amount >= 1000 || V.easyHousekeeping >= 1)
+);
 
 statDisplay.create("gstray_happiness", () => statDisplay.statChange("Stray contentment", 1, "green"));
 statDisplay.create("ggstray_happiness", () => statDisplay.statChange("Stray contentment", 2, "green"));
@@ -894,6 +924,13 @@ statDisplay.create("lworldcorruptionhard", () =>
 statDisplay.create("gworldcorruptionhard", () =>
 	statDisplay.statChange("A new hole forms in the world...", 0, "tentacle", () => V.temple_confessor_intro || V.gwylanSeen?.includes("ritual_beast"))
 );
+
+statDisplay.create("lheat", () => statDisplay.statChange("Heat", -1, "green"));
+statDisplay.create("llheat", () => statDisplay.statChange("Heat", -2, "green"));
+statDisplay.create("lllheat", () => statDisplay.statChange("Heat", -3, "green"));
+statDisplay.create("gheat", () => statDisplay.statChange("Heat", 1, "red"));
+statDisplay.create("ggheat", () => statDisplay.statChange("Heat", 2, "red"));
+statDisplay.create("gggheat", () => statDisplay.statChange("Heat", 3, "red"));
 
 // These rely on the 'statChange' function in 'stat-changes.js'
 statDisplay.create("gharmony", (amount = 1) => statChange.harmony(amount));

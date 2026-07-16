@@ -814,7 +814,7 @@ You sneak to a nurse. "Excuse me," you say.
 		Security are amused by the sight of you, but still warn you off when you jog too close to the perimeter fence.
 	<<else>>
 		You run around the asylum grounds. Security keeps a close eye on you, and warn you off when you jog too close to the perimeter fence.
-		<<athletics 2>>
+		<<athletics 2>><<physique 2>>
 	<</if>>
 	<<pass 30>>
 	<br><br>
@@ -976,7 +976,7 @@ You chat with the other patients.
 		"Totally, man!" a <<person3>><<person>> interrupts. "A door can totally be a jar. Like a giant jar. I mean, like, I never
 		thought of it that way, but the building is like, the cupboard. Full of jars. Which are doors. The door is the jar, literally.
 		And we're the... the jam trying to get out to the town, which is obviously the toast in this... this... ...analogy?
-		I mean, yeah - the door is the jar - I see it. I totally see it." <<He>> sounds quite sure of <<himself>>.
+		I mean, yeah—the door is the jar—I see it. I totally see it." <<He>> sounds quite sure of <<himself>>.
 	<</addinlineevent>>
 
 	<<addinlineevent "socialise_warning_vanishing">>
@@ -1014,7 +1014,7 @@ You chat with the other patients.
 			"Some of the crazies in here will tell you the staff are all lizard-people bent on world domination."
 			The <<person>> shakes <<his>> head. "What rubbish. They're obviously aliens."
 		<<else>>
-			"Some of the nutcases around here will tell you the staff are all aliens preparing us to join a Galactic federation."
+			"Some of the nutcases around here will tell you the staff are all aliens preparing us to join a galactic federation."
 			The <<person>> rolls <<his>> eyes. "Nonsense: they're clearly lizard-people."
 		<</if>>
 	<</addinlineevent>>
@@ -1031,7 +1031,7 @@ You chat with the other patients.
 				"characters in a book",
 				"ghosts who don't realise we've died",
 				"katra passing through the infinite cycle of death and rebirth"
-			)>> - but no one recognises the truth."
+			)>>—but no one recognises the truth."
 		<</if>>
 	<</addinlineevent>>
 
@@ -1570,24 +1570,27 @@ The food is good, and leaves you feeling warm and happy. It's not just you. The 
 <br><br>
 <<if isPregnancyEnding()>>
 	<<pregnancyPassout "asylumCafe">>
-<<elseif $exposed is 2>>
-	Your <<lewdness>> on display makes you the centre of attention.
-	<<exhibitionism5>>
-<<elseif $exposed is 1>>
-	Your <<lewdness>> on display makes you the centre of attention.
-	<<exhibitionism3>>
-<<elseif $asylumstatus gte 80>>
-	Other patients seem eager to chat with you.
-<<elseif $asylumstatus gte 60>>
-	Several nearby patients talk with you over breakfast.
-<<elseif $asylumstatus gte 40>>
-	The nearest patients begrudgingly talk with you.
 <<else>>
-	However, anything you say is met with stony silence.
-<</if>>
-<br><br>
+	<<if $exposed is 2>>
+		Your <<lewdness>> on display makes you the centre of attention.
+		<<exhibitionism5>>
+	<<elseif $exposed is 1>>
+		Your <<lewdness>> on display makes you the centre of attention.
+		<<exhibitionism3>>
+	<<elseif $asylumstatus gte 80>>
+		Other patients seem eager to chat with you.
+	<<elseif $asylumstatus gte 60>>
+		Several nearby patients talk with you over breakfast.
+	<<elseif $asylumstatus gte 40>>
+		The nearest patients begrudgingly talk with you.
+	<<else>>
+		However, anything you say is met with stony silence.
+	<</if>>
+	<br><br>
 
-<<asylumevents>>
+	<<asylumevents>>
+<</if>>
+
 
 :: Asylum Staff
 
@@ -2681,7 +2684,7 @@ The <<person2>><<person>>
 <<elseif $ft_count lt ($ft_five - 2)>><<set _crowd="Some of the orderlies shout encouragement to you. Others shout to the <<person4>><<person>>.">>
 <<elseif $ft_count lt $ft_five>><<set _crowd="Some orderlies seem disappointed, others seems amused. You think you see money exchanging hands.">>
 <<elseif $ft_count is $ft_five>><<set _crowd="Several orderlies groan or shout in disappointment. More cheer and laugh.">>
-<<elseif $ft_count gt 18>><<set _crowd="The crowd of orderlies shout encouragement at you, the <<person4>><<person>> and the <<person5>><<person>>.<br>'Hang in there!'<br>'You can do it.'<br>">>
+<<elseif $ft_count gt 18>><<set _crowd="The crowd of orderlies shout encouragement at you, the <<person4>><<person>> and the <<person5>><<person>>.<br>\"Hang in there!\"<br>\"You can do it.\"<br>">>
 <<elseif $ft_count is 0>>
 	There is an air of disappointment as the <<person1>><<person>> leaves you.
 <<elseif $ft_count%2>><<set _crowd = either("The crowd of orderlies watch.","The crowd jostle to get a better view.","The crowd shouts encouragement.")>>
@@ -2985,23 +2988,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 <br><br>
 
 <<set [_pregnancy, _pregnancyGenital] to getPlayerPregnancyForBirth(true)>>
-<<if _pregnancy.totalBirthEvents gte 5>>
-	<<set _min to 15>>
-	<<set _max to 60>>
-<<elseif _pregnancy.totalBirthEvents gte 3>>
-	<<set _min to 30>>
-	<<set _max to 120>>
-<<else>>
-	<<set _min to 60>>
-	<<set _max to 180>>
-<</if>>
-
-<<set _max to Math.floor(_max * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
-<<set _min to Math.floor(_min * (1 + Math.floor(_pregnancy.fetus.length * 0.2)))>>
-
-<<set _timeCalc to random(_min, _max)>>
-<<set _hours to Math.floor(_timeCalc / 60)>>
-<<set _minutes to _timeCalc % 60>>
+<<set _timeCalc to birthLaborTime(_pregnancy)>>
 
 <<switch _pregnancy.type>>
 	<<case "human">>
@@ -3012,9 +2999,9 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 		<br><br>
 
 		<<if $settings.realisticChildbirthEnabled is true>>
-			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"asylum","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"asylum","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 		<<else>>
-			<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Asylum 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Asylum 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 		<</if>>
 	<<case "wolf">>
 		Harper's voice floats through the fog. "Not human. This will be an abnormal delivery. Follow my instructions to the letter..."
@@ -3023,7 +3010,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
 		<br><br>
 
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Asylum Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Asylum Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 	<<default>>
 		Harper's voice floats through the fog. "Something is unusual about this delivery. Stay calm and follow my instructions."
 		<br><br>
@@ -3031,7 +3018,7 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
 		<br><br>
 
-		<<link [["Next ("+_hours+":"+(_minutes lt 10 ? "0": "")+_minutes+")"| Pregnancy Birth Asylum 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Asylum 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 <</switch>>
 
 :: Pregnancy Birth Asylum 3
