@@ -1130,6 +1130,10 @@
 	<</if>>
 	<<if $combatExtended.passiveDodging is 1>>
 		<<set _dodgeChance = Math.round(_dancedodge + _bodyDodgeChance + _brawlingDodgeChance)>>
+		/* High combat stats should remain valuable without making incoming attacks automatic misses. */
+		<<if _dodgeChance gt 60>>
+			<<set _dodgeChance to Math.round(60 + ((_dodgeChance - 60) * 0.25))>>
+		<</if>>
 		<<if $combatExtended.uncappedDodgeChance is 0>>
 			<<set _dodgeChance to Math.clamp(_dodgeChance, 0, $combatExtended.dodgeChanceCap)>>
 		<</if>>
@@ -1146,6 +1150,9 @@
 	<</if>>
 	<<if $combatExtended.activeDodgingActive is 1 and _activeDodgeTargetMatches>>
 		<<set _dodgeChance = Math.round((_dancedodge + _bodyDodgeChance + _brawlingDodgeChance) * 2)>>
+		<<if _dodgeChance gt 60>>
+			<<set _dodgeChance to Math.round(60 + ((_dodgeChance - 60) * 0.25))>>
+		<</if>>
 		<<if $combatExtended.uncappedDodgeChance is 0>>
 			<<set _dodgeChance to Math.clamp(_dodgeChance, 0, $combatExtended.dodgeChanceCap)>>
 		<</if>>
@@ -1299,7 +1306,7 @@
 		<</if>>
 	<</if>>
 	<<set $combatExtended.enemyCounterSuccess to _enemyCounter>>
-	<<if _activeEnemyDodge gt _activeEnemyDodge>>
+	<<if _passiveEnemyDodge gt _activeEnemyDodge>>
 		<<set $combatExtended.enemyDodgeSuccess to _passiveEnemyDodge>>
 	<<else>>
 		<<set $combatExtended.enemyDodgeSuccess to _activeEnemyDodge>>

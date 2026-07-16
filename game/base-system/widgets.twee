@@ -438,7 +438,8 @@
 			<</if>>
 			<<stress `_violence * (1 - ($masochism / 1200))` _stressMod>>
 			<<combattrauma `_violence * _traumaMod`>>
-			<<pain `(_violence * (1 - ($masochism / 1200)) * (1 - ($physique / 20000)) / _possessMod / _clothesMod)` _painMod>>
+			<<set _combatPainMod to ($combatExtended.standingFights is 1 ? 1.25 : 1)>>
+			<<pain `(_violence * _combatPainMod * (1 - ($masochism / 1200)) * (1 - ($physique / 20000)) / _possessMod / _clothesMod)` _painMod>>
 			<<set _arousal to (_violence * (0 + ($masochism / 18)))>>
 			<<arousal `_arousal/_possessMod` "maso">>
 			<<if $orgasmdown gte 1>>
@@ -549,19 +550,19 @@
 		<</if>>
 		<<set _thedamage to (2 * _defiance * (currentSkillValue('physique') / 4000))>>
 		<<if $combatExtended.brawlingToggle is 1>>
-			<<set _thedamage to _thedamage * (1 + ((combatExtendedSkillValue('brawling') * $enemyno * (1 + ($enemyno / 2))) / 10000))>>
+			<<set _thedamage to _thedamage * (1 + Math.min(0.5, ((combatExtendedSkillValue('brawling') * $enemyno * (1 + ($enemyno / 2))) / 10000)))>>
 		<</if>>
 		<<if $combatExtended.strikingToggle is 1 and $striking is 1>>
-			<<set _thedamage to _thedamage * (1 + (combatExtendedSkillValue('striking') / 1000))>>
+			<<set _thedamage to _thedamage * (1 + (combatExtendedSkillValue('striking') / 2000))>>
 		<</if>>
 		<<if $combatExtended.kickingToggle is 1 and $kicking is 1>>
-			<<set _thedamage to _thedamage * (1 + (combatExtendedSkillValue('kicking') / 1000))>>
+			<<set _thedamage to _thedamage * (1 + (combatExtendedSkillValue('kicking') / 2000))>>
 		<</if>>
 		<<if $fallenangelretribution is 1>>
 			<<set _thedamage to _thedamage * 2>>
 		<</if>>
-		<<if $enemyBlockingActive is 1>>
-			<<set _reduction to $NPCList[_args[1]].dodgeChance * 2>>
+		<<if $combatExtended.enemyBlockingActive is 1 and $NPCList[_args[1]]>>
+			<<set _reduction to Math.clamp($NPCList[_args[1]].dodgeChance * 2, 0, 75)>>
 			<<set _thedamage to _thedamage * (1 - (_reduction / 100))>>
 		<</if>>
 		<<if $enemyno gte 2>>
