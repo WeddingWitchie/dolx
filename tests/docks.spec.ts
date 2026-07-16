@@ -406,6 +406,99 @@ test.describe("Docks", () => {
 	});
 });
 
+test.describe("Robin Docks X-Change", () => {
+	test.beforeEach(async ({ page }) => {
+		await openGame(page);
+		await navigateTo(page, "Start2");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.robinmissing = "docks";
+			V.robindebtevent = 7;
+			V.docksrobinintro = 0;
+			V.xchange.pillPermanence = 0;
+		});
+	});
+
+	test.afterEach(async ({ page }) => {
+		await assertNoErrors(page);
+	});
+
+	test("clearly shows that Robin was forcibly pilled and applies the matching status", async ({ page }) => {
+		await navigateTo(page, "Docks_Robin");
+
+		const text = await page.locator("#passages .passage").innerText();
+		expect(text).toContain("An empty X-Change pill packet lies discarded beside Robin.");
+		expect(text).toContain("They must have forced");
+
+		const state = await page.evaluate(() => {
+			const robin = (window as any).C.npc.Robin;
+			return {
+				genderflipEffect: robin.xchange?.genderflipEffect,
+				duration: robin.xchange?.duration,
+				status: (window as any).npcXchangePillStatus("Robin"),
+			};
+		});
+		expect(state.genderflipEffect).toBe(true);
+		// NPC pill timers use the shared inclusive-hour convention: days * 24 - 1.
+		expect(state.duration).toBe(6.5 * 24 - 1);
+		expect(state.status?.label).toBe("X-Changed");
+		expect(state.status?.text).toContain("Robin is under an X-Change pill");
+	});
+
+	test("restores Robin's body and clears the status when the docks pill expires", async ({ page }) => {
+		const original = await page.evaluate(() => {
+			const robin = (window as any).C.npc.Robin;
+			return { gender: robin.gender, pronoun: robin.pronoun };
+		});
+		await navigateTo(page, "Docks_Robin");
+		await page.evaluate(() => (window as any).npcXChangeHourlyCheck(6.5 * 24));
+
+		const restored = await page.evaluate(() => {
+			const robin = (window as any).C.npc.Robin;
+			return {
+				gender: robin.gender,
+				pronoun: robin.pronoun,
+				xchange: robin.xchange,
+				status: (window as any).npcXchangePillStatus("Robin"),
+			};
+		});
+		expect(restored.gender).toBe(original.gender);
+		expect(restored.pronoun).toBe(original.pronoun);
+		expect(restored.xchange).toBeUndefined();
+		expect(restored.status).toBeNull();
+	});
+
+	test("only mentions the changed body in Robin's room while the pill is active", async ({ page }) => {
+		await navigateTo(page, "Docks_Robin");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			const robin = (window as any).C.npc.Robin;
+			V.robinLastPunishment = "docks";
+			V.robin_injured = 0;
+			V.robinbreakupCooldown = 0;
+			V.halloween = 0;
+			V.robinpaid = 0;
+			V.robinReunionScene = undefined;
+			robin.comforted = 0;
+			robin.trauma = 20;
+			V.robin.timer.hurt = 0;
+		});
+
+		const activeText = await wikifyToText(page, "<<robinroom>>");
+		expect(activeText).toContain("They forced me to take an X-Change pill.");
+		expect(activeText).toContain("Will I ever turn back?");
+
+		await page.evaluate(() => {
+			const robin = (window as any).C.npc.Robin;
+			delete robin.xchange;
+			robin.comforted = 0;
+		});
+		const restoredText = await wikifyToText(page, "<<robinroom>>");
+		expect(restoredText).not.toContain("X-Change pill");
+		expect(restoredText).not.toContain("Will I ever turn back?");
+	});
+});
+
 test.describe("Docks Work", () => {
 	test.beforeEach(async ({ page }) => {
 		await openGame(page);
