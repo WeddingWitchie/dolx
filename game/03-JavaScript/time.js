@@ -1466,6 +1466,19 @@ function minutePassed(minutes) {
 		V.painDuration = 0;
 	}
 
+	// Living in constant pain gradually conditions the PC toward masochism, with a hint of submission.
+	// The harder it hurts and the longer it lingers, the better the odds of internalising the ache.
+	if (V.pain >= 60 && V.masochism < 1000 && !V.statFreeze) {
+		const painIntensity = Math.min(V.pain / 200, 1); // 0-1 scale of how bad it hurts
+		const enduranceBonus = Math.min((V.painDuration || 0) / 240, 1); // ramps up over ~4h of continuous pain
+		const masoChance = (0.15 + 0.35 * painIntensity) * (0.5 + 0.5 * enduranceBonus) * (minutes / 30);
+		if (random(1, 1000) / 1000 < masoChance) {
+			const masoGain = painIntensity >= 0.75 ? 2 : 1;
+			V.masochism = Math.clamp(V.masochism + masoGain, 0, 1000);
+			statChange.submissive(0.25 * painIntensity); // enduring the hurt wears down defiance a little
+		}
+	}
+
 	// If passive Trauma decreases ever get implemented, they will need to be handled in a way that prevents the "trauma" widget from automatically updating the PC's trauma traits during combat.
 
 	// Arousal
