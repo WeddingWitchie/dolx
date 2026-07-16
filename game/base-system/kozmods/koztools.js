@@ -723,7 +723,6 @@ function xChangeCachedBodyUsable(slotName) {
 	return false;
 }
 window.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
-setup.xChangeBodySnapshotUsable = window.xChangeBodySnapshotUsable;
 setup.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
 
 // ==================================================
