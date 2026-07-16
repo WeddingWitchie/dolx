@@ -1634,3 +1634,23 @@ function skillIncomeMultiplier(skill) {
 	return 1 + 0.1 + 0.4 * Math.clamp((value - 1000) / 1000, 0, 1);
 }
 window.skillIncomeMultiplier = skillIncomeMultiplier;
+
+/**
+ * X-Change value (in pennies) the player gets for fencing their stolen goods ($blackmoney) at the pub.
+ *
+ * Vanilla's 0.5.11 rebalance roughly halved raw theft loot ($blackmoney gains).
+ * The pub fence sale used a flat <<money>> and so, unlike every other crime payout (which <<moneyGain>>'s crime flag scales by 1 + skulduggery/2000), never rewarded skulduggery.
+ * This brings it in line: base loot, times the optional maths "haggling" buff, times the same skulduggery crime multiplier.
+ * Single source of truth so the pub sale and the journal estimate always agree.
+ *
+ * @returns {number} sale value in pennies (0 with no stolen goods).
+ */
+function blackMoneySaleValue() {
+	const base = (Number.isFinite(V.blackmoney) ? V.blackmoney : 0) * 100;
+	if (base <= 0) return 0;
+	const mathsBuff = V.mathsTraitBuffs && V.mathsTraitBuffs.stolen === 1 ? 1 + (Number(V.mathstrait) || 0) / 4 : 1;
+	const skulduggery = typeof currentSkillValue === "function" ? currentSkillValue("skulduggery") : Number(V.skulduggery) || 0;
+	const skulduggeryBuff = 1 + skulduggery / 2000;
+	return Math.round(base * mathsBuff * skulduggeryBuff);
+}
+window.blackMoneySaleValue = blackMoneySaleValue;
