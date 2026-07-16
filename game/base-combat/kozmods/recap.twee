@@ -1,0 +1,108 @@
+:: Widgets Combat Recap [widget]
+
+/* Per-encounter tracking for the post-combat summary, toggled by $postCombatStats (Enemy Stats Display settings).
+	<<recapStat "npcOrgasm" [count]>> - an enemy/partner orgasmed
+	<<recapStat "taken" "on your face">> - you received cum at a location
+	<<recapStat "given" "in their mouth">> - you came inside an NPC
+	<<recapStat "destroyed"/"stolen" name>> - clothing losses, recorded via <<recapClothingLoss>>
+*/
+<<widget "recapStat">>
+	<<if $combat is 1 and $statFreeze isnot true and _args[0]>>
+		<<if !$combatRecap>>
+			<<set $combatRecap to { npcOrgasms: 0, taken: {}, given: {}, destroyed: [], stolen: [] }>>
+		<</if>>
+		<<switch _args[0]>>
+		<<case "npcOrgasm">>
+			<<set $combatRecap.npcOrgasms += (_args[1] || 1)>>
+		<<case "taken">>
+			<<if _args[1]>>
+				<<set $combatRecap.taken[_args[1]] to ($combatRecap.taken[_args[1]] || 0) + 1>>
+			<</if>>
+		<<case "given">>
+			<<if _args[1]>>
+				<<set $combatRecap.given[_args[1]] to ($combatRecap.given[_args[1]] || 0) + 1>>
+			<</if>>
+		<<case "destroyed">>
+			<<if _args[1]>>
+				<<run $combatRecap.destroyed.push(_args[1])>>
+			<</if>>
+		<<case "stolen">>
+			<<if _args[1]>>
+				<<run $combatRecap.stolen.push(_args[1])>>
+			<</if>>
+		<</switch>>
+	<</if>>
+<</widget>>
+
+/* Called from <<generalRuined>> before the item is wiped. _args[0] slot, _args[1] destroy worn, _args[2] destroy carried, _args[3] "stolen" when reached via <<generalSteal>>'s souvenir branch. */
+<<widget "recapClothingLoss">>
+	<<if $combat is 1 and $statFreeze isnot true and _args[0]>>
+		<<set $_name to "">>
+		<<if _args[1] and $worn[_args[0]] and $worn[_args[0]].name isnot "naked">>
+			<<set $_name to $worn[_args[0]].name>>
+		<<elseif _args[2] and $carried[_args[0]] and $carried[_args[0]].name isnot "naked">>
+			<<set $_name to $carried[_args[0]].name>>
+		<</if>>
+		<<if $_name isnot "">>
+			<<if _args[3] is "stolen">>
+				<<recapStat "stolen" $_name>>
+			<<else>>
+				<<recapStat "destroyed" $_name>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+/* Rendered by <<endcombat>> before combat variables reset. */
+<<widget "combatRecapDisplay">>
+	<<if $postCombatStats is 1 and $combat is 1 and $statFreeze isnot true>>
+		<<set $_recap to $combatRecap>>
+		<<set $_npcOrgasms to $_recap ? $_recap.npcOrgasms : 0>>
+		<<set $_taken to $_recap ? Object.entries($_recap.taken) : []>>
+		<<set $_given to $_recap ? Object.entries($_recap.given) : []>>
+		<<set $_destroyed to $_recap ? $_recap.destroyed : []>>
+		<<set $_stolen to $_recap ? $_recap.stolen : []>>
+		<<if $orgasmcurrent gt 0 or $_npcOrgasms gt 0 or $_taken.length gt 0 or $_given.length gt 0 or $_destroyed.length gt 0 or $_stolen.length gt 0>>
+			<span class="gold">Encounter summary:</span>
+			<br>
+			<<if $orgasmcurrent gt 0>>
+				<span class="lewd">You orgasmed <<print $orgasmcurrent is 1 ? "once" : $orgasmcurrent is 2 ? "twice" : $orgasmcurrent + " times">>.</span>
+				<br>
+			<</if>>
+			<<if $_npcOrgasms gt 0>>
+				<<set $_others to ($consensual is 1 ? "partner" : "assailant") + ($enemynomax gte 2 ? "s" : "")>>
+				<span class="lewd">Your <<print $_others>> orgasmed <<print $_npcOrgasms is 1 ? "once" : $_npcOrgasms is 2 ? "twice" : $_npcOrgasms + " times">><<if $enemynomax gte 2>> between them<</if>>.</span>
+				<br>
+			<</if>>
+			<<if $_taken.length gt 0>>
+				<<set $_takenBits to $_taken.map(e => e[0] + (e[1] > 1 ? " ×" + e[1] : ""))>>
+				<span class="lewd">You took cum <<print formatList($_takenBits, "and", true)>>.</span>
+				<br>
+			<</if>>
+			<<if $_given.length gt 0>>
+				<<set $_givenBits to $_given.map(e => e[0] + (e[1] > 1 ? " ×" + e[1] : ""))>>
+				<span class="lewd">You came <<print formatList($_givenBits, "and", true)>>.</span>
+				<br>
+			<</if>>
+			<<if $_destroyed.length gt 0>>
+				<<set $_destroyedCounts to {}>>
+				<<for $_i to 0; $_i lt $_destroyed.length; $_i++>>
+					<<set $_destroyedCounts[$_destroyed[$_i]] to ($_destroyedCounts[$_destroyed[$_i]] || 0) + 1>>
+				<</for>>
+				<<set $_destroyedBits to Object.entries($_destroyedCounts).map(e => e[0] + (e[1] > 1 ? " ×" + e[1] : ""))>>
+				<span class="pink">Clothing destroyed: <<print formatList($_destroyedBits, "and", true)>>.</span>
+				<br>
+			<</if>>
+			<<if $_stolen.length gt 0>>
+				<<set $_stolenCounts to {}>>
+				<<for $_i to 0; $_i lt $_stolen.length; $_i++>>
+					<<set $_stolenCounts[$_stolen[$_i]] to ($_stolenCounts[$_stolen[$_i]] || 0) + 1>>
+				<</for>>
+				<<set $_stolenBits to Object.entries($_stolenCounts).map(e => e[0] + (e[1] > 1 ? " ×" + e[1] : ""))>>
+				<span class="purple">Clothing stolen: <<print formatList($_stolenBits, "and", true)>>.</span>
+				<br>
+			<</if>>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>

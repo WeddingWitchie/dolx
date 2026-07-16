@@ -4088,6 +4088,12 @@ sugarcube-2:
       description: Prints NPC dialogue when failing a request in combat
       tags:
         - text
+    combatRecapDisplay:
+      description: Prints the post-encounter summary (orgasms, cum locations,
+        clothing losses) when $postCombatStats is enabled. Called by
+        `<<endcombat>>` before combat variables reset.
+      tags:
+        - text
     combatskulduggeryskilluse:
       name: combatskulduggeryskilluse
     combatspeech:
@@ -7136,7 +7142,7 @@ sugarcube-2:
         `<<generalRuinedRebuy>>`
 
 
-        `<<generalRuined slot ruinAll? destroy?>>`
+        `<<generalRuined slot ruinAll? destroy? recapKind?>>`
 
         - **slot**: `string` - clothing slot to target
           - %clothesTypesDesc%
@@ -7145,10 +7151,13 @@ sugarcube-2:
           - defaults to `false`
         - **destroy** _optional_: `string` - destroy only worn slot item or only
         carried slot item
-          - `"worn"` | `"carried"`
+          - `"worn"` | `"carried"` | `""`
           - Defaults to both
+        - **recapKind** _optional_: `string` - how the loss is recorded in the
+        post-encounter summary
+          - `"stolen"`, anything else records as destroyed
       parameters:
-        - '%clothesTypes% |+ bool|text|string|number |+ "worn"|"carried"'
+        - '%clothesTypes% |+ bool|text|string|number |+ "worn"|"carried"|"" |+ "stolen"'
       tags:
         - temp
     generalRuinedRebuy:
@@ -16548,6 +16557,35 @@ sugarcube-2:
           - `"article"`: Include article (a/the) if present in recipe name
       parameters:
         - text|string |+ "cap"|"difficulty"|"article"|"plural"
+    recapClothingLoss:
+      description: >-
+        Records a clothing loss for the post-encounter summary. Called from
+        `<<generalRuined>>` before the item is wiped.
+
+
+        `<<recapClothingLoss slot destroyWorn destroyCarry kind?>>`
+
+        - **slot**: `string` - clothing slot being destroyed
+        - **destroyWorn**: `boolean` - whether the worn item is being destroyed
+        - **destroyCarry**: `boolean` - whether the carried item is being destroyed
+        - **kind** _optional_: `string` - `"stolen"` when reached via
+        `<<generalSteal>>`'s souvenir branch, otherwise recorded as destroyed
+      parameters:
+        - text|string|var &+ bool|var &+ bool|var |+ text|string|var
+    recapStat:
+      description: >-
+        Records a stat for the post-encounter summary ($combatRecap). No-op
+        outside live combat or while $statFreeze is set.
+
+
+        `<<recapStat type value?>>`
+
+        - **type**: `string` - `"npcOrgasm"` (value = count, default 1),
+        `"taken"`/`"given"` (value = location text), `"destroyed"`/`"stolen"`
+        (value = clothing name)
+      parameters:
+        - '"npcOrgasm" |+ number|var'
+        - '"taken"|"given"|"destroyed"|"stolen" &+ text|string|var'
     recordAnusSperm:
       name: recordAnusSperm
     recordSperm:

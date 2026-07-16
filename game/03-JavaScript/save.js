@@ -1199,6 +1199,7 @@ function settingsObjects(type) {
 		case "general":
 			result = {
 				enemystatstyle: { strings: ["full", "default"], randomize: "gameplay", displayName: "Enemy stat display:" },
+				postCombatStats: { min: 0, max: 1, decimals: 0, displayName: "Post-encounter summary:" },
 				ModExclusiveLIEnabled: { min: 0, max: 1, decimals: 0, displayName: "Mod-exclusive love interests:" },
 				disableAutoSelect: { bool: true, displayName: "Disable settings text auto-select:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
