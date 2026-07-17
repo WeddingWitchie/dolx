@@ -28,7 +28,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 14,
+				growth_days: 10,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
@@ -50,7 +50,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 14,
+				growth_days: 10,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
@@ -72,7 +72,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 28,
+				growth_days: 20,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["summer"],
@@ -94,7 +94,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 7,
+				growth_days: 6,
 				yield_multiplier: 2,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn"],
@@ -116,7 +116,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 12,
+				growth_days: 10,
 				yield_multiplier: 2,
 				has_seeds: true,
 				seasons: ["autumn"],
@@ -138,7 +138,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "water",
-				growth_days: 5,
+				growth_days: 4,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
@@ -160,7 +160,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 10,
+				growth_days: 8,
 				yield_multiplier: 2,
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
@@ -182,7 +182,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 8,
+				growth_days: 6,
 				yield_multiplier: 2,
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
@@ -413,7 +413,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 10,
+				growth_days: 8,
 				yield_multiplier: 3,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn"],
@@ -435,7 +435,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 12,
+				growth_days: 10,
 				yield_multiplier: 3,
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
@@ -457,7 +457,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 8,
+				growth_days: 6,
 				yield_multiplier: 3,
 				has_seeds: true,
 				seasons: ["autumn"],
@@ -479,7 +479,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 7,
+				growth_days: 5,
 				yield_multiplier: 5,
 				has_seeds: true,
 				seasons: ["spring", "autumn", "winter"],
@@ -505,7 +505,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 28,
+				growth_days: 20,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
@@ -621,7 +621,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 8,
+				growth_days: 6,
 				yield_multiplier: 3,
 				has_seeds: true,
 				seasons: ["spring", "winter"],
@@ -643,7 +643,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 12,
+				growth_days: 10,
 				yield_multiplier: 2,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
@@ -665,7 +665,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 10,
+				growth_days: 8,
 				yield_multiplier: 3,
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
@@ -722,7 +722,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 3,
+				growth_days: 2,
 				yield_multiplier: 2,
 				has_seeds: true,
 				seasons: ["autumn"],
@@ -774,7 +774,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 12,
+				growth_days: 10,
 				yield_multiplier: 2,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn"],
@@ -910,7 +910,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 10,
+				growth_days: 8,
 				yield_multiplier: 4,
 				has_seeds: true,
 				seasons: ["summer", "autumn"],
@@ -1029,7 +1029,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 9,
+				growth_days: 7,
 				yield_multiplier: 12,
 				has_seeds: true,
 				seed_name: "wheat",
@@ -1366,7 +1366,7 @@ function initFoodstuff() {
 			prop_folder: "ingredient",
 			tending: {
 				planting_bed: "earth",
-				growth_days: 22,
+				growth_days: 20,
 				yield_multiplier: 6,
 				has_seeds: true,
 				seasons: ["summer", "autumn"],
@@ -1450,7 +1450,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 15,
+				growth_days: 10,
 				yield_multiplier: 4,
 				has_seeds: true,
 				seasons: ["spring", "summer", "winter"],
@@ -1496,7 +1496,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "water",
-				growth_days: 26,
+				growth_days: 20,
 				yield_multiplier: 20,
 				has_seeds: true,
 				seed_name: "rice",
@@ -2954,7 +2954,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 10,
+				growth_days: 8,
 				yield_multiplier: 6,
 				has_seeds: true,
 				seed_name: "spinach",
@@ -3109,7 +3109,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 30,
+				growth_days: 20,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
@@ -3240,7 +3240,7 @@ function initFoodstuff() {
 			tending: {
 				affected_by_tending_skill: true,
 				planting_bed: "earth",
-				growth_days: 14,
+				growth_days: 10,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["spring", "autumn"],
@@ -3285,7 +3285,7 @@ function initFoodstuff() {
 			prop_folder: "tending",
 			tending: {
 				planting_bed: "earth",
-				growth_days: 7,
+				growth_days: 5,
 				yield_multiplier: 4,
 				has_seeds: true,
 				seasons: ["spring", "summer", "autumn", "winter"],
@@ -3463,7 +3463,7 @@ function initFoodstuff() {
 			prop_folder: "tending",
 			tending: {
 				planting_bed: "earth",
-				growth_days: 7,
+				growth_days: 5,
 				yield_multiplier: 1,
 				has_seeds: true,
 				seasons: ["summer"],
