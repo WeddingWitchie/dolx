@@ -1,6 +1,60 @@
-:: Wren Heist Intro
+:: Smuggler Pub Wren Sabotage
+<<effects>>
+<<if def $farm.wrenSabotage>>
+	You tell Wren that Remy's goons will be back at the farm, and you want <<his>> crews on the job again.
+	<br><br>
+	"Straight to business. I like it," <<he>> says, <<= $wrenTalkLocation is "estate" ? "shuffling the cards in <<his>> hands" : "swirling <<his>> drink">>. "Same arrangement as before. <<printprice 1500000>>, and <<nnpc_his "Remy">> next raid dies on the road. One payment, one attack."
+<<else>>
+	You tell Wren about Remy's attacks on the farm. <<He>> nods along, unsurprised.
+	<br><br>
+	"I move <<nnpc_his "Remy">> cargo. I know <<nnpc_his "Remy">> schedules, <<nnpc_his "Remy">> suppliers, where <<nnpc_he "Remy">> parks the trucks." <<He>> <<= $wrenTalkLocation is "estate" ? "glances towards the cottage window" : "swirls <<his>> drink">>. "For <<printprice 1500000>>, the next raid never reaches the fields. Fuel goes missing. Tyres go flat. Half the crew finds somewhere better to be that night. All very unfortunate, and all very deniable."
+	<br><br>
+	"One payment covers one attack. After that, we settle again." <<He>> taps the <<= $wrenTalkLocation is "estate" ? "table" : "bar">>. "If you'd rather not carry that much through the docks, I hear the bank does standing orders. They can wire my fee the moment each job wraps up."
+<</if>>
+<br><br>
+
+<<if setup.inflation.canAfford(1500000, "wrenSabotage")>>
+	<<link [[Pay (<<printprice 1500000>>)|Smuggler Pub Wren Sabotage Pay]]>><<money -1500000 "wrenSabotage">><<set $farm.wrenSabotage to 1>><</link>>
+	<br>
+<<else>>
+	<span class="red">You can't afford Wren's fee.</span>
+	<br>
+<</if>>
+<<if $wrenTalkLocation is "estate">>
+	<<link [[Refuse|Estate Cards Intro]]>><<unset $wrenTalkLocation>><</link>>
+<<else>>
+	<<link [[Refuse|Smuggler Pub Wren]]>><<unset $wrenTalkLocation>><</link>>
+<</if>>
+<br>
+
+:: Smuggler Pub Wren Sabotage Pay
 <<effects>>
 
+You hand over the money. It vanishes into Wren's coat.
+"Pleasure doing business. Tell your farmer friend to sleep easy. Remy's about to have a run of terrible luck."
+<br><br>
+<span class="green">Wren's crews will sabotage Remy's next attack on the farm.</span>
+<br>
+<<if $wrenTalkLocation is "estate">>
+	<<link [[Back to Wren|Estate Cards Intro]]>><<unset $wrenTalkLocation>><</link>>
+<<else>>
+	<<unset $wrenTalkLocation>><<smuggler_pub_wren>>
+<</if>>
+
+:: Smuggler Pub Wren Sabotage Active
+<<effects>>
+You ask how the Remy job is going.
+<br><br>
+"Relax," Wren says, leaning back. "My people are all over it. Fuel drums that turn out to be water, keys that go missing, drivers with sudden family emergencies." <<He>> smiles <<his>> mysterious smile. "When Remy moves on the farm, it'll fall apart before anyone sees a field."
+<br><br>
+<<if $wrenTalkLocation is "estate">>
+	<<link [[Back to Wren|Estate Cards Intro]]>><<unset $wrenTalkLocation>><</link>>
+<<else>>
+	<<unset $wrenTalkLocation>><<smuggler_pub_wren>>
+<</if>>
+
+:: Wren Heist Intro
+<<effects>>
 <<He>> pulls a crumpled up piece of paper from <<his>> pocket. You lean over to look at it. <<= currentSkillValue("history") gte 600 ? "You recognise it as blueprints to a house" : "It looks like a mess of lines and numbers">>.
 <br><br>
 "There's a party tonight," Wren says. <<He>> taps the centre of the paper. "The person throwing it is rich and doesn't care who knows it. All of the fancy jewellery and valuables are right in plain sight. We're going to go and take whatever we can carry." <<He>> smiles at you. "<<if $prison?.wren_names is 2>>A jailbird like you is no stranger to stealing<<elseif crimeSumCurrent() gte 5000>>You've been making waves in the underworld<<elseif $fame.social gte 600>>I've heard you like to schmooze with the upper class<</if>>. You're perfect for this job. It'll be easy, just in-and-out."
@@ -529,7 +583,5 @@ You follow <<him>> to <<his>> car.<<if $wrenHeistDance.car isnot true>> It's fai
 
 <<link [[Next|Danube Street]]>><<endevent>><<set $eventskip to 1>><</link>>
 <br>
-
-
 
 

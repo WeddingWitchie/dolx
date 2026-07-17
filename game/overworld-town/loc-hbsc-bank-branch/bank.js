@@ -1,44 +1,44 @@
 setup.hbsc = setup.hbsc || {};
 
 setup.hbsc.savingsTiers = {
-	1: { name: "Basic", depositLimit: 500000000, interestAER: 2.50, minimumBalance: 0, fixedTermFeeDiscount: 0 },
-	2: { name: "Silver", depositLimit: 2500000000, interestAER: 2.00, minimumBalance: 100000000, fixedTermFeeDiscount: 0 },
+	1: { name: "Basic", depositLimit: 500000000, interestAER: 2.5, minimumBalance: 0, fixedTermFeeDiscount: 0 },
+	2: { name: "Silver", depositLimit: 2500000000, interestAER: 2.0, minimumBalance: 100000000, fixedTermFeeDiscount: 0 },
 	3: { name: "Gold", depositLimit: 10000000000, interestAER: 1.25, minimumBalance: 1000000000, fixedTermFeeDiscount: 0, priorityService: true },
 	4: { name: "Platinum", depositLimit: 50000000000, interestAER: 0.75, minimumBalance: 5000000000, fixedTermFeeDiscount: 5 },
-	5: { name: "Black", depositLimit: Infinity, interestAER: 0.25, minimumBalance: 25000000000, fixedTermFeeDiscount: 10 }
+	5: { name: "Black", depositLimit: Infinity, interestAER: 0.25, minimumBalance: 25000000000, fixedTermFeeDiscount: 10 },
 };
 
 setup.hbsc.fixedTermPlans = {
 	1: {
 		months: 1,
-		bands: [{ min: 10000, max: Infinity, aer: 2.50 }],
-		earlyPenalty: { full: 20 }
+		bands: [{ min: 10000, max: Infinity, aer: 2.5 }],
+		earlyPenalty: { full: 20 },
 	},
 	3: {
 		months: 3,
 		bands: [{ min: 10000, max: Infinity, aer: 3.25 }],
-		earlyPenalty: { full: 30 }
+		earlyPenalty: { full: 30 },
 	},
 	6: {
 		months: 6,
 		bands: [
 			{ min: 10000, max: 999999900, aer: 3.75 },
 			{ min: 1000000000, max: 4999999900, aer: 4.25 },
-			{ min: 5000000000, max: 9999999900, aer: 5.00 },
-			{ min: 10000000000, max: Infinity, aer: 6.00 }
+			{ min: 5000000000, max: 9999999900, aer: 5.0 },
+			{ min: 10000000000, max: Infinity, aer: 6.0 },
 		],
-		earlyPenalty: { half: 25, full: 40 }
+		earlyPenalty: { half: 25, full: 40 },
 	},
 	12: {
 		months: 12,
 		bands: [
-			{ min: 10000, max: 999999900, aer: 5.50 },
+			{ min: 10000, max: 999999900, aer: 5.5 },
 			{ min: 1000000000, max: 4999999900, aer: 6.25 },
 			{ min: 5000000000, max: 9999999900, aer: 7.25 },
-			{ min: 10000000000, max: Infinity, aer: 8.50 }
+			{ min: 10000000000, max: Infinity, aer: 8.5 },
 		],
-		earlyPenalty: { half: 30, full: 50 }
-	}
+		earlyPenalty: { half: 30, full: 50 },
+	},
 };
 
 setup.hbsc.CURRENCY_SCALE = 100;
@@ -92,7 +92,9 @@ setup.hbsc.escapeHtml = function (value) {
 
 setup.hbsc.makeTextInput = function (id, value = "") {
 	const displayValue = typeof value === "string" ? value : setup.hbsc.formatInputAmount(value);
-	return `<input id="${setup.hbsc.escapeHtml(id)}" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="${setup.hbsc.escapeHtml(displayValue)}">`;
+	return `<input id="${setup.hbsc.escapeHtml(id)}" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" value="${setup.hbsc.escapeHtml(
+		displayValue
+	)}">`;
 };
 
 setup.hbsc.submitAmountFromField = function (fieldId, mode, targetPassage) {
@@ -102,8 +104,7 @@ setup.hbsc.submitAmountFromField = function (fieldId, mode, targetPassage) {
 	if (mode === "fixedTerm") {
 		V.hbsc.ftAmountInput = raw;
 		V.hbsc.ftAmount = setup.hbsc.parseMoneyInput(raw);
-	}
-	else {
+	} else {
 		V.hbsc.transactionInput = raw;
 		V.hbsc.transactionAmount = setup.hbsc.parseMoneyInput(raw);
 	}
@@ -127,7 +128,7 @@ setup.hbsc.applySneakPenalty = function () {
 	setup.hbsc.ensureState();
 	const result = { applied: false, penalty: 0, banDays: 0 };
 	if (V.hbsc.account.level < 1) return result;
-	const penalty = setup.hbsc.roundMoney(V.hbsc.account.deposit * 0.10);
+	const penalty = setup.hbsc.roundMoney(V.hbsc.account.deposit * 0.1);
 	if (penalty > 0) {
 		V.hbsc.account.deposit = setup.hbsc.roundMoney(V.hbsc.account.deposit - penalty);
 	}
@@ -138,7 +139,7 @@ setup.hbsc.applySneakPenalty = function () {
 		type: "securityPenalty",
 		day: Time.days,
 		penalty,
-		banUntilDay: V.hbsc.banUntilDay
+		banUntilDay: V.hbsc.banUntilDay,
 	});
 	result.applied = true;
 	result.penalty = penalty;
@@ -194,9 +195,7 @@ setup.hbsc.ensureState = function () {
 	   an HBSC account but hasn't seen the event yet.  This covers saves that
 	   were created before the notice was added — the flag is set on ANY bank
 	   interaction, not only on account opening. */
-	if (V.hbsc.account.level >= 1
-		&& V.hbsc.averyAccountUnlockNoticeSeen !== true
-		&& V.hbsc.averyAccountUnlockPending !== true) {
+	if (V.hbsc.account.level >= 1 && V.hbsc.averyAccountUnlockNoticeSeen !== true && V.hbsc.averyAccountUnlockPending !== true) {
 		V.hbsc.averyAccountUnlockPending = true;
 	}
 
@@ -265,7 +264,7 @@ setup.hbsc.summariseNotices = function (notices) {
 		savingsInterestTotal: 0,
 		latestSavingsBalance: 0,
 		maturedCount: 0,
-		maturedReadyTotal: 0
+		maturedReadyTotal: 0,
 	};
 
 	if (!Array.isArray(notices)) return summary;
@@ -294,7 +293,7 @@ setup.hbsc.summariseFixedTerms = function (terms) {
 		activePrincipalTotal: 0,
 		nearestDaysRemaining: null,
 		maturedCount: 0,
-		maturedReadyTotal: 0
+		maturedReadyTotal: 0,
 	};
 
 	if (!Array.isArray(terms)) return summary;
@@ -312,10 +311,7 @@ setup.hbsc.summariseFixedTerms = function (terms) {
 			summary.maturedCount += 1;
 			const ready = Number.isFinite(term.maturityTotal)
 				? term.maturityTotal
-				: setup.hbsc.calcFixedTermMaturity(
-					Number.isFinite(term.principal) ? term.principal : 0,
-					Number.isFinite(term.months) ? term.months : 0
-				).total;
+				: setup.hbsc.calcFixedTermMaturity(Number.isFinite(term.principal) ? term.principal : 0, Number.isFinite(term.months) ? term.months : 0).total;
 			summary.maturedReadyTotal += ready;
 		}
 	}
@@ -324,7 +320,6 @@ setup.hbsc.summariseFixedTerms = function (terms) {
 	summary.maturedReadyTotal = setup.hbsc.roundMoney(summary.maturedReadyTotal);
 	return summary;
 };
-
 
 setup.hbsc.getFixedTermPenaltyRate = function (accountLevel, months, withdrawalKind) {
 	const plan = setup.hbsc.getFixedTermPlan(months);
@@ -353,7 +348,7 @@ setup.hbsc.canHalfWithdraw = function (term) {
 
 setup.hbsc.compoundInterestFromAER = function (principal, aerPercent, fractionOfYear) {
 	if (!(principal > 0) || !(aerPercent > 0) || !(fractionOfYear > 0)) return 0;
-	return principal * (Math.pow(1 + (aerPercent / 100), fractionOfYear) - 1);
+	return principal * (Math.pow(1 + aerPercent / 100, fractionOfYear) - 1);
 };
 
 /* Simple (pro-rata) interest: the yearly rate, scaled straight down by the fraction of a year the money is held.  
@@ -381,7 +376,7 @@ setup.hbsc.calcFixedTermMaturity = function (principal, months) {
 		months,
 		aer,
 		interest,
-		total: principal + interest
+		total: principal + interest,
 	};
 };
 
@@ -405,7 +400,7 @@ setup.hbsc.calcFixedTermEarlyWithdrawal = function (principal, months, elapsedDa
 		penaltyRate,
 		penalty: setup.hbsc.roundMoney(penalty),
 		netInterest: setup.hbsc.roundMoney(netInterest),
-		totalReturned: setup.hbsc.roundMoney(principalReturned + netInterest)
+		totalReturned: setup.hbsc.roundMoney(principalReturned + netInterest),
 	};
 };
 
@@ -425,7 +420,7 @@ setup.hbsc.processSavingsMonth = function () {
 		type: "savingsInterest",
 		day: Time.days,
 		amount: V.hbsc.lastSavingsInterest,
-		balance: V.hbsc.account.deposit
+		balance: V.hbsc.account.deposit,
 	});
 	return V.hbsc.lastSavingsInterest;
 };
@@ -471,7 +466,7 @@ setup.hbsc.processDay = function () {
 					principal: term.principal,
 					total,
 					toDeposit: moved.toDeposit,
-					toCash: moved.toCash
+					toCash: moved.toCash,
 				});
 			} else {
 				remaining.push(term);
@@ -544,12 +539,10 @@ setup.hbsc.openFixedTerm = function (principal, months, source = "deposit") {
 	if (source === "money") {
 		if (V.money < amount) return { ok: false, reason: "insufficientMoney" };
 		V.money -= amount;
-	}
-	else if (source === "deposit") {
+	} else if (source === "deposit") {
 		if (V.hbsc.account.deposit < amount) return { ok: false, reason: "insufficientDeposit" };
 		V.hbsc.account.deposit = setup.hbsc.roundMoney(V.hbsc.account.deposit - amount);
-	}
-	else {
+	} else {
 		return { ok: false, reason: "invalidSource" };
 	}
 
@@ -562,7 +555,7 @@ setup.hbsc.openFixedTerm = function (principal, months, source = "deposit") {
 		createdOnDay: Time.days,
 		matureOnDay: Time.days + Math.max(1, Math.round(months * 30)),
 		accountLevelAtOpen: V.hbsc.account.level,
-		status: "active"
+		status: "active",
 	};
 	V.hbsc.fixedTerms.push(term);
 
@@ -592,28 +585,20 @@ setup.hbsc.closeFixedTerm = function (id, withdrawalKind = "full", target = "dep
 			penaltyRate: 0,
 			penalty: 0,
 			netInterest: Number.isFinite(term.maturityInterest) ? term.maturityInterest : setup.hbsc.roundMoney(total - term.principal),
-			totalReturned: total
+			totalReturned: total,
 		};
 		willClose = true;
-	}
-	else {
+	} else {
 		if (withdrawalKind === "half" && !setup.hbsc.canHalfWithdraw(term)) {
 			return { ok: false, reason: "halfNotAvailable" };
 		}
 
-		payout = setup.hbsc.calcFixedTermEarlyWithdrawal(
-			term.principal,
-			term.months,
-			term.elapsedDays,
-			V.hbsc.account.level,
-			withdrawalKind
-		);
+		payout = setup.hbsc.calcFixedTermEarlyWithdrawal(term.principal, term.months, term.elapsedDays, V.hbsc.account.level, withdrawalKind);
 
 		if (withdrawalKind === "half") {
 			remainingPrincipal = setup.hbsc.roundMoney(term.principal - payout.principalReturned);
 			if (remainingPrincipal < setup.hbsc.MIN_REMAINING_FIXED_TERM_PRINCIPAL) return { ok: false, reason: "remainingPrincipalTooLow" };
-		}
-		else {
+		} else {
 			willClose = true;
 		}
 	}
@@ -623,8 +608,7 @@ setup.hbsc.closeFixedTerm = function (id, withdrawalKind = "full", target = "dep
 		if (room < payout.totalReturned) {
 			return { ok: false, reason: "depositCapExceeded", availableRoom: room, payout };
 		}
-	}
-	else if (target !== "money") {
+	} else if (target !== "money") {
 		return { ok: false, reason: "invalidTarget" };
 	}
 
@@ -637,8 +621,7 @@ setup.hbsc.closeFixedTerm = function (id, withdrawalKind = "full", target = "dep
 		term.createdOnDay = Time.days;
 		term.matureOnDay = Time.days + Math.max(1, Math.round(term.months * 30));
 		term.aer = setup.hbsc.getFixedTermAER(term.months, term.principal);
-	}
-	else if (willClose) {
+	} else if (willClose) {
 		term.status = "closed";
 		term.closedOnDay = Time.days;
 		V.hbsc.fixedTerms.splice(index, 1);
@@ -690,9 +673,10 @@ setup.hbsc.receiveExternalDeposit = function (amount) {
 `id` is the key each bill's event code passes to canAutoPay()/tryAutoPay(). 
 Array order = the order they appear on the management screen. */
 setup.hbsc.AUTOPAY_BILLS = [
-	{ id: "bailey",       label: "Orphanage rent (Bailey)",          blurb: "Bailey's weekly demand, including any childcare surcharge." },
-	{ id: "farmGuard",    label: "Farm tower guard wages",           blurb: "The watchtower guard's outstanding wages." },
-	{ id: "gamblingRing", label: "Gambling-ring upkeep (Landry)",    blurb: "Landry's weekly upkeep that keeps the cops away from the ring." }
+	{ id: "bailey", label: "Orphanage rent", blurb: "Bailey's weekly demand, including any childcare surcharge." },
+	{ id: "farmGuard", label: "Farm tower guard wages", blurb: "The watchtower guard's outstanding wages." },
+	{ id: "wrenSabotage", label: "Remy sabotage retainer", blurb: "Wren's fee to cripple Remy's next raid on the farm, settled after each attack." },
+	{ id: "gamblingRing", label: "Gambling-ring upkeep", blurb: "Landry's weekly upkeep that keeps the cops away from the ring." },
 ];
 
 setup.hbsc.getAutoPayBill = function (id) {
@@ -750,10 +734,22 @@ setup.hbsc.tryAutoPay = function (id, amount) {
 	const result = { ok: false, paid: false, amount: 0, reason: "", balance: V.hbsc.account.deposit };
 	const due = setup.hbsc.roundMoney(amount);
 
-	if (!(due > 0))                          { result.reason = "invalidAmount";       return result; }
-	if (V.hbsc.account.level < 1)            { result.reason = "noAccount";           return result; }
-	if (!setup.hbsc.isAutoPayEnabled(id))    { result.reason = "disabled";            return result; }
-	if (V.hbsc.account.deposit < due)        { result.reason = "insufficientDeposit"; return result; }
+	if (!(due > 0)) {
+		result.reason = "invalidAmount";
+		return result;
+	}
+	if (V.hbsc.account.level < 1) {
+		result.reason = "noAccount";
+		return result;
+	}
+	if (!setup.hbsc.isAutoPayEnabled(id)) {
+		result.reason = "disabled";
+		return result;
+	}
+	if (V.hbsc.account.deposit < due) {
+		result.reason = "insufficientDeposit";
+		return result;
+	}
 
 	V.hbsc.account.deposit = setup.hbsc.roundMoney(V.hbsc.account.deposit - due);
 
@@ -764,7 +760,7 @@ setup.hbsc.tryAutoPay = function (id, amount) {
 		billId: id,
 		label: bill ? bill.label : id,
 		amount: due,
-		balance: V.hbsc.account.deposit
+		balance: V.hbsc.account.deposit,
 	});
 
 	result.ok = true;
@@ -815,7 +811,7 @@ setup.hbsc.cancelIfShort = function (id, amount) {
 		billId: id,
 		label: bill ? bill.label : id,
 		shortfall: due,
-		balance: V.hbsc.account.deposit
+		balance: V.hbsc.account.deposit,
 	});
 	return true;
 };
@@ -829,8 +825,7 @@ setup.hbsc.runStandingOrders = function () {
 	setup.hbsc.autoPayGamblingUpkeep();
 };
 
-/* Farm tower guard: clear the outstanding wages and run the same bookkeeping <<farm_guard_paid>> does, 
-but on the persistent V.farm.tower_guard_skill (the guard NPC isn't loaded while away). */
+/* Farm tower guard: clear the outstanding wages and run the same bookkeeping <<farm_guard_paid>> does, but on the persistent V.farm.tower_guard_skill (the guard NPC isn't loaded while away). */
 setup.hbsc.autoPayFarmGuard = function () {
 	const V = State.variables;
 	setup.hbsc.ensureAutoPayState();
@@ -839,7 +834,8 @@ setup.hbsc.autoPayFarmGuard = function () {
 	const unpaid = Number(V.farm.tower_guard_unpaid) || 0;
 	if (unpaid < 1) return false;
 
-	const owed = setup.hbsc.roundMoney((Number(V.farm.tower_guard_wage) || 0) * unpaid);
+	const baseOwed = setup.hbsc.roundMoney((Number(V.farm.tower_guard_wage) || 0) * unpaid);
+	const owed = setup.inflation.spendPrice(baseOwed, "farm");
 	const res = setup.hbsc.tryAutoPay("farmGuard", owed);
 	if (!res.paid) {
 		setup.hbsc.cancelIfShort("farmGuard", owed);
@@ -848,9 +844,29 @@ setup.hbsc.autoPayFarmGuard = function () {
 
 	const skill = Math.clamp((Number(V.farm.tower_guard_skill) || 0) + 20 * unpaid, 0, 1000);
 	V.farm.tower_guard_skill = skill;
-	V.farm.tower_guard_wage = 30000 + (skill * 100);
+	V.farm.tower_guard_wage = 30000 + skill * 100;
 	V.farm.tower_guard_unpaid = 0;
 	return true;
+};
+
+/* Wren's Remy-sabotage retainer.
+Unlike the weekly bills, this falls due when one of Remy's attacks on the farm resolves (farm_attack_auto / Farm Assault Intro), not from the weekly runner:
+one payment covers exactly one attack. If the standing order covers the fee, Wren's crews stay on the job for the next attack cycle; otherwise the arrangement lapses until the player pays in person.
+Never activates for players who haven't struck the deal with Wren (V.farm.wrenSabotage undefined). */
+setup.hbsc.WREN_SABOTAGE_COST = 1500000; // £15,000 per attack cycle
+setup.hbsc.autoPayWrenSabotage = function () {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+	if (!V.farm || V.farm.wrenSabotage === undefined) return false;
+
+	const due = setup.inflation.spendPrice(setup.hbsc.WREN_SABOTAGE_COST, "wrenSabotage");
+	if (setup.hbsc.tryAutoPay("wrenSabotage", due).paid) {
+		V.farm.wrenSabotage = 1;
+		return true;
+	}
+	setup.hbsc.cancelIfShort("wrenSabotage", due);
+	V.farm.wrenSabotage = 0;
+	return false;
 };
 
 /* Gambling-ring upkeep (Landry): pay the current tier's upkeep and mark the week paid, mirroring <<gambling-pay-upkeep>>.
@@ -862,7 +878,8 @@ setup.hbsc.autoPayGamblingUpkeep = function () {
 	if (V.weekly && V.weekly.gamblingUpkeepPaid === 1) return false;
 
 	const lvl = Math.clamp(Number(V.xchange.gamblingLvl) || 0, 0, 2);
-	const due = [200000, 400000, 1200000][lvl];
+	const baseDue = [200000, 400000, 1200000][lvl];
+	const due = setup.inflation.spendPrice(baseDue, "pubGambling");
 	const res = setup.hbsc.tryAutoPay("gamblingRing", due);
 	if (!res.paid) {
 		setup.hbsc.cancelIfShort("gamblingRing", due);
@@ -882,11 +899,11 @@ setup.hbsc.autoPayGamblingUpkeep = function () {
    If the player ignores the loan for a month, collection is handed to Bailey's rent (see rent.twee rentpay).
    All amounts are in pennies (raw $money units).
    =========================================================================== */
-setup.hbsc.LOAN_CHUNK = 30000000;         // £300,000 advanced per request
-setup.hbsc.LOAN_PRINCIPAL_MAX = 100000000;// £1,000,000 max outstanding principal
-setup.hbsc.LOAN_INTEREST = 0.5;           // repay 1.5x principal (£1,000 -> £1,500)
-setup.hbsc.LOAN_RENT_SURCHARGE = 150000;  // £1500/week collected via Bailey once overdue
-setup.hbsc.LOAN_OVERDUE_DAYS = 25;        // 25 in-game days with no payment
+setup.hbsc.LOAN_CHUNK = 30000000; // £300,000 advanced per request
+setup.hbsc.LOAN_PRINCIPAL_MAX = 100000000; // £1,000,000 max outstanding principal
+setup.hbsc.LOAN_INTEREST = 0.5; // repay 1.5x principal (£1,000 -> £1,500)
+setup.hbsc.LOAN_RENT_SURCHARGE = 150000; // £1500/week collected via Bailey once overdue
+setup.hbsc.LOAN_OVERDUE_DAYS = 25; // 25 in-game days with no payment
 
 setup.hbsc.ensureLoanState = function () {
 	const V = State.variables;
@@ -944,7 +961,11 @@ setup.hbsc.repayLoan = function (amount) {
 	else V.money -= pay;
 	loan.owed = setup.hbsc.roundMoney(loan.owed - pay);
 	loan.lastPaymentDay = Time.days;
-	if (loan.owed <= 0) { loan.owed = 0; loan.autoRepay = false; loan.baileyAnnouncePending = false; }
+	if (loan.owed <= 0) {
+		loan.owed = 0;
+		loan.autoRepay = false;
+		loan.baileyAnnouncePending = false;
+	}
 	return { ok: true, paid: pay, owed: loan.owed };
 };
 
@@ -973,14 +994,18 @@ setup.hbsc.collectLoanFromRent = function (amount) {
 	if (collected <= 0) return 0;
 	loan.owed = setup.hbsc.roundMoney(loan.owed - collected);
 	loan.lastPaymentDay = Time.days;
-	if (loan.owed <= 0) { loan.owed = 0; loan.autoRepay = false; loan.baileyAnnouncePending = false; }
+	if (loan.owed <= 0) {
+		loan.owed = 0;
+		loan.autoRepay = false;
+		loan.baileyAnnouncePending = false;
+	}
 	return collected;
 };
 
 /* Daily: if the loan has gone a month with no payment, hand collection to Bailey. */
 setup.hbsc.processLoanDay = function () {
 	const loan = setup.hbsc.ensureLoanState();
-	if (loan.owed > 0 && !loan.autoRepay && (Time.days - loan.lastPaymentDay) >= setup.hbsc.LOAN_OVERDUE_DAYS) {
+	if (loan.owed > 0 && !loan.autoRepay && Time.days - loan.lastPaymentDay >= setup.hbsc.LOAN_OVERDUE_DAYS) {
 		loan.autoRepay = true;
 		loan.baileyAnnouncePending = true;
 	}

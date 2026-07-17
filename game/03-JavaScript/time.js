@@ -2780,10 +2780,15 @@ function dailyFarmEvents() {
 		wikifier("farm_work_update", "midnight");
 	}
 	if (V.farm_stage >= 5) {
-		if (V.bailey_encroach >= 1) wikifier("farm_aggro", 15);
-		if (V.bailey_encroach >= 2) wikifier("farm_aggro", V.bailey_encroach * 3);
-		if (V.farm_stage >= 7) wikifier("farm_aggro", 5);
-		wikifier("farm_aggro", 5);
+		if (V.farm?.wrenSabotage === 1) {
+			/* Wren's paid sabotage keeps Remy's goons busy: encroachment recedes instead of building. */
+			wikifier("farm_aggro", -10);
+		} else {
+			if (V.bailey_encroach >= 1) wikifier("farm_aggro", 15);
+			if (V.bailey_encroach >= 2) wikifier("farm_aggro", V.bailey_encroach * 3);
+			if (V.farm_stage >= 7) wikifier("farm_aggro", 5);
+			wikifier("farm_aggro", 5);
+		}
 	}
 	if (V.farm_stage >= 7) {
 		V.farm_attack_timer--;

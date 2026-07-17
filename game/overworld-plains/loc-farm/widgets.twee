@@ -2756,7 +2756,7 @@
 	<<farm_guard_wage>>
 	Security skill: <<guard_skill_text>> <<print $NPCList[0].skills.security>>
 	<br>
-	Weekly wage: <<printmoney $farm.tower_guard_wage>>
+	Weekly wage: <<printprice $farm.tower_guard_wage>>
 	<br>
 	<i>Skill will improve over time, but <<he>> will ask for more pay as it does.</i>
 <</widget>>
@@ -2785,9 +2785,9 @@
 <<widget "farm_guard_pay">>
 	<<if $farm.tower_guard_unpaid gte 1>>
 		<<set _owed to ($farm.tower_guard_wage * $farm.tower_guard_unpaid)>>
-		You owe <<him>> <<printmoney _owed>> in wages.
-		<br>
-		<<if $money gte _owed>>
+		You owe <<him>> <<printprice _owed>> in wages.
+		<br><br>
+		<<if setup.inflation.canAfford(_owed, "farm")>>
 			<<link [[Pay|Farm Tower Pay]]>><<money `-_owed` "farm">><<set $NPCList[0].trust += 1>><<farm_guard_paid>><</link>><<gtrust>><<note "+ Security skill" "green">><<note "+ Wage" "red">>
 			<br>
 		<</if>>
@@ -2943,6 +2943,22 @@
 <</widget>>
 
 <<widget "farm_attack_auto">>
+	<<if $farm.wrenSabotage is 1>>
+		/* Wren's paid crews gut the raid before it reaches the fields. The payment covers exactly
+		this one attack: consume it, then let the bank standing order (if any) fund the next cycle. */
+		<<set $farm_attack_timer to random(17, 24)>>
+		<<set $farm_attacked to 1>>
+		<<set $farm.wrenSabotagedAttack to 1>>
+		<<set $farm.wrenSabotage to 0>>
+		<<run setup.hbsc.autoPayWrenSabotage()>>
+	<<else>>
+		<<farm_attack_auto_fight>>
+		/* A lapsed retainer renews here if the standing order is on and funded, covering the next attack. */
+		<<run setup.hbsc.autoPayWrenSabotage()>>
+	<</if>>
+<</widget>>
+
+<<widget "farm_attack_auto_fight">>
 	<<set _farm_fight to 0>>
 	<<if $farm.kennel gte 1>>
 		<<set _farm_fight += 1>>
@@ -3009,7 +3025,16 @@
 <</widget>>
 
 <<widget "farm_damage_report">>
-	<<if $fields_damaged.length is 0>>
+	<<if $farm.wrenSabotagedAttack>>
+		<<run delete $farm.wrenSabotagedAttack>>
+		Remy's goons moved on the farm while you were gone, <span class="green">but the raid fell apart before it reached the fields.</span> Trucks with slashed tyres, fouled fuel, and half the crew nowhere to be found. Wren's people did their job.
+		<br>
+		<<if $farm.wrenSabotage is 1>>
+			<span class="teal">Word from Wren: the bank has settled the next fee. Remy's next attack is covered.</span>
+		<<else>>
+			<span class="purple">Wren's arrangement has ended. Without another payment, Remy's next attack will come at full strength.</span>
+		<</if>>
+	<<elseif $fields_damaged.length is 0>>
 		<<if $farm_destroyed is true>>
 			The farm was attacked while you were gone, <span class="blue">but there were no fields to burn.</span>
 		<<else>>
@@ -3029,6 +3054,10 @@
 <</widget>>
 
 <<widget "farm_assault_intro">>
+	<<if $farm.wrenSabotage is 1>>
+		<span class="green">Wren's crews have spent days sabotaging Remy's preparations.</span>
+		<br>
+	<</if>>
 	<span class="green">Alex is ready to fight.</span>
 	<br>
 	<<if $farm.kennel gte 1>>

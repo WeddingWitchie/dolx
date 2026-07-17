@@ -255,6 +255,9 @@ You walk back to the cottage.
 "We won, but Remy will be back. We'll be ready."
 <br><br>
 <span class="red">Remy will attack again in <<number $farm_attack_timer>> days.</span>
+<<if $farm.wrenSabotage is 1>>
+	<span class="teal">Your standing order with the bank has settled Wren's fee. Crews are already at work sabotaging Remy's next raid.</span>
+<</if>>
 <br><br>
 
 <<farm_assault_end>>
@@ -263,42 +266,67 @@ You walk back to the cottage.
 <br>
 
 :: Farm Assault Intro
-<<effects>><<wearProp "walkie talkie">>
+<<effects>>
 <<set $bus to "yard">>
-<<farm_assault_init>>
+<<if $farm.wrenSabotage is 1>>
+	/* Wren's paid sabotage guts the raid before it reaches the farm. One payment covers one attack: consume it, then let the bank standing order (if any) fund the next cycle. */
+	<<set $farm_attack_timer to random(17, 24)>><<set $farm.wrenSabotage to 0>>
+	<<set _wrenRenewed to setup.hbsc.autoPayWrenSabotage()>>
+	You rush outside, and find Alex stood in the yard, squinting at the road.
+	<<npc Alex>><<person1>>
+	"Something's wrong," <<he>> says. "With them, I mean."
+	<br><br>
+	Engines sputter and die in the distance. Headlights blink out one by one. There's faint shouting, then nothing. Remy's raiders never make it past the bend, their trucks limping back the way they came on slashed tyres and fouled fuel.
+	<span class="green">Wren's crews did their work</span>. The attack falls apart before it reaches the farm.<<lstress>><<stress -6>>
+	<br><br>
+	<<if _wrenRenewed>>
+		<span class="teal">Your standing order with the bank settles Wren's next fee. Remy's next attack is already covered.</span>
+	<<else>>
+		<span class="purple">Wren's arrangement has ended. Without another payment, Remy's next attack will come at full strength.</span>
+	<</if>>
+	<br>
+	<span class="red">Remy will attack again in <<number $farm_attack_timer>> days.</span>
+	<br><br>
 
-You rush outside, and find Alex stood in the yard.
-<br><br>
-<<set $farm_attack_timer to random(17, 24)>>
-<<npc Alex>><<person1>>
-"They're not coming through here," <<he>> says, nodding at the road. "They'll try to sneak in." <<He>> hands you a walkie talkie. "There's a lot of ground to cover, so we'll need to split up. We'll be stronger if we team up to fight them though."
-<br><br>
+	<<link [[Next|Farm Cottage]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<wearProp "walkie talkie">>
+	<<farm_assault_init>>
 
-<<if $farm.tower gte 2 and $farm.tower_guard>>
-	<<He>> waves at the watchtower, and $farm.tower_guard flashes the searchlight in response.
+	You rush outside, and find Alex stood in the yard.
 	<br><br>
-<<elseif $farm.tower and $farm.tower_guard>>
-	<<He>> waves at the watchtower, and you make out $farm.tower_guard wave in response.
+	<<set $farm_attack_timer to random(17, 24)>>
+	/* A lapsed Wren retainer renews here if the standing order is on and funded, covering the next attack. */
+	<<run setup.hbsc.autoPayWrenSabotage()>>
+	<<npc Alex>><<person1>>
+	"They're not coming through here," <<he>> says, nodding at the road. "They'll try to sneak in." <<He>> hands you a walkie talkie. "There's a lot of ground to cover, so we'll need to split up. We'll be stronger if we team up to fight them though."
 	<br><br>
-<<elseif $farm.tower>>
-	<<He>> points at the watchtower. "We can climb it if we need a better view."
-	<br><br>
+
+	<<if $farm.tower gte 2 and $farm.tower_guard>>
+		<<He>> waves at the watchtower, and $farm.tower_guard flashes the searchlight in response.
+		<br><br>
+	<<elseif $farm.tower and $farm.tower_guard>>
+		<<He>> waves at the watchtower, and you make out $farm.tower_guard wave in response.
+		<br><br>
+	<<elseif $farm.tower>>
+		<<He>> points at the watchtower. "We can climb it if we need a better view."
+		<br><br>
+	<</if>>
+
+	<<if pcAreArmsBound("any")>>
+		Alex slices through your bindings. You're not defending the farm like that.
+		<<unbind>>
+		<br><br>
+	<</if>>
+
+	<<link [[Next|Farm Assault]]>><<endevent>><</link>>
+	<br>
 <</if>>
-
-<<if pcAreArmsBound("any")>>
-	Alex slices through your bindings. You're not defending the farm like that.
-	<<unbind>>
-	<br><br>
-<</if>>
-
-<<link [[Next|Farm Assault]]>><<endevent>><</link>>
-<br>
-
 
 
 :: Farm Assault Wardrobe [exitCheckBypass]
 <<effects>>
-
 <<if $phase is 2>>
 	You enter the cottage, climb the stairs, and throw open the rustic wardrobe.
 <<elseif $phase is 1>>
