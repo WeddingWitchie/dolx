@@ -1635,6 +1635,51 @@ function skillIncomeMultiplier(skill) {
 window.skillIncomeMultiplier = skillIncomeMultiplier;
 
 /**
+ * Multiplies a value once for every active transformation in `types`.
+ * This deliberately compounds so compatible chimera/custom TF benefits stack.
+ *
+ * @param {number} value value to modify
+ * @param {number} bonus fractional bonus per full transformation
+ * @param {...string} types transformation types to check
+ * @returns {number} modified value
+ */
+function animalTfMultiplier(value, bonus, ...types) {
+	let result = Number(value) || 0;
+	for (const type of types.flat()) {
+		if (Transformations.effectiveLevel(type) >= (type === "waterdragon" ? 7 : 6)) result *= 1 + bonus;
+	}
+	return result;
+}
+window.animalTfMultiplier = animalTfMultiplier;
+
+function animalTfIncome(value, ...types) {
+	return Math.round(animalTfMultiplier(value, 1, types));
+}
+window.animalTfIncome = animalTfIncome;
+
+function animalTfValuableChance(value, ...types) {
+	return animalTfMultiplier(value, 0.5, types);
+}
+window.animalTfValuableChance = animalTfValuableChance;
+
+function foxSkulduggeryDifficulty(value) {
+	return Math.round(animalTfMultiplier(value, -0.25, "fox"));
+}
+window.foxSkulduggeryDifficulty = foxSkulduggeryDifficulty;
+
+function valuableSaleMultiplier() {
+	return Transformations.effectiveLevel("fox") >= 6 ? 1.25 : 1;
+}
+window.valuableSaleMultiplier = valuableSaleMultiplier;
+
+function antiqueSaleValue() {
+	const base = (Number.isFinite(V.antiquemoney) ? V.antiquemoney : 0) * 100;
+	const mathsBuff = V.mathsTraitBuffs && V.mathsTraitBuffs.antiques === 1 ? 1 + (Number(V.mathstrait) || 0) / 4 : 1;
+	return Math.round(base * mathsBuff * valuableSaleMultiplier());
+}
+window.antiqueSaleValue = antiqueSaleValue;
+
+/**
  * X-Change value (in pennies) the player gets for fencing their stolen goods ($blackmoney) at the pub.
  *
  * Vanilla's 0.5.11 rebalance roughly halved raw theft loot ($blackmoney gains).
@@ -1650,7 +1695,7 @@ function blackMoneySaleValue() {
 	const mathsBuff = V.mathsTraitBuffs && V.mathsTraitBuffs.stolen === 1 ? 1 + (Number(V.mathstrait) || 0) / 4 : 1;
 	const skulduggery = typeof currentSkillValue === "function" ? currentSkillValue("skulduggery") : Number(V.skulduggery) || 0;
 	const skulduggeryBuff = 1 + skulduggery / 2000;
-	return Math.round(base * mathsBuff * skulduggeryBuff);
+	return Math.round(base * mathsBuff * skulduggeryBuff * valuableSaleMultiplier());
 }
 window.blackMoneySaleValue = blackMoneySaleValue;
 

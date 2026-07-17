@@ -168,10 +168,8 @@
 
 	<<pass _waterActionTime sec>>
 
-	/* Aquatic trait (water dragon) */
-	<<set _aquaticTrait to ($transformationParts and $transformationParts.traits) ? $transformationParts.traits.aquatic : undefined>>
-	<<if _aquaticTrait is undefined or _aquaticTrait is null or _aquaticTrait is "disabled">>
-		<<set $oxygen -= _waterActionTime * 13>>
+	<<if $transformationParts?.traits?.aquatic and $transformationParts.traits.aquatic isnot "disabled">>
+		/* Aquatic lungs allow the player to breathe underwater. */
 	<<else>>
 		<<set $oxygen -= _waterActionTime * 7>>
 	<</if>>
@@ -667,11 +665,17 @@
 					<<set $_crimeMult -= $_skillMult>>
 				<</if>>
 
+				<<if effectiveTransformationLevel("fox") gte 6>>
+					<<set $_crimeMult *= 0.75>>
+				<</if>>
 				<<set $_crimemod to Math.ceil($_crimemod * $_crimeMult)>>
 				<<if ["petty"].includes(_crimeType) and $skulduggery gte 500>>
 					<!-- Petty thievery has extra flat reduction if skulduggery skill above 500 (C+), possibly negating the crime gain entirely -->
 					<<set $_crimemod -= Math.floor($skulduggery / 10)>>
 				<</if>>
+			<<elseif effectiveTransformationLevel("fox") gte 6>>
+				<!-- These crime types deliberately ignore normal stealth/background modifiers, but the full fox bonus affects any crime gain. -->
+				<<set $_crimemod to Math.ceil($_crimemod * 0.75)>>
 			<</if>>
 
 			<<set $_crimemod to Math.clamp($_crimemod, 0, C.crime.max)>>
@@ -3253,8 +3257,17 @@
 <</widget>>
 
 <<widget "tipreceive">>
+	<<set _animalTfAdjusted to false>>
+	<<if ["dancing", "stripClubDancer"].includes(_args[0])>>
+		<<set $tip to animalTfIncome($tip, "bunny")>>
+		<<if $location is "cafe">><<set $tip to animalTfIncome($tip, "cat")>><</if>>
+		<<set _animalTfAdjusted to true>>
+	<<elseif ["cafeWaiter", "cafeChef"].includes(_args[0])>>
+		<<set $tip to animalTfIncome($tip, "cat")>>
+		<<set _animalTfAdjusted to true>>
+	<</if>>
 	<span class="gold"><<if random(1, 10000) is 10000>>You gain Brouzouf<<else>>You make<</if>> <<printmoney $tip>>.</span>
-	<<money $tip `_args[0] ? _args[0] : ""`>>
+	<<money $tip `_args[0] ? _args[0] : ""` `{ animalTfAdjusted: _animalTfAdjusted is true }`>>
 	<<if $tip gte 50000>>
 		<<earnFeat "Negotiator">>
 	<</if>>
@@ -5462,9 +5475,9 @@
 /* 0: difficulty, 1: "locks"/"target", 2: additional progress */
 <<widget "skulduggeryuse">>
 	<<if _args[0]>>
-		<<set $_difficulty to _args[0]>>
+		<<set $_difficulty to foxSkulduggeryDifficulty(_args[0])>>
 	<<else>>
-		<<set $_difficulty to ($skulduggerydifficulty + 100)>>
+		<<set $_difficulty to foxSkulduggeryDifficulty($skulduggerydifficulty + 100)>>
 	<</if>>
 
 	<<if $skulduggery lt Math.min($_difficulty, 1000 * $AMCTraits.skulduggery)>>
@@ -5487,9 +5500,9 @@
 /* 0: difficulty, 1: "locks"/"target", 2: additional progress */
 <<widget "skulduggeryuseinline">>
 	<<if _args[0]>>
-		<<set $_difficulty to _args[0]>>
+		<<set $_difficulty to foxSkulduggeryDifficulty(_args[0])>>
 	<<else>>
-		<<set $_difficulty to ($skulduggerydifficulty + 100)>>
+		<<set $_difficulty to foxSkulduggeryDifficulty($skulduggerydifficulty + 100)>>
 	<</if>>
 
 	<<if $skulduggery lt Math.min($_difficulty, 1000 * $AMCTraits.skulduggery)>>
@@ -5690,6 +5703,7 @@
 	   displayed amount, money stats and source all behave exactly as a normal wage. It is a no-op
 	   below grade S, so low-skill players keep the vanilla rebalanced payout. */
 	<<set _wageBase to Math.round((_args[0] ? _args[0] : 0) * skillIncomeMultiplier(_args[1]))>>
+	<<if _args[2]>><<set _wageBase to animalTfIncome(_wageBase, _args[2])>><</if>>
 <</silently>><<moneyGain _wageBase>><</widget>>
 
 <<widget "moneyGain">><<silently>>

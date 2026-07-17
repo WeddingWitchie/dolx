@@ -1289,6 +1289,11 @@ const statChange = (() => {
 			return;
 		}
 
+		/* Full cat TF doubles cafe earnings. Callers that already applied a stacked TF bonus opt out. */
+		if (amount > 0 && !optional.recordOnly && !optional.animalTfAdjusted && ["cafeWaiter", "cafeChef", "cafeBuns"].includes(source)) {
+			amount = window.animalTfIncome(amount, "cat");
+		}
+
 		/* X-Change inflation: market purchases get pricier as the player's cash grows.
 		   The surcharge is clamped so it can never overdraw the player and trigger the affordability error below. */
 		if (amount < 0 && !optional.recordOnly && typeof setup !== "undefined" && setup.inflation && setup.inflation.appliesToSpend(source)) {
