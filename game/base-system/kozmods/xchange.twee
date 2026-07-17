@@ -2180,13 +2180,17 @@
 			<<if $xchange.pill.cumcureEffect>><li>CumCure Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Reduces the duration of your transformation every time cum is deposited inside you.</span></mouse></li><</if>>
 			<li>Duration: 
-				<<if pillTimerPaused() or pillIsPermanent() or V.xchange.pill.choiceEffect>>
+				<<set _pregnancyPauseKnown to
+					(V.sexStats.vagina.pregnancy.type !== null and V.sexStats.vagina.pregnancy.awareOf) or
+					(V.xchange.pill.omegaEffect and V.sexStats.anus.pregnancy.type !== null and V.sexStats.anus.pregnancy.awareOf)>>
+				<<set _visibleTimerPause to pillTimerPaused() and (_pregnancyPauseKnown or V.earSlime.growth > 50)>>
+				<<if _visibleTimerPause or pillIsPermanent() or V.xchange.pill.choiceEffect>>
 					<<set _duration = `<mouse class="tooltip">Indefinite<span class="lblue">`>>
 
 					<<if V.xchange.pillPermanence === 1 && !V.xchange.pill.choiceEffect>>
 						<<set _duration += `Your transformation is now permanent.`>>
 					<<else>>
-						<<if V.sexStats.vagina.pregnancy.type !== null or (V.xchange.pill.omegaEffect and V.sexStats.anus.pregnancy.type !== null)>>
+						<<if _pregnancyPauseKnown>>
 							<<set _duration += `Your transformation's timer has been halted while your pregnancy runs its course. `>>
 						<</if>>
 						<<if (V.earSlime.growth > 50)>>

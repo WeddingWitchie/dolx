@@ -1086,14 +1086,18 @@
 					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown,
 					text: () => {
 						let duration = "";
-						if ((pillTimerPaused() || pillIsPermanent() || V.xchange.pill.choiceEffect) && !wondersAboutPillEnd()) {
+						const pregnancyPauseKnown =
+							(V.sexStats.vagina.pregnancy.type !== null && V.sexStats.vagina.pregnancy.awareOf) ||
+							(V.xchange.pill.omegaEffect && V.sexStats.anus.pregnancy.type !== null && V.sexStats.anus.pregnancy.awareOf);
+						const visibleTimerPause = pillTimerPaused() && (pregnancyPauseKnown || V.earSlime.growth > 50);
+						if ((visibleTimerPause || pillIsPermanent() || V.xchange.pill.choiceEffect) && !wondersAboutPillEnd()) {
 							duration = `<mouse class="tooltip">Indefinite<span class="lblue">`;
 
 							if (V.xchange.pillPermanence === 1 && !V.xchange.pill.choiceEffect) {
 								duration += `Your transformation is now permanent.`;
 							}
 							else {
-								if (V.sexStats.vagina.pregnancy.type !== null)
+								if (pregnancyPauseKnown)
 									duration += `Your transformation's timer has been halted while your pregnancy runs its course. `;
 								if (V.earSlime.growth > 50)
 									duration += `A slime is interfering with your genitals. The pill cannot revert itself until the parasite is removed. `;
