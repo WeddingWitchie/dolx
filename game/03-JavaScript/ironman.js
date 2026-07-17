@@ -178,10 +178,10 @@ var IronMan = (Save => {
 				if (checkbox.checked) {
 					if (V.settings.allureModifier < 1) V.settings.allureModifier = 1;
 					if (V.settings.rentCostModifier < 1) V.settings.rentCostModifier = 1;
-					if (V.settings.tendingYieldModifier > 5) V.settings.tendingYieldModifier = 5;
+					if (V.settings.tendingYieldModifier > 6.5) V.settings.tendingYieldModifier = 6.5;
 					if (document.getElementById("sliderTendingYieldFactor")) {
 						Wikifier.wikifyEval(
-							'<<replace #sliderTendingYieldFactor>><<numberslider "$settings.tendingYieldModifier" $settings.tendingYieldModifier 1 10 1 $ironmanmode>><</replace>>'
+							'<<replace #sliderTendingYieldFactor>><<numberslider "$settings.tendingYieldModifier" $settings.tendingYieldModifier 1 10 0.5 $ironmanmode>><</replace>>'
 						);
 					}
 					if (document.getElementById("sliderRentMode")) {
