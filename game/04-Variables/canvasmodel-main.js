@@ -2354,23 +2354,33 @@ Renderer.CanvasModels.main = {
 				const cfg = V.options.autoNNPCDisplay?.[active];
 				if (!cfg || cfg.slot === 0) return;
 
+				// Named-NPC record lookup. C.npc is keyed by proper-cased names ("Whitney", "Black Wolf"), never by the lowercased folder key in `active`.
+				const properName = active.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+				const npcRecord = C?.npc?.[rawName] ?? C?.npc?.[properName];
+
 				// Gender (respect override if enabled)
 				const pronoun =
-					V.NPCList?.[0]?.pronoun ??
-					C?.npc?.[active]?.pronoun;
+					V.NPCList?.[0]?.pronoun ||
+					npcRecord?.pronoun;
 
 				let gender =
 					(cfg.genderOverride === true && cfg.gender)
 						? cfg.gender
 						: (pronoun === "m" ? "male" : "female");
 
-				// Skin: respect saved choice first
-				let skinChoice = cfg.skin;
-				if (!skinChoice) {
-					const skincolour =
-						V.NPCList?.[0]?.skincolour ??
-						C?.npc?.[active]?.skincolour;
-					skinChoice = isBeast ? "monster" : (skincolour === "white" ? "pale" : "dark");
+				// Skin: humans follow their actual skin colour (the per-NPC Pale/Dark setting), so the sprite can't be pinned to a stale saved display choice.
+				// The saved choice still decides beast art (human vs monster form) and is the fallback when the actual colour can't be resolved.
+				const skincolour =
+					V.NPCList?.[0]?.skincolour ||
+					npcRecord?.skincolour;
+
+				let skinChoice;
+				if (isBeast) {
+					skinChoice = cfg.skin || "monster";
+				} else if (skincolour) {
+					skinChoice = skincolour === "white" ? "pale" : "dark";
+				} else {
+					skinChoice = cfg.skin || "pale";
 				}
 
 				// Guard: monster only for beasts
