@@ -200,7 +200,7 @@ class XrayCombatMapper {
 			if (T.knotted || T.knotted_short) {
 				options.animKeyBase = "mid";
 			} else {
-				const step = V.enemyarousalmax > 0 ? (V.enemyarousalmax / 5) : 0;
+				const step = V.enemyarousalmax > 0 ? V.enemyarousalmax / 5 : 0;
 
 				if (V.orgasmdown > 0 || (step && V.enemyarousal >= step * 4)) options.animKeyBase = "vfast";
 				else if (step && V.enemyarousal >= step * 3) options.animKeyBase = "fast";
@@ -224,7 +224,13 @@ class XrayCombatMapper {
 	static mapXrayPenetrators(options, penetrator, slot) {
 		/* Type of NPC penetrating the player */
 		penetrator.npcType =
-			V.enemytype === "machine" ? "machine" : ["tentacle", "tentacledeep"].includes(V[slot + "state"]) ? "tentacle" : V.portalPanties.state[slot] ? V.portalPanties.state[slot].type : V.NPCList[V[slot + "target"]].type;
+			V.enemytype === "machine"
+				? "machine"
+				: ["tentacle", "tentacledeep"].includes(V[slot + "state"])
+				? "tentacle"
+				: V.portalPanties.state[slot]
+				? V.portalPanties.state[slot].type
+				: V.NPCList[V[slot + "target"]].type;
 
 		/* slot is being doublepenetrated or not */
 		penetrator.doublePen =
@@ -288,9 +294,7 @@ class XrayCombatMapper {
 				/* For DP, bigger penis MUST be the primary target sprite. */
 				if (penetrator.doublePen) {
 					penetrator.npc =
-						V.NPCList[V[slot + "target"]].penissize <= V.NPCList[V[slot + "doubletarget"]].penissize
-							? V[slot + "doubletarget"]
-							: V[slot + "target"];
+						V.NPCList[V[slot + "target"]].penissize <= V.NPCList[V[slot + "doubletarget"]].penissize ? V[slot + "doubletarget"] : V[slot + "target"];
 					penetrator.npc2 = penetrator.npc === V[slot + "doubletarget"] ? V[slot + "target"] : V[slot + "doubletarget"];
 				} else {
 					penetrator.npc = V[slot + "target"];
@@ -397,9 +401,10 @@ class XrayCombatMapper {
 		}
 
 		penetrator.isCumActive = false;
-		if (V.ejaculating === 1 || V[slot + "state"] === "tentacledeep" || V["portalejac"+slot]) {
+		if (V.ejaculating === 1 || V[slot + "state"] === "tentacledeep" || V["portalejac" + slot]) {
 			const npc1HasSperm =
-				V[slot + "state"] === "tentacledeep" || V["portalejac"+slot] ||
+				V[slot + "state"] === "tentacledeep" ||
+				V["portalejac" + slot] ||
 				(combat.isNpcActive(penetrator.npc) && wearingCondom(penetrator.npc) !== "worn" && !npcHasStrapon(penetrator.npc));
 			const npc2HasSperm =
 				V[slot + "state"] === "tentacledeep" ||
@@ -452,7 +457,7 @@ class XrayCombatMapper {
 				options.filters[slot + "Condom" + index] = CombatRenderer.getCondomOptions(npcSource.condom).colour;
 			}
 		}
-		options.filters[slot + "Penetrator" + index] = npcSource ? NpcCombatMapper.getNpcPenetratorFilter(npcSource) : setup.colours.getSkinFilter("light",0);
+		options.filters[slot + "Penetrator" + index] = npcSource ? NpcCombatMapper.getNpcPenetratorFilter(npcSource) : setup.colours.getSkinFilter("light", 0);
 
 		return penetrator;
 	}
@@ -480,13 +485,7 @@ class XrayCombatMapper {
 		if (V.player.condom) {
 			penetrator.condom = V.player.condom;
 			if (penetrator.condom.colour) {
-				options.filters.playerCondom = CombatRenderer.lookupColour(
-					setup.colours.condom_map,
-					penetrator.condom.colour,
-					"condom",
-					"condom_custom",
-					"condom"
-				);
+				options.filters.playerCondom = CombatRenderer.lookupColour(setup.colours.condom_map, penetrator.condom.colour, "condom", "condom_custom", "condom");
 			}
 		}
 
@@ -531,11 +530,12 @@ class XrayCombatMapper {
 		penetrator.base = "sex";
 		const alphaKnotActive = !!(V.xchange?.pill?.active && V.xchange.pill.alphaEffect && V.player.penisExist && !playerHasStrapon() && !playerChastity());
 		const alphaKnotState = ["entrance", "imminent", "penetrated", "otheranusentrance", "otheranusimminent", "otheranus"].includes(penetrator.state);
-		if (alphaKnotActive && alphaKnotState) {
+		if (alphaKnotActive && alphaKnotState && V.alphaKnotSwollen) {
+			const alphaKnotFull = !!penetrator.isCumActive;
 			penetrator.type = "knotted";
-			penetrator.playerSprite = V.ejaculating === 1 ? "knotted-full" : "knotted";
+			penetrator.playerSprite = alphaKnotFull ? "knotted-full" : "knotted";
 			penetrator.size = Math.clamp(penetrator.size, 2, 3);
-			if (V.ejaculating === 1) penetrator.base = "knotting";
+			if (alphaKnotFull) penetrator.base = "knotting";
 		}
 		options.showNpcVagina = penetrator.penetrated === "vaginal";
 		options.showNpcArse = penetrator.penetrated === "anal";

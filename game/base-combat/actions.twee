@@ -28,6 +28,32 @@
 			<<set $pronoun to 0>>
 		<</if>>
 	<</if>>
+	<!-- Clear encounter-only knot state if the Alpha anatomy/effect is removed during combat. -->
+	<<if $alphaKnotSwollen and !(playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist and !playerHasStrapon() and !playerChastity())>>
+		<<unset $alphaKnotSwollen>>
+		<<unset $alphaKnotTarget>>
+	<</if>>
+	<!-- Alpha knots swell as the player approaches orgasm, then remain swollen for the encounter. -->
+	<<if !$alphaKnotSwollen and playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist and !playerHasStrapon() and !playerChastity() and $pleasure gte ($pleasuremax / 5) * 4>>
+		<<if $penisuse is "othervagina" and $NPCList[$penistarget] and $NPCList[$penistarget].vagina is "penis">>
+			<<set $alphaKnotSwollen to true>>
+			<<set $alphaKnotTarget to $penistarget>>
+			<<set $speechAlphaKnot to "vagina">>
+			<<set $speechAlphaKnotTarget to $penistarget>>
+		<<elseif $penisuse is "otheranus">>
+			<<for _akI to 0; _akI lt $enemynomax; _akI++>>
+				<<if !$alphaKnotSwollen and $NPCList[_akI] and ($NPCList[_akI].penis is "otheranus" or $NPCList[_akI].vagina is "otheranus")>>
+					<<set $alphaKnotSwollen to true>>
+					<<set $alphaKnotTarget to _akI>>
+					<<set $speechAlphaKnot to "anus">>
+					<<set $speechAlphaKnotTarget to _akI>>
+				<</if>>
+			<</for>>
+		<</if>>
+		<<if $alphaKnotSwollen>>
+			<<knot_stat>>
+		<</if>>
+	<</if>>
 	<<if $ejaculating is 1>>
 		<span class="purple">
 		<<if $enemytype isnot "beast">>
