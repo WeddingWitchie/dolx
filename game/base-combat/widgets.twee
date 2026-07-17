@@ -655,20 +655,26 @@
 			<<set $npcOrgasmState to {}>>
 		<</if>>
 
-		<<for _n to 0; _n lt $NPCList.length; _n++>>
-			<<set _npcOrgasmState to $npcOrgasmState[_n]>>
-			<<if _npcOrgasmState and _npcOrgasmState.max isnot undefined and _npcOrgasmState.count isnot undefined>>
-				<<if _npcOrgasmState.max gt _npcOrgasmState.count>>
-					<<set _npcOrgasmState.count to _npcOrgasmState.count + 1>>
+		/* Beast trains are sequential solo encounters unless Beast Gangbangs is enabled. */
+		<<set _groupMultiOrgasmBlocked to $multiOrgasmGroupDisable is 1 and $enemynomax gt 1 and ($enemytype isnot "beast" or $beastGroupFight is 1)>>
+		<<if !_groupMultiOrgasmBlocked>>
+			<<for _n to 0; _n lt Math.min($enemynomax, $NPCList.length); _n++>>
+				<<if $NPCList[_n] and $NPCList[_n].active is "active" and $NPCList[_n].stance isnot "defeated">>
+					<<set _npcOrgasmState to $npcOrgasmState[_n]>>
+					<<if _npcOrgasmState and _npcOrgasmState.max isnot undefined and _npcOrgasmState.count isnot undefined>>
+						<<if _npcOrgasmState.max gt _npcOrgasmState.count>>
+							<<set _npcOrgasmState.count to _npcOrgasmState.count + 1>>
+						<</if>>
+						<<if _npcOrgasmState.count lt _npcOrgasmState.max or $combatExtended.reverseRapeStart is 1 or $combatExtended.consensualStart is 1>>
+							<<set _midOrgasm to true>>
+						<</if>>
+					<<elseif $combatExtended.reverseRapeStart is 1 or $combatExtended.consensualStart is 1>>
+						<<set _midOrgasm to true>>
+					<</if>>
 				<</if>>
-				<<if _npcOrgasmState.count lt _npcOrgasmState.max or $combatExtended.reverseRapeStart is 1 or $combatExtended.consensualStart is 1>>
-					<<set _midOrgasm to true>>
-				<</if>>
-			<<elseif $combatExtended.reverseRapeStart is 1 or $combatExtended.consensualStart is 1>>
-				<<set _midOrgasm to true>>
-			<</if>>
-		<</for>>
-		
+			<</for>>
+		<</if>>
+
 		<<if _midOrgasm is true>>
 			/* <<set $enemyarousal to $enemyarousalmax * (0.2 + Math.random() * 0.3)>> */
 			<<set $enemypleasure to Math.floor($enemypleasuremax * (0.2 + Math.random() * 0.3))>>
