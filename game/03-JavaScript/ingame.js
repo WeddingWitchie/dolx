@@ -1687,6 +1687,9 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			break;
 		case "tending":
+			if (V.worn.feet.type.includes("rugged")) {
+				result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
+			}
 			if (V.backgroundTraits.includes("plantlover")) {
 				result = Math.floor(result * (1 + V.trauma / (V.traumamax * 2)));
 			}
