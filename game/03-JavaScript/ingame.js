@@ -342,6 +342,10 @@ DefineMacroS("combatDefaults", combatDefaults);
  * @returns {boolean}
  */
 function combatSkillCheck(skillname, targetid = 0, npc = "", basedifficulty = 1000, multiplier = 100) {
+	/* Mid multi-orgasm ejaculation turn: the enemy is lost in climax and doesn't resist or pull away,
+	so physical actions can't fail and tear down penetration/hold state (e.g. "moves his penis away from your hand" right as he ejaculates).
+	Seduction is negotiation, not physical contact. It still rolls normally. */
+	if (V.ejaculatingMid === true && skillname !== "seduction") return true;
 	const skill = currentSkillValue(skillname + "skill");
 	const rng = V.rng * 10;
 	const arousalfactor = V.enemyarousalmax / (V.enemyarousal + 1);
