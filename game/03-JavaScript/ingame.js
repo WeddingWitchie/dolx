@@ -1392,7 +1392,7 @@ function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf
  * @param {string} skill The name of the requested skill.
  * @param {number} disableModifiers How much of an effect that modifiers will have on the player's current skill. Higher values means a lower effect. Stops at 2.
  * @param {number} [disableStatNerf=0] If 0 (default), multiplies the result by V.options.statNerf/100; pass non-zero to skip stat nerfs for raw cap calculations.
- * @returns Returns the current value of the requested skill, accounting for potential modifiers.
+ * @returns {number} The current value of the requested skill, accounting for potential modifiers.
  */
 function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	if (skill === "physique") {
@@ -1515,6 +1515,13 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			break;
 		case "danceskill":
+			if (V.danceStudio?.training?.masteryUntil > V.timeStamp) {
+				result = Math.floor(result * 1.1);
+			}
+			if (V.danceStudio?.training?.injuryUntil > V.timeStamp) {
+				if (V.danceStudio.training.injury === "hard") result = Math.floor(result * 0.85);
+				if (V.danceStudio.training.injury === "light") result = Math.floor(result * 0.99);
+			}
 			if (
 				V.worn.under_upper.type.includesAny("dance", "naked") &&
 				V.worn.under_lower.type.includesAny("dance", "naked") &&

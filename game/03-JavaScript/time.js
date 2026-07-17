@@ -515,6 +515,18 @@ function monthPassed() {
 }
 
 function weekPassed() {
+	if (V.danceSkillDecay === 1 && V.danceStudio?.training && V.danceskill >= 200) {
+		const requiredPractices = Math.clamp(Math.ceil(V.danceskill / 400), 1, 5);
+		const completedPractices = V.weekly.dancePractices || 0;
+		const missedPractices = Math.max(requiredPractices - completedPractices, 0);
+		if (missedPractices > 0) {
+			const decay = random(5, 10) * missedPractices;
+			V.danceskill = Math.max(V.danceskill - decay, 0);
+			V.danceStudio.training.lastDecay = decay;
+		} else {
+			V.danceStudio.training.lastDecay = 0;
+		}
+	}
 	// if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
 	// 	V.effectsmessage = 1;
 	// 	V.science_up_message = 1;

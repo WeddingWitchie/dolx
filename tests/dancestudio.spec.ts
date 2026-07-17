@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { openGame, navigateTo, getVar, setVar, wikifyEval, wikifyToText, assertNoErrors } from "./helpers.js";
+import { openGame, navigateTo, getVar, setVar, setDay, wikifyEval, wikifyToText, assertNoErrors } from "./helpers.js";
 
 /** Set a block of flat old-save vars to simulate a pre-0.5.8.10 save. */
 async function setOldFlatVars(page: Page, vars: Record<string, unknown>) {
@@ -35,7 +35,35 @@ test.describe("Dance Studio", () => {
 			expect(ds.jobOffered).toBe(false);
 			expect(ds.anger).toBe(0);
 			expect(ds.handVirginProtected).toBe(false);
+			expect(ds.training).toEqual({
+				subscriptionUntil: 0,
+				injury: "none",
+				injuryUntil: 0,
+				masteryUntil: 0,
+				lastDecay: 0,
+			});
 			expect(ds.job).toBeUndefined();
+		});
+
+		test("repair missing training state on same-version loads", async ({ page }) => {
+			await page.evaluate(() => {
+				const V = (window as any).SugarCube.State.variables;
+				delete V.danceSkillDecay;
+				V.danceStudio.training = { injury: "light", injuryUntil: 12345 };
+			});
+
+			await wikifyEval(page, "<<xchange-modupdate>>");
+
+			expect(await getVar(page, "danceSkillDecay")).toBe(0);
+			expect((await getVar(page, "danceStudio")) as any).toMatchObject({
+				training: {
+					subscriptionUntil: 0,
+					injury: "light",
+					injuryUntil: 12345,
+					masteryUntil: 0,
+					lastDecay: 0,
+				},
+			});
 		});
 	});
 
@@ -214,13 +242,147 @@ test.describe("Dance Studio", () => {
 		});
 	});
 
-	test("passage renders without errors", async ({ page }) => {
+	test("passage renders the new practice schedule without errors", async ({ page }) => {
 		await setVar(page, "outside", 0);
 		await setVar(page, "location", "dance_studio");
 		await setVar(page, "exposed", 0);
 		await setVar(page, "openinghours", 1);
 		await setVar(page, "money", 5000);
+		await setDay(page, "Monday", 15);
 		await navigateTo(page, "Dance Studio");
-		await expect(page.locator("#passages")).toContainText("dance lesson");
+		await expect(page.locator("#passages")).toContainText("Dance practice runs from 15:00 to 18:00");
+		await expect(page.locator("#passages")).toContainText("Choose a dance practice");
+	});
+
+	test("light practice records the daily and weekly limits", async ({ page }) => {
+		await setDay(page, "Monday", 15);
+		await setVar(page, "money", 5000);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.danceStudio.practiceChoice = "light";
+			V.danceStudio.training.subscriptionUntil = V.timeStamp + 86400;
+		});
+
+		await navigateTo(page, "Dance Practice Start");
+
+		expect(await getVar(page, "daily")).toMatchObject({ dancePractices: 1 });
+		expect(await getVar(page, "weekly")).toMatchObject({ dancePractices: 1, dancePracticeLoad: 2 });
+		expect(await getVar(page, "danceskill")).toBeGreaterThan(0);
+	});
+
+	test("stale practice links cannot bypass the daily limit", async ({ page }) => {
+		await setDay(page, "Monday", 15);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.daily.dancePractices = 3;
+			V.danceStudio.training.subscriptionUntil = V.timeStamp + 86400;
+		});
+
+		await navigateTo(page, "Dance Practice Selection");
+
+		await expect(page.locator("#passages")).toContainText("This dance practice is no longer available.");
+		await expect(page.locator("#passages").getByText("Light practice (1:00)")).toHaveCount(0);
+	});
+
+	test("invalid hard practice does not charge or change counters", async ({ page }) => {
+		await setDay(page, "Monday", 15);
+		await setVar(page, "money", 5000);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.danceStudio.practiceChoice = "hard";
+			V.worn.feet.type = ["heels"];
+		});
+
+		await navigateTo(page, "Dance Practice Start");
+
+		await expect(page.locator("#passages")).toContainText("This dance practice is no longer available.");
+		expect(await getVar(page, "money")).toBe(5000);
+		expect(((await getVar(page, "daily")) as any).dancePractices).toBeUndefined();
+		expect(((await getVar(page, "weekly")) as any).dancePractices).toBeUndefined();
+		expect(((await getVar(page, "danceStudio")) as any).practiceChoice).toBeUndefined();
+	});
+
+	test("subscription uses dance lesson accounting and lasts 30 days", async ({ page }) => {
+		await setDay(page, "Monday", 15);
+		await setVar(page, "money", 20000);
+		await navigateTo(page, "Dance Studio");
+		const startedAt = (await getVar(page, "timeStamp")) as number;
+
+		await page
+			.locator("#passages")
+			.getByRole("link", { name: /Buy a 30-day dance subscription/ })
+			.click();
+
+		expect(await getVar(page, "money")).toBe(8000);
+		const ds = (await getVar(page, "danceStudio")) as any;
+		expect(ds.training.subscriptionUntil).toBe(startedAt + 30 * 86400);
+		expect(((await getVar(page, "moneyStats")) as any).danceStudioLessons.spent).toBeGreaterThanOrEqual(12000);
+	});
+
+	test("hard practice at the skill cap refreshes dance mastery", async ({ page }) => {
+		await setDay(page, "Monday", 15);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.danceskill = 1000 * V.AMCTraits.dancing;
+			V.danceStudio.practiceChoice = "hard";
+			V.danceStudio.training.subscriptionUntil = V.timeStamp + 86400;
+			V.worn.feet.type = ["normal"];
+		});
+		const startedAt = (await getVar(page, "timeStamp")) as number;
+
+		await navigateTo(page, "Dance Practice Start");
+
+		await expect(page.locator("#passages")).toContainText("Demanding practice keeps your mastered technique sharp.");
+		const ds = (await getVar(page, "danceStudio")) as any;
+		expect(ds.training.masteryUntil).toBe(startedAt + 7 * 86400);
+	});
+
+	test("optional weekly maintenance decays dancing skill and records the loss", async ({ page }) => {
+		await setDay(page, "Saturday", 23);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.danceSkillDecay = 1;
+			V.danceskill = 800;
+			V.weekly.dancePractices = 0;
+			(window as any).Time.pass(2 * 60 * 60);
+		});
+		const result = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return {
+				danceskill: V.danceskill,
+				lastDecay: V.danceStudio.training.lastDecay,
+				weeklyDancePractices: V.weekly.dancePractices,
+			};
+		});
+
+		expect(result.lastDecay).toBeGreaterThanOrEqual(10);
+		expect(result.lastDecay).toBeLessThanOrEqual(20);
+		expect(result.danceskill).toBe(800 - result.lastDecay);
+		expect(result.weeklyDancePractices).toBeUndefined();
+	});
+
+	test("hospital treatment clears a hard dance injury", async ({ page }) => {
+		await setVar(page, "money", 10000);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.danceStudio.training.injury = "hard";
+			V.danceStudio.training.injuryUntil = V.timeStamp + 7 * 86400;
+		});
+
+		let ds = (await getVar(page, "danceStudio")) as any;
+		expect(ds.training.injury).toBe("hard");
+		expect(ds.training.injuryUntil).toBe(((await getVar(page, "timeStamp")) as number) + 7 * 86400);
+
+		await setVar(page, "exposed", 0);
+		await navigateTo(page, "Hospital Foyer");
+		await page
+			.locator("#passages")
+			.getByRole("link", { name: /Ask for treatment for your dance injury/ })
+			.click();
+
+		ds = (await getVar(page, "danceStudio")) as any;
+		expect(ds.training.injury).toBe("none");
+		expect(ds.training.injuryUntil).toBe(0);
+		expect(await getVar(page, "money")).toBe(7000);
 	});
 });

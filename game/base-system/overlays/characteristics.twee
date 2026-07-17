@@ -998,6 +998,19 @@
 				<<set _athleticsConfig =	{ name : "Athletics",	displayType : "grade",	currentValue : $athletics,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
 				<<set _tendingConfig =		{ name : "Tending",		displayType : "grade",	currentValue : $tending,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
 				<<set _housekeepingConfig =	{ name : "Housekeeping",displayType : "grade",	currentValue : $housekeeping,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
+				<<if $danceStudio?.training?.masteryUntil gt $timeStamp>>
+					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 1.10)>>
+					<<set _dancingConfig.modTypes.good.pushUnique("recent grade mastery")>>
+				<</if>>
+				<<if $danceStudio?.training?.injuryUntil gt $timeStamp>>
+					<<if $danceStudio.training.injury is "hard">>
+						<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 0.85)>>
+						<<set _dancingConfig.modTypes.bad.pushUnique("dance injury")>>
+					<<elseif $danceStudio.training.injury is "light">>
+						<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 0.99)>>
+						<<set _dancingConfig.modTypes.bad.pushUnique("sore feet")>>
+					<</if>>
+				<</if>>
 				<<if $combatExtended.brawlingToggle is 1>>
 					<<set _brawlingConfig =	{ name : "Brawling",	displayType : "grade",	currentValue : $combatExtended.brawling,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
 					<<if $options.statNerf lt 100>>

@@ -966,6 +966,7 @@ function moneyStatsProcess(stats) {
 					case "hospitalBreastEnlargement":
 					case "hospitalParasiteRemoval":
 					case "hospitalParasitesSold":
+					case "hospitalDanceInjury":
 						compressTo = "hospital";
 						break;
 					case "pharmacyCondoms":

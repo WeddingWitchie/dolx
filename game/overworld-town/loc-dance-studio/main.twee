@@ -2,7 +2,17 @@
 
 :: Dance Studio
 <<set $outside to 0>><<set $location to "dance_studio">><<set $eventskip to 0>><<effects>>
-You are in the dance studio. Here you can pay for lessons to improve your dancing skill. They also offer lessons on how to walk in high heels, as well as yoga lessons. The instructor is said to be well-connected in the professional scene. Dance and heel lessons cost <<printprice 1200>>. Yoga lessons cost <<printprice 2200>>.
+<<if $danceStudio.training.injury isnot "none" and $danceStudio.training.injuryUntil lte $timeStamp>>
+	<<set $danceStudio.training.injury to "none">><<set $danceStudio.training.injuryUntil to 0>>
+<</if>>
+You are in the dance studio. Here you can pay for lessons to improve your dancing skill. They also offer lessons on how to walk in high heels, as well as yoga lessons. The instructor is said to be well-connected in the professional scene. Dance and heel lessons cost <<printprice 1200>>. Yoga lessons cost <<printprice 2200>>. Dance practice runs from <<ampm 15 00>> to <<ampm 18 00>>, Monday through Saturday.
+<<if $danceStudio.training.lastDecay gt 0>>
+	<span class="red">Without enough practice last week, your dancing skill fell by <<print $danceStudio.training.lastDecay>> points.</span>
+	<<set $danceStudio.training.lastDecay to 0>>
+<</if>>
+<<if $danceStudio.training.injuryUntil gt $timeStamp>>
+	<span class="blue">Your <<print $danceStudio.training.injury is "hard" ? "dance injury" : "sore feet">> will take about <<print Math.ceil(($danceStudio.training.injuryUntil - $timeStamp) / (24 * 60 * 60))>> more day(s) to heal.</span>
+<</if>>
 <br><br>
 <<set _store_location to "dance_studio">>
 <<set _earSlimeEnableDancewear to true>>
@@ -45,16 +55,37 @@ You are in the dance studio. Here you can pay for lessons to improve your dancin
 			<</if>>
 		<</if>>
 		<<if $exposed lt 1>>
-			<<if setup.inflation.canAfford(1200, "danceStudioLessons")>>
-				<<if $danceskill gte 800 and $danceStudio.intro and !$danceStudio.jobOffered>>
-					<<dancestudioicon>><<link [[Take a dance lesson (<<printprice 1200>> 1:00)|Dancing Lesson Job Intro]]>><</link>><<gtiredness>><<note "+ + Dancing Skill" "green">>
-					<br>
-				<<else>>
-					<<dancestudioicon>><<link [[Take a dance lesson (<<printprice 1200>> 1:00)|Dancing Lesson]]>><<set $phase to 0>><<money -1200 "danceStudioLessons">><<set $danceStudio.stage to 0>><</link>><<gtiredness>><<note "+ + Dancing Skill" "green">>
-					<br>
-				<</if>>
+			<<if $danceStudio.training.subscriptionUntil gt $timeStamp>>
+				<span class="green">Your dance subscription is active.</span>
+				<br>
+			<<elseif setup.inflation.canAfford(12000, "danceStudioSubscription")>>
+				<<dancestudioicon>><<link "Buy a 30-day dance subscription (<<printprice 12000>>)">><<money -12000 "danceStudioLessons">><<set $danceStudio.training.subscriptionUntil to $timeStamp + (30 * 24 * 60 * 60)>><<replace "#dance-subscription-status">><span class="green">Your subscription is active for 30 days.</span><</replace>><</link>>
+				<span id="dance-subscription-status"></span>
+				<br>
+			<</if>>
+			<<if $danceskill gte 800 and $danceStudio.intro and !$danceStudio.jobOffered>>
+				<<dancestudioicon>><<link [[Speak with Charlie|Dancing Lesson Job Intro]]>><</link>>
+				<br>
+			<<elseif Time.weekDay is 1>>
+				<span class="blue">Dance classes are closed on Sundays.</span>
+				<br>
+			<<elseif !Time.betweenHours(15, 17)>>
+				<span class="blue">The next dance practice is held between <<ampm 15 00>> and <<ampm 18 00>>.</span>
+				<br>
+			<<elseif $danceStudio.training.injury is "hard">>
+				<span class="red">Your injury needs to heal before you can dance again.</span>
+				<br>
+			<<elseif ($daily.dancePractices or 0) gte 3>>
+				<span class="blue">You have already attended three practices today.</span>
+				<br>
+			<<elseif ($weekly.dancePracticeLoad or 0) gte 12>>
+				<span class="blue">Charlie insists that you rest for the remainder of the week.</span>
+				<br>
+			<<elseif $danceStudio.training.subscriptionUntil gt $timeStamp or setup.inflation.canAfford(1200, "danceStudioLessons")>>
+				<<dancestudioicon>><<link [[Choose a dance practice (<<if $danceStudio.training.subscriptionUntil gt $timeStamp>>subscription<<else>><<printprice 1200>><</if>>)|Dance Practice Selection]]>><</link>><<gtiredness>><<note "Dancing Skill" "green">>
+				<br>
 			<<else>>
-				<span class="blue">You can't afford a dance lesson.</span>
+				<span class="blue">You can't afford a dance practice.</span>
 				<br>
 			<</if>>
 		<</if>>
@@ -164,6 +195,99 @@ The dance studio is closed. <<openinghours>>
 <<link [[Next|$danceStudio.introExit]]>><<unset $danceStudio.introExit>><<endevent>><</link>>
 <br>
 
+:: Dance Practice Selection
+<<set $outside to 0>><<set $location to "dance_studio">><<effects>>
+<<if $danceStudio.training.injury isnot "none" and $danceStudio.training.injuryUntil lte $timeStamp>>
+	<<set $danceStudio.training.injury to "none">><<set $danceStudio.training.injuryUntil to 0>>
+<</if>>
+<<set _practiceAccess to Time.weekDay isnot 1 and Time.betweenHours(15, 17) and $danceStudio.training.injury isnot "hard" and ($daily.dancePractices or 0) lt 3 and ($weekly.dancePracticeLoad or 0) lt 12 and ($danceStudio.training.subscriptionUntil gt $timeStamp or setup.inflation.canAfford(1200, "danceStudioLessons"))>>
+<<if !_practiceAccess>>
+	<span class="blue">This dance practice is no longer available.</span>
+	<br><br>
+<<else>>
+	Charlie asks how hard you want to practise. This week's training load is <<print $weekly.dancePracticeLoad or 0>> out of 12, and you have attended <<print $daily.dancePractices or 0>> out of 3 possible practices today.
+	<br><br>
+	<<set _painResistance to $danceStudio.training.masteryUntil gt $timeStamp ? 0.75 : 1>>
+	<<if ($weekly.dancePracticeLoad or 0) lte 10>>
+		<<link [[Light practice (1:00)|Dance Practice Start]]>><<set $danceStudio.practiceChoice to "light">><</link>><<gtiredness>><<note `"+1 Dancing Skill; " + (1 * _painResistance) + "% soreness risk"` "green">>
+		<br>
+	<</if>>
+	<<if $danceStudio.training.injury isnot "light" and ($weekly.dancePracticeLoad or 0) lte 9>>
+		<<link [[Medium practice (1:00)|Dance Practice Start]]>><<set $danceStudio.practiceChoice to "medium">><</link>><<ggtiredness>><<note `"+5 Dancing Skill; " + (5 * _painResistance) + "% soreness and " + (1 * _painResistance) + "% injury risk"` "green">>
+		<br>
+	<<elseif $danceStudio.training.injury is "light">>
+		<span class="blue">Your sore feet prevent medium practice.</span>
+		<br>
+	<</if>>
+	<<if $danceStudio.training.injury isnot "light" and ($weekly.dancePracticeLoad or 0) lte 6>>
+		<<if $worn.feet.type.includes("heels")>>
+			<span class="blue">Charlie will not let you attempt hard practice in heels.</span>
+			<br>
+		<<elseif $worn.feet.type.includes("naked")>>
+			<span class="blue">Charlie requires supportive footwear for hard practice.</span>
+			<br>
+		<<else>>
+			<<link [[Hard practice (1:00)|Dance Practice Start]]>><<set $danceStudio.practiceChoice to "hard">><</link>><<gggtiredness>><<note `"+15 Dancing Skill; " + (9 * _painResistance) + "% soreness and " + (9 * _painResistance) + "% injury risk"` "green">>
+			<br>
+		<</if>>
+	<</if>>
+<</if>>
+<<getouticon>><<link [[Back|Dance Studio]]>><</link>>
+
+:: Dance Practice Start
+<<set $outside to 0>><<set $location to "dance_studio">><<effects>>
+<<set _gain to 0>><<set _load to 0>><<set _lightChance to 0>><<set _hardChance to 0>>
+<<switch $danceStudio.practiceChoice>>
+	<<case "light">><<set _gain to 1>><<set _load to 2>><<set _lightChance to 1>><<set _hardChance to 0>>
+	<<case "medium">><<set _gain to 5>><<set _load to 3>><<set _lightChance to 5>><<set _hardChance to 1>>
+	<<case "hard">><<set _gain to 15>><<set _load to 6>><<set _lightChance to 9>><<set _hardChance to 9>>
+<</switch>>
+<<if $danceStudio.training.injury isnot "none" and $danceStudio.training.injuryUntil lte $timeStamp>>
+	<<set $danceStudio.training.injury to "none">><<set $danceStudio.training.injuryUntil to 0>>
+<</if>>
+<<set _practiceValid to _gain gt 0 and Time.weekDay isnot 1 and Time.betweenHours(15, 17) and $danceStudio.training.injury isnot "hard" and ($daily.dancePractices or 0) lt 3 and ($weekly.dancePracticeLoad or 0) + _load lte 12 and ($danceStudio.training.subscriptionUntil gt $timeStamp or setup.inflation.canAfford(1200, "danceStudioLessons"))>>
+<<if ["medium", "hard"].includes($danceStudio.practiceChoice) and $danceStudio.training.injury is "light">><<set _practiceValid to false>><</if>>
+<<if $danceStudio.practiceChoice is "hard" and $worn.feet.type.includesAny("heels", "naked")>><<set _practiceValid to false>><</if>>
+<<if !_practiceValid>>
+	<<unset $danceStudio.practiceChoice>>
+	<span class="blue">This dance practice is no longer available.</span>
+	<br><br>
+	<<getouticon>><<link [[Back|Dance Studio]]>><</link>>
+<<else>>
+	<<set _oldDanceLevels to ($danceskill gte 2000 ? 9 : $danceskill gte 1750 ? 8 : $danceskill gte 1500 ? 7 : $danceskill gte 1250 ? 6 : $danceskill gte 1000 ? 5 : $danceskill gte 800 ? 4 : $danceskill gte 600 ? 3 : $danceskill gte 400 ? 2 : $danceskill gte 200 ? 1 : 0)>>
+	<<set _painResistance to $danceStudio.training.masteryUntil gt $timeStamp ? 0.75 : 1>>
+	<<if $danceStudio.training.subscriptionUntil lte $timeStamp>><<money -1200 "danceStudioLessons">><</if>>
+	<<set $daily.dancePractices to ($daily.dancePractices or 0) + 1>>
+	<<set $weekly.dancePractices to ($weekly.dancePractices or 0) + 1>>
+	<<set $weekly.dancePracticeLoad to ($weekly.dancePracticeLoad or 0) + _load>>
+	<<danceskill _gain>><<set $danceStudio.stage to 0>><<set $phase to 0>>
+	<<set _newDanceLevels to ($danceskill gte 2000 ? 9 : $danceskill gte 1750 ? 8 : $danceskill gte 1500 ? 7 : $danceskill gte 1250 ? 6 : $danceskill gte 1000 ? 5 : $danceskill gte 800 ? 4 : $danceskill gte 600 ? 3 : $danceskill gte 400 ? 2 : $danceskill gte 200 ? 1 : 0)>>
+	<<if _newDanceLevels gt _oldDanceLevels or ($danceStudio.practiceChoice is "hard" and $danceskill gte 1000 * $AMCTraits.dancing)>>
+		<<set $danceStudio.training.masteryUntil to $timeStamp + (7 * 24 * 60 * 60)>>
+		<<if _newDanceLevels gt _oldDanceLevels>>
+			<span class="gold">Reaching a new dancing grade fills you with confidence. For one week, your effective dancing skill is 10% higher and dance injuries are less likely.</span>
+		<<else>>
+			<span class="gold">Demanding practice keeps your mastered technique sharp. For one week, your effective dancing skill is 10% higher and dance injuries are less likely.</span>
+		<</if>>
+		<br><br>
+	<</if>>
+	<<set _injuryRoll to random(1, 10000) / 100>>
+	<<if _injuryRoll lte _hardChance * _painResistance>>
+		<<set _recoveryDays to Math.max(7 - Math.floor(currentSkillValue("physique", 0, 1) / 3000), 3)>>
+		<<set $danceStudio.training.injury to "hard">><<set $danceStudio.training.injuryUntil to $timeStamp + (_recoveryDays * 24 * 60 * 60)>>
+		<span class="red">A wrong landing sends pain through your leg. Your dancing skill is reduced by 15%, and you cannot practise until the injury heals in <<print _recoveryDays>> days.</span>
+		<br><br>
+	<<elseif _injuryRoll lte (_hardChance + _lightChance) * _painResistance>>
+		<<set $danceStudio.training.injury to "light">><<set $danceStudio.training.injuryUntil to $timeStamp + (3 * 24 * 60 * 60)>>
+		<span class="blue">Your feet are sore after a wrong move. Your dancing skill is reduced by 1% for three days, and only light practice is safe.</span>
+		<br><br>
+	<</if>>
+	You join the class and begin your <<print $danceStudio.practiceChoice>> practice.
+	<<unset $danceStudio.practiceChoice>>
+	<br><br>
+	<<link [[Next|Dancing Lesson]]>><</link>>
+<</if>>
+
 :: Dancing Lesson
 
 <<if $danceStudio.intro and $phase is 0>><<pass 20>><</if>>
@@ -172,7 +296,7 @@ The dance studio is closed. <<openinghours>>
 <<if !$danceStudio.intro>>
 	<<danceStudioIntro "Dancing Lesson">>
 <<elseif $danceStudio.stage gte 2>>
-	<<tiredness 4>><<danceskill 14>><<danceskilluse>><<wearandtear "dance">><<physique 2>>
+	<<tiredness 4>><<wearandtear "dance">><<physique 2>>
 	The rest of the lesson passes uneventfully.
 	<br><br>
 	<<link [[Next|Dance Studio]]>><<endevent>><</link>>
@@ -194,7 +318,7 @@ The dance studio is closed. <<openinghours>>
 			<br><br>
 		<</if>>
 	<</if>>
-	<<tiredness 4>><<set $danceStudio.stage += 1>><<danceskill 14>><<danceskilluse>><<wearandtear "dance">><<physique 2>><<npc Charlie>><<person1>>
+	<<tiredness 4>><<set $danceStudio.stage += 1>><<wearandtear "dance">><<physique 2>><<npc Charlie>><<person1>>
 	<<if $rng lte 20>>
 		<<set $danceStudio.lesson to "barre">>
 		You stretch and work your muscles using a barre.
@@ -213,7 +337,7 @@ The dance studio is closed. <<openinghours>>
 			<<He>> has more experience than you, so you let <<him>> take the lead.
 		<<elseif currentSkillValue('danceskill') lte 800>>
 			You practise techniques requiring a partner, taking turns supporting one another.
-		<<elseif currentSkillValue('danceskill') lte 1000>>
+		<<else>>
 			Being so experienced, you take the lead, careful not to push <<him>> too hard.
 		<</if>>
 		<br><br>
@@ -224,7 +348,7 @@ The dance studio is closed. <<openinghours>>
 			More experienced students use it to develop strength and poise. You just have fun swinging around.
 		<<elseif currentSkillValue('danceskill') lte 800>>
 			You work on developing your poise.
-		<<elseif currentSkillValue('danceskill') lte 1000>>
+		<<else>>
 			Held aloft, you are able to fully demonstrate your grace and skill.
 		<</if>>
 		<br><br>
@@ -247,7 +371,7 @@ The dance studio is closed. <<openinghours>>
 			<<He>> helps you with the basics.
 		<<elseif currentSkillValue('danceskill') lte 800>>
 			<<He>> demonstrates some new steps for you to try.
-		<<elseif currentSkillValue('danceskill') lte 1000>>
+		<<else>>
 			<<He>> helps you iron out some flaws in your posture.
 		<</if>>
 		<br><br>
