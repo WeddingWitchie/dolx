@@ -95,7 +95,12 @@ declare global {
 		};
 	}
 
-	export interface PortalPantiesHoleState { new?: boolean | number; tempRemoval?: boolean; type?: string; size?: number;}
+	export interface PortalPantiesHoleState {
+		new?: boolean | number;
+		tempRemoval?: boolean;
+		type?: string;
+		size?: number;
+	}
 
 	export type ClothingStates = "chest" | "midriff" | "waist" | "thighs" | "knees" | "ankles" | "totheside" | "worn";
 
@@ -362,6 +367,8 @@ declare global {
 		shopGroup?: string;
 		pregType?: 0 | string;
 		formfitting?: 1;
+		// Parts that exclude form formfitting, available options: "acc" "sleeve_acc"
+		formfittingDisabled?: string[];
 		oldVariable?: {
 			name: string;
 			variable: string;
