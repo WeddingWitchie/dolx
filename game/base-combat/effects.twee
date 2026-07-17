@@ -927,12 +927,11 @@
 		<</if>>
 
 		/* Parallel to actionshit, but for the Scratch action.
-        _hand reads as "claws" at $nailslevel 3 OR when the player has cat claws (which are always claw-tier regardless of natural nail length).
-        Otherwise "nails". Beast/human × success/miss × three pain tiers.*/
+		   Transformation claws and very long nails use claw-tier damage; long nails use scratch-tier damage. */
 		<<if $leftaction is "leftscratch" and $rightaction is "rightscratch" and $lefttarget is $righttarget>>
 			<<set $leftaction to 0>><<set $rightaction to 0>>
 			<<set $leftactiondefault to "leftscratch">><<set $rightactiondefault to "rightscratch">>
-			/* Cat-TF: claws are always present and combat-extended count as level 3 regardless of natural nail length. 
+			/* Transformation claws always count as level 3 regardless of natural nail length.
 			_effectiveNailLevel drives the damage scaling below; $nailslevel is still useful for non-claw flavor. */
 			<<playerClawType>>
 			<<set _effectiveNailLevel to (_hasClaws ? 3 : ($nailslevel ?? 0))>>
@@ -950,7 +949,7 @@
 				_scratchDef = social effects, _scratchFlat = health. "dual" tells it this is a two-handed strike (slightly higher def). */
 				<<playerClawType>>
 				<<scratchDamageProfile "dual">>
-				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
+				<<if _hasNailRings>><<set _scratchFlat += ($consensual is 1 ? 2 : 4)>><</if>>
 
 				/* snapshot health before any defiance call so the flat override is exact */
 				<<set _scratchHpBefore to $enemyhealth>>
@@ -996,52 +995,52 @@
 			<<willpowercombatcheck>>
 			<<if !$willpowerSuccess>>
 				You try to rake your left hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="lewd">but your arousal robs the strike of bite.</span>
-			<<elseif numberOfEarSlime() and (($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3))>>
-				<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
-					You try to rake your left hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="red">but the slime immobilises your limb.</span>
-					<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
-				<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10) and random(0,100) gte 50>>
-					You try to rake your left hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="red">but the slime distracts you, so your nails skim air.</span>
-				<<else>>
-					The slime tries to stop you, <span class="green">but your nails catch flesh regardless.</span>
+			<<else>>
+				<<set _scratchCanLand to true>>
+				<<if numberOfEarSlime() and (($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3))>>
+					<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
+						You try to rake your left hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="red">but the slime immobilises your limb.</span>
+						<<set _scratchCanLand to false>>
+						<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
+					<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10) and random(0,100) gte 50>>
+						You try to rake your left hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<personselect $lefttarget>><<person>><</if>>, <span class="red">but the slime distracts you, so your nails skim air.</span>
+						<<set _scratchCanLand to false>>
+					<<else>>
+						The slime tries to stop you, <span class="green">but you force your hand through its resistance.</span>
+					<</if>>
+				<</if>>
+
+				<<if _scratchCanLand>>
 					<<actionsscratch $lefttarget>>
+					<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
+					<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
 					<<playerClawType>>
 					<<scratchDamageProfile "single">>
+					<<if _hasNailRings>><<set _scratchFlat += ($consensual is 1 ? 1 : 2)>><</if>>
 					<<set _scratchHpBefore to $enemyhealth>>
 					<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$lefttarget] && typeof $NPCList[$lefttarget].health === "number") ? $NPCList[$lefttarget].health : undefined)>>
-					<<defiance _scratchDef $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
-					<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore _scratchFlat>>
-				<</if>>
-			<<else>>
-				<<actionsscratch $lefttarget>>
-				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
-				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
-				<<playerClawType>>
-				<<scratchDamageProfile "single">>
-				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
-				<<set _scratchHpBefore to $enemyhealth>>
-				<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$lefttarget] && typeof $NPCList[$lefttarget].health === "number") ? $NPCList[$lefttarget].health : undefined)>>
 
-				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
-					<<if $combatExtended.enemyCounterSuccess is 2>>
-						<<violence 10>><<combatExtendedStability -10>>
-					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
-						/* Attack dodged */
-					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<defiance `_scratchDef * 0.5` $lefttarget>>
-						<<violence 3>><<set $speechscratch to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
-						<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.5)`>>
+					<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
+						<<if $combatExtended.enemyCounterSuccess is 2>>
+							<<violence 10>><<combatExtendedStability -10>>
+						<<elseif $combatExtended.enemyDodgeSuccess is 2>>
+							/* Attack dodged */
+						<<elseif $combatExtended.enemyCounterSuccess is 1>>
+							<<defiance `_scratchDef * 0.5` $lefttarget>>
+							<<violence 3>><<set $speechscratch to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
+							<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.5)`>>
+						<<else>>
+							<<defiance `_scratchDef * 0.6` $lefttarget>>
+							<<set $speechscratch to 1>><<set $attackstat += 1>>
+							<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.6)`>>
+						<</if>>
 					<<else>>
-						<<defiance `_scratchDef * 0.6` $lefttarget>>
-						<<set $speechscratch to 1>><<set $attackstat += 1>>
-						<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.6)`>>
+						<<defiance _scratchDef $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+						<<if _hasNailRings>>
+							Your nail-armour rings deepen the cuts.
+						<</if>>
+						<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore _scratchFlat>>
 					<</if>>
-				<<else>>
-					<<defiance _scratchDef $lefttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
-					<<if _hasNailRings>>
-						Your nail-armour rings deepen the cuts.
-					<</if>>
-					<<scratchFlatDamage _scratchHpBefore $lefttarget _scratchNpcHpBefore _scratchFlat>>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -1055,52 +1054,52 @@
 			<<willpowercombatcheck>>
 			<<if !$willpowerSuccess>>
 				You try to rake your right hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>, <span class="lewd">but your arousal robs the strike of bite.</span>
-			<<elseif numberOfEarSlime() and (($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3))>>
-				<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
-					You try to rake your right hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>, <span class="red">but the slime immobilises your limb.</span>
-					<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
-				<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10) and random(0,100) gte 50>>
-					You try to rake your right hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>, <span class="red">but the slime distracts you, so your nails skim air.</span>
-				<<else>>
-					The slime tries to stop you, <span class="green">but your nails catch flesh regardless.</span>
+			<<else>>
+				<<set _scratchCanLand to true>>
+				<<if numberOfEarSlime() and (($parasite.left_ear.name is "slime" and random(1, 3) is 3) or ($parasite.right_ear.name is "slime" and random(1, 3) is 3) or ($earSlime.growth gte 50 and random(1, 3) is 3))>>
+					<<if $earSlime.growth gte (currentSkillValue('willpower') / 10) and random(0,100) gte $earSlime.growth / 3>>
+						You try to rake your right hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>, <span class="red">but the slime immobilises your limb.</span>
+						<<set _scratchCanLand to false>>
+						<<if $earSlime.growth gt 50>><<set $earSlime.defyCooldown++>><</if>>
+					<<elseif $earSlime.corruption gte (currentSkillValue('willpower') / 10) and random(0,100) gte 50>>
+						You try to rake your right hand across the <<if $enemytype is "beast">><<beasttype>><<else>><<person>><</if>>, <span class="red">but the slime distracts you, so your nails skim air.</span>
+						<<set _scratchCanLand to false>>
+					<<else>>
+						The slime tries to stop you, <span class="green">but you force your hand through its resistance.</span>
+					<</if>>
+				<</if>>
+
+				<<if _scratchCanLand>>
 					<<actionsscratch $righttarget>>
+					<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
+					<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
 					<<playerClawType>>
 					<<scratchDamageProfile "single">>
+					<<if _hasNailRings>><<set _scratchFlat += ($consensual is 1 ? 1 : 2)>><</if>>
 					<<set _scratchHpBefore to $enemyhealth>>
 					<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$righttarget] && typeof $NPCList[$righttarget].health === "number") ? $NPCList[$righttarget].health : undefined)>>
-					<<defiance _scratchDef $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
-					<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore _scratchFlat>>
-				<</if>>
-			<<else>>
-				<<actionsscratch $righttarget>>
-				<<set _ringsName to (($worn.rings && typeof $worn.rings.name === "string") ? $worn.rings.name : "")>>
-				<<set _hasNailRings to (_ringsName.includes("nail armour"))>>
-				<<playerClawType>>
-				<<scratchDamageProfile "single">>
-				<<if _hasNailRings>><<set _scratchFlat += 2>><</if>>
-				<<set _scratchHpBefore to $enemyhealth>>
-				<<set _scratchNpcHpBefore to (($NPCList && $NPCList[$righttarget] && typeof $NPCList[$righttarget].health === "number") ? $NPCList[$righttarget].health : undefined)>>
 
-				<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
-					<<if $combatExtended.enemyCounterSuccess is 2>>
-						<<violence 10>><<combatExtendedStability -10>>
-					<<elseif $combatExtended.enemyDodgeSuccess is 2>>
-						/* Attack dodged */
-					<<elseif $combatExtended.enemyCounterSuccess is 1>>
-						<<defiance `_scratchDef * 0.5` $righttarget>>
-						<<violence 3>><<set $speechscratch to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
-						<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.5)`>>
+					<<if $combatExtended.enemyDodgeSuccess gte 1 or $combatExtended.enemyCounterSuccess gte 1>>
+						<<if $combatExtended.enemyCounterSuccess is 2>>
+							<<violence 10>><<combatExtendedStability -10>>
+						<<elseif $combatExtended.enemyDodgeSuccess is 2>>
+							/* Attack dodged */
+						<<elseif $combatExtended.enemyCounterSuccess is 1>>
+							<<defiance `_scratchDef * 0.5` $righttarget>>
+							<<violence 3>><<set $speechscratch to 1>><<set $attackstat += 1>><<combatExtendedStability -5>>
+							<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.5)`>>
+						<<else>>
+							<<defiance `_scratchDef * 0.6` $righttarget>>
+							<<set $speechscratch to 1>><<set $attackstat += 1>>
+							<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.6)`>>
+						<</if>>
 					<<else>>
-						<<defiance `_scratchDef * 0.6` $righttarget>>
-						<<set $speechscratch to 1>><<set $attackstat += 1>>
-						<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore `Math.ceil(_scratchFlat * 0.6)`>>
+						<<defiance _scratchDef $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
+						<<if _hasNailRings>>
+							Your nail-armour rings deepen the cuts.
+						<</if>>
+						<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore _scratchFlat>>
 					<</if>>
-				<<else>>
-					<<defiance _scratchDef $righttarget>><<set $speechscratch to 1>><<set $attackstat += 1>>
-					<<if _hasNailRings>>
-						Your nail-armour rings deepen the cuts.
-					<</if>>
-					<<scratchFlatDamage _scratchHpBefore $righttarget _scratchNpcHpBefore _scratchFlat>>
 				<</if>>
 			<</if>>
 		<</if>>

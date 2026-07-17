@@ -60,8 +60,8 @@
 	     _clawTypes — every available claw TF
 	     _clawType — the chosen claw TF, falling back to the first available type
 	     _hasClaws — boolean convenience (true if _clawType isnot "")
-	   Each animal counts as "clawed" when awakened (gte 6) OR displaying a tail
-	   that isn't hidden/disabled, matching the canonical per-animal checks.
+	   Land animals count as clawed when awakened (gte 6); water dragons use
+	   their final level or the active aquatic trait.
 	   Claws are retractable/always-present: a clawed PC scratches at claw tier
 	   regardless of natural nail length. */
 	<<set _clawTypes to []>>
@@ -97,7 +97,8 @@
 		<<if $bodysize lte 0>>
 			<<set _bodyMult to 4.0>>
 		<<elseif $bodysize is 1>>
-			<<set _bodyMult to 3.0>>
+			/* Small bodies use scratch as their hand-strike equivalent too. */
+			<<set _bodyMult to 4.0>>
 		<<elseif $bodysize is 2>>
 			<<set _bodyMult to 2.0>>
 		<<elseif $bodysize is 2.5>>
@@ -110,19 +111,19 @@
 		<</if>>
 		<<set _scratchFlat to Math.max(1, Math.round(_scratchBaseFlat * _bodyMult))>>
 
-		/* Brawling boost: a trained fighter scratches harder, but ONLY for tiny & small bodies in non-consensual fights */
-		<<if $bodysize lt 2>>
+		/* Brawling boost: lets miniature, tiny and small fighters scale scratch like their hand-strike equivalent. */
+		<<if $bodysize lt 2 and $combatExtended.brawlingToggle is 1>>
 			<<set _brawlingMax to (1000 * (($AMCTraits && Number.isFinite(Number($AMCTraits.brawling))) ? Number($AMCTraits.brawling) : 1))>>
-			<<set _brawlingNow to Math.clamp((($combatExtended && Number.isFinite(Number($combatExtended.brawling))) ? Number($combatExtended.brawling) : 0), 0, _brawlingMax)>>
-			<<set _brawlingBonus to (_brawlingMax > 0 ? (1 + (_brawlingNow / _brawlingMax) * 0.75) : 1)>> /* adjust the 0.75 here for dmg multiplier */
+			<<set _brawlingNow to Math.clamp(combatExtendedSkillValue("brawling"), 0, _brawlingMax)>>
+			<<set _brawlingBonus to (_brawlingMax > 0 ? (1 + (_brawlingNow / _brawlingMax)) : 1)>>
 			<<set _scratchFlat to Math.max(1, Math.round(_scratchFlat * _brawlingBonus))>>
 		<</if>>
 	<</if>>
 
-	/* Two-handed strike counts as two hands: double the flat HP damage.
+	/* Match punch's two-handed combination bonus in hostile fights.
 	   "dual" is passed only by the both-hands scratch path in effects.twee. */
 	<<if _args[0] is "dual">>
-		<<set _scratchFlat to _scratchFlat * 2>>
+		<<set _scratchFlat to Math.max(1, Math.round(_scratchFlat * ($consensual is 1 ? 2 : 2.5)))>>
 	<</if>>
 
 	/* Consensual scratches deal half damage so play-fights don't end prematurely. */
