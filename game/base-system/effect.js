@@ -2174,9 +2174,8 @@ Macro.add("effects", {
 			.on(":passageend.effects", function () {
 				try {
 					const setStyle = (sel, styles) => {
-						const el = document.querySelector(sel);
-						if (!el) return;
-						Object.assign(el.style, styles);
+						const elements = document.querySelectorAll(sel);
+						for (const el of elements) Object.assign(el.style, styles);
 					};
 					const imagesEnabled = V?.options?.images === 1;
 					const bigCanvas = V?.options?.bigCanvas === true;
@@ -2186,12 +2185,21 @@ Macro.add("effects", {
 						if (imagesEnabled) {
 							if (bigCanvas) {
 								setStyle("body.has-images #story-caption #storyCaptionDiv", {
-									top: "267px",
-									height: "calc(100% - 95px - 1.32em)",
+									top: "269px",
+									height: "calc(100% - 97px - 1.32em)",
 									width: "392px",
 								});
 								setStyle("body.has-images #storyCaptionContent", { width: "392px" });
-								setStyle("#img", { height: "267px", width: "328px" });
+								setStyle("#canvasSkybox, #daystate, #weather, #oldlocation, #story-caption > [class^='skybox']", {
+									transform: "scale(1.4)",
+									transformOrigin: "top left",
+								});
+								setStyle("#weather", { top: "90px" });
+								setStyle("#img", { height: "269px", width: "302px", left: "90px" });
+								setStyle("#img > *", { left: "-45px" });
+								setStyle("#imgInv", { top: "130px", transform: "scale(1.4)", transformOrigin: "top right" });
+								setStyle("#characterTemperature", { top: "223px", left: "92px", transform: "scale(1.4)", transformOrigin: "top left" });
+								setStyle("#characterTemperatureTooltip", { top: "220px", left: "94px", width: "22px", height: "41px" });
 								setStyle("canvas.mainCanvas", { height: "358px", width: "358px" });
 								setStyle("#ui-bar", { width: "24.5em" });
 								setStyle("#stats", { width: "392px" });
@@ -2202,7 +2210,15 @@ Macro.add("effects", {
 									width: "280px",
 								});
 								setStyle("body.has-images #storyCaptionContent", { width: "280px" });
-								setStyle("#img", { height: "192px", width: "216px" });
+								setStyle("#canvasSkybox, #daystate, #weather, #oldlocation, #story-caption > [class^='skybox']", {
+									transform: "none",
+								});
+								setStyle("#weather", { top: "64px" });
+								setStyle("#img", { height: "192px", width: "216px", left: "64px" });
+								setStyle("#img > *", { left: "-32px" });
+								setStyle("#imgInv", { top: "93px", transform: "none" });
+								setStyle("#characterTemperature", { top: "159px", left: "66px", transform: "none" });
+								setStyle("#characterTemperatureTooltip", { top: "157px", left: "67px", width: "16px", height: "29px" });
 								setStyle("canvas.mainCanvas", { height: "256px", width: "256px" });
 								setStyle("#ui-bar", { width: "17.5em" });
 								setStyle("#stats", { width: "280px" });
