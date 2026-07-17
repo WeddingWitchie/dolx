@@ -2340,13 +2340,13 @@ function dailyLiquidEffects() {
 	if (V.purity + V.milk_volume < 1000) V.milk_volume += 10;
 
 	if (V.lactating) {
-		if (V.lactation_pressure < 30 || V.player.breastsize <= 0) {
+		if (V.lactation_pressure < 30 || (V.player.breastsize <= 0 && V.settings.lactationFlatChestEnabled !== true)) {
 			V.lactating = 0;
 			V.effectsmessage = 1;
 			V.lactationmessage = 1;
 		}
 	} else {
-		if (V.lactation_pressure >= 30 && V.settings.breastFeedingEnabled === true && V.player.breastsize >= 1) {
+		if (V.lactation_pressure >= 30 && V.settings.breastFeedingEnabled === true && (V.player.breastsize >= 1 || V.settings.lactationFlatChestEnabled === true)) {
 			V.lactating = 1;
 			V.effectsmessage = 1;
 			V.lactationmessage = 1;

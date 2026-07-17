@@ -77,12 +77,12 @@ function playerBellySize(pregnancyOnly = false) {
 	const apregnancy = V.sexStats.anus.pregnancy;
 	if (!V.statFreeze && (vpregnancy.fetus.length || apregnancy.fetus.length)) {
 		let pregnancyProgress = 0;
-		if (vpregnancy.timerEnd) pregnancyProgress = Math.clamp(vpregnancy.timer / vpregnancy.timerEnd, 0, 1);
-		if (apregnancy.timerEnd) pregnancyProgress = Math.clamp(apregnancy.timer / apregnancy.timerEnd, 0, 1);
+		if (vpregnancy.type !== "parasite" && vpregnancy.timerEnd) pregnancyProgress = Math.clamp(vpregnancy.timer / vpregnancy.timerEnd, 0, 1);
+		if (apregnancy.type !== "parasite" && apregnancy.timerEnd) pregnancyProgress = Math.clamp(apregnancy.timer / apregnancy.timerEnd, 0, 1);
 		let maxSize = 0;
 		switch (vpregnancy.type) {
 			case "parasite":
-				if (!pregnancyOnly) bellySize += Math.clamp(vpregnancy.fetus.length, 0, 4);
+				if (!pregnancyOnly) bellySize += Math.clamp(vpregnancy.fetus.length * 6, 0, 24);
 				break;
 			case "human":
 				if (!vpregnancy.gaveBirth) maxSize += 21 + Math.clamp(vpregnancy.fetus.length, 1, 3);
@@ -97,7 +97,7 @@ function playerBellySize(pregnancyOnly = false) {
 		}
 		switch (apregnancy.type) {
 			case "parasite":
-				if (!pregnancyOnly) bellySize += Math.clamp(apregnancy.fetus.length, 0, 4);
+				if (!pregnancyOnly) bellySize += Math.clamp(apregnancy.fetus.length * 6, 0, 24);
 				break;
 			case "human":
 				if (!apregnancy.gaveBirth) maxSize += 21 + Math.clamp(apregnancy.fetus.length, 1, 3);

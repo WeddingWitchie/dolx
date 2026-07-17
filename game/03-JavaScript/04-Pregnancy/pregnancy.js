@@ -129,13 +129,24 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 		if (target === "pc" && typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile()) return false;
 
 		// For the anal roll, an Omega body qualifies via canBeMPregnant, since pill.fertile is forced off on a vagina-less body.
-		const xchangeRealBreederPregnancy = target === "pc" && playerIsXChanged() && V.xchange.pill?.breederEffect &&
-			(genital === "anus" ? (typeof canBeMPregnant === "function" && canBeMPregnant()) : V.xchange.pill?.fertile);
+		const xchangeRealBreederPregnancy =
+			target === "pc" &&
+			playerIsXChanged() &&
+			V.xchange.pill?.breederEffect &&
+			(genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill?.fertile);
 		// Hyper Fertility mirrors its realistic-mode potency here: a carried womb (or Omega body) conceives like a breeder's, and PC-sired conceptions hit like a bull's.
 		const xchangeHyperFertile = typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive();
 		if (playerIsXChanged()) chance *= V.xchange.pregnancyMultPercent / 100;
-		if (xchangeRealBreederPregnancy || (target === "pc" && xchangeHyperFertile)) {multi = Math.max(multi, 1);}
-		if (xchangeRealBreederPregnancy || (target === "pc" && xchangeHyperFertile) || (playerIsXChanged() && (V.xchange.pill.bullEffect || (xchangeHyperFertile && spermOwner === "pc")) && target !== "pc")) {chance = 100 / (100 - 98);}
+		if (xchangeRealBreederPregnancy || (target === "pc" && xchangeHyperFertile)) {
+			multi = Math.max(multi, 1);
+		}
+		if (
+			xchangeRealBreederPregnancy ||
+			(target === "pc" && xchangeHyperFertile) ||
+			(playerIsXChanged() && (V.xchange.pill.bullEffect || (xchangeHyperFertile && spermOwner === "pc")) && target !== "pc")
+		) {
+			chance = 100 / (100 - 98);
+		}
 
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") chance *= 2;
 		if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") chance /= 2;
@@ -195,12 +206,15 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
 	// The breeder pregnancy boost only applies to a "real" breeder (breeder effect + fertility); a Fake Breeder is treated like a normal X-Changed body.
 	// For the anal roll, an Omega body qualifies via canBeMPregnant, since pill.fertile is forced off on a vagina-less body.
-	const xchangeBreederFertile = V.xchange.pill.breederEffect &&
-		(genital === "anus" ? (typeof canBeMPregnant === "function" && canBeMPregnant()) : V.xchange.pill.fertile);
-	let xchangePregnancyModifier = playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !xchangeBreederFertile ? V.xchange.pregnancyMultPercent / 100 : 1;
+	const xchangeBreederFertile =
+		V.xchange.pill.breederEffect && (genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill.fertile);
+	const xchangePregnancyModifier =
+		playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !xchangeBreederFertile ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* The lower basePenalty is, the easier it is for the player to get pregnant */
-	let basePenalty = xchangeBreederFertile ? 5 : Math.floor((100 - V.settings.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
+	let basePenalty = xchangeBreederFertile
+		? 5
+		: Math.floor((100 - V.settings.basePlayerPregnancyChance * xchangePregnancyModifier) * Math.clamp(fertilityBoost, 0.1, 1) * baseMulti);
 
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy") basePenalty = Math.floor(basePenalty / 2);
 	if (V.earSlime.growth >= 100 && V.earSlime.focus === "impregnation") basePenalty = Math.floor(basePenalty * 2);
@@ -332,8 +346,7 @@ function pregnancyProgress(genital = "vagina") {
 	if (ps.totalDaysPregnancyKnown == null) ps.totalDaysPregnancyKnown = 0;
 
 	// If corrupted, don't auto-reset. Flag + notify once, and skip increment.
-	if (_pf_inc(ps, "totalDaysPregnant", 0.5)) {
-	} else {
+	if (!pfInc(ps, "totalDaysPregnant", 0.5)) {
 		ps._nanRepairFlag = true;
 		ps._repair ??= {};
 		if (!ps._repair.nanDaysWarned) {
@@ -352,8 +365,7 @@ function pregnancyProgress(genital = "vagina") {
 	}
 
 	if (pregnancy.awareOf) {
-		if (_pf_inc(ps, "totalDaysPregnancyKnown", 0.5)) {
-		} else {
+		if (!pfInc(ps, "totalDaysPregnancyKnown", 0.5)) {
 			ps._nanRepairFlag = true;
 			ps._repair ??= {};
 			if (!ps._repair.nanKnownDaysWarned) {
@@ -414,7 +426,7 @@ function pregnancyProgress(genital = "vagina") {
 				V.breastgrowthmessage = V.player.breastsize;
 				V.effectsmessage = 1;
 			}
-			if (V.lactating !== 1 && V.settings.breastFeedingEnabled === true && V.player.breastsize > 0) {
+			if (V.lactating !== 1 && V.settings.breastFeedingEnabled === true && (V.player.breastsize > 0 || V.settings.lactationFlatChestEnabled === true)) {
 				V.lactating = 1;
 				V.lactation_pressure = 100;
 				Wikifier.wikifyEval("<<milkvolume 50>>");
@@ -489,7 +501,7 @@ function endPlayerPregnancy(birthLocation, location) {
 	const menstruation = V.sexStats.vagina.menstruation;
 
 	if (!pregnancy || !Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
-	const f0 = _pf_firstFetus(pregnancy);
+	const f0 = pfFirstFetus(pregnancy);
 	if (!f0) return false;
 
 	if (f0.father === "Alex") {
@@ -685,12 +697,19 @@ function namedNpcPregnancyAttempt(npcName, forcePregnancy = false) {
 	const fertility = pregnancy.pills === "fertility" ? 0.8 : 1;
 	const contraceptive = pregnancy.pills === "contraceptive";
 
-	// Under X-Change, pregnancy is 4 times less likely to occur. 
+	// Under X-Change, pregnancy is 4 times less likely to occur.
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
-	let xchangePregnancyModifier = playerIsXChanged() && !V.xchange.pill.bullEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
+	const xchangePregnancyModifier = playerIsXChanged() && !V.xchange.pill.bullEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* Works in a similar way to playerPregnancyAttempt */
-	const basePenalty = playerIsXChanged() && V.xchange.pill?.bullEffect ? 2 : ((typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) ? (typeof xchangeFertilityPenaltyCap === "function" ? xchangeFertilityPenaltyCap(1) : 1) : Math.floor((20 - V.settings.baseNpcPregnancyChance * xchangePregnancyModifier) * fertility));
+	const basePenalty =
+		playerIsXChanged() && V.xchange.pill?.bullEffect
+			? 2
+			: typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()
+			? typeof xchangeFertilityPenaltyCap === "function"
+				? xchangeFertilityPenaltyCap(1)
+				: 1
+			: Math.floor((20 - V.settings.baseNpcPregnancyChance * xchangePregnancyModifier) * fertility);
 	let rng = random(0, spermArray.length > basePenalty ? spermArray.length : basePenalty);
 	if (forcePregnancy && !spermArray[rng]) rng = 0;
 
@@ -793,7 +812,7 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 	const pregnancy = C.npc[npcName].pregnancy;
 
 	if (!pregnancy || pregnancy.enabled === undefined || !Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
-	const f0 = _pf_firstFetus(pregnancy);
+	const f0 = pfFirstFetus(pregnancy);
 	if (!f0) return false;
 
 	// Handled by Baileys Orphanage event and when naming them, this is backup for other situations
@@ -868,9 +887,7 @@ function endNpcPregnancy(npcName, birthLocation, location) {
 
 			if (!V.pregnancyStats._repair.nanNpcTotalBirthEventsWarned) {
 				V.pregnancyStats._repair.nanNpcTotalBirthEventsWarned = true;
-				console.warn(
-					"[X-Change] pregnancyStats.npcTotalBirthEvents is corrupt (NaN/invalid). Skipping increment; not auto-resetting."
-				);
+				console.warn("[X-Change] pregnancyStats.npcTotalBirthEvents is corrupt (NaN/invalid). Skipping increment; not auto-resetting.");
 			}
 		} else {
 			V.pregnancyStats.npcTotalBirthEvents += 1;
@@ -910,12 +927,15 @@ function randomPregnancyProgress() {
 				if (npcDetails) {
 					giveBirthToChildren(npcDetails.fullDescription, birthLocation, location, npc.pregnancy);
 				} else {
-					const f0 = _pf_firstFetus(npc.pregnancy);
+					const f0 = pfFirstFetus(npc.pregnancy);
 					const motherName = f0 && f0.mother ? f0.mother : null;
 					if (motherName) {
 						giveBirthToChildren(motherName, birthLocation, location, npc.pregnancy);
 					} else {
-						console.warn("[X-Change] Stored NPC pregnancy finished but mother is missing (sparse/invalid fetus). Skipping birth to avoid silent data loss.", npc.pregnancy);
+						console.warn(
+							"[X-Change] Stored NPC pregnancy finished but mother is missing (sparse/invalid fetus). Skipping birth to avoid silent data loss.",
+							npc.pregnancy
+						);
 						return; // don't delete this storedNPC entry
 					}
 				}
@@ -949,101 +969,104 @@ function defaultBirthLocations(type, birthLocation, location) {
 	return [birthLocation, location];
 }
 
-function _pf_isFiniteNum(x) {
-  return typeof x === "number" && Number.isFinite(x);
+function pfIsFiniteNum(x) {
+	return typeof x === "number" && Number.isFinite(x);
 }
 
 // Get the first real fetus entry without mutating the array (handles sparse arrays safely)
-function _pf_firstFetus(pregnancy) {
-  if (!pregnancy || !Array.isArray(pregnancy.fetus)) return null;
-  return pregnancy.fetus[0] || pregnancy.fetus.find(f => f && typeof f === "object") || null;
+function pfFirstFetus(pregnancy) {
+	if (!pregnancy || !Array.isArray(pregnancy.fetus)) return null;
+	return pregnancy.fetus[0] || pregnancy.fetus.find(f => f && typeof f === "object") || null;
 }
 
-function _pf_inc(obj, key, by = 1) {
-  // Missing field: safe legacy init
-  const v = obj ? obj[key] : undefined;
-  if (v == null) {
-    if (obj) obj[key] = by;
-    return true;
-  }
+function pfInc(obj, key, by = 1) {
+	// Missing field: safe legacy init
+	const v = obj ? obj[key] : undefined;
+	if (v == null) {
+		if (obj) obj[key] = by;
+		return true;
+	}
 
-  // Normal numeric case
-  if (_pf_isFiniteNum(v)) {
-    obj[key] = v + by;
-    return true;
-  }
+	// Normal numeric case
+	if (pfIsFiniteNum(v)) {
+		obj[key] = v + by;
+		return true;
+	}
 
-  // Safe numeric-string normalization (no data loss)
-  if (typeof v === "string") {
-    const n = Number(v);
-    if (Number.isFinite(n)) {
-      obj[key] = n + by;
-      return true;
-    }
-  }
+	// Safe numeric-string normalization (no data loss)
+	if (typeof v === "string") {
+		const n = Number(v);
+		if (Number.isFinite(n)) {
+			obj[key] = n + by;
+			return true;
+		}
+	}
 
-  // Corrupt value: do NOT silently reset. Flag + warn once per key on pregnancyStats.
-  const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
-  const store = (V && obj === V.pregnancyStats) ? obj : null;
-  if (store) {
-    store._nanRepairFlag = true;
-    store._repair ??= {};
-    const warnKey = `inc_${key}_warned`;
-    if (!store._repair[warnKey]) {
-      store._repair[warnKey] = true;
-      console.warn(`[X-Change] pregnancyStats.${key} is corrupt (NaN/invalid). Skipping increment; not auto-resetting.`);
-    }
-  } else {
-    console.warn(`[X-Change] Counter "${key}" is corrupt (NaN/invalid). Skipping increment; not auto-resetting.`);
-  }
-  return false;
+	// Corrupt value: do NOT silently reset. Flag + warn once per key on pregnancyStats.
+	const V = typeof State !== "undefined" && State.variables ? State.variables : window.V;
+	const store = V && obj === V.pregnancyStats ? obj : null;
+	if (store) {
+		store._nanRepairFlag = true;
+		store._repair ??= {};
+		const warnKey = `inc_${key}_warned`;
+		if (!store._repair[warnKey]) {
+			store._repair[warnKey] = true;
+			console.warn(`[X-Change] pregnancyStats.${key} is corrupt (NaN/invalid). Skipping increment; not auto-resetting.`);
+		}
+	} else {
+		console.warn(`[X-Change] Counter "${key}" is corrupt (NaN/invalid). Skipping increment; not auto-resetting.`);
+	}
+	return false;
 }
 
 // NaN-safe + sparse-array-safe birthId creator
 function ensureBirthId(pregnancy, mother) {
-  const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
-  if (!V || !pregnancy) return null;
+	const V = typeof State !== "undefined" && State.variables ? State.variables : window.V;
+	if (!V || !pregnancy) return null;
 
-  if (!Array.isArray(pregnancy.fetus)) pregnancy.fetus = [];
+	if (!Array.isArray(pregnancy.fetus)) pregnancy.fetus = [];
 
-  // If fetus array is sparse (length>0 but [0] missing), pull the first real entry
-  if (pregnancy.fetus.length > 0 && !pregnancy.fetus[0]) {
-    const firstReal = pregnancy.fetus.find(f => f && typeof f === "object");
-    if (firstReal) pregnancy.fetus[0] = firstReal;
-  }
+	// If fetus array is sparse (length>0 but [0] missing), pull the first real entry
+	if (pregnancy.fetus.length > 0 && !pregnancy.fetus[0]) {
+		const firstReal = pregnancy.fetus.find(f => f && typeof f === "object");
+		if (firstReal) pregnancy.fetus[0] = firstReal;
+	}
 
-  // Still missing? Don't invent fetus containers. Flag + warn/notice and abort.
-  if (!pregnancy.fetus[0]) {
-    pregnancy._repair ??= {};
-    if (!pregnancy._repair.placeholderFetus0Warned) {
-      pregnancy._repair.placeholderFetus0Warned = true;
-      pregnancy._repair.placeholderFetus0Snapshot = {
-        fetusLength: pregnancy.fetus.length,
-        fetusTypes: pregnancy.fetus.map(f => (f && typeof f === "object") ? "object" : String(f)),
-        when: (V && V.time != null) ? V.time : "unknown",
-      };
-      if (typeof window !== "undefined" && typeof window.xChangeQueueNotice === "function" && !pregnancy._repair.placeholderFetus0Noticed) {
-        pregnancy._repair.placeholderFetus0Noticed = true;
-        window.xChangeQueueNotice(
-          "pregnancy_placeholder_fetus0",
-          `<b>X-Change: Save data issue detected</b><br>
+	// Still missing? Don't invent fetus containers. Flag + warn/notice and abort.
+	if (!pregnancy.fetus[0]) {
+		pregnancy._repair ??= {};
+		if (!pregnancy._repair.placeholderFetus0Warned) {
+			pregnancy._repair.placeholderFetus0Warned = true;
+			pregnancy._repair.placeholderFetus0Snapshot = {
+				fetusLength: pregnancy.fetus.length,
+				fetusTypes: pregnancy.fetus.map(f => (f && typeof f === "object" ? "object" : String(f))),
+				when: V && V.time != null ? V.time : "unknown",
+			};
+			if (typeof window !== "undefined" && typeof window.xChangeQueueNotice === "function" && !pregnancy._repair.placeholderFetus0Noticed) {
+				pregnancy._repair.placeholderFetus0Noticed = true;
+				window.xChangeQueueNotice(
+					"pregnancy_placeholder_fetus0",
+					`<b>X-Change: Save data issue detected</b><br>
           Your save has a broken pregnancy fetus list (sparse/invalid array). X-Change will not invent fetus data.<br><br>
           <b>This indicates a bug.</b> Please report with your save + steps.`
-        );
-      }
-      console.warn("[X-Change] Pregnancy fetus[0] was missing (sparse/invalid array). Aborting birthId assignment. Please report with save + steps.", pregnancy._repair.placeholderFetus0Snapshot);
-    }
-    return null;
-  }
+				);
+			}
+			console.warn(
+				"[X-Change] Pregnancy fetus[0] was missing (sparse/invalid array). Aborting birthId assignment. Please report with save + steps.",
+				pregnancy._repair.placeholderFetus0Snapshot
+			);
+		}
+		return null;
+	}
 
-  if (pregnancy.fetus[0].mother == null && mother != null) {
-    pregnancy.fetus[0].mother = mother;
-  }
+	if (pregnancy.fetus[0].mother == null && mother != null) {
+		pregnancy.fetus[0].mother = mother;
+	}
 
-  V.pregnancyStats ??= {};
+	V.pregnancyStats ??= {};
 
-  // IMPORTANT: typeof NaN === "number", so we must use Number.isFinite
-	if (!_pf_isFiniteNum(V.pregnancyStats.nextBirthId) || V.pregnancyStats.nextBirthId < 1) {
+	// IMPORTANT: typeof NaN === "number", so we must use Number.isFinite
+	if (!pfIsFiniteNum(V.pregnancyStats.nextBirthId) || V.pregnancyStats.nextBirthId < 1) {
 		let maxBid = 0;
 
 		// scan existing children
@@ -1051,7 +1074,7 @@ function ensureBirthId(pregnancy, mother) {
 			for (const child of Object.values(V.children)) {
 				if (!child) continue;
 				const n = child.birthId;
-				if (_pf_isFiniteNum(n) && n > maxBid) maxBid = n;
+				if (pfIsFiniteNum(n) && n > maxBid) maxBid = n;
 			}
 		}
 
@@ -1059,7 +1082,7 @@ function ensureBirthId(pregnancy, mother) {
 		for (const f of pregnancy.fetus) {
 			if (!f) continue;
 			const n = f.birthId;
-			if (_pf_isFiniteNum(n) && n > maxBid) maxBid = n;
+			if (pfIsFiniteNum(n) && n > maxBid) maxBid = n;
 		}
 
 		const oldNextBirthId = V.pregnancyStats.nextBirthId;
@@ -1072,7 +1095,7 @@ function ensureBirthId(pregnancy, mother) {
 				was: oldNextBirthId,
 				now: V.pregnancyStats.nextBirthId,
 				maxBid,
-				when: (V.time != null) ? V.time : "unknown",
+				when: V.time != null ? V.time : "unknown",
 			};
 		}
 
@@ -1080,126 +1103,130 @@ function ensureBirthId(pregnancy, mother) {
 		// if (!V.pregnancyStats._nextBirthIdWarned) { V.pregnancyStats._nextBirthIdWarned = true; window.xChangeQueueNotice("repair_nextBirthId", `<b>Save repair notice</b><br>Your save had an invalid <b>pregnancyStats.nextBirthId</b>. X-Change rebuilt it from existing data to prevent pregnancy tracking errors.<br><br><b>If you encounter any error after this, please report it with your save and steps to Discord Server.</b>`); }
 	}
 
-  if (!_pf_isFiniteNum(pregnancy.fetus[0].birthId) || pregnancy.fetus[0].birthId < 1) {
-    pregnancy.fetus[0].birthId = V.pregnancyStats.nextBirthId++;
-  }
+	if (!pfIsFiniteNum(pregnancy.fetus[0].birthId) || pregnancy.fetus[0].birthId < 1) {
+		pregnancy.fetus[0].birthId = V.pregnancyStats.nextBirthId++;
+	}
 
-  return pregnancy.fetus[0].birthId;
+	return pregnancy.fetus[0].birthId;
 }
 window.ensureBirthId = ensureBirthId;
 
 function giveBirthToChildren(mother, birthLocation, location, pregnancyOverride) {
-  const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+	const V = typeof State !== "undefined" && State.variables ? State.variables : window.V;
 
-  let pregnancy;
-  if (pregnancyOverride) {
-    pregnancy = pregnancyOverride;
-  } else if (mother === "pc") {
-    pregnancy = getPregnancyObject();
-  } else if (typeof C !== "undefined" && C.npc && C.npc[mother]) {
-    pregnancy = C.npc[mother].pregnancy;
-  } else {
-    pregnancy = null;
-  }
+	let pregnancy;
+	if (pregnancyOverride) {
+		pregnancy = pregnancyOverride;
+	} else if (mother === "pc") {
+		pregnancy = getPregnancyObject();
+	} else if (typeof C !== "undefined" && C.npc && C.npc[mother]) {
+		pregnancy = C.npc[mother].pregnancy;
+	} else {
+		pregnancy = null;
+	}
 
-  // getPregnancyObject() might return [pregnancy, genital]
-  if (Array.isArray(pregnancy)) pregnancy = pregnancy[0];
+	// getPregnancyObject() might return [pregnancy, genital]
+	if (Array.isArray(pregnancy)) pregnancy = pregnancy[0];
 
-  if (!pregnancy) return false;
-  if (!Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
+	if (!pregnancy) return false;
+	if (!Array.isArray(pregnancy.fetus) || pregnancy.fetus.length === 0) return false;
 
-  // Fix sparse fetus + make sure birthId exists BEFORE anything else reads it
-  const bid = ensureBirthId(pregnancy, mother);
-  if (bid == null) return false;
+	// Fix sparse fetus + make sure birthId exists BEFORE anything else reads it
+	const bid = ensureBirthId(pregnancy, mother);
+	if (bid == null) return false;
 
-  if (mother) {
-    let parentId = parentFunction.findParent(mother, 0, true);
-    if (parentId) {
-      if (Array.isArray(parentId)) parentId = parentId[0];
-      parentFunction.increaseBirths(parentId.id, 0);
-      if (mother !== "pc") pregnancy.totalBirthEvents = parentId.births;
-    }
-  }
+	if (mother) {
+		let parentId = parentFunction.findParent(mother, 0, true);
+		if (parentId) {
+			if (Array.isArray(parentId)) parentId = parentId[0];
+			parentFunction.increaseBirths(parentId.id, 0);
+			if (mother !== "pc") pregnancy.totalBirthEvents = parentId.births;
+		}
+	}
 
-  V.pregnancyStats ??= {};
-  V.children ??= {};
+	V.pregnancyStats ??= {};
+	V.children ??= {};
 
-  let createdAny = false;
+	let createdAny = false;
 
-  // givenBirth is a counter used for internal tracking. Only init if missing.
-  if (pregnancy.givenBirth == null) pregnancy.givenBirth = 0;
-  else if (!_pf_isFiniteNum(pregnancy.givenBirth)) {
-    console.warn("[X-Change] pregnancy.givenBirth is corrupt (NaN/invalid). Not auto-resetting; further increments will be skipped.");
-  }
+	// givenBirth is a counter used for internal tracking. Only init if missing.
+	if (pregnancy.givenBirth == null) pregnancy.givenBirth = 0;
+	else if (!pfIsFiniteNum(pregnancy.givenBirth)) {
+		console.warn("[X-Change] pregnancy.givenBirth is corrupt (NaN/invalid). Not auto-resetting; further increments will be skipped.");
+	}
 
-  // Unlocks are booleans, safe
-  switch (pregnancy.type) {
-    case "human": V.pregnancyStats.humanToysUnlocked = true; break;
-    case "wolf":  V.pregnancyStats.wolfToysUnlocked = true; break;
-    case "hawk":  V.pregnancyStats.hawkToysUnlocked = true; break;
-  }
+	// Unlocks are booleans, safe
+	switch (pregnancy.type) {
+		case "human":
+			V.pregnancyStats.humanToysUnlocked = true;
+			break;
+		case "wolf":
+			V.pregnancyStats.wolfToysUnlocked = true;
+			break;
+		case "hawk":
+			V.pregnancyStats.hawkToysUnlocked = true;
+			break;
+	}
 
-  // Mark who knows (PASS ONLY THE NUMBER bid — do NOT prefix mother here)
-  switch (location) {
-    case "home":
-      setKnowsAboutPregnancy(mother, "Bailey", bid, true, pregnancyOverride);
-      break;
-    case "wolf_cave":
-      setKnowsAboutPregnancy(mother, "Black Wolf", bid, true, pregnancyOverride);
-      break;
-    case "tower":
-      setKnowsAboutPregnancy(mother, "Great Hawk", bid, true, pregnancyOverride);
-      break;
-  }
+	// Mark who knows (PASS ONLY THE NUMBER bid — do NOT prefix mother here)
+	switch (location) {
+		case "home":
+			setKnowsAboutPregnancy(mother, "Bailey", bid, true, pregnancyOverride);
+			break;
+		case "wolf_cave":
+			setKnowsAboutPregnancy(mother, "Black Wolf", bid, true, pregnancyOverride);
+			break;
+		case "tower":
+			setKnowsAboutPregnancy(mother, "Great Hawk", bid, true, pregnancyOverride);
+			break;
+	}
 
-  // Process births. Use _pf_inc to avoid NaNs forever.
-  pregnancy.fetus.forEach(childObject => {
-    if (!childObject || typeof childObject !== "object") return;
+	// Process births. Use pfInc to avoid NaNs forever.
+	pregnancy.fetus.forEach(childObject => {
+		if (!childObject || typeof childObject !== "object") return;
 
-    if (!childObject.childId) {
-      // If childId is missing, don't create broken child entries
-      return;
-    }
+		if (!childObject.childId) {
+			// If childId is missing, don't create broken child entries
+			return;
+		}
 
-    createdAny = true;
-    _pf_inc(pregnancy, "givenBirth", 1);
+		createdAny = true;
+		pfInc(pregnancy, "givenBirth", 1);
 
-    V.children[childObject.childId] = {
-      ...childObject,
-      name: !childObject.eggTimer
-        ? generateBabyName(childObject.name, childObject.gender, childObject.childId)
-        : "",
-      born: { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) },
-      location,
-      birthLocation,
-    };
+		V.children[childObject.childId] = {
+			...childObject,
+			name: !childObject.eggTimer ? generateBabyName(childObject.name, childObject.gender, childObject.childId) : "",
+			born: { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) },
+			location,
+			birthLocation,
+		};
 
-    // Player/NPC totals (NaN-safe)
-    if (childObject.mother === "pc") {
-      _pf_inc(V.pregnancyStats, "playerChildren", 1);
-    } else if (childObject.father === "pc") {
-      _pf_inc(V.pregnancyStats, "npcChildren", 1);
-    } else {
-      _pf_inc(V.pregnancyStats, "npcChildrenUnrelatedToPlayer", 1);
-    }
+		// Player/NPC totals (NaN-safe)
+		if (childObject.mother === "pc") {
+			pfInc(V.pregnancyStats, "playerChildren", 1);
+		} else if (childObject.father === "pc") {
+			pfInc(V.pregnancyStats, "npcChildren", 1);
+		} else {
+			pfInc(V.pregnancyStats, "npcChildrenUnrelatedToPlayer", 1);
+		}
 
-    // Species totals (NaN-safe)
-    switch (childObject.type) {
-      case "human":
-        _pf_inc(V.pregnancyStats, "humanChildren", 1);
-        break;
-      case "wolf":
-        _pf_inc(V.pregnancyStats, "wolfChildren", 1);
-        break;
-      case "hawk":
-        _pf_inc(V.pregnancyStats, "hawkChildren", 1);
-        V.children[childObject.childId].laid = { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) };
-        V.children[childObject.childId].laidLocation = birthLocation;
-        break;
-    }
-  });
+		// Species totals (NaN-safe)
+		switch (childObject.type) {
+			case "human":
+				pfInc(V.pregnancyStats, "humanChildren", 1);
+				break;
+			case "wolf":
+				pfInc(V.pregnancyStats, "wolfChildren", 1);
+				break;
+			case "hawk":
+				pfInc(V.pregnancyStats, "hawkChildren", 1);
+				V.children[childObject.childId].laid = { day: clone(Time.monthDay), month: clone(Time.monthName), year: clone(Time.year) };
+				V.children[childObject.childId].laidLocation = birthLocation;
+				break;
+		}
+	});
 
-  return createdAny;
+	return createdAny;
 }
 
 function recordSperm({
@@ -1262,8 +1289,7 @@ function recordSperm({
 	}
 
 	const forcePregnancy =
-		(target === "pc" &&
-			((V.vaginaaction === "forceImpregnation" && genital === "vagina") || (V.anusaction === "forceImpregnation" && genital === "anus"))) ||
+		(target === "pc" && ((V.vaginaaction === "forceImpregnation" && genital === "vagina") || (V.anusaction === "forceImpregnation" && genital === "anus"))) ||
 		(target !== "pc" && spermOwner === "pc" && genital === "vagina" && T.npcForceImpregnation);
 
 	if (!forcePregnancy && V.disableNormalImpregnation) return false; // To be set at the start of sex scenes, unset with <<endcombat>>
@@ -1319,12 +1345,7 @@ function recordSperm({
 		}
 
 		const spermFoundIndex = sperm.findIndex(
-			item =>
-				item.source === spermOwnerName &&
-				item.type === spermType &&
-				item.daysLeft === daysTillRemoval &&
-				item.mod === rngModifier &&
-				item.tag === rngType
+			item => item.source === spermOwnerName && item.type === spermType && item.daysLeft === daysTillRemoval && item.mod === rngModifier && item.tag === rngType
 		);
 
 		if (spermFoundIndex !== -1) {
@@ -1342,13 +1363,9 @@ function recordSperm({
 			sperm.push(newSperm);
 		}
 
-		// Hyper Fertility: resolve conception immediately at insemination, the way Fetish mode does but through the *realistic* roll, so it stays a realistic pregnancy and pregnancy feats still count. 
+		// Hyper Fertility: resolve conception immediately at insemination, the way Fetish mode does but through the *realistic* roll, so it stays a realistic pregnancy and pregnancy feats still count.
 		// Skips sperm that is only on the outside ("canWash"), exactly like the fetish path does.
-		if (
-			typeof fertilityTreatmentActive === "function" &&
-			fertilityTreatmentActive() &&
-			(typeof rngType !== "string" || !rngType.includes("canWash"))
-		) {
+		if (typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive() && (typeof rngType !== "string" || !rngType.includes("canWash"))) {
 			if (target === "pc" && V.sexStats[genital].pregnancy.type === null) {
 				playerPregnancyAttempt(1, genital);
 			} else if (C.npc[target] && C.npc[target].pregnancy && C.npc[target].pregnancy.enabled && !C.npc[target].pregnancy.fetus.length) {
@@ -1362,7 +1379,7 @@ function recordSperm({
 DefineMacro("recordSperm", recordSperm);
 DefineMacro("recordVaginalSperm", (target, spermOwner, spermType, daysTillRemovalOverride) => {
 	recordSperm({ target, spermOwner, spermType, daysTillRemovalOverride });
-	xchangeXtendGrowth( target, spermOwner, spermType );
+	xchangeXtendGrowth(target, spermOwner, spermType);
 });
 DefineMacro("recordAnusSperm", (target, spermOwner, spermType, daysTillRemovalOverride) =>
 	recordSperm({ genital: "anus", target, spermOwner, spermType, daysTillRemovalOverride })
@@ -1434,8 +1451,7 @@ function playerCanBreedWith(npc) {
 	if (typeof npc === "string") npc = V.NPCName[V.NPCNameList.indexOf(npc)];
 
 	return (
-		((V.player.vaginaExist || (canBeMPregnant() && C.npc[npc.fullDescription] && knowsAboutAnyPregnancy("pc", npc.fullDescription))) &&
-			npc.penis !== "none") ||
+		((V.player.vaginaExist || (canBeMPregnant() && C.npc[npc.fullDescription] && knowsAboutAnyPregnancy("pc", npc.fullDescription))) && npc.penis !== "none") ||
 		(V.player.penisExist && npc.vagina !== "none")
 	);
 }
@@ -1464,7 +1480,7 @@ function playerPregnancyPossibleWith(NPC) {
 		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
 		NPCObject = V.NPCName[V.NPCNameList.indexOf(NPCName)];
 
-		if (NPCObject == undefined) return false;
+		if (NPCObject === undefined) return false;
 
 		const NPCNameCheck = NPCObject.nam || NPCObject.description || NPCName; // named NPC data is keyed by stable names, not display descriptions
 		if (
@@ -1535,7 +1551,7 @@ function NPCPregnancyPossibleWithPlayer(NPC) {
 	if (V.NPCNameList.includes(NPCName)) {
 		// Check if this is a named NPC, whether the function is provided a string or NPCList object that belongs to a named NPC
 		NPCObject = V.NPCName[V.NPCNameList.indexOf(NPCName)];
-		if (NPCObject == undefined) return false;
+		if (NPCObject === undefined) return false;
 		const NPCNameCheck = NPCObject.nam || NPCObject.description || NPCName;
 		if (!C.npc[NPCNameCheck]) {
 			Errors.report("Named NPC " + NPCNameCheck + " is undefined for pregnancy compatibility check.");

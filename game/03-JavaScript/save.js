@@ -1373,6 +1373,7 @@ function settingsObjects(type) {
 						},
 					},
 					breastFeedingEnabled: { bool: true, displayName: "Breastfeeding:" },
+					lactationFlatChestEnabled: { bool: true, displayName: "Lactation at minimum breast size:" },
 					cheatsEnabledToggle: { bool: true, displayName: "Cheat mode:" },
 					condomLevel: {
 						min: 0,

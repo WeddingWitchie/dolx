@@ -325,7 +325,10 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			result.text = `You rub your <<pussy>> with your ${arm} hand.`;
 			if (genitalsExposed()) {
 				/* Can't recall the intention for this commented out piece, leaving it in for now in case I recall later */
-				if (V.vaginause === 0 && ([0, "mvaginaentrance"].includes(V[otherArm + "arm"]) || V[otherArm + "arm"].startsWith("mvagina") || currentSkillValue("handskill") >= 200) ) {
+				if (
+					V.vaginause === 0 &&
+					([0, "mvaginaentrance"].includes(V[otherArm + "arm"]) || V[otherArm + "arm"].startsWith("mvagina") || currentSkillValue("handskill") >= 200)
+				) {
 					if (V.vaginaFingerLimit >= 3 && currentSkillValue("vaginalskill") >= 300) {
 						result.options.push({
 							action: "mvaginafingerstarttwo",
@@ -619,7 +622,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				}
 				result.options.push(stop("mpenisstopstroker"));
 			} else if (selectedToy(arm).type.includes("breastpump")) {
-				if (breastsExposed() && V.player.breastsize >= 1) {
+				if (breastsExposed() && (V.player.breastsize >= 1 || V.settings.lactationFlatChestEnabled === true)) {
 					result.options.push({
 						action: "mbreastpump",
 						text: "Move to your <<breasts true>>",
@@ -743,9 +746,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 			} else if (V.player.penisExist && (arm === "left" || !V.player.vaginaExist)) {
 				if (V.worn.genitals.name === "chastity parasite") {
 					result.text =
-						actiondefault === "mpenisW"
-							? `You tease your chastity with your ${arm} hand, unbidden.`
-							: `Your ${arm} hand hovers over your chastity parasite.`;
+						actiondefault === "mpenisW" ? `You tease your chastity with your ${arm} hand, unbidden.` : `Your ${arm} hand hovers over your chastity parasite.`;
 					result.options.push({
 						action: "mpenisW",
 						text: "Rub the parasite",
@@ -758,9 +759,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 					});
 				} else {
 					result.text =
-						actiondefault === "mpenisW"
-							? `You stroke your <<penis>> with your ${arm} hand, unbidden.`
-							: `Your ${arm} hand hovers over your <<penis>>.`;
+						actiondefault === "mpenisW" ? `You stroke your <<penis>> with your ${arm} hand, unbidden.` : `Your ${arm} hand hovers over your <<penis>>.`;
 					result.options.push({
 						action: "mpenisW",
 						text: "Rub the shaft",
@@ -774,9 +773,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				}
 			} else {
 				result.text =
-					actiondefault === "mvaginaW"
-						? `You stroke your <<pussy>> with your ${arm} hand, unbidden.`
-						: `Your ${arm} hand hovers over your <<pussy>>.`;
+					actiondefault === "mvaginaW" ? `You stroke your <<pussy>> with your ${arm} hand, unbidden.` : `Your ${arm} hand hovers over your <<pussy>>.`;
 				result.options.push({
 					action: "mvaginaW",
 					text: "Fondle your vagina",
@@ -803,9 +800,7 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 
 		if (
 			V.worn.under_lower.exposed <= 0 &&
-			(V.worn.lower.state !== wornSetupClothes("lower").state_base ||
-				wornSetupClothes("lower").skirt === 1 ||
-				V.worn.lower.type.includes("naked"))
+			(V.worn.lower.state !== wornSetupClothes("lower").state_base || wornSetupClothes("lower").skirt === 1 || V.worn.lower.type.includes("naked"))
 		) {
 			result.options.push({ action: "munder", text: `Pull down your ${V.worn.under_lower.name}` });
 		}
@@ -984,9 +979,7 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 			result.options.push(stop("mvaginastop"));
 			break;
 		case "mpenis":
-			result.text = corruptionCheck
-				? '<span class="red">The slime in your ear is forcing you to suck on your penis.</span>'
-				: "You're sucking on your penis.";
+			result.text = corruptionCheck ? '<span class="red">The slime in your ear is forcing you to suck on your penis.</span>' : "You're sucking on your penis.";
 			if (V.selfsuckDepth === V.selfsuckLimit) {
 				result.text += ` You have the whole thing in your mouth${V.selfsuckDepth >= 2 ? " and throat" : ""}.`;
 			} else {
