@@ -401,8 +401,18 @@
 		<<set _painMod = _args[3] || 1>>
 		<!-- args[4] - indicates NPC id (but is currently unused) -->
 
-		<<if $combatExtended.blockingActive gte 1>>
-			<<set _violence to Math.round(_violence - (_violence * ((0.25 + 0.15 * (1 * (currentSkillValue('physique') / 15000))) * $combatExtended.blockingActive)))>>
+		<<if $combatExtended.blockingActive gte 1 and _violence gt 0>>
+			<<set _blockReduction to Math.clamp((0.25 + 0.15 * (currentSkillValue('physique') / 15000)) * $combatExtended.blockingActive, 0, 0.9)>>
+			<<set _violence to Math.max(0, Math.round(_violence * (1 - _blockReduction)))>>
+		<</if>>
+
+		/* Scale incoming NPC violence without allowing edited/corrupt settings to heal the player. */
+		<<if _violence gt 0>>
+			<<set _enemyDamageMult to Number($combatExtended.enemyDamageMult)>>
+			<<if !Number.isFinite(_enemyDamageMult)>>
+				<<set _enemyDamageMult to 100>>
+			<</if>>
+			<<set _violence *= Math.clamp(_enemyDamageMult, 25, 300) / 100>>
 		<</if>>
 
 		<<if _violence gt 0 or _violence lt 0>>
@@ -436,8 +446,8 @@
 			<</if>>
 			<<stress `_violence * (1 - ($masochism / 1200))` _stressMod>>
 			<<combattrauma `_violence * _traumaMod`>>
-			<<set _combatPainMod to ($combatExtended.standingFights is 1 ? 1.25 : 1)>>
-			<<pain `(_violence * _combatPainMod * (1 - ($masochism / 1200)) * (1 - ($physique / 20000)) / _possessMod / _clothesMod)` _painMod>>
+			/* Pain applies physique and masochism resistance. Do not apply either twice here. */
+			<<pain `(_violence / _possessMod / _clothesMod)` _painMod>>
 			<<set _arousal to (_violence * (0 + ($masochism / 18)))>>
 			<<arousal `_arousal/_possessMod` "maso">>
 			<<if $orgasmdown gte 1>>

@@ -1261,6 +1261,7 @@ function settingsObjects(type) {
 					activeDodging: { min: 0, max: 1, decimals: 0, displayName: "Active Dodging:" },
 					uncappedDodgeChance: { min: 0, max: 1, decimals: 0, displayName: "Uncapped Dodge Chance:" },
 					dodgeChanceCap: { min: 0, max: 100, decimals: 0, displayName: "Dodge Chance Cap:" },
+					enemyDamageMult: { min: 25, max: 300, decimals: 0, displayName: "Enemy Damage Multiplier (%):", randomize: "encounter" },
 					blocking: { min: 0, max: 1, decimals: 0, displayName: "Blocking:" },
 					countering: { min: 0, max: 1, decimals: 0, displayName: "Countering:" },
 					feinting: { min: 0, max: 1, decimals: 0, displayName: "Feinting:" },
