@@ -368,6 +368,17 @@ window.wornSetupClothes = wornSetupClothes;
 
 		return arr[next];
 	};
+
+	setup.bodySizeStealthModifier = function (v) {
+		return (3 - setup.bodySizeSteps.indexOf(setup.snapBodySize(v))) * 50;
+	};
+
+	setup.bodySizeIntimidationRange = function (v, submissive) {
+		const size = setup.snapBodySize(v);
+		const sizeModifier = (setup.bodySizeSteps.indexOf(size) - 3) * 100;
+		const dominantSmallModifier = size <= 1 && Number(submissive) <= 850 ? 250 : 0;
+		return Math.clamp(1000 + sizeModifier + dominantSmallModifier, 700, 1400);
+	};
 })();
 
 (() => {

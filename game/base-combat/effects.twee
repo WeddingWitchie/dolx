@@ -4667,7 +4667,7 @@
 				<<set $feetaction to 0>><<set $feetactiondefault to "hide">>
 				<<set _difficulty to $NPCList[0].skills.security>>
 				<<set _difficulty += $liquidcount * 20>>
-				<<if currentSkillValue('skulduggery') gte random(1, _difficulty)>>
+				<<if Math.max(currentSkillValue('skulduggery') + setup.bodySizeStealthModifier($bodysize), 0) gte random(1, _difficulty)>>
 					<<set _hide_success to true>>
 				<</if>>
 				<<if numberOfEarSlime() and $earSlime.growth - random(0, Math.clamp(75 - ($earSlime.defyCooldown * 5), 0, 75)) gte (currentSkillValue('willpower')/ 10)>>
@@ -4831,7 +4831,7 @@
 					<br><br>
 					<<set $NPCList[0].distance to 0>>
 					<<set $stalk_end to "confront">>
-				<<elseif $NPCList[0].fullDescription isnot "Ivory Wraith" and $NPCList[0].bold * 2 gte random(1, 1000)
+				<<elseif $NPCList[0].fullDescription isnot "Ivory Wraith" and $NPCList[0].bold * 2 gte random(1, setup.bodySizeIntimidationRange($bodysize, $submissive))
 				or $NPCList[0].fullDescription is "Ivory Wraith" and C.npc["Ivory Wraith"].lust gte random(1,10)>>
 					<<if $NPCList[0].fullDescription is "Ivory Wraith">>
 						You blink. When you open your eyes, <span class="red">the pale figure is inches from your face.</span>
@@ -4870,6 +4870,7 @@
 					<<if $npcrow.includes(0)>>
 						<<stalk_nnpc_text_threat $NPCList[0].fullDescription>>
 					<<else>>
+						<<if $bodysize gte 3>>The <<person>> looks up at your imposing frame and hesitates. <<elseif setup.snapBodySize($bodysize) lte 1 and $submissive lte 850>>The <<person>> looks down at you, but hesitates when you look straight back at <<him>>. <</if>>
 						<span class="green"><<He>> throws up <<his>> hands.</span>
 						<<if $NPCList[0].traits.includes("relaxed")>>
 							"Easy <<girl>>," <<he>> says, giving you a wide berth. "I didn't mean to frighten you."

@@ -1115,6 +1115,19 @@ Renderer.CanvasModels.main = {
 					return acc;
 				}, { layers: [], slots: {} });
 		}
+
+		const bodySizeScale = Number(options.body_size_scale) || 1;
+		if (bodySizeScale !== 1) {
+			const independentLayers = new Set([
+				"decoration_foreground1", "decoration_background1", "decoration_foreground2", "decoration_background2", "nnpc",
+				"precipitation_back", "precipitation_front", "cold_breath", "water_breath", "water_back", "water_front",
+				"fire_back", "fire_front", "petals_back", "petals_front", "wraithFlash", "wraithFlashAccent", "wraithMirror",
+			]);
+			for (const layer of this.layerList) {
+				if (!independentLayers.has(layer.name) && !layer.name.startsWith("follower_")) layer.renderScale = bodySizeScale;
+			}
+		}
+		for (const layer of Object.values(options.generatedLayers)) layer.renderScale = bodySizeScale;
 	},
 	layers: {
 		// banner comments generated in http://patorjk.com/software/taag/#p=display&c=c&f=ANSI%20Regular&t=base

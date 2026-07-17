@@ -108,6 +108,10 @@ declare interface CompositeLayerParams {
 	frameDx?: number;
 	frameDy?: number;
 	/**
+	 * Uniform display scale applied while composing this layer. Image processing and masks remain at their native size.
+	 */
+	renderScale?: number;
+	/**
 	 * Animation name
 	 */
 	animation?: string;

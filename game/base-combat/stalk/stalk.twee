@@ -30,7 +30,7 @@
 
 		<<if $NPCList[_n].distance lte _n>>
 			<<if !$stalk_end>>
-				<<if $NPCList[0].fullDescription isnot "Ivory Wraith" and ($NPCList[_n].legs is "run" or $NPCList[0].bold gte random(1, 1000))
+				<<if $NPCList[0].fullDescription isnot "Ivory Wraith" and ($NPCList[_n].legs is "run" or $NPCList[0].bold gte random(1, setup.bodySizeIntimidationRange($bodysize, $submissive)))
 				or $NPCList[0].fullDescription is "Ivory Wraith" and C.npc["Ivory Wraith"].lust gte random(5,15)>>
 					<span class="red">You are accosted.</span>
 					<<if $npcrow.includes(0)>>
@@ -845,10 +845,11 @@
 	<<if $stalk_assess or $NPCList[0].state is "pursuit" or $NPCList[0].state is "chased">>
 		<<set _difficulty to $NPCList[0].skills.security>>
 		<<set _difficulty += $liquidcount * 20>>
+		<<set _bodySizeSkill to Math.max(currentSkillValue("skulduggery") + setup.bodySizeStealthModifier($bodysize), 0)>>
 		<<if $liquidcount gte 1>>
-			<<skill_difficulty `currentSkillValue("skulduggery")` "Skulduggery (Slimy)" 0 _difficulty>>
+			<<skill_difficulty _bodySizeSkill "Skulduggery (Slimy, size adjusted)" 0 _difficulty>>
 		<<else>>
-			<<skill_difficulty `currentSkillValue("skulduggery")` "Skulduggery" 0 _difficulty>>
+			<<skill_difficulty _bodySizeSkill "Skulduggery (size adjusted)" 0 _difficulty>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -1358,7 +1359,7 @@
 	<br>
 
 	<<if $combatgoal is "confront" or
-		$NPCList[0].fullDescription isnot "Ivory Wraith" and $NPCList[0].bold * 2 gte random(1, 1000)
+		$NPCList[0].fullDescription isnot "Ivory Wraith" and $NPCList[0].bold * 2 gte random(1, setup.bodySizeIntimidationRange($bodysize, $submissive))
 		or $NPCList[0].fullDescription is "Ivory Wraith" and C.npc["Ivory Wraith"].lust gte random(1,10)
 		or $NPCList[0].fullDescription is "Gwylan" and $gwylanSeen?.includes("ritual_sex")>>
 		<<set $_chasingAnyways to true>>

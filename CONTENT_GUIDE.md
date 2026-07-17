@@ -1,4 +1,5 @@
 # DoL:X-Change Edition Player Guide
+
 Use this guide when you want to know what a system does, what choices it opens, and what can go wrong. It focuses on current player-facing behaviour: pills, identity, routes, danger, money, settings, and the mechanics that change how you play. **Updated based on 0.5.10.12 DoLP v0.750 DoLX 0.20.9**
 
 > **⚠️ Spoiler warning:** this guide explains mechanics, route triggers, event conditions, and some scene outcomes. Stop before a section if you would rather discover it naturally.
@@ -6,6 +7,7 @@ Use this guide when you want to know what a system does, what choices it opens, 
 ---
 
 ## Contents
+
 1. [X-Change Pill Catalogue](#1-x-change-pill-catalogue)
    - 1.1 [Pink & Blue Variants](#11-pink--blue-variants)
    - 1.2 [Premium Pill](#12-premium-pill)
@@ -77,6 +79,7 @@ Use this guide when you want to know what a system does, what choices it opens, 
 X-Change pills change sex traits, genitals, fertility, arousal pressure, social routing, and sometimes body presentation. They do **not** decide your character's identity by themselves. Identity has its own system, and a character can still be a girl with a penis, a boy with a vagina, or a herm character with both genital sets if your settings allow it.
 
 Most pills still come in **Pink** and **Blue** variants.
+
 - **Pink** pushes the body toward female sex characteristics.
 - **Blue** pushes the body toward male sex characteristics.
 
@@ -85,40 +88,52 @@ The important thing is not only the direction. Check the timer, pregnancy risk, 
 ### 1.1 Pink & Blue Variants
 
 #### X-Change™️ Basic
+
 **A simple temporary sex change.** It lasts no more than a day per pill and is the cleanest way to try X-Change content without committing to a long route.
+
 - No ordinary pregnancy risk.
 - Good for short experiments, disguise-style play, or seeing how scenes react to a changed body.
 - The main risk comes from what happens while changed: exposure, fame, encounters, or extra pills.
 
 #### X-Change™️ NOW & Weekly
+
 **Basic, but with a different timer.** NOW is the short burst version. Weekly is the longer version.
+
 - Use **NOW** when you only want a brief window.
 - Use **Weekly** when you want Basic-style effects to cover several days.
 - Neither one is complicated by itself, but a longer timer gives the world more chances to notice you.
 
 #### X-Change™️ Xtra Strength
+
 **A 30-day transformation with pregnancy risk.** This is where temporary starts feeling like a whole route.
+
 - The body stays changed for a month from one pill.
 - Pregnancy can happen while the effect is active, though the chance is lower than normal.
 - If pregnancy happens, the transformation may become permanent.
 - Use it only when you are comfortable playing a long stretch in the changed body.
 
 #### X-Change™️ Continue
+
 **Starts at three days, then orgasms extend it.** Continue is dangerous because the timer can snowball.
+
 - Each orgasm adds **16 hours** to the remaining duration.
 - If the timer reaches **30 days**, the change becomes permanent.
 - A few bad encounters can turn a medium timer into a long one.
 - Best treated as a pleasure-management challenge, not just a three-day pill.
 
 #### X-Change™️ Resistance
+
 **Short timer, rising permanence risk.** Resistance looks manageable until climax starts stacking consequences.
+
 - Lasts no more than a day per pill at first.
 - Each climax makes permanence more likely.
 - The current orgasm count appears in the stats display while the effect is active.
 - The whole point is resisting pleasure. Failing repeatedly is the danger.
 
 #### X-Change™️ Sissy / Butch
+
 **A halfway transformation with presentation pressure.** It changes the body without doing a clean full swap.
+
 - Gives traits associated with the opposite sex while stopping short of a full genital transition.
 - Pushes the character toward opposite-sex clothing or presentation urges.
 - Can bring fatigue, stress, and body-mismatch pressure.
@@ -126,7 +141,9 @@ The important thing is not only the direction. Check the timer, pregnancy risk, 
 - Good for players who want identity and presentation friction, not a simple before/after swap.
 
 #### X-Change™️ Antidote
+
 **The emergency exit.** It cuts down the duration of an active pill, especially shorter ones, but it hurts.
+
 - Expensive.
 - Causes heavy pain and stress.
 - Can leave temporary sensitivity, soreness, itching, or anti-pill side effects.
@@ -137,6 +154,7 @@ The important thing is not only the direction. Check the timer, pregnancy risk, 
 **The controlled option.** The Premium Pill gives you a transformation menu instead of forcing one fixed result.
 
 It can let you choose or adjust:
+
 - genitals and sex characteristics
 - gender presentation
 - selected X-Change effects
@@ -146,21 +164,25 @@ It can let you choose or adjust:
 Use this when you want X-Change content without relying on random spike pools or fixed pharmacy pills.
 
 **Known access points:**
+
 - Briar can give you a free Premium Pill if you are not already X-Changed or pregnant.
 - City danger content can also involve the Premium Pill.
 - A free pill is not automatically consequence-free. Treat it as a tempting offer, not pure charity.
 
 **Briar Premium Pill danger note:** Briar's free Premium Pill is tempting because it gives control over the transformation, but the route around it can become dangerous if you follow the wrong opportunity or let the situation escalate.
+
 - The danger branch can lead to the player being kidnapped and forced into an enslaved/captive sequence.
 - During that route, the problem is not just the pill. The player can lose freedom, be trapped in torment, and be kept under someone else's control until an unexpected rescuer eventually intervenes.
 - Take the warning seriously if you want to avoid forced-captivity content, heavy danger, or long route consequences.
 - Or, if you deliberately want to see what happens, treat Briar's offer as one of the clearer doors into that kind of event chain.
-> Be careful with “free” Premium access. It can be a shortcut to body control, but it can also be bait for a much worse situation.
+  > Be careful with “free” Premium access. It can be a shortcut to body control, but it can also be bait for a much worse situation.
 
 ### 1.3 Single-Variant & Special Pills
 
 #### X-Change™️ Breeder
+
 **Pink-only fertility danger.** Breeder is built around heat, creampies, pregnancy pressure, and long-term consequences.
+
 - Changes the body for a full week.
 - Sends the character into heat.
 - Gives very high fertility, close to guaranteed pregnancy in the strongest documented cases.
@@ -175,7 +197,9 @@ Use this when you want X-Change content without relying on random spike pools or
 > Breeder is one of the worst choices if you want to avoid pregnancy, permanence, or route-locking consequences.
 
 #### X-Change™️ Bull
+
 **Blue-only virility pressure.** Bull is the masculine counterpart to Breeder, focused on rut, arousal, and impregnation risk.
+
 - Can appear through spikes and pharmacy access depending on setup.
 - Raises minimum arousal over time.
 - Stacks with aphrodisiacs and other minimum-arousal sources.
@@ -185,7 +209,9 @@ Use this when you want X-Change content without relying on random spike pools or
 - Breeder and Bull can both appear in the spike pool while Herm is active, regardless of starting sex.
 
 #### X-Change™️ Hyper Fertility
+
 **An extreme fertility pill line.** Hyper Fertility is for players who want pregnancy and impregnation pressure turned up far beyond normal X-Change risk.
+
 - **Pink Hyper Fertility** turns the player female and makes conception almost certain after unprotected insemination.
 - **Blue Hyper Fertility** turns the player male and greatly increases the chance that insemination succeeds.
 - It also heavily raises multiple-birth odds: **twins 80%**, **triplets 50%**, and **quadruplets 30%**.
@@ -196,7 +222,9 @@ Use this when you want X-Change content without relying on random spike pools or
 > Hyper Fertility is not a casual fertility boost. Use it when you want pregnancy outcomes to become much more likely and much harder to ignore.
 
 #### X-Change™️ X-Tend
+
 **A restraint challenge for male-born PCs.** X-Tend can increase penis size, but only if you play carefully.
+
 - Growth can happen after being creampied by someone larger than your current projected size.
 - Each valid creampie gives a random increase, roughly **0.5–1 cm**.
 - If you orgasm during the effect, you can lose progress or even shrink instead.
@@ -207,7 +235,9 @@ Use this when you want X-Change content without relying on random spike pools or
 > Good for players who want a risk/reward reason to seek specific partners while avoiding orgasm.
 
 #### X-Change™️ Dumb Bitch
+
 **A restricted decline effect.** This is not a normal safe pharmacy purchase.
+
 - Drains grades first.
 - Then drains skulduggery.
 - Then drains willpower.
@@ -218,7 +248,9 @@ Use this when you want X-Change content without relying on random spike pools or
 > Treat it as special-route or restricted content unless your build clearly presents it as something else.
 
 #### X-Change™️ Herm
+
 **Both-genitals support tied to the purple-pill line.** Herm content lets the changed body have both genital sets when your settings allow it.
+
 - X-Change settings can allow herm outcomes for transformed bodies.
 - The Premium Pill can choose a herm body directly if herm outcomes are enabled.
 - Breeder and Bull can appear while Herm is active.
@@ -230,7 +262,9 @@ Use this when you want X-Change content without relying on random spike pools or
 - Some older systems still treat herm support as a special case rather than a full base sex/gender.
 
 #### X-Change™️ CumCure
+
 **A risky cure-through-creampie effect.** CumCure reduces the remaining duration of your active X-Change transformation when cum is deposited inside you.
+
 - Each valid internal cum deposit cuts down the current X-Change timer.
 - It is not a clean Antidote replacement. You still have to deal with the danger, exposure, pregnancy risk, and encounter consequences involved.
 - Works best as a high-risk escape route for players who want the transformation timer reduced through messy gameplay rather than medicine.
@@ -240,7 +274,9 @@ Use this when you want X-Change content without relying on random spike pools or
 > Treat it as a dangerous cure route, not a free way out.
 
 #### X-Change™️ Innocence
+
 **A vulnerability pill that wipes sexual knowledge.** Innocence temporarily strips your character of their understanding of sex, making dangerous situations harder to recognise.
+
 - Your character may not properly understand what is being implied, offered, or done to them.
 - This can make risky scenes feel more confusing from the character's point of view.
 - Can support Resistance whoring gates alongside alcohol and hallucinogens.
@@ -250,7 +286,9 @@ Use this when you want X-Change content without relying on random spike pools or
 > Treat it as a danger-amplifying pill. It changes how prepared your character is, not just what options unlock.
 
 #### X-Change™️ Swell
+
 **A temporary body-exaggeration pill.** Swell pushes the body further in one of two directions, depending on which path the effect began on.
+
 - The curves path pushes the body toward a fuller, curvier feminine shape.
 - The penis path pushes the body toward a larger, more hung masculine shape.
 - The pill remembers which version it started as, so later body feedback should match the correct route.
@@ -258,7 +296,9 @@ Use this when you want X-Change content without relying on random spike pools or
 > Treat it as a short-term body emphasis pill. It is more focused than Basic, but less route-heavy than the stronger transformation pills.
 
 #### X-Change™️ Bimbo
+
 **A temporary dumb-and-lewd state with body swelling.** Bimbo lowers intelligence and raises lewdness while also applying a temporary Swell-like effect.
+
 - Reduces intelligence while the effect is active.
 - Increases lewdness, making the character feel more sexually suggestible.
 - Comes with a temporary Swell-style body effect until the pill wears off.
@@ -270,13 +310,17 @@ Use this when you want X-Change content without relying on random spike pools or
 > Treat it as a temporary bimbo-state pill: lewder, dumber, more physically exaggerated, but not the same long-form decline as Dumb Bitch.
 
 #### X-Change™️ Clone: Whitney
-**A named-NPC clone pill.** It lets you play some content while pilled as *Whitney*.
+
+**A named-NPC clone pill.** It lets you play some content while pilled as _Whitney_.
+
 - Adds variations to some school events.
 - Lets you rob students in the canteen for lunch money while pilled as Whitney.
 - Treat it as route-flavour content rather than a general transformation pill.
 
 #### X-Change™️ Portal
+
 **A pill tied to remote penetration.** Portal pairs the pill with a high-tech onahole.
+
 - Can work as its own pill.
 - Can attach to another active pill and hijack that transformation for the user's pleasure.
 - Uses a separate timer from the pill it hijacks.
@@ -285,19 +329,25 @@ Use this when you want X-Change content without relying on random spike pools or
 - A shady pockethole dealer in the industrial alleyways can offer related content at night.
 
 #### X-Change™️ Passion
+
 **A steady aphrodisiac pressure.** Passion makes arousal management harder for as long as it runs.
+
 - Releases aphrodisiacs into the bloodstream over time.
 - Raises pleasure and arousal pressure.
 - Becomes dangerous when combined with low willpower, Continue, Resistance, Breeder, Bull, or repeated encounters.
 - The aphrodisiac pulses come as larger random doses, roughly around an eight-hour rhythm.
 
 #### X-Change™️ Choice
+
 **An exclusive lock-in pill.** Choice acts permanent until you get the matching Choice Reversal.
+
 - Has no special malus by itself.
 - Stays active until the reversal pill is taken.
 
 #### X-Change™️ Alpha & Omega
+
 **Advanced effect pills for penetration and pregnancy mechanics.** Alpha and Omega can appear as gray effect-only pills, coloured body-swap pills, or combined purple/herm variants.
+
 - **Omega** enables anal pregnancy compatibility while active. It also makes anal insemination more pleasurable and can reduce stress while sperm remains in the anus.
 - Omega works on any current body. Pink Omega, Blue Omega, Purple Omega, and Purple Alpha-Omega apply the same core Omega agent through different body routes.
 - **Alpha** gives the player a knotted penis in encounter views and makes orgasm demand that the cock be inside someone or something.
@@ -310,7 +360,9 @@ Use this when you want X-Change content without relying on random spike pools or
 - Alpha/Omega spiking settings are included in Settings Export/Import.
 
 #### Gray X-Change Pills
+
 **Effect-only colourless capsules.** Gray pills carry one X-Change effect while stripping out the usual forced pink or blue body swap.
+
 - If you are already X-Changed, a gray pill can stack its effect onto the current session.
 - If you are not already X-Changed, a gray pill normally affects your current body without changing your sex.
 - A setting can make gray pills also flip your sex when taken from an untransformed state.
@@ -318,6 +370,7 @@ Use this when you want X-Change content without relying on random spike pools or
 - Anti X-Change therapy neutralises gray pills and prevents them from starting or stacking a new effect while the protection is active.
 
 Gray pill sources:
+
 - The hospital pharmacy sells gray pills for **£3,000** each.
 - The hospital always carries **Resistance**, **Continue**, and **Weekly Extension**.
 - Each week, the hospital also carries two random gray pills from **Breeder**, **Bull**, **Omega**, **Alpha**, **Hyper Fertility**, **Fertility**, and **X-Tend**.
@@ -329,7 +382,9 @@ Gray pill sources:
 Some pills are not regular pharmacy purchases. You can still run into them through spiking, black-market sellers, prison content, dice drinks, combat pilling, theft, or route events.
 
 #### Unknown / Suspicious Pills
+
 **Random pills with fewer guardrails.** The industrial alley seller can offer unknown pills, and suspicious pills can show up through encounter theft.
+
 - They behave as if an NPC spiked you.
 - They can roll restricted or NPC-style effects.
 - Suspicious Pills ignore your ordinary randomness and spike settings when choosing their own X-Change effect.
@@ -344,7 +399,9 @@ Some pills are not regular pharmacy purchases. You can still run into them throu
 - The shady remover dealer can sell SWP Anti-pills, which act like a normal Antidote for X-Change effects.
 
 #### Mysterious Person / Silver Stranger
+
 **A late X-Change merchant with a broad stock list.** This route appears after the player reaches certain X-Change milestones.
+
 - The first meeting can happen while loitering in the park during the day.
 - After the first meeting, the merchant waits near the docks instead.
 - They may appear if Mickey's earpiece survives the bank-heist route, if the police seize it, or if the player reaches very high X-Change fame.
@@ -359,6 +416,7 @@ The Silver Stranger is also registered as a proper NPC once their content brings
 ### 1.5 Pill Stacking, Spiking & Combat Pilling
 
 **Pills can layer.** That is what makes spiking and combat pilling dangerous.
+
 - Consecutive spikes can stack an extra effect on your current pill.
 - Ordinary layering adds one extra effect at a time.
 - Dice minigame drinks can layer multiple spike effects if you are already pilled.
@@ -383,6 +441,7 @@ The Silver Stranger is also registered as a proper NPC once their content brings
 **Temporary does not always mean temporary.** Some effects become indefinite even if the original pill had a timer.
 
 **Common causes:**
+
 - **Pregnancy:** X-Change prevents the body from reverting while carrying a baby.
 - **Ear slimes:** corruption can interfere with the pill's active component and suspend the body in its changed state.
 - **Pill-specific routes:** Continue can become permanent by reaching 30 days, and Resistance can escalate through repeated climax.
@@ -393,6 +452,7 @@ Your character does not instantly know a timer failed. It can take **24 hours** 
 > **Tip:** Not every X-Change pill has to last forever. Some effects can be controlled in the game settings, where you can choose whether transformations are temporary or permanent. Some pills ignore that setting, so check the pill's own rules before taking it.
 
 Temporary X-Change states have special handling for temple vow and angelic content:
+
 - The temple vow can recognise whether you are in your original body, temporarily pilled, or permanently changed.
 - If your X-Change effect is temporary, you may still be able to receive divine forgiveness.
 - The vow can break or remain valid depending on your current state.
@@ -401,6 +461,7 @@ Temporary X-Change states have special handling for temple vow and angelic conte
 ### 1.7 Pill Visibility, Timers & Settings
 
 **Use the UI and settings.** X-Change has enough moving parts that guessing from narration alone can mislead you.
+
 - Pill-generated bodies respect vanilla minimum and maximum body-part size settings.
 - Pills remember last hairstyle and chosen body shape when transforming.
 - The first pill sex flip can randomise hair, eyes, and skin if enabled.
@@ -426,16 +487,19 @@ Temporary X-Change states have special handling for temple vow and angelic conte
 ### 1.8 Anti X-Change Therapy
 
 After your character has consumed X-Change at least once, the hospital can unlock an Anti X-Change cleansing treatment route with Doctor Harper.
+
 - First, ask Harper about resisting X-Change pills at the hospital.
 - Harper refuses at first. About a week later, Harper can approach you in town and say the treatment has been allowed.
 - After that, the hospital offers paid cleansing windows.
 
 Treatment options:
+
 - **1 day:** £10,000
 - **1 week:** £50,000
 - **1 month:** £150,000
 
 What the treatment does:
+
 - It blocks new X-Change pill effects while the clean window is active.
 - Pills and spikes can still be consumed or administered, but the treatment neutralises them before they take hold.
 - It prevents gray pills from stacking a new effect during the protected period.
@@ -463,6 +527,7 @@ The Characteristics menu shows your current Gender Identity state. It can includ
 ### 2.1 Sex Swap vs. Identity vs. Presentation
 
 This guide separates **sex swap** from **identity** to avoid confusion.
+
 - **Sex swap / sex flip** refers to the physical X-Change effect: genitals, fertility, sex characteristics, body options, appearance, and other biological traits changed by pills.
 - **Identity** refers to how your character relates to traits they currently have, such as whether those traits are preferred, accepted, unaccepted, rejected, euphoric, or dysphoric.
 - **Presentation** covers things like clothing style, posture, appearance, and similar social/body-language choices.
@@ -486,6 +551,7 @@ Use this trait if you want a character whose relationship with pronouns, sexed t
 Identity traits are tracked separately. Think of each trait as having its own little container. For example, pronouns are not treated as one single identity value. Masculine pronouns, feminine pronouns, and neutral pronouns can each be tracked separately. The same idea can apply to other identity traits, such as genitals, breasts, pregnancy, lactation, clothing style, or body shape.
 
 Each trait can have several states:
+
 - **Preferred** means your character likes this trait and wants it.
 - **Accepted** means your character is comfortable with this trait.
 - **Unaccepted** means your character is not comfortable with it yet.
@@ -498,6 +564,7 @@ Each trait can have several states:
 **Example:** if someone calls your character by feminine pronouns, the game checks your character's feminine pronoun state. If feminine pronouns are already accepted, your character is fine with it. If feminine pronouns are preferred, your character may feel better from it. If feminine pronouns are not accepted yet, your character can gain dysphoria. That means being called she/her feels uncomfortable right now. Over time, daily processing can turn that dysphoria into tolerance. If tolerance reaches its limit, the trait becomes accepted. In that case, feminine pronouns stop causing dysphoria because your character has become used to them.
 
 Rejected traits work differently. If your character rejects a trait, they are not simply unused to it. They hate it or strongly resist it.
+
 - Rejected traits increase stress.
 - Rejected traits stop dysphoria from naturally fading.
 - Rejected traits prevent tolerance from growing while they remain rejected.
@@ -511,6 +578,7 @@ This means a rejected trait will not slowly become accepted unless your characte
 Passive hourly effects are not the only way identity can change your character's state. Some actions can also cause dysphoria or euphoria, such as using relevant body parts during encounters.
 
 Other documented identity pressures include:
+
 - Losing genital virginity can trigger a larger identity shift toward the body's current sex.
 - Misgendering through pronouns is much harsher in current play, with dysphoria from pronoun misgendering multiplied significantly.
 - UI notices can show which dysphoria source or aspect caused the change **inside the Hidden STATS menu**.
@@ -522,6 +590,7 @@ Other documented identity pressures include:
 ### 2.5 Identity Meter
 
 The Identity Meter reflects the character's overall identity direction based on the Identity system. It averages active identity topics through preference, acceptance, rejection, and dysphoria, then drifts toward the current target over time. Topics can include:
+
 - pronouns
 - clothing style and appearance
 - genitals
@@ -532,6 +601,7 @@ The Identity Meter reflects the character's overall identity direction based on 
 - other identity-related categories
 
 Each active topic pulls the meter in a direction.
+
 - **Preferred** topics pull strongly toward that direction.
 - **Accepted** topics pull more lightly.
 - **Rejected** topics pull strongly against it.
@@ -540,15 +610,19 @@ Each active topic pulls the meter in a direction.
 Topics that are not active or meaningfully selected generally do not count.
 
 #### Does the current body matter?
+
 Yes, but mostly indirectly, because current traits affect dysphoria, acceptance, rejection, tolerance, and other identity-related gameplay effects. The meter is driven by the Identity system itself, so body and presentation matter through how they interact with that system.
 
 #### When does the meter update?
+
 The meter updates daily. It can change when identity preferences change, acceptance or rejection changes, dysphoria rises or falls, or gameplay shifts the character's identity-related state. The meter does not instantly snap to a new position. It drifts gradually toward the current identity target, reflecting a longer-term state rather than a one-minute mood swing.
 
 #### Auto-Transformation
+
 Auto-Transformation decides whether the Identity system can physically change your character's body.
 
 The Identity meter can still move even when Auto-Transformation is turned off. In that case, the meter only shows where your character's identity is leaning. It does not change the body by itself.
+
 - **Identity active / meter enabled:** the game tracks your character's identity direction.
 - **Auto-Transformation off:** the meter is only a status display.
 - **Auto-Transformation on:** the body can slowly shift toward the identity direction.
@@ -558,6 +632,7 @@ These changes are meant to be gradual. Identity-driven body changes usually take
 Auto-Transformation is best treated as a slow background system. Turn it on if you want identity to eventually affect the body. Leave it off if you only want the meter to describe your character's identity state.
 
 #### Can the meter reverse?
+
 Yes. The meter can move back if the character's identity state changes through different preferences, lower dysphoria, reduced rejection, increased acceptance, or gameplay-driven identity shifts. It is not permanently one-way unless your setup keeps pushing it in the same direction.
 
 ---
@@ -566,11 +641,21 @@ Yes. The meter can move back if the character's identity state changes through d
 
 DoLX makes the body react more strongly to pills, arousal, drugs, orgasm, and physical state than vanilla DoL. Sensitivity is one of the main ways this happens.
 
+### Body Size
+
+Body size now affects more than physique while keeping the existing range from **miniature** to **giant**.
+
+- Only the player, worn clothing, held props, and transformation layers in the sidebar change scale slightly with body size. Backgrounds, weather, followers, and other scene graphics remain fixed. The adjustment is deliberately restrained so custom graphics remain proportionate.
+- Larger characters can build more physique and are more imposing when accosted, but are easier to spot while hiding. Giant bodies also suffer a larger dodge penalty in Advanced Combat.
+- Smaller characters hide more easily. A small but sufficiently dominant character also gets an intimidation boost, so size is not the only way to make a stalker hesitate.
+- Size-specific travel events include miniature, tiny, and small characters struggling against strong wind by the farm gate, and giant characters hitting low doorways in town. Smaller demons also climb through residential windows faster, while giant demons must use a door.
+
 ### 3.1 Sensitivity
 
 **Sensitivity** means how strongly your character's body reacts to stimulation. Higher sensitivity means pleasure builds faster. Lower sensitivity means stimulation has less effect.
 
 Known things that can affect sensitivity include:
+
 - **Base sensitivity:** your character's normal starting sensitivity.
 - **X-Change pills:** pill effects can change sensitivity while they are active. Pink pills usually increase sensitivity, while Blue pills usually lower it.
 - **Purity:** lower purity makes the body more responsive to pleasure.
@@ -584,12 +669,14 @@ Sensitivity is one reason X-Change pills feel different from a simple visual tra
 ### 3.2 Arousal & Pleasure
 
 Current play split the old arousal behaviour into **arousal** and **pleasure**.
+
 - **Pleasure** is the bar that fills during stimulation. When it fills, the character climaxes.
 - **Arousal** affects how much pleasure is gained from stimulation.
 - For your character, high arousal can restrict actions because those actions cost willpower to perform.
 - Minimum arousal has more sources than before, so some effects can keep the character closer to a dangerous baseline even before active stimulation.
 
 Other documented arousal notes:
+
 - Female PCs get hornier as the day goes on during their most fertile time of the month.
 - Breeder and Bull pills can raise minimum arousal over time by themselves.
 - Breeder / Bull arousal pressure stacks with aphrodisiacs, such as Passion.
@@ -598,6 +685,7 @@ Other documented arousal notes:
 ### 3.3 Orgasm Behaviour
 
 DoLX changes how orgasm pressure can build during encounters.
+
 - Aphrodisiacs can passively raise arousal up to a threshold.
 - High arousal drains willpower over time.
 - Orgasms spend willpower at once, but can restore willpower after an encounter ends.
@@ -610,6 +698,7 @@ DoLX changes how orgasm pressure can build during encounters.
 ### 3.4 Cock Addict & Hole Addict Traits
 
 DoLX adds two traits that control what your character needs to orgasm.
+
 - **Cock addict:** your character needs to be penetrated to properly orgasm.
 - **Hole addict:** your character needs to penetrate someone or something to properly orgasm.
 
@@ -620,6 +709,7 @@ These traits can make encounters more difficult, especially when pills, aphrodis
 > Breeder's creampie-only orgasm rule is separate from Cock addict and Hole addict.
 
 Alpha adds a similar but separate release rule while active:
+
 - If Alpha is active and you have a penis, your knot wants to be inside a partner or valid target before orgasm can satisfy the effect.
 - This is part of the Alpha pill effect, not a permanent Cock/Hole Addict trait by itself.
 - Alpha's knot can also change encounter visuals and NPC reactions when you penetrate someone.
@@ -627,6 +717,7 @@ Alpha adds a similar but separate release rule while active:
 ### 3.5 Bullet Vibe
 
 DoLX adds support for the **bullet vibe** as a wearable arousal-control and risk item.
+
 - It can be worn with **three vibration levels**.
 - It can be turned on or off from the **Character** tab.
 - If the player orgasms from the bullet vibe while walking around town, special events can trigger.
@@ -636,6 +727,7 @@ DoLX adds support for the **bullet vibe** as a wearable arousal-control and risk
 ### 3.6 Fingernails, Claws & Scratch
 
 Fingernails are a mechanical body feature in DoLX.
+
 - Fingernails grow over time through four stages: **Trimmed**, **Neat**, **Long**, and **Claw-like**.
 - They reach full growth after roughly **14 in-game days**.
 - Bathrooms include an option to trim fingernails.
@@ -645,6 +737,7 @@ Fingernails are a mechanical body feature in DoLX.
 - Cat transformation players are exempt from the ordinary long-nail attractiveness boost because their claws are hidden socially, and they also avoid the long-nail hand-skill penalty.
 
 The **Scratch** combat action is a new defiant action that uses your fingernails or claws, can be used in consensual or non-consensual encounters, and is meant to hurt.
+
 - Scratch damage scales with the effective nail or claw level.
 - Longer or sharper nails make Scratch stronger.
 - Nail-armour rings now interact with Scratch correctly.
@@ -660,6 +753,7 @@ The VIP spa wing also offers a **Signature Manicure** treatment, tying the nail 
 ### 3.7 Fluids, Cleanup & Arousal Control
 
 DoLX also adds or changes several small body-management options.
+
 - You can scoop out fluids from both lower holes in bathrooms.
 - Cold baths and showers at the orphanage and Alex's cottage can lower arousal.
 - Clothing styling can be adjusted on the go through a submenu on the Characteristics overlay.
@@ -673,6 +767,7 @@ DoLX also adds or changes several small body-management options.
 ### 3.8 Attitudes, Speech & Traits
 
 DoLX also reworks the DoL Plus attitude system across many scenes.
+
 - The reworked attitude system affects a large number of passages and continues to be expanded.
 - **Fickle** is now a daily attitude rather than a constant randomiser.
 - Each day, Fickle selects one mood for your character from **meek**, **shy**, **neutral**, **confident**, and **bratty**.
@@ -692,6 +787,7 @@ DoLX also reworks the DoL Plus attitude system across many scenes.
 ### 3.9 Penetration Pain & Substance Rebalance
 
 Penetration pain has been rebalanced so wetness, size, repeated stimulation, and encounter type matter more clearly.
+
 - Higher wetness can reduce vaginal and anal penetration pain over time.
 - Being dry keeps penetration more painful, so arousal and lubrication matter more than before.
 - Very large NPCs can still cause meaningful stretch pain even when the player is wet.
@@ -702,6 +798,7 @@ Penetration pain has been rebalanced so wetness, size, repeated stimulation, and
 - In non-consensual encounters, capped pain can convert a small amount into trauma each turn instead of sitting harmlessly at the cap forever.
 
 Substance rebalancing also makes intoxication less likely to completely break play.
+
 - Alcohol, hallucinogens, and other drugs wear off about **25% faster** under the rebalance.
 - Skill penalties from being drunk or high are gentler and capped.
 - Heavy intoxication still slows the player down, but should not reduce checks all the way to useless zero-values.
@@ -720,12 +817,14 @@ X-Change pills are known in-universe for making their users unusually attractive
 The UI now treats beauty more like a fixed starting trait, though some effects can still boost it temporarily.
 
 X-Change transformations can give a large beauty boost, especially the first time your body changes. Some saves that were already close to maximum beauty may also be pushed to the cap. Beauty can affect:
+
 - how attractive others find you
 - how quickly school status can grow
 - Avery assistant office wages
 - Robin's horniness if your beauty is above the usual vanilla limit
 
 You can also get temporary beauty boosts from grooming and makeup.
+
 - Washing can improve beauty through cleanliness.
 - Makeup can temporarily increase beauty.
 - Makeup is removed when washed off.
@@ -740,12 +839,14 @@ Beauty is not only affected by X-Change pills. You can also improve your appeara
 
 **Makeup and outfits**
 The Outfit Editor can save makeup as part of an outfit.
+
 - Outfits can remember makeup, not just clothes.
 - Each outfit can have its own makeup setup.
 - Custom makeup has expanded controls compared with the old basic makeup flow. Treat it as a cosmetic system: it can change the look and outfit identity of a body, but it does not change sex, gender, transformation, or pill state.
 
 **Spa and VIP beauty treatments**
 The spa gives more ways to improve appearance through services and social content.
+
 - Tanning can improve beauty.
 - Spa beauty treatments can boost appearance.
 - VIP members can unlock stronger beauty treatments.
@@ -758,6 +859,7 @@ These systems sit beside X-Change pill beauty. Pills can cause dramatic body cha
 ### 4.3 Alcohol
 
 To balance the slower natural beauty gain, DoLX gives the player a scaling flat bonus to seduction based on how tipsy they are.
+
 - Light to moderate drunkenness can improve seduction.
 - Getting too drunk turns the bonus into a malus.
 - The current bonus can be checked in the characteristics menu, under sexual skills.
@@ -765,6 +867,7 @@ To balance the slower natural beauty gain, DoLX gives the player a scaling flat 
 - NPCs may approach the player at the pub if they consider the player attractive enough, though later tuning reduced how often this happens.
 
 Alcohol also interacts with willpower:
+
 - It makes pleasure-related checks harder.
 - It can make pain-related checks easier during combat, because drunkenness numbs pain.
 - The current system resolves an old conflict so DoLX's own alcohol modifier is the one used for seduction and willpower calculations.
@@ -773,6 +876,7 @@ Alcohol also interacts with willpower:
 ### 4.4 Drunkenness Tolerance Trait
 
 Characters who get heavily drunk often can build **Drunkenness Tolerance** over time.
+
 - Higher tolerance makes drunkenness less tiring.
 - Alcohol leaves the body faster as tolerance rises, up to roughly **1.5×** speed.
 - At maximum tolerance, drunkenness no longer forces extra tiredness.
@@ -782,6 +886,7 @@ Characters who get heavily drunk often can build **Drunkenness Tolerance** over 
 ### 4.5 Aphrodisiacs
 
 Aphrodisiacs passively raise arousal up to a threshold based on how much of the drug is in the character's body.
+
 - Small amounts can raise arousal up to roughly **1/5** of maximum arousal.
 - Large amounts can raise arousal up to roughly **4/5** of maximum arousal.
 
@@ -792,6 +897,7 @@ Combined with the willpower system, aphrodisiacs make it harder to resist pleasu
 ## 5. Audio System
 
 DoLX includes an audio system and adaptive background music.
+
 - Audio can be enabled from the sidebar options menu, under the **Performance** tab.
 - The system includes audio for combat encounters and player character arousal.
 - Adaptive background music is included.
@@ -814,9 +920,11 @@ DoLX includes an audio system and adaptive background music.
 Allure affects how much unwanted attention your character attracts. Higher allure means the world is more likely to treat your character as tempting, vulnerable, or worth approaching.
 
 DoLX keeps the basic idea from vanilla DoL, but changes what feeds into it. The biggest change is:
+
 - **Arousal can increase allure.** The more aroused your character is, the more attention they may attract.
 
 Reputation also matters:
+
 - **Bad reputation** is the main source of danger.
 - **Beauty** makes bad reputation more dangerous.
 - **Good reputation** can reduce the danger, but it does not remove it completely.
@@ -824,6 +932,7 @@ Reputation also matters:
 This means beauty is not automatically dangerous by itself. A beautiful character with little or no bad reputation should not attract much extra trouble from beauty alone. But if the same character builds bad reputation, their beauty can make that reputation hit harder. A plain-looking character can get away with worse reputation more easily than a very beautiful character, because beauty mostly acts as a multiplier.
 
 In simple terms:
+
 - Low bad reputation = usually safer.
 - High bad reputation = more danger.
 - High beauty + high bad reputation = much more danger.
@@ -836,11 +945,13 @@ In simple terms:
 Only the highest bad reputation value is used as the main danger base. Beauty then multiplies that danger. It also adds a very small extra amount by itself. Good reputation reduces the final result. Each maxed good reputation halves the allure from the previous steps.
 
 For example:
+
 - one maxed good reputation: allure is reduced to 1/2
 - two maxed good reputations: allure is reduced to 1/4
 - three maxed good reputations: allure is reduced to 1/8
 
 Good reputation helps a lot, but it reduces danger after bad reputation and beauty have already been counted.
+
 </details>
 
 ---
@@ -850,6 +961,7 @@ Good reputation helps a lot, but it reduces danger after bad reputation and beau
 DoLX treats your original body and your X-Changed body as separate identities in many situations. People do not automatically know both bodies are the same person.
 
 When you take a sex-flipping pill, your changed body can build its own reputation.
+
 - Fame and crimes from your original body usually stay with that body.
 - When you change back, your original body's fame and crimes return.
 - Piller fame is only gained when the pill actually flips your sex.
@@ -861,6 +973,7 @@ When you take a sex-flipping pill, your changed body can build its own reputatio
 Lewd stats can also be separate between bodies when **Enable lewd stat split** is turned on. One body may have low promiscuity, exhibitionism, or deviancy, while the other has much higher experience. A new body starts with its own values, switching back restores that body's values, and the split stats are not merged.
 
 Virginity is also stored per body for the main X-Change roles.
+
 - Your original body, a sex-flipped X-Change body, and a herm X-Change body can each keep separate vaginal, penile, anal, oral, handholding, and kiss virginity state.
 - Brand-new X-Change and herm bodies start intact.
 - Losing virginity in one body does not automatically take it from the other stored body.
@@ -882,6 +995,7 @@ DoLX adds a willpower resource system that affects willpower checks across the g
 ### 8.2 How It Works
 
 Willpower is a daily resource used for resisting pressure and passing willpower checks.
+
 - **Willpower capacity** is the maximum amount you can have.
 - **Current willpower** is how much you have left today.
 - Willpower checks use your current willpower, not only your maximum.
@@ -896,6 +1010,7 @@ Willpower is a daily resource used for resisting pressure and passing willpower 
 ### 8.3 Actions That Spend Willpower
 
 Willpower can be spent by:
+
 - succeeding or failing willpower checks
 - spending time while highly aroused
 - choosing bratty or defiant combat actions while arousal is high
@@ -907,10 +1022,12 @@ Failing a check spends only a small amount compared to a success, but repeated f
 ### 8.4 Actions That Restore Willpower
 
 Willpower can be restored by:
+
 - **Sleeping:** the main recovery method. In general, sleep restores about **1/8** of capacity per hour, though trauma mechanics may affect the recovery rate.
 - **Orgasm recovery after encounters:** after an encounter ends, the character restores willpower based on how many orgasms they had, up to three. Masturbation counts as an encounter. Orgasms outside encounters do not currently restore willpower.
 
 Fatigue overflow is also tied into DoLX willpower behaviour in current play:
+
 - If fatigue goes over the current cap, the excess can spend X-Change willpower when available.
 - If there is not enough X-Change willpower to absorb the overflow, the excess can convert into stress or trauma.
 - If sleep does not seem to lower fatigue, the game may explain why. For example, your fatigue may already be at 0, or another effect may have cancelled out the recovery.
@@ -918,11 +1035,13 @@ Fatigue overflow is also tied into DoLX willpower behaviour in current play:
 ### 8.5 Willpower Modifiers
 
 Alcohol and aphrodisiacs also affect effective willpower.
+
 - The drunker or more drugged the character is, the worse their effective willpower becomes for most difficulty checks.
 - Being extremely drunk can apply up to a 100% penalty to remaining willpower during a check.
 - Being heavily drugged can do the same.
 
 There is one major exception:
+
 - For pain checks in combat, drunkenness gives a scaling flat bonus instead of a malus.
 - This can reach up to **500** willpower points for pain tolerance checks.
 
@@ -953,6 +1072,7 @@ If the conditions are met, you may be contacted by **the Gentleman's Club**, a s
 ### 9.1 How to Begin
 
 **Hint:**
+
 - Gather bad attention. Lewd pictures may help.
 
 ### 9.2 Journal, Payment & Diversion
@@ -964,6 +1084,7 @@ If the conditions are met, you may be contacted by **the Gentleman's Club**, a s
 ### 9.3 Quest Tiers
 
 Blackmail quests are divided into three tiers:
+
 - **Low tier:** for lower exhibitionism, roughly exhibitionism 1–2.
 - **Mid tier:** for mid exhibitionism, roughly exhibitionism 3–4.
 - **High tier:** for high exhibitionism, roughly exhibitionism 5+.
@@ -973,6 +1094,7 @@ Quests from the tier immediately below the current tier can also appear in the c
 ### 9.4 Low Tier Quests
 
 Very early quests and prerequisites:
+
 - **Wear no underwear** — Always available.
 - **Drink and get wasted** — Always available.
 - **Take a pill and wear a skirt** — Available if you are not pilled and your original sex is male.
@@ -984,6 +1106,7 @@ Very early quests and prerequisites:
 ### 9.5 Mid Tier Quests
 
 Early-to-mid quests and prerequisites:
+
 - **Take a pill and flirt with 3 strangers** — Available if you are not pilled when opening the letter.
 - **Skinny dip in the school pool** — Available if today is a school day, the secret tunnel from the park is unlocked, or skulduggery is D rank or higher.
 - **Avoid defiant acts for a day** — Available only if you are defiant, with submissiveness at or below 850.
@@ -993,6 +1116,7 @@ Early-to-mid quests and prerequisites:
 ### 9.6 High Tier Quests
 
 Mid-to-late quests and prerequisites:
+
 - **Masturbate in an empty classroom** — Available if today is a school day, the secret tunnel from the park is unlocked, or skulduggery is D rank or higher.
 - **Go streaking naked at the park during daylight** — Always available.
 - **Air hockey strip at the arcade** — A high-tier quest involving the arcade air hockey content.
@@ -1006,6 +1130,7 @@ Mid-to-late quests and prerequisites:
 ### 10.1 Danger Gradient
 
 The town has a danger gradient.
+
 - Some streets are more dangerous than others.
 - More dangerous areas have a higher chance of molestation, assault encounters, and dangerous events.
 - Allure still matters, but location now also affects the chance of danger.
@@ -1017,6 +1142,7 @@ The town has a danger gradient.
 ### 10.2 Police Harassment
 
 Police coverage and harassment also vary by area.
+
 - If the character has accrued crime, police harassment may be stronger in some locations and weaker in others.
 - Police street harassment increases in proportion to crime.
 - Police become more aggressive and competent as crime rises.
@@ -1029,6 +1155,7 @@ Police coverage and harassment also vary by area.
 ### 10.3 Mailbox Theft
 
 Some residential streets have mailboxes that can be stolen from.
+
 - Mailbox theft exists around **Danube**, **Domus**, and **Barb Flats** across the canal.
 - Each mailbox location has a daily limit, so you cannot farm the same spot indefinitely in one day.
 - At night, you can target locked doors directly. During the day, you may need to knock first and find nobody home.
@@ -1045,6 +1172,7 @@ DoLX now integrates and expands the **HBSC Bank** feature into a fuller economy 
 ### 11.1 HBSC Accounts, Interest & Standing Orders
 
 The HBSC bank can handle:
+
 - opening an account
 - account tier upgrades
 - savings deposits and withdrawals
@@ -1055,6 +1183,7 @@ The HBSC bank can handle:
 - automatic bill payments through standing orders
 
 **Standing orders** let the player route recurring bills through HBSC savings. The covered bills currently include:
+
 - orphanage rent, paid to Bailey
 - farm tower guard wages
 - gambling-ring upkeep, paid to Landry
@@ -1064,6 +1193,7 @@ When a standing order is active, the journal records that the bill is covered. I
 Bailey rent standing orders can now apply from multiple living locations, including the farm cottage, Poppy's flat, the temple, and the orphanage. If savings are too low, the automatic payment fails and the player is told.
 
 **Fixed-term deposits now use simple yearly interest language.** The bank uses pro-rata yearly rates rather than compounded AER wording.
+
 - A **1-month £300,000** fixed-term deposit at **2.5% per year** pays **£625**.
 - A **12-month** term pays the full headline yearly rate.
 - Confirmation screens and result screens show both the interest earned and the term length.
@@ -1074,6 +1204,7 @@ Avery can notice your **HBSC bank account**, which can unlock or change some Ave
 ### 11.2 Bank Heist
 
 A bank heist event has been added as a more active crime/economy route.
+
 - The heist includes skill checks and multiple outcomes.
 - Journal progress tracks the heist route.
 - Follow-up events can occur after the heist, including high-alert and trespassing scenarios.
@@ -1087,6 +1218,7 @@ A bank heist event has been added as a more active crime/economy route.
 DoLX now has a broader economy rebalance. Big cash piles make player spending more expensive, and Bailey reacts more aggressively to visible wealth and debt.
 
 **Inflation is based on net wealth.** The game counts:
+
 - cash on hand
 - HBSC savings
 - fixed-term deposit principal, even while locked
@@ -1096,6 +1228,7 @@ DoLX now has a broader economy rebalance. Big cash piles make player spending mo
 Inflation applies to player spending such as shop purchases, lessons, paid route actions, upgrades, and many transaction labels. It does **not** apply to earnings, wages, gambling stakes, bank deposits or withdrawals, rent, loan repayments, or debug/cheat money movement.
 
 Default/current inflation tiers:
+
 - **£500,000+ net wealth:** prices rise by 10%.
 - **£2,000,000+ net wealth:** prices rise by 35%.
 - **£5,000,000+ net wealth:** prices rise by 75%.
@@ -1103,6 +1236,7 @@ Default/current inflation tiers:
 - **£100,000,000+ net wealth:** the economy enters a parody spiral. On the current preset, this is a 1500% price increase.
 
 Economy presets change these numbers.
+
 - **Light** and **Mid** make price increases and Bailey pressure start more gently.
 - **Current** is the intended balance and the default reference for this guide.
 - **Hard** roughly restores the older harsher inflation feel, with 20%, 70%, 150%, 300%, and 3000% price tiers.
@@ -1112,6 +1246,7 @@ Economy presets change these numbers.
 The system is dynamic. If you spend down your wealth, inflation can fall again. The journal includes an economy block so you can see the current price pressure and whether Bailey is becoming more dangerous.
 
 **Bailey-visible wealth is different from shop-inflation wealth.**
+
 - Bailey can see cash and HBSC savings, minus HBSC loan principal.
 - Active fixed-term deposits are not Bailey-visible until they mature.
 - Fixed terms still count for shop inflation because they are still your wealth.
@@ -1119,6 +1254,7 @@ The system is dynamic. If you spend down your wealth, inflation can fall again. 
 - Fixed terms can shield money from Bailey's immediate rent reach, but they do not hide you from the broader economy.
 
 Bailey rent pressure:
+
 - On the current preset, extra rent pressure begins once Bailey-visible wealth reaches the **Bad economy** stage, then grows by a small weekly step while you keep paying.
 - Below **£1,000,000** visible wealth, scaled rent is capped at **£15,000**.
 - From **£1,000,000** to **£10,000,000**, scaled rent is capped at **£35,000**.
@@ -1128,6 +1264,7 @@ Bailey rent pressure:
 - Debt or crisis-level visible wealth can make Bailey aggressive, removing some refusal/seduction escape options and enabling street pressure when rent is overdue.
 
 HBSC loans exist for rent emergencies, but they are not free money.
+
 - Loaned money is inflation-neutral while it is borrowed.
 - Unpaid loan debt can make Bailey more aggressive after it becomes overdue.
 - Repayment costs more than the borrowed principal, so loans can solve a rent crisis while creating a longer-term Bailey problem.
@@ -1137,6 +1274,7 @@ Very high exploit-level wealth can trigger a special cap event that wipes the ru
 ### 11.4 Harvest Street Factory
 
 The Harvest Street factory sells stockpiled farm produce for players who do not want to manually move every crop through normal sales.
+
 - The factory sells some of your produce each day at noon.
 - You can collect factory earnings whenever you visit; you no longer need to wait for a large minimum payout.
 - The collection button shows the exact amount currently owed.
@@ -1154,6 +1292,7 @@ DoLX gambling is no longer only a pub side activity. The pub still has dice, dri
 ### 12.1 Pub Gambling and Dice
 
 A gambling ring can be set up at the pub.
+
 - Speak to **Landry** and ask about setting up a gambling ring.
 - The current documented gambling game is **shooting dice**.
 - Wagers range from **£500** to **£3000**.
@@ -1169,6 +1308,7 @@ A gambling ring can be set up at the pub.
 The farm can unlock a **horse race betting minigame** once the farm has been fully cleared. After that, the player can visit the racecourse, choose a horse to back, place a bet, and either watch the race unfold or skip straight to the result.
 
 Race basics:
+
 - Races use **3 to 5 random horses**.
 - Each horse has betting odds, and winning bets pay out according to those odds.
 - There are **2 race field types**.
@@ -1179,6 +1319,7 @@ Race basics:
 - The racecourse closes at **21:00** and is unavailable at night after closing.
 
 Risk notes:
+
 - Betting is not just a clean money button. Horse incidents can happen.
 - Horses injured by incidents become unavailable until they recover.
 - Too many injured horses can close betting until the weekly reset.
@@ -1192,11 +1333,12 @@ Risk notes:
 
 ## 13. Named NPC & Route Content
 
-*This section does not list every NPC event. It only covers the most important route and NPC content players are likely to notice.*
+_This section does not list every NPC event. It only covers the most important route and NPC content players are likely to notice._
 
 ### Whitney
 
 Whitney has several X-Change-specific interactions.
+
 - Whitney can remember your sex.
 - Whitney may discover the player as a piller if your naked body contradicts what Whitney expects.
 - Whitney can force-feed the player a Continue pill, and threatening to report Whitney for drugs no longer makes them back down.
@@ -1223,6 +1365,7 @@ Bailey may use pills as part of rent punishment if the player fails to pay.
 ### Avery
 
 Avery has several money, mansion, and X-Change hooks.
+
 - Avery may force pill use for dates under certain same-sex conditions.
 - Avery can notice that you have a HBSC bank account and send money to the account for the correct cooking requests.
 - The Choice Reversal pill can be found at Avery's Mansion.
@@ -1235,6 +1378,7 @@ Avery has several money, mansion, and X-Change hooks.
 ### Robin
 
 Robin has expanded relationship and X-Change content.
+
 - You can break up with Robin.
 - Robin can later become a sexfriend.
 - If Robin's love and lust are high enough, Robin may be tempted into sex before becoming lovers or sexfriends if both bathe together.
@@ -1261,6 +1405,7 @@ Robin has expanded relationship and X-Change content.
 ### Sydney
 
 Sydney has dedicated X-Change pilling support in encounters.
+
 - Sydney can be fed X-Change pills during supported encounter states.
 - Sydney has reaction lines for drawing, taking, and being reshaped by pills.
 - Devout and corrupted Sydney can react differently.
@@ -1270,6 +1415,7 @@ Sydney has dedicated X-Change pilling support in encounters.
 ### Kylar
 
 Kylar's route timing, obsession behaviour, and X-Change interactions have been adjusted.
+
 - Kylar requires more love before becoming stalkerish.
 - Kylar no longer gets jealous when the player sits with someone else at the cafeteria unless Kylar loves the player.
 - Early Kylar is less psychotic and requires actual player interaction and engagement before obsession develops.
@@ -1283,6 +1429,7 @@ Kylar's route timing, obsession behaviour, and X-Change interactions have been a
 ### Remy
 
 Remy has additional Choice-pill and spiking content.
+
 - Remy may attempt to spike-pill the player.
 - Remy spike effects only apply if **Enable non-con pill spiking** is enabled.
 - If that setting is disabled, the scene may still mention swallowing a pill, but no X-Change effect is applied.
@@ -1292,6 +1439,7 @@ Remy has additional Choice-pill and spiking content.
 ### Briar, Harper & Re-Virginity
 
 Briar and Harper have more X-Change-adjacent route content in current play.
+
 - Briar's Premium Pill route remains one of the clearest ways to access controlled X-Change outcomes, but it can lead into dangerous captivity content if you follow the wrong branch.
 - If a virginity test catches the player out, Harper can offer a temporary restoration that leads into Briar's **Re-Virginity / Second Debut** show instead of a simple punishment.
 - The show is built around five endurance trials. Each trial is safer if you keep orgasms under control.
@@ -1305,6 +1453,7 @@ Briar and Harper have more X-Change-adjacent route content in current play.
 Poppy is a **modded Love Interest.** The route is still newer than the vanilla LI routes, so this guide keeps the notes focused on confirmed support, scheduling, display behaviour, and relationship-state handling instead of trying to list every scene outcome.
 
 Current player-facing notes:
+
 - Poppy has **Mod LI support**, but you need to turn them on in the settings before their love-interest content becomes available.
 - Poppy has **adaptable display support**, allowing their image to change depending on the event.
 - Poppy has a Christmas event that can trigger if the player celebrates Christmas with another orphan.
@@ -1314,6 +1463,7 @@ Current player-facing notes:
 - Poppy can let you temporarily stay at their flat, but this may require progressing Poppy as a love interest first.
 
 Poppy's stat decay:
+
 - **Non-LI Poppy** no longer has stat decay.
 - **LI Poppy** does not decay if the interaction check passes.
 - **LI Poppy** loses 2 stats if the interaction check fails.
@@ -1323,6 +1473,7 @@ Poppy's stat decay:
 ### Riley & the MMA Gym
 
 Riley and the MMA Gym have been reworked from their DoLP origin.
+
 - MMA Gym interactions should feel more alive.
 - Riley's stats appear in the NPC social menu alongside new interaction content.
 - The MMA Gym now includes a changing room and shower area.
@@ -1331,6 +1482,7 @@ Riley and the MMA Gym have been reworked from their DoLP origin.
 ### Wraith & Underwater Prison
 
 The Ivory Wraith and underwater prison content can interact with X-Change systems, including body changes and special encounter logic.
+
 - Wraith content has modded settings under NPC settings.
 - The underwater prison route can remember compound and prison progress more cleanly in current play.
 - Treat Wraith as a route with its own toggle and pacing rather than as a generic random encounter.
@@ -1364,6 +1516,7 @@ DoLX adds or expands several event, farming, utility, and location hooks beyond 
 ### Street & Utility Events
 
 Small utility events can matter when you are routing daily play.
+
 - Condom vending machines can be kicked. This takes a few minutes and may rarely give a worn-looking condom, but often gives nothing.
 - The action is not a reliable condom source and should not be treated like a shop. It is also not treated as a crime.
 - Some private or captive locations have more masturbation support, including the Asylum, Prison, and Great Hawk Tower. Tower access depends on the tower pool state.
@@ -1373,6 +1526,7 @@ Small utility events can matter when you are routing daily play.
 ### School, Soup Kitchen & Study
 
 School and temple-adjacent town content now have more small progression hooks.
+
 - The **soup kitchen** can be found on Wolf Street once discovered.
 - On school days, it opens after school.
 - On weekends and holidays, it opens from the morning.
@@ -1391,6 +1545,7 @@ The infamous math dildo event was expanded and can interact with special charact
 A **Water Dragon** transformation has been added as a full animal transformation route.
 
 How to build Water Dragon points:
+
 - Buy **Lilac earrings** from the forest shop. They cost **£250** and are found with the forest-shop earrings.
 - Wear the Lilac earrings to stop Water Dragon build from decaying.
 - During the day, swim in the ocean and look for an island with something shiny on it.
@@ -1401,12 +1556,14 @@ How to build Water Dragon points:
 - There is no daily counter cap on the necklace event. You are limited by ocean RNG, daylight, and night ending ocean exploration for the day.
 
 Transformation milestones:
+
 - Early build unlocks the first draconic changes.
 - Around level 2, Water Dragon gains fangs, Sharp Eyes, and Dragon Eyes support.
 - Later levels unlock horns, ears, tail, and the Leviathan-style draconic trait setup.
 - At full transformation, Water Dragon unlocks **Aquatic Lungs**, **Dragon's Grace**, and the permanent Water Dragon transformation state.
 
 What Water Dragon does:
+
 - **Dragon's Grace** increases athletics and swimming ability.
 - **Aquatic Lungs** reduce underwater oxygen loss. Ordinary water actions spend more oxygen; Aquatic Lungs lowers the drain significantly.
 - Water Dragon has the strongest cold tolerance among beast transformations, but becomes slightly worse in heat.
@@ -1418,6 +1575,7 @@ What Water Dragon does:
 - Water Dragon lore can also appear in island defeat and spear-related content.
 
 Dragon Eyes:
+
 - Dragon Eyes are available at the mirror, including for old saves that gained Water Dragon before the trait was added.
 - Dragon Eyes combine Sharp Eyes with the esoteric trait from special clothing.
 - They grant **+5% skulduggery**.
@@ -1425,6 +1583,7 @@ Dragon Eyes:
 - Sharp Eyes or Dragon Eyes can also help notice some stalking signs, such as Kylar following you.
 
 Water Dragon chimeras:
+
 - **Water Dragon + Demon** can unlock **Bakunawa**.
 - **Water Dragon + Angel** can unlock **Ryuujin**.
 - Chimera visuals are mirror-controlled hybrid appearances. They do not erase the base transformation points.
@@ -1435,6 +1594,7 @@ Water Dragon chimeras:
 The furniture shop sells a **console** for **£50**. It includes a virtual pet system that now has care, training, battles, evolution, elemental pet collection, dungeons, and blood moon risk.
 
 Core loop:
+
 - Feed, play, clean, rest, and cure your pet to keep it alive.
 - Neglect can kill the pet.
 - Training is daily. Every few training sessions, the pet can learn or improve skills.
@@ -1442,12 +1602,14 @@ Core loop:
 - Winning battles increases pet stats.
 
 Starter pets:
+
 - **Embit:** fire, evolves toward Blazilisk.
 - **Pudduck:** water, evolves toward Pondswan.
 - **Sprout:** grass, evolves toward Oakguard.
 - **Voltpup:** electric, evolves toward Thundrover.
 
 Progression and danger:
+
 - Pets have stat caps: **HP 5000**, **MP 2500**, and **ATK/DEF/SPD 500**.
 - Evolution greatly raises stats and opens harder content.
 - After evolution, weekly attacks can include minibosses.
@@ -1463,6 +1625,7 @@ Progression and danger:
 - Robin may help care for your pet during the captive bad end if Robin's love is high enough. Pet-care time is slowed in that state, so captivity is less likely to erase the whole pet route instantly.
 
 Robin and boosters:
+
 - If you own a console, Robin can interact with it during arcade/date content.
 - Robin can give virtual-pet booster packs, with a weekly chance that improves through the console route.
 - Booster rewards can include stat items, HP/MP recovery, rare skill options, and **Elixir**.
@@ -1472,6 +1635,7 @@ Robin and boosters:
 ### Bear Transformation and Honey
 
 Bear-transformed players are naturally drawn to honey.
+
 - Bear transformation increases the chance of finding honey in the forest.
 - Bear-transformed players can find honey regardless of honey-related settings.
 - Bear-transformed players can harvest honey more easily.
@@ -1479,12 +1643,14 @@ Bear-transformed players are naturally drawn to honey.
 ### Daydreaming
 
 Daydreaming is more useful as a small recovery option.
+
 - All daydream choices now reduce fatigue by a small amount: currently **15 fatigue** instead of the old oversized recovery.
 - Some special daydream events can also reduce stress or apply other additional effects.
 
 ### Moor Harpy Tailwind
 
 The moor's instant tower-flight event is more specific now.
+
 - The random tailwind event that flies the player to the tower requires **Great Hawk syndrome** first.
 - Full Harpy / Great Hawk travel still has strong moor movement flavour, but the tower shortcut should no longer appear for characters who do not meet that route condition.
 
@@ -1509,6 +1675,7 @@ Farming and orphanage food support have more tracking and interaction.
 Additional crop locations can appear through routes. After Avery is saved, the mansion garden can unlock a sheltered crop plot that behaves like a greenhouse-style growing space.
 
 **Clover patches are now actual searchable objects.**
+
 - Regular clover yield is affected by tending skill.
 - Four-leaf clovers are rare finds and can award a feat.
 - Regular clovers and four-leaf clovers are proper items with icons.
@@ -1517,6 +1684,7 @@ Additional crop locations can appear through routes. After Avery is saved, the m
 - Clover patches give players a natural reason to interact with them before discovering their Bunny transformation relevance.
 
 **The kitchen loft can also unlock weekend cooking lessons with the orphans.**
+
 - The feature becomes available after the kitchen loft has been unlocked.
 - On weekends, you can teach the orphans how to cook through a minigame.
 - Successful lessons let the orphans begin using the kitchen to provide their own food.
@@ -1528,11 +1696,13 @@ Additional crop locations can appear through routes. After Avery is saved, the m
 ### Eden Underground Farm Rescue
 
 Eden can sometimes intervene during the underground farm route.
+
 - You may get a chance to call for Eden during the rescue.
 - If successful, Eden can arrive to help.
 - This works because the underground farm is close enough to Eden's usual territory.
 
 Eden also has form-specific affection support.
+
 - Fully transformed players can show Eden affection in ways tied to their form.
 - Cow, harpy, cat, fox, wolf, bunny, bear, and Water Dragon forms have special flavour.
 - Lactating players can ask Eden to milk them, with Eden's response depending on relationship and dominance.
@@ -1544,6 +1714,7 @@ Great Hawk / tower child handling is adjusted so dismissed or farewell children 
 ### Bike Travel
 
 Bike travel has been reworked into a more active system.
+
 - Bikes now have proper events and narration.
 - Weather, season, and durability can affect travel.
 - Biking may be useful or risky depending on conditions.
@@ -1553,6 +1724,7 @@ Bike travel has been reworked into a more active system.
 ### Smoking at the Loft
 
 After learning to smoke from Whitney or unlocking the relevant loft state, the pub can sell cigarettes.
+
 - A pack costs **£25** and contains **5 cigarettes**.
 - Smoking is tied to the loft and can reduce stress.
 - Weather, season, time, and blood moon state can change the flavour of the scene.
@@ -1567,6 +1739,7 @@ After learning to smoke from Whitney or unlocking the relevant loft state, the p
 ### Wardrobes & Handbag Inventory
 
 When **isolated wardrobes** are enabled, wardrobes do not all share the same clothes.
+
 - Each changing-room wardrobe is separate from your orphanage wardrobe.
 - You can only wear outfits stored in the wardrobe you are using.
 - Clothes in your handbag must be moved into that wardrobe before you can wear them.
@@ -1577,6 +1750,7 @@ When **isolated wardrobes** are enabled, wardrobes do not all share the same clo
 ### Advanced Hair Dye
 
 Advanced Hair Dye expands the hairdresser's dye options, giving you more control over your character's hair colour. It is based on the **Dye Harder** system, so it offers more flexible colour choices than the older basic dye behaviour.
+
 - Gives more detailed hair colour customisation.
 - Helps you make original and transformed appearances look distinct.
 - Works as a cosmetic feature, not an X-Change pill effect.
@@ -1595,6 +1769,7 @@ DoLX adds many new settings and cheat options so players can control how the mod
 You can adjust things like pill frequency, spike pools, Alpha/Omega spiking, Hyper Fertility spike frequency, pregnancy chance while pilled, pilled appearance, Portal content, permanent heat or rut, Gender Identity body changes, combat pill safety, audio, NPC voiceovers, display options, economy rebalance settings, fatigue skill penalties, and pregnancy/childbirth presentation. The cheat menu also includes X-Change tools, including options for special pills, duration controls, and forcing the current pill effect to end.
 
 Newer player-facing settings include:
+
 - **Always show sidebar stat meters**, now enabled by default.
 - **Enable lewd stat split**, which keeps Promiscuity, Exhibitionism, and Deviancy separate between bodies.
 - **Gray pills also flip your sex**, which turns gray pills from effect-only pills into sex-flipping pills when taken without an active transformed body.
@@ -1620,6 +1795,7 @@ Check the settings and cheat menu if you want more control over how often X-Chan
 The game can use an alternate spritepack for the X-Changed sex.
 
 **Basic setup:**
+
 1. Supply an `img2` folder for the alternate spriteset.
 2. Install the desired alternate body/clothing spritepack into `img2` according to the pack's instructions.
 3. In game, go to **Options > Performance**.

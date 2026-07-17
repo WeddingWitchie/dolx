@@ -752,14 +752,27 @@ var Renderer;
 		}
 		targetCanvas.save();
 		targetCanvas.globalCompositeOperation = layer.compositeOperation ?? "source-over";
-		const { frameWidth, frameCount, subspriteWidth, subspriteHeight, subspriteFrameCount, dx, dy } = rects;
-		if (rects.subspriteFrameCount === frameCount && !layer.frames) {
+		const { frameWidth, frameCount, subspriteWidth, subspriteHeight, subspriteFrameCount, dx, dy, height } = rects;
+		const renderScale = Number(layer.renderScale) || 1;
+		if (renderScale === 1 && rects.subspriteFrameCount === frameCount && !layer.frames) {
 			targetCanvas.drawImage(image, dx, dy);
 		}
 		else {
 			for (let i = 0; i < frameCount; i++) {
 				const imageFrameIndex = Math.min(subspriteFrameCount - 1, layer.frames ? layer.frames[i] : Math.floor(i * subspriteFrameCount / frameCount));
-				targetCanvas.drawImage(image, imageFrameIndex * subspriteWidth, 0, subspriteWidth, subspriteHeight, dx + i * frameWidth, dy, subspriteWidth, subspriteHeight);
+				const scaledX = i * frameWidth + dx * renderScale + frameWidth * (1 - renderScale) * 0.5;
+				const scaledY = dy * renderScale + height * (1 - renderScale) * 0.75;
+				targetCanvas.drawImage(
+					image,
+					imageFrameIndex * subspriteWidth,
+					0,
+					subspriteWidth,
+					subspriteHeight,
+					scaledX,
+					scaledY,
+					subspriteWidth * renderScale,
+					subspriteHeight * renderScale
+				);
 			}
 		}
 		targetCanvas.restore();
