@@ -1,4 +1,4 @@
-
+/* globals playerMayBeSpiked, blackmailGiveDaisies, hasSexStat */
 // All quests part from the assumption that PC starts their day at the orphanage
 function blackmailReward(amount) {
 	return Math.round((Number(amount) || 0) * 10);
@@ -12,44 +12,51 @@ const blackmailQuests = {
 	template: [
 		{
 			id: 1,
-			prerequisites: function() { return true; },
-			reward: function() { return blackmailReward(V.rentmoney); },
-			instructions: [
-				". Complete this task before midnight.",
-			],
-			clearCondition: function() { return true; },
-			failCondition: function() { return false; },
+			prerequisites() {
+				return true;
+			},
+			reward() {
+				return blackmailReward(V.rentmoney);
+			},
+			instructions: [". Complete this task before midnight."],
+			clearCondition() {
+				return true;
+			},
+			failCondition() {
+				return false;
+			},
 			alertMessage: ``,
-			clearCheck: function() {
+			clearCheck() {
 				if (this.clearCondition()) {
 					this.cleared = true;
 				}
 			},
-			failCheck: function() { 
+			failCheck() {
 				if (this.failCondition()) {
 					this.failed = true;
 				}
 			},
 			cleared: false,
 			failed: false,
-			failMessage: function() { },
+			failMessage() {},
 			includesItems: false,
-			receiveItems: function() { },
-			onDayCleared: function() { },
-			onDayFailed: function() { },
-		}
+			receiveItems() {},
+			onDayCleared() {},
+			onDayFailed() {},
+		},
 	],
-}
+};
 window.blackmailQuests = blackmailQuests;
 
 /// ##################################################################################
 /// ################################# QUEST LIST #####################################
 /// ##################################################################################
 
-blackmailQuests.low.push( // Generic wear no underwear
+blackmailQuests.low.push(
+	// Generic wear no underwear
 	{
 		id: 1, // Implemented
-		prerequisites: function() {
+		prerequisites() {
 			/*
 				Swimsuits count as underwear for this task. 
 				On schooldays, that can make swimming lessons impossible for PCs whose exhibitionism is too low to swim naked.
@@ -57,96 +64,107 @@ blackmailQuests.low.push( // Generic wear no underwear
 			*/
 			return !Time.schoolDay || hasSexStat("exhibitionism", 4, true);
 		},
-		reward: function() { return blackmailReward(V.rentmoney / 3); },
+		reward() {
+			return blackmailReward(V.rentmoney / 3);
+		},
 		instructions: [
-			"Wear no underwear today.", 
-			"You may not put on any upper or lower underwear.", 
+			"Wear no underwear today.",
+			"You may not put on any upper or lower underwear.",
 			"Swimsuits and leotards will still count as underwear for the purposes of this task.",
 			`<span class="red">Wearing any piece at any point of the day before midnight will result in failure.</span>`,
 		],
-		clearCondition: function() { return true; },
-		failCondition: function() { 
-			return (V.worn.under_upper.name != "naked" || V.worn.under_lower.name != "naked") && !V.xchange.blackmail.gracePeriod; 
+		clearCondition() {
+			return true;
 		},
-		alertMessage: 
-			`You're wearing underwear items. Passing time will result in task failure.`,
-		clearCheck: function() { 
+		failCondition() {
+			return (V.worn.under_upper.name !== "naked" || V.worn.under_lower.name !== "naked") && !V.xchange.blackmail.gracePeriod;
+		},
+		alertMessage: `You're wearing underwear items. Passing time will result in task failure.`,
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
-				this.failed = true; 
+				this.failed = true;
 				this.worn = clone(V.worn);
 			}
 		},
 		cleared: true,
 		failed: false,
-		failMessage: function() {
+		failMessage() {
 			let clothing = "";
-			if (this.worn?.under_upper.name != "naked" && this.worn?.under_lower.name != "naked")
+			if (this.worn?.under_upper.name !== "naked" && this.worn?.under_lower.name !== "naked")
 				clothing = `${this.worn.under_upper.name} and ${this.worn.under_lower.name}`;
-			else if (this.worn?.under_upper.name != "naked")
-				clothing = clone(this.worn.under_upper.name);
-			else
-				clothing = clone(this.worn.under_lower.name);
+			else if (this.worn?.under_upper.name !== "naked") clothing = clone(this.worn.under_upper.name);
+			else clothing = clone(this.worn.under_lower.name);
 
 			delete this.worn;
 
 			return `You thought we weren't watching you? We saw you wearing your ${clothing} today.`;
 		},
 		includesItems: false,
-		receiveItems: function() {},
-		onDayCleared: function() {
+		receiveItems() {},
+		onDayCleared() {
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 2;
 		},
-		onDayFailed: function() {
-
-		},
+		onDayFailed() {},
 	}
 );
 
-blackmailQuests.low.push( // Drink and get wasted
+blackmailQuests.low.push(
+	// Drink and get wasted
 	{
 		id: 2, // Implemented
 		// A knowingly-pregnant PC refuses all alcohol, making "get wasted" impossible. Don't assign it.
-		prerequisites: function() { return !(playerIsPregnant() && playerAwareTheyArePregnant()); },
-		reward: function() { return blackmailReward(V.rentmoney / 3); },
-		instructions: [
-			"Go drink and get wasted.",
-			"You can do so at the pub, but it's not mandatory.", 
-			"Complete this task before midnight.",
-		],
-		clearCondition: function() { return V.drunk >= 480; },
-		failCondition: function() { return false; },
+		prerequisites() {
+			return !(playerIsPregnant() && playerAwareTheyArePregnant());
+		},
+		reward() {
+			return blackmailReward(V.rentmoney / 3);
+		},
+		instructions: ["Go drink and get wasted.", "You can do so at the pub, but it's not mandatory.", "Complete this task before midnight."],
+		clearCondition() {
+			return V.drunk >= 480;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: false,
-		receiveItems: function() { },
-		onDayCleared: function() { V.xchange.blackmail.cooldown = 2; },
-		onDayFailed: function() { },
+		receiveItems() {},
+		onDayCleared() {
+			V.xchange.blackmail.cooldown = 2;
+		},
+		onDayFailed() {},
 	}
 );
 
-blackmailQuests.mid.push( // Take a pill and flirt with 3 people
+blackmailQuests.mid.push(
+	// Take a pill and flirt with 3 people
 	{
 		id: 3, // Implemented. ID fixed. Do not alter value.
-		prerequisites: function() { return !playerIsXChanged(); },
-		reward: function() { return blackmailReward(V.rentmoney); },
+		prerequisites() {
+			return !playerIsXChanged();
+		},
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
 		instructions: [
 			"Take this pill we've happily provided for you on this envelope.",
 			"You're not allowed to test this pill's effects.",
@@ -154,75 +172,86 @@ blackmailQuests.mid.push( // Take a pill and flirt with 3 people
 			"Getting approached and hit on doesn't count, so you may ignore those people.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.tookPill && this.flirtCount >= 3; },
-		failCondition: function() { return false; },
+		clearCondition() {
+			return this.tookPill && this.flirtCount >= 3;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() {
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
-			}
-			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			} else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
 		flirtCount: 0,
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: true,
-		receiveItems: function() { 
-			if (V.player.sex == "m") {
+		receiveItems() {
+			if (V.player.sex === "m") {
 				wikifier("xchange-pink", 1, "spike", "passion");
 				wikifier("drugs", 1000);
-			}
-			else {
+			} else {
 				wikifier("xchange-blue", 1, "spike", "passion");
 				wikifier("drugs", 1000);
 			}
 			this.tookPill = true;
 		},
-		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
-		onDayFailed: function() { },
+		onDayCleared() {
+			V.xchange.blackmail.cooldown = 3;
+		},
+		onDayFailed() {},
 	}
 );
 
-blackmailQuests.high.push( // Masturbate in an empty classroom
+blackmailQuests.high.push(
+	// Masturbate in an empty classroom
 	{
 		id: 4, // Implemented. ID fixed. Do not alter value.
-		prerequisites: function() { 
-			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue('skulduggery') >= 200;
+		prerequisites() {
+			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue("skulduggery") >= 200;
 		},
-		reward: function() { return blackmailReward(V.rentmoney); },
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
 		instructions: [
 			"Masturbate naked for 5 minutes, within an empty classroom.",
 			`<span class="red">If you stop before the exact 5 minutes have lapsed, you must start over.</span>`,
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.masturbationtimer >= 30; },
-		failCondition: function() { return false; },
+		clearCondition() {
+			return this.masturbationtimer >= 30;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() {
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: false,
-		receiveItems: function() { },
-		onDayCleared: function() { },
-		onDayFailed: function() { },
+		receiveItems() {},
+		onDayCleared() {},
+		onDayFailed() {},
 		masturbationtimer: 0,
 	}
 );
@@ -230,8 +259,8 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 // blackmailQuests.mid.push( // Skinny dip into the school's pool
 // 	{
 // 		id: 5, // Implemented
-// 		prerequisites: function() { 
-// 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue('skulduggery') >= 200; 
+// 		prerequisites: function() {
+// 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue('skulduggery') >= 200;
 // 		},
 // 		reward: function() { return V.rentmoney; },
 // 		instructions: [
@@ -246,7 +275,7 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 // 				this.cleared = true;
 // 			}
 // 		},
-// 		failCheck: function() { 
+// 		failCheck: function() {
 // 			if (this.failCondition()) {
 // 				this.failed = true;
 // 			}
@@ -261,141 +290,170 @@ blackmailQuests.high.push( // Masturbate in an empty classroom
 // 	}
 // );
 
-blackmailQuests.low.push( // Go for a run in your underwear at park
+blackmailQuests.low.push(
+	// Go for a run in your underwear at park
 	{
 		id: 6, // Implemented.
-		prerequisites: function() { return true; },
-		reward: function() { return blackmailReward(V.rentmoney); },
+		prerequisites() {
+			return true;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
 		instructions: [
 			"Go for a run at the park in your underwear. Spend at least 30 minutes on this activity.",
 			"We recommend you wait until 9PM before doing so.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.timeSpent >= 30; },
-		failCondition: function() { return false; },
+		clearCondition() {
+			return this.timeSpent >= 30;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: false,
-		receiveItems: function() { },
-		onDayCleared: function() { 
+		receiveItems() {},
+		onDayCleared() {
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 100;
-			V.xchange.blackmail.cooldown = 2; 
+			V.xchange.blackmail.cooldown = 2;
 		},
-		onDayFailed: function() { },
+		onDayFailed() {},
 		timeSpent: 0,
 	}
 );
 
-blackmailQuests.mid.push( // Go for a run naked at park
+blackmailQuests.mid.push(
+	// Go for a run naked at park
 	{
 		id: 7, // Implemented.
-		prerequisites: function() { return true; },
-		reward: function() { return blackmailReward(V.rentmoney); },
+		prerequisites() {
+			return true;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
 		instructions: [
 			"Go for a run at the park while naked. Spend at least 1 hour on this activity.",
-			"We recommend you wait until 9PM before doing so.", 
+			"We recommend you wait until 9PM before doing so.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.timeSpent >= 60; },
-		failCondition: function() { return false; },
+		clearCondition() {
+			return this.timeSpent >= 60;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: false,
-		receiveItems: function() { },
-		onDayCleared: function() {V.xchange.blackmail.penaltyThreat.exhibitionism += 200; V.xchange.blackmail.cooldown = 3; },
-		onDayFailed: function() { },
+		receiveItems() {},
+		onDayCleared() {
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 200;
+			V.xchange.blackmail.cooldown = 3;
+		},
+		onDayFailed() {},
 		timeSpent: 0,
 	}
 );
 
-blackmailQuests.low.push( // Take a pill and wear a skirt
+blackmailQuests.low.push(
+	// Take a pill and wear a skirt
 	{
 		id: 8, // Implemented
-		prerequisites: function() { return V.player.sex === "m" && !playerIsXChanged(); },
-		reward: function() { return blackmailReward(V.rentmoney / 3); },
+		prerequisites() {
+			return V.player.sex === "m" && !playerIsXChanged();
+		},
+		reward() {
+			return blackmailReward(V.rentmoney / 3);
+		},
 		instructions: [
 			"Take the pill we've included in this envelope.",
-			"You're not allowed to test its effects.", 
+			"You're not allowed to test its effects.",
 			"You will also either wear the skirt we've provided, or any other if you have one available.",
 			"No other piece of lowerwear will be acceptable.",
 			"You may also choose to not wear any lowerwear at all (meaning swimsuits at the pool are a-okay)",
 			`<span class="red">Wearing any piece of lowerwear other than a skirt at any point of the day before midnight will result in failure.</span>`,
 		],
-		clearCondition: function() { return this.tookPill; },
-		failCondition: function() { 
-			return !wornSetupClothes("lower").skirt && V.worn.lower.name != "naked" && !V.xchange.blackmail.gracePeriod; 
+		clearCondition() {
+			return this.tookPill;
 		},
-		alertMessage: 
-			`You're wearing a non-skirt lowerwear item. Passing time will result in task failure.`,
-		clearCheck: function() { 
+		failCondition() {
+			return !wornSetupClothes("lower").skirt && V.worn.lower.name !== "naked" && !V.xchange.blackmail.gracePeriod;
+		},
+		alertMessage: `You're wearing a non-skirt lowerwear item. Passing time will result in task failure.`,
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 				this.worn = clone(V.worn);
-			}
-			else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			} else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() {
-			let	clothing = clone(this.worn.lower.name);
+		failMessage() {
+			const clothing = clone(this.worn.lower.name);
 			delete this.worn;
 
 			return `You thought we weren't watching you? We saw you wearing your ${clothing} today.`;
 		},
 		includesItems: true,
-		receiveItems: function() {
+		receiveItems() {
 			wikifier("generalWear", "lower", 27, "black");
 			wikifier("xchange-pink", 1, "spike");
 			this.tookPill = true;
 		},
-		onDayCleared: function() {
+		onDayCleared() {
 			V.xchange.blackmail.cooldown = 2;
 		},
-		onDayFailed: function() {
-
-		},
+		onDayFailed() {},
 	}
 );
 
-blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
+blackmailQuests.low.push(
+	// Clean 3 chalets in uniform without underwear
 	{
 		id: 9, // Implemented
-		prerequisites: function() { return Time.hour < 17; },
-		reward: function() { return blackmailReward(V.rentmoney / 3); },
+		prerequisites() {
+			return Time.hour < 17;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney / 3);
+		},
 		instructions: [
 			"Go clean 3 challets at the beach.",
-			"Wear either a maid dress or a butler suit while doing so.", 
+			"Wear either a maid dress or a butler suit while doing so.",
 			"We've included an outfit with this envelope for your convenience.",
 			"You're not allowed underwear while wearing your uniform.",
 			`<span class="red">If you wear underwear with your uniform you will fail automatically.</span>`,
@@ -403,16 +461,20 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 			"Cleaning a chalet without your uniform will not count.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.chaletsCleaned >= 3; },
-		failCondition: function() { return this.woreUnderwear; },
+		clearCondition() {
+			return this.chaletsCleaned >= 3;
+		},
+		failCondition() {
+			return this.woreUnderwear;
+		},
 		woreUnderwear: false,
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
@@ -420,114 +482,129 @@ blackmailQuests.low.push( // Clean 3 chalets in uniform without underwear
 		chaletsCleaned: 0,
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: true,
-		receiveItems: function() { 
-			if (V.player.sex == "m") {
+		receiveItems() {
+			if (V.player.sex === "m") {
 				wikifier("generalWear", "upper", 53); // Waiter's shirt
 				wikifier("generalWear", "lower", 131, "black"); // Suit trousers
-			}
-			else if (V.player.sex == "f") {
+			} else if (V.player.sex === "f") {
 				wikifier("generalWear", "upper", 12); // Maid dress
 			}
 			wikifier("generalWear", "handheld", 10); // Feather duster
 			wikifier("updatesidebarimg");
 		},
-		onDayCleared: function() { 
-			V.xchange.blackmail.penaltyThreat.exhibitionism += 50; 
+		onDayCleared() {
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 2;
 		},
-		onDayFailed: function() { },
-	},
+		onDayFailed() {},
+	}
 );
 
-blackmailQuests.mid.push( // Avoid defiance for a day
+blackmailQuests.mid.push(
+	// Avoid defiance for a day
 	{
 		id: 10, // Implemented
-		prerequisites: function() { return V.submissive <= 850; },
-		reward: function() { return blackmailReward(V.rentmoney); },
+		prerequisites() {
+			return V.submissive <= 850;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
 		instructions: [
 			"Since you're so strong-willed and prideful, we want to teach you how to be more honest with yourself.",
 			"To that end, we won't allow you to behave defiantly today.",
 			"That means, no violence. Do not be a brat.",
 			"Do this until midnight and we'll consider you successful.",
 		],
-		clearCondition: function() { return true; },
-		failCondition: function() { return this.behavedDefiantly; },
+		clearCondition() {
+			return true;
+		},
+		failCondition() {
+			return this.behavedDefiantly;
+		},
 		behavedDefiantly: false,
 		alertMessage: `You just acted defiantly.`,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: false,
-		receiveItems: function() { },
-		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
-		onDayFailed: function() { },
-	},
+		receiveItems() {},
+		onDayCleared() {
+			V.xchange.blackmail.cooldown = 3;
+		},
+		onDayFailed() {},
+	}
 );
 
-blackmailQuests.low.push( // Wear no shirt if male
+blackmailQuests.low.push(
+	// Wear no shirt if male
 	{
 		id: 11, // Implemented
-		prerequisites: function() { return V.player.sex == "m"; },
-		reward: function() { return blackmailReward(V.rentmoney / 3); },
+		prerequisites() {
+			return V.player.sex === "m";
+		},
+		reward() {
+			return blackmailReward(V.rentmoney / 3);
+		},
 		instructions: [
-			"You're not allowed to wear a shirt today, nor any other clothing that covers your torso.", 
-			"You may only cover your torso if you're within school grounds (does not include its pool).", 
+			"You're not allowed to wear a shirt today, nor any other clothing that covers your torso.",
+			"You may only cover your torso if you're within school grounds (does not include its pool).",
 			"The previous exemption only applies on schooldays.",
 			`<span class="red">Wearing any torso-covering piece outside of school at any point of the day before midnight will result in failure.</span>`,
 		],
-		clearCondition: function() { return true; },
-		failCondition: function() { 
-			return (V.worn.under_upper.name != "naked" || V.worn.upper.name != "naked") && (V.location != "school" || !Time.schoolDay) && !V.xchange.blackmail.gracePeriod; 
+		clearCondition() {
+			return true;
 		},
-		alertMessage: 
-			`You're wearing torso-covering items. Passing time will result in task failure.`,
-		clearCheck: function() { 
+		failCondition() {
+			return (
+				(V.worn.under_upper.name !== "naked" || V.worn.upper.name !== "naked") &&
+				(V.location !== "school" || !Time.schoolDay) &&
+				!V.xchange.blackmail.gracePeriod
+			);
+		},
+		alertMessage: `You're wearing torso-covering items. Passing time will result in task failure.`,
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
-				this.failed = true; 
+				this.failed = true;
 				this.worn = clone(V.worn);
 			}
 		},
 		cleared: true,
 		failed: false,
-		failMessage: function() {
+		failMessage() {
 			let clothing = "";
-			if (this.worn?.under_upper.name != "naked" && this.worn?.upper.name != "naked")
-				clothing = `${this.worn.upper.name} and ${this.worn.under_upper.name}`;
-			else if (this.worn?.under_upper.name != "naked")
-				clothing = clone(this.worn.under_upper.name);
-			else
-				clothing = clone(this.worn.upper.name);
+			if (this.worn?.under_upper.name !== "naked" && this.worn?.upper.name !== "naked") clothing = `${this.worn.upper.name} and ${this.worn.under_upper.name}`;
+			else if (this.worn?.under_upper.name !== "naked") clothing = clone(this.worn.under_upper.name);
+			else clothing = clone(this.worn.upper.name);
 
 			delete this.worn;
 
 			return `You thought we weren't watching you? We saw you wearing your ${clothing} today.`;
 		},
 		includesItems: false,
-		receiveItems: function() {},
-		onDayCleared: function() {
+		receiveItems() {},
+		onDayCleared() {
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 2;
 		},
-		onDayFailed: function() {
-
-		},
+		onDayFailed() {},
 	}
 );
 
@@ -549,7 +626,7 @@ blackmailQuests.low.push( // Wear no shirt if male
 // 				this.cleared = true;
 // 			}
 // 		},
-// 		failCheck: function() { 
+// 		failCheck: function() {
 // 			if (this.failCondition()) {
 // 				this.failed = true;
 // 			}
@@ -560,7 +637,7 @@ blackmailQuests.low.push( // Wear no shirt if male
 // 		failMessage: function() { },
 // 		includesItems: false,
 // 		receiveItems: function() { },
-// 		onDayCleared: function() { 
+// 		onDayCleared: function() {
 // 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 // 			V.xchange.blackmail.cooldown = 2;
 // 		},
@@ -568,11 +645,16 @@ blackmailQuests.low.push( // Wear no shirt if male
 // 	}
 // );
 
-blackmailQuests.low.push( // Sell flowers on a market stall, without any lower clothing (undies allowed)
+blackmailQuests.low.push(
+	// Sell flowers on a market stall, without any lower clothing (undies allowed)
 	{
 		id: 13,
-		prerequisites: function() { return Time.dayState == "dawn" && !playerIsXChanged(); },
-		reward: function() { return blackmailReward(V.rentmoney / 3); },
+		prerequisites() {
+			return Time.dayState === "dawn" && !playerIsXChanged();
+		},
+		reward() {
+			return blackmailReward(V.rentmoney / 3);
+		},
 		instructions: [
 			"Swallow the pill we've provided, and take these 200 flowers to sell.",
 			"Go sell flowers on Connudatus Street.",
@@ -581,31 +663,34 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.tookPill && this.soldFlowers; },
-		failCondition: function() { return false; },
+		clearCondition() {
+			return this.tookPill && this.soldFlowers;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() {
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
-			}
-			else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			} else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: true,
 		tookPill: false,
 		pillLanded: false,
 		soldFlowers: false,
 		profit: 0,
-		receiveItems: function() {
+		receiveItems() {
 			// The spike no-ops when the player can't be spiked (noncon spiking disabled, therapy, pregnancy); only a landed spike can be "tested", so only that may fail.
 			const landed = playerMayBeSpiked();
 			blackmailGiveDaisies(200);
@@ -613,20 +698,25 @@ blackmailQuests.low.push( // Sell flowers on a market stall, without any lower c
 			this.tookPill = true;
 			this.pillLanded = landed;
 		},
-		onDayCleared: function() {
+		onDayCleared() {
 			if (this.profit >= 25000) wikifier("famebusiness", 50);
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 2;
 		},
-		onDayFailed: function() { },
+		onDayFailed() {},
 	}
 );
 
-blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower clothing (undies allowed), and masturbate at least once
+blackmailQuests.mid.push(
+	// Sell flowers on a market stall, without any lower clothing (undies allowed), and masturbate at least once
 	{
 		id: 14,
-		prerequisites: function() { return Time.dayState == "dawn" && !playerIsXChanged() && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1; },
-		reward: function() { return blackmailReward(V.rentmoney / 2); },
+		prerequisites() {
+			return Time.dayState === "dawn" && !playerIsXChanged() && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney / 2);
+		},
 		instructions: [
 			"Masturbate (and orgasm) at least once while selling flowers at a market stall.",
 			"Swallow the pill we've provided, and take these 200 flowers to sell.",
@@ -635,32 +725,35 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.tookPill && this.soldFlowers && this.masturbatedOnce; },
-		failCondition: function() { return false; },
+		clearCondition() {
+			return this.tookPill && this.soldFlowers && this.masturbatedOnce;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() {
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
-			}
-			else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			} else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: true,
 		tookPill: false,
 		pillLanded: false,
 		soldFlowers: false,
 		masturbatedOnce: false,
 		profit: 0,
-		receiveItems: function() {
+		receiveItems() {
 			// See quest 13: a no-op spike (unspikeable player) must not arm the pill-test fail.
 			const landed = playerMayBeSpiked();
 			blackmailGiveDaisies(200);
@@ -668,83 +761,99 @@ blackmailQuests.mid.push( // Sell flowers on a market stall, without any lower c
 			this.tookPill = true;
 			this.pillLanded = landed;
 		},
-		onDayCleared: function() { 
+		onDayCleared() {
 			if (this.profit >= 25000) wikifier("famebusiness", 50);
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 3;
 		},
-		onDayFailed: function() { },
+		onDayFailed() {},
 	}
 );
 
-blackmailQuests.high.push( // Go streaking naked at the park during the day
+blackmailQuests.high.push(
+	// Go streaking naked at the park during the day
 	{
 		id: 15, // Implemented.
-		prerequisites: function() { return Time.hour <= 16; },
-		reward: function() { return blackmailReward(V.rentmoney); },
-		instructions: [
-			"Go streaking at the park naked during the day.", 
-			"Complete this task before midnight.",
-		],
-		clearCondition: function() { return V.daily.parkStreak; },
-		failCondition: function() { return false; },
+		prerequisites() {
+			return Time.hour <= 16;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
+		instructions: ["Go streaking at the park naked during the day.", "Complete this task before midnight."],
+		clearCondition() {
+			return V.daily.parkStreak;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() { 
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: false,
-		receiveItems: function() { },
-		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
-		onDayFailed: function() { },
+		receiveItems() {},
+		onDayCleared() {
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 300;
+		},
+		onDayFailed() {},
 		timeSpent: 0,
 	}
 );
 
-blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully strip, or be stripped by, the other player.
+blackmailQuests.high.push(
+	// Go play air hockey at the arcade, and either fully strip, or be stripped by, the other player.
 	{
 		id: 16, // Implemented.
-		prerequisites: function() { return Time.hour < 20; },
-		reward: function() { return blackmailReward(V.rentmoney); },
+		prerequisites() {
+			return Time.hour < 20;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
 		instructions: [
 			"Go to the arcade and play some air hockey.",
 			"Play a stripping game with another player until either of you is fully naked.",
 			"We're providing a free optional pill for this task.",
-			`<span class="red">If you take the pill, you're not allowed to test it.</span>`, 
+			`<span class="red">If you take the pill, you're not allowed to test it.</span>`,
 			"Complete this task before midnight.",
 		],
-		clearCondition: function() { return this.finishedGame; },
-		failCondition: function() { return false; },
+		clearCondition() {
+			return this.finishedGame;
+		},
+		failCondition() {
+			return false;
+		},
 		alertMessage: ``,
-		clearCheck: function() {
+		clearCheck() {
 			if (this.clearCondition()) {
 				this.cleared = true;
 			}
 		},
-		failCheck: function() {
+		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
-			}
-			else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			} else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
 		cleared: false,
 		failed: false,
-		failMessage: function() { },
+		failMessage() {},
 		includesItems: true,
 		tookPill: false,
 		pillLanded: false,
-		receiveItems: function() {
+		receiveItems() {
 			// This quest has no !playerIsXChanged prerequisite, so the player may already be on a knowingly-taken pill (effectsKnown true).
 			// If the spike can't land it no-ops, and the old tookPill-based fail check then instantly failed the quest off that pre-existing pill.
 			// Only a landed spike arms the pill-test fail.
@@ -753,8 +862,10 @@ blackmailQuests.high.push( // Go play air hockey at the arcade, and either fully
 			this.tookPill = true;
 			this.pillLanded = landed;
 		},
-		onDayCleared: function() { V.xchange.blackmail.penaltyThreat.exhibitionism += 300; },
-		onDayFailed: function() { },
+		onDayCleared() {
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 300;
+		},
+		onDayFailed() {},
 		finishedGame: false,
 	}
 );

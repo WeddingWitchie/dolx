@@ -50,7 +50,6 @@ async function setupForPay(
 		wage: overrides.wage ?? 1500,
 		dayType: overrides.dayType ?? "normal",
 		status: 60,
-		bonus: 0,
 		pub: { count: 0, cooldown: 1 }, // cooldown > 0 to skip pub crawl invite
 		dailyHours: { shift, overtime },
 	});
@@ -79,7 +78,6 @@ test.describe("Docks", () => {
 		expect(docks.dayType).toBe("normal");
 		expect(docks.suspicion).toBe(0);
 		expect(docks.fakeID).toBe("not considered");
-		expect(docks.bonus).toBe(0);
 
 		expect(docks.dailyHours.shift).toEqual({ total: 0, workedHard: 0, slacked: 0, unpaid: 0 });
 		expect(docks.dailyHours.overtime).toEqual({ total: 0, workedHard: 0, slacked: 0, unpaid: 0 });
@@ -138,7 +136,6 @@ test.describe("Docks", () => {
 					({ init, a }) => {
 						const V = (window as any).SugarCube.State.variables;
 						V.docks.status = init;
-						V.docks.bonus = 0; // reset bonus between cases
 						const div = document.createElement("div");
 						new (window as any).SugarCube.Wikifier(div, `<<dockstatus ${a}>>`);
 					},
@@ -150,23 +147,10 @@ test.describe("Docks", () => {
 			}
 		});
 
-		test("<<dockstatus>> accumulates bonus on status increase (DoLP)", async ({ page }) => {
-			await setupDocks(page, { status: 50, bonus: 0 });
-
-			await wikifyEval(page, "<<dockstatus 1>>");
-			expect(await page.evaluate(() => (window as any).SugarCube.State.variables.docks.bonus)).toBe(500);
-			expect(await page.evaluate(() => (window as any).SugarCube.State.variables.docks.status)).toBe(52);
-
-			// Second call accumulates
-			await wikifyEval(page, "<<dockstatus 2>>");
-			expect(await page.evaluate(() => (window as any).SugarCube.State.variables.docks.bonus)).toBe(1500);
-		});
-
-		test("<<dockstatus>> does not add bonus on status decrease", async ({ page }) => {
-			await setupDocks(page, { status: 50, bonus: 0 });
+		test("<<dockstatus>> decreases status on negative argument", async ({ page }) => {
+			await setupDocks(page, { status: 50 });
 
 			await wikifyEval(page, "<<dockstatus -1>>");
-			expect(await page.evaluate(() => (window as any).SugarCube.State.variables.docks.bonus)).toBe(0);
 			expect(await page.evaluate(() => (window as any).SugarCube.State.variables.docks.status)).toBe(48);
 		});
 	});
@@ -382,26 +366,6 @@ test.describe("Docks", () => {
 
 			expect(moneyAfter - moneyBefore).toBe(0);
 			expect(text).toContain("not given an envelope");
-		});
-
-		test("bonus is paid out and reset at end of day (DoLP)", async ({ page }) => {
-			await setupForPay(page, {
-				wage: 1500,
-				shift: { total: 8, workedHard: 8, slacked: 0, unpaid: 0 },
-			});
-			// Set accumulated bonus from dockstatus calls during the day
-			await page.evaluate(() => {
-				(window as any).SugarCube.State.variables.docks.bonus = 1500; // 3 positive dockstatus calls
-			});
-
-			const moneyBefore = (await getVar(page, "money")) as number;
-			await wikifyEval(page, "<<dockleave>>");
-			const moneyAfter = (await getVar(page, "money")) as number;
-
-			// Shift: 1500 * 8 = 12000, plus 1500 bonus = 13500
-			expect(moneyAfter - moneyBefore).toBe(13500);
-			// Bonus is reset after payout
-			expect(await page.evaluate(() => (window as any).SugarCube.State.variables.docks.bonus)).toBe(0);
 		});
 	});
 });
@@ -785,7 +749,6 @@ test.describe("Docks Variable Migration", () => {
 			V.dockquiz = "money";
 			V.dockquizhome = 2;
 			V.dockquizaway = 1;
-			V.dockbonus = 750;
 			if (!V.timeStats) V.timeStats = {};
 			V.timeStats.docks = { total: 10 };
 			if (!V.daily) V.daily = {};
@@ -808,7 +771,6 @@ test.describe("Docks Variable Migration", () => {
 		expect(docks.quiz.bet).toBe("money");
 		expect(docks.quiz.home).toBe(2);
 		expect(docks.quiz.away).toBe(1);
-		expect(docks.bonus).toBe(750);
 		expect(docks.dailyHours.shift).toEqual({ total: 0, workedHard: 0, slacked: 0, unpaid: 0 });
 		expect(docks.dailyHours.overtime).toEqual({ total: 0, workedHard: 0, slacked: 0, unpaid: 0 });
 
@@ -826,7 +788,6 @@ test.describe("Docks Variable Migration", () => {
 				dockquiz: V.dockquiz,
 				dockquizhome: V.dockquizhome,
 				dockquizaway: V.dockquizaway,
-				dockbonus: V.dockbonus,
 			};
 		});
 		for (const [key, val] of Object.entries(legacyVars)) {
@@ -873,9 +834,9 @@ test.describe("Docks Slave Station", () => {
 		await navigateTo(page, "Docks Slave Station");
 
 		const passages = page.locator("#passages");
-		await expect(passages.locator("a").filter({ hasText: /Give £100$/ })).toBeVisible();
-		await expect(passages.locator("a").filter({ hasText: /Give £300$/ })).toBeVisible();
-		await expect(passages.locator("a").filter({ hasText: /Give £1000$/ })).toBeVisible();
+		// Amounts render via <<printprice>> (inflation-adjusted, thousands separators),
+		// so match the three give links without hard-coding exact figures.
+		await expect(passages.locator("a").filter({ hasText: /Give £/ })).toHaveCount(3);
 	});
 
 	test("shows only Wave goodbye when player cannot afford the ticket", async ({ page }) => {

@@ -1,3 +1,4 @@
+/* globals breederOrgasmDenied */
 /*
 	Old version can be found at https://gitgud.io/Vrelnir/degrees-of-lewdity/-/blob/master/game/special-masturbation/effects.twee?ref_type=7f47147b
 */
@@ -78,7 +79,12 @@ function masturbationEffects() {
 			fragment.append(" ");
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
-		} else if (V.penis_addict_trait === 1 || (V.hole_addict_trait === 1 && V.player?.penisExist) || (V.xchange?.pill?.alphaEffect && V.player?.penisExist) || breederOrgasmDenied()) {
+		} else if (
+			V.penis_addict_trait === 1 ||
+			(V.hole_addict_trait === 1 && V.player?.penisExist) ||
+			(V.xchange?.pill?.alphaEffect && V.player?.penisExist) ||
+			breederOrgasmDenied()
+		) {
 			sWikifier(
 				`The slime in your ears gets frustrated as it notices that, despite its best effort, you're unable to cum. And making no progress, <span class="blue">it gives up.</span><<arousal 600 "masturbation">><<pain 4>><<stress 6>><<gstress>><<gpain>>`
 			);
@@ -110,9 +116,7 @@ function masturbationEffects() {
 							V.mouth = 0;
 							V.penisuse = 0;
 						} else if (V.mouth === "mchastityparasiteentrance") {
-							sWikifier(
-								'<span class="green">With the loss of the control from the slime in your ear, you move away from your chastity parasite.</span>'
-							);
+							sWikifier('<span class="green">With the loss of the control from the slime in your ear, you move away from your chastity parasite.</span>');
 							fragment.append(" ");
 							V.mouthactiondefault = "rest";
 							V.mouthaction = 0;
@@ -130,9 +134,7 @@ function masturbationEffects() {
 									'<span class="green">With the loss of the control from the slime in your ear, you move your mouth away from your <<breasts>>.</span>'
 								);
 							} else {
-								sWikifier(
-									'<span class="green">With the loss of the control from the slime in your ear, you stop squeezing your <<breasts>>.</span>'
-								);
+								sWikifier('<span class="green">With the loss of the control from the slime in your ear, you stop squeezing your <<breasts>>.</span>');
 							}
 							fragment.append(" ");
 							if (V.mouth === "mbreast") {
@@ -253,14 +255,10 @@ function masturbationEffects() {
 		} else if (V.earSlime.vibration <= 20) {
 			sWikifier('<span class="lewd">Your chastity parasite pulsates around your <<penis>>.</span>');
 		} else if (V.earSlime.vibration <= 30) {
-			sWikifier(
-				`<span class="lewd">Your chastity parasite vibrates on your <<penis>>${V.mouth === "mchastityparasiteentrance" ? " and tongue" : ""}.</span>`
-			);
+			sWikifier(`<span class="lewd">Your chastity parasite vibrates on your <<penis>>${V.mouth === "mchastityparasiteentrance" ? " and tongue" : ""}.</span>`);
 		} else {
 			sWikifier(
-				`<span class="lewd">Your chastity parasite strongly vibrates on your <<penis>>${
-					V.mouth === "mchastityparasiteentrance" ? " and tongue" : ""
-				}.</span>`
+				`<span class="lewd">Your chastity parasite strongly vibrates on your <<penis>>${V.mouth === "mchastityparasiteentrance" ? " and tongue" : ""}.</span>`
 			);
 		}
 		if (V.earSlime.vibration > 1) fragment.append(" ");
@@ -633,9 +631,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 100 * handsOn, "masturbationBreasts");
 				if (V.lactating && V.settings.breastFeedingEnabled === true && V.bugsinside) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
-						sWikifier(
-							"You squeeze your <<breasts>> as much as you can stand, milking yourself as much as you can for the insects crawling over you."
-						);
+						sWikifier("You squeeze your <<breasts>> as much as you can stand, milking yourself as much as you can for the insects crawling over you.");
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("You fondle your <<breasts>> while allowing access the many insects crawling over you, to your nipples.");
 					} else {
@@ -644,14 +640,10 @@ function masturbationEffectsArms(
 				} else if (V.player.breastsize <= 2) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						fragment.append(
-							span(
-								"You tease your sensitive nipples as much as you can stand, each brush of your fingers sending jolts of excitement through you."
-							)
+							span("You tease your sensitive nipples as much as you can stand, each brush of your fingers sending jolts of excitement through you.")
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						sWikifier(
-							"You fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak."
-						);
+						sWikifier("You fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.");
 					} else {
 						sWikifier("You stroke your <<breasts>> and rub your nipples between your fingers, feeling the lewd warmth grow.");
 					}
@@ -661,9 +653,7 @@ function masturbationEffectsArms(
 							"You cup your <<breasts>> and tease your sensitive nipples as much as you can stand, each brush of your fingers sending jolts of excitement through you."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						sWikifier(
-							"You fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak."
-						);
+						sWikifier("You fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.");
 					} else {
 						sWikifier("You stroke your <<breasts>> and rub your nipples between your fingers, feeling the lewd warmth grow.");
 					}
@@ -673,9 +663,7 @@ function masturbationEffectsArms(
 							"You cup your <<breasts>> and tease your sensitive nipples as much as you can stand. Each brush of your fingers sends jolts of excitement through you."
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						sWikifier(
-							"You fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak."
-						);
+						sWikifier("You fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.");
 					} else {
 						sWikifier("You stroke your <<breasts>> and rub your nipples between your fingers, feeling the lewd warmth grow.");
 					}
@@ -689,9 +677,7 @@ function masturbationEffectsArms(
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("You fondle your <<breasts>> and tweak your nipples through your <<top>>.");
 					} else {
-						sWikifier(
-							"You stroke your <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way."
-						);
+						sWikifier("You stroke your <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way.");
 					}
 				} else if (V.player.breastsize <= 5) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
@@ -701,9 +687,7 @@ function masturbationEffectsArms(
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("You fondle your <<breasts>> and tweak your nipples through your <<top>>.");
 					} else {
-						sWikifier(
-							"You stroke your <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way."
-						);
+						sWikifier("You stroke your <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way.");
 					}
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
@@ -713,9 +697,7 @@ function masturbationEffectsArms(
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("You fondle your <<breasts>> and tweak your nipples through your <<top>>.");
 					} else {
-						sWikifier(
-							"You stroke your <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way."
-						);
+						sWikifier("You stroke your <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way.");
 					}
 				}
 			}
@@ -759,9 +741,7 @@ function masturbationEffectsArms(
 					wikifier("arousal", 150 * handsOn, "masturbationBreasts");
 					if (V.lactating && V.settings.breastFeedingEnabled === true && V.bugsinside) {
 						if (V.arousal >= (V.arousalmax / 5) * 4) {
-							sWikifier(
-								"You squeeze your cupped <<breasts>> as much as you can stand, milking yourself as much as you can for the insects crawling over you."
-							);
+							sWikifier("You squeeze your cupped <<breasts>> as much as you can stand, milking yourself as much as you can for the insects crawling over you.");
 						} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 							sWikifier("You fondle your cupped <<breasts>> while allowing access the many insects crawling over you, to your nipples.");
 						} else {
@@ -770,9 +750,7 @@ function masturbationEffectsArms(
 					} else {
 						if (V.arousal >= (V.arousalmax / 5) * 4) {
 							fragment.append(
-								span(
-									"You squeeze your sensitive breasts and nipples as much as you can stand, each time sending jolts of excitement through you."
-								)
+								span("You squeeze your sensitive breasts and nipples as much as you can stand, each time sending jolts of excitement through you.")
 							);
 						} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 							sWikifier("You squeeze your cupped <<breasts>> while occasionally giving your nipples a little tweak.");
@@ -788,9 +766,7 @@ function masturbationEffectsArms(
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						sWikifier("You squeeze your cupped <<breasts>> and tweak your nipples through your <<top>>.");
 					} else {
-						sWikifier(
-							"You fondle your cupped <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way."
-						);
+						sWikifier("You fondle your cupped <<breasts>> and rub your nipples between your fingers. It feels good, even with your <<topaside>> in the way.");
 					}
 				}
 
@@ -832,9 +808,7 @@ function masturbationEffectsArms(
 							)
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						fragment.append(
-							span(`You pinch the ${V.parasite.nipples.name} attached to your nipple${handsOn > 1 ? "s" : ""} as much as you can stand.`)
-						);
+						fragment.append(span(`You pinch the ${V.parasite.nipples.name} attached to your nipple${handsOn > 1 ? "s" : ""} as much as you can stand.`));
 					} else {
 						fragment.append(span(`You lightly pinch the ${V.parasite.nipples.name} attached to your nipple${handsOn > 1 ? "s" : ""}.`));
 					}
@@ -842,9 +816,7 @@ function masturbationEffectsArms(
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						fragment.append(
 							span(
-								`You pinch, twist and pull on your nipple${
-									handsOn > 1 ? "s" : ""
-								} as much as you can stand, enjoying both the pain and pleasure${
+								`You pinch, twist and pull on your nipple${handsOn > 1 ? "s" : ""} as much as you can stand, enjoying both the pain and pleasure${
 									V.pain >= 40 ? " while ignoring your tears the best you can" : ""
 								}.`
 							)
@@ -1010,9 +982,7 @@ function masturbationEffectsArms(
 				if (V.player.virginity.penile === true) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						fragment.append(
-							span(
-								"You eagerly rub your precum covered virgin foreskin with increasing speed. Strange feelings emanate from the tip and through your body."
-							)
+							span("You eagerly rub your precum covered virgin foreskin with increasing speed. Strange feelings emanate from the tip and through your body.")
 						);
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						fragment.append(
@@ -1021,9 +991,7 @@ function masturbationEffectsArms(
 							)
 						);
 					} else {
-						fragment.append(
-							span("You hold your tip of your virgin penis in your palm and eagerly rub the precum covered foreskin with your thumb.")
-						);
+						fragment.append(span("You hold your tip of your virgin penis in your palm and eagerly rub the precum covered foreskin with your thumb."));
 					}
 				} else {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
@@ -1043,13 +1011,9 @@ function masturbationEffectsArms(
 				if (handsOn === 2) {
 					if (V.player.virginity.penile === true) {
 						if (V.arousal >= (V.arousalmax / 5) * 4) {
-							fragment.append(
-								span("You rub your virgin foreskin with increasing speed. Strange feelings emanate from the tip and through your body.")
-							);
+							fragment.append(span("You rub your virgin foreskin with increasing speed. Strange feelings emanate from the tip and through your body."));
 						} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-							fragment.append(
-								span("You rub your virgin foreskin with your thumb and play with the tip. It's sensitive even though you can't pull it back.")
-							);
+							fragment.append(span("You rub your virgin foreskin with your thumb and play with the tip. It's sensitive even though you can't pull it back."));
 						} else {
 							fragment.append(span("You hold your tip of your virgin penis in your palm and gently rub the foreskin with your thumb."));
 						}
@@ -1065,13 +1029,9 @@ function masturbationEffectsArms(
 				} else {
 					if (V.player.virginity.penile === true) {
 						if (V.arousal >= (V.arousalmax / 5) * 4) {
-							fragment.append(
-								span("You rub your virgin foreskin with increasing speed. Strange feelings emanate from the tip and through your body.")
-							);
+							fragment.append(span("You rub your virgin foreskin with increasing speed. Strange feelings emanate from the tip and through your body."));
 						} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-							fragment.append(
-								span("You rub your virgin foreskin with your thumb and play with the tip. It's sensitive even though you can't pull it back.")
-							);
+							fragment.append(span("You rub your virgin foreskin with your thumb and play with the tip. It's sensitive even though you can't pull it back."));
 						} else {
 							fragment.append(span("You hold your tip of your virgin penis in your palm and gently rub the foreskin with your thumb."));
 						}
@@ -1098,9 +1058,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 400 * handsOn, "masturbationPenis");
 				if (V.player.virginity.penile === true) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
-						fragment.append(
-							span("You roughly run your fingers up and down your precum covered virgin penis, generating a lewd warmth throughout your body.")
-						);
+						fragment.append(span("You roughly run your fingers up and down your precum covered virgin penis, generating a lewd warmth throughout your body."));
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						fragment.append(span("You eagerly run your fingers up and down the length of your precum covered virgin penis."));
 					} else {
@@ -1110,9 +1068,7 @@ function masturbationEffectsArms(
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
 						sWikifier("You roughly pump up and down the length of your <<penis>>, excess precum flies from the tip.");
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-						fragment.append(
-							span("You eagerly run your fingers up and down your precum covered shaft, generating a lewd warmth throughout your body.")
-						);
+						fragment.append(span("You eagerly run your fingers up and down your precum covered shaft, generating a lewd warmth throughout your body."));
 					} else {
 						sWikifier("You caress the length of your <<penis>>, generating a lewd warmth.");
 					}
@@ -1210,11 +1166,7 @@ function masturbationEffectsArms(
 					);
 				} else {
 					fragment.append(
-						span(
-							`You gently caress the parasite, it passing the pleasure directly to your ${
-								V.player.virginity.penile === true ? "virgin penis" : "penis"
-							}.`
-						)
+						span(`You gently caress the parasite, it passing the pleasure directly to your ${V.player.virginity.penile === true ? "virgin penis" : "penis"}.`)
 					);
 				}
 			}
@@ -1252,14 +1204,10 @@ function masturbationEffectsArms(
 						)
 					);
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
-					fragment.append(
-						span(`You squeeze the parasite, squeezing your ${V.player.virginity.penile === true ? "virgin penis" : "penis"} at the same time.`)
-					);
+					fragment.append(span(`You squeeze the parasite, squeezing your ${V.player.virginity.penile === true ? "virgin penis" : "penis"} at the same time.`));
 				} else {
 					fragment.append(
-						span(
-							`You gently squeeze the parasite, feeling your ${V.player.virginity.penile === true ? "virgin penis" : "penis"} through it's walls.`
-						)
+						span(`You gently squeeze the parasite, feeling your ${V.player.virginity.penile === true ? "virgin penis" : "penis"} through it's walls.`)
 					);
 				}
 			}
@@ -1306,9 +1254,7 @@ function masturbationEffectsArms(
 				if (handsOn === 2) {
 					if (V.arousal >= V.arousalmax * (4 / 5)) {
 						fragment.append(
-							span(
-								`You grope your ${balls} with both of your hands and enjoy the feeling of tightness as they clench up against the base of your penis.`
-							)
+							span(`You grope your ${balls} with both of your hands and enjoy the feeling of tightness as they clench up against the base of your penis.`)
 						);
 					} else if (V.arousal >= V.arousalmax * (3 / 5)) {
 						fragment.append(span(`You fondle your ${balls} with both of your hands and enjoy the tickling feeling.`));
@@ -1484,9 +1430,7 @@ function masturbationEffectsArms(
 				} else {
 					fragment.append(
 						span(
-							`You gently caress the parasite, and it passes the pleasure directly to your ${
-								V.player.virginity.penile === true ? "virgin penis" : "penis"
-							}.`
+							`You gently caress the parasite, and it passes the pleasure directly to your ${V.player.virginity.penile === true ? "virgin penis" : "penis"}.`
 						)
 					);
 				}
@@ -1517,9 +1461,7 @@ function masturbationEffectsArms(
 			if (V.player.breastsize < 2) {
 				if (V.arousal >= (V.arousalmax / 5) * 4) {
 					if (doubleAction) {
-						sWikifier(
-							`Your hands tease your sensitive nipples more than you can stand, each brush of your fingers sending jolts of excitement through you.`
-						);
+						sWikifier(`Your hands tease your sensitive nipples more than you can stand, each brush of your fingers sending jolts of excitement through you.`);
 					} else {
 						sWikifier(
 							`Your ${arm} hand teases your sensitive nipples more than you can stand, each brush of your fingers sending jolts of excitement through you.`
@@ -1527,9 +1469,7 @@ function masturbationEffectsArms(
 					}
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 					if (doubleAction) {
-						sWikifier(
-							`Your hands fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`
-						);
+						sWikifier(`Your hands fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`);
 					} else {
 						sWikifier(
 							`Your ${arm} hand fondles your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`
@@ -1555,9 +1495,7 @@ function masturbationEffectsArms(
 					}
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 					if (doubleAction) {
-						sWikifier(
-							`Your hands fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`
-						);
+						sWikifier(`Your hands fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`);
 					} else {
 						sWikifier(
 							`Your ${arm} hand fondles your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`
@@ -1583,9 +1521,7 @@ function masturbationEffectsArms(
 					}
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 					if (doubleAction) {
-						sWikifier(
-							`Your hands fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`
-						);
+						sWikifier(`Your hands fondle your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`);
 					} else {
 						sWikifier(
 							`Your ${arm} hand fondles your <<breasts>> while circling your fingers around the areola, occasionally giving your nipples a little tweak.`
@@ -1792,9 +1728,7 @@ function masturbationEffectsArms(
 					} else {
 						if (genitalsExposed()) {
 							sWikifier(
-								`<span class="blue">You pick up your ${toyDisplay(
-									altText.selectedToy
-								)} and run it over your <<penis>>, shivering in anticipation.</span>`
+								`<span class="blue">You pick up your ${toyDisplay(altText.selectedToy)} and run it over your <<penis>>, shivering in anticipation.</span>`
 							);
 						} else {
 							sWikifier(
@@ -1826,10 +1760,7 @@ function masturbationEffectsArms(
 					);
 				} else {
 					sWikifier(
-						`You run your ${toyDisplay(
-							altText.selectedToy,
-							altText.selectedOtherToy
-						)} over your <<penis>>, feeling its shape beneath your <<exposedlower>>.`
+						`You run your ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} over your <<penis>>, feeling its shape beneath your <<exposedlower>>.`
 					);
 				}
 			} else {
@@ -1838,10 +1769,7 @@ function masturbationEffectsArms(
 					sWikifier(`You run your ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} over your <<penis>>, shivering in anticipation.`);
 				} else {
 					sWikifier(
-						`You run your ${toyDisplay(
-							altText.selectedToy,
-							altText.selectedOtherToy
-						)} over your <<penis>>, feeling its shape beneath your <<exposedlower>>.`
+						`You run your ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} over your <<penis>>, feeling its shape beneath your <<exposedlower>>.`
 					);
 				}
 			}
@@ -1859,9 +1787,7 @@ function masturbationEffectsArms(
 					V[otherArm + "arm"] = "mpenisstroker";
 					wikifier("arousal", 25, "masturbationPenis");
 					altText.selectedOtherToy = selectedToy(otherArm);
-					sWikifier(
-						`You're forced to roughly fuck your <<penis>> with the ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} to feel anything.`
-					);
+					sWikifier(`You're forced to roughly fuck your <<penis>> with the ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} to feel anything.`);
 				} else {
 					sWikifier(`You're forced to roughly fuck your <<penis>> with the ${toyDisplay(altText.selectedToy)} to feel anything.`);
 				}
@@ -1919,10 +1845,7 @@ function masturbationEffectsArms(
 				V[otherArm + "arm"] = "mbreastpump";
 				altText.selectedOtherToy = selectedToy(otherArm);
 				sWikifier(
-					`<span class="blue">You seal your ${toyDisplay(
-						altText.selectedToy,
-						altText.selectedOtherToy
-					)} over your <<breasts>>, preparing to milk them.</span>`
+					`<span class="blue">You seal your ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} over your <<breasts>>, preparing to milk them.</span>`
 				);
 			} else {
 				sWikifier(`<span class="blue">You seal your ${toyDisplay(altText.selectedToy)} over your <<breasts>>, preparing to milk them.</span>`);
@@ -1996,22 +1919,16 @@ function masturbationEffectsArms(
 					fragment.append(span(`You rub your ${altText.toyDisplay} against your hardening nipples with ${altText.hands}.`));
 				} else {
 					fragment.append(
-						span(
-							`You press your ${altText.toyDisplay} against your nipples with ${altText.hands}, feeling the lewd warmth grow as it continues to vibrate.`
-						)
+						span(`You press your ${altText.toyDisplay} against your nipples with ${altText.hands}, feeling the lewd warmth grow as it continues to vibrate.`)
 					);
 				}
 			} else {
 				if (V.arousal >= (V.arousalmax / 5) * 4) {
-					sWikifier(
-						`Your nipples stand erect against your <<topaside>>, despite the ${altText.toyDisplay} being rubbed against them through the fabric.`
-					);
+					sWikifier(`Your nipples stand erect against your <<topaside>>, despite the ${altText.toyDisplay} being rubbed against them through the fabric.`);
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 					sWikifier(`You rub your ${altText.toyDisplay} against your hardening nipples through your <<topaside>> with ${altText.hands}.`);
 				} else {
-					sWikifier(
-						`You press your ${altText.toys} against your nipples with ${altText.hands}. It feels good, even with your <<topaside>> in the way.`
-					);
+					sWikifier(`You press your ${altText.toys} against your nipples with ${altText.hands}. It feels good, even with your <<topaside>> in the way.`);
 				}
 			}
 			fragment.append(" ");
@@ -2044,9 +1961,7 @@ function masturbationEffectsArms(
 				wikifier("arousal", 200 * handsOn, "masturbationPenis");
 				if (V.player.virginity.penile === true) {
 					if (V.arousal >= (V.arousalmax / 5) * 4) {
-						fragment.append(
-							span(`You rub your vibrating ${altText.toyDisplay} up and down your virgin penis as roughly as your foreskin will allow.`)
-						);
+						fragment.append(span(`You rub your vibrating ${altText.toyDisplay} up and down your virgin penis as roughly as your foreskin will allow.`));
 					} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 						fragment.append(span(`You rub your ${altText.toyDisplay} up and down your virgin penis, its vibrations quickly making you aroused.`));
 					} else {
@@ -2204,9 +2119,7 @@ function masturbationEffectsArms(
 			if (V.mouthaction === "mdildokiss") V.mouthaction = "mdildosuck";
 			altText.selectedToy = selectedToy(arm);
 			fragment.append(
-				span(
-					`You take the ${toyDisplay(altText.selectedToy)} into your mouth, briefly running your tongue along it as you thrust it between your lips.`
-				)
+				span(`You take the ${toyDisplay(altText.selectedToy)} into your mouth, briefly running your tongue along it as you thrust it between your lips.`)
 			);
 			break;
 		case "mvaginaentrance":
@@ -2232,9 +2145,7 @@ function masturbationEffectsArms(
 			if (V.vaginause === 0) {
 				V.fingersInVagina += V.mVaginaFingerAdd;
 				clearAction(
-					V.mVaginaFingerAdd === 2 && V.fingersInVagina < V.vaginaFingerLimit - 1 && V.fingersInVagina < 4
-						? "mvaginafingeraddtwo"
-						: "mvaginafingeradd"
+					V.mVaginaFingerAdd === 2 && V.fingersInVagina < V.vaginaFingerLimit - 1 && V.fingersInVagina < 4 ? "mvaginafingeraddtwo" : "mvaginafingeradd"
 				);
 				V[arm + "arm"] = "mvagina";
 				V.vaginause = "mfingers";
@@ -2271,9 +2182,7 @@ function masturbationEffectsArms(
 
 			if (V.bugsinside === 1) {
 				if (V.fingersInVagina === V.vaginaFingerLimit) {
-					sWikifier(
-						`<span class="lblue">You gasp as you fit one last ${altText.lubricated} finger inside yourself. You feel insects crawling inside.</span>`
-					);
+					sWikifier(`<span class="lblue">You gasp as you fit one last ${altText.lubricated} finger inside yourself. You feel insects crawling inside.</span>`);
 				} else {
 					sWikifier(
 						`<span class="lblue">You stretch yourself further as you push ${altText.finger} into your <<pussy>>. You feel insects crawling inside.</span>`
@@ -2314,13 +2223,9 @@ function masturbationEffectsArms(
 						sWikifier(`You pump <<number $fingersInVagina>> ${altText.fingers} in and out of your <<pussy>>, coaxing out some bugs and insects.`);
 					}
 				} else if (V.arousal >= (V.arousalmax / 5) * 2) {
-					sWikifier(
-						`You push <<number $fingersInVagina>> ${altText.fingers} in and out of your <<pussy>>, feeling the insects and bugs inside of you.`
-					);
+					sWikifier(`You push <<number $fingersInVagina>> ${altText.fingers} in and out of your <<pussy>>, feeling the insects and bugs inside of you.`);
 				} else {
-					sWikifier(
-						`You gently fuck the entrance of your <<pussy>> with <<number $fingersInVagina>> ${altText.fingers}, pushing some of the bugs around.`
-					);
+					sWikifier(`You gently fuck the entrance of your <<pussy>> with <<number $fingersInVagina>> ${altText.fingers}, pushing some of the bugs around.`);
 				}
 			} else {
 				if (V.arousal >= (V.arousalmax / 5) * 4) {
@@ -2331,9 +2236,7 @@ function masturbationEffectsArms(
 						sWikifier(`You pump <<number $fingersInVagina>> ${altText.fingers} in and out of your <<pussy>>, pushing as deep as you can reach.`);
 					}
 				} else if (V.arousal >= (V.arousalmax / 5) * 2) {
-					sWikifier(
-						`You push <<number $fingersInVagina>> ${altText.fingers} in and out of your <<pussy>>, feeling a thrill even without going too deep.`
-					);
+					sWikifier(`You push <<number $fingersInVagina>> ${altText.fingers} in and out of your <<pussy>>, feeling a thrill even without going too deep.`);
 				} else {
 					sWikifier(`You gently fuck the entrance of your <<pussy>> with <<number $fingersInVagina>> ${altText.fingers}.`);
 				}
@@ -2390,9 +2293,7 @@ function masturbationEffectsArms(
 			wikifier("addVaginalWetness", 2 * handsOn);
 			altText.fingers = handsOn === 2 ? "fingers" : "finger";
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
-				fragment.append(
-					span(`You squeeze the ${V.parasite.clit.name} on your clit, feeling your arousal build as it more aggressively pleasures you.`)
-				);
+				fragment.append(span(`You squeeze the ${V.parasite.clit.name} on your clit, feeling your arousal build as it more aggressively pleasures you.`));
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 				fragment.append(span(`You tease the ${V.parasite.clit.name} on your clit with your ${altText.fingers}.`));
 			} else {
@@ -2435,9 +2336,7 @@ function masturbationEffectsArms(
 			V.vaginause = 0;
 			wikifier("arousal", 1000, "masturbationVagina");
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
-				sWikifier(
-					'<span class="lblue">You slide your whole hand out of your <<pussy>>. You feel your muscles twitching in protest as fluids drip out.</span>'
-				);
+				sWikifier('<span class="lblue">You slide your whole hand out of your <<pussy>>. You feel your muscles twitching in protest as fluids drip out.</span>');
 			} else if (V.arousal >= (V.arousalmax / 5) * 2) {
 				sWikifier('<span class="lblue">You slide your whole hand out of your <<pussy>>, leaving you feeling empty.</span>');
 			} else {
@@ -2543,11 +2442,7 @@ function masturbationEffectsArms(
 			} else {
 				if (V.arousal >= (V.arousalmax / 5) * 4) {
 					fragment.append(
-						span(
-							`You press down on your clit with your ${toyDisplay(
-								altText.selectedToy
-							)} and rub it in a circular motion, feeling your arousal build.`
-						)
+						span(`You press down on your clit with your ${toyDisplay(altText.selectedToy)} and rub it in a circular motion, feeling your arousal build.`)
 					);
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 					fragment.append(span(`You tease the tip of your clit with your ${toyDisplay(altText.selectedToy)}y.`));
@@ -2618,8 +2513,7 @@ function masturbationEffectsArms(
 					V[otherArm + "arm"] = "manus";
 					sWikifier(`<span class="purple">You push two ${altText.lubricated} fingers into your <<bottom>>.</span>`);
 				} else {
-					altText.lubricated =
-						(arm === "left" && V.leftFingersSemen >= 1) || (arm === "right" && V.rightFingersSemen >= 1) ? " semen-lubricated" : "";
+					altText.lubricated = (arm === "left" && V.leftFingersSemen >= 1) || (arm === "right" && V.rightFingersSemen >= 1) ? " semen-lubricated" : "";
 					sWikifier(`<span class="purple">You push a ${altText.lubricated} finger into your <<bottom>>.</span>`);
 				}
 				if (altText.lubricated.includes("semen")) V.semenInAnus = true;
@@ -2692,9 +2586,7 @@ function masturbationEffectsArms(
 				altText.selectedOtherToy = selectedToy(otherArm);
 				altText.toyDisplay = toyDisplay(altText.selectedToy, altText.selectedOtherToy);
 				if (genitalsExposed()) {
-					sWikifier(
-						`<span class="blue">You reach down to your exposed <<bottom>> and gently press your ${altText.toyDisplay} against your anus.</span>`
-					);
+					sWikifier(`<span class="blue">You reach down to your exposed <<bottom>> and gently press your ${altText.toyDisplay} against your anus.</span>`);
 				} else {
 					sWikifier(
 						`<span class="blue">You reach down to your <<bottom>> and gently press your ${altText.toyDisplay} against your anus through your <<exposedlower>>.</span>`
@@ -2703,9 +2595,7 @@ function masturbationEffectsArms(
 			} else {
 				if (genitalsExposed()) {
 					sWikifier(
-						`<span class="blue">You reach down to your exposed <<bottom>> and gently press your ${toyDisplay(
-							altText.selectedToy
-						)} against your anus.</span>`
+						`<span class="blue">You reach down to your exposed <<bottom>> and gently press your ${toyDisplay(altText.selectedToy)} against your anus.</span>`
 					);
 				} else {
 					sWikifier(
@@ -2726,10 +2616,7 @@ function masturbationEffectsArms(
 				V[otherArm + "arm"] = "manusdildo";
 				altText.selectedOtherToy = selectedToy(otherArm);
 				sWikifier(
-					`<span class="purple">You push your ${altText.lubricated} ${toyDisplay(
-						altText.selectedToy,
-						altText.selectedOtherToy
-					)} into your <<bottom>>.</span>`
+					`<span class="purple">You push your ${altText.lubricated} ${toyDisplay(altText.selectedToy, altText.selectedOtherToy)} into your <<bottom>>.</span>`
 				);
 			} else {
 				altText.lubricated = (arm === "left" && V.leftFingersSemen >= 1) || (arm === "right" && V.rightFingersSemen >= 1) ? " semen-lubricated" : "";
@@ -2813,14 +2700,10 @@ function masturbationEffectsArms(
 					fragment.append(span(`You stroke your prostate with your ${altText.toyDisplay}, milking it of semen and making you shudder.`));
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 					fragment.append(
-						span(
-							`You press against your prostate with your ${altText.toyDisplay}, causing an almost unbearably pleasurable feeling of vulnerability.`
-						)
+						span(`You press against your prostate with your ${altText.toyDisplay}, causing an almost unbearably pleasurable feeling of vulnerability.`)
 					);
 				} else {
-					fragment.append(
-						span(`You gently prod your prostate with your ${altText.toyDisplay}, each poke sending a wave of pleasure through your body.`)
-					);
+					fragment.append(span(`You gently prod your prostate with your ${altText.toyDisplay}, each poke sending a wave of pleasure through your body.`));
 				}
 			} else {
 				if (V.arousal >= (V.arousalmax / 5) * 4) {
@@ -2828,18 +2711,12 @@ function masturbationEffectsArms(
 				} else if (V.arousal >= (V.arousalmax / 5) * 3) {
 					fragment.append(
 						span(
-							`You press against your prostate with your ${toyDisplay(
-								altText.selectedToy
-							)}, causing an almost unbearably pleasurable feeling of vulnerability.`
+							`You press against your prostate with your ${toyDisplay(altText.selectedToy)}, causing an almost unbearably pleasurable feeling of vulnerability.`
 						)
 					);
 				} else {
 					fragment.append(
-						span(
-							`You gently prod your prostate with your ${toyDisplay(
-								altText.selectedToy
-							)}, each poke sending a wave of pleasure through your body.`
-						)
+						span(`You gently prod your prostate with your ${toyDisplay(altText.selectedToy)}, each poke sending a wave of pleasure through your body.`)
 					);
 				}
 			}
@@ -3005,14 +2882,10 @@ function masturbationEffectsMouth({
 
 			if (breastsHeld > 1) {
 				fragment.append(
-					Wikifier.wikifyEval(
-						`You ${breastsFondle ? "briefly stop fondling your breasts and lift them" : "lift both of your <<breasts>>"} up to your mouth.`
-					)
+					Wikifier.wikifyEval(`You ${breastsFondle ? "briefly stop fondling your breasts and lift them" : "lift both of your <<breasts>>"} up to your mouth.`)
 				);
 			} else {
-				fragment.append(
-					Wikifier.wikifyEval(`You ${breastsFondle ? "briefly stop fondling your breast and lift it" : "lift your breast"} up to your mouth.`)
-				);
+				fragment.append(Wikifier.wikifyEval(`You ${breastsFondle ? "briefly stop fondling your breast and lift it" : "lift your breast"} up to your mouth.`));
 			}
 			break;
 		case "mbreastlick":
@@ -3091,10 +2964,7 @@ function masturbationEffectsMouth({
 						);
 					} else {
 						fragment.append(
-							span(
-								`Several thin streams of milk spray from your bud${breastsHeld > 1 ? "s" : ""}, filling your mouth at an alarming speed.`,
-								"lewd"
-							)
+							span(`Several thin streams of milk spray from your bud${breastsHeld > 1 ? "s" : ""}, filling your mouth at an alarming speed.`, "lewd")
 						);
 					}
 					fragment.append(" ");
@@ -3485,18 +3355,14 @@ function masturbationEffectsMouth({
 					fragment.append(span(`You eagerly lick the ${altText.toyDisplay}'s tip, doing your best to tease it with your tongue.`));
 				} else {
 					wikifier("arousal", 200, "masturbationOral");
-					fragment.append(
-						span(`You skilfully kiss and lick the ${altText.toyDisplay}'s tip, lavishing attention upon it with your lips and tongue.`)
-					);
+					fragment.append(span(`You skilfully kiss and lick the ${altText.toyDisplay}'s tip, lavishing attention upon it with your lips and tongue.`));
 				}
 			} else {
 				if (currentSkillValue("oralskill") < 100) {
 					if (altText.selectedToy.name.includes("small")) {
 						fragment.append(span(`You awkwardly wiggle your tongue along the bottom of the ${altText.toyDisplay} in your mouth.`));
 					} else {
-						fragment.append(
-							span(`You struggle to lick along the ${altText.toyDisplay}, its girth pinning your tongue to the bottom of your mouth.`)
-						);
+						fragment.append(span(`You struggle to lick along the ${altText.toyDisplay}, its girth pinning your tongue to the bottom of your mouth.`));
 					}
 				} else if (currentSkillValue("oralskill") < 200) {
 					wikifier("arousal", 100, "masturbationOral");

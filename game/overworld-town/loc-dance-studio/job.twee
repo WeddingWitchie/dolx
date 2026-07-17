@@ -124,7 +124,7 @@ The receptionist lets you through to the dance studio proper, where you find Cha
 	<<if C.npc.Charlie.love gte 20>>
 		<<set $weekly.danceJob to "party">>
 	<<elseif C.npc.Charlie.love gte 0>>
-		<<set $weekly.danceJob to "party">>
+		<<set $weekly.danceJob to "docks">>
 	<<else>>
 		<<set $weekly.danceJob to "stage">>
 	<</if>>
@@ -1122,8 +1122,194 @@ You leave the party.
 <br>
 
 :: Dance Job Docks
-<<effects>>
+<<set $outside to 0>><<effects>>
+"Great," Charlie says. "I'll drop you off. The class will be fine for five minutes."
+<br><br>
+You follow Charlie outside, around the side of the studio, and into a waiting car. The engine revs, and <<he>> pulls onto the road.
+<br><br>
+<<pass 5>>
+<<endevent>><<generateyv1>><<person1>>
+The car winds towards the sea, and stops beside an old commercial building on Mer Street. Music thumps against boarded windows. A <<person>> waits by the door, and waves as you climb out.
+<br><br>
+"You're the dancer? Brilliant," <<he>> says. "We weren't sure anyone would actually come." <<He>> holds the door open. "Drinks are inside. Don't mind the mess."
+<br><br>
+<<He>> exchanges a few words with Charlie as you enter the building.
+<br><br>
+<<link [[Next|Dance Job Docks 2]]>><</link>>
+<br>
 
+:: Dance Job Docks 2
+<<set $location to "town">><<set $bus to "mer">><<set $outside to 0>><<effects>>
+The ground floor has been swept clear of whatever the building once held. Fairy lights hang from exposed beams, and someone's speakers balance atop a stack of pallets. Students crowd the floor, shouting over the music.
+<br><br>
+A cluster of tables against the wall serves as bar and buffet both. It seems you have some time to yourself while the host settles things.
+<br><br>
+<<socialiseicon>><<link [[Socialise|Dance Job Docks Socialise]]>><<trauma -6>><</link>><<ltrauma>>
+<br>
+<<foodicon "eat">><<link [[Raid the snack table|Dance Job Docks Buffet]]>><<stress -6>><</link>><<lstress>>
+<br>
+<<if !(playerIsPregnant() and playerAwareTheyArePregnant())>>
+	<<foodicon "beerbottle">><<link [[Find booze|Dance Job Docks Booze]]>><<trauma -6>><<stress -6>><<alcohol 120>><</link>><<ltrauma>><<lstress>><<ggalcohol>>
+	<br>
+<</if>>
+
+:: Dance Job Docks Socialise
+<<effects>>
+You chat with the students. Most study in the city, and rented this place for the weekend on a dare. They're delighted to learn you're the entertainment, and pepper you with questions about the dance studio.
+<br><br>
+None of the questions cut too close. It's easy to keep things light.
+<br><br>
+<<link [[Next|Dance Job Docks 3]]>><</link>>
+<br>
+
+:: Dance Job Docks Buffet
+<<effects>>
+The snack table is a chaotic spread of crisps, supermarket cakes, and things on sticks. You help yourself. No one minds.
+<br><br>
+<<link [[Next|Dance Job Docks 3]]>><</link>>
+<br>
+
+:: Dance Job Docks Booze
+<<effects>>
+A <<generate2>><<person2>><<person>> presses a plastic cup into your hand before you even ask. "House rules," <<he>> says. "Everyone drinks." It's cheap, and strong.
+<<endevent>><<person1>>
+<br><br>
+<<link [[Next|Dance Job Docks 3]]>><</link>>
+<br>
+
+:: Dance Job Docks 3
+<<effects>>
+The <<person>> finds you and cups a hand to your ear so you can hear over the music. "We stacked those pallets into a stage," <<he>> shouts, pointing. "Start whenever you're ready!"
+<br><br>
+<<link [[Next|Dance Job Docks Start]]>><<endevent>><</link>>
+<br>
+
+:: Dance Job Docks Start
+<<effects>>
+<<pass 10>>
+You climb atop the pallet stage. It wobbles, but holds. A cheer goes up, and the crowd presses closer, all eyes on you.
+<br><br>
+<<dance_job_text>>
+<<link [[Next|Dance Job Docks Dance]]>><<set $dancestart to 1>><</link>>
+<br>
+
+:: Dance Job Docks Dance
+<<effects>>
+<<if $dancestart is 1>>
+	<<unset $dancestart>>
+	<<generate1>><<generate2>><<generate3>><<generate4>><<generate5>><<generate6>><<person1>>
+	<<danceinit>>
+	<<set $dancing to 1>>
+	<<set $audience to 25>>
+	<<set $venuemod to 1>>
+	<<set $dancelocation to "party">>
+	<<set $timer to 15>>
+<</if>>
+<<danceeffects>>
+<<danceaudience>>
+<<danceactions>>
+<<if $corruptionDancing gt 0 and $danceevent is 0 and ((!hasSexStat("exhibitionism", 5) and $exposed gte 2) or (!hasSexStat("exhibitionism", 3) and $exposed gte 1 and !$worn.under_lower.type.includes("dance")))>>
+	There's no way you could normally continue dancing while so exposed.
+<<elseif $danceevent is 0 and !hasSexStat("exhibitionism", 5) and $exposed gte 2>>
+	There's no way you can continue dancing while so exposed! Face reddening, you flee the scene.
+	<br><br>
+<<elseif $danceevent is 0 and !hasSexStat("exhibitionism", 3) and $exposed gte 1 and !$worn.under_lower.type.includes("dance")>>
+	There's no way you can continue dancing while so exposed! Face reddening, you flee the scene.
+	<br><br>
+<</if>>
+<<if $danceevent is "finish">>
+	<<link [[Next|Dance Job Docks Break]]>><<set $phase to 0>><<endevent>><</link>>
+<<elseif $danceevent is "dancepull">>
+	<<link [[Next|Dance Job Docks Arousal]]>><</link>>
+<<elseif $danceevent is 0>>
+	<<if $exposed gte 2 and !hasSexStat("exhibitionism", 5) and $forceddance isnot 1 and !$danceStudio.job.exposed>>
+		<<runicon>><<link [[Flee|Dance Job Docks Change]]>><<clotheson>><<endevent>><</link>>
+	<<elseif $exposed gte 1 and !hasSexStat("exhibitionism", 3) and $forceddance isnot 1 and !$danceStudio.job.exposed and !$worn.under_lower.type.includes("dance")>>
+		<<runicon>><<link [[Flee|Dance Job Docks Change]]>><<clotheson>><<endevent>><</link>>
+	<<elseif $timer lte 1>>
+		<<link [[Next|Dance Job Docks Break]]>><<set $phase to 1>><<endevent>><</link>>
+	<<else>>
+		<div id="stop"><<link [[Stop|Dance Job Docks Break]]>><<set $phase to 0>><<endevent>><</link>></div>
+	<</if>>
+<</if>>
+
+:: Dance Job Docks Arousal
+<<effects>>
+The other students haul <<him>> back before <<he>> can reach you, and frogmarch <<him>> out the door to a chorus of jeers.
+<br><br>
+"Sorry about that," a <<person2>><<person>> says. "Take a breather."
+<<endevent>>
+<br><br>
+<<link [[Next|Dance Job Docks Break]]>><<set $phase to 0>><<clotheson>><</link>>
+<br>
+
+:: Dance Job Docks Change
+<<effects>>
+<<pass 30>>
+You hop from the stage and weave through the crowd, taking cover behind a stack of crates near the back wall.<<gginterest>><<dance_job_interest 10>>
+<br><br>
+<<if $exposed gte 1>>
+	You search around and find a dusty tarpaulin, but nothing you could dance in.
+	<<towelup>>
+	<br><br>
+<</if>>
+<<link [[Next|Dance Job Docks Break]]>><<set $phase to 0>><</link>>
+<br>
+
+:: Dance Job Docks Break
+<<effects>>
+<<pass 30>>
+<<if $phase is 1>>
+	"That's enough for now," shouts a voice over the music. "Let the <<girl>> breathe!"<<ginterest>><<dance_job_interest 5>>
+<<else>>
+	You climb down from the pallet stage to scattered applause.
+<</if>>
+<br><br>
+<<dance_job_text>>
+<<if $timeStamp gte $danceStudio.job.time>>
+	The music mellows, and the crowd starts to thin. The <<generate1>><<person1>><<person>> who greeted you at the door finds you, and presses a rolled wad of notes into your hand. "You were amazing. Seriously."
+	<<if $danceStudio.job.interest gte 100>>
+		<span class="green">"We had a whip-round. You earned it."</span> You make <<printmoney `animalTfIncome(100000, "bunny")`>><<money `animalTfIncome(100000, "bunny")` "docksDanceJob">>.
+	<<else>>
+		You make <<printmoney `animalTfIncome(70000, "bunny")`>><<money `animalTfIncome(70000, "bunny")` "docksDanceJob">>.
+	<</if>>
+	<br><br>
+	<<silently>><<clotheson>><</silently>>
+	<<if $exposed gte 1>>
+		You say your goodbyes, and leave the building. <<He>> passes you some towels on the way out. "Can't have you catching a cold."
+		<<towelup>>
+		<br><br>
+	<<else>>
+		You say your goodbyes, and step out into the night air.
+		<br><br>
+	<</if>>
+	<<link [[Next|Mer Street]]>><<endevent>><<dance_job_end>><<set $eventskip to 1>><</link>>
+	<br>
+<<elseif $tiredness gte C.tiredness.max>>
+	A <<generate1>><<person1>><<person>> steadies you as you sway on your feet. "You look dead on your feet," <<he>> says. "Go home. A deal's a deal." <<He>> hands you your pay.
+	You make <<printmoney `animalTfIncome(70000, "bunny")`>><<money `animalTfIncome(70000, "bunny")` "docksDanceJob">>.
+	<br><br>
+	<<silently>><<clotheson>><</silently>>
+	<<link [[Next|Mer Street]]>><<endevent>><<dance_job_end>><<set $eventskip to 1>><</link>>
+	<br>
+<<else>>
+	The crowd is still lively, and there's time left on the clock.
+	<br><br>
+	<<link [[Return to the stage|Dance Job Docks Start]]>><</link>>
+	<br>
+	<<link [[Call it a night|Dance Job Docks Leave]]>><</link>>
+	<br>
+<</if>>
+
+:: Dance Job Docks Leave
+<<effects>>
+<<pass 10>>
+You find the <<generate1>><<person1>><<person>> who greeted you and explain that you need to go. <<He>> looks disappointed, but shrugs. "Fair enough. Thanks for coming out." <<He>> hands you a share of your pay.
+You make <<printmoney `animalTfIncome(30000, "bunny")`>><<money `animalTfIncome(30000, "bunny")` "docksDanceJob">>.
+<br><br>
+<<silently>><<clotheson>><</silently>>
+<<link [[Next|Mer Street]]>><<endevent>><<dance_job_end>><<set $eventskip to 1>><</link>>
+<br>
 
 :: Dance Job Stage Ask
 <<effects>>

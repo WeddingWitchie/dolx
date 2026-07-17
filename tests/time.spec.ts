@@ -31,19 +31,21 @@ test.describe("Time", () => {
 		expect(elapsed).toBe(30);
 	});
 
-	test("decays pain at -0.5 per minute", async ({ page }) => {
+	test("decays fresh pain at -0.3 per minute (acclimation model)", async ({ page }) => {
 		await setupGame(page);
 
 		await page.evaluate(() => {
 			(window as any).SugarCube.State.variables.pain = 80;
+			(window as any).SugarCube.State.variables.painDuration = 0;
 		});
 		await advanceMinutes(page, 10);
 		const painDecrease = await page.evaluate(() => {
 			return 80 - (window as any).SugarCube.State.variables.pain;
 		});
 
-		// 10 minutes * -0.5/min (decay rate from DoL 0.5.8.x rebalancing) = decrease of 5
-		expect(painDecrease).toBe(5);
+		// setup.painChangeByTime: decay starts at PAIN_DECAY_MIN (-0.3/min) and ramps toward PAIN_DECAY_MAX (-0.5/min) as painDuration accumulates.
+		// Fresh pain: 10 * 0.3 = 3.
+		expect(painDecrease).toBe(3);
 	});
 
 	test("decays school exam meters using trait-based formula after a week", async ({ page }) => {

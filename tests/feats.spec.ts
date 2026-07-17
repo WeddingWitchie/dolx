@@ -36,6 +36,12 @@ test.describe("Feats Boosts", () => {
 			// randomClothing is an exception (max 20)
 			if (key === "randomClothing") {
 				expect(detail.max).toBe(20);
+			} else if (key === "hopelessEndings") {
+				// Always available (max 1); per-ending VrelCoin costs are handled in the boost UI.
+				expect(detail.max).toBe(1);
+			} else if (key === "xchangePremiumPills") {
+				// No feat requirement; gated by VrelCoin cost per upgrade instead.
+				expect(detail.max).toBe(5);
 			} else {
 				expect(detail.max).toBe(0);
 			}
