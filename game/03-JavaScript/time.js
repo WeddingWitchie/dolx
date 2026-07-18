@@ -2037,11 +2037,11 @@ function dailyNPCEffects() {
 function dailyPlayerEffects() {
 	/* Insanity trait.
 	A permanent version ($insanityPermanent) is chosen at character creation and never adapts.
-	Otherwise it is gained after remaining heavily traumatised (trauma >= 50% of max) for 3 days straight, and is lost again as soon as the trauma subsides below that threshold. */
+	Otherwise it is gained after remaining heavily traumatised (trauma >= 65% of max) for 5 days straight, and is only lost again once the trauma has almost fully healed (below 5% of max). */
 	if (!V.insanityPermanent) {
-		if (V.trauma >= V.traumamax / 2) {
+		if (V.trauma >= V.traumamax * 0.65) {
 			V.insanityTraitDays = (V.insanityTraitDays ?? 0) + 1;
-			if (V.insanityTraitDays >= 3 && !V.backgroundTraits.includes("insanity")) {
+			if (V.insanityTraitDays >= 5 && !V.backgroundTraits.includes("insanity")) {
 				V.backgroundTraits.push("insanity");
 				V.insanityTraitMessage = "gain";
 				V.effectsmessage = 1;
@@ -2049,7 +2049,7 @@ function dailyPlayerEffects() {
 			}
 		} else {
 			V.insanityTraitDays = 0;
-			if (V.backgroundTraits.includes("insanity")) {
+			if (V.trauma < V.traumamax * 0.05 && V.backgroundTraits.includes("insanity")) {
 				V.backgroundTraits.delete("insanity");
 				V.insanityTraitMessage = "loss";
 				V.effectsmessage = 1;
