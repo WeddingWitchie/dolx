@@ -1675,6 +1675,46 @@ function animalTfIncome(value, ...types) {
 }
 window.animalTfIncome = animalTfIncome;
 
+/**
+ * Applies the full divine transformation income bonus.
+ * Fallen angels gain +20% from every income type. Angels gain +50% from non-sexual income, while demons gain +50% from sexualised work.
+ * The source names mirror moneyStats; callers can pass "slut" or "normal" when a generic source does not describe the action clearly.
+ *
+ * @param {number} value income value to modify
+ * @param {string} [source] moneyStats source
+ * @param {string} [incomeType] explicit "slut" or "normal" classification
+ * @returns {number} modified value
+ */
+function divineTfIncome(value, source = "", incomeType) {
+	let result = Number(value) || 0;
+	if (result <= 0) return result;
+
+	const sourceName = String(source || V.location || "").toLowerCase();
+	if (["debug", "startingmoney", "nottracked", "bankloan"].includes(sourceName) || sourceName.includes("refund") || incomeType === "none") {
+		return result;
+	}
+
+	let slutIncome = incomeType === "slut";
+	if (incomeType !== "normal" && incomeType !== "slut") {
+		slutIncome =
+			sourceName.includes("prostitution") ||
+			sourceName === "avery" ||
+			sourceName === "brothel" ||
+			sourceName === "stripclub" ||
+			sourceName.includes("brothelshow") ||
+			sourceName.includes("gloryhole") ||
+			sourceName.includes("exhibitionism") ||
+			sourceName.includes("dance");
+	}
+
+	if (Transformations.effectiveLevel("fallen") >= 2) result *= 1.2;
+	else if (Transformations.effectiveLevel("angel") >= 6 && !slutIncome) result *= 1.5;
+	else if (Transformations.effectiveLevel("demon") >= 6 && slutIncome) result *= 1.5;
+
+	return Math.round(result);
+}
+window.divineTfIncome = divineTfIncome;
+
 function animalTfValuableChance(value, ...types) {
 	return animalTfMultiplier(value, 0.5, types);
 }

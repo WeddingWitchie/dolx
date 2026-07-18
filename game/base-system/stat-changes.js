@@ -1294,6 +1294,12 @@ const statChange = (() => {
 			amount = window.animalTfIncome(amount, "cat");
 		}
 
+		/* Full divine TFs boost income according to the kind of work.
+		Transfers and reconstructed statistics either bypass <<money>> or use recordOnly, so they cannot create free cash. */
+		if (amount > 0 && !optional.recordOnly && !optional.divineTfAdjusted) {
+			amount = window.divineTfIncome(amount, source, optional.incomeType);
+		}
+
 		/* X-Change inflation: market purchases get pricier as the player's cash grows.
 		   The surcharge is clamped so it can never overdraw the player and trigger the affordability error below. */
 		if (amount < 0 && !optional.recordOnly && typeof setup !== "undefined" && setup.inflation && setup.inflation.appliesToSpend(source)) {

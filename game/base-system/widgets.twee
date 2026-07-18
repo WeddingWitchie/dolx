@@ -3236,8 +3236,9 @@
 		<<set $tip to animalTfIncome($tip, "cat")>>
 		<<set _animalTfAdjusted to true>>
 	<</if>>
+	<<set $tip to divineTfIncome($tip, _args[0] ? _args[0] : "")>>
 	<span class="gold"><<if random(1, 10000) is 10000>>You gain Brouzouf<<else>>You make<</if>> <<printmoney $tip>>.</span>
-	<<money $tip `_args[0] ? _args[0] : ""` `{ animalTfAdjusted: _animalTfAdjusted is true }`>>
+	<<money $tip `_args[0] ? _args[0] : ""` `{ animalTfAdjusted: _animalTfAdjusted is true, divineTfAdjusted: true }`>>
 	<<if $tip gte 50000>>
 		<<earnFeat "Negotiator">>
 	<</if>>
@@ -5696,7 +5697,8 @@
 	<<if _args[2]>>
 		<<crimeUp `_money_gain / 100` "thievery">>
 	<</if>>
-	<<money _money_gain `_args[3] ? _args[3] : (_args[2] ? "thievery" : "")`>>
+	<<set _money_gain to divineTfIncome(_money_gain, _args[3] ? _args[3] : (_args[2] ? "thievery" : ""))>>
+	<<money _money_gain `_args[3] ? _args[3] : (_args[2] ? "thievery" : "")` { divineTfAdjusted: true }>>
 <</silently>><<printmoney _money_gain>><</widget>>
 
 /*
@@ -5720,7 +5722,21 @@
 		<<set _skulduggeryMulti to 1>>
 	<</if>>
 	<<set _money_gain to Math.floor((_base_amount + _variation) * _skulduggeryMulti)>>
-<</silently>><<printmoney _money_gain>><</widget>>
+	<<set _money_gain_display to divineTfIncome(_money_gain, _args[3] ? _args[3] : (_args[2] ? "thievery" : ""))>>
+<</silently>><<printmoney _money_gain_display>><</widget>>
+
+/* Adds stolen-goods value in pounds. The later fencing payout is a separate income event,
+   so divine TF bonuses intentionally apply again when the goods are sold. */
+<<widget "blackmoney">><<silently>>
+	<<set $blackmoney += divineTfIncome(_args[0], "blackMoney", _args[1])>>
+<</silently>><</widget>>
+
+/* Awards and prints a cash income after applying the divine TF bonus once.
+   Argument 3 marks values already adjusted by an animal TF helper. */
+<<widget "income">><<silently>>
+	<<set _incomeAmount to divineTfIncome(_args[0], _args[1], _args[3])>>
+	<<money _incomeAmount _args[1] `{ divineTfAdjusted: true, animalTfAdjusted: _args[2] is true }`>>
+<</silently>><<printmoney _incomeAmount>><</widget>>
 
 <<widget "printmoney">><<silently>><!-- (amount in pennies, highlight toggle) -->
 	<<if _args.length gt 2 or typeof(_args[0]) isnot "number">><!-- sanity checks -->

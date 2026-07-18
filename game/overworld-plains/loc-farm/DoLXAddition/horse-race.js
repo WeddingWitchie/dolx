@@ -27,7 +27,7 @@ setup.horserace = setup.horserace || {};
 			viewBox: "0 0 1000 540",
 			/* The path starts on the finish/start line, so horses do not begin somewhere else. */
 			path: "M 250 400 L 750 400 C 875 400 930 340 930 270 C 930 200 875 140 750 140 L 250 140 C 125 140 70 200 70 270 C 70 340 125 400 250 400 Z",
-			finish: { x1: 250, y1: 365, x2: 250, y2: 435 }
+			finish: { x1: 250, y1: 365, x2: 250, y2: 435 },
 		},
 		cross: {
 			name: "Infield Circuit",
@@ -35,12 +35,9 @@ setup.horserace = setup.horserace || {};
 			viewBox: "0 0 1000 540",
 			/* The path starts on the finish/start line, so the markers and line match. */
 			path: "M 250 420 L 780 420 C 895 420 945 360 945 285 C 945 210 895 150 780 150 L 220 150 C 105 150 55 210 55 285 C 55 360 105 420 220 420 L 250 420 Z",
-			innerPaths: [
-				"M 250 150 L 750 420",
-				"M 220 420 L 780 150"
-			],
-			finish: { x1: 250, y1: 385, x2: 250, y2: 455 }
-		}
+			innerPaths: ["M 250 150 L 750 420", "M 220 420 L 780 150"],
+			finish: { x1: 250, y1: 385, x2: 250, y2: 455 },
+		},
 	};
 
 	HR.skillPool = [
@@ -48,191 +45,236 @@ setup.horserace = setup.horserace || {};
 			id: "steady_stride",
 			name: "Steady Stride",
 			description: "Keeps a clean rhythm and builds speed over time.",
-			condition: function (horse, race) { return horse.progress >= 15 && horse.progress <= 75 && horse.stamina > 35; },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return horse.progress >= 15 && horse.progress <= 75 && horse.stamina > 35;
+			},
+			effect(horse, race, log) {
 				horse.boost += 2.1;
 				horse.focus += 4;
 				horse.stamina -= 3;
 				log.push(`${horse.name} finds a steady stride and starts gaining ground.`);
-			}
+			},
 		},
 		{
 			id: "steady_breath",
 			name: "Steady Breath",
 			description: "Recovers stamina while keeping pace.",
-			condition: function (horse) { return horse.stamina < 78; },
-			effect: function (horse, race, log) {
+			condition(horse) {
+				return horse.stamina < 78;
+			},
+			effect(horse, race, log) {
 				horse.stamina += 14;
 				horse.boost += 0.4;
 				log.push(`${horse.name}'s breathing steadies, saving strength for later.`);
-			}
+			},
 		},
 		{
 			id: "inner_rail",
 			name: "Inner Rail",
 			description: "Uses the inside lane cleanly.",
-			condition: function (horse) { return horse.lane <= 2; },
-			effect: function (horse, race, log) {
+			condition(horse) {
+				return horse.lane <= 2;
+			},
+			effect(horse, race, log) {
 				horse.progress += 3;
 				horse.boost += 1.1;
 				log.push(`${horse.name} stays close to the inner rail and moves ahead.`);
-			}
+			},
 		},
 		{
 			id: "corner_cutter",
 			name: "Corner Cutter",
 			description: "Accelerates through tight corners.",
-			condition: function (horse, race) { return race.trackId === "cross" || horse.progress % 25 > 14; },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return race.trackId === "cross" || horse.progress % 25 > 14;
+			},
+			effect(horse, race, log) {
 				horse.progress += race.trackId === "cross" ? 4 : 2.5;
 				horse.boost += 1.2;
 				log.push(`${horse.name} turns the corner smoothly and keeps its speed.`);
-			}
+			},
 		},
 		{
 			id: "draft_chaser",
 			name: "Draft Chaser",
 			description: "Uses the horse ahead as a windbreak.",
-			condition: function (horse, race) { return HR.rankOf(race, horse.id) > 1 && HR.distanceToNextHorse(race, horse.id) <= 9; },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return HR.rankOf(race, horse.id) > 1 && HR.distanceToNextHorse(race, horse.id) <= 9;
+			},
+			effect(horse, race, log) {
 				horse.boost += 2.5;
 				horse.stamina += 5;
 				log.push(`${horse.name} follows another runner closely, then gets ready to speed up.`);
-			}
+			},
 		},
 		{
 			id: "pace_lock",
 			name: "Pace Lock",
 			description: "Finds a smooth rhythm.",
-			condition: function () { return true; },
-			effect: function (horse, race, log) {
+			condition() {
+				return true;
+			},
+			effect(horse, race, log) {
 				horse.boost += 1.8;
 				horse.focus += 3;
 				log.push(`${horse.name} settles into a smooth pace.`);
-			}
+			},
 		},
 		{
 			id: "mud_dancer",
 			name: "Mud Dancer",
 			description: "Performs better when the track is wet or muddy.",
-			condition: function (horse, race) { return race.condition === "wet" || race.condition === "muddy"; },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return race.condition === "wet" || race.condition === "muddy";
+			},
+			effect(horse, race, log) {
 				horse.progress += race.condition === "muddy" ? 5 : 3;
 				horse.boost += 1.3;
 				log.push(`${horse.name} handles the bad ground easily.`);
-			}
+			},
 		},
 		{
 			id: "sunlit_stride",
 			name: "Sunlit Stride",
 			description: "Shines on a clear track.",
-			condition: function (horse, race) { return race.condition === "clear"; },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return race.condition === "clear";
+			},
+			effect(horse, race, log) {
 				horse.boost += 2.2;
 				horse.progress += 2;
 				log.push(`${horse.name} picks up speed on the clear track.`);
-			}
+			},
 		},
 		{
 			id: "fearless_chase",
 			name: "Fearless Chase",
 			description: "Closes the gap when behind.",
-			condition: function (horse, race) { return HR.rankOf(race, horse.id) >= Math.ceil(race.horses.length / 2); },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return HR.rankOf(race, horse.id) >= Math.ceil(race.horses.length / 2);
+			},
+			effect(horse, race, log) {
 				horse.boost += 2.8;
 				log.push(`${horse.name} refuses to be left behind and starts chasing hard.`);
-			}
+			},
 		},
 		{
 			id: "leader_pride",
 			name: "Leader's Pride",
 			description: "Runs harder when already in first place.",
-			condition: function (horse, race) { return HR.rankOf(race, horse.id) === 1; },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return HR.rankOf(race, horse.id) === 1;
+			},
+			effect(horse, race, log) {
 				horse.boost += 1.5;
 				horse.stamina += 6;
 				log.push(`${horse.name} feels the others closing in and pushes harder.`);
-			}
+			},
 		},
 		{
 			id: "tempo_breaker",
 			name: "Tempo Breaker",
 			description: "Breaks another runner's rhythm.",
-			condition: function (horse, race) { return race.horses.length > 1 && horse.progress > 20 && horse.progress < 85; },
-			effect: function (horse, race, log) {
+			condition(horse, race) {
+				return race.horses.length > 1 && horse.progress > 20 && horse.progress < 85;
+			},
+			effect(horse, race, log) {
 				const target = HR.nearestRival(race, horse.id);
 				if (target) {
 					target.boost -= 1.4;
 					target.stamina -= 5;
 					log.push(`${horse.name} shifts tempo and disrupts ${target.name}'s rhythm.`);
 				}
-			}
+			},
 		},
 		{
 			id: "track_reader",
 			name: "Track Reader",
 			description: "Chooses the best route through difficult tracks.",
-			condition: function () { return true; },
-			effect: function (horse, race, log) {
+			condition() {
+				return true;
+			},
+			effect(horse, race, log) {
 				horse.progress += race.trackId === "cross" ? 4 : 2;
 				horse.focus += 6;
 				log.push(`${horse.name} reads the track and chooses a better line.`);
-			}
+			},
 		},
 		{
 			id: "second_wind",
 			name: "Second Wind",
 			description: "Recovers from exhaustion.",
-			condition: function (horse) { return horse.stamina < 45 && horse.progress > 35; },
-			effect: function (horse, race, log) {
+			condition(horse) {
+				return horse.stamina < 45 && horse.progress > 35;
+			},
+			effect(horse, race, log) {
 				horse.stamina += 24;
 				horse.boost += 1;
 				log.push(`${horse.name} finds a second wind when it should be fading.`);
-			}
+			},
 		},
 		{
 			id: "final_burst",
 			name: "Final Burst",
 			description: "Speeds up when the horse is close to the finish.",
-			condition: function (horse) {
+			condition(horse) {
 				return horse.progress >= 65;
 			},
-			effect: function (horse, race, log) {
+			effect(horse, race, log) {
 				horse.boost += 4.2;
 				log.push(`${horse.name} saves its strength, then bursts forward near the finish.`);
-			}
+			},
 		},
 		{
 			id: "last_fang",
 			name: "Final Push",
 			description: "Speeds up near the end when the horse is not in first place.",
-			condition: function (horse, race) {
+			condition(horse, race) {
 				return horse.progress >= 78 && HR.rankOf(race, horse.id) > 1;
 			},
-			effect: function (horse, race, log) {
+			effect(horse, race, log) {
 				horse.progress += 6;
 				horse.boost += 2;
 				log.push(`${horse.name} makes a final push for the finish line.`);
-			}
-		}
+			},
+		},
 	];
 
 	HR.horseNames = [
-		"Velvet Comet", "Green Bullet", "Old Crown", "Silver Orchard", "Saltwind",
-		"Midnight Loan", "Card Shark", "Foxglove", "Bright Rumour", "Rain Partner",
-		"Lucky Riot", "Amber Needle", "Glass Herald", "Cinder Waltz", "North Chapel",
-		"Paper Moon", "Blue Rascal", "Hidden Parish", "Cherry Debt", "Quiet Siren",
-		"Red Lantern", "Ashen Clover", "Copper Saint", "Dawn Treaty", "Moss Chapel"
+		"Velvet Comet",
+		"Green Bullet",
+		"Old Crown",
+		"Silver Orchard",
+		"Saltwind",
+		"Midnight Loan",
+		"Card Shark",
+		"Foxglove",
+		"Bright Rumour",
+		"Rain Partner",
+		"Lucky Riot",
+		"Amber Needle",
+		"Glass Herald",
+		"Cinder Waltz",
+		"North Chapel",
+		"Paper Moon",
+		"Blue Rascal",
+		"Hidden Parish",
+		"Cherry Debt",
+		"Quiet Siren",
+		"Red Lantern",
+		"Ashen Clover",
+		"Copper Saint",
+		"Dawn Treaty",
+		"Moss Chapel",
 	];
 
 	HR.fallbackConditions = ["turf", "dirt", "wet", "muddy"];
 
 	HR.normaliseWeatherName = function (raw) {
-		const types = typeof setup !== "undefined"
-			&& setup.WeatherGeneration
-			&& Array.isArray(setup.WeatherGeneration.weatherTypes)
-			? setup.WeatherGeneration.weatherTypes
-			: [];
+		const types =
+			typeof setup !== "undefined" && setup.WeatherGeneration && Array.isArray(setup.WeatherGeneration.weatherTypes)
+				? setup.WeatherGeneration.weatherTypes
+				: [];
 
 		if (raw && typeof raw === "object") {
 			for (const key of ["name", "type", "weather", "current", "condition"]) {
@@ -275,25 +317,13 @@ setup.horserace = setup.horserace || {};
 
 		try {
 			if (typeof Weather !== "undefined") {
-				candidates.push(
-					Weather.current,
-					Weather.name,
-					Weather.type,
-					Weather.weather,
-					Weather.condition,
-					Weather.currentWeather
-				);
+				candidates.push(Weather.current, Weather.name, Weather.type, Weather.weather, Weather.condition, Weather.currentWeather);
 			}
 		} catch (e) {
 			/* Weather object may not exist on older builds. */
 		}
 
-		candidates.push(
-			V.weather,
-			V.weatherType,
-			V.currentWeather,
-			V.weather_current
-		);
+		candidates.push(V.weather, V.weatherType, V.currentWeather, V.weather_current);
 
 		for (const candidate of candidates) {
 			const found = HR.normaliseWeatherName(candidate);
@@ -312,7 +342,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "clear",
 					label: "clear",
-					description: "The track is dry; the horses can run at full speed."
+					description: "The track is dry; the horses can run at full speed.",
 				};
 
 			case "lightClouds":
@@ -320,7 +350,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "clear",
 					label: "good",
-					description: "The weather is mild, but the track is still easy to run on."
+					description: "The weather is mild, but the track is still easy to run on.",
 				};
 
 			case "heavyClouds":
@@ -328,7 +358,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "clear",
 					label: "cloudy",
-					description: "The sky is overcast, but the ground is still good."
+					description: "The sky is overcast, but the ground is still good.",
 				};
 
 			case "lightPrecipitation":
@@ -336,7 +366,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "wet",
 					label: "wet",
-					description: "Light rain has made the track slippery."
+					description: "Light rain has made the track slippery.",
 				};
 
 			case "heavyPrecipitation":
@@ -344,7 +374,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "wet",
 					label: "soft",
-					description: "Heavy rain has soaked the track, making it harder to run on."
+					description: "Heavy rain has soaked the track, making it harder to run on.",
 				};
 
 			case "storm":
@@ -352,7 +382,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "muddy",
 					label: "muddy",
-					description: "The storm has turned parts of the track to mud."
+					description: "The storm has turned parts of the track to mud.",
 				};
 
 			case "thunderstorm":
@@ -360,7 +390,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "muddy",
 					label: "heavy",
-					description: "Thunder and heavy rain make the track difficult."
+					description: "Thunder and heavy rain make the track difficult.",
 				};
 
 			default: {
@@ -369,7 +399,7 @@ setup.horserace = setup.horserace || {};
 					weatherName: "",
 					condition: fallback,
 					label: fallback,
-					description: ""
+					description: "",
 				};
 			}
 		}
@@ -477,10 +507,11 @@ setup.horserace = setup.horserace || {};
 			return false;
 		}
 
-		if (State.variables.debug === 1) {console.error(`Cannot open passage: ${target}`);}
+		if (State.variables.debug === 1) {
+			console.error(`Cannot open passage: ${target}`);
+		}
 		return false;
 	};
-
 
 	HR.refreshGameSidebar = function () {
 		try {
@@ -491,8 +522,7 @@ setup.horserace = setup.horserace || {};
 			if (typeof window !== "undefined" && window.SugarCube && window.SugarCube.UIBar && typeof window.SugarCube.UIBar.update === "function") {
 				window.SugarCube.UIBar.update();
 			}
-		}
-		catch (e) {
+		} catch (e) {
 			if (State && State.variables && State.variables.debug === 1) {
 				console.warn("Horse race could not refresh the sidebar.", e);
 			}
@@ -505,16 +535,13 @@ setup.horserace = setup.horserace || {};
 
 		try {
 			const wiki = `<<pass ${amount}>>`;
-			const fragment = typeof document !== "undefined" ? document.createDocumentFragment() : null;
-			if (typeof Wikifier === "function") {
-				new Wikifier(fragment, wiki);
-			}
-			else if (typeof window !== "undefined" && typeof window.Wikifier === "function") {
-				new window.Wikifier(fragment, wiki);
+			if (typeof Wikifier !== "undefined" && typeof Wikifier.wikifyEval === "function") {
+				Wikifier.wikifyEval(wiki);
+			} else if (typeof window !== "undefined" && typeof window.Wikifier?.wikifyEval === "function") {
+				window.Wikifier.wikifyEval(wiki);
 			}
 			HR.refreshGameSidebar();
-		}
-		catch (e) {
+		} catch (e) {
 			if (State && State.variables && State.variables.debug === 1) {
 				console.warn("Horse race could not run <<pass>>.", e);
 			}
@@ -560,7 +587,6 @@ setup.horserace = setup.horserace || {};
 			race.lossStressPending = true;
 		}
 	};
-
 
 	HR.ensureState = function () {
 		const V = State.variables;
@@ -654,7 +680,7 @@ setup.horserace = setup.horserace || {};
 			skills: HR.randomSkills(3),
 			skillHistory: [],
 			odds: 2.0,
-			formScore: baseSpeed * 0.52 + stamina * 0.30 + focus * 0.14 + kick * 5
+			formScore: baseSpeed * 0.52 + stamina * 0.3 + focus * 0.14 + kick * 5,
 		};
 	};
 
@@ -697,7 +723,10 @@ setup.horserace = setup.horserace || {};
 		const count = HR.randInt(minCount, maxCount);
 		const names = HR.shuffle(namePool).slice(0, count);
 		const horses = names.map((name, index) => HR.createHorse(name, index));
-		const bestScore = Math.max.apply(null, horses.map(horse => horse.formScore));
+		const bestScore = Math.max.apply(
+			null,
+			horses.map(horse => horse.formScore)
+		);
 
 		for (const horse of horses) {
 			const weakness = Math.max(0, bestScore - horse.formScore);
@@ -885,9 +914,7 @@ setup.horserace = setup.horserace || {};
 		const baseChance = 0.13 + horse.focus / 900 + (horse.progress >= 70 ? 0.05 : 0);
 		if (Math.random() > HR.clamp(baseChance, 0.12, 0.31)) return;
 
-		const candidates = horse.skills
-			.map(skillId => HR.getSkill(skillId))
-			.filter(skill => skill && skill.condition(horse, race));
+		const candidates = horse.skills.map(skillId => HR.getSkill(skillId)).filter(skill => skill && skill.condition(horse, race));
 
 		if (candidates.length === 0) return;
 
@@ -901,7 +928,7 @@ setup.horserace = setup.horserace || {};
 				horseName: horse.name,
 				skillName: skill.name,
 				round: race.round,
-				text: String(log[i] == null ? "" : log[i])
+				text: String(log[i] == null ? "" : log[i]),
 			};
 		}
 		horse.lastSkillRound = race.round;
@@ -942,8 +969,7 @@ setup.horserace = setup.horserace || {};
 
 		if (race.accident) {
 			const incidentHorse = HR.getHorse(race.betHorseId);
-			if (incidentHorse && incidentHorse.accident !== true
-				&& (incidentHorse.progress >= 82 || race.round >= race.accidentAtRound)) {
+			if (incidentHorse && incidentHorse.accident !== true && (incidentHorse.progress >= 82 || race.round >= race.accidentAtRound)) {
 				HR.triggerAccident();
 			}
 		}
@@ -1009,7 +1035,7 @@ setup.horserace = setup.horserace || {};
 		const accidentMessage = {
 			type: "accident",
 			horseId: horse.id,
-			text: accidentText
+			text: accidentText,
 		};
 
 		race.messages = [accidentMessage];
@@ -1104,7 +1130,9 @@ setup.horserace = setup.horserace || {};
 		if (status) {
 			status.textContent = race.autoWatch
 				? "The horses are running."
-				: (race.round > 0 ? "The race is paused." : "The horses are lined up. Start watching when you are ready.");
+				: race.round > 0
+				? "The race is paused."
+				: "The horses are lined up. Start watching when you are ready.";
 		}
 	};
 
@@ -1170,10 +1198,16 @@ setup.horserace = setup.horserace || {};
 		const result = HR.escapeJsArg(resultPassage);
 		const label = HR.escapeJsArg(resultLabel || "See the result");
 		const wait = Number.isFinite(Number(delay)) ? Number(delay) : HR.DEFAULT_WATCH_DELAY;
-		return `<p id="horse-race-watch-status" class="horse-race-watch-status">${race.round > 0 ? "The race is paused." : "The horses are lined up. Start watching when you are ready."}</p>
+		return `<p id="horse-race-watch-status" class="horse-race-watch-status">${
+			race.round > 0 ? "The race is paused." : "The horses are lined up. Start watching when you are ready."
+		}</p>
 		<div id="horse-race-controls" class="horse-race-controls">
-			<button type="button" data-horse-watch onclick="return setup.horserace.startLiveWatch(${result}, ${wait}, ${label});"${race.autoWatch ? " disabled" : ""}>${HR.escapeHtml(watchLabel || "Start watching")}</button>
-			<button type="button" data-horse-pause onclick="return setup.horserace.pauseLiveWatch(${result}, ${label});"${race.autoWatch ? "" : " disabled"}>${HR.escapeHtml(pauseLabel || "Pause watching")}</button>
+			<button type="button" data-horse-watch onclick="return setup.horserace.startLiveWatch(${result}, ${wait}, ${label});"${
+			race.autoWatch ? " disabled" : ""
+		}>${HR.escapeHtml(watchLabel || "Start watching")}</button>
+			<button type="button" data-horse-pause onclick="return setup.horserace.pauseLiveWatch(${result}, ${label});"${
+			race.autoWatch ? "" : " disabled"
+		}>${HR.escapeHtml(pauseLabel || "Pause watching")}</button>
 		</div>`;
 	};
 
@@ -1194,7 +1228,10 @@ setup.horserace = setup.horserace || {};
 			const betHorse = HR.getHorse(race.betHorseId);
 			if (race.won && betHorse) {
 				const margin = Number.isFinite(HR.PAYOUT_MARGIN) ? HR.clamp(HR.PAYOUT_MARGIN, 0, 1) : 1;
-				race.payout = HR.roundMoney(race.betAmount * betHorse.odds * margin);
+				const basePayout = HR.roundMoney(race.betAmount * betHorse.odds * margin);
+				const baseProfit = Math.max(0, basePayout - race.betAmount);
+				const boostedProfit = window.divineTfIncome(baseProfit, "horseRace");
+				race.payout = HR.roundMoney(basePayout + boostedProfit - baseProfit);
 				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.payout);
 			} else {
 				HR.recordLoss();
@@ -1212,15 +1249,17 @@ setup.horserace = setup.horserace || {};
 
 	HR.renderHorseList = function () {
 		const race = HR.ensureState();
-		const rows = race.horses.map(function (horse) {
-			return `<tr>
+		const rows = race.horses
+			.map(function (horse) {
+				return `<tr>
 				<td>${horse.lane}</td>
 				<td><strong>${HR.escapeHtml(horse.name)}</strong></td>
 				<td>${horse.odds.toFixed(2)}x</td>
 				<td>${horse.baseSpeed}</td>
 				<td>${horse.maxStamina}</td>
 			</tr>`;
-		}).join("");
+			})
+			.join("");
 
 		const track = HR.trackDefs[race.trackId];
 		return `<div class="horse-race-panel">
@@ -1237,26 +1276,30 @@ setup.horserace = setup.horserace || {};
 		const race = HR.ensureState();
 		const track = HR.trackDefs[race.trackId] || HR.trackDefs.oval;
 		const raceId = HR.escapeHtml(race.id || "horse-race");
-		const markers = race.horses.map(function (horse, index) {
-			const label = HR.escapeHtml(String(index + 1));
-			const name = HR.escapeHtml(horse.name);
-			const incidentClass = horse.accident === true || horse.id === race.incidentHorseId ? " horse-race-incident-horse" : "";
-			return `<g class="horse-race-marker${incidentClass}" data-horse-id="${HR.escapeHtml(horse.id)}" data-progress="${horse.progress.toFixed(2)}" data-lane-index="${index}" data-name="${name}">
+		const markers = race.horses
+			.map(function (horse, index) {
+				const label = HR.escapeHtml(String(index + 1));
+				const name = HR.escapeHtml(horse.name);
+				const incidentClass = horse.accident === true || horse.id === race.incidentHorseId ? " horse-race-incident-horse" : "";
+				return `<g class="horse-race-marker${incidentClass}" data-horse-id="${HR.escapeHtml(horse.id)}" data-progress="${horse.progress.toFixed(2)}" data-lane-index="${index}" data-name="${name}">
 				<title>${name}: ${Math.floor(horse.progress)}%</title>
 				<circle r="15"></circle>
 				<text text-anchor="middle" dominant-baseline="central">${label}</text>
 			</g>`;
-		}).join("");
+			})
+			.join("");
 
-		const progressRows = race.horses.map(function (horse) {
-			const betClass = horse.id === race.betHorseId ? " horse-race-backed" : "";
-			const incidentClass = horse.accident === true || horse.id === race.incidentHorseId ? " horse-race-incident-horse" : "";
-			return `<div class="horse-race-progress${betClass}${incidentClass}" data-horse-id="${HR.escapeHtml(horse.id)}">
+		const progressRows = race.horses
+			.map(function (horse) {
+				const betClass = horse.id === race.betHorseId ? " horse-race-backed" : "";
+				const incidentClass = horse.accident === true || horse.id === race.incidentHorseId ? " horse-race-incident-horse" : "";
+				return `<div class="horse-race-progress${betClass}${incidentClass}" data-horse-id="${HR.escapeHtml(horse.id)}">
 				<span>${horse.lane}. ${HR.escapeHtml(horse.name)}</span>
 				<meter min="0" max="100" value="${horse.progress.toFixed(2)}"></meter>
 				<span data-progress-text>${Math.floor(horse.progress)}%</span>
 			</div>`;
-		}).join("");
+			})
+			.join("");
 
 		const finish = track.finish || {};
 		const finishX1 = Number.isFinite(finish.x1) ? finish.x1 : finish.x;
@@ -1317,19 +1360,25 @@ setup.horserace = setup.horserace || {};
 
 	HR.renderRaceLog = function () {
 		const race = HR.ensureState();
-		const messages = (race.messageHistory.length > 0
-			? race.messageHistory
-			: (race.messages.length > 0 ? race.messages : ["The crowd waits for the next move."])).slice(0, 3);
-		const items = messages.map(function (message) {
-			if (message && typeof message === "object" && message.type === "accident") {
-				return `<li class="horse-race-accident-log" style="color:#ff6b6b;"><strong>${HR.escapeHtml(message.text || "A horse is pulled up after an incident.")}</strong></li>`;
-			}
-			if (message && typeof message === "object" && message.type === "skill") {
-				const round = Number.isFinite(message.round) ? `<span class="horse-race-log-round">Moment ${message.round}</span> ` : "";
-				return `<li class="horse-race-skill-log">${round}<span class="horse-race-skill-badge">${HR.escapeHtml(message.skillName || "Skill")}</span> <strong>${HR.escapeHtml(message.horseName || "Horse")}</strong>: ${HR.escapeHtml(message.text || "surges forward.")}</li>`;
-			}
-			return `<li>${HR.escapeHtml(message)}</li>`;
-		}).join("");
+		const messages = (
+			race.messageHistory.length > 0 ? race.messageHistory : race.messages.length > 0 ? race.messages : ["The crowd waits for the next move."]
+		).slice(0, 3);
+		const items = messages
+			.map(function (message) {
+				if (message && typeof message === "object" && message.type === "accident") {
+					return `<li class="horse-race-accident-log" style="color:#ff6b6b;"><strong>${HR.escapeHtml(
+						message.text || "A horse is pulled up after an incident."
+					)}</strong></li>`;
+				}
+				if (message && typeof message === "object" && message.type === "skill") {
+					const round = Number.isFinite(message.round) ? `<span class="horse-race-log-round">Moment ${message.round}</span> ` : "";
+					return `<li class="horse-race-skill-log">${round}<span class="horse-race-skill-badge">${HR.escapeHtml(
+						message.skillName || "Skill"
+					)}</span> <strong>${HR.escapeHtml(message.horseName || "Horse")}</strong>: ${HR.escapeHtml(message.text || "surges forward.")}</li>`;
+				}
+				return `<li>${HR.escapeHtml(message)}</li>`;
+			})
+			.join("");
 		return `<div id="horse-race-log-area" class="horse-race-log"><strong>Race log</strong><ul>${items}</ul></div>`;
 	};
 
@@ -1339,37 +1388,43 @@ setup.horserace = setup.horserace || {};
 
 		const incidentHorse = race.incidentHorseId ? HR.getHorse(race.incidentHorseId) : null;
 
-		const ranked = race.ranking
-			.map(horseId => HR.getHorse(horseId))
-			.filter(Boolean);
-		const rows = ranked.map(function (horse, index) {
-			const backed = horse.id === race.betHorseId ? " backed" : "";
-			const incident = horse.accident === true || horse.id === race.incidentHorseId;
-			const resultText = incident
-				? `<strong><span style="color:#ff6b6b;">Accident</span></strong>`
-				: `${Math.floor(horse.progress)}%`;
+		const ranked = race.ranking.map(horseId => HR.getHorse(horseId)).filter(Boolean);
+		const rows = ranked
+			.map(function (horse, index) {
+				const backed = horse.id === race.betHorseId ? " backed" : "";
+				const incident = horse.accident === true || horse.id === race.incidentHorseId;
+				const resultText = incident ? `<strong><span style="color:#ff6b6b;">Accident</span></strong>` : `${Math.floor(horse.progress)}%`;
 
-			return `<tr class="${backed}">
+				return `<tr class="${backed}">
 				<td>${index + 1}</td>
 				<td>${HR.escapeHtml(horse.name)}</td>
 				<td>${resultText}</td>
 			</tr>`;
-		}).join("");
+			})
+			.join("");
 
 		const winner = HR.getHorse(race.winnerId);
 
 		if (incidentHorse) {
 			const winnerLine = winner
-				? `<p><strong>${HR.escapeHtml(winner.name)}</strong> crosses the winning post first, but the crowd is still looking back towards ${HR.escapeHtml(incidentHorse.name)}.</p>`
+				? `<p><strong>${HR.escapeHtml(winner.name)}</strong> crosses the winning post first, but the crowd is still looking back towards ${HR.escapeHtml(
+						incidentHorse.name
+				  )}.</p>`
 				: `<p>The field reaches the end in confusion while the officials check the track.</p>`;
 
 			const stakeLine = race.accidentRefund
-				? `<p><strong><span style="color:#ffcf6b;">Your stake is returned.</span></strong> ${HR.escapeHtml(incidentHorse.name)} was pulled from the race, so your ${HR.formatMoney(race.betAmount)} bet wins nothing.</p>`
-				: `<p><strong><span style="color:#ff6b6b;">Your stake is lost.</span></strong> ${HR.escapeHtml(incidentHorse.name)} was pulled from the race, and the bookie keeps your ${HR.formatMoney(race.betAmount)} bet.</p>`;
+				? `<p><strong><span style="color:#ffcf6b;">Your stake is returned.</span></strong> ${HR.escapeHtml(
+						incidentHorse.name
+				  )} was pulled from the race, so your ${HR.formatMoney(race.betAmount)} bet wins nothing.</p>`
+				: `<p><strong><span style="color:#ff6b6b;">Your stake is lost.</span></strong> ${HR.escapeHtml(
+						incidentHorse.name
+				  )} was pulled from the race, and the bookie keeps your ${HR.formatMoney(race.betAmount)} bet.</p>`;
 
 			return `<div class="horse-race-result">
 				${winnerLine}
-				<p><strong><span style="color:#ff6b6b;">${HR.escapeHtml(incidentHorse.name)} suffered an incident.</span></strong> Medics hurry onto the track while the other horses finish the race.</p>
+				<p><strong><span style="color:#ff6b6b;">${HR.escapeHtml(
+					incidentHorse.name
+				)} suffered an incident.</span></strong> Medics hurry onto the track while the other horses finish the race.</p>
 				${stakeLine}
 				<table class="horse-race-table">
 					<thead><tr><th>Place</th><th>Horse</th><th>Result</th></tr></thead>
@@ -1385,9 +1440,13 @@ setup.horserace = setup.horserace || {};
 		if (race.betAmount > 0 && race.betHorseId !== "") {
 			const betHorse = HR.getHorse(race.betHorseId);
 			if (race.won) {
-				celebration += `<p><strong><span style="color:#5fcf7b;">You won.</span></strong> Your ${HR.formatMoney(race.betAmount)} bet on ${HR.escapeHtml(betHorse ? betHorse.name : "your horse")} pays ${HR.formatMoney(race.payout)}.</p>`;
+				celebration += `<p><strong><span style="color:#5fcf7b;">You won.</span></strong> Your ${HR.formatMoney(race.betAmount)} bet on ${HR.escapeHtml(
+					betHorse ? betHorse.name : "your horse"
+				)} pays ${HR.formatMoney(race.payout)}.</p>`;
 			} else {
-				celebration += `<p><strong><span style="color:#ff6b6b;">You lost.</span></strong> Your ${HR.formatMoney(race.betAmount)} bet does not return anything.</p>`;
+				celebration += `<p><strong><span style="color:#ff6b6b;">You lost.</span></strong> Your ${HR.formatMoney(
+					race.betAmount
+				)} bet does not return anything.</p>`;
 			}
 		}
 
@@ -1399,4 +1458,4 @@ setup.horserace = setup.horserace || {};
 			</table>
 		</div>`;
 	};
-}());
+})();

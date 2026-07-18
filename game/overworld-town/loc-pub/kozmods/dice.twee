@@ -1176,13 +1176,18 @@
 	<<set _startingMoney to [50000,100000,300000]>>
 	<<set _startingMoney to _startingMoney[$dice.wagerLvl]>>
 	<<set _netChange to $dice.money[0] - _startingMoney>>
-	<<if _netChange gt 0>><<set $xchange.gamblingEarnings += _netChange>><</if>>
+	<<set _displayNetChange to _netChange>>
+	<<if _netChange gt 0>>
+		<<set _displayNetChange to divineTfIncome(_netChange, "pubDice")>>
+		<<set $dice.money[0] += _displayNetChange - _netChange>>
+		<<set $xchange.gamblingEarnings += _displayNetChange>>
+	<</if>>
 
 	<<if _netChange eq _startingMoney * 3>>
-		Having wiped the floor with your opponents, you leave satisfied in the knowledge that you earned <<printmoney _netChange>> fair and square, as a champion.<<stress -30>><<llstress>>
+		Having wiped the floor with your opponents, you leave satisfied in the knowledge that you earned <<printmoney _displayNetChange>> fair and square, as a champion.<<stress -30>><<llstress>>
 	
 	<<elseif _netChange gte 0>>
-		You decide to quit playing while you're still ahead. You managed to earn <<printmoney _netChange>>.<<stress -5>><<lstress>>
+		You decide to quit playing while you're still ahead. You managed to earn <<printmoney _displayNetChange>>.<<stress -5>><<lstress>>
 	
 	<<elseif _netChange gt -(_startingMoney)>>
 		You decide to cut your losses, leaving while you still have some dignity left. You lost <<printmoney `-_netChange`>>.<<stress 5>><<gstress>>

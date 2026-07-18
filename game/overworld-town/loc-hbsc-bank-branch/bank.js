@@ -441,8 +441,8 @@ setup.hbsc.processDay = function () {
 			term.status = "matured";
 			term.maturedOnDay = Time.days;
 			const maturity = setup.hbsc.calcFixedTermMaturity(term.principal, term.months);
-			term.maturityInterest = setup.hbsc.roundMoney(maturity.interest);
-			term.maturityTotal = setup.hbsc.roundMoney(maturity.total);
+			term.maturityInterest = setup.hbsc.roundMoney(window.divineTfIncome(maturity.interest, "bankInterest"));
+			term.maturityTotal = setup.hbsc.roundMoney(term.principal + term.maturityInterest);
 			maturedCount++;
 		}
 	}
