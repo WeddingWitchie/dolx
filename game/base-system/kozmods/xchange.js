@@ -1887,6 +1887,15 @@ function xchangeEffectsMessages() {
 		br();
 		delete V.identityAcceptanceMessage;
 	}
+	if (V.identityFamiliarityMessage) {
+		element(
+			"span",
+			"Settling back into this feels strangely familiar. Your body remembers being at peace with it, and the comfort returns far quicker than the first time.",
+			"green"
+		);
+		br();
+		delete V.identityFamiliarityMessage;
+	}
 	if (Array.isArray(V.giBodyChangeMessages) && V.giBodyChangeMessages.length) {
 		for (const msg of V.giBodyChangeMessages) {
 			if (typeof msg === "string" && msg.trim().length) {

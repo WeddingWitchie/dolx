@@ -1072,9 +1072,19 @@
 			<<for _char,_icon range _category>>
 				<<identitySelector _char>>
 				<<if $identityOption>>
+					/* Single source of truth: once you've genuinely accepted a trait, remember it forever (covers every acceptance path, present or absent, and backfills older saves). */
+					<<if $identityOption.acceptance and !$identityOption.reject and !$identityOption.everAccepted>>
+						<<set $identityOption.everAccepted to true>>
+					<</if>>
 					<<if playerHasCharacteristic(_char)>>
 						<<if $identityOption.acceptance and !$identityOption.reject>>
 							<<tolerance 2>>
+						<<elseif $identityOption.everAccepted and !$identityOption.reject and $identityOption.tolerance lt 50>>
+							/* Savings: your body remembers being at peace with a trait you once accepted.
+							Coming back to it, comfort resumes from halfway rather than a full re-grind from scratch. */
+							<<set $identityOption.tolerance to 50>>
+							<<set $effectsmessage to 1>>
+							<<set $identityFamiliarityMessage to true>>
 						<</if>>
 						<<set _shift to ($identityOption.tolerance/50).toFixed(2)>>
 						<<set _shift to Math.clamp(3-_shift, 1, 3)>>
@@ -1102,7 +1112,9 @@
 						<</if>>
 					<<elseif !$identityOption.reject>>
 						<<set _shift to Math.min(Math.ceil(0 - ($identityOption.dysphoria / 2)), -1)>>
-						<<tolerance 5>>
+						/* Acceptance is habituation, not a switch. */
+						<<set _accept to Math.clamp(Math.round(18 - ($identityOption.dysphoria / 8)), 5, 15)>>
+						<<tolerance _accept>>
 						<<dysphoria _shift>>
 						<<sub `_shift * -0.1`>>
 						<<willpower `_shift * 0.1`>>
