@@ -300,6 +300,10 @@ You don't fight <<him>>. You let <<him>> walk you.
 <</if>>
 <br><br>
 
+<<if $robinfirstrentfight and ($baileypaychain lt 2 or $renttime lte -1) and ["orphanage","bath","sleep"].includes(getRobinLocation())>>
+	/* Dodging rent in the streets still ends at the office, so Robin is dragged into it just like the home rent flow, keeping the sale escalation reachable. */
+	<<rentduerobin 0>>
+<<else>>
 <<if $baileydefeatedchain gte 3 or ($robinpaid is 1 and $robinromance gte 1 and $bus is "home" and $robinfirstrentfight isnot 1 and $renttime lte -14)>>
 	<<generateRole 1 0 "thug">><<generateRole 2 0 "thug">>
 	A rough-looking <<person2>><<person>> and <<person3>><<person>> stand next to <<person1>><<him>>.
@@ -319,28 +323,37 @@ You don't fight <<him>>. You let <<him>> walk you.
 	<<homeBabyIntro>>
 <</if>>
 <<babyRent>>
-<<if $money gte $rentmoney + ($babyRent or 0)>>
+<<loanRentNotice>>
+/* Match the standard rent flow: what the player can actually pay is cash plus liquid bank savings, and the demand includes any HBSC loan surcharge Bailey collects. */
+<<set _rentTotal to ($rentmoney + ($babyRent or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
+<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
 	<<person1>>
-	<<if $bailey_dom gte 70>>
-		"You know the amount." <<He>> holds out <<his>> hand, palm up.
-	<<elseif $bailey_dom lte 30>>
-		"Pay me." <<He>> holds out <<his>> hand. "Now."
+	<<if setup.inflation and setup.inflation.baileyAggressive()>>
+		<<baileyGripDemand>>
+		<<link [[Pay|Rent Pay]]>><</link>>
+		<br>
 	<<else>>
-		"Hand it over," <<he>> says. <<He>> holds out <<his>> hand.
-	<</if>>
-	<br><br>
+		<<if $bailey_dom gte 70>>
+			"You know the amount." <<He>> holds out <<his>> hand, palm up.
+		<<elseif $bailey_dom lte 30>>
+			"Pay me." <<He>> holds out <<his>> hand. "Now."
+		<<else>>
+			"Hand it over," <<he>> says. <<He>> holds out <<his>> hand.
+		<</if>>
+		<br><br>
 
-	<<link [[Pay|Rent Pay]]>><</link>>
-	<br>
-	<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
-	<br>
-	<<if $baileyseduced isnot 1>>
-		<<if hasSexStat("promiscuity", 2)>>
-			<<link [[Seduce|Rent Seduce]]>><<trauma 3>><</link>><<promiscuous2>><<gtrauma>>
-			<br>
-		<<elseif $uncomfortable.prostituting is false>>
-			<<link [[Seduce|Rent Seduce]]>><<trauma 12>><<set $desperateaction to 1>><</link>><<promiscuous2>><<ggtrauma>>
-			<br>
+		<<link [[Pay|Rent Pay]]>><</link>>
+		<br>
+		<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
+		<br>
+		<<if $baileyseduced isnot 1>>
+			<<if hasSexStat("promiscuity", 2)>>
+				<<link [[Seduce|Rent Seduce]]>><<trauma 3>><</link>><<promiscuous2>><<gtrauma>>
+				<br>
+			<<elseif $uncomfortable.prostituting is false>>
+				<<link [[Seduce|Rent Seduce]]>><<trauma 12>><<set $desperateaction to 1>><</link>><<promiscuous2>><<ggtrauma>>
+				<br>
+			<</if>>
 		<</if>>
 	<</if>>
 	<<if $stockholm_active is true or $baileydefeated gte 5>>
@@ -359,5 +372,6 @@ You don't fight <<him>>. You let <<him>> walk you.
 	<br><br>
 
 	<<rentnopay true>>
+<</if>>
 <</if>>
 <<set $renttime to 7>><<set $rentday to Time.weekDay>>
