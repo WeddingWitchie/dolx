@@ -1343,7 +1343,10 @@ function xchangeHourlyCheck(hours = 1) {
 
 			// Reveal that you didn't turn back
 			if (pill.shouldHaveEnded && !wondersAboutPillEnd()) {
-				V.xchangePermanenceMessage = 1;
+				if (!V.daily.xchangePermanenceMessage) {
+					V.xchangePermanenceMessage = 1;
+					V.daily.xchangePermanenceMessage = true;
+				}
 				delete pill.shouldHaveEnded;
 			}
 
