@@ -285,7 +285,7 @@ const statChange = (() => {
 	DefineMacro("straighttrauma", straighttrauma);
 
 	function updatePlayerTraumaState() {
-		// Permanent Insanity trait: symptoms behave as if trauma were at least 70% (the same level that spawns the temporary version), without touching the real trauma value.
+		// Permanent Insanity trait: symptoms behave as if trauma were at least 70% (severe trauma), without touching the real trauma value.
 		// Higher real trauma still stacks extra symptoms on top.
 		const effectiveTrauma = V.insanityPermanent ? Math.max(V.trauma, (V.traumamax / 10) * 7) : V.trauma;
 		// Opium Addict trait: inhaling opium suppresses insomnia for the current sleep cycle.

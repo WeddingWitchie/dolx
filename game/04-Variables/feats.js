@@ -1211,6 +1211,15 @@ setup.feats = {
 		filter: ["All", "Special"],
 		hidden: true,
 	},
+	"Cracked Mind": {
+		title: "Cracked Mind",
+		desc: "Unrelenting trauma shattered your grip on reality.",
+		difficulty: 1,
+		series: "",
+		hint: "Hint: Some burdens can't be carried for days on end.",
+		filter: ["All", "Special"],
+		hidden: true,
+	},
 	"Battle of the Other World": {
 		title: "Battle of the Other World",
 		desc: "You played Tenyclus until the very end.",

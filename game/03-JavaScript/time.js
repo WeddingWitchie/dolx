@@ -2036,14 +2036,15 @@ function dailyNPCEffects() {
 function dailyPlayerEffects() {
 	/* Insanity trait.
 	A permanent version ($insanityPermanent) is chosen at character creation and never adapts.
-	Otherwise it is gained after remaining severely traumatised (trauma >= 70% of max) for more than 7 days, and is lost again as soon as the trauma subsides below that threshold. */
+	Otherwise it is gained after remaining heavily traumatised (trauma >= 50% of max) for 3 days straight, and is lost again as soon as the trauma subsides below that threshold. */
 	if (!V.insanityPermanent) {
-		if (V.trauma >= (V.traumamax / 10) * 7) {
+		if (V.trauma >= V.traumamax / 2) {
 			V.insanityTraitDays = (V.insanityTraitDays ?? 0) + 1;
-			if (V.insanityTraitDays > 7 && !V.backgroundTraits.includes("insanity")) {
+			if (V.insanityTraitDays >= 3 && !V.backgroundTraits.includes("insanity")) {
 				V.backgroundTraits.push("insanity");
 				V.insanityTraitMessage = "gain";
 				V.effectsmessage = 1;
+				if (typeof earnFeat === "function") earnFeat("Cracked Mind");
 			}
 		} else {
 			V.insanityTraitDays = 0;
