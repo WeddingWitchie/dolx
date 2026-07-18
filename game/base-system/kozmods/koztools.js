@@ -1699,7 +1699,8 @@ function divineTfIncome(value, source = "", incomeType) {
 		slutIncome =
 			sourceName.includes("prostitution") ||
 			sourceName === "avery" ||
-			sourceName === "brothel" ||
+			sourceName === "briargel" ||
+			sourceName.includes("brothel") ||
 			sourceName === "stripclub" ||
 			sourceName.includes("brothelshow") ||
 			sourceName.includes("gloryhole") ||

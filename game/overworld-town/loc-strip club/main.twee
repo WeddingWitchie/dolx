@@ -121,7 +121,7 @@ You are in the strip club on Connudatus Street.<<if Time.dayState isnot "day" an
 		<<if Time.dayState isnot "dawn" and Time.dayState isnot "day" and $stripclubdancingintro is 1>>
 			<<brothelicon "stage">><<link [[Work as a dancer (0:05)|Strip Club Dancing]]>>
 				<<timeTrackingStart "stripClub">><<timeTrackingStart "stripClubDancer">><<timeTrackingStart "stripClubDanceTips">>
-				<<danceinit>><<set $dancing to 1>><<set $venuemod to 1>><<stress -4>><<tiredness 4>><<set $dancelocation to "club">>
+				<<danceinit>><<robinbrothelappear>><<set $dancing to 1>><<set $venuemod to 3.5 + Math.min(fameTotal() / 4000, 1)>><<stress -4>><<tiredness 4>><<set $dancelocation to "club">>
 			<</link>><<lstress>><<gtiredness>>
 			<br>
 			<<shopicon "clothing">><<link [[Dressing room (0:01)|Strip Club Dressing Room]]>><<pass 1>><</link>>
@@ -375,22 +375,29 @@ The strip club is closed. <<openinghours 18 6>>
 <<else>>
 	<<if $phase is 0>>
 		<<set $stripclubbartendingintro to 1>>
-		"The bartending job is exactly what it sounds like. You won't be expected to do anything lewd, but you might make more in tips if you dress provocatively. If the patrons give you trouble, just alert security. Pay is £5 an hour, plus any tips you receive."
+		"The bartending job is exactly what it sounds like. You won't be expected to do anything lewd, but attractive staff who can keep a conversation flowing tend to earn better tips. If the patrons give you trouble, just alert security. Pay is £15 an hour, plus any tips you receive."
 		<br><br>
 		"You can start whenever. We always need more hands."
 		<br><br>
 	<</if>>
 
 	<<if $phase is 1>>
-		<<set $stripclubdancingintro to 1>><<set $wardrobes.stripClub.unlocked to true>>
-		"You want to dance? Good! You probably saw some stages were empty. You can dress how you want, but you should dress appropriately if you want decent tips. We operate a strict no-touching policy in the main room. If anyone gives you trouble, don't hesitate to call security. We take the safety of our staff very seriously."
+		<<if currentSkillValue("danceskill") lt 200>>
+			Darryl watches you demonstrate a few steps, then gently shakes <<his>> head. "You have potential, but the crowd here expects a polished routine. Get some practice and come back when you're ready."
+			<br><br>
+			<span class="blue">You need a dance skill of at least 200 to work as a dancer.</span>
+			<br><br>
+		<<else>>
+			<<set $stripclubdancingintro to 1>><<set $wardrobes.stripClub.unlocked to true>>
+			"You want to dance? Good! You probably saw some stages were empty. You can dress how you want, but your looks and the quality of your routine determine most of your tips. We operate a strict no-touching policy in the main room. If anyone gives you trouble, don't hesitate to call security. We take the safety of our staff very seriously."
 		<br><br>
 
-		"Any tips you get are yours to keep, but if it's serious money you're after, you'll want to sell private dances to patrons. We provide rooms for such a purpose. What happens in there, and how much it will cost them, is between you and your client. Officially, there's not supposed to be any physical contact, so be discreet. We take an eighty percent cut of anything you earn in a private room. That might seem high, but trust me, it isn't."
+			"Any tips thrown onto the stage are yours to keep. A skilled dancer can earn a proper wage without letting a patron touch them. Private dances are still available, but they're optional. What happens in there, and how much it will cost them, is between you and your client. Officially, there's not supposed to be any physical contact, so be discreet. We take an eighty percent cut of anything you earn in a private room."
 		<br><br>
 
-		<<He>> pauses a moment before continuing, "Almost forgot, we have a dressing room, of course. Use it as you need."
+			<<He>> pauses a moment before continuing, "Almost forgot, we have a dressing room, of course. Use it as you need."
 		<br><br>
+		<</if>>
 	<</if>>
 
 	<<if $stripclubmanagementintro isnot 1>><<set $stripclubmanagementintro to 1>>
@@ -447,9 +454,10 @@ You get to work supplying the patrons with overpriced drinks and snacks. <<if $d
 <</if>>
 
 <<set $drinksservedstat += random(20,120) * (1 + (currentSkillValue('housekeeping') / 1000))>>
+<<englishskill 1>>
 
-<<set $tipmod to 0.2>><<tipset "serving">>
-<<set $tip += 1200>>
+<<set $tipmod to 0.35 + Math.min(currentSkillValue("english"), 1000) / 2500 + Math.min($allure, 10000) / 50000>><<tipset "serving">>
+<<set $tip += 1500>>
 <<if $drinksservedstat gte 10000>>
 <<set $tip += 400>>
 <</if>>

@@ -637,16 +637,8 @@ setup.debugMenu.eventList = {
 			widgets: [`<<endcombat>>`, `<<set $detention to 55>>`],
 		},
 		{
-			link: [`Work as a dancer`, `Brothel Dance`],
-			widgets: [
-				`<<endcombat>>`,
-				`<<danceinit>>`,
-				`<<set $dancing to 1>>`,
-				`<<set $venuemod to 3>>`,
-				`<<stress -4>>`,
-				`<<tiredness 4>>`,
-				`<<set $dancelocation to "brothel">>`,
-			],
+			link: [`Work the brothel floor`, `Brothel Client Floor`],
+			widgets: [`<<endcombat>>`],
 		},
 		{
 			link: [`Eden Start`, `Eden Cabin`],

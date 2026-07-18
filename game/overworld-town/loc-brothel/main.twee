@@ -3,6 +3,7 @@
 :: Brothel
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<unset $corruptionDancing>>
+<<unset $brothelClientType>><<unset $brothelClientSkill>><<unset $brothelClientBonus>><<unset $brothelAuctionTip>><<unset $brothelAuctionBonus>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><<unset $brothelAuctionDanceBonus>><<unset $brothelAuctionNegotiation>>
 
 <<if $brotheljob>>
 	<<timeTrackingEndBrothel>>
@@ -12,7 +13,7 @@
 	<<set $brothelshowdata.intro to 1>>
 <</if>>
 
-You are in the brothel. Several stages dot the crowded room. The staff look flustered and overworked.
+You are in the brothel. Staff circulate between crowded tables, flirting with patrons and leading clients towards the private rooms. They look flustered and overworked.
 <br><br>
 
 <<if $stress gte $stressmax>>
@@ -98,11 +99,14 @@ You are in the brothel. Several stages dot the crowded room. The staff look flus
 
 <<if $brotheljob is 1>>
 
-<<stripclubicon>><<link [[Work as a dancer|Brothel Dance]]>>
-	<<timeTrackingStart "brothel">><<timeTrackingStart "brothelDanceTips">>
-	<<set $dancestart to 1>><<stress -4>><<tiredness 4>>
+<<socialiseicon>><<link [[Work the floor (0:10)|Brothel Client Floor]]>>
+	<<timeTrackingStart "brothel">><<pass 10>><<stress -2>><<tiredness 2>>
 <</link>><<lstress>><<gtiredness>>
 <br>
+	<<if $fame.prostitution gte 500 and !$daily.brothelClientAuction and (hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false)>>
+		<<icon "crystal-purple.png">><<link [[Auction a private appointment|Brothel Dance]]>><<timeTrackingStart "brothel">><<timeTrackingStart "brothelDanceTips">><<set $brothelAuctionDance to true>><<set $dancestart to 1>><<stress -4>><<tiredness 4>><</link>><<lstress>><<gtiredness>>
+		<br>
+	<</if>>
 	<<if $brothelshowdata.intro>>
 		<<brothelicon "stage">><<link [[Go behind the stage|Brothel Stage]]>><</link>>
 		<br>
@@ -380,7 +384,7 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 	<br><br>
 	<<He>> fixes you with hazel eyes, wordlessly grabs your wrist and pulls you through the doors.
 	<br><br>
-	You enter a large crowded room. The smell of sweat is palpable. Several stages dot the room, <span class="lewd">with dancers showing themselves off</span>. Patrons ogle and cheer at them, waited on by other staff in various states of undress.
+	You enter a large crowded room. The smell of sweat is palpable. Staff in various states of undress circulate between tables, <span class="lewd">showing themselves off and negotiating with patrons</span> before leading clients towards private rooms.
 	<br><br>
 	You are led through the room and through an inconspicuous door. A flight of stairs later and you find yourself in a lavishly-decorated office. <<He>> lies down on a velvet sofa in the middle of the room, props <<his>> head up with one arm and observes you.
 	<br><br>
@@ -397,11 +401,11 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 <<if $phase is 0>>
 	<<He>> eyes up your body as <<he>> speaks. "Nice. Very nice. Our clientele will love you. I'd like to offer you work looking after our guests. You saw how it works on the way up."
 	<br><br>
-	<<He>> pauses before continuing. "Oh right, you probably want details. You can dress however you want, but you'll get more attention if you dress <span class="lewd">appropriately</span>. Use a stage to show yourself off. You might make some change there, but your real aim should be to get hired for some private time. We provide rooms for that purpose."
+	<<He>> pauses before continuing. "Oh right, you probably want details. You can dress however you want, but you'll get more attention if you dress <span class="lewd">appropriately</span>. Work the room, find out what a patron wants, and convince them you're the one who can provide it. We provide private rooms for that purpose."
 	<br><br>
 	"You'll be expected to take care of yourself. If someone tries to rape you, just deal with it and don't bother me. I'm not your <<mummy>>."
 	<br><br>
-	<<He>> finally looks you in the eye. "We take a 40% cut of anything you earn, and don't you dare think you can cheat us either. You'll have access to a dressing room, naturally. I think I've covered everything. So, interested?"
+	<<He>> finally looks you in the eye. "We take a 40% cut of anything you earn, and don't you dare think you can cheat us either. Good looks get you noticed, but clients pay for charm and skill. Build a reputation and you can auction your time instead of chasing them yourself. You'll have access to a dressing room, naturally. So, interested?"
 	<br><br>
 
 	<<link [[Accept|Brothel Intro2]]>><<set $phase to 1>><<set $brotheljob to 1>><<set $wardrobes.brothel.unlocked to true>><</link>>
@@ -444,9 +448,104 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 	<br>
 <</if>>
 
+:: Brothel Client Floor
+<<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<generate1>><<person1>><<set $enemyno to 1>>
+
+You make your way between the tables, studying the patrons. A <<person>> sitting alone follows you with <<his>> eyes. A half-finished drink rests in front of <<him>>.
+<br><br>
+
+<<socialiseicon>><<link [[Sit and draw them into conversation (0:30)|Brothel Client Talk]]>><<pass 30>><</link>><<englishdifficulty 100 800>>
+<br>
+<<if hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false>>
+	<<set _serviceSkill to Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
+	<<socialiseicon>><<link [[Flirt and offer private company|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.5>><<set $phase to 0>><<seductionskill 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>><<promiscuous3>>
+	<br>
+	<<brothelicon>><<link [[Show off your best assets|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to Math.max(currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("penileskill"), currentSkillValue("vaginalskill"))>><<set $brothelClientBonus to 0.25>><<set $phase to 0>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>>
+	<br>
+	<<brothelicon>><<link [[Offer your best sexual service|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.75>><<set $phase to 0>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>>
+	<br>
+<<else>>
+	<<brothelicon>><<insufficientStat "promiscuity" "to offer private services">>
+	<br>
+<</if>>
+<br>
+<<getouticon>><<link [[Back|Brothel]]>><<endevent>><</link>>
+<br>
+
+:: Brothel Client Talk
+<<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
+<<set $tip_add to 0>><<set $tipmod to Math.clamp(0.5 + currentSkillValue("english") / 500 + $fame.good / 2000, 0.5, 3)>><<tipset>>
+<<if $englishSuccess>>
+	You listen carefully and keep the conversation flowing. The <<person>> gradually relaxes, talking about troubles <<he>> cannot share elsewhere. Your reputation for kindness puts <<him>> further at ease.
+	<br><br>
+	When the half hour is over, <<he>> thanks you for treating <<him>> like a person and leaves a tip. <<tipreceive "brothel">><<fameprostitution 1>>
+<<else>>
+	You try to keep the conversation flowing, but misunderstandings leave long, awkward silences. The <<person>> still seems grateful for the company, though the tip <<he>> leaves is modest.
+	<<set $tip to Math.round($tip * 0.5)>>
+	<br><br>
+	<<tipreceive "brothel">>
+<</if>>
+<<englishskill 1>>
+<br><br>
+<<link [[Return to the floor|Brothel]]>><<endevent>><</link>>
+
+:: Brothel Client Auction
+<<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<if $phase is 0>>
+	<<generate1>><<person1>><<set $enemyno to 1>>
+	<<set $brothelClientType to "auction">>
+	<<set $brothelClientSkill to Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
+	<<set $brothelAuctionTip to Math.round((5000 + $fame.prostitution * 20 + currentSkillValue("seductionskill") * 15 + $brothelClientSkill * 20 + ($brothelAuctionDanceBonus ?? 0)) / 500) * 500>>
+
+	Briar announces that a private appointment with you is available. Patrons call out offers while you move between them, flirting, posing, and hinting at what the winner can expect. Your reputation draws serious bidders.
+	<<if $brothelAuctionDanceBonus gt 0>>
+		Your performance has already added <span class="green"><<printmoney $brothelAuctionDanceBonus>></span> to the opening offer.
+		<br><br>
+	<</if>>
+	The bidding reaches <<printmoney $brothelAuctionTip>> after Briar's cut. Briar looks to you before closing the auction, giving you a chance to drive the price higher.
+	<br><br>
+	<<socialiseicon>><<link [[Push the bidding higher|Brothel Client Auction]]>><<set $phase to 1>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>>
+	<br>
+	<<brothelicon>><<link [[Accept the current highest bid|Brothel Client Auction]]>><<set $phase to 2>><</link>>
+	<br><br>
+	<<getouticon>><<link [[Cancel the auction|Brothel]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<person1>>
+	<<if $phase is 1>>
+		<<if $brothelAuctionNegotiation is undefined>>
+			<<if currentSkillValue("seductionskill") gte random(1, 1000)>>
+				<<set $brothelAuctionNegotiation to "success">>
+				<<set $brothelAuctionBonus to Math.round(($brothelAuctionTip * (0.1 + Math.min(currentSkillValue("seductionskill"), 1000) / 5000)) / 500) * 500>>
+				<<set $brothelAuctionTip += $brothelAuctionBonus>>
+			<<else>>
+				<<set $brothelAuctionNegotiation to "failure">>
+			<</if>>
+			<<seductionskill 5>>
+		<</if>>
+
+		<<if $brothelAuctionNegotiation is "success">>
+			You single out the hesitant bidders, promising your winner an unforgettable appointment. The room erupts into competing offers. <span class="green">Your negotiation adds <<printmoney $brothelAuctionBonus>>, raising the winning bid to <<printmoney $brothelAuctionTip>>.</span>
+		<<else>>
+			You tease the crowd and try to provoke another round of bids. They enjoy the display, but the highest bidder refuses to budge. The offer remains <<printmoney $brothelAuctionTip>>.
+		<</if>>
+		<br><br>
+	<<else>>
+		You give Briar a nod, content with the current offer. <<He>> calls for any final bids, but no one challenges it.
+		<br><br>
+	<</if>>
+
+	At last, a <<person>> wins with an offer of <<printmoney $brothelAuctionTip>> after Briar's cut. <<He>> stands and offers you <<his>> hand.
+	<br><br>
+	<<brothelicon>><<link [[Take the winner to a private room|Brothel Private]]>><<set $phase to 0>><</link>>
+	<br>
+	<<getouticon>><<link [[Refuse the appointment|Brothel]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
 :: Brothel Dance
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
-
 <<if $dancestart is 1>>
 	<<unset $dancestart>>
 	<<danceinit>>
@@ -454,8 +553,18 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 	<<set $dancing to 1>>
 	<<set $venuemod to 3 * (1 + (0.4 * (C.npc.Briar.love / 100)))>>
 	<<set $dancelocation to "brothel">>
+	<<if $brothelAuctionDance>>
+		<<set $brothelAuctionDanceStart to $timeStamp>>
+	<</if>>
+<</if>>
+<<if $brothelAuctionDance and $brothelAuctionDanceStart is undefined>>
+	/* Supports previews saved while the minimum-duration state was absent. */
+	<<set $brothelAuctionDanceStart to $timeStamp>>
 <</if>>
 <<danceeffects>>
+<<if $brothelAuctionDance and $danceevent is 0 and ($timeStamp - $brothelAuctionDanceStart) gte 900 and ($audienceexcitement gte 100 or $audiencearousal gte 100 or $dance_stage_cum gte 10)>>
+	<<set $danceevent to "auction">>
+<</if>>
 <<danceaudience>>
 <<danceactions>>
 
@@ -469,46 +578,48 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 	<br><br>
 <</if>>
 
-<<if $danceevent is "finish">>
+<<if $danceevent is "auction">>
+	Briar steps onto the edge of the stage and raises a hand. The crowd quiets, though several patrons continue staring at you. "That's enough of a preview," <<he>> announces. "Now, who wants <<phim>> to themselves?"
+	<br><br>
+	<<link [[Begin the auction|Brothel Client Auction]]>><<set $daily.brothelClientAuction to 1>><<set $brothelAuctionDanceBonus to animalTfIncome(Math.round((currentSkillValue("danceskill") * 5 + $audience * $audiencemod * 50) / 500) * 500, "bunny")>><<clotheson>><<endevent>><<set $phase to 0>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>>
+<<elseif $danceevent is "finish">>
 	<<unset $corruptionDancing>>
-	<<link [[Next|Brothel]]>><<clotheson>><<endevent>><</link>>
-<<elseif $danceevent is "private">>
-	<<if $corruptionDancing is 2>>
-		The slime wants you to have fun with more than an individual.
-	<<elseif hasSexStat("promiscuity", 3)>>
-		<<link [[Private room|Brothel Private]]>><<dance_private_init>><</link>><<promiscuous3>>
-	<<elseif $uncomfortable.prostituting is false>>
-		<<set _desperateaction to 1>>
-		<<link [[Private room|Brothel Private]]>><<dance_private_init>><<set $desperateaction to _desperateaction>><</link>><<promiscuous3>>
-		<br>
-	<</if>>
+	<<link [[Next|Brothel]]>><<clotheson>><<endevent>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>>
 <<elseif $danceevent is "rape">>
-	<<link [[Next|Brothel Dance Rape]]>><<set $molestationstart to 1>><<unset $corruptionDancing>><</link>>
+	<<link [[Next|Brothel Dance Rape]]>><<set $molestationstart to 1>><<unset $corruptionDancing>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>>
 <<elseif $danceevent is "leighton">>
 	<<if $corruptionDancing is 2>>
 		The slime wants you to have fun with more than an individual.
+		<br><br>
+		<<link [[Continue dancing|Brothel Dance]]>><</link>>
 	<<elseif hasSexStat("promiscuity", 3)>>
-		<<link [[Private room|Leighton Private]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>><<promiscuous3>>
+		<<link [[Private room|Leighton Private]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>><<promiscuous3>>
 		<br>
+	<<else>>
+		You remain on the stage. Leighton eventually lowers the offered bills.
+		<br><br>
+		<<link [[Continue dancing|Brothel Dance]]>><</link>>
 	<</if>>
 <<elseif $danceevent is "robin">>
 	<<if $corruptionDancing is 2>>
 		The slime wants you to have fun with more than an individual.
+		<br><br>
+		<<link [[Continue dancing|Brothel Dance]]>><</link>>
 	<<else>>
-		<<link [[Private room|Robin Brothel]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>>
+		<<link [[Private room|Robin Brothel]]>><<set $robinDanceVenue to "brothel">><<timeTrackingEndBrothel>><<clotheson>><<endevent>><<unset $corruptionDancing>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>>
 	<</if>>
 <<elseif $danceevent is "briarseduce">>
-	<<link [[Next|Briar Sex]]>><<endcombat>><<unset $corruptionDancing>><<npc Briar>><<person1>><<set $sexstart to 1>><</link>>
+	<<link [[Next|Briar Sex]]>><<endcombat>><<unset $corruptionDancing>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><<npc Briar>><<person1>><<set $sexstart to 1>><</link>>
 	<br>
 <<elseif $danceevent is 0>>
 	<<if $corruptionDancing isnot undefined>>
 		The slime in your ear is forcing you.
 	<<elseif $exposed gte 2 and !hasSexStat("exhibitionism", 5)>>
-		<<link [[Flee|Brothel Dressing Room]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>>
+		<<link [[Flee|Brothel Dressing Room]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>>
 	<<elseif $exposed gte 1 and !hasSexStat("exhibitionism", 3)>>
-		<<link [[Flee|Brothel Dressing Room]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>>
+		<<link [[Flee|Brothel Dressing Room]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>>
 	<<else>>
-		<div id="stop"><<link [[Stop|Brothel]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><</link>></div>
+		<div id="stop"><<link [[Stop|Brothel]]>><<clotheson>><<endevent>><<unset $corruptionDancing>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><</link>></div>
 	<</if>>
 <</if>>
 
@@ -837,13 +948,28 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 
 <<if $phase is 0>>
 
-<<set $tipmod to Math.round((3 + (fameTotal() / 2000)) * (1 + (0.4 * (C.npc.Briar.love / 100))))>><<tipset>>
+<<if $brothelClientType is "auction">>
+	<<set $tip to $brothelAuctionTip>><<set $tipreaction to "mid">>
+<<else>>
+	<<set $tip_add to 0>>
+	<<set _serviceSkill to $brothelClientSkill ?? Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
+	<<set $tipmod to 1.25 + Math.min(currentSkillValue("seductionskill"), 1000) / 500 + Math.min(_serviceSkill, 1000) / 300 + ($brothelClientBonus ?? 0) + 0.2 * (C.npc.Briar.love / 100)>><<tipset>>
+<</if>>
 
 	<<promiscuity3>>
-	You lead the <<person>> into one of the back rooms. It's well-lit compared to the main room, it takes a moment for your eyes to adjust. There's a small stage with a pole in one corner. There's also a sofa, contoured to allow an extensive range of positions.
+	You lead the <<person>> into one of the back rooms. It's well-lit compared to the main room, and it takes a moment for your eyes to adjust. There's a sofa contoured to allow an extensive range of positions. <<if $brothelClientType is "auction">><<He>> looks pleased to have won your undivided attention.<</if>>
 	<br><br>
+	<<rng>>
 
-	<<if $rng gte 71>>
+	<<if $brothelClientType is "auction">>
+		The auction price is already settled at <<printmoney $tip>>. The <<person>> waits for you to begin the appointment.
+		<br><br>
+
+		<<link [[Accept (0:30)|Brothel Private Sex]]>><<set $consensual to 1>><<pass 30>><<set $sexstart to 1>><</link>>
+		<br>
+		<<link [[Refuse|Brothel Private]]>><<set $phase to 4>><</link>>
+		<br>
+	<<elseif $rng gte 71>>
 		Before you can turn around, the <<person>> has <<his>> hands wrapped around your waist and <<his>> mouth nuzzled against your neck.
 		<br><br>
 
@@ -864,7 +990,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 			"I know it's not much," <<he>> exclaims, "but it's all I can afford and still eat tomorrow." <<He>> looks down at <<his>> feet.
 			<br><br>
 
-			<<if $rng gte 51>>
+			<<if $brothelClientType is undefined and $rng gte 51>>
 				"Also, if it's okay, I don't want any touching. Well, maybe some, but mainly I'd just like to talk."
 				<br><br>
 
@@ -883,7 +1009,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 			You take <<him>> by the hands and sit on the sofa. You negotiate a price of <<printmoney $tip>>, which seems reasonable.
 			<br><br>
 
-			<<if $rng gte 51>>
+			<<if $brothelClientType is undefined and $rng gte 51>>
 				<<He>> speaks softly, "If it's okay, I don't want any touching. Well, maybe some, but mainly I'd just like to talk."
 				<br><br>
 
@@ -1051,7 +1177,11 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 :: Brothel Private Sex Finish
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<if $stealtarget isnot "">><<set $brothel_thief += 1>><</if>>
-<<if $consensual is 1>>
+<<if $finish is 1>>
+	The <<persons>> expression twists when you stop before <<he>> is satisfied. "You expect me to pay for that?" <<He>> strikes you and shoves you from the bed before storming out.
+	<<stress 18>><<gggstress>><<pain 21>><<gggpain>>
+	<br><br>
+<<elseif $consensual is 1>>
 
 	<<if $enemypleasure gte $enemypleasuremax>>
 		<<ejaculation>><<set $prostitutionstat += 1>><<fameprostitution 1>>
@@ -2477,7 +2607,12 @@ The <<person1>><<person>> withdraws <<his>> probing hands. "Easy <<girl>>," <<he
 
 :: Briar Sex Finish
 <<set $outside to 0>><<effects>>
-<<if $enemypleasure gte $enemypleasuremax>>
+<<if $finish is 1>>
+	Briar's expression hardens when you stop. "If you're going to waste my time and disappoint my patrons, don't expect a coin," <<he>> says, shoving you from the stage.<<stress 18>><<gggstress>><<pain 21>><<gggpain>>
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation>>
 	Briar slides off the stage. "A round of applause for our performer!" <<he>> shouts, gesturing at you. The cry goes up, and cash litters the stage. <<set _rng to random(30, 100)>>You gain <<income `_rng * 100` "prostitution">>.
 	<br><br>
@@ -2750,7 +2885,8 @@ You ask Briar if <<he>> has already checked your vending machine's stock and col
 		<<else>>
 			but unfortunately, that eats up the rest of the profits. All you're getting back is the money you spent stocking the machine." <<He>> hands you your earnings. You make <<printmoney _productCost>>. "Try stocking more products next time, if you want to do more than break even."
 		<</if>>
-		<<money _productCost "brothelVendingMachine">>
+		/* Returning the stock cost is reimbursement, not income. Only the separately awarded profit receives transformation bonuses. */
+		<<money _productCost "brothelVendingMachine" { incomeType: "none" }>>
 		<<set $brothelVending.condomsSold to 0>>
 		<<set $brothelVending.lubeSold to 0>>
 		<<set $brothelVending.weeksRent to 0>>
