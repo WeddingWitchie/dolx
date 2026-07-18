@@ -92,8 +92,11 @@ function masturbationEffects() {
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
 		} else {
-			if (V.orgasmdown >= 2) {
-				if (isNaN(V.corruptionMasturbationCount)) V.corruptionMasturbationCount = random(2, 6);
+			// Init up front: the Stop-trap in <<masturbationStopControls>> sets $corruptionMasturbation without a count
+			if (isNaN(V.corruptionMasturbationCount)) V.corruptionMasturbationCount = random(2, 6);
+			// Male orgasms set $orgasmdown to 1 and <<effects>> zeroes it before this runs, so the orgasmdown window never opens for them
+			// check the counter directly as well, or male-bodied players stay locked in until the 25-orgasm failsafe
+			if (V.orgasmdown >= 2 || V.corruptionMasturbationCount <= 0) {
 				if (V.corruptionMasturbationCount <= 0) {
 					V.corruptionMasturbation = false;
 					delete V.corruptionMasturbationCount;
