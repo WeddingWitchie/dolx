@@ -1417,6 +1417,8 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	}
 	// Prevents infinite loops, any call to `currentSkillValue` in this function should be written like 'currentSkillValue("skillName", disableModifiers + 1)'
 	if (disableModifiers >= 2) return result;
+	// X-Change: alcohol tolerance mitigates drunkenness's *penalty* on skill checks.
+	const _drunkCheckPenalty = V.drunk * (1 - Math.clamp(V.alcoholTolerance || 0, 0, 1000) / 1000);
 	if (
 		// prettier-ignore
 		[
@@ -1661,10 +1663,10 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				// Rebalance: keep willpower checks passable while heavily intoxicated.
 				// Drunk or drugged at max would otherwise multiply willpower to 0 and softlock willpower-gated scenes,
 				// so the combined intoxication penalty is floored at 25% of base willpower.
-				const intoxFactor = Math.max(((1000 - V.drunk) / 1000) * ((1000 - V.drugged) / 1000), 0.25);
+				const intoxFactor = Math.max(((1000 - _drunkCheckPenalty) / 1000) * ((1000 - V.drugged) / 1000), 0.25);
 				result = Math.floor(result * intoxFactor);
 			} else {
-				result = Math.floor((((result * (1000 - V.drunk)) / 1000) * (1000 - V.drugged)) / 1000);
+				result = Math.floor((((result * (1000 - _drunkCheckPenalty)) / 1000) * (1000 - V.drugged)) / 1000);
 			}
 
 			if (numberOfEarSlime() >= 2 && V.earSlime.growth > 50) {
@@ -1813,9 +1815,9 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			}
 			break;
 	}
-	if (V.drunk >= 120 && V.substanceRebalance === 1 && !["seductionskill", "willpower"].includes(skill)) {
-		result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.drunk / 120), 0.5));
-	} else if (V.drunk >= 1 && V.substanceRebalance === 1 && !["seductionskill", "willpower"].includes(skill)) {
+	if (_drunkCheckPenalty >= 120 && V.substanceRebalance === 1 && !["seductionskill", "willpower"].includes(skill)) {
+		result = Math.round(result * Math.max(1 - 0.1 * Math.round(_drunkCheckPenalty / 120), 0.5));
+	} else if (_drunkCheckPenalty >= 1 && V.substanceRebalance === 1 && !["seductionskill", "willpower"].includes(skill)) {
 		result = Math.round(result * 0.95);
 	}
 	return fatigueAdjustedSkillValue(result, disableModifiers, disableStatNerf);
