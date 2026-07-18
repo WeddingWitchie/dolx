@@ -22,7 +22,7 @@
  * - The `<<printprice base [class]>>` widget (game/base-system/widgets.twee) shows a base price already adjusted for inflation, so blatant "£x" labels can respect it.
  *
  * If what you're looking for isn't here, check those spots too.
-**/
+ */
 
 (() => {
 	"use strict";
@@ -31,11 +31,11 @@
 
 	setup.inflation.PRESETS = {
 		light: {
-			inflationOnsetPct: 3,
-			inflationBadPct: 10,
-			inflationCrisisPct: 25,
-			inflationExtremePct: 50,
-			inflationParodyPct: 300,
+			inflationOnsetPct: 10,
+			inflationBadPct: 25,
+			inflationCrisisPct: 50,
+			inflationExtremePct: 100,
+			inflationParodyPct: 400,
 			inflationBaileyRentPct: 300,
 			inflationBaileyCrisisPct: 400,
 			inflationBaileyCrisisTier: "parody",
@@ -47,8 +47,8 @@
 			inflationLoanRentSurcharge: 50000,
 		},
 		mid: {
-			inflationOnsetPct: 6,
-			inflationBadPct: 20,
+			inflationOnsetPct: 10,
+			inflationBadPct: 30,
 			inflationCrisisPct: 50,
 			inflationExtremePct: 100,
 			inflationParodyPct: 1500,
@@ -113,11 +113,11 @@
 	};
 
 	setup.inflation.SETTING_RANGES = {
-		inflationOnsetPct: { min: 3, max: 30, step: 1 },
-		inflationBadPct: { min: 10, max: 100, step: 1 },
-		inflationCrisisPct: { min: 25, max: 200, step: 1 },
-		inflationExtremePct: { min: 50, max: 400, step: 5 },
-		inflationParodyPct: { min: 300, max: 3000, step: 100 },
+		inflationOnsetPct: { min: 10, max: 30, step: 1 },
+		inflationBadPct: { min: 25, max: 100, step: 1 },
+		inflationCrisisPct: { min: 50, max: 200, step: 1 },
+		inflationExtremePct: { min: 100, max: 400, step: 5 },
+		inflationParodyPct: { min: 400, max: 3000, step: 100 },
 		inflationBaileyRentPct: { min: 3, max: 300, step: 1 },
 		inflationBaileyCrisisPct: { min: 3, max: 400, step: 1 },
 		inflationBaileyCapLow: { min: 500000, max: 5000000, step: 50000 },
@@ -202,9 +202,9 @@
 	setup.inflation.TIERS = [
 		{ id: "parody", min: 10000000000, setting: "inflationParodyPct", pct: 1500 }, // Parody spiral:  £100,000,000+ -> x16.00
 		{ id: "extreme", min: 1500000000, setting: "inflationExtremePct", pct: 150 }, // Extreme crisis: £15,000,000+  -> x2.50
-		{ id: "crisis", min: 500000000, setting: "inflationCrisisPct", pct: 75 },     // Crisis:         £5,000,000+   -> x1.75
-		{ id: "bad", min: 200000000, setting: "inflationBadPct", pct: 35 },           // Bad economy:    £2,000,000+   -> x1.35
-		{ id: "onset", min: 50000000, setting: "inflationOnsetPct", pct: 10 },        // Onset:          £500,000+     -> x1.10
+		{ id: "crisis", min: 500000000, setting: "inflationCrisisPct", pct: 75 }, // Crisis:         £5,000,000+   -> x1.75
+		{ id: "bad", min: 200000000, setting: "inflationBadPct", pct: 35 }, // Bad economy:    £2,000,000+   -> x1.35
+		{ id: "onset", min: 50000000, setting: "inflationOnsetPct", pct: 10 }, // Onset:          £500,000+     -> x1.10
 	];
 
 	setup.inflation.tiers = function () {
@@ -321,6 +321,8 @@
 	/**
 	 * Current price multiplier (>= 1) based on the player's net wealth.
 	 * Pass an explicit amount to preview the multiplier at a different wealth level.
+	 *
+	 * @param wealth
 	 */
 	setup.inflation.multiplier = function (wealth) {
 		if (!setup.inflation.isEnabled()) return 1;
@@ -334,6 +336,8 @@
 	/**
 	 * Convert a base price (pennies) into the inflation-adjusted price.
 	 * Single source of truth so the money() charge and the displayed label agree.
+	 *
+	 * @param base
 	 */
 	setup.inflation.price = function (base) {
 		if (!Number.isFinite(base)) return base;
@@ -366,6 +370,8 @@
 	 * it interpolates linearly between the tier points and keeps climbing past the top tier.
 	 * The stepped price multiplier made rent lurch (e.g. 3.0 <-> 6.0) whenever the player's wealth crossed a tier boundary (including just by paying the rent) so the demand fluctuated week to week.
 	 * Interpolating removes those jumps; rent now changes gradually.
+	 *
+	 * @param wealth
 	 */
 	setup.inflation.rentMultiplier = function (wealth) {
 		if (!setup.inflation.isEnabled()) return 1;
@@ -376,20 +382,26 @@
 		for (let i = tiers.length - 1; i >= 0; i--) {
 			pts.push({ w: tiers[i].min, m: 1 + setup.inflation.setting(tiers[i].setting) / 100 });
 		}
-		if (total < pts[0].w) return 1;                 // below onset: no rent inflation
+		if (total < pts[0].w) return 1; // below onset: no rent inflation
 		for (let i = 1; i < pts.length; i++) {
 			if (total <= pts[i].w) {
-				const a = pts[i - 1], b = pts[i];
+				const a = pts[i - 1];
+				const b = pts[i];
 				return a.m + ((total - a.w) / (b.w - a.w)) * (b.m - a.m);
 			}
 		}
 		/* Above the top point: keep climbing with the slope of the final segment. */
-		const a = pts[pts.length - 2], b = pts[pts.length - 1];
+		const a = pts[pts.length - 2];
+		const b = pts[pts.length - 1];
 		const slope = (b.m - a.m) / (b.w - a.w);
 		return b.m + (total - b.w) * slope;
 	};
 
-	/** Whether a given <<money>> spend source should be inflated by the central hook. */
+	/**
+	 * Whether a given <<money>> spend source should be inflated by the central hook.
+	 *
+	 * @param source
+	 */
 	setup.inflation.appliesToSpend = function (source) {
 		if (!setup.inflation.isEnabled()) return false;
 		if (source && setup.inflation.EXCLUDED_SOURCES.includes(source)) return false;
@@ -403,17 +415,17 @@
 	     >= £100M      : rent pressure capped at £250,000 ("my best investment")
 	   Rent pressure rises by one step each paid week while Bailey-visible wealth is high enough, then resets once it falls below that threshold.
 	   When the Relentless Bailey toggle is on, all of these caps are bypassed (rentCap returns Infinity) so rent climbs forever. */
-	setup.inflation.RENT_WEALTH_LOW = 100000000;     // £1,000,000
-	setup.inflation.RENT_WEALTH_JUMP = 1000000000;   // £10,000,000
+	setup.inflation.RENT_WEALTH_LOW = 100000000; // £1,000,000
+	setup.inflation.RENT_WEALTH_JUMP = 1000000000; // £10,000,000
 	setup.inflation.RENT_WEALTH_INVESTMENT = 10000000000; // £100,000,000
-	setup.inflation.RENT_CAP_LOW = setup.inflation.settingDefault("inflationBaileyCapLow");          // £15,000
-	setup.inflation.RENT_CAP_HIGH = setup.inflation.settingDefault("inflationBaileyCapHigh");        // £35,000
-	setup.inflation.RENT_JUMP_DEMAND = setup.inflation.settingDefault("inflationBaileyDemandJump");  // £75,000
+	setup.inflation.RENT_CAP_LOW = setup.inflation.settingDefault("inflationBaileyCapLow"); // £15,000
+	setup.inflation.RENT_CAP_HIGH = setup.inflation.settingDefault("inflationBaileyCapHigh"); // £35,000
+	setup.inflation.RENT_JUMP_DEMAND = setup.inflation.settingDefault("inflationBaileyDemandJump"); // £75,000
 	setup.inflation.RENT_INVESTMENT_DEMAND = setup.inflation.settingDefault("inflationBaileyDemandInvestment"); // £250,000
-	setup.inflation.RENT_INFLATION_PCT = setup.inflation.settingDefault("inflationBaileyRentPct");   // Current-preset fallback.
+	setup.inflation.RENT_INFLATION_PCT = setup.inflation.settingDefault("inflationBaileyRentPct"); // Current-preset fallback.
 	/* Extra Bailey pressure rises by this much per paid week while Bailey-visible wealth is at the rent-pressure setting or higher.
 	The pressure is separate from vanilla $rentstage so it can fall back to normal when the player is poor again. */
-	setup.inflation.RENT_STAGE_STEP = setup.inflation.settingDefault("inflationBaileyStep");         // +£500 per paid week
+	setup.inflation.RENT_STAGE_STEP = setup.inflation.settingDefault("inflationBaileyStep"); // +£500 per paid week
 
 	setup.inflation.rentSettingModifier = function () {
 		if (typeof V === "undefined" || !V.settings) return 1;
@@ -455,7 +467,8 @@
 		if (setup.inflation.baileyRelentless()) return Infinity;
 		if (wealth >= setup.inflation.RENT_WEALTH_INVESTMENT) return setup.inflation.scaleRentFull(setup.inflation.setting("inflationBaileyDemandInvestment"));
 		if (wealth >= setup.inflation.RENT_WEALTH_JUMP) return setup.inflation.scaleRentFull(setup.inflation.setting("inflationBaileyDemandJump"));
-		const baseCap = wealth < setup.inflation.RENT_WEALTH_LOW ? setup.inflation.setting("inflationBaileyCapLow") : setup.inflation.setting("inflationBaileyCapHigh");
+		const baseCap =
+			wealth < setup.inflation.RENT_WEALTH_LOW ? setup.inflation.setting("inflationBaileyCapLow") : setup.inflation.setting("inflationBaileyCapHigh");
 		return setup.inflation.scaleRentFull(baseCap);
 	};
 
@@ -541,17 +554,29 @@
 		return "";
 	};
 
-	/** Apply Bailey's tiered demand to a base rent amount (pennies). Called by the `rentmod` widget. */
+	/**
+	 * Apply Bailey's tiered demand to a base rent amount (pennies). Called by the `rentmod` widget.
+	 *
+	 * @param amount
+	 */
 	setup.inflation.applyToRent = function (amount) {
 		return setup.inflation.rentDemand(amount);
 	};
 
-	/** Convenience for UI: current inflation as a percentage above base (0 when inactive). */
+	/**
+	 * Convenience for UI: current inflation as a percentage above base (0 when inactive).
+	 *
+	 * @param wealth
+	 */
 	setup.inflation.percent = function (wealth) {
 		return Math.round((setup.inflation.multiplier(wealth) - 1) * 100);
 	};
 
-	/** True once inflation has reached the Bailey crisis setting. Gates aggressive Bailey. */
+	/**
+	 * True once inflation has reached the Bailey crisis setting. Gates aggressive Bailey.
+	 *
+	 * @param wealth
+	 */
 	setup.inflation.isCrisis = function (wealth) {
 		const tier = setup.inflation.baileyCrisisTierData();
 		const total = typeof wealth === "number" ? wealth : setup.inflation.totalWealth();
@@ -595,12 +620,16 @@
 	setup.inflation.PARODY_LEFTOVER = 100000000000; // £1,000,000,000 left in hand
 	setup.inflation.PARODY_PASSAGES = ["Money Parody Intro", "Money Parody Take", "Money Parody Take 2"];
 
-	/** Whether loading into `dest` should be hijacked by the parody event. */
+	/**
+	 * Whether loading into `dest` should be hijacked by the parody event.
+	 *
+	 * @param dest
+	 */
 	setup.inflation.moneyParodyDue = function (dest) {
 		if (typeof V === "undefined" || !setup.inflation.isEnabled()) return false;
 		if (setup.inflation.PARODY_PASSAGES.includes(dest)) return false;
 		/* Never yank the player out of combat or a scripted scene. */
-		if (V.combat || (V.enemyno > 0) || V.fightstart || V.molestationstart || V.sexstart) return false;
+		if (V.combat || V.enemyno > 0 || V.fightstart || V.molestationstart || V.sexstart) return false;
 		if (V.event !== undefined && typeof EventSystem !== "undefined" && EventSystem.any && EventSystem.any()) return false;
 		const badEnd = Array.isArray(V.badEndStats) && V.badEndStats.length > 0 ? V.badEndStats[V.badEndStats.length - 1] : null;
 		if (badEnd && badEnd.trackedStart && badEnd.trackedEnd === undefined) return false;
@@ -608,7 +637,7 @@
 	};
 
 	/**
-	 * Wipe every stash of money, leaving PARODY_LEFTOVER in hand: 
+	 * Wipe every stash of money, leaving PARODY_LEFTOVER in hand:
 	 * Cash, HBSC savings, locked fixed terms, the stale interest/maturity notices that drive the journal's "recent changes" line, and the prepaid Bailey rent deposit.
 	 * The loan (debt) is deliberately left so it still shows in the bank journal. Used by the parody event.
 	 */
