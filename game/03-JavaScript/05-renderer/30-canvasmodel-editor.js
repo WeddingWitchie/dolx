@@ -25,8 +25,9 @@ class CombatEditor {
 			);
 		}
 
-		// Give-up button: instantly end the current encounter as a loss.
-		if (V.combat) {
+		// These encounter types use $finish as their native early-exit signal.
+		const canGiveUp = ["man", "beast", "plant", "childbirth"].includes(V.enemytype) || V.abomination === 1;
+		if (V.combat && V.finish !== 1 && canGiveUp) {
 			column.append(CombatEditor.createGiveUpButton());
 		}
 
@@ -38,7 +39,9 @@ class CombatEditor {
 
 	/**
 	 * Builds the "give up" control shown beneath the reload icon during combat.
+	 *
 	 * Clicking it surrenders the encounter, ending it in defeat.
+	 *
 	 * @returns {HTMLButtonElement}
 	 */
 	static createGiveUpButton() {
@@ -60,18 +63,25 @@ class CombatEditor {
 	 * so the encounter's finish passage resolves through its neutral/defeat branch.
 	 *
 	 * Replaying the passage makes _combatend true, which renders the encounter's end-of-combat "Next" link.
-	 * We read that link's target and jump straight to it in the same tick, so the intermediate combat frame never paints.
-	 * It avoiding the flicker/double transition a deferred link click would cause.
+	 * Follow that link on the next tick, after SugarCube has completed the current passage lifecycle.
+	 * Running two Engine.play() calls in the same click can let event cleanup clear NPC pronouns before the finish passage renders.
 	 */
 	static loseEncounter() {
 		const v = State.variables;
 		v.finish = 1;
-		Engine.play(State.passage);
-		const nextLink = document.querySelector("#next a");
-		const target = nextLink instanceof HTMLElement ? nextLink.getAttribute("data-passage") : null;
-		if (target && target !== State.passage && Story.has(target)) {
-			Engine.play(target);
+		if (v.combatExtended?.reverseRapeStart === 1) {
+			v.combatExtended.reverseRapeEnd = 1;
 		}
+		v.enemyhealth = Math.max(Number(v.enemyhealth) || 0, 1);
+		if (Number.isFinite(v.enemypleasuremax)) {
+			v.enemypleasure = Math.min(Number(v.enemypleasure) || 0, Math.max(v.enemypleasuremax - 1, 0));
+		}
+		Engine.play(State.passage);
+		setTimeout(function () {
+			const nextLink = document.querySelector("#next a");
+			const target = nextLink instanceof HTMLElement ? nextLink.getAttribute("data-passage") : null;
+			if (target && target !== State.passage && Story.has(target)) nextLink.click();
+		}, 0);
 	}
 
 	/**
