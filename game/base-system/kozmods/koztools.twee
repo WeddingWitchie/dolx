@@ -373,77 +373,159 @@
 	<<widget "arousal-moan">>
 		<<set _gain to _args[0]>>
 		<<set _sensitivity to _args[1]>>
-		<<if $player.sex is "f" and _gain gte 400 and _sensitivity gt 1>>
-			<<if $pleasure lt $pleasuremax * 0.2 and $orgasmcurrent lt 1>>
-			<<elseif $pleasure lt $pleasuremax * 0.4 and $orgasmcurrent lt 1>>
-				<<switch $speechcycle>>
-					<<case 0>>
-						"M-mh!" 
-					<<case 1>>
-						"Mmph..." 
-					<<case 2>>
-						"Ngh..." 
-					<<case 3>>
-						"M-mh!" 
-					<<case 4>>
-						"Ngh..." 
-					<<default>>
-						"Mmph..." 
-				<</switch>>
-				<span class="pink">A muffled moan escapes your lips.</span>
-			<<elseif $pleasure lt $pleasuremax * 0.6 and $orgasmcurrent lt 1>>
-				<<switch $speechcycle>>
-					<<case 0>>
-						"A-Ah!<<hearticon>>" 
-					<<case 1>>
-						"Mmmh...<<hearticon>>" 
-					<<case 2>>
-						"Ngh...<<hearticon>>" 
-					<<case 3>>
-						"A-Ah!<<hearticon>>" 
-					<<case 4>>
-						"Ngh... Ah...<<hearticon>>" 
-					<<default>>
-						"Mmmh...<<hearticon>>" 
-				<</switch>>
-				<span class="pink">You moan softly.</span>
-			<<elseif $pleasure lt $pleasuremax * 0.8>>
-				<<switch $speechcycle>>
-					<<case 0>>
-						"A-Ah!...<<hearticon>> Ah...<<hearticon>>" 
-					<<case 1>>
-						"Mmmmh...<<hearticon>> Hng!<<hearticon>>" 
-					<<case 2>>
-						"Ngh...<<hearticon>> Ah!<<hearticon>>" 
-					<<case 3>>
-						"Hah...<<hearticon>> Hah...<<hearticon>>" 
-					<<case 4>>
-						"Ngh...<<hearticon>> Ah!<<hearticon>>" 
-					<<default>>
-						"Hah...<<hearticon>> Mn...!<<hearticon>>" 
-				<</switch>>
-				<span class="pink">You're moaning rhythmically.</span>	
-			<<elseif $pleasure lte $pleasuremax>>
-				<<switch $speechcycle>>
-					<<case 0>>
-						"A-Ah...!<<hearticon>> Hah...<<hearticon>> Hmn...!<<hearticon>>" 
-					<<case 1>>
-						"Ahn...!<<hearticon>> Ngh...!<<hearticon>> Mnh...!<<hearticon>>" 
-					<<case 2>>
-						"Fuck...<<hearticon>> Oh...<<hearticon>> Mnh...!<<hearticon>>" 
-					<<case 3>>
-						"Hah...<<hearticon>> Hn...!<<hearticon>> A-Ah...!<<hearticon>>" 
-					<<case 4>>
-						"Ah!<<hearticon>> Ah!<<hearticon>> Fuck!<<hearticon>>" 
-					<<default>>
-						"Ah...!<<hearticon>> Hah...<<hearticon>> Ohh...!<<hearticon>>" 
-				<</switch>>
-				<<if $pleasure is $pleasuremax>>
-					<span class="pink">Your climax approaches.</span>
-				<<else>>
-					<span class="pink">You are gasping uncontrollably.</span>	
+		<<if $settings.arousalMoanEnabled and _gain gte 400 and _sensitivity gt 1>>
+			<<set _penetrating to playerIsPenetrating()>>
+			<<set _penetrated to playerIsPenetrated()>>
+			/* Being penetrated (or any non-penetrative arousal, e.g. masturbation/petting) moans; actively penetrating someone grunts instead. Doing both at once (e.g. double-dipping) fires both lines. */
+			<<set _showMoan to _penetrated or !_penetrating>>
+			<<set _showGrunt to _penetrating>>
+
+			<<if _showMoan>>
+				<<if $pleasure lt $pleasuremax * 0.2 and $orgasmcurrent lt 1>>
+				<<elseif $pleasure lt $pleasuremax * 0.4 and $orgasmcurrent lt 1>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"M-mh!"
+						<<case 1>>
+							"Mmph..."
+						<<case 2>>
+							"Ngh..."
+						<<case 3>>
+							"M-mh!"
+						<<case 4>>
+							"Ngh..."
+						<<default>>
+							"Mmph..."
+					<</switch>>
+					<span class="pink">A muffled moan escapes your lips.</span>
+				<<elseif $pleasure lt $pleasuremax * 0.6 and $orgasmcurrent lt 1>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"A-Ah!<<hearticon>>"
+						<<case 1>>
+							"Mmmh...<<hearticon>>"
+						<<case 2>>
+							"Ngh...<<hearticon>>"
+						<<case 3>>
+							"A-Ah!<<hearticon>>"
+						<<case 4>>
+							"Ngh... Ah...<<hearticon>>"
+						<<default>>
+							"Mmmh...<<hearticon>>"
+					<</switch>>
+					<span class="pink">You moan softly.</span>
+				<<elseif $pleasure lt $pleasuremax * 0.8>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"A-Ah!...<<hearticon>> Ah...<<hearticon>>"
+						<<case 1>>
+							"Mmmmh...<<hearticon>> Hng!<<hearticon>>"
+						<<case 2>>
+							"Ngh...<<hearticon>> Ah!<<hearticon>>"
+						<<case 3>>
+							"Hah...<<hearticon>> Hah...<<hearticon>>"
+						<<case 4>>
+							"Ngh...<<hearticon>> Ah!<<hearticon>>"
+						<<default>>
+							"Hah...<<hearticon>> Mn...!<<hearticon>>"
+					<</switch>>
+					<span class="pink">You're moaning rhythmically.</span>
+				<<elseif $pleasure lte $pleasuremax>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"A-Ah...!<<hearticon>> Hah...<<hearticon>> Hmn...!<<hearticon>>"
+						<<case 1>>
+							"Ahn...!<<hearticon>> Ngh...!<<hearticon>> Mnh...!<<hearticon>>"
+						<<case 2>>
+							"Fuck...<<hearticon>> Oh...<<hearticon>> Mnh...!<<hearticon>>"
+						<<case 3>>
+							"Hah...<<hearticon>> Hn...!<<hearticon>> A-Ah...!<<hearticon>>"
+						<<case 4>>
+							"Ah!<<hearticon>> Ah!<<hearticon>> Fuck!<<hearticon>>"
+						<<default>>
+							"Ah...!<<hearticon>> Hah...<<hearticon>> Ohh...!<<hearticon>>"
+					<</switch>>
+					<<if $pleasure is $pleasuremax>>
+						<span class="pink">Your climax approaches.</span>
+					<<else>>
+						<span class="pink">You are gasping uncontrollably.</span>
+					<</if>>
 				<</if>>
 			<</if>>
+
+			<<if _showGrunt>>
+				<<if $pleasure lt $pleasuremax * 0.2 and $orgasmcurrent lt 1>>
+				<<elseif $pleasure lt $pleasuremax * 0.4 and $orgasmcurrent lt 1>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"Hh..."
+						<<case 1>>
+							"Tch..."
+						<<case 2>>
+							"Ngh."
+						<<case 3>>
+							"Hh..."
+						<<case 4>>
+							"Ntch..."
+						<<default>>
+							"Hh..."
+					<</switch>>
+					<span class="pink">A low grunt escapes your lips.</span>
+				<<elseif $pleasure lt $pleasuremax * 0.6 and $orgasmcurrent lt 1>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"Hah..."
+						<<case 1>>
+							"Ngh..."
+						<<case 2>>
+							"Fuck..."
+						<<case 3>>
+							"Hah..."
+						<<case 4>>
+							"Hn... Ngh..."
+						<<default>>
+							"Ngh..."
+					<</switch>>
+					<span class="pink">You grunt under your breath.</span>
+				<<elseif $pleasure lt $pleasuremax * 0.8>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"Hah!... Hah!"
+						<<case 1>>
+							"Ngh! Hnn!"
+						<<case 2>>
+							"Fuck... Ngh!"
+						<<case 3>>
+							"Hnn... Hnn..."
+						<<case 4>>
+							"Ngh! Hah!"
+						<<default>>
+							"Hah... Hnn!"
+					<</switch>>
+					<span class="pink">You're grunting with every thrust.</span>
+				<<elseif $pleasure lte $pleasuremax>>
+					<<switch $speechcycle>>
+						<<case 0>>
+							"Hah...! Hnn! Fuck...!"
+						<<case 1>>
+							"Ngh...! Hnn...! Fuck!"
+						<<case 2>>
+							"Fuck... nh! Ngh...!"
+						<<case 3>>
+							"Hnn... Hah! Fuck...!"
+						<<case 4>>
+							"Hah! Hah! Fuck!"
+						<<default>>
+							"Ngh...! Hmn... Fuck!"
+					<</switch>>
+					<<if $pleasure is $pleasuremax>>
+						<span class="pink">Your climax approaches.</span>
+					<<else>>
+						<span class="pink">You're grunting through gritted teeth.</span>
+					<</if>>
+				<</if>>
+			<</if>>
+
 			<<set $speechcycle to random(0,7)>>
 			<<if $speechcycle gte 7>>
 				<<set $speechcycle to 0>>

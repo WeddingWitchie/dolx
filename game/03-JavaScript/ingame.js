@@ -2033,6 +2033,11 @@ function playerIsPenetrated() {
 }
 window.playerIsPenetrated = playerIsPenetrated;
 
+function playerIsPenetrating() {
+	return ["othervagina", "otheranus", "othermouth", "otherpenis"].includes(V.penisuse);
+}
+window.playerIsPenetrating = playerIsPenetrating;
+
 /**
  * @param {"left" | "right" | "any" | "both"} arm
  */

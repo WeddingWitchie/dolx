@@ -1415,6 +1415,7 @@ function settingsObjects(type) {
 					darkSkinChance: { min: 0, max: 100, decimals: 0, displayName: "Likelihood that NPCs have dark skin:", randomize: "encounter" },
 					lurkersEnabled: { bool: true, displayName: "Lurkers:" },
 					fertilityCycleEnabled: { bool: true, displayName: "Menstrual cycle:" },
+					arousalMoanEnabled: { bool: true, displayName: "Moans and grunts:" },
 					toyMultiplePenetrationEnabled: { bool: true, displayName: "Multiple penetration with sex toys:" },
 					multipleWardrobes: { strings: [false, "isolated"], displayName: "Multiple wardrobes:" }, //, "all"
 					maleChanceSplit: { bool: true, displayName: "NPC attraction split by gender appearance:" },
