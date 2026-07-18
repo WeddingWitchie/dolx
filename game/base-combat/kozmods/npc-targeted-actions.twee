@@ -121,10 +121,36 @@
 
     /* Prints the closing descriptor for a freshly-pilled NPC and, for Whitney, flags the matching speech-whitney reaction.
     Herm pills keep the NPC's presentation but leave them with both genitals, so the wording reflects that instead of "a boy". */
-    <<widget "xchange-pilled-descriptor">><<set _t to _args[0]>><<set _pilledHerm to !!($NPCList[_t].xchange and $NPCList[_t].xchange.hermEffect)>><<if ["Whitney","Robin","Kylar","Sydney"].includes($NPCList[_t].fullDescription)>><<set $speechpill to (_pilledHerm ? "herm" : 1)>><</if>><<= ($NPCList[_t].teen ? $NPCList[_t].pronouns.boy : $NPCList[_t].pronouns.man) + (_pilledHerm ? " sporting both a stiff cock and a needy pussy" : "")>><</widget>>
+    <<widget "xchange-pilled-descriptor">><<set _t to _args[0]>><<set _pilledHerm to !!($NPCList[_t].xchange and $NPCList[_t].xchange.hermEffect)>><<if ["Whitney","Robin","Kylar","Sydney","Bailey"].includes($NPCList[_t].fullDescription)>><<set $speechpill to (_pilledHerm ? "herm" : 1)>><</if>><<= ($NPCList[_t].teen ? $NPCList[_t].pronouns.boy : $NPCList[_t].pronouns.man) + (_pilledHerm ? " sporting both a stiff cock and a needy pussy" : "")>><</widget>>
 
-    /* A non-pillable named NPC angrily slaps the pill away. _args[0] = "left"/"right" hand,
-       _args[1] = target index. Resets the holding hand and unsets the held pill. */
+    /* Immediate reaction the instant a pill lands on an NPC who takes it badly.
+    Currently Bailey only: a burst of cold fury, then a hand in your hair or around your throat.
+    The throat grab respects the asphyxia setting, $nochoke, an already-occupied neck and the familiar collar, and needs a free hand; it feeds the normal strangle sequence on following turns.
+    No-op for everyone else. _args[0] = NPCList index of the pilled NPC. */
+    <<widget "xchange-pilled-fury">>
+        <<set _ft to _args[0]>>
+        <<if $NPCList[_ft].fullDescription is "Bailey">>
+            <<personselect _ft>>
+            <br><br>
+            Bailey goes very still as the change settles. <<He>> looks down at <<his>> unfamiliar body once, slowly, like <<hes>> tallying the damage, then back up at you. You've seen Bailey annoyed. You've seen Bailey angry. You've never seen this.
+            <<set _furyFreeHand to ($NPCList[_ft].lefthand is 0 ? "lefthand" : ($NPCList[_ft].righthand is 0 ? "righthand" : 0))>>
+            <<set _furyCanChoke to $settings.asphyxiaLevel gte 1 and $nochoke isnot 1 and $neckuse isnot "hand" and !($worn.neck.name is "familiar collar" and $worn.neck.cursed is 1)>>
+            <<if _furyFreeHand and _furyCanChoke>>
+                <span class="red">"Do you have any idea what you've just cost yourself?" <<His>> hand snaps around your throat and squeezes.</span> "I'm going to collect every penny of this out of your hide."
+                <<set $NPCList[_ft][_furyFreeHand] to "throat">><<set $neckuse to "hand">><<violence 4>>
+            <<elseif _furyFreeHand>>
+                <span class="red"><<He>> seizes a fistful of your hair and wrenches your head back, <<his>> face an inch from yours.</span> "You'll pay for this. With interest."
+                <<set $NPCList[_ft][_furyFreeHand] to "hair">><<set $speechhair to 1>><<violence 3>>
+            <<else>>
+                <span class="red"><<He>> wrenches your head back by the hair hard enough to make your eyes water.</span> "You'll pay for this. Every hour of it."
+                <<violence 3>>
+            <</if>>
+            <<set $enemyanger += 60>><<set $enemytrust -= 40>>
+        <</if>>
+    <</widget>>
+
+    /* A non-pillable named NPC angrily slaps the pill away
+    _args[0] = "left"/"right" hand, _args[1] = target index. Resets the holding hand and unsets the held pill. */
     <<widget "xchange-pill-slap">>
         <<set _slapHand to _args[0]>><<set _slapTarget to _args[1]>>
         <<if _slapHand is "left">>
@@ -185,6 +211,7 @@
                     Wikifier.wikifyEval(npcEffect);
                 })>>
                 <<xchange-pilled-descriptor $lefttarget>>.
+                <<xchange-pilled-fury $lefttarget>>
                 <<unset $currentXchangePillLeft>>
 
             <<elseif not npcXchangePillable($lefttarget)>>
@@ -206,6 +233,7 @@
                         Wikifier.wikifyEval(npcEffect);
                     })>>
                     <<xchange-pilled-descriptor $lefttarget>>.
+                    <<xchange-pilled-fury $lefttarget>>
                     <<unset $currentXchangePillLeft>>
 
                 <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
@@ -236,6 +264,7 @@
                     Wikifier.wikifyEval(npcEffect);
                 })>>
                 <<xchange-pilled-descriptor $righttarget>>.
+                <<xchange-pilled-fury $righttarget>>
                 <<unset $currentXchangePillRight>>
 
             <<elseif not npcXchangePillable($righttarget)>>
@@ -257,6 +286,7 @@
                         Wikifier.wikifyEval(npcEffect);
                     })>>
                     <<xchange-pilled-descriptor $righttarget>>.
+                    <<xchange-pilled-fury $righttarget>>
                     <<unset $currentXchangePillRight>>
 
                 <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
@@ -333,7 +363,7 @@
                     <<addinlineevent 0.5>>They recoil from your X-Change $xchangePillWord. "Keep that away from us!"<<set $enemyanger += 40>><<set $enemytrust -= 30>><</addinlineevent>>
             <</switch>>
             <<runeventpool>>
-        <<elseif $NPCList[0] and npcXchangePillable(0) and ["Whitney", "Robin", "Kylar", "Sydney"].includes($NPCList[0].fullDescription)>>
+        <<elseif $NPCList[0] and npcXchangePillable(0) and ["Whitney", "Robin", "Kylar", "Sydney", "Bailey"].includes($NPCList[0].fullDescription)>>
             /* Pillable named NPCs voice their own reaction in their speech file. */
             <<set $speechpillreveal to 1>>
         <<elseif $NPCList[0] and $NPCNameList.includes($NPCList[0].fullDescription)>>
