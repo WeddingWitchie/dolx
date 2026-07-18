@@ -622,6 +622,7 @@ window.wornSetupClothes = wornSetupClothes;
 	};
 
 	const runXChangeLoadCompat = () => {
+		if (V.xchange && Object.hasOwn(V.xchange, "_debugEffectHistory")) delete V.xchange._debugEffectHistory;
 		try {
 			setup.xchangeEnsurePillDefaults();
 		} catch (e) {}

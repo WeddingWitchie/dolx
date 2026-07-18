@@ -1133,9 +1133,13 @@
 
 	<<widget "xchange-effects">>
 		<<set $xchange.everConsumed to true>>
-		<<if xchangeTherapyActive()>>
-			/* Anti X-Change therapy: a clean window is active. The pill is still consumed, but it's neutralised, no session starts and the body is left untouched. */
-			<span class="blue">The X-Change pill works its way into you, but your cleansing treatment smothers it before it can take hold. Nothing happens, your body stays exactly as it is.</span>
+		<<if xchangePillProtectionActive()>>
+			/* X-Change protection is active. The pill is still consumed, but it's neutralised, no session starts and the body is left untouched. */
+			<<if xchangePillPurityActive()>>
+				<span class="blue">The X-Change pill works its way into you, but your permanent purity neutralises it before it can take hold. Nothing happens, your body stays exactly as it is.</span>
+			<<else>>
+				<span class="blue">The X-Change pill works its way into you, but your cleansing treatment smothers it before it can take hold. Nothing happens, your body stays exactly as it is.</span>
+			<</if>>
 			<br><br>
 		<<else>>
 		<<set _days to _args[0]>>
@@ -1204,11 +1208,8 @@
 
 <<widget "xchange-addeffect">>
 	/* IMPORTANT: For purple effect, PC's sex should be set to male, and balls should be removed */
-	<<if $xchange._debugEffectHistory is undefined>><<set $xchange._debugEffectHistory to []>><</if>>
-	<<run $xchange._debugEffectHistory.push(_args[0])>>
-
-	<<if xchangeTherapyActive()>>
-		/* Anti X-Change therapy: no new pill effect can take hold while a clean window is active (covers stacking onto a pre-existing session and the Choice pill). */
+	<<if xchangePillProtectionActive()>>
+		/* No new pill effect can take hold while temporary therapy or permanent X-Change purity is active. */
 	<<else>>
 	<<set _xchangeNeedsRefresh to false>>
 	<<switch _args[0]>>
@@ -2319,9 +2320,10 @@
 
 		<<set $xchange.timesTaken.player++>>
 
-		/* Suspicious pill skill debuff: 20-35% chance */
-		<<set _debuffChance to random(20,35)>>
-		<<if random(1,100) lte _debuffChance>>
+		/* Suspicious pill skill debuff: 20-35% chance, unless the pill was neutralised. */
+		<<if !xchangePillProtectionActive()>>
+			<<set _debuffChance to random(20,35)>>
+			<<if random(1,100) lte _debuffChance>>
 			<<set _skillPool to [
 				{ key: "physique", name: "Physique" },
 				{ key: "willpower", name: "Willpower" },
@@ -2359,6 +2361,7 @@
 			<</for>>
 			<<if _hitNames.length gt 0>>
 				<<set $suspiciousPillDebuffMessage to _hitNames>>
+			<</if>>
 			<</if>>
 		<</if>>
 	<</if>>

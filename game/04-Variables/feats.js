@@ -2929,7 +2929,8 @@ function featsMerge() {
 
 	if (!featData.specialClothes) featData.specialClothes = [];
 	// eslint-disable-next-line prettier/prettier
-	if (!Array.isArray(featData.specialClothes)) featData.specialClothes = getUnlockedSpecialSets(updateSpecialClothesNames(featData.specialClothes)).filter(set => setup.specialClothesSets[set].feat);
+	if (!Array.isArray(featData.specialClothes))
+		featData.specialClothes = getUnlockedSpecialSets(updateSpecialClothesNames(featData.specialClothes)).filter(set => setup.specialClothesSets[set].feat);
 	const loadFeats = (data = {}) => {
 		Object.entries(data).forEach(([key, date]) => {
 			if (key === "specialClothes") {
@@ -3599,7 +3600,7 @@ function setupFeatBoosts(force) {
 			missing: "Unlock this boost by obtaining the 'Pocket Change' feat",
 		},
 		grades: {
-			name: "School Grades",
+			name: "School Performance Grades",
 			required: ["Perfect Record", "Return to Monke"],
 			cost: 15,
 			maxMultiplier: 2,
@@ -3641,11 +3642,18 @@ function setupFeatBoosts(force) {
 			missing: "Unlock this boost by obtaining the 'Green Fingered' feat",
 		},
 		greenThumb: {
-			name: "Green Thumb Trait",
+			name: "Green Thumb",
 			required: ["Green Fingered", "Grass Toucher"],
 			cost: 40,
 			max: 1,
 			missing: "Unlock this boost by obtaining the 'Green Fingered' feat",
+		},
+		xchangePurityTrait: {
+			name: "X-Change Purity",
+			required: [],
+			cost: 150,
+			max: 1,
+			missing: "",
 		},
 		orgasmTrait: {
 			name: "Orgasm Addict",
@@ -3761,8 +3769,9 @@ function setupFeatBoosts(force) {
 		},
 		specialClothing: {
 			name: "Special Clothing",
-			required: ["Curious Attire", "Wicked Wardrobe"],
+			required: ["Curious Attire", "Wicked Wardrobe", "Wildsong"],
 			cost: 0,
+			max: V.feats.allSaves["Wicked Wardrobe"] ? (V.feats.allSaves.Wildsong ? 3 : 2) : V.feats.allSaves["Curious Attire"] ? 1 : 0,
 			missing: "Unlock this boost by obtaining a hidden feat (" + setup.feats["Curious Attire"].hint + ")",
 		},
 		sexToys: {
@@ -3819,6 +3828,20 @@ function setupFeatBoosts(force) {
 			cost: 10,
 			maxMultiplier: 1,
 			missing: "Unlock this boost by obtaining one of the sadism or masochism feats",
+		},
+		sadistTrait: {
+			name: "Sadist Trait",
+			required: ["Twisted Desire", "Served Hot"],
+			cost: 23,
+			max: 1,
+			missing: "Unlock this trait by obtaining one of the sadism or masochism feats",
+		},
+		masochistTrait: {
+			name: "Masochist Trait",
+			required: ["Twisted Desire", "Served Hot"],
+			cost: 23,
+			max: 1,
+			missing: "Unlock this trait by obtaining one of the sadism or masochism feats",
 		},
 		physique: {
 			name: "Physique",
@@ -4031,6 +4054,7 @@ function applyFeatBoosts() {
 		V.backgroundTraits.pushUnique("greenthumb");
 		if (V.fertiliser) ++V.fertiliser.current;
 	}
+	if (upgrades.xchangePurityTrait) V.xchange.pillPurityTrait = true;
 	if (upgrades.orgasmTrait) V.orgasmtrait = 1;
 	if (upgrades.chokeTrait) V.choketrait = 1;
 	if (upgrades.ejacTrait) V.ejactrait = 1;
@@ -4143,6 +4167,14 @@ function applyFeatBoosts() {
 	// AMC-adjacent and sex specialist legacy DoLX boosts
 	if (upgrades.sadism) V.featsSadismBoost = gain("sadism", 1);
 	if (upgrades.masochism) V.featsMasochismBoost = gain("masochism", 1);
+	if (upgrades.sadistTrait) {
+		V.sadism = Math.max(V.sadism, 300);
+		V.sadism_level = Math.max(V.sadism_level, 2);
+	}
+	if (upgrades.masochistTrait) {
+		V.masochism = Math.max(V.masochism, 300);
+		V.masochism_level = Math.max(V.masochism_level, 2);
+	}
 	if (upgrades.physique) V.physique += gain("physique", 1500);
 	if (upgrades.willpower) V.willpower += gain("willpower", 200);
 	if (upgrades.oral) V.oralskill += gain("oral", 200);
@@ -4294,11 +4326,10 @@ function applyFeatBoosts() {
 	// special clothes
 	if (upgrades.specialClothing) {
 		specialClothesUpdate();
-		// cost is 0, so gain() would be Infinity. In DoLX this causes the level 1/2/3 switch
-		// to always fall through to the else (level 1) path, which iterates specialClothesSets directly.
-		// We replicate that behavior here to match DoLP.
+		const specialClothingUnlockLevel = details.specialClothing.purchased >= 3 ? 3 : 2;
+		// Ranks 1-2 import clothes only. Rank 3 imports their normal story unlock without copying route progress.
 		for (const [setName, selected] of Object.entries(V.featsBoosts.specialClothesSets)) {
-			if (selected === true) specialClothesUnlock("set", setName, 2);
+			if (selected === true) specialClothesUnlock("set", setName, specialClothingUnlockLevel);
 		}
 	}
 

@@ -52,25 +52,31 @@
 <</widget>>
 
 <<widget "xchange-premium">>
-	/* duration in days */
-	<<set _duration to _args[0]>>
-	<<if _duration is undefined or _duration <= 0>><<set _duration to 7>><</if>>
+	<<if xchangePillProtectionActive()>>
+		/* The dose still happened, but protection neutralises it before customisation or side effects can begin. */
+		<<set $xchange.everConsumed to true>>
+		<<set $xchange.pill.done to true>>
+	<<else>>
+		/* duration in days */
+		<<set _duration to _args[0]>>
+		<<if _duration is undefined or _duration <= 0>><<set _duration to 7>><</if>>
 
-	<<xchange-premium-ensure>>
+		<<xchange-premium-ensure>>
 
-	/* Where we came from */
-	<<set $xchange.premium.duration to _duration>>
-	<<set $xchange.premium.originPassage to passage().title>>
-	<<set $xchange.pill.returnPassage to passage().title>>
+		/* Where we came from */
+		<<set $xchange.premium.duration to _duration>>
+		<<set $xchange.premium.originPassage to passage().title>>
+		<<set $xchange.pill.returnPassage to passage().title>>
 
-	/* Start fresh each dose */
-	<<set $xchange.premium.sideSelected to []>>
-	<<set $xchange.premium.mode to "side">>
-	<<set $xchange.premium.screenPassage to "X-Change Premium Menu">>
+		/* Start fresh each dose */
+		<<set $xchange.premium.sideSelected to []>>
+		<<set $xchange.premium.mode to "side">>
+		<<set $xchange.premium.screenPassage to "X-Change Premium Menu">>
 
-	<<script>>
-	if (typeof window.openXChangePremiumMenu === "function") {window.openXChangePremiumMenu();} else {console.error("[X-Change Premium] openXChangePremiumMenu helper missing");}
-	<</script>>
+		<<script>>
+		if (typeof window.openXChangePremiumMenu === "function") {window.openXChangePremiumMenu();} else {console.error("[X-Change Premium] openXChangePremiumMenu helper missing");}
+		<</script>>
+	<</if>>
 <</widget>>
 
 <<widget "xchange-premium-apply">>

@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation */
-/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangeTherapyActive */
+/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillProtectionActive */
 /*
  * if display_condition is 1, item is displayed, else it's not
  * current max doses for Harper/Asylum pills is 1; 2 for every other pills
@@ -880,10 +880,10 @@ function onTakeClick(itemName) {
 						return;
 				}
 			}
-			/* Anti X-Change therapy: a clean window neutralises any X-Change pill. The pill is still consumed, but it dissolves to nothing, so override the effect flavour with a no-effect line. */
+			/* Temporary therapy and permanent X-Change purity neutralise the pill while still recording its consumption. */
 			V.lastPillTakenDescription =
-				item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive()
-					? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
+				item.type === "xchange" && typeof xchangePillProtectionActive === "function" && xchangePillProtectionActive()
+					? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
 					: item.onTakeMessage;
 		}
 	}
@@ -923,10 +923,10 @@ function onTakeClickSilent(itemName) {
 
 			V.sexStats.pills.lastTaken[item.type] = item.subtype;
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
-			/* Anti X-Change therapy: a clean window neutralises any X-Change pill. The pill is still consumed, but it dissolves to nothing, so override the effect flavour with a no-effect line. */
+			/* Temporary therapy and permanent X-Change purity neutralise the pill while still recording its consumption. */
 			V.lastPillTakenDescription =
-				item.type === "xchange" && typeof xchangeTherapyActive === "function" && xchangeTherapyActive()
-					? "You swallow the pill, but it dissolves to nothing. Your X-Change cleansing treatment neutralises it before it can take hold, and your body stays exactly as it is."
+				item.type === "xchange" && typeof xchangePillProtectionActive === "function" && xchangePillProtectionActive()
+					? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
 					: item.onTakeMessage;
 
 			/* Reuse original daily notice path */

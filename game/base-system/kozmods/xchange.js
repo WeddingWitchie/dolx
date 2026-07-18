@@ -1040,6 +1040,18 @@ function xchangeTherapyActive() {
 }
 window.xchangeTherapyActive = xchangeTherapyActive;
 
+/* A feat-boost trait uses the same neutralisation as Harper's treatment, but is permanent.
+	Keep it separate from therapy so it never expires and does not block pill-related story events. */
+function xchangePillPurityActive() {
+	return V.xchange?.pillPurityTrait === true;
+}
+window.xchangePillPurityActive = xchangePillPurityActive;
+
+function xchangePillProtectionActive() {
+	return xchangeTherapyActive() || xchangePillPurityActive();
+}
+window.xchangePillProtectionActive = xchangePillProtectionActive;
+
 function playerMayBeSpiked() {
 	if (xchangeTherapyActive()) return false;
 	return V.xchange.nonconEnabled === 1 && ((!playerIsXChanged() && !playerIsPregnant()) || playerIsXChanged());

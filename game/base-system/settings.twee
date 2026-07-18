@@ -1645,11 +1645,95 @@
 			<</if>>
 				<hr>
 
-				<<set _upgradeNames to Object.keys($featsBoosts.upgrades)>>
+				<<set _allUpgradeNames to Object.keys($featsBoosts.upgrades)>>
+				<<set _traitUpgradeNames to ["orgasmTrait", "chokeTrait", "ejacTrait", "molestTrait", "rapeTrait", "bestialityTrait", "tentacleTrait", "milkDrankTrait"]>>
+				<<set _sexSkillUpgradeNames to ["seduction", "oral", "chest", "hands", "buttocks", "penile", "anal", "vaginal", "feet", "thighs"]>>
+				<<set _basicSkillUpgradeNames to ["skulduggery", "dancing", "swimming", "athletics", "tending", "housekeeping"]>>
+				<<set _advancedTraitUpgradeNames to ["xchangePurityTrait", "greenThumb", "transcend", "adaptiveGenes", "purity", "impurity"]>>
+				<<set _transformationUpgradeNames to ["divineTFs", "animalTFs"]>>
+				<<set _sadoMasoUpgradeNames to ["sadism", "masochism", "sadistTrait", "masochistTrait"]>>
+				<<set _coreCharacteristicUpgradeNames to ["physique", "willpower", "promiscuity", "exhibitionism", "deviancy"]>>
+				<<set _upgradeNames to []>>
+				<<set _traitCategoryAdded to false>>
+				<<set _sexSkillCategoryAdded to false>>
+				<<set _basicSkillCategoryAdded to false>>
+				<<set _advancedTraitCategoryAdded to false>>
+				<<set _transformationCategoryAdded to false>>
+				<<set _sadoMasoCategoryAdded to false>>
+				<<set _coreCharacteristicCategoryAdded to false>>
+				<<for _boostName range _allUpgradeNames>>
+					<<if _traitUpgradeNames.includes(_boostName)>>
+						<<if !_traitCategoryAdded>>
+							<<run _upgradeNames.push("sexRapeTraits")>>
+							<<set _traitCategoryAdded to true>>
+						<</if>>
+					<<elseif _sexSkillUpgradeNames.includes(_boostName)>>
+						<<if !_sexSkillCategoryAdded>>
+							<<run _upgradeNames.push("sexSkills")>>
+							<<set _sexSkillCategoryAdded to true>>
+						<</if>>
+					<<elseif _basicSkillUpgradeNames.includes(_boostName)>>
+						<<if !_basicSkillCategoryAdded>>
+							<<run _upgradeNames.push("basicSkills")>>
+							<<set _basicSkillCategoryAdded to true>>
+						<</if>>
+					<<elseif _advancedTraitUpgradeNames.includes(_boostName)>>
+						<<if !_advancedTraitCategoryAdded>>
+							<<run _upgradeNames.push("advancedTraits")>>
+							<<set _advancedTraitCategoryAdded to true>>
+						<</if>>
+					<<elseif _transformationUpgradeNames.includes(_boostName)>>
+						<<if !_transformationCategoryAdded>>
+							<<run _upgradeNames.push("transformations")>>
+							<<set _transformationCategoryAdded to true>>
+						<</if>>
+					<<elseif _sadoMasoUpgradeNames.includes(_boostName)>>
+						<<if !_sadoMasoCategoryAdded>>
+							<<run _upgradeNames.push("sadoMaso")>>
+							<<set _sadoMasoCategoryAdded to true>>
+						<</if>>
+					<<elseif _coreCharacteristicUpgradeNames.includes(_boostName)>>
+						<<if !_coreCharacteristicCategoryAdded>>
+							<<run _upgradeNames.push("coreCharacteristics")>>
+							<<set _coreCharacteristicCategoryAdded to true>>
+						<</if>>
+					<<else>>
+						<<run _upgradeNames.push(_boostName)>>
+					<</if>>
+				<</for>>
+				<<set _preferredUpgradeNames to ["money", "coreCharacteristics", "basicSkills", "sexSkills", "grades", "advancedTraits", "sexRapeTraits"]>>
+				<<for _preferredIndex to _preferredUpgradeNames.length - 1; _preferredIndex gte 0; _preferredIndex-->>
+					<<set _preferredName to _preferredUpgradeNames[_preferredIndex]>>
+					<<set _currentIndex to _upgradeNames.indexOf(_preferredName)>>
+					<<if _currentIndex gte 0>>
+						<<run _upgradeNames.unshift(_upgradeNames.splice(_currentIndex, 1)[0])>>
+					<</if>>
+				<</for>>
 				<<set _visibleUpgradeNames to []>>
 				<<set _visibleUpgradeIDs to []>>
 				<<for _i to 0; _i lt _upgradeNames.length; _i++>>
-					<<if $featsBoosts.upgradeDetails[_upgradeNames[_i]].max>>
+					<<if _upgradeNames[_i] is "sexRapeTraits">>
+						<<set _visibleUpgradeNames.push("Sex-Rape Traits")>>
+						<<set _visibleUpgradeIDs.push(clone(_i))>>
+					<<elseif _upgradeNames[_i] is "sexSkills">>
+						<<set _visibleUpgradeNames.push("Sex Skill Grades")>>
+						<<set _visibleUpgradeIDs.push(clone(_i))>>
+					<<elseif _upgradeNames[_i] is "basicSkills">>
+						<<set _visibleUpgradeNames.push("Basic Skill Grades")>>
+						<<set _visibleUpgradeIDs.push(clone(_i))>>
+					<<elseif _upgradeNames[_i] is "advancedTraits">>
+						<<set _visibleUpgradeNames.push("Special Advanced Traits")>>
+						<<set _visibleUpgradeIDs.push(clone(_i))>>
+					<<elseif _upgradeNames[_i] is "transformations">>
+						<<set _visibleUpgradeNames.push("Transformation")>>
+						<<set _visibleUpgradeIDs.push(clone(_i))>>
+					<<elseif _upgradeNames[_i] is "sadoMaso">>
+						<<set _visibleUpgradeNames.push("Sado-Maso")>>
+						<<set _visibleUpgradeIDs.push(clone(_i))>>
+					<<elseif _upgradeNames[_i] is "coreCharacteristics">>
+						<<set _visibleUpgradeNames.push("Core Characteristic Grades")>>
+						<<set _visibleUpgradeIDs.push(clone(_i))>>
+					<<elseif $featsBoosts.upgradeDetails[_upgradeNames[_i]].max>>
 						<<set _visibleUpgradeNames.push($featsBoosts.name[_upgradeNames[_i]])>>
 						<<set _visibleUpgradeIDs.push(clone(_i))>>
 					<<else>>

@@ -158,6 +158,11 @@
 	<<set _listbox += '<</listbox>>'>>
 	<span class="gold settingsToggleIndent">Jump to a specific feat boost:</span>
 	<<print _listbox>>
+	<<run $(() => {
+		$('#featsPointsMenu > select.macro-listbox').off('change.featBoostJump').on('change.featBoostJump', () => {
+			new Wikifier(null, '<<set _upgradeName to _upgradeNames[_upgradeNameID]>><<replace #featsPointsMenu>><<featsPointsMenu>><</replace>>');
+		});
+	})>>
 
 	<div class="settingsGridFeats">
 		<div class="settingsHeader">
@@ -198,33 +203,49 @@
 		</div>
 		/*<<set _upgradeName to _upgradeNames[_upgradeNameID]>>*/
 		<div @id="'feats-' + _upgradeName" class="settingsToggleItem">
-			<<featsMenu _upgradeName>>
+			<<if _upgradeName is "sexRapeTraits">>
+				<<sexRapeTraitsFeatUI>>
+			<<elseif _upgradeName is "sexSkills">>
+				<<sexSkillsFeatUI>>
+			<<elseif _upgradeName is "basicSkills">>
+				<<basicSkillsFeatUI>>
+			<<elseif _upgradeName is "advancedTraits">>
+				<<advancedTraitsFeatUI>>
+			<<elseif _upgradeName is "transformations">>
+				<<transformationsFeatUI>>
+			<<elseif _upgradeName is "sadoMaso">>
+				<<sadoMasoFeatUI>>
+			<<elseif _upgradeName is "coreCharacteristics">>
+				<<coreCharacteristicsFeatUI>>
+			<<else>>
+				<<featsMenu _upgradeName>>
+			<</if>>
 			<<if $featsBoosts.pointsUsed isnot 0>>
 				<hr>
 				Purchased Feat Boosts:
 				<ul>
-					<<for $_i to 0; $_i lt _upgradeNames.length; $_i++>>
-						<<if $featsBoosts.upgrades[_upgradeNames[$_i]] gt 0>>
+					<<for $_i to 0; $_i lt _allUpgradeNames.length; $_i++>>
+						<<if $featsBoosts.upgrades[_allUpgradeNames[$_i]] gt 0>>
 							<li>
-							<<switch _upgradeNames[$_i]>>
+							<<switch _allUpgradeNames[$_i]>>
 								<<case "randomClothing">>
-									<<= ($featsBoosts.clothingGender is "Either" ? "Male and Female" : $featsBoosts.clothingGender)>> <<print $featsBoosts.name[_upgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
+									<<= ($featsBoosts.clothingGender is "Either" ? "Male and Female" : $featsBoosts.clothingGender)>> <<print $featsBoosts.name[_allUpgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_allUpgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_allUpgradeNames[$_i]] "coin">>
 								<<case "specialClothing">>
-									Special Clothing: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
+									Special Clothing: <span class="gold"><<print $featsBoosts.upgrades[_allUpgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_allUpgradeNames[$_i]] "coin">>
 									<br>
 										<<foldout false "_unlockedSets">>
 											<span class="gold">Unlocked Sets</span>
 											<span class="descriptunlocked-hint">
 												<<= Object.keys($featsBoosts.specialClothesSets)
 												.filter(k => $featsBoosts.specialClothesSets[k])
-												.map(k => `${k.replace(/_/g," ").toUpperFirst()}: <span class="gold">${setup.specialClothesSets[k].featCost}</span> coins`)
+												.map(k => `${k.replace(/_/g," ").toUpperFirst()}: <span class="gold">${setup.specialClothesSets[k].featCost * ($featsBoosts.upgradeDetails.specialClothing.purchased >= 3 ? 2 : 1)}</span> coins`)
 												.join("<br>")>>
 											</span>
 										<</foldout>>
 								<<case "xchangePremiumPills">>
-									X-Change Premium Pills: <span class="gold"><<print $featsBoosts.upgradeDetails[_upgradeNames[$_i]].purchased>></span> <<pluralise $featsBoosts.upgradeDetails[_upgradeNames[$_i]].purchased "pack">>
+									X-Change Premium Pills: <span class="gold"><<print $featsBoosts.upgradeDetails[_allUpgradeNames[$_i]].purchased>></span> <<pluralise $featsBoosts.upgradeDetails[_allUpgradeNames[$_i]].purchased "pack">>
 								<<default>>
-									<<= $featsBoosts.name[_upgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_upgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_upgradeNames[$_i]] "coin">>
+									<<= $featsBoosts.name[_allUpgradeNames[$_i]]>>: <span class="gold"><<print $featsBoosts.upgrades[_allUpgradeNames[$_i]]>></span> <<pluralise $featsBoosts.upgrades[_allUpgradeNames[$_i]] "coin">>
 							<</switch>>
 							</li>
 						<</if>>
@@ -244,13 +265,28 @@
 <</widget>>
 
 <<widget "featName">>
-	<<set _details to $featsBoosts.upgradeDetails[_upgradeName]>>
-	<<if _details.max gte 1>>
+	<<if _upgradeName is "sexRapeTraits">>
+		<span class="gold">Sex-Rape Traits</span>
+	<<elseif _upgradeName is "sexSkills">>
+		<span class="gold">Sex Skill Grades</span>
+	<<elseif _upgradeName is "basicSkills">>
+		<span class="gold">Basic Skill Grades</span>
+	<<elseif _upgradeName is "advancedTraits">>
+		<span class="gold">Special Advanced Traits</span>
+	<<elseif _upgradeName is "transformations">>
+		<span class="gold">Transformation</span>
+	<<elseif _upgradeName is "sadoMaso">>
+		<span class="gold">Sado-Maso</span>
+	<<elseif _upgradeName is "coreCharacteristics">>
+		<span class="gold">Core Characteristic Grades</span>
+	<<else>>
+		<<set _details to $featsBoosts.upgradeDetails[_upgradeName]>>
+		<<if _details.max gte 1>>
 		<<switch _upgradeName>>
 			<<case "money">>
 				<span class="gold">Starting Money</span>
 			<<case "grades">>
-				<span class="gold">Starting School Grades</span>
+				<span class="gold">School Performance Grades</span>
 			<<case "purity" "impurity">>
 				<span class="gold" style="text-transform: capitalize;">Daily _upgradeName Boost</span>
 			<<case "newLife">>
@@ -282,9 +318,207 @@
 			<<default>>
 				<span class="gold" style="text-transform: capitalize;">Starting _upgradeName Grade</span>
 		<</switch>>
-	<<else>>
-		<span class="red">?????</span>
+		<<else>>
+			<span class="red">?????</span>
+		<</if>>
 	<</if>>
+<</widget>>
+
+<<widget "sexSkillsFeatUI">>
+	Purchase starting grades for any of your sex skills. Each skill keeps its own unlock level, maximum grade, and VrelCoin cost.
+	<div class="groupedFeatGrid">
+		<<for _sexSkillName range _sexSkillUpgradeNames>>
+			<div class="groupedFeatCard" @data-sex-skill="_sexSkillName">
+				<div class="groupedFeatTitle">
+					<<if $featsBoosts.upgradeDetails[_sexSkillName].max>>
+						<span class="gold"><<print _sexSkillName is "seduction" ? "Seduction" : $featsBoosts.name[_sexSkillName]>></span>
+					<<else>>
+						<span class="red">?????</span>
+					<</if>>
+				</div>
+				<div class="groupedFeatBody">
+					<<featsMenu _sexSkillName>>
+				</div>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "basicSkillsFeatUI">>
+	Purchase starting grades for any of your basic skills. Each skill keeps its own unlock level, maximum grade, and VrelCoin cost.
+	<div class="groupedFeatGrid">
+		<<for _basicSkillName range _basicSkillUpgradeNames>>
+			<div class="groupedFeatCard" @data-basic-skill="_basicSkillName">
+				<div class="groupedFeatTitle">
+					<<if $featsBoosts.upgradeDetails[_basicSkillName].max>>
+						<span class="gold"><<print $featsBoosts.name[_basicSkillName].replace(" Grade", "")>></span>
+					<<else>>
+						<span class="red">?????</span>
+					<</if>>
+				</div>
+				<div class="groupedFeatBody">
+					<<featsMenu _basicSkillName>>
+				</div>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "advancedTraitsFeatUI">>
+	Purchase any combination of special advanced traits and boosts. Each keeps its own unlock level, maximum rank, and VrelCoin cost.
+	<div class="groupedFeatGrid">
+		<<for _advancedTraitName range _advancedTraitUpgradeNames>>
+			<div class="groupedFeatCard" @data-advanced-trait="_advancedTraitName">
+				<div class="groupedFeatTitle">
+					<<if $featsBoosts.upgradeDetails[_advancedTraitName].max>>
+						<span class="gold"><<print $featsBoosts.name[_advancedTraitName]>></span>
+					<<else>>
+						<span class="red">?????</span>
+					<</if>>
+				</div>
+				<div class="groupedFeatBody">
+					<<featsMenu _advancedTraitName>>
+				</div>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "transformationsFeatUI">>
+	Purchase a divine transformation, an animal transformation, or both. Each category keeps its own unlocks and VrelCoin cost.
+	<div class="groupedFeatGrid">
+		<<for _transformationName range ["divineTFs", "animalTFs"]>>
+			<div class="groupedFeatCard" @data-transformation="_transformationName">
+				<div class="groupedFeatTitle">
+					<<if $featsBoosts.upgradeDetails[_transformationName].max>>
+						<span class="gold"><<print $featsBoosts.name[_transformationName]>></span>
+					<<else>>
+						<span class="red">?????</span>
+					<</if>>
+				</div>
+				<div class="groupedFeatBody">
+					<<featsMenu _transformationName>>
+				</div>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "sadoMasoFeatUI">>
+	Purchase daily sadism or masochism gains, and optionally start with either or both related traits.
+	<div class="groupedFeatGrid">
+		<<for _sadoMasoBoostName range ["sadism", "masochism"]>>
+			<div class="groupedFeatCard" @data-sado-maso-boost="_sadoMasoBoostName">
+				<div class="groupedFeatTitle">
+					<<if $featsBoosts.upgradeDetails[_sadoMasoBoostName].max>>
+						<span class="gold"><<print $featsBoosts.name[_sadoMasoBoostName]>></span>
+					<<else>>
+						<span class="red">?????</span>
+					<</if>>
+				</div>
+				<div class="groupedFeatBody">
+					<<featsMenu _sadoMasoBoostName>>
+				</div>
+			</div>
+		<</for>>
+		<<for _sadoMasoTraitName range ["sadistTrait", "masochistTrait"]>>
+			<<set _sadoMasoTraitDetails to $featsBoosts.upgradeDetails[_sadoMasoTraitName]>>
+			<<set _sadoMasoTraitPurchased to _sadoMasoTraitDetails.purchased gt 0>>
+			<<set _canPurchaseSadoMasoTrait to _sadoMasoTraitPurchased or ($feats.allSaves.points - $featsBoosts.pointsUsed gte _sadoMasoTraitDetails.cost)>>
+			<div class="groupedFeatCard" @data-sado-maso-trait="_sadoMasoTraitName">
+				<div class="groupedFeatTitle">
+					<<if _sadoMasoTraitDetails.max>>
+						<span class="gold"><<print $featsBoosts.name[_sadoMasoTraitName]>></span>
+					<<else>>
+						<span class="red">?????</span>
+					<</if>>
+				</div>
+				<div class="groupedFeatBody">
+					<<if _sadoMasoTraitDetails.max>>
+						<<if _sadoMasoTraitName is "sadistTrait">>
+							Your defiant acts inflict more pain. Inflicting pain increases arousal.
+						<<else>>
+							Provides resistance to most sources of pain. Those sources increase arousal instead.
+						<</if>>
+						<br>
+						<label>
+							<<if _sadoMasoTraitPurchased>>
+								<input type="checkbox" @data-sado-maso-trait-choice="_sadoMasoTraitName" checked onchange="const trait = this.dataset.sadoMasoTraitChoice; const details = V.featsBoosts.upgradeDetails[trait]; details.purchased = 0; new Wikifier(null, '<' + '<updateFeatsPointsMenu &quot;' + trait + '&quot; ' + details.cost + ' &quot;subtract&quot;>' + '>');">
+							<<elseif _canPurchaseSadoMasoTrait>>
+								<input type="checkbox" @data-sado-maso-trait-choice="_sadoMasoTraitName" onchange="const trait = this.dataset.sadoMasoTraitChoice; const details = V.featsBoosts.upgradeDetails[trait]; details.purchased = 1; new Wikifier(null, '<' + '<updateFeatsPointsMenu &quot;' + trait + '&quot; ' + details.cost + '>' + '>');">
+							<<else>>
+								<input type="checkbox" @data-sado-maso-trait-choice="_sadoMasoTraitName" disabled>
+							<</if>>
+							Start with this trait
+						</label>
+						<div class="black small-description" style="margin-top:10px;">(<span class="gold"><<print _sadoMasoTraitDetails.cost>> <<pluralise _sadoMasoTraitDetails.cost "VrelCoin">></span> to purchase)</div>
+					<<else>>
+						<span class="red"><<print $featsBoosts.missing[_sadoMasoTraitName]>></span>
+					<</if>>
+				</div>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "coreCharacteristicsFeatUI">>
+	Purchase starting grades or daily changes for your core characteristics. Each keeps its own unlock level, maximum rank, and VrelCoin cost.
+	<div class="groupedFeatGrid">
+		<<for _characteristicName range _coreCharacteristicUpgradeNames>>
+			<div class="groupedFeatCard" @data-core-characteristic="_characteristicName">
+				<div class="groupedFeatTitle">
+					<<if $featsBoosts.upgradeDetails[_characteristicName].max>>
+						<span class="gold"><<print $featsBoosts.name[_characteristicName]>></span>
+					<<else>>
+						<span class="red">?????</span>
+					<</if>>
+				</div>
+				<div class="groupedFeatBody">
+					<<featsMenu _characteristicName>>
+				</div>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "sexRapeTraitsFeatUI">>
+	Choose any combination of sexual and rape-related starting traits. Each selected trait costs its normal amount of VrelCoins.
+	<div style="margin-top:10px;">
+		<<for _traitName range _traitUpgradeNames>>
+			<<set _traitDetails to $featsBoosts.upgradeDetails[_traitName]>>
+			<<set _traitPurchased to $featsBoosts.upgrades[_traitName] gt 0>>
+			<<set _canPurchaseTrait to _traitPurchased or ($feats.allSaves.points - $featsBoosts.pointsUsed gte _traitDetails.cost)>>
+			<<set _traitDescription to {
+				orgasmTrait: "So many orgasms have had a physiological effect. Cumming is more difficult but pleasurable orgasms relieve more stress and painful orgasms no longer increase stress.",
+				chokeTrait: "You've come to love the feeling of lack of oxygen. Getting choked makes sex more pleasurable.",
+				ejacTrait: "You've become accustomed to the scent of ejaculate and can take advantage of its calming effect. Your stress is reduced hourly depending on how much slime and semen covers you.",
+				molestTrait: "You've learned to better cope with psychological trauma. Being molested no longer removes your sense of control (rape still does).",
+				rapeTrait: "You've been raped so much that you've learned how to cope. Trauma increases more slowly.",
+				bestialityTrait: "Animals have tried to " + ($settings.pregnancySpeechEnabled ? "breed" : "mate") + " with you so often that you're used to it. Trauma increases more slowly when attacked by animals.",
+				tentacleTrait: "Many tentacles have had their way with your body. Trauma increases more slowly when attacked by tentacles.",
+				milkDrankTrait: "You take full advantage of the nutrition in fresh breast milk. Drinking it invigorates your body, improving physique.",
+			}[_traitName]>>
+			<div class="settingsToggleItem">
+				<label>
+					<<if _traitPurchased>>
+						<input type="checkbox" @data-trait="_traitName" checked onchange="const trait = this.dataset.trait; const details = V.featsBoosts.upgradeDetails[trait]; details.purchased = 0; new Wikifier(null, '<' + '<updateFeatsPointsMenu &quot;' + trait + '&quot; ' + details.cost + ' &quot;subtract&quot;>' + '>');">
+					<<elseif _traitDetails.max and _canPurchaseTrait>>
+						<input type="checkbox" @data-trait="_traitName" onchange="const trait = this.dataset.trait; const details = V.featsBoosts.upgradeDetails[trait]; details.purchased = 1; new Wikifier(null, '<' + '<updateFeatsPointsMenu &quot;' + trait + '&quot; ' + details.cost + '>' + '>');">
+					<<else>>
+						<input type="checkbox" @data-trait="_traitName" disabled>
+					<</if>>
+					<<if _traitDetails.max>>
+						<span class="lewd"><<print $featsBoosts.name[_traitName]>><span>
+						<mouse class="tooltip linkBlue" @data-trait-tooltip="_traitName">(?)<span><<print _traitDescription>></span></mouse>
+						<span class="black small-description">(<span class="gold"><<print _traitDetails.cost>> <<pluralise _traitDetails.cost "VrelCoin">></span>)</span>
+					<<else>>
+						<span class="red">?????</span>
+						<span class="black small-description"><<print $featsBoosts.missing[_traitName]>></span>
+					<</if>>
+				</label>
+			</div>
+		<</for>>
+	</div>
 <</widget>>
 
 <<widget "featsMenu">>
@@ -353,8 +587,10 @@
 							You will start the game with special clothing from the Forest Shop <span class='red'>locked</span>.
 						<<elseif _purchasedUpgrades is 1>>
 							You can purchase <span class="teal">up to half</span> of special clothing sets from the Forest Shop to start the game with them <span class="green">unlocked</span>, if you've unlocked it in any other save.
-						<<else>>
+						<<elseif _purchasedUpgrades is 2>>
 							You can purchase <span class="teal">any amount</span> of special clothing sets from the Forest Shop to start the game with them <span class="green">unlocked</span>, if you've unlocked it in any other save.
+						<<else>>
+							You can purchase <span class="teal">any amount</span> of previously unlocked special clothing sets at <span class="gold">twice their normal VrelCoin price</span> and start with their <span class="green">normal story dialogue available</span>.
 						<</if>>
 					<<case "hopelessEndings">>
 						Purchase any of the <span class="gold">Hopeless Cycle</span> endings to <span class="green">read them directly</span> from the painting next game, claiming their rewards without playing the whole sequence again. Buy all, some, or none. <i>The harder the ending, the more it costs.</i>
@@ -375,6 +611,8 @@
 						<</if>>
 					<<case "greenThumb">>
 						You will start the game with the <span class="green">Green Thumb</span> trait.
+					<<case "xchangePurityTrait">>
+						You will start the game permanently <span class="blue">pure of X-Change pill effects</span>.
 					<<case "orgasmTrait" "chokeTrait" "ejacTrait" "molestTrait" "rapeTrait" "bestialityTrait" "tentacleTrait" "milkDrankTrait">>
 						You will start the game with the <span class="green"><<print $featsBoosts.name[_name]>></span> trait.
 					<<case "divineTFs">>
@@ -395,46 +633,55 @@
 						<</if>>
 					<<case "physique">>
 						<<switch $bodysize>>
-							<<case -1>><<set $physiquesize to 3000>>
-							<<case 0>><<set $physiquesize to 6000>>
-							<<case 1>><<set $physiquesize to 8000>>
-							<<case 2>><<set $physiquesize to 10000>>
-							<<case 2.5>><<set $physiquesize to 12000>>
-							<<case 3>><<set $physiquesize to 14000>>
-							<<case 4>><<set $physiquesize to 15000>>
+							<<case -1>><<set _previewPhysiqueSize to 3000>>
+							<<case 0>><<set _previewPhysiqueSize to 6000>>
+							<<case 1>><<set _previewPhysiqueSize to 8000>>
+							<<case 2>><<set _previewPhysiqueSize to 10000>>
+							<<case 2.5>><<set _previewPhysiqueSize to 12000>>
+							<<case 3>><<set _previewPhysiqueSize to 14000>>
+							<<case 4>><<set _previewPhysiqueSize to 15000>>
 						<</switch>>
+						<<set _previewPhysique to (_previewPhysiqueSize / 7) * 3>>
+						<<if $background.athlete is true>>
+							<<set _previewPhysique += (_previewPhysiqueSize * 2 / 7)>>
+						<</if>>
+						<<if $background.delinquent is true>>
+							<<set _previewPhysique += (_previewPhysiqueSize / 7)>>
+						<</if>>
+						<<set _previewPhysique += $featsBoosts.upgrades[_name] / _details.cost * 1500>>
 						You will start the game with _name at 
-						<<if ($physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($physiquesize / 7) * 6>>
-							<span class="green"><<print $physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)>></span>.
-						<<elseif ($physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($physiquesize / 7) * 5>>
-							<span class="teal"><<print $physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)>></span>.
-						<<elseif ($physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($physiquesize / 7) * 4>>
-							<span class="lblue"><<print $physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)>></span>.
-						<<elseif ($physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($physiquesize / 7) * 3>>
-							<span class="blue"><<print $physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)>></span>.
-						<<elseif ($physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($physiquesize / 7) * 2>>
-							<span class="purple"><<print $physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)>></span>.
-						<<elseif ($physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($physiquesize / 7) * 1>>
-							<span class="pink"><<print $physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)>></span>.
+						<<if _previewPhysique gte (_previewPhysiqueSize / 7) * 6>>
+							<span class="green"><<print Math.trunc(_previewPhysique)>></span>.
+						<<elseif _previewPhysique gte (_previewPhysiqueSize / 7) * 5>>
+							<span class="teal"><<print Math.trunc(_previewPhysique)>></span>.
+						<<elseif _previewPhysique gte (_previewPhysiqueSize / 7) * 4>>
+							<span class="lblue"><<print Math.trunc(_previewPhysique)>></span>.
+						<<elseif _previewPhysique gte (_previewPhysiqueSize / 7) * 3>>
+							<span class="blue"><<print Math.trunc(_previewPhysique)>></span>.
+						<<elseif _previewPhysique gte (_previewPhysiqueSize / 7) * 2>>
+							<span class="purple"><<print Math.trunc(_previewPhysique)>></span>.
+						<<elseif _previewPhysique gte (_previewPhysiqueSize / 7) * 1>>
+							<span class="pink"><<print Math.trunc(_previewPhysique)>></span>.
 						<<else>>
-							<span class="red"><<print $physique + ($featsBoosts.upgrades[_name] / _details.cost * 1500)>></span>.
+							<span class="red"><<print Math.trunc(_previewPhysique)>></span>.
 						<</if>>
 					<<case "willpower">>
+						<<set _previewWillpower to 200 + $featsBoosts.upgrades[_name] / _details.cost * 200>>
 						You will start the game with _name at 
-						<<if ($willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)) gte ($willpowermax / 7) * 6>>
-							<span class="green"><<print $willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)>></span>.
-						<<elseif ($willpower + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($willpowermax / 7) * 5>>
-							<span class="teal"><<print $willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)>></span>.
-						<<elseif ($willpower + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($willpowermax / 7) * 4>>
-							<span class="lblue"><<print $willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)>></span>.
-						<<elseif ($willpower + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($willpowermax / 7) * 3>>
-							<span class="blue"><<print $willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)>></span>.
-						<<elseif ($willpower + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($willpowermax / 7) * 2>>
-							<span class="purple"><<print $willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)>></span>.
-						<<elseif ($willpower + ($featsBoosts.upgrades[_name] / _details.cost * 1500)) gte ($willpowermax / 7) * 1>>
-							<span class="pink"><<print $willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)>></span>.
+						<<if _previewWillpower gte (1000 / 7) * 6>>
+							<span class="green"><<print _previewWillpower>></span>.
+						<<elseif _previewWillpower gte (1000 / 7) * 5>>
+							<span class="teal"><<print _previewWillpower>></span>.
+						<<elseif _previewWillpower gte (1000 / 7) * 4>>
+							<span class="lblue"><<print _previewWillpower>></span>.
+						<<elseif _previewWillpower gte (1000 / 7) * 3>>
+							<span class="blue"><<print _previewWillpower>></span>.
+						<<elseif _previewWillpower gte (1000 / 7) * 2>>
+							<span class="purple"><<print _previewWillpower>></span>.
+						<<elseif _previewWillpower gte (1000 / 7) * 1>>
+							<span class="pink"><<print _previewWillpower>></span>.
 						<<else>>
-							<span class="red"><<print $willpower + ($featsBoosts.upgrades[_name] / _details.cost * 200)>></span>.
+							<span class="red"><<print _previewWillpower>></span>.
 						<</if>>
 					<<case "oral" "chest" "hands" "buttocks" "penile" "anal" "vaginal" "feet" "thighs">>
 						You will start the game with
@@ -722,6 +969,9 @@
 	<<set _purchasedUpgrades to _details.purchased>>
 	<<set _remainingUpgrades to _maxUpgrades - _purchasedUpgrades>>
 	<<set _availableCoins to $feats.allSaves.points - $featsBoosts.pointsUsed>>
+	<<set _specialClothingBaseCost to _type is "specialClothing" ? Object.entries($featsBoosts.specialClothesSets).reduce((total, entry) => total + (entry[1] ? setup.specialClothesSets[entry[0]].featCost : 0), 0) : 0>>
+	<<set _nextUpgradeCost to _type is "specialClothing" and _purchasedUpgrades is 2 ? _specialClothingBaseCost : _cost>>
+	<<set _maxUpgradeCost to _type is "specialClothing" and _maxUpgrades gte 3 and _purchasedUpgrades lt 3 ? _specialClothingBaseCost : _remainingUpgrades * _cost>>
 	<br><br>
 	<span class="gold bold">Upgrades:</span>
 	<br>
@@ -748,7 +998,9 @@
 		<<case "tattoos">>
 			Each purchased upgrade will allow you to get one starting tattoo or brand of your choice.
 		<<case "specialClothing">>
-			<<if _maxUpgrades is 2>>
+			<<if _maxUpgrades gte 3>>
+				The first rank allows up to half of previously unlocked special clothing sets. The second allows any amount. The third charges twice each set's normal price and makes selected sets count as normally unlocked, enabling their route dialogue.
+			<<elseif _maxUpgrades is 2>>
 				Select the first upgrade to purchase up to half of previously unlocked special clothes. Purchase the second rank to purchase any number of previously unlocked special clothes.
 			<<else>>
 				Select the first upgrade to purchase up to half of previously unlocked special clothes. Acquire a secret feat to purchase any number of previously unlocked special clothes.
@@ -759,6 +1011,8 @@
 			Each purchased pack gives you five X-Change Premium pills.
 		<<case "greenThumb">>
 			Purchase this upgrade to start with the <span class="green">Green Thumb</span> trait.
+		<<case "xchangePurityTrait">>
+			Purchase this upgrade to make all X-Change pills permanently harmless. Pills can still be administered and recognised by events, but their transformations and other X-Change effects will not take hold.
 		<<case "orgasmTrait" "chokeTrait" "ejacTrait" "molestTrait" "rapeTrait" "bestialityTrait" "tentacleTrait" "milkDrankTrait">>
 			Purchase this upgrade to start with the <span class="green"><<print $featsBoosts.name[_type]>></span> trait.
 		<<case "divineTFs">>
@@ -777,21 +1031,42 @@
 			Each purchased upgrade will raise your _type level by <span class="green">one letter grade.</span>
 	<</switch>>
 	</div>
-	<<capture _type _cost>>
+	<<capture _type _cost _specialClothingBaseCost _nextUpgradeCost _maxUpgradeCost>>
 		<div class="featButtonContainer">
 			<<if _purchasedUpgrades gte 1>>
 				<div class="featButton roundl">
 					<<button "<span class='fa-icon fa-left'></span><span class='fa-icon fa-left'></span>">>
-						<<set $featsBoosts.upgradeDetails[_type].purchased to 0>>
-						<<set _cost to (-1 * _purchasedUpgrades * _cost)>>
-						<<updateFeatsPointsMenu _type _cost>>
+						<<set _currentPurchased to $featsBoosts.upgradeDetails[_type].purchased>>
+						<<if _currentPurchased gt 0>>
+							<<set $featsBoosts.upgradeDetails[_type].purchased to 0>>
+							<<if _type is "specialClothing">>
+								<<set _refundCost to -1 * $featsBoosts.upgrades.specialClothing>>
+								<<run Object.keys($featsBoosts.specialClothesSets).forEach(set => $featsBoosts.specialClothesSets[set] = false)>>
+							<<else>>
+								<<set _refundCost to -1 * _currentPurchased * _cost>>
+							<</if>>
+							<<updateFeatsPointsMenu _type _refundCost>>
+						<</if>>
 					<</button>>
 				</div>
 				<div class="featButton">
 					<<button "<span class='fa-icon fa-left'></span>">>
-						<<set $featsBoosts.upgradeDetails[_type].purchased-->>
-						<<set _cost to (-1 * _cost)>>
-						<<updateFeatsPointsMenu _type _cost>>
+						<<if $featsBoosts.upgradeDetails[_type].purchased gt 0>>
+							<<set _currentPurchased to $featsBoosts.upgradeDetails[_type].purchased>>
+							<<set $featsBoosts.upgradeDetails[_type].purchased-->>
+							<<if _type is "specialClothing" and _currentPurchased is 3>>
+								<<set _refundCost to -1 * _specialClothingBaseCost>>
+							<<elseif _type is "specialClothing" and _currentPurchased is 2>>
+								<<set _refundCost to -1 * $featsBoosts.upgrades.specialClothing>>
+								<<run Object.keys($featsBoosts.specialClothesSets).forEach(set => $featsBoosts.specialClothesSets[set] = false)>>
+							<<elseif _type is "specialClothing" and _currentPurchased is 1>>
+								<<set _refundCost to -1 * $featsBoosts.upgrades.specialClothing>>
+								<<run Object.keys($featsBoosts.specialClothesSets).forEach(set => $featsBoosts.specialClothesSets[set] = false)>>
+							<<else>>
+								<<set _refundCost to -1 * _cost>>
+							<</if>>
+							<<updateFeatsPointsMenu _type _refundCost>>
+						<</if>>
 					<</button>>
 				</div>
 			<<else>>
@@ -808,11 +1083,14 @@
 				<<button "_purchasedUpgrades / _maxUpgrades">>
 				<</button>>
 			</div>
-			<<if _purchasedUpgrades lt _maxUpgrades and (_availableCoins gte _cost)>>
+			<<if _purchasedUpgrades lt _maxUpgrades and (_availableCoins gte _nextUpgradeCost)>>
 				<div class="featButton">
 				<<button "<span class='fa-icon fa-right'></span>">>
-					<<set $featsBoosts.upgradeDetails[_type].purchased++>>
-					<<updateFeatsPointsMenu _type _cost>>
+					<<set _currentDetails to $featsBoosts.upgradeDetails[_type]>>
+					<<if _currentDetails.purchased lt _currentDetails.max and $feats.allSaves.points - $featsBoosts.pointsUsed gte _nextUpgradeCost>>
+						<<set _currentDetails.purchased++>>
+						<<updateFeatsPointsMenu _type _nextUpgradeCost>>
+					<</if>>
 				<</button>>
 				</div>
 			<<else>>
@@ -821,12 +1099,16 @@
 					<</button>>
 				</div>
 			<</if>>
-			<<if _purchasedUpgrades lt _maxUpgrades and (_availableCoins gte (_remainingUpgrades * _cost))>>
+			<<if _purchasedUpgrades lt _maxUpgrades and (_availableCoins gte _maxUpgradeCost)>>
 				<div class="featButton roundr">
 				<<button "<span class='fa-icon fa-right'></span><span class='fa-icon fa-right'></span>">>
-					<<set $featsBoosts.upgradeDetails[_type].purchased to _maxUpgrades>>
-					<<set _cost to (_remainingUpgrades * _cost)>>
-					<<updateFeatsPointsMenu _type _cost>>
+					<<set _currentDetails to $featsBoosts.upgradeDetails[_type]>>
+					<<set _currentRemaining to _currentDetails.max - _currentDetails.purchased>>
+					<<set _currentCost to _type is "specialClothing" and _currentDetails.max gte 3 and _currentDetails.purchased lt 3 ? _specialClothingBaseCost : _currentRemaining * _cost>>
+					<<if _currentRemaining gt 0 and $feats.allSaves.points - $featsBoosts.pointsUsed gte _currentCost>>
+						<<set _currentDetails.purchased to _currentDetails.max>>
+						<<updateFeatsPointsMenu _type _currentCost>>
+					<</if>>
 				<</button>>
 				</div>
 			<<else>>
@@ -842,23 +1124,6 @@
 			</div>
 		<</if>>
 
-		<<if _type is "tending">>
-			<div style="margin-top:10px;">
-				<span class="green">Green Thumb</span> - More bountiful crops and no decay when using fertiliser. Start with one fertiliser.
-				<div class="featButton roundl roundr" style="margin-top:5px;">
-					<<if $feats.allSaves.points - $featsBoosts.pointsUsed gte $featsBoosts.upgradeDetails.greenThumb.cost and !$featsBoosts.upgrades.greenThumb>>
-						<<button "Start with this trait">>
-							<<updateFeatsPointsMenu "greenThumb" $featsBoosts.upgradeDetails.greenThumb.cost>>
-						<</button>>
-					<<elseif $featsBoosts.upgrades.greenThumb>>
-						<<button "Remove this trait">>
-							<<updateFeatsPointsMenu "greenThumb" $featsBoosts.upgradeDetails.greenThumb.cost "subtract">>
-						<</button>>
-					<</if>>
-				</div>
-			</div>
-			<div class=" black small-description" style="margin-top:10px;">(<span class="gold"><<print "$featsBoosts.upgradeDetails.greenThumb.cost">> <<pluralise $featsBoosts.upgradeDetails.greenThumb.cost "VrelCoin">></span> to purchase)</div>
-		<</if>>
 	<</capture>>
 <</widget>>
 
@@ -935,10 +1200,11 @@
 <</widget>>
 
 <<widget "specialClothingFeatUI">>
-	<<if $featsBoosts.upgradeDetails.specialClothing.purchased>>
+		<<if $featsBoosts.upgradeDetails.specialClothing.purchased>>
 		<<set _totalSpecialClothesSets to getSpecialSets(set => set.feat)>>
 		<<set _totalUnlockedSets to $feats.allSaves.specialClothes>>
 		<<set _totalUnlockedSetsLimit to $featsBoosts.upgradeDetails.specialClothing.purchased gte 2 ? _totalUnlockedSets.length : Math.ceil(_totalUnlockedSets.length / 2)>>
+		<<set _specialClothingCostMultiplier to $featsBoosts.upgradeDetails.specialClothing.purchased gte 3 ? 2 : 1>>
 		<<if !Object.values($featsBoosts.specialClothesSets).length>>
 			<!-- Populate object -->
 			<<for $_labelPop, $_valuePop range _totalSpecialClothesSets>>
@@ -948,6 +1214,9 @@
 		<<run $(() => { $('[data-limit-group]').first().trigger('change.macros') })>>
 		<br>
 		<div class="settingsHeader" style="margin-bottom: 0.5em">Sets To Unlock</div>
+		<<if _specialClothingCostMultiplier is 2>>
+			<div class="gold" style="margin-bottom: 0.5em;">Stage 3 story unlocks cost twice each set's normal VrelCoin price.</div>
+		<</if>>
 		<form>
 			<fieldset>
 				<legend>Select up to _totalUnlockedSetsLimit sets</legend>
@@ -961,8 +1230,9 @@
 										<<set $_listFromSets to []>><<set $_hints to []>>
 										<<set $_clothesToPush to setup.specialClothes.filter(fromSets => fromSets.sets.includes($_labelC))>>
 										<<run $_clothesToPush.forEach(clothing => $_listFromSets.push(clothing.name.toUpperFirst()))>>
-										<<set $_canAfford to ($feats.allSaves.points - $featsBoosts.pointsUsed) - $_clothingObject.featCost gte 0>>
-										<<set $_costDisplay to "<<print setup.specialClothesSets[$_labelC].featCost>>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/coin-gold.gif'/>" : "Vrelcoins")>>
+										<<set $_setFeatCost to $_clothingObject.featCost * _specialClothingCostMultiplier>>
+										<<set $_canAfford to ($feats.allSaves.points - $featsBoosts.pointsUsed) - $_setFeatCost gte 0>>
+										<<set $_costDisplay to "<<print setup.specialClothesSets[$_labelC].featCost * _specialClothingCostMultiplier>>"+ ($options.images is 1 ? " <img class='imgButton' src='img/ui/coin-gold.gif'/>" : "Vrelcoins")>>
 
 										<<if _totalUnlockedSets.includes($_labelC)>>
 											<<if $_canAfford or $featsBoosts.specialClothesSets[$_labelC]>>
@@ -1009,10 +1279,12 @@
 				'input[type="checkbox"][data-limit-group="specialClothingFeatSets"]',
 				function () {
 					const id = $(this).attr("id").replace(/^checkbox-featsboostsspecialclothessets-/, "").replace(/-/g, "_");
+					const multiplier = V.featsBoosts.upgradeDetails.specialClothing.purchased >= 3 ? 2 : 1;
+					const cost = setup.specialClothesSets[id].featCost * multiplier;
 					if ($(this).prop("checked")) {
-						new Wikifier(null, `<<updateFeatsPointsMenu "specialClothing" setup.specialClothesSets["${id}"].featCost>>`);
+						new Wikifier(null, `<<updateFeatsPointsMenu "specialClothing" ${cost}>>`);
 					} else {
-						new Wikifier(null, `<<updateFeatsPointsMenu "specialClothing" setup.specialClothesSets["${id}"].featCost "subtract">>`);
+						new Wikifier(null, `<<updateFeatsPointsMenu "specialClothing" ${cost} "subtract">>`);
 					}
 				}
 			);
