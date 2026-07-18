@@ -898,6 +898,12 @@ function dolxRepairNonFiniteNumerics() {
 		fix("enemyarousal", 0);
 	}
 
+	/* Prepaid stall deposit rollover left stall_lewdity uninitialised, then <<lewdity>> NaN'd it. */
+	if (V.daily && "stall_lewdity" in V.daily && !Number.isFinite(V.daily.stall_lewdity)) {
+		repaired.push(`daily.stall_lewdity=${V.daily.stall_lewdity}`);
+		V.daily.stall_lewdity = 0;
+	}
+
 	if (hairRepaired && typeof window.calchairlengthstage === "function") window.calchairlengthstage();
 	if (repaired.length) console.warn(`[DoLX] Repaired non-finite save numerics: ${repaired.join(", ")}`);
 }

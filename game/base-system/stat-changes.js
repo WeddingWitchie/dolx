@@ -1224,7 +1224,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("lewdity", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			V.daily.stall_lewdity = Math.clamp(V.daily.stall_lewdity + amount, 0, 4);
+			V.daily.stall_lewdity = Math.clamp((Number.isFinite(V.daily.stall_lewdity) ? V.daily.stall_lewdity : 0) + amount, 0, 4);
 		}
 	}
 	DefineMacro("lewdity", lewdity);

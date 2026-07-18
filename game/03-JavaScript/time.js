@@ -1147,6 +1147,7 @@ function dayPassed(days) {
 		if (V.stallDeposit >= 3000) {
 			V.stallDeposit -= 3000;
 			V.daily.stallRented = 1;
+			V.daily.stall_lewdity = 0;
 		}
 
 		/* Set flag to determine Kylar's position at lunch */
