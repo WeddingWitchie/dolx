@@ -758,6 +758,9 @@ var Renderer;
 			targetCanvas.drawImage(image, dx, dy);
 		}
 		else {
+			// Nearest-neighbour keeps pixel-art crisp when renderScale !== 1; smoothing here blurs the sidebar sprite.
+			// Part of the saved state, so restore() below returns it to whatever the caller expected.
+			if (renderScale !== 1) targetCanvas.imageSmoothingEnabled = false;
 			for (let i = 0; i < frameCount; i++) {
 				const imageFrameIndex = Math.min(subspriteFrameCount - 1, layer.frames ? layer.frames[i] : Math.floor(i * subspriteFrameCount / frameCount));
 				const scaledX = i * frameWidth + dx * renderScale + frameWidth * (1 - renderScale) * 0.5;

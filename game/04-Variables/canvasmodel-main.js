@@ -218,6 +218,13 @@ replace (?<!["'\w])_(?=\w) with T.
  * - "worn_SLOT" - generated from sprite prefilter and custom or predefined colour
  * - "worn_SLOT_acc" - generated from sprite prefilter and custom or predefined colour
  */
+// Layers that live in scene/world space rather than on the body: never scaled with player height.
+const bodySizeIndependentLayers = new Set([
+	"decoration_foreground1", "decoration_background1", "decoration_foreground2", "decoration_background2", "nnpc",
+	"precipitation_back", "precipitation_front", "cold_breath", "water_breath", "water_back", "water_front",
+	"fire_back", "fire_front", "petals_back", "petals_front", "wraithFlash", "wraithFlashAccent", "wraithMirror",
+]);
+
 Renderer.CanvasModels.main = {
 	name: "main",
 	width: 256,
@@ -1118,15 +1125,11 @@ Renderer.CanvasModels.main = {
 
 		const bodySizeScale = Number(options.body_size_scale) || 1;
 		if (bodySizeScale !== 1) {
-			const independentLayers = new Set([
-				"decoration_foreground1", "decoration_background1", "decoration_foreground2", "decoration_background2", "nnpc",
-				"precipitation_back", "precipitation_front", "cold_breath", "water_breath", "water_back", "water_front",
-				"fire_back", "fire_front", "petals_back", "petals_front", "wraithFlash", "wraithFlashAccent", "wraithMirror",
-			]);
 			for (const layer of this.layerList) {
-				if (!independentLayers.has(layer.name) && !layer.name.startsWith("follower_")) layer.renderScale = bodySizeScale;
+				if (!bodySizeIndependentLayers.has(layer.name) && !layer.name.startsWith("follower_")) layer.renderScale = bodySizeScale;
 			}
 		}
+		// Generated (tanning) layers are a persistent cached object, so always (re)stamp their scale to clear a stale value left by an earlier render at a different body size.
 		for (const layer of Object.values(options.generatedLayers)) layer.renderScale = bodySizeScale;
 	},
 	layers: {
