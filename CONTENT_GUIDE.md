@@ -1623,6 +1623,7 @@ Progression and danger:
 - Type matchups matter more in newer pet combat. Bosses and later enemies are stronger, and Rest is less useful as a way to stall forever.
 - The blood-moon Mirror boss is especially dangerous: it copies attack skills, can heal twice, and can revive once.
 - Robin may help care for your pet during the captive bad end if Robin's love is high enough. Pet-care time is slowed in that state, so captivity is less likely to erase the whole pet route instantly.
+- Robin's pet-sitting also covers the island arc: pirate abduction, time on the island, and the water-dragon crossing.
 
 Robin and boosters:
 

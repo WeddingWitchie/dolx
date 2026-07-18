@@ -68,10 +68,38 @@ const Tamagotchi = (() => {
 
 	/* Starters: base stats + type + icon. Pets start with no skills; they draft them through training. */
 	const SPECIES = {
-		embit: { name: "Embit", type: "fire", blurb: "A hot-headed little lizard.", icon: "embit", evolution: "blazilisk", base: { hp: 28, atk: 8, def: 5, spd: 6, mp: 8 } },
-		pudduck: { name: "Pudduck", type: "water", blurb: "A calm, dependable duckling.", icon: "pudduck", evolution: "pondswan", base: { hp: 34, atk: 6, def: 7, spd: 4, mp: 8 } },
-		sprout: { name: "Sprout", type: "grass", blurb: "A sturdy little seedling.", icon: "sprout", evolution: "oakguard", base: { hp: 32, atk: 6, def: 8, spd: 4, mp: 8 } },
-		voltpup: { name: "Voltpup", type: "electric", blurb: "A jittery, lightning-fast pup.", icon: "voltpup", evolution: "thundrover", base: { hp: 26, atk: 8, def: 5, spd: 8, mp: 8 } },
+		embit: {
+			name: "Embit",
+			type: "fire",
+			blurb: "A hot-headed little lizard.",
+			icon: "embit",
+			evolution: "blazilisk",
+			base: { hp: 28, atk: 8, def: 5, spd: 6, mp: 8 },
+		},
+		pudduck: {
+			name: "Pudduck",
+			type: "water",
+			blurb: "A calm, dependable duckling.",
+			icon: "pudduck",
+			evolution: "pondswan",
+			base: { hp: 34, atk: 6, def: 7, spd: 4, mp: 8 },
+		},
+		sprout: {
+			name: "Sprout",
+			type: "grass",
+			blurb: "A sturdy little seedling.",
+			icon: "sprout",
+			evolution: "oakguard",
+			base: { hp: 32, atk: 6, def: 8, spd: 4, mp: 8 },
+		},
+		voltpup: {
+			name: "Voltpup",
+			type: "electric",
+			blurb: "A jittery, lightning-fast pup.",
+			icon: "voltpup",
+			evolution: "thundrover",
+			base: { hp: 26, atk: 8, def: 5, spd: 8, mp: 8 },
+		},
 	};
 
 	/* Evolved forms. Reached by sacrificing skills (see evolve()); they inherit the base type and the pet's name. */
@@ -86,7 +114,7 @@ const Tamagotchi = (() => {
 	/* Combined lookup so species helpers resolve both base and evolved ids. */
 	const speciesDef = id => SPECIES[id] || EVOLVED[id] || null;
 	/* Resolve any species id (base or evolved) back to its base starter id, so two pets of the same line can't coexist. */
-	const baseSpeciesOf = id => SPECIES[id] ? id : Object.keys(SPECIES).find(b => SPECIES[b].evolution === id) || id;
+	const baseSpeciesOf = id => (SPECIES[id] ? id : Object.keys(SPECIES).find(b => SPECIES[b].evolution === id) || id);
 
 	/* The draftable skills. Elemental damage, plus normal-type utility (heals, a nuke and a passive revive).
 	 * effect "heal": restores HP by healFrac (defaults to Tuning.recoverHpFrac).
@@ -139,7 +167,11 @@ const Tamagotchi = (() => {
 
 	const clamp = v => Math.max(0, Math.min(100, Math.round(v)));
 	const cap = s => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
-	const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+	const esc = s =>
+		String(s == null ? "" : s)
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;");
 	const now = () => (typeof Time !== "undefined" && Time.date ? Time.date.timeStamp : 0);
 	const secondsPerDay = (typeof TimeConstants !== "undefined" && TimeConstants.secondsPerDay) || 86400;
 	const dayNum = () => Math.floor(now() / secondsPerDay);
@@ -155,10 +187,42 @@ const Tamagotchi = (() => {
 		return Array.isArray(arr) && arr.length ? arr[arr.length - 1] : null;
 	};
 	/* The player is currently locked away in a bad end (the latest record has no recorded end). */
-	const badEndActive = () => { const b = badEndInfo(); return !!b && !b.trackedEnd; };
-	const robinLove = () => { try { return typeof C !== "undefined" && C.npc && C.npc.Robin ? C.npc.Robin.love || 0 : 0; } catch (e) { return 0; } };
+	const badEndActive = () => {
+		const b = badEndInfo();
+		return !!b && !b.trackedEnd;
+	};
+	const robinLove = () => {
+		try {
+			return typeof C !== "undefined" && C.npc && C.npc.Robin ? C.npc.Robin.love || 0 : 0;
+		} catch (e) {
+			return 0;
+		}
+	};
 	/* Robin cares enough to look after the pet through a bad end. */
 	const robinWouldSit = () => robinLove() >= Tuning.robinSitLove;
+
+	/* --- Island-arc awareness.
+	The pirate ship, the island itself and the water-dragon crossing are week-plus absences with no console access, but none of them register in V.badEndStats, so the bad-end check above never covers them.
+	A passage hook (bottom of this file) stamps V.petIslandAbsence = { start, last } while the player is away, letting the catch-up sync after coming home prove the absence was covered even though the player is already back. --- */
+	const AWAY_LOCATIONS = ["island", "pirate_ship"];
+	const islandArcAway = () => {
+		if (typeof V === "undefined") return false;
+		if (AWAY_LOCATIONS.includes(V.location)) return true;
+		/* Mid-crossing. The journey counter only counts as away at sea, so a stale value can't strand coverage. */
+		return (V.waterdragonJourneyDay || 0) >= 1 && V.location === "sea";
+	};
+	/* The absence window still covers a pet that hasn't ticked past it (its lastTick predates the last away stamp). */
+	const islandAbsenceCovers = t => {
+		const w = typeof V !== "undefined" ? V.petIslandAbsence : null;
+		return islandArcAway() || !!(w && (w.last || 0) > (Number.isFinite(t.lastTick) ? t.lastTick : 0));
+	};
+	/* Drop the window once every living pet has ticked past it (never while still away). */
+	function pruneIslandAbsence() {
+		if (typeof V === "undefined" || !V.petIslandAbsence || islandArcAway()) return;
+		const cutoff = V.petIslandAbsence.last || 0;
+		const pets = exists() ? [V.tamagotchi, ...backupList()] : backupList();
+		if (!pets.some(p => p && p.alive === true && (Number.isFinite(p.lastTick) ? p.lastTick : 0) <= cutoff)) delete V.petIslandAbsence;
+	}
 
 	/* Apply the stat ceilings in-place. Called after anything that raises a stat (training, wins, boosters, evolution). */
 	function clampStats(t) {
@@ -181,12 +245,17 @@ const Tamagotchi = (() => {
 		].filter(stat => stat.current < stat.cap);
 	}
 	function capMissingText(t) {
-		return capMissing(t).map(stat => stat.label + " " + stat.current + "/" + stat.cap).join(", ");
+		return capMissing(t)
+			.map(stat => stat.label + " " + stat.current + "/" + stat.cap)
+			.join(", ");
 	}
 	function atCap(t) {
 		return !!t && capMissing(t).length === 0;
 	}
-	const speciesIcon = id => { const d = speciesDef(id); return d && d.icon ? "mini-game/" + d.icon + ".png" : ""; };
+	const speciesIcon = id => {
+		const d = speciesDef(id);
+		return d && d.icon ? "mini-game/" + d.icon + ".png" : "";
+	};
 
 	function exists() {
 		return typeof V !== "undefined" && V.tamagotchi != null && typeof V.tamagotchi === "object";
@@ -199,7 +268,17 @@ const Tamagotchi = (() => {
 		const ids = Object.keys(SPECIES);
 		const sid = SPECIES[speciesId] ? speciesId : ids[rand(ids.length)];
 		const s = SPECIES[sid];
-		const petName = name == null ? "" : String(name).replace(/[\u0000-\u001f\u007f]/g, "").trim().slice(0, 30);
+		const petName =
+			name == null
+				? ""
+				: Array.from(String(name))
+						.filter(character => {
+							const code = character.charCodeAt(0);
+							return code > 31 && code !== 127;
+						})
+						.join("")
+						.trim()
+						.slice(0, 30);
 		return {
 			alive: true,
 			name: petName || s.name,
@@ -271,7 +350,13 @@ const Tamagotchi = (() => {
 		return pets.length > 0 && pets.every(atCap);
 	}
 	function ownedSpeciesIds() {
-		return [...new Set(allPets().map(pet => baseSpeciesOf(pet.species)).filter(id => SPECIES[id]))];
+		return [
+			...new Set(
+				allPets()
+					.map(pet => baseSpeciesOf(pet.species))
+					.filter(id => SPECIES[id])
+			),
+		];
 	}
 	function canAdopt() {
 		return isAlive() && atCap(V.tamagotchi) && allLivingPetsAtCap() && adoptableSpecies().length > 0;
@@ -340,7 +425,7 @@ const Tamagotchi = (() => {
 	/* True once the player is back from a bad end Robin sat through, so the homecoming event can fire. */
 	function robinRescuePending() {
 		sync();
-		return exists() && isAlive() && typeof V !== "undefined" && V.petRobinSitting === true && !badEndActive();
+		return exists() && isAlive() && typeof V !== "undefined" && V.petRobinSitting === true && !badEndActive() && !islandArcAway();
 	}
 	/* Acknowledge the homecoming: clear the flag and, if the pet had evolved, grant a dungeon key. */
 	function claimRobinRescue() {
@@ -375,12 +460,12 @@ const Tamagotchi = (() => {
 	/* Advance a single pet's care state by the elapsed time. isActive pets are the only ones who can be killed by an ignored weekly attacker (the benched pet isn't the one under attack). */
 	function syncPet(t, isActive) {
 		if (!t || t.alive !== true) return;
-		/* A bad end is forced captivity, not neglect. If Robin loves the player enough, she pet-sits: the pet is paused
-		 * in good health for the whole absence (decided here so a lazy sync after escaping can't kill it first).
+		/* A bad end is forced captivity, not neglect. If Robin loves the player enough, she pet-sits: the pet is paused in good health for the whole absence (decided here so a lazy sync after escaping can't kill it first).
+		 * The island arc (pirate abduction, the island, the water-dragon crossing) is the same kind of absence but never registers as a bad end, so it gets its own coverage window.
 		 * Without Robin's care a long absence still kills the pet, like ordinary neglect. */
 		const last = badEndInfo();
 		const badEndCovered = badEndActive() || (last && last.trackedEnd && last.trackedEnd > (Number.isFinite(t.lastTick) ? t.lastTick : 0));
-		if (badEndCovered && robinWouldSit()) {
+		if ((badEndCovered || islandAbsenceCovers(t)) && robinWouldSit()) {
 			robinCarePet(t);
 			if (typeof V !== "undefined") V.petRobinSitting = true;
 			return;
@@ -459,6 +544,7 @@ const Tamagotchi = (() => {
 	function sync() {
 		if (exists()) syncPet(V.tamagotchi, true);
 		for (const pet of backupList()) syncPet(pet, false);
+		pruneIslandAbsence();
 		if (!isAlive()) delete V.petBattle;
 	}
 
@@ -488,7 +574,10 @@ const Tamagotchi = (() => {
 		if (!isAlive()) return "dead";
 		if (isSleeping()) return "asleep";
 		const t = V.tamagotchi;
-		if (t.hunger <= 5) { bumpCare(-1); return "overfed"; }
+		if (t.hunger <= 5) {
+			bumpCare(-1);
+			return "overfed";
+		}
 		t.hunger = clamp(t.hunger - 45);
 		t.happiness = clamp(t.happiness + 5);
 		bumpCare(3);
@@ -681,11 +770,11 @@ const Tamagotchi = (() => {
 		return {
 			name: names[rand(names.length)],
 			type: ty,
-			maxHp: maxHp,
+			maxHp,
 			hp: maxHp,
-			atk: atk,
-			def: def,
-			spd: spd,
+			atk,
+			def,
+			spd,
 			usesSkills: true,
 			skillPower: 24,
 			skillChance: 0.5,
@@ -700,7 +789,7 @@ const Tamagotchi = (() => {
 		return {
 			name: "Golem Sentinel",
 			type: ty,
-			maxHp: maxHp,
+			maxHp,
 			hp: maxHp,
 			atk: Math.max(Math.round(pet.atk * Tuning.minibossAtkMult), Math.round(10 + pet.wave * 2)),
 			def: Math.max(Math.round(pet.def * Tuning.minibossDefMult), Math.round(8 + pet.wave * 1.2)),
@@ -760,13 +849,16 @@ const Tamagotchi = (() => {
 		pet.sleepUntil = 0; /* the commotion of an attack wakes the pet */
 		let e, kind, intro;
 		if (boss) {
-			e = makeBoss(pet); kind = "boss";
+			e = makeBoss(pet);
+			kind = "boss";
 			intro = "The blood moon rises and a monstrous " + e.name + " descends on " + pet.name + "!";
 		} else if (pet.evolved && Math.random() < Tuning.minibossChance) {
-			e = makeMiniboss(pet); kind = "miniboss";
+			e = makeMiniboss(pet);
+			kind = "miniboss";
 			intro = "A hulking " + e.name + " blocks " + pet.name + "'s path!";
 		} else {
-			e = makeEnemy(pet.wave, pet); kind = "wild";
+			e = makeEnemy(pet.wave, pet);
+			kind = "wild";
 			intro = "A wild " + e.name + " attacks " + pet.name + "!";
 		}
 		V.petBattle = newBattleState(kind, e, pet, intro);
@@ -785,7 +877,7 @@ const Tamagotchi = (() => {
 	}
 	function newBattleState(kind, e, pet, intro) {
 		return {
-			kind: kind,
+			kind,
 			enemy: e,
 			hp: pet.maxHp,
 			maxHp: pet.maxHp,
@@ -856,7 +948,11 @@ const Tamagotchi = (() => {
 	function doRound(action) {
 		const b = battleState();
 		if (!b || b.over) return b;
-		if (!isAlive()) { b.over = true; b.result = "lose"; return b; }
+		if (!isAlive()) {
+			b.over = true;
+			b.result = "lose";
+			return b;
+		}
 		const pet = V.tamagotchi;
 		const e = b.enemy;
 		const pAtk = Math.max(1, Math.round(pet.atk * conditionMod()));
@@ -882,7 +978,10 @@ const Tamagotchi = (() => {
 		} else if (action.kind === "skill") {
 			const sk = SKILLS[action.id];
 			if (!sk || sk.passive || !pet.skills.includes(action.id)) return b;
-			if (b.mp < sk.mp) { b.log = ["Not enough MP to use " + sk.name + "."]; return b; }
+			if (b.mp < sk.mp) {
+				b.log = ["Not enough MP to use " + sk.name + "."];
+				return b;
+			}
 			b.mp -= sk.mp;
 			if (sk.effect === "heal") {
 				const h = Math.ceil(b.maxHp * (sk.healFrac || Tuning.recoverHpFrac));
@@ -906,9 +1005,11 @@ const Tamagotchi = (() => {
 			log.push("The " + e.name + " collapses... but a mirrored Revive drags it back up with " + e.hp + " HP!");
 		}
 		if (e.hp <= 0) {
-			b.over = true; b.result = "win";
+			b.over = true;
+			b.result = "win";
 			log.push("The " + enemyLabel(e) + " is defeated!");
-			b.turn++; b.log = log;
+			b.turn++;
+			b.log = log;
 			return b;
 		}
 		enemyTurn(b, log);
@@ -923,23 +1024,35 @@ const Tamagotchi = (() => {
 				b.usedBackup = true;
 				const fallenName = pet.name;
 				const fresh = bringInBackup();
-				b.maxHp = fresh.maxHp; b.hp = fresh.maxHp;
-				b.maxMp = fresh.maxMp; b.mp = fresh.maxMp;
+				b.maxHp = fresh.maxHp;
+				b.hp = fresh.maxHp;
+				b.maxMp = fresh.maxMp;
+				b.mp = fresh.maxMp;
 				b.reviveUsed = false; /* the fresh pet has its own Revive */
 				b.guarding = false;
 				log.push(fallenName + " falls! " + fresh.name + " charges in to take its place!");
 			} else {
-				b.over = true; b.result = "lose"; log.push(pet.name + " has fallen...");
+				b.over = true;
+				b.result = "lose";
+				log.push(pet.name + " has fallen...");
 			}
 		}
 		b.turn++;
 		b.log = log;
 		return b;
 	}
-	function battleAttack() { return doRound({ kind: "attack" }); }
-	function battleGuard() { return doRound({ kind: "guard" }); }
-	function battleRest() { return doRound({ kind: "rest" }); }
-	function battleSkill(id) { return doRound({ kind: "skill", id }); }
+	function battleAttack() {
+		return doRound({ kind: "attack" });
+	}
+	function battleGuard() {
+		return doRound({ kind: "guard" });
+	}
+	function battleRest() {
+		return doRound({ kind: "rest" });
+	}
+	function battleSkill(id) {
+		return doRound({ kind: "skill", id });
+	}
 
 	/* Apply a stat boost across the board (max HP gets the larger share), then clamp to the ceilings. */
 	function grantBoost(pet, amount, summary) {
@@ -957,7 +1070,7 @@ const Tamagotchi = (() => {
 		if (!b || !b.over || !exists()) return { result: "none" };
 		const pet = V.tamagotchi;
 		const kind = b.kind || "wild";
-		const summary = { result: b.result, kind: kind, enemy: b.enemy.name };
+		const summary = { result: b.result, kind, enemy: b.enemy.name };
 		if (b.result === "win") {
 			pet.happiness = clamp(pet.happiness + 15);
 			/* The team pulled through: a teammate that fainted mid-battle survives, just exhausted. */
@@ -1150,9 +1263,14 @@ const Tamagotchi = (() => {
 
 	/* --- UI data --- */
 	const stageLabel = {
-		egg: "an unhatched egg", baby: "a wobbly baby", child: "a playful child",
-		teen: "a gangly teen", adult: "a happy, well-raised adult",
-		adultGrumpy: "a grumpy, neglected adult", dead: "gone", none: "nothing",
+		egg: "an unhatched egg",
+		baby: "a wobbly baby",
+		child: "a playful child",
+		teen: "a gangly teen",
+		adult: "a happy, well-raised adult",
+		adultGrumpy: "a grumpy, neglected adult",
+		dead: "gone",
+		none: "nothing",
 	};
 	function word(scale, kind) {
 		if (kind === "hunger") return scale < 20 ? "Full" : scale < 50 ? "Peckish" : scale < 80 ? "Hungry" : "Starving";
@@ -1192,19 +1310,35 @@ const Tamagotchi = (() => {
 			type: t.type || (s ? s.type : ""),
 			typeLabel: cap(t.type || (s ? s.type : "")),
 			icon: speciesIcon(t.species),
-			hunger: t.hunger, energy: t.energy, sick: !!t.sick, poops: t.poops, evolved: !!t.evolved,
+			hunger: t.hunger,
+			energy: t.energy,
+			sick: !!t.sick,
+			poops: t.poops,
+			evolved: !!t.evolved,
 			needsCare: t.alive === true && (t.sick || t.hunger >= 80 || t.poops > 0 || t.energy <= 15),
-			atCap: atCap(t), capMissingText: capMissingText(t), maxHp: t.maxHp, maxMp: t.maxMp, atk: t.atk, def: t.def, spd: t.spd,
+			atCap: atCap(t),
+			capMissingText: capMissingText(t),
+			maxHp: t.maxHp,
+			maxMp: t.maxMp,
+			atk: t.atk,
+			def: t.def,
+			spd: t.spd,
 		};
 	}
 	function status() {
 		const backups = backupList();
 		const backupBriefs = backups.map((pet, index) => Object.assign({ index }, petBrief(pet)));
 		const aliveBackups = backupBriefs.filter(pet => pet.alive);
-		if (!exists()) return {
-			exists: false, keys: keysCount(), elixirs: elixirCount(), hasBackup: backups.length > 0, backupAlive: aliveBackups.length > 0,
-			backups: backupBriefs, backup: aliveBackups[0] || backupBriefs[0] || null,
-		};
+		if (!exists())
+			return {
+				exists: false,
+				keys: keysCount(),
+				elixirs: elixirCount(),
+				hasBackup: backups.length > 0,
+				backupAlive: aliveBackups.length > 0,
+				backups: backupBriefs,
+				backup: aliveBackups[0] || backupBriefs[0] || null,
+			};
 		const t = V.tamagotchi;
 		const s = speciesDef(t.species);
 		const skills = Array.isArray(t.skills) ? t.skills.filter(id => SKILLS[id]) : [];
@@ -1212,27 +1346,66 @@ const Tamagotchi = (() => {
 		const adoptionOpen = canAdopt();
 		const collection = ownedSpeciesIds();
 		return {
-			exists: true, alive: t.alive, name: t.name || (s ? s.name : "Pet"), stage: stage(), stageLabel: stageLabel[stage()] || "",
-			ageDays: Math.floor(ageDays()), hunger: t.hunger, happiness: t.happiness, energy: t.energy,
-			poops: t.poops, sick: t.sick, deathCause: t.deathCause,
-			hungerWord: word(t.hunger, "hunger"), happinessWord: word(t.happiness, "happiness"), energyWord: word(t.energy, "energy"),
-			species: t.species, speciesLabel: s ? s.name : "", type: t.type, typeLabel: cap(t.type),
-			icon: speciesIcon(t.species), evolved: !!t.evolved,
-			maxHp: t.maxHp, maxMp: t.maxMp, atk: t.atk, def: t.def, spd: t.spd,
-			capHp: Tuning.capHp, capMp: Tuning.capMp, capStat: Tuning.capStat, capMissingText: capMissingText(t),
-			trainCount: t.trainCount, wave: t.wave, wins: t.wins || 0,
-			skills: skills.map(id => SKILLS[id].name), skillCount: skills.length,
-			pendingSkillChoice: t.pendingSkillChoice, pendingAttack: attackDue() || boss,
-			bossDue: boss, bossDaysLeft: bossDaysLeft(), threat: boss ? "boss" : attackDue() ? "attack" : "none",
+			exists: true,
+			alive: t.alive,
+			name: t.name || (s ? s.name : "Pet"),
+			stage: stage(),
+			stageLabel: stageLabel[stage()] || "",
+			ageDays: Math.floor(ageDays()),
+			hunger: t.hunger,
+			happiness: t.happiness,
+			energy: t.energy,
+			poops: t.poops,
+			sick: t.sick,
+			deathCause: t.deathCause,
+			hungerWord: word(t.hunger, "hunger"),
+			happinessWord: word(t.happiness, "happiness"),
+			energyWord: word(t.energy, "energy"),
+			species: t.species,
+			speciesLabel: s ? s.name : "",
+			type: t.type,
+			typeLabel: cap(t.type),
+			icon: speciesIcon(t.species),
+			evolved: !!t.evolved,
+			maxHp: t.maxHp,
+			maxMp: t.maxMp,
+			atk: t.atk,
+			def: t.def,
+			spd: t.spd,
+			capHp: Tuning.capHp,
+			capMp: Tuning.capMp,
+			capStat: Tuning.capStat,
+			capMissingText: capMissingText(t),
+			trainCount: t.trainCount,
+			wave: t.wave,
+			wins: t.wins || 0,
+			skills: skills.map(id => SKILLS[id].name),
+			skillCount: skills.length,
+			pendingSkillChoice: t.pendingSkillChoice,
+			pendingAttack: attackDue() || boss,
+			bossDue: boss,
+			bossDaysLeft: bossDaysLeft(),
+			threat: boss ? "boss" : attackDue() ? "attack" : "none",
 			nextAttackDays: Math.max(0, t.nextAttackDay - dayNum()),
-			sleeping: isSleeping(), sleepHoursLeft: sleepHoursLeft(),
-			elixirs: elixirCount(), autoRevive: skills.includes("revive"),
-			canEvolve: canEvolve(t), evolveCost: Tuning.evolveSkillCost, atCap: atCap(t),
-			keys: keysCount(), inDungeon: !!dungeonState(),
-			hasBackup: backups.length > 0, backupAlive: aliveBackups.length > 0, backup: aliveBackups[0] || backupBriefs[0] || null,
-			backups: backupBriefs, backupCount: backups.length, backupAliveCount: aliveBackups.length,
-			canAdopt: adoptionOpen, adoptableCount: adoptableSpecies().length,
-			collectionCount: collection.length, collectionTotal: Object.keys(SPECIES).length,
+			sleeping: isSleeping(),
+			sleepHoursLeft: sleepHoursLeft(),
+			elixirs: elixirCount(),
+			autoRevive: skills.includes("revive"),
+			canEvolve: canEvolve(t),
+			evolveCost: Tuning.evolveSkillCost,
+			atCap: atCap(t),
+			keys: keysCount(),
+			inDungeon: !!dungeonState(),
+			hasBackup: backups.length > 0,
+			backupAlive: aliveBackups.length > 0,
+			backup: aliveBackups[0] || backupBriefs[0] || null,
+			backups: backupBriefs,
+			backupCount: backups.length,
+			backupAliveCount: aliveBackups.length,
+			canAdopt: adoptionOpen,
+			adoptableCount: adoptableSpecies().length,
+			collectionCount: collection.length,
+			collectionTotal: Object.keys(SPECIES).length,
 			collectionComplete: collection.length >= Object.keys(SPECIES).length,
 		};
 	}
@@ -1249,7 +1422,7 @@ const Tamagotchi = (() => {
 	function promoteBackup(index) {
 		if (typeof V === "undefined") return false;
 		const backups = backupList();
-		let i = Number.isFinite(index) ? Math.trunc(index) : backups.findIndex(pet => pet.alive === true);
+		const i = Number.isFinite(index) ? Math.trunc(index) : backups.findIndex(pet => pet.alive === true);
 		if (i < 0 || !backups[i]) return false;
 		V.tamagotchi = backups.splice(i, 1)[0];
 		refreshThreatTimers(V.tamagotchi);
@@ -1277,10 +1450,18 @@ const Tamagotchi = (() => {
 		const chip = (k, v) => `<div class="tama-stat"><span class="tama-k">${k}</span><span class="tama-v">${v}</span></div>`;
 		const care = (k, wd, cls) => `<div class="tama-care-item ${cls}"><span class="tama-k">${k}</span><span class="tama-v">${wd}</span></div>`;
 		let h = `<div class="tama-card">`;
-		h += `<div class="tama-head">${iconImg(s.icon, "tama-portrait")}<span class="tama-name">${esc(s.name)}</span> <span class="tama-sub">${esc(s.stageLabel)} &middot; ${esc(s.speciesLabel)} (${esc(s.typeLabel)})${s.evolved ? " &middot; evolved" : ""}</span></div>`;
+		h += `<div class="tama-head">${iconImg(s.icon, "tama-portrait")}<span class="tama-name">${esc(s.name)}</span> <span class="tama-sub">${esc(
+			s.stageLabel
+		)} &middot; ${esc(s.speciesLabel)} (${esc(s.typeLabel)})${s.evolved ? " &middot; evolved" : ""}</span></div>`;
 		h += `<div class="tama-row">${chip("HP", s.maxHp)}${chip("MP", s.maxMp)}${chip("ATK", s.atk)}${chip("DEF", s.def)}${chip("SPD", s.spd)}</div>`;
-		h += `<div class="tama-row">${care("Hunger", s.hungerWord, careClass(s.hunger, "hunger", s.sick))}${care("Mood", s.happinessWord, careClass(s.happiness, "happiness", s.sick))}${care("Energy", s.energyWord, careClass(s.energy, "energy", s.sick))}</div>`;
-		h += `<div class="tama-meta">Trainings: ${s.trainCount} &middot; Wins: ${s.wins} &middot; Age: ${s.ageDays}d${s.elixirs ? " &middot; Elixirs: " + s.elixirs : ""}${s.keys ? " &middot; Keys: " + s.keys : ""} &middot; Skills: ${s.skillCount ? esc(s.skills.join(", ")) : "none yet"}</div>`;
+		h += `<div class="tama-row">${care("Hunger", s.hungerWord, careClass(s.hunger, "hunger", s.sick))}${care(
+			"Mood",
+			s.happinessWord,
+			careClass(s.happiness, "happiness", s.sick)
+		)}${care("Energy", s.energyWord, careClass(s.energy, "energy", s.sick))}</div>`;
+		h += `<div class="tama-meta">Trainings: ${s.trainCount} &middot; Wins: ${s.wins} &middot; Age: ${s.ageDays}d${
+			s.elixirs ? " &middot; Elixirs: " + s.elixirs : ""
+		}${s.keys ? " &middot; Keys: " + s.keys : ""} &middot; Skills: ${s.skillCount ? esc(s.skills.join(", ")) : "none yet"}</div>`;
 		if (s.atCap) h += `<div class="tama-meta gold">Fully grown &mdash; this pet has reached its limits and looks after itself now.</div>`;
 		h += `</div>`;
 		return h;
@@ -1297,22 +1478,103 @@ const Tamagotchi = (() => {
 		const eIcon = iconImg(b.enemy.icon ? "mini-game/" + b.enemy.icon + ".png" : "", "tama-portrait");
 		const eLabel = b.kind === "boss" ? "Boss " : b.kind === "miniboss" ? "Miniboss " : b.kind === "dungeon" ? "Dungeon " : "Wild ";
 		let h = `<div class="tama-battle">`;
-		h += `<div class="tama-fighter">${petIcon}<div class="tama-fname">${esc(pet.name)}</div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(b.hp, b.maxHp, b.hp <= b.maxHp / 4 ? "hp-low" : "hp")}</div><div class="tama-barline"><span class="tama-blabel">MP</span>${bar(b.mp, b.maxMp, "mp")}</div></div>`;
-		h += `<div class="tama-fighter">${eIcon}<div class="tama-fname">${eLabel}${esc(b.enemy.name)} <span class="tama-sub">(${esc(b.enemy.type)})</span></div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(b.enemy.hp, b.enemy.maxHp, b.enemy.hp <= b.enemy.maxHp / 4 ? "hp-low" : "hp")}</div></div>`;
+		h += `<div class="tama-fighter">${petIcon}<div class="tama-fname">${esc(pet.name)}</div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(
+			b.hp,
+			b.maxHp,
+			b.hp <= b.maxHp / 4 ? "hp-low" : "hp"
+		)}</div><div class="tama-barline"><span class="tama-blabel">MP</span>${bar(b.mp, b.maxMp, "mp")}</div></div>`;
+		h += `<div class="tama-fighter">${eIcon}<div class="tama-fname">${eLabel}${esc(b.enemy.name)} <span class="tama-sub">(${esc(
+			b.enemy.type
+		)})</span></div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(
+			b.enemy.hp,
+			b.enemy.maxHp,
+			b.enemy.hp <= b.enemy.maxHp / 4 ? "hp-low" : "hp"
+		)}</div></div>`;
 		h += `</div>`;
 		return h;
 	}
 
+	/* Stamp the island-arc absence window on every passage while the player is away, so the pet's next sync
+	 * (usually the one big catch-up after coming home) can tell the absence was covered. Off the island, also
+	 * clears a journey counter left stale by an aborted crossing (e.g. washed ashore mid-combat), which would
+	 * otherwise flag every later deep-sea swim as an island absence. */
+	if (typeof jQuery !== "undefined") {
+		jQuery(document).on(":passagedisplay", () => {
+			if (typeof V === "undefined") return;
+			if (islandArcAway()) {
+				if (V.petIslandAbsence && typeof V.petIslandAbsence === "object") V.petIslandAbsence.last = now();
+				else V.petIslandAbsence = { start: now(), last: now() };
+			} else if ((V.waterdragonJourneyDay || 0) >= 1) {
+				/* Not away, so the player is on land: the counter can only be a leftover from an aborted crossing. */
+				V.waterdragonJourneyDay = 0;
+			}
+		});
+	}
+
 	return {
-		exists, isAlive, isSleeping, sleepHoursLeft, ackWoke, hatch, sync, feed, play, clean, rest, cure, status, stage, ageDays, bury, Tuning,
-		listSpecies, adoptableSpecies, trainingTypes, canTrain, train, skillOfferList, chooseSkill, learnedSkills, battleSkills,
-		canEvolve, evolve,
-		attackDue, bossDue, bossDaysLeft, startBattle, startWeeklyBattle: startBattle, startDungeonBattle, battleState, battleAttack, battleGuard, battleRest, battleSkill, endBattle,
-		elixirCount, addElixir, reviveWithElixir, reviveBackupWithElixir, rollBooster, boosterChancePct,
-		keysCount, dungeonState, dungeonStart, dungeonStep, dungeonMobCleared, dungeonEnd,
-		hasBackup, backupAlive, canAdopt, adopt, switchActive, promoteBackup, buryDeadBackups,
-		robinRescuePending, claimRobinRescue,
-		statusHtml, battleHtml,
+		exists,
+		isAlive,
+		isSleeping,
+		sleepHoursLeft,
+		ackWoke,
+		hatch,
+		sync,
+		feed,
+		play,
+		clean,
+		rest,
+		cure,
+		status,
+		stage,
+		ageDays,
+		bury,
+		Tuning,
+		listSpecies,
+		adoptableSpecies,
+		trainingTypes,
+		canTrain,
+		train,
+		skillOfferList,
+		chooseSkill,
+		learnedSkills,
+		battleSkills,
+		canEvolve,
+		evolve,
+		attackDue,
+		bossDue,
+		bossDaysLeft,
+		startBattle,
+		startWeeklyBattle: startBattle,
+		startDungeonBattle,
+		battleState,
+		battleAttack,
+		battleGuard,
+		battleRest,
+		battleSkill,
+		endBattle,
+		elixirCount,
+		addElixir,
+		reviveWithElixir,
+		reviveBackupWithElixir,
+		rollBooster,
+		boosterChancePct,
+		keysCount,
+		dungeonState,
+		dungeonStart,
+		dungeonStep,
+		dungeonMobCleared,
+		dungeonEnd,
+		hasBackup,
+		backupAlive,
+		canAdopt,
+		adopt,
+		switchActive,
+		promoteBackup,
+		buryDeadBackups,
+		robinRescuePending,
+		claimRobinRescue,
+		statusHtml,
+		battleHtml,
 	};
 })();
 window.Tamagotchi = Tamagotchi;
