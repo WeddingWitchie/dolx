@@ -38,6 +38,17 @@
 	<</if>>
 <</widget>>
 
+<<widget "actionsanusInviteRimming">>
+	<<if $settings.analingusReceivingEnabled and $enemytype is "man" and !playerChastity("anus") and $worn.under_lower.anus_exposed is 1 and $worn.lower.anus_exposed is 1
+	and $NPCList[$anustarget].mouth is 0 and $NPCList[$anustarget].location.head is 0 and $NPCList[$anustarget].location.genitals isnot "genitals" and $walltype isnot "front">>
+		<<if $consensual is 1 and ((!hasSexStat("promiscuity", 4) and $enemytype is "man") or (!hasSexStat("deviancy", 4) and $enemytype isnot "man")) and !$promiscuityIgnore>>
+			<!-- Do Nothing -->
+		<<else>>
+			<<set _anusaction["Guide " + $NPCList[$anustarget].pronouns.his + " head to your ass"] to "inviterimming">>
+		<</if>>
+	<</if>>
+<</widget>>
+
 <<widget "actionsanuspenisfuck">>
 	<<if $combattype is "train">>
 		<<set _end to $enemyno-1>>
@@ -311,6 +322,30 @@
 					<</if>>
 				<</if>>
 			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "effectsanusinviterimming">>
+	<<if $anusaction is "inviterimming">>
+		<<personselect $anustarget>>
+		<<set $anusaction to 0>><<submission 1 $anustarget>><<analskilluse>><<combatpromiscuity4>>
+		<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("anal", $anustarget)>>
+			<<if $anususe is 0 and $NPCList[$anustarget].mouth is 0>>
+				<span class="lblue">
+				<<print either(
+					"You <<analtext>> guide <<his>> head down behind you. You feel <<his>> breath on your <<bottom>>.",
+					"You <<analtext>> reach back and grasp <<his>> hair, guiding <<his>> face towards your <<bottom>>.",
+					"You <<analtext>> press <<his>> head down until you feel <<his>> breath on your <<bottom>>."
+				)>>
+				</span>
+				<<set $anususe to "othermouth">><<set $anusstate to "othermouthentrance">><<set $NPCList[$anustarget].mouth to "anusentrance">>
+				<<sex 1 "anal" $anustarget>><<set $NPCList[$anustarget].location.head to "genitals">><<set $anusactiondefault to "othermouthtease">>
+			<<else>>
+				<span class="blue">You try to guide <<his>> head towards your <<bottom>>, but <<he>> is already occupied.</span>
+			<</if>>
+		<<else>>
+			You try to guide <<his>> head towards your <<bottom>>, but <<he>> has other ideas.
 		<</if>>
 	<</if>>
 <</widget>>
