@@ -41,10 +41,11 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 	// anger is a display-only mirror and is never read back.
 	// This means "npcincr Poppy patience N" works correctly without a wrapper.
 	let sp = Number(poppy.patience) || 0;
-	const sa = Number(poppy.anger) || 0;
-	if (sp === 0 && sa > 0) {
-		// Old split-storage format detected; convert to signed.
-		sp = -sa;
+	// Old (pre-signed) split-storage format migration: only ever needed once, for saves made before patience became signed.
+	if (!poppy._legacyAngerMigrated) {
+		const sa = Number(poppy.anger) || 0;
+		if (sp === 0 && sa > 0) sp = -sa;
+		poppy._legacyAngerMigrated = true;
 	}
 	// Clamp signed value to -100..100 (single branch chain, no Math.* calls)
 	if (sp > 100) sp = 100;
