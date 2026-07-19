@@ -523,7 +523,7 @@
 
 		A player with Tending S will be able to grow (12 to 24), (18 to 36) and (36 to 72) crops, increasing
 		the averages to 18, 27, and 54, respectively.
-		A fully optimized field with 5x multiplier yields 500 crops on average. -->
+		A fully optimized field with 5x multiplier yields around 575 crops on average (after the DoLX +15% yield buff below). -->
 		<<case "small">>
 			<<set _tending_amount to
 				random(Math.floor(6 + (Math.floor(currentSkillValue('tending')/100) * 0.6)), Math.floor(12 + (Math.floor(currentSkillValue('tending')/100) * 1.2)))
@@ -552,6 +552,8 @@
 	<<if $backgroundTraits.includes("greenthumb")>>
 		<<set _tending_amount *= 1.2>>
 	<</if>>
+	<!-- DoLX yield buff: another +15% on top of skill, quality and green thumb, so high-tier tending pays off properly. -->
+	<<set _tending_amount *= 1.15>>
 	<!-- The game's default setting sets the tendingYieldModifer to 5x. 1x is for the "Legacy" Hard Mode. -->
 	<<set _tending_amount *= $settings.tendingYieldModifier>>
 	<<if $worn.feet.type.includes("rugged")>>
@@ -713,7 +715,9 @@
 <<widget "harvestText">>
 	<<if currentSkillValue('tending') gte 100>>
 		Your tending skill improves the yield
-		<<switch Math.floor(currentSkillValue('tending') / 100)>>
+		<!-- Clamp so S+/SS/SSS tending (skill 1100+) can't overflow past the top case and fall back to the misleading "slightly". -->
+		<<switch Math.clamp(Math.floor(currentSkillValue('tending') / 100), 1, 15)>>
+			<<case 15 14 13 12 11>><span class = "lustful">phenomenally</span>.
 			<<case 10>><span class = "green">tremendously</span>.
 			<<case 9>><span class = "teal">hugely</span>.
 			<<case 8>><span class = "teal">greatly</span>.
