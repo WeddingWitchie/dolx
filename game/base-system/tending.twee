@@ -131,20 +131,20 @@
 				<</if>>
 			<</if>>
 
-			<<set _baseTime to 60>>
+			<<set _harvestMult to 1>>
 			<<if $location is "alex_farm">>
 				<<if $farm.tractor gte 3>>
-					<<set _baseTime = Math.round(_baseTime * 0.7)>>
-					<<set _tractor = 0.25>>
+					<<set _harvestMult to 0.7>>
+					<<set _tractor to 0.25>>
 				<<elseif $farm.tractor gte 2>>
-					<<set _baseTime = Math.round(_baseTime * 0.8)>>
-					<<set _tractor = 0.5>>
+					<<set _harvestMult to 0.8>>
+					<<set _tractor to 0.5>>
 				<<elseif $farm.tractor gte 1>>
-					<<set _baseTime = Math.round(_baseTime * 0.9)>>
-					<<set _tractor = 1>>
+					<<set _harvestMult to 0.9>>
+					<<set _tractor to 1>>
 				<</if>>
-				<<if $farm.tractorharvester is true>>
-					<<set _baseTime = Math.round(_baseTime * (0.5 * _tractor))>>
+				<<if $farm.tractorharvester is true and _tractor>>
+					<<set _harvestMult *= (0.5 * _tractor)>>
 				<</if>>
 			<</if>>
 
@@ -152,10 +152,12 @@
 				<span class="green">The <<print $_plantedPlant.tending?.seed_name ? `$_plantedPlant.tending.seed_name is` : `$_plantedPlant.plural are`>> flowering and ready for picking.</span>
 				<br>
 				<<switch _plantbed.size>>
-					<<case "small">> <<set $_timeStr to "0:10">><<set _pass to 10>>
-					<<case "medium">> <<set $_timeStr to "0:15">><<set _pass to 15>>
-					<<default>> <<set $_timeStr to "0:20">><<set _pass to 20>>
+					<<case "small">> <<set _pass to 10>>
+					<<case "medium">> <<set _pass to 15>>
+					<<default>> <<set _pass to 20>>
 				<</switch>>
+				<<set _pass to Math.max(1, Math.round(_pass * _harvestMult))>>
+				<<set $_timeStr to getTimeString(_pass)>>
 
 				<<if pcAreArmsBound("both")>>
 					<span class="red">Can't pick when your arms are bound.</span>
@@ -282,20 +284,20 @@
 		<<default>> <<set _irrigation to 0>>
 	<</switch>>
 
-	<<set _baseTime = 180>>
+	<<set _plantMult to 1>>
 	<<if $location is "alex_farm">>
 		<<if $farm.tractor gte 3>>
-			<<set _baseTime = Math.round(_baseTime * 0.7)>>
-			<<set _tractor = 0.25>>
+			<<set _plantMult to 0.7>>
+			<<set _tractor to 0.25>>
 		<<elseif $farm.tractor gte 2>>
-			<<set _baseTime = Math.round(_baseTime * 0.8)>>
-			<<set _tractor = 0.5>>
+			<<set _plantMult to 0.8>>
+			<<set _tractor to 0.5>>
 		<<elseif $farm.tractor gte 1>>
-			<<set _baseTime = Math.round(_baseTime * 0.9)>>
-			<<set _tractor = 1>>
+			<<set _plantMult to 0.9>>
+			<<set _tractor to 1>>
 		<</if>>
-		<<if $farm.tractorseeddrill is true>>
-			<<set _baseTime = Math.round(_baseTime * (0.5 * _tractor))>>
+		<<if $farm.tractorseeddrill is true and _tractor>>
+			<<set _plantMult *= (0.5 * _tractor)>>
 		<</if>>
 	<</if>>
 
@@ -315,6 +317,7 @@
 					<<case "medium">><<set _passTime to 40>>
 					<<default>><<set _passTime to 120>>
 				<</switch>>
+				<<set _passTime to Math.max(1, Math.round(_passTime * _plantMult))>>
 				<<set $_timeString to getTimeString(_passTime)>>
 				<<capture _passTime _plantbed _plantType>>
 					<<if $options.images is 1>>
