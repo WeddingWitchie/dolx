@@ -272,12 +272,31 @@ class XrayCombatMapper {
 					undefined
 				);
 				break;
-			case "tentacle":
+			case "tentacle": {
 				penetrator.penetratorSprite = "tentacle";
+				const secondTentacle = V["tentacle" + slot.toUpperFirst() + "2"];
+				let secondSize;
 				for (let tentacleIndex = 0; tentacleIndex < V.tentacles.max; tentacleIndex++) {
-					if (V.tentacles[tentacleIndex] !== undefined && V.tentacles[tentacleIndex].fullDesc === V["tentacle" + slot.toUpperFirst()]) {
-						penetrator.size = V.tentacles[tentacleIndex].size;
-						break;
+					const tentacle = V.tentacles[tentacleIndex];
+					if (tentacle === undefined) continue;
+					if (tentacle.fullDesc === V["tentacle" + slot.toUpperFirst()]) {
+						penetrator.size = tentacle.size;
+					}
+					if (secondTentacle !== undefined && tentacle.fullDesc === secondTentacle) {
+						secondSize = tentacle.size;
+					}
+				}
+				if (secondSize !== undefined) {
+					/* Two tentacles share the hole: reuse the human DP sprite pipeline (-dp variants only exist for sizes 2-4, bigger one must be primary) */
+					penetrator.doublePen = true;
+					// @ts-ignore - like penetrator.npc above, this is a non-NPCList marker; layers only test it against undefined
+					penetrator.npc2 = "tentacles";
+					penetrator.size = Math.clamp(penetrator.size, 2, 4);
+					penetrator.size2 = Math.clamp(secondSize, 2, 4);
+					if (penetrator.size2 > penetrator.size) {
+						const tmpSize = penetrator.size;
+						penetrator.size = penetrator.size2;
+						penetrator.size2 = tmpSize;
 					}
 				}
 				penetrator.tentacleColour = V.tentacleColour || "tentacles-purple";
@@ -288,7 +307,11 @@ class XrayCombatMapper {
 					undefined,
 					undefined
 				);
+				if (penetrator.doublePen) {
+					options.filters[slot + "Penetrator2"] = options.filters[slot + "Penetrator"];
+				}
 				break;
+			}
 			case "human":
 			case "plant":
 				/* For DP, bigger penis MUST be the primary target sprite. */

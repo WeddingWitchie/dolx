@@ -12643,6 +12643,8 @@ function initUpper() {
 			type: ["normal", "bellyShow"],
 			combat: {
 				reference: "tanktop",
+				/* sleeve_img is for the sidebar sprite only; the borrowed tanktop combat art has no sleeves folder */
+				hasSleeves: false,
 			},
 			state: "waist",
 			state_base: "waist",

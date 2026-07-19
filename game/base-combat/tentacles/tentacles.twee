@@ -209,8 +209,48 @@
 	<<if $pleasure gte $pleasuremax and $orgasmdown lte 0>>
 		<<orgasm>>
 	<</if>>
+
+	<<tentaclechoke>>
+	<<if $oxygen lt $oxygenmax and $underwater isnot 1 and _strangle is 1>>
+		<<unset _strangle>>
+		Air: <<oxygencaption>>
+		<br>
+	<</if>>
 	<br>
 	</div>
+<</widget>>
+
+/* A tentacle wrapped around the PC's neck squeezes their airway shut a little more each turn.
+   Reaching 0 air knocks the PC unconscious via the suffocation check in "actionstentacles"/"actionsabomination". */
+<<widget "tentaclechoke">>
+	<<if $settings.asphyxiaLevel gte 2 and $nochoke isnot 1>>
+		<<unset _neckSqueeze>>
+		<<for _i to 0; _i lt $tentacles.max; _i++>>
+			<<if $tentacles[_i] isnot undefined and $tentacles[_i].shaft is "neck">>
+				<<set _neckSqueeze to $tentacles[_i]>>
+				<<break>>
+			<</if>>
+		<</for>>
+		<<if _neckSqueeze isnot undefined>>
+			<<if $underwater isnot 1>>
+				<<oxygen -150>>
+			<</if>>
+			The _neckSqueeze.fullDesc tightens around your throat.
+			<<if $oxygen gte 900>>
+			<<elseif $oxygen gte 600>>
+				<span class="purple"> You can't breathe!</span>
+			<<elseif $oxygen gte 300>>
+				<span class="pink"> You feel light-headed.</span>
+			<<elseif $oxygen gte 1>>
+				<span class="pink"> You see stars.</span>
+			<<else>>
+				<span class="red"> You are suffocating!</span>
+				<<suffocatepass>>
+			<</if>>
+			<<bruise neck>>
+			<br>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "effectstentacles">>
@@ -238,6 +278,20 @@
 		<<if $vorecreature is 0 and _swarmcreature is undefined>>
 			<<animateCombat>>
 		<</if>>
+
+		<<if $underwater isnot 1>>
+			<<oxygen 50>>
+		<</if>>
+
+		<!-- Lose consciousness if it has been 20+ seconds since PC ran out of air -->
+		<<if $suffocating gte 2 and $suffocated isnot 1 and $tentacles.active gte 1 and $finish isnot 1 and $alarm isnot 1>>
+			<<set $previousPassage = $passage>>
+			<<set $suffocationPhase to 1>>
+			<<set $suffocated to 1>>
+
+			<<set $nextPassage to "Man combat suffocated">>
+		<</if>>
+
 		<<willpowerpain>>
 		<<willpowerorgasm>>
 		<<actioncarry>>

@@ -211,6 +211,8 @@ function initUnderUpper() {
 				reference: "undershirt",
 				accessory: false,
 				accColour: "#fff",
+				/* sleeve_img is for the sidebar sprite only; the borrowed undershirt combat art has no sleeves folder */
+				hasSleeves: false,
 			},
 			oldVariable: [{ name: "full body leotard", variable: "leotardfull" }],
 			integrity: 100,

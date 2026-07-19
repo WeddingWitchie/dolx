@@ -249,6 +249,9 @@
 		<<else>>
 			and <<slithers>> into your <<pussy>> where it pumps a viscous _fluid at the apex of each thrust.
 		<</if>>
+		<<if $tentacleVagina2 isnot undefined>>
+			<span class="pink">It writhes and grinds against the other <<print _tentacle.type>> stuffed inside you.</span>
+		<</if>>
 		<<tentacle_skin "vagina">>
 		<<purity -1>><<internalejac>><<sex 5 "genitals">>
 		<<drugs 3>><<bodyliquid "vagina" _fluid>><<pain $vaginalPain>>
@@ -402,6 +405,9 @@
 			<<set _tentacle.baby to 0>><<set $tentacleAnusBaby to _tentacle.baby>>
 		<<else>>
 			and <<slithers>> into your <<bottom>> where it pumps a viscous _fluid at the apex of each thrust.
+		<</if>>
+		<<if $tentacleAnus2 isnot undefined>>
+			<span class="pink">It writhes and grinds against the other <<print _tentacle.type>> stuffed inside you.</span>
 		<</if>>
 		<<purity -1>><<internalejac>><<sex 5 "anus">>
 		<<drugs 3>><<bodyliquid "anus" _fluid>>
@@ -937,6 +943,11 @@
 				<<neutral 2 "bottom">>
 				<<set $anususe to "tentacle">><<set $anusstate to "tentacleentrance">><<set _tentacle.head to "anusentrance">><<set $anustarget to "tentacles">>
 				<<tentacle_skin "left_bottom" "right_bottom">>
+			<<elseif $anususe is "tentacle" and ["tentacle","tentacledeep"].includes($anusstate) and $tentacleAnus2 is undefined and $settings.analEnabled and $noanal is 0>>
+				<<underslither>> and <<slithers>> toward your occupied <<bottom>>, <span class="red">forcing itself inside alongside _the $tentacleAnus.</span> You shudder as your <<bottom>> stretches around both of them.
+				<<set _tentacle.head to "anus">><<set $tentacleAnus2 to _tentacle.fullDesc>>
+				<<sex 5 "anus">><<raped>><<anusraped>><<analstat>><<violence 5>><<pain $analPain>>
+				<<tentacle_skin "anus">>
 			<<else>>
 				<<tentacleadvdefault _tentacle>>
 			<</if>>
@@ -949,6 +960,11 @@
 				<<neutralgenitals 2>>
 				<<set $vaginause to "tentacle">><<set $vaginastate to "tentacleentrance">><<set _tentacle.head to "vaginaentrance">><<set $vaginatarget to "tentacles">>
 				<<tentacle_skin "pubic">>
+			<<elseif $player.vaginaExist and $vaginause is "tentacle" and ["tentacle","tentacledeep"].includes($vaginastate) and $tentacleVagina2 is undefined and $novaginal is 0>>
+				<<underslither>> and <<slithers>> toward your occupied <<pussy>>, <span class="red">forcing itself inside alongside _the $tentacleVagina.</span> You whimper as your <<pussy>> stretches around both of them.
+				<<set _tentacle.head to "vagina">><<set $tentacleVagina2 to _tentacle.fullDesc>>
+				<<sex 5 "genitals">><<raped>><<vaginaraped>><<vaginalstat>><<violence 5>><<pain $vaginalPain>>
+				<<tentacle_skin "vagina">>
 			<<else>>
 				<<tentacleadvdefault _tentacle>>
 			<</if>>
@@ -1196,13 +1212,26 @@
 	<</if>>
 
 	<<if _tentacle.head is "anusentrance" or _tentacle.head is "anusimminent" or _tentacle.head is "anus" or _tentacle.head is "anusdeep">>
-		<<if $anususe is "tentacle" or $anususe is "tentaclerub">><<set $anususe to 0>><<set $anusstate to 0>><</if>>
-		<<unset $tentacleAnus>><<unset $tentacleAnusBaby>>
+		/* With two tentacles sharing the hole, only free it once the last one leaves */
+		<<if $tentacleAnus2 isnot undefined and _tentacle.fullDesc is $tentacleAnus2>>
+			<<unset $tentacleAnus2>>
+		<<elseif $tentacleAnus2 isnot undefined>>
+			<<set $tentacleAnus to $tentacleAnus2>><<unset $tentacleAnus2>>
+		<<else>>
+			<<if $anususe is "tentacle" or $anususe is "tentaclerub">><<set $anususe to 0>><<set $anusstate to 0>><</if>>
+			<<unset $tentacleAnus>><<unset $tentacleAnusBaby>>
+		<</if>>
 	<</if>>
 
 	<<if _tentacle.head is "vaginaentrance" or _tentacle.head is "vaginaimminent" or _tentacle.head is "vagina" or _tentacle.head is "vaginadeep">>
-		<<if $vaginause is "tentacle" or $vaginause is "tentaclerub">><<set $vaginause to 0>><<set $vaginastate to 0>><</if>>
-		<<unset $tentacleVagina>>
+		<<if $tentacleVagina2 isnot undefined and _tentacle.fullDesc is $tentacleVagina2>>
+			<<unset $tentacleVagina2>>
+		<<elseif $tentacleVagina2 isnot undefined>>
+			<<set $tentacleVagina to $tentacleVagina2>><<unset $tentacleVagina2>>
+		<<else>>
+			<<if $vaginause is "tentacle" or $vaginause is "tentaclerub">><<set $vaginause to 0>><<set $vaginastate to 0>><</if>>
+			<<unset $tentacleVagina>>
+		<</if>>
 	<</if>>
 
 	<<if _tentacle.head is "penisentrance" or _tentacle.head is "penisimminent" or _tentacle.head is "penis" or _tentacle.head is "penisdeep">>
