@@ -18,6 +18,7 @@
  * @property {15} xrayCondom
  * @property {16} xrayPenetrator2
  * @property {17} xrayCondom2
+ * @property {18} xrayPenetrator3
  * @property {20} xrayCum
  * Combat layers
  * @property {0} far
@@ -127,8 +128,8 @@ class CombatRenderer {
 			"neck",
 			"hands",
 			"handheld",
-			//"earrings",
-			//"rings",
+			// "earrings",
+			// "rings",
 			"legs",
 			"feet",
 			"genitals",
@@ -243,6 +244,7 @@ class CombatRenderer {
 			xrayCondom: 15,
 			xrayPenetrator2: 16,
 			xrayCondom2: 17,
+			xrayPenetrator3: 18,
 			xrayCum: 20,
 		};
 	}
@@ -823,7 +825,7 @@ class CombatRenderer {
 			return CombatRenderer.lookupColour(
 				setup.colours.hair_map,
 				// @ts-ignore
-				dhmod.fringe.is_custom && dhmod.fringe.colors[0] ? dhmod.fringe.colors[0] : (V.hairfringecolour || V.haircolour),
+				dhmod.fringe.is_custom && dhmod.fringe.colors[0] ? dhmod.fringe.colors[0] : V.hairfringecolour || V.haircolour,
 				"hair_fringe",
 				"hair_fringe_custom",
 				"hair_fringe"

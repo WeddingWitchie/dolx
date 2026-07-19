@@ -45,9 +45,11 @@
  * @property {boolean} show
  * @property {number=} npc
  * @property {number=} npc2
+ * @property {number=} npc3
  * @property {string} npcType
  * @property {number} size
  * @property {number} size2
+ * @property {number=} size3
  * @property {boolean} doublePen
  * @property {string} penetratorSprite
  * @property {string} tentacleColour
@@ -275,7 +277,9 @@ class XrayCombatMapper {
 			case "tentacle": {
 				penetrator.penetratorSprite = "tentacle";
 				const secondTentacle = V["tentacle" + slot.toUpperFirst() + "2"];
+				const thirdTentacle = V["tentacle" + slot.toUpperFirst() + "3"];
 				let secondSize;
+				let thirdSize;
 				for (let tentacleIndex = 0; tentacleIndex < V.tentacles.max; tentacleIndex++) {
 					const tentacle = V.tentacles[tentacleIndex];
 					if (tentacle === undefined) continue;
@@ -284,6 +288,9 @@ class XrayCombatMapper {
 					}
 					if (secondTentacle !== undefined && tentacle.fullDesc === secondTentacle) {
 						secondSize = tentacle.size;
+					}
+					if (thirdTentacle !== undefined && tentacle.fullDesc === thirdTentacle) {
+						thirdSize = tentacle.size;
 					}
 				}
 				if (secondSize !== undefined) {
@@ -309,6 +316,17 @@ class XrayCombatMapper {
 				);
 				if (penetrator.doublePen) {
 					options.filters[slot + "Penetrator2"] = options.filters[slot + "Penetrator"];
+				}
+				if (penetrator.doublePen && thirdSize !== undefined) {
+					/* Third tentacle: overlay the plain single-tentacle sprite on the DP pair, drawn slightly darker so it reads as a separate strand.
+					   Force its size to differ from the primary's, or it would be completely hidden behind it. */
+					// @ts-ignore - non-NPCList marker like npc2; layers only test it against undefined
+					penetrator.npc3 = "tentacles";
+					penetrator.size3 = Math.clamp(thirdSize, 1, 6);
+					if (penetrator.size3 === penetrator.size) {
+						penetrator.size3 = penetrator.size3 > 1 ? penetrator.size3 - 1 : penetrator.size3 + 1;
+					}
+					options.filters[slot + "Penetrator3"] = options.filters[slot + "Penetrator"];
 				}
 				break;
 			}

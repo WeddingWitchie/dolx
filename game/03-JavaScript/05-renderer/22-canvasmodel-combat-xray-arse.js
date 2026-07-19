@@ -41,6 +41,20 @@ const combatXrayArse = {
 		},
 		penetrator: xrayArsePenetrator("npc"),
 		penetrator2: xrayArsePenetrator("npc2"),
+		/* Third tentacle: plain single sprite layered over the DP pair, slightly darker to read as a separate strand */
+		penetrator3: xrayArsePenetrator("npc3", {
+			srcfn(options) {
+				return `${options.src}anal/${options.anus.penetratorSprite}-size${options.anus.size3}.png`;
+			},
+			showfn(options) {
+				return !!options.showNpcPenis && !!options.anus.show && options.anus.npc3 !== undefined;
+			},
+			filters: ["anusPenetrator3"],
+			brightnessfn() {
+				return -0.15;
+			},
+			z: CombatRenderer.indices.xrayPenetrator3,
+		}),
 		condom: xrayArseCondom("npc"),
 		condom2: xrayArseCondom("npc2"),
 		cum: {
@@ -91,7 +105,11 @@ function xrayArsePenetrator(npc, overrideOptions = {}) {
 			return `${options.src}anal/${options.anus.penetratorSprite}${penSize}${dp}.png`;
 		},
 		showfn(options) {
-			return !!options.showNpcPenis && !!options.anus.show && (options.anus[npc] !== undefined || V.portalPanties.state.anus);
+			/* Must return a strict boolean: the animator only skips layers whose show is exactly false, so a leaked undefined here draws a ghost unfiltered penetrator.
+			   The portal-panties fallback only ever applies to the primary penetrator. */
+			if (!options.showNpcPenis || !options.anus.show) return false;
+			if (npc === "npc") return options.anus.npc !== undefined || !!V.portalPanties.state.anus;
+			return options.anus[npc] !== undefined;
 		},
 		animationfn(options) {
 			return options.animKeyArse;
