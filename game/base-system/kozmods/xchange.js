@@ -1125,7 +1125,9 @@ function xchangeTimePassedCheck(minutes = 1) {
 	else if (V.drugged > 100 && V.arousal < (V.arousalmax * 3) / 5) wikifier("arousal", (V.drugged / 10) * 2 * minutes);
 	else if (V.drugged > 0 && V.arousal < (V.arousalmax * 2) / 5) wikifier("arousal", (V.drugged / 10) * minutes);
 
-	wikifier("blackmail-timepassed");
+	// Frozen stats must not tick blackmail tasks toward clear/fail.
+	// Mirrors the !V.statFreeze guard already wrapping blackmail-daypassed in xchangeDailyCheck.
+	if (!V.statFreeze) wikifier("blackmail-timepassed");
 
 	// Portal Panties
 	wikifier("portalPantiesPass", minutes);
