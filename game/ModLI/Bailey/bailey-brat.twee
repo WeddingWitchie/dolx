@@ -1,0 +1,32 @@
+:: Bailey Brat Tax [widget]
+
+/* Weekly Brat Tax. Accrue with <<baileyBrat N "reason">>; */
+
+<<widget "baileyBrat">>
+	<<if $bailey_brat is undefined>><<set $bailey_brat to { points: 0, reasons: [] }>><</if>>
+	<<set $bailey_brat.points to Math.clamp($bailey_brat.points + _args[0], 0, 20)>>
+	<<run $bailey_brat.reasons.pushUnique(_args[1])>>
+<</widget>>
+
+/* $bratTax = points * 1/10 of current rent. Call beside <<babyRent>>. */
+<<widget "bratTaxCalc">>
+	<<set $bratTax to (($bailey_brat and $bailey_brat.points) || 0) * Math.floor($rentmoney / 10)>>
+<</widget>>
+
+<<widget "bratReasonList">>
+	<<set _phrases to ($bailey_brat ? $bailey_brat.reasons : []).map(function (r) {
+		var him = C.npc.Bailey.pronoun === "m" ? "him" : "her";
+		var his = C.npc.Bailey.pronoun === "m" ? "his" : "her";
+		switch (r) {
+			case "papers":  return "you tried to lift your identification papers";
+			case "bill":    return "you made " + him + " cover dinner";
+			case "chair":   return "you got caught masturbating in " + his + " chair";
+			case "stoodup": return "you stood Bailey up after asking " + him + " on a date";
+			case "gala_steal": return "you got caught stealing at " + his + " gala";
+			case "gala_scene": return "you made a scene at " + his + " gala";
+			case "seducebeat": return "you beat Bailey up after seducing " + him;
+			default:        return r;
+		}
+	})>>
+	<<print formatList(_phrases, "and")>>
+<</widget>>

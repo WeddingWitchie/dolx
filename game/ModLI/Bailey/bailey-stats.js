@@ -87,19 +87,29 @@ $(document).one(":storyready", function () {
 			   during the 0-6 night window doesn't instantly mark the date missed. */
 			if (V.bailey_date_sched_day === undefined || Time.days > V.bailey_date_sched_day) {
 				if (V.bailey_date_scheduled === 1) {
-					if (V.bailey_date_attended !== 1) V.bailey_date_missed = 1;
+					if (V.bailey_date_attended !== 1) {
+						V.bailey_date_missed = 1;
+						V.bailey_brat = V.bailey_brat || { points: 0, reasons: [] };
+						V.bailey_brat.points = Math.clamp(V.bailey_brat.points + 2, 0, 20);
+						if (!V.bailey_brat.reasons.includes("stoodup")) V.bailey_brat.reasons.push("stoodup");
+					}
 					V.bailey_date_scheduled = 0;
 					V.bailey_date_attended = 0;
 				}
 				if (V.bailey_date_allnight_scheduled === 1) {
-					if (V.bailey_date_attended !== 1) V.bailey_date_missed = 1;
+					if (V.bailey_date_attended !== 1) {
+						V.bailey_date_missed = 1;
+						V.bailey_brat = V.bailey_brat || { points: 0, reasons: [] };
+						V.bailey_brat.points = Math.clamp(V.bailey_brat.points + 2, 0, 20);
+						if (!V.bailey_brat.reasons.includes("stoodup")) V.bailey_brat.reasons.push("stoodup");
+					}
 					V.bailey_date_allnight_scheduled = 0;
 					V.bailey_date_attended = 0;
 				}
 			}
 		}
 
-		/* Once Stockholm is active, Bailey gains +1 lust per elapsed in-game day, clamped 0-100. */
+		/* Once Stockholm is active, Bailey gains +1 lust per elapsed in-game day (+2 while monogamous), clamped 0-100. */
 		if (typeof Time !== "undefined" && typeof Time.days !== "undefined") {
 			if (V.bailey_lust_lastday === undefined) {
 				V.bailey_lust_lastday = Time.days;
@@ -110,7 +120,8 @@ $(document).one(":storyready", function () {
 				} else if (delta > 0) {
 					V.bailey_lust_lastday = Time.days;
 					if (V.stockholm_active === true && C.npc.Bailey && typeof C.npc.Bailey.lust === "number") {
-						C.npc.Bailey.lust = Math.max(0, Math.min(100, C.npc.Bailey.lust + delta));
+						var _perDay = V.bailey_monogamous ? 2 : 1;
+						C.npc.Bailey.lust = Math.max(0, Math.min(100, C.npc.Bailey.lust + delta * _perDay));
 					}
 				}
 			}
@@ -172,7 +183,7 @@ $(document).one(":storyready", function () {
 		el.style.textAlign = "center";
 		el.style.marginTop = "1em";
 		el.style.marginBottom = "1em";
-		el.textContent = "Reiyu's Bailey Expansion v0.4.13 for X-Change \u2014 Active";
+		el.textContent = "Reiyu's Bailey Expansion v0.5.0 for X-Change \u2014 Active";
 		const firstChild = _indicatorContainer.firstChild;
 		if (firstChild) {
 			_indicatorContainer.insertBefore(el, firstChild);
@@ -277,6 +288,34 @@ $(document).one(":storyready", function () {
 			};
 		}
 	}
+
+	/* Bailey's flat availability — schedule anchored to him running the orphanage.
+	   Uniform every day (for now), minute-aware. Reused by the flat door + future systems.
+	   Returns:
+	     "leaving" 05:30–06:30  heading out — ride window
+	     "away"    06:30–19:00  at the orphanage
+	     "asleep"  02:00–05:30  there but won't come to the door
+	     "home"    19:00–02:00  home and reactive
+	   Tune the windows here in one place. */
+	window.baileyFlatState = function () {
+		var t = Time.hour * 60 + Time.minute;       // minutes since midnight
+		if (t >= 330 && t < 390)  return "leaving"; // 05:30–06:30
+		if (t >= 390 && t < 1140) return "away";    // 06:30–19:00
+		if (t >= 120 && t < 330)  return "asleep";  // 02:00–05:30
+		return "home";                               // 19:00–02:00 (wraps midnight)
+	};
+
+	/* Weekend-obligation state. One stored var does all the work —
+	   $bailey_weekend_lastvisit (Time.days at the last flat visit) — and these derive
+	   the rest so nothing can fall out of sync.
+	   baileyWeeksMissed(): whole weeks since that visit, but only while the pact holds.
+	   baileyStraying(): 2+ weeks neglected, at which point his infidelity scenes re-open. */
+	window.baileyWeeksMissed = function () {
+		if (!V.bailey_monogamous) return 0;
+		var last = (typeof V.bailey_weekend_lastvisit === "number") ? V.bailey_weekend_lastvisit : Time.days;
+		return Math.max(0, Math.floor((Time.days - last) / 7));
+	};
+	window.baileyStraying = function () { return baileyWeeksMissed() >= 2; };
 
 	console.log("[BaileyExpansion] stat display overrides + title system + love interest registered");
 });
