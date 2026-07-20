@@ -136,15 +136,15 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 			(genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill?.fertile);
 		// Hyper Fertility mirrors its realistic-mode potency here: a carried womb (or Omega body) conceives like a breeder's, and PC-sired conceptions hit like a bull's.
 		const xchangeHyperFertile = typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive();
-		if (playerIsXChanged()) chance *= V.xchange.pregnancyMultPercent / 100;
-		if (xchangeRealBreederPregnancy || (target === "pc" && xchangeHyperFertile)) {
-			multi = Math.max(multi, 1);
-		}
-		if (
+		// Full-potency conception cases: a carried womb (real breeder / hyper-fertile player) OR a PC-sired conception (bull effect, or a hyper-fertile PC impregnating an NPC).
+		const xchangeFullPotency =
 			xchangeRealBreederPregnancy ||
 			(target === "pc" && xchangeHyperFertile) ||
-			(playerIsXChanged() && (V.xchange.pill.bullEffect || (xchangeHyperFertile && spermOwner === "pc")) && target !== "pc")
-		) {
+			(playerIsXChanged() && (V.xchange.pill.bullEffect || (xchangeHyperFertile && spermOwner === "pc")) && target !== "pc");
+		if (playerIsXChanged()) chance *= V.xchange.pregnancyMultPercent / 100;
+		if (xchangeFullPotency) {
+			// Bypass the cycle/non-cycle timing throttle (multi) as well as boosting the base chance, otherwise a PC-sired NPC pregnancy stays crushed to near-zero by the NPC's cycle multiplier while the player conceives reliably.
+			multi = Math.max(multi, 1);
 			chance = 100 / (100 - 98);
 		}
 

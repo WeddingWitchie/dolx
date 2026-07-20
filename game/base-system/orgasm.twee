@@ -146,6 +146,11 @@
 							<<set $_impregnatedChance to Math.ceil($_impregnatedChance * 0.1)>>
 						<</if>>
 						<<set $_impregnatedChance to Math.floor($_impregnatedChance * (_orgasmSpermRng / 100))>>
+						/* X-Change: a hyper-fertility course or a bull pill makes the PC sire like a bull. Boost the random-NPC roll to ~50% (chance 100 on the 0-200 scale), matching the bull/hyper potency fetishPregnancy already gives the player and named NPCs. Without this the roll stayed at its low base chance (~8%) and hyper fertility never impregnated partners. */
+						<<set _xchangePcBull to (playerIsXChanged() and (V.xchange.pill.bullEffect or (typeof fertilityTreatmentActive is "function" and fertilityTreatmentActive())))>>
+						<<if _xchangePcBull>>
+							<<set $_impregnatedChance to Math.max($_impregnatedChance, 100)>>
+						<</if>>
 						/*If random NPC is impregnated, store NPC and fetus*/
 						<<if ($_impregnatedChance gte random(0,200) or _npcForceImpregnation)>>
 							<<switch _penisTargetNpc.type>>
@@ -154,7 +159,8 @@
 								<<case "wolfgirl" "wolfboy">><<set $_pregnancy to pregnancyGenerator.wolf(_penisTargetNpc, "pc", true, "vagina", true)>>
 							<</switch>>
 							<<if $_pregnancy and !(typeof $_pregnancy is "string" || $_pregnancy instanceof String)>>
-								<<if $consensual is 1 and ((random(0, 1 + $_count) is 0 and $_count lte 10) or (setup.pregnancy.randomAlwaysKeep.includes($location) and $_count lte 15))>>
+								/* X-Change: deliberate breeding (hyper-fertile/bull PC, or a forced impregnation) reliably carries to term regardless of consent, so even a defeated combat enemy tracks you down with the baby later. Normal chance-based keep still requires consent. Both capped so stored NPCs can't grow without bound. */
+								<<if ((_xchangePcBull or _npcForceImpregnation) and $_count lte 15) or ($consensual is 1 and ((random(0, 1 + $_count) is 0 and $_count lte 10) or (setup.pregnancy.randomAlwaysKeep.includes($location) and $_count lte 15)))>>
 									<<storeNPC $penistarget "pregnancy">>
 									<<set $storedNPCs[_lastStoredName].pregnancy to $_pregnancy>>
 								<</if>>
@@ -186,7 +192,7 @@
 									<<set $speechAlphaKnotTarget to $_i>>
 								<<else>>
 									<<knot_stat>>
-								<</if>>
+							<</if>>
 								<span class="pink">Your knot swells tighter behind <<his>> rim, holding you deep inside <<him>> while short, instinctive rolls of your hips carry your orgasm through you.</span>
 							<</if>>
 						<<elseif _orgasmNpc.penis is "otheranusimminent" or _orgasmNpc.penis is "otheranusentrance" or _orgasmNpc.vagina is "otheranusimminent" or _orgasmNpc.vagina is "otheranusentrance">>
