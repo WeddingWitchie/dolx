@@ -356,7 +356,9 @@
 	<<set _payVia to (_args[0] || "cash")>>
 	/* Overdue HBSC loan: Bailey collects a weekly surcharge on top of rent. */
 	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
-	<<set _rentDue to ($rentmoney + ($babyRent or 0) + _loanSurcharge)>>
+	/* Recompute here rather than trusting $bratTax: not every path into rentpay runs a demand passage first, and the tax must match what was announced before $rentmoney rolls over below. */
+	<<bratTaxCalc>>
+	<<set _rentDue to ($rentmoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge)>>
 	<<if _payVia is "bank">>
 		<<set _bankPay to setup.hbsc.tryAutoPay("bailey", _rentDue)>>
 		<<if not _bankPay.paid>>
@@ -389,6 +391,10 @@
 	<<if _loanSurcharge gt 0>>
 		<br><br>
 		"And before you ask," <<nnpc_he "Bailey">> adds, "<<printmoney _loanSurcharge "red">> of that's going to the bank. They came to me about the money you owe them. Take it up with them if you don't like it."
+	<</if>>
+	<<if $bratTax gt 0>>
+		<br><br>
+		<<nnpc_He "Bailey">> counts out the extra <<printmoney $bratTax "pink">> separately and pockets it with a thin smile. "That's for the trouble you've caused me. Behave and it won't happen again."
 	<</if>>
 	<<set $bailey_rent_seen to ($bailey_rent_seen || {})>>
 	<<if $fame.good gte 1000 and !$bailey_rent_seen.good3>>

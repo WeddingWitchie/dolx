@@ -324,8 +324,15 @@ You don't fight <<him>>. You let <<him>> walk you.
 <</if>>
 <<babyRent>>
 <<loanRentNotice>>
-/* Match the standard rent flow: what the player can actually pay is cash plus liquid bank savings, and the demand includes any HBSC loan surcharge Bailey collects. */
-<<set _rentTotal to ($rentmoney + ($babyRent or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
+/* Match the standard rent flow: what the player can actually pay is cash plus liquid bank savings, and the demand includes any HBSC loan surcharge and brat tax Bailey collects. */
+<<bratTaxCalc>>
+<<if $bailey_brat and $bailey_brat.points gt 0>>
+	"And you've been a pain this week," <<he>> adds. "That's <<printmoney $bratTax "pink">> extra. Don't argue."
+	<br><br>
+	You think Bailey is mad because <<bratReasonList>>.
+	<br><br>
+<</if>>
+<<set _rentTotal to ($rentmoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
 <<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
 	<<person1>>
 	<<if setup.inflation and setup.inflation.baileyAggressive()>>
