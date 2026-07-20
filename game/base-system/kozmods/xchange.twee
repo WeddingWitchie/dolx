@@ -59,7 +59,7 @@
 		<<if $player.sex !== "f" && setup.xChangeCachedBodyUsable("genderswapped")>>
 			<<load-body "genderswapped">>
 			<<set _xchangeLoadedBody to true>>
-			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
+			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random" || $xchange.customisedSkinColour isnot "nochange" || $xchange.customisedEyeColour isnot "nochange">>
 				/* Optional: allow wraith appearance even on loaded bodies */
 				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
 				<<set _doWraith to (Math.random() < _wraithChance)>>
@@ -72,6 +72,10 @@
 						<<set $player.skin.color to _wraithSkinKeys.random()>>
 					<<elseif _normalSkinKeys.length gt 0>>
 						<<set $player.skin.color to _normalSkinKeys.random()>>
+					<</if>>
+				<<elseif $xchange.customisedSkinColour isnot "nochange">>
+					<<if setup.colours.skin_options[$xchange.customisedSkinColour] isnot undefined>>
+						<<set $player.skin.color to $xchange.customisedSkinColour>>
 					<</if>>
 				<</if>>
 				<<if $xchange.customisedEyeColour is "random">>
@@ -87,6 +91,9 @@
 					<</if>>
 					<<set $leftEyeColour to _eyeColour>>
 					<<set $rightEyeColour to _eyeColour>>
+				<<elseif $xchange.customisedEyeColour isnot "nochange">>
+					<<set $leftEyeColour to $xchange.customisedEyeColour>>
+					<<set $rightEyeColour to $xchange.customisedEyeColour>>
 				<</if>>
 			<</if>>
 		<<else>>
@@ -324,7 +331,7 @@
 		<<if $player.sex !== "m" && setup.xChangeCachedBodyUsable("genderswapped")>>
 			<<load-body "genderswapped">>
 			<<set _xchangeLoadedBody to true>>
-			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random">>
+			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random" || $xchange.customisedSkinColour isnot "nochange" || $xchange.customisedEyeColour isnot "nochange">>
 				/* Optional: allow wraith appearance even on loaded bodies */
 				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
 				<<set _doWraith to (Math.random() < _wraithChance)>>
@@ -337,6 +344,10 @@
 						<<set $player.skin.color to _wraithSkinKeys.random()>>
 					<<elseif _normalSkinKeys.length gt 0>>
 						<<set $player.skin.color to _normalSkinKeys.random()>>
+					<</if>>
+				<<elseif $xchange.customisedSkinColour isnot "nochange">>
+					<<if setup.colours.skin_options[$xchange.customisedSkinColour] isnot undefined>>
+						<<set $player.skin.color to $xchange.customisedSkinColour>>
 					<</if>>
 				<</if>>
 				<<if $xchange.customisedEyeColour is "random">>
@@ -352,6 +363,9 @@
 					<</if>>
 					<<set $leftEyeColour to _eyeColour>>
 					<<set $rightEyeColour to _eyeColour>>
+				<<elseif $xchange.customisedEyeColour isnot "nochange">>
+					<<set $leftEyeColour to $xchange.customisedEyeColour>>
+					<<set $rightEyeColour to $xchange.customisedEyeColour>>
 				<</if>>
 			<</if>>
 		<<else>>
@@ -554,6 +568,43 @@
 		<<if setup.xChangeCachedBodyUsable("herm")>>
 			<<load-body "herm">>
 			<<set _xchangeLoadedBody to true>>
+			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random" || $xchange.customisedSkinColour isnot "nochange" || $xchange.customisedEyeColour isnot "nochange">>
+				/* Optional: allow wraith appearance even on loaded bodies */
+				<<set _wraithChance to ($xchange.wraithChance is undefined ? 0.70 : Math.clamp($xchange.wraithChance, 0, 1))>>
+				<<set _doWraith to (Math.random() < _wraithChance)>>
+
+				<<if $xchange.customisedSkinColour is "random">>
+					<<set _skinKeys to Object.keys(setup.colours.skin_options)>>
+					<<set _wraithSkinKeys to _skinKeys.filter(k => /ivory|wraith/i.test(k))>>
+					<<set _normalSkinKeys to _skinKeys.filter(k => !/ivory|wraith/i.test(k))>>
+					<<if _doWraith && _wraithSkinKeys.length gt 0>>
+						<<set $player.skin.color to _wraithSkinKeys.random()>>
+					<<elseif _normalSkinKeys.length gt 0>>
+						<<set $player.skin.color to _normalSkinKeys.random()>>
+					<</if>>
+				<<elseif $xchange.customisedSkinColour isnot "nochange">>
+					<<if setup.colours.skin_options[$xchange.customisedSkinColour] isnot undefined>>
+						<<set $player.skin.color to $xchange.customisedSkinColour>>
+					<</if>>
+				<</if>>
+				<<if $xchange.customisedEyeColour is "random">>
+					<<set _eyeKeys to Object.keys(setup.colours.eyes_map).filter(k => k !== "random" && !/^colorWheelTemporary/i.test(k))>>
+					<<set _wraithEyeKeys to _eyeKeys.filter(k => /possessed|wraith|ivory/i.test(k))>>
+					<<set _normalEyeKeys to _eyeKeys.filter(k => !/possessed|wraith|ivory/i.test(k))>>
+					<<if _doWraith && _wraithEyeKeys.length gt 0>>
+						<<set _eyeColour to _wraithEyeKeys.random()>>
+					<<elseif _normalEyeKeys.length gt 0>>
+						<<set _eyeColour to _normalEyeKeys.random()>>
+					<<else>>
+						<<set _eyeColour to _eyeKeys.random()>>
+					<</if>>
+					<<set $leftEyeColour to _eyeColour>>
+					<<set $rightEyeColour to _eyeColour>>
+				<<elseif $xchange.customisedEyeColour isnot "nochange">>
+					<<set $leftEyeColour to $xchange.customisedEyeColour>>
+					<<set $rightEyeColour to $xchange.customisedEyeColour>>
+				<</if>>
+			<</if>>
 		<<else>>
 			<<set _body to $xchange.pill.originalBody>>
 			/* Restore whatever the genderflip-first step (become-boy/become-girl) destroyed, keyed on the ORIGINAL body sex NOT $player.gender identity.

@@ -1,6 +1,23 @@
 :: Widgets NPCs [widget]
 
 <<widget "maninit">>
+	<!-- Recompute it from the actual contiguous run of populated NPCList slots so a stale,
+	inflated count can't pull phantom health into $enemyhealth or misroute damage into the multi-enemy split below. -->
+	<<set _maninitValidSlots to 0>>
+	<<for _mi to 0; _mi lt 6; _mi++>>
+		<<if $NPCList[_mi] and $NPCList[_mi].gender and $NPCList[_mi].description>>
+			<<set _maninitValidSlots to _mi + 1>>
+		<<else>>
+			<<break>>
+		<</if>>
+	<</for>>
+	<<if !Number.isFinite($enemyno) or $enemyno gt _maninitValidSlots>>
+		<<set $enemyno to _maninitValidSlots>>
+	<</if>>
+	<<if $enemyno lt 1>>
+		<<set $enemyno to 1>>
+	<</if>>
+
 	<<set $enemyarousal to $allure / 50 + $audiencearousal>>
 	<<set $enemypleasure to 0>>
 	<<set $enemyanger to 0>>

@@ -893,20 +893,19 @@ Zohar
 	<</if>>
 	<<if !$NPCList[_npcno]>>
 		<<set $NPCList[_npcno] to clone(setup.baseNPC)>>
-		<<run console.warn("[DoLX] NPCList[" + _npcno + "] missing before <<npc>> — created empty slot.")>>
+		<<run console.warn("NPCList[" + _npcno + "] missing before <<npc>> created empty slot.")>>
 	<</if>>
 
-	<<if _npcno is 0 and $enemyno gte 1 and !_overwrite>>
+	<!-- $enemyno must be left untouched here, or repeated same-NPC mentions silently inflate the enemy count over a playthrough, desyncing enemyhealth math (and the man-combat active-slot loop) in later fights. -->
+	<<set _sameNpcInSlot to ($NPCList[_npcno].fullDescription is _args[0])>>
+
+	<<if _npcno is 0 and $enemyno gte 1 and !_overwrite and !_sameNpcInSlot>>
 		<<set $endeventerror to $lastgenerated>>
 		<<endevent phaseless>>
 		<<run EventSystem.clear()>>
 	<</if>>
 
-	<!-- Defensive cleanup for the case where $enemyno was already 0 entering this widget
-	     but stale state lingered from a prior encounter that exited via a path that did
-	     not run endevent properly (passage transition mid-combat, a save loaded into a
-	     fresh passage with carry-over state, etc.). The above branch only fires when
-	     $enemyno >= 1; this one covers the cold-entry case. -->
+	<!-- The above branch only fires when $enemyno >= 1; this one covers the cold-entry case. -->
 	<<if _npcno is 0 and !_overwrite and $enemyno is 0>>
 		<<for _slotClean to 1; _slotClean lt 6; _slotClean++>>
 			<<set $NPCList[_slotClean] to clone(setup.baseNPC)>>
@@ -1372,11 +1371,9 @@ Zohar
 		<</if>>
 	<</if>>
 
-	<<if $enemyno lt 6>><<set $enemyno += 1>><</if>>
-	<!-- $enemynomax is the peak NPC count for this encounter and must be >= $enemyno
-	     at all times. The npc widget reaches the live count by direct increment, not
-	     through generateNPC (where the npc-generation.twee fix lives), so the peak
-	     bump has to happen here too. -->
+	<<if !_sameNpcInSlot and $enemyno lt 6>><<set $enemyno += 1>><</if>>
+	<!-- $enemynomax is the peak NPC count for this encounter and must be >= $enemyno at all times.
+	The npc widget reaches the live count by direct increment, not through generateNPC (where the npc-generation.twee fix lives), so the peak bump has to happen here too. -->
 	<<if $enemynomax lt $enemyno>><<set $enemynomax to $enemyno>><</if>>
 
 	<<if $NPCList[0].monster is "monster" or _monsterOverride>>
