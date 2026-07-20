@@ -2902,12 +2902,12 @@ function dailyFarmEvents() {
 		if (V.farm.compostbin >= 1) {
 			wikifier("composting");
 		}
-		if (V.farm.watchtowerDailyAttempt === 1) {
-			V.farm.watchtowerDailyAttempt = 0;
-		}
-		if (V.farm.dailyHelp === 1) {
-			V.farm.dailyHelp = 0;
-		}
+	}
+	if (V.farm && V.farm.watchtowerDailyAttempt === 1) {
+		V.farm.watchtowerDailyAttempt = 0;
+	}
+	if (V.farm && V.farm.dailyHelp === 1) {
+		V.farm.dailyHelp = 0;
 	}
 	if (V.farm_stage >= 9) {
 		if (V.lurkers_stored >= 1) {
