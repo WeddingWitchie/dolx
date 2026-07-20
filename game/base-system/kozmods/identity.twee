@@ -359,7 +359,16 @@
 				<</if>>
 				<label data-target='["identity.body.genitals.vagina.acceptance"]' data-disabledif="!V.identity.body.genitals.vagina.acceptance" class="green">Preferred <<checkbox "$identity.body.genitals.preferredVagina" false true autocheck>></label>
 				<br>
-				Small Penis: 
+				Tiny Penis:
+				<br>
+				<label data-target='["identity.body.genitals.tinypenis.acceptance", "identity.body.genitals.tinypenis.reject"]' data-disabledif="V.identity.body.genitals.tinypenis.acceptance && !V.identity.body.genitals.tinypenis.reject" class="red">Reject <<checkbox "$identity.body.genitals.tinypenis.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2 or $background.transgender or !$xchange.giGenitalsConfigured>>
+					<label data-target='["identity.body.genitals.preferredPenis", "identity.init"]' data-disabledif="V.identity.body.genitals.preferredPenis === 'tinypenis'">Unaccepted <<radiobutton "$identity.body.genitals.tinypenis.acceptance" false autocheck>></label> |
+					<label data-target='["identity.body.genitals.tinypenis.reject", "identity.init"]' data-disabledif="V.identity.body.genitals.tinypenis.reject">Accepted <<radiobutton "$identity.body.genitals.tinypenis.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.body.genitals.tinypenis.acceptance"]' data-disabledif="!V.identity.body.genitals.tinypenis.acceptance" class="green">Preferred <<radiobutton "$identity.body.genitals.preferredPenis" "tinypenis" autocheck>></label>
+				<br>
+				Small Penis:
 				<br> 
 				<label data-target='["identity.body.genitals.smallpenis.acceptance", "identity.body.genitals.smallpenis.reject"]' data-disabledif="V.identity.body.genitals.smallpenis.acceptance && !V.identity.body.genitals.smallpenis.reject" class="red">Reject <<checkbox "$identity.body.genitals.smallpenis.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2 or $background.transgender or !$xchange.giGenitalsConfigured>>
@@ -751,6 +760,11 @@
 					<<set $identityOption to $identity.body.genitals.vagina>>
 					<<set $identityPreference to !!$identity.body.genitals.preferredVagina>>
 				<</if>>
+			<<case "Tiny Penis">>
+				<<if $xchange.giGenitalsEnabled>>
+					<<set $identityOption to $identity.body.genitals.tinypenis>>
+					<<set $identityPreference to $identity.body.genitals.preferredPenis is "tinypenis" ? true : false>>
+				<</if>>
 			<<case "Small Penis">>
 				<<if $xchange.giGenitalsEnabled>>
 					<<set $identityOption to $identity.body.genitals.smallpenis>>
@@ -834,7 +848,7 @@
 	<<widget "dysphoria">>
 		<<if _args[0] isnot undefined>>
 			<<set _mod to _args[0]>>
-			<<if $background.transgender and $identityOption and ["Vagina", "Small Penis", "Medium Penis", "Big Penis"].includes($identityTopic) and $xchange and $xchange.permaReflection and $xchange.permaReflection.answer and (typeof pillIsPermanent === "function" ? pillIsPermanent() : ($xchange.pill and $xchange.pill.active and $xchange.pill.duration <= -1))>>
+			<<if $background.transgender and $identityOption and ["Vagina", "Tiny Penis", "Small Penis", "Medium Penis", "Big Penis"].includes($identityTopic) and $xchange and $xchange.permaReflection and $xchange.permaReflection.answer and (typeof pillIsPermanent === "function" ? pillIsPermanent() : ($xchange.pill and $xchange.pill.active and $xchange.pill.duration <= -1))>>
 				<<if $xchange.permaReflection.answer is "yes">>
 					<<set $identityOption.dysphoria to 0>>
 				<<elseif $xchange.permaReflection.answer is "no">>
@@ -869,6 +883,8 @@
 							<<set _reason to "Catching yourself looking feminine makes your stomach twist.">>
 						<<case "Vagina">>
 							<<set _reason to "Being reminded you have a vagina disgusts you.">>
+						<<case "Tiny Penis">>
+							<<set _reason to "Being reminded you have a tiny penis disgusts you.">>
 						<<case "Small Penis">>
 							<<set _reason to "Being reminded you have a small penis disgusts you.">>
 						<<case "Medium Penis">>
@@ -1526,7 +1542,8 @@
 		/* Compute preferred targets from identity settings */
 		<<set _penisTarget to 4>>
 		<<if $xchange.giGenitalsEnabled>>
-			<<if $identity.body.genitals.preferred is "smallpenis">><<set _penisTarget to 3>>
+			<<if $identity.body.genitals.preferred is "tinypenis">><<set _penisTarget to 2>>
+			<<elseif $identity.body.genitals.preferred is "smallpenis">><<set _penisTarget to 3>>
 			<<elseif $identity.body.genitals.preferred is "mediumpenis">><<set _penisTarget to 4>>
 			<<elseif $identity.body.genitals.preferred is "bigpenis">><<set _penisTarget to 6>>
 			<</if>>
@@ -1630,7 +1647,7 @@
 						<<perma-reflection-snapshot>>
 						<<set $xchange.permaReflection.answer to "yes">>
 						<<set $xchange.permaReflection.pending to false>>
-						<<for _i, _slot range ["vagina", "smallpenis", "mediumpenis", "bigpenis"]>>
+						<<for _i, _slot range ["vagina", "tinypenis", "smallpenis", "mediumpenis", "bigpenis"]>>
 							<<if $identity and $identity.body and $identity.body.genitals and $identity.body.genitals[_slot]>>
 								<<set $identity.body.genitals[_slot].acceptance to true>>
 								<<set $identity.body.genitals[_slot].reject to false>>
@@ -1651,7 +1668,7 @@
 						<<perma-reflection-snapshot>>
 						<<set $xchange.permaReflection.answer to "no">>
 						<<set $xchange.permaReflection.pending to false>>
-						<<for _i, _slot range ["vagina", "smallpenis", "mediumpenis", "bigpenis"]>>
+						<<for _i, _slot range ["vagina", "tinypenis", "smallpenis", "mediumpenis", "bigpenis"]>>
 							<<if $identity and $identity.body and $identity.body.genitals and $identity.body.genitals[_slot]>>
 								<<set $identity.body.genitals[_slot].acceptance to false>>
 								<<set $identity.body.genitals[_slot].reject to true>>
@@ -1685,7 +1702,7 @@
 		<<set $xchange.permaReflection to $xchange.permaReflection || {pending: false, lastShownDay: -1, answer: null, snapshot: null}>>
 		<<if $xchange.permaReflection.snapshot is null or $xchange.permaReflection.snapshot is undefined>>
 			<<set _snap to {}>>
-			<<for _i, _slot range ["vagina", "smallpenis", "mediumpenis", "bigpenis"]>>
+			<<for _i, _slot range ["vagina", "tinypenis", "smallpenis", "mediumpenis", "bigpenis"]>>
 				<<if $identity and $identity.body and $identity.body.genitals and $identity.body.genitals[_slot]>>
 					<<set _snap[_slot] to {
 						acceptance: $identity.body.genitals[_slot].acceptance,

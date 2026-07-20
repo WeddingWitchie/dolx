@@ -7,7 +7,7 @@
  * Some gender-identity "core" functions / related utilities are still live inside `xchange.js`.
  * If what you're looking for isn't defined here, there's a good chance it's still in `xchange.js`
  * (likewise, some mirrored behavior may be in `identity.twee` and its Twine-side correspondence)
-**/
+ */
 
 function playerCaresForGender() {
 	return V.xchange.genderIdentityEnabled === 1;
@@ -32,32 +32,32 @@ window.playerBodyIsFemale = playerBodyIsFemale;
 function hourlyClothingFemininityCheck(hours = 1) {
 	// Compute the sum of all clothing femininity
 	let currentWornFemininity = 0;
-	if (setup.clothes["over_head"][clothesIndex("over_head", V.worn.over_head)].femininity)
-		currentWornFemininity += setup.clothes["over_head"][clothesIndex("over_head", V.worn.over_head)].femininity;
-	if (setup.clothes["head"][clothesIndex("head", V.worn.head)].femininity)
-		currentWornFemininity += setup.clothes["head"][clothesIndex("head", V.worn.head)].femininity;
-	if (setup.clothes["face"][clothesIndex("face", V.worn.face)].femininity)
-		currentWornFemininity += setup.clothes["face"][clothesIndex("face", V.worn.face)].femininity;
-	if (setup.clothes["neck"][clothesIndex("neck", V.worn.neck)].femininity)
-		currentWornFemininity += setup.clothes["neck"][clothesIndex("neck", V.worn.neck)].femininity;
-	if (setup.clothes["over_upper"][clothesIndex("over_upper", V.worn.over_upper)].femininity)
-		currentWornFemininity += setup.clothes["over_upper"][clothesIndex("over_upper", V.worn.over_upper)].femininity;
-	if (setup.clothes["upper"][clothesIndex("upper", V.worn.upper)].femininity)
-		currentWornFemininity += setup.clothes["upper"][clothesIndex("upper", V.worn.upper)].femininity;
-	if (setup.clothes["under_upper"][clothesIndex("under_upper", V.worn.under_upper)].femininity)
-		currentWornFemininity += setup.clothes["under_upper"][clothesIndex("under_upper", V.worn.under_upper)].femininity;
-	if (setup.clothes["over_lower"][clothesIndex("over_lower", V.worn.over_lower)].femininity)
-		currentWornFemininity += setup.clothes["over_lower"][clothesIndex("over_lower", V.worn.over_lower)].femininity;
-	if (setup.clothes["lower"][clothesIndex("lower", V.worn.lower)].femininity)
-		currentWornFemininity += setup.clothes["lower"][clothesIndex("lower", V.worn.lower)].femininity;
-	if (setup.clothes["under_lower"][clothesIndex("under_lower", V.worn.under_lower)].femininity)
-		currentWornFemininity += setup.clothes["under_lower"][clothesIndex("under_lower", V.worn.under_lower)].femininity;
-	if (setup.clothes["legs"][clothesIndex("legs", V.worn.legs)].femininity)
-		currentWornFemininity += setup.clothes["legs"][clothesIndex("legs", V.worn.legs)].femininity;
-	if (setup.clothes["handheld"][clothesIndex("handheld", V.worn.handheld)].femininity)
-		currentWornFemininity += setup.clothes["handheld"][clothesIndex("handheld", V.worn.handheld)].femininity;
-	if (setup.clothes["feet"][clothesIndex("feet", V.worn.feet)].femininity)
-		currentWornFemininity += setup.clothes["feet"][clothesIndex("feet", V.worn.feet)].femininity;
+	if (setup.clothes.over_head[clothesIndex("over_head", V.worn.over_head)].femininity)
+		currentWornFemininity += setup.clothes.over_head[clothesIndex("over_head", V.worn.over_head)].femininity;
+	if (setup.clothes.head[clothesIndex("head", V.worn.head)].femininity)
+		currentWornFemininity += setup.clothes.head[clothesIndex("head", V.worn.head)].femininity;
+	if (setup.clothes.face[clothesIndex("face", V.worn.face)].femininity)
+		currentWornFemininity += setup.clothes.face[clothesIndex("face", V.worn.face)].femininity;
+	if (setup.clothes.neck[clothesIndex("neck", V.worn.neck)].femininity)
+		currentWornFemininity += setup.clothes.neck[clothesIndex("neck", V.worn.neck)].femininity;
+	if (setup.clothes.over_upper[clothesIndex("over_upper", V.worn.over_upper)].femininity)
+		currentWornFemininity += setup.clothes.over_upper[clothesIndex("over_upper", V.worn.over_upper)].femininity;
+	if (setup.clothes.upper[clothesIndex("upper", V.worn.upper)].femininity)
+		currentWornFemininity += setup.clothes.upper[clothesIndex("upper", V.worn.upper)].femininity;
+	if (setup.clothes.under_upper[clothesIndex("under_upper", V.worn.under_upper)].femininity)
+		currentWornFemininity += setup.clothes.under_upper[clothesIndex("under_upper", V.worn.under_upper)].femininity;
+	if (setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].femininity)
+		currentWornFemininity += setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].femininity;
+	if (setup.clothes.lower[clothesIndex("lower", V.worn.lower)].femininity)
+		currentWornFemininity += setup.clothes.lower[clothesIndex("lower", V.worn.lower)].femininity;
+	if (setup.clothes.under_lower[clothesIndex("under_lower", V.worn.under_lower)].femininity)
+		currentWornFemininity += setup.clothes.under_lower[clothesIndex("under_lower", V.worn.under_lower)].femininity;
+	if (setup.clothes.legs[clothesIndex("legs", V.worn.legs)].femininity)
+		currentWornFemininity += setup.clothes.legs[clothesIndex("legs", V.worn.legs)].femininity;
+	if (setup.clothes.handheld[clothesIndex("handheld", V.worn.handheld)].femininity)
+		currentWornFemininity += setup.clothes.handheld[clothesIndex("handheld", V.worn.handheld)].femininity;
+	if (setup.clothes.feet[clothesIndex("feet", V.worn.feet)].femininity)
+		currentWornFemininity += setup.clothes.feet[clothesIndex("feet", V.worn.feet)].femininity;
 
 	// Add up the makeup femininity
 	currentWornFemininity += V.makeup.lipstick ? 50 : 0;
@@ -68,44 +68,37 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
-	const hasFemClothesPreference = V.identity.presentation.clothing.preferred === 'f';
 	const hasFemClothesAcceptance = V.identity.presentation.clothing.feminine.acceptance;
 	const hasFemClothesRejection = V.identity.presentation.clothing.feminine.reject;
-	
-	const hasMascClothesPreference = V.identity.presentation.clothing.preferred === 'm';
+
 	const hasMascClothesAcceptance = V.identity.presentation.clothing.masculine.acceptance;
 	const hasMascClothesRejection = V.identity.presentation.clothing.masculine.reject;
 
 	// --- Hypno crossdress / genderify handling ---
 	V.cheats = V.cheats || {};
 	const genderifyActive = !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect);
-	const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : (V.hypnosis_traits?.crossdressing || 0);
+	const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : V.hypnosis_traits?.crossdressing || 0;
 
 	/*
-	* Hypno crossdress / genderify should still run even when the player cares for gender.
-	* Use the player's baseline gender for the compulsion direction so body changes from X-Change
-	* do not flip the urge from feminine to masculine mid-pill.
-	*/
+	 * Hypno crossdress / genderify should still run even when the player cares for gender.
+	 * Use the player's baseline gender for the compulsion direction so body changes from X-Change
+	 * do not flip the urge from feminine to masculine mid-pill.
+	 */
 	if (genderifyActive || hypnoCrossdressLevel >= 1) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress", 30 * hours, 1);
 			V.genderificationStressMessage = 1;
 			V.effectsmessage = 1;
-		}
-		else if (
-			V.player.gender === "m" &&
-			currentWornFemininity > 0 &&
-			(genderifyActive || hypnoCrossdressLevel < 4)
-		) {
+		} else if (V.player.gender === "m" && currentWornFemininity > 0 && (genderifyActive || hypnoCrossdressLevel < 4)) {
 			wikifier("stress", -3 * hours, 1);
 			/*
-			* Route through the tiredness macro instead of direct V.tiredness writes.
-			* This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
-			* Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
-			*/
+			 * Route through the tiredness macro instead of direct V.tiredness writes.
+			 * This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
+			 * Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
+			 */
 			wikifier("tiredness", -2.5 * hours, 1);
 
-			if (Math.random() < 0.50) {
+			if (Math.random() < 0.5) {
 				V.genderificationStressMessage = 2;
 				V.effectsmessage = 1;
 			}
@@ -115,43 +108,34 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			wikifier("stress", 30 * hours, 1);
 			V.genderificationStressMessage = 3;
 			V.effectsmessage = 1;
-		}
-		else if (
-			V.player.gender === "f" &&
-			currentWornFemininity < 0 &&
-			(genderifyActive || hypnoCrossdressLevel < 4)
-		) {
+		} else if (V.player.gender === "f" && currentWornFemininity < 0 && (genderifyActive || hypnoCrossdressLevel < 4)) {
 			wikifier("stress", -3 * hours, 1);
 			/*
-			* Route through the tiredness macro instead of direct V.tiredness writes.
-			* This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
-			* Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
-			*/
+			 * Route through the tiredness macro instead of direct V.tiredness writes.
+			 * This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
+			 * Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
+			 */
 			wikifier("tiredness", -2.5 * hours, 1);
 
-			if (Math.random() < 0.50) {
+			if (Math.random() < 0.5) {
 				V.genderificationStressMessage = 4;
 				V.effectsmessage = 1;
 			}
 		}
-	}
-	else if (playerCaresForGender()) {
+	} else if (playerCaresForGender()) {
 		if (hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
 			wikifier("stress", 30 * hours, 1);
 			V.genderStressMessage = 2;
 			V.effectsmessage = 1;
-		}
-		else if (!hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
+		} else if (!hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
 			wikifier("stress", 20 * hours, 1);
 			V.genderStressMessage = 1;
 			V.effectsmessage = 1;
-		}
-		else if (hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
+		} else if (hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
 			wikifier("stress", 30 * hours, 1);
 			V.genderStressMessage = 4;
 			V.effectsmessage = 1;
-		}
-		else if (!hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
+		} else if (!hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
 			wikifier("stress", 20 * hours, 1);
 			V.genderStressMessage = 3;
 			V.effectsmessage = 1;
@@ -162,11 +146,22 @@ window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 
 function playerHasCharacteristic(characteristic) {
 	const categories = [
-				"over_upper", "over_lower", "upper", "lower",
-				"under_upper", "under_lower", "over_head", "head",
-				"face", "neck", "hands", "handheld", "legs",
-				"feet", "genitals"
-			];
+		"over_upper",
+		"over_lower",
+		"upper",
+		"lower",
+		"under_upper",
+		"under_lower",
+		"over_head",
+		"head",
+		"face",
+		"neck",
+		"hands",
+		"handheld",
+		"legs",
+		"feet",
+		"genitals",
+	];
 
 	let count = 0;
 
@@ -177,12 +172,12 @@ function playerHasCharacteristic(characteristic) {
 			return V.player.gender_appearance === "f" ? 2 : 0;
 		case "Masculine Clothing":
 			categories.forEach(cat => {
-				if (V.worn[cat]?.gender === "m") count++;	
+				if (V.worn[cat]?.gender === "m") count++;
 			});
-			return count; 
+			return count;
 		case "Feminine Clothing":
 			categories.forEach(cat => {
-				if (V.worn[cat]?.gender === "f") count++;	
+				if (V.worn[cat]?.gender === "f") count++;
 			});
 			return count;
 		case "Masculine Pronouns":
@@ -207,12 +202,14 @@ function playerHasCharacteristic(characteristic) {
 			return V.player.bottomsize > 6 ? 2 : 0;
 		case "Vagina":
 			return V.player.vaginaExist ? 2 : 0;
+		case "Tiny Penis":
+			return V.player.penisExist && V.player.penissize <= 2 ? 2 : 0;
 		case "Small Penis":
-			return (V.player.penisExist && V.player.penissize <= 3) ? 2 : 0;
+			return V.player.penisExist && V.player.penissize === 3 ? 2 : 0;
 		case "Medium Penis":
-			return (V.player.penisExist && V.player.penissize === 4) ? 2 : 0;
+			return V.player.penisExist && V.player.penissize === 4 ? 2 : 0;
 		case "Big Penis":
-			return (V.player.penisExist && V.player.penissize >= 5) ? 2 : 0;
+			return V.player.penisExist && V.player.penissize >= 5 ? 2 : 0;
 		case "Short Hair":
 			return V.hairlength <= 100 ? 2 : 0;
 		case "Medium Hair":
@@ -238,16 +235,16 @@ function playerHasCharacteristic(characteristic) {
 			// Some builds use V.settings.breastFeedingEnabled; older saves/builds may still have V.breastfeedingdisable ("f" = not disabled).
 			const lactating = Number(V.lactating) >= 1;
 			const enabled = (V.settings && V.settings.breastFeedingEnabled === true) || V.breastfeedingdisable === "f";
-			return (lactating && enabled) ? 2 : 0;
+			return lactating && enabled ? 2 : 0;
 		}
 		case "Pregnancy":
-			return (playerAwareTheyArePregnant() || (playerAwareTheyCanBePregnant() && (playerIsCreampied() || playerIsAnalCreampied()))) ? 2 : 0;
+			return playerAwareTheyArePregnant() || (playerAwareTheyCanBePregnant() && (playerIsCreampied() || playerIsAnalCreampied())) ? 2 : 0;
 		case "In Heat":
 		case "In heat":
-			return (typeof playerHeatMinArousal === "function" && playerHeatMinArousal() > 0) ? 2 : 0;
+			return typeof playerHeatMinArousal === "function" && playerHeatMinArousal() > 0 ? 2 : 0;
 		case "In Rut":
 		case "In rut":
-			return (typeof playerRutMinArousal === "function" && playerRutMinArousal() > 0) ? 2 : 0;
+			return typeof playerRutMinArousal === "function" && playerRutMinArousal() > 0 ? 2 : 0;
 		default:
 			return 0;
 	}
@@ -281,17 +278,17 @@ function getFemininityContribution(characteristic) {
 		case "Masculine Pronouns":
 			femininity += Number(V.identity.presentation.pronouns.masculine.acceptance) * -100;
 			femininity += Number(V.identity.presentation.pronouns.masculine.reject) * 100;
-			femininity += (!!V.identity.presentation.pronouns.preferredMasculine) * -100;
+			femininity += !!V.identity.presentation.pronouns.preferredMasculine * -100;
 			break;
 		case "Feminine Pronouns":
 			femininity += Number(V.identity.presentation.pronouns.feminine.acceptance) * 100;
 			femininity += Number(V.identity.presentation.pronouns.feminine.reject) * -100;
-			femininity += (!!V.identity.presentation.pronouns.preferredFeminine) * 100;
+			femininity += !!V.identity.presentation.pronouns.preferredFeminine * 100;
 			break;
 		case "Neutral Pronouns":
 			femininity += Number(V.identity.presentation.pronouns.neutral.acceptance) * 0;
 			femininity += Number(V.identity.presentation.pronouns.neutral.reject) * -0;
-			femininity += (!!V.identity.presentation.pronouns.preferredNeutral) * 0;
+			femininity += !!V.identity.presentation.pronouns.preferredNeutral * 0;
 			break;
 		case "Flat Chest":
 			femininity += Number(V.identity.body.chest.flat.acceptance) * -50;
@@ -331,7 +328,12 @@ function getFemininityContribution(characteristic) {
 		case "Vagina":
 			femininity += Number(V.identity.body.genitals.vagina.acceptance) * 50;
 			femininity += Number(V.identity.body.genitals.vagina.reject) * -50;
-			femininity += (!!V.identity.body.genitals.preferredVagina) * 50;
+			femininity += !!V.identity.body.genitals.preferredVagina * 50;
+			break;
+		case "Tiny Penis":
+			femininity += Number(V.identity.body.genitals.tinypenis.acceptance) * -15;
+			femininity += Number(V.identity.body.genitals.tinypenis.reject) * 15;
+			femininity += (V.identity.body.genitals.preferredPenis === "tinypenis") * -15;
 			break;
 		case "Small Penis":
 			femininity += Number(V.identity.body.genitals.smallpenis.acceptance) * -25;
@@ -416,7 +418,7 @@ function getFemininityContribution(characteristic) {
 window.getFemininityContribution = getFemininityContribution;
 
 function identityCharacteristicCategory(category) {
-	switch(category) {
+	switch (category) {
 		case "Appearance":
 			return playerHasCharacteristic("Masculine Appearance") ? "Masculine Appearance" : "Feminine Appearance";
 		case "Breasts":
@@ -429,7 +431,8 @@ function identityCharacteristicCategory(category) {
 			else if (playerHasCharacteristic("Medium Ass")) return "Medium Ass";
 			else return "Big Ass";
 		case "Penis":
-			if (playerHasCharacteristic("Small Penis")) return "Small Penis";
+			if (playerHasCharacteristic("Tiny Penis")) return "Tiny Penis";
+			else if (playerHasCharacteristic("Small Penis")) return "Small Penis";
 			else if (playerHasCharacteristic("Medium Penis")) return "Medium Penis";
 			else if (playerHasCharacteristic("Big Penis")) return "Big Penis";
 			else return false;
@@ -454,15 +457,14 @@ window.identityCharacteristicCategory = identityCharacteristicCategory;
 function preferredPronouns(gender) {
 	const pronouns = V.identity.presentation.pronouns;
 	const dynamicMode = pronouns.pronounDynamicMode || "";
-	switch(gender) {
+	switch (gender) {
 		case "m":
 			if (pronouns.preferredMasculine && !dynamicMode) return true;
 			if (dynamicMode === "body") return V.player.penisExist;
 			else if (dynamicMode === "clothing") {
 				if (playerHasCharacteristic("Masculine Clothing")) return true;
 				else return false;
-			}
-			else if (dynamicMode === "appearance") return V.player.gender_appearance === "m";
+			} else if (dynamicMode === "appearance") return V.player.gender_appearance === "m";
 			else if (dynamicMode === "posture") return V.player.gender_posture === "m";
 			return !!pronouns.preferredMasculine;
 		case "f":
@@ -471,8 +473,7 @@ function preferredPronouns(gender) {
 			else if (dynamicMode === "clothing") {
 				if (playerHasCharacteristic("Feminine Clothing")) return true;
 				else return false;
-			}
-			else if (dynamicMode === "appearance") return V.player.gender_appearance === "f";
+			} else if (dynamicMode === "appearance") return V.player.gender_appearance === "f";
 			else if (dynamicMode === "posture") return V.player.gender_posture === "f";
 			return !!pronouns.preferredFeminine;
 		default:
@@ -490,6 +491,7 @@ function getIdentityMeterDirection(characteristic) {
 		case "Masculine Clothing":
 		case "Masculine Appearance":
 		case "Masculine Pronouns":
+		case "Tiny Penis":
 		case "Small Penis":
 		case "Medium Penis":
 		case "Big Penis":
@@ -564,73 +566,148 @@ function selectIdentityCharacteristic(characteristic) {
 			preferred = !!presentation.pronouns?.preferredNeutral;
 			break;
 		case "Flat Chest":
-			if (x.giBreastSizeEnabled) { option = body.chest?.flat; preferred = body.chest?.preferred === "flat"; }
+			if (x.giBreastSizeEnabled) {
+				option = body.chest?.flat;
+				preferred = body.chest?.preferred === "flat";
+			}
 			break;
 		case "Small Breasts":
-			if (x.giBreastSizeEnabled) { option = body.chest?.small; preferred = body.chest?.preferred === "small"; }
+			if (x.giBreastSizeEnabled) {
+				option = body.chest?.small;
+				preferred = body.chest?.preferred === "small";
+			}
 			break;
 		case "Medium Breasts":
-			if (x.giBreastSizeEnabled) { option = body.chest?.medium; preferred = body.chest?.preferred === "medium"; }
+			if (x.giBreastSizeEnabled) {
+				option = body.chest?.medium;
+				preferred = body.chest?.preferred === "medium";
+			}
 			break;
 		case "Big Breasts":
-			if (x.giBreastSizeEnabled) { option = body.chest?.big; preferred = body.chest?.preferred === "big"; }
+			if (x.giBreastSizeEnabled) {
+				option = body.chest?.big;
+				preferred = body.chest?.preferred === "big";
+			}
 			break;
 		case "Small Ass":
-			if (x.giAssSizeEnabled) { option = body.bottom?.small; preferred = body.bottom?.preferred === "small"; }
+			if (x.giAssSizeEnabled) {
+				option = body.bottom?.small;
+				preferred = body.bottom?.preferred === "small";
+			}
 			break;
 		case "Medium Ass":
-			if (x.giAssSizeEnabled) { option = body.bottom?.medium; preferred = body.bottom?.preferred === "medium"; }
+			if (x.giAssSizeEnabled) {
+				option = body.bottom?.medium;
+				preferred = body.bottom?.preferred === "medium";
+			}
 			break;
 		case "Big Ass":
-			if (x.giAssSizeEnabled) { option = body.bottom?.big; preferred = body.bottom?.preferred === "big"; }
+			if (x.giAssSizeEnabled) {
+				option = body.bottom?.big;
+				preferred = body.bottom?.preferred === "big";
+			}
 			break;
 		case "Vagina":
-			if (x.giGenitalsEnabled) { option = body.genitals?.vagina; preferred = !!body.genitals?.preferredVagina; }
+			if (x.giGenitalsEnabled) {
+				option = body.genitals?.vagina;
+				preferred = !!body.genitals?.preferredVagina;
+			}
+			break;
+		case "Tiny Penis":
+			if (x.giGenitalsEnabled) {
+				option = body.genitals?.tinypenis;
+				preferred = body.genitals?.preferredPenis === "tinypenis";
+			}
 			break;
 		case "Small Penis":
-			if (x.giGenitalsEnabled) { option = body.genitals?.smallpenis; preferred = body.genitals?.preferredPenis === "smallpenis"; }
+			if (x.giGenitalsEnabled) {
+				option = body.genitals?.smallpenis;
+				preferred = body.genitals?.preferredPenis === "smallpenis";
+			}
 			break;
 		case "Medium Penis":
-			if (x.giGenitalsEnabled) { option = body.genitals?.mediumpenis; preferred = body.genitals?.preferredPenis === "mediumpenis"; }
+			if (x.giGenitalsEnabled) {
+				option = body.genitals?.mediumpenis;
+				preferred = body.genitals?.preferredPenis === "mediumpenis";
+			}
 			break;
 		case "Big Penis":
-			if (x.giGenitalsEnabled) { option = body.genitals?.bigpenis; preferred = body.genitals?.preferredPenis === "bigpenis"; }
+			if (x.giGenitalsEnabled) {
+				option = body.genitals?.bigpenis;
+				preferred = body.genitals?.preferredPenis === "bigpenis";
+			}
 			break;
 		case "Short Hair":
-			if (x.giHairLengthEnabled) { option = body.hairlength?.short; preferred = body.hairlength?.preferred === "short"; }
+			if (x.giHairLengthEnabled) {
+				option = body.hairlength?.short;
+				preferred = body.hairlength?.preferred === "short";
+			}
 			break;
 		case "Medium Hair":
-			if (x.giHairLengthEnabled) { option = body.hairlength?.medium; preferred = body.hairlength?.preferred === "medium"; }
+			if (x.giHairLengthEnabled) {
+				option = body.hairlength?.medium;
+				preferred = body.hairlength?.preferred === "medium";
+			}
 			break;
 		case "Long Hair":
-			if (x.giHairLengthEnabled) { option = body.hairlength?.long; preferred = body.hairlength?.preferred === "long"; }
+			if (x.giHairLengthEnabled) {
+				option = body.hairlength?.long;
+				preferred = body.hairlength?.preferred === "long";
+			}
 			break;
 		case "Miniature Body":
-			if (x.giBodySizeEnabled) { option = body.bodysize?.miniature; preferred = body.bodysize?.preferred === "miniature"; }
+			if (x.giBodySizeEnabled) {
+				option = body.bodysize?.miniature;
+				preferred = body.bodysize?.preferred === "miniature";
+			}
 			break;
 		case "Tiny Body":
-			if (x.giBodySizeEnabled) { option = body.bodysize?.tiny; preferred = body.bodysize?.preferred === "tiny"; }
+			if (x.giBodySizeEnabled) {
+				option = body.bodysize?.tiny;
+				preferred = body.bodysize?.preferred === "tiny";
+			}
 			break;
 		case "Small Body":
-			if (x.giBodySizeEnabled) { option = body.bodysize?.small; preferred = body.bodysize?.preferred === "small"; }
+			if (x.giBodySizeEnabled) {
+				option = body.bodysize?.small;
+				preferred = body.bodysize?.preferred === "small";
+			}
 			break;
 		case "Normal Body":
-			if (x.giBodySizeEnabled) { option = body.bodysize?.normal; preferred = body.bodysize?.preferred === "normal"; }
+			if (x.giBodySizeEnabled) {
+				option = body.bodysize?.normal;
+				preferred = body.bodysize?.preferred === "normal";
+			}
 			break;
 		case "Tall Body":
-			if (x.giBodySizeEnabled) { option = body.bodysize?.tall; preferred = body.bodysize?.preferred === "tall"; }
+			if (x.giBodySizeEnabled) {
+				option = body.bodysize?.tall;
+				preferred = body.bodysize?.preferred === "tall";
+			}
 			break;
 		case "Large Body":
-			if (x.giBodySizeEnabled) { option = body.bodysize?.large; preferred = body.bodysize?.preferred === "large"; }
+			if (x.giBodySizeEnabled) {
+				option = body.bodysize?.large;
+				preferred = body.bodysize?.preferred === "large";
+			}
 			break;
 		case "Giant Body":
-			if (x.giBodySizeEnabled) { option = body.bodysize?.giant; preferred = body.bodysize?.preferred === "giant"; }
+			if (x.giBodySizeEnabled) {
+				option = body.bodysize?.giant;
+				preferred = body.bodysize?.preferred === "giant";
+			}
 			break;
 		case "Lactation":
-			if (x.giFecundityEnabled) { option = body.lactation; preferred = body.lactation?.preferred === "lactation"; }
+			if (x.giFecundityEnabled) {
+				option = body.lactation;
+				preferred = body.lactation?.preferred === "lactation";
+			}
 			break;
 		case "Pregnancy":
-			if (x.giFecundityEnabled) { option = body.pregnancy; preferred = body.pregnancy?.preferred === "pregnancy"; }
+			if (x.giFecundityEnabled) {
+				option = body.pregnancy;
+				preferred = body.pregnancy?.preferred === "pregnancy";
+			}
 			break;
 	}
 	return { option, preferred };
@@ -659,6 +736,7 @@ function getIdentityMeterGroup(characteristic) {
 		case "Big Ass":
 			return "ass";
 		case "Vagina":
+		case "Tiny Penis":
 		case "Small Penis":
 		case "Medium Penis":
 		case "Big Penis":
@@ -713,12 +791,7 @@ function isIdentityMeterCharacteristicSelected(characteristic) {
 	const option = selected.option;
 	const preferred = selected.preferred;
 	if (!option) return false;
-	return !!(
-		preferred ||
-		option.acceptance === true ||
-		option.reject === true ||
-		(Number(option.dysphoria) || 0) > 0
-	);
+	return !!(preferred || option.acceptance === true || option.reject === true || (Number(option.dysphoria) || 0) > 0);
 }
 window.isIdentityMeterCharacteristicSelected = isIdentityMeterCharacteristicSelected;
 
@@ -828,7 +901,7 @@ function mapToLegacyGenderIdentity() {
 
 				if (!breakdown[group]) {
 					breakdown[group] = {
-						axis: (group in groupAxis) ? groupAxis[group] : 0,
+						axis: group in groupAxis ? groupAxis[group] : 0,
 						included: [],
 						diluting: [],
 						dormant: [],
@@ -836,8 +909,15 @@ function mapToLegacyGenderIdentity() {
 				}
 
 				const entry = {
-					characteristic, dir, weight, support, effect,
-					preferred, accepted, rejected, dysphoria,
+					characteristic,
+					dir,
+					weight,
+					support,
+					effect,
+					preferred,
+					accepted,
+					rejected,
+					dysphoria,
 				};
 
 				if (!hasStance) {
