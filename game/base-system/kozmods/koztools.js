@@ -890,6 +890,12 @@ function dolxRepairNonFiniteNumerics() {
 		fix(mult, 100);
 	}
 
+	/* statNerf feeds currentSkillValue and combatExtendedSkillValue as a raw*(nerf/100) multiplier; a non-finite value silently NaNs combat damage AND every skill check. */
+	if (V.options && !Number.isFinite(V.options.statNerf)) {
+		repaired.push(`options.statNerf=${V.options.statNerf}`);
+		V.options.statNerf = 100;
+	}
+
 	/* A save made inside an already-poisoned fight would stay endless without this. */
 	if (V.combat === 1) {
 		const enemyno = Number.isFinite(V.enemyno) && V.enemyno > 0 ? V.enemyno : 1;
@@ -897,6 +903,26 @@ function dolxRepairNonFiniteNumerics() {
 		const named = Array.isArray(V.NPCList) && V.NPCList[0] && setup.NPCNameList?.includes(V.NPCList[0].fullDescription);
 		fix("enemyarousalmax", 500 * enemyno * ((named ? V.nnpcArousalMult : V.npcArousalMult) / 100));
 		fix("enemyarousal", 0);
+
+		/* NaN enemyhealth hides the enemy's health line and makes "enemyhealth lte 0" forever false: the fight can never be won. */
+		if (!Number.isFinite(V.enemyhealth)) {
+			let sum = 0;
+			let any = false;
+			if (Array.isArray(V.NPCList)) {
+				for (const npc of V.NPCList) {
+					if (npc && Number.isFinite(Number(npc.health))) {
+						sum += Number(npc.health);
+						any = true;
+					}
+				}
+			}
+			repaired.push(`enemyhealth=${V.enemyhealth}`);
+			V.enemyhealth = any && sum > 0 ? sum : 199;
+		}
+		if (!Number.isFinite(V.enemyhealthmax) || V.enemyhealthmax <= 0) {
+			repaired.push(`enemyhealthmax=${V.enemyhealthmax}`);
+			V.enemyhealthmax = Math.max(Number(V.enemyhealth) || 199, 199);
+		}
 	}
 
 	/* Prepaid stall deposit rollover left stall_lewdity uninitialised, then <<lewdity>> NaN'd it. */

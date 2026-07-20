@@ -531,12 +531,34 @@
 		<</if>>
 		<<if $combatExtended.enemyBlockingActive is 1 and $NPCList[_args[1]]>>
 			<<set _reduction to Math.clamp($NPCList[_args[1]].dodgeChance * 2, 0, 75)>>
+			<<if !Number.isFinite(_reduction)>><<set _reduction to 0>><</if>>
 			<<set _thedamage to _thedamage * (1 - (_reduction / 100))>>
+		<</if>>
+		/* NaN-proof the damage before it touches health. */
+		<<if !Number.isFinite(_thedamage) or _thedamage lt 0>>
+			<<set _thedamage to Math.max(0, 2 * (Number.isFinite(_defiance) ? _defiance : Number(_args[0]) || 1))>>
+		<</if>>
+		/* Self-heal an $enemyhealth already poisoned earlier this session (before these guards existed). */
+		<<if !Number.isFinite($enemyhealth)>>
+			<<set _healTgt to ($enemyno gte 2 ? 0 : (_args[1] isnot undefined ? _args[1] : 0))>>
+			<<if $NPCList[_healTgt] and Number.isFinite(Number($NPCList[_healTgt].health)) and Number($NPCList[_healTgt].health) gt 0>>
+				<<set $enemyhealth to Number($NPCList[_healTgt].health)>>
+			<<else>>
+				<<set $enemyhealth to (Number.isFinite($enemyhealthmax) and $enemyhealthmax gt 0 ? $enemyhealthmax : 199)>>
+			<</if>>
 		<</if>>
 		<<if $enemyno gte 2>>
 			<<npcdamage _args[1]>>
+			<<set $enemyhealth -= Math.round(_thedamage)>>
+		<<else>>
+			<<set _hpDamage to Math.round(_thedamage)>>
+			<<if _args[0] gte 1 and _hpDamage lt 1>><<set _hpDamage to 1>><</if>>
+			<<set $enemyhealth -= _hpDamage>>
+			<<set _npcTgt to (_args[1] isnot undefined ? _args[1] : 0)>>
+			<<if $NPCList[_npcTgt] and Number.isFinite(Number($NPCList[_npcTgt].health))>>
+				<<set $NPCList[_npcTgt].health to Math.max(0, Number($NPCList[_npcTgt].health) - _hpDamage)>>
+			<</if>>
 		<</if>>
-		<<set $enemyhealth -= Math.round(_thedamage)>>
 		<<identityBodyCheck>>
 	<</if>>
 <</widget>>
