@@ -1037,7 +1037,7 @@ You look away from the <<monk>>, and <<he>> continues down the aisle.
 	<<if $temple_rank is undefined or $temple_rank is "prospective">>
 		<<socialiseicon "ask">><<link [[Enquire about joining the temple|Temple Join]]>><</link>>
 		<br>
-	<<elseif !$weekly.templeFire>>
+	<<elseif !$weekly.templeFire and !(playerIsPregnant() and playerPregnancyProgress() gte 0.6)>>
 		<<templeicon "trial">><<link [[Enquire about the trial of purity|Temple Fire Repeat]]>><</link>>
 		<br>
 	<</if>>
@@ -1168,6 +1168,8 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 <<if $temple_rank is "prospective">>
 	<<if $weekly.templeFire>>
 		"I'm afraid you can only attempt a trial of purity once per week," <<he>> says.
+	<<elseif playerIsPregnant() and playerPregnancyProgress() gte 0.6>>
+		"I'll prepare the trial when you're ready," <<he>> says, then notices your <<bellyDescription>>. "Ah - but not the fire, not while you're this far along. I won't have you risk a fall."
 	<<else>>
 		"I'll prepare the trial when you're ready," <<he>> says.
 	<</if>>
@@ -1179,7 +1181,7 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 		<<templeicon "virginity">><<link [[Virginity test|Temple Test]]>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
-	<<if !$weekly.templeFire>>
+	<<if !$weekly.templeFire and !(playerIsPregnant() and playerPregnancyProgress() gte 0.6)>>
 		<<templeicon "trial">><<link [[Trial by fire (1:00)|Temple Join Fire]]>><<set $phase to 0>><<pass 60>><</link>>
 		<br>
 	<</if>>
@@ -2280,20 +2282,33 @@ You tell Jordan about the ghostly figure <<if $wraith.state is "haunt">>that's b
 "The trial of purity is a trial by fire," Jordan continues. "It's not dangerous, despite the name. It's an exercise of will. Let me know when you're ready, and I'll make preparations."
 <<set $temple_rank to "prospective">>
 <br><br>
-<<getinicon>><<link [[Attempt trial (1:00)|Temple Join Fire]]>><<pass 60>><<set $phase to 0>><</link>>
-<br>
-<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
-<br>
+<<if playerIsPregnant() and playerPregnancyProgress() gte 0.6>>
+	<<He>> notices your <<bellyDescription>> and shakes <<his>> head. "Not the fire, though - not while you're this far along. I won't have you risk a fall. Return once the child has come."
+	<br><br>
+	<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<getinicon>><<link [[Attempt trial (1:00)|Temple Join Fire]]>><<pass 60>><<set $phase to 0>><</link>>
+	<br>
+	<<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
+	<br>
+<</if>>
 
 :: Temple Fire Repeat
 <<effects>>
 
-"You can attempt the trial of purity once a week," Jordan says. "Some brothers and sisters find it helps focus their will."
-<br><br>
+<<if playerIsPregnant() and playerPregnancyProgress() gte 0.6>>
+	Jordan notices your <<bellyDescription>> and shakes <<his>> head. "Not the fire, though - not while you're this far along. I won't have you risk a fall. Return once the child has come."
+	<br><br>
+	<<getouticon>><<link [[Back out|Temple]]>><<endevent>><</link>>
+<<else>>
+	"You can attempt the trial of purity once a week," Jordan says. "Some brothers and sisters find it helps focus their will."
+	<br><br>
 
-<<getinicon>><<link [[Attempt trial (1:00)|Temple Join Fire]]>><<pass 60>><<set $phase to 1>><</link>>
-<br>
-<<getouticon>><<link [[Back out|Temple]]>><<endevent>><</link>>
+	<<getinicon>><<link [[Attempt trial (1:00)|Temple Join Fire]]>><<pass 60>><<set $phase to 1>><</link>>
+	<br>
+	<<getouticon>><<link [[Back out|Temple]]>><<endevent>><</link>>
+<</if>>
 <br>
 
 :: Temple Join Fire
@@ -2323,16 +2338,23 @@ The <<monk>> and initiates watch as the coals heat. They soon glow. The initiate
 
 <<person1>>"The trial of purity requires you walk across the bed before you," Jordan says. "At least one foot must touch them at all times. Don't be afraid. The fire won't hurt you, but your mind might deceive you into thinking otherwise."
 <br><br>
-<<if $phase is 0>>
-	"You can try again if you fail," <<he>> continues, "but only once a week."
+<<if playerIsPregnant() and playerPregnancyProgress() gte 0.6>>
+	Jordan's gaze drops to your <<bellyDescription>>, and <<he>> raises a hand before you can step forward. "No, not like this. I won't have you risk a fall so close to your time. Return once the child has come."
 	<br><br>
-<</if>>
-
-<<templeicon "trial">><<link [[Begin|Temple Firewalk 2]]>><<set $weekly.templeFire to true>><<set Weather.Temperature.override.increase.inside(5)>><</link>>
-<br>
-<<if $phase is 0>>
 	<<getouticon>><<link [[Back out|Temple Firewalk Refuse]]>><</link>>
 	<br>
+<<else>>
+	<<if $phase is 0>>
+		"You can try again if you fail," <<he>> continues, "but only once a week."
+		<br><br>
+	<</if>>
+
+	<<templeicon "trial">><<link [[Begin|Temple Firewalk 2]]>><<set $weekly.templeFire to true>><<set Weather.Temperature.override.increase.inside(5)>><</link>>
+	<br>
+	<<if $phase is 0>>
+		<<getouticon>><<link [[Back out|Temple Firewalk Refuse]]>><</link>>
+		<br>
+	<</if>>
 <</if>>
 
 :: Temple Firewalk Refuse
