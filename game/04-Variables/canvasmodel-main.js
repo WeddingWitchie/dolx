@@ -220,7 +220,7 @@ replace (?<!["'\w])_(?=\w) with T.
  */
 // Layers that live in scene/world space rather than on the body: never scaled with player height.
 const bodySizeIndependentLayers = new Set([
-	"decoration_foreground1", "decoration_background1", "decoration_foreground2", "decoration_background2", "nnpc",
+	"decoration_background1", "decoration_background2", "nnpc",
 	"precipitation_back", "precipitation_front", "cold_breath", "water_breath", "water_back", "water_front",
 	"fire_back", "fire_front", "petals_back", "petals_front", "wraithFlash", "wraithFlashAccent", "wraithMirror",
 ]);
