@@ -1143,6 +1143,22 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		})()>>
 	<</if>>
 
+	/* One-time backfill: saves started with the rank-3 special clothing feat boost predate $specialClothesStorySets, so their imported story unlocks were unreachable. Reconstruct it from sets whose items all sit at unlock level 3 without their requirements being met. */
+	<<if !$dolxStorySetsBackfilled>>
+		<<set $dolxStorySetsBackfilled to true>> /* delete later */
+		<<run (() => {
+			if (!Array.isArray(V.specialClothes) || !V.featsBoosts?.upgrades?.specialClothing) return;
+			for (const setName of getSpecialSets(set => set.feat)) {
+				const requirements = setup.specialClothesSets[setName]?.requirements;
+				if (typeof requirements === "function" && requirements()) continue;
+				const items = setup.specialClothes.filter(item => item.sets.includes(setName));
+				if (!items.length || !items.every(item => V.specialClothes.find(c => c.name === item.name)?.unlocked === 3)) continue;
+				if (!Array.isArray(V.specialClothesStorySets)) V.specialClothesStorySets = [];
+				V.specialClothesStorySets.pushUnique(setName);
+			}
+		})()>>
+	<</if>>
+
 	/* One-time repair: Poppy's bed sleep-outfit links stored undressed clothes under location "Flats Poppy Bed", but the wake-up links only retrieve from "bed", so those clothes were stranded forever. Return them to the wardrobe. */
 	<<if !$dolxPoppyBedStoreReclaimed>>
 		<<set $dolxPoppyBedStoreReclaimed to true>> /* delete later */

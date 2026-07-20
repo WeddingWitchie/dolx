@@ -121,7 +121,7 @@ test.describe("Feats Boosts", () => {
 		for (const skill of basicSkills) {
 			expect(optionLabels).not.toContain(`${skill} Grade`);
 		}
-		const advancedTraits = ["X-Change Purity Trait", "Green Thumb Trait", "Transcendence", "Adaptive Genes", "Daily Purity Boost", "Daily Impurity Boost"];
+		const advancedTraits = ["X-Change Purity", "Green Thumb", "Transcendence", "Adaptive Genes", "Daily Purity Boost", "Daily Impurity Boost"];
 		for (const trait of advancedTraits) {
 			expect(optionLabels).not.toContain(trait);
 		}

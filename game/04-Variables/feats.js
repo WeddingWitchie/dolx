@@ -4328,8 +4328,15 @@ function applyFeatBoosts() {
 		specialClothesUpdate();
 		const specialClothingUnlockLevel = details.specialClothing.purchased >= 3 ? 3 : 2;
 		// Ranks 1-2 import clothes only. Rank 3 imports their normal story unlock without copying route progress.
+		// Item unlock levels can't mark story unlocks (seasonal sets promote items to 3 too), so rank 3 records its sets separately.
 		for (const [setName, selected] of Object.entries(V.featsBoosts.specialClothesSets)) {
-			if (selected === true) specialClothesUnlock("set", setName, specialClothingUnlockLevel);
+			if (selected === true) {
+				specialClothesUnlock("set", setName, specialClothingUnlockLevel);
+				if (specialClothingUnlockLevel === 3) {
+					if (!Array.isArray(V.specialClothesStorySets)) V.specialClothesStorySets = [];
+					V.specialClothesStorySets.pushUnique(setName);
+				}
+			}
 		}
 	}
 
