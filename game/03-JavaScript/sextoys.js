@@ -17,8 +17,7 @@ function npcHasStrapon(index = V.index) {
 			});
 		return false;
 	} else if (index < 0 || index > 5) {
-		if (V.options.debugdisable === "f" || V.debug === 1)
-			Errors.report(`[npcHasStrapon]: index must be between 0 and 5 inclusive, was ${index}.`, { index });
+		if (V.options.debugdisable === "f" || V.debug === 1) Errors.report(`[npcHasStrapon]: index must be between 0 and 5 inclusive, was ${index}.`, { index });
 		return false;
 	}
 	// index is 0 to 5
@@ -96,6 +95,16 @@ function dolxSyncSexToyWornFlags() {
 	}
 }
 window.dolxSyncSexToyWornFlags = dolxSyncSexToyWornFlags;
+
+// A vaginal dildo can't stay inside a vagina that no longer exists.
+// Called at the fork-owned genderflip sites (X-Change apply, gradual-identity shift, cheat menu) and on every load via <<xchange-modupdate>> to catch vanilla transformation scenes (snake painting, Olive, schism).
+function dolxEjectOrphanVaginalDildo() {
+	if (V.worn?.vaginal_dildo && !V.player?.vaginaExist) {
+		delete V.worn.vaginal_dildo;
+		dolxSyncSexToyWornFlags();
+	}
+}
+window.dolxEjectOrphanVaginalDildo = dolxEjectOrphanVaginalDildo;
 
 function playerMasturbationToyByIndex(index) {
 	if (index === undefined || index === null || index === "none" || Number.isNaN(Number(index)) || typeof listUniqueCarriedSextoys !== "function") return null;
@@ -176,10 +185,7 @@ function playerHasVibrator() {
 window.playerHasVibrator = playerHasVibrator;
 
 function playerHasBulletVibe() {
-	return (
-		playerHasVibrator() &&
-		(V.worn.vibrator.name_underscore === "bullet_vibe" || V.worn.vibrator.name === "bullet vibe")
-	);
+	return playerHasVibrator() && (V.worn.vibrator.name_underscore === "bullet_vibe" || V.worn.vibrator.name === "bullet vibe");
 }
 window.playerHasBulletVibe = playerHasBulletVibe;
 
