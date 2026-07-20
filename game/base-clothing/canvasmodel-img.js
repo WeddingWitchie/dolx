@@ -5,7 +5,8 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.skin_type = Skin.color.natural;
 	T.modeloptions.skin_tone = Skin.color.tan;
 
-	ccmUtils.rendererSetup(); if (V.makeup.eyeshadow != 0) {
+	ccmUtils.rendererSetup();
+	if (V.makeup.eyeshadow != 0) {
 		T.modeloptions.eyeshadow_colour = V.makeup.eyeshadow;
 	}
 	if (V.makeup.mascara != 0) {
@@ -153,7 +154,7 @@ DefineMacro("modelprepare-player-body", function () {
 		) {
 			if (
 				(["beach", "pool", "sea", "lake", "lake_ruin"].includes(V.location) && V.worn.under_lower.exposed < 1 && V.underlowerwetstage < 3) ||
-				V.worn.under_lower.type.includes("covered") ||
+				V.worn.under_lower.type.includes("lower_covering") ||
 				["home", "alex_cottage"].includes(V.location) ||
 				(V.combat === 1 && V.consensual === 1)
 			) {
@@ -229,8 +230,7 @@ DefineMacro("modelprepare-player-body", function () {
 	if (T.prop) {
 		T.modeloptions.prop = {};
 		T.modeloptions.prop = Object.assign({}, T.prop);
-		T.modeloptions.prop.show =
-			(T.modeloptions.arm_left !== "none" && T.modeloptions.arm_right !== "none") || T.modeloptions.prop.armPosition === "handsfree";
+		T.modeloptions.prop.show = (T.modeloptions.arm_left !== "none" && T.modeloptions.arm_right !== "none") || T.modeloptions.prop.armPosition === "handsfree";
 		if (coverCrotch && T.prop.hasCoverImg && !crotchCoveringTf) T.modeloptions.prop.name += "-cover";
 	}
 
@@ -454,7 +454,7 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.bunny_tail_type = V.transformationParts.bunny.tail;
 	T.modeloptions.bunny_tail_layer = V.taillayer;
 	T.modeloptions.bunny_ears_type = V.transformationParts.bunny.ears;
-	
+
 	T.modeloptions.bear_plumage_type = V.transformationParts.bear.plumage;
 	T.modeloptions.bear_pubes_type = V.transformationParts.bear.pubes;
 	T.modeloptions.bear_tail_type = V.transformationParts.bear.tail;
@@ -495,9 +495,6 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.foreground_image_type1 = V.foreground_image1;
 	T.modeloptions.background_image_type2 = V.background_image2;
 	T.modeloptions.foreground_image_type2 = V.foreground_image2;
-
-
-
 
 	/*
 			██████ ██   ██ ██ ███    ███ ███████ ██████   █████
@@ -561,7 +558,9 @@ DefineMacro("modelprepare-player-body", function () {
 
 	const demonPresent = [T.modeloptions.demon_horns_type, T.modeloptions.demon_tail_type, T.modeloptions.demon_wings_type].some(isPartEnabled);
 	const angelPresent = [T.modeloptions.angel_halo_type, T.modeloptions.angel_wings_type].some(isPartEnabled);
-	const waterDragonPresent = [T.modeloptions.waterdragon_horns_type, T.modeloptions.waterdragon_ears_type, T.modeloptions.waterdragon_tail_type].some(isPartEnabled);
+	const waterDragonPresent = [T.modeloptions.waterdragon_horns_type, T.modeloptions.waterdragon_ears_type, T.modeloptions.waterdragon_tail_type].some(
+		isPartEnabled
+	);
 	const purpleWaterDragon = ["purple", "short"].includes(T.modeloptions.waterdragon_tail_type);
 
 	// Bakunawa tail
@@ -689,13 +688,11 @@ DefineMacro("modelprepare-player-body", function () {
 
 	// Vagina
 	let _liquidamt = Math.clamp(setup.bodyliquid.combined("vagina"), 0, 5);
-	T.modeloptions.drip_vaginal =
-		typeof playerGenitalFluidLeakBlocked === "function" && playerGenitalFluidLeakBlocked("vagina") ? "" : dripspeeds[_liquidamt];
+	T.modeloptions.drip_vaginal = typeof playerGenitalFluidLeakBlocked === "function" && playerGenitalFluidLeakBlocked("vagina") ? "" : dripspeeds[_liquidamt];
 
 	// Anus
 	_liquidamt = Math.clamp(setup.bodyliquid.combined("anus"), 0, 5);
-	T.modeloptions.drip_anal =
-		typeof playerGenitalFluidLeakBlocked === "function" && playerGenitalFluidLeakBlocked("anus") ? "" : dripspeeds[_liquidamt];
+	T.modeloptions.drip_anal = typeof playerGenitalFluidLeakBlocked === "function" && playerGenitalFluidLeakBlocked("anus") ? "" : dripspeeds[_liquidamt];
 
 	// Mouth
 	_liquidamt = Math.clamp(setup.bodyliquid.combined("mouth"), 0, 5);
@@ -779,8 +776,7 @@ DefineMacro("modelprepare-player-body", function () {
 });
 
 DefineMacro("modelprepare-player-clothes", function () {
-	T.modeloptions.breasts =
-		!V.worn.upper.type.includes("naked") || !V.worn.under_upper.type.includes("naked") || T.coverBreastsWithArm ? "cleavage" : "default";
+	T.modeloptions.breasts = !V.worn.upper.type.includes("naked") || !V.worn.under_upper.type.includes("naked") || T.coverBreastsWithArm ? "cleavage" : "default";
 
 	apparentbreastsizecheck();
 	T.modeloptions.breast_size = Math.floor(V.player.perceived_breastsize / 2);
