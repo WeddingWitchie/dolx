@@ -1143,6 +1143,24 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		})()>>
 	<</if>>
 
+	/* One-time repair: Poppy's bed sleep-outfit links stored undressed clothes under location "Flats Poppy Bed", but the wake-up links only retrieve from "bed", so those clothes were stranded forever. Return them to the wardrobe. */
+	<<if !$dolxPoppyBedStoreReclaimed>>
+		<<set $dolxPoppyBedStoreReclaimed to true>> /* delete later */
+		<<run (() => {
+			if (!V.store || !V.wardrobe) return;
+			for (const slot of Object.keys(V.store)) {
+				const items = V.store[slot];
+				if (!Array.isArray(items)) continue;
+				for (let i = items.length - 1; i >= 0; i--) {
+					const item = items[i];
+					if (!item || item.location !== "Flats Poppy Bed") continue;
+					if (!item.temp && !setup.wardrobeSkip.includes(item.name) && Array.isArray(V.wardrobe[slot])) V.wardrobe[slot].push(item);
+					items.splice(i, 1);
+				}
+			}
+		})()>>
+	<</if>>
+
 	/* One-time repair: the cheat-menu Stockholm toggle equipped Bailey's cursed collar on activation but left it fixed on after deactivation, with no removal path.
 	The story never leaves the collar cursed while Stockholm is inactive, so unlock it. */
 	<<if !$dolxBaileyCollarUnfixed>>
