@@ -4,16 +4,29 @@ setup.dolxUi = {
 	lastEnabled: null,
 	applyQueued: false,
 
+	getPreference() {
+		if (!window.State || !State.variables) {
+			return false;
+		}
+		return State.variables.dolxCustomUIEnabled === true ||
+			State.variables.dolxCustomUIEnabled === 1 ||
+			State.variables.dolxCustomUIEnabled === "1";
+	},
+
+	setPreference(enabled) {
+		if (!window.State || !State.variables) {
+			return;
+		}
+		State.variables.dolxCustomUIEnabled = enabled ? 1 : 0;
+	},
+
 	apply(force = false) {
 		const root = document.documentElement;
-		if (!root || !window.State || !State.variables) {
+		if (!root) {
 			return;
 		}
 
-		const enabled =
-			State.variables.dolxCustomUIEnabled === true ||
-			State.variables.dolxCustomUIEnabled === 1 ||
-			State.variables.dolxCustomUIEnabled === "1";
+		const enabled = this.getPreference();
 		if (!force && this.lastEnabled === enabled && root.classList.contains(this.className) === enabled) {
 			return;
 		}
@@ -56,13 +69,13 @@ $(document).on(":passagerender", function () {
 	<div class="dolx-ui-start-button">
 		<<if $dolxCustomUIEnabled>>
 			<<button "CHANGE TO PLAIN UI">>
-				<<set $dolxCustomUIEnabled to 0>>
+				<<run setup.dolxUi.setPreference(false)>>
 				<<run setup.dolxUi.apply(true)>>
 				<<run Engine.show()>>
 			<</button>>
 		<<else>>
 			<<button "CHANGE TO UPDATED UI">>
-				<<set $dolxCustomUIEnabled to 1>>
+				<<run setup.dolxUi.setPreference(true)>>
 				<<run setup.dolxUi.apply(true)>>
 				<<run Engine.show()>>
 			<</button>>
