@@ -229,11 +229,36 @@ You are on the ground floor of a block of flats on Barb Street. The walls and fl
 				<br>
 			<</addinlineevent>>
 
-			<<if Time.dayState is "night" and Time.isWeekEnd() and !$weekly.flatsCouple>>
+			<<if Time.dayState is "night" and Time.isWeekEnd() and !$weekly.flatsCouple and (!$bailey_monogamous or baileyStraying())>>
 				<<addinlineevent "flats_11" 1>>
 					<<npc Bailey 1>><<generatep2>>
 					<<if $bailey_partner is undefined>><<set $bailey_partner to 0>><</if>>
-					<<set $weekly.flatsCouple to 1>>
+					<<set $weekly.flatsCouple to 1>><<set $bailey_monogamy_unlocked to true>>
+					<<rng>>
+					<<if C.npc.Bailey.lust gt 50 and $rng gte 81>>
+						The door <span class="purple">with the lotus knob</span> opens down the hall. You pull back into the stairwell's shadow before you're seen.
+						<br><br>
+
+						A <<person2>><<personsimple>> steps out, clothes rumpled, and pauses at the doorway to straighten <<himself>>. 
+						<<rng>>
+						<<if $rng gte 51>>
+							<<His>> hair is the same <<haircolourtext>> as yours.
+						<<else>>
+							The street light catches <<his>> <<print $leftEyeColour>> eyes. They're the same colour as yours.
+						<</if>>
+						<br><br>
+
+						<<He>> doesn't see you. <<He>> turns towards the door. "I was having such a good time. Why'd you stop?"
+						<br><br>
+
+						"We're done here." You hear Bailey's voice. "Cab's downstairs." <<gtrauma>><<trauma 3>><br><br>
+
+						The door clicks shut. The <<person2>><<personsimple>> walks by you on <<his>> way down the stairs.
+						<br><br>
+
+						<<link [[Next|Flats]]>><<endevent>><<set $eventskip to 1>><</link>>
+						<br>
+					<<else>>
 					You hear giggles and clumsy footsteps from a nearby hallway. You suspect a couple returning from a <<print either("wild", "romantic")>> night.
 					<<if $loveInterest.primary isnot "None">>
 						The thought makes you smile, and your mind drifts to <<if $loveInterest.primary is "Black Wolf" or $loveInterest.primary is "Great Hawk">>the <</if>>$loveInterest.primary. You wish to share special nights like that with <<nnpc_him $loveInterest.primary>>, too.
@@ -261,6 +286,7 @@ You are on the ground floor of a block of flats on Barb Street. The walls and fl
 						<br>
 						<<link [[Leave|Flats]]>><<endevent>><<set $eventskip to 1>><</link>>
 						<br>
+					<</if>>
 					<</if>>
 				<</addinlineevent>>
 			<</if>>
@@ -312,7 +338,7 @@ You are on the ground floor of a block of flats on Barb Street. The walls and fl
 			<</if>>
 		<</if>>
 		<br>
-		<<if $baileySeen?.includes("flatUnlock")>>
+		<<if $baileySeen?.includes("flatUnlock") or $bailey_monogamous>>
 			<<dooricon>><<link [[Bailey's flat (0:01)|Bailey Flat Door]]>><<pass 1>><</link>>
 			<br>
 		<</if>>
