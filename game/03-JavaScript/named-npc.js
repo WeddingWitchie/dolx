@@ -211,7 +211,9 @@ function averySchedule() {
 	const love = random(20, 100);
 	const rng = random(1, 100);
 	const schoolPickupChecks = C.npc.Avery.state === "active" && !V.avery_injury && Time.schoolDay && Time.hour === 15 && V.exposed <= 0 && !V.averyschoolpickup;
-	const schoolPickupChance = (C.npc.Avery.love >= love && (rng >= 51 || Weather.precipitation !== "none")) || (C.npc.Avery.love >= 20 && Time.weekDay === 2);
+	/* Monday nudges the odds instead of bypassing the roll outright, so high Avery love doesn't make this a daily certainty */
+	const mondayBoost = Time.weekDay === 2 ? 20 : 0;
+	const schoolPickupChance = C.npc.Avery.love >= love && (rng + mondayBoost >= 51 || Weather.precipitation !== "none");
 	if (schoolPickupChecks && schoolPickupChance) T.avery_available = "pickup";
 
 	/* NOTE: not sure if replacing || with && breaks anything, leaving this just in case */
