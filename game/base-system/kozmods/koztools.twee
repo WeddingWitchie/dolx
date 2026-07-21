@@ -19,13 +19,25 @@
 
 	<<widget "xchange-fame">>
 		<<if _args[0] and $statFreeze isnot true>>
-			<<if playerIsXChanged() and $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-				<<set $xchange_fame += _args[0]>>
-				<<set $xchange_fame to Math.clamp($xchange_fame, 0, 1000)>>
-				<<if $xchange_fame gte 1000>>
-					<<for _name range $NPCNameList>>
-						<<set $xchange.known.pushUnique(_name)>>
-					<</for>>
+			<<if playerIsXChanged() and !$gloryhole>>
+				<!-- A mask/covered face fully hides you below 500 X-Change fame, only halves recognition from 500-999, and stops concealing you at all at 1000 (max): you're too recognisable by then regardless of your face. -->
+				<<if $face isnot "covered" and !$worn.face.type.includes("mask")>>
+					<<set _maskFactor to 1>>
+				<<elseif $xchange_fame gte 1000>>
+					<<set _maskFactor to 1>>
+				<<elseif $xchange_fame gte 500>>
+					<<set _maskFactor to 0.5>>
+				<<else>>
+					<<set _maskFactor to 0>>
+				<</if>>
+				<<if _maskFactor gt 0>>
+					<<set $xchange_fame += _args[0] * _maskFactor>>
+					<<set $xchange_fame to Math.clamp($xchange_fame, 0, 1000)>>
+					<<if $xchange_fame gte 1000>>
+						<<for _name range $NPCNameList>>
+							<<set $xchange.known.pushUnique(_name)>>
+						<</for>>
+					<</if>>
 				<</if>>
 			<</if>>
 		<</if>>

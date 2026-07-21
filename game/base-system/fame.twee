@@ -10,221 +10,376 @@
 
 <<widget "fameexhibitionism">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Kylar", "Sydney", "Gwylan"].includes($npc[0])) or _args[2] is true>>
-			<<set _mod to 1>>
-			<<if $backgroundTraits.includes("nerd")>>
-				<<set _mod *= 0.25>>
+		<<if !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Kylar", "Sydney", "Gwylan"].includes($npc[0])) or _args[2] is true>>
+			<!-- A mask/covered face fully hides you below 500 fame in this category, only halves recognition from 500-999, and stops concealing you at all at 1000+: you're too recognisable by then regardless of your face. -->
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.exhibitionism gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.exhibitionism gte 500>>
+				<<set _maskFactor to 0.5>>
+			<<else>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.exhibitionism += _args[0] * 0.5 * _mod>>
-			<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000)>>
-			<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.exhibitionism + _args[0] * _mod gte 100>>
-				<<blackmail-newmaterial "exhibitionism">>
+			<<if _maskFactor gt 0>>
+				<<set _mod to _maskFactor>>
+				<<if $backgroundTraits.includes("nerd")>>
+					<<set _mod *= 0.25>>
+				<</if>>
+				<<set $fame.exhibitionism += _args[0] * 0.5 * _mod>>
+				<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000)>>
+				<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.exhibitionism + _args[0] * _mod gte 100>>
+					<<blackmail-newmaterial "exhibitionism">>
+				<</if>>
+				<<set $xchange.blackmail.penaltyThreat.exhibitionism += _args[0] * _mod>>
+				<<set $xchange.blackmail.penaltyThreat.exhibitionism = Math.min(1000,$xchange.blackmail.penaltyThreat.exhibitionism)>>
+				<<set $xchange.blackmail.historicFame.exhibitionism += _args[0] * 0.5 * _mod>>
 			<</if>>
-			<<set $xchange.blackmail.penaltyThreat.exhibitionism += _args[0] * _mod>>
-			<<set $xchange.blackmail.penaltyThreat.exhibitionism = Math.min(1000,$xchange.blackmail.penaltyThreat.exhibitionism)>>
-			<<set $xchange.blackmail.historicFame.exhibitionism += _args[0] * 0.5 * _mod>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "fameprostitution">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set $fame.prostitution += _args[0]>>
-			<<set $fame.prostitution to Math.clamp($fame.prostitution, 0, 2000)>>
-			<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.prostitution + _args[0] * 2 gte 100>>
-				<<blackmail-newmaterial "prostitution">>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.prostitution gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.prostitution gte 500>>
+				<<set _maskFactor to 0.5>>
+			<<else>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $xchange.blackmail.penaltyThreat.prostitution += _args[0] * 2>>
-			<<set $xchange.blackmail.penaltyThreat.prostitution = Math.min(1000,$xchange.blackmail.penaltyThreat.prostitution)>>
-			<<set $xchange.blackmail.historicFame.prostitution += _args[0]>>
+			<<if _maskFactor gt 0>>
+				<<set $fame.prostitution += _args[0] * _maskFactor>>
+				<<set $fame.prostitution to Math.clamp($fame.prostitution, 0, 2000)>>
+				<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.prostitution + _args[0] * 2 * _maskFactor gte 100>>
+					<<blackmail-newmaterial "prostitution">>
+				<</if>>
+				<<set $xchange.blackmail.penaltyThreat.prostitution += _args[0] * 2 * _maskFactor>>
+				<<set $xchange.blackmail.penaltyThreat.prostitution = Math.min(1000,$xchange.blackmail.penaltyThreat.prostitution)>>
+				<<set $xchange.blackmail.historicFame.prostitution += _args[0] * _maskFactor>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famebestiality">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set $fame.bestiality += _args[0]>>
-			<<set $fame.bestiality to Math.clamp($fame.bestiality, 0, 2000)>>
-			<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.bestiality + _args[0] * 2 gte 100>>
-				<<blackmail-newmaterial "bestiality">>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.bestiality gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.bestiality gte 500>>
+				<<set _maskFactor to 0.5>>
+			<<else>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $xchange.blackmail.penaltyThreat.bestiality += _args[0] * 2>>
-			<<set $xchange.blackmail.penaltyThreat.bestiality = Math.min(1000,$xchange.blackmail.penaltyThreat.bestiality)>>
-			<<set $xchange.blackmail.historicFame.bestiality += _args[0]>>
+			<<if _maskFactor gt 0>>
+				<<set $fame.bestiality += _args[0] * _maskFactor>>
+				<<set $fame.bestiality to Math.clamp($fame.bestiality, 0, 2000)>>
+				<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.bestiality + _args[0] * 2 * _maskFactor gte 100>>
+					<<blackmail-newmaterial "bestiality">>
+				<</if>>
+				<<set $xchange.blackmail.penaltyThreat.bestiality += _args[0] * 2 * _maskFactor>>
+				<<set $xchange.blackmail.penaltyThreat.bestiality = Math.min(1000,$xchange.blackmail.penaltyThreat.bestiality)>>
+				<<set $xchange.blackmail.historicFame.bestiality += _args[0] * _maskFactor>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famerape">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if ($face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Kylar", "Sydney", "Gwylan"].includes($npc[0]))) or _args[2] is true>>
-			<<set $fame.rape += _args[0]>>
-			<<set $fame.rape to Math.clamp($fame.rape, 0, 2000)>>
-			<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.rape + _args[0] * 2 gte 100>>
-				<<blackmail-newmaterial "rape">>
+		<<if (!$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Kylar", "Sydney", "Gwylan"].includes($npc[0]))) or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.rape gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.rape gte 500>>
+				<<set _maskFactor to 0.5>>
+			<<else>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $xchange.blackmail.penaltyThreat.rape += _args[0] * 2>>
-			<<set $xchange.blackmail.penaltyThreat.rape = Math.min(1000,$xchange.blackmail.penaltyThreat.rape)>>
-			<<set $xchange.blackmail.historicFame.rape += _args[0]>>
+			<<if _maskFactor gt 0>>
+				<<set $fame.rape += _args[0] * _maskFactor>>
+				<<set $fame.rape to Math.clamp($fame.rape, 0, 2000)>>
+				<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.rape + _args[0] * 2 * _maskFactor gte 100>>
+					<<blackmail-newmaterial "rape">>
+				<</if>>
+				<<set $xchange.blackmail.penaltyThreat.rape += _args[0] * 2 * _maskFactor>>
+				<<set $xchange.blackmail.penaltyThreat.rape = Math.min(1000,$xchange.blackmail.penaltyThreat.rape)>>
+				<<set $xchange.blackmail.historicFame.rape += _args[0] * _maskFactor>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famesex">>
 	<<if _args[0] and $statFreeze isnot true or _args[2] is true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Sydney", "Gwylan"].includes($npc[0])) or _args[2] is true>>
-			<<set $fame.sex to Math.clamp($fame.sex, 0, 2000)>>
-			<<set $fame.sex += _args[0]>>
-			<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.sex + _args[0] * 2 gte 100>>
-				<<blackmail-newmaterial "sex">>
+		<<if !$gloryhole and !($npc.length is 1 and ["Eden", "Robin", "Sydney", "Gwylan"].includes($npc[0])) or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.sex gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.sex gte 500>>
+				<<set _maskFactor to 0.5>>
+			<<else>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $xchange.blackmail.penaltyThreat.sex += _args[0] * 2>>
-			<<set $xchange.blackmail.penaltyThreat.sex = Math.min(1000,$xchange.blackmail.penaltyThreat.sex)>>
-			<<set $xchange.blackmail.historicFame.sex += _args[0]>>
+			<<if _maskFactor gt 0>>
+				<<set $fame.sex to Math.clamp($fame.sex, 0, 2000)>>
+				<<set $fame.sex += _args[0] * _maskFactor>>
+				<<if !$xchange.blackmail.hasMaterial and $xchange.blackmail.penaltyThreat.sex + _args[0] * 2 * _maskFactor gte 100>>
+					<<blackmail-newmaterial "sex">>
+				<</if>>
+				<<set $xchange.blackmail.penaltyThreat.sex += _args[0] * 2 * _maskFactor>>
+				<<set $xchange.blackmail.penaltyThreat.sex = Math.min(1000,$xchange.blackmail.penaltyThreat.sex)>>
+				<<set $xchange.blackmail.historicFame.sex += _args[0] * _maskFactor>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famepregnancy">>
 	<<if _args[0] and $statFreeze isnot true and playerBellyVisible()>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<if $fame.pregnancy gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.pregnancy += _args[0] / $AMCTraits.pregnancyFame>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.pregnancy gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.pregnancy gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.pregnancy += _args[0]>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.pregnancy to Math.clamp($fame.pregnancy, 0, Math.clamp(playerNormalPregnancyTotal() + 1,1,8) * 250 * $AMCTraits.pregnancyFame)>>
+			<<if _maskFactor gt 0>>
+				<<if $fame.pregnancy gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.pregnancy += _args[0] * _maskFactor / $AMCTraits.pregnancyFame>>
+				<<else>>
+					<<set $fame.pregnancy += _args[0] * _maskFactor>>
+				<</if>>
+				<<set $fame.pregnancy to Math.clamp($fame.pregnancy, 0, Math.clamp(playerNormalPregnancyTotal() + 1,1,8) * 250 * $AMCTraits.pregnancyFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "fameimpreg">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<if $fame.impreg gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.impreg += _args[0] / $AMCTraits.impregFame>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.impreg gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.impreg gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.impreg += _args[0]>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.impreg to Math.clamp($fame.impreg, 0, 2000 * $AMCTraits.impregFame)>>
+			<<if _maskFactor gt 0>>
+				<<if $fame.impreg gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.impreg += _args[0] * _maskFactor / $AMCTraits.impregFame>>
+				<<else>>
+					<<set $fame.impreg += _args[0] * _maskFactor>>
+				<</if>>
+				<<set $fame.impreg to Math.clamp($fame.impreg, 0, 2000 * $AMCTraits.impregFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famegood">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set _mod to 1>>
-			<<if $backgroundTraits.includes("nerd")>>
-				<<set _mod *= 2>>
-			<</if>>
-			<<if $fame.good gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.good += _args[0] / $AMCTraits.goodFame * _mod>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.good gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.good gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.good += _args[0] * _mod>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.good to Math.clamp($fame.good, 0, 2000 * $AMCTraits.goodFame)>>
+			<<if _maskFactor gt 0>>
+				<<set _mod to _maskFactor>>
+				<<if $backgroundTraits.includes("nerd")>>
+					<<set _mod *= 2>>
+				<</if>>
+				<<if $fame.good gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.good += _args[0] / $AMCTraits.goodFame * _mod>>
+				<<else>>
+					<<set $fame.good += _args[0] * _mod>>
+				<</if>>
+				<<set $fame.good to Math.clamp($fame.good, 0, 2000 * $AMCTraits.goodFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famebusiness">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set _mod to 1>>
-			<<if $backgroundTraits.includes("nerd")>>
-				<<set _mod *= 2>>
-			<</if>>
-			<<if $fame.business gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.business += _args[0] / $AMCTraits.businessFame * _mod>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.business gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.business gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.business += _args[0] * _mod>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.business to Math.clamp($fame.business, 0, 2000 * $AMCTraits.businessFame)>>
+			<<if _maskFactor gt 0>>
+				<<set _mod to _maskFactor>>
+				<<if $backgroundTraits.includes("nerd")>>
+					<<set _mod *= 2>>
+				<</if>>
+				<<if $fame.business gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.business += _args[0] / $AMCTraits.businessFame * _mod>>
+				<<else>>
+					<<set $fame.business += _args[0] * _mod>>
+				<</if>>
+				<<set $fame.business to Math.clamp($fame.business, 0, 2000 * $AMCTraits.businessFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famepimp">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set $fame.pimp += _args[0]>>
-			<<set $fame.pimp to Math.clamp($fame.pimp, 0, 2000)>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.pimp gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.pimp gte 500>>
+				<<set _maskFactor to 0.5>>
+			<<else>>
+				<<set _maskFactor to 0>>
+			<</if>>
+			<<if _maskFactor gt 0>>
+				<<set $fame.pimp += _args[0] * _maskFactor>>
+				<<set $fame.pimp to Math.clamp($fame.pimp, 0, 2000)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famescrap">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set _mod to 1>>
-			<<if $backgroundTraits.includes("nerd")>>
-				<<set _mod *= 2>>
-			<</if>>
-			<<if $fame.scrap gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.scrap += _args[0] / $AMCTraits.scrapFame * _mod>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.scrap gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.scrap gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.scrap += _args[0] * _mod>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.scrap to Math.clamp($fame.scrap, 0, 2000 * $AMCTraits.scrapFame)>>
+			<<if _maskFactor gt 0>>
+				<<set _mod to _maskFactor>>
+				<<if $backgroundTraits.includes("nerd")>>
+					<<set _mod *= 2>>
+				<</if>>
+				<<if $fame.scrap gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.scrap += _args[0] / $AMCTraits.scrapFame * _mod>>
+				<<else>>
+					<<set $fame.scrap += _args[0] * _mod>>
+				<</if>>
+				<<set $fame.scrap to Math.clamp($fame.scrap, 0, 2000 * $AMCTraits.scrapFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famesocial">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set _mod to 1>>
-			<<if $backgroundTraits.includes("nerd")>>
-				<<set _mod *= 2>>
-			<</if>>
-			<<if $fame.social gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.social += _args[0] / $AMCTraits.socialFame * _mod>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.social gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.social gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.social += _args[0] * _mod>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.social to Math.clamp($fame.social, 0, 2000 * $AMCTraits.socialFame)>>
+			<<if _maskFactor gt 0>>
+				<<set _mod to _maskFactor>>
+				<<if $backgroundTraits.includes("nerd")>>
+					<<set _mod *= 2>>
+				<</if>>
+				<<if $fame.social gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.social += _args[0] / $AMCTraits.socialFame * _mod>>
+				<<else>>
+					<<set $fame.social += _args[0] * _mod>>
+				<</if>>
+				<<set $fame.social to Math.clamp($fame.social, 0, 2000 * $AMCTraits.socialFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famemodel">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole or _args[2] is true>>
-			<<set _mod to 1>>
-			<<if $backgroundTraits.includes("nerd")>>
-				<<set _mod *= 2>>
-			<</if>>
-			<<if $fame.model gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.model += _args[0] / $AMCTraits.modelFame * _mod>>
+		<<if !$gloryhole or _args[2] is true>>
+			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.model gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.model gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.model += _args[0] * _mod>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.model to Math.clamp($fame.model, 0, 2000 * $AMCTraits.modelFame)>>
+			<<if _maskFactor gt 0>>
+				<<set _mod to _maskFactor>>
+				<<if $backgroundTraits.includes("nerd")>>
+					<<set _mod *= 2>>
+				<</if>>
+				<<if $fame.model gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.model += _args[0] / $AMCTraits.modelFame * _mod>>
+				<<else>>
+					<<set $fame.model += _args[0] * _mod>>
+				<</if>>
+				<<set $fame.model to Math.clamp($fame.model, 0, 2000 * $AMCTraits.modelFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>
 
 <<widget "famedance">>
 	<<exposure>>
-	<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole and $statFreeze isnot true>>
-		<<if $fame.exhibitionism gte 2000 and $AMCTraits.halfGain is 1>>
-			<<if $exposed is 1>>
-				<<set $fame.exhibitionism += $audience / $AMCTraits.exhibitionismFame>>
-				<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
-			<<elseif $exposed gte 2>>
-				<<set $fame.exhibitionism += ($audience * 2) / $AMCTraits.exhibitionismFame>>
-				<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
-			<</if>>
+	<<if !$gloryhole and $statFreeze isnot true>>
+		<<if $face isnot "covered" and !$worn.face.type.includes("mask")>>
+			<<set _maskFactor to 1>>
+		<<elseif $fame.exhibitionism gte 1000>>
+			<<set _maskFactor to 1>>
+		<<elseif $fame.exhibitionism gte 500>>
+			<<set _maskFactor to 0.5>>
 		<<else>>
-			<<if $exposed is 1>>
-				<<set $fame.exhibitionism += $audience>>
-				<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
-			<<elseif $exposed gte 2>>
-				<<set $fame.exhibitionism += ($audience * 2)>>
-				<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
+			<<set _maskFactor to 0>>
+		<</if>>
+		<<if _maskFactor gt 0>>
+			<<if $fame.exhibitionism gte 2000 and $AMCTraits.halfGain is 1>>
+				<<if $exposed is 1>>
+					<<set $fame.exhibitionism += $audience * _maskFactor / $AMCTraits.exhibitionismFame>>
+					<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
+				<<elseif $exposed gte 2>>
+					<<set $fame.exhibitionism += ($audience * 2) * _maskFactor / $AMCTraits.exhibitionismFame>>
+					<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
+				<</if>>
+			<<else>>
+				<<if $exposed is 1>>
+					<<set $fame.exhibitionism += $audience * _maskFactor>>
+					<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
+				<<elseif $exposed gte 2>>
+					<<set $fame.exhibitionism += ($audience * 2) * _maskFactor>>
+					<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
+				<</if>>
 			<</if>>
 		<</if>>
 	<</if>>
@@ -232,17 +387,28 @@
 
 <<widget "fameschoolex">>
 	<<if _args[0] and $statFreeze isnot true>>
-		<<if $face isnot "covered" and !$worn.face.type.includes("mask") and !$gloryhole>>
-			<<set _mod to 1>>
-			<<if $backgroundTraits.includes("exhibitionist")>>
-				<<set _mod *= 0.25>>
-			<</if>>
-			<<if $fame.exhibitionism gte 2000 and $AMCTraits.halfGain is 1>>
-				<<set $fame.exhibitionism += _args[0] / $AMCTraits.exhibitionismFame * _mod>>
+		<<if !$gloryhole>>
+			<<if $face isnot "covered" and !$worn.face.type.includes("mask")>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.exhibitionism gte 1000>>
+				<<set _maskFactor to 1>>
+			<<elseif $fame.exhibitionism gte 500>>
+				<<set _maskFactor to 0.5>>
 			<<else>>
-				<<set $fame.exhibitionism += _args[0] * _mod>>
+				<<set _maskFactor to 0>>
 			<</if>>
-			<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
+			<<if _maskFactor gt 0>>
+				<<set _mod to _maskFactor>>
+				<<if $backgroundTraits.includes("exhibitionist")>>
+					<<set _mod *= 0.25>>
+				<</if>>
+				<<if $fame.exhibitionism gte 2000 and $AMCTraits.halfGain is 1>>
+					<<set $fame.exhibitionism += _args[0] / $AMCTraits.exhibitionismFame * _mod>>
+				<<else>>
+					<<set $fame.exhibitionism += _args[0] * _mod>>
+				<</if>>
+				<<set $fame.exhibitionism to Math.clamp($fame.exhibitionism, 0, 2000 * $AMCTraits.exhibitionismFame)>>
+			<</if>>
 		<</if>>
 	<</if>>
 <</widget>>

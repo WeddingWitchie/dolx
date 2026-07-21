@@ -969,6 +969,7 @@ When you take a sex-flipping pill, your changed body can build its own reputatio
 - X-Change fame can also matter for some tasks, cheat tools, and menu checks.
 - Being spiked by X-Change can add X-Change fame, so forced or public pill incidents can push the player toward fame-gated X-Change content.
 - Maxed or very high X-Change fame is one possible route into the mysterious person / Silver Stranger merchant content.
+- A mask (or covered face) blocks fame gain/loss in a category while it's below 500, only halves it from 500-999, and stops concealing you at all at 1000+, since you're already too recognisable by then regardless of your face. This applies to every `fame*` widget and to X-Change fame. `forceChange` (the widget's 3rd argument) should only be used to bypass the gloryhole/private-companion exemption, not to force a gain through a masked identity - if content needs a mask to matter (e.g. a hidden camera catching the player unexpectedly), scale the amount by the same tier at the call site instead of relying on `forceChange` to skip the mask check.
 
 Lewd stats can also be separate between bodies when **Enable lewd stat split** is turned on. One body may have low promiscuity, exhibitionism, or deviancy, while the other has much higher experience. A new body starts with its own values, switching back restores that body's values, and the split stats are not merged.
 

@@ -84,7 +84,13 @@
 	<<set $shopPaymentGoods to _args[4] or "the goods">>
 	<<money `-_payBase` _source>>
 	<<crimeUp 1 "trespassing">>
-	<<if _generous>><<famegood 3 "none" true>><<else>><<famegood 1 "none" true>><</if>>
+	<<set _trespassFameFactor to 1>>
+	<<if $face is "covered" or $worn.face.type.includes("mask")>>
+		<<set _trespassFameFactor to ($fame.good gte 1000 ? 1 : ($fame.good gte 500 ? 0.5 : 0))>>
+	<</if>>
+	<<if _trespassFameFactor gt 0>>
+		<<if _generous>><<famegood `3 * _trespassFameFactor` "none" true>><<else>><<famegood `1 * _trespassFameFactor` "none" true>><</if>>
+	<</if>>
 <</widget>>
 
 <<widget "shopTryOnTrespassPaymentLinks">>

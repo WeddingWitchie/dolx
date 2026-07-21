@@ -62,7 +62,8 @@ setup.shopDetails = {
 	mask: {
 		name: "Mask",
 		desc: "Conceals your identity. Won't fool the police or people who know you.",
-		details: "Stops fame from increasing, both positive and negative.",
+		details:
+			"Blocks fame gain and loss in a category below 500 fame, only halves it from 500-999, and stops concealing you at all at 1000+, since you're too recognisable by then regardless of your face.",
 	},
 	holy: {
 		name: "Holy",
