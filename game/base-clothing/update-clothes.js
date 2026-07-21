@@ -342,24 +342,6 @@ function updateClothesItem(slot, item, debug) {
 	// end of fix
 	if (slot === "genitals") return;
 
-	// put renamed clothes and updated types here
-	if (item.type.includes("covered")) {
-		switch (item.slot) {
-			case "under_upper":
-				item.type.splice(item.type.indexOf("covered"), 1, "torso_covering");
-				break;
-			case "under_lower":
-				item.type.splice(item.type.indexOf("covered"), 1, "lower_covering");
-				break;
-			case "lower":
-				item.type.splice(item.type.indexOf("covered"), 1, "overalls");
-				break;
-			case "face":
-				item.type.splice(item.type.indexOf("covered"), 1, "face_covering");
-				break;
-		}
-	}
-
 	switch (item.name) {
 		case "Crop top":
 			item.name = "crop top";
@@ -670,7 +652,7 @@ function wardrobesUpdate() {
 		/* alex's */
 		V.wardrobes.alexFarm.name = "Alex's Farm";
 		V.wardrobes.alexFarm.shopSend = true;
-		V.wardrobes.alexFarm.isolated = true;		
+		V.wardrobes.alexFarm.isolated = true;
 		V.wardrobes.alexFarm.space = 40 * V.wardrobeMult;
 		if (V.farm_stage >= 7) V.wardrobes.alexFarm.unlocked = true;
 		/* strip club */
@@ -800,8 +782,7 @@ function wardrobesUpdate() {
 		V.wardrobes.inventory.transfer = true;
 		V.wardrobes.inventory.space = 10;
 		Object.keys(V.wardrobes).forEach(w => {
-			if (V.wardrobes[w].isolated !== undefined)
-				V.wardrobes[w].isolated = true;
+			if (V.wardrobes[w].isolated !== undefined) V.wardrobes[w].isolated = true;
 		});
 	}
 
