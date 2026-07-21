@@ -238,6 +238,44 @@
 		"Christ, I would be surprised if that could get past someone's lips,"
 	]>>
 
+	/* locked up */
+	<<set _chastity_belt_all to [
+		"nice belt, shame about what's under it,",
+		"so someone else decides when you get to feel anything now?",
+		"can't even touch yourself, can you?",
+		"I bet you think about the key more than you think about sex,",
+		"locked tight, aren't you,",
+		"someone doesn't trust you with your own body,",
+		"must be nice, never having to make a decision down there,",
+		"who's got the key, then?",
+		"bet that thing chafes,",
+		"so you're just... off, until someone says otherwise,"
+	]>>
+	<<set _chastity_cage_all to [
+		"aww, did they put your dick in a little cage,",
+		"caged like that, it's basically a pet now,",
+		"bet it's desperate in there,",
+		"can it even get hard in that thing?",
+		"someone doesn't trust you with that, huh,",
+		"locked up like it's dangerous,",
+		"that's got to be humiliating, walking around caged,",
+		"bars on your dick, very classy,",
+		"bet you'd do anything to get that off right now,",
+		"so it just sits in there, useless,"
+	]>>
+	<<set _chastity_parasite_all to [
+		"is that thing even yours anymore?",
+		"that's disgusting, it's still moving,",
+		"can you feel it squirming in there?",
+		"that's not a chastity belt, that's a leech,",
+		"ugh, get that thing looked at,",
+		"it's basically wearing you at this point,",
+		"does it feed off you or something?",
+		"that thing's not coming off easy, is it,",
+		"I wouldn't want that latched onto me,",
+		"gross. does it ever let go?"
+	]>>
+
 	<<set _big_penis_all to []>>
 	<<set _big_penis_all to _big_penis_all.concat(_big_penis_affection)>>
 	<<set _big_penis_all to _big_penis_all.concat(_big_penis_size_remarks)>>
@@ -273,8 +311,22 @@
 	<<set _output_line to "">>
 	<<set _possibilities to []>>
 
+	/* locked up takes priority over size, nobody's discussing the goods when it's behind bars */
+	<<if playerChastity("penis")>>
+		<<if $worn.genitals.name is "chastity parasite">>
+			<<set _possibilities to _chastity_parasite_all>>
+		<<elseif playerChastity("cage")>>
+			<<set _possibilities to _chastity_cage_all>>
+		<<else>>
+			<<set _possibilities to _chastity_belt_all>>
+		<</if>>
+		<<set _output_line to _possibilities.pluck()>>
+		<<if _args[0] is "capitalise">>
+			<<set _output_line to _output_line[0].toUpperCase() + _output_line.substring(1)>>
+		<</if>>
+
 	/* do we have anything notable downstairs */
-	<<if $player.penissize is 6>>
+	<<elseif $player.penissize is 6>>
 		/* big penis */
 		<<set _possibilities to _big_penis_all>>
 		<<set _output_line to _possibilities.pluck()>>

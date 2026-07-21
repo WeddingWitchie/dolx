@@ -2112,6 +2112,9 @@ function effects() {
 			arousalDrop = -1000 - V.orgasmcount * 500;
 		}
 
+		// Chastity keeps the pressure from ever actually venting, so climax barely takes the edge off.
+		if (playerChastity()) arousalDrop *= 0.3;
+
 		if (V.drugged > 0) {
 			fragment.append(wikifier("pleasure", arousalDrop));
 		} else {

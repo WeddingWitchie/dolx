@@ -243,8 +243,11 @@ function getSensitivity(part) {
 		case "bottom":
 			return applySensitivityMedication(V.bottomsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 5);
 		case "genital":
-		case "genitals":
-			return applySensitivityMedication(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod + antiPillMod, 12);
+		case "genitals": {
+			// An internal-insert chastity belt keeps you constantly primed while it's worn; the bump vanishes the instant it comes off.
+			const internalChastityMod = V.player.vaginaExist && V.worn.genitals.type.includes("internal") ? 1 : 0;
+			return applySensitivityMedication(V.genitalsensitivity + 2 * purityMod + xchangeMod + orgasmingMod + antiPillMod + internalChastityMod, 12);
+		}
 		default:
 			paramError("getSensitivity", "part", part, "Expected a string, see function for accepted values");
 			break;
@@ -1721,6 +1724,12 @@ function xchangeEffectsMessages() {
 			br();
 		}
 		delete V.genitalSensitiveRubMessage;
+	}
+
+	if (V.chastityArousalSpikeMessage) {
+		element("span", `Locked away like this, a sudden wave of arousal catches you off guard.`, "pink");
+		br();
+		delete V.chastityArousalSpikeMessage;
 	}
 
 	// Tampered sensitivity-decreasing cream wearing off: the hoarded arousal crashes back all at once.

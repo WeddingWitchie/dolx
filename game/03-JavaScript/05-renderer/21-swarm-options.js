@@ -59,7 +59,8 @@ class SwarmCombatMapper {
 		const hasImminent = V.swarm.amount.genital[0] >= 1;
 		const hasPenetrating = V.swarm.amount.genital[1] >= 1;
 		const hasVagina = V.player.vaginaExist;
-		const hasChastity = V.worn.genitals.name === "chastity belt";
+		// Any fully-covering ("hidden") chastity belt gives a fake vaginal target even without a biological vagina.
+		const hasChastity = V.worn.genitals.type.includes("hidden");
 		return {
 			imminent: (hasVagina || hasChastity) && hasImminent && !hasPenetrating,
 			penetrating: (hasVagina || hasChastity) && hasPenetrating,
@@ -71,7 +72,8 @@ class SwarmCombatMapper {
 		const hasImminent = V.swarm.amount.genital[0] >= 1;
 		const hasPenetrating = V.swarm.amount.genital[1] >= 1;
 		const hasPenis = V.player.penisExist;
-		const hasChastity = V.worn.genitals.name === "chastity belt";
+		// A fully-covering ("hidden") belt conceals the penis entirely; cages leave it exposed and targetable.
+		const hasChastity = V.worn.genitals.type.includes("hidden");
 		return {
 			imminent: hasPenis && !hasChastity && hasImminent && !hasPenetrating,
 			penetrating: hasPenis && !hasChastity && hasPenetrating,

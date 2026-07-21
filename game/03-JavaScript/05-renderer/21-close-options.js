@@ -1,6 +1,6 @@
 // @ts-check
-const closeMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
-const closeMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
+const closeMapperEnemyPleasure = () => Number(/** @type {any} */ (V).enemypleasure ?? 0);
+const closeMapperEnemyPleasureMax = () => Number(/** @type {any} */ (V).enemypleasuremax ?? 500);
 /* global CombatRenderer, PlayerCombatMapper, NpcCombatMapper */
 
 /**
@@ -125,6 +125,7 @@ class CloseCombatMapper {
 		// Chastity
 		const chastityTypes = {
 			"chastity belt": "belt",
+			"dildo chastity belt": "belt",
 			"gold chastity belt": "belt-gold",
 			"chastity parasite": `parasite-${V.player.penissize}`,
 			"flat chastity cage": "flat",
@@ -184,23 +185,13 @@ class CloseCombatMapper {
 	static mapClosePenetrators(slot, options) {
 		// Defensive: V.active_enemy / V.NPCList entry can be missing when penetrator state is inconsistent
 		const enemyIndex = V.active_enemy;
-		const enemyObj =
-			Array.isArray(V.NPCList) && enemyIndex != null
-				? V.NPCList[enemyIndex]
-				: null;
+		const enemyObj = Array.isArray(V.NPCList) && enemyIndex != null ? V.NPCList[enemyIndex] : null;
 
-		const activeEnemy = (enemyObj && enemyObj.type) ? enemyObj.type : (V.enemytype || "npc");
+		const activeEnemy = enemyObj && enemyObj.type ? enemyObj.type : V.enemytype || "npc";
 
-		const npc = ["horse", "centaur"].includes(activeEnemy)
-			? "horse"
-			: ["beast", "machine", "tentacles"].includes(V.enemytype)
-				? V.enemytype
-				: "npc";
+		const npc = ["horse", "centaur"].includes(activeEnemy) ? "horse" : ["beast", "machine", "tentacles"].includes(V.enemytype) ? V.enemytype : "npc";
 
-		const chastity =
-			(playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") &&
-			slot === "vagina" &&
-			!["horse", "machine"].includes(npc);
+		const chastity = (playerChastity("hidden") || V.worn.genitals.name === "chastity parasite") && slot === "vagina" && !["horse", "machine"].includes(npc);
 
 		options[slot] = {};
 
@@ -364,8 +355,7 @@ class CloseCombatMapper {
 		}
 		if (V.NPCList[V.penistarget]) {
 			/* skin colour of npc targeting penis */
-			options.penis.npcTone =
-				V.NPCList[V.penistarget].skincolour === "ghost" ? "ghost" : V.NPCList[V.penistarget].skincolour === "black" ? "dark" : "light";
+			options.penis.npcTone = V.NPCList[V.penistarget].skincolour === "ghost" ? "ghost" : V.NPCList[V.penistarget].skincolour === "black" ? "dark" : "light";
 			options.filters.penisNpc = setup.colours.getSkinFilter(options.penis.npcTone, 0);
 		}
 

@@ -1498,8 +1498,12 @@ function minutePassed(minutes) {
 	const risk = playerPregnancyRisk();
 	const underBreedingEffect =
 		playerIsXChanged() && (!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
+	// Locked in chastity, there's no venting the pressure off through casual masturbation, so it fades far slower than usual.
+	const chastityFadeGuard = playerChastity() ? 0.25 : 1;
 	const arousalMultiplier =
-		V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect ? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0) : -10;
+		V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect
+			? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0)
+			: -10 * chastityFadeGuard;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
 
@@ -3048,13 +3052,15 @@ function getArousal(passMinutes) {
 	const minuteMultiplier = passMinutes * 10;
 	let addedArousal = 0;
 	const vibratorOn = playerVibratorOn();
+	const wearingInternalChastity = V.worn.genitals.type.includes("internal");
 	const genitalSensitivity =
 		V.penilechastityparasite ||
 		V.vaginalchastityparasite ||
 		(V.parasite.penis.name && V.parasite.penis.name !== "parasite") ||
 		(V.parasite.clit.name && V.parasite.clit.name !== "parasite") ||
 		vibratorOn ||
-		V.earSlime.vibration > 0
+		V.earSlime.vibration > 0 ||
+		wearingInternalChastity
 			? getSensitivity("genitals")
 			: 1;
 	const breastSensitivity = V.parasite.nipples.name ? getSensitivity("breasts") : 1;
@@ -3062,6 +3068,8 @@ function getArousal(passMinutes) {
 
 	if (V.penilechastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
 	if (V.vaginalchastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
+	// A chastity belt built around an internal insert stimulates constantly, not just when something else triggers it.
+	if (wearingInternalChastity) addedArousal += minuteMultiplier * 1.5 * genitalSensitivity;
 	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * breastSensitivity;
 	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
 	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
@@ -3079,6 +3087,21 @@ function getArousal(passMinutes) {
 		const power = V.worn.vibrator && typeof V.worn.vibrator.power === "number" ? V.worn.vibrator.power : 1;
 		addedArousal += minuteMultiplier * (3 + power * 2) * genitalSensitivity;
 	}
+	// Locked away with nothing to relieve the pressure, chastity throws in the odd involuntary jolt on top of the steady climb.
+	// A parasite riding along inside makes those jolts noticeably more frequent.
+	if (playerChastity() && !V.masturbating) {
+		const hasChastityParasite = V.penilechastityparasite || V.vaginalchastityparasite || V.analchastityparasite;
+		const chastitySpikeChance = hasChastityParasite ? 15 : 8;
+		const chastitySpikeRolls = Math.max(1, Math.round(passMinutes / 60));
+		for (let roll = 0; roll < chastitySpikeRolls; roll++) {
+			if (random(1, 100) <= chastitySpikeChance) {
+				const spike = random(100, 400);
+				addedArousal += spike;
+				V.chastityArousalSpikeMessage = true;
+			}
+		}
+	}
+
 	if (numberOfEarSlime()) {
 		if (V.parasite.left_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));
 		if (V.parasite.right_ear.name === "slime" && random(1, 10) >= 9) statChange.drugs(Math.min(60, passMinutes));

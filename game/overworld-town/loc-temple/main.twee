@@ -1329,6 +1329,27 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 <<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
 <br>
 
+:: Temple Chastity Prayer
+
+<<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
+<<set _chastityPrayerReason to templeChastityRefusalReason()>>
+<<pass 180>>
+You kneel before the altar and pray for the strength to make yourself worthy of release, whatever that takes.
+<br><br>
+<<if _chastityPrayerReason is "stats">>
+	<<set $purity to Math.clamp($purity + 80, 0, 1000)>>
+	<span class="blue">Something in you settles, just a little.</span>
+<<elseif _chastityPrayerReason is "reputation">>
+	<<run Object.keys(setup.crimeNames).forEach(crimeType => C.crime[crimeType] = Math.clamp(C.crime[crimeType] - 400, C.crime.min, C.crime.max))>>
+	<<set $deviancy to Math.clamp($deviancy - 8, 0, 100)>>
+	<<set $exhibitionism to Math.clamp($exhibitionism - 8, 0, 100)>>
+	<span class="blue">You feel like you've atoned, just a little. Whether anyone else notices is another matter.</span>
+<<else>>
+	Nothing changes. Whatever's keeping you locked away isn't something prayer alone can fix.
+<</if>>
+<br><br>
+<<link [[Next|Temple Chastity]]>><<endevent>><</link>>
+
 :: Temple Test
 
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
@@ -1716,7 +1737,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 <<set $worn.genitals.origin to "temple">>
 <<He>> kneels once more and secures it on you. You hear a loud click, and Jordan steps back to admire <<his>> handiwork.
 
-You look down to examine it yourself. It doesn't feel as tight or uncomfortable as you expected. You wonder if it's on right. You try to slip your fingers beneath the cage, but have no success. You push down on the $worn.genitals.name with both hands, but it doesn't give at all.
+You look down to examine it yourself. It doesn't feel as tight or uncomfortable as you expected. You wonder if it's on right. You try to slip your fingers beneath the $worn.genitals.name, but have no success. You push down on it with both hands, but it doesn't give at all.
 <br><br>
 
 "Everything is satisfactory," <<he>> says. "If there are any problems, come see me." <<He>> leaves you alone in the room.
@@ -1807,9 +1828,26 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 :: Temple Chastity Removal
 
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
+<<set _chastityRefusal to templeChastityRefusalReason()>>
 <<He>> leads you out of the main hall and into a small room. "Please undress," <<he>> says. You ignore your apprehension and remove your clothing.
 
-<<if $worn.genitals.origin is "temple">>
+<<if $worn.genitals.origin is "temple" and _chastityRefusal is "stats">>
+	<<He>> looks you over, and shakes <<his>> head. "I'm sorry, but I don't think you're ready to be free of it yet," <<he>> says, not unkindly. "Not with the state your soul's in."
+	<<if $player.virginity.penile is true and $player.virginity.vaginal is true>>
+		<<He>> presses your donation back into your hands. "Keep it. You'll have more use for it than we do."
+		<<money 8000>>
+	<</if>>
+	<br><br>
+	<<clotheson>>
+<<elseif $worn.genitals.origin is "temple" and _chastityRefusal is "reputation">>
+	<<He>> hesitates, then shakes <<his>> head. "Word travels," <<he>> says. "The temple can't be seen freeing someone with a reputation like yours. Not yet."
+	<<if $player.virginity.penile is true and $player.virginity.vaginal is true>>
+		<<He>> presses your donation back into your hands. "Keep it. You'll have more use for it than we do."
+		<<money 8000>>
+	<</if>>
+	<br><br>
+	<<clotheson>>
+<<elseif $worn.genitals.origin is "temple">>
 	<<He>> produces a sinister bladed instrument from <<his>> robes and kneels in front of you.
 	Seconds later, the belt lies ruined on the floor, and your <<genitals_are 1>> once again exposed and vulnerable.
 	<br><br>
@@ -1840,7 +1878,7 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 		<<set _handsApproach to true>>
 		<<He>> looks at you with a confused expression. "I'm sorry, but I can't remove that. It looks like a parasite of some kind. Maybe the hospital can help you?"
 	<<else>>
-		<<He>> looks at you with a confused expression. "I'm sorry, but I can't remove your $worn.genitals.name. We only have keys to belts or cages that you get directly from here."
+		<<He>> looks at you with a confused expression. "I'm sorry, but I can't remove your $worn.genitals.name." <<His>> tone hardens, just slightly. "You clearly need it; you're the one getting yourself into situations like that. We only have keys to belts or cages that you get directly from here."
 	<</if>>
 	<br><br>
 <</if>>
@@ -1878,7 +1916,12 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	<</if>>
 <</if>>
 
-<<link [[Next|Temple]]>><<endevent>><</link>>
+<<if _chastityRefusal is "stats" or _chastityRefusal is "reputation">>
+	<<templeicon "chastity">><<link [[Pray for guidance (3:00)|Temple Chastity Prayer]]>><</link>>
+	<br>
+<<elseif>>
+	<<link [[Next|Temple]]>><<endevent>><</link>>
+<</if>>
 
 :: Temple Chastity Replace
 

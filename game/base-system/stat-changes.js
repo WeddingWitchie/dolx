@@ -563,6 +563,12 @@ const statChange = (() => {
 			return prev;
 		}, 0);
 
+		// A cage that's actively shrinking you keeps you constantly on edge, on top of the ordinary chastity fade-guard.
+		if (V.worn.genitals.type.includes("shrinking")) result += 350;
+
+		// Any parasite that's latched onto worn chastity keeps stimulating you enough to enforce a higher floor.
+		if (V.penilechastityparasite || V.vaginalchastityparasite || V.analchastityparasite) result += 300;
+
 		return Math.clamp(result, 0, V.arousalmax / 2);
 	}
 

@@ -209,6 +209,34 @@ function getVisibleClothesList() {
 }
 window.getVisibleClothesList = getVisibleClothesList;
 
+// True when the genitals a bystander can actually see don't match the player's outward gender presentation (e.g. a penis while presenting female). Used to bias forced-chastity encounters toward "wrong body, so we're locking it away" framing.
+function chastityGenderMismatch() {
+	const visibleSex = V.player.penisExist && V.player.vaginaExist ? "h" : V.player.vaginaExist ? "f" : V.player.penisExist ? "m" : null;
+	if (!visibleSex || visibleSex === "h") return false;
+	return visibleSex !== V.player.gender_appearance;
+}
+window.chastityGenderMismatch = chastityGenderMismatch;
+
+// Why (if at all) the temple won't take a currently-worn chastity device off:
+// "origin" (not theirs to begin with), "stats" (they don't think the wearer's soul is in a fit state yet), or "reputation" (word of the wearer's conduct has gotten around).
+// Returns null when there's no reason to refuse.
+// Jordan only holds his own monks/priests to this standard, a casual visitor just gets normal service.
+function templeChastityRefusalReason() {
+	if (!playerChastity()) return null;
+	if (V.temple_rank !== "monk" && V.temple_rank !== "priest") return null;
+
+	const origin = V.worn.genitals.origin;
+	if (origin && origin !== "temple") return "origin";
+
+	if (V.purity < 400) return "stats";
+
+	const crimeTotal = Object.keys(setup.crimeNames).reduce((sum, key) => sum + (C.crime[key] || 0), 0);
+	if (crimeTotal >= 4000 || hasSexStat("exhibitionism", 4) || hasSexStat("deviancy", 4)) return "reputation";
+
+	return null;
+}
+window.templeChastityRefusalReason = templeChastityRefusalReason;
+
 function playerChastity(slots, inAllSlots = false) {
 	let chastity = false;
 	const chastityCovered = [];
