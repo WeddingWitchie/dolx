@@ -3,8 +3,8 @@ Config.passages.onProcess = function (passage) {
 	if (passage.title === State.passage) {
 		/* Major areas only */
 		if (setup.passOutAreas.includes(passage.title)) {
-			/* Passout from temperature extremes */
-			if (V.passout) {
+			/* Passout from temperature extremes. */
+			if (V.passout && !V.combat) {
 				T.passout = V.passout;
 				delete V.passout;
 				passage.text = "<<passouttemperature>>";
