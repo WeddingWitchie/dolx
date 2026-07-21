@@ -1,3 +1,4 @@
+/* globals baileyWeeksMissed */
 $(document).one(":storyready", function () {
 	function baileyRevealed() {
 		return V.stockholm_active === true;
@@ -74,6 +75,12 @@ $(document).one(":storyready", function () {
 		if (typeof V.bailey_love === "number" && !Number.isNaN(V.bailey_love) && C.npc.Bailey.love !== V.bailey_love) {
 			C.npc.Bailey.love = V.bailey_love;
 		}
+
+		/* Keep monogamous Bailey at 0 so he skips condoms; the game won't re-zero it once it drifts. */
+		if (V.bailey_monogamous === true && C.npc.Bailey.pregnancyAvoidance !== 0) {
+			console.log("[BaileyExpansion] Monogamous Bailey pregnancyAvoidance " + C.npc.Bailey.pregnancyAvoidance + " -> 0");
+			C.npc.Bailey.pregnancyAvoidance = 0;
+		}
 	}
 	/* One start hook handles all lightweight passage bookkeeping. Keeping these together avoids
 	   stacking several document listeners while preserving their original execution order. */
@@ -120,7 +127,7 @@ $(document).one(":storyready", function () {
 				} else if (delta > 0) {
 					V.bailey_lust_lastday = Time.days;
 					if (V.stockholm_active === true && C.npc.Bailey && typeof C.npc.Bailey.lust === "number") {
-						var _perDay = V.bailey_monogamous ? 2 : 1;
+						const _perDay = V.bailey_monogamous ? 2 : 1;
 						C.npc.Bailey.lust = Math.max(0, Math.min(100, C.npc.Bailey.lust + delta * _perDay));
 					}
 				}
@@ -183,7 +190,7 @@ $(document).one(":storyready", function () {
 		el.style.textAlign = "center";
 		el.style.marginTop = "1em";
 		el.style.marginBottom = "1em";
-		el.textContent = "Reiyu's Bailey Expansion v0.5.0 for X-Change \u2014 Active";
+		el.textContent = "Reiyu's Bailey Expansion v0.5.1 for X-Change \u2014 Active";
 		const firstChild = _indicatorContainer.firstChild;
 		if (firstChild) {
 			_indicatorContainer.insertBefore(el, firstChild);
@@ -298,11 +305,11 @@ $(document).one(":storyready", function () {
 	     "home"    19:00–02:00  home and reactive
 	   Tune the windows here in one place. */
 	window.baileyFlatState = function () {
-		var t = Time.hour * 60 + Time.minute;       // minutes since midnight
-		if (t >= 330 && t < 390)  return "leaving"; // 05:30–06:30
-		if (t >= 390 && t < 1140) return "away";    // 06:30–19:00
-		if (t >= 120 && t < 330)  return "asleep";  // 02:00–05:30
-		return "home";                               // 19:00–02:00 (wraps midnight)
+		const t = Time.hour * 60 + Time.minute; // minutes since midnight
+		if (t >= 330 && t < 390) return "leaving"; // 05:30–06:30
+		if (t >= 390 && t < 1140) return "away"; // 06:30–19:00
+		if (t >= 120 && t < 330) return "asleep"; // 02:00–05:30
+		return "home"; // 19:00–02:00 (wraps midnight)
 	};
 
 	/* Weekend-obligation state. One stored var does all the work —
@@ -312,10 +319,12 @@ $(document).one(":storyready", function () {
 	   baileyStraying(): 2+ weeks neglected, at which point his infidelity scenes re-open. */
 	window.baileyWeeksMissed = function () {
 		if (!V.bailey_monogamous) return 0;
-		var last = (typeof V.bailey_weekend_lastvisit === "number") ? V.bailey_weekend_lastvisit : Time.days;
+		const last = typeof V.bailey_weekend_lastvisit === "number" ? V.bailey_weekend_lastvisit : Time.days;
 		return Math.max(0, Math.floor((Time.days - last) / 7));
 	};
-	window.baileyStraying = function () { return baileyWeeksMissed() >= 2; };
+	window.baileyStraying = function () {
+		return baileyWeeksMissed() >= 2;
+	};
 
 	console.log("[BaileyExpansion] stat display overrides + title system + love interest registered");
 });

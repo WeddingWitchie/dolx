@@ -38,33 +38,116 @@
 	<br>
 
 <<default>>
-	/* 7PM-2AM: Weekend Night. */
-	<<if $bailey_monogamous>>
+	/* 7PM-2AM night. */
+	<<if $daily.baileyFlatKnocked>>
+		You knock on Bailey's door. There is no answer. It seems <<hes>> ignoring you.
+		<br><br>
+		<<link [[Leave|Flats]]>><<endevent>><</link>>
+		<br>
+	<<elseif Time.isWeekEnd() and $bailey_monogamous>>
+		<<set $daily.baileyFlatKnocked to true>>
 		You knock on Bailey's door. You hear muffled footsteps before Bailey opens the door. <<He>> looks you over, says nothing, and steps aside to let you in.
 		<br><br>
-		<<link [[Go inside|Bailey Flat Weekend Visit]]>><</link>>
+		<<link [[Go inside (0:05)|Bailey Flat Weekend Visit]]>><</link>>
 		<br>
 		<<link [[Leave|Flats]]>><<endevent>><</link>>
 		<br>
 	<<else>>
-		You knock on Bailey's door. You hear muffled footsteps before Bailey opens the door. <<He>> has an unlit cigarette between <<his>> lips.
+		<<set $daily.baileyFlatKnocked to true>>
+		You knock on the door. You hear the sound of footsteps before the door opens. <span class="bailey-red">It's Bailey.</span> <<He>> has a lit cigarette in <<his>> mouth.
 		<br><br>
-		<<if Time.isWeekEnd()>>
-			<<if random(1, 2) is 1>>
-				You hear someone inside giggling.
-			<<else>>
-				You hear someone inside call for Bailey to come back.
-			<</if>>
-			<br><br>
+		"What are you doing here?" <<he>> says. "<<if $bailey_monogamous>>I don't have time tonight. Come back during the weekend.<</if>> Go away."
+		<br><br>
+		<<set $seductiondifficulty to 4000>>
+		<<if hasSexStat("exhibitionism", 4)>>
+			<<link [[Flash <<him>> (0:05)|Bailey Flat Door Flash]]>><</link>><<exhibitionist4>>
+			<br>
 		<</if>>
-		<<He>> glances you over. "What are you doing here, brat? Don't answer that. Leave."
-		<br><br>
-		<<He>> closes the door on you, leaving you standing alone in the hallway.
-		<<link [[Leave|Flats]]>><<endevent>><</link>>
+		<<link [[Seduce <<him>> (0:05)|Bailey Flat Door Seduce]]>><</link>><<seductiondifficulty>>
+		<br>
+		<<link [[Leave (0:01)|Bailey Flat Door Leave]]>><</link>>
 		<br>
 	<</if>>
 
 <</switch>>
+
+
+:: Bailey Flat Door Flash
+<<pass 5>><<effects>><<npc Bailey>><<person1>>
+You smile up at <<him>>. 
+<<if $player.penisExist and $worn.lower.name isnot "naked">>
+	You hook aside your $worn.lower.name and flash <<him>> your <<genitals>>.
+<<elseif $player.penisExist>>
+	You gesture down towards your exposed <<genitals>>.
+<<elseif $worn.upper.exposed gte 2>>
+	You gesture towards your exposed <<breasts>>.
+<<else>>
+	You <<pullup>> your <<allTops>>, baring your <<breasts>>.
+<</if>>
+<<exhibitionism4>><<fameexhibitionism 1>>
+Bailey frowns. The cigarette in <<his>> mouth falls to the floor. <<npcincr Bailey lust 1>><<glust "Bailey">>
+<br><br>
+You run away before <<he>> can do anything. As you run down the stairs, you hear <<him>> call out behind you. "Stupid little shit."
+<br><br>
+<<link [[Next|Flats]]>><<endevent>><</link>>
+<br>
+
+:: Bailey Flat Door Seduce
+<<pass 5>><<effects>><<npc Bailey>><<person1>>
+<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"You... You aren't going to send me away, are you?" you ask, leaning into <<him>>. "I came all this way."
+<<elseif $speech_attitude is "bratty">>
+	"Come on. I came all this way," you say, leaning into <<him>>. "You aren't going to send me away just like that, are you?"
+<<else>>
+	"I came all this way to see you," you say, leaning into <<him>>. "Won't you let me in?"
+<</if>>
+<br><br>
+<<set $seductiondifficulty to 4000>><<silently>><<seductioncheck>><</silently>>
+<<if $seductionrating gte $seductionrequired>>
+	Bailey looks over you. <span class="green"><<His>> sneer softens into a frown.</span>
+	<br><br>
+	<<if $bailey_monogamous>>
+		"Come here," <<he>> huffs, wrapping <<his>> hand around your wrist. "This is what brats like you get."<<npcincr Bailey lust 1>><<glust "Bailey">>
+		<br><br>
+		<<He>> pulls you into the apartment.
+		<br><br>
+		<<link [[Next (0:05)|Bailey Flat Weekend Visit]]>><</link>>
+		<br>
+	<<elseif Time.isWeekEnd()>>
+		<<He>> stares at you for a moment too long. A voice inside the apartment calls out, "Who's at the door?"
+		<br><br>
+		Bailey doesn't answer. <<He>> works something in <<his>> jaw while glaring you down. "Go away, brat."<<npcincr Bailey lust 1>><<glust "Bailey">>
+		<br><br>
+		<<He>> closes the door on you.
+		<br><br>
+		<<link [[Leave|Flats]]>><<endevent>><</link>>
+		<br>
+	<<else>>
+		"Stupid brat," <<he>> huffs, <<his>> eyes drifting away from you. "Get the hell out of here."<<npcincr Bailey lust 1>><<glust "Bailey">>
+		<br><br>
+		<<He>> closes the door on you.
+		<br><br>
+		<<link [[Leave|Flats]]>><<endevent>><</link>>
+		<br>
+	<</if>>
+<<else>>
+	Bailey looks over you. <span class="red"><<He>> sneers.</span>
+	<br><br>
+	"Get out of here, you little shit," <<he>> says, right before slamming the door closed on your face.
+	<br><br>
+	You leave, dejected.
+	<br><br>
+	<<link [[Next|Flats]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+
+:: Bailey Flat Door Leave
+<<pass 1>><<effects>><<npc Bailey>><<person1>>
+You leave. You hear Bailey shut the door behind you.
+<br><br>
+<<link [[Next|Flats]]>><<endevent>><</link>>
+<br>
 
 
 :: Bailey Flat Ride
@@ -96,8 +179,10 @@ Bailey escorts you to <<his>> car.
 /* Bailey Flat Weekend - Monogamous PC's weekly obligation. */
 
 :: Bailey Flat Weekend Visit
-<<effects>><<npc Bailey>><<person1>>
+<<pass 5>>
 <<if $bailey_weekend_visits is undefined>><<set $bailey_weekend_visits to 0>><</if>>
+<<if $bailey_weekend_visits gte 5 and Time.isWeekEnd() and random(1, 10) is 1>><<goto "Bailey Flat Fight">><</if>>
+<<effects>><<npc Bailey>><<person1>>
 <<set $bailey_weekend_round to 1>>
 The door shuts behind you. 
 <<if baileyWeeksMissed() gte 1>>
@@ -158,7 +243,8 @@ The door shuts behind you.
 
 
 :: Bailey Flat Weekend Sex Finish
-<<npc Bailey>><<person1>><<set $outside to 0>><<set $location to "baileys_flat">><<effects>>
+<<person1>><<set $outside to 0>><<set $location to "baileys_flat">><<effects>>
+<<set _fromFight to $bailey_fight_sex>><<set $bailey_fight_sex to false>>
 
 <<if $enemyarousal gte $enemyarousalmax>>
 	<<ejaculation>><<npcincr Bailey lust -20>>
@@ -181,26 +267,58 @@ The door shuts behind you.
 		<br><br>
 		"Good <<girl>>," <<he>> sighs.<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">><<lllust "Bailey">>
 		<br><br>
-		"You're staying here tonight," <<he>> tells you, pulling the cover over you both. "I'll drive you to the orphanage in the morning."
+		<<if $pain gte 60>>
+			Bailey sits up and takes your chin, turning your face into the light. <<His>> eyes track over the marks <<he>> left over your body. Without a word, <<he>> gets up and comes back with a first aid kit.
+			<br><br>
+			<<He>> works in silence, efficiently cleaning and fixing what needs it.<<pain -40>><<lpain>>
+			<br><br>
+			When <<he>>'s done, <<he>> places the first aid kit aside and inspects <<his>> work.
+			<br><br>
+		<</if>>
+		<<if $semenoutsidecount gte 1 or $goooutsidecount gte 1>>
+			<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
+			<<clotheson>><<endcombat>>
+			<<link [[Next|Bailey Flat Bath]]>><</link>>
+			<br>
+		<<else>>
+			In the dark, <<he>> gathers you close to <<his>> chest.
+			<br><br>
+			"You're staying here tonight," <<he>> tells you, pulling the cover over you both. "I'll drive you to the orphanage in the morning."
+			<br><br>
+			<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
+			<<clotheson>><<endcombat>>
+			<<link [[Stay the night|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "beside">><</link>>
+			<br>
+		<</if>>
+	<</if>>
+<<elseif $enemyhealth lte 0>>
+	<<if _fromFight>>
+		The two of you fight until you're running on fumes. Despite the fact <<he>> didn't cum, Bailey seems satisfied as <<he>> looks over you.
 		<br><br>
-		In the dark, <<he>> gathers you close to <<his>> chest.
+		"Good," <<he>> says, <<his>> voice having gone ragged. "I knew you could take it."
+		<br><br>
+		<<He>> gets up and pulls you up by the arm, pulling you towards <<his>> bed.
+		<br><br>
+		"Get some rest," <<he>> tells you while shoving you into the bed. "I'll drive you to the orphanage tomorrow."
+		<br><br>
+		<<He>> tosses the bed sheet over you roughly before leaving. You find yourself falling asleep, exhausted and tired.
 		<br><br>
 		<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
 		<<clotheson>><<endcombat>>
-		<<link [[Stay the night|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "beside">><</link>>
+		<<link [[Next|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "alone_bed">><</link>>
+		<br>
+	<<else>>
+		You push Bailey off.<<npcincr Bailey love -3>><<set $bailey_love -= 3>><<llllove "Bailey">><<baileyBrat 3 "seducebeat">>
+		<br><br>
+		<<He>> has gone still. <<His>> face is flat as <<he>> touches the bruise you inflicted, but something in <<his>> eyes burn. You don't waste time. <<tearful>> you grab your clothes and scramble out of the bed in the dark, rushing towards the door. You hear Bailey's slow footsteps behind you as you run outside of <<his>> apartment. You slam the door behind you and run towards the stairs.<<stress 18>><<ggstress>><<trauma 12>><<ggtrauma>>
+		<br><br>
+		You find yourself outside the flats.
+		<br><br>
+		<<clotheson>><<endcombat>>
+		<<set $location to "flats">><<set $outside to 1>><<set $bus to "barb">>
+		<<link [[Next|Flats]]>><<endevent>><</link>>
 		<br>
 	<</if>>
-<<elseif $enemyhealth lte 0>>
-	You push Bailey off.<<npcincr Bailey love -3>><<set $bailey_love -= 3>><<llllove "Bailey">><<baileyBrat 3 "seducebeat">>
-	<br><br>
-	<<He>> has gone still. <<His>> face is flat as <<he>> touches the bruise you inflicted, but something in <<his>> eyes burn. You don't waste time. <<tearful>> you grab your clothes and scramble out of the bed in the dark, rushing towards the door. You hear Bailey's slow footsteps behind you as you run outside of <<his>> apartment. You slam the door behind you and run towards the stairs.<<stress 18>><<ggstress>><<trauma 12>><<ggtrauma>>
-	<br><br>
-	You find yourself outside the flats.
-	<br><br>
-	<<clotheson>><<endcombat>>
-	<<set $location to "flats">><<set $outside to 1>><<set $bus to "barb">>
-	<<link [[Next|Flats]]>><<endevent>><</link>>
-	<br>
 <<else>>
 	Bailey pulls back before <<he>> finishes, unsated. <<He>> exhales once through <<his>> nose, not looking at you.
 	<br><br>
@@ -210,4 +328,250 @@ The door shuts behind you.
 	<br><br>
 	<<clotheson>><<endcombat>>
 	<<link [[Next|Flats]]>><<endevent>><</link>>
+<</if>>
+
+
+:: Bailey Flat Bath
+<<pass 5>><<effects>><<npc Bailey>><<person1>>
+Bailey peels away from you. <<He>> looks over the <<if $semenoutsidecount gte 1 and $goooutsidecount gte 1>>slime and semen<<elseif $semenoutsidecount gte 1>>semen<<else>>slime<</if>> on your body.
+<br><br>
+
+"You're a mess. Come on," <<he>> mutters, hauling you up by the arm.
+<br><br>
+
+<<He>> takes you into <<his>> bathroom and starts running a bath. You sit on the toilet seat and watch <<him>> work. After testing the water, <<he>> gestures towards the tub without looking at you. "Get in."
+<br><br>
+
+<<link [[Ask <<him>> to join you|Bailey Flat Bath Join]]>><</link>>
+<br>
+<<link [[Get in|Bailey Flat Bath Alone]]>><</link>>
+<br>
+
+
+:: Bailey Flat Bath Join
+<<pass 15>><<effects>><<npc Bailey>><<person1>>
+<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"Um, would you, maybe, like to j-join me?" you ask, flustered.
+<<elseif $speech_attitude is "bratty">>
+	"Don't just stand there," you say. "Join me."
+<<else>>
+	"Will you get in with me?" you ask.
+<</if>>
+<br><br>
+
+Bailey regards you for a long moment. <<He>> pulls <<his>> shirt over <<his>> head and strips out of the rest of <<his>> clothes.
+<br><br>
+
+<<He>> steps into the tub and lowers <<himself>> in. You enter after <<him>>, your back pressed to <<his>> chest, the water rising around you both. <<His>> arms settle around you, pulling your back flush against <<him>>.
+<br><br>
+
+<<He>> takes the washcloth and drags it over your skin in slow, deliberate passes. <<He>> doesn't speak. <<His>> chin comes to rest against the top of your head.<<npcincr Bailey love 2>><<set $bailey_love += 2>><<glove "Bailey">><<wash>>
+<br><br>
+
+When the water goes cold, <<he>> stands and pulls you up with <<him>>. <<He>> dries you off before steering you back to <<his>> bed.
+<br><br>
+
+"Sleep," <<he>> says, pulling the cover over you both.
+<br><br>
+
+<<link [[Stay the night|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "beside">><</link>>
+<br>
+
+
+:: Bailey Flat Bath Alone
+<<pass 15>><<effects>><<npc Bailey>><<person1>>
+You climb into the tub. The water is warm.
+<br><br>
+
+Bailey stays where <<he>> is, leaning against the counter with <<his>> arms crossed, watching you.
+<br><br>
+
+"Get on with it," <<he>> says. It's clear <<he>> has no intention of leaving you unattended.
+<br><br>
+
+You wash yourself under <<his>> gaze until your skin is clean.<<wash>> <<He>> watches every pass of the cloth.
+<br><br>
+
+When you're finished, <<he>> tosses you a towel. "Dry yourself off."
+<br><br>
+
+Once you're dry, <<he>> guides you back to <<his>> bed and pulls the cover over you both.<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
+<br><br>
+
+<<link [[Stay the night|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "beside">><</link>>
+<br>
+
+:: Bailey Flat Fight
+<<pass 5>><<effects>><<npc Bailey>><<person1>>
+<<set $bailey_weekend_round to 1>>
+You notice Bailey is taking things slow today. <<He>> would normally have you in <<his>> bed by now. Today, <<he>> leans against the doorframe of <<his>> bedroom, watching you.
+<br><br>
+
+You stare back. Eventually, <<he>> peels from the doorframe and steps towards you. <<He>> looks over you with an expression you've never seen before.
+<br><br>
+
+"I want you to fight me," <<he>> says. "Don't pull your punches. I won't be pulling mine."
+<br><br>
+
+<<He>> pauses in front of you, waiting.
+<br><br>
+
+<<link [[Fight <<him>>|Bailey Flat Fight Him]]>><</link>>
+<br>
+<<link [[Ask|Bailey Flat Fight Ask]]>><</link>>
+<br>
+<<link [[Refuse|Bailey Flat Fight Refuse]]>><</link>>
+<br>
+
+
+:: Bailey Flat Fight Ask
+<<effects>><<npc Bailey>><<person1>>
+<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"W-What?" you ask. "Why would I fight you?"
+<<elseif $speech_attitude is "bratty">>
+	"Why the hell would I fight you?" you ask. "Is rent due or something?"
+<<else>>
+	"Why do you want me to fight you?" you ask.
+<</if>>
+<br><br>
+
+Bailey pauses for a moment. <<He>> works something in <<his>> jaw while <<he>> stares you down.
+<br><br>
+
+"Because I want you to," <<he>> says at last. "Make me earn it."
+<br><br>
+
+<<He>> waits for you to speak again.
+<br><br>
+
+<<link [[Fight <<him>>|Bailey Flat Fight Him]]>><</link>>
+<br>
+<<link [[Refuse|Bailey Flat Fight Refuse]]>><</link>>
+<br>
+
+
+:: Bailey Flat Fight Refuse
+<<effects>><<npc Bailey>><<person1>>
+<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"I-I really don't want to do that," you murmur. "I don't want to hurt you."
+<<elseif $speech_attitude is "bratty">>
+	"You don't get to tell me what to do," you argue. "I'm not going to fight you."
+<<else>>
+	"I don't want to fight you," you say. "Not now, at least."
+<</if>>
+<br><br>
+
+<<if $baileydefeatedchain gte 3>>
+	"You'll fight me over rent," <<he>> scoffs at you, "but not when I ask you to."
+<<elseif $baileydefeated gte 3>>
+	"What's stopping you now?" <<he>> asks, clearly thinking on the times you've beaten <<him>> before.
+<<else>>
+	<<He>> regards you for a moment before looking away.
+<</if>>
+<br><br>
+
+"Fine, then," he says. 
+<br><br>
+
+<<He>> pulls you by the arm towards the bedroom. Once inside, <<he>> shoves you onto the bed.
+<br><br>
+
+<<link [[Next|Bailey Flat Weekend Sex]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+
+:: Bailey Flat Fight Him
+<<effects>><<npc Bailey>><<person1>>
+You don't hesitate. You press both palms to Bailey's chest and shove <<him>> away from you. <<He>> takes a step back before <<he>> recovers.
+<br><br>
+
+"Good," <<he>> snarls. <<He>>'s looking right at you, eyes burning. "Don't hold back, brat."
+<br><br>
+
+<<He>> steps forward and grabs you, shoving you against the wall.
+<br><br>
+
+<<link [[Fight|Bailey Flat Fight Combat]]>><<set $fightstart to 1>><</link>>
+<br>
+
+
+:: Bailey Flat Fight Combat
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<pass 10>>
+	<<npc Bailey>><<person1>>
+	<<controlloss>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust to 0>>
+	<<set $enemyanger to 100>>
+	<<set $enemyarousalmax to 500>>
+	<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
+	<<npcidlegenitals>>
+	<<promiscuity1>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Bailey Flat Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Bailey Flat Fight Combat]]>><</link>></span><<nexttext>>
+<</if>>
+
+
+:: Bailey Flat Fight Finish
+<<person1>><<set $outside to 0>><<set $location to "baileys_flat">><<effects>>
+
+<<if $enemyhealth lte 0>>
+	You have Bailey pinned beneath your weight. Both of you are out of breath from the scuffle.<<npcincr Bailey dom -1>><<set $bailey_dom -= 1>><<ldom "Bailey">>
+	<br><br>
+
+	"Good," Bailey rasps, looking up at you hungrily. <<He>> manages to break out of your hold and flips your positions. You end up being held down by Bailey.
+	<br><br>
+
+	<<He>> leans down and presses <<his>> forehead to yours. "Now, take it."<<npcincr Bailey lust 2>><<glust "Bailey">><<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
+	<br><br>
+
+	<<link [[Next|Bailey Flat Weekend Sex]]>><<endcombat>><<npc Bailey>><<person1>><<set $molestationstart to 1>><<set $bailey_weekend_round to 1>><<set $bailey_fight_sex to true>><</link>>
+	<br>
+<<elseif $enemyarousal gte $enemyarousalmax>>
+	<<ejaculation>><<npcincr Bailey lust -20>>
+	Bailey groans with pleasure, panting against your skin as <<he>> cums.
+	<br><br>
+
+	"This will do," <<he>> says, pulling away. <<He>> seems both satisfied and disappointed. "Next time, I want you to fight like you mean it."
+	<br><br>
+
+	"You're staying here tonight," <<he>> tells you. "I'll drive you to the orphanage in the morning."<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">><<lllust "Bailey">>
+	<br><br>
+
+	<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
+	<<clotheson>><<endcombat>>
+	<<link [[Stay the night|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "beside">><</link>>
+	<br>
+<<else>>
+	Bailey looks at your tearful face for a long moment before <<he>> climbs off of you. Once standing, <<he>> lets out a long sigh.<<stress 3>><<gstress>>
+	<br><br>
+
+	Then <<he>> gathers you in <<his>> arms and lifts you, carrying you to <<his>> bed. <<He>> leaves you for a moment there before returning from the bathroom with a first aid kit. <<He>> treats your injuries wordlessly.<<pain -20>><<lpain>><<stress -6>><<lstress>>
+	<br><br>
+
+	"Just say no next time, brat," <<he>> says to you flatly. "Know your own limits. Don't waste my time if you can't take it."
+	<br><br>
+
+	<<He>> pulls the bedsheet over you and leaves you alone in bed. Still in pain and exhausted, you find yourself falling asleep quickly.
+	<br><br>
+
+	<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
+	<<clotheson>><<endcombat>>
+	<<link [[Next|Bailey Date All Night Morning]]>><<set $bailey_sleep_config to "alone_bed">><</link>>
+	<br>
 <</if>>
