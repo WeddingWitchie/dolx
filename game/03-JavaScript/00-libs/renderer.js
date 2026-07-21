@@ -765,16 +765,19 @@ var Renderer;
 				const imageFrameIndex = Math.min(subspriteFrameCount - 1, layer.frames ? layer.frames[i] : Math.floor(i * subspriteFrameCount / frameCount));
 				const scaledX = i * frameWidth + dx * renderScale + frameWidth * (1 - renderScale) * 0.5;
 				const scaledY = dy * renderScale + height * (1 - renderScale) * 0.75;
+				const scaledWidth = subspriteWidth * renderScale;
+				const scaledHeight = subspriteHeight * renderScale;
+				// Snapping to whole device pixels keeps stacked layers (e.g. base body + face) on the same pixel grid.
 				targetCanvas.drawImage(
 					image,
 					imageFrameIndex * subspriteWidth,
 					0,
 					subspriteWidth,
 					subspriteHeight,
-					scaledX,
-					scaledY,
-					subspriteWidth * renderScale,
-					subspriteHeight * renderScale
+					Math.round(scaledX),
+					Math.round(scaledY),
+					Math.round(scaledWidth),
+					Math.round(scaledHeight)
 				);
 			}
 		}

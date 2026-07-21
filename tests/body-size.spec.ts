@@ -85,10 +85,11 @@ test.describe("body size gameplay and sidebar integration", () => {
 			return calls[0].slice(5);
 		});
 
-		expect(draw[0]).toBeCloseTo(-6.4);
-		expect(draw[1]).toBeCloseTo(-9.6);
-		expect(draw[2]).toBeCloseTo(268.8);
-		expect(draw[3]).toBeCloseTo(268.8);
+		// Destination rect is snapped to whole pixels so stacked layers share the same pixel grid
+		expect(draw[0]).toBe(-6);
+		expect(draw[1]).toBe(-10);
+		expect(draw[2]).toBe(269);
+		expect(draw[3]).toBe(269);
 	});
 
 	test("Domus door entry persists through the scene and clears on return", async ({ page }) => {
