@@ -4,6 +4,8 @@
 :: Poppy Pregnancy Reveal
 <<effects>><<speechresolve>><<endevent "phaseless">><<npc "Poppy">><<person1>>
 <<run poppySchedule()>><<run markPoppyInteraction()>><<set _poppyRevealHandled to false>>
+<<set _pregObj to getPregnancyObject()>>
+<<set _fatherIsPoppy to (_pregObj.fetus and _pregObj.fetus.length and _pregObj.potentialFathers and _pregObj.potentialFathers.some(f => f.source is "Poppy")) ? true : false>>
 <<if ![3,4].includes($phase)>>
 	<<if $location is "poppy_flat">>
 		You sit down beside Poppy.
@@ -78,45 +80,69 @@
 				<br><br>
 			<</if>>
 		<</if>>
-		<<if $phase is 4>>
-			"It's yours, okay?" you say.
-		<<elseif $phase is 3>>
-			You both take a seat. With a sigh, you <<if !$worn.upper.type.includes("naked")>>lift the hem of your shirt and <</if>>frame your belly with your hands, drawing <<his>> eyes to your stomach.
-			<br>
-			"It's yours, okay?" you say.
-		<<else>>
-			You nod. "It's yours."
-		<</if>>
-		<br><br>
-		/* Paternity-doubt branch coz high sex fame. */
-		<<if $phase isnot 4 and $fame.sex gte 600>>
-			Poppy gives you a weird look. "I'm not so sure about that. You have a reputation of... sleeping around with other people. I can't trust you with just words alone. A paternity test wouldn't hurt, right?"
-			<br><br>
-			<<He>> reaches up and tugs a strand of <<his>> own hair free, pressing it into your palm.
-			<br><br>
-			<span class="blue">You'll need a paternity test to convince Poppy that <<he>> is the father.</span> The town hospital should be able to provide one.
-			<<set C.npc.Poppy.pregnancy.sample to true>><<poppyOpiumPulse>>
-			<<link [[Next|Flats Poppy Social]]>><<endevent>><<npc "Poppy">><<person1>><</link>>
-		<<else>>
-			<<if pregnancyCountBetweenParents("pc", "Poppy") lte 0>>
-				/* First pregnancy with Poppy, the excited "we're going to be parents" beat. */
-				A smile starts to form on <<his>> face. <<He>> pulls you into a tight embrace. "I can't believe this is happening... We're going to have a baby! We're going to be parents!!!"
-				<br><br>
-				You can feel <<him>> shaking with excitement. "I'm so glad I'm doing this with you..." Poppy pulls away enough for you to see the happy tears welling in <<his>> eyes. "I wouldn't have it any other way. I love you so much."
+		<<if _fatherIsPoppy>>
+			<<if $phase is 4>>
+				"It's yours, okay?" you say.
+			<<elseif $phase is 3>>
+				You both take a seat. With a sigh, you <<if !$worn.upper.type.includes("naked")>>lift the hem of your shirt and <</if>>frame your belly with your hands, drawing <<his>> eyes to your stomach.
+				<br>
+				"It's yours, okay?" you say.
 			<<else>>
-				/* Returning pregnancy, gentler "Oh my, another little one" beat. */
-				"Oh my, another little one on the way." <<He>> giggles and rests a hand on your belly. "Be sure to get enough rest for yourself and the baby, my jewel. Don't stress yourself and the baby."
-				<br><br>
-				<<He>> kisses your forehead. "I love you."
+				You nod. "It's yours."
 			<</if>>
-			<<llstress>><<stress -12>><<glove>><<npcincr Poppy love 1>>
+			<br><br>
+			/* Paternity-doubt branch coz high sex fame. */
+			<<if $phase isnot 4 and $fame.sex gte 600>>
+				Poppy gives you a weird look. "I'm not so sure about that. You have a reputation of... sleeping around with other people. I can't trust you with just words alone. A paternity test wouldn't hurt, right?"
+				<br><br>
+				<<He>> reaches up and tugs a strand of <<his>> own hair free, pressing it into your palm.
+				<br><br>
+				<span class="blue">You'll need a paternity test to convince Poppy that <<he>> is the father.</span> The town hospital should be able to provide one.
+				<<set C.npc.Poppy.pregnancy.sample to true>><<poppyOpiumPulse>>
+				<<link [[Next|Flats Poppy Social]]>><<endevent>><<npc "Poppy">><<person1>><</link>>
+			<<else>>
+				<<if pregnancyCountBetweenParents("pc", "Poppy") lte 0>>
+					/* First pregnancy with Poppy, the excited "we're going to be parents" beat. */
+					A smile starts to form on <<his>> face. <<He>> pulls you into a tight embrace. "I can't believe this is happening... We're going to have a baby! We're going to be parents!!!"
+					<br><br>
+					You can feel <<him>> shaking with excitement. "I'm so glad I'm doing this with you..." Poppy pulls away enough for you to see the happy tears welling in <<his>> eyes. "I wouldn't have it any other way. I love you so much."
+				<<else>>
+					/* Returning pregnancy, gentler "Oh my, another little one" beat. */
+					"Oh my, another little one on the way." <<He>> giggles and rests a hand on your belly. "Be sure to get enough rest for yourself and the baby, my jewel. Don't stress yourself and the baby."
+					<br><br>
+					<<He>> kisses your forehead. "I love you."
+				<</if>>
+				<<llstress>><<stress -12>><<glove>><<npcincr Poppy love 1>>
+				<<if $phase is 4>>
+					<br><br>
+					As <<he>> pulls away, <<he>> looks at you. "Sorry for not believing you at first."
+					<br>
+					"Yeah, I know it was a lot to take in," you say with a small smile.
+					<br>
+					<<He>> laughs softly. "I'm just glad I get to share this with you."
+				<</if>>
+				<<poppyOpiumPulse>>
+				<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
+			<</if>>
+		<<else>>
+			/* Not Poppy's baby (e.g. beast/other-sired pregnancy); don't let the PC claim otherwise. */
+			<<if $phase is 4>>
+				"I really am pregnant. It's... not yours, though," you admit.
+			<<elseif $phase is 3>>
+				You both take a seat. With a sigh, you <<if !$worn.upper.type.includes("naked")>>lift the hem of your shirt and <</if>>frame your belly with your hands, drawing <<his>> eyes to your stomach.
+				<br>
+				"It's not yours," you admit.
+			<<else>>
+				You nod. "It's not yours, though."
+			<</if>>
+			<br><br>
+			<<His>> ears droop slightly, but <<he>> quickly recovers, offering you a reassuring smile. "Well, I'm here for you regardless. Congratulations, but please be careful, okay? I wouldn't want you to hurt yourself."
+			<<llstress>><<stress -8>><<glove>><<npcincr Poppy love 1>>
 			<<if $phase is 4>>
 				<br><br>
-				As <<he>> pulls away, <<he>> looks at you. "Sorry for not believing you at first."
+				<<He>> pulls you into a gentle hug. "Sorry for doubting you at first."
 				<br>
 				"Yeah, I know it was a lot to take in," you say with a small smile.
-				<br>
-				<<He>> laughs softly. "I'm just glad I get to share this with you."
 			<</if>>
 			<<poppyOpiumPulse>>
 			<<link [[Next|Poppy Pregnancy Reveal 2]]>><</link>>
@@ -125,11 +151,11 @@
 <<elseif C.npc.Poppy.pregnancy.test isnot true and C.npc.Poppy.pregnancy.ultraSound is "done" and !V.player.vaginaExist>>
 	/* Male-PC route; finished showing ultrasound after Poppy demanded one. */
 	"I really am pregnant," you insist.
-	<<if pregnancyCountBetweenParents("pc", "Poppy") gt 0>>
+	<<if _fatherIsPoppy>>
 		"And it's yours."
 	<</if>>
 	<br><br>
-	<<if $fame.sex gte 600 and pregnancyCountBetweenParents("pc", "Poppy") gt 0 and !knowsAboutPregnancy("pc", "Poppy")>>
+	<<if $fame.sex gte 600 and _fatherIsPoppy and !knowsAboutPregnancy("pc", "Poppy")>>
 		/* High-fame doubt branch for male PC too. */
 		Poppy gives you a weird look. "I'm not so sure about that. You have a reputation of... sleeping around with other people. I can't trust you with just words alone. A paternity test wouldn't hurt, right?"
 		<br><br>
@@ -161,7 +187,7 @@
 		<br><br>
 		Poppy slowly pulls <<his>> hand away and slowly nods to <<himself>>. "I guess there really isn't any reason for me not to believe you, besides basic biology. Take good care of yourself, alright?"
 		<br><br>
-		<<if pregnancyCountBetweenParents("pc", "Poppy") gt 0>>
+		<<if _fatherIsPoppy>>
 			<<His>> gaze softens. "I can't believe we're going to start a family, despite the strange circumstances. I love you."
 		<</if>>
 		<<llstress>><<stress -12>><<glove>><<npcincr Poppy love 1>>
