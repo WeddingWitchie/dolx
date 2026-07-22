@@ -4,7 +4,15 @@
 	<<unset $lastChangingRoom>>
 	<<outfitChecks>>
 	<<set _changingRoomGenderType to _args[0]>>
-
+	<<set _transChangingRoomGender to $player.gender_appearance>>
+	/* For trans players, comfort follows gender identity (their currently used pronouns), not body appearance.
+	   Falls back to appearance when identity is neutral/unset, so non-binary or unconfigured saves are unaffected. */
+	<<if $background.transgender>>
+		<<set _resolvedPronounGender to playerPronoun()>>
+		<<if _resolvedPronounGender is "m" or _resolvedPronounGender is "f">>
+			<<set _transChangingRoomGender to _resolvedPronounGender>>
+		<</if>>
+	<</if>>
 	<<if ["School Boy Changing Room", "School Girl Changing Room"].includes($passage)>>
 		<<if $previousClothes is undefined>><<set $previousClothes to clone($worn)>><</if>>
 		<<run (() => {
@@ -62,6 +70,10 @@
 	<<else>>
 		<<set _genderChance to maleChance()>>
 	<</if>>
+	<<if $background.transgender and $schoolrep.transgender is _args[0] and _transChangingRoomGender is _args[0] and $changingroomstate isnot "empty">>
+		<<set _studentsKnow to true>>
+		<<set _allowedToChange to true>>
+	<</if>>
 
 	/* Final override: known herm should never be blocked by crossdress logic */
 	<<if _knownHerm>>
@@ -70,19 +82,6 @@
 	<</if>>
 
 	<<set _seenGender to (_studentsKnow ? $player.sex : $player.gender_appearance)>> <!-- If they know you crossdress, they judge you by the body the rumours describe, not by appearance -->
-	<<set _transChangingRoomGender to $player.gender_appearance>>
-	/* For trans players, comfort follows gender IDENTITY (their currently used pronouns), not body appearance.
-	   This keeps e.g. a trans man (female body, masculine identity) comfortable in the men's room.
-	   Falls back to appearance when identity is neutral/unset, so non-binary or unconfigured saves are unaffected. */
-	<<if $background.transgender>>
-		<<set _resolvedPronounGender to playerPronoun()>>
-		<<if _resolvedPronounGender is "m" or _resolvedPronounGender is "f">>
-			<<set _transChangingRoomGender to _resolvedPronounGender>>
-		<</if>>
-	<</if>>
-	<<if $background.transgender and $xchange.pill.active and $xchange.pill.baseSex isnot undefined>>
-		<<set _transChangingRoomGender to $xchange.pill.baseSex is "m" ? "f" : ($xchange.pill.baseSex is "f" ? "m" : $player.gender_appearance)>>
-	<</if>>
 	<<if $background.transgender>>
 		/* Trans players: comfort is tied to gender identity, not sex. Same-gender room = home; opposite-gender room = wrong room. */
 		<<set _uncomfortable to (_transChangingRoomGender isnot _args[0] and _transChangingRoomGender isnot "h")>>
@@ -623,8 +622,12 @@
 		It's full of $changingRoomGender in various states of undress who hastily cover up as you enter.
 	<</if>>
 	Many look about to die from embarrassment, but some are angry and shoo you out.
-	<<detention 3>><<gdelinquency>>
+	<<if !($background.transgender and _transChangingRoomGender is _changingRoomGenderType)>><<detention 3>><<gdelinquency>><</if>>
 	<br><br>
+	<<if $background.transgender and _transChangingRoomGender is _changingRoomGenderType>>
+		<<link [[Explain that this is the changing room you belong in|School Changing Room Trans Explain]]>><</link>>
+		<br>
+	<</if>>
 	<<link [[Next|School Pool Entrance]]>><</link>>
 <</widget>>
 
@@ -635,12 +638,16 @@
 	<<else>>
 		It's full of $changingRoomGender in various states of undress who hastily cover up as you enter.
 	<</if>>
-	Many look angry. A <<person>> drops <<his>> bag and steps forward. "You pervert," <<he>> says. "You can't keep barging in here." <<He>> grabs your arm.
-	<<detention 3>><<gdelinquency>>
+	Many look angry. A <<person>> drops <<his>> bag and steps forward. <<if $background.transgender and _transChangingRoomGender is _changingRoomGenderType>>"You can't just keep barging in here,"<<else>> "You pervert," <<he>> says. "You can't keep barging in here."<</if>> <<He>> grabs your arm.
+	<<if !($background.transgender and _transChangingRoomGender is _changingRoomGenderType)>><<detention 3>><<gdelinquency>><</if>>
 	<br><br>
 	<<link [[Try to escape|School Changing Room Escape]]>><</link>><<physiquedifficulty 4000 14000>>
 	<br>
 	<<link [[Flirt|School Changing Room Flirt]]>><</link>><<promiscuous1>>
 	<br>
 	<<link [[Apologise|School Changing Room Apologise]]>><</link>>
+	<<if $background.transgender and _transChangingRoomGender is _changingRoomGenderType>>
+		<br>
+		<<link [[Explain that you're trans|School Changing Room Trans Explain]]>><</link>>
+	<</if>>
 <</widget>>

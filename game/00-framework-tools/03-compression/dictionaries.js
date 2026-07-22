@@ -1775,6 +1775,7 @@ const DoLCompressorDictionaries = (() => {
 		"traits",
 		"trance",
 		"transfer",
+		"transgenderknown",
 		"transformationParts",
 		"transformations",
 		"transformdisable",
