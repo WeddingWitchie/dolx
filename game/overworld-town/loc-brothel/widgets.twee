@@ -410,9 +410,14 @@
 
 <<widget "gloryHoleServiceEffects">>
 	<<set $gloryhole to 1>>
-	<<set _sexavoid to $sexavoid>><<set _rapeavoid to $rapeavoid>>
-	<<set $sexavoid to 1>><<set $rapeavoid to 1>>
-	<<consensual>><<set $consensual to 1>>
+	<<if _args[1] is "normal">>
+		<<set $sexavoid to 1>><<set $rapeavoid to 1>>
+	<<else>>
+		<<set $sexavoid to 0>><<set $rapeavoid to 0>>
+	<</if>>
+	<<set $consensual to 1>>
+	<<consensual>>
+	<<penetrationPainCalculate>>
 	<<switch _args[0]>>
 		<<case "hand">>
 			<<set _submission to _service.hands.submission>>
@@ -420,33 +425,36 @@
 			<<set _rounds to _service.hands.rounds>>
 			<<set _time to _service.hands.time>>
 			<<handskill _rounds>><<handstat>>
-			<<if $NPCList[0].penis isnot "none">>
-				<<if random(100) gt 50>>
+			<<switch $gloryHoleEvent.target>>
+				<<case "anal">>
+					<<set $NPCList[0].penis to "otheranus">>
+					<<set $NPCList[0].vagina to "otheranus">>
+				<<case "oral">>
+					<<set $NPCList[0].mouth to "rightarm">>
+				<<case "penile">>
 					<<set $NPCList[0].penis to "leftarm">>
-				<<else>>
-					<<set $NPCList[0].penis to "rightarm">>
-				<</if>>
-			<<elseif $NPCList[0].vagina isnot "none">>
-				<<if random(100) gt 50>>
-					<<set $NPCList[0].vagina to "leftarm">>
-				<<else>>
+				<<case "vaginal">>
 					<<set $NPCList[0].vagina to "rightarm">>
-				<</if>>
-			<</if>>
+			<</switch>>
+			<<set $gloryHoleEvent.tool to "hand">>
 		<<case "mouth">>
 			<<set _submission to _service.mouth.submission>>
 			<<set _sex to _service.mouth.sex>>
 			<<set _rounds to _service.mouth.rounds>>
 			<<set _time to _service.mouth.time>>
 			<<oralskill _rounds>><<oralstat>><<raped>>
-			<<if $NPCList[0].penis isnot "none">>
-				<<set $NPCList[0].penis to "mouth">>
-				<<if $player.virginity.oral is true>>
-					<<takeVirginity $NPCList[0].fullDescription "oral">>
-				<</if>>
-			<<elseif $NPCList[0].vagina isnot "none">>
-				<<set $NPCList[0].vagina to "mouth">>
-			<</if>>
+			<<switch $gloryHoleEvent.target>>
+				<<case "anal">>
+					<<set $NPCList[0].vagina to "facesitanal">>
+					<<set $NPCList[0].penis to "facesitanal">>
+				<<case "oral">>
+					<<set $NPCList[0].mouth to "kiss">>
+				<<case "penile">>
+					<<set $NPCList[0].penis to "mouth">>
+				<<case "vaginal">>
+					<<set $NPCList[0].vagina to "mouth">>
+			<</switch>>
+			<<set $gloryHoleEvent.tool to "oral">>
 		<<case "chest">>
 			<<set _submission to _service.chest.submission>>
 			<<set _sex to _service.chest.sex>>
@@ -486,20 +494,24 @@
 			<<set _sex to _service.penis.sex>>
 			<<set _rounds to _service.penis.rounds>>
 			<<set _time to _service.penis.time>>
-			<<if $player.virginity.penile is true>>
-				<<takeVirginity $NPCList[0].fullDescription "penile">>
-			<</if>>
-			<<if random(100) gt 50 and $NPCList[0].vagina isnot "none">>
-				<<set _target to "vaginal">>
-				<<set $NPCList[0].vagina to "penis">>
-			<<else>>
-				<<set _target to "anal">>
-				<<set $NPCList[0].vagina to "otheranus">>
-			<</if>>
+			<<set $gloryHoleEvent.virginity to true>>
+			<<switch $gloryHoleEvent.target>>
+				<<case "anal">>
+					<<set $NPCList[0].vagina to "otheranus">>
+					<<set $NPCList[0].penis to "otheranus">>
+				<<case "oral">>
+					<<set $NPCList[0].mouth to "penis">>
+				<<case "penile">>
+					<<set $gloryHoleEvent.virginity to false>>
+					<<set $NPCList[0].penis to "penis">>
+				<<case "vaginal">>
+					<<set $NPCList[0].vagina to "penis">>
+			<</switch>>
 			<<if _args[0] isnot "strap">>
-				<<penisraped>>
+				<<penisraped>><<bruise penis>><<set _pain to $penisPain>>
 			<</if>>
-			<<penileskill _rounds>><<raped>><<penilestat>><<takeNPCVirginity 0 _target>>
+			<<penileskill _rounds>><<raped>><<penilestat>>
+			<<set $gloryHoleEvent.tool to "penile">>
 		<<case "vagina">>
 			<<set _submission to _service.vagina.submission>>
 			<<set _sex to _service.vagina.sex>>
@@ -507,25 +519,26 @@
 			<<set _time to _service.vagina.time>>
 			<<vaginalskill _rounds>><<raped>>
 			<<if $NPCList[0].penis isnot "none">>
-				<<set $NPCList[0].penis to "vagina">><<takeNPCVirginity 0 "penile">><<vaginalstat>><<vaginaraped>>
-				<<if $player.virginity.vaginal is true>>
-					<<bruise vagina>><<takeVirginity $NPCList[0].fullDescription "vaginal">>
-				<</if>>
+				<<set $NPCList[0].penis to "vagina">>
+				<<set $gloryHoleEvent.virginity to true>>
 			<<elseif $NPCList[0].vagina isnot "none">>
 				<<set $NPCList[0].vagina to "vagina">>
 			<</if>>
+			<<vaginalstat>><<vaginaraped>>
+			<<set _pain to Math.floor($vaginalPain * (1.5 / (5 - ($NPCList[0].penissize or 1))))>>
+			<<bruise vagina>>
+			<<set $gloryHoleEvent.tool to "vaginal">>
 		<<case "anus">>
 			<<set _submission to _service.anus.submission>>
 			<<set _sex to _service.anus.sex>>
 			<<set _rounds to _service.anus.rounds>>
 			<<set _time to _service.anus.time>>
 			<<analskill _rounds>><<analstat>><<raped>><<anusraped>>
-			<<if $NPCList[0].penis isnot "none">>
-				<<set $NPCList[0].penis to "anus">><<takeNPCVirginity 0 "penile">>
-				<<if $player.virginity.anal is true>>
-					<<takeVirginity $NPCList[0].fullDescription "anal">><<bruise anus>><<violence 30>>
-				<</if>>
-			<</if>>
+			<<set _pain to Math.floor($analPain * (1.5 / (6 - ($NPCList[0].penissize+1 or 1))))>>
+			<<bruise anus>>
+			<<set $NPCList[0].penis to "anus">>
+			<<set $gloryHoleEvent.virginity to true>>
+			<<set $gloryHoleEvent.tool to "anal">>
 	<</switch>>
 
 	<<set $gloryholeSampleResult to 0>>
@@ -534,13 +547,20 @@
 	<</if>>
 
 	<<set $phase to 2>>
-	<<set $gloryholestat += 1>><<set $prostitutionstat += 1>><<fameprostitution 1>>
+	<<set $gloryholestat += 1>><<set $prostitutionstat += 1>>
+	<<if _args[1] isnot "normal">>
+		<<fameprostitution 1 "none" true>>
+	<</if>>
+	<<pass _time>>
 	<<set _arousal1 += (_submission * 20) * _rounds>>
 	<<arousal _arousal1>>
 	<<set _arousal2 += _sex * 20>>
 	<<arousal _arousal2>>
 	<<tiredness 3>>
-	<<pass _time>>
+	<<if _pain>>
+		<<pain _pain>>
+	<</if>>
+	<<violence 1>>
 	<<set $gloryhole to 0>>
 <</widget>>
 

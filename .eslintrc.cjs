@@ -312,6 +312,8 @@ module.exports = {
 		CanvasModel: "readonly",
 		PRNG: "readonly",
 		// DOLP functions
+		initEarrings: "readonly",
+		initRingsL: "readonly",
 		bikeSecurity: "readonly",
 		bikeTime: "readonly",
 		poppyDailyTraits: "readonly",

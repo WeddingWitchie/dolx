@@ -4531,7 +4531,7 @@ function initHead() {
 		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.head = [
-		{
+		new ClothesItem({
 			index: 65,
 			slot: "head",
 			name: "honey hair clip",
@@ -4565,8 +4565,8 @@ function initHead() {
 			cursed: 0,
 			location: 0,
 			iconFile: "honey_hair_clip.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 65,
 			slot: "head",
 			name: "carrot pin",
@@ -4602,7 +4602,7 @@ function initHead() {
 			location: 0,
 			iconFile: "carrot_pin.png",
 			accIcon: "carrot_pin_acc.png",
-		},
+		}),
 	];
 
 	setup.moddedClothes.head.forEach((x, i) => (x.index = setup.clothes.head.length + i));

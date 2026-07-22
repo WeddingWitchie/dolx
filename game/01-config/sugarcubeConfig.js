@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.11.7 DoLP v0.750 DoLX 0.20.13a",
+	version: "0.5.11.7 DoLP v0.754 DoLX 0.20.13a",
 	versionName: `"The Great Equaliser" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,

@@ -1276,7 +1276,7 @@ function initHandheld() {
 		These items should have a `modder` variable with the modder's name in a short string.
 	*/
 	setup.moddedClothes.handheld = [
-		{
+		new ClothesItem({
 			index: 6,
 			slot: "handheld",
 			name: "honey pouch",
@@ -1324,8 +1324,8 @@ function initHandheld() {
 			location: 0,
 			iconFile: "heart_purse.png",
 			accIcon: "heart_purse_acc.png",
-		},
-		{
+		}),
+		new ClothesItem({
 			index: 6,
 			slot: "handheld",
 			name: "bear backpack",
@@ -1360,7 +1360,7 @@ function initHandheld() {
 			location: 0,
 			iconFile: "bear_backpack.png",
 			accIcon: "bear_backpack_acc.png",
-		},
+		}),
 	];
 
 	setup.moddedClothes.handheld.forEach((x, i) => (x.index = setup.clothes.handheld.length + i));
