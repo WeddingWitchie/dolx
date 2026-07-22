@@ -71,12 +71,13 @@
 
 	<<set _seenGender to (_studentsKnow ? $player.sex : $player.gender_appearance)>> <!-- If they know you crossdress, they judge you by the body the rumours describe, not by appearance -->
 	<<set _transChangingRoomGender to $player.gender_appearance>>
-	/* For trans players, comfort follows gender IDENTITY (their preferred pronouns), not body appearance.
+	/* For trans players, comfort follows gender IDENTITY (their currently used pronouns), not body appearance.
 	   This keeps e.g. a trans man (female body, masculine identity) comfortable in the men's room.
 	   Falls back to appearance when identity is neutral/unset, so non-binary or unconfigured saves are unaffected. */
 	<<if $background.transgender>>
-		<<if $identity?.presentation?.pronouns?.preferred is "m" or $identity?.presentation?.pronouns?.preferred is "f">>
-			<<set _transChangingRoomGender to $identity.presentation.pronouns.preferred>>
+		<<set _resolvedPronounGender to playerPronoun()>>
+		<<if _resolvedPronounGender is "m" or _resolvedPronounGender is "f">>
+			<<set _transChangingRoomGender to _resolvedPronounGender>>
 		<</if>>
 	<</if>>
 	<<if $background.transgender and $xchange.pill.active and $xchange.pill.baseSex isnot undefined>>

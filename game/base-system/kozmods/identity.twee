@@ -84,7 +84,8 @@
 			</div>
 
 			<div class="settingsToggleItem">
-				<span class="gold">Pronouns </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria. You can prefer multiple pronoun types. When all three are preferred, dynamic pronoun modes become available.</span></mouse>
+				<span class="gold">Pronouns </span> <mouse class="tooltip linkBlue">(?)<span>These preferences control the pronouns and gendered words used for your character in game text. Unaccepted characteristics will cause dysphoria. You can prefer multiple pronoun types. When all three are preferred, dynamic pronoun modes become available.</span></mouse>
+				<br><span class="small-description">Currently used: <<= playerPronoun() is "m" ? "he / him" : playerPronoun() is "f" ? "she / her" : "they / them">></span>
 				<br>
 				Masculine:
 				<br> 
@@ -115,49 +116,14 @@
 				<br>
 
 				<<silently>>
-					/* Ensure preferred booleans can't be true when acceptance is false */
-					<<if $identity.presentation.pronouns.preferredMasculine and !$identity.presentation.pronouns.masculine.acceptance>>
-						<<set $identity.presentation.pronouns.preferredMasculine to false>>
-					<</if>>
-					<<if $identity.presentation.pronouns.preferredFeminine and !$identity.presentation.pronouns.feminine.acceptance>>
-						<<set $identity.presentation.pronouns.preferredFeminine to false>>
-					<</if>>
-					<<if $identity.presentation.pronouns.preferredNeutral and !$identity.presentation.pronouns.neutral.acceptance>>
-						<<set $identity.presentation.pronouns.preferredNeutral to false>>
-					<</if>>
-
-					/* Count how many are individually preferred */
-					<<set _prefPronCount to (
-						($identity.presentation.pronouns.preferredMasculine ? 1 : 0) +
-						($identity.presentation.pronouns.preferredFeminine ? 1 : 0) +
-						($identity.presentation.pronouns.preferredNeutral ? 1 : 0)
-					)>>
-
-					/* Clear dynamic mode if not all three are preferred */
-					<<if _prefPronCount lt 3 and ["body","clothing","appearance","posture"].includes($identity.presentation.pronouns.pronounDynamicMode)>>
+					/* Keep the preference controls internally consistent after reject/unaccept actions. */
+					<<if !$identity.presentation.pronouns.masculine.acceptance>><<set $identity.presentation.pronouns.preferredMasculine to false>><</if>>
+					<<if !$identity.presentation.pronouns.feminine.acceptance>><<set $identity.presentation.pronouns.preferredFeminine to false>><</if>>
+					<<if !$identity.presentation.pronouns.neutral.acceptance>><<set $identity.presentation.pronouns.preferredNeutral to false>><</if>>
+					<<if !($identity.presentation.pronouns.preferredMasculine and $identity.presentation.pronouns.preferredFeminine and $identity.presentation.pronouns.preferredNeutral)>>
 						<<set $identity.presentation.pronouns.pronounDynamicMode to "">>
-						<<set $effectsmessage to 1>>
-						<<set $xchange.pronounPrefAutoFix to true>>
-					<</if>>
-
-					/* Sync legacy preferred field for backward compat */
-					<<if _prefPronCount gte 3 and ["body","clothing","appearance","posture"].includes($identity.presentation.pronouns.pronounDynamicMode)>>
-						<<set $identity.presentation.pronouns.preferred to $identity.presentation.pronouns.pronounDynamicMode>>
-					<<elseif $identity.presentation.pronouns.preferredNeutral>>
-						<<set $identity.presentation.pronouns.preferred to "n">>
-					<<elseif $identity.presentation.pronouns.preferredFeminine>>
-						<<set $identity.presentation.pronouns.preferred to "f">>
-					<<elseif $identity.presentation.pronouns.preferredMasculine>>
-						<<set $identity.presentation.pronouns.preferred to "m">>
-					<<else>>
-						<<set $identity.presentation.pronouns.preferred to "n">>
 					<</if>>
 				<</silently>>
-
-				<<if $xchange.pronounPrefAutoFix>>
-					<br><span class="red">Your dynamic pronoun mode was cleared because not all pronoun types are preferred.</span>
-					<<set $xchange.pronounPrefAutoFix to false>>
-				<</if>>
 
 				<div data-target='["identity.presentation.pronouns.preferredMasculine", "identity.presentation.pronouns.preferredFeminine", "identity.presentation.pronouns.preferredNeutral"]' data-disabledif="!(V.identity.presentation.pronouns.preferredMasculine && V.identity.presentation.pronouns.preferredFeminine && V.identity.presentation.pronouns.preferredNeutral)">
 					<span class="gold">Preferred pronouns based on: </span>
@@ -1144,7 +1110,8 @@
 	<</widget>>
 
 	<<widget "misgender">>
-		<<if $player.gender_appearance is "m">>
+		<<set _usedPronoun to _args[0] || perceivedGender()>>
+		<<if _usedPronoun is "m">>
 			<<identitySelector "Masculine Pronouns">>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
@@ -1154,8 +1121,18 @@
 					<<stress -1 1>><<trauma -1>>
 				<</if>>
 			<</if>>
-		<<elseif $player.gender_appearance is "f">>
+		<<elseif _usedPronoun is "f">>
 			<<identitySelector "Feminine Pronouns">>
+			<<if !$identityOption.acceptance>>
+				<<dysphoria 10>>
+			<<else>>
+				<<dysphoria -1>>
+				<<if $identityPreference>>
+					<<stress -1 1>><<trauma -1>>
+				<</if>>
+			<</if>>
+		<<elseif _usedPronoun is "n">>
+			<<identitySelector "Neutral Pronouns">>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
 			<<else>>

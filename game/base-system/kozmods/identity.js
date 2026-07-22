@@ -454,31 +454,60 @@ function identityCharacteristicCategory(category) {
 }
 window.identityCharacteristicCategory = identityCharacteristicCategory;
 
-function preferredPronouns(gender) {
-	const pronouns = V.identity.presentation.pronouns;
-	const dynamicMode = pronouns.pronounDynamicMode || "";
-	switch (gender) {
-		case "m":
-			if (pronouns.preferredMasculine && !dynamicMode) return true;
-			if (dynamicMode === "body") return V.player.penisExist;
-			else if (dynamicMode === "clothing") {
-				if (playerHasCharacteristic("Masculine Clothing")) return true;
-				else return false;
-			} else if (dynamicMode === "appearance") return V.player.gender_appearance === "m";
-			else if (dynamicMode === "posture") return V.player.gender_posture === "m";
-			return !!pronouns.preferredMasculine;
-		case "f":
-			if (pronouns.preferredFeminine && !dynamicMode) return true;
-			if (dynamicMode === "body") return V.player.vaginaExist;
-			else if (dynamicMode === "clothing") {
-				if (playerHasCharacteristic("Feminine Clothing")) return true;
-				else return false;
-			} else if (dynamicMode === "appearance") return V.player.gender_appearance === "f";
-			else if (dynamicMode === "posture") return V.player.gender_posture === "f";
-			return !!pronouns.preferredFeminine;
-		default:
-			return false;
+function playerPronoun() {
+	const pronouns = V.identity?.presentation?.pronouns || {};
+	const dynamicModes = ["body", "clothing", "appearance", "posture"];
+	const hasPreferenceFlags = [pronouns.preferredMasculine, pronouns.preferredFeminine, pronouns.preferredNeutral].some(value => value !== undefined);
+	const allPronounsPreferred =
+		pronouns.preferredMasculine &&
+		pronouns.preferredFeminine &&
+		pronouns.preferredNeutral &&
+		pronouns.masculine?.acceptance !== false &&
+		pronouns.feminine?.acceptance !== false &&
+		pronouns.neutral?.acceptance !== false;
+	const savedDynamicMode = pronouns.pronounDynamicMode || (dynamicModes.includes(pronouns.preferred) ? pronouns.preferred : "");
+	const dynamicMode = (!hasPreferenceFlags || allPronounsPreferred) && dynamicModes.includes(savedDynamicMode) ? savedDynamicMode : "";
+
+	if (dynamicMode === "body") {
+		if (!!V.player.penisExist === !!V.player.vaginaExist) return "n";
+		return V.player.penisExist ? "m" : "f";
 	}
+	if (dynamicMode === "clothing") {
+		const masculine = playerHasCharacteristic("Masculine Clothing") > 0;
+		const feminine = playerHasCharacteristic("Feminine Clothing") > 0;
+		if (masculine === feminine) return "n";
+		return masculine ? "m" : "f";
+	}
+	if (dynamicMode === "appearance") return ["m", "f"].includes(V.player.gender_appearance) ? V.player.gender_appearance : "n";
+	if (dynamicMode === "posture") return ["m", "f"].includes(V.player.gender_posture) ? V.player.gender_posture : "n";
+
+	const preferred = [];
+	if (pronouns.preferredMasculine && pronouns.masculine?.acceptance !== false) preferred.push("m");
+	if (pronouns.preferredFeminine && pronouns.feminine?.acceptance !== false) preferred.push("f");
+	if (pronouns.preferredNeutral && pronouns.neutral?.acceptance !== false) preferred.push("n");
+
+	if (preferred.length === 1) return preferred[0];
+	if (preferred.length > 1) {
+		const perceived = typeof window.perceivedGender === "function" ? window.perceivedGender() : V.player.gender_appearance;
+		if (preferred.includes(perceived)) return perceived;
+		return preferred.includes("n") ? "n" : preferred[0];
+	}
+
+	if (["m", "f", "n"].includes(pronouns.preferred)) return pronouns.preferred;
+	if (["m", "f", "n"].includes(V.player.pronoun)) return V.player.pronoun;
+	return ["m", "f"].includes(V.player.gender) ? V.player.gender : "n";
+}
+window.playerPronoun = playerPronoun;
+
+function preferredPronouns(gender) {
+	const pronouns = V.identity?.presentation?.pronouns || {};
+	const dynamicModes = ["body", "clothing", "appearance", "posture"];
+	const dynamicMode = pronouns.pronounDynamicMode || (dynamicModes.includes(pronouns.preferred) ? pronouns.preferred : "");
+	if (dynamicModes.includes(dynamicMode)) return playerPronoun() === gender;
+	if (gender === "m") return !!pronouns.preferredMasculine;
+	if (gender === "f") return !!pronouns.preferredFeminine;
+	if (gender === "n") return !!pronouns.preferredNeutral;
+	return false;
 }
 window.preferredPronouns = preferredPronouns;
 

@@ -251,20 +251,26 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	/* Migrate single pronoun preferred to multi-preference fields */
 	<<if $identity and $identity.presentation and $identity.presentation.pronouns>>
+		<<set _oldPP to $identity.presentation.pronouns.preferred>>
 		<<if $identity.presentation.pronouns.preferredMasculine is undefined>>
-			<<set _oldPP to $identity.presentation.pronouns.preferred>>
 			<<set $identity.presentation.pronouns.preferredMasculine to (_oldPP is "m")>>
+		<</if>>
+		<<if $identity.presentation.pronouns.preferredFeminine is undefined>>
 			<<set $identity.presentation.pronouns.preferredFeminine to (_oldPP is "f")>>
+		<</if>>
+		<<if $identity.presentation.pronouns.preferredNeutral is undefined>>
 			<<set $identity.presentation.pronouns.preferredNeutral to (_oldPP is "n")>>
-			/* If was a dynamic mode, all three must have been accepted so mark them all preferred */
-			<<if ["body","clothing","appearance","posture"].includes(_oldPP)>>
-				<<set $identity.presentation.pronouns.preferredMasculine to true>>
-				<<set $identity.presentation.pronouns.preferredFeminine to true>>
-				<<set $identity.presentation.pronouns.preferredNeutral to true>>
+		<</if>>
+		/* If this was a dynamic mode, all three types were available. */
+		<<if ["body","clothing","appearance","posture"].includes(_oldPP)>>
+			<<set $identity.presentation.pronouns.preferredMasculine to true>>
+			<<set $identity.presentation.pronouns.preferredFeminine to true>>
+			<<set $identity.presentation.pronouns.preferredNeutral to true>>
+			<<if $identity.presentation.pronouns.pronounDynamicMode is undefined>>
 				<<set $identity.presentation.pronouns.pronounDynamicMode to _oldPP>>
-			<<else>>
-				<<set $identity.presentation.pronouns.pronounDynamicMode to "">>
 			<</if>>
+		<<elseif $identity.presentation.pronouns.pronounDynamicMode is undefined>>
+			<<set $identity.presentation.pronouns.pronounDynamicMode to "">>
 		<</if>>
 	<</if>> /* delete later */
 
@@ -665,7 +671,11 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 						tolerance : 0,
 						misgendered: 0
 					},
-					preferred : $player.gender
+					preferred : $player.gender,
+					preferredMasculine : $player.gender is "m",
+					preferredFeminine : $player.gender is "f",
+					preferredNeutral : $player.gender is "n",
+					pronounDynamicMode : ""
 				}
 			},
 			body : {
