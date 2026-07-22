@@ -597,6 +597,23 @@ window.wornSetupClothes = wornSetupClothes;
 		x.giAutoEnabled = toStrictBool(x.giAutoEnabled);
 		x.giTransformEnabled = toStrictBool(x.giTransformEnabled);
 
+		// Complete the existing single-to-dual genital preference migration on normal loads too.
+		// New and same-version saves can otherwise keep the legacy field until the Identity screen is opened.
+		const genitals = V.identity?.body?.genitals;
+		if (genitals && typeof genitals === "object" && !Array.isArray(genitals)) {
+			const penisPreferences = ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"];
+			if (genitals.preferredVagina === undefined) genitals.preferredVagina = genitals.preferred === "vagina";
+			if (genitals.preferredPenis === undefined) {
+				genitals.preferredPenis = penisPreferences.includes(genitals.preferred) ? genitals.preferred : false;
+			}
+		}
+
+		const drift = Number(x.giDrift);
+		x.giDrift = Number.isFinite(drift) && drift >= 0 ? drift : 0;
+		const stage = Number(x.giShiftStage);
+		x.giShiftStage = [0, 1, 2, 3].includes(stage) ? stage : 0;
+		if (!["", "f", "m"].includes(x.giShiftMode)) x.giShiftMode = "";
+
 		// Consent tracks the transform checkbox directly.
 		// The checkbox IS the consent, there is no separate consent UI.
 		// When transforms are enabled, consent is granted.

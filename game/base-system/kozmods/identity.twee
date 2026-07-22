@@ -1276,7 +1276,7 @@
 				<<gi-compute-target>>
 
 				<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
-				<<set _step to ($xchange.giStepPerDay is undefined ? 8 : $xchange.giStepPerDay)>>
+				<<set _step to Math.max(1, Number($xchange.giStepPerDay) || 30)>>
 
 				<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 7 or $xchange.giInitialized isnot true>>
 					<<set $genderidentity to $xchange.giTarget>>
@@ -1355,7 +1355,7 @@
 				<<if _delta isnot 0>>
 					<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 					<<set _mid to Math.floor(_range / 2)>>
-					<<set _th to ($xchange.giTransformThreshold is undefined ? 30 : $xchange.giTransformThreshold)>>
+					<<set _th to Math.max(1, Number($xchange.giTransformThreshold) || 120)>>
 
 					<<if $xchange.giDrift is undefined>><<set $xchange.giDrift to 0>><</if>>
 					<<if $xchange.giShiftMode is undefined>><<set $xchange.giShiftMode to "">><</if>>
@@ -1409,33 +1409,75 @@
 		<</if>>
 
 		/* Compute preferred targets from identity settings */
-		<<set _breastTarget to 5>>
-		<<if $xchange.giBreastSizeEnabled>>
+		<<set _breastTarget to null>>
+		<<if $xchange.giBreastSizeEnabled and $identity.body.chest.preferred>>
 			<<if $identity.body.chest.preferred is "flat">><<set _breastTarget to 0>>
 			<<elseif $identity.body.chest.preferred is "small">><<set _breastTarget to 3>>
 			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
 			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
 			<</if>>
 		<</if>>
-		<<set _bottomTarget to 4>>
-		<<if $xchange.giAssSizeEnabled>>
+		<<set _bottomTarget to null>>
+		<<if $xchange.giAssSizeEnabled and $identity.body.bottom.preferred>>
 			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 2>>
 			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
 			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
 			<</if>>
 		<</if>>
+		<<set _penisPreference to $identity.body.genitals.preferredPenis>>
+		<<if !_penisPreference and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes($identity.body.genitals.preferred)>>
+			<<set _penisPreference to $identity.body.genitals.preferred>>
+		<</if>>
+		<<set _preferVagina to $xchange.giGenitalsEnabled and ($identity.body.genitals.preferredVagina is true or ($identity.body.genitals.preferredVagina is undefined and $identity.body.genitals.preferred is "vagina"))>>
+		<<set _preferPenis to $xchange.giGenitalsEnabled and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes(_penisPreference)>>
+		<<set _penisTarget to null>>
+		<<if _preferPenis>>
+			<<if _penisPreference is "tinypenis">><<set _penisTarget to 2>>
+			<<elseif _penisPreference is "smallpenis">><<set _penisTarget to 3>>
+			<<elseif _penisPreference is "mediumpenis">><<set _penisTarget to 4>>
+			<<elseif _penisPreference is "bigpenis">><<set _penisTarget to 6>>
+			<</if>>
+		<</if>>
+		<<set _bodySizeTarget to null>>
+		<<if $xchange.giBodySizeEnabled>>
+			<<set _bodySizeMap to {miniature:-1, tiny:0, small:1, normal:2, tall:2.5, large:3, giant:4}>>
+			<<if _bodySizeMap[$identity.body.bodysize.preferred] isnot undefined>>
+				<<set _bodySizeTarget to _bodySizeMap[$identity.body.bodysize.preferred]>>
+			<</if>>
+		<</if>>
 
 		/* Stage 0: setup */
 		<<if $xchange.giShiftStage is 0>>
-			<<if $player.gender is "m">>
-				<<set $xchange.giMaxGenderIdentityShift to 900>>
-			<</if>>
 			<<set $xchange.giShiftStage to 1>>
 		<</if>>
 
-		/* Stage 1: primary sex shift */
+		/* Stage 1: move toward the explicit genital preference, allowing a stable dual-genital target. */
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
-			<<if $player.penisExist>>
+			<<if !_preferVagina and !_preferPenis>>
+				<<set $xchange.giShiftStage to 2>>
+			<<elseif _preferVagina and !$player.vaginaExist>>
+				<<set $player.vaginaExist to true>>
+				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
+					<<set $sexStats.vagina.menstruation.running to true>>
+				<</if>>
+				<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
+				<<set _giStepDone to true>>
+			<<elseif _preferPenis and !$player.penisExist>>
+				<<set $player.penisExist to true>>
+				<<set $player.ballsExist to true>>
+				<<set $player.penissize to 0>>
+				<<set $ballssize to 0>>
+				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
+				<<set _giStepDone to true>>
+			<<elseif _preferPenis and $player.penissize lt _penisTarget>>
+				<<set $player.penissize += 1>>
+				<<gi-note "The shape between your legs grows a little larger.">>
+				<<set _giStepDone to true>>
+			<<elseif _preferPenis and $player.penissize gt _penisTarget>>
+				<<set $player.penissize -= 1>>
+				<<gi-note "Your penis feels a little smaller.">>
+				<<set _giStepDone to true>>
+			<<elseif !_preferPenis and $player.penisExist>>
 				<<if $player.penissize gt 2>>
 					<<set $player.penissize -= 1>>
 					<<gi-note "Your penis feels a little smaller.">>
@@ -1445,25 +1487,18 @@
 					<<set $player.ballsExist to false>>
 					<<set $player.penissize to 0>>
 					<<set $ballssize to 0>>
-					<<set $player.vaginaExist to true>>
-					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
-						<<set $sexStats.vagina.menstruation.running to true>>
-					<</if>>
-					<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
-					<<set $xchange.giShiftStage to 2>>
+					<<gi-note "The shape between your legs recedes and disappears.">>
 					<<set _giStepDone to true>>
 				<</if>>
+			<<elseif !_preferVagina and $player.vaginaExist>>
+				<<set $player.vaginaExist to false>>
+				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
+					<<set $sexStats.vagina.menstruation.running to false>>
+				<</if>>
+				<<run window.dolxEjectOrphanVaginalDildo?.()>>
+				<<gi-note "The softness between your legs closes up and disappears.">>
+				<<set _giStepDone to true>>
 			<<else>>
-				<<if !$player.vaginaExist>>
-					<<set $player.vaginaExist to true>>
-					<<set $player.ballsExist to false>>
-					<<set $ballssize to 0>>
-					<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
-						<<set $sexStats.vagina.menstruation.running to true>>
-					<</if>>
-					<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
-					<<set _giStepDone to true>>
-				<</if>>
 				<<set $xchange.giShiftStage to 2>>
 			<</if>>
 		<</if>>
@@ -1476,21 +1511,39 @@
 
 		/* Stage 2: secondary characteristics — grow toward preferred targets */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
-			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
+			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "short" and $hairlength gt 100>>
+				<<set $hairlength to Math.max($hairlength - 60, 100)>>
+				<<gi-note "Your hair has shortened a little.">>
+				<<set _giStepDone to true>>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength lt 100>>
+				<<set $hairlength to Math.min($hairlength + 60, 100)>>
+				<<gi-note "Your hair has grown a little longer.">>
+				<<set _giStepDone to true>>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength gt 600>>
+				<<set $hairlength to Math.max($hairlength - 60, 600)>>
+				<<gi-note "Your hair has shortened a little.">>
+				<<set _giStepDone to true>>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
 				<<set $hairlength to Math.min($hairlength + 60, 601)>>
 				<<gi-note "Your hair has grown a little longer.">>
 				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength lt 300>>
-				<<set $hairlength to Math.min($hairlength + 60, 300)>>
-				<<gi-note "Your hair has grown a little longer.">>
+			<<elseif _bodySizeTarget isnot null and $bodysize isnot _bodySizeTarget>>
+				<<set _bodySizeCurrent to setup.snapBodySize($bodysize)>>
+				<<set _bodySizeGrowing to _bodySizeCurrent lt _bodySizeTarget>>
+				<<set $bodysize to setup.stepBodySize(_bodySizeCurrent, _bodySizeGrowing ? 1 : -1)>>
+				<<run updatePhysique()>>
+				<<updatesidebarimg>>
+				<<gi-note `_bodySizeGrowing ? "Your body stretches a little taller." : "Your body settles into a slightly shorter frame."`>>
 				<<set _giStepDone to true>>
-			<<elseif $player.breastsize lt _breastTarget>>
-				<<set $player.breastsize += 1>>
-				<<gi-note "Your chest feels a little fuller.">>
+			<<elseif _breastTarget isnot null and $player.breastsize isnot _breastTarget>>
+				<<set _breastsGrowing to $player.breastsize lt _breastTarget>>
+				<<set $player.breastsize += _breastsGrowing ? 1 : -1>>
+				<<gi-note `_breastsGrowing ? "Your chest feels a little fuller." : "Your chest feels a little flatter."`>>
 				<<set _giStepDone to true>>
-			<<elseif $player.bottomsize lt _bottomTarget>>
-				<<set $player.bottomsize += 1>>
-				<<gi-note "Your hips and ass feel a little softer and fuller.">>
+			<<elseif _bottomTarget isnot null and $player.bottomsize isnot _bottomTarget>>
+				<<set _bottomGrowing to $player.bottomsize lt _bottomTarget>>
+				<<set $player.bottomsize += _bottomGrowing ? 1 : -1>>
+				<<gi-note `_bottomGrowing ? "Your hips and ass feel a little softer and fuller." : "Your hips and ass feel a little leaner."`>>
 				<<set _giStepDone to true>>
 			<<else>>
 				<<set $xchange.giShiftStage to 3>>
@@ -1499,7 +1552,7 @@
 
 		/* Stage 3: align physical sex */
 		<<if not _giStepDone and $xchange.giShiftStage is 3>>
-			<<if $player.sex is "m">>
+			<<if $player.sex is "m" and $player.vaginaExist and !$player.penisExist>>
 				<<set $player.sex to "f">>
 				<<gi-note "Your body now reads as more distinctly female.">>
 			<</if>>
@@ -1517,44 +1570,88 @@
 		<</if>>
 
 		/* Compute preferred targets from identity settings */
-		<<set _penisTarget to 4>>
-		<<if $xchange.giGenitalsEnabled>>
-			<<if $identity.body.genitals.preferred is "tinypenis">><<set _penisTarget to 2>>
-			<<elseif $identity.body.genitals.preferred is "smallpenis">><<set _penisTarget to 3>>
-			<<elseif $identity.body.genitals.preferred is "mediumpenis">><<set _penisTarget to 4>>
-			<<elseif $identity.body.genitals.preferred is "bigpenis">><<set _penisTarget to 6>>
+		<<set _breastTarget to null>>
+		<<if $xchange.giBreastSizeEnabled and $identity.body.chest.preferred>>
+			<<if $identity.body.chest.preferred is "flat">><<set _breastTarget to 0>>
+			<<elseif $identity.body.chest.preferred is "small">><<set _breastTarget to 3>>
+			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
+			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
 			<</if>>
 		<</if>>
-		<<set _bottomTarget to 2>>
-		<<if $xchange.giAssSizeEnabled>>
-			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 1>>
-			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 3>>
-			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 5>>
+		<<set _bottomTarget to null>>
+		<<if $xchange.giAssSizeEnabled and $identity.body.bottom.preferred>>
+			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 2>>
+			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
+			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
+			<</if>>
+		<</if>>
+		<<set _penisPreference to $identity.body.genitals.preferredPenis>>
+		<<if !_penisPreference and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes($identity.body.genitals.preferred)>>
+			<<set _penisPreference to $identity.body.genitals.preferred>>
+		<</if>>
+		<<set _preferVagina to $xchange.giGenitalsEnabled and ($identity.body.genitals.preferredVagina is true or ($identity.body.genitals.preferredVagina is undefined and $identity.body.genitals.preferred is "vagina"))>>
+		<<set _preferPenis to $xchange.giGenitalsEnabled and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes(_penisPreference)>>
+		<<set _penisTarget to null>>
+		<<if _preferPenis>>
+			<<if _penisPreference is "tinypenis">><<set _penisTarget to 2>>
+			<<elseif _penisPreference is "smallpenis">><<set _penisTarget to 3>>
+			<<elseif _penisPreference is "mediumpenis">><<set _penisTarget to 4>>
+			<<elseif _penisPreference is "bigpenis">><<set _penisTarget to 6>>
+			<</if>>
+		<</if>>
+		<<set _bodySizeTarget to null>>
+		<<if $xchange.giBodySizeEnabled>>
+			<<set _bodySizeMap to {miniature:-1, tiny:0, small:1, normal:2, tall:2.5, large:3, giant:4}>>
+			<<if _bodySizeMap[$identity.body.bodysize.preferred] isnot undefined>>
+				<<set _bodySizeTarget to _bodySizeMap[$identity.body.bodysize.preferred]>>
 			<</if>>
 		<</if>>
 
 		/* Stage 0: setup */
 		<<if $xchange.giShiftStage is 0>>
-			<<if $player.gender is "f">>
-				<<set $xchange.giMaxGenderIdentityShift to 900>>
-			<</if>>
 			<<set $xchange.giShiftStage to 1>>
 		<</if>>
 
-		/* Stage 1: primary sex shift */
+		/* Stage 1: move toward the explicit genital preference, allowing a stable dual-genital target. */
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
-			<<if !$player.penisExist>>
+			<<if !_preferVagina and !_preferPenis>>
+				<<set $xchange.giShiftStage to 2>>
+			<<elseif _preferVagina and !$player.vaginaExist>>
+				<<set $player.vaginaExist to true>>
+				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
+					<<set $sexStats.vagina.menstruation.running to true>>
+				<</if>>
+				<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
+				<<set _giStepDone to true>>
+			<<elseif _preferPenis and !$player.penisExist>>
 				<<set $player.penisExist to true>>
 				<<set $player.ballsExist to true>>
 				<<set $player.penissize to 0>>
 				<<set $ballssize to 0>>
 				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
 				<<set _giStepDone to true>>
-			<<elseif $player.penissize lt 2>>
+			<<elseif _preferPenis and $player.penissize lt _penisTarget>>
 				<<set $player.penissize += 1>>
-				<<gi-note "The shape between your legs shifts again.">>
+				<<gi-note "The shape between your legs grows a little larger.">>
 				<<set _giStepDone to true>>
-			<<elseif $player.vaginaExist>>
+			<<elseif _preferPenis and $player.penissize gt _penisTarget>>
+				<<set $player.penissize -= 1>>
+				<<gi-note "Your penis feels a little smaller.">>
+				<<set _giStepDone to true>>
+			<<elseif !_preferPenis and $player.penisExist>>
+				<<if $player.penissize gt 2>>
+					<<set $player.penissize -= 1>>
+					<<gi-note "Your penis feels a little smaller.">>
+					<<set _giStepDone to true>>
+				<<else>>
+					<<set $player.penisExist to false>>
+					<<set $player.ballsExist to false>>
+					<<set $player.penissize to 0>>
+					<<set $ballssize to 0>>
+					<<gi-note "The shape between your legs recedes and disappears.">>
+					<<set _giStepDone to true>>
+				<</if>>
+			<<elseif !_preferVagina and $player.vaginaExist>>
 				<<set $player.vaginaExist to false>>
 				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
 					<<set $sexStats.vagina.menstruation.running to false>>
@@ -1579,21 +1676,35 @@
 				<<set $hairlength to Math.max($hairlength - 60, 100)>>
 				<<gi-note "Your hair has shortened a little.">>
 				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength gt 350>>
-				<<set $hairlength to Math.max($hairlength - 60, 350)>>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength lt 100>>
+				<<set $hairlength to Math.min($hairlength + 60, 100)>>
+				<<gi-note "Your hair has grown a little longer.">>
+				<<set _giStepDone to true>>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength gt 600>>
+				<<set $hairlength to Math.max($hairlength - 60, 600)>>
 				<<gi-note "Your hair has shortened a little.">>
 				<<set _giStepDone to true>>
-			<<elseif $player.penisExist and $player.penissize lt _penisTarget>>
-				<<set $player.penissize += 1>>
-				<<gi-note "You feel a growing pressure between your legs. Your penis is a little larger.">>
+			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
+				<<set $hairlength to Math.min($hairlength + 60, 601)>>
+				<<gi-note "Your hair has grown a little longer.">>
 				<<set _giStepDone to true>>
-			<<elseif $player.breastsize gt 0>>
-				<<set $player.breastsize -= 1>>
-				<<gi-note "Your chest feels a little flatter.">>
+			<<elseif _bodySizeTarget isnot null and $bodysize isnot _bodySizeTarget>>
+				<<set _bodySizeCurrent to setup.snapBodySize($bodysize)>>
+				<<set _bodySizeGrowing to _bodySizeCurrent lt _bodySizeTarget>>
+				<<set $bodysize to setup.stepBodySize(_bodySizeCurrent, _bodySizeGrowing ? 1 : -1)>>
+				<<run updatePhysique()>>
+				<<updatesidebarimg>>
+				<<gi-note `_bodySizeGrowing ? "Your body stretches a little taller." : "Your body settles into a slightly shorter frame."`>>
 				<<set _giStepDone to true>>
-			<<elseif $player.bottomsize gt _bottomTarget>>
-				<<set $player.bottomsize -= 1>>
-				<<gi-note "Your hips and ass feel a little leaner.">>
+			<<elseif _breastTarget isnot null and $player.breastsize isnot _breastTarget>>
+				<<set _breastsGrowing to $player.breastsize lt _breastTarget>>
+				<<set $player.breastsize += _breastsGrowing ? 1 : -1>>
+				<<gi-note `_breastsGrowing ? "Your chest feels a little fuller." : "Your chest feels a little flatter."`>>
+				<<set _giStepDone to true>>
+			<<elseif _bottomTarget isnot null and $player.bottomsize isnot _bottomTarget>>
+				<<set _bottomGrowing to $player.bottomsize lt _bottomTarget>>
+				<<set $player.bottomsize += _bottomGrowing ? 1 : -1>>
+				<<gi-note `_bottomGrowing ? "Your hips and ass feel a little softer and fuller." : "Your hips and ass feel a little leaner."`>>
 				<<set _giStepDone to true>>
 			<<else>>
 				<<set $xchange.giShiftStage to 3>>
@@ -1602,7 +1713,7 @@
 
 		/* Stage 3: align physical sex */
 		<<if not _giStepDone and $xchange.giShiftStage is 3>>
-			<<if $player.sex is "f">>
+			<<if $player.sex is "f" and $player.penisExist and !$player.vaginaExist>>
 				<<set $player.sex to "m">>
 				<<gi-note "Your body now reads as more distinctly male.">>
 			<</if>>
