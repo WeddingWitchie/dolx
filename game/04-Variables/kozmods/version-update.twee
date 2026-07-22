@@ -1138,6 +1138,20 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<wliInit>>
 	<<xchange-init>>
 	<<xchange-init2>>
+
+	<<if !$dolxHairColourSlotRepaired>>
+		<<set $dolxHairColourSlotRepaired to true>> /* delete later */
+		<<run (() => {
+			const bad = new Set(["tmp0", "tmp1"]);
+			if (!bad.has(V.haircolour) && !bad.has(V.hairfringecolour) && !bad.has(V.naturalhaircolour)) return;
+			const pool = Object.keys(setup.colours.hair_map).filter(k => k !== "random" && !bad.has(k) && !/^colorWheelTemporary/i.test(k));
+			if (!pool.length) return;
+			const reroll = pool[Math.floor(Math.random() * pool.length)];
+			if (bad.has(V.haircolour)) V.haircolour = reroll;
+			if (bad.has(V.hairfringecolour)) V.hairfringecolour = reroll;
+			if (bad.has(V.naturalhaircolour)) V.naturalhaircolour = reroll;
+		})()>>
+	<</if>>
 	/* Re-resolve fertility so toggling the Fake Breeder / Always fertile settings mid-session takes effect on the running pill. */
 	<<if playerIsXChanged()>><<xchange-fertility-override>><</if>>
 	<<ccmodVersionCheck>>
