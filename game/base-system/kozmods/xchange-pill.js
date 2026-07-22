@@ -297,9 +297,10 @@ function buildGrayXChangePills() {
 		{
 			name: "X-Change Continue",
 			subtype: "gray continue",
-			description: "A colourless capsule carrying only the Continue agent: prolongs an active X-Change session and, left unchecked, can make it permanent.",
+			description:
+				"A colourless capsule carrying only the Continue agent: each climax prolongs an active X-Change session by 16 hours. The optional duration cap burns Continue out and adds Fertile if the current body can become pregnant.",
 			onTakeMessage: teal("Your current form warms from the inside out, the active X-Change chemistry brightening instead of fading."),
-			warning_label: "Warning: Has no effect without an active X-Change session. Prolonged use leads to permanence.",
+			warning_label: "Warning: Has no effect without an active X-Change session. With the duration cap disabled, prolonged use can lead to permanence.",
 			canTake: grayGate.activeSession,
 			blockedReason: "Only works while an X-Change session is active. Take it during a session; it stays in your drawer until then.",
 			effects: [`<<xchange-gray 3 "continue">>`],
@@ -571,11 +572,11 @@ setup.pills.push(
 	{
 		name: "X-Change Pink Continue",
 		description:
-			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds an additional day to the duration. It is impossible to become pregnant while under the non-permanent effects of Continue.",
+			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds 16 hours to the duration. The optional duration cap burns Continue out and adds Fertile when the current body and fertility settings allow it.",
 		onTakeMessage:
 			'<span class="teal">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman\'s body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.',
 		warning_label:
-			"Warning: May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
+			"Warning: With the duration cap disabled, repeated climaxes may make the change permanent once its remaining duration exceeds 30 days. Certain parasitic infections may also result in permanence, particularly those affecting the genitalia.",
 		autoTake() {
 			return false;
 		},
@@ -1496,11 +1497,11 @@ setup.pills.push(
 	{
 		name: "X-Change Blue Continue",
 		description:
-			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds an additional day to the duration.",
+			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds 16 hours to the duration. The optional duration cap burns Continue out once the limit is reached, allowing the timer to count down normally.",
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:
-			"Warning: May become permanent upon climaxing if remaining duration ever exceeds 30 days. Certain parasitic infections may also result in permanence as well, in particular those affecting the genitalia.",
+			"Warning: With the duration cap disabled, repeated climaxes may make the change permanent once its remaining duration exceeds 30 days. Certain parasitic infections may also result in permanence, particularly those affecting the genitalia.",
 		autoTake() {
 			return false;
 		},
@@ -2128,11 +2129,11 @@ setup.pills.push(
 	{
 		name: "X-Change Purple Continue",
 		description:
-			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds an additional day to the duration.",
+			"Temporary pill where every time you climax, the duration gets extended. Initial duration is 72 hours or less. Each climax adds 16 hours to the duration. The optional duration cap burns Continue out and adds Fertile when the current body and fertility settings allow it.",
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
 		warning_label:
-			"Warning: Mild discomfort might be incurred during transformation. Certain parasitic infections might result in permanence, in particular those affecting the genitals.",
+			"Warning: With the duration cap disabled, repeated climaxes may make the change permanent once its remaining duration exceeds 30 days. Certain parasitic infections may also result in permanence, particularly those affecting the genitalia.",
 		autoTake() {
 			return false;
 		},

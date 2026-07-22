@@ -1652,6 +1652,7 @@ function settingsObjects(type) {
 				willpowerCum: { min: 0, max: 1, decimals: 0, displayName: "Cum even if you resist the stun:" },
 				xchange: {
 					pillPermanence: { min: 0, max: 1, decimals: 0, displayName: "Pill permanence:" },
+					continueDurationCapEnabled: { bool: true, displayName: "Continue duration cap:" },
 					postPermanenceFertilityReset: { min: 0, max: 1, decimals: 0, displayName: "Reset fertility after permanence:" },
 					grayPillGenderflip: { min: 0, max: 1, decimals: 0, displayName: "Gray pills flip sex:" },
 					omegaShrinkGenitals: { min: 0, max: 1, decimals: 0, displayName: "Omega Sissy-style shrinking:" },

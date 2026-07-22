@@ -1243,12 +1243,12 @@
 	<</widget>>
 
 	/* Central fertility resolution, applied after all X-Change effects for a body are in place.
-	   - Always fertile (setting): while X-Changed with a womb/vagina, force a running fertile cycle so conception stays possible whatever the pill did.
-	   - Fake Breeder (setting): a breeder pill without Hyper Fertility grants only its behavioural effect, with no fertility, so it can't cause pregnancy.
-	   Always-fertile takes precedence over Fake Breeder when both are enabled. Safe to call every load. */
+	   - Always fertile / Hyper Fertility: with a womb/vagina, force a running fertile cycle.
+	   - Fake Breeder: remove the Breeder pill's vaginal fertility unless either override is present. Omega keeps its separate anal route.
+	   Always-fertile and Hyper Fertility take precedence over Fake Breeder. Safe to call every load. */
 	<<widget "xchange-fertility-override">>
 		<<if $xchange.pill and $xchange.pill.active>>
-			<<if $player.vaginaExist and $xchange.alwaysFertile>>
+			<<if $player.vaginaExist and ($xchange.alwaysFertile or $xchange.pill.hyperFertilityEffect)>>
 				<<set $xchange.pill.fertile to true>>
 				<<set $sexStats.vagina.menstruation.running = true>>
 			<<elseif $xchange.breederInfertile and $xchange.pill.breederEffect and !$xchange.pill.hyperFertilityEffect>>
@@ -1890,9 +1890,13 @@
 	<<widget "xchange-orgasm">>
 		<<set _pill to $xchange.pill>>
 
-		<<if _pill and (_pill.breederEffect or _pill.omegaEffect) and !playerIsBreederCreampied()>>
-			<<set $xchange.breederOrgasm to false>>
-			<<unset $breederCreampied>>
+		<<if _pill and (_pill.breederEffect or _pill.omegaEffect)>>
+			/* Any completed orgasm clears the buildup toward the next denial message. */
+			<<set $xchange.breederEdgingCount to 0>>
+			<<if !playerIsBreederCreampied()>>
+				<<set $xchange.breederOrgasm to false>>
+				<<unset $breederCreampied>>
+			<</if>>
 		<</if>>
 		<<if _pill.xtendEffect and _pill.xtendTracker>>
 			<<set _pill.xtendTracker.orgasmed++>>
@@ -1903,8 +1907,41 @@
 			<<set _pill.resistanceChance to (_pill.resistanceChance * $xchange.resistanceOrgasmPenalty)>>
 			<<set _pill.resistanceOrgasmsStat++>>
 		<</if>>
-		<<if _pill.continueEffect and !(pillIsPermanent() or pillTimerPaused())>>
-			<<set _pill.duration += 1 * 16>>
+		<<set _continueBurnout to false>>
+		<<if _pill.continueEffect and $xchange.continueDurationCapEnabled and pillIsPermanent()>>
+			/* A cap cannot undo an already-permanent transformation, but it can retire the now-inert Continue agent. */
+			<<set _continueBurnout to true>>
+		<<elseif _pill.continueEffect and !pillIsPermanent() and !pillTimerPaused()>>
+			<<if $xchange.continueDurationCapEnabled>>
+				/* Continue already has a hard 30-day ceiling, so a larger Resistance penalty cannot be a reachable cap. */
+				<<set _continueDurationCap to Math.min(30, Math.max(1, $xchange.resistanceDaysPenalty)) * 24>>
+				<<if _pill.duration lt _continueDurationCap>>
+					<<set _pill.duration to Math.min(_pill.duration + 16, _continueDurationCap)>>
+				<</if>>
+				<<if _pill.duration gte _continueDurationCap>>
+					<<set _continueBurnout to true>>
+				<</if>>
+			<<else>>
+				<<set _pill.duration += 1 * 16>>
+			<</if>>
+		<</if>>
+		<<if _continueBurnout>>
+			<<set _pill.continueEffect to false>>
+			<<if $player.vaginaExist>>
+				<<set _pill.fertile to true>>
+				<<set $sexStats.vagina.menstruation.running to true>>
+			<<else>>
+				<<set _pill.fertile to false>>
+				<<set $sexStats.vagina.menstruation.running to false>>
+			<</if>>
+			<<xchange-fertility-override>>
+			<<if pillIsPermanent()>>
+				<br><span class="teal">The Continue agent burns itself out, but your transformation is already permanent and cannot resume counting down.<<if _pill.fertile>> The pill leaves behind its Fertile effect.<</if>></span>
+			<<elseif _pill.fertile>>
+				<br><span class="teal">The Continue agent has reached its limit and burns itself out. Your remaining duration will now tick down normally, but the pill leaves behind its Fertile effect.</span>
+			<<else>>
+				<br><span class="teal">The Continue agent has reached its limit and burns itself out. Your remaining duration will now tick down normally.</span>
+			<</if>>
 		<</if>>
 		<<if _pill.dumbBitchEffect>>
 			<<stress -10>><<trauma -50>>
@@ -2196,7 +2233,7 @@
 			<<if $xchange.pill.genderificationEffect>><li><<= xchangeGenderificationDirection() === "sissy" ? "Sissification" : (xchangeGenderificationDirection() === "butch" ? "Butchification" : "Genderification")>>.
 				<mouse class="tooltip linkBlue">(?)<span>Partially changes your body's characteristics. Rewards crossdressing (relative to your original sex).</span></mouse></li><</if>>
 			<<if $xchange.pill.continueEffect>><li>Continue Effect.
-				<mouse class="tooltip linkBlue">(?)<span>Extends its duration every time you climax.</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Extends its duration every time you climax. If the duration cap is enabled, Continue burns out at the configured Resistance Pill-End Failure Penalty and adds Fertile if your current body can become pregnant. If the transformation is already permanent, Continue burns out on your next climax but the transformation remains permanent.</span></mouse></li><</if>>
 			<<if $xchange.pill.resistanceEffect>><li>Resistance Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Less likely to expire after its full lapse with each orgasm.</span></mouse></li><</if>>
 			<<if $xchange.pill.resistanceEffect>><li>X-Tend Effect.
@@ -2214,7 +2251,7 @@
 				<mouse class="tooltip linkBlue">(?)<span>Gives your penis a knot in encounter views and makes orgasm demand that your cock be inside something.</span></mouse>
 			</li><</if>>
 			<<if $xchange.pill.hyperFertilityEffect>><li>Hyper Fertility Effect.
-				<mouse class="tooltip linkBlue">(?)<span>Speeds up your pregnancies and greatly raises the odds of twins, triplets or quadruplets. Lasts as long as this pill.</span></mouse>
+				<mouse class="tooltip linkBlue">(?)<span>Strengthens conception, speeds up pregnancies, and greatly raises the odds of twins, triplets or quadruplets. It applies to vaginal pregnancy, Omega-enabled anal pregnancy, and pregnancies you sire. Lasts as long as this pill.</span></mouse>
 			</li><</if>>
 			<<if $xchange.pill.passionEffect>><li>Passion Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>

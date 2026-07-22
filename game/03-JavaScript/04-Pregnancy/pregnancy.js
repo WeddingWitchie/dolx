@@ -125,14 +125,16 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 	if (pregnancy && pregnancy.type === null) {
 		let chance = 100 / (target === "pc" ? 100 - V.settings.basePlayerPregnancyChance : 20 - V.settings.baseNpcPregnancyChance);
 
-		// Fake Breeder (infertile): a breeder pill without fertility can never make the player conceive.
-		if (target === "pc" && typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile()) return false;
+		// Fake Breeder removes the Breeder pill's vaginal fertility, but must not disable a separate Omega anal-pregnancy effect.
+		const xchangeFakeBreeder = target === "pc" && typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile();
+		if (xchangeFakeBreeder && genital === "vagina") return false;
 
 		// For the anal roll, an Omega body qualifies via canBeMPregnant, since pill.fertile is forced off on a vagina-less body.
 		const xchangeRealBreederPregnancy =
 			target === "pc" &&
 			playerIsXChanged() &&
 			V.xchange.pill?.breederEffect &&
+			!xchangeFakeBreeder &&
 			(genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill?.fertile);
 		// Hyper Fertility mirrors its realistic-mode potency here: a carried womb (or Omega body) conceives like a breeder's, and PC-sired conceptions hit like a bull's.
 		const xchangeHyperFertile = typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive();
@@ -178,8 +180,9 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	const pregnancy = V.sexStats[genital].pregnancy;
 
-	// Fake Breeder (infertile): a breeder pill without fertility can never make the player conceive.
-	if (typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile()) return false;
+	// Fake Breeder removes vaginal Breeder fertility only; an Omega effect on the same pill still owns its anal route.
+	const xchangeFakeBreeder = typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile();
+	if (xchangeFakeBreeder && genital === "vagina") return false;
 
 	// Hyper Fertility: treat the PC as fully fertile regardless of cycle timing, so conception isn't blocked off-ovulation (and works even while X-Changed, when the menstrual cycle is paused). baseMulti < 1 would otherwise bail here.
 	if (typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()) baseMulti = Math.max(baseMulti, 1);
@@ -207,7 +210,9 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	// The breeder pregnancy boost only applies to a "real" breeder (breeder effect + fertility); a Fake Breeder is treated like a normal X-Changed body.
 	// For the anal roll, an Omega body qualifies via canBeMPregnant, since pill.fertile is forced off on a vagina-less body.
 	const xchangeBreederFertile =
-		V.xchange.pill.breederEffect && (genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill.fertile);
+		V.xchange.pill.breederEffect &&
+		!xchangeFakeBreeder &&
+		(genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill.fertile);
 	const xchangePregnancyModifier =
 		playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !xchangeBreederFertile ? V.xchange.pregnancyMultPercent / 100 : 1;
 

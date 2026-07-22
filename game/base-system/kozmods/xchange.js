@@ -583,7 +583,7 @@ function pleasure(amount, source) {
 		}
 
 		if (V.xchange.breederEdgingCount == null) V.xchange.breederEdgingCount = 0;
-		if (V.xchange.breederEdgingStress == null) V.xchange.breederEdgingStress = 0;
+		if (V.xchange.breederEdgingStress == null) V.xchange.breederEdgingStress = 100;
 
 		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
 		// Skipped entirely when the player has enabled free orgasms (breederOrgasmDenied() returns false).
@@ -638,8 +638,14 @@ function pleasure(amount, source) {
 			const breederDenial = Number(V.xchange.breederDenial);
 			V.xchange.breederDenial = Number.isFinite(breederDenial) ? Math.clamp(breederDenial + 1, 0, 6) : 1;
 			V.xchange.breederEdgingCount = 0;
-			V.xchange.breederEdgingStress = Math.min(V.xchange.breederEdgingStress + 50, 800);
-			fragment.append(wikifier("stress", V.xchange.breederEdgingStress, 1));
+			const edgingStress = Number(V.xchange.breederEdgingStress);
+			const denialStress = Math.clamp(Number.isFinite(edgingStress) ? edgingStress : 100, 50, 400);
+			fragment.append(wikifier("stress", denialStress, 1));
+			V.xchange.breederEdgingStress = Math.min(denialStress + 25, 400);
+
+			// Treat the denial like a failed climax instead of leaving pleasure pinned at the edge.
+			// The player must build back from 40% before another denial can charge, preventing one sex action from chaining stress/trauma hits.
+			V.pleasure = Math.min(V.pleasure, (V.pleasuremax * 2) / 5 - 1);
 		}
 
 		fragment.append(wikifier("arousal-moan", amount * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
@@ -1750,7 +1756,7 @@ function xchangeEffectsMessages() {
 			V.xchange?.pill?.omegaEffect && V.xchange?.pill?.breederEffect ? "pussy or ass." : V.xchange?.pill?.omegaEffect ? "ass." : either("pussy.", "vagina.");
 		element("span", "Your body refuses to cum like this.", "purple");
 		element("span", "You crave some thick gooey semen in your " + breederTarget, "red");
-		if ((V.xchange.breederEdgingStress ?? 0) > 400) fragment.append(wikifier("ggstress"));
+		if ((V.xchange.breederEdgingStress ?? 0) >= 300) fragment.append(wikifier("ggstress"));
 		else fragment.append(wikifier("gstress"));
 
 		br();
