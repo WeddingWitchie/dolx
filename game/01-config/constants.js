@@ -289,6 +289,13 @@ const constants = {
 	// 		max: 1000,
 	// 		min: 0,
 	// 	},
+	// /**
+	//  * Variable name: "penileskill"
+	//  */
+	// penile: {
+	// 	max: 1000,
+	// 	min: 0,
+	// },
 	// 	/**
 	// 	 * Variable name: "seductionskill"
 	// 	 */

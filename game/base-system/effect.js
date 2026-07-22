@@ -171,7 +171,7 @@ function effectsWater(waterType = "liquid") {
 		}
 	}
 
-	if (!V.worn.under_lower.type.includes("naked") && !playerChastity() && !waterproofCheck(V.worn.under_lower)) {
+	if (!V.worn.under_lower.type.includes("naked") && !waterproofCheck(V.worn.under_lower)) {
 		capWetStage("under_lower", "underlowerwetstage", true);
 		if (V.underlowerwet >= 100 && V.underlowerwetstage < 3 && V.player.sex === "f" && V.pantiesSoaked && wetStageReveals("under_lower", 20, true)) {
 			V.underlowerwetstage = 3;
