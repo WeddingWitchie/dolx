@@ -62,7 +62,7 @@ blackmailQuests.low.push(
 				On schooldays, that can make swimming lessons impossible for PCs whose exhibitionism is too low to swim naked.
 				Only offer this demand on schooldays once the PC can handle nude swimming.
 			*/
-			return !Time.schoolDay || hasSexStat("exhibitionism", 4, true);
+			return !Time.schoolDay || hasSexStat("exhibitionism", 4);
 		},
 		reward() {
 			return blackmailReward(V.rentmoney / 3);
@@ -611,7 +611,7 @@ blackmailQuests.low.push(
 // blackmailQuests.low.push( // Flash your underwear to at least 5 strangers
 // 	{
 // 		id: 12,
-// 		prerequisites: function() { return hasSexStat("exhibitionism", 2, true); },
+// 		prerequisites: function() { return hasSexStat("exhibitionism", 2); },
 // 		reward: function() { return V.rentmoney / 3; },
 // 		instructions: [
 // 			"Flash at least 5 strangers on the street.",
