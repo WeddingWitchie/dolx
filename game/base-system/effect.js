@@ -409,19 +409,6 @@ function effects() {
 	};
 	const br = () => fragment.append(document.createElement("br"));
 
-	/* Keep dynamic stat caps ready before any render-time stat captions/macros run. */
-	if (V.tirednessMaxScalingToggle) {
-		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique", 0, 1) / 32);
-	} else {
-		C.tiredness.max = 2000;
-	}
-
-	if (V.stressMaxScalingToggle) {
-		V.stressmax = 10000 + Math.floor(currentSkillValue("willpower", 0, 1) * 5);
-	} else {
-		V.stressmax = 10000;
-	}
-
 	// Depricated as of current
 	// if (V.newVersionData) sWikifier("<<newversionnotification>>");
 
