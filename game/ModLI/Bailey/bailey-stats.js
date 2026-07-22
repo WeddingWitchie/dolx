@@ -1,25 +1,72 @@
-/* globals baileyWeeksMissed */
-$(document).one(":storyready", function () {
-	function baileyRevealed() {
-		return V.stockholm_active === true;
-	}
+/* globals baileyWeeksMissed, formatMoney */
+function baileyRevealed() {
+	return V.stockholm_active === true;
+}
 
+window.baileyMaxRent = function () {
+	const modifier = (V.settings && V.settings.rentCostModifier) || 1;
+	return Math.floor(200000 * modifier);
+};
+
+/*   "leaving" 05:30–06:30  heading out
+"away"    06:30–19:00  at the orphanage
+"asleep"  02:00–05:30  there but won't come to the door
+"home"    19:00–02:00  home and reactive */
+window.baileyFlatState = function () {
+	const t = Time.hour * 60 + Time.minute; // minutes since midnight
+	if (t >= 330 && t < 390) return "leaving"; // 05:30–06:30
+	if (t >= 390 && t < 1140) return "away"; // 06:30–19:00
+	if (t >= 120 && t < 330) return "asleep"; // 02:00–05:30
+	return "home"; // 19:00–02:00 (wraps midnight)
+};
+
+/* Weekend-obligation state. 
+$bailey_weekend_lastvisit (Time.days at the last flat visit)
+baileyWeeksMissed(): whole weeks since that visit
+baileyStraying(): 2+ weeks */
+window.baileyWeeksMissed = function () {
+	if (!V.bailey_monogamous) return 0;
+	const last = typeof V.bailey_weekend_lastvisit === "number" ? V.bailey_weekend_lastvisit : Time.days;
+	return Math.max(0, Math.floor((Time.days - last) / 7));
+};
+window.baileyStraying = function () {
+	return baileyWeeksMissed() >= 2;
+};
+
+/* Bailey-specific Stockholm indicator */
+Macro.add("gbaileystock", {
+	handler() {
+		if (typeof statDisplay === "undefined" || typeof statDisplay.statChange !== "function") return;
+		const label = baileyRevealed() ? "Stockholm Syndrome" : "???";
+		this.output.append(statDisplay.statChange(label, 1, "bailey-stockholm"));
+	},
+});
+
+/* Brat Tax feedback, e.g. "+ £50 Brat Tax". */
+Macro.add("gbrattax", {
+	handler() {
+		if (typeof statDisplay === "undefined" || typeof statDisplay.statChange !== "function") return;
+		if (typeof formatMoney !== "function") return;
+		const pennies = Number(this.args[0]);
+		if (!pennies || pennies < 0) return;
+		this.output.append(statDisplay.statChange(formatMoney(pennies) + " Brat Tax", 1, "pink"));
+	},
+});
+
+$(document).one(":storyready", function () {
 	/* One-time compatibility repair for persistent RBE values that are read as objects or text. */
 	if (!V.stockholm_points || typeof V.stockholm_points !== "object" || Array.isArray(V.stockholm_points)) V.stockholm_points = {};
 	if (typeof V.bailey_title !== "string") V.bailey_title = "Bailey";
 	V.bailey_title = V.bailey_title.replace(/[<>]/g, "").trim().slice(0, 15) || "Bailey";
 	if (typeof V.bailey_title_unlocked !== "boolean") V.bailey_title_unlocked = false;
 
-	/* Keep Bailey's dominance in sync. $bailey_dom is the source of truth; we mirror it
-       onto C.npc.Bailey.dom every passage so the social panel matches, flooring dom at 100
-       while Stockholm is active. Also self-heals saves where the two values drifted. */
+	/* Bailey carries two dom values that must agree: $bailey_dom and C.npc.Bailey.dom.
+	This runs every passage and mirrors $bailey_dom onto the NPC stat.
+	NaN/undefined self-heals below, and the Stockholm floor of 100. */
 	function syncBaileyDom() {
 		if (!C.npc.Bailey) return;
 
-		/* Heal NaN dom/love. `<<set $bailey_dom += 1>>` on an undefined var yields NaN, which
-           silently fails every comparison and breaks dom-gated content (and would clobber the
-           NPC stat below). Prefer the still-valid NPC value, else fall back: dom 100 if Stockholm
-           else 50; love 25 (kept under the 30 the Title Organic scene needs). NaN only. */
+		/* NaN fails gte and lt both, so dom gates stop firing silently. */
 		if (Number.isNaN(V.bailey_dom)) {
 			const _npcDom = C.npc.Bailey.dom;
 			const _hasNpcDom = typeof _npcDom === "number" && !Number.isNaN(_npcDom);
@@ -35,17 +82,15 @@ $(document).one(":storyready", function () {
 			V.bailey_love = _healLove;
 		}
 
-		/* Mod installed mid-playthrough: a save that never ran "Orphanage Intro" leaves
-           $bailey_dom undefined, so dom checks fail. Seed it to the baseline (100 if Stockholm
-           else 50) and start love at 0, exactly as a fresh install would. */
+		/* If the mod is added mid-save: Orphanage Intro never ran,
+		so $bailey_dom is undefined and dom checks fail silently. */
 		if (V.bailey_dom === undefined) {
 			V.bailey_dom = baileyRevealed() ? 100 : 50;
 			console.log("[BaileyExpansion] Initialized missing $bailey_dom -> " + V.bailey_dom);
 		}
 		if (V.bailey_love === undefined) V.bailey_love = 0;
 
-		/* Same NaN trap as $bailey_dom above, but for $stockholm_bailey. Rebuild it
-           from the $stockholm_points ledger (read-only) so earned points survive. */
+		/* Rebuild $stockholm_bailey from $stockholm_points */
 		if (typeof V.stockholm_bailey !== "number" || Number.isNaN(V.stockholm_bailey)) {
 			const _pts = V.stockholm_points || {};
 			let _healStock = 0;
@@ -61,17 +106,13 @@ $(document).one(":storyready", function () {
 		mirrorBaileyDom();
 	}
 
-	/* Lightweight mirror of $bailey_dom/$bailey_love onto the NPC card. Split out so :passageend
-	   can reflect mid-passage changes in the sidebar without repeating syncBaileyDom's heavier
-	   NaN/undefined healing, which only needs to run once per passage (on :passagestart). */
+	/* Lightweight mirror for :passageend, so mid-passage changes show without redoing the healing. */
 	function mirrorBaileyDom() {
 		if (!C.npc.Bailey) return;
 		if (typeof V.bailey_dom === "number" && !Number.isNaN(V.bailey_dom)) {
 			if (baileyRevealed() && V.bailey_dom < 100) V.bailey_dom = 100;
 			if (C.npc.Bailey.dom !== V.bailey_dom) C.npc.Bailey.dom = V.bailey_dom;
 		}
-		/* Some Bailey scenes bump $bailey_love but forget <<npcincr Bailey love>>, so without
-		   this the Respect bar freezes while the real value keeps climbing. */
 		if (typeof V.bailey_love === "number" && !Number.isNaN(V.bailey_love) && C.npc.Bailey.love !== V.bailey_love) {
 			C.npc.Bailey.love = V.bailey_love;
 		}
@@ -82,16 +123,13 @@ $(document).one(":storyready", function () {
 			C.npc.Bailey.pregnancyAvoidance = 0;
 		}
 	}
-	/* One start hook handles all lightweight passage bookkeeping. Keeping these together avoids
-	   stacking several document listeners while preserving their original execution order. */
+	/* Stood-up check: date scheduled but not attended by midnight -> missed. Medium + All Night. */
 	$(document).on(":passagestart", function () {
 		syncBaileyDom();
 
-		/* If a scheduled date wasn't attended by midnight, mark it missed.
-		   Covers both the Medium and All Night date tiers. */
 		if (typeof Time !== "undefined" && typeof Time.hour !== "undefined" && Time.hour >= 0 && Time.hour < 7) {
-			/* Only count a no-show once a real midnight has passed since booking, so scheduling
-			   during the 0-6 night window doesn't instantly mark the date missed. */
+			/* Only after a midnight has actually passed, or booking at night marks it missed
+			   on the very next passage. */
 			if (V.bailey_date_sched_day === undefined || Time.days > V.bailey_date_sched_day) {
 				if (V.bailey_date_scheduled === 1) {
 					if (V.bailey_date_attended !== 1) {
@@ -116,7 +154,7 @@ $(document).one(":storyready", function () {
 			}
 		}
 
-		/* Once Stockholm is active, Bailey gains +1 lust per elapsed in-game day (+2 while monogamous), clamped 0-100. */
+		/* +1 lust/day once Stockholm's active, +2 while monogamous. */
 		if (typeof Time !== "undefined" && typeof Time.days !== "undefined") {
 			if (V.bailey_lust_lastday === undefined) {
 				V.bailey_lust_lastday = Time.days;
@@ -134,7 +172,7 @@ $(document).one(":storyready", function () {
 			}
 		}
 
-		/* Clear Bailey's per-year Christmas gift state once the season ends. */
+		/* Christmas gift reset. Lotus + office display stay permanent — leave them. */
 		if (
 			!V.christmas &&
 			(V.christmas_gift_bailey !== undefined || V.christmas_gift_bailey_wrapped !== undefined || V.christmas_gift_bailey_given !== undefined)
@@ -144,22 +182,12 @@ $(document).one(":storyready", function () {
 			delete V.christmas_gift_bailey_given;
 		}
 
-		/* Back-fill permanent lure ownership after the office display changes. */
 		if (V.bailey_office_gift === "lure" && !V.bailey_lure_received) V.bailey_lure_received = true;
 	});
 
-	/* Bailey-only Stockholm indicator; does not override the global <<gstockholm>>. */
-	Macro.add("gbaileystock", {
-		handler() {
-			if (typeof statDisplay === "undefined" || typeof statDisplay.statChange !== "function") return;
-			const label = baileyRevealed() ? "Stockholm Syndrome" : "???";
-			this.output.append(statDisplay.statChange(label, 1, "bailey-stockholm"));
-		},
-	});
-
-	/* === Bailey Title System: "It's Bailey." -> "It's Daddy." ===
-       Swaps the displayed name once $bailey_title_unlocked is set and the title isn't "Bailey".
-       Stockholm deactivation resets the title, so the swap stops on its own. */
+	/* Title swap: "It's Bailey." -> "It's Daddy." (or whatever it's set to).
+	Only while Stockholm's active, the title's unlocked, and it's not still "Bailey".
+	Deactivating Stockholm resets it back to "Bailey". */
 	$(document).on(":passageend", function () {
 		mirrorBaileyDom();
 		if (!V.stockholm_active) return;
@@ -169,7 +197,7 @@ $(document).one(":storyready", function () {
 		const passage = document.getElementById("passage-content") || document.querySelector(".passage");
 		if (!passage) return;
 
-		/* Find every .bailey-red element reading exactly "It's Bailey." and swap in the title. */
+		/* Find all elements with bailey-red class that contain "It's Bailey." */
 		const spans = passage.querySelectorAll(".bailey-red");
 		for (let i = 0; i < spans.length; i++) {
 			const span = spans[i];
@@ -179,9 +207,8 @@ $(document).one(":storyready", function () {
 		}
 	});
 
-	/* === Mod Active Indicator (start screen) ===
-       Drops a glowing line on the Start passage so players can confirm the mod loaded. Done
-       inside :storyready because Start's :passageend fires before it would otherwise run. */
+	/* Glowing "mod active" line on the Start screen. Injected here in :storyready because
+	Start's :passageend fires before a handler would register. */
 	const _indicatorContainer = document.getElementById("passage-content") || document.querySelector(".passage");
 	if (_indicatorContainer && !_indicatorContainer.querySelector("#bailey-mod-indicator")) {
 		const el = document.createElement("div");
@@ -190,7 +217,7 @@ $(document).one(":storyready", function () {
 		el.style.textAlign = "center";
 		el.style.marginTop = "1em";
 		el.style.marginBottom = "1em";
-		el.textContent = "Reiyu's Bailey Expansion v0.5.1 for X-Change \u2014 Active";
+		el.textContent = "Reiyu's Bailey Expansion v0.5.3 for X-Change \u2014 Active";
 		const firstChild = _indicatorContainer.firstChild;
 		if (firstChild) {
 			_indicatorContainer.insertBefore(el, firstChild);
@@ -199,22 +226,14 @@ $(document).one(":storyready", function () {
 		}
 	}
 
-	/* === Bailey's Collar ===
-       The collar item is registered with the native neckwear definitions. Keeping it out of
-       this runtime hook ensures it exists before saves restore worn clothing. */
-
-	/* === Bailey as Love Interest ===
-       Adds Bailey to the love-interest dropdown, selectable only once Stockholm is active. */
+	/* Add Bailey to the love-interest roster (selectable only while Stockholm's active). */
 	if (typeof setup !== "undefined" && setup.loveInterestNpc) {
 		if (!setup.loveInterestNpc.includes("Bailey")) {
-			/* unshift, not push: put Bailey at the front of the love-interest list so he leads the
-               Attitudes picker instead of sitting below each fork's own LIs. */
 			setup.loveInterestNpc.unshift("Bailey");
 			console.log("[BaileyExpansion] Bailey added to start of loveInterestNpc list");
 		}
 	}
 
-	/* Teach isPossibleLoveInterest about Bailey (valid only once Stockholm is active). */
 	const _origIsPossibleLoveInterest = window.isPossibleLoveInterest;
 	window.isPossibleLoveInterest = function (name) {
 		if (name === "Bailey") {
@@ -223,14 +242,7 @@ $(document).one(":storyready", function () {
 		return _origIsPossibleLoveInterest(name);
 	};
 
-	/* Bailey's virginities show pink (love interest), not green (just consensual).
-       Newer DOL (vanilla / New World / X-Change) colors the PC's own virginity stats
-       through isPossibleLoveInterestVirginity(), whose vanilla body calls a CLOSURE-LOCAL
-       isPossibleLoveInterest -- so it never sees the window patch above, and Bailey fell
-       through to the green branch. Wrap it too: Bailey counts once Stockholm is active,
-       combined "X and Y" takers route through the patched window fn, everything else keeps
-       vanilla behaviour. Guarded by typeof, so it's a no-op on DOLP/transmod, which call
-       isPossibleLoveInterest directly and were already fine. */
+	/* Make Bailey's virginities read pink (love interest), not green. */
 	if (typeof window.isPossibleLoveInterestVirginity === "function") {
 		const _origLoveInterestVirginity = window.isPossibleLoveInterestVirginity;
 		window.isPossibleLoveInterestVirginity = function (taker) {
@@ -246,11 +258,7 @@ $(document).one(":storyready", function () {
 		};
 	}
 
-	/* === Bailey as Sex-Shop Gift Recipient ===
-       Vanilla's gift dropdown is built from a hardcoded name list, so registering Bailey as a
-       love interest doesn't reach it. We wrap the function: run vanilla, then inject a Bailey
-       option when he's unlocked. If he'd be the only recipient (vanilla returns ""), rebuild
-       the dropdown around just him -- re-sync that markup if upstream changes it. */
+	/* Bailey as a sex-shop gift recipient. */
 	if (typeof window.determineRecipient === "function") {
 		const _origDetermineRecipient = window.determineRecipient;
 		window.determineRecipient = function (index) {
@@ -262,12 +270,9 @@ $(document).one(":storyready", function () {
 			const item = setup.sextoys[index];
 			const baileyOption = '<option value="Bailey">Bailey</option>';
 			if (html && html.indexOf('id="recipientList"') !== -1) {
-				/* Vanilla built the dropdown; slot Bailey in as the first option. */
+				/* Vanilla built the dropdown - slot Bailey in as the first option. */
 				return html.replace('id="recipientList">', 'id="recipientList">' + baileyOption);
 			}
-			/* html === "": either the money gate failed or Bailey is the only recipient. Re-check
-               affordability (item cost + £15 wrap fee, money is stored x100); if affordable,
-               Bailey is the sole recipient, so rebuild vanilla's wrapper around him. */
 			const giftCost = setup.inflation ? setup.inflation.price(item.cost + 15 * 100) : item.cost + 15 * 100;
 			if (V.money < giftCost) return html;
 			return (
@@ -282,8 +287,7 @@ $(document).one(":storyready", function () {
 		};
 	}
 
-	/* === Mod Feats ===
-       Register with setup.feats so earnFeat can show the popup and record them correctly. */
+	/* Register mod feats with setup.feats so earnFeat can show the popup and record them. */
 	if (typeof setup !== "undefined" && setup.feats) {
 		if (!setup.feats["Caring for the Caretaker"]) {
 			setup.feats["Caring for the Caretaker"] = {
@@ -295,36 +299,6 @@ $(document).one(":storyready", function () {
 			};
 		}
 	}
-
-	/* Bailey's flat availability — schedule anchored to him running the orphanage.
-	   Uniform every day (for now), minute-aware. Reused by the flat door + future systems.
-	   Returns:
-	     "leaving" 05:30–06:30  heading out — ride window
-	     "away"    06:30–19:00  at the orphanage
-	     "asleep"  02:00–05:30  there but won't come to the door
-	     "home"    19:00–02:00  home and reactive
-	   Tune the windows here in one place. */
-	window.baileyFlatState = function () {
-		const t = Time.hour * 60 + Time.minute; // minutes since midnight
-		if (t >= 330 && t < 390) return "leaving"; // 05:30–06:30
-		if (t >= 390 && t < 1140) return "away"; // 06:30–19:00
-		if (t >= 120 && t < 330) return "asleep"; // 02:00–05:30
-		return "home"; // 19:00–02:00 (wraps midnight)
-	};
-
-	/* Weekend-obligation state. One stored var does all the work —
-	   $bailey_weekend_lastvisit (Time.days at the last flat visit) — and these derive
-	   the rest so nothing can fall out of sync.
-	   baileyWeeksMissed(): whole weeks since that visit, but only while the pact holds.
-	   baileyStraying(): 2+ weeks neglected, at which point his infidelity scenes re-open. */
-	window.baileyWeeksMissed = function () {
-		if (!V.bailey_monogamous) return 0;
-		const last = typeof V.bailey_weekend_lastvisit === "number" ? V.bailey_weekend_lastvisit : Time.days;
-		return Math.max(0, Math.floor((Time.days - last) / 7));
-	};
-	window.baileyStraying = function () {
-		return baileyWeeksMissed() >= 2;
-	};
 
 	console.log("[BaileyExpansion] stat display overrides + title system + love interest registered");
 });

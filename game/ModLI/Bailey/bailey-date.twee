@@ -7,7 +7,13 @@
 
 :: Bailey Date Menu
 <<effects>>
-<<person1>>
+/* Bailey prices his time against what rent tops out at, so the tiers stay
+   proportional when a player scales rent up or down. */
+<<set _spankPrice to Math.floor(baileyMaxRent() * 0.25)>>
+<<set _shortPrice to Math.floor(baileyMaxRent() * 0.5)>>
+<<set _mediumPrice to baileyMaxRent()>>
+<<set _allNightPrice to Math.floor(baileyMaxRent() * 2.5)>>
+<<npc Bailey>><<person1>>
 
 <<if $renttime lte 0>>
 	<<He>> looks at you like you've lost your mind.
@@ -45,44 +51,44 @@
 
 	/* ── Proper Spanking — £500 ── */
 	<<if $daily.baileySpankingProper>>
-		<span class="blue">"I have <<printprice 50000>>. Spank me properly." (You've already asked today.)</span>
+		<span class="blue">"I have <<printprice _spankPrice>>. Spank me properly." (You've already asked today.)</span>
 		<br>
-	<<elseif setup.inflation.canAfford(50000, "baileySpank")>>
-		<<link [["I have <<printprice 50000>>. Spank me properly." (0:10)|Bailey Spanking Proper Entry]]>><</link>>
+	<<elseif setup.inflation.canAfford(_spankPrice, "baileySpank")>>
+		<<link [["I have <<printprice _spankPrice>>. Spank me properly." (0:10)|Bailey Spanking Proper Entry]]>><</link>>
 		<br>
 	<<else>>
-		<span class="blue">"I have <<printprice 50000>>. Spank me properly." (You don't have enough money.)</span>
+		<span class="blue">"I have <<printprice _spankPrice>>. Spank me properly." (You don't have enough money.)</span>
 		<br>
 	<</if>>
 
 	/* ── Short Date ── */
 	<<if $daily.baileyDate>>
-		<span class="blue">"I have <<printprice 100000>>. Take me with you." (You've already spent time with Bailey today.)</span>
+		<span class="blue">"I have <<printprice _shortPrice>>. Take me with you." (You've already spent time with Bailey today.)</span>
 		<br>
-	<<elseif setup.inflation.canAfford(100000, "baileyDate")>>
-		<<link [["I have <<printprice 100000>>. Take me with you." (1:00)|Bailey Date Short]]>><<money -100000 "baileyDate">><<pass 5>><<set $daily.baileyDate to 1>><</link>>
+	<<elseif setup.inflation.canAfford(_shortPrice, "baileyDate")>>
+		<<link [["I have <<printprice _shortPrice>>. Take me with you." (1:00)|Bailey Date Short]]>><<money `-_shortPrice` "baileyDate">><<pass 5>><<set $daily.baileyDate to 1>><</link>>
 		<br>
 	<<else>>
-		<span class="blue">"I have <<printprice 100000>>. Take me with you." (You don't have enough money.)</span>
+		<span class="blue">"I have <<printprice _shortPrice>>. Take me with you." (You don't have enough money.)</span>
 		<br>
 	<</if>>
 
 	/* ── Medium Date — requires Short done ── */
 	<<if $bailey_date_short gte 1>>
 		<<if $bailey_date_scheduled is 1>>
-			<span class="blue">"I have <<printprice 200000>>. Let me buy you dinner." (You already have a date scheduled tonight.)</span>
+			<span class="blue">"I have <<printprice _mediumPrice>>. Let me buy you dinner." (You already have a date scheduled tonight.)</span>
 			<br>
 		<<elseif $daily.baileyDate>>
-			<span class="blue">"I have <<printprice 200000>>. Let me buy you dinner." (You've already spent time with Bailey today.)</span>
+			<span class="blue">"I have <<printprice _mediumPrice>>. Let me buy you dinner." (You've already spent time with Bailey today.)</span>
 			<br>
 		<<elseif Time.hour gte 19>>
-			<span class="blue">"I have <<printprice 200000>>. Let me buy you dinner." (It's too late to book dinner tonight. Ask in the morning.)</span>
+			<span class="blue">"I have <<printprice _mediumPrice>>. Let me buy you dinner." (It's too late to book dinner tonight. Ask in the morning.)</span>
 			<br>
-		<<elseif setup.inflation.canAfford(200000, "baileyDate")>>
-			<<link [["I have <<printprice 200000>>. Let me buy you dinner."|Bailey Date Medium Schedule]]>><<money -200000 "baileyDate">><<set $daily.baileyDate to 1>><</link>>
+		<<elseif setup.inflation.canAfford(_mediumPrice, "baileyDate")>>
+			<<link [["I have <<printprice _mediumPrice>>. Let me buy you dinner."|Bailey Date Medium Schedule]]>><<money `-_mediumPrice` "baileyDate">><<set $daily.baileyDate to 1>><</link>>
 			<br>
 		<<else>>
-			<span class="blue">"I have <<printprice 200000>>. Let me buy you dinner." (You don't have enough money.)</span>
+			<span class="blue">"I have <<printprice _mediumPrice>>. Let me buy you dinner." (You don't have enough money.)</span>
 			<br>
 		<</if>>
 	<</if>>
@@ -90,26 +96,26 @@
 	/* ── All Night Date — requires Medium done ── */
 	<<if $bailey_date_medium gte 1>>
 		<<if $bailey_date_allnight_scheduled is 1>>
-			<span class="blue">"I have <<printprice 500000>>. I want to spend the night." (You already have a date scheduled tonight.)</span>
+			<span class="blue">"I have <<printprice _allNightPrice>>. I want to spend the night." (You already have a date scheduled tonight.)</span>
 			<br>
 		<<elseif $daily.baileyDate>>
-			<span class="blue">"I have <<printprice 500000>>. I want to spend the night." (You've already spent time with Bailey today.)</span>
+			<span class="blue">"I have <<printprice _allNightPrice>>. I want to spend the night." (You've already spent time with Bailey today.)</span>
 			<br>
 		<<elseif Time.hour gte 19>>
-			<span class="blue">"I have <<printprice 500000>>. I want to spend the night." (It's too late to schedule tonight. Ask in the morning.)</span>
+			<span class="blue">"I have <<printprice _allNightPrice>>. I want to spend the night." (It's too late to schedule tonight. Ask in the morning.)</span>
 			<br>
-		<<elseif setup.inflation.canAfford(500000, "baileyDate")>>
-			<<link "I have <<printprice 500000>>. I want to spend the night." "Bailey Date All Night Schedule">><<money -500000 "baileyDate">><<set $daily.baileyDate to 1>><</link>>
+		<<elseif setup.inflation.canAfford(_allNightPrice, "baileyDate")>>
+			<<link "I have <<printprice _allNightPrice>>. I want to spend the night." "Bailey Date All Night Schedule">><<money `-_allNightPrice` "baileyDate">><<set $daily.baileyDate to 1>><</link>>
 			<br>
 		<<else>>
-			<span class="blue">"I have <<printprice 500000>>. I want to spend the night." (You don't have enough money.)</span>
+			<span class="blue">"I have <<printprice _allNightPrice>>. I want to spend the night." (You don't have enough money.)</span>
 			<br>
 		<</if>>
 	<</if>>
 
 	/* ── Cat Ears ── */
 	<br>
-	<<set _catprice to 200000>>
+	<<set _catprice to baileyMaxRent()>>
 	<<if setup.inflation.canAfford(_catprice, "catEars")>>
 		<<if $bailey_catears is undefined or $bailey_catears is 0>>
 			<<link [["I'll pay you <<printprice _catprice>> to put on cat ears." (0:05)|Bailey Cat Ears]]>><<pass 5>><</link>>
@@ -127,9 +133,11 @@
 	<</if>>
 
 	/* ── Change what you call Bailey ── */
-	<br>
-	<<if $stockholm_active>><<ind>><<link [[Change what you call <<him>>|Bailey Title Choose]]>><<set $bailey_title_from to "date_menu">><</link>><</if>>
-	<br>
+	<<if $stockholm_active>>
+		<br>
+		<<socialiseicon>><<link [[Change what you call <<him>>|Bailey Title Choose]]>><<set $bailey_title_from to "date_menu">><</link>>
+		<br>
+	<</if>>
 
 	<br>
 	<<link [[Back|Orphanage]]>><<endevent>><</link>>
@@ -431,8 +439,6 @@ You cross your arms and glower at <<person2>>the <<personsimple>>.
 
 <<if $physiqueSuccess is 1>>
 	<span class="green"><<person2>>The <<personsimple>> sneaks a nervous glance towards you, <<his>> eyes focused on your crossed arms and hardened physique. <<He>> grunts out, "Fine."</span>
-	<br><br>
-
 	<<set $date_short_intimidated to true>>
 <<else>>
 	<span class="red"><<person2>>The <<personsimple>> scoffs. "Tell your <<if $player.gender_appearance is "m">>boy<<else>>girl<</if>> to stand down."</span>
@@ -1350,7 +1356,7 @@ You arrive at the orphanage.
 
 :: Bailey Date All Night Schedule
 <<effects>>
-<<npc Bailey>><<person1>>
+<<person1>>
 <<set $bailey_date_allnight_scheduled to 1>><<set $bailey_date_sched_day to Time.days>>
 
 <<if $speech_attitude is "meek" or $speech_attitude is "shy">>
