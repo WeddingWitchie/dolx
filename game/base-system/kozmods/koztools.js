@@ -141,6 +141,9 @@ window.wornSetupClothes = wornSetupClothes;
 
 			pill.effectsKnown = !!pill.active || hasAnyEffect;
 		}
+		// Zero means no tester reading.
+		// A positive roll both records that the duration was tested and keeps its approximate week wording stable between Traits-panel redraws.
+		if (pill.durationDetailRoll === undefined) pill.durationDetailRoll = 0;
 	};
 
 	// Back-compat: older saves may be missing or have invalid scalar X-Change fields that core game code expects.

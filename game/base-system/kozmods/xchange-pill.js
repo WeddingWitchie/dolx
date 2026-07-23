@@ -3221,8 +3221,8 @@ setup.pills.push(
 	{
 		name: "X-Change Test",
 		description:
-			"A single-use test that helps you determine what kind of X-Change pill was ingested. To make it work, simply expose the tip to the user's urine and await the message on the display.",
-		onTakeMessage: "You do as instructed by the product manual, and await for a moment as the display begins to blink.",
+			"A single-use test that identifies the X-Change pill's effects and gives a more precise estimate of its remaining duration. To make it work, simply expose the tip to the user's urine and await the message on the display.",
+		onTakeMessage: "You do as instructed by the product manual, and wait for a moment as the display begins to blink.",
 		warning_label: "Warning: Do not re-use. Readings will not be accurate.",
 		autoTake() {
 			return false;

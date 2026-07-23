@@ -1207,6 +1207,7 @@
 		<<set $xchange.pill.countdown to $xchange.pill.duration>>
 		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.pill.effectsKnown to true>>
+		<<set $xchange.pill.durationDetailRoll to 0>>
 		<<set $xchange.pill.genderflipEffect to false>>
 		<<set $xchange.pill.genderificationEffect to false>>
 		<<set $xchange.pill.hermEffect to false>>
@@ -1834,6 +1835,7 @@
 
 		/* Clear pill effects */
 		<<set $xchange.pill.active to false>>
+		<<set $xchange.pill.durationDetailRoll to 0>>
 		<<set $xchange.pill.baseSex to undefined>>
 		<<set $xchange.pill.baseGenitals to undefined>>
 		<<set $xchange.pill.genderflipEffect to false>>
@@ -2221,8 +2223,10 @@
 
 	<<widget "xchange-test">> 
 		<<set $xchange.pill.effectsKnown to true>>
+		/* One stable roll keeps the tester's 8-13 day wording from changing whenever the Traits panel redraws. */
+		<<set $xchange.pill.durationDetailRoll to random(1, 420)>>
 		<<set $xchange.pill.testPending to false>>
-		The display indicates that, you're under the following effects:
+		The display indicates that you're under the following effects:
 		<ul>
 			<<if $xchange.pill.choiceEffect>><li>Choice.
 				<mouse class="tooltip linkBlue">(?)<span>The effect of this pill remains indefinitely until its companion pill is ingested.</span></mouse></li><</if>>
@@ -2302,6 +2306,31 @@
 		<<set _duration to $xchange.pill.duration>>
 		<<if wondersAboutPillEnd()>>
 			A couple hours?
+		<<elseif ($xchange.pill.durationDetailRoll || 0) gt 0>>
+			<<set _hours to Math.max(1, Math.ceil(_duration))>>
+			<<set _days to Math.ceil(_duration / 24)>>
+			<<if _hours lt 24>>
+				<<print _hours>> <<= _hours is 1 ? "Hour" : "Hours">>
+			<<elseif _days lt 7>>
+				<<print _days>> <<= _days is 1 ? "Day" : "Days">>
+			<<elseif _days lt 14>>
+				<!-- From day 8 to 13, the chance of a "Less Than 2 Weeks" reading rises from 1/7 to 1/2. -->
+				<<set _weekReadingChance to 15 - _days>>
+				<<if _days gt 7 and $xchange.pill.durationDetailRoll % _weekReadingChance is 0>>
+					Less Than 2 Weeks
+				<<else>>
+					<<print _days>> Days
+				<</if>>
+			<<elseif _days lt 31>>
+				<<set _weeks to Math.ceil(_days / 7)>>
+				<<if _days % 7 is 0>>
+					<<print _weeks>> <<= _weeks is 1 ? "Week" : "Weeks">>
+				<<else>>
+					Less Than <<print _weeks>> Weeks
+				<</if>>
+			<<else>>
+				Over a month <mouse class="tooltip">(?)<span>The measuring device does not have enough precision to determine how much over a month. It could be 3 months. It could be a year.</span></mouse>
+			<</if>>
 		<<elseif _duration gte 31 * 24>>
 			Over a month <mouse class="tooltip">(?)<span>The measuring device does not have enough precision to determine how much over a month. It could be 3 months. It could be a year.</span></mouse>
 		<<elseif _duration gte 24 * 24>>
