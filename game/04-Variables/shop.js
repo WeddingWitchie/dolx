@@ -213,6 +213,16 @@ setup.shopDetails = {
 		desc: "Keeps your privates private.",
 		details: "No one can see what kind of genitals you have.",
 	},
+	internal: {
+		name: "Internal",
+		desc: "There's more to it than meets the eye.",
+		details: "Provides constant internal stimulation while worn.",
+	},
+	shrinking: {
+		name: "Shrinking",
+		desc: "Not built to accommodate growth.",
+		details: "Gradually shrinks your penis while worn, and raises your minimum arousal.",
+	},
 	gag: {
 		name: "Gag",
 		desc: "Protects your mouth, but also limits its use.",

@@ -126,9 +126,11 @@ class CloseCombatMapper {
 		const chastityTypes = {
 			"chastity belt": "belt",
 			"dildo chastity belt": "belt",
+			"fetish dildo chastity belt": "belt",
 			"gold chastity belt": "belt-gold",
 			"chastity parasite": `parasite-${V.player.penissize}`,
 			"flat chastity cage": "flat",
+			"fetish flat chastity cage": "flat",
 			"small chastity cage": "small",
 		};
 		const chastityDevice = playerChastity() ? chastityTypes[V.worn.genitals.name] || "base" : false;

@@ -3482,7 +3482,7 @@ Renderer.CanvasModels.main = {
 					return `img/body/ear-slime-chastity-${options.ear_slime_size}.png`;
 				}
 
-				const setupVar = options.worn.genitals.setup.variable;
+				const setupVar = options.worn.genitals.setup.combat?.reference || options.worn.genitals.setup.variable;
 				const integrity = options.worn.genitals.integrity;
 				return `img/clothes/genitals/${setupVar}/${integrity}.png`;
 			},
