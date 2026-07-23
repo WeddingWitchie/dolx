@@ -85,7 +85,7 @@
 
 			<div class="settingsToggleItem">
 				<span class="gold">Pronouns </span> <mouse class="tooltip linkBlue">(?)<span>These preferences control the pronouns and gendered words used for your character in game text. Unaccepted characteristics will cause dysphoria. You can prefer multiple pronoun types. When all three are preferred, dynamic pronoun modes become available.</span></mouse>
-				<br><span class="small-description">Currently used: <<= playerPronoun() is "m" ? "he / him" : playerPronoun() is "f" ? "she / her" : "they / them">></span>
+				<br><span class="small-description">Currently used: <span id="pronoun-current-label"><<= playerPronoun() is "m" ? "he / him" : playerPronoun() is "f" ? "she / her" : "they / them">></span></span>
 				<br>
 				Masculine:
 				<br> 
@@ -124,6 +124,8 @@
 						<<set $identity.presentation.pronouns.pronounDynamicMode to "">>
 					<</if>>
 				<</silently>>
+
+				<<run updatePronounSummary()>>
 
 				<div data-target='["identity.presentation.pronouns.preferredMasculine", "identity.presentation.pronouns.preferredFeminine", "identity.presentation.pronouns.preferredNeutral"]' data-disabledif="!(V.identity.presentation.pronouns.preferredMasculine && V.identity.presentation.pronouns.preferredFeminine && V.identity.presentation.pronouns.preferredNeutral)">
 					<span class="gold">Preferred pronouns based on: </span>
@@ -948,7 +950,22 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "repairPronounPreferenceFallback">>
+		<<if !$identity.presentation.pronouns.preferredMasculine and !$identity.presentation.pronouns.preferredFeminine and !$identity.presentation.pronouns.preferredNeutral>>
+			<<set _fallbackPronoun to (!!$player.penisExist is !!$player.vaginaExist) ? "n" : ($player.penisExist ? "m" : "f")>>
+			<<set $identity.presentation.pronouns.preferredMasculine to (_fallbackPronoun is "m")>>
+			<<set $identity.presentation.pronouns.preferredFeminine to (_fallbackPronoun is "f")>>
+			<<set $identity.presentation.pronouns.preferredNeutral to (_fallbackPronoun is "n")>>
+			<<set $identity.presentation.pronouns.masculine.acceptance to (_fallbackPronoun is "m")>>
+			<<set $identity.presentation.pronouns.feminine.acceptance to (_fallbackPronoun is "f")>>
+			<<set $identity.presentation.pronouns.neutral.acceptance to (_fallbackPronoun is "n")>>
+			<<set $identity.presentation.pronouns.preferred to _fallbackPronoun>>
+		<</if>>
+	<</widget>>
+
 	<<widget "lockInIdentity">>
+		<<repairPronounPreferenceFallback>>
+
 		<<for _categoryName, _category range setup.identityIndex>>
 			<<for _char, _icon range _category>>
 				<<identitySelector _char>>

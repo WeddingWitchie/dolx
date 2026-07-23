@@ -46,6 +46,35 @@ window.wornSetupClothes = wornSetupClothes;
 // ==================================================
 // GLOBAL MOD HELPER
 // ==================================================
+// Keeps the "Currently used: he/him | she/her | they/them" pronoun summary in the Identity settings tab live,
+// since radiobutton/checkbox clicks there don't trigger a full passage re-render (see settingsDisableElement).
+function updatePronounSummary() {
+	$(() => {
+		const el = jQuery("#pronoun-current-label");
+		if (!el.length) return;
+		const updateText = () => {
+			const pronoun = typeof window.playerPronoun === "function" ? window.playerPronoun() : "n";
+			el.text(pronoun === "m" ? "he / him" : pronoun === "f" ? "she / her" : "they / them");
+		};
+		updateText();
+		[
+			"identity.presentation.pronouns.masculine.acceptance",
+			"identity.presentation.pronouns.masculine.reject",
+			"identity.presentation.pronouns.feminine.acceptance",
+			"identity.presentation.pronouns.feminine.reject",
+			"identity.presentation.pronouns.neutral.acceptance",
+			"identity.presentation.pronouns.neutral.reject",
+			"identity.presentation.pronouns.preferredMasculine",
+			"identity.presentation.pronouns.preferredFeminine",
+			"identity.presentation.pronouns.preferredNeutral",
+			"identity.presentation.pronouns.pronounDynamicMode",
+			"identity.presentation.appearance.preferred",
+			"identity.presentation.clothing.preferred",
+		].forEach(name => $("[name$='" + Util.slugify(name) + "']").on("change", updateText));
+	});
+}
+window.updatePronounSummary = updatePronounSummary;
+
 (() => {
 	// Ensure setup exists
 	if (typeof window.setup !== "object" || window.setup === null) {
