@@ -31,11 +31,11 @@
 
 	setup.inflation.PRESETS = {
 		light: {
-			inflationOnsetPct: 10,
-			inflationBadPct: 25,
-			inflationCrisisPct: 50,
-			inflationExtremePct: 100,
-			inflationParodyPct: 400,
+			inflationOnsetPct: 11,
+			inflationBadPct: 28,
+			inflationCrisisPct: 56,
+			inflationExtremePct: 113,
+			inflationParodyPct: 450,
 			inflationBaileyRentPct: 300,
 			inflationBaileyCrisisPct: 400,
 			inflationBaileyCrisisTier: "parody",
@@ -47,10 +47,10 @@
 			inflationLoanRentSurcharge: 50000,
 		},
 		mid: {
-			inflationOnsetPct: 10,
+			inflationOnsetPct: 11,
 			inflationBadPct: 30,
-			inflationCrisisPct: 50,
-			inflationExtremePct: 100,
+			inflationCrisisPct: 56,
+			inflationExtremePct: 113,
 			inflationParodyPct: 1500,
 			inflationBaileyRentPct: 200,
 			inflationBaileyCrisisPct: 200,
@@ -63,7 +63,7 @@
 			inflationLoanRentSurcharge: 100000,
 		},
 		current: {
-			inflationOnsetPct: 10,
+			inflationOnsetPct: 11,
 			inflationBadPct: 35,
 			inflationCrisisPct: 75,
 			inflationExtremePct: 150,
@@ -113,11 +113,11 @@
 	};
 
 	setup.inflation.SETTING_RANGES = {
-		inflationOnsetPct: { min: 10, max: 30, step: 1 },
-		inflationBadPct: { min: 25, max: 100, step: 1 },
-		inflationCrisisPct: { min: 50, max: 200, step: 1 },
-		inflationExtremePct: { min: 100, max: 400, step: 5 },
-		inflationParodyPct: { min: 400, max: 3000, step: 100 },
+		inflationOnsetPct: { min: 11, max: 30, step: 1 },
+		inflationBadPct: { min: 28, max: 100, step: 1 },
+		inflationCrisisPct: { min: 56, max: 200, step: 1 },
+		inflationExtremePct: { min: 113, max: 400, step: 5 },
+		inflationParodyPct: { min: 450, max: 3000, step: 100 },
 		inflationBaileyRentPct: { min: 3, max: 300, step: 1 },
 		inflationBaileyCrisisPct: { min: 3, max: 400, step: 1 },
 		inflationBaileyCapLow: { min: 500000, max: 5000000, step: 50000 },

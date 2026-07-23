@@ -1,6 +1,6 @@
 # DoL:X-Change Edition Player Guide
 
-Use this guide when you want to know what a system does, what choices it opens, and what can go wrong. It focuses on current player-facing behaviour: pills, identity, routes, danger, money, settings, and the mechanics that change how you play. **Updated based on 0.5.10.12 DoLP v0.750 DoLX 0.20.9**
+Use this guide when you want to know what a system does, what choices it opens, and what can go wrong. It focuses on current player-facing behaviour: pills, identity, routes, danger, money, settings, and the mechanics that change how you play. **Updated based on vanilla 0.5.11.7, DoLP v0.757, RBE 0.5.3, DoLX 0.20.13a**
 
 > **⚠️ Spoiler warning:** this guide explains mechanics, route triggers, event conditions, and some scene outcomes. Stop before a section if you would rather discover it naturally.
 
@@ -23,6 +23,8 @@ Use this guide when you want to know what a system does, what choices it opens, 
    - 2.3 [Acceptance, Rejection & Dysphoria Traits](#23-acceptance-rejection--dysphoria-traits)
    - 2.4 [Other Sources of Dysphoria & Euphoria](#24-other-sources-of-dysphoria--euphoria)
    - 2.5 [Identity Meter](#25-identity-meter)
+   - 2.6 [Non-Binary & Neutral Pronouns](#26-non-binary--neutral-pronouns)
+   - 2.7 [Expanded Gender Identity Preferences](#27-expanded-gender-identity-preferences)
 3. [Sensitivity, Arousal & Body Mechanics](#3-sensitivity-arousal--body-mechanics)
    - 3.1 [Sensitivity](#31-sensitivity)
    - 3.2 [Arousal & Pleasure](#32-arousal--pleasure)
@@ -33,6 +35,7 @@ Use this guide when you want to know what a system does, what choices it opens, 
    - 3.7 [Fluids, Cleanup & Arousal Control](#37-fluids-cleanup--arousal-control)
    - 3.8 [Attitudes, Speech & Traits](#38-attitudes-speech--traits)
    - 3.9 [Penetration Pain & Substance Rebalance](#39-penetration-pain--substance-rebalance)
+   - 3.10 [Tentacle & Beast Encounter Mechanics](#310-tentacle--beast-encounter-mechanics)
 4. [Seduction, Beauty, Alcohol & Aphrodisiacs](#4-seduction-beauty-alcohol--aphrodisiacs)
    - 4.1 [Seduction & Beauty](#41-seduction--beauty)
    - 4.2 [VIP Beauty Spa, Makeup & Cosmetics](#42-vip-beauty-spa-makeup--cosmetics)
@@ -49,6 +52,7 @@ Use this guide when you want to know what a system does, what choices it opens, 
    - 8.4 [Actions That Restore Willpower](#84-actions-that-restore-willpower)
    - 8.5 [Willpower Modifiers](#85-willpower-modifiers)
    - 8.6 [Extra Combat & Progression Notes](#86-extra-combat--progression-notes)
+   - 8.7 [Advanced Combat Rebalance](#87-advanced-combat-rebalance)
 9. [The Gentleman's Club (Blackmail Quests)](#9-the-gentlemans-club-blackmail-quests)
    - 9.1 [How to Begin](#91-how-to-begin)
    - 9.2 [Journal, Payment & Diversion](#92-journal-payment--diversion)
@@ -71,6 +75,9 @@ Use this guide when you want to know what a system does, what choices it opens, 
 13. [Named NPC & Route Content](#13-named-npc--route-content)
 14. [Events, Locations & Farming](#14-events-locations--farming)
 15. [Settings, Options & Cheat Menu](#15-settings-options--cheat-menu)
+16. [Chastity Devices](#16-chastity-devices)
+17. [Brothel, Strip Club & Dance Classes](#17-brothel-strip-club--dance-classes)
+18. [Feat Boost Shop](#18-feat-boost-shop)
 
 ---
 
@@ -94,6 +101,7 @@ The important thing is not only the direction. Check the timer, pregnancy risk, 
 - No ordinary pregnancy risk.
 - Good for short experiments, disguise-style play, or seeing how scenes react to a changed body.
 - The main risk comes from what happens while changed: exposure, fame, encounters, or extra pills.
+- The pharmacy now sells Basic pills in **bulk packs**: 5 packs for **£500**, or 10 for **£1,000**. Bulk buying no longer shows a misleading "cannot afford" message when you actually have enough money.
 
 #### X-Change™️ NOW & Weekly
 
@@ -120,6 +128,9 @@ The important thing is not only the direction. Check the timer, pregnancy risk, 
 - If the timer reaches **30 days**, the change becomes permanent.
 - A few bad encounters can turn a medium timer into a long one.
 - Best treated as a pleasure-management challenge, not just a three-day pill.
+- An optional setting can cap how far Continue is allowed to stack, so the timer stops snowballing past a limit you choose instead of climbing indefinitely.
+- Continue can now be safely stripped back out of a transformation that has already turned permanent (through pregnancy, the 30-day timer, or another permanence source) without undoing that permanence. This lets you remove the ongoing orgasm-tracking pressure while keeping the body state you already locked in.
+- Continue and Resistance can both now be taken and topped up during **any** active X-Change session, not only from an untransformed body, making them usable as an ongoing safety net rather than a one-time starting choice.
 
 #### X-Change™️ Resistance
 
@@ -129,6 +140,7 @@ The important thing is not only the direction. Check the timer, pregnancy risk, 
 - Each climax makes permanence more likely.
 - The current orgasm count appears in the stats display while the effect is active.
 - The whole point is resisting pleasure. Failing repeatedly is the danger.
+- Resistance (and Continue) can now be used during any active X-Change session, so you can dose either one mid-transformation instead of only at the very start.
 
 #### X-Change™️ Sissy / Butch
 
@@ -189,12 +201,26 @@ Use this when you want X-Change content without relying on random spike pools or
 - Enhances creampie orgasms.
 - Gives stress resistance while semen is in the womb.
 - Blocks orgasm unless there is semen in the vagina.
-- Edging at maximum arousal causes worse stress hits until the character receives a creampie.
+- Edging at maximum arousal causes worse stress hits until the character receives a creampie. This denial penalty is now spaced out into gentler, less frequently chained stress hits instead of repeatedly stacking penalties turn after turn, and the denial reduces pleasure rather than just adding stress.
 - Raises minimum arousal over time and stacks with aphrodisiacs such as Passion.
 - Permanent heat can also be enabled directly through settings if you want that state without relying on the pill.
 - Strange flower / phallus plant nectar can count as vaginal creampie progress.
+- The tooltip now spells out that the full breeder behaviour (heat, creampie pleasure, orgasm gating) only actually works while the player currently has both a womb and a vagina. Without those parts, some of the effect has nothing to attach to.
 
-> Breeder is one of the worst choices if you want to avoid pregnancy, permanence, or route-locking consequences.
+> Breeder is one of the worst choices if you want to avoid pregnancy, permanence, or route-locking consequences — unless you deliberately soften it with the Breeder and Fertility settings below.
+
+#### Breeder & Fertility Settings
+
+X-Change Settings now includes a dedicated **Breeder Settings** and **Fertility Settings** block that lets you decide how much of Breeder's danger you actually want.
+
+- **Fake breeder (infertile)** — when enabled, Breeder pills still give the full behavioural effect (cravings, creampie-focused pleasure, stress relief from a full womb) but the pill can no longer make the player fertile or cause pregnancy by itself. Fake Breeder stays infertile without disabling Omega, so you can still keep Omega's anal-pregnancy path active while Breeder itself is defanged.
+- **Always fertile while X-Changed** — a standing toggle that keeps the player fertile for the duration of any X-Change effect, independent of Fake Breeder.
+- **Fertility strength (%)** — a slider controlling how reliably the Fertility and Hyper Fertility courses actually cause conception, letting you dial pregnancy odds up or down instead of only getting the fixed documented rates.
+- **Priority order:** Always Fertile and Hyper Fertility effects take priority over Fake Breeder. In other words, Fake Breeder cannot quietly override a stronger fertility effect you deliberately turned on.
+- **Orgasm without creampie** — replaces the old, non-functional "creampie-only orgasms" toggle. When enabled, Breeder and Omega pills no longer block orgasm just because there is no cum inside the player yet. Creampie-specific pleasure and stress relief still require an actual creampie; this setting only stops the orgasm-blocking side of the effect.
+- All of these options, including the newer Alpha/Omega-adjacent fertility settings, are included in Settings Export/Import.
+
+> Use this block if you like Breeder's cravings and creampie-focused pleasure but want to control how much pregnancy risk and orgasm-denial you actually sign up for.
 
 #### X-Change™️ Bull
 
@@ -282,6 +308,8 @@ Use this when you want X-Change content without relying on random spike pools or
 - Can support Resistance whoring gates alongside alcohol and hallucinogens.
 - The danger is not only the stat or route check. The real risk is that your character may fail to recognise sexual danger until it is already happening.
 - Works well for players who want a helpless, unaware, or naïve temporary state without making it a permanent personality change.
+- An innocent character can now panic specifically when losing their handholding virginity, a small but distinct reaction separate from the general "too naive to notice" behaviour.
+- Wearing gloves now prevents losing handholding virginity at all, which matters if you are deliberately trying to preserve it while Innocence is active.
 
 > Treat it as a danger-amplifying pill. It changes how prepared your character is, not just what options unlock.
 
@@ -350,14 +378,18 @@ Use this when you want X-Change content without relying on random spike pools or
 
 - **Omega** enables anal pregnancy compatibility while active. It also makes anal insemination more pleasurable and can reduce stress while sperm remains in the anus.
 - Omega works on any current body. Pink Omega, Blue Omega, Purple Omega, and Purple Alpha-Omega apply the same core Omega agent through different body routes.
-- **Alpha** gives the player a knotted penis in encounter views and makes orgasm demand that the cock be inside someone or something.
+- **Omega pregnancy now actually works.** Omega can conceive through the anus and carry a real human baby to term, including with the Hyper Fertility pill, instead of the pregnancy only ever resolving into slimes. A visible growing belly now appears for Omega pregnancies, matching ordinary vaginal pregnancy presentation.
+- **Omega characters who also have a vagina can conceive through either hole.** Whichever hole actually receives the sperm is the one that takes the pregnancy; once one pregnancy sticks, the other hole is blocked until it resolves. Omega can only carry one pregnancy at a time, and the status/pregnancy screen correctly shows vaginal pregnancy when that is the hole that took. No-vagina Omega characters no longer get the vanilla "your period is late" notice — they instead notice through their growing belly.
+- **Alpha** gives the player a knotted penis in encounter views and makes orgasm demand that the cock be inside someone or something. The knot visibly swells as orgasm approaches, then stays locked in place for the rest of the encounter, with matching short close-in movement, reactions, orgasm text, and x-ray art during vaginal and anal sex.
 - Alpha requires a penis. Blue Alpha, Purple Alpha, and Purple Alpha-Omega can provide the body/genitals needed for the effect, while gray Alpha requires the current body to have a penis.
+- **Alpha combined with Breeder or Omega:** while the player's penis is still usable, Alpha's dominant "knot needs to be inside someone" urge now takes priority over Breeder/Omega's receptive pull. Forceful heat will no longer override you into a receptive role in this situation — you stay the one doing the penetrating until your own anatomy stops allowing it.
 - Pregnancy can still make an active X-Change transformation permanent. This matters for Omega because anal pregnancy can now be the permanence trigger.
 - Alpha and Omega have matching anti-pills and can also exist as gray pills for players who want the effect without a full colour swap.
 - Omega has a body-style setting: it can use the full sex-flip route or a Sissy-style shrinking route for Pink Omega.
 - NPCs do not randomly roll Alpha or Omega from NPC pilling pools. These are player-focused mechanics.
 - Non-consensual Alpha/Omega spiking is controlled separately under **X-Change Settings > Spiking Preferences**. Both are disabled by default. Omega can roll on any body when enabled; Alpha only rolls when the player has a penis.
 - Alpha/Omega spiking settings are included in Settings Export/Import.
+- **Hyper Fertility and the Bull pill** now make it much more likely for the player to successfully impregnate partners whenever the player has a functional penis, correcting an old case where the boosted odds weren't actually being applied.
 
 #### Gray X-Change Pills
 
@@ -368,6 +400,7 @@ Use this when you want X-Change content without relying on random spike pools or
 - A setting can make gray pills also flip your sex when taken from an untransformed state.
 - Continue and Resistance gray pills are useful only when a gendered or herm X-Change body is involved, so they are treated as stack-focused pills.
 - Anti X-Change therapy neutralises gray pills and prevents them from starting or stacking a new effect while the protection is active.
+- Gray Resistance, Continue, and Portal pills no longer vanish from the medicine drawer after you buy them — owned gray pills always remain visible, and when your current body can't use one, the drawer greys it out and explains why instead of hiding it.
 
 Gray pill sources:
 
@@ -397,6 +430,9 @@ Some pills are not regular pharmacy purchases. You can still run into them throu
 - The Anti-Pill Dealer may appear each week. When present, stock changes daily.
 - Anti-pill dealer access uses a flat **D-rank skulduggery** check.
 - The shady remover dealer can sell SWP Anti-pills, which act like a normal Antidote for X-Change effects.
+- The shady dealer now rolls suspicious pills based on the player's **original** body rather than their current X-Changed body, so being pilled no longer skews what the dealer is willing to sell you.
+- The shady dealer's school hallway gossip about their location, and the separate X-Tend rumour, now only surface on a weekly cadence instead of constantly, so expect to hear about their current spot roughly once a week rather than every time the topic could come up.
+- You can no longer approach or interact with the shady dealer while completely naked.
 
 #### Mysterious Person / Silver Stranger
 
@@ -483,6 +519,8 @@ Temporary X-Change states have special handling for temple vow and angelic conte
 - X-Change fame appears in cheat/menu tools and can matter for routes such as Mickey tasks.
 - Gray pills have a separate setting that decides whether they stay effect-only or also flip your sex when taken without an active X-Change body.
 - Settings Export/Import covers more X-Change options, including the newer Alpha/Omega spiking preferences.
+- **The X-Change Tester is more informative.** Testing an unidentified pill effect at the pharmacy machine now estimates the remaining pill time in hours, days, or weeks instead of a vaguer readout, and the Traits panel remembers and keeps updating that improved reading until the transformation actually ends.
+- **Cycle stage visibility improved.** The menstrual/cycle stage now stays visible while X-Change pills are active as long as you have enough Science or Awareness, even if the pill's own effect is still unidentified. Pregnancy-related pauses read as normal until your character becomes aware they're pregnant; once discovered, the duration switches to "Indefinite" with an explanation instead of a confusing number. Choice-, permanent-, and slime-caused pauses keep their existing display behaviour.
 
 ### 1.8 Anti X-Change Therapy
 
@@ -544,6 +582,12 @@ Permanent X-Change effects can also give trans characters a reflection prompt. T
 
 The trait also helps the game read trans characters more correctly during sex-flip content. For example, if a trans girl is physically changed by an X-Change pill, the game should understand the difference between her identity and the temporary body state. This avoids text that treats a sex/genital change as if it automatically changed her gender.
 
+Trans PCs also have dedicated social dialogue now:
+
+- Trans characters can explain their identity to students and to Robin, and can gain recognised access to their preferred changing room as a result.
+- Robin, Avery, and school delinquents can each react differently once they've learned the player is trans.
+- New pill-related interactions add supportive and dominant reactions around trans characters taking or being given X-Change pills, rather than only neutral/generic text.
+
 Use this trait if you want a character whose relationship with pronouns, sexed traits, presentation, and X-Change changes stays more flexible than the default Identity setup.
 
 ### 2.3 Acceptance, Rejection & Dysphoria Traits
@@ -572,6 +616,14 @@ Rejected traits work differently. If your character rejects a trait, they are no
 This means a rejected trait will not slowly become accepted unless your character stops rejecting it first.
 
 **Dysphoria** represents how much distress a characteristic is currently causing. **Tolerance** represents how much your character has adapted to that characteristic. Every day, half of your dysphoria decays, and your character gains some tolerance toward the relevant trait. **This does not happen if the trait is currently rejected.**
+
+**Acceptance is no longer a slow flat grind.** How your day actually went now changes how fast tolerance builds:
+
+- Calm, congruent days (low dysphoria, little conflict with your identity) build acceptance noticeably faster than before.
+- Days full of dysphoria slow acceptance down instead of contributing at the same flat rate.
+- The pace itself speeds up the longer you stay settled in a trait, rather than staying constant from day one.
+- **Acceptance has memory.** If you return to a body or trait you had already made peace with in the past, you regain that old comfort far faster than a first-time character would, instead of grinding tolerance back up from zero. In practice, a trait you'd previously fully accepted gets a head-start toward acceptance again if it becomes relevant later (for example, reverting to a body type you were once comfortable in).
+- Settings continue to describe **Begrudged** more clearly — it marks a trait your character tolerates without truly embracing, distinct from full Acceptance or Rejection.
 
 ### 2.4 Other Sources of Dysphoria & Euphoria
 
@@ -631,9 +683,35 @@ These changes are meant to be gradual. Identity-driven body changes usually take
 
 Auto-Transformation is best treated as a slow background system. Turn it on if you want identity to eventually affect the body. Leave it off if you only want the meter to describe your character's identity state.
 
+See [2.7 Expanded Gender Identity Preferences](#27-expanded-gender-identity-preferences) for the newer body topics Auto-Transformation can target.
+
 #### Can the meter reverse?
 
 Yes. The meter can move back if the character's identity state changes through different preferences, lower dysphoria, reduced rejection, increased acceptance, or gameplay-driven identity shifts. It is not permanently one-way unless your setup keeps pushing it in the same direction.
+
+### 2.6 Non-Binary & Neutral Pronouns
+
+DoLX now supports **neutral player pronouns** as a full pronoun option alongside the masculine and feminine sets.
+
+- Pronoun preferences control how the game refers to the PC, including **he/him**, **she/her**, and **they/them**, with matching grammar and gendered terms throughout the text.
+- A non-binary identity can draw on neutral, feminine, or masculine pronouns according to your configured preference, rather than being forced into a single fixed set.
+- When you have accepted more than one pronoun set, the game chooses between them dynamically based on your configured mode, current presentation, body, clothing, or posture. Neutral pronouns act as the fallback whenever none of the more specific conditions clearly apply.
+- Existing saves migrate their pronoun state safely; you do not need to manually reconfigure pronouns after updating.
+
+> If you want a character who reads differently depending on presentation — for example, they/them by default but she/her while dressed and passing as female — this is the system that makes that possible instead of locking you to one pronoun set for the whole game.
+
+### 2.7 Expanded Gender Identity Preferences
+
+Beyond genitals, breasts, and body size, Auto-Transformation-driven identity preference now covers a wider set of body topics:
+
+- **Height**, **hair length**, **chest**, **ass**, and **genitals** can all gradually move toward your preferred choices when the matching topic is enabled.
+- Disabled body topics stay disabled — turning a topic off means Auto-Transformation leaves that part of the body alone, it does not just move slower.
+- Existing saves migrate their per-topic preference settings safely, so upgrading does not silently reset choices you already made.
+- **Stable dual genitals are now supported without requiring an active X-Change pill.** A character whose identity preference is set to a herm-style body can reach and hold both genital sets through ordinary Auto-Transformation, rather than needing a Premium or Herm pill kept perpetually active just to maintain that state.
+
+> Treat this as the mechanism that lets a character's body drift to match who they are over time, independent of pills — pills are the fast, dramatic route; Auto-Transformation preference is the slow, permanent one.
+
+**Tiny Penis identity option:** the smallest genital-size preference used to be "Small," so a character who was naturally micro/mini/tiny would gradually get grown all the way up to Small by gradual body-change settings, even if they were perfectly happy with their smaller size. **Tiny** now sits below Small as its own selectable preference, so gradual growth stops at Tiny instead of overshooting past it.
 
 ---
 
@@ -649,6 +727,7 @@ Body size now affects more than physique while keeping the existing range from *
 - Larger characters can build more physique and are more imposing when accosted, but are easier to spot while hiding. Giant bodies also suffer a larger dodge penalty in Advanced Combat.
 - Smaller characters hide more easily. A small but sufficiently dominant character also gets an intimidation boost, so size is not the only way to make a stalker hesitate.
 - Size-specific travel events include miniature, tiny, and small characters struggling against strong wind by the farm gate, and giant characters hitting low doorways in town. Smaller demons also climb through residential windows faster, while giant demons must use a door.
+- A **Scale sidebar image to body size** option (under Rendering) keeps sidebar character sprites crisp instead of blurring them when scaled for body size. Body-size sprite scaling was tweaked further afterward and is now **disabled by default** — turn it on yourself if you want sidebar sprites to visibly reflect size, or leave it off to keep sidebar characters at a fixed size with the best rendering performance.
 
 ### 3.1 Sensitivity
 
@@ -666,6 +745,21 @@ Known things that can affect sensitivity include:
 
 Sensitivity is one reason X-Change pills feel different from a simple visual transformation. They can change how your character reacts during encounters, not just how they look.
 
+**Sensitivity medication.** The hospital pharmacy sells 14-packs of sensitivity suppressants and stimulants for players who want direct control over this stat instead of only managing it through pills and settings.
+
+- Each dose lasts **16 hours**, and you are limited to **one dose per day**.
+- Taking one medication replaces whatever the opposing effect was currently doing — you cannot stack a suppressant and a stimulant at once.
+- **Suppressants** reduce effective sensitivity to **0.25**, useful before a scene you expect to be rough or unavoidable.
+- **Stimulants** add **3 effective sensitivity**, letting a normally low-sensitivity character experience high-sensitivity effects and reactions.
+
+**Passive rubbing from clothing** is more specific now:
+
+- Pasties, tape, binders, form-fitting leotards, and swim shirts now prevent passive nipple rubbing.
+- Skirt-only outfits, one-piece bottoms, and boxers worn by vagina-only characters no longer cause passive genital rubbing.
+- Trousers and boxers that contain a penis can still cause rubbing, so a penis-having character isn't fully protected by the same items.
+
+> If passive arousal from clothing has been annoying you, check what you're actually wearing — the above combinations are the ones the game recognises as non-stimulating.
+
 ### 3.2 Arousal & Pleasure
 
 Current play split the old arousal behaviour into **arousal** and **pleasure**.
@@ -682,6 +776,17 @@ Other documented arousal notes:
 - Breeder / Bull arousal pressure stacks with aphrodisiacs, such as Passion.
 - Permanent heat / rut can now be toggled directly, letting players choose those states instead of only receiving them through pill effects.
 
+**Heat now recognises every pregnancy-capable hole, not just the vagina.** Combat heat previously only checked vaginal penetration, which meant an Omega being bred anally could stay unsatisfied or get repeatedly redirected toward vaginal penetration instead. Now:
+
+- Anal breeding supports the same heat behaviours as vaginal breeding, including leg-locking, condom removal, undressing, and guiding penetration.
+- Omegas no longer ask partners to avoid anal sex while in heat, and Omega combat heat can activate even for characters without a vagina.
+- Non-Omega Breeder heat still redirects penetration toward the vagina specifically.
+- **Forceful heat** got the same anal-aware update: it recognises all pregnancy-capable holes (including Omega's anal route), and a character without a vagina is no longer steered toward vaginal-only actions. Being bred through either eligible hole satisfies the compulsion.
+- Chastity belts no longer shut forceful heat off completely. If every eligible hole is locked, the player may instead try to remove concealing clothing, struggle against the device, or gradually damage it; normal forceful-heat behaviour resumes once the belt breaks. There is also specific handling for chastity parasites and for characters whose arms are restrained.
+- External (non-internal) semen still cannot cause pregnancy through a locked belt — that is intentionally left out, since external semen isn't a valid conception method in general.
+
+**Resist heat with willpower** is a setting under X-Change Settings: when enabled (the previous default behaviour), a character with enough willpower can resist losing control during heat. When disabled, heat ignores willpower checks entirely and takes control whenever its normal trigger conditions are met, for players who want heat to feel less resistible.
+
 ### 3.3 Orgasm Behaviour
 
 DoLX changes how orgasm pressure can build during encounters.
@@ -694,6 +799,9 @@ DoLX changes how orgasm pressure can build during encounters.
 - Male PCs need a short recovery period after orgasm before they can cum again.
 - Ear slime orgasm denial now checks willpower before deciding the result. On success, the player pushes through and climaxes normally; on failure, or if the willpower system is disabled, the ruined-orgasm path proceeds.
 - During orgasm, the PC's body can be extra sensitive.
+- **Limit group encounters to one shared orgasm** is a setting that stops one multi-orgasmic NPC from making an entire group climax over and over in the same encounter, while still preserving multi-orgasms in solo and sequential beast encounters.
+- A **moan and grunt** setting (on by default, under Fetish settings) lets being penetrated and penetrating make your character moan, grunt, or both during encounters.
+- A **Show post-encounter summary** toggle (under Settings > Enemy Stats Display) adds a recap after an encounter ends: how many times the player and other participants orgasmed, where cum was received or given, and what clothing was destroyed or stolen. It supports human, beast, tentacle, and swarm encounters, but is excluded from dream encounters.
 
 ### 3.4 Cock Addict & Hole Addict Traits
 
@@ -702,9 +810,11 @@ DoLX adds two traits that control what your character needs to orgasm.
 - **Cock addict:** your character needs to be penetrated to properly orgasm.
 - **Hole addict:** your character needs to penetrate someone or something to properly orgasm.
 
-These traits are mutually exclusive. Unlocking either one permanently locks the other for that character, including if trait acquisition is later switched off and back on.
+These traits are mutually exclusive. Unlocking either one permanently locks the other for that character, including if trait acquisition is later switched off and back on. This exclusivity is now enforced properly — the two traits can no longer end up active at the same time through edge cases like trait re-rolling.
 
-These traits can make encounters more difficult, especially when pills, aphrodisiacs, high arousal, or low willpower are involved. Toys may still trigger an orgasm in some cases, but they do not fully satisfy the trait. The result may feel forced or unpleasant instead of properly relieving.
+These traits can make encounters more difficult, especially when pills, aphrodisiacs, high arousal, or low willpower are involved. Toys may still trigger an orgasm in some cases, but they do not fully satisfy the trait. The result may feel forced or unpleasant instead of properly relieving. Insertable toys and strokers now reliably force this "hollow" orgasm outcome for addiction/X-Change purposes, instead of sometimes registering as a full, satisfying release.
+
+**Hole Addict no longer blocks orgasm while the player has no penis.** Since there is nothing to insert, the craving now stays dormant until a penis is available again, rather than incorrectly preventing orgasm for a body that structurally can't satisfy the trait — including bodies created by gender-flipping X-Change pills. Trait descriptions explain this behaviour. The fix also covers a few encounters that were wrongly treating the player as unable to orgasm under this trait: the ear slime, the moor phallus plant, and the lake ruin wraith. These encounters (and the trait logic generally) now distinguish between a trait that is genuinely active versus one that is simply locked out by its counterpart.
 
 > Breeder's creampie-only orgasm rule is separate from Cock addict and Hole addict.
 
@@ -742,6 +852,7 @@ The **Scratch** combat action is a new defiant action that uses your fingernails
 - Longer or sharper nails make Scratch stronger.
 - Nail-armour rings now interact with Scratch correctly.
 - Cat, wolf, fox, bear, and Water Dragon transformations always have Scratch available because their claws are part of the transformation.
+- **Scratch is a stronger alternative to punching for miniature, tiny, and small characters** in dangerous fights, while consensual scratches stay deliberately gentle. Scratch now correctly respects combat settings, dodges, counters, nail-armour rings, and ear-slime interference, and missing NPC reaction text for being scratched has been filled in.
 - Smaller characters can deal more scratch/claw damage in dangerous fights, while larger and stronger characters still generally benefit more from punching. This keeps claws useful without replacing strength builds.
 - If both hands have claws, Scratch can use both hands and inflict stronger wound damage.
 - Consensual scenes keep Scratch/claw damage lower, so playful scratching does not end scenes too quickly.
@@ -775,13 +886,21 @@ DoLX also reworks the DoL Plus attitude system across many scenes.
 - Prey animal traits can give a daily submissive buff.
 - Predatory animal traits can give a daily defiance buff.
 - Submissive and deviant action tuning has been rebalanced, especially during mid-combat.
+- **Gradual masochism and submission conditioning:** sustained high pain now has a chance to gradually raise masochism and slightly raise submission, alongside the existing orgasm- and combat-based masochism gains. The chance scales with both pain intensity and how long the pain has lasted, up to roughly four hours of continuous pain. It's disabled in Soft Mode and during scenes where stat changes are frozen, and masochism is still capped at its normal maximum of 1,000.
 - Some story choices no longer require submissiveness, and some defiant checks can use wolf-specific defiance requirements so wolf TF players with high submissiveness still have access to appropriate options.
 - **Insanity** is a hard-mode mental trait available at character creation under Mental Attributes.
 - Permanent Insanity is not beginner-friendly: it forces severe trauma symptoms to behave as constantly active, including Insomnia, Nightmares, severe Anxiety, Panic Attacks, and Hallucinations.
 - It cuts many physical, combat, willpower, swimming, athletics, dancing, and academic gains, increases physique decay, and pulls the character harder toward crime and delinquency.
 - Permanent Insanity forces all tempered talents active and locks the talent menu around that state.
-- Active Insanity blocks positive sensitivity increases, including X-Change and anti-pill side effects, while still allowing sensitivity reductions.
-- A non-permanent Insanity state can also develop mid-game if trauma stays very high for more than a week. It can fade after trauma subsides.
+- **Dissociation is now a core part of the trait.** Insane characters are completely numb: sensitivity changes are fully blocked while insane, in both directions (no gains **and** no losses), which fixes older cases where pills, purity shifts, orgasms, anti-pill effects, or version-migration changes could reflect sensitivity loss onto an insane character who shouldn't have been feeling any of it. Existing saves repair clearly broken sensitivity values once on load; already-valid values are left untouched.
+- Insane characters also stop noticing passive rubbing from underwear or clothing altogether — related sensitivity messages and passive arousal gains are suppressed. They can still sleep or shower even when their arousal would normally be considered too high to allow it.
+- **Insanity is now sticky.** It is gained once trauma has stayed at 65%+ for **5 straight days**, and it is only lost once trauma drops below **5%** of its maximum — i.e. nearly fully healed. A non-permanent Insanity state can still develop mid-game this way and fade once trauma has genuinely subsided, rather than flickering on and off with every trauma spike.
+- **Insanity in combat** now paralyses the player for the first **two turns** of any encounter while permanent or temporary Insanity is active, representing the character dissociating under pressure.
+  - Gaining focus while dissociated — such as by poking yourself or attempting to speak — removes an additional turn from the paralysis.
+  - **Willpower counters this paralysis:** at **350+ willpower**, the paralysis shortens to one turn; at **700+ willpower**, it is prevented entirely.
+  - A milder dissociation lingers for the rest of the encounter after the player surfaces from the initial paralysis.
+  - Active permanent or temporary Insanity also adds a **13% lash-out roll per consensual encounter** — a small chance of an involuntary defiant outburst even in a scene you otherwise agreed to. Non-consensual encounters keep their original lash-out behaviour unchanged.
+- **Fallen Angels with Iron Will** got a related buff: Iron Will is now retained after using a genome dump, boosts willpower gains by **35%** normally, and grants **45% more** willpower gain specifically while affected by temporary or permanent Insanity — useful if you're deliberately trying to push past the 350/700 combat-paralysis thresholds above.
 - After unlocking **A Special Trait** with **20 Vrel Coins**, some feat-supported sexual or role traits can be taken in boosted forms at character creation. This is mainly useful for players building around traits such as Orgasm Addict, Asphyxiophilia, Cum Dump, Plaything, Fucktoy, Bitch, Prey, or Milk Addict from the start.
 
 ### 3.9 Penetration Pain & Substance Rebalance
@@ -805,6 +924,27 @@ Substance rebalancing also makes intoxication less likely to completely break pl
 - Botched-pill pain is lower under the Substance Rebalance option, making failed pill outcomes still painful but less extreme than before.
 
 > Wetness, arousal, intoxication, and encounter tone now matter more. A scene can become easier or worse depending on how prepared, drugged, or overwhelmed the player is.
+
+### 3.10 Tentacle & Beast Encounter Mechanics
+
+Tentacle, abomination, and beast encounters have their own layered mechanics beyond ordinary human combat.
+
+**Multi-tentacle penetration and choking:**
+
+- Up to **three tentacles** can occupy the same hole at once. A second tentacle can force its way into an already-occupied vagina or ass, and a third can join to share that same hole.
+- Tentacles wrapped around the neck can now properly strangle the player, including a suffocation/passout mechanic and an oxygen-loss loop specific to tentacle and abomination encounters.
+- X-ray art scales with tentacle count, using a darker overlay layer for the extra penetrator(s) so double-penetration reads visually distinct from single penetration.
+
+**Beast multi-orgasm fix:** actions that hold or stimulate a beast's penis no longer automatically fail while the beast is mid-ejaculation. Previously this could make the beast's penis abruptly vanish from wherever the player was holding or being penetrated by it (hand, mouth, feet, thighs, or elsewhere) mid-orgasm; a beast can now complete a full multi-orgasm turn without your grip or position being invalidated partway through.
+
+**Player-initiated facesitting and rimming:** you no longer have to wait for an NPC to randomly start these — they now appear as regular consensual initiation options (human encounters only), each gated by the matching skill:
+
+- **Move your mouth to their ass** — needs Analingus (Giving) and oral skill.
+- **Pull their pussy onto your face** — needs facesitting and oral skill.
+- **Guide their head to your ass** — needs Analingus (Receiving) and anal skill.
+- All three can fail if your skill is too low, same as other skill-gated initiations.
+
+**Plant person:** deliberately entering the plant person's snare now starts a fully consensual encounter (keeping the existing bound-leg and oral positioning), while stumbling into it by accident still plays out as non-consensual. This lets players who want the plant person content seek it out on purpose instead of only encountering it as an ambush.
 
 ---
 
@@ -982,6 +1122,14 @@ Virginity is also stored per body for the main X-Change roles.
 
 Herm content has its own routing checks. Some explicit herm scenes should only appear if your current body actually has both genital sets, though rumours and gossip may still linger after your body changes back.
 
+**Shop and spa ban recognition now scales with X-Change fame** instead of being a flat yes/no ban check while pilled:
+
+- Below **200** X-Change fame: you are not recognised at all, and entry is unaffected.
+- **200–399** fame: staff are uncertain but still let you in.
+- **400–599** fame: staff grow suspicious. You are still allowed in, but a small hidden trespassing increase is added once per day.
+- **600+** fame: you are fully recognised, and any existing ban is enforced normally.
+- Players who are not currently X-Changed continue to be recognised normally regardless of these tiers — this scale only softens recognition while you're wearing a changed body.
+
 ---
 
 ## 8. Willpower System
@@ -1062,6 +1210,20 @@ There is one major exception:
 - Encounter theft payouts scale better with very high skulduggery past S rank, so theft builds keep improving after the visible S threshold.
 - High heels stop imposing movement disadvantages once feet skill reaches **1800**. At that mastery level, you can run, walk, sneak, and travel in heels without the earlier heel movement penalties.
 
+### 8.7 Advanced Combat Rebalance
+
+Combat Extended (the deeper, skill-driven combat layer) received a broader rebalance pass aimed at keeping very high stats from trivialising fights, and giving players a direct dial over how hard enemies hit.
+
+- **Dodge now has diminishing returns above 60%**, so stacking agility past that point no longer pushes the player toward being nearly untouchable.
+- **Damage from Brawling, Striking, and Kicking scales more gradually**, avoiding sudden power spikes at specific skill breakpoints.
+- **Standing Fights** now inflict slightly more pain on the player, tightening a gap where standing combat had become comparatively safe.
+- Fixed enemy passive dodge not applying correctly, and fixed enemy blocking failing to reduce incoming damage due to an incorrect variable — enemy blocking is also now capped so it cannot accidentally heal the enemy.
+- Fixed Physique and Masochism reducing combat pain **twice** — at high stat values this could make incoming attacks weaker than natural pain recovery. Pain reduction is now applied only once, so very tanky builds no longer become effectively unhittable.
+- **Enemy Damage Multiplier** (Combat Extended > Enemy CE Actions) is a new slider from **25% to 300%** that scales enemy-inflicted pain, stress, and trauma directly, without touching enemy health. Presets: **Very Easy 75%**, **Easy 100%**, **Normal/Casual 125%**, **Hard 150%**, **Very Hard/Tryhard 175%**, **Impossible 250%**. Existing saves default to 100%; if you had already customised your difficulty before this setting existed, pick **150–175%** manually rather than reapplying a preset over your old tuning. The old hidden +25% pain modifier was removed, so this slider is now the _only_ source of enemy damage scaling.
+- Negative or corrupted damage values can no longer heal the player, and extreme Blocking/Physique or edited stats can no longer produce negative damage — deliberate recovery effects (like specific combat actions that reduce pain) are unaffected by this guard.
+- The Stat Nerf Multiplier setting now also reaches Combat Extended skills: Brawling, Striking, Kicking, and Footwork no longer ignore it, and Dodging, strike/kick accuracy, melee/tentacle damage, and stability all scale with it too. The Characteristics screen shows the exact reduction applied per skill. Skill gains, skill caps, and gym lessons are unaffected by the Nerf Multiplier.
+- A combat soft-lock where enemy HP could disappear and make a fight unfinishable has been fixed: invalid damage values can no longer corrupt enemy HP, affected enemy HP is repaired mid-combat, and Stat Nerf Multiplier values are repaired automatically on load if they were corrupted. If you already have a save stuck in this state, attacking once after recompiling/reloading should restore the enemy's HP.
+
 ---
 
 ## 9. The Gentleman's Club (Blackmail Quests)
@@ -1081,6 +1243,9 @@ If the conditions are met, you may be contacted by **the Gentleman's Club**, a s
 - Blackmail quest completion status is shown in the journal.
 - Landry can be paid to divert the Gentleman's Club's attention away from the player.
 - Blackmail letters show an estimate of reputational damage.
+- Landry's pub introduction to the Gentleman's Club has been rewritten to better match his characterisation. His "top-notch material" line can now trigger specifically when the player has a good reputation and low allure, framing it as recognising your standing rather than writing him out of character.
+- Two feats reward complying with requests at the Gentleman's Club, alongside the existing tier system below.
+- Blackmail tasks that forbid certain clothing (tops, underwear, etc.) no longer incorrectly fail if you were force-dressed by passing out from heatstroke or hypothermia — that's now treated the same as ordinary exhaustion fainting, so it doesn't cost you the task or the reputation penalty. Tasks also no longer fail during scenes where time and stats are paused, such as character-book dreams/replays or the Hopeless Cycle sequence.
 
 ### 9.3 Quest Tiers
 
@@ -1272,6 +1437,14 @@ HBSC loans exist for rent emergencies, but they are not free money.
 
 Very high exploit-level wealth can trigger a special cap event that wipes the runaway money state and awards a hidden feat. Treat the parody tier as a warning that you have broken past normal economy play, not as a recommended goal.
 
+**"Relentless Bailey" rent option.** An optional toggle under Settings > Rebalance Settings > Bailey Triggers, disabled by default, removes Bailey's usual restraint around rent:
+
+- Bailey never accepts "no" for rent and starts actively hunting the player from the very beginning of the game.
+- Weekly rent keeps rising with **no cap**, instead of stopping at the normal ceiling.
+- Rent-threshold and rent-cap settings grey out and stop applying while this option is enabled, since there is no longer a cap for them to control.
+
+> Only turn this on if you specifically want Bailey rent pressure to be a permanent, escalating threat rather than a manageable weekly bill.
+
 ### 11.4 Harvest Street Factory
 
 The Harvest Street factory sells stockpiled farm produce for players who do not want to manually move every crop through normal sales.
@@ -1358,10 +1531,32 @@ Whitney has several X-Change-specific interactions.
 - Whitney can react to Water Dragon transformation content.
 - Whitney has additional pub/after-school content in current play, including cage or chastity-related scenes when the route state supports them.
 - Whitney crossdressing rules are now clearer in the Journal, so check the Journal if you are trying to understand which Whitney route expectations are active.
+- **Whitney's toilet-assignment rule is fixed:** the old 25% chance that Whitney assigned you to the toilets you'd already naturally use is gone. Whitney now always assigns the opposite toilets based on your current body, and this check correctly accounts for any active X-Change body effects.
+- Whitney refers to their actual current genitals in dialogue now, instead of always defaulting to a specific line regardless of their transformed state.
+- **Whitney can pill the player as part of school chastity enforcement.** When Whitney's chastity rule applies to a body without a penis, Whitney can fit a constantly-stimulating dildo chastity belt instead.
+- Two new hallway interactions were added after the player rejects Whitney's special orphanage visit, plus a park interaction for when the player tries to apologise afterward.
+- Whitney has new reactions to the player's X-Change use, but only after Whitney has actually discovered it — Whitney's maths-class dialogue no longer references your X-Change use before Whitney has learned about it.
+- Added a math dildo event variant and a bullet-vibe classroom catch event (see [3.5 Bullet Vibe](#35-bullet-vibe)); Whitney can also react to Water Dragon transformation content.
 
 ### Bailey
 
-Bailey may use pills as part of rent punishment if the player fails to pay.
+Bailey may use pills as part of rent punishment if the player fails to pay, and Bailey can now be pilled directly as a full route rather than only threatening the player with pills.
+
+**Bailey is now pillable.**
+
+- Bailey can be targeted with transformation pills from an approved whitelist, the same way other supported Named NPCs can be.
+- Immediately after being pilled, Bailey has a unique furious reaction — do not expect this to go over well in the moment.
+- Bailey has dedicated combat dialogue both before and after the transformation actually takes hold.
+- **Daily orphanage scenes** let Bailey examine and test the new body while the pill is active.
+- **Daytime flats events** let a pilled Bailey use the transformation while collecting rent and confronting debtors — the body change actively feeds into how Bailey does the job, not just flavour text.
+- All of this transformation-related content stops once the pill wears off; Bailey's speech and behaviour branches are checked above the pill's own effect, so ordinary Bailey interactions still work normally around it.
+
+**Bailey street-stalk and rent enforcement:**
+
+- Bailey's street shakedown (being cornered while out in town, behind on rent) now mirrors the home rent-due behaviour, including dragging Robin into the confrontation and being able to sell Robin off the same way home confrontations can — previously, staying out in town while owing Robin's debt let you dodge that outcome entirely.
+- The street shakedown also counts bank savings toward payment and includes any bank-loan surcharge, matching the normal at-home rent screen.
+- If [Relentless Bailey](#113-inflation-bailey-pressure--loans) is enabled, Bailey never accepts "no" and hunts the player from day one, with weekly rent growing uncapped.
+- The **Activate Stockholm** cheat option no longer silently swaps out your neckwear for Bailey's Lotus collar and leaving it stuck once toggled off — the cheat now clearly describes what it does, preserves existing neckwear, and properly removes the collar when Stockholm is deactivated. If your save was already affected, it repairs automatically on load: with Stockholm inactive, the collar becomes a normal removable item back in your wardrobe.
 
 ### Avery
 
@@ -1375,6 +1570,34 @@ Avery has several money, mansion, and X-Change hooks.
 - Office wage from working as Avery's assistant can be boosted by beauty.
 - After Avery has been saved, the mansion garden can unlock a crop plot in a sheltered glass corner. It works like a greenhouse-style plot and can be used year-round.
 - Saving Avery can also lead to a more conflicted follow-up scene at the mansion, even if you do not accept everything Avery offers.
+
+**Post-chase confrontation.** Players can now confront Avery after the skyscraper car chase instead of always being sent straight back to the mansion garage.
+
+- Immediate and delayed confrontation variants exist depending on how the chase itself ends.
+- Avery's response changes based on love and rage: Avery may punish the player, blame them, brush the situation off, or offer manipulative comfort.
+- The scene accounts for your current speech attitude, pregnancy, and any existing Avery mansion punishment routes already in progress.
+
+**Saved Avery's housework and adoption:**
+
+- Saved Avery now gains rage more slowly from failed housework, and forgives missed cooking entirely rather than holding a grudge over it.
+- Saved Avery focuses more on keeping the mansion clean, and now hints that they enjoy gardening — the mansion garden description reflects that care.
+- When saved Avery would previously explode over housework, they now sometimes catch and stop themselves instead.
+- **Avery can adopt the player into the mansion** if Avery is selected as your love interest in the Social Menu.
+- Avery can update the mansion greenhouse once you ask while Avery is in the garden. This becomes available one month after you unlock the greenhouse; if you had already unlocked it before this feature existed, you can ask immediately.
+
+**Avery's dungeon and boutique:**
+
+- The free-choice menu in Avery's dungeon now grants masochism points, since it's an actual choice for the PC. Other dungeon entry points do not grant masochism points, because they don't offer a real choice.
+- The boutique jewellery event's first trip is now guaranteed once Avery has **80 love**, **20 dominance**, **rage 5 or below**, and you return before **22:00**. Repeat trips have a **1-in-20** chance under the same conditions.
+- Avery's garden now offers separate **Steal oranges** and **Steal plums** options, alongside the general forest plum/peach encounter described in [Section 14](#14-events-locations--farming).
+
+**Scheduling and fixes:**
+
+- Morning school pickups now have only a 50% chance and can happen at most once per day; afternoon pickups are no longer guaranteed on Mondays (Mondays keep a higher chance, but it still has to pass its normal roll).
+- Avery's Saturday street-date invitation now requires Avery to have been properly introduced — completing the science project alone no longer makes an unknown Avery act familiar with the player, though an unknown Avery can still correctly reach the day-20 introduction event.
+- Redundant Avery NPC generation after the bank-card conversation, and after the car chase, has been cleaned up.
+- Avery's consensual sex scene no longer spawns the broken "mysterious stat creature."
+- Bank gala time progression and sudden time-jumps during Avery's party events have been fixed — the party now waits for the appropriate time instead of dragging you forward with the clock, and gala scheduling has an eight-party cooldown with a reduced 30% invitation chance (down from 33%).
 
 ### Robin
 
@@ -1402,6 +1625,10 @@ Robin has expanded relationship and X-Change content.
 - If the stand earns more than **£2,000** in a week while Robin is carrying debt, Robin can confront Bailey during rent and take the payments back. After that, rent returns to normal and Robin can share stand profits.
 - You can give Robin money directly in their room once you know about their debt.
 - Robin's debt can be learned earlier by overhearing orphans in the main hall if Robin's love is at least **40**, which can unlock taking on Robin's debt before the docks scene.
+- Robin now has a dedicated reaction to the player's X-Change use, alongside Whitney's.
+- Robin's crossdressing scenes now use the correct gender references after the player has X-Changed, fixing a mismatch that used to appear once your body no longer matched your starting sex.
+- Redundant Robin NPC generation when discussing the stand business has been cleaned up, along with the related link.
+- Bailey's street shakedown can now drag Robin in and sell him the same way a home confrontation can — see [Bailey](#bailey) above. Staying out in town no longer lets you dodge that outcome.
 
 ### Sydney
 
@@ -1426,6 +1653,7 @@ Kylar's route timing, obsession behaviour, and X-Change interactions have been a
 - You may be able to let Kylar pill themselves, stop them, or do the pilling personally if circumstances allow.
 - Stalking signs are clearer for observant or traumatised characters. Players with **Sharp Eyes** or **Dragon Eyes** can notice when Kylar is stalking them.
 - Players with high awareness and high trauma can also notice the stalking, while other players may only hear footsteps.
+- Kylar now correctly recognises the player's anatomy after undressing them, preventing pregnancy-related dialogue from appearing when it doesn't actually apply to your current body.
 
 ### Remy
 
@@ -1436,6 +1664,13 @@ Remy has additional Choice-pill and spiking content.
 - If that setting is disabled, the scene may still mention swallowing a pill, but no X-Change effect is applied.
 - Remy will not spike the player into X-Change while pregnant unless you are already X-Changed.
 - Remy may use Choice pills at the underground farm, which can require Wren's cooperation to acquire the Reversal pill.
+- **Remy's Livestock Milking Obey scene was reworked.** The pill now gives the player a hermaphroditic body instead of simply reversing their sex, and Remy mixes in growth formula that immediately increases breast size by two stages (unless already maxed). The scene ends with Remy declaring the player "milkable at both ends."
+- Remy now recognises and reacts to an Ivory Wraith brand on the player, where previously the branding went unacknowledged.
+
+### Wren
+
+- Wren can be paid to passively **sabotage Remy** for one attack. If the arrangement isn't renewed after that attack resolves, it lapses until paid again — renewal can also be covered automatically through an HBSC standing order if you have enough savings.
+- Wren's Blackjack game can become riskier through X-Change pill consequences, so a losing streak there can carry pill risk on top of the usual stakes.
 
 ### Briar, Harper & Re-Virginity
 
@@ -1462,6 +1697,10 @@ Current player-facing notes:
 - Poppy has pregnancy-related content.
 - Poppy's math study event can involve stimulant use in their flat.
 - Poppy can let you temporarily stay at their flat, but this may require progressing Poppy as a love interest first.
+- Poppy now visits Bailey from **7:00 AM** on weekends and school holidays, with each visit lasting a randomised **25–60 minutes**. Bailey's normal office interactions only become available after Poppy's visit ends, so expect a delay before you can approach Bailey directly on those mornings.
+- **Poppy is now available during Realistic Childbirth content** and has additional pregnancy conversations beyond the original set.
+- Poppy checks the baby's actual paternity before claiming to be the father — if another character or creature caused the pregnancy, the player can correctly explain the child isn't Poppy's, and Poppy responds supportively instead of wrongly claiming it.
+- A save-migration bug that could reset Poppy's anger from 0% back up to 1% (blocking the switch over to Patience) has been fixed.
 
 Poppy's stat decay:
 
@@ -1470,6 +1709,16 @@ Poppy's stat decay:
 - **LI Poppy** loses 2 stats if the interaction check fails.
 
 > For more information about Poppy, check the dedicated Poppy channel in the DoL Plus Discord server.
+
+### Gwylan
+
+Gwylan is the mystical/ritual-flavoured route tied to Realistic Childbirth, special clothing, and animal pet-naming flavour.
+
+- **Realistic childbirth** was added to Gwylan's birth scene, with expanded speech throughout, and portal effects can no longer trigger sexual encounters while realistic childbirth is in progress.
+- Gwylan's fluid-collection requests now give **two samples** if the same NPC orgasms twice in one encounter. A single orgasm still gives one sample, and further orgasms beyond the second do not increase the reward.
+- Gwylan has added pet names specific to bunny, bear, and water dragon transformations, on top of the existing set.
+- **Special Clothing rank 3** (bought through the Feat Boost shop, see [Section 18](#18-feat-boost-shop)) correctly unlocks the promised costume stories for Gwylan's dialogue progression — a prior bug could let this content stay locked even after purchase; existing saves repair themselves automatically once loaded.
+- A prior save-migration bug that could accidentally unlock the sage witch hat has been fixed. Players who legitimately earned it through Gwylan's ritual scene keep it; players who haven't unlocked it yet still need to earn it normally.
 
 ### Riley & the MMA Gym
 
@@ -1490,8 +1739,7 @@ The Ivory Wraith and underwater prison content can interact with X-Change system
 
 ### Miscellaneous
 
-- Wren's Blackjack can become riskier through X-Change pill consequences.
-- Jordan may react when spoken to at the temple if the player has a divine transformation.
+- Jordan may react when spoken to at the temple if the player has a divine transformation, and now refuses to let a pregnant player enter the trial of fire.
 - Whitney may gain love from being made to orgasm during reverse rape.
 - Sirris class has an avoidance event that can let the player slip out of Leighton's inspection, though the first inspection remains unavoidable.
 
@@ -1507,12 +1755,14 @@ DoLX adds or expands several event, farming, utility, and location hooks beyond 
 - A Resistance-focused whoring event exists, though it should not be served to pregnant PCs.
 - Resistance whoring uses a promiscuity gate with possible bonuses from alcohol, hallucinogens, and Innocence.
 - The landfill has new events where the player may be spiked with X-Change pills.
+- More general sexual-event bypasses have been added for PCs who are too innocent or too drunk to meaningfully participate, so those states can shortcut past scenes your character genuinely wouldn't understand or handle.
 
 ### Bus & Public Encounter Notes
 
 - Bus chikan molesters may leave before making the player orgasm if the bus reaches their stop.
 - Street cat-call encounters now have more varied dialogue.
 - The street money proposition event has had some RNG removed so that branch behaves more consistently.
+- The well-dressed man on a bench street-seduction event now has a variant: he may be offering an honest, no-strings-attached encounter instead of always hiding a camera in the hotel room. His opening description subtly hints at which version you've been offered, and higher Skulduggery increases the chance of getting the honest version — so perceptive characters benefit from their awareness instead of being locked out of the safer outcome.
 
 ### Street & Utility Events
 
@@ -1523,6 +1773,16 @@ Small utility events can matter when you are routing daily play.
 - Some private or captive locations have more masturbation support, including the Asylum, Prison, and Great Hawk Tower. Tower access depends on the tower pool state.
 - Demon players on the pirate ship can find a daily group-sex event.
 - After Alex's woodland upgrades and the right farm conditions, pigs or pigpeople can show special attention. This sits alongside the horse/centaur style attention content and depends on the animals being available for the day.
+
+**Loitering is now a proper timed action** instead of a single fixed wait.
+
+- You choose how long you want to loiter instead of it always taking the same amount of time.
+- You can be interrupted while loitering; when an interruption happens, the waiting period ends immediately rather than running out the full chosen duration.
+
+**Prison** now has more to do besides waiting out a sentence.
+
+- A **meditation** option has been added in prison, using the same mechanic as the lake meditation spot.
+- A random **prison fight event** can occur, and its outcome can either raise or lower your prison respect.
 
 ### School, Soup Kitchen & Study
 
@@ -1536,10 +1796,18 @@ School and temple-adjacent town content now have more small progression hooks.
 - Class study and socialising events can now give clearer subject rewards and status changes.
 - Some Science, Maths, English, History, and Housekeeping class content can include X-Change-themed lessons or reactions, especially when the player is visibly X-Changed.
 - A weekly temple charity event can appear in the orphanage main hall after the soup kitchen route is established. It has a **60%** weekly chance when the soup kitchen has been discovered, the River/temple loft kitchen is installed, and soft world corruption is below **30**.
+- **Soup kitchen charity:** when world corruption is low, a stranger may come by to donate to the orphans — the player included.
+- A new **school hallway event** lets other students sense the player's divine transformation, giving Angel/Fallen Angel players a school-specific reaction to their transformed state.
 
 ### Math Dildo Event
 
 The infamous math dildo event was expanded and can interact with special character states, including demon PCs.
+
+### Forest Finds & Hospital Lube
+
+- A random forest encounter can now turn up wild **plum and peach trees**, adding another foraging option alongside existing forest finds.
+- The hospital pharmacy sells a separate **three-use lube tube**, distinct from the five-use adult-shop lube bottle. Lube tubes are stored separately from bottled lube and cannot be used to refill the brothel vending machine. Combat now correctly consumes whichever lube type you're actually carrying and removes the right container once it's empty.
+- Tomato gain is now colourable in the Flats job, matching how other job-colour flavour text works elsewhere.
 
 ### Water Dragon
 
@@ -1574,6 +1842,7 @@ What Water Dragon does:
 - Full Water Dragon, full effective Water Dragon, or active Aquatic Lungs can unlock a direct swim route to the island without needing pirates. The crossing is still a serious journey and takes about a week.
 - Full/aquatic Water Dragon characters can receive Water Dragon-specific island events, including home, language, tidepool, spring, carving, and moon-related events.
 - Water Dragon lore can also appear in island defeat and spear-related content.
+- The island elder's Water Dragon lore has been expanded, and a previously missing Water Dragon travel link has been restored.
 
 Dragon Eyes:
 
@@ -1695,6 +1964,36 @@ Additional crop locations can appear through routes. After Avery is saved, the m
 - You can cook together with the orphans using donated ingredients.
 - Cooking together can raise hope and rebelliousness weekly.
 
+### Transformation Income Bonuses
+
+Several animal and divine transformations now give a direct income bonus tied to their theme, stacking with each other and with other buffs:
+
+| Transformation | Bonus                                                                           |
+| -------------- | ------------------------------------------------------------------------------- |
+| Water Dragon   | Can breathe underwater; +50% chance to find valuables at the lake               |
+| Wolf           | +50% chance to find valuable items in the forest, moor, and elsewhere           |
+| Bunny          | +100% income from dancing                                                       |
+| Harpy          | +100% income from working at the office                                         |
+| Bear           | +100% income from chalets and the pound                                         |
+| Cow            | +50% harvest quantity from planting                                             |
+| Fox            | -25% to crime gain and Skulduggery difficulty; +25% selling price for valuables |
+| Cat            | +100% income from the cafe                                                      |
+
+Divine transformations were also buffed: **Angels** earn 50% more from ordinary income, **Demons** earn 50% more from dancing and sex work, and **Fallen Angels** earn 20% more from all income. These stack with other bonuses, including stolen goods and fencing, though refunds and transferred funds never count as income.
+
+Skilled and black-market income also got grade-based bonuses:
+
+- Once the governing skill reaches grade **S**, several low/mid-level jobs receive an income bonus starting at **10%** and scaling up to **50%** at grade **SSS**. Income below grade S is unchanged.
+- Higher Skulduggery increases black-market sale values, scaling up to double value at grade SSS. Journal estimates now match the actual sale value, and the optional maths-based haggling bonus still stacks with the Skulduggery bonus.
+
+### Farming Yields & Tools
+
+- **Tending** yield improvements: harvest yields increased by an additional **15%**, raising an average harvest from roughly 500 to roughly 575 crops — a 713-crop harvest should now produce around 820.
+- **Rugged shoes** increase effective Tending based on Feet skill, and the final harvested quantity gets a further Feet-skill bonus: **+1%** at 100 Feet skill, **+5%** at 500, **+10%** at 1,000, and **+20%** at 2,000.
+- The **Crop Yield penalty** setting's cap was raised from 500% to **650%**.
+- Harvesting days were shortened across the board: plants taking over 20 days now take 20; 10–19 days now take 10; 5–9 days are reduced by 2; anything shorter is reduced by 1.
+- **Tractor bonuses now apply properly to planting and harvesting**: tractor tiers reduce planting/harvesting time by 10%, 20%, or 30%, and seed drills/harvesters give the same additional reduction ploughs already provided.
+
 ### Eden Underground Farm Rescue
 
 Eden can sometimes intervene during the underground farm route.
@@ -1722,6 +2021,7 @@ Bike travel has been reworked into a more active system.
 - Biking may be useful or risky depending on conditions.
 - If you walk somewhere with a companion while owning a bike, the bike can move with you to the destination.
 - Bike repairs at the depot cost **£350** before inflation, so repeated rough travel can become a real expense.
+- Biking now gains **Thigh** skill instead of Dancing, and correctly awards its skill point every time. A cycling event intended for the morning no longer also fires at night.
 
 ### Smoking at the Loft
 
@@ -1737,6 +2037,7 @@ After learning to smoke from Whitney or unlocking the relevant loft state, the p
 - Staying clean long enough can end the craving.
 - Smoking can award smoking-related feats and a smoker trait.
 - Current smoking does not raise alcohol gain.
+- You can no longer smoke while pregnant, though cigarettes can still be bought and stockpiled for after the pregnancy ends.
 
 ### Wardrobes & Handbag Inventory
 
@@ -1748,6 +2049,14 @@ When **isolated wardrobes** are enabled, wardrobes do not all share the same clo
 - Wardrobes also let you tear clothing on purpose.
 - Lake and swim outfits stay linked to your home/orphanage wardrobe.
 - Wardrobes have a **Favorites** tab. Marking key outfits as favourites makes long wardrobes easier to manage, especially with isolated wardrobes enabled.
+
+### Revived Bad-End & Cut Content
+
+A few pieces of previously unfinished or stubbed-out content have been revived and made reachable:
+
+- The **mines bad-end route** can now be reached through a cheap auction sale.
+- A **Dance Job** at the docks has been added, alongside general dancing at the docks.
+- Players can now choose to **kiss the Black Wolf** while watching the forest together, an option that previously wasn't wired up.
 
 ### Advanced Hair Dye
 
@@ -1787,6 +2096,12 @@ Newer player-facing settings include:
 - Settings Export/Import covers more DoLX-specific options than before, including Alpha/Omega spiking preferences.
 - Some late-route cheats include Great Hawk Tower shortcuts, such as materials, valuables, or completed upgrades once the relevant tower content is available.
 - Avery route cheat options are also broader than before, useful for testing or recovering route states without replaying the entire route.
+- **Random game mode** now recursively randomises all registered toggles, sliders, and choices — currently covering **446 settings** across X-Change, combat, AMC, economy/inflation, rebalancing, fetishes, identity, UI options, and more. Use it if you want a genuinely unpredictable ruleset rather than hand-picking every option.
+- A **Gender-Anxious** entry was added to the cheat menu, and the previously broken **Cock Addict** and **Hole Addict** cheat-menu entries were fixed.
+- A cheat-menu **teleport to the park** option was added.
+- A **minimum breast size to lactate** setting controls how large the player's chest needs to be before lactation content becomes available.
+- A **Double Semen/Milk Production** toggle doubles the relevant fluid output for players who want that exaggerated.
+- Settings include the **Show post-encounter summary**, **Limit group encounters to one shared orgasm**, and **Moan/grunt** toggles described in [Section 3.3](#33-orgasm-behaviour), plus the **Breeder and Fertility Settings** block described in [Section 1.3](#13-single-variant--special-pills) and the **Resist heat with willpower** and **Enemy Damage Multiplier** settings described in Sections [3.2](#32-arousal--pleasure) and [8.7](#87-advanced-combat-rebalance).
 
 > Use cheats carefully, especially on saves with pregnancy, permanent transformations, identity changes, or active route content.
 
@@ -1803,6 +2118,94 @@ The game can use an alternate spritepack for the X-Changed sex.
 3. In game, go to **Options > Performance**.
 4. Enable **Use alternate spriteset when gender is:** and choose which option should use the alternate pack.
 
+A newer option lets you **always use the alternative spriteset** where one is available, regardless of your current body — useful if you prefer the alternate pack's art style outright rather than only while X-Changed.
+
 Current DoLX keeps some folders shared with the main image set. Images under `decorations`, `sex`, `ui`, and `misc` are read from the normal `img` path rather than being redirected to `img2`. In practice, `img2` is for the alternate spritepack, while those shared non-body folders stay in `img`.
 
 > The option label may still use "gender" in-game, but the practical use is to swap spritepacks based on the current X-Changed body.
+
+---
+
+## 16. Chastity Devices
+
+Chastity content has grown from a simple lock-the-genitals gag into a small system of its own, with sources, escalation, and dedicated reactions.
+
+**What a device actually does:**
+
+- Any chastity device — belt, cage, or trapped parasite — now **drastically slows arousal fade**, can **occasionally spike arousal** on its own, and **reduces the relief gained from orgasming while locked**. A chastity device is not just a genital lockout; it actively works against you the longer you wear it.
+- Flat and small shrinking cages also **raise minimum arousal** while worn, on top of the fade/relief penalties above.
+- A dedicated **dildo chastity belt for vaginas** provides constant internal stimulation and increased sensitivity while worn — this is separate from Whitney's dildo-belt punishment below, though it works the same way mechanically.
+
+**Sources of chastity:**
+
+- **Whitney** can fit a constantly-stimulating dildo chastity belt when Whitney's school chastity rule applies to a body that has no penis to lock up conventionally.
+- Being caught by **the Pound** can result in a forced chastity device, with a higher chance if the player's current body doesn't match how they present (i.e. the Pound is more likely to lock you up if it thinks your presentation is misleading).
+- **Swarm encounters** can leave a parasite trapped inside a chastity device. A chastity-trapped parasite raises minimum arousal, stimulates the player more often than an ordinary parasite, and can be properly cured at the hospital.
+
+**Jordan and device removal:**
+
+- Jordan will refuse to remove a monk or priest's chastity device if it belongs to someone else, if the player's personal standing is insufficient, or if their reputation in town is too poor.
+- A new **"Pray for guidance"** option can improve standing and town reputation over time, giving you a path to eventually qualify for removal instead of being permanently locked out.
+
+**Social and body reactions:**
+
+- Changing-room taunts and general body comments now react to chastity more specifically, with distinct lines for belts, cages, and trapped parasites rather than one generic "you're locked up" reaction.
+- Chastity devices adapt more cleanly when the player's body changes underneath them — belts and cages are preserved and resized across body swaps instead of desyncing or falling off.
+- Chastity also interacts directly with heat and forceful-heat behaviour: see [3.2 Arousal & Pleasure](#32-arousal--pleasure) for how a locked character responds to heat, including removing concealing clothing, struggling against the device, or gradually damaging it once every eligible hole is locked.
+
+> Chastity is no longer a simple binary "can't touch genitals" flag. Expect it to actively fight your arousal management the whole time it's on, with real routes both into it (Whitney, the Pound, swarm parasites) and out of it (the hospital, Jordan's removal, or breaking the device through forceful heat).
+
+---
+
+## 17. Brothel, Strip Club & Dance Classes
+
+The brothel and strip club were reworked into two clearly separate venues, each with its own specialty, instead of overlapping general "sex work" locations.
+
+### Brothel
+
+The brothel now focuses on **approaching patrons, conversation, seduction, sexual skill, private services, and appointment auctions.**
+
+- Ordinary brothel dancing is **no longer a repeatable source of income**. It now only appears as the preview stage for an auction.
+- An **auction preview** must continue for at least **15 in-game minutes** and reach the required danger threshold before the auction can proceed.
+- The auction itself includes a separate **Seduction-based negotiation attempt** to push for a higher bid.
+- Only **one auction can be completed per day**.
+- Fluids can now be collected through quick actions at the brothel.
+- **Leighton and Briar remain exclusive to brothel dancing.** Robin can appear at either the brothel or the strip club, sharing one weekly lock between the two venues.
+- Skipping or ending a paid sexual service early now angers the patron, cancels the payment, and applies the associated stress and pain — treat accepting a service as a commitment, not a scene you can freely bail from.
+
+### Strip Club
+
+The strip club is now the **main repeatable dancing venue.**
+
+- Strip-club dance tips receive a **3x venue multiplier**. Dancing anywhere else — including the brothel's auction preview — only retains **25%** of its normal income.
+- Reaching **100 audience excitement** and **100 audience arousal** gives each dance cycle a **45% chance** of ending the performance early, leading into the same security/guard ending as stopping voluntarily.
+- **Strip-club bartending** pays **£15/hour**, gives better tips and English progression, and scales with both English skill and allure.
+- Animal and Divine income bonuses (see [Section 14](#transformation-income-bonuses)) continue to stack with whichever venue multiplier applies.
+
+### Dance Classes
+
+Dance classes were reworked alongside the venue split, adding more structure to how dancing skill actually improves:
+
+- Rebalanced with training choices, subscriptions, injuries, and mastery bonuses.
+- An optional **skill upkeep** toggle lets dancing skill decay if it isn't practiced enough — turn it off if you don't want to maintain the skill actively.
+
+> If you're chasing dancing income specifically, the strip club is now the venue to camp; the brothel auction is a once-daily high-value event, not a repeatable grind.
+
+---
+
+## 18. Feat Boost Shop
+
+The Feat Boost shop (spend accumulated **VrelCoins** on permanent starting/character-wide perks) was reorganised and expanded with new purchasable options.
+
+- Choices are now reordered and grouped by type: skill boosts, characteristic boosts, transformation boosts, and trait boosts each sit together instead of being mixed in one long list.
+- Improved trait tooltips, purchase limits, refunds, and mobile layout.
+
+**Notable additions:**
+
+- **Sadist** and **Masochist** starting traits, **23 VrelCoins** each.
+- **X-Change Purity**, **150 VrelCoins** — permanently neutralises X-Change pill effects on your character while still allowing pills to be administered and recognised by events. Useful if you want to experience pill-related content and reactions without ever actually being transformed by them.
+- **Special Clothing rank 3**, at double the price of the earlier ranks, unlocking the matching Gwylan dialogue progression (see [Gwylan](#gwylan) in Section 13). Existing saves that had already unlocked the greenhouse-tier content before this fix are repaired automatically on load.
+- **A Special Trait**, **20 Vrel Coins** — lets some feat-supported sexual/role traits be taken in boosted forms at character creation, useful for builds around traits such as Orgasm Addict, Asphyxiophilia, Cum Dump, Plaything, Fucktoy, Bitch, Prey, or Milk Addict from the very start.
+- The **Hopeless Cycle "buy an ending"** option remains available here: spend VrelCoins to skip the sequence and read a bought ending from the painting for its prize instead of playing the full sequence out.
+
+> Treat the Feat Boost shop as your character-creation-adjacent "build" tool — most purchases are permanent and meant to be decided once, not something you'll be reshuffling every session.

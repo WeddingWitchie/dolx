@@ -75,17 +75,18 @@ The system is implemented in `game/overworld-town/loc-hbsc-bank-branch/inflation
 
 The default tier thresholds. Highest qualifying tier wins; below the lowest threshold there is no inflation. The wealth thresholds are fixed in code; the percentage for each tier is saved in `$settings` and can be changed from **Rebalance Settings**.
 
-| Net wealth ≥ | Increase | Multiplier | Name |
-| --- | --- | --- | --- |
-| 50000000 (£500,000) | +10% | x1.1 | Onset |
-| 200000000 (£2,000,000) | +35% | x1.35 | Bad economy |
-| 500000000 (£5,000,000) | +75% | x1.75 | Crisis |
-| 1500000000 (£15,000,000) | +150% | x2.5 | Extreme crisis |
-| 10000000000 (£100,000,000) | +1500% | x16.0 | Parody spiral |
+| Net wealth ≥               | Increase | Multiplier | Name           |
+| -------------------------- | -------- | ---------- | -------------- |
+| 50000000 (£500,000)        | +11%     | x1.11      | Onset          |
+| 200000000 (£2,000,000)     | +35%     | x1.35      | Bad economy    |
+| 500000000 (£5,000,000)     | +75%     | x1.75      | Crisis         |
+| 1500000000 (£15,000,000)   | +150%    | x2.5       | Extreme crisis |
+| 10000000000 (£100,000,000) | +1500%   | x16.0      | Parody spiral  |
 
-These are stages, not a stacking per-cycle rate. A 3,000 item costs 3,300 / 4,050 / 5,250 / 7,500 / 48,000 across the current-preset tiers. Everything downstream reads the setting-backed tier values through `setup.inflation.multiplier()`.
+These are stages, not a stacking per-cycle rate. A 3,000 item costs 3,330 / 4,050 / 5,250 / 7,500 / 48,000 across the current-preset tiers. Everything downstream reads the setting-backed tier values through `setup.inflation.multiplier()`.
 
 **Relentless Bailey** (`$settings.inflationBaileyRelentless`, a plain on/off toggle, **off by default**) is the way to make Bailey bite before any wealth tier is reached. When on:
+
 - `baileyAggressive()` is forced true — he never accepts a refusal, and street hunts are live, from the start.
 - `rentInflationActive()` is forced true — his weekly rent step climbs from £0 wealth up, so rent never sits stuck at the vanilla £2,000 / £4,000-with-Robin.
 - `rentCap()` returns `Infinity` — there is **no ceiling**, so rent keeps rising one step every paid week forever. The whole **Bailey Rent Limits** settings box is ignored and is greyed-out/disabled in the UI while this is on.
@@ -98,7 +99,7 @@ The player-facing controls live under **Settings -> Rebalance Settings**, in the
 
 - **Economy Rebalance Preset** applies one of five presets: `Light`, `Mid`, `Current`, `Hard`, or `Harsher`. `Light` keeps prices lower, makes extra rent start as late as possible, and sets refusal/hunt to Parody; `Current` is the default and matches the table above; `Hard` / `Harsher` make wealth bite earlier.
 - **Inflation Percentages** controls the tier increases: `$settings.inflationOnsetPct`, `$settings.inflationBadPct`, `$settings.inflationCrisisPct`, `$settings.inflationExtremePct`, and `$settings.inflationParodyPct`.
-- **Bailey Triggers** leads with the **Relentless Bailey** toggle (`$settings.inflationBaileyRelentless`, off by default — the manual "bite from the start" switch). Below it are *Extra rent starts* (`$settings.inflationBaileyRentPct`) and *Refusal/hunt starts* (`$settings.inflationBaileyCrisisTier`, default `"crisis"`) — both are threshold settings that Relentless Bailey overrides, so both are greyed-out/disabled while it is on.
+- **Bailey Triggers** leads with the **Relentless Bailey** toggle (`$settings.inflationBaileyRelentless`, off by default — the manual "bite from the start" switch). Below it are _Extra rent starts_ (`$settings.inflationBaileyRentPct`) and _Refusal/hunt starts_ (`$settings.inflationBaileyCrisisTier`, default `"crisis"`) — both are threshold settings that Relentless Bailey overrides, so both are greyed-out/disabled while it is on.
 - **Bailey Rent Limits** controls the rent-pressure caps: `$settings.inflationBaileyCapLow`, `$settings.inflationBaileyCapHigh`, `$settings.inflationBaileyDemandJump`, and `$settings.inflationBaileyDemandInvestment`. This entire box is greyed-out/disabled while **Relentless Bailey** is on (that mode is uncapped).
 - **Bailey Weekly Pressure** controls the weekly rent step (`$settings.inflationBaileyStep`, default £500) and overdue bank-loan collection (`$settings.inflationLoanRentSurcharge`, default £1,500).
 
@@ -116,13 +117,13 @@ The **single source of truth**. Returns `Math.round(base * multiplier())`. Both 
 
 Bailey's actual weekly rent demand, tiered by **Bailey-visible wealth** (`baileyWealth()` — cash + savings only, **not** locked fixed terms). The wealth thresholds are fixed, while the caps below are player settings shown with their current-preset defaults:
 
-| Bailey-visible wealth | Demand |
-| --- | --- |
-| < rent threshold | normal vanilla rent, with the rent setting and Robin double-rent applied |
-| < £1M | rent pressure capped at `RENT_CAP_LOW` (**£15,000**) |
-| £1M – £10M | rent pressure capped at `RENT_CAP_HIGH` (**£35,000**) |
-| £10M – £100M | rent pressure capped at **£75,000** |
-| >= £100M | rent pressure capped at **£250,000** |
+| Bailey-visible wealth | Demand                                                                   |
+| --------------------- | ------------------------------------------------------------------------ |
+| < rent threshold      | normal vanilla rent, with the rent setting and Robin double-rent applied |
+| < £1M                 | rent pressure capped at `RENT_CAP_LOW` (**£15,000**)                     |
+| £1M – £10M            | rent pressure capped at `RENT_CAP_HIGH` (**£35,000**)                    |
+| £10M – £100M          | rent pressure capped at **£75,000**                                      |
+| >= £100M              | rent pressure capped at **£250,000**                                     |
 
 If **Relentless Bailey** is on, `rentCap()` returns `Infinity` and the table above does not apply — rent climbs one step every paid week with no ceiling.
 
@@ -156,10 +157,10 @@ The economy stage at which Bailey stops accepting refusal and can begin street h
 
 Two deliberately separate wealth figures:
 
-| | Formula | Drives |
-| --- | --- | --- |
-| `totalWealth()` (inflation wealth) | cash + savings + **active fixed-term principal** + prepaid Bailey deposit − loan principal | general economy: `multiplier()`, `price()`, `percent()` (journal economy block), the parody cap |
-| `baileyWealth()` (Bailey-visible) | cash + savings − loan principal (**no** locked fixed terms) | everything Bailey reacts to: `rentDemand`, `rentDemandTier`, the crisis side of `baileyAggressionReason`, the `<<rentInflationNotice>>` hoarding smirk |
+|                                    | Formula                                                                                    | Drives                                                                                                                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `totalWealth()` (inflation wealth) | cash + savings + **active fixed-term principal** + prepaid Bailey deposit − loan principal | general economy: `multiplier()`, `price()`, `percent()` (journal economy block), the parody cap                                                        |
+| `baileyWealth()` (Bailey-visible)  | cash + savings − loan principal (**no** locked fixed terms)                                | everything Bailey reacts to: `rentDemand`, `rentDemandTier`, the crisis side of `baileyAggressionReason`, the `<<rentInflationNotice>>` hoarding smirk |
 
 `rentPayable()` = cash + `liquidBankFunds()` (savings only) is what affordability/forced-withdrawal use. So a locked fixed term inflates the **shops** but is invisible to **Bailey** until it matures and `processDay()` sweeps it into savings, at which point it joins `baileyWealth()` and `rentPayable()`.
 
@@ -240,7 +241,7 @@ When `setup.inflation.baileyAggressive()` is true:
 
 A one-time `<<rentInflationNotice>>` (the first time inflation is reached) and the loan's `<<loanRentNotice>>` are shown in the rent-due flow.
 
-**Bank withdrawal.** Storing money in *savings* does not dodge rent in town. Affordability checks use `setup.inflation.rentPayable()` (cash + savings, **not** locked fixed terms), so the "Pay" option appears whenever cash **or** savings can cover it. The shared `rentpay` widget then calls `<<baileyBankDraw>>` (in `loc-home/kozmods/misc.twee`) when cash is short: Bailey marches the player to HBSC (the teller is unbothered, the guard eyes the *player* as the threat) and forces a withdrawal of the shortfall from savings ("You can't run from me by stuffing it in a vault."). He cannot touch a still-locked fixed term — that money only becomes reachable once the term matures and is swept into savings. This covers the home, street hunt, and temple pay paths, and each path returns the player to the passage/location Bailey interrupted.
+**Bank withdrawal.** Storing money in _savings_ does not dodge rent in town. Affordability checks use `setup.inflation.rentPayable()` (cash + savings, **not** locked fixed terms), so the "Pay" option appears whenever cash **or** savings can cover it. The shared `rentpay` widget then calls `<<baileyBankDraw>>` (in `loc-home/kozmods/misc.twee`) when cash is short: Bailey marches the player to HBSC (the teller is unbothered, the guard eyes the _player_ as the threat) and forces a withdrawal of the shortfall from savings ("You can't run from me by stuffing it in a vault."). He cannot touch a still-locked fixed term — that money only becomes reachable once the term matures and is swept into savings. This covers the home, street hunt, and temple pay paths, and each path returns the player to the passage/location Bailey interrupted.
 
 **Farm exception.** Alex's farm is too far from HBSC for the forced-withdrawal scene. The farm Bailey path requires enough cash on hand to pay. If the player is short, Bailey takes whatever cash they are carrying as a down payment, then leaves threatening Alex's farm instead of dragging the player to the bank.
 
@@ -334,9 +335,12 @@ Ask one question at every money reference:
 
 Keeping that boundary intact is the core of this system.
 
--------------------------------------------------------------------------------------------------------------------------------
+---
+
 ======================================================
+
 # Future Balance Note: Fixed-Term Shelter Loop
+
 ======================================================
 
 The fixed-term deposit loophole is intentional for now.
@@ -347,10 +351,10 @@ This should not be treated as a bug unless it becomes the dominant or safest way
 
 Current intended behaviour:
 
-* Active fixed-term deposits count for shop/economy inflation.
-* Active fixed-term deposits do not count for Bailey rent demand, rent tier, hoarding aggression, or forced withdrawal.
-* Matured fixed-term deposits are swept into savings.
-* Once swept into savings, they become Bailey-visible and Bailey-reachable.
+- Active fixed-term deposits count for shop/economy inflation.
+- Active fixed-term deposits do not count for Bailey rent demand, rent tier, hoarding aggression, or forced withdrawal.
+- Matured fixed-term deposits are swept into savings.
+- Once swept into savings, they become Bailey-visible and Bailey-reachable.
 
 If players abuse this too heavily, rebalance later rather than removing the mechanic outright. Possible future nerfs, from softest to harshest:
 
