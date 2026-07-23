@@ -1,6 +1,6 @@
 :: Bedroom
 <<bedclotheson "bed">>
-<<set $outside to 0>><<set $location to "home">><<home_effects>><<effects>><<getTarget true>><<godClothe>>
+<<set $outside to 0>><<set $location to "home">><<set $bus to "home">><<home_effects>><<effects>><<getTarget true>><<godClothe>>
 <<if $punishmentposition isnot 0 and $location isnot "brothel">><<set $punishmentposition to 0>><</if>> /* temporary because wrong cleanup in UB */
 You are in your bedroom.
 /* Wallpaper */
@@ -2407,7 +2407,7 @@ You've pushed yourself too much.
 <br><br>
 <<passout>>
 
-<<if dangerEvent() and $tutorial gt 0>>
+<<if dangerEvent() and $tutorial gt 0 and ($bus isnot "home" or !$orphanageLocked)>>
 	<<if random(1, 5) is 5>>
 		<<link [[Wake up|Sold]]>><</link>>
 	<<else>>
@@ -2423,6 +2423,36 @@ You've pushed yourself too much.
 <<pass 1 hour>>
 <<set $stress -= 2000>>
 <<set $trauma +=10>>
+
+:: Passout Home Hot Cold
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<if $bus is "home" and $orphanageLocked>>
+	You regain consciousness on your bedroom floor. Your locked door is still shut, and the room is just as you left it.
+	<br><br>
+	<<if $passoutReason is "hypothermia">>
+		You pull yourself into bed and bundle up beneath the covers until the chill finally starts to leave your body.
+	<<else>>
+		You pull yourself into bed, open the window and rest until your body cools down.
+	<</if>>
+<<elseif $bus is "home">>
+	You wake in your own bed. Someone at the orphanage must have found you after you passed out and put you beneath the covers.
+	<br><br>
+	<<if $passoutReason is "hypothermia">>
+		Their warmth slowly drives the chill from your body.
+	<<else>>
+		The window has been opened, and a cool, damp cloth rests on your forehead.
+	<</if>>
+<<else>>
+	You wake in your own bed. Someone at the orphanage must have found you after you passed out and carried you back to your room.
+	<br><br>
+	<<if $passoutReason is "hypothermia">>
+		You're tucked beneath several blankets. Their warmth slowly drives the chill from your body.
+	<<else>>
+		The window has been opened, and a cool, damp cloth rests on your forehead.
+	<</if>>
+<</if>>
+<br><br>
+<<link [[Next|Bedroom]]>><<set $bus to "home">><<endevent>><</link>>
 
 :: Molestation
 <<if $molestationstart is 1>>
@@ -2759,7 +2789,7 @@ You snuggle under the covers with Robin. You can feel the heat from <<his>> <<pr
 <</if>>
 
 :: Orphanage
-<<set $outside to 0>><<set $location to "home">><<home_effects>>
+<<set $outside to 0>><<set $location to "home">><<set $bus to "orphanage">><<home_effects>>
 <<if $bailey_monogamous and baileyWeeksMissed() gte 1 and !$weekly.baileyMonogamyWarning>><<include "Bailey Monogamy Warning">><<exitAll>><</if>>
 <<if Time.monthDay is 31 and Time.monthName is "October" and Time.hour gte 7 and Time.hour lt 10 and $fame.social gte 600 and $renttime gt 0 and $bailey_halloween_asked isnot Time.year and !$possessed>><<include "Bailey Halloween Start">><<exitAll>><</if>>
 <<effects>>
