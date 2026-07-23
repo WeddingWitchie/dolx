@@ -572,22 +572,19 @@
 	<</widget>>
 
 	<<widget "identityStatus">>
-		<<if _args[1]>>
-			<<if !_args[0].reject>>
-				<span class="green">Preferred</span>
-			<<else>>
-				<span @class="'red ' + basicJitterCss()">Preferred</span>
-			<</if>>
-		<<elseif _args[0].acceptance>>
-			<<if !_args[0].reject>>
-				<span class="blue">Accepted</span>
-			<<else>>
+		/* Reject (and the "Begrudged" forced-surrender state it can carry alongside acceptance, see rejectionBreakdown) reflects how the character actually feels right now, so it takes priority over which option they've merely marked as their ideal. Otherwise a trait that's both Preferred and Begrudged displayed as plain "Preferred", hiding the ongoing dysphoria. */
+		<<if _args[0].reject>>
+			<<if _args[0].acceptance>>
 				<span @class="'red ' + basicJitterCss()">Begrudged</span>
+			<<else>>
+				<span class="red">Rejected</span>
 			<</if>>
-		<<elseif !_args[0]?.reject>>
-			<span class="purple">Not accepted</span>
+		<<elseif _args[1]>>
+			<span class="green">Preferred</span>
+		<<elseif _args[0].acceptance>>
+			<span class="blue">Accepted</span>
 		<<else>>
-			<span class="red">Rejected</span>
+			<span class="purple">Not accepted</span>
 		<</if>>
 	<</widget>>
 
@@ -601,6 +598,7 @@
 						<li>You gain dysphoria for each characterisitc you have that you haven't accepted, which increases Stress and Trauma.</li>
 						<li>You gain daily tolerance towards characteristics you have that you haven't accepted, until you reach acceptance at max tolerance.</li>
 						<li>You don't gain Trauma from Rejected characteristics, but you don't gain Tolerance towards it either. Staying at maximum Dysphoria in a Rejected characteristic is dangerous.</li>
+						<li>If a Rejected characteristic's Dysphoria maxes out and your Willpower gives out, you're forced to begrudgingly go along with it. Unlike a plain Rejected characteristic, this does cause Trauma, though it stops draining your Willpower each time it flares up. The Reject and Accept controls both lock while Begrudged, the only way out is to stop having that characteristic (and unset it as Preferred) and let Tolerance decay back down to 0 over time, at which point you're free to Reject it again if you still want to.</li>
 					</ul>
 				</div>
 
