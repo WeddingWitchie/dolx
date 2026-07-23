@@ -728,6 +728,7 @@ function updateOptions() {
 		updatehistorycontrols();
 		const optionsData = clone(V.options);
 		const tmpButtons = T.buttons;
+		const tmpTab = T.tab;
 		const tmpKey = T.key;
 
 		/*
@@ -761,9 +762,12 @@ function updateOptions() {
 
 		T.key = tmpKey;
 		T.buttons = tmpButtons;
-		T.buttons.setupTabs();
 		if (T.key !== "options") {
 			T.buttons.setActive(T.buttons.activeTab);
+		}
+		if (tmpTab) {
+			T.tab = tmpTab;
+			T.tab.setActive(T.tab.activeTab);
 		}
 		Weather.Observables.checkForUpdate();
 	}
