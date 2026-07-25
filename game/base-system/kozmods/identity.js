@@ -499,6 +499,32 @@ function playerPronoun() {
 }
 window.playerPronoun = playerPronoun;
 
+/* globals perceivedGender */
+
+/**
+ * Whether a named NPC knows the player's actual identity/pronoun well enough to address them correctly, rather than guessing from appearance.
+ * True once love reaches 50 (established relationship) or the NPC is explicitly tracked in $genderknown (identity reveal plot flag).
+ *
+ * @param {string} npcName The NPC's name as used in `C.npc`.
+ */
+function npcKnowsPlayerIdentity(npcName) {
+	if (!npcName) return false;
+	if (Array.isArray(V.genderknown) && V.genderknown.includes(npcName)) return true;
+	const npc = window.C?.npc?.[npcName];
+	return !!npc && Number(npc.love) >= 50;
+}
+window.npcKnowsPlayerIdentity = npcKnowsPlayerIdentity;
+
+/**
+ * Pronoun an NPC would use to address the player: their stated preference if the NPC already knows them, otherwise a guess from appearance alone.
+ *
+ * @param {string} npcName The NPC's name as used in `C.npc`.
+ */
+function npcAddressPronoun(npcName) {
+	return npcKnowsPlayerIdentity(npcName) ? playerPronoun() : perceivedGender();
+}
+window.npcAddressPronoun = npcAddressPronoun;
+
 function preferredPronouns(gender) {
 	const pronouns = V.identity?.presentation?.pronouns || {};
 	const dynamicModes = ["body", "clothing", "appearance", "posture"];

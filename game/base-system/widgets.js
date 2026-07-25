@@ -95,6 +95,12 @@ function calculatePenisBulge() {
 }
 window.calculatePenisBulge = calculatePenisBulge;
 
+/**
+ * How close to a perfectly balanced femininity score (0) still reads as genuinely androgynous to onlookers, rather than a slight lean one way.
+ * Tunable: raise to make an androgynous read easier to achieve, lower to make it require near-perfect balance.
+ */
+const ANDROGYNOUS_FEMININITY_DEADZONE = 100;
+
 /* Calculate the player's gender appearance if their genitals and chest are exposed */
 function nudeGenderAppearance() {
 	if (V.settings.nudeGenderPerception === 2 && !playerChastity("hidden")) return V.player.sex;
@@ -120,15 +126,17 @@ function nudeGenderAppearance() {
 			T.apparent_femininity_nude += 50 * (V.skin[label].pen !== "pen" ? 2 : 1) * multiplier;
 		}
 	});
+	if (Math.abs(T.apparent_femininity_nude) <= ANDROGYNOUS_FEMININITY_DEADZONE) return "n";
 	return T.apparent_femininity_nude > 0 ? "f" : "m";
 }
 window.nudeGenderAppearance = nudeGenderAppearance;
 
 /**
- * Returns the player's currently perceived gender ("m" or "f"), considering both appearance AND visible genitals (when the setting allows)
- * - Setting 0 ("ignore"): always returns clothed gender_appearance.
- * - Setting 1 ("consider"): if genitals are visibly exposed, recomputes via nudeGenderAppearance(); otherwise uses gender_appearance.
- * - Setting 2 ("judge"): if genitals are visibly exposed, returns player.sex; otherwise uses gender_appearance.
+ * Returns the player's currently perceived gender ("m", "f", or "n" for a genuinely androgynous read),
+ * considering both appearance AND visible genitals (when the setting allows).
+ * - Setting 0 ("ignore"): always returns clothed gender_appearance, or "n" if the clothed femininity score is close enough to balanced.
+ * - Setting 1 ("consider"): if genitals are visibly exposed, recomputes via nudeGenderAppearance() (also "n"-aware); otherwise uses gender_appearance/"n" as above.
+ * - Setting 2 ("judge") stays strictly binary once genitals are on display; judging purely by genitals leaves no room for an ambiguous read.
  *
  * "Visibly exposed" = lower clothing fully open AND underwear fully open AND not in a chastity device that hides the area
  */
@@ -137,7 +145,7 @@ function perceivedGender() {
 
 	// Setting 0: NPCs ignore genitals entirely.
 	if (setting === 0 || setting === undefined) {
-		return V.player.gender_appearance;
+		return Math.abs(V.player.femininity) <= ANDROGYNOUS_FEMININITY_DEADZONE ? "n" : V.player.gender_appearance;
 	}
 
 	// Are the genitals actually on display?
@@ -147,7 +155,7 @@ function perceivedGender() {
 	const genitalsExposed = lowerOpen && underOpen && !hidden;
 
 	if (!genitalsExposed) {
-		return V.player.gender_appearance;
+		return Math.abs(V.player.femininity) <= ANDROGYNOUS_FEMININITY_DEADZONE ? "n" : V.player.gender_appearance;
 	}
 
 	// Genitals visible then reconsider.
