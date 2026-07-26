@@ -536,20 +536,6 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Stats"],
 	},
-	"Radiant Reputation": {
-		title: "Radiant Reputation",
-		desc: "Famous, but only in the right ways.",
-		difficulty: 4,
-		series: "",
-		filter: ["All", "Stats"],
-	},
-	"Luminous Reputation": {
-		title: "Luminous Reputation",
-		desc: "Famous, but only in the right ways.",
-		difficulty: 5,
-		series: "",
-		filter: ["All", "Stats"],
-	},
 	"Social Butterfly": {
 		title: "Social Butterfly",
 		desc: "You are the centre of attention.",
@@ -3319,40 +3305,6 @@ function earnHourlyFeats() {
 		V.fame.model >= 2000
 	) {
 		earnFeat("Brilliant Reputation");
-	}
-
-	if (
-		V.fame.sex <= 29 &&
-		V.fame.prostitution <= 29 &&
-		V.fame.rape <= 29 &&
-		V.fame.bestiality <= 29 &&
-		V.fame.exhibitionism <= 29 &&
-		V.fame.pregnancy <= 29 &&
-		V.fame.impreg <= 29 &&
-		V.fame.scrap >= 3000 &&
-		V.fame.good >= 3000 &&
-		V.fame.business >= 3000 &&
-		V.fame.social >= 3000 &&
-		V.fame.model >= 3000
-	) {
-		earnFeat("Radiant Reputation");
-	}
-
-	if (
-		V.fame.sex <= 29 &&
-		V.fame.prostitution <= 29 &&
-		V.fame.rape <= 29 &&
-		V.fame.bestiality <= 29 &&
-		V.fame.exhibitionism <= 29 &&
-		V.fame.pregnancy <= 29 &&
-		V.fame.impreg <= 29 &&
-		V.fame.scrap >= 4000 &&
-		V.fame.good >= 4000 &&
-		V.fame.business >= 4000 &&
-		V.fame.social >= 4000 &&
-		V.fame.model >= 4000
-	) {
-		earnFeat("Luminous Reputation");
 	}
 
 	if (
