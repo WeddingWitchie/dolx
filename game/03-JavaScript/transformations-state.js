@@ -44,8 +44,8 @@ class Transformations {
 		}
 	}
 
-	static effectiveLevel(name) {
-		const definitions = {
+	static get levelDefinitions() {
+		return {
 			wolf: { value: V.wolfgirl, parts: { ears: 4, cheeks: 5, tail: 6 }, chimeras: ["okami"], full: 6 },
 			cat: { value: V.cat, parts: { ears: 4, tail: 6 }, chimeras: [], full: 6 },
 			cow: { value: V.cow, parts: { horns: 2, ears: 4, tail: 6 }, chimeras: [], full: 6 },
@@ -58,6 +58,10 @@ class Transformations {
 			demon: { value: V.demon, parts: { horns: 2, tail: 4, wings: 6 }, chimeras: ["bakunawa"], full: 6 },
 			waterdragon: { value: V.waterdragon, parts: { horns: 2, ears: 4, tail: 7 }, chimeras: ["bakunawa", "ryuujin"], full: 7 },
 		};
+	}
+
+	static effectiveLevel(name) {
+		const definitions = this.levelDefinitions;
 		const definition = definitions[name];
 		if (!definition) return 0;
 		let level = Number(definition.value) || 0;
@@ -96,7 +100,18 @@ class Transformations {
 		};
 		const definition = builds[name];
 		if (!definition) return 0;
-		return sources[name].some(chimera => this.chimeraActive(chimera)) ? Math.max(Number(definition.value) || 0, definition.full) : Number(definition.value) || 0;
+		/* Demon build alone gates force impregnation (see actions-vagina/penis/anus.twee),
+		so a visible demon part must keep it at full even after a genome dump clears $demonbuild,
+		matching how effectiveLevel() already treats those parts as a completed demon. */
+		if (name === "demon") {
+			const levelDefinition = this.levelDefinitions.demon;
+			const partsFull = Object.keys(levelDefinition.parts).some(part => this.partActive("demon", part));
+			if (partsFull) return Math.max(Number(definition.value) || 0, definition.full);
+		}
+		if (sources[name].some(chimera => this.chimeraActive(chimera))) {
+			return Math.max(Number(definition.value) || 0, definition.full);
+		}
+		return Number(definition.value) || 0;
 	}
 
 	static canBanish() {
@@ -127,8 +142,12 @@ class Transformations {
 		}
 	}
 
-	/** Noun phrase for a description key without an article, e.g. "hellhound", "fallen cat".
-	    Returns "" when the key is a plain single-species description (handled elsewhere). */
+	/**
+	     Noun phrase for a description key without an article, e.g. "hellhound", "fallen cat".
+	    Returns "" when the key is a plain single-species description (handled elsewhere).
+	 *
+	 * @param id
+	 */
 	static descriptionPhrase(id) {
 		if (typeof id !== "string") return "";
 		if (this.descriptionSpecialNames[id]) return this.descriptionSpecialNames[id];
@@ -139,14 +158,22 @@ class Transformations {
 		return adjective ? `${adjective} ${noun}` : noun;
 	}
 
-	/** Full phrase with article for body text, e.g. "a hellhound", "a fallen cat". "" if not a combo. */
+	/**
+	 * Full phrase with article for body text, e.g. "a hellhound", "a fallen cat". "" if not a combo.
+	 *
+	 * @param id
+	 */
 	static descriptionComboLabel(id) {
 		const phrase = this.descriptionPhrase(id);
 		if (!phrase) return "";
 		return `${/^[aeiou]/i.test(phrase) ? "an" : "a"} ${phrase}`;
 	}
 
-	/** Capitalised phrase for the mirror listbox, e.g. "Hellhound", "Fallen cat". "" if not a combo. */
+	/**
+	 * Capitalised phrase for the mirror listbox, e.g. "Hellhound", "Fallen cat". "" if not a combo.
+	 *
+	 * @param id
+	 */
 	static descriptionComboMenuLabel(id) {
 		const phrase = this.descriptionPhrase(id);
 		if (!phrase) return "";
