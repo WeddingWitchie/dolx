@@ -1,3 +1,22 @@
+:: Widgets Avery Gifts [widget]
+<<widget "avery_food_reward">>
+	/* _args[0]: base reward in pennies. _args[1]: line Avery says explaining the reward.
+	   Fires when Avery already noticed the player's bank account AND the meal wasn't served wrong (repeat/mismatch). */
+	<<if $avery_mansion and $hbsc and $hbsc.averyAccountUnlockNoticeSeen is true and $hbsc.account.level >= 1 and $avery_mansion.rage.dinner_wrong isnot true>>
+		<<set _averyTransfer to divineTfIncome(_args[0], "avery")>>
+		<br>
+		Partway through the meal, Avery sets <<his>> fork down and picks up <<his>> phone. <<He>> scrolls through something without looking up, taps twice, and puts it away again as though the gesture hardly mattered.
+		"I've transferred <<printmoney _averyTransfer>> to your HBSC savings. Consider it a practical compliment. _args[1]"
+		<br><br>
+		/* Avery's food reward: deposited to HBSC savings, respects tier deposit cap */
+		<<set _averyXferResult to setup.hbsc.receiveExternalDeposit(_averyTransfer)>>
+		<<if _averyXferResult.overflow>>
+			<span class="red">Your HBSC savings didn't have enough room for the full amount. The remainder was added to the cash you're carrying.</span>
+			<br><br>
+		<</if>>
+	<</if>>
+<</widget>>
+
 :: Avery Gifts List
 <<effects>>
 
@@ -222,6 +241,7 @@ You place the <<recipe_name $gift>> in front of Avery.
 	<br><br>
 	<<He>> lets <<his>> spoon clatter against the bowl and rises, satisfied, and stands.
 	<br><br>
+	<<avery_food_reward 200000 "One of my favourites, made just the way I like it.">>
 	<<avery_mansion_food_select>>
 	<br>
 <<else>>
@@ -251,6 +271,7 @@ You place the <<recipe_name $gift>> in front of Avery.
 	<br><br>
 
 	Avery stands.
+	<<avery_food_reward 200000 "One of my favourites, made just the way I like it.">>
 	<<avery_mansion_food_select>>
 <<else>>
 
@@ -269,6 +290,7 @@ You place the <<recipe_name $gift>> in front of Avery.
 
 <<if $avery_mansion>>
 	You remain silent. Avery stands.
+	<<avery_food_reward 200000 "One of my favourites, made just the way I like it.">>
 	<<avery_mansion_food_select>>
 <<else>>
 	You remain silent. Avery rises to <<his>> feet. <<He>> leads you outside, and back into <<his>> waiting car.
@@ -283,6 +305,7 @@ You place the <<recipe_name $gift>> in front of Avery.
 
 <<if $avery_mansion>>
 	You give a polite nod. Avery dabs <<his>> mouth again, and rises to <<his>> feet. Avery finishes <<his>> meal, and stands.
+	<<avery_food_reward 200000 "One of my favourites, made just the way I like it.">>
 	<<avery_mansion_food_select>>
 <<else>>
 	You give a polite nod. Avery dabs <<his>> mouth again, and rises to <<his>> feet. <<He>> leads you outside, and back into <<his>> waiting car.
@@ -309,6 +332,7 @@ You place the <<recipe_name $gift>> in front of Avery.
 	<br><br>
 
 	Avery finishes <<his>> meal, and stands.
+	<<avery_food_reward 200000 "One of my favourites, made just the way I like it.">>
 	<<avery_mansion_food_select>>
 <<else>>
 	Avery raises an eyebrow as <<he>> dabs <<his>> mouth again, half concealing a smile. "You're full of yourself," <<he>> says. "That's fine, but don't overdo it."
@@ -337,6 +361,7 @@ You place the <<recipe_name $gift>> in front of Avery.
 	Avery washes down another bite before answering. "Exquisite," <<he>> says. "I usually prefer it a little more rare, but I can find no fault for what it is. The wine helps, though."
 	<br><br>
 	Avery finishes <<his>> meal, and stands.
+	<<avery_food_reward 200000 "One of my favourites, made just the way I like it.">>
 	<<avery_mansion_food_select>>
 <<else>>
 	Avery washes down another bite before answering. "Exquisite," <<he>> says. "I usually prefer it a little more rare, but I can find no fault for what it is. The wine helps, though."
@@ -354,6 +379,7 @@ You place the <<recipe_name $gift>> in front of Avery.
 
 <<if $avery_mansion>>
 	Avery finishes <<his>> meal, and stands.
+	<<avery_food_reward 200000 "One of my favourites, made just the way I like it.">>
 	<<avery_mansion_food_select>>
 <<else>>
 	You remain silent as Avery finishes <<his>> meal. <<He>> stands, and leads you outside and into <<his>> waiting car.
@@ -367,18 +393,8 @@ You place the <<recipe_name $gift>> in front of Avery.
 
 /* Avery bank-transfer reward
    Fires when Avery already noticed the player's bank account AND the player served exactly what Avery asked for this meal. */
-<<if $avery_mansion and $hbsc and $hbsc.averyAccountUnlockNoticeSeen is true and $hbsc.account.level >= 1 and $avery_mansion.rage.dinner_wrong isnot true and $avery_mansion?.food.name is $gift.name>>
-<<set _averyTransfer to divineTfIncome(100000, "avery")>>
-<br>
-Partway through the meal, Avery sets <<his>> fork down and picks up <<his>> phone. <<He>> scrolls through something without looking up, taps twice, and puts it away again as though the gesture hardly mattered.
-"I've transferred <<printmoney _averyTransfer>> to your HBSC savings. Consider it a practical compliment. You cooked what I asked for, so I rewarded the behaviour I want to see."
-<br><br>
-/* Avery's food reward: deposited to HBSC savings, respects tier deposit cap */
-<<set _averyXferResult to setup.hbsc.receiveExternalDeposit(_averyTransfer)>>
-	<<if _averyXferResult.overflow>>
-		<span class="red">Your HBSC savings didn't have enough room for the full amount. The remainder was added to the cash you're carrying.</span>
-		<br><br>
-	<</if>>
+<<if $avery_mansion?.food is $gift>>
+	<<avery_food_reward 100000 "You cooked what I asked for, so I rewarded the behaviour I want to see.">>
 <</if>>
 <<if $avery_mansion>>
 	Avery finishes <<his>> meal, and stands.
