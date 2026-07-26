@@ -53,8 +53,7 @@ function updatePronounSummary() {
 		const el = jQuery("#pronoun-current-label");
 		if (!el.length) return;
 		const updateText = () => {
-			const pronoun = typeof window.playerPronoun === "function" ? window.playerPronoun() : "n";
-			el.text(pronoun === "m" ? "he / him" : pronoun === "f" ? "she / her" : "they / them");
+			el.text(typeof window.pronounSummaryLabel === "function" ? window.pronounSummaryLabel() : "they / them");
 		};
 		updateText();
 		[

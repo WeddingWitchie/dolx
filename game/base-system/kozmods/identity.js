@@ -454,9 +454,14 @@ function identityCharacteristicCategory(category) {
 }
 window.identityCharacteristicCategory = identityCharacteristicCategory;
 
-function playerPronoun() {
-	const pronouns = V.identity?.presentation?.pronouns || {};
-	const dynamicModes = ["body", "clothing", "appearance", "posture"];
+const PRONOUN_DYNAMIC_MODES = ["body", "clothing", "appearance", "posture"];
+
+/**
+ * The active dynamic pronoun mode ("body"/"clothing"/"appearance"/"posture"), or "" if pronouns are resolved from the static preferred set instead.
+ *
+ * @param pronouns
+ */
+function getPronounDynamicMode(pronouns) {
 	const hasPreferenceFlags = [pronouns.preferredMasculine, pronouns.preferredFeminine, pronouns.preferredNeutral].some(value => value !== undefined);
 	const allPronounsPreferred =
 		pronouns.preferredMasculine &&
@@ -465,10 +470,16 @@ function playerPronoun() {
 		pronouns.masculine?.acceptance !== false &&
 		pronouns.feminine?.acceptance !== false &&
 		pronouns.neutral?.acceptance !== false;
-	const savedDynamicMode = pronouns.pronounDynamicMode || (dynamicModes.includes(pronouns.preferred) ? pronouns.preferred : "");
-	const dynamicMode = (!hasPreferenceFlags || allPronounsPreferred) && dynamicModes.includes(savedDynamicMode) ? savedDynamicMode : "";
+	const savedDynamicMode = pronouns.pronounDynamicMode || (PRONOUN_DYNAMIC_MODES.includes(pronouns.preferred) ? pronouns.preferred : "");
+	return (!hasPreferenceFlags || allPronounsPreferred) && PRONOUN_DYNAMIC_MODES.includes(savedDynamicMode) ? savedDynamicMode : "";
+}
+
+function playerPronoun() {
+	const pronouns = V.identity?.presentation?.pronouns || {};
+	const dynamicMode = getPronounDynamicMode(pronouns);
 
 	if (dynamicMode === "body") {
+		if (V.player.sex === "m" || V.player.sex === "f") return V.player.sex;
 		if (!!V.player.penisExist === !!V.player.vaginaExist) return "n";
 		return V.player.penisExist ? "m" : "f";
 	}
@@ -498,6 +509,27 @@ function playerPronoun() {
 	return ["m", "f"].includes(V.player.gender) ? V.player.gender : "n";
 }
 window.playerPronoun = playerPronoun;
+
+const PRONOUN_LABELS = { m: "he / him", f: "she / her", n: "they / them" };
+
+/**
+ * Label for the "Currently used" line in the Identity settings tab.
+ */
+function pronounSummaryLabel() {
+	const pronouns = V.identity?.presentation?.pronouns || {};
+	const dynamicMode = getPronounDynamicMode(pronouns);
+
+	if (dynamicMode) return PRONOUN_LABELS[playerPronoun()];
+
+	const preferred = [];
+	if (pronouns.preferredMasculine && pronouns.masculine?.acceptance !== false) preferred.push("m");
+	if (pronouns.preferredFeminine && pronouns.feminine?.acceptance !== false) preferred.push("f");
+	if (pronouns.preferredNeutral && pronouns.neutral?.acceptance !== false) preferred.push("n");
+
+	if (preferred.length > 0) return preferred.map(gender => PRONOUN_LABELS[gender]).join(" or ");
+	return PRONOUN_LABELS[playerPronoun()];
+}
+window.pronounSummaryLabel = pronounSummaryLabel;
 
 /* globals perceivedGender */
 
