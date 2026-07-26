@@ -117,7 +117,7 @@
 		inflationBadPct: { min: 28, max: 100, step: 1 },
 		inflationCrisisPct: { min: 56, max: 200, step: 1 },
 		inflationExtremePct: { min: 113, max: 400, step: 5 },
-		inflationParodyPct: { min: 450, max: 3000, step: 100 },
+		inflationParodyPct: { min: 450, max: 3000, step: 50 },
 		inflationBaileyRentPct: { min: 3, max: 300, step: 1 },
 		inflationBaileyCrisisPct: { min: 3, max: 400, step: 1 },
 		inflationBaileyCapLow: { min: 500000, max: 5000000, step: 50000 },
