@@ -173,6 +173,13 @@ function initSpecialClothes() {
 		{ name: "ancient gold ring", 			sets: ["antiques"] },
 		{ name: "antique copper ring", 			sets: ["antiques"] },
 		{ name: "antique silver band", 			sets: ["antiques"] },
+
+		{ name: "kaiju costume", 				sets: ["kaiju"] },
+		{ name: "kaiju bottoms", 				sets: ["kaiju"] },
+		{ name: "kaiju hood", 					sets: ["kaiju"] },
+
+		{ name: "Whitney's collar", 			sets: ["whitney_collar"] },
+		{ name: "Whitney's collar with leash", 	sets: ["whitney_collar"] },
 	];
 
 	/* must match set names above.
@@ -710,6 +717,32 @@ function initSpecialClothes() {
 			shop: ["forest"],
 			feat: false,
 			icon: "clothes/familiar_collar.png",
+		},
+
+		kaiju: {
+			text: "kaiju costume",
+			requirements: () => V.photo?.job === "kaiju",
+			hint: "take up a client job handing out flyers for Niki",
+			shop: ["forest"],
+			feat: true,
+			featCost: 2,
+			icon: "clothes",
+			iconSlot: "over_upper",
+			iconIndex: 4,
+			iconColor: "green",
+		},
+
+		whitney_collar: {
+			text: "Whitney's collar",
+			requirements: () => V.whitneycollar === 1,
+			hint: "be collared by someone at school",
+			shop: ["forest"],
+			feat: true,
+			featCost: 2,
+			icon: "clothes",
+			iconSlot: "neck",
+			iconIndex: 52,
+			iconColor: "black",
 		},
 
 		// Misc
