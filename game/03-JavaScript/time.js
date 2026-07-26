@@ -3095,7 +3095,7 @@ function getArousal(passMinutes) {
 		const chastitySpikeRolls = Math.max(1, Math.round(passMinutes / 60));
 		for (let roll = 0; roll < chastitySpikeRolls; roll++) {
 			if (random(1, 100) <= chastitySpikeChance) {
-				const spike = random(100, 400);
+				const spike = random(50, 200);
 				addedArousal += spike;
 				V.chastityArousalSpikeMessage = true;
 			}
