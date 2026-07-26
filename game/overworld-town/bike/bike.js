@@ -185,7 +185,7 @@ function bikeSecurity() {
 		// Remy and Bailey are more likely to fuck with ur shit if they're mad
 		// the orphans are more likely to passively protect pc's stuff if reb is high (orphans stick together!!)
 		if (V.bicycle.locationRegion === "lake") {
-			T.bikeTheftChance = 0.25;
+			T.bikeTheftChance = 0.25 - V.bicycle.security + bikeTheftChanceBonus;
 		} else if (V.bicycle.locationRegion === "residential" || V.bicycle.locationRegion === "industrial") {
 			if (V.baileydefeatedchain >= 1) {
 				bikeTheftChanceBonus += 0.25;
