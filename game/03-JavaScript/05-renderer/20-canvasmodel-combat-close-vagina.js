@@ -1,6 +1,6 @@
 // @ts-check
-const closeVaginaEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
-const closeVaginaEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
+const closeVaginaEnemyPleasure = () => Number(/** @type {any} */ (V).enemypleasure ?? 0);
+const closeVaginaEnemyPleasureMax = () => Number(/** @type {any} */ (V).enemypleasuremax ?? 500);
 /* globals CombatRenderer, CloseCombatMapper, CloseOptions, CanvasModelLayers */
 
 /**
@@ -262,7 +262,8 @@ function vaginaPenetratorCondom(npc, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const target = npc === "npc2" ? V.vaginadoubletarget : V.vaginatarget;
-			return !!options.showArse && !!options.vagina[npc] && !!V.NPCList[target].condom.worn;
+			/* target may be the "tentacles" sentinel or an emptied slot - no NPC means no condom */
+			return !!options.showArse && !!options.vagina[npc] && !!V.NPCList[target]?.condom?.worn;
 		},
 		animationfn(options) {
 			return options.animKeyVagina;

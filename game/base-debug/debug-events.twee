@@ -66,9 +66,9 @@
 	<</if>>
 	<<set _eventValidationFailed to (EventSystem.any() and !EventSystem.validate())>>
 	<<unset _eventreason>>
-	<!-- Count live NPCs with the SAME predicate as isLiveNPC() in event-debug.js: truthy non-"undefined" type AND a real, non-placeholder fullDescription.
-	     baseNPC padding clones have type "human" but no fullDescription, so a type-only check produces false positives on every cleanly-ended encounter. -->
-	<<set _liveNpcCount to (Array.isArray($NPCList) ? $NPCList.filter(npc => npc && typeof npc === "object" && npc.type && npc.type !== "undefined" && typeof npc.fullDescription === "string" && npc.fullDescription.trim() && npc.fullDescription.trim() !== "undefined" && npc.fullDescription.trim() !== "undefined undefined").length : 0)>>
+	<!-- Liveness comes from isLiveNPC() in event-debug.js so this overlay and EventSystem.validate() can never disagree. 
+	Cleared slots are still truthy objects, so a presence-only or type-only check produces false positives on every cleanly-ended encounter. -->
+	<<set _liveNpcCount to (Array.isArray($NPCList) ? $NPCList.filter(npc => isLiveNPC(npc)).length : 0)>>
 
 	<h3>Area information</h3>
 
@@ -134,15 +134,8 @@
 	<<for $_i to 0; $_i lt $NPCList.length; $_i++>>
 		<<set $_npc to $NPCList[$_i]>>
 		<<unset $_eventNPC>>
-		<!-- Same liveness predicate as isLiveNPC() in event-debug.js.
-		A baseNPC padding clone has type "human" but no fullDescription; treating it as live here produced "Live NPC exists, but no valid event buffer entry" false positives on every cleanly-ended encounter. -->
-		<<set $_npcIsLive to false>>
-		<<if $_npc and $_npc.type and $_npc.type isnot "undefined" and typeof $_npc.fullDescription is "string">>
-			<<set $_fdTrim to $_npc.fullDescription.trim()>>
-			<<if $_fdTrim isnot "" and $_fdTrim isnot "undefined" and $_fdTrim isnot "undefined undefined">>
-				<<set $_npcIsLive to true>>
-			<</if>>
-		<</if>>
+		<!-- Cleared slots are still truthy objects, so treating them as live here produced "Live NPC exists, but no valid event buffer entry" on every cleanly-ended encounter. -->
+		<<set $_npcIsLive to isLiveNPC($_npc)>>
 		<<if $event isnot undefined and $event.buffer isnot undefined>>
 			<<for $_slotSearch = 0; $_slotSearch lt $event.buffer.length; $_slotSearch++>>
 				<<if $event.buffer[$_slotSearch] and $event.buffer[$_slotSearch].slot is $_i>>
@@ -190,7 +183,7 @@
 				<<else>>
 					No description.<br>
 				<</if>>
-				<<if !$NPCList[$_eventNPC.slot] or $NPCList[$_eventNPC.slot].type is undefined>>
+				<<if !isLiveNPC($NPCList[$_eventNPC.slot])>>
 					<span class="red">This event entry points to slot <<print $_eventNPC.slot>>, but no live NPC exists there right now.</span><br>
 				<</if>>
 				Defined in passage <<print $_eventNPC.area[0]>>, at <<ampm $_time.getHours() $_time.getMinutes()>>.<br>

@@ -18,37 +18,40 @@
  */
 
 /**
- * Returns true iff the given $NPCList entry represents a fully-generated, live NPC
- * (not a baseNPC clone padding an unused slot, and not a genuine gap).
- *
+ * Returns true iff the given $NPCList entry represents a fully-generated, live NPC (not an empty slot, and not a genuine gap).
  * WHY THIS PREDICATE EXISTS? Read this before "fixing" it back to a type-only check.
  *
- * The original validator used `"type" in npcList[i]`. 
- * That check returns true for baseNPC clones (which have `type: "human"` set by setup.baseNPC). 
- * After every <<endcombat>>, <<clearnpc>> populates slots 1..5 with baseNPC clones and sets
- * NPCList.length = 6; that's the codebase's standard "padding" pattern, not a bug.
+ * The original validator used `"type" in npcList[i]`. Empty slots come in two shapes and
+ * a type-only check mishandles both:
+ *   - <<clearnpc>>/<<clearsinglenpc>> write a clone(setup.baseNPC), which in this fork holds
+ *     only chastity/location/skills/pronouns/traits. `"type" in npc` is false, but the clone
+ *     is still a truthy object, so any `if (npcList[i])` style check treats it as occupied.
+ *   - <<endnpc>> leaves a zeroed record where fields exist but carry placeholder values.
+ * After every <<endcombat>>, <<clearnpc>> refills slots 0..5 that way and sets NPCList.length = 6; that's the codebase's standard "padding" pattern, not a bug.
  *
- * With a type-only predicate, validate() interprets those padding clones as live
- * NPCs, expects buffer entries for them, and fires "EVENT DESYNC" on every fresh
- * encounter setup (Bailey's Office, Sydney's Temple, any street encounter, etc.).
- * That happened consistently in this codebase but not in upstream DoL not because
- * the encounter management differs, but because earlier validator versions in this
- * tree used the type-only check and incorrectly treated padding as live state.
+ * HISTORICAL NOTE: earlier revisions of this comment claimed setup.baseNPC sets
+ * `type: "human"`, so that padding clones would pass a type check and trip "EVENT DESYNC"
+ * on every fresh encounter. That was a real symptom with a different cause: the
+ * <<animatemodel>> widget (commit ee84ce2b79) stamped `type`, `condom`, `pronoun` etc. onto
+ * every $NPCList slot on every passage render, so padding clones really did carry a truthy
+ * type - not from setup.baseNPC, but from the sidebar portrait renderer corrupting NPC state.
+ * That corruption is fixed (renderer no longer writes to $NPCList); the predicate below is
+ * still the right one, because fullDescription is what distinguishes generated from cleared
+ * across BOTH empty-slot shapes.
  *
  * The reliable post-generation marker is `fullDescription`: generateNPC and the
  * <<npc>> widget both populate it as their final step, so a slot that has a real,
- * non-empty, non-placeholder fullDescription is definitively a live NPC. baseNPC
- * clones either have it unset, empty, or as the literal placeholder
+ * non-empty, non-placeholder fullDescription is definitively a live NPC. Empty slots
+ * either have it unset, empty, or as the literal placeholder
  * "undefined undefined" (see the fix-up code in npc-generation.twee).
  *
  * This predicate still catches every form of *real* desync:
  *   - live NPC with no matching buffer entry → flagged via empty-slots check below
- *   - buffer entry for a slot that's only a baseNPC clone → flagged via the slot >= numOfNPCs check below (since numOfNPCs reflects live NPCs only)
+ *   - buffer entry for a slot that's only an empty clone → flagged via the slot >= numOfNPCs check below (since numOfNPCs reflects live NPCs only)
  *   - two buffer entries for the same slot → flagged via the duplicate check
  *   - more buffer entries than live NPCs → flagged via the length check
  *
- * What this predicate intentionally does NOT flag is baseNPC clones occupying unused slots
- * that's not a desync, it's the codebase's expected steady state.
+ * What this predicate intentionally does NOT flag is empty clones occupying unused slots that's not a desync, it's the codebase's expected steady state.
  *
  * @param {unknown} slot
  * @returns {boolean}
@@ -63,6 +66,9 @@ function isLiveNPC(slot) {
 	if (!fd || fd === "undefined undefined" || fd === "undefined") return false;
 	return true;
 }
+/* Exported so the debug overlay in debug-events.twee shares this exact predicate
+   instead of re-implementing it inline and drifting out of sync. */
+window.isLiveNPC = isLiveNPC;
 
 /**
  * Handles event data for NPC objects for debugging.
@@ -194,13 +200,14 @@ class EventData {
 
 		// Find the semantic NPC count: walk backwards to the last slot containing a real NPC.
 		//
-		// IMPORTANT: We can NOT use `"type" in npcList[i]` here, and we also can NOT use
-		// just `slot.type`; empirically setup.baseNPC has `type` set to a truthy default
-		// (likely "human"), so a clone produced by <<clearnpc>> still passes any type-only
-		// check. The only field that reliably distinguishes "fully generated" from "freshly
-		// cleared" is `fullDescription`: generateNPC constructs it at the end of generation
-		// from description + role + title, and a baseNPC clone has it either unset or as
-		// the literal placeholder "undefined undefined" (see npc-generation.twee guards).
+		// IMPORTANT: We can NOT use `"type" in npcList[i]` here, and we also can NOT use just
+		// `slot.type`. A cleared slot is still a truthy object (a clone(setup.baseNPC), or an
+		// <<endnpc>> zeroed record), and an <<endnpc>> record can carry leftover fields. The only
+		// field that reliably distinguishes "fully generated" from "freshly cleared" is
+		// `fullDescription`: generateNPC constructs it at the end of generation from
+		// description + role + title, and a cleared slot has it either unset or as the literal
+		// placeholder "undefined undefined" (see npc-generation.twee guards). See the long note
+		// on isLiveNPC above for why the older "baseNPC has type: human" rationale was wrong.
 		//
 		// Also guard against npcList[i] itself being null/undefined (genuine gap), which
 		// the previous code would crash on (`"type" in undefined` throws TypeError).
@@ -212,7 +219,7 @@ class EventData {
 			}
 		}
 
-		// No real NPCs in the list. If the buffer is also empty, fine. 
+		// No real NPCs in the list. If the buffer is also empty, fine.
 		// If it has entries, those are stale (NPCs were cleared but buffer wasn't) then treat as desync.
 		if (numOfNPCs === 0) {
 			return buffer.length === 0;

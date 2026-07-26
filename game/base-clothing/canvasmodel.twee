@@ -91,81 +91,10 @@ Render model and JS-animate it
 -->
 <<widget "animatemodel">>
 	<<script>>
-		/*
-			Defensive fix for canvas model preprocessing crashes on abomination/tentacle encounters.
-			Both CloseCombatMapper.mapClosePenetrators and XrayCombatMapper.mapXrayPenetrators
-			look up NPCs via penetration target indices ($vaginatarget, $anustaget, $penistarget,
-			$mouthtarget, $lefttarget, $righttarget, etc.) and read various properties (.condom,
-			.type, etc.) off them. For abomination encounters, those targets can resolve to slots
-			in $NPCList that were never populated (tentacle data lives in $tentacles), causing
-			"Cannot read properties of undefined" errors.
-
-			Strategy: 
-			(1) ensure every numeric target index has at least a stub NPC object with the commonly-read properties
-			(2) wrap the actual render in try-catch so any remaining canvas-JS issue (animation skipped, scene continues).
-		*/
-		const vars = State.variables;
-		const npcList = vars.NPCList;
-		if (Array.isArray(npcList)) {
-			const targetKeys = [
-				'vaginatarget', 'anustaget', 'penistarget', 'mouthtarget',
-				'lefttarget', 'righttarget', 'feettarget', 'chesttarget',
-				'leglocktarget'
-			];
-			const stubProps = {
-				condom: false,
-				type: 'vine',
-				penis: 'none',
-				vagina: 'none',
-				mouth: 'none',
-				anus: 'none',
-				pronoun: 'i',
-				gender: 'n',
-				breastsize: 0,
-				active: 'inactive'
-			};
-			targetKeys.forEach(key => {
-				const idx = vars[key];
-				if (typeof idx === 'number' && idx >= 0) {
-					if (!npcList[idx]) {
-						npcList[idx] = Object.assign({}, stubProps);
-					} else {
-						for (const p in stubProps) {
-							if (npcList[idx][p] === undefined) {
-								npcList[idx][p] = stubProps[p];
-							}
-						}
-					}
-				}
-			});
-			/* Also patch existing live NPC entries missing condom/type, since the mappers may iterate over live NPCs.
-			Empty/base NPC slots must stay untouched. Missing tentacle target slots are handled by targetKeys/stubProps above. */
-			for (let i = 0; i < npcList.length; i++) {
-				const npc = npcList[i];
-
-				if (!npc) continue;
-
-				const fd = typeof npc.fullDescription === "string" ? npc.fullDescription.trim() : "";
-				const isLive = !!fd && fd !== "undefined" && fd !== "undefined undefined";
-
-				/* Base NPC padding / empty slots. Do not add condom or type here. */
-				if (!isLive) continue;
-
-				/* Live NPCs only. */
-				if (npc.condom === undefined) npc.condom = false;
-				if (!npc.type || npc.type === "undefined") npc.type = "human";
-			}
-		}
-
-		try {
-			const canvas = T.modelclass.canvas || T.modelclass.createCanvas();
-			T.modelclass.animate(canvas, T.modeloptions, Renderer.defaultListener);
-			canvas.canvas.className = typeof T.args[0] === 'string' ? T.args[0] : '';
-			output.append(canvas.canvas);
-		} catch (e) {
-			/* Canvas model preprocessing failed despite stub patching. Skip animation for this frame so the passage continues rendering normally. */
-			console.warn('animatemodel: skipped frame due to canvas error:', e && e.message);
-		}
+		const canvas = T.modelclass.canvas || T.modelclass.createCanvas();
+		T.modelclass.animate(canvas, T.modeloptions, Renderer.defaultListener);
+		canvas.canvas.className = typeof T.args[0] === 'string' ? T.args[0] : '';
+		output.append(canvas.canvas);
 	<</script>>
 <</widget>>
 

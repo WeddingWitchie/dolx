@@ -608,8 +608,9 @@ class PlayerCanvasHelper {
 			return false;
 		}
 		const target = V.lefttarget;
+		/* target may be the "tentacles" sentinel or an emptied slot, which is never a beast */
 		const npc = V.NPCList[target];
-		return ["pig", "boar", "pigboy", "boarboy"].includes(npc.type);
+		return ["pig", "boar", "pigboy", "boarboy"].includes(npc?.type);
 	}
 
 	/**
@@ -621,8 +622,9 @@ class PlayerCanvasHelper {
 			return false;
 		}
 		const target = V.righttarget;
+		/* target may be the "tentacles" sentinel or an emptied slot, which is never a beast */
 		const npc = V.NPCList[target];
-		return ["pig", "boar", "pigboy", "boarboy"].includes(npc.type);
+		return ["pig", "boar", "pigboy", "boarboy"].includes(npc?.type);
 	}
 }
 window.PlayerCanvasHelper = PlayerCanvasHelper;

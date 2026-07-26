@@ -467,11 +467,10 @@ function playerEndWaterProgress() {
 	// Intended to end a hawk pregnancy in a different way
 	if (pregnancy.type === "hawk") return false;
 
-	// DoLX fix:
-	// The original gate at NPCList[0].type doesn't work here, DoLX's NPC repair shell leaves slot 0 populated between scenes.
-	// Use V.enemyno instead: it's the live count of NPCs in the current encounter, reset by <<endevent>>,
-	// so it directly answers "is the player in a scene right now?"
-	const playerInScene = V.enemyno > 0 || V.possessed;
+	// A scene is either an active encounter or any NPC currently loaded in slot 0, water should not break mid-scene.
+	// $enemyno is the live encounter count (reset by <<endevent>>), but <<npc X>> deliberately leaves it untouched, so a plain conversation scene needs the slot 0 check too.
+	// Optional chaining because slot 0 can be a genuine gap; vanilla's bare .type throws there.
+	const playerInScene = V.enemyno > 0 || V.possessed || !!V.NPCList[0]?.type;
 
 	if (
 		!isNaN(pregnancy.waterBreakingTimer) &&

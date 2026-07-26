@@ -630,6 +630,69 @@ function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 }
 window.dolxRepairMissingJewelleryWornSlots = dolxRepairMissingJewelleryWornSlots;
 
+/* One-time scrub for saves written while <<animatemodel>> fabricated NPCs (commit ee84ce2b79, fixed since).
+ * The sidebar portrait renderer used to stamp a stub - type "vine", pronoun "i", gender "n", condom false,
+ * penis/vagina/mouth/anus "none", breastsize 0, active "inactive" - into whatever $NPCList slot a stale
+ * penetration target pointed at, on every passage render. Those writes persisted, so an affected save still
+ * carries the stub until its next <<clearnpc>> and can render "the undefined vineperson" in an unrelated scene.
+ *
+ * Deliberately narrow: a slot is only rewritten when it matches the stub's COMPLETE fingerprint - all ten
+ * values, and no fullDescription. Matching individual keys would be unsafe, because several of those values
+ * are legitimate on their own: an <<endnpc>> husk really does carry penis/vagina/mouth "none" and breastsize 0,
+ * and a real NPC can be flat-chested or wearing no condom. Requiring the whole set means nothing a scene is
+ * still using (live, husk, or half-cleared) can be damaged, at the cost of leaving a partially-overwritten
+ * slot alone (harmless: the next <<clearnpc>> resets it, and personselect already guards such slots). */
+function dolxScrubFabricatedNPCStubs() {
+	if (!V || !Array.isArray(V.NPCList)) return;
+
+	const stubProps = {
+		condom: false,
+		type: "vine",
+		penis: "none",
+		vagina: "none",
+		mouth: "none",
+		anus: "none",
+		pronoun: "i",
+		gender: "n",
+		breastsize: 0,
+		active: "inactive",
+	};
+	const scrubbed = [];
+
+	for (let i = 0; i < V.NPCList.length; i++) {
+		const npc = V.NPCList[i];
+		if (!npc || typeof npc !== "object") continue;
+		/* A fully generated NPC keeps its own data - the old stub only ever filled in blanks there. */
+		if (window.isLiveNPC?.(npc)) continue;
+
+		/* Both corrupted shapes (the slot the stub conjured from nothing, and the empty padding clone it
+		   filled in) end up carrying every stub value and no fullDescription. Nothing real looks like this. */
+		if (npc.fullDescription === undefined && Object.entries(stubProps).every(([key, value]) => npc[key] === value)) {
+			/* Restore the standard empty shape rather than leaving a bare object or a hole
+			   (combat iterates slots 0..$enemyno-1 as a contiguous prefix). */
+			if (setup.baseNPC) V.NPCList[i] = clone(setup.baseNPC);
+			scrubbed.push(`${i} (full stub)`);
+			continue;
+		}
+
+		/* Residue on a slot that carried some real fields of its own: "vine" is never a real $NPCList type
+		   (real ones are human/plant/wolf/centaur/...), so drop just that key and leave everything else. */
+		if (npc.type === "vine") {
+			delete npc.type;
+			scrubbed.push(`${i} (stray type)`);
+		}
+	}
+
+	/* Dead key from the superseded water-breaking workaround that the stub's NPCList[0] pollution forced. */
+	for (const genital of ["vagina", "anus"]) {
+		const pregnancy = V.sexStats?.[genital]?.pregnancy;
+		if (pregnancy && pregnancy.stuckAtOne !== undefined) delete pregnancy.stuckAtOne;
+	}
+
+	if (scrubbed.length) console.warn(`[DoLX] Removed fabricated NPC stub data from $NPCList slots: ${scrubbed.join(", ")}`);
+}
+window.dolxScrubFabricatedNPCStubs = dolxScrubFabricatedNPCStubs;
+
 /* NaN/Infinity repair for core numerics the game derives other state from. */
 function dolxRepairNonFiniteNumerics() {
 	if (!V) return;

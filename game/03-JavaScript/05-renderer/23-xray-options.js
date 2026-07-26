@@ -224,21 +224,25 @@ class XrayCombatMapper {
 	 * @param {"vagina" | "anus" | "penis"} slot
 	 */
 	static mapXrayPenetrators(options, penetrator, slot) {
+		/* Target vars hold either an NPCList index or the sentinel string "tentacles"
+		(tentacles live in $tentacles, not in $NPCList), so the lookup can legitimately come back empty; treat that as "nobody there". */
+		const targetNpc = V.NPCList[V[slot + "target"]];
+		const targetNpc2 = V.NPCList[V[slot + "doubletarget"]];
+
 		/* Type of NPC penetrating the player */
 		penetrator.npcType =
 			V.enemytype === "machine"
 				? "machine"
-				: ["tentacle", "tentacledeep"].includes(V[slot + "state"])
+				: ["tentacle", "tentacledeep"].includes(V[slot + "state"]) || V[slot + "target"] === "tentacles"
 				? "tentacle"
 				: V.portalPanties.state[slot]
 				? V.portalPanties.state[slot].type
-				: V.NPCList[V[slot + "target"]].type;
+				: targetNpc
+				? targetNpc.type
+				: "none";
 
 		/* slot is being doublepenetrated or not */
-		penetrator.doublePen =
-			V[slot + "state"] === "doublepenetrated" &&
-			V.NPCList[V[slot + "target"]].penis === slot + "double" &&
-			V.NPCList[V[slot + "doubletarget"]].penis === slot + "double";
+		penetrator.doublePen = V[slot + "state"] === "doublepenetrated" && targetNpc?.penis === slot + "double" && targetNpc2?.penis === slot + "double";
 
 		/* If NPC pulled out, show empty xray base for that turn
 		if (T["pullOut" + slot.toUpperFirst()]) {
@@ -514,7 +518,7 @@ class XrayCombatMapper {
 				? "machine"
 				: V.penisstate !== 0 && (["tentacle", "tentacledeep"].includes(V.penisstate) || V.penistarget === "tentacles")
 				? "tentacle"
-				: V.NPCList[V.penistarget].type;
+				: V.NPCList[V.penistarget]?.type ?? "none";
 
 		const playerPenisType = playerHasStrapon() ? "strapon" : V.player.sex === "f" ? "parasite" : "penis";
 		penetrator.type = playerPenisType;

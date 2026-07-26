@@ -144,7 +144,8 @@ function xrayVaginaCondom(npc, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const target = npc === "npc2" ? V.vaginadoubletarget : V.vaginatarget;
-			return !!options.showNpcPenis && !!options.vagina.show && options.vagina[npc] !== undefined && !!V.NPCList[target].condom.worn;
+			/* target may be the "tentacles" sentinel or an emptied slot - no NPC means no condom */
+			return !!options.showNpcPenis && !!options.vagina.show && options.vagina[npc] !== undefined && !!V.NPCList[target]?.condom?.worn;
 		},
 		animationfn(options) {
 			return options.animKeyVagina;

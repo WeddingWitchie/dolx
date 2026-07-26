@@ -143,7 +143,8 @@ function xrayArseCondom(npc, overrideOptions = {}) {
 		},
 		showfn(options) {
 			const target = npc === "npc2" ? V.anusdoubletarget : V.anustarget;
-			return !!options.showNpcPenis && !!options.anus.show && options.anus[npc] !== undefined && !!V.NPCList[target].condom.worn;
+			/* target may be the "tentacles" sentinel or an emptied slot - no NPC means no condom */
+			return !!options.showNpcPenis && !!options.anus.show && options.anus[npc] !== undefined && !!V.NPCList[target]?.condom?.worn;
 		},
 		animationfn(options) {
 			return options.animKeyArse;
