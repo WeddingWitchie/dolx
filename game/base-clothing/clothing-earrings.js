@@ -175,6 +175,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/base-flower.png",
+			// @ts-ignore
 			accIcon: "jewellery/base-flower-acc.png",
 		},
 		{
@@ -209,6 +210,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/base-flower.png",
+			// @ts-ignore
 			accIcon: "jewellery/base-flower-acc.png",
 		},
 		{
@@ -312,7 +314,7 @@ function initEarrings() {
 			slot: "earrings",
 			name: "flower gold earrings",
 			name_cap: "Flower gold earrings",
-			variable: "gold-flower",
+			variable: "gold-flower-m",
 			state: 0,
 			state_base: 0,
 			integrity: 40,
@@ -339,9 +341,10 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/gold-flower.png",
+			// @ts-ignore
 			accIcon: "jewellery/base-flower-acc.png",
 		},
-		
+
 		{
 			index: 10,
 			slot: "earrings",
@@ -470,6 +473,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/silver-flower.png",
+			// @ts-ignore
 			accIcon: "jewellery/base-flower-acc.png",
 		},
 		{
@@ -504,6 +508,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/silver-flower.png",
+			// @ts-ignore
 			accIcon: "jewellery/base-flower-acc.png",
 		},
 		{
@@ -802,6 +807,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/empty.png",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -836,13 +842,14 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/silver-flower.png",
+			// @ts-ignore
 			accIcon: "jewellery/base-flower-acc.png",
 		},
 		{
 			index: 23,
 			slot: "earrings",
-			name: "flower gold earrings",
-			name_cap: "Flower gold earrings",
+			name: "gold and silver flower earrings",
+			name_cap: "Gold and silver flower earrings",
 			variable: "gold-flower-s",
 			state: 0,
 			state_base: 0,
@@ -902,6 +909,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond-stud.png",
+			// @ts-ignore
 			accIcon: "jewellery/studs-acc.png",
 		},
 		{
@@ -940,6 +948,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern-acc.png",
 		},
 		{
@@ -978,6 +987,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -1016,6 +1026,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -1054,6 +1065,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -1092,6 +1104,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -1130,6 +1143,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -1168,6 +1182,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -1206,6 +1221,7 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
@@ -1244,43 +1260,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "pattern",
+			// @ts-ignore
 			accIcon: "pattern",
 		},
 		{
 			index: 34,
-			slot: "earrings",
-			name: "pearl stud earrings",
-			name_cap: "Pearl stud earrings",
-			variable: "pearl-stud",
-			state: 0,
-			state_base: 0,
-			integrity: 40,
-			integrity_max: 40,
-			fabric_strength: 20,
-			reveal: 1,
-			word: "a",
-			plural: 1,
-			colour: 0,
-			colour_options: [],
-			colour_sidebar: 0,
-			colour_combat: 0,
-			type: ["normal"],
-			gender: "n",
-			warmth: 0,
-			cost: 80000,
-			description: "8mm pearl stud earrings. Classic.",
-			shop: ["jewellery"],
-			accessory: 1,
-			accessory_colour: 0,
-			accessory_colour_options: ["bronze", "gold", "rose gold", "silver"],
-			accessory_colour_sidebar: 1,
-			cursed: 0,
-			location: 0,
-			iconFile: "jewellery/pearl-stud.png",
-			accIcon: "jewellery/studs-acc.png",
-		},
-		{
-			index: 35,
 			slot: "earrings",
 			name: "diamond drop earrings",
 			name_cap: "Diamond drop earrings",
@@ -1311,10 +1295,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 36,
+			index: 35,
 			slot: "earrings",
 			name: "ruby drop earrings",
 			name_cap: "Ruby drop earrings",
@@ -1345,10 +1330,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/ruby-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 37,
+			index: 36,
 			slot: "earrings",
 			name: "sapphire drop earrings",
 			name_cap: "Sapphire drop earrings",
@@ -1379,10 +1365,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/sapphire-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 38,
+			index: 37,
 			slot: "earrings",
 			name: "emerald drop earrings",
 			name_cap: "Emerald drop earrings",
@@ -1413,10 +1400,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/emerald-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 39,
+			index: 38,
 			slot: "earrings",
 			name: "tanzanite drop earrings",
 			name_cap: "Tanzanite drop earrings",
@@ -1447,10 +1435,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/tanzanite-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 40,
+			index: 39,
 			slot: "earrings",
 			name: "aquamarine drop earrings",
 			name_cap: "Aquamarine drop earrings",
@@ -1481,10 +1470,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/aquamarine-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 41,
+			index: 40,
 			slot: "earrings",
 			name: "spinel drop earrings",
 			name_cap: "Spinel drop earrings",
@@ -1515,10 +1505,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 42,
+			index: 41,
 			slot: "earrings",
 			name: "topaz drop earrings",
 			name_cap: "Topaz drop earrings",
@@ -1549,10 +1540,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 43,
+			index: 42,
 			slot: "earrings",
 			name: "amethyst drop earrings",
 			name_cap: "Amethyst drop earrings",
@@ -1583,43 +1575,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst-drop.png",
+			// @ts-ignore
 			accIcon: "jewellery/drops-acc.png",
 		},
 		{
-			index: 44,
-			slot: "earrings",
-			name: "pearl drop earrings",
-			name_cap: "Pearl drop earrings",
-			variable: "pearl-drop",
-			state: 0,
-			state_base: 0,
-			integrity: 40,
-			integrity_max: 40,
-			fabric_strength: 20,
-			reveal: 1,
-			word: "a",
-			plural: 1,
-			colour: 0,
-			colour_options: [],
-			colour_sidebar: 0,
-			colour_combat: 0,
-			type: ["normal"],
-			gender: "n",
-			warmth: 0,
-			cost: 200000,
-			description: "11mm pearl drop earrings. Classic.",
-			shop: ["jewellery", "luxury_jewellery"],
-			accessory: 1,
-			accessory_colour: 0,
-			accessory_colour_options: ["bronze", "gold", "rose gold", "silver"],
-			accessory_colour_sidebar: 1,
-			cursed: 0,
-			location: 0,
-			iconFile: "jewellery/pearl-drop.png",
-			accIcon: "jewellery/drops-acc.png",
-		},
-		{
-			index: 45,
+			index: 43,
 			slot: "earrings",
 			name: "diamond halo earrings",
 			name_cap: "Diamond halo earrings",
@@ -1650,10 +1610,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 46,
+			index: 44,
 			slot: "earrings",
 			name: "ruby halo earrings",
 			name_cap: "Ruby halo earrings",
@@ -1684,10 +1645,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/ruby-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 47,
+			index: 45,
 			slot: "earrings",
 			name: "sapphire halo earrings",
 			name_cap: "Sapphire halo earrings",
@@ -1718,10 +1680,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/sapphire-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 48,
+			index: 46,
 			slot: "earrings",
 			name: "emerald halo earrings",
 			name_cap: "Emerald halo earrings",
@@ -1752,10 +1715,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/emerald-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 49,
+			index: 47,
 			slot: "earrings",
 			name: "tanzanite halo earrings",
 			name_cap: "Tanzanite halo earrings",
@@ -1786,10 +1750,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/tanzanite-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 50,
+			index: 48,
 			slot: "earrings",
 			name: "aquamarine halo earrings",
 			name_cap: "Aquamarine halo earrings",
@@ -1820,10 +1785,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/aquamarine-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 51,
+			index: 49,
 			slot: "earrings",
 			name: "spinel halo earrings",
 			name_cap: "Spinel halo earrings",
@@ -1854,10 +1820,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 52,
+			index: 50,
 			slot: "earrings",
 			name: "topaz halo earrings",
 			name_cap: "Topaz halo earrings",
@@ -1888,10 +1855,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 53,
+			index: 51,
 			slot: "earrings",
 			name: "amethyst halo earrings",
 			name_cap: "Amethyst halo earrings",
@@ -1922,43 +1890,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst-halo.png",
+			// @ts-ignore
 			accIcon: "jewellery/halo-acc.png",
 		},
 		{
-			index: 54,
-			slot: "earrings",
-			name: "pearl halo earrings",
-			name_cap: "Pearl halo earrings",
-			variable: "pearl-halo",
-			state: 0,
-			state_base: 0,
-			integrity: 40,
-			integrity_max: 40,
-			fabric_strength: 20,
-			reveal: 1,
-			word: "a",
-			plural: 1,
-			colour: 0,
-			colour_options: [],
-			colour_sidebar: 0,
-			colour_combat: 0,
-			type: ["luxurious"],
-			gender: "n",
-			warmth: 0,
-			cost: 1500000,
-			description: "14mm pearl halo earrings. Classic.",
-			shop: ["luxury_jewellery"],
-			accessory: 1,
-			accessory_colour: 0,
-			accessory_colour_options: ["bronze", "gold", "rose gold", "silver"],
-			accessory_colour_sidebar: 1,
-			cursed: 0,
-			location: 0,
-			iconFile: "jewellery/pearl-halo.png",
-			accIcon: "jewellery/pearl-big-acc.png",
-		},
-		{
-			index: 55,
+			index: 52,
 			slot: "earrings",
 			name: "diamond cocktail earrings",
 			name_cap: "Diamond cocktail earrings",
@@ -1989,10 +1925,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 56,
+			index: 53,
 			slot: "earrings",
 			name: "ruby cocktail earrings",
 			name_cap: "Ruby cocktail earrings",
@@ -2023,10 +1960,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/ruby-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 57,
+			index: 54,
 			slot: "earrings",
 			name: "sapphire cocktail earrings",
 			name_cap: "Sapphire cocktail earrings",
@@ -2057,10 +1995,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/sapphire-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 58,
+			index: 55,
 			slot: "earrings",
 			name: "emerald cocktail earrings",
 			name_cap: "Emerald cocktail earrings",
@@ -2091,10 +2030,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/emerald-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 59,
+			index: 56,
 			slot: "earrings",
 			name: "tanzanite cocktail earrings",
 			name_cap: "Tanzanite cocktail earrings",
@@ -2125,10 +2065,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/tanzanite-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 60,
+			index: 57,
 			slot: "earrings",
 			name: "aquamarine cocktail earrings",
 			name_cap: "Aquamarine cocktail earrings",
@@ -2159,10 +2100,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/aquamarine-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 61,
+			index: 58,
 			slot: "earrings",
 			name: "spinel cocktail earrings",
 			name_cap: "Spinel cocktail earrings",
@@ -2193,10 +2135,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 62,
+			index: 59,
 			slot: "earrings",
 			name: "topaz cocktail earrings",
 			name_cap: "Topaz cocktail earrings",
@@ -2227,10 +2170,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 63,
+			index: 60,
 			slot: "earrings",
 			name: "amethyst cocktail earrings",
 			name_cap: "Amethyst cocktail earrings",
@@ -2261,10 +2205,11 @@ function initEarrings() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst-cocktail.png",
+			// @ts-ignore
 			accIcon: "jewellery/cocktail-acc.png",
 		},
 		{
-			index: 64,
+			index: 61,
 			slot: "earrings",
 			name: "lilac earrings",
 			name_cap: "Lilac earrings",

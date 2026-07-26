@@ -891,6 +891,9 @@ DefineMacro("specialClothesRefresh", specialClothesRefresh);
  */
 function specialClothesUnlock(nameSpace = "set", name, unlockLevel = 3) {
 	let toUnlock = [];
+	/**
+	 * @type {string[]}
+	 */
 	const toUnlockMessages = [];
 	if (nameSpace === "set") {
 		if (!getSpecialSets().includes(name)) {

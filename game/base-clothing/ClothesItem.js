@@ -41,16 +41,20 @@ class ClothesItem {
 	/* */
 	open;
 
-	/* */
+	/* Tuck position for tops/bottoms ("waist"/"chest"), otherwise unused | INT 0 | STRING */
+	/** @type {string|number|undefined} */
 	state;
 
-	/* */
+	/* Tuck position for tops/bottoms ("waist"/"chest"), otherwise unused | INT 0 | STRING */
+	/** @type {string|number|undefined} */
 	state_base;
 
-	/* */
+	/* Tuck position for tops/bottoms ("waist"/"chest"), otherwise unused | INT 0 | STRING */
+	/** @type {string|number|undefined} */
 	state_top;
 
-	/* */
+	/* Tuck position for tops/bottoms ("waist"/"chest"), otherwise unused | INT 0 | STRING */
+	/** @type {string|number|undefined} */
 	state_top_base;
 
 	/* */

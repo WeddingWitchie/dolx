@@ -1,4 +1,4 @@
-/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initLegs, initFeet, initSpecialClothes, initProps, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
+/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initEarrings, initRings, initLegs, initFeet, initSpecialClothes, initProps, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
 
 function clothingDataInit() {
 	setup.clothes = {};
@@ -59,6 +59,24 @@ function clothingDataInit() {
 		setup.clothes[slot].forEach(c => clothes.push(c));
 	});
 	setup.clothes.all = clothes;
+
+	// Price tiers ("expensive"/"luxurious"/"extravagant") were previously hand-typed per item and had drifted out of sync with actual cost
+	// (e.g. a cheaper item tagged "luxurious" while a pricier one was only "expensive").
+	// Recompute them from cost so the tag always matches the price.
+	setup.clothingPriceTiers = ["expensive", "luxurious", "extravagant"];
+	const priceTierThresholds = [
+		[12000000, "extravagant"],
+		[1500000, "luxurious"],
+		[200000, "expensive"],
+	];
+	setup.clothes.all.forEach(item => {
+		if (!Array.isArray(item.type)) return;
+		const hadTier = item.type.some(t => setup.clothingPriceTiers.includes(t));
+		if (!hadTier) return;
+		const tier = priceTierThresholds.find(([min]) => item.cost >= min)?.[1];
+		item.type = item.type.filter(t => !setup.clothingPriceTiers.includes(t));
+		if (tier) item.type.push(tier);
+	});
 
 	// Find all unique traits (types) clothes can have
 	setup.clothingTraits = [...new Set(Object.values(setup.clothes.all).flatMap(x => x.type))].sort();
@@ -156,7 +174,8 @@ function givestartclothing() {
 	if (V.identity.presentation.clothing.preferred === "m") {
 		clothesType = "male";
 	} else {
-		clothesType = "female"; }
+		clothesType = "female";
+	}
 	// } else {
 	// 	if (V.player.gender_body === "m" || (V.player.gender_body === "a" && V.player.breastsize <= 3)) {
 	// 		clothesType = "male";
@@ -265,7 +284,7 @@ function givestartclothing() {
 			V.worn.face.colour = "black";
 			V.outfit[1].face = "glasses";
 			V.outfit[2].face = "glasses";
-		} 
+		}
 
 		V.wardrobe.upper.push(clone(setup.clothes.upper[5]));
 		V.wardrobe.upper.last().colour = "white";
@@ -365,7 +384,7 @@ function givestartclothing() {
 			V.worn.face.colour = "black";
 			V.outfit[1].face = "glasses";
 			V.outfit[2].face = "glasses";
-		} 
+		}
 
 		V.wardrobe.upper.push(clone(setup.clothes.upper[5]));
 		V.wardrobe.upper.last().colour = "white";
@@ -383,8 +402,6 @@ function givestartclothing() {
 		V.wardrobe.handheld.push(clone(setup.clothes.handheld[8]));
 		V.wardrobe.handheld.last().colour = "blue";
 	}
-
-
 
 	// strip the unneeded vars from starting clothes
 	clothesDataTrimmerLoop();

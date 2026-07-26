@@ -2088,14 +2088,6 @@ function initNeck() {
 			iconFile: "gemstone necklace.png",
 			accIcon: "gemstone necklace-acc.png",
 		}),
-	];
-	setup.clothes.neck = clothing;
-
-	/*
-		Clothes that modders add go into this array. This should be empty in the base game at all times.
-		These items should have a `modder` variable with the modder's name in a short string.
-	*/
-	setup.moddedClothes.neck = [
 		{
 			index: 52,
 			slot: "neck",
@@ -2128,7 +2120,7 @@ function initNeck() {
 			accessory_colour_options: [],
 			cursed: 1,
 			location: 0,
-			iconFile: "Whitneys_collar.png",
+			iconFile: "whitneys-collar.png",
 			accIcon: 0,
 		},
 		{
@@ -2165,7 +2157,7 @@ function initNeck() {
 			accessory_colour_options: [],
 			cursed: 1,
 			location: 0,
-			iconFile: "Whitneys_collar.png",
+			iconFile: "whitneys-collar.png",
 			accIcon: 0,
 		},
 		{
@@ -2385,6 +2377,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/heart_choker_acc.png",
 		},
 
@@ -2424,6 +2417,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/small_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_small_solitare_pendant.png",
 		},
 
@@ -2463,6 +2457,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -2502,6 +2497,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -2541,6 +2537,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -2580,6 +2577,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -2619,6 +2617,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -2658,6 +2657,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -2697,6 +2697,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/diamond_heart_choker_acc.png",
 		},
 
@@ -2737,6 +2738,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond_small_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_small_solitare_pendant.png",
 		},
 
@@ -2777,6 +2779,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -2817,6 +2820,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -2857,6 +2861,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -2897,6 +2902,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/diamond_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -2937,6 +2943,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_diamond_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -2977,6 +2984,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_diamond_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -3016,6 +3024,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/ruby_heart_choker_acc.png",
 		},
 
@@ -3056,6 +3065,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/ruby_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -3096,6 +3106,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/ruby_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -3136,6 +3147,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/ruby_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -3176,6 +3188,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/ruby_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -3216,6 +3229,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_ruby_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -3256,6 +3270,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_ruby_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -3295,6 +3310,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/emerald_heart_choker_acc.png",
 		},
 		{
@@ -3334,6 +3350,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/emerald_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -3374,6 +3391,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/emerald_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -3414,6 +3432,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/emerald_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -3454,6 +3473,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/emerald_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -3494,6 +3514,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_emerald_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -3534,6 +3555,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_emerald_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -3573,6 +3595,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/sapphire_heart_choker_acc.png",
 		},
 
@@ -3613,6 +3636,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/sapphire_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -3653,6 +3677,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/sapphire_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -3693,6 +3718,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/sapphire_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -3733,6 +3759,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/sapphire_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -3773,6 +3800,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_sapphire_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -3813,6 +3841,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_sapphire_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -3852,6 +3881,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/aquamarine_heart_choker_acc.png",
 		},
 		{
@@ -3891,6 +3921,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/aquamarine_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -3931,6 +3962,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/aquamarine_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -3971,6 +4003,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/aquamarine_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -4011,6 +4044,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/aquamarine_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -4051,6 +4085,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_aquamarine_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -4091,6 +4126,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_aquamarine_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -4130,6 +4166,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/tanzanite_heart_choker_acc.png",
 		},
 		{
@@ -4169,6 +4206,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/tanzanite_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -4209,6 +4247,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/tanzanite_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -4249,6 +4288,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/tanzanite_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -4289,6 +4329,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/tanzanite_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -4329,6 +4370,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_tanzanite_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -4369,6 +4411,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_tanzanite_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -4408,6 +4451,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/topaz_heart_choker_acc.png",
 		},
 
@@ -4448,6 +4492,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz_small_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_small_solitare_pendant.png",
 		},
 
@@ -4488,6 +4533,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -4528,6 +4574,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -4568,6 +4615,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -4608,6 +4656,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/topaz_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -4648,6 +4697,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_topaz_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -4688,6 +4738,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_topaz_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -4727,6 +4778,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/amethyst_heart_choker_acc.png",
 		},
 
@@ -4767,6 +4819,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst_small_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_small_solitare_pendant.png",
 		},
 
@@ -4807,6 +4860,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -4847,6 +4901,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -4887,6 +4942,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -4927,6 +4983,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/amethyst_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -4967,6 +5024,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_amethyst_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -5007,6 +5065,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_amethyst_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -5046,6 +5105,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "heart_choker.png",
+			// @ts-ignore
 			accIcon: "jewellery/spinel_heart_choker_acc.png",
 		},
 
@@ -5086,6 +5146,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel_small_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_small_solitare_pendant.png",
 		},
 
@@ -5126,6 +5187,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel_solitare_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_solitare_pendant.png",
 		},
 
@@ -5166,6 +5228,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel_multigem_pendant.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_multigem_pendant.png",
 		},
 
@@ -5206,6 +5269,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel_fringe_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_fringe_necklace.png",
 		},
 
@@ -5246,6 +5310,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/spinel_rivière_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/acc_rivière_necklace.png",
 		},
 
@@ -5286,6 +5351,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/15ct_spinel_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/15ct_necklace_acc.png",
 		},
 
@@ -5326,6 +5392,7 @@ function initNeck() {
 			cursed: 0,
 			location: 0,
 			iconFile: "jewellery/20ct_spinel_necklace.png",
+			// @ts-ignore
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
@@ -5437,6 +5504,13 @@ function initNeck() {
 			mainImage: "full",
 		},
 	];
+	setup.clothes.neck = clothing;
+
+	/*
+		Clothes that modders add go into this array. This should be empty in the base game at all times.
+		These items should have a `modder` variable with the modder's name in a short string.
+	*/
+	setup.moddedClothes.neck = [];
 
 	setup.moddedClothes.neck.forEach((x, i) => (x.index = setup.clothes.neck.length + i));
 	setup.clothes.neck.push(...setup.moddedClothes.neck);
