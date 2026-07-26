@@ -1604,6 +1604,9 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 					result = Math.round(result * 0.9);
 				}
 			}
+			if (V.transformationParts.traits.leviathan !== "disabled") {
+				result = Math.round(result * 1.5);
+			}
 			if (V.worn.upper.type.includes("heavy") || V.worn.lower.type.includes("heavy")) {
 				result *= V.physique / V.physiquesize / 3;
 			}
