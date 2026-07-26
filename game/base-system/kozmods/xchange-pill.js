@@ -174,7 +174,7 @@ function buildGrayXChangePills() {
 			name: "X-Change Hyper Fertility",
 			subtype: "gray hyper fertility",
 			description:
-				"A colourless capsule carrying only the Hyper Fertility course: near-guaranteed conception, accelerated pregnancy, and a high chance of multiples. It works with whatever equipment your body offers: a womb conceives, an Omega-primed body conceives anally, and a penis sires with supercharged seed.",
+				"A colourless capsule carrying only the Hyper Fertility course: near-guaranteed conception, accelerated pregnancy, and a high chance of multiples. It reads whatever equipment your body currently offers: a womb conceives, the Omega agent (if active) lets you conceive anally instead, and a penis sires with supercharged seed.",
 			onTakeMessage: teal(
 				"The formula hits like a fever. Heat blooms in your belly, spreading outward until your whole body feels flushed, tuned, and dangerously ready to turn the smallest chance into something lasting."
 			),
