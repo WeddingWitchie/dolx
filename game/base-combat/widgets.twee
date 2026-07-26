@@ -194,16 +194,19 @@
 					<<set $player.virginity[_args[1]] to false>>
 				<</if>>
 				<!-- virgin purity loss -->
-				<<switch _args[1]>>
-					<<case "vaginal" "penile">>
-						<<if $templePromised isnot $_taker>>
-							<<purity -50>>
-						<</if>>
-					<<case "anal">><<purity -25>>
-					<<case "oral">><<purity -25>>
-					<<case "handholding">><<purity -10>>
-					<<case "kiss">><<purity -10>>
-				<</switch>>
+				<<set _tempXChangedPurity to (typeof playerIsXChanged === "function" and typeof pillIsPermanent === "function" and typeof pillTimerPaused === "function") and (playerIsXChanged() and !(pillIsPermanent() or pillTimerPaused()))>>
+				<<if !_tempXChangedPurity>>
+					<<switch _args[1]>>
+						<<case "vaginal" "penile">>
+							<<if $templePromised isnot $_taker>>
+								<<purity -50>>
+							<</if>>
+						<<case "anal">><<purity -25>>
+						<<case "oral">><<purity -25>>
+						<<case "handholding">><<purity -10>>
+						<<case "kiss">><<purity -10>>
+					<</switch>>
+				<</if>>
 				<<if !$activeNightmare and setup.playerVirginitiesTakenBySameNamedNpc($_taker)>>
 					<<earnFeat "Monogamous">>
 				<</if>>

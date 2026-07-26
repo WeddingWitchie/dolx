@@ -757,7 +757,11 @@ const statChange = (() => {
 				if (item.type.includes("holy")) return prev + 1;
 				return prev;
 			}, 1);
-			const max = V.virginityProtected || (V.player.virginity.vaginal === true && V.player.virginity.penile === true) ? 1000 : 999;
+			const stillVirgin =
+				typeof window.playerCountsAsVirgin === "function"
+					? window.playerCountsAsVirgin()
+					: V.player.virginity.vaginal === true && V.player.virginity.penile === true;
+			const max = V.virginityProtected || stillVirgin ? 1000 : 999;
 			V.purity = Math.clamp(V.purity + amount * mod, 0, max);
 		}
 	}
