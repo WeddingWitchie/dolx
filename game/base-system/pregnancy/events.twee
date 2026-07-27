@@ -666,7 +666,16 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 	<<case "wolf">>
 		Harper's voice floats through the fog. "Not human. This will be an abnormal delivery. Follow my instructions to the letter..."
 		<br><br>
-		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Hospital Wolf]]>><<endevent>><<pass _timeCalc>><</link>>
+		<<if $undergroundbrothelcontract>>
+			/* Under contract the delivery has to stay in the hospital: "Pregnancy Birth Hospital Wolf" ends */
+			<<if $settings.realisticChildbirthEnabled is true>>
+				<<link [[Next (<<print getTimeString(_timeCalc)>>)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"hospital","genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
+			<<else>>
+				<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Hospital 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+			<</if>>
+		<<else>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Hospital Wolf]]>><<endevent>><<pass _timeCalc>><</link>>
+		<</if>>
 	<<default>>
 		Harper's voice floats through the fog. "Something is unusual about this delivery. Stay calm and follow my instructions."
 		<br><br>
@@ -797,7 +806,11 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 <</if>>
 "Someone's waiting for you.
 
-<<if $alex_pregnancy isnot undefined and $litter_potention_fathers is 1 and $alex_pregnancy.source is "Alex">>
+<<if $undergroundbrothelcontract>>
+	A representative from your workplace, I think."
+	<br><br>
+	<<link [[Next|Underground Brothel Contract Hospital Return]]>><<endevent>><</link>>
+<<elseif $alex_pregnancy isnot undefined and $litter_potention_fathers is 1 and $alex_pregnancy.source is "Alex">>
 	<<if C.npc.Alex.pregnancy.nursery is true>>
 		Your <<nnpc_girlfriend "Alex">> I think."
 		<br><br>

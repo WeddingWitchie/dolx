@@ -1,6 +1,18 @@
 :: Widgets Underground [widget]
 
 <<widget "dungeonescape">>
+	<!-- Every way out of the brothel runs through here, so this is where a contract is torn up. -->
+	<<if $undergroundbrothelcontract>>
+		<<storeon "underground_contract">>
+		<<clearNPC "contract_master">>
+		<<unset $contractWake>>
+		<<if _args[0] isnot "contractServed">>
+			<br>
+			<span class="red">You left the underground brothel before the agreed date. Your contract is void, and you will not be paid for the time you served.</span>
+			<br><br>
+		<</if>>
+		<<unset $undergroundbrothelcontract>>
+	<</if>>
 	<<if $baileySold>>
 		<<set $baileyReunionScene to "dungeon">>
 	<</if>>
@@ -79,6 +91,9 @@
 	<<if _args[0] is "Robin">>
 		At least Robin got away.
 	<</if>>
+	<<if $undergroundbrothelcontract>>
+		<<stress -10>><<trauma -10>><<lstress>><<ltrauma>>
+	<</if>>
 	<br><br>
 
 	<<clotheson>>
@@ -89,7 +104,11 @@
 	<</if>>
 
 	<<if _args[0] is undefined or _args[0]>>
-		<<link [[Next|Underground Cell]]>><</link>>
+		<<if $undergroundbrothelcontract>>
+			<<link [[Next|Underground Brothel Contract Quarters]]>><</link>>
+		<<else>>
+			<<link [[Next|Underground Cell]]>><</link>>
+		<</if>>
 		<br>
 	<</if>>
 <</widget>>
