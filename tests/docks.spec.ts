@@ -337,6 +337,22 @@ test.describe("Docks", () => {
 			expect(moneyAfter - moneyBefore).toBe(18750);
 		});
 
+		test("full Bear transformation doubles shift and overtime pay", async ({ page }) => {
+			await setupForPay(page, {
+				wage: 1500,
+				shift: { total: 8, workedHard: 8, slacked: 0, unpaid: 0 },
+				overtime: { total: 3, workedHard: 3, slacked: 0, unpaid: 0 },
+			});
+			await setVar(page, "bear", 6);
+
+			const moneyBefore = (await getVar(page, "money")) as number;
+			await wikifyEval(page, "<<dockleave>>");
+			const moneyAfter = (await getVar(page, "money")) as number;
+
+			// (12000 shift + 6750 overtime) * 2
+			expect(moneyAfter - moneyBefore).toBe(37500);
+		});
+
 		test("busy day uses 2.0x overtime multiplier", async ({ page }) => {
 			await setupForPay(page, {
 				wage: 1500,

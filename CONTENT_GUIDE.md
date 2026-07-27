@@ -1973,8 +1973,8 @@ Several animal and divine transformations now give a direct income bonus tied to
 | Water Dragon   | Can breathe underwater; +50% chance to find valuables at the lake               |
 | Wolf           | +50% chance to find valuable items in the forest, moor, and elsewhere           |
 | Bunny          | +100% income from dancing                                                       |
-| Harpy          | +100% income from working at the office                                         |
-| Bear           | +100% income from chalets and the pound                                         |
+| Harpy          | +45% to office work earnings and chalet and pound wages                         |
+| Bear           | +100% to docker shift and overtime wages                                        |
 | Cow            | +50% harvest quantity from planting                                             |
 | Fox            | -25% to crime gain and Skulduggery difficulty; +25% selling price for valuables |
 | Cat            | +100% income from the cafe                                                      |
