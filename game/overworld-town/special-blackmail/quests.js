@@ -1,7 +1,7 @@
 /* globals playerMayBeSpiked, blackmailGiveDaisies, hasSexStat */
 // All quests part from the assumption that PC starts their day at the orphanage
 function blackmailReward(amount) {
-	return Math.round((Number(amount) || 0) * 10);
+	return Math.round((Number(amount) || 0) * 5);
 }
 window.blackmailReward = blackmailReward;
 
@@ -699,7 +699,7 @@ blackmailQuests.low.push(
 			this.pillLanded = landed;
 		},
 		onDayCleared() {
-			if (this.profit >= 25000) wikifier("famebusiness", 50);
+			if (this.profit >= 25000) wikifier("famebusiness", 25);
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 2;
 		},
@@ -762,7 +762,7 @@ blackmailQuests.mid.push(
 			this.pillLanded = landed;
 		},
 		onDayCleared() {
-			if (this.profit >= 25000) wikifier("famebusiness", 50);
+			if (this.profit >= 25000) wikifier("famebusiness", 25);
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
 			V.xchange.blackmail.cooldown = 3;
 		},
