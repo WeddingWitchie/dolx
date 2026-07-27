@@ -75,9 +75,9 @@ This will take days. A week, perhaps. Long enough for the sea to wear your stren
 <<effects>>
 <<set _travelFatigue to Math.max(8, Math.floor(C.tiredness.max * 0.08))>>
 <<set $tiredness = Math.clamp($tiredness + _travelFatigue, 0, C.tiredness.max)>>
-Day <<print $waterdragonJourneyDay>> of your crossing leaves your muscles aching. Salt dries tight upon your skin, and the sea seems to shift around your mood, now playful, now cold, now watchful.
+Day <<print Math.abs($waterdragonJourneyDay)>> of your crossing leaves your muscles aching. Salt dries tight upon your skin, and the sea seems to shift around your mood, now playful, now cold, now watchful.
 <<stress 8>><<gstress>><br><br>
-<<set _travelRoll to random(1, 11)>>
+<<set _travelRoll to random(1, 14)>>
 <<if _travelRoll is 1>>
 	<<link [[Next|Water Dragon Travel Whale 1]]>><</link>>
 <<elseif _travelRoll is 2>>
@@ -98,8 +98,14 @@ Day <<print $waterdragonJourneyDay>> of your crossing leaves your muscles aching
 	<<link [[Next|Water Dragon Travel Song]]>><</link>>
 <<elseif _travelRoll is 10>>
 	<<link [[Next|Water Dragon Travel Black Moon]]>><</link>>
-<<else>>
+<<elseif _travelRoll is 11>>
 	<<link [[Next|Water Dragon Travel Blood Moon]]>><</link>>
+<<elseif _travelRoll is 12>>
+	<<link [[Next|Water Dragon Travel Jellyfish]]>><</link>>
+<<elseif _travelRoll is 13>>
+	<<link [[Next|Water Dragon Travel Kelp Forest]]>><</link>>
+<<else>>
+	<<link [[Next|Water Dragon Travel Ruins]]>><</link>>
 <</if>>
 
 :: Water Dragon Travel Whale 1
@@ -230,7 +236,7 @@ When the song fades, you are alone again, but less lonely than before.<<lstress>
 <<effects>>
 You pause, one hand lifted from the surface.
 <br><br>
-Nothing has changed. The same sea, the same sky, the same distant smudge of the island behind you. And yet something presses at the edge of your thoughts so faint and far away it might belong to another world entirely.
+Nothing has changed. The same sea, the same sky, the same distant smudge of land behind you. And yet something presses at the edge of your thoughts so faint and far away it might belong to another world entirely.
 <br><br>
 Another moon.
 <br><br>
@@ -313,6 +319,38 @@ The island is still there. The sea is still flat. Then what was that? A legend? 
 <br><br>
 <<waterdragonTravelContinue>>
 
+:: Water Dragon Travel Jellyfish
+<<effects>>
+A pale glow spreads beneath you. It grows until the water is crowded with jellyfish, their bells shining blue in the dark.
+<br><br>
+You weave between them until a trailing filament brushes your arm. Pain flashes through you, sharp enough to make you jerk away. The swarm scatters, leaving you alone with the sting.<<gstress>><<stress 8>>
+<<set _jellyfishFatigue to Math.max(3, Math.floor(C.tiredness.max * 0.02))>>
+<<set $tiredness = Math.clamp($tiredness + _jellyfishFatigue, 0, C.tiredness.max)>><<gtiredness>>
+<br><br>
+<<waterdragonTravelContinue>>
+
+:: Water Dragon Travel Kelp Forest
+<<effects>>
+Long strands of kelp rise from the seabed ahead, swaying together in the current. You dive among them, folding your limbs close as you slip through the green maze.
+<br><br>
+Small fish hide between the fronds. You catch a few before they can scatter, then rest in the shelter of the kelp until the open sea calls you onward.<<lstress>><<stress -5>>
+<br><br>
+<<waterdragonTravelContinue>>
+
+:: Water Dragon Travel Ruins
+<<effects>>
+Straight lines on the seabed catch your eye. You dive and find stones fitted together beneath the sand, too regular to be natural.
+<br><br>
+Most of the structure is gone.
+<<if $islander_language is undefined>>
+	One slab remains, carved with unfamiliar marks. You trace them with your fingers, but their meaning is lost to you.
+<<else>>
+	One slab remains, carved with marks like those used by the islanders. You trace them with your fingers, and a fragment of meaning stirs just beyond your grasp.<<islander_language 5>><<gcomprehension>>
+<</if>>
+<<gawareness>><<awareness 1>>
+<br><br>
+<<waterdragonTravelContinue>>
+
 :: Water Dragon Island Arrival 1
 <<effects>>
 The pull that has been bringing you here grows stronger, no longer a distant ache but a deep, steady tug beneath your ribs. By now you are so tired the sea seems to move you more than you move yourself.
@@ -357,6 +395,43 @@ All you know is that some deep, wordless part of you feels safer here than it ha
 <<set $location to "island">><<earnFeat "Lost World">>
 <<updatesidebarimg>>
 <<tficon "waterdragon">><<link [[Step onto the beach|Island Beach]]>><<endevent>><</link>>
+
+:: Water Dragon Town Travel
+<<set $waterdragonJourneyDay to -1>>
+<<set $sea to 100>>
+<<location "sea">><<water>><<waterbr 2>><<effects>>
+You wade into the surf and leave the island behind. Once the seabed falls away, you slip beneath the surface and let the current take your weight.
+<br><br>
+The town lies far beyond the horizon. Reaching it will take days, but your changed body remembers the long route through the open sea.
+<br><br>
+<<tficon "waterdragon">><<link [[Begin the crossing|Water Dragon Island Travel Day]]>><</link>>
+<br>
+
+:: Water Dragon Town Arrival 1
+<<effects>>
+The water grows busier. Fishing lines hang from distant boats, gulls wheel overhead, and the faint smell of smoke reaches you on the wind.
+<br><br>
+You raise your head above the waves. The town is a grey shape on the horizon.
+<br><br>
+<<link [[Next|Water Dragon Town Arrival 2]]>><</link>>
+
+:: Water Dragon Town Arrival 2
+<<effects>>
+You swim until the familiar beach comes into view. Your limbs ache from the crossing, but the sight of the shore draws one last burst of strength from you.
+<br><br>
+Soon your claws scrape sand. You let the next wave carry you into the shallows.
+<br><br>
+<<link [[Next|Water Dragon Town Arrival 3]]>><</link>>
+
+:: Water Dragon Town Arrival 3
+<<effects>>
+<<set _arrivalFatigue to Math.max(6, Math.floor(C.tiredness.max * 0.05))>>
+<<set $tiredness = Math.clamp($tiredness + _arrivalFatigue, 0, C.tiredness.max)>>
+You reach the shallows, salt-streaked and exhausted. Behind you, the open sea hides the island once more.
+<<lstress>><<stress -4>><br><br>
+<<set $waterdragonJourneyDay to 0>>
+<<set $sea to 0>>
+<<tficon "waterdragon">><<link [[Swim along the beach|Sea Beach]]>><<endevent>><<set $eventskip to 1>><<island_end>><</link>>
 
 :: Whitney Water Dragon
 <<effects>>
@@ -842,10 +917,14 @@ The corridor carries you gently out into the woods above the ruin, leaving the c
 
 :: Water Dragon Helpers [widget]
 <<widget "waterdragonTravelContinue">>
-	<<if $waterdragonJourneyDay gte 7>>
-		<<link [[Follow the pull (1:00)|Water Dragon Island Arrival 1]]>><<pass 60>><</link>>
+	<<if Math.abs($waterdragonJourneyDay) gte 7>>
+		<<if $waterdragonJourneyDay lt 0>>
+			<<link [[Swim towards the familiar shore (1:00)|Water Dragon Town Arrival 1]]>><<pass 60>><</link>>
+		<<else>>
+			<<link [[Follow the pull (1:00)|Water Dragon Island Arrival 1]]>><<pass 60>><</link>>
+		<</if>>
 	<<else>>
-		<<link [[Continue onward (1 day)|Water Dragon Island Travel Day]]>><<pass 1 day>><<set $waterdragonJourneyDay += 1>><</link>>
+		<<link [[Continue onward (1 day)|Water Dragon Island Travel Day]]>><<pass 1 day>><<set $waterdragonJourneyDay += ($waterdragonJourneyDay lt 0 ? -1 : 1)>><</link>>
 	<</if>>
 <</widget>>
 

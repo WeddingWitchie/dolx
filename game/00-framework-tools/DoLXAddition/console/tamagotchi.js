@@ -208,8 +208,8 @@ const Tamagotchi = (() => {
 	const islandArcAway = () => {
 		if (typeof V === "undefined") return false;
 		if (AWAY_LOCATIONS.includes(V.location)) return true;
-		/* Mid-crossing. The journey counter only counts as away at sea, so a stale value can't strand coverage. */
-		return (V.waterdragonJourneyDay || 0) >= 1 && V.location === "sea";
+		/* Mid-crossing. A non-zero journey counter only counts as away at sea, so a stale value can't strand coverage. */
+		return (V.waterdragonJourneyDay || 0) !== 0 && V.location === "sea";
 	};
 	/* The absence window still covers a pet that hasn't ticked past it (its lastTick predates the last away stamp). */
 	const islandAbsenceCovers = t => {
@@ -1504,7 +1504,7 @@ const Tamagotchi = (() => {
 			if (islandArcAway()) {
 				if (V.petIslandAbsence && typeof V.petIslandAbsence === "object") V.petIslandAbsence.last = now();
 				else V.petIslandAbsence = { start: now(), last: now() };
-			} else if ((V.waterdragonJourneyDay || 0) >= 1) {
+			} else if ((V.waterdragonJourneyDay || 0) !== 0) {
 				/* Not away, so the player is on land: the counter can only be a leftover from an aborted crossing. */
 				V.waterdragonJourneyDay = 0;
 			}
