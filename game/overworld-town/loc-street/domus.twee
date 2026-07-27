@@ -68,6 +68,7 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 		<<location-danger>>
 		<<set $danger to random(1, 10000)>><<set $dangerevent to 0>>
 		<<set _crime to Math.clamp(crimeSumCurrent() / 10, 0, 12000)>>
+		<<run statusCheck("Gwylan")>>
 		<<if $halloween is 1 and Time.monthDay is 31 and Time.hour gte 19 and C.npc.Whitney.state isnot "dungeon" and C.npc.Whitney.init is 1 and $halloween_whitney_proposed isnot 1 and !$possessed and $xchange.pill.clone isnot "Whitney">>
 			<<set $halloween_whitney_proposed to 1>>
 			<<halloweenwhitney>>
@@ -112,8 +113,8 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 			<br><br>
 			<<endevent>>
 			<<destinationeventend>>
-		<<elseif C.npc.Gwylan.state is "active" and !isGwylanAbsent() and !$daily.gwylan.cafe and !$daily.gwylan.cafeOfferDeclined and !$daily.gwylan.cafeSkip and !$daily.gwylan.SchoolDropOff and !["reunion", "badEndReady"].includes(statusCheck("Gwylan")) and !(between($chef_state, 7, 8) and $chef_rework lte 30) and Time.schoolDay and Time.hour is 7 and $exposed lte 0 and ($gwylan.sea + ($gwylanTalked.count("fox_mask") * 20) + ($gwylanTalked.count("dark_pendant") * 20) gte 40)>>
-			<<run statusCheck("Gwylan")>><<npc Gwylan>><<person1>>
+		<<elseif C.npc.Gwylan.state is "active" and !isGwylanAbsent() and !$daily.gwylan.cafe and !$daily.gwylan.cafeOfferDeclined and !$daily.gwylan.cafeSkip and !$daily.gwylan.SchoolDropOff and !_gwylanStatus.includes("reunion") and !_gwylanStatus.includes("badEndReady") and !(between($chef_state, 7, 8) and $chef_rework lte 30) and Time.schoolDay and Time.hour is 7 and Time.minute lt 20 and $exposed lte 0 and ($gwylanSeen.includes("cafe_walk") or $gwylan.sea + ($gwylanTalked.count("fox_mask") * 20) + ($gwylanTalked.count("dark_pendant") * 20) gte 40)>>
+			<<npc Gwylan>><<person1>>
 			<<set $daily.gwylan.SchoolDropOff to true>>
 			<<if ["Orphanage", "Bedroom", "Bathroom"].includes($passagePrev)>>
 				As you step outside the orphanage,
@@ -150,7 +151,7 @@ You are on Domus Street. The orphanage is here. The street is dominated by small
 			<</if>>
 			<br><br>
 
-			<<cafeicon>><<link [[Walk with Gwylan (0:05)|Gwylan Walk Cafe Solo]]>><<pass 5>><<set $phase to 0>><<set $daily.gwylan.cafe to true>><</link>>
+			<<cafeicon>><<link [[Walk with Gwylan (0:05)|Gwylan Walk Cafe Solo]]>><<pass 5>><<set $phase to 0>><</link>>
 			<br>
 			<<refuseicon>><<link [[Decline the offer|Gwylan Walk Cafe Solo]]>><<set $phase to 1>><<set $daily.gwylan.cafeOfferDeclined to true>><</link>>
 			<br>

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { openGame, navigateTo, assertNoErrors, advanceHours, type Page } from "./helpers.js";
+import { openGame, navigateTo, assertNoErrors, advanceHours, setDay, wikifyEval, type Page } from "./helpers.js";
 
 async function setupGame(page: Page) {
 	await openGame(page);
@@ -59,5 +59,61 @@ test.describe("Ocean Breeze Cafe", () => {
 		await navigateTo(page, "Ocean Breeze");
 
 		await expect(page.getByRole("link", { name: "Examine the cash register" })).not.toBeVisible();
+	});
+
+	test("keeps unlocked Gwylan cafe walks available on both streets", async ({ page }) => {
+		await setupGame(page);
+		await wikifyEval(page, '<<initnpc "Gwylan">>');
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.gwylanSeen.pushUnique("cafe_walk");
+			V.gwylan.sea = 0;
+			V.daily.gwylan = {};
+			V.avery_mansion = 0;
+			V.chef_state = 0;
+			V.chef_rework = 0;
+			V.tutorial = 1;
+			V.exposed = 0;
+			V.stress = 0;
+			V.possessed = false;
+			V.eventskip = 1;
+		});
+		await setDay(page, "Monday", 7, 7);
+
+		await navigateTo(page, "Danube Street");
+		await expect(page.getByRole("link", { name: "Walk with Gwylan (0:05)" })).toBeVisible();
+		await page.getByRole("link", { name: "Walk with Gwylan (0:05)" }).click();
+		await page.waitForFunction(() => (window as any).SugarCube.State.active.title === "Gwylan Walk Cafe Solo");
+		await page.getByRole("link", { name: "Next" }).click();
+		await page.waitForFunction(() => (window as any).SugarCube.State.active.title === "Gwylan Ocean Breeze");
+		await expect.poll(() => page.evaluate(() => (window as any).SugarCube.State.variables.daily.gwylan.cafe)).toBe(true);
+
+		await page.evaluate(() => ((window as any).SugarCube.State.variables.daily.gwylan = {}));
+		await navigateTo(page, "Domus Street");
+		await expect(page.getByRole("link", { name: "Walk with Gwylan (0:05)" })).toBeVisible();
+
+		await page.evaluate(() => ((window as any).SugarCube.State.variables.daily.gwylan = {}));
+		await setDay(page, "Monday", 7, 20);
+		await navigateTo(page, "Danube Street");
+		await expect(page.getByRole("link", { name: "Walk with Gwylan (0:05)" })).not.toBeVisible();
+	});
+
+	test("routes shared Gwylan walks around cafe renovations", async ({ page }) => {
+		await setupGame(page);
+		await wikifyEval(page, '<<initnpc "Gwylan">>');
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.gwylanSeen.pushUnique("cafe_walk");
+			V.daily.gwylan = {};
+			V.location = "forest_shop";
+			V.phase = 0;
+			V.chef_state = 7;
+			V.chef_rework = 10;
+		});
+
+		await navigateTo(page, "Gwylan Walk Cafe Solo");
+		await page.getByRole("link", { name: "Next" }).click();
+		await page.waitForFunction(() => (window as any).SugarCube.State.active.title === "Gwylan Cliff");
+		await expect.poll(() => page.evaluate(() => (window as any).SugarCube.State.variables.daily.gwylan.cafe)).toBe(true);
 	});
 });
