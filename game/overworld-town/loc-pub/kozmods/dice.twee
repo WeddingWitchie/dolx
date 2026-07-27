@@ -595,8 +595,18 @@
 
 	<<widget "dice-roll">>
 		<<set $dice.values to []>>
-		<<rng 1 6>><<set $dice.values.push($rng)>>
-		<<rng 1 6>><<set $dice.values.push($rng)>>
+		<<if $daily.moorGamblingLuck and ["Shooter", "In Favour", "Against"].includes($dice.positions[0]) and random(1, 100) lte 8>>
+			<<if ["Shooter", "In Favour"].includes($dice.positions[0])>>
+				<<set _luckyTotal to $dice.round.point === undefined ? 7 : $dice.round.point>>
+			<<else>>
+				<<set _luckyTotal to $dice.round.point === undefined ? 2 : 7>>
+			<</if>>
+			<<rng `Math.max(1, _luckyTotal - 6)` `Math.min(6, _luckyTotal - 1)`>>
+			<<set $dice.values.push($rng, _luckyTotal - $rng)>>
+		<<else>>
+			<<rng 1 6>><<set $dice.values.push($rng)>>
+			<<rng 1 6>><<set $dice.values.push($rng)>>
+		<</if>>
 	<</widget>>
 
 	<<widget "dice-clear">>
