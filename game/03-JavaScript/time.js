@@ -904,6 +904,10 @@ function dayPassed(days) {
 						V.baileyRefusedToPayTotalStat += V.rentmoney + (V.babyRent || 0);
 					}
 				}
+			} else {
+				// Avery covers the full amount, including any rent already missed before taking over.
+				if (V.renttime <= 0) V.renttime = 7;
+				V.baileyRefusedToPayTotal = 0;
 			}
 			V.avery_mansion.study_unlocked = 0;
 		} else {
