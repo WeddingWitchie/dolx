@@ -339,6 +339,9 @@ module.exports = {
 		poppyConsumePendingPavlovMessage: "readonly",
 		xchangeEffectsMessages: "readonly",
 		insanitySensitivityAdjustment: "readonly",
+		chestIdentityAccepted: "readonly",
+		penisIdentityAccepted: "readonly",
+		pregnancyIdentityAccepted: "readonly",
 		// Third-party
 		define: "readonly",
 		iro: "readonly",

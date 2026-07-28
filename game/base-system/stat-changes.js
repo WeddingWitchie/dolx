@@ -915,6 +915,18 @@ const statChange = (() => {
 		}
 		if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
 
+		// A trait the player has explicitly Accepted in Gender Identity shouldn't generate vanilla insecurity, even if the gender-based remap above would otherwise force it.
+		const identityAccepted = {
+			breasts_small: chestIdentityAccepted,
+			breasts_big: chestIdentityAccepted,
+			penis_small: penisIdentityAccepted,
+			penis_big: penisIdentityAccepted,
+			pregnancy: pregnancyIdentityAccepted,
+		}[type];
+		if (identityAccepted?.()) {
+			return [false, type];
+		}
+
 		return [
 			{
 				penis_small: V.player.penisExist && V.player.penissize <= 3,

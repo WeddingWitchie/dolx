@@ -454,6 +454,41 @@ function identityCharacteristicCategory(category) {
 }
 window.identityCharacteristicCategory = identityCharacteristicCategory;
 
+/**
+ * Whether the player has explicitly Accepted (and not Rejected) their current chest-size bucket in the Gender Identity screen.
+ * Only meaningful while GI breast-size tracking is on; used to stop the vanilla insecurity system from forcing distress over a chest the player
+ * has deliberately accepted (e.g. a trans man who prefers a flat/small chest).
+ */
+function chestIdentityAccepted() {
+	if (!V.xchange?.giBreastSizeEnabled) return false;
+	const { option } = selectIdentityCharacteristic(identityCharacteristicCategory("Breasts"));
+	return !!(option && option.acceptance && !option.reject);
+}
+window.chestIdentityAccepted = chestIdentityAccepted;
+
+/**
+ * Same idea as chestIdentityAccepted(), for the player's current penis-size bucket.
+ * Only meaningful while GI genital tracking is on.
+ */
+function penisIdentityAccepted() {
+	if (!V.xchange?.giGenitalsEnabled) return false;
+	const characteristic = identityCharacteristicCategory("Penis");
+	if (!characteristic) return false;
+	const { option } = selectIdentityCharacteristic(characteristic);
+	return !!(option && option.acceptance && !option.reject);
+}
+window.penisIdentityAccepted = penisIdentityAccepted;
+
+/**
+ * Same idea as chestIdentityAccepted(), for pregnancy. Only meaningful while GI fecundity tracking is on.
+ */
+function pregnancyIdentityAccepted() {
+	if (!V.xchange?.giFecundityEnabled) return false;
+	const { option } = selectIdentityCharacteristic("Pregnancy");
+	return !!(option && option.acceptance && !option.reject);
+}
+window.pregnancyIdentityAccepted = pregnancyIdentityAccepted;
+
 const PRONOUN_DYNAMIC_MODES = ["body", "clothing", "appearance", "posture"];
 
 /**
