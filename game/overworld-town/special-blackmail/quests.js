@@ -187,7 +187,7 @@ blackmailQuests.mid.push(
 		failCheck() {
 			if (this.failCondition()) {
 				this.failed = true;
-			} else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			} else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -196,7 +196,13 @@ blackmailQuests.mid.push(
 		failed: false,
 		failMessage() {},
 		includesItems: true,
+		tookPill: false,
+		pillLanded: false,
 		receiveItems() {
+			// See quest 13/14/16:
+			// a no-op spike (e.g. the player took and identified an unrelated pill between assignment and opening this envelope)
+			// must not arm the pill-test fail off a pill this quest never actually landed.
+			const landed = playerMayBeSpiked();
 			if (V.player.sex === "m") {
 				wikifier("xchange-pink", 1, "spike", "passion");
 				wikifier("drugs", 1000);
@@ -205,6 +211,7 @@ blackmailQuests.mid.push(
 				wikifier("drugs", 1000);
 			}
 			this.tookPill = true;
+			this.pillLanded = landed;
 		},
 		onDayCleared() {
 			V.xchange.blackmail.cooldown = 3;
@@ -416,7 +423,7 @@ blackmailQuests.low.push(
 			if (this.failCondition()) {
 				this.failed = true;
 				this.worn = clone(V.worn);
-			} else if (this.tookPill && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
+			} else if (this.pillLanded && V.xchange.pill.active && V.xchange.pill.effectsKnown) {
 				this.failed = true;
 			}
 		},
@@ -429,10 +436,15 @@ blackmailQuests.low.push(
 			return `You thought we weren't watching you? We saw you wearing your ${clothing} today.`;
 		},
 		includesItems: true,
+		tookPill: false,
+		pillLanded: false,
 		receiveItems() {
+			// See quest 13/14/16: a no-op spike must not arm the pill-test fail off a pill this quest never landed.
+			const landed = playerMayBeSpiked();
 			wikifier("generalWear", "lower", 27, "black");
 			wikifier("xchange-pink", 1, "spike");
 			this.tookPill = true;
+			this.pillLanded = landed;
 		},
 		onDayCleared() {
 			V.xchange.blackmail.cooldown = 2;
