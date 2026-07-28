@@ -595,6 +595,71 @@ function pruneFoodstuff() {
 }
 window.pruneFoodstuff = pruneFoodstuff;
 
+/* Drop clothing entries other mods baked into the save (worn/carried/wardrobes/store); unknown variables crash render/shop/wardrobe lookups once the mod that added them is removed. 
+   Mirrors clothesIndex()'s own matching rules (variable+modder, variable-only, then oldVariable rename history) so anything that mod would still be able to resolve is left alone. */
+function pruneClothes() {
+	const V = State.variables;
+	if (!setup?.clothes || !Array.isArray(setup.clothes_all_slots)) return;
+
+	const pruned = new Set();
+
+	function isKnownItem(slot, item) {
+		const catalog = setup.clothes[slot];
+		if (!catalog) return true;
+		if (catalog.some(ref => ref.variable === item.variable && ref.modder === item.modder)) return true;
+		if (catalog.some(ref => ref.variable === item.variable)) return true;
+		if (catalog.some(ref => Array.isArray(ref.oldVariable) && ref.oldVariable.some(old => old.name === item.name && old.variable === item.variable)))
+			return true;
+		return false;
+	}
+
+	for (const slot of setup.clothes_all_slots) {
+		/* $worn / $carried: one item per slot; reset to the slot's naked default when unresolvable. */
+		for (const dictName of ["worn", "carried"]) {
+			const item = V[dictName]?.[slot];
+			if (!item || item.temp || !item.variable || isKnownItem(slot, item)) continue;
+			pruned.add(`${dictName}.${slot}:${item.variable}`);
+			const fallback = setup.clothes[slot]?.[0];
+			if (fallback) V[dictName][slot] = clone(fallback);
+		}
+
+		/* $wardrobe: array per slot. */
+		if (Array.isArray(V.wardrobe?.[slot])) {
+			V.wardrobe[slot] = V.wardrobe[slot].filter(item => {
+				if (!item || item.temp || !item.variable || isKnownItem(slot, item)) return true;
+				pruned.add(`wardrobe.${slot}:${item.variable}`);
+				return false;
+			});
+		}
+
+		/* $wardrobes.*: array per slot for every named wardrobe except the metadata-only "wardrobe" entry. */
+		if (V.wardrobes && typeof V.wardrobes === "object") {
+			for (const name of Object.keys(V.wardrobes)) {
+				if (name === "wardrobe") continue;
+				const wd = V.wardrobes[name];
+				if (!wd || !Array.isArray(wd[slot])) continue;
+				wd[slot] = wd[slot].filter(item => {
+					if (!item || item.temp || !item.variable || isKnownItem(slot, item)) return true;
+					pruned.add(`wardrobes.${name}.${slot}:${item.variable}`);
+					return false;
+				});
+			}
+		}
+
+		/* $store: array per slot. */
+		if (Array.isArray(V.store?.[slot])) {
+			V.store[slot] = V.store[slot].filter(item => {
+				if (!item || item.temp || !item.variable || isKnownItem(slot, item)) return true;
+				pruned.add(`store.${slot}:${item.variable}`);
+				return false;
+			});
+		}
+	}
+
+	if (pruned.size) console.warn("Pruned clothing entries unknown to this mod from the save.", [...pruned]);
+}
+window.pruneClothes = pruneClothes;
+
 function updateDynamicStatCaps() {
 	const V = State.variables;
 	if (!window.C || !C.tiredness) return;

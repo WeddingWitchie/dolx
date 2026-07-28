@@ -1053,7 +1053,9 @@ Renderer.CanvasModels.main = {
 								pattern: props.pattern,
 								colour: props.colour || "black",
 								accColour: props.accColour || "black",
-								setup: setup.clothes[slot][props.index],
+								// A stale cached layer can carry an index that no longer exists in setup.clothes[slot] (e.g. an outfit change didn't refresh every sub-layer).
+								// Fall back to an empty setup rather than crash; the filter below just resolves to an empty layer filter in that case.
+								setup: setup.clothes[slot]?.[props.index] ?? { type: [] },
 							  };														  newOptions.worn[slot] = { ...newOptions.worn[slot], ...item };
 							// Set up the filters for the tanning layer in order to choose the correct sprites
 							// Uses default "black" colour since undefined will try to load the incorrect path
@@ -6468,7 +6470,7 @@ function setClothingFilter(options, slot, clothingObject, setupObj, filterSuffix
 	const filterType = `worn_${slot}${filterSuffix}`;
 	const colour = clothingObject[customProp];
 
-	options.filters[filterType] = (setupObj[colourProp])
+	options.filters[filterType] = (setupObj?.[colourProp])
 		? lookupColour(
 			options,
 			setup.colours.clothes_map,
