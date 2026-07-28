@@ -34,6 +34,9 @@
 	/* Birth locations the encounter knows how to wind down (must match the `<<switch $birth.location>>` in the `Childbirth End` passage). */
 	const RCB_LOCATIONS = ["hospital", "asylum", "wolf cave", "forest shop", "cottage", "prison", "bedroom", "tower"];
 
+	/* Fetus species the birth prompt tables know how to narrate (must match the keys under setup.birthPrompts.stage/stageInitial/contractions). */
+	const RCB_TYPES = ["human", "wolf", "hawk"];
+
 	/* Map the player's current game location (`V.location`) onto a birth location, used to deduce where to route the player when `$birth.location` is missing. */
 	const LOCATION_FROM_GAME = {
 		hospital: "hospital",
@@ -70,10 +73,39 @@
 		if (isObject(birth) && RCB_LOCATIONS.includes(birth.location)) {
 			return birth.location;
 		}
-		if (LOCATION_FROM_GAME[V.location]) {
-			return LOCATION_FROM_GAME[V.location];
+		const gameLocation = LOCATION_FROM_GAME[V.location];
+		if (gameLocation === "bedroom") {
+			// "Childbirth End" only routes "bedroom" to the Robin/Kylar/Solo *egg-laying* passages
+			// (every real trigger that starts a bedroom birth hardcodes type: "hawk"). Routing a
+			// human/wolf birth there would land it on egg-laying text instead of a birth ending,
+			// so only take this fallback when it's actually an egg-laying birth.
+			const isHawkBirth = (isObject(birth) && birth.type === "hawk") || (V.harpyEggs && V.harpyEggs.count > 0);
+			if (isHawkBirth) {
+				return "bedroom";
+			}
+		} else if (gameLocation) {
+			return gameLocation;
 		}
 		return "hospital";
+	}
+
+	/* Figure out what species is being birthed when `$birth.type` can't be trusted. */
+	function deduceBirthType() {
+		const birth = V.birth;
+		if (isObject(birth) && RCB_TYPES.includes(birth.type)) {
+			return birth.type;
+		}
+		if (isObject(birth) && (birth.genital === "vagina" || birth.genital === "anus")) {
+			const pregnancy = V.sexStats && V.sexStats[birth.genital] && V.sexStats[birth.genital].pregnancy;
+			const fetusType = pregnancy && Array.isArray(pregnancy.fetus) && pregnancy.fetus[0] && pregnancy.fetus[0].type;
+			if (RCB_TYPES.includes(fetusType)) {
+				return fetusType;
+			}
+		}
+		if (V.harpyEggs && V.harpyEggs.count > 0) {
+			return "hawk";
+		}
+		return "human";
 	}
 
 	/* Walk the patch chain to bring `birth` up to RCB_BIRTH_VERSION.
@@ -81,7 +113,7 @@
 	function migrateBirth(birth) {
 		let v = birth.version;
 
-		// Save came from a NEWER mod version than is installed. 
+		// Save came from a NEWER mod version than is installed.
 		// We can't know what changed, so treat it as unsupported rather than risk corrupting state.
 		if (v > RCB_BIRTH_VERSION) {
 			return false;
@@ -150,6 +182,13 @@
 			return eject(`$birth.location was invalid: ${birth.location}`);
 		}
 
+		// Unlike location, an invalid/missing type is recoverable from the live pregnancy data, so repair it in place instead of ejecting the whole encounter.
+		if (!RCB_TYPES.includes(birth.type)) {
+			const badType = birth.type;
+			birth.type = deduceBirthType();
+			console.warn(`RCB safety: $birth.type was invalid (${badType}); repaired to "${birth.type}".`);
+		}
+
 		// "Is version current?"
 		if (birth.version === RCB_BIRTH_VERSION) {
 			return { action: "continue" };
@@ -162,8 +201,58 @@
 		return eject(`$birth.version ${birth.version} could not be migrated to ${RCB_BIRTH_VERSION}`);
 	};
 
+	/* Generic, species-neutral filler used by rcbNormalizeBirthPrompts() when a location has no authored text at all for a given fetus type */
+	const RCB_GENERIC_STAGE = [
+		[["A contraction rolls through you. All you can do is breathe and wait it out."], ["default"]],
+		[["The contractions are getting stronger and closer together."], ["default"]],
+		[["Your body tenses hard around the pressure building inside you."], ["default"]],
+		[["The urge to push is impossible to ignore now."], ["default"]],
+		[["You push with the contraction, bracing yourself against it."], ["default"]],
+		[["You can feel it crowning. You keep pushing, shaking with the effort."], ["default"]],
+		[["The widest part is passing. You can't rush it. All you can do is push when your body tells you to."], ["default"]],
+		[["With a final push, the pressure gives way."], ["default"]],
+		[["You aren't done yet. You can feel another one on the way."], ["default"]],
+		[["You have finally finished giving birth."], ["default"]],
+	];
+	const RCB_GENERIC_CONTRACTIONS = [
+		["You feel a cramp hit you.", "You feel mild cramps.", "Your body relaxes as the cramps relent."],
+		["You feel the contractions grip you.", "You endure a stronger contraction than usual.", "You take a small moment to catch your breath."],
+		["The contractions grip your body hard.", "The pain lessens, but there's little reprieve."],
+		["The pressure in your pelvis feels immense and unrelenting.", "The contractions lessen for a moment."],
+		["You feel like you're at your limit, but the contractions continue.", "The pain lessens momentarily."],
+		["The contractions continue despite how tiring they are.", "The contractions yield, but not entirely."],
+		["The contractions continue despite how tiring they are.", "The contractions yield, but not entirely."],
+		["The pressure is suddenly relieved."],
+		["The contractions ease for a moment while your body gathers itself."],
+		["The contractions stop."],
+	];
+
+	/* Backfill any RCB_LOCATIONS x RCB_TYPES combination the authored data doesn't cover */
+	setup.rcbNormalizeBirthPrompts = function rcbNormalizeBirthPrompts() {
+		const prompts = setup.birthPrompts;
+		if (!isObject(prompts)) return;
+
+		["stage", "stageInitial"].forEach(table => {
+			const byLocation = prompts[table];
+			if (!isObject(byLocation)) return;
+			RCB_LOCATIONS.forEach(location => {
+				if (!isObject(byLocation[location])) byLocation[location] = {};
+				const byType = byLocation[location];
+				RCB_TYPES.forEach(type => {
+					if (!Array.isArray(byType[type])) byType[type] = RCB_GENERIC_STAGE;
+				});
+			});
+		});
+
+		if (!isObject(prompts.contractions)) prompts.contractions = {};
+		RCB_TYPES.forEach(type => {
+			if (!Array.isArray(prompts.contractions[type])) prompts.contractions[type] = RCB_GENERIC_CONTRACTIONS;
+		});
+	};
+
 	// Expose the version + helpers for reuse (e.g. by the init block / other mods).
 	setup.RCB_BIRTH_VERSION = RCB_BIRTH_VERSION;
 	setup.rcbBirthPatches = birthPatches;
 	setup.rcbDeduceBirthLocation = deduceBirthLocation;
+	setup.rcbDeduceBirthType = deduceBirthType;
 })();

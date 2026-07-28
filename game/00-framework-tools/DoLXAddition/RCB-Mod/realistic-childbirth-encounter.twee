@@ -420,7 +420,7 @@
 		<<set _mouthaction["Breathe"] to "rest">>
 		<<set _mouthaction["Groan"] to "mouthgroan">>
 		<<switch $birth.location>>
-		<<case "hospital" "asylum">>
+		<<case "hospital">>
 			<<if $birth.epidural is 0 or ($birth.calledPartner is 0 and ["","Alone"].contains($birth.partner))>>
 				<<set _mouthaction["Ask for"] to "ask">>
 				<<set _askActions to {"Nothing":"rest"}>>
@@ -430,6 +430,13 @@
 				<<if $birth.calledPartner is 0 and ["","Alone"].contains($birth.partner)>>
 					<<set _askActions["the father"] to "callpartner">>
 				<</if>>
+			<</if>>
+		<<case "asylum">>
+			<!-- No "the father" option here: asylum has no call-partner narration (calling happens at the start), only pain relief. -->
+			<<if $birth.epidural is 0>>
+				<<set _mouthaction["Ask for"] to "ask">>
+				<<set _askActions to {"Nothing":"rest"}>>
+				<<set _askActions["pain relief "+formatMoney(100000)] to "epidural">>
 			<</if>>
 		<<case "prison">>
 			<<if $birth.epidural is 0 or ($birth.calledPartner is 0 and ["","Alone"].contains($birth.partner))>>
@@ -668,11 +675,7 @@
 	<!-- This section describes the role of the doctor (Harper, Gwylan, methodical guard, none) -->
 	<<if $birth.stagechange is 1>>
 		<<set $birth.stagechange to 0>>
-		<<if ["bedroom","prison","asylum"].contains($birth.location)>>
-			<<printprompt setup.birthPrompts.stageInitial[$birth.location][$birth.type][$birth.stage-1]>>
-		<<else>>
-			<<printprompt setup.birthPrompts.stageInitial[$birth.location][$birth.type][$birth.stage-1]>>
-		<</if>>
+		<<printprompt setup.birthPrompts.stageInitial[$birth.location][$birth.type][$birth.stage-1]>>
 	<<elseif $birth.stagechange is 2>>
 		<<set $birth.stagechange to 0>>
 		<<printprompt setup.birthPrompts.stageInitial[$birth.location][$birth.type][8]>>
