@@ -1124,9 +1124,16 @@ setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
 };
 
 // Role of the body the player is currently in, by configuration not flags.
+// gender_body "a" is unambiguously a herm body regardless of session flags: hermEffect/genderflipEffect
+// get reset to false whenever a fresh pill session starts (xchange-effects), even if the player's actual
+// body never reverted (e.g. a still-herm-shaped body carried into a brand-new grey-only session).
+//
+// Trusting pill.active alone here misfiled virginity events onto the wrong body's record; check the live shape first.
 setup.xChangeActiveBodyVirginityRole = function xChangeActiveBodyVirginityRole() {
+	if (V.player && V.player.gender_body === "a") return "herm";
 	if (!(typeof window.playerIsXChanged === "function" && window.playerIsXChanged())) return "real";
-	return setup.xChangeTransformedRole(V.player && V.player.gender_body);
+	if (V.xchange && V.xchange.pill && V.xchange.pill.genderflipEffect) return "xchange";
+	return "real";
 };
 
 setup.xChangeRecordActiveBodyVirginity = function xChangeRecordActiveBodyVirginity() {

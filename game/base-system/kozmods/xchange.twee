@@ -834,14 +834,20 @@
 
 		/* Store this body's virginity outside the expendable appearance snapshot. */
 		<<set _vrole to "">>
-		<<if _slotLabel is "originalBody">><<set _vrole to "real">>
+		<<if _slotLabel is "originalBody">><<set _vrole to setup.xChangeActiveBodyVirginityRole()>>
 		<<elseif _slotLabel is "genderswapped">><<set _vrole to "xchange">>
 		<<elseif _slotLabel is "herm">><<set _vrole to "herm">>
 		<</if>>
 		<<if _vrole isnot "">><<xchange-store-body-virginity _vrole>><</if>>
 
 		<<if _args[0] is undefined>>
-			<<set $xchange.pill.originalBody to _savedbody>>
+			<<if _vrole is "herm">>
+				<<set $xchange.pill.hermBody to _savedbody>>
+			<<elseif _vrole is "xchange">>
+				<<set $xchange.pill.changedBody to _savedbody>>
+			<<else>>
+				<<set $xchange.pill.originalBody to _savedbody>>
+			<</if>>
 		<<elseif _args[0] is "genderswapped">>
 			<<set $xchange.pill.changedBody to _savedbody>>
 		<<elseif _args[0] is "herm">>
@@ -1517,20 +1523,22 @@
 	<<widget "xchange-removeeffect">>
 		<<switch _args[0]>><<wash>>
 		<<case "genderflip">>
-			<<if $xchange.pill.hermEffect or $xchange.pill.genderflipEffect>>
-				<<if setup.xChangeTransformedRole($player.gender_body) is "herm">>
-					<<save-body "herm">>
-				<<else>>
-					<<save-body "genderswapped">>
-				<</if>>
+			<<run setup.xChangeRecordActiveBodyVirginity()>>
+			<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a") or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
+			<<if $player.gender_body is "a">>
+				<<save-body "herm">>
+			<<elseif $xchange.pill.hermEffect or $xchange.pill.genderflipEffect or setup.xChangeActiveBodyVirginityRole() is "xchange">>
+				<<save-body "genderswapped">>
 			<</if>>
 			<<set $xchange.pill.genderflipEffect to false>>
-			<<if $player.gender is "m">>
-				<<become-boy>>
-			<<else>>
-				<<become-girl>>
+			<<if _xchangeNeedsBodyRevert>>
+				<<if $player.gender is "m">>
+					<<become-boy>>
+				<<else>>
+					<<become-girl>>
+				<</if>>
+				<<load-body>>
 			<</if>>
-			<<load-body>>
 		<<case "crossdress">>
 			<<set $xchange.pill.genderificationEffect to false>>
 		<<case "resistance">>
@@ -1763,24 +1771,30 @@
 	<</widget>>
 
 	<<widget "xchange-restore">>
+		<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a") or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
+
 		<<if _args[0] isnot "nosave">>
-			<<if $xchange.pill.hermEffect or $xchange.pill.genderflipEffect>>
-				<<if setup.xChangeTransformedRole($player.gender_body) is "herm">>
-					<<save-body "herm">>
-				<<else>>
-					<<save-body "genderswapped">>
-				<</if>>
+			/* Save whatever the CURRENT body actually is before overwriting it */
+			<<run setup.xChangeRecordActiveBodyVirginity()>>
+			<<if $player.gender_body is "a">>
+				<<save-body "herm">>
+			<<elseif $xchange.pill.hermEffect or $xchange.pill.genderflipEffect or setup.xChangeActiveBodyVirginityRole() is "xchange">>
+				<<save-body "genderswapped">>
 			<</if>>
 
-			<<if $player.gender is "m">>
-				<<become-boy>>
-			<<elseif $player.gender is "f">>
-				<<become-girl>>
-				<<set $sexStats.vagina.menstruation.running = true>>
+			<<if _xchangeNeedsBodyRevert>>
+				<<if $player.gender is "m">>
+					<<become-boy>>
+				<<elseif $player.gender is "f">>
+					<<become-girl>>
+					<<set $sexStats.vagina.menstruation.running = true>>
+				<</if>>
 			<</if>>
 		<</if>>
 
-		<<load-body>>
+		<<if _xchangeNeedsBodyRevert>>
+			<<load-body>>
+		<</if>>
 
 		/* Queue up pill messages */
 		<<set $effectsmessage to 1>>
@@ -1847,8 +1861,50 @@
 		<<unset $xchange.pill.xtendTracker>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.innocenceWasNatural to false>>
+		/* Swell and the Alpha penis-size boost change $player size directly. */
+		<<if $xchange.pill.swellEffect>>
+			<<if $xchange.pill.swellTarget is "penis">>
+				<<set _psRestore to Number($xchange.penissize)>>
+				<<if !isNaN(_psRestore)>><<set $player.penissize to _psRestore>><</if>>
+			<<elseif $xchange.pill.swellTarget is "curves">>
+				<<set _bsRestore to Number($xchange.breastsize)>>
+				<<if !isNaN(_bsRestore)>><<set $player.breastsize to _bsRestore>><</if>>
+				<<set _botRestore to Number($xchange.bottomsize)>>
+				<<if !isNaN(_botRestore)>><<set $player.bottomsize to _botRestore>><</if>>
+			<</if>>
+		<</if>>
 		<<set $xchange.pill.swellEffect to false>>
 		<<unset $xchange.pill.swellTarget>>
+		/* Bimbo's dropped school traits used to only get restored as a side effect of load-body (which embeds
+		   its own copy of this same restore, gated on being an unqualified call). Mirror it here too so a
+		   grey-only Bimbo session still gets its traits back when load-body is skipped (_xchangeNeedsBodyRevert). */
+		<<if $xchange.pill.bimboEffect>>
+			<<if $xchange.science gt $sciencetrait>>
+				<<set $sciencetrait to $xchange.science>>
+				<<school_skill_change "science" 0>>
+				<<set $effectsmessage to 1>>
+				<<set $science_up_message to 1>>
+			<</if>>
+			<<if $xchange.math gt $mathstrait>>
+				<<set $mathstrait to $xchange.math>>
+				<<school_skill_change "maths" 0>>
+				<<set $effectsmessage to 1>>
+				<<set $maths_up_message to 1>>
+			<</if>>
+			<<if $xchange.english gt $englishtrait>>
+				<<set $englishtrait to $xchange.english>>
+				<<school_skill_change "english" 0>>
+				<<set $effectsmessage to 1>>
+				<<set $english_up_message to 1>>
+			<</if>>
+			<<if $xchange.history gt $historytrait>>
+				<<set $historytrait to $xchange.history>>
+				<<school_skill_change "history" 0>>
+				<<set $effectsmessage to 1>>
+				<<set $history_up_message to 1>>
+			<</if>>
+			<<unset $promiscuityIgnore>>
+		<</if>>
 		<<set $xchange.pill.bimboEffect to false>>
 		<<set $xchange.pill.cumcureEffect to false>>
 		<<set $xchange.pill.hyperFertilityEffect to false>>
@@ -1856,6 +1912,9 @@
 		<<set $xchange.pill.omegaEffect to false>>
 		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.alphaEffect to false>>
+		<<if $xchange.pill.alphaPenisSizeBoost and $player.penisExist and $player.penissize lte 2 and $xchange.pill.alphaPenisSizePrevious isnot undefined>>
+			<<set $player.penissize to $xchange.pill.alphaPenisSizePrevious>>
+		<</if>>
 		<<set $xchange.pill.alphaPenisSizeBoost to false>>
 		<<unset $xchange.pill.alphaPenisSizePrevious>>
 		<<set $xchange.pill.fertile to false>>
