@@ -215,6 +215,9 @@ const statChange = (() => {
 				if (playerIsXChanged() && (V.xchange.pill.breederEffect || V.xchange.pill.omegaEffect) && playerIsBreederCreampied()) {
 					stressMod *= 0.1;
 				}
+				if (V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0)) {
+					stressMod *= 0.25;
+				}
 				V.stress += amount * stressMod;
 			}
 		}
@@ -234,6 +237,9 @@ const statChange = (() => {
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				// Reduce the PC's trauma gains by 0.7x if they have the "Prey" / "Witch" trait while being fucked by tentacles.
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
+				if (V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0)) {
+					traumaMod *= 0.25;
+				}
 				if (V.drunk >= 1 && V.substanceRebalance === 1) traumaMod *= 1 - 0.1 * Math.round(V.drunk / 120);
 
 				// Increase trauma gains by up to 2x if the player is at low control.

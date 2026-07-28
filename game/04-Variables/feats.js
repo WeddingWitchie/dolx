@@ -3211,11 +3211,12 @@ function earnHourlyFeats() {
 		(V.rapetrait >= 1 ? 1 : 0) +
 		(V.bestialitytrait >= 1 ? 1 : 0) +
 		(V.tentacletrait >= 1 ? 1 : 0) +
+		(V.crittermagnettrait >= 1 ? 1 : 0) +
 		(V.voretrait >= 1 ? 1 : 0) +
 		(V.milkdranktrait >= 1 ? 1 : 0) +
 		(V.choketrait >= 1 ? 1 : 0);
 	if (specialTraits >= 1) earnFeat("A Special Trait");
-	if (specialTraits >= 9) earnFeat("A Special Trait Collector");
+	if (specialTraits >= 10) earnFeat("A Special Trait Collector");
 
 	if (
 		V.pregnancyStats.parasiteTypesSeen &&
@@ -3656,6 +3657,13 @@ function setupFeatBoosts(force) {
 			max: 1,
 			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
 		},
+		critterMagnetTrait: {
+			name: "Critter Magnet",
+			required: ["A Special Trait", "A Special Trait Collector"],
+			cost: 20,
+			max: 1,
+			missing: "Unlock this boost by obtaining the 'A Special Trait' feat",
+		},
 		milkDrankTrait: {
 			name: "Milk Addict",
 			required: ["A Special Trait", "A Special Trait Collector"],
@@ -4014,6 +4022,7 @@ function applyFeatBoosts() {
 	if (upgrades.rapeTrait) V.rapetrait = 1;
 	if (upgrades.bestialityTrait) V.bestialitytrait = 1;
 	if (upgrades.tentacleTrait) V.tentacletrait = 1;
+	if (upgrades.critterMagnetTrait && V.xchange?.critterMagnetTraitEnabled !== 0) V.crittermagnettrait = 1;
 	if (upgrades.milkDrankTrait) V.milkdranktrait = 1;
 
 	// parasitic pregnancy

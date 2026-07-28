@@ -110,7 +110,7 @@ test.describe("Feats Boosts", () => {
 		]);
 		expect(optionLabels).toContain("Transformation");
 		expect(optionLabels).toContain("Sado-Maso");
-		for (const trait of ["Orgasm Addict", "Asphyxiophilia", "Cum Dump", "Plaything", "Fucktoy", "Bitch", "Prey", "Milk Addict"]) {
+		for (const trait of ["Orgasm Addict", "Asphyxiophilia", "Cum Dump", "Plaything", "Fucktoy", "Bitch", "Prey", "Critter Magnet", "Milk Addict"]) {
 			expect(optionLabels).not.toContain(trait);
 		}
 		const sexSkills = ["Seduction", "Oral", "Chest", "Hands", "Buttocks", "Penile", "Anal", "Vaginal", "Feet", "Thighs"];
@@ -140,7 +140,7 @@ test.describe("Feats Boosts", () => {
 
 		await jumpMenu.selectOption({ label: "Sex-Rape Traits" });
 		const traitCheckboxes = page.locator('#feats-sexRapeTraits input[type="checkbox"][data-trait]');
-		await expect(traitCheckboxes).toHaveCount(8);
+		await expect(traitCheckboxes).toHaveCount(9);
 		const traitDescriptions = {
 			orgasmTrait:
 				"So many orgasms have had a physiological effect. Cumming is more difficult but pleasurable orgasms relieve more stress and painful orgasms no longer increase stress.",
@@ -151,6 +151,8 @@ test.describe("Feats Boosts", () => {
 			rapeTrait: "You've been raped so much that you've learned how to cope. Trauma increases more slowly.",
 			bestialityTrait: "Animals have tried to breed with you so often that you're used to it. Trauma increases more slowly when attacked by animals.",
 			tentacleTrait: "Many tentacles have had their way with your body. Trauma increases more slowly when attacked by tentacles.",
+			critterMagnetTrait:
+				"You cannot resist swarms and small creatures. You strip and submit to them, gaining relief from critter sex while other sex causes stress and trauma.",
 			milkDrankTrait: "You take full advantage of the nutrition in fresh breast milk. Drinking it invigorates your body, improving physique.",
 		};
 		for (const [trait, description] of Object.entries(traitDescriptions)) {

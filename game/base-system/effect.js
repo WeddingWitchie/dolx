@@ -1095,6 +1095,7 @@ function effects() {
 			["rape", "Survivor", "Fucktoy"],
 			["bestiality", "Tamer", "Bitch"],
 			["tentacle", "Witch", "Prey"],
+			["critter_magnet", "Critter Magnet", "Critter Magnet"],
 			["vore", "Daredevil", "Tasty"],
 			["milk", "Milk Enthusiast", "Milk Addict"],
 			["cum", "Cumoisseur", "Cum Dump"],

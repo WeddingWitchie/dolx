@@ -2167,6 +2167,13 @@ function dailyPlayerEffects() {
 		V.tentacle_trait_message = 1;
 		V.tentacletrait = 1;
 	}
+	if ((V.critterrapestat >= 50 || V.featsBoosts?.upgrades?.critterMagnetTrait) && V.crittermagnettrait === 0 && V.xchange.critterMagnetTraitEnabled) {
+		V.effectsmessage = 1;
+		V.critter_magnet_trait_message = 1;
+		V.crittermagnettrait = 1;
+	} else if (!V.xchange.critterMagnetTraitEnabled && V.crittermagnettrait === 1) {
+		V.crittermagnettrait = 0;
+	}
 	if (V.swallowedstat >= 20 && V.voretrait === 0) {
 		V.effectsmessage = 1;
 		V.vore_trait_message = 1;

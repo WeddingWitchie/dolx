@@ -20,6 +20,12 @@
 		<<set $rightleg to "bound">>
 		<<set $feetuse to "bound">>
 	<</if>>
+	<<if $crittermagnettrait gte 1 and !$critterMagnetStripped>>
+		<span class="lewd">The sight of the critters fills you with needy anticipation. You eagerly strip for them.</span>
+		<<strip>>
+		<<set $critterMagnetStripped to 1>>
+		<br><br>
+	<</if>>
 	/*<<if playerHasStrapon() and $worn.under_lower.size isnot undefined>>
 		<<set $playerPenisSizeBackup to $player.penissize>>
 		<<set $player.penissize to $worn.under_lower.size>>
@@ -364,6 +370,10 @@
 
 <<widget "leftActionsStruggle">>
 	<<set _leftaction to {}>>
+	<<if $crittermagnettrait gte 1 and $lefttarget is "struggle">>
+		<<set _leftaction["Welcome the creature"] to "rest">>
+		<<set $leftactiondefault to "rest">>
+	<<else>>
 	<<switch _leftOptions>>
 		<<case "free" "struggle">>
 			<<set _leftaction["Keep left arm still"] to "rest">>
@@ -404,6 +414,7 @@
 			<<set _leftaction["Poke yourself"] to "leftpoke">>
 			<<set _leftaction["Keep your arms out of the way"] to "leftcurl">>
 	<</switch>>
+	<</if>>
 <</widget>>
 
 <<widget "rightActionInitStruggle">>
@@ -505,6 +516,10 @@
 
 <<widget "rightActionsStruggle">>
 	<<set _rightaction to {}>>
+	<<if $crittermagnettrait gte 1 and $righttarget is "struggle">>
+		<<set _rightaction["Welcome the creature"] to "rest">>
+		<<set $rightactiondefault to "rest">>
+	<<else>>
 	<<switch _rightOptions>>
 		<<case "free" "struggle">>
 			<<set _rightaction["Keep right arm still"] to "rest">>
@@ -545,6 +560,7 @@
 			<<set _rightaction["Poke yourself"] to "rightpoke">>
 			<<set _rightaction["Keep your arms out of the way"] to "rightcurl">>
 	<</switch>>
+	<</if>>
 <</widget>>
 
 <<widget "feetActionInitStruggle">>
@@ -615,9 +631,14 @@
 
 <<widget "feetActionsStruggle">>
 	<<set _feetaction to {}>>
+	<<if $crittermagnettrait gte 1 and $feettarget is "struggle">>
+		<<set _feetaction["Welcome the creature"] to "rest">>
+		<<set $feetactiondefault to "rest">>
+	<<else>>
 	<<set _feetaction["Keep still"] to "rest">>
 	<<set _feetaction["Dodge"] to "evade">>
 	<<set _feetaction["Plant"] to "plant">>
+	<</if>>
 <</widget>>
 
 <<widget "mouthActionInitStruggle">>
@@ -647,7 +668,18 @@
 		<</switch>>
 		<<if $_changetype isnot true>>
 			<<set _mouthaction to {}>>
-			<<if $mouthstate is "struggle" and !$worn.face.type.includes("face_covering") and !$worn.face.type.includes("gag")>>
+			<<if $crittermagnettrait gte 1 and $mouthtarget is "struggle">>
+				<<if $mouthstate is "struggle">>
+					<<set _mouthaction["Welcome it"] to "open">>
+					<<set $mouthactiondefault to "open">>
+				<<elseif $mouthstate is "struggle_pen">>
+					<<set _mouthaction["Welcome it"] to "suck">>
+					<<set $mouthactiondefault to "suck">>
+				<<else>>
+					<<set _mouthaction["Keep still"] to "rest">>
+					<<set $mouthactiondefault to "rest">>
+				<</if>>
+			<<elseif $mouthstate is "struggle" and !$worn.face.type.includes("face_covering") and !$worn.face.type.includes("gag")>>
 				<<set _mouthaction["Keep closed"] to "rest">>
 				<<set _mouthaction["Open"] to "open">>
 			<<elseif $worn.face.type.includes("face_covering") or $worn.face.type.includes("gag")>>
@@ -813,6 +845,19 @@
 	<<combatstate>>
 	<<carryblock>>
 
+	<<if $crittermagnettrait gte 1>>
+		<<set $leftaction to "rest"; $leftactiondefault to "rest">>
+		<<set $rightaction to "rest"; $rightactiondefault to "rest">>
+		<<set $feetaction to "rest"; $feetactiondefault to "rest">>
+		<<if $mouthstate is "struggle">>
+			<<set $mouthaction to "open"; $mouthactiondefault to "open">>
+		<<elseif $mouthstate is "struggle_pen">>
+			<<set $mouthaction to "suck"; $mouthactiondefault to "suck">>
+		<<else>>
+			<<set $mouthaction to "rest"; $mouthactiondefault to "rest">>
+		<</if>>
+		<span class="lewd">Your Critter Magnet instinct smothers any thought of resistance. You hold still and welcome the creatures.</span>
+	<<else>>
 	<<if $trance lte 0 and $panicparalysis is 0 and $panicviolence is 0 and $options.combatControls isnot "radio_old">>
 		<<struggle_difficulty_set>>
 		<<if $options.combatControls.includes("adio")>>
@@ -934,6 +979,7 @@
 			<br>
 			<hr>
 		<</if>>
+	<</if>>
 	<</if>>
 	<br><br>
 
