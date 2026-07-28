@@ -15,110 +15,200 @@
 
 ## Changes and Additions
 
-- Updated to vanilla version 0.5.11.7
-- Updated to DoLP version 0.757
-- Merged RBE version 0.5.3
-- Added neutral player pronouns
-  - Player pronoun preferences now control how the game refers to the PC, including he/him, she/her, and they/them pronouns with matching grammar and gendered terms.
-  - A non-binary identity can use neutral, feminine, or masculine pronouns according to the player's preference.
-  - When multiple pronoun sets are accepted, the game can select between them based on the configured dynamic mode, current presentation, body, clothing, appearance, or posture. Neutral pronouns provide the fallback.
-  - Existing saves are migrated safely.
-- Added trans identity dialogue and pill interactions
-  - Trans PCs can explain their identity to students and Robin and gain recognised access to their preferred changing room.
-  - Robin, Avery, and school delinquents can react after learning that the PC is trans.
-  - Added new supportive and dominant pill interactions.
-- Expanded gender identity preferences
-  - Height, hair, chest, ass, and genitals can now gradually move towards the player's preferred choices.
-  - Stable dual genitals are supported without requiring an active X-Change pill.
-  - Disabled body topics remain disabled, and existing saves migrate safely.
-- Expanded chastity
-  - Added more chastity-aware changing-room taunts and general body comments, with distinct reactions to belts, cages, and trapped parasites.
-  - When Whitney's chastity rule applies to a penis-less body, Whitney can now fit a constantly stimulating dildo chastity belt.
-  - Being caught by the Pound can now result in a forced chastity device, with a higher chance when the player's body does not match how they present.
-  - Any chastity device now drastically slows arousal fade, can occasionally spike arousal, and reduces the relief gained from orgasming while locked.
-  - Flat and small shrinking cages now also raise minimum arousal while worn.
-  - Added a dildo chastity belt for vaginas, providing constant internal stimulation and increased sensitivity.
-  - Chastity-trapped parasites from swarm encounters now raise minimum arousal, stimulate the player more often, and can be properly cured at the hospital.
-  - Jordan now refuses to remove a monk or priest's chastity device when it belongs to someone else, the player's personal standing is insufficient, or their reputation in town is too poor. A new "Pray for guidance" option can improve the latter two over time.
-- Added a variant to the street seduction event
-  - The well-dressed man on a bench may now be offering an honest, no-strings-attached encounter instead of always hiding a camera in the hotel room.
-  - His opening description subtly hints at which version was selected.
-  - Higher Skulduggery increases the chance of the honest version, allowing perceptive characters to benefit from their awareness instead of being consistently locked out of the scene.
-- Improved the X-Change Tester
-  - X-Change Tests now estimate remaining pill time in hours, days, or weeks.
-  - The Traits panel remembers and updates the improved reading until the transformation ends.
-- Updated Gwylan's fluid samples
-  - Gwylan's collection requests now provide two samples when the same NPC orgasms twice in one encounter.
-  - One orgasm still provides one sample, and further orgasms do not increase the reward.
-- Updated Gwylan's pet names
-  - Added transformation-specific pet names for bunny, bear, and water dragon forms.
-- Updated the brothel
-  - Fluids can now be collected through quick actions.
-- Added more sexual-event bypasses for PCs who are too innocent or drunk to participate.
-- Added a new innocence reaction
-  - Innocent PCs may panic when losing their handholding virginity.
+- Updated to vanilla version 0.5.11.8.
+- Updated to DoLP version 0.762.
+- Updated chastity belts and cages
+  - Sirris now sells non-cursed "fetish" versions of the dildo chastity belt and flat chastity cage at the adult shop.
+  - They cost more than the temple's basic fitting and have reduced, unrepairable durability, but can be put on and removed freely.
+  - The Wardrobe now has a Genitals category, allowing genital-slot clothing to be stripped, stored, and browsed like other clothing.
+- Updated how misgendering works
+  - Generic and stranger forms of address now follow the player's appearance, allowing a stranger's assumption to clash with the player's identity and trigger genuine misgendering reactions.
+  - NPCs who know the player well (50+ Love, or explicitly told) can use the correct address through an optional NPC-name argument. Existing dialogue has not yet been retrofitted to pass it.
+- Updated Kylar's Creep scene
+  - Kylar can no longer penetrate through a locked chastity belt or cage and now reacts with appropriate frustration when blocked.
+  - Successful penetration now records vaginal, anal, or penile virginity loss correctly.
+- Made Whitney's forced and romantic kisses mask-aware
+  - Whitney now pulls masks and gags aside before kissing the player.
+- Improved Avery's favourite-meal rewards
+  - Serving Avery soufflé, linguine, or steak now deposits £2,000 into the player's HBSC account.
+  - Angel transformations increase the payment by 50%; Fallen Angel transformations increase it by 20%.
+- Updated the forest shop
+  - Added the Kaiju costume and Whitney's collar to Gwylan's special-clothes stock.
+  - The Kaiju costume unlocks after taking Niki's flyer job. Whitney's collar unlocks when Whitney collars the player at school.
+  - Both items have Gwylan dialogue, can be purchased normally, or can be unlocked with the special-clothes feat boost for 2 coins.
+  - Whitney's actual collar is now always the leashed, unremovable version, while the forest shop sells a removable novelty replica.
+- Added Whitney's toilet rule to the Journal
+  - The Journal shows which toilets Whitney assigned, whether the player is breaking the rule, and which toilets the player is currently using.
+- Added new underground slave content
+  - After escaping the underground brothel at least once, the player can ask Bailey or Briar about high-paying work and sign a 7-, 14-, or 30-day contract.
+  - Payment is agreed when signing but is only awarded after completing the full contract.
+  - Each contract assigns a permanent, uniquely named Master or Mistress with their own personality. They may inspect, punish, or visit the player and react differently according to obedience.
+  - Work includes dancing, presentation, stage performances, films, hunts, and private shows.
+  - High obedience improves treatment, freedom, sleep, room access, and tips. Low obedience brings harsher punishments, restrictions, disturbed sleep, animal parties according to game settings, and possible unpaid contract extensions.
+  - Giving birth sends the player to hospital, after which they return underground if contract days remain.
+  - Completing the contract removes restraints, returns stored clothes, pays the agreed amount, and releases the player near the orphanage.
+  - The player can escape early by picking the room and outer-door locks or by defeating a handler, but forfeits all payment and may remain trapped in the brothel's collar and cuffs.
+- Updated Brothel and Harvest Street
+  - Brothel chatting now grants Kindness fame whether the English check succeeds or fails.
+  - Added two once-daily Harvest Street events after discovering the brothel. At low soft world corruption, the player may notice neatly dressed people leaving less lonely after using the brothel's conversation service.
+- Added an ancient shrine buff
+  - Praying at the ancient shrine now grants 8% better gambling luck until midnight.
+- Updated Water Dragon content
+  - Water Dragons can swim from the island back to the city after completing the spear event.
+  - Added three new ocean encounters.
+- Updated loitering
+  - Loitering can lead to grateful people who simply need someone to listen to them.
+  - Named NPCs may also appear while looking out for the player.
+- Updated Gentleman's Club blackmail
+  - Added letter encounters at the Great Hawk tower, wolf cave, Eden's cabin, and temple.
+  - Added tasks to swim naked in the school pool and flash five strangers.
+  - The school-pool task only appears when the player has enough Exhibitionism to complete it.
+- Updated Realistic Childbirth
+  - Fixed and expanded Gwylan childbirth dialogue, controls, and save-reload behaviour.
+- Updated Decomod decorations
+  - Added backgrounds and foregrounds by DECOMP CO ⁝ ⚰ (naturesmorticians).
+  - Added foregrounds by monoski1 and linnnn, and backgrounds by supervamp78.
+  - Tidied the decoration folders to remove duplication and misplaced assets.
+- Updated sleeping
+  - Glasses now have a 32% chance to break when worn to sleep.
+- Improved compatibility with ModLoader clothes.
+- Added selectable Water Dragon skin colours
+  - The mirror now offers None, Lilac, Purple, Blue/Cyan, and Soft Pink.
+  - The original tan-responsive skin remains available through transformations and cheats.
+- Updated the Swell X-Change effect
+  - Swell now enables automatic titfucking and autofellatio when the player's breasts or penis are large enough.
+- Added the Critter Magnet trait
+  - Repeated swarm and small-creature assaults can unlock Critter Magnet.
+  - The trait makes the player willingly strip and submit to critters, reduces Stress and Trauma from critter sex, and makes other sex distressing.
+  - It can be removed or regained through the X-Change trait settings.
 
 ## Rebalancing
 
-- Tweaked body-size rendering
-  - Sidebar rendering has been adjusted to look better across different body sizes.
-  - "Scale sidebar image to body size" is now disabled by default and can still be enabled under Rendering.
-- Tweaked fame changes while masked
-  - A mask completely blocks fame gain and loss in a category below 500 fame.
-  - From 500 to 999 fame, a mask only halves the change.
-  - At 1000 fame or higher, the player is too recognisable for a mask to conceal them.
-- Tweaked Fallen Angel during purging confession
-  - Fallen Angels now lose Purity regardless of manifestation level, but the penalty is gentler than before.
-- Improved Continue and Breeder pill behaviour
-  - Added an optional cap that prevents Continue from stacking transformation time indefinitely.
-  - Continue can be safely removed from permanent transformations without undoing their permanence.
-  - Breeder and Omega orgasm denial now reduce pleasure and apply gentler, spaced-out Stress rather than repeatedly chaining penalties.
-  - Fake Breeder remains infertile without disabling Omega.
-  - Hyper Fertility now supports vaginal pregnancy, Omega anal pregnancy, and pregnancies sired by the player.
-  - Related orgasm and pregnancy options are now grouped under the Breeder and Fertility settings.
-- Updated gloves
-  - Losing handholding virginity is prevented while the player is wearing gloves.
-- Made "Begrudged" clearer in the Identity settings.
+- Rebalanced fame gains across events
+  - Private scenes without witnesses grant 2–6 fame.
+  - Small audiences of 2–4 people grant 10–20 fame.
+  - Public, group, recorded, or distributed scenes grant 26–40 fame.
+  - Institution-wide or viral scenes grant 60 fame.
+  - Rare narrative climaxes grant 90+ fame, used sparingly.
+  - Exhibitionism, Modeling, and Social fame grow fastest. Sex, Good, Business, Scrap, and Pimp fame use the standard rate. Rape and Prostitution grow more slowly, while Bestiality grows slowest.
+  - Repeatable jobs remain near the bottom of their tier to limit farming.
+- Updated Water Dragon balance
+  - Water Dragon halves Swimming skill-check difficulty.
+  - Water Dragon now boosts only Swimming; its Athletics bonus was removed and its heat resistance was slightly reduced.
+- Reduced chastity arousal spikes by 50%
+  - The event still occurs at the same rate, roughly once per in-game hour and more often with a chastity parasite.
+  - Each spike now adds 50–200 Arousal instead of 100–400.
+- Reduced blackmail income by 50%.
+- Rebalanced animal-transformation income buffs
+  - Harpy increases office, chalet, and pound wages by 45%.
+  - Bear doubles docker shift and overtime wages.
+- Updated strip-club dancing
+  - Offers of prostitution work occur more often when the player has high fame and soft world corruption is low.
+- Angels no longer bypass glory-hole fallen consequences.
 
 ## Fixes and Improvements
 
-- Fixed updated UI persistence
-  - The selected theme now persists correctly across save loads, including saves created during an ongoing game.
-  - Select Updated UI in Decomod, advance one passage, and save to store the chosen theme.
-- Fixed combat scenes ending after the first turn
-  - Fixed 36 encounters across multiple locations that could jump directly to their ending after the first action, regardless of the opponent's health or pleasure.
-  - Affected combat scenes now continue until their proper ending conditions are met.
-- Fixed Photo High Alley combat
-  - Removed a redundant variable and added the missing combat cleanup.
-- Fixed combat submission text using a stale NPC description during beast encounters.
-- Fixed named NPC dodge chance corruption
-  - All named NPCs now start with a valid dodge chance before modifiers are applied, preventing the issue from recurring.
-  - Existing saves may show the warning once if an invalid value was already saved. Use "Reset Corrupted Variables" when prompted; regenerated NPC data will remain valid.
-- Fixed save loading
-  - The player's saved skin colour is now restored instead of a temporary colour used while cloning NPC data.
-- Fixed the dancing UI button to match the masturbate UI.
-- Gated orgasm moans behind the Moan/Grunt setting.
-- Fixed rimming options appearing when the PC is in an impossible position.
-- Fixed a gender mismatch during car pill-whoring scenes.
-- Fixed biking skill gains
-  - Biking now awards its skill point correctly.
-- Fixed biking event times
-  - A cycling event intended for the morning no longer also occurs at night.
-- Fixed Whitney reacting to undiscovered X-Change use
-  - Whitney's maths-class dialogue now references the player's X-Change use only after Whitney has discovered it.
-- Fixed redundant NPC generation when the black wolf comments on their chub.
-- Fixed Poppy's pregnancy reveal
-  - Poppy now checks the baby's actual paternity before claiming to be the father.
-  - If another character or creature caused the pregnancy, the player correctly explains that the child is not Poppy's, and Poppy responds supportively without claiming it.
-- Fixed X-Change random hair colours
-  - Dye Harder's temporary `tmp0` and `tmp1` colour-picker entries are excluded from random hair-colour selection.
-  - Rerolls can no longer produce white hair labelled "color picker slot."
-- Fixed adult shop payouts
-  - The adult shop no longer sometimes pays £0 or an incorrect amount.
-- Fixed cafe income
-  - Cafe waiter shifts now consistently include the £12 hourly wage, whether or not a customer tips.
-  - Shifts also advance the full amount of time correctly.
-- Fixed mouth-to-ass actions
-  - Moving the player's mouth to a female partner's ass no longer resets to "mouth is free" on the next turn or removes both pussy and ass options for the rest of the encounter.
-- Fixed menu tab crashes
-  - Switching tabs in overlay menus no longer throws an error or freezes the panel after opening a menu or changing a setting that refreshes the screen.
+- Fixed pronoun and gender-appearance inconsistencies
+  - Pronoun preferences can no longer end up with nothing selected and silently fall back to a stale internal value.
+  - Invalid existing saves are repaired on load, and new characters are protected at the end of character creation.
+  - The Pronoun settings tab's "Currently used" line now refreshes immediately.
+  - The mirror's Gender Appearance headline now follows the player's actual appearance and updates immediately when posture changes.
+  - Mirror text now distinguishes how the player identifies from how they currently appear to others.
+- Fixed missing pronouns in the school hallway event when returning through passage history.
+- Fixed the Temple confession crash
+  - Both genital-initialisation paths now safely handle glory-hole encounters while preserving brothel-specific anal and oral descriptions.
+- Fixed orphanage pass-out logic
+  - Indoor hypothermia and heatstroke now use a home recovery scene instead of a stranger's car or an outdoor assault.
+  - Cold-bath blackouts safely wake the player in their bedroom.
+  - Locked-bedroom pass-outs cannot trigger Sold or Molestation outcomes.
+  - Bedroom, bathroom, main hall, and garden locations are now distinguished correctly; outdoor garden events are unchanged.
+- Fixed a formatting issue in Gwylan's ritual.
+- Fixed the broken chastity Temple conversation.
+- Fixed purity loss during temporary X-Changes
+  - Virginity-loss purity penalties are skipped while temporarily X-Changed, matching fallen-angel transformation events.
+  - The purity cap now checks the true body's virginity rather than the currently active body.
+  - Existing saves whose purity was already lost may not be repaired.
+- Reworded Grey Hyper Fertility text.
+- Fixed Whitney's rooftop event
+  - "Swallow it in front of everyone" now correctly requires Exhibitionism 3.
+- Fixed jewellery clothing
+  - Expensive, Luxurious, and Extravagant labels now derive from each item's actual price.
+  - Removed three pearl earrings without artwork.
+  - Corrected the gold flower earring artwork and broken icons for Whitney's collar, the rivière necklace set, and a simple metal bracelet.
+  - Renamed a duplicate "flower gold earrings" entry.
+- Fixed Bailey using the wrong pronoun after spending the night with them.
+- Fixed Demon Force Impregnation after Genome Dump
+  - The action remains available while visible demon traits such as horns, a tail, or wings remain.
+- Fixed bike theft ignoring security at the lake
+  - Lake theft chance now decreases with lock strength like other parking locations.
+- Fixed virginity handling
+  - Fallen Angel transformation now triggers immediately when virginity is lost during sex-machine, brothel glory-hole, and Robin crossdressing scenes.
+  - Partners with small or micro penises now use a unique "is it in yet?" reaction, lower Purity, and do not immediately remove virginity.
+  - The small/micro behaviour also applies when the player is penetrating.
+- Fixed the Advanced Stats growth display
+  - Identity-driven breast, butt, and penis growth percentages no longer freeze while the actual size continues changing.
+- Fixed pronoun and gender displays
+  - Pronoun settings now show every selected pronoun set.
+  - "Current Sex" pronouns use the player's actual sex, preventing incorrect they/them pronouns for characters with both genitals.
+  - Mirror descriptions use the correct text colour.
+- Fixed both Plantperson traps
+  - Deliberately taking the Moor bait grants +35 Control and begins consensual combat.
+  - Deliberate Forest and Moor choices now require Deviancy 3.
+- Fixed redundant NPC generation during farm work.
+- Fixed NPC generation and tentacle rendering
+  - Tentacle encounters no longer create fake NPC data or cause "undefined vineperson" and animation errors in unrelated scenes.
+  - Rendering no longer mutates the NPC list.
+  - Also fixed related X-ray, condom-layer, grapple-animation, conversation water-breaking, and event-debug warning issues.
+- Fixed Gwylan's missing scheduled morning café walks
+  - Unlocked walks appear on Domus and Danube Street at the promised time.
+  - Street, shop, wake-up, and renovation routes now remain consistent.
+- Fixed Avery's Bailey coverage
+  - While Avery is paying, any overdue rent timer and Bailey's current missed-payment debt are cleared.
+  - Historical missed-payment statistics remain unchanged.
+  - Relentless Bailey still applies whenever Avery refuses payment.
+- Fixed underground farm cleanup
+  - Being rescued by Eden now clears the escape state correctly and restores the player's awareness of time.
+- Fixed Genome Dump Water Dragon completion
+  - Players with 30–49 Draconism are no longer treated as fully transformed when only the tail is present.
+  - Completion now checks the aquatic trait, which activates at 50 Draconism.
+- Fixed body-trait insecurities
+  - Accepting chest size, penis size, or pregnancy in Gender Identity prevents the related insecurity penalties and events.
+  - Rejected or unselected traits behave as before, and players not using Gender Identity are unaffected.
+- Fixed random character settings
+  - Random creation selects at most one trait from each mutually exclusive group.
+  - Conflicting traits from existing saves can be unchecked so affected characters can recover.
+- Fixed body type and hermaphrodite detection
+  - New and random characters now receive the body type matching their selected sex.
+  - Existing saves are repaired automatically unless an X-Change transformation is active.
+  - Characters with both genitals are now recognised correctly in combat, portraits, events, pregnancy inheritance, and breast-size insecurity.
+- Fixed Realistic Childbirth crashes
+  - Missing or invalid birth types are repaired automatically and use fallback text when a specific scene is unavailable.
+  - Restored missing pain-relief and partner text during bedroom births.
+  - Fixed an empty asylum birth option and a recovery path that could incorrectly use the egg-laying ending.
+- Fixed the confession requirement
+  - "Confess your impurity" now requires 700 Purity or less, or Demon pure TF level 6 or higher.
+  - Cosmetic demon traits still affect dialogue but can no longer unlock the purity gain.
+- Fixed X-Change effect-only pills
+  - Grey Breeder, Alpha, Swell, Bimbo, and Fertility pills no longer reset body changes, virginity history, fame, crime, Promiscuity, Exhibitionism, or Deviancy when their effects end.
+  - Herm and gender-swap sessions now check the correct body's virginity history.
+  - Sex-changing pills still revert the body normally, including Grey pills when "Grey pills also flip gender" is enabled.
+  - The full fix may apply only to new saves, but restored virginity is harmless and later transformations should no longer reset it.
+- Fixed Gentleman's Club blackmail tasks
+  - The arcade air-hockey task completes after the strip game.
+  - Behaviour tasks such as "Don't act defiantly" check conduct only before the deadline rather than failing when the results letter is read.
+  - "Flirt with 3 people" and "wear a skirt" pill tasks no longer fail because of unrelated pills.
+- Fixed non-stop strip-club dancing
+  - Security ends the performance immediately when the club closes.
+- Fixed Gentleman's Club feats for older saves
+  - Both Club feats are restored for older saves that already reached the unpaid stage.
+
+## Art and Image Updates
+
+- Image fixes and cleanup by Frostberg and Bec.
+- Replaced Robin's NNPC sprites with u/Wonderful_Can_7086's rendition.
+- Added Gwylan NNPC sprites by u/Wonderful_Can_7086.
+- Whitney's vanilla sprite is now undressable.
+- Added dark-skinned Robin NNPC sprites by u/Wonderful_Can_7086.
+- Added Black Wolf NNPC sprites by u/Wonderful_Can_7086.
+- Updated Mikili imagepack by Alexandrite-sama.
+- Added Fox Familiar's Kaijuu costume for the femgoose imagepack.
