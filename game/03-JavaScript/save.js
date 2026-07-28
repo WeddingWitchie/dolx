@@ -2027,6 +2027,45 @@ window.loadExternalExportFile = function () {
 };
 
 /**
+ * Background traits that the character creation UI (settings.twee) treats as mutually exclusive within each group (its checkboxes grey each other out via data-disabledif).
+ * Independently randomizing every background boolean can otherwise select several traits from the same group at once (e.g. Nerd + Athlete, or Crossdresser + Transgender + Gender-Anxious),
+ * which locks the player out of ever unchecking them since each one's checkbox is disabled by the others.
+ *
+ * @type {string[][]}
+ */
+const exclusiveBackgroundTraitGroups = [
+	["nerd", "athlete", "delinquent"],
+	["crossdresser", "genderAnxious", "transgender"],
+];
+
+/**
+ * Collapse each mutually-exclusive background trait group down to at most one active trait, keeping a random one from those the walk happened to roll true.
+ * Also strips the crossdresser/genderAnxious/transgender group entirely for hermaphrodite characters, matching the character creation UI which never offers those traits when sex is "h".
+ *
+ * @param {object} starting the "starting" branch of a randomizeSettings() result
+ */
+function resolveExclusiveBackgroundTraits(starting) {
+	const background = starting?.background;
+	if (!background) return;
+
+	const sex = starting.player?.sex ?? V.player?.sex;
+	if (sex === "h") {
+		background.crossdresser = false;
+		background.genderAnxious = false;
+		background.transgender = false;
+	}
+
+	for (const group of exclusiveBackgroundTraitGroups) {
+		const active = group.filter(key => background[key] === true);
+		if (active.length <= 1) continue;
+		const keep = active.random();
+		for (const key of active) {
+			if (key !== keep) background[key] = false;
+		}
+	}
+}
+
+/**
  * @param {string} filter
  * @returns {string}
  */
@@ -2060,6 +2099,7 @@ function randomizeSettings(filter) {
 
 	if (V.passage === "Start") {
 		result.starting = randomizeSettingsWalk(settingsObjects("starting"));
+		resolveExclusiveBackgroundTraits(result.starting);
 	}
 
 	result.general = randomizeSettingsWalk(settingsObjects("general"));
