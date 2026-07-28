@@ -2779,7 +2779,7 @@
 	<<set _waterdragonFullCheck to _tfStageUnlocked($waterdragon, $waterdragontf, 7)>>
 	<<set _waterdragonUnlockedCheck to ($waterdragonCosmeticUnlocked is 1)>>
 	<<set _waterdragonTraitsCheck to (_waterdragonFullCheck or _waterdragonUnlockedCheck)>>
-	<<set _waterdragonSkinMenuCheck to (_waterdragonTraitsCheck or $waterdragonSkinLock isnot 0)>>
+	<<set _waterdragonSkinMenuCheck to (_waterdragonTraitsCheck or !["auto", "off"].includes($waterdragonSkinLock))>>
 	<<set _wolfFullCheck to _tfStageUnlocked($wolfgirl, $wolftf, 6)>>
 	<<set _birdFullCheck to _tfStageUnlocked($harpy, $harpytf, 6)>>
 	<<set _foxFullCheck to _tfStageUnlocked($fox, $foxtf, 6)>>
@@ -2842,15 +2842,6 @@
 			<</if>>
 			<br>
 			Double Semen/Milk Production: <<checkbox "$cowDoubleProduction" 0 1 autocheck>><br>
-		<</if>>
-		<<if _waterdragonSkinMenuCheck>>
-			Water Dragon Skin:
-			<<if $waterdragonSkinLock isnot 1>>
-				<<link [[Set|$passage]]>><<set $waterdragonSkinLock to 1>><<syncWaterDragonSkin>><<updatesidebarimg>><</link>>
-			<<elseif $waterdragonSkinLock isnot -1>>
-				<<link [[Clear|$passage]]>><<set $waterdragonSkinLock to -1>><<syncWaterDragonSkin>><<updatesidebarimg>><</link>>
-			<</if>>
-			<br>
 		<</if>>
 		<<if _tfStageUnlocked($cat, $cattf, 7)>>
 			Heterochromia:
@@ -2997,6 +2988,22 @@
 			<div class="tf-misc">
 				<<listbox "_miscChoice" autoselect>>
 					<<optionsfrom _options>>
+				<</listbox>>
+			</div>
+		</label>
+		<br>
+	<</if>>
+
+	<<if _waterdragonSkinMenuCheck>>
+		<<set _waterDragonSkinChoice to ($waterdragonSkinLock is "auto" ? (_waterdragonFullCheck ? (Skin.color.tan gte 66 ? "blue" : Skin.color.tan gte 33 ? "purple" : "lilac") : "none") : $waterdragonSkinLock is "off" ? "none" : $waterdragonSkinLock)>>
+		<label>Water Dragon Skin:
+			<div class="tf-waterdragon-skin">
+				<<listbox "_waterDragonSkinChoice" autoselect>>
+					<<option "None" "none">>
+					<<option "Lilac" "lilac">>
+					<<option "Purple" "purple">>
+					<<option "Blue/Cyan" "blue">>
+					<<option "Soft Pink" "pink">>
 				<</listbox>>
 			</div>
 		</label>
@@ -3805,6 +3812,9 @@
 		jQuery('.passage').on('change', 'div.tf-wings select.macro-listbox', function (e) {
 			Wikifier.wikifyEval('<<clearwings>><<if _wingsChoice isnot 0>><<set $transformationParts[_wingsChoice[0]].wings = _wingsChoice[1]>><</if>>');
 		});
+		jQuery('.passage').on('change', 'div.tf-waterdragon-skin select.macro-listbox', function (e) {
+			Wikifier.wikifyEval('<<set $waterdragonSkinLock to (_waterDragonSkinChoice is "none" ? "off" : _waterDragonSkinChoice)>><<syncWaterDragonSkin>>');
+		});
 		jQuery('.passage').on('change', 'select.macro-listbox', function (e) {
 			if (V.transformationParts.cat.heterochromia === "hidden") {
 				Wikifier.wikifyEval('<<catHeterochromiaTF "hide">>');
@@ -3848,7 +3858,7 @@
 	Bear Transform: <<link [[Reset|$passage]]>><<bearTransform 99>><<set $tfDesc to { primary : "default" }>><<updatesidebarimg>><</link>><<if $beartf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
 	<</if>>
 	<<if $waterdragonbuild gte 1>>
-	Water Dragon Transform: <<link [[Reset|$passage]]>><<if $waterdragontf is 1>><<set $waterdragonCosmeticUnlocked to 1>><</if>><<waterdragonTransform 99>><<syncWaterDragonSkin>><<set $tfDesc to { primary : "default" }>><<updatesidebarimg>><</link>><<if $waterdragontf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
+	Water Dragon Transform: <<link [[Reset|$passage]]>><<if $waterdragontf is 1>><<set $waterdragonCosmeticUnlocked to 1>><</if>><<waterdragonTransform 99>><<set $tfDesc to { primary : "default" }>><<updatesidebarimg>><</link>><<if $waterdragontf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>
 	<</if>>
 	<<if $birdbuild gte 1>>
 	Bird Transform: <<link [[Reset|$passage]]>><<harpyTransform 99>><<set $tfDesc to { primary : "default" }>><<updatesidebarimg>><</link>><<if $harpytf is 1>><span class="green">Safe</span><<else>><span class="red">Unsafe</span><</if>><br>

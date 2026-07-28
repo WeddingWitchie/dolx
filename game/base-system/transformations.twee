@@ -1725,27 +1725,24 @@
 <</widget>>
 
 <<widget "syncWaterDragonSkin">>
-	<<set _waterDragonSkinActive to ($waterdragon gte 7 or $waterdragontf is 1)>>
-
-	<<if $waterdragonSkinLock is 1>>
-		<<if $player.skin.color isnot "waterdragon">>
+	<<set _waterDragonSkinColours to ["waterdragon", "waterdragonLilac", "waterdragonPurple", "waterdragonBlue", "waterdragonPink"]>>
+	<<set _waterDragonSkinChoice to $waterdragonSkinLock>>
+	<<if _waterDragonSkinChoice is "auto">>
+		<<set _waterDragonSkinChoice to (($waterdragon gte 7 or $waterdragontf is 1) ? "auto" : "none")>>
+	<</if>>
+	<<if _waterDragonSkinChoice is "auto">>
+		<<if !_waterDragonSkinColours.includes($player.skin.color)>>
 			<<set $player.skin_temp.color to $player.skin.color>>
-			<<set $player.skin.color to "waterdragon">>
 		<</if>>
-	<<elseif $waterdragonSkinLock is -1>>
-		<<if $player.skin.color is "waterdragon">>
-			<<set $player.skin.color to $player.skin_temp.color>>
+		<<set $player.skin.color to "waterdragon">>
+	<<elseif ["lilac", "purple", "blue", "pink"].includes(_waterDragonSkinChoice)>>
+		<<if !_waterDragonSkinColours.includes($player.skin.color)>>
+			<<set $player.skin_temp.color to $player.skin.color>>
 		<</if>>
+		<<set $player.skin.color to "waterdragon" + _waterDragonSkinChoice.toUpperFirst()>>
 	<<else>>
-		<<if _waterDragonSkinActive>>
-			<<if $player.skin.color isnot "waterdragon">>
-				<<set $player.skin_temp.color to $player.skin.color>>
-				<<set $player.skin.color to "waterdragon">>
-			<</if>>
-		<<else>>
-			<<if $player.skin.color is "waterdragon">>
-				<<set $player.skin.color to $player.skin_temp.color>>
-			<</if>>
+		<<if _waterDragonSkinColours.includes($player.skin.color)>>
+			<<set $player.skin.color to $player.skin_temp.color>>
 		<</if>>
 	<</if>>
 <</widget>>

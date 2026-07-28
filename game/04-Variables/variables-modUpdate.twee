@@ -68,15 +68,21 @@
 	<<if $transformationParts.waterdragon is undefined>>
 		<<set $transformationParts.waterdragon to {horns:"disabled", ears:"disabled", tail:"disabled"}>>
 	<</if>>
-	<<if $waterdragonSkinLock is undefined>>
-		<<set $waterdragonSkinLock to 0>>
+	<<if $player.skin_temp is undefined or $player.skin_temp is $player.skin>>
+		<<set $player.skin_temp to { color: $player.skin.color }>>
+	<</if>>
+	<<if !["auto", "off", "lilac", "purple", "blue", "pink"].includes($waterdragonSkinLock)>>
+		<<if $waterdragonSkinLock is -1>>
+			<<set $waterdragonSkinLock to "off">>
+		<<elseif $waterdragonSkinLock is 1>>
+			<<set $waterdragonSkinLock to (Skin.color.tan gte 66 ? "blue" : Skin.color.tan gte 33 ? "purple" : "lilac")>>
+		<<else>>
+			<<set $waterdragonSkinLock to "auto">>
+		<</if>>
+		<<syncWaterDragonSkin>>
 	<</if>>
 	<<if $waterdragonCosmeticUnlocked is undefined>>
 		<<set $waterdragonCosmeticUnlocked to 0>>
-	<</if>>
-	<<if $player.skin_temp is undefined>>
-		<<set $player.skin_temp to $player.skin>>
-		<<set $player.skin_temp.color to $player.skin.color>>
 	<</if>>
 
 	/* persistent UI-state vars, folded out of the mirror so they exist before any render */

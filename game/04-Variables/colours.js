@@ -221,6 +221,26 @@ setup.colours = {
 			blendMode: "multiply",
 			desaturate: false,
 		},
+		waterdragonLilac: {
+			gradient: ["#dccdf5", "#dccdf5"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		waterdragonPurple: {
+			gradient: ["#b692f9", "#b692f9"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		waterdragonBlue: {
+			gradient: ["#00d1ff", "#00d1ff"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		waterdragonPink: {
+			gradient: ["#f8c1de", "#fbc6e2"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
 		ghost: {
 			gradient: ["#ffffff", "#ffffff"],
 			blendMode: "multiply",

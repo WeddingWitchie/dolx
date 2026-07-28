@@ -361,6 +361,10 @@ declare module "twine-sugarcube" {
 			bmedium: SkinColourConfig;
 			bdark: SkinColourConfig;
 			bgyaru: SkinColourConfig;
+			waterdragonLilac: SkinColourConfig;
+			waterdragonPurple: SkinColourConfig;
+			waterdragonBlue: SkinColourConfig;
+			waterdragonPink: SkinColourConfig;
 			slime: SkinColourConfig;
 			ghost: SkinColourConfig;
 		};
@@ -390,6 +394,11 @@ declare global {
 		| "bmedium"
 		| "bdark"
 		| "bgyaru"
+		| "waterdragon"
+		| "waterdragonLilac"
+		| "waterdragonPurple"
+		| "waterdragonBlue"
+		| "waterdragonPink"
 		| "slime"
 		| "ghost";
 
