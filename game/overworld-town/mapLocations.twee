@@ -67,6 +67,7 @@
 	<</if>>
 <</widget>>
 
+
 :: Loiter
 <<effects>>
 <<if $loiterReturnPassage is undefined or $loiterReturnPassage is "">>
@@ -95,6 +96,7 @@ How long do you want to loiter for?
 <<link "Loiter for 2 hours (2:00)" "Loiter Result">><<set $loiterDuration to 120>><</link>>
 <br>
 <<link "Loiter for 3 hours (3:00)" "Loiter Result">><<set $loiterDuration to 180>><</link>>
+<br>
 
 :: Loiter Result
 <<effects>>
@@ -113,33 +115,193 @@ How long do you want to loiter for?
 <<set _interrupted to random(1, 100) lte _interruptChance>>
 <<set _elapsed to _interrupted ? Math.max(1, Math.round(_duration * random(30, 60) / 100)) : _duration>>
 <<pass _elapsed>>
-
 <<if !_interrupted>>
 	You loiter undisturbed for the whole time.
 	<br><br>
 	<<link "Next" _dest>><</link>>
 <<else>>
-	<<set _outcome to random(1, 100)>>
-	<<if _outcome lte 20>>
-		<<generate1>><<person1>>
-		Someone who has been watching you finally approaches. Before you can move away, they grab you.
-		<br><br>
-		<<if _dest is "Pub">>
-			<<link [[Next|Pub Approach Sex]]>><<set $phase to 1>><<set $molestationstart to 1>><</link>>
-		<<else>>
-			<<link [[Next|Street Molestation]]>><<set $molestationstart to 1>><</link>>
-		<</if>>
-	<<elseif _outcome lte 45>>
-		A suspicious passer-by stops to question why you have been hanging around. You decide it is time to move on.
-		<br><br>
-		<<link "Next" _dest>><</link>>
-	<<elseif _outcome lte 70>>
-		A stranger starts pestering you for attention, making it impossible to keep loitering in peace.
-		<br><br>
-		<<link "Leave them behind" _dest>><</link>>
+	<<set _conversation to _duration gte 30 and random(1, 100) lte 60>>
+	<<if _conversation>>
+		<<set _people to ["stranger", "stranger", "stranger", "stranger", "stranger", "stranger"]>>
+		<<if C.npc.Whitney.init is 1 and C.npc.Whitney.state is "active">><<run _people.push("Whitney")>><</if>>
+		<<if C.npc.Robin.init is 1 and $robinmissing is 0>><<run _people.push("Robin")>><</if>>
+		<<if C.npc.Kylar.init is 1 and C.npc.Kylar.state is "active">><<run _people.push("Kylar")>><</if>>
+		<<if C.npc.Sydney.init is 1>><<run _people.push("Sydney")>><</if>>
+		<<if C.npc.Avery.init is 1 and C.npc.Avery.state is "active" and !$avery_injury>><<run _people.push("Avery")>><</if>>
+		<<if C.npc.Bailey.init is 1>><<run _people.push("Bailey")>><</if>>
+		<<set $loiterChat to {
+			return: _dest,
+			person: _people[random(0, _people.length - 1)],
+			topic: random(1, 3),
+			reward: random(10, 30) * 100
+		}>>
+		<<link [[Someone approaches|Loiter Conversation]]>><</link>>
 	<<else>>
-		A nearby commotion forces you out of your spot before you can finish loitering.
-		<br><br>
-		<<link "Next" _dest>><</link>>
+		<<set _outcome to random(1, 100)>>
+		<<if _outcome lte 20>>
+			<<generate1>><<person1>>
+			Someone who has been watching you finally approaches. Before you can move away, they grab you.
+			<br><br>
+			<<if _dest is "Pub">>
+				<<link [[Next|Pub Approach Sex]]>><<set $phase to 1>><<set $molestationstart to 1>><</link>>
+			<<else>>
+				<<link [[Next|Street Molestation]]>><<set $molestationstart to 1>><</link>>
+			<</if>>
+		<<elseif _outcome lte 45>>
+			A suspicious passer-by stops to question why you have been hanging around. You decide it is time to move on.
+			<br><br>
+			<<link "Next" _dest>><</link>>
+		<<elseif _outcome lte 70>>
+			A stranger starts pestering you for attention, making it impossible to keep loitering in peace.
+			<br><br>
+			<<link "Leave them behind" _dest>><</link>>
+		<<else>>
+			A nearby commotion forces you out of your spot before you can finish loitering.
+			<br><br>
+			<<link "Next" _dest>><</link>>
+		<</if>>
 	<</if>>
 <</if>>
+<br>
+
+:: Loiter Conversation
+<<effects>>
+<<if !$loiterChat>>
+	The person you were speaking with has already gone.
+	<br><br>
+	<<link [[Next|Danube Street]]>><</link>>
+<<elseif $loiterChat.person is "stranger">>
+	<<generate1>><<person1>>
+	A <<person>> slows when <<he>> notices you have been standing around for a while. <<He>> hesitates, then offers you a small, awkward smile.
+	<br><br>
+	"Sorry if this sounds strange. You look like you have time. Would you mind talking for a bit? Properly talking, I mean. I'll pay you for your time."
+	<br><br>
+	<<link [[Hear <<him>> out|Loiter Conversation Talk]]>><</link>>
+	<br>
+	<<link "Leave <<him>> behind" $loiterChat.return>><<unset $loiterChat>><</link>>
+<<else>>
+	<<npc $loiterChat.person>><<person1>>
+	<<switch $loiterChat.person>>
+		<<case "Whitney">>
+			A shoulder knocks into yours. Whitney has been standing beside you long enough to pretend it was an accident. "What, you got nowhere better to be?" <<he>> asks. <<He>> does not leave.
+		<<case "Robin">>
+			Robin spots you from across the street and hurries over. "You've been here ages," <<he>> says. "I thought you might want some company."
+		<<case "Kylar">>
+			You notice Kylar at the edge of your vision. When you finally look straight at <<him>>, <<he>> startles. "I-I only just got here," <<he>> says, then quietly asks if <<he>> can stay.
+		<<case "Sydney">>
+			Sydney comes to a stop in front of you, carrying two drinks. "You looked like you could use a break," <<he>> says. "And I could use someone to confess to who isn't behind a screen."
+		<<case "Avery">>
+			Avery's car pulls over nearby. The window lowers. "You appear to be doing absolutely nothing," <<he>> says. "Convenient. I find myself with twenty minutes to spare."
+		<<case "Bailey">>
+			Bailey catches you lingering and checks the time. "If you've got time to stand about, you've got time to listen," <<he>> says. The look <<he>> gives you makes it clear this is not a request.
+	<</switch>>
+	<br><br>
+	<<link [[Stay and talk|Loiter Conversation Talk]]>><</link>>
+	<br>
+	<<link "Leave <<him>> behind" $loiterChat.return>><<unset $loiterChat>><</link>>
+<</if>>
+<br>
+
+:: Loiter Conversation Talk
+<<effects>>
+<<if !$loiterChat>>
+	The conversation is already over.
+	<br><br>
+	<<link [[Next|Danube Street]]>><</link>>
+<<else>>
+	<<switch $loiterChat.person>>
+		<<case "stranger">>
+			<<switch $loiterChat.topic>>
+				<<case 1>>
+					<<He>> tells you about a friendship that faded without either person meaning for it to. <<He>> does not ask you to fix anything. <<He>> just seems relieved whenever you nod and let <<him>> continue.
+				<<case 2>>
+					<<He>> talks about work, and how every day has started to feel the same. Once the first embarrassed laugh is out of the way, the words come quickly.
+				<<case 3>>
+					<<He>> tells you about someone <<he>> misses. The story wanders through little memories that would mean nothing to anyone else, but leave <<him>> smiling by the end.
+			<</switch>>
+			<br><br>
+			You share a little of your own life in return. The conversation is unexpectedly easy. For a while, neither of you seems to notice the town around you.
+		<<case "Whitney">>
+			Whitney spends several minutes insulting everyone who passes. When the street thins out, <<his>> voice drops. <<He>> talks about the orphanage, about people leaving, and about how stupid it is to expect anyone to stay. The moment you try to answer, <<he>> calls you sappy. Even so, <<he>> listens.
+		<<case "Robin">>
+			Robin talks about the lemonade stand, the orphanage, and all the little worries <<he>> has been trying not to burden you with. You admit a few worries of your own. By the end, your shoulders are touching, and the silences feel comfortable rather than empty.
+		<<case "Kylar">>
+			Kylar has clearly rehearsed several questions about your day, but keeps abandoning them to ask smaller, stranger ones. What weather makes you happiest? Which window at the orphanage is yours? <<He>> treasures every answer, and slowly stops trembling.
+		<<case "Sydney">>
+			Sydney jokes about school and temple duties until the jokes run thin. <<He>> admits that being good is easier when no one asks what you actually want. You listen without judging. Soon <<he>> is smiling again, this time without forcing it.
+		<<case "Avery">>
+			Avery begins by complaining about an incompetent business associate. Somehow, the complaint turns into an admission that very few people speak to <<him>> without wanting something. "Present company excluded, for the moment," <<he>> says, studying your reaction.
+		<<case "Bailey">>
+			Bailey talks about bills, repairs, and residents who think food appears by magic. Beneath the scolding, you hear exhaustion. <<He>> catches you looking sympathetic and scowls, but continues in a quieter voice.
+	<</switch>>
+	<br><br>
+	<<link [[Let the conversation wind down (0:05)|Loiter Conversation End]]>><<pass 5>><</link>>
+<</if>>
+<br>
+
+:: Loiter Conversation End
+<<effects>>
+<<if !$loiterChat>>
+	The conversation is already over.
+	<br><br>
+	<<link [[Next|Danube Street]]>><</link>>
+<<elseif $loiterChat.intimate>>
+	<<set _return to $loiterChat.return>>
+	<<if $loiterChat.person is "Whitney">>
+		Whitney leads you away from the main road at an impatient pace. A few of <<his>> friends are already hanging around farther down the alley. They look over as the two of you approach, but Whitney ignores them.
+		<br><br>
+		Once you are out of sight of the street, <<he>> turns and backs you against the brickwork. <<His>> hands settle on your hips, and <<his>> earlier restlessness becomes obvious. "Took you long enough," <<he>> says, leaning close. You realise <<he>> did not bring you here for another conversation.
+		<br><br>
+		<<link [[Let Whitney continue|Street Bully Sex]]>><<set $phase to 2>><<set $sexstart to 1>><<unset $loiterChat>><</link>>
+	<<elseif $loiterChat.person is "Kylar">>
+		Kylar leads you through a narrow alley and around another corner, glancing back every few steps to make sure you are still following. Hidden beneath a fire escape is an old mattress, kept dry from the weather.
+		<br><br>
+		<<He>> sits at its edge without releasing your hand. <<His>> thumb strokes your knuckles while <<he>> watches your lips, face flushed and breathing unsteady. When <<he>> gently tugs you closer, you realise <<he>> was asking for more than a little extra time together.
+		<br><br>
+		<<link [[Join Kylar|Street Kylar Sex]]>><<set $sexstart to 1>><<unset $loiterChat>><</link>>
+	<<else>>
+		The moment passes, and you continue on your way.
+		<br><br>
+		<<link "Next" _return>><<unset $loiterChat>><</link>>
+	<</if>>
+<<else>>
+	<<set _return to $loiterChat.return>>
+	<<switch $loiterChat.person>>
+		<<case "stranger">>
+			The <<person>> takes a folded note from <<his>> pocket. "Thank you," <<he>> says. "I think I needed that more than I realised." <<He>> presses the money into your hand before disappearing into the crowd.
+			You receive <span class="gold"><<printmoney $loiterChat.reward>>.</span><<money $loiterChat.reward "loiterConversation">><<stress -6>><<lstress>>
+		<<case "Whitney">>
+			Whitney stands abruptly. "Don't get used to this." <<He>> throws a crumpled note at your chest. "Go buy yourself something less depressing." <<He>> leaves before you can hand it back.
+			You receive <span class="gold"><<printmoney 1000>>.</span><<money 1000 "whitney">>
+		<<case "Robin">>
+			Robin gives you the drink <<he>> brought and squeezes your hand. "I feel lighter," <<he>> says. "I hope you do too." You sit together a little longer before parting.
+			<<stress -12>><<trauma -3>><<llstress>><<ltrauma>>
+		<<case "Kylar">>
+			Kylar presses a carefully folded paper flower into your hand. Tiny notes are written inside every fold. "S-so you don't forget what we talked about," <<he>> says.
+			<<stress -6>><<npcincr Kylar rage -1>><<lstress>><<lksuspicion>>
+		<<case "Sydney">>
+			Sydney gives you the second drink and bumps <<his>> shoulder against yours. "Same time next existential crisis?" <<he>> asks. <<His>> laugh sounds much more natural now.
+			<<stress -6>><<trauma -3>><<lstress>><<ltrauma>>
+		<<case "Avery">>
+			Avery glances at <<his>> watch, then hands you several notes. "A consultation fee. Don't cheapen the gesture by arguing." The car door closes before you can respond.
+			You receive <span class="gold"><<printmoney 10000>>.</span><<money 10000 "avery">>
+		<<case "Bailey">>
+			Bailey straightens and clears <<his>> throat. "This changes nothing." A moment later, <<he>> adds, "You did alright." Coming from Bailey, it is almost lavish.
+			<<stress -3>><<lstress>>
+	<</switch>>
+	<<famegood 1>>
+	<br><br>
+	<<if $loiterChat.person is "Whitney" and C.npc.Whitney.lust gte 60>>
+		Whitney only makes it a few steps before looking back. <<He>> jerks <<his>> head towards a nearby alley, eyes roaming over you. "Well? You coming or not?"
+		<br><br>
+		<<link [[Follow Whitney (0:02)|Loiter Conversation End]]>><<set $loiterChat.intimate to true>><<pass 2>><</link>>
+		<br>
+	<<elseif $loiterChat.person is "Kylar" and C.npc.Kylar.lust gte 60 and C.npc.Kylar.love gte 20>>
+		Kylar does not let go of your hand. <<His>> breathing turns shallow as <<he>> looks towards the alley, then back at you. "C-Could we stay together a little longer?"
+		<br><br>
+		<<link [[Go somewhere private (0:02)|Loiter Conversation End]]>><<set $loiterChat.intimate to true>><<pass 2>><</link>>
+		<br>
+	<</if>>
+	<<link "Continue on your way" _return>><<unset $loiterChat>><</link>>
+<</if>>
+<br>
