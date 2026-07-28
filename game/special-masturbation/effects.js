@@ -856,6 +856,50 @@ function masturbationEffectsArms(
 				}
 			}
 			break;
+		case "mswelltitfuck":
+			if (
+				V.xchange?.pill?.swellEffect &&
+				V.player.penisExist &&
+				V.player.breastsize > 4 &&
+				V.player.penissize > 4 &&
+				!playerChastity("penis") &&
+				[0, "breasts"].includes(V.penisuse) &&
+				[0, "disabled"].includes(V.mouth) &&
+				genitalsExposed() &&
+				breastsExposed()
+			) {
+				const startedSwellTitfuck = V.leftarm !== "mswelltitfuck";
+				clearAction("mswelltitfuck");
+				V.leftarm = "mswelltitfuck";
+				V.rightarm = "mswelltitfuck";
+				V.rightaction = 0;
+				V.rightactiondefault = 0;
+				V.penisuse = "breasts";
+				wikifier("arousal", 500, "masturbationGenital");
+				sWikifier(
+					startedSwellTitfuck
+						? '<span class="purple">You can\'t stand it anymore. The sight of your own huge breasts and your comically swollen <<penis>> is too much, and your hands move on their own, gathering your breasts around its shaft and trapping it between them.</span>'
+						: '<span class="lewd">You rock your hips, sliding your huge <<penis>> between your squeezed breasts.</span>'
+				);
+			} else {
+				clearAction("mrest");
+				V.leftarm = 0;
+				V.rightarm = 0;
+				V.rightaction = 0;
+				V.rightactiondefault = "mrest";
+				V.penisuse = 0;
+				sWikifier('<span class="lblue">Your penis no longer reaches your breasts, so you let go.</span>');
+			}
+			break;
+		case "mswelltitfuckstop":
+			clearAction("mrest");
+			V.leftarm = 0;
+			V.rightarm = 0;
+			V.rightaction = 0;
+			V.rightactiondefault = "mrest";
+			V.penisuse = 0;
+			sWikifier('<span class="lblue">You release your breasts and let your <<penis>> fall away from your chest.</span>');
+			break;
 		case "mchastity": // Old usage
 		case "mpenischastity":
 		case "mvaginachastity":
@@ -3101,6 +3145,35 @@ function masturbationEffectsMouth({
 				sWikifier(`<span class="blue">You take the head of your <<penis>> into your mouth, sending a lewd tingle up your spine.</span>`);
 			}
 			break;
+		case "mswellautofellatio":
+			if (
+				V.xchange?.pill?.swellEffect &&
+				V.player.penisExist &&
+				V.player.breastsize > 4 &&
+				V.player.penissize > 4 &&
+				!playerChastity("penis") &&
+				genitalsExposed()
+			) {
+				const startedSwellAutofellatio = V.mouth !== "mpenis";
+				clearAction("mswellautofellatio");
+				V.penisuse = "mouth";
+				V.mouth = "mpenis";
+				V.mouthstate = "penetrated";
+				V.selfsuckDepth = 0;
+				wikifier("arousal", 500, "masturbationGenital");
+				sWikifier(
+					startedSwellAutofellatio
+						? '<span class="purple">The heat pooling in your comically swollen body is too much to bear. Barely thinking, you fold forward and your huge <<penis>> reaches your mouth with absurd ease. You wrap your lips around its head.</span>'
+						: '<span class="lewd">You rock your hips and fuck your mouth with your huge, swollen <<penis>>.</span>'
+				);
+			} else {
+				clearAction("mrest");
+				V.mouth = 0;
+				V.mouthstate = 0;
+				V.penisuse = 0;
+				sWikifier('<span class="lblue">Your penis no longer reaches so easily, and you pull it from your mouth.</span>');
+			}
+			break;
 		case "mpenisdeepthroat":
 			clearAction(V.selfsuckDepth < V.selfsuckLimit ? "mpenisdeepthroat" : "mpenissuck");
 			V.selfsuckDepth++;
@@ -3210,6 +3283,7 @@ function masturbationEffectsMouth({
 		case "mpenisstop":
 			clearAction("mrest");
 			V.mouth = 0;
+			V.mouthstate = 0;
 			V.penisuse = 0;
 			sWikifier(`<span class="lblue">You move your mouth away from your <<penis>>.</span>`);
 			break;

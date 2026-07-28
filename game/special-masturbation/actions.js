@@ -178,10 +178,30 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 		(V.settings.breastFeedingEnabled === true && V.lactating === 1 && (V.milk_amount >= 1 || V.milkFullPain > 200));
 	const canUseBreastPumpAtLowAwareness =
 		hasBreastPump && hasLowAwarenessBreastPumpReason && (["home", "alex_farm", "cafe"].includes(V.location) || T.enableSexToys);
+	const swellBodyEligible =
+		V.xchange?.pill?.swellEffect && V.player.penisExist && V.player.breastsize > 4 && V.player.penissize > 4 && !playerChastity("penis");
 
 	switch (V[arm + "arm"]) {
 		case 0:
 			result.text = `Your ${arm} hand is free.`;
+			if (
+				arm === "left" &&
+				V.leftarm === 0 &&
+				V.rightarm === 0 &&
+				V.awareness >= 200 &&
+				swellBodyEligible &&
+				V.penisuse === 0 &&
+				[0, "disabled"].includes(V.mouth) &&
+				genitalsExposed() &&
+				breastsExposed()
+			) {
+				result.options.push({
+					action: "mswelltitfuck",
+					text: "Press your swollen penis between your breasts",
+					colour: "purple",
+					otherElements: "<<combataware 3>>",
+				});
+			}
 			if (V.player.penisExist) {
 				if (
 					(V.awareness >= 400 || V.earSlime.event.includes("get your own sperm into your")) &&
@@ -487,6 +507,25 @@ function masturbationActionsHands(arm, { playerToys, selectedToy, toyDisplay, ge
 				});
 			}
 			result.options.push(stop("mbreaststop"));
+			break;
+		case "mswelltitfuck":
+			// Both arms share this single state, but only the left arm renders a row for it;
+			// the right arm returns early so it doesn't fall through to the trailer below, which would otherwise show an empty line with
+			// a stray "Rest" button that silently auto-selects itself and can spuriously trigger the mrest/corruption logic.
+			if (arm !== "left") return result;
+			result.text =
+				swellBodyEligible && V.penisuse === "breasts" && [0, "disabled"].includes(V.mouth) && genitalsExposed() && breastsExposed()
+					? "You press your breasts around the huge length of your swollen penis."
+					: "Your body can no longer maintain the position.";
+			if (swellBodyEligible && V.penisuse === "breasts" && [0, "disabled"].includes(V.mouth) && genitalsExposed() && breastsExposed()) {
+				result.options.push({
+					action: "mswelltitfuck",
+					text: "Rock your hips between your breasts",
+					colour: "purple",
+					otherElements: "<<combataware 3>>",
+				});
+			}
+			result.options.push(stop("mswelltitfuckstop"));
 			break;
 		case "manusentrance":
 			result.text = `You tease your anus with your ${arm} hand.`;
@@ -837,6 +876,9 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 	const awarenessCheck = V.corruptionMasturbation || V.awareness >= 200;
 
 	const hasAphrodisiac = !!listUniqueCarriedSextoys().find(item => item.type.includes("aphrodisiacpill"));
+	const swellBodyEligible =
+		V.xchange?.pill?.swellEffect && V.player.penisExist && V.player.breastsize > 4 && V.player.penissize > 4 && !playerChastity("penis");
+	const inSwellAutofellatio = V.mouthactiondefault === "mswellautofellatio";
 
 	switch (V.mouth) {
 		case "disabled":
@@ -875,6 +917,14 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 					});
 				}
 				if (genitalsExposed()) {
+					if (swellBodyEligible && V.penisuse === 0) {
+						result.options.push({
+							action: "mswellautofellatio",
+							text: "Take your swollen penis into your mouth",
+							colour: "purple",
+							otherElements: "<<combataware 3>>",
+						});
+					}
 					if (V.canSelfSuckPenis && V.penisuse === 0) {
 						if (V.worn.genitals.name === "chastity parasite") {
 							result.options.push({
@@ -916,6 +966,14 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 				? '<span class="red">The slime in your ear is forcing your mouth to be in front of your penis.</span>'
 				: "Your mouth is in front of your penis.";
 			if (awarenessCheck) {
+				if (swellBodyEligible && genitalsExposed()) {
+					result.options.push({
+						action: "mswellautofellatio",
+						text: "Fuck your mouth with your swollen penis",
+						colour: "purple",
+						otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					});
+				}
 				result.options.push({
 					action: "mpenislick",
 					text: "Lick your penis",
@@ -980,8 +1038,17 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 			break;
 		case "mpenis":
 			result.text = corruptionCheck ? '<span class="red">The slime in your ear is forcing you to suck on your penis.</span>' : "You're sucking on your penis.";
+			if (inSwellAutofellatio && !(swellBodyEligible && genitalsExposed())) {
+				result.text = "Your body can no longer maintain the position.";
+				result.options.push(stop("mpenisstop"));
+				break;
+			}
 			if (V.selfsuckDepth === V.selfsuckLimit) {
 				result.text += ` You have the whole thing in your mouth${V.selfsuckDepth >= 2 ? " and throat" : ""}.`;
+			} else if (inSwellAutofellatio && V.selfsuckDepth === 0) {
+				result.text = corruptionCheck
+					? '<span class="red">The slime in your ear is forcing your mouth around your swollen <<penis>>.</span>'
+					: "You're stuffing your mouth full with your huge, swollen <<penis>>.";
 			} else {
 				switch (V.selfsuckDepth) {
 					case 0:
@@ -1000,12 +1067,23 @@ function masturbationActionsMouth({ selectedToy, toyDisplay, genitalsExposed, br
 				}
 			}
 			if (awarenessCheck) {
-				result.options.push({
-					action: "mpenissuck",
-					text: "Suck on your penis",
-					colour: "sub",
-					otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
-				});
+				if (swellBodyEligible && genitalsExposed()) {
+					result.options.push({
+						action: "mswellautofellatio",
+						text: "Fuck your mouth with your swollen penis",
+						colour: "purple",
+						otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					});
+				}
+				// Already sucking via the swell variant, so the plain "suck" option is redundant; "take it deeper" still escalates it.
+				if (!inSwellAutofellatio) {
+					result.options.push({
+						action: "mpenissuck",
+						text: "Suck on your penis",
+						colour: "sub",
+						otherElements: !corruptionCheck ? "<<combataware 3>>" : undefined,
+					});
+				}
 				if (V.selfsuckDepth < V.selfsuckLimit) {
 					result.options.push({
 						action: "mpenisdeepthroat",
