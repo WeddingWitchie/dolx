@@ -2218,10 +2218,10 @@ function dailyPlayerEffects() {
 	statChange.insecurity("penis_big", Math.clamp(V.player.penissize - 6, -5, -1)); // Increases by 1 for each size below large
 
 	const reducedBreastsize = Math.floor(V.player.breastsize / 2);
-	if (V.player.sex !== "f") {
-		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 4, -5, -1)); // Increases by 1 for each other size below full
-	} else if (V.player.sex === "h") {
+	if (V.player.penisExist && V.player.vaginaExist) {
 		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 5, -5, -1)); // Increases by 1 for each other size below ample
+	} else if (V.player.sex !== "f") {
+		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 4, -5, -1)); // Increases by 1 for each other size below full
 	} else {
 		statChange.insecurity("breasts_small", -Math.clamp(reducedBreastsize - 1, 1, 5)); // Increases by 1 for each other size above modest
 		statChange.insecurity("breasts_big", Math.clamp(reducedBreastsize - 5, -5, -1)); // Increases by 1 for each other size below ample

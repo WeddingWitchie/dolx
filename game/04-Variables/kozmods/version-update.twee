@@ -1597,6 +1597,19 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
+	<!-- One-time repair: character creation never actually synced $player.gender_body to the chosen sex - it's initialised to "a" (variables-start.twee) and nothing
+	else touches it unless a herm-capable X-Change pill applies. So any save whose player never took a herm pill has been silently misreading as a herm to everything
+	that keys off gender_body, e.g. the "Body appearance" apparent-femininity factor (contributes 0 instead of +-200) and setup.xChangeTransformedRole.
+	playerIsXChanged() stays true even for permanent pills, so a genuine herm body is never touched here. Runs once. -->
+	<<if !$xchange.fixDefaultGenderBody>>
+		<<set $xchange.fixDefaultGenderBody to true>> /* delete later */
+		<<if $player.gender_body is "a" and !playerIsXChanged()>>
+			<<set $player.gender_body to $player.sex>>
+			<<run $xchange.errorLog.push("Player gender_body was stuck at the character-creation default \"a\" instead of matching the body's actual sex, and has been corrected.")>>
+			<<set $effectsmessage to 1>>
+		<</if>>
+	<</if>>
+
 	<!-- One-time repair: earlier widget hermify keyed genital-restore on gender IDENTITY, so a herm whose body sex and identity disagreed (e.g. a female-identifying male) could be left with a size-0 (Micro) penis, and making that herm permanent froze the Micro in place.
 	A herm always has a penis, so give any currently-herm body (and its cached herm snapshot) a proper size; at least Normal, capped to the configured range. -->
 	<<if !$xchange.fixHermMicroPenis>>

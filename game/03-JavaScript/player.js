@@ -5,7 +5,7 @@
  * @returns {"herm" | boolean}
  */
 function isGenitalMismatch() {
-	if (V.player.sex === "h") {
+	if (V.player.penisExist && V.player.vaginaExist) {
 		return "herm";
 	}
 	if (V.player.sex !== V.player.gender && V.settings.nudeGenderPerception === 0) {
@@ -40,7 +40,7 @@ window.isCrossdressing = isCrossdressing;
  * @returns {boolean}
  */
 function isHermOrCrossdresser() {
-	if (V.player.sex === "h") {
+	if (V.player.penisExist && V.player.vaginaExist) {
 		return "herm";
 	}
 	if (isCrossdressing() || (V.player.sex !== V.player.gender_appearance && !isGenitalMismatch())) {

@@ -62,7 +62,7 @@ function npcPregObject(person, mother) {
 			// pregnancy isn't required for the player
 			result = {
 				name: "pc",
-				gender: V.player.sex,
+				gender: V.player.penisExist && V.player.vaginaExist ? "h" : V.player.sex,
 				type: "human",
 				parentId: Array.isArray(parentId) ? parentId[0] : parentId,
 				skinColour: Skin.color.natural,
@@ -535,7 +535,6 @@ window.pregnancyGenerator = {
 				const birthId = motherObject.parentId.births;
 				let gender = random(0, 100) > 50 ? "f" : "m";
 				if ((motherObject.gender === "h" || fatherObject.gender === "h") && (motherObject.name === fatherObject.name || random(0, 100) >= 75)) gender = "h";
-				if ((mother === "pc" || father === "pc") && V.player.sex === "h" && random(0, 100) >= 75) gender = "h";
 				const baby = babyBase({
 					childId,
 					birthId,

@@ -161,7 +161,7 @@ function perceivedGender() {
 	// Genitals visible then reconsider.
 	if (setting === 2) {
 		// "Judge": genitals decide, full stop. Hermaphrodite falls back to appearance.
-		return V.player.sex === "h" ? V.player.gender_appearance : V.player.sex;
+		return V.player.penisExist && V.player.vaginaExist ? V.player.gender_appearance : V.player.sex;
 	}
 
 	// Setting 1: re-run the nude calculation, which weights the whole body
@@ -391,7 +391,7 @@ function genderappearancecheck() {
 		T.gender_appearance = "f";
 	} else if (T.apparent_femininity < 0) {
 		T.gender_appearance = "m";
-	} else if (V.player.sex === "h") {
+	} else if (V.player.penisExist && V.player.vaginaExist) {
 		// if herm pc and perfect 0 apparent_femininity
 		T.gender_appearance = genderAppearanceHermTiebreak();
 	} else {
@@ -401,7 +401,7 @@ function genderappearancecheck() {
 		T.gender_appearance_noow = "f";
 	} else if (T.apparent_femininity_noow < 0) {
 		T.gender_appearance_noow = "m";
-	} else if (V.player.sex === "h") {
+	} else if (V.player.penisExist && V.player.vaginaExist) {
 		T.gender_appearance_noow = genderAppearanceHermTiebreak();
 	} else {
 		T.gender_appearance_noow = V.player.sex;

@@ -2066,6 +2066,20 @@ function resolveExclusiveBackgroundTraits(starting) {
 }
 
 /**
+ * gender_body has no character creation control of its own (sex is the only genital choice offered), but it's still a valid randomizable leaf,
+ * so an unfiltered "randomize everything" pass rolls it independently of sex — it can land on "a" (which reads as a DoLX herm body to
+ * setup.xChangeTransformedRole everywhere else, despite the character having only one set of genitals) or simply the wrong letter for the sex that got rolled.
+ * Force it back in line with whichever sex this pass produced (or the character's current sex, if this pass didn't touch sex).
+ *
+ * @param {object} starting the "starting" branch of a randomizeSettings() result
+ */
+function resolveRandomizedGenderBody(starting) {
+	const player = starting?.player;
+	if (!player) return;
+	player.gender_body = player.sex ?? V.player?.sex;
+}
+
+/**
  * @param {string} filter
  * @returns {string}
  */
@@ -2100,6 +2114,7 @@ function randomizeSettings(filter) {
 	if (V.passage === "Start") {
 		result.starting = randomizeSettingsWalk(settingsObjects("starting"));
 		resolveExclusiveBackgroundTraits(result.starting);
+		resolveRandomizedGenderBody(result.starting);
 	}
 
 	result.general = randomizeSettingsWalk(settingsObjects("general"));
