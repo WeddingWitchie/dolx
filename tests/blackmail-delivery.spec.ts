@@ -28,6 +28,76 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		await assertNoErrors(page);
 	});
 
+	test("backfills both feats only for saves already at the unpaid stage", async ({ page }) => {
+		await setupBlackmailDelivery(page);
+		let feats = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			delete V.xchange.backComp.gentlemansClubFeats;
+			delete V.xchange.blackmail.paymentsRemoved;
+			delete V.feats.currentSave["How They Get You"];
+			delete V.feats.currentSave["They Got You"];
+			V.xchange.blackmail.questsCompleted = 10;
+			(window as any).SugarCube.Wikifier.wikifyEval("<<xchange-modupdate>>");
+			return {
+				backfillRan: V.xchange.backComp.gentlemansClubFeats,
+				howTheyGetYou: V.feats.currentSave["How They Get You"],
+				theyGotYou: V.feats.currentSave["They Got You"],
+			};
+		});
+		expect(feats).toEqual({
+			backfillRan: true,
+			howTheyGetYou: undefined,
+			theyGotYou: undefined,
+		});
+
+		feats = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			delete V.xchange.backComp.gentlemansClubFeats;
+			V.xchange.blackmail.paymentsRemoved = 1;
+			(window as any).SugarCube.Wikifier.wikifyEval("<<xchange-modupdate>>");
+			return {
+				backfillRan: V.xchange.backComp.gentlemansClubFeats,
+				howTheyGetYou: V.feats.currentSave["How They Get You"] instanceof Date,
+				theyGotYou: V.feats.currentSave["They Got You"] instanceof Date,
+			};
+		});
+		expect(feats).toEqual({
+			backfillRan: true,
+			howTheyGetYou: true,
+			theyGotYou: true,
+		});
+	});
+
+	test("reaching the unpaid stage awards both Club feats", async ({ page }) => {
+		await setupBlackmailDelivery(page);
+		await wikifyEval(page, "<<blackmail-newquest>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			delete V.feats.currentSave["How They Get You"];
+			delete V.feats.currentSave["They Got You"];
+			delete V.xchange.blackmail.paymentsRemoved;
+			V.xchange.blackmail.questsCompleted = 5;
+			V.xchange.blackmail.penaltyThreat.exhibitionism = 1000;
+			V.xchange.blackmail.activeQuest.cleared = true;
+			V.xchange.blackmail.activeQuest.failed = false;
+		});
+
+		await navigateTo(page, "Blackmail Conclusion Letter");
+		const feats = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return {
+				howTheyGetYou: V.feats.currentSave["How They Get You"] instanceof Date,
+				theyGotYou: V.feats.currentSave["They Got You"] instanceof Date,
+				paymentsRemoved: V.xchange.blackmail.paymentsRemoved,
+			};
+		});
+		expect(feats).toEqual({
+			howTheyGetYou: true,
+			theyGotYou: true,
+			paymentsRemoved: 1,
+		});
+	});
+
 	test("Great Hawk brings the letter and it returns to the tower after reading", async ({ page }) => {
 		await setupBlackmailDelivery(page, 0);
 		await wikifyEval(page, "<<bird_init>>");

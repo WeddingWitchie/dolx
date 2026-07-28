@@ -2,7 +2,7 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const HTML_PATH = path.resolve(__dirname, "../Degrees of Lewdity.html");
+const HTML_PATH = path.resolve(__dirname, "../Degrees of Lewdity VERSION.html");
 export const FILE_URL = `file://${HTML_PATH}`;
 
 export type Page = import("@playwright/test").Page;
