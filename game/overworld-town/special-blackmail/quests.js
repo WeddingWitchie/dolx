@@ -263,39 +263,46 @@ blackmailQuests.high.push(
 	}
 );
 
-// blackmailQuests.mid.push( // Skinny dip into the school's pool
-// 	{
-// 		id: 5, // Implemented
-// 		prerequisites: function() {
-// 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue('skulduggery') >= 200;
-// 		},
-// 		reward: function() { return V.rentmoney; },
-// 		instructions: [
-// 			"Swim in the school's pool while naked.",
-// 			"Complete this task before midnight.",
-// 		],
-// 		clearCondition: function() { return this.swamNaked; },
-// 		failCondition: function() { return false; },
-// 		alertMessage: ``,
-// 		clearCheck: function() {
-// 			if (this.clearCondition()) {
-// 				this.cleared = true;
-// 			}
-// 		},
-// 		failCheck: function() {
-// 			if (this.failCondition()) {
-// 				this.failed = true;
-// 			}
-// 		},
-// 		cleared: false,
-// 		failed: false,
-// 		failMessage: function() { },
-// 		includesItems: false,
-// 		receiveItems: function() { },
-// 		onDayCleared: function() { V.xchange.blackmail.cooldown = 3; },
-// 		onDayFailed: function() { },
-// 	}
-// );
+blackmailQuests.mid.push(
+	// Skinny dip into the school's pool
+	{
+		id: 5, // Implemented
+		prerequisites() {
+			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue("skulduggery") >= 200;
+		},
+		reward() {
+			return blackmailReward(V.rentmoney);
+		},
+		instructions: ["Swim in the school's pool while naked.", "Complete this task before midnight."],
+		clearCondition() {
+			return this.swamNaked;
+		},
+		failCondition() {
+			return false;
+		},
+		alertMessage: ``,
+		clearCheck() {
+			if (this.clearCondition()) {
+				this.cleared = true;
+			}
+		},
+		failCheck() {
+			if (this.failCondition()) {
+				this.failed = true;
+			}
+		},
+		cleared: false,
+		failed: false,
+		failMessage() {},
+		includesItems: false,
+		receiveItems() {},
+		onDayCleared() {
+			V.xchange.blackmail.cooldown = 3;
+		},
+		onDayFailed() {},
+		swamNaked: false,
+	}
+);
 
 blackmailQuests.low.push(
 	// Go for a run in your underwear at park
@@ -620,42 +627,51 @@ blackmailQuests.low.push(
 	}
 );
 
-// blackmailQuests.low.push( // Flash your underwear to at least 5 strangers
-// 	{
-// 		id: 12,
-// 		prerequisites: function() { return hasSexStat("exhibitionism", 2); },
-// 		reward: function() { return V.rentmoney / 3; },
-// 		instructions: [
-// 			"Flash at least 5 strangers on the street.",
-// 			"We recommend you visit Connudatus Street to do this task."
-// 			"Complete this task before midnight.",
-// 		],
-// 		clearCondition: function() { return this.flashedPeople >= 5; },
-// 		failCondition: function() { return false; },
-// 		alertMessage: ``,
-// 		clearCheck: function() {
-// 			if (this.clearCondition()) {
-// 				this.cleared = true;
-// 			}
-// 		},
-// 		failCheck: function() {
-// 			if (this.failCondition()) {
-// 				this.failed = true;
-// 			}
-// 		},
-// 		cleared: false,
-// 		failed: false,
-// 		flashedPeople: 0,
-// 		failMessage: function() { },
-// 		includesItems: false,
-// 		receiveItems: function() { },
-// 		onDayCleared: function() {
-// 			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
-// 			V.xchange.blackmail.cooldown = 2;
-// 		},
-// 		onDayFailed: function() { },
-// 	}
-// );
+blackmailQuests.low.push(
+	// Flash your underwear to at least 5 strangers
+	{
+		id: 12,
+		prerequisites() {
+			return hasSexStat("exhibitionism", 2);
+		},
+		reward() {
+			return blackmailReward(V.rentmoney / 3);
+		},
+		instructions: [
+			"Flash at least 5 strangers on the street.",
+			"We recommend you visit Connudatus Street to do this task.",
+			"Complete this task before midnight.",
+		],
+		clearCondition() {
+			return this.flashedPeople >= 5;
+		},
+		failCondition() {
+			return false;
+		},
+		alertMessage: ``,
+		clearCheck() {
+			if (this.clearCondition()) {
+				this.cleared = true;
+			}
+		},
+		failCheck() {
+			if (this.failCondition()) {
+				this.failed = true;
+			}
+		},
+		cleared: false,
+		failed: false,
+		flashedPeople: 0,
+		failMessage() {},
+		includesItems: false,
+		receiveItems() {},
+		onDayCleared() {
+			V.xchange.blackmail.penaltyThreat.exhibitionism += 50;
+			V.xchange.blackmail.cooldown = 2;
+		},
+		onDayFailed() {},
+	}
+);
 
 blackmailQuests.low.push(
 	// Sell flowers on a market stall, without any lower clothing (undies allowed)
