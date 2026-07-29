@@ -4,6 +4,7 @@
 	/* <<set $player.combatstate to "">> */
 	<<set $player.gender to "f">>
 	<<set $player.sex to "f">>
+	<<startingGenitalsSync>>
 	<<set $player.gender_body to "a">>
 	<<set $player.bodyshape to "classic">>
 	<<set $player.ballsExist to false>>
@@ -117,6 +118,19 @@
 	<<set _tan to 0>>
 
 	<<startingPlayerImageReset>>
+<</widget>>
+
+<<widget "startingGenitalsSync">>
+	/* Keeps the character-creation mannequin's genitals in sync with the Genitals radio; player.penisExist/vaginaExist otherwise aren't set until variablesStart2 runs on Start2, after creation ends. */
+	<<if $player.sex is "f">>
+		<<set $player.vaginaExist to true>>
+		<<set $player.penisExist to false>>
+		<<set $player.ballsExist to false>>
+	<<elseif $player.sex is "m">>
+		<<set $player.vaginaExist to false>>
+		<<set $player.penisExist to true>>
+		<<set $player.ballsExist to true>>
+	<</if>>
 <</widget>>
 
 <<widget "displaySettings">>
@@ -1095,7 +1109,7 @@
 		<<run
 		$(() => {
 			$('#genitals input[type="radio"]').on('change', () => {
-				Wikifier.wikifyEval('<<displaySettings "character">>');
+				Wikifier.wikifyEval('<<startingGenitalsSync>><<displaySettings "character">>');
 				Wikifier.wikifyEval('<<updatesidebarimg>>');
 			});
 		})
