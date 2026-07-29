@@ -79,7 +79,7 @@
   - Swell now enables automatic titfucking and autofellatio when the player's breasts or penis are large enough.
 - Added the Critter Magnet trait
   - Repeated swarm and small-creature assaults can unlock Critter Magnet.
-  - The trait makes the player willingly strip and submit to critters, reduces Stress and Trauma from critter sex, and makes other sex distressing.
+  - The trait makes the player willingly strip and submit to critters, and reduces Stress and Trauma from critter sex.
   - It can be removed or regained through the X-Change trait settings.
 
 ## Rebalancing

@@ -151,8 +151,7 @@ test.describe("Feats Boosts", () => {
 			rapeTrait: "You've been raped so much that you've learned how to cope. Trauma increases more slowly.",
 			bestialityTrait: "Animals have tried to breed with you so often that you're used to it. Trauma increases more slowly when attacked by animals.",
 			tentacleTrait: "Many tentacles have had their way with your body. Trauma increases more slowly when attacked by tentacles.",
-			critterMagnetTrait:
-				"You cannot resist swarms and small creatures. You strip and submit to them, gaining relief from critter sex while other sex causes stress and trauma.",
+			critterMagnetTrait: "You cannot resist swarms and small creatures. You strip and submit to them, and critter sex relieves stress and trauma.",
 			milkDrankTrait: "You take full advantage of the nutrition in fresh breast milk. Drinking it invigorates your body, improving physique.",
 		};
 		for (const [trait, description] of Object.entries(traitDescriptions)) {

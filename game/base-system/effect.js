@@ -1088,7 +1088,7 @@ function effects() {
 			delete V.school_herm_message;
 		}
 
-		// expects the use of $orgasm_trait_message, $molest_trait_message, $rape_trait_message, $bestiality_trait_message, $tentacle_trait_message, $vore_trait_message, $milk_trait_message and $cum_trait_message
+		// expects the use of $orgasm_trait_message, $molest_trait_message, $rape_trait_message, $bestiality_trait_message, $tentacle_trait_message, $critter_magnet_trait_message, $vore_trait_message, $milk_trait_message and $cum_trait_message
 		[
 			["orgasm", "Hedonist", "Orgasm Addict"],
 			["molest", "Graceful", "Plaything"],

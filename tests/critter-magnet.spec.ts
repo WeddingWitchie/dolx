@@ -197,9 +197,30 @@ test.describe("Critter Magnet", () => {
 		await wikifyEval(page, "<<stress 1>><<trauma 4>>");
 		expect(await getVar(page, "stress")).toBe(10);
 		expect(await getVar(page, "trauma")).toBe(1.5);
+
+		const text = await wikifyToText(page, "<<endcombat>>");
+		expect(text).toContain("Giving yourself to the critters leaves you calm and satisfied");
+		expect(await getVar(page, "stress")).toBe(0);
+		expect(await getVar(page, "trauma")).toBe(0);
 	});
 
-	test("makes other partnered sex stressful and traumatic", async ({ page }) => {
+	test("does not grant relief after avoiding critter sex", async ({ page }) => {
+		await setupGame(page);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.crittermagnettrait = 1;
+			V.enemytype = "swarm";
+			V.rapeavoid = 1;
+			V.sexavoid = 1;
+			V.combat = 0;
+			V.stress = 100;
+		});
+		const text = await wikifyToText(page, "<<endcombat>>");
+		expect(text).not.toContain("Giving yourself to the critters");
+		expect(await getVar(page, "stress")).toBe(100);
+	});
+
+	test("does not penalize other partnered sex", async ({ page }) => {
 		await setupGame(page);
 		await page.evaluate(() => {
 			const V = (window as any).SugarCube.State.variables;
@@ -214,8 +235,8 @@ test.describe("Critter Magnet", () => {
 			V.control = V.controlmax;
 		});
 		const text = await wikifyToText(page, "<<endcombat>>");
-		expect(text).toContain("Sex without critters leaves you tense and unfulfilled");
-		expect(await getVar(page, "stress")).toBeGreaterThan(0);
-		expect(await getVar(page, "trauma")).toBeGreaterThan(0);
+		expect(text).not.toContain("Sex without critters");
+		expect(await getVar(page, "stress")).toBe(0);
+		expect(await getVar(page, "trauma")).toBe(0);
 	});
 });
