@@ -1906,6 +1906,7 @@ function initUnderUpper() {
 			type: ["swim", "school", "dance"],
 			combat: {
 				reference: "swimsuit",
+				hasSleevesAcc: false,
 			},
 			integrity: 100,
 			integrity_max: 100,
