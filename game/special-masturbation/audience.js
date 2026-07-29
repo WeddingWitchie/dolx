@@ -21,9 +21,7 @@ function masturbationAudience() {
 		if (V.npc[npc - 1]) {
 			sWikifier(
 				`<span class="lewd"><<person${npc}>>You can feel <<combatpersons>> eyes${V.masturbationAudience > 1 ? ", alongside others," : ""} on you.${
-					audienceMutual && V.masturbationAudience <= 6
-						? ` <<He>> mirrors${V.mouth === 0 || V.mouth === "disabled" ? " " : " some of"} your actions.`
-						: ""
+					audienceMutual && V.masturbationAudience <= 6 ? ` <<He>> mirrors${V.mouth === 0 || V.mouth === "disabled" ? " " : " some of"} your actions.` : ""
 				}</span>`
 			);
 		} else if (V.masturbationAudience === 1) {
@@ -93,16 +91,10 @@ function masturbationAudienceLines(npc) {
 	}
 
 	if (
-		[
-			"mvaginaentrance",
-			"mvaginafingerstarttwo",
-			"mvagina",
-			"mvaginaclit",
-			"mvaginarub",
-			"mvaginafingeraddtwo",
-			"mvaginafingeradd",
-			"mvaginatease",
-		].includesAny(V.masturbationActions.leftaction, V.masturbationActions.rightaction) &&
+		["mvaginaentrance", "mvaginafingerstarttwo", "mvagina", "mvaginaclit", "mvaginarub", "mvaginafingeraddtwo", "mvaginafingeradd", "mvaginatease"].includesAny(
+			V.masturbationActions.leftaction,
+			V.masturbationActions.rightaction
+		) &&
 		random(0, 100) >= 20 * (V.masturbationAudienceReactions.filter(a => a === "vagina").length + 1)
 	) {
 		V.masturbationAudienceReactions.push("vagina");
@@ -326,7 +318,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				resultArray.push(
 					`"Didn't think ${V.masturbationAudience > 1 ? "<<pshe>>" : "you"}'d be able to fit ${
 						V.masturbationAudience > 1 ? "<<pher>>" : "a"
-					} whole fist in there, but I guess I was wrong. What a size <<pking>>."`
+					} whole fist in there, but I guess I was wrong. What a size <<pking "stranger">>."`
 				);
 			}
 			if (V.fingersInVagina >= 1) resultArray.push(`"We can hear all the lewd sounds coming from your pussy, <<girl>>.`);
@@ -439,9 +431,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				if (V.worn.upper.exposed >= 2) {
 					return [
 						`"Your flat chest looks delicious."`,
-						`"${V.masturbationAudience > 1 ? "<<pHer>>" : "Your"} chest is so flat, ${
-							V.masturbationAudience > 1 ? "<<pshe>>" : "you"
-						} could pass as a boy."`,
+						`"${V.masturbationAudience > 1 ? "<<pHer>>" : "Your"} chest is so flat, ${V.masturbationAudience > 1 ? "<<pshe>>" : "you"} could pass as a boy."`,
 						`"Should I take pictures of <<pher>> cute chest? It'll be useful later."`,
 					]
 						.random()
