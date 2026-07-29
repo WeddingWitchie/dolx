@@ -1430,10 +1430,19 @@
 	<<characterViewerModelClothes $_id "feet">>
 	<<characterViewerModelClothes $_id "genitals">>
 
-	<<if _modeloptions.worn.handheld.index>>
+	<<set _holdPositions to Object.keys($characterViewer.clothesEquipped).map(slot =>
+		setup.clothes[slot]?.[$characterViewer.clothesEquipped[slot]]?.holdPosition
+	)>>
+	<<if _holdPositions.includes("left_cover") or _holdPositions.includes("clutch") or _holdPositions.includes("cover_both")>>
+		<<set _modeloptions.arm_left to "cover">>
+	<<elseif _holdPositions.includes("left_hold")>>
+		<<set _modeloptions.arm_left to "hold">>
+	<</if>>
+	<<if _holdPositions.includes("right_cover") or _holdPositions.includes("cover_both")>>
+		<<set _modeloptions.arm_right to "cover">>
+	<<elseif _holdPositions.includes("right_hold") or _holdPositions.includes("clutch") or
+		(_modeloptions.worn.handheld.index and !["left_cover", "left_idle", "idle_both"].includes(setup.clothes.handheld[$characterViewer.clothesEquipped.handheld]?.holdPosition))>>
 		<<set _modeloptions.arm_right to "hold">>
-	<<else>>
-		<<set _modeloptions.arm_right to $characterViewer.bodyState.rightArmCovering ? "cover" : "idle">>
 	<</if>>
 
 	/*tf*/
