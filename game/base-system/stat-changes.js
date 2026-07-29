@@ -1050,9 +1050,8 @@ const statChange = (() => {
 			amount *= 0.25;
 		}
 		// Iron Will: a completed fallen-angel mind grips willpower more firmly, so gains (e.g. from meditation) are boosted by 35%. Losses are untouched.
-		// Persists through a genome dump via $fallenangelplustf, matching the trait and no-decay buff.
 		// An insane fallen angel clings to willpower even harder: the boost rises to 45%, partially offsetting the insanity gain cut.
-		if (amount > 0 && (Transformations.effectiveLevel("fallen") >= 4 || V.fallenangelplustf === 1)) {
+		if (amount > 0 && Transformations.partActive("traits", "ironWill")) {
 			amount *= V.backgroundTraits.includes("insanity") ? 1.45 : 1.35;
 		}
 

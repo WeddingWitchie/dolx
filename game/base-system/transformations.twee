@@ -3,7 +3,7 @@
 <<widget "setupTransformationPiecesObject">>
 	<<if $transformationParts is undefined>>
 		<<set $transformationParts to {
-			traits: {fangs:"disabled", sharpEyes:"disabled", dragonEyes:"disabled", mateForLife:"disabled", chase:"disabled", flaunting:"disabled", preyAnimal:"disabled", strongFeet:"disabled", predatoryAnimal:"disabled", tempTolerance:"disabled", aquatic:"disabled", leviathan:"disabled"},
+			traits: {fangs:"disabled", sharpEyes:"disabled", dragonEyes:"disabled", mateForLife:"disabled", chase:"disabled", flaunting:"disabled", ironWill:"disabled", preyAnimal:"disabled", strongFeet:"disabled", predatoryAnimal:"disabled", tempTolerance:"disabled", aquatic:"disabled", leviathan:"disabled"},
 			angel: {halo:"disabled", wings:"disabled"},
 			fallenAngel: {halo:"disabled", wings:"disabled"},
 			demon: {horns:"disabled", wings:"disabled", tail: "disabled"},
@@ -95,6 +95,9 @@
 				<<set $transformationParts.bear.tail to "default">>
 			<</if>>
 		<</if>>
+		<<if effectiveTransformationLevel("fallen") gte 4>>
+			<<set $transformationParts.traits.ironWill to "default">>
+		<</if>>
 	<</if>>
 	<<if $transformationParts.bear is undefined>>
 		<<set $transformationParts.bear to {tail:"disabled", plumage:"disabled", ears:"disabled", pubes:"disabled"}>>
@@ -148,7 +151,7 @@
 		<<set $transformationParts.bunny to {ears:"disabled", tail:"disabled"}>>
 	<</if>>
 	<<if $transformationParts.traits is undefined>>
-		<<set $transformationParts.traits to {fangs:"disabled", sharpEyes:"disabled", dragonEyes:"disabled", mateForLife:"disabled", chase:"disabled", flaunting:"disabled"}>>
+		<<set $transformationParts.traits to {fangs:"disabled", sharpEyes:"disabled", dragonEyes:"disabled", mateForLife:"disabled", chase:"disabled", flaunting:"disabled", ironWill:"disabled"}>>
 		<<if $wolfgirl gte 2 or $cat gte 2 or $fox gte 2>>
 			<<set $transformationParts.traits.fangs to "default">>
 		<</if>>
@@ -159,9 +162,15 @@
 			<<set $transformationParts.traits.sharpEyes to "default">>
 			<<set $transformationParts.traits.dragonEyes to "default">>
 		<</if>>
+		<<if effectiveTransformationLevel("fallen") gte 4>>
+			<<set $transformationParts.traits.ironWill to "default">>
+		<</if>>
 	<</if>>
 	<<if $transformationParts.traits.strongFeet is undefined>>
 		<<set $transformationParts.traits.strongFeet to ($bunny gte 2 ? "default" : "disabled")>>
+	<</if>>
+	<<if $transformationParts.traits.ironWill is undefined>>
+		<<set $transformationParts.traits.ironWill to (effectiveTransformationLevel("fallen") gte 4 ? "default" : "disabled")>>
 	<</if>>
 	/* Heal Prey/Predator immediately on load so old saves don't have to wait for the next daily tick. */
 	<<recomputePredatorPrey>>
@@ -506,6 +515,7 @@
 				<<if $fallenbuild gte 30>>
 					<<set $fallenangel to 4>>
 					<<set $fallenangelplustf to 1>>
+					<<set $transformationParts.traits.ironWill to "default">>
 					<<run $timeMessages.pushUnique("fallenAngelWings")>>
 					<<set $transformationParts.fallenAngel.wings to ($transformationParts.fallenAngel.wings is "classic" ? "classicfallenplus" : "fallenplus")>>
 				<</if>>
@@ -515,6 +525,7 @@
 				<<set $fallenangelplustf to 1>>
 				<<set $fallenangel to 2>>
 				<<set $angelbuild to 0>>
+				<<set $transformationParts.traits.ironWill to "disabled">>
 				<<set $transformationParts.fallenAngel.halo to "default">>
 				<<set $transformationParts.fallenAngel.wings to "default">>
 				<<if $transformationParts.bird.wings is "default">>
@@ -523,6 +534,7 @@
 			<<case 99>>
 				<<if $fallenangel gt 0>><<set $specialTransform to 0>><</if>>
 				<<set $fallenangel to 0>>
+				<<set $transformationParts.traits.ironWill to "disabled">>
 				<<set $transformationParts.fallenAngel.halo to "disabled">>
 				<<set $transformationParts.fallenAngel.wings to "disabled">>
 		<</switch>>
@@ -532,6 +544,7 @@
 		<<set $fallenangelplustf to 1>>
 		<<set $fallenangel to 4>>
 		<<set $angelbuild to 0>>
+		<<set $transformationParts.traits.ironWill to "default">>
 		<<set $transformationParts.fallenAngel.halo to "default">>
 		<<set $transformationParts.fallenAngel.wings to "fallenplus">>
 		<<if $transformationParts.bird.wings is "default">>
@@ -547,6 +560,7 @@
 	<<set $specialTransform to 1>>
 	<<run $timeMessages.pushUnique("fallenAngelDescend")>>
 
+	<<set $transformationParts.traits.ironWill to "disabled">>
 	<<set $transformationParts.fallenAngel.halo to "disabled">>
 	<<set $transformationParts.fallenAngel.wings to "disabled">>
 
