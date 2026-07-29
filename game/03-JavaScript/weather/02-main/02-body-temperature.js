@@ -276,8 +276,8 @@ Weather.BodyTemperature = (() => {
 			waterdragon: {
 				coldTolerance: -40,
 				coldToleranceEnd: -45,
-				heatTolerance: -3,
-				heatToleranceEnd: -5,
+				heatTolerance: -1,
+				heatToleranceEnd: -2,
 			},
 		};
 
