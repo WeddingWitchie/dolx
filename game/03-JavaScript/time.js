@@ -2499,6 +2499,7 @@ function yearlyEventChecks() {
 		delete V.christmas_wrap;
 		delete V.christmas_gift_robin_wrapped;
 		delete V.christmas_robin_lewd;
+		delete V.christmas_robin_visit;
 		delete V.christmas_robin_gift_received;
 		delete V.christmas_gift_robin_given;
 		delete V.christmas_gift_eden;
