@@ -229,7 +229,7 @@ function applySensitivityCream(type) {
 window.applySensitivityCream = applySensitivityCream;
 
 function getSensitivity(part) {
-	const purityMod = insanitySensitivityAdjustment(((1000 - V.purity) * V.xchange.impuritySensitivityBonus) / 1000);
+	const purityMod = insanitySensitivityAdjustment(playerIsXChanged() ? ((1000 - V.purity) * V.xchange.impuritySensitivityBonus) / 1000 : 0);
 	const xchangeMod = insanitySensitivityAdjustment(playerIsXChanged() ? (V.player.sex === "f" ? 1 : -1) * V.xchange.pillSensitivityChange : 0);
 	const orgasmingMod = insanitySensitivityAdjustment(V.orgasmCum > 0 ? 1 : 0);
 	const antiPillMod = insanitySensitivityAdjustment(getAntiPillSensitivityBonus(part));
