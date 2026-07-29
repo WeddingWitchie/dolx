@@ -339,7 +339,7 @@ test.describe("Feats Boosts", () => {
 		}));
 		expect(mobileLayout.columns).toBe(1);
 		expect(mobileLayout.cardWidth).toBeLessThanOrEqual(390);
-		expect(new Set(mobileLayout.buttonHeights)).toEqual(new Set([44]));
+		expect(new Set(mobileLayout.buttonHeights)).toEqual(new Set([34]));
 	});
 });
 
