@@ -1323,7 +1323,7 @@ function clothesIndex(slot, itemToIndex) {
 	if (index === -1) {
 		console.log(`clothesIndex - ${slot} clothing item index not found for the '${itemToIndex.name}' with the modder set to '${itemToIndex.modder}'`);
 		/* try and correct .modder mismatches */
-		let oldVariable = false;
+		let refreshFields = false;
 		let matches = setup.clothes[slot].filter(item => item.variable === itemToIndex.variable);
 		if (matches.length === 0) {
 			/* try to find and item that had its variable changed */
@@ -1332,13 +1332,20 @@ function clothesIndex(slot, itemToIndex) {
 					Array.isArray(item.oldVariable) &&
 					item.oldVariable.find(oldVariableItem => oldVariableItem.name === itemToIndex.name && oldVariableItem.variable === itemToIndex.variable)
 			);
-			oldVariable = true;
+			refreshFields = true;
+		}
+		if (matches.length === 0) {
+			/* last resort: the display name is stable even when the item's .variable/.modder no longer
+			   match anything (e.g. a standalone mod's clothing got absorbed natively and dropped its
+			   old modder tag). Only trust this when it's unambiguous. */
+			matches = setup.clothes[slot].filter(item => item.name === itemToIndex.name);
+			refreshFields = true;
 		}
 		if (matches.length === 1) {
 			const recovery = matches[0];
 			itemToIndex.index = recovery.index;
 			itemToIndex.modder = recovery.modder;
-			if (oldVariable) {
+			if (refreshFields) {
 				itemToIndex.name = recovery.name;
 				itemToIndex.name_cap = recovery.name_cap;
 				itemToIndex.variable = recovery.variable;

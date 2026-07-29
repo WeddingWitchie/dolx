@@ -21,27 +21,29 @@ window.baileyFlatState = function () {
 };
 
 function baileyDayToDate(day) {
-    return new DateTime(Time.startDate.timeStamp + day * TimeConstants.secondsPerDay);
+	return new DateTime(Time.startDate.timeStamp + day * TimeConstants.secondsPerDay);
 }
 function baileyDateToDay(date) {
-    return Math.floor((date.timeStamp - Time.startDate.timeStamp) / TimeConstants.secondsPerDay);
+	return Math.floor((date.timeStamp - Time.startDate.timeStamp) / TimeConstants.secondsPerDay);
 }
 window.baileyWeekendClose = function (day) {
-    var date = baileyDayToDate(day);
-    if (date.weekDay === 7) return day + 1;
-    if (date.weekDay === 1) return day;
-    return baileyDateToDay(date.getPreviousWeekdayDate(1));
+	const date = baileyDayToDate(day);
+	if (date.weekDay === 7) return day + 1;
+	if (date.weekDay === 1) return day;
+	return baileyDateToDay(date.getPreviousWeekdayDate(1));
 };
 
 window.baileyWeeksMissed = function () {
-    if (!V.bailey_monogamous) return 0;
-    if (typeof V.bailey_weekend_closed !== "number" && typeof V.bailey_weekend_lastvisit === "number") {
-        V.bailey_weekend_closed = baileyWeekendClose(V.bailey_weekend_lastvisit);
-    }
-    if (typeof V.bailey_weekend_closed !== "number") return 0;
-    return Math.max(0, (baileyDateToDay(Time.getPreviousWeekdayDate(1)) - V.bailey_weekend_closed) / 7);
+	if (!V.bailey_monogamous) return 0;
+	if (typeof V.bailey_weekend_closed !== "number" && typeof V.bailey_weekend_lastvisit === "number") {
+		V.bailey_weekend_closed = window.baileyWeekendClose(V.bailey_weekend_lastvisit);
+	}
+	if (typeof V.bailey_weekend_closed !== "number") return 0;
+	return Math.max(0, (baileyDateToDay(Time.getPreviousWeekdayDate(1)) - V.bailey_weekend_closed) / 7);
 };
-window.baileyStraying = function () { return baileyWeeksMissed() >= 2; };
+window.baileyStraying = function () {
+	return baileyWeeksMissed() >= 2;
+};
 
 /* Bailey-specific Stockholm indicator */
 Macro.add("gbaileystock", {
@@ -81,14 +83,14 @@ $(document).one(":storyready", function () {
 			const _npcDom = C.npc.Bailey.dom;
 			const _hasNpcDom = typeof _npcDom === "number" && !Number.isNaN(_npcDom);
 			const _healDom = _hasNpcDom ? _npcDom : baileyRevealed() ? 100 : 50;
-			console.log("[BaileyExpansion] Healed $bailey_dom NaN \u2192 " + _healDom);
+			if (V.debug === 1) console.log("[BaileyExpansion] Healed $bailey_dom NaN \u2192 " + _healDom);
 			V.bailey_dom = _healDom;
 		}
 		if (Number.isNaN(V.bailey_love)) {
 			const _npcLove = C.npc.Bailey.love;
 			const _hasNpcLove = typeof _npcLove === "number" && !Number.isNaN(_npcLove);
 			const _healLove = _hasNpcLove ? _npcLove : 25;
-			console.log("[BaileyExpansion] Healed $bailey_love NaN \u2192 " + _healLove);
+			if (V.debug === 1) console.log("[BaileyExpansion] Healed $bailey_love NaN \u2192 " + _healLove);
 			V.bailey_love = _healLove;
 		}
 
@@ -96,7 +98,7 @@ $(document).one(":storyready", function () {
 		so $bailey_dom is undefined and dom checks fail silently. */
 		if (V.bailey_dom === undefined) {
 			V.bailey_dom = baileyRevealed() ? 100 : 50;
-			console.log("[BaileyExpansion] Initialized missing $bailey_dom -> " + V.bailey_dom);
+			if (V.debug === 1) console.log("[BaileyExpansion] Initialized missing $bailey_dom -> " + V.bailey_dom);
 		}
 		if (V.bailey_love === undefined) V.bailey_love = 0;
 
@@ -109,7 +111,7 @@ $(document).one(":storyready", function () {
 			["temple", "kylar", "cafe", "whitney", "gwylan", "kick"].forEach(function (k) {
 				if (_pts[k] === true) _healStock += 1;
 			});
-			console.log("[BaileyExpansion] Healed $stockholm_bailey (" + V.stockholm_bailey + ") \u2192 " + _healStock);
+			if (V.debug === 1) console.log("[BaileyExpansion] Healed $stockholm_bailey (" + V.stockholm_bailey + ") \u2192 " + _healStock);
 			V.stockholm_bailey = _healStock;
 		}
 
@@ -129,7 +131,7 @@ $(document).one(":storyready", function () {
 
 		/* Keep monogamous Bailey at 0 so he skips condoms; the game won't re-zero it once it drifts. */
 		if (V.bailey_monogamous === true && C.npc.Bailey.pregnancyAvoidance !== 0) {
-			console.log("[BaileyExpansion] Monogamous Bailey pregnancyAvoidance " + C.npc.Bailey.pregnancyAvoidance + " -> 0");
+			if (V.debug === 1) console.log("[BaileyExpansion] Monogamous Bailey pregnancyAvoidance " + C.npc.Bailey.pregnancyAvoidance + " -> 0");
 			C.npc.Bailey.pregnancyAvoidance = 0;
 		}
 	}
@@ -240,44 +242,52 @@ $(document).one(":storyready", function () {
 	if (typeof setup !== "undefined" && setup.loveInterestNpc) {
 		if (!setup.loveInterestNpc.includes("Bailey")) {
 			setup.loveInterestNpc.unshift("Bailey");
-			console.log("[BaileyExpansion] Bailey added to start of loveInterestNpc list");
+			if (V.debug === 1) console.log("[BaileyExpansion] Bailey added to start of loveInterestNpc list");
 		}
 	}
 
 	/* Sidebar reminders for the times Bailey is waiting. */
 	if (typeof setup !== "undefined" && Array.isArray(setup.events)) {
-	    if (!setup.events.some(function (ev) { return ev.name === "bailey date"; })) {
-	        setup.events.push({
-	            name: "bailey date",
-	            condition() {
-	                return (V.bailey_date_scheduled === 1 || V.bailey_date_allnight_scheduled === 1)
-	                    && V.renttime > 0
-	                    && V.bailey_date_attended !== 1;
-	            },
-	            starthour: 19,
-	            endhour: 19,
-	            priority: 4,
-	            text: "You have an arrangement with Bailey at the Orphanage at <<ampm 19 00>>.",
-	            failuretext: "You didn't show up for your arrangement with Bailey.",
-	        });
-	    }
-	    if (!setup.events.some(function (ev) { return ev.name === "bailey halloween gala"; })) {
-	        setup.events.push({
-	            name: "bailey halloween gala",
-	            condition() {
-	                return V.bailey_halloween_scheduled === Time.year
-	                    && Time.monthDay === 31
-	                    && Time.monthName === "October"
-	                    && V.bailey_halloween_attended !== Time.year
-	                    && !V.possessed;
-	            },
-	            starthour: 18,
-	            endhour: 19,
-	            priority: 4,
-	            text: "You have an arrangement with Bailey at the Orphanage at <<ampm 18 30>>.",
-	            failuretext: "You didn't show up for your arrangement with Bailey.",
-	        });
-	    }
+		if (
+			!setup.events.some(function (ev) {
+				return ev.name === "bailey date";
+			})
+		) {
+			setup.events.push({
+				name: "bailey date",
+				condition() {
+					return (V.bailey_date_scheduled === 1 || V.bailey_date_allnight_scheduled === 1) && V.renttime > 0 && V.bailey_date_attended !== 1;
+				},
+				starthour: 19,
+				endhour: 19,
+				priority: 4,
+				text: "You have an arrangement with Bailey at the Orphanage at <<ampm 19 00>>.",
+				failuretext: "You didn't show up for your arrangement with Bailey.",
+			});
+		}
+		if (
+			!setup.events.some(function (ev) {
+				return ev.name === "bailey halloween gala";
+			})
+		) {
+			setup.events.push({
+				name: "bailey halloween gala",
+				condition() {
+					return (
+						V.bailey_halloween_scheduled === Time.year &&
+						Time.monthDay === 31 &&
+						Time.monthName === "October" &&
+						V.bailey_halloween_attended !== Time.year &&
+						!V.possessed
+					);
+				},
+				starthour: 18,
+				endhour: 19,
+				priority: 4,
+				text: "You have an arrangement with Bailey at the Orphanage at <<ampm 18 30>>.",
+				failuretext: "You didn't show up for your arrangement with Bailey.",
+			});
+		}
 	}
 
 	const _origIsPossibleLoveInterest = window.isPossibleLoveInterest;
@@ -346,5 +356,5 @@ $(document).one(":storyready", function () {
 		}
 	}
 
-	console.log("[BaileyExpansion] stat display overrides + title system + love interest registered");
+	if (V.debug === 1) console.log("[BaileyExpansion] stat display overrides + title system + love interest registered");
 });

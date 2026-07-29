@@ -610,6 +610,7 @@ function pruneClothes() {
 		if (catalog.some(ref => ref.variable === item.variable)) return true;
 		if (catalog.some(ref => Array.isArray(ref.oldVariable) && ref.oldVariable.some(old => old.name === item.name && old.variable === item.variable)))
 			return true;
+		if (catalog.some(ref => ref.name === item.name)) return true;
 		return false;
 	}
 
