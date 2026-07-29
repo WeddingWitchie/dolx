@@ -40,27 +40,27 @@
 	<<if $repairAll isnot undefined and $repairAll is true>>
 		<<unset $repairAll>>
 		<<set _repairCount to 0>>
-		<<for _key range Object.keys($wardrobe)>>
-			<<if !Array.isArray($wardrobe[_key]) or $wardrobe[_key].length is 0>>
+		<<for _key range Object.keys(_selectedWardrobe)>>
+			<<if !Array.isArray(_selectedWardrobe[_key]) or _selectedWardrobe[_key].length is 0>>
 				<<continue>>
 			<</if>>
-			<<for _i to 0; _i lt $wardrobe[_key].length; _i++>>
-				<<if $wardrobe[_key][_i].integrity lt clothingData(_key, $wardrobe[_key][_i],'integrity_max')>>
-					<<set _repairCount += Math.ceil((clothingData(_key, $wardrobe[_key][_i],'integrity_max') - $wardrobe[_key][_i].integrity) / 25)>>
-					<<set $wardrobe[_key][_i].integrity = clothingData(_key, $wardrobe[_key][_i],'integrity_max')>>
+			<<for _i to 0; _i lt _selectedWardrobe[_key].length; _i++>>
+				<<if _selectedWardrobe[_key][_i].integrity lt clothingData(_key, _selectedWardrobe[_key][_i],'integrity_max') and clothingData(_key, _selectedWardrobe[_key][_i],'repairable') isnot false and !clothingData(_key, _selectedWardrobe[_key][_i],'altDamage')>>
+					<<set _repairCount += Math.ceil((clothingData(_key, _selectedWardrobe[_key][_i],'integrity_max') - _selectedWardrobe[_key][_i].integrity) / 25)>>
+					<<set _selectedWardrobe[_key][_i].integrity = clothingData(_key, _selectedWardrobe[_key][_i],'integrity_max')>>
 				<</if>>
 			<</for>>
 		<</for>>
 		<<for _key range Object.keys($worn)>>
-			<<if not $worn[_key].integrity>>
+			<<if $worn[_key].integrity is undefined>>
 				<<continue>>
 			<</if>>
-			<<if $worn[_key].integrity lt clothingData(_key, $worn[_key],'integrity_max') && !clothingData(_key, $worn[_key],'altDamage')>>
+			<<if $worn[_key].integrity lt clothingData(_key, $worn[_key],'integrity_max') and clothingData(_key, $worn[_key],'repairable') isnot false and !clothingData(_key, $worn[_key],'altDamage')>>
 				<<set _repairCount += Math.ceil((clothingData(_key, $worn[_key], 'integrity_max') - $worn[_key].integrity) / 25)>>
 				<<set $worn[_key].integrity = clothingData(_key, $worn[_key],'integrity_max')>>
 			<</if>>
 		<</for>>
-		<<set _timeNeeded to (10 - (1 * Math.round($housekeeping / 250))) * _repairCount>>
+		<<set _timeNeeded to Math.min((10 - (1 * Math.round($housekeeping / 250))) * _repairCount, 120)>>
 		<<set _gain to Math.max((6 - (2 * Math.round($housekeeping / 200))) * _repairCount, 2 * _repairCount)>>
 		<<housekeeping _gain 1000>>
 		<<updatesidebarimg>>
@@ -272,7 +272,7 @@
 			You discard the <<print _item.name>>.
 			<<set _selectedWardrobe[_slot].deleteAt(_wearId)>>
 			<br>
-		<<elseif $wardrobeOption is "repair" and _item.repairable isnot false>>
+		<<elseif $wardrobeOption is "repair" and _item.repairable isnot false and !_item.altDamage>>
 			<<set _item.integrity to clothingData(_slot,_item,'integrity_max')>>
 			<<set $_timeSpent to 5>>
 			/*Repair the relating items*/
@@ -447,25 +447,25 @@
 		<</link>>
 	</div> |
 	<<set _repairCount to 0>>
-	<<for _key range Object.keys($wardrobe)>>
-		<<if !Array.isArray($wardrobe[_key]) or $wardrobe[_key].length is 0>>
+	<<for _key range Object.keys(_selectedWardrobe)>>
+		<<if !Array.isArray(_selectedWardrobe[_key]) or _selectedWardrobe[_key].length is 0>>
 			<<continue>>
 		<</if>>
-		<<for _i to 0; _i lt $wardrobe[_key].length; _i++>>
-			<<if $wardrobe[_key][_i].integrity lt clothingData(_key, $wardrobe[_key][_i],'integrity_max')>>
-				<<set _repairCount += Math.ceil((clothingData(_key, $wardrobe[_key][_i], 'integrity_max') - $wardrobe[_key][_i].integrity) / 25)>>
+		<<for _i to 0; _i lt _selectedWardrobe[_key].length; _i++>>
+			<<if _selectedWardrobe[_key][_i].integrity lt clothingData(_key, _selectedWardrobe[_key][_i],'integrity_max') and clothingData(_key, _selectedWardrobe[_key][_i],'repairable') isnot false and !clothingData(_key, _selectedWardrobe[_key][_i],'altDamage')>>
+				<<set _repairCount += Math.ceil((clothingData(_key, _selectedWardrobe[_key][_i], 'integrity_max') - _selectedWardrobe[_key][_i].integrity) / 25)>>
 			<</if>>
 		<</for>>
 	<</for>>
 	<<for _key range Object.keys($worn)>>
-		<<if not $worn[_key].integrity>>
+		<<if $worn[_key].integrity is undefined>>
 			<<continue>>
 		<</if>>
-		<<if $worn[_key].integrity lt clothingData(_key, $worn[_key],'integrity_max') && !clothingData(_key, $worn[_key],'altDamage')>>
+		<<if $worn[_key].integrity lt clothingData(_key, $worn[_key],'integrity_max') and clothingData(_key, $worn[_key],'repairable') isnot false and !clothingData(_key, $worn[_key],'altDamage')>>
 			<<set _repairCount += Math.ceil((clothingData(_key, $worn[_key], 'integrity_max') - $worn[_key].integrity) / 25)>>
 		<</if>>
 	<</for>>
-	<<set _timeNeeded to (10 - (1 * Math.round($housekeeping / 250))) * _repairCount>>
+	<<set _timeNeeded to Math.min((10 - (1 * Math.round($housekeeping / 250))) * _repairCount, 120)>>
 	<<set _timeString to getTimeString(_timeNeeded)>>
 	<<if $DoLPSpools isnot undefined and _repairCount gt 0>>
 		<div class="wardrobe-action">
@@ -1153,7 +1153,7 @@
 
 <<widget "repairClothing">>
 	<div class="repairClothing">
-		<<if _wornItem.integrity lt _wornItemData.integrity_max and _wornItemData.repairable isnot false>>
+		<<if _wornItem.integrity lt _wornItemData.integrity_max and _wornItemData.repairable isnot false and !_wornItemData.altDamage>>
 			<<if $DoLPSpools gte 1>>
 				<<set _timeNeeded to 10 - (1 * Math.round($housekeeping / 250))>>
 				<<set _timeString to getTimeString(_timeNeeded)>>
