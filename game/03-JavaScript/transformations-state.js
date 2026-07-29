@@ -18,6 +18,14 @@ class Transformations {
 		return value !== undefined && value !== "disabled" && value !== "hidden";
 	}
 
+	static hasWings() {
+		return ["angel", "fallenAngel", "demon", "bird", "okami", "seraphim"].some(transformation => this.partActive(transformation, "wings"));
+	}
+
+	static hasFlightWings() {
+		return ["bird", "seraphim"].some(transformation => this.partActive(transformation, "wings"));
+	}
+
 	static chimeraActive(name) {
 		const anyPart = (transformation, parts) => parts.some(part => this.partActive(transformation, part));
 		switch (name) {

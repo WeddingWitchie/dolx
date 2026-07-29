@@ -228,7 +228,7 @@
 		<</if>>
 		<<set $bird.timer to 600>>
 		<br><br>
-		<<if effectiveTransformationLevel("bird") gte 6 and $syndromebird is 1 and $bird.hunts.lurkers is true>>
+		<<if Transformations.hasFlightWings() and $syndromebird is 1 and $bird.hunts.lurkers is true>>
 			<<flight_time_check 30 "silent">>
 			<<link [[Hunt for your spouse (<<print getTimeString(_hoursPassed, _minutesPassed)>>)|Bird Hunt Start Injured]]>><<set $fatigueMod to _fatigueMod>><<set $flightTime to _flightTime>><<unset $birdPerch>><<bird_pass _flightTime>><<npcincr "Great Hawk" love 1>><<npcincr "Great Hawk" dom -3>><</link>><<glove>><<lldom>><<print _fatigueText>>
 			<br>
@@ -239,7 +239,7 @@
 			<<link [[Do nothing|Bird Tower]]>><<endevent>><</link>>
 		<</if>>
 		<br>
-	<<elseif $syndromebird is 1 and npcIsPregnant("Great Hawk") and talkedAboutPregnancy("Great Hawk","pc") and npcBellySize("Great Hawk") gte 14 and $bird.hunts.unlocked is true and effectiveTransformationLevel("bird") gte 6 and $bird.hunts.lurkers is true>>
+	<<elseif $syndromebird is 1 and npcIsPregnant("Great Hawk") and talkedAboutPregnancy("Great Hawk","pc") and npcBellySize("Great Hawk") gte 14 and $bird.hunts.unlocked is true and Transformations.hasFlightWings() and $bird.hunts.lurkers is true>>
 		<<set $bird.timer to 600>>
 		<<if ["build","brood","sleep","rest"].includes($bird.activity)>>
 			The <<beasttype>> sits in the nest,
@@ -287,7 +287,7 @@
 		<br><br>
 
 		<<if $syndromebird is 1>>
-			<<if effectiveTransformationLevel("bird") gte 6 and $bird.hunts.unlocked is true>>
+			<<if Transformations.hasFlightWings() and $bird.hunts.unlocked is true>>
 				<<flight_time_check 30 "silent">>
 				<<if $tiredness gte (C.tiredness.max / 5) * 4>>
 					<span class="red">You're too exhausted to join the hunt.</span>
@@ -351,7 +351,7 @@
 		<br><br>
 
 		<<if $syndromebird is 1>>
-			<<if effectiveTransformationLevel("bird") gte 6 and $bird.hunts.unlocked is true>>
+			<<if Transformations.hasFlightWings() and $bird.hunts.unlocked is true>>
 				<<flight_time_check 30 "silent">>
 				<<if $tiredness gte (C.tiredness.max / 5) * 4>>
 					<span class="red">You're too exhausted to join the hunt.</span>
@@ -609,7 +609,7 @@
 		<br><br>
 
 		<<if $monster is 1>>
-			"Poor <<if effectiveTransformationLevel("bird") lte 5>>landbound <</if>><<wife>> has never raised egg before. Not to worry. I will help teach!"
+			"Poor <<if !Transformations.hasFlightWings()>>landbound <</if>><<wife>> has never raised egg before. Not to worry. I will help teach!"
 		<</if>>
 		<<bHe>> delicately brings the stones to the nest and demonstrates how to keep them warm. After a few moments, <<bhe>> hops off the rock and makes room for you to take over.
 		<br><br>
@@ -874,7 +874,7 @@
 <<widget "hawkCaughtYouSpeech">>
 	<<if $monster is 1>>
 		<<if $birdescaped gte 1>>
-			"<<Wife>> shouldn't <<if $birdescaped gte 2>>keep running<<else>>run<</if>> away," <<bhe>> says. "<<if effectiveTransformationLevel("bird") gte 6>><<Wife>> doesn't know how to fly yet<<else>>Landbound travel is dangerous<</if>>."
+			"<<Wife>> shouldn't <<if $birdescaped gte 2>>keep running<<else>>run<</if>> away," <<bhe>> says. "<<if Transformations.hasFlightWings()>><<Wife>> doesn't know how to fly yet<<else>>Landbound travel is dangerous<</if>>."
 		<<else>>
 			"Caught you," <<bhe>> says as the wings on <<bhis>> back beat furiously.
 		<</if>>
@@ -928,14 +928,14 @@
 
 			<<if $monster is 1>>
 				"Come, <<wife>>. Fly with me." <<bHis>> voice carries a tender plea as <<bhe>>
-				<<if effectiveTransformationLevel("bird") gte 6 and $birdFly is 1 and !$plucked>>
+				<<if Transformations.hasFlightWings() and $birdFly is 1 and !$plucked>>
 					extends <<bhis>> massive talon toward you.
 				<<else>>
 					crouches down, making room for you to climb onto <<bhis>> back.
 				<</if>>
 			<<else>>
 				<<bHe>> lets out a low trill, nodding out to the moor. <<bHe>> wants you to fly with <<bhim>>.
-				<<if effectiveTransformationLevel("bird") lt 6 or $birdFly isnot 1 and !$plucked>>
+				<<if !Transformations.hasFlightWings() or $birdFly isnot 1 or $plucked>>
 					<<bHe>> gets low to the ground, motioning for you to climb onto <<bhis>> back.
 				<</if>>
 			<</if>>
@@ -976,7 +976,7 @@
 		<<if $daily.birdGroom is undefined and $bird.activity is "groom">>
 			<<birdicon "preen">><<link [[Groom (0:15)|Bird Tower Groom]]>><<bird_pass 15>><<trauma -6>><<transform bird 1>><<npcincr "Great Hawk" love 1>><<endevent>><</link>><<ltrauma>><<glove>><br>
 		<</if>>
-		<<if effectiveTransformationLevel("bird") gte 6 and $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
+		<<if Transformations.hasFlightWings() and $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
 			<<if $plucked>>
 				<span class="red">Your wings haven't recovered from Gwylan's thorough preening yet.</span>
 			<<elseif Weather.precipitation is "rain">>
@@ -1007,7 +1007,7 @@
 		<<if npcIsPregnant("Great Hawk") and talkedAboutPregnancy("Great Hawk","pc")>>
 			<<pregnancyicon "Great Hawk">><<link "Rub <<bhis>> pregnant belly (0:30)" "Bird Tower Pregnant Belly Rub">><<transform bird 1>><<bird_pass 30>><<stress -6>><<trauma -6>><<endevent>><</link>><<llstress>><<lltrauma>><br>
 		<</if>>
-		<<if effectiveTransformationLevel("bird") gte 6 and $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
+		<<if Transformations.hasFlightWings() and $birdFly is 1 and $bird.injured is 0 and $bird.upgrades.decor gte 1 and !$daily.birdCasualFlight>>
 			<<if $plucked>>
 				<span class="red">Your wings haven't recovered from Gwylan's thorough preening yet.</span>
 			<<elseif Weather.precipitation is "rain">>
@@ -1029,7 +1029,7 @@
 			<<skinicon "give">><<link [[Give the Great Hawk food|Great Hawk Gifts List]]>><<endevent>><</link>>
 			<br>
 		<</if>>
-		<<if effectiveTransformationLevel("bird") gte 6>>
+		<<if Transformations.hasFlightWings()>>
 			<<birdicon "preen_self">><<link [[Preen your wings (0:30)|Bird Tower Preen Self]]>><<bird_pass 30>><<stress -2>><<endevent>><</link>><<lstress>><br>
 		<</if>>
 		<<if $bird.upgrades.telescope is 1>>
@@ -1071,7 +1071,7 @@
 <</widget>>
 
 <<widget "bird_fly_options">>
-	<<if effectiveTransformationLevel("bird") gte 6>>
+	<<if Transformations.hasFlightWings()>>
 		<<if $plucked>>
 			The wind could carry you a long way, <span class="red">but your wings haven't recovered from Gwylan's thorough preening.</span> They should at least carry you down safely.
 			<br>
@@ -1115,7 +1115,7 @@
 			<<birdicon "fly_down">><<link [[Base of the tower (0:01)|Bird Tower Glide 2]]>><<unset $birdPerch>><<bird_pass 1>><<endevent>><</link>><<flight_text>>
 			<br>
 		<</if>>
-	<<elseif (effectiveTransformationLevel("angel") gte 6) or (effectiveTransformationLevel("demon") gte 6) or (effectiveTransformationLevel("fallen") gte 2)>>
+	<<elseif Transformations.hasWings()>>
 		<<if $pain gte 21>>
 			Your wings should carry you down, <span class="purple">but you're too injured for such a risky jump right now.</span>
 			<br><br>
