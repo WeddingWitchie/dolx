@@ -73,6 +73,7 @@ A source is treated as slut income when it is:
 
 - any source containing `prostitution`
 - exactly `avery`
+- exactly `briargel`
 - exactly `brothel`
 - exactly `stripclub`
 - any source containing `brothelshow`
@@ -164,7 +165,7 @@ Do not change `_money_gain` itself to the divine-adjusted preview. Doing so make
 
 ### `<<tipreceive source>>`
 
-This widget applies any relevant bunny/cat income bonus first, then the divine bonus. It prints and awards the already-adjusted tip with both duplicate-prevention flags.
+This widget applies any relevant bunny/cat income bonus first, then the divine bonus to the tip and its flat cash component. It prints and awards the already-adjusted total with both duplicate-prevention flags.
 
 Always supply a source for sexual work or Avery:
 
@@ -193,7 +194,7 @@ Do not exclude `pubStolenGoods` from the divine helper. Acquisition and fencing 
 `game/base-system/overlays/traits.twee` displays the bonus alongside the other full-transformation effects:
 
 - Angel states that non-sexual income is increased by 50%.
-- Demon states that dancing, sex work, Avery, and other sexualised-job income is increased by 50%.
+- Demon states that sexualised-job income is increased by 50%.
 - Both Fallen Angel description stages state that all income is increased by 20%, because the mechanic begins at effective Fallen level 2 rather than only at the later level-4 trait stage.
 
 Keep these descriptions synchronized with `divineTfIncome()` whenever the percentages, thresholds, or classifications change.
