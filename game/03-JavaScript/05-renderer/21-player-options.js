@@ -1,6 +1,6 @@
 // @ts-check
-const playerMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
-const playerMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
+const playerMapperEnemyPleasure = () => Number(/** @type {any} */ (V).enemypleasure ?? 0);
+const playerMapperEnemyPleasureMax = () => Number(/** @type {any} */ (V).enemypleasuremax ?? 500);
 /* global Partial, Dict, Record, CombatRenderer, Player, Bodywriting, ClothedSlots, SkinColours, NpcCombatMapper, ShaftTarget, isTransformationPartEnabled, isChimeraEnabled, TotalClothingStates, TransformationKeys, TransformationParts, CombatClothingTypes, AnimationSpeed, LegPositions, MachineState, CondomOptions */
 
 /**
@@ -1515,7 +1515,14 @@ class PlayerCombatMapper {
 	static mapPcToPenetratorOptions(pc, options) {
 		const hasPenetrator = pc.penisExist || playerHasStrapon();
 		const isExposed = PlayerCombatMapper.isPenisExposed(options);
-		const hasChastityBelt = ["chastitybeltfetish", "goldchastitybelt", "chastitybelt", "flatchastitycage"].includes(V.worn.genitals.variable);
+		const hasChastityBelt = [
+			"chastitybeltfetish",
+			"chastitybeltfetishdildo",
+			"goldchastitybelt",
+			"chastitybelt",
+			"flatchastitycage",
+			"flatchastitycagefetish",
+		].includes(V.worn.genitals.variable);
 		const isEjaculating =
 			V.orgasmdown > 0 &&
 			V.penisstate !== "penetrated" &&
@@ -1646,11 +1653,9 @@ class PlayerCombatMapper {
 	 */
 	static genClothingJoinedLimbs(slot, clothing) {
 		return {
-			limbs:
-				["lower", "feet", "legs", "under_lower", "upper", "under_upper", "hands"].includes(slot) && PlayerCombatMapper.hasJoinedLimbs(slot, clothing),
+			limbs: ["lower", "feet", "legs", "under_lower", "upper", "under_upper", "hands"].includes(slot) && PlayerCombatMapper.hasJoinedLimbs(slot, clothing),
 			limbsAccessory:
-				["lower", "feet", "legs", "under_lower", "upper", "under_upper", "hands"].includes(slot) &&
-				PlayerCombatMapper.hasJoinedLimbsAcc(slot, clothing),
+				["lower", "feet", "legs", "under_lower", "upper", "under_upper", "hands"].includes(slot) && PlayerCombatMapper.hasJoinedLimbsAcc(slot, clothing),
 		};
 	}
 

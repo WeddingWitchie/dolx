@@ -111,6 +111,12 @@ class ClothesItem {
 	/* Is the clothing cursed? | INT */
 	cursed = 0;
 
+	/* Whether the player currently possesses the key or controller for the item | STRING */
+	chastityKey;
+
+	/* Who fitted the device or currently holds its key | STRING */
+	chastityKeyholder;
+
 	/* Closet location storage, always 0 | REQUIRED | INT */
 	location = 0;
 

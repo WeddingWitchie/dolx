@@ -9,6 +9,12 @@
 	You are in the adult shop. It has a large selection of fetish clothing and strap-ons.
 	<br><br>
 
+	<<if Time.dayState isnot "night" and playerChastity() and $worn.genitals.cursed is 1 and !["chastity parasite", "gold chastity belt"].includes($worn.genitals.name)>>
+		<<set _chastityRemovalCost to 5000>>
+		<<lockicon "unlock">><<link [[Ask Sirris to remove your chastity device|Adult Shop Chastity Removal]]>><</link>> (<<printprice _chastityRemovalCost>>)
+		<br><br>
+	<</if>>
+
 	<<if $stress gte $stressmax>>
 		<<passoutadultshop>>
 	<<else>>
@@ -179,6 +185,54 @@
 		<</if>>
 	<</if>>
 <</widget>>
+
+:: Adult Shop Chastity Removal
+<<effects>><<set $outside to 0>><<set $location to "adult_shop">>
+<<set _chastityRemovalCost to 5000>>
+<<if !playerChastity() or $worn.genitals.cursed isnot 1 or ["chastity parasite", "gold chastity belt"].includes($worn.genitals.name)>>
+	Sirris gives you a puzzled look. "I can't help with something that isn't there."
+	<br><br>
+	<<link [[Back|Adult Shop Store]]>><</link>>
+<<elseif $money lt _chastityRemovalCost>>
+	Sirris examines the lock, then names <<printprice _chastityRemovalCost>> as the price. You cannot afford the work.
+	<br><br>
+	<<link [[Back|Adult Shop Store]]>><</link>>
+<<else>>
+	Sirris turns the $worn.genitals.name over in practiced hands. "No key? That's alright. We sell restraints; we know how to get someone out of one too. The device won't survive, though."
+	<br><br>
+	<<link [[Pay Sirris to cut it off|Adult Shop Chastity Removal Finish]]>><</link>>
+	<br>
+	<<link [[Change your mind|Adult Shop Store]]>><</link>>
+<</if>>
+
+:: Adult Shop Chastity Removal Finish
+<<effects>><<set $outside to 0>><<set $location to "adult_shop">>
+<<set _chastityRemovalCost to 5000>>
+<<if !playerChastity() or $worn.genitals.cursed isnot 1 or ["chastity parasite", "gold chastity belt"].includes($worn.genitals.name)>>
+	Sirris gives you a puzzled look. "I can't help with something that isn't there."
+<<elseif $money lt _chastityRemovalCost>>
+	Sirris examines the lock again. You no longer have enough money for the work.
+<<else>>
+	<<money `-_chastityRemovalCost` "clothes">>
+	Sirris shields your skin, works a narrow cutter into the lock, and splits it with a sharp crack. The ruined device falls away. <span class="green">You are free.</span>
+	<<if $vaginalchastityparasite>>
+		 The trapped parasite slips from your vagina.
+		<<set $vaginalchastityparasite to 0>>
+	<</if>>
+	<<if $penilechastityparasite>>
+		 The trapped parasite falls from your penis.
+		<<set $penilechastityparasite to 0>>
+	<</if>>
+	<<if $analchastityparasite>>
+		 The trapped parasite slips from your anus.
+		<<set $analchastityparasite to 0>>
+	<</if>>
+	<<set $worn.genitals.type.pushUnique("broken")>>
+	<<set $worn.genitals.anal_shield to 0>>
+	<<generalRuined "genitals" false "worn">>
+<</if>>
+<br><br>
+<<link [[Back|Adult Shop Store]]>><</link>>
 
 
 :: Stolen Adult Shop Result

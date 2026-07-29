@@ -1723,7 +1723,7 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.genitalSensitiveRubMessage) {
-		const rubSlot = typeof V.genitalSensitiveRubMessage === "string" ? V.genitalSensitiveRubMessage : getGenitalSensitiveRubSlot();
+		const rubSlot = !playerChastity() ? (typeof V.genitalSensitiveRubMessage === "string" ? V.genitalSensitiveRubMessage : getGenitalSensitiveRubSlot()) : null;
 		if (rubSlot) {
 			wikifier("genitalsensitivity");
 			element("span", `Your ${T.text_output2 ?? " "}${V.player.penisExist ? "penis" : "clit"} is rubbing against your ${V.worn[rubSlot].name}.`, "pink");
@@ -1736,6 +1736,19 @@ function xchangeEffectsMessages() {
 		element("span", `Locked away like this, a sudden wave of arousal catches you off guard.`, "pink");
 		br();
 		delete V.chastityArousalSpikeMessage;
+	}
+
+	if (V.chastityControlLostMessage) {
+		const control = V.chastityControlLostMessage === "remote" ? "vibrator remote" : "key to your chastity device";
+		element("span", `When you check your belongings, the ${control} is gone. Someone must have taken it while you were unconscious.`, "red");
+		br();
+		delete V.chastityControlLostMessage;
+	}
+
+	if (V.vibratorRemoteGlitchMessage) {
+		element("span", `Without the remote, your vibrator changes setting on its own.`, "pink");
+		br();
+		delete V.vibratorRemoteGlitchMessage;
 	}
 
 	// Tampered sensitivity-decreasing cream wearing off: the hoarded arousal crashes back all at once.

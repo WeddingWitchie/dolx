@@ -31,7 +31,7 @@
 			<br><br>
 		<</if>>
 		<<clothingCaptionTextHandheld>>
-	<<elseif playerHasButtPlug() or playerHasWornVaginalDildo()>>
+	<<elseif playerHasButtPlug() or playerHasVibrator() or playerHasWornVaginalDildo()>>
 		<<set _insertables to []>>
 		<<if playerHasButtPlug()>>
 			<<set $_a to ($worn.butt_plug.name is "anal beads"? "": "a ")>>
@@ -41,7 +41,13 @@
 			<<set $_a to ["a", "e", "i", "o", "u"].includes($worn.vaginal_dildo.name[0]) ? "an " : "a ">>
 			<<set _insertables.push(`${$_a}${$worn.vaginal_dildo.name} in your <<pussy>>`)>>
 		<</if>>
+		<<if playerHasVibrator()>>
+			<<set _insertables.push($worn.vibrator.name)>>
+		<</if>>
 		<<print `<<possessedWord 'You'>> wear ${formatList(_insertables)}.`>>
+		<<if playerHasBulletVibe() and !playerHasVibratorRemote()>>
+			<span class="pink"> <<possessedWord 'Your' 'pink'>> bullet vibe is stuck inside <<possessedWord 'you' 'pink'>>, beyond <<possessedWord 'your' 'pink'>> control without the remote.</span>
+		<</if>>
 	<</if>>
 	<<clothingCaptionTextNothing>>
 	<<clothingCaptionTextMask>>
@@ -200,6 +206,16 @@
 		<</if>>
 		<<set $_text_output to ` <<possessedWord 'You'>> wear ${formatList(_insertables)}.`>>
 	<</if>>
+	<<if playerChastity() and $worn.genitals.chastityKey and $worn.genitals.chastityKey isnot "player">>
+		<<if $worn.genitals.chastityKeyholder>>
+			<<set $_text_output += ` <span class="red">${$worn.genitals.chastityKeyholder is "attacker" ? "An attacker" : $worn.genitals.chastityKeyholder} has the key.</span>`>>
+		<<else>>
+			<<set $_text_output += ` <span class="red"><<possessedWord 'You' 'red'>> do not have the key.</span>`>>
+		<</if>>
+	<</if>>
+	<<if playerHasBulletVibe() and !playerHasVibratorRemote()>>
+		<<set $_text_output += ` <span class="pink"><<possessedWord 'Your' 'pink'>> bullet vibe is stuck inside <<possessedWord 'you' 'pink'>>, beyond <<possessedWord 'your' 'pink'>> control without the remote.</span>`>>
+	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>>
 <</widget>>
 
@@ -215,7 +231,7 @@
 	<<if _fullyNaked>>
 		<<if $worn.genitals.name isnot "naked">>
 			<<set $_text_output to "<<possessedWord 'Your' 'red'>> <<clothingCaptionChastityEffect>> <<genitalsintegrity>> $worn.genitals.name <<if playerChastity('anus')>>with an anal shield<</if>> gives <<possessedWord 'you' 'red'>> no comfort.">>
-		<<elseif !playerHasButtPlug() and !playerHasWornVaginalDildo()>>
+		<<elseif !playerHasButtPlug() and !playerHasVibrator() and !playerHasWornVaginalDildo()>>
 			<<set $_text_output to "<<possessedWord 'You' 'red'>> are completely naked!">>
 		<</if>>
 	<<elseif _bottomless>>

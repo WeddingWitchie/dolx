@@ -106,6 +106,18 @@ function dolxEjectOrphanVaginalDildo() {
 }
 window.dolxEjectOrphanVaginalDildo = dolxEjectOrphanVaginalDildo;
 
+// An expelled vibe remains in the toy inventory, but is no longer inserted or automatically restored after combat.
+function dolxEjectWornVibrator() {
+	if (!V.worn?.vibrator) return false;
+	V.worn.vibrator.state = "removed";
+	V.worn.vibrator.vibrating = 0;
+	V.worn.vibrator.worn = false;
+	delete V.worn.vibrator;
+	dolxSyncSexToyWornFlags();
+	return true;
+}
+window.dolxEjectWornVibrator = dolxEjectWornVibrator;
+
 function playerMasturbationToyByIndex(index) {
 	if (index === undefined || index === null || index === "none" || Number.isNaN(Number(index)) || typeof listUniqueCarriedSextoys !== "function") return null;
 	const toys = listUniqueCarriedSextoys().filter(toy => {
@@ -189,13 +201,18 @@ function playerHasBulletVibe() {
 }
 window.playerHasBulletVibe = playerHasBulletVibe;
 
+function playerHasVibratorRemote() {
+	return playerHasVibrator() && V.worn.vibrator.remote === "player";
+}
+window.playerHasVibratorRemote = playerHasVibratorRemote;
+
 function playerVibratorOn() {
 	return playerHasVibrator() && V.worn.vibrator.vibrating === 1;
 }
 window.playerVibratorOn = playerVibratorOn;
 
 function setPlayerVibrator(on, link) {
-	if (!playerHasVibrator()) return;
+	if (!playerHasVibratorRemote()) return;
 
 	V.worn.vibrator.vibrating = on ? 1 : 0;
 
@@ -208,13 +225,13 @@ function setPlayerVibrator(on, link) {
 window.setPlayerVibrator = setPlayerVibrator;
 
 function togglePlayerVibrator(link) {
-	if (!playerHasVibrator()) return;
+	if (!playerHasVibratorRemote()) return;
 	setPlayerVibrator(!playerVibratorOn(), link);
 }
 window.togglePlayerVibrator = togglePlayerVibrator;
 
 function changePlayerVibratorPower(delta, link) {
-	if (!playerHasVibrator()) return;
+	if (!playerHasVibratorRemote()) return;
 
 	if (typeof V.worn.vibrator.power !== "number") V.worn.vibrator.power = 1;
 	if (typeof V.worn.vibrator.powerMax !== "number") V.worn.vibrator.powerMax = 3;

@@ -237,6 +237,35 @@ function templeChastityRefusalReason() {
 }
 window.templeChastityRefusalReason = templeChastityRefusalReason;
 
+// Old saves may already own adult-shop chastity from before keys were tracked on the item.
+// Cover every place owned clothing can live while leaving cursed, NPC-fitted devices under their original holder's control.
+function dolxBackfillChastityKeys() {
+	const items = [];
+	if (V.worn?.genitals) items.push(V.worn.genitals);
+	if (V.carried?.genitals) items.push(V.carried.genitals);
+	if (Array.isArray(V.wardrobe?.genitals)) items.push(...V.wardrobe.genitals);
+	if (Array.isArray(V.store?.genitals)) items.push(...V.store.genitals);
+	if (V.tryOn?.ownedStored?.genitals) items.push(V.tryOn.ownedStored.genitals);
+	if (V.tryOn?.tryingOn?.genitals) items.push(V.tryOn.tryingOn.genitals);
+	if (V.wardrobes && typeof V.wardrobes === "object") {
+		for (const wardrobe of Object.values(V.wardrobes)) {
+			if (Array.isArray(wardrobe?.genitals)) items.push(...wardrobe.genitals);
+		}
+	}
+
+	for (const item of new Set(items)) {
+		if (!Array.isArray(item?.type) || !item.type.includes("chastity") || item.chastityKey !== undefined) continue;
+		if (item.cursed !== 1) {
+			item.chastityKey = "player";
+			delete item.chastityKeyholder;
+		} else {
+			item.chastityKey = item.origin ? "holder" : "lost";
+			if (item.origin) item.chastityKeyholder = item.origin;
+		}
+	}
+}
+window.dolxBackfillChastityKeys = dolxBackfillChastityKeys;
+
 function playerChastity(slots, inAllSlots = false) {
 	let chastity = false;
 	const chastityCovered = [];

@@ -128,12 +128,12 @@
 	<<generalWear "genitals" _args[0] _args[1] _args[2] _args[3]>>
 <</widget>>
 
-<!-- Forces a chastity device onto the player, picking belt/cage/size the same way Whitney's forced-chastity scene does. Args: origin (string, stamped onto $worn.genitals.origin; defaults to "forced"). Breaks any existing cursed device first, same as Whitney's scene does when re-fitting. -->
+<!-- Forces a chastity device onto the player, picking belt/cage/size the same way Whitney's forced-chastity scene does. Args: origin (string, stamped onto $worn.genitals.origin and keyholder; defaults to "forced"). Breaks any existing cursed device first, same as Whitney's scene does when re-fitting. -->
 <<widget "forceChastityFit">>
 	<<set _chastityOrigin to _args[0] is undefined ? "forced" : _args[0]>>
 	<<if $worn.genitals.cursed is 1>>
-		<<set $worn.genitals.type.push("broken")>>
-		<<genitalsruined>>
+		<<set $worn.genitals.type.pushUnique("broken")>>
+		<<generalRuined "genitals" false "worn">>
 	<</if>>
 	<<if $player.penisExist>>
 		<<if $player.penissize is 0>>
@@ -147,6 +147,25 @@
 		<<genitalswear 1>>
 	<</if>>
 	<<set $worn.genitals.origin to _chastityOrigin>>
+	<<set $worn.genitals.chastityKey to "holder">>
+	<<set $worn.genitals.chastityKeyholder to _chastityOrigin>>
+<</widget>>
+
+<!-- Removes control from a currently-worn chastity device or remote vibe. Args: reason ("broken", "stolen", or "lost"), optional holder. -->
+<<widget "loseChastityControl">>
+	<<set _controlReason to _args[0] is undefined ? "lost" : _args[0]>>
+	<<set _controlHolder to _args[1]>>
+	<<if playerChastity() and $worn.genitals.chastityKey is "player">>
+		<<set $worn.genitals.chastityKey to _controlReason>>
+		<<set $worn.genitals.cursed to 1>>
+		<<if _controlHolder isnot undefined>>
+			<<set $worn.genitals.chastityKeyholder to _controlHolder>>
+		<<else>>
+			<<run delete $worn.genitals.chastityKeyholder>>
+		<</if>>
+	<<elseif $worn.vibrator isnot undefined and $worn.vibrator.remote is "player">>
+		<<set $worn.vibrator.remote to _controlReason>>
+	<</if>>
 <</widget>>
 
 <<widget "overheadwear">>
@@ -1071,6 +1090,9 @@
 		<<if $worn.vibrator.powerMax is undefined>>
 			<<set $worn.vibrator.powerMax to 3>>
 		<</if>>
+		<<if $worn.vibrator.remote is undefined>>
+			<<set $worn.vibrator.remote to "player">>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -1305,6 +1327,12 @@
 		<</if>>
 		<!-- Bought (uncursed) chastity gear locks like a real one: it only comes off through a wardrobe, never a scene's quick-undress. -->
 		<<set _chastityWardrobeOnly to (_undressSlot is "genitals" and $worn[_undressSlot].type.includes("chastity") and _args[0] isnot "wardrobe" and !Object.keys($wardrobes).includes(_args[0]))>>
+		<<if _undressSlot is "genitals" and $_cursedPrevent isnot true and _strip_restrict isnot 1 and $worn.genitals.cursed isnot 1 and $worn.genitals.chastityKey is "player" and (_args[0] is "wardrobe" or Object.keys($wardrobes).includes(_args[0])) and random(1, 100) lte 2>>
+			The key catches in the lock. You twist harder, only for it to <span class="red">snap inside the device.</span>
+			<br>
+			<<loseChastityControl "broken">>
+			<<set $_cursedPrevent to true>>
+		<</if>>
 		<<if $_cursedPrevent isnot true and _strip_restrict isnot 1 and $worn[_undressSlot].cursed isnot 1 and !_chastityWardrobeOnly>>
 			<<set _slots to []>>
 			<<if _args[0] is "wardrobe" or Object.keys($wardrobes).includes(_args[0])>>
