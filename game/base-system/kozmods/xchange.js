@@ -1956,6 +1956,9 @@ function xchangeEffectsMessages() {
 		} else if (V.xchange.chastityAdaptedMessage === "butchify") {
 			element("span", "You feel your chastity device constrict and reform into a cage around your new anatomy, locking your new sex in place.", "teal");
 			br();
+		} else if (V.xchange.chastityAdaptedMessage === "fellOff") {
+			element("span", "Your chastity cage has nothing left to enclose, and slips off into your wardrobe back home.", "teal");
+			br();
 		}
 		delete V.xchange.chastityAdaptedMessage;
 	}

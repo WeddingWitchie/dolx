@@ -58,14 +58,7 @@ function sexToysInventoryInit() {
 window.sexToysInventoryInit = sexToysInventoryInit;
 
 function sexToyUsesVaginalWornSlot(toy, setupToy) {
-	return (
-		!!toy &&
-		!!setupToy &&
-		setupToy.category === "dildo" &&
-		Array.isArray(toy.type) &&
-		toy.type.includes("dildo") &&
-		!toy.type.includes("anal")
-	);
+	return !!toy && !!setupToy && setupToy.category === "dildo" && Array.isArray(toy.type) && toy.type.includes("dildo") && !toy.type.includes("anal");
 }
 
 function sexToyCanWear(toy, setupToy) {
@@ -168,9 +161,7 @@ function sexToysInventoryOnCarryClick(index, category) {
 	// Since the prop rework, setup.props is an OBJECT keyed by snake_case (e.g. "small_dildo"), while toy names use spaces (e.g. "small dildo").
 	// The old array-style `setup.props.find(item => item === toy.name)` could therefore never match multi-word toys.
 	// Normalise the name into key form for the lookup; <<wearProp>> normalises its argument internally, so the original spaced name can still be passed to the macro.
-	const propKey = typeof window.normaliseKey === "function"
-		? window.normaliseKey(toy.name)
-		: String(toy.name).toLowerCase().trim().replace(/\s+/g, "_");
+	const propKey = typeof window.normaliseKey === "function" ? window.normaliseKey(toy.name) : String(toy.name).toLowerCase().trim().replace(/\s+/g, "_");
 	const handheld = Boolean(setup.props && setup.props[propKey]);
 
 	// if player has reached maximum item carried, stop the function
@@ -182,7 +173,10 @@ function sexToysInventoryOnCarryClick(index, category) {
 		Wikifier.wikifyEval(`<<wearProp '${toy.name}' '${colour.replace("-", " ")}'>><<updatesidebarimg>>`);
 	} else if (!toy.carried) {
 		// Putting it back: stop displaying it if it's the prop currently in hand.
-		const stripKey = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "");
+		const stripKey = s =>
+			String(s)
+				.toLowerCase()
+				.replace(/[^a-z0-9]+/g, "");
 		if (handheld && T.prop && stripKey(T.prop.name) === stripKey(propKey)) delete T.prop;
 		Wikifier.wikifyEval("<<updatesidebarimg>>");
 	}
@@ -253,6 +247,14 @@ function sexToysInventoryOnWearClick(index, category) {
 		const cursedText = document.getElementById("stiCursedText");
 		if (cursedText) {
 			cursedText.outerHTML = `<div id="stiCursedText" class="ssm_fade_in">You can't insert the ${toy.name} without a vagina.</div>`;
+		}
+		return;
+	}
+
+	if (sexToyUsesVaginalWornSlot(toy, setupToy) && !toy.worn && playerChastity("vagina")) {
+		const cursedText = document.getElementById("stiCursedText");
+		if (cursedText) {
+			cursedText.outerHTML = `<div id="stiCursedText" class="ssm_fade_in">You can't push the ${toy.name} past the ${V.worn.genitals.name}.</div>`;
 		}
 		return;
 	}

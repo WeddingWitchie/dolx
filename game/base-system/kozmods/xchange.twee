@@ -262,15 +262,22 @@
 		/* Adapt chastity device to new body. Chastity parasites are living slime, not a metal cage, and keep their shape. */
 		<<if $worn.genitals.type.includes("chastity") and $worn.genitals.name isnot "chastity parasite">>
 			<<if $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
-				<<set _cageIdx to $worn.genitals.type.indexOf("cage")>>
-				<<run $worn.genitals.type.splice(_cageIdx, 1)>>
-				<<run $worn.genitals.type.push("hidden")>>
-				<<set $worn.genitals.exposed to 0>>
-				<<set $worn.genitals.exposed_base to 0>>
-				<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("cage")>>
-					<<set $worn.genitals.name to $worn.genitals.name.replace(/\bcage\b/gi, "belt")>>
+				<<if $worn.genitals.cursed is 0>>
+					<!-- A bought cage isn't a curse forcing it to stay; with nothing left to enclose, it just falls off into the home wardrobe. -->
+					<<run $wardrobe.genitals.push(clone($worn.genitals))>>
+					<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
+					<<set $xchange.chastityAdaptedMessage to "fellOff">>
+				<<else>>
+					<<set _cageIdx to $worn.genitals.type.indexOf("cage")>>
+					<<run $worn.genitals.type.splice(_cageIdx, 1)>>
+					<<run $worn.genitals.type.push("hidden")>>
+					<<set $worn.genitals.exposed to 0>>
+					<<set $worn.genitals.exposed_base to 0>>
+					<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("cage")>>
+						<<set $worn.genitals.name to $worn.genitals.name.replace(/\bcage\b/gi, "belt")>>
+					<</if>>
+					<<set $xchange.chastityAdaptedMessage to "feminize">>
 				<</if>>
-				<<set $xchange.chastityAdaptedMessage to "feminize">>
 			<</if>>
 		<</if>>
 
@@ -983,7 +990,12 @@
 
 		/* Adapt chastity device to restored body. Chastity parasites are living slime, not a metal cage, and keep their shape. */
 		<<if $worn.genitals.type.includes("chastity") and $worn.genitals.name isnot "chastity parasite">>
-			<<if $player.vaginaExist and !$player.penisExist and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
+			<<if $player.vaginaExist and !$player.penisExist and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden") and $worn.genitals.cursed is 0>>
+				<!-- A bought cage isn't a curse forcing it to stay; with nothing left to enclose, it just falls off into the home wardrobe. -->
+				<<run $wardrobe.genitals.push(clone($worn.genitals))>>
+				<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
+				<<set $xchange.chastityAdaptedMessage to "fellOff">>
+			<<elseif $player.vaginaExist and !$player.penisExist and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
 				<<set _cIdx to $worn.genitals.type.indexOf("cage")>>
 				<<run $worn.genitals.type.splice(_cIdx, 1)>>
 				<<run $worn.genitals.type.push("hidden")>>
