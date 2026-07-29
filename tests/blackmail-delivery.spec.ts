@@ -418,6 +418,42 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		}
 	});
 
+	test("Jordan isn't picked as courier until reaching monk or priest rank", async ({ page }) => {
+		await setupBlackmailDelivery(page);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			const C = (window as any).C;
+			// Jordan can be met (and .init set) well before joining the cloister, e.g. via the
+			// Dance Job storyline or the initiate-level vigil enquiry — long before $temple_rank
+			// reaches "monk"/"priest" and the cloister itself unlocks.
+			C.npc.Jordan.init = 1;
+			V.temple_rank = "initiate";
+			V.xchange.blackmail.hasMaterial = false;
+			V.xchange.blackmail.courier = undefined;
+		});
+
+		for (let i = 0; i < 20; i++) {
+			await wikifyEval(page, '<<blackmail-newmaterial "sex">>');
+			const courier = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail.courier);
+			expect(courier).toBe("home");
+			await page.evaluate(() => {
+				const V = (window as any).SugarCube.State.variables;
+				V.xchange.blackmail.hasMaterial = false;
+				V.xchange.blackmail.courier = undefined;
+			});
+		}
+
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.temple_rank = "monk";
+		});
+		await forceRng(page, 1);
+		await wikifyEval(page, '<<blackmail-newmaterial "sex">>');
+		const courier = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail.courier);
+		expect(courier).toBe("jordan");
+		await clearRngOverride(page);
+	});
+
 	test("mansion residents don't also see the blackmail notice at the orphanage", async ({ page }) => {
 		await setupBlackmailDelivery(page, 1, "home");
 		await wikifyEval(page, "<<avery_mansion_init>>");
@@ -436,5 +472,45 @@ test.describe("Gentleman's Club letter deliveries", () => {
 
 		await navigateTo(page, "Mansion Bedroom");
 		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(1);
+	});
+
+	test("Avery secretly destroys the letter and saves you while their temper is low", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "home");
+		await wikifyEval(page, "<<avery_mansion_init>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			const C = (window as any).C;
+			V.loveInterest.primary = "Avery";
+			C.npc.Avery.rage = 0;
+		});
+
+		await navigateTo(page, "Mansion Bedroom");
+		await expect(page.locator("#passages")).toContainText("Avery has saved you from it, for now.");
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(0);
+
+		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.hasMaterial).toBe(false);
+		expect(blackmail.hasNewMaterial).toBe(false);
+		expect(blackmail.courier).toBeUndefined();
+		expect(blackmail.cooldown).toBe(7);
+	});
+
+	test("Avery leaves a high-temper letter alone and it delivers normally", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "home");
+		await wikifyEval(page, "<<avery_mansion_init>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			const C = (window as any).C;
+			V.loveInterest.primary = "Avery";
+			C.npc.Avery.rage = 50;
+		});
+
+		await navigateTo(page, "Mansion Bedroom");
+		await expect(page.locator("#passages")).toContainText("I'd rather not know");
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(1);
+
+		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.hasMaterial).toBe(true);
+		expect(blackmail.courier).toBe("home");
 	});
 });
