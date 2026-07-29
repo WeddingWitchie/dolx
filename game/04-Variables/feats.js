@@ -3348,7 +3348,7 @@ function earnHourlyFeats() {
 	if (V.earSlime.corruption >= 100) earnFeat("Ear Slime Lover");
 	if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 200) earnFeat("Ear Slime Amalgam");
 
-	if (V.physique >= 32000) earnFeat("Unstoppable Force");
+	if (V.physique >= 30000) earnFeat("Unstoppable Force");
 	if (V.willpower >= 2000) earnFeat("Immovable Object");
 	if (V.skulduggery >= 2000) earnFeat("Agent 47");
 	if (V.danceskill >= 2000) earnFeat("Can't Touch This");
