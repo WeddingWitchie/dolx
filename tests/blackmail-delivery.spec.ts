@@ -1,26 +1,60 @@
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { openGame, navigateTo, wikifyEval, wikifyToText, assertNoErrors } from "./helpers.js";
+import { openGame, navigateTo, setTime, wikifyEval, wikifyToText, assertNoErrors } from "./helpers.js";
 
-async function setupBlackmailDelivery(page: Page, intro = 1) {
+async function setupBlackmailDelivery(page: Page, intro = 1, courier = "home") {
 	await openGame(page);
 	await navigateTo(page, "Start2");
-	await page.evaluate(firstLetterRead => {
+	await page.evaluate(
+		({ firstLetterRead, courierValue }) => {
+			const V = (window as any).SugarCube.State.variables;
+			Object.assign(V.xchange.blackmail, {
+				intro: firstLetterRead,
+				activeQuest: undefined,
+				hasMaterial: true,
+				hasNewMaterial: true,
+				hasReadLetter: false,
+				cooldown: 0,
+				conclusionPending: false,
+				courier: courierValue,
+				courierAfk: false,
+				courierReady: false,
+			});
+			V.xchange.blackmailHalt = 0;
+			V.possessed = 0;
+			V.exposed = 0;
+			V.stress = 0;
+		},
+		{ firstLetterRead: intro, courierValue: courier }
+	);
+	await setTime(page, 12, 0);
+}
+
+/**
+ * Force the next <<rng min max>> roll(s) to a fixed value via the game's own
+ * debug override seam (base.js' <<rng>> macro: V.debug === 1 && typeof
+ * V.rngOverride === "number"). Math.random can't be monkeypatched for this —
+ * DoL's RNG is seeded, not backed by Math.random. The override ignores the
+ * macro's min/max entirely, so when a single passage render rolls more than
+ * one <<rng>> (e.g. a courier's destroy roll followed by blackmail-newquest's
+ * own quest-index roll), pick a value valid for every roll in that render —
+ * 0 always is (0 <= 25 for a destroy roll, and index 0 always exists in a
+ * non-empty quest list).
+ */
+async function forceRng(page: Page, value: number) {
+	await page.evaluate(v => {
 		const V = (window as any).SugarCube.State.variables;
-		Object.assign(V.xchange.blackmail, {
-			intro: firstLetterRead,
-			activeQuest: undefined,
-			hasMaterial: true,
-			hasNewMaterial: true,
-			hasReadLetter: false,
-			cooldown: 0,
-			conclusionPending: false,
-		});
-		V.xchange.blackmailHalt = 0;
-		V.possessed = 0;
-		V.exposed = 0;
-		V.stress = 0;
-	}, intro);
+		V.debug = 1;
+		V.rngOverride = v;
+	}, value);
+}
+
+async function clearRngOverride(page: Page) {
+	await page.evaluate(() => {
+		const V = (window as any).SugarCube.State.variables;
+		V.debug = 0;
+		delete V.rngOverride;
+	});
 }
 
 test.describe("Gentleman's Club letter deliveries", () => {
@@ -99,15 +133,17 @@ test.describe("Gentleman's Club letter deliveries", () => {
 	});
 
 	test("Great Hawk brings the letter and it returns to the tower after reading", async ({ page }) => {
-		await setupBlackmailDelivery(page, 0);
+		await setupBlackmailDelivery(page, 0, "greathawk");
 		await wikifyEval(page, "<<bird_init>>");
 		await page.evaluate(() => {
 			const V = (window as any).SugarCube.State.variables;
 			V.bird.state = "home";
 			V.bird.activity = "rest";
 		});
+		await forceRng(page, 100);
 
 		await navigateTo(page, "Bird Tower");
+		await clearRngOverride(page);
 		await expect(page.locator("#passages")).toContainText("A stranger is picking their way towards the tower");
 		await page.getByRole("link", { name: "Open it" }).click();
 		await expect(page.locator("#passages")).toContainText("Greetings");
@@ -117,17 +153,106 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		await expect.poll(() => page.evaluate(() => (window as any).SugarCube.State.passage)).toBe("Bird Tower");
 	});
 
+	test("Great Hawk destroys a first letter without starting blackmail", async ({ page }) => {
+		await setupBlackmailDelivery(page, 0, "greathawk");
+		await wikifyEval(page, "<<bird_init>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.bird.state = "home";
+			V.bird.activity = "rest";
+		});
+		await forceRng(page, 0);
+
+		await navigateTo(page, "Bird Tower");
+		await expect(page.locator("#passages")).toContainText("The Great Hawk has saved you from it for now");
+
+		const result = await page.evaluate(() => {
+			const blackmail = (window as any).SugarCube.State.variables.xchange.blackmail;
+			return {
+				activeQuest: blackmail.activeQuest,
+				hasMaterial: blackmail.hasMaterial,
+				courier: blackmail.courier,
+			};
+		});
+		expect(result).toEqual({
+			activeQuest: undefined,
+			hasMaterial: false,
+			courier: undefined,
+		});
+		await clearRngOverride(page);
+	});
+
 	test("wolf pack delivery is readable and returns to the cave", async ({ page }) => {
-		await setupBlackmailDelivery(page);
+		await setupBlackmailDelivery(page, 1, "wolves");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.wolfstate = "cave";
+		});
+		await forceRng(page, 100);
 
 		await navigateTo(page, "Wolf Cave");
+		await clearRngOverride(page);
 		await expect(page.locator("#passages")).toContainText("wolf saliva");
 		await page.getByRole("link", { name: "Open it" }).click();
 		await expect(page.locator('#passages a[data-passage="Wolf Cave"]')).toHaveCount(1);
 	});
 
+	test("wolf pack destroys a repeat letter and immediately fails its hidden task", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "wolves");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.wolfstate = "cave";
+		});
+		await forceRng(page, 0);
+
+		await navigateTo(page, "Wolf Cave");
+		await expect(page.locator("#passages")).toContainText("You have no way to know what they demanded");
+
+		const quest = await page.evaluate(() => {
+			const blackmail = (window as any).SugarCube.State.variables.xchange.blackmail;
+			return {
+				failed: blackmail.activeQuest?.failed,
+				letterDestroyed: blackmail.activeQuest?.letterDestroyed,
+				courier: blackmail.courier,
+			};
+		});
+		expect(quest).toEqual({
+			failed: true,
+			letterDestroyed: true,
+			courier: "wolves",
+		});
+		await clearRngOverride(page);
+	});
+
+	test("wolf pack destroys a first letter without starting blackmail", async ({ page }) => {
+		await setupBlackmailDelivery(page, 0, "wolves");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.wolfstate = "cave";
+		});
+		await forceRng(page, 0);
+
+		await navigateTo(page, "Wolf Cave");
+		await expect(page.locator("#passages")).toContainText("the pack has saved you from it for now");
+
+		const result = await page.evaluate(() => {
+			const blackmail = (window as any).SugarCube.State.variables.xchange.blackmail;
+			return {
+				activeQuest: blackmail.activeQuest,
+				hasMaterial: blackmail.hasMaterial,
+				courier: blackmail.courier,
+			};
+		});
+		expect(result).toEqual({
+			activeQuest: undefined,
+			hasMaterial: false,
+			courier: undefined,
+		});
+		await clearRngOverride(page);
+	});
+
 	test("Jordan receives the suited stranger's letter and it returns to the temple", async ({ page }) => {
-		await setupBlackmailDelivery(page);
+		await setupBlackmailDelivery(page, 1, "jordan");
 
 		await navigateTo(page, "Temple");
 		await expect(page.locator("#passages")).toContainText("Jordan is speaking with");
@@ -137,7 +262,7 @@ test.describe("Gentleman's Club letter deliveries", () => {
 	});
 
 	test("Eden destroys a first letter without starting blackmail", async ({ page }) => {
-		await setupBlackmailDelivery(page, 0);
+		await setupBlackmailDelivery(page, 0, "eden");
 
 		await navigateTo(page, "Eden Cabin");
 		await expect(page.locator("#passages")).toContainText("Eden has saved you from it for now");
@@ -162,7 +287,7 @@ test.describe("Gentleman's Club letter deliveries", () => {
 	});
 
 	test("Eden destroys a repeat letter, immediately fails its hidden task, and survives save restoration", async ({ page }) => {
-		await setupBlackmailDelivery(page);
+		await setupBlackmailDelivery(page, 1, "eden");
 
 		await navigateTo(page, "Eden Cabin");
 		await expect(page.locator("#passages")).toContainText("You have no way to know what they demanded");
@@ -218,5 +343,98 @@ test.describe("Gentleman's Club letter deliveries", () => {
 			conclusionPending: true,
 			hasMaterial: false,
 		});
+	});
+
+	test("an animal courier gives up after a day and drops the letter off at home", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "greathawk");
+
+		await wikifyEval(page, "<<blackmail-daypassed>>");
+		let blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("greathawk");
+		expect(blackmail.courierReady).toBe(true);
+		expect(blackmail.courierAfk).toBe(false);
+
+		await wikifyEval(page, "<<blackmail-daypassed>>");
+		blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("home");
+		expect(blackmail.courierAfk).toBe(true);
+	});
+
+	test("Jordan never gives up on a letter, even after several days", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "jordan");
+
+		await wikifyEval(page, "<<blackmail-daypassed>>");
+		await wikifyEval(page, "<<blackmail-daypassed>>");
+		await wikifyEval(page, "<<blackmail-daypassed>>");
+		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("jordan");
+		expect(blackmail.courierAfk).toBe(false);
+	});
+
+	test("saves from before the courier system backfill an undefined courier to home", async ({ page }) => {
+		await setupBlackmailDelivery(page);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			delete V.xchange.blackmail.courier;
+			delete V.xchange.blackmail.courierAfk;
+			delete V.xchange.blackmail.courierReady;
+		});
+
+		await wikifyEval(page, "<<xchange-modupdate>>");
+		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("home");
+		expect(blackmail.courierAfk).toBe(false);
+		expect(blackmail.courierReady).toBe(false);
+	});
+
+	test("picking a courier never selects a location before it's actually unlocked on the map", async ({ page }) => {
+		await setupBlackmailDelivery(page);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			const C = (window as any).C;
+			// Simulate "met the NPC mid-encounter but never unlocked their location":
+			// Great Hawk/Black Wolf/Eden all .init, but none of the map-unlock flags set.
+			C.npc["Great Hawk"].init = 1;
+			C.npc["Black Wolf"].init = 1;
+			C.npc.Eden.init = 1;
+			C.npc.Jordan.init = 0;
+			V.moor = 0;
+			V.syndromewolves = 0;
+			V.edenfreedom = 0;
+			V.syndromeeden = 0;
+			V.xchange.blackmail.hasMaterial = false;
+			V.xchange.blackmail.courier = undefined;
+		});
+
+		for (let i = 0; i < 20; i++) {
+			await wikifyEval(page, '<<blackmail-newmaterial "sex">>');
+			const courier = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail.courier);
+			expect(courier).toBe("home");
+			await page.evaluate(() => {
+				const V = (window as any).SugarCube.State.variables;
+				V.xchange.blackmail.hasMaterial = false;
+				V.xchange.blackmail.courier = undefined;
+			});
+		}
+	});
+
+	test("mansion residents don't also see the blackmail notice at the orphanage", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "home");
+		await wikifyEval(page, "<<avery_mansion_init>>");
+
+		await navigateTo(page, "Bedroom");
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(0);
+	});
+
+	test("mansion residents see the blackmail notice in Mansion Bedroom instead", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "home");
+		await wikifyEval(page, "<<avery_mansion_init>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.avery_mansion.schedule = "work";
+		});
+
+		await navigateTo(page, "Mansion Bedroom");
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(1);
 	});
 });

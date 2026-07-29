@@ -1,6 +1,6 @@
 :: Blackmail Letter
 <<set $xchange.blackmail.cooldown to 7>>
-<<set _blackmailReturn to $phase is 2 ? "Bird Tower" : $phase is 3 ? "Wolf Cave" : $phase is 4 ? "Temple" : "Bedroom">>
+<<set _blackmailReturn to $phase is 2 ? "Bird Tower" : $phase is 3 ? "Wolf Cave" : $phase is 4 ? "Temple" : $phase is 5 ? "Mansion Bedroom" : "Bedroom">>
 <<if $xchange.blackmail.intro is 0>>
 	<<if $phase is 1>>You spotted this strange envelope lying by the door. <</if>>Curious, you turn it over in your hands, feeling its shape and weight.
 	<br><br>
@@ -121,7 +121,7 @@
 <</if>>
 
 :: Blackmail Letter Intro 2
-<<set _blackmailReturn to $phase is 2 ? "Bird Tower" : $phase is 3 ? "Wolf Cave" : $phase is 4 ? "Temple" : "Bedroom">>
+<<set _blackmailReturn to $phase is 2 ? "Bird Tower" : $phase is 3 ? "Wolf Cave" : $phase is 4 ? "Temple" : $phase is 5 ? "Mansion Bedroom" : "Bedroom">>
 Within you find the aforementioned pictures. And while looking at them, their horror dawns on you. They display what seems like a disrobed body in very graphic detail. Your body, to be exact. And it looks incredibly lewd.
 <br><br>
 There's several close-ups on your most intimate areas, and even pictures showing your face squarely within frame. Leaving no doubt to anyone seeing them as to the fact that they indeed are photos of you.
@@ -164,6 +164,7 @@ But then again... You'll have to take the hit to your image if you choose to ign
 <br>
 
 :: Blackmail Reread Letter
+<<set _blackmailHome to $avery_mansion ? "Mansion Bedroom" : "Bedroom">>
 You skim over the unimportant stuff and focus only on the task given to you:
 <span class="italic">
 	<<blackmail-checkquest>>
@@ -177,12 +178,13 @@ You skim over the unimportant stuff and focus only on the task given to you:
 	<</linkreplace>>
 	<br>
 <</if>>
-<<link [[Close|Bedroom]]>><<set $xchange.blackmail.hasReadLetter to true>><</link>>
+<<link "Close" _blackmailHome>><<set $xchange.blackmail.hasReadLetter to true>><</link>>
 <br>
 
 :: Blackmail Conclusion Letter
 <<run restoreActiveBlackmailQuest()>>
 <<set _activeQuest to $xchange.blackmail.activeQuest>>
+<<set _blackmailHome to $avery_mansion ? "Mansion Bedroom" : "Bedroom">>
 A new envelope appears to have been slid under your door. You dread to read whatever message it contains, but know better than to ignore the words hidden inside.
 <br><br>
 Steeling your resolve, you open the envelope and read the letter inside:
@@ -219,11 +221,11 @@ Steeling your resolve, you open the envelope and read the letter inside:
 	<<blackmail-endquest>>
 	<<if !$xchange.blackmail.paymentsRemoved>>
 		<<earnFeat "How They Get You">>
-		<<link [[Take money and discard the envelope|Bedroom]]>>
+		<<link "Take money and discard the envelope" _blackmailHome>>
 			<<moneyGain `getStaticQuestData(_activeQuest).reward() / 100`>>
 		<</link>>
 	<<else>>
-		<<link [[Discard|Bedroom]]>><</link>>
+		<<link "Discard" _blackmailHome>><</link>>
 	<</if>>
 	<br>
 <<else>>
@@ -245,7 +247,7 @@ Steeling your resolve, you open the envelope and read the letter inside:
 		<br><br>
 	</p>
 	<<blackmail-endquest>>
-	<<link [[Discard|Bedroom]]>><</link>>
+	<<link "Discard" _blackmailHome>><</link>>
 	<br>
 <</if>>
 
@@ -283,8 +285,30 @@ The Great Hawk returns with the envelope clutched carefully in <<bhis>> talons a
 <br><br>
 Your name is written across the front.
 <br><br>
-<<link [[Open it|Blackmail Letter]]>><<set $phase to 2>><</link>>
-<br>
+<<blackmail-courier-destroyroll>>
+<<if $xchange.blackmail.courierDestroyed>>
+	Before you can even take it from <<bhim>>, <<bhe>> loses patience and tears into the envelope <<bhimself>>, shredding it to ribbons in search of something to eat.
+	<br><br>
+	<<set $xchange.blackmail.cooldown to 7>>
+	<<set $xchange.blackmail.hasNewMaterial to false>>
+	<<if $xchange.blackmail.intro is 0>>
+		Whatever the stranger wanted from you is now scattered across the moor in scraps. <span class="green">The Great Hawk has saved you from it for now.</span>
+		<<set $xchange.blackmail.hasMaterial to false>>
+		<<blackmail-resetcourier>>
+	<<else>>
+		You catch a glimpse of the signature before it's shredded beyond recognition. <span class="red">It was from the Gentleman's Club.</span> Your stomach twists. You have no way to know what they demanded this time, much less how to satisfy them. You're certain they'll make you pay for it.
+		<<silently>><<blackmail-newquest>><</silently>>
+		<<set $xchange.blackmail.activeQuest.letterDestroyed to true>>
+		<<set $xchange.blackmail.activeQuest.failed to true>>
+		<<set $xchange.blackmail.effectmessage to 3>>
+	<</if>>
+	<br><br>
+	<<link [[Next|Bird Tower]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<link [[Open it|Blackmail Letter]]>><<set $phase to 2>><</link>>
+	<br>
+<</if>>
 
 :: Blackmail Wolf Delivery
 <<effects>>
@@ -292,8 +316,30 @@ The pack suddenly bristles and growls towards the cave mouth. A stranger stands 
 <br><br>
 One of the <<wolf_cave_plural>> returns with the abandoned envelope between its teeth and drops it at your feet. It's a little crumpled and wet with <span class="lewd">wolf saliva</span>, but your name and the writing inside remain readable.
 <br><br>
-<<link [[Open it|Blackmail Letter]]>><<set $phase to 3>><</link>>
-<br>
+<<blackmail-courier-destroyroll>>
+<<if $xchange.blackmail.courierDestroyed>>
+	Before you can pick it up, the <<wolf_cave_plural>> pounce, and the envelope disappears in a flurry of teeth and paws. By the time they lose interest, it's little more than damp, shredded paper.
+	<br><br>
+	<<set $xchange.blackmail.cooldown to 7>>
+	<<set $xchange.blackmail.hasNewMaterial to false>>
+	<<if $xchange.blackmail.intro is 0>>
+		You wonder what the letter said, but there's nothing left to read now. Whatever the stranger wanted from you, <span class="green">the pack has saved you from it for now.</span>
+		<<set $xchange.blackmail.hasMaterial to false>>
+		<<blackmail-resetcourier>>
+	<<else>>
+		You catch a glimpse of the signature in the wreckage before it's torn apart entirely. <span class="red">It was from the Gentleman's Club.</span> Your stomach twists. You have no way to know what they demanded this time, much less how to satisfy them. You're certain they'll make you pay for it.
+		<<silently>><<blackmail-newquest>><</silently>>
+		<<set $xchange.blackmail.activeQuest.letterDestroyed to true>>
+		<<set $xchange.blackmail.activeQuest.failed to true>>
+		<<set $xchange.blackmail.effectmessage to 3>>
+	<</if>>
+	<br><br>
+	<<link [[Next|Wolf Cave]]>><<endevent>><</link>>
+	<br>
+<<else>>
+	<<link [[Open it|Blackmail Letter]]>><<set $phase to 3>><</link>>
+	<br>
+<</if>>
 
 :: Blackmail Eden Delivery
 <<endevent>><<effects>>
@@ -307,6 +353,7 @@ Eden retrieves the envelope and tears it open. <<His>> expression darkens as <<h
 <<if $xchange.blackmail.intro is 0>>
 	You wonder what the letter said, but Eden refuses to repeat it. Whatever the stranger wanted from you, <span class="green">Eden has saved you from it for now.</span>
 	<<set $xchange.blackmail.hasMaterial to false>>
+	<<blackmail-resetcourier>>
 <<else>>
 	You recognised the signature before Eden destroyed it. <span class="red">It was from the Gentleman's Club.</span> Your stomach twists. You have no way to know what they demanded this time, much less how to satisfy them. You're certain they'll make you pay for it.
 	<<silently>><<blackmail-newquest>><</silently>>
@@ -317,6 +364,31 @@ Eden retrieves the envelope and tears it open. <<His>> expression darkens as <<h
 <br><br>
 <<link [[Next|Eden Cabin]]>><<endevent>><</link>>
 <br>
+
+:: Blackmail Avery Mansion Cover
+<<endevent>>
+<<npc "Avery">><<person1>>
+You're still getting your bearings when you notice <<him>> holding an envelope, turning it over in <<his>> hands. Your name is written across the front in that same hurried scrawl you've come to dread.
+<br><br>
+<<He>> tears it open before you can say anything, scans the contents, and <<his>> expression darkens. "Absolute vultures," <<he>> mutters, almost to <<himself>>. Without another word, <<he>> folds the letter and its photographs back into the envelope and feeds the whole thing into the nearest fireplace.
+<br><br>
+"You don't need people like that circling you," <<he>> says, watching it burn. "Not while I'm around."
+<br><br>
+<<set $xchange.blackmail.cooldown to 7>>
+<<set $xchange.blackmail.hasNewMaterial to false>>
+<<set $xchange.blackmail.hasMaterial to false>>
+<<blackmail-resetcourier>>
+<<link [[Next|Mansion Bedroom]]>><<endevent>><</link>>
+<br>
+
+:: Blackmail Avery Mansion Decline
+/* Fragment only */
+<<endevent>>
+<<npc "Avery">><<person1>>
+<<He>> notices the envelope on the floor before you do, and picks it up. <<His>> eyes flick over your name written across the front, and something shifts behind <<his>> expression. <<He>> turns it over once, then thinks better of opening it, and sets it back down within your reach.
+<br><br>
+"Whatever this is," <<he>> says carefully, "I'd rather not know." <<He>> straightens <<his>> collar. "People already talk enough about this house as it is."
+<br><br>
 
 :: Blackmail Temple Delivery
 <<endevent>><<effects>>

@@ -287,28 +287,33 @@ You are in your bedroom.
 <<deskText "noicon">> /* If project, study, or Christmas options are available, desk location appears here, in line with bed/wardrobe/etc locations */
 <br>
 
-/* Blackmailer's Quests */
-<<if $xchange.blackmail.conclusionPending>>
-	<span class="gold"><b>NEW!</b></span> <span class="purple">There's an envelope on the floor by the door.</span> It looks like it was slid in from outside.
-	<br>
-	<<icon "ask.png">><<link [[Read it|Blackmail Conclusion Letter]]>><</link>>
-	<br><br>
-<<elseif $xchange.blackmail.activeQuest and $xchange.blackmail.hasReadLetter>>
-	There's an envelope on your desk. You've already seen its contents.
-	<br>
-	<<icon "ask.png">><<link [[Read it again|Blackmail Reread Letter]]>><</link>>
-	<br><br>
-<<elseif $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0>>
-	<span class="gold"><b>NEW!</b></span> 
-	<<if $xchange.blackmail.intro is 0>>
-		There's an envelope on the floor by the door. 
-	<<else>>
-		<span class="purple">There's an envelope on the floor by the door.</span>
+/* Blackmailer's Quests while living at Avery's mansion, all of this instead surfaces in Mansion Bedroom. */
+<<if !$avery_mansion>>
+	<<if $xchange.blackmail.conclusionPending>>
+		<span class="gold"><b>NEW!</b></span> <span class="purple">There's an envelope on the floor by the door.</span> It looks like it was slid in from outside.
+		<br>
+		<<icon "ask.png">><<link [[Read it|Blackmail Conclusion Letter]]>><</link>>
+		<br><br>
+	<<elseif $xchange.blackmail.activeQuest and $xchange.blackmail.hasReadLetter>>
+		There's an envelope on your desk. You've already seen its contents.
+		<br>
+		<<icon "ask.png">><<link [[Read it again|Blackmail Reread Letter]]>><</link>>
+		<br><br>
+	<<elseif $xchange.blackmail.courier is "home" and $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0>>
+		<span class="gold"><b>NEW!</b></span>
+		<<if $xchange.blackmail.intro is 0>>
+			There's an envelope on the floor by the door.
+		<<else>>
+			<span class="purple">There's an envelope on the floor by the door.</span>
+		<</if>>
+		It looks like it was slid in from outside.
+		<<if $xchange.blackmail.courierAfk>>
+			Whoever left it clearly came and went while you were out.
+		<</if>>
+		<br>
+		<<icon "ask.gif">><<link [[Read it|Blackmail Letter]]>><<set $phase to 0>><</link>>
+		<br><br>
 	<</if>>
-	It looks like it was slid in from outside.
-	<br>
-	<<icon "ask.gif">><<link [[Read it|Blackmail Letter]]>><<set $phase to 0>><</link>>
-	<br><br>
 <</if>>
 <<bankHeistRetryLetter>>
 
@@ -1691,7 +1696,7 @@ You are in the bathroom.
 			<br>
 			<<exitAll>>
 
-		<<elseif $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and $xchange.blackmail.intro is 0>>
+		<<elseif $xchange.blackmail.courier is "home" and !$avery_mansion and $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and $xchange.blackmail.intro is 0>>
 			<<getouticon>><<link [[Get out of bed|Bedroom Blackmail Notice]]>><</link>>
 			<br><br>
 

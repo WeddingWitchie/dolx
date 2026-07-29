@@ -3104,6 +3104,40 @@
 		<<avery_mansion_description bedroom>>
 
 		<<avery_mansion_location_tracker>>
+
+		<<if $xchange.blackmail.conclusionPending>>
+			<span class="gold"><b>NEW!</b></span> <span class="purple">There's an envelope on the floor by the door.</span> It looks like it was slid in from outside.
+			<br>
+			<<icon "ask.png">><<link [[Read it|Blackmail Conclusion Letter]]>><</link>>
+			<br><br>
+		<<elseif $xchange.blackmail.activeQuest and $xchange.blackmail.hasReadLetter>>
+			There's an envelope on your nightstand. You've already seen its contents.
+			<br>
+			<<icon "ask.png">><<link [[Read it again|Blackmail Reread Letter]]>><</link>>
+			<br><br>
+		<<elseif $xchange.blackmail.courier is "home" and $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and !$xchange.blackmail.activeQuest and !$possessed>>
+			<<set _averyHome to !["away","work","date","return"].includes($avery_mansion.schedule || "away")>>
+			<<if _averyHome and isLoveInterest("Avery") and C.npc.Avery.rage lt 40>>
+				<<include "Blackmail Avery Mansion Cover">>
+			<<else>>
+				<<if _averyHome and isLoveInterest("Avery")>>
+					<<include "Blackmail Avery Mansion Decline">>
+				<</if>>
+				<span class="gold"><b>NEW!</b></span>
+				<<if $xchange.blackmail.intro is 0>>
+					There's an envelope on the floor by the door.
+				<<else>>
+					<span class="purple">There's an envelope on the floor by the door.</span>
+				<</if>>
+				It looks like it was slid in from outside.
+				<<if $xchange.blackmail.courierAfk>>
+					Whoever left it clearly came and went while you were out.
+				<</if>>
+				<br>
+				<<icon "ask.gif">><<link [[Read it|Blackmail Letter]]>><<set $phase to 5>><</link>>
+				<br><br>
+			<</if>>
+		<</if>>
 	<</if>>
 
 	<<if $bus is "avery_bathroom">>

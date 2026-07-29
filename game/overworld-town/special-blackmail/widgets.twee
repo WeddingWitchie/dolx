@@ -25,8 +25,36 @@
 			pregnancy: 0,
 			impreg: 0
 		},
-		conclusionPending: false, 
+		conclusionPending: false,
+		courier: undefined,
+		courierAfk: false,
+		courierReady: false,
 	}>>
+<</widget>>
+
+<<widget "blackmail-pickcourier">>
+	/* Eligibility keys off each location actually being reachable on the map, not just having met the NPC once
+	meeting them (.init) can happen mid-encounter well before their home location unlocks (e.g. an abduction that's fought off before ever joining the pack). */
+	<<set _blackmailCouriers to ["home"]>>
+	<<if $moor gte 100>><<run _blackmailCouriers.push("greathawk")>><</if>>
+	<<if $syndromewolves gte 1>><<run _blackmailCouriers.push("wolves")>><</if>>
+	<<if $edenfreedom gte 1 or $syndromeeden gte 1>><<run _blackmailCouriers.push("eden")>><</if>>
+	<<if C.npc.Jordan.init is 1>><<run _blackmailCouriers.push("jordan")>><</if>>
+	<<rng 0 `_blackmailCouriers.length-1`>>
+	<<set $xchange.blackmail.courier to _blackmailCouriers[$rng]>>
+	<<set $xchange.blackmail.courierAfk to false>>
+	<<set $xchange.blackmail.courierReady to false>>
+<</widget>>
+
+<<widget "blackmail-resetcourier">>
+	<<set $xchange.blackmail.courier to undefined>>
+	<<set $xchange.blackmail.courierAfk to false>>
+	<<set $xchange.blackmail.courierReady to false>>
+<</widget>>
+
+<<widget "blackmail-courier-destroyroll">>
+	<<rng 1 100>>
+	<<set $xchange.blackmail.courierDestroyed to $rng lte 25>>
 <</widget>>
 
 <<widget "blackmail-newmaterial">>
@@ -34,6 +62,7 @@
 		<<if !$xchange.blackmail.hasMaterial>>
 			<<set $xchange.blackmail.hasNewMaterial to true>>
 			<<set $xchange.blackmail.hasMaterial to true>>
+			<<blackmail-pickcourier>>
 		<</if>>
 		<<set $_fameTypes to _args>>
 		<<run $_fameTypes.forEach(fameType =>
@@ -93,6 +122,7 @@
 	<<set $xchange.blackmail.hasReadLetter to false>>
 	<<set $xchange.blackmail.conclusionPending to false>>
 	<<set $xchange.blackmail.questsCompleted += 1>>
+	<<blackmail-resetcourier>>
 <</widget>>
 
 <<widget "blackmail-timepassed">>
@@ -150,7 +180,18 @@
 	<<else>>
 		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-1, 1)>>
 	<</if>>
-	
+
+	/* Animal couriers give up after one full day of not being able to complete the handoff and drop the letter off at home instead. Jordan never gives up. */
+	<<if $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and !$xchange.blackmail.activeQuest and ["greathawk","wolves","eden"].includes($xchange.blackmail.courier)>>
+		<<if !$xchange.blackmail.courierReady>>
+			<<set $xchange.blackmail.courierReady to true>>
+		<<else>>
+			<<set $xchange.blackmail.courier to "home">>
+			<<set $xchange.blackmail.courierAfk to true>>
+			<<set $xchange.blackmail.courierReady to false>>
+		<</if>>
+	<</if>>
+
 <</widget>>
 
 <<widget "blackmail-effects">>
