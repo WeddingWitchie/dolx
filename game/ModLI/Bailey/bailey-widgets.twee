@@ -32,7 +32,7 @@
 
 
 :: Bailey Title Choose
-<<person1>>
+<<npc Bailey>><<person1>>
 <span class="gold">What do you call <<him>>?</span>
 <br><br>
 
@@ -149,11 +149,11 @@ Type a name (15 characters max):
 :: Bailey Date Waiting Widget [widget]
 <<widget "baileyDateWaiting">><<if $bailey_date_missed is 1>><<include "Bailey Date Stood Up">><<elseif $bailey_date_allnight_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $renttime gt 0>><<npc Bailey>><<person1>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
 <br>
-<<icon "baileys-car.png">><<link [[Date with Bailey|Bailey Date All Night Pickup]]>><</link>>
+<<link [[Date with Bailey|Bailey Date All Night Pickup]]>><</link>>
 <br><br>
 <<elseif $bailey_date_scheduled is 1 and Time.hour gte 19 and Time.hour lt 20 and $renttime gt 0>><<npc Bailey>><<person1>>Bailey waits for you near the front door. <<He>> checks <<his>> watch.
 <br>
-<<icon "baileys-car.png">><<link [[Date with Bailey|Bailey Date Medium Pickup]]>><</link>>
+<<link [[Date with Bailey|Bailey Date Medium Pickup]]>><</link>>
 <br><br>
 <</if>><</widget>>
 
@@ -170,7 +170,7 @@ Type a name (15 characters max):
 
 :: Bailey Date Stood Up
 <<effects>>
-<<person1>>
+<<npc Bailey>><<person1>>
 
 You are in the main hall of the orphanage.
 <br><br>
@@ -275,4 +275,22 @@ Fired from homeevent at most once a day. */
 	<br><br>
 	<<link [[Next|Orphanage]]>><<endevent>><</link>>
 	<br>
+<</widget>>
+
+
+:: Bailey Kiss Virginity Widget [widget]
+
+/* Bailey taking the PC's first kiss. Elated at Stockholm 3+, mortified otherwise.
+   Renders nothing if the kiss virginity is already gone, so it is safe to call
+   after any Bailey kiss. */
+<<widget "baileyKissVirginity">>
+	<<if $player.virginity.kiss is true>>
+		<br><br>
+		<<if $stockholm_bailey gte 3>>
+			<span class="pink">You feel elated having Bailey take your first kiss.</span><<arousal 500>><<garousal>>
+		<<else>>
+			<span class="red">You feel mortified having Bailey take your first kiss.</span><<arousal 100>><<garousal>><<stress 6>><<gstress>><<trauma 6>><<gtrauma>>
+		<</if>>
+		<<takeVirginity "Bailey" "kiss">>
+	<</if>>
 <</widget>>

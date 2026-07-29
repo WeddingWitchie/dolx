@@ -1,6 +1,6 @@
 :: Bailey Halloween Mood [widget]
 <<widget "gbaileyMood">><<if _args[0] gt 0>> | <span class="green">Mood +<<print _args[0]>></span><<elseif _args[0] lt 0>> | <span class="red">Mood <<print _args[0]>></span><</if>><</widget>>
-<<widget "baileyHalloweenMood">><<set $bailey_halloween_score += _args[0]>><<gbaileyMood _args[0]>><</widget>>
+<<widget "baileyHalloweenMood">><<set $bailey_gala.mood += _args[0]>><<gbaileyMood _args[0]>><</widget>>
 
 
 :: Bailey Halloween Start
@@ -385,15 +385,18 @@ The event hall is buzzing with activity. All around you are people in various co
 The <<person1>><<person>> talks at Bailey while <<nnpc_he "Bailey">> nods politely. You slip away, but you notice Bailey glance your direction as you do so.
 <br><br>
 
-<<link [[Next|Bailey Halloween Gala Menu]]>><<set $bailey_halloween_score to 0>><<set $bailey_halloween_topics to {avery:[], quinn:[]}>><<set $bailey_halloween_cycle to 0>><<set $bailey_halloween_guests_met to []>><<set $bailey_halloween_steal_caught to false>><</link>>
+<<link [[Next|Bailey Halloween Gala Menu]]>><<set $bailey_gala to {mood: 0, cycle: 0, met: [], caught: false}>><</link>>
 <br>
 
 
 :: Bailey Halloween Gala Menu
-<<if $bailey_halloween_cycle gte 3>><<include "Bailey Halloween Toast">><<exitAll>><</if>>
+<<if $bailey_gala is undefined>><<set $bailey_gala to {mood: 0, cycle: 0, met: [], caught: false}>><</if>>
+<<if $bailey_gala.cycle gte 3>>
+	<<include "Bailey Halloween Toast">>
+<<else>>
 <<effects>>
 
-You're standing near the center of the ballroom. A picture of the Bailey Orphanage stands at the center of the far wall. Beneath it is a clear receptacle for donations and checks. <<if $bailey_halloween_score lt 0>>It looks sparse. It seems someone mistook it for a trash bin at some point.<<elseif $bailey_halloween_score is 0>>It looks sparse.<<elseif $bailey_halloween_score lte 1>>It's starting to fill up.<<else>>The box is filled to the brim.<</if>>
+You're standing near the center of the ballroom. A picture of the Bailey Orphanage stands at the center of the far wall. Beneath it is a clear receptacle for donations and checks. <<if $bailey_gala.mood lt 0>>It looks sparse. It seems someone mistook it for a trash bin at some point.<<elseif $bailey_gala.mood is 0>>It looks sparse.<<elseif $bailey_gala.mood lte 1>>It's starting to fill up.<<else>>The box is filled to the brim.<</if>>
 <br><br>
 
 <<switch random(1, 4)>>
@@ -404,21 +407,21 @@ You're standing near the center of the ballroom. A picture of the Bailey Orphana
 <</switch>>
 <br><br>
 
-<<link [[Interact with guests|Bailey Halloween Entertain]]>><<pass 20>><<set $bailey_halloween_cycle += 1>><</link>>
+<<link [[Interact with guests|Bailey Halloween Entertain]]>><<pass 20>><<set $bailey_gala.cycle += 1>><</link>>
 <br>
-<<if $bailey_halloween_steal_caught>>
+<<if $bailey_gala.caught>>
 	<span class="bailey-locked-option"><s class="disabled">Look for something to steal</s> <span class="bailey-red bailey-reveal">Bailey is watching.</span></span>
 <<else>>
 	<<set $skulduggerydifficulty to 800>><<link [[Look for something to steal|Bailey Halloween Steal]]>><<pass 20>><</link>><<skulduggerydifficulty>>
 <</if>>
 <br>
-<<link [[Stay quiet|Bailey Halloween Quiet]]>><<pass 20>><<set $bailey_halloween_cycle += 1>><</link>>
+<<link [[Stay quiet|Bailey Halloween Quiet]]>><<pass 20>><<set $bailey_gala.cycle += 1>><</link>>
 <br>
-
+<</if>>
 
 :: Bailey Halloween Steal
 <<effects>>
-<<person1>>
+<<npc Bailey>><<person1>>
 <<set $skulduggerydifficulty to 800>>
 <<skulduggerycheck "silent">>
 	You make your way to the unattended coat check. You rummage through some pockets.
@@ -451,10 +454,10 @@ You're standing near the center of the ballroom. A picture of the Bailey Orphana
 	"Shut it." Bailey shakes <<his>> head, lowering <<his>> hand. "You'll stay where I can see you."
 	<br><br>
 
-	<<He>> has to leave you to engage <<his>> guests, but you can tell <<hes>> watching you closer now. You won't be able to steal again.<<baileyHalloweenMood -2>><<npcincr Bailey love -1>><<set $bailey_love -= 1>><<llove "Bailey">><<set $bailey_halloween_steal_caught to true>><<baileyBrat 1 "gala_steal">>
+	<<He>> has to leave you to engage <<his>> guests, but you can tell <<hes>> watching you closer now. You won't be able to steal again.<<baileyHalloweenMood -2>><<npcincr Bailey love -1>><<set $bailey_love -= 1>><<llove "Bailey">><<set $bailey_gala.caught to true>><<baileyBrat 1 "gala_steal">>
 	<br><br>
 <</if>>
-<<set $bailey_halloween_cycle += 1>>
+<<set $bailey_gala.cycle += 1>>
 
 <<link [[Back to the gala|Bailey Halloween Gala Menu]]>><</link>>
 <br>
@@ -464,14 +467,14 @@ You're standing near the center of the ballroom. A picture of the Bailey Orphana
 <<effects>>
 <<endevent>>
 <<set _pool to []>>
-<<if C.npc.Avery.init is 1 and C.npc.Avery.state isnot "dismissed" and !$avery_injury and !$bailey_halloween_guests_met.includes("avery")>><<run _pool.push("avery")>><</if>>
-<<if !$bailey_halloween_guests_met.includes("quinn")>><<run _pool.push("quinn")>><</if>>
-<<if !$bailey_halloween_guests_met.includes("g1")>><<run _pool.push("g1")>><</if>>
-<<if !$bailey_halloween_guests_met.includes("g2")>><<run _pool.push("g2")>><</if>>
-<<if !$bailey_halloween_guests_met.includes("g3")>><<run _pool.push("g3")>><</if>>
+<<if C.npc.Avery.init is 1 and C.npc.Avery.state isnot "dismissed" and !$avery_injury and !$bailey_gala.met.includes("avery")>><<run _pool.push("avery")>><</if>>
+<<if !$bailey_gala.met.includes("quinn")>><<run _pool.push("quinn")>><</if>>
+<<if !$bailey_gala.met.includes("g1")>><<run _pool.push("g1")>><</if>>
+<<if !$bailey_gala.met.includes("g2")>><<run _pool.push("g2")>><</if>>
+<<if !$bailey_gala.met.includes("g3")>><<run _pool.push("g3")>><</if>>
 <<if _pool.length gt 0>>
 	<<set _pick to _pool.random()>>
-	<<run $bailey_halloween_guests_met.push(_pick)>>
+	<<run $bailey_gala.met.push(_pick)>>
 	<<switch _pick>>
 	<<case "avery">><<include "Bailey Halloween Guest Avery">>
 	<<case "quinn">><<include "Bailey Halloween Guest Quinn">>
@@ -622,13 +625,13 @@ You try to stay quiet and out of the way.
 <br><br>
 
 <<set _pool to []>>
-<<if $fame.sex gte 400 and !$bailey_halloween_guests_met.includes("underworld")>><<run _pool.push("underworld")>><</if>>
-<<if !$bailey_halloween_guests_met.includes("g1")>><<run _pool.push("g1")>><</if>>
-<<if !$bailey_halloween_guests_met.includes("g2")>><<run _pool.push("g2")>><</if>>
-<<if !$bailey_halloween_guests_met.includes("g3")>><<run _pool.push("g3")>><</if>>
+<<if $fame.sex gte 400 and !$bailey_gala.met.includes("underworld")>><<run _pool.push("underworld")>><</if>>
+<<if !$bailey_gala.met.includes("g1")>><<run _pool.push("g1")>><</if>>
+<<if !$bailey_gala.met.includes("g2")>><<run _pool.push("g2")>><</if>>
+<<if !$bailey_gala.met.includes("g3")>><<run _pool.push("g3")>><</if>>
 <<if _pool.length gt 0>>
 	<<set _pick to _pool.random()>>
-	<<run $bailey_halloween_guests_met.push(_pick)>>
+	<<run $bailey_gala.met.push(_pick)>>
 	<<switch _pick>>
 	<<case "underworld">><<include "Bailey Halloween Quiet Underworld">>
 	<<case "g1">><<include "Bailey Halloween Dance">>
@@ -996,7 +999,7 @@ Bailey sets <<his>> flute down on a passing tray. <<He>>'s not looking at you.
 :: Bailey Halloween Bailey Dance Invite
 <<effects>>
 <<person1>>
-<<if $bailey_halloween_score gte 2 and C.npc.Bailey.love gte 20>>
+<<if $bailey_gala.mood gte 2 and C.npc.Bailey.love gte 20>>
 You hold out your hand to Bailey. <<He>> looks at it. For a moment you think <<he>>'ll leave you standing there. Then you see <<him>> glance towards some guests who are looking over. <<He>> takes your hand. <<if $player.virginity.handholding is true>>
 <<if $stockholm_bailey gte 1>>
 <span class="lewd">You feel elated holding Bailey's hand for the first time.</span><<arousal 500>><<garousal>>
@@ -1032,9 +1035,9 @@ The gala thins out. Bailey stands by the door, smiling warmly, shaking hands, an
 <br><br>
 
 Bailey picks up the donation box at the end. 
-<<if $bailey_halloween_score gte 2>>
+<<if $bailey_gala.mood gte 2>>
 	<<He>> eyes the contents with a smile, "Good haul."
-<<elseif $bailey_halloween_score gte 0>>
+<<elseif $bailey_gala.mood gte 0>>
 	<<He>> eyes the contents flatly.
 <<else>>
 	<<He>> sneers at the contents. <<His>> eyes flick to you. "Useless little shit." <<npcincr Bailey love -1>><<set $bailey_love -= 1>><<llove "Bailey">>
@@ -1050,7 +1053,7 @@ Bailey picks up the donation box at the end.
 :: Bailey Halloween Drive Home
 <<effects>>
 <<person1>>
-<<if $bailey_halloween_score gte 2>>
+<<if $bailey_gala.mood gte 2>>
 	The car is warm and dark. Bailey drives with one hand on the wheel.
 	<br><br>
 
@@ -1058,7 +1061,7 @@ Bailey picks up the donation box at the end.
 	<br><br>
 
 	<<He>> doesn't say anything else until <<he>> pulls up to the orphanage.
-<<elseif $bailey_halloween_score gte 1>>
+<<elseif $bailey_gala.mood gte 1>>
 	The car is warm and dark. Bailey drives with one hand on the wheel. Neither of you says much. The town slides past the window.
 	<br><br>
 

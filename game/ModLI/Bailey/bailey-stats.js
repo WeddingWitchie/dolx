@@ -20,18 +20,28 @@ window.baileyFlatState = function () {
 	return "home"; // 19:00–02:00 (wraps midnight)
 };
 
-/* Weekend-obligation state. 
-$bailey_weekend_lastvisit (Time.days at the last flat visit)
-baileyWeeksMissed(): whole weeks since that visit
-baileyStraying(): 2+ weeks */
+function baileyDayToDate(day) {
+    return new DateTime(Time.startDate.timeStamp + day * TimeConstants.secondsPerDay);
+}
+function baileyDateToDay(date) {
+    return Math.floor((date.timeStamp - Time.startDate.timeStamp) / TimeConstants.secondsPerDay);
+}
+window.baileyWeekendClose = function (day) {
+    var date = baileyDayToDate(day);
+    if (date.weekDay === 7) return day + 1;
+    if (date.weekDay === 1) return day;
+    return baileyDateToDay(date.getPreviousWeekdayDate(1));
+};
+
 window.baileyWeeksMissed = function () {
-	if (!V.bailey_monogamous) return 0;
-	const last = typeof V.bailey_weekend_lastvisit === "number" ? V.bailey_weekend_lastvisit : Time.days;
-	return Math.max(0, Math.floor((Time.days - last) / 7));
+    if (!V.bailey_monogamous) return 0;
+    if (typeof V.bailey_weekend_closed !== "number" && typeof V.bailey_weekend_lastvisit === "number") {
+        V.bailey_weekend_closed = baileyWeekendClose(V.bailey_weekend_lastvisit);
+    }
+    if (typeof V.bailey_weekend_closed !== "number") return 0;
+    return Math.max(0, (baileyDateToDay(Time.getPreviousWeekdayDate(1)) - V.bailey_weekend_closed) / 7);
 };
-window.baileyStraying = function () {
-	return baileyWeeksMissed() >= 2;
-};
+window.baileyStraying = function () { return baileyWeeksMissed() >= 2; };
 
 /* Bailey-specific Stockholm indicator */
 Macro.add("gbaileystock", {
@@ -217,7 +227,7 @@ $(document).one(":storyready", function () {
 		el.style.textAlign = "center";
 		el.style.marginTop = "1em";
 		el.style.marginBottom = "1em";
-		el.textContent = "Reiyu's Bailey Expansion v0.5.3 for X-Change \u2014 Active";
+		el.textContent = "Reiyu's Bailey Expansion v0.5.4 for X-Change \u2014 Active";
 		const firstChild = _indicatorContainer.firstChild;
 		if (firstChild) {
 			_indicatorContainer.insertBefore(el, firstChild);
@@ -232,6 +242,42 @@ $(document).one(":storyready", function () {
 			setup.loveInterestNpc.unshift("Bailey");
 			console.log("[BaileyExpansion] Bailey added to start of loveInterestNpc list");
 		}
+	}
+
+	/* Sidebar reminders for the times Bailey is waiting. */
+	if (typeof setup !== "undefined" && Array.isArray(setup.events)) {
+	    if (!setup.events.some(function (ev) { return ev.name === "bailey date"; })) {
+	        setup.events.push({
+	            name: "bailey date",
+	            condition() {
+	                return (V.bailey_date_scheduled === 1 || V.bailey_date_allnight_scheduled === 1)
+	                    && V.renttime > 0
+	                    && V.bailey_date_attended !== 1;
+	            },
+	            starthour: 19,
+	            endhour: 19,
+	            priority: 4,
+	            text: "You have an arrangement with Bailey at the Orphanage at <<ampm 19 00>>.",
+	            failuretext: "You didn't show up for your arrangement with Bailey.",
+	        });
+	    }
+	    if (!setup.events.some(function (ev) { return ev.name === "bailey halloween gala"; })) {
+	        setup.events.push({
+	            name: "bailey halloween gala",
+	            condition() {
+	                return V.bailey_halloween_scheduled === Time.year
+	                    && Time.monthDay === 31
+	                    && Time.monthName === "October"
+	                    && V.bailey_halloween_attended !== Time.year
+	                    && !V.possessed;
+	            },
+	            starthour: 18,
+	            endhour: 19,
+	            priority: 4,
+	            text: "You have an arrangement with Bailey at the Orphanage at <<ampm 18 30>>.",
+	            failuretext: "You didn't show up for your arrangement with Bailey.",
+	        });
+	    }
 	}
 
 	const _origIsPossibleLoveInterest = window.isPossibleLoveInterest;
