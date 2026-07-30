@@ -345,8 +345,12 @@ function pleasure(amount, source) {
 		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
 		const alphaEffectActive = playerIsXChanged() && V.xchange.pill?.alphaEffect && V.player?.penisExist;
+		// Gwylan's ritual has its own bespoke orgasm pacing ($sexRitual.playerOrgasms / orgasmTarget);
+		// the addiction/breeder/alpha/omega denial gates below fight that system instead of complementing it, so they're suspended for the ritual's duration.
+		// $sexRitual only exists between gwylanRitualStart and gwylanRitualEnd, so this cleanly brackets the whole scene.
+		const gwylanRitualActive = !!V.sexRitual;
 		// The hole addiction craves getting the player's own cock into something; with no penis (e.g. genderflipped by a pill) it cannot possibly be fulfilled, so it lies dormant instead of soft-locking every orgasm.
-		const holeAddictActive = (V.hole_addict_trait === 1 && V.player?.penisExist === true) || alphaEffectActive;
+		const holeAddictActive = !gwylanRitualActive && ((V.hole_addict_trait === 1 && V.player?.penisExist === true) || alphaEffectActive);
 
 		// Apply effect according to source
 		let sensitivity = 0;
@@ -438,7 +442,7 @@ function pleasure(amount, source) {
 			}
 		}
 
-		if (amount > 0 && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled))) {
+		if (amount > 0 && !gwylanRitualActive && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled))) {
 			mod *= 0.6;
 		}
 
@@ -462,8 +466,8 @@ function pleasure(amount, source) {
 		const pleasureChange = amount * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1);
 		V.pleasure += pleasureChange;
 
-		// Prevent orgasming unless addictions are fulfilled
-		const addictionsUnmet = (V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled);
+		// Prevent orgasming unless addictions are fulfilled (suspended during Gwylan's ritual, see gwylanRitualActive above)
+		const addictionsUnmet = !gwylanRitualActive && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled));
 
 		const cap = (V.pleasuremax * 4) / 5 - 1;
 
@@ -588,7 +592,7 @@ function pleasure(amount, source) {
 		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
 		// Skipped entirely when the player has enabled free orgasms (breederOrgasmDenied() returns false).
 		// Also skipped when a breakthrough orgasm already fired this call (addiction/alpha toy gate above); re-clamping here used to silently eat that orgasm along with its message and stress.
-		const breederEffectActive = playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
+		const breederEffectActive = !gwylanRitualActive && playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
 		const breederSatisfied = !breederOrgasmDenied() || V.xchange.breederOrgasm || V.breederCreampied;
 		if (breederEffectActive && !breederSatisfied && !V.xchange.breakthroughOrgasm && oldPleasure + pleasureChange >= (V.pleasuremax * 4) / 5) {
 			// Toy relief: a toy working the needy hole turns the hard denial into the same soft gate the addiction traits get, clamped at the edge with an escalating chance of a hollow forced orgasm.
