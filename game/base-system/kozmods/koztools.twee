@@ -1,7 +1,6 @@
 :: X-Change Misc Widgets [widget]
-
+	<!-- Usage: <<fame 10 "scrap" "good">>. Raises fames regardless of mask, gloryhole, etc. -->
     <<widget "fame-propagate">>
-		<!-- Usage: <<fame 10 "scrap" "good">>. Raises fames regardless of mask, gloryhole, etc. -->
 		<<if _args.length gte 2 and $statFreeze isnot true>>
 			<<set [$_gain, ...($_fameTypes)] to _args>> <!-- remove first element of array since it's the number -->
 			<<if Object.keys($xchange.pill.changedBody).length gt 0>>
@@ -17,9 +16,12 @@
 		<</if>>
 	<</widget>>
 
+	<!-- Usage: <<xchange-fame 10>>, or <<xchange-fame 10 true>> to apply regardless of mask/gloryhole (e.g. a third party doing it for you, rather than you being recognised in person). -->
 	<<widget "xchange-fame">>
 		<<if _args[0] and $statFreeze isnot true>>
-			<<if playerIsXChanged() and !$gloryhole>>
+			<<if _args[1] is true>>
+				<<set _maskFactor to 1>>
+			<<elseif playerIsXChanged() and !$gloryhole>>
 				<!-- A mask/covered face fully hides you below 500 X-Change fame, only halves recognition from 500-999, and stops concealing you at all at 1000 (max): you're too recognisable by then regardless of your face. -->
 				<<if $face isnot "covered" and !$worn.face.type.includes("mask")>>
 					<<set _maskFactor to 1>>
@@ -30,14 +32,16 @@
 				<<else>>
 					<<set _maskFactor to 0>>
 				<</if>>
-				<<if _maskFactor gt 0>>
-					<<set $xchange_fame += _args[0] * _maskFactor * 2>>
-					<<set $xchange_fame to Math.clamp($xchange_fame, 0, 1000)>>
-					<<if $xchange_fame gte 1000>>
-						<<for _name range $NPCNameList>>
-							<<set $xchange.known.pushUnique(_name)>>
-						<</for>>
-					<</if>>
+			<<else>>
+				<<set _maskFactor to 0>>
+			<</if>>
+			<<if _maskFactor gt 0>>
+				<<set $xchange_fame += _args[0] * _maskFactor * 2>>
+				<<set $xchange_fame to Math.clamp($xchange_fame, 0, 1000)>>
+				<<if $xchange_fame gte 1000>>
+					<<for _name range $NPCNameList>>
+						<<set $xchange.known.pushUnique(_name)>>
+					<</for>>
 				<</if>>
 			<</if>>
 		<</if>>
