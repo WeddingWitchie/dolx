@@ -1,5 +1,5 @@
 function playerHasStrapon() {
-	return V.worn.under_lower.type.includes("strap-on") && V.worn.under_lower.state === "waist";
+	return V.worn.under_lower.type.includes("strap-on") && ["waist", "totheside"].includes(V.worn.under_lower.state);
 }
 window.playerHasStrapon = playerHasStrapon;
 
