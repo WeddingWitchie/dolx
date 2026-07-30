@@ -361,13 +361,12 @@
 
 :: Widgets Effects Dissociation [widget]
 <<widget "effectsdissociation">>
-	/* Insanity trait: forced full dissociation only paralyses the opening turns of an encounter, tracked by $insanityDissociationTurns.
-	The first call initialises the counter (it fires in the same passage as combat init, before the player has acted), so the countdown only ticks on real turns.
-	High willpower anchors the mind enough to skip the helpless phase outright, and gaining focus (poking yourself, forcing out words) shaves an extra turn off it.
-	Once $insanityDissociationLucid is set, updatePlayerTraumaState() keeps the trait's dissociation at mild severity for the rest of the fight.
-	Trauma genuinely high enough for full dissociation is left to the normal focus-escape mechanic instead. */
 	<<if $combat is 1 and $dissociation gte 2 and !$insanityDissociationLucid and $backgroundTraits.includes("insanity") and $trauma lt ($traumamax / 10) * 9.5>>
-		<<if $insanityDissociationTurns is undefined>>
+		<<if $statFreeze>>
+			<<set $insanityDissociationLucid to 1>>
+			<<set $dissociation to 1>>
+			<<unset $insanityDissociationTurns>>
+		<<elseif $insanityDissociationTurns is undefined>>
 			<<if currentSkillValue("willpower") gte ($willpowermax / 10) * 7>>
 				<<set $insanityDissociationLucid to 1>>
 				<<set $dissociation to 1>>
