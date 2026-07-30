@@ -1044,8 +1044,29 @@
 					<<set _pill.resistanceChance to (_pill.resistanceChance * $xchange.resistanceOrgasmPenalty)>>
 					<<set _pill.resistanceOrgasmsStat++>>
 				<</if>>
-				<<if _pill.continueEffect and $NPCNameList.includes(_npc.description) and !npcPillIsPermanent(_npc.description) and !npcPillTimerPaused(_npc.description)>>
-					<<set _pill.duration += 1 * 16>>
+				<<if $NPCNameList.includes(_npc.description)>>
+					<<set _npcContinueBurnout to false>>
+					<<if _pill.continueEffect and $xchange.continueDurationCapEnabled and npcPillIsPermanent(_npc.description)>>
+						/* A cap cannot undo an already-permanent transformation, but it can retire the now-inert Continue agent. */
+						<<set _npcContinueBurnout to true>>
+					<<elseif _pill.continueEffect and !npcPillIsPermanent(_npc.description)>>
+						<<if $xchange.continueDurationCapEnabled>>
+							/* Continue already has a hard 30-day ceiling, so a larger Resistance penalty cannot be a reachable cap. */
+							<<set _npcContinueDurationCap to Math.min(30, Math.max(1, $xchange.resistanceDaysPenalty)) * 24>>
+							<<if _pill.duration lt _npcContinueDurationCap>>
+								<<set _pill.duration to Math.min(_pill.duration + 16, _npcContinueDurationCap)>>
+							<</if>>
+							<<if _pill.duration gte _npcContinueDurationCap>>
+								<<set _npcContinueBurnout to true>>
+							<</if>>
+						<<else>>
+							<<set _pill.duration += 1 * 16>>
+						<</if>>
+					<</if>>
+					<<if _npcContinueBurnout>>
+						<<set _pill.continueEffect to false>>
+						<<set _pill.fertile to npcStartingSexIs(_i, _npc.description, "f")>>
+					<</if>>
 				<</if>>
 				/* <<if _pill.dumbBitchEffect>>
 					<<stress -10>><<trauma -50>>
