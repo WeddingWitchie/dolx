@@ -872,6 +872,11 @@ function specialClothesUpdate() {
 	if (!V.specialClothes.some(item => item.name === "ancient gold ring")) V.specialClothes.push({ name: "ancient gold ring", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "butterfly eyepatch")) V.specialClothes.push({ name: "butterfly eyepatch", unlocked: 0 });
 	if (!V.specialClothes.some(item => item.name === "rose eyepatch")) V.specialClothes.push({ name: "rose eyepatch", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "kaiju costume")) V.specialClothes.push({ name: "kaiju costume", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "kaiju bottoms")) V.specialClothes.push({ name: "kaiju bottoms", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "kaiju hood")) V.specialClothes.push({ name: "kaiju hood", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "Whitney's collar")) V.specialClothes.push({ name: "Whitney's collar", unlocked: 0 });
+	if (!V.specialClothes.some(item => item.name === "Whitney's collar with leash")) V.specialClothes.push({ name: "Whitney's collar with leash", unlocked: 0 });
 
 	// Delete any entries that do not have a matching setup object.
 	V.specialClothes.forEach((clothing, index) => {
