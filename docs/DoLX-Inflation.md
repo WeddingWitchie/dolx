@@ -210,6 +210,7 @@ Do **not** use `<<printprice>>` inside a JavaScript template literal (backtick l
 ### Things that must NOT be inflated
 
 - **Income and wages** (`<<money 1200 "cafeWaiter">>`, "a £500 thank you"). The hook only touches negative amounts, but never switch an income `<<printmoney>>` to `<<printprice>>`.
+- **Refunds and reimbursements.** They are not income and are never multiplied again; return the exact inflation-adjusted amount captured when the original purchase was charged.
 - **The player's balance readout** ("You have £X").
 - **Gambling stakes** (dice). Inflating a bet breaks the win/loss maths. These deliberately bypass the hook with direct `$money` writes.
 - **Bank deposits, withdrawals, and tier top-ups.** These move money between cash and savings and write `$money` directly.

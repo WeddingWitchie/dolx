@@ -19,6 +19,7 @@ The divine system is a multiplier layered over genuine income. It does not own b
 ## Design Goals
 
 - A full Angel transformation rewards ordinary and non-sexual ways of earning money.
+- A full Angel transformation doubles the temple chastity-exam allowance instead of using the general non-sexual multiplier, with matching Jordan dialogue and displayed cash.
 - A full Demon transformation rewards sexualised work, including dancing, prostitution, Avery income, gloryhole work, and paid exhibitionism.
 - A Fallen Angel transformation gives a smaller bonus to every genuine income type.
 - Existing independent bonuses stack. Animal-TF income bonuses, skill multipliers, haggling, gambling profit, stolen-goods value, and divine bonuses are not mutually exclusive.
@@ -39,6 +40,8 @@ The divine system is a multiplier layered over genuine income. It does not own b
 | Demon                 | `Transformations.effectiveLevel("demon") >= 6`  | Slut income                | x1.5       |
 
 Fallen Angel has precedence. If the effective transformation state also exposes Angel or Demon levels, the payout receives Fallen's x1.2 rather than combining divine forms on the same event.
+
+The temple chastity-exam allowance is a deliberate full-Angel exception: an Angel who is not Fallen receives x2, while Fallen precedence still gives x1.2. Both the solo and Sydney exam passages calculate the final allowance once, print that value, and award it with `divineTfAdjusted: true`.
 
 The helper ignores zero and negative values and rounds the final positive result with `Math.round()`.
 
@@ -100,7 +103,7 @@ The helper returns the original amount for:
 
 The central `money()` hook also skips calls marked `recordOnly: true`. Those reconstruct statistics and do not award cash.
 
-This prevents cheats, initial money, loans, refunds, expense advances, and internal transfers from becoming income.
+This prevents cheats, initial money, loans, refunds, expense advances, and internal transfers from becoming income. Positive refund sources and calls marked `incomeType: "none"` restore cash without being added to `moneyStats` earned totals.
 
 ## Central Integration
 
@@ -193,8 +196,8 @@ Do not exclude `pubStolenGoods` from the divine helper. Acquisition and fencing 
 
 `game/base-system/overlays/traits.twee` displays the bonus alongside the other full-transformation effects:
 
-- Angel states that non-sexual income is increased by 50%.
-- Demon states that sexualised-job income is increased by 50%.
+- Angel states that, while not Fallen, non-sexual income is increased by 50% and the temple allowance is doubled.
+- Demon states that, while not Fallen, sexualised-job income is increased by 50%.
 - Both Fallen Angel description stages state that all income is increased by 20%, because the mechanic begins at effective Fallen level 2 rather than only at the later level-4 trait stage.
 
 Keep these descriptions synchronized with `divineTfIncome()` whenever the percentages, thresholds, or classifications change.
@@ -301,6 +304,8 @@ Mark it explicitly:
 ```twine
 <<money _amount "savingsWithdrawal" { incomeType: "none" }>>
 ```
+
+If a purchase can be refunded after passage navigation, store the amount returned by `setup.inflation.spendPrice()` when charging it and return that exact value. This keeps the refund equal to the inflation-adjusted payment even if the player's wealth crosses an inflation tier before the refund.
 
 If the subsystem already uses a deliberate direct `$money` writer for a balanced transfer, leave that writer direct and document it in the exception audit.
 

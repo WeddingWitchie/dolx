@@ -1279,7 +1279,7 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 		<br>
 	<</if>>
 	<<if setup.inflation.canAfford(8000)>>
-		<<lockicon>><<link [[Have a chastity device fitted (<<printprice 8000>> 0:05)|Temple Chastity Fitting]]>><<pass 5>><<money -8000>><</link>>
+		<<lockicon>><<link [[Have a chastity device fitted (<<printprice 8000>> 0:05)|Temple Chastity Fitting]]>><<pass 5>><<set $templeChastityPayment to setup.inflation.spendPrice(8000)>><<money -8000>><</link>>
 		<br>
 	<</if>>
 <<elseif !playerChastity() and $player.penisExist and (playerBellyVisible() or knowsAboutPregnancy("pc", "Jordan"))>>
@@ -1288,7 +1288,7 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 		<br>
 	<</if>>
 	<<if setup.inflation.canAfford(8000)>>
-		<<lockicon>><<link [[Have a chastity cage fitted (<<printprice 8000>> 0:05)|Temple Male Chastity Fitting]]>><<genitalswear 2>><<pass 5>><<money -8000>><</link>>
+		<<lockicon>><<link [[Have a chastity cage fitted (<<printprice 8000>> 0:05)|Temple Male Chastity Fitting]]>><<genitalswear 2>><<pass 5>><<set $templeChastityPayment to setup.inflation.spendPrice(8000)>><<money -8000>><</link>>
 		<br>
 	<</if>>
 <</if>>
@@ -1310,7 +1310,7 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 <</if>>
 <<if playerChastity() and $player.virginity.penile is true and $player.virginity.vaginal is true and !playerBellyVisible()>>
 	<<if setup.inflation.canAfford(8000)>>
-		<<lockicon "unlock">><<link [[Have the chastity device removed (<<printprice 8000>> 0:05)|Temple Chastity Removal]]>><<if $worn.genitals.origin is "temple">><<money -8000>><</if>><<pass 5>><</link>>
+		<<lockicon "unlock">><<link [[Have the chastity device removed (<<printprice 8000>> 0:05)|Temple Chastity Removal]]>><<if $worn.genitals.origin is "temple">><<set $templeChastityPayment to setup.inflation.spendPrice(8000)>><<money -8000>><</if>><<pass 5>><</link>>
 		<br>
 	<<else>>
 		<<ind>><span class="blue">You can't afford to have your chastity device removed.</span>
@@ -1468,24 +1468,29 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 		<</if>>
 
 		<<He>> turns away to let you dress.
+			<<set _templeAllowance to effectiveTransformationLevel("fallen") lt 2 and effectiveTransformationLevel("angel") gte 6 ? $grace * 8000 : divineTfIncome($grace * 4000, "templeAllowance")>>
+			<<if effectiveTransformationLevel("fallen") lt 2 and effectiveTransformationLevel("angel") gte 6 and $grace gte 1>>
+				Before reaching for the envelope, Jordan pauses. "Your aura has grown remarkably pure. The whole temple feels lighter when you're here, and the others have noticed it too. We've agreed to double your allowance this month."
+				<br><br>
+			<</if>>
 			<<if $grace gte 90>>
 				<<wearProp "cash four">>
 				Without looking, <<he>> places an envelope on the shelf beside you. "Your monthly allowance. Your behaviour has been remarkable. <span class="green">You're a credit to our faith, and every one of us could learn from you.</span> Thank you." <<npcincr "Jordan" love 2>><<glove>>
 				<br><br>
-				You open the envelope. There's <span class="gold">£<<print ($grace * 40)>></span> inside.
-				<<money `($grace * 4000)`>>
+				You open the envelope. There's <<printmoney _templeAllowance>> inside.
+				<<money _templeAllowance "templeAllowance" { divineTfAdjusted: true }>>
 			<<elseif $grace gte 50>>
 				<<wearProp "cash three">>
 				Without looking, <<he>> places an envelope on the shelf beside you. "Your monthly allowance. <span class="teal">You've been an upstanding member of our faith</span> and deserve every penny."
 				<br><br>
-				You open the envelope. There's <span class="gold">£<<print ($grace * 40)>></span> inside.
-				<<money `($grace * 4000)`>>
+				You open the envelope. There's <<printmoney _templeAllowance>> inside.
+				<<money _templeAllowance "templeAllowance" { divineTfAdjusted: true }>>
 			<<elseif $grace gte 1>>
 				<<wearProp "cash two">>
 				Without looking, <<he>> places an envelope on the shelf beside you. "Your monthly allowance. <span class="lblue">You've been an upstanding member of our faith.</span> There is room for improvement, but such is true of us all. We should strive to be better each day."
 				<br><br>
-				You open the envelope. There's <span class="gold">£<<print ($grace * 40)>></span> inside.
-				<<money `($grace * 4000)`>>
+				You open the envelope. There's <<printmoney _templeAllowance>> inside.
+				<<money _templeAllowance "templeAllowance" { divineTfAdjusted: true }>>
 			<<else>>
 				<span class="red">"Though pure, your behaviour hasn't been appropriate for a member of our faith,"</span> <<he>> says. "We know you can do better. As such, we've decided to withhold your allowance this month. I hope I can pay you next time."
 			<</if>>
@@ -1737,6 +1742,7 @@ The fondling continues for a few minutes. Finally, <<he>> finishes <<his>> work.
 :: Temple Male Chastity Fitting
 
 <<set $outside to 0>><<set $location to "town">><<effects>>
+<<unset $templeChastityPayment>>
 <<set $worn.genitals.origin to "temple">>
 <<He>> kneels once more and secures it on you. You hear a loud click, and Jordan steps back to admire <<his>> handiwork.
 
@@ -1763,10 +1769,10 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 		<br><br>
 		<<link [[Ask for the chastity cage|Temple Male Chastity Fitting]]>><<genitalswear 2>><</link>>
 		<br>
-		<<link [[Get your money back|Temple]]>><<money 8000>><<endevent>><</link>>
+		<<link [[Get your money back|Temple]]>><<money `$templeChastityPayment || 8000` "templeChastityRefund">><<unset $templeChastityPayment>><<endevent>><</link>>
 	<<else>>
 		<br><br>
-		<<He>> gives you your money back. <<money 8000>>
+		<<He>> gives you your money back. <<money `$templeChastityPayment || 8000` "templeChastityRefund">><<unset $templeChastityPayment>>
 		<br><br>
 		<<clotheson>>
 		<<link [[Next|Temple]]>><<endevent>><</link>>
@@ -1780,6 +1786,7 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	"Everything is satisfactory," <<he>> says. "If there are any problems, come see me." <<He>> leaves you alone in the room.
 	<br><br>
 	<<set $worn.genitals.origin to "temple">>
+	<<unset $templeChastityPayment>>
 	<<clotheson>>
 	<<link [[Next|Temple]]>><<endevent>><</link>>
 <<else>>
@@ -1838,7 +1845,7 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	<<He>> looks you over, and shakes <<his>> head. "I'm sorry, but I don't think you're ready to be free of it yet," <<he>> says, not unkindly. "Not with the state your soul's in."
 	<<if $player.virginity.penile is true and $player.virginity.vaginal is true>>
 		<<He>> presses your donation back into your hands. "Keep it. You'll have more use for it than we do."
-		<<money 8000>>
+		<<money `$templeChastityPayment || 8000` "templeChastityRefund">>
 	<</if>>
 	<br><br>
 	<<clotheson>>
@@ -1846,7 +1853,7 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	<<He>> hesitates, then shakes <<his>> head. "Word travels," <<he>> says. "The temple can't be seen freeing someone with a reputation like yours. Not yet."
 	<<if $player.virginity.penile is true and $player.virginity.vaginal is true>>
 		<<He>> presses your donation back into your hands. "Keep it. You'll have more use for it than we do."
-		<<money 8000>>
+		<<money `$templeChastityPayment || 8000` "templeChastityRefund">>
 	<</if>>
 	<br><br>
 	<<clotheson>>
@@ -1885,6 +1892,7 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	<</if>>
 	<br><br>
 <</if>>
+<<unset $templeChastityPayment>>
 
 <<if _handsApproach>>
 	You step away, and think about what to do now. From opposite sides, two black-robed priests approach you.

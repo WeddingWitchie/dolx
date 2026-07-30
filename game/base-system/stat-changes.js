@@ -1316,6 +1316,15 @@ const statChange = (() => {
 			return;
 		}
 
+		/* Refunds, reimbursements and transfers restore cash, but are not earned income.
+		   `incomeType: "none"` is used by existing non-income credits whose source name is not a refund. */
+		const nonIncomeCredit =
+			amount > 0 &&
+			(String(source || "")
+				.toLowerCase()
+				.includes("refund") ||
+				optional.incomeType === "none");
+
 		/* Full cat TF doubles cafe earnings. Callers that already applied a stacked TF bonus opt out. */
 		if (amount > 0 && !optional.recordOnly && !optional.animalTfAdjusted && ["cafeWaiter", "cafeChef", "cafeBuns"].includes(source)) {
 			amount = window.animalTfIncome(amount, "cat");
@@ -1349,6 +1358,8 @@ const statChange = (() => {
 
 			V.money += amount;
 		}
+		if (nonIncomeCredit) return;
+
 		if (!source || source === "prostitution") {
 			const mod = source === "prostitution" ? "Prostitution" : "";
 			switch (V.location) {
