@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import type { Page } from "@playwright/test";
-import { openGame, navigateTo, setTime, wikifyEval, wikifyToText, assertNoErrors } from "./helpers.js";
+import { openGame, navigateTo, setTime, setDay, wikifyEval, wikifyToText, assertNoErrors } from "./helpers.js";
 
 async function setupBlackmailDelivery(page: Page, intro = 1, courier = "home") {
 	await openGame(page);
@@ -493,6 +493,116 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		expect(blackmail.hasNewMaterial).toBe(false);
 		expect(blackmail.courier).toBeUndefined();
 		expect(blackmail.cooldown).toBe(7);
+	});
+
+	test("Poppy isn't picked as courier until her bedroom is unlocked", async ({ page }) => {
+		await setupBlackmailDelivery(page);
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.modLIUnlocks = { Poppy: true };
+			V.poppyFlat = { bedroomUnlocked: false };
+			V.xchange.blackmail.hasMaterial = false;
+			V.xchange.blackmail.courier = undefined;
+		});
+
+		for (let i = 0; i < 20; i++) {
+			await wikifyEval(page, '<<blackmail-newmaterial "sex">>');
+			const courier = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail.courier);
+			expect(courier).toBe("home");
+			await page.evaluate(() => {
+				const V = (window as any).SugarCube.State.variables;
+				V.xchange.blackmail.hasMaterial = false;
+				V.xchange.blackmail.courier = undefined;
+			});
+		}
+
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.poppyFlat.bedroomUnlocked = true;
+		});
+		await forceRng(page, 1);
+		await wikifyEval(page, '<<blackmail-newmaterial "sex">>');
+		const courier = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail.courier);
+		expect(courier).toBe("poppy");
+		await clearRngOverride(page);
+	});
+
+	test("Poppy gives up after a day and drops the letter off at home", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "poppy");
+
+		await wikifyEval(page, "<<blackmail-daypassed>>");
+		let blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("poppy");
+		expect(blackmail.courierReady).toBe(true);
+		expect(blackmail.courierAfk).toBe(false);
+
+		await wikifyEval(page, "<<blackmail-daypassed>>");
+		blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("home");
+		expect(blackmail.courierAfk).toBe(true);
+	});
+
+	test("Poppy secretly reads and keeps the letter, saving the player", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "poppy");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.modLIUnlocks = { Poppy: true };
+		});
+		await wikifyEval(page, "<<poppyFirstMeetingInit>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.poppyromance = 0;
+			V.poppySafeHouse = 1;
+		});
+		await wikifyEval(page, "<<poppyFlatInit>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.poppyFlat.bedroomUnlocked = true;
+		});
+		// Saturday 4:30 PM lands in Poppy's weekend "lounging at home" slot, so
+		// poppySchedule() (re-run by the passage itself) reports her in the living room.
+		await setDay(page, "Saturday", 16, 30);
+
+		await navigateTo(page, "Flats Poppy Living Room");
+		await expect(page.locator("#passages")).toContainText("Poppy has saved you from it, for now.");
+
+		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.hasMaterial).toBe(false);
+		expect(blackmail.hasNewMaterial).toBe(false);
+		expect(blackmail.courier).toBeUndefined();
+		expect(blackmail.cooldown).toBe(7);
+	});
+
+	test("Poppy ignores the letter and it goes afk immediately when her patience is too low", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "poppy");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.modLIUnlocks = { Poppy: true };
+		});
+		await wikifyEval(page, "<<poppyFirstMeetingInit>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			const C = (window as any).C;
+			V.poppyromance = 0;
+			V.poppySafeHouse = 1;
+			C.npc.Poppy.patience = 5;
+		});
+		await wikifyEval(page, "<<poppyFlatInit>>");
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.poppyFlat.bedroomUnlocked = true;
+		});
+		await setDay(page, "Saturday", 16, 30);
+
+		await navigateTo(page, "Flats Poppy Living Room");
+		await expect(page.locator("#passages")).toContainText("can't be bothered with it right now");
+		await expect(page.locator("#passages")).not.toContainText("Poppy has saved you from it, for now.");
+
+		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.hasMaterial).toBe(true);
+		expect(blackmail.courier).toBe("home");
+		expect(blackmail.courierAfk).toBe(true);
+		expect(blackmail.courierReady).toBe(false);
 	});
 
 	test("Avery leaves a high-temper letter alone and it delivers normally", async ({ page }) => {

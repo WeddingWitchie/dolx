@@ -40,6 +40,7 @@
 	<<if $syndromewolves gte 1>><<run _blackmailCouriers.push("wolves")>><</if>>
 	<<if $edenfreedom gte 1 or $syndromeeden gte 1>><<run _blackmailCouriers.push("eden")>><</if>>
 	<<if C.npc.Jordan.init is 1 and ($temple_rank is "monk" or $temple_rank is "priest")>><<run _blackmailCouriers.push("jordan")>><</if>>
+	<<if modLISelected("Poppy") and $poppyFlat?.bedroomUnlocked and !($poppyFlat.dismissed is true or $poppyDismissalFired is 1)>><<run _blackmailCouriers.push("poppy")>><</if>>
 	<<rng 0 `_blackmailCouriers.length-1`>>
 	<<set $xchange.blackmail.courier to _blackmailCouriers[$rng]>>
 	<<set $xchange.blackmail.courierAfk to false>>
@@ -181,8 +182,8 @@
 		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-1, 1)>>
 	<</if>>
 
-	/* Animal couriers give up after one full day of not being able to complete the handoff and drop the letter off at home instead. Jordan never gives up. */
-	<<if $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and !$xchange.blackmail.activeQuest and ["greathawk","wolves","eden"].includes($xchange.blackmail.courier)>>
+	/* Animal couriers (and Poppy) give up after one full day of not being able to complete the handoff and drop the letter off at home instead. Jordan never gives up. */
+	<<if $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and !$xchange.blackmail.activeQuest and ["greathawk","wolves","eden","poppy"].includes($xchange.blackmail.courier)>>
 		<<if !$xchange.blackmail.courierReady>>
 			<<set $xchange.blackmail.courierReady to true>>
 		<<else>>
