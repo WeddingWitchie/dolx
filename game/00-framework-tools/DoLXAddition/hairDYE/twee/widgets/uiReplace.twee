@@ -38,6 +38,9 @@
 	<<if not $twoToneHairDye>>
 		<<set $twoToneHairDye to false>>
 	<</if>>
+	<<if not $specialTwoToneHairDye>>
+		<<set $specialTwoToneHairDye to false>>
+	<</if>>
 	<<if not $twoToneDyeOption1 or $twoToneDyeOption1 is "noChange">>
 		<<set $twoToneDyeOption1 to "red">>
 	<</if>>
@@ -158,17 +161,41 @@
 					</div>
 					<div class="column">
 						<label><<checkbox "$twoToneHairDye" false true autocheck>> Request a two-tone colouring</label>
+						<<if dhmShop.highlightsAvailable($dyedHairPart, $hairtype, $fringetype, $hairlengthstage, $fringelengthstage)>>
+							<br>
+							<label><<checkbox "$specialTwoToneHairDye" false true autocheck>> Request a special vanilla only two-tone colouring</label>
+						<</if>>
 					</div>
 				</div>
-			
-				<<if not $twoToneHairDye>>
+
+				<<if $specialTwoToneHairDye>>
+					<<set _twotoneDyeOptions to {}>>
+					<<for _i to 0; _i lt _dyeNames.length; _i++>>
+						<<set _twotoneDyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
+					<</for>>
+
+					<div class="column">
+						<div class="palettes">
+							<div class="column">
+								First colour:
+								<br>
+								<<dhmDyePreview 'dye1' _twotoneDyeOptions>>
+							</div>
+							<div class="column">
+								Second colour:
+								<br>
+								<<dhmDyePreview 'dye2' _twotoneDyeOptions>>
+							</div>
+						</div>
+					</div>
+				<<elseif not $twoToneHairDye>>
 					<<dhmDyePreview 'simple' _dyeOptions>>
 				<<else>>
 					<<set _twotoneDyeOptions to {}>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
 						<<set _twotoneDyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
 					<</for>>
-			
+
 					<div class="column">
 						Style: <<listbox "$twoToneStyle" autoselect>>
 							<<optionsfrom setup.dhmod.gradients>>

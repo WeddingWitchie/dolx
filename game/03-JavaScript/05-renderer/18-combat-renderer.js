@@ -694,6 +694,19 @@ class CombatRenderer {
 		if (["wide flaps", "hime", "curtain", "mohawk"].includes(V.fringetype)) {
 			return this.getFringeFilter();
 		}
+		if (V.hairColourGradient.style === "highlights") {
+			// Combat's close-up hair sprites live under a separate img/hair/{type}/ sheet that has no color2_highlights.png overlay art,
+			// so highlight streaks can't be composited here
+			// fall back to a flat base colour instead of crashing on the unrecognised gradient style.
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
+				"hair",
+				"hair_custom",
+				"hair"
+			);
+		}
 		if (V.hairColourGradient.style === "split") {
 			const index = V.position === "missionary" ? 0 : 1;
 			return CombatRenderer.lookupColour(
@@ -733,6 +746,17 @@ class CombatRenderer {
 				setup.colours.hair_map,
 				// @ts-ignore
 				dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.haircolour,
+				"hair",
+				"hair_custom",
+				"hair"
+			);
+		}
+		if (V.hairColourGradient.style === "highlights") {
+			// Same combat art limitation as getHairFilter(): fall back to a flat base colour.
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.hair.is_custom && dhmod.hair.colors[0] ? dhmod.hair.colors[0] : V.hairColourGradient.colours[0],
 				"hair",
 				"hair_custom",
 				"hair"
@@ -826,6 +850,17 @@ class CombatRenderer {
 				setup.colours.hair_map,
 				// @ts-ignore
 				dhmod.fringe.is_custom && dhmod.fringe.colors[0] ? dhmod.fringe.colors[0] : V.hairfringecolour || V.haircolour,
+				"hair_fringe",
+				"hair_fringe_custom",
+				"hair_fringe"
+			);
+		}
+		if (V.hairFringeColourGradient.style === "highlights") {
+			// Same combat art limitation as getHairFilter(): fall back to a flat base colour.
+			return CombatRenderer.lookupColour(
+				setup.colours.hair_map,
+				// @ts-ignore
+				dhmod.fringe.is_custom && dhmod.fringe.colors[0] ? dhmod.fringe.colors[0] : V.hairFringeColourGradient.colours[0],
 				"hair_fringe",
 				"hair_fringe_custom",
 				"hair_fringe"

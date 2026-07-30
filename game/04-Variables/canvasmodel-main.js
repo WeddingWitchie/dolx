@@ -225,6 +225,62 @@ const bodySizeIndependentLayers = new Set([
 	"fire_back", "fire_front", "petals_back", "petals_front", "wraithFlash", "wraithFlashAccent", "wraithMirror",
 ]);
 
+const dollHighlightStyles = {
+	sides: new Set([
+		"afro pouf", "afro puffs", "all down", "bedhead", "braid left", "braid right", "bubble tails", "crescent tails",
+		"curly pigtails", "curly side up", "default", "dreads", "drill ringlets", "flat ponytail", "fluffy half up twintail",
+		"fluffy ponytail", "french bob", "half up twintail", "half-up", "heart braid", "jellyfish ponytail", "jellyfish twintails",
+		"layered bob", "left fishtail", "loop braid", "low tails", "messy bun", "messy ponytail", "neat", "pigtails",
+		"ponytail", "princess twintails", "princess wave", "ribbon tail", "right fishtail", "sailor buns", "scorpion tails",
+		"shaved", "short spiky", "sidecut", "sidetail left", "sidetail right", "sleek", "space buns", "straight",
+		"straight bob", "swept left", "thick pigtails", "thick ponytail", "thick princess twintail", "thick sidetail",
+		"thick twintails", "twin braids", "twin double braids", "twin fishtails", "twintails", "wavy braid",
+	]),
+	fringe: new Set([
+		"aerial", "bedhead", "blunt locks", "bowl", "centred", "curtain", "default", "dread bun", "dreadlocks",
+		"drill ringlets", "emo", "emo left", "emo right", "fluffy wave", "framed", "fro", "front braids", "goopy",
+		"hime", "loose antenna", "messy curls", "middlepart", "mohawk", "old_hime", "opened curtain", "overgrown",
+		"parted", "princess wave", "quiff", "ringlet curl", "ringlets", "ruffled", "sectioned", "short air vents",
+		"side-pinned", "sideswept braid", "sleek", "split", "straight", "straight tails", "swept back", "swept left",
+		"thin flaps", "thorn and curl", "trident", "wavy sickle", "wide flaps", "wispy",
+	]),
+	fringeByLength: new Set(["sidecut", "voluminous smoke"]),
+	sidesByLength: new Set(["all down"]),
+};
+
+/*
+ * Length-suffixed styles need one color2_highlights.png per hair_*_length stage ("short".."feet", see calchairlengthstage in ingame.js);
+ * "sidecut"/"voluminous smoke" ship the full set, but "all down" only ships "chest"/"feet" so far. 
+ * Anything not listed here for a *ByLength style has no art yet.
+ */
+const dollHighlightLengthCoverage = {
+	sides: { "all down": new Set(["chest", "feet"]) },
+	fringe: {
+		sidecut: new Set(["short", "shoulder", "chest", "navel", "thighs", "feet"]),
+		"voluminous smoke": new Set(["short", "shoulder", "chest", "navel", "thighs", "feet"]),
+	},
+};
+
+/**
+ * Whether a "special vanilla two-tone" (highlights) dye is available for the given hair part/style/length.
+ * Only vanilla hairstyles that ship a matching color2_highlights.png overlay support it - imagepack-replaced hairstyles won't have one, so this gates the UI to avoid offering a style that would silently render flat.
+ * Length-suffixed styles are further gated per-length since art hasn't been prepared for every stage yet.
+ *
+ * @param {"sides"|"fringe"} hairPart
+ * @param {string} hairType
+ * @param {string} [lengthStage] hair_*_length stage ("short".."feet"); required for *ByLength styles.
+ * @returns {boolean}
+ */
+function dollHighlightsAvailable(hairPart, hairType, lengthStage) {
+	const byLength = hairPart === "fringe" ? dollHighlightStyles.fringeByLength : dollHighlightStyles.sidesByLength;
+	if (byLength.has(hairType)) {
+		return !!dollHighlightLengthCoverage[hairPart]?.[hairType]?.has(lengthStage);
+	}
+	const plain = hairPart === "fringe" ? dollHighlightStyles.fringe : dollHighlightStyles.sides;
+	return plain.has(hairType);
+}
+window.dollHighlightsAvailable = dollHighlightsAvailable;
+
 Renderer.CanvasModels.main = {
 	name: "main",
 	width: 256,
@@ -674,6 +730,43 @@ Renderer.CanvasModels.main = {
 				setup.colours.hair_map,
 				options.hair_fringe_colour || options.hair_colour,
 				"hair_fringe",
+				"hair_fringe_custom",
+				"hair_fringe"
+			);
+		}
+		if (options.hair_colour_style === "highlights") {
+			options.filters.hair = lookupColour(
+				options,
+				setup.colours.hair_map,
+				options.hair_colour_gradient.colours[0],
+				"hair",
+				"hair_custom",
+				"hair"
+			);
+			options.filters.hair_highlights = lookupColour(
+				options,
+				setup.colours.hair_map,
+				options.hair_colour_gradient.colours[1],
+				"hair",
+				"hair_custom",
+				"hair"
+			);
+		}
+		if (options.hair_fringe_colour_style === "highlights") {
+			const fringeGradient = options.hair_fringe_colour_gradient || options.hair_colour_gradient;
+			options.filters.hair_fringe = lookupColour(
+				options,
+				setup.colours.hair_map,
+				fringeGradient.colours[0],
+				"hair fringe",
+				"hair_fringe_custom",
+				"hair_fringe"
+			);
+			options.filters.hair_fringe_highlights = lookupColour(
+				options,
+				setup.colours.hair_map,
+				fringeGradient.colours[1],
+				"hair fringe",
 				"hair_fringe_custom",
 				"hair_fringe"
 			);
@@ -1612,6 +1705,31 @@ Renderer.CanvasModels.main = {
 				return !!options.show_hair && !!options.hair_sides_type;
 			},
 		},
+		"hair_sides_highlights": {
+			filters: ["hair_highlights"],
+			animation: "idle",
+
+			srcfn(options) {
+				const fileName = dollHighlightStyles.sidesByLength.has(options.hair_sides_type)
+					? `${options.hair_sides_length}_color2_highlights.png`
+					: "color2_highlights.png";
+				return `img/hair/sides/${options.hair_sides_type}/${fileName}`;
+			},
+			zfn(options) {
+				return (options.hair_sides_position === "front" ? ZIndices.hair_forward : ZIndices.backhair) + 0.01;
+			},
+			masksrcfn(options) {
+				return [
+					Renderer.CanvasModels.main.layers.hair_sides.srcfn(options),
+					...options.headMask,
+				];
+			},
+			showfn(options) {
+				return options.hair_colour_style === "highlights"
+					&& !!options.show_hair
+					&& dollHighlightsAvailable("sides", options.hair_sides_type, options.hair_sides_length);
+			},
+		},
 		"hair_fringe": {
 			filters: ["hair_fringe"],
 			z: ZIndices.front_hair,
@@ -1627,6 +1745,27 @@ Renderer.CanvasModels.main = {
 				if (options.worn.over_upper.setup.name === "kaiju costume")
 				return `img/clothes/over-upper/kaiju/mask.png`;
 				return options.headMask.length ? options.headMask : options.fringe_mask_src;
+			},
+		},
+		"hair_fringe_highlights": {
+			filters: ["hair_fringe_highlights"],
+			z: ZIndices.front_hair + 0.01,
+			animation: "idle",
+
+			srcfn(options) {
+				const fileName = dollHighlightStyles.fringeByLength.has(options.hair_fringe_type)
+					? `${options.hair_fringe_length}_color2_highlights.png`
+					: "color2_highlights.png";
+				return `img/hair/fringe/${options.hair_fringe_type}/${fileName}`;
+			},
+			masksrcfn(options) {
+				const masks = [Renderer.CanvasModels.main.layers.hair_fringe.srcfn(options)];
+				return options.headMask.length ? masks.concat(options.headMask) : masks.concat(options.fringe_mask_src);
+			},
+			showfn(options) {
+				return options.hair_fringe_colour_style === "highlights"
+					&& !!options.show_hair
+					&& dollHighlightsAvailable("fringe", options.hair_fringe_type, options.hair_fringe_length);
 			},
 		},
 		"hair_extra": { // Extra layer for thighs+ long hair for certain styles
@@ -6512,3 +6651,22 @@ function makeupAdjustment(options) {
 	const ratio = options.skin_tone / 100;
 	options.makeup_adjustment = min + (max - min) * ratio;
 }
+
+// Native canvas resolution upgrade: if img/body/base-classic.png is ever replaced with higher-resolution
+// art, grow the "main" model's canvas to match instead of squeezing that art down into the current fixed
+// 256x256 canvas (which is what causes higher-res source art to look pixelated - it's being downscaled,
+// not upscaled). Scale factor is derived from this one reference file; every other sprite is expected to
+// be redrawn at the same multiplier so layers keep lining up. No-op while the reference file is unchanged.
+(function () {
+	const REFERENCE_WIDTH = 256;
+	const REFERENCE_HEIGHT = 128;
+	const image = new Image();
+	image.onload = () => {
+		const scale = Math.min(image.naturalWidth / REFERENCE_WIDTH, image.naturalHeight / REFERENCE_HEIGHT);
+		if (scale > 1) {
+			Renderer.CanvasModels.main.width = Math.round(Renderer.CanvasModels.main.width * scale);
+			Renderer.CanvasModels.main.height = Math.round(Renderer.CanvasModels.main.height * scale);
+		}
+	};
+	image.src = "img/body/base-classic.png";
+})();

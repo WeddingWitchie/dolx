@@ -12,9 +12,9 @@
 		<<set _colorNames to $dhmod.tmp.colors>>
 	<</if>>
 	
-	<<if _args[0] is "default" and (($dyeOption isnot "noChange" and $dyeOption isnot "") or $twoToneHairDye)>>
+	<<if _args[0] is "default" and (($dyeOption isnot "noChange" and $dyeOption isnot "") or $twoToneHairDye or $specialTwoToneHairDye)>>
 		<<set $dhmod.tmp.is_custom to false>>
-		<<if $twoToneHairDye>>
+		<<if $twoToneHairDye or $specialTwoToneHairDye>>
 			<<if $twoToneDyeOption1 isnot "noChange" and $twoToneDyeOption1 isnot "">>
 				<<set _colorNames[0] to $twoToneDyeOption1>>
 			<</if>>
@@ -46,16 +46,17 @@
 			<<set _modeloptions.brows_colour to $browsDyeOption>>
 		<</if>>
 
-		<<if $twoToneHairDye>>
+		<<if $twoToneHairDye or $specialTwoToneHairDye>>
 			<<set _preview_gradient to dhmShop.compileGradient(T.colorNames, 1)>>
+			<<set _preview_style to $specialTwoToneHairDye ? "highlights" : "gradient">>
 
 			<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
-				<<set _modeloptions.hair_fringe_colour_style to "gradient">>
+				<<set _modeloptions.hair_fringe_colour_style to _preview_style>>
 				<<set _modeloptions.hair_fringe_colour_gradient to _preview_gradient>>
 			<</if>>
 
 			<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
-				<<set _modeloptions.hair_colour_style to "gradient">>
+				<<set _modeloptions.hair_colour_style to _preview_style>>
 				<<set _modeloptions.hair_colour_gradient to _preview_gradient>>
 			<</if>>
 		<<else>>
@@ -132,18 +133,23 @@
 <<widget "dhmPanel">>
 	<<set _currentCost to 3000>>
 	<<set _currentCost += dhmShop.cashGrabCustom()>>
-	
+	<<set _highlightsAvailable to dhmShop.highlightsAvailable($dyedHairPart, $hairtype, $fringetype, $hairlengthstage, $fringelengthstage)>>
+
 	<div class="bold gold">Hair Dye</div>
 	Have your hair dyed<<if $haircolour isnot $naturalhaircolour or $hairfringecolour is not $naturalhaircolour>> <span class="tentacle">HARDER</span><</if>>:
 	<div class="flexitem">
 		<div id="hairpart-toggles" class="toggles">
 			<label><<radiobutton "$dyedHairPart" "hair" autocheck>> Full head</label> |
 			<label><<radiobutton "$dyedHairPart" "fringe" autocheck>> Fringe</label> |
-			<label><<radiobutton "$dyedHairPart" "sides" autocheck>> Sides</label> 
+			<label><<radiobutton "$dyedHairPart" "sides" autocheck>> Sides</label>
 		</div>
 
 		<div id="twotone-toggles" class="toggles">
 			<label><<checkbox "$twoToneHairDye" false true autocheck>> Request a two-tone colouring</label>
+			<<if _highlightsAvailable>>
+				<br>
+				<label><<checkbox "$specialTwoToneHairDye" false true autocheck>> Request a special vanilla only two-tone colouring</label>
+			<</if>>
 		</div>
 		<<if $twoToneHairDye>>
 			<div>
@@ -155,8 +161,15 @@
 	</div>
 
 	<<run $(() => {
-	$("#checkbox-twotonehairdye").on("change", function(e) {
-			if(!!V.twoToneHairDye) {
+	$("#checkbox-twotonehairdye, #checkbox-specialtwotonehairdye").on("change", function(e) {
+			if (this.id === "checkbox-twotonehairdye" && V.twoToneHairDye) {
+				V.specialTwoToneHairDye = false;
+				$("#checkbox-specialtwotonehairdye").prop("checked", false);
+			} else if (this.id === "checkbox-specialtwotonehairdye" && V.specialTwoToneHairDye) {
+				V.twoToneHairDye = false;
+				$("#checkbox-twotonehairdye").prop("checked", false);
+			}
+			if (!!V.twoToneHairDye || !!V.specialTwoToneHairDye) {
 				$("#color-controls0").removeClass("settingsToggleItemWide");
 				$("#color-controls0").addClass("settingsToggleItem");
 				$("#color-controls1").removeClass("hidden");

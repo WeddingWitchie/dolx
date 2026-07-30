@@ -365,6 +365,12 @@ window.combatSkillCheck = combatSkillCheck;
 function hairdressersReset() {
 	$(() =>
 		$("#hairDressers").on("change", ".macro-listbox, .macro-radiobutton, .macro-checkbox", function (e) {
+			// The "special vanilla two-tone" (highlights) and normal two-tone dyes are mutually exclusive.
+			if (e.target.id === "checkbox-twotonehairdye" && V.twoToneHairDye) {
+				V.specialTwoToneHairDye = false;
+			} else if (e.target.id === "checkbox-specialtwotonehairdye" && V.specialTwoToneHairDye) {
+				V.twoToneHairDye = false;
+			}
 			Wikifier.wikifyEval("<<replace #hairDressers>><<dhmUiReload>><</replace>>");
 			Wikifier.wikifyEval('<<numberify "#passages > .passage">>');
 		})

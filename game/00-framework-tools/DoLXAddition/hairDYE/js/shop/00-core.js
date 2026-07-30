@@ -1,18 +1,18 @@
+/* global dhmod, dhmUtils, dollHighlightsAvailable, dolxColor */
+
 const dhmShop = {
 	pickers: [],
 
 	/**
-	 ** PRESET PRESET PRESET PRESET
-	 **
-	 ** {{{ */
+	 * PRESET PRESET PRESET PRESET
+	 *
+	 * @param {number} index
+	 */
 	presetAttachHooks(index = 0) {
 		$(`#delete${index} button`).prop("disabled", true);
 
 		$(`#listbox--presetselected${index}`).on("change", function (e) {
-			if (
-				!!T[`presetSelected${index}`] &&
-				T[`presetSelected${index}`].length > 0
-			) {
+			if (!!T[`presetSelected${index}`] && T[`presetSelected${index}`].length > 0) {
 				dhmShop.presetAutoload(T[`presetSelected${index}`], index);
 				$(`#delete${index} button`).prop("disabled", false);
 			}
@@ -23,34 +23,27 @@ const dhmShop = {
 	 */
 	presetBoxRefresh() {
 		for (let i = 0; i < this.pickers.length; i++) {
-			Wikifier.wikifyEval(
-				`<<replace "#preset-dropdown-container-${i}">><<dhmPresetsDropdown ${i}>><</replace>>`,
-			);
+			Wikifier.wikifyEval(`<<replace "#preset-dropdown-container-${i}">><<dhmPresetsDropdown ${i}>><</replace>>`);
 			this.presetAttachHooks(i);
 		}
 	},
 
 	/**
-	 * @param {Canvasfilter} rawFilter
-	 * @returns {boolean}
+	 * @param {object} rawFilter
 	 */
 	presetBtnSave(rawFilter) {
 		const filterString = dhmUtils.filterEncode(rawFilter);
 		const presetName = prompt("Name your preset", "Preset");
 
-		if (!!presetName) {
+		if (presetName) {
 			if (V.dhmod.userPresets[presetName]) {
-				alert(
-					`'${presetName}' was not saved because another preset with the same name already exists.`,
-				);
+				alert(`'${presetName}' was not saved because another preset with the same name already exists.`);
 				return true;
 			}
 
-			let duplicate = dhmUtils.presetExists(filterString);
+			const duplicate = dhmUtils.presetExists(filterString);
 			if (duplicate) {
-				alert(
-					`'${presetName}' was not saved because this color is already saved as '${duplicate}'.`,
-				);
+				alert(`'${presetName}' was not saved because this color is already saved as '${duplicate}'.`);
 				return true;
 			}
 
@@ -74,7 +67,7 @@ const dhmShop = {
 	 * @param {number} index
 	 */
 	presetAutoload(selectedPreset, index = 0) {
-		let newFilter = dhmUtils.presetLoad(selectedPreset);
+		const newFilter = dhmUtils.presetLoad(selectedPreset);
 		this.syncColorPicker(index, newFilter.blend);
 		this.syncColorBrightnessSlider(index, newFilter.brightness);
 	},
@@ -88,25 +81,25 @@ const dhmShop = {
 			colors: ["", ""],
 			brightnessStart: [0, 0],
 			blendStart: ["#FFFFFF", "#FFFFFF"],
-			is_custom: dhmod.hair.is_custom ? true : false,
+			is_custom: !!dhmod.hair.is_custom,
 		};
 
 		if (V.hairColourStyle === "simple") {
 			dhmod.tmp.colors = [V.haircolour, V.haircolour];
 			dhmod.tmp.originalColors = [V.haircolour, V.haircolour];
 		} else {
-			V.twoToneStyle = V.hairColourGradient.style;
+			// "highlights" isn't a selectable option in the normal two-tone Style dropdown
+			// (it has its own dedicated "special vanilla two-tone" checkbox), so don't leak it in as a stale selection.
+			if (V.hairColourGradient.style !== "highlights") V.twoToneStyle = V.hairColourGradient.style;
 			dhmod.tmp.colors = [...V.hairColourGradient.colours];
 			dhmod.tmp.originalColors = [...V.hairColourGradient.colours];
 		}
 
-		for (let i in dhmod.tmp.colors) {
-			let activeFilter = dhmUtils.getActiveHairFilter(i);
-			if (!!activeFilter) {
-				setup.colours.hair_map[`tmp${i}`].canvasfilter.blend =
-					activeFilter.blend;
-				setup.colours.hair_map[`tmp${i}`].canvasfilter.brightness =
-					activeFilter.brightness;
+		for (const i in dhmod.tmp.colors) {
+			const activeFilter = dhmUtils.getActiveHairFilter(i);
+			if (activeFilter) {
+				setup.colours.hair_map[`tmp${i}`].canvasfilter.blend = activeFilter.blend;
+				setup.colours.hair_map[`tmp${i}`].canvasfilter.brightness = activeFilter.brightness;
 				dhmod.tmp.brightnessStart[i] = activeFilter.brightness;
 				dhmod.tmp.blendStart[i] = activeFilter.blend;
 			}
@@ -117,8 +110,26 @@ const dhmShop = {
 	},
 	// }}}
 
+	/**
+	 * Whether the "special vanilla two-tone" (highlights) dye can be offered for the part currently being dyed.
+	 * It needs a matching color2_highlights.png overlay per hairstyle, which imagepack-replaced
+	 * styles won't have, so this is only true for the vanilla art we've prepared.
+	 *
+	 * @param {"sides"|"fringe"} dyedHairPart
+	 * @param {string} sidesType
+	 * @param {string} fringeType
+	 * @param {string} sidesLength
+	 * @param {string} fringeLength
+	 * @returns {boolean}
+	 */
+	highlightsAvailable(dyedHairPart, sidesType, fringeType, sidesLength, fringeLength) {
+		if (dyedHairPart === "sides") return dollHighlightsAvailable("sides", sidesType, sidesLength);
+		if (dyedHairPart === "fringe") return dollHighlightsAvailable("fringe", fringeType, fringeLength);
+		return dollHighlightsAvailable("sides", sidesType, sidesLength) && dollHighlightsAvailable("fringe", fringeType, fringeLength);
+	},
+
 	compileGradient(colors = ["tmp0", "tmp1"], tmp = 0) {
-		let compiled = {
+		const compiled = {
 			style: V.twoToneStyle,
 			colours: ["", ""],
 		};
@@ -134,14 +145,15 @@ const dhmShop = {
 	},
 
 	/**
-	 ** PICKER PICKER PICKER PICKER
-	 **
-	 ** {{{ */
+	 * PICKER PICKER PICKER PICKER
+	 *
+	 * @param {number} index
+	 */
 	setColorHex(index = 0) {
 		const hex = prompt("Enter new hex code", "#FFFFFF");
 		if (!!hex && tinycolor(hex).getFormat() === "hex") {
 			this.syncColorPicker(index, hex);
-		} else if (!!hex) {
+		} else if (hex) {
 			alert("Invalid hex code :(");
 		}
 	},
@@ -170,26 +182,16 @@ const dhmShop = {
 		$(`#hex${index}`).text("").append(color.toUpperCase());
 	},
 
-	syncColorBrightnessSlider(
-		index = 0,
-		brightness = 0,
-		colorName = `tmp${index}`,
-	) {
+	syncColorBrightnessSlider(index = 0, brightness = 0, colorName = `tmp${index}`) {
 		this.syncColorBrightness(index, brightness, colorName);
-		Wikifier.wikifyEval(
-			`<<replace #brightness${index}>><<numberslider "_dhBrightness${index}" ${brightness} -1 1 0.1>><</replace>>`,
-		);
-		$(`#numberslider-input--dhbrightness${index}`).on(
-			"input change",
-			function (e) {
-				dhmShop.syncColorBrightness(index, T[`dhBrightness${index}`]);
-			},
-		);
+		Wikifier.wikifyEval(`<<replace #brightness${index}>><<numberslider "_dhBrightness${index}" ${brightness} -1 1 0.1>><</replace>>`);
+		$(`#numberslider-input--dhbrightness${index}`).on("input change", function (e) {
+			dhmShop.syncColorBrightness(index, T[`dhBrightness${index}`]);
+		});
 	},
 
 	syncColorBrightness(index = 0, brightness = 0, colorName = `tmp${index}`) {
-		setup.colours.hair_map[`tmp${index}`].canvasfilter.brightness =
-			brightness;
+		setup.colours.hair_map[`tmp${index}`].canvasfilter.brightness = brightness;
 		dhmod.tmp.colors[index] = colorName;
 		this.mannequinUpdate();
 	},
@@ -200,8 +202,8 @@ const dhmShop = {
         u can read its docs @ iro.js.org
     */
 	pickerGen(index = 0, color = "FFFFFF") {
-		let picker = new iro.ColorPicker(`#picker${index}`, {
-			color: color,
+		const picker = new iro.ColorPicker(`#picker${index}`, {
+			color,
 			width: 250,
 			layout: [
 				{
@@ -230,7 +232,7 @@ const dhmShop = {
 	// slightly modified vanilla snippet 😇
 	// resizes the picker according to window size
 	pickerAutoWidth() {
-		if (!!V.twoToneHairDye) {
+		if (V.twoToneHairDye) {
 			if (window.innerWidth > 600) return 220;
 			if (window.innerWidth > 500) return 210;
 		}

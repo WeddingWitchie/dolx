@@ -21,6 +21,7 @@ You're seated in the hairdressers. The <i>specialist</i> waits expectantly.
 <<set _pickers to 2>>
 <<set $dhmod.tmp.is_custom to true>>
 <<set $twoToneHairDye to false>>
+<<set $specialTwoToneHairDye to false>>
 
 <div class="dhm">
 	<div id="hairdresser-options" class="no-numberify settingsGrid">
@@ -60,6 +61,11 @@ You're seated in the hairdressers. The <i>specialist</i> waits expectantly.
 	$(window).on('resize', function(event) { dhmShop.pickerResizeAll(); });
 
 	$("#dhmPanel").on("change", ".macro-listbox, .macro-radiobutton, .macro-checkbox", function (e) {
+		if (e.target.id === "checkbox-twotonehairdye" && V.twoToneHairDye) {
+			V.specialTwoToneHairDye = false;
+		} else if (e.target.id === "checkbox-specialtwotonehairdye" && V.specialTwoToneHairDye) {
+			V.twoToneHairDye = false;
+		}
 		Wikifier.wikifyEval("<<replace #dhmPanel>><<dhmPanel>><</replace>>");
 		Wikifier.wikifyEval("<<replace #can-pay>><<dhmPayments>><</replace>>");
 		Wikifier.wikifyEval("<<dhmMannequinUpdate>>");
@@ -77,7 +83,23 @@ the variable gymnastics are not extinct. just more discreet.
 <<set _dyeApply to 0>>
 <<set _tmp0 to setup.colours.hair_map.tmp0.canvasfilter>>
 <<set _tmp1 to setup.colours.hair_map.tmp1.canvasfilter>>
-<<if $twoToneHairDye>>
+<<if $specialTwoToneHairDye>>
+	<<set _gradient to dhmShop.compileGradient()>>
+	<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
+		<<set $hairFringeColourStyle to "highlights">>
+		<<set $hairFringeColourGradient to clone(_gradient)>>
+		<<run dhmUtils.fringeGradient([_tmp0, _tmp1])>>
+		<<set $hairFringeColourGradient.style to "highlights">>
+		<<if Math.trunc($fringelength/200) gte 3>><<set _dyeApply += (2 * Math.trunc($fringelength/200))>><</if>>
+	<</if>>
+	<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
+		<<set $hairColourStyle to "highlights">>
+		<<set $hairColourGradient to clone(_gradient)>>
+		<<run dhmUtils.hairGradient([_tmp0, _tmp1])>>
+		<<set $hairColourGradient.style to "highlights">>
+		<<if Math.trunc($hairlength/200) gte 3>><<set _dyeApply += (5 * Math.trunc($hairlength/200))>><</if>>
+	<</if>>
+<<elseif $twoToneHairDye>>
 	<<set _gradient to dhmShop.compileGradient()>>
 	<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
 		<<set $hairFringeColourStyle to "gradient">>

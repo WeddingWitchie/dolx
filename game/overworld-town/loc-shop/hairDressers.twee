@@ -174,6 +174,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 <<set $twoToneDyeOption1 to "noChange">>
 <<set $twoToneDyeOption2 to "noChange">>
 <<set $twoToneHairDye to false>>
+<<set $specialTwoToneHairDye to false>>
 <<set $transformationShow to false>>
 <<set $twoToneStyle to $hairColourGradient.style>>
 <div id="hairDressers">
@@ -220,6 +221,9 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<</if>>
 	<<if not $twoToneHairDye>>
 		<<set $twoToneHairDye to false>>
+	<</if>>
+	<<if not $specialTwoToneHairDye>>
+		<<set $specialTwoToneHairDye to false>>
 	<</if>>
 	<<if not $twoToneDyeOption1 or $twoToneDyeOption1 is "noChange">>
 		<<set $twoToneDyeOption1 to "red">>
@@ -289,16 +293,16 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 			<<set _dyeNames to ["Red", "Jet black", "Black", "Blond", "Soft Blond", "Platinum blond", "Golden", "Ashy blond", "Strawberry blond", "Dark Brown", "Brown", "Soft brown", "Light brown", "Burnt Orange", "Ginger", "Blood Orange", "Blue", "Deep Blue", "Neon Blue", "Green", "Dark Lime", "Toxic Green", "Teal", "Pink", "Bright Pink", "Hot pink", "Soft pink", "Crimson", "Purple", "Medium Purple", "Bright Purple", "White", "Snow white"]>>
 			<<set $hairdressersHairColour to ["red", "jetblack", "black", "blond", "softblond", "platinumblond", "golden", "ashyblond", "strawberryblond", "darkbrown", "brown", "softbrown", "lightbrown", "burntorange", "ginger", "bloodorange", "blue", "deepblue", "neonblue", "green", "darklime", "toxicgreen", "teal", "pink", "brightpink", "hotpink", "softpink", "crimson", "purple", "mediumpurple", "brightpurple", "white", "snowwhite"]>>
 
-			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000), "hairdressers") or $dyeOption isnot "noChange" or $twoToneHairDye>>
+			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000), "hairdressers") or $dyeOption isnot "noChange" or $twoToneHairDye or $specialTwoToneHairDye>>
 				<<if not dhmod.cfg.prices>><<if $dyeOption is "removeDye">>
 					<<set _currentCost += 3000>>
-				<<elseif not $twoToneHairDye and $dyeOption isnot "noChange">>
+				<<elseif not $twoToneHairDye and not $specialTwoToneHairDye and $dyeOption isnot "noChange">>
 					<<if $dyedHairPart is "hair">>
 						<<set _currentCost += 6000>>
 					<<else>>
 						<<set _currentCost += 5000>>
 					<</if>>
-				<<elseif $twoToneHairDye>>
+				<<elseif $twoToneHairDye or $specialTwoToneHairDye>>
 					<<set _currentCost += 25000>>
 				<</if>>
 			<</if>>
@@ -309,6 +313,10 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<label><<radiobutton "$dyedHairPart" "sides" autocheck>> Sides</label> |
 				<br>
 				<label><<checkbox "$twoToneHairDye" false true autocheck>> Request a two-tone colouring</label>
+				<<if dhmShop.highlightsAvailable($dyedHairPart, $hairtype, $fringetype, $hairlengthstage, $fringelengthstage)>>
+					<br>
+					<label><<checkbox "$specialTwoToneHairDye" false true autocheck>> Request a special vanilla only two-tone colouring</label>
+				<</if>>
 				<br>
 
 				<<set _dyeOptions to {"Don't dye":"noChange"}>>
@@ -327,7 +335,19 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<for _i to 0; _i lt _dyeNames.length; _i++>>
 					<<set _twotoneDyeOptions[_dyeNames[_i]] to $hairdressersHairColour[_i]>>
 				<</for>>
-				<<if not $twoToneHairDye>>
+				<<if $specialTwoToneHairDye>>
+					First colour: <<listbox "$twoToneDyeOption1" autoselect>>
+						<<optionsfrom _twotoneDyeOptions>>
+					<</listbox>>
+					<<dyeSwatch $twoToneDyeOption1>>
+					<br>
+					Second colour: <<listbox "$twoToneDyeOption2" autoselect>>
+						<<optionsfrom _twotoneDyeOptions>>
+					<</listbox>>
+					<<dyeSwatch $twoToneDyeOption2>>
+					<br>
+					<br>
+				<<elseif not $twoToneHairDye>>
 					<<listbox "$dyeOption" autoselect>>
 						<<optionsfrom _dyeOptions>>
 					<</listbox>>
@@ -406,7 +426,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<<set _pass += $hairOption isnot $hairlength ? 15 : 0>>
 	<<set _pass += $fringeOption isnot $fringelength ? 15 : 0>>
 	<<set _pass += $browsDyeOption isnot "noChange" ? 10 : 0>>
-	<<set _pass += $twoToneHairDye ? 30 : $dyeOption is "removeDye" ? 15 : $dyeOption isnot "noChange" ? 30 : 0>>
+	<<set _pass += ($twoToneHairDye or $specialTwoToneHairDye) ? 30 : $dyeOption is "removeDye" ? 15 : $dyeOption isnot "noChange" ? 30 : 0>>
 	<<if _sydneyPresent>>
 		<<if (!_cancel or _currentCost gt 0) and setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<<hairdressericon "chair">><<link [[Continue|Sydney Hairdressers Session]]>>
@@ -427,7 +447,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 		<<if not setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<<hairdressericon "chair">><span class="blue">You don't have enough money to pay the hairdresser.</span>
 			<br>
-		<<elseif $twoToneHairDye and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
+		<<elseif ($twoToneHairDye or $specialTwoToneHairDye) and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
 			<<hairdressericon "chair">><span class="blue">You need to select two different colours for two-tone hair colouring.</span>
 			<br>
 		<<elseif _currentCost gt 0>>
@@ -516,7 +536,7 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 		<<set _pass += 15>>
 		<<unset $dyeOption>>
 		<<unset $dyedHairPart>>
-	<<elseif $dyeOption isnot "noChange" and not $twoToneHairDye>>
+	<<elseif $dyeOption isnot "noChange" and not $twoToneHairDye and not $specialTwoToneHairDye>>
 		<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
 			<<set $hairColourStyle to "simple">>
 			<<set $dhmod.hair to dhmUtils.objEmpty()>>
@@ -532,6 +552,37 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 		<<else>>
 			The hairdresser begins carefully applying your chosen colour. It's not long before <<he>> brandishes a mirror for you to see your newly <<if $dyedHairPart is "fringe">><<hairfringecolourtext>><<else>><<haircolourtext>><</if>> <<print $dyedHairPart>> from all angles.
 		<</if>>
+		<br><br>
+		<<set _pass += 30>>
+		<<unset $dyeOption>>
+		<<unset $dyedHairPart>>
+	<<elseif $specialTwoToneHairDye>>
+		<<set _gradient to {
+			style: "highlights",
+			colours: [$twoToneDyeOption1, $twoToneDyeOption2]
+		}>>
+		<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
+			<<set $hairColourStyle to "highlights">>
+			<<set $haircolour to clone($twoToneDyeOption1)>> /* This is set as a 'fallback' color for combat renderer */
+			<<set $dhmod.hair to dhmUtils.objEmpty()>>
+			<<set $hairColourGradient to clone(_gradient)>>
+		<</if>>
+		<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
+			<<set $hairFringeColourStyle to "highlights">>
+			<<set $hairfringecolour to clone($twoToneDyeOption2)>> /* This is set as a 'fallback' color for combat renderer */
+			<<set $dhmod.fringe to dhmUtils.objEmpty()>>
+			<<set $hairFringeColourGradient to clone(_gradient)>>
+		<</if>>
+
+		<<if _pass gt 0>>
+			Finally, the
+		<<else>>
+			The
+		<</if>>
+		hairdresser mixes the dyes in two separate bowls until they foam up. <<Hes>> left with bowls of gooey-looking liquids.
+		<<He>> carefully paints streaks of the lighter colour through sections of your hair, leaving the rest untouched to keep your natural base tone.
+		<br><br>
+		You make small talk as you wait for the dyes to set. It's not too long before the hairdresser brandishes a mirror for you to see your newly <<haircolourtext>> <<print $dyedHairPart>> from all angles.
 		<br><br>
 		<<set _pass += 30>>
 		<<unset $dyeOption>>
@@ -653,24 +704,24 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<run dhmUtils.canvasSetup()>>
 				<<set _modeloptions.hair_fringe_colour_style = $hairFringeColourStyle>>
 				<<set _modeloptions.hair_colour_style = $hairColourStyle>>
-				<<if $twoToneHairDye>>
+				<<if $twoToneHairDye or $specialTwoToneHairDye>>
 					<<if !setup.colours.hair_map[$twoToneDyeOption1] or !setup.colours.hair_map[$twoToneDyeOption2]>>
 						<<set $twoToneDyeOption1 = $haircolour>>
 						<<set $twoToneDyeOption2 = $hairfringecolour>>
 					<</if>>
 					<<set _gradient = {
-						style: $twoToneStyle,
+						style: $specialTwoToneHairDye ? "highlights" : $twoToneStyle,
 						colours: [$twoToneDyeOption1, $twoToneDyeOption2]
 					}>>
 					<<if $dyedHairPart isnot "fringe">>
 						<<set _modeloptions.hair_colour = $twoToneDyeOption1>>
 						<<set _modeloptions.hair_colour_gradient = clone(_gradient)>>
-						<<set _modeloptions.hair_colour_style to "gradient">>
+						<<set _modeloptions.hair_colour_style to $specialTwoToneHairDye ? "highlights" : "gradient">>
 					<</if>>
 					<<if $dyedHairPart isnot "sides">>
 						<<set _modeloptions.hair_fringe_colour = $twoToneDyeOption2>>
 						<<set _modeloptions.hair_fringe_colour_gradient = clone(_gradient)>>
-						<<set _modeloptions.hair_fringe_colour_style to "gradient">>
+						<<set _modeloptions.hair_fringe_colour_style to $specialTwoToneHairDye ? "highlights" : "gradient">>
 					<</if>>
 				<<else>>
 					<<set _newColour = $dyeOption == "removeDye" ? $naturalhaircolour : $dyeOption>>

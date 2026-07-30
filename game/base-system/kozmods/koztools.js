@@ -824,6 +824,11 @@ function dolxRepairNonFiniteNumerics() {
 			repaired.push(`enemyhealthmax=${V.enemyhealthmax}`);
 			V.enemyhealthmax = Math.max(Number(V.enemyhealth) || 199, 199);
 		}
+	} else {
+		/* Outside combat these are inert leftovers, not live state. Just zero them. */
+		for (const name of ["enemyarousal", "enemyhealth", "enemytrust", "enemystrength"]) {
+			fix(name, 0);
+		}
 	}
 
 	/* Prepaid stall deposit rollover left stall_lewdity uninitialised, then <<lewdity>> NaN'd it. */
