@@ -31,7 +31,7 @@
 		<<set $critterrapestat to 0>>
 	<</if>>
 
-	<<if $chimera?.bakunawa is undefined or $chimera?.ryuujin is undefined>>
+	<<if $chimera?.bakunawa is undefined or $chimera?.ryuujin is undefined or $chimera?.melusine is undefined>>
 		<<setupTransformationPiecesObject>>
 	<</if>>
 	<<if $angeltf is undefined>>
@@ -89,6 +89,23 @@
 	<</if>>
 	<<if $waterdragonCosmeticUnlocked is undefined>>
 		<<set $waterdragonCosmeticUnlocked to 0>>
+	<</if>>
+
+	<<if $combatExtended isnot undefined and $combatExtended.enemyDamageMult is undefined>>
+		<<set $combatExtended.enemyDamageMult to 100>>
+	<</if>>
+	/* Eden's farm rescue previously left the Underground Farm tracker active, permanently obfuscating time. */
+	<<if $badEndStats?.last()?.source is "Underground Farm" and $badEndStats.last().trackedEnd is undefined and $location isnot "farm">>
+		<<badEndTrackingEnd "Underground Farm" { reason: "uFarmEscapedEden" }>>
+	<</if>>
+	<<if $danceSkillDecay is undefined>><<set $danceSkillDecay to 0>><</if>>
+	<<if $danceStudio isnot undefined>>
+		<<if $danceStudio.training is undefined>><<set $danceStudio.training to {}>><</if>>
+		<<if $danceStudio.training.subscriptionUntil is undefined>><<set $danceStudio.training.subscriptionUntil to 0>><</if>>
+		<<if $danceStudio.training.injury is undefined>><<set $danceStudio.training.injury to "none">><</if>>
+		<<if $danceStudio.training.injuryUntil is undefined>><<set $danceStudio.training.injuryUntil to 0>><</if>>
+		<<if $danceStudio.training.masteryUntil is undefined>><<set $danceStudio.training.masteryUntil to 0>><</if>>
+		<<if $danceStudio.training.lastDecay is undefined>><<set $danceStudio.training.lastDecay to 0>><</if>>
 	<</if>>
 
 	/* persistent UI-state vars, folded out of the mirror so they exist before any render */
@@ -1821,10 +1838,7 @@
 	<<if $estatePersistent.totalTipMoneyMade is undefined>><<set $estatePersistent.totalTipMoneyMade to 0>><</if>>
 	<<if $estatePersistent.totalCaughtCheating is undefined>><<set $estatePersistent.totalCaughtCheating to 0>><</if>>
 	<<if $estatePersistent.winStreakHighScore is undefined>><<set $estatePersistent.winStreakHighScore to 0>><</if>>
-
-	<<if $settings.npcColossalPenisChance is undefined>>
-		<<set $settings.npcColossalPenisChance to 0>>
-	<</if>>
+	<<if $settings.npcColossalPenisChance is undefined>><<set $settings.npcColossalPenisChance to 0>><</if>>
 
 	/* DoLX doesn't have herm */
 	<<set $fhermchance to 0>>
@@ -1839,13 +1853,11 @@
 	<<modParasiteCapUpdate>>
 	<<modWardrobeUpdate>>
 	<<amcTraitsUpdate>>
-
 	<<if !$bikeUpdate>>
 		<<bikeUpdate>>
 	<<elseif $bikeUpdate is 1>>
 		<<bikeUpdate2>>
 	<</if>>
-
 	<<clamp>>
 <</widget>>
 

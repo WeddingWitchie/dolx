@@ -452,6 +452,16 @@ Renderer.CanvasModels.main = {
 			"kitsune_ears_type": "disabled",
 			"kitsune_cheeks_type": "disabled",
 			"kitsune_misc_type": "disabled",
+			"melusine_ears_type": "disabled",
+			"melusine_horns_type": "disabled",
+			"melusine_horns_layer": "back",
+			"melusine_halo_type": "disabled",
+			"melusine_tail_type": "disabled",
+			"melusine_tail_layer": "front",
+			"melusine_wings_type": "disabled",
+			"melusine_wing_right": "idle",
+			"melusine_wing_left": "idle",
+			"melusine_wings_layer": "front",
 			// body writings
 			"writing_forehead": "",
 			"writing_left_cheek": "",
@@ -2814,6 +2824,35 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.kitsune_misc_type) && !options.hide_all;
+			},
+		},
+
+		/*
+			███╗   ███╗███████╗██╗     ██╗   ██╗███████╗██╗███╗   ██╗███████╗
+			████╗ ████║██╔════╝██║     ██║   ██║██╔════╝██║████╗  ██║██╔════╝
+			██╔████╔██║█████╗  ██║     ██║   ██║███████╗██║██╔██╗ ██║█████╗
+			██║╚██╔╝██║██╔══╝  ██║     ██║   ██║╚════██║██║██║╚██╗██║██╔══╝
+			██║ ╚═╝ ██║███████╗███████╗╚██████╔╝███████║██║██║ ╚████║███████╗
+			╚═╝     ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝
+		*/
+		"melusine_ears": genlayer_ears("melusine", false, { z: ZIndices.horns }),
+		"melusine_horns": genlayer_horns("melusine", {
+			filters: ["body"],
+			zfn(options) {
+				return options.melusine_horns_layer === "front" ? ZIndices.over_head + 1 : ZIndices.horns + 1;
+			},
+		}),
+		"melusine_tail": genlayer_tail("melusine", false),
+		"melusine_wings_right": genlayer_wings("right", "melusine", true),
+		"melusine_wings_left": genlayer_wings("left", "melusine", true),
+		"melusine_halo": {
+			z: ZIndices.over_head,
+			animation: "idle",
+			srcfn(options) {
+				return `img/transformations/melusine/halo/${options.melusine_halo_type}.png`;
+			},
+			showfn(options) {
+				return options.show_tf && isPartEnabled(options.melusine_halo_type) && !options.hide_all;
 			},
 		},
 

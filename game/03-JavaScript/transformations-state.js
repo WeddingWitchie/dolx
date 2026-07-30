@@ -47,6 +47,20 @@ class Transformations {
 					(V.chimera?.ryuujin?.horns && this.partActive("waterdragon", "horns") && anyPart("angel", ["halo", "wings"])) ||
 					(V.chimera?.ryuujin?.halo && this.partActive("angel", "halo") && anyPart("waterdragon", ["horns", "ears", "tail"]))
 				);
+			case "melusine":
+				return !!(
+					(V.chimera?.melusine?.ears && this.partActive("waterdragon", "ears") && anyPart("angel", ["halo", "wings"]) && this.partActive("bird", "wings")) ||
+					(V.chimera?.melusine?.horns && this.partActive("waterdragon", "horns") && anyPart("angel", ["halo", "wings"]) && this.partActive("bird", "wings")) ||
+					(V.chimera?.melusine?.tail && this.partActive("waterdragon", "tail") && anyPart("angel", ["halo", "wings"]) && this.partActive("bird", "wings")) ||
+					(V.chimera?.melusine?.halo &&
+						this.partActive("angel", "halo") &&
+						anyPart("waterdragon", ["horns", "ears", "tail"]) &&
+						this.partActive("bird", "wings")) ||
+					(V.chimera?.melusine?.wings &&
+						this.partActive("bird", "wings") &&
+						anyPart("angel", ["halo", "wings"]) &&
+						anyPart("waterdragon", ["horns", "ears", "tail"]))
+				);
 			default:
 				return false;
 		}
@@ -58,13 +72,13 @@ class Transformations {
 			cat: { value: V.cat, parts: { ears: 4, tail: 6 }, chimeras: [], full: 6 },
 			cow: { value: V.cow, parts: { horns: 2, ears: 4, tail: 6 }, chimeras: [], full: 6 },
 			bear: { value: V.bear, parts: { ears: 4, tail: 6 }, chimeras: [], full: 6 },
-			bird: { value: V.harpy, parts: { eyes: 2, malar: 2, tail: 4, plumage: 4, wings: 6 }, chimeras: ["seraphim"], full: 6 },
+			bird: { value: V.harpy, parts: { eyes: 2, malar: 2, tail: 4, plumage: 4, wings: 6 }, chimeras: ["seraphim", "melusine"], full: 6 },
 			fox: { value: V.fox, parts: { ears: 4, cheeks: 5, tail: 6 }, chimeras: ["kitsune"], full: 6 },
 			bunny: { value: V.bunny, parts: { ears: 4, tail: 6 }, chimeras: [], full: 6 },
-			angel: { value: V.angel, parts: { halo: 4, wings: 6 }, chimeras: ["seraphim", "kitsune", "okami", "ryuujin"], full: 6 },
+			angel: { value: V.angel, parts: { halo: 4, wings: 6 }, chimeras: ["seraphim", "kitsune", "okami", "ryuujin", "melusine"], full: 6 },
 			fallen: { value: V.fallenangel, partKey: "fallenAngel", parts: { halo: 2, wings: 2 }, chimeras: [], full: 4 },
 			demon: { value: V.demon, parts: { horns: 2, tail: 4, wings: 6 }, chimeras: ["bakunawa"], full: 6 },
-			waterdragon: { value: V.waterdragon, parts: { horns: 2, ears: 4, tail: 7 }, chimeras: ["bakunawa", "ryuujin"], full: 7 },
+			waterdragon: { value: V.waterdragon, parts: { horns: 2, ears: 4, tail: 7 }, chimeras: ["bakunawa", "ryuujin", "melusine"], full: 7 },
 		};
 	}
 
@@ -99,12 +113,12 @@ class Transformations {
 			cat: [],
 			cow: [],
 			bear: [],
-			bird: ["seraphim"],
+			bird: ["seraphim", "melusine"],
 			fox: ["kitsune"],
 			bunny: [],
-			angel: ["seraphim", "kitsune", "okami", "ryuujin"],
+			angel: ["seraphim", "kitsune", "okami", "ryuujin", "melusine"],
 			demon: ["bakunawa"],
-			waterdragon: ["bakunawa", "ryuujin"],
+			waterdragon: ["bakunawa", "ryuujin", "melusine"],
 		};
 		const definition = builds[name];
 		if (!definition) return 0;

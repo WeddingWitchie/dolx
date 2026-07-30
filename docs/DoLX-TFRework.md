@@ -90,13 +90,14 @@ Returns whether a supported functional chimera currently has an active presentat
 
 Supported functional chimeras are:
 
-| Chimera | Base transformations | Active presentation |
-| --- | --- | --- |
-| Seraphim | Bird + Angel | Any active Seraphim wing, plumage, or eye part |
-| Kitsune | Fox + Angel | Any active Kitsune ear, tail, cheek, or misc part |
-| Okami | Wolf + Angel | Any active Okami ear, tail, wing, or misc part |
-| Bakunawa | Water Dragon + Demon | A configured active Water Dragon/Demon composite part |
-| Ryuujin | Water Dragon + Angel | A configured active Water Dragon/Angel composite part |
+| Chimera  | Base transformations         | Active presentation                                                                                                  |
+| -------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Seraphim | Bird + Angel                 | Any active Seraphim wing, plumage, or eye part                                                                       |
+| Kitsune  | Fox + Angel                  | Any active Kitsune ear, tail, cheek, or misc part                                                                    |
+| Okami    | Wolf + Angel                 | Any active Okami ear, tail, wing, or misc part                                                                       |
+| Bakunawa | Water Dragon + Demon         | A configured active Water Dragon/Demon composite part                                                                |
+| Ryuujin  | Water Dragon + Angel         | A configured active Water Dragon/Angel composite part                                                                |
+| Melusine | Water Dragon + Angel + Harpy | Water dragon tail, angel halo, and harpy wings all simultaneously active, with the Melusine Show/Hide toggle enabled |
 
 Other vanilla hybrid labels and sprite combinations remain presentation logic unless they are deliberately added to this function.
 
@@ -116,19 +117,19 @@ The effective level is read-only. It is the highest level implied by:
 
 It does not modify the raw level.
 
-| Name | Raw variable | Part thresholds | Functional chimera sources |
-| --- | --- | --- | --- |
-| `wolf` | `$wolfgirl` | ears 4, cheeks 5, tail 6 | Okami |
-| `cat` | `$cat` | ears 4, tail 6 | None |
-| `cow` | `$cow` | horns 2, ears 4, tail 6 | None |
-| `bear` | `$bear` | ears 4, tail 6 | None |
-| `bird` | `$harpy` | eyes/malar 2, tail/plumage 4, wings 6 | Seraphim |
-| `fox` | `$fox` | ears 4, cheeks 5, tail 6 | Kitsune |
-| `bunny` | `$bunny` | ears 4, tail 6 | None |
-| `angel` | `$angel` | halo 4, wings 6 | Seraphim, Kitsune, Okami, Ryuujin |
-| `fallen` | `$fallenangel` | halo/wings 2; plus wings 4 | None |
-| `demon` | `$demon` | horns 2, tail 4, wings 6 | Bakunawa |
-| `waterdragon` | `$waterdragon` | horns 2, ears 4, tail 7 | Bakunawa, Ryuujin |
+| Name          | Raw variable   | Part thresholds                       | Functional chimera sources                  |
+| ------------- | -------------- | ------------------------------------- | ------------------------------------------- |
+| `wolf`        | `$wolfgirl`    | ears 4, cheeks 5, tail 6              | Okami                                       |
+| `cat`         | `$cat`         | ears 4, tail 6                        | None                                        |
+| `cow`         | `$cow`         | horns 2, ears 4, tail 6               | None                                        |
+| `bear`        | `$bear`        | ears 4, tail 6                        | None                                        |
+| `bird`        | `$harpy`       | eyes/malar 2, tail/plumage 4, wings 6 | Seraphim, Melusine                          |
+| `fox`         | `$fox`         | ears 4, cheeks 5, tail 6              | Kitsune                                     |
+| `bunny`       | `$bunny`       | ears 4, tail 6                        | None                                        |
+| `angel`       | `$angel`       | halo 4, wings 6                       | Seraphim, Kitsune, Okami, Ryuujin, Melusine |
+| `fallen`      | `$fallenangel` | halo/wings 2; plus wings 4            | None                                        |
+| `demon`       | `$demon`       | horns 2, tail 4, wings 6              | Bakunawa                                    |
+| `waterdragon` | `$waterdragon` | horns 2, ears 4, tail 7               | Bakunawa, Ryuujin, Melusine                 |
 
 ### `Transformations.effectiveBuild(name)`
 

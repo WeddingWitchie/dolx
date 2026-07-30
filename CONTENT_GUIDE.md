@@ -1856,6 +1856,7 @@ Water Dragon chimeras:
 
 - **Water Dragon + Demon** can unlock **Bakunawa**.
 - **Water Dragon + Angel** can unlock **Ryuujin**.
+- **Water Dragon + Angel + Harpy** can unlock **Melusine**.
 - Chimera visuals are mirror-controlled hybrid appearances. They do not erase the base transformation points.
 - The mirror can also pick unlocked transformation titles/descriptions for hybrid states, including special chimeras and generic celestial-animal combinations.
 

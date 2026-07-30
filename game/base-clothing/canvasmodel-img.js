@@ -115,6 +115,14 @@ DefineMacro("modelprepare-player-body", function () {
 			██   ██ ██   ██ ██      ██ ███████
 			*/
 	const wings = ["demon", "angel", "fallenAngel", "bird"].some(tf => !["hidden", "disabled"].includes(V.transformationParts[tf].wings));
+	const melusineWingsActive = !!(
+		V.chimera?.melusine?.wings &&
+		Transformations.partActive("bird", "wings") &&
+		(Transformations.partActive("angel", "halo") || Transformations.partActive("angel", "wings")) &&
+		(Transformations.partActive("waterdragon", "horns") ||
+			Transformations.partActive("waterdragon", "ears") ||
+			Transformations.partActive("waterdragon", "tail"))
+	);
 	const demonTail = !T.disabled.includes(V.transformationParts.demon.tail);
 	const crotchCoveringTf = wings || demonTail;
 	const flauntingWhenExposed = !V.dontHide && V.libertine !== 2 && V.transformationParts.traits.flaunting === "default";
@@ -183,8 +191,12 @@ DefineMacro("modelprepare-player-body", function () {
 			T.modeloptions.angel_wing_right = "idle";
 			T.modeloptions.fallen_wing_right = "idle";
 			T.modeloptions.bird_wing_right = "idle";
+			T.modeloptions.melusine_wing_right = "idle";
 		} else if (T.coverBreasts && wings) {
-			if (
+			if (melusineWingsActive) {
+				T.modeloptions.melusine_wing_right = "cover";
+				T.modeloptions.arm_left = leftArm;
+			} else if (
 				!T.disabled.includes(V.transformationParts.demon.wings) &&
 				!(isChimeraEnabled("demonharpy", "wings") && isPartEnabled(T.modeloptions.bird_wings_type))
 			) {
@@ -214,6 +226,8 @@ DefineMacro("modelprepare-player-body", function () {
 			T.modeloptions.demon_tail_state = flauntingWhenExposed ? "flaunt" : "cover";
 			T.modeloptions.arm_right = rightArm;
 			if (!T.disabled.includes(V.transformationParts.cat.tail)) T.modeloptions.cat_tail_state = "cover";
+		} else if (melusineWingsActive) {
+			T.modeloptions.melusine_wing_left = "cover";
 		} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
 			T.modeloptions.angel_wing_left = "cover";
 			T.modeloptions.bird_wing_left = "cover";
@@ -561,6 +575,7 @@ DefineMacro("modelprepare-player-body", function () {
 	const waterDragonPresent = [T.modeloptions.waterdragon_horns_type, T.modeloptions.waterdragon_ears_type, T.modeloptions.waterdragon_tail_type].some(
 		isPartEnabled
 	);
+	const birdPresent = isPartEnabled(T.modeloptions.bird_wings_type);
 	const purpleWaterDragon = ["purple", "short"].includes(T.modeloptions.waterdragon_tail_type);
 
 	// Bakunawa tail
@@ -590,6 +605,63 @@ DefineMacro("modelprepare-player-body", function () {
 	// Ryuujin halo
 	if (isPartEnabled(T.modeloptions.angel_halo_type) && waterDragonPresent && isChimeraEnabled("ryuujin", "halo")) {
 		T.modeloptions.angel_halo_type = purpleWaterDragon ? "wdPurple" : "wdDefault";
+	}
+
+	// Melusine (water dragon + angel + harpy): dedicated art fully replaces the base sprite each piece draws from,
+	// so the base layer is hidden here rather than filename-swapped like the composites above. Each piece is
+	// independently configurable, same as Bakunawa/Ryuujin.
+	T.modeloptions.melusine_ears_type = "disabled";
+	if (isPartEnabled(T.modeloptions.waterdragon_ears_type) && angelPresent && birdPresent && isChimeraEnabled("melusine", "ears")) {
+		T.modeloptions.melusine_ears_type = "default";
+		T.modeloptions.waterdragon_ears_type = "hidden";
+	}
+	T.modeloptions.melusine_horns_type = "disabled";
+	if (isPartEnabled(T.modeloptions.waterdragon_horns_type) && angelPresent && birdPresent && isChimeraEnabled("melusine", "horns")) {
+		T.modeloptions.melusine_horns_type = "default";
+		T.modeloptions.melusine_horns_layer = V.hornslayer;
+		T.modeloptions.waterdragon_horns_type = "hidden";
+	}
+	T.modeloptions.melusine_tail_type = "disabled";
+	if (isPartEnabled(T.modeloptions.waterdragon_tail_type) && angelPresent && birdPresent && isChimeraEnabled("melusine", "tail")) {
+		T.modeloptions.melusine_tail_type = "default";
+		T.modeloptions.melusine_tail_layer = V.taillayer;
+		T.modeloptions.waterdragon_tail_type = "hidden";
+	}
+	T.modeloptions.melusine_halo_type = "disabled";
+	if (isPartEnabled(T.modeloptions.angel_halo_type) && waterDragonPresent && birdPresent && isChimeraEnabled("melusine", "halo")) {
+		T.modeloptions.melusine_halo_type = "default";
+		T.modeloptions.angel_halo_type = "hidden";
+	}
+	T.modeloptions.melusine_wings_type = "disabled";
+	if (isPartEnabled(T.modeloptions.bird_wings_type) && angelPresent && waterDragonPresent && isChimeraEnabled("melusine", "wings")) {
+		T.modeloptions.melusine_wings_type = "default";
+		T.modeloptions.melusine_wings_layer = V.wingslayer;
+		T.modeloptions.bird_wings_type = "hidden";
+	}
+
+	// The "Divine Wings" mirror section (Angel/Fallen/Okami/Seraphim) and the "Wings" section (Bird only) are
+	// independent selections and can both be non-"None" at once, which would otherwise render two overlapping
+	// wing pairs. A Divine Wings pick is the more deliberate, specific choice, so it wins over the default Bird
+	// sprite. (Demon keeps its own pre-existing opposite rule below, unchanged: Bird already wins over Demon's
+	// separate wings there.) Angel/Fallen are excluded here when their own angelharpy/fallenharpy blend toggle is
+	// enabled, since that composite intentionally renders both layers together as one matched pair.
+	const divineWingsWinsOverBird =
+		(isPartEnabled(T.modeloptions.angel_wings_type) && !isChimeraEnabled("angelharpy", "wings")) ||
+		(isPartEnabled(T.modeloptions.fallen_wings_type) && !isChimeraEnabled("fallenharpy", "wings")) ||
+		isPartEnabled(T.modeloptions.okami_wings_type) ||
+		isPartEnabled(T.modeloptions.seraphim_wings_type);
+	if (isPartEnabled(T.modeloptions.bird_wings_type) && divineWingsWinsOverBird) {
+		T.modeloptions.bird_wings_type = "hidden";
+	}
+
+	// Melusine's dedicated wings sprite already consumed Bird's wings as one of its three preconditions; if it's
+	// showing, it should be the only wing pair visible, overriding any independently-selected Divine Wings pick too.
+	if (isPartEnabled(T.modeloptions.melusine_wings_type)) {
+		T.modeloptions.angel_wings_type = "hidden";
+		T.modeloptions.fallen_wings_type = "hidden";
+		T.modeloptions.okami_wings_type = "hidden";
+		T.modeloptions.seraphim_wings_type = "hidden";
+		T.modeloptions.demon_wings_type = "hidden";
 	}
 
 	/*

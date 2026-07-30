@@ -390,6 +390,7 @@
 		<<set _demonPresent to ["horns", "tail", "wings"].some(p => $transformationParts.demon[p] isnot "disabled")>>
 		<<set _angelPresent to ["halo", "wings"].some(p => $transformationParts.angel[p] isnot "disabled")>>
 		<<set _waterDragonPresent to ["horns", "ears", "tail"].some(p => $transformationParts.waterdragon[p] isnot "disabled")>>
+		<<set _birdPresent to $transformationParts.bird.wings isnot "disabled">>
 		<<set _bakunawaPieces to [
 			$chimera?.bakunawa?.tail and $transformationParts.waterdragon.tail isnot "disabled" and $transformationParts.demon.tail isnot "disabled",
 			$chimera?.bakunawa?.horns and $transformationParts.waterdragon.horns isnot "disabled" and $transformationParts.demon.horns isnot "disabled",
@@ -400,11 +401,21 @@
 			$chimera?.ryuujin?.horns and $transformationParts.waterdragon.horns isnot "disabled" and _angelPresent,
 			$chimera?.ryuujin?.halo and $transformationParts.angel.halo isnot "disabled" and _waterDragonPresent
 		].filter(Boolean).length>>
+		<<set _melusinePieces to [
+			$chimera?.melusine?.ears and $transformationParts.waterdragon.ears isnot "disabled" and _angelPresent and _birdPresent,
+			$chimera?.melusine?.horns and $transformationParts.waterdragon.horns isnot "disabled" and _angelPresent and _birdPresent,
+			$chimera?.melusine?.tail and $transformationParts.waterdragon.tail isnot "disabled" and _angelPresent and _birdPresent,
+			$chimera?.melusine?.halo and $transformationParts.angel.halo isnot "disabled" and _waterDragonPresent and _birdPresent,
+			$chimera?.melusine?.wings and _birdPresent and _angelPresent and _waterDragonPresent
+		].filter(Boolean).length>>
 		<<if _bakunawaPieces>>
 			<<run _increaseBoth(`Bakunawa ${"+".repeat(_bakunawaPieces + 1)}`)>>
 		<</if>>
 		<<if _ryuujinPieces>>
 			<<run _increaseBoth(`Ryuujin ${"+".repeat(_ryuujinPieces + 1)}`)>>
+		<</if>>
+		<<if _melusinePieces>>
+			<<run _increaseBoth(`Melusine ${"+".repeat(_melusinePieces + 1)}`)>>
 		<</if>>
 		<<if ["halo", "wings"].filter(p => $transformationParts.angel[p] is "disabled").length < 2>>
 			<<run _increaseBoth(`Angel ${"+".repeat(2 - ["halo", "wings"].filter(p => $transformationParts.angel[p] is "disabled").length)}`)>>
@@ -2720,9 +2731,10 @@
 				"kitsune"     : "Kitsune",
 				"seraphim"    : "Seraphim",
 				"bakunawa"    : "Bakunawa",
-				"ryuujin"     : "Ryuujin"
+				"ryuujin"     : "Ryuujin",
+				"melusine"    : "Melusine"
 			}>>
-			<<set _tfDescOrder to ["xenos", "demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "bakunawa", "ryuujin"]>>
+			<<set _tfDescOrder to ["xenos", "demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "bakunawa", "ryuujin", "melusine"]>>
 			<<set _tfDescOptions to { "Default (automatic)" : "default" }>>
 			<<for _tfDescKey range _tfDescOrder>>
 				<<if $tfDescValid.includes(_tfDescKey)>>
@@ -2784,7 +2796,6 @@
 	<<set _birdFullCheck to _tfStageUnlocked($harpy, $harpytf, 6)>>
 	<<set _foxFullCheck to _tfStageUnlocked($fox, $foxtf, 6)>>
 	<<set _bunnyFullCheck to _tfStageUnlocked($bunny, $bunnytf, 6)>>
-
 	<<set _angelPartialCheck to _tfStageUnlocked($angel, $angeltf, 4)>>
 	<<set _demonPartialCheck to _tfStageUnlocked($demon, $demontf, 4)>>
 	<<set _catPartialCheck to _tfStageUnlocked($cat, $cattf, 4)>>
@@ -3893,6 +3904,7 @@
 	<<set _demonPresent to ["horns", "tail", "wings"].some(p => _demon[p] isnot undefined and !_hiddenParts.includesAny(_demon[p]))>>
 	<<set _angelPresent to ["halo", "wings"].some(p => _angel[p] isnot undefined and !_hiddenParts.includesAny(_angel[p]))>>
 	<<set _waterDragonPresent to ["horns", "ears", "tail"].some(p => _waterdragon[p] isnot undefined and !_hiddenParts.includesAny(_waterdragon[p]))>>
+	<<set _birdPresent to (_bird.wings isnot undefined and !_hiddenParts.includesAny(_bird.wings))>>
 	<<set _demoncatTail to (_demon.tail isnot undefined and _cat.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _cat.tail))>>
 	<<set _demoncowTail to (_demon.tail isnot undefined and _cow.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _cow.tail))>>
 	<<set _demonwolfTail to (_demon.tail isnot undefined and _wolf.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _wolf.tail))>>
@@ -3907,8 +3919,13 @@
 	<<set _ryuujinTail to (_waterdragon.tail isnot undefined and !_hiddenParts.includesAny(_waterdragon.tail) and _angelPresent)>>
 	<<set _ryuujinHorns to (_waterdragon.horns isnot undefined and !_hiddenParts.includesAny(_waterdragon.horns) and _angelPresent)>>
 	<<set _ryuujinHalo to (_angel.halo isnot undefined and !_hiddenParts.includesAny(_angel.halo) and _waterDragonPresent)>>
+	<<set _melusineEars to (_waterdragon.ears isnot undefined and !_hiddenParts.includesAny(_waterdragon.ears) and _angelPresent and _birdPresent)>>
+	<<set _melusineHorns to (_waterdragon.horns isnot undefined and !_hiddenParts.includesAny(_waterdragon.horns) and _angelPresent and _birdPresent)>>
+	<<set _melusineTail to (_waterdragon.tail isnot undefined and !_hiddenParts.includesAny(_waterdragon.tail) and _angelPresent and _birdPresent)>>
+	<<set _melusineHalo to (_angel.halo isnot undefined and !_hiddenParts.includesAny(_angel.halo) and _waterDragonPresent and _birdPresent)>>
+	<<set _melusineWings to (_bird.wings isnot undefined and !_hiddenParts.includesAny(_bird.wings) and _angelPresent and _waterDragonPresent)>>
 	<<set _chimeraEnabled to " hide">>
-	<<if _demoncatTail or _demoncowTail or _demonwolfTail or _demonfoxTail or _demonfoxEars or _demonharpyWings or _angelharpyWings or _fallenharpyWings or _bakunawaTail or _bakunawaHorns or _bakunawaEars or _ryuujinTail or _ryuujinHorns or _ryuujinHalo>>
+	<<if _demoncatTail or _demoncowTail or _demonwolfTail or _demonfoxTail or _demonfoxEars or _demonharpyWings or _angelharpyWings or _fallenharpyWings or _bakunawaTail or _bakunawaHorns or _bakunawaEars or _ryuujinTail or _ryuujinHorns or _ryuujinHalo or _melusineEars or _melusineHorns or _melusineTail or _melusineHalo or _melusineWings>>
 		<<set _chimeraEnabled to "">>
 	<</if>>
 
@@ -4055,6 +4072,56 @@
 			</label>
 			<br>
 		<</if>>
+		<<if _melusineEars>>
+			/* Using Melusine (water dragon + angel + harpy) chimera ears. */
+			<label>Melusine ears:
+				<<listbox "$chimera.melusine.ears" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _melusineHalo>>
+			/* Using Melusine (water dragon + angel + harpy) chimera halo. */
+			<label>Melusine halo:
+				<<listbox "$chimera.melusine.halo" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _melusineHorns>>
+			/* Using Melusine (water dragon + angel + harpy) chimera horns. */
+			<label>Melusine horns:
+				<<listbox "$chimera.melusine.horns" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _melusineTail>>
+			/* Using Melusine (water dragon + angel + harpy) chimera tail. */
+			<label>Melusine tail:
+				<<listbox "$chimera.melusine.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _melusineWings>>
+			/* Using Melusine (water dragon + angel + harpy) chimera wings. */
+			<label>Melusine wings:
+				<<listbox "$chimera.melusine.wings" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
 	</div>
 <</widget>>
 
@@ -4081,6 +4148,7 @@
 	<<set _present.seraphim to Transformations.chimeraActive("seraphim")>>
 	<<set _present.bakunawa to Transformations.chimeraActive("bakunawa")>>
 	<<set _present.ryuujin to Transformations.chimeraActive("ryuujin")>>
+	<<set _present.melusine to Transformations.chimeraActive("melusine")>>
 
 	/* Manual Description options may remain available from permanent unlock flags.
 	   Automatic description uses _present only, so Genome Dump + hidden/disabled limbs reads as human on Default. */
@@ -4101,6 +4169,7 @@
 	<<set _descOption.seraphim to (_present.seraphim or (_descOption.harpy and _descOption.angel))>>
 	<<set _descOption.bakunawa to (_present.bakunawa or (_descOption.waterdragon and _descOption.demon))>>
 	<<set _descOption.ryuujin to (_present.ryuujin or (_descOption.waterdragon and _descOption.angel))>>
+	<<set _descOption.melusine to (_present.melusine or (_descOption.waterdragon and _descOption.angel and _descOption.harpy))>>
 
 	<<set _animalIds to ["wolf", "cat", "cow", "harpy", "fox", "bunny", "bear", "waterdragon"]>>
 	<<set _nonAnimalIds to ["angel", "fallen", "demon"]>>
@@ -4113,7 +4182,7 @@
 	<<set _optionNonAnimalN to _nonAnimalIds.filter(id => _descOption[id]).length>>
 	<<set _descOption.xenos to (_optionAnimalN gte 1 and _optionNonAnimalN gte 1 and (_optionAnimalN + _optionNonAnimalN) gte 3)>>
 
-	<<set $tfDescValid to ["demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "bakunawa", "ryuujin", "xenos"].filter(id => _descOption[id])>>
+	<<set $tfDescValid to ["demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "bakunawa", "ryuujin", "melusine", "xenos"].filter(id => _descOption[id])>>
 
 	/* Special named chimeras: their name already implies the celestial half, so no adjective and a single entry each (hellhound covers wolf + demon OR fallen). */
 	<<if _descOption.wolf and (_descOption.demon or _descOption.fallen)>><<run $tfDescValid.push("hellhound")>><</if>>

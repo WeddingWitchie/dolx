@@ -656,6 +656,7 @@ function calculateallure() {
 	const demonPresent = ["horns", "tail", "wings"].some(part => partEnabled("demon", part));
 	const angelPresent = ["halo", "wings"].some(part => partEnabled("angel", part));
 	const waterDragonPresent = ["horns", "ears", "tail"].some(part => partEnabled("waterdragon", part));
+	const birdPresent = partEnabled("bird", "wings");
 	const bakunawaParts = [
 		V.chimera?.bakunawa?.tail && partEnabled("waterdragon", "tail") && partEnabled("demon", "tail"),
 		V.chimera?.bakunawa?.horns && partEnabled("waterdragon", "horns") && partEnabled("demon", "horns"),
@@ -666,8 +667,16 @@ function calculateallure() {
 		V.chimera?.ryuujin?.horns && partEnabled("waterdragon", "horns") && angelPresent,
 		V.chimera?.ryuujin?.halo && partEnabled("angel", "halo") && waterDragonPresent,
 	].filter(Boolean).length;
+	const melusineParts = [
+		V.chimera?.melusine?.ears && partEnabled("waterdragon", "ears") && angelPresent && birdPresent,
+		V.chimera?.melusine?.horns && partEnabled("waterdragon", "horns") && angelPresent && birdPresent,
+		V.chimera?.melusine?.tail && partEnabled("waterdragon", "tail") && angelPresent && birdPresent,
+		V.chimera?.melusine?.halo && partEnabled("angel", "halo") && waterDragonPresent && birdPresent,
+		V.chimera?.melusine?.wings && birdPresent && angelPresent && waterDragonPresent,
+	].filter(Boolean).length;
 	if (bakunawaParts) attractiveness += 325 + 225 * bakunawaParts;
 	if (ryuujinParts) attractiveness += 325 + 225 * ryuujinParts;
+	if (melusineParts) attractiveness += 325 + 225 * melusineParts;
 	/* makeup */
 	for (const makeup of ["lipstick", "mascara", "eyeshadow", "blusher"]) {
 		if (V.makeup[makeup]) attractiveness += 100;
