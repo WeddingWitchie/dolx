@@ -758,6 +758,14 @@ function dayPassed(days) {
 			}
 		}
 		if (V.temple_quarters >= 1) V.temple_quarters = Math.clamp(V.temple_quarters - 10, 0, 100);
+		if (V.temple_rank !== undefined && V.temple_rank !== "prospective" && !V.weekly.templeBigClean) {
+			if (Time.weekDay === 7 || random(1, 100) <= 5) {
+				V.weekly.templeBigClean = true;
+				V.temple_garden = Math.max(V.temple_garden || 0, 90);
+				V.temple_quarters = Math.max(V.temple_quarters || 0, 90);
+				V.temple_bigCleanFlavor = 1;
+			}
+		}
 		if (V.temple_chastity_timer > 0) V.temple_chastity_timer--;
 		if (V.temple_rank !== "prospective" && V.temple_rank !== "initiate") {
 			if (V.grace >= 1 && !V.daily.graceUp) statChange.grace(-2);
@@ -1231,9 +1239,9 @@ function hourPassed(hours) {
 			sydneySchedule();
 			if (T.sydney_location === "temple" && V.temple_rank !== undefined && V.temple_rank !== "prospective") {
 				if (V.sydney_templeWork === "garden") {
-					if (V.temple_garden >= 1) V.temple_garden++;
+					V.temple_garden = Math.clamp((V.temple_garden || 0) + 1, 0, 100);
 				} else if (V.sydney_templeWork === "quarters") {
-					if (V.temple_quarters >= 1) V.temple_quarters++;
+					V.temple_quarters = Math.clamp((V.temple_quarters || 0) + 1, 0, 100);
 				}
 			}
 		}
