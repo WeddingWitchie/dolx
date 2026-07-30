@@ -455,15 +455,15 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 You make your way between the tables, studying the patrons. A <<person>> sitting alone follows you with <<his>> eyes. A half-finished drink rests in front of <<him>>.
 <br><br>
 
-<<socialiseicon>><<link [[Sit and draw them into conversation (0:30)|Brothel Client Talk]]>><<pass 30>><</link>><<englishdifficulty 100 800>>
+<<socialiseicon>><<link [[Sit and draw them into conversation (0:30)|Brothel Client Talk]]>><<pass 30>><<tiredness 2>><</link>><<englishdifficulty 100 800>><<gtiredness>>
 <br>
 <<if hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false>>
 	<<set _serviceSkill to Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
-	<<socialiseicon>><<link [[Flirt and offer private company|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.5>><<set $phase to 0>><<seductionskill 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>><<promiscuous3>>
+	<<socialiseicon>><<link [[Flirt and offer private company|Brothel Client Flirt]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.5>><<set $phase to 0>><<seductionskill 2>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>><<promiscuous3>><<gtiredness>>
 	<br>
-	<<brothelicon>><<link [[Show off your best assets|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to Math.max(currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("penileskill"), currentSkillValue("vaginalskill"))>><<set $brothelClientBonus to 0.25>><<set $phase to 0>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>>
+	<<brothelicon>><<link [[Show off your best assets|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to Math.max(currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("penileskill"), currentSkillValue("vaginalskill"))>><<set $brothelClientBonus to 0.25>><<set $phase to 0>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>><<gtiredness>>
 	<br>
-	<<brothelicon>><<link [[Offer your best sexual service|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.75>><<set $phase to 0>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>>
+	<<brothelicon>><<link [[Offer your best sexual service|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.75>><<set $phase to 0>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>><<gtiredness>>
 	<br>
 <<else>>
 	<<brothelicon>><<insufficientStat "promiscuity" "to offer private services">>
@@ -473,9 +473,66 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 <<getouticon>><<link [[Back|Brothel]]>><<endevent>><</link>>
 <br>
 
+:: Brothel Client Flirt
+<<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
+<<set _brothelClientRisk to random(1, 100)>>
+<<if _brothelClientRisk lte 8>>
+	You lean close and make your offer. The <<person>> catches your wrist before you can finish, pulling you between the tables.
+	<br><br>
+	<<if _brothelClientRisk lte 3>>
+		Nearby patrons rise to help <<him>>, blocking the clearest paths to the staff. The room notices, but nobody moves quickly enough to stop them.
+	<<else>>
+		<<He>> pushes you against the edge of the table. The surrounding patrons turn to watch instead of helping.
+	<</if>>
+	<br><br>
+	<<getouticon>><<link [[Try to break free|Brothel Client Assault]]>><<set $enemyno to _brothelClientRisk lte 3 ? random(2, 4) : 1>><<set $molestationstart to 1>><</link>>
+<<else>>
+	The <<person>> responds eagerly to your attention. <<He>> finishes the rest of <<his>> drink and follows when you indicate the private rooms.
+	<br><br>
+	<<brothelicon>><<link [[Lead <<him>> to a private room|Brothel Private]]>><</link>>
+<</if>>
+<br>
+
+:: Brothel Client Assault
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<set $consensual to 0>>
+	<<set $brothelClientComplaint to true>>
+	<<if $enemyno gte 2>><<generate2>><</if>>
+	<<if $enemyno gte 3>><<generate3>><</if>>
+	<<if $enemyno gte 4>><<generate4>><</if>>
+	<<controlloss>><<violence 1>><<neutral 1>><<molested>><<maninit>>
+<</if>>
+<<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<effectsman>><<man>><<audience>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Brothel Client Assault Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Brothel Client Assault]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Brothel Client Assault Finish
+<<set $outside to 0>><<set $location to "brothel">><<effects>><<tiredness 3>><<gtiredness>>
+<<if $enemyhealth lte 0>>
+	You wrench free and shove through the onlookers. Staff finally force their way between you and the <<= $enemynomax gte 2 ? "group" : "patron">>, giving you room to escape.
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<= $enemynomax gte 2 ? "patrons step" : "patron steps">> away while the audience disperses, suddenly unwilling to meet the staff's eyes. Nobody offers you any money.
+<<else>>
+	The <<= $enemynomax gte 2 ? "patrons lose" : "patron loses">> interest when the staff begin pushing through the crowd. They release you and disappear among the tables.
+<</if>>
+<br><br>
+<<tearful>> You pull your clothes back into place. <span class="blue">You should tell Briar what happened.</span>
+<br><br>
+<<clotheson>><<endcombat>>
+<<link [[Return to the brothel|Brothel]]>><</link>>
+<br>
+
 :: Brothel Client Talk
 <<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
-<<set $tip_add to 0>><<set $tipmod to Math.clamp(0.5 + currentSkillValue("english") / 500 + $fame.good / 2000, 0.5, 3)>><<tipset>>
+<<set $tip_add to 0>><<set $tipmod to Math.clamp(0.5 + currentSkillValue("english") / 500 + $fame.good / 2000, 0.5, 3) * 0.75>><<tipset>>
 <<if $englishSuccess>>
 	You listen carefully and keep the conversation flowing. The <<person>> gradually relaxes, talking about troubles <<he>> cannot share elsewhere. Your reputation for kindness puts <<him>> further at ease.
 	<br><br>
@@ -496,7 +553,7 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 	<<generate1>><<person1>><<set $enemyno to 1>>
 	<<set $brothelClientType to "auction">>
 	<<set $brothelClientSkill to Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
-	<<set $brothelAuctionTip to Math.round((5000 + $fame.prostitution * 20 + currentSkillValue("seductionskill") * 15 + $brothelClientSkill * 20 + ($brothelAuctionDanceBonus ?? 0)) / 500) * 500>>
+	<<set $brothelAuctionTip to Math.round((5000 + $fame.prostitution * 20 + currentSkillValue("seductionskill") * 15 + $brothelClientSkill * 20 + ($brothelAuctionDanceBonus ?? 0)) * 0.75 / 500) * 500>>
 
 	Briar announces that a private appointment with you is available. Patrons call out offers while you move between them, flirting, posing, and hinting at what the winner can expect. Your reputation draws serious bidders.
 	<<if $brothelAuctionDanceBonus gt 0>>
@@ -718,6 +775,10 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 	Briar sprawls on the sofa, holding a glass of wine. <<if $passagePrev isnot "Brothel">>"Anything else I can do for you?"<<else>><<He>> looks up as you enter. "Something I can do for you?"<</if>>
 	<br><br>
 
+	<<if $brothelClientComplaint>>
+		<<socialiseicon "ask">><<link [[Tell Briar about being assaulted without payment|Briar Client Complaint]]>><</link>>
+		<br>
+	<</if>>
 	<<if isPubfameTaskAccepted("briar")>>
 		<<His>> laptop is on the sofa next to <<him>>. 'Mickey' asked you to hack into Briar's computer.
 		You have
@@ -805,6 +866,20 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 	<<getouticon>><<link [[Leave|Brothel]]>><<endevent>><</link>>
 	<br>
 <</if>>
+
+
+:: Briar Client Complaint
+<<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<npc Briar>><<person1>>
+You tell Briar about the attack, and that the patron... or patron<i>s</i>, tried to use the brothel without paying.
+<br><br>
+Briar's expression hardens. "They stole from my business and mistreated one of my workers," <<he>> says. "I will take care of it. They will regret using our services without paying."
+<br><br>
+<<He>> reaches for the phone beside <<his>> sofa. Whatever follows does not require you to stay.
+<<unset $brothelClientComplaint>>
+<br><br>
+<<link [[Leave Briar to it|Briar's Office]]>><</link>>
+<br>
 
 
 :: Briar Machine Ask
@@ -957,7 +1032,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 <<else>>
 	<<set $tip_add to 0>>
 	<<set _serviceSkill to $brothelClientSkill ?? Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
-	<<set $tipmod to 1.25 + Math.min(currentSkillValue("seductionskill"), 1000) / 500 + Math.min(_serviceSkill, 1000) / 300 + ($brothelClientBonus ?? 0) + 0.2 * (C.npc.Briar.love / 100)>><<tipset>>
+	<<set $tipmod to (1.25 + Math.min(currentSkillValue("seductionskill"), 1000) / 500 + Math.min(_serviceSkill, 1000) / 300 + ($brothelClientBonus ?? 0) + 0.2 * (C.npc.Briar.love / 100)) * 0.75>><<tipset>>
 <</if>>
 
 	<<promiscuity3>>
@@ -969,7 +1044,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 		The auction price is already settled at <<printmoney $tip>>. The <<person>> waits for you to begin the appointment.
 		<br><br>
 
-		<<link [[Accept (0:30)|Brothel Private Sex]]>><<set $consensual to 1>><<pass 30>><<set $sexstart to 1>><</link>>
+		<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<brothelClientSexStart>><</link>><<gtiredness>>
 		<br>
 		<<link [[Refuse|Brothel Private]]>><<set $phase to 4>><</link>>
 		<br>
@@ -998,12 +1073,12 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 				"Also, if it's okay, I don't want any touching. Well, maybe some, but mainly I'd just like to talk."
 				<br><br>
 
-				<<link [[Accept (0:30)|Brothel Private]]>><<set $phase to 3>><<pass 30>><</link>>
+				<<link [[Accept (0:30)|Brothel Private]]>><<set $phase to 3>><<pass 30>><<tiredness 2>><</link>><<gtiredness>>
 				<br>
 				<<link [[Refuse|Brothel Private]]>><<set $phase to 4>><</link>>
 				<br>
 			<<else>>
-				<<link [[Accept (0:30)|Brothel Private Sex]]>><<set $consensual to 1>><<pass 30>><<set $sexstart to 1>><</link>>
+				<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<brothelClientSexStart>><</link>><<gtiredness>>
 				<br>
 				<<link [[Refuse|Brothel Private]]>><<set $phase to 4>><</link>>
 				<br>
@@ -1017,12 +1092,12 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 				<<He>> speaks softly, "If it's okay, I don't want any touching. Well, maybe some, but mainly I'd just like to talk."
 				<br><br>
 
-				<<link [[Accept (0:30)|Brothel Private]]>><<set $phase to 3>><<pass 30>><</link>>
+				<<link [[Accept (0:30)|Brothel Private]]>><<set $phase to 3>><<pass 30>><<tiredness 2>><</link>><<gtiredness>>
 				<br>
 				<<link [[Refuse|Brothel Private]]>><<set $phase to 4>><</link>>
 				<br>
 			<<else>>
-				<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<set $consensual to 1>><<set $sexstart to 1>><</link>>
+				<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<brothelClientSexStart>><</link>><<gtiredness>>
 				<br>
 				<<link [[Refuse|Brothel Private]]>><<set $phase to 4>><</link>>
 				<br>
@@ -1043,7 +1118,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 			"You think you're worth more?" <<He>> laughs, "I can pick up sluts like you for free you know. This is charity, this is."
 			<br><br>
 
-			<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<set $consensual to 1>><<set $sexstart to 1>><</link>>
+			<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<brothelClientSexStart>><</link>><<gtiredness>>
 			<br>
 			<<link [[Refuse|Brothel Private]]>><<set $phase to 5>><</link>>
 			<br>
@@ -1052,7 +1127,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 			You negotiate a price of <<printmoney $tip>>, which seems reasonable.
 			<br><br>
 
-			<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<set $consensual to 1>><<set $sexstart to 1>><</link>>
+			<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<brothelClientSexStart>><</link>><<gtiredness>>
 			<br>
 			<<link [[Refuse|Brothel Private]]>><<set $phase to 5>><</link>>
 			<br>
@@ -1064,7 +1139,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 		<br><br>
 		<<set $enemyanger += 20>>
 
-		<<link [[Next|Brothel Private Sex]]>><<pass 30>><<set $molestationstart to 1>><</link>>
+		<<link [[Next|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<set $molestationstart to 1>><</link>><<gtiredness>>
 		<br>
 
 	<</if>>
@@ -1078,7 +1153,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 		<br><br>
 	<</if>>
 
-	<<link [[Accept (0:30)|Brothel Private Sex]]>><<set $consensual to 1>><<pass 30>><<set $sexstart to 1>><</link>>
+	<<link [[Accept (0:30)|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<brothelClientSexStart>><</link>><<gtiredness>>
 	<br>
 	<<link [[Refuse|Brothel Private]]>><<set $phase to 5>><</link>>
 	<br>
@@ -1117,7 +1192,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 		<<He>> looks at you blankly for a moment, then laughs. "Good one, now get on your knees before I smack you down!" <<He>> assaults you!
 		<br><br>
 
-		<<link [[Next|Brothel Private Sex]]>><<pass 30>><<set $molestationstart to 1>><</link>>
+		<<link [[Next|Brothel Private Sex]]>><<pass 30>><<tiredness 4>><<set $molestationstart to 1>><</link>><<gtiredness>>
 		<br>
 
 	<</if>>
@@ -1126,12 +1201,25 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 :: Brothel Private Sex
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
+	<<set $consensual to 0>>
+	<<set $brothelClientComplaint to true>>
+	<<set $enemyno to Math.clamp($enemyno || 1, 1, 4)>>
+	<<if $enemyno gte 2>><<generate2>><</if>>
+	<<if $enemyno gte 3>><<generate3>><</if>>
+	<<if $enemyno gte 4>><<generate4>><</if>>
 	<<controlloss>>
 	<<violence 1>>
 	<<neutral 1>>
 	<<molested>>
 
 	<<maninit>>
+	<<if $enemyno gte 2>>
+		The <<person>> locks the door instead of reaching for the agreed payment. Before you can confront <<him>>, <<= $enemyno - 1>> more <<= $enemyno is 2 ? "patron enters" : "patrons enter">> from the corridor. "Briar doesn't need to know," one says.
+		<br><br>
+	<<elseif ![1, 5].includes($phase)>>
+		The <<person>> locks the door and pockets the money <<he>> showed you. "Changed my mind," <<he>> says, moving between you and the exit.
+		<br><br>
+	<</if>>
 	<<if $phase is 1>>
 		<<set $NPCList[0].lefthand to "arms">>
 		<<set $leftarm to "grappled">>
@@ -1182,8 +1270,16 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<if $stealtarget isnot "">><<set $brothel_thief += 1>><</if>>
 <<if $finish is 1>>
-	The <<persons>> expression twists when you stop before <<he>> is satisfied. "You expect me to pay for that?" <<He>> strikes you and shoves you from the bed before storming out.
+	<<if $enemynomax gte 2>>
+		The patrons turn on you when you stop before they are satisfied. "You expect us to pay for that?" one snarls. They strike you and shove you from the bed before storming out.
+	<<else>>
+		The <<persons>> expression twists when you stop before <<he>> is satisfied. "You expect me to pay for that?" <<He>> strikes you and shoves you from the bed before storming out.
+	<</if>>
 	<<stress 18>><<gggstress>><<pain 21>><<gggpain>>
+	<<if $brothelClientComplaint>>
+		<br><br>
+		<span class="blue">You should tell Briar what happened.</span>
+	<</if>>
 <<elseif $consensual is 1>>
 
 	<<if $enemypleasure gte $enemypleasuremax>>
@@ -1218,12 +1314,17 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 
 	<<if $enemypleasure gte $enemypleasuremax>>
 		<<ejaculation>><<fameprostitution 1>>
-		"Here's your pay, whore," the <<person>> gasps as <<he>> finishes off. <<He>> leaves the room without looking at you.
+		The <<= $enemynomax gte 2 ? "patrons dress" : "patron dresses">> and <<= $enemynomax gte 2 ? "leave" : "leaves">> without paying. The agreed fee disappears with <<if $enemynomax gte 2>>them<<else>><<him>><</if>>.
 		<br><br>
-		<<tipreceive "brothel">>
+		<span class="blue">You should tell Briar that <<= $enemynomax gte 2 ? "the patrons used" : "the patron used">> the room without paying.</span>
 	<<elseif $enemyhealth lte 0>>
 		You manage to knock the <<person>> backwards, giving you time to escape. <<tearful>> you flee into the busy main room.
 		<br><br>
+		<span class="blue">You should tell Briar what happened.</span>
+	<<else>>
+		The <<= $enemynomax gte 2 ? "patrons decide" : "patron decides">> you are no longer worth the trouble and <<= $enemynomax gte 2 ? "leave" : "leaves">> without paying.
+		<br><br>
+		<span class="blue">You should tell Briar what happened.</span>
 	<</if>>
 
 <</if>>
