@@ -13,6 +13,10 @@ Swindle
 Taechan (From Sayclub/Cyworld)
 P0yomiN
 tauuki (by pixelberry)
+DECOMP CO ⁝ ⚰ (naturesmorticians)
+monoski1 
+linnnn
+supervamp78
 
 While there are 300 slots that can be used in this version (instructions are provided within the mod's menu itself -  click the blue question mark in the menu), only a few of the slots are filled out to start with. Either with a blank or with an actual image. Gotta conserve server space. If you see a red exclamation mark after selecting an image slot, that just means there's no image in that particular slot. So you can just clear the error or replace the slot with your own image.
 
