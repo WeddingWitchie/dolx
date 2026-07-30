@@ -551,22 +551,11 @@ Only then do you let yourself breathe. Hidden in your palm is the stolen case, s
 
 /* RNG roll */
 <<set _roll to random(1,100)>>
-/* Build both Choice Reversal keys */
-<<set _variantF to "(F)">>
-<<set _variantM to "(M)">>
-<<set _choiceF to "X-Change Choice Reversal " + _variantF>>
-<<set _choiceM to "X-Change Choice Reversal " + _variantM>>
 /* Decide which Choice Reversal would be valid/visible for the current PC */
 <<set _choiceValid to V.xchange.pill.choiceEffect>>
 <<set _choiceKey to "">>
 <<if _choiceValid>>
-	<<if V.player.gender is "m">>
-		<<set _choiceKey to _choiceF>>
-	<<elseif V.player.gender is "f">>
-		<<set _choiceKey to _choiceM>>
-	<<else>>
-		<<set _choiceKey to _choiceF>>
-	<</if>>
+	<<set _choiceKey to (($xchange.pill.originalBody?.sex || $player.sex) is "m") ? "X-Change Choice Reversal (F)" : "X-Change Choice Reversal (M)">>
 <</if>>
 /* Build SWP Anti pill candidates */
 <<set _antiKeys to Object.keys($sexStats.pills["pills"]).filter(k => k.startsWith("SWP Anti-") && k.endsWith(" Pill"))>>
@@ -574,7 +563,7 @@ Only then do you let yourself breathe. Hidden in your palm is the stolen case, s
 <<if _choiceValid and _roll lte 25>>
 	<<set _giftKey to _choiceKey>>
 <<else>>
-	<<set _giftKey to (_antiKeys.length gt 0) ? _antiKeys[random(0, _antiKeys.length - 1)] : _choiceF>>
+	<<set _giftKey to (_antiKeys.length gt 0) ? _antiKeys[random(0, _antiKeys.length - 1)] : "X-Change Choice Reversal (F)">>
 <</if>>
 /* Ensure entry exists */
 <<run if (V.sexStats.pills && V.sexStats.pills.pills && V.sexStats.pills.pills[_giftKey] === undefined) V.sexStats.pills.pills[_giftKey] = { autoTake:false, doseTaken:0, owned:0, overdose:0 }; >>
