@@ -17,28 +17,34 @@
 	<<link [[Next|Wolf Street]]>><<set $eventskip to 1>><</link>>
 	<br>
 <<else>>
-	<<npc River>><<person1>>
-	You are in the soup kitchen on Wolf Street. Rows of crowded tables line the hall. The kitchen proper sits at the back, filling the room with the smell of warm soup.
-	<br><br>
-	<<kitchenicon "pot-clean">><<link [[Help River (1:00)|Soup Kitchen Work]]>><<endevent>><<pass 60>><<famegood 5>><<trauma -6>><<npcincr River love 1>><<housekeeping 1 300>><<grace 3>><</link>><<glove>><<ltrauma>><<ghousekeeping 300>><<gggrace>>
-	<br>
-	<<if $mathsproject is "ongoing" and $river_help isnot 1>>
-		<<socialiseicon "ask">><<link [[Ask River for help with maths competition|Soup Kitchen Maths]]>><<endevent>><</link>>
-		<br>
-	<</if>>
-	<<if $loft_known is 1 and $loft_river isnot 1 and C.npc.River.love gte 40>>
-		<<lofticon>><<link [[Tell River about the orphanage loft|River Loft]]>><<endevent>><</link>>
-		<br>
-	<</if>>
-	<<if $kitchen_river gte 1>>
-		<<kitchenicon "range">><<link [[Cook your own food|Soup Kitchen Kitchen]]>><<endevent>><</link>>
-		<br>
+	<<set _templeGoodwillReason to templeChastityRefusalReason()>>
+	<<if $world_corruption_soft lt 20 and !$daily.templeGoodwillFed and (_templeGoodwillReason is "reputation" or _templeGoodwillReason is "crime") and $templeGoodwillUnlocked and $templeGoodwillUnlocked[_templeGoodwillReason] and random(1,100) lte 70>>
+		<<set $templeGoodwillReason to _templeGoodwillReason>>
+		<<include "Soup Kitchen Goodwill">>
 	<<else>>
-		<<socialiseicon "ask">><<link [[Ask River if you can cook your own food here|Soup Kitchen Kitchen Ask]]>><<endevent>><</link>>
+		<<npc River>><<person1>>
+		You are in the soup kitchen on Wolf Street. Rows of crowded tables line the hall. The kitchen proper sits at the back, filling the room with the smell of warm soup.
+		<br><br>
+		<<kitchenicon "pot-clean">><<link [[Help River (1:00)|Soup Kitchen Work]]>><<endevent>><<pass 60>><<famegood 5>><<trauma -6>><<npcincr River love 1>><<housekeeping 1 300>><<grace 3>><</link>><<glove>><<ltrauma>><<ghousekeeping 300>><<gggrace>>
+		<br>
+		<<if $mathsproject is "ongoing" and $river_help isnot 1>>
+			<<socialiseicon "ask">><<link [[Ask River for help with maths competition|Soup Kitchen Maths]]>><<endevent>><</link>>
+			<br>
+		<</if>>
+		<<if $loft_known is 1 and $loft_river isnot 1 and C.npc.River.love gte 40>>
+			<<lofticon>><<link [[Tell River about the orphanage loft|River Loft]]>><<endevent>><</link>>
+			<br>
+		<</if>>
+		<<if $kitchen_river gte 1>>
+			<<kitchenicon "range">><<link [[Cook your own food|Soup Kitchen Kitchen]]>><<endevent>><</link>>
+			<br>
+		<<else>>
+			<<socialiseicon "ask">><<link [[Ask River if you can cook your own food here|Soup Kitchen Kitchen Ask]]>><<endevent>><</link>>
+			<br>
+		<</if>>
+		<<wolficon>><<link [[Leave|Wolf Street]]>><<endevent>><<set $eventskip to 1>><</link>>
 		<br>
 	<</if>>
-	<<wolficon>><<link [[Leave|Wolf Street]]>><<endevent>><<set $eventskip to 1>><</link>>
-	<br>
 <</if>>
 
 :: River Loft
@@ -386,25 +392,6 @@ You help River work the kitchen. You cut vegetables ready for cooking and clean 
 <</if>>
 <<runeventpool>>
 
-:: Soup Kitchen Charity Donation
-<<set $outside to 0>><<set $location to "temple">><<effects>>
-River does not reach for the envelope. "What do you want in return?"
-<br><br>
-"Nothing," the stranger says. "I saw those children eating as though it might be their only proper meal today. I have more than I need, and they need it. Let me do one good thing."
-<br><br>
-River studies the stranger in silence. "No names. No photographs," <<he>> says at last. "You don't come back later expecting gratitude from them."
-<br><br>
-"Agreed."
-<br><br>
-River accepts the envelope. The stranger leaves without another word. <<He>> counts the money, then divides part of it between several smaller envelopes. The orphans stare as <<he>> hands the envelopes around.
-<br><br>
-River pushes one toward you. You hesitate. "You're an orphan too," <<he>> says. "Take it."
-<br><br>
-There's <<income $daily.soupKitchenCharity "orphanageCharity">> inside.
-<br><br>
-<<link [[Next|Soup Kitchen]]>><<endevent>><</link>>
-<br>
-
 :: Soup Kitchen Investigate
 
 <<set $outside to 0>><<set $location to "temple">><<effects>>
@@ -729,67 +716,4 @@ The rest of the hour passes without event.
 	<br>
 	<<link [[Leave|Soup Kitchen]]>><<kitchenExit>><<handheldon>><</link>>
 	<br>
-<</if>>
-
-
-:: Soup Kitchen Steal
-<<set $outside to 0>><<set $location to "temple">><<effects>>
-<<effects>>
-<br>
-You look through the cabinets. There are many people here, but they're busy. You should still be careful though.<br><br>
-
-<<if Time.weekDay is 1>>
-	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "haddock" "lemon">>
-<<elseif Time.weekDay is 2>>
-	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "salmon" "broccoli">>
-<<elseif Time.weekDay is 3>>
-	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "trout" "lemon">>
-<<elseif Time.weekDay is 4>>
-	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "cod" "potato">>
-<<elseif Time.weekDay is 5>>
-	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "clam" "onion">>
-<<elseif Time.weekDay is 6>>
-	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "garlic_bulb">>
-<<else>>
-	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "lemon">>
-<</if>>
-
-<<kitchenicon "soup">><<link [[Back|Soup Kitchen Kitchen]]>><</link>>
-
-:: temple Kitchen Steal Result
-<<effects>>
-<<set $skulduggerydifficulty to 700>><<skulduggerycheck>>
-<br><br>
-
-<<if $skulduggerysuccess is 1>>
-	You look around and quickly reach for <<recipe_name $phase "plural">> before anybody can bear witness to your crimes. <<tending_pick $phase 3 6>>
-	You probably shouldn't take more or the <<monks>> will realize.<br><br>
-	
-	<<kitchenicon "soup">><<link [[Return to the kitchen|Soup Kitchen Kitchen]]>><</link>><br><br>
-	<<if Time.weekDay is 1>>
-		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "haddock" "lemon">>
-	<<elseif Time.weekDay is 2>>
-		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "salmon" "broccoli">>
-	<<elseif Time.weekDay is 3>>
-		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "trout" "lemon">>
-	<<elseif Time.weekDay is 4>>
-		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "cod" "potato">>
-	<<elseif Time.weekDay is 5>>
-		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "clam" "onion">>
-	<<elseif Time.weekDay is 6>>
-		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "garlic_bulb">>
-	<<else>>
-		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "lemon">>
-	<</if>>
-	<br>
-<<else>>
-	<<npc River>><<generatey2>><<person2>><<generatey3>>
-	You do your best not to look suspicious while stealing the <<recipe_name $phase "plural">>, but you attract a gaze of another volunteer regardless
-	"What are you doing?" <<He>> asks too loudly for your liking. "You shouldn't be stealing from the soup kitchen. It's wrong!"<br>
-	"What? Somebody is stealing?" A <<person3>><<person>> joins.<br>
-	"It's not okay! If you're hungry, you should just ask for the soup!"<br>
-	The commontion attracks an attention of some <<monks>> as well as River, who glares at you in disappointment. Even some of people who came in for the food look at you. You won't get away with it.<br><<lllgrace>><<grace -15>><<npcincr River love -5>><<lllove>><<famegood -15>>
-	"You came here to help, not to steal more food," River says. "If you can't help yourself, then leave."<br>
-	<<person1>>You leave the kitchen, <<his>> blue eyes following your stept to ensure you won't cause any more problems. You probably shouldn't return for now.<br><br>
-	<<link [[Leave|Wolf Street]]>><<set $eventskip to 1>><</link>><<set $weekly.theft.temple.Ban = true>>
 <</if>>

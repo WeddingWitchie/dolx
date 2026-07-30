@@ -217,23 +217,46 @@ function chastityGenderMismatch() {
 }
 window.chastityGenderMismatch = chastityGenderMismatch;
 
-// Why (if at all) the temple won't take a currently-worn chastity device off:
-// "origin" (not theirs to begin with), "stats" (they don't think the wearer's soul is in a fit state yet), or "reputation" (word of the wearer's conduct has gotten around).
+// How many acts of penance it takes before Jordan personally decides a given failing no longer disqualifies the wearer
+const TEMPLE_CHASTITY_TRUST_GOAL = 3;
+
+function templeChastityTrusted(reason) {
+	return (V.templeChastityTrust?.[reason] || 0) >= TEMPLE_CHASTITY_TRUST_GOAL;
+}
+window.templeChastityTrusted = templeChastityTrusted;
+
+function templeChastityGainTrust(reason) {
+	V.templeChastityTrust ??= { stats: 0, reputation: 0, crime: 0 };
+	V.templeChastityTrust[reason] = Math.min(TEMPLE_CHASTITY_TRUST_GOAL, (V.templeChastityTrust[reason] || 0) + 1);
+}
+window.templeChastityGainTrust = templeChastityGainTrust;
+
+// Why (if at all) the temple won't take a currently-worn chastity device off, ignoring any X-Change disguise:
+// "origin" (not theirs to begin with), "stats" (they don't think the wearer's soul is in a fit state yet),
+// "crime" (there's a warrant out for the wearer), or "reputation" (word of the wearer's lewd conduct has gotten around).
 // Returns null when there's no reason to refuse.
 // Jordan only holds his own monks/priests to this standard, a casual visitor just gets normal service.
-function templeChastityRefusalReason() {
+function templeChastityUnderlyingRefusalReason() {
 	if (!playerChastity()) return null;
 	if (V.temple_rank !== "monk" && V.temple_rank !== "priest") return null;
 
 	const origin = V.worn.genitals.origin;
 	if (origin && origin !== "temple") return "origin";
 
-	if (V.purity < 400) return "stats";
+	if (V.purity < 400 && !templeChastityTrusted("stats")) return "stats";
 
 	const crimeTotal = Object.keys(setup.crimeNames).reduce((sum, key) => sum + (C.crime[key] || 0), 0);
-	if (crimeTotal >= 4000 || hasSexStat("exhibitionism", 4) || hasSexStat("deviancy", 4)) return "reputation";
+	if (crimeTotal >= 4000 && !templeChastityTrusted("crime")) return "crime";
+	if ((hasSexStat("exhibitionism", 4) || hasSexStat("deviancy", 4)) && !templeChastityTrusted("reputation")) return "reputation";
 
 	return null;
+}
+window.templeChastityUnderlyingRefusalReason = templeChastityUnderlyingRefusalReason;
+
+// Same as templeChastityUnderlyingRefusalReason, but an X-Changed face doesn't register as that monk/priest unless fame's made the new look just as recognisable.
+function templeChastityRefusalReason() {
+	if (playerIsXChanged() && V.xchange_fame < 700) return null;
+	return templeChastityUnderlyingRefusalReason();
 }
 window.templeChastityRefusalReason = templeChastityRefusalReason;
 

@@ -1,0 +1,174 @@
+:: Temple Chastity Prayer
+<<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
+<<set _chastityPrayerReason to templeChastityRefusalReason()>>
+<<pass 180>>
+You kneel before the altar and pray for the strength to make yourself worthy of release, whatever that takes.
+<br><br>
+<<if _chastityPrayerReason is "stats" or _chastityPrayerReason is "reputation" or _chastityPrayerReason is "crime">>
+	<<run templeChastityGainTrust(_chastityPrayerReason)>>
+	<<if templeChastityTrusted(_chastityPrayerReason)>>
+		<span class="blue">Something in your bearing has changed. Whatever <<he>> was looking for, <<he>> won't hold it against you again.</span>
+	<<elseif _chastityPrayerReason is "stats">>
+		<span class="blue">Something in you settles, just a little. Prayer alone won't fix it, but every visit counts.</span>
+	<<elseif _chastityPrayerReason is "reputation">>
+		<span class="blue">You feel like you've atoned, just a little. Whether anyone else notices is another matter.</span>
+	<<else>>
+		<span class="blue">You pray for the strength to face what you've done. It doesn't erase the warrant, but it settles something in you.</span>
+	<</if>>
+<<else>>
+	Nothing changes. Whatever's keeping you locked away isn't something prayer alone can fix.
+<</if>>
+<br><br>
+<<link [[Next|Temple Chastity]]>><</link>>
+
+:: Temple Chastity Plead
+<<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
+<<set _templePleadReason to templeChastityUnderlyingRefusalReason()>>
+<<He>> pauses when you ask <<him>> to reconsider, studying you for a long moment.
+<br><br>
+<<if _templePleadReason is "crime">>
+	<<He>> sighs. "I can't pretend a warrant doesn't exist, but I can't pretend people don't change, either." <<His>> gaze doesn't waver. "Show me you mean it. Do right by someone who needs it, and I'll take that over a warrant."
+<<elseif _templePleadReason is "reputation">>
+	<<He>> sighs. "I can't unhear what I've heard, but reputations aren't set in stone." <<He>> studies you a moment longer. "Show me you mean it. Do right by someone who needs it, and I'll take that over rumours."
+<<else>>
+	<<He>> shakes <<his>> head. "That's not something I can bend on. Prayer is the only path I can offer you there."
+<</if>>
+<br><br>
+<<if _templePleadReason is "reputation" or _templePleadReason is "crime">>
+	<<set $templeGoodwillUnlocked to $templeGoodwillUnlocked || {}>>
+	<<set $templeGoodwillUnlocked[_templePleadReason] to true>>
+	<i>Jordan will be watching for a genuine act of kindness, not empty words. The soup kitchen might be a good place to start.</i>
+	<br><br>
+<</if>>
+<<link [[Next|Temple]]>><<endevent>><</link>>
+<br>
+
+
+:: Soup Kitchen Goodwill
+<<set $outside to 0>><<set $location to "temple">><<effects>>
+<<set $daily.templeGoodwillFed to true>>
+<<generatey1>><<person1>>
+As you step inside, a small <<person>> tugs at your sleeve. <<Hes>> thin, and <<his>> clothes have seen better days. "Please," <<he>> says, looking up at you. "I haven't eaten today."
+<br><br>
+<<set _hasDish to Object.keys($foodstuff).some(key => setup.foodstuff[key].category is "dish" and $foodstuff[key].amount gte 1)>>
+<<if _hasDish>>
+	<i>You could share something you've cooked, if you have it on you. Raw ingredients won't do <<him>> much good.</i>
+	<br><br>
+	<<food_gift_list>>
+	<<link [[Give them a meal|Soup Kitchen Goodwill Give]]>><</link>>
+	<br>
+	<<link [[Walk past|Soup Kitchen Goodwill Ignore]]>><</link>>
+	<br>
+<<else>>
+	You have nothing cooked on you to share. <i>Maybe you should learn to make something, for next time.</i>
+	<br><br>
+	<<unset $templeGoodwillReason>>
+	<<link [[Next|Soup Kitchen]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Soup Kitchen Goodwill Give
+<<set $outside to 0>><<set $location to "temple">><<effects>>
+You hand over <<recipe_name $gift>>. <<Hes>> hesitant at first, then takes it with both hands, eyes wide.
+<br><br>
+"Thank you," <<he>> says, before hurrying off to eat in a corner.
+<br><br>
+<<tending_give $gift -1>>
+<<run templeChastityGainTrust($templeGoodwillReason)>>
+<<if templeChastityTrusted($templeGoodwillReason)>>
+	<span class="green">Something about the moment stays with you. Whatever Jordan was holding against you, you don't think <<he>> would anymore, if <<he>> saw this.</span>
+<<else>>
+	<span class="blue">It's a small thing, but it feels like it matters.</span>
+<</if>>
+<<unset $templeGoodwillReason>>
+<br><br>
+<<link [[Next|Soup Kitchen]]>><<endevent>><</link>>
+<br>
+
+:: Soup Kitchen Goodwill Ignore
+<<set $outside to 0>><<set $location to "temple">><<effects>>
+You look away and step past <<him>>. <<Hes>> doesn't press the point.
+<br><br>
+<<unset $templeGoodwillReason>>
+<<link [[Next|Soup Kitchen]]>><<endevent>><</link>>
+<br>
+
+:: Soup Kitchen Charity Donation
+<<set $outside to 0>><<set $location to "temple">><<effects>>
+River does not reach for the envelope. "What do you want in return?"
+<br><br>
+"Nothing," the stranger says. "I saw those children eating as though it might be their only proper meal today. I have more than I need, and they need it. Let me do one good thing."
+<br><br>
+River studies the stranger in silence. "No names. No photographs," <<he>> says at last. "You don't come back later expecting gratitude from them."
+<br><br>
+"Agreed."
+<br><br>
+River accepts the envelope. The stranger leaves without another word. <<He>> counts the money, then divides part of it between several smaller envelopes. The orphans stare as <<he>> hands the envelopes around.
+<br><br>
+River pushes one toward you. You hesitate. "You're an orphan too," <<he>> says. "Take it."
+<br><br>
+There's <<income $daily.soupKitchenCharity "orphanageCharity">> inside.
+<br><br>
+<<link [[Next|Soup Kitchen]]>><<endevent>><</link>>
+<br>
+
+:: Soup Kitchen Steal
+<<set $outside to 0>><<set $location to "temple">><<effects>>
+<br>
+You look through the cabinets. There are many people here, but they're busy. You should still be careful though.<br><br>
+
+<<if Time.weekDay is 1>>
+	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "haddock" "lemon">>
+<<elseif Time.weekDay is 2>>
+	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "salmon" "broccoli">>
+<<elseif Time.weekDay is 3>>
+	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "trout" "lemon">>
+<<elseif Time.weekDay is 4>>
+	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "cod" "potato">>
+<<elseif Time.weekDay is 5>>
+	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "clam" "onion">>
+<<elseif Time.weekDay is 6>>
+	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "garlic_bulb">>
+<<else>>
+	<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "lemon">>
+<</if>>
+
+<<kitchenicon "soup">><<link [[Back|Soup Kitchen Kitchen]]>><</link>>
+
+:: temple Kitchen Steal Result
+<<effects>>
+<<set $skulduggerydifficulty to 700>><<skulduggerycheck>>
+<br><br>
+
+<<if $skulduggerysuccess is 1>>
+	You look around and quickly reach for <<recipe_name $phase "plural">> before anybody can bear witness to your crimes. <<tending_pick $phase 3 6>>
+	You probably shouldn't take more or the <<monks>> will realize.<br><br>
+	
+	<<kitchenicon "soup">><<link [[Return to the kitchen|Soup Kitchen Kitchen]]>><</link>><br><br>
+	<<if Time.weekDay is 1>>
+		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "haddock" "lemon">>
+	<<elseif Time.weekDay is 2>>
+		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "salmon" "broccoli">>
+	<<elseif Time.weekDay is 3>>
+		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "trout" "lemon">>
+	<<elseif Time.weekDay is 4>>
+		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "cod" "potato">>
+	<<elseif Time.weekDay is 5>>
+		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "clam" "onion">>
+	<<elseif Time.weekDay is 6>>
+		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "garlic_bulb">>
+	<<else>>
+		<<ingredientsSuppliesSteal "vegetable_oil" "salt" "flour" "prawn" "lemon">>
+	<</if>>
+	<br>
+<<else>>
+	<<npc River>><<generatey2>><<person2>><<generatey3>>
+	You do your best not to look suspicious while stealing the <<recipe_name $phase "plural">>, but you attract a gaze of another volunteer regardless
+	"What are you doing?" <<He>> asks too loudly for your liking. "You shouldn't be stealing from the soup kitchen. It's wrong!"<br>
+	"What? Somebody is stealing?" A <<person3>><<person>> joins.<br>
+	"It's not okay! If you're hungry, you should just ask for the soup!"<br>
+	The commontion attracks an attention of some <<monks>> as well as River, who glares at you in disappointment. Even some of people who came in for the food look at you. You won't get away with it.<br><<lllgrace>><<grace -15>><<npcincr River love -5>><<lllove>><<famegood -15>>
+	"You came here to help, not to steal more food," River says. "If you can't help yourself, then leave."<br>
+	<<person1>>You leave the kitchen, <<his>> blue eyes following your stept to ensure you won't cause any more problems. You probably shouldn't return for now.<br><br>
+	<<link [[Leave|Wolf Street]]>><<set $eventskip to 1>><<endevent>><<set $weekly.theft.temple.Ban to true>><</link>>
+<</if>>

@@ -425,7 +425,7 @@
 				<<set _mouthaction["Ask for"] to "ask">>
 				<<set _askActions to {"Nothing":"rest"}>>
 				<<if $birth.epidural is 0>>
-					<<set _askActions["pain relief "+formatMoney(100000)] to "epidural">>
+					<<set _askActions["pain relief "+formatMoney(setup.inflation ? setup.inflation.price(100000) : 100000)] to "epidural">>
 				<</if>>
 				<<if $birth.calledPartner is 0 and ["","Alone"].contains($birth.partner)>>
 					<<set _askActions["the father"] to "callpartner">>
@@ -436,7 +436,7 @@
 			<<if $birth.epidural is 0>>
 				<<set _mouthaction["Ask for"] to "ask">>
 				<<set _askActions to {"Nothing":"rest"}>>
-				<<set _askActions["pain relief "+formatMoney(100000)] to "epidural">>
+				<<set _askActions["pain relief "+formatMoney(setup.inflation ? setup.inflation.price(100000) : 100000)] to "epidural">>
 			<</if>>
 		<<case "prison">>
 			<<if $birth.epidural is 0 or ($birth.calledPartner is 0 and ["","Alone"].contains($birth.partner))>>
@@ -462,7 +462,7 @@
 				<<set _mouthaction["Ask for"] to "ask">>
 				<<set _askActions to {"Nothing":"rest"}>>
 				<<if $birth.epidural is 0>>
-					<<set _askActions["pain relief "+formatMoney(100000)] to "epidural">>
+					<<set _askActions["pain relief "+formatMoney(setup.inflation ? setup.inflation.price(100000) : 100000)] to "epidural">>
 				<</if>>
 				<<if $birth.calledPartner is 0 and $birth.partner isnot "Alex">>
 					<<set _askActions["Alex"] to "callpartner">>
@@ -1008,13 +1008,13 @@
 				<<if !_tagsToUpdate.includes("epidural")>><<set _tagsToUpdate.push("epidural")>><</if>>
 				<<switch $birth.location>>
 				<<case "hospital" "asylum">>
-					<<if $money gte 100000>>
+					<<if setup.inflation.canAfford(100000, "childbirthEpidural")>>
 						<<if $birth.stage gte 5>>
 							<<set $birth.epidural to 1>>
 							<<printprompt setup.birthPrompts.mouthaction["askEpiduralHospitalTooLate"]>>
 							<br>
 						<<else>>
-							<<set $money -= 100000>>
+							<<money -100000 "childbirthEpidural">>
 							<<set $birth.epidural to 11>>
 							<<printprompt setup.birthPrompts.mouthaction["askEpiduralHospitalSuccess"]>>
 							<br>
@@ -1040,13 +1040,13 @@
 						<br>
 					<</if>>
 				<<case "cottage">>
-					<<if $money gte 100000>>
+					<<if setup.inflation.canAfford(100000, "childbirthEpidural")>>
 						<<if $birth.stage gte 5>>
 							<<set $birth.epidural to 1>>
 							<<printprompt setup.birthPrompts.mouthaction["askEpiduralCottageTooLate"]>>
 							<br>
 						<<else>>
-							<<set $money -= 100000>>
+							<<money -100000 "childbirthEpidural">>
 							<<set $birth.epidural to 11>>
 							<<printprompt setup.birthPrompts.mouthaction["askEpiduralCottageSuccess"]>>
 							<br>

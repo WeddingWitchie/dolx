@@ -1332,27 +1332,6 @@ You tell Jordan you were attacked. <<He>> listens without a word, only speaking 
 <<getouticon>><<link [[Leave|Temple]]>><<endevent>><</link>>
 <br>
 
-:: Temple Chastity Prayer
-
-<<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
-<<set _chastityPrayerReason to templeChastityRefusalReason()>>
-<<pass 180>>
-You kneel before the altar and pray for the strength to make yourself worthy of release, whatever that takes.
-<br><br>
-<<if _chastityPrayerReason is "stats">>
-	<<set $purity to Math.clamp($purity + 80, 0, 1000)>>
-	<span class="blue">Something in you settles, just a little.</span>
-<<elseif _chastityPrayerReason is "reputation">>
-	<<run Object.keys(setup.crimeNames).forEach(crimeType => C.crime[crimeType] = Math.clamp(C.crime[crimeType] - 400, C.crime.min, C.crime.max))>>
-	<<set $deviancy to Math.clamp($deviancy - 8, 0, 100)>>
-	<<set $exhibitionism to Math.clamp($exhibitionism - 8, 0, 100)>>
-	<span class="blue">You feel like you've atoned, just a little. Whether anyone else notices is another matter.</span>
-<<else>>
-	Nothing changes. Whatever's keeping you locked away isn't something prayer alone can fix.
-<</if>>
-<br><br>
-<<link [[Next|Temple Chastity]]>><<endevent>><</link>>
-
 :: Temple Test
 
 <<set $outside to 0>><<set $location to "temple">><<temple_effects>><<effects>>
@@ -1857,7 +1836,23 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	<</if>>
 	<br><br>
 	<<clotheson>>
+<<elseif $worn.genitals.origin is "temple" and _chastityRefusal is "crime">>
+	<<He>> hesitates, then <<his>> face hardens. "We've seen the wanted posters," <<he>> says. "We cannot in good faith remove your chastity when we know what punishment awaits you." <<He>> shakes <<his>> head. "You should repent and turn yourself in. We cannot condone such behaviour."
+	<<if $player.virginity.penile is true and $player.virginity.vaginal is true>>
+		<<He>> presses your donation back into your hands. "Keep it. You'll have more use for it than we do."
+		<<money `$templeChastityPayment || 8000` "templeChastityRefund">>
+	<</if>>
+	<br><br>
+	<<clotheson>>
 <<elseif $worn.genitals.origin is "temple">>
+	<<if playerIsXChanged() and $xchange_fame lt 700 and ["stats", "reputation", "crime"].includes(templeChastityUnderlyingRefusalReason())>>
+		<<if $xchange_fame lt 250>>
+			<<He>> doesn't recognise you as one of <<his>> own. Whatever reputation follows you around the temple, it isn't following this face.
+		<<else>>
+			<<He>> studies you a moment, uncertain, then seems to decide it doesn't matter. Your X-Changed look buys you the benefit of the doubt.
+		<</if>>
+		<br><br>
+	<</if>>
 	<<He>> produces a sinister bladed instrument from <<his>> robes and kneels in front of you.
 	Seconds later, the belt lies ruined on the floor, and your <<genitals_are 1>> once again exposed and vulnerable.
 	<br><br>
@@ -1927,9 +1922,13 @@ You look down to examine it yourself. It doesn't feel as tight or uncomfortable 
 	<</if>>
 <</if>>
 
-<<if _chastityRefusal is "stats" or _chastityRefusal is "reputation">>
+<<if _chastityRefusal is "stats" or _chastityRefusal is "reputation" or _chastityRefusal is "crime">>
 	<<templeicon "chastity">><<link [[Pray for guidance (3:00)|Temple Chastity Prayer]]>><</link>>
 	<br>
+	<<if (_chastityRefusal is "reputation" or _chastityRefusal is "crime") and $world_corruption_soft lt 20 and !($templeGoodwillUnlocked and $templeGoodwillUnlocked[_chastityRefusal])>>
+		<<socialiseicon "ask">><<link [[Plead with Jordan (0:05)|Temple Chastity Plead]]>><<pass 5>><</link>>
+		<br>
+	<</if>>
 <<else>>
 	<<link [[Next|Temple]]>><<endevent>><</link>>
 <</if>>
