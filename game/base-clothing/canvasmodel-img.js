@@ -607,29 +607,31 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.angel_halo_type = purpleWaterDragon ? "wdPurple" : "wdDefault";
 	}
 
-	// Melusine (water dragon + angel + harpy): dedicated art fully replaces the base sprite each piece draws from,
-	// so the base layer is hidden here rather than filename-swapped like the composites above. Each piece is
-	// independently configurable, same as Bakunawa/Ryuujin.
+	// Melusine (water dragon + angel + harpy): dedicated art fully replaces the base sprite each piece draws from, so the base layer is hidden here rather than filename-swapped like the composites above.
+	// Each piece is independently configurable, same as Bakunawa/Ryuujin.
+	// The per-piece toggle doubles as a colourway picker: it holds "default" or "purple" (legacy saves hold `true`, which reads as "default"), and false when hidden. Wings have no purple art yet, so they stay on "default".
+	const melusineColour = part => (V.chimera?.melusine?.[part] === "purple" ? "purple" : "default");
+
 	T.modeloptions.melusine_ears_type = "disabled";
 	if (isPartEnabled(T.modeloptions.waterdragon_ears_type) && angelPresent && birdPresent && isChimeraEnabled("melusine", "ears")) {
-		T.modeloptions.melusine_ears_type = "default";
+		T.modeloptions.melusine_ears_type = melusineColour("ears");
 		T.modeloptions.waterdragon_ears_type = "hidden";
 	}
 	T.modeloptions.melusine_horns_type = "disabled";
 	if (isPartEnabled(T.modeloptions.waterdragon_horns_type) && angelPresent && birdPresent && isChimeraEnabled("melusine", "horns")) {
-		T.modeloptions.melusine_horns_type = "default";
+		T.modeloptions.melusine_horns_type = melusineColour("horns");
 		T.modeloptions.melusine_horns_layer = V.hornslayer;
 		T.modeloptions.waterdragon_horns_type = "hidden";
 	}
 	T.modeloptions.melusine_tail_type = "disabled";
 	if (isPartEnabled(T.modeloptions.waterdragon_tail_type) && angelPresent && birdPresent && isChimeraEnabled("melusine", "tail")) {
-		T.modeloptions.melusine_tail_type = "default";
+		T.modeloptions.melusine_tail_type = melusineColour("tail");
 		T.modeloptions.melusine_tail_layer = V.taillayer;
 		T.modeloptions.waterdragon_tail_type = "hidden";
 	}
 	T.modeloptions.melusine_halo_type = "disabled";
 	if (isPartEnabled(T.modeloptions.angel_halo_type) && waterDragonPresent && birdPresent && isChimeraEnabled("melusine", "halo")) {
-		T.modeloptions.melusine_halo_type = "default";
+		T.modeloptions.melusine_halo_type = melusineColour("halo");
 		T.modeloptions.angel_halo_type = "hidden";
 	}
 	T.modeloptions.melusine_wings_type = "disabled";
@@ -654,8 +656,8 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.bird_wings_type = "hidden";
 	}
 
-	// Melusine's dedicated wings sprite already consumed Bird's wings as one of its three preconditions; if it's
-	// showing, it should be the only wing pair visible, overriding any independently-selected Divine Wings pick too.
+	// Melusine's dedicated wings sprite already consumed Bird's wings as one of its three preconditions;
+	// if it's showing, it should be the only wing pair visible, overriding any independently-selected Divine Wings pick too.
 	if (isPartEnabled(T.modeloptions.melusine_wings_type)) {
 		T.modeloptions.angel_wings_type = "hidden";
 		T.modeloptions.fallen_wings_type = "hidden";

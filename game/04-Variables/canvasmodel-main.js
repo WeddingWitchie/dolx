@@ -2835,19 +2835,22 @@ Renderer.CanvasModels.main = {
 			██║ ╚═╝ ██║███████╗███████╗╚██████╔╝███████║██║██║ ╚████║███████╗
 			╚═╝     ╚═╝╚══════╝╚══════╝ ╚═════╝ ╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝
 		*/
+		/* Melusine art is hand-coloured per piece and ships in its own colourways ("default"/"purple"),
+		so every layer here renders unfiltered; no hair or skin tinting, unlike the base sprites it replaces. */
 		"melusine_ears": genlayer_ears("melusine", false, { z: ZIndices.horns }),
 		"melusine_horns": genlayer_horns("melusine", {
-			filters: ["body"],
+			filters: [],
 			zfn(options) {
 				return options.melusine_horns_layer === "front" ? ZIndices.over_head + 1 : ZIndices.horns + 1;
 			},
 		}),
 		"melusine_tail": genlayer_tail("melusine", false),
-		"melusine_wings_right": genlayer_wings("right", "melusine", true),
-		"melusine_wings_left": genlayer_wings("left", "melusine", true),
+		"melusine_wings_right": genlayer_wings("right", "melusine", false),
+		"melusine_wings_left": genlayer_wings("left", "melusine", false),
 		"melusine_halo": {
 			z: ZIndices.over_head,
 			animation: "idle",
+			filters: [],
 			srcfn(options) {
 				return `img/transformations/melusine/halo/${options.melusine_halo_type}.png`;
 			},
