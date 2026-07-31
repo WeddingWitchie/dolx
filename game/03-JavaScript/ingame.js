@@ -3817,3 +3817,23 @@ function averageBunPrice(toSell = T.buns_sold) {
 	return totalRevenue / toSell;
 }
 window.averageBunPrice = averageBunPrice;
+
+/**
+ * Effective level of a hypnosis trait, for anything the trait *does*.
+ *
+ * Returns 0 while the hypnosis setting is off, so a trait the player already owns stops driving behaviour without being erased
+ * it still shows on the traits screen and can still be paid off at the hospital.
+ * Also normalises the -1 "never had it" sentinel that modupdate stamps.
+ *
+ * Read V.hypnosis_traits directly instead for UI that reports what the player has,
+ * and for the acquisition branches (those are already gated on the setting where they should be).
+ *
+ * @param {string} trait e.g. "deviancy", "crossdressing"
+ * @returns {number} 0-5
+ */
+function hypnosisTrait(trait) {
+	if (!V.settings?.hypnosisEnabled) return 0;
+	const level = V.hypnosis_traits?.[trait];
+	return typeof level === "number" && level > 0 ? level : 0;
+}
+window.hypnosisTrait = hypnosisTrait;
