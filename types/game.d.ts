@@ -364,6 +364,7 @@ declare module "twine-sugarcube" {
 			waterdragonLilac: SkinColourConfig;
 			waterdragonPurple: SkinColourConfig;
 			waterdragonBlue: SkinColourConfig;
+			waterdragonSkyblue: SkinColourConfig;
 			waterdragonPink: SkinColourConfig;
 			slime: SkinColourConfig;
 			ghost: SkinColourConfig;
@@ -398,6 +399,7 @@ declare global {
 		| "waterdragonLilac"
 		| "waterdragonPurple"
 		| "waterdragonBlue"
+		| "waterdragonSkyblue"
 		| "waterdragonPink"
 		| "slime"
 		| "ghost";

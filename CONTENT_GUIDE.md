@@ -1836,7 +1836,7 @@ What Water Dragon does:
 - **Dragon's Grace** increases athletics and swimming ability.
 - **Aquatic Lungs** reduce underwater oxygen loss. Ordinary water actions spend more oxygen; Aquatic Lungs lowers the drain significantly.
 - Water Dragon has the strongest cold tolerance among beast transformations, but becomes slightly worse in heat.
-- Reaching the final Water Dragon manifestation, including through cheats, applies the original tan-based Lilac, Purple, or Blue/Cyan skin automatically. The mirror's **Water Dragon Skin** dropdown lets you keep your normal skin or lock in Lilac, Purple, Blue/Cyan, or Soft Pink. Lilac uses the original transformation's lightest shade.
+- Reaching the final Water Dragon manifestation, including through cheats, applies the original tan-based Lilac, Purple, or Blue/Cyan skin automatically. The mirror's **Water Dragon Skin** dropdown lets you keep your normal skin or lock in Lilac, Purple, Blue/Cyan, Sky Blue, or Soft Pink. Lilac uses the original transformation's lightest shade.
 - Water Dragon has its own claws and Scratch text, and uses the current Scratch rebalance.
 - Water Dragon horns count properly as horns for horn-related checks and effects.
 - Full Water Dragon, full effective Water Dragon, or active Aquatic Lungs can unlock a direct swim route to the island without needing pirates. The crossing is still a serious journey and takes about a week.

@@ -236,8 +236,13 @@ setup.colours = {
 			blendMode: "multiply",
 			desaturate: false,
 		},
+		waterdragonSkyblue: {
+			gradient: ["#bee5f3", "#b7e3f2"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
 		waterdragonPink: {
-			gradient: ["#f8c1de", "#fbc6e2"],
+			gradient: ["#f9d9e9", "#fce3f0"],
 			blendMode: "multiply",
 			desaturate: false,
 		},
