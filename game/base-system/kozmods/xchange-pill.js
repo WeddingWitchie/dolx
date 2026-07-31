@@ -1,4 +1,4 @@
-/* globals npcStartingSexIs npcIsXChanged pillIsPermanent pillTimerPaused */
+/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive */
 /* ============================================================
    X-CHANGE PILL DEFINITIONS  (all of them)
    ============================================================
@@ -32,6 +32,17 @@ function xchangePillBlockedReason(color, allowDualGenitals = false) {
 	return "This formula has nothing to change on your current body, so swallowing it would be a waste. Someone else could still be made to take it.";
 }
 window.xchangePillBlockedReason = xchangePillBlockedReason;
+
+/* ---- protection gate ----
+   Harper's treatment and the permanent purity trait stop an X-Change pill taking hold, so the drawer reports the dose as neutralised.
+   They only apply to pills that would start or extend a transformation. The support pills (antidotes, SWP anti-pills and the test strip)
+   act on a session that is already running and keep working normally, so they must not claim to have dissolved to nothing. */
+const xchangeSupportSubtypes = ["antidote", "anti-pill", "test"];
+function xchangePillNeutralised(item) {
+	if (!item || item.type !== "xchange" || xchangeSupportSubtypes.includes(item.subtype)) return false;
+	return xchangePillProtectionActive();
+}
+window.xchangePillNeutralised = xchangePillNeutralised;
 
 /* Sex of the body the player returns to when no pill is active.
 Suspicious pills can only be taken untransformed, so sellers picking a colour for the player must use this instead of V.player.sex, which reflects the current (possibly X-Changed) body. */
@@ -3177,7 +3188,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused()) ? 1 : 0;
+			return playerIsXChanged() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return playerIsXChanged() ? "" : "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
 		},
 		effects: [`<<xchange-antidote 1>>`],
 	},
@@ -3213,7 +3227,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && !(pillIsPermanent() || pillTimerPaused()) ? 1 : 0;
+			return playerIsXChanged() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return playerIsXChanged() ? "" : "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
 		},
 		effects: [`<<xchange-antidote 7>>`],
 	},

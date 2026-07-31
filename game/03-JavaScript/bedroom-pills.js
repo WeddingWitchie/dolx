@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation */
-/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillProtectionActive */
+/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised */
 /*
  * if display_condition is 1, item is displayed, else it's not
  * current max doses for Harper/Asylum pills is 1; 2 for every other pills
@@ -881,10 +881,9 @@ function onTakeClick(itemName) {
 				}
 			}
 			/* Temporary therapy and permanent X-Change purity neutralise the pill while still recording its consumption. */
-			V.lastPillTakenDescription =
-				item.type === "xchange" && typeof xchangePillProtectionActive === "function" && xchangePillProtectionActive()
-					? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
-					: item.onTakeMessage;
+			V.lastPillTakenDescription = xchangePillNeutralised(item)
+				? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
+				: item.onTakeMessage;
 		}
 	}
 	Engine.play("Take Pill From Medicine Drawer");
@@ -924,10 +923,9 @@ function onTakeClickSilent(itemName) {
 			V.sexStats.pills.lastTaken[item.type] = item.subtype;
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
 			/* Temporary therapy and permanent X-Change purity neutralise the pill while still recording its consumption. */
-			V.lastPillTakenDescription =
-				item.type === "xchange" && typeof xchangePillProtectionActive === "function" && xchangePillProtectionActive()
-					? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
-					: item.onTakeMessage;
+			V.lastPillTakenDescription = xchangePillNeutralised(item)
+				? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
+				: item.onTakeMessage;
 
 			/* Reuse original daily notice path */
 			V.pillsTaken = 1;

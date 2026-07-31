@@ -2279,10 +2279,15 @@
 
 	<<widget "xchange-antidote">>
 		<<if !isNaN(_args[0])>>
-			<<set _decrease to _args[0] * 24>>
-			<<if playerIsXChanged() and !(pillIsPermanent() or pillTimerPaused())>>
-				<<set $xchange.pill.duration to Math.max($xchange.pill.duration - _decrease, 0)>>
-				<<pain 150>><<set $stress += Math.max($stressmax * (_args[0] / 8), $stressmax * 0.66)>>
+			<<set $xchangeAntidoteFizzle to false>>
+			<<if playerIsXChanged()>>
+				<<if pillIsPermanent() or pillTimerPaused()>>
+					<<set $xchangeAntidoteFizzle to true>>
+				<<else>>
+					<<set _decrease to _args[0] * 24>>
+					<<set $xchange.pill.duration to Math.max($xchange.pill.duration - _decrease, 0)>>
+					<<pain 150>><<set $stress += Math.max($stressmax * (_args[0] / 8), $stressmax * 0.66)>>
+				<</if>>
 			<</if>>
 		<<else>>
 			<<error {
