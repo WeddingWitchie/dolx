@@ -831,10 +831,18 @@ function dolxRepairNonFiniteNumerics() {
 		}
 	}
 
-	/* Prepaid stall deposit rollover left stall_lewdity uninitialised, then <<lewdity>> NaN'd it. */
+	/* Prepaid stall deposit rollover left stall_lewdity uninitialised, then lewdity NaN'd it. */
 	if (V.daily && "stall_lewdity" in V.daily && !Number.isFinite(V.daily.stall_lewdity)) {
 		repaired.push(`daily.stall_lewdity=${V.daily.stall_lewdity}`);
 		V.daily.stall_lewdity = 0;
+	}
+
+	/* Poppy's patience/anger slider NaNs on some saves;
+	a raw "gte 0" comparison against NaN is always false, silently locking every patience/anger check onto the anger branch. */
+	const poppyIndex = V.NPCNameList?.indexOf("Poppy");
+	if (poppyIndex > -1 && V.NPCName?.[poppyIndex] && !Number.isFinite(V.NPCName[poppyIndex].patience)) {
+		repaired.push(`NPCName[${poppyIndex}].patience=${V.NPCName[poppyIndex].patience}`);
+		V.NPCName[poppyIndex].patience = 100;
 	}
 
 	if (hairRepaired && typeof window.calchairlengthstage === "function") window.calchairlengthstage();

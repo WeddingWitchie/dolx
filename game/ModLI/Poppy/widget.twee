@@ -90,7 +90,7 @@
 		<<run if (typeof statusCheck === "function") statusCheck("Poppy")>>
 		<<if !$speechadmired>><<set $speechadmired to 1>>
 			Poppy narrows <<his>> eyes. "<<print $skin[_args[0]].writing>> huh... does that mean you belong to <<nnpc_him $skin[_args[0]].special>> too?" <<He>> presses <<his>> palm onto your <<bodypart _args[0]>> and sinks <<his>> sharp nails into your skin without breaking it.
-			<<npcincr Poppy love -2>><<llove>><<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gt 0>><<llpatience>><<else>><<gganger>><</if>><<stress 300>><<gstress>><<pain 300>><<gpain>>
+			<<npcincr Poppy love -2>><<llove>><<npcincr Poppy patience -4>><<if C.npc.Poppy.patience gte 0>><<llpatience>><<else>><<gganger>><</if>><<stress 300>><<gstress>><<pain 300>><<gpain>>
 		<</if>>
 	<<elseif $skin[_args[0]].pen is "tattoo">>
 		<<run if (typeof statusCheck === "function") statusCheck("Poppy")>>
@@ -330,6 +330,16 @@
 	<<getouticon>><<link [[Leave the flat|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
 <</widget>>
 
+<<widget "poppyChristmasWrapOption">>
+	<<if $christmas_wrap is 1 and $christmas_gift_poppy isnot undefined and $christmas_gift_poppy.endsWith("_unwrapped")>>
+		<<set _poppyWrapRoom to ($bus or "").replace("poppy_", "")>>
+		<<if !$poppyFlat.home or $poppyFlat.room isnot _poppyWrapRoom>>
+			<<gifticon "wrapping">><<link [[Wrap Poppy's gift (0:10)|Flats Poppy Wrap Gift]]>><<pass 10>><<set $christmas_gift_poppy to $christmas_gift_poppy.replace("_unwrapped", "")>><<set $christmas_gift_poppy_wrapped to 1>><</link>>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>
+
 
 /* Menu */
 <<widget "poppyLakeMenu">>
@@ -425,6 +435,7 @@
 			<<if T.poppyLoveGainAllowed>><<glove>><</if>><<ltrauma>><<lstress>><<if _poppyAngerSide>><<langer>><<else>><<gpatience>><</if>>
 			<br>
 		<</if>>
+		<<poppyChristmasGiftOption "lake">>
 		<<if _poppyLow>>
 			<<skinicon "give">><span class="black">Gift food</span> | <span class="red">Poppy is too irritated to accept anything right now.</span>
 		<<elseif canGiftFood("Poppy")>>
@@ -572,6 +583,7 @@
 			<<if T.poppyLoveGainAllowed>><<glove>><</if>><<ltrauma>><<lstress>><<if _poppyAngerSide>><<langer>><<else>><<gpatience>><</if>>
 			<br>
 		<</if>>
+		<<poppyChristmasGiftOption "flat">>
 		<<if _poppyLow>>
 			<<skinicon "give">><span class="black">Gift food</span> | <span class="red">Poppy is too irritated to accept anything right now.</span>
 		<<elseif canGiftFood("Poppy")>>
@@ -580,6 +592,38 @@
 		<br>
 		<<getouticon>><<link [[Leave|Flats Poppy Living Room]]>><<set $eventskip to 0>><</link>>
 	<</if>>
+<</widget>>
+
+<<widget "poppyChristmasGiftOption">>
+	<<if $christmas is 1 and $christmas_gift_poppy_wrapped is 1 and $christmas_gift_poppy_given is undefined>>
+		<<if _args[0] is "lake">>
+			<<gifticon "love">><<link [[Give Poppy Christmas gift (0:10)|Poppy Christmas Gift]]>><<pass 10>><<set $daily.poppy.lastAction to "gift">><<set $poppyGiftVenue to "lake">><</link>>
+		<<else>>
+			You see Poppy adjusting some Christmas ornaments.
+			<br><br>
+			<<gifticon "love">><<link [[Give Poppy Christmas gift (0:10)|Poppy Christmas Gift]]>><<pass 10>><<set $daily.poppy.lastAction to "gift">><<set $poppyGiftVenue to "flat">><</link>>
+		<</if>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "poppyChristmasTuxedoOpener">>
+	<<if C.npc.Poppy.pronoun is "f">>
+		Poppy pauses when <<he>> sees the suit. <<He>> glances up at you for a moment, then smirks. "If you want to see me in a suit, you could've just said so~" Poppy holds up the suit and sways it.
+	<<else>>
+		"Oh wow! This must have been expensive, isn't it?" Poppy feels the fabric of the suit, a smile starts to creep onto <<his>> face.
+	<</if>>
+	<br><br>
+<</widget>>
+
+<<widget "poppyChristmasGiftReturn">>
+	<<if poppyGiftAtFlat()>>
+		<<set $eventskip to 1>>
+		<<poppyFlatsMenu>>
+	<<else>>
+		<<poppyLakeReturn>>
+	<</if>>
+	<<unset $poppyGiftVenue>>
 <</widget>>
 
 <<widget "poppyChristmasBaileyPayment">>

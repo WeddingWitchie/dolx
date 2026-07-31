@@ -175,6 +175,34 @@ function markPoppyInteraction(poppy = C.npc.Poppy) {
 }
 window.markPoppyInteraction = markPoppyInteraction;
 
+/**
+ * Whether the player can currently let themselves into Poppy's flat.
+ * Mirrors the gate in the "Flats Poppy Enter" passage; kept here so the Christmas wrapping options and the journal cannot drift away from the real door check.
+ *
+ * @returns {boolean} true when the flat is open to the player.
+ */
+function poppyFlatAccessible() {
+	if (V.poppyFlat?.dismissed === true || V.poppyDismissalFired === 1) return false;
+	const safeHouse = Number(V.poppySafeHouse) >= 1;
+	const claimed = Number(V.poppyromance) >= 0 && Array.isArray(V.poppySeen) && V.poppySeen.includes("lake_postclaim_intro");
+	return safeHouse || claimed;
+}
+window.poppyFlatAccessible = poppyFlatAccessible;
+
+/**
+ * Where the Christmas gift handover is taking place.
+ * The menu link stamps V.poppyGiftVenue, because the flat's own passages never set V.location and so it cannot be inferred there.
+ * V.location is only consulted as a fallback for a save loaded mid-scene, before the stamp existed.
+ *
+ * @returns {boolean} true when the handover is happening in Poppy's flat.
+ */
+function poppyGiftAtFlat() {
+	if (V.poppyGiftVenue === "flat") return true;
+	if (V.poppyGiftVenue === "lake") return false;
+	return V.location !== "lake";
+}
+window.poppyGiftAtFlat = poppyGiftAtFlat;
+
 function poppySchedule() {
 	const poppy = C.npc.Poppy;
 	if (!poppy) return "nowhere";

@@ -2520,6 +2520,10 @@ function yearlyEventChecks() {
 		delete V.christmas_poppy_flat_pending;
 		delete V.christmas_poppy_flat_done;
 		delete V.christmas_poppy_route;
+		delete V.christmas_gift_poppy;
+		delete V.christmas_gift_poppy_wrapped;
+		delete V.christmas_gift_poppy_given;
+		delete V.poppyGiftVenue;
 		delete V.christmas_wraith;
 	}
 }
