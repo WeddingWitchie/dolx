@@ -747,6 +747,10 @@
 				<<unset _outfitSecondaryRuined>>
 
 				<<set $_wornOrCarried[_args[0]] to clone(setup.clothes[_args[0]][0])>>
+				<!-- A destroyed strap-on has to stop counting as worn in the toy inventory too. -->
+				<<if $_wornOrCarriedKey is "worn" and _args[0] is "under_lower">>
+					<<run patchStraponsWearStatus()>>
+				<</if>>
 			<</for>>
 		<</if>>
 	<</if>>
@@ -1354,10 +1358,15 @@
 						<</if>>
 					<</for>>
 				<</if>>
-				<<if !setup.wardrobeSkip.includes($worn[_undressSlot].name)>>
+				<!-- A worn strap-on belongs to the sex toy inventory, not the wardrobe. Filing a copy in the wardrobe would create a phantom garment and leave the toy flagged as worn. -->
+				<<set _undressedStrapon to (_undressSlot is "under_lower" and $worn.under_lower.type.includes("strap-on"))>>
+				<<if !_undressedStrapon and !setup.wardrobeSkip.includes($worn[_undressSlot].name)>>
 					<<set $_selectedWardrobe[_undressSlot].push(clone($worn[_undressSlot]))>>
 				<</if>>
 				<<set $worn[_undressSlot] to clone(setup.clothes[_undressSlot][0])>>
+				<<if _undressedStrapon>>
+					<<run patchStraponsWearStatus()>>
+				<</if>>
 				<<run _slots.push(_undressSlot)>>
 			<<elseif _args[0] and !_storeItemSkip[_undressSlot]>>
 				<<if $worn[_undressSlot].name isnot "naked">>

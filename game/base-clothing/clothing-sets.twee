@@ -269,17 +269,19 @@
 <</widget>>
 
 <<widget "wearoutfit">>
-	/* Strip worn strap-on before equipping outfit */
-	<<if $wear_outfit isnot "none" and $worn.under_lower.type.includes("strap-on")>>
-		<<set _strap to $player.inventory.sextoys[$worn.under_lower.name].find(toy => toy.worn)>>
-		<<set _strap.worn to false>>
-		<<set $worn.under_lower to clone(setup.clothes.under_lower[0])>>
-	<</if>>
 	<<set _selectedWardrobe to selectWardrobe()>>
 	<<updateWornClothingLocation $wardrobe_location>>
 	<<deleteoutfit>>
 	<<overwriteoutfit>>
 	<<set $delete_outfit to "none">>
+	/* Strip worn strap-on before equipping outfit. Must run after delete/overwrite, both of which blank $wear_outfit, so picking a set in those modes never undresses the player (and overwrite records the strap-on instead of "naked"). */
+	<<if $wear_outfit isnot "none" and $worn.under_lower.type.includes("strap-on")>>
+		<<set _strap to $player.inventory.sextoys[$worn.under_lower.name]?.find(toy => toy.worn)>>
+		<<if _strap>>
+			<<set _strap.worn to false>>
+		<</if>>
+		<<set $worn.under_lower to clone(setup.clothes.under_lower[0])>>
+	<</if>>
 	<<if $wear_outfit is "clotheson">>
 		<<storeon $storeLocation>>
 	<<elseif $wear_outfit isnot "none">>
@@ -324,19 +326,24 @@
 					<<generalUndress $_storeLocation $_slot>>
 					<<set _index to _toySetup.clothes_index>>
 					<<if $outfit[$wear_outfit].colors and $_incomingItemName isnot "naked">>
-						<<set _strap to _strap or _toy.find(toy => toy.colour === $outfit[$wear_outfit].colors.under_lower[0])>>
+						/* Prefer the saved colour. Only fall back to the strap-on just taken off when it's the same model, otherwise a different toy ends up flagged as worn while another one is displayed. */
+						<<set _strap to _toy.find(toy => toy.colour === $outfit[$wear_outfit].colors.under_lower[0]) ?? (_toy.includes(_strap) ? _strap : undefined)>>
 						<<if _strap>>
 							<<set $worn[$_slot] to clone(setup.clothes[$_slot][_index])>>
-							<<set $worn[$_slot].colour to $outfit[$wear_outfit].colors.under_lower[0]>>
+							<<set $worn[$_slot].colour to _strap.colour>>
 							<<set _strap.worn to true>>
 						<<else>>
 							<<set _notEquipped[$_slot] to {"name": _equippedStrap, "reason": "strapon"}>>
 						<</if>>
 					<<else>>
+						/* No colour saved: keep the one already in use if it's this model, so re-wearing a set doesn't swap your strap-on's colour. */
+						<<set _strap to (_toy.includes(_strap) ? _strap : _toy[0])>>
 						<<set $worn[$_slot] to clone(setup.clothes[$_slot][_index])>>
-						<<set $worn[$_slot].colour to _toy[0].colour>>
-						<<set _toy[0].worn to true>>
+						<<set $worn[$_slot].colour to _strap.colour>>
+						<<set _strap.worn to true>>
 					<</if>>
+					/* Clears any other strap-on still flagged as worn, and blanks every flag when the set's strap-on couldn't be found. */
+					<<run patchStraponsWearStatus()>>
 				<<else>>
 					<<exit '<span class="red">ERROR: Equipped _equippedStrap does not exist. Please report.</span>'>>
 				<</if>>

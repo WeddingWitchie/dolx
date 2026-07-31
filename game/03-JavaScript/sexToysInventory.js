@@ -421,7 +421,8 @@ function playerHasSexToys() {
 window.playerHasSexToys = playerHasSexToys;
 
 function patchStraponsWearStatus() {
-	Object.values(V.player.inventory.sextoys).forEach(category =>
+	// The toy inventory is created lazily, and undressing can reach this before the player has ever opened the sex shop.
+	Object.values(V.player.inventory?.sextoys ?? {}).forEach(category =>
 		category
 			.filter(strapon => strapon.type.includes("strap-on"))
 			.forEach(strapon => {
@@ -431,6 +432,41 @@ function patchStraponsWearStatus() {
 	);
 }
 window.patchStraponsWearStatus = patchStraponsWearStatus;
+
+// One-time cleanup.
+// Undressing used to file a worn strap-on into the wardrobe as if it were underwear (swapping one strap-on for another in the toy inventory did it every time),
+// leaving a garment copy of a toy that still lives in the inventory. Wardrobes only, $carried and $store legitimately hold a worn strap-on while a scene has the player stripped.
+function dolxRemovePhantomStraponGarments() {
+	let removed = 0;
+	const wardrobes = new Set([V.wardrobe, ...Object.values(V.wardrobes ?? {})]);
+	for (const wardrobe of wardrobes) {
+		const items = wardrobe?.under_lower;
+		if (!Array.isArray(items)) continue;
+		for (let i = items.length - 1; i >= 0; i--) {
+			if (!Array.isArray(items[i]?.type) || !items[i].type.includes("strap-on")) continue;
+			items.splice(i, 1);
+			removed++;
+		}
+	}
+	return removed;
+}
+window.dolxRemovePhantomStraponGarments = dolxRemovePhantomStraponGarments;
+
+// One-time cleanup.
+// Clothing sets used to record the genitals slot, which no set operation has ever been able to apply; it only showed up as a dead row in the set editor.
+// Drop it so the editor stops offering it.
+function dolxDropClothingSetGenitals() {
+	if (!Array.isArray(V.outfit)) return 0;
+	let dropped = 0;
+	for (const outfit of V.outfit) {
+		if (outfit?.genitals === undefined) continue;
+		delete outfit.genitals;
+		if (outfit.colors) delete outfit.colors.genitals;
+		dropped++;
+	}
+	return dropped;
+}
+window.dolxDropClothingSetGenitals = dolxDropClothingSetGenitals;
 
 function checkIfNPCHasCategorySextoy(npcName, category) {
 	const npc = V.NPCName.find(n => n.nam === npcName);
