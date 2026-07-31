@@ -1222,6 +1222,22 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		})()>>
 	<</if>>
 
+	/* One-time repair: 0.20.15 let the "special vanilla two-tone" (highlights) dye leak into $twoToneStyle,
+	so an ordinary two-tone dye applied afterwards was stored with style "highlights". */
+	<<if !$dolxTwoToneStyleRepaired>>
+		<<set $dolxTwoToneStyleRepaired to true>> /* delete later */
+		<<run (() => {
+			const isGradientStyle = style => !!setup.colours.hairgradients_prototypes?.sides?.[style];
+			if (V.hairColourStyle === "gradient" && V.hairColourGradient && !isGradientStyle(V.hairColourGradient.style)) {
+				V.hairColourGradient.style = "low-ombre";
+			}
+			if (V.hairFringeColourStyle === "gradient" && V.hairFringeColourGradient && !isGradientStyle(V.hairFringeColourGradient.style)) {
+				V.hairFringeColourGradient.style = "low-ombre";
+			}
+			if (V.twoToneStyle && !isGradientStyle(V.twoToneStyle)) V.twoToneStyle = "low-ombre";
+		})()>>
+	<</if>>
+
 	/* One-time repair: Poppy's bed sleep-outfit links stored undressed clothes under location "Flats Poppy Bed", but the wake-up links only retrieve from "bed", so those clothes were stranded forever. Return them to the wardrobe. */
 	<<if !$dolxPoppyBedStoreReclaimed>>
 		<<set $dolxPoppyBedStoreReclaimed to true>> /* delete later */

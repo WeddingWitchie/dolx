@@ -1,4 +1,4 @@
-/* global dhmod, dhmUtils, dollHighlightsAvailable, dolxColor */
+/* global dhmod, dhmUtils, dollHighlightsAvailable, dolxColor, vanillaTwoToneStyle */
 
 const dhmShop = {
 	pickers: [],
@@ -89,8 +89,9 @@ const dhmShop = {
 			dhmod.tmp.originalColors = [V.haircolour, V.haircolour];
 		} else {
 			// "highlights" isn't a selectable option in the normal two-tone Style dropdown
-			// (it has its own dedicated "special vanilla two-tone" checkbox), so don't leak it in as a stale selection.
-			if (V.hairColourGradient.style !== "highlights") V.twoToneStyle = V.hairColourGradient.style;
+			// (it has its own dedicated "special vanilla two-tone" checkbox) and has no gradient prototype,
+			// so never let the player's current hair seed it in as a stale selection.
+			V.twoToneStyle = vanillaTwoToneStyle(V.hairColourGradient.style);
 			dhmod.tmp.colors = [...V.hairColourGradient.colours];
 			dhmod.tmp.originalColors = [...V.hairColourGradient.colours];
 		}
@@ -130,7 +131,9 @@ const dhmShop = {
 
 	compileGradient(colors = ["tmp0", "tmp1"], tmp = 0) {
 		const compiled = {
-			style: V.twoToneStyle,
+			// Callers that want the highlights overlay overwrite .style themselves afterwards;
+			// a plain two-tone compile must never inherit a non-gradient style.
+			style: vanillaTwoToneStyle(V.twoToneStyle),
 			colours: ["", ""],
 		};
 

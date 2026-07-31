@@ -5521,6 +5521,26 @@ function lookupColour(options, dict, key, debugName, customFilterName, prefilter
 	return filter;
 }
 
+/**
+ * Clamp a two-tone hair style to one that actually has a gradient prototype.
+ *
+ * The normal two-tone dye keeps its style in $twoToneStyle and renders through createHairColourGradient().
+ * The "special vanilla two-tone" (highlights) dye is a completely separate overlay-art path and deliberately has NO entry in setup.colours.hairgradients_prototypes.
+ * $twoToneStyle is a single variable shared by both hair parts, and the sides and fringe prototype sets offer the same styles, so validating against either one is enough.
+ *
+ * @param {string} style Candidate style.
+ * @returns {string} style when it is a real gradient style, otherwise a safe fallback.
+ */
+function vanillaTwoToneStyle(style) {
+	const prototypes = setup.colours.hairgradients_prototypes?.sides;
+	if (!prototypes) return style;
+	if (prototypes[style]) return style;
+	/* Keep the player's last valid pick rather than silently jumping them to a different look. */
+	if (prototypes[V.twoToneStyle]) return V.twoToneStyle;
+	return "low-ombre";
+}
+window.vanillaTwoToneStyle = vanillaTwoToneStyle;
+
 function createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
 	const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
 	const filterPrototype = filterPrototypeLibrary[hairType] || filterPrototypeLibrary.all;
@@ -6690,22 +6710,3 @@ function makeupAdjustment(options) {
 	const ratio = options.skin_tone / 100;
 	options.makeup_adjustment = min + (max - min) * ratio;
 }
-
-// Native canvas resolution upgrade: if img/body/base-classic.png is ever replaced with higher-resolution
-// art, grow the "main" model's canvas to match instead of squeezing that art down into the current fixed
-// 256x256 canvas (which is what causes higher-res source art to look pixelated - it's being downscaled,
-// not upscaled). Scale factor is derived from this one reference file; every other sprite is expected to
-// be redrawn at the same multiplier so layers keep lining up. No-op while the reference file is unchanged.
-(function () {
-	const REFERENCE_WIDTH = 256;
-	const REFERENCE_HEIGHT = 128;
-	const image = new Image();
-	image.onload = () => {
-		const scale = Math.min(image.naturalWidth / REFERENCE_WIDTH, image.naturalHeight / REFERENCE_HEIGHT);
-		if (scale > 1) {
-			Renderer.CanvasModels.main.width = Math.round(Renderer.CanvasModels.main.width * scale);
-			Renderer.CanvasModels.main.height = Math.round(Renderer.CanvasModels.main.height * scale);
-		}
-	};
-	image.src = "img/body/base-classic.png";
-})();
