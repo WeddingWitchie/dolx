@@ -15,130 +15,76 @@
 
 ## Changes and Additions
 
-- Updated to vanilla version 0.5.11.9
-- Updated RBE to v0.5.4
-- Reworked the Gentleman's Club letter
-  - Great Hawk, the wolves, and Eden may fail to deliver the letter if they are away or if you visit at night. After one day, they give up and leave the letter at your home instead.
-  - Jordan become a courier after you officially join the temple as a monk or nun, and will keep the letter until you visit the temple.
-  - Great Hawk and the wolf pack now have a 25% chance to destroy the letter, just like Eden. If it is your first blackmail letter, this saves you from the task. Otherwise, the task immediately fails.
-  - Letter delivery now also works properly if you live at Avery's mansion. Avery may destroy the letter if their temper is low, saving you from the task. Otherwise, they leave it alone to avoid damaging their reputation.
-  - After unlocking Poppy's bedroom, they may also receive blackmail letters. If they are home and patient enough, they handle the letter for you; otherwise it is sent to your home like other failed deliveries.
-  - Landry's price for stopping the club's blackmail for one month has also been reduced from £15,000 to £10,000.
-- Chastity cage & bullet vibe
-  - Dildos and dildo chastity belts can no longer be worn at the same time. Inserting a dildo blocks the belt, while equipping the belt removes any dildo already inserted.
-  - Penis cages can now only be bought or equipped if the player has a penis. This applies to regular cages, small cages, and the fetish and flat variants, both in shops and wardrobes.
-  - Bought chastity gear can now only be removed at a wardrobe. Quick-undress scenes will no longer remove it.
-  - If the player gains a vagina while wearing a bought cage, the cage will fall off and be sent to the home wardrobe instead of turning into a belt. Cursed/non-removable cages will still transform as before.
-  - Chastity devices now slowly build arousal while worn. This passive arousal starts with a low limit, which gradually drops as you become used to the device over roughly two weeks of continuous wear. Removing the device causes this tolerance to fade slowly instead of resetting immediately. Direct stimulation from sex, masturbation, vibrators, parasites, and drugs is unaffected by the limit.
-  - Locked chastity devices now prevent normal arousal from having your penis or clit rubbed through clothing.
-  - Bought chastity devices now include a key. The key has a small chance to break when you try to unlock the device yourself, may go missing while you are unconscious, or may be stolen by an attacker who forces the device onto you. Whitney and Kylar can also take and keep your key.
-  - Sirris can remove a locked chastity device if you no longer have its key. However, cutting it off permanently destroys the device.
-  - The flat fetish chastity cage now increases penis shrinkage and hides the bulge beneath underwear.
-  - Bullet vibes now come with a remote. If the remote is lost, you can no longer control the vibe, and it will switch itself on and off at random. Its description will also warn that it is out of your control.
-  - A bullet vibe may work itself loose when you orgasm during sex or masturbation.
-  - Whitney's classroom vibrator scene returns the remote afterward.
-- Eligible players can now willingly submit when a plantperson escalates after a kiss, while retaining the option to fight.
-- Genital wetness and penetration descriptions now stay synchronized with bodily fluids.
-- The new-game character mannequin now shows the selected genitals correctly.
-- Expanded the render side view, taking reference from Papperdoll+ by YazawaHY.
-- Added an option to hide the version number at the top, for ModLoader users.
-- Added modelling "poses" for the water dragon in the street modelling event.
-- Added the Melusine chimera
-  - Chimera TF Melusine GooseFem Art by: Axos (set) & Cici (wings)
-  - No vanilla art for this moment
-  - Melusine automatically unlocks when the water dragon tail, angel halo, and harpy wings are all active. Each body part has its own Show/Hide toggle in the mirror's Chimera section, matching Ryuujin and Bakunawa.
-  - Also fixes Divine Wings and regular Wings rendering over each other when both are active, such as with Fallen Angel and Bird transformations.
+- Added Poppy's Christmas gift event
+  - You can now buy and wrap a Christmas gift for Poppy at the mall.
+  - You can give it to them when they are at their flat or by the lake.
+- Added static for the pound respect.
+- Added Nectar Addiction to the Statistics page, beneath Lurker Eaten.
+- Updated Jordan's chastity dialogue
+  - If you are an initiate, monk, nun, or priest, Jordan will now mention your temple rank when:
+    - You first ask for a chastity belt, warning you that it is a serious commitment.
+    - You are still a virgin and ask to have the belt removed, reminding you of your vow.
+    - You ask about becoming a monk or nun, explaining what the temple expects from you.
+- Bakunawa and the Blood Moon
+  - While Bakunawa is active during a blood moon, you gain the **Blood Moon Resonance** trait.
+  - This trait increases the damage you deal while fighting back by **15%**.
+  - The trait only appears during a blood moon and disappears when it ends.
+  - Fixed escaping the wraith nightmare before drowning leaving the world trapped under a permanent blood moon.
+- Added a Neutral clothing preference
+  - The Identity settings now include a third Clothing Preference alongside Masculine and Feminine: **Neutral: “Don’t care”**.
+  - Clothes will not cause dysphoria or stress, but they will not provide comfort either.
+  - The Clothing section will be hidden from the Identity screen, similar to disabling a Body Identity category.
+  - You can switch back to Masculine or Feminine at any time.
+  - New characters using Neutral will start in overalls, since the game treats them as neither masculine nor feminine.
+  - Underwear, school uniforms, and swimwear have no neutral versions, so they will still follow your character's body.
+  - Existing saves will not change unless you select the new option.
 
-## Rebalancing
+## Tweaks and Rebalancing
 
-- Rebalanced the brothel
-  - Working for Briar is now more demanding and less overwhelmingly profitable.
-  - Reduced ordinary client conversation, private appointment, and auction rates by 25%.
-  - Added fatigue to floor work, conversations, negotiations, appointments, and assaults.
-  - Added an 8% hostile-client risk when flirting or accepting private sexual appointments.
-  - Some hostile encounters can now involve groups of two to four patrons.
-  - Added public assaults where the surrounding brothel audience watches.
-  - Private clients can sometimes lock the door, bring in others, and refuse payment.
-  - Hostile encounters no longer award client payment; the player can report unpaid assaults to Briar from their office.
-  - Consensual appointments, skill rewards, fame gains, and normal tips remain available.
-  - These changes affect ordinary client work at Briar's brothel. Dancing, shows, gloryhole work, and underground brothel contracts keep their existing balance.
+- Rebalanced Orgasm Addict stress relief
+  - Previously, every orgasm removed 1,400–1,800 stress, even during rape. Several orgasms in one turn could cancel almost all stress gained during an assault, making stress pass-outs extremely unlikely in the mid or late game.
+  - Stress relief now depends on consent:
+    - **Forced orgasms** remove 400–600 stress, allowing repeated assault to still cause the player to pass out.
+    - **Consensual orgasms** remain strongly relieving and remove about 1,000–1,286 stress.
+- Tweaked X-Change antidotes
+  - Antidote and Antidote Forte can now be taken whenever an X-Change pill is active, even if its timer is frozen.
+  - If an antidote cannot shorten the pill's duration, the dose is still used but has no effect. It will not cause pain, stress, or any other changes.
+  - The game will tell you that the antidote did not work without revealing why. This prevents hidden conditions, such as an unnoticed pregnancy, from being spoiled.
+  - Antidotes are now only greyed out when you are not under the effects of an X-Change pill, and the menu will clearly explain this.
+  - Antidotes, anti-pills, and test strips now work correctly while Harper's cleansing treatment or the Purity trait is active.
 
 ## Fixes and Improvements
 
-- Fixed Bailey scenes losing their NPC mid-scene
-  - Bailey's town-project comment ended the active event, so from that point on Bailey's office, and everything reached from it (the hacker device, the USB sheet, the deposit, the pound, the pond, Robin's debt, Alex's children), narrated with "[ERROR: undefined pronoun]" instead of he/she.
-  - The Orphanage hall cleared the active event on every single visit while checking whether Bailey was waiting for a date.
-  - Bailey's date, gala, and transformation-reaction scenes no longer hand NPC state to each other through the main hall, so clicking through to a date no longer lands in a scene with no Bailey in it.
-- Fixed Poppy being referred to with an error instead of a pronoun when you walk into the flat's living room straight from a scene that ended, such as refusing to pay Bailey rent there.
-- Named NPC records are now self-repairing
-  - If a save's NPC name list drifts out of step with the NPC records, the game realigns them instead of silently narrating a different character's pronouns, title, and body.
-  - A named NPC left without a usable pronoun, or stuck on a non-human one (Bailey being called "it"), gets their pronoun repaired from the body they already have. Their genitals, breasts, and relationship values are left untouched, and the Ivory Wraith keeps its "it".
-- Fixed the feat boost UI for mobile users.
-- Fixed the impurity sensitivity bonus
-  - The "Sensitivity boost due to impurity" setting was increasing breast, bottom, and genital sensitivity even when the player was not under an X-Change pill effect. This was especially noticeable for virgin Demon-race characters, who could start the game with maximum genital sensitivity. The bonus now only applies while the player is actually X-Changed, as stated in the setting description.
-- Fixed the always-passout loop and body becoming cold.
-- Fixed temple confession
-  - Confession options for Promiscuity, Exhibitionism, and Deviancy now check the actual stored stat.
-- Fixed the Unstoppable Force feat, where there was a mismatch in the unlock requirement.
-- Fixed transformation income bonuses
-  - Demon income bonuses now apply correctly to paid street seduction, divine transformations boost complete tip payouts, and stolen goods from Bailey's Halloween event use the proper income bonus.
-- Bailey's sleep-rape event can now only interrupt your sleep once per day. Trying to sleep again on the same night will no longer trigger it repeatedly.
-- Fixed Character Viewer crashes and missing sprites.
-- Fixed Robin
-  - Robin now keeps the correct pronouns while opening Christmas gifts. Tuxedo outfit handling, yearly Christmas resets, and related dialogue have also been fixed.
-- Fixed Bailey handholding scenes
-  - Wearing gloves now prevents handholding virginity loss in Bailey's dinner date, Halloween, office, fishing, and farm scenes, matching the rest of the game.
-- Fixed Critter Magnet so it no longer penalises non-critter sex.
-- Fixed hand sewing
-  - Repairing all clothes now takes no more than two hours, targets the wardrobe currently being viewed, and includes fully broken worn clothes. Metal, plastic, parasite, and unrepairable items are no longer incorrectly repaired or charged spools.
-- Fixed Iron Will
-  - Iron Will now turns off when the Fallen Angel transformation is reset and can be toggled from the mirror after being unlocked. Its willpower gain and decay bonuses now consistently follow the selected trait state, including on older saves.
-  - Add toggle for this skill in mirror.
-- Fixed people magically being aware of your gender identity/genitals
-  - Strangers, anonymous crowds, masked figures, and characters meeting you for the first time now react to your appearance rather than somehow knowing about you. Established partners and recurring characters are unaffected.
-- Flight and glide abilities now require actual wings.
-- Fixed a crash in Avery's mansion bedroom that could affect players who had never visited the HBSC bank or had not yet completed their first month.
-- Fixed the Kaiju costume and Whitney's collar unlocks
-  - Existing saves will now correctly track the Kaiju costume and Whitney's collar at Gwylan's forest shop.
-  - Whitney's collar will unlock automatically the next time you visit the shop. To unlock the Kaiju costume, complete Niki's flyer job once more.
-  - Also fixed the wardrobe's Attach Leash option making the shop-bought collar permanently stuck. It will now only become unremovable if someone else attaches a leash while you are wearing it.
-- Fixed Avery's forced pilling
-  - Avery now checks the player's current physical sex instead of their identity when deciding whether to force a pill. Gender Identity body changes, delayed Choice pills, reversal rewards, and mansion warnings now remain consistent.
-- Fixed Continue's orgasm
-  - Continue now properly extends its duration when you orgasm, even while transformation progress is paused by pregnancy or advanced ear slime growth. This fix also applies to X-Changed NPCs. Their Continue duration will now follow the Cap Continue Duration setting as well.
-- Improved divine income bonuses
-  - Players with the full Angel transformation now receive double the normal temple allowance. At 100 Grace, this awards £8,000. This applies to both the solo temple exam and Sydney's exam.
-  - Fixed several inconsistencies with Angel, Demon, and Fallen Angel money bonuses: the amount shown in messages now always matches the money you actually receive
-  - Divine bonuses only apply to genuine income, such as wages, sales, theft, charity, sex work, and direct rewards; refunds, repayments, returned gambling stakes, reimbursements, and money transfers no longer receive divine bonuses or count as earned income; refunds now return the exact amount originally paid, including any inflation added to the purchase; temple chastity, Robin's drinks, and cinema ticket refunds now correctly remember the amount paid; gambling stakes remain fixed and are not affected by inflation; Fallen Angel effects still take priority where intended
-  - Angel, Demon, and Fallen Angel trait descriptions now match their actual effects.
-- Fixed Bailey's blood moon event
-  - After surviving Bailey's blood moon event, the game will now correctly move to the next morning instead of staying on the same date.
-  - The wraith's "Eggs in the serpent's nest" line can now appear if you have children.
-  - Successfully regaining control during the final struggle will no longer incorrectly say, "Your body does not obey."
-- Fixed orgasm denial during Gwylan's ritual
-  - Addiction, Breeder, Alpha, and Omega effects no longer prevent orgasms during Gwylan's ritual. These effects return to normal after the ritual and still work in the forest-lure ritual and all other combat.
-- Fixed temple chastity
-  - Fixed a crash that could happen when refusing chastity removal after previously visiting Jordan for prayer.
-  - Jordan will no longer secretly change your purity, crime, or deviancy stats when resolving a refusal. Instead, you must earn enough of their trust through prayer or goodwill.
-  - Split the old "reputation" refusal into two clearer reasons: having a lewd reputation or being wanted for crimes.
-  - Added a "Plead with Jordan" option at low world corruption. This unlocks a soup kitchen charity event, giving you another way to earn their trust without praying.
-  - An X-Changed appearance can now help you bypass Jordan's chastity refusal early, similar to the spa and bank.
-- Fixed Fame Values
-  - Restored several negative fame gains that were accidentally reduced during the fame rebalance, including exhibitionism, rape, sex, bestiality, and prostitution fame. All positive fame buffs from the rebalance remain unchanged.
-  - X-Change fame now benefits from the same doubled fame gains as other fame types.
-  - The pub favour that changes your fame now works properly with fame bonuses, disguises, and recognition.
-  - Fixed sex fame having no maximum limit.
-- Fixed the temple staying dirty forever
-  - Sydney can now gradually improve the temple's cleanliness. There is also a small chance each day, guaranteed at least once a week, that the whole congregation will help clean the temple.
-- Fixed Poppy's treasure
-  - Their stolen necklace now adds antique value instead of stolen goods value.
-- Fixed the insanity trait
-  - It now freezes/goes inactive during historical events and the Hopeless Cycle.
-- Fixed strap-ons in the brothel
-  - Exposing yourself during sex, such as at a glory hole or in combat, could unequip your strap-on. This hid the strap-on option and the penis action menu when they were needed.
+- Fixed blurry sprites and broken two-tone hair dye
+  - Fixed blurry character art in the side-view, character creation, and Characteristics page.
+  - Fixed normal two-tone hair dye breaking after using the special vanilla two-tone hairstyle.
+  - Fixed hair colours and the side-view sometimes changing after refreshing the page.
+  - Affected saves will be repaired automatically when loaded.
+- Fixed Avery bedroom event overlap
+  - Avery's return-from-work scene could appear at the same time as the unread letter event in their bedroom, causing both scenes to overlap.
+  - The letter will now wait until your next visit.
+- Fixed Bailey scenes losing Bailey mid-scene
+  - The game can also automatically repair damaged named NPC data in older saves. This prevents characters from using another NPC's pronouns, title, or body description.
+  - Invalid pronouns will also be repaired. For example, Bailey should no longer be called **“it”**.
+  - These repairs do not change the NPC's body, genitals, breasts, or relationship values. The Ivory Wraith will continue using **“it”** as intended.
+  - A one-time message will appear when either repair is made.
+- Fixed hypnosis traits and trance effects
+  - Hypnotic Deviancy, Hypnotic Yearning, Hypnotic Flaunting, and Hypnotic Crossdressing can now be gained correctly after the first hypnosis session.
+  - Previously, the game said the trait had “deepened” before it had actually been gained, so two sessions were required.
+  - Hypnotic Deviancy will no longer use up its activation chance when the beast is not approaching you.
+  - The town stray dog and island snake will no longer repeat **“You break free from your trance.”** every round.
+  - Trance effects now last for the intended two rounds and end with a single message.
+- Fixed bathroom “Scoop Out” scenes
+  - The scene now correctly names the clothes you are wearing instead of saying **“your naked.”**
+  - The **Scoop out vagina** option no longer appears if you do not have a vagina.
+  - Fluids left behind after changing body parts will no longer create a broken option that wastes five minutes and cannot be cleared.
+  - Park and school toilets now temporarily remove worn dildos and butt plugs, then put them back afterwards, matching the home bathroom.
 
 ## Art and Image Updates
 
-- Fixed the Goose soft penis image mod, the Goose chastity image mod, and the Whitney collar all-over graphic mod.
-- Added Eden vanilla sprites by u/Wonderful_Can_7086.
-- Added Great Hawk vanilla sprites by u/Wonderful_Can_7086.
+- Updated Melusine sprites
+  - Melusine no longer copies the player character's hair colour and now uses their own individual colours.
+  - Added a purple variant by Axos.
+- Updated Water Dragon skin colours
+  - Soft Pink is now more pastel.
+  - Added a Sky Blue colour.
