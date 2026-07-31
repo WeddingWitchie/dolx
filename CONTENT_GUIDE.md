@@ -1854,7 +1854,7 @@ Dragon Eyes:
 
 Water Dragon chimeras:
 
-- **Water Dragon + Demon** can unlock **Bakunawa**.
+- **Water Dragon + Demon** can unlock **Bakunawa**. While a bakunawa is active during a **blood moon**, the moon-devouring serpent resonates: you gain the **Blood Moon Resonance** trait, and fighting back deals **15% more damage**. The trait is only listed while the blood moon lasts.
 - **Water Dragon + Angel** can unlock **Ryuujin**.
 - **Water Dragon + Angel + Harpy** can unlock **Melusine**.
 - Chimera visuals are mirror-controlled hybrid appearances. They do not erase the base transformation points.

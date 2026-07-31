@@ -140,6 +140,24 @@ class Transformations {
 		return this.effectiveLevel("angel") >= 4 && V.angelBanish >= 1;
 	}
 
+	/* --- Bakunawa blood moon resonance ------------------------------------------------
+	   The bakunawa is the moon-devouring serpent, so the chimera only stirs while the moon runs red.
+	   $forcedBloodmoon is included so scripted blood moons (the wraith nightmare) count like the real thing,
+	   matching how the sidebar and road icons decide to show the blood moon. */
+
+	static get bakunawaBloodMoonDamageBonus() {
+		return 0.15;
+	}
+
+	static bakunawaResonant() {
+		if (!this.chimeraActive("bakunawa")) return false;
+		return !!(V.forcedBloodmoon || Time.isBloodMoon());
+	}
+
+	static bakunawaDamageMultiplier() {
+		return this.bakunawaResonant() ? 1 + this.bakunawaBloodMoonDamageBonus : 1;
+	}
+
 	/* --- Description (mirror "Described as") helpers ---------------------------------
 	   Combination descriptions come in two shapes, matching the automatic <<characteristics>> title:
 	   - Special named chimeras whose name already implies the celestial half, so they take NO adjective:
