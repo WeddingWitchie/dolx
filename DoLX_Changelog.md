@@ -65,6 +65,14 @@
 
 ## Fixes and Improvements
 
+- Fixed Bailey scenes losing their NPC mid-scene
+  - Bailey's town-project comment ended the active event, so from that point on Bailey's office, and everything reached from it (the hacker device, the USB sheet, the deposit, the pound, the pond, Robin's debt, Alex's children), narrated with "[ERROR: undefined pronoun]" instead of he/she.
+  - The Orphanage hall cleared the active event on every single visit while checking whether Bailey was waiting for a date.
+  - Bailey's date, gala, and transformation-reaction scenes no longer hand NPC state to each other through the main hall, so clicking through to a date no longer lands in a scene with no Bailey in it.
+- Fixed Poppy being referred to with an error instead of a pronoun when you walk into the flat's living room straight from a scene that ended, such as refusing to pay Bailey rent there.
+- Named NPC records are now self-repairing
+  - If a save's NPC name list drifts out of step with the NPC records, the game realigns them instead of silently narrating a different character's pronouns, title, and body.
+  - A named NPC left without a usable pronoun, or stuck on a non-human one (Bailey being called "it"), gets their pronoun repaired from the body they already have. Their genitals, breasts, and relationship values are left untouched, and the Ivory Wraith keeps its "it".
 - Fixed the feat boost UI for mobile users.
 - Fixed the impurity sensitivity bonus
   - The "Sensitivity boost due to impurity" setting was increasing breast, bottom, and genital sensitivity even when the player was not under an X-Change pill effect. This was especially noticeable for virgin Demon-race characters, who could start the game with maximum genital sensitivity. The bonus now only applies while the player is actually X-Changed, as stated in the setting description.
