@@ -1865,7 +1865,7 @@ function settingsObjects(type) {
 								reject: { bool: true, displayName: "Feminine clothing rejected:" },
 								acceptance: { bool: true, displayName: "Feminine clothing accepted:" },
 							},
-							preferred: { strings: ["m", "f"], displayName: "Preferred clothing:" },
+							preferred: { strings: ["m", "f", "n"], displayName: "Preferred clothing:" },
 						},
 					},
 				},

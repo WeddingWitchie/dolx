@@ -526,7 +526,9 @@
 		<<set _showClothes to true>>
 	<</if>>
 
-	<<if $identity.presentation.clothing.preferred is "f">>
+	<<if $identity.presentation.clothing.preferred is "n">>
+		<<set _clothesType to "neutral">>
+	<<elseif $identity.presentation.clothing.preferred is "f">>
 		<<set _clothesType to "female">>
 	<<else>>
 		<<set _clothesType to "male">>
@@ -599,7 +601,47 @@
 			_modeloptions.fallen_wings_type = $transformationParts.fallenAngel.wings;
 
 			_modeloptions.worn = {};
-			if (_clothesType is "male") {
+			if (_clothesType is "neutral") {
+				/* Mirrors the "neutral" branch of givestartclothing(): overalls, with underwear following the body since there's no ungendered pair.
+				Keyed off $player.sex rather than gender_body, which is still parked at the chargen default "a" until the game actually starts. */
+				_masculineBody = $player.sex === "m" || ($player.sex === "h" && $player.breastsize <= 3);
+				if (_showClothes) {
+					_modeloptions.worn = {
+						upper: {
+							index: 39, /* overalls */
+							colour: "denim",
+							accColour: "silver",
+						},
+						lower: {
+							index: 41, /* overall bottoms */
+							colour: "denim",
+						},
+						legs: {
+							index: 13 /* ankle socks */
+						},
+						feet: {
+							index: 1, /* schoolshoes */
+						},
+					};
+				}
+				if (_showUnderwear) {
+					if ($player.breastsize > 3) {
+						_modeloptions.worn.under_upper = {
+							index: 12, /* plainbra */
+							colour: "pale white",
+						};
+					}
+					_modeloptions.worn.under_lower = _masculineBody
+						? { index: 4, /* briefs */ colour: "black" }
+						: { index: 1, /* plainpanties */ colour: "pale white" };
+				}
+				if (V.background.nerd) {
+					_modeloptions.worn.face = {
+						index: 1, /* glasses */
+						colour: "black",
+					}
+				}
+			} else if (_clothesType is "male") {
 				if (_showClothes) {
 					_modeloptions.worn = {
 						upper: {

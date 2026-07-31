@@ -173,6 +173,8 @@ function givestartclothing() {
 	let clothesType;
 	if (V.identity.presentation.clothing.preferred === "m") {
 		clothesType = "male";
+	} else if (V.identity.presentation.clothing.preferred === "n") {
+		clothesType = "neutral";
 	} else {
 		clothesType = "female";
 	}
@@ -187,7 +189,140 @@ function givestartclothing() {
 
 	// if (V.background.crossdresser === true) clothesType = V.player.sex === "m" ? "female" : "male";
 
-	if (clothesType === "female") {
+	if (clothesType === "neutral") {
+		/* "Neutral" clothing preference: the player doesn't care how gendered their clothes are, so they start in overalls, which are one of the few genuinely ungendered outfits.
+		Underwear, school uniform and swimwear have no ungendered equivalent in the wardrobe, so those follow the body instead.
+		Keyed off sex rather than gender_body so this matches the character-creation preview in caption.twee exactly; gender_body is only derived from sex just before this runs, and is still the chargen default "a" while the preview draws. */
+		const masculineBody = V.player.sex === "m" || (V.player.sex === "h" && V.player.breastsize <= 3);
+
+		V.outfit.push(
+			{
+				index: V.outfit.length,
+				name: "Everyday",
+				over_upper: "naked",
+				over_lower: "naked",
+				upper: "overalls",
+				lower: "overall bottoms",
+				under_upper: "naked",
+				under_lower: masculineBody ? "briefs" : "plain panties",
+				over_head: "naked",
+				head: "naked",
+				face: "naked",
+				neck: "naked",
+				handheld: "naked",
+				earrings: "naked",
+				rings: "naked",
+				hands: "naked",
+				legs: "ankle socks",
+				feet: "school shoes",
+				type: ["normal"],
+				colors: false,
+			},
+			{
+				index: V.outfit.length,
+				name: "School",
+				over_upper: "naked",
+				over_lower: "naked",
+				upper: "school shirt",
+				lower: masculineBody ? "school shorts" : "school skirt",
+				under_upper: "naked",
+				under_lower: masculineBody ? "briefs" : "plain panties",
+				over_head: "naked",
+				head: "naked",
+				face: "naked",
+				neck: "naked",
+				handheld: "backpack",
+				earrings: "naked",
+				rings: "naked",
+				hands: "naked",
+				legs: "ankle socks",
+				feet: "school shoes",
+				type: ["school"],
+				colors: false,
+			},
+			{
+				index: V.outfit.length,
+				name: "Swimwear",
+				over_upper: "naked",
+				over_lower: "naked",
+				upper: "naked",
+				lower: "naked",
+				under_upper: masculineBody ? "naked" : "school swimsuit",
+				under_lower: masculineBody ? "school swim shorts" : "school swimsuit bottom",
+				over_head: "naked",
+				head: "naked",
+				face: "naked",
+				neck: "naked",
+				handheld: "naked",
+				earrings: "naked",
+				rings: "naked",
+				hands: "naked",
+				legs: "naked",
+				feet: "naked",
+				type: ["swim"],
+				colors: false,
+			}
+		);
+
+		V.worn.upper = clone(setup.clothes.upper[39]); /* overalls */
+		V.worn.upper.colour = "denim";
+		V.worn.upper.accessory_colour = "silver";
+		V.worn.lower = clone(setup.clothes.lower[41]); /* overall bottoms */
+		V.worn.lower.colour = "denim";
+		V.worn.legs = clone(setup.clothes.legs[13]); /* ankle socks */
+		V.worn.feet = clone(setup.clothes.feet[1]); /* school shoes */
+
+		if (masculineBody) {
+			V.worn.under_lower = clone(setup.clothes.under_lower[4]); /* briefs */
+			V.worn.under_lower.colour = "black";
+		} else {
+			V.worn.under_lower = clone(setup.clothes.under_lower[1]); /* plain panties */
+			V.worn.under_lower.colour = "pale white";
+		}
+
+		if (V.player.breastsize <= 3) {
+			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper[12])); /* plain bra */
+			V.wardrobe.under_upper.last().colour = "pale white";
+		} else {
+			V.worn.under_upper = clone(setup.clothes.under_upper[12]);
+			V.worn.under_upper.colour = "pale white";
+			V.outfit[1].under_upper = "plain bra";
+			V.outfit[2].under_upper = "plain bra";
+		}
+
+		if (V.background.nerd) {
+			V.worn.face = clone(setup.clothes.face[1]);
+			V.worn.face.colour = "black";
+			V.outfit[1].face = "glasses";
+			V.outfit[2].face = "glasses";
+		}
+
+		V.wardrobe.upper.push(clone(setup.clothes.upper[5])); /* school shirt */
+		V.wardrobe.upper.last().colour = "white";
+		V.wardrobe.upper.last().accessory_colour = "light blue";
+		V.wardrobe.lower.push(clone(setup.clothes.lower[masculineBody ? 6 : 7])); /* school shorts / skirt */
+		V.wardrobe.lower.last().colour = "black";
+		V.wardrobe.upper.push(clone(setup.clothes.upper[4])); /* t-shirt, so Everyday isn't the only casual top */
+		V.wardrobe.upper.last().colour = "white";
+		V.wardrobe.lower.push(clone(setup.clothes.lower[22])); /* jeans */
+		V.wardrobe.lower.last().colour = "denim";
+		V.wardrobe.upper.push(clone(setup.clothes.upper[2])); /* pyjama shirt */
+		V.wardrobe.upper.last().colour = "blue";
+		V.wardrobe.lower.push(clone(setup.clothes.lower[2])); /* pyjama bottoms */
+		V.wardrobe.lower.last().colour = "blue";
+		if (masculineBody) {
+			V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[7])); /* school swim shorts */
+			V.wardrobe.under_lower.last().colour = "blue";
+			V.wardrobe.under_lower.last().accessory_colour = "white";
+		} else {
+			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper[2])); /* school swimsuit */
+			V.wardrobe.under_upper.last().colour = "blue";
+			V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[6])); /* school swimsuit bottom */
+			V.wardrobe.under_lower.last().colour = "blue";
+		}
+		V.wardrobe.handheld.push(clone(setup.clothes.handheld[8])); /* backpack */
+		V.wardrobe.handheld.last().colour = "blue";
+	} else if (clothesType === "female") {
 		V.outfit.push(
 			{
 				index: V.outfit.length,

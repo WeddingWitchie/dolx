@@ -160,26 +160,42 @@
 				<br>
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
+				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria. Choosing Neutral means you simply don't care what you wear: clothing stops causing dysphoria entirely, but also stops giving any comfort.</span></mouse>
 				<br>
-				Masculine: 
-				<br> 
-				<label data-target='["identity.presentation.clothing.masculine.acceptance", "identity.presentation.clothing.masculine.reject"]' data-disabledif="V.identity.presentation.clothing.masculine.acceptance && !V.identity.presentation.clothing.masculine.reject" class="red">Reject <<checkbox "$identity.presentation.clothing.masculine.reject" false true autocheck>></label> |
+				Masculine:
+				<br>
+				<label data-target='["identity.presentation.clothing.masculine.acceptance", "identity.presentation.clothing.masculine.reject", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred === 'n' || (V.identity.presentation.clothing.masculine.acceptance && !V.identity.presentation.clothing.masculine.reject)" class="red">Reject <<checkbox "$identity.presentation.clothing.masculine.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2 or $background.transgender>>
-					<label data-target='["identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'm' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.clothing.masculine.acceptance" false autocheck>></label> |
-					<label data-target='["identity.presentation.clothing.masculine.reject", "identity.init"]' data-disabledif="V.identity.presentation.clothing.masculine.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.clothing.masculine.acceptance" true autocheck>></label> |
+					<label data-target='["identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'm' || V.identity.presentation.clothing.preferred === 'n' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.clothing.masculine.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.clothing.masculine.reject", "identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'n' || V.identity.presentation.clothing.masculine.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.clothing.masculine.acceptance" true autocheck>></label> |
 				<</if>>
-				<label data-target='["identity.presentation.clothing.masculine.acceptance"]' data-disabledif="!V.identity.presentation.clothing.masculine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.clothing.preferred" "m" autocheck>></label>
+				/* Deliberately still clickable while Neutral: these two are the only way back out of it. */
+				<label data-target='["identity.presentation.clothing.masculine.acceptance", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred !== 'n' && !V.identity.presentation.clothing.masculine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.clothing.preferred" "m" autocheck>></label>
 				<br>
 				Feminine:
-				<br> 
-				<label data-target='["identity.presentation.clothing.feminine.acceptance", "identity.presentation.clothing.feminine.reject"]' data-disabledif="V.identity.presentation.clothing.feminine.acceptance && !V.identity.presentation.clothing.feminine.reject" class="red">Reject <<checkbox "$identity.presentation.clothing.feminine.reject" false true autocheck>></label> |
-				<<if $identity.init isnot 2 or $background.transgender>>
-					<label data-target='["identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'f' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.clothing.feminine.acceptance" false autocheck>></label> |
-					<label data-target='["identity.presentation.clothing.feminine.reject", "identity.init"]' data-disabledif="V.identity.presentation.clothing.feminine.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.clothing.feminine.acceptance" true autocheck>></label> |
-				<</if>>
-				<label data-target='["identity.presentation.clothing.feminine.acceptance"]' data-disabledif="!V.identity.presentation.clothing.feminine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.clothing.preferred" "f" autocheck>></label>
 				<br>
+				<label data-target='["identity.presentation.clothing.feminine.acceptance", "identity.presentation.clothing.feminine.reject", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred === 'n' || (V.identity.presentation.clothing.feminine.acceptance && !V.identity.presentation.clothing.feminine.reject)" class="red">Reject <<checkbox "$identity.presentation.clothing.feminine.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2 or $background.transgender>>
+					<label data-target='["identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'f' || V.identity.presentation.clothing.preferred === 'n' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.clothing.feminine.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.clothing.feminine.reject", "identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'n' || V.identity.presentation.clothing.feminine.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.clothing.feminine.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.presentation.clothing.feminine.acceptance", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred !== 'n' && !V.identity.presentation.clothing.feminine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.clothing.preferred" "f" autocheck>></label>
+				<br>
+				Neutral:
+				<br>
+				<label class="teal">Don't care <<radiobutton "$identity.presentation.clothing.preferred" "n" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Clothes are just clothes to you. Nothing you wear helps or hurts, and the Clothing topic disappears from the Identity screen.</span></mouse>
+				<br>
+
+				/* Picking a clothing preference has two side effects that a radio click alone wouldn't produce, since clicking only repaints the setting rather than re-rendering the passage:
+				  - switching to Neutral has to park both options as accepted right away, so the masculine/feminine "Preferred" radios stay a valid way back out instead of leaving the player stuck on Neutral;
+				  - character creation previews the starting outfit, which is chosen from this preference. */
+				<<run (function () {
+					if (setup.clothingPreferenceChangeInstalled) return;
+					setup.clothingPreferenceChangeInstalled = true;
+					$(document).on("change", "[name$='" + Util.slugify("identity.presentation.clothing.preferred") + "']", function () {
+						Wikifier.wikifyEval("<<normaliseNeutralClothing>><<startingPlayerImageUpdate>>");
+					});
+				})();>>
 			</div>
 		</div>
 		<hr>
@@ -670,11 +686,16 @@
 		<<if _args[0] isnot undefined>>
 			<<switch _args[0]>>
 			<<case "Masculine Clothing">>
-				<<set $identityOption to $identity.presentation.clothing.masculine>>
-				<<set $identityPreference to $identity.presentation.clothing.preferred is "m" ? true : false>>
+				/* "Neutral" clothing preference leaves $identityOption undefined, which drops the topic out of the Identity screen and every dysphoria/tolerance tick. */
+				<<if $identity.presentation.clothing.preferred isnot "n">>
+					<<set $identityOption to $identity.presentation.clothing.masculine>>
+					<<set $identityPreference to $identity.presentation.clothing.preferred is "m" ? true : false>>
+				<</if>>
 			<<case "Feminine Clothing">>
-				<<set $identityOption to $identity.presentation.clothing.feminine>>
-				<<set $identityPreference to $identity.presentation.clothing.preferred is "f" ? true : false>>
+				<<if $identity.presentation.clothing.preferred isnot "n">>
+					<<set $identityOption to $identity.presentation.clothing.feminine>>
+					<<set $identityPreference to $identity.presentation.clothing.preferred is "f" ? true : false>>
+				<</if>>
 			<<case "Masculine Appearance">>
 				<<set $identityOption to $identity.presentation.appearance.masculine>>
 				<<set $identityPreference to $identity.presentation.appearance.preferred is "m" ? true : false>>
@@ -954,6 +975,19 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "normaliseNeutralClothing">>
+		<<if $identity?.presentation?.clothing?.preferred is "n">>
+			<<for _clothingSide range ["masculine", "feminine"]>>
+				<<if $identity.presentation.clothing[_clothingSide]>>
+					<<set $identity.presentation.clothing[_clothingSide].acceptance to true>>
+					<<set $identity.presentation.clothing[_clothingSide].reject to false>>
+					<<set $identity.presentation.clothing[_clothingSide].dysphoria to 0>>
+					<<set $identity.presentation.clothing[_clothingSide].tolerance to Math.max(Number($identity.presentation.clothing[_clothingSide].tolerance) || 0, 100)>>
+				<</if>>
+			<</for>>
+		<</if>>
+	<</widget>>
+
 	<<widget "repairPronounPreferenceFallback">>
 		<<if !$identity.presentation.pronouns.preferredMasculine and !$identity.presentation.pronouns.preferredFeminine and !$identity.presentation.pronouns.preferredNeutral>>
 			<<set _fallbackPronoun to (!!$player.penisExist is !!$player.vaginaExist) ? "n" : ($player.penisExist ? "m" : "f")>>
@@ -969,6 +1003,7 @@
 
 	<<widget "lockInIdentity">>
 		<<repairPronounPreferenceFallback>>
+		<<normaliseNeutralClothing>>
 
 		<<for _categoryName, _category range setup.identityIndex>>
 			<<for _char, _icon range _category>>
@@ -1069,6 +1104,7 @@
 	<</widget>>
 
 	<<widget "hourlyIdentityEffects">>
+		<<normaliseNeutralClothing>>
 		<<for _categoryName, _category range setup.identityIndex>>
 			<<for _char,_icon range _category>>
 				<<identitySelector _char>>

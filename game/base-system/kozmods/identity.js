@@ -29,6 +29,16 @@ function playerBodyIsFemale() {
 }
 window.playerBodyIsFemale = playerBodyIsFemale;
 
+/**
+ * Whether the player picked "Neutral" for Clothing Preference, meaning they simply don't care what they wear.
+ * The entire clothing topic goes dormant: no dysphoria, no tolerance drift, no preferred-outfit comfort, and it stops pulling on the identity meter.
+ * Mirrors how the Body topic toggles ($xchange.gi*Enabled) mute their categories.
+ */
+function clothingIdentityIsNeutral() {
+	return V.identity?.presentation?.clothing?.preferred === "n";
+}
+window.clothingIdentityIsNeutral = clothingIdentityIsNeutral;
+
 function hourlyClothingFemininityCheck(hours = 1) {
 	// Compute the sum of all clothing femininity
 	let currentWornFemininity = 0;
@@ -122,7 +132,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 				V.effectsmessage = 1;
 			}
 		}
-	} else if (playerCaresForGender()) {
+	} else if (playerCaresForGender() && !clothingIdentityIsNeutral()) {
 		if (hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
 			wikifier("stress", 30 * hours, 1);
 			V.genderStressMessage = 2;
@@ -266,11 +276,13 @@ function getFemininityContribution(characteristic) {
 			femininity += (V.identity.presentation.appearance.preferred === "f") * 100;
 			break;
 		case "Masculine Clothing":
+			if (clothingIdentityIsNeutral()) break;
 			femininity += Number(V.identity.presentation.clothing.masculine.acceptance) * -100;
 			femininity += Number(V.identity.presentation.clothing.masculine.reject) * 100;
 			femininity += (V.identity.presentation.clothing.preferred === "m") * -100;
 			break;
 		case "Feminine Clothing":
+			if (clothingIdentityIsNeutral()) break;
 			femininity += Number(V.identity.presentation.clothing.feminine.acceptance) * 100;
 			femininity += Number(V.identity.presentation.clothing.feminine.reject) * -100;
 			femininity += (V.identity.presentation.clothing.preferred === "f") * 100;
@@ -660,12 +672,16 @@ function selectIdentityCharacteristic(characteristic) {
 	const body = id.body || {};
 	switch (characteristic) {
 		case "Masculine Clothing":
-			option = presentation.clothing?.masculine;
-			preferred = presentation.clothing?.preferred === "m";
+			if (!clothingIdentityIsNeutral()) {
+				option = presentation.clothing?.masculine;
+				preferred = presentation.clothing?.preferred === "m";
+			}
 			break;
 		case "Feminine Clothing":
-			option = presentation.clothing?.feminine;
-			preferred = presentation.clothing?.preferred === "f";
+			if (!clothingIdentityIsNeutral()) {
+				option = presentation.clothing?.feminine;
+				preferred = presentation.clothing?.preferred === "f";
+			}
 			break;
 		case "Masculine Appearance":
 			option = presentation.appearance?.masculine;
@@ -888,6 +904,8 @@ window.getIdentityMeterGroup = getIdentityMeterGroup;
 function isIdentityMeterCharacteristicEnabled(characteristic) {
 	const x = V.xchange || {};
 	switch (getIdentityMeterGroup(characteristic)) {
+		case "clothing":
+			return !clothingIdentityIsNeutral();
 		case "chest":
 			return x.giBreastSizeEnabled === true;
 		case "ass":
