@@ -475,6 +475,35 @@ setup.pills = [
 		effects: [],
 	},
 	{
+		name: "painkillers",
+		description: "A bottle of strong painkillers. They relieve serious aches quickly, but cause considerable drowsiness.",
+		onTakeMessage: "You swallow a painkiller. Before long, the pain eases, though your eyelids feel heavier.",
+		warning_label: "Warning: May cause considerable drowsiness. Taking more than three doses in one day causes increasingly dangerous side effects.",
+		indicators: ["<span class='hpi_indic_green'>-- Pain</span>", "<span class='hpi_indic_blue'>+++ Tiredness</span>"],
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		type: "painkiller",
+		subtype: "pain relief",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/infirmary.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return 1;
+		},
+		effects: [`<<pain -10>><<tiredness 18>><<llpain>><<gggtiredness>>`],
+	},
+	{
 		name: "asylum's prescription",
 		description: "A powerful antipsychotic.",
 		onTakeMessage: "You take the pills prescribed in the asylum. You feel hazy.",
@@ -745,7 +774,7 @@ function initPillContextButtons(item) {
 	}
 
 	// Hide auto-use for medication that must be taken manually.
-	if (["asylum", "harper", "sensitivity"].includes(item.type)) {
+	if (["asylum", "harper", "painkiller", "sensitivity"].includes(item.type)) {
 		document.getElementById("hpi_take_every_morning").className = "hidden"; // prevent 'Take every Morning' option to be displayed for those type of pills
 		document.getElementById("hpi_take_pills").classList.add("hpi_take_me_single"); // readapt css since there's only one button now
 	}
@@ -868,6 +897,12 @@ function onTakeClick(itemName) {
 				switch (item.type) {
 					case "parasite":
 					case "hair":
+						break;
+					case "painkiller":
+						if (item.doseTaken() > 3) {
+							Engine.play("PillCollectionPainkillerOverdose");
+							return;
+						}
 						break;
 					case "pregnancy":
 						V.overdosePillsTaken = item.name;
