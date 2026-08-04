@@ -82,7 +82,7 @@ class Transformations {
 		};
 	}
 
-	static effectiveLevel(name) {
+	static baseLevel(name) {
 		const definitions = this.levelDefinitions;
 		const definition = definitions[name];
 		if (!definition) return 0;
@@ -93,6 +93,15 @@ class Transformations {
 		if (name === "fallen" && ["fallenplus", "classicfallenplus"].includes(V.transformationParts?.fallenAngel?.wings)) level = Math.max(level, 4);
 		if (definition.chimeras.some(chimera => this.chimeraActive(chimera))) level = Math.max(level, definition.full);
 		return level;
+	}
+
+	static effectiveLevel(name) {
+		if (!["demon", "fallen", "angel"].includes(name)) return this.baseLevel(name);
+		for (const transformation of ["demon", "fallen", "angel"]) {
+			const level = this.baseLevel(transformation);
+			if (level >= (transformation === "fallen" ? 2 : 1)) return transformation === name ? level : 0;
+		}
+		return 0;
 	}
 
 	static effectiveBuild(name) {
@@ -122,6 +131,7 @@ class Transformations {
 		};
 		const definition = builds[name];
 		if (!definition) return 0;
+		if (name === "angel" && (this.effectiveLevel("demon") >= 1 || this.effectiveLevel("fallen") >= 2)) return 0;
 		/* Demon build alone gates force impregnation (see actions-vagina/penis/anus.twee),
 		so a visible demon part must keep it at full even after a genome dump clears $demonbuild,
 		matching how effectiveLevel() already treats those parts as a completed demon. */
