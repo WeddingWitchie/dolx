@@ -18,7 +18,7 @@ async function setupBlackmailDelivery(page: Page, intro = 1, courier = "home") {
 				conclusionPending: false,
 				courier: courierValue,
 				courierAfk: false,
-				courierReady: false,
+				courierReady: 7,
 			});
 			V.xchange.blackmailHalt = 0;
 			V.possessed = 0;
@@ -345,30 +345,55 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		});
 	});
 
-	test("an animal courier gives up after a day and drops the letter off at home", async ({ page }) => {
-		await setupBlackmailDelivery(page, 1, "greathawk");
+	test("every untouched courier letter moves to the orphanage after seven days", async ({ page }) => {
+		await setupBlackmailDelivery(page);
+
+		for (const courier of ["home", "greathawk", "wolves", "eden", "jordan", "poppy"]) {
+			await page.evaluate(courierValue => {
+				const blackmail = (window as any).SugarCube.State.variables.xchange.blackmail;
+				Object.assign(blackmail, {
+					activeQuest: undefined,
+					hasMaterial: true,
+					cooldown: 0,
+					courier: courierValue,
+					courierAfk: false,
+					courierReady: 7,
+				});
+			}, courier);
+
+			await wikifyEval(page, "<<blackmail-daypassed 6>>");
+			let blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+			expect(blackmail.courier).toBe(courier);
+			expect(blackmail.courierReady).toBe(1);
+			expect(blackmail.courierAfk).toBe(false);
+
+			await wikifyEval(page, "<<blackmail-daypassed>>");
+			blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+			expect(blackmail.courier).toBe("orphanage");
+			expect(blackmail.courierReady).toBe(0);
+			expect(blackmail.courierAfk).toBe(true);
+		}
+	});
+
+	test("the courier countdown begins only after the letter becomes available", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "jordan");
+		await page.evaluate(() => {
+			(window as any).SugarCube.State.variables.xchange.blackmail.cooldown = 1;
+		});
 
 		await wikifyEval(page, "<<blackmail-daypassed>>");
 		let blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
-		expect(blackmail.courier).toBe("greathawk");
-		expect(blackmail.courierReady).toBe(true);
-		expect(blackmail.courierAfk).toBe(false);
+		expect(blackmail.cooldown).toBe(0);
+		expect(blackmail.courierReady).toBe(7);
+
+		await wikifyEval(page, "<<blackmail-daypassed 6>>");
+		blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("jordan");
+		expect(blackmail.courierReady).toBe(1);
 
 		await wikifyEval(page, "<<blackmail-daypassed>>");
 		blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
-		expect(blackmail.courier).toBe("home");
-		expect(blackmail.courierAfk).toBe(true);
-	});
-
-	test("Jordan never gives up on a letter, even after several days", async ({ page }) => {
-		await setupBlackmailDelivery(page, 1, "jordan");
-
-		await wikifyEval(page, "<<blackmail-daypassed>>");
-		await wikifyEval(page, "<<blackmail-daypassed>>");
-		await wikifyEval(page, "<<blackmail-daypassed>>");
-		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
-		expect(blackmail.courier).toBe("jordan");
-		expect(blackmail.courierAfk).toBe(false);
+		expect(blackmail.courier).toBe("orphanage");
 	});
 
 	test("saves from before the courier system backfill an undefined courier to home", async ({ page }) => {
@@ -384,7 +409,7 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
 		expect(blackmail.courier).toBe("home");
 		expect(blackmail.courierAfk).toBe(false);
-		expect(blackmail.courierReady).toBe(false);
+		expect(blackmail.courierReady).toBe(7);
 	});
 
 	test("picking a courier never selects a location before it's actually unlocked on the map", async ({ page }) => {
@@ -462,6 +487,20 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(0);
 	});
 
+	test("a forwarded letter remains available at the orphanage while living at the mansion", async ({ page }) => {
+		await setupBlackmailDelivery(page, 1, "orphanage");
+		await wikifyEval(page, "<<avery_mansion_init>>");
+		await page.evaluate(() => {
+			const blackmail = (window as any).SugarCube.State.variables.xchange.blackmail;
+			blackmail.courierAfk = true;
+			blackmail.courierReady = 0;
+		});
+
+		await navigateTo(page, "Bedroom");
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(1);
+		await expect(page.locator("#passages")).toContainText("Whoever left it clearly came and went while you were out");
+	});
+
 	test("mansion residents see the blackmail notice in Mansion Bedroom instead", async ({ page }) => {
 		await setupBlackmailDelivery(page, 1, "home");
 		await wikifyEval(page, "<<avery_mansion_init>>");
@@ -487,6 +526,8 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		await navigateTo(page, "Mansion Bedroom");
 		await expect(page.locator("#passages")).toContainText("Avery has saved you from it, for now.");
 		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(0);
+		await expect(page.locator('#passages a[data-passage="Mansion Bed"]')).toHaveCount(0);
+		await expect(page.locator('#passages a[data-passage="Mansion Bedroom"]', { hasText: "Next" })).toHaveCount(1);
 
 		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
 		expect(blackmail.hasMaterial).toBe(false);
@@ -527,21 +568,6 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		await clearRngOverride(page);
 	});
 
-	test("Poppy gives up after a day and drops the letter off at home", async ({ page }) => {
-		await setupBlackmailDelivery(page, 1, "poppy");
-
-		await wikifyEval(page, "<<blackmail-daypassed>>");
-		let blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
-		expect(blackmail.courier).toBe("poppy");
-		expect(blackmail.courierReady).toBe(true);
-		expect(blackmail.courierAfk).toBe(false);
-
-		await wikifyEval(page, "<<blackmail-daypassed>>");
-		blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
-		expect(blackmail.courier).toBe("home");
-		expect(blackmail.courierAfk).toBe(true);
-	});
-
 	test("Poppy secretly reads and keeps the letter, saving the player", async ({ page }) => {
 		await setupBlackmailDelivery(page, 1, "poppy");
 		await page.evaluate(() => {
@@ -573,7 +599,7 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		expect(blackmail.cooldown).toBe(7);
 	});
 
-	test("Poppy ignores the letter and it goes afk immediately when her patience is too low", async ({ page }) => {
+	test("Poppy leaves the letter for the player when her patience is too low", async ({ page }) => {
 		await setupBlackmailDelivery(page, 1, "poppy");
 		await page.evaluate(() => {
 			const V = (window as any).SugarCube.State.variables;
@@ -597,15 +623,21 @@ test.describe("Gentleman's Club letter deliveries", () => {
 		await navigateTo(page, "Flats Poppy Living Room");
 		await expect(page.locator("#passages")).toContainText("can't be bothered with it right now");
 		await expect(page.locator("#passages")).not.toContainText("Poppy has saved you from it, for now.");
+		await expect(page.locator('#passages a[data-passage="Flats Poppy Living Room"]', { hasText: "Next" })).toHaveCount(1);
 
-		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		let blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
 		expect(blackmail.hasMaterial).toBe(true);
-		expect(blackmail.courier).toBe("home");
+		expect(blackmail.courier).toBe("poppy");
 		expect(blackmail.courierAfk).toBe(true);
-		expect(blackmail.courierReady).toBe(false);
+		expect(blackmail.courierReady).toBe(7);
+
+		await page.locator('#passages a[data-passage="Flats Poppy Living Room"]', { hasText: "Next" }).click();
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]', { hasText: "Read it" })).toHaveCount(1);
+		blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.courier).toBe("poppy");
 	});
 
-	test("Avery leaves a high-temper letter alone and it delivers normally", async ({ page }) => {
+	test("Avery's refusal is a separate sequence and leaves an optional bedroom letter", async ({ page }) => {
 		await setupBlackmailDelivery(page, 1, "home");
 		await wikifyEval(page, "<<avery_mansion_init>>");
 		await page.evaluate(() => {
@@ -617,10 +649,25 @@ test.describe("Gentleman's Club letter deliveries", () => {
 
 		await navigateTo(page, "Mansion Bedroom");
 		await expect(page.locator("#passages")).toContainText("I'd rather not know");
-		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(1);
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(0);
+		await expect(page.locator('#passages a[data-passage="Mansion Bed"]')).toHaveCount(0);
+		await page.locator('#passages a[data-passage="Mansion Bedroom"]', { hasText: "Next" }).click();
+		await expect(page.locator("#passages")).not.toContainText("I'd rather not know");
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]', { hasText: "Read it" })).toHaveCount(1);
+		expect(await page.locator('#passages a[data-passage="Mansion Bed"]').count()).toBeGreaterThan(0);
 
-		const blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		let blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
 		expect(blackmail.hasMaterial).toBe(true);
 		expect(blackmail.courier).toBe("home");
+		expect(blackmail.courierAfk).toBe(true);
+
+		await page.evaluate(() => {
+			(window as any).C.npc.Avery.rage = 0;
+		});
+		await navigateTo(page, "Mansion Bedroom");
+		await expect(page.locator("#passages")).not.toContainText("Avery has saved you from it, for now.");
+		await expect(page.locator('#passages a[data-passage="Blackmail Letter"]')).toHaveCount(1);
+		blackmail = await page.evaluate(() => (window as any).SugarCube.State.variables.xchange.blackmail);
+		expect(blackmail.hasMaterial).toBe(true);
 	});
 });

@@ -1228,7 +1228,7 @@ function xchangeDailyCheck(days = 1) {
 		}
 		V.hourlyFemininity = 0;
 
-		wikifier("blackmail-daypassed");
+		wikifier("blackmail-daypassed", days);
 
 		V.recentmolest = Math.max(V.recentmolest - 1 * days, 0);
 		V.recentrape = Math.max(V.recentrape - 1 * days, 0);

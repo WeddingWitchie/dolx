@@ -28,7 +28,7 @@
 		conclusionPending: false,
 		courier: undefined,
 		courierAfk: false,
-		courierReady: false,
+		courierReady: 0,
 	}>>
 <</widget>>
 
@@ -44,18 +44,19 @@
 	<<rng 0 `_blackmailCouriers.length-1`>>
 	<<set $xchange.blackmail.courier to _blackmailCouriers[$rng]>>
 	<<set $xchange.blackmail.courierAfk to false>>
-	<<set $xchange.blackmail.courierReady to false>>
+	<<set $xchange.blackmail.courierReady to 7>>
 <</widget>>
 
 <<widget "blackmail-resetcourier">>
 	<<set $xchange.blackmail.courier to undefined>>
 	<<set $xchange.blackmail.courierAfk to false>>
-	<<set $xchange.blackmail.courierReady to false>>
+	<<set $xchange.blackmail.courierReady to 0>>
+	<<unset $xchange.blackmail.courierDestroyed>>
 <</widget>>
 
 <<widget "blackmail-courier-destroyroll">>
 	<<rng 1 100>>
-	<<set $xchange.blackmail.courierDestroyed to $rng lte 25>>
+	<<set _blackmailCourierDestroyed to $rng lte 25>>
 <</widget>>
 
 <<widget "blackmail-newmaterial">>
@@ -147,6 +148,7 @@
 <<widget "blackmail-daypassed">>
 	<<run restoreActiveBlackmailQuest()>>
 	<<set _activeQuest to $xchange.blackmail.activeQuest>>
+	<<set _blackmailDaysPassed to Math.max(Number(_args[0]) || 1, 1)>>
 
 	<<if !$xchange.blackmail.conclusionPending>>
 		<<if _activeQuest?.cleared and !_activeQuest?.failed>>
@@ -176,21 +178,23 @@
 		<</if>>
 	<</if>>
 
-	<<if $xchange.blackmail.hasMaterial>>
-		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-1, 0)>>
-	<<else>>
-		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-1, 1)>>
+	/* An untouched letter stays with its assigned courier for one week, then gets forwarded to the orphanage. */
+	<<if $xchange.blackmail.hasMaterial and !$xchange.blackmail.activeQuest and $xchange.blackmail.courier and $xchange.blackmail.courier isnot "orphanage">>
+		<<set _blackmailCourierDaysPassed to Math.max(_blackmailDaysPassed-Math.max($xchange.blackmail.cooldown, 0), 0)>>
+		<<if !Number.isFinite($xchange.blackmail.courierReady) or $xchange.blackmail.courierReady lt 1>>
+			<<set $xchange.blackmail.courierReady to 7>>
+		<</if>>
+		<<set $xchange.blackmail.courierReady to Math.max($xchange.blackmail.courierReady-_blackmailCourierDaysPassed, 0)>>
+		<<if $xchange.blackmail.courierReady lte 0>>
+			<<set $xchange.blackmail.courier to "orphanage">>
+			<<set $xchange.blackmail.courierAfk to true>>
+		<</if>>
 	<</if>>
 
-	/* Animal couriers (and Poppy) give up after one full day of not being able to complete the handoff and drop the letter off at home instead. Jordan never gives up. */
-	<<if $xchange.blackmail.hasMaterial and $xchange.blackmail.cooldown lte 0 and !$xchange.blackmail.activeQuest and ["greathawk","wolves","eden","poppy"].includes($xchange.blackmail.courier)>>
-		<<if !$xchange.blackmail.courierReady>>
-			<<set $xchange.blackmail.courierReady to true>>
-		<<else>>
-			<<set $xchange.blackmail.courier to "home">>
-			<<set $xchange.blackmail.courierAfk to true>>
-			<<set $xchange.blackmail.courierReady to false>>
-		<</if>>
+	<<if $xchange.blackmail.hasMaterial>>
+		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-_blackmailDaysPassed, 0)>>
+	<<else>>
+		<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown-_blackmailDaysPassed, 1)>>
 	<</if>>
 
 <</widget>>
