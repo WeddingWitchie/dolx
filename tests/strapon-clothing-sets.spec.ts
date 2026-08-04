@@ -156,3 +156,51 @@ test("undressing in a wardrobe returns the strap-on to the toy inventory", async
 	expect(result.wardrobeUnderLower).not.toContain("strap-on");
 	expect(result.wornFlags).toEqual(["black:off", "pink:off"]);
 });
+
+test("stripping a worn strap-on in combat does not leave a phantom carried garment", async ({ page }) => {
+	await openCompiledGame(page);
+	await setupStrapon(page, "naked");
+
+	const result = await page.evaluate(() => {
+		const SC = (window as any).SugarCube;
+		const V = SC.State.variables;
+		const output = document.createElement("div");
+		new SC.Wikifier(output, "<<underlowerstrip>>");
+		return {
+			error: output.querySelector(".error, .error-view") !== null,
+			wornName: V.worn.under_lower.name,
+			carriedName: V.carried.under_lower.name,
+			wornFlags: V.player.inventory.sextoys["strap-on"].map((s: any) => `${s.colour}:${s.worn ? "worn" : "off"}`),
+		};
+	});
+
+	expect(result.error).toBe(false);
+	expect(result.wornName).toBe("naked");
+	// No phantom garment clone left in $carried for a later returnCarried/carriedSend to file into the wardrobe.
+	expect(result.carriedName).toBe("naked");
+	expect(result.wornFlags).toEqual(["black:off", "pink:off"]);
+});
+
+test("undressing a worn strap-on to non-wardrobe scene storage does not leave a phantom stored garment", async ({ page }) => {
+	await openCompiledGame(page);
+	await setupStrapon(page, "naked");
+
+	const result = await page.evaluate(() => {
+		const SC = (window as any).SugarCube;
+		const V = SC.State.variables;
+		const output = document.createElement("div");
+		new SC.Wikifier(output, '<<generalUndress "lockers" "under_lower">>');
+		return {
+			error: output.querySelector(".error, .error-view") !== null,
+			wornName: V.worn.under_lower.name,
+			storedUnderLower: V.store.under_lower.map((i: any) => i.name),
+			wornFlags: V.player.inventory.sextoys["strap-on"].map((s: any) => `${s.colour}:${s.worn ? "worn" : "off"}`),
+		};
+	});
+
+	expect(result.error).toBe(false);
+	expect(result.wornName).toBe("naked");
+	// No phantom garment filed into scene storage, and the toy inventory's worn flag is synced.
+	expect(result.storedUnderLower).not.toContain("strap-on");
+	expect(result.wornFlags).toEqual(["black:off", "pink:off"]);
+});

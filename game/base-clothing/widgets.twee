@@ -477,13 +477,19 @@
 			<</if>>
 
 			<<if _cursedPrevent isnot true>>
-				<<set V[_stripSlot.replace(/_/g,"")+'last'] to $worn[_stripSlot].name>>
-				<<if $carried[_stripSlot].name isnot "naked">>
-					<<carriedSend "wardrobe" _stripSlot>>
+				<!-- A worn strap-on belongs to the sex toy inventory, not the carried-clothes stash. Cloning it there would create a phantom garment and leave the toy flagged as worn. -->
+				<<if _stripSlot is "under_lower" and $worn.under_lower.type.includes("strap-on")>>
+					<<set $worn[_stripSlot] to clone(setup.clothes[_stripSlot][0])>>
+					<<run patchStraponsWearStatus()>>
+				<<else>>
+					<<set V[_stripSlot.replace(/_/g,"")+'last'] to $worn[_stripSlot].name>>
+					<<if $carried[_stripSlot].name isnot "naked">>
+						<<carriedSend "wardrobe" _stripSlot>>
+					<</if>>
+					<<set $carried[_stripSlot] to clone($worn[_stripSlot])>>
+					<<set $worn[_stripSlot] to clone(setup.clothes[_stripSlot][0])>>
+					<<if $debug is 1>><<run console.log("stripped to carry", $carried[_stripSlot])>><</if>>
 				<</if>>
-				<<set $carried[_stripSlot] to clone($worn[_stripSlot])>>
-				<<set $worn[_stripSlot] to clone(setup.clothes[_stripSlot][0])>>
-				<<if $debug is 1>><<run console.log("stripped to carry", $carried[_stripSlot])>><</if>>
 
 				<<if _outfitPrimaryStrip isnot undefined>>
 					<<for _labelStrip, _valueStrip range _outfitPrimaryStrip>>
@@ -1337,6 +1343,8 @@
 		<</if>>
 		<!-- Bought (uncursed) chastity gear locks like a real one: it only comes off through a wardrobe, never a scene's quick-undress. -->
 		<<set _chastityWardrobeOnly to (_undressSlot is "genitals" and $worn[_undressSlot].type.includes("chastity") and _args[0] isnot "wardrobe" and !Object.keys($wardrobes).includes(_args[0]))>>
+		<!-- A worn strap-on belongs to the sex toy inventory, not the wardrobe or scene storage. Filing a copy there would create a phantom garment and leave the toy flagged as worn. -->
+		<<set _undressedStrapon to (_undressSlot is "under_lower" and $worn.under_lower.type.includes("strap-on"))>>
 		<<if _undressSlot is "genitals" and $_cursedPrevent isnot true and _strip_restrict isnot 1 and $worn.genitals.cursed isnot 1 and $worn.genitals.chastityKey is "player" and (_args[0] is "wardrobe" or Object.keys($wardrobes).includes(_args[0])) and random(1, 100) lte 2>>
 			The key catches in the lock. You twist harder, only for it to <span class="red">snap inside the device.</span>
 			<br>
@@ -1358,8 +1366,6 @@
 						<</if>>
 					<</for>>
 				<</if>>
-				<!-- A worn strap-on belongs to the sex toy inventory, not the wardrobe. Filing a copy in the wardrobe would create a phantom garment and leave the toy flagged as worn. -->
-				<<set _undressedStrapon to (_undressSlot is "under_lower" and $worn.under_lower.type.includes("strap-on"))>>
 				<<if !_undressedStrapon and !setup.wardrobeSkip.includes($worn[_undressSlot].name)>>
 					<<set $_selectedWardrobe[_undressSlot].push(clone($worn[_undressSlot]))>>
 				<</if>>
@@ -1369,7 +1375,11 @@
 				<</if>>
 				<<run _slots.push(_undressSlot)>>
 			<<elseif _args[0] and !_storeItemSkip[_undressSlot]>>
-				<<if $worn[_undressSlot].name isnot "naked">>
+				<<if _undressedStrapon>>
+					<<set $worn[_undressSlot] to clone(setup.clothes[_undressSlot][0])>>
+					<<run patchStraponsWearStatus()>>
+					<<run _slots.push(_undressSlot)>>
+				<<elseif $worn[_undressSlot].name isnot "naked">>
 					<<if _outfitPrimaryUndress isnot undefined>>
 						<<for _labelUndress, _valueUndress range _outfitPrimaryUndress>>
 							<<if $worn[_labelUndress].outfitSecondary isnot undefined>>
