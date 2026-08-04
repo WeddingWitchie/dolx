@@ -7,7 +7,7 @@ window.plantSeedsInPlot = function (plot, plantType) {
 	else if (T.irrigation > 0) {
 		plot.water = 1;
 		T.irrigation--;
-	}
+	} else plot.water = 0;
 };
 
 window.unlockAllSeeds = function () {

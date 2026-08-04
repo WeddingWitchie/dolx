@@ -3238,21 +3238,20 @@ function fixIntegrityUpdater() {
 }
 window.fixIntegrityUpdater = fixIntegrityUpdater;
 
-// Set plots to watered if it rains
-// Temporary solution until a rework
-$(document).on(":onWeatherChange", () => {
-	const currentWeather = T.currentWeather ?? Weather.WeatherGeneration.getWeather();
-	const precipitation = currentWeather.precipitationIntensity === 0 ? "none" : Weather.isFreezing ? "snow" : "rain";
-
-	if (!V.daily || V.daily?.plotsRain || precipitation !== "rain") return;
-	V.daily.plotsRain = true;
-	Object.entries(V.plots).forEach(([location, plots]) => {
-		// Don't water greenhouse plants from rain - disabled for now
-		// Alternate text about a rainwater harvester was added, so this may not be needed
-		// if (location === "garden" && V.alex_greenhouse === 3) return;
-		plots.forEach(plot => (plot.water = 1));
+function waterPlotsFromRain() {
+	if (V.statFreeze || !V.plots || !V.weatherObj) return;
+	if (Weather.precipitation !== "rain") return;
+	Object.values(V.plots).forEach(plots => {
+		if (!Array.isArray(plots)) return;
+		plots.forEach(plot => {
+			if (plot?.stage >= 1 && plot.stage < 5 && plot.bed !== "water") plot.water = 1;
+		});
 	});
-});
+}
+window.waterPlotsFromRain = waterPlotsFromRain;
+
+// Sync once at startup/load, and whenever the generated weather changes directly.
+$(document).on(":storyready :onloadsave :onWeatherChange", waterPlotsFromRain);
 
 // Returns true if one or more orphanage plots have been planted
 // Used to determine whether Robin should automatically water them
@@ -3304,7 +3303,7 @@ function tendingDay() {
 			// Rain waters the plot.
 			// The :onWeatherChange event only fires on a weather transition and runs once per day, so it misses rain that continues across the day rollover (still raining, no new transition).
 			// Re-check current rain here so continuous rain keeps the crops watered instead of stalling growth.
-			if (Weather.precipitation === "rain") plot.water = 1;
+			if (plot.stage >= 1 && plot.stage < 5 && plot.bed !== "water" && Weather.precipitation === "rain") plot.water = 1;
 
 			// Growth check
 			if (plot.stage >= 1 && (plot.water === 1 || plot.bed === "water")) {
@@ -3314,8 +3313,8 @@ function tendingDay() {
 				}
 			}
 
-			// Rain check moved to event in ingame.js
-			plot.water = irrigation >= 1 ? (irrigation--, 1) : 0;
+			// Set the water state for the new day so ongoing rain remains effective.
+			plot.water = plot.stage >= 1 && plot.stage < 5 && plot.bed !== "water" && Weather.precipitation === "rain" ? 1 : irrigation >= 1 ? (irrigation--, 1) : 0;
 		});
 	});
 }
