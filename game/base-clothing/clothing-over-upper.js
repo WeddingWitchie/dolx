@@ -219,7 +219,7 @@ function initOverUpper() {
 			breast_img: 0,
 			cursed: 0,
 			location: 0,
-			iconFile: "",
+			iconFile: "kaiju-costume.png",
 			accIcon: 0,
 			outfitPrimary: { over_lower: "kaiju bottoms", over_head: "kaiju hood" },
 		}),

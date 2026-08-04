@@ -74,12 +74,12 @@
 		<<link "Re-equip Upper Clothes">><<ShowUnderEquip "normal">><<updatesidebarimg>><<updatetryonstats>><<numberify "#passages > .passage">><</link>>
 		<br><br>
 	<</if>>
-	<<set _slots to setup.clothingLayer.all>>
+	<<set _slots to setup.clothingLayer.tryOn>>
 	<<if _slots.map(x => $tryOn.tryingOn[x]).some(x => x != null)>>
 		The clothes you are trying on total to <<printprice $tryOn.value>>. This includes:
 		<br>
 		<<if ["Clothing Shop","School Library Shop","Forest Shop","Adult Shop Store","Balloon Stand", "Jewellery Store", "Boutique"].includes($passage)>>
-			<<set _slots to setup.clothingLayer.all>>
+			<<set _slots to setup.clothingLayer.tryOn>>
 			<ul>
 			<<for _tryon range _slots.map(x => [x, $tryOn.tryingOn[x]]).filter(x => x[1] != null && x[1].outfitSecondary is undefined)>>
 				<li>
@@ -119,7 +119,7 @@
 	<<if _args[0]>>
 		<<ShowUnderEquip "normal">>
 		<<ShowUnderEquip "over">>
-		<<set _equip to setup.clothingLayer.all>>
+		<<set _equip to setup.clothingLayer.tryOn>>
 		<<set _itemTypes to setup.clothingLayer.body>>
 		<<set _towels to ["towel top","large towel","towel skirt"]>>
 		<<if _args[1] isnot "steal">>
@@ -128,7 +128,7 @@
 		<<switch _args[0]>>
 			<<case "wear">>
 				<<for _i to 0; _i lt _equip.length; _i++>>
-					<<if $tryOn.ownedStored[_equip[_i]] isnot null and $tryOn.tryingOn[_equip[_i]] isnot null and $tryOn.ownedStored[_equip[_i]].name isnot "naked" and !_towels.includes($tryOn.ownedStored[_equip[_i]].name)>>
+					<<if $tryOn.ownedStored[_equip[_i]] and $tryOn.tryingOn[_equip[_i]] and $tryOn.ownedStored[_equip[_i]].name isnot "naked" and !_towels.includes($tryOn.ownedStored[_equip[_i]].name)>>
 						/*Send previously equipped clothes to wardrobe*/
 						<<wardrobeSend _equip[_i] $tryOn.ownedStored[_equip[_i]]>>
 						/*Make sure outfit parts don't get left behind*/
@@ -143,7 +143,7 @@
 				<</for>>
 			<<case "wardrobe">>
 				<<for _i to 0; _i lt _equip.length; _i++>>
-					<<if $tryOn.tryingOn[_equip[_i]] isnot null>>
+					<<if $tryOn.tryingOn[_equip[_i]]>>
 						<<if $tryOn.tryingOn[_equip[_i]].name is $worn[_equip[_i]].name>>
 							<<wardrobeSend _equip[_i] $tryOn.tryingOn[_equip[_i]]>>
 						<</if>>
@@ -180,11 +180,12 @@
 			<<clothingResetOwnedReset _resetSlot>>
 		<</if>>
 	<<else>>
-		<<set _equip to setup.clothingLayer.all>>
+		<<set _equip to setup.clothingLayer.tryOn>>
 		<<for _i to 0; _i lt _equip.length; _i++>>
-			<<if $tryOn.ownedStored[_equip[_i]] isnot null>>
+			<<if $tryOn.ownedStored[_equip[_i]]>>
 				<<set $worn[_equip[_i]] to clone($tryOn.ownedStored[_equip[_i]])>>
 			<</if>>
+			<<removeTryingOn _equip[_i]>>
 		<</for>>
 		<<set $tryOn.autoReset to true>>
 	<</if>>
@@ -388,7 +389,7 @@
 <</widget>>
 
 <<widget "removeTryingOn">>
-	<<if $tryOn.tryingOn[_args[0]] isnot null>>
+	<<if $tryOn.tryingOn[_args[0]]>>
 		<<set $tryOn.value -= getClothingCost($tryOn.tryingOn[_args[0]],_args[0])>>
 		<<set $tryOn.tryingOn[_args[0]] to null>>
 	<</if>>
