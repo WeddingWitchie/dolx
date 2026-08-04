@@ -1215,6 +1215,21 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			<<earnFeat "They Got You">>
 		<</if>>
 	<</if>>
+	/* The wraith's body roll used to be keyed on its NPC init flag. Record whether a save already rolled one before anything below can set that flag, or an established wraith would be rerolled into a different body. */
+	<<if $wraith and $wraith.bodyGenerated is undefined>>
+		<<set $wraith.bodyGenerated to (C.npc["Ivory Wraith"].init is 1)>>
+	<</if>>
+	/* Breaking free of the wraith's possession skipped setting $wraithIntro, so saves that resisted their first encounter never unlocked its social tab card. Backfill for anyone who has demonstrably met it. */
+	<<if !$xchange.backComp.wraithIntroSocial>>
+		<<set $xchange.backComp.wraithIntroSocial to true>> /* delete later */
+		<<if $wraith.seen gte 1 or $wraith.possessCount gte 1 or C.npc["Ivory Wraith"].init is 1>>
+			<<set $wraithIntro to true>>
+			/* Possessions that never generated the wraith leave the named NPC uninitialised, which hides its social card regardless of the intro flag. */
+			<<if C.npc["Ivory Wraith"].init isnot 1>>
+				<<initnpc "Ivory Wraith">>
+			<</if>>
+		<</if>>
+	<</if>>
 	/* Sweep up strap-on copies older versions filed into wardrobes as underwear, and the genitals slot clothing sets recorded but could never wear. */
 	<<if !$xchange.backComp.clothingSetStraponCleanup>>
 		<<set $xchange.backComp.clothingSetStraponCleanup to true>> /* delete later */

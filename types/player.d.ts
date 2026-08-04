@@ -192,6 +192,8 @@ declare module "twine-sugarcube" {
 
 		wraith: {
 			state: string;
+			/** Set once the wraith's body has been rolled. Kept separate from the NPC's init flag, which a possession can set before any body exists. */
+			bodyGenerated?: boolean;
 		};
 
 		parasite: {
@@ -228,18 +230,7 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
-	export type TransformationKeys =
-		| "angel"
-		| "bird"
-		| "cat"
-		| "cow"
-		| "demon"
-		| "fallenAngel"
-		| "fox"
-		| "wolf"
-		| "bear"
-		| "waterdragon"
-		| "bunny";
+	export type TransformationKeys = "angel" | "bird" | "cat" | "cow" | "demon" | "fallenAngel" | "fox" | "wolf" | "bear" | "waterdragon" | "bunny";
 
 	export type SkinPositions =
 		| "forehead"

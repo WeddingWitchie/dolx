@@ -6,7 +6,8 @@
 		<<set _w to _args[0]>>
 	<</if>>
 	<<set _n to (_w -1)>>
-	<<if C.npc["Ivory Wraith"].init isnot 1>>
+	<!-- Keyed on the body marker rather than the NPC's init flag: a possession can register the wraith before it ever shows a body, and that must not cancel the body roll. -->
+	<<if !$wraith.bodyGenerated>>
 		<<set _strapIgnore to true>><<set _condomIgnore to true>>
 		<<generateNPC _w a n n 20>>
 		<<set $NPCList[_n].skincolour to "ghost">>
@@ -14,6 +15,7 @@
 		<<clearsinglenpc _n>>
 		<<initnpc "Ivory Wraith">>
 		<<run ["gender", "pregnancyAvoidance", "vagina", "penis", "chest", "skincolour", "breastsize", "breastsdesc", "breastdesc", "penisdesc", "penissize", "trust", "type"].forEach(s => C.npc["Ivory Wraith"][s] = clone($per_npc.temp_wraith[s]))>>
+		<<set $wraith.bodyGenerated to true>>
 		<<npc "Ivory Wraith">>
 		<<clearNPC "temp_wraith">>
 	<<else>>
@@ -2168,6 +2170,10 @@
 <</widget>>
 
 <<widget "wraithPossess">>
+	<!-- Sleep and bed possessions skip generateWraith, so the named NPC can stay uninitialised even after the player meets the wraith. The social tab hides any NPC whose init isnot 1. -->
+	<<if C.npc["Ivory Wraith"].init isnot 1>>
+		<<initnpc "Ivory Wraith">>
+	<</if>>
 	<<if !$possessed or $controlSaved is undefined>>
 		<<set $controlSaved to $control>>
 	<</if>>
