@@ -1204,6 +1204,58 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	/* In here because ModLoader inject and remove without the need to wait the game updating; only refresh */
 	<<run pruneClothes()>>
 
+	/* One-time repair: borrowed kaiju costumes used the normal clothing-loss rebuy path after the costume became a forest-shop item, silently stacking complete outfits in hidden over-outfit wardrobe slots. */
+	<<if !$dolxKaijuCostumeUnlockRepaired>>
+		<<set $dolxKaijuCostumeUnlockRepaired to true>> /* delete later */
+		<<unset $dolxKaijuCostumesRepaired>>
+		<<run (() => {
+			const kaijuPieces = {
+				over_upper: "kaiju costume",
+				over_lower: "kaiju bottoms",
+				over_head: "kaiju hood",
+			};
+			const wardrobes = [];
+			if (V.wardrobe && typeof V.wardrobe === "object") wardrobes.push(V.wardrobe);
+			if (V.wardrobes && typeof V.wardrobes === "object") {
+				for (const wardrobe of Object.values(V.wardrobes)) {
+					if (wardrobe && typeof wardrobe === "object" && Object.keys(kaijuPieces).some(slot => Array.isArray(wardrobe[slot]))) wardrobes.push(wardrobe);
+				}
+			}
+			const looseContainers = [V.worn, V.carried].filter(container => container && typeof container === "object");
+			const hasKaiju = looseContainers.some(container => Object.entries(kaijuPieces).some(([slot, name]) => container[slot]?.name === name)) ||
+				Object.entries(kaijuPieces).some(([slot, name]) => Array.isArray(V.store?.[slot]) && V.store[slot].some(item => item?.name === name)) ||
+				wardrobes.some(wardrobe => Object.entries(kaijuPieces).some(([slot, name]) => Array.isArray(wardrobe[slot]) && wardrobe[slot].some(item => item?.name === name)));
+			if (!hasKaiju) return;
+
+			if (!Array.isArray(V.specialClothesEvents)) V.specialClothesEvents = [];
+			V.specialClothesEvents.pushUnique("kaiju");
+			if (Array.isArray(V.specialClothes)) {
+				for (const name of Object.values(kaijuPieces)) {
+					const special = V.specialClothes.find(item => item.name === name);
+					if (special) special.unlocked = 3;
+				}
+			}
+
+			const targetWardrobe = wardrobes.find(wardrobe => wardrobe.over_upper?.some(item => item?.name === kaijuPieces.over_upper)) ||
+				wardrobes.find(wardrobe => Object.entries(kaijuPieces).some(([slot, name]) => wardrobe[slot]?.some(item => item?.name === name)));
+			for (const [slot, name] of Object.entries(kaijuPieces)) {
+				let keeper;
+				for (const wardrobe of wardrobes) {
+					if (!Array.isArray(wardrobe[slot])) continue;
+					for (let i = wardrobe[slot].length - 1; i >= 0; i--) {
+						if (wardrobe[slot][i]?.name !== name) continue;
+						keeper ||= wardrobe[slot][i];
+						wardrobe[slot].splice(i, 1);
+					}
+				}
+				if (keeper && targetWardrobe) {
+					if (!Array.isArray(targetWardrobe[slot])) targetWardrobe[slot] = [];
+					targetWardrobe[slot].push(keeper);
+				}
+			}
+		})()>>
+	<</if>>
+
 	/* One-time scrub: saves written while animatemodel stamped a fabricated "vine" NPC stub into $NPCList still carry it, and it renders as "the undefined vineperson" until the slot is next cleared. */
 	<<if !$dolxNpcStubsScrubbed>>
 		<<set $dolxNpcStubsScrubbed to true>> /* delete later */

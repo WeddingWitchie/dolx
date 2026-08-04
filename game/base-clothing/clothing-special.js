@@ -721,7 +721,7 @@ function initSpecialClothes() {
 
 		kaiju: {
 			text: "kaiju costume",
-			requirements: () => V.photo?.job === "kaiju",
+			requirements: () => V.photo?.job === "kaiju" || V.specialClothesEvents?.includes("kaiju"),
 			hint: "take up a client job handing out flyers for Niki",
 			shop: ["forest"],
 			feat: true,
