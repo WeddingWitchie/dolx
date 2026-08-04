@@ -155,35 +155,59 @@
 	<br>
 
 :: Pub Dice Minigame Intro 2
-	<<effects>><<set $phase to 1>><<set $diceintro to 1>>
+	<<effects>>
 
-	"Is that so?" <<he>> flashes a cocky smile. "Hear that, folks? I think we fancy ourselves a new player over here." The <<group>> laugh heartily as the <<person1>><<person>> motions you to a chair. You sit.
-	<br><br>
+	<<set _diceWeeklyCap to 1000000>>
+	<<set _diceWeeklyStake to $weekly.diceWeeklyStake or 0>>
+	<<set _diceWeeklyRoom to Math.max(0, _diceWeeklyCap - _diceWeeklyStake)>>
 
-	"So..." the <<person>> leans forwards on the table. "Are you a high-roller, or are you a little <<bitch>>?" The <<group>> mock you overtly, thinking you're just some drunken waif. 
-	<br><br>
+	<<if _diceWeeklyRoom lte 0>>
+		Before you can even sit down, a hand closes on your shoulder. Landry.
+		<br><br>
 
-	"Just so you know," <<he>> continues. "you'll need at least <<printmoney 50000>> to play with us."
-	<br><br>
+		"Not today," <<nnpc_he "Landry">> says, steering you away from the table before the <<group>> even notice you. "You've already put <<printmoney _diceWeeklyStake>> through this table this week. That kind of money moving around gets noticed, and I need this whole thing to stay quiet, not turn into a headline."
+		<br><br>
 
-	<<if $money gte 50000>>
-		<<link [[Play (£500)|Pub Dice Minigame]]>><<set $wagerLvl to 0>><<set $money -= 50000>><<set $diceintro to 1>><</link>>
+		<<nnpc_He "Landry">> glances back at the table, then at you. "Give it a week. Once I've smoothed things over and made sure nobody's asking questions, you're welcome back."
+		<br><br>
+
+		<<link [[Leave|Pub]]>><</link>>
+	<<else>>
+		<<set $phase to 1>><<set $diceintro to 1>>
+
+		"Is that so?" <<he>> flashes a cocky smile. "Hear that, folks? I think we fancy ourselves a new player over here." The <<group>> laugh heartily as the <<person1>><<person>> motions you to a chair. You sit.
+		<br><br>
+
+		"So..." the <<person>> leans forwards on the table. "Are you a high-roller, or are you a little <<bitch>>?" The <<group>> mock you overtly, thinking you're just some drunken waif.
+		<br><br>
+
+		"Just so you know," <<he>> continues. "you'll need at least <<printmoney 50000>> to play with us."
+		<br><br>
+
+		This week, you've brought <<printmoney _diceWeeklyStake>> to this table, out of a <<printmoney _diceWeeklyCap>> limit Landry lets you run before the ring gets too hot.
+		<br><br>
+
+		<<if $money gte 50000 and _diceWeeklyRoom gte 50000>>
+			<<link [[Play (£500)|Pub Dice Minigame]]>><<set $wagerLvl to 0>><<set $money -= 50000>><<set $weekly.diceWeeklyStake to _diceWeeklyStake + 50000>><<set $diceintro to 1>><</link>>
+			<br>
+		<</if>>
+		<<if $money gte 100000 and $xchange.gamblingLvl gte 1 and _diceWeeklyRoom gte 100000>>
+			<<link [[Play (£1000)|Pub Dice Minigame]]>><<set $wagerLvl to 1>><<set $money -= 100000>><<set $weekly.diceWeeklyStake to _diceWeeklyStake + 100000>><<set $diceintro to 1>><</link>>
+			<br>
+		<</if>>
+		<<if $money gte 300000 and $xchange.gamblingLvl gte 2 and _diceWeeklyRoom gte 300000>>
+			<<link [[Play (£3000)|Pub Dice Minigame]]>><<set $wagerLvl to 2>><<set $money -= 300000>><<set $weekly.diceWeeklyStake to _diceWeeklyStake + 300000>><<set $diceintro to 1>><</link>>
+			<br>
+		<</if>>
+		<<if $money lt 50000>>
+			You don't have enough cash.
+		<<elseif _diceWeeklyRoom lt 50000>>
+			<span class="red">You've only got <<printmoney _diceWeeklyRoom>> of weekly room left at this table.</span>
+		<</if>>
+
 		<br>
+		<<link [[Back out|Pub]]>><</link>>
 	<</if>>
-	<<if $money gte 100000 and $xchange.gamblingLvl gte 1>>
-		<<link [[Play (£1000)|Pub Dice Minigame]]>><<set $wagerLvl to 1>><<set $money -= 100000>><<set $diceintro to 1>><</link>>
-		<br>
-	<</if>>
-	<<if $money gte 300000 and $xchange.gamblingLvl gte 2>>
-		<<link [[Play (£3000)|Pub Dice Minigame]]>><<set $wagerLvl to 2>><<set $money -= 300000>><<set $diceintro to 1>><</link>>
-		<br>
-	<</if>>
-	<<if $money lt 50000>>
-		You don't have enough cash.
-	<</if>>
-
-	<br>
-	<<link [[Back out|Pub]]>><</link>>
 
 :: Pub Dice Minigame Widgets [widget]
 
@@ -732,8 +756,8 @@
 
 	<<widget "dice-bet">>
 		<<set _player to _args[0]>> /* Index of player */
-		<<set _amount to _args[1]>> /* Amount to bet */
-		
+		<<set _amount to Math.max(0, _args[1])>> /* Amount to bet, floored so a negative input can't drain money into the player */
+
 		/* Bet whatever remains if can't match the bet */
 		<<if $dice.money[_player] lte _amount>><<set _amount to $dice.money[_player]>><</if>>
 
