@@ -2484,25 +2484,42 @@
 
 <<widget "xchange-suspicious-pill">>
 	<<set _dur to random(1,3)>>
+	<<set _alreadyXChanged to playerIsXChanged()>>
+	<<set $xchange.everConsumed to true>>
 
-	/* Always flip */
-	<<set _effects to ["genderflip"]>>
+	/* Start a new session with a flip. An active session keeps its current sex. */
+	<<set _effects to _alreadyXChanged ? [] : ["genderflip"]>>
 
-	/* Add 1 totally random extra effect (NOT using spikepool) */
+	/* Add a random extra effect (NOT using spikepool). An active session only receives effects it does not already have. */
 	<<set _pool to ["genderflip","crossdress","herm","breeder","passion","innocence","swell","bimbo","cumcure","bull","xtend"]>>
 	<<if $portalPantiesEnabled>><<run _pool.push("portal")>><</if>>
-
-	<<run _effects.push(_pool.random())>>
-
-	/* Optional: 25% chance of a second extra effect */
-	<<if random(1,100) lte 25>>
-		<<run _effects.push(_pool.random())>>
+	<<run _pool.delete("genderflip")>>
+	<<if _alreadyXChanged>>
+		<<set _availablePool to []>>
+		<<for _candidate range _pool>>
+			<<xchange-effect-flag _candidate>>
+			<<if _effectFlag is "" or !$xchange.pill[_effectFlag]>>
+				<<run _availablePool.push(_candidate)>>
+			<</if>>
+		<</for>>
+		<<set _pool to _availablePool>>
 	<</if>>
 
-	/* Optional: remove duplicates */
-	<<run _effects = [...new Set(_effects)]>>
+	<<if _pool.length gt 0>>
+		<<set _pickedEffect to _pool.random()>>
+		<<run _effects.push(_pickedEffect)>><<run _pool.delete(_pickedEffect)>>
+	<</if>>
 
-	<<if !playerIsXChanged()>>
+	/* Optional: 25% chance of a second extra effect */
+	<<if _pool.length gt 0 and random(1,100) lte 25>>
+		<<set _pickedEffect to _pool.random()>>
+		<<run _effects.push(_pickedEffect)>><<run _pool.delete(_pickedEffect)>>
+	<</if>>
+
+	/* Suspicious pills do not reveal their effects until the player uses an X-Change test. */
+	<<run _effects.push("unknown")>>
+
+	<<if !_alreadyXChanged>>
 		<<save-body>>
 		<<xchange-effects _dur _effects>>
 		<<exposedcheck>>
@@ -2512,10 +2529,18 @@
 			<<if $xchange.blackmail.activeQuest>><<set $xchange.blackmail.hasGenderswappedRecently to true>><</if>>
 		<</if>>
 
-		<<set $xchange.timesTaken.player++>>
+	<<elseif !xchangePillProtectionActive()>>
+		/* Add the non-flip effects to the active session without replacing its body. */
+		<<xchange-stackeffects _dur _effects>><<exposedcheck>>
+	<</if>>
 
-		/* Suspicious pill skill debuff: 20-35% chance, unless the pill was neutralised. */
-		<<if !xchangePillProtectionActive()>>
+	<<if !xchangePillProtectionActive()>>
+		<<set $xchange.timesTaken.player++>>
+		<<if $xchange.spikeSideEffectsEnabled !== undefined ? $xchange.spikeSideEffectsEnabled : 1>>
+			<<xchange-addsideeffect "suspicious">>
+		<</if>>
+
+		/* Suspicious pill skill debuff: 20-35% chance. */
 			<<set _debuffChance to random(20,35)>>
 			<<if random(1,100) lte _debuffChance>>
 			<<set _skillPool to [
@@ -2557,6 +2582,5 @@
 				<<set $suspiciousPillDebuffMessage to _hitNames>>
 			<</if>>
 			<</if>>
-		<</if>>
 	<</if>>
 <</widget>>

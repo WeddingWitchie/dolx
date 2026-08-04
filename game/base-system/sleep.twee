@@ -35,6 +35,18 @@
 	<<set $sleepHoursTotal to 0>>
 	<<set $_bonusFatigueLoss to 10>>
 	<<set _poppy_interrupt to false>>
+	<<set _whitneyWaterdragonPlushieSleepLocation to "">>
+	<<switch $location>>
+		<<case "home">><<if $bus is "home">><<set _whitneyWaterdragonPlushieSleepLocation to "bedroom">><</if>>
+		<<case "flats">><<if $bus is "poppy_bedroom">><<set _whitneyWaterdragonPlushieSleepLocation to "poppy_flat">><</if>>
+		<<case "avery_mansion">><<if $bus is "avery_bedroom">><<set _whitneyWaterdragonPlushieSleepLocation to "avery_mansion">><</if>>
+		<<case "temple">><<set _whitneyWaterdragonPlushieSleepLocation to "temple_bunk">>
+		<<case "tower">><<set _whitneyWaterdragonPlushieSleepLocation to "hawk_tower">>
+		<<case "cabin">><<set _whitneyWaterdragonPlushieSleepLocation to "eden_cabin">>
+		<<case "wolf_cave">><<set _whitneyWaterdragonPlushieSleepLocation to "wolf_cave">>
+		<<case "alex_cottage">><<set _whitneyWaterdragonPlushieSleepLocation to "alex_cottage">>
+	<</switch>>
+	<<set _whitneyWaterdragonPlushieComfort to _whitneyWaterdragonPlushieSleepLocation isnot "" and $whitneyWaterdragonPlushie is _whitneyWaterdragonPlushieSleepLocation>>
 
 	<!-- sleeping with others -->
 	<<if $bedGuest or $wolfbed is 1>>
@@ -362,6 +374,7 @@
 
 		<!-- Keep events above this comment -->
 		<<set $sleepHoursTotal += 1>><<set $sleepStat++>>
+		<<if _whitneyWaterdragonPlushieComfort>><<trauma -1>><</if>>
 		<<set _sleepHourStartTiredness to $tiredness>>
 
 		<!-- Prevents fatigue from being 0.* -->
@@ -437,6 +450,14 @@
 		<<if _sleepHourStartTiredness gte C.tiredness.max and $tiredness gte _sleepHourStartTiredness>>
 			<<set _sleepNoFatigueDropNotice to true>>
 		<</if>>
+		<<if $location is "home" and $bus is "home" and Time.hour is 1 and ($whitneyWildNight is "makeup" or C.npc.Whitney.love gte 20) and $whitney_orphanage_special_seen gte 3 and ($whitneyWildNight is undefined or ["emotional", "vandalism", "makeup"].includes($whitneyWildNight)) and ($whitneyWildNight is "makeup" or !$weekly.whitneyWildNight) and !$possessed>>
+			<<set $weekly.whitneyWildNight to true>>
+			<<if $whitneyWildNight is "makeup" or random(1, 100) lte 20>>
+				<<set _sleepinterrupt to 1>>
+				<<set _whitneyWildNightWake to 1>>
+				<<break>>
+			<</if>>
+		<</if>>
 	<</for>>
 
 	<<if $sleepHoursTotal gt 0 and $tiredness gte _sleepStartTiredness>>
@@ -446,7 +467,7 @@
 			<span class="red">You slept, but wake up feeling much the same. Whatever rest you managed barely helped.</span><br>
 		<</if>>
 	<<elseif _sleepNoFatigueDropNotice and $tiredness gte C.tiredness.max>>
-		<span class="red">You slept, but the rest not helped and you wake up feeling much the same.</span><br>
+		<span class="red">You slept, but the rest has not helped and you wake up feeling much the same.</span><br>
 	<</if>>
 <</widget>>
 
@@ -463,6 +484,10 @@
 	<</if>>
 	<<if !$sleepWraith and $bedGuest and $transformationParts.traits.mateForLife isnot "disabled" and isLoveInterest($bedGuest)>>
 		<span class="green">Sleeping with your chosen partner fulfils an instinctual desire.</span> <<lstress>><<ltrauma>><<garousal>>
+		<br><br>
+	<</if>>
+	<<if _whitneyWaterdragonPlushieComfort and $sleepHoursTotal gt 0>>
+		<span class="green">You sleep with Whitney's water dragon plushie held close. It helps calm you.</span> <<ltrauma>>
 		<br><br>
 	<</if>>
 	<<if $scienceproject is "ongoing" and $sciencephallusknown isnot 1 and hasSexStat("promiscuity", 3)>>
