@@ -9,10 +9,10 @@
 			State.variables.decoTotal = 10;
 		}
 
-		var backButton = document.getElementById('backButton');
-		var nextButton = document.getElementById('nextButton');
-
 		function updateContent() {
+			var backButton = document.getElementById('backButton');
+			var nextButton = document.getElementById('nextButton');
+
 			for (var i = 1; i <= State.variables.decoTotal; i++) {
 			var element = document.getElementById('fg-bg' + i);
 			if (element) {
@@ -34,28 +34,33 @@
 			}
 		}
 
-		if (backButton) {
-			backButton.addEventListener('click', function() {
+		jQuery(document).off('click.decoMod', '#backButton').on('click.decoMod', '#backButton', function() {
 			if (State.variables.decoPage > 1) {
 				State.variables.decoPage--;
 				updateContent();
 			}
-			});
-		}
+		});
 
-		if (nextButton) {
-			nextButton.addEventListener('click', function() {
+		jQuery(document).off('click.decoMod', '#nextButton').on('click.decoMod', '#nextButton', function() {
 			if (State.variables.decoPage < State.variables.decoTotal) {
 				State.variables.decoPage++;
 				updateContent();
 			}
-			});
-		}
+		});
 
-		updateContent();
+		window.setTimeout(updateContent, 0);
 	</script>
 	<br>
 
+	<div class="dolx-decomod">
+	<div class="dolx-decomod-hero">
+		<span class="dolx-decomod-hero-icon" aria-hidden="true">&#10022;</span>
+		<div>
+			<span>CHARACTER SIDEBAR</span>
+			<strong>Decoration Layers</strong>
+		</div>
+	</div>
+	<div class="dolx-decomod-intro">
 	<i>Select the background and foreground to use in the character sidebar.</i>
 	<mouse class="tooltip linkBlue">(?)<span  style="font-size:16px;">You can add your own background images in \img\decorations\background(1/2) or \img\decorations\foreground(1/2). 
 	<br><br>Name the images either "1", "2", "3", et cetera, up to "300" without the quotes in order to select them in this menu. 
@@ -64,10 +69,15 @@
 	<br><br>Foreground 1 controls the uppermost layer, Foreground 2 controls the layer below it.
 	<br>Background 1 controls the lowermost layer, Background 2 controls the layer above it.<br>
 	<br>Lastly, images can be swapped in and out of the decorations image folder without restarting the game. So, get creative and have fun!</i>
+	</div>
 	<br><br>
-	<div class="dolx-logo-button"><<dolxUiStartButton>></div>
-	<button id="backButton" style="display: none;">Previous Page</button>
-	<button id="nextButton">Next Page</button>
+	<div class="dolx-decomod-nav">
+		<div class="dolx-logo-button"><<dolxUiStartButton>></div>
+		<div class="dolx-decomod-pages">
+			<button id="backButton" style="display: none;">Previous Page</button>
+			<button id="nextButton">Next Page</button>
+		</div>
+	</div>
 	<br><br>
 	<div id="fg-bg1">
 		<div class="settingsToggleItem">
@@ -1629,36 +1639,11 @@
 
 	/* Live img update below*/
 	<<script>>
-		jQuery('.passage').on('change', 'div#fg-bg1 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg2 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg3 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg4 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg5 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg6 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg7 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg8 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg9 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
-		jQuery('.passage').on('change', 'div#fg-bg10 .macro-radiobutton', function (e) {
-			Wikifier.wikifyEval('<<updatesidebarimg true>>');
-		});
+		jQuery('.passage')
+			.off('change.decoMod', '.dolx-decomod [id^="fg-bg"] .macro-radiobutton')
+			.on('change.decoMod', '.dolx-decomod [id^="fg-bg"] .macro-radiobutton', function () {
+				Wikifier.wikifyEval('<<updatesidebarimg true>>');
+			});
 	<</script>>
 
 	/* Shoutout to Frostberg for the live image update code! */
@@ -1668,4 +1653,5 @@
 	Feel free to put one there, select an different occupied slot, or just clear the error.</i>
 	<br><br>
 	</sub>
+	</div>
 <</widget>>
