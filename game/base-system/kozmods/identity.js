@@ -8,6 +8,7 @@
  * If what you're looking for isn't defined here, there's a good chance it's still in `xchange.js`
  * (likewise, some mirrored behavior may be in `identity.twee` and its Twine-side correspondence)
  */
+/* globals ANDROGYNOUS_FEMININITY_DEADZONE */
 
 function playerCaresForGender() {
 	return V.xchange.genderIdentityEnabled === 1;
@@ -39,8 +40,14 @@ function clothingIdentityIsNeutral() {
 }
 window.clothingIdentityIsNeutral = clothingIdentityIsNeutral;
 
-function hourlyClothingFemininityCheck(hours = 1) {
-	// Compute the sum of all clothing femininity
+/**
+ * Sums the femininity value of every worn clothing slot plus makeup into one continuous score for the character's overall outfit:
+ * negative reads masculine, positive reads feminine, near 0 reads androgynous.
+ * Shared by the hourly clothing tick and by playerHasCharacteristic's clothing cases,
+ * so "is the player currently dressed masculine/feminine/androgynous" always judges the whole outfit together
+ * (a feminine skirt under a strongly masculine jacket can net out androgynous) instead of flagging on a single garment.
+ */
+function getCurrentWornFemininity() {
 	let currentWornFemininity = 0;
 	if (setup.clothes.over_head[clothesIndex("over_head", V.worn.over_head)].femininity)
 		currentWornFemininity += setup.clothes.over_head[clothesIndex("over_head", V.worn.over_head)].femininity;
@@ -74,15 +81,16 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	currentWornFemininity += V.makeup.mascara ? 50 : 0;
 	currentWornFemininity += V.makeup.eyeshadow ? 50 : 0;
 
+	return currentWornFemininity;
+}
+window.getCurrentWornFemininity = getCurrentWornFemininity;
+
+function hourlyClothingFemininityCheck(hours = 1) {
+	const currentWornFemininity = getCurrentWornFemininity();
+
 	// Tick the hourly counter
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
-
-	const hasFemClothesAcceptance = V.identity.presentation.clothing.feminine.acceptance;
-	const hasFemClothesRejection = V.identity.presentation.clothing.feminine.reject;
-
-	const hasMascClothesAcceptance = V.identity.presentation.clothing.masculine.acceptance;
-	const hasMascClothesRejection = V.identity.presentation.clothing.masculine.reject;
 
 	// --- Hypno crossdress / genderify handling ---
 	V.cheats = V.cheats || {};
@@ -133,21 +141,13 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			}
 		}
 	} else if (playerCaresForGender() && !clothingIdentityIsNeutral()) {
-		if (hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
-			wikifier("stress", 30 * hours, 1);
-			V.genderStressMessage = 2;
+		const feminine = V.identity.presentation.clothing.feminine;
+		const masculine = V.identity.presentation.clothing.masculine;
+		if (currentWornFemininity > ANDROGYNOUS_FEMININITY_DEADZONE && (!feminine.acceptance || feminine.reject)) {
+			V.genderStressMessage = feminine.reject ? 2 : 1;
 			V.effectsmessage = 1;
-		} else if (!hasFemClothesRejection && !hasFemClothesAcceptance && currentWornFemininity > 0) {
-			wikifier("stress", 20 * hours, 1);
-			V.genderStressMessage = 1;
-			V.effectsmessage = 1;
-		} else if (hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
-			wikifier("stress", 30 * hours, 1);
-			V.genderStressMessage = 4;
-			V.effectsmessage = 1;
-		} else if (!hasMascClothesRejection && !hasMascClothesAcceptance && currentWornFemininity < 0) {
-			wikifier("stress", 20 * hours, 1);
-			V.genderStressMessage = 3;
+		} else if (currentWornFemininity < -ANDROGYNOUS_FEMININITY_DEADZONE && (!masculine.acceptance || masculine.reject)) {
+			V.genderStressMessage = masculine.reject ? 4 : 3;
 			V.effectsmessage = 1;
 		}
 	}
@@ -155,41 +155,19 @@ function hourlyClothingFemininityCheck(hours = 1) {
 window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 
 function playerHasCharacteristic(characteristic) {
-	const categories = [
-		"over_upper",
-		"over_lower",
-		"upper",
-		"lower",
-		"under_upper",
-		"under_lower",
-		"over_head",
-		"head",
-		"face",
-		"neck",
-		"hands",
-		"handheld",
-		"legs",
-		"feet",
-		"genitals",
-	];
-
-	let count = 0;
-
 	switch (characteristic) {
 		case "Masculine Appearance":
 			return V.player.gender_appearance === "m" ? 2 : 0;
 		case "Feminine Appearance":
 			return V.player.gender_appearance === "f" ? 2 : 0;
+		case "Androgynous Appearance":
+			return Math.abs(V.player.femininity) > ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
 		case "Masculine Clothing":
-			categories.forEach(cat => {
-				if (V.worn[cat]?.gender === "m") count++;
-			});
-			return count;
+			return getCurrentWornFemininity() < -ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
 		case "Feminine Clothing":
-			categories.forEach(cat => {
-				if (V.worn[cat]?.gender === "f") count++;
-			});
-			return count;
+			return getCurrentWornFemininity() > ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
+		case "Neutral Clothing":
+			return Math.abs(getCurrentWornFemininity()) > ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
 		case "Masculine Pronouns":
 			return V.identity.presentation.pronouns.masculine.misgendered;
 		case "Feminine Pronouns":
@@ -275,6 +253,12 @@ function getFemininityContribution(characteristic) {
 			femininity += Number(V.identity.presentation.appearance.feminine.reject) * -100;
 			femininity += (V.identity.presentation.appearance.preferred === "f") * 100;
 			break;
+		case "Androgynous Appearance":
+			/* Neutral-axis trait: dilutes toward centre rather than pushing either way, like Neutral Pronouns. */
+			femininity += Number(V.identity.presentation.appearance.neutral?.acceptance) * 0;
+			femininity += Number(V.identity.presentation.appearance.neutral?.reject) * -0;
+			femininity += (V.identity.presentation.appearance.preferred === "n") * 0;
+			break;
 		case "Masculine Clothing":
 			if (clothingIdentityIsNeutral()) break;
 			femininity += Number(V.identity.presentation.clothing.masculine.acceptance) * -100;
@@ -286,6 +270,12 @@ function getFemininityContribution(characteristic) {
 			femininity += Number(V.identity.presentation.clothing.feminine.acceptance) * 100;
 			femininity += Number(V.identity.presentation.clothing.feminine.reject) * -100;
 			femininity += (V.identity.presentation.clothing.preferred === "f") * 100;
+			break;
+		case "Neutral Clothing":
+			if (clothingIdentityIsNeutral()) break;
+			femininity += Number(V.identity.presentation.clothing.neutral?.acceptance) * 0;
+			femininity += Number(V.identity.presentation.clothing.neutral?.reject) * -0;
+			femininity += (V.identity.presentation.clothing.preferred === "u") * 0;
 			break;
 		case "Masculine Pronouns":
 			femininity += Number(V.identity.presentation.pronouns.masculine.acceptance) * -100;
@@ -649,6 +639,8 @@ function getIdentityMeterDirection(characteristic) {
 			return { dir: 1, weight: 1 };
 		/* Neutral-ish */
 		case "Neutral Pronouns":
+		case "Androgynous Appearance":
+		case "Neutral Clothing":
 		case "Medium Hair":
 		case "Small Breasts":
 		case "Small Ass":
@@ -683,6 +675,12 @@ function selectIdentityCharacteristic(characteristic) {
 				preferred = presentation.clothing?.preferred === "f";
 			}
 			break;
+		case "Neutral Clothing":
+			if (!clothingIdentityIsNeutral()) {
+				option = presentation.clothing?.neutral;
+				preferred = presentation.clothing?.preferred === "u";
+			}
+			break;
 		case "Masculine Appearance":
 			option = presentation.appearance?.masculine;
 			preferred = presentation.appearance?.preferred === "m";
@@ -690,6 +688,10 @@ function selectIdentityCharacteristic(characteristic) {
 		case "Feminine Appearance":
 			option = presentation.appearance?.feminine;
 			preferred = presentation.appearance?.preferred === "f";
+			break;
+		case "Androgynous Appearance":
+			option = presentation.appearance?.neutral;
+			preferred = presentation.appearance?.preferred === "n";
 			break;
 		case "Masculine Pronouns":
 			option = presentation.pronouns?.masculine;
@@ -860,9 +862,11 @@ function getIdentityMeterGroup(characteristic) {
 			return "pronouns";
 		case "Masculine Appearance":
 		case "Feminine Appearance":
+		case "Androgynous Appearance":
 			return "appearance";
 		case "Masculine Clothing":
 		case "Feminine Clothing":
+		case "Neutral Clothing":
 			return "clothing";
 		case "Flat Chest":
 		case "Small Breasts":

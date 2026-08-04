@@ -120,4 +120,36 @@ test.describe("identity dysphoria stat handling", () => {
 		expect(result.control).toBeGreaterThan(500);
 		expect(result.dysphoria).toBe(5);
 	});
+
+	test("androgynous appearance builds dysphoria from reading as clearly gendered, mirroring how misgendering hurts a neutral-pronoun preference", async ({
+		page,
+	}) => {
+		const result = await page.evaluate(() => {
+			const W = window as any;
+			const SC = W.SugarCube;
+			const V = SC.State.variables;
+
+			V.identity.presentation.appearance.preferred = "n";
+			Object.assign(V.identity.presentation.appearance.neutral, { acceptance: false, reject: false, dysphoria: 0, tolerance: 0 });
+			V.player.femininity = 500; // clearly gendered, outside the androgynous deadzone
+			V.xchange.genderIdentityEnabled = 1;
+			V.xchange.disregardGender = 0;
+
+			SC.Wikifier.wikifyEval("<<hourlyIdentityEffects>>");
+			const gendered = {
+				has: W.playerHasCharacteristic("Androgynous Appearance"),
+				dysphoria: V.identity.presentation.appearance.neutral.dysphoria,
+			};
+
+			// Balanced femininity (inside the deadzone) shouldn't register as "having" the trait at all.
+			V.player.femininity = 0;
+			const balancedHas = W.playerHasCharacteristic("Androgynous Appearance");
+
+			return { gendered, balancedHas };
+		});
+
+		expect(result.gendered.has).toBeGreaterThan(0);
+		expect(result.gendered.dysphoria).toBeGreaterThan(0);
+		expect(result.balancedHas).toBe(0);
+	});
 });

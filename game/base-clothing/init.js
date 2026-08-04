@@ -173,7 +173,7 @@ function givestartclothing() {
 	let clothesType;
 	if (V.identity.presentation.clothing.preferred === "m") {
 		clothesType = "male";
-	} else if (V.identity.presentation.clothing.preferred === "n") {
+	} else if (V.identity.presentation.clothing.preferred === "n" || V.identity.presentation.clothing.preferred === "u") {
 		clothesType = "neutral";
 	} else {
 		clothesType = "female";

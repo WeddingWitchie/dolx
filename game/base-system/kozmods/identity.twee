@@ -158,9 +158,18 @@
 				<</if>>
 				<label data-target='["identity.presentation.appearance.feminine.acceptance"]' data-disabledif="!V.identity.presentation.appearance.feminine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.appearance.preferred" "f" autocheck>></label>
 				<br>
+				Androgynous:
+				<br>
+				<label data-target='["identity.presentation.appearance.neutral.acceptance", "identity.presentation.appearance.neutral.reject"]' data-disabledif="V.identity.presentation.appearance.neutral.acceptance && !V.identity.presentation.appearance.neutral.reject" class="red">Reject <<checkbox "$identity.presentation.appearance.neutral.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2 or $background.transgender>>
+					<label data-target='["identity.presentation.appearance.preferred", "identity.init"]' data-disabledif="V.identity.presentation.appearance.preferred === 'n' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.appearance.neutral.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.appearance.neutral.reject", "identity.init"]' data-disabledif="V.identity.presentation.appearance.neutral.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.appearance.neutral.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.presentation.appearance.neutral.acceptance"]' data-disabledif="!V.identity.presentation.appearance.neutral.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.appearance.preferred" "n" autocheck>></label>
+				<br>
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria. Choosing Neutral means you simply don't care what you wear: clothing stops causing dysphoria entirely, but also stops giving any comfort.</span></mouse>
+				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria, based on your outfit's overall look rather than any single garment. Choosing Don't Care means you simply don't care what you wear: clothing stops causing dysphoria entirely, but also stops giving any comfort.</span></mouse>
 				<br>
 				Masculine:
 				<br>
@@ -181,7 +190,17 @@
 				<</if>>
 				<label data-target='["identity.presentation.clothing.feminine.acceptance", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred !== 'n' && !V.identity.presentation.clothing.feminine.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.clothing.preferred" "f" autocheck>></label>
 				<br>
-				Neutral:
+				Androgynous:
+				<br>
+				<label data-target='["identity.presentation.clothing.neutral.acceptance", "identity.presentation.clothing.neutral.reject", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred === 'n' || (V.identity.presentation.clothing.neutral.acceptance && !V.identity.presentation.clothing.neutral.reject)" class="red">Reject <<checkbox "$identity.presentation.clothing.neutral.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2 or $background.transgender>>
+					<label data-target='["identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'u' || V.identity.presentation.clothing.preferred === 'n' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.clothing.neutral.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.clothing.neutral.reject", "identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'n' || V.identity.presentation.clothing.neutral.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.clothing.neutral.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.presentation.clothing.neutral.acceptance", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred !== 'n' && !V.identity.presentation.clothing.neutral.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.clothing.preferred" "u" autocheck>></label>
+				<mouse class="tooltip linkBlue">(?)<span>A real preference, not an opt-out: dysphoria builds when your overall outfit reads too far masculine or feminine either way, and eases off the closer it sits to balanced. Different from Don't Care below, which switches clothing dysphoria off entirely.</span></mouse>
+				<br>
+				Don't care:
 				<br>
 				<label class="teal">Don't care <<radiobutton "$identity.presentation.clothing.preferred" "n" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Clothes are just clothes to you. Nothing you wear helps or hurts, and the Clothing topic disappears from the Identity screen.</span></mouse>
 				<br>
@@ -696,12 +715,20 @@
 					<<set $identityOption to $identity.presentation.clothing.feminine>>
 					<<set $identityPreference to $identity.presentation.clothing.preferred is "f" ? true : false>>
 				<</if>>
+			<<case "Neutral Clothing">>
+				<<if $identity.presentation.clothing.preferred isnot "n">>
+					<<set $identityOption to $identity.presentation.clothing.neutral>>
+					<<set $identityPreference to $identity.presentation.clothing.preferred is "u" ? true : false>>
+				<</if>>
 			<<case "Masculine Appearance">>
 				<<set $identityOption to $identity.presentation.appearance.masculine>>
 				<<set $identityPreference to $identity.presentation.appearance.preferred is "m" ? true : false>>
 			<<case "Feminine Appearance">>
 				<<set $identityOption to $identity.presentation.appearance.feminine>>
 				<<set $identityPreference to $identity.presentation.appearance.preferred is "f" ? true : false>>
+			<<case "Androgynous Appearance">>
+				<<set $identityOption to $identity.presentation.appearance.neutral>>
+				<<set $identityPreference to $identity.presentation.appearance.preferred is "n" ? true : false>>
 			<<case "Masculine Pronouns">>
 				<<set $identityOption to $identity.presentation.pronouns.masculine>>
 				<<set $identityPreference to !!$identity.presentation.pronouns.preferredMasculine>>
@@ -872,6 +899,8 @@
 							<<set _reason to "Catching yourself looking masculine makes your stomach twist.">>
 						<<case "Feminine Appearance">>
 							<<set _reason to "Catching yourself looking feminine makes your stomach twist.">>
+						<<case "Androgynous Appearance">>
+							<<set _reason to "Catching yourself looking so clearly gendered, when you'd rather sit somewhere in between, makes your stomach twist.">>
 						<<case "Vagina">>
 							<<set _reason to "Being reminded you have a vagina disgusts you.">>
 						<<case "Tiny Penis">>
@@ -886,6 +915,8 @@
 							<<set _reason to "Someone refers to you with the wrong pronouns. It makes your skin crawl.">>
 						<<case "Masculine Clothing" "Feminine Clothing">>
 							<<set _reason to "The fabric and silhouette cling in all the wrong ways, making you painfully aware of yourself.">>
+						<<case "Neutral Clothing">>
+							<<set _reason to "Your outfit reads far more gendered than you'd like, and you can't stop noticing it.">>
 						<<case "Flat Breasts">>
 							<<set _reason to "Your chest looks empty in a way that leaves a sharp ache.">>
 						<<case "Small Breasts">>
@@ -972,7 +1003,7 @@
 
 	<<widget "normaliseNeutralClothing">>
 		<<if $identity?.presentation?.clothing?.preferred is "n">>
-			<<for _clothingSide range ["masculine", "feminine"]>>
+			<<for _clothingSide range ["masculine", "feminine", "neutral"]>>
 				<<if $identity.presentation.clothing[_clothingSide]>>
 					<<set $identity.presentation.clothing[_clothingSide].acceptance to true>>
 					<<set $identity.presentation.clothing[_clothingSide].reject to false>>

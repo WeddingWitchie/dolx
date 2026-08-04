@@ -100,6 +100,7 @@ window.calculatePenisBulge = calculatePenisBulge;
  * Tunable: raise to make an androgynous read easier to achieve, lower to make it require near-perfect balance.
  */
 const ANDROGYNOUS_FEMININITY_DEADZONE = 100;
+window.ANDROGYNOUS_FEMININITY_DEADZONE = ANDROGYNOUS_FEMININITY_DEADZONE;
 
 /* Calculate the player's gender appearance if their genitals and chest are exposed */
 function nudeGenderAppearance() {
