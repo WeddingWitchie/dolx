@@ -3199,7 +3199,7 @@ setup.pills.push(
 	{
 		name: "X-Change Antidote Forte",
 		description:
-			"An very expensive solution for those who are willing and can afford it. A pill that reduces the remaining duration of your current pill by a whole week, at the expense of some extreme side-effects. If remaining duration reaches zero, your pill shall expire within the next hour.",
+			"A very expensive solution for those who are willing and can afford it. A pill that reduces the remaining duration of your current pill by a whole week, at the expense of some extreme side-effects. If remaining duration reaches zero, your pill shall expire within the next hour.",
 		onTakeMessage:
 			'<span class="purple">You down the pill with some hesitation after having read the warning label.</span><br><br><span class="red">Almost immediately you\'re overcome by a searing pain that brings you down to your knees. It burns and hurts like hell. A skull-splitting headache, nausea, sudden fever, shortness of breath. The list goes on. Words cannot even begin to describe how incredibly awful you feel.</span><<gggpain>><<gggstress>><br><br>After several minutes of this, you\'re bent over on the floor. Clasping your head with one hand, and your chest with the other. Almost blacking out multiple times. Until it finally starts to subside.<<ggpain>><<ggstress>><br><br>Once your body finally settles down, you manage to stand up despite the grueling experience. Who in their right mind would willingly subject themselves to this kind of pain unless they really had to?<<gstress>>',
 		warning_label:
