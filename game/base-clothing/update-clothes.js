@@ -275,6 +275,7 @@ const remapVariables = {
 function updateClothesItem(slot, item, debug) {
 	if (!item) return; // might be old save that didn't have a new slot
 	if (item.temp) return; // temp items are not meant to be proper clothes
+	if (!item.name || !item.variable) return; // invalid save fragments are removed by pruneClothes instead of being converted to the naked catalog entry
 	if (Object.keys(remapVariables).includes(item.variable)) item.variable = remapVariables[item.variable];
 	const itemOld = clone(item);
 	// transfer new properties from itemRef to the item
@@ -529,6 +530,13 @@ function updateClothesItem(slot, item, debug) {
 }
 
 function updateClothes() {
+	// Check for empty wardrobe items and remove them
+	Object.keys(V.wardrobe).forEach(key => {
+		if (Array.isArray(V.wardrobe[key])) {
+			V.wardrobe[key] = V.wardrobe[key].filter(item => item !== undefined && item !== null && item !== "");
+		}
+	});
+
 	for (const slot of setup.clothes_all_slots) {
 		/* === $worn section === */
 		const worn = V.worn[slot];
@@ -539,14 +547,6 @@ function updateClothes() {
 		updateClothesItem(slot, carried);
 
 		/* === $wardrobes section === */
-
-		// Check for empty wardrobe items - and remove them
-		Object.keys(V.wardrobe).forEach(key => {
-			if (Array.isArray(V.wardrobe[key])) {
-				V.wardrobe[key] = V.wardrobe[key].filter(item => item !== undefined && item !== null && item !== "");
-			}
-		});
-
 		if (V.wardrobe[slot]) {
 			for (const item of V.wardrobe[slot]) updateClothesItem(slot, item);
 		}
