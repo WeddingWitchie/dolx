@@ -595,8 +595,8 @@ function pruneFoodstuff() {
 }
 window.pruneFoodstuff = pruneFoodstuff;
 
-/* Drop clothing entries other mods baked into the save (worn/carried/wardrobes/store); unknown variables crash render/shop/wardrobe lookups once the mod that added them is removed. 
-   Mirrors clothesIndex()'s own matching rules (variable+modder, variable-only, then oldVariable rename history) so anything that mod would still be able to resolve is left alone. */
+/* Drop unresolvable or malformed saved clothing (worn/carried/wardrobes/store), plus temporary storage placeholders that escaped into an equipped slot or wardrobe.
+   Mirrors clothesIndex()'s own matching rules (variable+modder, variable-only, then oldVariable/name recovery) so anything the game can still resolve is left alone. */
 function pruneClothes() {
 	const V = State.variables;
 	if (!setup?.clothes || !Array.isArray(setup.clothes_all_slots)) return;
@@ -606,6 +606,7 @@ function pruneClothes() {
 	function isKnownItem(slot, item) {
 		const catalog = setup.clothes[slot];
 		if (!catalog) return true;
+		if (!item?.name || !item.variable) return false;
 		if (catalog.some(ref => ref.variable === item.variable && ref.modder === item.modder)) return true;
 		if (catalog.some(ref => ref.variable === item.variable)) return true;
 		if (catalog.some(ref => Array.isArray(ref.oldVariable) && ref.oldVariable.some(old => old.name === item.name && old.variable === item.variable)))
@@ -618,8 +619,8 @@ function pruneClothes() {
 		/* $worn / $carried: one item per slot; reset to the slot's naked default when unresolvable. */
 		for (const dictName of ["worn", "carried"]) {
 			const item = V[dictName]?.[slot];
-			if (!item || item.temp || !item.variable || isKnownItem(slot, item)) continue;
-			pruned.add(`${dictName}.${slot}:${item.variable}`);
+			if (!item?.temp && isKnownItem(slot, item)) continue;
+			pruned.add(`${dictName}.${slot}:${item?.variable || item?.name || "invalid"}`);
 			const fallback = setup.clothes[slot]?.[0];
 			if (fallback) V[dictName][slot] = clone(fallback);
 		}
@@ -627,8 +628,8 @@ function pruneClothes() {
 		/* $wardrobe: array per slot. */
 		if (Array.isArray(V.wardrobe?.[slot])) {
 			V.wardrobe[slot] = V.wardrobe[slot].filter(item => {
-				if (!item || item.temp || !item.variable || isKnownItem(slot, item)) return true;
-				pruned.add(`wardrobe.${slot}:${item.variable}`);
+				if (!item?.temp && !setup.wardrobeSkip.includes(item?.name) && isKnownItem(slot, item)) return true;
+				pruned.add(`wardrobe.${slot}:${item?.variable || item?.name || "invalid"}`);
 				return false;
 			});
 		}
@@ -640,8 +641,8 @@ function pruneClothes() {
 				const wd = V.wardrobes[name];
 				if (!wd || !Array.isArray(wd[slot])) continue;
 				wd[slot] = wd[slot].filter(item => {
-					if (!item || item.temp || !item.variable || isKnownItem(slot, item)) return true;
-					pruned.add(`wardrobes.${name}.${slot}:${item.variable}`);
+					if (!item?.temp && !setup.wardrobeSkip.includes(item?.name) && isKnownItem(slot, item)) return true;
+					pruned.add(`wardrobes.${name}.${slot}:${item?.variable || item?.name || "invalid"}`);
 					return false;
 				});
 			}
@@ -650,8 +651,8 @@ function pruneClothes() {
 		/* $store: array per slot. */
 		if (Array.isArray(V.store?.[slot])) {
 			V.store[slot] = V.store[slot].filter(item => {
-				if (!item || item.temp || !item.variable || isKnownItem(slot, item)) return true;
-				pruned.add(`store.${slot}:${item.variable}`);
+				if (item?.temp || isKnownItem(slot, item)) return true;
+				pruned.add(`store.${slot}:${item?.variable || item?.name || "invalid"}`);
 				return false;
 			});
 		}
@@ -1108,8 +1109,16 @@ function xChangeBodyProp(role) {
 	if (role === "real") return "originalBody";
 	if (role === "xchange") return "changedBody";
 	if (role === "herm") return "hermBody";
+	// Clone bodies ("clone:<NPC name>") have no legacy snapshot to seed from,
+	// so they fall through to the intact seed wearing a copy of someone's body does not come with their history.
 	return "";
 }
+
+// Clone pills give the player a copy of a named NPC's body, cached per NPC in pill.clonedBody.
+// Each of those is its own body and so needs its own virginity record, or a clone's losses land on whichever of real/xchange/herm its shape happens to resemble.
+setup.xChangeCloneVirginityRole = function xChangeCloneVirginityRole(npcName) {
+	return typeof npcName === "string" && npcName !== "" && npcName !== "none" ? `clone:${npcName}` : "";
+};
 
 function xChangeVirginityEntryFrom(virginity, details, seen = true) {
 	const entry = { v: {}, d: {}, seen };
@@ -1165,10 +1174,10 @@ function xChangeSeedBodyVirginity(role) {
 		return xChangeVirginityEntryFrom(snap.virginity, snap.virginityDetails);
 	}
 
-	// The original body should already have been recorded by save-body before transformation.
-	// If not, only seed it from the live player when we are not currently transformed.
-	const transformed = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
-	if (role === "real" && !transformed) {
+	// The original body should already have been recorded by save-body before transformation, so a missing "real" record means a save from before virginity was split per body
+	// back then both bodies shared one history, and the live player still carries it.
+	// Seed from that rather than handing the player back a blank record, which would erase everything the real body ever did.
+	if (role === "real") {
 		return xChangeVirginityEntryFrom(V.player && V.player.virginity, V.player && V.player.virginityDetails);
 	}
 
@@ -1208,10 +1217,25 @@ setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
 // body never reverted (e.g. a still-herm-shaped body carried into a brand-new grey-only session).
 //
 // Trusting pill.active alone here misfiled virginity events onto the wrong body's record; check the live shape first.
+//
+// Transformed-vs-real is decided by comparing the live sex against pill.baseSex (the sex the player had when this session began) not by genderflipEffect.
+// The flag can still be stale when a second pill re-runs xchange-effects mid-session, and a stale "no flip" reading writes the transformed body's losses onto the real body's record.
+// sex is the right signal: a genderflip always swaps it, while a crossdress body (sissify/butchify) keeps it,
+// and a crossdress body shares the real body's genitals and so its virginity too. This is the same test characteristics.twee uses to decide body dysphoria.
 setup.xChangeActiveBodyVirginityRole = function xChangeActiveBodyVirginityRole() {
+	const pill = V.xchange && V.xchange.pill;
+	const transformed = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
+	// A clone is checked first: it can take any shape, including a herm one.
+	if (transformed && pill) {
+		const cloneRole = setup.xChangeCloneVirginityRole(pill.clone);
+		if (cloneRole) return cloneRole;
+	}
 	if (V.player && V.player.gender_body === "a") return "herm";
-	if (!(typeof window.playerIsXChanged === "function" && window.playerIsXChanged())) return "real";
-	if (V.xchange && V.xchange.pill && V.xchange.pill.genderflipEffect) return "xchange";
+	if (!transformed) return "real";
+	if (pill && (pill.baseSex === "m" || pill.baseSex === "f")) {
+		return V.player && V.player.sex !== pill.baseSex ? "xchange" : "real";
+	}
+	if (pill && pill.genderflipEffect) return "xchange";
 	return "real";
 };
 

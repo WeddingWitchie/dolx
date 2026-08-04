@@ -699,6 +699,13 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "xchange-bank-clone-body">>
+		<<if playerIsXChanged() and setup.xChangeCloneVirginityRole($xchange.pill.clone) isnot "">>
+			<<save-body "cloned" $xchange.pill.clone>>
+			<<set $xchange.pill.clone to "none">>
+		<</if>>
+	<</widget>>
+
 	<<widget "save-body">>
 		/* 	args 0: chooses which slot to save the body into. 
 				undefined => originalBody
@@ -844,6 +851,7 @@
 		<<if _slotLabel is "originalBody">><<set _vrole to setup.xChangeActiveBodyVirginityRole()>>
 		<<elseif _slotLabel is "genderswapped">><<set _vrole to "xchange">>
 		<<elseif _slotLabel is "herm">><<set _vrole to "herm">>
+		<<elseif _slotLabel is "cloned" and _args[1] isnot undefined>><<set _vrole to setup.xChangeCloneVirginityRole(_args[1])>>
 		<</if>>
 		<<if _vrole isnot "">><<xchange-store-body-virginity _vrole>><</if>>
 
@@ -852,6 +860,8 @@
 				<<set $xchange.pill.hermBody to _savedbody>>
 			<<elseif _vrole is "xchange">>
 				<<set $xchange.pill.changedBody to _savedbody>>
+			<<elseif _vrole.startsWith("clone:")>>
+				<<set $xchange.pill.clonedBody[$xchange.pill.clone] to _savedbody>>
 			<<else>>
 				<<set $xchange.pill.originalBody to _savedbody>>
 			<</if>>
@@ -985,6 +995,7 @@
 		<<if _args[0] is undefined>><<set _vrole to "real">>
 		<<elseif _args[0] is "genderswapped">><<set _vrole to "xchange">>
 		<<elseif _args[0] is "herm">><<set _vrole to "herm">>
+		<<elseif _args[0] is "cloned" and _args[1] isnot undefined>><<set _vrole to setup.xChangeCloneVirginityRole(_args[1])>>
 		<</if>>
 		<<if _vrole isnot "">><<xchange-apply-body-virginity _vrole>><</if>>
 
@@ -1216,19 +1227,26 @@
 		<<set _effectsList to _args[1]>>
 
 		<<set $sexStats.vagina.menstruation.running = false>>
-		
+		<<set _xchangeRestack to playerIsXChanged()>>
+
 		<<set $xchange.pill.active to true>>
-		<<set $xchange.pill.baseSex to $player.sex>>
-		<<set $xchange.pill.baseGenitals to {penis: !!$player.penisExist, vagina: !!$player.vaginaExist}>>
-		<<set $xchange.pill.clone to "none">>
+		<<if !_xchangeRestack>>
+			<<set $xchange.pill.baseSex to $player.sex>>
+			<<set $xchange.pill.baseGenitals to {penis: !!$player.penisExist, vagina: !!$player.vaginaExist}>>
+		<</if>>
+		<<if !_xchangeRestack>>
+			<<set $xchange.pill.clone to "none">>
+		<</if>>
 		<<set $xchange.pill.duration to _days * 24 - 1>> <!-- duration now in hours instead of days -->
 		<<set $xchange.pill.countdown to $xchange.pill.duration>>
 		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.pill.effectsKnown to true>>
 		<<set $xchange.pill.durationDetailRoll to 0>>
-		<<set $xchange.pill.genderflipEffect to false>>
-		<<set $xchange.pill.genderificationEffect to false>>
-		<<set $xchange.pill.hermEffect to false>>
+		<<if !_xchangeRestack>>
+			<<set $xchange.pill.genderflipEffect to false>>
+			<<set $xchange.pill.genderificationEffect to false>>
+			<<set $xchange.pill.hermEffect to false>>
+		<</if>>
 		<<set $xchange.pill.breederEffect to false>>
 		<<set $xchange.pill.omegaEffect to false>>
 		<<set $xchange.breederDenial to 0>>
@@ -1287,6 +1305,7 @@
 
 	<<case "genderflip">>
 		<<if !$xchange.pill.genderflipEffect>>
+			<<xchange-bank-clone-body>>
 			<<set $xchange.pill.genderflipEffect to true>>
 			<<if $player.sex is "m">>
 				<<become-girl>>
@@ -1324,6 +1343,7 @@
 
 	<<case "herm">>
 		<<if !$xchange.pill.genderflipEffect>>
+			<<xchange-bank-clone-body>>
 			<<set $xchange.pill.genderflipEffect to true>>
 			<<if $player.sex is "m">>
 				<<become-girl>>
@@ -1333,7 +1353,13 @@
 			<<set _xchangeNeedsRefresh to true>>
 		<</if>>
 		<<if !$xchange.pill.hermEffect>>
-			<<if setup.xChangeTransformedRole($player.gender_body) is "xchange">>
+			/* A different-gender clone already has genderflipEffect set, so the branch above is skipped
+			   and hermify is what takes the player out of the clone. Bank it here instead, and only fall
+			   through to the xchange slot when no clone is worn: filing a clone's record under "xchange"
+			   would overwrite the player's own X-Change body. */
+			<<if setup.xChangeCloneVirginityRole($xchange.pill.clone) isnot "">>
+				<<xchange-bank-clone-body>>
+			<<elseif setup.xChangeTransformedRole($player.gender_body) is "xchange">>
 				<<xchange-store-body-virginity "xchange">>
 			<</if>>
 			<<set $xchange.pill.hermEffect to true>>
@@ -1537,7 +1563,9 @@
 		<<case "genderflip">>
 			<<run setup.xChangeRecordActiveBodyVirginity()>>
 			<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a") or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
-			<<if $player.gender_body is "a">>
+			<<if setup.xChangeCloneVirginityRole($xchange.pill.clone) isnot "">>
+				<<save-body "cloned" $xchange.pill.clone>>
+			<<elseif $player.gender_body is "a">>
 				<<save-body "herm">>
 			<<elseif $xchange.pill.hermEffect or $xchange.pill.genderflipEffect or setup.xChangeActiveBodyVirginityRole() is "xchange">>
 				<<save-body "genderswapped">>
@@ -1788,7 +1816,9 @@
 		<<if _args[0] isnot "nosave">>
 			/* Save whatever the CURRENT body actually is before overwriting it */
 			<<run setup.xChangeRecordActiveBodyVirginity()>>
-			<<if $player.gender_body is "a">>
+			<<if setup.xChangeCloneVirginityRole($xchange.pill.clone) isnot "">>
+				<<save-body "cloned" $xchange.pill.clone>>
+			<<elseif $player.gender_body is "a">>
 				<<save-body "herm">>
 			<<elseif $xchange.pill.hermEffect or $xchange.pill.genderflipEffect or setup.xChangeActiveBodyVirginityRole() is "xchange">>
 				<<save-body "genderswapped">>
@@ -1864,6 +1894,7 @@
 		<<set $xchange.pill.durationDetailRoll to 0>>
 		<<set $xchange.pill.baseSex to undefined>>
 		<<set $xchange.pill.baseGenitals to undefined>>
+		<<set $xchange.pill.clone to "none">>
 		<<set $xchange.pill.genderflipEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
