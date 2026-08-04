@@ -8,7 +8,7 @@
 				<<if !$identityOption.acceptance or $identityOption.reject>>
 					<<dysphoria 10>>
 				<<elseif $identityPreference>>
-					<<stress -10>><<trauma -10>>
+					<<stress -2 1>><<trauma -2>>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -20,7 +20,7 @@
 				<<if !$identityOption.acceptance or $identityOption.reject>>
 					<<dysphoria 10>>
 				<<elseif $identityPreference>>
-					<<stress -10>><<trauma -10>>
+					<<stress -2 1>><<trauma -2>>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -71,10 +71,10 @@
 				<span class="gold bold">Identity Mechanics:</span><br>
 				<ul class="small-description">
 					<li>Accepted characteristics don't have negative effects. You can have one preferred characteristic from accepted characteristics in each category, which grants minor Stress and Trauma reduction when you have them.</li>
-					<li>You gain dysphoria for each characterisitc you have that you haven't accepted, which increases Stress and Trauma.</li>
+					<li>You gain dysphoria for each characteristic you have that you haven't accepted, which increases Stress and Trauma.</li>
 					<li>You gain daily tolerance towards characteristics you have that you haven't accepted, until you reach acceptance at max tolerance.</li>
 					<li>You don't gain Trauma from Rejected characteristics, but you don't gain Tolerance towards it either. Staying at maximum Dysphoria in a Rejected characteristic is dangerous.</li>
-					<li>If a Rejected characteristic's Dysphoria maxes out and your Willpower gives out, you're forced to begrudgingly go along with it. Unlike a plain Rejected characteristic, this does cause Trauma, though it stops draining your Willpower each time it flares up. The Reject and Accept controls both lock while Begrudged, the only way out is to stop having that characteristic (and unset it as Preferred) and let Tolerance decay back down over time, at which point you're free to Reject it again if you still want to.</li>
+					<li>If a Rejected characteristic's Dysphoria maxes out and your Willpower gives out, you're forced to begrudgingly go along with it. Unlike a plain Rejected characteristic, this does cause Trauma, though it stops draining your current Willpower each time it flares up. The Reject and Accept controls both lock while Begrudged, the only way out is to stop having that characteristic (and unset it as Preferred) and let Tolerance decay back down over time, at which point you're free to Reject it again if you still want to.</li>
 				</ul>
 			</div>
 		</div>
@@ -617,10 +617,10 @@
 				<div class="settingsToggleItemWide">
 					<ul class="small-description">
 						<li>Accepted characteristics don't have negative effects. You can have one preferred characteristic from accepted characteristics in each category, which grants minor Stress and Trauma reduction when you have them.</li>
-						<li>You gain dysphoria for each characterisitc you have that you haven't accepted, which increases Stress and Trauma.</li>
+						<li>You gain dysphoria for each characteristic you have that you haven't accepted, which increases Stress and Trauma.</li>
 						<li>You gain daily tolerance towards characteristics you have that you haven't accepted, until you reach acceptance at max tolerance.</li>
 						<li>You don't gain Trauma from Rejected characteristics, but you don't gain Tolerance towards it either. Staying at maximum Dysphoria in a Rejected characteristic is dangerous.</li>
-						<li>If a Rejected characteristic's Dysphoria maxes out and your Willpower gives out, you're forced to begrudgingly go along with it. Unlike a plain Rejected characteristic, this does cause Trauma, though it stops draining your Willpower each time it flares up. The Reject and Accept controls both lock while Begrudged, the only way out is to stop having that characteristic (and unset it as Preferred) and let Tolerance decay back down over time, at which point you're free to Reject it again if you still want to.</li>
+						<li>If a Rejected characteristic's Dysphoria maxes out and your Willpower gives out, you're forced to begrudgingly go along with it. Unlike a plain Rejected characteristic, this does cause Trauma, though it stops draining your current Willpower each time it flares up. The Reject and Accept controls both lock while Begrudged, the only way out is to stop having that characteristic (and unset it as Preferred) and let Tolerance decay back down over time, at which point you're free to Reject it again if you still want to.</li>
 					</ul>
 				</div>
 
@@ -918,12 +918,9 @@
 					<<else>>
 						<<set _shift to Math.ceil(_mod / 2)>>
 					<</if>>
-					<<if !$identityOption.acceptance>>
-						<<stress _shift>>
-						<<if !$identityOption.reject>>
-							<<trauma _shift>>
-						<</if>>
-					<<elseif $identityOption.reject>>
+					/* Every active dysphoria flare raises Stress. Begrudged traits also raise Trauma, while plain Rejected traits do not. */
+					<<stress _shift>>
+					<<if !$identityOption.reject or $identityOption.acceptance>>
 						<<trauma _shift>>
 					<</if>>
 					<<set $identityOption.dysphoria to Math.clamp($identityOption.dysphoria, 0, 100)>>
@@ -932,14 +929,14 @@
 						<<tolerance _overflow>>
 					<</if>>
 					<<if (!$identityOption.acceptance and $identityOption.reject)>>
-						<<willpower 1>>
+						<<if $xchange.willpowerSystemEnabled is 1>><<willpower-spending 1>><</if>>
 						<<rejectionBreakdown>>
 					<</if>>
 				<<elseif _mod lt 0 and $identityOption.dysphoria gt 0>>
 					<<set $identityOption.dysphoria to Math.clamp($identityOption.dysphoria + _mod, 0, 100)>>
 					<<if $identityOption.reject>>
 						<<set _shift to 0 - _mod>>
-						<<stress _mod>><<trauma _mod>><<control _shift>>
+						<<stress _mod 1>><<trauma _mod>><<control _shift>>
 					<</if>>
 				<</if>>
 			<</if>>
@@ -950,12 +947,10 @@
 	<<widget "identityEffects">>
 		<<if $identityOption.dysphoria gt 0>>
 			<<set _shift to $identityOption.dysphoria / 20>>
-			<<if !$identityOption.acceptance>>
+			<<if !$identityOption.acceptance or $identityOption.reject>>
 				<<stress _shift>>
-				<<if !$identityOption.reject>>
-					<<trauma $identityOption.dysphoria>>
-				<</if>>
-			<<elseif $identityOption.reject>>
+			<</if>>
+			<<if !$identityOption.reject or $identityOption.acceptance>>
 				<<trauma $identityOption.dysphoria>>
 			<</if>>
 		<</if>>
@@ -1126,8 +1121,8 @@
 						<<set _shift to ($identityOption.tolerance/50).toFixed(2)>>
 						<<set _shift to Math.clamp(3-_shift, 1, 3)>>
 						<<dysphoria _shift>>
-						<<if $identityPreference>>
-							<<stress -5 1>><<trauma -5>>
+						<<if $identityPreference and $identityOption.acceptance and !$identityOption.reject>>
+							<<stress -1 1>><<trauma -1>>
 						<</if>>
 						<<identityCleanup>>
 					<<elseif $identityOption.dysphoria gt 0>>
@@ -1277,8 +1272,8 @@
 			<<if (!$identityOption.acceptance or $identityOption.reject)>>
 				<<dysphoria 10>>
 			<</if>>
-			<<if $identityPreference>>
-				<<stress -10>><<trauma -10>>
+			<<if $identityPreference and $identityOption.acceptance and !$identityOption.reject>>
+				<<stress -2 1>><<trauma -2>>
 			<</if>>
 		<</if>>
 	<</widget>>
