@@ -219,7 +219,7 @@ function bikeSecurity() {
 			V.bicycle.upgrades = [];
 			V.bicycle.hourlyCheck = 0;
 			if (Time.days < 150) {
-				V.bicycle.stolenCoolDown = 14;
+				V.bicycle.stolenCoolDown = 10;
 			} else {
 				V.bicycle.stolenCoolDown = 7;
 			}

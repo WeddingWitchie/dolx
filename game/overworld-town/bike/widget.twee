@@ -104,6 +104,7 @@
 <</widget>>
 
 <<widget "destinationBike">>
+	/* Args: 0 = destination key, 1 = the current event already narrated the bike breaking. */
 	<<set _destination to _args[0]>>
 	<<switch _destination>>
 		<<case "domus" "barb" "danube" "wolf" "nightingale">>
@@ -139,12 +140,12 @@
 		<<else>>
 			<<set _roughTerrainModifierDurability to 0>>
 		<</if>>
+		/* The numbers for stat gains/debuffs are arbitrary... For the amount of athletics and physique you gain the tiredness should be comparable. Currently adjusted to compare to running on the harvest road */
+		<<set $bicycle.gains.fatigue to Math.round(($bicycle.time + $bicycle.roughTerrain) / 9)>><<set $bicycle.gains.athletics to Math.max(1, Math.round($bicycle.time / 12))>><<set $bicycle.gains.physique to Math.round(($bicycle.time + $bicycle.roughTerrain) / 15)>>
 		<<if $bicycle.durability.current gte ($bicycle.time + _roughTerrainModifierDurability)>>
 		<<set _travelInterrupt to false>>
 		<<set $bicycle.durability.current to Math.round(Math.max($bicycle.durability.current - ($bicycle.time + _roughTerrainModifierDurability), 0))>>
 		<<set $bicycle.location to _destination>>
-		/* The numbers for stat gains/debuffs are arbitrary... For the amount of athletics and physique you gain the tiredness should be comparable. Currently adjusted to compare to running on the harvest road */
-		<<set $bicycle.gains.fatigue to Math.round(($bicycle.time + $bicycle.roughTerrain) / 9)>><<set $bicycle.gains.athletics to Math.max(1, Math.round($bicycle.time / 12))>><<set $bicycle.gains.physique to Math.round(($bicycle.time + $bicycle.roughTerrain) / 15)>>
 		<<else>>
 			<<set $bicycle.durability.current to 0>>
 			<<set _travelInterrupt to true>>
@@ -203,9 +204,11 @@
 				<br><br>
 				<<endevent>>
 		<<case true>>
-			You are riding along when your bike <<print either("tyres go flat.", "chain rattles dangerously.", "handles come loose.", "pedals pop off.")>>
-			<span class="red">Your bike has broken before you reached your destination!</span>
-			<br><br>
+			<<if !_args[1]>>
+				You are riding along when your bike <<print either("tyres go flat.", "chain rattles dangerously.", "handles come loose.", "pedals pop off.")>>
+				<span class="red">Your bike has broken before you reached your destination!</span>
+				<br><br>
+			<</if>>
 			You will need to get it repaired at the bike depot<<if $bicycle.durability.repair isnot undefined>> or patch it yourself<</if>> before you can continue using it. <span class="yellow">You got a small workout at least.</span>
 			<<set _fatigue to (Math.trunc($bicycle.gains.fatigue*0.35))>><<set _athletics to Math.max(1, Math.trunc($bicycle.gains.athletics*0.35))>>
 			<<tiredness _fatigue>><<athletics _athletics>>
@@ -333,12 +336,12 @@
 			<<cleareventpool>>
 			<<switch _args[1]>>
 				<<case "forest">>
-					<<addinlineevent "bike_forest_crash" 0.3>>
+					<<if !$bicycle.breakCoolDown>><<addinlineevent "bike_forest_crash" 0.3>>
 						<<set $bikeDangerHappened to 1>>
 						A dark shape bolts across the forest path. You yank the handlebars aside and hit a hidden root hard enough to throw yourself over the front wheel. The bike lands badly behind you, its frame cracking against the ground.<<stress 12>><<ggstress>><<pain 8>><<ggpain>>
 						<br><span class="red">Your bike breaks!</span>
-						<<set $bicycle.durability.current to 0>>
-					<</addinlineevent>>
+						<<set $bicycle.durability.current to 0>><<set $bicycle.breakCoolDown to 10>>
+					<</addinlineevent>><</if>>
 					<<addinlineevent "bike_forest_blackout_ambush">>
 						<<set $bikeDangerHappened to 1>>
 						<<generate1>><<person1>>
@@ -380,12 +383,12 @@
 							<</addinlineevent>>
 					<</switch>>
 				<<case "open">>
-					<<addinlineevent "bike_open_crash" 0.3>>
+					<<if !$bicycle.breakCoolDown>><<addinlineevent "bike_open_crash" 0.3>>
 						<<set $bikeDangerHappened to 1>>
 						A lorry thunders past far too close. It shoves you off the road and down the grassy verge. You hit the ditch hard. When you pull it free, the bike refuses to roll straight.<<stress 13>><<ggstress>><<pain 8>><<ggpain>><<lowerwet 40>>
 						<br><span class="red">Your bike breaks!</span>
-						<<set $bicycle.durability.current to 0>>
-					<</addinlineevent>>
+						<<set $bicycle.durability.current to 0>><<set $bicycle.breakCoolDown to 10>>
+					<</addinlineevent>><</if>>
 					<<addinlineevent "bike_open_blackout_ambush">>
 						<<set $bikeDangerHappened to 1>>
 						<<generate1>><<person1>>
@@ -431,12 +434,12 @@
 							<</addinlineevent>>
 					<</switch>>
 				<<default>>
-					<<addinlineevent "bike_town_crash" 0.3>>
+					<<if !$bicycle.breakCoolDown>><<addinlineevent "bike_town_crash" 0.3>>
 						<<set $bikeDangerHappened to 1>>
 						A car cuts across your path without warning. You brake hard, but the tyres slip and the road rushes up beneath you. The driver is gone before you can even shout. You drag yourself and the bike to the kerb, finding the wheel bent and the chain twisted loose.<<stress 12>><<ggstress>><<pain 7>><<ggpain>>
 						<br><span class="red">Your bike breaks!</span>
-						<<set $bicycle.durability.current to 0>>
-					<</addinlineevent>>
+						<<set $bicycle.durability.current to 0>><<set $bicycle.breakCoolDown to 10>>
+					<</addinlineevent>><</if>>
 					<<addinlineevent "bike_town_ambush">>
 						<<set $bikeDangerHappened to 1>>
 						<<generate1>><<person1>>

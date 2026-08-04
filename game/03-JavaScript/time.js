@@ -1165,10 +1165,14 @@ function dayPassed(days) {
 		/* Set flag to determine Kylar's position at lunch */
 		V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
 
-		// DoLP Bike Theft Cooldown
+		// DoLP Bike Theft and Break Cooldowns
 		if (V.bicycle.stolenCoolDown > 0) {
 			V.bicycle.stolenCoolDown--;
 			if (V.bicycle.stolenCoolDown <= 0) delete V.bicycle.stolenCoolDown;
+		}
+		if (V.bicycle.breakCoolDown > 0) {
+			V.bicycle.breakCoolDown--;
+			if (V.bicycle.breakCoolDown <= 0) delete V.bicycle.breakCoolDown;
 		}
 	}
 
