@@ -706,8 +706,27 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "xchange-natural-sizes">>
+		<<set _naturalBreastsize to Number($player.breastsize)>>
+		<<set _naturalBottomsize to Number($player.bottomsize)>>
+		<<set _naturalPenissize to Number($player.penissize)>>
+
+		<<if $xchange?.pill?.swellEffect>>
+			<<if $xchange.pill.swellTarget is "penis">>
+				<<if Number.isFinite(Number($xchange.penissize))>><<set _naturalPenissize to Number($xchange.penissize)>><</if>>
+			<<elseif $xchange.pill.swellTarget is "curves">>
+				<<if Number.isFinite(Number($xchange.breastsize))>><<set _naturalBreastsize to Number($xchange.breastsize)>><</if>>
+				<<if Number.isFinite(Number($xchange.bottomsize))>><<set _naturalBottomsize to Number($xchange.bottomsize)>><</if>>
+			<</if>>
+		<</if>>
+
+		<<if $xchange?.pill?.alphaPenisSizeBoost and Number.isFinite(Number($xchange.pill.alphaPenisSizePrevious))>>
+			<<set _naturalPenissize to Number($xchange.pill.alphaPenisSizePrevious)>>
+		<</if>>
+	<</widget>>
+
 	<<widget "save-body">>
-		/* 	args 0: chooses which slot to save the body into. 
+		/* 	args 0: chooses which slot to save the body into.
 				undefined => originalBody
 				"genderswapped" for your xchanged body
 				"herm" for the purple pilled body
@@ -718,21 +737,27 @@
 		<<set _slotLabel to "originalBody">>
 		<<if _args[0] isnot undefined>><<set _slotLabel to _args[0]>><</if>>
 
-		<<set _sb_bs to Number($player.breastsize)>>
+		/* Snapshot the body at its natural size.
+		Swell and the Alpha boost inflate $player directly and keep the pre-effect value in their own store,
+		   so saving $player raw would bake a temporary size into the body permanently
+		   you would come back to a body that stays swollen after the pill is long gone. */
+		<<xchange-natural-sizes>>
+
+		<<set _sb_bs to Number(_naturalBreastsize)>>
 		<<if isNaN(_sb_bs)>>
 			<<run console.error("[X-Change save-body] Invalid player.breastsize", { slot: _slotLabel, value: V.player && V.player.breastsize })>>
 			<<error { message: "X-Change cannot save this body snapshot because player.breastsize is invalid. Please report this with your save and steps." }>>
 			<<exit>>
 		<</if>>
 
-		<<set _sb_bot to Number($player.bottomsize)>>
+		<<set _sb_bot to Number(_naturalBottomsize)>>
 		<<if isNaN(_sb_bot)>>
 			<<run console.error("[X-Change save-body] Invalid player.bottomsize", { slot: _slotLabel, value: V.player && V.player.bottomsize })>>
 			<<error { message: "X-Change cannot save this body snapshot because player.bottomsize is invalid. Please report this with your save and steps." }>>
 			<<exit>>
 		<</if>>
 
-		<<set _sb_ps to Number($player.penissize)>>
+		<<set _sb_ps to Number(_naturalPenissize)>>
 		<<if isNaN(_sb_ps)>>
 			<<run console.error("[X-Change save-body] Invalid player.penissize", { slot: _slotLabel, value: V.player && V.player.penissize })>>
 			<<error { message: "X-Change cannot save this body snapshot because player.penissize is invalid. Please report this with your save and steps." }>>
@@ -1107,13 +1132,34 @@
 			<<unset $promiscuityIgnore>>
 		<</if>>
 
-		/* Swell effect */
-		<<if _args[0] is undefined and $xchange.pill.swellEffect>>
-			<<if $xchange.pill.swellTarget is "penis">>
-				<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
+		/* Swell effect.
+		   The body we just loaded carries its natural sizes, so a still-running Swell has to be re-applied to it:
+		   stash this body's natural size as the value to give back when the effect ends, then inflate.
+		   Without this, swapping bodies mid-Swell either drops the effect or leaves the old body's size behind.
+		   Older saves may still hold a snapshot taken while swollen, so keep repairing changedBody too. */
+		<<if $xchange.pill.swellEffect>>
+			<<if _args[0] is undefined>>
+				<<if $xchange.pill.swellTarget is "penis">>
+					<<set $xchange.pill.changedBody.penissize to $xchange.penissize>>
+				<<elseif $xchange.pill.swellTarget is "curves">>
+					<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
+					<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
+				<</if>>
+			<</if>>
+			<<if $xchange.pill.swellTarget is "penis" and $player.penisExist>>
+				<<if Number.isFinite(Number($player.penissize)) and Number.isFinite(Number($penissizemax))>>
+					<<set $xchange.penissize to Number($player.penissize)>>
+					<<set $player.penissize to Number($penissizemax)>>
+				<</if>>
 			<<elseif $xchange.pill.swellTarget is "curves">>
-				<<set $xchange.pill.changedBody.breastsize to $xchange.breastsize>>
-				<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
+				<<if Number.isFinite(Number($player.breastsize)) and Number.isFinite(Number($breastsizemax))>>
+					<<set $xchange.breastsize to Number($player.breastsize)>>
+					<<set $player.breastsize to Number($breastsizemax)>>
+				<</if>>
+				<<if Number.isFinite(Number($player.bottomsize)) and Number.isFinite(Number($bottomsizemax))>>
+					<<set $xchange.bottomsize to Number($player.bottomsize)>>
+					<<set $player.bottomsize to Number($bottomsizemax)>>
+				<</if>>
 			<</if>>
 		<</if>>
 
