@@ -178,6 +178,10 @@
 		<<else>>
 			<<continue>>
 		<</if>>
+		/* $wear_* can point at an index that no longer exists (wardrobe contents changed between the link being drawn and clicked, or a stale index carried over from another wardrobe). Equipping undefined would clone it into $worn[_slot], leaving that slot permanently undefined and breaking every clothing read for the rest of the session. */
+		<<if _item is undefined>>
+			<<continue>>
+		<</if>>
 		/*Prevent equip when preggy*/
 		<<if playerBellySize() gte 12 and _item.type.includes("constricting") and $wardrobeOption is "wear">>
 			<<if _item.type.includes("chest_bind")>>
