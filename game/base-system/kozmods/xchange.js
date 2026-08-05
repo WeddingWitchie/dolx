@@ -910,7 +910,7 @@ setup.xchangeHyperFertility = Object.assign(
 		twinChance: 80,
 		tripletChance: 50,
 		quadChance: 30,
-		accelerateParasites: false,
+		accelerateParasites: true,
 	},
 	setup.xchangeHyperFertility || {}
 );

@@ -1152,8 +1152,10 @@ function dayPassed(days) {
 		if (V.robinPillory && V.robinPillory.danger !== undefined && (V.robindebtevent <= 1 || !V.baileySold)) V.robinPillory.active = true;
 
 		// Save today's HC ending in local storage
-		if (V.daily.winterStoryTime && V.hcEndings)
-			localStorage.setItem("hopelessCycle", localStorage.getItem("hopelessCycle").split(",").concatUnique(V.hcEndings));
+		if (V.daily.winterStoryTime && V.hcEndings) {
+			const storedHcEndings = localStorage.getItem("hopelessCycle");
+			localStorage.setItem("hopelessCycle", (storedHcEndings ? storedHcEndings.split(",") : []).concatUnique(V.hcEndings));
+		}
 
 		V.daily.clearProperties();
 
