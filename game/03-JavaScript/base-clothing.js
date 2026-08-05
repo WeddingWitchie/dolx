@@ -332,6 +332,12 @@ function playerChastity(slots, inAllSlots = false) {
 }
 window.playerChastity = playerChastity;
 
+// True when the player holds their own chastity key
+function chastitySelfControlled() {
+	return V.worn.genitals.chastityKey === "player";
+}
+window.chastitySelfControlled = chastitySelfControlled;
+
 /**
  * @description Takes in a passed item of clothing and returns its corresponding pair if it's an outfit part.
  * @param {object} garment The item of clothing that we want the second half of.

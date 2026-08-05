@@ -1108,6 +1108,12 @@ function effects() {
 			}
 		});
 
+		if (V.chastityAcclimatedTraitMessage) {
+			element("span", `Being locked away doesn't gnaw at you like it used to. You've gained the "Chastity Acclimated" trait.`, "gold");
+			br();
+			delete V.chastityAcclimatedTraitMessage;
+		}
+
 		if (V.insanityTraitMessage) {
 			if (V.insanityTraitMessage === "gain") {
 				element("span", "The weight of everything you've endured finally cracks something inside. Your grip on reality is slipping. You've gained the", "red");

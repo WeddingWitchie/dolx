@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastitySelfControlled */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1520,18 +1520,27 @@ function minutePassed(minutes) {
 	// The PC gradually gets used to being locked up. Chastity can keep them needy, but passive pressure alone cannot leave them overwhelmed.
 	V.chastityAcclimation = Number.isFinite(V.chastityAcclimation) ? V.chastityAcclimation : 0;
 	if (playerChastity()) {
-		V.chastityAcclimation = Math.clamp(V.chastityAcclimation + minutes, 0, 20160);
+		V.chastityAcclimation = Math.clamp(V.chastityAcclimation + minutes, 0, 14400);
 	} else {
-		V.chastityAcclimation = Math.clamp(V.chastityAcclimation - minutes / 2, 0, 20160);
+		V.chastityAcclimation = Math.clamp(V.chastityAcclimation - minutes / 2, 0, 14400);
 	}
-	const chastityArousalCap = V.arousalmax * (0.5 - 0.45 * (V.chastityAcclimation / 20160));
+	// Ten days of it stops feeling new. Mark that permanently instead of leaving it as an invisible number the player can't act on.
+	V.chastityAcclimatedTrait = Number.isFinite(V.chastityAcclimatedTrait) ? V.chastityAcclimatedTrait : V.chastityAcclimation >= 14400 ? 1 : 0;
+	if (V.chastityAcclimation >= 14400 && V.chastityAcclimatedTrait === 0) {
+		V.effectsmessage = 1;
+		V.chastityAcclimatedTraitMessage = 1;
+		V.chastityAcclimatedTrait = 1;
+	}
+	const chastityArousalCap = V.arousalmax * (0.5 - 0.45 * (V.chastityAcclimation / 14400));
+	// A belt only aches with need if it's locked against the PC's will, or they're needy enough (lustful) to chafe at it regardless of who holds the key. Someone who chose their own lock has no such frustration to feed on.
+	const chastityFrustrationApplies = playerChastity() && (!chastitySelfControlled() || V.backgroundTraits.includes("lustful"));
 	// Below the passive cap, casual arousal fades slowly. Above it, arousal gained from active stimulation fades normally.
-	const chastityFadeGuard = playerChastity() && V.arousal < chastityArousalCap ? 0.25 : 1;
+	const chastityFadeGuard = chastityFrustrationApplies && V.arousal < chastityArousalCap ? 0.25 : 1;
 	const arousalMultiplier =
 		V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect
 			? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0)
 			: -10 * chastityFadeGuard;
-	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes, chastityArousalCap));
+	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes, chastityArousalCap, chastityFrustrationApplies));
 	V.timeSinceArousal = V.arousal < V.arousalmax / 4 ? V.timeSinceArousal + minutes : 1;
 
 	// An insane mind is too preoccupied to notice how sensitive the body is; passive fabric-rub arousal never registers.
@@ -3086,7 +3095,7 @@ function passArousalWetness(passMinutes) {
 	wikifier("vaginaWetnessCalculate");
 }
 
-function getArousal(passMinutes, chastityArousalCap = Infinity) {
+function getArousal(passMinutes, chastityArousalCap = Infinity, chastityFrustrationApplies = false) {
 	const minuteMultiplier = passMinutes * 10;
 	let addedArousal = 0;
 	let chastityArousal = 0;
@@ -3108,10 +3117,10 @@ function getArousal(passMinutes, chastityArousalCap = Infinity) {
 
 	if (V.penilechastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
 	if (V.vaginalchastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
-	// Any locked device steadily builds pressure; internal devices add stronger, continuous stimulation on top.
-	if (playerChastity()) chastityArousal += minuteMultiplier * 0.5 * genitalSensitivity;
+	// A device locked against the PC's will steadily builds pressure; internal devices add stronger, continuous stimulation on top. Willingly self-locked chastity skips this build-up entirely (unless the PC is lustful enough to chafe at it regardless).
+	if (chastityFrustrationApplies) chastityArousal += minuteMultiplier * 0.5 * genitalSensitivity;
 	// A chastity belt built around an internal insert stimulates constantly, not just when something else triggers it.
-	if (wearingInternalChastity) chastityArousal += minuteMultiplier * 1.5 * genitalSensitivity;
+	if (wearingInternalChastity && chastityFrustrationApplies) chastityArousal += minuteMultiplier * 1.5 * genitalSensitivity;
 	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * breastSensitivity;
 	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
 	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
@@ -3144,7 +3153,7 @@ function getArousal(passMinutes, chastityArousalCap = Infinity) {
 	}
 	// Locked away with nothing to relieve the pressure, chastity throws in the odd involuntary jolt on top of the steady climb.
 	// A parasite riding along inside makes those jolts noticeably more frequent.
-	if (playerChastity() && !V.masturbating) {
+	if (chastityFrustrationApplies && !V.masturbating) {
 		const hasChastityParasite = V.penilechastityparasite || V.vaginalchastityparasite || V.analchastityparasite;
 		const chastitySpikeChance = hasChastityParasite ? 15 : 8;
 		const chastitySpikeRolls = Math.floor(passMinutes / 60);
