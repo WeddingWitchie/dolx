@@ -1898,36 +1898,37 @@ window.colorWheelContactLenses = function() {
 		let p_eyes = [(V.makeup.eyelenses.left != 0 ? V.makeup.eyelenses.left : V.leftEyeColour),(V.makeup.eyelenses.right != 0 ? V.makeup.eyelenses.right : V.rightEyeColour)]
 		p_eyes = [hexToRgb(setup.colours.eyes_map[p_eyes[0]].canvasfilter.blend), hexToRgb(setup.colours.eyes_map[p_eyes[1]].canvasfilter.blend)]
 		//console.log(p_eyes)
-		var colorPicker = new iro.ColorPicker('#picker', {
-			colors: (V.pharmacy_order_colours == 2 ?
-			[
-				p_eyes[0], // player left eye colour
-				p_eyes[1], // player right eye colour*/
-			] :[
-				p_eyes[0]
-			]),
-			layout: [
-				{
-				component: iro.ui.Box,
-				},
+		const twoColours = V.pharmacy_order_colours == 2;
+		const pickerLayout = [
 			{
-				component: iro.ui.Slider,
-				options: {
-					// can also be 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
-					sliderType: 'hue'
-				}
-				},
-			{
-				component: iro.ui.Slider,
-				options: {
-					// can also be 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
-					sliderType: 'value'
-				}
+			component: iro.ui.Box,
+			},
+		{
+			component: iro.ui.Slider,
+			options: {
+				// can also be 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
+				sliderType: 'hue'
 			}
-			]
-		});
-		T.color_lenses_temp = colorPicker.colors;
-		colorPicker.on(['input:end'], function(color) {
+			},
+		{
+			component: iro.ui.Slider,
+			options: {
+				// can also be 'saturation', 'value', 'red', 'green', 'blue', 'alpha' or 'kelvin'
+				sliderType: 'value'
+			}
+		}
+		];
+		// Two separate picker instances (one per eye) instead of a single multicolor picker,
+		// as a shared box starts with both handles stacked on the same spot (identical eye colours)
+		// and iro.js always resolves overlapping handle clicks to the first one, making the second unreachable.
+		const colorPickers = twoColours ? [
+			new iro.ColorPicker('#picker0', { color: p_eyes[0], layout: pickerLayout }),
+			new iro.ColorPicker('#picker1', { color: p_eyes[1], layout: pickerLayout })
+		] : [
+			new iro.ColorPicker('#picker0', { color: p_eyes[0], layout: pickerLayout })
+		];
+		T.color_lenses_temp = colorPickers.map(picker => picker.color);
+		function onColourInputEnd() {
 			let check_condition = 0;
 			let tmp_object = {"0":{"normal":{"blend":undefined,"brightness":undefined},"custom":{"blend":undefined,"brightness":undefined}},"1":{"normal":{"blend":undefined,"brightness":undefined},"custom":{"blend":undefined,"brightness":undefined}}};
 			let eye;
@@ -1935,13 +1936,13 @@ window.colorWheelContactLenses = function() {
 			let eyes = [(V.makeup.eyelenses.left ? V.makeup.eyelenses.left : V.leftEyeColour), (V.makeup.eyelenses.right ? V.makeup.eyelenses.right : V.rightEyeColour)];
 			let remember_eye = [eyes[0], eyes[1]];
 
-			color = colorPicker.colors;
+			let color = colorPickers.map(picker => picker.color);
 			for (eye in eyes){
 				for (let s_colours in setup.colours.eyes){ // We loop through every colours currently known in the game("currently know" because new ones can be added as you get new lenses)
 					if (setup.colours.eyes[s_colours].variable == eyes[eye]){ // When we found the right colour object that matches the eye colour
 						check_condition = 1
 						tempEditEyeName(eye, "colorWheelTemporary"+eye, s_colours) // we replace its colour by "colorWheelTemporary" and have this temporary colour match player's one
-						tmp_object = tempEditPlayerEyeValues(tmp_object, eye, "colorWheelTemporary"+eye, color[(V.pharmacy_order_colours == 1 ? 0 : eye)], s_colours); // we temporarily change the player eye colour and save the original values, setting them back afterward.
+						tmp_object = tempEditPlayerEyeValues(tmp_object, eye, "colorWheelTemporary"+eye, color[(twoColours ? eye : 0)], s_colours); // we temporarily change the player eye colour and save the original values, setting them back afterward.
 						save_index[eye] = s_colours;
 						break;
 					}
@@ -1954,6 +1955,7 @@ window.colorWheelContactLenses = function() {
 			T.color_lenses_temp = color;
 			remember_eye = undefined;
 			eyes = undefined;
-		});
+		}
+		colorPickers.forEach(picker => picker.on(['input:end'], onColourInputEnd));
 	});
 }
