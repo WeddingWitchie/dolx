@@ -2759,21 +2759,70 @@ The <<person1>><<person>> looks at you with concern, <<his>> anger begins to tur
 
 :: Hallways Pantsed
 <<effects>>
+<<generatey1>>
 <<set $pantsed to {}>>
 <<set $pantsed.lower to $worn.lower.name>>
 <<set $pantsed.underlower to $worn.under_lower.name>>
-<<set $pantsed.lowerintegrity to $worn.lower.integrity>>
-<<set $pantsed.underlowerintegrity to $worn.under_lower.integrity>>
-<<set $pantsed.lowerintegrity -= 20>>
-<<set $pantsed.underlowerintegrity -= 20>>
-<<set $worn.lower.integrity -= 20>>
-<<set $worn.under_lower.integrity -= 20>>
+<<set $pantsed.safe to true>>
+<<set $pantsed.method to "passive">>
 <<exposure>>
+
+Fighting would only make it worse. You keep your hands still and brace yourself.
+<br><br>
+The <<person1>><<person>> behind you tugs downward. Nothing catches and nothing tears. Your $pantsed.lower slides over your hips, and you feel the air on the backs of your thighs.
+<br><br>
+
+<<link [[Next|Hallways Pantsed Reveal]]>><</link>>
+<br>
+
+:: Hallways Pantsed Fight
+<<effects>>
 <<generatey1>>
 
-Fighting would only make it worse. You keep your hand still and brace yourself. The <<person1>><<person>> behind you tugs downward, intent on removing your $pantsed.lower from your body, <span class="purple">but something gets caught.</span>
+<<if $physiqueSuccess>>
+	You twist at the waist and drive your elbow backwards. It catches the <<person1>><<person>> across the face.
+	<br><br>
+	<<He>> lets go and staggers away with both hands over <<his>> nose. The students around you stop watching you and start laughing at <<him>> instead. You pull your $worn.lower.name straight and hold your ground until <<he>> disappears into the crowd.
+	<span class="green">Nobody else tries their luck.</span>
+	<<detention 6>><<status 3>><<stress -6>><<gdelinquency>><<gcool>><<lstress>>
+	<br><br>
+
+	<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<br>
+<<else>>
+	<<set $pantsed to {}>>
+	<<set $pantsed.lower to $worn.lower.name>>
+	<<set $pantsed.underlower to $worn.under_lower.name>>
+	<<set $pantsed.lowerintegrity to $worn.lower.integrity - 20>>
+	<<set $pantsed.underlowerintegrity to $worn.under_lower.integrity - 20>>
+	<<set $worn.lower.integrity -= 20>>
+	<<set $worn.under_lower.integrity -= 20>>
+	<<set $pantsed.method to "fight">>
+	<<exposure>>
+
+	You twist at the waist and drive your elbow backwards, but the <<person1>><<person>> leans clear of it. You hit nothing, and the swing leaves you off balance.
+	<br><br>
+	<<He>> takes hold with both hands and pulls down hard, <span class="purple">and something gets caught.</span> <<He>> pulls again, and your stomach lurches as you hear the fabric strain.
+	<<detention 3>><<gdelinquency>>
+	<br><br>
+
+	<<link [[Next|Hallways Pantsed Reveal]]>><</link>>
+	<br>
+<</if>>
+
+:: Hallways Pantsed Submit
+<<effects>>
+<<generatey1>>
+<<set $pantsed to {}>>
+<<set $pantsed.lower to $worn.lower.name>>
+<<set $pantsed.underlower to $worn.under_lower.name>>
+<<set $pantsed.safe to true>>
+<<set $pantsed.method to "submit">>
+<<exposure>>
+
+This is going to happen whatever you do, so you decide not to make them work for it. You hook your thumbs into the waistband of your $pantsed.lower and push down.
 <br><br>
-<<He>> tugs again, more roughly, and your stomach lurches at the sound of ripping fabric.
+The <<person1>><<person>> behind you goes still, thrown by how easily you gave in. Then <<he>> laughs, and the students nearest you laugh with <<him>>.
 <br><br>
 
 <<link [[Next|Hallways Pantsed Reveal]]>><</link>>
@@ -2782,7 +2831,73 @@ Fighting would only make it worse. You keep your hand still and brace yourself. 
 :: Hallways Pantsed Reveal
 <<effects>>
 
-<<if $pantsed.lowerintegrity lte 0 and $pantsed.underlowerintegrity lte 0>>
+<<if $pantsed.safe>>
+	/* you didn't struggle, so nothing tore: the bottoms come down and whatever is under them stays put */
+	<<if $pantsed.method is "submit">>
+		You push your $pantsed.lower down to your ankles and straighten back up.
+	<<else>>
+		The <<person>> pulls down a final time, dragging your $pantsed.lower to your ankles.
+	<</if>>
+	<br><br>
+
+	<<if $pantsed.underlower is "naked">>
+		<<if playerChastity()>>
+			"Look, every..." your tormentor starts, then stops when <<he>> sees your <<genitals>>. The students nearest you stare at it, and a few laugh nervously.
+			<<schoolrep_naked>>
+			<<status -8>><<lcool>>
+			<br><br>
+			You pull your $pantsed.lower back up and walk off red-faced, leaving them muttering behind you.
+			<br><br>
+
+			<<link [[Next|Hallways]]>><<endevent>><<clotheson>><<unset $pantsed>><<set $eventskip to 1>><</link>>
+			<br>
+		<<else>>
+			"Look, everyone!" your tormentor shouts. "<<pShes>> not wearing underwear!"
+			<br><br>
+			The hallway fills with cheers and laughter. Your classmates crowd in close, and every one of them can see your bare <<genitals 2>>.
+			<<schoolrep_naked>>
+			<<status -12>><<llcool>>
+			<br><br>
+
+			<<if hasSexStat("exhibitionism", 5)>>
+				<<link [[Flaunt|Hallways Pantsed Flaunt]]>><<set $phase to 3>><</link>><<exhibitionist5>>
+				<br>
+			<</if>>
+			<<link [[Flee|Hallways Pantsed Run]]>><<trauma 2>><<stress 6>><<set $phase to 3>><</link>><<gstress>><<gtrauma>>
+			<br>
+		<</if>>
+	<<else>>
+		/* the underwear survives, so the crowd gets your underwear instead of your body */
+		<<set _underwearGender to $worn.under_lower.gender>>
+		<<set _underwearOutsYou to ["f", "m"].includes(_underwearGender) and _underwearGender isnot $player.sex and _underwearGender is $player.gender_appearance and !isGenitalMismatch()>>
+		Your $pantsed.underlower stays where it is. For a moment nobody says anything, and then the laughter starts anyway.
+		<br><br>
+		"Nice $pantsed.underlower!" someone shouts, and the students around you repeat it back. Phones come out. Nobody steps in to help.
+		<<status -10>><<llcool>><<stress 6>><<gstress>>
+		<<if $pantsed.method is "submit">>
+			<br><br>
+			Someone points out that you pulled them down yourself, and the laughing gets louder.
+			<<status -8>><<lcool>><<fameexhibitionism 2>>
+		<</if>>
+		<<if _underwearOutsYou>>
+			<br><br>
+			A student at the front leans in for a closer look. "Hang on. Those are <<if _underwearGender is "f">>girls'<<else>>boys'<</if>>." Within seconds the students around you are all repeating that instead.
+			<<schoolrep crossdress 1>>
+		<</if>>
+		<<if $whitneypantiescheck is 1>>
+			<br><br>
+			Whitney told you to go without. You wonder how long it takes for word to get back.
+		<</if>>
+		<br><br>
+
+		<<if hasSexStat("exhibitionism", 2)>>
+			<<link [[Show them off|Hallways Pantsed Underwear]]>><<set $phase to 1>><</link>><<exhibitionist2>>
+			<br>
+		<</if>>
+		<<link [[Pull them up|Hallways Pantsed Underwear]]>><<set $phase to 0>><<trauma 2>><</link>><<gtrauma>>
+		<br>
+	<</if>>
+<<elseif $pantsed.lowerintegrity lte 0 and $pantsed.underlowerintegrity lte 0>>
 	/* both bottoms and underwear (if any) get destroyed */
 	<<if playerChastity()>>
 		The <<person>> pulls down a final time, <span class="red">ripping your $pantsed.lower <<if $pantsed.underlower isnot "naked">>and your $pantsed.underlower<</if>> entirely off your body,</span> revealing your <<genitals>>!
@@ -2914,6 +3029,31 @@ Fighting would only make it worse. You keep your hand still and brace yourself. 
 		<<link [[Flee|Hallways Pantsed Run]]>><<trauma 2>><<stress 6>><<set $phase to 3>><</link>><<gstress>><<gtrauma>>
 		<br>
 	<</if>>
+<</if>>
+
+:: Hallways Pantsed Underwear
+<<effects>>
+
+<<if $phase is 1>>
+	You leave your $pantsed.lower around your ankles and turn a slow circle, giving everyone a proper look at your $pantsed.underlower.
+	<<exhibitionism2>>
+
+	Some of them keep mocking you, but the phones stay out and a few students cheer you on. By the time you stop turning, most of the hallway has a photo of you in your underwear.
+	<<fameexhibitionism 3>>
+	<br><br>
+
+	A teacher shouts from somewhere down the corridor, and the crowd starts to break up. You take your time pulling your $pantsed.lower back up.
+	<br><br>
+
+	<<link [[Next|Hallways]]>><<endevent>><<clotheson>><<unset $pantsed>><<set $eventskip to 1>><</link>>
+	<br>
+<<else>>
+	You crouch and drag your $pantsed.lower back up as fast as you can. It doesn't stop the laughter, and you can still hear it from the far end of the corridor.
+	<<fameexhibitionism 1>>
+	<br><br>
+
+	<<link [[Next|Hallways]]>><<endevent>><<clotheson>><<unset $pantsed>><<set $eventskip to 1>><</link>>
+	<br>
 <</if>>
 
 :: Hallways Pantsed Flaunt
