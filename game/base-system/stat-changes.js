@@ -537,7 +537,9 @@ const statChange = (() => {
 				}
 			}
 
-			const arousalChange = amount * sexModifier * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1);
+			// Long enough spent constantly horny or locked away, and being aroused stops being anything new - it just doesn't build the way it used to.
+			const desensitizedMod = amount > 0 && V.arousalDesensitizedTrait === 1 ? 0.5 : 1;
+			const arousalChange = amount * sexModifier * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1) * desensitizedMod;
 			V.arousal += arousalChange;
 
 			fragment.append(wikifier("pleasure", amount, source));

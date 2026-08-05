@@ -1532,6 +1532,25 @@ function minutePassed(minutes) {
 		V.chastityAcclimatedTrait = 1;
 	}
 	const chastityArousalCap = V.arousalmax * (0.5 - 0.45 * (V.chastityAcclimation / 14400));
+	// Being constantly horny (Lustful) or having spent long enough locked in chastity both wear the edge off arousal itself, not just chastity's own frustration.
+	V.lustfulAcclimation = Number.isFinite(V.lustfulAcclimation) ? V.lustfulAcclimation : 0;
+	if (V.backgroundTraits.includes("lustful")) {
+		V.lustfulAcclimation = Math.clamp(V.lustfulAcclimation + minutes, 0, 20160);
+	} else {
+		V.lustfulAcclimation = Math.clamp(V.lustfulAcclimation - minutes / 2, 0, 20160);
+	}
+	V.arousalDesensitizedTrait = Number.isFinite(V.arousalDesensitizedTrait)
+		? V.arousalDesensitizedTrait
+		: V.xchange.arousalAcclimatedTraitEnabled && (V.lustfulAcclimation >= 20160 || V.chastityAcclimatedTrait === 1)
+		? 1
+		: 0;
+	if (V.xchange.arousalAcclimatedTraitEnabled && (V.lustfulAcclimation >= 20160 || V.chastityAcclimatedTrait === 1) && V.arousalDesensitizedTrait === 0) {
+		V.effectsmessage = 1;
+		V.arousalDesensitizedTraitMessage = 1;
+		V.arousalDesensitizedTrait = 1;
+	} else if (!V.xchange.arousalAcclimatedTraitEnabled && V.arousalDesensitizedTrait === 1) {
+		V.arousalDesensitizedTrait = 0;
+	}
 	// A belt only aches with need if it's locked against the PC's will, or they're needy enough (lustful) to chafe at it regardless of who holds the key. Someone who chose their own lock has no such frustration to feed on.
 	const chastityFrustrationApplies = playerChastity() && (!chastitySelfControlled() || V.backgroundTraits.includes("lustful"));
 	// Below the passive cap, casual arousal fades slowly. Above it, arousal gained from active stimulation fades normally.

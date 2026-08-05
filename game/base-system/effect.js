@@ -1114,6 +1114,12 @@ function effects() {
 			delete V.chastityAcclimatedTraitMessage;
 		}
 
+		if (V.arousalDesensitizedTraitMessage) {
+			element("span", `Being turned on has stopped feeling urgent. You've gained the "Arousal Acclimated" trait.`, "gold");
+			br();
+			delete V.arousalDesensitizedTraitMessage;
+		}
+
 		if (V.insanityTraitMessage) {
 			if (V.insanityTraitMessage === "gain") {
 				element("span", "The weight of everything you've endured finally cracks something inside. Your grip on reality is slipping. You've gained the", "red");
