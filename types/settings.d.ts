@@ -16,6 +16,7 @@ declare module "twine-sugarcube" {
 			underwearCostModifier: true | false;
 			tendingYieldModifier: true | false;
 			toyDildoEnabled: true | false;
+			toyVirginityEnabled: true | false;
 			transformDivineEnabled: true | false;
 			analDoubleEnabled: true | false;
 			vaginalDoubleEnabled: true | false;

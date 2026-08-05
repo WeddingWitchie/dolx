@@ -618,7 +618,18 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	and !playerChastity("vagina")) and $vaginause isnot "othermouth" and ($settings.vaginalDoubleEnabled and $settings.toyMultiplePenetrationEnabled or $vaginause is 0)>>
 		/* penetration */
 		/* Doesn't check if the PC is already penetrated (aside from mouth) in order to allow for multiple penetrations. */
-		<span class="pink"><<He>> plunges <<his>> _args[0]-hand $_toy into your warm <<pussy>>.</span>
+		<<if $settings.toyVirginityEnabled and $player.virginity.vaginal is true>>
+			<span class="pink"><<He>> plunges <<his>> _args[0]-hand $_toy into your virgin <<pussy>>.</span>
+			<<if $sexStats.vagina.pregnancy.totalBirthEvents gt 0>>
+				<span class="red">Despite your lack of a hymen, you feel something inside you change as your virginity and purity are taken.</span>
+			<<else>>
+				<span class="red">You gasp as you feel your hymen tear, <<virginitylosttext $NPCList[_n].fullDescription>></span>
+			<</if>>
+			<<takeVirginity $NPCList[_n].fullDescription "vaginal">><<set $speechvaginavirgin to 1>>
+		<<else>>
+			<span class="pink"><<He>> plunges <<his>> _args[0]-hand $_toy into your warm <<pussy>>.</span>
+			<<if $settings.toyVirginityEnabled>><<takeVirginity $NPCList[_n].fullDescription "vaginal">><</if>>
+		<</if>>
 		<<neutral 15 "genitals" _n>><<set $speechvagina to 1>><<combat-set-hand-target _args[0] "vaginadildo">>
 		<<bodypart_admire_chance pubic>>
 	<<else>>
@@ -831,7 +842,14 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	and !playerChastity("anus") and (!playerHasButtPlug() or random(0,1) isnot 0) and $anususe isnot "othermouth" and ($settings.analDoubleEnabled and $settings.toyMultiplePenetrationEnabled or $anususe is 0)>>
 		/* penetration */
 		/* Doesn't check if the PC is already penetrated (aside from mouth) in order to allow for multiple penetrations. */
-		<span class="pink"><<He>> plunges the $_toy in <<his>> _hand hand into your ass<<if playerHasButtPlug()>>, heedless of your $worn.butt_plug.name<</if>>.</span>
+		<<if $settings.toyVirginityEnabled and $player.virginity.anal is true>>
+			<span class="pink"><<He>> plunges the $_toy in <<his>> _hand hand into your virgin ass<<if playerHasButtPlug()>>, heedless of your $worn.butt_plug.name<</if>>.</span>
+			<span class="red">You feel your ass stretch around it, <<virginitylosttext $NPCList[_n].fullDescription>></span>
+			<<takeVirginity $NPCList[_n].fullDescription "anal">><<set $speechanusvirgin to 1>>
+		<<else>>
+			<span class="pink"><<He>> plunges the $_toy in <<his>> _hand hand into your ass<<if playerHasButtPlug()>>, heedless of your $worn.butt_plug.name<</if>>.</span>
+			<<if $settings.toyVirginityEnabled>><<takeVirginity $NPCList[_n].fullDescription "anal">><</if>>
+		<</if>>
 		<<combat-set-hand-target _hand "anusdildo">>
 		<<neutral 15 _n>>
 		<<set $speechanus to 1>>

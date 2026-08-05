@@ -3747,8 +3747,21 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			break;
 		case "mdildopenetratebounce":
 			clearAction("vagina");
-			wikifier("arousal", 300, "masturbationVagina");
 			altText.selectedToy = selectedToy("vagina");
+			if (V.settings.toyVirginityEnabled && V.player.virginity.vaginal === true) {
+				wikifier("arousal", 1000, "vaginal");
+				wikifier("vaginalstat");
+				wikifier("vaginaraped");
+				fragment.append(span(`You lower yourself onto the ${toyDisplay(altText.selectedToy)}, pushing it deep inside you.`));
+				fragment.append(" ");
+				fragment.append(wikifier("takeVirginity", JSON.stringify("your " + toyDisplay(altText.selectedToy)), "vaginal"));
+				fragment.append(" ");
+				sWikifier(
+					'You almost scream out as <span class="red">your no longer virgin</span> vagina struggles to accommodate it, but the pain is gone within moments.'
+				);
+				break;
+			}
+			wikifier("arousal", 300, "masturbationVagina");
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
 				sWikifier(`You hungrily ride the ${toyDisplay(altText.selectedToy)}, rubbing it as quickly as you can.`);
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {
@@ -3840,8 +3853,20 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			break;
 		case "mdildopenetratebounce":
 			clearAction("anus");
-			wikifier("arousal", 300, "masturbationAnal");
 			altText.selectedToy = selectedToy("anus");
+			if (V.settings.toyVirginityEnabled && V.player.virginity.anal === true) {
+				wikifier("arousal", 1000, "anal");
+				wikifier("analstat");
+				fragment.append(span(`You lower yourself onto the ${toyDisplay(altText.selectedToy)}, pushing it deep inside you.`));
+				fragment.append(" ");
+				fragment.append(wikifier("takeVirginity", JSON.stringify("your " + toyDisplay(altText.selectedToy)), "anal"));
+				fragment.append(" ");
+				sWikifier(
+					'You almost scream out as <span class="red">your no longer virgin</span> anus struggles to accommodate it, but the pain is gone within moments.'
+				);
+				break;
+			}
+			wikifier("arousal", 300, "masturbationAnal");
 			if (V.arousal >= (V.arousalmax / 5) * 4) {
 				sWikifier(`You hungrily ride the ${toyDisplay(altText.selectedToy)}, rubbing it as quickly as you can.`);
 			} else if (V.arousal >= (V.arousalmax / 5) * 3) {

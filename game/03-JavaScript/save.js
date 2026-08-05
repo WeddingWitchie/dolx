@@ -1399,6 +1399,7 @@ function settingsObjects(type) {
 					underwearCostModifier: { min: 1, max: 2, decimals: 1, displayName: "Cost of underwear:", randomize: "gameplay" },
 					tendingYieldModifier: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
 					toyDildoEnabled: { bool: true, displayName: "Dildos:" },
+					toyVirginityEnabled: { bool: true, displayName: "Toys can take virginity:" },
 					transformDivineEnabled: { bool: true, displayName: "Divine Transformations:" },
 					analDoubleEnabled: { bool: true, displayName: "Double Anal:" },
 					vaginalDoubleEnabled: { bool: true, displayName: "Double Vaginal:" },
