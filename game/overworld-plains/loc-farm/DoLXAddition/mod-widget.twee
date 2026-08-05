@@ -82,3 +82,66 @@
 		No crops are currently planted.
 	<</if>>
 <</widget>>
+
+<!-- Alex wakes at five to start breakfast and rouses the player on the way out of bed. -->
+<<widget "alexCompanionWake">>
+	<<npc Alex>><<person1>>
+	<<set _alexWakeRoll to random(1, 4)>>
+
+	<<if Time.schoolDay>>
+		<<switch _alexWakeRoll>>
+			<<case 1>>
+				<<He>> shakes your shoulder. "Up you get. You've got school." <<He>> swings <<his>> legs out of bed.
+				"I'll put something on the stove."
+			<<case 2>>
+				You wake to Alex pulling a shirt over <<his>> head. "There you are," <<he>> says.
+				"School today. You're eating before you go, I mean it."
+			<<case 3>>
+				"Oi." Alex flicks your ear. "School. Up." <<His>> voice is gruff,
+				but <<he>> waits until your eyes are open before <<he>> stands.
+			<<default>>
+				<<He>> presses a kiss to your forehead. "Morning. School day. I'll get breakfast on, you get moving."
+		<</switch>>
+	<<else>>
+		<<switch _alexWakeRoll>>
+			<<case 1>>
+				<<He>> stretches, then yawns. "Morning," <<he>> says. "Animals won't feed themselves. Breakfast first, though."
+			<<case 2>>
+				You wake to <<him>> sitting up, looking out at the fields.
+				"Weather's holding," <<he>> says, noticing you. "Morning. I'll get the pan going."
+			<<case 3>>
+				Alex grunts, rubs <<his>> face, and sits up on the edge of the bed.
+				"Morning. Tea first. Everything else after."
+			<<default>>
+				<<He>> squeezes your shoulder as <<he>> climbs past you. "Sleep all right? I'll start breakfast."
+		<</switch>>
+	<</if>>
+	<br><br>
+
+	<<if C.npc.Alex.love gte 60>>
+		<<He>> pauses in the doorway and looks back at you. "Don't lie in too long,"
+		<<he>> says, softer than before. "Breakfast is better with company."
+		<br><br>
+	<</if>>
+
+	<<set _alexWakeBedPassage to ($bus is "farm_alex_room" ? "Farm Alex Bed" : "Farm Bed")>>
+	<<set $alex_bed to "none">><<unset $bedGuest>>
+
+	<<bedicon "zzz">><<link [[Pull the covers back over yourself|_alexWakeBedPassage]]>><<endevent>><</link>>
+	<br>
+	<<if $bus is "farm_alex_room">>
+		<<getouticon>><<link [[Get up with Alex|Farm Alex Bedroom]]>>
+			<<set $wardrobe_location to "alexFarm">>
+			<<wardrobeSelection true>>
+			<<storeon "farm alex bed" "check">>
+			<<if _store_check is 1>>
+				<<storeon "farm alex bed">>
+			<</if>>
+			<<loadTempHairStyle>>
+		<</link>>
+	<<else>>
+		<<getouticon>><<link [[Get up with Alex|Farm Bedroom]]>><<endevent>>
+		<<set $wear_outfit to "clotheson">><<bedclotheson "Farm Bed">><</link>>
+	<</if>>
+	<br>
+<</widget>>

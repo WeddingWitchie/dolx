@@ -34,3 +34,87 @@ Robin listens without interrupting. <<if C.npc.Robin.dom gte 70>>When you finish
 The possessive edge in <<his>> voice makes it clear that <<he>> still wants a say of <<his>> own.<<else>>When you finish, <<he>> takes your hand carefully. "Thank you for telling me," <<he>> says. "You don't have to prove anything to me. If there's something I can do that would help, I want you to tell me."<</if>> <<stress -6>><<lstress>><<npcincr Robin love 2>><<glove>>
 <br><br>
 <<robinoptions>>
+
+:: Robin Mod Widgets [widget]
+<!-- Robin wakes on their own schedule and rouses the player, rather than the player guessing a wake-up hour. -->
+<!-- _args[0]: "yours" if Robin climbed into your bed, "theirs" if you slept in Robin's room. -->
+<<widget "robinCompanionWake">>
+	<<set _robinWakeBed to _args[0]>>
+	<<set _robin to statusCheck("Robin")>>
+	<<npc Robin>><<person1>>
+	<<set _robinWakeRoll to random(1, 4)>>
+
+	<<if _robin.trauma gte 50>>
+		<<Hes>> already awake when you open your eyes, <<his>> arms still around you.
+        "You stayed," <<he>> says. <<He>> says it like <<he>> wasn't sure you would.
+		<br><br>
+		<<if Time.schoolDay>>
+			<<He>> looks past you at the window and sighs. "It's a school day. I suppose we should get ready."
+		<<else>>
+			"No school today," <<he>> says. <<He>> stays where <<he>> is a moment longer, then sits up.
+		<</if>>
+	<<elseif Time.schoolDay>>
+		<<switch _robinWakeRoll>>
+			<<case 1>>
+				<<He>> shakes your shoulder until you open your eyes. "Morning," <<he>> says. "It's a school day. Let's get ready."
+			<<case 2>>
+				You wake to Robin already sitting up, <<his>> hair flat on one side. "Oh good, you're awake," <<he>> says. "I didn't want to go without telling you. We've got school."
+			<<case 3>>
+				<<He>> yawns into your shoulder, then goes still. "Wait. What day is it?" <<He>> works it out. "School. We've got school. Come on, up."
+			<<default>>
+				<<He>> prods your cheek until you squint at <<him>>. "Morning! Come on, we'll be late," <<he>> says, pushing the covers back.
+		<</switch>>
+	<<else>>
+		<<switch _robinWakeRoll>>
+			<<case 1>>
+				<<He>> stretches beside you and yawns. "Morning," <<he>> says. "No school today. We can take our time."
+			<<case 2>>
+				You wake to find Robin watching you. "You scrunch your nose when you sleep," <<he>> says, then goes red. "Sorry. Morning."
+			<<case 3>>
+				Robin rolls over and squints at you. "Is it morning?" <<he>> asks. It is. <<He>> doesn't move for a while.
+			<<default>>
+				<<He>> untangles <<his>> legs from yours and sits up. "Morning," <<he>> says. "I'll see what's left for breakfast. Do you want me to bring you something?"
+		<</switch>>
+	<</if>>
+	<br><br>
+
+	<<if $robinromance is 1 and _robin.trauma lt 50>>
+		<<He>> leans over and kisses your forehead before <<he>> swings <<his>> legs out of bed.
+		<br><br>
+	<</if>>
+
+	<<if _robinWakeBed is "theirs">>
+		<<He>> crosses to <<his>> wardrobe and starts picking through it. Your own clothes are back in your room.
+	<<else>>
+		<<He>> gathers <<his>> things, ready to slip back to <<his>> own room before anyone notices <<hes>> not in it.
+	<</if>>
+	<br><br>
+
+	<<if Time.hour is 6>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
+
+	<<if _robinWakeBed is "theirs">>
+		<<set $phase to 1>>
+		<<endevent "phaseless">>
+		<<bedicon "zzz">><<link [[Pull the covers back over yourself|Robin Bed]]>><</link>>
+		<br>
+		<<if $renttime lte 0>>
+			<<set $bus to "home">><<set $inRobinsRoom to true>>
+			<<getouticon>><<link [[Get up with Robin|Bedroom Bailey]]>><<set $wardrobe_location to "wardrobe">><<set $wear_outfit to "clotheson">><</link>>
+		<<else>>
+			<<getouticon>><<link [[Get up with Robin|Robin Room Wake]]>><<set $wardrobe_location to "wardrobe">><<set $wear_outfit to "clotheson">><</link>>
+		<</if>>
+	<<else>>
+		<<set $phase to 0>>
+		<<endevent>>
+		<<bedicon "zzz">><<link [[Pull the covers back over yourself|Bed]]>><<set $robinbed to "yours">><<set $bedGuest to "Robin">><</link>>
+		<br>
+		<<if $renttime lte 0>>
+			<<set $bus to "home">>
+			<<getouticon>><<link [[Get up with Robin|Bedroom Bailey]]>><<unset $robinbed>><<unset $bedGuest>><<set $wear_outfit to "clotheson">><</link>>
+		<<else>>
+			<!-- Robin heading off is already narrated above, so clear the flag Bedroom would repeat it from. -->
+			<<getouticon>><<link [[Get up with Robin|Bedroom]]>><<unset $robinbed>><<unset $bedGuest>><<set $wear_outfit to "clotheson">><</link>>
+		<</if>>
+	<</if>>
+	<br>
+<</widget>>
