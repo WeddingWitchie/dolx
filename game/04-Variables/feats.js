@@ -962,6 +962,14 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"That Stupid Thing": {
+		title: "That Stupid Thing",
+		desc: "Whitney broke into a claw machine to get you a water dragon plushie, then insisted it didn't mean anything.",
+		difficulty: 1,
+		series: "",
+		hint: "Hint: Hang out with a certain delinquent at night.",
+		filter: ["All", "Social"],
+	},
 	"Street King": {
 		title: "Street King",
 		desc: "Get 2000 combat fame.",
@@ -2504,15 +2512,6 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max history with tempered history.",
 	},
-	"Return to Monke": {
-		title: "Return to Monke",
-		desc: "You have reached the pinnacle of humanity, now you ascend by returning to monke.",
-		difficulty: 4,
-		series: "",
-		filter: ["All", "AMC Traits"],
-		softLockable: true,
-		hint: "Hint: Max school skills with all tempered school skills.",
-	},
 	Irresistible: {
 		title: "Irresistible",
 		desc: "Nobody can resist your sheer ability to seduce, not even Frost.",
@@ -2529,7 +2528,7 @@ setup.feats = {
 		series: "",
 		filter: ["All", "AMC Traits"],
 		softLockable: true,
-		hint: "Hint: Max sex skills with tempered sex skills.",
+		hint: "Hint: Max oral skill and hand skill, both tempered.",
 	},
 	"Rivers of White": {
 		title: "Rivers of White",
@@ -3361,19 +3360,8 @@ function earnHourlyFeats() {
 	if (V.mathstrait >= 8) earnFeat("Human Calculator");
 	if (V.englishtrait >= 8) earnFeat("Voice of All Things");
 	if (V.historytrait >= 8) earnFeat("Errm, ackshually");
-	if (V.schooltrait >= 8) earnFeat("Return to Monke");
 	if (V.seductionskill >= 2000) earnFeat("Irresistible");
-	if (
-		(!V.player.vaginaExist || V.vaginalskill >= 2000) &&
-		(!V.player.penisExist || V.penileskill >= 2000) &&
-		V.oralskill >= 2000 &&
-		(V.analskill >= 2000 || V.settings.analEnabled === false) &&
-		V.handskill >= 2000 &&
-		V.feetskill >= 2000 &&
-		V.bottomskill >= 2000 &&
-		V.thighskill >= 2000 &&
-		V.chestskill >= 2000
-	) {
+	if (V.oralskill >= 2000 && V.handskill >= 2000) {
 		earnFeat("God of Lust");
 	}
 	if (V.combatExtended.brawling >= 1000) earnFeat("Brawler");
@@ -3397,6 +3385,7 @@ function earnHourlyFeats() {
 	if (!V.activeNightmare && playerVirginitiesTakenBySameNamedNpc()) earnFeat("Monogamous");
 
 	if (V.whitneycollar === 1) earnFeat("Owned");
+	if (V.whitneyWaterdragonPlushie) earnFeat("That Stupid Thing");
 
 	if (V.farmersProduce) {
 		if (V.farmersProduce.totalSold >= 5000) earnFeat("Peddler");
