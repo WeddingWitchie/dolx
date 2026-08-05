@@ -1,6 +1,6 @@
 This Is A Compilation Of Goose Mod Submissions ! 
 Please don't reupload without permission !! 
-Last Updated: 7/10/26
+Last Updated: 8/3/26
 
 Thank you to all the creators who contributed 💖💖
 
@@ -22,11 +22,17 @@ Arkar1234: chimera horns
 
 Art Of Heart: straight bob side, neat side, half-up side, princess twintails, rose, socks, crop top, classic school skirt, breast size fixes
 
-Bam: stylish jumpsuit, short cheongsam, cane, buns
+Baggy: riding helmet
+
+Bam: stylish jumpsuit, short cheongsam, cane, buns, cardigan sailor uniform, floral sundress, jersey shirt, sheer puff sleeve cardigan, ruffled swimsuit
 
 Bea: background 1(13-19, from sayclub/cyworld), foreground1/2(20-21,14, from sayclub/cyworld)
 
 Bellaireʕ •ᴥ•ʔ: feather necklace, candy cane, background 2(7), foreground 1/2(16-17, 27-39, 41-48)
+
+Bibi: modded 20
+
+Birdy: kitty neck cushion
 
 Bowsni: bloomers, elegant socks
 
@@ -44,11 +50,13 @@ Dalada: Cream, background 2(9)
 
 Dead: body recolor edits, foreground 1/2(61)
 
-Diachuu: mini rose dress
+Deadmeat: Oversized hoodie
+
+Diachuu: mini rose dress, modded 9, modded 10
 
 Dianawinters: star tattoos, trans shirt, skort
 
-Drow: shrine maiden outfit, low-rise jeans
+Drow: shrine maiden outfit, low-rise jeans, modded 13
 
 Drunked Owly: paper fan, loincloth, durag, bandana, conical hat, umbrella hat, punk glasses, small sailor hat, mummy mask, skeleton mask, hoe item, classic demon tail, jack o lantern, square shades, released breasts
 
@@ -56,13 +64,15 @@ Dumbling: tie, short tie, utility vest
 
 Dxmoni: womb tattoo
 
+En: background 1 (192)
+
 ERRORCOFFIN: ruffled blouse, long dress, edited lolita headband
 
 Feral Fae: scout shirt,
 
-Fox Familiar: torn fallen wings, preppy uniforms, rococo midi dress, suspender skirts, fishnet garter stockings, fuzzy knee socks, fox scarf, wool scarf, lolita dress, lolita bonnet, rose platform heels, butterfly eyepatch, rose eyepatch
+Fox Familiar: torn fallen wings, preppy uniforms, rococo midi dress, suspender skirts, fishnet garter stockings, fuzzy knee socks, fox scarf, wool scarf, lolita dress, lolita bonnet, rose platform heels, butterfly eyepatch, rose eyepatch, kaiju costume, spat shoes, offshoulder lace top, off shoulder puff sleeve top
 
-Froggy: jumpers, striped thigh highs, potion/gamer earrings, catsuit, black cow tail, platform loafers, bunny hairpin, knee plaster, mischievous socks, layered skirt, bow brooch, classic blouse, short sleeve button up, sheer lace nightgown, apple hairpind, lace socks, lace up mary janes, asymmetrical garter, asymmetrical loose socks, asymmetrical striped socks, fishnet ankle, fishnet knee highs, floral socks, lace over the knee socks, lace socks with bows lace socks with ribbons, lace tights, plain over the knee socks
+Froggy: jumpers, striped thigh highs, potion/gamer earrings, catsuit, black cow tail, platform loafers, bunny hairpin, knee plaster, mischievous socks, layered skirt, bow brooch, classic blouse, short sleeve button up, sheer lace nightgown, apple hairpind, lace socks, lace up mary janes, asymmetrical garter, asymmetrical loose socks, asymmetrical striped socks, fishnet ankle, fishnet knee highs, floral socks, lace over the knee socks, lace socks with bows lace socks with ribbons, lace tights, plain over the knee socks, mdoded 11
 
 Funkabunk: racing helmet
 
@@ -74,7 +84,7 @@ Gekkou: tuxedo, rose tuxedo, sidecut fringe, short air vents fringe, chinos, lac
 
 Germa: twill joggers, harem set, karate trousers, cowboy hat, sheer stockings, christmas pants, cargo shorts, pleated joggers, star pjs shorts, foreign football shorts, fur hat (m/f), (angel/fallen/fallen dark) celestial halo, imp wings/tail, flame tattoos, angel harpy wings, unicorn tattoos, heart shoulder/forehead/cheeks tattoos, chef hat, beanie, beatnik hat, parasite panties, parasite shorts, wolf pubes, bear pubes, twirly socks, classic demon tail, vintage skirt, vintage skirt suit, parasol sweet skirt, studded/tentacle/lower/knotted/horse/dolphin strap on, classic shorts, kitty muzzle, ball chain
 
-Ghostmortemm: plaid school shorts/trousers, boxy shirt, edited curtain fringe, cohesive breasts, succubus set, foreground 1/2(40)
+Ghostmortemm: plaid school shorts/trousers, boxy shirt, edited curtain fringe, cohesive breasts, succubus set, foreground 1/2(40), background 1 (191), background 2 (10)
 
 Gwang: cow tf, cow set
 
@@ -92,7 +102,11 @@ Inori: messy curls fringe, space bun side, jellyfish twintails/ponytails sides, 
 
 Isari: fallen wings fix, islander mask, chest parasite fix, peen sprites for school swim shorts, props & prop fixes
 
+Jiajiajiaxieelajiao: modded 7, modded 8 
+
 Jok3r: swan feathers
+
+Jowo: patterened leggings, flowy sleeve top, hat with pompom
 
 Kaer: demon fox tf
 
@@ -100,9 +114,13 @@ KC: breast released edit
 
 KeChap: bodywriting, polka socks, short/long sport socks, short/long ribbed socks, preggy belly mask fixes, cum
 
-knpeo: flat fringe, evangelist, familiar collar
+Kmagi: modded 18
 
-Kio: satin ribbon heels, ribbon scarf, pompom scarf
+Knpeo: flat fringe, evangelist, familiar collar, milkmaid dress, lolita maid dress + bonnet, bunny earmuffs, modded 1, modded 2
+
+Kio: satin ribbon heels, ribbon scarf, pompom scarf, modded 21
+
+Kitten: visor, football helmet
 
 Kohi: initiate robes, simple swan lake dress, swan tiara, ballet shoes, rose wedding dress
 
@@ -112,7 +130,7 @@ Koyo: gothic old, all down side, open shoulder classic lolita, foreground 1/2(19
 
 Lark: props
 
-Leni: princess wave side, mesh, leather tops, emo fringe, suspenders, cable knit cardigan, leather pants, ringlet fringe, leather crop jacket, side-pinned fringe, sectioned fringe, swept left fringe, fluffy ponytail side, slender body, baggy pants, parted fringe, vampire jacket, vintage suitcase, luggage, totebag, one-shoulder crop top, background 1(6-8,189), background 2(1-2,5-6,8), foreground 1/2(7-8,10,15)
+Leni: princess wave side, mesh, leather tops, emo fringe, suspenders, cable knit cardigan, leather pants, ringlet fringe, leather crop jacket, side-pinned fringe, sectioned fringe, swept left fringe, fluffy ponytail side, slender body, baggy pants, parted fringe, vampire jacket, vintage suitcase, luggage, totebag, one-shoulder crop top, modded 3, modded4, background 1(6-8,189), background 2(1-2,5-6,8), foreground 1/2(7-8,10,15)
 
 Lily-Luc: heart pasties, lace bra
 
@@ -132,6 +150,8 @@ Maido: head and under outfit for gift wrap set, christmas boots, chef shirt
 
 Mango: aerial fringe, split fringe, shaved side, short side, short spiky side, cat, boot heels, bunny slippers, canvas loaders, combat boots, cordovan loaders, cowboy boots, dress sandals, field boots, fur boots, flippers, geta, ice skates, kitten heels, light-up trainers, long heels, paddock boots, thigh-high heels, trainers, tuxedo shoes, wedge sandals, wellies, zori, arm warmers, fingerless gloves, lace warmers, long leather gloves, mittens, pompoms, work gloves
 
+Mars: modde 17
+
 Maxinne: wings fix
 
 Mela: plunging neckline shirt, silky hair bow
@@ -140,7 +160,11 @@ Minh Dollar: witch set, off shoulder sweater dress, princess dress
 
 Mirrors_And_Mornings: paper parasol, umbrella, gold set
 
+MJ: demon cow tail
+
 Moisakuralol: cocoon
+
+Momo: modded 19
 
 Monibun: freckles, front braid fringe, court heels
 
@@ -156,7 +180,7 @@ Mysnow: background 1(194-195), background 2(13), foreground 1/2(63-65)
 
 My: sarong, shibari, monster hoodie, high-top trainers, short cut skirt, cat hoodie, breast size files, straight fringe, straight curl fringe, gingham, evening gown patterns, tracksuit set, graphic tee set, cargo pants, belted set, messy bun side, edited Goose fringe lengths, checkered skir
 
-Naomi: pink nurse set, janet dress, feathered top hat, foreground, "buzzcut" fringe (originally overgrown)
+Naomi: pink nurse set, feathered top hat, foreground, modded 15
 
 Nath: bodywriting
 
@@ -164,7 +188,7 @@ Noanne: clock purse
 
 Noodle: cloud purse
 
-Noufi: cake hat
+Noufi: cake hat, modded 5, modded 6
 
 Novacyber: water dragon TF
 
@@ -186,6 +210,8 @@ Pudding: froggy raincoat, bootyjorts 2, strawberry slippers,
 
 Pupu: background 1(156-184, from love & deep space)
 
+Puyo: modded 16
+
 Puppycat: breast released fix
 
 R_R_Rr: bunny tf sprites
@@ -196,7 +222,7 @@ Rasu: plaster, large lace bow, striped leg warmers, striped sweater
 
 Reptilia: fishnet tights, fishnet stockings, catgirl panties, corset
 
-Rinnarunnn: tie front dress, gothic collar, open shoulder top, mermaid dress, ankle strap sandals, ankle strap sneakers, ankle trainers, ballet pumps, butterfly heels, clogs, double strap sandals, flat sandals, floral rain boots, floral ribbon trainers, fuzzy bow boots, heeled trainers, high heel ankle boots, knee fur boots, knit cuff ankle boots, lace up heels, long puff boots, mary jane heels, over the knee boots, platform ankle boots, platform clogs with fur, platform heel boots, polka dot train boots, puff boots, rose pumps, satin ribbon heels, shark slippers, snow ball heels, soft slippers, suede pumps, t-strap heels, wrinkled long boots
+Rinnarunnn: tie front dress, gothic collar, open shoulder top, mermaid dress, ankle strap sandals, ankle strap sneakers, ankle trainers, ballet pumps, butterfly heels, clogs, double strap sandals, flat sandals, floral rain boots, floral ribbon trainers, fuzzy bow boots, heeled trainers, high heel ankle boots, knee fur boots, knit cuff ankle boots, lace up heels, long puff boots, mary jane heels, over the knee boots, platform ankle boots, platform clogs with fur, platform heel boots, polka dot train boots, puff boots, rose pumps, satin ribbon heels, shark slippers, snow ball heels, soft slippers, suede pumps, t-strap heels, wrinkled long boots, harness bra + panties
 
 Rita: adjusted short air vents fringe, half-up twintails side
 
@@ -206,11 +232,13 @@ Rye: pimp set
 
 Sage: arm sleeves, seaweed set, plants set, gothic witch set
 
-Sam Storiez: balloon / banana / bear / bee / beer / bomb / bone / boombox / bullseye / bunny / butterfly / cactus / car / chilli pepper / cloud / cock / crab / crown / cupcake / dino / dolphin / doughnut / ducky / eggplant / flame / football / foxtail / goldfish / guitar / hamburger / key / lion / music / nut / peach / penguin / piggy / pizza / planet / pony / puppy / rice ball / rocket / shooting star / sparkles / sun / sushi / thunderbolt / turtle / watermelon / wolf graphic earrings, water dragon chimeras, heart hairpin, small heart hairpin, small bunny hairpin, tulip hairpin, small tulip hairpin
+Sam Storiez: balloon / banana / bear / bee / beer / bomb / bone / boombox / bullseye / bunny / butterfly / cactus / car / chilli pepper / cloud / cock / crab / crown / cupcake / dino / dolphin / doughnut / ducky / eggplant / flame / football / foxtail / goldfish / guitar / hamburger / key / lion / music / nut / peach / penguin / piggy / pizza / planet / pony / puppy / rice ball / rocket / shooting star / sparkles / sun / sushi / thunderbolt / turtle / watermelon / wolf graphic earrings, water dragon chimeras, heart hairpin, small heart hairpin, small bunny hairpin, tulip hairpin, small tulip hairpin, shell bikini
+
+Samsung Fridge: collar dress
 
 Sansongjang: spirit mask, fox tf
 
-Sasha: hairclips, angel heart/broken heart/devil heart/heart/moon/skull earrings
+Sasha: hairclips, angel heart/broken heart/devil heart/heart/moon/skull earrings, foreground 1/2 (60)
 
 Satori Komeji: vintage pantsuit, bowler hat, fedora, starry witch hat, gothic crown, flower pins
 
@@ -248,6 +276,8 @@ Taechan: scorpion tails, background 1(20-62, from sayclub/cyworld), pink sweater
 
 Tauuki: background1 (63-155, by pixelberry and various game assets)
 
+Ursulaskiss: modded 12
+
 Vipi: teddy backpack, jasper pendant, default demon horns, 
 
 Washabi: low tails side, oversized girl sweater, plaid school skirt
@@ -258,6 +288,10 @@ Worldendunit: school vest, bunny leotard/ears, dark pendant, confessor's robe
 
 Yam Fox: dirndl set, nightgowns, babydoll tops
 
+Yhara: unbuttoned shorts
+
+Yoon: swirly glasses, teardrop glasses, sun hat
+
 Yuckyh: cleavage sprites
 
 Yukiso: laced up heels, bloomers
@@ -266,10 +300,10 @@ Yunyun: revamped pubic hair, penis update
 
 Yywkka: jingle dress/sleeveless, future suit, mini snowman, christmas socks, bathrobe, school skirt (short/long 2), preggy belly, gold handheld, gold shackles (hands/feet), cum, slut shirt, belly dancer set, foxmask, strap-on, rags, garters, tabi, ribbon stockings, sheer leggings, stripper heels, virgin killer, round sunglasses, swim goggles, heart purse, platform heel, school swim top/bottom, tie-front top, waist apron, micro pleated skirt, bubble tails side, heart braid side, ribbon tail side, preggy bellies, pigtails side (originally twintails),
 
-Zero_Otherian: draggletail side, pompoms, cheerleader gloves, background 1(190), foreground 1/2(9,22)
+Zero_Otherian: draggletail side, pompoms, cheerleader gloves, fallen harpy wings, background 1(190), foreground 1/2(9,22)
 
 Zombie: fancy swan lake dress, janet dress
 
 (__=__=___): ropes
 
-Snowy (Me!): general fixes + comp, foxy demeanor, gloomy demeanorbreast size additions, parasites, vest, classic school swimsuit, kitty/duck/puppy slippers, long-sleeve shirt, striped knee highs (og by Froggy), briefs alt, pj bottoms alt, etc. etc.....
+Snowy (Me!): general fixes + comp maanger, foxy demeanor, gloomy demeanor, some breast size sprites for clothes, parasites, vest, classic school swimsuit, kitty/duck/puppy slippers, long-sleeve shirt, striped knee highs (og by Froggy), briefs alt, pj bottoms alt, modded 22, modded 23, modded 24
