@@ -1240,8 +1240,12 @@ window.clothesReturnLocation = clothesReturnLocation;
 function resetClothingState(slot) {
 	if (!slot || slot === "genitals") return;
 	const setupItem = setup.clothes[slot][clothesIndex(slot, V.worn[slot])];
-	// Overwrite the following properties of $worn[slot], IF the corresponding properties are defined in the setupItem.
-	// Note that no single item actually has ALL of these properties; It only changes the properties that DO exist on the item.
+	// Set the following properties of $worn[slot] to whatever the setupItem defines, clearing any that it doesn't.
+	//
+	// Note that no single item actually has ALL of these properties; a freshly-worn item that's missing one (e.g. third-party mod clothes with no state_top_base) must not inherit that property's value from whatever was worn in this slot before it,
+	// or combat's clothes-pulling state machine reads leftover state from the previous garment (e.g. a stray state_top making a skirt behave like a top, looping the "pulls it down past your midriff" text forever instead of ever finishing).
+	const stateFields = ["state", "state_top", "exposed", "skirt_down", "vagina_exposed", "anus_exposed"];
+	for (const field of stateFields) delete V.worn[slot][field];
 	V.worn[slot] = {
 		...V.worn[slot],
 		...Object.fromEntries(

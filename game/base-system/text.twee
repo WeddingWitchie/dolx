@@ -6115,7 +6115,7 @@
 				<<set _text_output to "growl">>
 			<</if>>
 		<<default>>
-			<<set _text_output to "try to speak, but hiccup instead. This is a bug, please report to Vrelnir" + (_args[0] isnot undefined ? _args[0] : "undefined")>>
+			<<set _text_output to "try to speak, but hiccup instead. This is a bug, please report to D.N.A." + (_args[0] isnot undefined ? _args[0] : "undefined")>>
 	<</switch>>
 	<<print _text_output>>
 <</widget>>
@@ -6949,7 +6949,7 @@
 				<<set _text_output to C.npc[_args[0]].hairColour>>
 		<</switch>>
 	<<else>>
-		<<set _text_output to "phantasmal ghost colour because someone forgot to define an NPC for the npcHairColour widget, please inform Vrelnir">>
+		<<set _text_output to "phantasmal ghost colour because someone forgot to define an NPC for the npcHairColour widget, please inform D.N.A.">>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
@@ -6968,7 +6968,7 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 			<<case "lower">>
 				<<set _text_output to $_npc.clothes.lower.name>>
 			<<default>>
-				<<set _text_output to '<span class="red">ERROR: Invalid NPC clothing case. (NPC: $_npc.fullDescription, part called: $_part) Please inform PurityGuy</span>'>>
+				<<set _text_output to '<span class="red">ERROR: Invalid NPC clothing case. (NPC: $_npc.fullDescription, part called: $_part) Please inform D.N.A.</span>'>>
 		<</switch>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
@@ -6981,10 +6981,15 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 		<<set $_his to ($combat is 1 ? "<<hisselect $index>>" : "<<his>>")>>
 		<<set _text_output to "">>
 		<<if !$_npc.clothes>>
-			<<set _text_output += '<span class="red">ERROR: NPC ($_npc.fullDescription) clothes are undefined! Please inform PurityGuy</span>'>>
+			<<run console.error(`[npcUndressText]: ${$_npc.fullDescription} has no .clothes to undress.`)>>
+			<<set _text_output += ($_self ? "removes" : "remove") + " $_his clothes">>
 		<<elseif $_part is "both">>
 			<<set _text_output += ($_self ? "removes" : "remove")>>
 			<<set _text_output += " $_his setup.npcClothesSets.find(item => item.name === $_npc.clothes.set).desc">>
+		<<elseif $_npc.clothes[$_part].name is "naked">>
+			/* The tracked garment for this part is already "naked" (e.g. a topless/bottomless outfit), yet something else (like an unsynced redress) still calls for undress text here.
+			There's no garment name to describe removing, so skip the verb+garment template entirely rather than naming a "naked" item. */
+			<<set _text_output += ($_self ? "bares" : "bare") + " $_his skin">>
 		<<else>>
 			<<set $_clothesAction to setup.npcClothesSets.find(item => item.name === $_npc.clothes.set).clothes[$_part].action>>
 			<<switch $_clothesAction>>
@@ -6996,7 +7001,9 @@ Argument 2, where appropriate, determines whether it's the player undressing the
 				<<case "open">><<set _actionText to ($_self ? "opens" : "open")>>
 				<<case "undo">><<set _actionText to ($_self ? "undoes" : "undo")>>
 				<<case "unwrap">><<set _actionText to ($_self ? "unwraps" : "unwrap")>>
-				<<default>><<set _actionText to '<span class="red">ERROR: Invalid NPC clothing action. (NPC: $_npc.fullDescription, part called: $_part, action: $_clothesAction) Please inform PurityGuy</span>'>>
+				<<default>>
+					<<run console.error(`[npcUndressText]: unrecognised clothing action "${$_clothesAction}" for ${$_npc.fullDescription}'s ${$_part}.`)>>
+					<<set _actionText to ($_self ? "bares" : "bare")>>
 			<</switch>>
 			<<set _text_output += _actionText + " $_his $_npc.clothes[$_part].name">>
 		<</if>>
