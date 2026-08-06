@@ -1086,15 +1086,22 @@ function updateRemoverPillCatalogue() {
 
 	const filtered = antiTypes.filter(type => {
 		if (type === "portal" && !V.portalPantiesEnabled) return false;
+		// No point stocking the counter-agent for an effect the player has switched off, unless they're carrying it right now.
+		if (type === "feartoxin" && !V.xchange?.spikepool?.feartoxin && !V.xchange?.pill?.feartoxinEffect) return false;
 		return true;
 	});
 	const uniqueTypes = [...new Set(filtered)];
 	const shownTypes = 2;
 	const stockPerType = 1;
 
+	// Yesterday's picks are held back so the dealer's shelf actually changes from one day to the next.
+	// If holding them back would leave too few types to fill the shelf, they're allowed back in.
+	const previous = Array.isArray(V.xchange.removerPillCataloguePrevious) ? V.xchange.removerPillCataloguePrevious : [];
+	const fresh = uniqueTypes.filter(type => !previous.includes(type));
+	const pool = fresh.length >= Math.min(shownTypes, uniqueTypes.length) ? fresh : [...uniqueTypes];
+
 	V.xchange.removerPillCatalogue = [];
 
-	const pool = [...uniqueTypes];
 	const picks = Math.min(shownTypes, pool.length);
 
 	for (let i = 0; i < picks; i++) {
@@ -1103,6 +1110,8 @@ function updateRemoverPillCatalogue() {
 			V.xchange.removerPillCatalogue.push(type);
 		}
 	}
+
+	V.xchange.removerPillCataloguePrevious = [...new Set(V.xchange.removerPillCatalogue)];
 }
 window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
 
@@ -1403,6 +1412,9 @@ function xchangeHourlyCheck(hours = 1) {
 			}
 		}
 
+		// Fear Toxin keeps trauma pinned at max and control at zero for as long as the pill lasts.
+		if (pill?.feartoxinEffect) wikifier("xchange-feartoxin-pin");
+
 		// Tick portal effect timer, and end the effect if timer lapses
 		if (pill?.portalEffect && pill?.portalEffectTimer >= 0) {
 			pill.portalEffectTimer = Math.max(pill.portalEffectTimer - 1 * hours, 0);
@@ -1468,6 +1480,24 @@ function xchangeEffectsMessages() {
 		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink");
 		br();
 		delete V.xchange_passion_message;
+	}
+
+	if (V.xchange_feartoxin_message) {
+		if (V.xchange_feartoxin_message === "start") {
+			element(
+				"span",
+				`Your heart pounds and your hands shake. Everything around you feels like a threat, and you can't hold yourself together. Nothing will calm you down while the drug is in you.`,
+				"red"
+			);
+		} else {
+			element(
+				"span",
+				`The drugged fear has faded. Your thoughts are your own again, and your trauma can start to settle, but what the drug did to you is still there.`,
+				"blue"
+			);
+		}
+		br();
+		delete V.xchange_feartoxin_message;
 	}
 
 	if (V.xchange_therapy_expired_message) {

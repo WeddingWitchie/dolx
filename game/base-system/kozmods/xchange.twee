@@ -1310,6 +1310,7 @@
 		<<set $xchange.pill.portalEffectTimer to 0>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.innocenceWasNatural to false>>
+		<<set $xchange.pill.feartoxinEffect to false>>
 		<<set $xchange.pill.swellEffect to false>>
 		<<unset $xchange.pill.swellTarget>>
 		<<set $xchange.pill.bimboEffect to false>>
@@ -1493,6 +1494,14 @@
 		<<set $awareness to -200>>
 		<<set $innocencestate to 1>>
 
+	<<case "feartoxin">>
+		<<if !$xchange.pill.feartoxinEffect>>
+			<<set $xchange.pill.feartoxinEffect to true>>
+			<<set $effectsmessage to 1>>
+			<<set $xchange_feartoxin_message to "start">>
+		<</if>>
+		<<xchange-feartoxin-pin>>
+
 	<<case "swell">>
 		<<set $xchange.pill.swellEffect to true>>
 		<<if $player.penisExist and !$player.vaginaExist>>
@@ -1668,6 +1677,12 @@
 			<<set $xchange.pill.passionEffect to false>>
 		<<case "dumb-bitch">>
 			<<set $xchange.pill.dumbBitchEffect to false>>		
+		<<case "feartoxin">>
+			<<if $xchange.pill.feartoxinEffect>>
+				<<set $effectsmessage to 1>>
+				<<set $xchange_feartoxin_message to "end">>
+			<</if>>
+			<<set $xchange.pill.feartoxinEffect to false>>
 		<<case "innocence">>
 			<<if $xchange.pill.innocenceWasNatural is true>>
 				<<if $awareness gte 0 and $innocencestate is 1>>
@@ -1935,6 +1950,11 @@
 
 		<<if $xchange.pill.passionEffect>><<set $drugged to 0>><</if>>
 
+		<<if $xchange.pill.feartoxinEffect>>
+			<<set $effectsmessage to 1>>
+			<<set $xchange_feartoxin_message to "end">>
+		<</if>>
+
 		/* Clear pill effects */
 		<<set $xchange.pill.active to false>>
 		<<set $xchange.pill.durationDetailRoll to 0>>
@@ -1950,6 +1970,8 @@
 		<<unset $xchange.pill.xtendTracker>>
 		<<set $xchange.pill.innocenceEffect to false>>
 		<<set $xchange.pill.innocenceWasNatural to false>>
+		/* Fear Toxin leaves its damage behind on purpose: trauma and control are not restored when it ends. */
+		<<set $xchange.pill.feartoxinEffect to false>>
 		/* Swell and the Alpha penis-size boost change $player size directly. */
 		<<if $xchange.pill.swellEffect>>
 			<<if $xchange.pill.swellTarget is "penis">>
@@ -2323,8 +2345,13 @@
 			<<run _effectPool.deleteWith((val)=>val==="dumb-bitch" || val==="dumbbitch" || val==="dumbBitch")>>
 		<</if>>
 
-		<<if $xchange.pill.innocenceEffect or !$xchange.spikepool.innocence>>
+		<<if $xchange.pill.innocenceEffect or !$xchange.spikepool.innocence or $xchange.pill.feartoxinEffect>>
 			<<run _effectPool.deleteWith((val)=>val==="innocence")>>
+		<</if>>
+
+		/* Fear Toxin and Innocence pull trauma in opposite directions, so they never share a session. */
+		<<if $xchange.pill.feartoxinEffect or !$xchange.spikepool.feartoxin or $xchange.pill.innocenceEffect or $innocencestate is 1>>
+			<<run _effectPool.deleteWith((val)=>val==="feartoxin")>>
 		<</if>>
 
 		<<if $xchange.pill.swellEffect or !$xchange.spikepool.swell>>
@@ -2351,6 +2378,15 @@
 		/* Alpha (knotted penis + orgasm demands penetration) only makes sense with a penis. */
 		<<if $xchange.pill.alphaEffect or !$xchange.spikepool.alpha or !$player.penisExist>>
 			<<run _effectPool.deleteWith((val)=>val==="alpha")>>
+		<</if>>
+	<</widget>>
+
+	/* Fear Toxin holds trauma at maximum and control at zero for as long as the pill runs.
+	   Skipped while the Innocence state is active, since that state owns $trauma (it parks the real value in $innocencetrauma). */
+	<<widget "xchange-feartoxin-pin">>
+		<<if $xchange.pill.feartoxinEffect and $innocencestate isnot 1>>
+			<<set $trauma to $traumamax>>
+			<<set $control to 0>>
 		<</if>>
 	<</widget>>
 
@@ -2420,6 +2456,8 @@
 			<<if $xchange.pill.fertile>><li>You can become pregnant.</li><</if>>
 			<<if $xchange.pill.innocenceEffect>><li>Innocence Effect.
 				<mouse class="tooltip linkBlue">(?)<span>While under this pill, all sexual awareness is wiped from your mind.</span></mouse></li><</if>>
+			<<if $xchange.pill.feartoxinEffect>><li>Fear Toxin Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Holds your trauma at its maximum and keeps your self-control at nothing. Your trauma cannot start falling until this effect ends. What it does to your mind is not undone when it ends.</span></mouse></li><</if>>
 			<<if $xchange.pill.swellEffect>><li>Swell Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $player.sex is "m" ? "breasts and ass" : "penis">> for the duration.</span></mouse></li><</if>>
 			<<if $xchange.pill.bimboEffect>><li>Bimbo Effect.

@@ -3158,6 +3158,41 @@ setup.pills.push(
 	},
 
 	{
+		name: "SWP Anti-feartoxin Pill",
+		description: 'A shady pill advertised to deal with the fear toxin, 100% satisfaction guaranteed. <span class="red">Be aware of its side effects!</span>',
+		onTakeMessage:
+			'<span class="purple">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>The dread thins out first. Your heart slows, and your hands stop shaking. Then the backlash hits. <span class="red">A prickling itch crawls over your skin</span>, and soon your whole body is so oversensitive that even the brush of your clothes hurts.<br><br>You breathe through it. The fear the toxin forced on you is gone, but the harm it already did to your mind is still there, and it will only fade with time.',
+		warning_label:
+			"Warning: Cancels the toxin only. Your trauma and self-control are left where the toxin put them and recover at their normal pace. May cause some side-effects. Do not take unless you've tested positive for the respective effect.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.feartoxinEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		effects: [`<<xchange-removeeffect "feartoxin">>`, '<<xchange-addsideeffect "antipill">>'],
+	},
+
+	{
 		name: "X-Change Antidote",
 		description:
 			"An expensive solution for those who are willing and can afford it. A pill that reduces the remaining duration of your current pill by a single day, at the expense of some severe side-effects. If remaining duration reaches zero, your pill shall expire within the next hour.",
