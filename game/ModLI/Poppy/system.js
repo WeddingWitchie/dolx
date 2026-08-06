@@ -182,12 +182,23 @@ window.markPoppyInteraction = markPoppyInteraction;
  * @returns {boolean} true when the flat is open to the player.
  */
 function poppyFlatAccessible() {
-	if (V.poppyFlat?.dismissed === true || V.poppyDismissalFired === 1) return false;
+	if (poppyDismissed()) return false;
 	const safeHouse = Number(V.poppySafeHouse) >= 1;
 	const claimed = Number(V.poppyromance) >= 0 && Array.isArray(V.poppySeen) && V.poppySeen.includes("lake_postclaim_intro");
 	return safeHouse || claimed;
 }
 window.poppyFlatAccessible = poppyFlatAccessible;
+
+/**
+ * Whether Poppy has been sold off in the dismissal event and is permanently gone.
+ * Single choke point for every Poppy interaction gate outside her physical schedule (the schedule itself is closed off inside poppySchedule()).
+ *
+ * @returns {boolean} true once the dismissal abduction has resolved.
+ */
+function poppyDismissed() {
+	return V.poppyFlat?.dismissed === true || V.poppyDismissalFired === 1;
+}
+window.poppyDismissed = poppyDismissed;
 
 /**
  * Where the Christmas gift handover is taking place.
@@ -230,6 +241,11 @@ function poppySchedule() {
 
 	// If data is invalid, fail safely instead of running a half-broken schedule.
 	if (T.poppyStatus?.includes("DataInvalid")) {
+		return clearSchedule();
+	}
+
+	// Dismissal: Poppy has been sold off and no longer keeps a schedule anywhere in town.
+	if (poppyDismissed()) {
 		return clearSchedule();
 	}
 

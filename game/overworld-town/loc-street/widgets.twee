@@ -3725,14 +3725,18 @@
 
 			<<if modLISelected("Poppy") and C.npc.Poppy and C.npc.Poppy.init is 1>>
 				<<run poppySchedule()>><<run poppyStatusCheck()>>
-				<<if Time.dayState is "day" and !Weather.isFrozen("lake") and Weather.precipitation isnot "rain" and Weather.precipitation isnot "snow" and !$weekly.poppyStreetBadDate and (T.poppyStatus.includes("LowPatience") or T.poppyAnger gt 0)>>
-					<<addevent "poppyStreetBadDate" 0.9>>
-				<</if>>
-				<<if C.npc.Poppy and C.npc.Poppy.init is 1 and Time.hour gte 21 and ["domus", "danube", "high", "wolf", "nightingale", "cliff", "starfish"].includes($bus) and !T.poppyStatus.includes("LowPatience")>>
-					<<addevent "poppyStreetNecklace" 0.2>>
-				<</if>>
-				<<if $poppyDismissalFired and !$poppySeen.includes("dismissal_glare")>>
-					<<addevent "poppyDismissalGlare" 0.6>>
+				<<if poppyDismissed()>>
+					/* Poppy is gone; the only street beat left is the one-off parting glare. */
+					<<if !$poppySeen.includes("dismissal_glare")>>
+						<<addevent "poppyDismissalGlare" 0.6>>
+					<</if>>
+				<<else>>
+					<<if Time.dayState is "day" and !Weather.isFrozen("lake") and Weather.precipitation isnot "rain" and Weather.precipitation isnot "snow" and !$weekly.poppyStreetBadDate and (T.poppyStatus.includes("LowPatience") or T.poppyAnger gt 0)>>
+						<<addevent "poppyStreetBadDate" 0.9>>
+					<</if>>
+					<<if Time.hour gte 21 and ["domus", "danube", "high", "wolf", "nightingale", "cliff", "starfish"].includes($bus) and !T.poppyStatus.includes("LowPatience")>>
+						<<addevent "poppyStreetNecklace" 0.2>>
+					<</if>>
 				<</if>>
 			<</if>>	
 
