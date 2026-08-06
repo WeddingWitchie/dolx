@@ -1730,6 +1730,21 @@ function blackMoneySaleValue() {
 window.blackMoneySaleValue = blackMoneySaleValue;
 
 /**
+ * Display value of a sale that has not been paid out yet.
+ *
+ * `money()` applies the divine TF income bonus itself, so the raw sale value quoted in the journal or in a shopkeeper's
+ * line of dialogue came out lower than the amount the player actually received. This mirrors that bonus for preview text only.
+ *
+ * @param {number} value raw sale value in pennies
+ * @param {string} source moneyStats source the payout will use
+ * @returns {number} value the payout will actually credit
+ */
+function previewSaleValue(value, source) {
+	return divineTfIncome(value, source);
+}
+window.previewSaleValue = previewSaleValue;
+
+/**
  * Extra "allure" folded into office danger rolls when the player chooses to work a temp assignment in a revealing outfit.
  * Dressing provocatively at the agency is allowed, but it draws far more harassment on the upper floors.
  * Derived live from the current outfit, so clothes torn mid-assignment ramp the danger up too.
