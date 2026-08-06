@@ -1,4 +1,4 @@
-/* global statDisplay chastitySelfControlled */
+/* global statDisplay chastityConsensual */
 
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -571,8 +571,8 @@ const statChange = (() => {
 			return prev;
 		}, 0);
 
-		// A cage that's actively shrinking you keeps you constantly on edge, on top of the ordinary chastity fade-guard - but only if it's locked against your will (or you're needy enough to chafe at it regardless of who holds the key).
-		if (V.worn.genitals.type.includes("shrinking") && (!chastitySelfControlled() || V.backgroundTraits.includes("lustful"))) result += 350;
+		// A cage that's actively shrinking you keeps you constantly on edge, on top of the ordinary chastity fade-guard - but only if it's locked against your will.
+		if (V.worn.genitals.type.includes("shrinking") && !chastityConsensual()) result += 350;
 
 		// Any parasite that's latched onto worn chastity keeps stimulating you enough to enforce a higher floor.
 		if (V.penilechastityparasite || V.vaginalchastityparasite || V.analchastityparasite) result += 300;

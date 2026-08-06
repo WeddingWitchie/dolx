@@ -277,9 +277,20 @@ function dolxBackfillChastityKeys() {
 	}
 
 	for (const item of new Set(items)) {
-		if (!Array.isArray(item?.type) || !item.type.includes("chastity") || item.chastityKey !== undefined) continue;
+		if (!Array.isArray(item?.type) || !item.type.includes("chastity")) continue;
+		// An earlier version of this backfill filed the temple's keyless devices as though the temple were holding the player's key. Correct those in place.
+		if (item.chastityKey === "holder" && item.chastityKeyholder === "temple") {
+			item.chastityKey = "vow";
+			delete item.chastityKeyholder;
+			continue;
+		}
+		if (item.chastityKey !== undefined) continue;
 		if (item.cursed !== 1) {
 			item.chastityKey = "player";
+			delete item.chastityKeyholder;
+		} else if (item.origin === "temple") {
+			// The temple's devices have no key at all, but the player asked to be fitted with one. Nobody is holding them hostage.
+			item.chastityKey = "vow";
 			delete item.chastityKeyholder;
 		} else {
 			item.chastityKey = item.origin ? "holder" : "lost";
@@ -332,11 +343,19 @@ function playerChastity(slots, inAllSlots = false) {
 }
 window.playerChastity = playerChastity;
 
-// True when the player holds their own chastity key
-function chastitySelfControlled() {
-	return V.worn.genitals.chastityKey === "player";
+/**
+ * True when the player is locked up by their own choice, rather than against their will.
+ * Covers both cases: a device they hold the key to, and a keyless device they asked to be fitted with, like the temple's.
+ * Devices stamped before chastityKey existed fall back to the same rule dolxBackfillChastityKeys() uses,
+ * so a device behaves identically before and after the save is reloaded.
+ */
+function chastityConsensual() {
+	const item = V.worn?.genitals;
+	if (!item) return false;
+	if (item.chastityKey === undefined) return item.cursed !== 1 || item.origin === "temple";
+	return item.chastityKey === "player" || item.chastityKey === "vow";
 }
-window.chastitySelfControlled = chastitySelfControlled;
+window.chastityConsensual = chastityConsensual;
 
 /**
  * True for a garment the player is only wearing on loan (Niki's kaiju costume, and anything else marked the same way).

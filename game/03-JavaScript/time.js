@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastitySelfControlled */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1632,8 +1632,9 @@ function minutePassed(minutes) {
 		// Every gameplay gate tests `is 1`, and the traits overlay tests `gte 1`, so a suppressed trait stays completely inert.
 		V.arousalDesensitizedTrait = -1;
 	}
-	// A belt only aches with need if it's locked against the PC's will, or they're needy enough (lustful) to chafe at it regardless of who holds the key. Someone who chose their own lock has no such frustration to feed on.
-	const chastityFrustrationApplies = playerChastity() && (!chastitySelfControlled() || V.backgroundTraits.includes("lustful"));
+	// A belt only aches with need if it's locked against the PC's will. Someone who chose it - their own lock, or a vow taken at the temple - has no such frustration to feed on,
+	// however lustful they are: the Lustful trait already raises their arousal on its own, and it shouldn't retroactively turn a choice they made into a torment.
+	const chastityFrustrationApplies = playerChastity() && !chastityConsensual();
 	// Below the passive cap, casual arousal fades slowly. Above it, arousal gained from active stimulation fades normally.
 	const chastityFadeGuard = chastityFrustrationApplies && V.arousal < chastityArousalCap ? 0.25 : 1;
 	const arousalMultiplier =
@@ -3227,10 +3228,11 @@ function getArousal(passMinutes, chastityArousalCap = Infinity, chastityFrustrat
 
 	if (V.penilechastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
 	if (V.vaginalchastityparasite) addedArousal += minuteMultiplier * genitalSensitivity;
-	// A device locked against the PC's will steadily builds pressure; internal devices add stronger, continuous stimulation on top. Willingly self-locked chastity skips this build-up entirely (unless the PC is lustful enough to chafe at it regardless).
+	// A device locked against the PC's will steadily builds pressure. Chastity worn by choice skips that build-up entirely: there's nothing to be frustrated about.
 	if (chastityFrustrationApplies) chastityArousal += minuteMultiplier * 0.5 * genitalSensitivity;
-	// A chastity belt built around an internal insert stimulates constantly, not just when something else triggers it.
-	if (wearingInternalChastity && chastityFrustrationApplies) chastityArousal += minuteMultiplier * 1.5 * genitalSensitivity;
+	// A belt built around an internal insert stimulates constantly, not just when something else triggers it. That's the toy working, not frustration,
+	// so it applies whoever holds the key - buying a dildo belt for yourself is meant to do something.
+	if (wearingInternalChastity) chastityArousal += minuteMultiplier * 1.5 * genitalSensitivity;
 	if (V.parasite.nipples.name) addedArousal += minuteMultiplier * breastSensitivity;
 	if (V.parasite.penis.name && V.parasite.penis.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
 	if (V.parasite.clit.name && V.parasite.clit.name !== "parasite") addedArousal += minuteMultiplier * genitalSensitivity;
@@ -3263,7 +3265,7 @@ function getArousal(passMinutes, chastityArousalCap = Infinity, chastityFrustrat
 	}
 	// Locked away with nothing to relieve the pressure, chastity throws in the odd involuntary jolt on top of the steady climb.
 	// A parasite riding along inside makes those jolts noticeably more frequent.
-	if (chastityFrustrationApplies && !V.masturbating) {
+	if ((chastityFrustrationApplies || wearingInternalChastity) && !V.masturbating) {
 		const hasChastityParasite = V.penilechastityparasite || V.vaginalchastityparasite || V.analchastityparasite;
 		const chastitySpikeChance = hasChastityParasite ? 15 : 8;
 		const chastitySpikeRolls = Math.floor(passMinutes / 60);
