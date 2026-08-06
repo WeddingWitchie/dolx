@@ -33,6 +33,102 @@ function npcStartingSexIs(npcno, npcname, sex) {
 }
 window.npcStartingSexIs = npcStartingSexIs;
 
+/* The one authoritative breast-size word list.
+Every X-Change body-swap widget used to carry its own copy of this array; they now all read it from here so the wording can never drift apart. */
+const npcBreastSizeWords = ["nipple", "budding", "tiny", "small", "pert", "modest", "full", "large", "ample", "massive", "huge", "gigantic", "enormous"];
+window.npcBreastSizeWords = npcBreastSizeWords;
+
+/**
+ * Breast wording for a given size, e.g. 0 -> "nipple"/"nipples", 6 -> "full breast"/"full breasts".
+ *
+ * @param {number} size
+ * @returns {{breastdesc: string, breastsdesc: string}}
+ */
+function npcBreastText(size) {
+	const n = Math.clamp(Math.round(Number(size)) || 0, 0, npcBreastSizeWords.length - 1);
+	if (n === 0) return { breastdesc: "nipple", breastsdesc: "nipples" };
+	return { breastdesc: npcBreastSizeWords[n] + " breast", breastsdesc: npcBreastSizeWords[n] + " breasts" };
+}
+window.npcBreastText = npcBreastText;
+
+/**
+ * Rebuilds a generic NPC's "<description> <noun>" name after a body swap has changed their pronoun
+ * e.g. "slender man" -> "slender woman". Falls back to sane words rather than letting a missing field reach the player as "undefined".
+ *
+ * @param {object} npc an $NPCList slot
+ */
+function npcRebuildFullDescription(npc) {
+	if (!npc) return;
+	const description = npc.description && npc.description !== "undefined" ? npc.description : npc.nam || "mysterious";
+	let noun;
+	if (npc.role && npc.role !== "normal" && npc.role !== "undefined") noun = npc.role;
+	else if (npc.pronoun === "m") noun = npc.teen === 1 ? "boy" : "man";
+	else noun = npc.teen === 1 ? "girl" : "woman";
+	npc.description = description;
+	npc.fullDescription = description + " " + noun;
+}
+window.npcRebuildFullDescription = npcRebuildFullDescription;
+
+/**
+ * Repairs the descriptive text fields of a single NPC record so combat narration can never print
+ * "undefined" or echo a raw variable name at the player.
+ *
+ * Only genuinely broken values are touched: a body-swap widget can leave a record with a new
+ * breast size but no matching wording, or with an identity field that never existed on the
+ * source record it was copied from. Sound records pass through untouched, so this is not a
+ * blanket sanitiser - it is the write-side guarantee for the pill widgets that call it.
+ *
+ * @param {object} npc an $NPCList slot or an $NPCName row
+ * @param {string} [where] label for the console warning, so a recurring producer can be pinned
+ * @returns {string[]} the names of the fields that had to be repaired
+ */
+function npcRepairBodyText(npc, where) {
+	if (!npc || typeof npc !== "object") return [];
+	const fixed = [];
+	const broken = v => v === undefined || v === null || v === "undefined" || (typeof v === "string" && v.includes("undefined"));
+
+	/* A non-numeric size makes every "lte 1" flat-chest test fall through to the breasts branch. */
+	if (!Number.isFinite(Number(npc.breastsize))) {
+		npc.breastsize = npc.pronoun === "m" ? 0 : 3;
+		fixed.push("breastsize");
+	}
+	if (broken(npc.breastdesc) || broken(npc.breastsdesc)) {
+		const text = npcBreastText(npc.breastsize);
+		npc.breastdesc = text.breastdesc;
+		npc.breastsdesc = text.breastsdesc;
+		fixed.push("breastdesc", "breastsdesc");
+	}
+	if (broken(npc.penisdesc)) {
+		npc.penisdesc = npc.penis === "none" ? "none" : "penis";
+		fixed.push("penisdesc");
+	}
+
+	/* Identity text, for generic enemies only. A persistent $NPCName row is named by .nam/.title and
+	   has no .description/.role/.fullDescription of its own, so it must not have them invented. */
+	if (!npc.nam) {
+		if (broken(npc.role)) {
+			npc.role = "normal";
+			fixed.push("role");
+		}
+		if (broken(npc.description)) {
+			npc.description = "mysterious";
+			fixed.push("description");
+		}
+		if (broken(npc.fullDescription) && npc.type === "human") {
+			let noun;
+			if (npc.role !== "normal") noun = npc.role;
+			else if (npc.pronoun === "m") noun = npc.teen === 1 ? "boy" : "man";
+			else noun = npc.teen === 1 ? "girl" : "woman";
+			npc.fullDescription = npc.description + " " + noun;
+			fixed.push("fullDescription");
+		}
+	}
+
+	if (fixed.length) console.warn("[DoLX] repaired NPC text fields [" + fixed.join(", ") + "] in " + (where || "unknown") + " (passage " + V.passage + ")");
+	return fixed;
+}
+window.npcRepairBodyText = npcRepairBodyText;
+
 /**
  * Whitelist gate for pilling NPCs in combat. Generic (unnamed) enemies stay pillable as before.
  * Named NPCs are restricted:

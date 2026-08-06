@@ -7601,10 +7601,14 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<<if $NPCList[_n].penis is undefined>><<set $NPCList[_n].penis to 0>><</if>>
 	<</if>>
 	<<if $NPCList[_n].chest isnot "none">>
-		<<if $NPCList[_n].breastsize lte 1>>
+		<!-- A non-numeric size fails every "lte 1" test and falls through to the breasts wording, so read it as a number first.
+		The wording itself is derived from the size when the record does not carry it: a body changed mid-scene must never print "his bare undefined". -->
+		<<set _npcBreastSize to Number($NPCList[_n].breastsize) || 0>>
+		<<if _npcBreastSize lte 1>>
 			<<set $_NPCBreastDesc to "chest">>
 		<<else>>
-			<<set $_NPCBreastDesc to ($NPCList[_n].chest is "clothed" ? "clothed" : either("bare", "exposed")) + " " + $NPCList[_n].breastsdesc>>
+			<<set _npcBreastWords to $NPCList[_n].breastsdesc ?? npcBreastText(_npcBreastSize).breastsdesc>>
+			<<set $_NPCBreastDesc to ($NPCList[_n].chest is "clothed" ? "clothed" : either("bare", "exposed")) + " " + _npcBreastWords>>
 		<</if>>
 	<</if>>
 	<<if ($NPCList[_n].chest is 0 or $NPCList[_n].chest is "clothed") and !$gloryhole and $position isnot "wall">>
@@ -7629,7 +7633,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 							<<if $NPCList[_n].righthand is 0 and $NPCList[_n].lefthand is 0>>
 								<<He>> hugs you between <<his>> $_NPCBreastDesc.
 							<<else>>
-								<<His>> $NPCList[_n].breastsdesc bounce <<if $NPCList[_n].chest is "clothed">>beneath you in <<his>> $NPCList[_n].clothes.upper.name<<else>>freely beneath you with <<his>> movements<</if>>.
+								<<His>> <<print _npcBreastWords>> bounce <<if $NPCList[_n].chest is "clothed">>beneath you in <<his>> <<print $NPCList[_n].clothes?.upper?.name ?? "top">><<else>>freely beneath you with <<his>> movements<</if>>.
 							<</if>>
 						<<else>>
 							<<His>> $_NPCBreastDesc lie<<if $_NPCBreastDesc is "chest">>s<</if>> open beneath you.
@@ -7667,7 +7671,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 						<</if>>
 					<<else>>
 						<<if $NPCList[_n].breastsize gte 6>>
-							<<His>> $NPCList[_n].breastsdesc bounce <<if $NPCList[_n].chest is "clothed">>above you in <<his>> $NPCList[_n].clothes.upper.name<<else>>freely above you with <<his>> movements<</if>>.
+							<<His>> <<print _npcBreastWords>> bounce <<if $NPCList[_n].chest is "clothed">>above you in <<his>> <<print $NPCList[_n].clothes?.upper?.name ?? "top">><<else>>freely above you with <<his>> movements<</if>>.
 						<<else>>
 							<<His>> $_NPCBreastDesc lie<<if $_NPCBreastDesc is "chest">>s<</if>> open above you.
 						<</if>>

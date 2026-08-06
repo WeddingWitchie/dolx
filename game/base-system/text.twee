@@ -6929,10 +6929,14 @@
 
 	<<if !$NPCList[$_npcGen]>>
 		<<set _text_output to `<span class="red">error-npcChest-${$_npcGen}</span>`>>
-	<<elseif $NPCList[$_npcGen].pronoun is "m" or $NPCList[$_npcGen].breastsize is 0>>
+	<!-- Read the body, not the pronoun. Vanilla never gives a male-pronoun NPC breasts, so the old
+	pronoun test only ever decided the wording for a pilled or herm NPC - and it got those wrong,
+	calling a set of breasts a "chest" purely because the NPC still went by "he". -->
+	<<elseif !$NPCList[$_npcGen].breastsize>>
 		<<set _text_output to "chest">>
 	<<else>>
-		<<set _text_output to $NPCList[$_npcGen].breastsdesc>>
+		<!-- An NPC whose body was changed mid-scene can hold a new breast size with the old (or no) wording -->
+		<<set _text_output to $NPCList[$_npcGen].breastsdesc ?? npcBreastText($NPCList[$_npcGen].breastsize).breastsdesc>>
 	<</if>>
 <</silently>><<print _text_output>><</widget>>
 

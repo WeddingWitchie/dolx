@@ -728,14 +728,14 @@
         <<set _keptNpcFullDescription to _npcTemp ? _npcTemp.fullDescription : undefined>>
         <<if _npcTemp>><<npc-xchange-clear-active-genital-state _targetNo "penis">><</if>>
 
-        <<set _brdes to ["nipple","budding","tiny","small","pert","modest","full","large","ample","massive","huge","gigantic","enormous"]>>
-
 		<<if _npc and _npc.startingSex isnot "f" && $xchange.savedNpcBodies[_targetName] isnot undefined && $xchange.savedNpcBodies[_targetName].genderswap isnot undefined && Object.keys($xchange.savedNpcBodies[_targetName].genderswap).length gt 0>>
 			<<npc-xchange-load _targetName "genderswapped">>
 
+			/* Push the record's new body onto the live combat slot.
+			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
-				<<if _npcTemp[_key] isnot undefined>>
+				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
 					<<set _npcTemp[_key] to _npc[_key]>>
 				<</if>>
 			<</for>>
@@ -744,18 +744,21 @@
 			<<set _npc.pronoun to "f">>
 			<<generatePronouns _npc>>
 
-			<<set _npc.breastsize to random(1,_brdes.length-1)>>
-			<<set _npc.breastdesc to _brdes[_npc.breastsize] + " breast">>
-			<<set _npc.breastsdesc to _brdes[_npc.breastsize] + " breasts">>
+			<<set _npc.breastsize to random(1, npcBreastSizeWords.length - 1)>>
+			<<set _breastText to npcBreastText(_npc.breastsize)>>
+			<<set _npc.breastdesc to _breastText.breastdesc>>
+			<<set _npc.breastsdesc to _breastText.breastsdesc>>
 			/* <<set _npc.ballssize to 1>> */
 			<<set _npc.vagina to _npc.penis is "clothed" ? "clothed" : (_npcTemp and _npcTemp.penis is "idle") ? "idle" : 0>>
 			<<set _npc.penis to "none">>
 			<<set _npc.penisdesc to "none">>
 			<<set _npc.penissize to 0>>
 
+			/* Push the record's new body onto the live combat slot.
+			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
-				<<if _npcTemp[_key] isnot undefined>>
+				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
 					<<set _npcTemp[_key] to _npc[_key]>>
 				<</if>>
 			<</for>>
@@ -765,24 +768,19 @@
 			<<set _npcTemp.pronoun to "f">>
 			<<generatePronouns _npcTemp>>
 
-			<<set _npcTemp.fullDescription to _npcTemp.description + " ">>
-			<<if _npcTemp.role isnot "normal">>
-				<<set _npcTemp.fullDescription += _npcTemp.role>>
-			<<elseif _npcTemp.pronoun is "m">>
-				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "boy" : "man")>>
-			<<elseif _npcTemp.pronoun is "f">>
-				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "girl" : "woman")>>
-			<</if>>
+			<<run npcRebuildFullDescription(_npcTemp)>>
 
-			<<set _npcTemp.breastsize to random(1,_brdes.length-1)>>
-			<<set _npcTemp.breastdesc to _brdes[_npcTemp.breastsize] + " breast">>
-			<<set _npcTemp.breastsdesc to _brdes[_npcTemp.breastsize] + " breasts">>
+			<<set _npcTemp.breastsize to random(1, npcBreastSizeWords.length - 1)>>
+			<<set _breastText to npcBreastText(_npcTemp.breastsize)>>
+			<<set _npcTemp.breastdesc to _breastText.breastdesc>>
+			<<set _npcTemp.breastsdesc to _breastText.breastsdesc>>
 			/* <<set _npcTemp.ballssize to 1>> */
 			<<set _npcTemp.vagina to _npcTemp.penis is "clothed"? "clothed" : _npcTemp.penis is "idle"? "idle" : 0>>
 			<<set _npcTemp.penis to "none">>
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>
 		<</if>>
+		<<npc-xchange-verify-body "npc-become-girl">>
 		<<npc-xchange-keep-gender "f">>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
     <</widget>>
@@ -815,9 +813,11 @@
 		<<if _npc and _npc.startingSex isnot "m" and _swapValidBoy>>
 			<<npc-xchange-load _targetName "genderswapped">>
 
+			/* Push the record's new body onto the live combat slot.
+			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
-				<<if _npcTemp[_key] isnot undefined>>
+				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
 					<<set _npcTemp[_key] to _npc[_key]>>
 				<</if>>
 			<</for>>
@@ -839,9 +839,11 @@
 			<<set _npc.penisdesc to _penisdescs[_npc.penissize-1]>>
 			<<set _npc.vagina to "none">>
 
+			/* Push the record's new body onto the live combat slot.
+			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
-				<<if _npcTemp[_key] isnot undefined>>
+				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
 					<<set _npcTemp[_key] to _npc[_key]>>
 				<</if>>
 			<</for>>
@@ -851,14 +853,7 @@
 			<<set _npcTemp.pronoun to "m">>
 			<<generatePronouns _npcTemp>>
 
-			<<set _npcTemp.fullDescription to _npcTemp.description + " ">>
-			<<if _npcTemp.role isnot "normal">>
-				<<set _npcTemp.fullDescription += _npcTemp.role>>
-			<<elseif _npcTemp.pronoun is "m">>
-				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "boy" : "man")>>
-			<<elseif _npcTemp.pronoun is "f">>
-				<<set _npcTemp.fullDescription += (_npcTemp.teen is 1 ? "girl" : "woman")>>
-			<</if>>
+			<<run npcRebuildFullDescription(_npcTemp)>>
 
 			<<set _npcTemp.breastsize to 0>>
 			<<set _npcTemp.breastdesc to "nipple">>
@@ -872,9 +867,15 @@
 			<<set _npcTemp.penisdesc to _penisdescs[_npcTemp.penissize-1]>>
 			<<set _npcTemp.vagina to "none">>
 		<</if>>
+		<<npc-xchange-verify-body "npc-become-boy">>
 		<<npc-xchange-keep-gender "m">>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
     <</widget>>
+
+	<<widget "npc-xchange-verify-body">>
+		<<if _npcTemp>><<run npcRepairBodyText(_npcTemp, "<<" + _args[0] + ">> combat slot")>><</if>>
+		<<if _npc>><<run npcRepairBodyText(_npc, "<<" + _args[0] + ">> named record")>><</if>>
+	<</widget>>
 
     <<widget "npc-xchange-keep-gender">>
 		<<if _keepNpcGender and _keptNpcPronoun isnot undefined>>
@@ -917,9 +918,10 @@
 			<<set _npc.penisdesc to "tiny penis">>
 			<<set _npc.vagina to "none">>
 		
+			/* Push the record's new body onto the live combat slot */
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
-				<<if _npcTemp[_key] isnot undefined>>
+				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
 					<<set _npcTemp[_key] to _npc[_key]>>
 				<</if>>
 			<</for>>
@@ -927,6 +929,7 @@
 		<<elseif _npcTemp>>
 			<<set _npcTemp.gender to "m">>
 			<<set _npcTemp.pronoun to "m">>
+			<<run npcRebuildFullDescription(_npcTemp)>>
 
 			<<set _npcTemp.breastsize to 0>>
 			<<set _npcTemp.breastdesc to "nipple">>
@@ -937,6 +940,7 @@
 			<<set _npcTemp.penisdesc to "tiny penis">>
 			<<set _npcTemp.vagina to "none">>
 		<</if>>
+		<<npc-xchange-verify-body "npc-sissify">>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
 
     <</widget>>
@@ -959,9 +963,10 @@
 			<<set _npc.penisdesc to "none">>
 			<<set _npc.penissize to 0>>
 		
+			/* Push the record's new body onto the live combat slot */
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
-				<<if _npcTemp[_key] isnot undefined>>
+				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
 					<<set _npcTemp[_key] to _npc[_key]>>
 				<</if>>
 			<</for>>
@@ -969,6 +974,7 @@
 		<<elseif _npcTemp>>
 			<<set _npcTemp.gender to "f">>
 			<<set _npcTemp.pronoun to "f">>
+			<<run npcRebuildFullDescription(_npcTemp)>>
 
 			<<set _npcTemp.breastsize to 0>>
 			<<set _npcTemp.breastdesc to "nipple">>
@@ -979,13 +985,11 @@
 			<<set _npcTemp.penisdesc to "none">>
 			<<set _npcTemp.penissize to 0>>
 		<</if>>
+		<<npc-xchange-verify-body "npc-butchify">>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex>><</if>>
 
     <</widget>>
 
-    /* Turns the targeted NPC into a herm: ensures they end up with BOTH a penis and a
-       vagina. Additive only and presentation-preserving, so it keeps the NPC's existing
-       gender, pronoun, and breasts and merely fills in whichever genital is missing. */
     <<widget "npc-hermify">>
 		<<set _npcTemp to $NPCList[_targetNo]>>
         <<set _npc to $NPCName[_targetNameIndex]>>
@@ -1027,6 +1031,7 @@
 				<<set _npcTemp.vagina to _npcTemp.penis is "clothed" ? "clothed" : _npcTemp.penis is "idle" ? "idle" : 0>>
 			<</if>>
 		<</if>>
+		<<npc-xchange-verify-body "npc-hermify">>
 		<<if _targetName>><<npc-xchange-sync-active-target _targetName _targetNameIndex true>><</if>>
 
     <</widget>>
