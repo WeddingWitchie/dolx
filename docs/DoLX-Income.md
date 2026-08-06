@@ -19,10 +19,12 @@ The divine system is a multiplier layered over genuine income. It does not own b
 ## Design Goals
 
 - A full Angel transformation rewards ordinary and non-sexual ways of earning money.
-- A full Angel transformation doubles the temple chastity-exam allowance instead of using the general non-sexual multiplier, with matching Jordan dialogue and displayed cash.
+- A full Angel transformation raises the temple chastity-exam allowance by 75% instead of using the general non-sexual multiplier, with matching Jordan dialogue and displayed cash.
 - A full Demon transformation rewards sexualised work, including dancing, prostitution, Avery income, gloryhole work, and paid exhibitionism.
 - A Fallen Angel transformation gives a smaller bonus to every genuine income type.
 - Existing independent bonuses stack. Animal-TF income bonuses, skill multipliers, haggling, gambling profit, stolen-goods value, and divine bonuses are not mutually exclusive.
+- No single transformation bonus doubles a payout. A completed animal transformation adds +75% (`animalTfIncomeBonus` in `koztools.js`, used by `animalTfIncome()` and the default `<<wage>>` bonus), and the full-Angel temple allowance is x1.75.
+- A transformation only counts as completed when the body shows a defining part. Minor cosmetics on their own — bear pubes or plumage, bird eyes or malar markings, seraphim eyes, kitsune cheeks, okami markings — do not grant transformation levels, builds, or income bonuses. `Transformations.chimeraActive()` still reports the chimera as present for the mirror and dialogue; `Transformations.chimeraFull()` is what level and build checks use.
 - The same divine bonus runs only once for one payout. A display helper must not modify a shared value and cause the later cash award to apply the identical multiplier again.
 - Separate economic events can each receive a bonus. Stealing goods and later fencing those goods are intentionally two events, so their bonuses stack.
 - The amount printed to the player should match the amount awarded whenever a passage states the final earnings.
@@ -41,7 +43,7 @@ The divine system is a multiplier layered over genuine income. It does not own b
 
 Fallen Angel has precedence. If the effective transformation state also exposes Angel or Demon levels, the payout receives Fallen's x1.2 rather than combining divine forms on the same event.
 
-The temple chastity-exam allowance is a deliberate full-Angel exception: an Angel who is not Fallen receives x2, while Fallen precedence still gives x1.2. Both the solo and Sydney exam passages calculate the final allowance once, print that value, and award it with `divineTfAdjusted: true`.
+The temple chastity-exam allowance is a deliberate full-Angel exception: an Angel who is not Fallen receives x1.75, while Fallen precedence still gives x1.2. Both the solo and Sydney exam passages calculate the final allowance once, print that value, and award it with `divineTfAdjusted: true`.
 
 The helper ignores zero and negative values and rounds the final positive result with `Math.round()`.
 
@@ -196,7 +198,7 @@ Do not exclude `pubStolenGoods` from the divine helper. Acquisition and fencing 
 
 `game/base-system/overlays/traits.twee` displays the bonus alongside the other full-transformation effects:
 
-- Angel states that, while not Fallen, non-sexual income is increased by 50% and the temple allowance is doubled.
+- Angel states that, while not Fallen, non-sexual income is increased by 50% and the temple allowance is increased by 75%.
 - Demon states that, while not Fallen, sexualised-job income is increased by 50%.
 - Both Fallen Angel description stages state that all income is increased by 20%, because the mechanic begins at effective Fallen level 2 rather than only at the later level-4 trait stage.
 

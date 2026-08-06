@@ -1641,8 +1641,13 @@ function animalTfMultiplier(value, bonus, ...types) {
 }
 window.animalTfMultiplier = animalTfMultiplier;
 
+/* Fractional income bonus granted by one completed animal transformation.
+   Rebalanced from +100% to +75%: doubling the payout outclassed every other income modifier. */
+const animalTfIncomeBonus = 0.75;
+window.animalTfIncomeBonus = animalTfIncomeBonus;
+
 function animalTfIncome(value, ...types) {
-	return Math.round(animalTfMultiplier(value, 1, types));
+	return Math.round(animalTfMultiplier(value, animalTfIncomeBonus, types));
 }
 window.animalTfIncome = animalTfIncome;
 

@@ -66,6 +66,28 @@ class Transformations {
 		}
 	}
 
+	/**
+	 * Defining parts per chimera. A chimera showing only a minor cosmetic part (seraphim eyes,
+	 * kitsune cheeks, okami markings) still counts as present for the mirror and for dialogue,
+	 * but it is not a completed transformation, so it must not grant full level or build.
+	 * Chimeras absent from this list already require a combination of defining parts.
+	 */
+	static get chimeraMajorParts() {
+		return {
+			seraphim: ["wings"],
+			kitsune: ["ears", "tail"],
+			okami: ["ears", "tail", "wings"],
+		};
+	}
+
+	/* True when the chimera is present *and* shows a defining part, i.e. it counts as a full transformation. */
+	static chimeraFull(name) {
+		if (!this.chimeraActive(name)) return false;
+		const major = this.chimeraMajorParts[name];
+		if (!major) return true;
+		return major.some(part => this.partActive(name, part));
+	}
+
 	static get levelDefinitions() {
 		return {
 			wolf: { value: V.wolfgirl, parts: { ears: 4, cheeks: 5, tail: 6 }, chimeras: ["okami"], full: 6 },
@@ -91,7 +113,7 @@ class Transformations {
 			if (this.partActive(definition.partKey || name, part)) level = Math.max(level, requiredLevel);
 		}
 		if (name === "fallen" && ["fallenplus", "classicfallenplus"].includes(V.transformationParts?.fallenAngel?.wings)) level = Math.max(level, 4);
-		if (definition.chimeras.some(chimera => this.chimeraActive(chimera))) level = Math.max(level, definition.full);
+		if (definition.chimeras.some(chimera => this.chimeraFull(chimera))) level = Math.max(level, definition.full);
 		return level;
 	}
 
@@ -140,7 +162,7 @@ class Transformations {
 			const partsFull = Object.keys(levelDefinition.parts).some(part => this.partActive("demon", part));
 			if (partsFull) return Math.max(Number(definition.value) || 0, definition.full);
 		}
-		if (sources[name].some(chimera => this.chimeraActive(chimera))) {
+		if (sources[name].some(chimera => this.chimeraFull(chimera))) {
 			return Math.max(Number(definition.value) || 0, definition.full);
 		}
 		return Number(definition.value) || 0;
