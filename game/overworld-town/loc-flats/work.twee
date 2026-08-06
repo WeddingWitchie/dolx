@@ -318,11 +318,23 @@ The <<person>> strokes <<his>> chin in thought. You hear the barking again, from
 :: Flats Dog
 <<effects>>
 
-You enter the flat, and the <<person>> releases the source of the barking,
-<<saveNPC 0 "flats_2">>
-<<endevent>>
-<<beastNEWinit 1 "dog">>
-a <<beasttype>>.
+<!-- If the flat's resident isn't in slot 0 (re-entry after the beast was generated), pull them back from their saved copy. -->
+<<if !($NPCList[0] and $NPCList[0].type is "human") and $per_npc.flats_2>>
+	<<endevent>>
+	<<loadNPC 0 "flats_2">>
+<</if>>
+<<if $NPCList[0] and $NPCList[0].type is "human">>
+	<<person1>>
+	You enter the flat, and the <<person>> releases the source of the barking,
+	<<saveNPC 0 "flats_2">>
+	<<endevent>>
+	<<beastNEWinit 1 "dog">>
+	a <<beasttype>>.
+<<else>>
+	<<endevent>>
+	<<beastNEWinit 1 "dog">>
+	You enter the flat, and the resident releases the source of the barking, a <<beasttype>>.
+<</if>>
 <br><br>
 
 Freed from <<bhis>> prison, <<bhe>> runs a lap around your legs, then bolts into the kitchen.
