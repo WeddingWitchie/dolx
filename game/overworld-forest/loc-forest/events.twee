@@ -1204,6 +1204,138 @@ The snakes slither off of you, escaping through nooks and crannies all around th
 	<br>
 <</if>>
 
+:: Forest Bear Follow
+<<location "forest">><<effects>>
+
+The prints lead away from the path, deeper between the trees. You follow them.
+<br><br>
+
+The trail ends at a hollow beneath a fallen trunk. The <<beasttype>> is there, and lifts <<bhis>> head as you approach.
+<<if $monster is 1>>
+	"Little thing walks to me," <<bhe>> rumbles. "Brave. Or stupid."
+<</if>>
+<br><br>
+
+<<if effectiveTransformationLevel("bear") gte 4>>
+	Your own scent reaches <<bhim>> before you do. <<bHe>> huffs, and settles again. There's nothing to be afraid of here.
+	<br><br>
+
+	<<link [[Offer yourself|Forest Bear Mate]]>><<set $sexstart to 1>><</link>>
+	<br>
+	<<link [[Leave|Forest]]>><<endevent>><<set $eventskip to 1>><</link>>
+	<br>
+<<else>>
+	<<willpowercheck 800>>
+	<<if $willpowerSuccess>>
+		<span class="green">You hold your nerve.</span> You stop shaking, drop your bag, and walk the last few steps.
+		<br><br>
+
+		<<link [[Offer yourself|Forest Bear Mate]]>><<set $sexstart to 1>><</link>>
+		<br>
+	<<else>>
+		<span class="red">Your nerve fails you.</span> <<bHe>> is bigger up close than you let yourself imagine. You back away, one step at a time.
+		<<if $monster is 1>>
+			"Too late," <<bhe>> says.
+		<</if>>
+		<br><br>
+
+		<<link [[Next|Forest Bear Molestation]]>><<set $molestationstart to 1>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+:: Forest Bear Mate
+
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+
+	<<beastCombatInit>><<set $enemyhealthmax to 400>><<set $enemyhealth to 400>><<set $enemyarousalmax to 1000>>
+	<<healthMultiplier>>
+	<<set $enemyarousalmax to $enemyarousalmax * ($beastArousalMult / 100)>>
+	<<set $NPCList[0].stance to "top">><<set $enemytrust += 20>>
+
+	You lower yourself in front of the <<beasttype>> and present yourself.
+	<<deviancy4>>
+
+	<<bHe>> stands, sniffs at you, and climbs over your back.
+	<br><br>
+
+	<<forestRescueSetup>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+
+<<forestRescueCheck "bear">>
+
+<br>
+<<beast $enemyno>>
+<br><br>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend>>
+	<span id="next"><<link [[Next|Forest Bear Mate Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Forest Bear Mate]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Forest Bear Mate Finish
+<<location "forest">><<effects>>
+
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<beastejaculation>>
+
+	The <<beasttype>> climbs off you and lies down in the hollow.
+	<<if $monster is 1>>
+		"Come back," <<bhe>> says, already closing <<bhis>> eyes.
+	<</if>>
+	<br><br>
+
+	<<tearful>> you find the path again.<<trauma -6>><<stress -12>><<ltrauma>><<lstress>>
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<br>
+<<elseif $enemyhealth lte 0>>
+	You hurt the <<beasttype>>. <<bHe>> backs off and lumbers away between the trees.
+	<<if $monster is 1>>
+		"Changed mind," <<bhe>> grumbles.
+	<</if>>
+	<br><br>
+
+	<<tearful>> you find the path again.
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<br>
+<<elseif $rescue is 1>>
+	<<forestRescue>>
+<<else>>
+	/* No decisive outcome, such as giving up the encounter. */
+	The <<beasttype>> loses interest, and returns to the hollow.
+	<br><br>
+
+	<<tearful>> you find the path again.<<stress 18>><<gggstress>><<pain 21>><<gggpain>>
+	<br><br>
+
+	<<clotheson>>
+	<<endcombat>>
+
+	<<link [[Next|Forest]]>><<set $eventskip to 1>><</link>>
+	<br>
+<</if>>
+
 :: Forest Wolf Mate
 <<location "forest">><<effects>>
 
