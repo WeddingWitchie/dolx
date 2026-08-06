@@ -516,21 +516,38 @@
 		<<if $arousal gte ($arousalmax * 0.8)>>
 			<<sadism _args[0]>>
 		<</if>>
-		<<set _thedamage to (2 * _defiance * (currentSkillValue('physique') / 4000))>>
+		/* Damage bonuses are added together and applied once, so a fully trained fighter hits about three times as hard as an untrained one instead of twenty times as hard.
+		Sadism is deliberately left out: it still drives the psychological side of defiance above, but enjoying violence doesn't make the blow land harder. */
+		<<set _thedamage to (2 * _args[0] * (currentSkillValue('physique') / 4000))>>
+		<<set _damageBonus to 0>>
 		<<if $combatExtended.brawlingToggle is 1>>
-			<<set _thedamage to _thedamage * (1 + Math.min(0.5, ((combatExtendedSkillValue('brawling') * $enemyno * (1 + ($enemyno / 2))) / 10000)))>>
+			<<set _damageBonus += Math.min(0.5, ((combatExtendedSkillValue('brawling') * $enemyno * (1 + ($enemyno / 2))) / 10000))>>
 		<</if>>
 		<<if $combatExtended.strikingToggle is 1 and $striking is 1>>
-			<<set _thedamage to _thedamage * (1 + (combatExtendedSkillValue('striking') / 2000))>>
+			<<set _damageBonus += combatExtendedSkillValue('striking') / 2000>>
 		<</if>>
 		<<if $combatExtended.kickingToggle is 1 and $kicking is 1>>
-			<<set _thedamage to _thedamage * (1 + (combatExtendedSkillValue('kicking') / 2000))>>
+			<<set _damageBonus += combatExtendedSkillValue('kicking') / 2000>>
 		<</if>>
 		<<if $fallenangelretribution is 1>>
-			<<set _thedamage to _thedamage * 2>>
+			<<set _damageBonus += 1>>
 		<</if>>
 		/* Bakunawa's blood moon resonance. See Transformations.bakunawaResonant(). */
-		<<set _thedamage to _thedamage * Transformations.bakunawaDamageMultiplier()>>
+		<<set _damageBonus += Math.max(0, Transformations.bakunawaDamageMultiplier() - 1)>>
+		<<set _thedamage to _thedamage * (1 + _damageBonus)>>
+		/* Kicks land with the feet, which are free while both hands are busy, so a kick and a punch can both be thrown in the same turn.
+		They hit for a little less each to keep kicking from being the obvious answer to every fight. */
+		<<if $kicking is 1>>
+			<<set _thedamage to _thedamage * 0.7>>
+		<</if>>
+		/* No single blow can flatten an opponent outright.
+		Bigger, more committed attacks are allowed a larger share of the target's health, from 12% for a light one-limbed strike up to 40% for a full two-handed swing. */
+		<<set _damageCapShare to Math.clamp(0.05 + 0.035 * _args[0], 0.05, 0.4)>>
+		<<if $kicking is 1>>
+			<<set _damageCapShare to _damageCapShare * 0.7>>
+		<</if>>
+		<<set _damageCapPool to (Number.isFinite($enemyhealthmax) and $enemyhealthmax gt 0 ? $enemyhealthmax : 200)>>
+		<<set _thedamage to Math.min(_thedamage, _damageCapPool * _damageCapShare)>>
 		<<if $combatExtended.enemyBlockingActive is 1 and $NPCList[_args[1]]>>
 			<<set _reduction to Math.clamp($NPCList[_args[1]].dodgeChance * 2, 0, 75)>>
 			<<if !Number.isFinite(_reduction)>><<set _reduction to 0>><</if>>
