@@ -31,9 +31,15 @@ function playerBodyIsFemale() {
 window.playerBodyIsFemale = playerBodyIsFemale;
 
 /**
- * Whether the player picked "Neutral" for Clothing Preference, meaning they simply don't care what they wear.
+ * Whether the player picked "Don't care" for Clothing Preference, meaning they simply don't care what they wear.
  * The entire clothing topic goes dormant: no dysphoria, no tolerance drift, no preferred-outfit comfort, and it stops pulling on the identity meter.
  * Mirrors how the Body topic toggles ($xchange.gi*Enabled) mute their categories.
+ *
+ * NOTE: the two presentation axes use different sentinels for androgyny,
+ * because clothing had already claimed "n" for don't-care before the androgynous option existed:
+ *   appearance.preferred - "m" | "f" | "n"        ("n" = prefers androgynous)
+ *   clothing.preferred   - "m" | "f" | "u" | "n"  ("u" = prefers androgynous, "n" = don't care)
+ * Testing clothing against "n" for androgyny is the easy mistake here; it silences the whole topic instead.
  */
 function clothingIdentityIsNeutral() {
 	return V.identity?.presentation?.clothing?.preferred === "n";
@@ -99,8 +105,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 
 	/*
 	 * Hypno crossdress / genderify should still run even when the player cares for gender.
-	 * Use the player's baseline gender for the compulsion direction so body changes from X-Change
-	 * do not flip the urge from feminine to masculine mid-pill.
+	 * Use the player's baseline gender for the compulsion direction so body changes from X-Change do not flip the urge from feminine to masculine mid-pill.
 	 */
 	if (genderifyActive || hypnoCrossdressLevel >= 1) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
@@ -254,10 +259,8 @@ function getFemininityContribution(characteristic) {
 			femininity += (V.identity.presentation.appearance.preferred === "f") * 100;
 			break;
 		case "Androgynous Appearance":
-			/* Neutral-axis trait: dilutes toward centre rather than pushing either way, like Neutral Pronouns. */
-			femininity += Number(V.identity.presentation.appearance.neutral?.acceptance) * 0;
-			femininity += Number(V.identity.presentation.appearance.neutral?.reject) * -0;
-			femininity += (V.identity.presentation.appearance.preferred === "n") * 0;
+			/* Neutral-axis trait, like Neutral Pronouns: wanting to read as neither pulls the score toward neither, so it contributes nothing in either direction.
+			Listed to stay exhaustive over the axes. */
 			break;
 		case "Masculine Clothing":
 			if (clothingIdentityIsNeutral()) break;
@@ -272,10 +275,7 @@ function getFemininityContribution(characteristic) {
 			femininity += (V.identity.presentation.clothing.preferred === "f") * 100;
 			break;
 		case "Neutral Clothing":
-			if (clothingIdentityIsNeutral()) break;
-			femininity += Number(V.identity.presentation.clothing.neutral?.acceptance) * 0;
-			femininity += Number(V.identity.presentation.clothing.neutral?.reject) * -0;
-			femininity += (V.identity.presentation.clothing.preferred === "u") * 0;
+			/* As above: a balanced outfit is the goal, so this axis pulls the score neither way. */
 			break;
 		case "Masculine Pronouns":
 			femininity += Number(V.identity.presentation.pronouns.masculine.acceptance) * -100;

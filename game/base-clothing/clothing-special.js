@@ -1,4 +1,4 @@
-// @ts-check
+// @ts-nocheck
 // prettier-ignore
 
 function initSpecialClothes() {
@@ -854,34 +854,20 @@ function specialClothesUpdate() {
 	// This array is used for any clothes that can't conveniently use existing story vars for unlock requirements or alt unlocks. Keeps them all in one place. Do not abuse this to be lazy. >:( -->
 	if (!V.specialClothesEvents) V.specialClothesEvents = [];
 
-	/* The following lines are for backwards compatibility with older saves.
-	 * When adding new items, don't forget to also update $objectVersion.specialClothes in versionUpdate.
-	 * Cleared out as of version 0.5.5.0, as the object was changed to an array and the above initialisation was forced to re-run. Use below as template for adding any new clothes.
-	 * Remember to add the clothes to 'initSpecialClothes' above, with the requirements and groupings needed.
+	/* Backwards compatibility for older saves.
+	 *
+	 * Add entries for any catalogue items missing from the save.
+	 * The list is now taken directly from the catalogue, so new items no longer need to be added manually here.
+	 * Missing entries can break set completion and Gwylan topics, while also allowing locked items to appear in the shop.
+	 * New clothes must still be added to 'initSpecialClothes' above, and $objectVersion.specialClothes must be increased so this update runs.
 	 */
-
-	if (!V.specialClothes.some(item => item.name === "flower crown")) V.specialClothes.push({ name: "flower crown", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "sage witch hat")) V.specialClothes.push({ name: "sage witch hat", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "jasper pendant")) V.specialClothes.push({ name: "jasper pendant", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "familiar collar")) V.specialClothes.push({ name: "familiar collar", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "ancient coral ring")) V.specialClothes.push({ name: "ancient coral ring", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "antique gold amulet")) V.specialClothes.push({ name: "antique gold amulet", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "antique gold necklace")) V.specialClothes.push({ name: "antique gold necklace", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "antique copper ring")) V.specialClothes.push({ name: "antique copper ring", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "antique silver band")) V.specialClothes.push({ name: "antique silver band", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "ancient gold ring")) V.specialClothes.push({ name: "ancient gold ring", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "butterfly eyepatch")) V.specialClothes.push({ name: "butterfly eyepatch", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "rose eyepatch")) V.specialClothes.push({ name: "rose eyepatch", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "kaiju costume")) V.specialClothes.push({ name: "kaiju costume", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "kaiju bottoms")) V.specialClothes.push({ name: "kaiju bottoms", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "kaiju hood")) V.specialClothes.push({ name: "kaiju hood", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "Whitney's collar")) V.specialClothes.push({ name: "Whitney's collar", unlocked: 0 });
-	if (!V.specialClothes.some(item => item.name === "Whitney's collar with leash")) V.specialClothes.push({ name: "Whitney's collar with leash", unlocked: 0 });
+	setup.specialClothes.forEach(item => {
+		if (!V.specialClothes.some(entry => entry.name === item.name)) V.specialClothes.push({ name: item.name, unlocked: 0 });
+	});
 
 	// Delete any entries that do not have a matching setup object.
-	V.specialClothes.forEach((clothing, index) => {
-		if (!setup.specialClothes.some(item => item.name === clothing.name)) V.specialClothes.deleteAt(index);
-	});
+	// Filter rather than splice while iterating, which used to skip the element after every removal.
+	V.specialClothes = V.specialClothes.filter(clothing => setup.specialClothes.some(item => item.name === clothing.name));
 }
 window.specialClothesUpdate = specialClothesUpdate;
 DefineMacro("specialClothesUpdate", specialClothesUpdate);

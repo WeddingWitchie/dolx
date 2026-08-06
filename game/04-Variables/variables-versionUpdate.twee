@@ -309,7 +309,7 @@
 		}>>
 	<</if>>
 
-	<<if $objectVersion.specialClothes lt 21 or $objectVersion.specialClothes is undefined>>
+	<<if $objectVersion.specialClothes lt 22 or $objectVersion.specialClothes is undefined>>
 
 		<!-- Old special clothing system conversion code, DO NOT INCREMENT -->
 		<<if $objectVersion.specialClothes lt 20 and !Array.isArray($specialClothes)>>
@@ -342,10 +342,19 @@
 			<!-- Conversion code end -->
 		<</if>>
 
+		<!--
+			Backfill any catalogue entries the save is missing.
+			Adding names to specialClothesUpdate's list does nothing for existing saves on its own:
+			it only ever runs from here and from a new game's start2, so without a version bump the entries stay absent.
+			An absent entry is worse than a locked one, because getUnlockedSpecialSets counts the set's total from the catalogue and can never reach it
+			(no Gwylan topic at any unlock level), while the shop's availability filter only hides an item whose entry reads exactly 0; undefined slips through and puts it on sale.
+			It is idempotent, so it also repairs saves that missed an earlier bump.
+		-->
+		<<specialClothesUpdate>>
 		<<specialClothesRefresh>>
 
 		<!-- DO increment this, and don't forget to do it in variables-start.twee, too -->
-		<<set $objectVersion.specialClothes to 21>>
+		<<set $objectVersion.specialClothes to 22>>
 	<</if>>
 	<<if $objectVersion.feats lt 2>>
 		<<updateFeats>>

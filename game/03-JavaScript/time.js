@@ -1589,13 +1589,16 @@ function minutePassed(minutes) {
 		playerIsXChanged() && (!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
 	// The PC gradually gets used to being locked up. Chastity can keep them needy, but passive pressure alone cannot leave them overwhelmed.
 	V.chastityAcclimation = Number.isFinite(V.chastityAcclimation) ? V.chastityAcclimation : 0;
-	if (playerChastity()) {
-		V.chastityAcclimation = Math.clamp(V.chastityAcclimation + minutes, 0, 14400);
-	} else {
-		V.chastityAcclimation = Math.clamp(V.chastityAcclimation - minutes / 2, 0, 14400);
-	}
 	// Ten days of it stops feeling new. Mark that permanently instead of leaving it as an invisible number the player can't act on.
 	V.chastityAcclimatedTrait = Number.isFinite(V.chastityAcclimatedTrait) ? V.chastityAcclimatedTrait : V.chastityAcclimation >= 14400 ? 1 : 0;
+	// Once the body has learned it, time out of the device dulls the habit but never erases it
+	// so the trait's promised reduction stays real instead of decaying back to nothing and leaving the trait card lying about what it does.
+	const chastityAcclimationFloor = V.chastityAcclimatedTrait === 1 ? 7200 : 0;
+	if (playerChastity()) {
+		V.chastityAcclimation = Math.clamp(V.chastityAcclimation + minutes, chastityAcclimationFloor, 14400);
+	} else {
+		V.chastityAcclimation = Math.clamp(V.chastityAcclimation - minutes / 2, chastityAcclimationFloor, 14400);
+	}
 	if (V.chastityAcclimation >= 14400 && V.chastityAcclimatedTrait === 0) {
 		V.effectsmessage = 1;
 		V.chastityAcclimatedTraitMessage = 1;
@@ -1609,17 +1612,25 @@ function minutePassed(minutes) {
 	} else {
 		V.lustfulAcclimation = Math.clamp(V.lustfulAcclimation - minutes / 2, 0, 20160);
 	}
+	const arousalAcclimatedEnabled = !!V.xchange?.arousalAcclimatedTraitEnabled;
+	const arousalAcclimatedEarned = V.lustfulAcclimation >= 20160 || V.chastityAcclimatedTrait === 1;
 	V.arousalDesensitizedTrait = Number.isFinite(V.arousalDesensitizedTrait)
 		? V.arousalDesensitizedTrait
-		: V.xchange.arousalAcclimatedTraitEnabled && (V.lustfulAcclimation >= 20160 || V.chastityAcclimatedTrait === 1)
+		: arousalAcclimatedEnabled && arousalAcclimatedEarned
 		? 1
 		: 0;
-	if (V.xchange.arousalAcclimatedTraitEnabled && (V.lustfulAcclimation >= 20160 || V.chastityAcclimatedTrait === 1) && V.arousalDesensitizedTrait === 0) {
+	if (arousalAcclimatedEnabled && V.arousalDesensitizedTrait === -1) {
+		// Previously earned, then switched off.
+		// Hand it straight back without re-announcing it: lustfulAcclimation decays once Lustful is gone, so re-qualifying can be impossible and the setting promises otherwise.
+		V.arousalDesensitizedTrait = 1;
+	} else if (arousalAcclimatedEnabled && arousalAcclimatedEarned && V.arousalDesensitizedTrait === 0) {
 		V.effectsmessage = 1;
 		V.arousalDesensitizedTraitMessage = 1;
 		V.arousalDesensitizedTrait = 1;
-	} else if (!V.xchange.arousalAcclimatedTraitEnabled && V.arousalDesensitizedTrait === 1) {
-		V.arousalDesensitizedTrait = 0;
+	} else if (!arousalAcclimatedEnabled && V.arousalDesensitizedTrait === 1) {
+		// -1 means "earned, suppressed by the setting" rather than "never had it".
+		// Every gameplay gate tests `is 1`, and the traits overlay tests `gte 1`, so a suppressed trait stays completely inert.
+		V.arousalDesensitizedTrait = -1;
 	}
 	// A belt only aches with need if it's locked against the PC's will, or they're needy enough (lustful) to chafe at it regardless of who holds the key. Someone who chose their own lock has no such frustration to feed on.
 	const chastityFrustrationApplies = playerChastity() && (!chastitySelfControlled() || V.backgroundTraits.includes("lustful"));

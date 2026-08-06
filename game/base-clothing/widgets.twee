@@ -770,7 +770,7 @@
 		<<set $_setupItem to setup.clothes[$_slot][clothesIndex($_slot,$_item)]>>
 		<<set $_return to clothesReturnLocation($_item,"rebuy")>>
 
-		<<if $_setupItem.shop.length isnot 0 and $_item.one_piece isnot "broken" and $_setupItem.cursed isnot 1>> /* NO SPLIT ADDED */
+		<<if $_setupItem.shop.length isnot 0 and $_item.one_piece isnot "broken" and $_setupItem.cursed isnot 1 and !clothingIsBorrowed($_item)>> /* NO SPLIT ADDED */
 			/*If item is half of an outfit, rebuy the primary half instead by redefining the variables defined above*/
 			<<if $_item.outfitSecondary isnot undefined and $_item.outfitSecondary[1] isnot "broken" and $_item.outfitSecondary[1] isnot "split">>
 				<<set $_slot to $_item.outfitSecondary[0]>>
@@ -784,6 +784,7 @@
 			<<if $_item.accessory_colourCustom isnot undefined>><<set _accessory_colourCustom to $_item.accessory_colourCustom>><</if>>
 
 			<<if $_item.outfitSecondary isnot undefined and $_item.outfitSecondary[1] is "broken">> /* NO SPLIT ADDED */
+			<<elseif clothingIsBorrowed($_item)>> /* Swapping to the outfit's primary half above can land on a borrowed garment even when the ruined half wasn't flagged. */
 			<<elseif $money gte $_cost>>
 				<<generalSend $_return $_slot $_setupItem.index $_item.colour $_item.accessory_colour $_item.pattern>>
 				<<if $_item.one_piece is "split">>
@@ -1358,7 +1359,7 @@
 				<<if _outfitPrimaryUndress isnot undefined>>
 					<<for _labelUndress, _valueUndress range _outfitPrimaryUndress>>
 						<<if _valueUndress isnot "broken" and _valueUndress isnot "split" and $worn[_labelUndress].name is _valueUndress>>
-							<<if !setup.wardrobeSkip.includes($worn[_labelUndress].name)>>
+							<<if !setup.wardrobeSkip.includes($worn[_labelUndress].name) and !clothingIsBorrowed($worn[_labelUndress])>>
 								<<set $_selectedWardrobe[_labelUndress].push(clone($worn[_labelUndress]))>>
 								<<run _slots.push(_labelUndress)>>
 							<</if>>
@@ -1366,7 +1367,7 @@
 						<</if>>
 					<</for>>
 				<</if>>
-				<<if !_undressedStrapon and !setup.wardrobeSkip.includes($worn[_undressSlot].name)>>
+				<<if !_undressedStrapon and !setup.wardrobeSkip.includes($worn[_undressSlot].name) and !clothingIsBorrowed($worn[_undressSlot])>>
 					<<set $_selectedWardrobe[_undressSlot].push(clone($worn[_undressSlot]))>>
 				<</if>>
 				<<set $worn[_undressSlot] to clone(setup.clothes[_undressSlot][0])>>
@@ -1431,14 +1432,14 @@
 			<<for _labelStore, _unused range $_item.outfitPrimary>>
 				<<set $_itemPair to $store[_labelStore].find(item => item.location is _args[0])>>
 				<<if $_itemPair and $_itemPair.outfitSecondary isnot undefined and $_itemPair.outfitSecondary[1] is $_item.name and !$_itemPair.temp>>
-					<<if !setup.wardrobeSkip.includes($_itemPair.name)>>
+					<<if !setup.wardrobeSkip.includes($_itemPair.name) and !clothingIsBorrowed($_itemPair)>>
 						<<set $wardrobe[_labelStore].push(clone($_itemPair))>>
 					<</if>>
 					<<set $store[_labelStore].delete($_itemPair)>>
 				<</if>>
 			<</for>>
 		<</if>>
-		<<if !setup.wardrobeSkip.includes($_item.name) and $_item.temp is undefined>>
+		<<if !setup.wardrobeSkip.includes($_item.name) and $_item.temp is undefined and !clothingIsBorrowed($_item)>>
 			<<set $wardrobe[$_slot].push(clone($_item))>>
 		<</if>>
 		<<set $store[$_slot].delete($_item)>>

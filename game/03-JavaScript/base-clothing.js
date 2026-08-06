@@ -339,6 +339,19 @@ function chastitySelfControlled() {
 window.chastitySelfControlled = chastitySelfControlled;
 
 /**
+ * True for a garment the player is only wearing on loan (Niki's kaiju costume, and anything else marked the same way).
+ * Borrowed garments must never reach the wardrobe or the clothing-loss rebuy:
+ * the player doesn't own them, so filing one away or buying a replacement hands them a costume they never earned.
+ *
+ * @param {object} garment The item of clothing to test.
+ * @returns {boolean}
+ */
+function clothingIsBorrowed(garment) {
+	return !!garment?.borrowed;
+}
+window.clothingIsBorrowed = clothingIsBorrowed;
+
+/**
  * @description Takes in a passed item of clothing and returns its corresponding pair if it's an outfit part.
  * @param {object} garment The item of clothing that we want the second half of.
  * @param {string} layer The layer the garment in being worn on.

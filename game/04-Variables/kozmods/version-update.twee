@@ -1180,7 +1180,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $chastityAcclimation is undefined>><<set $chastityAcclimation to 0>><</if>>
 	<<if $chastityAcclimatedTrait is undefined>><<set $chastityAcclimatedTrait to $chastityAcclimation gte 14400 ? 1 : 0>><</if>>
 	<<if $lustfulAcclimation is undefined>><<set $lustfulAcclimation to 0>><</if>>
-	<<if $arousalDesensitizedTrait is undefined>><<set $arousalDesensitizedTrait to ($lustfulAcclimation gte 20160 or $chastityAcclimatedTrait is 1) ? 1 : 0>><</if>>
+	/* Gated on the setting the same way the hourly check is, so a save loaded with the trait switched off doesn't show it (and halve arousal) until the next tick corrects it. */
+	<<if $arousalDesensitizedTrait is undefined>><<set $arousalDesensitizedTrait to ($xchange?.arousalAcclimatedTraitEnabled and ($lustfulAcclimation gte 20160 or $chastityAcclimatedTrait is 1)) ? 1 : 0>><</if>>
 	<<run window.dolxBackfillChastityKeys()>>
 	<<if $worn?.vibrator and $worn.vibrator.remote is undefined>>
 		<<set $worn.vibrator.remote to "player">>
