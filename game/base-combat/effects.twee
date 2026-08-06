@@ -5596,6 +5596,9 @@
 			<<personselect $mouthtarget>>
 			<<set $mouthaction to 0>><<set _sound to 1>>
 			<<set _unforgiver to $NPCList.find(npc => npc.traits.includes("unforgiving"))>>
+			<!-- an apology is only 30% as effective with no english ability, scaling up to full strength at the top english grade -->
+			<<set _englishTraitMax to 4 * ($AMCTraits.english ?? 1)>>
+			<<set _apologyPower to Math.clamp(0.3 + (0.7 * _speechTrait) / _englishTraitMax, 0.3, 1)>>
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
 				<<wheeze "apologise">>
 			<<elseif $enemytype is "beast">>
@@ -5629,7 +5632,7 @@
 						While it doesn't understand you, your tone of voice has an impact.
 					<</if>>
 					<<set $apologised to 1>><<set $speechapologise to 1>>
-					<<set $enemyanger -= 50 * (1 + _speechTrait)>>
+					<<set $enemyanger -= 50 * (1 + _speechTrait) * _apologyPower>>
 				<<else>>
 					<<bHe>> ignores you.
 					<<set $speechapologiseno to 1>>
@@ -5650,7 +5653,7 @@
 					<<set $mouthactiondefault to "plead">>
 					<<if $apologised is 0>>
 						<<set $apologised to 1>><<set $speechapologise to 1>><<set $wraithApologise to true>><<set $wraithApologiseCooldown to true>>
-						<<set $enemyanger -= 100 * (1 + _speechTrait)>>
+						<<set $enemyanger -= 100 * (1 + _speechTrait) * _apologyPower>>
 					<<else>>
 						<<He>> angrily claws at <<his>> neck.
 						<<set $speechapologiseno to 1>>
@@ -5684,7 +5687,7 @@
 							<<note "Avery's Saviour" "teal">>
 						<</if>>
 						<<set $apologised to 1>><<set $speechapologise to 1>>
-						<<set $enemyanger -= 50 * (1 + _speechTrait)>>
+						<<set $enemyanger -= 50 * (1 + _speechTrait) * _apologyPower>>
 					<<else>>
 						<<He>> ignores you.
 						<<set $speechapologiseno to 1>>
