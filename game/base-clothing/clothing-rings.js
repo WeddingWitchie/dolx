@@ -38,6 +38,8 @@ function initRings() {
 			iconFile: 0,
 			accIcon: 0,
 			mainImage: 0,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 
 		{
@@ -75,6 +77,8 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 
 		{
@@ -113,6 +117,8 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 
 		{
@@ -150,6 +156,8 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 
 		{
@@ -10366,8 +10374,9 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
-
 		{
 			index: 259,
 			slot: "rings",
@@ -10403,6 +10412,8 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 		{
 			index: 260,
@@ -10439,6 +10450,8 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 		{
 			index: 261,
@@ -10475,8 +10488,9 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
-
 		{
 			index: 262,
 			slot: "rings",
@@ -10582,6 +10596,8 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 		{
 			index: 265,
@@ -10616,6 +10632,47 @@ function initRings() {
 			mainImage: 0,
 			leftImage: 1,
 			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
+		},
+		{
+			index: 266,
+			slot: "rings",
+			name: "tidebloom ring",
+			name_cap: "Tidebloom ring",
+			variable: "tidebloom",
+			state: 0,
+			state_base: 0,
+			integrity: 100,
+			integrity_max: 100,
+			fabric_strength: 500,
+			reveal: 100,
+			word: "a",
+			plural: 0,
+			colour: 0,
+			colour_options: [],
+			colour_sidebar: 0,
+			type: ["normal", "nectarbound"],
+			gender: "n",
+			warmth: 0,
+			cost: 12000,
+			description: "A band of plaited water lily stem, still blue, set with a bead of pale shell.",
+			shop: ["forest"],
+			accessory: 1,
+			accessory_colour: 0,
+			accessory_colour_options: ["gold", "rose gold", "black", "white", "silver"],
+			accessory_colour_sidebar: 1,
+			altposition: "none",
+			altdisabled: [],
+			cursed: 0,
+			location: 0,
+			iconFile: "jewellery/tidebloom-ring.png",
+			accIcon: 0,
+			mainImage: 0,
+			leftImage: 1,
+			rightImage: 1,
+			chastityKey: undefined,
+			chastityKeyholder: undefined,
 		},
 	];
 	setup.clothes.rings = clothing;

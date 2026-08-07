@@ -178,6 +178,8 @@ function initSpecialClothes() {
 		{ name: "kaiju bottoms", 				sets: ["kaiju"] },
 		{ name: "kaiju hood", 					sets: ["kaiju"] },
 
+		{ name: "tidebloom ring", 				sets: ["tidebloom"] },
+
 		{ name: "Whitney's collar", 			sets: ["whitney_collar"] },
 		{ name: "Whitney's collar with leash", 	sets: ["whitney_collar"] },
 	];
@@ -828,6 +830,19 @@ function initSpecialClothes() {
 			icon: "clothes/fox-mask.png",
 		},
 		// Modded
+		tidebloom: {
+			text: "tidebloom ring",
+			requirements: () =>
+				V.specialClothesEvents?.includes("tidebloom") ||
+				V.badEndStats?.some(stat => stat.source === "Water Dragon Lab" && ["dragonLabVent", "dragonLabDischarged"].includes(stat.reasonEnd)),
+			hint: "leave the doctor's basement, one way or the other",
+			shop: ["forest"],
+			feat: true,
+			featCost: 15,
+			icon: "clothes",
+			iconSlot: "rings",
+			iconIndex: 266,
+		},
 		antiques: {
 			text: "antique jewellery",
 			hint: "find them all",

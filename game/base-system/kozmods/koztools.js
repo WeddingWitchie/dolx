@@ -1765,3 +1765,15 @@ function officeSluttyAllure() {
 	return bonus;
 }
 window.officeSluttyAllure = officeSluttyAllure;
+
+/**
+ * Tidebloom ring: a plaited water lily stem kept from the lab's day room planter.
+ * Worn, it keeps a nectar craving from fading and gives off a faint sweet scent.
+ *
+ * @returns {boolean} true while the ring is on the player's hand
+ */
+function wearingTidebloomRing() {
+	/* Keyed off variable, the identity clothesIndex uses; worn names get blanked to "naked" by the strip widgets. */
+	return V.worn?.rings?.variable === "tidebloom";
+}
+window.wearingTidebloomRing = wearingTidebloomRing;

@@ -1421,8 +1421,12 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if !Array.isArray($transgenderknown)>><<set $transgenderknown to []>><</if>>
 	<<if $schoolrep and $schoolrep.transgender is undefined>><<set $schoolrep.transgender to null>><</if>>
 
-	<<if $wardrobes isnot undefined and $wardrobes isnot null and typeof $wardrobes is "object" and !Array.isArray($wardrobes) and $wardrobes.inventory is undefined>>
+	/* Catalogue backfill for saves that already passed the current $objectVersion.specialClothes gate.
+	   Only fires when new special clothes have been added since the save last ran the versioned block, and specialClothesUpdate is idempotent. */
+	<<if Array.isArray($specialClothes) and $specialClothes.length lt setup.specialClothes.length>>
 		<<specialClothesUpdate>>
+	<</if>>
+	<<if $wardrobes isnot undefined and $wardrobes isnot null and typeof $wardrobes is "object" and !Array.isArray($wardrobes) and $wardrobes.inventory is undefined>>
 		<<wardrobesUpdate>>
 	<</if>>
 

@@ -9,6 +9,8 @@ function redirectRemovedRingStep(setupItem) {
 		"-8": "-5",
 		"-15": "-10",
 		"-25": "-20",
+		/* Not a removed carat step: the tidebloom ring has no art of its own and wears the 1ct aquamarine sprites. */
+		tidebloom: "aquamarine-1",
 	};
 
 	// Guard against a missing setup/variable; hand back whatever the variable is
@@ -26,7 +28,8 @@ function redirectRemovedRingStep(setupItem) {
 	}
 
 	// Return the (possibly redirected) variable STRING. Do NOT mutate setupItem:
-	// worn.setup is often a direct reference to setup.clothes.rings[index], 
-    // so writing to it would corrupt the shared clothing definition for the session.
+	// worn.setup is often a direct reference to setup.clothes.rings[index],
+	// so writing to it would corrupt the shared clothing definition for the session.
 	return variable;
 }
+window.redirectRemovedRingStep = redirectRemovedRingStep;

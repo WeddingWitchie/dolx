@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked */
+/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing */
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -730,6 +730,8 @@ function calculateallure() {
 	if (Time.isBloodMoon()) allure += 2000;
 	/* Elk-scarred trait */
 	if (V.auriga_scar) allure += V.auriga_scar * 500;
+	/* Tidebloom ring: the flower on it keeps giving off scent */
+	if (wearingTidebloomRing()) allure += 300;
 	allure = Math.clamp(allure, 0, 8000);
 	const baseAllure = Math.floor(allure);
 	V.baseAllure = baseAllure;

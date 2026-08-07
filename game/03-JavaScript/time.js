@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual wearingTidebloomRing */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -2528,7 +2528,8 @@ function dailyLiquidEffects() {
 
 	V.nectar_addiction = Math.clamp(V.nectar_addiction - 5, 0, 200);
 	if (V.backgroundTraits.includes("plantlover")) {
-		V.nectar_timer--;
+		/* The tidebloom ring is living plant matter worn against the skin, so the craving never has time to fade. */
+		if (!wearingTidebloomRing()) V.nectar_timer--;
 		if (V.nectar_timer <= 0) {
 			V.backgroundTraits.delete("plantlover");
 			V.effectsmessage = 1;

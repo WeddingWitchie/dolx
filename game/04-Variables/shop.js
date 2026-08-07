@@ -133,6 +133,11 @@ setup.shopDetails = {
 				: "Enable transformations to make use of this trait.";
 		},
 	},
+	nectarbound: {
+		name: "Nectar-bound",
+		desc: "Living plant matter.",
+		details: "Prevents Dendrophile and Nectar Addict from fading while worn.",
+	},
 	shade: {
 		name: "Shade",
 		desc: "Blocks the sun.",
