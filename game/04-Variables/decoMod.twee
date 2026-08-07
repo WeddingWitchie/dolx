@@ -1,55 +1,51 @@
 :: Widgets decoMod [widget]
 
 <<widget "mirrorMood">>
-	<script>
+	<<script>>
 		if (typeof State.variables.decoPage === "undefined") {
 			State.variables.decoPage = 1;
 		}
-		if (typeof State.variables.decoTotal === "undefined") {
-			State.variables.decoTotal = 10;
+		State.variables.decoTotal = 10;
+		if (!(State.variables.decoPage >= 1) || State.variables.decoPage > State.variables.decoTotal) {
+			State.variables.decoPage = 1;
 		}
 
-		function updateContent() {
+		window.dolxDecoRefresh = function () {
+			var page = State.variables.decoPage;
+			var total = State.variables.decoTotal;
+
+			for (var i = 1; i <= total; i++) {
+				var element = document.getElementById('fg-bg' + i);
+				if (element) {
+					element.style.display = i === page ? 'block' : 'none';
+				}
+			}
+
 			var backButton = document.getElementById('backButton');
-			var nextButton = document.getElementById('nextButton');
-
-			for (var i = 1; i <= State.variables.decoTotal; i++) {
-			var element = document.getElementById('fg-bg' + i);
-			if (element) {
-				element.style.display = 'none';
-			}
-			}
-
-			var currentElement = document.getElementById('fg-bg' + State.variables.decoPage);
-			if (currentElement) {
-			currentElement.style.display = 'block';
-			}
-
 			if (backButton) {
-			backButton.style.display = State.variables.decoPage > 1 ? 'inline-block' : 'none';
+				backButton.style.display = page > 1 ? 'inline-block' : 'none';
 			}
 
+			var nextButton = document.getElementById('nextButton');
 			if (nextButton) {
-			nextButton.style.display = State.variables.decoPage < State.variables.decoTotal ? 'inline-block' : 'none';
+				nextButton.style.display = page < total ? 'inline-block' : 'none';
 			}
-		}
 
-		jQuery(document).off('click.decoMod', '#backButton').on('click.decoMod', '#backButton', function() {
-			if (State.variables.decoPage > 1) {
-				State.variables.decoPage--;
-				updateContent();
+			var label = document.getElementById('decoPageLabel');
+			if (label) {
+				label.textContent = 'Page ' + page + ' / ' + total;
 			}
-		});
+		};
 
-		jQuery(document).off('click.decoMod', '#nextButton').on('click.decoMod', '#nextButton', function() {
-			if (State.variables.decoPage < State.variables.decoTotal) {
-				State.variables.decoPage++;
-				updateContent();
-			}
-		});
+		window.dolxDecoTurnPage = function (step) {
+			var page = State.variables.decoPage + step;
+			if (page < 1 || page > State.variables.decoTotal) return;
+			State.variables.decoPage = page;
+			window.dolxDecoRefresh();
+		};
 
-		window.setTimeout(updateContent, 0);
-	</script>
+		window.setTimeout(window.dolxDecoRefresh, 0);
+	<</script>>
 	<br>
 
 	<div class="dolx-decomod">
@@ -67,15 +63,16 @@
 	<br></span></mouse><br><br>
 	<i>Both the background and the foreground have two layers. 
 	<br><br>Foreground 1 controls the uppermost layer, Foreground 2 controls the layer below it.
-	<br>Background 1 controls the lowermost layer, Background 2 controls the layer above it.<br>
+	<br>Background 1 controls the lowermost layer, Background 2 controls the layer above it.
 	<br>Lastly, images can be swapped in and out of the decorations image folder without restarting the game. So, get creative and have fun!</i>
 	</div>
 	<br><br>
 	<div class="dolx-decomod-nav">
 		<div class="dolx-logo-button"><<dolxUiStartButton>></div>
 		<div class="dolx-decomod-pages">
-			<button id="backButton" style="display: none;">Previous Page</button>
-			<button id="nextButton">Next Page</button>
+			<span id="backButton" style="display: none;"><<button "Previous Page">><<run window.dolxDecoTurnPage(-1)>><</button>></span>
+			<span id="decoPageLabel" class="dolx-decomod-pagelabel"></span>
+			<span id="nextButton"><<button "Next Page">><<run window.dolxDecoTurnPage(1)>><</button>></span>
 		</div>
 	</div>
 	<br><br>
@@ -1649,7 +1646,7 @@
 	/* Shoutout to Frostberg for the live image update code! */
 	<br>
 	<sub>
-	<i>If you select an option and get an image error (red exclamation mark to the right of your character) on the sidebar, that just means there's currently no image assigned to that slot.<br><br> 
+	<i>If you select an option and get an image error (red exclamation mark to the right of your character) on the sidebar, that just means there's currently no image assigned to that slot.
 	Feel free to put one there, select an different occupied slot, or just clear the error.</i>
 	<br><br>
 	</sub>
