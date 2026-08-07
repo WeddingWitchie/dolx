@@ -1,0 +1,267 @@
+:: Water Dragon Lab Widgets [widget]
+
+<<widget "waterDragonVale">>
+	<<set _valeSlot to _args[0] || 0>>
+	<<if $per_npc.waterdragon_vale>>
+		<<loadNPC _valeSlot "waterdragon_vale">>
+	<<else>>
+		<<if _valeSlot is 1>><<generate2>><<else>><<generate1>><</if>>
+		<<set $NPCList[_valeSlot].name to "Professor Elian Vale">>
+		<<set $NPCList[_valeSlot].fullDescription to "Professor Elian Vale">>
+		<<set $NPCList[_valeSlot].name_known to 1>>
+		<<set $NPCList[_valeSlot].description to "scientist who studies ancient DNA">>
+		<<set $NPCList[_valeSlot].role to "professor">>
+		<<saveNPC _valeSlot "waterdragon_vale">>
+	<</if>>
+<</widget>>
+
+/* Rendered inline among other waking-effect one-liners, so keep it to a single line plus the link. */
+<<widget "waterDragonLabPregnancyEvent">>
+	<span class="red">The monitors alarm the moment the pressure begins. Harper's voice comes over the intercom. "Viable labour. Do not let the subject bear down here. Prepare the retention bed and open the incubator bank."</span>
+	<br>
+	<<tficon "waterdragon">><<link [[The cell door opens|Water Dragon Lab Pregnancy Seized]]>><<pass 5>><</link>>
+<</widget>>
+
+<<widget "waterDragonLabDefaults">>
+	<<if !$waterDragonLab>>
+		<<set $waterDragonLab to {active:true, escape:0, nest:0, brood:0, eggsLaid:0, hypno:0, treatment:0, assessment:0, compliance:0, security:20, treatmentSlot:null, state:"free", scheduleDay:null, schedule:[], nurse:0, nurseGift:0, professorTrust:0, professorStory:0, professorHelp:0, helpUsed:false, discipline:0, meditate:0, workouts:0, sampleRequest:0, story:0, storySeen:[]}>>
+	<<else>>
+		<<if $waterDragonLab.active is undefined>><<set $waterDragonLab.active to true>><</if>>
+		<<if $waterDragonLab.escape is undefined>><<set $waterDragonLab.escape to 0>><</if>>
+		<<if $waterDragonLab.nest is undefined>><<set $waterDragonLab.nest to 0>><</if>>
+		<<if $waterDragonLab.brood is undefined>><<set $waterDragonLab.brood to 0>><</if>>
+		<<if $waterDragonLab.eggsLaid is undefined>><<set $waterDragonLab.eggsLaid to 0>><</if>>
+		<<if $waterDragonLab.hypno is undefined>><<set $waterDragonLab.hypno to 0>><</if>>
+		<<if $waterDragonLab.treatment is undefined>><<set $waterDragonLab.treatment to 0>><</if>>
+		<<if $waterDragonLab.assessment is undefined>><<set $waterDragonLab.assessment to 0>><</if>>
+		<<if $waterDragonLab.compliance is undefined>><<set $waterDragonLab.compliance to 0>><</if>>
+		<<if $waterDragonLab.security is undefined>><<set $waterDragonLab.security to 20>><</if>>
+		<<if $waterDragonLab.treatmentSlot is undefined>><<set $waterDragonLab.treatmentSlot to null>><</if>>
+		<<if $waterDragonLab.state is undefined>><<set $waterDragonLab.state to "free">><</if>>
+		<<if $waterDragonLab.nurse is undefined>><<set $waterDragonLab.nurse to 0>><</if>>
+		<<if $waterDragonLab.nurseGift is undefined>><<set $waterDragonLab.nurseGift to 0>><</if>>
+		<<if $waterDragonLab.professorTrust is undefined>><<set $waterDragonLab.professorTrust to 0>><</if>>
+		<<if $waterDragonLab.professorStory is undefined>><<set $waterDragonLab.professorStory to 0>><</if>>
+		<<if $waterDragonLab.professorHelp is undefined>><<set $waterDragonLab.professorHelp to 0>><</if>>
+		<<if $waterDragonLab.helpUsed is undefined>><<set $waterDragonLab.helpUsed to false>><</if>>
+		<<if $waterDragonLab.discipline is undefined>><<set $waterDragonLab.discipline to 0>><</if>>
+		<<if $waterDragonLab.scheduleDay is undefined>><<set $waterDragonLab.scheduleDay to null>><</if>>
+		<<if !Array.isArray($waterDragonLab.schedule)>><<set $waterDragonLab.schedule to []>><</if>>
+		<<if $waterDragonLab.workouts is undefined>><<set $waterDragonLab.workouts to 0>><</if>>
+		<<if $waterDragonLab.meditate is undefined>><<set $waterDragonLab.meditate to 0>><</if>>
+		<<if $waterDragonLab.sampleRequest is undefined>><<set $waterDragonLab.sampleRequest to 0>><</if>>
+		<<if $waterDragonLab.story is undefined>><<set $waterDragonLab.story to 0>><</if>>
+		<<if !Array.isArray($waterDragonLab.storySeen)>><<set $waterDragonLab.storySeen to []>><</if>>
+	<</if>>
+	<<if $hypnosis_traits is undefined>><<set $hypnosis_traits to {}>><</if>>
+	<<if $hypnosis_traits.dragonbrood is undefined or $hypnosis_traits.dragonbrood lt 0>><<set $hypnosis_traits.dragonbrood to -1>><</if>>
+<</widget>>
+
+<<widget "waterDragonLabCleanup">>
+	<<if _args[0] isnot false>><<set $waterDragonIncubatorTrait to true>><</if>>
+	/* Eggs and hatchlings held in Harper's incubators would be stranded once the lab passages are gone:
+	nothing outside this wing reads the "waterdragon_lab" location.
+	   Send them on to the hidden nest so they stay reachable. */
+	<<run Object.values(V.children || {}).forEach(child => {
+		if (child.location === "waterdragon_lab") child.location = "waterdragon_nest";
+	})>>
+	<<unset $waterDragonSerumCycles>>
+	<<unset $waterDragonEggSale>>
+	<<unset $waterDragonLabLaying>>
+	<<unset $eggsHatched>>
+	<<unset $plots.water_dragon_lab>>
+	<<unset $waterDragonBirthContext>>
+	<<unset $dragonEggIds>>
+	<<unset $birth>>
+	<<unset $childbirthstart>>
+	<<unset $phase>>
+	<<unset $attitudesExitPassage>>
+	<<unset $bathroomExit>>
+	<<if $daily>><<run Object.keys(V.daily).filter(key => key.startsWith("waterDragonLab")).forEach(key => delete V.daily[key])>><</if>>
+	<<unset $waterDragonLab>>
+<</widget>>
+
+<<widget "waterDragonLabValeWindow">>
+	<<set _valeReady to $waterDragonLab.professorHelp is 1 and $waterDragonLab.professorTrust gte 8 and $waterDragonLab.professorStory gte 5 and $waterDragonLab.storySeen.includes(3)>>
+	<<if _valeReady and $waterDragonLab.helpUsed>>
+		<<if $daily.waterDragonLabValeWindow is undefined>>
+			<<set $daily.waterDragonLabValeWindow to (random(1, 100) lte 25 ? 1 : 0)>>
+		<</if>>
+		<<set _valeWindowOpen to $daily.waterDragonLabValeWindow is 1>>
+	<<else>>
+		<<set _valeWindowOpen to _valeReady>>
+	<</if>>
+<</widget>>
+
+/* Rendered wherever the vent is offered. Keeps the two entry points saying the same thing. */
+<<widget "waterDragonLabVentOption">>
+	<<waterDragonLabValeWindow>>
+	<<if _valeWindowOpen>>
+		<<if $waterDragonLab.helpUsed>>
+			<span class="green">Vale has checked the override log this morning</span>. Nobody is reading it today.
+			<br>
+		<</if>>
+		<<set $skulduggerydifficulty to Math.max(750, 1150 + $waterDragonLab.security - ($waterDragonLab.professorTrust * 20))>>
+		<<lockicon "pick">><<link [[Enter the vent (0:20)|Water Dragon Lab Escape Check]]>><<pass 20>><</link>><<skulduggerydifficulty>>
+	<<elseif _valeReady>>
+		<<ind>><span class="purple">Vale will not touch the service controller today.</span>
+	<<else>>
+		<<ind>><span class="black">The vent leads to sealed shutters, and searching again won't open them.</span>
+	<</if>>
+<</widget>>
+
+<<widget "waterDragonLabStoryCheck">>
+	<<set _labStoryPending to 0>>
+	<<if !$waterDragonLab.storySeen.includes(1) and $waterDragonLab.treatment gte 2>>
+		<<set _labStoryPending to 1>>
+	<<elseif !$waterDragonLab.storySeen.includes(2) and $waterDragonLab.eggsLaid gte 2>>
+		<<set _labStoryPending to 2>>
+	<<elseif !$waterDragonLab.storySeen.includes(3) and $waterDragonLab.treatment gte 5 and $waterDragonLab.eggsLaid gte 4>>
+		<<set _labStoryPending to 3>>
+	<<elseif !$waterDragonLab.storySeen.includes(4) and $waterDragonLab.assessment gte 3>>
+		<<set _labStoryPending to 4>>
+	<<elseif !$waterDragonLab.storySeen.includes(5) and $waterDragonLab.eggsLaid gte 8>>
+		<<set _labStoryPending to 5>>
+	<</if>>
+<</widget>>
+
+/* Status lines for the lab hub, mirroring asylumstats: security = how closely you're watched, compliance = Harper's trust. */
+<<widget "waterDragonLabStats">>
+	<<if $waterDragonLab.security gte 20>>
+		<span class="red">A guard stands inside the door during scheduled blocks now, and the cameras follow you around the room.</span>
+	<<elseif $waterDragonLab.security gte 8>>
+		<span class="blue">The cameras check on you a little too often. Somebody has flagged your file.</span>
+	<<else>>
+		<span class="green">The cameras follow their usual patrol. Nobody is paying you special attention.</span>
+	<</if>>
+	<br>
+	<<if $waterDragonLab.compliance gte 20>>
+		<span class="green">Harper speaks to you like a colleague now, and the staff have stopped double-checking your restraint points.</span>
+	<<elseif $waterDragonLab.compliance gte 8>>
+		<span class="blue">Harper has started noting your cooperation. Small privileges have followed.</span>
+	<<else>>
+		<span class="red">Harper has not recorded any cooperation from you yet.</span>
+	<</if>>
+	<br><br>
+<</widget>>
+
+<<widget "waterDragonLabState">>
+	/* Per-visit upkeep lives here (not in the once-per-load Defaults): daily schedule roll and trust clamp. */
+	<<set $waterDragonLab.professorTrust to Math.clamp($waterDragonLab.professorTrust, 0, 10)>>
+	<<if $waterDragonLab.scheduleDay isnot Time.days or $waterDragonLab.schedule.length isnot 4>>
+		<<set _labPreviousSchedule to $waterDragonLab.schedule.join("|")>>
+		<<set $waterDragonLab.scheduleDay to Time.days>>
+		<<switch random(1, 6)>>
+			<<case 1>><<set $waterDragonLab.schedule to ["firsttreatment", "brooding", "secondtreatment", "assessment"]>>
+			<<case 2>><<set $waterDragonLab.schedule to ["brooding", "firsttreatment", "assessment", "secondtreatment"]>>
+			<<case 3>><<set $waterDragonLab.schedule to ["assessment", "firsttreatment", "brooding", "secondtreatment"]>>
+			<<case 4>><<set $waterDragonLab.schedule to ["firsttreatment", "assessment", "secondtreatment", "brooding"]>>
+			<<case 5>><<set $waterDragonLab.schedule to ["firsttreatment", "brooding", "assessment", "secondtreatment"]>>
+			<<default>><<set $waterDragonLab.schedule to ["brooding", "firsttreatment", "secondtreatment", "assessment"]>>
+		<</switch>>
+		<<if $waterDragonLab.schedule.join("|") is _labPreviousSchedule>>
+			<<run $waterDragonLab.schedule.push($waterDragonLab.schedule.shift())>>
+		<</if>>
+	<</if>>
+	<<if Time.hour gte 22 or Time.hour lt 6>>
+		<<set $waterDragonLab.state to "sleep">>
+	<<elseif Time.hour gte 6 and Time.hour lt 9>>
+		<<set $waterDragonLab.state to "morning">>
+	<<elseif Time.hour gte 9 and Time.hour lt 12>>
+		<<set $waterDragonLab.state to $waterDragonLab.schedule[0]>>
+	<<elseif Time.hour gte 12 and Time.hour lt 14>>
+		<<set $waterDragonLab.state to $waterDragonLab.schedule[1]>>
+	<<elseif Time.hour gte 14 and Time.hour lt 17>>
+		<<set $waterDragonLab.state to $waterDragonLab.schedule[2]>>
+	<<elseif Time.hour gte 18 and Time.hour lt 21>>
+		<<set $waterDragonLab.state to $waterDragonLab.schedule[3]>>
+	<<else>>
+		<<set $waterDragonLab.state to "free">>
+	<</if>>
+<</widget>>
+
+<<widget "waterDragonLabSchedule">>
+	<<set _labScheduleNames to {firsttreatment:"Treatment A", secondtreatment:"Treatment B", brooding:"Brooding response", assessment:"Assessment"}>>
+	<span class="red"><b>Today's mandatory schedule</b></span><br>
+	<<print ampm(9, 0)>>-<<print ampm(12, 0)>>: <<print _labScheduleNames[$waterDragonLab.schedule[0]]>><br>
+	<<print ampm(12, 0)>>-<<print ampm(14, 0)>>: <<print _labScheduleNames[$waterDragonLab.schedule[1]]>><br>
+	<<print ampm(14, 0)>>-<<print ampm(17, 0)>>: <<print _labScheduleNames[$waterDragonLab.schedule[2]]>><br>
+	<<print ampm(18, 0)>>-<<print ampm(21, 0)>>: <<print _labScheduleNames[$waterDragonLab.schedule[3]]>><br>
+<</widget>>
+
+/* One-off flavour events for the underground lab. Pure text plus small stat effects; no links, the hub's actions follow below. */
+<<widget "waterDragonLabEvent">>
+
+	<<set _labEventRoll to random(1, 6)>>
+	<<if _labEventRoll is 6 and !($waterDragonNest.pastelEggsLaid gte 1)>>
+		<<set _labEventRoll to 4>>
+	<</if>>
+	<<switch _labEventRoll>>
+		<<case 1>>
+			The intercom behind the glass is left open a moment too long. You hear Harper's half of a phone call, short and cold. "No. The subject is not part of our arrangement. Your pills are your business. This discovery is mine." A pause. "Because extinction was a records decision, not a biological one."
+			Whoever is on the other end of that call frightens Harper. The thought is not comforting. <<gstress>><<stress 6>><<gawareness>><<awareness 2>>
+		<<case 2>>
+			<<endevent>>
+			<<generate1>><<person1>>
+			One of the nurses lingers after checking the nest. The <<person>> tucks an extra blanket beneath the sea grass without looking at the cameras, and leaves before you can speak.
+			<<endevent>>
+			Even down here, people are still kind to each other sometimes. <<lstress>><<stress -4>><<set $waterDragonLab.security to Math.max(0, $waterDragonLab.security - 2)>>
+		<<case 3>>
+			A technician spends the morning up a ladder, arguing with the camera above the nest. For almost twenty minutes, its red light stays dark.
+			<span class="blue">You memorise exactly how long the blind spot lasted.</span> <<set $waterDragonLab.escape += 1>>
+		<<case 4>>
+			<<npc Harper>><<person1>>
+			<<if $waterDragonLab.eggsLaid gte 1>>
+				Through the glass you watch Harper take one of your eggs out of the cold cabinet and turn it under a lamp, holding it with both hands. <<He>> writes something down, then puts it back in its numbered slot and checks the number twice.
+				They are yours, and they are stock on a shelf. Both of those things are true at once. <<gtrauma>><<trauma 3>><<gstress>><<stress 4>>
+			<<else>>
+				Harper spends an hour at the whiteboard, redrawing the same diagram of a shell in cross-section. <<He>> is preparing for eggs <<he>> does not have yet.
+				It would be easier to watch if <<he>> were impatient about it. <<gstress>><<stress 4>>
+			<</if>>
+			<<endevent>>
+		<<case 5>>
+			<<if $settings.hypnosisEnabled>>
+				A soft tone plays three times from the ceiling, spaced like a question. It isn't attached to any instruction. Harper watches your reaction and writes something down.
+				You notice afterwards that you had already turned towards the nest without deciding to. <<waterDragonLabConditioning 1>>
+			<<else>>
+				A soft tone plays three times from the ceiling. Equipment calibration, probably. You still hate how the room listens.
+				<<gstress>><<stress 3>>
+			<</if>>
+		<<case 6>>
+			<<npc Harper>><<person1>>
+			The pastel egg has its own case now, kept apart from the others and packed in cushioning like something out of a museum. Harper stands in front of it for a long time with <<his>> hands behind <<his>> back.
+			"A lineage marker," <<he>> says into <<his>> recorder. "The species kept records in its own shells." <<gstress>><<stress 5>><<gawareness>><<awareness 2>>
+			<<endevent>>
+	<</switch>>
+	<br><br>
+<</widget>>
+
+<<widget "waterDragonLabConditioning">>
+	<<if $settings.hypnosisEnabled and $daily.waterDragonLabConditioning isnot 1>>
+		<<set $daily.waterDragonLabConditioning to 1>>
+		/* Coerce before the add: Math.clamp returns NaN for a non-number, and a NaN here would poison the trait for the rest of the save.
+		   The -1 sentinel, an undefined key (a cure path wipes $hypnosis_traits wholesale) and a legacy NaN all have to land on 0 first. */
+		<<if !($hypnosis_traits.dragonbrood gt 0)>><<set $hypnosis_traits.dragonbrood to 0>><</if>>
+		<<set $hypnosis_traits.dragonbrood to Math.clamp($hypnosis_traits.dragonbrood + 1, 1, 5)>>
+		<<set $waterDragonLab.hypno += 1>>
+		/* Harper's conditioning grants natural-class innocence: bank trauma and push awareness to -200 so time.js flips the state */
+		<<if $hypnosis_traits.dragonbrood gte 3 and $innocencestate isnot 1 and !($xchange and $xchange.pill and $xchange.pill.innocenceEffect)>>
+			<<set $innocencetrauma to $trauma>>
+			<<set $trauma to 0>>
+			<<set $awareness to -200>>
+			<<set $innocencestate to 1>>
+			<<set $innocencemessage to "start">>
+			<br><br>
+			<span class="red">Harper's conditioning folds a soft innocence around the edges of your fear.</span>
+		<</if>>
+	<</if>>
+<</widget>>
+
+:: Water Dragon Lab Settings [exitCheckBypass]
+<<if $options.images is 1>>
+	<span id="bannerStyle">
+		<img class="resize" src="img/misc/banner.png">
+	</span>
+<</if>>
+<<set $settingsExitPassage to "Water Dragon Lab">>
+<<settings>>

@@ -105,6 +105,16 @@ module.exports = {
 		Skin: "readonly",
 		Sunscreen: "readonly",
 		Theme: "readonly",
+		// DoLX addition namespaces (game/special-xchange/DoLXAddition)
+		ccmod: "readonly",
+		ccmShop: "readonly",
+		ccmUtils: "readonly",
+		dhmod: "readonly",
+		dhmShop: "readonly",
+		dhmUtils: "readonly",
+		dolxColor: "readonly",
+		colorNamer: "readonly",
+		colorNameTranslate: "readonly",
 		// DoL SC2 functions
 		compressionVerifier: "readonly",
 		DefineMacro: "readonly",
