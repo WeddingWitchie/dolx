@@ -1,0 +1,743 @@
+:: Water Dragon Pregnancy Journey
+<<location "sea">><<effects>>
+<<set $waterDragonNest.discovered to true>>
+The contractions start while you are still in town, and with every one of them you are more certain of where you need to be. You keep going until you reach the far end of the beach, where the sea wall meets the cliffs, and there the pull settles on a point below the waterline.
+<br><br>
+You wade into the surf with one hand under your belly and duck under. Blue marks light up along the crack in the drowned stone as you slip through it, and the flooded tunnel behind it runs upwards until you come out into still water inside the hollow. You climb onto the warm stone, and the seawater runs off you as you cross the line of markings and leaves you dry.
+<br><br>
+Once you are past the markings the panic drains out of you, because nothing outside can follow you in here. You got here in time.
+<br><br>
+<<link [[Lower yourself into the hollow|Water Dragon Pregnancy Labour]]>><<pass 15>><</link>>
+
+:: Water Dragon Pregnancy Labour
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set [_dragonPregnancy, _dragonPregnancyGenital] to getPlayerPregnancyForBirth(true)>>
+The marks on the walls brighten and dim in time with your contractions. Dry sea grass gathers itself into a heap beneath you without anyone touching it, and the light in the tide pool grows until it fills the whole hut.
+<br><br>
+<<if $settings.realisticChildbirthEnabled>>
+	<<link [[Begin|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:_dragonPregnancy.fetus.length, fertilised:true}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_nest", genital:_dragonPregnancyGenital}>><<set $childbirthstart to 1>><</link>>
+<<else>>
+	<<link [[Begin|Water Dragon Pregnancy Laying End]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:_dragonPregnancy.fetus.length, fertilised:true}>><</link>>
+<</if>>
+
+:: Water Dragon Pregnancy Laying End
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set [_dragonPregnancy, _dragonPregnancyGenital] to getPlayerPregnancyForBirth(true)>>
+<<set $dragonEggIds to _dragonPregnancy.fetus.map(child => child.childId)>>
+The last egg comes to rest in the sea grass, bigger than both of your hands together. The shells are warm, and if you look closely you can see something moving inside them. Whatever you were carrying before the change took hold of you, this place has made them yours, and every shell has come out the pearl white of a water dragon.
+<<pregnancyFeats "pc">><<endPlayerPregnancy "waterdragon_nest" "waterdragon_nest">><<set $harpyEggsPrevent to 28>>
+<<run V.dragonEggIds.forEach(id => {
+	const child = V.children[id];
+	if (!child) return;
+	child.location = "waterdragon_nest";
+	child.type = "human";
+	child.features.beastTransform = "waterdragon";
+	child.features.skinColour = "waterdragon";
+	child.eggTimer = new DateTime(Time.date).addDays(random(23, 30)).timeStamp;
+	if (!child.localVariables) child.localVariables = {};
+	child.localVariables.dragonNest = true;
+})>>
+<<set $waterDragonNest.eggsLaid += $dragonEggIds.length>>
+<<unset $dragonEggIds>><<unset $waterDragonBirthContext>><<unset $birth>><<endcombat>>
+<br><br>
+The marks around the eggs slow down to a steady, even glow. The eggs are safe where they are, and when they hatch the children will carry their human parent's blood and yours together.
+<br><br>
+<<link [[Curl around the eggs|Water Dragon Nest]]>><</link>>
+
+:: Water Dragon Nest Discovery
+<<location "beach">><<effects>>
+<<set $waterDragonNest.discovered to true>>
+You follow the pull along the shore, past the stretch of beach you normally walk on.
+<br><br>
+<<link [[Next|Water Dragon Nest Discovery 2]]>><</link>>
+
+:: Water Dragon Nest Discovery 2
+<<location "beach">><<effects>>
+Wet rocks lead you towards the cliffs, and the way ahead ends at a wall of stone. You almost turn back, but the longer you stand there the stronger the pull gets.
+<br><br>
+Then you see a thin blue light, not on the rocks but under the water, down where the great sea wall meets the cliff.
+<br><br>
+You wade in and duck under. There is a bend in the drowned stone with faint marks glowing along its edges, and you are certain it was not there before. The current takes hold of you and draws you gently inside.
+<br><br>
+The flooded tunnel bends once, then rises. You come up in still water and climb out into a small dry space hidden inside the wall, and the seawater runs off you as you cross the line of marks and leaves you dry.
+An old hut stands at the back of it, with long grass and pale stones around the door.
+<br><br>
+<<link [[Next|Water Dragon Nest Discovery 3]]>><</link>>
+
+:: Water Dragon Nest Discovery 3
+<<location "beach">><<set $outside to 0>><<effects>>
+The wood has been worn smooth by the sea, but the door is still solid, and the same faint blue markings run around its frame. When you glance behind you, you realise you can no longer hear the town at all.
+<br><br>
+Inside the hut there is a shallow nest ringed with smooth stones, and beside it a tide pool clouded with silt and dead weed,
+with shelves built into the wall above the water.
+<br><br>
+You run your hand over one of the stones and find that it is warm.
+<br><br>
+<span class="navy">This place was made for laying dragon eggs and keeping them safe.</span>
+<br><br>
+Some kind of magic hides it. You cannot see the way in from in here, even though you walked through it a minute ago,
+so neither Bailey nor anyone else who does not already know the route should be able to reach you.
+<br><br>
+You feel... safe.
+<br><br>
+<<link [[Prepare the nest|Water Dragon Egg Laying]]>><</link>>
+
+:: Water Dragon Nest Dive
+<<location "sea">><<effects>>
+You swim along the sea wall, following the pull. Where the wall meets the cliffs there is a bend in the stone below the waterline, and the current that pushes swimmers away from the rest of the wall lets you through here.
+<br><br>
+You take a deep breath and dive. Blue marks light up along the crack as you slip inside, and the flooded cave carries you forward until the tunnel bends and starts to rise.
+<br><br>
+You come up in still water that glows faintly and climb out onto warm stone, and the seawater runs off you as you cross the line of marks and leaves you dry. The hollow opens up ahead of you, quiet enough that the drips off your hands are the loudest thing in it.
+<br><br>
+<<if playerIsPregnant() and isPregnancyEnding()>>
+	<<link [[Lower yourself into the hollow|Water Dragon Pregnancy Labour]]>><<pass 15>><</link>>
+<<elseif !$waterDragonNest.discovered>>
+	An old hut stands at the back of the hollow, surrounded by long grass and pale stones.
+	<br><br>
+	<<link [[Approach the hut|Water Dragon Nest Discovery 3]]>><<set $waterDragonNest.discovered to true>><</link>>
+<<else>>
+	<<link [[Step into the nest|Water Dragon Nest]]>><</link>>
+<</if>>
+
+:: Water Dragon Nest
+<<location "beach">><<set $outside to 0>><<effects>>
+<<if effectiveTransformationLevel("waterdragon") lt 7>>
+	The water beneath the sea wall is dark and still. Whatever opened the way through the stone before does not open it for you now.
+	<br><br>
+	<<getouticon>><<link [[Dive back out to the beach (0:10)|Beach]]>><<pass 10>><</link>>
+<<else>>
+	<<set $waterDragonNest.discovered to true>>
+	The hidden nest is inside the sea wall itself, past the underwater crack that only your blood can find.
+	<br><br>
+	From outside the hut looks like a shed, but there is far more room in it than you expect. Smooth stones ring a shallow nest, and beside them is an old tide pool under layers of sand and salt.
+	<<switch Time.dayState>>
+		<<case "dawn">>
+			Early light comes through the gaps in the roof, and the small pieces of pearl set into the walls catch it and shine.
+		<<case "day">>
+			Sunlight comes down between the rocks and falls across the nest, and you can see dust and salt drifting through it.
+		<<case "dusk">>
+			As the light outside fades, the marks around the hut slowly begin to glow instead.
+		<<default>>
+			It is dark outside, but the old marks around the hut give off enough light to see by, and the moon shows in the tide pool.
+	<</switch>>
+	<<if Weather.precipitation is "rain">>
+		Rain taps on the roof, and water runs down through small cracks in the stone and into the tide pool.
+	<<elseif Weather.precipitation is "snow">>
+		Snow lands near the entrance, but melts as soon as it touches the warm stone.
+	<<elseif Weather.precipitation isnot "none">>
+		You can hear the bad weather outside, though the rocks protect the hut from most of it.
+	<</if>>
+	<br><br>
+	<<if $waterDragonNest.cleanliness gte 100>>
+		Everything in the hut works now. The bedding is dry, the pool is clear, the clothes chest stands flat against the wall, and the fire in the corner keeps the stone warm.
+	<<elseif $waterDragonNest.cleanliness gte 70>>
+		The hut is clean enough to live in properly. There is a stone fire corner under a narrow gap in the roof, with a flat slab above it to cook on.
+	<<elseif $waterDragonNest.cleanliness gte 45>>
+		The floor and bedding are clean. The wooden chest you patched with driftwood keeps your clothes safe from spray and sand.
+	<<elseif $waterDragonNest.cleanliness gte 30>>
+		The bedding is clean, and the tide pool runs clear now that you have taken out the silt and the dead weed. You can see your own face in the water.
+	<<elseif $waterDragonNest.cleanliness gte 15>>
+		The hollow is clean enough to live in. Fresh sea grass covers the warm stones, the worst of the sand is swept outside, and the dry bedding is good enough to sleep on properly.
+	<<else>>
+		The hut has stood empty for far too long to live in. Damp grass, blown sand, salt and broken wood cover the floor of the hollow, and while it would keep eggs safe, sleeping here would be miserable.
+	<</if>>
+	<<if $waterDragonNest.cleanliness lt 100>>
+		<br>
+		<b>Habitability:</b>
+		<<if $waterDragonNest.cleanliness gte 70>><span class="teal"><<print $waterDragonNest.cleanliness>>%</span>
+		<<elseif $waterDragonNest.cleanliness gte 45>><span class="lblue"><<print $waterDragonNest.cleanliness>>%</span>
+		<<elseif $waterDragonNest.cleanliness gte 30>><span class="blue"><<print $waterDragonNest.cleanliness>>%</span>
+		<<elseif $waterDragonNest.cleanliness gte 15>><span class="purple"><<print $waterDragonNest.cleanliness>>%</span>
+		<<else>><span class="red"><<print $waterDragonNest.cleanliness>>%</span><</if>>
+	<</if>>
+	<<if $waterDragonNest.pastelEggsLaid gte 1>>
+		One of the marks on the wall has a faint pastel shine when the light catches it.
+	<</if>>
+	<<if $waterDragonNest.decorationSlots.some(slot => slot isnot null)>>
+		<br><br>
+		<div class="waterdragon-decoration-board">
+			<<for _dnSlot to 0; _dnSlot lt 15; _dnSlot++>>
+				<<set _dnPlacedIndex to $waterDragonNest.decorationSlots[_dnSlot]>>
+				<span @class="_dnPlacedIndex is null ? 'empty' : ''"><<if _dnPlacedIndex isnot null>><<print $waterDragonNest.decorations[_dnPlacedIndex]>><</if>></span>
+			<</for>>
+		</div>
+	<</if>>
+	<br><br>
+	<<set _dnEggsCarried to Object.values($children).filter(child => child.type is "hawk" and child.location is "inventory").length>>
+	<<set _dnEggsNest to Object.values($children).filter(child => child.location is "waterdragon_nest" and child.eggTimer).length>>
+	<<set _dnEggsReady to Object.values($children).filter(child => child.location is "waterdragon_nest" and Time.date.timeStamp gte child.eggTimer).length>>
+	<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+	<<if _dnEggsNest gt 0>>
+		<<icon `"children/waterdragon/" + ["one", "two", "three"][Math.clamp(_dnEggsNest, 1, 3) - 1] + "-cold.png"`>>
+		<<pluralise _dnEggsNest "A fertilised egg rests" "Fertilised eggs rest">> in the nest, warm under your hand. The marks around the hollow stay lit, and the stones underneath hold their heat.
+		<br><br>
+	<</if>>
+	<<if _dnHatchlings.length gt 0>>
+		<<if _dnHatchlings.length is 1>>
+			<<set _dnFirstHatchling to _dnHatchlings[0]>>
+			Your hatchling, <<childname _dnFirstHatchling>>, stays close to the tide pool. Small pearly scales cover parts of <<print $children[_dnFirstHatchling].gender is "m" ? "his" : "her">> shoulders.
+		<<else>>
+			Your <<number _dnHatchlings.length>> hatchlings run about the hollow and splash in the tide pool, and their wet footprints cover the floor between the water and the nest. The old hut is a far noisier place with them in it.
+		<</if>>
+		<br><br>
+	<</if>>
+	<<if Time.isBloodMoon()>>
+		Red light comes through the doorway, and the tide pool has stopped showing the sky outside.
+		<<if _dnHatchlings.length gt 0>>
+			The <<pluralise _dnHatchlings.length "hatchling is" "hatchlings are">> curled up deep inside the nest, unusually quiet. The ward marks above them glow more brightly than the others.
+		<<elseif _dnEggsNest gt 0>>
+			The ward marks around the eggs glow more brightly than usual.
+		<</if>>
+		<br><br>
+	<</if>>
+	<<if $waterDragonNest.cleanliness gte 45>>
+		/* The chest is a real wardrobe ($wardrobes.waterDragonNest). Reclaim anything hidden here through the old storeon stash so nothing is stranded. */
+		<<run (() => {
+			const chest = V.wardrobes && V.wardrobes.waterDragonNest;
+			if (!chest || !Array.isArray(chest.upper)) return;
+			chest.unlocked = true;
+			Object.keys(V.store || {}).forEach(slot => {
+				if (!Array.isArray(V.store[slot]) || !Array.isArray(chest[slot])) return;
+				for (let i = V.store[slot].length - 1; i >= 0; i--) {
+					const item = V.store[slot][i];
+					if (item && item.location === "waterdragon_nest" && item.temp === undefined) {
+						delete item.location;
+						chest[slot].push(item);
+						V.store[slot].splice(i, 1);
+					}
+				}
+			});
+		})()>>
+		<<wardrobeicon>><<link [[Dry storage chest|Water Dragon Nest Wardrobe]]>><</link>>
+		<br>
+	<</if>>
+	<<if playerIsPregnant() and isPregnancyEnding()>>
+		<span class="red">Your waters have broken, and you are already where you need to be.</span>
+		<br>
+		<<tficon "waterdragon">><<link [[Lower yourself into the hollow|Water Dragon Pregnancy Labour]]>><<pass 15>><</link>>
+		<br>
+	<<elseif $waterDragonEggs and $waterDragonEggs.daysTillLaying lte 0>>
+		A heavy pressure low in your belly tells you it is time.
+		<br>
+		<<tficon "waterdragon">><<link [[Prepare the nest|Water Dragon Egg Laying]]>><</link>>
+		<br>
+	<</if>>
+	<<if _dnEggsReady gt 0>>
+		<span class="green">You hear a crack from the nest. <<pluralise _dnEggsReady "An egg is" "The eggs are">> hatching!</span>
+		<br>
+		<<tficon "waterdragon">><<link [[Kneel beside the eggs (0:30)|Water Dragon Nest Hatching]]>><<pass 30>><</link>>
+		<br>
+	<</if>>
+	<<if _dnEggsCarried gt 0>>
+		<<icon "children/waterdragon/one-cold.png">><<link [[Settle the eggs into the nest|Water Dragon Nest Clutch]]>><</link>><<note "The nest's old magic will claim the eggs as dragon-blood." "italic">>
+		<br>
+	<</if>>
+	<<if _dnEggsNest gt 0 and _dnEggsReady is 0 and $daily.waterDragonBrood isnot 1>>
+		<<tficon "waterdragon">><<link [[Warm the eggs (0:30)|Water Dragon Nest Warm]]>><<set $daily.waterDragonBrood to 1>><<pass 30>><<trauma -3>><<stress -3>><</link>><<ltrauma>><<lstress>>
+		<br>
+	<</if>>
+	<<if _dnHatchlings.length gt 0>>
+		<<tficon "waterdragon">><<link [[Check on your hatchlings|Childrens Home]]>><<set $exitPassage to $passage>><</link>>
+		<br>
+		<<if $daily.waterDragonHatchlingFeed isnot 1>>
+			<<tficon "waterdragon">><<link [[Feed the hatchlings (0:30)|Water Dragon Nest Hatchling Feed]]>><<set $daily.waterDragonHatchlingFeed to 1>><<pass 30>><<trauma -3>><<stress -3>><</link>><<ltrauma>><<lstress>>
+			<br>
+		<</if>>
+		<<swimicon>><<link [[Play in the tide pool (0:30)|Water Dragon Nest Hatchling Play]]>><<pass 30>><<stress -6>><</link>><<lstress>>
+		<br>
+		<<tficon "waterdragon">><<link [[Watch over the hatchlings (0:30)|Water Dragon Nest Hatchling Watch]]>><<pass 30>><<trauma -6>><</link>><<ltrauma>>
+		<br>
+	<</if>>
+	<br>
+	<<if $waterDragonNest.cleanliness gte 15>>
+		<<bedicon "zzz">><<link [[Sleep|Water Dragon Nest Bed]]>><</link>>
+		<br>
+	<</if>>
+	<<if $waterDragonNest.cleanliness lt 100>>
+		<<choreicon "sweep">>
+		<<link [[Clean the nest (0:20)|Water Dragon Nest Tend]]>><<pass 20>><<housekeeping 1 300>><<stress -4>><</link>>
+		<<ghousekeeping 300>><<lstress>>
+		<br>
+	<</if>>
+	<<if $waterDragonNest.cleanliness gte 30>>
+		<<mirroricon>><<link [[Check your reflection|Water Dragon Nest Mirror]]>><<preMirror>><</link>>
+		<br>
+	<</if>>
+	<<if $waterDragonNest.cleanliness gte 70>>
+		<<lakeicon "campfire">><<link [[Cook by the sheltered fire|Water Dragon Nest Kitchen]]>><</link>>
+		<br>
+	<</if>>
+	<<if $waterDragonNest.cleanliness gte 100>>
+		<span class="waterdragon-decoration-action">🐚</span><<link [[Search the shore (1:00)|Water Dragon Nest Decorate]]>><<pass 1 hour>><</link>>
+		<br>
+	<</if>>
+	<<if $waterDragonNest.decorations.length gt 0>>
+		<span class="waterdragon-decoration-action">🪷</span><<link [[Arrange the decorations|Water Dragon Nest Arrange]]>><<set $waterDragonDecorationChoice to null>><</link>>
+		<br>
+	<</if>>
+	<br>
+	<<getouticon>><<link [[Dive back out to the beach (0:10)|Beach]]>><<pass 10>><</link>>
+	<br><br>
+	<<link [[Gameplay Settings|Water Dragon Nest Settings]]>><</link>>
+	<br>
+	<<attitudesControlCheck>>
+	<<if $attitudesControl.showGoldLink is true>>
+		<span class="goldLink"><<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>> </span><span class="red">!!</span>
+	<<else>>
+		<<link [[Attitudes]]>><<set $attitudesExitPassage to $passage>><</link>>
+	<</if>>
+	<br>
+	<<storecleanup>>
+<</if>>
+
+:: Water Dragon Nest Bed
+<<location "beach">><<set $outside to 0>><<effects>>
+<<if $waterDragonNest.cleanliness lt 15>>
+	The hollow is still too damp and dirty to sleep in. Sand scratches under the spoiled grass, and the dry corners smell of old seawater.
+	<br><br>
+	<<getouticon>><<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
+You lower yourself into the shallow nest and pull the dry sea grass and the soft cloth in around you.
+The stones under you are still warm, and the blue-white light of the markings above shows in the tide pool nearby.
+<<set _dnSleepHatchlings to Object.values($children).filter(child => child.location is "waterdragon_nest" and child.eggTimer is undefined).length>>
+<<set _dnSleepEggs to Object.values($children).filter(child => child.location is "waterdragon_nest" and child.eggTimer).length>>
+<<if _dnSleepHatchlings gt 0>>
+	As you arrange the bedding, <<pluralise _dnSleepHatchlings "a small, warm body wriggles" "small, warm bodies wriggle">> in against your side and <<pluralise _dnSleepHatchlings "chirps" "chirp">> at you. You tuck the cloth in behind them, work your arm out from underneath, and stop moving.
+<<elseif _dnSleepEggs gt 0>>
+	You lie down beside the eggs and pull the bedding around you both.
+	You keep checking them as you settle, listening for any movement inside the shells.
+<<elseif $waterDragonNest.eggsLaid gt 0>>
+	You glance at the dip in the sea grass where the eggs used to sit, then rake it flat with your fingers before you lie down over it.
+<</if>>
+<<if Time.isBloodMoon()>>
+	The markings around the nest are brighter than usual. You lie facing the doorway with the bedding pulled up under your chin, and every time the light outside changes you open your eyes and look at it before you close them again.<<gtrauma>><<trauma -5>><<ggstress>><<stress -12>>
+<</if>>
+<br><br>
+<<nightmareCheck "Water Dragon Nest Sleep">>
+<<generateSleepLinks "Water Dragon Nest Sleep">>
+<<link [[Climb out of the nest|Water Dragon Nest]]>><<loadTempHairStyle>><</link>> <br><br>
+<</if>>
+
+:: Water Dragon Nest Sleep
+<<set _autosavehere to true>><<sleep>><<location "beach">><<set $outside to 0>><<effects>>
+<<wakingEffects $sleepHoursTotal>>
+<<if Time.isBloodMoon()>>
+	<<if _wakingEffect>><br><br><</if>>
+	You wake before dawn with your heart going hard. Something pale was at the edge of the dream, close enough that the tide pool has clouded over.
+	<br><br>
+	The shadows in the hut stretch out for a moment, and then the marks above the doorway flare blue-white and throw whatever it is back, with a noise like rain hitting glass. It is close and it is angry, but it is not inside.
+	<br><br>
+	<span class="red">The nest protects you, but the attempt leaves you shaking.</span> <<stress 18>><<ggstress>>
+	<br><br>
+<<elseif ["dryheaving","nausea"].includes(_wakingEffect)>>
+	<br><br>
+	You slept in guarded comfort, but now feel a little rough.
+	<br><br>
+<<elseif $nightmares gte 1 and $controlled is 0>>
+	<<nightmareWake>>
+<<elseif !_wakingEffect>>
+	The marks hold through the night. You wake to the sound of the tide beyond the rocks, rested well enough, though some part of you stayed awake the whole time.
+	<br><br>
+<<else>>
+	<br><br>
+<</if>>
+<<sleepeffects>>
+<<link [[Get up|Water Dragon Nest]]>><</link>>
+
+:: Water Dragon Nest Tend
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set _dnOldCleanliness to $waterDragonNest.cleanliness>>
+<<set $waterDragonNest.tended += 1>>
+<<if $housekeeping gte 1000>>
+	<<set _dnCleaningGain to 2>>
+<<elseif $housekeeping gte 800>>
+	<<set _dnCleaningGain to 1.5>>
+<<elseif $housekeeping gte 600>>
+	<<set _dnCleaningGain to 1.25>>
+<<elseif $housekeeping gte 400>>
+	<<set _dnCleaningGain to 1>>
+<<elseif $housekeeping gte 200>>
+	<<set _dnCleaningGain to 0.75>>
+<<else>>
+	<<set _dnCleaningGain to 0.5>>
+<</if>>
+<<set $waterDragonNest.cleanliness to Math.min(100, $waterDragonNest.cleanliness + _dnCleaningGain)>>
+
+<<switch $waterDragonNest.tended % 4>>
+	<<case 1>>
+		You clear the sand from the doorway, shake out the dry sea grass, and put the smooth stones back where they belong without having to think about it. They are warm under your palms.
+	<<case 2>>
+		<<if $waterDragonNest.cleanliness lt 30>>
+			You scoop dead weed and silt out of the tide pool. The water looks a little less murky, though it clouds again every time you move.
+		<<else>>
+			You scrub the salt off the pool's pearl-lined edge and rinse the grit away. The clean water catches the ward light better.
+		<</if>>
+	<<case 3>>
+		You find a cracked shell charm under the bedding and fit it back into a groove beside the nest. The marks brighten when you do.
+	<<default>>
+		You sweep the salt and dust off the shelves, then tuck the softest grass into the shaded side of the hollow.
+<</switch>>
+<br><br>
+It is not much work, but it matters. The place feels a bit more like yours each time.
+<br><br>
+<<if _dnOldCleanliness lt 100 and $waterDragonNest.cleanliness gte 100>>
+	You wipe the last of the salt off the wall and step back to look. There is nothing left to fix, because the stone is clean, the bedding is dry, and the pool is clear.
+	<br><br>
+	With the work done you look outside, where the hidden shore is scattered with starfish, bright shells, pearls, coral and smooth polished stones, more than enough to make the place look lived in.
+	<br><br>
+	<span class="gold">The hidden nest is fully habitable. You can now gather decorations from the shore.</span>
+<<elseif _dnOldCleanliness gte 100>>
+	You replace worn grass, wipe salt from the clothes chest, clear ash from the hearth, and rinse windblown grit from the pool. The finished nest is warm and dry again.
+	<br><br>
+	<span class="gold">The hidden nest is well maintained.</span>
+<<elseif _dnOldCleanliness lt 70 and $waterDragonNest.cleanliness gte 70>>
+	Behind a collapsed shelf you finally uncover a shallow hollow in the stone in the corner of the hut. The wall above it is black with soot, and a narrow channel runs from it up towards a gap in the roof, so somebody used to light a fire here.
+	<br><br>
+	You clear the channel and fit flat stones around the hole, then light a twist of dry grass to test it. The smoke goes straight up and out, away from the nest, and there is a flat white slab above the coals, steady enough to stand a pan on.
+	<br><br>
+	<span class="gold">You restored the sheltered fire. You can now cook in the hidden nest.</span>
+<<elseif _dnOldCleanliness lt 45 and $waterDragonNest.cleanliness gte 45>>
+	As you pull the warped boards off the dry wall you find iron hinges and what is left of a low storage chest. The wood has split, but the spray has never reached the stone underneath it.
+	<br><br>
+	You replace the rotten pieces with driftwood, tie the corners together, and seal the joins with a paste made from crushed shells. With the lid shut the inside stays dry, and it smells of salt and cedar.
+	<br><br>
+	<span class="gold">You made a dry clothes chest. Clothing storage and your wardrobe are now available.</span>
+<<elseif _dnOldCleanliness lt 30 and $waterDragonNest.cleanliness gte 30>>
+	Your fingers catch beneath a stone at the bottom of the tide pool. When you pull it loose, trapped silt rushes through an old drainage channel and disappears beneath the cliff.
+	<br><br>
+	Fresh seawater comes up through the cracks. You skim off the last of the dead weed and wait for the water to go still, and for the first time you can see your face in it instead of a dark blur.
+	<br><br>
+	<span class="gold">You restored the tide pool. You can now use the water as a mirror.</span>
+<<elseif _dnOldCleanliness lt 15 and $waterDragonNest.cleanliness gte 15>>
+	When you clear out the back corner you find a shallow sleeping hollow, separate from the egg nest. The markings keep its stone warm, but years of damp grass and sand had buried the shape of it.
+	<br><br>
+	You scrub the stone and pack the deepest gaps with dry moss, then lay fresh sea grass over the top and cloth over that. When you press down on it the bedding sinks a little and stays where you put it.
+	<br><br>
+	<span class="gold">You made a simple bed. You can now sleep in the hidden nest.</span>
+<<else>>
+	<span class="blue">Habitability increased by <<print _dnCleaningGain>>% to <<print $waterDragonNest.cleanliness>>%.</span>
+<</if>>
+<br><br>
+<<link [[Finish|Water Dragon Nest]]>><</link>>
+
+:: Water Dragon Nest Kitchen
+<<location "beach">><<set $outside to 0>><<effects>>
+<<if $waterDragonNest.cleanliness lt 70>>
+	There is nowhere safe to keep a fire yet.
+	<br><br>
+	<<getouticon>><<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
+	The fire burns between fitted stones in the cleanest corner of the hut. The broad shell-white slab above the coals is steady enough to cook on, and the old ward takes the smoke out through the roof without letting the rain in.
+	<br><br>
+	You can cook here with ingredients you carry.
+	<br><br>
+	<<allowLewdIngredients>><<kitchenDisplay>>
+	<<getouticon>><<link [[Leave the fire|Water Dragon Nest]]>><<kitchenExit>><</link>>
+<</if>>
+
+:: Water Dragon Nest Decorate
+<<location "beach">><<effects>>
+<<if $waterDragonNest.cleanliness lt 100>>
+	The hut still needs practical work before decorations can be gathered.
+<<else>>
+	<<set _dnDecorationPool to ["🐚","🪷","🫧","🪸","⭐","🌙","💎","🌸","🕯️","💧"]>>
+	<<set _dnDecorationFound to _dnDecorationPool.random()>>
+	You search the hidden shore, careful to leave the living shells and the rock pools alone. The tide has left something small where the water meets the warded stone.
+	<br><br>
+	<div class="waterdragon-decoration-found"><<print _dnDecorationFound>></div>
+	<br>
+	You rinse it in the tide pool and carry it inside. The marks brighten as you bring it in.
+	<<run $waterDragonNest.decorations.push(_dnDecorationFound)>><<stress -4>><<lstress>><<trauma -2>><<ltrauma>>
+	<br><br>
+	<span class="gold">You now have <<print $waterDragonNest.decorations.length>> decorations to arrange.</span>
+<</if>>
+<br><br>
+<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+
+:: Water Dragon Nest Arrange
+<<location "beach">><<set $outside to 0>><<effects>>
+<<if $waterDragonDecorationChoice is undefined>><<set $waterDragonDecorationChoice to null>><</if>>
+<<if $waterDragonNest.decorations.length is 0>>
+	There is nothing to arrange yet.
+<<else>>
+	Choose a gathered symbol, then choose one of the fifteen positions. Selecting a placed symbol picks it up so it can be moved elsewhere.
+	<br><br>
+	<div id="waterdragon-decoration-arrange"><<waterDragonDecorationArrange>></div>
+<</if>>
+<br><br>
+<<getouticon>><<link [[Finish arranging|Water Dragon Nest]]>><<unset $waterDragonDecorationChoice>><</link>>
+
+:: Water Dragon Nest Mirror
+<<location "beach">><<set $outside to 0>><<effects>>
+<<if $waterDragonNest.cleanliness lt 30>>
+	The tide pool is too cloudy to see anything in. Silt swirls up whenever you move.
+	<br><br>
+	<<getouticon>><<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
+The tide pool is completely still, and your reflection is sharp. The marks shimmer around the edge of the water and give it a faint pearly sheen.
+<<if Time.isBloodMoon()>>
+	The water will not show the blood moon. For a moment a pale shape presses at the surface from the wrong side, then the wards flash and the reflection is yours again.
+<</if>>
+<br><br>
+<<getouticon>><<link [[Step away|Water Dragon Nest]]>><<unset $mirrorMenu>><<unset $bodywritingSet>><<postMirror>><</link>>
+<br>
+<<mirror "reflection">>
+<br><br>
+<</if>>
+
+:: Water Dragon Egg Laying
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set $waterDragonNest.discovered to true>>
+<<if !$waterDragonEggs or $waterDragonEggs.daysTillLaying gt 0>>
+	The pressure has faded. The nest is quiet, and there is nothing to do here for now.
+	<br><br>
+	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
+	<<if $settings.realisticChildbirthEnabled>>
+		The first proper contraction goes through you as the marks brighten around the stones.
+		<br><br>
+		<<link [[Let the laying begin|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:1, fertilised:false}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_nest", genital:($player.vaginaExist ? "vagina" : "anus")} >><<set $childbirthstart to 1>><</link>>
+	<<else>>
+	<<set _pastelEgg to random(1, 100) lte 23>>
+	<<set _eggType to _pastelEgg ? "water_dragon_egg_pastel" : "water_dragon_egg">>
+	<<wearProp "waterdragon egg 1">>
+	You rake the sea grass into a pile in the middle of the stones, kick off your shoes and kneel on it. You get your hands flat on the floor just before the first contraction hits.
+	<br><br>
+	Your back curls and your elbows give way. You end up on your forearms with your cheek against the warm stone, breathing at the floor.
+	<br><br>
+	When it passes you push yourself back up. Kneeling hurts and sitting hurts more, so you settle into a crouch with your heels apart and one hand on the edge of the nest. It is the only position that does not make you want to clench.
+	<br><br>
+	The next contraction lasts longer. It starts in your lower back and spreads around to your stomach. You push as the pressure grows. Halfway through, your knee slips on the grass. You fall onto your side with a curse, then pull yourself back onto the pile and try again.
+	<br><br>
+	The egg reaches its widest point and stops. The stretch is painful, and you cannot move. You breathe through clenched teeth and count the loose stones in front of you to take your mind off it.
+	<br><br>
+	You push once more. The egg finally slips free and lands in the grass between your feet.
+	<br><br>
+	Your legs give way, and you drop down beside it.
+	<br><br>
+	You sit there and breathe until you can move again. The egg is bigger than both your hands together. The shell is pearl white, and the air just above it glitters.
+	<<if _pastelEgg>>
+		<br><br>
+		You put a hand out to steady it. Colour spreads across the shell under your palm in soft bands, running from your fingers to the far side. The old marks around the hut brighten while you watch. You take your hand away, and the colour stays. <<earnFeat "A Soft One's Legacy">>
+	<</if>>
+	<br><br>
+	You lift the egg into your arms. It takes two tries. You hold it against your chest until you can feel the warmth through the shell, then wrap it up to carry. <<foodstufficon _eggType>> <span class="green">You gained a <<print setup.foodstuff[_eggType].name>>.</span><<tending_give _eggType 1>>
+	<<set $waterDragonNest.eggsLaid += 1>>
+	<<if _pastelEgg>><<set $waterDragonNest.pastelEggsLaid += 1>><</if>>
+	<<set $waterDragonEggs to {count: 1, daysTillLaying: random(($waterDragonIncubatorTrait ? 12 : 23), ($waterDragonIncubatorTrait ? 18 : 30))}>>
+	<br><br>
+	<<link [[Rest beside the nest|Water Dragon Nest]]>><</link>>
+	<</if>>
+<</if>>
+
+:: Water Dragon Egg Laying Realistic End
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set _pastelEgg to random(1, 100) lte 23>>
+<<set _eggType to _pastelEgg ? "water_dragon_egg_pastel" : "water_dragon_egg">>
+The marks dim as the last of the pain goes out of you. You sit back on your heels, still breathing hard, and look down between your knees. The egg is where your body left it, bigger than both your hands together, and the shell is still warm.
+<<if _pastelEgg>> Colour spreads across it in soft pastel bands, and the old marks brighten. <<earnFeat "A Soft One's Legacy">><</if>>
+<br><br>
+You wrap it carefully for carrying. <<foodstufficon _eggType>> <span class="green">You gained a <<print setup.foodstuff[_eggType].name>>.</span><<tending_give _eggType 1>>
+<<set $waterDragonNest.eggsLaid += 1>>
+<<if _pastelEgg>><<set $waterDragonNest.pastelEggsLaid += 1>><</if>>
+<<set $waterDragonEggs to {count: 1, daysTillLaying: random(($waterDragonIncubatorTrait ? 12 : 23), ($waterDragonIncubatorTrait ? 18 : 30))}>>
+<<unset $waterDragonBirthContext>><<unset $birth>><<endcombat>>
+<br><br>
+<<link [[Rest beside the nest|Water Dragon Nest]]>><</link>>
+
+:: Water Dragon Nest Clutch
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set $eggsMoved to []>>
+/* The nest's magic claims any fertilised eggs the player carries: they incubate here and hatch as dragon-blooded children. Type becomes "human" so the existing child viewer, icons, and transform display (Dragonboy/Dragongirl) all apply. */
+<<run Object.values(V.children).forEach(child => {
+	if (child.type === "hawk" && child.location === "inventory") {
+		V.eggsMoved.push(child.childId);
+		child.location = "waterdragon_nest";
+		child.type = "human";
+		child.features.beastTransform = "waterdragon";
+		child.features.skinColour = "waterdragon";
+		if (!child.localVariables) child.localVariables = {};
+		child.localVariables.dragonNest = true;
+	}
+})>>
+<<if $eggsMoved.length is 0>>
+	You have no fertilised eggs to settle here.
+	<br><br>
+	<<link [[Return to the nest|Water Dragon Nest]]>><<unset $eggsMoved>><</link>>
+<<else>>
+	You lower your <<pluralise $eggsMoved.length "egg">> into the ring of smooth stones, and the hollow takes <<pluralise $eggsMoved.length "it" "them">> without a sound.
+	<br><br>
+	The change starts at once. Pale light rises between the stones and sinks into the shells. Colour spreads over them in bands until the <<pluralise $eggsMoved.length "egg is" "eggs are">> the same pearl white as the ones you lay yourself. The marks around the walls pulse slowly while it happens.
+	<br><br>
+	Whatever fathered them makes no difference now. The magic that kept dragon nurseries hidden for centuries has taken <<pluralise $eggsMoved.length "this egg" "these eggs">> for its own, and it will keep them warm until they hatch.
+	<br><br>
+	<span class="green"><<Number $eggsMoved.length>> fertilised <<pluralise $eggsMoved.length "egg has" "eggs have">> been settled into the hidden nest.</span> <<ltrauma>><<trauma -6>><<lstress>><<stress -6>>
+	<br><br>
+	<<link [[Sit with the eggs|Water Dragon Nest]]>><<unset $eggsMoved>><</link>>
+<</if>>
+
+:: Water Dragon Nest Warm
+<<location "beach">><<set $outside to 0>><<effects>>
+You settle over the eggs, shifting until you are comfortable, and let your warmth soak through the shells. The stones under you get hotter as you sit.
+<br><br>
+<<switch random(1, 3)>>
+	<<case 1>>
+		Beneath your hands, something shifts inside one of the eggs, a small deliberate movement answering your heartbeat. You stay very still, and the world stays very far away.
+	<<case 2>>
+		You catch yourself humming. It is not quite a lullaby and not quite the sound of the tide, and the pearl chips in the walls glimmer along with it.
+	<<default>>
+		Steam comes off the tide pool in the cool air. You reach out, roll the outermost egg back in against the others, and lower yourself over the lot of them. The stones under your knees get hot enough that you have to shift your weight off them.
+<</switch>>
+<br><br>
+<<run Object.values(V.children).forEach(child => {
+	if (child.location === "waterdragon_nest" && child.eggTimer) {
+		child.eggTimer -= 6 * TimeConstants.secondsPerHour;
+	}
+})>>
+<span class="blue">The eggs are warmed through. They will hatch a little sooner.</span>
+<br><br>
+<<link [[Rise carefully|Water Dragon Nest]]>><</link>>
+
+:: Water Dragon Nest Hatching
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set $eggsHatched to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and Time.date.timeStamp gte $children[id].eggTimer)>>
+<<if $eggsHatched.length is 0>>
+	The eggs are quiet. Whatever you heard, they are not ready yet.
+	<br><br>
+	<<link [[Return to the nest|Water Dragon Nest]]>><<unset $eggsHatched>><</link>>
+<<else>>
+	You kneel at the edge of the nest. There is a crack down the side of the nearest shell that was not there this morning. While you are looking at it, another one splits open across the top, loud enough in the quiet hut to make you sit back.
+	<br><br>
+	Nothing happens for a while. Then the top of the shell lifts a little and drops back. It lifts again, and a hand pushes out through the gap. It is no bigger than your thumb, webbed between the fingers, with small scales that catch the light off the pool.
+	<br><br>
+	Then it gets stuck. The hand feels along the edge but cannot get a grip, and whatever noise it was making inside goes thin and high, the way a kettle does before you take it off. You break the shell away above it with your thumb, a piece at a time. It is thin enough to worry you.
+	<br><br>
+	A face comes up through the hole you made. The eyes are shut against the light, and two soft horns push the wet hair apart.
+	<<if $eggsHatched.length gte 2>>
+		<br><br>
+		Behind you, a second shell splits open. You reach back for it without letting go of the first. By the time you have that one open, a third is knocking from inside.
+	<</if>>
+	<br><br>
+	You lift <<pluralise $eggsHatched.length "the hatchling" "each hatchling">> clear of the wet shell and hold <<pluralise $eggsHatched.length "it" "them">> against your chest. <<pluralise $eggsHatched.length "A hand finds" "Hands find">> your collar and <<pluralise $eggsHatched.length "grips" "grip">> hard enough to pull the fabric out of shape. The noise stops at once.
+	<br><br>
+	For the first time in living memory, a water dragon has hatched in this world.
+	<br><br>
+	<<hatchUi "waterdragon_nest" "Water Dragon Nest Hatching 2" 20>>
+<</if>>
+
+:: Water Dragon Nest Hatching 2
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set _dnHatchedNow to $eggsHatched || []>>
+<<set $waterDragonNest.hatched += _dnHatchedNow.length>>
+<<earnFeat "Extinct No More">>
+
+<<if _dnHatchedNow.length gt 0>>
+	<<set _dnFirstHatchling to _dnHatchedNow[0]>>
+	<<childSelect _dnFirstHatchling>>
+	You pick the last fragments of shell away from <<if _dnHatchedNow.length gte 2>><<childrenNames _dnHatchedNow>>. They are<<else>><<childname>>. <<childHe>> is<</if>> small enough to hold in your two hands, warm as the stones, with a pulse you can feel through your palms.
+	<br><br>
+	The marks dim to a slow, steady glow, the way they do when there is nothing left to guard against. You sit down properly in the sea grass, arrange the bedding one-handed so nothing is lying on bare stone, and only then let yourself look around the hut and think about what you will need for tomorrow.
+	<br><br>
+	The tide pool has gone clear again. In the reflection, the hollow no longer looks like a ruin.
+<<else>>
+	The nest is quiet, littered with pieces of shell too small to be worth picking up.
+<</if>>
+<br><br>
+<<link [[Settle in together|Water Dragon Nest]]>><<unset $eggsHatched>><</link>>
+
+:: Water Dragon Nest Hatchling Feed
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+
+<<if _dnHatchlings.length is 0>>
+	There are no hatchlings here to feed.
+	<br><br>
+	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
+	<<set _dnChild to _dnHatchlings.random()>>
+	<<childSelect _dnChild>>
+	The tide pool is never empty, because small silver fish come in on every high tide. You crouch at the edge and catch them with your bare hands, and your body seems to have always known how.
+	<br><br>
+	<<switch random(1, 3)>>
+		<<case 1>>
+			<<childname _dnChild>> takes the first fish carefully in both hands, as though it matters a great deal, then eats it without any care at all. The fish that follow go just as fast, and afterwards <<childhe>> chirps at you, so low that you feel it in your own chest.
+		<<case 2>>
+			The <<pluralise _dnHatchlings.length "hatchling crowds" "hatchlings crowd">> your knees before you've caught the second fish, all wet hands and impatient chirping. Feeding time is loud, messy and over quickly, and you enjoy every second of it.
+		<<default>>
+			<<childname _dnChild>> tries to catch a fish <<childhimself>>, slaps the water flat with both palms, and sits down hard in the shallows, astonished. You hide your laugh badly, catch one for <<childhim>>, and let <<childhim>> believe <<childhe>> helped.
+	<</switch>>
+	<br><br>
+	<<set $pregnancyStats.childInteractions to ($pregnancyStats.childInteractions || 0) + 1>>
+	<<run _dnHatchlings.forEach(id => {
+		if (!V.children[id].localVariables) V.children[id].localVariables = {};
+		V.children[id].localVariables.interactionsTotal = (V.children[id].localVariables.interactionsTotal || 0) + 1;
+	})>>
+	Fed and content, the <<pluralise _dnHatchlings.length "hatchling curls" "hatchlings curl">> up in the warm hollow of the nest.
+	<br><br>
+	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<</if>>
+
+:: Water Dragon Nest Hatchling Play
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+
+<<if _dnHatchlings.length is 0>>
+	There are no hatchlings here to play with.
+	<br><br>
+	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
+	<<set _dnChild to _dnHatchlings.random()>>
+	<<childSelect _dnChild>>
+	<<switch random(1, 4)>>
+		<<case 1>>
+			You slide into the tide pool, and the <<pluralise _dnHatchlings.length "hatchling drops" "hatchlings drop">> in after you. Underwater, <<childname _dnChild>> moves the way you do, easy and unafraid, trailing streams of pearl-bright bubbles.
+		<<case 2>>
+			<<childname _dnChild>> has made up a game. You never work out the rules, but they involve splashing you, hiding behind the same stone every time, and shrieking with delight when you find <<childhim>>. You lose on purpose, over and over.
+		<<case 3>>
+			You float on your back and let <<childname _dnChild>> ride on your stomach as you drift the slow circle of the pool. <<childHe>> drums tiny heels against you to make you go faster.
+		<<default>>
+			<<if Time.isBloodMoon()>>
+				The marks flicker all night, so you keep the games quiet: cat's cradle with a length of sea grass, pebbles sorted by colour, small hands copying the shapes yours make. The <<pluralise _dnHatchlings.length "hatchling stays" "hatchlings stay">> close, and so do you.
+			<<else>>
+				You lift <<childname _dnChild>> high so <<childhe>> can slap the glowing marks above the doorway. Each one brightens under <<childhis>> hand, and <<childhe>> shouts with delight as though <<childhe>> lit them <<childhimself>>.
+			<</if>>
+	<</switch>>
+	<br><br>
+	<<set $pregnancyStats.childInteractions to ($pregnancyStats.childInteractions || 0) + 1>>
+	<<run _dnHatchlings.forEach(id => {
+		if (!V.children[id].localVariables) V.children[id].localVariables = {};
+		V.children[id].localVariables.interactionsTotal = (V.children[id].localVariables.interactionsTotal || 0) + 1;
+	})>>
+	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<</if>>
+
+:: Water Dragon Nest Hatchling Watch
+<<location "beach">><<set $outside to 0>><<effects>>
+<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+
+<<if _dnHatchlings.length is 0>>
+	There are no hatchlings here to watch over.
+	<br><br>
+	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
+<<else>>
+	<<set _dnChild to _dnHatchlings.random()>>
+	<<childSelect _dnChild>>
+	You settle into the nest, and the <<pluralise _dnHatchlings.length "hatchling comes" "hatchlings come">> straight to you.
+	<br><br>
+	<<switch random(1, 3)>>
+		<<case 1>>
+			<<childname _dnChild>> sleeps against your ribs with one small fist knotted in your clothes, as if you might float away without it. The ward light moves over <<childhis>> scales in slow waves.
+		<<case 2>>
+			You tell <<childname _dnChild>> about the sea your blood remembers: hidden nurseries, dragons swimming under the ships, songs that carried for miles. <<childHe>> listens without blinking.
+		<<default>>
+			The <<pluralise _dnHatchlings.length "hatchling breathes" "hatchlings breathe">> slowly, and after a while so do you. Whatever else has been taken from you, this hour belongs to you and <<pluralise _dnHatchlings.length "your hatchling" "your hatchlings">>.
+	<</switch>>
+	<br><br>
+	<<set $pregnancyStats.childInteractions to ($pregnancyStats.childInteractions || 0) + 1>>
+	<<run _dnHatchlings.forEach(id => {
+		if (!V.children[id].localVariables) V.children[id].localVariables = {};
+		V.children[id].localVariables.interactionsTotal = (V.children[id].localVariables.interactionsTotal || 0) + 1;
+	})>>
+	<<link [[Ease yourself free|Water Dragon Nest]]>><</link>>
+<</if>>

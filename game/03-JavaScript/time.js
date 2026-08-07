@@ -1201,6 +1201,18 @@ function dayPassed(days) {
 				V.harpyEggsPrevent--;
 				if (V.harpyEggsPrevent <= 0) delete V.harpyEggsPrevent;
 			}
+			if (V.waterDragonEggs && !playerIsPregnant()) V.waterDragonEggs.daysTillLaying--;
+			if (
+				!V.waterDragonEggs &&
+				V.settings.playerPregnancyEggLayingEnabled === true &&
+				!playerIsPregnant() &&
+				Transformations.effectiveLevel("waterdragon") >= 7
+			) {
+				V.waterDragonEggs = {
+					count: 1,
+					daysTillLaying: V.waterDragonIncubatorTrait ? random(12, 18) : random(23, 30),
+				};
+			}
 
 			// Activate the robin pillory
 			if (V.robinPillory && V.robinPillory.danger !== undefined && (V.robindebtevent <= 1 || !V.baileySold)) V.robinPillory.active = true;

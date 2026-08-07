@@ -535,7 +535,19 @@
 <</widget>>
 
 <<widget "wakingEffects">><<silently>>
-	<<if !$sexStats.vagina.menstruation.running>>
+	/* The asylum and the prison run their own birth chains and their own locked doors, so the "walk out to the sea" prompt must never appear there. */
+	<<set _dragonHeld to ($waterDragonLab and $waterDragonLab.active) or ["asylum", "prison"].includes($location)>>
+	<<if _args[0] and playerIsPregnant() and isPregnancyEnding() and effectiveTransformationLevel("waterdragon") gte 7 and !["asylum", "prison"].includes($location)>>
+		<<set _wakingEffect to "waterDragonPregnancy">>
+		<<if $waterDragonLab and $waterDragonLab.active>>
+			<<set $_text_output to `<<waterDragonLabPregnancyEvent>>`>>
+		<<else>>
+			<<set $_text_output to `<<waterDragonPregnancyEvent>>`>>
+		<</if>>
+	<<elseif _args[0] and $settings.playerPregnancyEggLayingEnabled is true and $waterDragonEggs and $waterDragonEggs.daysTillLaying lte 0 and effectiveTransformationLevel("waterdragon") gte 7 and !playerIsPregnant() and !_dragonHeld>>
+		<<set _wakingEffect to "waterDragonEggLaying">>
+		<<set $_text_output to `<<waterDragonEggLayEvent>>`>>
+	<<elseif !$sexStats.vagina.menstruation.running>>
 	<<elseif _args[0] and $sexStats.vagina.menstruation.currentState is "pregnant" or ($sexStats.vagina.menstruation.currentState is "normal" and ($settings.playerPregnancyHumanEnabled or $settings.playerPregnancyBeastEnabled))>>
 		<<set $_pregnancy to getPregnancyObject()>>
 		<<set _wakingEffect to wakingPregnancyEvent()>>
@@ -666,7 +678,7 @@
 <</widget>>
 
 <<widget "pregnancyDailyEvent">><<silently>>
-	<<if !["Asylum Sleep","Cabin Sleep","Wolf Cave Sleep","Bird Tower Sleep","Livestock Sleep","Farm Abduction wake 4","Sleep","Avery Hotel Morning","Avery Hotel Trauma Drink 2","Prison Sleep","Robin Trauma Visit Sleep","Pound Sleep","Robin Sleep","Mansion Sleep","Forest Shop Dog Bed Sleep"].includes($passage)>>
+	<<if !["Asylum Sleep","Cabin Sleep","Wolf Cave Sleep","Bird Tower Sleep","Water Dragon Nest Sleep","Livestock Sleep","Farm Abduction wake 4","Sleep","Avery Hotel Morning","Avery Hotel Trauma Drink 2","Prison Sleep","Robin Trauma Visit Sleep","Pound Sleep","Robin Sleep","Mansion Sleep","Forest Shop Dog Bed Sleep"].includes($passage)>>
 		<<set _pregnancyDailyEvent to dailyPregnancyEvent(_rng)>>
 		<<if Array.isArray(_pregnancyDailyEvent)>>
 			<<set _pregnancyDailyEvent to _pregnancyDailyEvent[random(0,_pregnancyDailyEvent.length - 1)]>>

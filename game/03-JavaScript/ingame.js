@@ -602,6 +602,16 @@ function bulkProduceValue(foodstuff, quantity = 250) {
 }
 window.bulkProduceValue = bulkProduceValue;
 
+function factoryProduceMinimum(foodstuff) {
+	return foodstuff?.shop?.factory_min || 250;
+}
+window.factoryProduceMinimum = factoryProduceMinimum;
+
+function factoryProduceStep(foodstuff) {
+	return foodstuff?.shop?.factory_step || factoryProduceMinimum(foodstuff);
+}
+window.factoryProduceStep = factoryProduceStep;
+
 function toTitleCase(str) {
 	const exclude = new Set(["a", "an", "and", "as", "at", "but", "by", "for", "if", "in", "of", "on", "or", "the", "to", "up", "yet"]);
 	return str.toLowerCase().replace(/\b\w[\w']*\b/g, (word, i) => {
@@ -3245,7 +3255,8 @@ window.fixIntegrityUpdater = fixIntegrityUpdater;
 function waterPlotsFromRain() {
 	if (V.statFreeze || !V.plots || !V.weatherObj) return;
 	if (Weather.precipitation !== "rain") return;
-	Object.values(V.plots).forEach(plots => {
+	Object.entries(V.plots).forEach(([location, plots]) => {
+		if (location === "water_dragon_lab") return; // sealed underground, rain never reaches it
 		if (!Array.isArray(plots)) return;
 		plots.forEach(plot => {
 			if (plot?.stage >= 1 && plot.stage < 5 && plot.bed !== "water") plot.water = 1;

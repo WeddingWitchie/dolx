@@ -770,6 +770,19 @@ function wardrobesUpdate() {
 		V.wardrobes.birdTower.locationRequirement = ["tower", "moor"];
 	}
 
+	/* The array check also heals a bare {} left by variables-modUpdate running first. */
+	if (!V.wardrobes.waterDragonNest || !Array.isArray(V.wardrobes.waterDragonNest.upper)) {
+		/* Hidden water dragon nest's dry storage chest */
+		V.wardrobes.waterDragonNest = clone(defWardrobe);
+		V.wardrobes.waterDragonNest.name = "Hidden Nest";
+		V.wardrobes.waterDragonNest.unlocked = false;
+		V.wardrobes.waterDragonNest.isolated = true;
+		V.wardrobes.waterDragonNest.space = 15 * V.wardrobeMult;
+	}
+	if (!V.wardrobes.waterDragonNest.locationRequirement?.length) {
+		V.wardrobes.waterDragonNest.locationRequirement = ["beach"];
+	}
+
 	if (!V.wardrobes.prison.locationRequirement?.length) {
 		V.wardrobes.prison.locationRequirement = ["prison"];
 	}

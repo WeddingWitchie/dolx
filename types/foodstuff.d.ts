@@ -39,6 +39,8 @@ declare global {
 		available_in?: string[]; // The list of shops that this item is available in (currently there is only the 1 supermarket).
 		stall_size?: PlotSize; // The size of the item. Used for selling the item, specifically if you sell the item one at a time or not.
 		bought_in_bulk?: number; // When buying this item, this is how many of the item get bought at once for the above buy price. If not present, the value is 1.
+		factory_min?: number; // Minimum amount accepted by the factory for this item.
+		factory_step?: number; // Amount added by each factory quantity step.
 	}
 
 	export interface FoodstuffRecipeData {
@@ -66,6 +68,7 @@ declare global {
 		singular: string; // Singular form of the item.
 		plural: string; // Plural form of the item.
 		icon: string; // Filename of the item's icon without path, e.g. "apple.png". The folder is implied to be /tending/...
+		icon_path?: string; // Full icon path relative to /img/misc/icon/, overriding the implied /tending/ folder, e.g. "children/waterdragon/one-cold.png".
 		category: FoodstuffCategory; // The high level category of the item.
 		kitchen_item_type_icon: FoodstuffKitchenItemTypeIcon; // The icon used used in the kitchen for this item.
 		prop_folder: FoodstuffPropFolder; // The folder within /props/ where this item's prop images are located. This should probably to be normalized.

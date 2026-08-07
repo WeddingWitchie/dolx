@@ -95,6 +95,20 @@ The <<person>> opens a laptop. "So what do you have for me?"
 :: Farmers Centre Produce Sale Confirm
 
 The gate shudders open, and a lorry rumbles out, on its way to collect your produce.
+<<if $farmersProduce.dragonEggShipment>>
+	<br><br><<endevent>>
+	<<generate1>><<person1>><<wearProp "waterdragon egg 1">>
+	A manager arrives before the lorry clears the yard, holding a padded crate and a clipboard.
+	<<He>> stares at the large, pearl-coloured egg. "Is that meant to be a decoration?"
+	<br><br>
+	You glance at the egg, then back at <<him>>. "I don't think decorations usually need that much padding?"
+	<br><br>
+	<<He>> looks at it again. "It is just a decoration, though, right?"
+	<br><br>
+	The shell catches the depot lights. <<He>> opens <<his>> mouth, as if about to ask again, then decides against it.
+	Together, you place the egg in a crate by itself. Foam is packed tightly around it before the lid is sealed and marked for special handling.
+	<<unset $farmersProduce.dragonEggShipment>>
+<</if>>
 <br><br>
 <<getouticon>><<link [[Leave|Farmers Centre]]>><</link>>
 
@@ -194,7 +208,7 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 		}
 
 		_foodKeys.pushUnique(key);
-		if (V.foodstuff[key]?.amount >= 250) {
+		if (V.foodstuff[key]?.amount >= factoryProduceMinimum(item)) {
 			_foodGroups.pushUnique("Sellable Produce");
 		} else {
 			_foundSoldOut to true;
@@ -206,7 +220,7 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 		<<set _open to _category is "Sellable Produce" ? true : false>>
 		<<foldout _open _categoryVar>>
 			<span class="gold"><<print _category.toLocaleUpperFirst()>></span>
-			<<set _keys to _foodKeys.filter(key => (_category isnot "Owned Produce" && $foodstuff[key]?.amount >= 250) ||	(_category is "Owned Produce" && ($foodstuff[key] === undefined || V.foodstuff[key].amount < 250))
+			<<set _keys to _foodKeys.filter(key => (_category isnot "Owned Produce" && $foodstuff[key]?.amount >= factoryProduceMinimum(setup.foodstuff[key])) ||	(_category is "Owned Produce" && ($foodstuff[key] === undefined || V.foodstuff[key].amount < factoryProduceMinimum(setup.foodstuff[key])))
 			)>>
 			<<for $_i, $_key range _keys>>
 				<div @id="$_key" class="item"><<produceDisplayItem $_key>></div>
@@ -235,6 +249,9 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 						<<else>>
 							<<set $farmersProduce.selling[_label] += _value>>
 						<</if>>
+						<<if ["water_dragon_egg", "water_dragon_egg_pastel"].includes(_label)>>
+							<<set $farmersProduce.dragonEggShipment to true>>
+						<</if>>
 						<<set $foodstuff[_label].amount -= _value>>
 					<</if>>
 				<</for>>
@@ -257,16 +274,17 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 				<<foodstufficon _item>>
 				<<if $foodstuff[_item] is undefined>>
 					You don't have any <<print setup.foodstuff[_item].plural>> right now.
-				<<elseif $foodstuff[_item].amount lt 250>>
+				<<elseif $foodstuff[_item].amount lt factoryProduceMinimum(setup.foodstuff[_item])>>
 					<<print setup.foodstuff[_item].plural.toLocaleUpperFirst()>> | Owned: <span class="gold"><<print $foodstuff[_item].amount>></span>
 					<br>
 					Not enough to sell.
 					<<if $farmersProduce.selling[_item]>><br><</if>>
 				<<else>>
-					<<set _max to $foodstuff[_item].amount - ($foodstuff[_item].amount % 250)>>
-					<<set _base to bulkProduceValue(setup.foodstuff[_item])>>
+					<<set _step to factoryProduceStep(setup.foodstuff[_item])>>
+					<<set _max to $foodstuff[_item].amount - ($foodstuff[_item].amount % _step)>>
+					<<set _base to bulkProduceValue(setup.foodstuff[_item], _step)>>
 					<<set _title to setup.foodstuff[_item].plural.toLocaleUpperFirst()>>
-					| Value per 250: <<printmoney _base>>
+					| Value per <<print _step>>: <<printmoney _base>>
 					<<numberStepper "_title" 0 {
 						callback: (value, arr) => {
 							V.farmersProduce.toSell[arr[0]] = value;
@@ -280,7 +298,7 @@ The gate shudders open, and a lorry rumbles out, on its way to collect your prod
 						},
 						values: [_item, $foodstuff[_item].amount],
 						disableMinMax: false,
-						step: 250,
+						step: _step,
 						max: _max,
 						colorArr:["--yellow"],
 						percentage: false

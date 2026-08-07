@@ -14,7 +14,15 @@
 	<!-- setup caches are not saved, so rebuilding them must not rewind an in-progress birth. -->
 	<<if $childbirthstart is 1 or $birth.filters is undefined>>
 	<<set $birth["version"] to setup.RCB_BIRTH_VERSION>>
-	<<if playerIsPregnant()>>
+	<<if $waterDragonBirthContext>>
+		<<set $birth["fetuscount"] to $waterDragonBirthContext.count>>
+		<<set $birth["father"] to $waterDragonBirthContext.fertilised ? "unknown" : "none">>
+		<<set $birth["type"] to "hawk">>
+		/* The caller already worked out which hole the clutch is coming from (an omega carries in the anus even with a vagina present). Only guess when it didn't say. */
+		<<if !["vagina", "anus"].includes($birth.genital)>>
+			<<if $player.vaginaExist>><<set $birth.genital to "vagina">><<else>><<set $birth.genital to "anus">><</if>>
+		<</if>>
+	<<elseif playerIsPregnant()>>
 		<<set [_pregnancy,$birth.genital] to getPlayerPregnancyForBirth(true)>>
 		<<if _pregnancy.type is "hawk">>
 			<<set $birth["fetuscount"] to _pregnancy.fetus.length>>
@@ -64,7 +72,7 @@
 	<<set $birth.movementodds to [[60,75,90,94,96,99,200,200],[50,70,85,90,93,96,200,200],[40,60,80,85,90,95,200,200],[30,40,50,70,80,90,200,200],[30,40,50,70,80,90,200,200],[30,40,50,70,80,90,200,200],[20,35,50,65,75,85,200,200],[0,0,0,0,0,0,200,200],[1,1,1,1,1,1,200,200],[1,1,1,1,1,1,200,200]]>>
 	<<if $birth.inlobby is undefined>>
 		<<switch $birth.location>>
-		<<case "asylum" "wolf cave" "forest shop" "bedroom" "tower">>
+		<<case "asylum" "wolf cave" "forest shop" "bedroom" "tower" "waterdragon_nest" "waterdragon_lab">>
 			<<set $birth["inlobby"] to "">>
 		<<case "hospital">>
 			<<if ["Alex","Avery","Eden","Robin","Sydney","Whitney","Kylar","Poppy"].includes($birth.father) and knowsAboutPregnancy("pc", $birth.father)>>
@@ -1017,6 +1025,14 @@
 		<</if>>
 	<<case "tower">>
 		<<link [[Next|Bird Tower Player Egg Laying Realistic End]]>><<unset $birth>><</link>>
+	<<case "waterdragon_nest">>
+		<<if $waterDragonBirthContext and $waterDragonBirthContext.fertilised>>
+			<<link [[Next|Water Dragon Pregnancy Laying End]]>><</link>>
+		<<else>>
+			<<link [[Next|Water Dragon Egg Laying Realistic End]]>><</link>>
+		<</if>>
+	<<case "waterdragon_lab">>
+		<<link [[Next|Water Dragon Lab Laying Realistic End]]>><</link>>
 <</switch>>
 
 

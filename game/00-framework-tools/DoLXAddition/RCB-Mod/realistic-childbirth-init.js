@@ -32,7 +32,7 @@
 	const RCB_BIRTH_VERSION = 1;
 
 	/* Birth locations the encounter knows how to wind down (must match the `<<switch $birth.location>>` in the `Childbirth End` passage). */
-	const RCB_LOCATIONS = ["hospital", "asylum", "wolf cave", "forest shop", "cottage", "prison", "bedroom", "tower"];
+	const RCB_LOCATIONS = ["hospital", "asylum", "wolf cave", "forest shop", "cottage", "prison", "bedroom", "tower", "waterdragon_nest", "waterdragon_lab"];
 
 	/* Fetus species the birth prompt tables know how to narrate (must match the keys under setup.birthPrompts.stage/stageInitial/contractions). */
 	const RCB_TYPES = ["human", "wolf", "hawk"];
@@ -52,6 +52,8 @@
 		home: "bedroom",
 		bedroom: "bedroom",
 		tower: "tower",
+		waterdragon_nest: "waterdragon_nest",
+		waterdragon_lab: "waterdragon_lab",
 	};
 
 	const isObject = value => typeof value === "object" && value !== null;

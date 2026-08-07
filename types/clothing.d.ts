@@ -439,6 +439,7 @@ declare global {
 	}
 	export interface PropSetup {
 		folder?: string;
+		fileName?: string; // Already-normalised base filename, when the prop reuses art not named after its own key.
 		armPosition?: ArmPosition;
 		zIndex?: string;
 		hasAccessory?: boolean;

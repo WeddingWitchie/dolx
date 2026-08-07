@@ -523,9 +523,17 @@ function effects() {
 
 	// eslint-disable-next-line no-undef
 	if (isPregnancyEnding() && V.birth === undefined) {
+		// Water dragons never deliver in a bed: the nesting instinct pulls the PC to the hidden beach nest (or, if captive, Harper's staff seize the labour for the lab).
+		// Locked-down locations keep their own birth chain, so the sea prompt would only be misleading there.
+		const dragonLabour = typeof Transformations !== "undefined" && Transformations.effectiveLevel("waterdragon") >= 7;
+		const dragonHeld = !!(V.waterDragonLab && V.waterDragonLab.active) || ["asylum", "prison"].includes(V.location);
 		sWikifier(
 			`<span class="red">Your waters have broken.</span> ${
-				["asylum", "prison", "hospital"].includes(V.location) ? "You need to find help, fast!" : "You need to head to the hospital, fast!"
+				dragonLabour && !dragonHeld
+					? '<span class="navy">You need to reach the sea, fast!</span>'
+					: ["asylum", "prison", "hospital"].includes(V.location)
+					? "You need to find help, fast!"
+					: "You need to head to the hospital, fast!"
 			} <<ggstress>>`
 		);
 		br();

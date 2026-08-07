@@ -12,6 +12,7 @@
 
 	hasCoverImg: boolean, // true if the prop has a right_cover image, allowing the player to cover their nudity with the prop. most props do not need a cover sprite
 	hasLevels: boolean, // for more complex props that change state depending on specific conditions (e.g. the fire of the torch prop changing in intensity based on V.catacombs_torch). add conditions to propLevels().
+	fileName: string, // already-normalised base filename, when the prop reuses art that is not named after its own key (e.g. the water dragon egg foodstuff sharing the carried-egg sprite). levels still append to it.
 */
 
 /**
@@ -50,6 +51,9 @@ function wearProp(prop, colour, accColour) {
 		colour: colour ?? (propErties.colour?.length ? propErties.colour.random() : false),
 		accColour: accColour ?? (propErties.accColour?.length ? propErties.accColour.random() : false),
 	});
+
+	/* A prop may point at art that is not named after its own key, so it can share an existing sprite. */
+	if (propErties.fileName) T.prop.name = propErties.fileName;
 
 	if (T.prop.hasLevels) T.prop.name += propLevels(key);
 
@@ -459,6 +463,26 @@ function initProps() {
 		},
 		hawk_egg_3: {
 			folder: "tending",
+			armPosition: "clutch",
+		},
+		waterdragon_egg_1: {
+			folder: "general/waterdragon",
+		},
+		/* The foodstuff keys reuse the single-egg sprite, so <<wearProp>> resolves for a carried egg as well as for the laying scenes. */
+		water_dragon_egg: {
+			folder: "general/waterdragon",
+			fileName: "waterdragon-egg-1",
+		},
+		water_dragon_egg_pastel: {
+			folder: "general/waterdragon",
+			fileName: "waterdragon-egg-1",
+		},
+		waterdragon_egg_2: {
+			folder: "general/waterdragon",
+			armPosition: "clutch",
+		},
+		waterdragon_egg_3: {
+			folder: "general/waterdragon",
 			armPosition: "clutch",
 		},
 		plant_pot: {
