@@ -1162,14 +1162,16 @@
 	<</if>>
 	/* Mastery traits. See masteryDodgeBonus() in mastery-traits.js. */
 	<<set _masteryDodgeChance to masteryDodgeBonus()>>
+	/* Small bodies evade, large bodies tank. See bodySizeDodgeCaps() in koztools.js. */
+	<<set _sizeDodgeCaps to bodySizeDodgeCaps()>>
 	<<if $combatExtended.passiveDodging is 1>>
 		<<set _dodgeChance = Math.round(_dancedodge + _bodyDodgeChance + _brawlingDodgeChance + _masteryDodgeChance)>>
 		/* High combat stats should remain valuable without making incoming attacks automatic misses. */
-		<<if _dodgeChance gt 60>>
-			<<set _dodgeChance to Math.round(60 + ((_dodgeChance - 60) * 0.25))>>
+		<<if _dodgeChance gt _sizeDodgeCaps.soft>>
+			<<set _dodgeChance to Math.round(_sizeDodgeCaps.soft + ((_dodgeChance - _sizeDodgeCaps.soft) * 0.25))>>
 		<</if>>
 		<<if $combatExtended.uncappedDodgeChance is 0>>
-			<<set _dodgeChance to Math.clamp(_dodgeChance, 0, $combatExtended.dodgeChanceCap)>>
+			<<set _dodgeChance to Math.clamp(_dodgeChance, 0, Math.min($combatExtended.dodgeChanceCap, _sizeDodgeCaps.hard))>>
 		<</if>>
 		<<if $combatExtended.stabilityLost is 1>>
 			<<set _dodgeChance = Math.round(_dodgeChance / 2)>>
@@ -1184,11 +1186,11 @@
 	<</if>>
 	<<if $combatExtended.activeDodgingActive is 1 and _activeDodgeTargetMatches>>
 		<<set _dodgeChance = Math.round((_dancedodge + _bodyDodgeChance + _brawlingDodgeChance + _masteryDodgeChance) * 2)>>
-		<<if _dodgeChance gt 60>>
-			<<set _dodgeChance to Math.round(60 + ((_dodgeChance - 60) * 0.25))>>
+		<<if _dodgeChance gt _sizeDodgeCaps.soft>>
+			<<set _dodgeChance to Math.round(_sizeDodgeCaps.soft + ((_dodgeChance - _sizeDodgeCaps.soft) * 0.25))>>
 		<</if>>
 		<<if $combatExtended.uncappedDodgeChance is 0>>
-			<<set _dodgeChance to Math.clamp(_dodgeChance, 0, $combatExtended.dodgeChanceCap)>>
+			<<set _dodgeChance to Math.clamp(_dodgeChance, 0, Math.min($combatExtended.dodgeChanceCap, _sizeDodgeCaps.hard))>>
 		<</if>>
 		<<if $combatExtended.stabilityLost is 1>>
 			<<set _dodgeChance = Math.round(_dodgeChance / 2)>>

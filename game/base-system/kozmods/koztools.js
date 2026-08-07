@@ -678,6 +678,32 @@ function updateDynamicStatCaps() {
 }
 window.updateDynamicStatCaps = updateDynamicStatCaps;
 
+/**
+ * Dodge ceilings by body size.
+ *
+ * Small bodies can build an evasion-focused style: their dodge chance keeps scaling further before diminishing returns kick in, and their hard cap is higher.
+ * Large bodies hit the wall early, since they already take pain better and are harder to move out of the way.
+ *
+ * `soft` is the point where extra dodge chance starts counting for a quarter.
+ * `hard` is the ceiling applied when the player has not turned off the dodge cap.
+ *
+ * @param {number} [size] body size, defaults to $bodysize
+ * @returns {{soft: number, hard: number}}
+ */
+function bodySizeDodgeCaps(size) {
+	const raw = size ?? State.variables.bodysize;
+	/* A missing or broken size must not read as "tiny" and hand out the highest caps. */
+	const bodysize = Number.isFinite(raw) ? raw : 2;
+	if (bodysize >= 4) return { soft: 35, hard: 45 };
+	if (bodysize >= 3) return { soft: 45, hard: 60 };
+	if (bodysize >= 2.5) return { soft: 52, hard: 70 };
+	if (bodysize >= 2) return { soft: 60, hard: 80 };
+	if (bodysize >= 1) return { soft: 68, hard: 88 };
+	if (bodysize >= 0) return { soft: 75, hard: 95 };
+	return { soft: 82, hard: 100 };
+}
+window.bodySizeDodgeCaps = bodySizeDodgeCaps;
+
 function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 	if (!V?.worn || !setup?.clothes) return;
 
