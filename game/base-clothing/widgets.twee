@@ -1623,6 +1623,7 @@
 							<<if $debug is 1>><<run console.log("wearing stored item", $store[$_slot][$_storedIndex])>><</if>>
 							<<set $worn[$_slot] to clone($store[$_slot][$_storedIndex])>>
 							<<set $worn[$_slot].location to 0>>
+							<<run resetClothingState($_slot)>>
 							<<set $store[$_slot].deleteAt($_storedIndex)>>
 							/* dry the clothes */
 							<<set V[$_slot.replace(/_/g, "") + "wet"] to 0>>
@@ -1662,6 +1663,7 @@
 		<<if $_stored>>
 			<<set $worn[$_slot] to clone($_item)>>
 			<<set $worn[$_slot].location to 0>>
+			<<run resetClothingState($_slot)>>
 			<<set $store[$_slot].deleteAt($store[$_slot].indexOf($_stored))>>
 			/* dry the clothes */
 			<<set V[$_slot.replace(/_/g, "") + "wet"] to 0>>
@@ -1737,6 +1739,7 @@
 						<<if $_item.temp is undefined>>
 							<<set $worn[$_slot] to clone($_item)>>
 							<<set $worn[$_slot].location to 0>>
+							<<run resetClothingState($_slot)>>
 						<<else>>
 							<<searchWardrobeForItem $_slot $_index>>
 							<<generalWearFromWardrobe $_slot _wardrobeId>>
@@ -1989,11 +1992,13 @@
 					<<generalUndress $wardrobe_location `clone(_labelWW)`>>
 					<<set $worn[clone(_labelWW)] to clone($_selectedWardrobe[clone(_labelWW)][clone(_valueWW)])>>
 					<<set $worn[clone(_labelWW)].lastTaken to "wardrobe">>
+					<<run resetClothingState(_labelWW)>>
 					<<set $_selectedWardrobe[_labelWW].deleteAt(_valueWW)>>
 				<</for>>
 			<</if>>
 			<<set $worn[_slot] to clone($_selectedWardrobe[_slot][_wearId])>>
 			<<set $worn[_slot].lastTaken to "wardrobe">>
+			<<run resetClothingState(_slot)>>
 			<<set $_selectedWardrobe[_slot].deleteAt(_wearId)>>
 		<</if>>
 	<</if>>
