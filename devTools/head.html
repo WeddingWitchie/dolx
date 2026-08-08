@@ -3,3 +3,55 @@
 <meta
   http-equiv="Content-Security-Policy"
   content="default-src 'self' 'unsafe-eval' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"/>
+<!-- SugarCube rejects localStorage when sessionStorage is unavailable. Supply a session-only fallback before SugarCube selects its save adapter. -->
+<script>
+(() => {
+	function storageWorks(name) {
+		const testKey = `_dol_storage_test_${Date.now()}`;
+		try {
+			const store = window[name];
+			store.setItem(testKey, testKey);
+			const works = store.getItem(testKey) === testKey;
+			store.removeItem(testKey);
+			return works;
+		} catch (ex) {
+			return false;
+		}
+	}
+
+	if (storageWorks("localStorage") && !storageWorks("sessionStorage")) {
+		const data = new Map();
+		try {
+			Object.defineProperty(window, "sessionStorage", {
+				configurable: true,
+				value: {
+					get length() {
+						return data.size;
+					},
+					key(index) {
+						return Array.from(data.keys())[index] ?? null;
+					},
+					getItem(key) {
+						return data.has(key) ? data.get(key) : null;
+					},
+					setItem(key, value) {
+						const storedValue = String(value);
+						data.set(key, storedValue);
+						this[key] = storedValue;
+					},
+					removeItem(key) {
+						data.delete(key);
+						delete this[key];
+					},
+					clear() {
+						data.forEach((value, key) => delete this[key]);
+						data.clear();
+					},
+				},
+			});
+		} catch (ex) {
+			/* Keep the native backend so SugarCube can show its normal storage warning. */
+		}
+	}
+})();
+</script>
