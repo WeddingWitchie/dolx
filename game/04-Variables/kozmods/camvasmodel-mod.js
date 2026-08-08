@@ -11,6 +11,8 @@ function redirectRemovedRingStep(setupItem) {
 		"-25": "-20",
 		/* Not a removed carat step: the tidebloom ring has no art of its own and wears the 1ct aquamarine sprites. */
 		tidebloom: "aquamarine-1",
+		/* Whitney's initialled ring reuses the plain silver band sprites. */
+		"whitney-gemstone": "silver",
 	};
 
 	// Guard against a missing setup/variable; hand back whatever the variable is
