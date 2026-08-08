@@ -1,7 +1,13 @@
 /* globals playerMayBeSpiked, blackmailGiveDaisies, hasSexStat */
 // All quests part from the assumption that PC starts their day at the orphanage
-function blackmailReward(amount) {
-	return Math.round((Number(amount) || 0) * 5);
+function blackmailReward(rentShare = 1) {
+	let rent = Number(V.rentmoney) || 0;
+	// Bailey's added rent pressure, especially the uncapped Relentless version, must not turn Club tasks into an escalating income source.
+	if (setup.inflation?.rentBaseWithModifiers && Number.isFinite(V.rentstage)) {
+		const baseRents = [10000, 30000, 50000, 70000, 100000, 150000, 200000];
+		rent = setup.inflation.rentBaseWithModifiers(baseRents[Math.clamp(Math.floor(V.rentstage) - 1, 0, 6)]);
+	}
+	return Math.round(rent * (Number(rentShare) || 0) * 5);
 }
 window.blackmailReward = blackmailReward;
 
@@ -16,7 +22,7 @@ const blackmailQuests = {
 				return true;
 			},
 			reward() {
-				return blackmailReward(V.rentmoney);
+				return blackmailReward();
 			},
 			instructions: [". Complete this task before midnight."],
 			clearCondition() {
@@ -65,7 +71,7 @@ blackmailQuests.low.push(
 			return !Time.schoolDay || hasSexStat("exhibitionism", 4);
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 3);
+			return blackmailReward(1 / 3);
 		},
 		instructions: [
 			"Wear no underwear today.",
@@ -123,7 +129,7 @@ blackmailQuests.low.push(
 			return !(playerIsPregnant() && playerAwareTheyArePregnant());
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 3);
+			return blackmailReward(1 / 3);
 		},
 		instructions: ["Go drink and get wasted.", "You can do so at the pub, but it's not mandatory.", "Complete this task before midnight."],
 		clearCondition() {
@@ -163,7 +169,7 @@ blackmailQuests.mid.push(
 			return !playerIsXChanged();
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: [
 			"Take this pill we've happily provided for you on this envelope.",
@@ -228,7 +234,7 @@ blackmailQuests.high.push(
 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue("skulduggery") >= 200;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: [
 			"Masturbate naked for 5 minutes, within an empty classroom.",
@@ -271,7 +277,7 @@ blackmailQuests.mid.push(
 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue("skulduggery") >= 200;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: ["Swim in the school's pool while naked.", "Complete this task before midnight."],
 		clearCondition() {
@@ -312,7 +318,7 @@ blackmailQuests.low.push(
 			return true;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: [
 			"Go for a run at the park in your underwear. Spend at least 30 minutes on this activity.",
@@ -358,7 +364,7 @@ blackmailQuests.mid.push(
 			return true;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: [
 			"Go for a run at the park while naked. Spend at least 1 hour on this activity.",
@@ -404,7 +410,7 @@ blackmailQuests.low.push(
 			return V.player.sex === "m" && !playerIsXChanged();
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 3);
+			return blackmailReward(1 / 3);
 		},
 		instructions: [
 			"Take the pill we've included in this envelope.",
@@ -468,7 +474,7 @@ blackmailQuests.low.push(
 			return Time.hour < 17;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 3);
+			return blackmailReward(1 / 3);
 		},
 		instructions: [
 			"Go clean 3 challets at the beach.",
@@ -529,7 +535,7 @@ blackmailQuests.mid.push(
 			return V.submissive <= 850;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: [
 			"Since you're so strong-willed and prideful, we want to teach you how to be more honest with yourself.",
@@ -575,7 +581,7 @@ blackmailQuests.low.push(
 			return V.player.sex === "m";
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 3);
+			return blackmailReward(1 / 3);
 		},
 		instructions: [
 			"You're not allowed to wear a shirt today, nor any other clothing that covers your torso.",
@@ -635,7 +641,7 @@ blackmailQuests.low.push(
 			return hasSexStat("exhibitionism", 2);
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 3);
+			return blackmailReward(1 / 3);
 		},
 		instructions: [
 			"Flash at least 5 strangers on the street.",
@@ -681,7 +687,7 @@ blackmailQuests.low.push(
 			return Time.dayState === "dawn" && !playerIsXChanged();
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 3);
+			return blackmailReward(1 / 3);
 		},
 		instructions: [
 			"Swallow the pill we've provided, and take these 200 flowers to sell.",
@@ -743,7 +749,7 @@ blackmailQuests.mid.push(
 			return Time.dayState === "dawn" && !playerIsXChanged() && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney / 2);
+			return blackmailReward(1 / 2);
 		},
 		instructions: [
 			"Masturbate (and orgasm) at least once while selling flowers at a market stall.",
@@ -806,7 +812,7 @@ blackmailQuests.high.push(
 			return Time.hour <= 16;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: ["Go streaking at the park naked during the day.", "Complete this task before midnight."],
 		clearCondition() {
@@ -847,7 +853,7 @@ blackmailQuests.high.push(
 			return Time.hour < 20;
 		},
 		reward() {
-			return blackmailReward(V.rentmoney);
+			return blackmailReward();
 		},
 		instructions: [
 			"Go to the arcade and play some air hockey.",
