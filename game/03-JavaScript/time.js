@@ -2255,7 +2255,7 @@ function dailyPlayerEffects() {
 	// if (V.stressBeauty == 1) statChange.skill("beauty", (100 - (V.stress / V.stressmax) * 100) * V.beautyMult);
 	lustfulUpdate();
 
-	if (V.orgasmstat >= 500 && V.orgasmtrait === 0) {
+	if (V.orgasmstat >= 1000 && V.orgasmtrait === 0) {
 		V.effectsmessage = 1;
 		V.orgasm_trait_message = 1;
 		V.orgasmtrait = 1;
@@ -2286,7 +2286,7 @@ function dailyPlayerEffects() {
 	} else if (!V.xchange.genitalAddictTraitsEnabled && V.hole_addict_trait === 1) {
 		V.hole_addict_trait = 0;
 	}
-	if (V.ejacstat >= 300 && V.ejactrait === 0) {
+	if (V.ejacstat >= 1000 && V.ejactrait === 0) {
 		V.effectsmessage = 1;
 		V.cum_trait_message = 1;
 		V.ejactrait = 1;
