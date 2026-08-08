@@ -182,6 +182,11 @@
 		<<if _item is undefined>>
 			<<continue>>
 		<</if>>
+		<<if $wardrobeOption is "wear" and _slot is "earrings" and !$ears_pierced>>
+			<span class="red">You need pierced ears to wear earrings.</span>
+			<br>
+			<<continue>>
+		<</if>>
 		/*Prevent equip when preggy*/
 		<<if playerBellySize() gte 12 and _item.type.includes("constricting") and $wardrobeOption is "wear">>
 			<<if _item.type.includes("chest_bind")>>
@@ -624,6 +629,9 @@
 	__Clothing__
 	<br>
 
+	<<if ["over_head", "over_upper", "over_lower"].includes($lastWardrobeSlot)>>
+		<<set $lastWardrobeSlot to "over">>
+	<</if>>
 	<<dynamic "wardrobeLinks" "wardrobeLinks">>
 	<<dynamic "wardrobeContents" "wardrobeList">>
 
@@ -647,6 +655,8 @@
 <<widget "wardrobeContents">>
 	<<if $lastWardrobeSlot is "favorites">>
 		<<wardrobeFavoritesList>>
+	<<elseif $lastWardrobeSlot is "over">>
+		<<wardrobeOverList>>
 	<<elseif $lastWardrobeSlot is "NewOutfit">>
 		<<wardrobeNewOutfit>>
 	<<else>>
@@ -656,37 +666,74 @@
 
 <<widget "wardrobeLinks">>
 	<<set _wardrobeLinks=[
-		{ id: 'favorites', label: 'Favorites' },
-		{ id: 'over_head', label: 'Over Head' },
-		{ id: 'over_upper', label: 'Over Upper' },
-		{ id: 'over_lower', label: 'Over Lower' },
-		{ id: 'head', label: 'Head' },
-		{ id: 'face', label: 'Face' },
-		{ id: 'neck', label: 'Neck' },
-		{ id: 'upper', label: 'Upper' },
-		{ id: 'lower', label: 'Lower' },
-		{ id: 'under_upper', label: 'Under Upper' },
-		{ id: 'under_lower', label: 'Under Lower' },
-		{ id: 'genitals', label: 'Genitals' },
-		{ id: 'hands', label: 'Hands' },
-		{ id: 'handheld', label: 'Handheld' },
-		{ id: 'earrings', label: 'Earrings', disabled: !$ears_pierced },
-		{ id: 'rings', label: 'Rings' },
-		{ id: 'legs', label: 'Legs' },
-		{ id: 'feet', label: 'Feet' },
+		{ id: 'favorites', label: 'Favorites', alt: 'F' },
+		{ id: 'over', label: 'Over Clothes', icon: 'over-outfit', alt: 'O', groupStart: true },
+		{ id: 'head', label: 'Head', icon: 'head', alt: 'He', groupStart: true },
+		{ id: 'face', label: 'Face', icon: 'face', alt: 'Fa' },
+		{ id: 'neck', label: 'Neck', icon: 'neck', alt: 'Ne' },
+		{ id: 'upper', label: 'Upper', icon: 'upper', alt: 'U', groupStart: true },
+		{ id: 'lower', label: 'Lower', icon: 'lower', alt: 'L' },
+		{ id: 'under_upper', label: 'Under Upper', icon: 'under-upper', alt: 'UU', groupStart: true },
+		{ id: 'under_lower', label: 'Under Lower', icon: 'under-lower', alt: 'UL' },
+		{ id: 'genitals', label: 'Genitals', icon: 'genitals', alt: 'Ge' },
+		{ id: 'hands', label: 'Hands', icon: 'hand', alt: 'Ha', groupStart: true },
+		{ id: 'handheld', label: 'Handheld', icon: 'handheld', alt: 'Hd' },
+		{ id: 'rings', label: 'Rings', icon: 'rings', alt: 'Ri' },
+		{ id: 'earrings', label: 'Earrings', icon: 'earrings', alt: 'Ea' },
+		{ id: 'legs', label: 'Legs', icon: 'legs', alt: 'Le' },
+		{ id: 'feet', label: 'Feet', icon: 'feet', alt: 'Fe' },
 	]>>
+	<div class="shop-category-tabs wardrobe-category-tabs no-numberify">
 	<<for _i = 0; _i < _wardrobeLinks.length; _i++>>
 		<<set _wardrobeLink=_wardrobeLinks[_i]>>
-		<<if !_wardrobeLink.disabled>>
-			<a
-				@class="($lastWardrobeSlot is _wardrobeLink.id ? 'selected' : '')"
-				@id="Dynamic.eventBinder(_wardrobeLink.id)"
-				onclick="(id) => $lastWardrobeSlot = id"
-			>
-				<<if _wardrobeLink.id is "favorites">><<hearticon>> <</if>>_wardrobeLink.label
-			</a><<if _i < _wardrobeLinks.length - 1>> | <</if>>
+		<div @class="'category-group' + (_wardrobeLink.groupStart ? ' wardrobe-category-group-start' : '')">
+		<button
+			@class="'category-tab ' + ($lastWardrobeSlot is _wardrobeLink.id ? 'active' : '')"
+			@id="Dynamic.eventBinder(_wardrobeLink.id)"
+			@title="_wardrobeLink.label"
+			onclick="(id) => $lastWardrobeSlot = id"
+		>
+			<<if $options.images is 1>>
+				<<if _wardrobeLink.id is "favorites">><<hearticon>><<else>><<clothingcategoryicon _wardrobeLink.icon>><</if>>
+			<<else>>
+				<div class="category-icon-alt">_wardrobeLink.alt</div>
+			<</if>>
+		</button>
+		</div>
+	<</for>>
+	</div>
+<</widget>>
+
+<<widget "wardrobeOverList">>
+	<<wardrobeClothingOptions>>
+	<<set _overSlots to ["over_head", "over_upper", "over_lower"]>>
+	<<set _overItemCount to 0>>
+	<<for _overSlot range _overSlots>>
+		<<set _overItemCount += _selectedWardrobe[_overSlot].length>>
+	<</for>>
+
+	__Over clothes__ <i>_overItemCount / <<= _selectedWardrobe.space * _overSlots.length>></i>
+	<br><br>
+	Currently equipped:
+	<<set _overEquipped to 0>>
+	<<for _overSlot range _overSlots>>
+		<<if $worn[_overSlot].name isnot "naked">>
+			<<set _overEquipped++>>
+			<<capture _overSlot>>
+				<<if _overEquipped gt 1>> | <</if>>
+				<span class="no-numberify">
+					<<clothingicon $worn[_overSlot] _overSlot>><<wearlink_norefresh `$worn[_overSlot].name.toUpperFirst()` "strip" `"wear_" + _overSlot`>>
+				</span>
+			<</capture>>
 		<</if>>
 	<</for>>
+	<<if _overEquipped is 0>>nothing<</if>>
+	<br><br>
+
+	<<wardrobeList "over_head" true true>>
+	<<wardrobeList "over_upper" true true>>
+	<<wardrobeList "over_lower" true true>>
+	<div style="clear:both;"></div>
 <</widget>>
 
 <<widget "wardrobeClothingOptions">>
@@ -1179,16 +1226,16 @@
 <</widget>>
 
 <<widget "wardrobeList">>
-	<<wardrobeClothingOptions>>
+	<<if !_args[1]>><<wardrobeClothingOptions>><</if>>
 	<<set _wardrobe_list to _args[0]>>
+	<<set _combinedWardrobeList to _args[2]>>
 	<<if !Object.keys($worn).includes(_wardrobe_list)>>
 		An error occurred to 'widget "wardrobeList"', please report if you did not edit the save data manually in any way.
 	<<else>>
 		<<set _wear to "wear_"+_wardrobe_list>>
 
+		<<if !_combinedWardrobeList>>
 		<<set _outfitTypes to setup.clothingLayer.torso_inner>>
-		<<set _loweroutfitCheck to setup.clothingLayer.lower>>
-
 		__<<print _wardrobe_list[0].toUpperCase() + _wardrobe_list.substring(1)>>__ <i>_selectedWardrobe[_wardrobe_list].length / _selectedWardrobe.space</i>
 		<<if _wardrobe_list is "upper">>(Outfits will also take a lower slot)<</if>>
 		<<if _wardrobe_list is "under_upper">>(Outfits will also take an under lower slot)<</if>>
@@ -1351,6 +1398,7 @@
 				<div class="small-description">~</div>
 			</div>
 		<</if>>
+		<</if>>
 
 		<<set _hasHandbag to $worn.handheld.type.includes("bookbag")>>
 		<<if $settings.multipleWardrobes and _hasHandbag>>
@@ -1399,7 +1447,7 @@
 				<div class="wardrobeItem wardrobe-action no-numberify">
 					<div>
 						<<clothingicon _item _wardrobe_list>>
-						<<wearlink_norefresh _itemData.name_cap _i undefined "inventory">>
+						<<wearlink_norefresh _itemData.name_cap _i _wear "inventory">>
 						<span class="gold">(In Handbag)</span>
 					</div>
 
@@ -1476,7 +1524,7 @@
 
 						<<if $settings.multipleWardrobes>>
 							<<if !_slotsFull>>
-								<<capture _i, _outfitPieceIds>>
+								<<capture _wardrobe_list, _i, _outfitPieceIds>>
 									<span></span>
 									<<link "Move to Wardrobe">>
 										<<run transferClothing(_wardrobe_list,_i, "inventory",$wardrobe_location)>>
@@ -1540,7 +1588,7 @@
 			<div class="wardrobeItem wardrobe-action no-numberify">
 				<div>
 					<<clothingicon _item _wardrobe_list>>
-					<<wearlink_norefresh _itemData.name_cap _i>>
+					<<wearlink_norefresh _itemData.name_cap _i _wear>>
 				</div>
 
 				<div class="small-description">
@@ -1604,7 +1652,7 @@
 						<<set _handsAreFull to getWardrobeItemCount("inventory") gte 2>>
 
 						<<if _hasHandbag and !_handbagIsFull>>
-							<<capture _i, _outfitPieceIds>>
+							<<capture _wardrobe_list, _i, _outfitPieceIds>>
 								<span></span>
 								<<link "Move to Handbag">>
 									<<run transferClothing(_wardrobe_list,_i,$wardrobe_location,"inventory")>>
@@ -1623,7 +1671,7 @@
 				</div>
 			</div>
 		<</for>>
-		<div style="clear:both;"></div>
+		<<if !_combinedWardrobeList>><div style="clear:both;"></div><</if>>
 	<</if>>
 <</widget>>
 
