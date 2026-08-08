@@ -172,7 +172,7 @@ Morgueço: oversized shirt, chain belt skirt
 
 Moth: broom sprite
 
-Mozumelody: barber chair, hair up twintails edit
+Mozumelody: hair up twintails edit
 
 Mundane Guy: gas mask
 

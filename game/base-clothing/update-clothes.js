@@ -317,6 +317,12 @@ function updateClothesItem(slot, item, debug) {
 		item[key] = clone(itemRef[key]);
 	}
 	item.index = itemRef.index;
+	if (slot === "rings") {
+		delete item.leftImage;
+		delete item.rightImage;
+		delete item.altposition;
+		delete item.altdisabled;
+	}
 	item.colour = remapColours[item.colour] || item.colour;
 	item.accessory_colour = remapColours[item.accessory_colour] || item.accessory_colour;
 	item.pattern = remapColours[item.pattern] || item.pattern;
@@ -564,6 +570,7 @@ function updateClothes() {
 
 		/* === $outfit section === */
 		for (const outfit of V.outfit) {
+			if (slot === "rings" && outfit.positions) delete outfit.positions.rings;
 			switch (outfit[slot]) {
 				case "Crop top":
 					outfit[slot] = "crop top";

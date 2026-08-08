@@ -22,6 +22,7 @@ function initEarrings() {
 			name: "naked",
 			name_cap: "Naked",
 			variable: "naked",
+			oldVariable: [{ name: "pearl drop earrings", variable: "pearl-drop" }],
 			state: 0,
 			state_base: 0,
 			integrity: 10,
