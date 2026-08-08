@@ -1,33 +1,31 @@
+/* globals blackmailQuests */
 function fameMax(...fameTypes) {
 	let result = 0;
-	fameTypes.forEach(fameType => result = Math.max(V.fame[fameType], result));
+	for (const fameType of fameTypes) result = Math.max(V.fame[fameType], result);
 	return result;
 }
 window.fameMax = fameMax;
 
 function historicFameMax(...fameTypes) {
-	if (fameTypes.length <= 0) 
-		fameTypes = ["bestiality","sex","prostitution","impreg","exhibitionism","rape","pregnancy"];
+	if (fameTypes.length <= 0) fameTypes = ["bestiality", "sex", "prostitution", "impreg", "exhibitionism", "rape", "pregnancy"];
 	let result = 0;
-	fameTypes.forEach(fameType => result = Math.max(V.xchange.blackmail.historicFame[fameType], result));
+	for (const fameType of fameTypes) result = Math.max(V.xchange.blackmail.historicFame[fameType], result);
 	return result;
 }
 window.historicFameMax = historicFameMax;
 
 function penaltyFameSum(...fameTypes) {
-	if (fameTypes.length <= 0) 
-		fameTypes = ["bestiality","sex","prostitution","impreg","exhibitionism","rape","pregnancy"]; 
+	if (fameTypes.length <= 0) fameTypes = ["bestiality", "sex", "prostitution", "impreg", "exhibitionism", "rape", "pregnancy"];
 	let result = 0;
-	fameTypes.forEach(fameType => result += V.xchange.blackmail.penaltyThreat[fameType]);
+	for (const fameType of fameTypes) result += V.xchange.blackmail.penaltyThreat[fameType];
 	return result;
 }
 window.penaltyFameSum = penaltyFameSum;
 
 function penaltyFameMax(...fameTypes) {
-	if (fameTypes.length <= 0) 
-		fameTypes = ["bestiality","sex","prostitution","impreg","exhibitionism","rape","pregnancy"]; 
+	if (fameTypes.length <= 0) fameTypes = ["bestiality", "sex", "prostitution", "impreg", "exhibitionism", "rape", "pregnancy"];
 	let result = 0;
-	fameTypes.forEach(fameType => result = Math.max(V.xchange.blackmail.penaltyThreat[fameType], result));
+	for (const fameType of fameTypes) result = Math.max(V.xchange.blackmail.penaltyThreat[fameType], result);
 	return result;
 }
 window.penaltyFameMax = penaltyFameMax;
@@ -40,11 +38,11 @@ function getStaticQuestData(quest) {
 	const questLists = [blackmailQuests.low, blackmailQuests.mid, blackmailQuests.high];
 
 	for (const list of questLists) {
-		let match = list.find((template) => template.id === questId);
+		let match = list.find(template => template.id === questId);
 		if (match) return match;
 
 		if (questIndex !== undefined) {
-			match = list.find((template) => template.index === questIndex);
+			match = list.find(template => template.index === questIndex);
 			if (match) return match;
 		}
 	}
@@ -102,8 +100,7 @@ function blackmailGiveDaisies(amount = 200) {
 
 	if (V.foodstuff.daisy === undefined || V.foodstuff.daisy === null || typeof V.foodstuff.daisy !== "object") {
 		V.foodstuff.daisy = { name: daisy.name, plural: daisy.plural, amount: 0 };
-	}
-	else {
+	} else {
 		V.foodstuff.daisy.name ??= daisy.name;
 		V.foodstuff.daisy.plural ??= daisy.plural;
 		V.foodstuff.daisy.amount = Number(V.foodstuff.daisy.amount) || 0;
