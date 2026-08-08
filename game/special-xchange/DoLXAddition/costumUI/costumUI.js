@@ -4,6 +4,52 @@
 	let scheduled = false;
 	let observer = null;
 	let observedScope = null;
+	const overlayTabIcons = Object.freeze({
+		Characteristics: "\u2726",
+		Identity: "\u25C7",
+		Social: "\u2637",
+		Traits: "\u25C6",
+		Journal: "\u25A4",
+		Notes: "\u270E",
+		Statistics: "\u25A5",
+		"Extra stats (spoilers)": "\u2295",
+		Feats: "\u2605",
+		Stats: "\u25A5",
+		Visual: "\u25C9",
+		NPCs: "\u265F",
+		"Alex's Farm": "\u2302",
+		Teleport: "\u21C4",
+		Other: "\u22EF",
+		General: "\u2699\uFE0E",
+		Theme: "\u25C8",
+		Performance: "\u21AF",
+		Advanced: "\u2692\uFE0E",
+		Information: "\u24D8",
+		Saves: "\u25A3",
+		"Export/Import": "\u21C4",
+		"Event Info": "\u25C7",
+		"Blackjack Guide": "\u24D8",
+		Layers: "\u25A4",
+		Colours: "\u25C9",
+		Model: "\u25C8",
+		"Start/Stop Animation": "\u25B6",
+		"Refresh Caches": "\u21BB",
+		"Outfit Editor": "\u270E",
+	});
+
+	function styleOverlayTabs() {
+		const overlay = document.getElementById("customOverlay");
+		if (!overlay || overlay.dataset.overlay === "DoLXCredits" || overlay.dataset.overlay === "mirrorMood") return;
+
+		overlay.querySelectorAll("#overlayTabs button").forEach(button => {
+			const label = button.textContent.trim().replace(/\s+/g, " ");
+			const icon = overlayTabIcons[label];
+			if (icon) button.dataset.dolxTabIcon = icon;
+			else delete button.dataset.dolxTabIcon;
+		});
+	}
+
+	window.dolxUiStyleOverlayTabs = styleOverlayTabs;
 
 	/* The only UI we care about lives inside the sidebar caption / ui-bar.
 	   Observing that container instead of <body> avoids reacting to every mutation in #passages (the story text),

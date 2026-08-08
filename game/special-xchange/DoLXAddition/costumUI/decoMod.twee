@@ -13,6 +13,11 @@
 		window.dolxDecoRefresh = function () {
 			var page = State.variables.decoPage;
 			var total = State.variables.decoTotal;
+			var activeElement = document.getElementById('fg-bg' + page);
+
+			document.querySelectorAll('.dolx-decomod-preview').forEach(function (preview) {
+				if (!activeElement || !activeElement.contains(preview)) preview.remove();
+			});
 
 			for (var i = 1; i <= total; i++) {
 				var element = document.getElementById('fg-bg' + i);
@@ -20,6 +25,8 @@
 					element.style.display = i === page ? 'block' : 'none';
 				}
 			}
+
+			window.dolxDecoRefreshPreviews(activeElement);
 
 			var backButton = document.getElementById('backButton');
 			if (backButton) {
@@ -42,6 +49,63 @@
 			if (page < 1 || page > State.variables.decoTotal) return;
 			State.variables.decoPage = page;
 			window.dolxDecoRefresh();
+		};
+
+		window.dolxDecoRefreshPreviews = function (pageElement) {
+			if (!pageElement) return;
+
+			Array.from(pageElement.children).forEach(function (group) {
+				if (!group.classList.contains('settingsToggleItem')) return;
+
+				Array.from(group.children).forEach(function (card) {
+					if (!card.classList.contains('settingsToggleItem')) return;
+
+					var title = card.querySelector('.gold');
+					var match = title && title.textContent.match(/(Foreground|Background) ([12])/i);
+					if (!match) return;
+
+					var type = match[1].toLowerCase();
+					var layer = match[2];
+					var value = State.variables[type + '_image' + layer];
+					var preview = card.querySelector('.dolx-decomod-preview');
+
+					if (!preview) {
+						preview = document.createElement('div');
+						preview.className = 'dolx-decomod-preview';
+						preview.innerHTML = '<div class="dolx-decomod-preview-crop"><img hidden></div><span></span>';
+						title.insertAdjacentElement('afterend', preview);
+					}
+
+					var image = preview.querySelector('img');
+					var label = preview.querySelector('span');
+					if (!value || value === 'none') {
+						image.hidden = true;
+						image.removeAttribute('src');
+						preview.classList.add('empty');
+						label.textContent = 'No decoration selected';
+						return;
+					}
+
+					var source = 'img/decorations/' + type + layer + '/' + value + '.png';
+					if (image.getAttribute('src') === source) return;
+
+					preview.classList.remove('empty', 'missing');
+					image.hidden = false;
+					image.alt = match[1] + ' ' + layer + ', option ' + value;
+					label.textContent = 'Option ' + value;
+					image.onload = function () {
+						image.hidden = false;
+						preview.classList.remove('missing');
+						label.textContent = 'Option ' + value;
+					};
+					image.onerror = function () {
+						image.hidden = true;
+						preview.classList.add('missing');
+						label.textContent = 'Option ' + value + ' has no image';
+					};
+					image.src = source;
+				});
+			});
 		};
 
 		window.setTimeout(window.dolxDecoRefresh, 0);
@@ -1639,6 +1703,7 @@
 		jQuery('.passage')
 			.off('change.decoMod', '.dolx-decomod [id^="fg-bg"] .macro-radiobutton')
 			.on('change.decoMod', '.dolx-decomod [id^="fg-bg"] .macro-radiobutton', function () {
+				window.dolxDecoRefreshPreviews(this.closest('[id^="fg-bg"]'));
 				Wikifier.wikifyEval('<<updatesidebarimg true>>');
 			});
 	<</script>>
