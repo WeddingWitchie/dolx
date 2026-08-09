@@ -2225,6 +2225,8 @@ function dailyPlayerEffects() {
 		V.trauma = V.innocencetrauma;
 		V.innocencemessage = "end";
 	}
+	/* Keep trauma symptoms in sync when temporary Insanity is gained/lost or Innocence directly changes trauma above. */
+	statChange.updatePlayerTraumaState();
 
 	if (V.physique >= 1000) {
 		if (V.farm_stage >= 6) V.xchange.baseStats.physique = V.xchange.baseStats.physique - (V.xchange.baseStats.physique * 4) / V.xchange.baseStats.physiquesize;

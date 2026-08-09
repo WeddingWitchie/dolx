@@ -1665,6 +1665,7 @@ function settingsObjects(type) {
 					genitalAddictTraitsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Cock/hole addict traits:" },
 					critterMagnetTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Critter Magnet trait:" },
 					arousalAcclimatedTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Arousal Acclimated trait:" },
+					insanityDisturbedTraitsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Full Insanity dissociation:" },
 					useHermBalls: { min: 0, max: 1, decimals: 0, displayName: "Purple pillers have testes:" },
 					chastityKeepBeltShape: { min: 0, max: 1, decimals: 0, displayName: "Keep chastity belt shape:" },
 					combatPillingEnabled: { min: 0, max: 1, decimals: 0, displayName: "Combat pilling:" },
