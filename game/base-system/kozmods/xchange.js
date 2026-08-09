@@ -810,12 +810,21 @@ const permanentInsanityTalentKeys = [
 ];
 
 function permanentInsanityTalentLockActive() {
-	return V.insanityPermanent === true;
+	// The doubled skill caps / locked talent menu are a deliberate character-creation tradeoff only.
+	// A naturally-gained permanent Insanity (insanityPermanent set mid-game via the settings toggle) is a punishment, not a build choice, so it does NOT receive them.
+	return V.background?.insanity === true;
 }
 window.permanentInsanityTalentLockActive = permanentInsanityTalentLockActive;
 
+function insanitySuppressed() {
+	// Gwylan's Clarity hypnosis dampens the Insanity's effects for as long as it holds (it never cures it).
+	return !!V.hypnosis_traits?.clarity;
+}
+window.insanitySuppressed = insanitySuppressed;
+
 function activeInsanityTrait() {
-	return permanentInsanityTalentLockActive() || V.backgroundTraits?.includes("insanity") === true;
+	if (insanitySuppressed()) return false;
+	return V.backgroundTraits?.includes("insanity") === true;
 }
 window.activeInsanityTrait = activeInsanityTrait;
 
@@ -830,7 +839,6 @@ window.insanitySensitivityAdjustment = insanitySensitivityAdjustment;
 
 function applyPermanentInsanityTalents() {
 	if (!V.AMCTraits || typeof V.AMCTraits !== "object" || Array.isArray(V.AMCTraits)) return;
-	if (V.insanityTalentBackup !== undefined) delete V.insanityTalentBackup;
 
 	if (!permanentInsanityTalentLockActive()) {
 		return;

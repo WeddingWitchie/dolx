@@ -1133,6 +1133,14 @@ function effects() {
 				element("span", "The weight of everything you've endured finally cracks something inside. Your grip on reality is slipping. You've gained the", "red");
 				element("span", '"Insanity"', "red");
 				element("span", "trait.", "red");
+			} else if (V.insanityTraitMessage === "gainPermanent") {
+				element(
+					"span",
+					"The weight of everything you've endured finally shatters something inside, and this time nothing knits back together. Your grip on reality is gone for good; only Gwylan's touch could ever quiet it now. You've gained the",
+					"red"
+				);
+				element("span", '"Insanity"', "red");
+				element("span", "trait, permanently.", "red");
 			} else if (V.insanityTraitMessage === "loss") {
 				element("span", "As the worst of your trauma fades, your mind slowly knits itself back together. You've lost the", "lblue");
 				element("span", '"Insanity"', "red");

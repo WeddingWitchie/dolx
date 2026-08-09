@@ -292,8 +292,8 @@ const statChange = (() => {
 
 	function updatePlayerTraumaState() {
 		// Permanent Insanity trait: symptoms behave as if trauma were at least 70% (severe trauma), without touching the real trauma value.
-		// Higher real trauma still stacks extra symptoms on top.
-		const effectiveTrauma = V.insanityPermanent ? Math.max(V.trauma, (V.traumamax / 10) * 7) : V.trauma;
+		// Higher real trauma still stacks extra symptoms on top. Gwylan's Clarity hypnosis suppresses the floor while it holds.
+		const effectiveTrauma = V.insanityPermanent && !V.hypnosis_traits?.clarity ? Math.max(V.trauma, (V.traumamax / 10) * 7) : V.trauma;
 		// Opium Addict trait: inhaling opium suppresses insomnia for the current sleep cycle.
 		V.sleeptrouble = effectiveTrauma >= 1 && !V.poppyDrug?.insomniaSuppress ? 1 : 0;
 		V.nightmares = effectiveTrauma >= (V.traumamax / 10) * 1 ? 1 : 0;
@@ -326,7 +326,8 @@ const statChange = (() => {
 
 		// Insanity (permanent or active temporary) always forces Dissociation. By default its special combat handling only paralyses the opening turns.
 		// The optional disturbed-traits setting instead keeps normal severe Dissociation active, so its complete paralysis can persist like trauma-induced Dissociation.
-		if (V.backgroundTraits?.includes("insanity")) {
+		// Gwylan's Clarity hypnosis suppresses the forced Dissociation while it holds.
+		if (V.backgroundTraits?.includes("insanity") && !V.hypnosis_traits?.clarity) {
 			const insanityDissociationLucid = V.combat === 1 && V.insanityDissociationLucid && !V.xchange?.insanityDisturbedTraitsEnabled;
 			V.dissociation = insanityDissociationLucid ? Math.max(V.dissociation, 1) : 2;
 		}
@@ -338,8 +339,8 @@ const statChange = (() => {
 	DefineMacro("updatePlayerTraumaState", updatePlayerTraumaState);
 
 	function updateHallucinations() {
-		// Permanent Insanity trait: hallucinations behave as if trauma were at least 70% (see updatePlayerTraumaState).
-		const effectiveTrauma = V.insanityPermanent ? Math.max(V.trauma, (V.traumamax / 10) * 7) : V.trauma;
+		// Permanent Insanity trait: hallucinations behave as if trauma were at least 70% (see updatePlayerTraumaState). Suppressed by Gwylan's Clarity hypnosis.
+		const effectiveTrauma = V.insanityPermanent && !V.hypnosis_traits?.clarity ? Math.max(V.trauma, (V.traumamax / 10) * 7) : V.trauma;
 		if (
 			effectiveTrauma >= (V.traumamax / 10) * 5 ||
 			(V.awareness >= 400 && !(V.hypnosis_traits.insight && V.settings.hypnosisEnabled)) ||
@@ -382,7 +383,8 @@ const statChange = (() => {
 		V.controlled = V.control > threshold ? 1 : 0;
 		// Permanent Insanity: a fractured mind can never keep its trauma under control, so the symptoms always manifest in their raw, severe form regardless of composure.
 		// The temporary version is deliberately left alone as it simply mirrors the player's real trauma and adapts with it.
-		if (V.insanityPermanent) V.controlled = 0;
+		// Gwylan's Clarity hypnosis suppresses this too, letting composure work normally while it holds.
+		if (V.insanityPermanent && !V.hypnosis_traits?.clarity) V.controlled = 0;
 		V.control = Math.clamp(V.control, 0, V.controlmax);
 	}
 	DefineMacro("control", amount => control(amount));
@@ -1052,13 +1054,14 @@ const statChange = (() => {
 			amount *= 2;
 		}
 		// Insanity trait: a fractured mind struggles to build any mental grip, so willpower gains are cut by 75%. Losses are untouched.
-		if (amount > 0 && V.backgroundTraits.includes("insanity")) {
+		// Gwylan's Clarity hypnosis suppresses the penalty while it holds.
+		if (amount > 0 && V.backgroundTraits.includes("insanity") && !V.hypnosis_traits?.clarity) {
 			amount *= 0.25;
 		}
 		// Iron Will: a completed fallen-angel mind grips willpower more firmly, so gains (e.g. from meditation) are boosted by 35%. Losses are untouched.
 		// An insane fallen angel clings to willpower even harder: the boost rises to 45%, partially offsetting the insanity gain cut.
 		if (amount > 0 && Transformations.partActive("traits", "ironWill")) {
-			amount *= V.backgroundTraits.includes("insanity") ? 1.45 : 1.35;
+			amount *= V.backgroundTraits.includes("insanity") && !V.hypnosis_traits?.clarity ? 1.45 : 1.35;
 		}
 
 		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1) amount = Number(amount) / V.AMCTraits.willpower;

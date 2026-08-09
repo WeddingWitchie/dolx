@@ -2196,7 +2196,14 @@ function dailyPlayerEffects() {
 			V.insanityTraitDays = (V.insanityTraitDays ?? 0) + 1;
 			if (V.insanityTraitDays >= 5 && !V.backgroundTraits.includes("insanity")) {
 				V.backgroundTraits.push("insanity");
-				V.insanityTraitMessage = "gain";
+				/* Optional setting: a mind broken this thoroughly never mends on its own.
+				The trait is locked permanent (forced-severe symptoms, no cap break) and can only be eased by Gwylan's Clarity hypnosis. */
+				if (V.xchange?.insanityBecomesPermanent) {
+					V.insanityPermanent = true;
+					V.insanityTraitMessage = "gainPermanent";
+				} else {
+					V.insanityTraitMessage = "gain";
+				}
 				V.effectsmessage = 1;
 				if (typeof earnFeat === "function") earnFeat("Cracked Mind");
 			}
