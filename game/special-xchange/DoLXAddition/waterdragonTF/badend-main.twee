@@ -5,6 +5,7 @@
 <<set _normalEggs to $foodstuff.water_dragon_egg?.amount || 0>>
 <<set _pastelEggs to $foodstuff.water_dragon_egg_pastel?.amount || 0>>
 <<set _dealPrices to $waterDragonNest.harperDeal is 1>>
+<<set _knowsEggValue to Math.max(currentSkillValue('skulduggery'), currentSkillValue('maths'), currentSkillValue('history')) gte random(1, 1000)>>
 <<if _normalEggs + _pastelEggs lte 0>>
 	You no longer have a water dragon egg to show Harper.
 	<br><br>
@@ -30,35 +31,149 @@
 		<<He>> closes the office door.
 		<br><br>
 		"I can pay far more than anyone else will," <<he>> says to you then.
+		<<if _knowsEggValue>>
+			<br><br>
+			<span class="green">You suspect Doctor Harper is shortchanging you for such a rare find.</span>
+		<</if>>
+		<<if effectiveTransformationLevel("waterdragon") gte 7>>
+			<br><br>
+			<span class="green">Your Water Dragon form leaves Harper no room to question the egg's origin, making it even more valuable.</span>
+		<</if>>
 	<</if>>
 	<br><br>
 	<<if _normalEggs gt 0>>
-		<<foodstufficon "water_dragon_egg">><<link [[Sell a water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg">><</link>><<if _dealPrices>><<note "(<<printmoney 60000>>)" "gold">><<else>><<note "(<<printmoney 50000>>)" "gold">><</if>>
+		<<foodstufficon "water_dragon_egg">><<link [[Sell a water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg">><<set $phase to "waterDragonEggPriceStandard">><</link>><<if _dealPrices>><<note "(<<printmoney `animalTfIncome(200000, 'waterdragon')`>>)" "gold">><<else>><<note "(<<printmoney `animalTfIncome(100000, 'waterdragon')`>>)" "gold">><</if>>
 		<br>
+		<<if !_dealPrices>>
+			<<socialiseicon>><<link [[Debate Harper's offer|Harper Water Dragon Egg Negotiate]]>><<set $waterDragonEggSale to "water_dragon_egg">><<set $phase to _knowsEggValue ? "waterDragonDebateKnown1" : "waterDragonDebateUnknown1">><</link>><<if _knowsEggValue>><<englishdifficulty 200 800>><<else>><<englishdifficulty 400 900>><</if>>
+			<br>
+		<</if>>
 	<</if>>
 	<<if _pastelEggs gt 0>>
-		<<foodstufficon "water_dragon_egg_pastel">><<link [[Sell a pastel water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg_pastel">><</link>><<if _dealPrices>><<note "(<<printmoney 180000>>)" "gold">><<else>><<note "(<<printmoney 150000>>)" "gold">><</if>>
+		<<foodstufficon "water_dragon_egg_pastel">><<link [[Sell a pastel water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg_pastel">><<set $phase to "waterDragonEggPriceStandard">><</link>><<if _dealPrices>><<note "(<<printmoney `animalTfIncome(300000, 'waterdragon')`>>)" "gold">><<else>><<note "(<<printmoney `animalTfIncome(150000, 'waterdragon')`>>)" "gold">><</if>>
 		<br>
+		<<if !_dealPrices>>
+			<<socialiseicon>><<link [[Debate Harper's offer|Harper Water Dragon Egg Negotiate]]>><<set $waterDragonEggSale to "water_dragon_egg_pastel">><<set $phase to _knowsEggValue ? "waterDragonDebateKnown1" : "waterDragonDebateUnknown1">><</link>><<if _knowsEggValue>><<englishdifficulty 200 800>><<else>><<englishdifficulty 400 900>><</if>>
+			<br>
+		<</if>>
 	<</if>>
-	<<getouticon>><<link [[Refuse|Hospital Foyer]]>><<endevent>><</link>>
+	<br>
+	<<getouticon>><<link [[Refuse|Hospital Foyer]]>><<unset $waterDragonEggSale>><<unset $phase>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Harper Water Dragon Egg Negotiate
+<<set $outside to 0>><<set $location to "hospital">><<effects>><<speechresolve>>
+<<set _egg to $waterDragonEggSale>>
+<<set _knowsValue to ["waterDragonDebateKnown1", "waterDragonDebateKnown2", "waterDragonDebateKnown3"].includes($phase)>>
+<<if ["waterDragonDebateKnown3", "waterDragonDebateUnknown3"].includes($phase)>>
+	<<set _debateRound to 3>>
+<<elseif ["waterDragonDebateKnown2", "waterDragonDebateUnknown2"].includes($phase)>>
+	<<set _debateRound to 2>>
+<<else>>
+	<<set _debateRound to 1>>
+<</if>>
+<<set _debateSuccess to (_debateRound is 3) ? $englishtrait gte 8 : $englishSuccess>>
+<<if !_egg or !$foodstuff[_egg] or $foodstuff[_egg].amount lte 0>>
+	Harper waits, but you no longer have the egg you were discussing.
+	<br><br>
+	<<getouticon>><<link [[Return to the foyer|Hospital Foyer]]>><<unset $waterDragonEggSale>><<unset $phase>><<endevent>><</link>>
+<<elseif _debateSuccess>>
+	<<if _debateRound is 1 and _knowsValue>>
+		You point out that an intact egg from a species declared extinct cannot be priced like an unusual animal specimen.
+		Harper listens without interrupting as you explain how little chance <<he>> has of finding another.
+	<<elseif _debateRound is 1>>
+		You might not know what an extinct species' egg should sell for, but you know Harper wants this one badly.
+		You refuse to let <<him>> hide that behind a locked office door.
+	<<elseif _debateRound is 2>>
+		Harper argues that an unfertilised egg has limited value and that preserving it will be expensive.
+		You turn each point back on <<him>>. The research costs only matter because the discovery is unique,
+		and being the only buyer does not make <<his>> offer fair.
+	<<else>>
+		Harper retreats into clinical language, talking about custody, risk, and responsible acquisition.
+		You take <<his>> argument apart sentence by sentence, until every careful word leads back to the same fact:
+		<<he>> needs the egg, and you decide whether <<he>> gets it.
+	<</if>>
+	<br><br>
+	<<if _debateRound is 1>>
+		Harper exhales through <<his>> nose. "Very well. I can increase the offer."
+	<<elseif _debateRound is 2>>
+		Harper studies you for a long moment, then shakes <<his>> head. "That is the limit of what I can justify easily."
+	<<else>>
+		Harper's prepared reply dies before <<he>> can give it. <<He>> closes the case, recalculates,
+		and turns the screen towards you. "This is my final offer."
+	<</if>>
+	<br><br>
+	<span class="green">You win this phase of the debate. Harper's offer increases.</span>
+	<br>
+	<<if _egg is "water_dragon_egg_pastel">>
+		<<set _price to _debateRound is 3 ? 300000 : _debateRound is 2 ? 225000 : 180000>>
+	<<else>>
+		<<set _price to _debateRound is 3 ? 200000 : _debateRound is 2 ? 150000 : 120000>>
+	<</if>>
+	<<set _price to animalTfIncome(_price, "waterdragon")>>
+	<<foodstufficon _egg>><<link [[Accept Harper's offer|Harper Water Dragon Egg Sold]]>><<set $phase to "waterDragonEggPrice" + _debateRound>><</link>><<note "(<<printmoney _price>>)" "gold">>
+	<br>
+	<<if _debateRound is 1>>
+		<<socialiseicon>><<link [[Keep debating|Harper Water Dragon Egg Negotiate]]>><<set $phase to _knowsValue ? "waterDragonDebateKnown2" : "waterDragonDebateUnknown2">><</link>><<if _knowsValue>><<englishdifficulty 700 1400>><<else>><<englishdifficulty 900 1600>><</if>>
+		<br>
+	<<elseif _debateRound is 2>>
+		<<if $englishtrait gte 8>>
+			<<socialiseicon>><<link [[Press Harper one last time|Harper Water Dragon Egg Negotiate]]>><<set $phase to _knowsValue ? "waterDragonDebateKnown3" : "waterDragonDebateUnknown3">><</link>> | <span class="lustful">English: SSS Mastery</span>
+			<br>
+		<<else>>
+			<span class="red">Press Harper one last time</span><<if !$settings.blindStatsEnabled>> | <span class="lustful">English: SSS Mastery required</span><</if>>
+			<br>
+		<</if>>
+	<</if>>
+	<br>
+	<<getouticon>><<link [[Keep the egg|Hospital Foyer]]>><<unset $waterDragonEggSale>><<unset $phase>><<endevent>><</link>>
+<<else>>
+	<<if _debateRound is 1>>
+		You press Harper for a better price, but your argument loses its shape under <<his>> patient questions.
+		<<He>> waits until you run out of things to say, then repeats the original offer without changing a penny.
+	<<else>>
+		You push back against Harper's latest argument, but <<he>> catches each weak point and refuses to move any further.
+		The last increase remains on the table, but this phase of the debate is over.
+	<</if>>
+	<br><br>
+	<span class="red">You lose this phase of the debate.</span>
+	<br>
+	<<set _wonRounds to Math.max(0, _debateRound - 1)>>
+	<<if _egg is "water_dragon_egg_pastel">>
+		<<set _price to _wonRounds is 1 ? 180000 : _wonRounds is 2 ? 225000 : 150000>>
+	<<else>>
+		<<set _price to _wonRounds is 1 ? 120000 : _wonRounds is 2 ? 150000 : 100000>>
+	<</if>>
+	<<set _price to animalTfIncome(_price, "waterdragon")>>
+	<<foodstufficon _egg>><<link [[Accept Harper's offer|Harper Water Dragon Egg Sold]]>><<set $phase to _wonRounds ? "waterDragonEggPrice" + _wonRounds : "waterDragonEggPriceStandard">><</link>><<note "(<<printmoney _price>>)" "gold">>
+	<br>
+	<<getouticon>><<link [[Keep the egg|Hospital Foyer]]>><<unset $waterDragonEggSale>><<unset $phase>><<endevent>><</link>>
 <</if>>
 <br>
 
 :: Harper Water Dragon Egg Sold
-<<set $outside to 0>><<set $location to "hospital">><<effects>><<npc Harper>><<person1>>
+<<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<set _egg to $waterDragonEggSale>>
 <<if $waterDragonNest.harperDeal is 1>>
-	<<set _price to (_egg is "water_dragon_egg_pastel") ? 180000 : 60000>>
+	<<set _price to (_egg is "water_dragon_egg_pastel") ? 300000 : 200000>>
+<<elseif $phase is "waterDragonEggPrice3">>
+	<<set _price to (_egg is "water_dragon_egg_pastel") ? 300000 : 200000>>
+<<elseif $phase is "waterDragonEggPrice2">>
+	<<set _price to (_egg is "water_dragon_egg_pastel") ? 225000 : 150000>>
+<<elseif $phase is "waterDragonEggPrice1">>
+	<<set _price to (_egg is "water_dragon_egg_pastel") ? 180000 : 120000>>
 <<else>>
-	<<set _price to (_egg is "water_dragon_egg_pastel") ? 150000 : 50000>>
+	<<set _price to (_egg is "water_dragon_egg_pastel") ? 150000 : 100000>>
 <</if>>
+<<set _price to animalTfIncome(_price, "waterdragon")>>
 <<if !_egg or !$foodstuff[_egg] or $foodstuff[_egg].amount lte 0>>
 	Harper waits, but you have no egg to hand over.
 	<br><br>
-	<<getouticon>><<link [[Return to the foyer|Hospital Foyer]]>><<unset $waterDragonEggSale>><<endevent>><</link>>
+	<<getouticon>><<link [[Return to the foyer|Hospital Foyer]]>><<unset $waterDragonEggSale>><<unset $phase>><<endevent>><</link>>
 <<elseif $waterDragonNest.harperDeal is 1>>
 	<<set $foodstuff[_egg].amount -= 1>>
-	<<money _price "hospital">>
+	<<money _price "hospital" { divineTfAdjusted: true }>>
 	<<wearProp "waterdragon egg 1">>
 	Harper transfers the money, then carefully lifts the egg with both hands and places it inside the padded case.
 	<<if _egg is "water_dragon_egg_pastel">>
@@ -77,12 +192,13 @@
 	<</if>>
 	<br><br>
 	<<unset $waterDragonEggSale>>
+	<<unset $phase>>
 	<<getouticon>><<link [[Return to the foyer|Hospital Foyer]]>><<endevent>><</link>>
 <<else>>
 	<<set $foodstuff[_egg].amount -= 1>>
-	<<money _price "hospital">>
+	<<money _price "hospital" { divineTfAdjusted: true }>>
 	<<set _interest to (_egg is "water_dragon_egg_pastel") ? 2 : 1>>
-	<<set $waterDragonNest.harperInterest += _interest>>
+	<<set $waterDragonNest.harperInterest to Math.min(4, $waterDragonNest.harperInterest + _interest)>>
 	<<wearProp "waterdragon egg 1">>
 	Harper transfers the money before reaching for the egg. Once the payment goes through,
 	<<he>> puts on a pair of gloves, lifts the egg with both hands, then places it inside a padded case.
@@ -96,7 +212,21 @@
 	<<He>> looks up at you. "I assume you are not going to tell me how it was fertilised."
 	<br><br>
 	<<unset $waterDragonEggSale>>
-	<<if $waterDragonNest.harperInterest gte 4>>
+	<<unset $phase>>
+	<<if $waterDragonNest.harperInterest gte 4 and $worn.neck.name is "familiar collar">>
+		Harper closes the case and locks it.
+		"I need to examine you. I have no way of knowing what producing this egg has done to your body."
+		<br><br>
+		You step back. "I'm fine."
+		<br><br>
+		"Perhaps," <<he>> replies. "But I would rather make sure."
+		<br><br>
+		The lights above you start flashing in a slow pattern, and a quiet tone begins playing from somewhere in the room.
+		Your thoughts start to slip away, but the golden heart at your throat grows warm. Its light goes through your clothes,
+		and the tone warps into a shriek of static. Harper looks from you to the speaker, <<his>> composure gone.
+		<br>
+		<<link [[Next|Harper Water Dragon Familiar Collar]]>><<pass 5>><</link>>
+	<<elseif $waterDragonNest.harperInterest gte 4>>
 		Harper closes the case and locks it.
 		"I need to examine you. I have no way of knowing what producing this egg has done to your body."
 		<br><br>
@@ -123,6 +253,34 @@
 		<<getouticon>><<link [[Return to the foyer|Hospital Foyer]]>><<endevent>><</link>>
 	<</if>>
 <</if>>
+<br>
+
+:: Harper Water Dragon Familiar Collar
+<<set $outside to 0>><<set $location to "hospital">><<effects>>
+Harper turn off the lights and circles the desk. <<He>> pulls on a glove before reaching for your collar.
+<br><br>
+The instant <<his>> fingers touch the golden heart, it flashes green. Harper jerks <<his>> hand away.
+Every monitor in the office fills with broken lines, and the locked case makes a short warning sound.
+<br><br>
+"A persistent external bond," <<he>> mutters. "It's interfering with the suggestion pattern."
+<<He>> tries a different sequence on <<his>> computer. The heart flashes again, and the screen goes black.
+<br><br>
+Harper stares at your collar. Whatever <<he>> planned, <<he>> cannot separate your reactions from its influence.
+<br><br>
+<<link [[Next|Harper Water Dragon Familiar Collar Released]]>><</link>>
+<br>
+
+:: Harper Water Dragon Familiar Collar Released
+<<set $outside to 0>><<set $location to "hospital">><<effects>>
+Harper unlocks the office door.
+"This examination cannot proceed," <<he>> says. "Leave."
+<br><br>
+You hurry into the corridor before <<he>> changes <<his>> mind. The door shuts behind you, and the distorted tone finally stops.
+<br><br>
+<<set _rubbedNecklace to true>>
+You rub the golden heart on your familiar collar. You don't know how, but <span class="green">it saved you from Harper's plan.</span>
+<br>
+<<getouticon>><<link [[Return to the foyer|Hospital Foyer]]>><<endevent>><</link>>
 <br>
 
 :: Water Dragon Lab Intro
@@ -977,7 +1135,7 @@ Your legs shake when you try to move, so the nurse lowers them off the supports 
 :: Water Dragon Lab Treatment Session
 <<effects>><<endevent>>
 <<npc Harper>><<person1>>
-<<set $waterDragonLab.treatment += 1>><<set $waterDragonLab.compliance += 1>>
+<<set $waterDragonLab.treatment += 1>><<set $waterDragonLab.compliance += 2>>
 <<set $waterDragonLab.security to Math.max(0, $waterDragonLab.security - 1)>>
 <<switch $waterDragonLab.treatment % 6>>
 <<case 1>>
@@ -1145,7 +1303,7 @@ The struggle leaves your hands shaking. You keep them in fists until they stop. 
 :: Water Dragon Lab Assessment Response
 <<set $outside to 0>><<set $location to "hospital">><<effects>><<npc Harper>><<person1>>
 <<if $phase is "docile">>
-	<<set $waterDragonLab.compliance += 1>><<waterDragonLabConditioning 1>>
+	<<set $waterDragonLab.compliance += 2>><<waterDragonLabConditioning 1>>
 	You fold your hands in your lap and lower your eyes.
 	"The nest is warm," you say. "The eggs are important, and I feel calmer when I follow the schedule."
 	<br><br>
@@ -1245,8 +1403,8 @@ The struggle leaves your hands shaking. You keep them in fists until they stop. 
 <<npc Harper>><<person1>>
 <<set $waterDragonLab.brood += 1>>
 <<set $daily.waterDragonLabBroodCount to ($daily.waterDragonLabBroodCount || 0) + 1>>
-<<if $daily.waterDragonLabBroodCount gte 2>>
-	<<set $daily.waterDragonLabBroodDone to 1>>
+<<if $daily.waterDragonLabBroodCount gte 2 and $daily.waterDragonLabBroodDone isnot 1>>
+	<<set $daily.waterDragonLabBroodDone to 1>><<set $waterDragonLab.compliance += 2>>
 <</if>>
 
 <<switch $waterDragonLab.brood % 4>>
@@ -1287,7 +1445,7 @@ The struggle leaves your hands shaking. You keep them in fists until they stop. 
 <</if>>
 <br><br>
 <<if $daily.waterDragonLabBroodDone is 1 and $waterDragonLab.state is "brooding">>
-	<span class="green">Air escapes around the chamber door as the seal lets go. You have done enough for this block.</span>
+	<span class="green">Air escapes around the chamber door as the seal lets go. You have done enough for this block, and Harper records your cooperation.</span>
 	<br><br>
 <</if>>
 <<link [[Lift yourself away|Water Dragon Lab Brooding Chamber]]>><</link>>
@@ -2081,7 +2239,7 @@ Professor Elian Vale sits at the steel table with a folder shut under one hand. 
 <<endcombat>>
 <<if $waterDragonLab and $waterDragonLab.sampleRequest is 1>>
 	<<set $waterDragonLab.sampleRequest to 0>>
-	<<set $waterDragonLab.compliance += 2>>
+	<<set $waterDragonLab.compliance += 4>>
 	<br>
 	<span class="green">Harper logs the sample with visible satisfaction.</span>
 	<br>
