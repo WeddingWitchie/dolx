@@ -1201,10 +1201,19 @@ function dayPassed(days) {
 				V.harpyEggsPrevent--;
 				if (V.harpyEggsPrevent <= 0) delete V.harpyEggsPrevent;
 			}
-			if (V.waterDragonEggs && !playerIsPregnant()) V.waterDragonEggs.daysTillLaying--;
+			if (
+				V.waterDragonEggs &&
+				!(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) &&
+				!(V.waterDragonLab && V.waterDragonLab.active)
+			) {
+				delete V.waterDragonEggs;
+			} else if (V.waterDragonEggs && !playerIsPregnant()) {
+				V.waterDragonEggs.daysTillLaying--;
+			}
 			if (
 				!V.waterDragonEggs &&
 				V.settings.playerPregnancyEggLayingEnabled === true &&
+				(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) &&
 				!playerIsPregnant() &&
 				Transformations.effectiveLevel("waterdragon") >= 7
 			) {
