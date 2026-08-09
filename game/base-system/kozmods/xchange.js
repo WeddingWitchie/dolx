@@ -1590,7 +1590,7 @@ function xchangeEffectsMessages() {
 				br();
 				break;
 			case "withdrawal":
-				element("span", "Without anything fogging your head, your nerves feel restless.", "red");
+				element("span", "Your body has grown dependent on alcohol. While sober, withdrawal gradually increases your stress.", "red");
 				br();
 				break;
 			case "fading":
