@@ -590,6 +590,16 @@ function updateClothes() {
 }
 DefineMacro("updateClothes", updateClothes);
 
+function getAvailableWardrobeHomes(includeShared = false) {
+	if (!V.settings?.multipleWardrobes || !V.wardrobes) return [];
+	const homeLocations = ["wardrobe", "edensCabin", "alexFarm", "temple", "birdTower", "waterDragonNest"];
+	return homeLocations.filter(location => {
+		const wardrobe = V.wardrobes[location];
+		return wardrobe?.unlocked && (includeShared || V.settings.multipleWardrobes !== "isolated" || location === "wardrobe" || wardrobe.isolated);
+	});
+}
+window.getAvailableWardrobeHomes = getAvailableWardrobeHomes;
+
 function wardrobesUpdate() {
 	/* default wardrobe object */
 	const defWardrobe = {

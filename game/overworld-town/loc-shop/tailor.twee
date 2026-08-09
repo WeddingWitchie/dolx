@@ -261,6 +261,11 @@ You are in the tailor shop. It has cloth of various colours hanging on racks.
 			<</if>>
 			<br><br>
 
+			<<if getAvailableWardrobeHomes().length gt 1>>
+				<<socialiseicon "ask">><<link [[Ask the tailor about moving your clothes|Tailor Wardrobe Moving]]>><</link>>
+				<br><br>
+			<</if>>
+
 			<<if $sewingKit isnot 1 and $debug is 1>>
 				<<ind>><<link [[Approach the display cabinet|Tailor Shop Sewing Machine]]>><</link>>
 				<br><br>
@@ -407,6 +412,80 @@ currently with the deposit reducing the cost.
 The tailor picks up the crate and carries it into the back of the shop.
 <br><br>
 <<link [[Next|Tailor Shop]]>><<endevent>><</link>>
+
+:: Tailor Wardrobe Moving
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+<div id="wardrobe-moving-service">
+	<<if !$settings.multipleWardrobes>>
+		The tailor explains that there is no need for the service while all your wardrobes share the same storage.
+	<<else>>
+		<<set _homeLocations to getAvailableWardrobeHomes()>>
+		<<if _homeLocations.length lt 2>>
+			The tailor has nowhere else to send your clothes yet.
+		<<else>>
+			"We can collect all the clothes stored at your other homes and deliver them straight to one wardrobe," the tailor says. "It'll cost <<printprice 1000>>. Where are you moving to?"
+			<br><br>
+			<<set _targetWardrobe to _homeLocations[0]>>
+			<<set _locationMap to {}>>
+			<<run _homeLocations.forEach(location => _locationMap[$wardrobes[location].name] = location)>>
+			Destination:
+			<<listbox "_targetWardrobe" autoselect>>
+				<<optionsfrom _locationMap>>
+			<</listbox>>
+			<br><br>
+			<<if setup.inflation.canAfford(1000, "tailor")>>
+				<<set _moveCostText to formatMoney(setup.inflation ? setup.inflation.price(1000) : 1000)>>
+				<<set _moveLinkText to "Arrange the move (" + _moveCostText + ")">>
+				<<link _moveLinkText>>
+					<<set _homeLocations to getAvailableWardrobeHomes()>>
+					<<set _sourceLocations to getAvailableWardrobeHomes(true)>>
+					<<set _targetWardrobeObj to _targetWardrobe is "wardrobe" ? $wardrobe : $wardrobes[_targetWardrobe]>>
+					<<set _targetSpace to Number.isFinite(_targetWardrobeObj?.space) ? _targetWardrobeObj.space : 0>>
+					<<set _canMove to _homeLocations.includes(_targetWardrobe) and _targetSpace gt 0>>
+					<<set _movingCount to 0>>
+					<<for _slot range setup.clothes_all_slots>>
+						<<set _slotTotal to Array.isArray(_targetWardrobeObj?.[_slot]) ? _targetWardrobeObj[_slot].length : 0>>
+						<<for _source range _sourceLocations>>
+							<<if _source is _targetWardrobe>><<continue>><</if>>
+							<<set _sourceWardrobeObj to _source is "wardrobe" ? $wardrobe : $wardrobes[_source]>>
+							<<if Array.isArray(_sourceWardrobeObj?.[_slot])>>
+								<<set _slotTotal += _sourceWardrobeObj[_slot].length>>
+								<<set _movingCount += _sourceWardrobeObj[_slot].length>>
+							<</if>>
+						<</for>>
+						<<if _slotTotal gt _targetSpace>><<set _canMove to false>><</if>>
+					<</for>>
+
+					<<if !_canMove>>
+						<<replace "#wardrobe-moving-service">><span class="red">The tailor checks the details and tells you that wardrobe does not have enough room for all your clothes. You are not charged.</span><</replace>>
+					<<elseif _movingCount is 0>>
+						<<replace "#wardrobe-moving-service">>The tailor checks the addresses, but you have no clothes stored elsewhere to move. You are not charged.<</replace>>
+					<<elseif !setup.inflation.canAfford(1000, "tailor")>>
+						<<replace "#wardrobe-moving-service">><span class="red">You no longer have enough cash for the moving service. You are not charged.</span><</replace>>
+					<<else>>
+						<<money -1000 "tailor">>
+						<<for _source range _sourceLocations>>
+							<<if _source is _targetWardrobe>><<continue>><</if>>
+							<<set _sourceWardrobeObj to _source is "wardrobe" ? $wardrobe : $wardrobes[_source]>>
+							<<for _slot range setup.clothes_all_slots>>
+								<<if Array.isArray(_sourceWardrobeObj?.[_slot])>>
+									<<for _i = _sourceWardrobeObj[_slot].length; _i gt 0; _i-->>
+										<<run transferClothing(_slot, 0, _source, _targetWardrobe, { moveLinkedPieces: false })>>
+									<</for>>
+								<</if>>
+							<</for>>
+						<</for>>
+						<<replace "#wardrobe-moving-service">>The tailor makes a quick call. Your clothes are collected and delivered to the <<print $wardrobes[_targetWardrobe].name>> immediately.<</replace>>
+					<</if>>
+				<</link>>
+			<<else>>
+				<span class="red">You don't have enough cash for the moving service. (<<printprice 1000>>)</span>
+			<</if>>
+		<</if>>
+	<</if>>
+</div>
+<br>
+<<getouticon>><<link [[Back|Tailor Shop]]>><<endevent>><</link>>
 
 :: Fix Outfit
 	<<if $exposed gte 1>>

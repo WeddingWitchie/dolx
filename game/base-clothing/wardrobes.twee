@@ -522,15 +522,7 @@
 	<<if $settings.multipleWardrobes>>
 		<br><br>
 		<<set _targetWardrobe to "wardrobe">>
-		<<set _homeLocations to [
-			"wardrobe",
-			"edensCabin",
-			"alexFarm",
-			"temple",
-			"birdTower",
-			"waterDragonNest"
-		]>>
-		<<run _homeLocations.deleteWith(location => !$wardrobes[location]?.unlocked || $wardrobe_location === location)>>
+		<<set _homeLocations to getAvailableWardrobeHomes().filter(location => $wardrobe_location isnot location)>>
 		<<if _homeLocations.length gt 0>>
 			<<set _locationMap = {}>>
 			<<run _homeLocations.forEach(key => _locationMap[$wardrobes[key].name] = key)>>
@@ -544,11 +536,12 @@
 					<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
 					<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe)>>
 
-					<<for _slot range setup.clothingLayer.all>>
+					<<for _slot range setup.clothes_all_slots>>
 						<<capture _currentWardrobeObj, _slot>>
-							<<for _i, _item range _currentWardrobeObj[_slot]>>
-								<<if _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space>>
-									<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe)>>
+							<<if !Array.isArray(_currentWardrobeObj[_slot])>><<continue>><</if>>
+							<<for _i = _currentWardrobeObj[_slot].length; _i gt 0; _i-->>
+								<<if Number.isFinite(_targetWardrobeObj.space) and (!Array.isArray(_targetWardrobeObj[_slot]) or _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space)>>
+									<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe, { moveLinkedPieces: false })>>
 								<<else>>
 									<<break>>
 								<</if>>
