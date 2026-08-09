@@ -504,6 +504,46 @@ setup.pills = [
 		effects: [`<<pain -10>><<tiredness 18>><<llpain>><<gggtiredness>>`],
 	},
 	{
+		name: "Calmoryl",
+		description: "A fast-acting trauma suppressant. One tablet dulls the weight of distress, but repeated doses interfere with perception and memory.",
+		onTakeMessage() {
+			const doses = Number(T.calmorylDose) || this.doseTaken();
+			if (doses === 1) return "You swallow a Calmoryl tablet. The worst of the tension soon feels more distant.";
+			if (doses === 2) return "You take a second Calmoryl. Your stomach turns and your thoughts become sluggish as the medicine settles in.";
+			if (doses === 3) return "You take a third Calmoryl. The room seems to slip away from you, everything becoming distant and unreal.";
+			return "You swallow another Calmoryl. The distance between you and the world deepens.";
+		},
+		warning_label:
+			"Warning: Take no more than one tablet per day. A second dose causes adverse effects. Three or more doses cause uncontrollable temporary dissociation, which is prolonged by every further dose. Five or more doses cause loss of consciousness.",
+		indicators: ["<span class='hpi_indic_green'>--- Trauma</span>", "<span class='hpi_indic_green'>- Stress</span>"],
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_doseTaken() {
+			return `${this.doseTaken()}\u00A0taken`;
+		},
+		type: "calmoryl",
+		subtype: "trauma suppressant",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/pill.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return 1;
+		},
+		effects: [() => `<<run takeCalmoryl()>>`],
+	},
+	{
 		name: "asylum's prescription",
 		description: "A powerful antipsychotic.",
 		onTakeMessage: "You take the pills prescribed in the asylum. You feel hazy.",
@@ -774,7 +814,7 @@ function initPillContextButtons(item) {
 	}
 
 	// Hide auto-use for medication that must be taken manually.
-	if (["asylum", "harper", "painkiller", "sensitivity"].includes(item.type)) {
+	if (["asylum", "harper", "painkiller", "calmoryl", "sensitivity"].includes(item.type)) {
 		document.getElementById("hpi_take_every_morning").className = "hidden"; // prevent 'Take every Morning' option to be displayed for those type of pills
 		document.getElementById("hpi_take_pills").classList.add("hpi_take_me_single"); // readapt css since there's only one button now
 	}
@@ -893,7 +933,7 @@ function onTakeClick(itemName) {
 				Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
 			V.sexStats.pills.lastTaken[item.type] = item.subtype; // keep track of the category of pill we last took
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
-			if (item.doseTaken() > 1 && !item.name.includes("blocker")) {
+			if ((item.type === "calmoryl" ? Number(T.calmorylDose) > 1 : item.doseTaken() > 1) && !item.name.includes("blocker")) {
 				switch (item.type) {
 					case "parasite":
 					case "hair":
@@ -901,6 +941,12 @@ function onTakeClick(itemName) {
 					case "painkiller":
 						if (item.doseTaken() > 3) {
 							Engine.play("PillCollectionPainkillerOverdose");
+							return;
+						}
+						break;
+					case "calmoryl":
+						if (Number(T.calmorylDose) >= 5) {
+							Engine.play("PillCollectionCalmorylPassOut");
 							return;
 						}
 						break;
@@ -918,6 +964,8 @@ function onTakeClick(itemName) {
 			/* Temporary therapy and permanent X-Change purity neutralise the pill while still recording its consumption. */
 			V.lastPillTakenDescription = xchangePillNeutralised(item)
 				? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
+				: typeof item.onTakeMessage === "function"
+				? item.onTakeMessage()
 				: item.onTakeMessage;
 		}
 	}
@@ -960,6 +1008,8 @@ function onTakeClickSilent(itemName) {
 			/* Temporary therapy and permanent X-Change purity neutralise the pill while still recording its consumption. */
 			V.lastPillTakenDescription = xchangePillNeutralised(item)
 				? "You swallow the pill, but it dissolves to nothing. Your resistance neutralises it before it can take hold, and your body stays exactly as it is."
+				: typeof item.onTakeMessage === "function"
+				? item.onTakeMessage()
 				: item.onTakeMessage;
 
 			/* Reuse original daily notice path */
@@ -972,6 +1022,78 @@ function onTakeClickSilent(itemName) {
 	return false;
 }
 window.onTakeClickSilent = onTakeClickSilent;
+
+function getCalmorylEffect() {
+	if ((!V.calmoryl || typeof V.calmoryl !== "object") && V.calmorylDissociationUntil !== undefined) {
+		const legacyEndsAt = Number(V.calmorylDissociationUntil);
+		delete V.calmorylDissociationUntil;
+		if (Number.isFinite(legacyEndsAt) && legacyEndsAt > V.timeStamp) {
+			const dailyDoses = Number(V.sexStats?.pills?.pills?.Calmoryl?.doseTaken) || 0;
+			V.calmoryl = { endsAt: legacyEndsAt, doses: Math.max(3, dailyDoses) };
+		}
+	} else if (V.calmorylDissociationUntil !== undefined) {
+		delete V.calmorylDissociationUntil;
+	}
+
+	const effect = V.calmoryl;
+	if (!effect || typeof effect !== "object" || !Number.isFinite(Number(effect.endsAt)) || !Number.isFinite(Number(effect.doses))) return null;
+	effect.endsAt = Number(effect.endsAt);
+	effect.doses = Math.max(3, Math.floor(Number(effect.doses)));
+	return effect;
+}
+window.getCalmorylEffect = getCalmorylEffect;
+
+function calmorylDissociationActive() {
+	const effect = getCalmorylEffect();
+	return !!effect && effect.endsAt > V.timeStamp;
+}
+window.calmorylDissociationActive = calmorylDissociationActive;
+
+function calmorylDissociationRemainingHours() {
+	const effect = getCalmorylEffect();
+	return effect && effect.endsAt > V.timeStamp ? Math.ceil((effect.endsAt - V.timeStamp) / 3600) : 0;
+}
+window.calmorylDissociationRemainingHours = calmorylDissociationRemainingHours;
+
+function updateCalmorylDissociation() {
+	const effect = getCalmorylEffect();
+	if (effect && effect.endsAt > V.timeStamp) {
+		V.dissociation = 2;
+		return;
+	}
+	if (V.calmoryl !== undefined) {
+		delete V.calmoryl;
+		statChange.updatePlayerTraumaState();
+	}
+}
+window.updateCalmorylDissociation = updateCalmorylDissociation;
+
+function takeCalmoryl() {
+	const record = V.sexStats?.pills?.pills?.Calmoryl;
+	if (!record) return;
+
+	V.trauma *= 0.7;
+	statChange.trauma(0);
+	statChange.stress(-3);
+
+	const currentEffect = getCalmorylEffect();
+	const activeEffect = currentEffect && currentEffect.endsAt > V.timeStamp ? currentEffect : null;
+	const doses = activeEffect ? activeEffect.doses + 1 : Number(record.doseTaken) || 0;
+	T.calmorylDose = doses;
+	if (doses >= 2) {
+		statChange.tiredness(doses === 2 ? 10 : 18);
+		statChange.awareness(doses === 2 ? -1 : -2);
+	}
+
+	if (doses >= 3) {
+		V.calmoryl = {
+			endsAt: Math.max(activeEffect ? activeEffect.endsAt : 0, V.timeStamp) + 3 * 3600,
+			doses,
+		};
+		V.dissociation = 2;
+	}
+}
+window.takeCalmoryl = takeCalmoryl;
 
 function autoTakeDailyPills() {
 	if (!setup?.pills || !V.sexStats?.pills?.pills) return;

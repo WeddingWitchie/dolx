@@ -1,4 +1,4 @@
-/* global statDisplay chastityConsensual */
+/* global statDisplay chastityConsensual calmorylDissociationActive */
 
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -329,6 +329,10 @@ const statChange = (() => {
 		// the trait merely guarantees mild dissociation and full paralysis must come from real trauma, so insane players aren't helpless for entire encounters.
 		if (V.backgroundTraits?.includes("insanity")) {
 			V.dissociation = V.combat === 1 && V.insanityDissociationLucid ? Math.max(V.dissociation, 1) : 2;
+		}
+
+		if (typeof calmorylDissociationActive === "function" && calmorylDissociationActive()) {
+			V.dissociation = 2;
 		}
 	}
 	DefineMacro("updatePlayerTraumaState", updatePlayerTraumaState);
