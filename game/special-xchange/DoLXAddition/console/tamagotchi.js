@@ -208,8 +208,9 @@ const Tamagotchi = (() => {
 	const islandArcAway = () => {
 		if (typeof V === "undefined") return false;
 		if (AWAY_LOCATIONS.includes(V.location)) return true;
-		/* Mid-crossing. A non-zero journey counter only counts as away at sea, so a stale value can't strand coverage. */
-		return (V.waterdragonJourneyDay || 0) !== 0 && V.location === "sea";
+		/* Mid-crossing. Outbound travel begins from seabeach while already at maximum sea depth;
+		 * the return trip uses the sea location directly. Requiring either keeps a stale counter harmless on land. */
+		return (V.waterdragonJourneyDay || 0) !== 0 && (V.location === "sea" || V.sea >= 100);
 	};
 	/* The absence window still covers a pet that hasn't ticked past it (its lastTick predates the last away stamp). */
 	const islandAbsenceCovers = t => {
@@ -321,6 +322,9 @@ const Tamagotchi = (() => {
 		delete V.petBackup;
 		delete V.petBackups;
 		delete V.petBattle;
+		delete V.petDungeon;
+		delete V.petRobinSitting;
+		delete V.petIslandAbsence;
 		return V.tamagotchi;
 	}
 
@@ -424,8 +428,9 @@ const Tamagotchi = (() => {
 	}
 	/* True once the player is back from a bad end Robin sat through, so the homecoming event can fire. */
 	function robinRescuePending() {
+		if (typeof V === "undefined" || V.petRobinSitting !== true || !exists()) return false;
 		sync();
-		return exists() && isAlive() && typeof V !== "undefined" && V.petRobinSitting === true && !badEndActive() && !islandArcAway();
+		return isAlive() && V.petRobinSitting === true && !badEndActive() && !islandArcAway();
 	}
 	/* Acknowledge the homecoming: clear the flag and, if the pet had evolved, grant a dungeon key. */
 	function claimRobinRescue() {
@@ -545,7 +550,10 @@ const Tamagotchi = (() => {
 		if (exists()) syncPet(V.tamagotchi, true);
 		for (const pet of backupList()) syncPet(pet, false);
 		pruneIslandAbsence();
-		if (!isAlive()) delete V.petBattle;
+		if (!isAlive()) {
+			delete V.petBattle;
+			delete V.petDungeon;
+		}
 	}
 
 	function isSleeping() {
@@ -1083,6 +1091,15 @@ const Tamagotchi = (() => {
 					benchPet.energy = clamp(25);
 					benchPet.happiness = clamp(45);
 					benchPet.lastTick = now();
+					/* This was the pet the defeated enemy originally attacked. Resolve its threat too,
+					 * or switching it back in immediately resurrects the same encounter. */
+					if (kind === "boss") {
+						benchPet.lastBossMonth = monthKey();
+						benchPet.bossPending = false;
+						benchPet.bossDeadline = 0;
+					} else if (kind !== "dungeon") {
+						benchPet.nextAttackDay = dayNum() + Tuning.attackIntervalDays;
+					}
 				}
 				summary.teammateRevived = true;
 			}
@@ -1416,6 +1433,9 @@ const Tamagotchi = (() => {
 			delete V.petBackup;
 			delete V.petBackups;
 			delete V.petBattle;
+			delete V.petDungeon;
+			delete V.petRobinSitting;
+			delete V.petIslandAbsence;
 		}
 	}
 	/* Promote the benched pet to active (used when the active pet dies but a teammate survives). */
@@ -1495,18 +1515,15 @@ const Tamagotchi = (() => {
 	}
 
 	/* Stamp the island-arc absence window on every passage while the player is away, so the pet's next sync
-	 * (usually the one big catch-up after coming home) can tell the absence was covered. Off the island, also
-	 * clears a journey counter left stale by an aborted crossing (e.g. washed ashore mid-combat), which would
-	 * otherwise flag every later deep-sea swim as an island absence. */
+	 * (usually the one big catch-up after coming home) can tell the absence was covered. */
 	if (typeof jQuery !== "undefined") {
 		jQuery(document).on(":passagedisplay", () => {
 			if (typeof V === "undefined") return;
+			/* Do nothing for saves that have never used the virtual pet game. */
+			if (!exists() && !(Array.isArray(V.petBackups) && V.petBackups.length) && !(V.petBackup && typeof V.petBackup === "object")) return;
 			if (islandArcAway()) {
 				if (V.petIslandAbsence && typeof V.petIslandAbsence === "object") V.petIslandAbsence.last = now();
 				else V.petIslandAbsence = { start: now(), last: now() };
-			} else if ((V.waterdragonJourneyDay || 0) !== 0) {
-				/* Not away, so the player is on land: the counter can only be a leftover from an aborted crossing. */
-				V.waterdragonJourneyDay = 0;
 			}
 		});
 	}
