@@ -18,6 +18,8 @@ monoski1
 linnnn
 supervamp78
 
+YU-NO_ A Girl Who Chants Love at the Bound of this World backgrounds ripped by buddludd: https://www.spriters-resource.com/
+
 While there are 300 slots that can be used in this version (instructions are provided within the mod's menu itself -  click the blue question mark in the menu), only a few of the slots are filled out to start with. Either with a blank or with an actual image. Gotta conserve server space. If you see a red exclamation mark after selecting an image slot, that just means there's no image in that particular slot. So you can just clear the error or replace the slot with your own image.
 
 If you see your art in here and you'd like to be either be credited or have the art removed, please notify me (J-Side) via Discord. Pretty sure I tracked down and contacted everyone who's art is in here, but I may have missed someone, so... just in case.

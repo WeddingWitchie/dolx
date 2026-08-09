@@ -1129,7 +1129,7 @@ function settingsObjects(type) {
 					},
 					bodyshape: {
 						strings: ["classic", "slender", "curvy", "soft"],
-						textMap: { classic: "Classic", slender: "Slender", curvy: "Curvy", soft: "Soft" },
+						textMap: { classic: "Classic", slender: "Androgynous", curvy: "Curvy", soft: "Soft" },
 						displayName: "Body shape:",
 						randomize: "characterAppearance",
 					},

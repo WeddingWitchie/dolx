@@ -278,6 +278,12 @@ Tauuki: background1 (63-155, by pixelberry and various game assets)
 
 Ursulaskiss: modded 12
 
+Ely: modded 23 and 26
+
+vvya: Androgynous body; modded 24 and 25
+
+Rei: fro fringe
+
 Vipi: teddy backpack, jasper pendant, default demon horns, 
 
 Washabi: low tails side, oversized girl sweater, plaid school skirt
