@@ -2430,8 +2430,8 @@ function dailyPlayerEffects() {
 	}
 
 	if (V.whitneyRing === true && V.worn?.rings?.name === "initialled gemstone ring") {
-		if (V.combat === 1) statChange.trauma(-2, "combat");
-		else statChange.trauma(-2);
+		V.trauma *= 0.9;
+		statChange.trauma(0, V.combat === 1 ? "combat" : undefined);
 	}
 }
 
