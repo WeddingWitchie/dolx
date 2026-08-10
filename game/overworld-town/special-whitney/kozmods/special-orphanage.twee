@@ -677,30 +677,9 @@ Then <<he>> turns and starts toward the door. Just as <<he>> reaches it and grab
 /* RNG roll */
 <<set _roll to random(1,100)>>
 
-/* Build both Choice Reversal keys */
-<<set _variantF to "(F)">>
-<<set _variantM to "(M)">>
-<<set _choiceF to "X-Change Choice Reversal " + _variantF>>
-<<set _choiceM to "X-Change Choice Reversal " + _variantM>>
-
-/* Decide which Choice Reversal would be valid/visible for the current PC
-   Based on definitions:
-   - (F) shows when player.gender !== "f"
-   - (M) shows when player.gender !== "m"
-   - both require V.xchange.pill.choiceEffect */
+/* A Choice Reversal follows the body the Choice pill replaced, not the player's identity. */
 <<set _choiceValid to V.xchange.pill.choiceEffect>>
-<<set _choiceKey to "">>
-
-<<if _choiceValid>>
-	<<if V.player.gender is "m">>
-		<<set _choiceKey to _choiceF>>
-	<<elseif V.player.gender is "f">>
-		<<set _choiceKey to _choiceM>>
-	<<else>>
-		/* fallback if gender is something unexpected */
-		<<set _choiceKey to _choiceF>>
-	<</if>>
-<</if>>
+<<set _choiceKey to _choiceValid ? ((($xchange.pill.originalBody?.sex || $player.sex) is "m") ? "X-Change Choice Reversal (F)" : "X-Change Choice Reversal (M)") : "">>
 
 /* Build SWP Anti pill candidates */
 <<set _antiKeys to Object.keys($sexStats.pills["pills"]).filter(k => k.startsWith("SWP Anti-") && k.endsWith(" Pill"))>>
@@ -711,7 +690,7 @@ Then <<he>> turns and starts toward the door. Just as <<he>> reaches it and grab
 <<if _choiceValid and _roll lte 20>>
 	<<set _giftKey to _choiceKey>>
 <<else>>
-	<<set _giftKey to (_antiKeys.length gt 0) ? _antiKeys[random(0, _antiKeys.length - 1)] : _choiceF>>
+	<<set _giftKey to (_antiKeys.length gt 0) ? _antiKeys[random(0, _antiKeys.length - 1)] : "X-Change Choice Reversal (F)">>
 <</if>>
 
 /* Ensure entry exists (important for some saves/builds) */

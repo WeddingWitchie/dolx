@@ -24,30 +24,38 @@
 	"Innocence for the mind. Cure for the body. Swallow it. Purity must come before punishment."
 <</if>>
 <br><br>
-<<link [[Swallow the pill|Sydney Temple Pill Atonement]]>><<temple-purity-pill 7>><</link>>
+<<link [[Swallow the pill|Sydney Temple Pill Atonement]]>><</link>>
 <br>
 
 :: Sydney Temple Pill Atonement
 <<effects>>
-The pill dissolves almost as soon as it touches your tongue. 
-A cool, pearly numbness spreads behind your eyes, softening each thought before it can fully form.
-<br><br>
-<span class="pink">Your innocence is forced back into place.</span>
-The second effect follows deeper. It twists through your body, seeking out every lewd trace left behind and scouring it away.
-<br><br>
-<<if $templePromised is "Sydney">>
-	Sydney catches you before your knees can weaken.
-	<<if _sydneyStatus.includes("corrupt")>>
-		"Still with me?" <<he>> asks, voice low. <<His>> fingers dig into your arm. "Don't drift off before they even start."
+<<set _templePillBlocked to xchangePillProtectionActive()>><<temple-purity-pill 7>>
+<<if !_templePillBlocked and $xchange.pill.innocenceEffect and $xchange.pill.cumcureEffect>>
+	The pill dissolves almost as soon as it touches your tongue.
+	A cool, pearly numbness spreads behind your eyes, softening each thought before it can fully form.
+	<br><br>
+	<span class="pink">Your innocence is forced back into place.</span>
+	The second effect follows deeper. It twists through your body, seeking out every lewd trace left behind and scouring it away.
+	<br><br>
+	<<if $templePromised is "Sydney">>
+		Sydney catches you before your knees can weaken.
+		<<if _sydneyStatus.includes("corrupt")>>
+			"Still with me?" <<he>> asks, voice low. <<His>> fingers dig into your arm. "Don't drift off before they even start."
+		<<else>>
+			"It's okay," <<he>> whispers, though <<his>> voice trembles. "We'll be pure again.
+			We'll make our promise mean something again."
+		<</if>>
+		<br><br>
+		Jordan watches the two of you in silence before nodding. "Your bond is wounded, not severed. Guard it better."
+		<br><br>
 	<<else>>
-		"It's okay," <<he>> whispers, though <<his>> voice trembles. "We'll be pure again. 
-        We'll make our promise mean something again."
+		Jordan watches until your breathing steadies. "Good. Now the rest of your atonement may begin."
+		<br><br>
 	<</if>>
-	<br><br>
-	Jordan watches the two of you in silence before nodding. "Your bond is wounded, not severed. Guard it better."
-	<br><br>
 <<else>>
-	Jordan watches until your breathing steadies. "Good. Now the rest of your atonement may begin."
+	The pill dissolves, but the cleansing warmth dies before it can spread. <span class="blue">Your resistance neutralises it, leaving your thoughts and body unchanged.</span>
+	<br><br>
+	Jordan's expression hardens. "The dose was taken. We will proceed."
 	<br><br>
 <</if>>
 <<link [[Next|Sydney Temple Punish Intro]]>><<endevent>><</link>>
@@ -56,18 +64,25 @@ The second effect follows deeper. It twists through your body, seeking out every
 :: Temple Pill Atonement
 <<endevent>><<effects>><<pass 5>>
 <<generateConfessor 1>><<person1>><<generateConfessor 2>><<generateConfessor 3>>
-The pill sits cold on your tongue, then dissolves with impossible speed. 
-A clean, dizzy warmth slides down your throat and blooms behind your eyes.
-<br><br>
-<span class="pink">Your thoughts soften at the edges.</span>
-Shame, fear, lust, and memory are wrapped in cotton-white silence. 
-You can still think, but every thought feels smaller. Quieter. Easier to fold into obedience.
-<br><br>
-Beneath it, another sensation stirs. 
-A clinical pull moves deep inside your body, searching for every trace of lewdness left within you. 
-The temple's mercy does not spare you from punishment. It prepares you for it.
-<br><br>
-The <<person1>><<monk>> watches until your breathing steadies. "Good. Now we may begin."
+<<set _templePillBlocked to xchangePillProtectionActive()>><<temple-purity-pill 7>>
+<<if !_templePillBlocked and $xchange.pill.innocenceEffect and $xchange.pill.cumcureEffect>>
+	The pill sits cold on your tongue, then dissolves with impossible speed.
+	A clean, dizzy warmth slides down your throat and blooms behind your eyes.
+	<br><br>
+	<span class="pink">Your thoughts soften at the edges.</span>
+	Shame, fear, lust, and memory are wrapped in cotton-white silence.
+	You can still think, but every thought feels smaller. Quieter. Easier to fold into obedience.
+	<br><br>
+	Beneath it, another sensation stirs.
+	A clinical pull moves deep inside your body, searching for every trace of lewdness left within you.
+	The temple's mercy does not spare you from punishment. It prepares you for it.
+	<br><br>
+	The <<person1>><<monk>> watches until your breathing steadies. "Good. Now we may begin."
+<<else>>
+	The pill dissolves, but its warmth fades at once. <span class="blue">Your resistance neutralises it, leaving your thoughts and body unchanged.</span>
+	<br><br>
+	The <<person1>><<monk>> frowns. "The dose was taken. We proceed."
+<</if>>
 <br><br>
 <<link [[Next|Temple Arcade Submit]]>><</link>>
 <br>
@@ -78,7 +93,9 @@ The <<person1>><<monk>> watches until your breathing steadies. "Good. Now we may
 	/* args[0]: duration in days */
 	<<set _days to _args[0] ?? 3>>
 	<<set _durationHours to _days * 24 - 1>>
-	<<if playerIsXChanged()>>
+	<<if xchangePillProtectionActive()>>
+		<<silently>><<xchange-effects _days []>><</silently>>
+	<<elseif playerIsXChanged()>>
 		<<if !pillIsPermanent()>>
 			<<set $xchange.pill.duration to Math.max($xchange.pill.duration || 0, _durationHours)>>
 			<<set $xchange.pill.countdown to Math.max($xchange.pill.countdown || 0, $xchange.pill.duration)>>
