@@ -1247,13 +1247,20 @@ function clothesReturnLocation(item, type) {
 }
 window.clothesReturnLocation = clothesReturnLocation;
 
+/* Only the upper layers track a separate top edge in .state_top; everything else has a single hem in .state */
+function slotUsesStateTop(slot) {
+	return typeof slot === "string" && slot.includes("upper");
+}
+window.slotUsesStateTop = slotUsesStateTop;
+
 function resetClothingState(slot) {
 	if (!slot || slot === "genitals") return;
-	const setupItem = setup.clothes[slot][clothesIndex(slot, V.worn[slot])];
+	const setupItem = wornSetupClothes(slot);
 	// Set the following properties of $worn[slot] to whatever the setupItem defines, clearing any that it doesn't.
 	//
-	// Note that no single item actually has ALL of these properties; a freshly-worn item that's missing one (e.g. third-party mod clothes with no state_top_base) must not inherit that property's value from whatever was worn in this slot before it,
+	// Note that no single item actually has ALL of these properties; a freshly-worn item that's missing one must not inherit that property's value from whatever was worn in this slot before it,
 	// or combat's clothes-pulling state machine reads leftover state from the previous garment (e.g. a stray state_top making a skirt behave like a top, looping the "pulls it down past your midriff" text forever instead of ever finishing).
+	// The *_base fields are only ever kept on the catalogue entry (clothesDataTrimmer strips them from worn/stored copies), and clothingDataInit guarantees every catalogue entry has them, mod-added ones included.
 	const stateFields = ["state", "state_top", "exposed", "skirt_down", "vagina_exposed", "anus_exposed"];
 	for (const field of stateFields) delete V.worn[slot][field];
 	V.worn[slot] = {
@@ -1261,7 +1268,7 @@ function resetClothingState(slot) {
 		...Object.fromEntries(
 			Object.entries({
 				state: setupItem.state_base,
-				state_top: setupItem.state_top_base,
+				state_top: slotUsesStateTop(slot) ? setupItem.state_top_base : undefined,
 				exposed: setupItem.exposed_base,
 				skirt_down: setupItem.skirt_down,
 				vagina_exposed: setupItem.vagina_exposed_base,

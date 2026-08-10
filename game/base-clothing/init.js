@@ -1,5 +1,32 @@
 /* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initEarrings, initRings, initLegs, initFeet, initSpecialClothes, initProps, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
 
+/*
+Modded clothes are added to `setup.clothes` through `setup.moddedClothes`.
+Many mods create these items by copying an existing plain object instead of using `new ClothesItem`.
+Because of that, some constructor-generated fields can be missing, especially the `*_base`
+fields that store the garment's normal, undisturbed state.
+
+This causes problems because `clothesDataTrimmer` removes those fields from worn and stored clothing,
+so the game later expects to restore them from the catalogue entry. If the catalogue item is also missing them,
+resetting the garment can make its sprite resolve to `undefined.png`, making it appear to vanish.
+Clothing-position checks can also end up comparing values against `undefined`.
+
+Running modded entries through the `ClothesItem` constructor fills in the missing defaults so they
+behave like normal catalogue clothing.
+
+The generated values are assigned back onto the original object rather than replacing it,
+so `setup.moddedClothes` keeps referencing the same item.
+*/
+function normaliseClothesCatalogue() {
+	Object.keys(setup.clothes).forEach(slot => {
+		setup.clothes[slot].forEach(item => {
+			if (!item || item instanceof ClothesItem || !item.slot) return;
+			Object.assign(item, new ClothesItem(item));
+		});
+	});
+}
+window.normaliseClothesCatalogue = normaliseClothesCatalogue;
+
 function clothingDataInit() {
 	setup.clothes = {};
 	setup.moddedClothes = {};
@@ -22,6 +49,8 @@ function clothingDataInit() {
 	initFeet();
 	initSpecialClothes();
 	initProps();
+
+	normaliseClothesCatalogue();
 
 	setup.clothes_all_slots = [
 		"over_upper",
