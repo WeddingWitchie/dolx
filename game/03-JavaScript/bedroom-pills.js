@@ -777,10 +777,10 @@ function onHomePillItemClick(itemName) {
 					${item.description}
 					<div class="hpi_warning_label">${item.warning_label}</div>
 					<div id="hpi_desc_action">
-						<div>
+						<div class="hpi_action_cell">
 							<a id="hpi_take_pills" onclick="window.onTakeClick(${itemName}, ${itemType})">Take pill</a>
 						</div>
-						<div>
+						<div class="hpi_action_cell">
 							<a id="hpi_take_every_morning" onclick="window.onAutoTakeClick(${itemName}, ${itemType})">Take every morning</a>
 						</div>
 					</div>
@@ -816,7 +816,7 @@ function initPillContextButtons(item) {
 	// Hide auto-use for medication that must be taken manually.
 	if (["asylum", "harper", "painkiller", "calmoryl", "sensitivity"].includes(item.type)) {
 		document.getElementById("hpi_take_every_morning").className = "hidden"; // prevent 'Take every Morning' option to be displayed for those type of pills
-		document.getElementById("hpi_take_pills").classList.add("hpi_take_me_single"); // readapt css since there's only one button now
+		document.getElementById("hpi_desc_action").classList.add("hpi_action_single"); // readapt css since there's only one button now
 	}
 	//  Add 'Take pill' button
 	document.getElementById("hpi_take_pills").innerHTML = item.hpi_take_pills ? item.hpi_take_pills() : "Take pill";
