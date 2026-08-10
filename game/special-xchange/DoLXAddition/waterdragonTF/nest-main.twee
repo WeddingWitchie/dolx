@@ -37,6 +37,9 @@ The last egg comes to rest in the sea grass, bigger than both of your hands toge
 	child.localVariables.dragonNest = true;
 })>>
 <<set $waterDragonNest.eggsLaid += $dragonEggIds.length>>
+/* Laying a fertilised clutch restarts the unfertilised cycle, the same way the plain laying scenes do.
+   Without this the old timer is still sitting at or below zero and the next sleep demands another egg. */
+<<set $waterDragonEggs to {count: 1, daysTillLaying: random(($waterDragonIncubatorTrait ? 12 : 23), ($waterDragonIncubatorTrait ? 18 : 30))}>>
 <<unset $dragonEggIds>><<unset $waterDragonBirthContext>><<unset $birth>><<endcombat>>
 <br><br>
 The marks around the eggs slow down to a steady, even glow. The eggs are safe where they are, and when they hatch the children will carry their human parent's blood and yours together.
@@ -67,7 +70,9 @@ The old route through the cliff is still here. Blue marks lead away from the ent
 
 :: Water Dragon Hidden Cave
 <<location "coastpath">><<set $outside to 0>><<effects>>
-<<if effectiveTransformationLevel("waterdragon") lt 7>>
+/* Discovery is proof the PC was once a real water dragon, and hatchlings live at the nest, so a
+   finished nest stays reachable after the transformation is gone. Only the first way in needs the blood. */
+<<if !isFullWaterDragon() and !$waterDragonNest?.discovered>>
 	The grass parts around a shallow cleft, but the deeper opening will not reveal itself.
 	Whatever once guided you through no longer answers your blood.
 	<br><br>
@@ -148,7 +153,7 @@ You need to start from the cliffs above.
 
 :: Water Dragon Nest
 <<location "beach">><<set $outside to 0>><<effects>>
-<<if effectiveTransformationLevel("waterdragon") lt 7>>
+<<if !isFullWaterDragon() and !$waterDragonNest?.discovered>>
 	The markings around the doorway stay dark. You push against the old door, but it does not move.
 	Whatever opened the way through the cave before is no longer working.
 	<br><br>

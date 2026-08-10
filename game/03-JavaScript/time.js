@@ -1203,7 +1203,7 @@ function dayPassed(days) {
 			}
 			if (
 				V.waterDragonEggs &&
-				!(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) &&
+				(!(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) || !Transformations.isFullWaterDragon()) &&
 				!(V.waterDragonLab && V.waterDragonLab.active)
 			) {
 				delete V.waterDragonEggs;
@@ -1215,7 +1215,7 @@ function dayPassed(days) {
 				V.settings.playerPregnancyEggLayingEnabled === true &&
 				(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) &&
 				!playerIsPregnant() &&
-				Transformations.effectiveLevel("waterdragon") >= 7
+				Transformations.isFullWaterDragon()
 			) {
 				V.waterDragonEggs = {
 					count: 1,

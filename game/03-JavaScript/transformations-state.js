@@ -172,11 +172,24 @@ class Transformations {
 		return this.effectiveLevel("angel") >= 4 && V.angelBanish >= 1;
 	}
 
+	/* --- Real water dragon body -------------------------------------------------------
+	   effectiveLevel("waterdragon") reaches 7 from a visible part alone, because the level table maps the tail to 7.
+	   That is right for anything the world can see (NPC reactions, nicknames, the mirror) but wrong for the reproductive system.
+	   $waterdragonCosmeticUnlocked survives a genome dump, so a PC with zero transformation points can switch the horns, ears
+	   and tail back on in the mirror as pure cosmetics, and an imported save can arrive with a part value this build does not recognise.
+	   
+	   Either way the PC would start producing eggs, and a plain human birth would be hijacked by the nesting instinct at the hospital.
+	   Egg laying, dragon labour and the nest therefore key off this instead: the parts must be
+	   backed by actual transformation progress ($waterdragon 6 grows the tail, 7 sets $waterdragontf). */
+	static isFullWaterDragon() {
+		if (this.effectiveLevel("waterdragon") < 7) return false;
+		return V.waterdragontf === 1 || (Number(V.waterdragon) || 0) >= 6;
+	}
+
 	/* --- Bakunawa blood moon resonance ------------------------------------------------
 	   The bakunawa is the moon-devouring serpent, so the chimera only stirs while the moon runs red.
 	   $forcedBloodmoon is included so scripted blood moons (the wraith nightmare) count like the real thing,
 	   matching how the sidebar and road icons decide to show the blood moon. */
-
 	static get bakunawaBloodMoonDamageBonus() {
 		return 0.15;
 	}
@@ -215,7 +228,7 @@ class Transformations {
 	}
 
 	/**
-	     Noun phrase for a description key without an article, e.g. "hellhound", "fallen cat".
+	    Noun phrase for a description key without an article, e.g. "hellhound", "fallen cat".
 	    Returns "" when the key is a plain single-species description (handled elsewhere).
 	 *
 	 * @param id
@@ -255,5 +268,6 @@ class Transformations {
 
 window.Transformations = Transformations;
 window.effectiveTransformationLevel = name => Transformations.effectiveLevel(name);
+window.isFullWaterDragon = () => Transformations.isFullWaterDragon();
 window.effectiveTransformationBuild = name => Transformations.effectiveBuild(name);
 window.canAngelBanish = () => Transformations.canBanish();
