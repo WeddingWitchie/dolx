@@ -17,8 +17,384 @@ setup.horserace = setup.horserace || {};
 	 * The weekly reset is handled by DoL's native $weekly cleanup; all weekly
 	 * counters live on $weekly, so they clear automatically each game week.
 	 * ------------------------------------------------------------------- */
-	HR.INJURY_CHANCE_PERCENT = 89;
+	HR.INJURY_CHANCE_PERCENT = 80;
 	HR.PAYOUT_MARGIN = 0.92;
+
+	/* Every clean rigging job makes the backed horse steadier; every botched one leaves it rattled.
+	These shift the base injury chance up or down, so a player who works the stable yard well raises their 25% clean run,
+	and a player who fumbles it lowers their own odds. */
+	HR.RIG_SUCCESS_INJURY_SHIFT = 8;
+	HR.RIG_FAILURE_INJURY_SHIFT = 6;
+	HR.INJURY_CHANCE_FLOOR = 30;
+	HR.INJURY_CHANCE_CEILING = 92;
+
+	HR.effectiveInjuryChance = function () {
+		const race = HR.ensureState();
+		const successes = Number.isFinite(race.rigSuccesses) ? race.rigSuccesses : 0;
+		const failures = Number.isFinite(race.rigFailures) ? race.rigFailures : 0;
+		const shifted = HR.INJURY_CHANCE_PERCENT - successes * HR.RIG_SUCCESS_INJURY_SHIFT + failures * HR.RIG_FAILURE_INJURY_SHIFT;
+		return HR.clamp(shifted, HR.INJURY_CHANCE_FLOOR, HR.INJURY_CHANCE_CEILING);
+	};
+
+	/* The number the player actually cares about: the chance their backed horse gets round the course without being pulled up. */
+	HR.cleanRunChance = function () {
+		return 100 - HR.effectiveInjuryChance();
+	};
+
+	/* ---- Race rigging configuration ------------------------------------ *
+	 * Each stable action adds suspicion on success or failure (failure adds more, since getting caught trying is worse than a clean success).
+	 * SUSPICION_CANCEL_CAP is the maximum percent chance, rolled once when the player places their bet, that the stewards pull the race entirely (bet is never charged).
+	 * Surviving suspicion instead shortens the effective odds on a winning payout, via suspicionPayoutMultiplier.
+	 * ------------------------------------------------------------------- */
+	HR.SUSPICION_CANCEL_CAP = 80;
+
+	HR.suspicionPayoutMultiplier = function (suspicion) {
+		return HR.clamp(1 - HR.clamp(suspicion, 0, 100) / 250, 0.55, 1);
+	};
+
+	HR.RIG_ACTIONS = [
+		{
+			id: "injure_horse",
+			tier: "high",
+			label: "Injure a horse",
+			target: "rival",
+			passage: "Racecourse Rig Injure Horse",
+			difficulty: 250,
+			suspicionSuccess: 25,
+			suspicionFail: 45,
+			apply(horse) {
+				horse.baseSpeed -= 60;
+				horse.maxStamina -= 60;
+				horse.stamina = Math.min(horse.stamina, horse.maxStamina);
+				horse.focus -= 20;
+			},
+		},
+		{
+			id: "beat_rider",
+			tier: "high",
+			label: "Threaten a rider",
+			target: "rival",
+			passage: "Racecourse Rig Threaten Rider",
+			difficulty: 350,
+			suspicionSuccess: 25,
+			suspicionFail: 45,
+			apply(horse) {
+				horse.baseSpeed -= 25;
+				horse.focus -= 30;
+				horse.stamina -= 15;
+			},
+		},
+		{
+			id: "drug_horse",
+			tier: "medium",
+			label: "Drug the feed",
+			target: "rival",
+			passage: "Racecourse Rig Drug Horse",
+			difficulty: 450,
+			suspicionSuccess: 12,
+			suspicionFail: 25,
+			itemCost: "phial",
+			apply(horse) {
+				horse.stamina -= 25;
+				horse.focus -= 20;
+			},
+		},
+		{
+			id: "stimulate_own",
+			tier: "medium",
+			label: "Dose your horse",
+			target: "own",
+			passage: "Racecourse Rig Stimulant",
+			difficulty: 400,
+			suspicionSuccess: 12,
+			suspicionFail: 25,
+			itemCost: "phial",
+			apply(horse) {
+				horse.baseSpeed += 15;
+				horse.stamina += 15;
+			},
+		},
+		{
+			id: "bribe_money",
+			tier: "medium",
+			label: "Bribe with cash",
+			target: "rival",
+			passage: "Racecourse Rig Bribe Money",
+			difficulty: 300,
+			suspicionSuccess: 12,
+			suspicionFail: 20,
+			cost: 500,
+			apply(horse) {
+				horse.focus -= 20;
+				horse.baseSpeed -= 10;
+			},
+		},
+		{
+			id: "sabotage_equipment",
+			tier: "low",
+			label: "Cut the tack",
+			target: "rival",
+			passage: "Racecourse Rig Sabotage Tack",
+			difficulty: 350,
+			suspicionSuccess: 4,
+			suspicionFail: 10,
+			apply(horse) {
+				horse.focus -= 15;
+				horse.stamina -= 8;
+			},
+		},
+		{
+			id: "encourage_own",
+			tier: "low",
+			label: "Encourage your horse",
+			target: "own",
+			passage: "Racecourse Rig Encourage Horse",
+			deviancyGated: true,
+			difficulty: 250,
+			suspicionSuccess: 4,
+			suspicionFail: 10,
+			apply(horse) {
+				horse.focus += 12;
+				horse.stamina += 8;
+			},
+		},
+		{
+			id: "bribe_sex",
+			tier: "low",
+			label: "Bribe with sex",
+			target: "own",
+			passage: "Racecourse Rig Bribe Rider",
+			difficulty: 300,
+			suspicionSuccess: 4,
+			suspicionFail: 10,
+			apply(horse) {
+				horse.baseSpeed += 12;
+				horse.focus += 10;
+			},
+		},
+	];
+
+	/* ---- Stable rigging mini-game --------------------------------------- *
+	 * Every rigging action (except the rider bribe, which runs the real sex encounter loop instead) plays out as a short push-your-luck game:
+		a progress meter that has to reach 100 before a risk meter reaches 100.
+	 * Each turn the player picks:
+	 *   "quick"    - a skulduggery check at the action's full difficulty.
+	 *                Big progress and a real risk bump on success, a small
+	 *                gain but a heavy risk bump on failure.
+	 *   "careful"  - a skulduggery check 100 points easier. Smaller gains,
+	 *                much smaller risk either way.
+	 *   "watch"    - no check, no progress, but bleeds off risk.
+	 * Five turns is the hard cap; running out of time resolves on whichever meter is closer to its own threshold.
+	 * ------------------------------------------------------------------- */
+	HR.RIG_MINIGAME_TURN_CAP = 5;
+
+	HR.rigGameState = function () {
+		const race = HR.ensureState();
+		if (race.rigGame == null || typeof race.rigGame !== "object") race.rigGame = {};
+		const g = race.rigGame;
+		if (!Number.isFinite(g.progress)) g.progress = 0;
+		if (!Number.isFinite(g.risk)) g.risk = 0;
+		if (!Number.isFinite(g.turn)) g.turn = 0;
+		if (typeof g.actionId !== "string") g.actionId = "";
+		if (typeof g.pendingMode !== "string") g.pendingMode = "";
+		return g;
+	};
+
+	HR.startRigMinigame = function (actionId) {
+		const g = HR.rigGameState();
+		g.actionId = actionId;
+		g.progress = 0;
+		g.risk = 0;
+		g.turn = 0;
+		g.pendingMode = "";
+		return g;
+	};
+
+	/* Built in JS rather than as twee markup */
+	HR.renderRigMeters = function () {
+		const g = HR.rigGameState();
+		const progress = HR.clamp(g.progress, 0, 100);
+		const risk = HR.clamp(g.risk, 0, 100);
+		const turnsLeft = Math.max(0, HR.RIG_MINIGAME_TURN_CAP - g.turn);
+		return `<div class="horse-race-panel">
+			<div class="horse-race-progress">
+				<span>Progress</span>
+				<meter min="0" max="100" low="35" high="70" optimum="100" value="${progress.toFixed(0)}"></meter>
+				<span>${Math.floor(progress)}%</span>
+			</div>
+			<div class="horse-race-progress">
+				<span>Risk of being noticed</span>
+				<meter min="0" max="100" low="35" high="70" optimum="0" value="${risk.toFixed(0)}"></meter>
+				<span>${Math.floor(risk)}%</span>
+			</div>
+			<p>Time before the horses are led out: <strong>${turnsLeft}</strong></p>
+		</div>`;
+	};
+
+	HR.rigMinigameDifficulty = function (action, mode) {
+		if (!action) return 0;
+		if (mode === "careful") return Math.max(0, action.difficulty - 100);
+		return action.difficulty;
+	};
+
+	HR.applyMinigameTurn = function (mode, success) {
+		const g = HR.rigGameState();
+		g.turn += 1;
+		if (mode === "quick") {
+			if (success) {
+				g.progress = HR.clamp(g.progress + 45, 0, 100);
+				g.risk = HR.clamp(g.risk + 8, 0, 100);
+			} else {
+				g.progress = HR.clamp(g.progress + 10, 0, 100);
+				g.risk = HR.clamp(g.risk + 35, 0, 100);
+			}
+		} else if (mode === "careful") {
+			if (success) {
+				g.progress = HR.clamp(g.progress + 25, 0, 100);
+				g.risk = HR.clamp(g.risk + 3, 0, 100);
+			} else {
+				g.progress = HR.clamp(g.progress + 8, 0, 100);
+				g.risk = HR.clamp(g.risk + 15, 0, 100);
+			}
+		} else if (mode === "watch") {
+			g.risk = HR.clamp(g.risk - 18, 0, 100);
+		}
+		return g;
+	};
+
+	HR.rigMinigameOutcome = function () {
+		const g = HR.rigGameState();
+		if (g.risk >= 100) return "caught";
+		if (g.progress >= 100) return "success";
+		if (g.turn >= HR.RIG_MINIGAME_TURN_CAP) return g.progress >= 60 ? "success" : "caught";
+		return "ongoing";
+	};
+
+	HR.RIG_MINIGAME_TEXT = {
+		injure_horse: {
+			scene: "You crouch at the horse's front leg with a grip on the shoe. You need to work the nail loose without the handler noticing.",
+			quick: "Pull hard",
+			careful: "Work it slowly",
+			watchLabel: "Check where the handler is",
+			quickSuccess: "The nail gives way fast. You have most of the shoe loose already.",
+			quickFail: "You yank too hard and the shoe clangs against the ground. You freeze, but nobody comes running yet.",
+			carefulSuccess: "You ease the nail out a little at a time. Slow, but it's working, and nobody has looked over.",
+			carefulFail: "Your fingers slip on the nail head and you lose your grip. You've barely moved it.",
+			watch: "You glance down the row. The handler is still occupied at the far end.",
+		},
+		beat_rider: {
+			scene: "You have the rider cornered behind the stalls. You need to make the threat land before someone walks past.",
+			quick: "Push the threat hard",
+			careful: "Keep your voice low and controlled",
+			watchLabel: "Check who's nearby",
+			quickSuccess: "The threat lands. You can see it go in.",
+			quickFail: "The rider flinches back, voice rising. A groom two stalls down glances over.",
+			carefulSuccess: "You keep it quiet and specific. The rider is listening, and nobody else has noticed.",
+			carefulFail: "The rider isn't buying it, and keeps glancing past your shoulder for someone to call to.",
+			watch: "You check over your shoulder. Still just the two of you back here.",
+		},
+		drug_horse: {
+			scene: "You have the phial open and the feed bucket in front of you. You need to mix it in evenly before the handler comes back.",
+			quick: "Tip in the whole phial",
+			careful: "Mix it in a little at a time",
+			watchLabel: "Listen for footsteps",
+			quickSuccess: "It mixes into the feed cleanly. The horse won't notice a thing.",
+			quickFail: "Some of it splashes over the rim. You wipe it off the bucket with your sleeve before it stains.",
+			carefulSuccess: "You work it in slowly, stirring with two fingers until the feed looks untouched.",
+			carefulFail: "The feed clumps around the liquid instead of soaking it in. You have to keep working at it.",
+			watch: "You stop and listen. No footsteps yet.",
+		},
+		stimulate_own: {
+			scene: "The water bucket is in front of you and the phial is already open. You need to get it mixed in before the handler returns.",
+			quick: "Pour it straight in",
+			careful: "Add it slowly and stir",
+			watchLabel: "Watch for the handler",
+			quickSuccess: "It disperses fast, and the water clears back up within seconds.",
+			quickFail: "The water clouds visibly. You swirl it hard with your hand to clear it before anyone sees.",
+			carefulSuccess: "You stir it in a little at a time until the water looks normal again.",
+			carefulFail: "It's taking longer than you'd like. The water is still faintly discoloured.",
+			watch: "You look up and down the row. Nobody is coming yet.",
+		},
+		bribe_money: {
+			scene: "The rider is listening, but hasn't agreed to anything yet. You need to close the deal before he loses his nerve or someone walks over.",
+			quick: "Push the offer harder",
+			careful: "Talk him through it calmly",
+			watchLabel: "Check who's within earshot",
+			quickSuccess: "The rider stops hesitating and holds out a hand.",
+			quickFail: "The rider hesitates and looks towards the stalls, checking who's around.",
+			carefulSuccess: "You keep your voice down and lay it out plainly. The rider is coming around.",
+			carefulFail: "The rider still won't commit, and keeps looking past you.",
+			watch: "You glance around. Nobody close enough to overhear yet.",
+		},
+		sabotage_equipment: {
+			scene: "The girth strap is in your hands. You need to weaken the stitching without leaving it obviously torn.",
+			quick: "Pick at it hard",
+			careful: "Work the stitching loose bit by bit",
+			watchLabel: "Check for the handler",
+			quickSuccess: "A section of stitching tears free clean. It'll hold together until it's put under real weight.",
+			quickFail: "The thread snaps somewhere visible. You turn the strap so the damage faces away from view.",
+			carefulSuccess: "You work a few stitches loose at a time. It still looks intact from a glance.",
+			carefulFail: "The leather is tougher than you expected and barely gives.",
+			watch: "You look towards the water trough. The handler isn't back yet.",
+		},
+		encourage_own: {
+			scene:
+				"Your hand is on the horse's flank and it is pushing back against you. You need to work it up and settle it again before anyone comes down the row.",
+			quick: "Keep going, faster",
+			careful: "Slow, steady strokes",
+			watchLabel: "Check the next stall over",
+			quickSuccess: "The horse settles fast, ears forward, weight steady on all four legs.",
+			quickFail: "The horse jerks its head up at the pace and stamps a hoof against the straw.",
+			carefulSuccess: "The horse relaxes into it, breathing slow, eyes half closed.",
+			carefulFail: "The horse is still restless, shifting its weight and flicking its tail.",
+			watch: "You listen. Nothing from the next stall yet.",
+		},
+	};
+
+	HR.getRigAction = function (actionId) {
+		return HR.RIG_ACTIONS.find(action => action.id === actionId) || null;
+	};
+
+	HR.rigActionUsed = function (actionId) {
+		const race = HR.ensureState();
+		return Array.isArray(race.riggedActions) && race.riggedActions.includes(actionId);
+	};
+
+	HR.rigCostInternal = function (action) {
+		if (!action || !Number.isFinite(action.cost)) return 0;
+		return HR.toInternalMoney(action.cost);
+	};
+
+	HR.resolveRigAction = function (actionId, targetId, success) {
+		const race = HR.ensureState();
+		const action = HR.getRigAction(actionId);
+		const horse = HR.getHorse(targetId);
+		if (!action || !horse) return { ok: false };
+
+		if (!Array.isArray(race.riggedActions)) race.riggedActions = [];
+		if (!race.riggedActions.includes(actionId)) race.riggedActions.push(actionId);
+
+		if (success) {
+			action.apply(horse);
+			race.rigSuccesses = (Number.isFinite(race.rigSuccesses) ? race.rigSuccesses : 0) + 1;
+			/* A rider or handler on your side keeps the bookies quiet for longer. */
+			if (actionId === "bribe_money" || actionId === "bribe_sex") {
+				HR.weeklyState().horseRaceStaffBribed = true;
+			}
+		} else {
+			race.rigFailures = (Number.isFinite(race.rigFailures) ? race.rigFailures : 0) + 1;
+		}
+
+		horse.baseSpeed = HR.clamp(horse.baseSpeed, 5, 140);
+		horse.focus = HR.clamp(horse.focus, 5, 140);
+		horse.maxStamina = HR.clamp(horse.maxStamina, 10, 160);
+		horse.stamina = HR.clamp(horse.stamina, 0, horse.maxStamina + 35);
+
+		const suspicionAdded = success ? action.suspicionSuccess : action.suspicionFail;
+		race.suspicion = HR.clamp((Number.isFinite(race.suspicion) ? race.suspicion : 0) + suspicionAdded, 0, 100);
+
+		return { ok: true, suspicionAdded, action, horse };
+	};
 
 	HR.trackDefs = {
 		oval: {
@@ -548,9 +924,8 @@ setup.horserace = setup.horserace || {};
 		}
 	};
 
-	/* Single source of truth for every weekly counter. They live on DoL's
-	   $weekly object, so the game's normal weekly cleanup resets them for us
-	   and nothing accumulates in the permanent save. */
+	/* Single source of truth for every weekly counter.
+	They live on DoL's $weekly object, so the game's normal weekly cleanup resets them for us and nothing accumulates in the permanent save. */
 	HR.weeklyState = function () {
 		const V = State.variables;
 		if (V.weekly == null || typeof V.weekly !== "object") V.weekly = {};
@@ -559,8 +934,28 @@ setup.horserace = setup.horserace || {};
 		if (!Number.isFinite(w.horseRaceWeeklyAccidents)) w.horseRaceWeeklyAccidents = 0;
 		if (!Number.isFinite(w.horseRaceIncidentLossStreak)) w.horseRaceIncidentLossStreak = 0;
 		if (!Array.isArray(w.horseRaceInjuredHorses)) w.horseRaceInjuredHorses = [];
+		if (!Number.isFinite(w.horseRaceWeeklyWins)) w.horseRaceWeeklyWins = 0;
+		if (typeof w.horseRaceStaffBribed !== "boolean") w.horseRaceStaffBribed = false;
 		if ("horseRaceWeeklyWinnings" in w) delete w.horseRaceWeeklyWinnings;
 		return w;
+	};
+
+	/* The bookies only tolerate so many winning weeks from one face.
+	Once the player hits the cap the racecourse fills up and no more slips are sold until the week rolls over.
+	Having a rider or handler in your pocket (a landed cash or sex bribe) buys you two extra wins before that. */
+	HR.WEEKLY_WIN_CAP = 5;
+	HR.WEEKLY_WIN_CAP_BRIBED = 7;
+
+	HR.weeklyWinCap = function () {
+		return HR.weeklyState().horseRaceStaffBribed ? HR.WEEKLY_WIN_CAP_BRIBED : HR.WEEKLY_WIN_CAP;
+	};
+
+	HR.weeklyWins = function () {
+		return HR.weeklyState().horseRaceWeeklyWins;
+	};
+
+	HR.atWeeklyWinCap = function () {
+		return HR.weeklyWins() >= HR.weeklyWinCap();
 	};
 
 	HR.addWeeklyBet = function (amountInternal) {
@@ -627,6 +1022,18 @@ setup.horserace = setup.horserace || {};
 		if (!Number.isFinite(race.accidentAtRound)) race.accidentAtRound = 0;
 		if (typeof race.accidentRefund !== "boolean") race.accidentRefund = false;
 		if (typeof race.incidentHorseId !== "string") race.incidentHorseId = "";
+
+		/* Per-race stable rigging fields (reset by createRace). */
+		if (!Number.isFinite(race.suspicion)) race.suspicion = 0;
+		if (!Number.isFinite(race.rigSuccesses)) race.rigSuccesses = 0;
+		if (!Number.isFinite(race.rigFailures)) race.rigFailures = 0;
+		if (typeof race.rigEntered !== "boolean") race.rigEntered = false;
+		if (typeof race.rigSuccessPassage !== "string") race.rigSuccessPassage = "";
+		if (typeof race.rigCaughtPassage !== "string") race.rigCaughtPassage = "";
+		if (!Array.isArray(race.riggedActions)) race.riggedActions = [];
+		if (typeof race.rigActionId !== "string") race.rigActionId = "";
+		if (typeof race.rigTargetId !== "string") race.rigTargetId = "";
+		if (typeof race.riggedCancelled !== "boolean") race.riggedCancelled = false;
 
 		for (const horse of race.horses) {
 			if (!horse || typeof horse !== "object") continue;
@@ -715,6 +1122,17 @@ setup.horserace = setup.horserace || {};
 			race.lossStressPending = false;
 			race.lossTraumaPending = false;
 			race.lossRecorded = false;
+			race.suspicion = 0;
+			race.riggedActions = [];
+			race.rigActionId = "";
+			race.rigTargetId = "";
+			race.riggedCancelled = false;
+			race.rigGame = {};
+			race.rigSuccesses = 0;
+			race.rigFailures = 0;
+			race.rigEntered = false;
+			race.rigSuccessPassage = "";
+			race.rigCaughtPassage = "";
 			return race;
 		}
 
@@ -764,13 +1182,23 @@ setup.horserace = setup.horserace || {};
 		race.lossStressPending = false;
 		race.lossTraumaPending = false;
 		race.lossRecorded = false;
+		race.suspicion = 0;
+		race.riggedActions = [];
+		race.rigActionId = "";
+		race.rigTargetId = "";
+		race.riggedCancelled = false;
+		race.rigGame = {};
+		race.rigSuccesses = 0;
+		race.rigFailures = 0;
+		race.rigEntered = false;
+		race.rigSuccessPassage = "";
+		race.rigCaughtPassage = "";
 
 		return race;
 	};
 
-	/* Sheds the heavy per-race data (horse list, logs, ranking) from the save
-	   once a race is over and the player walks away, so finished races do not
-	   sit in every save slot. Weekly counters are untouched. */
+	/* Sheds the heavy per-race data (horse list, logs, ranking) from the save once a race is over and the player walks away, so finished races do not sit in every save slot.
+	   Weekly counters are untouched. */
 	HR.clearRaceData = function () {
 		const race = HR.ensureState();
 		if (race.phase !== "finished" && race.phase !== "idle" && race.phase !== "closed") return race;
@@ -791,6 +1219,17 @@ setup.horserace = setup.horserace || {};
 		race.lossStressPending = false;
 		race.lossTraumaPending = false;
 		race.lossRecorded = false;
+		race.suspicion = 0;
+		race.riggedActions = [];
+		race.rigActionId = "";
+		race.rigTargetId = "";
+		race.riggedCancelled = false;
+		race.rigGame = {};
+		race.rigSuccesses = 0;
+		race.rigFailures = 0;
+		race.rigEntered = false;
+		race.rigSuccessPassage = "";
+		race.rigCaughtPassage = "";
 		race.phase = "idle";
 		return race;
 	};
@@ -823,6 +1262,11 @@ setup.horserace = setup.horserace || {};
 			return { ok: false, reason: "closed" };
 		}
 
+		if (HR.atWeeklyWinCap()) {
+			race.lastError = "You cannot get near a bookie through this crowd.";
+			return { ok: false, reason: "crowded" };
+		}
+
 		const horse = HR.getHorse(horseId);
 		if (!horse) {
 			race.lastError = "Choose a horse before placing your bet.";
@@ -839,8 +1283,25 @@ setup.horserace = setup.horserace || {};
 			return { ok: false, reason: "insufficientMoney" };
 		}
 
+		const suspicion = HR.clamp(race.suspicion || 0, 0, 100);
+		if (suspicion > 0 && HR.randInt(1, 100) <= HR.clamp(suspicion, 0, HR.SUSPICION_CANCEL_CAP)) {
+			/* Shut the whole meeting down for the rest of the day.
+			Without this the player just walks back to the course, createRace builds a fresh field, and being caught costs them nothing at all. */
+			if (V.daily == null || typeof V.daily !== "object") V.daily = {};
+			V.daily.horseRaceCancelled = true;
+			race.phase = "closed";
+			race.riggedCancelled = true;
+			race.horses = [];
+			race.selectedHorseId = "";
+			race.betHorseId = "";
+			race.betAmount = 0;
+			race.betInput = "";
+			race.lastError = "The stewards pull the race after noticing irregular betting patterns.";
+			return { ok: false, reason: "cancelled" };
+		}
+
 		const weekly = HR.weeklyState();
-		const injuryRoll = HR.randInt(1, 100) <= HR.INJURY_CHANCE_PERCENT;
+		const injuryRoll = HR.randInt(1, 100) <= HR.effectiveInjuryChance();
 
 		V.money = HR.roundMoney(V.money - amount);
 		HR.addWeeklyBet(amount);
@@ -1230,11 +1691,13 @@ setup.horserace = setup.horserace || {};
 			const betHorse = HR.getHorse(race.betHorseId);
 			if (race.won && betHorse) {
 				const margin = Number.isFinite(HR.PAYOUT_MARGIN) ? HR.clamp(HR.PAYOUT_MARGIN, 0, 1) : 1;
-				const basePayout = HR.roundMoney(race.betAmount * betHorse.odds * margin);
+				const suspicionMultiplier = HR.suspicionPayoutMultiplier(race.suspicion || 0);
+				const basePayout = HR.roundMoney(race.betAmount * betHorse.odds * margin * suspicionMultiplier);
 				const baseProfit = Math.max(0, basePayout - race.betAmount);
 				const boostedProfit = window.divineTfIncome(baseProfit, "horseRace");
 				race.payout = HR.roundMoney(basePayout + boostedProfit - baseProfit);
 				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.payout);
+				HR.weeklyState().horseRaceWeeklyWins += 1;
 			} else {
 				HR.recordLoss();
 			}
