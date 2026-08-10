@@ -351,6 +351,7 @@ window.updatePronounSummary = updatePronounSummary;
 
 		x.giAutoEnabled = toStrictBool(x.giAutoEnabled);
 		x.giTransformEnabled = toStrictBool(x.giTransformEnabled);
+		if (Object.hasOwn(x, "giTransformConsent")) delete x.giTransformConsent;
 
 		// Complete the existing single-to-dual genital preference migration on normal loads too.
 		// New and same-version saves can otherwise keep the legacy field until the Identity screen is opened.
@@ -366,14 +367,8 @@ window.updatePronounSummary = updatePronounSummary;
 		const drift = Number(x.giDrift);
 		x.giDrift = Number.isFinite(drift) && drift >= 0 ? drift : 0;
 		const stage = Number(x.giShiftStage);
-		x.giShiftStage = [0, 1, 2, 3].includes(stage) ? stage : 0;
+		x.giShiftStage = stage === 3 ? 2 : [0, 1, 2].includes(stage) ? stage : 0;
 		if (!["", "f", "m"].includes(x.giShiftMode)) x.giShiftMode = "";
-
-		// Consent tracks the transform checkbox directly.
-		// The checkbox IS the consent, there is no separate consent UI.
-		// When transforms are enabled, consent is granted.
-		// When transforms are disabled, consent is revoked and drift is cleared.
-		x.giTransformConsent = x.giTransformEnabled;
 
 		// Lock behind the same unlock the UI uses.
 		// identityCap is NOT checked here; it controls how far the meter can drift, not whether the system is enabled.
@@ -382,7 +377,6 @@ window.updatePronounSummary = updatePronounSummary;
 		if (!unlocked) {
 			x.giAutoEnabled = false;
 			x.giTransformEnabled = false;
-			x.giTransformConsent = false;
 		}
 
 		// If the system isn't fully enabled, clear queued drift/stage so it can't "fire later".
@@ -420,9 +414,6 @@ window.updatePronounSummary = updatePronounSummary;
 		jQuery(document).on(":passagestart", () => {
 			try {
 				setup.xchangeEnsurePillDefaults();
-			} catch (e) {}
-			try {
-				setup.xchangeEnsureGiSafety();
 			} catch (e) {}
 		});
 	}

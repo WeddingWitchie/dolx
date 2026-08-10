@@ -1405,13 +1405,20 @@
 						<</if>>
 					<</if>>
 
-					<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true and $xchange.giTransformConsent is true>>
+					<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true>>
 						<<set _pillActive to ($xchange.pill and $xchange.pill.active is true)>>
 						<<if not _pillActive>>
-							<<set _mid to Math.floor(_range / 2)>>
-							<<if $xchange.giTarget isnot _mid>>
-								<<set _signed to ($xchange.giTarget gt _mid) ? _step : (0 - _step)>>
+							<<set _neutralLow to Math.round(_range * (6 / 15))>>
+							<<set _neutralHigh to Math.round(_range * (9 / 15))>>
+							<<if $genderidentity lt _neutralLow or $genderidentity gte _neutralHigh>>
+								/* The current meter band owns the body's direction.
+								While crossing from one side to the other, the old body is retained until the meter leaves non-binary. */
+								<<set _signed to ($genderidentity gte _neutralHigh) ? _step : (0 - _step)>>
 								<<gi-transform-from-drift _signed>>
+							<<else>>
+								/* Keep accumulated progress, but clear the stale direction/stage while the non-binary band is retaining the current body. */
+								<<set $xchange.giShiftMode to "">>
+								<<set $xchange.giShiftStage to 0>>
 							<</if>>
 						<</if>>
 					<<else>>
@@ -1426,14 +1433,12 @@
 		<<if $attitudesControl and $attitudesControl.unlockGender>>
 			<<if $xchange.genderIdentityEnabled isnot true
 				or $xchange.giAutoEnabled isnot true
-				or $xchange.giTransformEnabled isnot true
-				or $xchange.giTransformConsent isnot true>>
+				or $xchange.giTransformEnabled isnot true>>
 				<<gi-disarm>>
 			<<else>>
 				<<set _delta to _args[0]>>
 				<<if _delta isnot 0>>
 					<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
-					<<set _mid to Math.floor(_range / 2)>>
 					<<set _th to Math.max(1, Number($xchange.giTransformThreshold) || 120)>>
 
 					<<if $xchange.giDrift is undefined>><<set $xchange.giDrift to 0>><</if>>
@@ -1443,14 +1448,16 @@
 					/* Direction: universal axis, positive = feminising, negative = masculinising */
 					<<set _feminising to (_delta gt 0)>>
 
-					/* Guard: don't change body unless identity TARGET matches direction */
-					<<set _targetOnFeminineSide to ($xchange.giTarget gt _mid)>>
+					<<set _neutralLow to Math.round(_range * (6 / 15))>>
+					<<set _neutralHigh to Math.round(_range * (9 / 15))>>
+					<<set _currentOnFeminineSide to ($genderidentity gte _neutralHigh)>>
+					<<set _currentOnMasculineSide to ($genderidentity lt _neutralLow)>>
 
 					/* Like the X-Change pill (pillTimerPaused), the shift halts while a pregnancy runs its course or an ear slime occupies the genitals.
 					Otherwise masculinising could remove a pregnant or slime-filled vagina. */
 					<<set _giShiftBlocked to ($sexStats.vagina.pregnancy.type isnot null or $sexStats.anus.pregnancy.type isnot null or ($earSlime and $earSlime.growth gt 50))>>
 
-					<<if _giShiftBlocked or (_feminising and not _targetOnFeminineSide) or ((not _feminising) and _targetOnFeminineSide)>>
+					<<if _giShiftBlocked or (_feminising and not _currentOnFeminineSide) or ((not _feminising) and not _currentOnMasculineSide)>>
 						/* Hold, don't erase. A pregnancy or an ear slime pauses the shift until it resolves, and a single day drifting away from your target is ordinary noise
 						   neither is a reason to throw away weeks of accumulated progress. The drift simply doesn't grow today. */
 					<<else>>
@@ -1466,11 +1473,20 @@
 						<<set $xchange.giDrift += Math.abs(_delta)>>
 
 						<<for _iter = 0; _iter < 200 && $xchange.giDrift >= _th; _iter++>>
-							<<set $xchange.giDrift -= _th>>
+							<<set _giStepResult to {done:false}>>
 							<<if _feminising>>
-								<<gi-feminise-step>>
+								<<gi-feminise-step _giStepResult>>
 							<<else>>
-								<<gi-masculinise-step>>
+								<<gi-masculinise-step _giStepResult>>
+							<</if>>
+							<<if _giStepResult.done>>
+								/* Spend a full meter only when the step actually changed the body. */
+								<<set $xchange.giDrift -= _th>>
+							<<else>>
+								/* No eligible change currently exists. Keep one full meter ready instead of
+								   silently resetting it, and avoid accumulating an unbounded backlog. */
+								<<set $xchange.giDrift to _th>>
+								<<break>>
 							<</if>>
 						<</for>>
 					<</if>>
@@ -1481,6 +1497,24 @@
 
 	<<widget "gi-feminise-step">>
 		<<set _giStepDone to false>>
+		<<set _giRange to Math.max(1, Number($xchange.giRange) || 1500)>>
+		<<set _giCurrent to Math.clamp(Number($genderidentity) || 0, 0, _giRange)>>
+		<<set _giProgress to _giCurrent / _giRange>>
+		/* The meter only lands exactly on an endpoint when every identity group sits at exactly +1, which a single
+		   diluting trait prevents, so the last few percent counts as a finished transition. */
+		<<set _giCompleteBand to Math.max(1, Math.round(_giRange * 0.03))>>
+		<<set _giComplete to _giCurrent gte (_giRange - _giCompleteBand)>>
+
+		/* Configured size limits. Read through local fallbacks so a missing setting can't poison a target with NaN:
+		   a NaN target never compares equal to the current size, so stage 2 would step that trait forever. */
+		<<set _breastMin to Number.isInteger($breastsizemin) ? $breastsizemin : 0>>
+		<<set _breastMax to Number.isInteger($breastsizemax) ? Math.max($breastsizemax, _breastMin) : Math.max(12, _breastMin)>>
+		<<set _bottomMin to Number.isInteger($bottomsizemin) ? $bottomsizemin : 0>>
+		<<set _bottomMax to Number.isInteger($bottomsizemax) ? Math.max($bottomsizemax, _bottomMin) : Math.max(8, _bottomMin)>>
+		<<set _penisMin to Number.isInteger($penissizemin) ? $penissizemin : 0>>
+		<<set _penisMax to Number.isInteger($penissizemax) ? Math.max($penissizemax, _penisMin) : Math.max(6, _penisMin)>>
+		/* A newly grown penis starts at Mini, unless the configured range puts it elsewhere. */
+		<<set _newPenisSize to Math.clamp(1, _penisMin, _penisMax)>>
 
 		/* Stage machine init */
 		<<if $xchange.giShiftMode isnot "f">>
@@ -1496,6 +1530,8 @@
 			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
 			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
 			<</if>>
+			<<set _breastTarget to Math.round(_breastTarget * _giProgress)>>
+			<<set _breastTarget to Math.clamp(_breastTarget, _breastMin, _breastMax)>>
 		<</if>>
 		<<set _bottomTarget to null>>
 		<<if $xchange.giAssSizeEnabled and $identity.body.bottom.preferred>>
@@ -1503,6 +1539,8 @@
 			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
 			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
 			<</if>>
+			<<set _bottomTarget to Math.round(_bottomTarget * _giProgress)>>
+			<<set _bottomTarget to Math.clamp(_bottomTarget, _bottomMin, _bottomMax)>>
 		<</if>>
 		<<set _penisPreference to $identity.body.genitals.preferredPenis>>
 		<<if !_penisPreference and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes($identity.body.genitals.preferred)>>
@@ -1517,6 +1555,10 @@
 			<<elseif _penisPreference is "mediumpenis">><<set _penisTarget to 4>>
 			<<elseif _penisPreference is "bigpenis">><<set _penisTarget to 6>>
 			<</if>>
+			/* Floor at Mini while the body still keeps both sets: a size-0 penis on a two-genital body is the
+			   Micro state the herm repair in version-update exists to undo. The configured cap still wins. */
+			<<set _penisTarget to Math.max(1, Math.round(_penisTarget * (1 - _giProgress)))>>
+			<<set _penisTarget to Math.clamp(_penisTarget, _penisMin, _penisMax)>>
 		<</if>>
 		<<set _bodySizeTarget to null>>
 		<<if $xchange.giBodySizeEnabled>>
@@ -1533,34 +1575,18 @@
 
 		/* Stage 1: move toward the explicit genital preference, allowing a stable dual-genital target. */
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
-			<<if !_preferVagina and !_preferPenis>>
-				<<set $xchange.giShiftStage to 2>>
-			<<elseif _preferVagina and !$player.vaginaExist>>
+			/* The vagina is grown before the penis goes, so a completing body is never left with no genitals at all. */
+			<<if _giComplete and $xchange.giGenitalsEnabled and !$player.vaginaExist>>
 				<<set $player.vaginaExist to true>>
 				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
 					<<set $sexStats.vagina.menstruation.running to true>>
 				<</if>>
 				<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
 				<<set _giStepDone to true>>
-			<<elseif _preferPenis and !$player.penisExist>>
-				<<set $player.penisExist to true>>
-				<<set $player.ballsExist to true>>
-				<<set $player.penissize to 0>>
-				<<set $ballssize to 0>>
-				<<set $penisgrowthtimer to 500>>
-				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
-				<<set _giStepDone to true>>
-			<<elseif _preferPenis and $player.penissize lt _penisTarget>>
-				<<set $player.penissize += 1>>
-				<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer + 700, 0, 1000)>>
-				<<gi-note "The shape between your legs grows a little larger.">>
-				<<set _giStepDone to true>>
-			<<elseif _preferPenis and $player.penissize gt _penisTarget>>
-				<<set $player.penissize -= 1>>
-				<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer - 700, 0, 1000)>>
-				<<gi-note "Your penis feels a little smaller.">>
-				<<set _giStepDone to true>>
-			<<elseif !_preferPenis and $player.penisExist>>
+			/* Completion never takes away an organ the player explicitly asked for. A penis preference drags the
+			   genitals group far enough negative that the meter can't reach this band anyway, but the guard keeps
+			   the two rules from ever contradicting each other. */
+			<<elseif _giComplete and $xchange.giGenitalsEnabled and not _preferPenis and $player.penisExist>>
 				<<if $player.penissize gt 2>>
 					<<set $player.penissize -= 1>>
 					<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer - 700, 0, 1000)>>
@@ -1575,26 +1601,41 @@
 					<<gi-note "The shape between your legs recedes and disappears.">>
 					<<set _giStepDone to true>>
 				<</if>>
-			<<elseif !_preferVagina and $player.vaginaExist>>
-				<<set $player.vaginaExist to false>>
+			<<elseif !_preferVagina and !_preferPenis>>
+				<<set $xchange.giShiftStage to 2>>
+			<<elseif _preferVagina and !$player.vaginaExist>>
+				<<set $player.vaginaExist to true>>
 				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
-					<<set $sexStats.vagina.menstruation.running to false>>
+					<<set $sexStats.vagina.menstruation.running to true>>
 				<</if>>
-				<<run window.dolxEjectOrphanVaginalDildo?.()>>
-				<<gi-note "The softness between your legs closes up and disappears.">>
+				<<gi-note "A new warmth gathers between your legs as your body opens into a vagina.">>
+				<<set _giStepDone to true>>
+			<<elseif _preferPenis and !$player.penisExist>>
+				<<set $player.penisExist to true>>
+				<<set $player.ballsExist to true>>
+				<<set $player.penissize to _newPenisSize>>
+				<<set $ballssize to 0>>
+				<<set $penisgrowthtimer to 500>>
+				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
+				<<set _giStepDone to true>>
+			<<elseif _preferPenis and $player.penissize lt _penisTarget>>
+				<<set $player.penissize += 1>>
+				<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer + 700, 0, 1000)>>
+				<<gi-note "The shape between your legs grows a little larger.">>
+				<<set _giStepDone to true>>
+			<<elseif _preferPenis and $player.penissize gt _penisTarget>>
+				<<set $player.penissize -= 1>>
+				<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer - 700, 0, 1000)>>
+				<<gi-note "Your penis feels a little smaller.">>
 				<<set _giStepDone to true>>
 			<<else>>
 				<<set $xchange.giShiftStage to 2>>
 			<</if>>
 		<</if>>
 
-		/* Sex follows anatomy. Scenes that expose the player's body read $player.sex, so the flip can't wait for stage 3 (after all the slow secondary changes). */
-		<<if $player.sex is "m" and $player.vaginaExist and !$player.penisExist>>
-			<<set $player.sex to "f">>
-			<<gi-note "Your body now reads as female.">>
-		<</if>>
+		<<gi-sync-anatomy>>
 
-		/* Stage 2: secondary characteristics — grow toward preferred targets */
+		/* Stage 2: secondary characteristics; grow toward preferred targets */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
 			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "short" and $hairlength gt 100>>
 				<<set $hairlength to Math.max($hairlength - 60, 100)>>
@@ -1633,22 +1674,36 @@
 				<<gi-note `_bottomGrowing ? "Your hips and ass feel a little softer and fuller." : "Your hips and ass feel a little leaner."`>>
 				<<set _giStepDone to true>>
 			<<else>>
-				<<set $xchange.giShiftStage to 3>>
+				/* Back to stage 1, not a dead end. The genital targets move as the meter climbs, and the
+				   completion step only becomes available at the top of the meter, so stage 1 has to be
+				   reachable again. Direction never flips on the way to an endpoint, so nothing else resets it. */
+				<<set $xchange.giShiftStage to 1>>
 			<</if>>
 		<</if>>
 
-		/* Stage 3: align physical sex */
-		<<if not _giStepDone and $xchange.giShiftStage is 3>>
-			<<if $player.sex is "m" and $player.vaginaExist and !$player.penisExist>>
-				<<set $player.sex to "f">>
-				<<gi-note "Your body now reads as more distinctly female.">>
-			<</if>>
-			<<set $xchange.giShiftStage to 2>>
-		<</if>>
+		<<if _args[0] isnot undefined>><<set _args[0].done to _giStepDone>><</if>>
 	<</widget>>
 
 	<<widget "gi-masculinise-step">>
 		<<set _giStepDone to false>>
+		<<set _giRange to Math.max(1, Number($xchange.giRange) || 1500)>>
+		<<set _giCurrent to Math.clamp(Number($genderidentity) || 0, 0, _giRange)>>
+		<<set _giProgress to (_giRange - _giCurrent) / _giRange>>
+		/* The meter only lands exactly on an endpoint when every identity group sits at exactly -1, which a single
+		   diluting trait prevents, so the last few percent counts as a finished transition. */
+		<<set _giCompleteBand to Math.max(1, Math.round(_giRange * 0.03))>>
+		<<set _giComplete to _giCurrent lte _giCompleteBand>>
+
+		/* Configured size limits. Read through local fallbacks so a missing setting can't poison a target with NaN:
+		   a NaN target never compares equal to the current size, so stage 2 would step that trait forever. */
+		<<set _breastMin to Number.isInteger($breastsizemin) ? $breastsizemin : 0>>
+		<<set _breastMax to Number.isInteger($breastsizemax) ? Math.max($breastsizemax, _breastMin) : Math.max(12, _breastMin)>>
+		<<set _bottomMin to Number.isInteger($bottomsizemin) ? $bottomsizemin : 0>>
+		<<set _bottomMax to Number.isInteger($bottomsizemax) ? Math.max($bottomsizemax, _bottomMin) : Math.max(8, _bottomMin)>>
+		<<set _penisMin to Number.isInteger($penissizemin) ? $penissizemin : 0>>
+		<<set _penisMax to Number.isInteger($penissizemax) ? Math.max($penissizemax, _penisMin) : Math.max(6, _penisMin)>>
+		/* A newly grown penis starts at Mini, unless the configured range puts it elsewhere. */
+		<<set _newPenisSize to Math.clamp(1, _penisMin, _penisMax)>>
 
 		/* Stage machine init */
 		<<if $xchange.giShiftMode isnot "m">>
@@ -1664,6 +1719,8 @@
 			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
 			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
 			<</if>>
+			<<set _breastTarget to Math.round(_breastTarget * (1 - _giProgress))>>
+			<<set _breastTarget to Math.clamp(_breastTarget, _breastMin, _breastMax)>>
 		<</if>>
 		<<set _bottomTarget to null>>
 		<<if $xchange.giAssSizeEnabled and $identity.body.bottom.preferred>>
@@ -1671,6 +1728,8 @@
 			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
 			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
 			<</if>>
+			<<set _bottomTarget to Math.round(_bottomTarget * (1 - _giProgress))>>
+			<<set _bottomTarget to Math.clamp(_bottomTarget, _bottomMin, _bottomMax)>>
 		<</if>>
 		<<set _penisPreference to $identity.body.genitals.preferredPenis>>
 		<<if !_penisPreference and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes($identity.body.genitals.preferred)>>
@@ -1685,6 +1744,15 @@
 			<<elseif _penisPreference is "mediumpenis">><<set _penisTarget to 4>>
 			<<elseif _penisPreference is "bigpenis">><<set _penisTarget to 6>>
 			<</if>>
+			/* Floor at Mini while the body still keeps both sets: a size-0 penis on a two-genital body is the
+			   Micro state the herm repair in version-update exists to undo. The configured cap still wins. */
+			<<set _penisTarget to Math.max(1, Math.round(_penisTarget * _giProgress))>>
+			<<set _penisTarget to Math.clamp(_penisTarget, _penisMin, _penisMax)>>
+		<</if>>
+		/* A finished male body needs a penis even with no size preference recorded (the meter reads -1 outright when
+		   no identity topics are active). Normal is the same no-information default the herm repair uses, not the cap. */
+		<<if _giComplete and $xchange.giGenitalsEnabled and _penisTarget is null>>
+			<<set _penisTarget to Math.clamp(4, _penisMin, _penisMax)>>
 		<</if>>
 		<<set _bodySizeTarget to null>>
 		<<if $xchange.giBodySizeEnabled>>
@@ -1701,7 +1769,37 @@
 
 		/* Stage 1: move toward the explicit genital preference, allowing a stable dual-genital target. */
 		<<if not _giStepDone and $xchange.giShiftStage is 1>>
-			<<if !_preferVagina and !_preferPenis>>
+			/* The penis is grown before the vagina goes, so a completing body is never left with no genitals at all. */
+			<<if _giComplete and $xchange.giGenitalsEnabled and !$player.penisExist>>
+				<<set $player.penisExist to true>>
+				<<set $player.ballsExist to true>>
+				<<set $player.penissize to _newPenisSize>>
+				<<set $ballssize to 0>>
+				<<set $penisgrowthtimer to 500>>
+				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
+				<<set _giStepDone to true>>
+			<<elseif _giComplete and $xchange.giGenitalsEnabled and $player.penissize lt _penisTarget>>
+				<<set $player.penissize += 1>>
+				<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer + 700, 0, 1000)>>
+				<<gi-note "The shape between your legs grows a little larger.">>
+				<<set _giStepDone to true>>
+			<<elseif _giComplete and $xchange.giGenitalsEnabled and $player.penissize gt _penisTarget>>
+				<<set $player.penissize -= 1>>
+				<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer - 700, 0, 1000)>>
+				<<gi-note "Your penis feels a little smaller.">>
+				<<set _giStepDone to true>>
+			/* Completion never takes away an organ the player explicitly asked for. A vagina preference drags the
+			   genitals group far enough positive that the meter can't reach this band anyway, but the guard keeps
+			   the two rules from ever contradicting each other. */
+			<<elseif _giComplete and $xchange.giGenitalsEnabled and not _preferVagina and $player.vaginaExist>>
+				<<set $player.vaginaExist to false>>
+				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
+					<<set $sexStats.vagina.menstruation.running to false>>
+				<</if>>
+				<<run window.dolxEjectOrphanVaginalDildo?.()>>
+				<<gi-note "The softness between your legs closes up and disappears.">>
+				<<set _giStepDone to true>>
+			<<elseif !_preferVagina and !_preferPenis>>
 				<<set $xchange.giShiftStage to 2>>
 			<<elseif _preferVagina and !$player.vaginaExist>>
 				<<set $player.vaginaExist to true>>
@@ -1713,7 +1811,7 @@
 			<<elseif _preferPenis and !$player.penisExist>>
 				<<set $player.penisExist to true>>
 				<<set $player.ballsExist to true>>
-				<<set $player.penissize to 0>>
+				<<set $player.penissize to _newPenisSize>>
 				<<set $ballssize to 0>>
 				<<set $penisgrowthtimer to 500>>
 				<<gi-note "A tight, unfamiliar weight forms between your legs.">>
@@ -1728,41 +1826,14 @@
 				<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer - 700, 0, 1000)>>
 				<<gi-note "Your penis feels a little smaller.">>
 				<<set _giStepDone to true>>
-			<<elseif !_preferPenis and $player.penisExist>>
-				<<if $player.penissize gt 2>>
-					<<set $player.penissize -= 1>>
-					<<set $penisgrowthtimer to Math.clamp($penisgrowthtimer - 700, 0, 1000)>>
-					<<gi-note "Your penis feels a little smaller.">>
-					<<set _giStepDone to true>>
-				<<else>>
-					<<set $player.penisExist to false>>
-					<<set $player.ballsExist to false>>
-					<<set $player.penissize to 0>>
-					<<set $ballssize to 0>>
-					<<set $penisgrowthtimer to 500>>
-					<<gi-note "The shape between your legs recedes and disappears.">>
-					<<set _giStepDone to true>>
-				<</if>>
-			<<elseif !_preferVagina and $player.vaginaExist>>
-				<<set $player.vaginaExist to false>>
-				<<if $sexStats.vagina and $sexStats.vagina.menstruation>>
-					<<set $sexStats.vagina.menstruation.running to false>>
-				<</if>>
-				<<run window.dolxEjectOrphanVaginalDildo?.()>>
-				<<gi-note "The softness between your legs closes up and disappears.">>
-				<<set _giStepDone to true>>
 			<<else>>
 				<<set $xchange.giShiftStage to 2>>
 			<</if>>
 		<</if>>
 
-		/* Sex follows anatomy. Scenes that expose the player's body read $player.sex, so the flip can't wait for stage 3 (after all the slow secondary changes). */
-		<<if $player.sex is "f" and $player.penisExist and !$player.vaginaExist>>
-			<<set $player.sex to "m">>
-			<<gi-note "Your body now reads as male.">>
-		<</if>>
+		<<gi-sync-anatomy>>
 
-		/* Stage 2: secondary characteristics — grow penis, shrink breasts/bottom toward targets */
+		/* Stage 2: move secondary characteristics toward the meter-scaled preferred targets. */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
 			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "short" and $hairlength gt 100>>
 				<<set $hairlength to Math.max($hairlength - 60, 100)>>
@@ -1801,17 +1872,29 @@
 				<<gi-note `_bottomGrowing ? "Your hips and ass feel a little softer and fuller." : "Your hips and ass feel a little leaner."`>>
 				<<set _giStepDone to true>>
 			<<else>>
-				<<set $xchange.giShiftStage to 3>>
+				/* Back to stage 1, not a dead end. The genital targets move as the meter falls, and the
+				   completion step only becomes available at the bottom of the meter, so stage 1 has to be
+				   reachable again. Direction never flips on the way to an endpoint, so nothing else resets it. */
+				<<set $xchange.giShiftStage to 1>>
 			<</if>>
 		<</if>>
 
-		/* Stage 3: align physical sex */
-		<<if not _giStepDone and $xchange.giShiftStage is 3>>
-			<<if $player.sex is "f" and $player.penisExist and !$player.vaginaExist>>
-				<<set $player.sex to "m">>
-				<<gi-note "Your body now reads as more distinctly male.">>
+		<<if _args[0] isnot undefined>><<set _args[0].done to _giStepDone>><</if>>
+	<</widget>>
+
+	<<widget "gi-sync-anatomy">>
+		<<if $player.vaginaExist and !$player.penisExist>>
+			<<set $player.gender_body to "f">>
+			<<if $player.sex is "m">>
+				<<set $player.sex to "f">>
+				<<gi-note "Your body now reads as female.">>
 			<</if>>
-			<<set $xchange.giShiftStage to 2>>
+		<<elseif $player.penisExist and !$player.vaginaExist>>
+			<<set $player.gender_body to "m">>
+			<<if $player.sex is "f">>
+				<<set $player.sex to "m">>
+				<<gi-note "Your body now reads as male.">>
+			<</if>>
 		<</if>>
 	<</widget>>
 

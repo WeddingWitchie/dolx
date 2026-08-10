@@ -969,6 +969,10 @@
 
 			<<set _giRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 			<<set _giMid to Math.floor(_giRange / 2)>>
+			<<set _giNeutralLow to Math.round(_giRange * (6 / 15))>>
+			<<set _giNeutralHigh to Math.round(_giRange * (9 / 15))>>
+			/* Matches the completion band the transform widgets use. */
+			<<set _giCompleteBand to Math.max(1, Math.round(_giRange * 0.03))>>
 			<<set _giCurrent to Math.clamp(Number($genderidentity) || 0, 0, _giRange)>>
 			<<set _giTarget to (Number.isFinite(Number($xchange.giTarget)) ? Number($xchange.giTarget) : _giMid)>>
 			<<set _giStep to Math.max(1, Number($xchange.giStepPerDay) || 30)>>
@@ -1003,14 +1007,27 @@
 				Auto-update: <span class="green">On</span>
 			<</if>>
 			<br>
+			<<set _giPregnancyPaused to !!($sexStats?.vagina?.pregnancy?.type || $sexStats?.anus?.pregnancy?.type)>>
+			<<set _giEarSlimePaused to !!($earSlime && $earSlime.growth gt 50)>>
 			<<if $xchange.giTransformEnabled isnot true>>
 				Body changes: <span class="red">Off</span> <span class="small-description">(enable in Attitudes)</span>
 			<<elseif $xchange.pill and $xchange.pill.active is true>>
 				Body changes: <span class="blue">Paused</span> <span class="small-description">(X-Change pill active)</span>
+			<<elseif _giPregnancyPaused>>
+				Body changes: <span class="blue">Paused</span> <span class="small-description">(pregnancy in progress)</span>
+			<<elseif _giEarSlimePaused>>
+				Body changes: <span class="blue">Paused</span> <span class="small-description">(ear slime occupies your genitals)</span>
+			<<elseif _giCurrent gte _giNeutralLow and _giCurrent lt _giNeutralHigh>>
+				Body changes: <span class="blue">Paused</span> <span class="small-description">(current identity is non-binary; existing traits are retained)</span>
 			<<else>>
 				Body changes: <span class="green">Active</span>
 			<</if>>
 			<br>
+			<<if $xchange.giGenitalsEnabled>>
+				Genital outcome: <<if _giCurrent lte _giCompleteBand>><span class="lblue">fully male</span><<elseif _giCurrent gte (_giRange - _giCompleteBand)>><span class="pink">fully female</span><<elseif _giCurrent gte _giNeutralLow and _giCurrent lt _giNeutralHigh>><span class="green">retained / non-binary</span><<else>><span class="gold">incomplete; existing genitals are retained</span><</if>>
+				<span class="small-description">(gained genitals use normal pregnancy and impregnation mechanics)</span>
+				<br>
+			<</if>>
 
 			<<if $xchange.giTransformEnabled is true>>
 				<<set _giTh to Math.max(1, Number($xchange.giTransformThreshold) || 120)>>
@@ -1020,12 +1037,12 @@
 
 				Transform direction: <<if _giMode is "f">><span class="pink">Feminising</span><<elseif _giMode is "m">><span class="lblue">Masculinising</span><<else>><span class="grey">None</span><</if>>
 				<br>
-				Transform stage: <span class="gold">_giStage</span> <span class="small-description">(stage 0: setup, stage 1: preferred genitals, stage 2: other preferred body traits, stage 3: alignment)</span>
+				Transform stage: <span class="gold">_giStage</span> <span class="small-description">(stage 0: setup, stage 1: preferred genitals, stage 2: other preferred body traits)</span>
 				<br>
 				Drift accumulation: <span class="gold"><<print Math.round(_giDrift)>> / _giTh</span>
 				<br>
 				<<set _giDriftPct to Math.round((_giDrift / _giTh) * 100)>>
-				Next body change: <<if _giDriftPct gte 100>><span class="green">Imminent</span><<else>><span class="gold">_giDriftPct%</span><</if>>
+				Next body change: <<if _giDriftPct gte 100>><span class="green">Ready</span> <span class="small-description">(waiting for an enabled preference that can change your body)</span><<else>><span class="gold">_giDriftPct%</span><</if>>
 				<br>
 			<</if>>
 
