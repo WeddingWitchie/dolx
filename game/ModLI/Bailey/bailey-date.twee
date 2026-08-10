@@ -7,7 +7,7 @@
    ================================================================ */
 
 :: Bailey Date Menu
-<<effects>><<endevent>>
+<<effects>><<endevent>><<speechresolve>>
 <<set _spankPrice to Math.floor(baileyMaxRent() * 0.25) + 500>>
 <<set _shortPrice to Math.floor(baileyMaxRent() * 0.5) + 500>>
 <<set _mediumPrice to baileyMaxRent() + 500>>
@@ -26,10 +26,18 @@
 	<<link [[Back|Orphanage]]>><<endevent>><</link>>
 	<br>
 <<else>>
-	<<if $speech_attitude is "meek">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"I-I would like to spend time with you," you say to <<him>>, fidgeting in place. "I-I can pay."
-	<<elseif $speech_attitude is "bratty">>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I'd like to arrange some time with you," you say. "I'll pay whatever you usually charge."
+	<<elseif _speechAttitudeResolved is "docile">>
+		You place your money on the desk. "I'd like to spend some time with you, if you'll allow it."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"I want some of your time," you say. "Tell me what it costs."
+	<<elseif _speechAttitudeResolved is "bratty">>
 		"Spend time with me," you demand. "I'll pay for it."
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"Your time has a price like everything else here," you say. "Name it."
 	<<else>>
 		"If I pay, will you spend time with me?" you ask.
 	<</if>>
@@ -216,15 +224,23 @@ You look around. This appears to be an interrogation room of sorts. <<He>> sits 
 
 
 :: Bailey Date Short Arrive Stand
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $date_short_position to "stand">>
 <<set $NPCList[1] to clone($date_short_npc)>>
 
-<<if $speech_attitude is "meek">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	You quietly walk over and stand at Bailey's side. You shuffle in place, hoping you aren't doing anything wrong.
-<<elseif $speech_attitude is "bratty">>
-	You cross your arms and make your way to Bailey's side. Your pose dares anyone to question you.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You smooth your clothes as you cross the room, then take your place beside Bailey.
+<<elseif _speechAttitudeResolved is "docile">>
+	You move to Bailey's side as soon as <<he>> signals, then wait with your hands held still in front of you.
+<<elseif _speechAttitudeResolved is "confident">>
+	You take your place beside Bailey, planting your feet before you look over the room.
+<<elseif _speechAttitudeResolved is "bratty">>
+	You cross your arms and take your place beside Bailey. When someone glances your way, you raise your chin until they turn back.
+<<elseif _speechAttitudeResolved is "cruel">>
+	You step up beside Bailey and stare across the room until the nearest onlooker looks away.
 <<else>>
 	You cross the room to stand at Bailey's side. Your eyes scan around the room.
 <</if>>
@@ -337,7 +353,7 @@ They speak too vaguely for you to understand exactly what they were talking abou
 
 
 :: Bailey Date Short Listen
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $NPCList[1] to clone($date_short_npc)>>
 <<skulduggerycheck "silent">>
@@ -358,17 +374,25 @@ You listen to Bailey and <<person2>>the <<personsimple>> as they discuss busines
 	<br><br>
 
 	<<set $pronoun to $date_short_npc.pronoun>>
-	<<if $speech_attitude is "meek">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 		"T-The person you're working with... <<he>>'s waiting for someone," you whisper to Bailey, nervous but certain. "<<He>> keeps checking the door."
-	<<elseif $speech_attitude is "bratty">>
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I think your associate expects company," you say close to Bailey's ear. "<<He>> keeps checking the door."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Someone else is coming," you say quietly. "I saw <<him>> check the door several times."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"<<He>> has someone on the way," you tell Bailey. "Watch the door."
+	<<elseif _speechAttitudeResolved is "bratty">>
 		"The bastard has backup," you whisper to Bailey. "<<He>> keeps checking the door."
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"Your associate brought backup," you tell Bailey. "Let them come."
 	<<else>>
 		"Someone else is coming," you whisper to Bailey. "<<He>> keeps checking the door."
 	<</if>>
 	<<person1>>
 	<br><br>
 
-	Bailey lifts <<his>> gaze from the paper to give you a sideways glance. <<He>> shifts <<his>> gaze to <<person2>>the <<personsimple>><<person1>>. Something in <<his>> eyes burns. "I see."
+	Bailey stops reading and turns towards <<person2>>the <<personsimple>><<person1>>. <<His>> grip creases the edge of the paper. "I see."
 	<br><br>
 
 	<<set $date_short_listened to true>>
@@ -407,7 +431,7 @@ You listen to Bailey and <<person2>>the <<personsimple>> as they discuss busines
 	After a beat of silence, Bailey speaks up. "Do we have a deal?"
 	<br><br>
 
-	<<person2>>The <<personsimple>> sputters, turning <<his>> gaze away from you back to Bailey. "Y-Yes. We do."
+	<<person2>>The <<personsimple>> sputters, turning away from you to face Bailey. "Y-Yes. We do."
 	<br><br>
 
 	<<set $date_short_leaned to true>>
@@ -614,14 +638,22 @@ The walk back to the orphanage is uneventful, for the most part. Bailey walks wi
    ================================================================ */
 
 :: Bailey Date Medium Schedule
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $bailey_date_scheduled to 1>><<set $bailey_date_sched_day to Time.days>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"I-I have <<printprice $bailey_date_medium_price>> for you, if you take me out to dinner," you say. "I-I'll pay for everything."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'd like you to take me to dinner," you say, offering Bailey <<printprice $bailey_date_medium_price>>. "The rest of the evening is my treat as well."
+<<elseif _speechAttitudeResolved is "docile">>
+	You hold out <<printprice $bailey_date_medium_price>> in both hands. "Would you take me to dinner? I'll pay for everything."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Dinner with me for <<printprice $bailey_date_medium_price>>," you say as you set out the money. "Pick the place and drive."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"<<printprice $bailey_date_medium_price>>. Dinner date. You drive," you say, waving the money at Bailey. "I'll pay for everything."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You drop <<printprice $bailey_date_medium_price>> onto Bailey's desk. "You're taking me to dinner. Try to make yourself pleasant."
 <<else>>
 	"I'll pay you <<printprice $bailey_date_medium_price>> to take me out to dinner," you say. "I'll pay for everything."
 <</if>>
@@ -864,7 +896,7 @@ You both order. <<person2>>The <<personsimple>> takes your menus and scampers aw
 <<person1>>
 <<set $NPCList[1] to clone($date_medium_waiter)>>
 
-Bailey doesn't look up from <<his>> menu. <<He>> works something in <<his>> jaw.<<npcincr Bailey love -1>><<llove "Bailey">><<set $bailey_love -= 1>>
+Bailey doesn't look up from <<his>> menu. <<He>> clenches <<his>> jaw.<<npcincr Bailey love -1>><<llove "Bailey">><<set $bailey_love -= 1>>
 <br><br>
 
 You both order. <<person2>>The <<personsimple>> takes your menus and scampers away straight to the kitchen.
@@ -938,19 +970,27 @@ Bailey's eyes scan the room constantly.
 
 
 :: Bailey Date Medium Drop
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $NPCList[1] to clone($date_medium_waiter)>>
 
 "Oops." You knock your fork off the table. You slide out of your chair and duck under the tablecloth.
 <br><br>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	You take your time retrieving the fork, glancing up at Bailey with fluttering eyelashes from between <<his>> knees.
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You pick up the fork, then pause between Bailey's knees to look up at <<him>> with a small smile.
+<<elseif _speechAttitudeResolved is "docile">>
+	You retrieve the fork and wait below the table until Bailey notices you looking up at <<him>>.
+<<elseif _speechAttitudeResolved is "confident">>
+	You find the fork, then slide one hand up Bailey's calf while you meet <<his>> eyes.
+<<elseif _speechAttitudeResolved is "bratty">>
 	You take your time down there. You run a finger along Bailey's calf before reaching for the fork.
+<<elseif _speechAttitudeResolved is "cruel">>
+	You drag your nails lightly along Bailey's calf, then pick up the fork without breaking eye contact.
 <<else>>
-	You take your time. You find the fork. You don't come back up right away, instead peering up at Bailey.
+	You find the fork but remain below the table for another moment, watching Bailey from between <<his>> knees.
 <</if>>
 <br><br>
 
@@ -982,14 +1022,22 @@ Bailey's eyes scan the room constantly.
 
 
 :: Bailey Date Medium Flirt Bailey
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<silently>><<seductioncheck>><</silently>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	You chew on your lip. "P-penny for your thoughts?"
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You lean closer with a smile. "Would you care to tell me what has your attention?"
+<<elseif _speechAttitudeResolved is "docile">>
+	You wait until Bailey looks your way. "May I ask what you're thinking about?"
+<<elseif _speechAttitudeResolved is "confident">>
+	You rest your elbow on the table. "Come on. Tell me what you're thinking."
+<<elseif _speechAttitudeResolved is "bratty">>
 	You smile at Bailey. "I didn't pay to watch you wave at other people all night."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You tap the table in front of Bailey. "I paid for your attention. Put it back where it belongs."
 <<else>>
 	You lean towards Bailey. "You're not going to ignore me all night, are you?"
 <</if>>
@@ -1138,17 +1186,25 @@ The other leans back in <<person4>><<his>> chair like <<he>> owns it. "Nice plac
 
 
 :: Bailey Date Medium Incident Quiet
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $NPCList[2] to clone($date_medium_goon1)>><<set $NPCList[3] to clone($date_medium_goon2)>>
 
 You don't answer. They don't leave.
 <br><br>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
-	You avoid their gaze, staring at a scuff in the table instead.
-<<elseif $speech_attitude is "bratty">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	You lower your eyes to a scuff in the table.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You turn your shoulder towards them, making it clear that they are interrupting your dinner.
+<<elseif _speechAttitudeResolved is "docile">>
+	You lower your eyes to the table and keep your hands folded in your lap.
+<<elseif _speechAttitudeResolved is "confident">>
+	You sit back in your chair and watch them without giving either one an answer.
+<<elseif _speechAttitudeResolved is "bratty">>
 	You cross your arms, glaring them down.
+<<elseif _speechAttitudeResolved is "cruel">>
+	You look each of them over, then turn back to the table without answering.
 <<else>>
 	You stare at them wordlessly.
 <</if>>
@@ -1174,14 +1230,22 @@ You don't answer. They don't leave.
 
 
 :: Bailey Date Medium Incident Seat
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $NPCList[2] to clone($date_medium_goon1)>><<set $NPCList[3] to clone($date_medium_goon2)>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"Y-You're in Bailey's seat," you stammer. "Get up, please. <<He>>'ll hurt you."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Excuse me, that seat is taken," you say. "You should move before Bailey returns."
+<<elseif _speechAttitudeResolved is "docile">>
+	"That's Bailey's seat," you say quietly. "Please move before <<he>> comes back."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Get out of Bailey's seat," you say. "This warning is the kindest one you'll receive."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"You idiot," you scoff. "You just took Bailey's seat."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You lean back in your chair. "Stay there. Bailey can teach you why that was a mistake."
 <<else>>
 	"You're in Bailey's seat," you say. "You should get up."
 <</if>>
@@ -1213,15 +1277,26 @@ A shadow looms over the table from behind you. <span class="bailey-red">It's Bai
 
 
 :: Bailey Date Medium Incident Defiant
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $NPCList[2] to clone($date_medium_goon1)>><<set $NPCList[3] to clone($date_medium_goon2)>>
 <<wolfDefiant 500>>
 
-You stand up from your seat immediately, not caring if you made a scene.
-<br><br>
-
-"That's not your seat," you say. "Get up."
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	You press both hands against the table and force yourself to stand. "T-That's Bailey's seat," you say. "Please move."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You rise from your chair and motion towards the rest of the room. "That seat belongs to my companion. Find another one."
+<<elseif _speechAttitudeResolved is "docile">>
+	You stand because allowing them to remain no longer feels possible. "Bailey sits there. You need to move."
+<<elseif _speechAttitudeResolved is "confident">>
+	You push your chair back and stand straight. "That's not your seat. Get up."
+<<elseif _speechAttitudeResolved is "bratty">>
+	You spring from your chair and point across the room. "Pick another table before Bailey throws you out of that one."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You plant one hand on the table in front of them. "Get up now, unless you want Bailey to move you."
+<<else>>
+	You stand, drawing the attention of the nearby tables. "That's Bailey's seat. Get up."
+<</if>>
 <br><br>
 
 The air goes cold. <<person3>>The <<personsimple>> gawks at you for one second before <<he>> sneers, "Who the hell do you think you are?"
@@ -1364,14 +1439,22 @@ You arrive at the orphanage.
    ================================================================ */
 
 :: Bailey Date All Night Schedule
-<<effects>>
+<<effects>><<speechresolve>>
 <<person1>>
 <<set $bailey_date_allnight_scheduled to 1>><<set $bailey_date_sched_day to Time.days>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"I-I have <<printprice $bailey_date_allnight_price>>," you say. Your hands shake as you hold it out. "I want to stay the night with you."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'd like the whole evening with you," you say, presenting <<printprice $bailey_date_allnight_price>>. "That includes staying the night."
+<<elseif _speechAttitudeResolved is "docile">>
+	You offer Bailey <<printprice $bailey_date_allnight_price>> without pulling your hand back. "May I stay with you tonight?"
+<<elseif _speechAttitudeResolved is "confident">>
+	You set <<printprice $bailey_date_allnight_price>> on the desk. "This buys the entire night. I'll be staying with you."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"<<printprice $bailey_date_allnight_price>>." You set the thick stack of money on <<his>> desk. "I'm staying the night."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You press <<printprice $bailey_date_allnight_price>> against Bailey's ledger. "Clear your plans. I bought the night."
 <<else>>
 	"I have <<printprice $bailey_date_allnight_price>>," you say, holding the money out. "I want to stay the night."
 <</if>>
@@ -1570,13 +1653,21 @@ You take a bite from your bowl. It is flavourless. You chew and swallow and chew
 
 
 :: Bailey Date All Night Kitchen Cook
-<<pass 30>><<effects>>
+<<pass 30>><<effects>><<speechresolve>>
 <<person1>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"L-Let me cook for you." You step forward. "Please."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Allow me to cook tonight," you say as you step towards the counter. "You can set the table."
+<<elseif _speechAttitudeResolved is "docile">>
+	You stop beside Bailey and wait for <<him>> to move. "I can cook, if you want me to."
+<<elseif _speechAttitudeResolved is "confident">>
+	You roll up your sleeves as you approach the counter. "I'll handle the food."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"I'm cooking." You step between Bailey and the counter. "You are not feeding me boiled slop tonight."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You push Bailey's hand away from the pan. "Sit down before you ruin dinner. I'm cooking."
 <<else>>
 	"I can cook." You step forward. "Let me do it."
 <</if>>
@@ -1593,7 +1684,7 @@ You step over to the countertop. The meat and produce are already out. You work 
 	<br><br>
 	You ladle the stew into the bowls and set Bailey's in front of <<him>>. <<He>>'s glaring at something on <<his>> phone, not looking at you or the food.
 	<br><br>
-	<<He>> picks up <<his>> spoon and takes a bite. <<He>> pauses with the spoon in <<his>> mouth. <<His>> gaze shifts from <<his>> phone to you to the bowl. <<He>> sets <<his>> phone down before <<he>> continues eating.<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
+	<<He>> picks up <<his>> spoon and takes a bite. <<He>> pauses with the spoon in <<his>> mouth, looks from <<his>> phone to you, then down at the bowl. <<He>> sets <<his>> phone aside before continuing to eat.<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
 	<br><br>
 	<<He>> finishes the bowl.
 <<else>>
@@ -1692,7 +1783,7 @@ The night air hits you. You're outside the flats. Alone.
 
 
 :: Bailey Date All Night Ask Papers
-<<pass 5>><<effects>>
+<<pass 5>><<effects>><<speechresolve>>
 <<person1>>
 
 The door to the bathroom opens. Bailey exits, running a hand through <<his>> hair.
@@ -1701,10 +1792,18 @@ The door to the bathroom opens. Bailey exits, running a hand through <<his>> hai
 You look between the papers and <<him>>.
 <br><br>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"A-Are those me and Robin's...?" you ask. "You keep them on you?"
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Those appear to be mine and Robin's identification papers," you say. "Why do you carry them with you?"
+<<elseif _speechAttitudeResolved is "docile">>
+	You point to the papers but keep your distance. "Are those ours? I didn't know you kept them with you."
+<<elseif _speechAttitudeResolved is "confident">>
+	You tap the edge of the papers. "Those belong to me and Robin. Why are they in your pocket?"
+<<elseif _speechAttitudeResolved is "bratty">>
 	"You keep me and Robin's papers on you?" you ask. "Scared I'll steal them?"
+<<elseif _speechAttitudeResolved is "cruel">>
+	You place your hand over the papers before Bailey can reach them. "You carry proof that you own us everywhere you go?"
 <<else>>
 	"Those are me and Robin's identification papers," you say. "Do you always keep them on you?"
 <</if>>
@@ -1821,7 +1920,7 @@ Bailey drops onto the couch. <<He>> stretches one arm along the back of it and l
 
 
 :: Bailey Date All Night Advance Approach
-<<pass 5>><<effects>>
+<<pass 5>><<effects>><<speechresolve>>
 <<person1>>
 <<silently>><<seductioncheck>><</silently>>
 <<seductionskilluptext>>
@@ -1830,10 +1929,18 @@ Bailey drops onto the couch. <<He>> stretches one arm along the back of it and l
 You cross the room to Bailey. <<His>> eyes are still closed.
 <br><br>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	You stand at the edge of the couch for a second before you sit down beside <<him>>. Your hand shakes when you place it on <<his>> knee. "Y-You seem tired. Can I help?"
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You sit beside Bailey, leaving a narrow space between you. After <<he>> opens one eye, you place your hand on <<his>> knee. "Would you like some company?"
+<<elseif _speechAttitudeResolved is "docile">>
+	You lower yourself onto the couch beside Bailey and rest your hand on <<his>> knee. "Tell me what would help."
+<<elseif _speechAttitudeResolved is "confident">>
+	You sit close enough for your thigh to press against Bailey's, then place your hand on <<his>> leg. "Let me take your mind off work."
+<<elseif _speechAttitudeResolved is "bratty">>
 	You drop onto the couch beside <<him>>. Your hand finds <<his>> thigh. "Need a distraction?"
+<<elseif _speechAttitudeResolved is "cruel">>
+	You sit beside Bailey and close your hand around <<his>> thigh. "You've ignored me long enough. Pay attention."
 <<else>>
 	You sit on the couch beside <<him>>. You rest your hand on <<his>> thigh. "You look like you could use some company."
 <</if>>
@@ -1948,7 +2055,7 @@ Eventually, <<he>> opens <<his>> eyes, sits up straight, and picks up <<his>> ph
 	<<npcincr Bailey love -3>><<set $bailey_love -= 3>><<llllove "Bailey">><<baileyBrat 3 "seducebeat">>
 	You push Bailey off.
 	<br><br>
-	<<He>> has gone still. <<His>> face is flat as <<he>> touches the bruise you inflicted, but something in <<his>> eyes burn. You don't waste time. <<tearful>> you grab your clothes and scramble off of the couch, towards the door. You hear Bailey's slow footsteps behind you as you run outside of <<his>> apartment. You slam the door behind you and run towards the stairs.<<stress 18>><<ggstress>><<trauma 12>><<ggtrauma>>
+	Bailey catches <<himself>> against the arm of the couch. <<He>> presses two fingers to the bruise while <<his>> jaw tightens. <<tearful>> You snatch your clothes from the floor and pull them against your chest, then rush through the apartment door. Bailey follows into the hall, but you reach the stairs before <<he>> can grab you.<<stress 18>><<ggstress>><<trauma 12>><<ggtrauma>>
 	<br><br>
 	You find yourself outside the flats.
 	<br><br>
@@ -2037,13 +2144,21 @@ Bailey stands up from the couch. <<He>> looks at you before nodding towards a do
 
 
 :: Bailey Date All Night Ask
-<<pass 5>><<effects>>
+<<pass 5>><<effects>><<speechresolve>>
 <<person1>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"C-Can I stay with you?" you ask. "In... In your bed."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"May I join you tonight?" you ask. "I'd rather share your bed than end the evening here."
+<<elseif _speechAttitudeResolved is "docile">>
+	You wait beside the bedroom door. "Can I sleep with you, if you'll have me?"
+<<elseif _speechAttitudeResolved is "confident">>
+	You follow Bailey towards the bedroom. "Make room for me. I'm sleeping with you."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"I'm not sleeping alone," you say. "I paid for your company all night, remember?"
+<<elseif _speechAttitudeResolved is "cruel">>
+	You catch Bailey by the sleeve. "I paid for the whole night. You don't get to leave me on the couch."
 <<else>>
 	"Let me stay with you," you say. "In your bed."
 <</if>>
@@ -2143,7 +2258,7 @@ You reach forward and touch <<his>> chest. <<He>> stiffens beneath your touch fo
 	<<npcincr Bailey love -3>><<set $bailey_love -= 3>><<llllove "Bailey">><<baileyBrat 3 "seducebeat">>
 	You push Bailey off.
 	<br><br>
-	<<He>> has gone still. <<His>> face is flat as <<he>> touches the bruise you inflicted, but something in <<his>> eyes burn. You don't waste time. <<tearful>> you grab your clothes and scramble out of the bed in the dark, rushing towards the door. You hear Bailey's slow footsteps behind you as you run outside of <<his>> apartment. You slam the door behind you and run towards the stairs.<<stress 18>><<ggstress>><<trauma 12>><<ggtrauma>>
+	Bailey falls back across the mattress and touches the bruise you left. As <<he>> pushes <<himself>> upright, <<tearful>> you slip out of bed and gather your clothes in the dark. You reach the front door while Bailey is still crossing the bedroom, then run into the hall and down the stairs.<<stress 18>><<ggstress>><<trauma 12>><<ggtrauma>>
 	<br><br>
 	You find yourself outside the flats.
 	<br><br>
@@ -2205,13 +2320,21 @@ You close the door and lay down in the bed. The sheets are softer than you expec
 
 
 :: Bailey Date All Night Couch
-<<pass 5>><<effects>>
+<<pass 5>><<effects>><<speechresolve>>
 <<person1>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"Y-You should take the bed," you say. "I insist."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Please take your bed," you say. "The couch will do for me."
+<<elseif _speechAttitudeResolved is "docile">>
+	You collect a cushion from the couch. "I'll sleep here. You can have the bed."
+<<elseif _speechAttitudeResolved is "confident">>
+	You point Bailey towards the bedroom. "Take your bed. I can manage the couch."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"It's your home. Take the bed," you say. "I'll take the couch."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You claim the couch and pull a cushion under your head. "Go sleep in your own bed. I don't need you beside me."
 <<else>>
 	"Take the bed," you say. "I'll sleep on the couch."
 <</if>>
@@ -2316,7 +2439,7 @@ You don't know how long <<he>>'s been there.
 	<br><br>
 	When you meet <<his>> eyes, they're burning with something you can't name.
 <<else>>
-	<<He>> looks away from you. <<His>> hand is still on the doorframe. <<He>> works something in <<his>> jaw.
+	<<He>> looks away from you. <<His>> fingers tighten against the doorframe while <<he>> clenches <<his>> jaw.
 	<br><br>
 	"Shameless little shit," <<he>> sneers.
 	<br><br>
@@ -2400,13 +2523,21 @@ Bailey exits the kitchen with a mug of coffee in hand. <<He>> is already dressed
 
 
 :: Bailey Date All Night Coffee
-<<pass 5>><<effects>><<endevent>>
+<<pass 5>><<effects>><<endevent>><<speechresolve>>
 <<npc Bailey>><<person1>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"M-May I have some coffee, please?" you ask.
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Could I trouble you for some coffee?" you ask, reaching for a cup.
+<<elseif _speechAttitudeResolved is "docile">>
+	You wait beside the counter. "May I have coffee too?"
+<<elseif _speechAttitudeResolved is "confident">>
+	You take down a second cup. "I'm having some coffee."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"Did you make enough coffee for me?" you ask.
+<<elseif _speechAttitudeResolved is "cruel">>
+	You hold your cup out towards Bailey. "Pour me some before you finish it."
 <<else>>
 	"Can I have some coffee?" you ask.
 <</if>>
@@ -2434,13 +2565,21 @@ You sip the black coffee slowly.
 
 
 :: Bailey Date All Night Good Morning
-<<pass 5>><<effects>><<endevent>>
+<<pass 5>><<effects>><<endevent>><<speechresolve>>
 <<npc Bailey>><<person1>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"Good morning, <<baileyTitleNarration>>," you say. "I-I hope you slept well."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Good morning, <<baileyTitleNarration>>," you say as you enter. "I hope the couch didn't keep you awake."
+<<elseif _speechAttitudeResolved is "docile">>
+	You stop near the doorway. "Good morning, <<baileyTitleNarration>>. Did you sleep well?"
+<<elseif _speechAttitudeResolved is "confident">>
+	"Morning, <<baileyTitleNarration>>," you say as you join <<him>>. "You're up early."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"Morning <<baileyTitleNarration>>," you say. "Do you even sleep?"
+<<elseif _speechAttitudeResolved is "cruel">>
+	"You look as tired as you did last night," you say. "Do you ever sleep?"
 <<else>>
 	"Good morning <<baileyTitleNarration>>," you say. "You're up early."
 <</if>>
@@ -2459,10 +2598,24 @@ Bailey says nothing back to you. <<He>> continues to drink from <<his>> coffee.
 
 
 :: Bailey Date All Night Stay Quiet
-<<pass 5>><<effects>><<endevent>>
+<<pass 5>><<effects>><<endevent>><<speechresolve>>
 <<npc Bailey>><<person1>>
 
-You say nothing.
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	You take a seat without speaking and keep your hands together in your lap.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	You give Bailey a small nod before taking a seat, leaving the morning quiet undisturbed.
+<<elseif _speechAttitudeResolved is "docile">>
+	You sit where Bailey left space for you and wait without asking for anything.
+<<elseif _speechAttitudeResolved is "confident">>
+	You pull out a chair and settle into it, waiting for Bailey to speak first.
+<<elseif _speechAttitudeResolved is "bratty">>
+	You drop into a chair and fold your arms. When Bailey remains silent, you do the same.
+<<elseif _speechAttitudeResolved is "cruel">>
+	You take the chair opposite Bailey and stare at <<him>> until <<he>> looks away.
+<<else>>
+	You sit across from Bailey without saying anything.
+<</if>>
 <br><br>
 
 You watch Bailey drink coffee from <<his>> mug slowly. <<He>> looks out the window into the town with a slight frown. You can barely tell <<he>> just woke up.
@@ -2481,13 +2634,21 @@ After a moment, <<he>> looks at you.
 
 
 :: Bailey Date All Night Morning Insist
-<<pass 5>><<effects>><<endevent>>
+<<pass 5>><<effects>><<endevent>><<speechresolve>>
 <<npc Bailey>><<person1>>
 
-<<if $speech_attitude is "meek" or $speech_attitude is "shy">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"I-I can walk myself," you say. "You don't have to drive me."
-<<elseif $speech_attitude is "bratty">>
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Thank you, but I can make my own way back," you say. "There's no need to drive me."
+<<elseif _speechAttitudeResolved is "docile">>
+	You stop beside the door. "I can walk back, if that's easier for you."
+<<elseif _speechAttitudeResolved is "confident">>
+	"I'll walk," you say as you reach for the door. "I know the way."
+<<elseif _speechAttitudeResolved is "bratty">>
 	"I don't need you to drive me," you say. "I'll walk myself."
+<<elseif _speechAttitudeResolved is "cruel">>
+	You open the door without waiting. "Keep the car. I've spent enough time with you."
 <<else>>
 	"I can walk there myself," you say.
 <</if>>
