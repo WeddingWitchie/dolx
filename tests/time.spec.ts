@@ -90,6 +90,85 @@ test.describe("Time", () => {
 		expect(result.history).toBe(97);
 	});
 
+	test("runs the noon check when a multi-hour activity ends inside the noon hour", async ({ page }) => {
+		await setupGame(page);
+		await setDay(page, "Wednesday", 10, 30);
+		await page.evaluate(() => ((window as any).SugarCube.State.variables.robinwakeday = 7));
+
+		// Lands at 12:30. The hour loop used to process 11:00 twice and never reach 12:00.
+		await advanceMinutes(page, 120);
+
+		const result = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return { hour: (window as any).Time.hour, robinwakeday: V.robinwakeday };
+		});
+		expect(result.hour).toBe(12);
+		expect(result.robinwakeday).toBe(0);
+	});
+
+	test("runs the noon check when an overnight sleep ends after noon", async ({ page }) => {
+		await setupGame(page);
+		await setDay(page, "Wednesday", 22, 30);
+		await page.evaluate(() => ((window as any).SugarCube.State.variables.robinwakeday = 7));
+
+		// 22:30 -> 12:30 the next day, crossing midnight. The hours after midnight are passed by a second call
+		// that used to re-process hour 0 and stop an hour short of the hour it landed on.
+		await advanceMinutes(page, 14 * 60);
+
+		const result = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return { hour: (window as any).Time.hour, robinwakeday: V.robinwakeday };
+		});
+		expect(result.hour).toBe(12);
+		expect(result.robinwakeday).toBe(0);
+	});
+
+	test("runs the dawn check when a multi-hour activity ends inside the dawn hour", async ({ page }) => {
+		await setupGame(page);
+		await setDay(page, "Wednesday", 4, 30);
+		await page.evaluate(() => ((window as any).SugarCube.State.variables.wolfwake = 5));
+
+		await advanceMinutes(page, 120); // -> 06:30
+
+		const result = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return { hour: (window as any).Time.hour, wolfwake: V.wolfwake };
+		});
+		expect(result.hour).toBe(6);
+		expect(result.wolfwake).toBe(0);
+	});
+
+	test("runs the noon check only once when the clock crosses noon", async ({ page }) => {
+		await setupGame(page);
+		await setDay(page, "Wednesday", 11, 50);
+		await page.evaluate(() => ((window as any).SugarCube.State.variables.lake_ice_broken = 5));
+
+		// 11:50 -> 13:00. noonCheck decrements lake_ice_broken; the loop used to run the first hour of the
+		// range twice, which double-ticked everything noonCheck does (including pregnancy progress).
+		await advanceMinutes(page, 70);
+
+		const iceBroken = await page.evaluate(() => (window as any).SugarCube.State.variables.lake_ice_broken);
+		expect(iceBroken).toBe(4);
+	});
+
+	test("passes several days at once without losing an hour or a day tick", async ({ page }) => {
+		await setupGame(page);
+		const consoleErrors: string[] = [];
+		page.on("console", msg => {
+			if (msg.type() === "error") consoleErrors.push(msg.text());
+		});
+		await setDay(page, "Wednesday", 22, 30);
+
+		await advanceMinutes(page, 74 * 60); // three days and two hours -> Sunday 00:30
+
+		const result = await page.evaluate(() => {
+			const Time = (window as any).Time;
+			return { day: Time.weekDayName, hour: Time.hour, minute: Time.minute };
+		});
+		expect(result).toEqual({ day: "Sunday", hour: 0, minute: 30 });
+		expect(consoleErrors.filter(text => /failed/.test(text))).toHaveLength(0);
+	});
+
 	test("restores godClothes clothing integrity after 1 minute", async ({ page }) => {
 		await setupGame(page);
 

@@ -183,7 +183,7 @@ const Time = (() => {
 						if (day !== 0) {
 							// we're here for a long haul, give pc some rest
 							statChange.tiredness(-120);
-							runTickStage("hourPassed", () => hourPassed(24));
+							runTickStage("hourPassed", () => hourPassed(24, true));
 							statChange.tiredness(-120);
 						}
 						if (prevDate.weekDay === 7 && currentDate.weekDay === 1) weekPassed();
@@ -191,8 +191,9 @@ const Time = (() => {
 						if (prevDate.month === currentDate.month - 1) monthPassed();
 						if (prevDate.yearDay < Time.startDate.yearDay && currentDate.yearDay >= Time.startDate.yearDay) yearPassed();
 					}
-					// pass the remaining hours
-					runTickStage("hourPassed", () => hourPassed((hours - hoursToNextDay) % 24));
+					// pass the remaining hours.
+					// The clock is sitting on the new day's hour 0, which the call abovealready processed, so this call has to step forward before its first hour.
+					runTickStage("hourPassed", () => hourPassed((hours - hoursToNextDay) % 24, true));
 					// reset BodyTemperature effects
 					delete T.bodyActivity;
 				}
@@ -1252,6 +1253,14 @@ function dayPassed(days) {
 			/* Set flag to determine Kylar's position at lunch */
 			V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
 
+			/* Avery's evening return from work. Raised here rather than at noon, else losing the whole evening. */
+			if (V.avery_mansion) {
+				if (Time.weekDay !== 7 && Time.weekDay !== 1) {
+					V.avery_mansion.rage.work = true;
+				}
+				V.avery_mansion.sleep_interrupt = 0;
+			}
+
 			// DoLP Bike Theft and Break Cooldowns
 			if (V.bicycle.stolenCoolDown > 0) {
 				V.bicycle.stolenCoolDown--;
@@ -1289,7 +1298,13 @@ function dayPassed(days) {
 	}
 }
 
-function hourPassed(hours) {
+/**
+ * @param {number} hours number of hours to process
+ * @param {boolean} [advanceFirst] true when the clock sits on the last hour already processed rather than on the
+ * first hour still to process; the case after a midnight crossing, where the previous call ended on the new day's hour 0.
+ * Without it that hour is processed twice and the hour the clock lands on is never processed at all.
+ */
+function hourPassed(hours, advanceFirst) {
 	if (V.statFreeze) {
 		// minutes still need to pass
 		if (hours > 1) minutePassed((hours - 1) * 60);
@@ -1302,6 +1317,13 @@ function hourPassed(hours) {
 
 	/* code that needs to run every hour */
 	for (let i = 0; i < hours; i++) {
+		/* Advancing has to happen before the body: doing it at the end instead ran the first hour of the range twice
+		   and never ran the hour the clock lands on, so an hour-of-day check (dawn, noon, Robin's watering) was
+		   silently skipped whenever a multi-hour activity ended inside that hour. */
+		if (i !== 0 || advanceFirst) {
+			minutePassed(60);
+			Time.set(V.timeStamp + 3600);
+		}
 		if (V.innocencestate === 1 && V.control <= 0) statChange.awareness(1);
 		statChange.control(1);
 		wikifier("orgasmHourlyRecovery");
@@ -1388,11 +1410,6 @@ function hourPassed(hours) {
 		// time checks
 		if (Time.hour === 6) dawnCheck();
 		if (Time.hour === 12) noonCheck();
-		// the first hour already has minutes passed and time set before hourPassed even ran, but subsequent hours still need it
-		if (i !== 0) {
-			minutePassed(60);
-			Time.set(V.timeStamp + 3600);
-		}
 	}
 	/* changes that can be applied just once. consider if using V.hourly would make better sense before putting things here */
 	calchairlengthstage();
@@ -1745,13 +1762,6 @@ function noonCheck() {
 	delete V.edenbed;
 	delete V.glideScared;
 	if (V.pound) V.pound.sneak = 0;
-
-	if (V.avery_mansion) {
-		if (Time.weekDay !== 7 && Time.weekDay !== 1) {
-			V.avery_mansion.rage.work = true;
-		}
-		V.avery_mansion.sleep_interrupt = 0;
-	}
 
 	if (V.loftIngredients && Object.keys(V.loftIngredients).length >= 1) {
 		Object.keys(V.loftIngredients).forEach(x => {
