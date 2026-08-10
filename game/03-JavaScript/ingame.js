@@ -3673,7 +3673,9 @@ function teensPresentCheck(location) {
 	}
 
 	if (V.daily.teensPresent === location) {
-		if (["day", "dusk"].includes(Time.dayState) && ((Time.schoolDay && Time.hour >= 15) || !Time.schoolDay)) {
+		// Dusk ends at 19:45, but the crowd is written as staying until they head home together at 20:00.
+		const stillAround = ["day", "dusk"].includes(Time.dayState) || Time.hour === 20;
+		if (stillAround && ((Time.schoolDay && Time.hour >= 15) || !Time.schoolDay)) {
 			if (location === "arcade" || (location === "lake" && Weather.precipitation === "none")) {
 				present = 1;
 			}
