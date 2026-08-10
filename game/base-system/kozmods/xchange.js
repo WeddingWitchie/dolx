@@ -904,6 +904,20 @@ function pillTimerPaused() {
 }
 window.pillTimerPaused = pillTimerPaused;
 
+/* A held masturbation action can outlive the body part it targets when a pill applies or wears off
+ * mid-scene, which is why a penis could be kept until the hand let go of it. Reports actions whose
+ * target genital is no longer there so <<xchangeMasturbationDesyncCheck>> can drop them. */
+setup.xchangeStaleMasturbationAction = function (action) {
+	if (typeof action !== "string") return false;
+	// The "mpenisflower..." actions are the moor phallus plant, not the player's own penis, so they survive a body change.
+	if (/flower/i.test(action)) return false;
+	const noPenis = !(V.player.penisExist || (typeof playerHasStrapon === "function" && playerHasStrapon()));
+	const noVagina = !V.player.vaginaExist;
+	if (noPenis && /penis|balls/i.test(action)) return true;
+	if (noVagina && /vagina/i.test(action)) return true;
+	return false;
+};
+
 function pillIsPermanent() {
 	return V.xchange.pill.duration <= -1;
 }

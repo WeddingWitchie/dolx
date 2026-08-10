@@ -29,26 +29,36 @@
 	<<widget "become-girl">>
 		<<wash>>
 
-		<<if $facestyle is "default">>
-			<<set $facevariant to ["sweet","catty","default","foxy"].random()>>
-		<</if>>
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
 
-		/* Generating a new sides hairstyle if player uses short hair */
-		<<set _currentHairstyle to setup.hairstyles.sides.find(hs => hs.variable === V.hairtype)>>
-		<<set _hairstyles to setup.hairstyles.sides
-			.filter(x => x.type.includes("loose") &&
-				!x.type.includesAny("curly","textured","short","pigtails","braids","buns","ponytail") &&
-				!["swept left","bedhead"].includes(x.variable))
-			.map(x => x.variable)>>
+		/* Face and hair belong to the body being generated, so they're only rolled when a brand new
+		   female body is built: never when an existing one is loaded back, and never when this widget
+		   is only being used to flip the shape back on the way to <<load-body>> (_args[0] is "restore").
+		   Face style additionally obeys the "Enable face changes for pills" setting. */
+		<<set _xchangeUseCached to ($player.sex !== "f" && setup.xChangeCachedBodyUsable("genderswapped"))>>
+		<<set _xchangeNewBody to (_args[0] isnot "restore") && !_xchangeUseCached>>
 
-		/* If we can't resolve current hair (or it's short and not a disallowed bob), pick a valid new one */
-		<<if _currentHairstyle is undefined>>
-			<<set $hairtype to _hairstyles.random()>>
-		<<elseif _currentHairstyle.type.includes("short")
-			&& !["french bob","layered bob","straight bob"].includes(_currentHairstyle.variable)>>
-			<<set $hairtype to _hairstyles.random()>>
+		<<if _xchangeNewBody>>
+			<<if $xchange.faceChangesEnabled and $facestyle is "default">>
+				<<set $facevariant to ["sweet","catty","default","foxy"].random()>>
+			<</if>>
+
+			/* Generating a new sides hairstyle if player uses short hair */
+			<<set _currentHairstyle to setup.hairstyles.sides.find(hs => hs.variable === V.hairtype)>>
+			<<set _hairstyles to setup.hairstyles.sides
+				.filter(x => x.type.includes("loose") &&
+					!x.type.includesAny("curly","textured","short","pigtails","braids","buns","ponytail") &&
+					!["swept left","bedhead"].includes(x.variable))
+				.map(x => x.variable)>>
+
+			/* If we can't resolve current hair (or it's short and not a disallowed bob), pick a valid new one */
+			<<if _currentHairstyle is undefined>>
+				<<set $hairtype to _hairstyles.random()>>
+			<<elseif _currentHairstyle.type.includes("short")
+				&& !["french bob","layered bob","straight bob"].includes(_currentHairstyle.variable)>>
+				<<set $hairtype to _hairstyles.random()>>
+			<</if>>
 		<</if>>
 
 		/* Normal Physique reduction */
@@ -56,7 +66,7 @@
 
 		/* Loading existing values, or generating new ones */
 		<<set _xchangeLoadedBody to false>>
-		<<if $player.sex !== "f" && setup.xChangeCachedBodyUsable("genderswapped")>>
+		<<if _xchangeUseCached>>
 			<<load-body "genderswapped">>
 			<<set _xchangeLoadedBody to true>>
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random" || $xchange.customisedSkinColour isnot "nochange" || $xchange.customisedEyeColour isnot "nochange">>
@@ -320,22 +330,30 @@
 
 	<<widget "become-boy">>
 		<<wash>>
-		<<if $facestyle is "default">>
-			<<set $facevariant to ["default","aloof","foxy"].random()>>
-		<</if>>
 		<<set $player.gender_body to "m">>
 		<<set $player.bodyshape to "classic">>
-		<<set _shortStyles to setup.hairstyles.sides
-			.filter(x => x.type.includes("short"))
-			.map(x => x.variable)>>
-		<<if !_shortStyles.includes($hairtype)>>
-			<<set $hairtype to _shortStyles.random()>>
+
+		/* See <<become-girl>>: face/hair are only rolled for a brand new male body, never on a reload
+		   and never on the shape flip that precedes <<load-body>> during a restore. */
+		<<set _xchangeUseCached to ($player.sex !== "m" && setup.xChangeCachedBodyUsable("genderswapped"))>>
+		<<set _xchangeNewBody to (_args[0] isnot "restore") && !_xchangeUseCached>>
+
+		<<if _xchangeNewBody>>
+			<<if $xchange.faceChangesEnabled and $facestyle is "default">>
+				<<set $facevariant to ["default","aloof","foxy"].random()>>
+			<</if>>
+			<<set _shortStyles to setup.hairstyles.sides
+				.filter(x => x.type.includes("short"))
+				.map(x => x.variable)>>
+			<<if !_shortStyles.includes($hairtype)>>
+				<<set $hairtype to _shortStyles.random()>>
+			<</if>>
 		<</if>>
 		<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
 
 		/* Loading existing values, or generating new ones */
 		<<set _xchangeLoadedBody to false>>
-		<<if $player.sex !== "m" && setup.xChangeCachedBodyUsable("genderswapped")>>
+		<<if _xchangeUseCached>>
 			<<load-body "genderswapped">>
 			<<set _xchangeLoadedBody to true>>
 			<<if $xchange.customisedSkinColour is "random" || $xchange.customisedEyeColour is "random" || $xchange.customisedSkinColour isnot "nochange" || $xchange.customisedEyeColour isnot "nochange">>
@@ -913,7 +931,8 @@
 		<</if>>
 
 		<<if _body is undefined>>
-			<<break>>
+			/* <<break>> outside a <<for>> is a macro error; <<exit>> is what leaves a widget early. */
+			<<exit>>
 		<</if>>
 
 		<<set _slotName to (_args[0] ? _args[0] : "originalBody")>>
@@ -1372,6 +1391,7 @@
 			<</if>>
 			<<if !$player.penisExist>><<set $xchange.pill.bullEffect to false>><<set $xchange.pill.alphaEffect to false>><</if>>
 			<<if $combat is 1>><<xchangeBodyDesyncCheck>><</if>>
+			<<xchangeMasturbationDesyncCheck>>
 		<</if>>
 
 	<<case "crossdress">>
@@ -1628,11 +1648,12 @@
 			<<set $xchange.pill.genderflipEffect to false>>
 			<<if _xchangeNeedsBodyRevert>>
 				<<if $player.gender is "m">>
-					<<become-boy>>
+					<<become-boy "restore">>
 				<<else>>
-					<<become-girl>>
+					<<become-girl "restore">>
 				<</if>>
 				<<load-body>>
+				<<xchangeMasturbationDesyncCheck>>
 			<</if>>
 		<<case "crossdress">>
 			<<set $xchange.pill.genderificationEffect to false>>
@@ -1792,6 +1813,53 @@
 	<</if>>
 <</widget>>
 
+	/* Drops masturbation actions whose target genital was removed by a pill applying or wearing off
+	   mid-scene. Without this the scene keeps working a penis (or vagina) the body no longer has,
+	   until the hand or mouth lets go of it on its own. */
+	<<widget "xchangeMasturbationDesyncCheck">>
+		<<if $masturbating isnot 1>><<exit>><</if>>
+
+		/* The "default" vars are checked too: they hold the action that re-engages next turn, so a stale
+		   one would reach for the missing part again even after the live action is cleared. */
+		<<set _xcCleared to false>>
+		<<if setup.xchangeStaleMasturbationAction($leftarm) or setup.xchangeStaleMasturbationAction($leftaction) or setup.xchangeStaleMasturbationAction($leftactiondefault)>>
+			<<if $leftarm isnot "bound">><<set $leftarm to 0>><<set $leftaction to 0>><</if>>
+			<<set $leftactiondefault to "mrest">>
+			<<set _xcCleared to true>>
+		<</if>>
+		<<if setup.xchangeStaleMasturbationAction($rightarm) or setup.xchangeStaleMasturbationAction($rightaction) or setup.xchangeStaleMasturbationAction($rightactiondefault)>>
+			<<if $rightarm isnot "bound">><<set $rightarm to 0>><<set $rightaction to 0>><</if>>
+			<<set $rightactiondefault to "mrest">>
+			<<set _xcCleared to true>>
+		<</if>>
+		<<if setup.xchangeStaleMasturbationAction($mouth) or setup.xchangeStaleMasturbationAction($mouthaction) or setup.xchangeStaleMasturbationAction($mouthactiondefault)>>
+			<<set $mouth to 0>>
+			<<set $mouthaction to 0>>
+			<<set $mouthactiondefault to "mrest">>
+			<<set _xcCleared to true>>
+		<</if>>
+		<<if setup.xchangeStaleMasturbationAction($vaginaactiondefault)>>
+			<<set $vaginaactiondefault to "mrest">>
+			<<set _xcCleared to true>>
+		<</if>>
+
+		/* Keep the use markers in step with the body, matching <<masturbationstart>>. */
+		<<if $player.penisExist>>
+			<<if $penisuse is "none">><<set $penisuse to 0>><</if>>
+		<<else>>
+			<<set $penisuse to "none">>
+		<</if>>
+		<<if $player.vaginaExist>>
+			<<if $vaginause is "none">><<set $vaginause to 0>><</if>>
+		<<else>>
+			<<set $vaginause to "none">>
+		<</if>>
+
+		<<if _xcCleared>>
+			<span class="blue">There's nothing left to hold, so you stop.</span>
+		<</if>>
+	<</widget>>
+
 	<<widget "take-xchange">>
 		<<set _duration to _args[0]>>
 		<<set _effects to _args.slice(1)>>
@@ -1887,9 +1955,9 @@
 
 			<<if _xchangeNeedsBodyRevert>>
 				<<if $player.gender is "m">>
-					<<become-boy>>
+					<<become-boy "restore">>
 				<<elseif $player.gender is "f">>
-					<<become-girl>>
+					<<become-girl "restore">>
 					<<set $sexStats.vagina.menstruation.running = true>>
 				<</if>>
 			<</if>>
@@ -1897,6 +1965,7 @@
 
 		<<if _xchangeNeedsBodyRevert>>
 			<<load-body>>
+			<<xchangeMasturbationDesyncCheck>>
 		<</if>>
 
 		/* Queue up pill messages */
