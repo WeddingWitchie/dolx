@@ -2491,8 +2491,14 @@ Renderer.CanvasModels.main = {
 				// =============================
 				// Detect active NPC (robust)
 				let rawName = null;
+				let activeNpc = null;
+				const selectedNpc = Number.isInteger(V.index) ? V.NPCList?.[V.index] : null;
 
-				if (V.NPCList?.[0]?.fullDescription) {
+				if (selectedNpc?.fullDescription && selectedNpc.description === "brown fox") {
+					activeNpc = selectedNpc;
+					rawName = selectedNpc.fullDescription;
+				} else if (V.NPCList?.[0]?.fullDescription) {
+					activeNpc = V.NPCList[0];
 					rawName = V.NPCList[0].fullDescription;
 				} else if (V.npc?.name) {
 					rawName = V.npc.name;
@@ -2527,7 +2533,7 @@ Renderer.CanvasModels.main = {
 
 				// Gender (respect override if enabled)
 				const pronoun =
-					V.NPCList?.[0]?.pronoun ||
+					activeNpc?.pronoun ||
 					npcRecord?.pronoun;
 
 				let gender =
@@ -2538,7 +2544,7 @@ Renderer.CanvasModels.main = {
 				// Skin: humans follow their actual skin colour (the per-NPC Pale/Dark setting), so the sprite can't be pinned to a stale saved display choice.
 				// The saved choice still decides beast art (human vs monster form) and is the fallback when the actual colour can't be resolved.
 				const skincolour =
-					V.NPCList?.[0]?.skincolour ||
+					activeNpc?.skincolour ||
 					npcRecord?.skincolour;
 
 				let skinChoice;
@@ -2559,6 +2565,7 @@ Renderer.CanvasModels.main = {
 				if (active === "sydney") {
 					skin += (C.npc.Sydney.purity >= 1) ? "/pure" : "/corrupt";
 				}
+				if (active === "gwylan" && activeNpc?.description === "brown fox") skin += "/brownfox";
 				if (active === "ivory_wraith" || active === "others") skin = "";
 
 				return `img/ui/nnpc/${active}/${gender}${skin}/${cfg.slot}.png`;
