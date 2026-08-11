@@ -1288,7 +1288,9 @@ setup.xChangeActiveBodyVirginityRole = function xChangeActiveBodyVirginityRole()
 		const cloneRole = setup.xChangeCloneVirginityRole(pill.clone);
 		if (cloneRole) return cloneRole;
 	}
-	if (V.player && V.player.gender_body === "a") return "herm";
+	// A herm is a body with BOTH sets of genitals. gender_body "a" alone is not enough: vanilla also uses it for a merely
+	// androgynous single-genital body (the bimbo/pimp outfit drift parks a body there on its way from "m" to "f").
+	if (V.player && V.player.gender_body === "a" && V.player.penisExist && V.player.vaginaExist) return "herm";
 	if (!transformed) return "real";
 	if (pill && (pill.baseSex === "m" || pill.baseSex === "f")) {
 		return V.player && V.player.sex !== pill.baseSex ? "xchange" : "real";

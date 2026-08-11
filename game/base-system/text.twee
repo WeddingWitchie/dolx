@@ -2340,12 +2340,16 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "pcSex">><<silently>>
-	<<switch $player.sex>>
-	<<case "f">><<set _text_output to "girl">>
-	<<case "m">><<set _text_output to "boy">>
-	<<case "h">><<set _text_output to "hermaphrodite">>
-	<<default>><<set _text_output to "person">>
-	<</switch>>
+	<!-- A herm is a body with both sets of genitals, not a third value of $player.sex. -->
+	<<if $player.penisExist and $player.vaginaExist>>
+		<<set _text_output to "hermaphrodite">>
+	<<else>>
+		<<switch $player.sex>>
+		<<case "f">><<set _text_output to "girl">>
+		<<case "m">><<set _text_output to "boy">>
+		<<default>><<set _text_output to "person">>
+		<</switch>>
+	<</if>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "pcGender">><<silently>>
@@ -3144,16 +3148,20 @@
 			<<if $player.breastsize gte 3>>
 				<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + " and " + _breasts + "</span>">>
 			<<else>>
-				<<if $player.sex is "m">>
+				<<if $player.penisExist and $player.vaginaExist>>
+					<<if perceivedGender() is "f">>
+						<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + " and " + _breasts + ", made salacious by your feminine demeanour</span>">>
+					<<else>>
+						<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + " and " + _breasts + "</span>">>
+					<</if>>
+				<<elseif $player.sex is "m">>
 					<<if perceivedGender() is "f">>
 						<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + " and " + _breasts + ", made salacious by your feminine demeanour</span>">>
 					<<else>>
 						<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + "</span>">>
 					<</if>>
-				<<elseif $player.sex is "h" and perceivedGender() is "f">>
-					<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + " and " + _breasts + ", made salacious by your feminine demeanour</span>">>
 				<<else>>
-				<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + " and " + _breasts + "</span>">>
+					<<set _text_output to _text_output + "<span class=\"lewd\">" + _genitals + " and " + _breasts + "</span>">>
 				<</if>>
 			<</if>>
 		<</if>>

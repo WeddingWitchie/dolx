@@ -1423,10 +1423,13 @@
 			/* A different-gender clone already has genderflipEffect set, so the branch above is skipped
 			   and hermify is what takes the player out of the clone. Bank it here instead, and only fall
 			   through to the xchange slot when no clone is worn: filing a clone's record under "xchange"
-			   would overwrite the player's own X-Change body. */
+			   would overwrite the player's own X-Change body.
+			   The body only keeps its own record if it is already herm-shaped, which means BOTH sets of genitals:
+			   gender_body "a" on its own also covers a merely androgynous body (the bimbo/pimp outfit drift parks
+			   one there), and skipping the bank for that would lose the outgoing body's virginity record. */
 			<<if setup.xChangeCloneVirginityRole($xchange.pill.clone) isnot "">>
 				<<xchange-bank-clone-body>>
-			<<elseif setup.xChangeTransformedRole($player.gender_body) is "xchange">>
+			<<elseif !($player.penisExist and $player.vaginaExist)>>
 				<<xchange-store-body-virginity "xchange">>
 			<</if>>
 			<<set $xchange.pill.hermEffect to true>>
@@ -1637,10 +1640,10 @@
 		<<switch _args[0]>><<wash>>
 		<<case "genderflip">>
 			<<run setup.xChangeRecordActiveBodyVirginity()>>
-			<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a") or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
+			<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a" and $player.penisExist and $player.vaginaExist) or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
 			<<if setup.xChangeCloneVirginityRole($xchange.pill.clone) isnot "">>
 				<<save-body "cloned" $xchange.pill.clone>>
-			<<elseif $player.gender_body is "a">>
+			<<elseif $player.gender_body is "a" and $player.penisExist and $player.vaginaExist>>
 				<<save-body "herm">>
 			<<elseif $xchange.pill.hermEffect or $xchange.pill.genderflipEffect or setup.xChangeActiveBodyVirginityRole() is "xchange">>
 				<<save-body "genderswapped">>
@@ -1940,14 +1943,14 @@
 	<</widget>>
 
 	<<widget "xchange-restore">>
-		<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a") or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
+		<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a" and $player.penisExist and $player.vaginaExist) or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
 
 		<<if _args[0] isnot "nosave">>
 			/* Save whatever the CURRENT body actually is before overwriting it */
 			<<run setup.xChangeRecordActiveBodyVirginity()>>
 			<<if setup.xChangeCloneVirginityRole($xchange.pill.clone) isnot "">>
 				<<save-body "cloned" $xchange.pill.clone>>
-			<<elseif $player.gender_body is "a">>
+			<<elseif $player.gender_body is "a" and $player.penisExist and $player.vaginaExist>>
 				<<save-body "herm">>
 			<<elseif $xchange.pill.hermEffect or $xchange.pill.genderflipEffect or setup.xChangeActiveBodyVirginityRole() is "xchange">>
 				<<save-body "genderswapped">>

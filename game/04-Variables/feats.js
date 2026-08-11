@@ -3154,7 +3154,7 @@ function earnHourlyFeats() {
 		// A hermaphrodite is anyone with both a penis and a vagina.
 		// Keying off the body rather than V.player.sex keeps this working when "h" doesn't exist as DoLX base sex
 		// (e.g. the xchange system only ever uses "m"/"f"), while still catching vanilla herms.
-		const isHerm = V.player.sex === "h" || (V.player.penisExist === true && V.player.vaginaExist === true);
+		const isHerm = V.player.penisExist === true && V.player.vaginaExist === true;
 
 		if (isHerm) {
 			earnFeat("Being a Hermaphrodite");

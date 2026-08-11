@@ -221,8 +221,9 @@ function givestartclothing() {
 	if (clothesType === "neutral") {
 		/* "Neutral" clothing preference: the player doesn't care how gendered their clothes are, so they start in overalls, which are one of the few genuinely ungendered outfits.
 		Underwear, school uniform and swimwear have no ungendered equivalent in the wardrobe, so those follow the body instead.
-		Keyed off sex rather than gender_body so this matches the character-creation preview in caption.twee exactly; gender_body is only derived from sex just before this runs, and is still the chargen default "a" while the preview draws. */
-		const masculineBody = V.player.sex === "m" || (V.player.sex === "h" && V.player.breastsize <= 3);
+		Keyed off sex rather than gender_body so this matches the character-creation preview in caption.twee exactly; gender_body is only derived from sex just before this runs, and is still the chargen default "a" while the preview draws.
+		A herm body (both sets of genitals) has no single-sex answer, so its chest decides instead. */
+		const masculineBody = V.player.penisExist && V.player.vaginaExist ? V.player.breastsize <= 3 : V.player.sex === "m";
 
 		V.outfit.push(
 			{

@@ -1450,7 +1450,8 @@ function minutePassed(minutes) {
 	const isCrossdresser = V.backgroundTraits.includes("crossdresser");
 	const isGenderAnxious = V.backgroundTraits.includes("genderAnxious");
 	// Not using isCrossdressing() since the stress gains/penalties should not be based on NudeGenderDC
-	const isCrossdressing = V.player.sex !== V.player.gender_appearance && V.player.sex !== "h";
+	// A herm body (both sets of genitals) can't be crossdressing, whichever way it presents.
+	const isCrossdressing = V.player.sex !== V.player.gender_appearance && !(V.player.penisExist && V.player.vaginaExist);
 	if (V.controlled === 0 && V.anxiety >= 2 && V.timeSkip === undefined) {
 		V.stress += minutes * (((isCrossdresser && !isCrossdressing) || (isGenderAnxious && isCrossdressing)) + 1);
 	} else if (V.stress < V.stressmax && (V.controlled === 1 || V.anxiety === 0)) {
