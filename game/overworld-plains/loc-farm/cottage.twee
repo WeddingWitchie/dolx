@@ -13,6 +13,7 @@
 	Alex glares at you when you come downstairs.
 	<br><br>
 	<<set $alexSomnoAngry to 1>>
+	<<run delete $daily.alexHungover>>
 <</if>>
 
 You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen with modern appliances, and a small table, as well as a living room with a sofa and armchair.
@@ -41,6 +42,9 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 	<br><br>
 <<elseif Time.hour gte 21 or Time.hour lte 4>>
 	You hear Alex snore upstairs.
+	<br><br>
+<<elseif Time.hour is 5 and $daily.alexHungover>>
+	You hear Alex snore upstairs. Nobody has started breakfast.
 	<br><br>
 <<elseif Time.hour is 5 and ($alex_bed is "player" or $alex_bed is undefined) and $alexSomnoAngry is undefined>>
 	<<set $alex_bed to "none">><<npc Alex>><<person1>>
@@ -170,7 +174,7 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 
 	<<link [[Prepare|Farm Assault Wardrobe]]>><<endevent>><<set $phase to 3>><</link>>
 	<br>
-<<elseif Time.hour is 5 and ($alex_breakfast is undefined or $alex_breakfast is 0)>>
+<<elseif Time.hour is 5 and !$daily.alexHungover and ($alex_breakfast is undefined or $alex_breakfast is 0)>>
 	<<set $alex_breakfast to 0>>
 	<<if $alexSomnoAngry lte 1>>
 		<<foodicon "pancakes">><<link [[Help Alex make breakfast|Farm Breakfast Reject]]>><<set $alex_breakfast to 1>><<set $phase to 0>><</link>>
@@ -183,7 +187,7 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 	<</if>>
 	<br>
 	<<farm_cottage_options>>
-<<elseif Time.hour is 5 and $alexSomnoAngry is undefined>>
+<<elseif Time.hour is 5 and !$daily.alexHungover and $alexSomnoAngry is undefined>>
 	Alex sits in the living room, watching TV.
 	<br><br>
 
@@ -604,6 +608,8 @@ You snuggle under the covers.
 <</if>>
 <<if $bus is "farm_alex_room" or $alex_bed is "player">>
 	<<set $bedGuest to "Alex">>
+	/* You slept beside Alex, so a hangover can't leave Alex shut away behind a locked door. */
+	<<run delete $daily.alexHungover>>
 <</if>>
 <<if _alexBreakfastWake>>
 	<<sleepeffects>>

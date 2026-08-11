@@ -1236,9 +1236,7 @@ function dayPassed(days) {
 			reportTickFailure("dayPassed", ex);
 		}
 
-		/* Runs even if the block above threw: a single broken subsystem must not leave every daily flag stuck
-		   forever. Time.pass() advances the clock in its finally, and a <<pass>> inside a <<link>> payload has its
-		   error discarded with the payload's fragment, so a skipped reset here is completely invisible in-game. */
+		/* Always runs, even if the block above fails, so daily flags still reset properly. */
 		V.daily.clearProperties();
 
 		try {
@@ -1252,6 +1250,19 @@ function dayPassed(days) {
 
 			/* Set flag to determine Kylar's position at lunch */
 			V.daily.kylar.libraryStalk = rollKylarLibraryStalkFlag();
+
+			/* Decide before dawn if Alex is hungover, so the 5:00 cottage and 6:00 farmyard events stay consistent.
+			Skip if the player sleeps with Alex. The weekly flag is only used if the player actually sees the event. */
+			if (
+				V.farm_stage >= 2 &&
+				!V.weekly?.alexHungoverEvent &&
+				V.alex_bed !== "player" &&
+				V.bus !== "farm_alex_room" &&
+				!npcIsPregnant("Alex") &&
+				random(1, 100) >= 76
+			) {
+				V.daily.alexHungover = true;
+			}
 
 			/* Avery's evening return from work. Raised here rather than at noon, else losing the whole evening. */
 			if (V.avery_mansion) {

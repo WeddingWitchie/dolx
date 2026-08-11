@@ -292,8 +292,11 @@ You are on Alex's farm. A rustic farmhouse overlooks a yard and chicken coop. Ot
 	<<getouticon>><<link [[Leave|Farmland]]>><</link>>
 	<br>
 
-<<elseif !npcIsPregnant("Alex") and Time.hour is 6 and !$weekly.alexHungOver and $rng gte 76 and !$daily.farmAlexShowerSpy and $farm_work.alex isnot "shower" and $alex_bed isnot "none" and $alex_breakfast isnot undefined and $alex_tea isnot undefined>>
-	<<set $weekly.alexHungOver to 1>>
+<<elseif Time.hour is 6 and $daily.alexHungover and $farm_work.alex is "shower">>
+	/* The shower is Alex's first task of the day, so this is the dawn slot Alex should be washing in.
+	   The hangover was rolled overnight, and cancelled if you already saw Alex this morning. */
+	<<set $weekly.alexHungoverEvent to true>>
+	<<set $farm_work.alex to "hungover">>
 
 	You notice that Alex isn't in the shower shed. The animals are all in their holdings. Alex must still be in the farmhouse.
 	<br><br>
@@ -4493,15 +4496,21 @@ You open your mouth to speak, but before you get the chance,
 :: Farm Alex Hungover Lock
 <<effects>>
 
+<<set $skulduggerydifficulty to 400>>
+<<skulduggerycheck>>
 <<if $skulduggerysuccess is 1>>
 	The door opens. You find no sign of Alex downstairs. You climb up the stairs and head to <<his>> room.
 	<br><br>
+
+	<<skulduggeryuse>>
 
 	<<link [[Next|Farm Alex Hungover Keys]]>><</link>>
 
 <<else>>
 	You hear something click as you try to pick the lock, <span class="red">but the door still won't open.</span> You have a feeling you damaged the lock.<<gstress>><<stress 6>>
 	<br><br>
+
+	<<skulduggeryuse>>
 
 	<<link [[Call for Alex (0:01)|Farm Alex Hungover Call]]>><<pass 1>><</link>>
 
@@ -4816,7 +4825,7 @@ Without sitting up, <<he>> gropes for your face.
 	<<glove>><<npcincr "Alex" love 1>>
 
 <<else>>
-	<<npc "Alex">>
+	<<npc "Alex">><<person1>>
 	You help Alex out of bed, making sure <<he>> is steady. You try to let go of <<his>> waist, but suddenly find yourself enveloped in a hug.<<lstress>><<stress -6>>
 	<br><br>
 
