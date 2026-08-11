@@ -685,15 +685,62 @@ function bodySizeDodgeCaps(size) {
 	const raw = size ?? State.variables.bodysize;
 	/* A missing or broken size must not read as "tiny" and hand out the highest caps. */
 	const bodysize = Number.isFinite(raw) ? raw : 2;
-	if (bodysize >= 4) return { soft: 35, hard: 45 };
-	if (bodysize >= 3) return { soft: 45, hard: 60 };
-	if (bodysize >= 2.5) return { soft: 52, hard: 70 };
+	if (bodysize >= 4) return { soft: 40, hard: 52 };
+	if (bodysize >= 3) return { soft: 50, hard: 65 };
+	if (bodysize >= 2.5) return { soft: 55, hard: 72 };
 	if (bodysize >= 2) return { soft: 60, hard: 80 };
 	if (bodysize >= 1) return { soft: 68, hard: 88 };
 	if (bodysize >= 0) return { soft: 75, hard: 95 };
 	return { soft: 82, hard: 100 };
 }
 window.bodySizeDodgeCaps = bodySizeDodgeCaps;
+
+/**
+ * Flat dodge chance granted or taken away by body size.
+ *
+ * A large frame is the worst dodger in the game and always will be, but the old penalty was steep enough to wipe out
+ * everything dance and brawling training contributed, leaving a heavy character on a flat zero chance no matter how
+ * hard they trained.
+ * The penalty is now roughly half as harsh, so training still buys a heavy build something while keeping it clearly behind a light one.
+ *
+ * @param {number} [size] body size, defaults to $bodysize
+ * @returns {number} percentage points added to the dodge roll
+ */
+function bodySizeDodgeModifier(size) {
+	const raw = size ?? State.variables.bodysize;
+	/* A missing or broken size must not read as "tiny" and hand out the largest bonus. */
+	const bodysize = Number.isFinite(raw) ? raw : 2;
+	if (bodysize >= 4) return -18;
+	if (bodysize >= 3) return -10;
+	if (bodysize >= 2.5) return -5;
+	if (bodysize >= 2) return 0;
+	if (bodysize >= 1) return 15;
+	if (bodysize >= 0) return 30;
+	return 45;
+}
+window.bodySizeDodgeModifier = bodySizeDodgeModifier;
+
+/**
+ * Counter chance multiplier by body size.
+ *
+ * Countering means reading a blow and turning it back, which suits a light frame the way blocking and raw damage suit a heavy one.
+ * Without this a large character got the best block, the most damage and an undiminished counter, paying for all of it only in dodge.
+ *
+ * @param {number} [size] body size, defaults to $bodysize
+ * @returns {number} multiplier applied to the counter chance
+ */
+function bodySizeCounterMultiplier(size) {
+	const raw = size ?? State.variables.bodysize;
+	const bodysize = Number.isFinite(raw) ? raw : 2;
+	if (bodysize >= 4) return 0.75;
+	if (bodysize >= 3) return 0.85;
+	if (bodysize >= 2.5) return 0.95;
+	if (bodysize >= 2) return 1;
+	if (bodysize >= 1) return 1.1;
+	if (bodysize >= 0) return 1.2;
+	return 1.3;
+}
+window.bodySizeCounterMultiplier = bodySizeCounterMultiplier;
 
 function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 	if (!V?.worn || !setup?.clothes) return;
@@ -714,18 +761,12 @@ function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 }
 window.dolxRepairMissingJewelleryWornSlots = dolxRepairMissingJewelleryWornSlots;
 
-/* One-time scrub for saves written while <<animatemodel>> fabricated NPCs (commit ee84ce2b79, fixed since).
- * The sidebar portrait renderer used to stamp a stub - type "vine", pronoun "i", gender "n", condom false,
- * penis/vagina/mouth/anus "none", breastsize 0, active "inactive" - into whatever $NPCList slot a stale
- * penetration target pointed at, on every passage render. Those writes persisted, so an affected save still
- * carries the stub until its next <<clearnpc>> and can render "the undefined vineperson" in an unrelated scene.
+/* One-time cleanup for saves affected by the old <<animatemodel>> NPC corruption bug (ee84ce2b79, now fixed).
+ * The portrait renderer could overwrite a stale $NPCList slot with a fake "vine" NPC, which then persisted in the save and could later appear as "the undefined vineperson".
+ * Only slots matching the COMPLETE corrupted stub are reset. Individual values are not enough, since many are also valid for real or cleared NPCs.
+ * This keeps the cleanup safe and avoids touching legitimate data.
  *
- * Deliberately narrow: a slot is only rewritten when it matches the stub's COMPLETE fingerprint - all ten
- * values, and no fullDescription. Matching individual keys would be unsafe, because several of those values
- * are legitimate on their own: an <<endnpc>> husk really does carry penis/vagina/mouth "none" and breastsize 0,
- * and a real NPC can be flat-chested or wearing no condom. Requiring the whole set means nothing a scene is
- * still using (live, husk, or half-cleared) can be damaged, at the cost of leaving a partially-overwritten
- * slot alone (harmless: the next <<clearnpc>> resets it, and personselect already guards such slots). */
+ * Partially corrupted slots are intentionally left alone; <<clearnpc>> will reset them normally later. */
 function dolxScrubFabricatedNPCStubs() {
 	if (!V || !Array.isArray(V.NPCList)) return;
 
@@ -746,11 +787,11 @@ function dolxScrubFabricatedNPCStubs() {
 	for (let i = 0; i < V.NPCList.length; i++) {
 		const npc = V.NPCList[i];
 		if (!npc || typeof npc !== "object") continue;
-		/* A fully generated NPC keeps its own data - the old stub only ever filled in blanks there. */
+		/* A fully generated NPC keeps its own data; the old stub only ever filled in blanks there. */
 		if (window.isLiveNPC?.(npc)) continue;
 
-		/* Both corrupted shapes (the slot the stub conjured from nothing, and the empty padding clone it
-		   filled in) end up carrying every stub value and no fullDescription. Nothing real looks like this. */
+		/* Both corrupted shapes (the slot the stub conjured from nothing, and the empty padding clone it filled in) end up carrying every stub value and no fullDescription.
+		   Nothing real looks like this. */
 		if (npc.fullDescription === undefined && Object.entries(stubProps).every(([key, value]) => npc[key] === value)) {
 			/* Restore the standard empty shape rather than leaving a bare object or a hole
 			   (combat iterates slots 0..$enemyno-1 as a contiguous prefix). */
@@ -759,8 +800,8 @@ function dolxScrubFabricatedNPCStubs() {
 			continue;
 		}
 
-		/* Residue on a slot that carried some real fields of its own: "vine" is never a real $NPCList type
-		   (real ones are human/plant/wolf/centaur/...), so drop just that key and leave everything else. */
+		/* Residue on a slot that carried some real fields of its own:
+		"vine" is never a real $NPCList type (real ones are human/plant/wolf/centaur/...), so drop just that key and leave everything else. */
 		if (npc.type === "vine") {
 			delete npc.type;
 			scrubbed.push(`${i} (stray type)`);

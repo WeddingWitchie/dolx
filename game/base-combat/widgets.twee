@@ -1131,6 +1131,7 @@
 	<<set _passiveDodgeSuccess to 0>>
 	<<set _activeDodgeSuccess to 0>>
 	<<set _counterChance to 0>>
+	<<set _counterSuccess to 0>>
 	<<set _check1 to 100>>
 	<<set _activeDodgeTargetMatches to _args[0] is $combatExtended.activeDodgingTarget>>
 	<<set $combatExtended.counterSuccess to 0>>
@@ -1140,21 +1141,8 @@
 	<</if>>
 	<<set _check2 to _check1 * 0.8>>
 	<<set _dancedodge to Math.round(currentSkillValue('danceskill') / 40)>>
-	<<if $bodysize gte 4>>
-		<<set _bodyDodgeChance to -35>>
-	<<elseif $bodysize is 3>>
-		<<set _bodyDodgeChance to -20>>
-	<<elseif $bodysize is 2.5>>
-		<<set _bodyDodgeChance to -10>>
-	<<elseif $bodysize is 2>>
-		<<set _bodyDodgeChance to 0>>
-	<<elseif $bodysize is 1>>
-		<<set _bodyDodgeChance to 15>>
-	<<elseif $bodysize is 0>>
-		<<set _bodyDodgeChance to 30>>
-	<<else>>
-		<<set _bodyDodgeChance to 45>>
-	<</if>>
+	/* Frames between the standard steps used to fall through this ladder's exact-match branches and collect the tiny-body bonus */
+	<<set _bodyDodgeChance to bodySizeDodgeModifier()>>
 	<<if $combatExtended.brawlingToggle is 1>>
 		<<set _brawlingDodgeChance to (combatExtendedSkillValue('brawling') * $enemyno * ($enemyno / 16)) / 100>>
 	<<else>>
@@ -1204,11 +1192,18 @@
 		<</if>>
 	<</if>>
 	<<if $combatExtended.countering is 1>>
-		<<if $combatExtended.counteringActive gte 1>>
+		/* Countering is limited to one attack per guarding hand each turn. Attacks beyond that fall through to dodging. */
+		<<if $combatExtended.counteringActive gte 1 and ($combatExtended.counterCharges ?? 0) gte 1>>
 			<<set _counterChance to 100 * ((0.25 * (1 * ($skulduggery / 1000))) * $combatExtended.counteringActive)>>
 			<<if $combatExtended.stabilityLost is 1>>
 				<<set _counterChance = Math.round(_counterChance / 2)>>
 			<</if>>
+			/* Facing a crowd, there is less room to read and turn a single attacker's blow. */
+			<<if $enemyno gte 2>>
+				<<set _counterChance to Math.round(_counterChance * Math.max(0.4, 1 - (0.15 * ($enemyno - 1))))>>
+			<</if>>
+			/* Light frames turn a blow more readily than heavy ones */
+			<<set _counterChance to _counterChance * bodySizeCounterMultiplier()>>
 			<<if _counterChance gte random(_check1)>>
 				<<set _counterSuccess to 2>>
 			<<elseif _counterChance gte random(_check2)>>
@@ -1220,6 +1215,9 @@
 	<</if>>
 	<<if $suffocated is undefined and $willpowerpain is undefined and $orgasmdown lte 0 and $trance lte 0 and $panicparalysis is 0 and $panicviolence is 0 and $dissociation lte 1>>
 		<<set $combatExtended.counterSuccess to _counterSuccess>>
+		<<if _counterSuccess gte 1>>
+			<<set $combatExtended.counterCharges to Math.max(0, ($combatExtended.counterCharges ?? 0) - 1)>>
+		<</if>>
 		<<if _passiveDodgeSuccess gt _activeDodgeSuccess>>
 			<<set $combatExtended.dodgeSuccess to _passiveDodgeSuccess>>
 		<<else>>

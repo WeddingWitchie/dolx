@@ -520,15 +520,22 @@
 		<<set _thedamage to (2 * _args[0] * (currentSkillValue('physique') / 4000))>>
 		/* Vanilla Sadism makes defiant acts inflict up to twice their normal damage. Keep that bonus additive with the other combat bonuses. */
 		<<set _damageBonus to ($sadism / 1000)>>
+		/* Brawling, striking, and kicking are part of extended combat, which is off by default. Previously, players without it dealt much less damage.
+		Everyone now gets average technique as a baseline, while extended combat skills improve it further. */
+		<<set _brawlingBonus to 0>>
 		<<if $combatExtended.brawlingToggle is 1>>
-			<<set _damageBonus += Math.min(0.5, ((combatExtendedSkillValue('brawling') * $enemyno * (1 + ($enemyno / 2))) / 10000))>>
+			<<set _brawlingBonus to Math.min(0.5, ((combatExtendedSkillValue('brawling') * $enemyno * (1 + ($enemyno / 2))) / 10000))>>
 		<</if>>
-		<<if $combatExtended.strikingToggle is 1 and $striking is 1>>
-			<<set _damageBonus += combatExtendedSkillValue('striking') / 2000>>
+		<<set _damageBonus += Math.max(0.15, _brawlingBonus)>>
+		<<set _techniqueBonus to 0>>
+		<<if $kicking is 1>>
+			<<if $combatExtended.kickingToggle is 1>>
+				<<set _techniqueBonus to combatExtendedSkillValue('kicking') / 2000>>
+			<</if>>
+		<<elseif $combatExtended.strikingToggle is 1 and $striking is 1>>
+			<<set _techniqueBonus to combatExtendedSkillValue('striking') / 2000>>
 		<</if>>
-		<<if $combatExtended.kickingToggle is 1 and $kicking is 1>>
-			<<set _damageBonus += combatExtendedSkillValue('kicking') / 2000>>
-		<</if>>
+		<<set _damageBonus += Math.max(0.5, _techniqueBonus)>>
 		<<if $fallenangelretribution is 1>>
 			<<set _damageBonus += 1>>
 		<</if>>
@@ -541,10 +548,23 @@
 			<<set _thedamage to _thedamage * 0.7>>
 		<</if>>
 		/* No single blow can flatten an opponent outright.
-		Bigger, more committed attacks are allowed a larger share of the target's health, from 12% for a light one-limbed strike up to 40% for a full two-handed swing. */
-		<<set _damageCapShare to Math.clamp(0.05 + 0.035 * _args[0], 0.05, 0.4)>>
+		Bigger, more committed attacks are allowed a larger share of the target's health, from 15% for the weakest strike up to 60% for a full two-handed swing.
+		The steps are hand-set rather than a straight line, so the jump from a light blow to a committed one is where most of the gain sits. */
+		<<set _damageCapSteps to [[0, 0.06], [1, 0.15], [2, 0.2], [3, 0.3], [5, 0.45], [8, 0.6]]>>
+		<<set _damageCapShare to _damageCapSteps[0][1]>>
+		<<for _capStep to 1; _capStep lt _damageCapSteps.length; _capStep++>>
+			<<set _capLow to _damageCapSteps[_capStep - 1]>>
+			<<set _capHigh to _damageCapSteps[_capStep]>>
+			<<if _args[0] gte _capHigh[0]>>
+				<<set _damageCapShare to _capHigh[1]>>
+			<<elseif _args[0] gt _capLow[0]>>
+				<<set _damageCapShare to _capLow[1] + ((_capHigh[1] - _capLow[1]) * ((_args[0] - _capLow[0]) / (_capHigh[0] - _capLow[0])))>>
+			<</if>>
+		<</for>>
+		<<set _damageCapShare to Math.clamp(_damageCapShare, 0.06, 0.6)>>
+		/* Kicks already land for less above. The ceiling is only trimmed a little here so the second penalty doesn't stack into a much lower one. */
 		<<if $kicking is 1>>
-			<<set _damageCapShare to _damageCapShare * 0.7>>
+			<<set _damageCapShare to _damageCapShare * 0.85>>
 		<</if>>
 		<<set _damageCapPool to (Number.isFinite($enemyhealthmax) and $enemyhealthmax gt 0 ? $enemyhealthmax : 200)>>
 		<<set _thedamage to Math.min(_thedamage, _damageCapPool * _damageCapShare)>>

@@ -26,6 +26,8 @@
 		<<set $combatExtended.activeDodgingTarget to 0>>
 		<<set $combatExtended.blockingActive to 0>>
 		<<set $combatExtended.counteringActive to 0>>
+		/* One counter per hand committed to countering. Without this a lone fighter negates and punishes every attack an entire group throws in a turn. */
+		<<set $combatExtended.counterCharges to 0>>
 		<<set $combatExtended.feintingActive to 0>>
 		/* These mark what kind of blow is being thrown this turn. Without clearing them the first kick of a fight leaves every later punch collecting the kicking bonus, and the first hook punch leaves every later attack easier to dodge. */
 		<<set $combatExtended.hookpunchingActive to 0>>
@@ -1248,7 +1250,7 @@
 		<</if>>
 
 		<<if $leftaction is "leftcounter" and $rightaction is "rightcounter" and $lefttarget is $righttarget>>
-			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcounter">><<set $rightactiondefault to "rightcounter">><<actionsguard both>><<set $combatExtended.counteringActive to 2>>
+			<<set $leftaction to 0>><<set $rightaction to 0>><<set $leftactiondefault to "leftcounter">><<set $rightactiondefault to "rightcounter">><<actionsguard both>><<set $combatExtended.counteringActive to 2>><<set $combatExtended.counterCharges to 2>>
 		<</if>>
 
 		<<if $leftaction is "leftcounter">>
@@ -1260,10 +1262,10 @@
 					<<gwillpower>><<willpower 1>>
 				<<else>>
 					The slime tries to immobilise your left arm, <span class="green">but you wrestle control away from it.</span>
-					<<actionsguard $lefttarget>><<set $combatExtended.counteringActive to 1>>
+					<<actionsguard $lefttarget>><<set $combatExtended.counteringActive to 1>><<set $combatExtended.counterCharges to Math.min(2, ($combatExtended.counterCharges ?? 0) + 1)>>
 				<</if>>
 			<<else>>
-				<<actionsguard $lefttarget>><<set $combatExtended.counteringActive to 1>>
+				<<actionsguard $lefttarget>><<set $combatExtended.counteringActive to 1>><<set $combatExtended.counterCharges to Math.min(2, ($combatExtended.counterCharges ?? 0) + 1)>>
 			<</if>>
 		<</if>>
 
@@ -1276,10 +1278,10 @@
 					<<gwillpower>><<willpower 1>>
 				<<else>>
 					The slime tries to immobilise your right arm, <span class="green">but you wrestle control away from it.</span>
-					<<actionsguard $righttarget>><<set $combatExtended.counteringActive to 1>>
+					<<actionsguard $righttarget>><<set $combatExtended.counteringActive to 1>><<set $combatExtended.counterCharges to Math.min(2, ($combatExtended.counterCharges ?? 0) + 1)>>
 				<</if>>
 			<<else>>
-				<<actionsguard $righttarget>><<set $combatExtended.counteringActive to 1>>
+				<<actionsguard $righttarget>><<set $combatExtended.counteringActive to 1>><<set $combatExtended.counterCharges to Math.min(2, ($combatExtended.counterCharges ?? 0) + 1)>>
 			<</if>>
 		<</if>>
 
