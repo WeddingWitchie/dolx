@@ -64,7 +64,7 @@
 		<span class="blue">At least you can always buy a new one...</span>
 		<<set $bicycle.stolen to false>><<set $bicycle.securityStolen to false>>
 	<<elseif $bicycle.own and $bicycle.durability.current lte 0>>
-		<span class="red">Your bike is broken!</span> It's unusable until you repair it back at the bike depot<<if $bicycle.durability.repair isnot undefined>> or patch it yourself<</if>>.
+		<span class="red">Your bike is broken!</span> It's unusable until you repair it back at the bike depot<<if $bicycle.durability.repair gt 0>> or patch it yourself<</if>>.
 		<<if $bicycle.durability.repair gt 0>>
 			<br>
 			<<birdicon "tools">><<link [[Make an emergency repair|$passage]]>><<set $bicycle.durability.repair-->><<set _bikeKitRepair to Math.max(150, Math.round($bicycle.durability.max / 6))>><<set $bicycle.durability.current to (Math.clamp(($bicycle.durability.current + _bikeKitRepair), _bikeKitRepair, $bicycle.durability.max))>><<set $bicycle.durability.repairUse to 1>><<set $eventskip to 1>><</link>>
@@ -195,8 +195,8 @@
 				Before long the sight of the cafe comes into view.<br><br><<bikeGains>>
 					<<clifficon>><<link [[You arrive at your destination.|Cliff Street]]>><</link>>
 				<<case "lake">>
-				Before long the treeline breaks, revealing the shore of the lake.<br><br><<bikeGains>>
-					<<lakeicon>><<link [[You arrive at your destination.|Lake Shore]]>><</link>>
+				Before long you reach the bus stop beside the lake, where the road from town terminates.<br><br><<bikeGains>>
+					<<busicon>><<link [[You arrive at your destination.|Lake Bus]]>><</link>>
 				<<case "alex_farm">>
 				Before long the view shifts, plains giving way to the familiar sight of the farm.<br><br><<bikeGains>>
 					<<farmicon>><<link [[You arrive at your destination.|Farmland]]>><</link>>
@@ -209,7 +209,7 @@
 				<span class="red">Your bike has broken before you reached your destination!</span>
 				<br><br>
 			<</if>>
-			You will need to get it repaired at the bike depot<<if $bicycle.durability.repair isnot undefined>> or patch it yourself<</if>> before you can continue using it. <span class="yellow">You got a small workout at least.</span>
+			You will need to get it repaired at the bike depot<<if $bicycle.durability.repair gt 0>> or patch it yourself<</if>> before you can continue using it. <span class="yellow">You got a small workout at least.</span>
 			<<set _fatigue to (Math.trunc($bicycle.gains.fatigue*0.35))>><<set _athletics to Math.max(1, Math.trunc($bicycle.gains.athletics*0.35))>>
 			<<tiredness _fatigue>><<athletics _athletics>>
 			<<if $bicycle.roughTerrain gt 0>><<set _physique to (Math.trunc($bicycle.gains.physique*0.35))>><<silently>><<physique _physique>><</silently>><</if>>
@@ -306,11 +306,11 @@
 		<<if $bicycle.location is "mer">><<else>><<mericon>><<link [["Mer Street (" + _time.iTime + ") (Docks)"|Bike Ride]]>><<pass $bicycle.travel.iTime>><<set $bicycle.time to $bicycle.travel.iTime>><<set $destination to "mer">><</link>><br><</if>>
 		<br>
 	/* The only bike spot in the forest is the lake bus stop; the deep forest (Eden's cabin, the wolf cave) and the Great Hawk's tower are not bike destinations.
-	With persistent location on, riding out to the lake needs the town road project so there's somewhere sane to leave the bike. */
-	<<if $bicycle.location isnot "lake" and (!$bicycle.persistentLocation or $town_projects.road gte 4)>>
+	Riding out to the lake needs the town road project so there's a usable road and somewhere sane to leave the bike. */
+	<<if $bicycle.location isnot "lake" and $town_projects.road gte 4>>
 	Forest:<br>
 	<<run bikeTime("lake")>>
-		<<lakeicon>><<link [["Lake (" + _time.lTime + ")"|Bike Ride]]>><<pass $bicycle.travel.lTime>><<set $bicycle.time to $bicycle.travel.lTime>><<set $destination to "lake">><</link>><br>
+		<<busicon>><<link [["Lake bus stop (" + _time.lTime + ")"|Bike Ride]]>><<pass $bicycle.travel.lTime>><<set $bicycle.time to $bicycle.travel.lTime>><<set $destination to "lake">><</link>><br>
 	<br>
 	<</if>>
 	<<if !$farm_stage>><<else>><<if $bicycle.location is "alex_farm">><<else>>
