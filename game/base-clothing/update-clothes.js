@@ -21,7 +21,6 @@ function updateClothingColours(item, itemRef) {
 		// eslint-disable-next-line no-fallthrough
 		case "long leather gloves":
 		case "leather dress":
-		case "round shades":
 		case "witch shoes":
 		case "mesh shirt":
 		case "fishnet stockings":
@@ -30,6 +29,7 @@ function updateClothingColours(item, itemRef) {
 			if (!item.colour || item.colour === 0) item.colour = "black";
 			break;
 		case "square shades":
+		case "round shades":
 		case "shield shades":
 		case "punk shades":
 			if (!item.colour || item.colour === 0) item.colour = "black";
