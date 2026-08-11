@@ -21,12 +21,12 @@ function genderIsIgnored() {
 window.genderIsIgnored = genderIsIgnored;
 
 function playerBodyIsMale() {
-	return (V.player.gender === "m" && !playerIsXChanged()) || (V.player.gender === "f" && playerIsXChanged());
+	return V.player.sex === "m";
 }
 window.playerBodyIsMale = playerBodyIsMale;
 
 function playerBodyIsFemale() {
-	return (V.player.gender === "f" && !playerIsXChanged()) || (V.player.gender === "m" && playerIsXChanged());
+	return V.player.sex === "f";
 }
 window.playerBodyIsFemale = playerBodyIsFemale;
 
@@ -1148,7 +1148,7 @@ function mapToLegacyGenderIdentity() {
 	 * When no identity topics are active, default based on player's current gender */
 	let axis;
 	if (categoryCount === 0) {
-		axis = V.player?.gender === "f" ? 1 : -1;
+		axis = V.player?.gender === "f" ? 1 : V.player?.gender === "m" ? -1 : 0;
 	} else {
 		axis = Math.clamp(categorySum / categoryCount, -1, 1);
 	}
