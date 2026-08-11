@@ -199,6 +199,42 @@
 
 <</widget>>
 
+<<widget "blackmail-marker">>
+	<<set _markerSummary to getStaticQuestData($xchange.blackmail.activeQuest)?.summary>>
+	<<if _markerSummary>>
+		The Gentleman's Club expects you to <span class="teal"><<print _markerSummary.charAt(0).toLowerCase() + _markerSummary.slice(1)>></span>
+	<<else>>
+		The Gentleman's Club expects you to complete their task before midnight.
+	<</if>>
+<</widget>>
+
+<<widget "blackmail-cancelquest">>
+	<<unset $xchange.blackmail.activeQuest>>
+	<<unset $xchange.blackmail.passedOutRecently>>
+	<<unset $xchange.blackmail.hasGenderswappedRecently>>
+	<<set $xchange.blackmail.hasReadLetter to false>>
+	<<set $xchange.blackmail.conclusionPending to false>>
+	<<set $xchange.blackmail.hasNewMaterial to false>>
+	<<set $xchange.blackmail.hasMaterial to false>>
+	<<set $xchange.blackmail.cooldown to Math.max($xchange.blackmail.cooldown, 3)>>
+	<<blackmail-resetcourier>>
+<</widget>>
+
+<<widget "blackmail-exportprompt">>
+	<<if !tags().includes("nosave") and !$ironmanmode and $replayScene is undefined>>
+		<span class="gold">This task can't be retried once the day is over. Consider backing up your save.</span><br>
+		<<if !Browser.isMobile.any()>>
+			<<link "Export save">>
+				<<run Save.export("degrees-of-lewdity" + ($saveName ? '-' + $saveName : ''))>>
+			<</link>> |
+		<</if>>
+		<<link "Help me export">>
+			<<overlayReplace "export">>
+		<</link>>
+		<br>
+	<</if>>
+<</widget>>
+
 <<widget "blackmail-effects">>
 	<<run restoreActiveBlackmailQuest()>>
 	<<set _activeQuest to $xchange.blackmail.activeQuest>>

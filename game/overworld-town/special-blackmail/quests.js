@@ -1,4 +1,4 @@
-/* globals playerMayBeSpiked, blackmailGiveDaisies, hasSexStat */
+/* globals playerMayBeSpiked, blackmailGiveDaisies, blackmailGrantStall, hasSexStat */
 // All quests part from the assumption that PC starts their day at the orphanage
 function blackmailReward(rentShare = 1) {
 	let rent = Number(V.rentmoney) || 0;
@@ -62,6 +62,7 @@ blackmailQuests.low.push(
 	// Generic wear no underwear
 	{
 		id: 1, // Implemented
+		summary: "Wear no underwear until midnight.",
 		prerequisites() {
 			/*
 				Swimsuits count as underwear for this task. 
@@ -124,6 +125,7 @@ blackmailQuests.low.push(
 	// Drink and get wasted
 	{
 		id: 2, // Implemented
+		summary: "Get wasted before midnight.",
 		// A knowingly-pregnant PC refuses all alcohol, making "get wasted" impossible. Don't assign it.
 		prerequisites() {
 			return !(playerIsPregnant() && playerAwareTheyArePregnant());
@@ -165,6 +167,7 @@ blackmailQuests.mid.push(
 	// Take a pill and flirt with 3 people
 	{
 		id: 3, // Implemented. ID fixed. Do not alter value.
+		summary: "Flirt with three people at the pub before midnight.",
 		prerequisites() {
 			return !playerIsXChanged();
 		},
@@ -230,6 +233,7 @@ blackmailQuests.high.push(
 	// Masturbate in an empty classroom
 	{
 		id: 4, // Implemented. ID fixed. Do not alter value.
+		summary: "Masturbate for five uninterrupted minutes in an empty classroom before midnight.",
 		prerequisites() {
 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue("skulduggery") >= 200;
 		},
@@ -273,6 +277,7 @@ blackmailQuests.mid.push(
 	// Skinny dip into the school's pool
 	{
 		id: 5, // Implemented
+		summary: "Swim naked in the school pool before midnight.",
 		prerequisites() {
 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue("skulduggery") >= 200;
 		},
@@ -314,6 +319,7 @@ blackmailQuests.low.push(
 	// Go for a run in your underwear at park
 	{
 		id: 6, // Implemented.
+		summary: "Run at the park in your underwear for thirty minutes before midnight.",
 		prerequisites() {
 			return true;
 		},
@@ -360,6 +366,7 @@ blackmailQuests.mid.push(
 	// Go for a run naked at park
 	{
 		id: 7, // Implemented.
+		summary: "Run naked at the park for an hour before midnight.",
 		prerequisites() {
 			return true;
 		},
@@ -406,6 +413,7 @@ blackmailQuests.low.push(
 	// Take a pill and wear a skirt
 	{
 		id: 8, // Implemented
+		summary: "Wear a skirt, or no lowerwear at all, until midnight.",
 		prerequisites() {
 			return V.player.sex === "m" && !playerIsXChanged();
 		},
@@ -470,6 +478,7 @@ blackmailQuests.low.push(
 	// Clean 3 chalets in uniform without underwear
 	{
 		id: 9, // Implemented
+		summary: "Clean three chalets at the beach in uniform, without underwear, before midnight.",
 		prerequisites() {
 			return Time.hour < 17;
 		},
@@ -531,6 +540,7 @@ blackmailQuests.mid.push(
 	// Avoid defiance for a day
 	{
 		id: 10, // Implemented
+		summary: "Avoid behaving defiantly until midnight.",
 		prerequisites() {
 			return V.submissive <= 850;
 		},
@@ -577,6 +587,7 @@ blackmailQuests.low.push(
 	// Wear no shirt if male
 	{
 		id: 11, // Implemented
+		summary: "Wear nothing on your torso outside school until midnight.",
 		prerequisites() {
 			return V.player.sex === "m";
 		},
@@ -637,6 +648,7 @@ blackmailQuests.low.push(
 	// Flash your underwear to at least 5 strangers
 	{
 		id: 12,
+		summary: "Flash five strangers on the street before midnight.",
 		prerequisites() {
 			return hasSexStat("exhibitionism", 2);
 		},
@@ -683,6 +695,7 @@ blackmailQuests.low.push(
 	// Sell flowers on a market stall, without any lower clothing (undies allowed)
 	{
 		id: 13,
+		summary: "Sell flowers at your market stall on Connudatus Street, without lowerwear, before midnight.",
 		prerequisites() {
 			return Time.dayState === "dawn" && !playerIsXChanged();
 		},
@@ -691,7 +704,7 @@ blackmailQuests.low.push(
 		},
 		instructions: [
 			"Swallow the pill we've provided, and take these 200 flowers to sell.",
-			"Go sell flowers on Connudatus Street.",
+			"Go sell flowers on Connudatus Street. <span class='green'>We've already settled today's stall rent for you.</span>",
 			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
 			`<span class="red">You're not allowed to test the effects of the pill</span>`,
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
@@ -728,6 +741,7 @@ blackmailQuests.low.push(
 			// The spike no-ops when the player can't be spiked (noncon spiking disabled, therapy, pregnancy); only a landed spike can be "tested", so only that may fail.
 			const landed = playerMayBeSpiked();
 			blackmailGiveDaisies(200);
+			blackmailGrantStall();
 			wikifier("xchange-random-spike", "suppress");
 			this.tookPill = true;
 			this.pillLanded = landed;
@@ -745,6 +759,7 @@ blackmailQuests.mid.push(
 	// Sell flowers on a market stall, without any lower clothing (undies allowed), and masturbate at least once
 	{
 		id: 14,
+		summary: "Sell flowers at your market stall on Connudatus Street without lowerwear, and masturbate while doing so, before midnight.",
 		prerequisites() {
 			return Time.dayState === "dawn" && !playerIsXChanged() && V.penis_addict_trait !== 1 && V.hole_addict_trait !== 1;
 		},
@@ -753,7 +768,7 @@ blackmailQuests.mid.push(
 		},
 		instructions: [
 			"Masturbate (and orgasm) at least once while selling flowers at a market stall.",
-			"Swallow the pill we've provided, and take these 200 flowers to sell.",
+			"Swallow the pill we've provided, and take these 200 flowers to sell. <span class='green'>We've already settled today's stall rent for you.</span>",
 			"If you sell over <<printmoney 25000>> in profits, we will boost your business fame on top of your normal payment.",
 			`<span class="red">You're not allowed to test the effects of the pill</span>`,
 			"Any sale made while wearing lowerwear (undies permited) won't be counted for your goal.",
@@ -791,6 +806,7 @@ blackmailQuests.mid.push(
 			// See quest 13: a no-op spike (unspikeable player) must not arm the pill-test fail.
 			const landed = playerMayBeSpiked();
 			blackmailGiveDaisies(200);
+			blackmailGrantStall();
 			wikifier("xchange-random-spike", "suppress");
 			this.tookPill = true;
 			this.pillLanded = landed;
@@ -808,6 +824,7 @@ blackmailQuests.high.push(
 	// Go streaking naked at the park during the day
 	{
 		id: 15, // Implemented.
+		summary: "Streak naked at the park during the day.",
 		prerequisites() {
 			return Time.hour <= 16;
 		},
@@ -849,6 +866,7 @@ blackmailQuests.high.push(
 	// Go play air hockey at the arcade, and either fully strip, or be stripped by, the other player.
 	{
 		id: 16, // Implemented.
+		summary: "Play a stripping game of air hockey at the arcade before midnight.",
 		prerequisites() {
 			return Time.hour < 20;
 		},

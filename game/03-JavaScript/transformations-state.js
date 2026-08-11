@@ -13,6 +13,19 @@ class Transformations {
 		});
 	}
 
+	static get colourableAnimalParts() {
+		return Object.freeze({
+			wolf: ["ears", "tail", "cheeks", "pits", "pubes"],
+			cat: ["ears", "tail"],
+			cow: ["horns", "ears", "tail"],
+			bird: ["wings", "tail", "malar", "plumage", "pubes"],
+			fox: ["ears", "tail", "cheeks"],
+			bunny: ["ears", "tail"],
+			bear: ["ears", "tail", "plumage", "pubes"],
+			waterdragon: ["horns", "ears", "tail"],
+		});
+	}
+
 	static partActive(transformation, part) {
 		const value = V.transformationParts?.[transformation]?.[part];
 		return value !== undefined && value !== "disabled" && value !== "hidden";

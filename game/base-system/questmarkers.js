@@ -63,6 +63,24 @@ const events = [
 		failuretext: "You have missed your Valentine's date with Avery.",
 	},
 	{
+		name: "blackmail task",
+		condition() {
+			const blackmail = V.xchange?.blackmail;
+			if (!blackmail?.intro || !blackmail.activeQuest || blackmail.conclusionPending) return false;
+			// Nothing to remind them of until they've actually read the demand.
+			if (blackmail.hasReadLetter !== true) return false;
+			const quest = blackmail.activeQuest;
+			// Once a settled task can no longer change outcome, stop crowding out the other reminders.
+			if (quest.failed) return false;
+			if (quest.cleared && !quest.alertMessage) return false;
+			return true;
+		},
+		starthour: 0,
+		endhour: 23,
+		priority: 6,
+		text: "<<blackmail-marker>>",
+	},
+	{
 		name: "community service",
 		condition() {
 			return V.community_service >= 1 && V.community_service_done !== 1;

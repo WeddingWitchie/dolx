@@ -110,3 +110,14 @@ function blackmailGiveDaisies(amount = 200) {
 	V.foodstuff.daisy.marketStall = true;
 }
 window.blackmailGiveDaisies = blackmailGiveDaisies;
+
+function blackmailGrantStall() {
+	V.daily ??= {};
+	if (V.daily.stallRented === 1) return false;
+	V.daily.stallRented = 1;
+	V.stall_money = 0;
+	if (!V.stall_stats) V.stall_stats = {};
+	V.daily.stall_lewdity = 0;
+	return true;
+}
+window.blackmailGrantStall = blackmailGrantStall;
