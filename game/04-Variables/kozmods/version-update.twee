@@ -911,7 +911,10 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $identity.body.bodysize.giant to clone(_bsDefault)>>
 	<</if>>
 
-	/* --- Ensure the Androgynous Appearance / Neutral Clothing identity axes exist (added alongside the masculine/feminine tracks) --- */
+	/* --- Ensure the Androgynous Appearance / Neutral Clothing identity axes exist (added alongside the masculine/feminine tracks) ---
+	   New games get these from the $identity default above; this is the only path that creates them on a save
+	   that already had an $identity, so it lives exactly as long as pre-androgynous saves are supported.
+	   Deleting it means those saves crash on the missing keys, so it must go together with the repair below. */
 	<<set $identity.presentation to $identity.presentation || {}>>
 	<<set $identity.presentation.appearance to $identity.presentation.appearance || {}>>
 	<<set $identity.presentation.clothing to $identity.presentation.clothing || {}>>
@@ -921,6 +924,33 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</if>>
 	<<if $identity.presentation.clothing.neutral is undefined>>
 		<<set $identity.presentation.clothing.neutral to clone(_bsDefault)>>
+	<</if>>
+
+	/* One-time repair for saves that predate the presentation rework. */
+	<<if !$dolxIdentityPresentationReworked>>
+		<<set $dolxIdentityPresentationReworked to true>> /* delete later */
+
+		/* The hourly "you feel awkward/gross in these clothes" line is gone; clothing now speaks through the
+		   normal dysphoria reason channel, once per change of outfit. Drop any value left mid-flight. */
+		<<unset $genderStressMessage>>
+
+		/* Older saves may not have starting tolerance for the new androgynous traits.
+		This can make an accepted trait immediately drop to 0 tolerance and become unaccepted, causing dysphoria for a preference the player never chose.
+		Transgender saves can have the same issue because their Identity settings remain editable and may never receive the normal starting tolerance.
+
+		Seed the missing tolerance only once. After that, let the normal tolerance system handle any changes. */
+		<<if $identity.init gte 2 or ($background and $background.transgender)>>
+			<<set _appearanceNeutral to $identity.presentation.appearance.neutral>>
+			<<set _clothingNeutral to $identity.presentation.clothing.neutral>>
+			<<if !_appearanceNeutral.reject>>
+				<<set _appearanceNeutral.acceptance to true>>
+				<<set _appearanceNeutral.tolerance to Math.max(Number(_appearanceNeutral.tolerance) || 0, $identity.presentation.appearance.preferred is "n" ? 200 : 100)>>
+			<</if>>
+			<<if !_clothingNeutral.reject>>
+				<<set _clothingNeutral.acceptance to true>>
+				<<set _clothingNeutral.tolerance to Math.max(Number(_clothingNeutral.tolerance) || 0, $identity.presentation.clothing.preferred is "u" ? 200 : 100)>>
+			<</if>>
+		<</if>>
 	<</if>>
 
 	<<set setup.identityIndex to {

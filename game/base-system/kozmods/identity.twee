@@ -70,11 +70,11 @@
 			<div class="settingsToggleItemWide">
 				<span class="gold bold">Identity Mechanics:</span><br>
 				<ul class="small-description">
-					<li>Accepted characteristics don't have negative effects. You can have one preferred characteristic from accepted characteristics in each category, which grants minor Stress and Trauma reduction when you have them.</li>
-					<li>You gain dysphoria for each characteristic you have that you haven't accepted, which increases Stress and Trauma.</li>
-					<li>You gain daily tolerance towards characteristics you have that you haven't accepted, until you reach acceptance at max tolerance.</li>
-					<li>You don't gain Trauma from Rejected characteristics, but you don't gain Tolerance towards it either. Staying at maximum Dysphoria in a Rejected characteristic is dangerous.</li>
-					<li>If a Rejected characteristic's Dysphoria maxes out and your Willpower gives out, you're forced to begrudgingly go along with it. Unlike a plain Rejected characteristic, this does cause Trauma, though it stops draining your current Willpower each time it flares up. The Reject and Accept controls both lock while Begrudged, the only way out is to stop having that characteristic (and unset it as Preferred) and let Tolerance decay back down over time, at which point you're free to Reject it again if you still want to.</li>
+					<li><b>Accepted:</b> Accepted characteristics do not cause negative effects. You can also choose one accepted characteristic in each category as Preferred. Having your Preferred characteristic slightly lowers Stress and Trauma.</li>
+					<li><b>Dysphoria:</b> Having a characteristic you have not accepted causes Dysphoria, which increases Stress and Trauma.</li>
+					<li><b>Tolerance:</b> You slowly gain Tolerance each day towards characteristics you have but have not accepted. At maximum Tolerance, that characteristic becomes Accepted.</li>
+					<li><b>Rejected:</b> Rejected characteristics do not give you Trauma, but you also cannot gain Tolerance towards them. Letting Dysphoria from a Rejected characteristic reach its maximum is dangerous.</li>
+					<li><b>Begrudged:</b> If Dysphoria from a Rejected characteristic reaches its maximum and your Willpower runs out, you are forced to put up with it. It can then cause Trauma, but repeated Dysphoria will no longer drain your current Willpower. You cannot Reject or Accept it while it is Begrudged. To remove Begrudged, stop having that characteristic, remove it as Preferred if needed, then wait for its Tolerance to fall. After that, you can Reject it again if you want.</li>
 				</ul>
 			</div>
 		</div>
@@ -138,7 +138,7 @@
 				</div>
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold">Gender Appearance </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria.</span></mouse>
+				<span class="gold">Gender Appearance </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria. Your overall appearance includes your body, hair, clothes and posture. Androgynous means neither clearly masculine nor feminine.</span></mouse>
 				<br>
 				Masculine: 
 				<br> 
@@ -168,8 +168,8 @@
 				<label data-target='["identity.presentation.appearance.neutral.acceptance"]' data-disabledif="!V.identity.presentation.appearance.neutral.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.appearance.preferred" "n" autocheck>></label>
 				<br>
 			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted characteristics will cause dysphoria, based on your outfit's overall look rather than any single garment. Choosing Don't Care means you simply don't care what you wear: clothing stops causing dysphoria entirely, but also stops giving any comfort.</span></mouse>
+			<div class="settingsToggleItem identity-clothing-settings">
+				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted outfit styles cause dysphoria when you change clothes. Preferred styles provide comfort while worn. Neutral prefers clothing that looks neither masculine nor feminine. "Don't Care" disables clothing dysphoria and comfort.</span></mouse>
 				<br>
 				Masculine:
 				<br>
@@ -198,19 +198,23 @@
 					<label data-target='["identity.presentation.clothing.neutral.reject", "identity.presentation.clothing.preferred", "identity.init"]' data-disabledif="V.identity.presentation.clothing.preferred === 'n' || V.identity.presentation.clothing.neutral.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.clothing.neutral.acceptance" true autocheck>></label> |
 				<</if>>
 				<label data-target='["identity.presentation.clothing.neutral.acceptance", "identity.presentation.clothing.preferred"]' data-disabledif="V.identity.presentation.clothing.preferred !== 'n' && !V.identity.presentation.clothing.neutral.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.clothing.preferred" "u" autocheck>></label>
-				<mouse class="tooltip linkBlue">(?)<span>A real preference, not an opt-out: dysphoria builds when your overall outfit reads too far masculine or feminine either way, and eases off the closer it sits to balanced. Different from Don't Care below, which switches clothing dysphoria off entirely.</span></mouse>
 				<br>
-				<label class="teal">Don't care <<radiobutton "$identity.presentation.clothing.preferred" "n" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Clothes are just clothes to you. Nothing you wear helps or hurts, and the Clothing topic disappears from the Identity screen.</span></mouse>
+				<label class="teal">Don't care <<radiobutton "$identity.presentation.clothing.preferred" "n" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Clothes are just clothes to you.</span></mouse>
 				<br>
 
-				/* Picking a clothing preference has two side effects that a radio click alone wouldn't produce, since clicking only repaints the setting rather than re-rendering the passage:
+				/* Clothing controls have side effects that a click alone wouldn't produce, since clicking only repaints the setting rather than re-rendering the passage:
 				  - switching to Neutral has to park both options as accepted right away, so the masculine/feminine "Preferred" radios stay a valid way back out instead of leaving the player stuck on Neutral;
-				  - character creation previews the starting outfit, which is chosen from this preference. */
+				  - character creation previews the starting outfit, which is chosen from this preference;
+				  - rejecting the style already being worn has to land immediately. */
 				<<run (function () {
 					if (setup.clothingPreferenceChangeInstalled) return;
 					setup.clothingPreferenceChangeInstalled = true;
-					$(document).on("change", "[name$='" + Util.slugify("identity.presentation.clothing.preferred") + "']", function () {
-						Wikifier.wikifyEval("<<normaliseNeutralClothing>><<startingPlayerImageUpdate>>");
+					const preferenceInput = Util.slugify("identity.presentation.clothing.preferred");
+					$(document).on("change", ".identity-clothing-settings input", function () {
+						if ((this.name || "").endsWith(preferenceInput)) {
+							Wikifier.wikifyEval("<<normaliseNeutralClothing>><<startingPlayerImageUpdate>>");
+						}
+						clothingIdentityChangeCheck();
 					});
 				})();>>
 			</div>
@@ -633,11 +637,11 @@
 			<div class="settingsGrid">
 				<div class="settingsToggleItemWide">
 					<ul class="small-description">
-						<li>Accepted characteristics don't have negative effects. You can have one preferred characteristic from accepted characteristics in each category, which grants minor Stress and Trauma reduction when you have them.</li>
-						<li>You gain dysphoria for each characteristic you have that you haven't accepted, which increases Stress and Trauma.</li>
-						<li>You gain daily tolerance towards characteristics you have that you haven't accepted, until you reach acceptance at max tolerance.</li>
-						<li>You don't gain Trauma from Rejected characteristics, but you don't gain Tolerance towards it either. Staying at maximum Dysphoria in a Rejected characteristic is dangerous.</li>
-						<li>If a Rejected characteristic's Dysphoria maxes out and your Willpower gives out, you're forced to begrudgingly go along with it. Unlike a plain Rejected characteristic, this does cause Trauma, though it stops draining your current Willpower each time it flares up. The Reject and Accept controls both lock while Begrudged, the only way out is to stop having that characteristic (and unset it as Preferred) and let Tolerance decay back down over time, at which point you're free to Reject it again if you still want to.</li>
+						<li><b>Accepted:</b> Accepted characteristics do not cause negative effects. You can also choose one accepted characteristic in each category as Preferred. Having your Preferred characteristic slightly lowers Stress and Trauma.</li>
+						<li><b>Dysphoria:</b> Having a characteristic you have not accepted causes Dysphoria, which increases Stress and Trauma.</li>
+						<li><b>Tolerance:</b> You slowly gain Tolerance each day towards characteristics you have but have not accepted. At maximum Tolerance, that characteristic becomes Accepted.</li>
+						<li><b>Rejected:</b> Rejected characteristics do not give you Trauma, but you also cannot gain Tolerance towards them. Letting Dysphoria from a Rejected characteristic reach its maximum is dangerous.</li>
+						<li><b>Begrudged:</b> If Dysphoria from a Rejected characteristic reaches its maximum and your Willpower runs out, you are forced to put up with it. It can then cause Trauma, but repeated Dysphoria will no longer drain your current Willpower. You cannot Reject or Accept it while it is Begrudged. To remove Begrudged, stop having that characteristic, remove it as Preferred if needed, then wait for its Tolerance to fall. After that, you can Reject it again if you want.</li>
 					</ul>
 				</div>
 
@@ -898,7 +902,7 @@
 						<<case "Feminine Appearance">>
 							<<set _reason to "Catching yourself looking feminine makes your stomach twist.">>
 						<<case "Androgynous Appearance">>
-							<<set _reason to "Catching yourself looking so clearly gendered, when you'd rather sit somewhere in between, makes your stomach twist.">>
+							<<set _reason to "Catching yourself looking neither masculine nor feminine makes your stomach twist.">>
 						<<case "Vagina">>
 							<<set _reason to "Being reminded you have a vagina disgusts you.">>
 						<<case "Tiny Penis">>
@@ -911,10 +915,13 @@
 							<<set _reason to "Being reminded you have a big penis disgusts you.">>
 						<<case "Masculine Pronouns" "Feminine Pronouns" "Neutral Pronouns">>
 							<<set _reason to "Someone refers to you with the wrong pronouns. It makes your skin crawl.">>
-						<<case "Masculine Clothing" "Feminine Clothing">>
-							<<set _reason to "The fabric and silhouette cling in all the wrong ways, making you painfully aware of yourself.">>
+						/* Clothing fires on getting changed, so these read as a reaction to the outfit you've just put on. */
+						<<case "Masculine Clothing">>
+							<<set _reason to $identityOption.reject ? "You feel gross in these boyish clothes." : "You feel awkward dressed up boyish like this.">>
+						<<case "Feminine Clothing">>
+							<<set _reason to $identityOption.reject ? "You feel gross in these girly clothes." : "You feel awkward dressed up girly like this.">>
 						<<case "Neutral Clothing">>
-							<<set _reason to "Your outfit reads far more gendered than you'd like, and you can't stop noticing it.">>
+							<<set _reason to $identityOption.reject ? "You feel gross in clothes that look neither masculine nor feminine." : "You feel awkward in clothes that look neither masculine nor feminine.">>
 						<<case "Flat Breasts">>
 							<<set _reason to "Your chest looks empty in a way that leaves a sharp ache.">>
 						<<case "Small Breasts">>
@@ -1127,39 +1134,72 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "identityRememberAcceptance">>
+		<<if $identityOption.acceptance and !$identityOption.reject and !$identityOption.everAccepted>>
+			<<set $identityOption.everAccepted to true>>
+		<</if>>
+	<</widget>>
+
+	<<widget "identityTickCharacteristic">>
+		<<set _weight to _args[0] isnot undefined ? _args[0] : 1>>
+		<<if $identityOption.acceptance and !$identityOption.reject>>
+			<<tolerance `2 * _weight`>>
+		<<elseif $identityOption.everAccepted and !$identityOption.reject and $identityOption.tolerance lt 50>>
+			/* Savings: your body remembers being at peace with a trait you once accepted.
+			Coming back to it, comfort resumes from halfway rather than a full re-grind from scratch. */
+			<<set $identityOption.tolerance to 50>>
+			<<set $effectsmessage to 1>>
+			<<set $identityFamiliarityMessage to true>>
+		<</if>>
+		<<set _shift to ($identityOption.tolerance/50).toFixed(2)>>
+		<<set _shift to Math.clamp(3-_shift, 1, 3) * _weight>>
+		<<dysphoria _shift>>
+		<<identityCleanup>>
+	<</widget>>
+
+	<<widget "identityPreferredComfort">>
+		<<set _weight to _args[0] isnot undefined ? _args[0] : 1>>
+		<<if $identityPreference and $identityOption.acceptance and !$identityOption.reject>>
+			<<stress `-1 * _weight` 1>><<trauma `-1 * _weight`>>
+		<</if>>
+	<</widget>>
+
+	/* Clothing dysphoria is applied once when changing into a different clothing style, not every hour.
+	Preferred clothing comfort is hourly instead, so wearing suitable clothes continues to reduce Stress and Trauma.
+	This also prevents repeatedly changing outfits from farming the effect.
+	Dysphoria recovery remains hourly when the related characteristic is no longer present. */
 	<<widget "hourlyIdentityEffects">>
 		<<normaliseNeutralClothing>>
 		<<for _categoryName, _category range setup.identityIndex>>
 			<<for _char,_icon range _category>>
 				<<identitySelector _char>>
 				<<if $identityOption>>
-					/* Single source of truth: once you've genuinely accepted a trait, remember it forever (covers every acceptance path, present or absent, and backfills older saves). */
-					<<if $identityOption.acceptance and !$identityOption.reject and !$identityOption.everAccepted>>
-						<<set $identityOption.everAccepted to true>>
-					<</if>>
+					<<identityRememberAcceptance>>
 					<<if playerHasCharacteristic(_char)>>
-						<<if $identityOption.acceptance and !$identityOption.reject>>
-							<<tolerance 2>>
-						<<elseif $identityOption.everAccepted and !$identityOption.reject and $identityOption.tolerance lt 50>>
-							/* Savings: your body remembers being at peace with a trait you once accepted.
-							Coming back to it, comfort resumes from halfway rather than a full re-grind from scratch. */
-							<<set $identityOption.tolerance to 50>>
-							<<set $effectsmessage to 1>>
-							<<set $identityFamiliarityMessage to true>>
+						<<if isClothingCharacteristic(_char)>>
+							<<identityPreferredComfort `CLOTHING_COMFORT_WEIGHT`>>
+						<<else>>
+							<<identityTickCharacteristic>>
+							<<identityPreferredComfort>>
 						<</if>>
-						<<set _shift to ($identityOption.tolerance/50).toFixed(2)>>
-						<<set _shift to Math.clamp(3-_shift, 1, 3)>>
-						<<dysphoria _shift>>
-						<<if $identityPreference and $identityOption.acceptance and !$identityOption.reject>>
-							<<stress -1 1>><<trauma -1>>
-						<</if>>
-						<<identityCleanup>>
 					<<elseif $identityOption.dysphoria gt 0>>
 						<<dysphoria -5>>
 					<</if>>
 				<</if>>
 			<</for>>
 		<</for>>
+	<</widget>>
+
+	<<widget "clothingChangeIdentityEffects">>
+		<<identitySelector `clothingCharacteristicForBand(_args[0])`>>
+		<<if $identityOption>>
+			<<identityRememberAcceptance>>
+			<<identityTickCharacteristic `CLOTHING_CHANGE_WEIGHT`>>
+			<<if (!$identityOption.acceptance or $identityOption.reject) and playerCaresForGender() and !clothingCompulsionActive()>>
+				<<stress `$identityOption.reject ? 9 : 5`>>
+				<<set $effectsmessage to 1>>
+			<</if>>
+		<</if>>
 	<</widget>>
 
 	<<widget "dailyIdentityEffects">>

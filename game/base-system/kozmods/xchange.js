@@ -1733,35 +1733,6 @@ function xchangeEffectsMessages() {
 			break;
 	}
 
-	switch (V.genderStressMessage) {
-		case 1:
-			element("span", "You feel awkward dressed up girly like this.", "purple");
-			fragment.append(wikifier("ggstress"));
-			br();
-			delete V.genderStressMessage;
-			break;
-		case 2:
-			element("span", "You feel gross in these girly clothes.", "red");
-			fragment.append(wikifier("gggstress"));
-			br();
-			delete V.genderStressMessage;
-			break;
-		case 3:
-			element("span", "You feel awkward dressed up boyish like this.", "purple");
-			fragment.append(wikifier("ggstress"));
-			br();
-			delete V.genderStressMessage;
-			break;
-		case 4:
-			element("span", "You feel gross in these boyish clothes.", "red");
-			fragment.append(wikifier("gggstress"));
-			br();
-			delete V.genderStressMessage;
-			break;
-		default:
-			break;
-	}
-
 	if (V.giDriftMessage) {
 		element("span", V.giDriftMessage, "purple");
 		br();

@@ -46,6 +46,23 @@ function clothingIdentityIsNeutral() {
 }
 window.clothingIdentityIsNeutral = clothingIdentityIsNeutral;
 
+/* The slots that make up "what the player is wearing" for identity purposes. Underwear counts, jewellery doesn't. */
+const OUTFIT_SLOTS = [
+	"over_head",
+	"head",
+	"face",
+	"neck",
+	"over_upper",
+	"upper",
+	"under_upper",
+	"over_lower",
+	"lower",
+	"under_lower",
+	"legs",
+	"handheld",
+	"feet",
+];
+
 /**
  * Sums the femininity value of every worn clothing slot plus makeup into one continuous score for the character's overall outfit:
  * negative reads masculine, positive reads feminine, near 0 reads androgynous.
@@ -55,32 +72,10 @@ window.clothingIdentityIsNeutral = clothingIdentityIsNeutral;
  */
 function getCurrentWornFemininity() {
 	let currentWornFemininity = 0;
-	if (setup.clothes.over_head[clothesIndex("over_head", V.worn.over_head)].femininity)
-		currentWornFemininity += setup.clothes.over_head[clothesIndex("over_head", V.worn.over_head)].femininity;
-	if (setup.clothes.head[clothesIndex("head", V.worn.head)].femininity)
-		currentWornFemininity += setup.clothes.head[clothesIndex("head", V.worn.head)].femininity;
-	if (setup.clothes.face[clothesIndex("face", V.worn.face)].femininity)
-		currentWornFemininity += setup.clothes.face[clothesIndex("face", V.worn.face)].femininity;
-	if (setup.clothes.neck[clothesIndex("neck", V.worn.neck)].femininity)
-		currentWornFemininity += setup.clothes.neck[clothesIndex("neck", V.worn.neck)].femininity;
-	if (setup.clothes.over_upper[clothesIndex("over_upper", V.worn.over_upper)].femininity)
-		currentWornFemininity += setup.clothes.over_upper[clothesIndex("over_upper", V.worn.over_upper)].femininity;
-	if (setup.clothes.upper[clothesIndex("upper", V.worn.upper)].femininity)
-		currentWornFemininity += setup.clothes.upper[clothesIndex("upper", V.worn.upper)].femininity;
-	if (setup.clothes.under_upper[clothesIndex("under_upper", V.worn.under_upper)].femininity)
-		currentWornFemininity += setup.clothes.under_upper[clothesIndex("under_upper", V.worn.under_upper)].femininity;
-	if (setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].femininity)
-		currentWornFemininity += setup.clothes.over_lower[clothesIndex("over_lower", V.worn.over_lower)].femininity;
-	if (setup.clothes.lower[clothesIndex("lower", V.worn.lower)].femininity)
-		currentWornFemininity += setup.clothes.lower[clothesIndex("lower", V.worn.lower)].femininity;
-	if (setup.clothes.under_lower[clothesIndex("under_lower", V.worn.under_lower)].femininity)
-		currentWornFemininity += setup.clothes.under_lower[clothesIndex("under_lower", V.worn.under_lower)].femininity;
-	if (setup.clothes.legs[clothesIndex("legs", V.worn.legs)].femininity)
-		currentWornFemininity += setup.clothes.legs[clothesIndex("legs", V.worn.legs)].femininity;
-	if (setup.clothes.handheld[clothesIndex("handheld", V.worn.handheld)].femininity)
-		currentWornFemininity += setup.clothes.handheld[clothesIndex("handheld", V.worn.handheld)].femininity;
-	if (setup.clothes.feet[clothesIndex("feet", V.worn.feet)].femininity)
-		currentWornFemininity += setup.clothes.feet[clothesIndex("feet", V.worn.feet)].femininity;
+	OUTFIT_SLOTS.forEach(slot => {
+		const femininity = setup.clothes[slot][clothesIndex(slot, V.worn[slot])].femininity;
+		if (femininity) currentWornFemininity += femininity;
+	});
 
 	// Add up the makeup femininity
 	currentWornFemininity += V.makeup.lipstick ? 50 : 0;
@@ -91,6 +86,164 @@ function getCurrentWornFemininity() {
 }
 window.getCurrentWornFemininity = getCurrentWornFemininity;
 
+/**
+ * Whether the player is wearing any clothes the outfit score is built from.
+ * A bare body scores 0 femininity, which sits inside the androgynous deadzone, but being naked isn't a
+ * clothing choice; without this gate every hour spent asleep or stripped would count as "wearing an
+ * androgynous outfit" and charge clothing dysphoria for it.
+ * Makeup can shift an outfit's score, but it does not turn a naked body into an outfit by itself.
+ */
+function playerIsDressed() {
+	return OUTFIT_SLOTS.some(slot => V.worn[slot] && V.worn[slot].name !== "naked");
+}
+window.playerIsDressed = playerIsDressed;
+
+/**
+ * Which single band the player's overall look currently falls into: "m", "f", or "n" for androgynous.
+ *
+ * `V.player.gender_appearance` is strictly binary (at a dead-even femininity score it falls back to the
+ * player's sex) so the androgynous band has to be carved out of the raw score here.
+ * Doing it anywhere else lets a balanced look count as BOTH "Feminine Appearance" and "Androgynous Appearance",
+ * which charges dysphoria and grants tolerance on two appearance axes in the same hour.
+ */
+function currentAppearanceBand() {
+	const femininity = Number(V.player.femininity);
+	if (Number.isFinite(femininity) && Math.abs(femininity) <= ANDROGYNOUS_FEMININITY_DEADZONE) return "n";
+	return V.player.gender_appearance === "m" ? "m" : "f";
+}
+window.currentAppearanceBand = currentAppearanceBand;
+
+/** The identity characteristic each appearance band counts as. */
+const APPEARANCE_CHARACTERISTIC_BY_BAND = { m: "Masculine Appearance", n: "Androgynous Appearance", f: "Feminine Appearance" };
+
+/**
+ * Which single band the player's outfit currently falls into: "m", "f", or "n" for androgynous.
+ * Returns "" when the player isn't dressed at all, so no clothing characteristic applies.
+ */
+function currentClothingBand() {
+	if (!playerIsDressed()) return "";
+	const worn = getCurrentWornFemininity();
+	if (worn > ANDROGYNOUS_FEMININITY_DEADZONE) return "f";
+	if (worn < -ANDROGYNOUS_FEMININITY_DEADZONE) return "m";
+	return "n";
+}
+window.currentClothingBand = currentClothingBand;
+
+/**
+ * What's currently dictating the player's wardrobe against their will, if anything: a genderification pill or a hypnotic crossdressing suggestion.
+ * While one is in force it owns the reaction to their outfit and the identity system stays quiet about clothing
+ * the two were mutually exclusive when both lived in the hourly tick, and still are.
+ */
+function clothingCompulsionState() {
+	V.cheats = V.cheats || {};
+	return {
+		genderifyActive: !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect),
+		hypnoCrossdressLevel: V.cheats.disableHypnoCrossdress ? 0 : V.hypnosis_traits?.crossdressing || 0,
+	};
+}
+window.clothingCompulsionState = clothingCompulsionState;
+
+/** Whether any such compulsion is in force. */
+function clothingCompulsionActive() {
+	const { genderifyActive, hypnoCrossdressLevel } = clothingCompulsionState();
+	return genderifyActive || hypnoCrossdressLevel >= 1;
+}
+window.clothingCompulsionActive = clothingCompulsionActive;
+
+/** What each outfit band maps to. The single source for which identity topics count as clothing. */
+const CLOTHING_BANDS = {
+	m: { side: "masculine", characteristic: "Masculine Clothing" },
+	f: { side: "feminine", characteristic: "Feminine Clothing" },
+	n: { side: "neutral", characteristic: "Neutral Clothing" },
+};
+
+/**
+ * The characteristic an outfit band counts as, or undefined when the player isn't dressed.
+ *
+ * @param {string} band "m", "f" or "n".
+ */
+function clothingCharacteristicForBand(band) {
+	return CLOTHING_BANDS[band]?.characteristic;
+}
+window.clothingCharacteristicForBand = clothingCharacteristicForBand;
+
+/**
+ * The clothing characteristics, which are driven by changes of outfit rather than by the hourly tick.
+ *
+ * @param {string} characteristic A name from setup.identityIndex.
+ */
+function isClothingCharacteristic(characteristic) {
+	return Object.values(CLOTHING_BANDS).some(band => band.characteristic === characteristic);
+}
+window.isClothingCharacteristic = isClothingCharacteristic;
+
+/**
+ * What the player's outfit currently says to them: the band it reads as, marked when they're at odds with that band right now.
+ *
+ * Both halves belong in the key.
+ * Deciding you can't stand the clothes already on your back is as much a new reaction as changing them, and it's reachable from several directions
+ * rejecting the style in the Identity screen, or tolerance running out under you.
+ * Keying on the band alone would swallow all of it silently.
+ * Empty string means undressed, which is the absence of a reading rather than a reading of its own.
+ */
+function currentClothingReading() {
+	const band = currentClothingBand();
+	if (!band) return "";
+	const option = V.identity?.presentation?.clothing?.[CLOTHING_BANDS[band].side];
+	return option && (!option.acceptance || option.reject) ? band + "!" : band;
+}
+window.currentClothingReading = currentClothingReading;
+
+/**
+ * How many hourly ticks' worth one change of outfit is worth. Rare but heavy, instead of a constant drip.
+ * Only the dysphoria half of the clothing axis is weighted this way.
+ */
+const CLOTHING_CHANGE_WEIGHT = 5;
+window.CLOTHING_CHANGE_WEIGHT = CLOTHING_CHANGE_WEIGHT;
+
+/**
+ * Comfort from wearing clothes you prefer stays hourly for every axis, but clothing gets a heavier hourly
+ * rate than the rest: the change of outfit that starts it grants no comfort of its own, and the point of
+ * keeping this on the clock is that continuing to wear the right thing is what pays, not swapping outfits.
+ */
+const CLOTHING_COMFORT_WEIGHT = 3;
+window.CLOTHING_COMFORT_WEIGHT = CLOTHING_COMFORT_WEIGHT;
+
+/**
+ * Fires the clothing side of the identity system once, when the outfit's overall reading changes.
+ *
+ * Wearing something you can't stand is a reaction to putting it on and catching sight of yourself, not a
+ * feeling that renews every hour you keep it on, so this is hooked to the passage cycle rather than the clock.
+ * What counts as a change is the outfit's reading (see currentClothingReading), so swapping one feminine
+ * outfit for another is not news, and neither is being stripped and put back in the same clothes.
+ *
+ * Hooked to `:passagestart`, not `:passagedisplay`: the effects panel is built while the passage renders, so
+ * anything raised after that shows up a passage late. Getting dressed happens inside a passage (a wardrobe, a
+ * shop), and the reaction lands as the player leaves it.
+ */
+function clothingIdentityChangeCheck() {
+	const clothing = V.identity?.presentation?.clothing;
+	if (!clothing || V.statFreeze) return;
+	// Mid-fight the player isn't choosing an outfit. Whatever they're left in settles once the fight is over.
+	if (V.combat) return;
+
+	const reading = currentClothingReading();
+	// Undressed doesn't overwrite the reading we compare against - being stripped isn't getting changed.
+	if (!reading || reading === clothing.lastReading) return;
+
+	const firstReading = clothing.lastReading === undefined;
+	// Tracked even when nothing comes of it, so switching off "Don't care" later compares against real history.
+	clothing.lastReading = reading;
+
+	// A save that predates this check has no baseline yet. Record one rather than pretending they just got changed.
+	if (firstReading || clothingIdentityIsNeutral()) return;
+
+	wikifier("clothingChangeIdentityEffects", `"${currentClothingBand()}"`);
+}
+window.clothingIdentityChangeCheck = clothingIdentityChangeCheck;
+
+$(document).on(":passagestart", clothingIdentityChangeCheck);
+
 function hourlyClothingFemininityCheck(hours = 1) {
 	const currentWornFemininity = getCurrentWornFemininity();
 
@@ -98,15 +251,12 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
-	// --- Hypno crossdress / genderify handling ---
-	V.cheats = V.cheats || {};
-	const genderifyActive = !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect);
-	const hypnoCrossdressLevel = V.cheats.disableHypnoCrossdress ? 0 : V.hypnosis_traits?.crossdressing || 0;
-
 	/*
 	 * Hypno crossdress / genderify should still run even when the player cares for gender.
 	 * Use the player's baseline gender for the compulsion direction so body changes from X-Change do not flip the urge from feminine to masculine mid-pill.
+	 * Unlike identity dysphoria this one is a standing compulsion, so it does belong on the clock.
 	 */
+	const { genderifyActive, hypnoCrossdressLevel } = clothingCompulsionState();
 	if (genderifyActive || hypnoCrossdressLevel >= 1) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress", 30 * hours, 1);
@@ -145,34 +295,26 @@ function hourlyClothingFemininityCheck(hours = 1) {
 				V.effectsmessage = 1;
 			}
 		}
-	} else if (playerCaresForGender() && !clothingIdentityIsNeutral()) {
-		const feminine = V.identity.presentation.clothing.feminine;
-		const masculine = V.identity.presentation.clothing.masculine;
-		if (currentWornFemininity > ANDROGYNOUS_FEMININITY_DEADZONE && (!feminine.acceptance || feminine.reject)) {
-			V.genderStressMessage = feminine.reject ? 2 : 1;
-			V.effectsmessage = 1;
-		} else if (currentWornFemininity < -ANDROGYNOUS_FEMININITY_DEADZONE && (!masculine.acceptance || masculine.reject)) {
-			V.genderStressMessage = masculine.reject ? 4 : 3;
-			V.effectsmessage = 1;
-		}
 	}
 }
 window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 
 function playerHasCharacteristic(characteristic) {
 	switch (characteristic) {
+		/* Appearance and clothing are each a single three-way band.
+		Exactly one of the three can be true at a time: they're the answer to "what does the player look like right now", not "what would upset them". */
 		case "Masculine Appearance":
-			return V.player.gender_appearance === "m" ? 2 : 0;
+			return currentAppearanceBand() === "m" ? 2 : 0;
 		case "Feminine Appearance":
-			return V.player.gender_appearance === "f" ? 2 : 0;
+			return currentAppearanceBand() === "f" ? 2 : 0;
 		case "Androgynous Appearance":
-			return Math.abs(V.player.femininity) > ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
+			return currentAppearanceBand() === "n" ? 2 : 0;
 		case "Masculine Clothing":
-			return getCurrentWornFemininity() < -ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
+			return currentClothingBand() === "m" ? 2 : 0;
 		case "Feminine Clothing":
-			return getCurrentWornFemininity() > ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
+			return currentClothingBand() === "f" ? 2 : 0;
 		case "Neutral Clothing":
-			return Math.abs(getCurrentWornFemininity()) > ANDROGYNOUS_FEMININITY_DEADZONE ? 2 : 0;
+			return currentClothingBand() === "n" ? 2 : 0;
 		case "Masculine Pronouns":
 			return V.identity.presentation.pronouns.masculine.misgendered;
 		case "Feminine Pronouns":
@@ -422,7 +564,7 @@ window.getFemininityContribution = getFemininityContribution;
 function identityCharacteristicCategory(category) {
 	switch (category) {
 		case "Appearance":
-			return playerHasCharacteristic("Masculine Appearance") ? "Masculine Appearance" : "Feminine Appearance";
+			return APPEARANCE_CHARACTERISTIC_BY_BAND[currentAppearanceBand()];
 		case "Breasts":
 			if (playerHasCharacteristic("Flat Chest")) return "Flat Chest";
 			else if (playerHasCharacteristic("Small Breasts")) return "Small Breasts";
