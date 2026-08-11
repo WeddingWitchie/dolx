@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing */
+/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing, effectiveDrunk */
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -911,7 +911,7 @@ function inappropriatePlayerState(check = ["all"]) {
 		if (liquid >= 1) return true;
 	}
 	if (["all", "drugs"].includesAny(check)) {
-		if (V.drunk >= 240 || V.drugged >= 200) return true;
+		if (effectiveDrunk() >= 240 || V.drugged >= 200) return true;
 	}
 	return false;
 }

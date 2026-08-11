@@ -1415,6 +1415,12 @@ function fatigueSkillPenaltyFraction() {
 }
 window.fatigueSkillPenaltyFraction = fatigueSkillPenaltyFraction;
 
+/* Drunkenness that still impairs the PC after accounting for their built-up tolerance. */
+function effectiveDrunk() {
+	return (Number(V.drunk) || 0) * (1 - Math.clamp(Number(V.alcoholTolerance) || 0, 0, 1000) / 1000);
+}
+window.effectiveDrunk = effectiveDrunk;
+
 function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf = 0) {
 	if (disableModifiers !== 0 || disableStatNerf !== 0) return result;
 	const penalty = fatigueSkillPenaltyFraction();
@@ -1452,7 +1458,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	// Prevents infinite loops, any call to `currentSkillValue` in this function should be written like 'currentSkillValue("skillName", disableModifiers + 1)'
 	if (disableModifiers >= 2) return result;
 	// X-Change: alcohol tolerance mitigates drunkenness's *penalty* on skill checks.
-	const _drunkCheckPenalty = V.drunk * (1 - Math.clamp(V.alcoholTolerance || 0, 0, 1000) / 1000);
+	const _drunkCheckPenalty = effectiveDrunk();
 	if (
 		// prettier-ignore
 		[
