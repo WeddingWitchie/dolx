@@ -122,7 +122,21 @@ With some effort, you spread your cheeks, digging into their depths, and manage 
 <<link [[Check the plots|_rainDanceReturn]]>><<unset $phase>><<unset $lastPassage>><</link>>
 <br>
 
-:: Cheats Mod [widget]
+:: Seed List Settings
+Choose which seeds appear when planting. These settings apply to every field, garden plot, and planter.
+<br><br>
+<label>Hide out-of-season seeds <<checkbox "$tendingUI.hideOutOfSeason" false true autocheck>></label>
+<br>
+<label>Hide seeds that do not fit the current bed type <<checkbox "$tendingUI.hideIncompatible" false true autocheck>></label>
+<br><br>
+You can also hide individual seeds:
+<br>
+<div id="tending-seed-visibility"><<tendingSeedVisibilitySettings>></div>
+<br><br>
+<<link [[Back|$tendingUIExitPassage]]>><<unset $tendingUIExitPassage>><</link>>
+<br>
+
+:: Wigdet Mod Misc Overlay [widget]
 <<widget "cheats-alex">>
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Animal Respect</div>
@@ -214,7 +228,6 @@ With some effort, you spread your cheeks, digging into their depths, and manage 
 	<</if>>
 <</widget>>
 
-:: Feats Mod [widget]
 /* X-Change: pick which Hopeless Cycle endings to buy.
 Like any feat boost, these can be purchased outright with VrelCoins. */
 <<widget "hopelessEndingsFeatUI">>
@@ -294,4 +307,31 @@ Each sets up the gaoler context (freeze/morph), then jumps straight to that endi
     <<elseif $godClothes is 1>>
         <<set $godClothes to 1>>
     <</if>>
+<</widget>>
+
+<<widget "tendingSeedVisibilitySettings">>
+	<<if $plants_known.length is 0>>
+		You have not discovered any seeds yet.
+	<<else>>
+		<<for _plantType range $plants_known>>
+			<<set _plant to setup.foodstuff[_plantType]>>
+			<<if _plant>>
+				<<set _seedName to (_plant.tending?.seed_name || _plant.plural || _plant.name || _plantType).replace(/_/g, " ").toLocaleUpperFirst()>>
+				<<capture _plantType>>
+					<<if $options.images is 1>><<foodstufficon _plantType>><</if>>
+					_seedName:
+					<<if $tendingUI.hiddenSeeds.includes(_plantType)>>
+						<span class="red">Hidden</span> - <<link "Show">><<run $tendingUI.hiddenSeeds.delete(_plantType)>><<replace "#tending-seed-visibility">><<tendingSeedVisibilitySettings>><</replace>><<numberify "#passages > .passage">><</link>>
+					<<else>>
+						<span class="green">Shown</span> - <<link "Hide">><<run $tendingUI.hiddenSeeds.pushUnique(_plantType)>><<replace "#tending-seed-visibility">><<tendingSeedVisibilitySettings>><</replace>><<numberify "#passages > .passage">><</link>>
+					<</if>>
+					<br>
+				<</capture>>
+			<</if>>
+		<</for>>
+		<<if $tendingUI.hiddenSeeds.length gt 0>>
+			<br>
+			<<link "Show all seeds">><<set $tendingUI.hiddenSeeds to []>><<replace "#tending-seed-visibility">><<tendingSeedVisibilitySettings>><</replace>><<numberify "#passages > .passage">><</link>>
+		<</if>>
+	<</if>>
 <</widget>>
