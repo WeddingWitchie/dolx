@@ -3745,16 +3745,64 @@
 		<</if>>
 	</div>
 
-	<<if _isMenuEnabled>>
+	<<set _animalColourTfLabels to {
+		wolf: "Wolf",
+		cat: "Cat",
+		cow: "Cow",
+		bird: "Bird",
+		fox: "Fox",
+		bunny: "Bunny",
+		bear: "Bear",
+		waterdragon: "Water Dragon"
+	}>>
+	<<set _animalColourPartLabels to {
+		ears: "ears",
+		tail: "tail",
+		cheeks: "cheek fur",
+		pits: "underarm fur",
+		pubes: "pubic fur",
+		horns: "horns",
+		wings: "wings",
+		malar: "facial plumage",
+		plumage: "plumage and fur"
+	}>>
+	<<set _animalColourParts to []>>
+	<<for _tf, _parts range Transformations.colourableAnimalParts>>
+		<<for _part range _parts>>
+			<<if Transformations.partActive(_tf, _part)>>
+				<<set _colourPartLabel to _animalColourPartLabels[_part]>>
+				<<if _tf is "bird" and _part is "pubes">>
+					<<set _colourPartLabel to "pubic plumage">>
+				<<elseif _tf is "bear" and _part is "plumage">>
+					<<set _colourPartLabel to "body fur">>
+				<</if>>
+				<<run _animalColourParts.push({
+					label: _animalColourTfLabels[_tf] + " " + _colourPartLabel,
+					target: "$transformationParts." + _tf + "." + _part + "_colour"
+				})>>
+			<</if>>
+		<</for>>
+	<</for>>
+
+	<<if _isMenuEnabled or _animalColourParts.length gt 0>>
 		<details class="expandMenu tf-custom-colours">
-			<summary class="expandMenu">Custom Demon Colours</summary>
+			<summary class="expandMenu">Custom Transformation Colours</summary>
+			<<if _animalColourParts.length gt 0>>
+				<div class="colour-selector-list">
+					<span class="small-description">Animal parts:</span><br>
+					<<for _colourPart range _animalColourParts>>
+						<label><<= _colourPart.label>>: <<gencolourselector _colourPart.target>></label><br>
+					<</for>>
+				</div>
+			<</if>>
 			<div class="menuWarning">
-				Select the demon horns, tail or wings checkboxes you'd like to recolour.
+				Select the transformation-part checkboxes you'd like to recolour.
 			</div>
 			<div class="menuContent hidden">
 				<<set _options to ['ffffff', 'ff0000', '00ff00', '0000ff', '590099', '000000']>>
 				<<gencoloursquares _options>>
 				<<gencolourpicker>>
+				<br><<link "Restore selected parts to natural colours">><<run TransformationsInterface.clearSelectedColours()>><</link>>
 			</div>
 		</details>
 	<</if>>

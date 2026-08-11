@@ -823,6 +823,21 @@ Renderer.CanvasModels.main = {
 		options.filters.demon_tail = { ...filterBase, blend: ColourUtils.toHslString(V.transformationParts.demon.tail_colour, demonHsl) };
 		options.filters.demon_horns = { ...filterBase, blend: ColourUtils.toHslString(V.transformationParts.demon.horns_colour, demonHsl) };
 
+		// Animal TF parts keep their natural renderer filter until the player assigns a custom colour.
+		const hairColouredAnimalTfs = new Set(["wolf", "cat", "bird", "fox", "bunny", "bear"]);
+		for (const [tf, parts] of Object.entries(Transformations.colourableAnimalParts)) {
+			for (const part of parts) {
+				const colour = V.transformationParts?.[tf]?.[`${part}_colour`];
+				const validColour = colour && ["h", "s", "l"].every(channel => Number.isFinite(Number(colour[channel])));
+				const naturalFilter = tf === "waterdragon" && part === "horns"
+					? options.filters.body
+					: hairColouredAnimalTfs.has(tf) ? options.filters.hair : empty;
+				options.filters[`${tf}_${part}`] = validColour
+					? { ...filterBase, blend: ColourUtils.toHslString(colour) }
+					: naturalFilter;
+			}
+		}
+
 		// Clothing filters and options
 		const clothingObject = this.defaultOptions().worn;
 		for (const slot of setup.clothes_all_slots) {
@@ -2035,8 +2050,8 @@ Renderer.CanvasModels.main = {
 		 *
 		 *
 		 */
-		"wolf_tail": genlayer_tail("wolf", true),
-		"wolf_ears": genlayer_ears("wolf", true),
+		"wolf_tail": genlayer_tail("wolf"),
+		"wolf_ears": genlayer_ears("wolf"),
 		"wolf_cheeks": genlayer_cheeks("wolf"),
 		"wolf_pits": genlayer_tf_pits("wolf", "hirsute"),
 		"wolf_pubes": genlayer_tf_pubes("wolf", "hirsute"),
@@ -2050,8 +2065,8 @@ Renderer.CanvasModels.main = {
 		 *
 		 */
 
-		"cat_tail": genlayer_tail("cat", true),
-		"cat_ears": genlayer_ears("cat", true),
+		"cat_tail": genlayer_tail("cat"),
+		"cat_ears": genlayer_ears("cat"),
 
 		/***
 		 *     ██████  ██████  ██     ██
@@ -2067,21 +2082,22 @@ Renderer.CanvasModels.main = {
 				return options.cow_horns_layer === "front" ? ZIndices.over_head + 1 : ZIndices.horns + 1;
 			},
 		}),
-		"cow_ear_left": genlayer_ears("cow", false, {
+		"cow_ear_left": genlayer_ears("cow", {
 			masksrcfn(options) {
 				if (options.worn.over_upper.setup.name === "kaiju costume")
 					return `img/clothes/over-upper/kaiju/mask.png`;
 				return "img/face/masks/left.png"
 			}
 		}),
-		"cow_ear_right": genlayer_ears("cow", false, {
+		"cow_ear_right": genlayer_ears("cow", {
 			masksrcfn(options) {
 				if (options.worn.over_upper.setup.name === "kaiju costume")
 					return `img/clothes/over-upper/kaiju/mask.png`;
 				return "img/face/masks/right.png"
 			}
 		}),
-		"cow_tag": genlayer_ears("cow", false, {
+		"cow_tag": genlayer_ears("cow", {
+			filters: [],
 			z: ZIndices.facewear,
 			src: `img/transformations/cow/ears/tag.png`,
 			masksrcfn(options) {
@@ -2089,7 +2105,7 @@ Renderer.CanvasModels.main = {
 					return `img/clothes/over-upper/kaiju/mask.png`;
 			}
 		}),
-		"cow_tail": genlayer_tail("cow", false),
+		"cow_tail": genlayer_tail("cow"),
 
 		/***
 		 *    ██     ██  █████  ████████ ███████ ██████
@@ -2105,15 +2121,15 @@ Renderer.CanvasModels.main = {
 		 *    ██████  ██   ██ ██   ██  ██████   ██████  ██   ████
 		 */
 		"waterdragon_horns": genlayer_horns("waterdragon", {
-			filters: ["body"],
+			filters: ["waterdragon_horns"],
 			zfn(options) {
 				return options.waterdragon_horns_layer === "front" ? ZIndices.over_head + 1 : ZIndices.horns + 1;
 			},
 		}),
-		"waterdragon_ears": genlayer_ears("waterdragon", false, {
+		"waterdragon_ears": genlayer_ears("waterdragon", {
 			z: ZIndices.horns,
 		}),
-		"waterdragon_tail": genlayer_tail("waterdragon", false),
+		"waterdragon_tail": genlayer_tail("waterdragon"),
 
 		/***
 		 *    ██████  ██ ██████  ██████
@@ -2128,7 +2144,7 @@ Renderer.CanvasModels.main = {
 		"bird_wings_right": genlayer_wings("right", "bird", true),
 		"bird_wings_left": genlayer_wings("left", "bird", true),
 		"bird_wings_loose": {
-			filters: ["hair"],
+			filters: ["bird_wings"],
 			animation: "looseFeathers",
 			z: ZIndices.tailPenisCover,
 			src: `img/transformations/bird/feathers/loose.png`,
@@ -2136,7 +2152,7 @@ Renderer.CanvasModels.main = {
 				return options.show_tf && isPartEnabled(options.bird_wings_type) && !options.hide_all && T.selfFeatherNum > 0;
 			},
 		},
-		"bird_tail": genlayer_tail("bird", true),
+		"bird_tail": genlayer_tail("bird"),
 		"bird_eyes": {
 			z: ZIndices.irisacc,
 			animation: "idle",
@@ -2169,8 +2185,8 @@ Renderer.CanvasModels.main = {
 		 *
 		 *
 		 */
-		"fox_tail": genlayer_tail("fox", true),
-		"fox_ears": genlayer_ears("fox", true),
+		"fox_tail": genlayer_tail("fox"),
+		"fox_ears": genlayer_ears("fox"),
 		"fox_cheeks": genlayer_cheeks("fox"),
 
 		/***
@@ -2232,7 +2248,7 @@ Renderer.CanvasModels.main = {
 					return `img/clothes/over-upper/kaiju/mask.png`;
 			},
 		},
-		"demon_tail": genlayer_tail("demon", false, {
+		"demon_tail": genlayer_tail("demon", {
 			filters: ["demon_tail"],
 		}),
 		"demon_horns": genlayer_horns("demon", {
@@ -2249,6 +2265,7 @@ Renderer.CanvasModels.main = {
 		 *    
 		 */
 		"bear_ears": {
+			filters: ["bear_ears"],
 			srcfn(options) {
 				return `img/transformations/bear/ears/${options.bear_ears_type}.png`;
 			},
@@ -2258,20 +2275,19 @@ Renderer.CanvasModels.main = {
 			masksrcfn(options) {
 				return options.head_mask_src;
 			},
-			filters: ["hair"],
 			zfn(options) {
 				return tfEarsZ();
 			},
 			animation: "idle"
 		},
 		"bear_tail": {
+			filters: ["bear_tail"],
 			srcfn(options) {
 				return `img/transformations/bear/tail/${options.bear_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bear_tail_type) && !options.hide_all;
 			},
-			filters: ["hair"],
 			zfn(options) {
 				if (options.bear_tail_layer === "back") {
 					return ZIndices.tail
@@ -2282,17 +2298,18 @@ Renderer.CanvasModels.main = {
 			animation: "idle"
 		},
 		"bear_plumage": {
+			filters: ["bear_plumage"],
 			srcfn(options) {
 				return `img/transformations/bear/plumage/${options.bear_plumage_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bear_plumage_type) && !options.hide_all;
 			},
-			filters: ["hair"],
 			z: ZIndices.lower,
 			animation: "idle"
 		},
 		"bear_pubes": {
+			filters: ["bear_pubes"],
 			srcfn(options) {
 				return `img/transformations/bear/pubes/${options.bear_pubes_type}.png`;
 			},
@@ -2302,7 +2319,6 @@ Renderer.CanvasModels.main = {
 				&& !options.belly_hides_under_lower
 				&& !options.hide_all;
 			},
-			filters: ["hair"],
 			z: ZIndices.hirsute,
 			animation: "idle"
 		},
@@ -2601,13 +2617,13 @@ Renderer.CanvasModels.main = {
 		 * 
 		 */
 		"bunny_tail": {
+			filters: ["bunny_tail"],
 			srcfn(options) {
 				return `img/transformations/bunny/tail/${options.bunny_tail_type}.png`;
 			},
 			showfn(options) {
 				return options.show_tf && isPartEnabled(options.bunny_tail_type);
 			},
-			filters: ["hair"],
 			zfn(options) {
 				if (options.bunny_tail_layer === "back") {
 					return ZIndices.tail
@@ -2618,6 +2634,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle"
 		},
 		"bunny_ear_front": {
+			filters: ["bunny_ears"],
 			srcfn(options) {
 				return `img/transformations/bunny/earfront/${options.bunny_ears_type}.png`;
 			},
@@ -2627,11 +2644,11 @@ Renderer.CanvasModels.main = {
 			masksrcfn(options) {
 				return options.head_mask_src;
 			},
-			filters: ["hair"],
 			z: ZIndices.horns,
 			animation: "idle"
 		},
 		"bunny_ear_back": {
+			filters: ["bunny_ears"],
 			srcfn(options) {
 				return `img/transformations/bunny/earback/${options.bunny_ears_type}.png`;
 			},
@@ -2641,7 +2658,6 @@ Renderer.CanvasModels.main = {
 			masksrcfn(options) {
 				return options.head_mask_src;
 			},
-			filters: ["hair"],
 			z: ZIndices.backhair,
 			animation: "idle"
 		},
@@ -2844,14 +2860,14 @@ Renderer.CanvasModels.main = {
 		*/
 		/* Melusine art is hand-coloured per piece and ships in its own colourways ("default"/"purple"),
 		so every layer here renders unfiltered; no hair or skin tinting, unlike the base sprites it replaces. */
-		"melusine_ears": genlayer_ears("melusine", false, { z: ZIndices.horns }),
+		"melusine_ears": genlayer_ears("melusine", { filters: [], z: ZIndices.horns }),
 		"melusine_horns": genlayer_horns("melusine", {
 			filters: [],
 			zfn(options) {
 				return options.melusine_horns_layer === "front" ? ZIndices.over_head + 1 : ZIndices.horns + 1;
 			},
 		}),
-		"melusine_tail": genlayer_tail("melusine", false),
+		"melusine_tail": genlayer_tail("melusine", { filters: [] }),
 		"melusine_wings_right": genlayer_wings("right", "melusine", false),
 		"melusine_wings_left": genlayer_wings("left", "melusine", false),
 		"melusine_halo": {
@@ -6261,7 +6277,7 @@ function genlayer_tanning(slot, index, tanningLayer, value, animation = "idle") 
 
 function genlayer_tf(tf, folder, part, overrideOptions) {
 	return Object.assign({
-		filters: ["hair"],
+		filters: [`${tf}_${part}`],
 		z: ZIndices.lower,
 		animation: "idle",
 
@@ -6280,7 +6296,7 @@ function genlayer_tf(tf, folder, part, overrideOptions) {
 function genlayer_wings(side, tf, hair, overrideOptions) {
 	return Object.assign({
 		animation: "idle",
-		filters: hair ? ["hair"] : [],
+		filters: hair ? [`${tf}_wings`] : [],
 		srcfn(options) {
 			const state = `${options[`${tf}_wing_${side}`]}`;
 			const cover = state === "cover" ? `-${side}` : "";
@@ -6331,7 +6347,7 @@ function genlayer_halo(side, tf, overrideOptions) {
 	}, overrideOptions);
 }
 
-function genlayer_tail(tf, hair, overrideOptions) {
+function genlayer_tail(tf, overrideOptions) {
 	// Each TF whose tail can become a demon-chimera tail -> its chimera key.
 	// TFs not listed here (waterdragon, bird, ...) never use demon cover/flaunt.
 	const demonChimera = { cow: "demoncow", cat: "demoncat", wolf: "demonwolf", fox: "demonfox" };
@@ -6340,7 +6356,7 @@ function genlayer_tail(tf, hair, overrideOptions) {
 
 	return genlayer_tf(tf, "tail", "tail", Object.assign({
 		z: ZIndices.tailPenisCover,
-		filters: hair ? ["hair"] : [],
+		filters: [`${tf}_tail`],
 
 		srcfn(options) {
 			const tail = isDemonTail() ? `tail-${options.demon_tail_state}` : "tail-idle";
@@ -6361,13 +6377,14 @@ function genlayer_tail(tf, hair, overrideOptions) {
 
 function genlayer_cheeks(tf, overrideOptions) {
 	return genlayer_tf(tf, "cheeks", "cheeks", Object.assign({
-		filters: ["hair"],
+		filters: [`${tf}_cheeks`],
 		z: ZIndices.lower,
 	}, overrideOptions))
 }
 
 function genlayer_tf_pubes(tf, folder, overrideOptions) {
 	return genlayer_tf(tf, folder, "pubes", Object.assign({
+		filters: [`${tf}_pubes`],
 		z: ZIndices.hirsute,
 		showfn(options) {
 			return options.show_tf
@@ -6383,6 +6400,7 @@ function genlayer_tf_pubes(tf, folder, overrideOptions) {
 
 function genlayer_tf_pits(tf, folder, overrideOptions) {
 	return genlayer_tf(tf, folder, "pits", Object.assign({
+		filters: [`${tf}_pits`],
 		z: ZIndices.hirsute,
 		showfn(options) {
 			return options.show_tf
@@ -6411,9 +6429,9 @@ function tfEarsZ() {
 	}
 }
 
-function genlayer_ears(tf, hair, overrideOptions) {
+function genlayer_ears(tf, overrideOptions) {
 	return genlayer_tf(tf, "ears", "ears", Object.assign({
-		filters: hair ? ["hair"] : [],
+		filters: [`${tf}_ears`],
 
 		masksrcfn(options) {
 			if (options.worn.over_upper.setup.name === "kaiju costume")
@@ -6432,7 +6450,7 @@ function genlayer_ears(tf, hair, overrideOptions) {
 
 function genlayer_horns(tf, overrideOptions) {
 	return genlayer_tf(tf, "horns", "horns", Object.assign({
-		filters: [],
+		filters: [`${tf}_horns`],
 		animation: "idle",
 		zfn(options) {
 			return options[`${tf}_horns_layer`] === "front" ? ZIndices.over_head : ZIndices.horns;

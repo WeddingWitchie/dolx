@@ -113,6 +113,21 @@ const TransformationsInterface = (() => {
 		return output;
 	}
 
+	function clearSelectedColours() {
+		let hasMutated = false;
+		const checkedItems = document.querySelectorAll('input[name="colour-selector"]:checked');
+		for (const item of checkedItems) {
+			const match = /^\$transformationParts\.([a-zA-Z]+)\.([a-zA-Z_]+)$/.exec(item.dataset.target);
+			if (!match) continue;
+			const partState = State.variables.transformationParts?.[match[1]];
+			if (partState && Object.hasOwn(partState, match[2])) {
+				delete partState[match[2]];
+				hasMutated = true;
+			}
+		}
+		if (hasMutated) Wikifier.wikifyEval("<<updatesidebarimg true>>");
+	}
+
 	Macro.add("gencolourselector", {
 		handler() {
 			const target = this.args[0];
@@ -145,6 +160,7 @@ const TransformationsInterface = (() => {
 	return {
 		generateColourPicker,
 		generateColourSquares,
+		clearSelectedColours,
 		current: () => current,
 	};
 })();
