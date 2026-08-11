@@ -156,12 +156,20 @@
 		<</if>>
 		/* Only report genderflip if sex actually changed since activation, and wasn't just the herm setup step */
 		<<if $xchange.pill.genderflipEffect and !$xchange.pill.hermEffect and $xchange.pill.baseSex isnot undefined and $xchange.pill.baseSex isnot $player.sex>>
-			<<if $background.transgender and ((_transBodySex is "m" and $player.sex is "f") or (_transBodySex is "f" and $player.sex is "m"))>>
-				/* Trans player whose body now matches their gender; don't say "transformed into a girl/boy" because they already were one */
-				<<run _pillBits.push("whose body has been " + ($player.sex is "f" ? "feminised" : "masculinised") + " to match your gender")>>
-			<<elseif $background.transgender>>
-				/* Trans player whose body got pushed further from their gender */
-				<<run _pillBits.push("whose body has been forced further from your gender")>>
+			<<if $background.transgender>>
+				/* Judge the new body against the player's current gender identity, not their previous body. */
+				<<set _identGender to playerFeltGender()>>
+				<<set _bodyDirection to ($player.sex is "f" ? "feminised" : "masculinised")>>
+				<<if _identGender is $player.sex>>
+					/* The body now matches their gender; don't say "transformed into a girl/boy" because they already were one */
+					<<run _pillBits.push("whose body has been " + _bodyDirection + " to match your gender")>>
+				<<elseif _identGender isnot "n">>
+					/* The body got pushed further from their gender */
+					<<run _pillBits.push("whose body has been forced further from your gender")>>
+				<<else>>
+					/* Nonbinary: the body moved, but neither sex is closer to or further from their gender */
+					<<run _pillBits.push("whose body has been " + _bodyDirection)>>
+				<</if>>
 			<<else>>
 				<<run _pillBits.push("transformed into a " + ($player.sex is "m" ? "boy" : "girl"))>>
 			<</if>>
@@ -178,9 +186,7 @@
 		<</if>>
 	<</if>>
 
-	<<if $background.transgender>>
-		<<set _transBodySex to ($xchange and $xchange.pill and $xchange.pill.active and $xchange.pill.baseSex !== undefined) ? $xchange.pill.baseSex : $player.sex>>
-		<<if _transBodySex is "m">>trans girl<<elseif _transBodySex is "f">>trans boy<<else>>trans <<pcGender>><</if>><<else>><<pcGender>><</if>><<if $xchange.pill.active and _pillBits.length > 0>><<print " " + _pillBits.join(" and ")>><</if>>.<br>
+	<<if $background.transgender>><<print playerTransLabel()>><<else>><<pcGender>><</if>><<if $xchange.pill.active and _pillBits.length > 0>><<print " " + _pillBits.join(" and ")>><</if>>.<br>
 
 	<<if $xchange.pill.baseSex isnot undefined and $xchange.pill.baseSex isnot $player.sex>>
 		<span class="red">Your sex has flipped.</span><br>

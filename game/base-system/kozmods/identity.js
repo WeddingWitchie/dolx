@@ -636,9 +636,10 @@ window.pregnancyIdentityAccepted = pregnancyIdentityAccepted;
 const PRONOUN_DYNAMIC_MODES = ["body", "clothing", "appearance", "posture"];
 
 /**
- * The active dynamic pronoun mode ("body"/"clothing"/"appearance"/"posture"), or "" if pronouns are resolved from the static preferred set instead.
+ * The active dynamic pronoun mode ("body"/"clothing"/"appearance"/"posture"),
+ * or "" if pronouns are resolved from the static preferred set instead.
  *
- * @param pronouns
+ * @param {"body"|"clothing"|"appearance"|"posture"|""} pronouns
  */
 function getPronounDynamicMode(pronouns) {
 	const hasPreferenceFlags = [pronouns.preferredMasculine, pronouns.preferredFeminine, pronouns.preferredNeutral].some(value => value !== undefined);
@@ -1276,14 +1277,54 @@ function playerFeelsGirllike() {
 }
 window.playerFeelsGirllike = playerFeelsGirllike;
 
-/* Which way a "crossdress"/genderification body push goes.
-   X-Change judges the body on anatomy ($player.sex), never on gender identity (see the note atop xchange-pill.js),
-   so trans women, dickgirls, cuntboys and slow-body-change players all get the change that matches their body:
-   a male body is feminised (sissy), a female body is masculinised (butch).
-   
-   The push only happens on a plain crossdress effect that is NOT combined with a full genderflip or herm change (see the "crossdress" case in xchange.twee),
-   so mirror that guard here to keep the trait labels in step with the body.
-   Returns "sissy" | "butch" | "none". */
+/* Returns the player's identity: "m", "f", or "n" (nonbinary).
+   Always use this for gender identity, including transgender players.
+   Do not determine identity from the player's body, as this can misidentify trans and nonbinary characters. */
+function playerFeltGender() {
+	/* Called through window so premium pills can apply presentationGenderOverride.
+	A direct call would skip the X-Change wrapper and lose the override. */
+	if (window.playerFeelsManlike()) return "m";
+	if (window.playerFeelsGirllike()) return "f";
+	return "n";
+}
+window.playerFeltGender = playerFeltGender;
+
+/* The noun <<pcGender>> prints. */
+function playerGenderWord() {
+	switch (playerFeltGender()) {
+		case "m":
+			return "boy";
+		case "f":
+			return "girl";
+		default:
+			return "enby";
+	}
+}
+window.playerGenderWord = playerGenderWord;
+
+/* The possessive <<pcGenderher>> prints. */
+function playerGenderPossessive() {
+	switch (playerFeltGender()) {
+		case "m":
+			return "his";
+		case "f":
+			return "her";
+		default:
+			return "their";
+	}
+}
+window.playerGenderPossessive = playerGenderPossessive;
+
+/* Shows "trans boy", "trans girl", or "trans enby" */
+function playerTransLabel() {
+	return "trans " + playerGenderWord();
+}
+window.playerTransLabel = playerTransLabel;
+
+/* Determines the direction of a crossdress/genderification body change.
+X-Change uses body sex ($player.sex), not gender identity: male body = "sissy", female body = "butch".
+Only applies to a normal crossdress effect, not genderflip or herm changes.
+Returns "sissy" | "butch" | "none". */
 function xchangeGenderificationDirection() {
 	const pill = V.xchange?.pill;
 	if (pill && (pill.genderflipEffect || pill.hermEffect)) return "none";
