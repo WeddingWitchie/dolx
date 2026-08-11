@@ -70,27 +70,56 @@ With some effort, you spread your cheeks, digging into their depths, and manage 
 <<link [[Next|_exit]]>><<clotheson>><<run delete $bathroomExit>><</link>>
 <br>
 
-:: Pregnancy Birth Hospital Poppy
-<<set $outside to 0>><<set $location to "hospital">><<effects>>
-<<endevent>><<npc "Poppy">><<person1>>
-<<run poppySchedule()>><<run markPoppyInteraction()>>
-<<run delete $poppy_pregnancy>>
-<<getChildrenIds>><<childSelect _childrenIds.last()>>
-Poppy is on <<his>> feet the moment <<he>> sees you, crossing the ward before the midwife can get a word out.
-<br><br>
-"My jewel," <<he>> breathes, taking your hands in <<his>>. "You did it. You actually did it."
-<<if $litter_size gte 2>>
-	<<He>> glances to where <<childrenNames $bornChildrenIds>> lie swaddled in their cradles, and <<his>> breath catches. "Look at them. Look at what we made."
+:: Melusine Rain Dance
+<<effects>>
+<<set _rainDanceReturn to ($lastPassage and Story.has($lastPassage)) ? $lastPassage : "Garden">>
+<<if $daily.melusineRainDance is 1>>
+	You have already called to the weather today. Your Melusine nature needs time to recover.
+	<br><br>
+	<<link [[Return|_rainDanceReturn]]>><<unset $phase>><<unset $lastPassage>><</link>>
+<<elseif $feetuse is "bound" or $worn.feet.type.includes("shackle")>>
+	You cannot perform a rain dance while your legs are bound.
+	<br><br>
+	<<link [[Return|_rainDanceReturn]]>><<unset $phase>><<unset $lastPassage>><</link>>
+<<elseif !Transformations.chimeraActive("melusine") or ($sciencetrait lt 5 and $danceskill lt 1000)>>
+	You can no longer reach the weather through your Melusine nature.
+	<br><br>
+	<<link [[Return|_rainDanceReturn]]>><<unset $phase>><<unset $lastPassage>><</link>>
 <<else>>
-	<<He>> glances to where <<childname>> lies swaddled in the cradle, and <<his>> breath catches. "Look at <<childhim>>. Look at what we made."
+	You turn your attention skyward and let your Melusine nature guide you into a rain dance.
+	You watch the clouds, judge the wind and feel the moisture in the air, searching for the best way
+	to draw the weather closer.
+	<br><br>
+	<<link [[Call for light rain or snow (0:15)|Melusine Rain Dance Result]]>><<set $phase to "lightPrecipitation">><</link>>
+	<br>
+	<<link [[Call for heavy rain or snow (0:15)|Melusine Rain Dance Result]]>><<set $phase to "heavyPrecipitation">><</link>>
+<</if>>
+<br>
+
+:: Melusine Rain Dance Result
+<<effects>>
+<<set _rainDanceReturn to ($lastPassage and Story.has($lastPassage)) ? $lastPassage : "Garden">>
+<<if $daily.melusineRainDance is 1>>
+	You have already called to the weather today. Your Melusine nature needs time to recover.
+<<elseif $feetuse is "bound" or $worn.feet.type.includes("shackle")>>
+	You cannot complete a rain dance while your legs are bound.
+<<elseif !Transformations.chimeraActive("melusine") or ($sciencetrait lt 5 and $danceskill lt 1000) or !["lightPrecipitation", "heavyPrecipitation"].includes($phase)>>
+	You can no longer reach the weather through your Melusine nature.
+<<else>>
+	<<set $daily.melusineRainDance to 1>>
+	<<set _rainDanceChance to Math.round((45 * Math.clamp($sciencetrait / 8, 0, 1)) + (45 * Math.clamp($danceskill / 2000, 0, 1)))>>
+	You keep dancing, raising your arms towards the sky as the clouds begin to move with you.
+	<<pass 15>><<tiredness 3>><<gtiredness>>
+	<br><br>
+	<<if random(1, 100) lte _rainDanceChance>>
+		<<run Weather.set($phase, true, 6 * 60)>>
+		<span class="green">The sky answers. <<= $phase is "lightPrecipitation" ? "Light" : "Heavy">> <<= Weather.precipitation>> begins to fall, and should continue for at least six hours.</span>
+	<<else>>
+		<span class="purple">You keep dancing, but the clouds do not gather and no rain falls.</span>
+	<</if>>
 <</if>>
 <br><br>
-Poppy leans down and brushes the backs of <<his>> fingers over <<if $litter_size gte 2>>the nearest tiny cheek<<else>><<childname>>'s cheek<</if>>, careful as though afraid of leaving a mark.
-A faint powdery scent follows <<him>>, and for once you're too worn out to mind it.
-<br><br>
-"I'm so proud of you." <<He>> presses a lingering kiss to your damp forehead. "Rest now. I'll take care of everything else. That's a promise."<<lllstress>><<stress -20>><<glove>><<npcincr Poppy love 2>>
-<<poppyOpiumPulse>>
-<<link [[Next|Pregnancy Birth Hospital 6]]>><<endevent>><</link>>
+<<link [[Check the plots|_rainDanceReturn]]>><<unset $phase>><<unset $lastPassage>><</link>>
 <br>
 
 :: Cheats Mod [widget]
