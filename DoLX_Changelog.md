@@ -15,404 +15,471 @@
 
 ## Changes and Additions
 
-- **Added Harper NNPC vanilla sprites by saturdayat11**
+- **Added a new Whitney park event**
 
-  - Currently supports the male, white-skin version only.
+  - While running in the park when Whitney is available, you may find other people flirting with them.
+  - This can lead into a short event sequence where you can buy Whitney a ring.
+  - While the ring is worn, it slightly reduces Trauma as days pass.
+  - The event unlocks after either completing the loft event or seeing the special orphanage visit where Whitney is pent up.
+  - Giving the ring also grants its associated trait.
 
-- **Added painkiller medication**
+- **Added Calmoryl medication**
 
-  - The hospital pharmacy now sells packs of 14 painkillers for **£15**.
-  - Painkillers provide strong pain relief but cause considerable tiredness.
-  - The school medicine cabinet now shows **"Steal painkillers"** beneath **"Break in."**
-  - A successful theft gives 3 pills and uses the cabinet's existing weekly restock.
-  - Painkillers can always be taken while you own them, but taking too many in one day causes increasingly severe side effects:
-    - **Doses 1-3:** Normal effects.
-    - **Doses 4-5:** Increasing nausea, stress, tiredness, and recovery time.
-    - **Doses 6-7:** Stronger dizziness, trauma, pain, tiredness, and awareness loss.
-    - **Dose 8 onward:** Severe reactions that worsen with each additional dose.
-  - The daily dose count resets through the existing pill system.
+  - Calmoryl is a new Trauma-relief medicine.
+  - Taking too much causes increasingly severe overdose effects.
 
-- **Added Whitney event: Night Shenanigans**
+- **Added instant wardrobe moving**
 
-  - Whitney may now visit your orphanage window at night once per week by throwing pebbles at it.
-  - This event becomes available after the special orphanage visit where Whitney reaches maximum lust and barges into the orphanage.
-  - You can spend the night vandalising the town with Whitney or share a quieter night together.
-  - A hidden route lets you leave Whitney, then later apologise and make up with them in the park.
-  - After making up, Whitney can visit again for a one-time event where they give you a **Water Dragon plushie**.
-  - The plushie can be carried or placed in several safe locations, including the orphanage, Eden's cabin, the temple bunk, and the Great Hawk tower.
-  - Sleeping beside the plushie reduces trauma.
+  - Players using separate wardrobes can now pay the tailor to immediately move all stored clothes to an unlocked home wardrobe.
 
-- **Added a school hallway follow-up to Whitney's vandalism route**
+- **Improved wardrobe browsing**
 
-  - After taking part in the vandalism route during Night Shenanigans, other students may notice what you did and admire it.
+  - Added icon tabs.
+  - Added a combined over-clothes view.
 
-- **Added Water Dragon egg laying and the Hidden Nest**
+- **Added optional full Insanity effects**
 
-  - At **Water Dragon transformation stage 7**, when you are pregnant, your body producing eggs.
-  - When an egg is ready, an instinctive pull leads you from the beach through an underwater opening in the sea wall to a hidden nesting hollow.
-  - Bailey cannot follow you inside.
-  - Ordinary transformation eggs can be laid at the nest, carried away, and sold to Harper.
-  - Rare pastel-coloured eggs sell for more.
+  - A new setting under **X-Change Settings > Trait** can enable the full **Dissociation** and **Visibly Disturbed** effects for Insanity.
 
-- **Added Hidden Nest restoration**
+- **Added optional permanent naturally-gained Insanity**
 
-  - Cleaning the nesting hut increases its habitability and permanently unlocks new features:
-    - **15%:** Usable bed.
-    - **30%:** Tide pool mirror.
-    - **45%:** Dry clothes chest and full wardrobe.
-    - **70%:** Sheltered cooking fire.
-    - **100%:** Search the hidden shore for shells and coral to decorate the wall.
+  - Added **"Naturally-gained Insanity is permanent"**, disabled by default.
+  - Normally, Insanity gained from remaining severely traumatised for over a week disappears after Trauma recovers.
+  - With this setting enabled, naturally-gained Insanity becomes permanent once triggered, and its severe effects no longer disappear through normal recovery.
+  - Unlike choosing Insanity during character creation, naturally-gained permanent Insanity does **not** grant doubled skill caps or permanently active talents.
+  - Gwylan's Clarity remains compatible with the new behaviour.
 
-- **Added Harper's Water Dragon research route: Project Pelagos**
+- **Added more Masochism gain to Remy's whipping content**
 
-  - Selling four eggs to Harper makes them take a much stronger interest in your transformation.
-  - After the fourth sale, you can be confined in a secure basement research wing beneath the hospital.
-  - Each day contains four research sessions, which can include fertility serum, brooding, examinations, and assessments.
-  - Between sessions, you can use the washroom or spend time in the day room.
-  - There are two main ways to leave:
-    - **Cooperate:** Follow Harper's instructions until they decide naturally laid eggs are more useful and release you under a permanent egg-selling arrangement.
-    - **Escape:** Investigate the ventilation system, earn Professor Vale's trust, and use their help to attempt an escape through the service area.
-  - Being caught during an escape attempt costs progress and causes Harper to increase security.
-  - Leaving the lab by either route grants **Accelerated Brood Cycle**, permanently reducing the time between eggs by roughly half.
+- **Expanded the Water Dragon route**
 
-- **Added special clothing: Tidebloom Ring**
+  - Added staged Harper negotiations.
+  - Added Water Dragon sale bonuses and familiar-collar protection.
+  - Trust now develops faster during the soft bad end.
+  - Water Dragon points can grow during confinement.
+  - Added egg-specific dragon ultrasound content.
 
-  - During Project Pelagos, you can secretly grow lilies in a hidden tray behind the day room shelf.
-  - Whether you are released or escape, you leave with one flower woven into the **Tidebloom Ring**.
-  - While worn:
-    - People are more likely to notice you.
-    - **Dendrophile** and **Nectar Addict** no longer decrease over time.
-    - The Traits menu shows when the ring is preventing those traits from fading.
-  - Gwylan has unique dialogue about the ring, with different reactions depending on how you left Project Pelagos.
-  - Afterwards, the ring can be bought from the forest shop or unlocked through a feat boost.
+- **Updated the Water Dragon nest area**
 
-- **Added Androgynous Appearance and Clothing Preferences**
+  - The route is now **Coastal Path → Hidden Cave → Lush Cave → Hidden Beach → Stone House**.
+  - After discovering the nest, its entrance can be accessed from the Coastal Path.
+  - The nest is now an Ivatan-style stone-and-thatch house.
+  - Leaving the nest now returns you to the Hidden Beach.
 
-  - You can now choose **Androgynous** as your preferred Appearance and Clothing style alongside Masculine and Feminine.
-  - Androgynous preferences have their own acceptance, rejection, and dysphoria effects.
-  - This is separate from **"Don't Care,"** which disables clothing preference effects.
-  - Clothing dysphoria now judges your overall outfit instead of each item separately, so mixed masculine and feminine clothing may balance out.
+- **Water Dragon lore is no longer missable**
 
-- **Added Arousal Acclimated trait**
+  - The hermit beneath the castle now recognises Water Dragon scales and can tell the old Water Dragon story from their scrolls.
+  - Reaching the hermit through the castle no longer causes you to miss lore normally told by the island Elder after the ritual.
+  - If you later meet the Elder, they recognise that you already know the story and only give their apology instead of repeating it.
+  - Hearing the lore from the hermit does not unlock the Elder's recurring visits.
 
-  - Staying Lustful for two full weeks, or already having **Chastity Acclimated**, can unlock **Arousal Acclimated**.
-  - The trait halves all arousal gained and allows you to sleep even at extremely high arousal.
-  - It also prevents high arousal from forcing several actions, such as keeping you in the bath or shower or preventing you from leaving certain encounters.
-  - The trait can be enabled or disabled in game settings.
+- **Added Farm Racecourse race rigging**
 
-- **Added optional virginity loss from sex toys**
+  - Before placing a bet, you can visit the stable yard to interfere with the race in your favour.
+  - There are eight jobs, ranging from bribing riders to sabotaging rival horses.
+  - Each job has low-, medium-, and high-risk options.
 
-  - Added **"Toys can take virginity"** under **Settings > Sex Toys**.
-  - The option is **off by default**.
-  - When enabled, insertable toys can take vaginal or anal virginity when used by an enemy, by the player, or on an NPC.
-  - The **Math Dildo** school incident now follows this setting. When disabled, you pull away before it can take your virginity.
+- **Added a Harpy travel call**
 
-- **Added Mastery Traits**
+  - Full Harpy transformations can call for travel from the Moors to the Great Hawk's tower.
+  - Requires the Great Hawk relationship to be at Love Interest status.
+  - Also requires Legendary Hunting trophies / completion of the Great Hunting event.
 
-  - Reaching **SSS rank in two related skills** can now unlock a named Mastery Trait with a unique bonus.
-  - Mastery Traits appear in a new section at the bottom of the Traits screen.
-  - Combat Masteries improve attacks or evasion and include **Rock 'Em, Sock 'Em**, **Precise Blows**, **Sleek and Steady**, and **Happy Feet**.
-  - Intimacy Masteries improve specific techniques or body-part interactions and include **Milky Goddess**, **That Cannot Fit!**, **Abyssal Throat**, **Tender Hands**, **Sweet Pleasure**, and **Backend Beauty**.
-  - **Happy Feet** upgrades and replaces **Sleek and Steady** instead of stacking with it.
+- **Updated Melusine**
 
-- **Added Fear Toxin spiking and an anti-pill**
+  - Melusine can now perform a **rain dance** from the plot-tending menu.
+  - Science contributes up to **45%** at SSS rank.
+  - Dancing contributes up to **45%** at SSS rank.
+  - With both at SSS, the total chance is **90%**.
+  - The option appears when either Science or Dancing is at grade S or higher.
 
-  - **Fear Toxin** is a new optional X-Change spiking effect.
-  - While active, it keeps trauma at maximum and self-control at zero.
-  - When it ends, trauma and self-control recover normally rather than being restored instantly.
-  - Fear Toxin is disabled by default and can be enabled or adjusted under **Spiking Preferences**.
-  - It cannot appear together with Innocence because the two effects alter trauma in opposite directions.
-  - The shady park dealer can now sell an **SWP Anti-Feartoxin Pill**, which ends the toxin early but causes the usual anti-pill hypersensitivity.
-  - The dealer will no longer offer the same two anti-pills on consecutive days.
+- **Added customisable lens colours to round shades**
 
-- **Added Bear Prints event**
+- **Added customisable seed filters**
 
-  - Players with **Deviancy 4** can follow bear prints if beast content is enabled and the bear is allowed by their settings.
-  - Following the prints leads to the bear's hollow and a **hard Willpower check**.
-  - Enough Bear transformation progress lets you skip the check because the bear recognises your scent.
-  - Passing the check begins the new willing encounter; failing it leads into the existing forced bear encounter.
+  - Planting menus can hide out-of-season, incompatible, or unwanted seeds.
+  - This keeps fields and gardens shorter and easier to navigate.
 
-- **Added more Love Interest milkshake gifts**
+- **Expanded transformation customisation**
 
-  - Kylar can now receive milkshakes at the park, manor, and arcade when your relationship is high enough.
-  - Sydney can now receive one at the temple as well as the school library.
-  - Kylar's gift option now correctly uses two milkshakes.
+  - Animal ears, tails, horns, wings, fur, and feathers can now be recoloured individually in the mirror.
+  - Selected transformation parts can be restored to their natural colours.
+  - Existing saves preserve their natural colours and compatibility.
+  - Added more transformation-specific pet names for Avery and Gwylan.
 
-- **Updated sleeping with Love Interests**
+- **Added Gwylan's Strong Wings quest**
 
-  - Robin and Alex can now wake you naturally when sleeping together.
-  - Each has dedicated wake-up dialogue and lets you either get up or stay in bed and snuggle.
-
-- **Added more modded face slots**
-  - Modded face slots now extend up to **30**.
-  - Some slots may be empty unless their graphics are added manually.
+  - Gwylan can temporarily strengthen Angel, Fallen Angel, Demon, and Okami wings so they can fly instead of only glide.
+  - After doing a favour for Gwylan, ask about your wings at the forest shop.
+  - Gwylan explains that your wings have the right shape for flight but need more muscle.
+  - If you have never flown before, Gwylan points you toward the moor so the Great Hawk can teach you.
+  - Once you have learned to fly, Gwylan can begin the treatment.
+  - The ingredient list changes depending on what Gwylan can obtain that week.
+  - After you return the ingredients, Gwylan takes three days to prepare the potion.
+  - The final treatment uses Gwylan's hypnosis for the day and cannot be performed while your feathers are still regrowing.
+  - Strengthened wings last for one week, after which they return to normal and can only glide again.
+  - The quest can be repeated.
+  - Remaining flight time is shown on the Traits screen and in the Journal.
 
 ## Tweaks and Rebalancing
 
-- **Body size now affects maximum Dodge Chance**
+- **Trait requirement fixes**
 
-  - Smaller characters can dodge more effectively, with the smallest body size able to reach up to **100% Dodge Chance**.
-  - Larger characters have a lower limit, with the biggest builds capped at **45%**.
-  - Average-sized characters are unchanged.
-  - The **Dodge Chance Cap** setting can still lower your maximum, but it cannot raise it above your body-size limit.
+  - **Orgasm Addict** now requires **1,000 orgasms**, matching vanilla.
+  - **Cum Dump** now requires **1,000 ejaculations received**, matching vanilla.
 
-- **Rebalanced combat damage**
+- **Tweaked Sadism**
 
-  - Punches, kicks, and hook punches no longer multiply every damage bonus together.
-  - Trained fighters still deal more damage, but attacks now have limits based on the opponent's health.
-  - Light attacks can deal up to **12%** of the opponent's health, while powerful two-handed attacks can deal up to **40%**.
-  - Kicks now deal slightly less damage than punches because they remain available while both hands are occupied.
-  - Sadism no longer increases physical damage, but still affects stress, arousal, and fight reactions.
-  - Fixed kicks causing later punches to incorrectly use kicking skill for damage.
+  - Sadism now grants **+10% damage per 100 points**, up to **+100%**.
+  - The bonus combines additively with newer combat bonuses.
+  - Per-hit damage caps are still respected.
 
-- **Transformation income bonuses rebalanced**
+- **Combat balance: counters, hits, and body size**
 
-  - No transformation can double earnings anymore.
-  - The maximum transformation income bonus is now **75%**.
-  - This affects larger bonuses such as the cat café, bunny dancing, bear dock work, and Angel temple allowance.
-  - Smaller bonuses, such as bird and cow jobs, are unchanged.
-  - Minor cosmetic traits such as Seraphim eyes, Kitsune cheeks, or small Okami features no longer count as a complete transformation by themselves.
-  - A defining feature such as wings, ears, or a tail is now required for full transformation benefits for chimera.
+  - Countering is now limited by available hands.
+  - Each hand used to guard can counter one attack per turn, so two free hands can counter up to two attacks.
+  - Extra incoming attacks use the normal partial-dodge handling instead.
+  - Countering becomes harder against groups, falling as low as **40%** of its normal chance against five or more opponents.
+  - Smaller characters are better at countering and dodging.
+  - Larger characters have a harder time countering, balancing their stronger physical attacks and other advantages.
+  - Larger characters can now properly benefit from dodge training; body-size penalties no longer completely erase Dance training bonuses.
+  - The dodge penalty for larger bodies has been reduced so training can make a meaningful difference.
+  - Smaller characters remain naturally better at avoiding attacks.
+  - Fixed intermediate body sizes incorrectly receiving the dodge bonus intended for the smallest size.
 
-- **Chastity arousal now depends on consent and key control**
+  Attack maximums have also been increased:
 
-  - Chastity no longer builds frustration simply because you are wearing it.
-  - Frustration now builds when the device was forced on you, someone else controls the key, the key was lost or stolen, or the device became impossible to remove.
-  - Temple chastity no longer causes frustration because you willingly asked Jordan to lock it.
-  - Self-locked chastity does not cause frustration, even with Lustful traits, although Lustful can still increase arousal normally.
-  - Self-bought dildo chastity belts now correctly stimulate you regardless of who controls the key.
-  - Wearing chastity continuously for 10 days grants **Chastity Acclimated**, permanently reducing frustration from chastity.
-  - The chance of losing a carried key has been reduced in scenes where it can break, be stolen while you are unconscious, or be taken after losing a fight.
-  - Temple chastity devices are no longer incorrectly marked as stolen after loading a save, and affected saves repair automatically.
+  - **Weak attack:** up to 15% health.
+  - **Light attack:** up to 20%.
+  - **Solid attack:** up to 30%.
+  - **Heavy punch:** up to 45%.
+  - **Two-handed attack:** up to 60%.
+  - Kicks still deal less damage than punches, but their maximum damage is less heavily reduced and should be more useful while the hands are occupied.
+  - These are caps, not guaranteed damage. Actual damage still depends on combat ability, and reaching the higher limits requires good combat skill rather than physical strength alone.
 
-- **Clearer Innocence and Drunkenness action hints**
+  Fighting without Extended Combat is also no longer a major disadvantage:
 
-  - Skill requirements such as **"Exhibitionism 4"** now visually show when Innocence or drunkenness is letting you qualify.
-  - The requirement glows when high Innocence lets you act without understanding the risk.
-  - The requirement sways when you are drunk enough to ignore it.
-  - Choosing a risky action through Innocence now slightly lowers Innocence, with more dangerous actions costing more.
-  - Fixed Exhibitionism and Deviancy scenes using Promiscuity instead of the correct stat when deciding whether to show oblivious text.
+  - All characters now begin with average fighting technique as a baseline.
+  - Extended Combat skills improve that baseline further rather than replacing it.
+  - Disabling Extended Combat no longer causes unusually low normal damage.
+  - Enabling Extended Combat no longer reduces ordinary damage.
+  - Players who prefer the simpler combat system can still fight effectively, while Extended Combat players retain additional progression and bonuses.
 
-- **Apologising in combat now depends on English grade**
+- **Updated alcohol addiction and tolerance**
 
-  - Poorly worded apologies begin at roughly **30%** of their previous calming strength.
-  - Their effect improves with English grade and reaches full strength at the highest grade.
-  - Angry reactions from characters who refuse to forgive you are unchanged.
+  - Full alcohol tolerance now prevents drunkenness from weakening Willpower, blocking sober activities, or causing related skill and mishap penalties.
+  - Partial tolerance reduces those effects proportionally.
+  - Pregnancy drinking restrictions are unchanged.
 
-- **Reworked the school hallway pantsing event**
+- **Made alcohol withdrawal notices clearer**
 
-  - The event can now happen only once per day.
-  - Allowing it to happen pulls down your bottoms without automatically tearing your clothing.
-  - Students laughing at you lowers school standing, and mismatched underwear can cause rumours.
-  - You can now elbow the attacker using **Physique** instead of Athletics.
-  - Success makes them back off; failure makes the encounter rougher and can tear clothing.
-  - Helping pull down your own bottoms ends the struggle quickly but causes the largest reputation loss.
-  - Trying to grab your bottoms still uses Athletics.
+  - Withdrawal messaging now makes it clearer that Stress can increase while sober.
 
-- **"Submit" foot action updated**
+- **Updated the bike**
 
-  - Because Submit only makes you drop to your knees, it now remains available while bound, shackled, grappled, or entangled.
-  - You must still be standing, not pinned against a wall, and in a non-consensual encounter.
+  - Bike repairs can now become available earlier.
+  - Lake rides now route through the bus stop.
 
-- **Improved blackmail handling**
+- **Updated the Updated UI**
 
-  - Blackmail letter delivery has been improved.
-  - Ignored letters can now be forwarded to the orphanage for one week.
+  - Updated all side tabs to support the Updated UI.
+  - Fixed mobile Feat Boost spacing.
+  - Added lightweight DECOMOD previews with clearer missing-image feedback.
 
-- **Updated Poppy availability**
+- **Improved Identity and Clothing Dysphoria**
 
-  - Poppy is no longer accessible again after dismissal.
+  - Appearance is now treated as one clear style: **Masculine**, **Androgynous**, or **Feminine**.
+  - Only the style you actually match can affect dysphoria.
+  - This prevents characters from gaining androgynous dysphoria when they never wanted an androgynous appearance.
+  - Clothing dysphoria no longer builds every hour.
+  - Dysphoria is now gained once when changing into clothes that conflict with your Identity preferences, with a stronger immediate effect to compensate.
+  - Remaining in the same outfit does not repeatedly add dysphoria.
+  - Being stripped and then redressed in the same outfit does not count as changing clothes.
+  - Rejecting the currently worn style through the Identity menu applies the effect immediately.
+  - Preferred clothing now provides much stronger continuous comfort, reducing Stress and Trauma while it remains worn.
 
-- **Updated the DECOMOD interface**
+  Additional fixes:
 
-  - The **Updated UI** option now includes a redesigned DECOMOD tab layout.
+  - Clothing discomfort messages no longer claim Stress increased without actually applying it.
+  - Being naked no longer counts as wearing an androgynous outfit.
+  - Wearing only makeup no longer counts as being dressed.
+  - Existing saves correctly carry over the new Androgynous Appearance and Androgynous Clothing Identity options.
+  - Existing accepted Identity traits keep the correct comfort level instead of becoming rejected after the first day.
+  - Transgender characters keep Identity settings unlocked when updating an existing save.
+  - Hypnotic crossdressing and genderification pills still override normal clothing dysphoria while active.
 
-- **Various narrative and pacing cleanup**
-  - Tidied pacing and wording in several scenes.
+- **Improved pronouns and non-binary wording**
+
+  - Expanded natural neutral terms in dialogue, praise, nicknames, and transformations.
+  - Trusted NPC forms of address are now more consistent.
+  - Neither-gender saves are no longer reset or incorrectly treated as binary.
+
+- **Updated Kylar**
+
+  - Kylar now has a chance to take the player to the manor while hysterical.
+  - The dismissal event still takes priority when its requirements are met.
+
+- **Rearranged Traits**
+
+  - **Promised Sydney** now appears under NPC Traits.
+
+- **Expanded DoLP attitude speech** to 23 files.
+
+- **Updated blackmail tasks at the Gentleman's Club**
+
+  - The current task now appears in the sidebar beside school tasks and Avery's dates, disappearing once completed or otherwise resolved.
+  - Opening a blackmail letter now offers an option to export a save.
+  - Flower-selling tasks automatically include stall rent, so leaving Connudatus Street at dawn no longer locks them out.
+  - Landry can cancel an impossible task for a fee, but the Gentleman's Club retains leverage for future tasks.
 
 ## Fixes and Improvements
 
-- **Fixed X-Change bodies sharing virginity records**
+- **Fixed Journal quest visibility**
 
-  - Your original, X-Change, herm, and cloned bodies now keep separate virginity records.
-  - Taking another Premium pill while already transformed no longer makes the game forget which body you are using.
-  - Taking another pill while cloned no longer loses the copied identity or saves virginity changes to the wrong body.
-  - Cloned bodies now have their own virginity records instead of inheriting another body's history.
-  - Older saves will preserve their existing original-body history instead of losing it when a pill wears off.
-  - After a clone pill ends, the game no longer continues treating you as the copied person.
-  - Pills used on NPCs now restore the NPC's body correctly instead of accidentally loading the player's body.
-  - Virginity changes made through cheats, the Testing Room, or brothel re-virgining now save to the body currently in use.
-  - Existing saves may still contain older virginity changes that were already recorded on the wrong body, but new changes will no longer become mixed.
+  - Stone quest entries no longer appear before the quest has been unlocked.
 
-- **Fixed Body Size and Slow Change Progress**
+- Fixed the Poppy lake typo in the code.
 
-  - X-Change pills now handle body size and slow transformations correctly.
-  - **Swell** only increases body size while the effect is active, and normal size returns when it ends even if you take another pill or swap bodies.
-  - The temporary penis-size increase from Alpha pills has also been fixed.
-  - Slow body-change progress no longer resets to **0%**.
-  - Pregnancy, ear slime, or changes to your sense of self pause progress instead, and it resumes from the same point later.
-  - Existing saves with an already incorrect stored body size cannot be repaired automatically, but the size will correct itself the next time that body is stored.
+- **Fixed X-Change dealer visibility**
 
-- **Fixed X-Change combat descriptions**
+  - Residential, park, and industrial dealers are hidden while Harper therapy or **X-Change Purity** is active.
+  - Weekly availability is preserved, allowing a dealer to reappear after temporary therapy expires.
 
-  - X-Change pills no longer break enemy descriptions during combat.
-  - Transformed enemies keep the correct body description, name, and pronouns instead of showing **"undefined"** or raw code.
-  - Enemies using male pronouns while having breasts are now described correctly.
+- **Fixed divine forgiveness with temporary X-Changes**
 
-- **Fixed X-Change whoring protection**
+  - Ivory Wraith slime penetration no longer causes divine-grace loss while the player's X-Change is temporary, including when its timer is paused.
+  - Permanent X-Changes and the player's original body continue to follow the normal Fallen Angel rules.
+  - Temporary-form virginity loss no longer applies the related purity penalty.
 
-  - The street-whoring event now checks all forms of pill protection.
-  - The stranger will no longer approach while you are protected by Harper's therapy or X-Change Purity.
+- **Fixed consensual combat flavour text**
 
-- **Fixed divine transformations stacking effects**
+  - Consensual oral, vaginal, penile, anal, fingering, toy, edging, and double-penetration actions no longer use assault or discomfort text after orgasm or while Pleasure is low.
 
-  - Only one divine form can now be mechanically active at a time, prioritising **Demon**, then **Fallen Angel**, then **Angel**.
-  - Lower-priority divine limbs remain visible as cosmetic parts but no longer grant overlapping skills, buffs, income bonuses, or other transformation effects.
+- **Fixed NPCs repeatedly pulling modded clothes**
 
-- **Fixed dysphoria Willpower and Stress handling**
+  - NPCs no longer repeatedly pull at ModLoader skirts without making progress.
+  - Stored and re-equipped clothing correctly resets pulled-up and pulled-down state.
 
-  - Rejected dysphoria now drains current Willpower instead of permanently training it.
-  - Begrudged traits now correctly increase Stress and Trauma without also granting preferred-trait relief.
-  - Identity comfort bonuses have been reduced.
-  - The Statistics screen now displays Begrudged traits correctly.
+- **Fixed autosaves and legacy save slots failing in some browsers**
 
-- **Fixed Whitney temperature dialogue**
+- **Removed unused jewellery and barber-chair graphics**
 
-  - Whitney will no longer complain that **"it is too hot"** in math class when the temperature is cold or below zero.
+  - Rings remain fully functional in shops and wardrobes.
+  - Existing saves safely clean up obsolete jewellery data.
 
-- **Fixed wardrobe crashes and invalid clothing choices**
+- **Fixed Gentleman's Club rewards**
 
-  - Wardrobes no longer mistake location requirements for clothing.
-  - Invalid wardrobe choices, such as trying to equip a bathrobe after bathing, are now ignored instead of deleting the entire clothing slot and breaking later screens.
-  - Existing saves remove malformed or misplaced wardrobe entries on load while preserving valid clothing and temporary scene storage.
+  - Relentless Bailey can still increase rent without limit, but this no longer turns Club quests into an escalating source of money.
+  - Normal reward tiers, rent settings, Robin's rent modifier, displayed payments, and save-loaded quests remain supported.
 
-- **Fixed kaiju costume unlocks and wardrobe duplicates**
+- **Fixed Gentleman's Club letter handling**
 
-  - Borrowed costumes from Niki's flyer job no longer trigger automatic clothing rebuy or become stranded in the wardrobe.
-  - Existing costume stacks are repaired.
-  - Older saves regain the forest shop and Gwylan unlocks where appropriate.
-  - Over-outfit management is now exposed correctly.
+  - Unread blackmail letters can be recovered from the player's bedroom at the orphanage or Avery's mansion, regardless of the originally selected courier.
+  - Special deliveries from Jordan, Eden, Poppy, Avery, the Great Hawk, and the wolf pack still work when encountered first.
+  - Courier forwarding, old-save handling, quest cleanup, and rewards remain consistent.
+  - Fixed conclusion-letter errors.
+  - Expired task protection is now cleared correctly.
+  - Park-running tasks now require the correct outfit.
 
-- **Fixed clothing issues during combat**
+- **Fixed virtual pet battles**
 
-  - The **Undress** menu no longer errors when an NPC has nothing removable on a body part.
-  - Newly equipped clothing no longer inherits the pulled-up or pulled-down state of the previous item.
-  - This also prevents some NPCs, especially with ModLoader clothing, from repeatedly attempting the same failed clothing action every turn.
+  - Defeated enemies no longer return after a teammate wins.
 
-- **Fixed worn strap-ons**
+- **Fixed masturbation**
 
-  - Removing a strap-on during combat or somewhere without a wardrobe no longer duplicates it or leaves it marked as worn.
-  - Removed strap-ons now return to the toy inventory correctly.
+  - Fixed an error that could occur when masturbating after using the bathroom scoop-out option.
+  - Mobile masturbation controls now keep **Continue**, **To orgasm**, and **Stop** together in one compact row.
 
-- **Fixed adult shop chastity handling**
+- **Fixed Water Dragon egg laying and nest logic**
 
-  - Unpaid chastity items can no longer be kept for free.
-  - Returning clothing or being caught leaving without paying also removes unpaid chastity items.
-  - Buying and wearing a new chastity item now stores the old one instead of deleting it.
+  - Players without a vagina or an active Omega effect can no longer produce or lay Water Dragon eggs.
+  - Extra sleep, dream, and outfit content no longer appears below **"Follow the pull."**
+  - Nest discovery and realistic childbirth routes remain consistent.
+  - Water Dragon cosmetics such as horns, ears, or a tail no longer make the game treat the player as fully transformed.
+  - Random egg laying and Water Dragon nest labour scenes now require the actual Water Dragon transformation.
+  - Invalid Water Dragon eggs are removed when loading a save.
+  - Once discovered, the hidden nest remains accessible even after losing the transformation so hatchlings remain reachable.
+  - Laying fertilised eggs correctly restarts the egg cycle instead of causing another laying event the next time the player sleeps.
+  - **Accelerated Brood Cycle** is hidden when no egg cycle is active.
 
-- **Fixed adult shop help-work timing**
+- **Fixed slow body-change progress**
 
-  - The setup scene no longer appears at inappropriate times such as 1 a.m.
-  - It is now available only from **noon to 9 p.m.** on the correct days.
-  - Outside those hours, the shop stays boarded up as normal.
+  - Progress is now consumed only when the body actually changes.
+  - If no enabled preference can currently change the body, the meter remains ready instead of resetting to 0%.
+  - The Statistics screen now shows when body changes are paused by pregnancy, ear slime, an active X-Change pill, or a neutral identity target.
+  - Genitals present during an incomplete transition work with normal pregnancy and impregnation mechanics.
+  - Body changes can reverse when Identity moves back toward non-binary.
 
-- **Fixed Bailey paid-date prices**
+- **Fixed NPC X-Change pill scenes**
 
-  - Spanking, cat ears, dinner, and overnight options now all use the same price shown in the menu.
-  - Fixed related formatting issues.
+  - Avery reacts only after actually giving the player a pill.
+  - Pregnancy and pill protection are respected across NPC pill scenes.
+  - NPCs give the correct Continue and Choice Reversal pills.
+  - Fixed mismatched transformation narration and pill tracking.
 
-- **Fixed Bailey option disappearing after the spanking scene**
+- **Fixed modded clothing storage and restoration**
 
-- **Fixed Jordan being misgendered**
+  - Modded clothing no longer returns from the wardrobe with part of an outfit missing, such as two-piece dresses losing their skirt.
+  - Mod clothes receive missing clothing data when the game starts so they remain properly worn and positioned after storage.
 
-  - Corrected Jordan's pronouns in the Street Monstrance scene.
+- **Fixed X-Change appearance restoration**
 
-- **Fixed the Ivory Wraith missing from the Social tab**
+  - X-Change pills no longer reroll hair and face every time the player transforms or changes back.
+  - Each body's appearance is generated once and remembered.
+  - Switching bodies restores the correct saved appearance.
+  - **"Enable face changes for pills"** now works correctly; disabling it prevents pills from changing the face.
+  - Masturbation scenes no longer keep treating the player as holding a penis or vagina after a transformation removes it; the scene releases it automatically.
 
-  - Escaping its first possession attempt or being possessed while sleeping now correctly counts as meeting the Wraith.
-  - Existing saves repair automatically when loaded.
+- **Fixed meds UI**
 
-- **Fixed money exploits and limits**
+- **Fixed lake-student departure timing**
 
-  - Dice bets can no longer use negative values to create money.
-  - Bailey's deposit and withdrawal inputs now correctly limit the amount you can enter, including while in debt.
-  - The dice table now has a weekly spending limit of **£10,000**.
-  - Once reached, Landry closes the table until the following week because the amount of money has become too noticeable.
+  - Lake students no longer disappear at 19:45 before their 20:00 group departure event.
+  - They remain at the Lake Shore through 20:00.
+  - At 20:00, **Hang out** is replaced by **Go with them**.
+  - They disappear normally after 21:00.
 
-- **Fixed and rebalanced the dice game**
+- **Fixed Avery's evening schedule and dialogue**
 
-  - Fixed a bug where an unwon pot could be returned without being emptied, allowing the same money to be won again later.
-  - Going all-in no longer makes opponents fold almost every time.
-  - Bets are capped at the table's buy-in, and the wager box shows how much more you can bet.
-  - The special ending for defeating every opponent can now trigger correctly.
-  - Winnings are rounded to whole pennies.
-  - If two players run out of money in the same round, both leave the table correctly.
-  - Every drink on the penalty tray now has an equal chance of being spiked.
-  - Kiss and clothing-removal options no longer appear when no opponents remain.
-  - Leaving while acting as the shooter now takes five minutes, matching other exit methods.
+  - Avery no longer skips evening returns, greetings, demands, or bedtime attention after time jumps past midday.
+  - Time passing now processes each hour correctly, preventing missed Avery events and accidental double progression of cycles or pregnancy.
+  - Avery's evening schedule is set at the beginning of each day so it cannot be skipped.
+  - Existing saves repair themselves from the next day onward.
+  - Avery stops calling the player **"girl"** or **"doll"** after becoming affectionate enough and uses fonder pet names, including several new ones.
+  - Consensual sleep-sex endings no longer incorrectly show distress text such as trembling with anger and arousal.
+  - Willing scenes show distress only when Stress or Trauma is high; otherwise, the player simply tries to return to sleep.
+  - Fighting Avery off continues to use the distress text normally.
 
-- **Fixed bike cooldowns**
+- **Fixed Whitney's orphanage special scenes**
 
-  - Stolen bikes take **10 in-game days** to return before day 150 and **7 days** from day 150 onward.
-  - Major bike-breaking events use a separate shared **10-day cooldown** across town, forest, and open-road events.
-  - Bike cooldowns now decrease correctly each day and disappear at zero.
-  - Interrupted rides no longer award workout gains left over from an earlier ride.
+  - Prevented a crash during the alleyway oral scene.
+  - Encounters and endings now match Whitney's current anatomy.
+  - Interrupted encounters no longer play completed endings.
+  - The one-time cuddle scene no longer repeats forever.
 
-- **Fixed rain watering unvisited crop plots**
+- **Fixed hermaphrodite body recognition**
 
-- **Fixed smoking at Alex's farm**
+  - Characters with both sets of genitals are correctly recognised throughout the game instead of being treated only according to original sex.
+  - Naked descriptions account for both chest and genitals.
+  - NPCs who see the player's body can correctly identify a hermaphrodite body.
+  - Gwylan, Kylar, Whitney, Robin, the swimming teacher, the farm hitchhiker, and the water-balloon drive-by react correctly.
+  - Hermaphrodite characters are no longer treated as crossdressing, preventing incorrect Stress from Crossdresser and gender-anxious traits.
+  - Hermaphrodite and androgynous bodies are handled separately, preventing outfits from accidentally overwriting recorded body type.
+  - The game correctly remembers the previous body when using hermaphrodite X-Change pills.
 
-  - Smoking no longer teleports you outside.
+- **Fixed the poster in Alex's cottage**
 
-- **Fixed dual contact lenses at the pharmacy**
+- **Fixed dance jobs getting stuck**
 
-  - Custom eye colours now correctly let you choose separate left and right colours.
+- **Fixed character descriptions**
 
-- **Fixed sleeping crashes on fresh browser data**
+  - The **"You are..."** description now uses gender identity instead of guessing gender from the body.
+  - Pills correctly say whether a body change moves the player closer to or further from their gender.
+  - Non-binary characters are described as **"trans enby"** instead of **"trans girl"** or **"trans boy"**.
+  - Body changes use straightforward **feminised** or **masculinised** wording where appropriate.
+  - Descriptions no longer become reversed after a permanent body change.
+  - Incubus/Succubus trait naming now uses the same corrected gender information.
 
-  - The game now creates missing Hopeless Cycle browser-storage data before trying to read it.
-  - This prevents crashes on new devices, fresh browser profiles, or after clearing site data.
+- **Fixed forced orgasms**
 
-- **Fixed daily options becoming permanently unavailable**
+  - Scenes that previously checked the old hidden Arousal stat now use the visible Pleasure bar.
+  - This prevents forced orgasms while visible Pleasure is still low or reads **"You feel normal,"** including during heat, rut, or with male bodies.
+  - Updated scenes include:
+    - Farm barn.
+    - Photography job.
+    - Tentacle forest.
+    - Forest shop orgasm event.
+    - Passing out during street sex.
+    - Childbirth.
+  - Fixed the street-sex passout check sometimes failing because it required an exact Pleasure value.
 
-  - Daily, weekly, and monthly resets now run separately.
-  - An error in one reset can no longer prevent the others from running.
-  - Reset errors are recorded in the error console instead of being silently hidden.
-  - Existing saves repair affected options the next time a new day begins.
+- **Fixed Brown Fox NNPC display**
 
-- **Fixed the Flats dog event**
+  - Brown Fox scenes now use masked NNPC portraits, including multi-character events.
+  - Ordinary Gwylan scenes retain their normal appearance.
 
-  - The event now restores and identifies the human resident before displaying their description.
-  - If they cannot be found, the scene uses the neutral phrase **"the resident"** and continues normally.
+- **Fixed Alex's hungover morning event**
 
-- **Fixed sale price estimates**
+  - Alex can sleep in after a heavy night up to once per week.
+  - At 5:00 a.m. in the cottage, the player hears Alex snoring and no breakfast or tea is prepared.
+  - Going to the farmyard between 6:00 and 6:20 can trigger the scene.
+  - The event does not occur if Alex has already been seen awake that morning or the player slept in Alex's bed.
+  - Picking the farmhouse lock correctly checks and trains Skulduggery.
+  - Fixed incorrect pronouns when helping Alex out of bed after sex.
 
-  - Journal prices and Winter's dialogue now include the Divine Transformation income bonus.
-  - Displayed estimates now match the actual payout.
+- **Fixed Water Dragons drowning during underwater combat**
 
-- **Fixed "your naked" text**
+- **Fixed sleep orgasms**
 
-  - Fixed several scenes where characters could interact with clothing the player was not wearing.
-  - If you are already topless during the **Pants Down** or **Expose** events, the text now correctly refers to your bare chest instead of using broken lines such as **"pulls up your naked."**
+- **Fixed the Bike Depot**
 
-- **Fixed missing RNG in the temple**
+- **Fixed NPC undressing options**
 
-- **Fixed Mastery combat state**
+  - NPCs no longer offer to remove clothing that is already out of the way, such as lifted shirts or shorts already moved aside.
+  - Undressing options appear only when something remains to be removed.
+  - Knocked-down enemies are no longer treated as naked while still dressed and will undress properly before sex.
 
-  - Using a hook punch once no longer makes every later attack in the fight easier for the opponent to dodge.
+- **Fixed the manual Journal**
 
-- **Feat cleanup**
+  - Typing in Notes no longer activates game shortcuts or accidentally changes passage.
+  - Notes save to the correct page more reliably, even if the game changes passage during saving.
+  - Notes no longer disappear when going back in history or reloading.
+  - Clearing all text from a page correctly saves it as empty.
+  - Deleting a Notes page now asks for confirmation.
 
-  - Removed feats that were redundant or unobtainable in DoLX.
-  - **God of Lust** now requires maximum tempered Oral and Hand skill instead.
+- **Fixed orgasm Stress handling**
 
-- **Various small bug fixes and cleanup**
+  - Combat hits now apply their intended Stress instead of only 10%.
+  - Repeated orgasms during non-consensual sex no longer cause incoming Stress to disappear entirely.
+  - Drunkenness no longer turns those situations into unintended Stress reduction.
+  - The NPC multi-orgasm setting now provides only a small reduction to non-consensual Stress instead of cutting it in half.
+  - Orgasm Stress relief now diminishes with each climax during the same encounter.
+  - The first orgasm still provides strong relief, while repeated orgasms become progressively less helpful and can eventually leave the player more stressed.
+  - Orgasm Addict still handles repeated orgasms better than other characters but can no longer ignore their effects completely.
+  - Fixed Breeder and Omega pills causing creampie orgasms to remove far too much Stress because of an incorrect **x80** multiplier.
+  - Their other Stress-related effects are unchanged.
+  - Updated the Orgasm Addict trait description to match the new behaviour.
+
+- **Fixed missing NPC in Bailey event**
 
 ## Art and Image Updates
 
-- **Updated GooseFem and GooseMasc by snowy**
+- **Graphic update**
 
-  - See the Goose community thread for additional details.
+  - Renamed the **Slender** body to **Androgynous**.
+  - Rearranged the GooseFem body and added an Androgynous body by **vvya**.
+  - Updated face slots 24 and 25 for Androgynous bodies by **vvya**.
+  - Added masculine faces by **Ely** for slots 23 and 26.
+  - Changed face slots 2 and 4 to remove duplication.
+  - Replaced the Fro fringe because of masking issues; the new version is drawn by **Rei**.
+  - Added more DECOMOD Background1 images from **YU-NO: A Girl Who Chants Love at the Bound of this World**.
+  - Added modded vanilla face slot 1 by **knpeo**.
+  - Added vanilla-modded face slot 2 by **nico**.
 
-- **Updated Mysterious by MJ**
-  - Added cow ears and eyeswings.
+- **Updated Mikili**
+
+  - Contributions by **ruusu**, **百分彼**, **Chou Chou**, **池色涟漪**, **Klootzak**, and **Égalité devant la Mort**.
+
+- **Added vanilla Fox transformation rework graphics**
+
+  - By **fungi (bakedyam)**.
+
+- **Implemented Llynkurin's HGP hair mask**
+
+  - Mask by **snowy**.
+  - Bug fixing and adaptation by **D.N.A.**
+
+- **Updated Foreground1 and Foreground2**
+
+  - Contributions from **Reisen**, **HUNGRY**, and **Mocha**.
+
+## Cleanup and Credits
+
+- **Updated the credit list**
+
+  - Improved readability and organisation.
+
+- **Cleaned up the imagemod pack**
+
+  - Removed imagemods that are not used by the DoLMods website.
+  - Removed assets can still be obtained from the DoLP repository or the community channel.
