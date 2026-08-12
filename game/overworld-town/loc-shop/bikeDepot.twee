@@ -23,7 +23,7 @@
 :: Bike Depot
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 
-You are in the Bike Depot. It has a quite the stock of bikes.
+You are in the Bike Depot. It has quite the stock of bikes.
 <br><br>
 <<if $phase is 5>>
 	You purchase a repair kit, making your current carried amount <span class="yellow"><<print $bicycle.durability.repair>></span>. You <<if $bicycle.durability.repair lt 5>>think you can carry <<print (5 - $bicycle.durability.repair)>><<else>> can't carry<</if>> more.
@@ -187,7 +187,7 @@ You are in the Bike Depot. It has a quite the stock of bikes.
 :: Bike Depot Security Gear
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
 
-You browse through the selection of security gears.
+You browse through the selection of security gear.
 <br><br>
 
 <<if $bicycle.security lt 0.99>>
@@ -216,7 +216,7 @@ You browse through the selection of security gears.
 	<<if $money gte (setup.inflation ? setup.inflation.price(50000) : 50000)>>
 		<<link [[Purchase Heavy-Duty Chain Lock with Hardened Steel (<<printprice 50000>>)|Bike Depot]]>><<money -50000 "bikeDepot">><<set $bicycle.security to 0.5>><</link>><<note "50% theft prevention">>
 	<<else>>
-		<span class="red">You don't have <<printprice 50000>> to purchase a heavy-duty chain lock with hardnened steel.</span>
+		<span class="red">You don't have <<printprice 50000>> to purchase a heavy-duty chain lock with hardened steel.</span>
 	<</if>>
 	<br>
 <<elseif $bicycle.security is 0.5>>
@@ -248,6 +248,7 @@ You browse through the selection of security gears.
 <br>
 <<getouticon>><<link [[Back|Bike Depot]]>><</link>>
 
+:: Bike Depot Widgets [widget]
 <<widget "bikeDepotTrespassPayment">>
 	<<set _bikeName to _args[0]>>
 	<<set _bikePrice to _args[1]>>
@@ -256,30 +257,32 @@ You browse through the selection of security gears.
 	<<set _bikeCost to (setup.inflation ? setup.inflation.price(_bikePrice) : _bikePrice)>>
 	<<set _bikeExtraBase to Math.ceil(_bikePrice * 1.25)>>
 	<<set _bikeExtraCost to (setup.inflation ? setup.inflation.price(_bikeExtraBase) : _bikeExtraBase)>>
-	<<if $money gte _bikeCost>>
-		<<bikeicon>><<link [["Leave exact change for " + _bikeName + " (0:05)"|Shop Trespass Payment Result]]>>
-			<<pass 5>>
-			<<set $phase to _bikeLevel>>
-			<<set $bicycle.own to true>><<set $bicycle.stolen to false>>
-			<<set $bicycle.quality to _bikeLevel>>
-			<<set $bicycle.durability.current to _bikeDurability>><<set $bicycle.durability.max to _bikeDurability>>
-			<<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">>
-			<<shopTrespassPayment _bikePrice "bikeDepot" false "Bike Depot" _bikeName>>
-		<</link>><<crime "trespassing">>
-	<<else>>
-		<span class="red">You don't have enough to leave exact change for _bikeName.</span>
-	<</if>>
-	<br>
-	<<if $money gte _bikeExtraCost>>
-		<<bikeicon>><<link [["Leave extra for " + _bikeName + " (0:05)"|Shop Trespass Payment Result]]>>
-			<<pass 5>>
-			<<set $phase to _bikeLevel>>
-			<<set $bicycle.own to true>><<set $bicycle.stolen to false>>
-			<<set $bicycle.quality to _bikeLevel>>
-			<<set $bicycle.durability.current to _bikeDurability>><<set $bicycle.durability.max to _bikeDurability>>
-			<<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">>
-			<<shopTrespassPayment _bikePrice "bikeDepot" true "Bike Depot" _bikeName>>
-		<</link>><<crime "trespassing">>
+	<<capture _bikeName _bikePrice _bikeLevel _bikeDurability>>
+		<<if $money gte _bikeCost>>
+			<<bikeicon>><<link [["Leave exact change for " + _bikeName + " (0:05)"|Shop Trespass Payment Result]]>>
+				<<pass 5>>
+				<<set $phase to _bikeLevel>>
+				<<set $bicycle.own to true>><<set $bicycle.stolen to false>>
+				<<set $bicycle.quality to _bikeLevel>>
+				<<set $bicycle.durability.current to _bikeDurability>><<set $bicycle.durability.max to _bikeDurability>>
+				<<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">>
+				<<shopTrespassPayment _bikePrice "bikeDepot" false "Bike Depot" _bikeName>>
+			<</link>><<crime "trespassing">>
+		<<else>>
+			<span class="red">You don't have enough to leave exact change for _bikeName.</span>
+		<</if>>
 		<br>
-	<</if>>
+		<<if $money gte _bikeExtraCost>>
+			<<bikeicon>><<link [["Leave extra for " + _bikeName + " (0:05)"|Shop Trespass Payment Result]]>>
+				<<pass 5>>
+				<<set $phase to _bikeLevel>>
+				<<set $bicycle.own to true>><<set $bicycle.stolen to false>>
+				<<set $bicycle.quality to _bikeLevel>>
+				<<set $bicycle.durability.current to _bikeDurability>><<set $bicycle.durability.max to _bikeDurability>>
+				<<set $bicycle.location to "high">><<set $bicycle.locationRegion to "commercial">>
+				<<shopTrespassPayment _bikePrice "bikeDepot" true "Bike Depot" _bikeName>>
+			<</link>><<crime "trespassing">>
+			<br>
+		<</if>>
+	<</capture>>
 <</widget>>
