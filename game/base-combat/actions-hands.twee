@@ -413,25 +413,37 @@
 <<widget "leftUndressOther">>
 	<<if $lefttarget isnot "self">>
 		<<set $_target to $NPCList[$lefttarget]>>
-		<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or $_target.chest is "clothed" or ($_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked") or ($_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked")>>
+		<<undressOtherAvailable $_target>>
+		<<if _undressLowerAvailable or _undressUpperAvailable>>
 			<<if ($consensual is 1 and ($enemytype is "man" ? $promiscuity : $deviancy) lte 14 and !$promiscuityIgnore and !$xchange.pill.cumcureEffect and !$xchange.pill.breederEffect) or $punishmentposition is "gloryhole">>
 				<!-- Do Nothing -->
 			<<else>>
 				<<set _leftaction["Undress:"] to "leftUndressOther">>
 				<<set _undressLeftTargets to {"Nothing":"rest"}>>
 				<<set $_doText to ($consensual isnot 1 ? "try to " : "")>>
-				/* Only offer to describe removing a piece that's actually on record (clothes.lower/upper isn't "naked"). Genitals/chest can read "clothed" from an unrelated cause (e.g. a redress that didn't sync with a naked outfit slot) while there's no garment name to describe removing; npcUndressText has no text for that and would error. */
-				<<if $_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked">>
+				<<if _undressLowerAvailable>>
 					<<silently>><<npcUndressText $NPCList[$lefttarget] "lower">><</silently>>
 					<<set _undressLeftTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.lower.name).toUpperFirst()] to "lower">>
 				<</if>>
-				<<if $_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked">>
+				<<if _undressUpperAvailable>>
 					<<silently>><<npcUndressText $NPCList[$lefttarget] "upper">><</silently>>
 					<<set _undressLeftTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.upper.name).toUpperFirst()] to "upper">>
 				<</if>>
 			<</if>>
 		<</if>>
 	<</if>>
+<</widget>>
+
+<<widget "undressOtherAvailable">>
+	<<set _undressTarget to _args[0]>>
+	<<set _undressCoverStates to ["clothed", "idle"]>>
+	<<set _undressLowerName to _undressTarget.clothes?.lower?.name>>
+	<<set _undressUpperName to _undressTarget.clothes?.upper?.name>>
+	<<set _undressLowerParts to [_undressTarget.penis, _undressTarget.vagina].filter(part => part != null && part !== "none")>>
+	<<set _undressLowerCovered to _undressLowerParts.length === 0 || _undressLowerParts.some(part => _undressCoverStates.includes(part))>>
+	<<set _undressUpperCovered to _undressTarget.chest == null || _undressTarget.chest === "none" || _undressCoverStates.includes(_undressTarget.chest)>>
+	<<set _undressLowerAvailable to _undressLowerName isnot undefined and _undressLowerName isnot "naked" and _undressLowerCovered>>
+	<<set _undressUpperAvailable to _undressUpperName isnot undefined and _undressUpperName isnot "naked" and _undressUpperCovered>>
 <</widget>>
 
 :: Widgets Actions Right Hand [widget]
@@ -848,19 +860,19 @@
 <<widget "rightUndressOther">>
 	<<if $righttarget isnot "self">>
 		<<set $_target to $NPCList[$righttarget]>>
-		<<if $_target.penis is "clothed" or $_target.vagina is "clothed" or $_target.chest is "clothed" or ($_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked") or ($_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked")>>
+		<<undressOtherAvailable $_target>>
+		<<if _undressLowerAvailable or _undressUpperAvailable>>
 			<<if ($consensual is 1 and ($enemytype is "man" ? $promiscuity : $deviancy) lte 14 and !$promiscuityIgnore and !$xchange.pill.cumcureEffect and !$xchange.pill.breederEffect) or $punishmentposition is "gloryhole">>
 				<!-- Do Nothing -->
 			<<else>>
 				<<set _rightaction["Undress:"] to "rightUndressOther">>
 				<<set _undressRightTargets to {"Nothing":"rest"}>>
 				<<set $_doText to ($consensual isnot 1 ? "try to " : "")>>
-				/* Only offer to describe removing a piece that's actually on record (clothes.lower/upper isn't "naked"). Genitals/chest can read "clothed" from an unrelated cause (e.g. a redress that didn't sync with a naked outfit slot) while there's no garment name to describe removing; npcUndressText has no text for that and would error. */
-				<<if $_target.clothes?.lower?.name isnot undefined and $_target.clothes?.lower?.name isnot "naked">>
+				<<if _undressLowerAvailable>>
 					<<silently>><<npcUndressText $NPCList[$righttarget] "lower">><</silently>>
 					<<set _undressRightTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.lower.name).toUpperFirst()] to "lower">>
 				<</if>>
-				<<if $_target.clothes?.upper?.name isnot undefined and $_target.clothes?.upper?.name isnot "naked">>
+				<<if _undressUpperAvailable>>
 					<<silently>><<npcUndressText $NPCList[$righttarget] "upper">><</silently>>
 					<<set _undressRightTargets[($_doText + _actionText + " " + $_target.pronouns.his + " " + $_target.clothes.upper.name).toUpperFirst()] to "upper">>
 				<</if>>

@@ -96,7 +96,10 @@
 			<<if $NPCList[_i].vagina isnot "none">>
 				<<set $NPCList[_i].vagina to "idle">>
 			<</if>>
-			<<set $NPCList[_i].chest to "idle">>
+			<!-- Same "none" guard the genitals get: benching a chest the NPC doesn't have would hand it one on the way back. -->
+			<<if $NPCList[_i].chest isnot "none">>
+				<<set $NPCList[_i].chest to "idle">>
+			<</if>>
 			<<set $NPCList[_i].condomAsk to true>>
 		<</if>>
 	<</for>>
@@ -262,14 +265,17 @@
 <<widget "reversenpcidlegenitals">>
 	<<for _i = 0; _i < $NPCList.length; _i++>>
 		<<if $NPCList[_i]>>
+			/* Leaving idle now restores the NPC's covered state, so dressed NPCs properly undress before sex. */
+			<<set _idleLowerCovered to ($NPCList[_i].clothes?.lower?.name isnot undefined and $NPCList[_i].clothes?.lower?.name isnot "naked")>>
+			<<set _idleUpperCovered to ($NPCList[_i].clothes?.upper?.name isnot undefined and $NPCList[_i].clothes?.upper?.name isnot "naked")>>
 			<<if $NPCList[_i].penis is "idle">>
-				<<set $NPCList[_i].penis to 0>>
+				<<set $NPCList[_i].penis to (_idleLowerCovered ? "clothed" : 0)>>
 			<</if>>
 			<<if $NPCList[_i].vagina is "idle">>
-				<<set $NPCList[_i].vagina to 0>>
+				<<set $NPCList[_i].vagina to (_idleLowerCovered ? "clothed" : 0)>>
 			<</if>>
 			<<if $NPCList[_i].chest is "idle">>
-				<<set $NPCList[_i].chest to 0>>
+				<<set $NPCList[_i].chest to (_idleUpperCovered ? "clothed" : 0)>>
 			<</if>>
 			<<if $NPCList[_i].traits.includes("lecher") or random(0,9) gt 6>>
 				<<set $NPCList[_i].condomAsk to false>>
