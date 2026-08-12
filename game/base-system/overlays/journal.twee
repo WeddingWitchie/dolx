@@ -1871,13 +1871,8 @@
 <</widget>>
 
 <<widget "journalNotes">>
-	<<if $journalNotes is undefined>>
-		<<set $journalNotes to {"default":""}>>
-		<<set $options.notesAutoSave to true>>
-		<<set _currentPage to "default">>
-	<</if>>
-	<<if !_currentPage>><<set _currentPage to "default">><</if>>
-	<<set _listPageName to _currentPage>>
+	<<run journalNotesInit()>>
+	<<set _listPageName to $journalNotesPage>>
 	<<foldout false "_journalFoldout">>
 		<span>Extra</span>
 		Page:
@@ -1886,17 +1881,24 @@
 		<</listbox>>
 		<<link "Load">>
 			<<journalNotesTextareaSave>>
-			<<set _currentPage to _listPageName>>
+			<<run journalNotesSetPage(_listPageName)>>
+			<<replace "#journalNotesMessage">><</replace>>
 			<<replace "#journalNotesTextarea">><<journalNotesTextarea>><</replace>>
 		<</link>> |
 		<<link "Delete">>
-			<<if _listPageName is "default">>
-				<<set $journalNotes.default to "">>
-			<<else>>
-				<<run delete $journalNotes[_listPageName]>>
-			<</if>>
-			<<if !$journalNotes[_currentPage]>><<set _currentPage to "default">><</if>>
-			<<replace "#customOverlayContent">><<journalNotes>><</replace>>
+			<<journalNotesTextareaSave>>
+			<<capture _listPageName>>
+				<<replace "#journalNotesMessage">>
+					<span class="red">Delete <<= _listPageName>>? Everything written on it will be lost.</span>
+					<<link "Confirm">>
+						<<run journalNotesDeletePage(_listPageName)>>
+						<<replace "#customOverlayContent">><<journalNotes>><</replace>>
+					<</link>> |
+					<<link "Cancel">>
+						<<replace "#journalNotesMessage">><</replace>>
+					<</link>>
+				<</replace>>
+			<</capture>>
 		<</link>> |
 		<<if $debug is 1>>
 			<<link "DEBUG: <<=($options.enableJournalDebugTwee ? 'Disable' : 'Enable')>> Code Execution">>
@@ -1916,10 +1918,7 @@
 		New page name: <<textbox "_pageName" "">>
 		<<link "New Page">>
 			<<journalNotesTextareaSave>>
-			<<set _newName to journalNotesReplacer(_pageName).slice(0,20)>>
-			<<if $journalNotes[_newName] is undefined>>
-				<<set $journalNotes[_newName] to "">>
-				<<set _currentPage to _newName>>
+			<<if journalNotesNewPage(_pageName)>>
 				<<replace "#customOverlayContent">><<journalNotes>><</replace>>
 			<<else>>
 				<<replace "#journalNotesMessage">><span class="red">Unique name required.</span><</replace>>
@@ -1942,7 +1941,7 @@
 				<span id='journalDebugTweeOutput'>@@color:red;wiki&lpar;&rpar; executes Twee code from the textarea below.@@<br></span>
 			<</foldout>>
 			<hr>
-			<<button "@@color:red;.wiki&lpar;'_currentPage'&rpar;@@">>
+			<<button "@@color:red;.wiki&lpar;'$journalNotesPage'&rpar;@@">>
 				<<journalNotesTextareaSave>>
 				<<replace "#journalDebugTweeOutput">><<script>>$(output).wiki(T.displayedTextArea);<</script>><</replace>>
 				<<replace "#journalDebugTweeCopyButton">>
@@ -1957,7 +1956,7 @@
 		</div>
 		<br>
 	<</if>>
-	<<button `'<span class="fa-icon fa-save"></span> Save (' + _currentPage + ')'`>>
+	<<button `'<span class="fa-icon fa-save"></span> Save (' + $journalNotesPage + ')'`>>
 		<<journalNotesTextareaSave>>
 	<</button>>
 	<label><<checkbox "$options.notesAutoSave" false true autocheck>> Auto Save</label>
@@ -1965,28 +1964,24 @@
 		<div>Closing the overlay or changing tabs will save your note. Character limit of 3000 per page.</div>
 		<div class="red">Reloading your older save files will not have your recent changes. Excessive use will bloat save file size.</div>
 	</span></mouse>
-	<<textarea "_displayedTextArea" `LZString.decompress($journalNotes[_currentPage])`>>
+	<<textarea "_displayedTextArea" `journalNotesText($journalNotesPage)`>>
 
 	<<run $(() => {
-		var notesTimer = null;
-		$('#textarea--displayedtextarea').on('input change', e => {
+		const notes = $('#textarea--displayedtextarea');
+		if (!notes.length) return;
+		/* tie the textarea to the page it was rendered for, so a save that fires after the
+		   player has moved to another page still writes into the page they typed in */
+		notes.attr('maxlength', '3000').attr('data-note-page', V.journalNotesPage);
+		let notesTimer = null;
+		notes.on('input change', () => {
 			if (notesTimer) clearTimeout(notesTimer);
-			if (V.options.notesAutoSave) notesTimer = setTimeout(saveText, 1000);
+			if (V.options.notesAutoSave) notesTimer = setTimeout(() => journalNotesSaveTextarea(false), 1000);
 		});
-		$('#textarea--displayedtextarea').attr('maxlength','3000');
-		var saveText = () => {
-			new Wikifier (null, "<<journalNotesTextareaSave>>");
-		}
 	})>>
 <</widget>>
 
 <<widget "journalNotesTextareaSave">>
-	<<set _noteElement to jQuery('#textarea--displayedtextarea')[0]>>
-	<<if _noteElement and _noteElement.value>>
-		<<set $journalNotes[_currentPage] to LZString.compress(_noteElement.value)>>
-		/* put notes into save data immediately without the need to change passage */
-		<<run State.history[State.activeIndex].variables.journalNotes = clone(V.journalNotes)>>
-	<</if>>
+	<<run journalNotesSaveTextarea(true)>>
 <</widget>>
 
 <<widget "nDays">><<silently>>

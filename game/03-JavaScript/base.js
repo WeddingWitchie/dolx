@@ -1,11 +1,14 @@
 /* eslint-disable no-undef */
 /* eslint-disable jsdoc/require-description-complete-sentence */
 // adjust mousetrap behaviour, see mousetrap.js
+const mousetrapStopCallback = Mousetrap.prototype.stopCallback;
 Mousetrap.prototype.stopCallback = function (e, element, combo) {
 	// game uses V.tempDisable to indicate when the keyboard shortcuts shouldn't trigger
 	// e.g. when typing a name of a new outfit
 	if (V.tempDisable) return true; // don't trigger shortcut actions when it's set
-	return false;
+	// Prevent game shortcuts from triggering while typing in text fields.
+	// This stops journal notes from changing passages and losing text.
+	return mousetrapStopCallback.call(this, e, element, combo);
 };
 
 // add binds for "next" link in combat

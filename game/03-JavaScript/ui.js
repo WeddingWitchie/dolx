@@ -679,7 +679,7 @@ function onInputChanged(func) {
 window.onInputChanged = onInputChanged;
 
 function closeOverlay() {
-	wikifier("journalNotesTextareaSave");
+	journalNotesSaveTextarea(true);
 	updateOptions();
 	T.buttons.reset();
 	$("#customOverlay").addClass("hidden").parent().addClass("hidden");
@@ -695,6 +695,134 @@ function journalNotesReplacer(name) {
 	return name.replace(/[^a-zA-Z0-9\u4e00-\u9fa5' _-]+/g, "");
 }
 window.journalNotesReplacer = journalNotesReplacer;
+
+/*
+	Journal notes are player-written, so they should not be lost after rewinds, refreshes, or saves.
+	All $journalNotes reads and writes use the helpers below.
+*/
+
+/* make sure the notes exist and that the current page is one of them */
+function journalNotesInit() {
+	if (!V.journalNotes || typeof V.journalNotes !== "object") V.journalNotes = { default: "" };
+	if (typeof V.journalNotes.default !== "string") V.journalNotes.default = "";
+	if (V.options.notesAutoSave === undefined) V.options.notesAutoSave = true;
+
+	/* Keep the page name while editing so notes aren't accidentally saved under an undefined page. */
+	["undefined", "null", ""].forEach(key => {
+		if (!Object.hasOwn(V.journalNotes, key)) return;
+		const orphaned = V.journalNotes[key];
+		delete V.journalNotes[key];
+		if (!orphaned) return;
+		let name = "recovered";
+		for (let i = 2; Object.hasOwn(V.journalNotes, name); i++) name = `recovered ${i}`;
+		V.journalNotes[name] = orphaned;
+	});
+
+	if (!V.journalNotesPage || !Object.hasOwn(V.journalNotes, V.journalNotesPage)) V.journalNotesPage = "default";
+	return V.journalNotesPage;
+}
+window.journalNotesInit = journalNotesInit;
+
+let journalNotesSessionTimer = null;
+
+/* the session snapshot is what a refreshed or restored tab loads, but rewriting it is expensive */
+function journalNotesSyncSession() {
+	journalNotesSessionTimer = null;
+	try {
+		const sessionState = State.getSessionState();
+		if (!sessionState || !Array.isArray(sessionState.history)) return;
+		sessionState.history.forEach(moment => {
+			moment.variables.journalNotes = clone(V.journalNotes);
+			moment.variables.journalNotesPage = V.journalNotesPage;
+		});
+		State.setSessionState(sessionState);
+	} catch (ex) {
+		console.warn("journalNotes: unable to update the session state", ex);
+	}
+}
+
+/**
+ * Push the notes out of the active moment and into everything that outlives it.
+ *
+ * @param {boolean} immediate update the session snapshot now instead of once typing stops
+ */
+function journalNotesPersist(immediate) {
+	/* V is the current copy, but saves use history,
+	so update older moments too to prevent changes reverting when going back. */
+	State.history.forEach(moment => {
+		moment.variables.journalNotes = clone(V.journalNotes);
+		moment.variables.journalNotesPage = V.journalNotesPage;
+	});
+	if (journalNotesSessionTimer) clearTimeout(journalNotesSessionTimer);
+	if (immediate) journalNotesSyncSession();
+	else journalNotesSessionTimer = setTimeout(journalNotesSyncSession, 3000);
+}
+window.journalNotesPersist = journalNotesPersist;
+
+/* text of a page, ready to be shown in the textarea */
+function journalNotesText(page) {
+	journalNotesInit();
+	const stored = V.journalNotes[page];
+	if (!stored) return "";
+	return LZString.decompress(stored) || "";
+}
+window.journalNotesText = journalNotesText;
+
+/**
+ * Save the notes textarea into the page it was rendered for.
+ *
+ * @param {boolean} immediate save the session snapshot now, for deliberate saves
+ * @returns {boolean} whether anything was saved
+ */
+function journalNotesSaveTextarea(immediate) {
+	const element = document.getElementById("textarea--displayedtextarea");
+	/* no textarea, or one left over from an overlay that has already been replaced */
+	if (!element || !element.isConnected) return false;
+	journalNotesInit();
+	/* the page is read off the element itself,
+	so a save that fires late can never write the text into whichever page happens to be open by then */
+	const page = element.dataset.notePage || V.journalNotesPage;
+	if (!Object.hasOwn(V.journalNotes, page)) return false;
+	V.journalNotes[page] = element.value ? LZString.compress(element.value) : "";
+	journalNotesPersist(immediate);
+	return true;
+}
+window.journalNotesSaveTextarea = journalNotesSaveTextarea;
+
+/* switch to an existing page */
+function journalNotesSetPage(page) {
+	journalNotesInit();
+	if (Object.hasOwn(V.journalNotes, page)) V.journalNotesPage = page;
+	journalNotesPersist(true);
+	return V.journalNotesPage;
+}
+window.journalNotesSetPage = journalNotesSetPage;
+
+/* create a page and open it, returning its name, or "" if the name was empty or taken */
+function journalNotesNewPage(name) {
+	journalNotesInit();
+	const cleaned = journalNotesReplacer(String(name ?? ""))
+		.trim()
+		.slice(0, 20);
+	if (!cleaned || Object.hasOwn(V.journalNotes, cleaned)) return "";
+	V.journalNotes[cleaned] = "";
+	V.journalNotesPage = cleaned;
+	journalNotesPersist(true);
+	return cleaned;
+}
+window.journalNotesNewPage = journalNotesNewPage;
+
+/* delete a page, or empty it if it's the one page that always exists */
+function journalNotesDeletePage(name) {
+	journalNotesInit();
+	if (!Object.hasOwn(V.journalNotes, name)) return false;
+	if (name === "default") V.journalNotes.default = "";
+	else delete V.journalNotes[name];
+	if (!Object.hasOwn(V.journalNotes, V.journalNotesPage)) V.journalNotesPage = "default";
+	journalNotesPersist(true);
+	return true;
+}
+window.journalNotesDeletePage = journalNotesDeletePage;
 
 function updatehistorycontrols() {
 	// if undefined, initiate new variable based on engine config
@@ -734,14 +862,12 @@ function updateOptions() {
 		/*
 			Do not force-refresh a rewound/history state.
 
-			In SugarCube, State.length is the active past-history length
-			and State.size is the full in-play history size. During normal
-			forward play they match. If State.size is greater than State.length,
-			the player is viewing a rewound/history moment with future moments
-			still present.
+			In SugarCube, State.length is the active past-history length and State.size is the full in-play history size.
+			During normal forward play they match. If State.size is greater than State.length,
+			the player is viewing a rewound/history moment with future moments still present.
 
-			Re-rendering that moment can re-run stateful passage code after
-			combat/NPC state has already moved on or been cleared.
+			Re-rendering that moment can re-run stateful passage code after combat/NPC state has already moved on
+			or been cleared.
 		*/
 		const viewingHistory = State.size > State.length;
 
