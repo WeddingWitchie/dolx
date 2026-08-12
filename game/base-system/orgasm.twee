@@ -2,6 +2,8 @@
 
 <<widget "orgasm">>
 	<<orgasmstat>><<orgasmcount 1>>
+	/* Reduces stress relief after each orgasm in the same session. Each orgasm gives less relief than the last, down to a minimum of 30%. */
+	<<set _orgasmReliefDecay to Math.max(1 - (($orgasmcount - 1) * 0.15), 0.3)>>
 	<<if $orgasmdown gt 0>><<set _continuousOrgasm to 1>><</if>>
 	<<if $player.sex is "m">>
 		<<set $orgasmdown to 1>><<set $orgasmCum to 1>>
@@ -334,8 +336,9 @@
 
 		<<if $breederCreampied>>
 			<span @class="'pink ' + basicJitterCss()">You spasm and spasm, yet your climax just won't subside. As the <<= ["semen", "cum"].random()>> coats your walls, the trembling increases, <<=either("colouring your mind", "dying your head")>> a blissful white. <b>Nothing</b> comes even close to <i>these fireworks!</i><<lllstress>></span>
-			<<set _creampieStress to -1000 * ($xchange.breederDenial + 1)>>
-			<<stress _creampieStress>>
+			/* Uses raw stress points with the multiplier set manually. Without this, stress macro multiplies negative values by 80, causing far too much stress relief. */
+			<<set _creampieStress to -1000 * ($xchange.breederDenial + 1) * _orgasmReliefDecay>>
+			<<stress _creampieStress 1>>
 			<<set $xchange.breederDenial to 0>>
 		<</if>>
 	<</if>>
@@ -467,22 +470,22 @@
 		<<elseif numberOfEarSlime() gte 2 and $_earslimeEjaculateTask>>
 			<span class="green">A pleased warmth fills you.</span>
 			You almost forget the strife of the world. You can tell it's the slimes in your ears, rewarding you for having an orgasm while completing their request.
-			<<gcorruption>><<lltrauma>><<llstress>><<trauma -24>><<stress -24>><<corruption 2>>
+			<<gcorruption>><<lltrauma>><<llstress>><<trauma -24>><<stress `-24 * _orgasmReliefDecay`>><<corruption 2>>
 			<br>
 		<<elseif numberOfEarSlime() gte 2>>
 			<span class="blue">A soothing warmth fills you.</span>
 			You almost forget the strife of the world. You can tell it's the slimes in your ears, rewarding you for having an orgasm.
-			<<gcorruption>><<ltrauma>><<lstress>><<trauma -12>><<stress -12>><<corruption 2>>
+			<<gcorruption>><<ltrauma>><<lstress>><<trauma -12>><<stress `-12 * _orgasmReliefDecay`>><<corruption 2>>
 			<br>
 		<<elseif $parasite.left_ear.name is "slime">>
 			<span class="blue">A soothing warmth fills you.</span>
 			You almost forget the strife of the world. You can tell it's the slime in your left ear, rewarding you for having an orgasm.
-			<<gcorruption>><<ltrauma>><<lstress>><<trauma -6>><<stress -6>><<corruption 1>>
+			<<gcorruption>><<ltrauma>><<lstress>><<trauma -6>><<stress `-6 * _orgasmReliefDecay`>><<corruption 1>>
 			<br>
 		<<elseif $parasite.right_ear.name is "slime">>
 			<span class="blue">A soothing warmth fills you.</span>
 			You almost forget the strife of the world. You can tell it's the slime in your right ear, rewarding you for having an orgasm.
-			<<gcorruption>><<ltrauma>><<lstress>><<trauma -6>><<stress -6>><<corruption 1>>
+			<<gcorruption>><<ltrauma>><<lstress>><<trauma -6>><<stress `-6 * _orgasmReliefDecay`>><<corruption 1>>
 			<br>
 		<</if>>
 	<</if>>
@@ -538,10 +541,10 @@
 	/* Climaxing consumes any pleasure banked above the maximum, so the drop below always brings the player out of the orgasm zone instead of chaining forced orgasms off overshoot. */
 	<<set $pleasure to Math.min($pleasure, $pleasuremax)>>
 	<<set $_arousalDrop to -2000 - (($orgasmcount-1) * 200)>>
-	/* Orgasm-addict trait stress relief: non-consensual sex keeps it flat and small so repeated rape can still push you toward passing out; consensual sex is trimmed proportionally so the -1400 tier lands at -1000. */
-	<<set $_orgasmtraitReliefHigh to $consensual is 1 ? -1286 : -600>>
-	<<set $_orgasmtraitReliefMid to $consensual is 1 ? -1071 : -500>>
-	<<set $_orgasmtraitReliefLow to $consensual is 1 ? -1000 : -400>>
+	/* Orgasm Addict stress relief */
+	<<set $_orgasmtraitReliefHigh to Math.round(($consensual is 1 ? -1286 : -600) * _orgasmReliefDecay)>>
+	<<set $_orgasmtraitReliefMid to Math.round(($consensual is 1 ? -1071 : -500) * _orgasmReliefDecay)>>
+	<<set $_orgasmtraitReliefLow to $consensual is 1 ? Math.round(-1000 * _orgasmReliefDecay) : 50>>
 	<<if $orgasmcount lte 1>>
 		<<set $stress -= 200>>
 		<<if _deniedOrgasm>><<set $_arousalDrop += 1000>><</if>>
@@ -698,7 +701,7 @@
 	<</if>>
 
 	<<if $orgasmtrait gte 1 and !_deniedOrgasm>>
-		<<set $stress -= 100>>
+		<<set $stress -= Math.round(100 * _orgasmReliefDecay)>>
 	<</if>>
 
 	<<set $orgasmcurrent += 1>>

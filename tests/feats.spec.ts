@@ -143,7 +143,7 @@ test.describe("Feats Boosts", () => {
 		await expect(traitCheckboxes).toHaveCount(9);
 		const traitDescriptions = {
 			orgasmTrait:
-				"So many orgasms have had a physiological effect. Cumming is more difficult but pleasurable orgasms relieve more stress and painful orgasms no longer increase stress.",
+				"So many orgasms have had a physiological effect. Cumming is harder, but orgasms relieve more stress. Repeated orgasms give less relief and can eventually add stress, though much less than normal.",
 			chokeTrait: "You've come to love the feeling of lack of oxygen. Getting choked makes sex more pleasurable.",
 			ejacTrait:
 				"You've become accustomed to the scent of ejaculate and can take advantage of its calming effect. Your stress is reduced hourly depending on how much slime and semen covers you.",

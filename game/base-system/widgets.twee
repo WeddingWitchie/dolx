@@ -220,7 +220,8 @@
 				<<set $_stress_multiplier to 10>>
 			<</if>>
 			<<if $multiOrgasmToggle>>
-				<<set $_stress_multiplier *= 0.5>>
+				/* Matches the sex widget: a small discount for longer encounters, not half price. */
+				<<set $_stress_multiplier *= 0.85>>
 			<</if>>
 			<<stress _args[0] $_stress_multiplier>>
 			<<combattrauma _args[0]>>
@@ -277,14 +278,14 @@
 			<<else>>
 				<<set $_stress_multiplier to 10>>
 			<</if>>
-			<<if $orgasmcount gt 5>>
-				<<set $_stress_multiplier -= 10>>
-			<<else>>
-				<<set $_stress_multiplier -= $orgasmcount * 2>>
-			<</if>>
+			/* Repeated orgasms reduce rape stress, but never remove it completely.
+			The old formula could reach 0 or become negative, causing incorrect stress values or even reducing stress during rape. */
+			<<set $_stress_multiplier *= Math.max(1 - ($orgasmcount * 0.08), 0.5)>>
 			<<if $multiOrgasmToggle>>
-				<<set $_stress_multiplier *= 0.5>>
+				/* Multi-orgasmic NPCs make encounters longer, so each act gives slightly less stress. The old 50% reduction was too strong. */
+				<<set $_stress_multiplier *= 0.85>>
 			<</if>>
+			<<set $_stress_multiplier to Math.max($_stress_multiplier, 1)>>
 			<<stress _args[0] $_stress_multiplier>>
 			<<combattrauma _args[0]>>
 		<<else>>
@@ -404,7 +405,12 @@
 			<<else>>
 				<<set _clothesMod to 1>>
 			<</if>>
-			<<stress `_violence * (1 - ($masochism / 1200))` _stressMod>>
+			/* Combat hits were only adding 10% of the intended stress because _drunkMod was calculated but not used after the stress macro refactor. */
+			<<set _violenceStressMod to _drunkMod * _stressMod>>
+			<<if _violenceStressMod isnot 0>>
+				/* Skip when multiplier is 0, or stress macro will use its default x40 instead. */
+				<<stress `_violence * (1 - ($masochism / 1200))` _violenceStressMod>>
+			<</if>>
 			<<combattrauma `_violence * _traumaMod`>>
 			/* Pain applies physique and masochism resistance. Do not apply either twice here. */
 			<<pain `(_violence / _possessMod / _clothesMod)` _painMod>>
