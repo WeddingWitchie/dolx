@@ -154,7 +154,9 @@ function gwylanRequest(override = null) {
 			V.gwylan.request.event = "preen";
 			V.gwylan.request.items = [{ category: "other", name: "feathers", need: seedrng.randomInt(3, 6) }];
 			V.gwylan.request.timer =
-				Transformations.effectiveLevel("bird") >= 6 && V.birdFly >= 1 ? new DateTime(Time.date).addDays(1).timeStamp : new DateTime(Time.date).addDays(10).timeStamp; // 10 day timer if no bird tf
+				Transformations.effectiveLevel("bird") >= 6 && V.birdFly >= 1
+					? new DateTime(Time.date).addDays(1).timeStamp
+					: new DateTime(Time.date).addDays(10).timeStamp; // 10 day timer if no bird tf
 			V.gwylan.request.special = Transformations.effectiveLevel("bird") >= 6 ? "harpy" : "feathers";
 			return V.gwylan.request;
 		case "cream":
@@ -189,6 +191,37 @@ function gwylanRequest(override = null) {
 			];
 			V.gwylan.request.timer = new DateTime(Time.date).addDays(3).timeStamp;
 			return V.gwylan.request;
+		case "strongWings": {
+			const commonItems = ["apple", "banana", "cherry", "date", "lemon", "lime", "pear", "salt", "sugar", "vegetable_oil", "red_wine", "white_wine"];
+			const midItems = ["bird_egg", "mushroom", "red_rose", "tulip", "plumeria", "wolfshroom"];
+			let rareItems = ["orchid", "ghostshroom", "strange_flower", "wild_honeycomb", "truffle"];
+			const pick = pool => pool[seedrng.randomInt(0, pool.length - 1)];
+			const requestItem = (name, need) => ({
+				category: "tending",
+				name,
+				type: setup.foodstuff[name].category,
+				need,
+			});
+
+			rareItems = rareItems.filter(name => {
+				if (name === "ghostshroom" && !V.syndromekylar) return false;
+				if (name === "wild_honeycomb" && (!(V.settings.bestialityEnabled && V.settings.beesEnabled) || V.tending < 800)) return false;
+				if (name === "truffle" && (!V.farm?.woodland || V.farm.woodland < 2)) return false;
+				if (name === "strange_flower" && !V.plants_known?.includes("strange_flower")) return false;
+				if (name === "orchid" && V.tending < 300) return false;
+				return true;
+			});
+
+			V.gwylan.request.event = "recipe";
+			V.gwylan.request.special = "strong wings";
+			V.gwylan.request.items = [
+				requestItem(pick(rareItems.length ? rareItems : ["wolfshroom"]), 3),
+				requestItem(pick(midItems), 5),
+				requestItem(pick(commonItems), 10),
+			];
+			V.gwylan.request.timer = null; // No deadline: the player asked for this, so it waits until they deliver.
+			return V.gwylan.request;
+		}
 
 		case "chastity":
 			V.gwylan.request.event = "chastity";
@@ -663,7 +696,7 @@ function gwylanRequestIngredients() {
 		{ key: "wild_honeycomb", difficulty: 3 },
 		{ key: "wolfshroom", difficulty: 1 },
 		{ key: "clover", difficulty: 1 },
-		// Note: 
+		// Note:
 		// Rare plants (ghost_orchid, hen_of_the_woods, red_helleborine, lady_orchid, fly_agaric, spiked_rampion, cloudberry, scottish_bog_myrtle, bog_orchid, marsh_saxifrage) are intentionally excluded
 		// Add them here only if anyone want Gwylan to start requesting them.
 	];
@@ -984,11 +1017,7 @@ function gwylanCanRescueFromWraith() {
 		);
 	} else {
 		return (
-			C.npc.Gwylan.init === 1 &&
-			C.npc.Gwylan.state === "active" &&
-			V.gwylanSeen?.includes("ritual_sex") &&
-			V.wraith?.seen >= 1 &&
-			V.wraith?.possessCount >= 1
+			C.npc.Gwylan.init === 1 && C.npc.Gwylan.state === "active" && V.gwylanSeen?.includes("ritual_sex") && V.wraith?.seen >= 1 && V.wraith?.possessCount >= 1
 		);
 	}
 }

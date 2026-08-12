@@ -822,7 +822,14 @@
 					name: () => V.plucked ? "Thoroughly Preened Wings" : "Strong Wings",
 					colour: () => V.plucked ? "grey" : "gold",
 					has: Transformations.hasFlightWings() and $birdFly gte 1,
-					text: () => V.plucked ? "You're missing some feathers, but your wings feel sleek. Can glide, but flight is temporarily disabled." : "Can glide from high locations. Can fly where the wind is willing.",
+					text: () => {
+						if (V.plucked) return "You're missing some feathers, but your wings feel sleek. Can glide, but flight is temporarily disabled.";
+						if (Transformations.hasGwylanStrengthenedWings()) {
+							const days = Math.max(1, Time.date.dayDifference(new DateTime(V.gwylan.wingStrength)));
+							return `Gwylan's potion has strengthened your wings. Can glide from high locations and fly where the wind is willing. ${days} day${days === 1 ? "" : "s"} remaining.`;
+						}
+						return "Can glide from high locations. Can fly where the wind is willing.";
+					},
 					meter: {
 						has: V.plucked,
 						value: V.plucked,

@@ -466,6 +466,7 @@
 		|| $daily.stallRented isnot undefined
 		|| ($farm isnot undefined and $farm.build isnot "")
 		|| $gwylan?.request.event
+		|| $gwylan?.wingPotionReady
 		|| $xchange.blackmail.activeQuest
 		|| Tamagotchi.isAlive()
 	)>>
@@ -900,7 +901,11 @@
 						<li><<iconUi "sym-lust-empty.png">> Gwylan has asked you to gather some samples.</li>
 						<<gwylanJournalItems>>
 					<<case "recipe">>
-						<li><<icon "tending/basket.png">>Gwylan has asked you to gather some items to make <span class="blue">$gwylan.request.special</span>.</li>
+						<<if $gwylan.request.special is "strong wings">>
+							<li><<icon "tending/basket.png">>You asked Gwylan to strengthen your wings. <<nnpc_He "Gwylan">> needs these to make the potion:</li>
+						<<else>>
+							<li><<icon "tending/basket.png">>Gwylan has asked you to gather some items to make <span class="blue">$gwylan.request.special</span>.</li>
+						<</if>>
 						<<gwylanJournalItems>>
 					<<case "samplePlayer">>
 						/* ToDo: Gwylan */
@@ -954,6 +959,14 @@
 					<<default>>
 						<li><span class="red">Gwylan has asked you to do something, but the task has no journal description! Please report this bug.</span></li>
 				<</switch>>
+			<</if>>
+			<<if $gwylan?.wingPotionReady>>
+				<<if $gwylan.wingPotionReady gt Time.date.timeStamp>>
+					<<set _wingPotionDays to Math.max(1, Time.date.dayDifference(new DateTime(V.gwylan.wingPotionReady)))>>
+					<li><<icon "tending/basket.png">>Gwylan is preparing a potion for your wings. It will be ready in <span class="blue"><<number _wingPotionDays>> <<pluralise _wingPotionDays "day">>.</span></li>
+				<<else>>
+					<li><<icon "tending/basket.png">>Gwylan's potion for your wings is ready at the forest shop.</li>
+				<</if>>
 			<</if>>
 			<<if $xchange.blackmail.activeQuest and !$xchange.blackmail.conclusionPending>>
 				<<if $xchange.blackmail.activeQuest.letterDestroyed>>

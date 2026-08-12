@@ -35,8 +35,22 @@ class Transformations {
 		return ["angel", "fallenAngel", "demon", "bird", "okami", "seraphim"].some(transformation => this.partActive(transformation, "wings"));
 	}
 
-	static hasFlightWings() {
+	/* Wings that look the part but have no bird lineage behind them, so they can't fly unaided.
+	Okami wings are stored under the chimera rather than under angel, so they must be listed separately. */
+	static hasDivineWings() {
+		return ["angel", "fallenAngel", "demon", "okami"].some(transformation => this.partActive(transformation, "wings"));
+	}
+
+	static hasGwylanStrengthenedWings() {
+		return this.hasDivineWings() && V.gwylan?.wingStrength > Time.date.timeStamp;
+	}
+
+	static hasNaturalFlightWings() {
 		return ["bird", "seraphim"].some(transformation => this.partActive(transformation, "wings"));
+	}
+
+	static hasFlightWings() {
+		return this.hasNaturalFlightWings() || this.hasGwylanStrengthenedWings();
 	}
 
 	static chimeraActive(name) {

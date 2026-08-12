@@ -406,6 +406,12 @@
 					<<scienceicon>><<link [[Give <<him>> the samples|Gwylan Request Sample Complete]]>><</link>>
 					<br>
 				<</if>>
+			<<case "recipe">>
+				<<if $gwylan.request.special is "strong wings" and gwylanRequestMet()>>
+					<<set $_reqbr to true>>
+					<<icon "tending/basket.png">><<link [[Give <<him>> the potion ingredients|Gwylan Strong Wings Ingredients]]>><</link>>
+					<br>
+				<</if>>
 			<<case "samplePlayer">>
 				/* ToDo: Gwylan */
 			<<case "cream">>
@@ -488,6 +494,23 @@
 		<br>
 	<</if>>
 	<<if !_hideHypnosisOptions>>
+		/* Match the icon to the wings the player actually has. */
+		<<set _wingIcon to Transformations.partActive("demon", "wings") ? "demon" : Transformations.partActive("fallenAngel", "wings") ? "fallenangel" : "angel">>
+		<<if $gwylanSeen.includes("request_intro") and Transformations.hasDivineWings() and !Transformations.hasFlightWings() and $gwylan.request.special isnot "strong wings" and !$gwylan.wingPotionReady>>
+			<<set $_hypnobr to true>>
+			<<tficon _wingIcon>><<link [[Ask Gwylan to make your wings strong|Gwylan Strong Wings Ask]]>><</link>><<gwylanHypnoNote>>
+			<br>
+		<</if>>
+		<<if $gwylan.wingPotionReady>>
+			<<set $_hypnobr to true>>
+			<<if $gwylan.wingPotionReady lte Time.date.timeStamp>>
+				<<tficon _wingIcon>><<link [[Ask about the potion for your wings|Gwylan Strong Wings Return]]>><</link>><<gwylanHypnoNote>>
+			<<else>>
+				<<set _wingPotionDays to Math.max(1, Time.date.dayDifference(new DateTime(V.gwylan.wingPotionReady)))>>
+				<<icon "tending/basket.png">><span class="blue">Gwylan's wing potion will be ready in <<number _wingPotionDays>> <<pluralise _wingPotionDays "day">>.</span>
+			<</if>>
+			<br>
+		<</if>>
 		<<if $gwylanSeen.includes("player_tf")>>
 			<<if effectiveTransformationLevel("angel") gte 4 or (effectiveTransformationLevel("fallen") gte 2) or effectiveTransformationLevel("demon") gte 4 or effectiveTransformationLevel("wolf") gte 4 or effectiveTransformationLevel("cat") gte 4 or effectiveTransformationLevel("cow") gte 4 or effectiveTransformationLevel("bird") gte 4 or effectiveTransformationLevel("fox") gte 4>>
 				<<set $_hypnobr to true>>
