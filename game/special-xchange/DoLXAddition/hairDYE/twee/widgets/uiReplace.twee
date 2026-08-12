@@ -41,6 +41,9 @@
 	<<if not $specialTwoToneHairDye>>
 		<<set $specialTwoToneHairDye to false>>
 	<</if>>
+	<<if not $moddedTwoToneHairDye>>
+		<<set $moddedTwoToneHairDye to false>>
+	<</if>>
 	<<if not $twoToneDyeOption1 or $twoToneDyeOption1 is "noChange">>
 		<<set $twoToneDyeOption1 to "red">>
 	<</if>>
@@ -49,6 +52,7 @@
 	<</if>>
 
 	<<set $twoToneStyle to vanillaTwoToneStyle($twoToneStyle or $hairColourGradient.style)>>
+	<<set $moddedTwoToneStyle to moddedTwoToneStyle($moddedTwoToneStyle or $hairColourGradient.style)>>
 	<!--}}}-->
 
 	<div id="hairdresser-options" class="no-numberify settingsGrid dhm">
@@ -124,7 +128,7 @@
 					<<set _dyeOptions["Remove dye"] to "removeDye">>
 				<</if>>
 				<!--}}}-->
-			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000), "hairdressers") or $dyeOption isnot "noChange" or $twoToneHairDye>>
+			<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 3000), "hairdressers") or $dyeOption isnot "noChange" or $twoToneHairDye or $specialTwoToneHairDye or $moddedTwoToneHairDye>>
 
 				<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.calcWrapper('simple', $dyedHairPart) : 6000), "hairdressers") or ($dyeOption isnot "noChange" and $dyeOption isnot "removeDye")>>
 					<<for _i to 0; _i lt _dyeNames.length; _i++>>
@@ -138,13 +142,13 @@
 				<<if not dhmod.cfg.prices>>
 					<<if $dyeOption is "removeDye">>
 						<<set _currentCost += 3000>>
-					<<elseif not $twoToneHairDye and $dyeOption isnot "noChange">>
+					<<elseif not $twoToneHairDye and not $specialTwoToneHairDye and not $moddedTwoToneHairDye and $dyeOption isnot "noChange">>
 						<<if $dyedHairPart is "hair">>
 							<<set _currentCost += 6000>>
 						<<else>>
 							<<set _currentCost += 5000>>
 						<</if>>
-					<<elseif $twoToneHairDye>>
+					<<elseif $twoToneHairDye or $specialTwoToneHairDye or $moddedTwoToneHairDye>>
 						<<set _currentCost += 25000>>
 					<</if>>
 				<</if>>
@@ -163,6 +167,8 @@
 							<br>
 							<label><<checkbox "$specialTwoToneHairDye" false true autocheck>> Request a special vanilla only two-tone colouring</label>
 						<</if>>
+						<br>
+						<label><<checkbox "$moddedTwoToneHairDye" false true autocheck>> Request a special modded only two-tone colouring</label>
 					</div>
 				</div>
 
@@ -186,7 +192,7 @@
 							</div>
 						</div>
 					</div>
-				<<elseif not $twoToneHairDye>>
+				<<elseif not $twoToneHairDye and not $moddedTwoToneHairDye>>
 					<<dhmDyePreview 'simple' _dyeOptions>>
 				<<else>>
 					<<set _twotoneDyeOptions to {}>>
@@ -195,9 +201,11 @@
 					<</for>>
 
 					<div class="column">
-						Style: <<listbox "$twoToneStyle" autoselect>>
-							<<optionsfrom setup.dhmod.gradients>>
-						<</listbox>>
+						<<if $moddedTwoToneHairDye>>
+							<span id="modded-pattern-options">Style: <<listbox "$moddedTwoToneStyle" autoselect>><<optionsfrom setup.dhmod.moddedGradients>><</listbox>></span>
+						<<else>>
+							Style: <<listbox "$twoToneStyle" autoselect>><<optionsfrom setup.dhmod.gradients>><</listbox>>
+						<</if>>
 						<br>
 						<div class="palettes">
 							<div class="column">
@@ -274,7 +282,7 @@
 
 		<<if not setup.inflation.canAfford(_currentCost, "hairdressers")>>
 			<<hairdressericon "chair">><span class="red">You don't have enough money to pay the hairdresser.</span>
-		<<elseif $twoToneHairDye and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
+		<<elseif ($twoToneHairDye or $specialTwoToneHairDye or $moddedTwoToneHairDye) and ($twoToneDyeOption1 eq $twoToneDyeOption2)>>
 			<<hairdressericon "chair">><span class="red">You need to select two different colours for two-tone hair colouring.</span>
 		<<elseif _currentCost gt 0>>
 			<<hairdressericon "chair">><<link [[Pay hairdresser|Hairdressers Session]]>>

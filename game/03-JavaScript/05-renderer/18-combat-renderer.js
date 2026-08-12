@@ -392,6 +392,10 @@ class CombatRenderer {
 		const dhmod = this.getDhmState();
 		// dye HARDER custom colours are stored per hair part; the fringe must not read the sides' slots
 		const dhmPart = hairPart === "fringe" ? dhmod.fringe : dhmod.hair;
+		const patternColours = gradient.colours.map((colour, index) => (dhmPart.is_custom && dhmPart.colors[index] ? dhmPart.colors[index] : colour));
+		const moddedPattern = Renderer.createModdedHairPatternFilter(gradient.style, patternColours, prefilterName);
+		if (moddedPattern) return moddedPattern;
+
 		const combatHair = CombatRenderer.getHairGradientType(hairType, gradient);
 		const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
 		const filterPrototype = filterPrototypeLibrary[combatHair] || filterPrototypeLibrary.all;

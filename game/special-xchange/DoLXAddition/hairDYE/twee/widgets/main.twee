@@ -12,9 +12,9 @@
 		<<set _colorNames to $dhmod.tmp.colors>>
 	<</if>>
 	
-	<<if _args[0] is "default" and (($dyeOption isnot "noChange" and $dyeOption isnot "") or $twoToneHairDye or $specialTwoToneHairDye)>>
+	<<if _args[0] is "default" and (($dyeOption isnot "noChange" and $dyeOption isnot "") or $twoToneHairDye or $specialTwoToneHairDye or $moddedTwoToneHairDye)>>
 		<<set $dhmod.tmp.is_custom to false>>
-		<<if $twoToneHairDye or $specialTwoToneHairDye>>
+		<<if $twoToneHairDye or $specialTwoToneHairDye or $moddedTwoToneHairDye>>
 			<<if $twoToneDyeOption1 isnot "noChange" and $twoToneDyeOption1 isnot "">>
 				<<set _colorNames[0] to $twoToneDyeOption1>>
 			<</if>>
@@ -46,8 +46,9 @@
 			<<set _modeloptions.brows_colour to $browsDyeOption>>
 		<</if>>
 
-		<<if $twoToneHairDye or $specialTwoToneHairDye>>
+		<<if $twoToneHairDye or $specialTwoToneHairDye or $moddedTwoToneHairDye>>
 			<<set _preview_gradient to dhmShop.compileGradient(T.colorNames, 1)>>
+			<<if $moddedTwoToneHairDye>><<set _preview_gradient.style to moddedTwoToneStyle($moddedTwoToneStyle)>><</if>>
 			<<set _preview_style to $specialTwoToneHairDye ? "highlights" : "gradient">>
 
 			<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
@@ -150,6 +151,8 @@
 				<br>
 				<label><<checkbox "$specialTwoToneHairDye" false true autocheck>> Request a special vanilla only two-tone colouring</label>
 			<</if>>
+			<br>
+			<label><<checkbox "$moddedTwoToneHairDye" false true autocheck>> Request a special modded only two-tone colouring</label>
 		</div>
 		<<if $twoToneHairDye>>
 			<div>
@@ -157,25 +160,40 @@
 							<<optionsfrom setup.dhmod.gradients>>
 				<</listbox>>
 			</div>
+		<<elseif $moddedTwoToneHairDye>>
+			<div id="modded-pattern-options">
+				Style: <<listbox "$moddedTwoToneStyle" autoselect>>
+						<<optionsfrom setup.dhmod.moddedGradients>>
+				<</listbox>>
+			</div>
 		<</if>>
 	</div>
 
 	<<run $(() => {
-	$("#checkbox-twotonehairdye, #checkbox-specialtwotonehairdye").on("change", function(e) {
-			if (this.id === "checkbox-twotonehairdye" && V.twoToneHairDye) {
+		const selector = "#dhmPanel .macro-listbox, #dhmPanel .macro-radiobutton, #dhmPanel .macro-checkbox";
+		$(document).off("change.dhmPanel", selector).on("change.dhmPanel", selector, function (e) {
+			if (e.target.id === "checkbox-twotonehairdye" && V.twoToneHairDye) {
 				V.specialTwoToneHairDye = false;
-				$("#checkbox-specialtwotonehairdye").prop("checked", false);
-			} else if (this.id === "checkbox-specialtwotonehairdye" && V.specialTwoToneHairDye) {
+				V.moddedTwoToneHairDye = false;
+			} else if (e.target.id === "checkbox-specialtwotonehairdye" && V.specialTwoToneHairDye) {
 				V.twoToneHairDye = false;
-				$("#checkbox-twotonehairdye").prop("checked", false);
+				V.moddedTwoToneHairDye = false;
+			} else if (e.target.id === "checkbox-moddedtwotonehairdye" && V.moddedTwoToneHairDye) {
+				V.twoToneHairDye = false;
+				V.specialTwoToneHairDye = false;
 			}
-			if (!!V.twoToneHairDye || !!V.specialTwoToneHairDye) {
-				$("#color-controls0").removeClass("settingsToggleItemWide");
-				$("#color-controls0").addClass("settingsToggleItem");
+			if (["listbox-twotonestyle", "listbox-moddedtwotonestyle"].includes(e.target.id)) {
+				dhmShop.gradientPreviewUpdate("shop", true);
+				return;
+			}
+			Wikifier.wikifyEval("<<replace #dhmPanel>><<dhmPanel>><</replace>>");
+			Wikifier.wikifyEval("<<replace #can-pay>><<dhmPayments>><</replace>>");
+			Wikifier.wikifyEval("<<dhmMannequinUpdate>>");
+			if (V.twoToneHairDye || V.specialTwoToneHairDye || V.moddedTwoToneHairDye) {
+				$("#color-controls0").removeClass("settingsToggleItemWide").addClass("settingsToggleItem");
 				$("#color-controls1").removeClass("hidden");
 			} else {
-				$("#color-controls0").removeClass("settingsToggleItem");
-				$("#color-controls0").addClass("settingsToggleItemWide");
+				$("#color-controls0").removeClass("settingsToggleItem").addClass("settingsToggleItemWide");
 				$("#color-controls1").addClass("hidden");
 			}
 			dhmShop.pickerResizeAll();

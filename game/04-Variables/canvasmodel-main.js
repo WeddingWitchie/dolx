@@ -833,7 +833,7 @@ Renderer.CanvasModels.main = {
 					? options.filters.body
 					: hairColouredAnimalTfs.has(tf) ? options.filters.hair : empty;
 				options.filters[`${tf}_${part}`] = validColour
-					? { ...filterBase, blend: ColourUtils.toHslString(colour) }
+					? { ...filterBase, ...setup.colours.sprite_prefilters.hair, blend: ColourUtils.toHslString(colour) }
 					: naturalFilter;
 			}
 		}
@@ -5339,7 +5339,15 @@ function vanillaTwoToneStyle(style) {
 }
 window.vanillaTwoToneStyle = vanillaTwoToneStyle;
 
+function moddedTwoToneStyle(style) {
+	return Object.values(setup.dhmod.moddedGradients).includes(style) ? style : "modded-split";
+}
+window.moddedTwoToneStyle = moddedTwoToneStyle;
+
 function createHairColourGradient(hairPart, gradient, hairType, hairLength, prefilterName) {
+	const moddedPattern = Renderer.createModdedHairPatternFilter(gradient.style, gradient.colours, prefilterName);
+	if (moddedPattern) return moddedPattern;
+
 	const filterPrototypeLibrary = setup.colours.hairgradients_prototypes[hairPart][gradient.style];
 	const filterPrototype = filterPrototypeLibrary[hairType] || filterPrototypeLibrary.all;
 	const filter = {

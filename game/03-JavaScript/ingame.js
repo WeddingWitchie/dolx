@@ -365,11 +365,20 @@ window.combatSkillCheck = combatSkillCheck;
 function hairdressersReset() {
 	$(() =>
 		$("#hairDressers").on("change", ".macro-listbox, .macro-radiobutton, .macro-checkbox", function (e) {
-			// The "special vanilla two-tone" (highlights) and normal two-tone dyes are mutually exclusive.
+			// Normal, vanilla-highlight and modded-mask two-tone dyes are mutually exclusive.
 			if (e.target.id === "checkbox-twotonehairdye" && V.twoToneHairDye) {
 				V.specialTwoToneHairDye = false;
+				V.moddedTwoToneHairDye = false;
 			} else if (e.target.id === "checkbox-specialtwotonehairdye" && V.specialTwoToneHairDye) {
 				V.twoToneHairDye = false;
+				V.moddedTwoToneHairDye = false;
+			} else if (e.target.id === "checkbox-moddedtwotonehairdye" && V.moddedTwoToneHairDye) {
+				V.twoToneHairDye = false;
+				V.specialTwoToneHairDye = false;
+			}
+			if (["listbox-twotonestyle", "listbox-moddedtwotonestyle"].includes(e.target.id)) {
+				dhmShop.gradientPreviewUpdate(dhmod.cfg.ui ? "shop" : "hairdresser");
+				return;
 			}
 			Wikifier.wikifyEval("<<replace #hairDressers>><<dhmUiReload>><</replace>>");
 			Wikifier.wikifyEval('<<numberify "#passages > .passage">>');

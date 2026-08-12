@@ -1,4 +1,4 @@
-/* global dhmod, dhmUtils, dollHighlightsAvailable, dolxColor, vanillaTwoToneStyle */
+/* global dhmod, dhmUtils, dollHighlightsAvailable, dolxColor, moddedTwoToneStyle, vanillaTwoToneStyle */
 
 const dhmShop = {
 	pickers: [],
@@ -92,6 +92,7 @@ const dhmShop = {
 			// (it has its own dedicated "special vanilla two-tone" checkbox) and has no gradient prototype,
 			// so never let the player's current hair seed it in as a stale selection.
 			V.twoToneStyle = vanillaTwoToneStyle(V.hairColourGradient.style);
+			V.moddedTwoToneStyle = moddedTwoToneStyle(V.hairColourGradient.style);
 			dhmod.tmp.colors = [...V.hairColourGradient.colours];
 			dhmod.tmp.originalColors = [...V.hairColourGradient.colours];
 		}
@@ -145,6 +146,29 @@ const dhmShop = {
 			}
 		}
 		return compiled;
+	},
+
+	gradientPreviewUpdate(slot = "shop", custom = false) {
+		const model = Renderer.locateModel("main", slot);
+		if (!model.canvas) return false;
+
+		// The highlights dye is its own overlay-art style, so it must not be flattened into a gradient here.
+		const highlights = !!V.specialTwoToneHairDye;
+		const style = highlights ? "highlights" : V.moddedTwoToneHairDye ? moddedTwoToneStyle(V.moddedTwoToneStyle) : vanillaTwoToneStyle(V.twoToneStyle);
+		const gradient = {
+			style,
+			colours: custom ? ["tmp0", "tmp1"] : [V.twoToneDyeOption1, V.twoToneDyeOption2],
+		};
+		if (V.dyedHairPart !== "fringe") {
+			model.options.hair_colour_style = highlights ? "highlights" : "gradient";
+			model.options.hair_colour_gradient = gradient;
+		}
+		if (V.dyedHairPart !== "sides") {
+			model.options.hair_fringe_colour_style = highlights ? "highlights" : "gradient";
+			model.options.hair_fringe_colour_gradient = gradient;
+		}
+		model.redraw();
+		return true;
 	},
 
 	/**
@@ -235,7 +259,7 @@ const dhmShop = {
 	// slightly modified vanilla snippet 😇
 	// resizes the picker according to window size
 	pickerAutoWidth() {
-		if (V.twoToneHairDye) {
+		if (V.twoToneHairDye || V.specialTwoToneHairDye || V.moddedTwoToneHairDye) {
 			if (window.innerWidth > 600) return 220;
 			if (window.innerWidth > 500) return 210;
 		}

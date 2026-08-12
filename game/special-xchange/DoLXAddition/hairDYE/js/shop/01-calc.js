@@ -93,7 +93,7 @@ dhmShop.calcWrapper = function (type = "simple", area = "hair") {
 dhmShop.cashGrabCustom = function () {
 	let total = 0;
 
-	if (V.twoToneHairDye) {
+	if (V.twoToneHairDye || V.specialTwoToneHairDye || V.moddedTwoToneHairDye) {
 		switch (V.dyedHairPart) {
 			case "fringe":
 				total += dhmShop.calcWrapper("gradient-custom", "fringe");
@@ -125,7 +125,7 @@ dhmShop.cashGrabCustom = function () {
 dhmShop.cashGrab = function () {
 	let total = 0;
 
-	if (V.dyeOption !== "noChange" && !V.twoToneHairDye) {
+	if (V.dyeOption !== "noChange" && !V.twoToneHairDye && !V.specialTwoToneHairDye && !V.moddedTwoToneHairDye) {
 		switch (V.dyedHairPart) {
 			case "fringe":
 				total += dhmShop.calcWrapper("simple", "fringe");
@@ -137,7 +137,7 @@ dhmShop.cashGrab = function () {
 				total += dhmShop.calcWrapper("simple", "hair");
 				break;
 		}
-	} else if (V.twoToneHairDye) {
+	} else if (V.twoToneHairDye || V.specialTwoToneHairDye || V.moddedTwoToneHairDye) {
 		switch (V.dyedHairPart) {
 			case "fringe":
 				total += dhmShop.calcWrapper("gradient", "fringe");
