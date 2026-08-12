@@ -101,6 +101,7 @@ blackmailQuests.low.push(
 		cleared: true,
 		failed: false,
 		failMessage() {
+			if (!this.worn) return;
 			let clothing = "";
 			if (this.worn?.under_upper.name !== "naked" && this.worn?.under_lower.name !== "naked")
 				clothing = `${this.worn.under_upper.name} and ${this.worn.under_lower.name}`;
@@ -451,6 +452,7 @@ blackmailQuests.low.push(
 		cleared: false,
 		failed: false,
 		failMessage() {
+			if (!this.worn) return;
 			const clothing = clone(this.worn.lower.name);
 			delete this.worn;
 
@@ -625,6 +627,7 @@ blackmailQuests.low.push(
 		cleared: true,
 		failed: false,
 		failMessage() {
+			if (!this.worn) return;
 			let clothing = "";
 			if (this.worn?.under_upper.name !== "naked" && this.worn?.upper.name !== "naked") clothing = `${this.worn.upper.name} and ${this.worn.under_upper.name}`;
 			else if (this.worn?.under_upper.name !== "naked") clothing = clone(this.worn.under_upper.name);
@@ -858,7 +861,6 @@ blackmailQuests.high.push(
 			V.xchange.blackmail.penaltyThreat.exhibitionism += 300;
 		},
 		onDayFailed() {},
-		timeSpent: 0,
 	}
 );
 
