@@ -211,10 +211,23 @@ function playerVibratorOn() {
 }
 window.playerVibratorOn = playerVibratorOn;
 
+// The sidebar vibrator controls do not trigger passage navigation, so State.top may still contain
+// the old vibrator state when saving. Copy the change to State.top immediately so saving and
+// reloading before changing passages keeps the correct on/off and power settings.
+function syncVibratorToSaveMoment() {
+	const topVibrator = State.top?.variables?.worn?.vibrator;
+	if (!topVibrator || !V.worn.vibrator) return;
+	if (topVibrator.name !== V.worn.vibrator.name || topVibrator.colour !== V.worn.vibrator.colour) return;
+	topVibrator.vibrating = V.worn.vibrator.vibrating;
+	topVibrator.power = V.worn.vibrator.power;
+	topVibrator.powerMax = V.worn.vibrator.powerMax;
+}
+
 function setPlayerVibrator(on, link) {
 	if (!playerHasVibratorRemote()) return;
 
 	V.worn.vibrator.vibrating = on ? 1 : 0;
+	syncVibratorToSaveMoment();
 
 	// Optional: update link text if you pass the DOM link in
 	if (link) {
@@ -237,6 +250,7 @@ function changePlayerVibratorPower(delta, link) {
 	if (typeof V.worn.vibrator.powerMax !== "number") V.worn.vibrator.powerMax = 3;
 
 	V.worn.vibrator.power = Math.max(1, Math.min(V.worn.vibrator.powerMax, V.worn.vibrator.power + delta));
+	syncVibratorToSaveMoment();
 
 	if (link) {
 		const label = playerHasBulletVibe() ? "Bullet vibe" : "Vibrator";
