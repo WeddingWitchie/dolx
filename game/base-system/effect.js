@@ -1158,7 +1158,7 @@ function effects() {
 			} else if (V.insanityTraitMessage === "gainPermanent") {
 				element(
 					"span",
-					"The weight of everything you've endured finally shatters something inside, and this time nothing knits back together. Your grip on reality is gone for good; only Gwylan's touch could ever quiet it now. You've gained the",
+					"The weight of everything you've endured finally shatters something inside, and your mind can no longer mend on its own. Only Gwylan's touch could quiet it while the fracture remains. You've gained the",
 					"red"
 				);
 				element("span", '"Insanity"', "red");

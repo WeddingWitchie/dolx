@@ -1242,6 +1242,7 @@ function dayPassed(days) {
 		if (typeof autismSpectrumDailyUpdate === "function") autismSpectrumDailyUpdate();
 
 		try {
+			dailyInsanityEffects();
 			speechDailyCheck();
 
 			if (V.stallDeposit >= 3000) {
@@ -2221,17 +2222,21 @@ function dailyNPCEffects() {
 	wikifier("relationshipclamp");
 }
 
-function dailyPlayerEffects() {
+function dailyInsanityEffects() {
 	/* Insanity trait.
-	A permanent version ($insanityPermanent) is chosen at character creation and never adapts.
+	A permanent version ($insanityPermanent) chosen at character creation never adapts.
+	Naturally-gained permanence only lasts while its X-Change setting remains enabled.
 	Otherwise it is gained after remaining heavily traumatised (trauma >= 65% of max) for 5 days straight, and is only lost again once the trauma has almost fully healed (below 5% of max). */
+	if (V.insanityPermanent && V.background?.insanity !== true && !V.xchange?.insanityBecomesPermanent) {
+		V.insanityPermanent = false;
+	}
 	if (!V.insanityPermanent) {
 		if (V.trauma >= V.traumamax * 0.65) {
 			V.insanityTraitDays = (V.insanityTraitDays ?? 0) + 1;
 			if (V.insanityTraitDays >= 5 && !V.backgroundTraits.includes("insanity")) {
 				V.backgroundTraits.push("insanity");
 				/* Optional setting: a mind broken this thoroughly never mends on its own.
-				The trait is locked permanent (forced-severe symptoms, no cap break) and can only be eased by Gwylan's Clarity hypnosis. */
+				The trait remains permanent with forced-severe symptoms and no cap break while the setting stays enabled; Gwylan's Clarity can temporarily ease it. */
 				if (V.xchange?.insanityBecomesPermanent) {
 					V.insanityPermanent = true;
 					V.insanityTraitMessage = "gainPermanent";
@@ -2251,6 +2256,11 @@ function dailyPlayerEffects() {
 		}
 	}
 
+	/* Keep trauma symptoms in sync when temporary Insanity is gained or lost. */
+	statChange.updatePlayerTraumaState();
+}
+
+function dailyPlayerEffects() {
 	// Iron Will: willpower stops decaying while its fallen-angel trait is enabled.
 	if (V.willpowerDecay === 1 && !Transformations.partActive("traits", "ironWill")) {
 		V.willpower *= 0.99;
@@ -2266,7 +2276,7 @@ function dailyPlayerEffects() {
 		V.trauma = V.innocencetrauma;
 		V.innocencemessage = "end";
 	}
-	/* Keep trauma symptoms in sync when temporary Insanity is gained/lost or Innocence directly changes trauma above. */
+	/* Keep trauma symptoms in sync when Innocence directly changes trauma above. */
 	statChange.updatePlayerTraumaState();
 
 	if (V.physique >= 1000) {
