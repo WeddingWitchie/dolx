@@ -730,7 +730,7 @@ function initSpecialClothes() {
 			featCost: 2,
 			icon: "clothes",
 			iconSlot: "over_upper",
-			iconIndex: 4,
+			iconIndex: 3,
 			iconColor: "green",
 		},
 

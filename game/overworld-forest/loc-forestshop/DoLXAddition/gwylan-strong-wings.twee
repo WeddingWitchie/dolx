@@ -167,9 +167,9 @@ You have to learn it from an animal that was born doing it."
 	<<set _wingCommonText to setup.foodstuff[_wingCommon.name].plural>>
 	<<He>> writes three lines and turns the paper around so you can read it.
 	<br><br>
-	"<span class="gold"><<number _wingRare.need>> <<= _wingRareText>></span>, first.
+	"<span class="gold"><<Number _wingRare.need>> <<= _wingRareText>></span>, first.
 	That's the part that does the work, and nothing else will stand in for it, so please don't bring me something similar."
-	<<His>> pencil moves down. "<span class="gold"><<number _wingMid.need>> <<= _wingMidText>></span>
+	<<His>> pencil moves down. "<span class="gold"><<Number _wingMid.need>> <<= _wingMidText>></span>
 	to hold the effect together once I've drawn it out, or it spoils within the hour.
 	And <span class="gold"><<number _wingCommon.need>> <<= _wingCommonText>></span> for bulk,
 	so what I rub into you doesn't take the skin off your back."
@@ -204,9 +204,6 @@ You have to learn it from an animal that was born doing it."
 	<<set _wingRareText to setup.foodstuff[_wingRare.name].plural>>
 	<<set _wingMidText to setup.foodstuff[_wingMid.name].plural>>
 	<<set _wingCommonText to setup.foodstuff[_wingCommon.name].plural>>
-	<<run $gwylan.request.items.forEach(item => {
-		if (V.foodstuff[item.name]) V.foodstuff[item.name].amount -= item.need;
-	})>>
 	You set everything out along the counter in three groups. Gwylan counts each one,
 	moving the pieces into line with one finger as <<he>> goes.
 	<br><br>
@@ -317,8 +314,11 @@ and a body that fights gets hurt." <<He>> ties the tag onto the bowl. "So you'll
 <span class="purple">You'll need a clear head that day, the same as any of my other work.</span>"
 <br><br>
 /* This is a service the player asked for, not a favour done for Gwylan, so it must not grant a favour
-credit — but it must not spend one the player already earned either. */
+credit but it must not spend one the player already earned either. */
 <<set _favourOwed to $gwylan.requestDone>>
+<<run $gwylan.request.items?.forEach(item => {
+	if (item.category === "tending" && V.foodstuff[item.name]) V.foodstuff[item.name].amount -= item.need;
+})>>
 <<gwylanRequestEnd "silent">>
 <<set $gwylan.requestDone to _favourOwed>>
 <<set $gwylan.wingPotionReady to new DateTime(Time.date).addDays(3).timeStamp>>
@@ -424,8 +424,10 @@ if you want the easy version. It takes the worst of the pain off."
 <<elseif $phase2 is "drink">>
 	The tea is bitter under the honey. Warmth spreads from your stomach out to your fingers,
 	and your shoulders drop.
+	<<stress -12>><<tiredness 3>><<hallucinogen 200>><<set $hypnosis_potency++>><<llstress>><<gtiredness>><<gwylanHypnoEffect>>
 <<else>>
 	You finish what's in the cup and hand it back.
+	<<stress -12>><<tiredness 3>><<hallucinogen 200>><<set $hypnosis_potency++>><<llstress>><<gtiredness>><<gwylanHypnoEffect>>
 <</if>>
 <br><br>
 "On your front," <<he>> says, patting the quilts. "Wings out as far as they'll go without hurting."
