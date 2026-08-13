@@ -1197,6 +1197,9 @@ const statChange = (() => {
 		} else if (type === "skulduggery" && V.backgroundTraits.includes("delinquent")) {
 			amount *= amount > 0 ? 1.25 : 0.25;
 		}
+		if (amount > 0 && type === "seductionskill" && V.backgroundTraits.includes("lustful")) {
+			amount *= 1.15;
+		}
 
 		if (amount) {
 			const maxValue = (type === "beauty" ? V.beautymax : V[type + "max"]) || 1000;
