@@ -1824,7 +1824,11 @@ function effects() {
 					element("span", "You feel an intense desire to go swimming underwater.", "gold");
 					break;
 				case "waterdragonUp2":
-					element("span", "Your mouth feels different. You explore your mouth and wince as your tongue presses against your new fangs.", "gold");
+					element(
+						"span",
+						"Your mouth feels different. You explore it with your newly lengthened, forked tongue and wince as it presses against your new fangs.",
+						"gold"
+					);
 					break;
 				case "waterdragonUp3":
 					element("span", "Your head feels heavier. You reach up, and find that a pair of horns have sprouted.", "gold");
@@ -1846,7 +1850,7 @@ function effects() {
 					element("span", "You no longer feel the need to swim.", "gold");
 					break;
 				case "waterdragonDown1":
-					element("span", "Your fangs have turned into regular teeth.", "gold");
+					element("span", "Your fangs have turned into regular teeth, and your tongue has returned to normal.", "gold");
 					break;
 				case "waterdragonDown2":
 					element("span", "Your horns have disappeared.", "gold");

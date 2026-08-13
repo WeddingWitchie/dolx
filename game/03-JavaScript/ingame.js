@@ -1792,6 +1792,9 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 				}
 			}
 			break;
+		case "oralskill":
+			if (Transformations.partActive("traits", "dragonTongue")) result = Math.floor(result * 1.05);
+			break;
 		case "vaginalskill":
 			if (V.earSlime.growth > 100) {
 				if (V.earSlime.focus === "pregnancy") {
