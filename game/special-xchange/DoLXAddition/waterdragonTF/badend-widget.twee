@@ -59,6 +59,8 @@
 
 <<widget "waterDragonLabCleanup">>
 	<<if _args[0] isnot false>><<set $waterDragonIncubatorTrait to true>><</if>>
+	/* Chastity gear is held in the native clothing store while the player is confined. */
+	<<generalStoreon "water_dragon_lab" "genitals" "wardrobe">>
 	/* Eggs and hatchlings held in Harper's incubators would be stranded once the lab passages are gone:
 	nothing outside this wing reads the "waterdragon_lab" location.
 	   Send them on to the hidden nest so they stay reachable. */
@@ -149,6 +151,7 @@
 	/* Per-visit upkeep lives here (not in the once-per-load Defaults): daily schedule roll and trust clamp. */
 	<<set $waterDragonLab.professorTrust to Math.clamp($waterDragonLab.professorTrust, 0, 10)>>
 	<<set $waterDragonLab.compliance to Math.clamp($waterDragonLab.compliance, 0, 20)>>
+	<<set $waterDragonLab.security to Math.clamp($waterDragonLab.security, 0, 100)>>
 	<<if $waterDragonLab.scheduleDay isnot Time.days or $waterDragonLab.schedule.length isnot 4>>
 		<<set _labPreviousSchedule to $waterDragonLab.schedule.join("|")>>
 		<<set $waterDragonLab.scheduleDay to Time.days>>
@@ -179,6 +182,7 @@
 	<<else>>
 		<<set $waterDragonLab.state to "free">>
 	<</if>>
+	<<set _labBlockDue to ($waterDragonLab.state is "brooding" and $daily.waterDragonLabBroodDone isnot 1) or ($waterDragonLab.state is "firsttreatment" and $daily.waterDragonLabTreatment1 isnot 1) or ($waterDragonLab.state is "secondtreatment" and $daily.waterDragonLabTreatment2 isnot 1) or ($waterDragonLab.state is "assessment" and $daily.waterDragonLabAssessment isnot 1)>>
 <</widget>>
 
 <<widget "waterDragonLabSchedule">>
@@ -190,9 +194,34 @@
 	<<print ampm(18, 0)>>-<<print ampm(21, 0)>>: <<print _labScheduleNames[$waterDragonLab.schedule[3]]>><br>
 <</widget>>
 
+/* Sets the next-block temps and prints the reminder used by the cell and day room. */
+<<widget "waterDragonLabNextBlock">>
+	<<set _labScheduleNames to {firsttreatment:"Treatment A", secondtreatment:"Treatment B", brooding:"Brooding response", assessment:"Assessment"}>>
+	<<set _labNowMinutes to (Time.hour * 60) + Time.minute>>
+	<<set _labNextBlockToday to true>>
+	<<if _labNowMinutes lt 540>>
+		<<set _labNextBlockIndex to 0>><<set _labNextBlockMinutes to 540>>
+	<<elseif _labNowMinutes lt 720>>
+		<<set _labNextBlockIndex to 1>><<set _labNextBlockMinutes to 720>>
+	<<elseif _labNowMinutes lt 840>>
+		<<set _labNextBlockIndex to 2>><<set _labNextBlockMinutes to 840>>
+	<<elseif _labNowMinutes lt 1080>>
+		<<set _labNextBlockIndex to 3>><<set _labNextBlockMinutes to 1080>>
+	<<else>>
+		<<set _labNextBlockToday to false>>
+	<</if>>
+	<<if _labNextBlockToday>><<set _labMinutesToNextBlock to _labNextBlockMinutes - _labNowMinutes>><</if>>
+	<<if _labBlockDue>>
+		<span class="red">The <<= _labScheduleNames[$waterDragonLab.state]>> block is in progress now.</span>
+	<<elseif _labNextBlockToday>>
+		<span class="blue">The next compulsory block is <<= _labScheduleNames[$waterDragonLab.schedule[_labNextBlockIndex]]>> at <<ampm `_labNextBlockMinutes / 60`>> (in <<print getTimeString(_labMinutesToNextBlock)>>).</span>
+	<<else>>
+		<span class="blue">There are no more compulsory research blocks today. Lights-out is at <<ampm 22>>, and wake-up is at <<ampm 6>>.</span>
+	<</if>>
+<</widget>>
+
 /* One-off flavour events for the underground lab. Pure text plus small stat effects; no links, the hub's actions follow below. */
 <<widget "waterDragonLabEvent">>
-
 	<<set _labEventRoll to random(1, 6)>>
 	<<if _labEventRoll is 6 and !($waterDragonNest.pastelEggsLaid gte 1)>>
 		<<set _labEventRoll to 4>>

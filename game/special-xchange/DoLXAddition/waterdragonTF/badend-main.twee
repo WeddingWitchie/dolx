@@ -5,6 +5,7 @@
 <<set _normalEggs to $foodstuff.water_dragon_egg?.amount || 0>>
 <<set _pastelEggs to $foodstuff.water_dragon_egg_pastel?.amount || 0>>
 <<set _dealPrices to $waterDragonNest.harperDeal is 1>>
+<<set _escapedProjectPelagos to $waterDragonNest.labStays gte 1 and !_dealPrices>>
 <<set _knowsEggValue to Math.max(currentSkillValue('skulduggery'), currentSkillValue('maths'), currentSkillValue('history')) gte random(1, 1000)>>
 <<if _normalEggs + _pastelEggs lte 0>>
 	You no longer have a water dragon egg to show Harper.
@@ -18,19 +19,32 @@
 		"Our deal still stands," <<he>> says. "You bring the eggs to me, I pay the best price,
 		and no one else hears about them."
 	<<else>>
-		Harper says nothing at all when you show <<him>> the egg, and you shift under <<his>> stare until <<he>> finally speaks. "Well?"
-		<br><br>
-		<<He>> takes a small torch from <<his>> pocket and shines it across the pearl-coloured shell,
-		checking it from several angles before lowering it again.
-		"This species is legally extinct..."
-		<br><br>
-		You look down at the egg in your hands. "Then what am I holding?"
-		<br><br>
-		Harper looks at you again. "Something worth a great deal of money."
-		<br><br>
-		<<He>> closes the office door.
-		<br><br>
-		"I can pay far more than anyone else will," <<he>> says to you then.
+		<<if _escapedProjectPelagos>>
+			Harper looks at you before <<he>> looks at the egg. <<His>> hand stops over the desk alarm, then slowly withdraws.
+			<br><br>
+			"You escaped a secure research wing," <<he>> says. "You know exactly what I believe you are, and you still brought this to me."
+			<br><br>
+			The office door remains open. Two orderlies wait where you can see them, but Harper makes no move to call them in.
+			"I will not pretend your return means you have forgiven me. Put the egg down only if you intend to negotiate."
+			<br><br>
+			Only after you set it within reach does <<he>> take out a small torch. <<He>> compares the shell against records already open on <<his>> tablet instead of pretending this is a new discovery.
+			<br><br>
+			"Another viable egg, produced outside controlled conditions," <<he>> says. <<His>> eyes lift from it to you. "I know what it is, and I know precisely who laid it. That makes it no less valuable."
+		<<else>>
+			Harper says nothing at all when you show <<him>> the egg, and you shift under <<his>> stare until <<he>> finally speaks. "Well?"
+			<br><br>
+			<<He>> takes a small torch from <<his>> pocket and shines it across the pearl-coloured shell,
+			checking it from several angles before lowering it again.
+			"This species is legally extinct..."
+			<br><br>
+			You look down at the egg in your hands. "Then what am I holding?"
+			<br><br>
+			Harper looks at you again. "Something worth a great deal of money."
+			<br><br>
+			<<He>> closes the office door.
+			<br><br>
+			"I can pay far more than anyone else will," <<he>> says to you then.
+		<</if>>
 		<<if _knowsEggValue>>
 			<br><br>
 			<span class="green">You suspect Doctor Harper is shortchanging you for such a rare find.</span>
@@ -200,16 +214,26 @@
 	<<set _interest to (_egg is "water_dragon_egg_pastel") ? 2 : 1>>
 	<<set $waterDragonNest.harperInterest to Math.min(4, $waterDragonNest.harperInterest + _interest)>>
 	<<wearProp "waterdragon egg 1">>
+	<<if $waterDragonNest.labStays gte 1>>
+		Harper keeps both hands in view until the payment goes through. "You got out," <<he>> says. "That does not make the discovery less important. It means I underestimated the person carrying it. I will not make that mistake twice."
+		<br><br>
+	<</if>>
 	Harper transfers the money before reaching for the egg. Once the payment goes through,
 	<<he>> puts on a pair of gloves, lifts the egg with both hands, then places it inside a padded case.
 	<br><br>
-	<<He>> turns it beneath the light, studying the smooth shell.
-	"This did not come from any bird I know of. It does not match a modern reptile either."
-	<br><br>
-	<<He>> leans closer, watching the light move across its surface.
-	<br><br>
-	"The shell has formed almost perfectly."
-	<<He>> looks up at you. "I assume you are not going to tell me how it was fertilised."
+	<<if $waterDragonNest.labStays gte 1>>
+		<<He>> turns it beneath the light and compares it with the scans from the eggs taken below. "The same shell structure," <<he>> says. "The same lineage, despite everything that happened after you left."
+		<br><br>
+		<<He>> looks up at you instead of back towards the orderlies. "You came here by choice. I understand the difference."
+	<<else>>
+		<<He>> turns it beneath the light, studying the smooth shell.
+		"This did not come from any bird I know of. It does not match a modern reptile either."
+		<br><br>
+		<<He>> leans closer, watching the light move across its surface.
+		<br><br>
+		"The shell has formed almost perfectly."
+		<<He>> looks up at you. "I assume you are not going to tell me how it was fertilised."
+	<</if>>
 	<br><br>
 	<<unset $waterDragonEggSale>>
 	<<unset $phase>>
@@ -294,6 +318,9 @@ You rub the golden heart on your familiar collar. You don't know how, but <span 
 <</if>>
 /* Fresh capture always starts from a clean lab record; the Defaults widget owns the field list. */
 <<unset $waterDragonLab>><<unset $waterDragonEggSale>><<waterDragonLabDefaults>>
+<<if playerChastity()>>
+	<<storeItem "water_dragon_lab" "genitals">>
+<</if>>
 <<badEndTracking "Water Dragon Lab" { reason: "harperDragonEggs" }>>
 <<set $waterDragonNest.labStays += 1>>
 You turn towards the door, but sudden dizziness forces you to grab the desk.
@@ -315,6 +342,9 @@ The room looks like a strange mix of a nursery and an examination room, with a s
 and a padded examination chair in the other, and a camera on the ceiling above each of them.
 <br><br>
 Your clothes and everything you were carrying are gone; you are wearing a patient gown instead.
+<<if $store.genitals.some(item => item.location is "water_dragon_lab")>>
+	Harper's staff have removed your chastity device as well. It sits in a labelled property bag beyond the glass beside the medical tools they used to open it.
+<</if>>
 <br><br>
 You look through the small window in the door. A long corridor stretches beyond it, with numbered doors along both sides.
 Several of them look the same as yours. <span class="purple">This is not the only room here</span>.
@@ -446,6 +476,8 @@ Less than a minute later, you feel pressure low in your abdomen. It goes away, t
 	<</if>>
 	<br><br>
 	<<waterDragonLabStats>>
+	<<waterDragonLabNextBlock>>
+	<br><br>
 	<<if $waterDragonLab.compliance gte 8>>
 		A second blanket has been added to the nest, along with a bundle of dried seaweed.
 		A folding screen now gives you some privacy in the washroom<<if $waterDragonLab.compliance gte 20>>.
@@ -526,8 +558,20 @@ Less than a minute later, you feel pressure low in your abdomen. It goes away, t
 		<<refuseicon>><<link [[Refuse the assessment|Water Dragon Lab Enforcement]]>><<set $phase to "assessment">><</link>>
 		<br>
 	<<else>>
-		<<bedicon "zzz">><<link [[Sleep in the nest|Water Dragon Lab Bed]]>><</link>>
-		<br>
+		<<if $waterDragonLab.state is "sleep" or Time.hour gte 21>>
+			<<set _labRestMinutes to Time.hour gte 22 ? ((24 * 60) - ((Time.hour * 60) + Time.minute)) + 360 : Time.hour lt 6 ? 360 - ((Time.hour * 60) + Time.minute) : ((24 * 60) - ((Time.hour * 60) + Time.minute)) + 360>>
+			<<bedicon "zzz">><<link [[Sleep until wake-up (<<print getTimeString(_labRestMinutes)>>)|Water Dragon Lab Bed]]>><<set $phase to _labRestMinutes>><</link>>
+			<br>
+		<<elseif _labNextBlockToday>>
+			<<bedicon "zzz">><<link [[Nap until the next block (<<print getTimeString(_labMinutesToNextBlock)>>)|Water Dragon Lab Bed]]>><<set $phase to _labMinutesToNextBlock>><</link>>
+			<br>
+			<<daydreamicon>><<link [[Wait for the next block (<<print getTimeString(_labMinutesToNextBlock)>>)|Water Dragon Lab]]>><<pass _labMinutesToNextBlock>><</link>>
+			<br>
+		<<else>>
+			<<set _labRestMinutes to (22 * 60) - ((Time.hour * 60) + Time.minute)>>
+			<<bedicon "zzz">><<link [[Nap until lights-out (<<print getTimeString(_labRestMinutes)>>)|Water Dragon Lab Bed]]>><<set $phase to _labRestMinutes>><</link>>
+			<br>
+		<</if>>
 		<<if $waterDragonLab.escape gte 5>>
 			<<waterDragonLabVentOption>>
 			<br>
@@ -571,22 +615,31 @@ Less than a minute later, you feel pressure low in your abdomen. It goes away, t
 :: Water Dragon Lab Enforcement
 <<set $outside to 0>><<set $location to "hospital">><<effects>><<endevent>>
 <<generate1>><<person1>>
-<<set $waterDragonLab.discipline += 1>><<set $waterDragonLab.security += 5>>
+<<set _labLate to typeof $phase is "string" and $phase.startsWith("late:")>>
+<<if _labLate>><<set $phase to $phase.slice(5)>><</if>>
+<<if !_labLate>><<set $waterDragonLab.discipline += 1>><</if>><<set $waterDragonLab.security += 5>>
 <<set $waterDragonLab.compliance to Math.max(0, $waterDragonLab.compliance - 1)>>
-Before you can finish saying no, the cell door opens.
-An orderly enters while another waits outside with a pair of restraint cuffs.
-You step back, but the orderly moves towards you.
-<br><br>
-<<if $waterDragonLab.discipline gte 3>>
-	"This is the third time you've refused. Harper gave us permission to restrain you."
-	The <<personsimple>> grabs for your wrist before you can answer.
-<<elseif $waterDragonLab.discipline is 2>>
-	<<generate2>>
-	"You were warned yesterday. The treatment is compulsory."
-	The second orderly enters and shuts the door behind <<person>><<him>>.
+<<if _labLate>>
+	You lost track of the time. An orderly blocks the doorway while another waits behind <<him>> with a pair of restraint cuffs.
+	<br><br>
+	"The block has already started," the <<personsimple>> says. "Harper records late arrival as noncompliance. Move."
+	<span class="red">Security increases because you missed the start of the block.</span>
 <<else>>
-	"You have to follow the treatment schedule," the <<personsimple>> says.
-	"Come with us quietly, and we'll only record this as a warning."
+	Before you can finish saying no, the cell door opens.
+	An orderly enters while another waits outside with a pair of restraint cuffs.
+	You step back, but the orderly moves towards you.
+	<br><br>
+	<<if $waterDragonLab.discipline gte 3>>
+		"This is the third time you've refused. Harper gave us permission to restrain you."
+		The <<personsimple>> grabs for your wrist before you can answer.
+	<<elseif $waterDragonLab.discipline is 2>>
+		<<generate2>>
+		"You were warned yesterday. The treatment is compulsory."
+		The second orderly enters and shuts the door behind <<person>><<him>>.
+	<<else>>
+		"You have to follow the treatment schedule," the <<personsimple>> says.
+		"Come with us quietly, and we'll only record this as a warning."
+	<</if>>
 <</if>>
 <br><br>
 <<if $phase is "brooding">>
@@ -597,7 +650,7 @@ You step back, but the orderly moves towards you.
 	<<asylumicon "door">><<link [[Submit to treatment|Water Dragon Lab Treatment]]>><<set $waterDragonLab.treatmentSlot to $phase>><<set $phase to null>><<pass 30>><</link>>
 <</if>>
 <br>
-<<refuseicon>><<link [[Fight the orderlies|Water Dragon Lab Enforcement Fight]]>><<set $fightstart to 1>><</link>>
+<<refuseicon>><<link [[Fight the orderlies|Water Dragon Lab Enforcement Fight]]>><<set $phase to null>><<set $fightstart to 1>><</link>>
 <br>
 
 :: Water Dragon Lab Enforcement Fight
@@ -1861,7 +1914,12 @@ The duct narrows until you have to crawl flat, and your gown snags on every unfi
 <<if _labChallengeSuccess>>
 	You go at exactly the right moment. Somebody shouts behind you and then starts running, but the laundry doors are already shut between you and them, and the service corridor is ahead. <span class="green">You have broken through the inner search line.</span>
 	<br><br>
-	<<link [[Keep running|Water Dragon Lab Service Chase]]>><<pass 5>><</link>><<athleticsdifficulty 1000 1500>>
+	<<set _labChaseAthleticsMin to 600 + ($waterDragonLab.security * 2)>>
+	<<set _labChaseAthleticsMax to 1100 + ($waterDragonLab.security * 2)>>
+	<<link [[Sprint for the public road|Water Dragon Lab Service Chase]]>><<set $phase to "sprint">><<pass 5>><</link>><<athleticsdifficulty _labChaseAthleticsMin _labChaseAthleticsMax>>
+	<br>
+	<<set $skulduggerydifficulty to 1000 + ($waterDragonLab.security * 2)>>
+	<<lockicon "pick">><<link [[Lose them in the service corridors|Water Dragon Lab Service Chase]]>><<set $phase to "misdirect">><<pass 5>><</link>><<skulduggerydifficulty>>
 <<else>>
 	You are halfway through when a hand closes on your gown. One orderly holds you while the other puts a syringe into your thigh. The corridor tips sideways.
 	<br><br>
@@ -1870,9 +1928,17 @@ The duct narrows until you have to crawl flat, and your gown snags on every unfi
 
 :: Water Dragon Lab Service Chase
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
-<<if $athleticsSuccess is 1>>
-	You run through the fire doors, across the loading bay and up a ramp slick with rain. An orderly nearly gets your wrist at the last barrier. You twist away, leaving a strip of gown in their hand, and reach the public road without slowing down.
-	<<ggtiredness>>
+<<if $phase is "misdirect">>
+	<<skulduggerycheck>><<set _labChaseSuccess to $skulduggerysuccess is 1>><<skulduggeryuse>>
+<<else>>
+	<<set _labChaseSuccess to $athleticsSuccess is 1>><<athletics 1>>
+<</if>>
+<<if _labChaseSuccess>>
+	<<if $phase is "misdirect">>
+		You duck through a fire door, double back through imaging, and slap an alarm bar on the opposite corridor before slipping into the loading bay. The orderlies follow the noise. By the time Harper corrects them over the intercom, you are already on the public road.
+	<<else>>
+		You run through the fire doors, across the loading bay and up a ramp slick with rain. An orderly nearly gets your wrist at the last barrier. You twist away, leaving a strip of gown in their hand, and reach the public road without slowing down. <<ggtiredness>>
+	<</if>>
 	<br><br>
 	<span class="green">The hospital alarm fades behind you. You escaped Project Pelagos.</span>
 	<<earnFeat "Slipped the Shell">><<badEndTrackingEnd "Water Dragon Lab" { reason: "dragonLabVent" }>>
@@ -1885,7 +1951,11 @@ The duct narrows until you have to crawl flat, and your gown snags on every unfi
 	<<getouticon>><<link [[Run towards town|Hospital front]]>><<pass 30>><<tiredness 30>><<endevent>><</link>>
 <<else>>
 	<<npc Harper>><<person1>>
-	You can see the loading bay when your legs give out. Security shutters come down one after another and push you into a dead end. Harper only turns up once the orderlies have you pinned.
+	<<if $phase is "misdirect">>
+		You take one wrong turn and find a security shutter already down. The false alarm buys seconds, not freedom. Orderlies close both ends of the corridor, and Harper only turns up once they have you pinned.
+	<<else>>
+		You can see the loading bay when your legs give out. Security shutters come down one after another and push you into a dead end. Harper only turns up once the orderlies have you pinned.
+	<</if>>
 	<br><br>
 	"So close," <<he>> says, out of breath enough to show <<he>> ran too. "I will have to design that out."
 	<br><br>
@@ -1895,6 +1965,7 @@ The duct narrows until you have to crawl flat, and your gown snags on every unfi
 :: Water Dragon Lab Recaptured
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<npc Harper>><<person1>>
+<<unset $phase>>
 <<set $waterDragonLab.security to Math.min(100, $waterDragonLab.security + 25)>><<set $waterDragonLab.escape to Math.max(2, $waterDragonLab.escape - 3)>><<set $waterDragonLab.compliance to Math.max(0, $waterDragonLab.compliance - 3)>>
 You wake in the examination chair. There is a new seal on the vent and soft restraints on your wrists and ankles. The cell is back to how it was on the first day: blankets counted, furniture bolted down, mirrors put up in the camera blind spots.
 <br><br>
@@ -1925,14 +1996,18 @@ The lights drop to a dim amber that somebody has picked out to be soothing. You 
 
 <<nightmareCheck "Water Dragon Lab Sleep">>
 
-<<generateSleepLinks "Water Dragon Lab Sleep">>
-<<link [[Stay awake|Water Dragon Lab]]>><<loadTempHairStyle>><</link>>
+<<set _labRestMinutes to Math.max(1, Number($phase) || 60)>>
+<<link [[Close your eyes|Water Dragon Lab Sleep]]>><<set $phase to _labRestMinutes>><</link>>
+<br>
+<<link [[Stay awake|Water Dragon Lab]]>><<unset $phase>><<loadTempHairStyle>><</link>>
 
 :: Water Dragon Lab Sleep
 <<set _autosavehere to true>>
-<<sleep>>
+<<set _labRestMinutes to Math.max(1, Number($phase) || 60)>><<unset $phase>>
+<<set $sleephour to Math.floor(_labRestMinutes / 60)>><<sleep>>
+<<set _labRestRemainder to _labRestMinutes % 60>><<if _labRestRemainder gt 0>><<pass _labRestRemainder>><</if>>
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
-
+<<waterDragonLabState>>
 <<wakingEffects $sleepHoursTotal>>
 <<if $nightmares gte 1 and $controlled is 0>>
 	<<nightmareWake>>
@@ -1942,14 +2017,13 @@ The lights drop to a dim amber that somebody has picked out to be soothing. You 
 	<br><br>
 <<else>>
 	<<if _wakingEffect>><br><br><</if>>
-	<<switch random(1, 3)>>
-		<<case 1>>
-			You wake to the sound of the night nurse counting the fake eggs. They get counted every night. So do you.
-		<<case 2>>
-			At some point in the night the shoreline projector came on. You wake to painted surf on concrete walls, and for a second you believe it.
-		<<default>>
-			You wake before the lights come up. Harper is behind the glass already, or still, writing by the light of a tablet.
-	<</switch>>
+	<<if _labBlockDue>>
+		An orderly hammers on the cell door as the block light turns red. "Up. Scheduled block." Another pulls the nest blankets away before you can close your eyes again. <span class="blue">They woke you before you could miss the session.</span>
+	<<elseif $waterDragonLab.state is "morning">>
+		The lights come up at six precisely. A nurse opens the hatch and calls your number until you sit up for the morning hygiene block.
+	<<else>>
+		You wake to the sound of the night nurse counting the fake eggs. They get counted every night. So do you.
+	<</if>>
 	<br><br>
 <</if>>
 <<if $settings.hypnosisEnabled and $waterDragonLab.hypno gte 2 and random(1, 3) is 1>>
@@ -2193,10 +2267,10 @@ Professor Elian Vale sits at the steel table with a folder shut under one hand. 
 <</if>>
 <br><br>
 
-<<if ($waterDragonLab.state is "brooding" and $daily.waterDragonLabBroodDone isnot 1) or ($waterDragonLab.state is "firsttreatment" and $daily.waterDragonLabTreatment1 isnot 1) or ($waterDragonLab.state is "secondtreatment" and $daily.waterDragonLabTreatment2 isnot 1) or ($waterDragonLab.state is "assessment" and $daily.waterDragonLabAssessment isnot 1)>>
+<<if _labBlockDue>>
 	The ceiling speaker cuts through your concentration. "Meditation block concluded. Report for the scheduled protocol." Footsteps stop outside the day room.
 	<br><br>
-	<<asylumicon "door">><<link [[Face them|Water Dragon Lab Enforcement]]>><<set $phase to $waterDragonLab.state>><</link>>
+	<<asylumicon "door">><<link [[Face them|Water Dragon Lab Enforcement]]>><<set $phase to "late:" + $waterDragonLab.state>><</link>>
 <<else>>
 <<link [[Still your thoughts (1:00)|Water Dragon Lab Meditate]]>><<set $phase to "still">><<pass 60>><<willpower 1>><<stress `-Math.max(1, _labWillTier)`>><<awareness `(_labWillTier gte 5 ? -2 : -1)`>><<arousal `-(300 + (_labWillTier * 150))`>><</link>><<gwillpower>><<lstress>><<lawareness>><<larousal>>
 <br>
@@ -2262,7 +2336,7 @@ Professor Elian Vale sits at the steel table with a folder shut under one hand. 
 :: Water Dragon Lab Corridor
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<waterDragonLabState>>
-<<if ($waterDragonLab.state is "brooding" and $daily.waterDragonLabBroodDone isnot 1) or ($waterDragonLab.state is "firsttreatment" and $daily.waterDragonLabTreatment1 isnot 1) or ($waterDragonLab.state is "secondtreatment" and $daily.waterDragonLabTreatment2 isnot 1) or ($waterDragonLab.state is "assessment" and $daily.waterDragonLabAssessment isnot 1)>>
+<<if _labBlockDue>>
 	You barely get three steps before two orderlies step in on either side of you, polite and completely immovable.
 	<br><br>
 	"Scheduled block," one says, flatly. "You are already late." They block off both ends of the corridor.
@@ -2304,14 +2378,18 @@ Professor Elian Vale sits at the steel table with a folder shut under one hand. 
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<waterDragonLabState>>
 
-<<if ($waterDragonLab.state is "brooding" and $daily.waterDragonLabBroodDone isnot 1) or ($waterDragonLab.state is "firsttreatment" and $daily.waterDragonLabTreatment1 isnot 1) or ($waterDragonLab.state is "secondtreatment" and $daily.waterDragonLabTreatment2 isnot 1) or ($waterDragonLab.state is "assessment" and $daily.waterDragonLabAssessment isnot 1)>>
+<<if _labBlockDue>>
 	The duty nurse looks past you as two orderlies come in. "Your free block is over," one says. The kettle is switched off and the corridor door locks behind them.
 	<br><br>
-	<<asylumicon "door">><<link [[Answer the summons|Water Dragon Lab Enforcement]]>><<set $phase to $waterDragonLab.state>><</link>>
+	<<asylumicon "door">><<link [[Answer the summons|Water Dragon Lab Enforcement]]>><<set $phase to "late:" + $waterDragonLab.state>><</link>>
 <<else>>
 The day room is Harper's idea of humane. A steel table and bench are bolted to the floor, and the nurse's desk has a kettle on it. It is the only room down here that smells of tea instead of antiseptic.
 <br><br>
 The supply shelves block the far corner off from the cameras. You have checked twice.
+<br><br>
+<<waterDragonLabNextBlock>>
+<br><br>
+<span class="red">If a compulsory block begins while you remain here, the orderlies will record you as late. Being made to answer the summons increases security.</span>
 <br><br>
 <<if $waterDragonLab.compliance gte 8>>
 	Since your file was marked cooperative you are allowed a chair at the table instead of the bench, and nobody tells you to move when you sit down.
@@ -2426,10 +2504,10 @@ There is barely enough floor in the blind corner to exercise on. You hook your f
 	<</for>>
 <</if>>
 
-<<if ($waterDragonLab.state is "brooding" and $daily.waterDragonLabBroodDone isnot 1) or ($waterDragonLab.state is "firsttreatment" and $daily.waterDragonLabTreatment1 isnot 1) or ($waterDragonLab.state is "secondtreatment" and $daily.waterDragonLabTreatment2 isnot 1) or ($waterDragonLab.state is "assessment" and $daily.waterDragonLabAssessment isnot 1)>>
+<<if _labBlockDue>>
 	The grow light goes out. "Gardening period over," says the intercom. Orderlies stop outside the day room door.
 	<br><br>
-	<<asylumicon "door">><<link [[Answer the schedule|Water Dragon Lab Enforcement]]>><<set $phase to $waterDragonLab.state>><</link>>
+	<<asylumicon "door">><<link [[Answer the schedule|Water Dragon Lab Enforcement]]>><<set $phase to "late:" + $waterDragonLab.state>><</link>>
 <<else>>
 	The tray sits behind the supply shelf under a stolen grow light, with a folded towel keeping it out of the nearest camera's view.
 	<br><br>
@@ -2441,10 +2519,10 @@ There is barely enough floor in the blind corner to exercise on. You hook your f
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<waterDragonLabState>>
 
-<<if ($waterDragonLab.state is "brooding" and $daily.waterDragonLabBroodDone isnot 1) or ($waterDragonLab.state is "firsttreatment" and $daily.waterDragonLabTreatment1 isnot 1) or ($waterDragonLab.state is "secondtreatment" and $daily.waterDragonLabTreatment2 isnot 1) or ($waterDragonLab.state is "assessment" and $daily.waterDragonLabAssessment isnot 1)>>
+<<if _labBlockDue>>
 	The water cuts off mid-flow. Red letters light up above the door: SCHEDULE OVERRIDE. An orderly knocks once, then unlocks it from outside.
 	<br><br>
-	<<asylumicon "door">><<link [[Face the orderlies|Water Dragon Lab Enforcement]]>><<set $phase to $waterDragonLab.state>><</link>>
+	<<asylumicon "door">><<link [[Face the orderlies|Water Dragon Lab Enforcement]]>><<set $phase to "late:" + $waterDragonLab.state>><</link>>
 <<else>>
 The washroom is white tile, and every sound in it echoes: a row of basins, one shower stall, and a drain in the middle of the floor that you try not to think about. The camera housings in here are misted glass, which fools nobody.
 <<if $waterDragonLab.compliance gte 8>>
