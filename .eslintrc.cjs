@@ -302,6 +302,7 @@ module.exports = {
 		validateValue: "readonly",
 		waterproofCheck: "readonly",
 		wornSetupClothes: "readonly",
+		wornSlotIsBare: "readonly",
 		xchangeDailyCheck: "readonly",
 		xchangeEffectsMessages: "readonly",
 		xchangeHourlyCheck: "readonly",

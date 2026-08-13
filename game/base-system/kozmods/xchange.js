@@ -255,6 +255,16 @@ function getSensitivity(part) {
 }
 window.getSensitivity = getSensitivity;
 
+/* An empty clothing slot holds the "naked" placeholder item. Scenes freely shove `exposed` around on whatever is in a slot without checking
+   whether anything is actually there, so the placeholder's own `exposed` can't be trusted
+   the name is what says there's no garment to rub. */
+function wornSlotIsBare(slot) {
+	const item = V.worn[slot];
+	if (!item) return true;
+	return item.name === "naked" || (item.type || []).includes("naked");
+}
+window.wornSlotIsBare = wornSlotIsBare;
+
 function getBreastSensitiveRubSlot() {
 	const under = V.worn.under_upper;
 	const upper = V.worn.upper;
@@ -262,14 +272,22 @@ function getBreastSensitiveRubSlot() {
 	const upperSetup = wornSetupClothes("upper");
 	const underTypes = under.type || [];
 	const upperTypes = upper.type || [];
+	const underBare = wornSlotIsBare("under_upper");
+	const upperBare = wornSlotIsBare("upper");
 	const protectedByUnder =
-		under.exposed < 2 && (underTypes.includes("sticky") || underTypes.includes("chest_bind") || underSetup.formfitting === 1 || under.name === "swim shirt");
+		!underBare &&
+		under.exposed < 2 &&
+		(underTypes.includes("sticky") || underTypes.includes("chest_bind") || underSetup.formfitting === 1 || under.name === "swim shirt");
 
 	if (protectedByUnder) return null;
-	if (!underTypes.includes("naked") && under.exposed < 2) return "under_upper";
-	if (upper.exposed < 2 && (upperTypes.includes("sticky") || upperTypes.includes("chest_bind") || upperSetup.formfitting === 1 || upper.name === "swim shirt"))
+	if (!underBare && under.exposed < 2) return "under_upper";
+	if (
+		!upperBare &&
+		upper.exposed < 2 &&
+		(upperTypes.includes("sticky") || upperTypes.includes("chest_bind") || upperSetup.formfitting === 1 || upper.name === "swim shirt")
+	)
 		return null;
-	if (!upperTypes.includes("naked") && upper.exposed < 2) return "upper";
+	if (!upperBare && upper.exposed < 2) return "upper";
 	return null;
 }
 window.getBreastSensitiveRubSlot = getBreastSensitiveRubSlot;
@@ -279,13 +297,13 @@ function getGenitalSensitiveRubSlot() {
 	const lower = V.worn.lower;
 	const underSetup = wornSetupClothes("under_lower");
 	const lowerSetup = wornSetupClothes("lower");
-	const underTypes = under.type || [];
-	const lowerTypes = lower.type || [];
-	const protectedByUnder = under.exposed < 2 && (underSetup.one_piece === 1 || (under.name === "boxers" && !V.player.penisExist));
+	const underBare = wornSlotIsBare("under_lower");
+	const lowerBare = wornSlotIsBare("lower");
+	const protectedByUnder = !underBare && under.exposed < 2 && (underSetup.one_piece === 1 || (under.name === "boxers" && !V.player.penisExist));
 
 	if (protectedByUnder) return null;
-	if (!underTypes.includes("naked") && under.exposed < 2) return "under_lower";
-	if (!lowerTypes.includes("naked") && lower.exposed < 2 && lowerSetup.skirt !== 1) return "lower";
+	if (!underBare && under.exposed < 2) return "under_lower";
+	if (!lowerBare && lower.exposed < 2 && lowerSetup.skirt !== 1) return "lower";
 	return null;
 }
 window.getGenitalSensitiveRubSlot = getGenitalSensitiveRubSlot;
@@ -1196,24 +1214,27 @@ function xchangeTimePassedCheck(minutes = 1) {
 		}
 	}
 
-	// Sensitivity-decreasing cream: escalating stress from repeated daily use, plus the tampered-batch arousal dump on expiry.
-	const suppressant = V.sensitivityMedication;
-	if (suppressant && suppressant.type === "suppressant") {
-		const active = Number.isFinite(suppressant.endsAt) && suppressant.endsAt > V.timeStamp;
+	// Sensitivity creams: escalating stress from repeated daily suppressant use, plus the tampered-batch arousal dump on expiry.
+	const medication = V.sensitivityMedication;
+	if (medication) {
+		const active = Number.isFinite(medication.endsAt) && medication.endsAt > V.timeStamp;
 		if (active) {
-			// From the second consecutive daily dose onward, the forced numbness wears on the mind. 0.8 raw stress/min per extra dose (tunable).
-			const streakCount = sensitivitySuppressantStreakCount();
-			if (streakCount >= 2 && !V.statFreeze) {
-				statChange.stress((streakCount - 1) * 0.8 * minutes, 1);
+			if (medication.type === "suppressant") {
+				// From the second consecutive daily dose onward, the forced numbness wears on the mind. 0.8 raw stress/min per extra dose (tunable).
+				const streakCount = sensitivitySuppressantStreakCount();
+				if (streakCount >= 2 && !V.statFreeze) {
+					statChange.stress((streakCount - 1) * 0.8 * minutes, 1);
+				}
 			}
 		} else {
 			// The cream has worn off. A tampered batch releases everything it hoarded, all at once.
-			if (suppressant.tampered && Number.isFinite(suppressant.stockpile) && suppressant.stockpile > 0) {
-				V.arousal = Math.clamp(V.arousal + suppressant.stockpile, 0, V.arousalmax);
+			if (medication.type === "suppressant" && medication.tampered && Number.isFinite(medication.stockpile) && medication.stockpile > 0) {
+				V.arousal = Math.clamp(V.arousal + medication.stockpile, 0, V.arousalmax);
 				// 2 = the flood overflowed past the edge and forces a release; 1 = a hard, unwanted spike short of it.
 				V.sensitivityFloodMessage = V.arousal >= (V.arousalmax * 4) / 5 ? 2 : 1;
 				V.effectsmessage = 1;
 			}
+			// Clear the worn-off record whatever it was, so an expired stimulant doesn't sit in the save forever.
 			delete V.sensitivityMedication;
 		}
 	}
@@ -1740,20 +1761,26 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.breastSensitiveRubMessage) {
-		const rubSlot = typeof V.breastSensitiveRubMessage === "string" ? V.breastSensitiveRubMessage : getBreastSensitiveRubSlot();
+		// The slot is picked during the time tick, but this prints once the passage has run and a link that passes time then strips
+		// (washing, bathing, going to bed) leaves the stored slot empty. Re-check it, and fall back to whatever is being worn now.
+		const storedSlot = typeof V.breastSensitiveRubMessage === "string" ? V.breastSensitiveRubMessage : null;
+		const rubSlot = storedSlot && !wornSlotIsBare(storedSlot) ? storedSlot : getBreastSensitiveRubSlot();
 		if (rubSlot) {
+			// The widget prints nothing useful here; it's called for the adjective it leaves in _text_output2 ("sensitive ", "tender ", ...).
 			wikifier("breastsensitivity");
-			element("span", `Your ${T.text_output2 ?? " "}nipples are rubbing against your ${V.worn[rubSlot].name}.`, "pink");
+			element("span", `Your ${T.text_output2 ?? ""}nipples are rubbing against your ${V.worn[rubSlot].name}.`, "pink");
 			br();
 		}
 		delete V.breastSensitiveRubMessage;
 	}
 
 	if (V.genitalSensitiveRubMessage) {
-		const rubSlot = !playerChastity() ? (typeof V.genitalSensitiveRubMessage === "string" ? V.genitalSensitiveRubMessage : getGenitalSensitiveRubSlot()) : null;
+		const storedSlot = typeof V.genitalSensitiveRubMessage === "string" ? V.genitalSensitiveRubMessage : null;
+		const rubSlot = playerChastity() ? null : storedSlot && !wornSlotIsBare(storedSlot) ? storedSlot : getGenitalSensitiveRubSlot();
 		if (rubSlot) {
+			// <<genitalsensitivity>> leaves its adjective in _text_output, not _text_output2 like <<breastsensitivity>> does.
 			wikifier("genitalsensitivity");
-			element("span", `Your ${T.text_output2 ?? " "}${V.player.penisExist ? "penis" : "clit"} is rubbing against your ${V.worn[rubSlot].name}.`, "pink");
+			element("span", `Your ${T.text_output ?? ""}${V.player.penisExist ? "penis" : "clit"} is rubbing against your ${V.worn[rubSlot].name}.`, "pink");
 			br();
 		}
 		delete V.genitalSensitiveRubMessage;
