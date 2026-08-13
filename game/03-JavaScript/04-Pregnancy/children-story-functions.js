@@ -129,7 +129,7 @@ function humanChildActivity(childId) {
 				activity.push("crying");
 			}
 			if (toySets.includes("clown")) activity.push("clown");
-			if (T.robin_location === "orphanage") activity.push("Robin");
+			if (T.robin_location === "orphanage" && child.location === "home") activity.push("Robin");
 			if (child.father === "Ivory Wraith") {
 				wikifier("rngWraith", 1);
 				if (T.wraithEvent) activity.push("Wraith");
@@ -165,7 +165,7 @@ function humanChildActivity(childId) {
 			}
 			if (toySets.includes("clown")) activity.push("clown");
 			if (child.localVariables.talking >= 10 && T.childTotalDays >= 150) activity.push("talking2");
-			if (T.robin_location === "orphanage") activity.push("Robin");
+			if (T.robin_location === "orphanage" && child.location === "home") activity.push("Robin");
 			if (child.father === "Ivory Wraith") {
 				wikifier("rngWraith", 1);
 				if (T.wraithEvent) activity.push("Wraith");
@@ -295,7 +295,7 @@ function hawkChildActivity(childId) {
 	if (T.childTotalDays >= 200) {
 		activity.push("flap");
 	}
-	if (child.localVariables.farewell !== false && typeof child.localVariables.farewell !== 'undefined') {
+	if (child.localVariables.farewell !== false && typeof child.localVariables.farewell !== "undefined") {
 		activity = ["dismissed"];
 	}
 
