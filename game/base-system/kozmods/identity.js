@@ -737,6 +737,27 @@ function npcAddressPronoun(npcName) {
 }
 window.npcAddressPronoun = npcAddressPronoun;
 
+/**
+ * Whether <<misgender>> should apply identity effects for this pronoun.
+ * The same pronoun may appear several times in one turn, but it should only count as one identity event.
+ * Effects apply on the first use and are skipped for repeated uses of that pronoun.
+ * This is temporary render data and is not saved.
+ *
+ * @param {string} pronoun The player's pronoun ("m", "f" or "n").
+ */
+const misgenderCounted = { turn: -1, seen: new Set() };
+function misgenderShouldCount(pronoun) {
+	const turn = State.turns;
+	if (misgenderCounted.turn !== turn) {
+		misgenderCounted.turn = turn;
+		misgenderCounted.seen = new Set();
+	}
+	if (misgenderCounted.seen.has(pronoun)) return false;
+	misgenderCounted.seen.add(pronoun);
+	return true;
+}
+window.misgenderShouldCount = misgenderShouldCount;
+
 function preferredPronouns(gender) {
 	const pronouns = V.identity?.presentation?.pronouns || {};
 	const dynamicModes = ["body", "clothing", "appearance", "posture"];

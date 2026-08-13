@@ -210,7 +210,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 		case "orgasm":
 			resultArray.push(`"Your face is so cute when you cum."`, `"You better not stop now. I know you want another round."`);
 			if (V.masturbationAudience > 1) {
-				resultArray.push(`"Look at how much <<pshe>> is shaking. Must be a pretty intense orgasm."`);
+				resultArray.push(`"Look at how much <<pshe stranger>> is shaking. Must be a pretty intense orgasm."`);
 			}
 			if (V.masturbationAudience >= 3 && V.masturbationAudienceReactions >= 3) {
 				resultArray.push(`"Cum for us, you pervert. Show everyone how lewd you are."`, `"Do you enjoy cumming in front of everyone?"`);
@@ -258,7 +258,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 			resultArray.push(`"C'mon, squeeze it harder."`);
 			if (V.masturbationAudience >= 4) {
 				resultArray.push(
-					`"Look how fast <<pshes>> stroking <<pherself>>."`,
+					`"Look how fast <<pshes stranger>> stroking <<pherself stranger>>."`,
 					`"Does it feel good? Touching your dick in front of everyone, I mean."`,
 					`"I think I can see some precum dripping."`,
 					`"That's it, show everyone how you masturbate."`
@@ -267,7 +267,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				resultArray.push(
 					`"Is stroking it like that in front of ${V.masturbationAudience > 1 ? "us" : "me"} fun?"`,
 					`"Does it feel good? Touching your dick in front of ${V.masturbationAudience > 1 ? "us" : "me"}, I mean."`,
-					`"Is that precum dripping from <<pher>> cock?"`
+					`"Is that precum dripping from <<pher stranger>> cock?"`
 				);
 			}
 			return resultArray.random();
@@ -278,7 +278,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 			}
 			if (V.masturbationAudience >= 4) {
 				resultArray.push(
-					`"Look how hard <<pshes>> squeezing it."`,
+					`"Look how hard <<pshes stranger>> squeezing it."`,
 					`"Looks like it feels really good. It makes you look real slutty."`,
 					`"That's it, show everyone how you masturbate."`
 				);
@@ -292,9 +292,9 @@ function masturbationAudienceLineText(npc, lineType = "") {
 		case "vagina":
 			if (V.masturbationAudience >= 4) {
 				resultArray.push(
-					`"Look how wet <<pshe>> is."`,
+					`"Look how wet <<pshe stranger>> is."`,
 					`"Did you want an audience that badly?"`,
-					`"<<pHer>> clit is so hard."`,
+					`"<<pHer stranger>> clit is so hard."`,
 					`"Yeah <<girl>>, show everyone how you play with your pussy."`
 				);
 			} else {
@@ -308,16 +308,16 @@ function masturbationAudienceLineText(npc, lineType = "") {
 			if (V.fingersInVagina <= 0) resultArray.push(`"C'mon, just shove some fingers in."`);
 			if (between(V.fingersInVagina, 1, 3))
 				resultArray.push(
-					`"Is that all ${V.masturbationAudience > 1 ? "<<pshe>>" : "the fingers you"} can fit in${
-						V.masturbationAudience > 1 ? " <<phim>>? Must be a virgin." : "?"
+					`"Is that all ${V.masturbationAudience > 1 ? "<<pshe stranger>>" : "the fingers you"} can fit in${
+						V.masturbationAudience > 1 ? " <<phim stranger>>? Must be a virgin." : "?"
 					}"`,
 					`"Come on, add another finger already. I know you can fit more than that in there."`,
 					`"I can give you more than some fingers if you come here."`
 				);
 			if (V.fingersInVagina >= 5) {
 				resultArray.push(
-					`"Didn't think ${V.masturbationAudience > 1 ? "<<pshe>>" : "you"}'d be able to fit ${
-						V.masturbationAudience > 1 ? "<<pher>>" : "a"
+					`"Didn't think ${V.masturbationAudience > 1 ? "<<pshe stranger>>" : "you"}'d be able to fit ${
+						V.masturbationAudience > 1 ? "<<pher stranger>>" : "a"
 					} whole fist in there, but I guess I was wrong. What a size <<pking "stranger">>."`
 				);
 			}
@@ -325,7 +325,9 @@ function masturbationAudienceLineText(npc, lineType = "") {
 			return resultArray.random();
 		case "anusEntrance":
 			resultArray.push(
-				`"I got a nice view of ${V.masturbationAudience > 1 ? "<<phim>>" : "you"} touching ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} ass."`,
+				`"I got a nice view of ${V.masturbationAudience > 1 ? "<<phim stranger>>" : "you"} touching ${
+					V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"
+				} ass."`,
 				`"I've never seen such a spankable ass."`,
 				`"C'mon, shove in some fingers already."`,
 				`"Show ${V.masturbationAudience > 1 ? "us" : "me"} how you play with your ass, slut."`
@@ -338,10 +340,10 @@ function masturbationAudienceLineText(npc, lineType = "") {
 			return [
 				`"That's it? C'mon, you can fit more than that."`,
 				`"Does playing with your ass feel that good? What a slut."`,
-				`"${V.masturbationAudience > 1 ? "<<pShe>>" : "You"} must have a lot of experience with that ass."`,
+				`"${V.masturbationAudience > 1 ? "<<pShe stranger>>" : "You"} must have a lot of experience with that ass."`,
 				`"If you need more than some fingers, I can help you."`,
-				`"Holy shit, ${V.masturbationAudience > 1 ? "<<pshe>>" : "you"} did manage to shove all ${
-					V.masturbationAudience > 1 ? "<<pher>>" : "your"
+				`"Holy shit, ${V.masturbationAudience > 1 ? "<<pshe stranger>>" : "you"} did manage to shove all ${
+					V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"
 				} fist inside. How much action has that ass seen?"`,
 			].random();
 		case "mouthBreast":
@@ -351,13 +353,13 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				`"Can I suck on those tits too?"`
 			);
 			if (V.lactating && V.settings.breastFeedingEnabled === true) {
-				resultArray.push(`"Look at how hard <<pshe>> is trying to milk <<pherself>>."`);
+				resultArray.push(`"Look at how hard <<pshe stranger>> is trying to milk <<pherself stranger>>."`);
 			}
 			return resultArray.random();
 		case "chest":
 			resultArray.push(
 				`"Squeeze those tits, slut."`,
-				`"Look at how hard ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} nipples are."`,
+				`"Look at how hard ${V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"} nipples are."`,
 				`"Flaunting your chest for all to see? You really are a pervert."`,
 				`"Can I rub those tits too?"`
 			);
@@ -376,7 +378,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				.concat(`<<ginsecurity "penis_small">>`);
 		case "penisSize2":
 			return [
-				`"${V.masturbationAudience > 1 ? "<<pShes>>" : "You're"} so tiny!"`,
+				`"${V.masturbationAudience > 1 ? "<<pShes stranger>>" : "You're"} so tiny!"`,
 				`"I can't believe it's so tiny!"`,
 				`"I've never seen such a pathetic penis."`,
 			]
@@ -384,30 +386,30 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				.concat(`<<ginsecurity "penis_small">>`);
 		case "penisSize3":
 			return [
-				`"${V.masturbationAudience > 1 ? "<<pShes>>" : "You're"} so small!"`,
+				`"${V.masturbationAudience > 1 ? "<<pShes stranger>>" : "You're"} so small!"`,
 				`"Such a small, cute penis."`,
-				`"I thought ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} penis would be bigger."`,
+				`"I thought ${V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"} penis would be bigger."`,
 			]
 				.random()
 				.concat('<<ginsecurity "penis_small">>');
 		case "penisSize4":
 			return [
-				`"I'd love a picture of ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} cute penis."`,
+				`"I'd love a picture of ${V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"} cute penis."`,
 				`"Don't be shy, everyone should know how beautiful your penis is."`,
 				`"If you don't want your penis photographed, you shouldn't act like a slut."`,
 			].random();
 		case "penisSize5":
 			return [
-				`"${V.masturbationAudience > 1 ? "<<pShes>>" : "You're"} bigger than I expected."`,
+				`"${V.masturbationAudience > 1 ? "<<pShes stranger>>" : "You're"} bigger than I expected."`,
 				`"Don't be shy, you should be proud of your penis."`,
-				`"${V.masturbationAudience > 1 ? "<<pHer>>" : "Your"} penis is the perfect size."`,
+				`"${V.masturbationAudience > 1 ? "<<pHer stranger>>" : "Your"} penis is the perfect size."`,
 			]
 				.random()
 				.concat(V.player.sex !== "m" ? `<<ginsecurity "penis_big">>` : "");
 		case "penisSize6":
 			return [
-				`"${V.masturbationAudience > 1 ? "<<pShes>>" : "You're"} huge!"`,
-				`"${V.masturbationAudience > 1 ? "<<pHer>>" : "Your"} penis is freakishly big."`,
+				`"${V.masturbationAudience > 1 ? "<<pShes stranger>>" : "You're"} huge!"`,
+				`"${V.masturbationAudience > 1 ? "<<pHer stranger>>" : "Your"} penis is freakishly big."`,
 				`"I've never seen such a huge cock."`,
 			]
 				.random()
@@ -423,7 +425,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				} else {
 					return [
 						`"Take your top off, I wanna see that fine chest."`,
-						`"I wish I could take a picture of what's under <<pher>> top."`,
+						`"I wish I could take a picture of what's under <<pher stranger>> top."`,
 						`"Even when you're clothed, I can tell you have a lovely chest."`,
 					].random();
 				}
@@ -431,14 +433,16 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				if (V.worn.upper.exposed >= 2) {
 					return [
 						`"Your flat chest looks delicious."`,
-						`"${V.masturbationAudience > 1 ? "<<pHer>>" : "Your"} chest is so flat, ${V.masturbationAudience > 1 ? "<<pshe>>" : "you"} could pass as a boy."`,
-						`"Should I take pictures of <<pher>> cute chest? It'll be useful later."`,
+						`"${V.masturbationAudience > 1 ? "<<pHer stranger>>" : "Your"} chest is so flat, ${
+							V.masturbationAudience > 1 ? "<<pshe stranger>>" : "you"
+						} could pass as a boy."`,
+						`"Should I take pictures of <<pher stranger>> cute chest? It'll be useful later."`,
 					]
 						.random()
 						.concat(`<<ginsecurity "breasts_small">>`);
 				} else {
 					return [
-						`"I can't wait to see under <<pher>> top."`,
+						`"I can't wait to see under <<pher stranger>> top."`,
 						`"Do other girls tease you for your flat chest?"`,
 						`"Don't worry, you're cute even without boobs."`,
 					]
@@ -459,14 +463,14 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				} else {
 					return [
 						`"Take your top off, I wanna see that fine chest."`,
-						`"I wish I could take a picture of what's under <<pher>> top."`,
+						`"I wish I could take a picture of what's under <<pher stranger>> top."`,
 						`"Even when you're clothed, I can tell you have a lovely chest."`,
 					].random();
 				}
 			} else {
 				if (V.worn.upper.exposed >= 2) {
 					return [
-						`"<<pHer>> tiny breasts are so cute."`,
+						`"<<pHer stranger>> tiny breasts are so cute."`,
 						`"Now however large your breasts grow, I'll have evidence of when they were small and cute."`,
 						`"Don't be ashamed of your small breasts, they're adorable."`,
 					]
@@ -474,9 +478,9 @@ function masturbationAudienceLineText(npc, lineType = "") {
 						.concat(`<<ginsecurity "breasts_small">>`);
 				} else {
 					return [
-						`"I can see the shape of <<pher>> tiny breasts beneath <<pher>> $worn.upper.name."`,
+						`"I can see the shape of <<pher stranger>> tiny breasts beneath <<pher stranger>> $worn.upper.name."`,
 						`"Take your top off, I want a clear view of your breasts."`,
-						`"I can't wait to see <<pher>> little breasts, I bet they're superb."`,
+						`"I can't wait to see <<pher stranger>> little breasts, I bet they're superb."`,
 					]
 						.random()
 						.concat(`<<ginsecurity "breasts_small">>`);
@@ -489,11 +493,11 @@ function masturbationAudienceLineText(npc, lineType = "") {
 					.concat(V.player.sex === "m" ? `<<ginsecurity "breasts_big">>` : "");
 			} else {
 				return [
-					`"Take ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} top off, I want a clear look at ${
-						V.masturbationAudience > 1 ? "<<pher>>" : "your"
+					`"Take ${V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"} top off, I want a clear look at ${
+						V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"
 					} breasts."`,
 					`"Don't be embarrassed, it's not like your breasts are exposed yet."`,
-					`"I can tell how lovely ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} breasts are, even when they're clothed."`,
+					`"I can tell how lovely ${V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"} breasts are, even when they're clothed."`,
 				]
 					.random()
 					.concat(V.player.sex === "m" ? `<<ginsecurity "breasts_big">>` : "");
@@ -501,7 +505,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 		case "breastSizeLarge":
 			if (V.worn.upper.exposed >= 2) {
 				return [
-					`"${V.masturbationAudience > 1 ? "<<pHer>>" : "Your"} breasts flop about so beautifully."`,
+					`"${V.masturbationAudience > 1 ? "<<pHer stranger>>" : "Your"} breasts flop about so beautifully."`,
 					`"Those are some impressive mammaries."`,
 					`"Don't be ashamed, you should be proud of such large breasts.`,
 				]
@@ -509,7 +513,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 					.concat(`<<ginsecurity "breasts_big">>`);
 			} else {
 				return [
-					`"Are ${V.masturbationAudience > 1 ? "<<pher>>" : "your"} breasts really as large as they seem? Only one way to find out."`,
+					`"Are ${V.masturbationAudience > 1 ? "<<pher stranger>>" : "your"} breasts really as large as they seem? Only one way to find out."`,
 					`"Take your top off. I want a look at your large breasts, so I can think about them later."`,
 					`"Breasts that large are lewd even under clothes."`,
 				]
