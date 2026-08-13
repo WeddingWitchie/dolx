@@ -1096,6 +1096,28 @@ function effects() {
 			delete V.school_herm_message;
 		}
 
+		// Set by hermRumourBodyCheck (xchange.js) when losing both sets of genitals drains the herm rumour.
+		if (V.school_herm_fade_message !== undefined) {
+			switch (V.school_herm_fade_message) {
+				case 0:
+					element("span", "Without both sets of parts to point at, the rumours about your genitalia die out at school.", "green");
+					break;
+				case 1:
+					element("span", "Your body no longer matches the rumours about your genitalia. Only a few cliques still repeat them.", "green");
+					break;
+				case 2:
+					element("span", "Your body no longer matches the rumours about your genitalia, and most of the school has stopped believing them.", "teal");
+					break;
+				case 3:
+					element("span", "Your body no longer matches the rumours about your genitalia, and the gossip at school has quieted.", "teal");
+					break;
+				case 4:
+					element("span", "Your body no longer matches the rumours about your genitalia, and some at school have stopped believing them.", "teal");
+					break;
+			}
+			delete V.school_herm_fade_message;
+		}
+
 		// expects the use of $orgasm_trait_message, $molest_trait_message, $rape_trait_message, $bestiality_trait_message, $tentacle_trait_message, $critter_magnet_trait_message, $vore_trait_message, $milk_trait_message and $cum_trait_message
 		[
 			["orgasm", "Hedonist", "Orgasm Addict"],

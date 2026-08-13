@@ -2064,3 +2064,67 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 		window.$(ensureGrayPharmacyItems);
 	}
 })();
+
+/* ============================================================
+   HERM SCHOOL RUMOUR DECAY ACROSS BODY CHANGES
+   ============================================================
+   $schoolrep.herm is the "student with both boy and girl parts" rumour (0-5). Vanilla never lowers it,
+   so a player who spent one afternoon herm kept a maxed rumour forever, and one who swapped bodies twice
+   a week kept collecting rumours nobody could ever confirm.
+
+   Losing the parts is what makes the rumour fade: once you no longer have both, the students who repeat it
+   can be proven wrong. How much survives depends on how well known your X-Change use already is. At low
+   X-Change fame nobody connects you to the pills, so the rumour dies outright. At high fame the town knows
+   your body changes, so a herm rumour keeps its weight even when your current body does not match it.
+
+   This is checked on the passage cycle rather than at the pill sites so every route into a body change is
+   covered: pills, the pill wearing off, restore-body, clones, the cheat menu and the slow identity shift. */
+(() => {
+	"use strict";
+
+	/**
+	 * Levels of herm rumour lost when the player stops having both sets of genitals.
+	 * A returned level of 5 wipes the rumour outright (the bar caps at 5).
+	 */
+	function hermRumourDecayLevels() {
+		const fame = Number(V.xchange_fame) || 0;
+		if (fame < 101) return 5;
+		if (fame < 201) return 3;
+		if (fame < 301) return 2;
+		if (fame < 500) return 1;
+		return 0;
+	}
+
+	function playerBodyIsHerm() {
+		return !!(V.player && V.player.penisExist && V.player.vaginaExist);
+	}
+
+	function hermRumourBodyCheck() {
+		if (!V.schoolrep || V.statFreeze) return;
+
+		const isHerm = playerBodyIsHerm();
+		const wasHerm = V.schoolrep.hermBody;
+		if (wasHerm === isHerm) return;
+
+		V.schoolrep.hermBody = isHerm;
+
+		// A save from before this check has no baseline. Record one instead of pretending the body just changed.
+		if (wasHerm === undefined) return;
+		// Gaining the parts back never costs rumour.
+		if (isHerm) return;
+		if (!(V.schoolrep.herm > 0)) return;
+
+		const levels = hermRumourDecayLevels();
+		if (levels < 1) return;
+
+		V.schoolrep.herm = Math.max(0, V.schoolrep.herm - levels);
+
+		// Read by the effects panel (effect.js), which prints how much of the rumour survived.
+		V.school_herm_fade_message = V.schoolrep.herm;
+		V.effectsmessage = 1;
+	}
+
+	if (typeof window !== "undefined" && typeof window.$ === "function") {
+		window.$(document).on(":passagestart", hermRumourBodyCheck);
+	}
+})();
