@@ -111,6 +111,14 @@ setup.feats = {
 		filter: ["All", "General"],
 		softLockable: true,
 	},
+	"Being Nonbinary": {
+		title: "Being Nonbinary",
+		desc: "Get to day 50 as an enby.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "General"],
+		softLockable: true,
+	},
 	"Being an Orphan": {
 		title: "Being an Orphan",
 		desc: "Get to day 150.",
@@ -3168,6 +3176,9 @@ function earnHourlyFeats() {
 					break;
 			}
 		}
+
+		// Identity, not body: the enby feat is about how the PC feels, so it can stack with any of the body feats above.
+		if (typeof window.playerFeltGender === "function" && window.playerFeltGender() === "n") earnFeat("Being Nonbinary");
 
 		if (Time.days >= 150) earnFeat("Being an Orphan");
 
