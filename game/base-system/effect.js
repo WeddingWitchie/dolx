@@ -2130,6 +2130,25 @@ function effects() {
 					);
 					br();
 					break;
+				case "autismHyperfixation": {
+					/* The trait can be switched off between the message being queued and this running. */
+					if (!playerHasAutismSpectrum()) break;
+					const state = ensureAutismSpectrumState();
+					if (state.phaseChanged) {
+						element(
+							"span",
+							autismSpectrumPhase() === "gifted"
+								? "Your burnout lifts. You feel gifted and eager to learn again."
+								: "Your intense pace catches up with you. Gifted gives way to burnout.",
+							autismSpectrumPhase() === "gifted" ? "green" : "red"
+						);
+						br();
+					}
+					element("span", `Today, your thoughts keep circling back to ${autismHyperfixationName()}.`, "gold");
+					br();
+					state.phaseChanged = false;
+					break;
+				}
 				default:
 					// Report error
 					errors.pushUnique(messageKey);

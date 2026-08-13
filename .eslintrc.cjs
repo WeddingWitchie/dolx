@@ -376,6 +376,18 @@ module.exports = {
 		chestIdentityAccepted: "readonly",
 		penisIdentityAccepted: "readonly",
 		pregnancyIdentityAccepted: "readonly",
+		// Autism Spectrum trait
+		playerHasAutismSpectrum: "readonly",
+		ensureAutismSpectrumState: "readonly",
+		initAutismSpectrumState: "readonly",
+		autismSpectrumPhase: "readonly",
+		autismSpectrumDaysRemaining: "readonly",
+		autismSpectrumDailyUpdate: "readonly",
+		autismHyperfixationName: "readonly",
+		autismStatGainMultiplier: "readonly",
+		autismTrainingTimePassed: "readonly",
+		autismDiscomfortStress: "readonly",
+		autismRelationshipDisplayPercent: "readonly",
 		// Third-party
 		define: "readonly",
 		iro: "readonly",

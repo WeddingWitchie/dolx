@@ -207,6 +207,7 @@ const Time = (() => {
 		} finally {
 			// finally, set the time where it should be
 			setDate(new DateTime(prevDate.timeStamp + seconds));
+			if (typeof autismTrainingTimePassed === "function") autismTrainingTimePassed(minutes);
 		}
 
 		// Weather changes continuously between generated keypoints, not only when the daily weather update fires
@@ -1238,6 +1239,7 @@ function dayPassed(days) {
 
 		/* Always runs, even if the block above fails, so daily flags still reset properly. */
 		V.daily.clearProperties();
+		if (typeof autismSpectrumDailyUpdate === "function") autismSpectrumDailyUpdate();
 
 		try {
 			speechDailyCheck();
@@ -1496,6 +1498,7 @@ function minutePassed(minutes) {
 	if (!V.possessed) Weather.BodyTemperature.update(temperature, minutes);
 	if (V.timeSkip === undefined) {
 		V.stress += Math.round(Weather.BodyTemperature.stressModifier * minutes);
+		if (typeof autismDiscomfortStress === "function") autismDiscomfortStress(minutes);
 		statChange.stressClamp();
 	}
 

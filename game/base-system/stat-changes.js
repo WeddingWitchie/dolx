@@ -1063,6 +1063,7 @@ const statChange = (() => {
 		if (amount > 0 && Transformations.partActive("traits", "ironWill")) {
 			amount *= V.backgroundTraits.includes("insanity") && !V.hypnosis_traits?.clarity ? 1.45 : 1.35;
 		}
+		if (amount > 0 && typeof autismStatGainMultiplier === "function") amount *= autismStatGainMultiplier("willpower", amount);
 
 		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1) amount = Number(amount) / V.AMCTraits.willpower;
 		else amount = Number(amount);
@@ -1181,6 +1182,7 @@ const statChange = (() => {
 		}
 		if (type === "penileskill" && !(V.player.penisExist || playerHasStrapon())) return;
 		amount = Number(amount);
+		if (amount > 0 && typeof autismStatGainMultiplier === "function") amount *= autismStatGainMultiplier(type, amount);
 
 		/* Background trait bonuses */
 		if (

@@ -1025,10 +1025,11 @@
 
 <<widget "combatskulduggeryskilluse">>
 	<<if $statFreeze isnot true>>
+		<<set _autismMod to autismStatGainMultiplier("skulduggery", 3)>>
 		<<if $skulduggery gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $skulduggery += 3 / $AMCTraits.skulduggery * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
+			<<set $skulduggery += 3 / $AMCTraits.skulduggery * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<<else>>
-			<<set $skulduggery += 3 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
+			<<set $skulduggery += 3 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<</if>>
 		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
 		<<if $skulduggery lt 1000 * $AMCTraits.skulduggery>>
@@ -1046,6 +1047,7 @@
 		<<if $backgroundTraits.includesAny("nerd", "insanity")>>
 			<<set _mod *= 0.25>>
 		<</if>>
+		<<set _mod *= autismStatGainMultiplier("swimming", 9, "training")>>
 		<<if $swimmingskill gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $swimmingskill += 9 / $AMCTraits.swimming * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _mod>>
 		<<else>>
@@ -1069,6 +1071,7 @@
 	<<if $statFreeze isnot true>>
 		<<set $_subject to _args[0]>>
 		<<set $_gain to _args[1] || 1>>
+		<<set $_gain *= autismStatGainMultiplier($_subject, $_gain, _args[2] is "no_star" ? "schoolPassive" : "school")>>
 
 		<<set _bgMod to 1>>
 		<<if $backgroundTraits.includes("athlete")>>
@@ -1256,6 +1259,8 @@
 	<<if $backgroundTraits.includesAny("nerd", "insanity")>>
 		<<set _temp *= 0.75>>
 	<</if>>
+	/* Passive: athletics ticks up from ordinary travel, so it must not feed focus fatigue. */
+	<<set _temp *= autismStatGainMultiplier("athletics", _temp)>>
 
 	<<for _slot range ["upper", "lower", "feet", "legs"]>>
 		<<if $worn[_slot].type.includes("athletic")>>
@@ -1281,6 +1286,7 @@
 		<<if $backgroundTraits.includes("dendrophile")>>
 			<<set _bgMod *= 2>>
 		<</if>>
+		<<set _bgMod *= autismStatGainMultiplier("tending", _args[0], "training")>>
 		<<if $tending gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $tending += (_args[0] * 2 / $AMCTraits.tending * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _bgMod>>
 		<<else>>
@@ -1293,19 +1299,21 @@
 <<widget "housekeeping">>
 <<if _args[1]>>
 	<<if _args[0] and $statFreeze isnot true and ($housekeeping lt _args[1] or _args[1] gte 1000 or $easyHousekeeping gte 1)>>
+		<<set _autismMod to autismStatGainMultiplier("housekeeping", _args[0], "training")>>
 		<<if $housekeeping gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)))>>
+			<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<<else>>
-			<<set $housekeeping += (_args[0] * 2 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)))>>
+			<<set $housekeeping += (_args[0] * 2 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<</if>>
 		<<set $housekeeping to Math.clamp($housekeeping, 0, 1000 * $AMCTraits.housekeeping)>>
 	<</if>>
 <<else>>
 	<<if _args[0] and $statFreeze isnot true>>
+		<<set _autismMod to autismStatGainMultiplier("housekeeping", _args[0], "training")>>
 		<<if $housekeeping gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)))>>
+			<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<<else>>
-			<<set $housekeeping += (_args[0] * 2 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)))>>
+			<<set $housekeeping += (_args[0] * 2 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<</if>>
 		<<set $housekeeping to Math.clamp($housekeeping, 0, 1000 * $AMCTraits.housekeeping)>>
 	<</if>>
@@ -1321,10 +1329,13 @@
 		<<if $backgroundTraits.includesAny("nerd", "insanity")>>
 			<<set _bgMod *= 0.75>>
 		<</if>>
+		/* _bgMod above is vanilla dead code: the gain lines below never applied it. Left as-is rather than
+		   silently rebalancing athlete/nerd dancing, so the autism modifier is applied on its own. */
+		<<set _autismMod to autismStatGainMultiplier("dancing", _args[0], "training")>>
 		<<if $danceskill gt 1000 or $AMCTraits.halfGain is 1>>
-			<<set $danceskill += _args[0] / $AMCTraits.dancing * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
+			<<set $danceskill += _args[0] / $AMCTraits.dancing * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<<else>>
-			<<set $danceskill += _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
+			<<set $danceskill += _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<</if>>
 		<<set $danceskill to Math.clamp($danceskill, 0, 1000 * $AMCTraits.dancing)>>
 	<</if>>
@@ -1348,6 +1359,8 @@
 	<<if $backgroundTraits.includesAny("nerd", "insanity")>>
 		<<set _temp *= 0.25>>
 	<</if>>
+	/* Passive: physique ticks up from ordinary travel, so it must not feed focus fatigue. */
+	<<set _temp *= autismStatGainMultiplier("physique", _temp)>>
 	<<if $xchange.baseStats.physique gt $xchange.baseStats.physiquesize>>
 		<<set $xchange.baseStats.physique += ($xchange.baseStats.physiquesize / 1200) * _temp / $AMCTraits.physique>>
 	<<else>>
@@ -1374,6 +1387,7 @@
 
 <<widget "footwork">>
 	<<if _args[0] and $statFreeze isnot true>>
+		<<set _args[0] *= autismStatGainMultiplier("footwork", _args[0])>>
 		<<if $backgroundTraits.includes("delinquent")>>
 			<<set _args[0] *= 1.25>>
 		<</if>>
@@ -1391,6 +1405,7 @@
 
 <<widget "striking">>
 	<<if _args[0] and $statFreeze isnot true>>
+		<<set _args[0] *= autismStatGainMultiplier("striking", _args[0])>>
 		<<if $backgroundTraits.includes("delinquent")>>
 			<<set _args[0] *= 1.25>>
 		<</if>>
@@ -1408,6 +1423,7 @@
 
 <<widget "kicking">>
 	<<if _args[0] and $statFreeze isnot true>>
+		<<set _args[0] *= autismStatGainMultiplier("kicking", _args[0])>>
 		<<if $backgroundTraits.includes("delinquent")>>
 			<<set _args[0] *= 1.25>>
 		<</if>>
@@ -4193,8 +4209,11 @@
 		<<set $_min to _config.minValue || 0>>
 		<<set $_max to _config.maxValue || 100>>
 		<<set _config.progress = Math.clamp(Math.round(100*((_config.value - $_min) / ($_max - $_min))), 0, 100)>>
+		/* Autism Spectrum reads the number a few points off. The bar has to follow it, or the bar just
+		   gives the true value away. */
+		<<set _displayProgress = autismRelationshipDisplayPercent(_config.progress, (_npcData?.nam || "") + ":" + _config.name)>>
 	<</silently>>
-	<div class="relation-stat-block" @style="'--progress: ' + _config.progress + '%;'">
+	<div class="relation-stat-block" @style="'--progress: ' + _displayProgress + '%;'">
 		<<if _important>>
 			<label>_config.name</label>
 		<</if>>
@@ -4213,11 +4232,11 @@
 						<img class="inactive-icon-img outlined" @src="_config.activeIcon">
 					<</if>>
 				</span>
-				<span class="relation-stat-percent black">_config.progress<small>%</small></span>
+				<span class="relation-stat-percent black">_displayProgress<small>%</small></span>
 			</div>
 		<<else>>
 			<<if _important>>
-				<span class="relation-stat-percent black">&nbsp;_config.progress<small>%</small></span>
+				<span class="relation-stat-percent black">&nbsp;_displayProgress<small>%</small></span>
 				<div @class="'progress-bar ' + _config.color + 'bar'"></div>
 			<</if>>
 		<</if>>
