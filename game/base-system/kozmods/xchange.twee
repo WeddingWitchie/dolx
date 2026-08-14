@@ -299,6 +299,7 @@
 			<<run setup.xchangeRestoreEarParasites(_xchangeEarKeep)>>
 		<</if>>
 
+		<<if !_xchangeLoadedBody and $tempSavedHairStyles>><<saveTempHairStyle>><</if>>
 		<<run updatePhysique()>>
 		<<updatesidebarimg>>
 	<</widget>>
@@ -578,6 +579,7 @@
 			<<run setup.xchangeRestoreEarParasites(_xchangeEarKeep)>>
 		<</if>>
 
+		<<if !_xchangeLoadedBody and $tempSavedHairStyles>><<saveTempHairStyle>><</if>>
 		<<run updatePhysique()>>
 		<<updatesidebarimg>>
 	<</widget>>
@@ -700,6 +702,7 @@
 		<</if>>
 		<<set $beauty += 10000>>
 		<<clamp>>
+		<<if !_xchangeLoadedBody and $tempSavedHairStyles>><<saveTempHairStyle>><</if>>
 		<<run updatePhysique()>>
 	<</widget>>
 
@@ -839,6 +842,8 @@
 			naturalhaircolour: $naturalhaircolour,
 			hairtype: $hairtype,
 			hairlength: $hairlength,
+			hairposition: $hairposition,
+			ruffledisable: $ruffledisable,
 			hairfringecolour: $hairfringecolour,
 			hairFringeColourGradient: $hairFringeColourGradient,
 			hairFringeColourStyle: $hairFringeColourStyle,
@@ -972,12 +977,17 @@
 		<<set $hairColourStyle to _body.hairColourStyle>>
 		<<set $naturalhaircolour to _body.naturalhaircolour>>
 		<<set $hairtype to _body.hairtype>>
+		<<if _body.hairposition isnot undefined>><<set $hairposition to _body.hairposition>><</if>>
+		<<if _body.ruffledisable isnot undefined>><<set $ruffledisable to _body.ruffledisable>><</if>>
 		<<set $hairfringecolour to _body.hairfringecolour>>
 		<<set $hairFringeColourGradient to _body.hairFringeColourGradient>>
 		<<set $hairFringeColourStyle to _body.hairFringeColourStyle>>
 		<<set $fringetype to _body.fringetype>>
 		<<set $hairlength to _body.hairlength>>
 		<<set $fringelength to _body.fringelength>>
+		/* If the body changes while sleeping, replace the before-bed hair snapshot as well. Otherwise
+		   climbing out of bed can put the outgoing X-Changed body's style back onto the restored body. */
+		<<if $tempSavedHairStyles>><<saveTempHairStyle>><</if>>
 		<<set $player.skin.color to _body.skinColor>>
 
 		/* DHM ("dye HARDER" mod) state restore */
@@ -1006,21 +1016,6 @@
 		<<set $penisgrowthtimer to _body.penisgrowthtimer>>
 		<<set $bottomgrowthtimer to _body.bottomgrowthtimer>>
 		<<set $breastgrowthtimer to _body.breastgrowthtimer>>
-
-		<<if _body.sex isnot undefined>><<set $player.sex to _body.sex>><</if>>
-		<<if _body.penisExist isnot undefined>>
-			<<set $player.penisExist to _body.penisExist>>
-		<</if>>
-		<<if _body.ballsExist isnot undefined>>
-			<<set $player.ballsExist to _body.ballsExist>>
-		<</if>>
-		<<if _body.vaginaExist isnot undefined>>
-			<<set $player.vaginaExist to _body.vaginaExist>>
-		<</if>>
-		<<if _body.penisuse isnot undefined>><<set $penisuse to _body.penisuse>><</if>>
-		<<if _body.penisstate isnot undefined>><<set $penisstate to _body.penisstate>><</if>>
-		<<if _body.vaginause isnot undefined>><<set $vaginause to _body.vaginause>><</if>>
-		<<if _body.vaginastate isnot undefined>><<set $vaginastate to _body.vaginastate>><</if>>
 
 		/* Wild parasites are body-scoped; ear slime (both $earSlime state and its ear slots) is global and rides along with the player.
 		   Capture the current ear slots before the whole-object replacement below wipes them, then re-apply. $earSlime is left untouched. */
