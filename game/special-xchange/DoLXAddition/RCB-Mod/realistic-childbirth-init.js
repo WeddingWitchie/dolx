@@ -228,6 +228,12 @@
 		["The contractions ease for a moment while your body gathers itself."],
 		["The contractions stop."],
 	];
+	const RCB_GENERIC_BOUND = [
+		"Your right arm jerks against its bonds as someone releases you from them.",
+		"Your right arm is released from a painful bind.",
+		"Your right arm lies limp as the bonds are removed.",
+		"Your right arm is freed from its bonds.",
+	];
 
 	/* Backfill any RCB_LOCATIONS x RCB_TYPES combination the authored data doesn't cover */
 	setup.rcbNormalizeBirthPrompts = function rcbNormalizeBirthPrompts() {
@@ -249,6 +255,11 @@
 		if (!isObject(prompts.contractions)) prompts.contractions = {};
 		RCB_TYPES.forEach(type => {
 			if (!Array.isArray(prompts.contractions[type])) prompts.contractions[type] = RCB_GENERIC_CONTRACTIONS;
+		});
+
+		if (!isObject(prompts.bound)) prompts.bound = {};
+		RCB_LOCATIONS.forEach(location => {
+			if (!Array.isArray(prompts.bound[location])) prompts.bound[location] = RCB_GENERIC_BOUND;
 		});
 	};
 

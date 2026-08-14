@@ -816,7 +816,7 @@
 	<<if $pleasure gte $pleasuremax and $orgasmdown lte 0 and $birth.stage gte 7>>
 		<<orgasm>>
 		<<if !_tagsToUpdate.includes("orgasm")>><<set _tagsToUpdate.push("orgasm")>><</if>>
-	<<elseif ($birth.filters.dynamic["orgasm"] isnot undefined) and ($birth.filters.dynamic["orgasm"] is 0) and $orgasmdown lte 0>>
+	<<elseif ($birth.filters.dynamic["Orgasm"] is 1) and $orgasmdown lte 0>>
 		<<if !_tagsToUpdate.includes("orgasm")>><<set _tagsToUpdate.push("orgasm")>><</if>>
 	<</if>>
 <</widget>>
@@ -953,6 +953,10 @@
 	<<set _totalWaveCountAtStart to $birth.totalWaveCount>>
 	<<set _stageWaveCountAtStart to $birth.stageWaveCount>>
 	<<if $birth.filters isnot undefined and $birth.filters.dynamic isnot undefined>>
+		<<set _birthArousalPercent to Math.floor((Number($arousal) || 0) * 100 / (Number($arousalmax) || 10000))>>
+		<<if $birth.filters.dynamic["Arousal"] isnot _birthArousalPercent>>
+			<<if !_tagsToUpdate.includes("arousal")>><<set _tagsToUpdate.push("arousal")>><</if>>
+		<</if>>
 		<<if $birth.filters.dynamic["PushUrge"] is undefined>>
 			<<if !_tagsToUpdate.includes("PushUrge")>><<set _tagsToUpdate.push("PushUrge")>><</if>>
 		<</if>>
@@ -1667,6 +1671,8 @@
 		<<set _triggeringTagNames to Object.keys(_playline[0][2])>>
 		<<if _triggeringTagNames.length gt 0>>
 			<<for _l = 0 ; _l < _triggeringTagNames.length ; _l++>>
+				<!-- Keep trigger state in the existing dynamic filter map so authored negative guards prevent setup lines from repeating. -->
+				<<set $birth.filters.dynamic[_triggeringTagNames[_l]] to _playline[0][2][_triggeringTagNames[_l]]>>
 				<<applyDialogFilters "randomPool" "randomQueue" "triggerrandom" _triggeringTagNames[_l] _playline[0][2][_triggeringTagNames[_l]]>>
 				<<applyDialogFilters "forcedPool" "forcedQueue" "triggerforced" _triggeringTagNames[_l] _playline[0][2][_triggeringTagNames[_l]]>>
 			<</for>>
@@ -1934,6 +1940,7 @@
 			<<set $birth.filters.dynamic["PainMax"] to ($pain gte $painmax ? 1 : 0)>>
 			<<set $birth.filters.dynamic["FatigueMax"] to ($tiredness gte $tirednessmax ? 1 : 0)>>
 			<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
+			<<set $birth.filters.dynamic["Arousal"] to Math.floor((Number($arousal) || 0) * 100 / (Number($arousalmax) || 10000))>>
 			<<set $birth.filters.dynamic["Orgasm"] to $orgasmdown gt 0 ? 1 : 0>>
 			<<set $birth.filters.dynamic["FetusDelivered"] to 0>>
 			<<set $birth.filters.dynamic["Stage"] to 1>>
@@ -2003,7 +2010,7 @@
 								<</switch>>
 								<<for _k = 0 ; _k < $parentList.fathers.length ; _k++>>
 									<<if ($parentList.fathers[_k].name isnot undefined) and $parentList.fathers[_k].name is $birth.partner>>
-										<<set $birth.filters.dynamic["PartnerParenthood"] += $parentList.fathers[_k].kids>>
+										<<set $birth.filters.dynamic["PartnerParenthood"] to $parentList.fathers[_k].kids>>
 										<<set _k to 999>>
 									<</if>>
 								<</for>>
@@ -2020,21 +2027,23 @@
 				<<case "pain">>
 					<<if $pain gte $painmax>>
 						<<set $birth.filters.dynamic["PainMax"] to 1>>
-						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
 					<<else>>
 						<<set $birth.filters.dynamic["PainMax"] to 0>>
-						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
 					<</if>>
 				<<case "fatigue">>
 					<<if $tiredness gte $tirednessmax>>
 						<<set $birth.filters.dynamic["FatigueMax"] to 1>>
-						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
 					<<else>>
 						<<set $birth.filters.dynamic["FatigueMax"] to 0>>
-						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+						<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
 					<</if>>
 				<<case "stress">>
-					<<set $birth.filters.dynamic["Stress"] to Math.floor($stress*10/$stressmax)>>
+					<<set $birth.filters.dynamic["Stress"] to Math.floor($stress * 100 / $stressmax)>>
+				<<case "arousal">>
+					<<set $birth.filters.dynamic["Arousal"] to Math.floor((Number($arousal) || 0) * 100 / (Number($arousalmax) || 10000))>>
 				<<case "orgasm">>
 					<<if $orgasmdown gt 0>>
 						<<set $birth.filters.dynamic["Orgasm"] to 1>>
