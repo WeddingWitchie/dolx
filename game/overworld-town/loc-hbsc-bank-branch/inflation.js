@@ -31,6 +31,7 @@
 
 	setup.inflation.PRESETS = {
 		light: {
+			inflationBlackmailRewardPct: 100,
 			inflationOnsetPct: 11,
 			inflationBadPct: 28,
 			inflationCrisisPct: 56,
@@ -47,6 +48,7 @@
 			inflationLoanRentSurcharge: 50000,
 		},
 		mid: {
+			inflationBlackmailRewardPct: 100,
 			inflationOnsetPct: 11,
 			inflationBadPct: 30,
 			inflationCrisisPct: 56,
@@ -63,6 +65,7 @@
 			inflationLoanRentSurcharge: 100000,
 		},
 		current: {
+			inflationBlackmailRewardPct: 100,
 			inflationOnsetPct: 11,
 			inflationBadPct: 35,
 			inflationCrisisPct: 75,
@@ -79,6 +82,7 @@
 			inflationLoanRentSurcharge: 150000,
 		},
 		hard: {
+			inflationBlackmailRewardPct: 75,
 			inflationOnsetPct: 20,
 			inflationBadPct: 70,
 			inflationCrisisPct: 150,
@@ -95,6 +99,7 @@
 			inflationLoanRentSurcharge: 300000,
 		},
 		harsher: {
+			inflationBlackmailRewardPct: 50,
 			inflationOnsetPct: 30,
 			inflationBadPct: 100,
 			inflationCrisisPct: 200,
@@ -113,6 +118,7 @@
 	};
 
 	setup.inflation.SETTING_RANGES = {
+		inflationBlackmailRewardPct: { min: 0, max: 100, step: 5 },
 		inflationOnsetPct: { min: 11, max: 30, step: 1 },
 		inflationBadPct: { min: 28, max: 100, step: 1 },
 		inflationCrisisPct: { min: 56, max: 200, step: 1 },
