@@ -467,9 +467,24 @@ function playerEndWaterProgress() {
 	// Intended to end a hawk pregnancy in a different way
 	if (pregnancy.type === "hawk") return false;
 
-	// A scene is either an active encounter or any NPC currently loaded in slot 0, water should not break mid-scene.
-	// $enemyno is the live encounter count (reset by <<endevent>>), but <<npc X>> deliberately leaves it untouched, so a plain conversation scene needs the slot 0 check too.
-	// Optional chaining because slot 0 can be a genuine gap; vanilla's bare .type throws there.
+	const pregnancyIsDue =
+		pregnancy.timer !== null &&
+		pregnancy.timer !== undefined &&
+		pregnancy.timerEnd !== null &&
+		pregnancy.timerEnd !== undefined &&
+		Number.isFinite(Number(pregnancy.timer)) &&
+		Number.isFinite(Number(pregnancy.timerEnd)) &&
+		Number(pregnancy.timer) >= Number(pregnancy.timerEnd);
+
+	// Old saves may have a due pregnancy with no valid water-breaking timer.
+	// Restart the timer for that pregnancy so labour can begin normally without removing either pregnancy.
+	if (pregnancyIsDue && !pregnancy.waterBreaking && (pregnancy.waterBreakingTimer === undefined || isNaN(pregnancy.waterBreakingTimer))) {
+		pregnancy.waterBreakingTimer = 1;
+	}
+
+	// Keep water unchanged during encounters or NPC conversations.
+	// $enemyno checks active encounters; slot 0 also catches normal NPC scenes.
+	// Optional chaining avoids errors when slot 0 is empty.
 	const playerInScene = V.enemyno > 0 || V.possessed || !!V.NPCList[0]?.type;
 
 	if (
