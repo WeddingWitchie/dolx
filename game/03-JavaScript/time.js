@@ -1640,7 +1640,9 @@ function minutePassed(minutes) {
 	// Arousal
 	const risk = playerPregnancyRisk();
 	const underBreedingEffect =
-		playerIsXChanged() && (!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
+		!V.statFreeze &&
+		playerIsXChanged() &&
+		(!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
 	// The PC gradually gets used to being locked up. Chastity can keep them needy, but passive pressure alone cannot leave them overwhelmed.
 	V.chastityAcclimation = Number.isFinite(V.chastityAcclimation) ? V.chastityAcclimation : 0;
 	// Ten days of it stops feeling new. Mark that permanently instead of leaving it as an invisible number the player can't act on.

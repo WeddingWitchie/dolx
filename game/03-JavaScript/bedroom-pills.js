@@ -737,6 +737,8 @@ function generateHomePillsInventory() {
 	$(function () {
 		T.disableGridClick = false;
 		for (const item of setup.pills) {
+			/* X-Change inventory belongs to the real player, not temporary historical/dream bodies. */
+			if (item.type === "xchange" && V.statFreeze) continue;
 			if (item.display_condition() === 1) window.addElementToGrid(item);
 		}
 	});

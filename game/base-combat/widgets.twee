@@ -194,7 +194,7 @@
 					<<set $player.virginity[_args[1]] to false>>
 				<</if>>
 				<!-- virgin purity loss -->
-				<<set _tempXChangedPurity to (typeof playerIsXChanged === "function" and typeof pillIsPermanent === "function") and (playerIsXChanged() and !pillIsPermanent())>>
+				<<set _tempXChangedPurity to !$statFreeze and (typeof playerIsXChanged === "function" and typeof pillIsPermanent === "function") and (playerIsXChanged() and !pillIsPermanent())>>
 				<<if !_tempXChangedPurity>>
 					<<switch _args[1]>>
 						<<case "vaginal" "penile">>
@@ -213,7 +213,7 @@
 			<</if>>
 			<<set _trueBodyOK to true>>
 			<<run _trueBodyOK = (typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function")
-				? (!playerIsXChanged() || pillIsPermanent())
+				? (V.statFreeze || !playerIsXChanged() || pillIsPermanent())
 				: true; >>
 			<<if ($player.virginity.temple is true or $player.virginity.temple is 1)
 				and (_args[1] is "vaginal" or _args[1] is "penile")
@@ -222,7 +222,7 @@
 				<<set $virginityProtected to false>>
 				<<set $player.virginity.temple to $_taker>>
 			<</if>>
-			<<run if (typeof setup !== "undefined" && typeof setup.xChangeRecordActiveBodyVirginity === "function") setup.xChangeRecordActiveBodyVirginity()>>
+			<<run if (!V.statFreeze && typeof setup !== "undefined" && typeof setup.xChangeRecordActiveBodyVirginity === "function") setup.xChangeRecordActiveBodyVirginity()>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -255,7 +255,7 @@
 		<<else>>
 			<<set _trueBodyOK to true>>
 			<<run _trueBodyOK = (typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function")
-				? (!playerIsXChanged() || pillIsPermanent())
+				? (V.statFreeze || !playerIsXChanged() || pillIsPermanent())
 				: true; >>
 			<<set _templeLostThisTurn to (_args[1] is "vaginal" and _vaginalLostThisTurn)>>
 			<<if _templeLostThisTurn and $player.virginity.temple and $player.virginity.temple isnot true and $player.virginity.temple isnot 1 and $templePromised isnot _args[0] and _args[0] isnot undefined and _args[0] isnot 0 and _trueBodyOK>>

@@ -39,7 +39,7 @@ function canImpregnateParasite(genital = "anus") {
 window.canImpregnateParasite = canImpregnateParasite;
 
 function canBeMPregnant() {
-	const omegaMpreg = !!(V.xchange?.pill?.active && V.xchange.pill.omegaEffect);
+	const omegaMpreg = !!(!V.statFreeze && V.xchange?.pill?.active && V.xchange.pill.omegaEffect);
 	return (
 		omegaMpreg ||
 		(!V.player.vaginaExist &&

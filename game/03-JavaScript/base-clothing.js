@@ -255,7 +255,7 @@ window.templeChastityUnderlyingRefusalReason = templeChastityUnderlyingRefusalRe
 
 // Same as templeChastityUnderlyingRefusalReason, but an X-Changed face doesn't register as that monk/priest unless fame's made the new look just as recognisable.
 function templeChastityRefusalReason() {
-	if (playerIsXChanged() && V.xchange_fame < 700) return null;
+	if (!V.statFreeze && playerIsXChanged() && V.xchange_fame < 700) return null;
 	return templeChastityUnderlyingRefusalReason();
 }
 window.templeChastityRefusalReason = templeChastityRefusalReason;

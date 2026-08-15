@@ -244,7 +244,7 @@ function genderappearancecheck() {
 	const actingMultiplier = V.englishtrait + 1;
 	addfemininityfromfactor(T.femininity_multiplier * 100 * actingMultiplier, "Posture (x" + actingMultiplier + " effectiveness due to English skill)");
 	/* Sexswap fame */
-	if (playerIsXChanged() && V.xchange_fame >= 2) {
+	if (!V.statFreeze && playerIsXChanged() && V.xchange_fame >= 2) {
 		if (V.player.sex === "m") {
 			addfemininityfromfactor(V.xchange_fame / 2, "Sex flipped");
 		} else {

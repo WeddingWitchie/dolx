@@ -77,6 +77,7 @@ window.spermObjectToArray = spermObjectToArray;
 
 /* V.pregnancytype === "fetish" uses this function */
 function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null, spermType = null, rngModifier = 100, quantity = 1, forcePregnancy = false }) {
+	const xchangeActive = playerIsXChanged() && !V.statFreeze;
 	if (!target || !spermOwner || !spermType) return null;
 	if (["realistic", "fetish"].includes(V.settings.pregnancyType) && !["anus", "vagina"].includes(genital)) return null;
 	if (V.settings.pregnancyType === "silly" && !["hand", "kiss"].includes(genital)) return null;
@@ -132,7 +133,7 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 		// For the anal roll, an Omega body qualifies via canBeMPregnant, since pill.fertile is forced off on a vagina-less body.
 		const xchangeRealBreederPregnancy =
 			target === "pc" &&
-			playerIsXChanged() &&
+			xchangeActive &&
 			V.xchange.pill?.breederEffect &&
 			!xchangeFakeBreeder &&
 			(genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill?.fertile);
@@ -142,8 +143,8 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 		const xchangeFullPotency =
 			xchangeRealBreederPregnancy ||
 			(target === "pc" && xchangeHyperFertile) ||
-			(playerIsXChanged() && (V.xchange.pill.bullEffect || (xchangeHyperFertile && spermOwner === "pc")) && target !== "pc");
-		if (playerIsXChanged()) chance *= V.xchange.pregnancyMultPercent / 100;
+			(xchangeActive && (V.xchange.pill.bullEffect || (xchangeHyperFertile && spermOwner === "pc")) && target !== "pc");
+		if (xchangeActive) chance *= V.xchange.pregnancyMultPercent / 100;
 		if (xchangeFullPotency) {
 			// Bypass the cycle/non-cycle timing throttle (multi) as well as boosting the base chance, otherwise a PC-sired NPC pregnancy stays crushed to near-zero by the NPC's cycle multiplier while the player conceives reliably.
 			multi = Math.max(multi, 1);
@@ -179,6 +180,7 @@ function fetishPregnancy({ genital = "vagina", target = null, spermOwner = null,
 /* V.pregnancytype === "realistic" uses this function */
 function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	const pregnancy = V.sexStats[genital].pregnancy;
+	const xchangeActive = playerIsXChanged() && !V.statFreeze;
 
 	// Fake Breeder removes vaginal Breeder fertility only; an Omega effect on the same pill still owns its anal route.
 	const xchangeFakeBreeder = typeof xchangeFakeBreederInfertile === "function" && xchangeFakeBreederInfertile();
@@ -210,11 +212,12 @@ function playerPregnancyAttempt(baseMulti = 1, genital = "vagina") {
 	// The breeder pregnancy boost only applies to a "real" breeder (breeder effect + fertility); a Fake Breeder is treated like a normal X-Changed body.
 	// For the anal roll, an Omega body qualifies via canBeMPregnant, since pill.fertile is forced off on a vagina-less body.
 	const xchangeBreederFertile =
+		xchangeActive &&
 		V.xchange.pill.breederEffect &&
 		!xchangeFakeBreeder &&
 		(genital === "anus" ? typeof canBeMPregnant === "function" && canBeMPregnant() : V.xchange.pill.fertile);
 	const xchangePregnancyModifier =
-		playerIsXChanged() && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !xchangeBreederFertile ? V.xchange.pregnancyMultPercent / 100 : 1;
+		xchangeActive && !(pillIsPermanent() && V.xchange.postPermanenceFertilityReset) && !xchangeBreederFertile ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* The lower basePenalty is, the easier it is for the player to get pregnant */
 	let basePenalty = xchangeBreederFertile
@@ -715,14 +718,15 @@ function namedNpcPregnancyAttempt(npcName, forcePregnancy = false) {
 	const [trackedNPCs, spermArray] = spermObjectToArray(pregnancy.sperm, false);
 	const fertility = pregnancy.pills === "fertility" ? 0.8 : 1;
 	const contraceptive = pregnancy.pills === "contraceptive";
+	const xchangeActive = playerIsXChanged() && !V.statFreeze;
 
 	// Under X-Change, pregnancy is 4 times less likely to occur.
 	// Unless under the effects of a breeder pill, which makes it 4 more likely instead.
-	const xchangePregnancyModifier = playerIsXChanged() && !V.xchange.pill.bullEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
+	const xchangePregnancyModifier = xchangeActive && !V.xchange.pill.bullEffect ? V.xchange.pregnancyMultPercent / 100 : 1;
 
 	/* Works in a similar way to playerPregnancyAttempt */
 	const basePenalty =
-		playerIsXChanged() && V.xchange.pill?.bullEffect
+		xchangeActive && V.xchange.pill?.bullEffect
 			? 2
 			: typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive()
 			? typeof xchangeFertilityPenaltyCap === "function"

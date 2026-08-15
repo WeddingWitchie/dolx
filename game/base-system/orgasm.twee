@@ -19,7 +19,7 @@
 	<!-- Orgasm denial -->
 	<<if $earSlime.growth gte 100 and $earSlime.defyCooldown gte Math.clamp(30 - Math.floor($earSlime.growth / 9), 2, 20) and !$possessed and $settings.ruinedOrgasmEnabled and !_noSlimes>>
 		<<set _earSlimeResisted to false>>
-		<<if $xchange.willpowerSystemEnabled is 1>>
+		<<if !$statFreeze and $xchange.willpowerSystemEnabled is 1>>
 			<<willpowercheck>>
 			<<if $willpowerSuccess>>
 				<<set _earSlimeResisted to true>>
@@ -107,7 +107,7 @@
 						<<set $_earslimeEjaculateTask to true>>
 					<</if>>
 					<<internalejac>><<creampie "npc" "vagina">><<fillOther>>
-					<<if playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
+					<<if !$statFreeze and playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
 						<<if $combat is 1>>
 							<<if !$alphaKnotSwollen>><<knot_stat>><</if>>
 							<<set $alphaKnotSwollen to true>>
@@ -149,7 +149,7 @@
 						<</if>>
 						<<set $_impregnatedChance to Math.floor($_impregnatedChance * (_orgasmSpermRng / 100))>>
 						/* X-Change: a hyper-fertility course or a bull pill makes the PC sire like a bull. Boost the random-NPC roll to ~50% (chance 100 on the 0-200 scale), matching the bull/hyper potency fetishPregnancy already gives the player and named NPCs. Without this the roll stayed at its low base chance (~8%) and hyper fertility never impregnated partners. */
-						<<set _xchangePcBull to (playerIsXChanged() and (V.xchange.pill.bullEffect or (typeof fertilityTreatmentActive is "function" and fertilityTreatmentActive())))>>
+						<<set _xchangePcBull to (!$statFreeze and playerIsXChanged() and (V.xchange.pill.bullEffect or (typeof fertilityTreatmentActive is "function" and fertilityTreatmentActive())))>>
 						<<if _xchangePcBull>>
 							<<set $_impregnatedChance to Math.max($_impregnatedChance, 100)>>
 						<</if>>
@@ -185,7 +185,7 @@
 							<<penileejacstat>>
 							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> bowels.</span>
 							<<internalejac>><<creampie "npc" "anus">><<fillOther>>
-							<<if playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
+							<<if !$statFreeze and playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
 								<<if $combat is 1>>
 									<<if !$alphaKnotSwollen>><<knot_stat>><</if>>
 									<<set $alphaKnotSwollen to true>>
@@ -334,7 +334,7 @@
 			<span class="pink">You feel your muscles clamp down around your fingers, pulsing as your orgasm runs its course.</span>
 		<</if>>
 
-		<<if $breederCreampied>>
+		<<if !$statFreeze and $breederCreampied>>
 			<span @class="'pink ' + basicJitterCss()">You spasm and spasm, yet your climax just won't subside. As the <<= ["semen", "cum"].random()>> coats your walls, the trembling increases, <<=either("colouring your mind", "dying your head")>> a blissful white. <b>Nothing</b> comes even close to <i>these fireworks!</i><<lllstress>></span>
 			/* Uses raw stress points with the multiplier set manually. Without this, stress macro multiplies negative values by 80, causing far too much stress relief. */
 			<<set _creampieStress to -1000 * ($xchange.breederDenial + 1) * _orgasmReliefDecay>>
@@ -666,8 +666,8 @@
 	<</if>>
 
 	<!-- Chance to get "dick drunk" after 3rd orgasm, chance is 45% for consensual and 15% otherwise, +5% for each following orgasm, but aphrodisiacs make it 100% -->
-	<<if ($orgasmcount gte 3 and $drunk lte 1000 and playerIsPenetrated() and $mouth isnot "mpenis" and !_deniedOrgasm) or $breederCreampied>>
-		<<if $breederCreampied or $drugged gt 0 or (random(1,100) + ($orgasmcount * 5) gte ($consensual ? 70 : 100))>>
+	<<if ($orgasmcount gte 3 and $drunk lte 1000 and playerIsPenetrated() and $mouth isnot "mpenis" and !_deniedOrgasm) or (!$statFreeze and $breederCreampied)>>
+		<<if (!$statFreeze and $breederCreampied) or $drugged gt 0 or (random(1,100) + ($orgasmcount * 5) gte ($consensual ? 70 : 100))>>
 			<<alcohol 25>>
 			<span class="purple"><<print either("You feel dizzy.", "You feel lightheaded.", "You can't think straight.")>></span>
 		<</if>>
@@ -686,7 +686,7 @@
 	<</if>>
 	
 	<!-- X-Change effects -->
-	<<if playerIsXChanged() && !_deniedOrgasm>>
+	<<if !$statFreeze and playerIsXChanged() && !_deniedOrgasm>>
 		<<xchange-orgasm>>
 	<</if>>
 

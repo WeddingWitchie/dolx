@@ -868,7 +868,7 @@
 	<<widget "dysphoria">>
 		<<if _args[0] isnot undefined>>
 			<<set _mod to _args[0]>>
-			<<if $background.transgender and $identityOption and ["Vagina", "Tiny Penis", "Small Penis", "Medium Penis", "Big Penis"].includes($identityTopic) and $xchange and $xchange.permaReflection and $xchange.permaReflection.answer and (typeof pillIsPermanent === "function" ? pillIsPermanent() : ($xchange.pill and $xchange.pill.active and $xchange.pill.duration <= -1))>>
+		<<if !$statFreeze and $background.transgender and $identityOption and ["Vagina", "Tiny Penis", "Small Penis", "Medium Penis", "Big Penis"].includes($identityTopic) and $xchange and $xchange.permaReflection and $xchange.permaReflection.answer and (typeof pillIsPermanent === "function" ? pillIsPermanent() : ($xchange.pill and $xchange.pill.active and $xchange.pill.duration <= -1))>>
 				<<if $xchange.permaReflection.answer is "yes">>
 					<<set $identityOption.dysphoria to 0>>
 				<<elseif $xchange.permaReflection.answer is "no">>
@@ -1449,24 +1449,26 @@
 						<</if>>
 					<</if>>
 
-					<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true>>
-						<<set _pillActive to ($xchange.pill and $xchange.pill.active is true)>>
-						<<if not _pillActive>>
-							<<set _neutralLow to Math.round(_range * (6 / 15))>>
-							<<set _neutralHigh to Math.round(_range * (9 / 15))>>
-							<<if $genderidentity lt _neutralLow or $genderidentity gte _neutralHigh>>
-								/* The current meter band owns the body's direction.
-								While crossing from one side to the other, the old body is retained until the meter leaves non-binary. */
-								<<set _signed to ($genderidentity gte _neutralHigh) ? _step : (0 - _step)>>
-								<<gi-transform-from-drift _signed>>
-							<<else>>
-								/* Keep accumulated progress, but clear the stale direction/stage while the non-binary band is retaining the current body. */
-								<<set $xchange.giShiftMode to "">>
-								<<set $xchange.giShiftStage to 0>>
+					<<if !$statFreeze>>
+						<<if $xchange.giAutoEnabled is true and $xchange.giTransformEnabled is true>>
+							<<set _pillActive to ($xchange.pill and $xchange.pill.active is true)>>
+							<<if not _pillActive>>
+								<<set _neutralLow to Math.round(_range * (6 / 15))>>
+								<<set _neutralHigh to Math.round(_range * (9 / 15))>>
+								<<if $genderidentity lt _neutralLow or $genderidentity gte _neutralHigh>>
+									/* The current meter band owns the body's direction.
+									While crossing from one side to the other, the old body is retained until the meter leaves non-binary. */
+									<<set _signed to ($genderidentity gte _neutralHigh) ? _step : (0 - _step)>>
+									<<gi-transform-from-drift _signed>>
+								<<else>>
+									/* Keep accumulated progress, but clear the stale direction/stage while the non-binary band is retaining the current body. */
+									<<set $xchange.giShiftMode to "">>
+									<<set $xchange.giShiftStage to 0>>
+								<</if>>
 							<</if>>
+						<<else>>
+							<<gi-disarm>>
 						<</if>>
-					<<else>>
-						<<gi-disarm>>
 					<</if>>
 				<</if>>
 			<</if>>

@@ -137,7 +137,7 @@ window.currentClothingBand = currentClothingBand;
 function clothingCompulsionState() {
 	V.cheats = V.cheats || {};
 	return {
-		genderifyActive: !!(V.xchange?.pill?.active && V.xchange.pill.genderificationEffect),
+		genderifyActive: !!(!V.statFreeze && V.xchange?.pill?.active && V.xchange.pill.genderificationEffect),
 		hypnoCrossdressLevel: V.cheats.disableHypnoCrossdress ? 0 : V.hypnosis_traits?.crossdressing || 0,
 	};
 }

@@ -112,7 +112,7 @@
 		<<set V.xchange.pill.fertile to false>>
 	<</if>>
 	/* canBeMPregnant keeps the pregnancy clock ticking for X-Change Omega (butt pregnancy), which is otherwise gated out here because the player has no vagina. Without it, Omega could never conceive even with Hyper Fertility, since the whole pregnancy-attempt engine below only runs while this flag is true. */
-	<<set $sexStats.vagina.menstruation.running to ($player.vaginaExist and (!playerIsXChanged() or V.xchange.pill.fertile) ) or (!$player.vaginaExist and $skin and $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy") or ($earSlime and $earSlime.growth gte 100 and ["pregnancy", "mixed"].includes($earSlime.focus)) or canBeMPregnant()>>
+	<<set $sexStats.vagina.menstruation.running to ($player.vaginaExist and ($statFreeze or !playerIsXChanged() or V.xchange.pill.fertile) ) or (!$player.vaginaExist and $skin and $skin.pubic.pen is "magic" and $skin.pubic.special is "pregnancy") or ($earSlime and $earSlime.growth gte 100 and ["pregnancy", "mixed"].includes($earSlime.focus)) or canBeMPregnant()>>
 <</widget>>
 
 <<widget "menstruationCycle">>
@@ -544,7 +544,7 @@
 		<<else>>
 			<<set $_text_output to `<<waterDragonPregnancyEvent>>`>>
 		<</if>>
-	<<elseif _args[0] and $settings.playerPregnancyEggLayingEnabled is true and $waterDragonEggs and $waterDragonEggs.daysTillLaying lte 0 and ($player.vaginaExist or (playerIsXChanged() and $xchange.pill.omegaEffect)) and isFullWaterDragon() and !playerIsPregnant() and !_dragonHeld>>
+	<<elseif _args[0] and $settings.playerPregnancyEggLayingEnabled is true and $waterDragonEggs and $waterDragonEggs.daysTillLaying lte 0 and ($player.vaginaExist or (!$statFreeze and playerIsXChanged() and $xchange.pill.omegaEffect)) and isFullWaterDragon() and !playerIsPregnant() and !_dragonHeld>>
 		<<set _wakingEffect to "waterDragonEggLaying">>
 		<<set $_text_output to `<<waterDragonEggLayEvent>>`>>
 	<<elseif !$sexStats.vagina.menstruation.running>>

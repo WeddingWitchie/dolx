@@ -1563,7 +1563,14 @@ window.rainWashFluids = rainWashFluids;
 
 /* True when the PC is currently a herm via the X-Change herm effect. */
 function playerIsHerm() {
-	return !!(typeof window.playerIsXChanged === "function" && window.playerIsXChanged() && V.xchange && V.xchange.pill && V.xchange.pill.hermEffect);
+	return !!(
+		!V.statFreeze &&
+		typeof window.playerIsXChanged === "function" &&
+		window.playerIsXChanged() &&
+		V.xchange &&
+		V.xchange.pill &&
+		V.xchange.pill.hermEffect
+	);
 }
 window.playerIsHerm = playerIsHerm;
 

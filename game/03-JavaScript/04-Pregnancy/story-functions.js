@@ -541,7 +541,7 @@ function playerHeatMinArousal() {
 	if (!V.player.vaginaExist && !canBeMPregnant()) return 0;
 
 	// Permanent override: ignore cycle/pregnancy/pill logic, but still respect anatomy.
-	if (V.xchange?.heat?.permanentOn) {
+	if (!V.statFreeze && V.xchange?.heat?.permanentOn) {
 		return Math.clamp(Math.floor(V.arousalmax / 3), 0, V.arousalmax / 2);
 	}
 
@@ -564,7 +564,7 @@ function playerHeatMinArousal() {
 		if (Transformations.effectiveLevel("cow") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cow"), 0, 100) * 20 * (2 - risk);
 		if (Transformations.effectiveLevel("fox") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("fox"), 0, 100) * 20 * (2 - risk);
 		if (Transformations.effectiveLevel("bunny") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("bunny"), 0, 100) * 20 * (2 - risk);
-		if (playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect)) minArousal += 100 * 4 * breederDenialRisk;
+		if (!V.statFreeze && playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect)) minArousal += 100 * 4 * breederDenialRisk;
 	}
 	if (minArousal === 0) V.pregnancyStats.heatStillEnabled = !playerIsPregnant();
 
@@ -582,7 +582,7 @@ function playerRutMinArousal() {
 	if (!V.player.penisExist || V.player.penissize < 1 || !V.sexStats || !V.sexStats.pills || (V.statFreeze && !V.statFreezeIgnoreRestrictions)) return 0;
 
 	// Permanent override: ignore cycle/pill logic, but still respect anatomy.
-	if (V.xchange?.heat?.permanentOn) {
+	if (!V.statFreeze && V.xchange?.heat?.permanentOn) {
 		return Math.clamp(Math.floor(V.arousalmax / 3), 0, V.arousalmax / 2);
 	}
 
@@ -599,7 +599,7 @@ function playerRutMinArousal() {
 		if (Transformations.effectiveLevel("cow") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cow"), 0, 100) * 40;
 		if (Transformations.effectiveLevel("fox") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("fox"), 0, 100) * 40;
 		if (Transformations.effectiveLevel("bunny") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("bunny"), 0, 100) * 40;
-		if (playerIsXChanged() && V.xchange.pill?.bullEffect) minArousal += 100 * 40;
+		if (!V.statFreeze && playerIsXChanged() && V.xchange.pill?.bullEffect) minArousal += 100 * 40;
 	}
 	if (pills["fertility booster"].doseTaken > 2) {
 		minArousal += 500;
@@ -612,10 +612,11 @@ function playerRutMinArousal() {
 window.playerRutMinArousal = playerRutMinArousal;
 
 function playerAwareTheyCanBePregnant() {
-	const playerIsXChangedAndAwareTheyCanBePregnant = playerIsXChanged() && V.xchange.pill.fertile && V.xchange.pill.effectsKnown;
-	const playerIsAwareOfOmegaPregnancy = playerIsXChanged() && V.xchange.pill.omegaEffect && V.xchange.pill.effectsKnown;
+	const xchangeActive = playerIsXChanged() && !V.statFreeze;
+	const playerIsXChangedAndAwareTheyCanBePregnant = xchangeActive && V.xchange.pill.fertile && V.xchange.pill.effectsKnown;
+	const playerIsAwareOfOmegaPregnancy = xchangeActive && V.xchange.pill.omegaEffect && V.xchange.pill.effectsKnown;
 	return (
-		(V.player.vaginaExist && (playerIsXChangedAndAwareTheyCanBePregnant || !playerIsXChanged())) ||
+		(V.player.vaginaExist && (playerIsXChangedAndAwareTheyCanBePregnant || !xchangeActive)) ||
 		(canBeMPregnant() && (playerIsAwareOfOmegaPregnancy || V.sexStats.anus.pregnancy.totalBirthEvents >= 1)) ||
 		playerAwareTheyArePregnant()
 	);

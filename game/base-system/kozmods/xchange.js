@@ -132,7 +132,7 @@ window.xChangeMigrateLegacyHermSnapshots = xChangeMigrateLegacyHermSnapshots;
 setup.xChangeMigrateLegacyHermSnapshots = xChangeMigrateLegacyHermSnapshots;
 
 function getAntiPillSensitivityBonus(part) {
-	if (activeInsanityTrait()) return 0;
+	if (V.statFreeze || activeInsanityTrait()) return 0;
 	const anti = V.xchange?.antiPillSensitivity;
 	if (!anti || typeof anti.hours !== "number" || anti.hours <= 0) return 0;
 
@@ -172,6 +172,7 @@ function getGeneralSensitivity(part) {
 window.getGeneralSensitivity = getGeneralSensitivity;
 
 function getSensitivityMedication() {
+	if (V.statFreeze) return null;
 	const medication = V.sensitivityMedication;
 	if (!medication || !["suppressant", "stimulant"].includes(medication.type)) return null;
 	if (!Number.isFinite(medication.endsAt) || medication.endsAt <= V.timeStamp) return null;
@@ -229,8 +230,9 @@ function applySensitivityCream(type) {
 window.applySensitivityCream = applySensitivityCream;
 
 function getSensitivity(part) {
-	const purityMod = insanitySensitivityAdjustment(playerIsXChanged() ? ((1000 - V.purity) * V.xchange.impuritySensitivityBonus) / 1000 : 0);
-	const xchangeMod = insanitySensitivityAdjustment(playerIsXChanged() ? (V.player.sex === "f" ? 1 : -1) * V.xchange.pillSensitivityChange : 0);
+	const xchangeActive = playerIsXChanged() && !V.statFreeze;
+	const purityMod = insanitySensitivityAdjustment(xchangeActive ? ((1000 - V.purity) * V.xchange.impuritySensitivityBonus) / 1000 : 0);
+	const xchangeMod = insanitySensitivityAdjustment(xchangeActive ? (V.player.sex === "f" ? 1 : -1) * V.xchange.pillSensitivityChange : 0);
 	const orgasmingMod = insanitySensitivityAdjustment(V.orgasmCum > 0 ? 1 : 0);
 	const antiPillMod = insanitySensitivityAdjustment(getAntiPillSensitivityBonus(part));
 
@@ -362,7 +364,7 @@ function pleasure(amount, source) {
 
 		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
-		const alphaEffectActive = playerIsXChanged() && V.xchange.pill?.alphaEffect && V.player?.penisExist;
+		const alphaEffectActive = !V.statFreeze && playerIsXChanged() && V.xchange.pill?.alphaEffect && V.player?.penisExist;
 		// Gwylan's ritual has its own bespoke orgasm pacing ($sexRitual.playerOrgasms / orgasmTarget);
 		// the addiction/breeder/alpha/omega denial gates below fight that system instead of complementing it, so they're suspended for the ritual's duration.
 		// $sexRitual only exists between gwylanRitualStart and gwylanRitualEnd, so this cleanly brackets the whole scene.
@@ -610,7 +612,7 @@ function pleasure(amount, source) {
 		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
 		// Skipped entirely when the player has enabled free orgasms (breederOrgasmDenied() returns false).
 		// Also skipped when a breakthrough orgasm already fired this call (addiction/alpha toy gate above); re-clamping here used to silently eat that orgasm along with its message and stress.
-		const breederEffectActive = !gwylanRitualActive && playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
+		const breederEffectActive = !V.statFreeze && !gwylanRitualActive && playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
 		const breederSatisfied = !breederOrgasmDenied() || V.xchange.breederOrgasm || V.breederCreampied;
 		if (breederEffectActive && !breederSatisfied && !V.xchange.breakthroughOrgasm && oldPleasure + pleasureChange >= (V.pleasuremax * 4) / 5) {
 			// Toy relief: a toy working the needy hole turns the hard denial into the same soft gate the addiction traits get, clamped at the edge with an escalating chance of a hollow forced orgasm.
@@ -980,6 +982,7 @@ window.xchangeAlwaysFertileActive = xchangeAlwaysFertileActive;
 // Hyper Fertility on the same pill, or the Always-fertile override, both win over this and keep the player fertile.
 function xchangeFakeBreederInfertile() {
 	return !!(
+		!V.statFreeze &&
 		V.xchange?.breederInfertile &&
 		playerIsXChanged() &&
 		V.xchange.pill?.breederEffect &&
@@ -1079,7 +1082,7 @@ window.playerIsBreederCreampied = playerIsBreederCreampied;
 // Whether the breeder/omega "you can't climax unless there's cum inside you" restriction is currently in force.
 // The "Orgasm freely" setting (breederFreeOrgasm) lifts it, so the denial can be skipped consistently everywhere it's checked.
 function breederOrgasmDenied() {
-	if (!playerIsXChanged() || V.xchange?.breederFreeOrgasm) return false;
+	if (V.statFreeze || !playerIsXChanged() || V.xchange?.breederFreeOrgasm) return false;
 	const pill = V.xchange?.pill;
 	return !!((pill?.breederEffect || pill?.omegaEffect) && !playerIsBreederCreampied());
 }
@@ -1106,6 +1109,7 @@ function xchangePillProtectionActive() {
 window.xchangePillProtectionActive = xchangePillProtectionActive;
 
 function playerMayBeSpiked() {
+	if (V.statFreeze) return false;
 	if (xchangeTherapyActive()) return false;
 	return V.xchange.nonconEnabled === 1 && ((!playerIsXChanged() && !playerIsPregnant()) || playerIsXChanged());
 }
@@ -1156,6 +1160,7 @@ function updateRemoverPillCatalogue() {
 window.updateRemoverPillCatalogue = updateRemoverPillCatalogue;
 
 function xchangeXtendGrowth(target, spermOwner, spermType) {
+	if (V.statFreeze) return;
 	if (target !== "pc" || spermType !== "human") return;
 
 	const pill = V.xchange?.pill;
@@ -1178,6 +1183,8 @@ function xchangeXtendGrowth(target, spermOwner, spermType) {
 window.xchangeXtendGrowth = xchangeXtendGrowth;
 
 function xchangeTimePassedCheck(minutes = 1) {
+	if (V.statFreeze) return;
+
 	if (V.arousal >= (V.arousalmax * 2) / 5)
 		wikifier("willpower-spending", minutes * 0.5 * Math.ceil((V.arousal - (V.arousalmax * 2) / 5) / (V.arousalmax / 10)));
 	else if (V.xchange.willpowerPoints < V.willpower * 0.5)
@@ -1187,9 +1194,7 @@ function xchangeTimePassedCheck(minutes = 1) {
 	else if (V.drugged > 100 && V.arousal < (V.arousalmax * 3) / 5) wikifier("arousal", (V.drugged / 10) * 2 * minutes);
 	else if (V.drugged > 0 && V.arousal < (V.arousalmax * 2) / 5) wikifier("arousal", (V.drugged / 10) * minutes);
 
-	// Frozen stats must not tick blackmail tasks toward clear/fail.
-	// Mirrors the !V.statFreeze guard already wrapping blackmail-daypassed in xchangeDailyCheck.
-	if (!V.statFreeze) wikifier("blackmail-timepassed");
+	wikifier("blackmail-timepassed");
 
 	// Portal Panties
 	wikifier("portalPantiesPass", minutes);
@@ -1222,7 +1227,7 @@ function xchangeTimePassedCheck(minutes = 1) {
 			if (medication.type === "suppressant") {
 				// From the second consecutive daily dose onward, the forced numbness wears on the mind. 0.8 raw stress/min per extra dose (tunable).
 				const streakCount = sensitivitySuppressantStreakCount();
-				if (streakCount >= 2 && !V.statFreeze) {
+				if (streakCount >= 2) {
 					statChange.stress((streakCount - 1) * 0.8 * minutes, 1);
 				}
 			}
@@ -1834,7 +1839,7 @@ function xchangeEffectsMessages() {
 	if (V.sexual_addiction_toy_breakthrough_message) {
 		// 2 = the breeder/omega gate forced the orgasm, anything else = the addiction/alpha gate did.
 		const fromBreederGate = V.sexual_addiction_toy_breakthrough_message === 2;
-		const pill = playerIsXChanged() ? V.xchange?.pill : null;
+		const pill = !V.statFreeze && playerIsXChanged() ? V.xchange?.pill : null;
 
 		element("span", "The toy pushes you over the edge, and your body finally gives in.", "purple");
 		if (fromBreederGate) {
@@ -1859,7 +1864,7 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.sexual_addiction_message) {
-		const alphaEffectActive = playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player.penisExist;
+		const alphaEffectActive = !V.statFreeze && playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player.penisExist;
 		element("span", "Your body refuses to cum like this.", "purple");
 		if (V.penis_addict_trait === 1 && (V.hole_addict_trait === 1 || alphaEffectActive))
 			element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
