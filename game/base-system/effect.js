@@ -2148,9 +2148,17 @@ function effects() {
 						);
 						br();
 					}
-					element("span", `Today, your thoughts keep circling back to ${autismHyperfixationName()}.`, "gold");
-					br();
+					if (state.focusChanged) {
+						const focusDays = autismHyperfixationDaysRemaining();
+						element(
+							"span",
+							`You can't stop thinking about ${autismHyperfixationName()}. That will last about ${focusDays} day${focusDays === 1 ? "" : "s"}.`,
+							"gold"
+						);
+						br();
+					}
 					state.phaseChanged = false;
+					state.focusChanged = false;
 					break;
 				}
 				default:

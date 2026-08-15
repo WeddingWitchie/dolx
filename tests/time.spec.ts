@@ -218,3 +218,27 @@ test.describe("openinghours", () => {
 		expect(result.openinghours).toBe(false);
 	});
 });
+
+test("either output strings do not contain conflicting double-quoted macro arguments", () => {
+	const gameRoot = path.resolve("game");
+	const tweeFiles = (directory: string): string[] =>
+		fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
+			const entryPath = path.join(directory, entry.name);
+			if (entry.isDirectory()) return tweeFiles(entryPath);
+			return entry.isFile() && entry.name.endsWith(".twee") ? [entryPath] : [];
+		});
+	const eitherExpression = /<<=\s*either\s*\(([\s\S]*?)\)\s*>>/g;
+	const conflictingQuotes = /(?:^|,)\s*"[^"\r\n]*<<[^>\r\n]*"[^>\r\n]*>>/;
+	const conflicts: string[] = [];
+
+	for (const file of tweeFiles(gameRoot)) {
+		const source = fs.readFileSync(file, "utf8");
+		for (const match of source.matchAll(eitherExpression)) {
+			if (!conflictingQuotes.test(match[1])) continue;
+			const line = source.slice(0, match.index).split("\n").length;
+			conflicts.push(`${path.relative(gameRoot, file)}:${line}`);
+		}
+	}
+
+	expect(conflicts, "Use single quotes for nested macro arguments, or backticks for the outer either option").toEqual([]);
+});
