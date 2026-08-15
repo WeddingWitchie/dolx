@@ -898,3 +898,51 @@ DefineMacro("modelprepare-player-clothes", function () {
 		}
 	}
 });
+
+/*
+ * Keep the doll popup scaled to whole-number sizes.
+ *
+ * Fractional scaling can make pixel art look uneven or slightly stretched.
+ * Use the largest whole-number scale that fits, then place the canvas on whole pixels.
+ * This is calculated in device pixels so it also works with browser zoom and HiDPI screens.
+ *
+ * Apply the same scale to every canvas layer so they stay aligned.
+ */
+function sizeDollOverlayCanvases() {
+	const wrapper = document.querySelector(".doll-overlay-canvas");
+	if (!wrapper) return;
+	const canvases = Array.from(wrapper.querySelectorAll("canvas"));
+	if (!canvases.length) return;
+
+	const box = wrapper.getBoundingClientRect();
+	if (!box.width || !box.height) return;
+
+	const dpr = window.devicePixelRatio || 1;
+	const nativeWidth = Math.max(...canvases.map(canvas => canvas.width || 256));
+	const nativeHeight = Math.max(...canvases.map(canvas => canvas.height || 256));
+	const scale = Math.max(1, Math.floor(Math.min((box.width * dpr) / nativeWidth, (box.height * dpr) / nativeHeight)));
+	/* Snap a CSS length to a whole device pixel. */
+	const snap = value => Math.round(value * dpr) / dpr;
+
+	for (const canvas of canvases) {
+		const width = ((canvas.width || nativeWidth) * scale) / dpr;
+		const height = ((canvas.height || nativeHeight) * scale) / dpr;
+		/*
+		 * Snap the sprite's absolute position to whole pixels.
+		 * The wrapper may sit on fractional pixels, which can still blur the sprite even at a whole-number scale.
+		 */
+		canvas.style.width = `${width}px`;
+		canvas.style.height = `${height}px`;
+		canvas.style.left = `${snap(box.left + (box.width - width) / 2) - box.left}px`;
+		canvas.style.top = `${snap(box.top + (box.height - height) / 2) - box.top}px`;
+		canvas.style.right = "auto";
+		canvas.style.bottom = "auto";
+		canvas.style.margin = "0";
+		canvas.style.maxWidth = "none";
+		canvas.style.maxHeight = "none";
+	}
+}
+window.sizeDollOverlayCanvases = sizeDollOverlayCanvases;
+
+/* No-ops unless the popup is open, so one listener for the whole game is enough. */
+window.addEventListener("resize", sizeDollOverlayCanvases);
