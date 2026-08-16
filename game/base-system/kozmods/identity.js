@@ -113,6 +113,22 @@ function currentAppearanceBand() {
 }
 window.currentAppearanceBand = currentAppearanceBand;
 
+/**
+ * How the player reads to onlookers, forced to "m" or "f".
+ *
+ * For "would we be seen as a same-sex couple" checks, which care about what the public reads off the
+ * player rather than what the player is carrying.
+ * `perceivedGender()` is the right source, but it can return "n" for an androgynous look, and "n" matches no NPC pronoun.
+ * Left alone that turns dressing androgynously into a blanket bypass for every check built on this,
+ * so an androgynous read falls back to the body underneath: appearance decides it, without handing out a free pass.
+ */
+function perceivedGenderBinary() {
+	const perceived = typeof window.perceivedGender === "function" ? window.perceivedGender() : undefined;
+	if (perceived === "m" || perceived === "f") return perceived;
+	return V.player.sex === "m" ? "m" : "f";
+}
+window.perceivedGenderBinary = perceivedGenderBinary;
+
 /** The identity characteristic each appearance band counts as. */
 const APPEARANCE_CHARACTERISTIC_BY_BAND = { m: "Masculine Appearance", n: "Androgynous Appearance", f: "Feminine Appearance" };
 

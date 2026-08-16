@@ -527,7 +527,7 @@ You open the door, revealing a large bedroom. A four-poster bed stands in the co
 <span class="gold">Some fancy clothes have been added to your wardrobe.</span>
 <br><br>
 
-<<if $player.sex is $NPCName[$NPCNameList.indexOf("Avery")].pronoun or genderIsIgnored()>>
+<<if perceivedGenderBinary() is $NPCName[$NPCNameList.indexOf("Avery")].pronoun or (genderIsIgnored() and random(0,100) lt 25)>>
 	<<link [[Next|Mansion Intro XChange]]>><</link>>
 	<br>
 <<else>>
@@ -536,14 +536,19 @@ You open the door, revealing a large bedroom. A four-poster bed stands in the co
 <</if>>
 
 :: Mansion Intro XChange
+<<effects>>
 
 	Right before leaving, you spot an ornate-looking ivory chest, small enough to contain maybe all kinds of jewelry, but still large enough to be conspicuous at the top of the dresser it is placed on. Noticing your gaze, Avery moves over to pick it up. "Right. I almost forgot," <<he>> opens the box. "Here's your new pill."
-	<br><br> 
+	<br><br>
+	/* The spare pill has to suit the body you'll be left with once any current pill ends, so read the sex off the stored body while pilled and off the live body otherwise. */
+	<<set _pcTrueSex to (playerIsXChanged() ? ($xchange.pill.originalBody?.sex ?? $player.sex) : $player.sex)>>
+	<<set _variant to (_pcTrueSex is "m") ? "(F)" : "(M)">>
+	/* Avery objects to being seen with a partner who reads as the same sex, so compare what the public reads off each of you */
+	<<set _sameSexAsAvery to perceivedGenderBinary() is C.npc.Avery.pronoun>>
 	<<if playerIsPregnant() or (canBeMPregnant() and $sexStats.anus.pregnancy isnot undefined and $sexStats.anus.pregnancy.type isnot null)>>
 		Just as <<he>> is about to give you the pill, <<he>> raises an eyebrow as <<his>> eyes travel down over you, then back up. The pill pauses between <<his>> fingers. <<He>> clicks <<his>> tongue. "Pregnant. I hate babies. They make everything messy with consequences, questions, noise. What a complication."
 		<br><br>
 		<<He>> holds the pill out anyway and closes the chest with a decisive snap. "No pill while you're carrying. You take care of the baby first, then you swallow this. <span class="red">You must swallow this</span>. Understand?" | <span class="blue">+1 Choice pill</span><<stress 5>><<gstress>>
-		<<set _variant to (($xchange.pill.originalBody?.sex || $player.sex) is "m") ? "(F)" : "(M)">>
 		<<set $sexStats.pills["pills"]["X-Change Choice "+_variant].owned++>><<set $sexStats.pills.boughtOnce to true>>
 	<<elseif xchangePillProtectionActive()>>
 		It's not up for discussion. A foregone conclusion. <span class="pink"><<He>> simply feeds the pill to you</span>, paying no attention to any protest or objection you might have. Perhaps instinctively, you know better. | <span class="red">You get spiked by a choice pill.</span><<trauma 5>><<gtrauma>>
@@ -551,10 +556,20 @@ You open the door, revealing a large bedroom. A four-poster bed stands in the co
 	<<elseif !playerIsXChanged()>>
 		It's not up for discussion. A foregone conclusion. <span class="pink"><<He>> simply feeds the pill to you</span>, paying no attention to any protest or objection you might have. Perhaps instinctively, you know better. | <span class="red">You get spiked by a choice pill.</span><<trauma 5>><<gtrauma>>
 		<<xchange-choice>><<set $averytimespilled += 1>>
-	<<else>>
+	<<elseif !_sameSexAsAvery>>
 		Since you're pilled already, this pill would have no effect. "For when your current pill expires, I mean," Avery clarifies. "<span class="pink">...If it ever does</span>." <<He>> presses it into your hand. | <span class="blue">+1 Choice pill</span>
-		<<set _variant to (($xchange.pill.originalBody?.sex || $player.sex) is "m") ? "(F)" : "(M)">>
 		<<set $sexStats.pills["pills"]["X-Change Choice "+_variant].owned++>><<set $sexStats.pills.boughtOnce to true>>
+	<<elseif _pcTrueSex is C.npc.Avery.pronoun>>
+		/* Pilled, still reads as the same sex, and the body underneath matches too, so the spare pill is still the right one to take afterwards. */
+		<<He>> stops with the pill between <<his>> fingers and looks you over again. "You're already pilled. Into this."
+		<br><br>
+		<<He>> presses it into your hand rather than feeding it to you. "Whatever you took, get off it. Then swallow this one. <span class="red">I won't be seen out with someone who looks like me</span>. Understand?" | <span class="blue">+1 Choice pill</span><<stress 5>><<gstress>>
+		<<set $sexStats.pills["pills"]["X-Change Choice "+_variant].owned++>><<set $sexStats.pills.boughtOnce to true>>
+	<<else>>
+		/* The pill they're on is what made them match Avery. Reverting is the fix, so handing over a pill that flips their real body would only make it worse. */
+		<<He>> stops with the pill between <<his>> fingers and looks you over again. "You're already pilled. Into this."
+		<br><br>
+		<<He>> closes the chest with a decisive snap and puts the pill away. "You were fine as you were. <span class="red">Get off whatever that is, as soon as you can, and stay off it.</span> I won't be seen out with someone who looks like me." <<stress 5>><<gstress>>
 	<</if>>
 	<br><br>
 
@@ -580,7 +595,20 @@ You open the door, revealing a large bedroom. A four-poster bed stands in the co
 	<br><br>
 
 	Avery answers as if <<he>> had been waiting for the question. "I managed to get my hands on one of these government-issued <span class="gold">Choice pills</span>. Same kind they use for <i>rehabilitation</i> facilities." <<His>> voice betrays a hint of pride. "So don't worry. It is perfectly safe."
-	<br><br> 
+	<br><br>
+
+	/* Avery dismisses identity either way, but a nonbinary PC needs their own wording: "you're trans" doesn't fit someone who never crossed between the two. */
+	<<set _pcEnby to (playerFeltGender() is "n" and !$background.transgender)>>
+	<<if $background.transgender or playerFeltGender() is "n">>
+		<<if !$transgenderknown.includes("Avery")>>
+			<<run $transgenderknown.pushUnique("Avery")>>
+			<<if _pcEnby>>You tell Avery that you're neither a man nor a woman, and that swapping your body between the two will not make you either.<<else>>You tell Avery that you're trans, and that changing your body will not change who you are.<</if>> "I understand what you're saying," <<he>> says coldly.
+		<<else>>
+			<<if _pcEnby>>You remind Avery that swapping your body between the two will not make you one.<<else>>You remind Avery that changing your body does not change who you are.<</if>> "I heard you the first time," <<he>> says coldly.
+		<</if>>
+		"You can call yourself whatever you like. If you're living under my roof, you'll look the way I expect."
+		<br><br>
+	<</if>>
 
 	"Come. Let's continue," <<he>> concludes.
 	<br><br>

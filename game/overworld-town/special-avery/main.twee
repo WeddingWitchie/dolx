@@ -228,7 +228,7 @@
 	<<He>> smiles. "Good. I'll see you back at the mansion. You know what to expect by now."
 <<else>>
 	<<He>> smiles. "Good. I'll pick you up from <span class="green">Domus Street at eight</span>.
-	<<if $player.sex is $NPCName[$NPCNameList.indexOf("Avery")].pronoun>><<if playerIsXChanged()>>Whatever pill you've taken won't do. Make sure you look the part before meeting me.<<else>><span class="pink">Remember to pop a pill before meeting me</span>. High society still frowns upon same sex partners. Bad for business.<</if>><</if>> Oh, and <span class="green">be sure to wear something formal</span>. There are dress codes to observe."
+	<<if perceivedGenderBinary() is $NPCName[$NPCNameList.indexOf("Avery")].pronoun>><<if playerIsXChanged()>>Whatever pill you've taken won't do. Make sure you look the part before meeting me.<<else>><span class="pink">Remember to pop a pill before meeting me</span>. High society still frowns upon same sex partners. Bad for business.<</if>><</if>> Oh, and <span class="green">be sure to wear something formal</span>. There are dress codes to observe."
 	<br><br>
 	<<He>> drives away.
 <</if>>
@@ -360,7 +360,7 @@ Avery slams the door after you, then gets in the front. The doors lock as you dr
 :: Street Avery Rape
 <<if $molestationstart is 1>>
 	<<set $molestationstart to 0>>
-	<<if !playerIsXChanged() and ($player.sex is $NPCName[$NPCNameList.indexOf("Avery")].pronoun or (genderIsIgnored() and random(0,100) lt 25)) and !playerIsPregnant()>>
+	<<if !playerIsXChanged() and (perceivedGenderBinary() is $NPCName[$NPCNameList.indexOf("Avery")].pronoun or (genderIsIgnored() and random(0,100) lt 25)) and !playerIsPregnant()>>
 		<<take-xchange 1 "genderflip" "random">>
 		<<if !$xchange.pill.genderflipEffect>><<xchange-addeffect "genderflip">><</if>>
 		<<if $xchange.pill.genderflipEffect>><<set $averytimespilled += 1>><</if>>
@@ -426,14 +426,16 @@ Avery slams the door after you, then gets in the front. The doors lock as you dr
 
 <<person1>>Avery looks up as you approach. <<He>> wears a <<if $pronoun is "m">>smart suit<<else>>fancy gown<</if>>. "There you are, <<pcpetname "Avery">>," <<he>>
 
-<<if !$xchange.pill.genderflipEffect and ($player.sex is $NPCName[$NPCNameList.indexOf("Avery")].pronoun or (genderIsIgnored() and random(0,100) lt 25)) and !playerIsPregnant()>>
+<<if !$xchange.pill.genderflipEffect and (perceivedGenderBinary() is $NPCName[$NPCNameList.indexOf("Avery")].pronoun or (genderIsIgnored() and random(0,100) lt 25)) and !playerIsPregnant()>>
 	<<take-xchange 1 "genderflip" "random">>
 	<<if !$xchange.pill.genderflipEffect>><<xchange-addeffect "genderflip">><</if>>
 	<<if $xchange.pill.genderflipEffect>><<set $averytimespilled += 1>><</if>>
 	says, "but first things first." <span class="red">Avery slips a pill down your throat.</span>
 	<br><br>
-	<<if $background.transgender>>
-		<<if !$transgenderknown.includes("Avery")>><<run $transgenderknown.pushUnique("Avery")>>You tell Avery that you're trans, and insist that changing your body will not change who you are. "I understand what you're saying," <<he>> says coldly.<<else>>You remind Avery that changing your body does not change who you are. "I heard you the first time," <<he>> says coldly.<</if>> "You can call yourself whatever you like. If you're going out with me, you'll look the way I expect."
+	/* Avery dismisses identity either way, but a nonbinary PC needs their own wording: "you're trans" doesn't fit someone who never crossed between the two. */
+	<<set _pcEnby to (playerFeltGender() is "n" and !$background.transgender)>>
+	<<if $background.transgender or playerFeltGender() is "n">>
+		<<if !$transgenderknown.includes("Avery")>><<run $transgenderknown.pushUnique("Avery")>><<if _pcEnby>>You tell Avery that you're neither a man nor a woman, and insist that swapping your body between the two will not make you either.<<else>>You tell Avery that you're trans, and insist that changing your body will not change who you are.<</if>> "I understand what you're saying," <<he>> says coldly.<<else>><<if _pcEnby>>You remind Avery that swapping your body between the two will not make you one.<<else>>You remind Avery that changing your body does not change who you are.<</if>> "I heard you the first time," <<he>> says coldly.<</if>> "You can call yourself whatever you like. If you're going out with me, you'll look the way I expect."
 		<br><br>
 	<</if>>
 	<<if !$xchange.pill.genderflipEffect>>
