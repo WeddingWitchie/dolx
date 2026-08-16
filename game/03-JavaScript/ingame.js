@@ -2177,14 +2177,16 @@ window.npcSpecifiedClothes = npcSpecifiedClothes;
 /* npc.crossdressing: 0 - doesn't at all, 1 - sometimes, 2 - always */
 function npcClothes(npc, type) {
 	const crossdressing = npc.crossdressing || 0;
+	/* Genderflip pills can change .pronoun, so use startingSex to keep clothing choices based on the character's original sex. */
+	const identityGender = npc.xchange && npc.xchange.genderflipEffect ? npc.startingSex : npc.pronoun;
 	const gender = ["n"];
 	/* if you don't want those always crossdressing to wear neutral clothes
 	let gender = [];
 	if(crossdressing !== 2) gender.push('n');
 	*/
 
-	if (crossdressing < 2) gender.push(npc.pronoun);
-	if (crossdressing > 0) gender.push(npc.pronoun === "m" ? "f" : "m");
+	if (crossdressing < 2) gender.push(identityGender);
+	if (crossdressing > 0) gender.push(identityGender === "m" ? "f" : "m");
 	let clothingOptions = setup.npcClothesSets.filter(set => (set.type === type || !type) && gender.includes(set.gender));
 
 	if (npc.outfits) {
