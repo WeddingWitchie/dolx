@@ -1001,7 +1001,11 @@ function transferClothing(slot, index, oldWardrobe, newWardrobe, _opts) {
 	function resolveWardrobe(key) {
 		const k = key || V.wardrobe_location;
 		if (k === "wardrobe") return V.wardrobe;
-		if (!V.wardrobes[k]) V.wardrobes[k] = {};
+		/* An unknown key here means a stale $wardrobe_location */
+		if (!V.wardrobes[k]) {
+			V.wardrobes[k] = {};
+			window.repairWardrobeSlots();
+		}
 		return V.wardrobes[k];
 	}
 

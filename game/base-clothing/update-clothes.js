@@ -846,3 +846,24 @@ function wardrobesUpdate() {
 	}
 }
 DefineMacro("wardrobesUpdate", wardrobesUpdate);
+
+/* Restore any missing wardrobe slot arrays to prevent crashes.
+ * Existing stored clothes are left unchanged.
+ */
+function repairWardrobeSlots() {
+	const backfill = wardrobe => {
+		if (!wardrobe || typeof wardrobe !== "object" || Array.isArray(wardrobe)) return;
+		for (const slot of setup.clothes_all_slots) {
+			if (!Array.isArray(wardrobe[slot])) wardrobe[slot] = [];
+		}
+	};
+	backfill(V.wardrobe);
+	if (V.wardrobes && typeof V.wardrobes === "object") {
+		for (const name of Object.keys(V.wardrobes)) {
+			/* "shopReturn" is a string, "wardrobe" is a metadata-only stub that must stay empty */
+			if (name === "shopReturn" || name === "wardrobe") continue;
+			backfill(V.wardrobes[name]);
+		}
+	}
+}
+window.repairWardrobeSlots = repairWardrobeSlots;
