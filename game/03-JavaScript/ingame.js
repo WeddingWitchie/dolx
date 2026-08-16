@@ -2174,6 +2174,24 @@ function npcSpecifiedClothes(npc, name) {
 }
 window.npcSpecifiedClothes = npcSpecifiedClothes;
 
+/* Choose which "m"/"f" sprite set a named NPC uses.
+
+Beast NPCs use "i" pronouns in animal form, so use their saved pronoun
+for the sprite gender instead. Fall back to .gender if needed. */
+function nnpcSpriteGender(npc, namedRecord) {
+	const usablePronoun = obj => (obj?.pronoun === "m" || obj?.pronoun === "f" ? obj.pronoun : undefined);
+
+	const slotPronoun = usablePronoun(npc);
+	if (slotPronoun) return slotPronoun;
+
+	const record = namedRecord ?? (npc?.fullDescription ? C.npc[npc.fullDescription] : undefined);
+	const recordPronoun = usablePronoun(record);
+	if (recordPronoun) return recordPronoun;
+
+	return (npc?.gender ?? record?.gender) === "m" ? "m" : "f";
+}
+window.nnpcSpriteGender = nnpcSpriteGender;
+
 /* npc.crossdressing: 0 - doesn't at all, 1 - sometimes, 2 - always */
 function npcClothes(npc, type) {
 	const crossdressing = npc.crossdressing || 0;

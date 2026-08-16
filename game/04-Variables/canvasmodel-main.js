@@ -1,4 +1,4 @@
-/* globals normaliseFileName */
+/* globals normaliseFileName, nnpcSpriteGender */
 /* eslint-disable jsdoc/check-tag-names */
 /* eslint-disable jsdoc/no-undefined-types */
 /* eslint-disable jsdoc/newline-after-description */
@@ -2390,12 +2390,8 @@ Renderer.CanvasModels.main = {
 				// Helpers
 				const norm = (name) => {
 					if (!name || name === 0) return null;
-					let key = String(name).trim().toLowerCase().replace(/\s+/g, "_");
-					// Normalize folder names
-					if (key === "black_wolf") key = "black_wolf";
-					if (key === "great_hawk") key = "great_hawk";
-					if (key === "ivory_wraith") key = "ivory_wraith";
-					return key;
+					// Folder names are the lowercased name with spaces as underscores, so this is the whole mapping.
+					return String(name).trim().toLowerCase().replace(/\s+/g, "_");
 				};
 
 				const autoEnabled = V.options?.autoNNPCDisplay?.enabled === true;
@@ -2531,13 +2527,8 @@ Renderer.CanvasModels.main = {
 				// No NPC detected -> show nothing in auto mode
 				if (!rawName) return;
 
-				let active = norm(rawName);
+				const active = norm(rawName);
 				if (!active) return;
-
-				// Special casing if the rawName comes in with spaces
-				if (active === "black_wolf") active = "black_wolf";
-				if (active === "great_hawk") active = "great_hawk";
-				if (active === "ivory_wraith") active = "ivory_wraith";
 
 				T.activeNNPC = active;
 
@@ -2551,15 +2542,13 @@ Renderer.CanvasModels.main = {
 				const properName = active.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 				const npcRecord = C?.npc?.[rawName] ?? C?.npc?.[properName];
 
-				// Gender (respect override if enabled)
-				const pronoun =
-					activeNpc?.pronoun ||
-					npcRecord?.pronoun;
-
+				// Gender (respect override if enabled).
+				// Shared with the vanilla display so both systems agree; see nnpcSpriteGender for why the slot pronoun
+				// alone isn't enough (beasts in animal form report "i" regardless of who they are).
 				let gender =
 					(cfg.genderOverride === true && cfg.gender)
 						? cfg.gender
-						: (pronoun === "m" ? "male" : "female");
+						: (nnpcSpriteGender(activeNpc, npcRecord) === "m" ? "male" : "female");
 
 				// Skin: humans follow their actual skin colour (the per-NPC Pale/Dark setting), so the sprite can't be pinned to a stale saved display choice.
 				// The saved choice still decides beast art (human vs monster form) and is the fallback when the actual colour can't be resolved.
