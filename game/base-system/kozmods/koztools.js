@@ -1417,6 +1417,38 @@ function speechDailyCheck() {
 }
 window.speechDailyCheck = speechDailyCheck;
 
+/* globals Wikifier */
+/* Safety cleanup for the Raul and Janet daydream.
+The scene temporarily changes the player's body and stats, including virginity.
+Normally <<sleepJanet>> restores everything, but it only runs on the normal endings.
+This makes sure the player is restored if they leave the scene another way. Only affects the Raul and Janet daydream. */
+const scarletVisionPassages = [
+	"ScarletBook5",
+	"ScarletBook6",
+	"ScarletBook7aye",
+	"ScarletBook7nay",
+	"ScarletBook7nay_page2",
+	"ScarletBook8aye",
+	"ScarletBook8nay",
+	"ScarletBook9",
+	"ScarletBook10",
+	"Loveth",
+	"Loveth Finish",
+	"Drama",
+	"Drama Finish",
+];
+$(document).on(":passageinit", ev => {
+	if (!V.scarletVision || V.replayScene) return;
+	/* Prefer the incoming passage from the event, falling back to V.passage
+	If both still read as the old passage on some build, the net simply fires one passage later, which still restores. */
+	const title = (ev && ev.passage && ev.passage.title) || V.passage;
+	if (!title || scarletVisionPassages.includes(title)) return;
+	/* Left the daydream without passing through an ending
+	Run the scene's own teardown so the restore is identical to the intended exit rather than a second, drifting copy of it. */
+	console.warn("[DoLX] Raul and Janet daydream was left via " + title + " without its ending; restoring the real body.");
+	Wikifier.wikifyEval("<<sleepJanet>>");
+});
+
 /* beautyBoost save-compat / expiry; relocated out of vanilla time.js's :passageinit handler.
 Runs on every passage as before, behavior identical. */
 $(document).on(":passageinit", () => {
