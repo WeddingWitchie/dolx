@@ -5,7 +5,7 @@
 		<<set _inHunt to ($bird isnot undefined and $bird.hunts isnot undefined)>>
 		<<set _playerN to (_inHunt ? $bird.hunts.distanceNorth : 0)>>
 		<<set _playerE to (_inHunt ? $bird.hunts.distanceEast  : 0)>>
-		<<set _showHints to ($historytrait gte 2)>>
+		<<set _showHints to ($historytrait gte 3)>>
 
 		/* mapSize 5 => 11x11 */
 		<<set _mapSize to 5>>
@@ -132,7 +132,7 @@
 		}>>
 
 		<<set _hereNode to _pass2node[_loc]>>
-		<<set _showHints to ($historytrait gte 2)>>
+		<<set _showHints to ($historytrait gte 3)>>
 
 		<<set _label to {
 			"lake":"Lake",
@@ -300,7 +300,7 @@
 	<<silently>>
 		<<set _mapSize to 5>>
 		<<set _innerR  to 3>>
-		<<set _showHints to ($historytrait gte 2)>>
+		<<set _showHints to ($historytrait gte 3)>>
 
 		<<set _playerN to ($tentnorth is undefined ? 0 : $tentnorth)>>
 		<<set _playerE to ($tenteast  is undefined ? 0 : $tenteast)>>
@@ -344,6 +344,67 @@
 				<</for>>
 
 			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "tentacle_forest_map">>
+	<<silently>>
+		/* Tentacle Forest (forest.twee) is a wholly different area from Tentacle
+		   Plains (main.twee's $tentnorth/$tenteast grid roam) - it's a small hub
+		   with two branching paths, "one ascending, one descending", tracked via
+		   $bus rather than coordinates. */
+		<<set _here to ($bus is undefined ? "" : $bus)>>
+		<<set _showHints to ($historytrait gte 3)>>
+
+		<<set _label to {
+			"tentacle_forest_prison":"Prison",
+			"tentacle_forest_door":"Door",
+			"tentacle_forest_plants":"Plants",
+			"tentacle_forest_pool":"Pool",
+			"tentacle_forest_main":"Clearing",
+			"tentacle_forest_stream":"Stream",
+			"tentacle_forest_flowers":"Flowers",
+			"tentacle_forest_cliff":"Cliff"
+		}>>
+
+		/* single-column layout, ascending branch above the hub, descending branch below */
+		<<set _order to [
+			"tentacle_forest_prison",
+			"tentacle_forest_door",
+			"tentacle_forest_plants",
+			"tentacle_forest_pool",
+			"tentacle_forest_main",
+			"tentacle_forest_stream",
+			"tentacle_forest_flowers",
+			"tentacle_forest_cliff"
+		]>>
+
+		<<set _hintNode to {
+			"tentacle_forest_cliff":(_showHints and $tentacle_forest_key isnot 1)
+		}>>
+	<</silently>>
+
+	<div class="tentforestmap-wrap">
+		<div class="tentforestmap-grid">
+			<<for _i to 0; _i lt _order.length; _i++>>
+				<<capture _i>>
+					<<set _nid to _order[_i]>>
+					<<set _cls to "tentforestmap-cell">>
+					<<if _nid is "tentacle_forest_main">><<set _cls += " tentforestmap-hub">><</if>>
+					<<if _nid is _here>><<set _cls += " tentforestmap-here">><</if>>
+
+					<div @class="_cls">
+						<<if _hintNode[_nid]>><span class="tentforestmap-dot"></span><</if>>
+
+						<<if _nid is _here>>
+							<span class="tentforestmap-you">YOU</span>
+						<<elseif _showHints>>
+							<span class="tentforestmap-name"><<print _label[_nid]>></span>
+						<</if>>
+					</div>
+				<</capture>>
+			<</for>>
 		</div>
 	</div>
 <</widget>>
@@ -497,7 +558,7 @@
 		<<set _caveValue to ($cave is undefined ? 0 : Math.clamp($cave, 0, 100))>>
 		<<set _depthValue to (100 - _caveValue)>>
 		<<set _pos to Math.floor(_depthValue / 5)>>
-		<<set _showHints to ($historytrait gte 2)>>
+		<<set _showHints to ($historytrait gte 3)>>
 		<<set _pubKnown to (_showHints and ($smuggler_pub_known is 1 or $historytrait gte 4 or ($temple_spear_mission gte 1 and $temple_spear_mission_winter is 1)))>>
 		<<set _mapStatus to (($museumAntiques and $museumAntiques.antiques) ? $museumAntiques.antiques.antiqueleathermap : undefined)>>
 		<<set _mapHidden to (_mapStatus isnot "found" and _mapStatus isnot "talk" and _mapStatus isnot "museum")>>
@@ -591,7 +652,7 @@
 		/* Sea progress uses $sea from 0 to 100 in steps of 10. */
 		<<set _seaValue to ($sea is undefined ? 0 : Math.clamp($sea, 0, 100))>>
 		<<set _pos to Math.floor(_seaValue / 10)>>
-		<<set _showHints to ($historytrait gte 2)>>
+		<<set _showHints to ($historytrait gte 3)>>
 
 		<<if _seaValue is 0>>
 			<<set _zoneLabel to "Near shore">>
@@ -664,12 +725,74 @@
 	<</script>>
 <</widget>>
 
+<<widget "landfill_map">>
+	<<silently>>
+		/* Landfill progress uses $trash from 0 to 100 in steps of 10. */
+		<<set _trashValue to ($trash is undefined ? 0 : Math.clamp($trash, 0, 100))>>
+		<<set _pos to Math.floor(_trashValue / 10)>>
+		<<set _showHints to ($historytrait gte 3)>>
+
+		/* zone text mirrors the descriptions in the Trash passage itself */
+		<<if _trashValue gte 100>>
+			<<set _zoneLabel to "The compactor">>
+		<<elseif _trashValue gte 50>>
+			<<set _zoneLabel to "Mountains of rubbish">>
+		<<elseif _trashValue gte 30>>
+			<<set _zoneLabel to "Towering piles">>
+		<<elseif _trashValue gte 10>>
+			<<set _zoneLabel to "Rubbish piles">>
+		<<else>>
+			<<set _zoneLabel to "Front gate">>
+		<</if>>
+	<</silently>>
+
+	<div class="landfillmap-wrap">
+		<div class="landfillmap-scroller">
+			<div class="landfillmap-grid">
+				<<for _i to 0; _i lte 10; _i++>>
+					<<capture _i>>
+						/* pale gray near the gate, darkening towards the compactor */
+						<<set _light to (80 - Math.floor(_i * 5.8))>>
+						<<set _sat to (4 + Math.floor(_i * 0.6))>>
+
+						<<set _style to "background:hsl(0, " + _sat + "%, " + _light + "%);">>
+						<<set _class to "landfillmap-cell">>
+						<<if _i is _pos>><<set _class += " landfillmap-here">><</if>>
+
+						<div @class="_class" @style="_style">
+							<<if _showHints and _i is 0>><span class="landfillmap-gate"></span><</if>>
+							<<if _showHints and _i is 10 and $robinmissing is "landfill" and $robinmistknown>><span class="landfillmap-robin"></span><</if>>
+							<<if _i is _pos>>
+								<span class="landfillmap-you">YOU</span>
+							<</if>>
+						</div>
+					<</capture>>
+				<</for>>
+			</div>
+		</div>
+
+		<div class="landfillmap-caption"><<print _zoneLabel>></div>
+	</div>
+
+	<<script>>
+		(function () {
+			const scrollers = document.querySelectorAll('.landfillmap-scroller');
+			const scroller = scrollers[scrollers.length - 1];
+			const here = scroller && scroller.querySelector('.landfillmap-here');
+			if (scroller && here) {
+				const left = here.offsetLeft - (scroller.clientWidth - here.clientWidth) / 2;
+				scroller.scrollLeft = Math.max(0, left);
+			}
+		})();
+	<</script>>
+<</widget>>
+
 <<widget "docks_sneak_map">>
 	<<silently>>
 		/* Docks sneak uses $bus for its current zone.
 		   This widget keeps the same read-only style as the other minimaps. */
 		<<set _here to ($bus is undefined ? "" : $bus)>>
-		<<set _showHints to ($historytrait gte 2)>>
+		<<set _showHints to ($historytrait gte 3)>>
 
 		<<set _nodes to {
 			"0-0":{id:"MER", label:"Mer Street", kind:"street", small:false, sea:false},
@@ -737,5 +860,136 @@
 				<span class="dockmap-legend"><span class="dockmap-legend-sea"></span> Sea exit</span>
 			</div>
 		<</if>>
+	</div>
+<</widget>>
+
+<<widget "maze_map">>
+	<<silently>>
+		/* Serpent's Maze is a binary-fork maze */
+		<<set _p to (passage() is undefined) ? "" : passage().toLowerCase()>>
+		<<set _loc to _p.replace(/^maze\s+/,"").trim()>>
+
+		<<set _pass2node to {
+			"entrance":"entrance",
+			"lock":"gate",
+			"bucket":"bucket","bucket 2":"bucket","bucket tentacles":"bucket","bucket tentacles finish":"bucket",
+			"0":"0","1":"1",
+			"0 0":"00","0 1":"01","1 0":"10","1 1":"11",
+			"0 0 slime":"00","0 0 slime end":"00",
+			"0 1 care":"01","0 1 rush":"01","0 1 climb":"01","0 1 fall":"01",
+			"1 0 speed":"10","1 0 whack":"10",
+			"1 1 swim":"11","1 1 strip":"11",
+			"0 0 0":"000","0 0 1":"001","0 1 0":"010","0 1 1":"011",
+			"1 0 0":"100","1 0 1":"101","1 1 0":"110","1 1 1":"111",
+			"snuffer":"snuffer","horn":"horn","manacle":"manacle","whip":"whip",
+			"0 end":"end0",
+			"painting":"painting","painting 2":"painting"
+		}>>
+
+		<<set _hereNode to _pass2node[_loc]>>
+
+		/* "Maze Turn"/"Maze Petrified" (the basilisk stare event) aren't real locations */
+		<<if _hereNode is undefined and $maze_passage isnot undefined>>
+			<<set _fallbackLoc to $maze_passage.toLowerCase().replace(/^maze\s+/,"").trim()>>
+			<<set _hereNode to _pass2node[_fallbackLoc]>>
+		<</if>>
+
+		<<set _showHints to ($historytrait gte 3)>>
+
+		<<set _label to {
+			"entrance":"Entry","gate":"Gate","bucket":"Bucket",
+			"0":"Slimy","1":"Holes in<br>Wall",
+			"00":"Squelchy<br>Darkness","01":"Darkness","10":"Narrow<br>Squeeze","11":"Flooded",
+			"000":"Torn<br>Membrane","001":"Thick<br>Mucus","010":"Squelch<br>Above","011":"Drafty<br>Cracks",
+			"100":"Watching<br>Eyes","101":"Broken<br>Mirror","110":"Wooden<br>Boxes","111":"Crawl",
+			"snuffer":"Snuffer","horn":"Horn","manacle":"Manacle","whip":"Whip",
+			"end0":"Walkway",
+			"painting":"Painting"
+		}>>
+
+		/* Undiscovered-antique hints, same idea as the sewer map's dots. */
+		<<set _hintNode to {
+			"bucket":(_showHints and $weekly.maze.bucket is undefined),
+			"gate":(_showHints and $weekly.maze.bucket is undefined),
+			"snuffer":(_showHints and $weekly.maze.snuffer is undefined),
+			"horn":(_showHints and $weekly.maze.horn is undefined),
+			"manacle":(_showHints and $weekly.maze.silver_manacle is undefined),
+			"whip":(_showHints and $weekly.maze.whip is undefined),
+			"painting":(_showHints and $museumAntiques.paintings.paintingsnake is "notFound")
+		}>>
+
+		/* layout, "x-y" -> node id */
+		<<set _nodeAt to {
+			"7-0":"painting",
+			"7-1":"end0",
+			"1-2":"snuffer","5-2":"horn","9-2":"manacle","13-2":"whip",
+			"0-3":"000","2-3":"001","4-3":"010","6-3":"011",
+			"8-3":"100","10-3":"101","12-3":"110","14-3":"111",
+			"1-4":"00","5-4":"01","9-4":"10","13-4":"11",
+			"3-5":"0","11-5":"1",
+			"7-6":"entrance",
+			"7-7":"gate",
+			"7-8":"bucket"
+		}>>
+
+		<<set _corridor to {
+			/* antique rooms -> Maze 0 End trunk */
+			"1-1":1,"2-1":1,"3-1":1,"4-1":1,"5-1":1,"6-1":1,"8-1":1,"9-1":1,"10-1":1,"11-1":1,"12-1":1,"13-1":1,
+			/* antique room <-> its pair of dead-end forks */
+			"0-2":1,"2-2":1,"4-2":1,"6-2":1,"8-2":1,"10-2":1,"12-2":1,"14-2":1,
+			/* dead-end fork <-> its depth-2 fork */
+			"0-4":1,"2-4":1,"4-4":1,"6-4":1,"8-4":1,"10-4":1,"12-4":1,"14-4":1,
+			/* depth-2 fork <-> depth-1 fork, local trunks */
+			"1-5":1,"2-5":1,"4-5":1,"5-5":1,"9-5":1,"10-5":1,"12-5":1,"13-5":1,
+			/* depth-1 fork <-> entrance trunk */
+			"3-6":1,"4-6":1,"5-6":1,"6-6":1,"8-6":1,"9-6":1,"10-6":1,"11-6":1
+		}>>
+
+		<<set _minX to 0>><<set _maxX to 14>><<set _minY to 0>><<set _maxY to 8>>
+		<<set _w to (_maxX - _minX + 1)>>
+		<<set _h to (_maxY - _minY + 1)>>
+		<<set _gridStyle to
+			"grid-template-columns:repeat(" + _w + ", 1fr);" +
+			"grid-template-rows:repeat(" + _h + ", 1fr);" +
+			"aspect-ratio:" + _w + "/" + _h + ";"
+		>>
+	<</silently>>
+
+	<div class="mazemap-wrap">
+		<div class="mazemap-grid" @style="_gridStyle">
+			<<for _y to _minY; _y lte _maxY; _y++>>
+				<<for _x to _minX; _x lte _maxX; _x++>>
+					<<capture _x _y>>
+						<<set _key to _x + "-" + _y>>
+						<<set _cls to "mazemap-cell">>
+
+						<<if _nodeAt[_key]>>
+							<<set _nid to _nodeAt[_key]>>
+							<<set _cls += " mazemap-block mazemap-room">>
+							<<if _hereNode and _nid is _hereNode>><<set _cls += " mazemap-here">><</if>>
+
+							<div @class="_cls">
+								<<if _hintNode[_nid]>><span class="mazemap-dot"></span><</if>>
+
+								<<if _hereNode and _nid is _hereNode>>
+									<span class="mazemap-you">YOU</span>
+								<<elseif _showHints>>
+									<<set _ncls to "mazemap-name mazemap-name-small">>
+									<span @class="_ncls"><<print _label[_nid]>></span>
+								<</if>>
+							</div>
+
+						<<elseif _corridor[_key]>>
+							<<set _cls += " mazemap-block">>
+							<div @class="_cls"></div>
+
+						<<else>>
+							<<set _cls += " mazemap-void">>
+							<div @class="_cls"></div>
+						<</if>>
+					<</capture>>
+				<</for>>
+			<</for>>
+		</div>
 	</div>
 <</widget>>
