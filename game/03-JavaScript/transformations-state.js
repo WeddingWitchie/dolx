@@ -181,18 +181,21 @@ class Transformations {
 		const definition = builds[name];
 		if (!definition) return 0;
 		if (name === "angel" && (this.effectiveLevel("demon") >= 1 || this.effectiveLevel("fallen") >= 2)) return 0;
-		/* Demon build alone gates force impregnation (see actions-vagina/penis/anus.twee),
-		so a visible demon part must keep it at full even after a genome dump clears $demonbuild,
-		matching how effectiveLevel() already treats those parts as a completed demon. */
-		if (name === "demon") {
-			const levelDefinition = this.levelDefinitions.demon;
-			const partsFull = Object.keys(levelDefinition.parts).some(part => this.partActive("demon", part));
-			if (partsFull) return Math.max(Number(definition.value) || 0, definition.full);
+		/* Visible parts keep the transformation active after a genome reset.
+		Multiple sources are combined so chimera forms do not lower the result. */
+		let floor = 0;
+		/* Demon build gates force impregnation as a single threshold, so any visible demon part restores it in full. */
+		if (name === "demon" && Object.keys(this.levelDefinitions.demon.parts).some(part => this.partActive("demon", part))) {
+			floor = definition.full;
 		}
-		if (sources[name].some(chimera => this.chimeraFull(chimera))) {
-			return Math.max(Number(definition.value) || 0, definition.full);
+		/* This prevents Banish getting stuck at 0/0 when these parts are kept or restored. */
+		if (name === "angel") {
+			for (const [part, build] of Object.entries({ halo: 10, wings: 50 })) {
+				if (this.partActive("angel", part)) floor = Math.max(floor, build);
+			}
 		}
-		return Number(definition.value) || 0;
+		if (sources[name].some(chimera => this.chimeraFull(chimera))) floor = Math.max(floor, definition.full);
+		return Math.max(Number(definition.value) || 0, floor);
 	}
 
 	static canBanish() {
