@@ -2139,13 +2139,13 @@ function effects() {
 					if (!playerHasAutismSpectrum()) break;
 					const state = ensureAutismSpectrumState();
 					if (state.phaseChanged) {
-						element(
-							"span",
-							autismSpectrumPhase() === "gifted"
-								? "Your burnout lifts. You feel gifted and eager to learn again."
-								: "Your intense pace catches up with you. Gifted gives way to burnout.",
-							autismSpectrumPhase() === "gifted" ? "green" : "red"
-						);
+						const capacity = autismSpectrumPhase();
+						const capacityText = {
+							settled: "Your head feels clear again. Things take the effort they should.",
+							strained: "You are still managing, but everything is starting to take more out of you.",
+							burnout: "This has been building for a while. Ordinary things have become hard work. You need a long rest.",
+						};
+						element("span", capacityText[capacity] || capacityText.strained, capacity === "settled" ? "green" : capacity === "burnout" ? "red" : "pink");
 						br();
 					}
 					if (state.focusChanged) {
@@ -2159,6 +2159,47 @@ function effects() {
 					}
 					state.phaseChanged = false;
 					state.focusChanged = false;
+					break;
+				}
+				case "autismFocus": {
+					/* The trait can be switched off between the message being queued and this running. */
+					if (!playerHasAutismSpectrum()) break;
+					const state = ensureAutismSpectrumState();
+					/* Each notice keeps the stat name it was created with, even if the fixation changes later. */
+					const focus = state.fatigueNoticeFocus || autismHyperfixationName();
+					if (Number.isFinite(state.fatigueNotice)) {
+						const lines = [
+							`Working on anything but ${focus} takes effort.`,
+							`You have been at this a while, and none of it is ${focus}. Holding your attention is getting harder.`,
+							`You have spent hours away from ${focus}. You want to stop.`,
+							`You cannot make yourself care about this. Only ${focus} still holds your attention.`,
+						];
+						element("span", lines[Math.clamp(state.fatigueNotice, 0, lines.length - 1)], state.fatigueNotice >= 2 ? "red" : "pink");
+						br();
+					}
+					if (state.reliefNotice) {
+						const reliefFocus = state.reliefNoticeFocus || autismHyperfixationName();
+						element("span", `You spend the time on ${reliefFocus}. It comes easier, and you feel calmer.`, "green");
+						br();
+					}
+					if (state.meltdownNotice) {
+						element(
+							"span",
+							`It is too much at once. You cannot work out what to do, and you cannot make yourself start. Only ${autismHyperfixationName()} is possible until you calm down.`,
+							"red"
+						);
+						br();
+					}
+					if (state.meltdownEndNotice) {
+						element("span", "You can think clearly again. The worst of it has passed.", "green");
+						br();
+					}
+					delete state.fatigueNotice;
+					delete state.fatigueNoticeFocus;
+					delete state.reliefNoticeFocus;
+					state.reliefNotice = false;
+					state.meltdownNotice = false;
+					state.meltdownEndNotice = false;
 					break;
 				}
 				default:

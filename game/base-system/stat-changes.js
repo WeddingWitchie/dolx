@@ -200,6 +200,9 @@ const statChange = (() => {
 				V.stress += amount * multiplierOverride;
 			} else if (amount < 0) {
 				V.stress += amount * 80;
+				/* Whatever calmed the PC also takes some load off the Autism Spectrum trait.
+				Hanging this off stress going down covers every calming activity in the game without listing them. */
+				if (typeof autismStressRecovered === "function") autismStressRecovered(-amount * 80);
 			} else {
 				let stressMod;
 				if (V.drunk <= 0) {

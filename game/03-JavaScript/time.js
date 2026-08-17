@@ -1499,7 +1499,7 @@ function minutePassed(minutes) {
 	if (!V.possessed) Weather.BodyTemperature.update(temperature, minutes);
 	if (V.timeSkip === undefined) {
 		V.stress += Math.round(Weather.BodyTemperature.stressModifier * minutes);
-		if (typeof autismDiscomfortStress === "function") autismDiscomfortStress(minutes);
+		if (typeof autismSensoryUpdate === "function") autismSensoryUpdate(minutes);
 		statChange.stressClamp();
 	}
 

@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import * as fs from "fs";
+import * as path from "path";
 import { openGame, navigateTo, assertNoErrors, advanceHours, advanceMinutes, setDay, type Page } from "./helpers.js";
 
 async function setupGame(page: Page) {

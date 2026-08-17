@@ -301,71 +301,112 @@
 					text: "Arousal increases over time and needs to be managed.",
 				},
 				{
-					name: `<mouse class='tooltip purple'>Autism Spectrum<span class='white'>
-						<i class="purple">${autismPhaseLengthText()} ${autismHyperfixationLengthText()}</i>
-						<br><br>
-						Modifiers:
-						<ul>
-							<li class='green'>+100% gains to the stat you're fixated on.</li>
-							<li class='green'>+5% gains to all stats while Gifted.</li>
-							<li class='green'>+25% gains to school grades while Gifted.</li>
-							<li class='red'>-50% gains to other stats after hours of practice without a break.</li>
-							<li class='orange'>Practising the stat you're fixated on lowers stress. Practising anything else raises it.</li>
-							<li class='orange'>Studying raises stress while you're in Burnout.</li>
-							<li class='orange'>Heat and liquid on your skin raise stress faster.</li>
-							<li class='orange'>Relationship percentages can show up to 5 points above or below the real number.</li>
-						</ul>
-					</span></mouse>`,
+					name: `<mouse class='tooltip purple'>Autism Spectrum
+						<span class='tooltiptext'>
+							You experience the world intensely, focus deeply on what holds your attention, and can be worn down by too much demand.
+							<br><br>
+							Modifiers:
+							<ul>
+								<li class='orange'>Relationship percentages can show up to 5 points above or below the real number.</li>
+							</ul>
+						</span>
+					</mouse>`,
 					colour: "purple",
 					has: playerHasAutismSpectrum(),
-					text: "You focus deeply on whatever has your attention.",
+					text: "You can focus deeply, but too much demand can wear you down.",
 				},
 				{
-					name: () => autismSpectrumPhase() === "gifted"
-						? `<mouse class='tooltip green'>Gifted<span class='white'>
-							Comes from Autism Spectrum.
-							<br><br>
-							Modifiers:
-							<ul>
-								<li class='green'>+25% gains to school grades.</li>
+					name: () => {
+						const capacity = autismSpectrumPhase();
+						const heading = capacity === "settled" ? "Settled" : capacity === "burnout" ? "Burnout" : "Strained";
+						const colour = capacity === "settled" ? "green" : capacity === "burnout" ? "red" : "gold";
+
+						const effects = {
+							settled: `
 								<li class='green'>+5% gains to all stats.</li>
-							</ul>
-						</span></mouse>`
-						: `<mouse class='tooltip red'>Burnout<span class='white'>
-							Comes from Autism Spectrum.
+								<li class='green'>+25% school grades.</li>
+							`,
+							strained: `
+								<li class='default-colour'>No bonus or penalty.</li>
+							`,
+							burnout: `
+								<li class='red'>-20% gains to all stats.</li>
+								<li class='red'>-30% school grades.</li>
+								<li class='red'>Studying gives twice as much stress.</li>
+								<li class='red'>Practising can cause trauma.</li>
+							`,
+						};
+
+						return `<mouse class='tooltip ${colour}'>${heading}: ${autismLoadPercent()}% Load
+							<span class='tooltiptext'>
+								Comes from Autism Spectrum. Load shows how worn down you are by ongoing demands.
+								<br><br>
+								Modifiers:
+								<ul>
+									${effects[capacity] || effects.strained}
+								</ul>
+								<b class='red'>Practice outside your fixation, heat, discomfort, and going too long without rest can raise Load.</b>
+								<br><br>
+								Rest, quiet time, calming activities, and your fixation help reduce Load.
+								You can recover up to ${autismRecoveryCapValue()} Load each day.
+								You can still recover ${autismRecoveryLeftToday()} today.
+							</span>
+						</mouse>`;
+					},
+					colour: () => {
+						const capacity = autismSpectrumPhase();
+						return capacity === "settled" ? "green" : capacity === "burnout" ? "red" : "gold";
+					},
+					has: playerHasAutismSpectrum(),
+					text: () => {
+						const capacity = autismSpectrumPhase();
+
+						if (capacity === "settled") return "Your low Load makes things easier to handle.";
+						if (capacity === "burnout") return "Your high Load makes it harder to recover.";
+						return "Your Load is rising, making things take more effort.";
+					},
+				},
+				{
+					name: () => `<mouse class='tooltip gold'>Hyperfixation: ${autismHyperfixationName().toUpperFirst()}
+						<span class='tooltiptext'>
+							Comes from Autism Spectrum. Your fixation changes from time to time.
 							<br><br>
 							Modifiers:
 							<ul>
-								<li class='red'>The Gifted bonuses are switched off.</li>
-								<li class='orange'>Studying raises stress.</li>
+								<li class='green'>+100% gains to ${autismHyperfixationName()}.</li>
+								<li class='green'>Practising it lowers stress and Load.</li>
+								<li class='red'>Practising other stats raises stress.</li>
+								<li class='red'>Practising too long without a break can reduce gains to other stats by 50%.</li>
+								<li class='orange'>A 3-hour break clears this practice penalty.</li>
+								<li class='orange'>Lessons, studying, swimming, dancing, tending, housekeeping, and training count as practice.</li>
 							</ul>
-						</span></mouse>`,
-					colour: () => autismSpectrumPhase() === "gifted" ? "green" : "red",
-					has: playerHasAutismSpectrum(),
-					text: () => autismSpectrumPhase() === "gifted"
-						? `Learning comes easily until Burnout starts in ${autismSpectrumDaysRemaining()} day${autismSpectrumDaysRemaining() === 1 ? "" : "s"}.`
-						: `Studying feels like hard work until Gifted returns in ${autismSpectrumDaysRemaining()} day${autismSpectrumDaysRemaining() === 1 ? "" : "s"}.`,
-				},
-				{
-					name: () => `<mouse class='tooltip gold'>Hyperfixation: ${autismHyperfixationName().toUpperFirst()}<span class='white'>
-						Comes from Autism Spectrum.
-						<br><br>
-						Modifiers:
-						<ul>
-							<li class='green'>+100% gains to ${autismHyperfixationName()}.</li>
-							<li class='green'>Practising it lowers stress.</li>
-							<li class='red'>-50% gains to other stats after hours of practice without a break.</li>
-							<li class='orange'>Practising anything else raises stress, and more so the longer you keep going.</li>
-							<li class='orange'>Three hours away from practice clears the penalty.</li>
-							<li class='orange'>Lessons, studying, swimming, dancing, tending and housekeeping count as practice, as does training at the gym, pool, dance studio, school, temple, or Alex's farm.</li>
-						</ul>
-					</span></mouse>`,
+						</span>
+					</mouse>`,
 					colour: "gold",
 					has: playerHasAutismSpectrum(),
 					text: () => {
 						const days = autismHyperfixationDaysRemaining();
-						return `You keep returning to ${autismHyperfixationName()}. Your focus changes in ${days} day${days === 1 ? "" : "s"}.`;
+						return `Your focus may shift in ${days} day${days === 1 ? "" : "s"}.`;
 					},
+				},
+				{
+					name: `<mouse class='tooltip red'>Meltdown
+						<span class='tooltiptext'>
+							Comes from Autism Spectrum. A meltdown can happen when both stress and Load become very high.
+							<br><br>
+							Modifiers:
+							<ul>
+								<li class='red'>-50% gains to everything except your fixation.</li>
+								<li class='red'>Practising other stats causes trauma instead of stress.</li>
+								<li class='green'>Your fixation is not affected and still lowers stress.</li>
+								<li class='green'>The meltdown ends when stress falls to 70% or lower.</li>
+							</ul>
+							Calming activities can help lower your stress.
+						</span>
+					</mouse>`,
+					colour: "red",
+					has: playerHasAutismSpectrum() && autismInMeltdown(),
+					text: "You are overwhelmed. Other activities are much harder until your stress comes down.",
 				},
 				{
 					name: "Green Thumb",
