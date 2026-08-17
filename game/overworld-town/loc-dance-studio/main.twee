@@ -133,11 +133,25 @@ You are in the dance studio. Here you can pay for lessons to improve your dancin
 <</if>>
 
 :: Dance Studio Changing Room
-<<effects>>
-You are in the dance studio's changing room. Benches line the walls, with hooks for clothing hanging above.
+<<set $outside to 0>><<set $location to "dance_studio">><<effects>>
+<<run ensureDanceStudioWardrobe()>>
+You are in the dance studio's changing room. Benches line the walls, with hooks for clothing hanging above. A row of lockers stands at the end of the benches, one of them yours to use.
 <br><br>
 <<dancingclothes>>
+<<lockericon>><<link [[Locker|Dance Studio Locker]]>><</link>>
+<br>
 <<getouticon>><<link [[Leave|Dance Studio]]>><</link>>
+
+:: Dance Studio Locker [exitCheckBypass]
+<<set $outside to 0>><<set $location to "dance_studio">><<effects>>
+<<set $wardrobe_location to "danceStudio">>
+<<wardrobeSelection>>
+<<set _earSlimeEnableDancewear to true>>
+You stand in front of your open locker.
+<br><br>
+<div id="wardrobewear"><<wardrobewear>></div>
+<div id="wardrobeExits"><<wardrobeExits>></div>
+<<wardrobe>>
 
 :: Dance Studio Outside Exhibitionism
 <<effects>>
@@ -221,10 +235,10 @@ The dance studio is closed. <<openinghours>>
 	<</if>>
 	<<if $danceStudio.training.injury isnot "light" and ($weekly.dancePracticeLoad or 0) lte 6>>
 		<<if $worn.feet.type.includes("heels")>>
-			<span class="blue">Charlie will not let you attempt hard practice in heels.</span>
+			<span class="blue">Charlie will not let you attempt hard practice in heels. You could change your shoes in the changing room.</span>
 			<br>
 		<<elseif $worn.feet.type.includes("naked")>>
-			<span class="blue">Charlie requires supportive footwear for hard practice.</span>
+			<span class="blue">Charlie requires supportive footwear for hard practice. You could change your shoes in the changing room.</span>
 			<br>
 		<<else>>
 			<<link [[Hard practice (1:00)|Dance Practice Start]]>><<set $danceStudio.practiceChoice to "hard">><</link>><<gggtiredness>><<note `"+15 Dancing Skill; " + (9 * _painResistance) + "% soreness and " + (9 * _painResistance) + "% injury risk"` "green">>

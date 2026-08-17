@@ -1,39 +1,54 @@
+/* Add the dance studio locker for old saves that missed the wardrobe update.
+ * This only creates it if missing and does not affect stored clothes.
+ * $wardrobeMult is handled by modWardrobeUpdate like other wardrobes. */
+function ensureDanceStudioWardrobe() {
+	if (!V.wardrobes || typeof V.wardrobes !== "object" || Array.isArray(V.wardrobes)) return;
+	if (!V.wardrobes.danceStudio || typeof V.wardrobes.danceStudio !== "object" || Array.isArray(V.wardrobes.danceStudio)) {
+		V.wardrobes.danceStudio = {};
+	}
+	const locker = V.wardrobes.danceStudio;
+	for (const slot of setup.clothes_all_slots) {
+		if (!Array.isArray(locker[slot])) locker[slot] = [];
+	}
+	if (locker.name === undefined) locker.name = "Dance studio locker";
+	if (locker.unlocked === undefined) locker.unlocked = true;
+	if (locker.isolated === undefined) locker.isolated = true;
+	if (locker.shopSend === undefined) locker.shopSend = false;
+	if (locker.transfer === undefined) locker.transfer = true;
+	if (!Number.isFinite(locker.space)) locker.space = 5 * (V.wardrobeMult || 1);
+	/* Keeps the locker's contents out of reach anywhere but the studio, the same way the prison and tower lockers work. */
+	if (!Array.isArray(locker.locationRequirement) || !locker.locationRequirement.length) locker.locationRequirement = ["dance_studio"];
+}
+window.ensureDanceStudioWardrobe = ensureDanceStudioWardrobe;
+
 function getWardrobeItemCount(wardrobeId) {
-    let wardrobe;
-    if (wardrobeId === "wardrobe") {
-        wardrobe = V.wardrobe;
-    }
-    else {
-        wardrobe = V.wardrobes[wardrobeId];
-    }
+	let wardrobe;
+	if (wardrobeId === "wardrobe") {
+		wardrobe = V.wardrobe;
+	} else {
+		wardrobe = V.wardrobes[wardrobeId];
+	}
 
-    let total = 0;
-    Object.keys(V.worn).forEach(slot => {
-        if (!["over_upper","over_lower","over_head","genitals"].includes(slot))
-            total += wardrobe[slot]?.length ?? 0;
-    });
+	let total = 0;
+	Object.keys(V.worn).forEach(slot => {
+		if (!["over_upper", "over_lower", "over_head", "genitals"].includes(slot)) total += wardrobe[slot]?.length ?? 0;
+	});
 
-    return total;
+	return total;
 }
 window.getWardrobeItemCount = getWardrobeItemCount;
 
 const wardrobeFavoriteItemIdKey = "wardrobeFavoriteId";
-const wardrobeFavoriteRequiredKeys = [
-	"slot",
-	"variable",
-	"modder",
-];
-const wardrobeFavoriteVariantKeys = [
-	"colour",
-	"colourCustom",
-	"accessory_colour",
-	"accessory_colourCustom",
-	"pattern",
-	"condition",
-];
+const wardrobeFavoriteRequiredKeys = ["slot", "variable", "modder"];
+const wardrobeFavoriteVariantKeys = ["colour", "colourCustom", "accessory_colour", "accessory_colourCustom", "pattern", "condition"];
 
 function wardrobeFavoriteId(favorite, index = 0) {
-	return JSON.stringify(wardrobeFavoriteRequiredKeys.concat(wardrobeFavoriteVariantKeys).map(key => favorite?.[key] ?? "").concat(index));
+	return JSON.stringify(
+		wardrobeFavoriteRequiredKeys
+			.concat(wardrobeFavoriteVariantKeys)
+			.map(key => favorite?.[key] ?? "")
+			.concat(index)
+	);
 }
 window.wardrobeFavoriteId = wardrobeFavoriteId;
 
@@ -54,15 +69,18 @@ function getWardrobeFavorites() {
 	}
 	V.wardrobeFavorites.forEach((favorite, index) => {
 		if (!favorite.id) favorite.id = wardrobeFavoriteId(favorite, index);
-    });
-    return V.wardrobeFavorites;
+	});
+	return V.wardrobeFavorites;
 }
 window.getWardrobeFavorites = getWardrobeFavorites;
 
 function wardrobeFavoriteCondition(item) {
-	const outfitPrimary = item?.outfitPrimary && typeof item.outfitPrimary === "object"
-		? Object.keys(item.outfitPrimary).sort().map(key => [key, item.outfitPrimary[key]])
-		: [];
+	const outfitPrimary =
+		item?.outfitPrimary && typeof item.outfitPrimary === "object"
+			? Object.keys(item.outfitPrimary)
+					.sort()
+					.map(key => [key, item.outfitPrimary[key]])
+			: [];
 	const outfitSecondary = Array.isArray(item?.outfitSecondary) ? item.outfitSecondary : [];
 	return JSON.stringify({
 		integrity: item?.integrity ?? "",
@@ -107,13 +125,15 @@ function wardrobeFavoriteValue(favorite, key) {
 function wardrobeFavoriteMatches(favorite, slot, item) {
 	const identity = wardrobeFavoriteIdentity(slot, item);
 	if (favorite?.itemId) return favorite.itemId === identity.itemId;
-	return wardrobeFavoriteRequiredKeys.every(key => wardrobeFavoriteValue(favorite, key) === (identity[key] ?? ""))
-		&& wardrobeFavoriteVariantKeys.every(key => favorite?.[key] === undefined || favorite[key] === identity[key]);
+	return (
+		wardrobeFavoriteRequiredKeys.every(key => wardrobeFavoriteValue(favorite, key) === (identity[key] ?? "")) &&
+		wardrobeFavoriteVariantKeys.every(key => favorite?.[key] === undefined || favorite[key] === identity[key])
+	);
 }
 window.wardrobeFavoriteMatches = wardrobeFavoriteMatches;
 
 function isWardrobeFavorite(slot, item) {
-    return getWardrobeFavorites().some(favorite => wardrobeFavoriteMatches(favorite, slot, item));
+	return getWardrobeFavorites().some(favorite => wardrobeFavoriteMatches(favorite, slot, item));
 }
 window.isWardrobeFavorite = isWardrobeFavorite;
 
@@ -127,8 +147,7 @@ function toggleWardrobeFavorite(slot, item, favoriteId) {
 		if (item?.[wardrobeFavoriteItemIdKey] && (!favorite?.itemId || item[wardrobeFavoriteItemIdKey] === favorite.itemId)) {
 			delete item[wardrobeFavoriteItemIdKey];
 		}
-	}
-	else {
+	} else {
 		const favorite = wardrobeFavoriteIdentity(slot, item);
 		wardrobeFavoriteAssignItemId(favorite, item);
 		favorites.push(favorite);
@@ -137,11 +156,11 @@ function toggleWardrobeFavorite(slot, item, favoriteId) {
 window.toggleWardrobeFavorite = toggleWardrobeFavorite;
 
 function wardrobeFavoriteItems(wardrobe, includeInventory = false) {
-    const favorites = getWardrobeFavorites();
-    const items = [];
+	const favorites = getWardrobeFavorites();
+	const items = [];
 
-    function addWornMatch(favorite) {
-        const item = V.worn?.[favorite.slot];
+	function addWornMatch(favorite) {
+		const item = V.worn?.[favorite.slot];
 		if (!item || item.name === "naked") return false;
 		if (!wardrobeFavoriteMatches(favorite, favorite.slot, item)) return false;
 		if (!favorite.itemId) wardrobeFavoriteAssignItemId(favorite, item);
@@ -149,11 +168,11 @@ function wardrobeFavoriteItems(wardrobe, includeInventory = false) {
 		return true;
 	}
 
-    function addMatch(sourceWardrobe, source, favorite) {
-        if (!sourceWardrobe || !Array.isArray(sourceWardrobe[favorite.slot])) return false;
-        const index = sourceWardrobe[favorite.slot].findIndex(item => {
-            if (item?.outfitSecondary && !["broken", "split"].includes(item.outfitSecondary[1])) return false;
-            return wardrobeFavoriteMatches(favorite, favorite.slot, item);
+	function addMatch(sourceWardrobe, source, favorite) {
+		if (!sourceWardrobe || !Array.isArray(sourceWardrobe[favorite.slot])) return false;
+		const index = sourceWardrobe[favorite.slot].findIndex(item => {
+			if (item?.outfitSecondary && !["broken", "split"].includes(item.outfitSecondary[1])) return false;
+			return wardrobeFavoriteMatches(favorite, favorite.slot, item);
 		});
 		if (index < 0) return false;
 		if (!favorite.itemId) wardrobeFavoriteAssignItemId(favorite, sourceWardrobe[favorite.slot][index]);
@@ -161,20 +180,20 @@ function wardrobeFavoriteItems(wardrobe, includeInventory = false) {
 		return true;
 	}
 
-    favorites.forEach(favorite => {
-        if (addWornMatch(favorite)) return;
-        if (addMatch(wardrobe, "wardrobe", favorite)) return;
-        if (includeInventory) addMatch(V.wardrobes?.inventory, "inventory", favorite);
-    });
+	favorites.forEach(favorite => {
+		if (addWornMatch(favorite)) return;
+		if (addMatch(wardrobe, "wardrobe", favorite)) return;
+		if (includeInventory) addMatch(V.wardrobes?.inventory, "inventory", favorite);
+	});
 
-    return items;
+	return items;
 }
 window.wardrobeFavoriteItems = wardrobeFavoriteItems;
 
 function wardrobeSlotName(slot) {
-    return String(slot)
-        .split("_")
-        .map(word => word.slice(0, 1).toUpperCase() + word.slice(1))
-        .join(" ");
+	return String(slot)
+		.split("_")
+		.map(word => word.slice(0, 1).toUpperCase() + word.slice(1))
+		.join(" ");
 }
 window.wardrobeSlotName = wardrobeSlotName;
