@@ -119,14 +119,16 @@
         <</if>>
     <</widget>>
 
-    /* Prints the closing descriptor for a freshly-pilled NPC and, for Whitney, flags the matching speech-whitney reaction.
-    Herm pills keep the NPC's presentation but leave them with both genitals, so the wording reflects that instead of "a boy". */
     <<widget "xchange-pilled-descriptor">><<set _t to _args[0]>><<set _pilledHerm to !!($NPCList[_t].xchange and $NPCList[_t].xchange.hermEffect)>><<if ["Whitney","Robin","Kylar","Sydney","Bailey"].includes($NPCList[_t].fullDescription)>><<set $speechpill to (_pilledHerm ? "herm" : 1)>><</if>><<= ($NPCList[_t].teen ? $NPCList[_t].pronouns.boy : $NPCList[_t].pronouns.man) + (_pilledHerm ? " sporting both a stiff cock and a needy pussy" : "")>><</widget>>
 
-    /* Immediate reaction the instant a pill lands on an NPC who takes it badly.
-    Currently Bailey only: a burst of cold fury, then a hand in your hair or around your throat.
-    The throat grab respects the asphyxia setting, $nochoke, an already-occupied neck and the familiar collar, and needs a free hand; it feeds the normal strangle sequence on following turns.
-    No-op for everyone else. _args[0] = NPCList index of the pilled NPC. */
+    <<widget "xchange-pilled-subject">><<set _sn to $NPCList[_args[0]]>><<if $NPCNameList.includes(_sn.fullDescription) or _sn.name is _sn.fullDescription>><<= _sn.fullDescription>><<else>>the previously <<= _sn.fullDescription>><</if>><</widget>>
+
+    <<widget "xchange-raul-pill-flavour">>
+        <<if $statFreeze and $NPCList[_args[0]] and $NPCList[_args[0]].fullDescription is "Raul">>
+            <span class="purple">None of this is in the book. You're the one imagining it, so Raul changes anyway.</span>
+        <</if>>
+    <</widget>>
+
     <<widget "xchange-pilled-fury">>
         <<set _ft to _args[0]>>
         <<if $NPCList[_ft].fullDescription is "Bailey">>
@@ -149,21 +151,28 @@
         <</if>>
     <</widget>>
 
-    /* A non-pillable named NPC angrily slaps the pill away
+    /* The pill fails to land. Two reasons, in order:
+    - $statFreeze: a flashback, vision or dream. The scene already went the way it went, so the pill
+      does nothing and the NPC has no reaction to give. Raul is exempt (see npcXchangePillable).
+    - Otherwise a named NPC who refuses on their own account, and is angered by the attempt.
     _args[0] = "left"/"right" hand, _args[1] = target index. Resets the holding hand and unsets the held pill. */
     <<widget "xchange-pill-slap">>
-        <<set _slapHand to _args[0]>><<set _slapTarget to _args[1]>>
+        <<set _slapHand to _args[0]>><<set _slapTarget to _args[1]>><<set _slapFrozen to !!$statFreeze>>
         <<if _slapHand is "left">>
             <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>><<unset $currentXchangePillLeft>>
         <<else>>
             <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>><<unset $currentXchangePillRight>>
         <</if>>
-        <<if $NPCList[_slapTarget].fullDescription is "Whitney">>
+        <<if _slapFrozen>>
+            <<personselect _slapTarget>>
+            <span class="purple">You force the pill into <<his>> mouth. Nothing happens. None of this is real, and the pill has nothing real to work on.</span>
+        <<elseif $NPCList[_slapTarget].fullDescription is "Whitney">>
             <span class="red">Whitney's hand snaps up and smacks the pill clean out of your grip. "You think you can pull that shit on me, slut? Not a fucking chance."</span>
+            <<set $enemyanger += 50>><<set $enemytrust -= 30>>
         <<else>>
             <span class="red"><<= $NPCList[_slapTarget].fullDescription>> knocks the pill from your hand with a furious snarl. "Get that thing away from me!"</span>
+            <<set $enemyanger += 50>><<set $enemytrust -= 30>>
         <</if>>
-        <<set $enemyanger += 50>><<set $enemytrust -= 30>>
     <</widget>>
 
     <<widget "effectsUseXchangePill">>
@@ -205,20 +214,21 @@
             <<if $npcpillingasked is $lefttarget>>
                 <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
                 You present $NPCList[$lefttarget].pronouns.him the pill, <span class="lewd">and $NPCList[$lefttarget].pronouns.he opens $NPCList[$lefttarget].pronouns.his mouth allowing you to feed it to $NPCList[$lefttarget].pronouns.him.</span>
-                The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$lefttarget].description)? "reluctant "+$NPCList[$lefttarget].description : $NPCList[$lefttarget].fullDescription>> is now nothing more than a
+                The change is instantaneous, <<xchange-pilled-subject $lefttarget>> is now nothing more than a
                 <<npc-select-xchange-target $lefttarget>>
                 <<run $currentXchangePillLeft.npcEffects.forEach(npcEffect => {
                     Wikifier.wikifyEval(npcEffect);
                 })>>
                 <<xchange-pilled-descriptor $lefttarget>>.
                 <<xchange-pilled-fury $lefttarget>>
+                <<xchange-raul-pill-flavour $lefttarget>>
                 <<unset $currentXchangePillLeft>>
 
             <<elseif not npcXchangePillable($lefttarget)>>
                 <<xchange-pill-slap "left" $lefttarget>>
 
             <<else>>
-                You throw yourself onto<<= !$NPCNameList.includes($NPCList[$lefttarget].fullDescription) ? " the":"">> $NPCList[$lefttarget].fullDescription, and after some struggle
+                You throw yourself onto<<= (!$NPCNameList.includes($NPCList[$lefttarget].fullDescription) and $NPCList[$lefttarget].name isnot $NPCList[$lefttarget].fullDescription) ? " the":"">> $NPCList[$lefttarget].fullDescription, and after some struggle
 
                 <<set _physiquemin to ($NPCList[$lefttarget].skills.athletics - ($enemyhealthmax - $enemyhealth) * ($NPCList[$lefttarget].skills.athletics/$enemyhealthmax)) * 16>>
                 <<set _physiquemax to 15000 - ($enemyhealthmax - $enemyhealth) * ($NPCList[$lefttarget].skills.athletics/$enemyhealthmax) * 16>>
@@ -227,13 +237,14 @@
                 <<if $physiqueSuccess>>
                     <<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $leftarm to 0>>
                     <span class="green">you manage to outmaneuver $NPCList[$lefttarget].pronouns.him, shoving your pill into $NPCList[$lefttarget].pronouns.his mouth and forcing $NPCList[$lefttarget].pronouns.him to swallow.</span>
-                    The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$lefttarget].description)? "reluctant "+$NPCList[$lefttarget].description : $NPCList[$lefttarget].fullDescription>> is now nothing more than a
+                    The change is instantaneous, <<xchange-pilled-subject $lefttarget>> is now nothing more than a
                     <<npc-select-xchange-target $lefttarget>>
                     <<run $currentXchangePillLeft.npcEffects.forEach(npcEffect => {
                         Wikifier.wikifyEval(npcEffect);
                     })>>
                     <<xchange-pilled-descriptor $lefttarget>>.
                     <<xchange-pilled-fury $lefttarget>>
+                    <<xchange-raul-pill-flavour $lefttarget>>
                     <<unset $currentXchangePillLeft>>
 
                 <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
@@ -258,20 +269,21 @@
             <<if $npcpillingasked is $righttarget>>
                 <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
                 You present $NPCList[$righttarget].pronouns.him the pill,<span class="lewd"> and $NPCList[$righttarget].pronouns.he opens $NPCList[$righttarget].pronouns.his mouth allowing you to feed it to $NPCList[$righttarget].pronouns.him.</span>
-                The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$righttarget].description)? "reluctant "+$NPCList[$righttarget].description : $NPCList[$righttarget].fullDescription>> is now nothing more than a
+                The change is instantaneous, <<xchange-pilled-subject $righttarget>> is now nothing more than a
                 <<npc-select-xchange-target $righttarget>>
                 <<run $currentXchangePillRight.npcEffects.forEach(npcEffect => {
                     Wikifier.wikifyEval(npcEffect);
                 })>>
                 <<xchange-pilled-descriptor $righttarget>>.
                 <<xchange-pilled-fury $righttarget>>
+                <<xchange-raul-pill-flavour $righttarget>>
                 <<unset $currentXchangePillRight>>
 
             <<elseif not npcXchangePillable($righttarget)>>
                 <<xchange-pill-slap "right" $righttarget>>
 
             <<else>>
-                You throw yourself onto<<= !$NPCNameList.includes($NPCList[$righttarget].fullDescription) ? " the":"">> $NPCList[$righttarget].fullDescription, and after some struggle
+                You throw yourself onto<<= (!$NPCNameList.includes($NPCList[$righttarget].fullDescription) and $NPCList[$righttarget].name isnot $NPCList[$righttarget].fullDescription) ? " the":"">> $NPCList[$righttarget].fullDescription, and after some struggle
 
                 <<set _physiquemin to ($NPCList[$righttarget].skills.athletics - ($enemyhealthmax - $enemyhealth) * ($NPCList[$righttarget].skills.athletics/$enemyhealthmax)) * 16>>
                 <<set _physiquemax to 15000 - ($enemyhealthmax - $enemyhealth) * ($NPCList[$righttarget].skills.athletics/$enemyhealthmax) * 16>>
@@ -280,13 +292,14 @@
                 <<if $physiqueSuccess>>
                     <<set $rightaction to 0>><<set $rightactiondefault to "rest">><<set $rightarm to 0>>
                     <span class="green">you manage to outmaneuver $NPCList[$righttarget].pronouns.him, shoving your pill into $NPCList[$righttarget].pronouns.his mouth and forcing $NPCList[$righttarget].pronouns.him to swallow.</span>
-                    The change is instantaneous, the previously <<= $NPCNameList.includes($NPCList[$righttarget].description)? "reluctant "+$NPCList[$righttarget].description : $NPCList[$righttarget].fullDescription>> is now nothing more than a
+                    The change is instantaneous, <<xchange-pilled-subject $righttarget>> is now nothing more than a
                     <<npc-select-xchange-target $righttarget>>
                     <<run $currentXchangePillRight.npcEffects.forEach(npcEffect => {
                         Wikifier.wikifyEval(npcEffect);
                     })>>
                     <<xchange-pilled-descriptor $righttarget>>.
                     <<xchange-pilled-fury $righttarget>>
+                    <<xchange-raul-pill-flavour $righttarget>>
                     <<unset $currentXchangePillRight>>
 
                 <<elseif !playerIsXChanged() and playerMayBeSpiked()>>
@@ -327,7 +340,7 @@
                 <<elseif $combatgoal is "strip">>
                     <span class="pink">"No," <<if $enemyno gte 2>>they laugh<<else>><<he>> laughs<</if>>. <<if !playerIsXChanged()>>"If anything, I should be pilling you."<<else>>"Don't even think about it."<</if>></span>
                     
-                <<elseif combatSkillCheck("seduction", $mouthtarget, $NPCList[$mouthtarget].fullDescription)>>
+                <<elseif npcXchangePillable($mouthtarget) and combatSkillCheck("seduction", $mouthtarget, $NPCList[$mouthtarget].fullDescription)>>
                     <<set $npcpillingasked to $mouthtarget>><span class="green"><<He_Short>> nods in acknowledgement.</span>
                     <span class="gold">You may now pill <<him>> without opposition.</span>
 

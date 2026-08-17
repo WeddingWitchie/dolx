@@ -137,6 +137,9 @@ window.npcRepairBodyText = npcRepairBodyText;
  *   - Whitney can only be pilled when fond and not too dominant (love >= 25, dom <= 15).
  *   - Any other named NPC cannot be pilled (they angrily slap the pill away).
  *
+ * `$statFreeze` is used for flashbacks and fixed past events that happened before X-Change pills existed, so pilling is disabled in those scenes.
+ * The only exception is Raul in the Raul and Janet daydream, since that scene is the player's imagination and can change to fit the current situation.
+ *
  * @param {number|string} id an NPCList index, or an NPC name / fullDescription
  */
 function npcXchangePillable(id) {
@@ -148,6 +151,7 @@ function npcXchangePillable(id) {
 	} else {
 		name = id;
 	}
+	if (V.statFreeze && name !== "Raul") return false;
 	const isNamed = V.NPCNameList && V.NPCNameList.includes(name);
 	if (!isNamed) return true; // generic/unnamed enemies
 	if (name === "Kylar" || name === "Robin" || name === "Sydney" || name === "Bailey") return true;
