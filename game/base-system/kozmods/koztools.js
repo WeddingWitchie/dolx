@@ -337,6 +337,70 @@ window.updatePronounSummary = updatePronounSummary;
 		}
 	};
 
+	/**
+	 * Reshapes a worn chastity device to fit the player's current body.
+	 *
+	 * Call this AFTER penisExist/vaginaExist are updated.
+	 * The item's .variable stays unchanged so it remains the same owned item. Only its shape-related fields are changed.
+	 * Use .type to check its current shape, not .variable.
+	 *
+	 * Returns: "feminize", "butchify", "fellOff", or null if nothing changed.
+	 */
+	setup.xchangeAdaptChastityToBody = function () {
+		const V = State?.variables;
+		const worn = V?.worn?.genitals;
+		if (!worn || !Array.isArray(worn.type) || !worn.type.includes("chastity")) return null;
+		// A chastity parasite is living slime rather than a metal device; it already fits whatever body it is on.
+		if (worn.name === "chastity parasite") return null;
+
+		const cloneFn = typeof clone === "function" ? clone : o => JSON.parse(JSON.stringify(o));
+		const isCage = worn.type.includes("cage") && !worn.type.includes("hidden");
+		const isBelt = worn.type.includes("hidden") && !worn.type.includes("cage");
+		const rename = (from, to) => {
+			const swap = text =>
+				typeof text === "string" ? text.replace(new RegExp(`\\b${from}\\b`, "gi"), m => (m[0] === m[0].toUpperCase() ? to.toUpperFirst() : to)) : text;
+			worn.name = swap(worn.name);
+			// name_cap is what the statistics overlay and other capitalised references print, so it has to follow the name.
+			worn.name_cap = swap(worn.name_cap);
+		};
+		const setType = (tag, present) => {
+			const at = worn.type.indexOf(tag);
+			if (present && at === -1) worn.type.push(tag);
+			else if (!present && at !== -1) worn.type.splice(at, 1);
+		};
+
+		if (isCage && !V.player?.penisExist) {
+			// Nothing left to cage.
+			// A bought cage is not a curse forcing it to stay, so it simply comes off into the wardrobe back home.
+			// Without somewhere to put it the device would be destroyed, so in that case reshape it instead of losing it.
+			if (worn.cursed === 0 && Array.isArray(V.wardrobe?.genitals)) {
+				V.wardrobe.genitals.push(cloneFn(worn));
+				V.worn.genitals = cloneFn(setup.clothes.genitals[0]);
+				return "fellOff";
+			}
+			setType("cage", false);
+			setType("hidden", true);
+			// Every belt in the catalogue is "constricting" and no cage is; pregnancy checks read this, so it has to follow the shape.
+			setType("constricting", true);
+			worn.exposed = 0;
+			worn.exposed_base = 0;
+			rename("cage", "belt");
+			return "feminize";
+		}
+
+		if (isBelt && V.player?.penisExist && !V.player?.vaginaExist && !V.xchange?.chastityKeepBeltShape) {
+			setType("hidden", false);
+			setType("cage", true);
+			setType("constricting", false);
+			worn.exposed = 1;
+			worn.exposed_base = 1;
+			rename("belt", "cage");
+			return "butchify";
+		}
+
+		return null;
+	};
+
 	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled, and prevent "armed" drift/stage from firing later.
 	setup.xchangeEnsureGiSafety = function () {
 		const V = State?.variables;

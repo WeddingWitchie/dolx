@@ -110,7 +110,10 @@ function nudeGenderAppearance() {
 	T.apparent_femininity_nude += (V.player.breastsize - 0.5) * 100;
 	T.apparent_femininity_nude += Math.trunc(V.player.bottomsize * 50);
 	if (playerChastity("hidden")) {
-		T.apparent_femininity_nude += setup.clothes.genitals[clothesIndex("genitals", V.worn.genitals)].femininity;
+		/* X-Change can reshape a cage into a belt without changing its original item ID.
+		This can leave femininity undefined, so use 300 as the fallback value. */
+		const _hiddenFemininity = setup.clothes.genitals[clothesIndex("genitals", V.worn.genitals)].femininity;
+		T.apparent_femininity_nude += _hiddenFemininity !== undefined ? _hiddenFemininity : 300;
 	} else if (V.settings.nudeGenderPerception === 1) {
 		if (V.player.penisExist) T.apparent_femininity_nude += (-V.player.penissize - 0.5) * 150;
 		if (V.player.vaginaExist) T.apparent_femininity_nude += 450;

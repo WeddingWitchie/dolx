@@ -269,27 +269,9 @@
 		<<set $player.penisExist to false>>
 		<<set $player.vaginaExist to true>>
 
-		/* Adapt chastity device to new body. Chastity parasites are living slime, not a metal cage, and keep their shape. */
-		<<if $worn.genitals.type.includes("chastity") and $worn.genitals.name isnot "chastity parasite">>
-			<<if $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
-				<<if $worn.genitals.cursed is 0>>
-					<!-- A bought cage isn't a curse forcing it to stay; with nothing left to enclose, it just falls off into the home wardrobe. -->
-					<<run $wardrobe.genitals.push(clone($worn.genitals))>>
-					<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
-					<<set $xchange.chastityAdaptedMessage to "fellOff">>
-				<<else>>
-					<<set _cageIdx to $worn.genitals.type.indexOf("cage")>>
-					<<run $worn.genitals.type.splice(_cageIdx, 1)>>
-					<<run $worn.genitals.type.push("hidden")>>
-					<<set $worn.genitals.exposed to 0>>
-					<<set $worn.genitals.exposed_base to 0>>
-					<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("cage")>>
-						<<set $worn.genitals.name to $worn.genitals.name.replace(/\bcage\b/gi, "belt")>>
-					<</if>>
-					<<set $xchange.chastityAdaptedMessage to "feminize">>
-				<</if>>
-			<</if>>
-		<</if>>
+		/* Adapt chastity device to new body. */
+		<<set _chastityAdapted to setup.xchangeAdaptChastityToBody()>>
+		<<if _chastityAdapted>><<set $xchange.chastityAdaptedMessage to _chastityAdapted>><</if>>
 
 		/* Wild parasites are body-scoped: cached bodies restore theirs in load-body, fresh bodies start clean.
 		   Ear slime is global (lives in your head), so preserve its ear slots across the wipe and leave $earSlime untouched. */
@@ -557,19 +539,8 @@
 		<<run window.dolxEjectOrphanVaginalDildo?.()>>
 
 		/* Adapt chastity device to new body */
-		<<if !$xchange.chastityKeepBeltShape and $worn.genitals.type.includes("chastity")>>
-			<<if $worn.genitals.type.includes("hidden") and !$worn.genitals.type.includes("cage")>>
-				<<set _hiddenIdx to $worn.genitals.type.indexOf("hidden")>>
-				<<run $worn.genitals.type.splice(_hiddenIdx, 1)>>
-				<<run $worn.genitals.type.push("cage")>>
-				<<set $worn.genitals.exposed to 1>>
-				<<set $worn.genitals.exposed_base to 1>>
-				<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("belt")>>
-					<<set $worn.genitals.name to $worn.genitals.name.replace(/\bbelt\b/gi, "cage")>>
-				<</if>>
-				<<set $xchange.chastityAdaptedMessage to "butchify">>
-			<</if>>
-		<</if>>
+		<<set _chastityAdapted to setup.xchangeAdaptChastityToBody()>>
+		<<if _chastityAdapted>><<set $xchange.chastityAdaptedMessage to _chastityAdapted>><</if>>
 
 		/* Wild parasites are body-scoped: cached bodies restore theirs in load-body, fresh bodies start clean.
 		   Ear slime is global (lives in your head), so preserve its ear slots across the wipe and leave $earSlime untouched. */
@@ -1038,35 +1009,9 @@
 		<</if>>
 		<<if _vrole isnot "">><<xchange-apply-body-virginity _vrole>><</if>>
 
-		/* Adapt chastity device to restored body. Chastity parasites are living slime, not a metal cage, and keep their shape. */
-		<<if $worn.genitals.type.includes("chastity") and $worn.genitals.name isnot "chastity parasite">>
-			<<if $player.vaginaExist and !$player.penisExist and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden") and $worn.genitals.cursed is 0>>
-				<!-- A bought cage isn't a curse forcing it to stay; with nothing left to enclose, it just falls off into the home wardrobe. -->
-				<<run $wardrobe.genitals.push(clone($worn.genitals))>>
-				<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
-				<<set $xchange.chastityAdaptedMessage to "fellOff">>
-			<<elseif $player.vaginaExist and !$player.penisExist and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
-				<<set _cIdx to $worn.genitals.type.indexOf("cage")>>
-				<<run $worn.genitals.type.splice(_cIdx, 1)>>
-				<<run $worn.genitals.type.push("hidden")>>
-				<<set $worn.genitals.exposed to 0>>
-				<<set $worn.genitals.exposed_base to 0>>
-				<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("cage")>>
-					<<set $worn.genitals.name to $worn.genitals.name.replace(/\bcage\b/gi, "belt")>>
-				<</if>>
-				<<set $xchange.chastityAdaptedMessage to "feminize">>
-			<<elseif !$xchange.chastityKeepBeltShape and $player.penisExist and !$player.vaginaExist and $worn.genitals.type.includes("hidden") and !$worn.genitals.type.includes("cage")>>
-				<<set _hIdx to $worn.genitals.type.indexOf("hidden")>>
-				<<run $worn.genitals.type.splice(_hIdx, 1)>>
-				<<run $worn.genitals.type.push("cage")>>
-				<<set $worn.genitals.exposed to 1>>
-				<<set $worn.genitals.exposed_base to 1>>
-				<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("belt")>>
-					<<set $worn.genitals.name to $worn.genitals.name.replace(/\bbelt\b/gi, "cage")>>
-				<</if>>
-				<<set $xchange.chastityAdaptedMessage to "butchify">>
-			<</if>>
-		<</if>>
+		/* Adapt chastity device to restored body. */
+		<<set _chastityAdapted to setup.xchangeAdaptChastityToBody()>>
+		<<if _chastityAdapted>><<set $xchange.chastityAdaptedMessage to _chastityAdapted>><</if>>
 
 		/* <<if !$xchangeFameMerged>> */
 			<<set $fame to _body.fame>>

@@ -1515,14 +1515,12 @@ class PlayerCombatMapper {
 	static mapPcToPenetratorOptions(pc, options) {
 		const hasPenetrator = pc.penisExist || playerHasStrapon();
 		const isExposed = PlayerCombatMapper.isPenisExposed(options);
-		const hasChastityBelt = [
-			"chastitybeltfetish",
-			"chastitybeltfetishdildo",
-			"goldchastitybelt",
-			"chastitybelt",
-			"flatchastitycage",
-			"flatchastitycagefetish",
-		].includes(V.worn.genitals.variable);
+		/* Devices that fully cover the penis, preventing ejaculation from being shown.
+		Checking the type also supports X-Change reshaped devices. */
+		const wornGenitals = V.worn.genitals;
+		const hasChastityBelt =
+			(Array.isArray(wornGenitals.type) && wornGenitals.type.includes("hidden")) ||
+			["flatchastitycage", "flatchastitycagefetish"].includes(wornGenitals.variable);
 		const isEjaculating =
 			V.orgasmdown > 0 &&
 			V.penisstate !== "penetrated" &&

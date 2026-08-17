@@ -547,10 +547,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $identityCap to false>>
 	<</if>>
 
-	<<if $orgasmRoleApplied isnot undefined>>
-		<<unset $orgasmRoleApplied>> /* delete later */
-	<</if>>
-
 	<<if $player.virginity.vaginal is "Great Hawk" or $player.virginity.penile is "Great Hawk">>
 		<<earnFeat "Great Hawk the Terror">><<earnFeat "Mate for life">> /* delete later */
 	<</if>>
@@ -1069,19 +1065,24 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</if>>
 
 	/* One-time fix: Whitney's re-cage events used to fit a penis chastity cage onto a pill-feminized body with no penis. Adapt an already-worn cage into the belt shape, the same way the pill transformation itself does. Chastity parasites are living slime, not a metal cage, and keep their shape. */
-	<<if $xchange._didCageOnFemaleFix isnot true>>
-		<<set $xchange._didCageOnFemaleFix to true>> /* delete later */
-		<<if !$player.penisExist and $worn isnot undefined and $worn.genitals isnot undefined and Array.isArray($worn.genitals.type)>>
-			<<if $worn.genitals.name isnot "chastity parasite" and $worn.genitals.type.includes("chastity") and $worn.genitals.type.includes("cage") and !$worn.genitals.type.includes("hidden")>>
-				<<set _cageIdx to $worn.genitals.type.indexOf("cage")>>
-				<<run $worn.genitals.type.splice(_cageIdx, 1)>>
-				<<run $worn.genitals.type.push("hidden")>>
-				<<set $worn.genitals.exposed to 0>>
-				<<set $worn.genitals.exposed_base to 0>>
-				<<if $worn.genitals.name and $worn.genitals.name.toLowerCase().includes("cage")>>
-					<<set $worn.genitals.name to $worn.genitals.name.replace(/\bcage\b/gi, "belt")>>
+	<<if $xchange._didCageOnFemaleFix2 isnot true>> /* delete later */
+		<<if $xchange._didCageOnFemaleFix isnot undefined>><<unset $xchange._didCageOnFemaleFix>><</if>>
+		<<set $xchange._didCageOnFemaleFix2 to true>>
+		<<if $worn isnot undefined and $worn.genitals isnot undefined>>
+			<<set _chastityAdapted to setup.xchangeAdaptChastityToBody()>>
+			<<if _chastityAdapted>><<set $xchange.chastityAdaptedMessage to _chastityAdapted>><</if>>
+		<</if>>
+	<</if>>
+
+	/* One-time fix: the old reshaping code renamed a chastity device's .name but not its .name_cap, so the statistics
+	   overlay and the wardrobe still called a reshaped belt a "Chastity cage". Resync the two on already-reshaped saves. */
+	<<if $xchange._didChastityNameCapFix isnot true>>
+		<<set $xchange._didChastityNameCapFix to true>> /* delete later */
+		<<if $worn isnot undefined and $worn.genitals isnot undefined and Array.isArray($worn.genitals.type) and $worn.genitals.type.includes("chastity")>>
+			<<if typeof $worn.genitals.name is "string" and $worn.genitals.name isnot $worn.genitals.name_cap>>
+				<<if typeof $worn.genitals.name_cap isnot "string" or $worn.genitals.name_cap.toLowerCase() isnot $worn.genitals.name.toLowerCase()>>
+					<<set $worn.genitals.name_cap to $worn.genitals.name.toUpperFirst()>>
 				<</if>>
-				<<set $xchange.chastityAdaptedMessage to "feminize">>
 			<</if>>
 		<</if>>
 	<</if>>
