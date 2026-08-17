@@ -11,7 +11,8 @@
 /* globals ANDROGYNOUS_FEMININITY_DEADZONE */
 
 function playerCaresForGender() {
-	return V.xchange.genderIdentityEnabled === 1;
+	// Normalised to a strict boolean by setup.xchangeEnsureGiSafety; older saves may still hold the numeric 1.
+	return V.xchange.genderIdentityEnabled === true || V.xchange.genderIdentityEnabled === 1;
 }
 window.playerCaresForGender = playerCaresForGender;
 
