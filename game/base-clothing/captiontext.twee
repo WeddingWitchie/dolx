@@ -45,9 +45,7 @@
 			<<set _insertables.push($worn.vibrator.name)>>
 		<</if>>
 		<<print `<<possessedWord 'You'>> wear ${formatList(_insertables)}.`>>
-		<<if playerHasBulletVibe() and !playerHasVibratorRemote()>>
-			<span class="pink"> <<possessedWord 'Your' 'pink'>> bullet vibe is stuck inside <<possessedWord 'you' 'pink'>>, beyond <<possessedWord 'your' 'pink'>> control without the remote.</span>
-		<</if>>
+		<<clothingCaptionVibratorRemote>>
 	<</if>>
 	<<clothingCaptionTextNothing>>
 	<<clothingCaptionTextMask>>
@@ -213,10 +211,20 @@
 			<<set $_text_output += ` <span class="red"><<possessedWord 'You' 'red'>> do not have the key.</span>`>>
 		<</if>>
 	<</if>>
-	<<if playerHasBulletVibe() and !playerHasVibratorRemote()>>
-		<<set $_text_output += ` <span class="pink"><<possessedWord 'Your' 'pink'>> bullet vibe is stuck inside <<possessedWord 'you' 'pink'>>, beyond <<possessedWord 'your' 'pink'>> control without the remote.</span>`>>
+	<<if playerHasVibrator() and !playerHasVibratorRemote()>>
+		<<set $_text_output += ` <<clothingCaptionVibratorRemote>>`>>
 	<</if>>
 <</silently>><<if $_text_output>><<print $_text_output>><</if>>
+<</widget>>
+
+<<widget "clothingCaptionVibratorRemote">>
+	<<if playerHasVibrator() and !playerHasVibratorRemote()>>
+		<<if ["broken", "lost", "stolen"].includes($worn.vibrator.remote)>>
+			<span class="pink"> <<possessedWord 'You' 'pink'>> do not have the remote to <<possessedWord 'your' 'pink'>> $worn.vibrator.name, and cannot control the buzzing.</span>
+		<<else>>
+			<span class="pink"> <<print $worn.vibrator.remote.toUpperFirst()>> has the remote to <<possessedWord 'your' 'pink'>> $worn.vibrator.name.</span>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "clothingCaptionTextMask">>

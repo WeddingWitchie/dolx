@@ -3330,7 +3330,7 @@ function getArousal(passMinutes, chastityArousalCap = Infinity, chastityFrustrat
 		addedArousal += minuteMultiplier * (3 + power * 2) * genitalSensitivity;
 	}
 	// A missing remote leaves the vibe vulnerable to glitches or whoever took it.
-	if (V.worn.vibrator && !["player", undefined].includes(V.worn.vibrator.remote)) {
+	if (playerHasVibrator() && !playerHasVibratorRemote()) {
 		const remoteRolls = Math.floor(passMinutes / 60);
 		const remoteRemainder = passMinutes % 60;
 		for (let roll = 0; roll < remoteRolls + (remoteRemainder ? 1 : 0); roll++) {

@@ -1,3 +1,11 @@
+:: Widgets Bullet Vibe [widget]
+<!-- Returns the player to wherever the spasm event interrupted them, and clears the marker so a later event can't reuse a stale destination. -->
+<<widget "vibeWalkReturnLink">>
+	<<set _dest to ($vibeWalkReturnPassage and Story.has($vibeWalkReturnPassage)) ? $vibeWalkReturnPassage : "Orphanage">>
+	<<unset $vibeWalkReturnPassage>>
+	<<link "Next" _dest>><</link>>
+<</widget>>
+
 :: VibeWalkSpasm
 <<effects>>
 <<if $vibeWalkReturnPassage is undefined or $vibeWalkReturnPassage is "">>
@@ -23,15 +31,8 @@ You swallow hard and force a smile. "Yeah, no. Just... dizzy. I'm fine. Thanks."
 <br><br>
 The <<person>> hesitates, then nods and backs off.
 <br><br>
-<<silently>>
-	<<if $vibeWalkReturnPassage isnot undefined and $vibeWalkReturnPassage isnot "">>
-		<<set _dest to $vibeWalkReturnPassage>>
-	<<else>>
-		<<destinationBike>>
-	<</if>>
-<</silently>><<endevent>>
-<<unset $vibeWalkReturnPassage>>
-<<link "Next" _dest>><</link>>
+<<endevent>>
+<<vibeWalkReturnLink>>
 
 :: VibeWalkSpasm_Private
 <<effects>>
@@ -54,7 +55,7 @@ The <<person>> glances around, torn, then <<he>> squints at you like <<he>> fina
 <br><br>
 "Orphanage kid," <<he>> murmurs. "Right." <<He>> shakes <<his>> head and exhales. "Yeah. You're coming with me. Let's get you home."
 <br><br>
-<<link [[Next|Orphanage]]>><<endevent>><</link>>
+<<link [[Next|Orphanage]]>><<endevent>><<unset $vibeWalkReturnPassage>><</link>>
 
 :: VibeWalkSpasm_Consent
 <<effects>>
@@ -80,15 +81,8 @@ You look the <<person>> in the eyes, voice shaking. "If you're willing... I need
 	<br><br>
 	<<He>> glances around, like <<he>> doesn't want anyone else noticing you. "Turn it off. Get somewhere safe, alright?"
 	<br><br>
-<<silently>>
-	<<if $vibeWalkReturnPassage isnot undefined and $vibeWalkReturnPassage isnot "">>
-		<<set _dest to $vibeWalkReturnPassage>>
-	<<else>>
-		<<destinationBike>>
-	<</if>>
-<</silently>><<endevent>>
-<<unset $vibeWalkReturnPassage>>
-<<link "Next" _dest>><</link>>
+	<<endevent>>
+	<<vibeWalkReturnLink>>
 <</if>>
 
 :: VibeWalkSpasm_PreSex
@@ -134,7 +128,7 @@ The <<person>> staggers back, still breathing hard like <<he>> can't believe wha
 "Wow... You are <i>twitching</i> like crazy. No wonder that thing is driving you insane."
 <br><br>
 <<His>> eyes glance down once, then back up to you. "Seriously... go easy with that bullet. It's not a toy you just leave on and forget."
-<<if $worn.vibrator isnot undefined>>
+<<if playerHasVibrator()>>
 	<<He>> reaches for the vibe <span class="green">and clicks it off for you.</span>
 	<<set $worn.vibrator.vibrating to 0>>
 	The buzzing finally dies. The silence after it feels almost unreal, and your whole body seems to loosen in one long shaky breath.
@@ -143,27 +137,19 @@ The <<person>> staggers back, still breathing hard like <<he>> can't believe wha
 	The buzzing finally dies, and your knees nearly give from the relief.
 <</if>>
 <br><br>
-"Take it slow, alright?" The <<person>> starts to back away, then stops, frowning like something clicks. "Hold on... I've seen you around... The orphanage! Let's walk you home.”
+"Take it slow, alright?" The <<person>> starts to back away, then stops, frowning like something clicks. "Hold on... I've seen you around... The orphanage! Let's walk you home."
 <br><br>
-<<effects>><<set $outside to 0>><<set $location to "orphanage">>
-<<set $vibeWalkReturnPassage to "Orphanage">>
+<<set $outside to 0>><<set $location to "orphanage">>
 <<clotheson>>
 <<endcombat>>
-<<silently>>
-	<<if $vibeWalkReturnPassage isnot undefined and $vibeWalkReturnPassage isnot "">>
-		<<set _dest to $vibeWalkReturnPassage>>
-	<<else>>
-		<<destinationBike>>
-	<</if>>
-<</silently>>
 <<unset $vibeWalkReturnPassage>>
-<<link "Next" _dest>><</link>>
+<<link [[Next|Orphanage]]>><</link>>
 
 
 :: Maths Vibrator
 <<endevent>><<schooleffects>><<effects>>
 <<npc Whitney>><<person1>>
-<<if ($whitneymaths is "seat" or $whitneymaths is "active") and $worn.vibrator isnot undefined and $worn.vibrator.remote is "player">>
+<<if ($whitneymaths is "seat" or $whitneymaths is "active") and playerHasVibratorRemote()>>
 	<<set $worn.vibrator.remote to "Whitney">>
 		River keeps talking as <<nnpc_he "River">> writes across the board.
 		You try to follow along until you catch Whitney's hand slips down and
@@ -267,9 +253,9 @@ Their gaze drags over you. "That you?" the second adds, too casually. "Or you al
 Heat floods your face. Not to mention they mockingly says in same time: "Let's us <span class="lewd">help</span> you."
 <br><br>
 <<link [[Tell them to mind their own business|Library Study Buzzing_BackOff]]>><</link>><br>
-<<if $worn.vibrator isnot undefined and $worn.vibrator.vibrating isnot undefined and $worn.vibrator.vibrating gte 1 and ["player", undefined].includes($worn.vibrator.remote)>>
+<<if playerVibratorOn() and playerHasVibratorRemote()>>
 	<<link [[Try to reduce the buzzing|Library Study Buzzing_Down]]>><</link>><br>
-<<elseif $worn.vibrator isnot undefined and $worn.vibrator.vibrating gte 1>>
+<<elseif playerVibratorOn()>>
 	<span class="red">Without the remote, you cannot control the buzzing.</span><br>
 <</if>>
 <<if C.npc.Sydney.init is 1 and $sydneySeen.includes("library") and _sydney_location is "library">>
@@ -340,7 +326,19 @@ Heat floods your face. Not to mention they mockingly says in same time: "Let's u
 
 :: Library Study Buzzing_Finish
 <<effects>>
-<<if $enemypleasure gte $enemypleasuremax>>
+<!-- The consensual back room route ends here too, and none of the molestation outcomes below fit it. -->
+<<if $consensual is 1>>
+	<<if $enemypleasure gte $enemypleasuremax>>
+		<<ejaculation>>
+	<</if>>
+	The <<person1>><<person>> steps back and straightens <<his>> clothes, still catching <<his>> breath. "Told you we could help."
+	<br><br>
+	The <<person2>><<person>> laughs under <<his>> breath. "Bring the toy next time too."
+	<br><br>
+	They leave you to gather yourself. Your legs are unsteady, and you take a moment before you can walk back out to the tables.
+	<<clotheson>><<endcombat>>
+	<<link [[Next|School Library]]>><</link>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation>>
 	"You really wear that thing into the library?" <<person1>><<person>> scoffs, wiping <<himself>> off. "You're lucky we stop there. Most guys wouldn't. But bet you'll be back later, toy buzzing away. Slut like you can't help it."
 	<br><br>
@@ -418,8 +416,13 @@ Heat floods your face. Not to mention they mockingly says in same time: "Let's u
 <<schooleffects>><<effects>>
 You shift in your chair and try to muffle the sound without drawing attention to yourself.
 <br><br>
-<<set $worn.vibrator.vibrating to Math.max(0, ($worn.vibrator.vibrating || 0) - 1)>>
-<span class="green">The buzzing eases slightly</span> as you try to tone it down.
+<<if $worn.vibrator.power gt 1>>
+	<<run window.changePlayerVibratorPower(-1)>>
+	<span class="green">The buzzing eases slightly</span> as you try to tone it down.
+<<else>>
+	<<run window.setPlayerVibrator(false)>>
+	<span class="green">The buzzing stops</span> as you thumb it all the way down.
+<</if>>
 Out of the corner of your eye, the two students notice immediately. One of them grins wider. "Daaanng... you turn it down now?"
 <br><br>
 The other leans closer. "Need help with that, or are you trying to be subtle?"

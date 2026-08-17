@@ -376,6 +376,9 @@ module.exports = {
 		chestIdentityAccepted: "readonly",
 		penisIdentityAccepted: "readonly",
 		pregnancyIdentityAccepted: "readonly",
+		initWornVibratorDefaults: "readonly",
+		playerHasVibrator: "readonly",
+		playerHasVibratorRemote: "readonly",
 		// Autism Spectrum trait
 		playerHasAutismSpectrum: "readonly",
 		ensureAutismSpectrumState: "readonly",

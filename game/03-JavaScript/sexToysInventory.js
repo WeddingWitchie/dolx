@@ -270,9 +270,9 @@ function sexToysInventoryOnWearClick(index, category) {
 	// If player chose "Wear it"
 	let cat;
 
-	// Vibrators should start off when worn (safe init)
+	// Vibrators should start off when worn, with their power and remote fields ready (safe init)
 	if (setupCategory === "vibrator") {
-		if (typeof toy.vibrating !== "number") toy.vibrating = 0;
+		initWornVibratorDefaults(toy);
 	}
 	if (!toy.worn) {
 		// retrieve main category of our item in setup.sextoys

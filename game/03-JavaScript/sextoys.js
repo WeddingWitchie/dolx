@@ -201,8 +201,25 @@ function playerHasBulletVibe() {
 }
 window.playerHasBulletVibe = playerHasBulletVibe;
 
+// New vibrators can be missing control data when first worn.
+// Set it immediately so the caption and sidebar work correctly.
+// Keep existing values so an NPC-held remote is not reset when the toy is removed and worn again.
+function initWornVibratorDefaults(toy) {
+	const vibe = toy || V.worn?.vibrator;
+	if (!vibe) return;
+	// The shop only copies a fixed set of fields onto a purchase, so the toy's own settings come from its setup entry.
+	const setupToy = setup.sextoys[vibe.index] || {};
+	if (typeof vibe.vibrating !== "number") vibe.vibrating = typeof setupToy.vibrating === "number" ? setupToy.vibrating : 0;
+	if (typeof vibe.powerMax !== "number") vibe.powerMax = typeof setupToy.powerMax === "number" ? setupToy.powerMax : 3;
+	if (typeof vibe.power !== "number") vibe.power = typeof setupToy.power === "number" ? setupToy.power : 1;
+	vibe.power = Math.clamp(vibe.power, 1, vibe.powerMax);
+	if (vibe.remote == null) vibe.remote = "player";
+}
+window.initWornVibratorDefaults = initWornVibratorDefaults;
+
+// An unset remote means nobody has taken it off the player, so treat it as player-held.
 function playerHasVibratorRemote() {
-	return playerHasVibrator() && V.worn.vibrator.remote === "player";
+	return playerHasVibrator() && (V.worn.vibrator.remote == null || V.worn.vibrator.remote === "player");
 }
 window.playerHasVibratorRemote = playerHasVibratorRemote;
 
