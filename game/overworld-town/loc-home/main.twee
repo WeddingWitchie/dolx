@@ -1954,11 +1954,11 @@ You are in the bathroom.
 :: Bath Scream
 <<effects>><<set $location to "home">><<set $outside to 0>>
 <<endevent>><<npc Bailey>><<person1>>
-<<if $stockholm_active>>
+<<if $syndromebailey>>
 	<<include "Bailey Bath Rescue">>
 <<else>>
-	You scream. The trio recoil and scramble for the door handle. They flee into the hallway outside, leaving the door wide open. Heavy footsteps march closer, and Bailey enters. <<His>> eyes sweep the room before resting on you. "Did you see a spider?" <<he>> sneers. <<He>> steps closer and smacks you with the back of <<his>> hand. "Don't bother me again." <<He>> marches from the room, slamming the door behind <<him>>.
-	<<gpain>><<gtrauma>><<gstress>><<pain 20>><<trauma 6>><<stress 6>>
+You scream. The trio recoil and scramble for the door handle. They flee into the hallway outside, leaving the door wide open. Heavy footsteps march closer, and Bailey enters. <<His>> eyes sweep the room before resting on you. "Did you see a spider?" <<he>> sneers. <<He>> steps closer and smacks you with the back of <<his>> hand. "Don't bother me again." <<He>> marches from the room, slamming the door behind <<him>>.
+<<gpain>><<gtrauma>><<gstress>><<pain 20>><<trauma 6>><<stress 6>>
 <</if>>
 <br><br>
 <<tearful>> you climb from the bath.
@@ -2048,7 +2048,7 @@ They hesitate, then the <<person3>><<person>> opens the door and leaves. The oth
 	<<stress 18>><<gggstress>><<pain 21>><<gggpain>>
 	<<set $rescued += 1>>/*Unnecessary if rescue is impossible*/
 	<<endevent>><<npc Bailey>><<person1>>
-	<<if $stockholm_active>>
+	<<if $syndromebailey>>
 		<<include "Bailey Bath Rescue">>
 	<<else>>
 		Heavy footsteps respond to your cry, getting closer. The trio recoil and scramble for the door handle. They flee into the hallway outside, leaving the door wide open. Bailey enters. <<His>> eyes sweep the room before resting on you. "Did you see a spider?" <<he>> sneers. <<He>> steps closer and smacks you with the back of <<his>> hand. "Don't bother me again." <<He>> marches from the room, slamming the door behind <<him>>.
@@ -2118,11 +2118,11 @@ They hesitate, then the <<person3>><<person>> opens the door and leaves. The oth
 	<<set $rescued += 1>>
 
 	<<endevent>><<npc Bailey>><<person1>>
-	<<if $stockholm_active>>
+	<<if $syndromebailey>>
 		<<include "Bailey Bath Rescue">>
 	<<else>>
-		Heavy footsteps respond to your cry, getting closer. The trio recoil and scramble for the door handle. They flee into the hallway outside, leaving the door wide open. Bailey enters. <<His>> eyes sweep the room before resting on you. "Did you see a spider?" <<he>> sneers. <<He>> steps closer and smacks you with the back of <<his>> hand. "Don't bother me again." <<He>> marches from the room, slamming the door behind <<him>>.
-		<<gpain>><<gtrauma>><<gstress>><<pain 20>><<trauma 6>><<stress 6>>
+	Heavy footsteps respond to your cry, getting closer. The trio recoil and scramble for the door handle. They flee into the hallway outside, leaving the door wide open. Bailey enters. <<His>> eyes sweep the room before resting on you. "Did you see a spider?" <<he>> sneers. <<He>> steps closer and smacks you with the back of <<his>> hand. "Don't bother me again." <<He>> marches from the room, slamming the door behind <<him>>.
+	<<gpain>><<gtrauma>><<gstress>><<pain 20>><<trauma 6>><<stress 6>>
 	<</if>>
 	<br><br>
 
@@ -2904,19 +2904,23 @@ You snuggle under the covers with Robin. You can feel the heat from <<his>> <<pr
 <</if>>
 
 :: Orphanage
-<<set $outside to 0>><<set $location to "home">><<set $bus to "orphanage">><<home_effects>>
+<<set $outside to 0>><<set $location to "home">><<home_effects>>
+<<if $bailey_date_missed is 1 and Time.hour gte 7>><<include "Bailey Date Stood Up">>
+	<<exitAll>>
+<</if>>
 <<if $bailey_monogamous and baileyWeeksMissed() gte 1 and !$weekly.baileyMonogamyWarning>>
-	<<include "Bailey Monogamy Warning">>
-<<elseif Time.monthDay is 31 and Time.monthName is "October" and Time.hour gte 7 and Time.hour lt 10 and $fame.social gte 600 and $renttime gt 0 and $bailey_halloween_asked isnot Time.year and !$possessed>>
-	<<include "Bailey Halloween Start">>
-<<else>>
+	<<include "Bailey Monogamy Warning">><<exitAll>>
+<</if>>
+<<if Time.monthDay is 31 and Time.monthName is "October" and Time.hour gte 7 and Time.hour lt 10 and $fame.social gte 600 and $renttime gt 0 and $bailey_halloween_asked isnot Time.year and !$possessed>>
+	<<include "Bailey Halloween Start">><<exitAll>>
+<</if>>
 <<effects>>
 <<set _robin to statusCheck("Robin")>>
 <<set _robinAtOrphanage to ["orphanage","bath","sleep"].includes(_robin_location)>>
 
 You are in the main hall of the orphanage.
 <br><br>
-<<baileyDateWaiting>><<baileyHalloweenWaiting>><<baileyBathTF>>
+<<baileyDateWaiting>><<baileyHalloweenWaiting>><<baileyTF>><<baileyOrphanGossip>>
 
 <<if $christmas is 1 and Time.monthDay is 25 and Time.dayState isnot "night">>
 	The room is alive with festive merriment.
@@ -2986,6 +2990,7 @@ You are in the main hall of the orphanage.
 		<<link [[Next|Bedroom]]>><</link>>
 	<</if>>
 <<elseif $baileyReunionScene is "dungeon">>
+	<<endevent>>
 	<<npc Bailey>><<person1>>
 	<<unset $baileyReunionScene>>
 
@@ -2993,14 +2998,12 @@ You are in the main hall of the orphanage.
 		Bailey leans against a wall. A missing person's poster with a picture of you on it is pinned next to <<him>>.
 		<br><br>
 
-		"You took your time getting back. I'm glad you're alright." <<He>> smirks. "Hope you enjoyed your vacation."
-		<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
+		"You took your time getting back. I'm glad you're alright." <<He>> smirks. "Hope you enjoyed your vacation."<<npcincr Bailey love 1>><<glove "Bailey">>
 		<br><br>
 
 		<<He>> pushes <<himself>> off the wall, tearing down the poster and crumpling it up.
 	<<else>>
-		A snide voice greets you on your way inside. "You're a slippery little shit, aren't you?" It's Bailey. <<Hes>> leaning against the wall, musing at you. "I'm glad you're alright."
-		<<npcincr Bailey love 3>><<set $bailey_love += 3>><<ggglove "Bailey">>
+		A snide voice greets you on your way inside. "You're a slippery little shit, aren't you?" <span class="bailey-red">It's <<baileyTitleNarration>>.</span> <<Hes>> leaning against the wall, musing at you. "I'm glad you're alright."<<npcincr Bailey love 3>><<ggglove "Bailey">>
 		<br><br>
 
 		<<He>> pushes <<himself>> off the wall and prowls towards you.
@@ -3124,7 +3127,7 @@ You are in the main hall of the orphanage.
 	<br>
 <<elseif $loft_whitney is 1>>
 	<<npc "Bailey">><<person1>>
-	A hand taps your shoulder. It's Bailey. "I'm taking that contraband," <<he>> says. Then, with barely a pause, snatches Whitney's cigarettes from your grasp. <<He>> walks away without another word.
+	A hand taps your shoulder. <span class="bailey-red">It's <<baileyTitleNarration>>.</span> "I'm taking that contraband," <<he>> says. Then, with barely a pause, snatches Whitney's cigarettes from your grasp. <<He>> walks away without another word.
 	<br><br>
 	<<endevent>>
 	<<link [[Next|Orphanage]]>><<set $loft_whitney to 3>><</link>>
@@ -3145,13 +3148,14 @@ You are in the main hall of the orphanage.
 	<br>
 <<elseif $renttime lte 0>>
 	<<set $bus to "home">>
-	A hand rests on your shoulder from behind. <span class="red">It's Bailey.</span>
+	A hand rests on your shoulder from behind. <span class="bailey-red">It's <<baileyTitleNarration>>.</span>
 	<<if $robinfirstrentfight and ($baileypaychain lt 2 or $renttime lte -1) and _robinAtOrphanage>>
 		<<rentduerobin 0>>
 	<<else>>
 		<<rentdue 0>>
 	<</if>>
 <<elseif $babyIntros and $babyIntros.Bailey and $babyIntros.Bailey.length gt 0>>
+	<<endevent>>
 	<<npc Bailey>><<person1>>
 	"There you are," a voice says. You turn to see Bailey approaching you.
 	<br><br>
@@ -3175,18 +3179,18 @@ You are in the main hall of the orphanage.
 	<<if $christmas_gift_bailey_wrapped is 1 and $christmas_gift_bailey_given is undefined>>
 		<<set $christmas_gift_bailey_given to 1>><<set $bailey_office_gift to $christmas_gift_bailey>>
 		<<if $christmas_gift_bailey is "vodka">>
-			<<He>> picks it up and gives it a shake before tucking it under <<his>> arm. <<He>> walks out.<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
+			<<He>> picks it up and gives it a shake before tucking it under <<his>> arm. <<He>> walks out.<<npcincr Bailey love 1>><<glove "Bailey">>
 		<<elseif $christmas_gift_bailey is "lure">>
-			<<He>> picks up the small package and holds it briefly in the light. Something shifts in <<his>> expression, there and gone faster than you can identify it. <<He>> tucks it under <<his>> arm without a word and leaves the room.<<npcincr Bailey love 2>><<set $bailey_love += 2>><<gglove "Bailey">><<set $bailey_lure_received to true>>
+			<<He>> picks up the small package and holds it briefly in the light. Something shifts in <<his>> expression, there and gone faster than you can identify it. <<He>> tucks it under <<his>> arm without a word and leaves the room.<<npcincr Bailey love 2>><<gglove "Bailey">>
 		<<elseif $christmas_gift_bailey is "chessboard">>
-			<<He>> picks up the large wrapped box with a slight frown. <<He>> sets it on an empty chair and opens it in the middle of the clearing hall. <<He>> looks at the chessboard for a long moment. The room seems to go quiet. Then <<he>> closes the box, picks it up, and leaves without looking at anyone.<<npcincr Bailey love 3>><<set $bailey_love += 3>><<ggglove "Bailey">>
+			<<He>> picks up the large wrapped box with a slight frown. <<He>> sets it on an empty chair and opens it in the middle of the clearing hall. <<He>> looks at the chessboard for a long moment. The room seems to go quiet. Then <<he>> closes the box, picks it up, and leaves without looking at anyone.<<npcincr Bailey love 3>><<ggglove "Bailey">>
 		<<elseif $christmas_gift_bailey is "lotus">>
 			<<set $christmas_bailey_lotus_day to Time.days>>
 			<<He>> opens it there, beside the tree. <<He>> goes completely still.
 			<br><br>
 			The lotus flower arrangement you made is small but carefully crafted. <<He>> stares at it.
 			<br><br>
-			Something flickers across <<his>> face, so fast you might have imagined it. <<He>> meets your eye across the room, just for a moment. Then <<he>> picks it up and leaves.<<npcincr Bailey love 10>><<set $bailey_love += 10>><<ggglove "Bailey">>
+			Something flickers across <<his>> face, so fast you might have imagined it. <<He>> meets your eye across the room, just for a moment. Then <<he>> picks it up and leaves.<<npcincr Bailey love 5>><<ggglove "Bailey">>
 		<<else>>
 			<<He>> examines it in <<his>> hands for a moment, then leaves the room with the gift held under <<his>> arm.
 		<</if>>
@@ -3218,22 +3222,22 @@ You are in the main hall of the orphanage.
 	As the paper clears, Bailey sees an unclaimed gift at the base of the tree. It has <<nnpc_his "Bailey">> name on it.
 	<br><br>
 	<<if $christmas_gift_bailey is "vodka">>
-	<<nnpc_He "Bailey">> picks it up and gives it a shake before tucking it under <<nnpc_his "Bailey">> arm. <<nnpc_He "Bailey">> walks out.<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
-	<br><br>
+		<<nnpc_He "Bailey">> picks it up and gives it a shake before tucking it under <<nnpc_his "Bailey">> arm. <<nnpc_He "Bailey">> walks out.<<npcincr Bailey love 1>><<glove "Bailey">>
+		<br><br>
 	<<elseif $christmas_gift_bailey is "lure">>
-	<<nnpc_He "Bailey">> picks up the small package and holds it briefly in the light. Something shifts in <<nnpc_his "Bailey">> expression, there and gone faster than you can identify it. <<nnpc_He "Bailey">> tucks it under <<nnpc_his "Bailey">> arm without a word and leaves the room.<<npcincr Bailey love 2>><<set $bailey_love += 2>><<gglove "Bailey">><<set $bailey_lure_received to true>>
-	<br><br>
+		<<nnpc_He "Bailey">> picks up the small package and holds it briefly in the light. Something shifts in <<nnpc_his "Bailey">> expression, there and gone faster than you can identify it. <<nnpc_He "Bailey">> tucks it under <<nnpc_his "Bailey">> arm without a word and leaves the room.<<npcincr Bailey love 2>><<gglove "Bailey">>
+		<br><br>
 	<<elseif $christmas_gift_bailey is "chessboard">>
-	<<nnpc_He "Bailey">> picks up the large wrapped box with a slight frown. <<nnpc_He "Bailey">> sets it on an empty chair and opens it in the middle of the clearing hall. <<nnpc_He "Bailey">> looks at the chessboard for a long moment. The room seems to go quiet. Then <<nnpc_he "Bailey">> closes the box, picks it up, and leaves without looking at anyone.<<npcincr Bailey love 3>><<set $bailey_love += 3>><<ggglove "Bailey">>
-	<br><br>
+		<<nnpc_He "Bailey">> picks up the large wrapped box with a slight frown. <<nnpc_He "Bailey">> sets it on an empty chair and opens it in the middle of the clearing hall. <<nnpc_He "Bailey">> looks at the chessboard for a long moment. The room seems to go quiet. Then <<nnpc_he "Bailey">> closes the box, picks it up, and leaves without looking at anyone.<<npcincr Bailey love 3>><<ggglove "Bailey">>
+		<br><br>
 	<<elseif $christmas_gift_bailey is "lotus">>
-	<<set $christmas_bailey_lotus_day to Time.days>>
-	<<nnpc_He "Bailey">> opens it there, beside the tree. <<nnpc_He "Bailey">> goes completely still.
-	<br><br>
-	The lotus flower arrangement you made is small but carefully crafted. <<nnpc_He "Bailey">> stares at it.
-	<br><br>
-	Something flickers across <<nnpc_his "Bailey">> face, so fast you might have imagined it. <<nnpc_He "Bailey">> meets your eye across the room, just for a moment. Then <<nnpc_he "Bailey">> picks it up and leaves.<<npcincr Bailey love 10>><<set $bailey_love += 10>><<ggglove "Bailey">>
-	<br><br>
+		<<set $christmas_bailey_lotus_day to Time.days>>
+		<<nnpc_He "Bailey">> opens it there, beside the tree. <<nnpc_He "Bailey">> goes completely still.
+		<br><br>
+		The lotus flower arrangement you made is small but carefully crafted. <<nnpc_He "Bailey">> stares at it.
+		<br><br>
+		Something flickers across <<nnpc_his "Bailey">> face, so fast you might have imagined it. <<nnpc_He "Bailey">> meets your eye across the room, just for a moment. Then <<nnpc_he "Bailey">> picks it up and leaves.<<npcincr Bailey love 5>><<ggglove "Bailey">>
+		<br><br>
 	<</if>>
 	One of the newer residents smiles at the sight. The rest seem uneasy.
 	<br><br>
@@ -3422,7 +3426,6 @@ and !$fromRobinRoom and _robin.cdquest is 2 and _robin.trauma lte 20 and !$daily
 
 <<if $fromRobinRoom>>
 	<<unset $fromRobinRoom>>
-<</if>>
 <</if>>
 
 :: Orphanage Handheld
@@ -3749,16 +3752,14 @@ The <<person>> pauses a moment, then moves <<his>> foot. Your heart races as you
 <<link [[Next|Bedroom]]>><<endevent>><</link>>
 
 :: Molestation Alarm
-<<effects>><<set $rescued += 1>><<npcincr Bailey love -1>>
-<<set $bailey_love -= 1>>
-Bailey marches down the corridor and into your room, investigating the sounds of your scream. "You better be dying in there." The <<person1>><<person>> climbs on the bed and bolts through the open window.
+<<effects>><<set $rescued += 1>>
+Bailey marches down the corridor and into your room, investigating the sounds of your scream. "You better be dying in there." The <<person1>><<person>> climbs on the bed and bolts through the open window.<<npcincr Bailey love -1>><<llove "Bailey">>
 <br><br>
 <<clotheson>>
 <<endcombat>>
 <<npc Bailey>><<person1>>"I don't know what this town's coming to," Bailey says as <<he>> closes the window. <<He>> turns to you. "Don't disturb me again unless it's important." <<He>> slams the door shut as <<he>> leaves.
-<<endevent>>
 <br><br>
-<<link [[Next|Bedroom]]>><</link>>
+<<link [[Next|Bedroom]]>><<endevent>><</link>>
 
 :: Molestation Escape
 <<effects>>
@@ -3767,8 +3768,7 @@ Bailey marches down the corridor and into your room, investigating the sounds of
 <<pass 30>>
 After thirty minutes pass without event, you quietly head back to your bedroom. You feel relief as you see it empty.
 <br><br>
-<<clotheson>>
-<<endcombat>>
+<<clotheson>><<endcombat>>
 <<link [[Next|Bedroom]]>><</link>>
 
 :: Bask
@@ -3962,9 +3962,8 @@ The last of the water drains from the bath, taking the slime with it. <<tearful>
 <<set $rentmoney to 10000>><<rentmod>>
 <<set $renttime to 7>><<set $rentday to Time.weekDay>>
 <<set $rentstage to 1>>
-
+<<endevent>>
 <<npc Bailey>><<person1>>
-<<set $baileyQuestStage to 0>><<set $bailey_dom to 50>><<run C.npc.Bailey.dom = 50>><<set $bailey_love to 0>><<set $stockholm_bailey to 0>><<set $stockholm_active to false>><<set $bailey_title to "Bailey">><<set $bailey_title_unlocked to false>><<set $stockholm_points to {}>><<set $bailey_photo_seen to false>><<set $bailey_kept_photo to false>><<set $baileycollar to 0>><<set $bailey_collar_taken to false>><<set $bailey_office_seduced_this_cycle to false>><<set $bailey_date_scheduled to 0>><<set $bailey_date_missed to 0>><<set $bailey_date_attended to 0>><<set $bailey_date_allnight to 0>><<set $bailey_date_allnight_scheduled to 0>><<set $baileySeen to []>><<set $bailey_allnight_early_sex to 0>><<set $bailey_allnight_masturbation_caught to 0>>
 You enter Bailey's office. "I know why you're here," <<he>> says, running a hand through <<his>> dark hair. "You want me to release you from my protection, so you'll be an independent citizen. I could do that. But there's a problem. You've been living under my roof without giving anything in return. You owe me. Until you pay me back, I'm not letting you go."
 <br><br>
 <<He>> lifts an envelope from <<his>> desk and thumbs through the contents. You glimpse your name. <<He>> smiles as <<he>> hides your identification documents in <<his>> jacket. "<<printmoney $rentmoney "pink">> should do. To start with. I don't care how you get it. Knock on doors and ask for work. Rent yourself as a footstool. Steal it even. Just have it a week from now. Or I'll find a way to <span class="red">extract value</span> from you."
@@ -3972,22 +3971,24 @@ You enter Bailey's office. "I know why you're here," <<he>> says, running a hand
 
 You return to your tiny bedroom and wonder what to do.
 
-<<endevent>>
 <hr>
 <<attitudes>>
 <br>
 
-<<link [[Next|Bedroom]]>><</link>>
+<<link [[Next|Bedroom]]>><<endevent>><</link>>
 
 :: Bailey Rescue
 <<set $outside to 0>><<set $location to "home">><<effects>>
 <<set $stress -= 2000>>
-<<if $stockholm_bailey gte 1>>You wake up to the sound of your bedroom door shutting. You're in bed. <span class="bailey-red">Someone must have carried you here after you passed out.</span>
-<br><br>
-<<link [[Next|Bedroom]]>><</link>><<else>><<npc Bailey>><<person1>>You're awoken by a sharp pain in your face. It's Bailey. <<He>> slaps you again. "I provide a perfectly good bed for you, yet you opt to sleep on the floor." <<He>> slams the door shut as <<he>> leaves.
-<br><br>
-<<pain 5>>
-<<link [[Next|Bedroom]]>><<endevent>><</link>>
+<<if $syndromebaileybuild gte 1>>You wake up to the sound of your bedroom door shutting. You're in bed. <span class="bailey-red">Someone must have carried you here after you passed out.</span>
+	<br><br>
+	<<link [[Next|Bedroom]]>><</link>>
+<<else>>
+	<<endevent>>
+	<<npc Bailey>><<person1>>You're awoken by a sharp pain in your face. <span class="bailey-red">It's <<baileyTitleNarration>>.</span> <<He>> slaps you again. "I provide a perfectly good bed for you, yet you opt to sleep on the floor." <<He>> slams the door shut as <<he>> leaves.
+	<br><br>
+	<<pain 5>>
+	<<link [[Next|Bedroom]]>><<endevent>><</link>>
 <</if>>
 <br>
 
@@ -3996,18 +3997,17 @@ You return to your tiny bedroom and wonder what to do.
 <!-- Bailey catches you by surprise, no time to get dressed -->
 
 <<if $inRobinsRoom>>
-	Robin's bedroom door bursts open without warning. <span class="red">It's Bailey.</span>
+	Robin's bedroom door bursts open without warning. <span class="bailey-red">It's <<baileyTitleNarration>>.</span>
 	<br><br>
 
 	"You thought you could hide in Robin's room?" Bailey sneers.
 <<else>>
-	Your bedroom door bursts open without warning. <span class="red">It's Bailey.</span>
+	Your bedroom door bursts open without warning. <span class="bailey-red">It's <<baileyTitleNarration>>.</span>
 <</if>>
 
 <<if $exposedRaw gte 1>>
 	<<nnpc_He "Bailey">> looks over you briefly. "Put your clothes on," <<nnpc_he "Bailey">> says. <<nnpc_He "Bailey">> snaps <<nnpc_his "Bailey">> fingers. "Now."
-	You hastily throw on the clothes you had on before. <<bedclotheson "bed">>
-	<<npcincr Bailey lust 1>><<glust "Bailey">>
+	You hastily throw on the clothes you had on before. <<bedclotheson "bed">><<npcincr Bailey lust 1>><<glust "Bailey">>
 <</if>>
 <br><br>
 
@@ -4133,9 +4133,8 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 
 <<set $outside to 0>><<set $location to "home">><<effects>>
 <<if $enemypleasure gte $enemypleasuremax>>
-	<<ejaculation>><<set $forcedprostitutionstat += 1>><<fameprostitution 1>><<famerape 1>>
-	The <<person>> climbs off the bed and leaves the room. Bailey stares at you for a moment, then slams the door shut.
-	<<npcincr Bailey lust 1>><<glust "Bailey">><<npcincr Bailey dom 1>><<set $bailey_dom += 1>><<gdom "Bailey">>
+	<<ejaculation>><<set $forcedprostitutionstat += 1>><<fameprostitution 1>>
+	The <<person>> climbs off the bed and leaves the room. Bailey stares at you for a moment, then slams the door shut.<<npcincr Bailey lust 1>><<npcincr Bailey dom 1>><<glust "Bailey">><<gdom "Bailey">>
 	<br><br>
 	<<clotheson>>
 	<<endcombat>>
@@ -4147,8 +4146,7 @@ You reach out and pet the <<beasttype>>. <<bHe>> stretches into your hand and ya
 <<elseif $enemyhealth lte 0>>
 	You knock the <<person>> off the bed, and <<he>> stumbles to the ground. "Fucking brat," <<he>> says, then turns to Bailey. "I want my money back."
 	<br><br>
-	Bailey gives <<him>> a level stare. "You got what you paid for. Not my fault you couldn't handle <<phim>>."
-	<<npcincr Bailey love 1>><<set $bailey_love += 1>><<glove "Bailey">>
+	Bailey gives <<him>> a level stare. "You got what you paid for. Not my fault you couldn't handle <<phim>>."<<npcincr Bailey love 1>><<glove "Bailey">>
 	<br><br>
 	<<He>> glares at Bailey, but doesn't press the issue. Bailey slams the door shut once <<hes>> gone.
 	<br><br>
@@ -4670,7 +4668,7 @@ You open the locket around your neck.
 		<</if>>
 	<</capture>>
 <</for>>
-<<if $stockholm_active and $carried.neck.photo isnot "Bailey" and not isLoveInterest("Bailey")>>
+<<if $syndromebailey and $carried.neck.photo isnot "Bailey" and not isLoveInterest("Bailey")>>
 	<span @class="'clothes-'+$carried.neck.colour.replace(' ', '-')"><<icon "locket.png">></span>
 	<<if $carried.neck.photo>>
 		<<link [[Replace the picture with a photo of Bailey|Mirror Locket 2]]>><<set $carried.neck.photo to "Bailey">><</link>>

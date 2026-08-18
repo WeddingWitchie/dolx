@@ -2266,6 +2266,8 @@ function isPossibleLoveInterest(name) {
 			return V.gwylanSeen?.includes("partners") || V.gwylanSeen?.includes("romance");
 		case "Poppy":
 			return V.poppyromance >= 0 && C.npc.Poppy && C.npc.Poppy.init === 1;
+		case "Bailey":
+			return V.syndromebailey === true;
 		default:
 			return false;
 	}

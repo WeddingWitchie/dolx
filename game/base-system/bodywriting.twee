@@ -262,7 +262,7 @@
 		<<bodywriting_npc_kylar _args[0] _args[1]>>
 	<<elseif $npc[$npcrow.indexOf(_n)] is "Sydney">>
 		<<bodywriting_npc_sydney _args[0] _args[1]>>
-<<elseif $npc[$npcrow.indexOf(_n)] is "Gwylan">>
+	<<elseif $npc[$npcrow.indexOf(_n)] is "Gwylan">>
 		<<bodywriting_npc_gwylan _args[0] _args[1]>>
 	<<elseif $npc[$npcrow.indexOf(_n)] is "Bailey">>
 		<<bodywriting_npc_bailey _args[0] _args[1]>>
@@ -2006,12 +2006,14 @@
 		<<case "Bailey">>
 			<<switch $skin[_args[0]].special>>
 				<<case "Robin">>
-					<<if $stockholm_active and $skin[_args[0]].writing isnot "Robin & I">>
+					<<if $syndromebailey>>
 						<<His>> eyes darken.
 						<<set _text_output to "Maybe I should sell <<nnpc_him 'Robin'>> somewhere you can't find <<nnpc_him 'Robin'>>.">>
-					<<elseif random(1) and $skin[_args[0]].writing isnot "Robin & I">>
-						<<set _strings to ["That worthless brat can't save you.", "Good thinking. They'll pay double for a package deal.", "Keep bringing <<nnpc_him 'Robin'>> around. I'll find a use for <<nnpc_him 'Robin'>> too.", "Don't worry, I'll be paying <<nnpc_him 'Robin'>> a visit soon."]>>
-						<<if $bailey_dom lte 30>><<run _strings.push("Useless. Both of you.")>><</if>>
+					<<else>>
+						<<set _strings to ["That worthless brat can't save you.", "Good thinking. They'll pay double for a package deal.", "Keep bringing <<nnpc_him 'Robin'>> around. I'll find a use for <<nnpc_him 'Robin'>> too."]>>
+						<<if C.npc.Bailey.dom lte 30>>
+							<<run _strings.push("Useless. Both of you.")>>
+						<</if>>
 						<<He>> sneers.
 						<<set _text_output to _strings[random(0, _strings.length - 1)]>>
 					<<else>>
@@ -2029,12 +2031,12 @@
 						<</switch>>
 					<</if>>
 				<<case "Eden">>
-					<<if $stockholm_active>>
+					<<if $syndromebailey>>
 						<<set _strings to ["Get <<nnpc_his 'Eden'>> name off of you.", "Get rid of it."]>>
 						<<if random(1)>>
 							<<He>> growls, gripping the mark hard enough to hurt.
 						<<else>>
-							<<He>> traces Eden's mark with <<his>> thumb. Slowly. Then <<his>> nail digs in.
+							<<He>> traces Eden's mark with <<his>> thumb slowly. <<His>> nail digs in.
 						<</if>>
 						<<set _text_output to _strings[random(0, _strings.length - 1)]>>
 					<<else>>
@@ -2055,6 +2057,7 @@
 						<<set _text_output to "<<nnpc_He 'Avery'>> paid and still needs to write <<nnpc_his 'Avery'>> name on it?">>
 					<<else>>
 						<<His>> lip curls. <<His>> fingers dig painfully into the mark.
+						<<set _admireNothing to true>>
 					<</if>>
 				<<case "Whitney">>
 					<<if random(1)>>
@@ -2065,7 +2068,7 @@
 						<<set _text_output to "That brat can't afford you.">>
 					<</if>>
 				<<case "Kylar">>
-					<<He>> reads it.
+					<<He>> scoffs.
 					<<set _text_output to "Obsessive little shit.">>
 				<<case "Alex">>
 					<<He>> scoffs.
@@ -2092,23 +2095,27 @@
 					<</switch>>
 				<<case "prostitution">>
 					<<if $skin[_args[0]].owner is "Bailey">>
-						/* Bailey sees his own price tag */
-						<<if $stockholm_active>>
-							<<He>> exhales.
-							<<set $_strings to [
-								`"Still accurate."`,
-								`"Mine."`,
-								`<<He>> looks satisfied.`,
+						<<He>> exhales.
+						<<if $syndromebailey>>
+							<<set $_pool to [
+								{act: "", say: `Still accurate.`},
+								{act: "", say: `Mine.`},
+								{act: `<<He>> looks satisfied.`, say: ""},
 							]>>
 						<<else>>
-							<<He>> exhales.
-							<<set $_strings to [
-								`"Don't wash that off."`,
-								`"About right."`,
-								`"Still there. Good."`,
+							<<set $_pool to [
+								{act: "", say: `Don't wash that off.`},
+								{act: "", say: `About right.`},
+								{act: "", say: `Still there. Good.`},
 							]>>
 						<</if>>
-						<<set _text_output to $_strings[random(0, $_strings.length - 1)]>>
+						<<set $_pick to $_pool[random(0, $_pool.length - 1)]>>
+						<<if $_pick.act isnot "">><<print $_pick.act>><</if>>
+						<<if $_pick.say isnot "">>
+							<<set _text_output to $_pick.say>>
+						<<else>>
+							<<set _admireNothing to true>>
+						<</if>>
 					<<elseif $skin[_args[0]].degree gte 10000>>
 						<<He>> nods.
 						<<if random(1)>>
@@ -2125,21 +2132,26 @@
 						<</if>>
 					<</if>>
 				<<case "Bailey">>
-					/* Bailey sees his own non-price identity marks */
-					<<if $stockholm_active>>
-						<<set $_strings to [
-							`<<He>> exhales. "That's right."`,
-							`<<His>> eyes linger on the mark.`,
-							`<<He>> traces it with <<his>> thumb. "Mine."`,
+					<<if $syndromebailey>>
+						<<set $_pool to [
+							{act: `<<He>> exhales.`, say: `That's right.`},
+							{act: `<<His>> eyes linger on the mark.`, say: ""},
+							{act: `<<He>> traces it with <<his>> thumb.`, say: `Mine.`},
 						]>>
 					<<else>>
-						<<set $_strings to [
-							`<<He>> exhales. "So you do know who you belong to."`,
-							`<<He>> scoffs. "Don't forget it."`,
-							`<<He>> exhales. "Right where you belong."`,
+						<<set $_pool to [
+							{act: `<<He>> exhales.`, say: `So you do know who you belong to.`},
+							{act: `<<He>> scoffs.`, say: `Don't forget it.`},
+							{act: `<<He>> exhales.`, say: `Right where you belong.`},
 						]>>
 					<</if>>
-					<<set _text_output to $_strings[random(0, $_strings.length - 1)]>>
+					<<set $_pick to $_pool[random(0, $_pool.length - 1)]>>
+					<<print $_pick.act>>
+					<<if $_pick.say isnot "">>
+						<<set _text_output to $_pick.say>>
+					<<else>>
+						<<set _admireNothing to true>>
+					<</if>>
 				<<case "rape">>
 					<<He>> curls <<his>> lip.
 					<<if random(1)>>

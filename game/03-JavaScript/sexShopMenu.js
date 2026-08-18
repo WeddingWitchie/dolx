@@ -781,7 +781,7 @@ function determineRecipient(index) {
 	const giftCost = ssmInflatedCost(item.cost + 15 * 100);
 	if (V.money < giftCost) return "";
 
-	for (const li of ["Alex", "Eden", "Kylar", "Robin", "Sydney"]) {
+	for (const li of ["Alex", "Bailey", "Eden", "Kylar", "Robin", "Sydney"]) {
 		if (isPossibleLoveInterest(li)) {
 			optionBuilder += `<option value="${li}">${li}</option>`;
 		}

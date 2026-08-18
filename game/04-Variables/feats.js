@@ -565,6 +565,13 @@ setup.feats = {
 		series: "",
 		filter: ["All", "Social"],
 	},
+	"Caring for the Caretaker": {
+		title: "Caring for the Caretaker",
+		desc: "You brought Bailey a meal.",
+		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
 	"Teachers Nightmare": {
 		title: "Teacher's Nightmare",
 		desc: "You are a terror!",

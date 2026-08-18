@@ -2,8 +2,8 @@
 <<widget "baileyMonogamyOptions">>
 	<<if $bailey_monogamous is undefined>><<set $bailey_monogamous to false>><</if>>
 	<<if $bailey_monogamy_unlocked is undefined>><<set $bailey_monogamy_unlocked to false>><</if>>
-	<<if $stockholm_active>><<set $bailey_monogamy_unlocked to true>><</if>>
-	<<if $stockholm_active and $bailey_monogamy_unlocked and !$bailey_monogamous>>
+	<<if $syndromebailey and $bailey_date_allnight gte 1>><<set $bailey_monogamy_unlocked to true>><</if>>
+	<<if $syndromebailey and $bailey_date_allnight gte 1 and $bailey_monogamy_unlocked and !$bailey_monogamous>>
 		<<ind>><<link [[Ask <<him>> to be monogamous (0:05)|Bailey Monogamy Ask]]>><<pass 5>><</link>>
 		<br>
 	<<elseif $bailey_monogamous>>
@@ -21,7 +21,6 @@
 	<<set $loveInterest.senary to "None">>
 	<<set $bailey_monogamous to true>>
 	<<set $bailey_weekend_closed to baileyWeekendClose(Time.days)>>
-	/* Monogamous Bailey stops using condoms (drop out of the pregnancyAvoidance pool). */
 	<<set C.npc.Bailey.pregnancyAvoidance to 0>>
 <</widget>>
 
@@ -64,7 +63,7 @@
 <<He>> looks at you for a long moment, expression unreadable.
 <br><br>
 "You've always been mine, brat," 
-<<if $bailey_love gte 50>>
+<<if C.npc.Bailey.love gte 50>>
 	<<he>> says. "But fine. No one else, for either of us."
 	<br><br>
 	Bailey steps close to you and takes your chin in <<his>> hand, tilting it up towards the ceiling.
@@ -111,7 +110,7 @@ Bailey smiles, and you don't have time to figure out if it's real before <<he>> 
 <<baileyKissVirginity>>
 <br><br>
 
-"Good," <<he>> says against your lips before pulling away and shoving you back onto your legs. "I've wasted enough time on you today. Go." <<npcincr Bailey love 3>><<set $bailey_love += 3>><<ggglove "Bailey">>
+"Good," <<he>> murmurs against your lips before pulling away and shoving you back onto your legs. "I've wasted enough time on you today. Go." <<npcincr Bailey love 3>><<ggglove "Bailey">>
 <br><br>
 
 You walk away on wobbly legs, wondering if you've made a mistake. <span class="bailey-stockholm">It won't be easy to keep up with Bailey's demands.</span>
@@ -169,11 +168,11 @@ You walk away on wobbly legs, wondering if you've made a mistake. <span class="b
 <</if>>
 <br><br>
 
-Bailey's face is completely flat. <<He>> holds a hand out towards you. "Fine. I told you I would make you pay for it, so pay up. <span class="gold">£5000</span>."
+Bailey's face is completely flat. <<He>> holds a hand out towards you. "Fine. I told you I would make you pay for it, so pay up. <<printprice 500000>>."
 <br><br>
 
-<<if $money gte _monogamyFee>>
-	<<link [[Pay|Bailey Monogamy Release Pay]]>><<set $money -= _monogamyFee>><<baileyMonogamyRelease>><</link>>
+<<if setup.inflation.canAfford(_monogamyFee, "baileyMonogamy")>>
+	<<link [[Pay|Bailey Monogamy Release Pay]]>><<money `-_monogamyFee` "baileyMonogamy">><<baileyMonogamyRelease>><</link>>
 	<br>
 <</if>>
 <<link [[Change your mind|Bailey Monogamy Release Refuse]]>><</link>>
@@ -208,21 +207,18 @@ You don't pay <<him>>.
 You are in the main hall of the orphanage.
 <br><br>
 
-A hand circles your arm. <span class="bailey-red">It's Bailey.</span>
+A hand circles your arm. <span class="bailey-red">It's <<baileyTitleNarration>>.</span>
 <br><br>
 
-<<if baileyWeeksMissed() gte 3>>
-	"Our deal," <<he>> says to you, low and furious. "I stuck to my end. I expect you to do the same."
+<<if baileyWeeksMissed() gte 3>> "Our deal," <<he>> says to you, low and furious. "I stuck to my end. I expect you to do the same."
 	<br><br>
-	<<He>> hauls you in by the arm until your chest meets <<his>>. "Last time I say this. My flat. This weekend. On your knees if that's what it takes to remember whose you are. Stop wasting my time, you brat."<<npcincr Bailey love -3>><<set $bailey_love -= 3>><<lllove "Bailey">>
-<<elseif baileyWeeksMissed() gte 2>>
-	"You haven't fulfilled your end of our deal in two weeks," <<he>> sneers at you. "Keep this up and I'll reconsider my end, brat."
+	<<He>> hauls you in by the arm until your chest meets <<his>>. "Last time I say this. My flat. This weekend. On your knees if that's what it takes to remember whose you are. Stop wasting my time, you little shit."<<npcincr Bailey love -3>><<llllove "Bailey">>
+<<elseif baileyWeeksMissed() gte 2>> "You haven't fulfilled your end of our deal in two weeks," <<he>> sneers at you. "Keep this up and I'll reconsider my end, brat."
 	<br><br>
-	<<He>> grabs you by the neck and pulls you close. "You'll come this weekend. Or I stop being patient." <<npcincr Bailey love -2>><<set $bailey_love -= 2>><<lllove "Bailey">>
-<<else>>
-	"Was I not clear?" <<He>> asks you, sneering. "My flat. Weekend nights."
+	<<He>> grabs you by the neck and pulls you close. "You'll come this weekend. Or I stop being patient." <<npcincr Bailey love -2>><<lllove "Bailey">>
+<<else>> "Was I not clear?" <<He>> asks you, sneering. "My flat. Weekend nights."
 	<br><br>
-	<<His>> thumb digs into the soft of your arm. "I keep to schedules, brat. I expect you to do the same." <<npcincr Bailey love -1>><<set $bailey_love -= 1>><<llove "Bailey">>
+	<<His>> thumb digs into the soft of your arm. "I keep to schedules, brat. I expect you to do the same." <<npcincr Bailey love -1>><<llove "Bailey">>
 <</if>>
 <br><br>
 <<He>> releases you and stomps away before you can answer.
@@ -232,7 +228,6 @@ A hand circles your arm. <span class="bailey-red">It's Bailey.</span>
 <br>
 
 
-/* Flats Peek Confront */
 :: Flats Events Peek Confront
 <<speechresolve>>
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
@@ -257,7 +252,7 @@ A hand circles your arm. <span class="bailey-red">It's Bailey.</span>
 <<else>>
 	Bailey looks up from the <<person2>><<personsimple>> and sees you. <<person1>><<He>> gives you a flat look.
 <</if>>
-The stranger looks between you and Bailey, <<print either("uneasy", "amused")>>. Bailey steps away from <<him>> and towards you. "It's good to see you."
+The stranger looks between you and Bailey, <<print either("uneasy", "amused")>>. Bailey steps away from <<person2>><<him>> and towards you. "It's good to see you."
 <br><br>
 
 Then <<person1>><<he>> leans in close to whisper to you.
