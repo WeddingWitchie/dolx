@@ -3204,6 +3204,7 @@
 					<<set $_actorsBorderingBullet to $_actorsBorderingBullet.concat(shopHuntContains($_b).filter(x => typeof x === "number" || x === "player"))>>
 				<</for>>
 				<<set $_edenTargetDirection to shopHuntRelativeDirection(_locRaw, $_edenTarget.position)>>
+				<<set $_edenTargetDirectionPrint to $_edenTargetDirection is "here" ? $shopHunt.player.hide is 4 and _loc.special.includes("inside") ? "just outside the <<shopHuntLocName _locRaw 'simple'>>" : "right here" : "the " + $_edenTargetDirection>>
 				<<set $_bulletDestDirection to shopHuntRelativeDirection(_locRaw, $_bulletDest)>>
 				<<if !$_eden.ammo>>
 					<<set $_eden.target to "reload">>
@@ -3303,8 +3304,12 @@
 							<<case "mannequin">>
 								<br>
 								/* ToDo: Gwylan hunt - have adjacent mannequins also jump in front of the player if the player is in the path? */
-								<<if $_actorsAtBullet.includes("player")>>
-									<<shopHuntActorName $_edenTargetHit.id "cap">> leaps in front of you, <span class="red">shielding you from the bullet</span>.
+								<<if $_actorsAtBullet.includes("player") and !($shopHunt.player.hide is 4 and _loc.special.includes("inside"))>>
+									<<if $_playerSeesTarget>>
+										<<shopHuntActorName $_edenTargetHit.id "cap">> leaps in front of you, <span class="red">shielding you from the bullet</span>.
+									<<else>>
+										Something wooden leaps in front of you, <span class="red">shielding you from the bullet</span>.
+									<</if>>
 									<br>
 								<</if>>
 								<<if $_edenTargetHit.state is "hold">>
@@ -3370,7 +3375,7 @@
 											<span class="purple">The sound of something wooden falling over, and then standing back up, follows.</span>
 										<</if>>
 									<</if>>
-									<<if !$_silentshot and $_edenTargetDirection isnot $_edenDirection>>It came from the $_edenTargetDirection.<</if>>
+									<<if !$_silentshot and $_edenTargetDirection isnot $_edenDirection>>It came from $_edenTargetDirectionPrint.<</if>>
 								<</if>>
 							<<case "elkspawn">>
 								/* ToDo: Gwylan hunt - elkspawn being shot */
