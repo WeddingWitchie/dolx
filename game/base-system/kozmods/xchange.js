@@ -2164,3 +2164,56 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 		window.$(document).on(":passagestart", hermRumourBodyCheck);
 	}
 })();
+
+/* When a pill changes the player's genitals mid-scene, clear any NPC links to those changed parts so the scene and combat options stay in sync.
+ * parts: array containing "vagina" and/or "penis". */
+setup.xchangeClearNpcGenitalLinks = function (parts) {
+	if (!Array.isArray(V.NPCList)) return;
+	const wanted = Array.isArray(parts) ? parts : [parts];
+	const playerVagina = ["vagina", "vaginaimminent", "vaginaentrance", "vaginadouble", "vaginaimminentdouble", "vaginaentrancedouble", "othermouth"];
+	const playerPenis = [
+		"frot",
+		"otherfrot",
+		"otheranusfrot",
+		"penis",
+		"penisimminent",
+		"penisentrance",
+		"penisdouble",
+		"otheranus",
+		"otheranusimminent",
+		"otheranusentrance",
+	];
+	const linked = [];
+	if (wanted.includes("vagina")) linked.push(...playerVagina);
+	if (wanted.includes("penis")) linked.push(...playerPenis);
+	if (!linked.length) return;
+
+	let clearedVagina = false;
+	let clearedPenis = false;
+	V.NPCList.forEach(npc => {
+		if (!npc || typeof npc !== "object") return;
+		let touched = false;
+		["penis", "vagina"].forEach(field => {
+			if (!linked.includes(npc[field])) return;
+			// The NPC's penis field may refer to their own hole, but the player part it was using is no longer holding it.
+			if (playerVagina.includes(npc[field])) clearedVagina = true;
+			else clearedPenis = true;
+			npc[field] = 0;
+			touched = true;
+		});
+		if (touched && npc.location) npc.location.genitals = 0;
+	});
+
+	if (clearedVagina || wanted.includes("vagina")) {
+		V.vaginause = 0;
+		V.vaginastate = 0;
+		V.vaginaaction = 0;
+		V.vaginatarget = 0;
+	}
+	if (clearedPenis || wanted.includes("penis")) {
+		V.penisuse = 0;
+		V.penisstate = 0;
+		V.penisaction = 0;
+		V.penistarget = 0;
+	}
+};
