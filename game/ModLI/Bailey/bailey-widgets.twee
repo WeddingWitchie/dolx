@@ -288,12 +288,33 @@ Bailey stomps away, leaving you alone in the hallway.
 
 
 :: Bailey Seen Widget [widget]
-/*  <<baileySeenAdd "eventName">> records that an event in the $baileySeen array.
-It creates the array if missing (safe on old saves).
-pushUnique skips duplicates so calling it again is harmless.
-Read it back with: $baileySeen?.includes("eventName") */
 <<widget "baileySeenAdd">><<if $baileySeen is undefined>><<set $baileySeen to []>><</if>><<set $baileySeen.pushUnique(_args[0])>><</widget>>
 
+<<widget "homeeventbaileypilled">>
+	<<endevent>>
+	<<npc Bailey>><<person1>>
+	<<switch random(1, 3)>>
+		<<case 1>>
+			Bailey's office door stands ajar. Through the gap you see <<baileyTitleNarration>> standing before the small mirror behind the desk, ledger forgotten under one arm.
+			<<He>> turns a little to one side, then the other, studying the unfamiliar body with the same flat, appraising stare <<he>> gives anything that might be worth money.
+			<br><br>
+			<<His>> eyes find yours in the reflection. "Rent's still due," <<he>> says, without turning around. The door swings shut.
+		<<case 2>>
+			Bailey stands at the table in the main hall, counting a stack of notes. Halfway through, <<he>> stops.
+			<<He>> spreads <<his>> fingers, flexes them, rolls <<his>> shoulders like someone breaking in a new coat. Then <<he>> picks the count back up from exactly where <<he>> left it, faster than before.
+			<br><br>
+			Whatever conclusions Bailey is drawing about the new body, <<he>> isn't sharing them.
+		<<case 3>>
+			<<generateyv2>>Up ahead, Bailey stops a <<person2>><<person>> and issues an instruction.
+			The voice that comes out isn't the one anyone here grew up fearing, and for a moment the <<person>> just blinks.
+			<br><br>
+			<<person1>>Bailey pauses, as if weighing the sound of it. Then <<he>> repeats the order, flatter, and the <<person2>><<person>> scrambles to obey.
+			<<person1>>Something that isn't quite a smile crosses Bailey's face. The new voice works just fine.
+	<</switch>>
+	<br><br>
+	<<link [[Next|Orphanage]]>><<endevent>><</link>>
+	<br>
+<</widget>>
 
 
 :: Bailey Kiss Virginity Widget [widget]
@@ -358,6 +379,20 @@ Call sites own their own spacing. */
 /* $bratTax = points * 1/10 of current rent. Call beside <<babyRent>>. */
 <<widget "bratTaxCalc">>
 	<<set $bratTax to (($bailey_brat and $bailey_brat.points) || 0) * Math.floor($rentmoney / 10)>>
+<</widget>>
+
+<<widget "baileyOfferSettleRent">>
+	/* Recompute rather than trusting $bratTax: not every path in announces the tax first. */
+	<<bratTaxCalc>>
+	<<set _offerRentDue to $rentmoney + ($babyRent or 0) + ($bratTax or 0)>>
+	<<if $money gte _offerRentDue>>
+		<<money `-_offerRentDue` "baileyRent">>
+	<</if>>
+	<<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
+	<<set $baileydefeatedchain to 0>>
+	<<set $baileyRefusedToPay to 0>>
+	<<set $baileyRefusedToPayTotal to $baileyRefusedToPayTotal lt _offerRentDue ? 0 : $baileyRefusedToPayTotal - _offerRentDue>>
+	<<unset $bailey_encroach>>
 <</widget>>
 
 <<widget "bratReasonList">>

@@ -1419,14 +1419,18 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		})()>>
 	<</if>>
 
-	/* One-time repair: the cheat-menu Stockholm toggle equipped Bailey's cursed collar on activation but left it fixed on after deactivation, with no removal path.
-	The story never leaves the collar cursed while Stockholm is inactive, so unlock it. */
-	<<if !$dolxBaileyCollarUnfixed>>
-		<<set $dolxBaileyCollarUnfixed to true>> /* delete later */
-		<<if $worn isnot undefined and $syndromebailey isnot true and $worn.neck.name is "Bailey's collar" and $worn.neck.cursed is 1>>
-			<<set $worn.neck.cursed to 0>>
+	/* One-time repair for Bailey's cursed collar.
+	If Stockholm is inactive, unlock the collar so old saves cannot get stuck with it permanently fixed. */
+	<<if !$dolxBaileyCollarUnfixed2 and $worn isnot undefined and $worn.neck isnot undefined>>
+		<<if $syndromebailey isnot true>>
+			<<if $worn.neck.name is "Bailey's collar" and $worn.neck.cursed is 1>>
+				<<set $worn.neck.cursed to 0>>
+			<</if>>
+			<<set $dolxBaileyCollarUnfixed2 to true>> /* delete later */
 		<</if>>
 	<</if>>
+
+	<<if $dolxBaileyCollarUnfixed isnot undefined>><<unset $dolxBaileyCollarUnfixed>><</if>> /* delete later */
 
 	/* Breeder edging migration. Root vars are canonical; old nested pill vars are one-time legacy input. */
 	<<if def $xchange.pill.breederEdgingCount>>
@@ -1580,7 +1584,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</if>>
 
 	<<if $schoolevent gt 2>><<set $schoolevent to 0>><</if>>
-
 	<<if $recentmolest is -1>><<set $recentmolest to Math.max($moleststat - Time.days, 0)>><</if>>
 	<<if $recentrape is -1>><<set $recentrape to Math.max($rapestat - Time.days, 0)>><</if>>
 

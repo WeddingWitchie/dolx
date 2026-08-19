@@ -936,6 +936,11 @@ setup.hbsc.canBorrow = function () {
 	return setup.hbsc.loanBorrowable() > 0;
 };
 
+/* Is there still an outstanding loan? */
+setup.hbsc.hasLoan = function () {
+	return setup.hbsc.ensureLoanState().owed > 0;
+};
+
 setup.hbsc.borrowLoan = function () {
 	const V = State.variables;
 	const loan = setup.hbsc.ensureLoanState();

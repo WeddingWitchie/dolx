@@ -44,6 +44,26 @@ window.baileyStraying = function () {
 	return window.baileyWeeksMissed() >= 2;
 };
 
+/* Scenes that each grant a Stockholm point, keyed as they are stored on $stockholm_points. */
+const BAILEY_STOCKHOLM_SCENES = ["temple", "kylar", "cafe", "whitney", "gwylan", "kick", "avery", "halloween", "eden"];
+
+/* Minimum $syndromebaileybuild justified by scenes the player has seen.
+   Used on load and by the cheat menu to prevent invalid lower values. */
+window.baileyStockholmFloor = function () {
+	const pts = V.stockholm_points;
+	if (!pts || typeof pts !== "object" || Array.isArray(pts)) return 0;
+	let floor = pts.offer_defeat === true ? 3 : pts.offer === true ? 1 : 0;
+	BAILEY_STOCKHOLM_SCENES.forEach(function (k) {
+		if (pts[k] === true) floor += 1;
+	});
+	return floor;
+};
+
+/* Highest floor a save can reach: offer_defeat plus every scene. The cheat stepper caps here. */
+window.baileyStockholmFloorMax = function () {
+	return 3 + BAILEY_STOCKHOLM_SCENES.length;
+};
+
 /* Vanilla has <<gstockholm>>. This one hides the name behind ??? until Bailey is revealed. */
 Macro.add("gbaileystock", {
 	handler() {
@@ -159,14 +179,8 @@ $(document).one(":storyready", function () {
 		if (typeof C.npc.Bailey.love !== "number" || Number.isNaN(C.npc.Bailey.love)) {
 			C.npc.Bailey.love = 0;
 		}
-		if (V.stockholm_points === undefined) V.stockholm_points = {};
-
 		if (typeof V.syndromebaileybuild !== "number" || Number.isNaN(V.syndromebaileybuild)) V.syndromebaileybuild = 0;
-		const pts = V.stockholm_points || {};
-		let floor = pts.offer_defeat === true ? 3 : pts.offer === true ? 1 : 0;
-		["temple", "kylar", "cafe", "whitney", "gwylan", "kick", "avery", "halloween", "eden"].forEach(function (k) {
-			if (pts[k] === true) floor += 1;
-		});
+		const floor = window.baileyStockholmFloor();
 		if (V.syndromebaileybuild < floor) {
 			if (V.debug === 1) {
 				console.log("[BaileyExpansion] Raised $syndromebaileybuild " + V.syndromebaileybuild + " -> " + floor);

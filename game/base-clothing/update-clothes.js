@@ -804,6 +804,10 @@ function wardrobesUpdate() {
 		V.wardrobes.prison.locationRequirement = ["prison"];
 	}
 
+	if (V.wardrobes.asylum && !V.wardrobes.asylum.locationRequirement?.length) {
+		V.wardrobes.asylum.locationRequirement = ["asylum"];
+	}
+
 	if (!V.wardrobes.inventory) {
 		/* Player inventory */
 		V.wardrobes.inventory = clone(defWardrobe);
@@ -824,6 +828,9 @@ function wardrobesUpdate() {
 		V.wardrobes.avery_mansion.shopSend = true;
 		V.wardrobes.avery_mansion.space = 80;
 		V.wardrobes.avery_mansion.locationRequirement.push("avery_mansion");
+	}
+	if (!V.wardrobes.avery_mansion.locationRequirement?.length) {
+		V.wardrobes.avery_mansion.locationRequirement = ["avery_mansion", "alley"];
 	}
 	if (V.avery_mansion) V.wardrobes.avery_mansion.unlocked = true;
 	if (V.objectVersion.wardrobes < 7.5) {

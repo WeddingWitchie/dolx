@@ -21,14 +21,15 @@
 <</if>>
 <br><br>
 
-/* Always guard with `<<if $money gte $rentmoney + ($babyRent || 0)>>` before `<<set $money -= ...>>`. */
+/* Bailey takes the week's rent for the sale */
+<<baileyOfferSettleRent>>
 
 <<if $bailey_offered is undefined or $bailey_offered is 0>>
 	<<if $baileydefeated gte 5>>
 		Bailey goes very still. <<He>> frowns deeply, <<his>> eyes moving over your face.
 		<br><br>
 
-		"Finally," <<he>> sneers. "All that fighting. All that fuss." <<He>> takes the money from you.<<if $money gte $rentmoney + ($babyRent || 0)>><<money `-($rentmoney + ($babyRent || 0))` "baileyRent">><</if>> "What a waste of time. At least you're finally doing what you're told."
+		"Finally," <<he>> sneers. "All that fighting. All that fuss." <<He>> takes the money from you. "What a waste of time. At least you're finally doing what you're told."
 		<br><br>
 
 		<<He>> produces a hood and rope from behind <<his>> back.
@@ -40,7 +41,7 @@
 		Bailey goes very still. <<His>> eyes move over your face, evaluating it for something. The corner of <<his>> mouth twitches into a smirk.
 		<br><br>
 
-		<<He>> takes the money from you.<<if $money gte $rentmoney + ($babyRent || 0)>><<money `-($rentmoney + ($babyRent || 0))` "baileyRent">><</if>> Then <<he>> produces a hood and rope from behind <<his>> back.
+		<<He>> takes the money from you. Then <<he>> produces a hood and rope from behind <<his>> back.
 		<br><br>
 
 		"Don't make me regret this."<<npcincr Bailey dom 3>><<gggdom "Bailey">><<npcincr Bailey love 3>><<ggglove "Bailey">><<set $syndromebaileybuild += 1>><<set $stockholm_points.offer to true>><<gbaileystock>>
@@ -50,13 +51,6 @@
 <<else>> /* Stockholm Activation */
 	<<if $syndromebaileybuild gte 3 and $syndromebailey isnot true>> 
 		<<set $bailey_offered += 1>>
-		<<if $money gte $rentmoney + ($babyRent || 0)>>
-			<<money `-($rentmoney + ($babyRent || 0))` "baileyRent">>
-		<</if>>
-		<<set $baileydefeatedchain to 0>>
-		<<set $baileyRefusedToPay to 0>>
-		<<set $baileyRefusedToPayTotal to $baileyRefusedToPayTotal lt $rentmoney + ($babyRent || 0) ? 0 : $baileyRefusedToPayTotal - ($rentmoney + ($babyRent || 0))>>
-		<<unset $bailey_encroach>>
 
 		<<He>> takes the money from your hand and counts it slower than usual. <<He>> folds it into <<his>> coat.
 		<br><br>
@@ -69,9 +63,6 @@
 
 		<<link [[Next|Bailey Stockholm Reveal]]>><</link>>
 	<<else>>
-		<<if $money gte $rentmoney + ($babyRent || 0)>>
-			<<money `-($rentmoney + ($babyRent || 0))` "baileyRent">>
-		<</if>>
 		<<if $bailey_offered gte 4>>
 			Bailey tosses you a hood. <<He>>'s smiling at you.
 			<br><br>
@@ -95,11 +86,6 @@
 <</if>>
 
 <<if $syndromebaileybuild lt 3 or $syndromebailey is true or $bailey_offered lte 1>>
-	<<set $baileydefeatedchain to 0>>
-	<<set $baileyRefusedToPay to 0>>
-	<<set $baileyRefusedToPayTotal to $baileyRefusedToPayTotal lt $rentmoney + ($babyRent || 0) ? 0 : $baileyRefusedToPayTotal - ($rentmoney + ($babyRent || 0))>>
-	<<unset $bailey_encroach>>
-
 	<<link [[Next|Bailey Offer Walk]]>><</link>>
 	<br>
 	<<if $bailey_offered_seen and $bailey_offered_seen.manor and $bailey_offered_seen.eden and $bailey_offered_seen.remy and $bailey_offered_seen.underground and setup.inflation.canAfford(300000, "baileyRent")>>

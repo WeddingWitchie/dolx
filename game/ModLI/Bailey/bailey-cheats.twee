@@ -12,13 +12,22 @@
 	<<if $stockholm_points is undefined>><<set $stockholm_points to {}>><</if>>
 	<div class="settingsToggleItem">
 		<span class="gold">Core Stats</span>
-		<<numberStepper "<<iconUi 'sym-dominance-bailey.png'>> Dominance" `C.npc.Bailey.dom` { callback: value => { C.npc.Bailey.dom = value }, min: 0, max: 100 }>>
+		<<numberStepper "<<symbol 'dominance-bailey'>> Dominance" `C.npc.Bailey.dom` { callback: value => { C.npc.Bailey.dom = value }, min: 0, max: 100 }>>
 		<<numberStepper "<<symbol love>> Respect" `C.npc.Bailey.love` { callback: value => { C.npc.Bailey.love = value }, min: 0, max: 100 }>>
 		<<numberStepper "<<symbol lust>> Lust" `C.npc.Bailey.lust` { callback: value => { C.npc.Bailey.lust = value }, min: 0, max: 100 }>>
 	</div>
 	<div class="settingsToggleItem">
 		<span class="gold">Stockholm Syndrome</span>
-		<<numberStepper "Stockholm Points" `V.syndromebaileybuild` { callback: value => { V.syndromebaileybuild = value }, min: 0, max: 10, step: 1, percentage: false }>>
+		/* The scenes already seen set a floor that syncBaileyDom restores every passage, so the stepper starts there instead of silently reverting.
+		Clear the scene record below to drop under it. */
+		<<set _stockholmFloor to baileyStockholmFloor()>>
+		<<numberStepper "Stockholm Points" `V.syndromebaileybuild` { callback: value => { V.syndromebaileybuild = value }, min: _stockholmFloor, max: baileyStockholmFloorMax(), step: 1, percentage: false }>>
+		<<if _stockholmFloor gt 0>>
+			<<link [[Clear earned Stockholm points|$passage]]>><<set $stockholm_points to {}>><<set $syndromebaileybuild to 0>><</link>>
+			<br>
+			<span class="pink">Forgets which Stockholm scenes you've seen, releasing the minimum of _stockholmFloor.</span>
+			<br>
+		<</if>>
 		<<numberStepper "Times Offered" `V.bailey_offered` { callback: value => { V.bailey_offered = value }, min: 0, step: 1, percentage: false }>>
 		<<numberStepper "Wraith Encounters" `V.bailey_wraith_seen` { callback: value => { V.bailey_wraith_seen = value }, min: 0, step: 1, percentage: false }>>
 		<br>
