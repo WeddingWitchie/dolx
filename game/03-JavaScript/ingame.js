@@ -3743,10 +3743,14 @@ function isDragonEyesActive() {
 window.isDragonEyesActive = isDragonEyesActive;
 
 function isMonsterHallucinationAllowed(rng = random(1, 100)) {
-	// Dragon Eyes forces permanent hallucinations; on its own it shouldn't unlock monster people while bestiality is off.
+	// Negated gte, so an undefined/NaN monsterChance fails closed exactly as the old single-expression check did.
+	if (!(V.settings.monsterChance >= rng)) return false;
+	// "Replace beasts with monster people" without the hallucination restriction is an explicit opt-in, so it always wins.
+	if (!V.settings.monsterHallucinationsOnly) return true;
+	// Dragon Eyes pins V.hallucinations permanently (see updateHallucinations), which would quietly turn
+	// "only while hallucinating" into "always" for a player who deliberately left bestiality off.
 	if (!V.settings.bestialityEnabled && isDragonEyesActive()) return false;
-
-	return (!V.settings.monsterHallucinationsOnly || V.hallucinations > 0) && V.settings.monsterChance >= rng;
+	return V.hallucinations > 0;
 }
 window.isMonsterHallucinationAllowed = isMonsterHallucinationAllowed;
 
