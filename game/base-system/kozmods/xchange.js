@@ -939,7 +939,11 @@ setup.xchangeStaleMasturbationAction = function (action) {
 };
 
 function pillIsPermanent() {
-	return V.xchange.pill.duration <= -1;
+	// A duration of -1 only means "permanent" while the pill is still the body you're in.
+	// A cure/reversal clears pill.active, and the leftover -1 must not keep reading as a permanent transformation.
+	const pill = V.xchange?.pill;
+	if (!pill || !pill.active) return false;
+	return pill.duration <= -1;
 }
 window.pillIsPermanent = pillIsPermanent;
 
