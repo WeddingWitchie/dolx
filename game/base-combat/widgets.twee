@@ -825,10 +825,21 @@
 				<<break>>
 			<</if>>
 		<</for>>
-		<<if _index isnot undefined>>
-			<<personselect _j>>
-		<<else>>
-			<!-- Should we throw an error? If we suspect an NPC part is in this position and don't find one, is that a bug? -->
+		<<if _npc is undefined>>
+			/* No NPC is in this position, so don't use _j after it passes the NPC list. Keep the current NPC if valid, otherwise use the first available one. */
+			<div class="error-view"><span>selectNpcWithPartInPosition: no NPC has [<<= $_part>>] in position [<<= $_position>>] in <<= $passage>>. Retargeting to recover, a previous scene most likely left a stale position tracker behind. Please export and report if this repeats.</span></div>
+			<<if !$NPCList[$index] or !$NPCList[$index].pronoun>>
+				<<set _fallbackSlot to -1>>
+				<<for _k = 0; _k lt $enemynomax; _k++>>
+					<<if $NPCList[_k] and $NPCList[_k].pronoun>>
+						<<set _fallbackSlot to _k>>
+						<<break>>
+					<</if>>
+				<</for>>
+				<<if _fallbackSlot gte 0>>
+					<<personselect _fallbackSlot>>
+				<</if>>
+			<</if>>
 		<</if>>
 	<<else>>
 		<<run throw new Error("selectNpcWithPartInPosition used with incorrect number of variables (or one is undefined)")>>
