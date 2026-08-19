@@ -1,4 +1,4 @@
-/* globals wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck */
+/* globals wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune */
 /**
  * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
@@ -1799,6 +1799,23 @@ function xchangeEffectsMessages() {
 		element("span", `Locked away like this, a sudden wave of arousal catches you off guard.`, "pink");
 		br();
 		delete V.chastityArousalSpikeMessage;
+	}
+
+	if (V.chastityPurityCalmMessage) {
+		// Queued during the time tick, so the device could be off, unlocked or the state lost by the time this prints. Only say it if it's still true.
+		if (playerChastity() && !chastityConsensual() && chastityFrustrationImmune()) {
+			element(
+				"span",
+				V.chastityPurityCalmMessage === "innocence"
+					? `You're locked away, but you don't know what you're supposed to be missing.`
+					: `You're locked away, but you don't mind. You don't feel any urge to resist.`,
+				"teal"
+			);
+			br();
+		} else {
+			V.chastityPurityCalmShown = false;
+		}
+		delete V.chastityPurityCalmMessage;
 	}
 
 	if (V.chastityControlLostMessage) {

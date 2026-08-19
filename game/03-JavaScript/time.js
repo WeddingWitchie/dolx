@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual wearingTidebloomRing */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1676,21 +1676,29 @@ function minutePassed(minutes) {
 		? 1
 		: 0;
 	if (arousalAcclimatedEnabled && V.arousalDesensitizedTrait === -1) {
-		// Previously earned, then switched off.
-		// Hand it straight back without re-announcing it: lustfulAcclimation decays once Lustful is gone, so re-qualifying can be impossible and the setting promises otherwise.
+		// Previously earned, then disabled. Restore it silently, since its acclimation may have dropped too low to earn again.
 		V.arousalDesensitizedTrait = 1;
 	} else if (arousalAcclimatedEnabled && arousalAcclimatedEarned && V.arousalDesensitizedTrait === 0) {
 		V.effectsmessage = 1;
 		V.arousalDesensitizedTraitMessage = 1;
 		V.arousalDesensitizedTrait = 1;
 	} else if (!arousalAcclimatedEnabled && V.arousalDesensitizedTrait === 1) {
-		// -1 means "earned, suppressed by the setting" rather than "never had it".
-		// Every gameplay gate tests `is 1`, and the traits overlay tests `gte 1`, so a suppressed trait stays completely inert.
+		// -1 means the trait was earned but disabled by the setting, so it has no gameplay effect.
 		V.arousalDesensitizedTrait = -1;
 	}
-	// A belt only aches with need if it's locked against the PC's will. Someone who chose it - their own lock, or a vow taken at the temple - has no such frustration to feed on,
-	// however lustful they are: the Lustful trait already raises their arousal on its own, and it shouldn't retroactively turn a choice they made into a torment.
-	const chastityFrustrationApplies = playerChastity() && !chastityConsensual();
+	// The belt only causes frustration when the PC was locked against their will. Voluntary locks, including temple vows, do not gain extra frustration from the Lustful trait.
+	const chastityFrustrationImmunity = chastityFrustrationImmune();
+	const chastityFrustrationApplies = playerChastity() && !chastityConsensual() && !chastityFrustrationImmunity;
+	// Say this once when purity or innocence prevents arousal, and again if the effect returns after being lost.
+	if (playerChastity() && !chastityConsensual() && chastityFrustrationImmunity) {
+		if (!V.chastityPurityCalmShown) {
+			V.effectsmessage = 1;
+			V.chastityPurityCalmMessage = V.innocencestate === 1 ? "innocence" : "purity";
+			V.chastityPurityCalmShown = true;
+		}
+	} else if (!chastityFrustrationImmunity) {
+		V.chastityPurityCalmShown = false;
+	}
 	// Below the passive cap, casual arousal fades slowly. Above it, arousal gained from active stimulation fades normally.
 	const chastityFadeGuard = chastityFrustrationApplies && V.arousal < chastityArousalCap ? 0.25 : 1;
 	const arousalMultiplier =

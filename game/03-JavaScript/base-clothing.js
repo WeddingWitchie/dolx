@@ -1,3 +1,4 @@
+/* globals fameSum fameMax crimeSumCurrent */
 function getClothingCost(item, slot) {
 	let cost = setup.clothes[slot][clothesIndex(slot, item)].cost * V.settings.clothingCostModifier;
 
@@ -231,11 +232,18 @@ function templeChastityGainTrust(reason) {
 }
 window.templeChastityGainTrust = templeChastityGainTrust;
 
-// Why (if at all) the temple won't take a currently-worn chastity device off, ignoring any X-Change disguise:
-// "origin" (not theirs to begin with), "stats" (they don't think the wearer's soul is in a fit state yet),
-// "crime" (there's a warrant out for the wearer), or "reputation" (word of the wearer's lewd conduct has gotten around).
-// Returns null when there's no reason to refuse.
-// Jordan only holds his own monks/priests to this standard, a casual visitor just gets normal service.
+// How well known the wearer's lewd behaviour is around town. Jordan judges public reputation, not private preferences.
+// The highest fame score counts double, so one notorious habit can matter as much as several smaller ones.
+function templeChastityLewdFame() {
+	// Rape fame is ignored because the temple doesn't blame the wearer for what happened to them.
+	const lewd = ["exhibitionism", "prostitution", "bestiality", "sex", "pimp"];
+	return fameSum(...lewd) + fameMax(...lewd);
+}
+window.templeChastityLewdFame = templeChastityLewdFame;
+
+// Why the temple refuses to remove the worn chastity device, ignoring X-Change disguises:
+// "origin" = not from the temple, "stats" = soul requirements not met, "crime" = wanted by police, "reputation" = too lewd.
+// Returns null if removal is allowed. These restrictions only apply to Jordan's monks and priests, not visitors.
 function templeChastityUnderlyingRefusalReason() {
 	if (!playerChastity()) return null;
 	if (V.temple_rank !== "monk" && V.temple_rank !== "priest") return null;
@@ -245,9 +253,9 @@ function templeChastityUnderlyingRefusalReason() {
 
 	if (V.purity < 400 && !templeChastityTrusted("stats")) return "stats";
 
-	const crimeTotal = Object.keys(setup.crimeNames).reduce((sum, key) => sum + (C.crime[key] || 0), 0);
-	if (crimeTotal >= 4000 && !templeChastityTrusted("crime")) return "crime";
-	if ((hasSexStat("exhibitionism", 4) || hasSexStat("deviancy", 4)) && !templeChastityTrusted("reputation")) return "reputation";
+	// Only active crimes. Cleared crimes have no warrant, and 1000 evidence is enough for an arrest.
+	if (crimeSumCurrent() >= 1000 && !templeChastityTrusted("crime")) return "crime";
+	if (templeChastityLewdFame() >= 3000 && !templeChastityTrusted("reputation")) return "reputation";
 
 	return null;
 }
@@ -356,6 +364,16 @@ function chastityConsensual() {
 	return item.chastityKey === "player" || item.chastityKey === "vow";
 }
 window.chastityConsensual = chastityConsensual;
+
+// Chastity only causes passive frustration if the wearer desires what it prevents.
+// Pure, angelic, or innocent characters are unaffected. Toys, parasites, and other stimulation still work normally.
+function chastityFrustrationImmune() {
+	// Innocence means not knowing there's anything to resist, so there's nothing to miss or crave.
+	if (V.innocencestate === 1) return true;
+	if (V.purity >= 900) return true;
+	return typeof Transformations !== "undefined" && Transformations.effectiveLevel("angel") >= 1;
+}
+window.chastityFrustrationImmune = chastityFrustrationImmune;
 
 /**
  * True for a garment the player is only wearing on loan (Niki's kaiju costume, and anything else marked the same way).
