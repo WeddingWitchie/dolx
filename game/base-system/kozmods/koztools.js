@@ -189,6 +189,13 @@ window.updatePronounSummary = updatePronounSummary;
 			V.xchange.heat.resistWithWillpower = 1;
 		}
 
+		// Older saves stored these as booleans while their checkboxes and the settings export treat them as 0/1.
+		for (const key of ["systemOn", "permanentOn", "resistWithWillpower"]) {
+			if (typeof V.xchange.heat[key] === "boolean") {
+				V.xchange.heat[key] = V.xchange.heat[key] ? 1 : 0;
+			}
+		}
+
 		// story-functions.js uses V.xchange.breederDenial in arithmetic.
 		// If it's missing or invalid, recover the bounded feature default so heat math doesn't become NaN.
 		const bd = Number(V.xchange.breederDenial);

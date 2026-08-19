@@ -1,4 +1,4 @@
-/* globals V, setup */
+/* globals V, setup, playerCaresForGender perceivedGenderBinary currentAppearanceBand */
 /*
  * Mastery traits.
  *
@@ -234,3 +234,188 @@ function masterySexMultiplier(skill) {
 	return trait && masteryTrait(trait) ? 1.25 : 1;
 }
 window.masterySexMultiplier = masterySexMultiplier;
+
+/**
+ * Audience dysphoria: how people around you currently read your gender.
+ *
+ * This is based on the gender of the surrounding group, not your identity.
+ * It uses the normal Masculine/Feminine Appearance topics, so existing acceptance, tolerance and rejection rules still apply.
+ */
+/** Gendered spaces, by exact passage name. */
+const AUDIENCE_SEGREGATED_PASSAGES = {
+	"School Boy Changing Room": "m",
+	"School Girl Changing Room": "f",
+};
+
+/**
+ * Gendered toilet follow-up passages count as the same room.
+ */
+const AUDIENCE_SEGREGATED_PREFIXES = [
+	{ prefix: "School Boy's", gender: "m", school: true },
+	{ prefix: "School Girl's", gender: "f", school: true },
+	{ prefix: "Men's Toilets", gender: "m", school: false },
+	{ prefix: "Women's Toilets", gender: "f", school: false },
+];
+
+/** How much each audience affects you. People matter more than the room's label. */
+const AUDIENCE_WEIGHT_CROWD = 3;
+const AUDIENCE_WEIGHT_SPACE = 1;
+
+/**
+ * How many people it takes to make a room feel like it has a gender.
+ * One person is a conversation, and counting those would fire this in nearly every scene in the game.
+ */
+const AUDIENCE_MIN_GROUP = 2;
+
+/** Whether students are currently in the school changing rooms and using the lockers. */
+function schoolChangingRoomCrowded() {
+	return V.changingroomstate !== undefined && V.changingroomstate !== "empty";
+}
+
+/** Whether school is in session and the gendered toilets are occupied. */
+function schoolInSession() {
+	return !!(Time.schoolDay && Time.schoolTime);
+}
+
+/**
+ * The gendered space the player is standing in, if any.
+ *
+ * @param {string} [passageName] The passage to judge, for callers that know it before `$passage` catches up.
+ * @returns {{gender: string, crowded: boolean}} gender is "" when the passage isn't a gendered space.
+ */
+function audienceSegregatedSpace(passageName) {
+	const passage = passageName || V.passage || "";
+	const none = { gender: "", crowded: false };
+
+	if (AUDIENCE_SEGREGATED_PASSAGES[passage]) {
+		return { gender: AUDIENCE_SEGREGATED_PASSAGES[passage], crowded: schoolChangingRoomCrowded() };
+	}
+
+	/* The pool lockers are inside whichever changing room the player walked through, so they inherit its gender. */
+	if (passage === "School Pool Wardrobe") {
+		const gender = V.changingRoomGender === "boys" ? "m" : V.changingRoomGender === "girls" ? "f" : "";
+		return gender ? { gender, crowded: schoolChangingRoomCrowded() } : none;
+	}
+
+	const match = AUDIENCE_SEGREGATED_PREFIXES.find(entry => passage.startsWith(entry.prefix));
+	if (!match) return none;
+	return { gender: match.gender, crowded: match.school ? schoolInSession() : false };
+}
+window.audienceSegregatedSpace = audienceSegregatedSpace;
+
+/**
+ * Returns the gender of the NPC group when they are all the same gender.
+ * Requires at least AUDIENCE_MIN_GROUP NPCs. Mixed or herm groups return "".
+ *
+ * @returns {string} "m", "f", or ""
+ */
+function audienceCompanyGender() {
+	const list = Array.isArray(V.NPCList) ? V.NPCList : [];
+	const present = list.filter(npc => npc && npc.description && (npc.type === undefined || npc.type === "human"));
+	if (present.length < AUDIENCE_MIN_GROUP) return "";
+	const gender = present[0].gender;
+	if (gender !== "m" && gender !== "f") return "";
+	return present.every(npc => npc.gender === gender) ? gender : "";
+}
+window.audienceCompanyGender = audienceCompanyGender;
+
+/**
+ * Who's watching, and how hard.
+ *
+ * A gendered room the player shares with people beats their company, because the room labels them on the way in.
+ *
+ * @param {string} [passageName] Passed through to audienceSegregatedSpace.
+ * @returns {{gender: string, weight: number}} gender is "" when nobody is reading the player as anything in particular.
+ */
+function currentAudience(passageName) {
+	const space = audienceSegregatedSpace(passageName);
+	if (space.gender && space.crowded) return { gender: space.gender, weight: AUDIENCE_WEIGHT_CROWD };
+
+	const company = audienceCompanyGender();
+	if (company) return { gender: company, weight: AUDIENCE_WEIGHT_CROWD };
+
+	if (space.gender) return { gender: space.gender, weight: AUDIENCE_WEIGHT_SPACE };
+	return { gender: "", weight: 0 };
+}
+window.currentAudience = currentAudience;
+
+/** The identity topic a forced binary reading lands on. */
+const AUDIENCE_APPEARANCE_CHARACTERISTIC = { m: "Masculine Appearance", f: "Feminine Appearance" };
+
+/**
+ * Gets the audience, how they see the player's gender, and how the player feels about it.
+ *
+ * Uses `perceivedGenderBinary()` because the audience sees the player as either male or female,
+ * even if the player's actual gender presentation is androgynous.
+ *
+ * @param {string} [passageName] Passed to currentAudience.
+ * @returns {{gender: string, weight: number, seen: string, characteristic: string, contrast: boolean, erased: boolean, exposed: boolean}}
+ */
+function audienceIdentityContext(passageName) {
+	const { gender, weight } = currentAudience(passageName);
+	const empty = { gender: "", weight: 0, seen: "", characteristic: "", contrast: false, erased: false, exposed: false };
+	if (!gender) return empty;
+
+	const seen = perceivedGenderBinary();
+	const characteristic = AUDIENCE_APPEARANCE_CHARACTERISTIC[seen];
+	if (!characteristic) return empty;
+
+	return {
+		gender,
+		/* Being looked at with your clothes off is the same reading, delivered louder. */
+		weight: weight + (V.exposed >= 1 ? 1 : 0),
+		seen,
+		characteristic,
+		contrast: seen !== gender,
+		erased: currentAppearanceBand() === "n",
+		exposed: V.exposed >= 1,
+	};
+}
+window.audienceIdentityContext = audienceIdentityContext;
+
+/**
+ * Creates a key so the reaction only triggers when the situation changes, not every passage.
+ *
+ * @param {string} [passageName] Passed to audienceIdentityContext.
+ */
+function audienceIdentityReading(passageName) {
+	const context = audienceIdentityContext(passageName);
+	if (!context.gender) return "";
+	return [context.gender, context.seen, context.erased ? "n" : "b", context.exposed ? "x" : "-"].join("");
+}
+window.audienceIdentityReading = audienceIdentityReading;
+
+/**
+ * Updates the audience identity check when the player's situation changes.
+ * Runs at `:passagestart` so effects appear in the current passage.
+ * Leaving a gendered audience resets the check, so returning triggers a new reaction.
+ *
+ * @param {object} [ev] The `:passagestart` event.
+ */
+function audienceIdentityCheck(ev) {
+	/* Runs on every passage, including the ones before X-Change has set itself up. */
+	if (!V.xchange || typeof playerCaresForGender !== "function" || !playerCaresForGender()) return;
+	if (V.xchange.audienceDysphoriaEnabled === false) return;
+	if (V.statFreeze || V.combat) return;
+
+	/* Don't create `V.identity` here. X-Change sets it up when it's undefined,
+	and creating it early would leave it incomplete. */
+	if (!V.identity || !V.identity.presentation) return;
+	V.identity.audience = V.identity.audience || {};
+	const audience = V.identity.audience;
+
+	/* `$passage` still names the passage being left while `:passagestart` runs, so take the incoming one from the event. */
+	const reading = audienceIdentityReading(ev?.passage?.title);
+	if (reading === audience.lastReading) return;
+
+	const firstReading = audience.lastReading === undefined;
+	audience.lastReading = reading;
+	/* No audience is the absence of a reading, not a reading of its own. */
+	if (!reading || firstReading) return;
+
+	/* The widget has to judge the same passage this check did, for the same reason. */
+	wikifier("audienceIdentityEffects", JSON.stringify(ev?.passage?.title || V.passage || ""));
+}
+window.audienceIdentityCheck = audienceIdentityCheck;
+
+$(document).on(":passagestart", audienceIdentityCheck);

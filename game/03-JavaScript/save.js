@@ -795,8 +795,9 @@ function validateValue(configuration, value) {
 		}
 	}
 	if (keyArray.includes("decimals") && value != null) {
+		/* A setting holding the wrong type is invalid, not a crash: throwing here aborted the entire export. */
 		// eslint-disable-next-line eqeqeq
-		if (value.toFixed(configuration.decimals) != value) {
+		if (typeof value !== "number" || value.toFixed(configuration.decimals) != value) {
 			valid = false;
 		}
 	}
@@ -1782,6 +1783,7 @@ function settingsObjects(type) {
 					willpowerSuccessCost: { number: true, displayName: "Willpower success cost:" },
 					willpowerFailureCost: { number: true, displayName: "Willpower failure cost:" },
 					giAutoEnabled: { bool: true, displayName: "Update Gender Identity from Identity system:" },
+					audienceDysphoriaEnabled: { bool: true, displayName: "Dysphoria from the gender of the room:" },
 					giTransformEnabled: { bool: true, displayName: "Slow body changes follow Gender Identity:" },
 					giBreastSizeEnabled: { bool: true, displayName: "Body identity: breast size:" },
 					giAssSizeEnabled: { bool: true, displayName: "Body identity: ass size:" },

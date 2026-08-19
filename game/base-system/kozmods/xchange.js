@@ -1982,6 +1982,18 @@ function xchangeEffectsMessages() {
 		delete V.dysphoriaReasonMessage;
 	}
 
+	if (typeof V.audienceErasureMessage === "string" && V.audienceErasureMessage.trim().length) {
+		element("span", V.audienceErasureMessage, "purple");
+		br();
+		delete V.audienceErasureMessage;
+	}
+
+	if (typeof V.audienceAffirmationMessage === "string" && V.audienceAffirmationMessage.trim().length) {
+		element("span", V.audienceAffirmationMessage, "green");
+		br();
+		delete V.audienceAffirmationMessage;
+	}
+
 	if (V.dysphoriaMessage) {
 		element("span", "You suffer from dysphoria.", "purple");
 		br();

@@ -1145,6 +1145,8 @@
 
 	<<widget "identityTickCharacteristic">>
 		<<set _weight to _args[0] isnot undefined ? _args[0] : 1>>
+		/* An optional reason line, for callers whose situation the topic's default text wouldn't describe. */
+		<<set _tickReason to (typeof _args[1] is "string") ? _args[1] : "">>
 		<<if $identityOption.acceptance and !$identityOption.reject>>
 			<<tolerance `2 * _weight`>>
 		<<elseif $identityOption.everAccepted and !$identityOption.reject and $identityOption.tolerance lt 50>>
@@ -1156,7 +1158,7 @@
 		<</if>>
 		<<set _shift to ($identityOption.tolerance/50).toFixed(2)>>
 		<<set _shift to Math.clamp(3-_shift, 1, 3) * _weight>>
-		<<dysphoria _shift>>
+		<<dysphoria _shift _tickReason>>
 		<<identityCleanup>>
 	<</widget>>
 
@@ -1201,6 +1203,60 @@
 			<<if (!$identityOption.acceptance or $identityOption.reject) and playerCaresForGender() and !clothingCompulsionActive()>>
 				<<stress `$identityOption.reject ? 9 : 5`>>
 				<<set $effectsmessage to 1>>
+			<</if>>
+		<</if>>
+	<</widget>>
+
+	/* Audience identity: the room's gender affects how the player is read.
+	Androgynous players are treated as one of two genders in single-gender groups. Runs when the situation changes, not on a timer. */
+	<<widget "audienceIdentityEffects">>
+		/* _args[0] is the passage being entered, which $passage doesn't name yet while this fires. */
+		<<set _audience to audienceIdentityContext(_args[0])>>
+		<<if _audience.gender and _audience.characteristic>>
+			<<set _audienceCharged to false>>
+			<<set _crowdWord to _audience.gender is "m" ? "men" : "women">>
+			<<set _seenWord to _audience.seen is "m" ? "a man" : "a woman">>
+			<<set _oddWord to _audience.seen is "m" ? "man" : "woman">>
+
+			<<if _audience.erased>>
+				<<set _audienceReason to "Everyone here is " + (_audience.gender is "m" ? "a man" : "a woman") + ". There's no room in here for anything in between, and they've already settled on " + _seenWord + ".">>
+			<<elseif _audience.contrast>>
+				<<set _audienceReason to "You're the only " + _oddWord + " in a room of " + _crowdWord + ", and it's the first thing anyone sees.">>
+			<<else>>
+				<<set _audienceReason to "They count you as one of the " + _crowdWord + " without a second thought.">>
+			<</if>>
+			<<if _audience.exposed>>
+				<<set _audienceReason to _audienceReason + " With your clothes off there's nothing to argue with.">>
+			<</if>>
+
+			/* The check that fires this makes the store, but the widget is callable on its own. */
+			<<if !$identity.audience>><<set $identity.audience to {}>><</if>>
+			<<set _lastComfort to Number($identity.audience.lastComfort)>>
+			<<set _audienceComfortDue to !Number.isFinite(_lastComfort) or Time.date.timeStamp - _lastComfort gte 3600>>
+
+			<<identitySelector _audience.characteristic>>
+			<<if $identityOption>>
+				<<identityRememberAcceptance>>
+				<<if !$identityOption.acceptance or $identityOption.reject>>
+					<<set _audienceCharged to true>>
+					<<identityTickCharacteristic _audience.weight _audienceReason>>
+				<<elseif $identityPreference and _audience.contrast and _audienceComfortDue>>
+					/* Being the only one of your gender can feel reassuring when you're read correctly. This can only happen once per hour. */
+					<<set $identity.audience.lastComfort to Time.date.timeStamp>>
+					<<stress `-2 * _audience.weight` 1>><<trauma `-1 * _audience.weight`>>
+					<<set $effectsmessage to 1>>
+					<<set $audienceAffirmationMessage to "In a room of " + _crowdWord + ", every one of them takes you for " + _seenWord + ". It settles something.">>
+				<</if>>
+			<</if>>
+
+			/* Erasure stands on its own: if you'd rather be read as neither gender, being forced into a binary still causes stress. */
+			<<if _audience.erased and !_audienceCharged>>
+				<<identitySelector "Androgynous Appearance">>
+				<<if $identityOption and $identityPreference>>
+					<<stress _audience.weight>>
+					<<set $effectsmessage to 1>>
+					<<set $audienceErasureMessage to _audienceReason>>
+				<</if>>
 			<</if>>
 		<</if>>
 	<</widget>>
