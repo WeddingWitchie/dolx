@@ -2065,7 +2065,8 @@ class PlayerCombatMapper {
 		return {
 			show: true,
 			type,
-			style: parts.ears,
+			// The floppy fox artwork currently exists for the sidebar model only.
+			style: type === "fox" && parts.ears === "floppy" ? "default" : parts.ears,
 			inFront: false,
 		};
 	}

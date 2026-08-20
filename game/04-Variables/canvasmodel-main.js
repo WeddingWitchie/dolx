@@ -143,9 +143,9 @@ replace (?<!["'\w])_(?=\w) with T.
  * "bird_malar_type": "disabled"|"hidden"|"default"
  * "bird_plumage_type": "disabled"|"hidden"|"default"
  * "bird_pubes_type": "disabled"|"hidden"|"default"
- * "fox_tail_type": "disabled"|"hidden"|"default"|
+ * "fox_tail_type": "disabled"|"hidden"|"default"|"fluffy"
  * "fox_tail_layer": "front"|"back"
- * "fox_ears_type": "disabled"|"hidden"|"default"|
+ * "fox_ears_type": "disabled"|"hidden"|"default"|"floppy"
  * "fox_cheeks_type": "disabled"|"hidden"|
  * "bunny_tail_type": "disabled"|"hidden"|"default"| "fluffy"
  * "bunny_tail_layer": "front"|"back"|
