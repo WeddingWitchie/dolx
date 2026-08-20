@@ -80,9 +80,11 @@ function playerBellySize(pregnancyOnly = false) {
 		if (vpregnancy.type !== "parasite" && vpregnancy.timerEnd) pregnancyProgress = Math.clamp(vpregnancy.timer / vpregnancy.timerEnd, 0, 1);
 		if (apregnancy.type !== "parasite" && apregnancy.timerEnd) pregnancyProgress = Math.clamp(apregnancy.timer / apregnancy.timerEnd, 0, 1);
 		let maxSize = 0;
+		// Parasites only add a slight bump (max 4), well under the thresholds that drive
+		// visible-pregnancy text, constricting-clothes blocks and the skill penalties.
 		switch (vpregnancy.type) {
 			case "parasite":
-				if (!pregnancyOnly) bellySize += Math.clamp(vpregnancy.fetus.length * 6, 0, 24);
+				if (!pregnancyOnly) bellySize += Math.clamp(vpregnancy.fetus.length, 0, 4);
 				break;
 			case "human":
 				if (!vpregnancy.gaveBirth) maxSize += 21 + Math.clamp(vpregnancy.fetus.length, 1, 3);
@@ -97,7 +99,7 @@ function playerBellySize(pregnancyOnly = false) {
 		}
 		switch (apregnancy.type) {
 			case "parasite":
-				if (!pregnancyOnly) bellySize += Math.clamp(apregnancy.fetus.length * 6, 0, 24);
+				if (!pregnancyOnly) bellySize += Math.clamp(apregnancy.fetus.length, 0, 4);
 				break;
 			case "human":
 				if (!apregnancy.gaveBirth) maxSize += 21 + Math.clamp(apregnancy.fetus.length, 1, 3);
