@@ -23,7 +23,7 @@
 	}
 
 	function getPillDefsSignature(defs) {
-		return defs.map(def => def && typeof def.name === "string" ? def.name : "").join("|");
+		return defs.map(def => (def && typeof def.name === "string" ? def.name : "")).join("|");
 	}
 
 	function ensureInvEntry(name) {
@@ -60,7 +60,7 @@
 			const V = getV();
 			if (!force && V?.sexStats?.pills?.pills && V.xchange?.premium?.pillInventorySignature === signature) return;
 
-			defs.forEach((def) => {
+			defs.forEach(def => {
 				if (def && typeof def.name === "string") ensureInvEntry(def.name);
 			});
 			if (V) {
@@ -73,133 +73,133 @@
 		}
 	}
 
-// --- listUniqueCarriedXchangePills() ---
-// Core X-Change defines this to *limit which pills are usable on NPCs during combat*.
-// Premium must NOT replace that logic, only:
-//  1) prevent missing-inventory crashes (ensureAllInvEntries)
-//  2) expose a separate helper that returns *all* carried X-Change pills for non-combat/premium UIs.
-//  3) wrap the core function lazily once it's present, so load-order can't break it.
+	// --- listUniqueCarriedXchangePills() ---
+	// Core X-Change defines this to *limit which pills are usable on NPCs during combat*.
+	// Premium must NOT replace that logic, only:
+	//  1) prevent missing-inventory crashes (ensureAllInvEntries)
+	//  2) expose a separate helper that returns *all* carried X-Change pills for non-combat/premium UIs.
+	//  3) wrap the core function lazily once it's present, so load-order can't break it.
 
-function listUniqueCarriedXchangePillsAll() {
-	const V = getV();
-	if (!V) return [];
-
-	ensureAllInvEntries(true);
-
-	const inv = (V.sexStats && V.sexStats.pills && V.sexStats.pills.pills) ? V.sexStats.pills.pills : {};
-	const defs = getPillDefs();
-
-	const out = [];
-	const seen = new Set();
-
-	for (const def of defs) {
-		if (!def || typeof def.name !== "string") continue;
-		if (def.type !== "xchange") continue;
-
-		const entry = inv[def.name];
-		const owned = entry ? Number(entry.owned) : 0;
-		if (!(owned > 0)) continue;
-		if (seen.has(def.name)) continue;
-
-		seen.add(def.name);
-		out.push(def);
-	}
-	return out;
-}
-
-// A "known-safe" limited implementation (mirrors the core's current experimental rollout list).
-// Used only as a fallback if the core function isn't available yet.
-function listUniqueCarriedXchangePillsLimited() {
-	const V = getV();
-	if (!V) return [];
-
-	ensureAllInvEntries(true);
-
-	const defs = getPillDefs().filter(p => p && p.type === "xchange");
-	const inv = V.sexStats && V.sexStats.pills && V.sexStats.pills.pills ? V.sexStats.pills.pills : {};
-
-	const allowed = new Set([
-		"pink basic", "blue basic",
-		"pink continue", "pink resistance",
-		"blue continue", "blue resistance",
-	]);
-
-	const out = [];
-	for (const pill of defs) {
-		const entry = inv[pill.name];
-		const owned = entry ? Number(entry.owned) : 0;
-		if (owned > 0 && allowed.has(pill.subtype)) out.push(pill);
-	}
-	return out;
-}
-
-// Expose helpers for debugging / UIs that explicitly want the full list.
-window.listUniqueCarriedXchangePillsAll = listUniqueCarriedXchangePillsAll;
-window.listUniqueCarriedXchangePillsLimited = listUniqueCarriedXchangePillsLimited;
-
-function wrapCoreListUniqueCarriedXchangePills() {
-	const cur = window.listUniqueCarriedXchangePills;
-
-	// If the core hasn't defined it yet, provide the limited fallback (core may overwrite later).
-	if (typeof cur !== "function") {
-		window.listUniqueCarriedXchangePills = listUniqueCarriedXchangePillsLimited;
-		return;
-	}
-
-	// Already wrapped? leave it.
-	if (cur.__xchangePremiumWrapped) return;
-
-	const orig = cur;
-	function wrapped() {
+	function listUniqueCarriedXchangePillsAll() {
 		const V = getV();
 		if (!V) return [];
+
 		ensureAllInvEntries(true);
-		return orig.apply(this, arguments);
+
+		const inv = V.sexStats && V.sexStats.pills && V.sexStats.pills.pills ? V.sexStats.pills.pills : {};
+		const defs = getPillDefs();
+
+		const out = [];
+		const seen = new Set();
+
+		for (const def of defs) {
+			if (!def || typeof def.name !== "string") continue;
+			if (def.type !== "xchange") continue;
+
+			const entry = inv[def.name];
+			const owned = entry ? Number(entry.owned) : 0;
+			if (!(owned > 0)) continue;
+			if (seen.has(def.name)) continue;
+
+			seen.add(def.name);
+			out.push(def);
+		}
+		return out;
 	}
 
-	wrapped.__xchangePremiumWrapped = true;
-	wrapped.__orig = orig; // make captured original visible for debugging
-	window.listUniqueCarriedXchangePills = wrapped;
-}
+	// A "known-safe" limited implementation (mirrors the core's current experimental rollout list).
+	// Used only as a fallback if the core function isn't available yet.
+	function listUniqueCarriedXchangePillsLimited() {
+		const V = getV();
+		if (!V) return [];
 
-try { wrapCoreListUniqueCarriedXchangePills(); } catch (e) {}
+		ensureAllInvEntries(true);
 
-function syncPremiumPillState() {
-	const V = getV();
-	const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
-	if (!pill) return;
+		const defs = getPillDefs().filter(p => p && p.type === "xchange");
+		const inv = V.sexStats && V.sexStats.pills && V.sexStats.pills.pills ? V.sexStats.pills.pills : {};
 
-	if (pill.active !== true) {
-		if (pill.isPremium === true) pill.isPremium = false;
-		if (pill.premiumActive === true) pill.premiumActive = false;
-		if (pill.presentationGenderOverride != null) pill.presentationGenderOverride = null;
-		return;
+		const allowed = new Set(["pink basic", "blue basic", "pink continue", "pink resistance", "blue continue", "blue resistance"]);
+
+		const out = [];
+		for (const pill of defs) {
+			const entry = inv[pill.name];
+			const owned = entry ? Number(entry.owned) : 0;
+			if (owned > 0 && allowed.has(pill.subtype)) out.push(pill);
+		}
+		return out;
 	}
 
-	if (pill.premiumActive === true) {
-		if (pill.isPremium !== true) pill.isPremium = true;
-		return;
+	// Expose helpers for debugging / UIs that explicitly want the full list.
+	window.listUniqueCarriedXchangePillsAll = listUniqueCarriedXchangePillsAll;
+	window.listUniqueCarriedXchangePillsLimited = listUniqueCarriedXchangePillsLimited;
+
+	function wrapCoreListUniqueCarriedXchangePills() {
+		const cur = window.listUniqueCarriedXchangePills;
+
+		// If the core hasn't defined it yet, provide the limited fallback (core may overwrite later).
+		if (typeof cur !== "function") {
+			window.listUniqueCarriedXchangePills = listUniqueCarriedXchangePillsLimited;
+			return;
+		}
+
+		// Already wrapped? leave it.
+		if (cur.__xchangePremiumWrapped) return;
+
+		const orig = cur;
+		function wrapped() {
+			const V = getV();
+			if (!V) return [];
+			ensureAllInvEntries(true);
+			return orig.apply(this, arguments);
+		}
+
+		wrapped.__xchangePremiumWrapped = true;
+		wrapped.__orig = orig; // make captured original visible for debugging
+		window.listUniqueCarriedXchangePills = wrapped;
 	}
 
-	if (pill.isPremium === true || pill.presentationGenderOverride != null) {
-		try {
-			console.warn("[X-Change Premium] Clearing stale premium-only pill state from a non-premium active dose.", {
-				isPremium: pill.isPremium,
-				presentationGenderOverride: pill.presentationGenderOverride,
-				premiumActive: pill.premiumActive
-			});
-		} catch (e) {}
-		pill.isPremium = false;
-		pill.presentationGenderOverride = null;
-	}
-}
+	try {
+		wrapCoreListUniqueCarriedXchangePills();
+	} catch (e) {}
 
-try { syncPremiumPillState(); } catch (e) {}
+	function syncPremiumPillState() {
+		const V = getV();
+		const pill = V && V.xchange && V.xchange.pill ? V.xchange.pill : null;
+		if (!pill) return;
+
+		if (pill.active !== true) {
+			if (pill.isPremium === true) pill.isPremium = false;
+			if (pill.premiumActive === true) pill.premiumActive = false;
+			if (pill.presentationGenderOverride != null) pill.presentationGenderOverride = null;
+			return;
+		}
+
+		if (pill.premiumActive === true) {
+			if (pill.isPremium !== true) pill.isPremium = true;
+			return;
+		}
+
+		if (pill.isPremium === true || pill.presentationGenderOverride != null) {
+			try {
+				console.warn("[X-Change Premium] Clearing stale premium-only pill state from a non-premium active dose.", {
+					isPremium: pill.isPremium,
+					presentationGenderOverride: pill.presentationGenderOverride,
+					premiumActive: pill.premiumActive,
+				});
+			} catch (e) {}
+			pill.isPremium = false;
+			pill.presentationGenderOverride = null;
+		}
+	}
+
+	try {
+		syncPremiumPillState();
+	} catch (e) {}
 
 	// --- Pronoun/text override while active ---
 	(function patchPresentationOverride() {
-		let origMan = typeof window.playerFeelsManlike === "function" ? window.playerFeelsManlike : null;
-		let origGirl = typeof window.playerFeelsGirllike === "function" ? window.playerFeelsGirllike : null;
+		const origMan = typeof window.playerFeelsManlike === "function" ? window.playerFeelsManlike : null;
+		const origGirl = typeof window.playerFeelsGirllike === "function" ? window.playerFeelsGirllike : null;
 
 		window.playerFeelsManlike = function () {
 			const V = getV();
@@ -221,20 +221,27 @@ try { syncPremiumPillState(); } catch (e) {}
 	})();
 
 	// Try to ensure inventory exists early and on each passage.
-	try { ensureAllInvEntries(); } catch (e) {}
+	try {
+		ensureAllInvEntries();
+	} catch (e) {}
 	try {
 		if (typeof jQuery !== "undefined") {
 			jQuery(document)
 				.off(":passagestart.xchangePremiumRuntime")
 				.on(":passagestart.xchangePremiumRuntime", () => {
-					try { wrapCoreListUniqueCarriedXchangePills(); } catch (e) {}
-					try { syncPremiumPillState(); } catch (e) {}
-					try { ensureAllInvEntries(); } catch (e) {}
+					try {
+						wrapCoreListUniqueCarriedXchangePills();
+					} catch (e) {}
+					try {
+						syncPremiumPillState();
+					} catch (e) {}
+					try {
+						ensureAllInvEntries();
+					} catch (e) {}
 				});
 		}
 	} catch (e) {}
 })();
-
 
 /* X-Change Premium popup/dialog helpers */
 (function () {
@@ -248,7 +255,7 @@ try { syncPremiumPillState(); } catch (e) {}
 	}
 
 	function ensurePremiumVars() {
-		const V = (typeof State !== "undefined" && State.variables) ? State.variables : (typeof window.V !== "undefined" ? window.V : null);
+		const V = typeof State !== "undefined" && State.variables ? State.variables : typeof window.V !== "undefined" ? window.V : null;
 		if (!V) return null;
 		V.xchange = V.xchange || {};
 		V.xchange.pill = V.xchange.pill || {};

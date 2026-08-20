@@ -68,44 +68,76 @@ You open the medicine drawer.
 
 :: PillCollectionPainkillerOverdose
 <<set $outside to 0>><<effects>>
-<<set _painkillerDoses to Math.max(4, Number($sexStats.pills.pills.painkillers.doseTaken) || 4)>>
-<<set _painkillerOverdose to _painkillerDoses - 3>>
-
-You swallow another painkiller. The pain fades, but the medicine is beginning to take its toll.
+/* Prescription painkillers have a lower safe limit. */
+<<set _painkillerName to ($overdosePillsTaken is "prescription painkillers") ? "prescription painkillers" : "painkillers">>
+<<set _painkillerLimit to (_painkillerName is "prescription painkillers") ? 2 : 3>>
+<<set _painkillerDoses to Math.max(_painkillerLimit + 1, painkillerDosesToday())>>
+<<set _painkillerOverdose to _painkillerDoses - _painkillerLimit>>
+<<unset $overdosePillsTaken>>
+You swallow another painkiller. After a while, you start to feel unwell.
 <br><br>
-
-<<if _painkillerDoses lte 5>>
-	Your stomach churns and your head feels heavy. You have taken too many today, and it leaves you nauseous and unsteady.
+<<if _painkillerOverdose lte 2>>
+	Your stomach feels sick and your head grows heavy. You steady yourself as a wave of dizziness passes.
 	<<set _painkillerTime to _painkillerOverdose * 2>>
-	<<stress `_painkillerOverdose * 3`>><<tiredness `_painkillerOverdose * 3`>><<gstress>><<gtiredness>>
-<<elseif _painkillerDoses lte 7>>
-	A wave of dizziness forces you to sit down. Your vision blurs, your hands shake, and it takes a while before you can stand again.
+	<<stress `_painkillerOverdose * 3`>>
+	<<tiredness `_painkillerOverdose * 3`>>
+	<<gstress>><<gtiredness>>
+<<elseif _painkillerOverdose lte 4>>
+	You suddenly feel dizzy and sit down before you fall. Your vision blurs and your hands begin to shake. You stay there until you feel able to stand again.
 	<<set _painkillerTime to _painkillerOverdose * 5>>
-	<<stress `_painkillerOverdose * 3`>><<trauma _painkillerOverdose>><<pain _painkillerOverdose>><<tiredness `_painkillerOverdose * 4`>><<awareness -1>><<ggstress>><<gtrauma>><<gpain>><<ggtiredness>>
+	<<stress `_painkillerOverdose * 3`>>
+	<<trauma _painkillerOverdose>>
+	<<pain _painkillerOverdose>>
+	<<tiredness `_painkillerOverdose * 4`>>
+	<<awareness -1>>
+	<<ggstress>><<gtrauma>><<gpain>><<ggtiredness>>
 <<else>>
-	Your body reacts violently. Your pulse races as you struggle to breathe through the nausea, and the room spins around you. You collapse until the worst of it passes.
+	Nausea hits you hard. Your heart beats quickly and you struggle to stay on your feet. The room starts to spin, forcing you down onto the floor until you begin to recover.
 	<<set _painkillerTime to Math.min(120, _painkillerOverdose * 10)>>
 	<<set _painkillerStress to Math.min(30, _painkillerOverdose * 3)>>
 	<<set _painkillerTrauma to Math.min(20, _painkillerOverdose * 2)>>
 	<<set _painkillerPain to Math.min(20, _painkillerOverdose * 2)>>
 	<<set _painkillerTiredness to Math.min(40, _painkillerOverdose * 5)>>
-	<<stress _painkillerStress>><<trauma _painkillerTrauma>><<pain _painkillerPain>><<tiredness _painkillerTiredness>><<awareness -2>><<gggstress>><<ggtrauma>><<ggpain>><<gggtiredness>>
+	<<stress _painkillerStress>>
+	<<trauma _painkillerTrauma>>
+	<<pain _painkillerPain>>
+	<<tiredness _painkillerTiredness>>
+	<<awareness -2>>
+	<<gggstress>><<ggtrauma>><<ggpain>><<gggtiredness>>
 <</if>>
 <br><br>
-
 <<link [[Recover|PillCollection]]>><<pass _painkillerTime>><</link>>
 
-:: PillCollectionCalmorylPassOut
+:: PillCollectionSleepOverdose
 <<set $outside to 0>><<effects>><<passout>><<tiredness 5>>
-You force down another Calmoryl tablet. The room tilts before the medicine is even fully swallowed.
-Your thoughts scatter and your legs give way.
+You take another sleeping pill before the last one has worn off.
+<br><br>
+A few minutes later, your legs begin to feel weak. You put the packet down and try to steady yourself, but your vision blurs. You sink to the floor before you can reach the bed.
+<br><br>
+<<link [[You lose consciousness...|PillCollectionSleepOverdoseWake]]>><<pass 3 hours>><</link>>
+
+:: PillCollectionSleepOverdoseWake
+<<set $outside to 0>><<effects>><<run consumeSleepAid()>>
+You wake on the floor several hours later. Your head hurts, your body feels heavy, and you cannot remember falling asleep.
+<br><br>
+<span class="red">You still feel exhausted.</span>
+<<stress 4>><<tiredness 10>><<pain 5>><<ggstress>><<gtiredness>><<gpain>>
+<br><br>
+<<link [[Get up|PillCollection]]>><</link>>
+
+:: PillCollectionCalmorylPassOut
+<<set $outside to 0>><<effects>><<passout>>
+You swallow another anti-anxiety tablet. Before you can put the packet away, your vision starts to blur.
+<br><br>
+You reach for something to steady yourself, but your legs suddenly give way. You fall to the floor as everything around you goes dark.
 <br><br>
 <<link [[Everything fades to black...|PillCollectionCalmorylWake]]>><<pass 60>><</link>>
 
 :: PillCollectionCalmorylWake
 <<set $outside to 0>><<effects>>
-You wake an hour later, unsure whether you slept or simply ceased to exist for a while.
-The world remains distant, the overdose refusing to release its grip.
+You open your eyes about an hour later. Your head feels heavy, and it takes you a few seconds to remember what happened.
+<br><br>
+You try to move, but your body still feels weak and unsteady.<<tiredness 5>><<gtiredness>>
 <br><br>
 <<link [[Try to get up|PillCollection]]>><</link>>
 

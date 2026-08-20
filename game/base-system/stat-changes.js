@@ -1,4 +1,4 @@
-/* global statDisplay chastityConsensual calmorylDissociationActive */
+/* global statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal */
 
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -179,6 +179,8 @@ const statChange = (() => {
 
 			fatigueMod += Weather.BodyTemperature.fatigueModifier - 1;
 			if (V.athleticsFitnessToggle === 1) fatigueMod *= 1 - (V.athletics * 5) / 40000;
+			/* The antidepressant's side effect: everything tires the PC out faster. */
+			if (typeof antidepressantActive === "function" && antidepressantActive()) fatigueMod *= 1.3;
 			if (setup.tirednessChangeByPain) fatigueMod *= setup.tirednessChangeByPain(V.pain);
 		}
 
@@ -221,6 +223,8 @@ const statChange = (() => {
 				if (V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0)) {
 					stressMod *= 0.25;
 				}
+				/* Harper's antidepressant course flattens stress build-up while the PC keeps taking the prescription. */
+				if (typeof antidepressantActive === "function" && antidepressantActive()) stressMod *= 0.6;
 				V.stress += amount * stressMod;
 			}
 		}
@@ -298,7 +302,10 @@ const statChange = (() => {
 		// Higher real trauma still stacks extra symptoms on top. Gwylan's Clarity hypnosis suppresses the floor while it holds.
 		const effectiveTrauma = V.insanityPermanent && !V.hypnosis_traits?.clarity ? Math.max(V.trauma, (V.traumamax / 10) * 7) : V.trauma;
 		// Opium Addict trait: inhaling opium suppresses insomnia for the current sleep cycle.
-		V.sleeptrouble = effectiveTrauma >= 1 && !V.poppyDrug?.insomniaSuppress ? 1 : 0;
+		/* Sleep aids suppress insomnia for one night; dependence on them causes it on its own once they're withheld. */
+		const sleepAidSuppress = typeof sleepAidSuppressesInsomnia === "function" && sleepAidSuppressesInsomnia();
+		const sleepAidRebound = typeof sleepAidWithdrawal === "function" && sleepAidWithdrawal();
+		V.sleeptrouble = (effectiveTrauma >= 1 || sleepAidRebound) && !V.poppyDrug?.insomniaSuppress && !sleepAidSuppress ? 1 : 0;
 		V.nightmares = effectiveTrauma >= (V.traumamax / 10) * 1 ? 1 : 0;
 
 		if (effectiveTrauma >= (V.traumamax / 10) * 7) {

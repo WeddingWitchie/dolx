@@ -311,3 +311,129 @@ The pulses increase in intensity. <<He>> produces a pair of heavy-duty cutters. 
 		<<set $analchastityparasite to 0>>
 	<</if>>
 <</widget>>
+
+
+:: Hospital Medication
+<<endevent>>
+<<set $outside to 0>><<set $location to "hospital">><<effects>>
+<<npc Harper>><<person1>>
+Harper looks up from <<his>> screen as you come in, and gestures at the chair.
+"Something you need?"
+<br><br>
+<<if !$prescriptions.painkiller and !$prescriptions.sleep and !$prescriptions.antidepressant>>
+	You explain that you wanted to ask about medication. <<He>> nods, unsurprised.
+	"That's what I'm here for. Tell me what's wrong, and I'll decide what you get."
+<<else>>
+	"More medication?" <<He>> raises an eyebrow, but reaches for <<his>> pad anyway.
+<</if>>
+<br><br>
+<<if $prescriptions.painkiller or $prescriptions.sleep or $prescriptions.antidepressant>>
+	<<ind>><span class="gold">Current prescriptions:</span>
+	<br>
+	<<if $prescriptions.painkiller>>
+		<<ind>><<ind>>Strong painkillers &mdash; <span class="gold"><<= prescriptionDaysLeft("painkiller")>> day<<if prescriptionDaysLeft("painkiller") isnot 1>>s<</if>></span> left.
+		<br>
+	<</if>>
+	<<if $prescriptions.sleep>>
+		<<ind>><<ind>>Sleeping pills &mdash; <span class="gold"><<= prescriptionDaysLeft("sleep")>> day<<if prescriptionDaysLeft("sleep") isnot 1>>s<</if>></span> left.
+		<br>
+	<</if>>
+	<<if $prescriptions.antidepressant>>
+		<<ind>><<ind>>Antidepressant &mdash; <span class="gold"><<= prescriptionDaysLeft("antidepressant")>> day<<if prescriptionDaysLeft("antidepressant") isnot 1>>s<</if>></span> left.
+		<br>
+	<</if>>
+	<<ind>><span class="blue">Collect the pills from the pharmacy downstairs. Each prescription runs out after a week.</span>
+	<br><br>
+<</if>>
+<<if !$prescriptions.painkiller>>
+	<<schoolicon "infirmary">><<link [[Ask for something stronger for the pain|Hospital Medication Painkiller]]>><</link>>
+	<br>
+<</if>>
+<<if !$prescriptions.sleep>>
+	<<pillicon "pill">><<link [[Say you can't sleep|Hospital Medication Sleep]]>><</link>>
+	<br>
+<</if>>
+<<if !$prescriptions.antidepressant>>
+	<<pillicon "pill">><<link [[Say you can't cope with how you feel|Hospital Medication Antidepressant]]>><</link>>
+	<br>
+<</if>>
+<br>
+<<getouticon>><<link [[Leave|Hospital Foyer]]>><<endevent>><</link>>
+<br>
+
+:: Hospital Medication Painkiller
+<<effects>>
+You tell Harper that the painkillers from the pharmacy are not helping and ask for something stronger.
+<br><br>
+<<if $pain gte 30>>
+	<<He>> puts <<his>> pen down and examines you.
+	"You're still in quite a bit of pain," <<he>> says. "All right. I'll give you something stronger."
+	<br><br>
+	<<He>> writes out a prescription and passes it to you.
+	"Take no more than two doses a day. They can make you sleepy, so be careful if you need to stay awake.
+	Ten doses a week from the pharmacy, no charge. The prescription runs for a week, then you come back and I'll look at you again."
+	<br><br>
+	<<run grantPrescription("painkiller")>>
+	<span class="green">Harper has prescribed you strong painkillers.</span> You can collect them from the pharmacy.
+	<br><br>
+<<else>>
+	<<He>> gives you a quick examination before shaking <<his>> head.
+	<br><br>
+	"You don't need anything stronger yet," <<he>> says.
+	"Keep using the painkillers from the pharmacy. Come back if the pain gets worse."
+	<br><br>
+<</if>>
+<<link [[Next|Hospital Medication]]>><</link>>
+<br>
+
+:: Hospital Medication Sleep
+<<effects>>
+"I've been having trouble sleeping," you say. "Can you give me something for it?"
+<br><br>
+<<if $sleeptrouble is 1 or $tiredness gte (C.tiredness.max / 10) * 6>>
+	<<He>> asks how long it takes you to fall asleep, whether you wake during the night,
+	and how often it happens. You answer while <<he>> writes down what you tell <<him>>.
+	<br><br>
+	"I can give you sleeping pills," <<he>> says. "Take one before bed. Never take two."
+	<br><br>
+	<<He>> finishes writing the prescription. "Don't take them every night unless you need to.
+	If you use them too often, your body can get used to them and sleeping without them may become harder.
+	That's why it's ten tablets a week and no more, and why the prescription only lasts the week.
+	If you still need them after that, you come and tell me so."
+	<br><br>
+	<<run grantPrescription("sleep")>>
+	<span class="green">Harper has prescribed you sleeping pills.</span> You can collect them from the pharmacy.
+	<br><br>
+<<else>>
+	<<He>> looks you over. "You don't seem tired enough to need prescription sleeping pills."
+	<br><br>
+	"Try the milder ones from the pharmacy first. If you're still having trouble sleeping, come back."
+	<br><br>
+<</if>>
+<<link [[Next|Hospital Medication]]>><</link>>
+<br>
+
+:: Hospital Medication Antidepressant
+<<effects>>
+You tell Harper that your stress has been getting harder to manage. You have trouble putting it into words,
+but <<he>> listens until you finish.
+<br><br>
+<<if $stress gte $stressmax / 2 or $trauma gte ($traumamax / 10) * 2>>
+	"I can add an antidepressant to your current prescription," <<he>> says. "It should help reduce your stress,
+	though it may also make you more tired."
+	<br><br>
+	<<He>> adds it to your file. "Take it regularly. Stopping and starting will make it less useful.
+	I'll review it in a week. Come back then, or it lapses."
+	<br><br>
+	<<run grantPrescription("antidepressant")>>
+	<span class="green">Harper has added an antidepressant to your prescription.</span>
+	Taking <<his>> pills will now reduce your stress, but make you tire more quickly.
+	<br><br>
+<<else>>
+	<<He>> looks over your notes before shaking <<his>> head. "I don't think you need that yet."
+	<br><br>
+	"Come back if your stress gets worse," <<he>> says. "We can talk about it again then."
+	<br><br>
+<</if>>
+<<link [[Next|Hospital Medication]]>><</link>>
+<br>

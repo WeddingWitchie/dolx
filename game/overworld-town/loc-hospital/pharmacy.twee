@@ -14,17 +14,17 @@
 		<<loadNPC 0 "pharmNurse">><<person1>>
 		<<if $daily.pharm.seductionResult is "fail">>
 			<br>
-			"Hey, you're back," the <<person>> notices you, then goes back to <<his>> book.
+			The <<person>> looks up from <<his>> book. "Hey, you're back." <<He>> returns to reading.
 		<<elseif $daily.pharm.seductionResult is "pass">>
 			<<if $daily.pharm.sexResult is "buy">>
-				The <<person>> at the till glances at you, then returns to <<his>> book, blushing slightly.
+				The <<person>> at the till looks up at you, then returns to <<his>> book with a faint blush.
 			<<elseif $daily.pharm.sexResult is "embarrassed">>
-				The <<person>> at the till glances at you, then returns to <<his>> book with a smirk.
+				The <<person>> at the till looks up at you with a smirk, then returns to <<his>> book.
 			<<else>>
-				The <<person>> at the till glances at you, then returns to <<his>> book.
+				The <<person>> at the till looks up at you, then returns to <<his>> book.
 			<</if>>
 		<<else>>
-			The <<person>> at the till glances at you, then returns to <<his>> book.
+			The <<person>> at the till looks up at you, then returns to <<his>> book.
 		<</if>>
 	<<else>>
 		<<generateRole 0 0 "nurse">><<person1>>
@@ -217,12 +217,42 @@
 	<br>
 	<<schoolicon "infirmary">><<link [[Pack of 14 painkillers|Pharmacy Sale]]>><<set $phase2 to "pills">><<set $pharmacyItem to clone(setup.pharmacyItems["painkillers"])>><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills.painkillers?.owned || 0>></span>
 	<br>
-	<<pillicon "pill">><<link [[Pack of 14 Calmoryl tablets|Pharmacy Sale]]>><<set $phase2 to "pills">><<set $pharmacyItem to clone(setup.pharmacyItems.calmoryl)>><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills.Calmoryl?.owned || 0>></span>
+	<<pillicon "pill">><<link [[Pack of 14 anti-anxiety tablets|Pharmacy Sale]]>><<set $phase2 to "pills">><<set $pharmacyItem to clone(setup.pharmacyItems.calmoryl)>><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["anti-anxiety tablets"]?.owned || 0>></span>
+	<br>
+	<<icon "sharks-teeth.png">><<link [[Pack of 14 sleeping pills|Pharmacy Sale]]>><<set $phase2 to "pills">><<set $pharmacyItem to clone(setup.pharmacyItems.sleeping_pills)>><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["sleeping pills"]?.owned || 0>></span>
 	<br>
 	<<icon "cream.png">><<link [[Buy sensitivity cream|Pharmacy Sensitivity Cream]]>><</link>>
 	<br>
 	<<icon "hairgel.png">><<link [[Tube of lube|Pharmacy Sale]]>><<set $phase2 to "hairgel">><<set $pharmacyItem to clone(setup.pharmacyItems["lube_tube"])>><</link>> | Owned: <span class="gold"><<= $player.inventory.sextoys["lube tube"]?.length || 0>></span>
 	<br><br>
+
+	<<if $prescriptions and ($prescriptions.painkiller or $prescriptions.sleep)>>
+		Prescription Counter:
+		<br>
+		<<if $prescriptions.painkiller>>
+			<<if $prescriptions.collected.painkiller>>
+				<<ind>><span class="blue">You've collected the painkillers on this prescription.</span>
+				<br>
+			<<else>>
+				<<schoolicon "infirmary">><<link [[Collect your painkillers|Pharmacy Prescription Collect]]>><<set $prescriptionCollect to "painkiller">><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["prescription painkillers"]?.owned || 0>></span>
+				<br>
+			<</if>>
+			<<ind>><span class="gold">Painkiller prescription: <<= prescriptionDaysLeft("painkiller")>> day<<if prescriptionDaysLeft("painkiller") isnot 1>>s<</if>> left.</span>
+			<br>
+		<</if>>
+		<<if $prescriptions.sleep>>
+			<<if $prescriptions.collected.sleep>>
+				<<ind>><span class="blue">You've collected the sleeping pills on this prescription.</span>
+				<br>
+			<<else>>
+				<<icon "pill-strong.png">><<link [[Collect your sleeping pills|Pharmacy Prescription Collect]]>><<set $prescriptionCollect to "sleep">><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["prescription sleeping pills"]?.owned || 0>></span>
+				<br>
+			<</if>>
+			<<ind>><span class="gold">Sleeping pill prescription: <<= prescriptionDaysLeft("sleep")>> day<<if prescriptionDaysLeft("sleep") isnot 1>>s<</if>> left.</span>
+			<br>
+		<</if>>
+		<br>
+	<</if>>
 
 	Family Planning:
 	<br>
@@ -437,6 +467,30 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 <br><br>
 <<getouticon>><<link [[Leave|Pharmacy]]>><</link>>
 
+:: Pharmacy Prescription Collect
+<<set $outside to 0>><<set $location to "hospital">><<effects>>
+<<if "pharmNurse" in $per_npc>><<loadNPC 0 "pharmNurse">><<person1>><</if>>
+<<set _collected to collectPrescriptionBox($prescriptionCollect)>>
+<<if _collected gt 0>>
+	<<He>> checks your prescription on the screen, then fetches a box from the locked shelf behind the counter.
+	<<if $prescriptionCollect is "painkiller">>
+		"Ten doses. These are much stronger than the ones on the shelf, so no more than two in a day."
+	<<else>>
+		"Ten tablets. One before bed, never two. Using them too often will make it harder to sleep without them."
+	<</if>>
+	<br><br>
+
+	<<He>> slides the box across. "No charge, it's on your prescription. That's your lot until next week."
+	<br><br>
+
+	<span class="green">You collected <<print _collected>> <<print $prescriptionCollect is "painkiller" ? "prescription painkillers" : "prescription sleeping pills">>.</span>
+	<br><br>
+<<else>>
+	<<He>> checks the screen and shakes <<his>> head. "Nothing due on that prescription right now."
+	<br><br>
+<</if>>
+<<unset $prescriptionCollect>>
+<<link [[Go back|Pharmacy]]>><</link>>
 
 :: Pharmacy Sensitivity Cream
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
@@ -483,8 +537,10 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 		"_printmoney please. The tube should last for about 2 weeks, depending on where you need to apply it."
 	<<case "painkillers">>
 		"_printmoney please. There are 14 doses in the pack. Take them when you need them, but be aware that they may make you drowsy. More than three doses in one day can be dangerous."
-	<<case "Calmoryl">>
-		"_printmoney please. There are 14 tablets in the pack. Take no more than one a day. A second dose will make you ill, three or more will leave you helplessly dissociated, and five will make you pass out. Every extra dose makes the dissociation last longer."
+	<<case "sleeping pills">>
+		"_printmoney please. There are 14 tablets. Take one shortly before bed and no more than one a night. They're mild, so they may not help much if pain or stress is keeping you awake."
+	<<case "anti-anxiety tablets">>
+		"_printmoney please. There are 14 tablets. Take no more than one a day. Two can make you ill. Three or more can leave you dazed and unable to function. Five can make you pass out. Each extra tablet will make the effects last longer."
 	<<case "lube tube">>
 		"_printmoney please. It's a smaller tube, so you should get about 3 uses out of it."
 	<<case "Breast Pump">>
@@ -521,9 +577,9 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 	<<case "X-Change Pink Hyper Fertility">>
 		"_printmoney please. Effects last for a week. Beware that this is an extreme fertility pill. It also accelerates any pregnancy already in progress."
 	<<case "X-Change Blue Hyper Fertility">>
-		"_printmoney please. Effects last for a week. Beware that this pill offers extreme fertility and reproductive potency."
+		"_printmoney please. The effects last for a week. It greatly increases fertility and sperm production."
 	<<case "X-Change Purple Hyper Fertility">>
-		"_printmoney please. Effects last for a week. This grants a hermaphrodite body with extreme fertility — both womb and sperm — and accelerates any pregnancy already in progress."
+		"_printmoney please. The effects last for a week. It gives you both a working womb and fertile sperm, and greatly increases fertility. Any existing pregnancy will also progress faster."
 	<<case "X-Change Pink Basic" "X-Change Blue Basic" "X-Change Purple Basic">>
 		"These are under a special promotion. Only _printmoney for a pack of 3 pills. Effects last for a day."
 	<<case "X-Change Pink NOW" "X-Change Blue NOW" "X-Change Purple NOW">>
@@ -541,23 +597,23 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 		<br><br>
 		As you ponder what is going in <<his>> head, <<he>> begins to spout all once: "Taking in sperm from superior virile members into your womb will allow you to grow in size yourself once you turn back. However, be advised that orgasming at any point of its duration will forfeit any gains as well as cause a significant reduction to your genital size. You've been warned."
 		<br><br>
-		<<He>> seems completely out of breath afterwards.
+		<<He>> puts the box back on the counter. "Make sure you understand that before you take it."
 	<<case "X-Change Pink Breeder" "X-Change Purple Breeder">>
 		"_printmoney please. Effects last for a week. Beware that this is a very high fertility pill."
 	<<case "X-Change Pink Innocence" "X-Change Blue Innocence">>
 		"_printmoney please. Effects last for only a day."
 	<<case "X-Change Blue Bull" "X-Change Purple Bull">>
-		"_printmoney please. Effects last for a week. And beware, this pill offers unparelleled virility."
+		"_printmoney please. The effects last for a week. It greatly increases your virility."
 	<<case "X-Change Clone: Whitney" "X-Change Sissy" "X-Change Butch" "X-Change Pink Swell" "X-Change Blue Swell" "X-Change Pink Bimbo" "X-Change Blue Himbo">>
 		"_printmoney please. Effects last for only a day."
 	<<case "X-Change Antidote">>
-		"_printmoney please. Reduces current pill duration by 24 hours. Beware that this treatment causes severe pain."
+		"_printmoney please. It shortens your current X-Change effect by 24 hours, but causes severe pain."
 	<<case "X-Change Antidote Forte">>
-		"_printmoney please. Reduces current pill duration by 7 days. Beware that this treatment causes extreme amounts of pain and stress."
+		"_printmoney please. It shortens your current X-Change effect by 7 days, but causes severe pain and stress."
 	<<case "X-Change Test">>
-		"_printmoney please. It identifies the effects of whatever X-Change pill you find yourself under and gives a more precise estimate of how long it will last."
+		"_printmoney please. It identifies your current X-Change effects and gives a better estimate of how long they will last."
 	<<case "X-Change Breeder" "X-Change Bull" "X-Change Swell" "X-Change Hyper Fertility" "X-Change Fertility" "X-Change Passion" "X-Change Innocence" "X-Change Bimbo" "X-Change CumCure" "X-Change Dumb-Bitch" "X-Change X-Tend (Gray)" "X-Change Resistance" "X-Change Continue" "X-Change Weekly Extension" "X-Change Portal">>
-		"_printmoney please. A colourless capsule carrying a single X-Change effect. It won't swap your gender on its own."
+		"_printmoney please. It contains one X-Change effect and will not change your sex on its own."
 	<<default>>
 		<<run throw new Error(`Missing pharmacyItem type! ${V.pharmacyItem.type}`)>>
 <</switch>>
@@ -699,7 +755,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 <</widget>>
 
 :: Pharmacy Seduction
-"Why don't you see it for yourself?" you say, gazing into <<his>> eyes.
+"Why don't you see for yourself?" you say, leaning closer across the counter.
 <br><br>
 
 <<set $seductiondifficulty to (8888 - ($rng * 20) - ($pharmacyItem.type.includes("growth") ? 500 : 1000))>>
@@ -709,20 +765,18 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 
 <<if $seductionrating gte $seductionrequired>>
 	<<set $daily.pharm.seductionResult to "pass">>
-	<<He>> arches an eyebrow and blushes while glancing around to make sure you're alone. Satisfied, <<he>> takes you by the hand and leads you behind the counter.
-	<br>
-	<<He>> pushes you against the wall, drops down on <<his>> knees and hastens to remove your <<allBottomsUnderwear>>.
+	The nurse checks the pharmacy door and the empty aisle before closing <<his>> book. <<He>> takes your hand and pulls you behind the counter.
+	<br><br>
+	"Come here," <<he>> says. <<He>> pushes you against the wall, drops to <<his>> knees and reaches for your <<allBottomsUnderwear>>, pulling them aside to expose you.
 	<br><br>
 
 	<<set $sexstart to 1>>
 	<<link [[Next|Pharmacy Encounter Sex]]>><</link>>
 <<else>>
 	<<set $daily.pharm.seductionResult to "fail">>
-	After a brief pause, <<he>> bursts into a ringing laugh.<<ggstress>><<stress 23>>
-	<br>
-	"Nice try, <<lass>>!" <<he>> says.
-	<br>
-	"So, are you buying them or what?"
+	The nurse stares at you, then laughs. Heat rises to your face.<<ggstress>><<stress 23>>
+	<br><br>
+	"Nice try, <<lass>>," <<he>> says, pushing the box back towards you. "So, are you buying them or not?"
 	<br><br>
 
 	A box of <<print $pharmacyItem.name>> lies on the table.
@@ -742,14 +796,14 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 :: Pharmacy Seduction End
 <<switch $phase>>
 	<<case "nevermind">>
-		You turn and leave.
+		You turn towards the door without buying the pills.
 		<br>
-		"Hey," <<he>> says. "I didn't mean to upset you."
+		"Hey," <<he>> says behind you. "I didn't mean to upset you."
 		<br><br>
 
 		<<link [[Next|Hospital Foyer]]>><<endevent>><</link>>
 	<<case "pay">>
-		You hand over the money in awkward silence, take your box of pills, and leave.
+		You put the money on the counter without looking at <<him>>. <<He>> takes it, and you pick up the box before heading for the door.
 		<br><br>
 
 		<<money `-$pharmacyItem.price` "pharmacy">><<pharmacyAddOwned 14>><<boughtOnce>>
@@ -788,28 +842,28 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 <!-- Reaction to seeing penis for the first time during encounter -->
 <<if $exposed is 2 and $exposedPrev lt 2>> <!-- if penis was exposed just now -->
 	<<if playerChastity()>>
-		"What the fuck is this?" <<He>> looks at your <<genitals>>. "That's not funny!"
+		The nurse pulls back as soon as <<he>> sees your <<genitals>>.
 		<br>
-		<<He>> stays silent for a moment.
+		"What the fuck is this?" <<he>> says. "That's not funny."
+		<br><br>
+		<<He>> gets back to <<his>> feet and points towards the door. "I'm done. Get out."
 		<br>
-		"I don't wanna go on. Get out."
-		<br>
-		"How disappointing," <<he>> adds quietly.
+		"How disappointing."
 		<<set $finish to 1>><<set $phase to "chastity">>
 	<<elseif $player.penissize lte 2>>
 		<<He>> freezes the moment your <<penis>> is revealed.
 		<<if $player.penissize lte random(0,3)>> <!-- More likely at smaller sizes; guaranteed at smallest, but never impossible -->
-			"What the fuck? You kidding me? This is what you wanted me to see?" <<He>> starts to chuckle.
+			<<He>> looks it over, then starts laughing. "What the fuck? You were showing off over this?"
 			<br><br>
 
-			<<He>> doesn't say anything for a while. "Yeah. I'm not in the mood anymore."
+			<<He>> stands and pulls <<his>> clothes back into place. "Yeah, no. I'm not in the mood any more."
 			<<incggpenisinsecurity>>
 			<br><br>
 
 			<<He>> gets up, fixes <<his>> clothing and returns to the till and <<his>> book.
 			<<set $finish to 1>><<set $phase to "tiny">>
 		<<else>>
-			"Aww, how cute." <<He>> starts to chuckle.
+			<<He>> gives a short laugh. "Aw. That's cute."
 			<<incggpenisinsecurity>>
 		<</if>>
 	<<elseif $player.penissize is 3>>
@@ -859,18 +913,18 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation>>
 
-	"Wow!" <<he>> pants as <<he>> struggles to <<his>> feet, leaning against the counter. <<tearful>> you gather yourself.
+	The nurse braces a hand against the counter and gets back to <<his>> feet. <<tearful>> You steady yourself while <<he>> pulls <<his>> clothes back into place.
 	<br><br>
 
 	<<clotheson>>
 
-	<<He>> takes a breath, fixes <<his>> clothing, and walks back to the till.
+	<<He>> returns to the till, still smiling as <<he>> reaches for the box you wanted to buy.
 	<br>
 	<<if !$pharmacyItem.type.includes("reduction") or $player.penissize lt 5>>
 		<<set $pharmacyItem.price /= 2>>
-		"I think you've earned a discount, sweetie. You can have these pills for <<printprice $pharmacyItem.price true>>."
+		"All right, sweetie. Half price," <<he>> says, setting the box on the counter. "That'll be <<printprice $pharmacyItem.price true>>."
 		<br>
-		"Please come back for more." <<He>> winks.
+		<<He>> gives you a wink. "Come back if you need more."
 		<br><br>
 
 		<<endcombat>>
@@ -908,7 +962,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 	<<getouticon>><<link [[Don't buy|Pharmacy]]>><<set $eventskip to 1>><<set $daily.pharm.sexResult to "dontBuy">><</link>>
 
 <<elseif $enemyhealth lte 0>>
-	The <<personsimple>> drops on the floor and nurses <<his>> injuries. <<tearful>> you gather yourself.
+	The <<personsimple>> drops to the floor and holds <<his>> injuries. <<tearful>> You take a second to steady yourself.
 	<br><br>
 
 	<<clotheson>>
@@ -917,7 +971,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 	<br><br>
 
 	<<set $daily.pharm.closed to true>>
-	<<ind>><<link [[Steal the pills before the nurse picks <<himself>> up|Hospital Foyer]]>>
+	<<ind>><<link [[Steal the pills before the nurse gets up|Hospital Foyer]]>>
 		<<set $eventskip to 1>>
 		<<crimeUp $pharmacyItem.price "thievery">><<pharmacyAddOwned 14>><<boughtOnce>>
 	<</link>><<crime "thievery">>
@@ -927,13 +981,13 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 	<<clearNPC "pharmNurse">>
 
 <<elseif $finish is 1>>
-	You fall to the ground. You're too hurt to continue.
+	You drop to the floor, too hurt to keep going.
 	<<set $combatExtended.blockingActive to 0>><<violence 65 1 1 1 0 0.3>><<gggstress>><<gggpain>>
 	<br><br>
 	<<set $daily.pharm.sexResult to "embarrassed">>
 	<<switch $phase>>
 		<<case "chastity">>
-			Embarrassed, you don't speak as you rise to your feet.
+			You push yourself back up without saying anything and fix your clothes.
 			<<clotheson>><<endcombat>>
 
 		<<case "tiny">>
@@ -943,8 +997,8 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 			<<endcombat>>
 
 		<<case "small">>
-			Embarrassed, you rise to your feet. <<clotheson>>
-			"Don't forget your pills," the nurse says. <<if $pharmacyItem.type.includes("growth")>>"You need them."<</if>>
+			You stand and fix your clothes while the nurse walks back to the till. <<clotheson>>
+			"Don't forget your pills," <<he>> says. <<if $pharmacyItem.type.includes("growth")>>"You need them."<</if>>
 			<br><br>
 			<<endcombat>>
 
@@ -969,7 +1023,7 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 
 	<<getouticon>><<link [[Leave|Hospital Foyer]]>><<set $eventskip to 1>><</link>>
 <<else>>
-	You fall to the ground. You're too hurt to continue.
+	You drop to the floor, too hurt to keep going.
 	<<set $combatExtended.blockingActive to 0>><<violence 65 1 1 1 0 0.3>><<gggstress>><<gggpain>>
 	<br><br>
 	<<link [[Next|Hospital Foyer]]>><<endevent>><<set $eventskip to 1>><</link>>
@@ -981,76 +1035,108 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 
 :: Pharmacy Morning After pill
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
-You ask the nurse for morning after pills.
+You ask the nurse for a morning-after pill.
 <br><br>
 <<if playerBellyVisible() or getPregnancyObject().awareOf>>
-	"You <<if $pregnancyStats.aftermorningpills>>already know you <</if>>can't take these pills if you are pregnant, and it's obvious you are. It's very dangerous for your health and it won't have the desired effects," <<he>> tells you while looking openly at your <<bellyDescription "pc">>. "If you still want to take it, <<printprice 50000>> please. For legal reasons, we're unable to sell these in bulk. You'll have to take it while I'm supervising you, just in case issues occur."
+	The nurse looks at your <<bellyDescription "pc">> before answering.
+	<br><br>
+	"You <<if $pregnancyStats.aftermorningpills>>already know you <</if>>shouldn't take this while you're pregnant," <<he>> says. "It can make you seriously ill, and it won't work the way you want it to."
+	<br><br>
+	<<He>> keeps the packet behind the counter. "If you still insist, it's <<printprice 50000>>. I can only give you one, and you have to take it here while I watch."
 	<br><br>
 	<<if not getPregnancyObject().awareOf>>
 		<<if setup.inflation.canAfford(50000, "pharmacyAfterPill")>>
 			<<link [[Hand over the money and take the pill anyway (0:15)|Pharmacy Morning After pill 2]]>><<pass 15>><</link>>
 		<<else>>
-			<span class="purple">You cannot afford them.</span>
+			<span class="purple">You cannot afford it.</span>
 		<</if>>
 	<<else>>
-		You know you are pregnant and you won't take any risks.
+		You know you are pregnant and decide not to risk taking it.
 		<br>
 	<</if>>
 	<br>
 	<<link [["Don't buy"|Pharmacy]]>><</link>>
 <<else>>
-	"These pills are only effective for a short period after intercourse. If an egg has been fertilised and nestled in your uterus, taking them can be dangerous to your health.<<if $pregnancyStats.aftermorningpills>> Keep in mind that these pills are not a contraceptive method. Perhaps you should consider the option of using condoms or contraceptive pills that you can buy here, they are less harmful.<</if>>"
+	The nurse opens a drawer and takes out a packet containing a single pill.
 	<br><br>
-	<<He>> opens a drawer and pulls out a blister with a single pill. "<<printprice 50000>> please. For legal reasons, we're unable to sell these in bulk. You'll have to take it while I'm supervising you, just in case issues occur."
+	"This only works for a short time after sex," <<he>> says. "If a pregnancy has already started, taking it can make you ill.<<if $pregnancyStats.aftermorningpills>> Don't use these as your regular contraception. Condoms or contraceptive pills are safer for that.<</if>>"
+	<br><br>
+	<<He>> places the packet on the counter, but keeps one hand over it. "It's <<printprice 50000>>. I can't sell these in bulk, and you need to take it here so I can make sure you're all right."
 	<br><br>
 	<<if getPregnancyObject().awareOf>>
-		You know you are pregnant and won't take any risks.
+		You know you are pregnant and decide not to risk taking it.
 	<<elseif setup.inflation.canAfford(50000, "pharmacyAfterPill")>>
 		<<link [[Hand over the money and take the pill (0:15)|Pharmacy Morning After pill 2]]>><<pass 15>><</link>>
 	<<else>>
-		<span class="purple">You cannot afford them.</span>
+		<span class="purple">You cannot afford it.</span>
 	<</if>>
 	<br>
 	<<link [["Don't buy"|Pharmacy]]>><</link>>
 <</if>>
 
-
 :: Pharmacy Morning After pill 2
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<money -50000 "pharmacyAfterPill">><<pregnancyMorningAfterPill>>
 
-The nurse points you to a chair to sit on and you take the pill while <<he>> watches you carefully.
+The nurse takes your payment, pushes a chair out from behind the counter and tells you to sit. <<He>> gives you the pill with a cup of water and watches until you swallow it.
 <br><br>
 <<switch _morningAfterPillResult>>
 	<<case "no pregnant">>
-		You sit on the chair and wait for it to take effect. You only feel a cold sensation in your belly. After a few minutes, the nurse checks your pupils and your blood pressure. "Everything is fine, you can go." <<lllarousal>> <<llstress>>
+		You wait in the chair. A cool feeling spreads through your lower belly, but nothing else happens.
+		<br><br>
+		The nurse checks your pupils, then wraps a blood-pressure cuff around your arm. After checking the reading, <<he>> removes it.
+		<br><br>
+		"Everything looks fine. You can go."
+		<<lllarousal>><<llstress>>
 		<br><br>
 		<<arousal -5000>>
 		<<stress -12>>
 		<<link [[Go back|Pharmacy]]>><</link>>
 	<<case "successful">>
-		You sit on the chair and wait for it to take effect. You feel a cold sensation in your belly and a little pain. After a few minutes, the nurse checks your pupils and your blood pressure. <<He>> can see the discomfort in your face. "It seems that the pill has taken effect. You may feel some pain, but it will pass quickly. You can go now." <<lllarousal>> <<llstress>> <<gpain>>
+		A cool feeling spreads through your lower belly. A mild ache follows, making you press a hand against your stomach while you wait.
+		<br><br>
+		The nurse notices and comes over to check your pupils and blood pressure.
+		<br><br>
+		"The pill has worked," <<he>> says. "The pain should ease soon. You can go when you feel steady enough."
+		<<lllarousal>><<llstress>><<gpain>>
 		<br><br>
 		<<arousal -5000>>
 		<<stress -12>>
 		<<pain 2>>
 		<<link [[Go back|Pharmacy]]>><</link>>
 	<<case "a little late">>
-		You sit on the chair and wait for it to take effect. You feel an unpleasant sensation in your belly and a sharp pain. The nurse notices your pained face and approaches you. <<He>> check your pupils and your blood pressure. "It seems that the pill has taken effect, but you have reached the limit of time. If you ever need this pill again, don't wait for so long. The pain you feel now will disappear after a while. You can go now." <<lllarousal>> <<llstress>> <<ggpain>>
+		An ache starts low in your belly and quickly becomes sharp enough to make you bend forward in the chair. You press both hands against your stomach.
+		<br><br>
+		The nurse comes over, checks your pupils, then takes your blood pressure.
+		<br><br>
+		"You've left it very late," <<he>> says. "The pill has worked, but don't wait this long next time. Stay seated until the pain settles."
+		<<lllarousal>><<llstress>><<ggpain>>
 		<br><br>
 		<<arousal -5000>>
 		<<stress -12>>
 		<<pain 8>>
 		<<link [[Go back|Pharmacy]]>><</link>>
 	<<case "late">>
-		You sit on the chair and wait for it to take effect. You feel a strange sensation in your belly and immediately you writhe in pain. The nurse rushes over to you and checks your pupils and your blood pressure. <<He>> can see the discomfort in your face. "It seems like it's been too long since..." You feel a sharp pinch in your belly and wince in pain. The nurse notices your pained face. "Well, in any case, the pill has taken effect. You will feel pain for a while, it's normal, it will pass. If you ever need this pill again, don't wait for so long. You can go now." <<lllarousal>> <<ggtrauma>> <<ggpain>>
+		Pain hits low in your belly. You grab the edge of the chair and fold forward while the nurse hurries over.
+		<br><br>
+		<<He>> checks your pupils and takes your blood pressure. Another pain makes you curl over your stomach before <<he>> finishes.
+		<br><br>
+		"It's been too long since you needed it," <<he>> says. "The pill has worked, but you're going to hurt for a while. Don't leave it this late again."
+		<<lllarousal>><<ggtrauma>><<ggpain>>
 		<br><br>
 		<<arousal -5000>>
 		<<trauma 20>>
 		<<pain 20>>
 		<<link [[Go back|Pharmacy]]>><</link>>
 	<<case "too late">>
-		You sit on the chair and wait for it to take effect. You feel an unpleasant sensation in your belly and immediately writhe in pain. The nurse rushes over to you and checks your pupils and your blood pressure. <<He>> can see the discomfort in your face. "It seems like it's been too long since..." You feel a sharp pain in your belly, bend over, and fall from the chair. Your vision blurs, the pain is unbearable. <<lllarousal>> <<ggtrauma>> <<ggpain>>
+		A hard pain hits your belly before you have finished waiting. You double over in the chair, one hand pressed against your stomach.
+		<br><br>
+		The nurse rushes over and reaches for your arm, trying to keep you upright while checking you.
+		<br><br>
+		"It's been too long since..."
+		<br><br>
+		Another pain cuts <<him>> off. Your legs slip from under you and you fall from the chair. Your vision blurs as the nurse calls for help.
+		<<lllarousal>><<ggtrauma>><<ggpain>>
 		<br><br>
 		<<set $arousal to 0>><<set $pleasure to 0>>
 		<<trauma 50>>
@@ -1063,15 +1149,18 @@ The nurse points you to a chair to sit on and you take the pill while <<he>> wat
 <</switch>>
 
 :: Pharmacy Morning After pill passout
-You feel your body rise, being moved, you hear voices around you. You open your eyes for a moment and you see the nurse with a worried face. Another person in a white coat approaches
-<<if $harperSeen isnot undefined>>
-	and you recognise Dr Harper.
-<<else>>
-	and you see "Dr Harper" written on <<nnpc_his "Harper">> name tag.
-<</if>>
-"I don't know if you were aware of it, but <span class="red">you're pregnant</span>. You shouldn't have taken that pill." <<lllarousal>> <<ggstress>>
+You hear voices nearby as someone lifts your shoulders from the floor.
 <br><br>
-Before you can answer, you feel another intense and painful cramp in your belly. <<ggtrauma>> <<gggpain>>
+You force your eyes open. The pharmacy nurse is beside you, supporting you while another person in a white coat comes closer.
+<<if $harperSeen isnot undefined>>
+	You recognise Dr Harper.
+<<else>>
+	You read "Dr Harper" on <<nnpc_his "Harper">> name tag.
+<</if>>
+<br><br>
+Harper looks down at you. "You're <span class="red">pregnant</span>. I don't know if you knew, but you should not have taken that pill." <<lllarousal>><<ggstress>>
+<br><br>
+A strong cramp hits your belly before you can answer. You double over and grab your stomach. <<ggtrauma>><<gggpain>>
 <br><br>
 <<set getPregnancyObject().awareOf to "pharmacy">>
 <<stress 12>>
@@ -1084,19 +1173,19 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<if $brothelVending.products % 2>>
 	<<if $weekly.brothelVMCondoms>>
-		You already have refilled the vending machine with condoms this week.
+		You have already ordered condoms for the vending machine this week.
 		<br><br>
 		<<link [[Return|Pharmacy]]>><</link>>
 	<<elseif $brothelVending.condomsToRefill lt 10>>
-		The vending machine doesn't need to be refilled with condoms right now.
+		The vending machine still has enough condoms for now.
 		<br><br>
 		<<link [[Return|Pharmacy]]>><</link>>
 	<<elseif not setup.inflation.canAfford(60000, "pharmacyCondoms")>>
-		You can't afford condoms to refill the vending machine.
+		You don't have enough money to refill the vending machine.
 		<br><br>
 		<<link [[Return|Pharmacy]]>><</link>>
 	<<else>>
-		You ask the nurse for the quantity of condoms you need:
+		You tell the nurse how many packs you want to order.
 		<br><br>
 		<<link [[Buy 10 packs (<<printprice 60000>>)|Pharmacy Bought Condoms in Bulk]]>><<set $condomsBought to 10>><</link>>
 		<br>
@@ -1178,26 +1267,32 @@ Before you can answer, you feel another intense and painful cramp in your belly.
 <<condomsPrice _partial>>
 <<set _displayPrice to setup.inflation ? setup.inflation.price(_price) : _price>>
 <<formatmoney _displayPrice>>
-"All right, $condomsBought 3-packs of condoms." <<He>> prepares the packages in a<<if $condomsBought lte 25>> small<</if>> cardboard box while calculating the total out loud. "This is _partial units, <<printprice 6000>> each, _printmoney.
+The nurse takes a<<if $condomsBought lte 25>> small<</if>> cardboard box from under the counter and starts packing the condoms inside.
+<br><br>
+"$condomsBought packs," <<he>> says, checking the total on <<his>> calculator. "The first _partial are <<printprice 6000>> each. That's _printmoney."
 <<condomsPrice $condomsBought>>
 <<if $condomsBought gt 50>>
 	<<set _partial to Math.min($condomsBought - 50, 50)>>
 	<<set _price2 to _partial * 6000 * .98>>
 	<<set _displayPrice to setup.inflation ? setup.inflation.price(_price2) : _price2>>
 	<<formatmoney _displayPrice>>
-	Plus _partial units, <<printprice 6000>> each, with a 2% discount, _printmoney.
+	<br>
+	"The next _partial get the 2% discount. That's another _printmoney."
 	<<if $condomsBought gt 100>>
 		<<set _partial to $condomsBought - 100>>
 		<<set _price2 to _partial * 6000 * .95>>
 		<<set _displayPrice to setup.inflation ? setup.inflation.price(_price2) : _price2>>
 		<<formatmoney _displayPrice>>
-		And _partial units, <<printprice 6000>> each, reduced by 5%, _printmoney.
+		<br>
+		"The last _partial get 5% off. That's _printmoney."
 	<</if>>
-	Your total is <<printprice _price>>.
+	<br><br>
+	<<He>> checks the calculator again. "Your total is <<printprice _price>>."
 <</if>>
-I'll send these out to be delivered. Thanks for your purchase."
 <br><br>
-You count the money and give it to <<him>>.
+You count out the money and hand it over. The nurse closes the box and writes the brothel's delivery details on the label.
+<br><br>
+"I'll send it out for delivery," <<he>> says.
 <br><br>
 <<money `-_price` "pharmacyCondoms">>
 <<set $brothelVending.condoms += $condomsBought>>

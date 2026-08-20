@@ -108,6 +108,14 @@
 	<<set _sleepStartStress to $stress>>
 	<<set _sleepNoFatigueDropNotice to false>>
 
+	<!-- Sleeping pills can drag you past the hours you meant to sleep. "Just sleep" already runs to exhaustion, so it can't overshoot. -->
+	<<set _sleepAidStrength to (sleepAidPending() ? sleepAidPending().strength : null)>>
+	<<set _sleepAidOverslept to 0>>
+	<<if _sleepAidStrength and $sleephour gte 1>>
+		<<set _sleepAidOverslept to sleepAidOversleepHours()>>
+		<<set $sleephour += _sleepAidOverslept>>
+	<</if>>
+
 	<<for $sleephour gte 1 or $sleephour lte -1>>
 		<<set $sleephour -= 1>>
 		<<if $avery_mansion and $bus is "avery_bedroom">>
@@ -471,6 +479,15 @@
 			<</if>>
 		<</if>>
 	<</for>>
+
+	<<if _sleepAidStrength>>
+		<<run consumeSleepAid()>>
+		<<if _sleepAidOverslept gt 0>>
+			<span class="blue">The sleeping pills made you sleep longer than planned. You slept for an extra <<print _sleepAidOverslept>> hour<<if _sleepAidOverslept gt 1>>s<</if>>.</span><br>
+		<</if>>
+	<<elseif $sleepHoursTotal gt 0 and sleepAidWithdrawal()>>
+		<span class="red">Your body has become used to the sleeping pills. Without them, you keep waking during the night.</span><br>
+	<</if>>
 
 	<<if $sleepHoursTotal gt 0 and $tiredness gte _sleepStartTiredness>>
 		<<if $stress gt _sleepStartStress>>

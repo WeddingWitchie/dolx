@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation */
-/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised */
+/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised sleepAidPending sleepAidOtcStrongEnough pillDosesTodayByType */
 /*
  * if display_condition is 1, item is displayed, else it's not
  * current max doses for Harper/Asylum pills is 1; 2 for every other pills
@@ -504,17 +504,17 @@ setup.pills = [
 		effects: [`<<pain -10>><<tiredness 18>><<llpain>><<gggtiredness>>`],
 	},
 	{
-		name: "Calmoryl",
-		description: "A fast-acting trauma suppressant. One tablet dulls the weight of distress, but repeated doses interfere with perception and memory.",
+		name: "anti-anxiety tablets",
+		description: "Fast-acting medicine that reduces trauma and stress. Taking more than one tablet in a day can cause serious side effects.",
 		onTakeMessage() {
 			const doses = Number(T.calmorylDose) || this.doseTaken();
-			if (doses === 1) return "You swallow a Calmoryl tablet. The worst of the tension soon feels more distant.";
-			if (doses === 2) return "You take a second Calmoryl. Your stomach turns and your thoughts become sluggish as the medicine settles in.";
-			if (doses === 3) return "You take a third Calmoryl. The room seems to slip away from you, everything becoming distant and unreal.";
-			return "You swallow another Calmoryl. The distance between you and the world deepens.";
+			if (doses === 1) return "You swallow an anti-anxiety tablet. Your stress begins to ease.";
+			if (doses === 2) return "You take a second tablet. Your stomach feels sick and you have trouble thinking clearly.";
+			if (doses === 3) return "You take a third tablet. You feel detached from your surroundings and struggle to focus on what is happening around you.";
+			return "You swallow another tablet. You become even less aware of what is happening around you.";
 		},
 		warning_label:
-			"Warning: Take no more than one tablet per day. A second dose causes adverse effects. Three or more doses cause uncontrollable temporary dissociation, which is prolonged by every further dose. Five or more doses cause loss of consciousness.",
+			"Warning: Take no more than one tablet per day. A second tablet causes side effects. Three or more tablets cause temporary dissociation and make it difficult to understand your surroundings. Each additional tablet makes the effect last longer.",
 		indicators: ["<span class='hpi_indic_green'>--- Trauma</span>", "<span class='hpi_indic_green'>- Stress</span>"],
 		autoTake() {
 			return false;
@@ -542,6 +542,110 @@ setup.pills = [
 			return 1;
 		},
 		effects: [() => `<<run takeCalmoryl()>>`],
+	},
+	{
+		name: "sleeping pills",
+		description: "A mild over-the-counter sleep aid. Take one before bed to help you fall asleep. It may not work if your trauma is severe.",
+		get onTakeMessage() {
+			return sleepAidOtcStrongEnough()
+				? "You swallow a sleeping pill. After a while, you begin to feel sleepy."
+				: "You swallow a sleeping pill. You start to feel tired, but you still cannot relax. <span class='red'>The pill is not strong enough to help you sleep tonight.</span>";
+		},
+		warning_label: "Warning: Take one tablet before bed. Do not take a second dose. May make it harder to wake up.",
+		indicators: ["<span class='hpi_indic_green'>- Insomnia</span>", "<span class='hpi_indic_blue'>+ Oversleeping</span>"],
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_doseTaken() {
+			return sleepAidPending()?.strength === "otc" ? "Active" : `${this.doseTaken()}\u00A0taken`;
+		},
+		type: "sleep",
+		subtype: "otc",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/sharks-teeth.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return 1;
+		},
+		effects: [`<<run takeSleepAid("otc")>><<tiredness 5>>`],
+	},
+	{
+		name: "prescription sleeping pills",
+		description: "A strong sleeping pill. It helps you sleep even when stressed, but using it too often can make you dependent on it.",
+		onTakeMessage: "You take a sleeping pill. You quickly begin to feel drowsy.",
+		warning_label:
+			"Warning: Take one tablet before bed. Taking a second dose will make you pass out. Frequent use can cause dependence and make it harder to sleep without the pills.",
+		indicators: [
+			"<span class='hpi_indic_green'>-- Insomnia</span>",
+			"<span class='hpi_indic_blue'>++ Oversleeping</span>",
+			"<span class='hpi_indic_red'>Dependence</span>",
+		],
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_doseTaken() {
+			return sleepAidPending()?.strength === "prescription" ? "Active" : `${this.doseTaken()}\u00A0taken`;
+		},
+		type: "sleep",
+		subtype: "prescription",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/pill-strong.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return 1;
+		},
+		effects: [`<<run takeSleepAid("prescription")>><<tiredness 10>>`],
+	},
+	{
+		name: "prescription painkillers",
+		description: "Strong painkillers kept in the school nurse's locked cabinet. One dose greatly reduces pain, but makes you very tired.",
+		onTakeMessage: "You swallow a prescription painkiller. Your pain quickly fades, but you begin to feel very sleepy.",
+		warning_label: "Warning: Causes severe drowsiness. Taking more than two doses in one day can cause dangerous side effects.",
+		indicators: ["<span class='hpi_indic_green'>--- Pain</span>", "<span class='hpi_indic_blue'>+++ Tiredness</span>"],
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		type: "painkiller",
+		subtype: "prescription pain relief",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/infirmary.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return 1;
+		},
+		effects: [`<<pain -20>><<tiredness 25>><<lllpain>><<gggtiredness>>`],
 	},
 	{
 		name: "asylum's prescription",
@@ -575,11 +679,25 @@ setup.pills = [
 	},
 	{
 		name: "Dr Harper's prescription",
-		description: "Antipsychotic medication.",
-		onTakeMessage: "You take the pills Doctor Harper prescribed. You feel dizzy.",
-		warning_label:
-			"Warning: The side effects upon reaching maximum dosage have not undergone sufficient study. Proceed with caution. <span class='hpi_blur'></span>",
-		indicators: ["<span class='hpi_indic_green'>+ Control</span>", "<span class='hpi_indic_blue'>- Awareness</span>"],
+		/* Harper may add an antidepressant to the PC's regular medication. */
+		get description() {
+			return V.prescriptions?.antidepressant
+				? "Antipsychotic medication with an added antidepressant. The antidepressant reduces daily stress gain, but makes you become tired faster."
+				: "Antipsychotic medication.";
+		},
+		get onTakeMessage() {
+			return V.prescriptions?.antidepressant
+				? "You take the pills Doctor Harper prescribed. You feel dizzy, but calmer."
+				: "You take the pills Doctor Harper prescribed. You feel dizzy.";
+		},
+		warning_label: "Warning: The effects of the maximum dosage have not been fully studied. Take with caution. <span class='hpi_blur'></span>",
+		get indicators() {
+			const base = ["<span class='hpi_indic_green'>+ Control</span>", "<span class='hpi_indic_blue'>- Awareness</span>"];
+			if (V.prescriptions?.antidepressant) {
+				base.push("<span class='hpi_indic_green'>- Stress gain</span>", "<span class='hpi_indic_blue'>+ Tiredness gain</span>");
+			}
+			return base;
+		},
 		autoTake() {
 			return V.sexStats.pills["pills"][this.name].autoTake;
 		},
@@ -816,7 +934,7 @@ function initPillContextButtons(item) {
 	}
 
 	// Hide auto-use for medication that must be taken manually.
-	if (["asylum", "harper", "painkiller", "calmoryl", "sensitivity"].includes(item.type)) {
+	if (["asylum", "harper", "painkiller", "calmoryl", "sensitivity", "sleep"].includes(item.type)) {
 		document.getElementById("hpi_take_every_morning").className = "hidden"; // prevent 'Take every Morning' option to be displayed for those type of pills
 		document.getElementById("hpi_desc_action").classList.add("hpi_action_single"); // readapt css since there's only one button now
 	}
@@ -935,17 +1053,23 @@ function onTakeClick(itemName) {
 				Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
 			V.sexStats.pills.lastTaken[item.type] = item.subtype; // keep track of the category of pill we last took
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
-			if ((item.type === "calmoryl" ? Number(T.calmorylDose) > 1 : item.doseTaken() > 1) && !item.name.includes("blocker")) {
+			const dosesForOverdose =
+				item.type === "calmoryl" ? Number(T.calmorylDose) : ["sleep", "painkiller"].includes(item.type) ? pillDosesTodayByType(item.type) : item.doseTaken();
+			if (dosesForOverdose > 1 && !item.name.includes("blocker")) {
 				switch (item.type) {
 					case "parasite":
 					case "hair":
 						break;
 					case "painkiller":
-						if (item.doseTaken() > 3) {
+						if (dosesForOverdose > (item.subtype === "prescription pain relief" ? 2 : 3)) {
+							V.overdosePillsTaken = item.name;
 							Engine.play("PillCollectionPainkillerOverdose");
 							return;
 						}
 						break;
+					case "sleep":
+						Engine.play("PillCollectionSleepOverdose");
+						return;
 					case "calmoryl":
 						if (Number(T.calmorylDose) >= 5) {
 							Engine.play("PillCollectionCalmorylPassOut");
@@ -1030,7 +1154,7 @@ function getCalmorylEffect() {
 		const legacyEndsAt = Number(V.calmorylDissociationUntil);
 		delete V.calmorylDissociationUntil;
 		if (Number.isFinite(legacyEndsAt) && legacyEndsAt > V.timeStamp) {
-			const dailyDoses = Number(V.sexStats?.pills?.pills?.Calmoryl?.doseTaken) || 0;
+			const dailyDoses = Number(V.sexStats?.pills?.pills?.["anti-anxiety tablets"]?.doseTaken) || 0;
 			V.calmoryl = { endsAt: legacyEndsAt, doses: Math.max(3, dailyDoses) };
 		}
 	} else if (V.calmorylDissociationUntil !== undefined) {
@@ -1071,7 +1195,7 @@ function updateCalmorylDissociation() {
 window.updateCalmorylDissociation = updateCalmorylDissociation;
 
 function takeCalmoryl() {
-	const record = V.sexStats?.pills?.pills?.Calmoryl;
+	const record = V.sexStats?.pills?.pills?.["anti-anxiety tablets"];
 	if (!record) return;
 
 	V.trauma *= 0.7;

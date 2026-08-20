@@ -1963,24 +1963,65 @@
 						const opiumSuppressed = Array.isArray(V.backgroundTraits)
 							&& V.backgroundTraits.includes("opiumaddict")
 							&& !!V.poppyDrug?.insomniaSuppress;
-						if (V.hypnosis_traits.slumber || opiumSuppressed) return "Suppressed Insomnia";
+						const pillSuppressed = typeof insomniaSuppressedBySleepAid === "function"
+							&& insomniaSuppressedBySleepAid();
+						if (V.hypnosis_traits.slumber || opiumSuppressed || pillSuppressed) return "Suppressed Insomnia";
 						return V.controlled === 0 ? "Insomnia" : "Controlled Insomnia";
 					},
 					colour: () => {
 						const opiumSuppressed = Array.isArray(V.backgroundTraits)
 							&& V.backgroundTraits.includes("opiumaddict")
 							&& !!V.poppyDrug?.insomniaSuppress;
-						if (V.hypnosis_traits.slumber || opiumSuppressed) return "black";
+						const pillSuppressed = typeof insomniaSuppressedBySleepAid === "function"
+							&& insomniaSuppressedBySleepAid();
+						if (V.hypnosis_traits.slumber || opiumSuppressed || pillSuppressed) return "black";
 						return V.controlled === 0 ? "red" : "blue";
 					},
-					has: $sleeptrouble gte 1,
-					text: "Sleep less effective.",
+					has: $sleeptrouble gte 1
+						or $hypnosis_traits.slumber
+						or (Array.isArray($backgroundTraits) and $backgroundTraits.includes("opiumaddict") and $poppyDrug?.insomniaSuppress)
+						or (typeof insomniaSuppressedBySleepAid === "function" and insomniaSuppressedBySleepAid()),
+					text: () => {
+						const opiumSuppressed = Array.isArray(V.backgroundTraits)
+							&& V.backgroundTraits.includes("opiumaddict")
+							&& !!V.poppyDrug?.insomniaSuppress;
+						const pillSuppressed = typeof insomniaSuppressedBySleepAid === "function"
+							&& insomniaSuppressedBySleepAid();
+
+						if (V.hypnosis_traits.slumber || opiumSuppressed || pillSuppressed) {
+							return "Your insomnia is suppressed. You can sleep normally.";
+						}
+						return "You get less rest from sleeping.";
+					},
 					textColour: () => {
 						const opiumSuppressed = Array.isArray(V.backgroundTraits)
 							&& V.backgroundTraits.includes("opiumaddict")
 							&& !!V.poppyDrug?.insomniaSuppress;
-						return V.controlled === 0 && !V.hypnosis_traits.slumber && !opiumSuppressed ? "red" : "black";
+						const pillSuppressed = typeof insomniaSuppressedBySleepAid === "function"
+							&& insomniaSuppressedBySleepAid();
+						return V.controlled === 0
+							&& !V.hypnosis_traits.slumber
+							&& !opiumSuppressed
+							&& !pillSuppressed
+							? "red"
+							: "black";
 					},
+				},
+				{
+					name: "Sedative Dependence",
+					colour: "red",
+					has: typeof sleepAidDependenceLevel === "function" and sleepAidDependenceLevel() gte 1,
+					text: () => sleepAidDependenceLevel() >= 2
+						? "You now depend on sleeping pills. Without them, you can barely sleep."
+						: "Your body is getting used to sleeping pills. You sleep poorly without them.",
+					textColour: "red",
+				},
+				{
+					name: "Antidepressant",
+					colour: "blue",
+					has: typeof antidepressantActive === "function" and antidepressantActive(),
+					text: "Stress rises more slowly, but you become tired faster.",
+					textColour: "black",
 				},
 				{
 					name: () => V.controlled === 0 ? "Nightmares" : "Controlled Nightmares",
@@ -2047,13 +2088,26 @@
 					textColour: "red",
 				},
 				{
-					name: () => calmorylDissociationActive() || V.controlled === 0 ? "Dissociation" : "Controlled Dissociation",
-					colour: () => calmorylDissociationActive() || V.controlled === 0 ? "red" : "blue",
+					name: () => {
+						if (calmorylDissociationActive()) return "Calmoryl Dissociation";
+						if (V.controlled > 0) return "Controlled Dissociation";
+						return "Dissociation";
+					},
+					colour: () => {
+						if (calmorylDissociationActive()) return "red";
+						if (V.controlled > 0) return "blue";
+						return "red";
+					},
 					has: $dissociation gte 2,
 					text: () => {
-						if (!calmorylDissociationActive()) return "Nothing feels real.";
-						const hours = calmorylDissociationRemainingHours();
-						return `Calmoryl makes reality feel distant and impossible to grasp. The effect should last about ${hours} more hour${hours === 1 ? "" : "s"}.`;
+						if (calmorylDissociationActive()) {
+							const hours = calmorylDissociationRemainingHours();
+							return `The anti-anxiety tablets make everything feel distant. The effect should last about ${hours} more hour${hours === 1 ? "" : "s"}.`;
+						}
+						if (V.controlled > 0) {
+							return "You feel detached from what is happening around you, but you can still keep yourself under control.";
+						}
+						return "Nothing feels real.";
 					},
 					textColour: () => calmorylDissociationActive() || V.controlled === 0 ? "red" : "black",
 				},

@@ -68,15 +68,10 @@ function xChangeBodySnapshotUsable(body) {
 }
 window.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
 
-/* One-time legacy migration, invoked once from version-update.twee behind a _did flag — NOT per load.
-	Body snapshots from old builds can be unloadable in two related ways:
-	  - base-DoL / early X-Change stored the herm value "h" for sex/gender_body (X-Change now uses
-	    gender_body "a" — a two-genital body with an underlying sex of "m"/"f" — and never "h"), or
-	  - very old snapshots predate the sex/gender_body fields entirely, so they're simply missing.
-	load-body already tolerates every OTHER missing field (each is guarded with `isnot undefined`), so
-	the only things that make a legacy body fail validation are gender_body and sex. This derives just
-	those two, once, and touches nothing else — anything else malformed still surfaces loudly via
-	xChangeBodySnapshotUsable rather than being silently reset. */
+/* One-time legacy migration, called from version-update.twee.
+	Old body snapshots may use "h" for sex/gender_body or lack those fields entirely.
+	Derive only gender_body and sex so old snapshots can load. Other invalid data is left
+	untouched and will still be caught by xChangeBodySnapshotUsable. */
 function xChangeDeriveSnapshotGenderBody(body) {
 	if (body.gender_body === "h") return "a"; // legacy herm value
 	if (["m", "f", "a"].includes(body.gender_body)) return body.gender_body;
