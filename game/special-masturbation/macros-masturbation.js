@@ -26,6 +26,7 @@ function skipToOrgasm(modifiers = "") {
 		masturbationActions();
 		if (modifiers.includes("timer")) V.timer -= 1;
 		V.orgasmdown -= 1; // orgasmdown isn't decreased otherwise since <<effects>> isn't called. Many post-masturbation scenes use it.
+		if (V.orgasmdown < 0) V.femaleclimax = 0;
 
 		// Other scene modifiers
 		if (modifiers) {

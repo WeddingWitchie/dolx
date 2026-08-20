@@ -135,7 +135,8 @@ function buildGrayXChangePills() {
 		{
 			name: "X-Change Bull",
 			subtype: "gray bull",
-			description: "A colourless X-Change capsule carrying only the Bull agent: a relentless, rutting urge to breed. Acts on whatever body you currently have.",
+			description:
+				"A colourless X-Change capsule carrying only the Bull agent: a relentless, rutting urge to breed and more base maximum semen volume. Acts on whatever body you currently have.",
 			onTakeMessage: teal(
 				"Heat gathers heavily between your legs. Your pulse grows rougher, more demanding, as though some blunt animal certainty has shouldered its way into your thoughts. You feel ready to rut, to spend, to mark something with yourself."
 			),
@@ -160,7 +161,7 @@ function buildGrayXChangePills() {
 			name: "X-Change Alpha",
 			subtype: "gray alpha",
 			description:
-				"A colourless X-Change capsule carrying only the Alpha agent: a knotted penis and a need to be buried inside a partner before release. Acts on whatever body you currently have.",
+				"A colourless X-Change capsule carrying only the Alpha agent: a knotted penis, a need to be buried inside a partner before release, and more base maximum semen volume. Acts on whatever body you currently have.",
 			onTakeMessage: teal(
 				"Pressure builds in your cock, not as simple arousal but as shape, purpose, and a heavy need to lock in place. Your hips twitch with the sudden certainty that release will not come easily unless you are inside someone."
 			),
@@ -1605,7 +1606,7 @@ setup.pills.push(
 
 	{
 		name: "X-Change Blue Bull",
-		description: "Temporary genderswap pill causing increased virility. Pill effects may last upto a whole week.",
+		description: "Temporary genderswap pill causing increased virility and adding more base maximum semen volume. Pill effects may last upto a whole week.",
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:
@@ -1654,7 +1655,7 @@ setup.pills.push(
 	{
 		name: "X-Change Blue Alpha",
 		description:
-			"Temporary genderswap pill that gives the user's penis a knot and a need to be inside a partner before release. Pill effects may last upto a whole week.",
+			"Temporary genderswap pill that gives the user's penis a knot, a need to be inside a partner before release, and more base maximum semen volume. Pill effects may last upto a whole week.",
 		onTakeMessage:
 			'<span class="teal">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man\'s body.<br><br>Then pressure gathers in your cock, reshaping need into something heavier and more possessive. Your body wants to lock inside someone.',
 		warning_label:
@@ -2337,7 +2338,7 @@ setup.pills.push(
 
 	{
 		name: "X-Change Purple Bull",
-		description: "Temporary genderswap pill causing increased virility. Pill effects may last upto a whole week.",
+		description: "Temporary genderswap pill causing increased virility and adding more to base maximum semen volume. Pill effects may last upto a whole week.",
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Your new body feels distinctly different from your original, yet also strangely familiar. In many ways, alien. But still very much yours. Should you choose, you could probably pass as any gender you want as long as there's clothes on you.<br><br>Finally, you approach the mirror, and having a good look, you also realise you look exceedingly beautiful as well.",
 		warning_label:
@@ -2414,7 +2415,7 @@ setup.pills.push(
 	{
 		name: "X-Change Purple Alpha",
 		description:
-			"Temporary pill that grants a hermaphroditic body alongside the Alpha agent: a knotted penis and a need to be inside a partner before release. Pill effects may last upto a whole week.",
+			"Temporary pill that grants a hermaphroditic body alongside the Alpha agent: a knotted penis, a need to be inside a partner before release, and more base maximum semen volume. Pill effects may last upto a whole week.",
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>Then pressure gathers in your cock, reshaping need into something heavier and more possessive. Your body wants to lock inside someone.",
 		warning_label:
@@ -2450,7 +2451,7 @@ setup.pills.push(
 	{
 		name: "X-Change Purple Alpha-Omega",
 		description:
-			"Temporary pill that applies the Alpha and Omega agents together, granting a hermaphroditic body, anal pregnancy compatibility, and a knotted penis with intense urges to penetrate. Pill effects may last upto a whole week.",
+			"Temporary pill that applies the Alpha and Omega agents together, granting a hermaphroditic body, anal pregnancy compatibility, a knotted penis with intense urges to penetrate, and more base maximum semen volume. Pill effects may last upto a whole week.",
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of both a man's and a woman's body.<br><br>A low warmth settles deep inside you while pressure gathers in your cock. Your body wants to be filled, to fill, and to lock inside someone before release.",
 		warning_label:

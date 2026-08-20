@@ -2252,6 +2252,7 @@ function effects() {
 	V.orgasmdown -= 1;
 	V.orgasmCum -= 1;
 	V.refractoryPeriod -= 1;
+	if (V.orgasmdown < 0) V.femaleclimax = 0;
 
 	if (V.timer >= 1) V.timer--;
 	// V.turnCount++;

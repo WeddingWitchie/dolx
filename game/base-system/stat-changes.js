@@ -420,6 +420,12 @@ const statChange = (() => {
 	}
 	DefineMacro("corruption", corruption);
 
+	function semenCapacityMax() {
+		const multiplier = V.AMCTraits?.semen ?? 1;
+		const pill = V.xchange?.pill?.active ? V.xchange.pill : null;
+		const xChangeBonus = (pill?.bullEffect ? 1500 : 0) + (pill?.alphaEffect ? 1500 : 0);
+		return Math.min(14000, Math.max(0, ((Number(V.semen_max) || 0) + xChangeBonus) * multiplier));
+	}
 	function semenvolume(amount) {
 		if (isNaN(amount)) paramError("semenvolume", "amount", amount, "Expected a number.");
 		amount = Number(amount);
@@ -427,10 +433,10 @@ const statChange = (() => {
 			amount *= 3;
 			if (Transformations.effectiveLevel("cow") >= 6) amount *= 1.25;
 			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain === 1) amount /= 2;
-			/* Prevents those who can only have "female climax" increase their cum volume */
+			/* Prevents those who can only have natural "female climax" from increasing their cum volume. */
 			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
 
-			V.semen_volume = Math.clamp(V.semen_volume, 0, V.semen_max * V.AMCTraits.semen);
+			V.semen_volume = Math.clamp(V.semen_volume, 0, semenCapacityMax());
 		}
 	}
 	DefineMacro("semenvolume", semenvolume);
@@ -1604,6 +1610,7 @@ const statChange = (() => {
 		updateHallucinations,
 		control,
 		corruption,
+		semenCapacityMax,
 		semenvolume,
 		semenAmount,
 		milkvolume,
@@ -1665,6 +1672,7 @@ const statChange = (() => {
 	};
 })();
 window.statChange = statChange;
+window.semenCapacityMax = statChange.semenCapacityMax;
 window.getBeautyBoost = statChange.getBeautyBoost;
 window.getEffectiveBeauty = statChange.getEffectiveBeauty;
 window.getBeautyBoostSources = statChange.getBeautyBoostSources;

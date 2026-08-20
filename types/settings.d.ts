@@ -23,6 +23,8 @@ declare module "twine-sugarcube" {
 			facesitEnabled: true | false;
 			pregnancySpeechEnabled: true | false;
 			footFetishEnabled: true | false;
+			smallPenisSemenVolumeLossDisabled: true | false;
+			femaleClimaxAlways: true | false;
 			forcedCrossdressingEnabled: true | false;
 			horsesEnabled: true | false;
 			hypnosisEnabled: true | false;
