@@ -234,7 +234,7 @@ function buildGrayXChangePills() {
 			name: "X-Change Bimbo",
 			subtype: "gray bimbo",
 			description:
-				"A colourless capsule carrying the Bimbo agent: dulled wits and a swollen, eye-catching figure. (The same compound marketed as 'Himbo' for masculine bodies.)",
+				"A colourless capsule carrying the Bimbo agent: dulled wits, reduced stress gain, and a swollen, eye-catching figure. (The same compound marketed as 'Himbo' for masculine bodies.)",
 			onTakeMessage: teal(
 				"A warm, pleasant fog rolls across your mind, smoothing over sharp thoughts before you can hold onto them. Worries scatter, replaced by an airy ease that makes thinking feel optional. At the same time, your body answers the pill with softness, swelling and rounding until you feel distractingly aware of every curve."
 			),
@@ -268,7 +268,7 @@ function buildGrayXChangePills() {
 		{
 			name: "X-Change Dumb-Bitch",
 			subtype: "gray dumb-bitch",
-			description: "A colourless capsule carrying only the Dumb-Bitch agent: clouded judgement and a pliant, eager disposition.",
+			description: "A colourless capsule carrying only the Dumb-Bitch agent: clouded judgement, reduced stress gain, and a pliant, eager disposition.",
 			onTakeMessage: teal(
 				"Your thoughts stumble, then loosen, slipping out of reach before you can properly finish them. Complicated ideas feel heavy. Warnings feel distant. Bad decisions begin to sound much easier to understand."
 			),
@@ -959,7 +959,7 @@ setup.pills.push(
 
 	{
 		name: "X-Change Pink Bimbo",
-		description: "Decreases your intelligence and increases your lewdness. Comes with a built-in swell effect.",
+		description: "Decreases your intelligence and stress gain while increasing your lewdness. Comes with a built-in swell effect.",
 		onTakeMessage:
 			'<span class="teal">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as your body begins to twist and turn rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a woman\'s body.<br><br>Your new body feels smaller, lighter, and strangely sensitive to the touch.<br><br>Looking in the mirror, you also realise you look exceedingly beautiful as well.',
 		warning_label:
@@ -1830,7 +1830,7 @@ setup.pills.push(
 
 	{
 		name: "X-Change Blue Himbo",
-		description: "Decreases your intelligence and increases your lewdness. Comes with a built-in swell effect.",
+		description: "Decreases your intelligence and stress gain while increasing your lewdness. Comes with a built-in swell effect.",
 		onTakeMessage:
 			"<span class=\"teal\">You take the pill.</span><br><br>All of a sudden, you feel a heat coursing through your body, as it slowly begins to twist and turn, rearranging itself seamlessly. When the transformation is finally over, you find yourself sporting all of the kinks and perks of a man's body.<br><br>Your new body feels larger, stronger, and quite ready to dish out and receive punishment.<br><br>And upon looking in the mirror, you realise you're quite handsome as well!",
 		warning_label:

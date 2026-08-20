@@ -1125,34 +1125,6 @@
 			<</if>>
 		<</if>>
 
-		<<if _args[0] is undefined and $xchange.pill.bimboEffect>>
-			<<if $xchange.science gt $sciencetrait>>
-				<<set $sciencetrait to $xchange.science>>
-				<<school_skill_change "science" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $science_up_message = 1>>
-			<</if>>
-			<<if $xchange.math gt $mathstrait>>
-				<<set $mathstrait to $xchange.math>>
-				<<school_skill_change "maths" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $maths_up_message = 1>>
-			<</if>>
-			<<if $xchange.english gt $englishtrait>>
-				<<set $englishtrait to $xchange.english>>
-				<<school_skill_change "english" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $english_up_message = 1>>
-			<</if>>
-			<<if $xchange.history gt $historytrait>>
-				<<set $historytrait to $xchange.history>>
-				<<school_skill_change "history" 0>>
-				<<set $effectsmessage = 1>>
-				<<set $history_up_message = 1>>
-			<</if>>
-			<<unset $promiscuityIgnore>>
-		<</if>>
-
 		/* <<if $xchange_fame gte 1000>>
 			<<set _ogFame to $xchange.pill.originalBody.fame>>
 			<<set _newFame to $xchange.pill.changedBody.fame>>
@@ -1236,6 +1208,10 @@
 
 		<<set $sexStats.vagina.menstruation.running = false>>
 		<<set _xchangeRestack to playerIsXChanged()>>
+		<<if _xchangeRestack and $xchange.pill.bimboEffect>>
+			/* Replacing an active Bimbo pill must restore its temporary school-stat and promiscuity changes before the new effects are applied. */
+			<<xchange-removeeffect "bimbo">>
+		<</if>>
 
 		<<set $xchange.pill.active to true>>
 		/* A second pill taken while already transformed must not re-baseline: baseSex/baseGenitals describe the body the session started from, and clone names which body is worn.
@@ -1718,6 +1694,7 @@
 				<<set $effectsmessage = 1>>
 				<<set $history_up_message = 1>>
 			<</if>>
+			<<unset $promiscuityIgnore>>
 		<<case "cumcure">>
 			<<set $xchange.pill.cumcureEffect to false>>
 		<<case "fertility">>
@@ -2465,7 +2442,7 @@
 			<<if $xchange.pill.passionEffect>><li>Passion Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Steadily dissolves aphrodisiacs into your bloodstream at an hourly rate.</span></mouse></li><</if>>
 			<<if $xchange.pill.dumbBitchEffect>><li>Dumb Bitch Effect.
-				<mouse class="tooltip linkBlue">(?)<span>Each orgasm fries your brain a little bit each time, making you dumber and less able to resist pleasure.</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Each orgasm fries your brain a little bit each time, making you dumber and less able to resist pleasure. Diminishes stress while active.</span></mouse></li><</if>>
 			<<if $xchange.pill.portalEffect>><li>Portal Effect: <span class="teal"><<print-portalduration>></span> remaining.
 				<mouse class="tooltip linkBlue">(?)<span>Allows random NPCs to fuck you remotely, regardless of your consent.</span></mouse></li><</if>>
 			<<if $xchange.pill.clone isnot "none">><li>Clone '<<print $xchange.pill.clone>>' Effect.</li><</if>>
@@ -2477,7 +2454,7 @@
 			<<if $xchange.pill.swellEffect>><li>Swell Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $player.sex is "m" ? "breasts and ass" : "penis">> for the duration.</span></mouse></li><</if>>
 			<<if $xchange.pill.bimboEffect>><li>Bimbo Effect.
-				<mouse class="tooltip linkBlue">(?)<span>Reduces your intelligence and increases your lewdness.</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Reduces your intelligence and increases your lewdness. Diminishes stress while active.</span></mouse></li><</if>>
 			<<if $xchange.pill.cumcureEffect>><li>CumCure Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Reduces the duration of your transformation every time cum is deposited inside you.</span></mouse></li><</if>>
 			<li>Duration: 

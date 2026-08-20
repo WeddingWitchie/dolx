@@ -217,7 +217,13 @@ const statChange = (() => {
 					stressMod = 30 - drunkMod * 5;
 				}
 
-				if (!V.statFreeze && playerIsXChanged() && (V.xchange.pill.breederEffect || V.xchange.pill.omegaEffect) && playerIsBreederCreampied()) {
+				if (
+					!V.statFreeze &&
+					playerIsXChanged() &&
+					(((V.xchange.pill.breederEffect || V.xchange.pill.omegaEffect) && playerIsBreederCreampied()) ||
+						V.xchange.pill.dumbBitchEffect ||
+						V.xchange.pill.bimboEffect)
+				) {
 					stressMod *= 0.1;
 				}
 				if (V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0)) {
