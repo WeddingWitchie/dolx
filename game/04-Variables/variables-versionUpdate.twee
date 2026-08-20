@@ -2998,6 +2998,35 @@
 		<<set $objectVersion.parasitePregnancy to 1>>
 	<</if>>
 
+	<!-- X-Change: GiveBirth used to record discovered parasites into throwaway temp arrays, so
+	     parasiteTypesSeen/parasiteVariantsSeen never grew and Harper's notebook never unlocked.
+	     Rebuild both lists once from the creatures the player actually kept. -->
+	<<if !$objectVersion.parasiteSeenBackfill>>
+		<<run (() => {
+			const stats = V.pregnancyStats;
+			if (!stats) return;
+			if (!Array.isArray(stats.parasiteTypesSeen)) stats.parasiteTypesSeen = [];
+			if (!Array.isArray(stats.parasiteVariantsSeen)) stats.parasiteVariantsSeen = [];
+			if (!V.container || !Array.isArray(V.container.list)) return;
+			[...V.container.list, "portable"].forEach(location => {
+				const creatures = V.container[location]?.creatures;
+				if (!creatures) return;
+				Object.values(creatures).forEach(specimen => {
+					const name = specimen?.creature;
+					if (!name) return;
+					const parts = name.split(" ");
+					if (parts.length > 1 && parts[0] !== parts[1]) {
+						stats.parasiteVariantsSeen.pushUnique(parts[0]);
+						stats.parasiteTypesSeen.pushUnique(parts[1]);
+					} else {
+						stats.parasiteTypesSeen.pushUnique(parts[parts.length - 1]);
+					}
+				});
+			});
+		})()>>
+		<<set $objectVersion.parasiteSeenBackfill to 1>>
+	<</if>>
+
 	<!-- New wardrobe options -->
 	<<if $wardrobeDefaults is undefined>>
 		<<set $wardrobeDefaults to {
