@@ -732,8 +732,9 @@ function updateDynamicStatCaps() {
 	} else {
 		C.tiredness.max = 2000;
 	}
-	if (V.stressMaxScalingToggle && typeof currentSkillValue === "function") {
-		V.stressmax = 10000 + Math.floor(currentSkillValue("willpower", 0, 1) * 5);
+	if (V.stressMaxScalingToggle) {
+		const willpower = V.xchange?.willpowerSystemEnabled === 1 ? Math.max(0, Number(V.xchange.willpowerPoints) || 0) : currentSkillValue("willpower", 0, 1);
+		V.stressmax = 10000 + Math.floor(willpower * 5);
 	} else {
 		V.stressmax = 10000;
 	}
