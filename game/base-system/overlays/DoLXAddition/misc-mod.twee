@@ -335,3 +335,78 @@ Each sets up the gaoler context (freeze/morph), then jumps straight to that endi
 		<</if>>
 	<</if>>
 <</widget>>
+
+/* Add gender presentation meter in mirror */
+<<widget "genderAppearanceMeter">>
+	<<if Number.isFinite($player.femininity)>>
+		<<set _appearanceGender to perceivedGender()>>
+		<<set _appearanceScore to $player.femininity>>
+
+		/* Visual meter range. Scores beyond this are simply pinned to the edge. */
+		<<set _appearanceLimit to 2000>>
+
+		<<set _appearancePosition to Math.clamp(
+			((_appearanceScore + _appearanceLimit) / (_appearanceLimit * 2)) * 100,
+			0,
+			100
+		)>>
+
+		<<set _appearanceDeadzoneSize to
+			(ANDROGYNOUS_FEMININITY_DEADZONE / (_appearanceLimit * 2)) * 100
+		>>
+		<<set _appearanceDeadzoneStart to 50 - _appearanceDeadzoneSize>>
+		<<set _appearanceDeadzoneEnd to 50 + _appearanceDeadzoneSize>>
+
+		<<set _appearanceName to
+			_appearanceGender is "m"
+				? "Masculine"
+				: _appearanceGender is "f"
+					? "Feminine"
+					: "Androgynous"
+		>>
+
+		<<set _appearanceTitle to
+			"Gender appearance: " + _appearanceName
+			+ " (" + (_appearanceScore gt 0 ? "+" : "") + _appearanceScore + "). "
+			+ "Androgynous range: -" + ANDROGYNOUS_FEMININITY_DEADZONE
+			+ " to +" + ANDROGYNOUS_FEMININITY_DEADZONE + "."
+		>>
+
+		<div class="genderAppearance">
+			<div class="genderAppearanceHeader">
+				<span class="genderAppearanceLabel">Appearance</span>
+
+				<<settextcolorfromgender _appearanceGender>>
+				<span @class="'genderAppearanceValue ' + _text_color">
+					<<print _appearanceName>>
+					<span class="genderAppearanceScore">
+						(<<if _appearanceScore gt 0>>+<</if>><<print _appearanceScore>>)
+					</span>
+				</span>
+			</div>
+
+			<div
+				class="genderAppearanceBar"
+				@title="_appearanceTitle"
+				@style="'background: linear-gradient(to right, '
+					+ 'var(--lblue) 0%, '
+					+ 'var(--lblue) ' + _appearanceDeadzoneStart + '%, '
+					+ 'var(--purple) ' + _appearanceDeadzoneStart + '%, '
+					+ 'var(--purple) ' + _appearanceDeadzoneEnd + '%, '
+					+ 'var(--pink) ' + _appearanceDeadzoneEnd + '%, '
+					+ 'var(--pink) 100%);'"
+			>
+				<div
+					class="genderAppearancePin"
+					@style="'left:' + _appearancePosition + '%;'"
+				></div>
+			</div>
+
+			<div class="genderAppearanceScale">
+				<span>Masculine</span>
+				<span>Androgynous</span>
+				<span>Feminine</span>
+			</div>
+		</div>
+	<</if>>
+<</widget>>
