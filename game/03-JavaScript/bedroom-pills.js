@@ -690,7 +690,8 @@ setup.pills = [
 				? "You take the pills Doctor Harper prescribed. You feel dizzy, but calmer."
 				: "You take the pills Doctor Harper prescribed. You feel dizzy.";
 		},
-		warning_label: "Warning: The effects of the maximum dosage have not been fully studied. Take with caution. <span class='hpi_blur'></span>",
+		warning_label:
+			"Warning: Intended for one dose per day. Daily use reduces awareness and may gradually distort your perception. The effects of the maximum dosage have not been fully studied. Take with caution. <span class='hpi_blur'></span>",
 		get indicators() {
 			const base = ["<span class='hpi_indic_green'>+ Control</span>", "<span class='hpi_indic_blue'>- Awareness</span>"];
 			if (V.prescriptions?.antidepressant) {
@@ -934,7 +935,7 @@ function initPillContextButtons(item) {
 	}
 
 	// Hide auto-use for medication that must be taken manually.
-	if (["asylum", "harper", "painkiller", "calmoryl", "sensitivity", "sleep"].includes(item.type)) {
+	if (["asylum", "painkiller", "calmoryl", "sensitivity", "sleep", "xchange"].includes(item.type)) {
 		document.getElementById("hpi_take_every_morning").className = "hidden"; // prevent 'Take every Morning' option to be displayed for those type of pills
 		document.getElementById("hpi_desc_action").classList.add("hpi_action_single"); // readapt css since there's only one button now
 	}
@@ -1221,10 +1222,32 @@ function takeCalmoryl() {
 }
 window.takeCalmoryl = takeCalmoryl;
 
-function autoTakeDailyPills() {
-	if (!setup?.pills || !V.sexStats?.pills?.pills) return;
+function canAutoTakeDailyPills() {
+	if (V.statFreeze || V.molestationstart === 1 || V.combat) return false;
 
-	const categories = ["bottom", "breast", "penis", "pregnancy", "parasite", "hair", "xchange"];
+	const badEnds = V.badEndStats;
+	const latestBadEnd = Array.isArray(badEnds) && badEnds.length ? badEnds[badEnds.length - 1] : null;
+	if (latestBadEnd && !latestBadEnd.trackedEnd) return false;
+	if (
+		["island", "pirate_ship"].includes(V.location) ||
+		(V.location === "cabin" && V.syndromeeden >= 1) ||
+		((V.waterdragonJourneyDay || 0) !== 0 && ["sea", "seabeach"].includes(V.location))
+	)
+		return false;
+
+	return (
+		["home", "alex_cottage", "asylum", "prison"].includes(V.location) ||
+		(V.location === "temple" && V.wardrobes?.temple?.unlocked) ||
+		(V.location === "avery_mansion" && !["fallen", "kicked"].includes(V.avery_fate)) ||
+		(V.location === "flats" && V.bus === "poppy_bedroom")
+	);
+}
+window.canAutoTakeDailyPills = canAutoTakeDailyPills;
+
+function autoTakeDailyPills() {
+	if (!setup?.pills || !V.sexStats?.pills?.pills || !canAutoTakeDailyPills()) return;
+
+	const categories = ["bottom", "breast", "penis", "pregnancy", "parasite", "hair", "harper"];
 
 	for (const category of categories) {
 		let chosen = null;
@@ -1242,16 +1265,21 @@ function autoTakeDailyPills() {
 		if (typeof chosen.take_condition === "function" && chosen.take_condition() !== 1) continue;
 
 		if (typeof chosen.owned === "function" && chosen.owned() <= 0) {
-			V.pillsTakenLast = 1;
+			V.sexStats.pills.pills[chosen.name].autoTake = false;
 			continue;
 		}
 
-		onTakeClickSilent(chosen.name);
+		if (onTakeClickSilent(chosen.name) && chosen.owned() <= 0) {
+			V.sexStats.pills.pills[chosen.name].autoTake = false;
+			V.pillsTakenLast = 1;
+		}
 	}
 }
 window.autoTakeDailyPills = autoTakeDailyPills;
 
 function onAutoTakeClick(itemName, itemType) {
+	if (itemType === "xchange") return;
+
 	for (const item in setup.pills) {
 		if (setup.pills[item].name === itemName) {
 			V.sexStats.pills["pills"][itemName].autoTake = !V.sexStats.pills["pills"][itemName].autoTake; // toggle auto take
@@ -1429,6 +1457,8 @@ function pillsObjectRepair(oPills, pills) {
 
 function determineAutoTakePill(category) {
 	T.autoTakeDetermined = null;
+	if (category === "xchange") return;
+
 	for (const pill of setup.pills) {
 		if (pill.type === category && pill.autoTake() === true) {
 			T.autoTakeDetermined = pill.name;
@@ -1454,7 +1484,6 @@ function resetAllDoseTaken() {
 				break;
 		}
 	}
-	autoTakeDailyPills();
 }
 window.resetAllDoseTaken = resetAllDoseTaken;
 

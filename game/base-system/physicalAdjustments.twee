@@ -634,7 +634,9 @@
 		<<set _pills.lastTaken to _pills.lastTaken || {}>>
 		<<set _pills.mostTaken to _pills.mostTaken || {}>>
 
-		<<if $molestationstart isnot 1 and $combat is 0 and (["home", "alex_cottage", "asylum", "prison"].includes($location) or ($location is "cabin" and $syndromeeden gte 1) or ($location is "temple" and V.wardrobes.temple.unlocked) or ($location is "pirate_ship" and V.wardrobes.pirate.unlocked) or ($location is "avery_mansion" and $avery_fate isnot "fallen" and $avery_fate isnot "kicked"))>> <!-- Eden Syndrome is 0 or 1, but could be higher in the future. -->
+		<<if canAutoTakeDailyPills()>>
+			/* Handles newer pill categories such as Harper's prescription; doseTaken prevents the legacy loop below from taking them twice. */
+			<<run autoTakeDailyPills()>>
 			<<set _keys to Object.keys(_pills.lastTaken)>> /* "lastTaken" is only used here to retrieve the pill type list. */
 			<<for _i, _key range _keys>>
 				<<run determineAutoTakePill(_key)>>
