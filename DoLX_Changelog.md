@@ -15,132 +15,284 @@
 
 ## Changes and Additions
 
-- **Added feat for 50 days being enby**
+- **Merged Reiyu's RBE v0.6.0**
 
-  - Added a feat for remaining non-binary for 50 days.
+  - Merged, audited, and bug-fixed by D.N.A.
 
-- **Updated Gwylan labour help**
+- **Reworked Autism Spectrum trait**
 
-  - Added the returning-player dialogue option that appears only after a previous Gwylan-assisted birth.
+  - Replaced the old Gifted/Burnout cycle with capacity, load, recovery, and meltdown mechanics.
+  - Fixations now last 3–5 days and help recovery without being the only recovery method.
+  - Added Harper consultation, documentation, weekly appointments, and new Kylar interactions.
+  - Existing saves are converted automatically.
 
-- **Improved the Water Dragon lab**
+- **Expanded the hospital pharmacy**
 
-  - Chastity devices are now removed safely during confinement and returned afterwards.
-  - Added block reminders, waiting, lateness warnings, and orderly wake-ups.
-  - Added a Skulduggery escape route and rebalanced the Athletics chase.
-  - Harper now remembers previous Project Pelagos escapes.
+  - Added over-the-counter sleeping pills and anti-anxiety tablets.
+  - Harper can prescribe stronger sleeping pills, painkillers, and antidepressants for free (if your condition worse).
+  - Prescriptions provide 10 doses, expire after one week, and include overdose handling.
+  - Daily pill use now supports Harper prescriptions.
 
-- **Protected saves from being wiped on mobile**
+- **Expanded Gender Identity**
 
-  Android and mobile browsers can sometimes clear the game's stored saves automatically, especially when storage is low. Previously, this could make your save list suddenly appear empty with no explanation.
+  - Added makeup/bare-face preferences and related dysphoria.
+  - Added makeup interactions during non-consensual encounters.
+  - Added audience dysphoria based on how groups perceive your gender.
+  - Added a mirror meter showing your exact Masculine, Androgynous, or Feminine presentation score.
+  - Added an option to clear preferred penis size without disabling genital preferences.
 
-  The game now keeps a separate record of your saves and a backup of your most recent save. If the save database is cleared, the saves menu will warn you, show what was lost and when it was last seen, and let you restore the backup.
+- **Added X-Change monster-person combat pill setting**
 
-  The saves menu also shows whether persistent storage is enabled and lets you request it, which helps protect saves from being automatically cleared.
+  - Monster people can carry combat pills independently of ordinary beasts.
+  - Mixed encounters now check pill access per enemy.
 
-  Clearing all browser or site data will still remove both your saves and the backup. Exporting your save to a file remains the safest independent backup.
+- **Added Gentleman's Club reward scaling**
 
-- **Added Autism Spectrum starting trait**
+  - Added a Rebalance slider for blackmail quest rewards.
 
-  A new background option is available during character creation.
+- **Added new minimaps**
 
-  Your focus alternates between two phases:
+  - Added maps for Serpent's Maze, Landfill, and the tentacle hookah parlour.
+  - Unlocking all minimaps now requires History grade A.
 
-  - **Gifted:** Lasts 25–30 days. School grades improve 25% faster, and all stat gains are increased by 5%.
-  - **Burnout:** Lasts 14–18 days. These bonuses are disabled, and studying causes extra Stress.
+- **Expanded Avery's mansion**
 
-  The length of each phase is randomised every time, so the cycle does not always change on the same day.
+  - Added a private bar and gym, unlocked after Avery's later progression.
 
-  Each day, you also gain a random **fixation** on something you can train. Gains for that activity are doubled, and practising it reduces Stress. Repeatedly practising other activities without taking a break gradually causes more Stress and makes it harder to focus. Resting for a few hours resets this.
+- **Added dance studio storage**
 
-  Practice includes lessons, studying, swimming, dancing, tending, housekeeping, and training at places such as the gym, pool, dance studio, school, and temple. Travelling around town does not count, and long events are not treated as hours of practice just because they happen to raise a stat.
+  - Charlie's changing room now has a locker for storing clothes and shoes.
 
-  Fixations only choose activities currently available to you. Advanced combat skills require their related settings to be enabled, and swimming is less likely to be chosen during winter.
+- **Added new body-size feats**
 
-  The trait also affects social and sensory awareness. Relationship percentages may appear up to 5 points higher or lower than their real value, including the displayed bar, making it harder to know exactly where you stand. Heat and liquids touching your skin also cause discomfort more quickly.
+  - **Chiwawa Ferocity:** miniature, maximum physique and defiance.
+  - **Is That a Doll?:** miniature, maximum beauty and submission.
+  - **Mountain Mover:** giant, maximum physique and defiance.
+  - **Gentle Giant:** giant, maximum beauty and submission.
 
-  The trait can be enabled or disabled from the cheat menu. Existing saves will not use it unless you turn it on.
+- **Added more fetish settings**
 
-- **Added Dragon Tongue trait to Water Dragon**
+  - Added separate options for preventing Micro/Mini penis semen-volume loss and allowing female-style orgasms at any penis size.
+  - Bull and Alpha pills now each add 1,500 mL maximum semen volume, up to the 14,000 mL cap.
+
+- **Added arousal audio controls**
+
+  - Arousal moans outside combat can now be lowered or muted.
 
 ## Tweaks and Rebalancing
 
-- **Herm school rumours now fade if you lose the parts**
+- **Updated Whitney**
 
-  The school rumour about "a student with both boy and girl parts" will now fade if your body no longer has both. How much of the rumour remains depends on your X-Change fame:
+  - Transfem PCs can progress from panties to Whitney's skirt rule without requiring a small penis or chastity cage.
+  - Updated Whitney's dom icon.
+  - Fixed Whitney teleporting from the gym to the park.
 
-  - Under 100 X-Change fame: rumour is completely removed.
-  - 101–200: loses 3 levels.
-  - 201–300: loses 2 levels.
-  - 301–499: loses 1 level.
-  - 500+: no levels are lost.
+- **Updated Avery**
 
-  Changing from one herm body to another does not reduce the rumour, and regaining the missing parts restores it without penalty. The Effects panel will now tell you when the rumour fades. Existing saves keep their current rumour level until your body changes.
+  - Pill decisions now use gender presentation, falling back to body sex when androgynous.
+  - Corrected mansion pill chances, spare Choice pill handling, pill reminders, and gender-identity responses.
+  - Fixed the second street meeting incorrectly using the park statue ending.
+  - Avery only reacts angrily to actually using **Give Up**, rather than normal encounter endings.
+  - Fixed Avery bathing while fully dressed.
+  - Fixed consensual sex incorrectly using the `<<tearfull>>` macro.
 
-- **Lustful now increases Seduction gains by 15%**
+- **Updated Robin**
 
-- **Updated Elk Scar trait**
+  - Crossdressing outfits now use Robin's original sex while a genderflip pill is active.
+  - Fixed related Canteen, Gwylan beach, and orphanage outfit checks.
+  - Halloween text now follows Robin's current gender.
+  - Expanded Robin's responses to the player's gender identity, including nonbinary follow-up dialogue and pill discussions.
 
-  - Now protects against decay for any animal transformation, similar to the Familiar Collar.
+- **Updated Gwylan**
+
+  - Fixed narration in the Strong Wings quest.
+  - Updated hypnosis and English-play text.
+  - X-Change pills can now be given during an encounter.
+  - Improved forest-shop hiding and unseen-target narration.
+
+- **Updated childbirth and Water Dragon content**
+
+  - Fixed Alex childbirth dialogue crashes and synchronised labour conditions, triggers, and stat checks.
+  - Repaired missing labour countdowns in affected saves.
+  - Legacy vaginal and anal pregnancies can now be delivered safely one at a time.
+  - Added safe restrained-birth fallback text for Water Dragon pregnancies.
+  - Tidied Water Dragon egg-laying scenes.
+
+- **Updated chastity**
+
+  - X-Change reshaped cages and belts now use their current form for gender, ejaculation, clothing, and display checks.
+  - Temple refusals now use public reputation instead of private preferences.
+  - Police refusals only apply while actively wanted.
+  - Forced chastity no longer causes frustration for Pure, Angelic, or Innocent characters.
+  - Fixed refusal sequences trapping or leaving the player undressed.
+
+- **Updated Bimbo and Dumb Bitch**
+
+  - Both now provide 90% Stress resistance, matching Satisfied Breeder.
+  - Fixed Bimbo cleanup and promiscuity-state leaks.
+  - Bimbo now reliably applies its Swell changes, including on older saves.
+  - Swell and other pill effects now end cleanly when they expire.
+
+- **Updated X-Change pill behaviour**
+
+  - Pills are disabled in flashbacks, memories, visions, and dreams where they should not exist.
+  - Raul remains pillable in the Janet daydream with unique acknowledgement.
+  - Reversing permanent Choice pills now fully clears permanent effects.
+  - Transformation pills now clear active genital interactions before changing the body.
+  - Named-character pill text has been cleaned up.
+  - Daily pills no longer trigger during soft bad ends.
+
+- **Updated body changes**
+
+  - Gender Identity-driven body changes now progress normally instead of reversing the next day.
+  - Growth and shrinkage stop at the intended 30%/70% thresholds.
+  - Fixed clothing dysphoria checks.
+  - Giant PCs can no longer perform under-table oral on Whitney, Bailey, or Alex.
+
+- **Updated Stress Max Scaling**
+
+  - With the X-Change willpower system enabled, maximum Stress now scales from current willpower points.
+  - Otherwise it uses the normal old Rebalance calculation.
+
+- **Updated school progression**
+
+  - Subject advancement now requires 50% progress, or 25% after successful cheating.
+  - Science rank-up messages now correctly describe Tending bonuses.
+  - School trait descriptions and History grades have been corrected.
+
+- **Updated tentacle encounters**
+
+  - Leg restraints are now identified separately.
+  - Targeting is clearer, including warnings before mouth-tentacle penetration.
+
+- **Updated Great Hawk tower**
+
+  - A fully upgraded nest bed now matches high-quality bed fatigue recovery for a full harpy partnered with Great Hawk.
+
+- **Updated bathing**
+
+  - Full baths and washes now clean the face, hands, and intimate areas as well as the body.
+
+- **Updated Kylar stalking**
+
+  - Successful stalk events now have a five-hour cooldown.
+
+- **Updated Banish**
+
+  - Halos grant 1 Banish use and angel wings grant 5.
+  - Progression forms and chimera variants remain unchanged.
 
 ## Fixes and Improvements
 
-- **Gwylan fixes**
+- **Fixed pronoun and character-reference errors**
 
-  - Fixed a crash in the forest shop clothing menu caused by the kaiju costume icon.
-  - Gwylan now only takes your ingredients after you finish handing them over, so leaving early will no longer make you lose them.
+  - Fixed Mother Goose's pronouns, honorifics, and family terms in Bleeding Ward.
+  - Fixed the islander's pronoun after refusing to play along.
+  - Fixed pronouns becoming mixed between multiple characters or carrying over between scenes.
+  - Fixed related NPC dialogue crashes and Water Dragon lab references.
 
-- **Fixed player pronouns**
+- **Fixed NNPC and scene-state leaks**
 
-  Strangers now judge your gender by your appearance instead of your pronouns. If an NPC does not know you, they will refer to you based on the body they see, including after being changed by X-Change pills.
+  - Random NPCs no longer inherit names, dialogue, sex text, or identities from previous named characters.
+  - Robin and Leighton now use their intended sex-scene text.
+  - Old positions, conversation targets, and other encounter data are cleared properly when leaving scenes.
 
-  NPCs who know your identity or are close to you will still use your chosen pronouns, and narration is unchanged.
+- **Fixed temporary-scene stat and body leaks**
 
-  Misgendering Stress has also been adjusted. Each remark now counts only once instead of adding Stress for every gendered word in the same sentence.
+  - Historical events, Hopeless Cycle, and the Janet imagination scene now use their intended temporary body, inventory, outfit, and mechanics.
+  - Janet's daydream now restores body and virginity changes even after unusual exits.
+  - Added a missing Drama-scene fallback to prevent a softlock.
 
-- **Fixed World Rewrite gender override**
+- **Fixed X-Change hairstyles**
 
-  - World Rewrite now fully respects **Male Only** and **Female Only** modes for sidebar sprites, generated NPCs, couples, beasts, named NPCs, and gendered dialogue.
-  - Existing beasts in older saves are also updated when the override is enabled.
-  - Sidebar sprite customisations, such as slot, layer, and skin changes, are now kept after turning the override off.
-  - Fixed the **Others** sidebar sprite not appearing.
+  - Each body now remembers its own hair position and styling.
+  - Sleeping transformations restore the original hairstyle immediately.
+  - Clone bodies no longer leak hair-gel state.
+  - Removed duplicate body-restoration code.
 
-- **Fixed the Clutching Bones quest**
+- **Fixed beast and monster-person displays**
 
-  If you started Landry's deal through Skulduggery, left the pub before receiving the fake stones, or moved in with Avery, the game could lose track of the quest. This could remove the journal reminder and make Landry or the brown fox act as if you had not progressed.
+  - Corrected Great Hawk, Black Wolf, and Night Monster gender sprites.
+  - Fixed the Ivory Wraith and Night Monster Vanilla graphics.
+  - Dragon Eyes no longer overrides the **always replace beasts** monster-person setting.
 
-  The quest now updates when you actually receive the fake stones, is no longer reset by moving in with Avery, and affected saves will repair themselves when loaded.
+- **Fixed bullet vibe behaviour**
 
-- **Fixed sensitivity messages**
+  - Corrected missing remotes, blank power states, pass-out theft messages, library power reduction, and consensual library endings.
+  - Remote ownership messages now correctly describe who has it and whether the vibrator can still be removed.
 
-  - Sensitivity messages now correctly check what you are currently wearing, so they no longer mention removed clothes or awkward lines such as "rubbing against your naked."
-  - Nipple, penis, and clit sensitivity now use consistent **sensitive/tender** wording.
-  - Sensitivity-increasing cream is properly removed from your save once its effect wears off.
+- **Fixed encounter endings**
 
-- **Fixed Mate for Life feat** where the feat would not unlock when its requirements were met.
+  - Intentional defeats now apply the correct Stress and Pain changes.
+  - Normal endings no longer count as giving up.
+  - Fixed related encounter loops and punishment handling.
 
-- **Fixed Avery bathing with full clothes**
+- **Fixed Mate for Life**
 
-- **Fixed bullet vibe turning on automatically**
+  - The buff now triggers correctly when sleeping with Avery or Poppy.
 
-  Vibrator changes are now copied to the save state immediately, so saving straight after changing the vibrator will keep the correct **On/Off** and power settings.
+- **Fixed parasite systems**
 
-- **Fixed Robin appearing in the Dragon nest**
+  - Parasite births now correctly unlock notebook discoveries and Harper's advice.
+  - Existing saves rebuild discoveries from parasites still in tanks.
+  - Parasite pregnancy no longer counts as a normal pregnancy or applies full pregnancy penalties.
 
-- **Fixed intentional-loss outcomes**
+- **Fixed popup doll sprites**
 
-  Giving up now reliably leads to the appropriate defeat or punishment outcome and no longer causes encounters to loop or stall.
+  - Popup sprites now use clean whole-number scaling and improved positioning.
+  - Body and lighting layers remain aligned, including under browser zoom.
+  - Sidebar sprites are unchanged.
 
-- **Fixed Insanity settings and daily recovery**
+- **Fixed Updated UI switching and performance**
 
-  Naturally gained Insanity now progresses and recovers through daily checks.
+  - Sidebar and menu backgrounds are no longer unnecessarily redrawn every passage.
+  - Switching between Updated and Plain UI no longer reloads the current passage or alters gameplay state.
 
-  Turning off permanent natural Insanity allows it and its Dissociation to fade once Trauma recovers, while Insanity chosen during character creation remains permanently active.
+- **Fixed school pool party**
 
-  Full Dissociation continues to work with both versions, and related descriptions now match the gameplay.
+  - The guard now displays the inflation-adjusted price.
+  - Fully naked swimming now counts for the relevant blackmail task.
 
-## Cleanup and Credits
+- **Fixed Equine Rescue**
 
-- **Updated credits**
+  - Missing farmhands are restored automatically so the Livestock Field Gang encounter no longer produces missing-NPC errors.
 
-  - Changed **Mocha** to **DepressoMocha** in DECOMOD credits to avoid confusion with another Mocha (Mozumelody).
+- **Fixed NPC strap-on descriptions**
+
+  - Removed duplicated wording such as “strap-on strap-on.”
+
+- **Fixed sidebar clothing warnings**
+
+  - Missing lower-body coverage now clearly tells the player to equip suitable clothing before normal public interactions become available.
+
+- **Fixed assorted gameplay issues**
+
+  - GooseFem body and head.
+  - Anal straddling.
+  - Kaiju flyer job.
+  - Wardrobe errors when loading saves.
+  - Bike **Get off your bike**.
+  - Pillory photo crash.
+  - Missing health multipliers in affected encounters.
+  - Bontique incorrectly always closing.
+  - Temple vigil washing.
+  - Golden necklace and asylum/Avery mansion wardrobe issues.
+  - Various typo and audit fixes.
+
+## Art and Graphics
+
+- **Added art by Sam Storiez**
+
+  - GooseFem Elegant Gown Short.
+  - GooseFem Demon Chimera variants for cat and wolf.
+  - Vanilla Melusine full default set.
+
+- **Updated fox graphics**
+
+  - Restored the original fox graphic as the default.
+  - The newer graphic is now used for floppy ears and fluffy tail variants.
+  - Added a GooseFem variant by Froggy.
+
+- **Updated Mikili**
+
+  - Updates by Klootzak, corb_29, 酒肆, Yuyuyu, and 柠檬炖咸鱼.
