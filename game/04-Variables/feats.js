@@ -2456,6 +2456,42 @@ setup.feats = {
 		softLockable: true,
 		hint: "Hint: Max physique with large body and tempered physique.",
 	},
+	"Chiwawa Ferocity": {
+		title: "Chiwawa Ferocity",
+		desc: "Your miniature frame holds unmatched strength and spirit.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "AMC Traits"],
+		softLockable: true,
+		hint: "Hint: Max physique and defiance with a miniature body.",
+	},
+	"Is That a Doll?": {
+		title: "Is That a Doll?",
+		desc: "Your miniature beauty is matched only by your obedience.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "AMC Traits"],
+		softLockable: true,
+		hint: "Hint: Max beauty and submission with a miniature body.",
+	},
+	"Mountain Mover": {
+		title: "Mountain Mover",
+		desc: "Your towering strength is backed by an indomitable spirit.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "AMC Traits"],
+		softLockable: true,
+		hint: "Hint: Max physique and defiance with a giant body.",
+	},
+	"Gentle Giant": {
+		title: "Gentle Giant",
+		desc: "Your towering beauty is matched only by your obedience.",
+		difficulty: 4,
+		series: "",
+		filter: ["All", "AMC Traits"],
+		softLockable: true,
+		hint: "Hint: Max beauty and submission with a giant body.",
+	},
 	"Immovable Object": {
 		title: "Immovable Object",
 		desc: "Nobody will be able to manipulate your mind again.",
@@ -3394,6 +3430,10 @@ function earnHourlyFeats() {
 	if (V.earSlime.corruption >= 100 && V.earSlime.growth >= 200) earnFeat("Ear Slime Amalgam");
 
 	if (V.physique >= 30000) earnFeat("Unstoppable Force");
+	if (V.bodysize === -1 && V.physique >= V.physiquesize * V.AMCTraits.physique && V.submissive <= 0) earnFeat("Chiwawa Ferocity");
+	if (V.bodysize === -1 && V.beauty >= V.beautymax * V.AMCTraits.beauty && V.submissive >= 2000) earnFeat("Is That a Doll?");
+	if (V.bodysize === 4 && V.physique >= V.physiquesize * V.AMCTraits.physique && V.submissive <= 0) earnFeat("Mountain Mover");
+	if (V.bodysize === 4 && V.beauty >= V.beautymax * V.AMCTraits.beauty && V.submissive >= 2000) earnFeat("Gentle Giant");
 	if (V.willpower >= 2000) earnFeat("Immovable Object");
 	if (V.skulduggery >= 2000) earnFeat("Agent 47");
 	if (V.danceskill >= 2000) earnFeat("Can't Touch This");
