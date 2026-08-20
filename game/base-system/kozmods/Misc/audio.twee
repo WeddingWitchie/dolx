@@ -313,6 +313,7 @@
 	<</if>>
 	/* Resolve the player's current voice (sex + posture + herm + per-category config) */
 	<<set _vs to playerVoiceSettings()>>
+	<<set _bgvVolume to $options.voice_volume * (_args[2] ?? 1)>>
 
 	/* Build the full (prefixed) playlist name up front so the change-detection below compares like with like.
 	The old code compared the unprefixed _args[0] (e.g. "moan") against the prefixed tracker (e.g. "v1_moan"), which never matched, so the BGV restarted on every passage.
@@ -343,8 +344,11 @@
 		/* Start playing the current BGV playlist */
 		<<set setup.bgvCurrentPlaylist to _bgvTarget>>
 		<<init-playlist setup.bgvCurrentPlaylist>>
-		<<playlist setup.bgvCurrentPlaylist volume $options.voice_volume>>
+		<<playlist setup.bgvCurrentPlaylist volume _bgvVolume>>
 		<<playlist setup.bgvCurrentPlaylist play loop shuffle>>
+	<<elseif _args[0] isnot "stop" and _bgvTarget is setup.bgvCurrentPlaylist and _args[2] isnot undefined and SimpleAudio.lists.has(setup.bgvCurrentPlaylist)>>
+		/* Refresh a live arousal loop when its separate non-combat volume slider changes. */
+		<<playlist setup.bgvCurrentPlaylist volume _bgvVolume>>
 	<</if>>	
 <</widget>>
 
@@ -356,6 +360,8 @@
 		<</if>>
 		<<set $voiceoverActiveSince to Date.now()>>
 		<<set $voiceoverActive to "t">>
+		/* Capture encounter state before the delay so an outside-combat moan cannot inherit combat volume if an encounter starts while it waits to play. */
+		<<set _voiceVolumeMultiplier to $combat is 1 ? 1 : ($options.nonCombatMoanVolume ?? 1)>>
 
 		<<timed 3000ms>>
 			/* Play the voiceover (dedupe) */
@@ -370,7 +376,7 @@
 				<<set $lastPlayerVoiceoverOrgasmcurrent to $orgasmcurrent>>
 				<<set _VOList to _args[0]>>
 				<<set _clip to _VOList[random(0,_VOList.length-1)]>>
-				<<audio _clip play volume $options.voice_volume>>
+				<<audio _clip play volume `$options.voice_volume * _voiceVolumeMultiplier`>>
 			<</if>>
 			
 			<<if $fingersInVagina gte 1 and setup.bgsCurrentPlaylist isnot "none">>
@@ -499,28 +505,29 @@
 	<<set _penisRubbingLocal to ["otherhand", "othermouth", "tentacle"]>>
 	<<set _rubbingLocal to ["otherhand", "othermouth", "othervagina"]>>
 	<<set _beingRubbedLocal to _rubbingLocal.includes($vaginastate) or _rubbingLocal.includes($anusstate) or _penisRubbingLocal.includes($penisstate) or $fingersInVagina gte 1>>
+	<<set _arousalVoiceVolume to $combat is 1 ? 1 : ($options.nonCombatMoanVolume ?? 1)>>
 
 	<<if playerVoiceIsFemale()>>
 		<<if $pleasure gte $pleasuremax * 0.8 and _beingRubbedLocal>>
-			<<bgv "breath_fast" _args[0]>>
+			<<bgv "breath_fast" _args[0] _arousalVoiceVolume>>
 		<<elseif $pleasure gte $pleasuremax * 0.6 or $orgasmcurrent gte 1>>
-			<<bgv "breath" _args[0]>>
+			<<bgv "breath" _args[0] _arousalVoiceVolume>>
 		<<elseif $pleasure gte $pleasuremax * 0.4>>
-			<<bgv "breath_slow" _args[0]>>
+			<<bgv "breath_slow" _args[0] _arousalVoiceVolume>>
 		<<elseif $pleasure gte $pleasuremax * 0.2>>
-			<<bgv "breath_vslow" _args[0]>>
+			<<bgv "breath_vslow" _args[0] _arousalVoiceVolume>>
 		<<else>>
 			<<bgv "stop">>
 		<</if>>
 	<<elseif playerVoiceIsMale()>>
 		<<if $pleasure gte $pleasuremax * 0.8>>
-			<<bgv "m_breath_fast" _args[0]>>
+			<<bgv "m_breath_fast" _args[0] _arousalVoiceVolume>>
 		<<elseif $pleasure gte $pleasuremax * 0.6 or $orgasmcurrent gte 1>>
-			<<bgv "m_breath" _args[0]>>
+			<<bgv "m_breath" _args[0] _arousalVoiceVolume>>
 		<<elseif $pleasure gte $pleasuremax * 0.4>>
-			<<bgv "m_breath_slow" _args[0]>>
+			<<bgv "m_breath_slow" _args[0] _arousalVoiceVolume>>
 		<<elseif $pleasure gte $pleasuremax * 0.2>>
-			<<bgv "m_breath_vslow" _args[0]>>
+			<<bgv "m_breath_vslow" _args[0] _arousalVoiceVolume>>
 		<<else>>
 			<<bgv "stop">>
 		<</if>>	
