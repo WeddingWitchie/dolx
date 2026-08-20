@@ -361,6 +361,7 @@
 		<<set _traumaMod = _args[2] || 1>>
 		<<set _painMod = _args[3] || 1>>
 		<!-- args[4] - indicates NPC id (but is currently unused) -->
+		<<set _arousalMod = _args[5] !== undefined ? _args[5] : 1>>
 
 		<<if $combatExtended.blockingActive gte 1 and _violence gt 0>>
 			<<set _blockReduction to Math.clamp((0.25 + 0.15 * (currentSkillValue('physique') / 15000)) * $combatExtended.blockingActive, 0, 0.9)>>
@@ -414,7 +415,7 @@
 			<<combattrauma `_violence * _traumaMod`>>
 			/* Pain applies physique and masochism resistance. Do not apply either twice here. */
 			<<pain `(_violence / _possessMod / _clothesMod)` _painMod>>
-			<<set _arousal to (_violence * (0 + ($masochism / 18)))>>
+			<<set _arousal to (_violence * _arousalMod * (0 + ($masochism / 18)))>>
 			<<arousal `_arousal/_possessMod` "maso">>
 			<<if $orgasmdown gte 1>>
 				<<if $masochism gte 800>>
