@@ -30,18 +30,42 @@
         <<set _hand to _args[0]>>
         <<set _rng to random(1, 100)>>
         <<set _assholeIsExposed to $worn.under_lower.type.includes("naked")>>
+        /* Beast-type assailants have no clothes to pocket a pill in, and only monster people can talk. */
+        <<set _pillNoPockets to ($enemytype is "beast")>>
+        <<set _pillNoSpeech to (_pillNoPockets and $NPCList[_n]?.monster isnot "monster")>>
 
         <<if $playerWasSpikedInEncounter>>
-            <span class="blue">Seeing as you've already been pilled, <<he>> pockets <<his>> own pill since it's no longer necessary.</span>
+            <<if _pillNoPockets>>
+                <span class="blue">Seeing as you've already been pilled, <<he>> lets <<his>> own pill drop to the ground since it's no longer necessary.</span>
+            <<else>>
+                <span class="blue">Seeing as you've already been pilled, <<he>> pockets <<his>> own pill since it's no longer necessary.</span>
+            <</if>>
             <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
         <<elseif _rng gte 96>>
-            <span class="blue"><<He>> changes <<his>> mind and pockets the pill once again.</span>
+            <<if _pillNoPockets>>
+                <span class="blue"><<He>> changes <<his>> mind and lets the pill fall.</span>
+            <<else>>
+                <span class="blue"><<He>> changes <<his>> mind and pockets the pill once again.</span>
+            <</if>>
             <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
         <<elseif $worn.face.type.includes("face_covering") or $worn.face.type.includes("gag")>>
-            <<He>> sees your $worn.face.name. "That thing is in the way. Take it off," <<he>> tugs at it with force. <<if $worn.face.integrity - 10 lte 0>><span class="purple">It gives way with a tear.</span><</if>>
+            <<if _pillNoSpeech>>
+                <<He>> paws at your $worn.face.name, trying to drag it out of the way. <<if $worn.face.integrity - 10 lte 0>><span class="purple">It gives way with a tear.</span><</if>>
+            <<else>>
+                <<He>> sees your $worn.face.name. "That thing is in the way. Take it off," <<he>> tugs at it with force. <<if $worn.face.integrity - 10 lte 0>><span class="purple">It gives way with a tear.</span><</if>>
+            <</if>>
             <<damageFaceCover 10>>
         <<elseif $mouthuse is 0>>
             <<if $rng gte 33>>
+                <<if _pillNoSpeech>>
+                <span class="purple">
+                    <<= either(
+                        `<<He>> holds the pill against your lips, but they stay shut.`,
+                        `<<He>> tries to push the pill into your mouth. You keep it closed.`,
+                        `<<He>> presses the pill to your face, waiting for you to open up.`
+                    )>>
+                </span>
+                <<else>>
                 <span class="purple">
                     <<= either(
                         `<<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."`,
@@ -54,6 +78,7 @@
                         `<<He>> presses the pill to your mouth and sneers. "Quit clenching up. You'll swallow it sooner or later, and then we'll see what kind of little toy it turns you into."`
                     )>>
                 </span>
+                <</if>>
             <<else>>
                 /* forced pilling */
                 <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
@@ -75,15 +100,24 @@
                 <</if>>
                 <<if $NPCList[_n] is _npc>>
                     <<if $rng gte 66>>
-                        <span class="purple">
-                            <<= either(
-                                `<<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."`,
-                                `<<He>> tries to force the pill into your mounth, but your lips are sealed shut.`,
-                                `<<He>> forces the pill into your mouth. but you spit it out. "Stop making this difficult, you <<bitch>>!"`,
-                                `<<He>> fiddles around with the pill in <<his>> hand. "They say <<girls>> like you turn into sluts after taking these."`,
-                                `<<He>> holds the pill against your lips, trying to coax them to open. "Come on... You'll feel real good. I promise.`
-                            )>>
-                        </span>
+                        <<if _pillNoSpeech>>
+                            <span class="purple">
+                                <<= either(
+                                    `<<He>> holds the pill against your lips, but they stay shut.`,
+                                    `<<He>> tries to push the pill into your mouth. You keep it closed.`
+                                )>>
+                            </span>
+                        <<else>>
+                            <span class="purple">
+                                <<= either(
+                                    `<<He>> taunts you while holding the pill in your face. "I wonder how's your pretty little ass gonna look."`,
+                                    `<<He>> tries to force the pill into your mounth, but your lips are sealed shut.`,
+                                    `<<He>> forces the pill into your mouth. but you spit it out. "Stop making this difficult, you <<bitch>>!"`,
+                                    `<<He>> fiddles around with the pill in <<his>> hand. "They say <<girls>> like you turn into sluts after taking these."`,
+                                    `<<He>> holds the pill against your lips, trying to coax them to open. "Come on... You'll feel real good. I promise.`
+                                )>>
+                            </span>
+                        <</if>>
                     <<elseif $anususe is 0 and !playerChastity("anus") and $rng gt 33>>
                         /* forced pilling */
                         Confident your focus is on keeping your mouth closed off and guarded, <<he>> goes for your rear instead. <span class="pink">In a blink, the pill slips up inside your anus.</span>

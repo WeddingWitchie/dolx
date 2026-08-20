@@ -1676,6 +1676,7 @@ function settingsObjects(type) {
 					NNPCcombatPillingEnabled: { min: 0, max: 1, decimals: 0, displayName: "NNPC noncon combat pilling:" },
 					combatPillingIfPilled: { min: 0, max: 1, decimals: 0, displayName: "Combat pills if already pilled:" },
 					combatPillingBeastsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Beasts carry combat pills:" },
+					combatPillingMonsterPeopleEnabled: { min: 0, max: 1, decimals: 0, displayName: "Monster people carry combat pills:" },
 					combatPillingChance: { min: 0, max: 100, decimals: 0, displayName: "NPC pill chance (%):" },
 					combatPillingDrawChance: { min: 1, max: 50, decimals: 0, displayName: "Pill use chance per turn:" },
 					combatPillingPureRatio: { min: 0, max: 100, decimals: 0, displayName: "Clean pill ratio (%):" },
