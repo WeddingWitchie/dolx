@@ -181,7 +181,8 @@
 	<<if $lefttarget isnot "self">>
 		<<set $_target to $NPCList[$lefttarget]>>
 		<<if $_target.lefthand and ($_target.lefthand is "pen" or $_target.lefthand.startsWith("pen_")) or $_target.righthand and ($_target.righthand is "pen" or $_target.righthand.startsWith("pen_"))>>
-			<<set _leftaction["Whack the writing tool away"] to "penwhack">>
+			<<set _penwhackTool to ($_target.lefthand and ($_target.lefthand is "pen" or $_target.lefthand.startsWith("pen_"))) ? $_target.lefttool : $_target.righttool>>
+			<<set _leftaction["Whack the " + (["makeup kit", "makeup remover"].includes(_penwhackTool) ? _penwhackTool : "writing tool") + " away"] to "penwhack">>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -630,7 +631,8 @@
 	<<if $righttarget isnot "self">>
 		<<set $_target to $NPCList[$righttarget]>>
 		<<if $_target.lefthand and ($_target.lefthand is "pen" or $_target.lefthand.startsWith("pen_")) or $_target.righthand and ($_target.righthand is "pen" or $_target.righthand.startsWith("pen_"))>>
-			<<set _rightaction["Whack the writing tool away"] to "penwhack">>
+			<<set _penwhackTool to ($_target.lefthand and ($_target.lefthand is "pen" or $_target.lefthand.startsWith("pen_"))) ? $_target.lefttool : $_target.righttool>>
+			<<set _rightaction["Whack the " + (["makeup kit", "makeup remover"].includes(_penwhackTool) ? _penwhackTool : "writing tool") + " away"] to "penwhack">>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -2315,7 +2317,12 @@
 		<<case "head_nipples">> <<combat-hand-on-head_nipples $_hand>>
 		<<case "head_breasts">> <<combat-hand-on-head_breasts $_hand>>
 		<<case "mask">> <<combat-hand-on-mask $_hand "hand">>
-		<<case "pen">> <<bodywriting_npc_bodypart $_hand $NPCList[_n][$_hand + "tool"]>>
+		<<case "pen">>
+			<<if ["makeup kit", "makeup remover"].includes($NPCList[_n][$_hand + "tool"])>>
+				<<combat-hand-on-makeup $_hand>>
+			<<else>>
+				<<bodywriting_npc_bodypart $_hand $NPCList[_n][$_hand + "tool"]>>
+			<</if>>
 		<<case "pen_">> <<combat-pen-on-bodypart $_hand $_penbodypart>>
 		<<case "lube">> <<combat-hand-on-lube $_hand>>
 		<<case "shoes">> <<combat-hand-on-shoes $_hand>>

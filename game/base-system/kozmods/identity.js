@@ -47,6 +47,11 @@ function clothingIdentityIsNeutral() {
 }
 window.clothingIdentityIsNeutral = clothingIdentityIsNeutral;
 
+function makeupIdentityIsIgnored() {
+	return V.identity?.presentation?.makeup?.preferred === "n";
+}
+window.makeupIdentityIsIgnored = makeupIdentityIsIgnored;
+
 /* The slots that make up "what the player is wearing" for identity purposes. Underwear counts, jewellery doesn't. */
 const OUTFIT_SLOTS = [
 	"over_head",
@@ -316,6 +321,14 @@ function hourlyClothingFemininityCheck(hours = 1) {
 }
 window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 
+/* The same four the mirror counts when it tells the player they're wearing makeup. Concealer is left out on
+purpose: it's a 0/1 freckle cover rather than a look anyone reads off your face. */
+function playerIsWearingMakeup() {
+	const makeup = V.makeup || {};
+	return !!(makeup.lipstick || makeup.eyeshadow || makeup.mascara || makeup.blusher);
+}
+window.playerIsWearingMakeup = playerIsWearingMakeup;
+
 function playerHasCharacteristic(characteristic) {
 	switch (characteristic) {
 		/* Appearance and clothing are each a single three-way band.
@@ -332,6 +345,10 @@ function playerHasCharacteristic(characteristic) {
 			return currentClothingBand() === "f" ? 2 : 0;
 		case "Neutral Clothing":
 			return currentClothingBand() === "n" ? 2 : 0;
+		case "Wearing Makeup":
+			return playerIsWearingMakeup() ? 2 : 0;
+		case "Bare Face":
+			return playerIsWearingMakeup() ? 0 : 2;
 		case "Masculine Pronouns":
 			return V.identity.presentation.pronouns.masculine.misgendered;
 		case "Feminine Pronouns":
@@ -435,6 +452,18 @@ function getFemininityContribution(characteristic) {
 			break;
 		case "Neutral Clothing":
 			/* As above: a balanced outfit is the goal, so this axis pulls the score neither way. */
+			break;
+		case "Wearing Makeup":
+			if (makeupIdentityIsIgnored()) break;
+			femininity += Number(V.identity.presentation.makeup.wearing.acceptance) * 100;
+			femininity += Number(V.identity.presentation.makeup.wearing.reject) * -100;
+			femininity += Number(V.identity.presentation.makeup.preferred === "wearing") * 100;
+			break;
+		case "Bare Face":
+			if (makeupIdentityIsIgnored()) break;
+			femininity += Number(V.identity.presentation.makeup.bare.acceptance) * -100;
+			femininity += Number(V.identity.presentation.makeup.bare.reject) * 100;
+			femininity += Number(V.identity.presentation.makeup.preferred === "bare") * -100;
 			break;
 		case "Masculine Pronouns":
 			femininity += Number(V.identity.presentation.pronouns.masculine.acceptance) * -100;
@@ -796,6 +825,7 @@ function getIdentityMeterDirection(characteristic) {
 		case "Masculine Clothing":
 		case "Masculine Appearance":
 		case "Masculine Pronouns":
+		case "Bare Face":
 		case "Tiny Penis":
 		case "Small Penis":
 		case "Medium Penis":
@@ -809,6 +839,7 @@ function getIdentityMeterDirection(characteristic) {
 		case "Feminine Clothing":
 		case "Feminine Appearance":
 		case "Feminine Pronouns":
+		case "Wearing Makeup":
 		case "Vagina":
 		case "Medium Breasts":
 		case "Big Breasts":
@@ -885,6 +916,18 @@ function selectIdentityCharacteristic(characteristic) {
 		case "Neutral Pronouns":
 			option = presentation.pronouns?.neutral;
 			preferred = !!presentation.pronouns?.preferredNeutral;
+			break;
+		case "Wearing Makeup":
+			if (!makeupIdentityIsIgnored()) {
+				option = presentation.makeup?.wearing;
+				preferred = presentation.makeup?.preferred === "wearing";
+			}
+			break;
+		case "Bare Face":
+			if (!makeupIdentityIsIgnored()) {
+				option = presentation.makeup?.bare;
+				preferred = presentation.makeup?.preferred === "bare";
+			}
 			break;
 		case "Flat Chest":
 			if (x.giBreastSizeEnabled) {
@@ -1049,6 +1092,9 @@ function getIdentityMeterGroup(characteristic) {
 		case "Feminine Clothing":
 		case "Neutral Clothing":
 			return "clothing";
+		case "Wearing Makeup":
+		case "Bare Face":
+			return "makeup";
 		case "Flat Chest":
 		case "Small Breasts":
 		case "Medium Breasts":
@@ -1091,6 +1137,8 @@ function isIdentityMeterCharacteristicEnabled(characteristic) {
 	switch (getIdentityMeterGroup(characteristic)) {
 		case "clothing":
 			return !clothingIdentityIsNeutral();
+		case "makeup":
+			return !makeupIdentityIsIgnored();
 		case "chest":
 			return x.giBreastSizeEnabled === true;
 		case "ass":

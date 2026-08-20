@@ -1855,6 +1855,17 @@ function settingsObjects(type) {
 							preferredNeutral: { bool: true, displayName: "Neutral pronouns preferred:" },
 							pronounDynamicMode: { strings: ["", "body", "clothing", "appearance", "posture"], displayName: "Dynamic pronoun mode:" },
 						},
+						makeup: {
+							wearing: {
+								reject: { bool: true, displayName: "Wearing makeup rejected:" },
+								acceptance: { bool: true, displayName: "Wearing makeup accepted:" },
+							},
+							bare: {
+								reject: { bool: true, displayName: "Bare face rejected:" },
+								acceptance: { bool: true, displayName: "Bare face accepted:" },
+							},
+							preferred: { strings: ["wearing", "bare", "n"], displayName: "Preferred makeup:" },
+						},
 						appearance: {
 							masculine: {
 								reject: { bool: true, displayName: "Masculine appearance rejected:" },

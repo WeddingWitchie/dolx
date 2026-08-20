@@ -2035,14 +2035,53 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 <<widget "combat-pen-on-bodypart">>
 	<<set $_hand to _args[0]>><<set $_penbodypart to _args[1]>>
-	<<if $NPCList[0].fullDescription is "Ivory Wraith">>
-		<<His>> $_hand hand lingers on your <<bodypart $_penbodypart>>, leaving a fresh mark: 
-	<<else>>
-		<<He>> scrawls on your <<bodypart $_penbodypart>>:
+	<<if !$statFreeze>>
+		<<if $NPCList[0].fullDescription is "Ivory Wraith">>
+			<<His>> $_hand hand lingers on your <<bodypart $_penbodypart>>, leaving a fresh mark:
+		<<else>>
+			<<He>> scrawls on your <<bodypart $_penbodypart>>:
+		<</if>>
+		<<bodywriting_npc $_penbodypart `$NPCList[_n][$_hand + "tool"]`>>
+		<<set $newlyWritten.pushUnique($_penbodypart)>>
 	<</if>>
-	<<bodywriting_npc $_penbodypart `$NPCList[_n][$_hand + "tool"]`>>
-	<<set $newlyWritten.pushUnique($_penbodypart)>>
 	<<combat-reset-hand $_hand>><<set $NPCList[_n][$_hand + "tool"] to 0>>
+<</widget>>
+
+<<widget "combat-hand-on-makeup">>
+	<<set _hand to _args[0]>>
+	<<set _tool to $NPCList[_n][_hand + "tool"]>>
+	<<if !$statFreeze and _tool is "makeup kit">>
+		<<set _colour to ["red", "pink", "light pink", "green", "blue", "purple", "orange"].random()>>
+		<span class="purple"><<He>> grips your chin and forces your face still while <<he>> hurriedly applies _colour makeup.</span>
+		<<set $makeup.lipstick to _colour>>
+		<<set $makeup.eyeshadow to _colour>>
+		<<set $makeup.blusher to "rosy pink">>
+		<<set $makeup.mascara to "black waterproof">>
+		<<set $makeup.mascara_running to 0>>
+		<<if playerCaresForGender()>>
+			<<identitySelector "Wearing Makeup">>
+			<<if $identityOption>>
+				<<identityRememberAcceptance>>
+				<<identityTickCharacteristic `10 / 3` "Being forced into makeup makes your skin crawl.">>
+			<</if>>
+		<</if>>
+	<<elseif !$statFreeze and _tool is "makeup remover">>
+		<span class="purple"><<He>> grips your chin and scrubs the makeup from your face.</span>
+		<<set $makeup.lipstick to 0>>
+		<<set $makeup.eyeshadow to 0>>
+		<<set $makeup.mascara to 0>>
+		<<set $makeup.mascara_running to 0>>
+		<<set $makeup.blusher to 0>>
+		<<set $makeup.concealer to 0>>
+		<<if playerCaresForGender()>>
+			<<identitySelector "Bare Face">>
+			<<if $identityOption>>
+				<<identityRememberAcceptance>>
+				<<identityTickCharacteristic `10 / 3` "Having your makeup forcibly removed makes your skin crawl.">>
+			<</if>>
+		<</if>>
+	<</if>>
+	<<combat-reset-hand _hand>><<set $NPCList[_n][_hand + "tool"] to 0>>
 <</widget>>
 
 /* === Combat-pilling pre-roll ===
@@ -2166,7 +2205,21 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<<giveNPCsextoy _n $NPCList[_n].heldSexToy _args[0]>>
 		<<combat-reveal-sextoy _args[0]>>
 
-	<<elseif $rng lte 5 and $NPCList[0].fullDescription is "Ivory Wraith" and $wli.cfg.bodywritinglvl gte 1 and $wraith.state>>
+	/* Its own band above the writing-tool one. At "lte 8" this sat in front of the pen branch and covered all of
+	its range, so a male PC with a bare face could never be written on again. */
+	<<elseif !$statFreeze and $rng gt 7 and $rng lte 12 and $consensual isnot 1 and $enemytype is "man" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and ($walltype is 0 or $walltype is "front") and !$worn.face.type.includes("mask") and !$NPCList[_n].lefthand.toString().startsWith("pen") and !$NPCList[_n].righthand.toString().startsWith("pen") and (($player.gender is "m" and !playerIsWearingMakeup()) or ($player.gender is "f" and playerIsWearingMakeup()))>>
+		<<set $tooltarget to $player.gender is "m" ? "makeup kit" : "makeup remover">>
+		<span class="purple"><<He>> pulls a $tooltarget from <<his>> pocket and reaches towards your face.</span>
+		<<if _args[0] is "left">>
+			<<set $NPCList[_n].lefttool to $tooltarget>>
+			<<set $NPCList[_n].lefthand to "pen">>
+		<<else>>
+			<<set $NPCList[_n].righttool to $tooltarget>>
+			<<set $NPCList[_n].righthand to "pen">>
+		<</if>>
+		<<neutral 1 _n>>
+
+	<<elseif !$statFreeze and $rng lte 5 and $NPCList[0].fullDescription is "Ivory Wraith" and $wli.cfg.bodywritinglvl gte 1 and $wraith.state>>
 		<span class="purple"><<His>> _args[0] hand glows ominously.</span>
 		<<set $tooltarget to W.brandMethod()>>
 		<<if _args[0] is "left">>
@@ -2178,7 +2231,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<</if>>
 		<<neutral 1 _n>>
 
-	<<elseif $NPCList[0].fullDescription isnot "Ivory Wraith" and $rng lte 7 and ($consensual isnot 1 or ["Whitney", "Kylar", "Sydney", "Gwylan", "Poppy"].includes($npc[$npcrow.indexOf(_n)])) and $settings.bodyWritingLevel gte 2 and $enemytype isnot "beast" and !$noBodyWriting and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0)>>
+	<<elseif !$statFreeze and $NPCList[0].fullDescription isnot "Ivory Wraith" and $rng lte 7 and ($consensual isnot 1 or ["Whitney", "Kylar", "Sydney", "Gwylan", "Poppy"].includes($npc[$npcrow.indexOf(_n)])) and $settings.bodyWritingLevel gte 2 and $enemytype isnot "beast" and !$noBodyWriting and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and !["makeup kit", "makeup remover"].includes($NPCList[_n].lefttool) and !["makeup kit", "makeup remover"].includes($NPCList[_n].righttool)>>
 		<<set _rng to random(1, 5)>>
 		<<if (_rng is 5 and $NPCList[_n].type isnot "plant" and $role isnot "islander") or $npc.includes("Sydney")>>
 			<span class="purple"><<He>> pulls a <span class="pink">permanent</span> marker pen from <<his>> pocket, flicking off the lid.</span>

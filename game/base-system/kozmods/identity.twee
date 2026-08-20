@@ -218,6 +218,37 @@
 					});
 				})();>>
 			</div>
+			<div class="settingsToggleItem identity-makeup-settings">
+				<span class="gold">Makeup Preference </span> <mouse class="tooltip linkBlue">(?)<span>Choose how you feel about wearing makeup or having a bare face. The makeup currently on your face determines which characteristic is active. In non-consensual human encounters, NPCs may force makeup onto male characters or remove it from female characters.</span></mouse>
+				<br>
+				Wearing makeup:
+				<br>
+				<label data-target='["identity.presentation.makeup.wearing.acceptance", "identity.presentation.makeup.wearing.reject", "identity.presentation.makeup.preferred"]' data-disabledif="V.identity.presentation.makeup.preferred === 'n' || (V.identity.presentation.makeup.wearing.acceptance && !V.identity.presentation.makeup.wearing.reject)" class="red">Reject <<checkbox "$identity.presentation.makeup.wearing.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2 or $background.transgender>>
+					<label data-target='["identity.presentation.makeup.preferred", "identity.init"]' data-disabledif="V.identity.presentation.makeup.preferred === 'wearing' || V.identity.presentation.makeup.preferred === 'n' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.makeup.wearing.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.makeup.wearing.reject", "identity.presentation.makeup.preferred", "identity.init"]' data-disabledif="V.identity.presentation.makeup.preferred === 'n' || V.identity.presentation.makeup.wearing.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.makeup.wearing.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.presentation.makeup.wearing.acceptance", "identity.presentation.makeup.preferred"]' data-disabledif="V.identity.presentation.makeup.preferred !== 'n' && !V.identity.presentation.makeup.wearing.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.makeup.preferred" "wearing" autocheck>></label>
+				<br>
+				Bare face:
+				<br>
+				<label data-target='["identity.presentation.makeup.bare.acceptance", "identity.presentation.makeup.bare.reject", "identity.presentation.makeup.preferred"]' data-disabledif="V.identity.presentation.makeup.preferred === 'n' || (V.identity.presentation.makeup.bare.acceptance && !V.identity.presentation.makeup.bare.reject)" class="red">Reject <<checkbox "$identity.presentation.makeup.bare.reject" false true autocheck>></label> |
+				<<if $identity.init isnot 2 or $background.transgender>>
+					<label data-target='["identity.presentation.makeup.preferred", "identity.init"]' data-disabledif="V.identity.presentation.makeup.preferred === 'bare' || V.identity.presentation.makeup.preferred === 'n' || V.identity.init">Unaccepted <<radiobutton "$identity.presentation.makeup.bare.acceptance" false autocheck>></label> |
+					<label data-target='["identity.presentation.makeup.bare.reject", "identity.presentation.makeup.preferred", "identity.init"]' data-disabledif="V.identity.presentation.makeup.preferred === 'n' || V.identity.presentation.makeup.bare.reject || V.identity.init">Accepted <<radiobutton "$identity.presentation.makeup.bare.acceptance" true autocheck>></label> |
+				<</if>>
+				<label data-target='["identity.presentation.makeup.bare.acceptance", "identity.presentation.makeup.preferred"]' data-disabledif="V.identity.presentation.makeup.preferred !== 'n' && !V.identity.presentation.makeup.bare.acceptance" class="green">Preferred <<radiobutton "$identity.presentation.makeup.preferred" "bare" autocheck>></label>
+				<br>
+				<label class="teal">Don't care <<radiobutton "$identity.presentation.makeup.preferred" "n" autocheck>></label> <mouse class="tooltip linkBlue">(?)<span>Makeup and bare faces do not affect your identity. NPCs can still apply or remove makeup.</span></mouse>
+				<<run (function () {
+					if (setup.makeupPreferenceChangeInstalled) return;
+					setup.makeupPreferenceChangeInstalled = true;
+					const preferenceInput = Util.slugify("identity.presentation.makeup.preferred");
+					$(document).on("change", ".identity-makeup-settings input", function () {
+						if ((this.name || "").endsWith(preferenceInput)) Wikifier.wikifyEval("<<normaliseMakeupPreference>>");
+					});
+				})();>>
+			</div>
 		</div>
 		<hr>
 		<div class="settingsGrid">
@@ -743,6 +774,16 @@
 			<<case "Neutral Pronouns">>
 				<<set $identityOption to $identity.presentation.pronouns.neutral>>
 				<<set $identityPreference to !!$identity.presentation.pronouns.preferredNeutral>>
+			<<case "Wearing Makeup">>
+				<<if !makeupIdentityIsIgnored()>>
+					<<set $identityOption to $identity.presentation.makeup.wearing>>
+					<<set $identityPreference to $identity.presentation.makeup.preferred is "wearing" ? true : false>>
+				<</if>>
+			<<case "Bare Face">>
+				<<if !makeupIdentityIsIgnored()>>
+					<<set $identityOption to $identity.presentation.makeup.bare>>
+					<<set $identityPreference to $identity.presentation.makeup.preferred is "bare" ? true : false>>
+				<</if>>
 			<<case "Flat Chest">>
 				<<if $xchange.giBreastSizeEnabled>>
 					<<set $identityOption to $identity.body.chest.flat>>
@@ -925,6 +966,10 @@
 							<<set _reason to $identityOption.reject ? "You feel gross in these girly clothes." : "You feel awkward dressed up girly like this.">>
 						<<case "Neutral Clothing">>
 							<<set _reason to $identityOption.reject ? "You feel gross in clothes that look neither masculine nor feminine." : "You feel awkward in clothes that look neither masculine nor feminine.">>
+						<<case "Wearing Makeup">>
+							<<set _reason to "The makeup on your face feels wrong whenever you notice it.">>
+						<<case "Bare Face">>
+							<<set _reason to "Your bare face feels wrong whenever you catch sight of it.">>
 						<<case "Flat Breasts">>
 							<<set _reason to "Your chest looks empty in a way that leaves a sharp ache.">>
 						<<case "Small Breasts">>
@@ -1022,6 +1067,20 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "normaliseMakeupPreference">>
+		<<if $identity?.presentation?.makeup?.preferred is "n">>
+			<<for _makeupState range ["wearing", "bare"]>>
+				/* This runs on the hourly tick, where a throw would freeze every timed flag in the game. */
+				<<if $identity.presentation.makeup[_makeupState]>>
+					<<set $identity.presentation.makeup[_makeupState].acceptance to true>>
+					<<set $identity.presentation.makeup[_makeupState].reject to false>>
+					<<set $identity.presentation.makeup[_makeupState].dysphoria to 0>>
+					<<set $identity.presentation.makeup[_makeupState].tolerance to Math.max(Number($identity.presentation.makeup[_makeupState].tolerance) || 0, 100)>>
+				<</if>>
+			<</for>>
+		<</if>>
+	<</widget>>
+
 	<<widget "repairPronounPreferenceFallback">>
 		<<if !$identity.presentation.pronouns.preferredMasculine and !$identity.presentation.pronouns.preferredFeminine and !$identity.presentation.pronouns.preferredNeutral>>
 			<<set _fallbackPronoun to (!!$player.penisExist is !!$player.vaginaExist) ? "n" : ($player.penisExist ? "m" : "f")>>
@@ -1038,6 +1097,7 @@
 	<<widget "lockInIdentity">>
 		<<repairPronounPreferenceFallback>>
 		<<normaliseNeutralClothing>>
+		<<normaliseMakeupPreference>>
 
 		<<for _categoryName, _category range setup.identityIndex>>
 			<<for _char, _icon range _category>>
@@ -1175,6 +1235,7 @@
 	Dysphoria recovery remains hourly when the related characteristic is no longer present. */
 	<<widget "hourlyIdentityEffects">>
 		<<normaliseNeutralClothing>>
+		<<normaliseMakeupPreference>>
 		<<for _categoryName, _category range setup.identityIndex>>
 			<<for _char,_icon range _category>>
 				<<identitySelector _char>>

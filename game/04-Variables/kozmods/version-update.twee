@@ -676,6 +676,25 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 					},
 					preferred : "f"
 				},
+				makeup : {
+					wearing : {
+						acceptance : true,
+						reject : false,
+						dysphoria : 0,
+						dysphoriaCap : 100,
+						tolerance : 0
+					},
+					bare : {
+						acceptance : true,
+						reject : false,
+						dysphoria : 0,
+						dysphoriaCap : 100,
+						tolerance : 0
+					},
+					/* "Don't care" until the player says otherwise: this object is built before character creation
+					picks a gender, so keying the default off $player.gender only ever produced "n" anyway. */
+					preferred : "n"
+				},
 				pronouns : {
 					masculine : {
 						acceptance : true,
@@ -907,6 +926,25 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<set $identity.presentation to $identity.presentation || {}>>
 	<<set $identity.presentation.appearance to $identity.presentation.appearance || {}>>
 	<<set $identity.presentation.clothing to $identity.presentation.clothing || {}>>
+	<<set $identity.presentation.makeup to $identity.presentation.makeup || {}>>
+	<<if $identity.presentation.makeup.wearing is undefined>>
+		<<set $identity.presentation.makeup.wearing to clone(_bsDefault)>>
+	<</if>>
+	<<if $identity.presentation.makeup.bare is undefined>>
+		<<set $identity.presentation.makeup.bare to clone(_bsDefault)>>
+	<</if>>
+	/* Existing saves never went through lockInIdentity for this axis, so both sides start at zero tolerance while
+	marked accepted. The first daily tick reads that as acceptance running out and announces a breakdown the
+	player never earned, so seed the tolerance that lock-in would have given them. */
+	<<for _makeupState range ["wearing", "bare"]>>
+		<<if $identity.presentation.makeup[_makeupState].acceptance and !$identity.presentation.makeup[_makeupState].reject>>
+			<<set $identity.presentation.makeup[_makeupState].tolerance to Math.max(Number($identity.presentation.makeup[_makeupState].tolerance) || 0, 100)>>
+		<</if>>
+	<</for>>
+	<<if $identity.presentation.makeup.preferred is undefined>>
+		/* Preserve existing saves until the player chooses a makeup stance. New characters receive their starting preference in the full identity object above. */
+		<<set $identity.presentation.makeup.preferred to "n">>
+	<</if>>
 
 	<<if $identity.presentation.appearance.neutral is undefined>>
 		<<set $identity.presentation.appearance.neutral to clone(_bsDefault)>>
@@ -957,6 +995,10 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			"Masculine Clothing": "<<dysphoriaicon-color 'clothes/straight-trousers.png' 'filter: hue-rotate(206deg) saturate(229%) brightness(178%) contrast(113%)'>>",
 			"Feminine Clothing": "<<dysphoriaicon-color 'clothes/school-skirt.png' 'filter: hue-rotate(320deg) saturate(120%) brightness(100%) contrast(117%)'>>",
 			"Neutral Clothing": "<<dysphoriaicon 'clothes/bathrobe.png'>>",
+		},
+		"Makeup Preferences": {
+			"Wearing Makeup": "<<dysphoriaicon 'cosmetics.gif'>>",
+			"Bare Face": "<<skinicon 'wash'>>",
 		},
 		"Chest Preferences": {
 			"Flat Chest": "<<dysphoriaicon 'basement_door.png'>>",
