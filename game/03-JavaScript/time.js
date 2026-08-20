@@ -2751,7 +2751,7 @@ function moonState() {
 window.moonState = moonState;
 
 function dailySchoolEffects() {
-	if (V.xchange.pill.bimboEffect === false) {
+	if (V.xchange?.pill?.bimboEffect !== true) {
 		if (V.science_exam >= 200 && V.sciencetrait < 4 * V.AMCTraits.science) {
 			V.effectsmessage = 1;
 			V.science_up_message = 1;

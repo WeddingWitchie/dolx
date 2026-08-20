@@ -695,7 +695,7 @@ function effects() {
 		["science", "maths", "english", "history"].forEach(subject => {
 			if (V[`${subject}_up_message`]) {
 				delete V[`${subject}_up_message`];
-				sWikifier(`You feel more confident at ${subject}. <<${subject}_skill_up_text>>`);
+				sWikifier(`<<${subject}_skill_up_text>>`);
 				br();
 			} else if (V[`${subject}_down_message`]) {
 				delete V[`${subject}_down_message`];

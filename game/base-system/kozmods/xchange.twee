@@ -1065,35 +1065,6 @@
 			<<set $xchange.pill.innocenceWasNatural to false>>
 		<</if>>
 
-		/* Bimbo effect (original repeated twice; kept once) */
-		<<if _args[0] is undefined and $xchange.pill.bimboEffect>>
-			<<if $xchange.science gt $sciencetrait>>
-				<<set $sciencetrait to $xchange.science>>
-				<<school_skill_change "science" 0>>
-				<<set $effectsmessage to 1>>
-				<<set $science_up_message to 1>>
-			<</if>>
-			<<if $xchange.math gt $mathstrait>>
-				<<set $mathstrait to $xchange.math>>
-				<<school_skill_change "maths" 0>>
-				<<set $effectsmessage to 1>>
-				<<set $maths_up_message to 1>>
-			<</if>>
-			<<if $xchange.english gt $englishtrait>>
-				<<set $englishtrait to $xchange.english>>
-				<<school_skill_change "english" 0>>
-				<<set $effectsmessage to 1>>
-				<<set $english_up_message to 1>>
-			<</if>>
-			<<if $xchange.history gt $historytrait>>
-				<<set $historytrait to $xchange.history>>
-				<<school_skill_change "history" 0>>
-				<<set $effectsmessage to 1>>
-				<<set $history_up_message to 1>>
-			<</if>>
-			<<unset $promiscuityIgnore>>
-		<</if>>
-
 		/* Swell effect.
 		   The body we just loaded carries its natural sizes, so a still-running Swell has to be re-applied to it:
 		   stash this body's natural size as the value to give back when the effect ends, then inflate.
@@ -1211,6 +1182,10 @@
 		<<if _xchangeRestack and $xchange.pill.bimboEffect>>
 			/* Replacing an active Bimbo pill must restore its temporary school-stat and promiscuity changes before the new effects are applied. */
 			<<xchange-removeeffect "bimbo">>
+		<</if>>
+		<<if _xchangeRestack and $xchange.pill.swellEffect>>
+			/* Reset Swell body sizes before the new pill saves them. Otherwise, they can get stuck at maximum size. */
+			<<xchange-removeeffect "swell">>
 		<</if>>
 
 		<<set $xchange.pill.active to true>>
@@ -1445,83 +1420,90 @@
 		<<xchange-feartoxin-pin>>
 
 	<<case "swell">>
-		<<set $xchange.pill.swellEffect to true>>
-		<<if $player.penisExist and !$player.vaginaExist>>
-			<<set $xchange.pill.swellTarget to "penis">>
-			<<set _ps to Number($player.penissize)>>
-			<<if isNaN(_ps)>>
-				<<run console.error("[X-Change swell] Invalid player.penissize", { value: V.player && V.player.penissize })>>
-				<<error { message: "X-Change cannot apply the Swell effect because player.penissize is invalid. Please report this with your save and steps." }>>
-				<<exit>>
-			<</if>>
-			<<set $xchange.penissize to _ps>>
-			<<set _psMax to Number($penissizemax)>>
-			<<if isNaN(_psMax)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>penissizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
-				<<set _psMax to $xchange.penissize>>
-			<</if>>
-			<<set $player.penissize to _psMax>>
-		<<else>>
-			<<set $xchange.pill.swellTarget to "curves">>
-			<<set _bs to Number($player.breastsize)>>
-			<<if isNaN(_bs)>>
-				<<run console.error("[X-Change swell] Invalid player.breastsize", { value: V.player && V.player.breastsize })>>
-				<<error { message: "X-Change cannot apply the Swell effect because player.breastsize is invalid. Please report this with your save and steps." }>>
-				<<exit>>
-			<</if>>
-			<<set $xchange.breastsize to _bs>>
-			<<set _bsMax to Number($breastsizemax)>>
-			<<if isNaN(_bsMax)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>breastsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
-				<<set _bsMax to $xchange.breastsize>>
-			<</if>>
-			<<set $player.breastsize to _bsMax>>
+		/* Bimbo pills include Swell. This also makes sure random Bimbo effects apply Swell without overwriting the original body size. */
+		<<if !$xchange.pill.swellEffect>>
+			<<set $xchange.pill.swellEffect to true>>
+			<<if $player.penisExist and !$player.vaginaExist>>
+				<<set $xchange.pill.swellTarget to "penis">>
+				<<set _ps to Number($player.penissize)>>
+				<<if isNaN(_ps)>>
+					<<run console.error("[X-Change swell] Invalid player.penissize", { value: V.player && V.player.penissize })>>
+					<<error { message: "X-Change cannot apply the Swell effect because player.penissize is invalid. Please report this with your save and steps." }>>
+					<<exit>>
+				<</if>>
+				<<set $xchange.penissize to _ps>>
+				<<set _psMax to Number($penissizemax)>>
+				<<if isNaN(_psMax)>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>penissizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
+					<<set _psMax to $xchange.penissize>>
+				<</if>>
+				<<set $player.penissize to _psMax>>
+			<<else>>
+				<<set $xchange.pill.swellTarget to "curves">>
+				<<set _bs to Number($player.breastsize)>>
+				<<if isNaN(_bs)>>
+					<<run console.error("[X-Change swell] Invalid player.breastsize", { value: V.player && V.player.breastsize })>>
+					<<error { message: "X-Change cannot apply the Swell effect because player.breastsize is invalid. Please report this with your save and steps." }>>
+					<<exit>>
+				<</if>>
+				<<set $xchange.breastsize to _bs>>
+				<<set _bsMax to Number($breastsizemax)>>
+				<<if isNaN(_bsMax)>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>breastsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
+					<<set _bsMax to $xchange.breastsize>>
+				<</if>>
+				<<set $player.breastsize to _bsMax>>
 
-			<<set _bot to Number($player.bottomsize)>>
-			<<if isNaN(_bot)>>
-				<<run console.error("[X-Change swell] Invalid player.bottomsize", { value: V.player && V.player.bottomsize })>>
-				<<error { message: "X-Change cannot apply the Swell effect because player.bottomsize is invalid. Please report this with your save and steps." }>>
-				<<exit>>
+				<<set _bot to Number($player.bottomsize)>>
+				<<if isNaN(_bot)>>
+					<<run console.error("[X-Change swell] Invalid player.bottomsize", { value: V.player && V.player.bottomsize })>>
+					<<error { message: "X-Change cannot apply the Swell effect because player.bottomsize is invalid. Please report this with your save and steps." }>>
+					<<exit>>
+				<</if>>
+				<<set $xchange.bottomsize to _bot>>
+				<<set _botMax to Number($bottomsizemax)>>
+				<<if isNaN(_botMax)>>
+					<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>bottomsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
+					<<set _botMax to $xchange.bottomsize>>
+				<</if>>
+				<<set $player.bottomsize to _botMax>>
 			<</if>>
-			<<set $xchange.bottomsize to _bot>>
-			<<set _botMax to Number($bottomsizemax)>>
-			<<if isNaN(_botMax)>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>bottomsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
-				<<set _botMax to $xchange.bottomsize>>
-			<</if>>
-			<<set $player.bottomsize to _botMax>>
 		<</if>>
 
 	<<case "bimbo">>
-		<<set $xchange.pill.bimboEffect to true>>
-		<<set $promiscuityIgnore to 1>>
-		<<set $xchange.science to $sciencetrait>>
-		<<set $xchange.math to $mathstrait>>
-		<<set $xchange.english to $englishtrait>>
-		<<set $xchange.history to $historytrait>>
-		<<set $sciencetrait to -1>>
-		<<set $mathstrait to -1>>
-		<<set $englishtrait to -1>>
-		<<set $historytrait to -1>>
-		<<if $xchange.science gt $sciencetrait>>
-			<<school_skill_change "science" 0>>
-			<<set $effectsmessage = 1>>
-			<<set $science_down_message = 1>>
-		<</if>>
-		<<if $xchange.math gt $mathstrait>>
-			<<school_skill_change "maths" 0>>
-			<<set $effectsmessage = 1>>
-			<<set $maths_down_message = 1>>
-		<</if>>
-		<<if $xchange.english gt $englishtrait>>
-			<<school_skill_change "english" 0>>
-			<<set $effectsmessage = 1>>
-			<<set $english_down_message = 1>>
-		<</if>>
-		<<if $xchange.history gt $historytrait>>
-			<<school_skill_change "history" 0>>
-			<<set $effectsmessage = 1>>
-			<<set $history_down_message = 1>>
+		/* Random spikes can select the Bimbo agent by itself; its advertised built-in Swell must still apply. */
+		<<if !$xchange.pill.swellEffect>><<xchange-addeffect "swell">><</if>>
+		<<if !$xchange.pill.bimboEffect>>
+			<<set $xchange.pill.bimboEffect to true>>
+			<<set $promiscuityIgnore to 1>>
+			<<set $xchange.science to $sciencetrait>>
+			<<set $xchange.math to $mathstrait>>
+			<<set $xchange.english to $englishtrait>>
+			<<set $xchange.history to $historytrait>>
+			<<set $sciencetrait to -1>>
+			<<set $mathstrait to -1>>
+			<<set $englishtrait to -1>>
+			<<set $historytrait to -1>>
+			<<if $xchange.science gt $sciencetrait>>
+				<<school_skill_change "science" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $science_down_message = 1>>
+			<</if>>
+			<<if $xchange.math gt $mathstrait>>
+				<<school_skill_change "maths" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $maths_down_message = 1>>
+			<</if>>
+			<<if $xchange.english gt $englishtrait>>
+				<<school_skill_change "english" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $english_down_message = 1>>
+			<</if>>
+			<<if $xchange.history gt $historytrait>>
+				<<school_skill_change "history" 0>>
+				<<set $effectsmessage = 1>>
+				<<set $history_down_message = 1>>
+			<</if>>
 		<</if>>
 
 	<<case "cumcure">>
@@ -1952,14 +1934,23 @@
 		/* Clear pill effects */
 		<<set $xchange.pill.active to false>>
 		<<set $xchange.pill.duration to 0>>
+		<<set $xchange.pill.countdown to 0>>
 		<<set $xchange.pill.durationDetailRoll to 0>>
 		<<set $xchange.pill.baseSex to undefined>>
 		<<set $xchange.pill.baseGenitals to undefined>>
 		<<set $xchange.pill.clone to "none">>
 		<<set $xchange.pill.genderflipEffect to false>>
+		<<set $xchange.pill.genderificationEffect to false>>
+		<<set $xchange.pill.hermEffect to false>>
 		<<set $xchange.pill.portalEffect to false>>
 		<<set $xchange.pill.portalEffectTimer to 0>>
+		<<set $xchange.pill.resistanceEffect to false>>
+		<<set $xchange.pill.resistanceChance to 100>>
+		<<set $xchange.pill.resistanceOrgasmsStat to 0>>
+		<<unset $xchange.pill.resistanceFakeout>>
+		<<set $xchange.pill.continueEffect to false>>
 		<<set $xchange.pill.passionEffect to false>>
+		<<set $xchange.pill.dumbBitchEffect to false>>
 		<<set $xchange.pill.choiceEffect to false>>
 		<<set $xchange.pill.xtendEffect to false>>
 		<<unset $xchange.pill.xtendTracker>>
@@ -1981,9 +1972,8 @@
 		<</if>>
 		<<set $xchange.pill.swellEffect to false>>
 		<<unset $xchange.pill.swellTarget>>
-		/* Bimbo's dropped school traits used to only get restored as a side effect of load-body (which embeds
-		   its own copy of this same restore, gated on being an unqualified call). Mirror it here too so a
-		   grey-only Bimbo session still gets its traits back when load-body is skipped (_xchangeNeedsBodyRevert). */
+		/* Restore Bimbo's removed school traits after every Bimbo session, including grey-only sessions.
+		Removing Bimbo early is handled by xchange-removeeffect "bimbo" macro. */
 		<<if $xchange.pill.bimboEffect>>
 			<<if $xchange.science gt $sciencetrait>>
 				<<set $sciencetrait to $xchange.science>>
@@ -2031,6 +2021,11 @@
 		<<set $breederOrgasm to 0>>
 		<<unset $breederCreampied>>
 		<<unset $xchange.pill.shouldHaveEnded>>
+		/* The pill has ended, so clear its test result and known effects after the restore message uses them. */
+		<<set $xchange.pill.testPending to false>>
+		<<set $xchange.pill.effectsKnown to false>>
+		/* Premium leaves some settings on the pill after it ends. Clear them with the rest when the pill is no longer active. */
+		<<xchange-premium-clear-pill-temp>>
 		<<perma-reflection-clear>>
 	<</widget>>
 
@@ -2406,6 +2401,12 @@
 	<</widget>>
 
 	<<widget "xchange-test">> 
+		/* The kit can be used with no active pill, so show a blank result instead of an empty report. */
+		<<if !$xchange.pill.active>>
+			<<set $xchange.pill.testPending to false>>
+			The display stays blank. <span class="green">There's nothing in you for it to find.</span>
+			<<exit>>
+		<</if>>
 		<<set $xchange.pill.effectsKnown to true>>
 		/* One stable roll keeps the tester's 8-13 day wording from changing whenever the Traits panel redraws. */
 		<<set $xchange.pill.durationDetailRoll to random(1, 420)>>
@@ -2454,7 +2455,7 @@
 			<<if $xchange.pill.feartoxinEffect>><li>Fear Toxin Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Holds your trauma at its maximum and keeps your self-control at nothing. Your trauma cannot start falling until this effect ends. What it does to your mind is not undone when it ends.</span></mouse></li><</if>>
 			<<if $xchange.pill.swellEffect>><li>Swell Effect.
-				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $player.sex is "m" ? "breasts and ass" : "penis">> for the duration.</span></mouse></li><</if>>
+				<mouse class="tooltip linkBlue">(?)<span>Increases the size of your <<print $xchange.pill.swellTarget is "penis" ? "penis" : "breasts and ass">> for the duration.</span></mouse></li><</if>>
 			<<if $xchange.pill.bimboEffect>><li>Bimbo Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Reduces your intelligence and increases your lewdness. Diminishes stress while active.</span></mouse></li><</if>>
 			<<if $xchange.pill.cumcureEffect>><li>CumCure Effect.

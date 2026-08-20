@@ -201,6 +201,14 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.spikerates isnot undefined and $xchange.spikerates.alpha is undefined>><<set $xchange.spikerates.alpha to 2>><</if>>
 	<<if $xchange.pill isnot undefined and $xchange.pill.feartoxinEffect is undefined>><<set $xchange.pill.feartoxinEffect to false>><</if>>
 	<<if $xchange.spikerates isnot undefined and $xchange.spikerates.feartoxin is undefined>><<set $xchange.spikerates.feartoxin to 1>><</if>>
+	/* Fix older saves where random Bimbo could be applied without Swell. Runs once so Swell can still be removed normally later. */
+	<<if $xchange.bimboSwellRepaired is undefined>>
+		<<set $xchange.bimboSwellRepaired to true>>
+		<<if $xchange.pill.active and $xchange.pill.bimboEffect and !$xchange.pill.swellEffect>>
+			<<xchange-addeffect "swell">>
+			<<run setup.xChangeRepairNoticeOnce("repair_xchange_bimbo_swell", "<b>Save repair notice</b><br>Your active <b>Bimbo</b> effect was missing its built-in Swell effect. X-Change has applied it and restored the intended body changes.")>>
+		<</if>>
+	<</if>>
 	
 	/* GI system defaults */
 	<<if $genderidentity is undefined>>
