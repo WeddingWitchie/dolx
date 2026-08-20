@@ -316,7 +316,7 @@ function effectsMakeup() {
 	if (V.beautyBoost) {
 		if (V.beautyBoost.bath > 0 && !V.beautyBoost._bathShown) {
 			V.beautyBoost._bathShown = true;
-			span("You feel refreshed from your bath. Your skin has a healthy glow.", "gold");
+			span("You feel refreshed from your bath, your skin glowing and every part of you clean.", "gold");
 			br();
 		} else if (V.beautyBoost.bath <= 0 && V.beautyBoost._bathShown) {
 			delete V.beautyBoost._bathShown;
@@ -334,10 +334,15 @@ function effectsMakeup() {
 			br();
 		}
 
+		/* A bath covers face, hands and intimate hygiene, so its own message speaks for them */
+		const bathActive = V.beautyBoost.bath > 0;
+
 		if (V.beautyBoost.face > 0 && !V.beautyBoost._faceShown) {
 			V.beautyBoost._faceShown = true;
-			span("Your face feels fresh and clean.", "gold");
-			br();
+			if (!bathActive) {
+				span("Your face feels fresh and clean.", "gold");
+				br();
+			}
 		} else if (V.beautyBoost.face <= 0 && V.beautyBoost._faceShown) {
 			delete V.beautyBoost._faceShown;
 			span("Your face no longer feels as fresh as before.", "teal");
@@ -346,8 +351,10 @@ function effectsMakeup() {
 
 		if (V.beautyBoost.hands > 0 && !V.beautyBoost._handsShown) {
 			V.beautyBoost._handsShown = true;
-			span("Your hands feel clean and refreshed.", "gold");
-			br();
+			if (!bathActive) {
+				span("Your hands feel clean and refreshed.", "gold");
+				br();
+			}
 		} else if (V.beautyBoost.hands <= 0 && V.beautyBoost._handsShown) {
 			delete V.beautyBoost._handsShown;
 			span("Your hands don't feel as clean anymore.", "teal");
@@ -356,8 +363,10 @@ function effectsMakeup() {
 
 		if (V.beautyBoost.hygiene > 0 && !V.beautyBoost._hygieneShown) {
 			V.beautyBoost._hygieneShown = true;
-			span("You feel cleaner and more presentable.", "gold");
-			br();
+			if (!bathActive) {
+				span("You feel cleaner and more presentable.", "gold");
+				br();
+			}
 		} else if (V.beautyBoost.hygiene <= 0 && V.beautyBoost._hygieneShown) {
 			delete V.beautyBoost._hygieneShown;
 			span("You don't feel quite as fresh down there anymore.", "teal");
