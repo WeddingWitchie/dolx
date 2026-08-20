@@ -1,13 +1,83 @@
 :: Widgets Tentacle Actions Generation [widget]
 
+<<widget "generateTentacleTargetLabels">>
+	<<set _The to ($abomination is 1 ? "<<His>>" : "The")>>
+	<<set _the to ($abomination is 1 ? "<<his>>" : "the")>>
+	<<set _tentacleShaftTargets to {
+		"tummy": "coiled around your tummy",
+		"thighs": "between your thighs",
+		"breasts": "squeezing your breasts",
+		"chest": "coiled around your chest",
+		"waist": "coiled around your waist",
+		"neck": "coiled around your neck",
+		"shoulders": "coiled around your shoulders",
+		"leftarm": "entangling your left arm",
+		"rightarm": "entangling your right arm",
+		"leftleg": "entangling your left leg",
+		"rightleg": "entangling your right leg"
+	}>>
+	<<set _tentacleHeadTargets to {
+		"leftarm": "held in your left hand",
+		"rightarm": "held in your right hand",
+		"feet": "held between your feet",
+		"leftnipple": "teasing your left nipple",
+		"rightnipple": "teasing your right nipple",
+		"leftnipplesuck": "latched onto your left nipple",
+		"rightnipplesuck": "latched onto your right nipple",
+		"mouthentrance": "targeting your mouth",
+		"mouthimminent": "at your lips; about to penetrate",
+		"mouth": "penetrating your mouth",
+		"mouthdeep": "deep in your mouth",
+		"vaginaentrance": "targeting your vagina",
+		"vaginaimminent": "about to penetrate your vagina",
+		"vagina": "penetrating your vagina",
+		"vaginadeep": "deep in your vagina",
+		"penisentrance": "targeting your penis",
+		"penisimminent": "about to engulf your penis",
+		"penis": "engulfing your penis",
+		"penisdeep": "engulfing your penis",
+		"anusentrance": "targeting your anus",
+		"anusimminent": "about to penetrate your anus",
+		"anus": "penetrating your anus",
+		"anusdeep": "deep in your anus",
+		"vaginarub": "rubbing your vagina",
+		"penisrub": "rubbing your penis",
+		"anusrub": "rubbing your anus",
+		"bottomrub": "rubbing your bottom",
+		"chest": "between your breasts",
+		"hypnosis": "hypnotising you",
+		"hypnosis_cover": "hypnotising you",
+		"hypnosis_deviancy": "hypnotising you",
+		"hypnosis_orgasm": "hypnotising you",
+		"hypnosis_sadism": "hypnotising you",
+		"hypnosis_scream": "hypnotising you",
+		"leftlegentrance": "targeting your left leg",
+		"rightlegentrance": "targeting your right leg",
+		"leftarmentrance": "targeting your left arm",
+		"rightarmentrance": "targeting your right arm"
+	}>>
+	<<set _tentacleTargetLabels to {}>>
+	<<for _i to 0; _i lt $tentacles.max; _i++>>
+		<<if $tentacles[_i] isnot undefined>>
+			<<set _tentacleTargetDetails to []>>
+			<<if _tentacleShaftTargets[$tentacles[_i].shaft]>>
+				<<run _tentacleTargetDetails.push(_tentacleShaftTargets[$tentacles[_i].shaft])>>
+			<</if>>
+			<<if _tentacleHeadTargets[$tentacles[_i].head]>>
+				<<run _tentacleTargetDetails.push(_tentacleHeadTargets[$tentacles[_i].head])>>
+			<</if>>
+			<<set _tentacleTargetLabels[$tentacles[_i].id] to $tentacles[_i].fullDesc + (_tentacleTargetDetails.length ? " [" + _tentacleTargetDetails.join("; ") + "]" : "")>>
+		<</if>>
+	<</for>>
+<</widget>>
+
 <<widget "generateActionsTentacle">>
 	<<set $combat to 1>>
 	<<if _targetlist is undefined>>
 		<<getTargetList>>
 	<</if>>
 
-	<<set _The to ($abomination is 1 ? "<<His>>" : "The")>>
-	<<set _the to ($abomination is 1 ? "<<his>>" : "the")>>
+	<<generateTentacleTargetLabels>>
 
 	<div id="listContainer">
 		<div id="leftaction" @class="$options.combatControls + 'Control'">
@@ -224,7 +294,7 @@
 				<<if $tentacles[_i].shaft isnot "finished">>
 					<label>
 						<<print '<<radiobutton "$leftactionTarget" "'+$tentacles[_i].id+'" ' + (_first is true or $tentacles[_i].id is $_found ? "checked" : "") + '>>'>>
-						$tentacles[_i].fullDesc
+						_tentacleTargetLabels[$tentacles[_i].id]
 					</label> |
 					<<set _first to false>>
 				<</if>>
@@ -239,7 +309,7 @@
 			<<for _i to 0; _i lt $tentacles.max; _i++>>
 				<<if $tentacles[_i] isnot undefined>>
 					<<if $tentacles[_i].shaft isnot "finished">>
-						<<set _availableTargets[$tentacles[_i].fullDesc] to $tentacles[_i].id>>
+						<<set _availableTargets[_tentacleTargetLabels[$tentacles[_i].id]] to $tentacles[_i].id>>
 						<<set _tentacle_targets_available to true>>
 					<</if>>
 				<</if>>
@@ -530,7 +600,7 @@
 				<<if $tentacles[_i].shaft isnot "finished">>
 					<label>
 						<<print '<<radiobutton "$rightactionTarget" "'+$tentacles[_i].id+'" ' + (_first is true or $tentacles[_i].id is $_found ? "checked" : "") + '>>'>>
-						$tentacles[_i].fullDesc
+						_tentacleTargetLabels[$tentacles[_i].id]
 					</label> |
 					<<set _first to false>>
 				<</if>>
@@ -545,7 +615,7 @@
 			<<for _i to 0; _i lt $tentacles.max; _i++>>
 				<<if $tentacles[_i] isnot undefined>>
 					<<if $tentacles[_i].shaft isnot "finished">>
-						<<set _availableTargets[$tentacles[_i].fullDesc] to $tentacles[_i].id>>
+						<<set _availableTargets[_tentacleTargetLabels[$tentacles[_i].id]] to $tentacles[_i].id>>
 						<<set _tentacle_targets_available to true>>
 					<</if>>
 				<</if>>
@@ -673,6 +743,13 @@
 			<<case "mechgrappled">>
 				<<set $_changetype to true>><<feetActionInitMachine>>
 			<<default>>
+				<<unset _leftLegTentacle>><<unset _rightLegTentacle>>
+				<<for _i to 0; _i lt $tentacles.max; _i++>>
+					<<if $tentacles[_i] isnot undefined>>
+						<<if $tentacles[_i].shaft is "leftleg">><<set _leftLegTentacle to $tentacles[_i]>><</if>>
+						<<if $tentacles[_i].shaft is "rightleg">><<set _rightLegTentacle to $tentacles[_i]>><</if>>
+					<</if>>
+				<</for>>
 				<<if _targetYourself is true and _targetnumber gt 1>>
 					<<set _targetlistall["Yourself"] to "self">>
 				<</if>>
@@ -686,16 +763,19 @@
 					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')">Your legs are free.</span>
 				<<elseif $leftleg is 0>>
 					<<set _feetOptions to "leftfree">>
-					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')">Your left leg is free.</span>
+					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')">Your left leg is free. <<if _rightLegTentacle>>_The _rightLegTentacle.fullDesc entangles your right leg.<<else>>Your right leg is restrained.<</if>></span>
 				<<elseif $rightleg is 0>>
 					<<set _feetOptions to "rightfree">>
-					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')">Your right leg is free.</span>
+					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')">Your right leg is free. <<if _leftLegTentacle>>_The _leftLegTentacle.fullDesc entangles your left leg.<<else>>Your left leg is restrained.<</if>></span>
 				<<elseif $leftleg is "grappled" and $rightleg is "grappled">>
 					<<set _feetOptions to "grappled">>
-					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')">Your legs are entangled and forced apart, leaving you less able to protect your <<genitals>>.</span>
+					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')"><<if _leftLegTentacle>>_The _leftLegTentacle.fullDesc entangles your left leg.<<else>>Your left leg is entangled.<</if>> <<if _rightLegTentacle>>_The _rightLegTentacle.fullDesc entangles your right leg.<<else>>Your right leg is entangled.<</if>> They are forced apart, leaving you less able to protect your <<genitals>>.</span>
 				<<elseif $leftleg is "bound" and $rightleg is "bound">>
 					<<set _feetOptions to "bound">>
 					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')">Your legs are bound and forced apart, leaving you less able to protect your <<genitals>>.</span><<combatExtendedStability -15>>
+				<<elseif $leftleg is "grappled" or $rightleg is "grappled">>
+					<<set _feetOptions to "grappled">>
+					<span @class="($lastOptions.feet isnot _feetOptions ?'gold':'')"><<if _leftLegTentacle>>_The _leftLegTentacle.fullDesc entangles your left leg. <</if>><<if _rightLegTentacle>>_The _rightLegTentacle.fullDesc entangles your right leg. <</if>>Your other leg is bound.</span>
 				<<else>>
 					<<for _i to 0; _i lt $tentacles.max; _i++>>
 						<<if $leftleg is $tentacles[_i].id>>
@@ -804,7 +884,7 @@
 				<<if $tentacles[_i].shaft isnot "finished">>
 					<label>
 						<<print '<<radiobutton "$feetactionTarget" "'+$tentacles[_i].id+'" ' + (_first is true or $tentacles[_i].id is $_found ? "checked" : "") + '>>'>>
-						$tentacles[_i].fullDesc
+						_tentacleTargetLabels[$tentacles[_i].id]
 					</label> |
 					<<set _first to false>>
 				<</if>>
@@ -819,7 +899,7 @@
 			<<for _i to 0; _i lt $tentacles.max; _i++>>
 				<<if $tentacles[_i] isnot undefined>>
 					<<if $tentacles[_i].shaft isnot "finished">>
-						<<set _availableTargets[$tentacles[_i].fullDesc] to $tentacles[_i].id>>
+						<<set _availableTargets[_tentacleTargetLabels[$tentacles[_i].id]] to $tentacles[_i].id>>
 						<<set _tentacle_targets_available to true>>
 					<</if>>
 				<</if>>
@@ -926,7 +1006,7 @@
 						<<if $worn.face.type.includes("face_covering") or $worn.face.type.includes("gag")>>
 							<span @class="($lastOptions.mouth isnot _mouthOptions ?'gold':'')">_The $tentacles[_i].fullDesc presses against your <<print $worn.face.name>>.</span>
 						<<else>>
-							<span @class="($lastOptions.mouth isnot _mouthOptions ?'gold':'')">_The $tentacles[_i].fullDesc presses against your mouth.</span>
+							<span @class="($lastOptions.mouth isnot _mouthOptions ?'gold':'')">_The $tentacles[_i].fullDesc presses against your lips, <span class="red">poised to penetrate your mouth.</span></span>
 						<</if>>
 						<<break>>
 					<</if>>
@@ -1508,6 +1588,7 @@
 	<<if _targetlist is undefined>>
 		<<getTargetList>>
 	<</if>>
+	<<generateTentacleTargetLabels>>
 	<div id="listContainer">
 		<div id="leftaction" @class="$options.combatControls + 'Control'">
 			<<if $lefttarget is "vore" or $tentacles.active is 0>>
