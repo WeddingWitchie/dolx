@@ -1113,6 +1113,7 @@ function dayPassed(days) {
 				wikifier("unlockAdultShop");
 			} else if (V.adultshopprogress >= 22 && !V.adultshopunlocked) V.adultshopgrandopening = true;
 			else if (V.adultshopdegree < 15) V.adultshopdegree += 0.1;
+			delete V.adultshopopeningsydney;
 			delete V.adultshophelped;
 
 			if (V.location !== "tentworld") {
