@@ -50,7 +50,7 @@ const autismTrainingLocations = Object.freeze(["mma_gym", "pool", "dance_studio"
 /* Stats that count as practice at training venues. Sex skills are excluded because they do not count as training. */
 const autismVenueTrainableStats = Object.freeze(["physique", "athletics", "willpower", "swimming", "brawling", "footwork", "striking", "kicking"]);
 
-/* Stats that can be chosen for the daily hyperfixation.
+/* Stats that can be chosen for the current hyperfixation.
 Only stats the player can actively practise are included, so every fixation can give both doubled gains and Stress relief.
 Sex skills and Skulduggery are excluded because they have no regular practice option. */
 const autismHyperfixationPool = Object.freeze([
@@ -172,6 +172,8 @@ function ensureAutismSpectrumState() {
 	if (!autismAvailableHyperfixations().includes(state.hyperfixation)) {
 		state.hyperfixation = autismRollHyperfixation();
 		state.hyperfixationEndsDay = today + autismRollHyperfixationDays();
+		/* This also makes the first queued trait notice contain the newly chosen fixation. */
+		state.focusChanged = true;
 	}
 	/* Older saves have a focus but no end day. Give that focus a full new stretch instead of replacing it on load. */
 	if (!Number.isFinite(state.hyperfixationEndsDay)) state.hyperfixationEndsDay = today + autismRollHyperfixationDays();
@@ -510,8 +512,9 @@ function autismSettleTraining() {
 	Since the actual practice time is unknown, don't add any practice hours. */
 	if (minutes > autismSpectrumSessionMaxMinutes) return;
 
-	/* Practising your fixation lowers stress and load, making it one of several ways to recover. */
-	if (trained.every(stat => stat === focus)) {
+	/* Compound activities often award a supporting stat as well as their main skill.
+	If the fixation was practised at all, the activity still counts as time spent on it. */
+	if (trained.includes(focus)) {
 		const brokeStreak = state.trainingMinutes > 0;
 		state.trainingMinutes = 0;
 		statChange.stress(-(minutes / 10));
