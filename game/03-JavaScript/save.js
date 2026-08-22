@@ -1402,7 +1402,7 @@ function settingsObjects(type) {
 					tendingYieldModifier: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
 					femaleClimaxAlways: { bool: true, displayName: "Cum like a girl regardless of penis size:" },
 					toyDildoEnabled: { bool: true, displayName: "Dildos:" },
-					smallPenisSemenVolumeLossDisabled: { bool: true, displayName: "Disable semen volume loss from a small size penis:" },
+					smallPenisSemenVolumeLossDisabled: { bool: true, displayName: "Disable semen volume loss from dry orgasms:" },
 					toyVirginityEnabled: { bool: true, displayName: "Toys can take virginity:" },
 					transformDivineEnabled: { bool: true, displayName: "Divine Transformations:" },
 					analDoubleEnabled: { bool: true, displayName: "Double Anal:" },
