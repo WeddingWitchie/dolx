@@ -139,7 +139,9 @@ Delegates to `rentDemand(amount)`. Called by the `rentmod` widget.
 
 ### `setup.inflation.appliesToSpend(source)`
 
-Whether a `money()` spend with the given `source` should be inflated. Returns false for `EXCLUDED_SOURCES` (`"baileyRent"`, `"bankLoan"`, `"tailorDeposit"`).
+Whether a `money()` spend with the given `source` should be inflated. Returns false for `EXCLUDED_SOURCES` (`"baileyRent"`, `"bankLoan"`, `"tailorDeposit"`, `"robinGift"`, `"estateBetting"`).
+
+**Gating rule:** any button whose label prints an inflated price must test affordability against the inflated price too — `setup.inflation.canAfford(base, source)`, or `$money gte (setup.inflation ? setup.inflation.spendPrice(base, source) : base)`. Testing the raw base lets the player click a purchase they cannot cover. Wagers that are paid back out of a pot at their raw value (the dice game, the estate ante) must bypass the hook instead, so the buy-in and the winnings use the same units.
 
 ### `setup.inflation.percent(wealth?)`, `isCrisis(wealth?)`
 

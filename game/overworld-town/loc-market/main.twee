@@ -1958,7 +1958,7 @@ The <<person>> shoves you beneath the table, while the <<person2>><<person>> lif
 :: Market Street Urchin Help
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
 <<set $urchin_debt to random(500,2000)>>
-It turns out that the <<person1>><<person>> stole some <<if $phase is 0>>food<<else>>items from the stall<</if>> worth <<printmoney $urchin_debt>>, and the market stall owner wants to call the police.
+It turns out that the <<person1>><<person>> stole some <<if $phase is 0>>food<<else>>items from the stall<</if>> worth <<printprice $urchin_debt>>, and the market stall owner wants to call the police.
 <br><br>
 <<if $phase is 0>>
 	<<link [[Try to explain the orphan's desperate hunger|Market Street Urchin Help Persuade]]>><</link>>
@@ -1967,7 +1967,7 @@ It turns out that the <<person1>><<person>> stole some <<if $phase is 0>>food<<e
 	<<link [[Persuade the market stall owner to drop it|Market Street Urchin Help Persuade]]>><</link>>
 	<br>
 <</if>>
-<<if $money gte $urchin_debt>>
+<<if $money gte (setup.inflation ? setup.inflation.spendPrice($urchin_debt, "marketStall") : $urchin_debt)>>
 	<<link [[Offer to pay|Market Street Urchin Help Pay]]>><<set $phase += 1>><</link>> /* incr $phase to indicate price not agreed. */
 	<br>
 <</if>>
@@ -2018,7 +2018,7 @@ It turns out that the <<person1>><<person>> stole some <<if $phase is 0>>food<<e
 	Hearing the conviction in your words, the market stall owner relents.
 	<br><br>
 	"Okay, but someone has to pay me for it."<br><br>
-	<<if $money gte $urchin_debt>>
+	<<if $money gte (setup.inflation ? setup.inflation.spendPrice($urchin_debt, "marketStall") : $urchin_debt)>>
 		<<link [[Offer to pay|Market Street Urchin Help Pay]]>><</link>>
 		<br>
 		<<link [[Refuse to pay|Market Street Urchin Not Pay]]>><</link>>
@@ -2039,12 +2039,12 @@ It turns out that the <<person1>><<person>> stole some <<if $phase is 0>>food<<e
 <<set $outside to 1>><<set $location to "town">><<effects>><<set $bus to "connudatus">>
 <<if $phase % 10 is 1 and $rng % 3 is 0>> /* price not yet agreed? 1 in 3 chance of a price hike */
 	<<set $urchin_debt *= 2>>
-	"Okay," the market stall owner says. "But since <<person1>><<he>> tried to steal from me, the price has gone up to <<printmoney $urchin_debt>>."
+	"Okay," the market stall owner says. "But since <<person1>><<he>> tried to steal from me, the price has gone up to <<printprice $urchin_debt>>."
 <<else>>
-	"Okay," the market stall owner says. "Just pay <<printmoney $urchin_debt>> for it, and get out of here. You're lucky it's been a busy day."
+	"Okay," the market stall owner says. "Just pay <<printprice $urchin_debt>> for it, and get out of here. You're lucky it's been a busy day."
 <</if>>
 <br><br>
-<<if $money gte $urchin_debt>>
+<<if $money gte (setup.inflation ? setup.inflation.spendPrice($urchin_debt, "marketStall") : $urchin_debt)>>
 	You pay the market stall owner. <<ghope>><<hope 1>><<money `-$urchin_debt` "marketStall">>
 	<br><br>
 	The owner counts it carefully and then waves you both away. "Get out of here."

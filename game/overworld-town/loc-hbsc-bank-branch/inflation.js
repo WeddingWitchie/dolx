@@ -247,7 +247,8 @@
 
 	/* `money()` spend sources that must NOT be auto-inflated.
 	Rent is handled at its own source so the shown price matches; loan repayments are fixed-value debt. */
-	setup.inflation.EXCLUDED_SOURCES = ["baileyRent", "bankLoan", "tailorDeposit", "robinGift"];
+	/* "estateBetting" is a gambling ante that is paid back out of the pot at the raw amount, so inflating the buy-in would quietly tax every hand. */
+	setup.inflation.EXCLUDED_SOURCES = ["baileyRent", "bankLoan", "tailorDeposit", "robinGift", "estateBetting"];
 
 	setup.inflation.isEnabled = function () {
 		/* Always enabled for now. `$settings.inflationEnabled` is kept reserved for a future UI toggle. */
