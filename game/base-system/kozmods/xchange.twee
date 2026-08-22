@@ -3,6 +3,7 @@
 	<<widget "sissify">>
 		<<wash>>
 		<<set $player.gender_body to "f">>
+		<<xchange-apply-demeanour>>
 		<<set $player.bodyshape to "curvy">>
 		<<set $player.penissize to 0>>
 		<<set $ballssize to 0>>
@@ -31,6 +32,7 @@
 
 		<<set $player.gender_body to "f">>
 		<<set $player.bodyshape to "curvy">>
+		<<if _args[0] isnot "restore">><<xchange-apply-demeanour>><</if>>
 
 		/* Face and hair belong to the body being generated, so they're only rolled when a brand new
 		   female body is built: never when an existing one is loaded back, and never when this widget
@@ -290,6 +292,7 @@
 	<<widget "butchify">>
 		<<wash>>
 		<<set $player.gender_body to "m">>
+		<<xchange-apply-demeanour>>
 		<<set $player.bodyshape to "classic">>
 		<<if $xchange.sizeOverride is "default">>
 			<<set $bodysize to setup.stepBodySize($bodysize, 1)>>
@@ -316,6 +319,7 @@
 		<<wash>>
 		<<set $player.gender_body to "m">>
 		<<set $player.bodyshape to "classic">>
+		<<if _args[0] isnot "restore">><<xchange-apply-demeanour>><</if>>
 
 		/* See <<become-girl>>: face/hair are only rolled for a brand new male body, never on a reload
 		   and never on the shape flip that precedes <<load-body>> during a restore. */
@@ -560,6 +564,7 @@
 	<<widget "hermify">>
 		<<wash>>
 		<<set $player.gender_body to "a">>
+		<<xchange-apply-demeanour>>
 		<<if $xchange.pill.changedBody is undefined>>
 			<<set $player.bodyshape to "slender">>
 		<</if>>
@@ -678,6 +683,30 @@
 		<<clamp>>
 		<<if !_xchangeLoadedBody and $tempSavedHairStyles>><<saveTempHairStyle>><</if>>
 		<<run updatePhysique()>>
+	<</widget>>
+
+	<<widget "xchange-apply-demeanour">>
+		/* Applies the "Sexflipped Demeanour" setting when a pill puts you in another body.
+		   The demeanour you had in your own body is remembered on the pill and put back by
+		   <<xchange-restore-demeanour>> when you return to it. */
+		<<set _xcDemChoice to $xchange.customisedDemeanour>>
+		<<if _xcDemChoice is undefined or _xcDemChoice is "nochange">><<exit>><</if>>
+		<<set _xcDemPool to ["docile","meek","shy","polite","neutral","confident","bratty","cruel","flamboyant","special","capricious","fickle"]>>
+		<<if _xcDemChoice is "random">><<set _xcDemChoice to _xcDemPool.random()>><</if>>
+		<<if !_xcDemPool.includes(_xcDemChoice)>><<exit>><</if>>
+		/* Only remember it once, so a second pill taken on top of the first doesn't store the pilled demeanour as the original. */
+		<<if $xchange.pill.originalDemeanour is undefined>>
+			<<set $xchange.pill.originalDemeanour to $speech_attitude>>
+		<</if>>
+		<<set $speech_attitude to _xcDemChoice>>
+		<<set $speech_attitude_special to _xcDemChoice>>
+	<</widget>>
+
+	<<widget "xchange-restore-demeanour">>
+		<<if $xchange.pill.originalDemeanour is undefined>><<exit>><</if>>
+		<<set $speech_attitude to $xchange.pill.originalDemeanour>>
+		<<set $speech_attitude_special to $xchange.pill.originalDemeanour>>
+		<<run delete V.xchange.pill.originalDemeanour>>
 	<</widget>>
 
 	<<widget "xchange-store-body-virginity">>
@@ -1006,6 +1035,7 @@
 		   Entering a body restores its own record; a body that has never existed before is seeded (X-Change/herm => virgin, real => keeps current). */
 		<<set _vrole to "">>
 		<<if _args[0] is undefined>><<set _vrole to "real">>
+			<<xchange-restore-demeanour>>
 		<<elseif _args[0] is "genderswapped">><<set _vrole to "xchange">>
 		<<elseif _args[0] is "herm">><<set _vrole to "herm">>
 		<<elseif _args[0] is "cloned" and _args[1] isnot undefined>><<set _vrole to setup.xChangeCloneVirginityRole(_args[1])>>
@@ -1874,6 +1904,9 @@
 			<<load-body>>
 			<<xchangeMasturbationDesyncCheck>>
 		<</if>>
+
+		/* Safety net for pill effects that end without a body revert. */
+		<<xchange-restore-demeanour>>
 
 		/* Queue up pill messages */
 		<<set $effectsmessage to 1>>
