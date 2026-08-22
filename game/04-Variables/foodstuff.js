@@ -546,7 +546,7 @@ function initFoodstuff() {
 			prop_folder: "tending",
 			ingredient_alternatives: {
 				normal: [],
-				lewd: ["baby_bottle_of_breast_milk"],
+				lewd: ["bottle_of_breast_milk", "baby_bottle_of_breast_milk"],
 			},
 			tending: {
 				affected_by_tending_skill: false,
