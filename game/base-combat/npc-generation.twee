@@ -32,6 +32,9 @@
 	<</if>>
 	<!-- END SAFETY GUARD -->
 
+	<!-- Clear any leftover named-NPC data before this slot is reused for a random NPC. -->
+	<<releaseNamedNpcSlot _n>>
+
 	<!-- Checks if endevent was properly used after the last event -->
 	<<set _status to _args[1]>> /* "t" for teen, "a" for adult, or "r" for random */
 	<<set _pronoun to _args[2]>>
@@ -72,6 +75,9 @@
 	<<run $NPC_names_f.delete(null, undefined)>>
 	<<run $NPC_names_m.delete(null, undefined)>>
 	<<set $NPCList[_n].name to ($NPCList[_n].pronoun is "f" ? $NPC_names_f.random() : $NPC_names_m.random())>>
+	<!-- A stranger the player has never met. Clear old slot data so they do not inherit another NPC's name or saved record. Known NPC scenes set these values again or use loadNPC macro. -->
+	<<set $NPCList[_n].name_known to 0>>
+	<<run delete $NPCList[_n].per>>
 
 	<<generatePronouns $NPCList[_n]>>
 

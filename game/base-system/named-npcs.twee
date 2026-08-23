@@ -84,6 +84,21 @@
 	<</if>>
 <</widget>>
 
+/* Clears any named-NPC mapping still attached to this $NPCList slot.
+   If a scene ends without endevent macro, the old mapping can remain and make the next random NPC in that slot appear as the previous named character. */
+<<widget "releaseNamedNpcSlot">>
+	<<set _slotToRelease to Number(_args[0])>>
+	<<if !isNaN(_slotToRelease) and Array.isArray($npcrow)>>
+		<<for _releaseI to $npcrow.length - 1; _releaseI gte 0; _releaseI-->>
+			<<if $npcrow[_releaseI] is _slotToRelease>>
+				<<run $npc.splice(_releaseI, 1)>>
+				<<run $npcnum.splice(_releaseI, 1)>>
+				<<run $npcrow.splice(_releaseI, 1)>>
+			<</if>>
+		<</for>>
+	<</if>>
+<</widget>>
+
 <!-- Named NPC aka NNPC notes -->
 <!-- $NPCNameList.indexOf("Eden") returns the index value of Eden array, allowing name-friendly calls -->
 <!-- To call NNPC Eden, use <<npc Eden>>. To put them away, use <<endnpc>>. -->
@@ -907,6 +922,7 @@ Zohar
 	<<if _npcno is 0 and !_overwrite and $enemyno is 0>>
 		<<for _slotClean to 1; _slotClean lt 6; _slotClean++>>
 			<<set $NPCList[_slotClean] to clone(setup.baseNPC)>>
+			<<releaseNamedNpcSlot _slotClean>>
 		<</for>>
 		<<if EventSystem.count() gt 0>>
 			<<run EventSystem.clear()>>
@@ -982,6 +998,8 @@ Zohar
 	* DO NOT COMPARE NEITHER $npc NOR $npcnum TO $NPCList.
 	* Since when defining an NPC one can choose in which row of $NPCList to put it, comparing them could result in mismatches.
 	*/
+	<!-- Prevent duplicate slot mappings, which can cause a single NPC to use "they" pronouns. -->
+	<<releaseNamedNpcSlot _npcno>>
 	<<set $npc.push(_nam)>>
 	<<set $npcnum.push(_i)>>
 	<<set $NPCList[_npcno].fullDescription to _nam>>
