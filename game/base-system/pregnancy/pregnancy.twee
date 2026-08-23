@@ -535,9 +535,10 @@
 <</widget>>
 
 <<widget "wakingEffects">><<silently>>
-	/* The asylum and the prison run their own birth chains and their own locked doors, so the "walk out to the sea" prompt must never appear there. */
-	<<set _dragonHeld to ($waterDragonLab and $waterDragonLab.active) or ["asylum", "prison"].includes($location)>>
-	<<if _args[0] and playerIsPregnant() and isPregnancyEnding() and isFullWaterDragon() and !["asylum", "prison"].includes($location)>>
+	/* Don't show the "walk out to the sea" escape option in locked areas, soft bad ends, flashbacks, visions, or the hopeless cycle. */
+	<<set _dragonLayingBlocked to Transformations.waterDragonLayingBlocked()>>
+	<<set _dragonHeld to _dragonLayingBlocked or ($waterDragonLab and $waterDragonLab.active)>>
+	<<if _args[0] and playerIsPregnant() and isPregnancyEnding() and isFullWaterDragon() and !_dragonLayingBlocked>>
 		<<set _wakingEffect to "waterDragonPregnancy">>
 		<<if $waterDragonLab and $waterDragonLab.active>>
 			<<set $_text_output to `<<waterDragonLabPregnancyEvent>>`>>

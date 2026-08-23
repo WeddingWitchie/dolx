@@ -216,6 +216,22 @@ class Transformations {
 		return V.waterdragontf === 1 || (Number(V.waterdragon) || 0) >= 6;
 	}
 
+	/* --- Egg laying / dragon labour lockout -------------------------------------------
+	The egg cycle pauses when the player is in a scene or location they cannot freely leave, including:
+	* Flashbacks, dreams, visions, replays, the hopeless cycle, or other temporary states.
+	* Soft bad ends where the player is being held.
+	* The asylum, prison, island, and pirate ship, which have their own locked event chains.
+	This prevents the egg event from triggering at the wrong time or accidentally removing existing eggs.
+	Harper's lab is the exception. Its egg timer continues because the lab handles egg growth and laying through its own events.
+	*/
+	static waterDragonLayingBlocked() {
+		if (V.statFreeze || V.frozenValues || V.replayScene || V.hc) return true;
+		if (V.waterDragonLab && V.waterDragonLab.active) return false;
+		if (["asylum", "prison", "island", "pirate_ship"].includes(V.location)) return true;
+		const lastBadEnd = Array.isArray(V.badEndStats) ? V.badEndStats.last() : undefined;
+		return !!(lastBadEnd && !lastBadEnd.trackedEnd);
+	}
+
 	/* --- Bakunawa blood moon resonance ------------------------------------------------
 	   The bakunawa is the moon-devouring serpent, so the chimera only stirs while the moon runs red.
 	   $forcedBloodmoon is included so scripted blood moons (the wraith nightmare) count like the real thing,

@@ -1205,7 +1205,11 @@ function dayPassed(days) {
 				V.harpyEggsPrevent--;
 				if (V.harpyEggsPrevent <= 0) delete V.harpyEggsPrevent;
 			}
-			if (
+			/* Pause the egg cycle during bad ends or when the PC is in another body, since it could remove real eggs or trigger laying when the PC cannot respond. */
+			const eggCycleBlocked = Transformations.waterDragonLayingBlocked();
+			if (eggCycleBlocked) {
+				// no egg progress today
+			} else if (
 				V.waterDragonEggs &&
 				(!(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) || !Transformations.isFullWaterDragon()) &&
 				!(V.waterDragonLab && V.waterDragonLab.active)
@@ -1215,6 +1219,7 @@ function dayPassed(days) {
 				V.waterDragonEggs.daysTillLaying--;
 			}
 			if (
+				!eggCycleBlocked &&
 				!V.waterDragonEggs &&
 				V.settings.playerPregnancyEggLayingEnabled === true &&
 				(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) &&
