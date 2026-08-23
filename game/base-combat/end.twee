@@ -137,7 +137,7 @@
 
 	/* Check if combat is active before collecting samples to avoid collecting samples when endcombat is called while combat is not active */
 	<<if $combat is 1>>
-		<<if ($enemypleasure gte $enemypleasuremax || $enemyejaculated gte 1) and canCollectSamples() and !($enemytype is "plant" and $abomination is 1) and !$beastRitual>>
+		<<if ($enemypleasure gte $enemypleasuremax || $enemyejaculated gte 1) and canCollectSamples() and !($enemytype is "plant" and $abomination is 1) and !($enemytype is "tentacles" and ["vine","root","shoot"].includes($tentacles[0]?.type)) and !$beastRitual>>
 			<<set $_samplesCollected to 0>>
 			<<for $_sample to 0; $_sample lt $enemyno; $_sample++>>
 				<<if canCollectSampleSingle(V.NPCList[$_sample]?.type)>>
@@ -171,20 +171,25 @@
 		<<elseif ($enemytype is "plant" and $abomination is 1 or $enemytype is "tentacles" and ["vine","root","shoot"].includes($tentacles[0]?.type)) and canCollectSamples() and canCollectSampleSingle("plant") and !$beastRitual>>
 			<<if canCollectSamples() is "bound">>
 				<span class="red">With your arms bound, you're unable to take a sample of nectar.</span>
+				<<set _br to true>>
+				<br>
 			<<else>>
 				<<set $_sampleMod to $location is "forest_shop_garden" and $beastRitual ? 1.3 : 1>>
-				<<set $_fromTentacles to $combat_tentacle_record.fluid || 1>>
+				<<set $_fromTentacles to $combat_tentacle_record?.fluid || 1>>
 				<<set $_nectarCollected to Math.ceil((1 + $_fromTentacles / 9) * $_sampleMod)>>
-				<<set $_samplesToCollect to collectSample("plant", $_nectarCollected)>>
-				<<if $location is "forest_shop_garden">>
-					<span class="green">Gwylan helps you collect the nectar in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
-				<<else>>
-					<span class="lewd">You collect as much nectar as you can in the vials Gwylan gave you.</span>
+				/* collectSample returns what Gwylan still had room for, which is what the PC actually keeps. */
+				<<set $_samplesToCollect to collectSample("plant", $_nectarCollected) || 0>>
+				<<if $_samplesToCollect gt 0>>
+					<<if $location is "forest_shop_garden">>
+						<span class="green">Gwylan helps you collect the nectar in vials.</span> <<npcincr Gwylan lust 1>><<glust>><br>
+					<<else>>
+						<span class="lewd">You collect as much nectar as you can in the vials Gwylan gave you.</span>
+					<</if>>
+					You obtain <span class="gold"><<number $_samplesToCollect>></span> <<pluralise $_samplesToCollect "sample">> of nectar.
+					<<set _br to true>>
+					<br>
 				<</if>>
-				You obtain <span class="gold"><<number $_nectarCollected>></span> <<pluralise $_nectarCollected "sample">> of nectar.
 			<</if>>
-			<<set _br to true>>
-			<br>
 		<</if>>
 	<</if>>
 
