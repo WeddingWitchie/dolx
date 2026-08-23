@@ -198,3 +198,22 @@
 		}
 	};
 })();
+
+/* True when the player cannot orgasm from masturbation alone.
+   Toys may still allow orgasm. Used only to enable a fallback, never to block anything. */
+function playerCannotSelfClimax() {
+	return !!(
+		V.penis_addict_trait === 1 ||
+		(V.hole_addict_trait === 1 && V.player?.penisExist) ||
+		(V.xchange?.pill?.alphaEffect && V.player?.penisExist) ||
+		// eslint-disable-next-line no-undef
+		breederOrgasmDenied()
+	);
+}
+window.playerCannotSelfClimax = playerCannotSelfClimax;
+
+/* Matches the daily demon burn check: any purity causes a burn at midnight, and feat demons burn from level 1 instead of 6. */
+function demonPurityBurnPending() {
+	return !!(V.purity >= 1 && (effectiveTransformationLevel("demon") >= 6 || (V.demon >= 1 && V.demonFeat)));
+}
+window.demonPurityBurnPending = demonPurityBurnPending;
