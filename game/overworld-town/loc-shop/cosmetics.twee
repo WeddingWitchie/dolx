@@ -67,11 +67,27 @@ You are in the cosmetics store. Several shelvings stand before you, filled with 
 		<<cosmeticsicon "dyes">><<link [[Look at hair dyes|Cosmetics Dyes]]>><</link>>
 		<br>
 		<<cosmeticsicon "sunscreen">><<link [[Look at sunscreen|Cosmetics Sunscreen]]>><</link>>
-		/* <br><<ccmodManagerButton>> */
+		<br>
+		<<run pocketEnsure()>>
+		<<if $pocket.mirror>>
+			<<mirroricon>><span class="grey">A rack of hand mirrors. You already own one.</span>
+		<<elseif $money gte (setup.inflation ? setup.inflation.spendPrice(1500, "cosmetics") : 1500)>>
+			<<mirroricon>><<link [[Buy a hand mirror (<<printprice 1500>>)|Cosmetics Hand Mirror]]>><<money -1500 "cosmetics">><<set $pocket.mirror to true>><</link>>
+		<<else>>
+			<<mirroricon>><span class="grey">A rack of hand mirrors. <<printprice 1500>>. You can't afford one.</span>
+		<</if>>
 		<br><br>
 	<</if>>
 	<<getouticon>><<link [[Leave|Shopping Centre Top]]>><</link>>
 <</if>>
+
+:: Cosmetics Hand Mirror
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+You pick out a small hand mirror and pay for it. It slips easily into a pocket.
+<br><br>
+<span class="green">You can use it from the POCKET menu almost anywhere.</span>
+<br><br>
+<<link [[Back|Cosmetics Store]]>><</link>>
 
 :: Cosmetics Lipstick
 <<CosmeticsGenericDepartment "lipstick" "lipstick" "lipsticks" "lipstick" "" "#FF0000" 1000 "Cosmetics Lipstick" "A bunch of colourful lipsticks stand on a shelf." true true 20 `setup.colours.lipstick.map(c=>c.variable)`>>

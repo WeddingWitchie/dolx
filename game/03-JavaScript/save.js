@@ -1232,6 +1232,7 @@ function settingsObjects(type) {
 				DoLPTFTempTolerance: { min: 0, max: 1, decimals: 0, displayName: "Animal TF Temperature Tolerance:" },
 				substanceRebalance: { min: 0, max: 1, decimals: 0, displayName: "Vanilla Substance Rebalance:" },
 				dancingRebalance: { min: 0, max: 1, decimals: 0, displayName: "Dancing Rebalance:" },
+				foodSpoilage: { min: 0, max: 1, decimals: 0, displayName: "Food Spoilage:" },
 				produce_yield_factor: { min: 10, max: 200, decimals: 0, displayName: "Produce Yield:" },
 				easyHousekeeping: { min: 0, max: 1, decimals: 0, displayName: "Easy Housekeeping:" },
 				statGainMult: { min: 10, max: 1000, decimals: 0, displayName: "Stat Gain Multiplier:" },

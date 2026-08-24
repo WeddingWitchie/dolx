@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation */
-/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised sleepAidPending sleepAidOtcStrongEnough pillDosesTodayByType */
+/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised sleepAidPending sleepAidOtcStrongEnough pillDosesTodayByType pocketBagCapacity pocketBagName pocketAvailable pocketCarrying pocketSlotToggle */
 /*
  * if display_condition is 1, item is displayed, else it's not
  * current max doses for Harper/Asylum pills is 1; 2 for every other pills
@@ -886,6 +886,37 @@ function addElementToGrid(item) {
 }
 window.addElementToGrid = addElementToGrid;
 
+/* The pocket row in a medicine's detail panel. The PC has one personal slot even without a bag. */
+function pillBagActionCell(item) {
+	if (typeof pocketBagCapacity !== "function" || !pocketAvailable()) return "";
+	const name = "`" + item.name + "`";
+	return `
+						<div class="hpi_action_cell">
+							<a id="hpi_pocket_bag" onclick="window.onPillBagClick(${name})">${pillBagActionLabel(item)}</a>
+						</div>`;
+}
+window.pillBagActionCell = pillBagActionCell;
+
+function pillBagActionLabel(item) {
+	if (pocketCarrying("pill", item.name)) return "Remove from bag";
+	return "Put in bag";
+}
+window.pillBagActionLabel = pillBagActionLabel;
+
+function onPillBagClick(itemName) {
+	const item = setup.pills.find(pill => pill.name === itemName);
+	if (!item) return;
+	if (!pocketSlotToggle("pill", itemName)) {
+		/* The only normal failure is a full carried container; say so instead of doing nothing. */
+		const button = document.getElementById("hpi_pocket_bag");
+		if (button) button.textContent = `Your ${pocketBagName()} is full`;
+		return;
+	}
+	const button = document.getElementById("hpi_pocket_bag");
+	if (button) button.textContent = pillBagActionLabel(item);
+}
+window.onPillBagClick = onPillBagClick;
+
 function onHomePillItemClick(itemName) {
 	if (!T.disableGridClick) {
 		document.getElementById("homeDescPillContainer").style.display = "grid";
@@ -904,6 +935,7 @@ function onHomePillItemClick(itemName) {
 						<div class="hpi_action_cell">
 							<a id="hpi_take_every_morning" onclick="window.onAutoTakeClick(${itemName}, ${itemType})">Take every morning</a>
 						</div>
+						${pillBagActionCell(item)}
 					</div>
 				</div>`;
 				window.initPillContextButtons(item);
@@ -937,7 +969,10 @@ function initPillContextButtons(item) {
 	// Hide auto-use for medication that must be taken manually.
 	if (["asylum", "painkiller", "calmoryl", "sensitivity", "sleep", "xchange"].includes(item.type)) {
 		document.getElementById("hpi_take_every_morning").className = "hidden"; // prevent 'Take every Morning' option to be displayed for those type of pills
-		document.getElementById("hpi_desc_action").classList.add("hpi_action_single"); // readapt css since there's only one button now
+		/* The bag button, when present, takes the freed column, so the panel is only "single" without it. */
+		if (!document.getElementById("hpi_pocket_bag")) {
+			document.getElementById("hpi_desc_action").classList.add("hpi_action_single"); // readapt css since there's only one button now
+		}
 	}
 	//  Add 'Take pill' button
 	document.getElementById("hpi_take_pills").innerHTML = item.hpi_take_pills ? item.hpi_take_pills() : "Take pill";

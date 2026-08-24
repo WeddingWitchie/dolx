@@ -1230,6 +1230,14 @@ setup.feats = {
 		series: "special trait",
 		filter: ["All", "Special"],
 	},
+	"Own Two Hands": {
+		title: "Own Two Hands",
+		desc: "Eat 100 servings of your own cooking.",
+		difficulty: 1,
+		series: "",
+		filter: ["All", "General"],
+		softLockable: true,
+	},
 	"Hardened Liver": {
 		title: "Hardened Liver",
 		desc: "Your body adapted to chronic drunkenness.",

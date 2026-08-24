@@ -13,6 +13,8 @@ function finalizefoodstuff() {
 	setup.foodstuff = sortedCatalog;
 }
 
+/* shop.sell_price represents a finished serving's value and is also used to scale its meal effects.
+   Keep it at or above the ingredient cost per serving so dishes are not both weak and unprofitable. */
 function initFoodstuff() {
 	/** @type {Dict<FoodstuffItem>} */
 	setup.foodstuff = {
@@ -968,7 +970,7 @@ function initFoodstuff() {
 			singular: "piece of cheese",
 			plural: "pieces of cheese",
 			icon: "cheese.png",
-			category: "dish",
+			category: "ingredient",
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
@@ -997,7 +999,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 800,
+				sell_price: 1000,
 			},
 			recipe: {
 				recipe_name: "macaroni and cheese",
@@ -1045,7 +1047,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1000,
+				sell_price: 1400,
 			},
 			recipe: {
 				recipe_name: "cauliflower cheese",
@@ -1428,7 +1430,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 60,
+				sell_price: 100,
 			},
 			recipe: {
 				recipe_name: "samosas",
@@ -1645,7 +1647,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 600,
+				sell_price: 1600,
 			},
 			recipe: {
 				recipe_name: "hamburgers",
@@ -1669,7 +1671,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 800,
+				sell_price: 1100,
 			},
 			recipe: {
 				recipe_name: "cheeseburgers",
@@ -1717,7 +1719,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1600,
+				sell_price: 1900,
 			},
 			recipe: {
 				recipe_name: "cheese topped trout",
@@ -1777,7 +1779,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1100,
+				sell_price: 1700,
 			},
 			recipe: {
 				recipe_name: "spaghetti bolognese",
@@ -1801,7 +1803,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1400,
+				sell_price: 2400,
 			},
 			recipe: {
 				recipe_name: "lasagne",
@@ -1831,7 +1833,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1000,
+				sell_price: 1900,
 			},
 			recipe: {
 				recipe_name: "carbonara",
@@ -1879,7 +1881,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1300,
+				sell_price: 1700,
 			},
 			recipe: {
 				recipe_name: "chilli con carne",
@@ -2090,7 +2092,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1000,
+				sell_price: 1100,
 			},
 			recipe: {
 				recipe_name: "tarts",
@@ -2393,7 +2395,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1000,
+				sell_price: 200,
 			},
 			recipe: {
 				recipe_name: "Belgian buns",
@@ -2459,7 +2461,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1000,
+				sell_price: 1300,
 			},
 			recipe: {
 				recipe_name: "steak",
@@ -2688,7 +2690,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1200,
+				sell_price: 300,
 			},
 			recipe: {
 				recipe_name: "yorkshire pudding",
@@ -2736,7 +2738,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 2400,
+				sell_price: 3700,
 			},
 			recipe: {
 				recipe_name: "roast dinner",
@@ -2797,7 +2799,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "drink",
 			shop: {
-				sell_price: 55,
+				sell_price: 200,
 			},
 			recipe: {
 				recipe_name: "orange juice",
@@ -2945,7 +2947,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 600,
+				sell_price: 1000,
 			},
 			recipe: {
 				recipe_name: "peach panzanella",
@@ -3041,7 +3043,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 700,
+				sell_price: 750,
 			},
 			recipe: {
 				recipe_name: "arancini",
@@ -3256,7 +3258,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 250,
+				sell_price: 400,
 			},
 			recipe: {
 				recipe_name: "turnip soup",

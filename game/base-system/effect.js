@@ -398,6 +398,31 @@ function effectsMakeup() {
 			delete V.beautyBoost.spa.expiredNotice;
 		}
 	}
+
+	/* Well Fed uses the same one-time gain/loss notice pattern as bathing freshness. */
+	if (typeof window.wellFedActive === "function" && V.pocket) {
+		if (window.wellFedActive() && !V.pocket._wellFedShown) {
+			V.pocket._wellFedShown = true;
+			span("You feel comfortably full and well fed.", "gold");
+			br();
+		} else if (!window.wellFedActive() && V.pocket._wellFedShown) {
+			delete V.pocket._wellFedShown;
+			span("Your stomach feels empty again. You are no longer well fed.", "teal");
+			br();
+		}
+	}
+
+	if (typeof window.bloatedActive === "function" && V.pocket) {
+		if (window.bloatedActive() && !V.pocket._bloatedShown) {
+			V.pocket._bloatedShown = true;
+			span("Your stomach feels painfully bloated.", "red");
+			br();
+		} else if (!window.bloatedActive() && V.pocket._bloatedShown) {
+			delete V.pocket._bloatedShown;
+			span("The bloated feeling finally passes.", "teal");
+			br();
+		}
+	}
 	return fragment;
 }
 

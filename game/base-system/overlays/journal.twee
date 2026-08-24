@@ -1525,10 +1525,13 @@
 		<</if>>
 	<</if>>
 
+	<<run pocketCheckSpoilage()>>
 	<<set _foodstuffKeys to Object.keys($foodstuff)>>
 	<<set _hasProduce to Object.keys($foodstuff).some(key => $foodstuff[key].amount >= 1)>>
+	<<set _hasFoodNotice to $daily.foodSpoiled and $daily.foodSpoiled.length>>
+	<<set _hasCookedFood to pocketFoodList().length>>
 	<<set _carrying to $whitneyWaterdragonPlushie is "carried" or [$antiquemoney, $blackmoney, $phials_held, $lurkers_held, $popcorn, $milkshake, $panties_held, $prison?.teeth].some(i => i >= 1)>>
-	<<if _carrying or _hasProduce>>
+	<<if _carrying or _hasProduce or _hasFoodNotice>>
 		<hr>
 		<h1 class="header gold bold">Inventory</h1>
 	<</if>>
@@ -1539,7 +1542,7 @@
 		</ul>
 		<br>
 	<</if>>
-	<<if _carrying or _hasProduce>>
+	<<if _carrying or _hasProduce or _hasFoodNotice>>
 		You are carrying:
 		<ul class="journal carry">
 			<<if $whitneyWaterdragonPlushie is "carried">>
@@ -1613,6 +1616,13 @@
 				<<run jQuery(document).on("change", "#listbox--invdisplay", function (e) {
 					Wikifier.wikifyEval("<<replace #journalInv>><<journalInventory " + T.invDisplay.toLowerCase() + ">><</replace>>");
 				});>>
+			</details>
+		<</if>>
+		<<if _hasCookedFood or _hasFoodNotice>>
+			<br>
+			<details class="journal">
+				<summary class="journal">Foods</summary>
+				<<pocketFoodJournal>>
 			</details>
 		<</if>>
 	<</if>>

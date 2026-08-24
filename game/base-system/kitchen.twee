@@ -2,6 +2,7 @@
 
 <<widget "kitchenDisplay">>
 	<div id="kitchenDisplay" class="food_ui no-numberify">
+		<<run pocketCheckSpoilage()>>
 		<div id="body">
 			<div id="mainSection">
 				<div id="search">
@@ -24,6 +25,15 @@
 							<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
 						<</replace>>
 					<</link>>
+					<<if pocketAvailable()>>
+						|
+						<<link "Pack food">>
+							<<replace "#altSection">>
+								<<pocketPackFood>>
+								<<removeclass "#altSection, #mobileCloser" "mobileHidden">>
+							<</replace>>
+						<</link>>
+					<</if>>
 				</div>
 				<div id="itemList">
 					<<kitchenDisplayRecipes>>
@@ -345,6 +355,8 @@
 <<widget "make_recipe">>
 	<<set $_amount to _args[1] or 1>>
 	<<tending_give _args[0] `setup.foodstuff[_args[0]].recipe.servings * $_amount`>>
+	/* Each pan of food is its own batch with its own use-by date, and is remembered as the PC's own cooking. */
+	<<run foodBatchAdd(_args[0], setup.foodstuff[_args[0]].recipe.servings * $_amount, true)>>
 	<<for $_ingredient range setup.foodstuff[_args[0]].recipe.ingredients>>
 		<<if !_ingredientsSupplied?.includes($_ingredient) or !_ingredientsSupplied?.includes(ingredientUsed($_ingredient, _args[0]))>>
 			<<set $_ingredient to ingredientUsed($_ingredient, _args[0])>>

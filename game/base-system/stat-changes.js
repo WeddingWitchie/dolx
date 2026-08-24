@@ -1,4 +1,4 @@
-/* global statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal */
+/* global statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod */
 
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -182,6 +182,8 @@ const statChange = (() => {
 			/* The antidepressant's side effect: everything tires the PC out faster. */
 			if (typeof antidepressantActive === "function" && antidepressantActive()) fatigueMod *= 1.3;
 			if (setup.tirednessChangeByPain) fatigueMod *= setup.tirednessChangeByPain(V.pain);
+			/* Well Fed: a well-fed PC wears down a little slower. */
+			if (typeof wellFedMod === "function") fatigueMod *= wellFedMod();
 		}
 
 		if (source === "pass") V.tiredness += amount * fatigueMod;
@@ -231,6 +233,8 @@ const statChange = (() => {
 				}
 				/* Harper's antidepressant course flattens stress build-up while the PC keeps taking the prescription. */
 				if (typeof antidepressantActive === "function" && antidepressantActive()) stressMod *= 0.6;
+				/* Well Fed: a well-fed PC takes things a little better. */
+				if (typeof wellFedMod === "function") stressMod *= wellFedMod();
 				V.stress += amount * stressMod;
 			}
 		}
@@ -254,6 +258,8 @@ const statChange = (() => {
 					traumaMod *= 0.25;
 				}
 				if (V.drunk >= 1 && V.substanceRebalance === 1) traumaMod *= 1 - 0.1 * Math.round(V.drunk / 120);
+				/* Well Fed: a well-fed PC takes things a little better. */
+				if (typeof wellFedMod === "function") traumaMod *= wellFedMod();
 
 				// Increase trauma gains by up to 2x if the player is at low control.
 				const controlMod = 2 - V.control / V.controlmax;
@@ -619,6 +625,9 @@ const statChange = (() => {
 			if (pain > 0) {
 				// physique reduction
 				pain *= 1 - Math.min(V.physique / 20000, 0.9);
+
+				/* Well Fed: a well-fed PC takes things a little better. */
+				if (typeof wellFedMod === "function") pain *= wellFedMod();
 
 				if (V.drunk >= 360) pain *= Math.min(0.95, 0.95 - 0.1 * ((V.drunk - 360) / 640));
 

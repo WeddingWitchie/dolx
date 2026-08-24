@@ -35,11 +35,13 @@
 		"Start/Stop Animation": "\u25B6",
 		"Refresh Caches": "\u21BB",
 		"Outfit Editor": "\u270E",
+		Bag: "\u25A3",
+		"Hand Mirror": "\u25C9",
 	});
 
 	function styleOverlayTabs() {
 		const overlay = document.getElementById("customOverlay");
-		if (!overlay || overlay.dataset.overlay === "DoLXCredits" || overlay.dataset.overlay === "mirrorMood") return;
+		if (!overlay || ["DoLXCredits", "mirrorMood"].includes(overlay.dataset.overlay)) return;
 
 		overlay.querySelectorAll("#overlayTabs button").forEach(button => {
 			const label = button.textContent.trim().replace(/\s+/g, " ");

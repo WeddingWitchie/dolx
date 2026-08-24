@@ -1,3 +1,4 @@
+/* globals pocketBagCapacity pocketBagName pocketAvailable pocketToyPacked pocketToyPack */
 const maxCarried = 5; // maximum player can carry
 
 function sexToysInventoryInit() {
@@ -22,7 +23,7 @@ function sexToysInventoryInit() {
 				const ownedSpan = Object.assign(document.createElement("span"), {
 					id: `sti_already_owned_${idSuffix}`,
 					className: "sti_owned_text",
-					textContent: item.worn ? "worn" : item.carried ? "carried" : "",
+					textContent: item.worn ? "worn" : item.packed ? "in bag" : item.carried ? "carried" : "",
 				});
 				ownedSpan.dataset.category = category;
 				ownedSpan.dataset.index = index;
@@ -134,7 +135,18 @@ function sexToysInventoryOnItemClick(index, category) {
 		click: () => window.sexToysInventoryOnThrowClick(index, category),
 	});
 
-	actionDiv.append("<hr>", carryButton, wearButton, throwButton);
+	/* A copy is either in your hands or in your bag, never both, so the two controls never show
+	   together: a packed toy offers only "Take out of bag". */
+	const bagButton = $("<a>", {
+		id: "stiBagButton",
+		class: "sti_carry_button",
+		style: toyBagAvailable() ? "" : "display:none",
+		text: toyBagButtonText(index, category),
+		click: () => window.sexToysInventoryOnBagClick(index, category),
+	});
+	if (toyBagAvailable() && invItem.packed) carryButton.css("display", "none");
+
+	actionDiv.append("<hr>", carryButton, bagButton, wearButton, throwButton);
 	descBox.append(closeContainer, descriptionText, actionDiv);
 	descBorder.append(descBox);
 
@@ -152,6 +164,63 @@ window.sexToysInventoryOnItemClick = sexToysInventoryOnItemClick;
  * @param {string} category Type within sextoy inventory.
  * @returns {void}
  */
+/* Repaint every cell's worn/carried tag from the inventory. */
+function refreshOwnedTags() {
+	$("[id*='sti_already_owned_']").each(function (i, element) {
+		const c = element.getAttribute("data-category");
+		const ind = Number(element.getAttribute("data-index"));
+		const item = V.player.inventory.sextoys?.[c]?.[ind];
+
+		if (!item) {
+			console.warn("[DoLX] stale sextoy UI index", {
+				category: c,
+				index: ind,
+				id: element.id,
+			});
+			element.textContent = "";
+			return;
+		}
+
+		element.textContent = item.worn ? "worn" : item.packed ? "in bag" : item.carried ? "carried" : "";
+	});
+}
+window.refreshOwnedTags = refreshOwnedTags;
+
+function toyBagAvailable() {
+	return typeof pocketBagCapacity === "function" && pocketAvailable();
+}
+window.toyBagAvailable = toyBagAvailable;
+
+function toyBagButtonText(index, category) {
+	if (!toyBagAvailable()) return "";
+	return pocketToyPacked(category, index) ? "Take out of bag" : "Put in bag";
+}
+window.toyBagButtonText = toyBagButtonText;
+
+/**
+ * Packs or unpacks one copy of a toy.
+ *
+ * @param {number} index Position in category.
+ * @param {string} category Type within sextoy inventory.
+ * @returns {void}
+ */
+function sexToysInventoryOnBagClick(index, category) {
+	const button = document.getElementById("stiBagButton");
+	const wantPacked = !pocketToyPacked(category, index);
+	if (!pocketToyPack(category, index, wantPacked)) {
+		/* The only normal failure is a full carried container; say so instead of doing nothing. */
+		if (button) button.textContent = `Your ${pocketBagName()} is full`;
+		return;
+	}
+	if (button) button.textContent = toyBagButtonText(index, category);
+	/* Packing marks the copy carried, so the cupboard's tags and its carry counter have to follow. */
+	const carryButton = document.getElementById("stiCarryButton");
+	if (carryButton) carryButton.style.display = wantPacked ? "none" : "";
+	refreshOwnedTags();
+	updateCarryCountUI();
+}
+window.sexToysInventoryOnBagClick = sexToysInventoryOnBagClick;
+
 function sexToysInventoryOnCarryClick(index, category) {
 	const toy = V.player.inventory.sextoys[category][index];
 	const setupToy = setup.sextoys[toy.index];
@@ -193,10 +262,7 @@ function sexToysInventoryOnCarryClick(index, category) {
 		}
 	}
 
-	document.getElementById("stiWearButton").textContent = sexToyWearButtonText(toy, setupToy); // update button text value
-	document.getElementById("stiCarryButton").textContent = toy.carried ? "Put back in the cupboard" : "Carry it"; // update button text value
-	// update worn/carried tag on cell
-	document.getElementById("sti_already_owned_" + category.replace(/\s/g, "_") + "_" + index).textContent = toy.worn ? "worn" : toy.carried ? "carried" : "";
+	updateToyButtons(toy, setupToy, index, category);
 
 	updateCarryCountUI();
 	greyButtonsIfCarryLimitReached(index, category);
@@ -229,33 +295,25 @@ function sexToysInventoryOnWearClick(index, category) {
 
 	// if player tries to wear a strapon but that under_lower is cursed
 	if (setupCategory === "strap-on" && V.worn.under_lower.cursed === 1) {
-		document.getElementById("stiCursedText").outerHTML =
-			`<div id="stiCursedText" class="ssm_fade_in">You try to remove the ` + V.worn.under_lower.name + ` but fail</div>`;
+		sexToyNotice("You try to remove the " + V.worn.under_lower.name + " but fail");
 		return;
 	}
 
 	if (setupCategory === "butt_plug") {
 		if (V.worn.genitals.cursed === 1 && V.worn.genitals.anal_shield === 1) {
 			// if player tries to wear a butt plug but there is a cursed chastity belt fitted with an anal shield
-			document.getElementById("stiCursedText").outerHTML =
-				`<div id="stiCursedText" class="ssm_fade_in">You can't push the ` + toy.name + ` past the ` + V.worn.genitals.name + `'s anal shield</div>`;
+			sexToyNotice("You can't push the " + toy.name + " past the " + V.worn.genitals.name + "'s anal shield");
 			return;
 		}
 	}
 
 	if (sexToyUsesVaginalWornSlot(toy, setupToy) && !V.player.vaginaExist && !toy.worn) {
-		const cursedText = document.getElementById("stiCursedText");
-		if (cursedText) {
-			cursedText.outerHTML = `<div id="stiCursedText" class="ssm_fade_in">You can't insert the ${toy.name} without a vagina.</div>`;
-		}
+		sexToyNotice(`You can't insert the ${toy.name} without a vagina.`);
 		return;
 	}
 
 	if (sexToyUsesVaginalWornSlot(toy, setupToy) && !toy.worn && playerChastity("vagina")) {
-		const cursedText = document.getElementById("stiCursedText");
-		if (cursedText) {
-			cursedText.outerHTML = `<div id="stiCursedText" class="ssm_fade_in">You can't push the ${toy.name} past the ${V.worn.genitals.name}.</div>`;
-		}
+		sexToyNotice(`You can't push the ${toy.name} past the ${V.worn.genitals.name}.`);
 		return;
 	}
 
@@ -298,26 +356,8 @@ function sexToysInventoryOnWearClick(index, category) {
 		V.worn[wornCategory].state = "worn";
 	}
 	toy.carried = true; // also carry the item if not done alreadys
-	document.getElementById("stiWearButton").textContent = sexToyWearButtonText(toy, setupToy); // update button text value
-	document.getElementById("stiCarryButton").textContent = !toy.carried ? "Carry it" : "Put back in the cupboard"; // update button text value
-	document.getElementById("sti_already_owned_" + category.replace(/\s/g, "_") + "_" + index).textContent = toy.worn ? "worn" : toy.carried ? "carried" : "";
-	$("[id*='sti_already_owned_']").each(function (i, element) {
-		const c = element.getAttribute("data-category");
-		const ind = Number(element.getAttribute("data-index"));
-		const item = V.player.inventory.sextoys?.[c]?.[ind];
-
-		if (!item) {
-			console.warn("[DoLX] stale sextoy UI index", {
-				category: c,
-				index: ind,
-				id: element.id,
-			});
-			element.textContent = "";
-			return;
-		}
-
-		element.textContent = item.worn ? "worn" : item.carried ? "carried" : "";
-	});
+	updateToyButtons(toy, setupToy, index, category);
+	refreshOwnedTags();
 	// this is an exception for strap-ons. Upon "wearing", also set them in under_lower as they don't have their own category yet.
 	if (setupCategory === "strap-on") {
 		if (toy.worn) {
@@ -511,17 +551,40 @@ function findIndexInNPCNameVar(npcName) {
 }
 window.findIndexInNPCNameVar = findIndexInNPCNameVar;
 
+/* Show why an item cannot be worn. The cupboard uses its own message area; elsewhere uses T.sexToyNotice. */
+/* Refresh the cupboard buttons. These are optional because the same handlers are also used by the pocket UI. */
+function updateToyButtons(toy, setupToy, index, category) {
+	const wearButton = document.getElementById("stiWearButton");
+	if (wearButton) wearButton.textContent = sexToyWearButtonText(toy, setupToy);
+	const carryButton = document.getElementById("stiCarryButton");
+	if (carryButton) carryButton.textContent = toy.carried ? "Put back in the cupboard" : "Carry it";
+	const bagButton = document.getElementById("stiBagButton");
+	if (bagButton) bagButton.textContent = toyBagButtonText(index, category);
+	const tag = document.getElementById("sti_already_owned_" + category.replace(/\s/g, "_") + "_" + index);
+	if (tag) tag.textContent = toy.worn ? "worn" : toy.packed ? "in bag" : toy.carried ? "carried" : "";
+}
+window.updateToyButtons = updateToyButtons;
+
+function sexToyNotice(text) {
+	T.sexToyNotice = text;
+	const host = document.getElementById("stiCursedText");
+	if (host) host.outerHTML = `<div id="stiCursedText" class="ssm_fade_in">${text}</div>`;
+}
+window.sexToyNotice = sexToyNotice;
+
+/* Items inside a bag do not count towards the hand-carry limit. */
 function countCarriedSextoys() {
 	let count = 0;
 
 	Object.values(V.player.inventory.sextoys).forEach(category => {
-		count += category.filter(item => item.carried).length;
+		count += category.filter(item => item.carried && !item.packed).length;
 	});
 	return count;
 }
 window.countCarriedSextoys = countCarriedSextoys;
 
 function updateCarryCountUI() {
+	if (!document.getElementById("carryCount")) return;
 	const colour = countCarriedSextoys() >= maxCarried ? "red" : "";
 	document.getElementById("carryCount").outerHTML = `<div id="carryCount" class="sti_grid_carried_count">
 		Items carried: <span class="${colour}">${countCarriedSextoys()}/${maxCarried}</span>
@@ -533,8 +596,8 @@ function greyButtonsIfCarryLimitReached(index, category) {
 	if (countCarriedSextoys() >= maxCarried) {
 		const item = V.player.inventory.sextoys[category][index];
 		if (!item.carried) {
-			document.getElementById("stiCarryButton").classList.add("sti_carry_limit_reached");
-			if (!item.worn) document.getElementById("stiWearButton").classList.add("sti_carry_limit_reached");
+			document.getElementById("stiCarryButton")?.classList.add("sti_carry_limit_reached");
+			if (!item.worn) document.getElementById("stiWearButton")?.classList.add("sti_carry_limit_reached");
 		}
 	}
 }

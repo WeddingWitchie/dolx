@@ -1,0 +1,348 @@
+:: Widgets Pocket [widget]
+
+<<widget "titlePocket">>
+	<<setupTabs>>
+	<div id="overlayTabs" class="tab">
+		<<closeButtonMobile>>
+		<<button "Bag">>
+			<<toggleTab>>
+			<<replace #customOverlayContent>><<pocketBagTab>><</replace>>
+		<</button>>
+		<<button "Hand Mirror">>
+			<<toggleTab>>
+			<<replace #customOverlayContent>><<pocketMirrorTab>><</replace>>
+		<</button>>
+	</div>
+	<<closeButton>>
+<</widget>>
+
+/* Entry point used by the sidebar button. Everything past the gate assumes the PC can reach their things. */
+<<widget "pocketMain">>
+	<<set _pocketLock to pocketLockReason()>>
+	<<if _pocketLock isnot "">>
+		<div class="dolx-pocket-locked">
+			<span class="gold">Pocket</span>
+			<br><br>
+			<span class="red"><<= _pocketLock>></span>
+		</div>
+	<<else>>
+		<<pocketBagTab>>
+	<</if>>
+<</widget>>
+
+/* The name of the carried container, including the PC's own pocket when they have no bag. */
+<<widget "bagname">><<print pocketBagName()>><</widget>>
+
+/* ------------------------------------------------------------------ *
+ * Hand mirror
+ * ------------------------------------------------------------------ */
+
+/* The real mirror, held in the hand. */
+<<widget "pocketMirrorTab">>
+	<<set _pocketLock to pocketLockReason()>>
+	<<if _pocketLock isnot "">>
+		<span class="red"><<= _pocketLock>></span>
+	<<else>>
+		<<run pocketEnsure()>>
+		<<if !$pocket.mirror>>
+			<div class="dolx-pocket-empty">
+				You don't own a hand mirror. The cosmetics store in the shopping centre sells them.
+			</div>
+		<<elseif Weather.bloodMoon>>
+			<div class="dolx-pocket-locked">
+				<span class="red">You have a feeling something bad will happen if you check the mirror now.</span>
+				<<if !$daily.pocketMirrorBloodMoon>>
+					<<set $daily.pocketMirrorBloodMoon to true>>
+					<<awareness 5>><<ggawareness>>
+					/* Overlay writes don't reach the save until a passage commits them. */
+					<<run pocketCommit()>>
+				<</if>>
+			</div>
+		<<else>>
+			<<preMirror>>
+			<<unset $mirrorMenu>>
+			<<mirror>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+/* ------------------------------------------------------------------ *
+ * Bag
+ * ------------------------------------------------------------------ */
+
+/* Read-only by design: things go into the bag where they live. */
+<<widget "pocketBagTab">>
+	<<set _pocketLock to pocketLockReason()>>
+	<<if _pocketLock isnot "">>
+		<span class="red"><<= _pocketLock>></span>
+	<<else>>
+		<<run pocketSyncBag()>>
+		<<run pocketCheckSpoilage()>>
+		<div id="pocketPane"><<pocketBagContents>></div>
+	<</if>>
+<</widget>>
+
+<<widget "pocketBagContents">>
+	<<set _personalSlots to $pocket.bag.slots.filter(slot => slot.location is "pocket")>>
+	<<set _bagSlots to $pocket.bag.slots.filter(slot => slot.location is "bag")>>
+	<div class="small-description">Each kind of thing takes one slot, however many of it you pack. Pack things where you keep them: the kitchen, the medicine drawer, the toy cupboard.</div>
+	<br>
+	<<if bloatedActive()>>
+		<div class="red">You feel bloated. Eating anything will keep you bloated for another 10 hours.</div><br>
+	<<elseif pocketFoodFullness() gte 5>>
+		<div class="gold">You're feeling quite full.</div><br>
+	<</if>>
+	<div id="pocketUseReport"></div>
+
+	<section class="dolx-pocket-section">
+		<header class="dolx-pocket-section-header">
+			<span>Pocket</span>
+			<span @class="_personalSlots.length ? 'red' : 'blue'"><<= _personalSlots.length>>/1 slot</span>
+		</header>
+		<<if _personalSlots.length>>
+			<div class="dolx-pocket-slots">
+				<<for _slot range _personalSlots>><<pocketSlotRow _slot>><</for>>
+			</div>
+		<<else>>
+			<div class="dolx-pocket-empty">Your pocket is empty.</div>
+		<</if>>
+	</section>
+
+	<<if pocketBagItem()>>
+		<section class="dolx-pocket-section">
+			<header class="dolx-pocket-section-header">
+				<span><<= pocketBagName().toLocaleUpperFirst()>></span>
+				<span @class="_bagSlots.length gte pocketBagCapacity() ? 'red' : 'blue'"><<= _bagSlots.length>>/<<= pocketBagCapacity()>> slots</span>
+			</header>
+			<<if _bagSlots.length>>
+				<div class="dolx-pocket-slots">
+					<<for _slot range _bagSlots>><<pocketSlotRow _slot>><</for>>
+				</div>
+			<<else>>
+				<div class="dolx-pocket-empty">The bag is empty.</div>
+			<</if>>
+		</section>
+	<</if>>
+<</widget>>
+
+<<widget "pocketSlotRow">>
+	<<set _rowSlot to _args[0]>>
+	<div class="dolx-pocket-slot">
+		<<switch _rowSlot.kind>>
+			<<case "food">>
+				<div @class="$options.images is 1 ? 'dolx-pocket-item-row dolx-pocket-item-row-icon' : 'dolx-pocket-item-row'">
+					<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<foodstufficon _rowSlot.key>></span><</if>>
+					<span class="dolx-pocket-item-name">
+						<span class="teal"><<= setup.foodstuff[_rowSlot.key].name.toLocaleUpperFirst()>></span>
+						<span class="gold">(<<= foodBatchCount(_rowSlot.key)>>)</span>
+					</span>
+					<span class="dolx-pocket-item-actions">
+						<<capture _rowSlot>>
+							<<if bloatedActive()>><span class="red">Keeps you bloated</span><br>
+							<<elseif foodWouldBloat(_rowSlot.key)>><span class="red">Will make you bloated</span><br><</if>>
+							<<link [[Eat|Pocket Eat Food]]>><<run pocketEatFoodFromMenu(_rowSlot.key)>><</link>>
+							|
+							<<link "Take out">>
+								<<run pocketSlotToggle("food", _rowSlot.key)>>
+								<<replace #pocketPane>><<pocketBagContents>><</replace>>
+							<</link>>
+						<</capture>>
+					</span>
+				</div>
+			<<case "pill">>
+				<<set _rowPill to pocketPillSetup(_rowSlot.key)>>
+				<div @class="$options.images is 1 ? 'dolx-pocket-item-row dolx-pocket-item-row-icon' : 'dolx-pocket-item-row'">
+					<<if $options.images is 1>><span class="dolx-pocket-item-icon dolx-pocket-pill-icon"><<= pocketPillIcon(_rowSlot.key)>></span><</if>>
+					<span class="dolx-pocket-item-name">
+						<span class="teal"><<= _rowSlot.key.toLocaleUpperFirst()>></span>
+						<span class="gold">(<<= pocketPillOwned(_rowSlot.key)>>)</span>
+					</span>
+					<span class="dolx-pocket-item-actions">
+						<<capture _rowSlot _rowPill>>
+							<<if _rowPill and _rowPill.take_condition() isnot 0>>
+								<<link "Take one">>
+									<<set _pillTaken to pocketTakePill(_rowSlot.key)>>
+									/* Nothing to redraw when the pill sent the PC off to an overdose passage. */
+									<<if _pillTaken and !_pillTaken.navigated>>
+										<<replace #pocketPane>><<pocketBagContents>><</replace>>
+										<<if _pillTaken.message>>
+											<<replace #pocketUseReport>><span class="purple"><<= _pillTaken.message>></span><</replace>>
+										<</if>>
+									<</if>>
+								<</link>>
+								|
+							<<else>>
+								<span class="grey">Can't take one now</span> |
+							<</if>>
+							<<link "Take out">>
+								<<run pocketSlotToggle("pill", _rowSlot.key)>>
+								<<replace #pocketPane>><<pocketBagContents>><</replace>>
+							<</link>>
+						<</capture>>
+					</span>
+				</div>
+			<<case "toy">>
+				/* No group heading: every row already names the toy. */
+				<div class="dolx-pocket-toy-list">
+					<<for _toyItem range pocketToyItems(_rowSlot.key)>>
+						<div @class="'dolx-pocket-item-row dolx-pocket-toy-row' + ($options.images is 1 ? ' dolx-pocket-item-row-icon' : '')">
+							<<if $options.images is 1>><span class="dolx-pocket-item-icon dolx-pocket-toy-icon"><<= pocketToyIcon(_toyItem.category, _toyItem.index)>></span><</if>>
+							<span class="dolx-pocket-item-name">
+								<span class="teal"><<= _toyItem.setupToy ? _toyItem.setupToy.name.toLocaleUpperFirst() : _toyItem.toy.name.toLocaleUpperFirst()>></span>
+								<<if _toyItem.worn>><span class="green">(worn)</span><</if>>
+							</span>
+							<span class="dolx-pocket-item-actions">
+								<<capture _toyItem>>
+									<<if !_toyItem.wearableKind>>
+										<span class="grey">In hand</span>
+									<<elseif _toyItem.canWear>>
+										<<link _toyItem.wearLabel>>
+											<<set _toyNotice to pocketToyWear(_toyItem.category, _toyItem.index)>>
+											<<replace #pocketPane>><<pocketBagContents>><</replace>>
+											<<if _toyNotice>><<replace #pocketUseReport>><span class="red"><<= _toyNotice>></span><</replace>><</if>>
+										<</link>>
+									<<else>>
+										<span class="grey">Can't wear it now</span>
+									<</if>>
+									|
+									<<link "Take out">>
+										<<run pocketToyPack(_toyItem.category, _toyItem.index, false)>>
+										<<replace #pocketPane>><<pocketBagContents>><</replace>>
+									<</link>>
+								<</capture>>
+							</span>
+						</div>
+					<</for>>
+				</div>
+		<</switch>>
+	</div>
+<</widget>>
+
+<<widget "pocketEatReport">>
+	<<set _report to _args[0]>>
+	<<if _report>>
+		You eat <<= setup.foodstuff[_report.key].word or "a">> <<= setup.foodstuff[_report.key].singular>>.<<if _report.own>> <span class="teal">Your own cooking.</span><</if>>
+		<br><span><<if _report.stale>>It is past its date, so it only fills you up.<</if>><<if !_report.stale>><<= foodEffectText(_report.key)>><</if>></span>
+		<<pocketStatArrows _report.effects>>
+	<</if>>
+<</widget>>
+
+/* Journal > Foods. Every separately cooked batch keeps its own date. */
+<<widget "pocketFoodJournal">>
+	<<if $daily.foodSpoiled and $daily.foodSpoiled.length>>
+		<div class="dolx-pocket-spoiled">
+			<<for _gone range $daily.foodSpoiled>>
+				<span class="red">
+					<<= _gone.amount>> <<= _gone.amount is 1 ? setup.foodstuff[_gone.key].singular : setup.foodstuff[_gone.key].plural>> went off and <<if _gone.amount is 1>>was<<else>>were<</if>> thrown away today.
+				</span><br>
+			<</for>>
+		</div>
+	<</if>>
+	<<set _journalFoods to pocketFoodList()>>
+	<<if _journalFoods.length is 0>>
+		<div class="dolx-pocket-empty">You have no cooked food stored.</div>
+	<<else>>
+		<div class="dolx-food-journal">
+			<<for _foodKey range _journalFoods>>
+				<div @class="$options.images is 1 ? 'dolx-food-journal-row dolx-food-journal-row-icon' : 'dolx-food-journal-row'">
+					<<if $options.images is 1>><span class="dolx-food-journal-icon"><<foodstufficon _foodKey>></span><</if>>
+					<div class="dolx-food-journal-body">
+						<div class="dolx-food-journal-name">
+							<span class="teal"><<= setup.foodstuff[_foodKey].name.toLocaleUpperFirst()>></span>
+							<span class="gold">(<<= foodBatchCount(_foodKey)>>)</span>
+						</div>
+						<div class="dolx-food-journal-batches">
+							<<for _foodBatch range foodExpiryRows(_foodKey)>>
+								<div class="dolx-food-journal-batch">
+									<span><<= _foodBatch.amount>> <<= _foodBatch.amount is 1 ? "serving" : "servings">></span>
+									<<if !$foodSpoilage and _foodBatch.daysLeft lte 0>><span class="grey">Past its date</span>
+									<<elseif !$foodSpoilage and _foodBatch.daysLeft lte 1>><span class="gold">Effects end overnight</span>
+									<<elseif !$foodSpoilage>><span class="green">Effects for <<= Math.floor(_foodBatch.daysLeft)>> more days</span>
+									<<elseif !isFinite(_foodBatch.daysLeft)>><span class="grey">Does not spoil</span>
+									<<elseif _foodBatch.daysLeft lte 1>><span class="red">Goes off overnight</span>
+									<<elseif _foodBatch.daysLeft lte 3>><span class="red"><<= Math.floor(_foodBatch.daysLeft)>> days left</span>
+									<<elseif _foodBatch.daysLeft lte 7>><span class="gold"><<= Math.floor(_foodBatch.daysLeft)>> days left</span>
+									<<else>><span class="green"><<= Math.floor(_foodBatch.daysLeft)>> days left</span><</if>>
+								</div>
+							<</for>>
+						</div>
+					</div>
+				</div>
+			<</for>>
+		</div>
+	<</if>>
+<</widget>>
+
+/* ------------------------------------------------------------------ *
+ * Packing, shown where the things are kept
+ * ------------------------------------------------------------------ */
+/* The kitchen's packing panel. The PC always has one personal slot, even without a bag. */
+<<widget "pocketPackFood">>
+	<<run pocketSyncBag()>>
+	<div id="basket">
+		<span class="gold bold">Pack food to your pocket<<if pocketBagItem()>> or <<bagname>><</if>>:</span>
+		<div class="mobileOnly">
+			<<link "Close">>
+				<<addclass "#altSection, #mobileCloser" "mobileHidden">>
+			<</link>>
+			<br><br>
+		</div>
+	</div>
+	<div id="basketItems" class="info">
+		<<pocketPackFoodList>>
+	</div>
+<</widget>>
+
+<<widget "pocketPackFoodList">>
+	<<set _packCapacity to pocketCarryCapacity()>>
+	<<set _packUsed to $pocket.bag.slots.length>>
+	<span @class="_packUsed gte _packCapacity ? 'red' : 'blue'"><<= _packUsed>>/<<= _packCapacity>> slots used.</span>
+	<div class="small-description">Each dish takes one slot, however many servings you have of it.</div>
+	<br>
+	<<set _packFoodKeys to pocketFoodList()>>
+	<<if _packFoodKeys.length is 0>>
+		<div class="dolx-pocket-empty">You've no cooked food to pack.</div>
+	<<else>>
+		<div class="dolx-pocket-arrange">
+			<<for _packKey range _packFoodKeys>>
+				<div class="dolx-pocket-arrange-row">
+					<span class="dolx-pocket-arrange-name">
+						<<if $options.images is 1>><<foodstufficon _packKey>><</if>>
+						<<= setup.foodstuff[_packKey].name.toLocaleUpperFirst()>>
+						<span class="gold">(<<= foodBatchCount(_packKey)>>)</span>
+					</span>
+					<<capture _packKey>>
+						<<if pocketCarrying("food", _packKey)>>
+							<<link "Take out">>
+								<<run pocketSlotToggle("food", _packKey)>>
+								<<replace #basketItems>><<pocketPackFoodList>><</replace>>
+							<</link>>
+						<<elseif _packUsed gte _packCapacity>>
+							<span class="grey"><<= pocketBagName().toLocaleUpperFirst()>> full</span>
+						<<else>>
+							<<link "Pack">>
+								<<run pocketSlotToggle("food", _packKey)>>
+								<<replace #basketItems>><<pocketPackFoodList>><</replace>>
+							<</link>>
+						<</if>>
+					<</capture>>
+				</div>
+			<</for>>
+		</div>
+	<</if>>
+<</widget>>
+
+:: Pocket Eat Food
+<<effects>>
+<<if $pocketFoodResult>>
+	<<pocketEatReport $pocketFoodResult>>
+	<br><br>
+	<<set _pocketFoodDestination to $pocketFoodReturn or "Bedroom">>
+	<<link [[Next|_pocketFoodDestination]]>>
+		<<unset $pocketFoodResult $pocketFoodReturn>>
+	<</link>>
+<<else>>
+	You have nothing to eat.
+	<br><br>
+	<<link [[Next|Bedroom]]>><</link>>
+<</if>>
