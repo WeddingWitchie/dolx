@@ -81,6 +81,17 @@ const events = [
 		text: "<<blackmail-marker>>",
 	},
 	{
+		name: "poppy valentines date",
+		condition() {
+			return V.valentines_poppy_flat_accept && Time.month === 2 && Time.monthDay === 14;
+		},
+		starthour: 20,
+		endhour: 20,
+		priority: 4,
+		text: "You have a <span class='pink'>Valentine's date</span> with Poppy at the flat on Barb Street from <<ampm 20 00>>.",
+		failuretext: "You have missed your Valentine's date with Poppy.",
+	},
+	{
 		name: "community service",
 		condition() {
 			return V.community_service >= 1 && V.community_service_done !== 1;

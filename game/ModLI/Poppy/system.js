@@ -314,12 +314,26 @@ function poppySchedule() {
 		msg = "breakfast";
 	} else if (mins >= 1080 && mins < 1260) {
 		// 6PM–9PM: charity / soup kitchen (both weekday and weekend)
-		loc = "soupKitchen";
-		msg = "charity";
+		// small valentine override: be at home instead and have dinner early if accept date
+		// and at barb street at 8pm if no? Probably???
+		if (Time.month === 2 && Time.monthDay === 14 && Number(V.poppyromance) >= 0) {
+			loc = V.valentines_poppy_flat_accept ? "flatKitchen" : "barbStreet";
+			msg = "dinner";
+		} else {
+			loc = "soupKitchen";
+			msg = "charity";
+		}
 	} else if (mins >= 1260 && mins < 1320) {
 		// 9PM–10PM: dinner (both weekday and weekend)
-		loc = "flatKitchen";
-		msg = "dinner";
+		// I'm adding an override for post romance valentine's bc she cannot be eatting dinner twice
+		// ... or she can but ehhhhhh
+		if (Time.month === 2 && Time.monthDay === 14 && Number(V.poppyromance) >= 0) {
+			loc = "flatApartment";
+			msg = "sleep";
+		} else {
+			loc = "flatKitchen";
+			msg = "dinner";
+		}
 	}
 	// ---------- School-day timetable ----------
 	else if (isSchoolDay) {

@@ -2651,6 +2651,23 @@ function yearlyEventChecks() {
 		delete V.valentines_eden_bath;
 		delete V.valentines_eden_breakfast;
 		delete V.valentines_supermarket;
+
+		if (V.valentines_poppy_flat_accept && !V.valentines_poppy_flat_missed) {
+			V.valentines_poppy_flat_missed = 1;
+		}
+		delete V.valentines_poppy_flat_accept;
+		delete V.valentines_poppy_flat_decline;
+		delete V.valentines_poppy_flat_done;
+	}
+
+	// surely after 1 week poppy has forgotten the horrendous date, right???
+	// I'm still lowering the love and patience just because; good luck people
+	if (Time.monthName === "February" && Time.monthDay >= 21) {
+		if (V.valentines_poppy_flat_missed) {
+			wikifier("npcincr", "Poppy", "love", -8);
+			wikifier("npcincr", "Poppy", "patience", -10);
+			delete V.valentines_poppy_flat_missed;
+		}
 	}
 
 	if (Time.monthName === "February" && Time.monthDay <= 14 && !V.avery_valentines && V.avery_mansion) {
