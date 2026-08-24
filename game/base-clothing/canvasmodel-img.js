@@ -722,7 +722,7 @@ DefineMacro("modelprepare-player-body", function () {
 					T.modeloptions.penis_parasite += "-cage";
 					if (V.worn.genitals.name !== "chastity cage") {
 						/* slime-cage-fetish.png, slime-cage-small.png, slime-cage-flat.png, etc. */
-						const cageType = V.worn.genitals.name.replace(" chastity cage", "");
+						const cageType = V.worn.genitals.name === "fetish flat chastity cage" ? "flat" : V.worn.genitals.name.replace(" chastity cage", "");
 						T.modeloptions.penis_parasite += `-${cageType}`;
 					}
 				} else {
