@@ -968,6 +968,14 @@ function dolxRepairNonFiniteNumerics() {
 		V.daily.stall_lewdity = 0;
 	}
 
+	/* The moor gold ring used to deduct 3000 instead of 1500 from $antiquemoney,
+	which could make it negative and block antique museum options. Refund the extra 1500 on affected saves. */
+	if (Number.isFinite(V.antiquemoney) && V.antiquemoney < 0) {
+		repaired.push(`antiquemoney=${V.antiquemoney}`);
+		V.antiquemoney = Math.max(0, V.antiquemoney + 1500);
+	}
+	fix("antiquemoney", 0);
+
 	/* Poppy's patience/anger slider NaNs on some saves;
 	a raw "gte 0" comparison against NaN is always false, silently locking every patience/anger check onto the anger branch. */
 	const poppyIndex = V.NPCNameList?.indexOf("Poppy");
