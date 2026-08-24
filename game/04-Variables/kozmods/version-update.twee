@@ -100,46 +100,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
-	<<if $xchange._didHermMenstruationFix is not true>>
-		<<set $xchange._didHermMenstruationFix to true>> /* delete later */
-		<<if $xchange.pill isnot undefined and $xchange.pill isnot null and typeof $xchange.pill is "object" and !Array.isArray($xchange.pill) and $xchange.pill.hermEffect is true and $player isnot undefined and $player.vaginaExist is true>>
-			<<set _xcOrigHadVagina to ($xchange.pill.baseGenitals isnot undefined and $xchange.pill.baseGenitals isnot null and typeof $xchange.pill.baseGenitals is "object" and $xchange.pill.baseGenitals.vagina is true)>>
-			/* Fallback for very old saves predating baseGenitals: infer from originalBody snapshot */
-			<<if !_xcOrigHadVagina and $xchange.pill.originalBody isnot undefined and $xchange.pill.originalBody isnot null and typeof $xchange.pill.originalBody is "object">>
-				<<if $xchange.pill.originalBody.vaginaExist is true or $xchange.pill.originalBody.sex is "f">>
-					<<set _xcOrigHadVagina to true>>
-				<</if>>
-			<</if>>
-			<<if _xcOrigHadVagina>>
-				/* Rebuild a missing/malformed menstruation object before flipping the flag, to avoid `undefined.running` */
-				<<if $sexStats isnot undefined and $sexStats.vagina isnot undefined>>
-					<<if $sexStats.vagina.menstruation is undefined or typeof $sexStats.vagina.menstruation isnot "object">>
-						<<set $sexStats.vagina.menstruation to {
-							baseDays: 5,
-							baseDaysRng: 2,
-							currentDay: 0,
-							lastDaysMax: 28,
-							currentDaysMax: 28,
-							currentState: "normal",
-							recoveryTime: null,
-							recoveryTimeStart: null,
-							recoveryStage: null,
-							periodEnabled: true,
-							running: false,
-							stages: [0, 0, 0, 0]
-						}>>
-					<</if>>
-					<<if $sexStats.vagina.menstruation.running isnot true>>
-						<<set $sexStats.vagina.menstruation.running to true>>
-					<</if>>
-				<</if>>
-				<<if $xchange.pill.fertile isnot true>>
-					<<set $xchange.pill.fertile to true>>
-				<</if>>
-				<<run setup.xChangeRepairNoticeOnce("repair_xchange_herm_menstruation", "<b>Save repair notice</b><br>Your save was under the <b>Herm</b> pill effect with a vagina, but the menstrual cycle and fertility flag were stuck off due to an older bug. X-Change has restored them so pregnancy can occur normally.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-			<</if>>
-		<</if>>
-	<</if>>
+	/* delete later */
+	<<if $xchange._didHermMenstruationFix isnot undefined>><<unset $xchange._didHermMenstruationFix>><</if>>
 
 	<<if $xchange.pill is undefined or $xchange.pill is null or typeof $xchange.pill isnot "object" or Array.isArray($xchange.pill)>>
 		<<set $xchange.pill to {
@@ -549,6 +511,23 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<<if ndef $xchange.pill.hermBody>>
 		<<set $xchange.pill.hermBody to {}>>
+	<</if>>
+
+	<<if $xchange.backComp.remyHermBreastOverflow isnot true>>
+		<<set $xchange.backComp.remyHermBreastOverflow to true>> /* delete later */
+		<<set _remyBreastRepairMax to Number.isFinite(Number($breastsizemax)) ? Number($breastsizemax) : 12>>
+		<<set _remyBreastRepaired to false>>
+		<<if $xchange.known.includes("Remy") and $xchange.pill.hermEffect and Number.isFinite(Number($player.breastsize)) and Number($player.breastsize) gt _remyBreastRepairMax and Number($player.breastsize) lte _remyBreastRepairMax + 1>>
+			<<set $player.breastsize to _remyBreastRepairMax>>
+			<<set _remyBreastRepaired to true>>
+		<</if>>
+		<<if $xchange.known.includes("Remy") and Number.isFinite(Number($xchange.pill.hermBody.breastsize)) and Number($xchange.pill.hermBody.breastsize) gt _remyBreastRepairMax and Number($xchange.pill.hermBody.breastsize) lte _remyBreastRepairMax + 1>>
+			<<set $xchange.pill.hermBody.breastsize to _remyBreastRepairMax>>
+			<<set _remyBreastRepaired to true>>
+		<</if>>
+		<<if _remyBreastRepaired>>
+			<<run setup.xChangeRepairNoticeOnce("repair_remy_herm_breastsize_overflow", "<b>Save repair notice</b><br>An older Underground Farm dose pushed your herm body's breast size beyond the valid maximum. X-Change has restored it to the largest valid size.")>>
+		<</if>>
 	<</if>>
 
 	<<if ndef $xchange.NNPCcombatPillingEnabled>>

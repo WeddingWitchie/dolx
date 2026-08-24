@@ -423,8 +423,9 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 
 :: Livestock Milking Obey
 <<effects>>
-<<set _isGettingPilled to !playerIsXChanged() or !$xchange.known.includes("Remy") or ($livestock.obey lt 10 and !$xchange.remyChoicePill)>>
-<<set _isXchanged to playerIsXChanged()>>
+<<set _needsRemyHerm to !playerIsXChanged() or (!$xchange.known.includes("Remy") and !$xchange.pill.hermEffect)>>
+<<set _needsRemyChoice to $livestock.obey lt 10 and !$xchange.remyChoicePill and (!playerIsXChanged() or !pillIsPermanent())>>
+<<set _isGettingPilled to _needsRemyHerm or _needsRemyChoice>>
 
 <<milkvolume 20>><<lactation_pressure 10>><<set $breastgrowthtimer -= 150>>
 <<if !hasSexStat("exhibitionism", 6) or $uncomfortable.nude is true>>
@@ -464,12 +465,12 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 		<<set _hadPenis to !!$player.penisExist>><<set _hadVagina to !!$player.vaginaExist>>
 
 		/* Choice Pill only if you misbehave (obey < 10) */
-		<<if $livestock.obey lt 10 and (!playerIsXChanged() or !pillIsPermanent())>>
+		<<if _needsRemyChoice>>
 			<<set $xchange.remyChoicePill to 1>>
 			<<set _remyChoiceFlag to 1>>
 
 			<<if playerIsXChanged() and !$xchange.pill.hermEffect>>
-				/* Already mid-session: dose the herm on top before the Choice effect locks it in. */
+				/* Add Remy's herm effect before Choice locks in the session. Choice then retires Continue because a permanent body has no duration to extend. */
 				<<xchange-addeffect "herm">><<xchange-fertility-override>>
 			<</if>>
 			<<xchange-choice "herm">>
@@ -503,7 +504,7 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 		/* Remy's dose is cut with his growth formula: a herm cow leaves with fuller udders. */
 		<<set _remyBreastBoost to false>>
 		<<if _becameHerm and $player.breastsize lt $breastsizemax>>
-			<<set $player.breastsize += 2>>
+			<<set $player.breastsize to Math.min($player.breastsize + 2, $breastsizemax)>>
 			<<set $breastgrowthmessage to $player.breastsize>><<set $effectsmessage to 1>>
 			<<set _remyBreastBoost to true>>
 		<</if>>
@@ -520,7 +521,7 @@ It isn't long before the door to the barn opens, and the lights flicker on. Remy
 			<br><br>
 			You feel the characteristic warmth of an X-Change pill spreading throughout your body, as your figure molds and changes itself into the
 			<<if $player.sex is "m">>handsome form of a man<<elseif $player.sex is "f">>beautiful shape of a woman<</if>>.
-		<<else>>
+		<<elseif !_remyChoiceFlag>>
 			<<He>> then awaits a couple moments and after no change ensues <<he>> concludes: "No change? Nevermind."
 		<</if>>
 	<</if>>

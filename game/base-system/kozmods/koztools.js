@@ -560,7 +560,7 @@ function xChangeCachedBodyUsable(slotName) {
 		`<b>X-Change cache notice</b><br>X-Change found an invalid generated body cache (<b>${slotName}</b>). It was not loaded; the body will be regenerated through the normal X-Change path.<br><br><b>Please report this with your save and steps if the new body looks wrong.</b>`
 	);
 	try {
-		console.warn("[X-Change] Invalid generated body cache; regenerating", { slotName, prop, body });
+		console.warn("Invalid generated body cache; regenerating", { slotName, prop, body });
 	} catch (e) {}
 	if (typeof Errors !== "undefined" && typeof Errors.report === "function") {
 		Errors.report(`X-Change found an invalid generated body cache (${slotName}) and regenerated it.`, { slotName, prop, body });
