@@ -178,8 +178,9 @@ const Tamagotchi = (() => {
 	const rand = n => Math.floor(Math.random() * n);
 	const typeMult = (atk, def) => (TYPE_CHART[atk] && TYPE_CHART[atk][def]) || 1;
 	const effNote = tm => (tm > 1 ? " Super effective!" : tm < 1 ? " Not very effective..." : "");
-	const monthKey = () => (typeof Time !== "undefined" && Time.year != null ? Time.year + "-" + Time.month : "0");
 	const isBloodMoon = () => typeof Time !== "undefined" && typeof Time.isBloodMoon === "function" && Time.isBloodMoon();
+	/* The window in which a blood-moon boss can arm: the moon itself, or the last day of the month. */
+	const bloodMoonWindow = () => isBloodMoon() || (typeof Time !== "undefined" && Time.monthDay === Time.lastDayOfMonth);
 
 	/* --- Bad-end (captivity) awareness, so a forced absence isn't treated as neglect. --- */
 	const badEndInfo = () => {
@@ -310,8 +311,7 @@ const Tamagotchi = (() => {
 			skillOffer: [],
 			wave: 0,
 			wins: 0,
-			lastBossMonth: null,
-			lastBossArm: null,
+			lastBossArm: bloodMoonWindow() ? dayNum() : null,
 			bossPending: false,
 			bossDeadline: 0,
 			nextAttackDay: dayNum() + Tuning.attackIntervalDays,
@@ -507,7 +507,7 @@ const Tamagotchi = (() => {
 			/* The blood-moon boss arms once per moon (any time on the month's last day, or during the blood moon itself) and, like an ignored attacker, must be beaten within a week or it kills the pet.
 			The 20-day guard dedupes the month-end/day-one window and keeps the cadence roughly monthly. */
 			if (isActive) {
-				const bloodMoonNow = isBloodMoon() || (typeof Time !== "undefined" && Time.monthDay === Time.lastDayOfMonth);
+				const bloodMoonNow = bloodMoonWindow();
 				if (bloodMoonNow && (!t.lastBossArm || dayNum() - t.lastBossArm >= 20)) {
 					t.lastBossArm = dayNum();
 					t.bossPending = true;
@@ -1094,7 +1094,6 @@ const Tamagotchi = (() => {
 					/* This was the pet the defeated enemy originally attacked. Resolve its threat too,
 					 * or switching it back in immediately resurrects the same encounter. */
 					if (kind === "boss") {
-						benchPet.lastBossMonth = monthKey();
 						benchPet.bossPending = false;
 						benchPet.bossDeadline = 0;
 					} else if (kind !== "dungeon") {
@@ -1104,7 +1103,6 @@ const Tamagotchi = (() => {
 				summary.teammateRevived = true;
 			}
 			if (kind === "boss") {
-				pet.lastBossMonth = monthKey();
 				pet.bossPending = false;
 				pet.bossDeadline = 0;
 				grantBoost(pet, Tuning.winStatBoostStep * 5, summary);
@@ -1169,6 +1167,9 @@ const Tamagotchi = (() => {
 		t.justWoke = false;
 		t.lastTick = now();
 		t.nextAttackDay = dayNum() + Tuning.attackIntervalDays;
+		t.bossPending = false;
+		t.bossDeadline = 0;
+		if (bloodMoonWindow()) t.lastBossArm = dayNum();
 		return true;
 	}
 	function reviveWithElixir() {

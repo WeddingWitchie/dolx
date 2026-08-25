@@ -116,24 +116,25 @@
 
 	<<= Tamagotchi.statusHtml()>>
 
-	<<if _t.pendingAttack>>
-		<<if _t.bossDue>>
-			<span class="red">A monstrous boss has risen under the blood moon and stalks <<= _t.name>>!
-			Beat it within _t.bossDaysLeft <<= _t.bossDaysLeft is 1 ? "day" : "days">>, or it will kill your pet.</span>
-		<<else>>
-			<span class="red">An enemy is attacking <<= _t.name>> right now! You have to defend it!</span>
+	<<if _t.bossDue>>
+		<span class="red">A monstrous boss has risen under the blood moon and stalks <<= _t.name>>!
+		Beat it within _t.bossDaysLeft <<= _t.bossDaysLeft is 1 ? "day" : "days">>, or it will kill your pet.</span>
+		<<if _t.backupAlive>>
+			<br><span class="green">A teammate stands ready. If <<= _t.name>> falls, one other pet can charge in.</span>
 		<</if>>
+		<br>
+		<<link [[Face the boss!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
+		<br><br>
+	<</if>>
+	<<if _t.pendingAttack and not _t.bossDue>>
+		<span class="red">An enemy is attacking <<= _t.name>> right now! You have to defend it!</span>
 		<<if _t.backupAlive>>
 			<br><span class="green">A teammate stands ready. If <<= _t.name>> falls, one other pet can charge in.</span>
 		<</if>>
 		<br>
 		<<link [[Defend your pet!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
 		<br><br>
-		<<if _t.bossDue>>
-			<<link "Turn it off (the boss will keep hunting)" _ret>><<unset $consoleAction, $trainType>><</link>>
-		<<else>>
-			<<link "Step away (risky)" _ret>><<unset $consoleAction, $trainType>><</link>>
-		<</if>>
+		<<link "Step away (risky)" _ret>><<unset $consoleAction, $trainType>><</link>>
 	<<elseif _t.sleeping>>
 		<span class="teal"><<= _t.name>> is curled up asleep and can't be disturbed for about _t.sleepHoursLeft
 		<<= _t.sleepHoursLeft is 1 ? "hour" : "hours">>. Come back once it's rested.</span>
