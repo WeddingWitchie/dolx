@@ -1074,6 +1074,7 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 
 	// Increase pain based on penetration states every turn in combat.
 	setup.penetratedPain = function penetratedPain() {
+		if (V.combat !== 1 || V.gamemode === "soft") return;
 		if (stateInvalid(V.vaginastate, V.anusstate, V.mouthstate, V.bodysize)) return;
 
 		const painStates = {

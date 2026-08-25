@@ -649,7 +649,6 @@ class PlayerCombatMapper {
 			options = PlayerCombatMapper.generateOptions();
 		}
 
-		setup.penetratedPain?.();
 		options.isDebugging = !!V.debug && V.options.showCombatTools;
 
 		// Set position
