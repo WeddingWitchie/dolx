@@ -440,6 +440,7 @@ function pregnancyNameCorrection(name, caps = false) {
 		case "Night Monster":
 		case "Ivory Wraith":
 		case "cum bucket":
+		case "portal":
 			name = (caps ? "The " : "the ") + name;
 			break;
 		case "pc":
@@ -452,6 +453,15 @@ function pregnancyNameCorrection(name, caps = false) {
 	return name;
 }
 window.pregnancyNameCorrection = pregnancyNameCorrection;
+
+/* Full "who fathered this" reveal sentence. Sources that aren't people can't be a
+   "father", so they get their own phrasing. */
+function pregnancyFatherReveal(source) {
+	if (source === "portal") return "It's clear the portal is to blame.";
+	const name = pregnancyNameCorrection(source);
+	return "It's clear that " + (name === "yourself" ? "you are" : name + " is") + " the father.";
+}
+window.pregnancyFatherReveal = pregnancyFatherReveal;
 
 function playerPregnancyRisk() {
 	if (V.settings.playerPregnancyHumanEnabled === false && V.settings.playerPregnancyBeastEnabled === false) return 6; // Player Pregnancy Disabled
