@@ -1539,7 +1539,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 					result = Math.floor(result * (1 + currentSkillValue("feetskill", disableModifiers + 1) / 10000));
 				}
 			}
-			if (V.auriga_artefact === "pc") {
+			if (whiteSoPaleHeld()) {
 				result = Math.floor(result * 1.1);
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
@@ -3908,3 +3908,15 @@ function hypnosisTrait(trait) {
 	return typeof level === "number" && level > 0 ? level : 0;
 }
 window.hypnosisTrait = hypnosisTrait;
+
+/*
+ * White so Pale: the wishing stones, once they are the player's own.
+ * Raises physique by 10% and slows its daily decay.
+ * Kept as one function so the characteristics overlay, the trait menu and the daily tick all agree on it.
+ *
+ * @returns {boolean} true while the player holds the stones
+ */
+function whiteSoPaleHeld() {
+	return V.auriga_artefact === "pc";
+}
+window.whiteSoPaleHeld = whiteSoPaleHeld;

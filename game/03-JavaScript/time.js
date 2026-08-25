@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -2301,8 +2301,10 @@ function dailyPlayerEffects() {
 	statChange.updatePlayerTraumaState();
 
 	if (V.physique >= 1000) {
-		if (V.farm_stage >= 6) V.xchange.baseStats.physique = V.xchange.baseStats.physique - (V.xchange.baseStats.physique * 4) / V.xchange.baseStats.physiquesize;
-		else V.xchange.baseStats.physique = V.xchange.baseStats.physique - (V.xchange.baseStats.physique * 5) / V.xchange.baseStats.physiquesize;
+		const decayRate = V.farm_stage >= 6 ? 4 : 5;
+		/* White so Pale: holding the wishing stones slows the body's decline. */
+		const decayMod = whiteSoPaleHeld() ? 0.8 : 1;
+		V.xchange.baseStats.physique -= ((V.xchange.baseStats.physique * decayRate) / V.xchange.baseStats.physiquesize) * decayMod;
 	}
 
 	let genderFactor = !V.xchange.genderIdentityEnabled
