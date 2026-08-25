@@ -588,6 +588,21 @@ function effects() {
 			element("span", "You feel a familiar emptiness return in your womb.", "green");
 		}
 
+		// Acceptance of the belly earned by repetition rather than by praying about it - see the habituation floor in dailyPlayerEffects().
+		if (V.pregnancy_acceptance_message) {
+			const carrying = V.pregnancy_acceptance_message === "carrying";
+			const traitName = playerAwareTheyArePregnant() ? "Acceptance: Pregnant Belly" : "Acceptance: Pregnant Looking Belly";
+			delete V.pregnancy_acceptance_message;
+			element(
+				"span",
+				carrying
+					? `You've done this often enough that the weight out front is just how you are now. There's nothing left to brace against. You've gained the ${traitName} trait.`
+					: `You've carried enough times that the thought of swelling up again doesn't make you flinch. You've gained the ${traitName} trait, should your belly grow again.`,
+				"green"
+			);
+			br();
+		}
+
 		if (V.skulduggerymessage) {
 			const grade = ["S", "A+", "A", "B+", "B", "C+", "C", "D+", "D", "F+"];
 			const colour = ["green", "teal", "teal", "lblue", "lblue", "blue", "blue", "purple", "purple", "pink"];

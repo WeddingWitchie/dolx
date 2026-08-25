@@ -2475,6 +2475,21 @@ function dailyPlayerEffects() {
 		}
 	}
 
+	/* Habituation. Praying about your belly increases acceptance faster, but repeated pregnancies also build it naturally.
+	Each completed pregnancy raises the minimum acceptance by 200, reaching full acceptance after five births.
+	Acceptance moves towards this minimum each day, faster while pregnant.
+	This minimum only raises acceptance and does not prevent normal decay above it. */
+	const pregnancyAcceptanceFloor = Math.clamp(playerNormalPregnancyTotal(), 0, 5) * 200;
+	const pregnancyAcceptance = Number(V.acceptance_pregnancy) || 0;
+	if (pregnancyAcceptance < pregnancyAcceptanceFloor) {
+		const carrying = playerBellySize() >= 8;
+		V.acceptance_pregnancy = Math.clamp(pregnancyAcceptance + (carrying ? 20 : 10), 0, pregnancyAcceptanceFloor);
+		if (V.acceptance_pregnancy >= 1000) {
+			V.pregnancy_acceptance_message = carrying ? "carrying" : "recovered";
+			V.effectsmessage = 1;
+		}
+	}
+
 	for (const bodypart of setup.bodyparts) {
 		if (V.skin[bodypart].pen === "marker" && random(0, 1)) wikifier("bodywriting_clear", bodypart);
 	}
