@@ -3015,6 +3015,35 @@ Gwylan leads you back to the shop. "I'm looking forward to what we can do with t
 				"I've heard whispers that the clothing shop on High Street received a shipment of <u>gas masks</u>. I'd like to know if they're genuine, or just unusual costume items. Could you be a dear and fetch one for me? Specifically, a <span class="black">black</span> one with <span class="white">white</span> lenses. Be sure to <span class="gold">wear it here</span>."
 			<<elseif $_request.special is "gold accessories">>
 				"There's a set of accessories being sold at the adult shop on Elk Street. <u>It's a matching set of gold: bracelets, anklets, and a choker.</u> Would you suffer such a gift for little old me? Of course, <span class="gold">I'd like to see you wearing them first</span>."
+			<<elseif $_request.details?.fromWardrobe>>
+				<<set $_shoppingList to $_request.items.filter(piece => !piece.skip && !piece.alt)>>
+				<<set $_plural to $_shoppingList.length gt 1 || $_shoppingList[0].word is "n">>
+				<<set _shoppingListText to []>>
+				<<for $_i to 0; $_i lt $_shoppingList.length; $_i++>>
+					<<set $_colour to $_shoppingList[$_i].colour_requirement>>
+					<<set $_colour_acc to $_shoppingList[$_i].acc_colour_requirement>>
+					<<set $_word to $_shoppingList[$_i].word>>
+					<<set $_firstWord to $_word is "n" ? "those" : "that">>
+					<<if $_colour isnot "any">>
+						<<set $_firstWord += " <span class='" + $_colour + "'>" + $_colour + "</span>">>
+						<<set $_secondWord to $_colour_acc isnot "any" ? " with the <span class='" + $_colour_acc + "'>" + $_colour_acc + "</span> details" : "">>
+					<<else>>
+						<<set $_secondWord to "">>
+					<</if>>
+					<<set $_theName to "<u>" + $_shoppingList[$_i].name + "</u>">>
+					<<set _shoppingListText.push($_firstWord + " " + $_theName + $_secondWord)>>
+				<</for>>
+				<<He>> taps a finger against <<his>> lips.
+				<<print either(
+					"\"You know, I don't need you running errands this time. I believe you already own " + formatList(_shoppingListText, "and", true) + ".",
+					"\"Now that I think of it, I'm sure I've seen you with " + formatList(_shoppingListText, "and", true) + " before.",
+					"\"There's no need to go shopping for this one. Unless I'm mistaken, you have " + formatList(_shoppingListText, "and", true) + " tucked away somewhere.",
+				)>>
+				<<print either(
+					"<span class='gold'>Wear <<if $_plural>>them<<else>>it<</if>> here for me,</span> and I'll take <<if $_plural>>them<<else>>it<</if>> off your hands.",
+					"Dig <<if $_plural>>them<<else>>it<</if>> out and <span class='gold'>wear <<if $_plural>>them<<else>>it<</if>> here,</span> would you? I'll take <<if $_plural>>them<<else>>it<</if>> off your hands.",
+					"<span class='gold'>Wear <<if $_plural>>them<<else>>it<</if>> here</span> so I can see <<if $_plural>>them<<else>>it<</if>> properly. And I'll take <<if $_plural>>them<<else>>it<</if>> off your hands.",
+				)>>"
 			<<else>>
 				<<set $_outfit to $_request.details.outfit>>
 				<<set $_shops to $_request.details.shops>>

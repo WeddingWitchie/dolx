@@ -276,6 +276,7 @@ function gwylanRequestClothes(override) {
 		shops: [],
 		replacements: "n/a",
 		difficulty: 0,
+		fromWardrobe: false,
 	};
 
 	// Request difficulty
@@ -293,7 +294,7 @@ function gwylanRequestClothes(override) {
 	const allowReplacements = complexity <= seedrng.randomInt(3, 4);
 	const ignoreNeck = V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1;
 
-	function grcCreate(clothingName, clothingSlot) {
+	function grcCreate(clothingName, clothingSlot, owned = null) {
 		const baseItem = {
 			category: "clothing",
 			name: "none",
@@ -330,6 +331,18 @@ function gwylanRequestClothes(override) {
 
 		if (!V.gwylan.request.items.some(thing => thing.root)) newItem.root = true;
 		const masterItem = newItem.root ? null : V.gwylan.request.items.find(thing => thing.root);
+
+		if (owned) {
+			// The player already owns this exact garment. Ask for it as it is, no shopping and no condition demands.
+			newItem.colour_requirement = owned.colour && owned.colour !== "custom" ? owned.colour : "any";
+			newItem.acc_colour_requirement = owned.accessory_colour && owned.accessory_colour !== "custom" ? owned.accessory_colour : "any";
+			newItem.pattern_requirement = owned.pattern || "any";
+			newItem.integrity_requirement = "any";
+			newItem.integrity_word = "any";
+			V.gwylan.request.items.push(newItem);
+			grcPushOutfitPart(newItem, setupItem);
+			return;
+		}
 
 		if (requireColours) {
 			if ((masterItem && requireColoursAdv) || masterItem === null) {
@@ -435,7 +448,28 @@ function gwylanRequestClothes(override) {
 		return V.gwylan.request;
 	}
 
+	// Wardrobe request
+	/* Counts clothing requests, not completed ones. Only one can be active at a time.
+   After two shopping trips, Gwylan usually asks for clothes the player already owns to avoid filling the wardrobe. */
+	V.gwylan.clothingRequestCount ??= 0;
+	if (V.gwylan.clothingRequestCount >= 2 && seedrng.random() < 0.7) {
+		const ownedPool = gwylanWardrobeRequestPool();
+		if (ownedPool.length) {
+			const pick = ownedPool.pluck();
+			grcCreate(pick.name, pick.slot, pick.item);
+			if (extraItems) {
+				const second = ownedPool.filter(entry => entry.slot !== pick.slot).pluck();
+				if (second) grcCreate(second.name, second.slot, second.item);
+			}
+			V.gwylan.request.details.fromWardrobe = true;
+			V.gwylan.clothingRequestCount++;
+			return V.gwylan.request;
+		}
+		// Nothing suitable owned, so fall through to the normal shopping request.
+	}
+
 	// Normal
+	V.gwylan.clothingRequestCount++;
 	const availableShops = ["clothing"];
 	if (V.adultshopunlocked) availableShops.push("adult");
 
@@ -617,6 +651,58 @@ function gwylanRequestClothes(override) {
 	}
 	return V.gwylan.request;
 }
+
+/**
+ * Every garment the player owns that Gwylan could plausibly ask them to wear.
+ * Reads the main wardrobe and every other wardrobe the player has.
+ *
+ * @returns {Array<{name: string, slot: string, item: object, reveal: number}>}
+ */
+function gwylanWardrobeRequestPool() {
+	const slots = ["upper", "lower", "head"];
+	if (C.npc.Gwylan.lust >= 30) slots.push("under_upper", "under_lower");
+
+	const blockedItems = ["gas mask", "gold choker", "gold bracelets", "gold anklets"];
+	if (C.npc.Gwylan.lust < 30) blockedItems.push("bunny ears", "kitty ears");
+
+	const allowedGenders = V.settings.forcedCrossdressingEnabled && C.npc.Gwylan.lust >= 30 ? ["n", "m", "f"] : ["n", V.player.gender_appearance];
+
+	const wardrobes = [V.wardrobe, ...Object.values(V.wardrobes ?? {})].filter(wardrobe => wardrobe && typeof wardrobe === "object");
+	const pool = [];
+	const seen = new Set();
+
+	wardrobes.forEach(wardrobe => {
+		slots.forEach(slot => {
+			if (!Array.isArray(wardrobe[slot])) return;
+			wardrobe[slot].forEach(item => {
+				if (!item?.name || item.name === "naked") return;
+				const setupItem = setup.clothes[slot]?.find(clothes => clothes.name === item.name);
+				if (!setupItem) return;
+				if (blockedItems.includes(item.name)) return;
+				if (!allowedGenders.includes(setupItem.gender)) return;
+				if (setupItem.type?.includes("naked")) return;
+				if (setupItem.outfitSecondary) return; // Requested via its primary piece instead
+				if (setupItem.shop?.includes("school")) return; // The player needs their uniform
+				if (!setupItem.shop?.length) return; // Gwylan keeps what he asks for, so it has to be replaceable
+				if (item.cursed) return;
+				if (window.isWardrobeFavorite?.(slot, item)) return; // Hands off the player's favourites
+				if (V.worn[slot].name === item.name) return; // Already wearing it
+				const key = slot + "/" + item.name + "/" + (item.colour ?? "") + "/" + (item.accessory_colour ?? "") + "/" + (item.pattern ?? "");
+				if (seen.has(key)) return;
+				seen.add(key);
+				pool.push({ name: item.name, slot, item, reveal: setupItem.reveal ?? 0 });
+			});
+		});
+	});
+
+	// Gwylan gets pickier the more he wants the player.
+	if (C.npc.Gwylan.lust >= 50) {
+		const revealing = pool.filter(entry => entry.reveal >= 300);
+		if (revealing.length) return revealing;
+	}
+	return pool;
+}
+window.gwylanWardrobeRequestPool = gwylanWardrobeRequestPool;
 
 function gwylanRequestIngredients() {
 	const seedrng = new PRNG(V.gwylan.requestSeed);
