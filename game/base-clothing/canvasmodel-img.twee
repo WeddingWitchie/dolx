@@ -5,34 +5,28 @@
 Render full player image.
 -->
 <<widget "canvasimg">>
+	<<set _bodySizeScale to 1>>
+	<<if $options.bodySizeScaling isnot false>>
+		<<switch setup.snapBodySize($bodysize)>>
+			<<case -1>><<set _bodySizeScale to 0.955>>
+			<<case 0>><<set _bodySizeScale to 0.97>>
+			<<case 1>><<set _bodySizeScale to 0.985>>
+			<<case 2.5>><<set _bodySizeScale to 1.015>>
+			<<case 3>><<set _bodySizeScale to 1.03>>
+			<<case 4>><<set _bodySizeScale to 1.045>>
+		<</switch>>
+	<</if>>
 	<<set _canvasSlot to _args[1] || "sidebar">>
 	<<selectmodel "lighting" _canvasSlot>>
 	<<rendermodel "lighting">>
 	<<selectmodel "main" _canvasSlot>>
 	<<modelprepare-player-body>>
 	<<modelprepare-player-clothes>>
-	<<set _modeloptions.body_size_scale to 1>>
-	<<if $options.bodySizeScaling isnot false>>
-		<<switch setup.snapBodySize($bodysize)>>
-			<<case -1>><<set _modeloptions.body_size_scale to 0.955>>
-			<<case 0>><<set _modeloptions.body_size_scale to 0.97>>
-			<<case 1>><<set _modeloptions.body_size_scale to 0.985>>
-			<<case 2.5>><<set _modeloptions.body_size_scale to 1.015>>
-			<<case 3>><<set _modeloptions.body_size_scale to 1.03>>
-			<<case 4>><<set _modeloptions.body_size_scale to 1.045>>
-		<</switch>>
-	<</if>>
+	<<set _modeloptions.body_size_scale to _bodySizeScale>>
 	<<if $options.sidebarAnimations isnot false>>
 		<<animatemodel _args[0]>>
 	<<else>>
 		<<rendermodel _args[0]>>
-	<</if>>
-	<<if playerHasStrapon()>>
-		<<set _modeloptions.crotch_visible to false>>
-		<<set _modeloptions.crotch_exposed to false>>
-		<<if $worn.lower.exposed lte 1 and $lowerwetstage lte 0>>
-			<<set _modeloptions.worn.under_lower.index to 0>>
-		<</if>>
 	<</if>>
 <</widget>>
 
