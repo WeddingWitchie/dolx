@@ -362,6 +362,7 @@ module.exports = {
 		bikeTime: "readonly",
 		poppyDailyTraits: "readonly",
 		poppyStatusCheck: "readonly",
+		modLISelected: "readonly",
 		// X-Change / merge-surfaced globals (top-level functions shared across concatenated scripts)
 		playerIsXChanged: "readonly",
 		playerIsBreederCreampied: "readonly",

@@ -83,7 +83,7 @@ const events = [
 	{
 		name: "poppy valentines date",
 		condition() {
-			return V.valentines_poppy_flat_accept && Time.month === 2 && Time.monthDay === 14;
+			return modLISelected("Poppy") && C.npc.Poppy?.init === 1 && V.valentines_poppy_flat_accept && Time.month === 2 && Time.monthDay === 14;
 		},
 		starthour: 20,
 		endhour: 20,

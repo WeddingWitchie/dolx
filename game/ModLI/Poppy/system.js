@@ -314,10 +314,13 @@ function poppySchedule() {
 		msg = "breakfast";
 	} else if (mins >= 1080 && mins < 1260) {
 		// 6PM–9PM: charity / soup kitchen (both weekday and weekend)
-		// small valentine override: be at home instead and have dinner early if accept date
-		// and at barb street at 8pm if no? Probably???
-		if (Time.month === 2 && Time.monthDay === 14 && Number(V.poppyromance) >= 0) {
-			loc = V.valentines_poppy_flat_accept ? "flatKitchen" : "barbStreet";
+		if (Time.month === 2 && Time.monthDay === 14 && (V.valentines_poppy_flat_accept || V.valentines_poppy_flat_done)) {
+			// Stay home to prepare for, attend, or wind down from the accepted date.
+			loc = "flatKitchen";
+			msg = "dinner";
+		} else if (Time.month === 2 && Time.monthDay === 14 && V.valentines_poppy_flat_decline) {
+			// The declined-date follow-up is encountered on Barb Street.
+			loc = "barbStreet";
 			msg = "dinner";
 		} else {
 			loc = "soupKitchen";
@@ -325,9 +328,8 @@ function poppySchedule() {
 		}
 	} else if (mins >= 1260 && mins < 1320) {
 		// 9PM–10PM: dinner (both weekday and weekend)
-		// I'm adding an override for post romance valentine's bc she cannot be eatting dinner twice
-		// ... or she can but ehhhhhh
-		if (Time.month === 2 && Time.monthDay === 14 && Number(V.poppyromance) >= 0) {
+		if (Time.month === 2 && Time.monthDay === 14 && (V.valentines_poppy_flat_accept || V.valentines_poppy_flat_done)) {
+			// An accepted Valentine date replaces Poppy's normal late dinner.
 			loc = "flatApartment";
 			msg = "sleep";
 		} else {
@@ -394,6 +396,9 @@ function poppySchedule() {
 			case "flatApartment":
 			case "flatKitchen":
 				break;
+			case "barbStreet":
+				if (V.valentines_poppy_flat_decline) break;
+				return clearSchedule();
 			default:
 				return clearSchedule();
 		}
