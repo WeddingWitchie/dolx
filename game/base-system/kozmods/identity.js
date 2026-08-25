@@ -321,11 +321,18 @@ function hourlyClothingFemininityCheck(hours = 1) {
 }
 window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 
-/* The same four the mirror counts when it tells the player they're wearing makeup. Concealer is left out on
-purpose: it's a 0/1 freckle cover rather than a look anyone reads off your face. */
+/* The same four the mirror counts when it tells the player they're wearing makeup, including custom cosmetics.
+Concealer is left out on purpose: it's a 0/1 freckle cover rather than a look anyone reads off your face. */
 function playerIsWearingMakeup() {
 	const makeup = V.makeup || {};
-	return !!(makeup.lipstick || makeup.eyeshadow || makeup.mascara || makeup.blusher);
+	const customMakeup = V.ccmod?.equipped;
+	return !!(
+		makeup.lipstick ||
+		makeup.eyeshadow ||
+		makeup.mascara ||
+		makeup.blusher ||
+		(customMakeup && Object.values(customMakeup).some(item => ccmUtils.itemIsValid(item)))
+	);
 }
 window.playerIsWearingMakeup = playerIsWearingMakeup;
 

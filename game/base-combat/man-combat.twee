@@ -2051,6 +2051,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<if !$statFreeze and _tool is "makeup kit">>
 		<<set _colour to ["red", "pink", "light pink", "green", "blue", "purple", "orange"].random()>>
 		<span class="purple"><<He>> grips your chin and forces your face still while <<he>> hurriedly applies _colour makeup.</span>
+		<<ccmodRemoveAll>>
 		<<set $makeup.lipstick to _colour>>
 		<<set $makeup.eyeshadow to _colour>>
 		<<set $makeup.blusher to "rosy pink">>
@@ -2065,6 +2066,7 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		<</if>>
 	<<elseif !$statFreeze and _tool is "makeup remover">>
 		<span class="purple"><<He>> grips your chin and scrubs the makeup from your face.</span>
+		<<ccmodRemoveAll>>
 		<<set $makeup.lipstick to 0>>
 		<<set $makeup.eyeshadow to 0>>
 		<<set $makeup.mascara to 0>>
@@ -2205,7 +2207,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 
 	/* Its own band above the writing-tool one. At "lte 8" this sat in front of the pen branch and covered all of
 	its range, so a male PC with a bare face could never be written on again. */
-	<<elseif !$statFreeze and $rng gt 7 and $rng lte 12 and $consensual isnot 1 and $enemytype is "man" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and ($walltype is 0 or $walltype is "front") and !$worn.face.type.includes("mask") and !$NPCList[_n].lefthand.toString().startsWith("pen") and !$NPCList[_n].righthand.toString().startsWith("pen") and (($player.gender is "m" and !playerIsWearingMakeup()) or ($player.gender is "f" and playerIsWearingMakeup()))>>
+	<<elseif !$statFreeze and $settings.npcMakeupLevel gte 1 and $rng gt 7 and $rng lte ($settings.npcMakeupLevel is 1 ? 9 : $settings.npcMakeupLevel is 2 ? 12 : 22) and $consensual isnot 1 and $enemytype is "man" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and ($walltype is 0 or $walltype is "front") and !$worn.face.type.includes("mask") and !$NPCList[_n].lefthand.toString().startsWith("pen") and !$NPCList[_n].righthand.toString().startsWith("pen") and (($player.gender is "m" and !playerIsWearingMakeup()) or ($player.gender is "f" and playerIsWearingMakeup()))>>
 		<<set $tooltarget to $player.gender is "m" ? "makeup kit" : "makeup remover">>
 		<span class="purple"><<He>> pulls a $tooltarget from <<his>> pocket and reaches towards your face.</span>
 		<<if _args[0] is "left">>
