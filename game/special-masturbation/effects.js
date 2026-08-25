@@ -3705,6 +3705,7 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 			wikifier("vaginalstat");
 			wikifier("drugs", 10);
 			wikifier("vaginaraped");
+			wikifier("takeTempleVirginity", "'a phallus plant'", "vaginal");
 			if (V.player.virginity.vaginal === true) {
 				fragment.append(span("You lower yourself down, allowing the plant to penetrate you."));
 				fragment.append(" ");
@@ -3748,6 +3749,9 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 		case "mdildopenetratebounce":
 			clearAction("vagina");
 			altText.selectedToy = selectedToy("vagina");
+			if (V.settings.toyVirginityEnabled) {
+				wikifier("takeTempleVirginity", JSON.stringify("your " + toyDisplay(altText.selectedToy)), "vaginal");
+			}
 			if (V.settings.toyVirginityEnabled && V.player.virginity.vaginal === true) {
 				wikifier("arousal", 1000, "vaginal");
 				wikifier("vaginalstat");
