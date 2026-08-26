@@ -181,6 +181,39 @@ so these caps have to sit on the player scale ($arousalmax / $pleasuremax), not 
 			<<set $tentacleColour to "tentacles-purple">>
 		<</if>>
 	<</if>>
+
+	/* The Wraith's marks look like a claim to non-human creatures, making some of them keep their distance.
+	The Wraith's own pale limbs are unaffected. See  widget wraithBrandTentacleWarning. */
+	<<set _wraithClaimed to W.wraithBrandWeight()>>
+	<<if _wraithClaimed gte 1 and $tentacleColour isnot "tentacles-wraith" and $tentacles.active gte 2>>
+		<<set _shy to Math.clamp(Math.floor(_wraithClaimed / 2), 1, $tentacles.active - 1)>>
+		/* max controls how many tentacles actually attack. Changing only active would fix the counter, but not reduce the attacks. */
+		<<set $tentacles.max -= _shy>>
+		<<set $tentacles.active -= _shy>>
+		/* Remove the objects too, so scenes don't detect tentacles that already backed off. */
+		<<for _wi to $tentacles.max; _wi lt ($tentacles.max + _shy); _wi++>>
+			<<run delete $tentacles[_wi]>>
+		<</for>>
+		<<set $wraithBrandShyTentacles to _shy>>
+	<<else>>
+		<<unset $wraithBrandShyTentacles>>
+	<</if>>
+<</widget>>
+
+<<widget "wraithBrandTentacleWarning">>
+	<<if $wraithBrandShyTentacles>>
+		<br>
+		<span class="teal">
+			<<if $wraithBrandShyTentacles gte 2>>
+				Several of them recoil the moment they touch your skin, and draw back out of reach.
+				Whatever they read there, they want no part of it.
+			<<else>>
+				One of them brushes the mark on your skin, flinches, and withdraws.
+			<</if>>
+		</span>
+		<br>
+		<<unset $wraithBrandShyTentacles>>
+	<</if>>
 <</widget>>
 
 <<widget "tentacles">>
@@ -255,6 +288,7 @@ so these caps have to sit on the player scale ($arousalmax / $pleasuremax), not 
 <</widget>>
 
 <<widget "effectstentacles">>
+	<<wraithBrandTentacleWarning>>
 	<<effectspain>>
 	<<effectsorgasm>>
 	<<effectsdissociation>>

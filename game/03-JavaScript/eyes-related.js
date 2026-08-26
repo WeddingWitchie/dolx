@@ -1,3 +1,4 @@
+/* globals currentSkillValue */
 function buildEyeDetails() {
 	let sentence = "";
 	let concatFlag = false;
@@ -266,3 +267,47 @@ window.defineCustomEyeColourStyle = function () {
 		}
 	}
 };
+
+/*
+	Central check for whether the player can see.
+
+	The player is blinded by a blindfold, or by the sleeping mask when it is pulled down.
+	New content should use this check instead of checking for "blindfold" directly.
+*/
+function pcIsBlinded() {
+	const face = V.worn?.face;
+	if (!face || !Array.isArray(face.type)) return false;
+	/* A blindfold torn off in combat leaves the item behind but stops covering anything. */
+	if (face.type.includes("broken")) return false;
+	if (face.type.includes("blindfold")) return true;
+	if (face.variable === "sleeping mask" && face.altposition === "alt") return true;
+	return false;
+}
+window.pcIsBlinded = pcIsBlinded;
+
+/*
+	True only when the player chose removable darkness, not when it was forced on them.
+*/
+function pcIsBlindedByChoice() {
+	if (!pcIsBlinded()) return false;
+	return V.worn.face.cursed !== 1;
+}
+window.pcIsBlindedByChoice = pcIsBlindedByChoice;
+
+/*
+	Performance penalty when acting blind. Only applies when the player uses a sex skill.
+
+	Forced blindness has a larger penalty than chosen blindness.
+	Higher skill reduces the penalty.
+*/
+function blindSexMultiplier(skillName) {
+	if (!pcIsBlinded()) return 1;
+	const penalty = pcIsBlindedByChoice() ? 0.2 : 0.3;
+	/* Up to half the penalty is bought back at maxed skill in the act being performed. */
+	let skill = 0;
+	if (skillName && typeof currentSkillValue === "function") {
+		skill = Math.clamp(currentSkillValue(skillName) / 1000, 0, 1);
+	}
+	return 1 - penalty * (1 - skill * 0.5);
+}
+window.blindSexMultiplier = blindSexMultiplier;

@@ -1,4 +1,4 @@
-/* globals wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune */
+/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune */
 /**
  * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
@@ -467,6 +467,11 @@ function pleasure(amount, source) {
 			mod *= 0.5;
 		} else if (V.xchange.resistCombatArousal === -1 && amount > 0) {
 			mod += 0.5;
+		}
+
+		// Blindfolds and sleeping masks slightly increase sensitivity.
+		if (amount > 0 && pcIsBlinded()) {
+			mod += 0.35;
 		}
 
 		// Reduce the mod if masturbating while in heat and/or rut

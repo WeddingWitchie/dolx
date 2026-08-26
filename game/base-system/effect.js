@@ -1,3 +1,4 @@
+/* globals pcIsBlinded */
 function effectsWater(waterType = "liquid") {
 	const fragment = document.createDocumentFragment();
 
@@ -243,13 +244,13 @@ function effectsWater(waterType = "liquid") {
 			sWikifier("<<exposure>>");
 			if (V.exhibitionism >= 55) {
 				span(
-					!V.worn.face.type.includes("blindfold")
+					!pcIsBlinded()
 						? "You feel a lewd thrill as you look down and see your clothes clinging tight to your body, completely transparent."
 						: "You feel a lewd thrill as your clothes cling tight to your body, completely transparent."
 				);
 			} else {
 				span(
-					!V.worn.face.type.includes("blindfold")
+					!pcIsBlinded()
 						? "You look down in horror at your clothes, which cling tight to your body and are completely transparent."
 						: "Horror takes over you as you feel your clothes, which cling tight to your body and are completely transparent."
 				);
@@ -260,13 +261,13 @@ function effectsWater(waterType = "liquid") {
 		} else if (wetIntro >= 1) {
 			if (V.exhibitionism >= 35) {
 				span(
-					!V.worn.face.type.includes("blindfold")
+					!pcIsBlinded()
 						? "You feel a lewd thrill as you look down and see your clothes clinging tight to your body, giving a hint of transparency."
 						: "You feel a lewd thrill as your clothes cling tight to your body, giving a hint of transparency."
 				);
 			} else {
 				span(
-					!V.worn.face.type.includes("blindfold")
+					!pcIsBlinded()
 						? "You look down anxiously at your clothes, now clinging tightly to your body and giving a hint of transparency."
 						: "You feel your clothes, now clinging tightly to your body and giving a hint of transparency."
 				);
@@ -2302,6 +2303,12 @@ function effects() {
 	if (V.worn.genitals.cursed === 1 && V.worn.genitals.integrity <= 0) V.worn.genitals.type.push("broken");
 
 	sWikifier("<<exposure>>");
+
+	/* Worth flagging in combat, where not being able to see costs you performance (blindSexMultiplier). */
+	if (V.combat && pcIsBlinded()) {
+		sWikifier(`<span class="purple">You can't see through your ${V.worn.face.name}.</span>`);
+		br();
+	}
 
 	if (V.combat) sWikifier("<<pass 10 seconds>>");
 
