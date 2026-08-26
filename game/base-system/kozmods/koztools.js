@@ -450,6 +450,10 @@ window.updatePronounSummary = updatePronounSummary;
 			x.giTransformEnabled = false;
 		}
 
+		// Body changes require daily drift.
+		// If "Update Gender Identity" is off, "Allow slow body changes" is also turned off to prevent inconsistent saves.
+		if (x.giAutoEnabled !== true) x.giTransformEnabled = false;
+
 		// If the system isn't fully enabled, clear queued drift/stage so it can't "fire later".
 		if (x.giAutoEnabled !== true || x.giTransformEnabled !== true) {
 			x.giDrift = 0;

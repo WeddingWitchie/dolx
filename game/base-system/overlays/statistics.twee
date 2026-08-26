@@ -984,12 +984,18 @@
 			<<set _giTargetDir to (_giTarget gt _giMid) ? "feminine" : (_giTarget lt _giMid) ? "masculine" : "neutral">>
 			<<set _giDelta to _giTarget - _giCurrent>>
 
-			Daily drift: <<print _giStep>> / day
+			<<if $xchange.giAutoEnabled isnot true>>
+				Daily drift: <span class="red">Off</span> <span class="small-description">(enable in Attitudes)</span>
+			<<else>>
+				Daily drift: <<print _giStep>> / day
+			<</if>>
 			<br>
 			Identity target: _giTargetDir
 			<br>
 
-			<<if Math.abs(_giDelta) lte 1>>
+			<<if $xchange.giAutoEnabled isnot true>>
+				Drift status: <span class="blue">Held</span> <span class="small-description">(the meter only changes through events)</span>
+			<<elseif Math.abs(_giDelta) lte 1>>
 				Drift status: <span class="green">Stable (already at target)</span>
 			<<else>>
 				<<set _giDaysLeft to Math.ceil(Math.abs(_giDelta) / _giStep)>>
@@ -1001,15 +1007,11 @@
 			<br>
 			<span class="gold">Body Transformation</span>
 			<br>
-			<<if $xchange.giAutoEnabled isnot true>>
-				Auto-update: <span class="red">Off</span> <span class="small-description">(enable in Attitudes)</span>
-			<<else>>
-				Auto-update: <span class="green">On</span>
-			<</if>>
-			<br>
 			<<set _giPregnancyPaused to !!($sexStats?.vagina?.pregnancy?.type || $sexStats?.anus?.pregnancy?.type)>>
 			<<set _giEarSlimePaused to !!($earSlime && $earSlime.growth gt 50)>>
-			<<if $xchange.giTransformEnabled isnot true>>
+			<<if $xchange.giAutoEnabled isnot true>>
+				Body changes: <span class="red">Off</span> <span class="small-description">(needs daily drift, above)</span>
+			<<elseif $xchange.giTransformEnabled isnot true>>
 				Body changes: <span class="red">Off</span> <span class="small-description">(enable in Attitudes)</span>
 			<<elseif $xchange.pill and $xchange.pill.active is true>>
 				Body changes: <span class="blue">Paused</span> <span class="small-description">(X-Change pill active)</span>

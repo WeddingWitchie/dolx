@@ -1769,6 +1769,13 @@ function xchangeEffectsMessages() {
 		delete V.giDriftMessage;
 	}
 
+	// Set when $identityCap keeps the identity meter above its minimum. Prevents hidden stress and trauma with no visible explanation.
+	if (V.identityCapMessage) {
+		element("span", "You try to think of yourself as less of a woman, and fail. That's simply who you are now.", "purple");
+		br();
+		delete V.identityCapMessage;
+	}
+
 	if (V.breastSensitiveRubMessage) {
 		// The slot is picked during the time tick, but this prints once the passage has run and a link that passes time then strips
 		// (washing, bathing, going to bed) leaves the stored slot empty. Re-check it, and fall back to whatever is being worn now.
