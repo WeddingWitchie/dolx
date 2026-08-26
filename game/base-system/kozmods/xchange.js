@@ -349,11 +349,20 @@ function pleasure(amount, source) {
 		const beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
 		const penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 
+		// $vaginause/$anususe can be stale or empty, so also check the actual penetration state.
+		// This prevents penis addicts from being denied orgasm while already being penetrated.
+		const penetratedStates = ["penetrated", "doublepenetrated", "double", "tentacledeep"];
+		const npcPenetratingHole = ["anus", "anusdouble", "vagina", "vaginadouble"];
+
+		const anusPenetratedNow = beingPenetrated.includes(V.anususe) || penetratedStates.includes(V.anusstate);
+		const vaginaPenetratedNow = beingPenetrated.includes(V.vaginause) || penetratedStates.includes(V.vaginastate);
+
 		const playerIsBeingPenetrated =
-			beingPenetrated.includes(V.vaginause) ||
-			beingPenetrated.includes(V.anususe) ||
-			[0, 3].includes(V.portalPanties.state.vagina?.new) ||
-			[0, 3].includes(V.portalPanties.state.anus?.new) ||
+			anusPenetratedNow ||
+			vaginaPenetratedNow ||
+			(Array.isArray(V.NPCList) && V.NPCList.some(npc => npc && npcPenetratingHole.includes(npc.penis))) ||
+			[0, 3].includes(V.portalPanties?.state?.vagina?.new) ||
+			[0, 3].includes(V.portalPanties?.state?.anus?.new) ||
 			V.portalejacvagina ||
 			V.portalejacanus;
 
@@ -405,7 +414,7 @@ function pleasure(amount, source) {
 			case "masturbationAnal":
 			case "masturbationAss":
 			case "bottom_grope":
-				if (amount > 0 && beingPenetrated.includes(V.anusstate)) {
+				if (amount > 0 && anusPenetratedNow) {
 					statChange.pain(V.analPain || 0);
 					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
@@ -423,7 +432,7 @@ function pleasure(amount, source) {
 			case "masturbationVagina":
 			case "pussy_grope":
 			case "penis_grope":
-				if (amount > 0 && V.player.vaginaExist === true && beingPenetrated.includes(V.vaginause)) {
+				if (amount > 0 && V.player.vaginaExist === true && vaginaPenetratedNow) {
 					statChange.pain(V.vaginalPain);
 					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
@@ -587,9 +596,13 @@ function pleasure(amount, source) {
 				return false;
 			})();
 
+			// 1 = penis craving unmet, 2 = hole/alpha craving unmet, 3 = both.
+			// This makes the notice show the actual missing craving instead of guessing from traits.
 			const showBlockedMsg = () => {
+				const penisUnmet = V.penis_addict_trait === 1 && !penisAddictionFulfilled;
+				const holeUnmet = holeAddictActive && !holeAddictionFulfilled;
 				V.effectsmessage = 1;
-				V.sexual_addiction_message = 1;
+				V.sexual_addiction_message = penisUnmet && holeUnmet ? 3 : holeUnmet ? 2 : 1;
 			};
 
 			if (usingSexToy) {
@@ -1893,12 +1906,18 @@ function xchangeEffectsMessages() {
 
 	if (V.sexual_addiction_message) {
 		const alphaEffectActive = !V.statFreeze && playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player.penisExist;
+		// Tracks which craving is unmet: 1 = penis, 2 = hole/alpha, 3 = both.
+		// Old saves may still use 1, so the trait check below handles that case.
+		const unmet = V.sexual_addiction_message;
+		const holeLine =
+			alphaEffectActive && V.hole_addict_trait !== 1
+				? "Your knot aches to lock inside someone, and it demands it now!"
+				: "Your dick craves some pussy, and it demands it now!";
 		element("span", "Your body refuses to cum like this.", "purple");
-		if (V.penis_addict_trait === 1 && (V.hole_addict_trait === 1 || alphaEffectActive))
-			element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
+		if (unmet === 3) element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
+		else if (unmet === 2) element("span", holeLine, "red");
 		else if (V.penis_addict_trait === 1) element("span", "You need dick, and you need it deep inside you. Now!", "red");
-		else if (V.hole_addict_trait === 1 && V.player.penisExist) element("span", "Your dick craves some pussy, and it demands it now!", "red");
-		else if (alphaEffectActive) element("span", "Your knot aches to lock inside someone, and it demands it now!", "red");
+		else if ((V.hole_addict_trait === 1 && V.player.penisExist) || alphaEffectActive) element("span", holeLine, "red");
 
 		br();
 
