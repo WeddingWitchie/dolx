@@ -45,16 +45,78 @@ class CombatEditor {
 	 * @returns {HTMLButtonElement}
 	 */
 	static createGiveUpButton() {
+		const allowance = CombatEditor.giveUpAllowance();
+		const remaining = CombatEditor.giveUpsRemaining();
+		const spent = allowance != null && remaining <= 0;
 		const button = document.createElement("button");
 		button.classList.add("btn", "btn-info", "btn-icon", "combat-give-up");
-		button.title = "Give up - automatically lose this encounter";
+		if (allowance == null) {
+			button.title = "Stop fighting the labour";
+		} else if (allowance === "consensual") {
+			button.title =
+				remaining > 0
+					? `Stop: end this encounter (${remaining} of ${CombatEditor.giveUpDailyLimits.consensual} left today)`
+					: "Stop: you have stopped too many encounters today";
+		} else {
+			button.title =
+				remaining > 0
+					? `Give up: automatically lose this encounter (${remaining} of ${CombatEditor.giveUpDailyLimits.forced} left today)`
+					: "Give up: you have given up too many times today";
+		}
 		button.innerHTML =
 			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">' +
 			'<line x1="5" y1="5" x2="19" y2="19"></line><line x1="19" y1="5" x2="5" y2="19"></line></svg>';
-		button.addEventListener("click", function () {
-			CombatEditor.loseEncounter();
-		});
+		if (spent) {
+			button.disabled = true;
+			button.classList.add("faded");
+		} else {
+			button.addEventListener("click", function () {
+				CombatEditor.loseEncounter();
+			});
+		}
 		return button;
+	}
+
+	/**
+	 * Daily limits for leaving encounters early.
+	 * Forced encounters have a limited number of escapes, while consensual encounters do not.
+	 *
+	 * @returns {{ forced: number, consensual: number }}
+	 */
+	static get giveUpDailyLimits() {
+		return { forced: 3, consensual: 5 };
+	}
+
+	/**
+	 * Which daily encounter limit this uses, or null if there is no limit.
+	 * Childbirth has no limit because the button is the only way to end labour.
+	 *
+	 * @returns {"forced" | "consensual" | null}
+	 */
+	static giveUpAllowance() {
+		if (V.enemytype === "childbirth") return null;
+		return V.consensual === 1 ? "consensual" : "forced";
+	}
+
+	/**
+	 * Returns how many times this encounter can still happen today.
+	 *
+	 * @returns {number}
+	 */
+	static giveUpsRemaining() {
+		const allowance = CombatEditor.giveUpAllowance();
+		if (allowance == null) return Infinity;
+		const limit = CombatEditor.giveUpDailyLimits[allowance];
+		const used = Number(V.daily?.[CombatEditor.giveUpDailyKey(allowance)]) || 0;
+		return Math.clamp(limit - used, 0, limit);
+	}
+
+	/**
+	 * @param {"forced" | "consensual"} allowance
+	 * @returns {string} the $daily key holding that allowance's count
+	 */
+	static giveUpDailyKey(allowance) {
+		return allowance === "consensual" ? "stoppedConsensual" : "giveUp";
 	}
 
 	/**
@@ -68,6 +130,16 @@ class CombatEditor {
 	 */
 	static loseEncounter() {
 		const v = State.variables;
+		const allowance = CombatEditor.giveUpAllowance();
+		if (allowance != null) {
+			if (CombatEditor.giveUpsRemaining() <= 0) return;
+			if (v.daily == null || typeof v.daily !== "object") v.daily = {};
+			const key = CombatEditor.giveUpDailyKey(allowance);
+			v.daily[key] = (Number(v.daily[key]) || 0) + 1;
+		}
+		/* Marks the encounter as a surrender so the ending beating only happens after surrender.
+			Cleared by <<encounterEndViolence>>. */
+		v.combatGiveUp = 1;
 		v.finish = 1;
 		if (v.combatExtended?.reverseRapeStart === 1) {
 			v.combatExtended.reverseRapeEnd = 1;
