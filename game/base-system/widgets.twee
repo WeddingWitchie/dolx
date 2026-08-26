@@ -1036,7 +1036,7 @@ asking a willing partner to stop shouldn't leave the player battered. */
 <</widget>>
 
 <<widget "combatskulduggeryskilluse">>
-	<<if $statFreeze isnot true>>
+	<<if $statFreeze isnot true and $skulduggery lt 1000 * $AMCTraits.skulduggery>>
 		<<set _autismMod to autismStatGainMultiplier("skulduggery", 3)>>
 		<<if $skulduggery gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $skulduggery += 3 / $AMCTraits.skulduggery * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
@@ -1044,9 +1044,7 @@ asking a willing partner to stop shouldn't leave the player battered. */
 			<<set $skulduggery += 3 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<</if>>
 		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
-		<<if $skulduggery lt 1000 * $AMCTraits.skulduggery>>
-			<span class="gold"> You learned a thing or two about skulduggery.</span>
-		<</if>>
+		<span class="gold"> You learned a thing or two about skulduggery.</span>
 	<</if>>
 <</widget>>
 
@@ -5637,10 +5635,11 @@ asking a willing partner to stop shouldn't leave the player battered. */
 
 /* 0: difficulty, 1: "locks"/"target", 2: additional progress */
 <<widget "skulduggeryuse">>
+	/* Skill bonuses help the check, but do not lower the base-skill learning limit. */
 	<<if _args[0]>>
-		<<set $_difficulty to foxSkulduggeryDifficulty(_args[0])>>
+		<<set $_difficulty to _args[0]>>
 	<<else>>
-		<<set $_difficulty to foxSkulduggeryDifficulty($skulduggerydifficulty + 100)>>
+		<<set $_difficulty to $skulduggerydifficulty + 100>>
 	<</if>>
 
 	<<if $skulduggery lt Math.min($_difficulty, 1000 * $AMCTraits.skulduggery)>>
@@ -5662,10 +5661,11 @@ asking a willing partner to stop shouldn't leave the player battered. */
 
 /* 0: difficulty, 1: "locks"/"target", 2: additional progress */
 <<widget "skulduggeryuseinline">>
+	/* Skill bonuses help the check, but do not lower the base-skill learning limit. */
 	<<if _args[0]>>
-		<<set $_difficulty to foxSkulduggeryDifficulty(_args[0])>>
+		<<set $_difficulty to _args[0]>>
 	<<else>>
-		<<set $_difficulty to foxSkulduggeryDifficulty($skulduggerydifficulty + 100)>>
+		<<set $_difficulty to $skulduggerydifficulty + 100>>
 	<</if>>
 
 	<<if $skulduggery lt Math.min($_difficulty, 1000 * $AMCTraits.skulduggery)>>
