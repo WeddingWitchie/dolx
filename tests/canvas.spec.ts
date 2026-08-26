@@ -223,16 +223,16 @@ test.describe("sidebar canvas", () => {
 		expect(await page.evaluate(() => (window as any).SugarCube.State.variables.options.bodySizeScaling)).toBe(false);
 
 		const cases = [
-			{ bodySize: 1, animations: true, enabled: true, scale: 0.985 },
-			{ bodySize: 0, animations: true, enabled: true, scale: 0.97 },
-			{ bodySize: -1, animations: true, enabled: true, scale: 0.955 },
-			{ bodySize: 1, animations: false, enabled: true, scale: 0.985 },
-			{ bodySize: 0, animations: false, enabled: true, scale: 0.97 },
-			{ bodySize: -1, animations: false, enabled: true, scale: 0.955 },
+			{ bodySize: 1, animations: true, enabled: true, scale: 1 },
+			{ bodySize: 0, animations: true, enabled: true, scale: 0.985 },
+			{ bodySize: -1, animations: true, enabled: true, scale: 0.97 },
+			{ bodySize: 1, animations: false, enabled: true, scale: 1 },
+			{ bodySize: 0, animations: false, enabled: true, scale: 0.985 },
+			{ bodySize: -1, animations: false, enabled: true, scale: 0.97 },
 			{ bodySize: 2, animations: true, enabled: true, scale: 1 },
-			{ bodySize: 2.5, animations: true, enabled: true, scale: 1.015 },
-			{ bodySize: 3, animations: true, enabled: true, scale: 1.03 },
-			{ bodySize: 4, animations: true, enabled: true, scale: 1.045 },
+			{ bodySize: 2.5, animations: true, enabled: true, scale: 1.01 },
+			{ bodySize: 3, animations: true, enabled: true, scale: 1.02 },
+			{ bodySize: 4, animations: true, enabled: true, scale: 1.03 },
 			{ bodySize: -1, animations: true, enabled: false, scale: 1 },
 		];
 
@@ -262,6 +262,46 @@ test.describe("sidebar canvas", () => {
 
 		await assertNoErrors(page);
 		expect(pageErrors).toEqual([]);
+	});
+});
+
+test.describe("sidebar canvas at fractional device scale", () => {
+	// Reproduce the supplied desktop recording: a 256px sidebar canvas viewed at 125% display scaling.
+	test.use({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.25 });
+
+	test("keeps one-pixel canvas edges crisp", async ({ page }) => {
+		await page.addInitScript(() => localStorage.setItem("verifiedAge", "true"));
+		await page.goto(GAME_URL);
+		await waitForPassage(page);
+
+		const probe = page.locator("canvas.rendering-probe");
+		await page.evaluate(() => {
+			const canvas = document.createElement("canvas");
+			canvas.className = "rendering-probe";
+			canvas.width = 256;
+			canvas.height = 256;
+			canvas.style.width = "256px";
+			canvas.style.height = "256px";
+			canvas.style.position = "fixed";
+			canvas.style.inset = "0 auto auto 0";
+			canvas.style.zIndex = "2147483647";
+			const context = canvas.getContext("2d");
+			for (let y = 0; y < 256; y++) {
+				for (let x = 0; x < 256; x++) {
+					context.fillStyle = (x + y) % 2 ? "#fff" : "#000";
+					context.fillRect(x, y, 1, 1);
+				}
+			}
+			document.body.append(canvas);
+		});
+
+		expect(await probe.evaluate(canvas => getComputedStyle(canvas).imageRendering)).toBe("pixelated");
+		const { pixels } = decodePngRgba(await probe.screenshot({ scale: "device" }));
+		const greyLevels = new Set<number>();
+		for (let i = 0; i < pixels.length; i += 4) {
+			if (pixels[i + 3] === 255) greyLevels.add(pixels[i]);
+		}
+		expect([...greyLevels].sort((a, b) => a - b)).toEqual([0, 255]);
 	});
 });
 
