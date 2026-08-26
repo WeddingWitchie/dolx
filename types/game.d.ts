@@ -69,7 +69,6 @@ declare module "twine-sugarcube" {
 		robindebtlimit: number;
 		robindebtevent: number;
 		robineventnote?: 0 | 1;
-		robinDebtOverheard?: 0 | 1;
 		robinGivenTotal: number;
 		robinStand?: {
 			tier: 1 | 2 | 3 | 4;

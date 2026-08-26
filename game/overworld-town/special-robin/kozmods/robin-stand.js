@@ -19,7 +19,7 @@ setup.robinStand = {
 	/* £/week income at which Robin can free the player of their debt. */
 	selfSufficiencyIncome: 2000,
 	tiers: [
-		null, /* 1-indexed */
+		null /* 1-indexed */,
 		{ name: "backpack stand", cost: 0, income: 300, fluct: 0.3 },
 		{ name: "folding table stand", cost: 1000, income: 420, fluct: 0.2 },
 		{ name: "wagon stand", cost: 3000, income: 600, fluct: 0.15 },
@@ -67,6 +67,7 @@ function ensureRobinStand() {
 	if (!Number.isFinite(stand.tier) || stand.tier < 1) stand.tier = 1;
 	stand.tier = Math.min(Math.trunc(stand.tier), 4);
 	if (!Array.isArray(stand.upgrades)) stand.upgrades = [];
+	stand.upgrades = stand.upgrades.filter((id, index) => robinStandUpgrade(id) && stand.upgrades.indexOf(id) === index);
 	if (!Number.isFinite(stand.skill)) stand.skill = 0;
 	stand.skill = Math.clamp(Math.round(stand.skill), 0, 1000);
 	if (!Number.isFinite(stand.helpCount)) stand.helpCount = 0;
@@ -152,8 +153,9 @@ function robinStandBuy(id) {
 	const stand = ensureRobinStand();
 	if (id === "tier") {
 		if (stand.tier < 4) stand.tier++;
-	} else if (!stand.upgrades.includes(id) && robinStandUpgrade(id)) {
-		stand.upgrades.push(id);
+	} else {
+		const upgrade = robinStandUpgrade(id);
+		if (!stand.upgrades.includes(id) && upgrade?.tier <= stand.tier) stand.upgrades.push(id);
 	}
 }
 window.robinStandBuy = robinStandBuy;
