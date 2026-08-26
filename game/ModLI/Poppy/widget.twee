@@ -340,6 +340,24 @@
 	<</if>>
 <</widget>>
 
+/* Offers the one-per-bad-end heart to heart. _args[0] is "flat" or "lake". */
+<<widget "poppyComfortOption">>
+	<<if poppyBadEndComfortAvailable()>>
+		<<socialiseicon>><<link [[Tell Poppy where you've been (0:05)|Poppy Comfort Talk]]>><<pass 5>><<set $poppyComfortVenue to _args[0]>><<set $daily.poppy.lastAction to "chat">><</link>><<lstress>><<ltrauma>><<gpatience>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* Shared passage header for the comfort talk, which runs at either venue. */
+<<widget "poppyComfortHeader">>
+	<<if $poppyComfortVenue is "lake">>
+		<<effects>><<lakeeffects>>
+	<<else>>
+		<<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>><<effects>>
+	<</if>>
+	<<run poppySchedule()>><<speechresolve>>
+<</widget>>
+
 
 /* Menu */
 <<widget "poppyLakeMenu">>
@@ -398,6 +416,7 @@
 				<</if>>
 				<<poppyOpiumPulse>>
 		<</if>>
+		<<poppyComfortOption "lake">>
 		<<socialiseicon>><<link [[Chat with Poppy (0:15)|Lake Poppy Chat]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
 		<br>
 		<<if (npcIsPregnant("Poppy") and knowsAboutPregnancy("Poppy", "pc")) or (playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc", "Poppy"))>>
@@ -541,6 +560,7 @@
 			<br>
 			<</if>>
 		<</if>>
+		<<poppyComfortOption "flat">>
 		<<if !$poppySeen.includes("flat_chat_plant") and _poppyRom gte 0>>
 			<<socialiseicon>><<link [[Chat (0:15)|Flats Poppy Chat Plant]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
 			<br>

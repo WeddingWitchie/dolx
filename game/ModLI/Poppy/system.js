@@ -110,6 +110,41 @@ function poppyStatusCheck(poppy = C.npc.Poppy) {
 }
 window.poppyStatusCheck = poppyStatusCheck;
 
+/**
+ * Checks whether a past day overlapped with a bad end.
+ *
+ * Bad ends use seconds, while decay uses day numbers, so the day is converted
+ * to its matching time range before checking.
+ *
+ * @param {number} endedDay The past day to check.
+ * @param {number} today The current day.
+ * @returns {boolean} true if a bad end was active during that day.
+ */
+function poppyDayInBadEnd(endedDay, today) {
+	if (!Array.isArray(V.badEndStats) || !V.badEndStats.length) return false;
+
+	const day = TimeConstants.secondsPerDay;
+	const offset = today - endedDay;
+	if (offset < 1) return false;
+
+	const now = Time.date.timeStamp;
+	const dayStart = now - offset * day;
+	const dayEnd = now - (offset - 1) * day;
+
+	// Only recent bad ends can affect the current score, and only a few days are checked at once.
+	for (let i = V.badEndStats.length - 1; i >= 0 && i >= V.badEndStats.length - 5; i--) {
+		const badEnd = V.badEndStats[i];
+		if (!badEnd || !Number.isFinite(badEnd.trackedStart)) continue;
+		// An unfinished bad end is still running, so it has no upper bound yet.
+		const end = Number.isFinite(badEnd.trackedEnd) ? badEnd.trackedEnd : Infinity;
+		if (badEnd.trackedStart <= dayEnd && end >= dayStart) return true;
+		// Entries are chronological: once one ends before the day began, older ones do too.
+		if (end < dayStart) break;
+	}
+	return false;
+}
+window.poppyDayInBadEnd = poppyDayInBadEnd;
+
 function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 	if (!poppy || poppy.init !== 1) return;
 	if (!V.daily || !V.daily.poppy || !Array.isArray(V.poppySeen) || !poppy.timer) return;
@@ -122,6 +157,8 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 	//   • LI
 	//       – interacted that day  → 0 decay
 	//       – missed that day      → 2 decay
+	//   • After the post-bad-end talk, days spent in a bad end no longer count as missed days.
+	// 	   Normal decay resumes once the player returns, with no retroactive refund.
 	const isLI = typeof V.poppyromance === "number" && V.poppyromance >= 0;
 	if (!isLI) {
 		// Still stamp the decay timer so the date-roll bookkeeping moves on,
@@ -140,6 +177,7 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 		If daysPassed is 2 and Time.days is 10, the ended days being scored are 8 and 9.
 	*/
 	const today = Time.days;
+	const comfortAgreed = V.poppySeen.includes("bad_end_comfort");
 	let patience = Number(poppy.patience) || 0;
 	let dirty = false;
 
@@ -148,6 +186,9 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 
 		// Pass = interaction stamped on or after the day being scored.
 		if (lastInteractionDay >= endedDay) continue;
+
+		// Pass = the player was locked in a bad end for the day, as Poppy expected.
+		if (comfortAgreed && poppyDayInBadEnd(endedDay, today)) continue;
 
 		patience -= 2;
 
@@ -630,3 +671,81 @@ DefineMacro("poppySchedule", poppySchedule);
 	window.poppyConsumePendingPavlovMessage = consumePendingPavlovMessage;
 	window.poppyGrantPavlovIfNeeded = grantPavlovIfNeeded;
 })();
+
+/*
+ * ==============================================================
+ * Bad end aftermath comfort talk
+ * ==============================================================
+ * After escaping a soft bad end, the player can talk with Poppy once.
+ * This restores her patience to the middle of the scale.
+ */
+const POPPY_COMFORT_MIN_CAPTIVITY_DAYS = 3;
+const POPPY_COMFORT_WINDOW_DAYS = 14;
+const POPPY_COMFORT_PATIENCE_FLOOR = 50;
+
+/**
+ * Returns the recent bad end the player can talk to Poppy about.
+ * Only includes long bad ends that ended recently and have not been discussed yet.
+ *
+ * @returns {object|undefined} The bad end entry, or undefined if none.
+ */
+function poppyBadEndComfortAvailable() {
+	const poppy = C.npc.Poppy;
+	if (!poppy || poppy.init !== 1 || poppyDismissed()) return undefined;
+	if (!(typeof V.poppyromance === "number" && V.poppyromance >= 0)) return undefined;
+	if (!poppy.timer || typeof poppy.timer !== "object" || Array.isArray(poppy.timer)) return undefined;
+	if (!Array.isArray(V.badEndStats) || !V.badEndStats.length) return undefined;
+	if (V.replayScene || V.statFreeze) return undefined;
+
+	const badEnd = V.badEndStats.last();
+	if (!badEnd || badEnd.source === "Poppy") return undefined;
+	if (!Number.isFinite(badEnd.trackedStart) || !Number.isFinite(badEnd.trackedEnd)) return undefined;
+
+	const day = TimeConstants.secondsPerDay;
+	// Strictly longer than the minimum: a three day absence is not the crisis this talk is for.
+	if (badEnd.trackedEnd - badEnd.trackedStart <= POPPY_COMFORT_MIN_CAPTIVITY_DAYS * day) return undefined;
+	if (Time.date.timeStamp - badEnd.trackedEnd > POPPY_COMFORT_WINDOW_DAYS * day) return undefined;
+
+	// One talk per bad end: the stamp is the trackedEnd of the bad end already discussed.
+	if (Number(poppy.timer.lastBadEndComfort) === badEnd.trackedEnd) return undefined;
+
+	return badEnd;
+}
+window.poppyBadEndComfortAvailable = poppyBadEndComfortAvailable;
+
+/**
+ * Handles the comfort talk and restores low patience.
+ *
+ * @returns {boolean} true if the talk happened.
+ */
+function poppyBadEndComfortResolve() {
+	const badEnd = poppyBadEndComfortAvailable();
+	if (!badEnd) return false;
+
+	const poppy = C.npc.Poppy;
+	poppy.timer.lastBadEndComfort = badEnd.trackedEnd;
+
+	const patience = Number(poppy.patience) || 0;
+	if (patience < POPPY_COMFORT_PATIENCE_FLOOR) {
+		poppy.patience = POPPY_COMFORT_PATIENCE_FLOOR;
+		poppy.anger = 0;
+	}
+
+	markPoppyInteraction(poppy);
+	poppyStatusCheck(poppy);
+	return true;
+}
+window.poppyBadEndComfortResolve = poppyBadEndComfortResolve;
+
+/**
+ * Returns how many whole days the player was gone.
+ *
+ * @param {object} badEnd The bad end data.
+ * @returns {number} Whole days of captivity.
+ */
+function poppyBadEndComfortDays(badEnd) {
+	if (!badEnd || !Number.isFinite(badEnd.trackedStart) || !Number.isFinite(badEnd.trackedEnd)) return 1;
+	const days = Math.floor((badEnd.trackedEnd - badEnd.trackedStart) / TimeConstants.secondsPerDay);
+	return days < 1 ? 1 : days;
+}
+window.poppyBadEndComfortDays = poppyBadEndComfortDays;

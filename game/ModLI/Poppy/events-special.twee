@@ -345,3 +345,232 @@ The music had long since stopped playing by then. Hearing Poppy's earnest reques
 <<set $poppyFlat.kickedUntilDay to Time.days + 7>>
 <br><br>
 <<link [[Next|Flats]]>><<endevent>><<set $eventskip to 0>><</link>>
+
+:: Poppy Comfort Talk
+<<poppyComfortHeader>>
+<<set _comfortBadEnd to poppyBadEndComfortAvailable()>>
+<<if !_comfortBadEnd>>
+	You start to say something about where you've been, then realise you've already said it.
+	<br><br>
+	<<link [[Next|Poppy Comfort Return]]>><</link>>
+	<<exit>>
+<</if>>
+
+<<set _comfortDays to poppyBadEndComfortDays(_comfortBadEnd)>>
+<<set _comfortLow to (T.poppyStatus and T.poppyStatus.includes("LowPatience"))>>
+<<if _comfortLow>>
+	Poppy still will not look at you. <<He>> has barely spoken since you came back, and you know why.
+	You were gone for days without warning, so from <<his>> point of view, you simply stopped showing up.
+	<br><br>
+	You say <<his>> name, but <<he>> keeps looking away. "I wasn't in town," you explain. "I couldn't come."
+	<br><br>
+	Poppy finally turns towards you.
+<<else>>
+	Poppy notices you before you have decided how to begin. <<He>> watches you quietly, waiting for you to speak.
+	<br><br>
+	"I haven't been avoiding you," you say. "I wasn't in town, so I couldn't come."
+	<br><br>
+	<<He>> puts down what <<he>> was holding and looks at you properly.
+<</if>>
+<br><br>
+<<if $poppyComfortVenue is "lake">>
+	"Sit," <<he>> says, moving along the bank to make room beside <<him>>.
+<<else>>
+	"Sit," <<he>> says, moving along the couch to make room beside <<him>>.
+<</if>>
+<<if _comfortDays gte 14>>
+	"You've been gone for <<print _comfortDays>> days. I stopped counting, and then I started again. I want to know what happened."
+<<elseif _comfortDays gte 7>>
+	"You've been gone over a week. <<print _comfortDays>> days. I want to know what happened."
+<<else>>
+	"You've been gone for <<print _comfortDays>> days. I want to know what happened."
+<</if>>
+<br><br>
+<<link [[Tell Poppy all of it|Poppy Comfort Talk 2]]>><<set $phase to "open">><<pass 5>><</link>>
+<br>
+<<link [[Give Poppy the short version|Poppy Comfort Talk 2]]>><<set $phase to "short">><<pass 5>><</link>>
+<br>
+<<link [[Ask why <<he>> never came looking|Poppy Comfort Talk 2]]>><<set $phase to "lash">><<pass 5>><</link>>
+<br>
+
+:: Poppy Comfort Talk 2
+<<poppyComfortHeader>>
+<<set _comfortSource to ($badEndStats.last() ? $badEndStats.last().source : "")>>
+<<if $phase is "open">>
+	You tell Poppy what happened, starting from when you were taken.
+	<br><br>
+	<<switch _comfortSource>>
+		<<case "Underground Farm" "Underground Dungeon" "Mines">>
+			You tell <<him>> about being kept underground, where you could not see the sky or tell how much time had passed.
+			After a while, you stopped trying to count the days.
+		<<case "Asylum">>
+			You tell <<him>> about the ward, the locked doors, and the schedule you were forced to follow.
+			You explain how long you were kept there before anyone finally allowed you to leave.
+		<<case "Wolf Cave" "Eden">>
+			You tell <<him>> about being kept deep in the forest, far from any road or nearby house.
+			After enough time passed without seeing anyone, you stopped expecting someone to find you.
+		<<case "Kylar Abduction">>
+			You tell <<him>> about the room you were kept in, who put you there,
+			and how everything had already been prepared before you arrived.
+		<<case "Water Dragon Lab">>
+			You tell <<him>> about the lab, what they did to you there,
+			and the things that happened which you still do not fully understand.
+		<<case "Prison" "Pound">>
+			You tell <<him>> about being locked up and having no control over how long you would be kept there.
+		<<default>>
+			You tell <<him>> where you were held, what happened while you were there, and how you eventually escaped.
+	<</switch>>
+	<br><br>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		You speak quietly, stopping several times when the words become difficult.
+		Poppy waits each time until you are ready to continue.
+	<<elseif _speechAttitudeResolved is "docile">>
+		You apologise twice while explaining what happened. Each time, Poppy shakes <<his>> head and lets you continue.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		You begin carefully, trying to explain everything without showing how much it affected you.
+		That becomes harder as you continue, and before long you stop trying to hide it.
+	<<elseif _speechAttitudeResolved is "confident">>
+		You explain everything in order, keeping your voice steady even when your hands begin to shake.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		You make a few jokes while telling <<him>>, trying to keep the worst parts from sounding serious.
+		Poppy does not laugh, and eventually you stop joking.
+	<<else>>
+		You tell <<him>> everything in the order it happened.
+	<</if>>
+	After you finish, Poppy stays quiet while <<he>> takes in everything you have told <<him>>.
+	<br><br>
+	"I thought you didn't want to see me any more. I was angry with you for disappearing."
+	<<He>> looks down before continuing. "I wish that had been the reason."
+	<<stress -10>><<lllstress>><<trauma -10>><<llltrauma>>
+<<elseif $phase is "short">>
+	You tell <<him>> where you were, roughly how long you were gone, and how you managed to get away.
+	You leave out what happened while you were there, but Poppy notices that you are avoiding that part.
+	<br><br>
+	<<if (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"That's all you're getting," you say, making it clear that you do not want any more questions.
+	<<else>>
+		"That's most of it," you say. "I don't want to talk about the rest yet."
+	<</if>>
+	<br><br>
+	Poppy stays quiet for a while, looking at you as <<he>> thinks over what you have told <<him>>.
+	<br><br>
+	"Alright," <<he>> says. "You don't have to tell me the rest today. I thought you'd stopped wanting to see me,
+	so I've been angry with you for disappearing."
+	<br><br>
+	<<He>> looks down before continuing. "I'd rather find out I was wrong about that than know you stayed away
+	because something bad happened to you."
+	<<stress -6>><<llstress>><<trauma -4>><<ltrauma>>
+<<else>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"You didn't come," you say before you can stop yourself. "Nobody came. You didn't even look for me."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I kept thinking someone would come," you say quietly. "I thought it might be you."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"All that time, you were sitting here angry with me," you say. "Did you ever think about looking for me?"
+	<<else>>
+		"Why didn't you come looking for me?" you ask. "I waited for someone. I waited for a long time."
+	<</if>>
+	<br><br>
+	Your voice comes out sharper than you intended, but you leave the words as they are.
+	Poppy does not argue or make an excuse. <<He>> looks down, taking a few seconds before answering.
+	<br><br>
+	"You're right... I thought you'd got tired of me and left. I was angry about it,
+	and I never stopped to think that something might have happened to you."
+	<<He>> looks back at you. "I should have looked for you. I'm sorry."
+	<<stress -6>><<llstress>><<trauma -6>><<lltrauma>>
+<</if>>
+<br><br>
+<<if $awarelevel gte 5>>
+	<<His>> ears flatten against <<his>> head as <<he>> looks at you.
+<<else>>
+	<<He>> looks away while <<he>> speaks, only glancing back when <<he>> finishes.
+<</if>>
+<<if $poppyComfortVenue is "lake">>
+	The water moves quietly in front of you while neither of you speaks.
+<<else>>
+	The flat is quiet except for the occasional sound from the pipes behind you.
+<</if>>
+<br><br>
+After a short pause, <<he>> opens <<his>> arms slightly, leaving the choice to you if you want a hug.
+<br><br>
+<<link [[Let Poppy hold you|Poppy Comfort Talk 3]]>><<set $phase to "hold">><<pass 5>><</link>>
+<br>
+<<link [[Ask <<him>> to just sit with you|Poppy Comfort Talk 3]]>><<set $phase to "sit">><<pass 5>><</link>>
+<br>
+<<link [[Say you're fine|Poppy Comfort Talk 3]]>><<set $phase to "fine">><<pass 5>><</link>>
+<br>
+
+:: Poppy Comfort Talk 3
+<<poppyComfortHeader>>
+<<set _poppyPatienceBefore to (Number(C.npc.Poppy.patience) || 0)>>
+<<run poppyBadEndComfortResolve()>>
+<<set _poppyPatienceGain to ((Number(C.npc.Poppy.patience) || 0) - _poppyPatienceBefore)>>
+<<if $phase is "hold">>
+	You move into <<his>> arms, and <<he>> pulls you close.
+	<br><br>
+	<<if $poppyComfortVenue is "lake">>
+		<<He>> keeps one arm around you while you rest against <<his>> side.
+	<<else>>
+		<<He>> shifts closer on the couch, keeping you pressed against <<him>>.
+	<</if>>
+	<<He>> stays like that until you finally begin to relax, making no move to let you go.
+	<br><br>
+	You did not realise how tense you still were until your body started to relax in <<his>> arms.
+	<<stress -8>><<llstress>><<trauma -8>><<lltrauma>><<tiredness -3>><<lltiredness>>
+	<<if T.poppyLoveGainAllowed>><<npcincr Poppy love 3>><<glove>><</if>>
+<<elseif $phase is "sit">>
+	"Not yet," you say. "Just stay here."
+	<br><br>
+	<<He>> lowers <<his>> arms and sits beside you, leaving a small space between you.
+	<<He>> stays close without trying to touch you.
+	<br><br>
+	You remain there together without speaking.
+	<<if $poppyComfortVenue is "lake">>
+		Ducks swim slowly along the far side of the lake while you watch them.
+	<<else>>
+		Sunlight shifts across the wall as the time passes.
+	<</if>>
+	For the first time since you came back, nobody is asking anything from you. You can sit quietly because you want to.
+	<<stress -6>><<llstress>><<trauma -4>><<ltrauma>><<tiredness -1>><<ltiredness>>
+	<<if T.poppyLoveGainAllowed>><<npcincr Poppy love 2>><<glove>><</if>>
+<<else>>
+	"I'm fine," you say. "It's over. I don't want to keep talking about it."
+	<br><br>
+	Poppy lowers <<his>> arms and studies you for a few seconds, but <<he>> does not push.
+	<br><br>
+	"Alright," <<he>> says. "If it starts bothering you later, you can come to me. I'll be here."
+	<<stress -3>><<lstress>>
+	<<if T.poppyLoveGainAllowed>><<npcincr Poppy love 1>><<glove>><</if>>
+<</if>>
+<br><br>
+<<if $phase is "fine">>
+	As you get ready to leave, <<he>> reaches out and takes your hand.
+<<else>>
+	After a while, <<he>> sits back beside you and takes your hand.
+<</if>>
+"Next time you're late, I won't think you've lost interest in me. I'll think something happened to you.
+That's our deal, my jewel."
+<br><br>
+<<He>> keeps hold of your hand until you agree.
+<<if _poppyPatienceGain gte 20>><<gggpatience>><<elseif _poppyPatienceGain gte 10>><<ggpatience>><<elseif _poppyPatienceGain gt 0>><<gpatience>><</if>>
+<br><br>
+<<link [[Next|Poppy Comfort Return]]>><</link>>
+<br>
+
+:: Poppy Comfort Return
+<<poppyComfortHeader>>
+<<if !$poppySeen.includes("bad_end_comfort")>>
+	<<set $poppySeen.push("bad_end_comfort")>>
+	<br><br>
+	<span class="green">Poppy will no longer lose patience with you while you are being held somewhere against your will.</span>
+<</if>>
+<<poppyOpiumPulse>>
+<<unset $phase>>
+<<if $poppyComfortVenue is "lake">>
+	<<unset $poppyComfortVenue>>
+	<<poppyLakeReturn>>
+<<else>>
+	<<unset $poppyComfortVenue>>
+	<<set $eventskip to 1>>
+	<<poppyFlatsMenu>>
+<</if>>
