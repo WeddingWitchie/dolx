@@ -1540,6 +1540,7 @@ $(document).on(":passageinit", () => {
 	/* Ensure beautyBoost object exists (save compatibility) */
 	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0, tan: 0 };
 	if (V.beautyBoost.bath == null) V.beautyBoost.bath = 0;
+	if (V.sleepTimePassing) V.sleepTimePassing = false;
 	if (V.beautyBoost.teeth == null) V.beautyBoost.teeth = 0;
 	if (V.beautyBoost.face == null) V.beautyBoost.face = 0;
 	if (V.beautyBoost.hands == null) V.beautyBoost.hands = 0;

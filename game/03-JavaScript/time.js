@@ -1419,12 +1419,15 @@ function hourPassed(hours, advanceFirst) {
 		if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) wikifier("robinPilloryHour");
 
 		// Beauty boost decay (bath, teeth, face, hands, hygiene, tan — makeup is dynamic, no decay needed; spa uses a day-based expiry)
+		// Hours spent asleep don't burn the washing boosts, so bathing or brushing before bed isn't wasted. Tan still fades.
 		if (V.beautyBoost) {
-			if (V.beautyBoost.bath > 0) V.beautyBoost.bath = Math.max(V.beautyBoost.bath - 333, 0);
-			if (V.beautyBoost.teeth > 0) V.beautyBoost.teeth = Math.max(V.beautyBoost.teeth - 340, 0);
-			if (V.beautyBoost.face > 0) V.beautyBoost.face = Math.max(V.beautyBoost.face - 500, 0);
-			if (V.beautyBoost.hands > 0) V.beautyBoost.hands = Math.max(V.beautyBoost.hands - 750, 0);
-			if (V.beautyBoost.hygiene > 0) V.beautyBoost.hygiene = Math.max(V.beautyBoost.hygiene - 170, 0);
+			if (!V.sleepTimePassing) {
+				if (V.beautyBoost.bath > 0) V.beautyBoost.bath = Math.max(V.beautyBoost.bath - 333, 0);
+				if (V.beautyBoost.teeth > 0) V.beautyBoost.teeth = Math.max(V.beautyBoost.teeth - 340, 0);
+				if (V.beautyBoost.face > 0) V.beautyBoost.face = Math.max(V.beautyBoost.face - 500, 0);
+				if (V.beautyBoost.hands > 0) V.beautyBoost.hands = Math.max(V.beautyBoost.hands - 750, 0);
+				if (V.beautyBoost.hygiene > 0) V.beautyBoost.hygiene = Math.max(V.beautyBoost.hygiene - 170, 0);
+			}
 			if (V.beautyBoost.tan > 0) V.beautyBoost.tan = Math.max(V.beautyBoost.tan - 200, 0);
 		}
 
