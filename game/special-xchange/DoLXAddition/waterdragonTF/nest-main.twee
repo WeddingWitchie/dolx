@@ -325,6 +325,7 @@ You need to start from the cliffs above.
 	<</if>>
 	<<if $waterDragonNest.cleanliness gte 100>>
 		<span class="waterdragon-decoration-action">🐚</span><<link [[Search the shore (1:00)|Water Dragon Nest Decorate]]>><<pass 1 hour>><</link>>
+		<<if $waterDragonNest.labChoicePill is true and $xchange?.pill?.choiceEffect>><<note "The tide washes things in from the lab boats." "italic">><</if>>
 		<br>
 	<</if>>
 	<<if $waterDragonNest.decorations.length gt 0>>
@@ -496,16 +497,34 @@ It is not much work, but it matters. The place feels a bit more like yours each 
 <<if $waterDragonNest.cleanliness lt 100>>
 	The hut still needs practical work before decorations can be gathered.
 <<else>>
-	<<set _dnDecorationPool to ["🐚","🪷","🫧","🪸","⭐","🌙","💎","🌸","🕯️","💧"]>>
-	<<set _dnDecorationFound to _dnDecorationPool.random()>>
-	You search the hidden shore, careful to leave the living shells and the rock pools alone. The tide has left something small where the water meets the warded stone.
-	<br><br>
-	<div class="waterdragon-decoration-found"><<print _dnDecorationFound>></div>
-	<br>
-	You rinse it in the tide pool and carry it inside. The marks brighten as you bring it in.
-	<<run $waterDragonNest.decorations.push(_dnDecorationFound)>><<stress -4>><<lstress>><<trauma -2>><<ltrauma>>
-	<br><br>
-	<span class="gold">You now have <<print $waterDragonNest.decorations.length>> decorations to arrange.</span>
+	<<set _dnCureName to ($player.vaginaExist ? "X-Change Choice Reversal (F)" : "X-Change Choice Reversal (M)")>>
+	<<set _dnCureOwned to ($sexStats.pills.pills["X-Change Choice Reversal (F)"]?.owned ?? 0) + ($sexStats.pills.pills["X-Change Choice Reversal (M)"]?.owned ?? 0)>>
+	<<set _dnCureAvailable to $waterDragonNest.labChoicePill is true and $xchange?.pill?.choiceEffect and playerIsXChanged() and _dnCureOwned lte 0>>
+	<<if _dnCureAvailable and random(1, 100) lte 80>>
+		You search the hidden shore, careful to leave the living shells and the rock pools alone. Something square and pale is wedged into the rocks at the tide line.
+		<br><br>
+		It is a sealed sample case of the kind Harper keeps on the lab shelves, and the label is still readable under the salt. Inside, dry and undamaged, is
+		<span class="green">one anti-Choice pill</span>.
+		<br><br>
+		You rinse the case in the tide pool and carry it inside. Whether it fell from a boat or was left there for you to find, it is yours now.
+		<<run $sexStats.pills.pills[_dnCureName].owned++>><<set $waterDragonNest.labChoicePill to false>><<set $waterDragonNest.labChoicePillFound to true>><<stress -6>><<lstress>><<trauma -4>><<ltrauma>>
+		<br><br>
+		<span class="gold">The anti-Choice pill is waiting in your medicine drawer at home.</span>
+		<<if $sexStats.vagina.pregnancy.type isnot null>>
+			<span class="blue">You cannot take it while you are pregnant.</span>
+		<</if>>
+	<<else>>
+		<<set _dnDecorationPool to ["🐚","🪷","🫧","🪸","⭐","🌙","💎","🌸","🕯️","💧"]>>
+		<<set _dnDecorationFound to _dnDecorationPool.random()>>
+		You search the hidden shore, careful to leave the living shells and the rock pools alone. The tide has left something small where the water meets the warded stone.
+		<br><br>
+		<div class="waterdragon-decoration-found"><<print _dnDecorationFound>></div>
+		<br>
+		You rinse it in the tide pool and carry it inside. The marks brighten as you bring it in.
+		<<run $waterDragonNest.decorations.push(_dnDecorationFound)>><<stress -4>><<lstress>><<trauma -2>><<ltrauma>>
+		<br><br>
+		<span class="gold">You now have <<print $waterDragonNest.decorations.length>> decorations to arrange.</span>
+	<</if>>
 <</if>>
 <br><br>
 <<link [[Return to the nest|Water Dragon Nest]]>><</link>>
