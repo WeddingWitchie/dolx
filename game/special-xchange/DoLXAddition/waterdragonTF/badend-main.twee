@@ -56,7 +56,7 @@
 	<</if>>
 	<br><br>
 	<<if _normalEggs gt 0>>
-		<<foodstufficon "water_dragon_egg">><<link [[Sell a water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg">><<set $phase to "waterDragonEggPriceStandard">><</link>><<if _dealPrices>><<note "(<<printmoney `animalTfIncome(200000, 'waterdragon')`>>)" "gold">><<else>><<note "(<<printmoney `animalTfIncome(100000, 'waterdragon')`>>)" "gold">><</if>>
+		<<foodstufficon "water_dragon_egg">><<link [[Sell a water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg">><<set $phase to "waterDragonEggPriceStandard">><</link>><<if _dealPrices>><<note "(<<printmoney `divineTfIncome(animalTfIncome(200000, 'waterdragon'), 'hospital')`>>)" "gold">><<else>><<note "(<<printmoney `divineTfIncome(animalTfIncome(100000, 'waterdragon'), 'hospital')`>>)" "gold">><</if>>
 		<br>
 		<<if !_dealPrices>>
 			<<socialiseicon>><<link [[Debate Harper's offer|Harper Water Dragon Egg Negotiate]]>><<set $waterDragonEggSale to "water_dragon_egg">><<set $phase to _knowsEggValue ? "waterDragonDebateKnown1" : "waterDragonDebateUnknown1">><</link>><<if _knowsEggValue>><<englishdifficulty 200 800>><<else>><<englishdifficulty 400 900>><</if>>
@@ -64,7 +64,7 @@
 		<</if>>
 	<</if>>
 	<<if _pastelEggs gt 0>>
-		<<foodstufficon "water_dragon_egg_pastel">><<link [[Sell a pastel water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg_pastel">><<set $phase to "waterDragonEggPriceStandard">><</link>><<if _dealPrices>><<note "(<<printmoney `animalTfIncome(300000, 'waterdragon')`>>)" "gold">><<else>><<note "(<<printmoney `animalTfIncome(150000, 'waterdragon')`>>)" "gold">><</if>>
+		<<foodstufficon "water_dragon_egg_pastel">><<link [[Sell a pastel water dragon egg|Harper Water Dragon Egg Sold]]>><<set $waterDragonEggSale to "water_dragon_egg_pastel">><<set $phase to "waterDragonEggPriceStandard">><</link>><<if _dealPrices>><<note "(<<printmoney `divineTfIncome(animalTfIncome(300000, 'waterdragon'), 'hospital')`>>)" "gold">><<else>><<note "(<<printmoney `divineTfIncome(animalTfIncome(150000, 'waterdragon'), 'hospital')`>>)" "gold">><</if>>
 		<br>
 		<<if !_dealPrices>>
 			<<socialiseicon>><<link [[Debate Harper's offer|Harper Water Dragon Egg Negotiate]]>><<set $waterDragonEggSale to "water_dragon_egg_pastel">><<set $phase to _knowsEggValue ? "waterDragonDebateKnown1" : "waterDragonDebateUnknown1">><</link>><<if _knowsEggValue>><<englishdifficulty 200 800>><<else>><<englishdifficulty 400 900>><</if>>
@@ -77,7 +77,7 @@
 <br>
 
 :: Harper Water Dragon Egg Negotiate
-<<endevent>>
+<<endevent phaseless>>
 <<set $outside to 0>><<set $location to "hospital">><<effects>><<speechresolve>>
 <<npc Harper>><<person1>>
 <<set _egg to $waterDragonEggSale>>
@@ -127,7 +127,7 @@
 	<<else>>
 		<<set _price to _debateRound is 3 ? 200000 : _debateRound is 2 ? 150000 : 120000>>
 	<</if>>
-	<<set _price to animalTfIncome(_price, "waterdragon")>>
+	<<set _price to divineTfIncome(animalTfIncome(_price, "waterdragon"), "hospital")>>
 	<<foodstufficon _egg>><<link [[Accept Harper's offer|Harper Water Dragon Egg Sold]]>><<set $phase to "waterDragonEggPrice" + _debateRound>><</link>><<note "(<<printmoney _price>>)" "gold">>
 	<br>
 	<<if _debateRound is 1>>
@@ -161,7 +161,7 @@
 	<<else>>
 		<<set _price to _wonRounds is 1 ? 120000 : _wonRounds is 2 ? 150000 : 100000>>
 	<</if>>
-	<<set _price to animalTfIncome(_price, "waterdragon")>>
+	<<set _price to divineTfIncome(animalTfIncome(_price, "waterdragon"), "hospital")>>
 	<<foodstufficon _egg>><<link [[Accept Harper's offer|Harper Water Dragon Egg Sold]]>><<set $phase to _wonRounds ? "waterDragonEggPrice" + _wonRounds : "waterDragonEggPriceStandard">><</link>><<note "(<<printmoney _price>>)" "gold">>
 	<br>
 	<<getouticon>><<link [[Keep the egg|Hospital Foyer]]>><<unset $waterDragonEggSale>><<unset $phase>><<endevent>><</link>>
@@ -169,7 +169,7 @@
 <br>
 
 :: Harper Water Dragon Egg Sold
-<<endevent>>
+<<endevent phaseless>>
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<npc Harper>><<person1>>
 <<set _egg to $waterDragonEggSale>>
@@ -184,7 +184,7 @@
 <<else>>
 	<<set _price to (_egg is "water_dragon_egg_pastel") ? 150000 : 100000>>
 <</if>>
-<<set _price to animalTfIncome(_price, "waterdragon")>>
+<<set _price to divineTfIncome(animalTfIncome(_price, "waterdragon"), "hospital")>>
 <<if !_egg or !$foodstuff[_egg] or $foodstuff[_egg].amount lte 0>>
 	Harper waits, but you have no egg to hand over.
 	<br><br>
@@ -514,7 +514,7 @@ Less than a minute later, you feel pressure low in your abdomen. It goes away, t
 	<<set _labHatchingReady to Object.values($children).filter(child => child.location is "waterdragon_lab" and child.eggTimer and Time.date.timeStamp gte child.eggTimer).length>>
 	<<if playerIsPregnant()>>
 		<<set [_labBirthPregnancy, _labBirthGenital] to getPlayerPregnancyForBirth(true)>>
-		<<if _labBirthPregnancy and isPregnancyEnding() and effectiveTransformationLevel("waterdragon") gte 7>>
+		<<if _labBirthPregnancy and isPregnancyEnding() and isFullWaterDragon()>>
 			<<set _labTrueEggReady to true>>
 		<</if>>
 	<</if>>
@@ -619,7 +619,7 @@ Less than a minute later, you feel pressure low in your abdomen. It goes away, t
 <br>
 
 :: Water Dragon Lab Enforcement
-<<set $outside to 0>><<set $location to "hospital">><<effects>><<endevent>>
+<<set $outside to 0>><<set $location to "hospital">><<effects>><<endevent phaseless>>
 <<generate1>><<person1>>
 <<set _labLate to typeof $phase is "string" and $phase.startsWith("late:")>>
 <<if _labLate>><<set $phase to $phase.slice(5)>><</if>>
@@ -1217,7 +1217,7 @@ Padded cuffs close around your wrists and ankles, and you pull against them whil
 <br><br>
 The nurse takes <<if $player.vaginaExist and !$settings.analEnabled>>the tube out, seals it in a sample bag,<<else>>the tubes out, seals them in separate sample bags,<</if>> and undoes the restraints.
 Your legs shake when you try to move, so the nurse lowers them off the supports and holds your arm while you sit up.
-<<if $machine>><<machine_end>><</if>><<clotheson>><<set $waterDragonEggs.daysTillLaying to Math.min($waterDragonEggs.daysTillLaying, 2)>>
+<<if $machine>><<machine_end>><</if>><<clotheson>><<if $waterDragonEggs>><<set $waterDragonEggs.daysTillLaying to Math.min($waterDragonEggs.daysTillLaying, 2)>><</if>>
 <<unset $waterDragonSerumCycles>><<unset $phase>>
 <br><br>
 <<link [[Next|Water Dragon Lab Treatment Session]]>><<pass 1 hour>><</link>>
