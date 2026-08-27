@@ -1,15 +1,17 @@
+/* globals permanentInsanityTalentLockActive isLiveNPC */
+
 /* Autism Spectrum starting trait.
  *
  * Includes three systems:
  * 	Load and capacity: demands raise your load, while recovery lowers it. Your current load decides whether you are Settled,
- * Strained, or in Burnout. Burnout has no timer; it starts when load stays too high and ends after enough recovery.
- * Settled means you are coping well, so its bonus only lasts while your load stays low.
- *  Hyperfixation: one stat is chosen for 3 to 5 days. Its gains are doubled and practising it lowers load.
- *  Focus fatigue: repeatedly practising other stats without a break raises stress and load.
+ *  Strained, or in Burnout. Burnout has no timer; it starts when load stays too high and ends after enough recovery.
+ *  Settled means you are coping well, so its bonus only lasts while your load stays low.
+ *  Focused interest: one activity remains especially engaging for a few weeks. Practising it can help regulate stress and load.
+ *  Demand fatigue: abrupt task changes and prolonged deliberate practice raise stress and load until the PC gets a proper break.
  *
- * Stat bonuses apply to all gains, but focus fatigue only counts deliberate practice.
+ * Stat bonuses apply to all gains, but demand fatigue only counts deliberate practice.
  * Some stats always count as practice when gained. Physique and athletics only count at training locations,
- * so normal travelling does not build focus fatigue. */
+ * so normal travelling does not build demand fatigue. */
 
 const autismSpectrumStats = Object.freeze({
 	science: "science",
@@ -50,8 +52,8 @@ const autismTrainingLocations = Object.freeze(["mma_gym", "pool", "dance_studio"
 /* Stats that count as practice at training venues. Sex skills are excluded because they do not count as training. */
 const autismVenueTrainableStats = Object.freeze(["physique", "athletics", "willpower", "swimming", "brawling", "footwork", "striking", "kicking"]);
 
-/* Stats that can be chosen for the current hyperfixation.
-Only stats the player can actively practise are included, so every fixation can give both doubled gains and Stress relief.
+/* Activities that can be chosen for the current focused interest.
+Only stats the player can actively practise are included, so every interest can provide Stress and Load relief.
 Sex skills and Skulduggery are excluded because they have no regular practice option. */
 const autismHyperfixationPool = Object.freeze([
 	"science",
@@ -72,7 +74,7 @@ const autismHyperfixationPool = Object.freeze([
 ]);
 
 /* Advanced combat skills can only be practised when their toggle is enabled.
-Disabled skills are excluded from fixations. */
+Disabled skills are excluded from focused interests. */
 const autismToggledStats = Object.freeze({
 	brawling: "brawlingToggle",
 	footwork: "footworkToggle",
@@ -90,7 +92,7 @@ function autismAvailableHyperfixations() {
 	return autismHyperfixationPool.filter(autismStatIsAvailable);
 }
 
-/* Swimming is less likely to be chosen as a fixation during winter */
+/* Swimming is less likely to be chosen as a focused interest during winter. */
 const autismWinterSwimmingChance = 25;
 
 function autismRollHyperfixation(exclude) {
@@ -103,14 +105,10 @@ function autismRollHyperfixation(exclude) {
 	return available.random();
 }
 
-const autismHyperfixationDays = Object.freeze({ min: 3, max: 5 });
+const autismHyperfixationDays = Object.freeze({ min: 20, max: 30 });
 
 function autismRollHyperfixationDays() {
 	return random(autismHyperfixationDays.min, autismHyperfixationDays.max);
-}
-
-function autismHyperfixationLengthText() {
-	return `Your fixation may shift to something new after a while.`;
 }
 
 /* Load ranges from 0 to 100. Demand raises it, while recovery lowers it.
@@ -127,18 +125,16 @@ const autismLoadBurnoutRelief = 55;
    Recovery is slower than load gain, so one good day cannot erase several bad days. */
 const autismDailyRecoveryCap = 12;
 
-/* One source for the numbers quoted in the settings and trait tooltips, so they cannot drift. */
-function autismLoadText() {
-	return `Too much noise, discomfort, and demand can wear you down. As Load builds, you may become Strained and eventually fall into Burnout. Rest and calming activities help you recover, but Burnout takes time to ease.`;
-}
-
 /* How much load a day of recovery can take off, for the tooltips. */
 function autismRecoveryCapValue() {
 	return autismDailyRecoveryCap;
 }
 
-/* A break this long counts as rest. Sleeping, long journeys, or time in a cell clears focus fatigue. */
+/* A break this long counts as rest. Sleeping, long journeys, or time in a cell clears demand fatigue. */
 const autismSpectrumBreakMinutes = 180;
+
+/* Ordinary practice is manageable. Fatigue only starts after this much deliberate practice without a proper break. */
+const autismDemandGraceMinutes = 120;
 
 /* A meltdown starts only when both load and stress are very high.
    It ends when stress drops, but the high load and Burnout remain. */
@@ -162,20 +158,74 @@ function playerHasAutismSpectrum() {
 	return V.backgroundTraits?.includes("autism") === true;
 }
 
+/*
+ * Autism trait: 5 general talents instead of 3, and 3 sex skills instead of 2.
+ * Also works during character creation before the trait is fully applied.
+ */
+const autismTalentBonus = Object.freeze({ general: 5, sex: 3 });
+const autismTalentBase = Object.freeze({ general: 3, sex: 2 });
+
+function autismTalentBonusActive() {
+	return playerHasAutismSpectrum() || V.background?.autism === true;
+}
+
+function autismTalentLimit(group) {
+	const limits = autismTalentBonusActive() ? autismTalentBonus : autismTalentBase;
+	return limits[group === "sex" ? "sex" : "general"];
+}
+
+/* The two talent groups the trait raises the limit on. 1 is untempered, 2 is tempered. */
+const autismTalentGroups = Object.freeze({
+	general: [
+		"skulduggery",
+		"dancing",
+		"swimming",
+		"athletics",
+		"tending",
+		"housekeeping",
+		"brawling",
+		"footwork",
+		"striking",
+		"kicking",
+		"science",
+		"maths",
+		"english",
+		"history",
+	],
+	sex: ["seductionskill", "oralskill", "chestskill", "handskill", "bottomskill", "penileskill", "vaginalskill", "analskill", "thighskill", "feetskill"],
+});
+
+/*
+ * Removing the trait also removes its bonus picks.
+ * If a group is over the limit, it is cleared instead of guessing which picks to remove.
+ */
+function autismEnforceTalentLimits() {
+	if (!V.AMCTraits) return false;
+	if (typeof permanentInsanityTalentLockActive === "function" && permanentInsanityTalentLockActive()) return false;
+	let cleared = false;
+	for (const [group, stats] of Object.entries(autismTalentGroups)) {
+		const taken = stats.reduce((count, stat) => count + (V.AMCTraits[stat] === 2 ? 1 : 0), 0);
+		if (taken <= autismTalentLimit(group)) continue;
+		for (const stat of stats) if (V.AMCTraits[stat] === 2) V.AMCTraits[stat] = 1;
+		cleared = true;
+	}
+	return cleared;
+}
+
 function ensureAutismSpectrumState() {
 	if (!V.autismSpectrum || typeof V.autismSpectrum !== "object" || Array.isArray(V.autismSpectrum)) {
 		V.autismSpectrum = {};
 	}
 	const state = V.autismSpectrum;
 	const today = Number(Time?.days) || 0;
-	/* Also re-rolls a fixation on a combat skill the player has since switched off. */
+	/* Also re-rolls a focused interest on a combat skill the player has since switched off. */
 	if (!autismAvailableHyperfixations().includes(state.hyperfixation)) {
 		state.hyperfixation = autismRollHyperfixation();
 		state.hyperfixationEndsDay = today + autismRollHyperfixationDays();
-		/* This also makes the first queued trait notice contain the newly chosen fixation. */
+		/* This also makes the first queued trait notice contain the newly chosen interest. */
 		state.focusChanged = true;
 	}
-	/* Older saves have a focus but no end day. Give that focus a full new stretch instead of replacing it on load. */
+	/* Older saves have a focus but no end day. Give that interest a full new stretch instead of replacing it on load. */
 	if (!Number.isFinite(state.hyperfixationEndsDay)) state.hyperfixationEndsDay = today + autismRollHyperfixationDays();
 	if (!Array.isArray(state.pendingStats)) state.pendingStats = [];
 	if (!Number.isFinite(state.trainingMinutes) || state.trainingMinutes < 0) state.trainingMinutes = 0;
@@ -183,10 +233,18 @@ function ensureAutismSpectrumState() {
 	/* Checks the full pool because this practice was valid when it started, even if its option has since been turned off. */
 	if (state.pendingFocus != null && !autismHyperfixationPool.includes(state.pendingFocus)) delete state.pendingFocus;
 	if (state.pendingPhase != null && !["settled", "strained", "burnout"].includes(state.pendingPhase)) delete state.pendingPhase;
+	if (state.lastPractice != null && !autismHyperfixationPool.includes(state.lastPractice)) delete state.lastPractice;
+	/* The previous focus-fatigue model stored minutes without a task. Do not reinterpret that stale streak as demand fatigue. */
+	if (state.lastPractice == null && state.trainingMinutes > 0) state.trainingMinutes = 0;
+	delete state.fatigueNoticeFocus;
 	if (state.kylarTrainingFocus != null && !autismHyperfixationPool.includes(state.kylarTrainingFocus)) delete state.kylarTrainingFocus;
 	if (state.kylarEventFocus != null && !autismHyperfixationPool.includes(state.kylarEventFocus)) delete state.kylarEventFocus;
 	/* Clear any invalid leftover outing location so it can't move the player somewhere unexpected. */
-	if (state.kylarReturn != null && typeof state.kylarReturn?.location !== "string") delete state.kylarReturn;
+	if (state.kylarReturn != null && (typeof state.kylarReturn?.location !== "string" || !Number.isFinite(Number(state.kylarReturn?.outside)))) {
+		delete state.kylarReturn;
+	} else if (state.kylarReturn != null) {
+		state.kylarReturn.outside = Number(state.kylarReturn.outside);
+	}
 	/* Old saves used a timed phase. Convert that phase to load once, then remove the old timer. */
 	if (state.phaseEndsDay !== undefined) {
 		if (!Number.isFinite(state.load)) state.load = state.phase === "burnout" ? autismLoadBurnout + 5 : autismLoadStrained;
@@ -195,11 +253,32 @@ function ensureAutismSpectrumState() {
 	if (!Number.isFinite(state.load)) state.load = 0;
 	state.load = Math.clamp(state.load, 0, autismLoadMax);
 	if (!Number.isFinite(state.recoveredToday) || state.recoveredToday < 0) state.recoveredToday = 0;
-	/* Use the same load rules as live updates, so saves always restore the correct state. */
-	if (state.phase !== "settled" && state.phase !== "strained" && state.phase !== "burnout") {
-		state.phase = autismDerivedCapacity(state.load, null);
-	}
+	else state.recoveredToday = Math.min(state.recoveredToday, autismDailyRecoveryCap);
+	/* Notices only need storage while queued. Remove false values left by older versions. */
+	if (state.phaseChanged !== true) delete state.phaseChanged;
+	if (state.focusChanged !== true) delete state.focusChanged;
+	if (state.reliefNotice !== true) delete state.reliefNotice;
+	if (state.meltdownNotice !== true) delete state.meltdownNotice;
+	if (state.meltdownEndNotice !== true) delete state.meltdownEndNotice;
+	/* Use the same load rules as live updates, so saves always restore the correct state while preserving Burnout hysteresis. */
+	state.phase = autismDerivedCapacity(state.load, state.phase);
 	if (typeof state.meltdown !== "boolean") state.meltdown = false;
+	if (state.overloadForm !== "meltdown" && state.overloadForm !== "shutdown") delete state.overloadForm;
+	if (!["alone", "known", "strangers"].includes(state.overloadPlace)) delete state.overloadPlace;
+	if (state.pendingScene !== true) delete state.pendingScene;
+	/* Return points survive saves made inside their scenes, but invalid old data must not strand the player. */
+	if (
+		state.sceneReturn != null &&
+		(typeof state.sceneReturn?.passage !== "string" ||
+			typeof state.sceneReturn?.location !== "string" ||
+			!Number.isFinite(Number(state.sceneReturn?.outside)) ||
+			(typeof Story !== "undefined" && !Story.has(state.sceneReturn.passage)))
+	) {
+		delete state.sceneReturn;
+	}
+	if (state.stimReturn != null && (typeof state.stimReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.stimReturn)))) {
+		delete state.stimReturn;
+	}
 	/* Left over from when both phases were a fixed 90 days and the phase was derived from it. */
 	if (state.startDay !== undefined) delete state.startDay;
 	return state;
@@ -322,10 +401,19 @@ function autismUpdateOverload() {
 		state.trainingMinutes = 0;
 		statChange.trauma(autismMeltdownTrauma);
 		state.meltdownNotice = true;
+		/* Decided once, as it starts, so the scene cannot change form while the player is reading it. */
+		state.overloadForm = autismRollOverloadForm();
+		state.overloadPlace = autismPrivacyTier();
+		state.pendingScene = true;
 		autismQueueFocusMessage();
 	} else if (state.meltdown && fraction <= autismMeltdownRecovery) {
 		state.meltdown = false;
 		state.meltdownEndNotice = true;
+		/* Keep the chosen form while a queued or active scene still needs to describe the episode. */
+		if (!state.pendingScene && !state.sceneReturn) {
+			delete state.overloadForm;
+			delete state.overloadPlace;
+		}
 		autismQueueFocusMessage();
 	}
 }
@@ -377,7 +465,7 @@ function autismFinishKylarTraining() {
 /* Called once, from character creation, after "autism" is pushed onto $backgroundTraits. */
 function initAutismSpectrumState() {
 	if (!playerHasAutismSpectrum()) return;
-	/* Start with no load carried and the first hyperfixation already chosen. */
+	/* Start with no load carried and the first focused interest already chosen. */
 	delete V.autismSpectrum;
 	ensureAutismSpectrumState();
 	V.timeMessages ||= [];
@@ -409,8 +497,9 @@ function autismSpectrumDailyUpdate() {
 		state.focusChanged = true;
 	}
 	state.trainingMinutes = 0;
-	/* Only on the mornings something actually turned over. A fixation now runs 3 to 5 days, so announcing
-	   it daily would repeat the same line up to five times for news the trait overlay already carries. */
+	delete state.lastPractice;
+	/* Only on the mornings something actually turned over. A focused interest lasts for weeks, so announcing
+	   it daily would repeat information the trait overlay already carries. */
 	if (state.phaseChanged || state.focusChanged) {
 		V.timeMessages ||= [];
 		V.timeMessages.pushUnique("autismHyperfixation");
@@ -432,7 +521,7 @@ function autismStatGainMultiplier(stat, amount = 1, kind = "") {
 	/* Kylar's outing uses the actual beach, park, and orphanage locations.
    	only the real practice reward counts as training. */
 	const kylarTraining = typeof T !== "undefined" && T.autismKylarTraining === true && state.kylarEventFocus === stat;
-	/* The outing holds the focus it set out with, even if midnight has since rolled the fixation over. */
+	/* The outing holds the interest it set out with, even if midnight has since rolled the current one over. */
 	const activeFocus = kylarTraining ? stat : state.hyperfixation;
 	const training =
 		kind === "training" || kind === "school" || kylarTraining || (autismVenueTrainableStats.includes(stat) && autismTrainingLocations.includes(V.location));
@@ -448,14 +537,11 @@ function autismStatGainMultiplier(stat, amount = 1, kind = "") {
 		if (school) multiplier *= 0.875;
 	}
 
-	if (activeFocus === stat) {
-		/* The fixation still carries through Burnout and meltdowns. It is the way back out of both. */
-		multiplier *= 2;
-	} else if (state.meltdown) {
-		/* Meltdown replaces focus fatigue so the penalties do not stack. */
-		multiplier *= 0.5;
-	} else if (training && state.trainingMinutes > 0) {
-		multiplier *= Math.max(0.5, 1 / (1 + Math.floor(state.trainingMinutes / 60) * 0.2));
+	/* A focused interest can help regulate Stress and Load, but does not grant exceptional skill gains. */
+	if (state.meltdown) multiplier *= 0.65;
+	else if (training && state.trainingMinutes >= autismDemandGraceMinutes) {
+		const tiredHours = 1 + Math.floor((state.trainingMinutes - autismDemandGraceMinutes) / 60);
+		multiplier *= Math.max(0.75, 1 - tiredHours * 0.05);
 	}
 
 	if (training) {
@@ -497,6 +583,7 @@ function autismSettleTraining() {
 	but recovery is capped so one long rest cannot remove too much load at once. */
 	if (minutes >= autismSpectrumBreakMinutes) {
 		state.trainingMinutes = 0;
+		delete state.lastPractice;
 		state.restedToday = true;
 		autismAdjustLoad(-Math.min(20, (minutes / 60) * 2));
 		return;
@@ -512,50 +599,49 @@ function autismSettleTraining() {
 	Since the actual practice time is unknown, don't add any practice hours. */
 	if (minutes > autismSpectrumSessionMaxMinutes) return;
 
-	/* Compound activities often award a supporting stat as well as their main skill.
-	If the fixation was practised at all, the activity still counts as time spent on it. */
-	if (trained.includes(focus)) {
-		const brokeStreak = state.trainingMinutes > 0;
-		state.trainingMinutes = 0;
-		statChange.stress(-(minutes / 10));
-		autismAdjustLoad(-minutes / 20);
-		/* Worth saying when it broke a streak, and otherwise only once a day, so it is not printed every lesson. */
+	/* Compound activities often award a supporting stat as well as their main skill. */
+	const practisedInterest = trained.includes(focus);
+	if (practisedInterest) {
+		statChange.stress(-(minutes / 20));
+		autismAdjustLoad(-minutes / 40);
+		/* Only once a day, so the recovery line is not printed after every lesson. */
 		const today = Number(Time?.days) || 0;
-		if (!V.statFreeze && (brokeStreak || state.reliefNoticeDay !== today)) {
+		if (!V.statFreeze && state.reliefNoticeDay !== today) {
 			state.reliefNoticeDay = today;
 			state.reliefNotice = true;
 			state.reliefNoticeFocus = autismSpectrumStats[focus] || "";
 			autismQueueFocusMessage();
 		}
-		return;
 	}
 
 	const priorMinutes = state.trainingMinutes;
-	const escalation = Math.min(4, 1 + Math.floor(priorMinutes / 60) * 0.5);
-	/* Load uses the session's normal demand before Burnout increases study stress,
-	so Burnout cannot increase its own load and keep itself going. */
-	const demand = (minutes / 15) * escalation;
-	let stress = demand;
-	if (phase === "burnout" && trained.some(stat => autismSchoolSubjects.includes(stat))) {
-		stress *= 2;
-	}
-	autismAdjustLoad(demand * 0.25);
-
-	/* During a meltdown, focus fatigue pauses. It adds trauma instead of stress until the meltdown ends. */
-	if (state.meltdown) {
-		autismOverloadTrauma(stress);
-		return;
-	}
-
 	state.trainingMinutes += minutes;
-	statChange.stress(stress);
-	autismOverloadTrauma(stress);
+	/* Changing directly from one deliberate task to another adds a small, one-off transition cost.
+	Compound activities include their prior main skill and do not count as a change. */
+	const changedTask = state.lastPractice && !trained.includes(state.lastPractice);
+	state.lastPractice = practisedInterest ? focus : trained[0];
 
-	/* Announce the streak when it starts and each hour it gets worse, not on every action. */
-	const tier = Math.floor(state.trainingMinutes / 60);
-	if (!V.statFreeze && (priorMinutes === 0 || tier > Math.floor(priorMinutes / 60))) {
-		state.fatigueNotice = tier;
-		state.fatigueNoticeFocus = autismSpectrumStats[focus] || "";
+	/* Only the part beyond two hours of continuous demand adds fatigue. Ordinary off-interest practice is neutral. */
+	const priorDemandMinutes = Math.max(0, priorMinutes - autismDemandGraceMinutes);
+	const currentDemandMinutes = Math.max(0, state.trainingMinutes - autismDemandGraceMinutes);
+	const sustainedDemand = (currentDemandMinutes - priorDemandMinutes) / 30;
+	let demand = sustainedDemand + (changedTask ? 2 : 0);
+	if (phase === "burnout" && trained.some(stat => autismSchoolSubjects.includes(stat))) demand *= 2;
+
+	if (demand > 0) {
+		autismAdjustLoad(demand * 0.5);
+		if (state.meltdown) autismOverloadTrauma(demand);
+		else {
+			statChange.stress(demand);
+			autismOverloadTrauma(demand);
+		}
+	}
+
+	/* Announce a disruptive switch or each additional hour of sustained demand, not every action. */
+	const priorTier = Math.floor(Math.max(0, priorMinutes - autismDemandGraceMinutes) / 60);
+	const tier = Math.floor(Math.max(0, state.trainingMinutes - autismDemandGraceMinutes) / 60);
+	if (!V.statFreeze && (changedTask || tier > priorTier)) {
+		state.fatigueNotice = changedTask ? 0 : Math.min(3, tier);
 		autismQueueFocusMessage();
 	}
 }
@@ -582,6 +668,10 @@ function autismSensoryUpdate(minutes) {
 		if (covered > 0) extra += minutes * 4 * (covered / parts.length);
 	}
 
+	/* Somewhere loud, bright, or busy costs something even when nothing is touching you. */
+	if (autismPlaceIsLoud()) extra += minutes * 2;
+	if (autismPlaceIsBright()) extra += minutes * 1.5;
+
 	if (extra > 0) {
 		extra = Math.round(extra);
 		statChange.stress(extra, 1);
@@ -589,8 +679,48 @@ function autismSensoryUpdate(minutes) {
 		return;
 	}
 
-	/* Quiet indoor time helps recovery when the PC is dry, comfortable, and not fighting. */
+	/* Quiet indoor time helps recovery when the PC is dry, comfortable, unbothered and not fighting. */
 	if (!V.outside && V.combat !== 1) autismAdjustLoad(-minutes * 0.012);
+}
+
+/* Places that are loud and crowded. Sound is the main sensory issue here, so it should also affect gameplay. */
+const autismLoudPlaces = Object.freeze(["school", "town", "shopping_centre", "pub", "brothel", "strip_club", "arcade", "mma_gym", "pool", "docks", "cafe"]);
+const autismQuietPassages = Object.freeze([
+	"School Toilets",
+	"School Boy's Toilets",
+	"School Girl's Toilets",
+	"School Infirmary",
+	"School Infirmary Bed",
+	"School Library",
+	"Library Study",
+]);
+
+function autismPlaceIsLoud() {
+	return autismLoudPlaces.includes(V.location) && !autismQuietPassages.includes(V.passage);
+}
+
+/*
+ * Bright outdoor glare during the day, with no shade overhead.
+ * Snow also counts because it reflects the light.
+ */
+function autismPlaceIsBright() {
+	if (!V.outside) return false;
+	if (Time?.dayState !== "day" || Time.hour < 11 || Time.hour >= 15) return false;
+	const weather = Weather?.precipitation;
+	return weather === "snow" || (weather === "none" && !Weather?.isOvercast);
+}
+
+/*
+ * Workplace fit based on the skill used for wages.
+ * Clear, predictable work is easier for the PC and reduces changing social demands.
+ * This only affects suitable jobs, not general skills or talents.
+ */
+const autismStructuredWageSkills = Object.freeze(["housekeeping", "tending"]);
+
+function autismJobPayMultiplier(skill) {
+	if (!playerHasAutismSpectrum() || typeof skill !== "string") return 1;
+	if (autismStructuredWageSkills.includes(skill)) return 1.15;
+	return 1;
 }
 
 /*
@@ -618,17 +748,154 @@ function autismRestBreak(load) {
 }
 
 /*
- * Relationship percentages may be slightly inaccurate.
- * The displayed number stays the same for the day and changes the next day.
+ * Ambiguous, performative, or unstructured social situations can add demand.
+ * Call this from specific scenes rather than treating nearby NPCs as inherently draining.
  */
-function autismRelationshipDisplayPercent(progress, label = "") {
-	progress = Math.clamp(Math.round(Number(progress) || 0), 0, 100);
-	if (!playerHasAutismSpectrum()) return progress;
-	const seed = `${label}:${progress}:${Number(Time?.days) || 0}`;
-	let hash = 0;
-	for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) | 0;
-	const error = (Math.abs(hash) % 11) - 5;
-	return Math.clamp(progress + error, 0, 100);
+function autismSocialDemand(load) {
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.timeSkip !== undefined || V.possessed) return;
+	load = Math.max(0, Number(load) || 0);
+	if (!load) return;
+	autismAdjustLoad(load);
+}
+
+/*
+ * Who is around, which decides both how an overload comes out and how it lands.
+ * "alone"     nobody to perform for
+ * "known"     people who know you, and who are still there tomorrow
+ * "strangers" onlookers with no idea who you are
+ */
+const autismAlonePlaces = Object.freeze([
+	"forest",
+	"moor",
+	"lake",
+	"lake_ruin",
+	"drain",
+	"sewers",
+	"underground",
+	"landfill",
+	"wolf_cave",
+	"old_temple",
+	"tower",
+	"alley",
+	"cabin",
+	"forest_shop_garden",
+]);
+
+const autismKnownPlaces = Object.freeze(["home", "flats", "temple", "asylum", "farm", "compound", "riding_school", "avery_mansion", "forest_shop", "prison"]);
+
+/* Rooms with a door the PC can shut, inside locations that are otherwise full of people. */
+const autismPrivateRooms = Object.freeze([
+	"Bedroom",
+	"Bathroom",
+	"Farm Bedroom",
+	"Flats Poppy Bedroom",
+	"Flats Poppy Bathroom",
+	"School Toilets",
+	"School Boy's Toilets",
+	"School Girl's Toilets",
+]);
+
+function autismPrivacyTier(passage = V.passage) {
+	if (autismPrivateRooms.includes(passage)) return "alone";
+	const place = V.location;
+	if (autismAlonePlaces.includes(place)) return "alone";
+	if (autismKnownPlaces.includes(place)) return "known";
+	return "strangers";
+}
+
+/*
+ * Meltdown is outward, shutdown is inward. They are two forms of the same overload, not two severities.
+ * Being watched pushes towards shutdown, because the effort of holding together goes inward first.
+ * Willpower does the same, so a PC with none left is likelier to break outward.
+ */
+function autismRollOverloadForm() {
+	const place = autismPrivacyTier();
+	let shutdownChance = place === "strangers" ? 70 : place === "known" ? 50 : 30;
+	const willMax = Number(V.willpowermax) || 1000;
+	const willFraction = Math.clamp((Number(V.willpower) || 0) / willMax, 0, 1);
+	shutdownChance += Math.round((willFraction - 0.5) * 30);
+	return random(1, 100) <= Math.clamp(shutdownChance, 5, 95) ? "shutdown" : "meltdown";
+}
+
+function autismOverloadForm() {
+	if (!playerHasAutismSpectrum()) return "meltdown";
+	const state = ensureAutismSpectrumState();
+	return state.overloadForm === "shutdown" ? "shutdown" : "meltdown";
+}
+
+function autismOverloadPlace() {
+	if (!playerHasAutismSpectrum()) return "strangers";
+	const state = ensureAutismSpectrumState();
+	return state.overloadPlace || autismPrivacyTier();
+}
+
+/*
+ * Stimming helps regulate stress and sensory input.
+ * When alone, it works normally. Around others, hiding it takes extra effort and adds stress.
+ */
+const autismStimLoadRelief = 5;
+
+function autismStimIsMasked() {
+	return autismPrivacyTier() !== "alone";
+}
+
+function autismStim(minutes, place = autismPrivacyTier()) {
+	if (!playerHasAutismSpectrum()) return "alone";
+	minutes = Math.max(1, Number(minutes) || 10);
+	if (!["alone", "known", "strangers"].includes(place)) place = autismPrivacyTier();
+	/* Masking takes most of it back. Somewhere that knows you costs less than a room of strangers. */
+	const scale = place === "alone" ? 1 : place === "known" ? 0.6 : 0.35;
+	autismAdjustLoad(-autismStimLoadRelief * scale * (minutes / 10));
+	statChange.stress(-Math.round(minutes * 1.2 * scale));
+	/* Holding a stim down is work, so what masking saves is not free. */
+	if (place !== "alone") autismAdjustLoad(minutes / 60);
+	return place;
+}
+
+/* The scene must never tear the player out of anything that owns cleanup of its own. */
+const autismSceneBlockedPassages = Object.freeze([
+	"Autism Overload",
+	"Autism Overload Stim",
+	"Autism Overload Card",
+	"Autism Overload Leave",
+	"Autism Overload Mask",
+	"Autism Overload End",
+	"Sleep",
+	"Bed",
+	"Passout",
+]);
+const autismSceneBlockedTags = Object.freeze(["widget", "script", "stylesheet", "nosave", "ending", "exitCheckBypass"]);
+
+function autismSceneReady() {
+	if (!playerHasAutismSpectrum()) return false;
+	if (V.statFreeze || V.possessed || V.combat === 1) return false;
+	/* Do not save an interface, setup passage, or ending as a gameplay return point. */
+	if (typeof Story !== "undefined") {
+		if (typeof V.passage !== "string" || !Story.has(V.passage)) return false;
+		if (Story.get(V.passage).tags.some(tag => autismSceneBlockedTags.includes(tag))) return false;
+	}
+	if (Array.isArray(V.NPCList) && typeof isLiveNPC === "function" && V.NPCList.some(isLiveNPC)) return false;
+	if (autismSceneBlockedPassages.includes(V.passage)) return false;
+	return true;
+}
+
+/*
+ * The overload is not optional, but it waits for a moment where leaving the passage is safe.
+ * Until then its penalties already apply, so waiting costs the player nothing.
+ */
+function autismTryOverloadScene() {
+	const state = ensureAutismSpectrumState();
+	if (!state.pendingScene) return;
+	if (!autismSceneReady()) return;
+	delete state.pendingScene;
+	state.overloadPlace = autismPrivacyTier();
+	state.sceneReturn = {
+		passage: V.passage,
+		location: V.location,
+		outside: Number.isFinite(Number(V.outside)) ? V.outside : 0,
+	};
+	/* Out of the render pass before navigating, or the passage would be replaced while still drawing. */
+	setTimeout(() => Engine.play("Autism Overload"), 0);
 }
 
 /* Settle first so this turn's practice has been charged, then judge the resulting stress level. */
@@ -636,6 +903,7 @@ function autismPassageEnd() {
 	if (!playerHasAutismSpectrum()) return;
 	autismSettleTraining();
 	autismUpdateOverload();
+	autismTryOverloadScene();
 }
 
 $(document).on(":passageend", autismPassageEnd);
@@ -643,9 +911,7 @@ $(document).on(":passageend", autismPassageEnd);
 Object.assign(window, {
 	playerHasAutismSpectrum,
 	autismInMeltdown,
-	autismLoadText,
 	autismRecoveryCapValue,
-	autismHyperfixationLengthText,
 	autismSpectrumPhase,
 	autismLoadPercent,
 	autismSetLoad,
@@ -665,5 +931,14 @@ Object.assign(window, {
 	autismSensoryUpdate,
 	autismStressRecovered,
 	autismRestBreak,
-	autismRelationshipDisplayPercent,
+	autismSocialDemand,
+	autismPrivacyTier,
+	autismJobPayMultiplier,
+	autismPlaceIsLoud,
+	autismTalentLimit,
+	autismEnforceTalentLimits,
+	autismOverloadForm,
+	autismOverloadPlace,
+	autismStim,
+	autismStimIsMasked,
 });

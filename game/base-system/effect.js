@@ -2202,27 +2202,27 @@ function effects() {
 						const focusDays = autismHyperfixationDaysRemaining();
 						element(
 							"span",
-							`You can't stop thinking about ${autismHyperfixationName()}. That will last about ${focusDays} day${focusDays === 1 ? "" : "s"}.`,
+							`${autismHyperfixationName().toUpperFirst()} is drawing you especially strongly now. It may remain your main interest for about ${focusDays} day${
+								focusDays === 1 ? "" : "s"
+							}.`,
 							"gold"
 						);
 						br();
 					}
-					state.phaseChanged = false;
-					state.focusChanged = false;
+					delete state.phaseChanged;
+					delete state.focusChanged;
 					break;
 				}
 				case "autismFocus": {
 					/* The trait can be switched off between the message being queued and this running. */
 					if (!playerHasAutismSpectrum()) break;
 					const state = ensureAutismSpectrumState();
-					/* Each notice keeps the stat name it was created with, even if the fixation changes later. */
-					const focus = state.fatigueNoticeFocus || autismHyperfixationName();
 					if (Number.isFinite(state.fatigueNotice)) {
 						const lines = [
-							`Working on anything but ${focus} takes effort.`,
-							`You have been at this a while, and none of it is ${focus}. Holding your attention is getting harder.`,
-							`You have spent hours away from ${focus}. You want to stop.`,
-							`You cannot make yourself care about this. Only ${focus} still holds your attention.`,
+							"Changing tasks without time to settle is jarring. It takes a moment to find your place again.",
+							"You have been handling demands for hours without a proper break. Keeping everything in order is getting harder.",
+							"The demands have been piling up for hours. Each new instruction takes more effort to sort out.",
+							"You have pushed through too much without enough recovery. Even familiar steps are becoming difficult.",
 						];
 						element("span", lines[Math.clamp(state.fatigueNotice, 0, lines.length - 1)], state.fatigueNotice >= 2 ? "red" : "pink");
 						br();
@@ -2235,7 +2235,7 @@ function effects() {
 					if (state.meltdownNotice) {
 						element(
 							"span",
-							`It is too much at once. You cannot work out what to do, and you cannot make yourself start. Only ${autismHyperfixationName()} is possible until you calm down.`,
+							"It is too much at once. Sounds, instructions, and sensations stop fitting together. You need the demands to stop before you can recover.",
 							"red"
 						);
 						br();
@@ -2245,11 +2245,10 @@ function effects() {
 						br();
 					}
 					delete state.fatigueNotice;
-					delete state.fatigueNoticeFocus;
 					delete state.reliefNoticeFocus;
-					state.reliefNotice = false;
-					state.meltdownNotice = false;
-					state.meltdownEndNotice = false;
+					delete state.reliefNotice;
+					delete state.meltdownNotice;
+					delete state.meltdownEndNotice;
 					break;
 				}
 				default:

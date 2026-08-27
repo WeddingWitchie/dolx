@@ -208,10 +208,9 @@ function birdEggsReady(npc) {
 window.birdEggsReady = birdEggsReady;
 
 function playerIsPregnant() {
-	return (
-		(V.sexStats.vagina.pregnancy.type !== null && V.sexStats.vagina.pregnancy.type !== "parasite") ||
-		(V.sexStats.anus.pregnancy.type !== null && V.sexStats.anus.pregnancy.type !== "parasite")
-	);
+	const vaginalType = V.sexStats?.vagina?.pregnancy?.type ?? null;
+	const analType = V.sexStats?.anus?.pregnancy?.type ?? null;
+	return (vaginalType !== null && vaginalType !== "parasite") || (analType !== null && analType !== "parasite");
 }
 window.playerIsPregnant = playerIsPregnant;
 

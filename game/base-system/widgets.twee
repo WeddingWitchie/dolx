@@ -4227,9 +4227,7 @@
 		<<set $_min to _config.minValue || 0>>
 		<<set $_max to _config.maxValue || 100>>
 		<<set _config.progress = Math.clamp(Math.round(100*((_config.value - $_min) / ($_max - $_min))), 0, 100)>>
-		/* Autism Spectrum reads the number a few points off. The bar has to follow it, or the bar just
-		   gives the true value away. */
-		<<set _displayProgress = autismRelationshipDisplayPercent(_config.progress, (_npcData?.nam || "") + ":" + _config.name)>>
+		<<set _displayProgress = _config.progress>>
 	<</silently>>
 	<div class="relation-stat-block" @style="'--progress: ' + _displayProgress + '%;'">
 		<<if _important>>
@@ -5866,6 +5864,8 @@
 	   displayed amount, money stats and source all behave exactly as a normal wage. It is a no-op
 	   below grade S, so low-skill players keep the vanilla rebalanced payout. */
 	<<set _wageBase to Math.round((_args[0] ? _args[0] : 0) * skillIncomeMultiplier(_args[1]))>>
+	/* Autism Spectrum: compatible, repeatable work pays better. No-op without the trait. */
+	<<set _wageBase to Math.round(_wageBase * autismJobPayMultiplier(_args[1]))>>
 	<<if _args[2]>><<set _wageBase to Math.round(animalTfMultiplier(_wageBase, _args[3] ?? animalTfIncomeBonus, _args[2]))>><</if>>
 <</silently>><<moneyGain _wageBase>><</widget>>
 
