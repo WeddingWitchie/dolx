@@ -818,6 +818,56 @@ function bodySizeCounterMultiplier(size) {
 }
 window.bodySizeCounterMultiplier = bodySizeCounterMultiplier;
 
+/**
+ * $settings.npcChastityLevel, defaulting to the normal level for saves made before the setting existed.
+ *
+ * @returns {number} 0 (never) to 3 (often)
+ */
+function npcChastityLevel() {
+	const level = Number(V.settings?.npcChastityLevel);
+	if (!Number.isFinite(level)) return 2;
+	return Math.clamp(Math.round(level), 0, 3);
+}
+window.npcChastityLevel = npcChastityLevel;
+
+/**
+ * Whether NPCs can put the player in chastity.
+ *
+ * Applies to scripted chastity scenes. Existing devices can still be
+ * replaced or re-locked. Random chances use npcChastityChance().
+ *
+ * @returns {boolean}
+ */
+function npcChastityAllowed() {
+	return npcChastityLevel() > 0;
+}
+window.npcChastityAllowed = npcChastityAllowed;
+
+/**
+ * Scales NPC chastity chance using $settings.npcChastityLevel.
+ *
+ * Returns 0 when disabled and never goes above 100.
+ *
+ * @param {number} base Base chance out of 100
+ * @returns {number} Adjusted chance
+ */
+function npcChastityChance(base) {
+	const raw = Number(base);
+	if (!Number.isFinite(raw) || raw <= 0) return 0;
+
+	switch (npcChastityLevel()) {
+		case 0:
+			return 0;
+		case 1:
+			return Math.max(1, Math.round(raw * 0.45));
+		case 3:
+			return Math.clamp(Math.round(raw * 2), 0, 100);
+		default:
+			return Math.clamp(Math.round(raw), 0, 100);
+	}
+}
+window.npcChastityChance = npcChastityChance;
+
 function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 	if (!V?.worn || !setup?.clothes) return;
 
