@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing, effectiveDrunk */
+/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing, effectiveDrunk, ccmUtils */
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -101,6 +101,18 @@ window.calculatePenisBulge = calculatePenisBulge;
  */
 const ANDROGYNOUS_FEMININITY_DEADZONE = 100;
 window.ANDROGYNOUS_FEMININITY_DEADZONE = ANDROGYNOUS_FEMININITY_DEADZONE;
+
+/**
+ * Whether a vanilla or custom cosmetic is visibly equipped in one of the four appearance-changing makeup slots.
+ *
+ * @param {string} part Makeup slot name.
+ * @returns {boolean} Whether that part is equipped.
+ */
+function makeupPartEquipped(part) {
+	const custom = V.ccmod?.equipped?.[part];
+	return !!(V.makeup?.[part] || (custom && typeof ccmUtils !== "undefined" && ccmUtils.itemIsValid(custom)));
+}
+window.makeupPartEquipped = makeupPartEquipped;
 
 /* Calculate the player's gender appearance if their genitals and chest are exposed */
 function nudeGenderAppearance() {
@@ -234,10 +246,10 @@ function genderappearancecheck() {
 		}
 	}
 	/* Makeup */
-	addfemininityfromfactor(V.makeup.lipstick ? 50 : 0, "Lipstick");
-	addfemininityfromfactor(V.makeup.eyeshadow ? 50 : 0, "Eyeshadow");
-	addfemininityfromfactor(V.makeup.mascara ? 50 : 0, "Mascara");
-	addfemininityfromfactor(V.makeup.blusher ? 50 : 0, "Blusher");
+	addfemininityfromfactor(makeupPartEquipped("lipstick") ? 50 : 0, "Lipstick");
+	addfemininityfromfactor(makeupPartEquipped("eyeshadow") ? 50 : 0, "Eyeshadow");
+	addfemininityfromfactor(makeupPartEquipped("mascara") ? 50 : 0, "Mascara");
+	addfemininityfromfactor(makeupPartEquipped("blusher") ? 50 : 0, "Blusher");
 	/* Body structure */
 	setfemininitymultiplierfromgender(V.player.gender_body);
 	addfemininityfromfactor(T.femininity_multiplier * 200, "Body appearance");

@@ -1,4 +1,4 @@
-/* globals V, setup, playerCaresForGender perceivedGenderBinary currentAppearanceBand */
+/* globals V, setup, playerCaresForGender perceivedGender currentAppearanceBand */
 /*
  * Mastery traits.
  *
@@ -345,8 +345,8 @@ const AUDIENCE_APPEARANCE_CHARACTERISTIC = { m: "Masculine Appearance", f: "Femi
 /**
  * Gets the audience, how they see the player's gender, and how the player feels about it.
  *
- * Uses `perceivedGenderBinary()` because the audience sees the player as either male or female,
- * even if the player's actual gender presentation is androgynous.
+ * School toilets and changing rooms use the same clothed appearance as their access and bullying checks.
+ * Elsewhere, visible-body perception applies, with an androgynous result forced to the binary appearance side.
  *
  * @param {string} [passageName] Passed to currentAudience.
  * @returns {{gender: string, weight: number, seen: string, characteristic: string, contrast: boolean, erased: boolean, exposed: boolean}}
@@ -356,7 +356,13 @@ function audienceIdentityContext(passageName) {
 	const empty = { gender: "", weight: 0, seen: "", characteristic: "", contrast: false, erased: false, exposed: false };
 	if (!gender) return empty;
 
-	const seen = perceivedGenderBinary();
+	const passage = passageName || V.passage || "";
+	const schoolRoom =
+		AUDIENCE_SEGREGATED_PASSAGES[passage] !== undefined ||
+		passage === "School Pool Wardrobe" ||
+		AUDIENCE_SEGREGATED_PREFIXES.some(entry => entry.school && passage.startsWith(entry.prefix));
+	const perceived = perceivedGender();
+	const seen = schoolRoom || perceived === "n" ? V.player.gender_appearance : perceived;
 	const characteristic = AUDIENCE_APPEARANCE_CHARACTERISTIC[seen];
 	if (!characteristic) return empty;
 

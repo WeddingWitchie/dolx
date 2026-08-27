@@ -8,7 +8,7 @@
  * If what you're looking for isn't defined here, there's a good chance it's still in `xchange.js`
  * (likewise, some mirrored behavior may be in `identity.twee` and its Twine-side correspondence)
  */
-/* globals ANDROGYNOUS_FEMININITY_DEADZONE */
+/* globals ANDROGYNOUS_FEMININITY_DEADZONE makeupPartEquipped */
 
 function playerCaresForGender() {
 	// Normalised to a strict boolean by setup.xchangeEnsureGiSafety; older saves may still hold the numeric 1.
@@ -84,9 +84,10 @@ function getCurrentWornFemininity() {
 	});
 
 	// Add up the makeup femininity
-	currentWornFemininity += V.makeup.lipstick ? 50 : 0;
-	currentWornFemininity += V.makeup.mascara ? 50 : 0;
-	currentWornFemininity += V.makeup.eyeshadow ? 50 : 0;
+	currentWornFemininity += makeupPartEquipped("lipstick") ? 50 : 0;
+	currentWornFemininity += makeupPartEquipped("mascara") ? 50 : 0;
+	currentWornFemininity += makeupPartEquipped("eyeshadow") ? 50 : 0;
+	currentWornFemininity += makeupPartEquipped("blusher") ? 50 : 0;
 
 	return currentWornFemininity;
 }
@@ -324,15 +325,7 @@ window.hourlyClothingFemininityCheck = hourlyClothingFemininityCheck;
 /* The same four the mirror counts when it tells the player they're wearing makeup, including custom cosmetics.
 Concealer is left out on purpose: it's a 0/1 freckle cover rather than a look anyone reads off your face. */
 function playerIsWearingMakeup() {
-	const makeup = V.makeup || {};
-	const customMakeup = V.ccmod?.equipped;
-	return !!(
-		makeup.lipstick ||
-		makeup.eyeshadow ||
-		makeup.mascara ||
-		makeup.blusher ||
-		(customMakeup && Object.values(customMakeup).some(item => ccmUtils.itemIsValid(item)))
-	);
+	return ["lipstick", "eyeshadow", "mascara", "blusher"].some(makeupPartEquipped);
 }
 window.playerIsWearingMakeup = playerIsWearingMakeup;
 
