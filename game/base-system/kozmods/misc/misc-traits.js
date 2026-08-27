@@ -419,3 +419,134 @@ function audienceIdentityCheck(ev) {
 window.audienceIdentityCheck = audienceIdentityCheck;
 
 $(document).on(":passagestart", audienceIdentityCheck);
+
+/* Willpower rest and recovery.
+ * The daily willpower pool used to recover mainly through sleep, fights, and a slow passive refill.
+ * This adds daytime recovery from calming down and taking proper breaks.
+ *
+ * Calm: Lowering stress restores a small amount of willpower.
+ * Rest: Activities like praying, meditating, eating, or sitting down restore more willpower over time.
+ *
+ * Both share a daily recovery limit so they support sleep without replacing it or being easy to farm.
+ */
+/* Recovery here is balanced around sleep, which restores 12.5% of the pool per hour.
+Sleep should remain the strongest recovery method, so other sources restore less. */
+
+/* Daily rest recovery cap. About three hours of sleep, so rest helps but can't replace sleeping. */
+const willpowerRestAllowanceFraction = 0.4;
+
+/* Calm recovery based on stress relieved. A <<stress -6>> gives about 1.5% of the willpower pool. */
+const willpowerCalmRate = 0.35;
+
+/* Rest restores willpower at one-third the rate of sleep. */
+const willpowerRestRatePerHour = 0.04;
+
+/* Limits each recovery gain so large stress relief events can't restore too much willpower at once. */
+const willpowerRestSingleGrantFraction = 0.08;
+
+/* Long events pass hours at a time. Only the first stretch is a rest; the rest of it is just time. */
+const willpowerRestSessionMaxMinutes = 120;
+
+/* Deliberate rest also helps the Autism Spectrum trait. One hour restores a third of its daily recovery limit. */
+const willpowerRestLoadPerHour = 4;
+
+function willpowerRestPool() {
+	return Math.max(200, Number(V.willpower) || 0);
+}
+
+/* Maximum value for the settings slider. Keeps the slider, clamp, and export setting in sync. */
+const willpowerRestPercentMax = 300;
+
+/* Player-facing strength setting, as a multiplier. Missing reads as full strength. */
+function willpowerRestStrength() {
+	const percent = Number(V.xchange && V.xchange.willpowerRestPercent);
+	if (!Number.isFinite(percent)) return 1;
+	return Math.clamp(percent, 0, willpowerRestPercentMax) / 100;
+}
+
+function willpowerRestSystemActive() {
+	if (V.statFreeze) return false;
+	if (!V.xchange || V.xchange.willpowerSystemEnabled !== 1) return false;
+	/* Defaults on: the flag is absent on saves made before this system existed. */
+	if (V.xchange.willpowerRestEnabled === 0 || V.xchange.willpowerRestEnabled === false) return false;
+	return Number.isFinite(V.xchange.willpowerPoints);
+}
+
+/* How much willpower resting can still restore today. Returns 0 if disabled or the daily limit is reached. */
+function willpowerRestAllowanceLeft() {
+	if (!willpowerRestSystemActive()) return 0;
+	const used = Number(V.daily && V.daily.willpowerRested) || 0;
+	return Math.max(0, willpowerRestPool() * willpowerRestAllowanceFraction * willpowerRestStrength() - used);
+}
+window.willpowerRestAllowanceLeft = willpowerRestAllowanceLeft;
+
+/* Add willpower up to today's remaining limit. Returns the amount added. */
+function willpowerRestGrant(points) {
+	points = Number(points) || 0;
+	if (points <= 0 || !willpowerRestSystemActive()) return 0;
+	const pool = willpowerRestPool();
+	if (V.xchange.willpowerPoints >= pool) return 0;
+	const granted = Math.min(points, pool * willpowerRestSingleGrantFraction, willpowerRestAllowanceLeft(), pool - V.xchange.willpowerPoints);
+	if (granted <= 0) return 0;
+	if (!V.daily || typeof V.daily !== "object" || Array.isArray(V.daily)) V.daily = {};
+	V.daily.willpowerRested = (Number(V.daily.willpowerRested) || 0) + granted;
+	V.xchange.willpowerPoints = Math.clamp(V.xchange.willpowerPoints + granted, 0, pool);
+	updateDynamicStatCaps();
+	return granted;
+}
+
+/*
+ * Reducing stress also restores a little daily willpower.
+ * Called from statChange.stress, so it works for all stress-reducing activities.
+ */
+function willpowerCalmRecovery(stressPoints) {
+	if (!willpowerRestSystemActive()) return 0;
+	stressPoints = Math.max(0, Number(stressPoints) || 0);
+	if (!stressPoints) return 0;
+	/* Sex already handles willpower separately.
+	Orgasm relief should not also count as calm, or it would give double recovery.
+	Use the climax marker, not $orgasmcount, since that lasts for hours after sex. */
+	if (V.combat || V.masturbating || V.orgasmInProgress) return 0;
+	const max = Number(V.stressmax) || 10000;
+	if (max <= 0) return 0;
+	return willpowerRestGrant((stressPoints / max) * willpowerRestPool() * willpowerCalmRate * willpowerRestStrength());
+}
+window.willpowerCalmRecovery = willpowerCalmRecovery;
+
+/*
+ * Rest recovery. `minutes` is the time spent resting, and `quality` changes how effective it is.
+ * 1 = normal, below 1 = poor rest, above 1 = good rest.
+ */
+function willpowerRest(minutes, quality = 1) {
+	if (V.statFreeze || V.combat) return 0;
+	minutes = Math.clamp(Number(minutes) || 0, 0, willpowerRestSessionMaxMinutes);
+	if (!minutes) return 0;
+	quality = Math.clamp(Number(quality) || 1, 0, 3);
+	if (!quality) return 0;
+
+	/* Quiet rest lowers the trait's load even if stress does not change.
+	This is separate from willpower settings and still uses its own daily cap. */
+	if (typeof autismRestBreak === "function") autismRestBreak((minutes / 60) * willpowerRestLoadPerHour * quality);
+
+	return willpowerRestGrant(willpowerRestPool() * willpowerRestRatePerHour * (minutes / 60) * quality * willpowerRestStrength());
+}
+window.willpowerRest = willpowerRest;
+
+/*
+ * Meals also provide a little rest.
+ * Larger meals restore more, using the existing food value scale.
+ * An average meal counts as 10 minutes of rest, while snacks give very little and large meals give more.
+ */
+function willpowerRestMeal(key) {
+	const scale = typeof foodValueScale === "function" ? foodValueScale(key) : 1;
+	return willpowerRest(10 * scale, 1);
+}
+window.willpowerRestMeal = willpowerRestMeal;
+
+/* <<willpower-rest minutes [quality]>> - Rest and recover willpower while time passes. */
+DefineMacro("willpower-rest", willpowerRest);
+
+/* Safety fallback: <<orgasm>> clears this normally, but an interrupted passage might leave calm recovery disabled. */
+$(document).on(":passagestart", () => {
+	if (V.orgasmInProgress) delete V.orgasmInProgress;
+});

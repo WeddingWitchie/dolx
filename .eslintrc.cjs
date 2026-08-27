@@ -404,7 +404,14 @@ module.exports = {
 		autismTrainingTimePassed: "readonly",
 		autismSensoryUpdate: "readonly",
 		autismStressRecovered: "readonly",
+		autismRestBreak: "readonly",
 		autismRelationshipDisplayPercent: "readonly",
+		foodValueScale: "readonly",
+		// Willpower rest and recovery
+		willpowerRestAllowanceLeft: "readonly",
+		willpowerCalmRecovery: "readonly",
+		willpowerRest: "readonly",
+		willpowerRestMeal: "readonly",
 		// Third-party
 		define: "readonly",
 		iro: "readonly",

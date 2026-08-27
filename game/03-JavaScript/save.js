@@ -1818,6 +1818,8 @@ function settingsObjects(type) {
 					willpowerSystemEnabled: { min: 0, max: 1, decimals: 0, displayName: "Willpower system:" },
 					willpowerSuccessCost: { number: true, displayName: "Willpower success cost:" },
 					willpowerFailureCost: { number: true, displayName: "Willpower failure cost:" },
+					willpowerRestEnabled: { min: 0, max: 1, decimals: 0, displayName: "Rest restores willpower:" },
+					willpowerRestPercent: { min: 0, max: 300, decimals: 0, displayName: "Rest recovery strength (%):" },
 					giAutoEnabled: { bool: true, displayName: "Update Gender Identity from Identity system:" },
 					audienceDysphoriaEnabled: { bool: true, displayName: "Dysphoria from the gender of the room:" },
 					giTransformEnabled: { bool: true, displayName: "Slow body changes follow Gender Identity:" },

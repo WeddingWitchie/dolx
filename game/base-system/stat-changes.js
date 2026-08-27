@@ -207,6 +207,8 @@ const statChange = (() => {
 				/* Whatever calmed the PC also takes some load off the Autism Spectrum trait.
 				Hanging this off stress going down covers every calming activity in the game without listing them. */
 				if (typeof autismStressRecovered === "function") autismStressRecovered(-amount * 80);
+				/* Restores a little willpower during normal activities like praying, eating, bathing, and resting. */
+				if (typeof willpowerCalmRecovery === "function") willpowerCalmRecovery(-amount * 80);
 			} else {
 				let stressMod;
 				if (V.drunk <= 0) {

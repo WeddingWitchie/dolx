@@ -607,6 +607,17 @@ function autismStressRecovered(points) {
 }
 
 /*
+ * Resting, praying, or eating lowers sensory load.
+ * The daily recovery cap still applies.
+ */
+function autismRestBreak(load) {
+	if (!playerHasAutismSpectrum() || V.statFreeze) return;
+	load = Math.max(0, Number(load) || 0);
+	if (!load) return;
+	autismAdjustLoad(-load);
+}
+
+/*
  * Relationship percentages may be slightly inaccurate.
  * The displayed number stays the same for the day and changes the next day.
  */
@@ -653,5 +664,6 @@ Object.assign(window, {
 	autismTrainingTimePassed,
 	autismSensoryUpdate,
 	autismStressRecovered,
+	autismRestBreak,
 	autismRelationshipDisplayPercent,
 });

@@ -709,6 +709,9 @@ function pocketEatFood(key, commit = true) {
 	if (effects.tiredness) statChange.tiredness(effects.tiredness);
 	if (effects.pain) statChange.pain(effects.pain);
 
+	/* A proper meal restores some willpower. Out-of-date food does not. */
+	const willpowerRested = stale ? 0 : typeof willpowerRestMeal === "function" ? willpowerRestMeal(key) : 0;
+
 	/* One serving keeps the PC full for 2–5 hours, based on the food's value. */
 	const scale = foodValueScale(key);
 	const fullHours = scale < 0.5 ? 2 : scale < 0.85 ? 3 : scale < 1.25 ? 4 : 5;
@@ -725,6 +728,7 @@ function pocketEatFood(key, commit = true) {
 		own,
 		stale,
 		effects,
+		willpowerRested,
 		fullness: fullness.fullness,
 		becameBloated: fullness.becameBloated,
 		bloatedRefreshed: fullness.bloatedRefreshed,

@@ -5438,20 +5438,31 @@
 			<div class="settingsHeader">
 				<span class="gold">Willpower System</span><br>
 			</div>
-			<div class="settingsToggleItemWide">
+			<div class="settingsToggleItem">
 				<label><<checkbox "$xchange.willpowerSystemEnabled" 0 1 autocheck>> Enable willpower system</label> <mouse class="tooltip linkBlue">(?)<span>Willpower is turned into a daily resource, that gets weaker and weaker as it gets spent during the day, as well as a result of resisting pleasure during combat.</span></mouse><br>
 			</div>
-			<div class="settingsToggleItem numberslider-inline">
+			<div class="settingsToggleItem">
+				<label data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1"><<checkbox "$xchange.willpowerRestEnabled" 0 1 autocheck>> Rest and calm restore willpower</label>
+				<mouse class="tooltip linkBlue">(?)<span>Resting, eating, praying, meditating, and reducing stress can restore some willpower. Daily recovery is limited, so sleep remains the main source.</span></mouse><br>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline" data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1">
 				<span class="gold bold">Success Cost:
 				<mouse class="tooltip linkBlue">(?)<span>The amount of willpower spent whenever you succeed a willpower difficulty check. (For reference, vanilla willpower goes up to 1000. And up to 2000 with AMC Traits).</span></mouse>
 				</span>
 				<<numberbox "$xchange.willpowerSuccessCost" $xchange.willpowerSuccessCost>>
 			</div>
-			<div class="settingsToggleItem numberslider-inline">
+			<div class="settingsToggleItem numberslider-inline" data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1">
 				<span class="gold bold">Failure Cost:
 				<mouse class="tooltip linkBlue">(?)<span>The amount of willpower spent whenever you fail a willpower difficulty check. (For reference, vanilla willpower goes up to 1000. And up to 2000 with AMC Traits).</span></mouse>
 				</span>
 				<<numberbox "$xchange.willpowerFailureCost" $xchange.willpowerFailureCost>>
+			</div>
+			<div class="settingsToggleItemWide numberslider-inline" data-target='["xchange.willpowerSystemEnabled","xchange.willpowerRestEnabled"]' data-disabledif="V.xchange?.willpowerSystemEnabled!==1||V.xchange?.willpowerRestEnabled===0">
+				<span class="gold bold">Rest Recovery Strength: (%)
+					<mouse class="tooltip linkBlue">(?)<span>Changes how much willpower resting restores and its daily limit. At 100%, you can recover up to 40% of your willpower pool per day.</span></mouse>
+				</span>
+				<<numberslider "$xchange.willpowerRestPercent" $xchange.willpowerRestPercent 0 300 25>>
 			</div>
 		</div>
 		<div class="settingsGrid">
@@ -5491,6 +5502,8 @@
 			</div>
 		</div>
 	</div>
+	/* Sub-settings of the willpower system grey out when it is off; nothing re-evaluates them without this. */
+	<<run settingsDisableElement()>>
 <</widget>>
 
 <<widget "loadAllFeats">>
