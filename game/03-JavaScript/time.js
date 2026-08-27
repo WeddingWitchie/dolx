@@ -1541,9 +1541,10 @@ function minutePassed(minutes) {
 
 		const prevTolerance = V.alcoholTolerance || 0;
 		// Tolerance builds while heavily drunk (matches the existing >=360 heavy-drunk threshold).
-		// Full tolerance (1000) after ~2 in-game days continuously at V.drunk=1000.
+		// Full tolerance (1000) after ~14 in-game days continuously at V.drunk=1000.
+		// The old two-day rate made a few long drinking sessions look like chronic addiction.
 		if (V.drunk >= 360) {
-			const buildRate = (minutes * (V.drunk / 1000) * 1000) / 2880;
+			const buildRate = (minutes * (V.drunk / 1000) * 1000) / 20160;
 			V.alcoholTolerance = Math.clamp(prevTolerance + buildRate, 0, 1000);
 		}
 		const newTolerance = V.alcoholTolerance || 0;
@@ -1605,11 +1606,17 @@ function minutePassed(minutes) {
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
 	if (minutes < 1200 && V.timeSkip === undefined) statChange.tiredness(minutes / 15);
 
-	// Cigarette craving: once hooked, abstaining for 24h brings on cravings that fade after a week clean.
-	if (V.cigaretteAddiction) {
+	// Cigarette dependence builds across repeated smoking rather than starting with the first cigarette.
+	// Before dependence, progress starts fading after 24h clean at one cigarette's worth per three days.
+	const cigaretteAddictionProgress = Number(V.cigaretteAddictionProgress) || 0;
+	if (V.cigaretteAddiction || cigaretteAddictionProgress > 0) {
 		const prevSince = V.timeSinceCigarette || 0;
 		V.timeSinceCigarette = prevSince + minutes;
-		if (V.timeSinceCigarette >= 1440 && V.timeSinceCigarette < 10080 && minutes < 1200) {
+		if (!V.cigaretteAddiction && V.timeSinceCigarette > 1440) {
+			const previousRecoveryMinutes = Math.max(prevSince - 1440, 0);
+			const recoveryMinutes = Math.max(V.timeSinceCigarette - 1440, 0);
+			V.cigaretteAddictionProgress = Math.max(0, cigaretteAddictionProgress - (recoveryMinutes - previousRecoveryMinutes) / 4320);
+		} else if (V.cigaretteAddiction && V.timeSinceCigarette >= 1440 && V.timeSinceCigarette < 10080 && minutes < 1200) {
 			statChange.stress(minutes * 0.2);
 			// the craving marks genuine dependence; unlock the Smoker feat here, not on the first cigarette
 			if (typeof earnFeat === "function") earnFeat("Smoker");
@@ -1619,8 +1626,9 @@ function minutePassed(minutes) {
 				V.cigaretteCravingMessage = "craving";
 			}
 		}
-		if (prevSince < 10080 && V.timeSinceCigarette >= 10080) {
+		if (V.cigaretteAddiction && prevSince < 10080 && V.timeSinceCigarette >= 10080) {
 			V.cigaretteAddiction = false;
+			V.cigaretteAddictionProgress = 0;
 			V.effectsmessage = 1;
 			V.cigaretteCravingMessage = "quit";
 		}

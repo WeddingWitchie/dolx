@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import * as fs from "fs";
 import * as path from "path";
-import { openGame, navigateTo, assertNoErrors, advanceHours, advanceMinutes, setDay, type Page } from "./helpers.js";
+import { openGame, navigateTo, assertNoErrors, advanceHours, advanceMinutes, setDay, wikifyEval, wikifyToText, type Page } from "./helpers.js";
 
 async function setupGame(page: Page) {
 	await openGame(page);
@@ -48,6 +48,121 @@ test.describe("Time", () => {
 		// setup.painChangeByTime: decay starts at PAIN_DECAY_MIN (-0.3/min) and ramps toward PAIN_DECAY_MAX (-0.5/min) as painDuration accumulates.
 		// Fresh pain: 10 * 0.3 = 3.
 		expect(painDecrease).toBe(3);
+	});
+
+	test("paces alcohol and cigarette dependence without requiring new-save initialization", async ({ page }) => {
+		await setupGame(page);
+
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.drunk = 1000;
+			delete V.alcoholTolerance;
+			delete V.cigaretteAddiction;
+			delete V.cigaretteAddictionProgress;
+			delete V.timeSinceCigarette;
+		});
+		await advanceMinutes(page, 60);
+		const alcoholTolerance = await page.evaluate(() => (window as any).SugarCube.State.variables.alcoholTolerance);
+		expect(alcoholTolerance).toBeCloseTo((60 * 1000) / 20160, 6);
+
+		await wikifyEval(page, "<<for _i to 0; _i lt 19; _i++>><<smokeDependence>><</for>>");
+		let smoking = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return { addicted: V.cigaretteAddiction, progress: V.cigaretteAddictionProgress };
+		});
+		expect(smoking.addicted).toBeFalsy();
+		expect(smoking.progress).toBe(19);
+
+		await wikifyEval(page, "<<smokeDependence>>");
+		smoking = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return { addicted: V.cigaretteAddiction, progress: V.cigaretteAddictionProgress };
+		});
+		expect(smoking).toEqual({ addicted: true, progress: 20 });
+
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.drunk = 0;
+			V.cigaretteAddiction = false;
+			V.cigaretteAddictionProgress = 10;
+			V.timeSinceCigarette = 1440;
+		});
+		await advanceMinutes(page, 4320);
+		const recoveredProgress = await page.evaluate(() => (window as any).SugarCube.State.variables.cigaretteAddictionProgress);
+		expect(recoveredProgress).toBeCloseTo(9, 8);
+
+		await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			V.cigaretteAddiction = true;
+			delete V.cigaretteAddictionProgress;
+			V.timeSinceCigarette = 10020;
+		});
+		await advanceMinutes(page, 60);
+		const quitState = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			return { addicted: V.cigaretteAddiction, progress: V.cigaretteAddictionProgress };
+		});
+		expect(quitState).toEqual({ addicted: false, progress: 0 });
+	});
+
+	test("formats sensitivity and gives a throttled max-pain treatment notice", async ({ page }) => {
+		await setupGame(page);
+
+		const characteristic = await wikifyToText(
+			page,
+			'<<characteristic-box `{ name: "Test", currentValue: 50, modifier: 100, modTypes: { good: [], bad: [] }, sensitivity: 1.3965432098765431 }`>>'
+		);
+		expect(characteristic).toContain("Sensitivity: 1.40");
+
+		const painResult = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			delete V.daily.painMedicationWarning;
+			delete V.painMedicationWarningMessage;
+			V.pain = 200;
+			(window as any).statChange.painClamp();
+			const firstNotice = (window as any).xchangeEffectsMessages().textContent;
+			(window as any).statChange.painClamp();
+			return {
+				firstNotice,
+				dailyFlag: V.daily.painMedicationWarning,
+				secondNoticePending: V.painMedicationWarningMessage,
+			};
+		});
+		expect(painResult.firstNotice).toContain("Painkillers from the hospital pharmacy");
+		expect(painResult.dailyFlag).toBe(1);
+		expect(painResult.secondNoticePending).toBeUndefined();
+	});
+
+	test("applies the reduced X-Change penetration pain multiplier", async ({ page }) => {
+		await setupGame(page);
+
+		const painGain = await page.evaluate(() => {
+			const V = (window as any).SugarCube.State.variables;
+			const statChange = (window as any).statChange;
+			const originalPain = statChange.pain;
+			let captured = 0;
+			statChange.pain = (amount: number) => {
+				captured = amount;
+			};
+			try {
+				V.combat = 1;
+				V.gamemode = "normal";
+				V.vaginastate = "penetrated";
+				V.anusstate = "none";
+				V.mouthstate = "none";
+				V.vaginaWetness = 0;
+				V.anusWetness = 0;
+				V.bodysize = 1;
+				V.NPCList = [];
+				V.consensual = 0;
+				V.pain = 0;
+				(window as any).setup.penetratedPain();
+				return captured;
+			} finally {
+				statChange.pain = originalPain;
+			}
+		});
+		expect(painGain).toBeCloseTo(1.5 * 0.46, 8);
 	});
 
 	test("decays school exam meters using trait-based formula after a week", async ({ page }) => {

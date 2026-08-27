@@ -664,6 +664,11 @@ const statChange = (() => {
 			V.pain = 0;
 		} else {
 			V.pain = Math.clamp(V.pain, minPain(), 200);
+			if (V.pain >= 200 && V.daily && !V.daily.painMedicationWarning) {
+				V.daily.painMedicationWarning = 1;
+				V.painMedicationWarningMessage = 1;
+				V.effectsmessage = 1;
+			}
 		}
 	}
 	DefineMacro("painclamp", painClamp);

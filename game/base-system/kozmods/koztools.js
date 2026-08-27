@@ -1145,9 +1145,10 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 			pain += sizePain(maxPenetratorSize("mouth")) * 0.5;
 		}
 
-		// Global rebalance: penetration pain accumulates at half rate.
+		// Global rebalance: penetration pain accumulates at 46% of its raw rate.
+		// This is a further 8% reduction from the previous 0.5 multiplier, keeping pain relevant without making repeated high-fame encounters spiral as quickly.
 		// (Applies only to this function's per-turn penetration pain; other pain sources unaffected.)
-		const PENETRATION_PAIN_MULT = 0.5;
+		const PENETRATION_PAIN_MULT = 0.46;
 
 		const modifier = BODY_SIZE_PAIN_MODIFIER.get(V.bodysize) ?? 0;
 		statChange.pain(pain * modifier * PENETRATION_PAIN_MULT);

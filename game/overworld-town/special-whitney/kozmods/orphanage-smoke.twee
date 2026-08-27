@@ -238,6 +238,8 @@ You won't be reaching for another cigarette any time soon.<<gtrauma>><<trauma 3>
 :: Loft Smoke Whitney
 <<endevent>><<set $outside to 0>><<set $location to "home">><<effects>>
 <<npc Whitney>><<person1>>
+/* The ordinary loft finish applies this after the last drag. This branch leaves that flow halfway through, so record the cigarette here instead. */
+<<smokeDependence>><<set $daily.cigarettesSmoked to ($daily.cigarettesSmoked ?? 0) + 1>>
 You lean out over the sill and look down. Whitney's there in the garden below,
 another pebble already weighing in <<his>> palm, grinning up at you like <<he>> owns the whole sky.
 <br><br>
@@ -625,6 +627,15 @@ not meaning a word of it as <<he>> tugs <<his>> clothes back into place.
 	<</if>>
 <</widget>>
 
+/* Shared dependence tracker for every smoking route. Kept separate from smokeApply because Whitney's scenes provide their own immediate stat effects. */
+<<widget "smokeDependence">>
+	<<set $timeSinceCigarette to 0>>
+	<<if !$cigaretteAddiction>>
+		<<set $cigaretteAddictionProgress to Math.clamp((Number($cigaretteAddictionProgress) || 0) + 1, 0, 20)>>
+		<<if $cigaretteAddictionProgress gte 20>><<set $cigaretteAddiction to true>><</if>>
+	<</if>>
+<</widget>>
+
 /* Shared smoking mechanic: chain (back-to-back under an hour), daily cap counter, addiction, and the resulting effects.
    Sets _smokeOutcome to "passout" / "woozy" / "calm" for the calling passage to narrate.
    Used by the loft flow and every quick-smoke spot so the numbers stay identical. */
@@ -635,8 +646,7 @@ not meaning a word of it as <<he>> tugs <<his>> clothes back into place.
 	<<else>>
 		<<set $cigaretteChain to 1>>
 	<</if>>
-	<<set $timeSinceCigarette to 0>>
-	<<set $cigaretteAddiction to true>>
+	<<smokeDependence>>
 	<<set $daily.cigarettesSmoked to ($daily.cigarettesSmoked ?? 0) + 1>>
 	<<if $cigaretteChain gte 3>>
 		<<set _smokeOutcome to "passout">><<stress 20>>

@@ -696,10 +696,9 @@ function calculateallure() {
 
 	/* allure calcs */
 	let allure = attractiveness;
-	/* night and exposed mods to base attractiveness. minus one, because it's already included into attractiveness above */
+	/* night mod to base attractiveness. minus one, because it's already included into attractiveness above */
 	const nightMod = Weather.dayState === "night" ? 1.5 : 1;
-	const exposedMod = 1 + V.exposed / 5;
-	allure += baseattractiveness * (nightMod * exposedMod - 1);
+	allure += baseattractiveness * (nightMod - 1);
 	/* bodyliquid danger */
 	goocount();
 	allure += V.liquidcount * 50;
@@ -743,6 +742,8 @@ function calculateallure() {
 	allure = baseAllure * 0.05;
 	allure += baseAllure * reputationMod * 0.95;
 	allure += V.arousal / 5;
+	/* Public exposure adds danger regardless of reputation: partial exposure +500, genital exposure +1000. */
+	allure += V.exposed * 500;
 
 	if (V.hallucinogen >= 1 && V.substanceRebalance === 1) allure *= 1 + 0.25 * (V.hallucinogen / 250);
 	/* extra modifiers */

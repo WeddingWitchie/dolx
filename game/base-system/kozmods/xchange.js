@@ -1684,6 +1684,13 @@ function xchangeEffectsMessages() {
 		delete V.cigaretteCravingMessage;
 	}
 
+	if (V.painMedicationWarningMessage) {
+		element("span", "You are writhing in pain.", "red");
+		element("span", "Painkillers from the hospital pharmacy may help, or you could rest somewhere safe until it passes.", "blue");
+		br();
+		delete V.painMedicationWarningMessage;
+	}
+
 	if (V.xchangePermanenceMessage) {
 		const vaginalPregnancy = V.sexStats?.vagina?.pregnancy?.type !== null && V.sexStats?.vagina?.pregnancy?.type !== undefined;
 		const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats?.anus?.pregnancy?.type !== null && V.sexStats?.anus?.pregnancy?.type !== undefined;
