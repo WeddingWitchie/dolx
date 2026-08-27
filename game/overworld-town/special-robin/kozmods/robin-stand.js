@@ -173,6 +173,30 @@ function robinStandAutoUpgradeEligible() {
 }
 window.robinStandAutoUpgradeEligible = robinStandAutoUpgradeEligible;
 
+function robinStandSelfSufficiencyReady() {
+	const stand = ensureRobinStand();
+	return (
+		V.robinpaid === 1 &&
+		stand.selfSufficient !== 1 &&
+		stand.lastIncome >= setup.robinStand.selfSufficiencyIncome &&
+		V.robinmissing === 0 &&
+		C.npc.Robin.trauma < 60
+	);
+}
+window.robinStandSelfSufficiencyReady = robinStandSelfSufficiencyReady;
+
+function robinStandBecomeSelfSufficient() {
+	if (!robinStandSelfSufficiencyReady()) return false;
+	ensureRobinStand().selfSufficient = 1;
+	V.robinfirstrentfight = 0;
+	V.robinmoney = Math.max(V.robinmoney - setup.robinStand.rent, 0);
+	/* Rebuild the current demand without Robin's doubled share. rentpay advances to the next stage later. */
+	V.rentmoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.clamp(V.rentstage - 1, 0, 6)];
+	wikifier("rentmod");
+	return true;
+}
+window.robinStandBecomeSelfSufficient = robinStandBecomeSelfSufficient;
+
 /* Weekly tick, called from time.js after rent is settled.
 Handles natural skill growth, Robin's own purchases, and computes the week's income. */
 function robinStandWeeklyTick() {

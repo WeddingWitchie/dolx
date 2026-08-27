@@ -1715,10 +1715,21 @@ You wake up to find yourself on the couch in Poppy's living room. You don't reme
 <<effects>><<run poppySchedule()>><<set $outside to 0>>
 <<babyRent>>
 <<set _rentTotal to ($rentmoney + ($babyRent or 0))>>
+<<set _robinTookBackRent to 0>>
+<<if robinStandSelfSufficiencyReady() and getRobinLocation() is "orphanage">>
+	A knock sounds at the door. Bailey is waiting outside, with Robin just behind <<nnpc_him "Bailey">>, clutching a worn envelope.
+	<br><br>
+	"Wait," <<nnpc_he "Robin">> says, stepping forward. "You're not taking <<pher>> money for me anymore. I'm paying my own way from now on."
+	<br><br>
+	Robin holds out the envelope. Bailey counts the notes, then pockets them with a scoff. "Fine. But if you're ever short, I won't be polite about it."
+	<br><br>
+	<<run robinStandBecomeSelfSufficient()>><<set _rentTotal to ($rentmoney + ($babyRent or 0))>><<set _robinTookBackRent to 1>>
+	Robin looks past Bailey and smiles at you. "The stand makes enough now. You don't have to carry me anymore." <span class="green">You no longer pay Robin's share of the rent.</span>
+	<br><br>
+<</if>>
 <<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
 	/* HBSC standing order is set up and the savings cover it: settle automatically, mirroring the orphanage rentdue widget so the flat honours the same standing order. */
-	You hear a knock at the door. <span class="red">It's Bailey.</span>
-	<br><br>
+	<<if not _robinTookBackRent>>You hear a knock at the door. <span class="red">It's Bailey.</span><br><br><</if>>
 	<<rentpay "bank">>
 	<br><br>
 	<<poppyOpiumPulse>>
@@ -1729,21 +1740,23 @@ You wake up to find yourself on the couch in Poppy's living room. You don't reme
 	<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br><br>
 <</if>>
 <<if T.poppyFlatBaileyHome>>
-	You hear a knock at the door. Poppy doesn't hesitate to get up and open the door. You follow suit to see who it could be.
-	<br><br>
-	<span class="red">It's Bailey.</span>
-	<br><br>
-	<<if !$poppySeen.includes("flat_bailey_intro")>>
-		"Poppy." Bailey greets the <<if $awarelevel gte 5>>crimson fox<<else>>crimson haired person<</if>>.
+	<<if not _robinTookBackRent>>
+		You hear a knock at the door. Poppy doesn't hesitate to get up and open the door. You follow suit to see who it could be.
 		<br><br>
-		"Bailey." Poppy greets back with a smile.
+		<span class="red">It's Bailey.</span>
 		<br><br>
-		"I'm here for my ward." Bailey says as <<nnpc_he "Bailey">> zones in on you. "<<pShe>> <<pverb "owes" "owe">> me. I'm here to collect."
-		<<set $poppySeen.push("flat_bailey_intro")>>
-	<<else>>
-		Bailey looks past Poppy and zones in on you. "Time to pay up," <<nnpc_he "Bailey">> says.
+		<<if !$poppySeen.includes("flat_bailey_intro")>>
+			"Poppy." Bailey greets the <<if $awarelevel gte 5>>crimson fox<<else>>crimson haired person<</if>>.
+			<br><br>
+			"Bailey." Poppy greets back with a smile.
+			<br><br>
+			"I'm here for my ward." Bailey says as <<nnpc_he "Bailey">> zones in on you. "<<pShe>> <<pverb "owes" "owe">> me. I'm here to collect."
+			<<set $poppySeen.push("flat_bailey_intro")>>
+		<<else>>
+			Bailey looks past Poppy and zones in on you. "Time to pay up," <<nnpc_he "Bailey">> says.
+		<</if>>
+		<br><br>
 	<</if>>
-	<br><br>
 	<<if T.poppyFlatBaileyLowPatience>>
 		Poppy pushes you towards the door until you're standing face to face with Bailey, outside of the flat. "<<pShes>> all yours." <<He>> says to Bailey and closes the door behind you.
 		<br><br>
@@ -1765,12 +1778,14 @@ You wake up to find yourself on the couch in Poppy's living room. You don't reme
 		<</if>>
 	<</if>>
 <<else>>
-	You hear a knock at the door. Poppy is not home at the moment so you went to check who it could be on <<his>> behalf.
-	<br><br>
-	You open the door. <span class="red">It's Bailey.</span>
-	<br><br>
-	"Time to pay up," <<nnpc_he "Bailey">> says.
-	<br><br>
+	<<if not _robinTookBackRent>>
+		You hear a knock at the door. Poppy is not home at the moment so you went to check who it could be on <<his>> behalf.
+		<br><br>
+		You open the door. <span class="red">It's Bailey.</span>
+		<br><br>
+		"Time to pay up," <<nnpc_he "Bailey">> says.
+		<br><br>
+	<</if>>
 	<<link [[Pay|Flats Poppy Bailey Pay]]>><</link>>
 	<br>
 	<<link [[Refuse|Flats Poppy Bailey Refuse]]>><</link>>
@@ -1862,7 +1877,7 @@ You wake up to find yourself on the couch in Poppy's living room. You don't reme
 	Poppy lightly shakes <<his>> head at your defiance.
 	<br><br>
 <</if>>
-<<if $robinpaid is 1>>
+<<if $robinpaid is 1 and $robinStand?.selfSufficient isnot 1>>
 	"Very well," Bailey says. "It seems like Robin will be paying on your behalf." <<nnpc_he "Bailey">> turns to leave.
 	<br><br>
 	Your heart sinks at the implication.<<stress 300>><<gstress>>
