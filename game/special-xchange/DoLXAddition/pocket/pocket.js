@@ -1,5 +1,5 @@
 /* The POCKET menu: what the PC is physically carrying. */
-/* globals Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot sexShopIcon closeOverlay */
+/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot sexShopIcon closeOverlay */
 
 /* ------------------------------------------------------------------ *
  * Setup tables
@@ -95,6 +95,85 @@ setup.foodFlavourPriority = [
 	["vegetarian", "light"],
 ];
 setup.foodFlavourDefault = "hearty";
+
+/* Animal-themed food can give transformation points, like the cafe's honey challah.
+
+   Ingredient values are weights.
+   They only decide which animal the food matches, and eating a matching food always gives 1 point.
+   Common ingredients have low weights, while important ingredients have higher weights.
+   The animal with the highest total wins, but only if it reaches foodTransformThreshold.
+   Only the recipe's listed ingredients are checked. Ingredients inside sub-recipes are ignored. */
+setup.foodTransformIngredients = {
+	/* Bears and honey. */
+	honey: ["bear", 3],
+	wild_honeycomb: ["bear", 4],
+	/* Anything out of the water. */
+	cod: ["waterdragon", 3],
+	haddock: ["waterdragon", 3],
+	salmon: ["waterdragon", 3],
+	trout: ["waterdragon", 3],
+	water_dragon_egg: ["waterdragon", 4],
+	water_dragon_egg_pastel: ["waterdragon", 4],
+	lotus: ["waterdragon", 2],
+	/* Dairy is a seasoning in most recipes, so it takes a genuinely creamy dish to score. */
+	prawn: ["cat", 3],
+	clam: ["cat", 3],
+	oyster_pearl: ["cat", 3],
+	cheese: ["cat", 2],
+	bottle_of_milk: ["cat", 1],
+	cream: ["cat", 1],
+	bottle_of_breast_milk: ["cat", 4],
+	baby_bottle_of_breast_milk: ["cat", 4],
+	/* Red meat. Beef and pork outweigh the trimmings so a roast reads as the meat it is. */
+	beef: ["wolf", 4],
+	pork: ["wolf", 4],
+	bacon: ["wolf", 3],
+	sausage: ["wolf", 3],
+	wolfshroom: ["wolf", 4],
+	/* Poultry and the grain birds pick at. */
+	chicken: ["bird", 3],
+	wheat: ["bird", 1],
+	rice: ["bird", 1],
+	oats: ["bird", 1],
+	/* Berries and stolen eggs, the same pairing the forest scenes use. */
+	blackberry: ["fox", 3],
+	strawberry: ["fox", 3],
+	cloudberry: ["fox", 3],
+	cherry: ["fox", 3],
+	bird_egg: ["fox", 3],
+	jam: ["fox", 2],
+	/* Roots and greens. */
+	wild_carrot: ["bunny", 3],
+	clover: ["bunny", 3],
+	four_leaf_clover: ["bunny", 3],
+	turnip: ["bunny", 2],
+	cabbage: ["bunny", 1],
+	broccoli: ["bunny", 1],
+	cauliflower: ["bunny", 1],
+	spinach: ["bunny", 1],
+	/* Cow is Remy's specialist, so no dish leads there. */
+};
+
+/* Dishes whose name says what they are, where the ingredient sums disagree. */
+setup.foodTransformOverride = {
+	honeyed_pork: "bear",
+	clam_chowder: "cat",
+};
+
+/* What eating one feels like. */
+setup.foodTransformText = {
+	bear: "The honey sits heavy and sweet in you.",
+	waterdragon: "You taste salt and cold water.",
+	cat: "You find yourself wanting to lick your fingers clean.",
+	wolf: "The meat is rich, and you want more of it.",
+	bird: "You pick at the last of it without thinking.",
+	fox: "The sweetness is sharp, like something taken from a hedgerow.",
+	bunny: "It leaves a green, earthy taste behind.",
+};
+
+setup.foodTransformThreshold = 3;
+/* Ties go to whatever the dish is most obviously made of. */
+setup.foodTransformPriority = ["waterdragon", "wolf", "bear", "cat", "fox", "bird", "bunny"];
 
 setup.foodFlavourText = {
 	sweet: "The sugar cheers you up, but makes you feel tired later.",
@@ -675,6 +754,24 @@ function foodEffects(key, batch) {
 }
 window.foodEffects = foodEffects;
 
+/* Which animal a dish feeds, or "" when it's just food. */
+function foodTransformation(key) {
+	if (!foodIsDish(key)) return "";
+	if (setup.foodTransformOverride[key]) return setup.foodTransformOverride[key];
+	const scores = {};
+	setup.foodstuff[key].recipe.ingredients.forEach(ingredient => {
+		const mapped = setup.foodTransformIngredients[ingredient];
+		if (mapped) scores[mapped[0]] = (scores[mapped[0]] || 0) + mapped[1];
+	});
+	let best = "";
+	setup.foodTransformPriority.forEach(type => {
+		if ((scores[type] || 0) < setup.foodTransformThreshold) return;
+		if (!best || scores[type] > scores[best]) best = type;
+	});
+	return best;
+}
+window.foodTransformation = foodTransformation;
+
 /* Which batch gets eaten: always the one closest to spoiling. The player never picks. */
 function foodNextBatch(key) {
 	const batches = foodBatchReconcile(key);
@@ -709,6 +806,12 @@ function pocketEatFood(key, commit = true) {
 	if (effects.tiredness) statChange.tiredness(effects.tiredness);
 	if (effects.pain) statChange.pain(effects.pain);
 
+	/* The dish's ingredients push you toward that animal.
+	Use the widget because <<transform>> also reduces the other transformations.
+	Out-of-date food does not count. */
+	const transformation = stale ? "" : foodTransformation(key);
+	if (transformation && typeof wikifier === "function") wikifier("transform", transformation, 1);
+
 	/* A proper meal restores some willpower. Out-of-date food does not. */
 	const willpowerRested = stale ? 0 : typeof willpowerRestMeal === "function" ? willpowerRestMeal(key) : 0;
 
@@ -728,6 +831,7 @@ function pocketEatFood(key, commit = true) {
 		own,
 		stale,
 		effects,
+		transformation,
 		willpowerRested,
 		fullness: fullness.fullness,
 		becameBloated: fullness.becameBloated,
