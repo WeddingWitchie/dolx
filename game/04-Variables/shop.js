@@ -258,6 +258,11 @@ setup.shopDetails = {
 		desc: "Unable to be worn after a certain point during pregnancy.",
 		details: "none",
 	},
+	foraging: {
+		name: "Foraging basket",
+		desc: "Sized and lined for one kind of forest crop.",
+		details: "Makes the forest offer gathering more often, and skews it towards the basket's crop.",
+	},
 	bookbag: {
 		name: "Bookbag",
 		desc: "For carrying school textbooks.",

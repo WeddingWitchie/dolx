@@ -567,8 +567,12 @@
 		 * Multiplying that by 0.75 (not a mushroom) and 0.4 (searching), the overall chance
 		 * of getting a museum item each time you search is 2.3% in the deep forest, 3.3% elsewhere.
 		 */
-		<<if random(1, 2) is 2>>
+		/* A foraging basket doesn't change how often you find something, only which crop it is. */
+		<<set _forageBasketPick to forageBasketPick()>>
+		<<if _forageBasketPick is "mushroom">>
 			<<mushroompick>>
+		<<elseif _forageBasketPick is "flower">>
+			<<forestgather>>
 		<<else>>
 			<<berrypick>>
 		<</if>>
@@ -577,8 +581,8 @@
 	<<cleareventpool>>
 	/* To calculate the overall odds of getting these when searching or walking, multiply by:
 	 * 0.75% (not a mushroom) * (0.2 for walking or 0.4 for searching) * odds within the event pool*/
-	<<addevent "forestgather" 4>>
-	<<addinlineevent "forestfruittrees" 2>>
+	<<addevent "forestgather" `forageBasketWeight(4, "flower")`>>
+	<<addinlineevent "forestfruittrees" `forageBasketWeight(2, "fruit")`>>
 		<<if random(1, 2) is 1>>
 			You find a wild plum tree, its branches dotted with ripe <<foodstufficon "plum">> fruit.
 			<br><br>
@@ -2082,7 +2086,13 @@
 <</widget>>
 
 <<widget "forestgather">>
+	/* 1 is the flowers of this clearing, 2 its fruit. A basket leans the clearing its way. */
 	<<set _forest_item to random(1, 2)>>
+	<<if forageBasketFocus() is "flower">>
+		<<set _forest_item to 1>>
+	<<elseif forageBasketFocus() is "fruit">>
+		<<set _forest_item to 2>>
+	<</if>>
 	<<cleareventpool>>
 	<<addinlineevent "normal" 10000>>
 		/* Normal gather */

@@ -1,8 +1,10 @@
 /* Mundane medication: prescriptions, sleep aids, and the antidepressant course.
  * Prescriptions are granted by Doctor Harper and spent at the hospital pharmacy.
  * Sleep aids suppress insomnia for one night, may cause oversleeping, and build dependence.
+ *
+ * Also holds the foraging baskets, further down.
  */
-/* globals statChange */
+/* globals statChange V setup random */
 
 const MEDICATION_SLEEP_WINDOW = 6 * 3600; /* A sleeping pill only helps if sleep follows within six hours. */
 const MEDICATION_DEPENDENCE_MAX = 20;
@@ -221,3 +223,57 @@ function medicationDayPassed() {
 	aid.usedToday = false;
 }
 window.medicationDayPassed = medicationDayPassed;
+
+/* Foraging baskets: handheld items for the forest. Carrying one makes the forest offer a gathering
+event a little more often, and skews which crop that event is: mushrooms, berries/fruit, or flowers.
+No new events are added; only the odds of the existing ones change. */
+/* Which crop each basket favours, keyed by the handheld's variable. */
+setup.forageBasketCrop = {
+	mushroombasket: "mushroom",
+	fruitbasket: "fruit",
+	flowerbasket: "flower",
+};
+/* Reduces the roll needed to trigger a foraging event.
+   Normal: 20% chance, or 40% when searching.
+   With a basket: 30% chance, or 50% when searching. */
+setup.forageBasketEventBonus = 10;
+/* How strongly a basket favours its own crop, as a percentage of gathering events. */
+setup.forageBasketFocusChance = 80;
+/* Multipliers applied to an event pool weight when a basket does or doesn't favour that event. */
+setup.forageBasketWeightBonus = 3;
+setup.forageBasketWeightPenalty = 0.5;
+
+/* Which crop the worn handheld favours, or "" when carrying anything else. */
+function forageBasketFocus() {
+	const held = V.worn && V.worn.handheld;
+	if (!held || !Array.isArray(held.type) || !held.type.includes("foraging")) return "";
+	return setup.forageBasketCrop[held.variable] ?? "";
+}
+window.forageBasketFocus = forageBasketFocus;
+
+/* Chooses the gathering event. Without a basket, it randomly picks mushrooms or berries.
+Flowers still only come from the event pool. */
+function forageBasketPick() {
+	const focus = forageBasketFocus();
+	if (!focus) return random(1, 2) === 2 ? "mushroom" : "fruit";
+	if (random(1, 100) <= setup.forageBasketFocusChance) return focus;
+	/* The remainder goes to one of the other two crops, so a basket is never a guarantee. */
+	const others = ["mushroom", "fruit", "flower"].filter(kind => kind !== focus);
+	return others.random();
+}
+window.forageBasketPick = forageBasketPick;
+
+/* Scales an event pool weight for events that belong to one of the three crops. */
+function forageBasketWeight(weight, kind) {
+	const focus = forageBasketFocus();
+	if (!focus) return weight;
+	return weight * (focus === kind ? setup.forageBasketWeightBonus : setup.forageBasketWeightPenalty);
+}
+window.forageBasketWeight = forageBasketWeight;
+
+/* Makes forest gathering events more likely when carrying a basket. */
+function forageBasketThreshold(threshold) {
+	if (!forageBasketFocus()) return threshold;
+	return Math.max(1, threshold - setup.forageBasketEventBonus);
+}
+window.forageBasketThreshold = forageBasketThreshold;

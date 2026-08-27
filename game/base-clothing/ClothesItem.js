@@ -227,6 +227,8 @@ class ClothesItem {
 
 	/* */
 	holdPosition;
+	/* Path to a single existing image used for every arm position, for items that reuse another sprite. */
+	sharedImage;
 
 	/* */
 	back_img_colour;

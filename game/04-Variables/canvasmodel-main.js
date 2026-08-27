@@ -4352,6 +4352,10 @@ Renderer.CanvasModels.main = {
 		 */
 		"handheld_right": genlayer_clothing_main('handheld', {
 			srcfn(options) {
+				/* Items that borrow an existing image instead of shipping their own sprite folder.
+				   `sharedImage` names a single file used for every arm position. */
+				if (options.worn.handheld.setup.sharedImage) return options.worn.handheld.setup.sharedImage;
+
 				const pattern = options.worn.handheld.pattern && !["tertiary", "secondary"].includes(options.worn.handheld.setup.pattern_layer) ? "-" + options.worn.handheld.pattern?.replace(/ /g,"-") : '';
 
 				return `img/clothes/handheld/${options.worn.handheld.setup.variable}/right-${options.arm_right}${pattern}.png`;

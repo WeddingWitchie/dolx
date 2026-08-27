@@ -5,7 +5,7 @@
  * Setup tables
  * ------------------------------------------------------------------ */
 /* How many item types each handheld bag can hold.
-   Unlisted bookbags default to 4 slots. Add an entry here if a bag should hold a different amount. */
+   Unlisted bags default to 4 slots. Add an entry here if a bag should hold a different amount. */
 setup.pocketBagCapacity = {
 	luggage: 10,
 	"vintage suitcase": 10,
@@ -16,6 +16,10 @@ setup.pocketBagCapacity = {
 	/* Roomy, but carried in one hand. */
 	gymbag: 6,
 	totebag: 6,
+	/* Foraging baskets: open-topped, so roomy but only sensible for what you gathered. */
+	mushroombasket: 5,
+	fruitbasket: 5,
+	flowerbasket: 5,
 	messengerbag: 5,
 	/* Barely more than a phone and a purse. */
 	purse: 2,
@@ -247,7 +251,8 @@ window.pocketAvailable = pocketAvailable;
 function pocketBagItem() {
 	const held = V.worn && V.worn.handheld;
 	if (!held || !Array.isArray(held.type)) return undefined;
-	if (!held.type.includes("bookbag")) return undefined;
+	/* Bookbags, and foraging baskets, which carry things without being school bags. */
+	if (!held.type.includesAny("bookbag", "foraging")) return undefined;
 	return held;
 }
 window.pocketBagItem = pocketBagItem;
