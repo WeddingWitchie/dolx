@@ -724,7 +724,7 @@ setup.feats = {
 		filter: ["All", "Social"],
 	},
 	"Mate for life": {
-		// FIX: was duplicate key "Great Hawk the Terror" - rename as needed
+		// FIX: was duplicate key "Great Hawk the Terror"
 		title: "Mate for life",
 		desc: "You can't change your partner, as this species mates for life.",
 		difficulty: 2,
@@ -749,6 +749,13 @@ setup.feats = {
 		title: "Return the Favour",
 		desc: "You gifted the Great Hawk a favourite food.",
 		difficulty: 2,
+		series: "",
+		filter: ["All", "Social"],
+	},
+	"Magpie's Luck": {
+		title: "Magpie's Luck",
+		desc: "Find a piece of jewellery while scavenging on the moor.",
+		difficulty: 3,
 		series: "",
 		filter: ["All", "Social"],
 	},
