@@ -140,7 +140,11 @@
 						<<capture _rowSlot>>
 							<<if bloatedActive()>><span class="red">Keeps you bloated</span><br>
 							<<elseif foodWouldBloat(_rowSlot.key)>><span class="red">Will make you bloated</span><br><</if>>
-							<<link [[Eat|Pocket Eat Food]]>><<run pocketEatFoodFromMenu(_rowSlot.key)>><</link>>
+							<<if foodTags(_rowSlot.key).includes("drink")>>
+								<<link [[Drink|Pocket Eat Food]]>><<run pocketEatFoodFromMenu(_rowSlot.key)>><</link>>
+							<<else>>
+								<<link [[Eat|Pocket Eat Food]]>><<run pocketEatFoodFromMenu(_rowSlot.key)>><</link>>
+							<</if>>
 							|
 							<<link "Take out">>
 								<<run pocketSlotToggle("food", _rowSlot.key)>>
@@ -221,7 +225,8 @@
 <<widget "pocketEatReport">>
 	<<set _report to _args[0]>>
 	<<if _report>>
-		You eat <<= setup.foodstuff[_report.key].word or "a">> <<= setup.foodstuff[_report.key].singular>>.<<if _report.own>> <span class="teal">Your own cooking.</span><</if>>
+		<<set _drink to foodTags(_report.key).includes("drink")>>
+		You <<if _drink>>drink<<else>>eat<</if>> <<= setup.foodstuff[_report.key].word or "a">> <<= setup.foodstuff[_report.key].singular>>.<<if _report.own>> <span class="teal"><<if _drink>>You made it yourself.<<else>>Your own cooking.<</if>></span><</if>>
 		<br><span><<if _report.stale>>It is past its date, so it only fills you up.<</if>><<if !_report.stale>><<= foodEffectText(_report.key)>><</if>></span>
 		<<pocketStatArrows _report.effects>>
 		<<if _report.transformation>>
@@ -235,9 +240,10 @@
 
 /* Journal > Foods. Every separately cooked batch keeps its own date. */
 <<widget "pocketFoodJournal">>
-	<<if $daily.foodSpoiled and $daily.foodSpoiled.length>>
+	<<set _spoiledFood to pocketSpoiledNotice()>>
+	<<if _spoiledFood.length>>
 		<div class="dolx-pocket-spoiled">
-			<<for _gone range $daily.foodSpoiled>>
+			<<for _gone range _spoiledFood>>
 				<span class="red">
 					<<= _gone.amount>> <<= _gone.amount is 1 ? setup.foodstuff[_gone.key].singular : setup.foodstuff[_gone.key].plural>> went off and <<if _gone.amount is 1>>was<<else>>were<</if>> thrown away today.
 				</span><br>

@@ -716,8 +716,15 @@ window.foodFlavour = foodFlavour;
 function foodEffectText(key) {
 	if (!foodIsDish(key)) return "";
 	const scale = foodValueScale(key);
+	const drink = foodTags(key).includes("drink");
 	let size;
-	if (scale < 0.5) size = "It is only a small snack, so the effect is weak.";
+	if (drink) {
+		if (scale < 0.5) size = "It is only a little drink, so the effect is weak.";
+		else if (scale < 0.85) size = "It is a small drink, so the effect is mild.";
+		else if (scale < 1.25) size = "It is a satisfying drink, so you feel the effect properly.";
+		else if (scale < 1.75) size = "It is a generous drink, so the effect is strong.";
+		else size = "It is a very filling drink, so the effect is very strong.";
+	} else if (scale < 0.5) size = "It is only a small snack, so the effect is weak.";
 	else if (scale < 0.85) size = "It is a small meal, so the effect is mild.";
 	else if (scale < 1.25) size = "It is a regular meal, so you feel the effect properly.";
 	else if (scale < 1.75) size = "It is a big meal, so the effect is strong.";
@@ -954,12 +961,30 @@ function pocketCheckSpoilage() {
 	const spoiled = foodExpirySweep();
 	if (spoiled.length) {
 		if (!V.daily || typeof V.daily !== "object" || Array.isArray(V.daily)) V.daily = {};
-		V.daily.foodSpoiled = (Array.isArray(V.daily.foodSpoiled) ? V.daily.foodSpoiled : []).concat(spoiled);
+		const store = V.daily.foodSpoiled && typeof V.daily.foodSpoiled === "object" && !Array.isArray(V.daily.foodSpoiled) ? V.daily.foodSpoiled : {};
+		spoiled.forEach(entry => {
+			store[entry.key] = (Number(store[entry.key]) || 0) + entry.amount;
+		});
+		V.daily.foodSpoiled = store;
 		pocketCommit();
 	}
 	return spoiled;
 }
 window.pocketCheckSpoilage = pocketCheckSpoilage;
+
+/* The daily reset clears object values but leaves empty array entries behind.
+   Store the notice as dish -> amount so it resets cleanly, and remove the old array format here. */
+function pocketSpoiledNotice() {
+	const store = V.daily && V.daily.foodSpoiled;
+	if (!store || typeof store !== "object") return [];
+	if (Array.isArray(store)) {
+		return store.filter(entry => entry && foodIsDish(entry.key) && Number(entry.amount) > 0).map(entry => ({ key: entry.key, amount: Number(entry.amount) }));
+	}
+	return Object.keys(store)
+		.filter(key => foodIsDish(key) && Number(store[key]) > 0)
+		.map(key => ({ key, amount: Number(store[key]) }));
+}
+window.pocketSpoiledNotice = pocketSpoiledNotice;
 
 function pocketHourPassed() {
 	pocketEnsure();
