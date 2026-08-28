@@ -846,6 +846,10 @@ setup.hbsc.autoPayFarmGuard = function () {
 	V.farm.tower_guard_skill = skill;
 	V.farm.tower_guard_wage = 30000 + skill * 100;
 	V.farm.tower_guard_unpaid = 0;
+	/* Keep the stored guard in step, or the next in-person visit would recompute the wage from a stale skill and undo the raise. */
+	if (V.per_npc && V.per_npc.farm_tower_guard && V.per_npc.farm_tower_guard.skills) {
+		V.per_npc.farm_tower_guard.skills.security = skill;
+	}
 	return true;
 };
 

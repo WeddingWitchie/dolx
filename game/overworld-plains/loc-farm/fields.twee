@@ -97,15 +97,15 @@ You climb the tower.
 
 	Security skill: <<guard_skill_text "tower">> <<print $NPCList[0].skills.security>>
 	<br>
-	Wage: <<printprice $farm.tower_guard_wage>>
+	<<farm_guard_wage>>Wage: <<printprice $farm.tower_guard_wage>>
 	<br><br>
 
 	<<farm_guard_pay>>
-	<<if $farm.watchtowerDailyAttempt is 0>>
+	<<if not $farm.watchtowerDailyAttempt>>
 		<<link [[Spar|Farm Tower Spar]]>><<set $fightstart to 1>><<set $farm.watchtowerDailyAttempt to 1>><</link>><<note "+ Security skill" "green">>
 		<br>
 		<<if $promiscuity gte 15>>
-			<<link [[Seduce (0:01)|Farm Tower Seduce]]>><<pass 1>><</link>><<promiscuous2>><<note "+ Security skill" "green">>
+			<<link [[Seduce (0:01)|Farm Tower Seduce]]>><<pass 1>><<set $farm.watchtowerDailyAttempt to 1>><</link>><<promiscuous2>><<note "+ Security skill" "green">>
 			<br>
 		<</if>>
 	<</if>>
@@ -132,7 +132,7 @@ You climb the tower.
 
 
 
-<<if $bus is "farm_fields">>
+<<if previous() is "Farm Tower">>
 	You climb down the tower.
 	<br><br>
 
@@ -552,7 +552,7 @@ You climb the tower.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Guard Seduce Sex]]>><<set $sexstart to 1>><<set $farm.watchtowerDailyAttempt to 1>><</link>>
+	<<link [[Next|Farm Guard Seduce Sex]]>><<set $sexstart to 1>><</link>>
 	<br>
 <<else>>
 	<<if $NPCList[0].traits.includes("relaxed")>>
@@ -566,7 +566,7 @@ You climb the tower.
 	<</if>>
 	<br><br>
 
-	<<link [[Next|Farm Tower]]>><<set $farm.watchtowerDailyAttempt to 1>><</link>>
+	<<link [[Next|Farm Tower]]>><</link>>
 	<br>
 
 <</if>>
@@ -647,7 +647,7 @@ You climb the tower.
 	<<endcombat>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
 	<<set $NPCList[0].trust -= 3>><<lltrust>>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[Next|Farm Work]]>><<saveNPC 0 "farm_tower_guard">><<endevent>><</link>>
 	<br>
 <<elseif $alarm is 1 and $rescue is 1>>
 	<<set $rescued += 1>>
@@ -698,6 +698,6 @@ You climb the tower.
 	<<clotheson>>
 	<<endcombat>>
 	<<loadNPC 0 "farm_tower_guard">><<person1>>
-	<<link [[Next|Farm Work]]>><</link>>
+	<<link [[Next|Farm Work]]>><<saveNPC 0 "farm_tower_guard">><<endevent>><</link>>
 	<br>
 <</if>>

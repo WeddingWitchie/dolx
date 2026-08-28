@@ -3201,10 +3201,10 @@ function dailyFarmEvents() {
 			wikifier("composting");
 		}
 	}
-	if (V.farm && V.farm.watchtowerDailyAttempt === 1) {
+	if (V.farm && V.farm.watchtowerDailyAttempt) {
 		V.farm.watchtowerDailyAttempt = 0;
 	}
-	if (V.farm && V.farm.dailyHelp === 1) {
+	if (V.farm && V.farm.dailyHelp) {
 		V.farm.dailyHelp = 0;
 	}
 	if (V.farm_stage >= 9) {
