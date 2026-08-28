@@ -41,18 +41,22 @@
 			and probably causes some other bad effects. honestly, version updater needs a major update itself. */
 		<<set $prngpull to State.prng.pull>>
 
-		/* PERF PATCH that only run the heavy migration pipeline on actual version mismatches.
-		Skipping these on same-version loads saves ~2100 if-checks across the three migration files. */
+		/* Only run migration pipelines when the saved version actually changed. */
 		<<if _needsMigration>>
 			<<backComp>>
 			<<modupdate>>
+			<<updatehistorycontrols>>
+			<<set _preventUpdate to true>> /*prevent rewriting autosaves */
+			<<set _saveLoaded to true>>
+			<<set Time.set()>>
+			<<xchange-modupdate>>
+		<<else>>
+			<<updatehistorycontrols>>
+			<<set _preventUpdate to true>> /*prevent rewriting autosaves */
+			<<set _saveLoaded to true>>
+			<<set Time.set()>>
+			<<xchange-loadinit>>
 		<</if>>
-
-		<<updatehistorycontrols>>
-		<<set _preventUpdate to true>> /*prevent rewriting autosaves */
-		<<set _saveLoaded to true>>
-		<<set Time.set()>>
-		<<xchange-modupdate>>
 		<<modLI-init>>
 		<<setFont>>
 		<<run zoom($options.zoom)>>

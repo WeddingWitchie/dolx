@@ -668,17 +668,46 @@ function pruneClothes() {
 	if (!setup?.clothes || !Array.isArray(setup.clothes_all_slots)) return;
 
 	const pruned = new Set();
+	const skippedNames = new Set(setup.wardrobeSkip || []);
+	const catalogLookups = new Map();
+	const namedWardrobes =
+		V.wardrobes && typeof V.wardrobes === "object"
+			? Object.entries(V.wardrobes).filter(([name, wardrobe]) => name !== "wardrobe" && wardrobe && typeof wardrobe === "object")
+			: [];
+
+	/* A large wardrobe used to rescan the entire clothing catalogue up to four times
+	   for every saved item. Build the same matching keys once per slot instead. */
+	for (const slot of setup.clothes_all_slots) {
+		const catalog = setup.clothes[slot];
+		if (!Array.isArray(catalog)) continue;
+		const lookup = {
+			variables: new Set(),
+			names: new Set(),
+			moddersByVariable: new Map(),
+			oldNamesByVariable: new Map(),
+		};
+		for (const ref of catalog) {
+			lookup.variables.add(ref.variable);
+			lookup.names.add(ref.name);
+			if (!lookup.moddersByVariable.has(ref.variable)) lookup.moddersByVariable.set(ref.variable, new Set());
+			lookup.moddersByVariable.get(ref.variable).add(ref.modder);
+			if (!Array.isArray(ref.oldVariable)) continue;
+			for (const old of ref.oldVariable) {
+				if (!lookup.oldNamesByVariable.has(old.variable)) lookup.oldNamesByVariable.set(old.variable, new Set());
+				lookup.oldNamesByVariable.get(old.variable).add(old.name);
+			}
+		}
+		catalogLookups.set(slot, lookup);
+	}
 
 	function isKnownItem(slot, item) {
-		const catalog = setup.clothes[slot];
-		if (!catalog) return true;
+		const lookup = catalogLookups.get(slot);
+		if (!lookup) return true;
 		if (!item?.name || !item.variable) return false;
-		if (catalog.some(ref => ref.variable === item.variable && ref.modder === item.modder)) return true;
-		if (catalog.some(ref => ref.variable === item.variable)) return true;
-		if (catalog.some(ref => Array.isArray(ref.oldVariable) && ref.oldVariable.some(old => old.name === item.name && old.variable === item.variable)))
-			return true;
-		if (catalog.some(ref => ref.name === item.name)) return true;
-		return false;
+		if (lookup.moddersByVariable.get(item.variable)?.has(item.modder)) return true;
+		if (lookup.variables.has(item.variable)) return true;
+		if (lookup.oldNamesByVariable.get(item.variable)?.has(item.name)) return true;
+		return lookup.names.has(item.name);
 	}
 
 	for (const slot of setup.clothes_all_slots) {
@@ -694,20 +723,18 @@ function pruneClothes() {
 		/* $wardrobe: array per slot. */
 		if (Array.isArray(V.wardrobe?.[slot])) {
 			V.wardrobe[slot] = V.wardrobe[slot].filter(item => {
-				if (!item?.temp && !setup.wardrobeSkip.includes(item?.name) && isKnownItem(slot, item)) return true;
+				if (!item?.temp && !skippedNames.has(item?.name) && isKnownItem(slot, item)) return true;
 				pruned.add(`wardrobe.${slot}:${item?.variable || item?.name || "invalid"}`);
 				return false;
 			});
 		}
 
 		/* $wardrobes.*: array per slot for every named wardrobe except the metadata-only "wardrobe" entry. */
-		if (V.wardrobes && typeof V.wardrobes === "object") {
-			for (const name of Object.keys(V.wardrobes)) {
-				if (name === "wardrobe") continue;
-				const wd = V.wardrobes[name];
+		if (namedWardrobes.length) {
+			for (const [name, wd] of namedWardrobes) {
 				if (!wd || !Array.isArray(wd[slot])) continue;
 				wd[slot] = wd[slot].filter(item => {
-					if (!item?.temp && !setup.wardrobeSkip.includes(item?.name) && isKnownItem(slot, item)) return true;
+					if (!item?.temp && !skippedNames.has(item?.name) && isKnownItem(slot, item)) return true;
 					pruned.add(`wardrobes.${name}.${slot}:${item?.variable || item?.name || "invalid"}`);
 					return false;
 				});
