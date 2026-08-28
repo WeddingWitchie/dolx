@@ -1796,6 +1796,12 @@ function xchangeEffectsMessages() {
 		delete V.identityCapMessage;
 	}
 
+	if (V.binderPainMessage) {
+		element("span", "Your chest binder feels too tight, making your chest ache.", "red");
+		br();
+		delete V.binderPainMessage;
+	}
+
 	if (V.breastSensitiveRubMessage) {
 		// The slot is picked during the time tick, but this prints once the passage has run and a link that passes time then strips
 		// (washing, bathing, going to bed) leaves the stored slot empty. Re-check it, and fall back to whatever is being worn now.

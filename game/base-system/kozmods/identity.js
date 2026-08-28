@@ -274,6 +274,19 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
 	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
 
+	/* A chest binder can cause pain over time. Check once per hour, then apply the total pain and show one message. */
+	if (!V.statFreeze && V.worn?.under_upper?.variable === "chestbinder" && V.worn.under_upper.integrity > 0 && V.worn.under_upper.exposed < 1) {
+		let binderPain = 0;
+		for (let i = 0; i < hours; i++) {
+			if (random(1, 12) === 1) binderPain++;
+		}
+		if (binderPain > 0) {
+			wikifier("pain", binderPain);
+			V.binderPainMessage = true;
+			V.effectsmessage = 1;
+		}
+	}
+
 	/*
 	 * Hypno crossdress / genderify should still run even when the player cares for gender.
 	 * Use the player's baseline gender for the compulsion direction so body changes from X-Change do not flip the urge from feminine to masculine mid-pill.
@@ -330,6 +343,8 @@ function playerIsWearingMakeup() {
 window.playerIsWearingMakeup = playerIsWearingMakeup;
 
 function playerHasCharacteristic(characteristic) {
+	/* Chest identity uses the visible chest size while dressed, so binders and similar clothes can reduce dysphoria without changing actual breast size. */
+	const perceivedBreastSize = Number.isFinite(V.player.perceived_breastsize) ? V.player.perceived_breastsize : V.player.breastsize;
 	switch (characteristic) {
 		/* Appearance and clothing are each a single three-way band.
 		Exactly one of the three can be true at a time: they're the answer to "what does the player look like right now", not "what would upset them". */
@@ -356,13 +371,13 @@ function playerHasCharacteristic(characteristic) {
 		case "Neutral Pronouns":
 			return V.identity.presentation.pronouns.neutral.misgendered;
 		case "Flat Chest":
-			return V.player.breastsize === 0 ? 2 : 0;
+			return perceivedBreastSize === 0 ? 2 : 0;
 		case "Small Breasts":
-			return between(V.player.breastsize, 1, 4) ? 2 : 0;
+			return between(perceivedBreastSize, 1, 4) ? 2 : 0;
 		case "Medium Breasts":
-			return between(V.player.breastsize, 5, 7) ? 2 : 0;
+			return between(perceivedBreastSize, 5, 7) ? 2 : 0;
 		case "Big Breasts":
-			return V.player.breastsize > 7 ? 2 : 0;
+			return perceivedBreastSize > 7 ? 2 : 0;
 		case "Small Ass":
 			return V.player.bottomsize <= 2 ? 2 : 0;
 		case "Medium Ass":

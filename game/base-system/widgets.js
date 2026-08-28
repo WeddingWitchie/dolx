@@ -441,13 +441,14 @@ function genderAppearanceHermTiebreak() {
 
 function apparentbreastsizecheck() {
 	T.tempbreast = V.player.breastsize;
-	if (clothingData("upper", V.worn.upper, "bustresize") != null) {
+	/* Bust shaping only works while the garment is intact and covering the chest. */
+	if (V.worn.upper.integrity > 0 && V.worn.upper.exposed < 2 && clothingData("upper", V.worn.upper, "bustresize") != null) {
 		T.tempbreast += clothingData("upper", V.worn.upper, "bustresize");
 	}
-	if (clothingData("under_upper", V.worn.under_upper, "bustresize") != null) {
+	if (V.worn.under_upper.integrity > 0 && V.worn.under_upper.exposed < 1 && clothingData("under_upper", V.worn.under_upper, "bustresize") != null) {
 		T.tempbreast += clothingData("under_upper", V.worn.under_upper, "bustresize");
 	}
-	if (clothingData("over_upper", V.worn.over_upper, "bustresize") != null) {
+	if (V.worn.over_upper.integrity > 0 && V.worn.over_upper.exposed < 2 && clothingData("over_upper", V.worn.over_upper, "bustresize") != null) {
 		T.tempbreast += clothingData("over_upper", V.worn.over_upper, "bustresize");
 	}
 	// using the default values of $breastsizemin and $breastsizemax, to avoid issues with the values changing during the game
