@@ -67,12 +67,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.therapy.countdown is undefined>><<set $xchange.therapy.countdown to 0>><</if>>
 	<<if $xchange.therapy.duration is undefined>><<set $xchange.therapy.duration to 0>><</if>>
 
-	/* Sanity: pubtimer must be a number >= 1, otherwise delete it (inactive). */
-	<<run (function () {
-		var x = State.variables.xchange; if (!x) { return; }
-		var n = Number(x.pubtimer); if (x.pubtimer !== undefined && (!Number.isFinite(n) || n < 1)) { delete x.pubtimer; }
-	})()>>
-
 	<<if $xchange._didSpikepoolKeyFix is not true>>
 		<<set $xchange._didSpikepoolKeyFix to true>> /* delete later */
 		/* Migrate dumb-bitch setting key variants -> canonical $xchange.spikepool.dumbbitch */
@@ -972,63 +966,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
-	<<set setup.identityIndex to {
-		"Pronoun Preferences": { 
-			"Masculine Pronouns": "<<dysphoriaicon 'male.png'>>",
-			"Feminine Pronouns": "<<dysphoriaicon 'female.png'>>",
-			"Neutral Pronouns": "<<dysphoriaicon 'unisex.png'>>",
-		},
-		"Appearance Preferences": {
-			"Masculine Appearance": "<<dysphoriaicon 'men-toilet.png'>>",
-			"Feminine Appearance": "<<dysphoriaicon 'women-toilet.png'>>",
-			"Androgynous Appearance": "<<dysphoriaicon-split 'women-toilet.png' 'men-toilet.png'>>",
-		},
-		"Clothing Preferences": {
-			"Masculine Clothing": "<<dysphoriaicon-color 'clothes/straight-trousers.png' 'filter: hue-rotate(206deg) saturate(229%) brightness(178%) contrast(113%)'>>",
-			"Feminine Clothing": "<<dysphoriaicon-color 'clothes/school-skirt.png' 'filter: hue-rotate(320deg) saturate(120%) brightness(100%) contrast(117%)'>>",
-			"Neutral Clothing": "<<dysphoriaicon 'clothes/bathrobe.png'>>",
-		},
-		"Makeup Preferences": {
-			"Wearing Makeup": "<<dysphoriaicon 'cosmetics.gif'>>",
-			"Bare Face": "<<skinicon 'wash'>>",
-		},
-		"Chest Preferences": {
-			"Flat Chest": "<<dysphoriaicon 'basement_door.png'>>",
-			"Small Breasts": `<<skinicon 'smallBreasts'>>`,
-			"Medium Breasts": "<<skinicon 'bigBreasts'>>",
-			"Big Breasts": "<<skinicon 'breastEnlarge'>>",
-		},
-		"Butt Preferences": {
-			"Small Ass": "<<dysphoriaicon 'bandages.png'>>",
-			"Medium Ass": "<<dysphoriaicon 'tending/apple.png'>>",
-			"Big Ass": "<<dysphoriaicon 'tending/peach.png'>>",
-		},
-		"Genital Preferences": {
-			"Vagina": "<<skinicon 'vagina'>>",
-			"Tiny Penis": "<<skinicon 'tinyPenis'>>",
-			"Small Penis": "<<skinicon 'smallPenis'>>",
-			"Medium Penis": "<<skinicon 'mediumPenis'>>",
-			"Big Penis": "<<skinicon 'bigPenis'>>",
-		},
-		"Hair Preferences": {
-			"Short Hair": "<<dysphoriaicon 'algae.png'>>",
-			"Medium Hair": "<<dysphoriaicon 'bush.png'>>",
-			"Long Hair": "<<dysphoriaicon 'kylars_grounds.png'>>",
-		},
-		"Body Size Preferences": {
-			"Miniature Body": "<<dysphoriaicon 'rat.png'>>",
-			"Tiny Body": "<<dysphoriaicon 'chicken.png'>>",
-			"Small Body": "<<dysphoriaicon 'wolf-pup.png'>>",
-			"Normal Body": "<<dysphoriaicon 'dog.png'>>",
-			"Tall Body": "<<dysphoriaicon 'black-dog.png'>>",
-			"Large Body": "<<dysphoriaicon 'cow.png'>>",
-			"Giant Body": "<<dysphoriaicon 'black-wolf.png'>>",
-		},
-		"Maternity Preferences": {
-			"Lactation": "<<dysphoriaicon 'tending/babybottle.png'>>",
-			"Pregnancy": "<<pregnancyicon 'player'>>",
-		},
-	}>>
+	<<identityIndexInit>>
 
 	<<if $identityOption is undefined>>
 		<<set $identityOption to false>>
@@ -1241,15 +1179,115 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 <</widget>>
 
+/* Static setup data, rebuilt on every page load. Both load paths need it for the identity overlay and gender-identity meter. */
+<<widget "identityIndexInit">>
+	<<set setup.identityIndex to {
+		"Pronoun Preferences": { 
+			"Masculine Pronouns": "<<dysphoriaicon 'male.png'>>",
+			"Feminine Pronouns": "<<dysphoriaicon 'female.png'>>",
+			"Neutral Pronouns": "<<dysphoriaicon 'unisex.png'>>",
+		},
+		"Appearance Preferences": {
+			"Masculine Appearance": "<<dysphoriaicon 'men-toilet.png'>>",
+			"Feminine Appearance": "<<dysphoriaicon 'women-toilet.png'>>",
+			"Androgynous Appearance": "<<dysphoriaicon-split 'women-toilet.png' 'men-toilet.png'>>",
+		},
+		"Clothing Preferences": {
+			"Masculine Clothing": "<<dysphoriaicon-color 'clothes/straight-trousers.png' 'filter: hue-rotate(206deg) saturate(229%) brightness(178%) contrast(113%)'>>",
+			"Feminine Clothing": "<<dysphoriaicon-color 'clothes/school-skirt.png' 'filter: hue-rotate(320deg) saturate(120%) brightness(100%) contrast(117%)'>>",
+			"Neutral Clothing": "<<dysphoriaicon 'clothes/bathrobe.png'>>",
+		},
+		"Makeup Preferences": {
+			"Wearing Makeup": "<<dysphoriaicon 'cosmetics.gif'>>",
+			"Bare Face": "<<skinicon 'wash'>>",
+		},
+		"Chest Preferences": {
+			"Flat Chest": "<<dysphoriaicon 'basement_door.png'>>",
+			"Small Breasts": `<<skinicon 'smallBreasts'>>`,
+			"Medium Breasts": "<<skinicon 'bigBreasts'>>",
+			"Big Breasts": "<<skinicon 'breastEnlarge'>>",
+		},
+		"Butt Preferences": {
+			"Small Ass": "<<dysphoriaicon 'bandages.png'>>",
+			"Medium Ass": "<<dysphoriaicon 'tending/apple.png'>>",
+			"Big Ass": "<<dysphoriaicon 'tending/peach.png'>>",
+		},
+		"Genital Preferences": {
+			"Vagina": "<<skinicon 'vagina'>>",
+			"Tiny Penis": "<<skinicon 'tinyPenis'>>",
+			"Small Penis": "<<skinicon 'smallPenis'>>",
+			"Medium Penis": "<<skinicon 'mediumPenis'>>",
+			"Big Penis": "<<skinicon 'bigPenis'>>",
+		},
+		"Hair Preferences": {
+			"Short Hair": "<<dysphoriaicon 'algae.png'>>",
+			"Medium Hair": "<<dysphoriaicon 'bush.png'>>",
+			"Long Hair": "<<dysphoriaicon 'kylars_grounds.png'>>",
+		},
+		"Body Size Preferences": {
+			"Miniature Body": "<<dysphoriaicon 'rat.png'>>",
+			"Tiny Body": "<<dysphoriaicon 'chicken.png'>>",
+			"Small Body": "<<dysphoriaicon 'wolf-pup.png'>>",
+			"Normal Body": "<<dysphoriaicon 'dog.png'>>",
+			"Tall Body": "<<dysphoriaicon 'black-dog.png'>>",
+			"Large Body": "<<dysphoriaicon 'cow.png'>>",
+			"Giant Body": "<<dysphoriaicon 'black-wolf.png'>>",
+		},
+		"Maternity Preferences": {
+			"Lactation": "<<dysphoriaicon 'tending/babybottle.png'>>",
+			"Pregnancy": "<<pregnancyicon 'player'>>",
+		},
+	}>>
+<</widget>>
+
+/* Settings slider migration. Runs after key migrations and on same-version loads.
+   Fixes missing, NaN, or old 0 values that would crash sliders with a minimum of 1.
+   Only repairs settings values, not body or game state. */
+<<widget "xchangeSettingsSliderRepair">>
+	<<run (() => {
+		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
+		const x = V && V.xchange;
+		if (!x) return;
+		/* spikerates: sliders use 1-10. genderflip and fertile have no sliders, but still need valid values for the spike pool. */
+		const rateDefaults = {
+			genderflip: 10, crossdress: 7, herm: 4, breeder: 2, bull: 2,
+			continue: 3, resistance: 3, portal: 2, fertile: 2, passion: 1,
+			"dumb-bitch": 1, innocence: 1, feartoxin: 1, fertility: 4, swell: 2, bimbo: 1, cumcure: 1,
+		};
+		if (!x.spikerates || typeof x.spikerates !== "object" || Array.isArray(x.spikerates)) x.spikerates = {};
+		for (const k of Object.keys(rateDefaults)) {
+			const v = x.spikerates[k];
+			x.spikerates[k] = Number.isFinite(v) ? Math.min(10, Math.max(1, v)) : rateDefaults[k];
+		}
+		/* Scalar sliders whose min is above 0, so a stale 0 / NaN / missing value crashes them too. */
+		const scalarSliders = {
+			combatPillingDrawChance: { min: 1, max: 50, def: 15 },
+			cumcureTime: { min: 1, max: 24, def: 3 },
+			resistanceOrgasmPenalty: { min: 0.5, max: 0.99, def: 0.7 },
+			fertilityStrengthPercent: { min: 25, max: 400, def: 100 },
+		};
+		for (const k of Object.keys(scalarSliders)) {
+			const s = scalarSliders[k];
+			const v = x[k];
+			x[k] = Number.isFinite(v) ? Math.min(s.max, Math.max(s.min, v)) : s.def;
+		}
+	})()>>
+<</widget>>
+
 <<widget "xchange-loadinit">>
+	<<identityIndexInit>>
 	<<waterDragonNestDefaults>><<if $waterDragonLab>><<waterDragonLabDefaults>><</if>>
 	<<if $waterDragonEggs and !isFullWaterDragon() and !($waterDragonLab and $waterDragonLab.active)>><<unset $waterDragonEggs>><</if>>
 	<<dhmInit>>
 	<<wliInit>>
+	<<worldGenderOverrideInit>>
+	<<if $robinGivenTotal is undefined>><<set $robinGivenTotal to 0>><</if>>
+	<<run ensureRobinStand()>>
 	<<if playerIsXChanged()>><<xchange-fertility-override>><</if>>
 	<<ccmodVersionCheck>>
 	<<ensureTransformationTraits>>
 	<<run restoreActiveBlackmailQuest()>>
+	<<xchangeSettingsSliderRepair>>
 	<<script>>setup.inflation?.ensureSettings?.();<</script>>
 	<<script>>window.dolxRepairNonFiniteNumerics?.();<</script>>
 	<<script>>window.dolxEjectOrphanVaginalDildo?.();<</script>>
@@ -1288,7 +1326,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<xchange-init>>
 	<<xchange-init2>>
 
-	/* Robin's stand is a live economy system. Keep its old-save defaults in the lightweight hook so same-version loads are safe too. */
+	/* Robin's stand is a live economy system, so its defaults also run. */
 	<<if $robinGivenTotal is undefined>><<set $robinGivenTotal to 0>><</if>>
 	<<run ensureRobinStand()>>
 	/* Self-sufficiency and Bailey's Robin-targeting flag are mutually exclusive; older saves could hold both. */
@@ -1938,38 +1976,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<unset $xchange.spikerates["dumbbitch"]>>
 	<</if>>
 
-	/* Settings slider migration. Runs after every key migration above, so it's the final authority for values the settings UI itself needs.
-	   The numberslider macro throws if its stored value is missing/NaN ("is not a number") or below the slider's min ("default value (0) is less than min value (1)").
-	   Older builds used a min of 0 and never backfilled every key, so loaded saves could carry a 0, a NaN, or a missing key into the X-Change settings page and crash it.
-	   Keep this scoped to settings values only; it is not a body/state repair path. */
-	<<run (() => {
-		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
-		const x = V && V.xchange;
-		if (!x) return;
-		/* spikerates: every settings slider is 1-10. genderflip/fertile have no slider but the spike pool reads them, so keep them valid too. */
-		const rateDefaults = {
-			genderflip: 10, crossdress: 7, herm: 4, breeder: 2, bull: 2,
-			continue: 3, resistance: 3, portal: 2, fertile: 2, passion: 1,
-			"dumb-bitch": 1, innocence: 1, feartoxin: 1, fertility: 4, swell: 2, bimbo: 1, cumcure: 1,
-		};
-		if (!x.spikerates || typeof x.spikerates !== "object" || Array.isArray(x.spikerates)) x.spikerates = {};
-		for (const k of Object.keys(rateDefaults)) {
-			const v = x.spikerates[k];
-			x.spikerates[k] = Number.isFinite(v) ? Math.min(10, Math.max(1, v)) : rateDefaults[k];
-		}
-		/* Scalar sliders whose min is above 0, so a stale 0 / NaN / missing value crashes them too. */
-		const scalarSliders = {
-			combatPillingDrawChance: { min: 1, max: 50, def: 15 },
-			cumcureTime: { min: 1, max: 24, def: 3 },
-			resistanceOrgasmPenalty: { min: 0.5, max: 0.99, def: 0.7 },
-			fertilityStrengthPercent: { min: 25, max: 400, def: 100 },
-		};
-		for (const k of Object.keys(scalarSliders)) {
-			const s = scalarSliders[k];
-			const v = x[k];
-			x[k] = Number.isFinite(v) ? Math.min(s.max, Math.max(s.min, v)) : s.def;
-		}
-	})()>>
+	<<xchangeSettingsSliderRepair>>
 
 	<<if $xchange.removerPillCatalogue>>
 		<<for _i to 0; _i lt $xchange.removerPillCatalogue.length; _i++>>
@@ -1996,6 +2003,9 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			const repairedOwned = Number(slot.owned);
 			slot.owned = Number.isFinite(repairedOwned) ? repairedOwned : 0;
 		}
+		/* The starter antidote is granted once per save */
+		if (V.dolxStartAntidoteGranted) return;
+		V.dolxStartAntidoteGranted = true;
 		if (slot.owned < 1) {slot.owned = 1;}
 	})()>>
 <</widget>>

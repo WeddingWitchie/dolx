@@ -683,14 +683,11 @@ function pruneClothes() {
 		const lookup = {
 			variables: new Set(),
 			names: new Set(),
-			moddersByVariable: new Map(),
 			oldNamesByVariable: new Map(),
 		};
 		for (const ref of catalog) {
 			lookup.variables.add(ref.variable);
 			lookup.names.add(ref.name);
-			if (!lookup.moddersByVariable.has(ref.variable)) lookup.moddersByVariable.set(ref.variable, new Set());
-			lookup.moddersByVariable.get(ref.variable).add(ref.modder);
 			if (!Array.isArray(ref.oldVariable)) continue;
 			for (const old of ref.oldVariable) {
 				if (!lookup.oldNamesByVariable.has(old.variable)) lookup.oldNamesByVariable.set(old.variable, new Set());
@@ -704,7 +701,6 @@ function pruneClothes() {
 		const lookup = catalogLookups.get(slot);
 		if (!lookup) return true;
 		if (!item?.name || !item.variable) return false;
-		if (lookup.moddersByVariable.get(item.variable)?.has(item.modder)) return true;
 		if (lookup.variables.has(item.variable)) return true;
 		if (lookup.oldNamesByVariable.get(item.variable)?.has(item.name)) return true;
 		return lookup.names.has(item.name);
