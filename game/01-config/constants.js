@@ -409,4 +409,6 @@ const constants = {
 /* Hoist Constants to the top (For statevars.js) */
 // eslint-disable-next-line no-var
 var Constants = ConstantsLoader.init(constants);
+/* Fatigue's maximum changes at runtime, so it must stay mutable. */
+Constants.tiredness = { max: 2000, min: 0 };
 window.Constants = Constants;
