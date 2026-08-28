@@ -36,7 +36,7 @@ The <<personsimple>> hesitates before replying. "I'm not a stranger! It's me!"
 <<if _robin.cdstart is "christmas">>
 	"I tried on that gift you gave me on Christmas, you were right," <<he>> says. "I did like it quite a bit."
 <<elseif _robin.cdstart is "halloween">>
-	"Ever since I dressed up as that <<print (_robin.pronoun is "m" ? "witch" : "vampire")>>, I've wanted to try crossdressing again."
+	"Ever since I dressed up as that <<print (_robin.startingSex is "m" ? "witch" : "vampire")>>, I've wanted to try crossdressing again."
 <<else>>
 	<!-- Failsafe, only if CDstart is otherwise empty for some reason -->
 	"I saw this outfit in a store window and I couldn't help myself," <<he>> says. "I thought I'd look <<print (_robin.startingSex is "m" ? "cute" : "handsome")>> in it."
@@ -306,7 +306,11 @@ You hear retreating footsteps and Robin lets out a deep breath.
 
 With your encouragement, Robin responds. "I'm free now, come in!" A <<person2>><<person>> opens the door and looks at the both of you.
 "Oh, I didn't know you had some friends over already," <<he>> says before looking directly at Robin.
-"Wait a second, Robin? You look like a <<print (_robin.startingSex is "m" ? "girl" : "boy")>> wearing that. I didn't recognise you at first."
+<<if npcIsGenderflipped("Robin")>>
+	<<He>> stops. "Sorry, I thought—" <<He>> squints. "<span class="italic">Robin?</span> Is that you? I didn't recognise you at all."
+<<else>>
+	"Wait a second, Robin? You look like a <<print (_robin.startingSex is "m" ? "girl" : "boy")>> wearing that. I didn't recognise you at first."
+<</if>>
 <br><br>
 
 <<if _robin.dom gte 60>>
@@ -316,8 +320,14 @@ With your encouragement, Robin responds. "I'm free now, come in!" A <<person2>><
 <</if>>
 <br><br>
 
-Robin helps the <<person2>><<person>> for a while, smiling every time <<he>> mentions something about <<person1>><<his>> current outfit.
-Eventually they finish, and as <<person2>><<he>> leaves, Robin looks at you, excited. "<<He>> didn't recognise me at first!" Robin blurts out. "I can't believe it."
+Robin helps the <<person2>><<person>> for a while, smiling every time <<he>> mentions something about <<person1>><<his>>
+<<print npcIsGenderflipped("Robin") ? "changed appearance" : "current outfit">>.
+Eventually they finish, and as <<person2>><<he>> leaves, Robin looks at you, excited.
+<<if npcIsGenderflipped("Robin")>>
+	"<<He>> didn't recognise me at all!" Robin blurts out. "<<He>> talked to me the whole time and never worked it out."
+<<else>>
+	"<<He>> didn't recognise me at first!" Robin blurts out. "I can't believe it."
+<</if>>
 <br><br>
 <<person1>>
 <<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
@@ -363,7 +373,13 @@ Robin trails off and shivers. "Anyways, let's get back to our game." <<person1>>
 <<set _robin to statusCheck("Robin")>>
 <<set _robin.cdquest to 3>>
 
-Robin smiles at you as you approach. <<person1>><<He>> looks indistinguishable from a <<print (_robin.startingSex is "m" ? "girl" : "boy")>>.
+Robin smiles at you as you approach. <<person1>>
+<<if npcIsGenderflipped("Robin")>>
+	The clothes aren't doing all the work any more. The pill has changed <<his>> body to match them,
+	and nobody looking at <<him>> would know otherwise.
+<<else>>
+	<<He>> looks indistinguishable from a <<print (_robin.startingSex is "m" ? "girl" : "boy")>>.
+<</if>>
 <<if _robin.dom gte 60>>
 	"Hey! I was just talking about you," <<he>> says before turning back towards the <<person2>><<person>>.
 	<<person1>><<He>> seems to be more excited than usual and <<his>> face is flushed.
@@ -903,9 +919,12 @@ You separate and continue to operate the stand together. Fortunately, the rest o
 
 <<if _robin.dom gte 60>>
 	If Robin's disappointed, <<hes>> not letting it show. "There's always next time." <<He>> breaks the hug.
-	"I suppose I should change back then," <<he>> says. "I brought a change of clothes with my stand just in case something like this happened."
 <<else>>
 	Robin nods. "I suppose there's no urgency in this," <<he>> says, a bit of pep returning to <<his>> voice.
+<</if>>
+<<if npcIsGenderflipped("Robin")>>
+	"The pill won't wear off until tomorrow, but I should get out of this outfit. I brought my usual clothes with my stand just in case."
+<<else>>
 	"I should change back then. I brought a change of clothes with my stand just in case something like this happened."
 <</if>>
 <br><br>
@@ -913,7 +932,12 @@ You separate and continue to operate the stand together. Fortunately, the rest o
 <<set _clothes to (Time.season is "winter" ? (_robin.startingSex is "m" ? "maleWarm1" : "femaleWarm1") : (_robin.startingSex is "m" ? "maleTown1" : "femaleTown1"))>>
 <<npcClothesName _robin _clothes>>
 Robin excuses <<himself>> for a few moments, returning dressed in a <<npcClothesText _robin "both">>.
-Upon seeing you, <<his>> frown turns back into a smile. "Let's sell some <<print (Time.season is "winter" ? "hot chocolate" : "lemonade")>>."
+<<if npcIsGenderflipped("Robin")>>
+	The familiar outfit does nothing to hide the pill's changes, but <<his>> frown turns back into a smile when <<he>> sees you.
+<<else>>
+	Upon seeing you, <<his>> frown turns back into a smile.
+<</if>>
+"Let's sell some <<print (Time.season is "winter" ? "hot chocolate" : "lemonade")>>."
 <br><br>
 
 You continue to operate the stand together. Fortunately, the rest of the customers are amicable.
@@ -1136,7 +1160,11 @@ You see Robin chatting with several students. <<if _whitney.init is 1>>You recog
 	<<if _robin.startingSex is "m" and _whitney.pronoun is "m">>
 		"What, is being a guy not good enough for you? You'd rather be a <<bitch>>?"
 	<<elseif _robin.startingSex is "f" and _whitney.pronoun is "f">>
-		"I bet you wish you had the balls that match that outfit."
+		<<if npcIsGenderflipped("Robin")>>
+			"You think having a guy's body makes you one of us?"
+		<<else>>
+			"I bet you wish you had the balls that match that outfit."
+		<</if>>
 	<<elseif _robin.startingSex isnot _whitney.pronoun>>
 		"I'd almost be flattered if you weren't such a <<bitch>>."
 	<<else>>
@@ -1389,7 +1417,12 @@ After cleaning <<him>> off as much as you can, you take Robin's arm and place it
 	<<npcClothesText _robin "upper">><<set _robinUpper to _text_output>>
 	<<npcClothesText _robin "lower">><<set _robinLower to _text_output>>
 <</silently>>
-<<set _robinUnderUpper to (_robin.startingSex is "m" ? "padded bra" : "chest binder")>>
+<!-- A pill leaves Robin with the chest to match, so there is nothing to pad out or bind down. -->
+<<if npcIsGenderflipped("Robin")>>
+	<<set _robinUnderUpper to (_robin.startingSex is "m" ? "bra" : "vest")>>
+<<else>>
+	<<set _robinUnderUpper to (_robin.startingSex is "m" ? "padded bra" : "chest binder")>>
+<</if>>
 <<set _robinUnderLower to (_robin.startingSex is "m" ? "panties" : "boxers")>>
 
 <<if playerHasStrapon() and $worn.under_lower.size isnot undefined>>
@@ -1419,7 +1452,14 @@ Robin rubs the back of <<his>> head, smiling.
 	"I- uh, I didn't bring a change of clothes," <<he>> says with a blush.
 <</if>>
 <<He>> raises <<his>> arms as you slowly lift <<his>> _robinUpper,
-<<if _robin.startingSex is "f" and _robin.breastsize gte 6>>
+<<if npcIsGenderflipped("Robin")>>
+	revealing <<his>> _robinUnderUpper.
+	<<if _robin.startingSex is "m">>
+		The cups hold the breasts the pill gave <<him>>, with no padding needed.
+	<<else>>
+		The fabric lies against the flat chest the pill gave <<him>>, with nothing underneath to bind.
+	<</if>>
+<<elseif _robinUnderUpper is "chest binder" and _robin.breastsize gte 6>>
 	gradually pulling it over the swell of <<his>> breasts beneath <<his>> chest binder.
 <<else>>
 	revealing <<his>> _robinUnderUpper.
@@ -1816,7 +1856,12 @@ Robin eventually breaks off from the embrace to make eye contact. "I love you," 
 		<</switch>>
 	<</if>>
 
-	"Something about doing it dressed like this makes it feel much hotter." Robin smiles at you, face flushed.
+	<<if npcIsGenderflipped("Robin")>>
+		"Feeling you touch me while my body's like this makes it so much hotter." Robin smiles at you, face flushed,
+		still getting used to the shape the pill gave <<him>>.
+	<<else>>
+		"Something about doing it dressed like this makes it feel much hotter." Robin smiles at you, face flushed.
+	<</if>>
 	<<npcincr Robin lust 20>><<gglust>>
 	<br><br>
 <</if>>
@@ -1915,8 +1960,14 @@ As the tip slides in <<he>> gasps, which quickly transitions into a moan.
 <</if>>
 You begin to slowly pull out of <<him>>, almost leaving completely before pushing forward again.
 You build up speed slowly with each thrust, squeezing <<his>> hands with your own as <<he>> starts to moan.
-Looking at <<him>> while you thrust, <<he>> still looks like a <<print (_robin.startingSex is "m" ? "girl" : "boy")>>
-with <<his>> <<print (_robin.startingSex is "m" ? "padded bra and panties" : "chest binder and boxers")>>.
+Looking at <<him>> while you thrust,
+<<if npcIsGenderflipped("Robin")>>
+	<<his>> <<print (_robin.startingSex is "m" ? "bra and panties shift" : "vest and boxers shift")>> with every movement.
+	Neither is disguising anything. The pill changed the body beneath them to match.
+<<else>>
+	<<he>> still looks like a <<print (_robin.startingSex is "m" ? "girl" : "boy")>>
+	with <<his>> <<print (_robin.startingSex is "m" ? "padded bra and panties" : "chest binder and boxers")>>.
+<</if>>
 <br><br>
 
 As you pick up speed, Robin's moans become slightly louder and more frequent.

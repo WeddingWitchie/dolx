@@ -224,6 +224,18 @@ function npcIsXChanged(id) {
 }
 window.npcIsXChanged = npcIsXChanged;
 
+/**
+ * True if an NPC's sex was changed by a pill, rather than another X-Change effect.
+ * Useful for scenes where crossdressing dialogue no longer makes sense after a body change.
+ *
+ * @param {number|string} id NPCList slot number or named NPC name
+ */
+function npcIsGenderflipped(id) {
+	const npc = typeof id === "number" ? V.NPCList[id] : C.npc[id];
+	return !!npc?.xchange?.genderflipEffect;
+}
+window.npcIsGenderflipped = npcIsGenderflipped;
+
 function npcXChangeHourlyCheck(hours = 1) {
 	if (!V.statFreeze) {
 		for (let n = 0; n < V.NPCName.length; n++) {
