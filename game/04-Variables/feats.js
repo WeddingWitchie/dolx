@@ -2631,7 +2631,7 @@ setup.feats = {
 		series: "",
 		filter: ["All", "AMC Traits"],
 		softLockable: true,
-		hint: "Hint: Max milk volume with tempered milk volume and cow tf.",
+		hint: "Hint: Reach 12,000 ml of milk capacity with Tempered Milk Volume and Cow TF.",
 	},
 	"Sticky Fountain": {
 		title: "Sticky Fountain",
@@ -2640,7 +2640,7 @@ setup.feats = {
 		series: "",
 		filter: ["All", "AMC Traits"],
 		softLockable: true,
-		hint: "Hint: Max semen volume with tempered semen volume and cow tf.",
+		hint: "Hint: Reach 12,000 ml of semen capacity with Tempered Semen Volume, Cow TF, and both the Bull and Alpha effects.",
 	},
 	"Many Punch Man": {
 		title: "Many Punch Man",

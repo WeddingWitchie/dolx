@@ -437,12 +437,14 @@ const statChange = (() => {
 	function semenvolume(amount) {
 		if (isNaN(amount)) paramError("semenvolume", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (V.player.penisExist && amount) {
-			amount *= 3;
-			if (Transformations.effectiveLevel("cow") >= 6) amount *= 1.25;
-			if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain === 1) amount /= 2;
-			/* Prevents those who can only have natural "female climax" from increasing their cum volume. */
-			if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
+		if (V.player.penisExist) {
+			if (amount) {
+				amount *= 3;
+				if (Transformations.effectiveLevel("cow") >= 6) amount *= 1.25;
+				if (V.semen_volume >= V.semen_max || V.AMCTraits.halfGain === 1) amount /= 2;
+				/* Prevents those who can only have natural "female climax" from increasing their cum volume. */
+				if (V.player.penissize > 0 || amount <= 0) V.semen_volume += amount * (V.statGainMult / 100);
+			}
 
 			V.semen_volume = Math.clamp(V.semen_volume, 0, semenCapacityMax());
 		}
@@ -461,13 +463,14 @@ const statChange = (() => {
 	function milkvolume(amount) {
 		if (isNaN(amount)) paramError("milkvolume", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		if (amount) {
-			if (amount > 0) lactationPressure(Transformations.effectiveLevel("cow") >= 6 ? 2 : 1);
-			if (V.lactating) {
+		if (amount > 0) lactationPressure(Transformations.effectiveLevel("cow") >= 6 ? 2 : 1);
+		if (V.lactating) {
+			if (amount) {
 				if (Transformations.effectiveLevel("cow") >= 6) amount *= 1.25;
 				if (V.milk_volume >= V.milk_max || V.AMCTraits.halfGain === 1) amount /= 2;
-				V.milk_volume = Math.clamp(V.milk_volume + amount * (V.statGainMult / 100), 24, V.milk_max * V.AMCTraits.milk);
+				V.milk_volume += amount * (V.statGainMult / 100);
 			}
+			V.milk_volume = Math.clamp(V.milk_volume, 24, V.milk_max * V.AMCTraits.milk);
 		}
 	}
 	DefineMacro("milkvolume", milkvolume);
