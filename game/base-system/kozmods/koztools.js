@@ -1065,6 +1065,25 @@ function dolxRepairNonFiniteNumerics() {
 		V.NPCName[poppyIndex].patience = 100;
 	}
 
+	/* Fluid tallies are display-only counters, but old saves may store them as strings.
+	This makes "+=" join digits instead of adding numbers, causing impossible values.
+	Convert them back to numbers and reset anything beyond a realistic amount. */
+	const fluidStatCap = (Time.days + 1) * 50000;
+	for (const stat of ["milk_produced_stat", "milk_drank_stat", "semen_produced_stat", "lube_produced_stat", "nectar_drank_stat"]) {
+		if (V[stat] === undefined) continue;
+		const wasString = typeof V[stat] === "string";
+		const value = wasString ? Number(V[stat]) : V[stat];
+		if (!Number.isFinite(value) || value < 0) {
+			repaired.push(`${stat}=${V[stat]}`);
+			V[stat] = 0;
+		} else if (wasString && value > fluidStatCap) {
+			repaired.push(`${stat}=${V[stat]} (over cap)`);
+			V[stat] = fluidStatCap;
+		} else if (wasString) {
+			V[stat] = value;
+		}
+	}
+
 	if (hairRepaired && typeof window.calchairlengthstage === "function") window.calchairlengthstage();
 	if (repaired.length) console.warn(`[DoLX] Repaired non-finite save numerics: ${repaired.join(", ")}`);
 }
@@ -1464,6 +1483,53 @@ setup.xChangeActiveBodyVirginityRole = function xChangeActiveBodyVirginityRole()
 
 setup.xChangeRecordActiveBodyVirginity = function xChangeRecordActiveBodyVirginity() {
 	return setup.xChangeRecordBodyVirginity(setup.xChangeActiveBodyVirginityRole());
+};
+
+/* Sydney's prayer room restores virginity changes when you leave.
+ * X-Change can switch the player's body inside the room, so restoring one old snapshot could overwrite the new body's
+ * real virginity history.
+ *
+ * These helpers now restore each body's own record. Changes made inside the room still do not count, while virginity
+ * lost outside the room is preserved. Temple records are restored separately.
+ */
+setup.xChangeCapturePrayerRoomVirginity = function xChangeCapturePrayerRoomVirginity() {
+	const pill = V.xchange && V.xchange.pill;
+	const role = setup.xChangeActiveBodyVirginityRole();
+	// An older active pill may not have a per-body store yet. Seed its current body before taking the room snapshot.
+	if (pill) setup.xChangeRecordBodyVirginity(role);
+	return {
+		role,
+		store: pill && pill.bodyVirginity ? xChangeClone(pill.bodyVirginity) : undefined,
+	};
+};
+
+setup.xChangeRestorePrayerRoomVirginity = function xChangeRestorePrayerRoomVirginity(saved) {
+	if (!saved || !saved.playerVirginity || !V.player || !V.player.virginity) return false;
+	const pill = V.xchange && V.xchange.pill;
+
+	// Saves made mid-scene before this fix have no recorded body role: restore exactly as the old code did.
+	if (!pill || saved.bodyRole === undefined) {
+		V.player.virginity = xChangeClone(saved.playerVirginity);
+		if (saved.playerVirginityDetails) V.player.virginityDetails = xChangeClone(saved.playerVirginityDetails);
+		return true;
+	}
+
+	pill.bodyVirginity = saved.bodyVirginityStore ? xChangeClone(saved.bodyVirginityStore) : {};
+	// The current virginity belongs to the body worn when the scene started and may be newer than the saved record.
+	// Update that body's stored history so switching back to it later restores the correct virginity.
+	if (saved.bodyRole) pill.bodyVirginity[saved.bodyRole] = xChangeVirginityEntryFrom(saved.playerVirginity, saved.playerVirginityDetails);
+
+	if (setup.xChangeActiveBodyVirginityRole() === saved.bodyRole) {
+		V.player.virginity = xChangeClone(saved.playerVirginity);
+		if (saved.playerVirginityDetails) V.player.virginityDetails = xChangeClone(saved.playerVirginityDetails);
+		return true;
+	}
+
+	for (const key of Object.keys(saved.playerVirginity)) {
+		if (!setup.xChangeBodyVirginityKeys.includes(key)) V.player.virginity[key] = xChangeClone(saved.playerVirginity[key]);
+	}
+	setup.xChangeApplyBodyVirginity(setup.xChangeActiveBodyVirginityRole());
+	return true;
 };
 
 function xChangeOtherBodyVirginity() {

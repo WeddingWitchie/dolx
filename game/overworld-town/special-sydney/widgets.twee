@@ -1322,8 +1322,13 @@
 <</widget>>
 
 <<widget "defileSacredGround">>
+	/* Tracks the current body and each body's virginity, so changing bodies in the room doesn't mix their histories. */
+	<<set _prayerRoomBodies to setup.xChangeCapturePrayerRoomVirginity()>>
 	<<set $defileSacredGroundStore to {
 		playerVirginity: clone($player.virginity),
+		playerVirginityDetails: clone($player.virginityDetails),
+		bodyRole: _prayerRoomBodies.role,
+		bodyVirginityStore: _prayerRoomBodies.store,
 		sydneyVirginity: clone(C.npc.Sydney.virginity),
 		angel: $angel,
 		angelbuild: $angelbuild,
@@ -1338,7 +1343,7 @@
 <</widget>>
 
 <<widget "prayerRoomEnd">>
-	<<set $player.virginity to clone($defileSacredGroundStore.playerVirginity)>>
+	<<run setup.xChangeRestorePrayerRoomVirginity($defileSacredGroundStore)>>
 	<<set C.npc.Sydney.virginity to clone($defileSacredGroundStore.sydneyVirginity)>>
 	<<set $angel to $defileSacredGroundStore.angel>>
 	<<set $angelbuild to $defileSacredGroundStore.angelbuild>>

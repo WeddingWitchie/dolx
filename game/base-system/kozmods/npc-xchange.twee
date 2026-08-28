@@ -201,8 +201,7 @@
 			<<if $NPCList>>
 				<<for _slotIndex, _slot range $NPCList>>
 					<<if _slot and typeof _slot is "object" and (_slot.description is _syncName or _slot.fullDescription is _syncName or _slot.nam is _syncName or _slot.name is _syncName)>>
-						<<if !_preserveGenitalState and _syncSource.penis is "none">><<npc-xchange-clear-active-genital-state _slotIndex "penis">><</if>>
-						<<if !_preserveGenitalState and _syncSource.vagina is "none">><<npc-xchange-clear-active-genital-state _slotIndex "vagina">><</if>>
+						<<if !_preserveGenitalState>><<npc-xchange-release-clobbered-genitals _slotIndex _syncSource>><</if>>
 						<<for _key range _syncKeys>>
 							<<if _syncSource[_key] isnot undefined>>
 								<<if _preserveGenitalState and (_key is "penis" or _key is "vagina")>>
@@ -226,6 +225,19 @@
 
 	<<widget "npc-xchange-repair-active-genital-targets">>
 		<<if !$NPCList>><<exit>><</if>>
+		/* Repair saves where a genital's active position was replaced by its idle position */
+		<<set _xPenisPositions to { entrance: "penisentrance", imminent: "penisimminent", penetrated: "penis" }>>
+		<<set _xVaginaPositions to { entrance: "vaginaentrance", imminent: "vaginaimminent", penetrated: "vagina" }>>
+		<<set _xExpectedPenisPosition to _xPenisPositions[$penisstate]>>
+		<<set _xExpectedVaginaPosition to _xVaginaPositions[$vaginastate]>>
+		<<if _xExpectedPenisPosition and Number.isInteger($penistarget) and $NPCList[$penistarget]
+			and $NPCList[$penistarget].vagina isnot _xExpectedPenisPosition>>
+			<<npc-xchange-clear-active-genital-state $penistarget "vagina">>
+		<</if>>
+		<<if _xExpectedVaginaPosition and Number.isInteger($vaginatarget) and $NPCList[$vaginatarget]
+			and $NPCList[$vaginatarget].penis isnot _xExpectedVaginaPosition>>
+			<<npc-xchange-clear-active-genital-state $vaginatarget "penis">>
+		<</if>>
 		<<set _xPenisTargetValid to Number.isInteger($penistarget) and $NPCList[$penistarget] and typeof $NPCList[$penistarget] is "object">>
 		<<for _xSlotIndex, _xSlot range $NPCList>>
 			<<if _xSlot and typeof _xSlot is "object">>
@@ -266,6 +278,25 @@
 					<<set _xSlot.vagina to 0>>
 					<<if _xSlot.location>><<set _xSlot.location.genitals to 0>><</if>>
 				<</if>>
+			<</if>>
+		<</for>>
+	<</widget>>
+
+	/* args 0: combat slot index, args 1: body record being copied to that slot.
+	   In combat, penis/vagina also stores the NPC's current position.
+	   Copying a saved body over the slot can erase that position while the player's $penisstate/$vaginastate still points to it, causing "no NPC has..." errors.
+	   Release the player's position first, as if the NPC had pulled away. */
+	<<widget "npc-xchange-release-clobbered-genitals">>
+		<<set _xrSlotIndex to _args[0]>>
+		<<set _xrSource to _args[1]>>
+		<<set _xrSlot to ($NPCList and _xrSlotIndex isnot undefined) ? $NPCList[_xrSlotIndex] : undefined>>
+		<<if !_xrSlot or typeof _xrSlot isnot "object" or !_xrSource or typeof _xrSource isnot "object">><<exit>><</if>>
+		<<for _xrKey range ["penis","vagina"]>>
+			<<if _xrSource[_xrKey] isnot undefined and (
+				_xrSource[_xrKey] is "none"
+				or (_xrSlot[_xrKey] isnot _xrSource[_xrKey] and ![0,"none","clothed","idle"].includes(_xrSlot[_xrKey]))
+			)>>
+				<<npc-xchange-clear-active-genital-state _xrSlotIndex _xrKey>>
 			<</if>>
 		<</for>>
 	<</widget>>
@@ -733,6 +764,7 @@
 
 			/* Push the record's new body onto the live combat slot.
 			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
+			<<npc-xchange-release-clobbered-genitals _targetNo _npc>>
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
 				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
@@ -756,6 +788,7 @@
 
 			/* Push the record's new body onto the live combat slot.
 			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
+			<<npc-xchange-release-clobbered-genitals _targetNo _npc>>
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
 				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
@@ -820,6 +853,7 @@
 
 			/* Push the record's new body onto the live combat slot.
 			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
+			<<npc-xchange-release-clobbered-genitals _targetNo _npc>>
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
 				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
@@ -846,6 +880,7 @@
 
 			/* Push the record's new body onto the live combat slot.
 			Both sides must hold a real value: copying an undefined source over a good slot field is what used to blank an NPC's description and breast wording mid-fight. */
+			<<npc-xchange-release-clobbered-genitals _targetNo _npc>>
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
 				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
@@ -924,6 +959,7 @@
 			<<set _npc.vagina to "none">>
 		
 			/* Push the record's new body onto the live combat slot */
+			<<npc-xchange-release-clobbered-genitals _targetNo _npc>>
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
 				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
@@ -969,6 +1005,7 @@
 			<<set _npc.penissize to 0>>
 		
 			/* Push the record's new body onto the live combat slot */
+			<<npc-xchange-release-clobbered-genitals _targetNo _npc>>
 			<<for _key range Object.keys(_npc)>>
 				<<if !_npcTemp>><<break>><</if>>
 				<<if _npcTemp[_key] isnot undefined and _npc[_key] isnot undefined>>
