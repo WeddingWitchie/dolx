@@ -130,6 +130,9 @@ function zoom(value) {
 	});
 
 	if (slider.length && slider.val() != value) slider.val(value).trigger("change");
+
+	/* The doll popup sizes itself against the zoomed layout, so refit it. No-ops unless it is open. */
+	window.sizeDollOverlayCanvases?.();
 }
 
 window.zoom = zoom;

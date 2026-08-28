@@ -900,11 +900,27 @@ DefineMacro("modelprepare-player-clothes", function () {
 });
 
 /*
+ * Check how much the zoom option enlarges the doll popup.
+ *
+ * The result is used to correct canvas sizes.
+ * Browsers that ignore CSS `zoom` return 1, so no correction is needed.
+ */
+function dollOverlayZoom(wrapper) {
+	const probe = document.createElement("div");
+	probe.style.cssText = "position:absolute;left:0;top:0;width:100px;height:0;visibility:hidden;pointer-events:none;";
+	wrapper.appendChild(probe);
+	const measured = probe.getBoundingClientRect().width;
+	probe.remove();
+	return measured > 0 ? measured / 100 : 1;
+}
+
+/*
  * Keep the doll popup scaled to whole-number sizes.
  *
  * Fractional scaling can make pixel art look uneven or slightly stretched.
  * Use the largest whole-number scale that fits, then place the canvas on whole pixels.
- * This is calculated in device pixels so it also works with browser zoom and HiDPI screens.
+ * This is calculated in rendered pixels so it also works with browser zoom, the zoom option and HiDPI screens.
+ * Browser zoom changes devicePixelRatio, the zoom option changes the CSS zoom.
  *
  * Apply the same scale to every canvas layer so they stay aligned.
  */
@@ -917,24 +933,33 @@ function sizeDollOverlayCanvases() {
 	const box = wrapper.getBoundingClientRect();
 	if (!box.width || !box.height) return;
 
+	const cssZoom = dollOverlayZoom(wrapper);
 	const dpr = window.devicePixelRatio || 1;
+	/* Rendered pixels covered by one CSS pixel of the lengths set below. */
+	const ratio = dpr * cssZoom;
+	/* The wrapper measurements, converted to those same CSS pixels. */
+	const boxWidth = box.width / cssZoom;
+	const boxHeight = box.height / cssZoom;
+	const boxLeft = box.left / cssZoom;
+	const boxTop = box.top / cssZoom;
+
 	const nativeWidth = Math.max(...canvases.map(canvas => canvas.width || 256));
 	const nativeHeight = Math.max(...canvases.map(canvas => canvas.height || 256));
-	const scale = Math.max(1, Math.floor(Math.min((box.width * dpr) / nativeWidth, (box.height * dpr) / nativeHeight)));
-	/* Snap a CSS length to a whole device pixel. */
-	const snap = value => Math.round(value * dpr) / dpr;
+	const scale = Math.max(1, Math.floor(Math.min((boxWidth * ratio) / nativeWidth, (boxHeight * ratio) / nativeHeight)));
+	/* Snap a CSS length to a whole rendered pixel. */
+	const snap = value => Math.round(value * ratio) / ratio;
 
 	for (const canvas of canvases) {
-		const width = ((canvas.width || nativeWidth) * scale) / dpr;
-		const height = ((canvas.height || nativeHeight) * scale) / dpr;
+		const width = ((canvas.width || nativeWidth) * scale) / ratio;
+		const height = ((canvas.height || nativeHeight) * scale) / ratio;
 		/*
 		 * Snap the sprite's absolute position to whole pixels.
 		 * The wrapper may sit on fractional pixels, which can still blur the sprite even at a whole-number scale.
 		 */
 		canvas.style.width = `${width}px`;
 		canvas.style.height = `${height}px`;
-		canvas.style.left = `${snap(box.left + (box.width - width) / 2) - box.left}px`;
-		canvas.style.top = `${snap(box.top + (box.height - height) / 2) - box.top}px`;
+		canvas.style.left = `${snap(boxLeft + (boxWidth - width) / 2) - boxLeft}px`;
+		canvas.style.top = `${snap(boxTop + (boxHeight - height) / 2) - boxTop}px`;
 		canvas.style.right = "auto";
 		canvas.style.bottom = "auto";
 		canvas.style.margin = "0";
@@ -946,3 +971,12 @@ window.sizeDollOverlayCanvases = sizeDollOverlayCanvases;
 
 /* No-ops unless the popup is open, so one listener for the whole game is enough. */
 window.addEventListener("resize", sizeDollOverlayCanvases);
+
+/*
+ * Closing the overlay only hides it, so the doll keeps animating in the background.
+ * Remove the canvases to stop the animation. They will render again when the popup opens.
+ */
+$(document).on(":oncloseoverlay", (event, overlay) => {
+	if (overlay !== "dollCanvas") return;
+	document.querySelector(".doll-overlay-canvas")?.replaceChildren();
+});
