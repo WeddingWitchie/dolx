@@ -733,7 +733,7 @@ DefineMacro("modelprepare-player-body", function () {
 		}
 	}
 
-	if (V.player.vaginaExist && V.parasite.penis.name && V.parasite.penis.name !== "parasite") {
+	if (V.player.vaginaExist && V.parasite.clit.name && V.parasite.clit.name !== "parasite") {
 		/* slime-clit.png, urchin-clit.png */
 		T.modeloptions.clit_parasite = V.parasite.clit.name;
 	}
