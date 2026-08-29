@@ -240,7 +240,7 @@ const dollHighlightStyles = {
 	fringe: new Set([
 		"aerial", "air vents", "bedhead", "blunt locks", "bowl", "centred", "curtain", "curtain locks", "default", "dread bun", "dreadlocks",
 		"drill ringlets", "emo", "emo left", "emo right", "framed", "fro", "front braids",
-		"fluffy wave", "goopy", "hime", "old_hime", "loose antenna", "messy curls", "middlepart", "mohawk", "opened curtain", "overgrown", "parted",
+		"fluffy wave", "goopy", "hime", "hime classic", "loose antenna", "messy curls", "middlepart", "mohawk", "opened curtain", "overgrown", "parted",
 		"princess wave", "quiff", "ringlet curl", "ringlets", "ruffled", "sectioned", "side pinned",
 		"side-pinned", "short air vents", "sideswept braid", "sleek", "split", "straight", "straight tails", "swept back", "swept left", "swept right",
 		"thin flaps", "thorn and curl", "trident", "wavy sickle", "wide flaps", "wispy",
@@ -1879,12 +1879,11 @@ Renderer.CanvasModels.main = {
 				];
 
 				const path = `img/hair/back/${options.hair_sides_type}`;
-				if (options.hair_sides_length === "feet" && hairs.includes(options.hair_sides_type))
-					return `${path}/feet.png`;
-				if (options.hair_sides_length === "thighs" && hairs.includes(options.hair_sides_type))
-					return `${path}/thighs.png`;
-				if (options.hair_sides_length === "navel" && hairs.includes(options.hair_sides_type))
-					return `${path}/navel.png`;
+				if (options.hair_sides_length === "navel"
+					&& ["classic", "cornrows", "french curls", "jellyfish bob", "princess ponytail"].includes(options.hair_sides_type))
+					return "";
+				if (["feet", "thighs", "navel"].includes(options.hair_sides_length) && hairs.includes(options.hair_sides_type))
+					return `${path}/${options.hair_sides_length}.png`;
 				return "";
 			},
 			masksrcfn(options) {
