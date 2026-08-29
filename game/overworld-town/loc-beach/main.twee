@@ -1,6 +1,6 @@
 :: Beach
 
-<<location "beach">><<effects>>
+<<location "beach">><<set $bus to "beach">><<effects>>
 You are on the beach.
 <<if Weather.dayState is "day">>
 	<<if !Weather.isOvercast>>
@@ -192,17 +192,36 @@ You are on the beach.
 		<<balloonRobinIntro>>
 	<<else>>
 		<<if Time.weekDay is 1 and Time.hour is 9 and !Weather.isOvercast>> /* 9-10 */
-			A group of volunteers are cleaning up the beach. You spot Doren among them.
-			<br>
-			<<if pcAreArmsBound("both")>>
-				You could join in cleaning up the beach, <span class="blue">if your arms weren't bound.</span>
-			<<else>>
-				<<icon "community-service.png">><<link [[Join in (1:00)|Doren Beach Volunteer]]>><<pass 1 hour>><<tiredness 12>><<famegood 5>><</link>><<ggtiredness>>
+			A group of volunteers are cleaning up the beach.
+			<<if C.npc.Doren.state is "active">>
+				You spot Doren among them.
+				<br>
+				<<if pcAreArmsBound("both")>>
+					You could join in cleaning up the beach, <span class="blue">if your arms weren't bound.</span>
+				<<else>>
+					<<icon "community-service.png">><<link [[Join in (1:00)|Doren Beach Volunteer]]>><<pass 1 hour>><<tiredness 12>><<famegood 5>><</link>><<ggtiredness>>
+				<</if>>
 			<</if>>
 			<br><br>
 		<</if>>
 		<<if $scienceproject is "ongoing" and $sciencephallusknown is 1 and $sciencephallus lt 10 and Time.dayState isnot "night" and Weather.precipitation is "none">>
 			<<investigateicon>><<link [[Find participant for phallus project (0:15)|Beach Phallus]]>><<pass 15>><</link>>
+			<br>
+		<</if>>
+
+		<<if canStartFishing()>>
+			<<if Time.daystate is "night" or $exposed is 0 or ($exposed is 1 and hasSexStat("exhibitionism", 3)) or ($exposed gte 2 and hasSexStat("exhibitionism", 5))>>
+				<<if !$fishing.locationsFound.includes("fishingBeach")>>
+					<<run V.fishing.locationsFound.pushUnique("fishingBeach")>>
+					<span class="gold">Looks like this could be a good spot for fishing</span>.
+					<br>
+				<</if>>
+				<<fishingRodIcon>><<link [[Start fishing|Fishing Beach Wait]]>><<set $fishingAmbientOverride to "castOut">><</link>>
+				<br>
+			<</if>>
+		<<elseif !$fishing.locationsFound.includes("fishingBeach")>>
+			<span class="gold">If you had a fishing rod, you could probably catch fish here</span>.
+			<<run V.fishing.locationsFound.pushUnique("fishingBeach")>>
 			<br>
 		<</if>>
 		<<if $exposed lte 0 or Time.dayState is "night">>
@@ -255,7 +274,7 @@ You are on the beach.
 			<br>
 			<<runicon>><<link [[Go for a run (0:30)|Beach Run]]>><</link>><<gtiredness>><<gathletics>><<lstress>>
 		<</if>>
-		<<if !Weather.isOvercast and Time.dayState is "night">>
+		<<if beachCampfirePartyPresent()>>
 			<br>
 			<<socialiseicon "party">><<link [[Party|Beach Party]]>><</link>>
 			<br>
@@ -428,7 +447,12 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 <<run autismSocialDemand(0.5)>>
 
 <<if $phase is 0>>
-	You join the conversation.
+	<<if $daily?.fishing?.fishingBeach?.partyFeed is "accepted">>
+		<<set $daily.fishing.fishingBeach.partyFeed to "finished">>
+		A few students are still talking about the fish, wiping greasy hands on clothes and eating the last flaky scraps.
+	<<else>>
+		You join the conversation.
+	<</if>>
 	<<if $attractiveness gte 3000>>
 		You quickly become the centre of attention.
 	<<elseif $attractiveness gte 2000>>
@@ -453,7 +477,7 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 			<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 				<<foodicon "beerbottle">><span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 			<<else>>
-				<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<alcohol 60>><<set $phase to 1>><<status 1>><<set $phase2 to "drink">><</link>><<gcool>><<lstress>><<galcohol>>
+				<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<drunk 60>><<set $phase to 1>><<status 1>><<set $phase2 to "drink">><</link>><<gcool>><<lstress>><<gdrunk>>
 			<</if>>
 			<br>
 			<<socialiseicon>><<link [[Just talk (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<set $phase to 1>><<status 1>><</link>><<gcool>><<lstress>>
@@ -494,13 +518,16 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 
 		<<link [[Next|Beach]]>><<endevent>><</link>>
 		<br>
-	<<elseif $rng gte 21>>
+	<<elseif $daily?.fishing?.fishingBeach?.partyFeed is "accepted" or $rng gte 21>>
 		You enjoy talking with the <<person>>. Every so often, <<he>> sneaks another look at your body when <<he>> thinks you aren't paying attention.
+		<<if $daily?.fishing?.fishingBeach?.partyFeed is "accepted">>
+			<<He>> laughs about how everyone descended on the fish the second it came off the fire.
+		<</if>>
 		<br><br>
 		<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 			<<foodicon "beerbottle">><span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 		<<else>>
-			<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<alcohol 60>><<set $phase to 1>><<status 1>><<set $phase2 to "drink">><</link>><<gcool>><<lstress>><<galcohol>>
+			<<foodicon "beerbottle">><<link [[Drink (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<drunk 60>><<set $phase to 1>><<status 1>><<set $phase2 to "drink">><</link>><<gcool>><<lstress>><<gdrunk>>
 		<</if>>
 		<br>
 		<<socialiseicon>><<link [[Just talk (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<set $phase to 1>><<status 1>><</link>><<gcool>><<lstress>>
@@ -518,7 +545,7 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 		<br><br>
 	<</if>>
 <<elseif $phase is 2>>
-	<<if $rng gte 11>><<set $phase to 0>>
+	<<if $rng gte 11 or $daily?.fishing?.safeFromBeachCampfireDanger>><<set $phase to 0>>
 		<<He>> is disappointed, but politely says goodbye before leaving to look elsewhere.
 		<br><br>
 		<<socialiseicon>><<link [[Continue (0:10)|Beach Party Chat]]>><<pass 10>><<stress -2>><<status 1>><<endevent>><</link>><<gcool>><<lstress>>
@@ -549,7 +576,11 @@ The students are happy to have a sixth player, particularly the <<person1>><<per
 <</if>>
 
 <<if $danceevent is "rape">>
-	<<link [[Next|Beach Party Dance Rape]]>><<set $molestationstart to 1>><</link>>
+	<<if $daily?.fishing?.safeFromBeachCampfireDanger>>
+		<<link [[Next|Beach Party Dance Rape Stop]]>><</link>>
+	<<else>>
+		<<link [[Next|Beach Party Dance Rape]]>><<set $molestationstart to 1>><</link>>
+	<</if>>
 <<elseif $danceevent is "finish">>
 	<<link [[Next|Beach Party]]>><<clotheson>><<endevent>><</link>>
 <<elseif $danceevent is 0>>
@@ -831,6 +862,20 @@ The <<person>> leaves you. <<He>> looks dejected.
 <<endcombat>>
 
 <<link [[Next|Beach]]>><</link>>
+
+:: Beach Party Dance Rape Stop
+<<effects>>
+
+A voice cuts through the noise somewhere at the edge of the crowd. The surge falters and a few people exchange glances before sitting back down. Most look embarrased, some grumpy.<<gstress>><<stress 3>>
+<br><br>
+
+Heart still hammering, you step down from the makeshift stage.
+<br><br>
+
+<<clotheson>><<endevent>>
+<<link [[Stay|Beach Party]]>><</link>>
+<br>
+<<link [[Leave|Beach]]>><<set $eventskip to 1>><</link>>
 
 :: Beach Run
 <<pass 30>><<location "beach">><<effects>>
@@ -1257,7 +1302,7 @@ You feel everyone's eyes latch onto your body the moment you step off the damp s
 		You hold the bottle while making conversation. If anyone notices your abstinence, they don't address it.
 		<br><br>
 	<<else>>
-		You politely sip the beer while making conversation. <<alcohol 60>>
+		You politely sip the beer while making conversation. <<drunk 60>>
 		<br><br>
 	<</if>>
 <</if>>

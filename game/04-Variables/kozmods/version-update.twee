@@ -1089,7 +1089,12 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.premium to {}>>
 	<</if>>
 
-	/* --- $sexStats.vagina skeleton safety net --- */
+	/* --- $sexStats.vagina skeleton safety net ---
+	This runs from <<gameStartOnly>>, which is a whole passage ahead of vanilla's own
+	<<physicalAdjustmentsInit>>, so on a new game whatever it builds here is what the game keeps.
+	It has to be the shape vanilla builds, field for field, and roll the cycle with vanilla's own
+	helpers -- a hand-copied cycle drifts out of step the moment vanilla touches its maths.
+	$sexStats.vagina.pregnancy is the parasite record now; the litter lives in $pregnancies. */
 	<<if $sexStats isnot undefined>>
 		<<if $sexStats.vagina is undefined>>
 			<<set _esBaseDays to random(24,38)>>
@@ -1103,15 +1108,11 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			<<set _esCurrentDaysMax to _esBaseDays + random(0, _esBaseDaysRng)>>
 			<<set $sexStats.vagina to {
 				"pregnancy": { "fetus": [], "givenBirth": 0, "parasiteBirthEvents": 0, "totalBirthEvents": 0, "motherStatus": 0, "waterBreaking": false, "type": null, "timer": null, "timerEnd": null, "awareOf": null, "potentialFathers": [] },
-				"menstruation": { "baseDays": _esBaseDays, "baseDaysRng": _esBaseDaysRng, "currentDay": random(0, _esBaseDays + random(0, _esBaseDaysRng)), "lastDaysMax": _esCurrentDaysMax, "currentDaysMax": _esCurrentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0] },
-				"sperm": []
+				"menstruation": { "baseDays": _esBaseDays, "baseDaysRng": _esBaseDaysRng, "currentDay": random(0, _esBaseDays + random(0, _esBaseDaysRng)), "currentDaysMax": _esCurrentDaysMax, "currentState": "normal", "recoveryTime": null, "recoveryTimeStart": null, "recoveryStage": null, "periodEnabled": true, "running": false, "stages": [0, 0, 0, 0] }
 			}>>
 			<<set _esMenstruation to $sexStats.vagina.menstruation>>
-			<<set _esStage2 to Math.round(_esMenstruation.currentDaysMax * 0.17)>>
-			<<if _esStage2 gte 4>><<set _esStage2-->><</if>>
-			<<set _esStage3 to Math.round(_esMenstruation.currentDaysMax * 0.5)>>
-			<<if _esStage3 lt 13>><<set _esStage3++>><<elseif _esStage3 gte 18>><<set _esStage3-->><</if>>
-			<<set _esMenstruation.stages to [0, _esStage2, _esStage3, _esStage3 + random(1,2) * 0.5]>>
+			<<set _esMenstruation.stages to rollMenstrualStages(_esMenstruation.currentDaysMax)>>
+			<<set _esMenstruation.fertileLeadDays to random(PregnancyConstants.menstrualCycle.fertileLeadDaysMin, PregnancyConstants.menstrualCycle.fertileLeadDaysMax)>>
 			<<if $player isnot undefined and $player.vaginaExist>><<set $sexStats.vagina.menstruation.running to true>><</if>>
 		<</if>>
 		<<if $sexStats.vagina.menstruation is undefined>>

@@ -279,8 +279,11 @@ DefineMacro("modelprepare-player-body", function () {
 		const rightCoverClothes = setup.clothes_all_slots.some(slot => ["right_cover", "cover_both"].includes(V.worn[slot]?.holdPosition));
 
 		if ((arm === "left" && leftCoverClothes) || (arm === "right" && rightCoverClothes)) return true;
+		if (arm === "right" && setup.clothes.handheld[V.worn.handheld.index]?.holdingPreventsRightCover) return false;
+		if (arm === "left" && setup.clothes.handheld[V.worn.handheld.index]?.holdingPreventsLeftCover) return false;
+		// DoLX: a transformation that already covers the crotch stops the right arm doing it too.
 		if (arm === "left" && !wings && coverBreasts) return true;
-		if (arm === "right" && !crotchCoveringTf && coverCrotch) return true;
+		if (arm === "right" && !wings && !crotchCoveringTf && coverCrotch) return true;
 		return false;
 	}
 

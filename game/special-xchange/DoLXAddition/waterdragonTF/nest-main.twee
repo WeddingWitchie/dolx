@@ -14,27 +14,24 @@ hanging grass conceals a narrow split in the rock. Faint blue marks brighten aro
 The marks on the walls brighten and dim in time with your contractions. Dry sea grass gathers itself into a heap beneath you without anyone touching it, and the light in the tide pool grows until it fills the whole hut.
 <br><br>
 <<if $settings.realisticChildbirthEnabled>>
-	<<link [[Begin|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:_dragonPregnancy.fetus.length, fertilised:true}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_nest", genital:_dragonPregnancyGenital}>><<set $childbirthstart to 1>><</link>>
+	<<link [[Begin|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:getChildrenOf(_dragonPregnancy.pregnancyId).length, fertilised:true}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_nest", genital:_dragonPregnancyGenital}>><<set $childbirthstart to 1>><</link>>
 <<else>>
-	<<link [[Begin|Water Dragon Pregnancy Laying End]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:_dragonPregnancy.fetus.length, fertilised:true}>><</link>>
+	<<link [[Begin|Water Dragon Pregnancy Laying End]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:getChildrenOf(_dragonPregnancy.pregnancyId).length, fertilised:true}>><</link>>
 <</if>>
 
 :: Water Dragon Pregnancy Laying End
 <<location "beach">><<set $outside to 0>><<effects>>
 <<set [_dragonPregnancy, _dragonPregnancyGenital] to getPlayerPregnancyForBirth(true)>>
-<<set $dragonEggIds to _dragonPregnancy.fetus.map(child => child.childId)>>
+<<set $dragonEggIds to getChildrenOf(_dragonPregnancy.pregnancyId).map(child => child.childId)>>
 The last egg comes to rest in the sea grass, bigger than both of your hands together. The shells are warm, and if you look closely you can see something moving inside them. Whatever you were carrying before the change took hold of you, this place has made them yours, and every shell has come out the pearl white of a water dragon.
 <<pregnancyFeats "pc">><<endPlayerPregnancy "waterdragon_nest" "waterdragon_nest">><<set $harpyEggsPrevent to 28>>
 <<run V.dragonEggIds.forEach(id => {
-	const child = V.children[id];
+	const child = V.childRecords[id];
 	if (!child) return;
-	child.location = "waterdragon_nest";
-	child.type = "human";
+	child.development.location = "waterdragon_nest";
+	child.development.dragonNest = true;
 	child.features.beastTransform = "waterdragon";
 	child.features.skinColour = "waterdragon";
-	child.eggTimer = new DateTime(Time.date).addDays(random(23, 30)).timeStamp;
-	if (!child.localVariables) child.localVariables = {};
-	child.localVariables.dragonNest = true;
 })>>
 <<set $waterDragonNest.eggsLaid += $dragonEggIds.length>>
 /* Laying a fertilised clutch restarts the unfertilised cycle, the same way the plain laying scenes do.
@@ -219,10 +216,10 @@ You need to start from the cliffs above.
 		</div>
 	<</if>>
 	<br><br>
-	<<set _dnEggsCarried to Object.values($children).filter(child => child.type is "hawk" and child.location is "inventory").length>>
-	<<set _dnEggsNest to Object.values($children).filter(child => child.location is "waterdragon_nest" and child.eggTimer).length>>
-	<<set _dnEggsReady to Object.values($children).filter(child => child.location is "waterdragon_nest" and Time.date.timeStamp gte child.eggTimer).length>>
-	<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+	<<set _dnEggsCarried to getChildrenAt("inventory").filter(childIsUnhatchedEgg).length>>
+	<<set _dnEggsNest to getChildrenAt("waterdragon_nest").filter(childIsUnhatchedEgg).length>>
+	<<set _dnEggsReady to getChildrenAt("waterdragon_nest").filter(child => childIsUnhatchedEgg(child) and Time.date.timeStamp gte getHatchDate(getPregnancyOf(child))).length>>
+	<<set _dnHatchlings to getChildrenAt("waterdragon_nest").filter(childIsBorn).map(child => child.childId)>>
 	<<if _dnEggsNest gt 0>>
 		<<icon `"children/waterdragon/" + ["one", "two", "three"][Math.clamp(_dnEggsNest, 1, 3) - 1] + "-cold.png"`>>
 		<<pluralise _dnEggsNest "A fertilised egg rests" "Fertilised eggs rest">> in the nest, warm under your hand. The marks around the hollow stay lit, and the stones underneath hold their heat.
@@ -231,7 +228,7 @@ You need to start from the cliffs above.
 	<<if _dnHatchlings.length gt 0>>
 		<<if _dnHatchlings.length is 1>>
 			<<set _dnFirstHatchling to _dnHatchlings[0]>>
-			Your hatchling, <<childname _dnFirstHatchling>>, stays close to the tide pool. Small pearly scales cover parts of <<print $children[_dnFirstHatchling].gender is "m" ? "his" : "her">> shoulders.
+			Your hatchling, <<childname _dnFirstHatchling>>, stays close to the tide pool. Small pearly scales cover parts of <<print $childRecords[_dnFirstHatchling].gender is "m" ? "his" : "her">> shoulders.
 		<<else>>
 			Your <<number _dnHatchlings.length>> hatchlings run about the hollow and splash in the tide pool, and their wet footprints cover the floor between the water and the nest. The old hut is a far noisier place with them in it.
 		<</if>>
@@ -356,8 +353,8 @@ You need to start from the cliffs above.
 <<else>>
 You lower yourself into the shallow nest and pull the dry sea grass and the soft cloth in around you.
 The stones under you are still warm, and the blue-white light of the markings above shows in the tide pool nearby.
-<<set _dnSleepHatchlings to Object.values($children).filter(child => child.location is "waterdragon_nest" and child.eggTimer is undefined).length>>
-<<set _dnSleepEggs to Object.values($children).filter(child => child.location is "waterdragon_nest" and child.eggTimer).length>>
+<<set _dnSleepHatchlings to getChildrenAt("waterdragon_nest").filter(childIsBorn).length>>
+<<set _dnSleepEggs to getChildrenAt("waterdragon_nest").filter(childIsUnhatchedEgg).length>>
 <<if _dnSleepHatchlings gt 0>>
 	As you arrange the bedding, <<pluralise _dnSleepHatchlings "a small, warm body wriggles" "small, warm bodies wriggle">> in against your side and <<pluralise _dnSleepHatchlings "chirps" "chirp">> at you. You tuck the cloth in behind them, work your arm out from underneath, and stop moving.
 <<elseif _dnSleepEggs gt 0>>
@@ -510,7 +507,7 @@ It is not much work, but it matters. The place feels a bit more like yours each 
 		<<run $sexStats.pills.pills[_dnCureName].owned++>><<set $waterDragonNest.labChoicePill to false>><<set $waterDragonNest.labChoicePillFound to true>><<stress -6>><<lstress>><<trauma -4>><<ltrauma>>
 		<br><br>
 		<span class="gold">The anti-Choice pill is waiting in your medicine drawer at home.</span>
-		<<if $sexStats.vagina.pregnancy.type isnot null>>
+		<<if getActivePregnancy("pc", "vagina")>>
 			<span class="blue">You cannot take it while you are pregnant.</span>
 		<</if>>
 	<<else>>
@@ -624,16 +621,12 @@ You wrap it carefully for carrying. <<foodstufficon _eggType>> <span class="gree
 <<location "beach">><<set $outside to 0>><<effects>>
 <<set $eggsMoved to []>>
 /* The nest's magic claims any fertilised eggs the player carries: they incubate here and hatch as dragon-blooded children. Type becomes "human" so the existing child viewer, icons, and transform display (Dragonboy/Dragongirl) all apply. */
-<<run Object.values(V.children).forEach(child => {
-	if (child.type === "hawk" && child.location === "inventory") {
-		V.eggsMoved.push(child.childId);
-		child.location = "waterdragon_nest";
-		child.type = "human";
-		child.features.beastTransform = "waterdragon";
-		child.features.skinColour = "waterdragon";
-		if (!child.localVariables) child.localVariables = {};
-		child.localVariables.dragonNest = true;
-	}
+<<run getChildrenAt("inventory").filter(childIsUnhatchedEgg).forEach(child => {
+	V.eggsMoved.push(child.childId);
+	child.development.location = "waterdragon_nest";
+	child.development.dragonNest = true;
+	child.features.beastTransform = "waterdragon";
+	child.features.skinColour = "waterdragon";
 })>>
 <<if $eggsMoved.length is 0>>
 	You have no fertilised eggs to settle here.
@@ -664,18 +657,15 @@ You settle over the eggs, shifting until you are comfortable, and let your warmt
 		Steam comes off the tide pool in the cool air. You reach out, roll the outermost egg back in against the others, and lower yourself over the lot of them. The stones under your knees get hot enough that you have to shift your weight off them.
 <</switch>>
 <br><br>
-<<run Object.values(V.children).forEach(child => {
-	if (child.location === "waterdragon_nest" && child.eggTimer) {
-		child.eggTimer -= 6 * TimeConstants.secondsPerHour;
-	}
-})>>
+<<run [...new Set(getChildrenAt("waterdragon_nest").filter(childIsUnhatchedEgg).map(child => child.pregnancyId))]
+	.forEach(pregnancyId => addEggCare(pregnancyId, 6 * TimeConstants.secondsPerHour))>>
 <span class="blue">The eggs are warmed through. They will hatch a little sooner.</span>
 <br><br>
 <<link [[Rise carefully|Water Dragon Nest]]>><</link>>
 
 :: Water Dragon Nest Hatching
 <<location "beach">><<set $outside to 0>><<effects>>
-<<set $eggsHatched to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and Time.date.timeStamp gte $children[id].eggTimer)>>
+<<set $eggsHatched to getChildrenAt("waterdragon_nest").filter(child => childIsUnhatchedEgg(child) and Time.date.timeStamp gte getHatchDate(getPregnancyOf(child))).map(child => child.childId)>>
 <<if $eggsHatched.length is 0>>
 	The eggs are quiet. Whatever you heard, they are not ready yet.
 	<br><br>
@@ -703,6 +693,15 @@ You settle over the eggs, shifting until you are comfortable, and let your warmt
 :: Water Dragon Nest Hatching 2
 <<location "beach">><<set $outside to 0>><<effects>>
 <<set _dnHatchedNow to $eggsHatched || []>>
+/* The shell was a hawk egg right up to the moment it opened, which is what let vanilla's egg
+   machinery brood and hatch it. What climbs out is a dragon-blooded child. */
+<<run _dnHatchedNow.forEach(id => {
+	const child = V.childRecords[id];
+	if (!child) return;
+	child.species = "human";
+	child.features.beastTransform = "waterdragon";
+	child.features.skinColour = "waterdragon";
+})>>
 <<set $waterDragonNest.hatched += _dnHatchedNow.length>>
 <<earnFeat "Extinct No More">>
 
@@ -722,7 +721,7 @@ You settle over the eggs, shifting until you are comfortable, and let your warmt
 
 :: Water Dragon Nest Hatchling Feed
 <<location "beach">><<set $outside to 0>><<effects>>
-<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+<<set _dnHatchlings to getChildrenAt("waterdragon_nest").filter(childIsBorn).map(child => child.childId)>>
 
 <<if _dnHatchlings.length is 0>>
 	There are no hatchlings here to feed.
@@ -744,8 +743,7 @@ You settle over the eggs, shifting until you are comfortable, and let your warmt
 	<br><br>
 	<<set $pregnancyStats.childInteractions to ($pregnancyStats.childInteractions || 0) + 1>>
 	<<run _dnHatchlings.forEach(id => {
-		if (!V.children[id].localVariables) V.children[id].localVariables = {};
-		V.children[id].localVariables.interactionsTotal = (V.children[id].localVariables.interactionsTotal || 0) + 1;
+		V.childRecords[id].development.interactionsTotal = (V.childRecords[id].development.interactionsTotal || 0) + 1;
 	})>>
 	Fed and content, the <<pluralise _dnHatchlings.length "hatchling curls" "hatchlings curl">> up in the warm hollow of the nest.
 	<br><br>
@@ -754,7 +752,7 @@ You settle over the eggs, shifting until you are comfortable, and let your warmt
 
 :: Water Dragon Nest Hatchling Play
 <<location "beach">><<set $outside to 0>><<effects>>
-<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+<<set _dnHatchlings to getChildrenAt("waterdragon_nest").filter(childIsBorn).map(child => child.childId)>>
 
 <<if _dnHatchlings.length is 0>>
 	There are no hatchlings here to play with.
@@ -780,15 +778,14 @@ You settle over the eggs, shifting until you are comfortable, and let your warmt
 	<br><br>
 	<<set $pregnancyStats.childInteractions to ($pregnancyStats.childInteractions || 0) + 1>>
 	<<run _dnHatchlings.forEach(id => {
-		if (!V.children[id].localVariables) V.children[id].localVariables = {};
-		V.children[id].localVariables.interactionsTotal = (V.children[id].localVariables.interactionsTotal || 0) + 1;
+		V.childRecords[id].development.interactionsTotal = (V.childRecords[id].development.interactionsTotal || 0) + 1;
 	})>>
 	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
 <</if>>
 
 :: Water Dragon Nest Hatchling Watch
 <<location "beach">><<set $outside to 0>><<effects>>
-<<set _dnHatchlings to Object.keys($children).filter(id => $children[id].location is "waterdragon_nest" and $children[id].eggTimer is undefined)>>
+<<set _dnHatchlings to getChildrenAt("waterdragon_nest").filter(childIsBorn).map(child => child.childId)>>
 
 <<if _dnHatchlings.length is 0>>
 	There are no hatchlings here to watch over.
@@ -810,8 +807,7 @@ You settle over the eggs, shifting until you are comfortable, and let your warmt
 	<br><br>
 	<<set $pregnancyStats.childInteractions to ($pregnancyStats.childInteractions || 0) + 1>>
 	<<run _dnHatchlings.forEach(id => {
-		if (!V.children[id].localVariables) V.children[id].localVariables = {};
-		V.children[id].localVariables.interactionsTotal = (V.children[id].localVariables.interactionsTotal || 0) + 1;
+		V.childRecords[id].development.interactionsTotal = (V.childRecords[id].development.interactionsTotal || 0) + 1;
 	})>>
 	<<link [[Ease yourself free|Water Dragon Nest]]>><</link>>
 <</if>>

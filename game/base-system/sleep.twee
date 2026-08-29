@@ -226,7 +226,7 @@
 			<<case "alex_cottage">>
 				<<if wraithSleepEventCheck()>>
 					<<wraithEvent>>
-				<<elseif (Time.hour gte 21 or Time.hour lte 5) and C.npc.Alex.lust gte 10 and $alexwake isnot 1 and $farmCottageLocked is 0>>
+				<<elseif (Time.hour gte 21 or Time.hour lt 5) and C.npc.Alex.lust gte 10 and $alexwake isnot 1 and $farmCottageLocked is 0>>
 					<<set $alexwake to 1>>
 					<<set _sleepinterrupt to 1>>
 				<<elseif $farm_attack_timer is 0 and Time.hour gte 21>>
@@ -236,10 +236,10 @@
 					<<set _wakeEvent to "slimeWakeMasturbation">>
 					<<break>>
 
-				<<elseif (Object.values($children).find(child => child.mother === "Alex" && child.location === "alex_cottage") or Object.values($children).find(child => child.father === "Alex" && child.location === "alex_cottage")) and Time.dayState is "night" and !$weekly.alexNightTimeNursery and $rng gte 56>>
+				<<elseif (getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).carrier === "Alex") or getChildrenAt("alex_cottage").find(child => getPregnancyOf(child).donor === "Alex")) and Time.dayState is "night" and !$weekly.alexNightTimeNursery and $rng gte 56>>
 					<<set _sleepinterrupt to 1>>
 					<<set $weekly.alexNightTimeNursery to 1>>
-					<<set _alexWake to 1>>
+					<<set _alexWakeNursery to 1>>
 
 				<</if>>
 			<<case "cabin">>
@@ -982,7 +982,7 @@
 	The voice from the left whispers in your ear. Its words overlap themselves, promising you many things at once. It claims it will bring you fulfilment by granting you
 	<<if _pregnancyEnabled>>
 		<span class="lewd">a womb filled with life<<if $settings.breastFeedingEnabled>> and breasts filled with milk<</if>></span>.
-		<<if !$player.vaginaExist and !(playerIsPregnant() and playerAwareTheyArePregnant()) and Object.values($children).find(child => child.mother === "pc")>>
+		<<if !$player.vaginaExist and !(playerIsPregnant() and playerAwareTheyArePregnant()) and getBornChildren().find(child => getPregnancyOf(child).carrier === "pc")>>
 			It also promises that the limits of your current body will not hold you back.
 		<</if>>
 	<<else>>
@@ -990,7 +990,7 @@
 	<</if>>
 	<br>
 	The first voice is interrupted by the one on your right, grabbing your attention. Your mind is assaulted with more promises. It tells you that it will help you fulfil yourself through
-	<<if $settings.npcPregnancyEnabled>>
+	<<if $settings.npcPregnancyEnabled or $settings.nnpcPregnancyEnabled>>
 		<span class="lewd">filling others with your seed</span>,
 	<<else>>
 		<span class="lewd">filling the holes of others</span>,

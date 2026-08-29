@@ -7,11 +7,12 @@
 	<<if _args[0]>>
 		<<set _passargs to _args[0]>>
 		<<set _leindex to $npc.indexOf(_passargs)>>
-		<<set C.npc[_passargs].trust += ($enemytrust / 100)>>
+		<<set C.npc[_passargs].trust += (Math.sign($enemytrust) * (Math.trunc(Math.abs($enemytrust) / 100) + ((random(1, 100) < Math.abs($enemytrust)) % 100 ? 1 : 0)))>>
+		/* Increases or decreases NPC trust by 1 for every 100 $enemytrust. The remaining $enemytrust gives a % chance to increase or decrease 1 more. */
 		<<for _temp to 0; _temp lt $NPCList.length; _temp++>>
 			<<if $NPCList[_temp] and $NPCList[_temp].fullDescription is _passargs>>
 				<<set _ii to clone(_temp)>>
-			<<break>>
+				<<break>>
 			<</if>>
 		<</for>>
 		<!-- In case someone calls the wrong NPC, or doesn't use upper case -->
@@ -77,7 +78,8 @@
 		<!-- For each and every named NPC defined, we increase their trust. -->
 		<<for _temp to 0; _temp lt $npc.length; _temp++>>
 			<<set _nam to clone($npc[_temp])>>
-			<<set C.npc[_nam].trust += ($enemytrust / 100)>>
+			<<set C.npc[_nam].trust += (Math.sign($enemytrust) * (Math.trunc(Math.abs($enemytrust) / 100) + ((random(1, 100) < Math.abs($enemytrust) % 100) ? 1 : 0)))>>
+			/* Increases or decreases NPC trust by 1 for every 100 $enemytrust. The remaining $enemytrust gives a % chance to increase or decrease 1 more. */
 		<</for>>
 		<<clearnpc>>
 		<<unset _temp>>
@@ -277,8 +279,10 @@ Zohar
 		<</if>>
 	<</if>>
 	<!-- Set Gender -->
-	<<if $NPCName[_i].pregnancy?.type>>
-		<<set $NPCName[_i].gender to "f">>
+	<<if getActivePregnancy($NPCName[_i].nam, "vagina")>>
+		<<if $NPCName[_i].gender isnot "h">>
+			<<set $NPCName[_i].gender to "f">>
+		<</if>>
 	<<elseif !$NPCName[_i].gender or $NPCName[_i].gender is "none" or _args[1] is "genders">>
 		<<if $NPCName[_i].pronoun is "m">>
 			<<if random(0, 99) gte $settings.maleNPCVaginaChance>>
@@ -494,6 +498,8 @@ Zohar
 			<<case Whitney>>
 				<<set C.npc.Whitney.dom to 10>>
 				<<set $whitneySeen to []>>
+				<<set V.whitney to {}>>
+				<<set V.whitney.daysSinceCapture to 0>>
 			<<case "Great Hawk">>
 				<<set C.npc["Great Hawk"].dom to 50>>
 			<<case Sydney>>
@@ -1478,12 +1484,12 @@ Zohar
 		<<set _cheat to _args[3]>>
 	<</if>>
 
-	<!-- 
-		do NOT change this to reference setup.NPCNameList: this check exists to make sure whenever a new NNPC is added, 
-		calling npcincr with them throws an error until the implemented adds clamps to <<relationshipclamp>> 
-		and adds their name to relevant whitelists (and blacklists, if they don't use love or dom) below. 
+	<!--
+		do NOT change this to reference setup.NPCNameList: this check exists to make sure whenever a new NNPC is added,
+		calling npcincr with them throws an error until the implemented adds clamps to <<relationshipclamp>>
+		and adds their name to relevant whitelists (and blacklists, if they don't use love or dom) below.
 
-		if you're reading this, there's a decent chance that means you! 
+		if you're reading this, there's a decent chance that means you!
 		head over to game/base-system/widgets.twee and give this new NNPC relevant clamps before whitelisting them below.
 	-->
 	<<set _validNNPCNames to ["Avery","Bailey","Briar","Charlie","Darryl","Doren","Eden","Gwylan","Harper","Jordan","Kylar","Landry","Leighton","Mason","Morgan","River","Robin","Sam","Sirris","Whitney","Winter","Black Wolf","Niki","Quinn","Remy","Alex","Great Hawk","Wren","Sydney","Ivory Wraith","Zephyr","Poppy","Riley","Luchifen"]>>
@@ -1582,8 +1588,8 @@ Zohar
 		<</if>>
 		<<set $NPCName[_i].rage += _val>>
 	<<case trauma>>
-		<<if _nam isnot "Robin">>
-			<<error { message: "<<npcincr>> attempted to modify trauma for someone other than Robin (" + _nam + ")" }>>
+		<<if !["Robin", "Whitney"].includes(_nam)>>
+			<<error { message: "<<npcincr>> attempted to modify trauma for someone other than Robin or Whitney (" + _nam + ")" }>>
 		<</if>>
 		<<if _nam is "Robin" and _val lt 0>>
 			<<set $NPCName[_i].trauma += Math.round(_val * ($robinTraumaMultiplier || 1))>>

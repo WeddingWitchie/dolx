@@ -346,6 +346,11 @@ setup.shopDetails = {
 		desc: "More of a collector's item than a regular accessory.",
 		details: "none",
 	},
+	fishing_rod: {
+		name: "Fishing Rod",
+		desc: "Needed to go fishing.",
+		details: "none",
+	},
 };
 
 setup.hairDetails = {

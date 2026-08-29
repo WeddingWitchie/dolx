@@ -1316,7 +1316,7 @@ function initNeck() {
 			warmth: 0,
 			cost: 300,
 			description: "Not effective as a rape whistle.",
-			shop: ["clothing"],
+			shop: ["clothing", "baitShop"],
 			accessory: 0,
 			accessory_colour: 0,
 			accessory_colour_options: [],

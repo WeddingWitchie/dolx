@@ -1,4 +1,4 @@
-/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune */
+/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune loadIsLive */
 /**
  * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
@@ -930,8 +930,8 @@ function isNumber(value) {
 window.isNumber = isNumber;
 
 function pillTimerPaused() {
-	const vaginalPregnancy = V.sexStats.vagina.pregnancy.type !== null;
-	const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats.anus.pregnancy.type !== null;
+	const vaginalPregnancy = !!getActivePregnancy("pc", "vagina");
+	const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && !!getActivePregnancy("pc", "anus");
 	const earSlimeHasGrown = V.earSlime.growth > 50;
 	return V.xchange.pillPermanence !== 1 && (vaginalPregnancy || omegaAnalPregnancy || earSlimeHasGrown);
 }
@@ -1079,13 +1079,14 @@ function wondersAboutPillEnd() {
 }
 window.wondersAboutPillEnd = wondersAboutPillEnd;
 
+/** Vanilla 0.5.12 moved recorded loads off $sexStats onto $cumLoads. */
 function playerIsCreampied() {
-	return V.sexStats.vagina.sperm.length > 0 || V.player.bodyliquid.vagina.semen > 0 || V.player.bodyliquid.vagina.nectar > 0;
+	return V.cumLoads.vagina.some(loadIsLive) || V.player.bodyliquid.vagina.semen > 0 || V.player.bodyliquid.vagina.nectar > 0;
 }
 window.playerIsCreampied = playerIsCreampied;
 
 function playerIsAnalCreampied() {
-	return V.sexStats.anus.sperm.length > 0 || V.player.bodyliquid.anus.semen > 0 || V.player.bodyliquid.anus.nectar > 0;
+	return V.cumLoads.anus.some(loadIsLive) || V.player.bodyliquid.anus.semen > 0 || V.player.bodyliquid.anus.nectar > 0;
 }
 window.playerIsAnalCreampied = playerIsAnalCreampied;
 
@@ -1368,8 +1369,8 @@ function xchangeHourlyCheck(hours = 1) {
 			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24) wikifier("xchange-setpermanent");
 
 			// If pregnancy or a pregnancy-enabling parasite locks the body, the change becomes permanent.
-			const omegaAnalPregnancy = pill.omegaEffect && V.sexStats.anus.pregnancy.type !== null;
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (V.sexStats.vagina.pregnancy.type !== null || omegaAnalPregnancy || V.earSlime.growth > 50))
+			const omegaAnalPregnancy = pill.omegaEffect && !!getActivePregnancy("pc", "anus");
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (!!getActivePregnancy("pc", "vagina") || omegaAnalPregnancy || V.earSlime.growth > 50))
 				wikifier("xchange-setpermanent");
 
 			if (pill.innocenceEffect && (V.innocencestate !== 1 || V.awareness >= 0)) {

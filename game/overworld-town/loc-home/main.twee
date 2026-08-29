@@ -1124,6 +1124,7 @@ When you wake up, you notice a note pushed under your door. You read it.
 
 :: Bathroom
 <<set $outside to 0>><<set $location to "home">><<effects>><<set $bus to "orphanage_bathroom">>
+
 You are in the bathroom.
 <br><br>
 <<if $stress gte $stressmax>>
@@ -2998,9 +2999,11 @@ You are in the main hall of the orphanage.
 <<if modLISelected("Poppy")>>
 	<<set _poppyHandoffReady to C.npc.Poppy and C.npc.Poppy.init is 1 and C.npc.Poppy.pregnancy and C.npc.Poppy.pregnancy.handoffDay isnot undefined and !C.npc.Poppy.pregnancy.handoffMet and (Time.days is C.npc.Poppy.pregnancy.handoffDay or Time.days is C.npc.Poppy.pregnancy.handoffDay + 1)>>
 	<<if _poppyHandoffReady>>
-		<<run T.poppyHandoffReady = Object.values(V.children || {}).some(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home" && (child.mother === "pc" || child.father === "pc"))>>
+		<<run T.poppyHandoffReady = getChildrenAt("home").some(child => { const p = getPregnancyOf(child); return p && (p.carrier === "Poppy" || p.donor === "Poppy") && (p.carrier === "pc" || p.donor === "pc"); })>>
 	<</if>>
 <</if>>
+
+<<baileyConfiscationNotice>> /* Bailey Confiscation System */
 
 <<if $stress gte $stressmax>>
 	<<passouthome>>
@@ -3191,6 +3194,9 @@ You are in the main hall of the orphanage.
 	<<endevent>>
 	<<link [[Next|Orphanage]]>><<set $loft_whitney to 4>><</link>>
 	<br>
+<<elseif $renttime lte -21 and !$bailey_confiscation>> /* Bailey Confiscation System */
+	<<set $bus to "home">>
+	<<baileyRentConfiscation>>
 <<elseif $renttime lte 0>>
 	<<set $bus to "home">>
 	A hand rests on your shoulder from behind. <span class="bailey-red">It's <<baileyTitleNarration>>.</span>
@@ -3757,8 +3763,8 @@ Face red and heart thumping, you dart past <<him>>, down the corridor and into y
 :: Orphanage Flaunt 2
 <<set $outside to 0>><<set $location to "home">><<effects>>
 <<fameexhibitionism 20>>
-Wanting to avoid any jealousy, you throw open the door and stride into the hallway. The small crowd parts to let you through. You take your time, and pretend to be on a catwalk. Their eyes are locked onto your <<lewdness>>. The hallway isn't wide enough for three people, so you rub against everyone as you move.
-<br><br>
+Wanting to avoid any jealousy, you throw open the door and stride into the hallway. The small crowd parts to let you through. You take your time, and pretend to be on a catwalk. Their eyes are locked onto your <<lewdness>>. The hallway isn't wide enough for three people, so you rub against everyone as you move. 
+<<exhibitionism5>>
 "Do you like what you see?" you say as you twirl at the end of the hallway. You make your way back to your room, and blow a quick kiss over your shoulder before closing the door behind you. Your heart races as you listen to their excitement through the door.
 <br><br>
 <<link [[Next|Bedroom]]>><<endevent>><</link>>
@@ -5209,9 +5215,9 @@ The pair blame each other for the mishap, and spend a few moments arguing before
 
 :: Robin Bed Egg Laying
 <<effects>>
-<<set [_eggnant, _eggnantGenital] to getPregnancyObject("pc", true)>>
-<<if playerIsPregnant() and _eggnant.type is "hawk">>
-	<<set $eggLayNumber to _eggnant.fetus.length>>
+<<set _eggnantGenital to playerLabouringOrifice()>>
+<<if playerIsPregnant() and playerNormalPregnancyType() is "hawk">>
+	<<set $eggLayNumber to getLabouringLitter("pc").length>>
 <<else>>
 	<<set $eggLayNumber to $harpyEggs.count>>
 <</if>>
@@ -5256,7 +5262,7 @@ Robin's mouth hangs similarly open. "Th-that..." <<He>> blinks and shakes <<his>
 <</if>>
 You shake your head and <<if Transformations.partActive("bird", "plumage")>>puff up your plumage as you <</if>><<if $eggLayNumber gte 2>>gather your eggs into your arms<<else>>pick up your egg<</if>>, mind blank save for an overwhelming sensation of maternal bliss.
 
-<<if playerIsPregnant() and _eggnant.type is "hawk">>
+<<if playerIsPregnant() and playerNormalPregnancyType() is "hawk">>
 	<<set _eggIcon to $eggLayNumber>><<wearProp `"hawk egg " + Math.clamp(_eggIcon, 1, 3)`>>
 	<span class="lewd">You're certain the <<pluralise $eggLayNumber "egg is" "eggs are">> fertilised.</span> You should bring <<pluralise $eggLayNumber "it">> back to your nest. You pick up <<number $eggLayNumber>> <<birdicon "eggs">> fertilised bird <<pluralise $eggLayNumber "egg">>.
 	<<if $eggLayNumber gte 2>>They're quite large, and you're left wondering how they all fit inside of you to begin with.<<else>>It's quite large, and you're left wondering why passing it didn't hurt more.<</if>>

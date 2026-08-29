@@ -1763,7 +1763,9 @@ You spread your <<= Transformations.hasWings() ? "wings" : "arms">> wide, feelin
 :: Passout Bird Hypothermia
 <<set $location to "tower">><<setTowerTemp>>
 <<npc "Great Hawk">><<person1>>
-<<set _eggs to Object.values($children).find(child => (child.type is "hawk" and child.location is "tower" and child.eggTimer))>>
+<<set _eggs to getChildrenAt("tower").find(child => (child.species is "hawk" and childIsUnhatchedEgg(child)))>>
+<<set $tempHatched to getChildrenAt("tower").filter(child => !childIsUnhatchedEgg(child))>>
+<<if $tempHatched.length > 0>><<childSelect $tempHatched[0].childId>><</if>>
 <<outfitChecks>>
 <<if _bottom>><<set _bottom.integrity -=5>><<set _damagedClothes to _bottom.name>><</if>>
 <<if _top>><<set _top.integrity -= 5>><<set _damagedClothes to _top.name>><</if>>
@@ -1772,6 +1774,12 @@ You spread your <<= Transformations.hasWings() ? "wings" : "arms">> wide, feelin
 <<set Weather.Temperature.override.increase.outside(5, "Feathers and fabric warm your body.")>>
 
 You awaken in the Great Hawk's nest, naked but warm. You stir, <<= _eggs ? "careful not to disturb the actual eggs in the nest" : "letting <<bhim>> know you're awake">>.
+
+<<if $tempHatched.length > 1 >>
+	Your children hug you, doing their part and trying their best to help keep you warm.
+<<elseif $tempHatched.length == 1>>
+	<<childname>> hugs you, doing <<childhis>> part and trying <<childhis>> best to help keep you warm.
+<</if>>
 <br><br>
 
 <<if $monster is 1>>
@@ -1779,7 +1787,7 @@ You awaken in the Great Hawk's nest, naked but warm. You stir, <<= _eggs ? "care
 <<else>>
 	<<your_bird_text "cap">> seems relieved when <<bhe>> notices you, but <<bhe>> doesn't move, save for wrapping <<bhis>> wings around you. Perhaps <<bhe>> wants to keep you warm.
 <</if>>
-You allow your breathing to still, relaxing into the comfort of <<bhis>> warm body.
+You allow your breathing to still, relaxing into the comfort of <<= $tempHatched.length > 0 ? "their warm bodies.":"<<bhis>> warm body.">>
 <br><br>
 
 After a few minutes, <<bhe>> gets off of you. <<if $monster is 1>>"Wait here," <<bhe>> says.<</if>>
@@ -1820,6 +1828,11 @@ After a few minutes, <<bhe>> gets off of you. <<if $monster is 1>>"Wait here," <
 <<if understandsBirdBehaviour()>>You realise that <<bhe>> must be trapping air in the feathers.<</if>><<if $monster is 1>> You smile when <<bhe>> confirms it by saying, "<<= _feathered ? "<<Wife>> should do the same. Keep air in feathers for warmth." : "Poor landbound <<wife>>, can't keep air in feathers for warmth.">>"<</if>>
 <<if _feathered>>
 	You follow suit, fluffing up your plumage.
+	<<if $tempHatched.length > 1 >>
+		Enthusiastically, your children get on your lap and copy you two.
+	<<elseif $tempHatched.length == 1>>
+		Enthusiastically, <<childname>> gets on your lap and copies you two.
+	<</if>>
 <<elseif !understandsBirdBehaviour()>>
 	<<gscience>><<scienceskill>>
 <</if>>
@@ -1905,6 +1918,15 @@ The Great Hawk <<= $monster is 1 ? "beams" : "perks up">> at that, and <<bhe>> r
 <</if>>
 <br><br>
 
+<<if $tempHatched.length > 1 >>
+	After making sure you're warm, your children hug you farewell and go off to do their own thing.
+<<elseif $tempHatched.length == 1>>
+	<<childSelect $tempHatched[0].childId>>
+	After making sure you're warm, <<childname>> hugs you farewell and goes off to do <<childhis>> own thing.
+<</if>>
+<<unset $tempHatched>>
+<br><br>
+
 <<link [[Next (0:30)|Passout Bird Hypothermia End]]>><<pass 30>><</link>>
 
 :: Passout Bird Hypothermia End
@@ -1912,8 +1934,7 @@ The Great Hawk <<= $monster is 1 ? "beams" : "perks up">> at that, and <<bhe>> r
 
 You rest in the nest, conserving your strength while the Great Hawk hunts. By the time <<bhe>> returns, you're feeling better and significantly warmer. <<your_bird_text "cap">> carries a <<if $bird.hunts.lurkers is true>>lurker<<else>>strange, leathery and many-limbed creature<</if>> in <<bhis>> <<if $monster is 1>>talons<<else>>mouth<</if>>.
 <<if $monster is 1>>
-	<<set _preg to getPregnancyObject()>>
-	<<if playerIsPregnant() and _preg and _preg.fetus and _preg.fetus[0] and _preg.fetus[0].type is "hawk" and talkedAboutPregnancy("pc","Great Hawk") and !$daily.birdPregFeed>>
+	<<if playerIsPregnant() and getActivePregnancies("pc").some(p => childBaseSpecies(p.donorSpecies) === "hawk") and talkedAboutPregnancy("pc","Great Hawk") and !$daily.birdPregFeed>>
 		<<set $daily.birdPregFeed to true>>
 		<<bHe>> doesn't take a bite for <<bhimself>>, instead offering the whole thing to you.
 		"<<print either(
@@ -1998,7 +2019,7 @@ You wake up to cold water drenching your face. Whitney stands above you, holding
 	<<if C.npc.Whitney.lust gte 60>>
 		"Oops," Whitney says. "Let me help you with that." <<He>> removes your <<allTops>> and drops it on the ground. You're too dazed to stop <<him>>. <<overupperstrip>><<upperstrip>>
 	<<else>>
-		<<wet_upper>>
+		<<wetUpper>>
 	<</if>>
 	Whitney stands back to appreciate the view. "Feeling better? I know I am. Consider this your toll for passing through. Later, slut." <<He>> flicks your <<= $worn.under_upper.type.includes("naked") ? "nipple" : $worn.under_upper.name>> before sauntering off with <<his>> friends in tow. <<garousal>><<glust>><<arousal 100>><<npcincr Whitney lust 2>>
 	<br><br>

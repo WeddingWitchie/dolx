@@ -636,7 +636,7 @@ You are at the waterfall.
 		<<lakeicon>><<link [[North to shore (0:10)|Lake Shore]]>><<pass 10>><</link>>
 	<</if>>
 	<br>
-	<<lakeicon "fishing">><<link [[South to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
+	<<icon "lake-rock.png">><<link [[South to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
 	<br>
 	<<if $brookIntro gte 1>>
 		<<if $worn.feet.type.includes("heels")>>
@@ -660,7 +660,12 @@ You are at the waterfall.
 
 <<set $outside to 1>><<set $location to "lake">><<effects>><<lakeeffects>>
 <<set $forest to 50>><<set $bus to "lakefishingrock">>
-You are on the fishing rock.
+<<if $phase is "rockclimb">>
+	<<set $phase to 0>>
+	You swim to the bank beneath the fishing rock and haul yourself up onto the rough surface, dripping water onto the stone. 
+<<else>>
+	You are on the fishing rock.
+<</if>>
 <<if $laketeenspresent is 1>>
 	You see people on the other side of the <<= Weather.isFrozen("lake") ? "frozen lake" : "lake. Fish splash up to eat insects. It's peaceful, though the nearby trees are foreboding">>.
 <<elseif Time.dayState is "night">>
@@ -672,6 +677,9 @@ You are on the fishing rock.
 <</if>>
 <<if Weather.isFrozen("lake")>>
 	<<= Weather.precipitation is "snow" ? "Snow settles on the ice" : "The ice is serene">>.
+	<<if $lake_fishing_ice_broken is undefined and canStartFishing()>>
+		<span class="blue">The ice is thin here; you could probably break a hole to fish through.</span>
+	<</if>>
 <<else>>
 	The water is <<= Weather.precipitation is "rain" ? "alive with motion as rain breaks its surface" : "calm">>.
 <</if>>
@@ -705,6 +713,30 @@ You are on the fishing rock.
 	<</if>>
 	<br>
 	<<lakeicon "campfire">><<link [[South to campsite (0:20)|Lake Campsite]]>><<pass 20>><</link>>
+	
+	<<if canStartFishing()>>
+		<<if !$fishing.locationsFound.includes("fishingForestLake")>>
+			<<run V.fishing.locationsFound.pushUnique("fishingForestLake")>>
+			<<if !Weather.isFrozen("lake")>>
+				<br>
+				<span class="gold">Looks like this could be a good spot for fishing</span>.
+			<</if>>
+		<</if>>
+		<<if !Weather.isFrozen("lake")>>
+			<br>
+			<<fishingRodIcon>><<link [[Start fishing|Fishing Forest Lake Wait]]>><<set $fishingAmbientOverride to "castOut">><</link>>
+		<<elseif $lake_fishing_ice_broken isnot undefined>>
+			<br>
+			<<fishingRodIcon>><<link [[Start fishing|Fishing Forest Lake Wait]]>><<set $fishingAmbientOverride to "castOut">><</link>>
+		<<else>>
+			<br>
+			<<swimicon "break">><<link [[Break through the ice (0:20)|Lake Fishing Rock Ice Break]]>><<pass 20>><<set $lake_fishing_ice_broken to 2>><<tiredness 3>><</link>><<gtiredness>>
+		<</if>>
+	<<elseif !$fishing.locationsFound.includes("fishingForestLake")>>
+		<br>
+		<span class="gold">If you had a fishing rod, you could probably catch fish here</span>.
+		<<run V.fishing.locationsFound.pushUnique("fishingForestLake")>>
+	<</if>>
 	<br><br>
 
 	<<if $earSlime.forcedCommando isnot undefined and !$worn.under_lower.type.includes("naked") and hasSexStat("exhibitionism", 3) and $hypnosis_traits?.silence isnot 1>>
@@ -875,7 +907,7 @@ You are at the campsite.
 	<<if $nextPassageCheck is "Lake Fishing Rock">>
 		<<lakeicon>><span class="nextLink"><<link [[The lake.|Lake Fishing Rock]]>><</link>></span>
 	<<else>>
-		<<lakeicon "fishing">><<link [[North to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
+		<<icon "lake-rock.png">><<link [[North to fishing rock (0:10)|Lake Fishing Rock]]>><<pass 10>><</link>>
 	<</if>>
 	<br><br>
 
@@ -1047,17 +1079,19 @@ You warm yourself against the heat emanating from the fireplace.
 <<else>>
 	<<swimicon "back">><<link [[Practise swimming (0:30)|Lake Shallows]]>><<stress -6>><<tiredness 6>><<set $phase to "lakeswim">><<slimeEventEnd "swimming">><</link>><<gswimming>><<lstress>><<gtiredness>>
 	<br>
-	<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
+	<<if ($worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
 	or $worn.upper.exposed gte 2 and $underupperwetstage gte 3
 	or $upperwetstage gte 3 and $worn.under_upper.exposed gte 1
-	or $upperwetstage gte 3 and $underupperwetstage gte 3>>
+	or $upperwetstage gte 3 and $underupperwetstage gte 3)
+	and !pcAreArmsBound("both")>>
 		<<beachicon "seaweed">><<link [[Make a top out of plants (0:20)|Lake Shallows]]>><<pass 20>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
-	<<if $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
+	<<if ($worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
 	or $worn.lower.exposed gte 2 and $underlowerwetstage gte 3
 	or $lowerwetstage gte 3 and $worn.under_lower.exposed gte 1
-	or $lowerwetstage gte 3 and $underlowerwetstage gte 3>>
+	or $lowerwetstage gte 3 and $underlowerwetstage gte 3)
+	and !pcAreArmsBound("both")>>
 		<<beachicon "seaweed">><<link [[Make a skirt out of plants (0:20)|Lake Shallows]]>><<pass 20>><<set $phase to 2>><</link>>
 		<br>
 	<</if>>
@@ -1298,17 +1332,19 @@ You free the lotus flowers from the ice, gathering the seeds. <span class="gold"
 			<br>
 		<</if>>
 	<</if>>
-	<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
+	<<if ($worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
 	or $worn.upper.exposed gte 2 and $underupperwetstage gte 3
 	or $upperwetstage gte 3 and $worn.under_upper.exposed gte 1
-	or $upperwetstage gte 3 and $underupperwetstage gte 3>>
+	or $upperwetstage gte 3 and $underupperwetstage gte 3)
+	and !pcAreArmsBound("both")>>
 		<<beachicon "seaweed">><<link [[Make a top out of plants (0:20)|Lake Depths]]>><<pass 20>><<set $phase to 1>><</link>>
 		<br>
 	<</if>>
-	<<if $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
+	<<if ($worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
 	or $worn.lower.exposed gte 2 and $underlowerwetstage gte 3
 	or $lowerwetstage gte 3 and $worn.under_lower.exposed gte 1
-	or $lowerwetstage gte 3 and $underlowerwetstage gte 3>>
+	or $lowerwetstage gte 3 and $underlowerwetstage gte 3)
+	and !pcAreArmsBound("both")>>
 		<<beachicon "seaweed">><<link [[Make a skirt out of plants (0:20)|Lake Depths]]>><<pass 20>><<set $phase to 2>><</link>>
 		<br>
 	<</if>>
@@ -1319,6 +1355,8 @@ You free the lotus flowers from the ice, gathering the seeds. <span class="gold"
 	<</if>>
 	<br>
 	<<oxygenrecovery 0>>
+	<<icon "lake-rock.png">><<link [[Swim to the fishing rock (0:15)|Lake Fishing Rock]]>><<pass 15>><<set $phase to "rockclimb">><</link>>
+	<br>
 	<<swimicon "back">><<link [[Swim towards shore (0:12)|Lake Shallows]]>><<pass 12>><</link>>
 	<br><br>
 
@@ -1404,7 +1442,15 @@ You lift the shovel, and thrust it into the ice. It's hard work, but you manage 
 <br><br>
 
 <<link [[Next|Lake Depths Ice]]>><</link>>
-<br>
+
+
+:: Lake Fishing Rock Ice Break
+<<effects>>
+
+You use the butt of your fishing rod to chip through the ice at the edge of the rock. It's hard work, but you manage to make a sizeable hole.
+<br><br>
+
+<<link [[Next|Lake Fishing Rock]]>><</link>>
 
 
 :: Lake Dock
@@ -1709,7 +1755,7 @@ The others try to entertain themselves with ghost stories.
 	<<if playerAwareTheyArePregnant()>>
 		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<endevent>><<set $phase to 1>><<stress -4>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>>
 	<<else>>
-		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<endevent>><<set $phase to 1>><<stress -4>><<alcohol 20>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>><<galcohol>>
+		<<socialiseicon "party">><<link [[Keep partying (0:10)|Lake Halloween Party]]>><<endevent>><<set $phase to 1>><<stress -4>><<drunk 20>><<status 1>><<pass 10>><</link>><<lstress>><<gcool>><<gdrunk>>
 	<</if>>
 	<br>
 	<<getouticon>><<link [[Leave|Lake Shore]]>><<endevent>><<set $phase to 0>><</link>>

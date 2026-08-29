@@ -149,6 +149,12 @@
 				<</if>>
 			<</if>>
 
+			<<if $bailey_confiscation and $bailey_confiscation.items and $bailey_confiscation.items.length gt 0>> /* Bailey Confiscation System */
+				<<set _rentDueDate to getFormattedDate(new DateTime(Time.date).addDays(($bailey_confiscation.day + 7) - Time.days), true)>>
+				<<set _discardDate to getFormattedDate(new DateTime(Time.date).addDays(($bailey_confiscation.day + 8) - Time.days), true)>>
+				<li>Bailey confiscated your <<baileyConfiscationListFull>>. Pay your rent on <span class="gold"><<print _rentDueDate>></span> or buy your stuff back before <span class="gold"><<print _discardDate>></span>, or <<nnpc_he "Bailey">>'ll pawn it off.</li>
+			<</if>>
+
 			<<if $syndromeeden is 1 and $edenfreedom gte 1 and $location isnot "cabin">> /* Another parameter is planned, something like $edenpunishment. It is meant to only trigger the journal note after the player has been given a reason to be wary of breaking Eden's rules. */
 				<<if edenFreedomStatus() is 0>>
 					<li>You are expected back at Eden's cabin
@@ -427,6 +433,20 @@
 					<</if>>
 				</li>
 			<</if>>
+
+			<<if $pubfame?.status>>
+				<li>
+					<<if $pubfame.status is "finished" or $pubfame.status is "hidingKnown">>
+						'Mickey' will be ready to see you in <span class="gold"><<number $pubfame.timer>></span> <<pluralise $pubfame.timer "day">>.
+					<<elseif $pubfame.status is "ready">>
+						<span class="gold">'Mickey' is ready to see you</span>.
+					<<elseif $pubfame.status is "accepted">>
+						You've accepted a task from 'Mickey'.
+					<<elseif $pubfame.status is "done">>
+						You've completed the task 'Mickey' gave you.
+					<</if>>
+				</li>
+			<</if>>
 		</ul>
 	<</if>>
 
@@ -463,7 +483,7 @@
 		|| $mason_pond gte 1
 		|| ($brothel_machine_repair gte 1 and $brothel_machine_repair lte 3)
 		|| (Transformations.hasFlightWings() and $birdFly isnot 1)
-		|| Object.values(V.children).filter(child => (child.type === "hawk" && child.location === "inventory")).length gt 0
+		|| getChildrenAt("inventory").filter(child => child.species === "hawk").length gt 0
 		|| $adultshopgrandopening
 		|| ($adultshopintro is 1 and $adultshopunlocked is undefined)
 		|| $daily.stallRented isnot undefined
@@ -719,7 +739,7 @@
 			<<if Transformations.hasFlightWings() and $birdFly isnot 1>>
 				<li><<birdicon "prepare_hunt_day">> Your wings are strong, but you don't know how to use them. The Great Hawk could teach you.</li>
 			<</if>>
-			<<set _eggIcon to Object.values(V.children).filter(child => (child.type === "hawk" && child.location === "inventory")).length>>
+			<<set _eggIcon to getChildrenAt("inventory").filter(child => child.species === "hawk").length>>
 			<<if _eggIcon gt 0>>
 				<li><<birdicon "eggs">> You're carrying <<number _eggIcon>> fertilised bird <<pluralise _eggIcon "egg. It needs" "eggs. They need">> to be brought to <<if $syndromebird>>your nest<<else>>the tower<</if>> in the moor to hatch.</li>
 				<<if isFullWaterDragon() and $waterDragonNest and $waterDragonNest.discovered>>
@@ -989,6 +1009,17 @@
 		</ul>
 	<</if>>
 
+	<<if ["requested", "ready"].includes($daily?.fishing?.baitShopRequest) and Time.hour lt 19>>
+		<hr>
+		<h1 class="header gold bold">Fishing</h1>
+		<ul class="journal">
+			<<icon `"fish/" + $daily.fishing.baitShopRequestFish + ".png"`>> The bait shop owner wants a freshly-caught <span class="gold">$daily.fishing.baitShopRequestFish</span>, brought to them before they close at <<ampm 19 00>>.
+			<<if $daily.fishing.baitShopRequest is "ready">>
+				<span class="green">You've caught one to hand over.</span>
+			<</if>>
+		</ul>
+	<</if>>
+
 	<<if ($valentines is 1) or $halloween is 1 or $christmas is 1>>
 		<hr>
 		<h1 class="header gold bold">Holiday reminders</h1>
@@ -1162,7 +1193,7 @@
 					<<icon "avery-garage.png">> Additionally, Avery expects to see proper presentation from you when <<nnpc_he "Avery">> returns from work.
 					<<if $avery_mansion.jobs.includes("maid")>>
 						<br>
-						<<if $worn.upper.type.includes("maid") and $worn.lower.type.includes("maid")>>
+						<<if $worn.upper.type.includes("maid") or $worn.lower.type.includes("maid") or $worn.head.type.includes("maid")>>
 							<span class='fa-icon fa-selected'></span>
 						<<else>>
 							<span class='fa-icon fa-unselected'></span>
@@ -1170,7 +1201,7 @@
 						<<iconUi "clothes/traits/maid.png">>Greeting <<nnpc_him Avery>> wearing an outfit with the maid trait.
 					<<elseif $avery_mansion.jobs.includes("formal")>>
 						<br>
-						<<if $worn.upper.type.includes("formal") and $worn.lower.type.includes("formal")>>
+						<<if $worn.upper.type.includes("formal") or $worn.lower.type.includes("formal") or $worn.head.type.includes("formal")>>
 							<span class='fa-icon fa-selected'></span>
 						<<else>>
 							<span class='fa-icon fa-unselected'></span>
@@ -1580,6 +1611,9 @@
 			<<if $panties_held gt 0>>
 				<li><span class="clothes-white"><<icon "clothes/plain-panties.png">></span> <<print $panties_held is 1 ? "a pair" : "<span class='green'>$panties_held</span> pairs">> of stolen underwear. You can sell <<pluralise $panties_held "it">> during lunchtime in the school rear courtyard.</li>
 			<</if>>
+			<<if $fertiliser.current gt 0>>
+				<li><<gardenicon "fertiliser">> <span class="green">$fertiliser.current</span> <<pluralise $fertiliser.current "bag">> of fertiliser.</li>
+			<</if>>
 			<<if _hasProduce>>
 				<li><<stallicon "open">> <span class="green">Products</span> for sale. You can sell them by renting a stand on Connudatus Street at dawn.</li>
 			<</if>>
@@ -1628,6 +1662,64 @@
 				<<pocketFoodJournal>>
 			</details>
 		<</if>>
+	<</if>>
+
+
+	<<if Object.keys($plots).length gte 1>> /* display plot readiness */
+		<hr>
+		<h1 class="header gold bold">Gardens</h1>
+		<<for $_plotToDisplay range ["garden", "farm", "wolf", "eden", "asylum"]>>
+			<<if $plots[$_plotToDisplay]>>
+				<<set $_currentPlot to $plots[$_plotToDisplay]>>
+				<<set $_plotsToWater to $_currentPlot.filter(plot => plot.stage >= 1 && plot.stage < 5 && plot.bed !== "water" && plot.water === 0).length>>
+				<<set $_plotsToPick  to $_currentPlot.filter(plot => plot.stage >= 5 ).length>>
+				<<set $_plotsEmpty   to $_currentPlot.filter(plot => !(plot.stage >= 1)).length>>
+				<<set $_plotsGrowing to ($_currentPlot.length - $_plotsEmpty - $_plotsToPick - $_plotsToWater)>>
+				<<set $_descriptors to [
+					$_plotsEmpty  ?`<span class="gold">$_plotsEmpty  </span> <<pluralise $_plotsEmpty   "is">> empty`:``,
+					$_plotsToWater?`<span class="gold">$_plotsToWater</span> <<pluralise $_plotsToWater "needs" "need">> watering`:``,
+					$_plotsToPick ?`<span class="gold">$_plotsToPick </span> <<pluralise $_plotsToPick  "is">> ready for harvest`:``,
+				].filter(str=>str.length)>>
+				<ul class="journal">
+					<li>
+						<<switch $_plotToDisplay>>
+							<<case "garden">> Orphanage <<if $alex_greenhouse gte 3>>greenhouse<<else>>garden<</if>>
+							<<case "farm">>   Alex's farm
+							<<case "wolf">>   Wolves' cave
+							<<case "eden">>   Clearing near Eden's cabin
+							<<case "asylum">> Your asylum
+							<<default>> Garden $_plotToDisplay
+						<</switch>>
+						<<if $_currentPlot.length gt 1>>
+							has <<number $_currentPlot.length>>
+							<<switch $_currentPlot[0].size>>
+								<<case "small">> <span class="lblue"><<pluralise $_currentPlot.length "bed">></span>,
+								<<case "medium">><span class="teal"> <<pluralise $_currentPlot.length "plot">></span>,
+								<<default>>      <span class="green"><<pluralise $_currentPlot.length "field">></span>,
+							<</switch>>
+							<<if $_plotsGrowing == $_currentPlot.length>>
+								all of which are <span class="teal">healthy</span>. /* rephrase to show that the plants on the plots are growing/thriwing */
+							<<elseif $_plotsEmpty == $_currentPlot.length>>
+								all of which are empty.
+							<<elseif $_plotsToWater == $_currentPlot.length>>
+								all of which need <span class="lblue">watering</span>.
+							<<elseif $_plotsToPick == $_currentPlot.length>>
+								all of which are <span class="green">ready for harvest</span>.
+							<<else>>
+								of which <<print formatList($_descriptors)>>.
+							<</if>>
+						<<elseif $_currentPlot.length is 1>>
+							<<switch $_currentPlot[0].size>>
+								<<case "small">> <span class="lblue">bed</span>
+								<<case "medium">><span class="teal"> plot</span>
+								<<default>>      <span class="green">field</span>
+							<</switch>>
+							<<if $_plotsEmpty>>is empty<<elseif $_plotsToWater>>needs watering<<elseif $_plotsGrowing>>is growing<<elseif $_plotsToPick>>is ready for harvest<</if>>.
+						<</if>>
+					</li>
+				</ul>
+			<</if>>
+		<</for>>
 	<</if>>
 
 	<<if $museumintro is 1 or $plants_known.length gte 0>>
@@ -1849,6 +1941,102 @@
 						<</if>>
 					<</for>>
 				</div>
+			</details>
+		<</if>>
+		<<if $fishing.locationsFound.length>>
+			<br>
+			<<set _fishingLocations to ["fishingPier", "fishingBeach", "fishingCoastPath", "fishingForestLake", "fishingMoor"]>>
+			<<set _fishKeys to Object.keys(setup.fishing.lootTables.fish)>>
+			<<set _fishDiscovered to _fishKeys.filter(k => $fishing.record[k]).length>>
+			<<if $fishing.locationsFound.length gte _fishingLocations.length and _fishDiscovered gte _fishKeys.length>>
+				You have discovered <span class="green">every</span> fishing spot and <span class="green">every</span> fish species, and caught <span class="gold"><<= numberOfFishCaught()>></span> fish in total.
+			<<elseif $fishing.locationsFound.length gte _fishingLocations.length>>
+				You have discovered <span class="green">every</span> fishing spot and <span class="gold"><<= _fishDiscovered>></span> out of <span class="gold"><<= _fishKeys.length>></span> fish species, and caught <span class="gold"><<= numberOfFishCaught()>></span> fish in total.
+			<<elseif _fishDiscovered gte _fishKeys.length>>
+				You have discovered <span class="gold"><<= $fishing.locationsFound.length>></span> out of <span class="gold"><<= _fishingLocations.length>></span> fishing spots and <span class="green">every</span> fish species, and caught <span class="gold"><<= numberOfFishCaught()>></span> fish in total.
+			<<else>>
+				You have discovered <span class="gold"><<= $fishing.locationsFound.length>></span> out of <span class="gold"><<= _fishingLocations.length>></span> fishing spots and <span class="gold"><<= _fishDiscovered>></span> out of <span class="gold"><<= _fishKeys.length>></span> fish species, and caught <span class="gold"><<= numberOfFishCaught()>></span> fish in total.
+			<</if>>
+			<br><br>
+			<details class="journal">
+				<summary class="journal">Fishing</summary>
+				<div class="itemCollectible">
+					<<for _location range _fishingLocations>>
+						<<if $fishing.locationsFound.includes(_location)>>
+							<div class="item" @tooltip="fishingLocationDisplayName(_location)">
+								<<if _location is "fishingCoastPath">>
+									<<icon "cliff-dock.png">>
+								<<elseif _location is "fishingForestLake">>
+									<<icon "lake-rock.png">>
+								<<elseif _location is "fishingMoor">>
+									<<icon "moor.png">>
+								<<elseif _location is "fishingBeach">>
+									<<icon "beach.gif">>
+								<<elseif _location is "fishingPier">>
+									<<icon "mer-pier.png">>
+								<</if>>
+							</div>
+						<<else>>
+							<div class="item unknown" tooltip="Unknown fishing spot">
+								<<mysteryicon>>
+							</div>
+						<</if>>
+					<</for>>
+				</div>
+				<<for _location range _fishingLocations>>
+					<<if $fishing.locationsFound.includes(_location)>>
+						<details class="journal" style="margin: .5rem 0.5rem 0;">
+							<summary class="journal"><<= fishingLocationDisplayName(_location)>></summary>
+							<div class="itemCollectible">
+								<<set _locationFish to _fishKeys.filter(fish => setup.fishing.lootTables.fish[fish].locations[_location] > 0)>>
+								<<for _fishKey range _locationFish>>
+									<<set _fishName to setup.foodstuff[_fishKey].name>>
+									<<if $fishing.record[_fishKey]?.foundIn.includes(_location)>>
+										<div class="item" @tooltip="_fishName.toUpperFirst()">
+											<<icon `"fish/" + _fishKey + ".png"`>>
+										</div>
+									<<else>>
+										<div class="item unknown" tooltip="Unknown fish">
+											<<mysteryicon>>
+										</div>
+									<</if>>
+								<</for>>
+							</div>
+						</details>
+					<</if>>
+				<</for>>
+				<details class="journal" style="margin: .5rem;">
+					<summary class="journal">Records</summary>
+					<div class="fishingRecords">
+						<<for _fishKey range _fishKeys>>
+							<<set _fishName to setup.foodstuff[_fishKey].name>>
+							<<set _fishRecord to $fishing.record[_fishKey]>>
+							<<if _fishRecord and _fishRecord.numCaught gt 0>>
+								<<set _fishConfig to setup.fishing.lootTables.fish[_fishKey]>>
+								<<set _largestSizePercent to (_fishRecord.largest - _fishConfig.minSize) / (_fishConfig.maxSize - _fishConfig.minSize)>>
+								<div class="fishingRecord">
+									<div class="item" @tooltip="_fishName.toUpperFirst()">
+										<<icon `"fish/" + _fishKey + ".png"`>>
+									</div>
+									<div>
+										<span class="gold bold"><<= _fishName.toUpperFirst()>></span><br>
+										Caught: <<= _fishRecord.numCaught>><br>
+										Biggest: <<= _fishRecord.largest>> cm
+										<<if _largestSizePercent gte 1>>
+											<span class="journalFishingRecordStar" tooltip="Biggest possible!"><<iconUi "star-gold.png">></span>
+										<</if>>
+									</div>
+								</div>
+							<<else>>
+								<div class="fishingRecord">
+									<div class="item unknown" tooltip="Unknown fish">
+										<<mysteryicon>>
+									</div>
+								</div>
+							<</if>>
+						<</for>>
+					</div>
+				</details>
 			</details>
 		<</if>>
 	<</if>>

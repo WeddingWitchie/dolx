@@ -181,9 +181,14 @@
 	<<set $daily.avery.talk.limit to false>>
 	<<set $daily.avery.talk.flirt to false>>
 	<<set $daily.avery.talk.seduce to false>>
-	<<set $daily.avery.talk.count to 0>>
 	<<set $daily.avery.talk.annoyed to 0>>
 	<<set $daily.avery.talk.chat to 0>>
+	<<if Time.weekDay is 1 or Time.weekDay is 7>>
+		<<set $daily.avery.talk.chat_limit to 6>>
+	<<else>>
+		<<set $daily.avery.talk.chat_limit to 3>>
+	<</if>>
+
 	<<set $daily.avery.ask to {}>>
 	<<set $daily.avery.ask.science to false>>
 	<<set $daily.avery.ask.maths to false>>
@@ -207,10 +212,14 @@
 <</widget>>
 
 <<widget "avery_daily_talk">>
-	<<if $daily.avery.talk.count is undefined>>
-		<<set $daily.avery.talk.count to 0>>
+	<<if $daily.avery.talk.chat is undefined>>
 		<<set $daily.avery.talk.annoyed to 0>>
 		<<set $daily.avery.talk.chat to 0>>
+		<<if Time.weekDay is 1 or Time.weekDay is 7>>
+			<<set $daily.avery.talk.chat_limit to 6>>
+		<<else>>
+			<<set $daily.avery.talk.chat_limit to 3>>
+		<</if>>
 	<</if>>
 <</widget>>
 
@@ -1782,6 +1791,7 @@
 
 <<widget "avery_mansion_chase_init">>
 	<<set $avery_mansion.chase to {}>>
+	<<set $avery_mansion.chase.active to true>>
 	<<set $avery_mansion.chase.victory to 0>>
 	<<set $avery_mansion.chase.health to 3>>
 	<<set $averySeen.pushUnique("chase")>>
@@ -1848,6 +1858,7 @@
 
 <<widget "avery_mansion_chase_end">>
 	<<set $avery_mansion.chase to {}>>
+	<<set $avery_mansion.chase.active to false>>
 <</widget>>
 
 <<widget "avery_mansion_chase_trap">>
@@ -2869,7 +2880,7 @@
 
 <<widget "avery_mansion_party_end">>
 	<<unset $avery_party>>
-	<<if Time.hour lt 18>>
+	<<if Time.hour lt 5>>
 		<<set $avery_mansion.party_state to "waiting">>
 	<<else>>
 		<<set $avery_mansion.party_state to "finished">>
@@ -4018,13 +4029,12 @@
 
 					Basics:
 					<br>
-					
+
 					<<link [[Skip to Avery's mansion return|Mansion Enter]]>><<set $avery_mansion.schedule = "work">>
 					<<debug_avery_skip_to_return>>
 					<</link>><br>
 
-					<<link [[Trigger Avery's Rageout|Mansion Enter]]>><<npcincr Avery rage 100>><<set $avery_mansion.rage.timer to 0>><<set $avery_mansion.rage.apologetic to false>><<set $avery_mansion.rage.assess to 20>><<set $avery_mansion.schedule = "work">>
-					<<debug_avery_skip_to_return>>
+					<<link [[Trigger Avery's Rageout|Mansion Enter]]>><<npcincr Avery rage 100>><<set $avery_mansion.rage.timer to 0>><<set $avery_mansion.rage.apologetic to false>><<debug_avery_skip_to_return>><<set $avery_mansion.rage.assess to 20>><<set $avery_mansion.schedule = "work">>
 					<</link>><br>
 
 					<<link [[Trigger Avery's apologetic return|Mansion Enter]]>><<npcset Avery rage 25>><<set $avery_mansion.rage.timer to 25>><<set $avery_mansion.rage.apologetic to true>><<set $avery_mansion.schedule = "away">>
@@ -4060,9 +4070,9 @@
 					<<link [[Start Brown Fox Heist|Mansion Fox Heist]]>><<set $avery_mansion.fox.task to "heist">><<set $auriga_artefact to "Avery">><<unset $avery_fate>><<passTimeUntil 23>><</link>> (Puts Avery to sleep during the event if they didn't rage out first)<br>
 
 					<<link [[Finish skyscraper|Mansion Enter]]>><<set $avery_mansion.schedule = "work">><<debug_avery_skip_to_return>><<set $avery_tower.stage to 2>><<set $avery_tower.progress to 100>>
-					<</link>> 
+					<</link>>
 
-					<br> 
+					<br>
 					<<link [[Go to skyscraper ceremony|Mansion Enter]]>><<set $avery_mansion.schedule = "work">><<run Time.timeTravel(new DateTime(Time.year, Time.month, Time.lastDayOfMonth, 21, 0))>><<set $moonstate to "evening">><<unset $avery_fate>><<set $avery_tower.stage to 3>>
 					<</link>>
 					<br>
@@ -4349,7 +4359,7 @@
 		<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
 			<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 		<<else>>
-			<<link [[Drink (0:05)|Mansion Housework Drink]]>><<pass 5>><<alcohol 60>><<npcincr Avery love 1>><</link>><<galcohol>><<glove>>
+			<<link [[Drink (0:05)|Mansion Housework Drink]]>><<pass 5>><<drunk 60>><<npcincr Avery love 1>><</link>><<gdrunk>><<glove>>
 		<</if>>
 		<br>
 		<<link [[Refuse|Mansion Housework Drink Refuse]]>><<npcincr Avery love -1>><</link>><<llove>>
@@ -5106,6 +5116,7 @@
 	<<unset $avery_valentines_virginity>>
 	<<unset $avery_valentines_steal_virginity>>
 	<<unset $avery_valentines_vow>>
+	<<unset $speechfallentransform>>
 
 	<<if $avery_mansion>>
 		<<set $avery_mansion.rage.dinner_done to true>>

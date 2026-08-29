@@ -598,6 +598,15 @@ You are in the asylum, deep in the forest. The building is over a century old, a
 		<br>
 		<<gardenicon>><<link [[Garden (0:02)|Asylum Garden]]>><<pass 2>><</link>>
 		<br>
+		
+		<<if !$asylum_depths>>
+			<<ind>><<link [[Peer down the ominous corridor (0:02)|Asylum Depths Intro]]>><<set $asylum_depths to 1>><<pass 2>><</link>>
+			<br>
+		<<else>>
+			<<ind>><<link [[Walk down the ominous corridor|Asylum Depths]]>><</link>>
+			<br>
+		<</if>>
+		
 	<</if>>
 	<<if $asylumstatus gte 80 and $asylumdistracted isnot 1>>
 		<<socialiseicon "ask">><<link [[Ask the patients to distract the orderlies|Asylum Distract]]>><<set $asylumdistracted to 1>><<asylumstatus -30>><</link>><<lllcool>>
@@ -2573,6 +2582,7 @@ The <<person2>><<person>>
 <<elseif $ft_count gte 1>>
 	<<if $milk_amount gte 300>>
 		_they_drink <<garousal>><<arousal 250 "breasts">>
+		<br><br>
 		<<set _rand to random(1,10)>>
 		<<if _rand is 1>>
 			An anonymous hand <<print either("gently","roughly","rhythmically","persistently","sensuously")>> <<print either("fondles","rubs","teases")>> your <<genitals>>.
@@ -3014,22 +3024,14 @@ The midwife places a mask over your face. You feel your consciousness fade. Seve
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
 		<br><br>
 
-		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Asylum Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
-	<<default>>
-		Harper's voice floats through the fog. "Something is unusual about this delivery. Stay calm and follow my instructions."
-		<br><br>
-
-		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
-		<br><br>
-
-		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Asylum 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Asylum Wolf]]>><<endevent>><<run beginPlayerBirth()>><<pass _timeCalc>><</link>>
 <</switch>>
 
 :: Pregnancy Birth Asylum 3
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
 <<endevent>><<endcombat>>
 <<generate1>><<person1>>
-<<set $litter_size to getPlayerPregnancyForBirth().fetus.length>>
+<<set $litter_size to getLabouringLitter("pc").length>>
 You awaken in another room. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled baby in <<his>> arms.
@@ -3064,13 +3066,12 @@ You awaken in another room. A smiling midwife stands beside your bed,
 <</if>>
 
 <<set $bornChildrenIds to []>>
-<<run getPlayerPregnancyForBirth().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
-<<set $recentBirthId to getPlayerPregnancyForBirth().fetus[0].birthId>>
+<<run getLabouringLitter("pc").forEach(child => $bornChildrenIds.push(child.childId))>>
 <<birthUi "pc" "asylum" "home" "Pregnancy Birth Asylum 4" 120>>
 
 :: Pregnancy Birth Asylum 4
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
-<<getChildrenIds>><<childSelect _childrenIds.last()>>
+<<childSelect `getChildrenOf($recentBirthId).last().childId`>>
 <<set _pregFame to ($litter_size * 5)>>
 <<famepregnancy _pregFame>>
 <<if $litter_size is 1>>
@@ -3150,7 +3151,7 @@ You awaken in another room. A smiling midwife stands beside your bed,
 	<br><br>
 
 	The midwife still insists on helping you dress.
-<<elseif between(playerNormalPregnancyTotal(), 8, 49)>>
+<<elseif between(playerNormalPregnancyTotal(), 8, 19)>>
 	You stand up without a hitch. There's hardly any difference in feeling anymore, although you do feel much more nimble.
 	<br><br>
 
@@ -3158,7 +3159,7 @@ You awaken in another room. A smiling midwife stands beside your bed,
 	<br><br>
 
 	The midwife still insists on helping you dress.
-<<elseif playerNormalPregnancyTotal() gte 50>>
+<<elseif playerNormalPregnancyTotal() gte 20>>
 	You stand up without assistance, feeling empty inside. You already miss the feeling of being pregnant.
 	<br><br>
 
@@ -3171,12 +3172,12 @@ You awaken in another room. A smiling midwife stands beside your bed,
 	"Doctor Harper has completed your discharge papers, and you're being released. Someone's waiting for you outside. Your <<nnpc_mum "Bailey">> I think."
 	<br><br>
 	<<removeBabyIntro "pc" "Bailey" $recentBirthId>>
-	<<link [[Next|Pregnancy Birth Asylum End]]>><<endevent>><<unset $recentBirthId>><</link>>
+	<<link [[Next|Pregnancy Birth Asylum End]]>><<endevent>><</link>>
 <<else>>
 	"Your children will be sent to the orphanage for temporary care until your release, at which point they will be returned to your custody, once you're deemed mentally fit."
 	<br><br>
 	<<setBabyIntro "pc" "Bailey" $recentBirthId>>
-	<<link [[Next|Pregnancy Birth Asylum 6]]>><<endevent>><<unset $recentBirthId>><</link>>
+	<<link [[Next|Pregnancy Birth Asylum 6]]>><<endevent>><</link>>
 <</if>>
 
 :: Pregnancy Birth Asylum 6
@@ -3194,7 +3195,7 @@ You're returned to your cell. You already miss the embrace of <<childrenNames $b
 <<badEndTrackingEnd "Asylum" { reason: "asylumDischargedLabour" }>>
 
 <<npc "Bailey">><<person1>>
-<<getChildrenIds>><<childSelect _childrenIds.last()>>
+<<childSelect `getChildrenOf($recentBirthId).last().childId`>>
 Bailey waits for you in front of the asylum. <<He>> smiles when <<he>> sees you. It almost looks real. "We've a place prepared," <<he>> says.
 <<if $litter_size is 1>>
 
@@ -3238,8 +3239,9 @@ The engine comes to life.
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
 <<endevent>>
 <<generate1>><<person1>>
-<<set $litter_size to getPlayerPregnancyForBirth().fetus.length>>
-<<set _baby_type to getPlayerPregnancyForBirth().fetus[0].type>>
+<<set _litter to getLabouringLitter("pc")>>
+<<set $litter_size to _litter.length>>
+<<set _baby_type to _litter[0]?.species>>
 You awaken in another room. You hear faint whimpering. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
 	holding a bundled _baby_type pup in <<his>> arms.
@@ -3264,13 +3266,13 @@ You awaken in another room. You hear faint whimpering. A smiling midwife stands 
 <</if>>
 
 <<set $bornChildrenIds to []>>
-<<run getPlayerPregnancyForBirth().fetus.forEach(child => $bornChildrenIds.push(child.childId))>>
+<<run _litter.forEach(child => $bornChildrenIds.push(child.childId))>>
 
 <<birthUi "pc" "asylum" "wolf_cave" "Pregnancy Birth Asylum Wolf 2" 180>>
 
 :: Pregnancy Birth Asylum Wolf 2
 <<set $outside to 0>><<set $location to "asylum">><<asylumeffects>><<effects>>
-<<getChildrenIds>><<childSelect _childrenIds.last()>>
+<<childSelect `getChildrenOf($recentBirthId).last().childId`>>
 <<famebestiality $litter_size>>
 <<if $litter_size is 1>>
 
@@ -3323,7 +3325,7 @@ You awaken in another room. You hear faint whimpering. A smiling midwife stands 
 	<br><br>
 
 	The midwife still insists on helping you dress.
-<<elseif between(playerNormalPregnancyTotal(), 8, 49)>>
+<<elseif between(playerNormalPregnancyTotal(), 8, 19)>>
 	You stand up without a hitch. There's hardly any difference in feeling anymore, although you do feel much more nimble.
 	<br><br>
 
@@ -3331,7 +3333,7 @@ You awaken in another room. You hear faint whimpering. A smiling midwife stands 
 	<br><br>
 
 	The midwife still insists on helping you dress.
-<<elseif playerNormalPregnancyTotal() gte 50>>
+<<elseif playerNormalPregnancyTotal() gte 20>>
 	You stand up without assistance, feeling empty inside. You already miss the feeling of being pregnant.
 	<br><br>
 

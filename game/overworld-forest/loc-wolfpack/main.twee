@@ -97,7 +97,7 @@ You are in the wolf cave. The ceiling hangs low. There's a breeze blowing from t
 
 :: Wolf Cave Clearing
 <<location "wolf_cave_yard">><<effects>><<getTarget true>>
-<<set _bwmother to Object.values($children).find(child => child.mother === "Black Wolf" && child.location === "wolf_cave")>>
+<<set _bwmother to getBornChildren().find(child => getPregnancyOf(child).carrier === "Black Wolf" && child.development.location === "wolf_cave")>>
 
 <<set $wolfpackharmony = Math.clamp($wolfpackharmony, 0, 22)>>
 <<set $wolfpackferocity = Math.clamp($wolfpackferocity, 0, 22)>><<set $bus to "wolfcaveclearing">>
@@ -170,17 +170,19 @@ You are in the clearing outside the wolf cave. A stream runs by.
 		<<watericon "waterfall_wolfcave">><<link [[Wash in the stream (0:20)|Wolf Cave Wash]]>><<pass 20>><</link>>
 	<</if>>
 	<br>
-	<<if $worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
+	<<if ($worn.upper.exposed gte 2 and $worn.under_upper.exposed gte 1
 	or $worn.upper.exposed gte 2 and $underupperwetstage gte 3
 	or $upperwetstage gte 3 and $worn.under_upper.exposed gte 1
-	or $upperwetstage gte 3 and $underupperwetstage gte 3>>
+	or $upperwetstage gte 3 and $underupperwetstage gte 3)
+	and !pcAreArmsBound("both")>>
 		<<foresticon "bush">><<link [[Make a top out of plants and twigs (0:20)|Wolf Cave Plant]]>><<set $phase to 1>><<pass 20>><</link>>
 		<br>
 	<</if>>
-	<<if $worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
+	<<if ($worn.lower.exposed gte 2 and $worn.under_lower.exposed gte 1
 	or $worn.lower.exposed gte 2 and $underlowerwetstage gte 3
 	or $lowerwetstage gte 3 and $worn.under_lower.exposed gte 1
-	or $lowerwetstage gte 3 and $underlowerwetstage gte 3>>
+	or $lowerwetstage gte 3 and $underlowerwetstage gte 3)
+	and !pcAreArmsBound("both")>>
 		<<foresticon "bush">><<link [[Make a skirt out of plants and twigs (0:20)|Wolf Cave Plant]]>><<set $phase to 2>><<pass 20>><</link>>
 		<br>
 	<</if>>
@@ -367,17 +369,11 @@ You rub your binds against a sharp rock and they soon come loose.
 :: Wolf Cave Bed
 
 <<effects>>
-<<switch statusCheck("Black Wolf").gender>>
-	<<case "m">>
-		<<set _BWGender to 1>>
-	<<default>>
-		<<set _BWGender to 0>>
-<</switch>>
 <<if lastVisited("Wolf Relax") is 1>>
 	You get up and follow the Black Wolf into the cave to sleep.
 	<br><br>
 <</if>>
-<<if Time.dayState is "night" and $wolfstate is "cave" and (statusCheck("Black Wolf").love gte 100 or $wolfpackleader is 1 or playerIsPregnant() and playerBellySize() gte 15 or parentFunction.findParent("Black Wolf", _BWGender, true))>>
+<<if Time.dayState is "night" and $wolfstate is "cave" and (statusCheck("Black Wolf").love gte 100 or $wolfpackleader is 1 or playerIsPregnant() and playerBellySize() gte 15 or playerConceivedWith("Black Wolf"))>>
 	<<npc "Black Wolf">> <<set $bedGuest to "Black Wolf">> <<set $blackWolfSleep to true>>
 	You find an empty spot to lie on and close your eyes. After a moment, you feel an enormous mass of fur engulf you. You open your eyes to see the Black Wolf curling up beside you. <<bHe>> regards you for just a moment before laying <<bhis>> head down, facing away towards the mouth of the cave. You rest your head against <<bhim>>.
 	<<lstress>><<ltrauma>><<stress -10>><<trauma -10>>
@@ -456,7 +452,7 @@ You sit on the edge and try to lower yourself down, but the rock gives way and y
 			You sleep soundly.
 			<br><br>
 		<<else>>
-			<br><br>
+			<<if !_eggEvent>><br><br><</if>>
 		<</if>>
 	<</if>>
 	<<sleepeffects>>
@@ -486,7 +482,7 @@ You sit on the edge and try to lower yourself down, but the rock gives way and y
 		<</if>>
 	<<link [[Get up|Wolf Cave]]>><</link>>
 	<<else>>
-		<br><br>
+		<<if !_eggEvent>><br><br><</if>>
 		<<link [[Get up|Wolf Cave]]>><</link>>
 	<</if>>
 <</if>>

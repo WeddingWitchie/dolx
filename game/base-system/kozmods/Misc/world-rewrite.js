@@ -297,7 +297,9 @@
 		const forced = getForcedGender(options.mode);
 		if (!forced || !child || typeof child !== "object") return child;
 		child.gender = forced;
-		child.type = rewriteGenderedType(child.type, forced);
+		// Legacy children carried "type"; records children carry "species". Rewrite whichever is present.
+		if (child.type !== undefined) child.type = rewriteGenderedType(child.type, forced);
+		if (child.species !== undefined) child.species = rewriteGenderedType(child.species, forced);
 		if (child.pronoun !== undefined) child.pronoun = forced;
 		if (child.pronouns && typeof child.pronouns === "object") {
 			Object.assign(child.pronouns, pronounMap(forced));
@@ -319,6 +321,8 @@
 		if (Array.isArray(V.NPCName)) V.NPCName.forEach(npc => normalizeNpcObject(npc, options));
 		if (C?.npc && typeof C.npc === "object") Object.values(C.npc).forEach(npc => normalizeNpcObject(npc, options));
 		if (V.children && typeof V.children === "object") Object.values(V.children).forEach(child => normalizeChildObject(child, options));
+		// Children live in $childRecords since the 0.5.12 pregnancy rewrite.
+		if (Array.isArray(V.childRecords)) V.childRecords.forEach(child => normalizeChildObject(child, options));
 	}
 
 	/* ---------------- Settings DOM lock UI ---------------- */
@@ -638,22 +642,16 @@
 
 	function installBirthWrapper() {
 		if (window.__genderOverrideBirthWrapped) return true;
-		if (typeof window.giveBirthToChildren !== "function") return false;
-		const original = window.giveBirthToChildren;
-		window.__genderOverrideOriginalGiveBirthToChildren = original;
-		window.giveBirthToChildren = function (mother, birthLocation, location, pregnancyOverride) {
+		// Vanilla 0.5.12 replaced giveBirthToChildren with the records-based birthRecordedLitter,
+		// which takes a pregnancyId and reads its litter from $childRecords.
+		if (typeof window.birthRecordedLitter !== "function") return false;
+		const original = window.birthRecordedLitter;
+		window.__genderOverrideOriginalBirthRecordedLitter = original;
+		window.birthRecordedLitter = function (pregnancyId, birthLocation, location) {
 			const forced = getForcedGender();
-			if (forced) {
-				let pregnancy = pregnancyOverride;
-				if (!pregnancy) {
-					if (mother === "pc" && typeof window.getPregnancyObject === "function") {
-						pregnancy = window.getPregnancyObject();
-					} else if (getC()?.npc?.[mother]) {
-						pregnancy = getC().npc[mother].pregnancy;
-					}
-				}
-				if (Array.isArray(pregnancy)) pregnancy = pregnancy[0];
-				if (pregnancy?.fetus?.length) pregnancy.fetus.forEach(child => normalizeChildObject(child));
+			if (forced && typeof window.getChildrenOf === "function") {
+				const litter = window.getChildrenOf(pregnancyId);
+				if (Array.isArray(litter)) litter.forEach(child => normalizeChildObject(child));
 			}
 			const result = original.apply(this, arguments);
 			if (forced) normalizeStoredCollections();

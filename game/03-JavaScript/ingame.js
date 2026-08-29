@@ -1134,6 +1134,41 @@ function getSetupClothing(slot, item) {
 }
 window.getSetupClothing = getSetupClothing;
 
+/**
+ * Checks whether the player owns the named clothing item in any of their wardrobes.
+ *
+ * @param {string} itemName
+ * @returns {boolean}
+ */
+function wardrobeContainsItem(itemName) {
+	const wardrobes = [V.wardrobe, ...Object.values(V.wardrobes)];
+	for (const wardrobe of wardrobes) {
+		for (const s of Object.keys(wardrobe)) {
+			if (Array.isArray(wardrobe[s]) && wardrobe[s].some(item => item?.name === itemName)) return true;
+		}
+	}
+	return false;
+}
+window.wardrobeContainsItem = wardrobeContainsItem;
+
+/**
+ * Takes in the name of a clothing item, then returns everything needed to call <<generalSend "wardrobe">> to add that clothing item to your wardrobe.
+ *
+ * @param {string} name
+ * @returns {{slot: string, item: string, colour: string}}
+ */
+function generateClothingItem(name) {
+	for (const [slot, items] of Object.entries(setup.clothes)) {
+		const item = items.find(i => i.name === name);
+		if (item) {
+			const colour = item.colour_options.filter(c => c !== "custom").random() ?? "";
+			return { slot, item, colour };
+		}
+	}
+	throw new Error(`generateClothingItem: no clothing item found with name "${name}"`);
+}
+window.generateClothingItem = generateClothingItem;
+
 function clothesDataTrimmerLoop() {
 	if (!V.passage || V.passage === "Start") return;
 	const wardrobeKeys = Object.keys(V.wardrobes);
@@ -1481,7 +1516,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 	) {
 		result = Math.floor(result * (1 + V.moorLuck / 100));
 	}
-	if (["physique", "danceskill", "swimmingskill", "athletics"].includes(skill) && playerBellySize() >= 10 && playerNormalPregnancyTotal() < 50) {
+	if (["physique", "danceskill", "swimmingskill", "athletics"].includes(skill) && playerBellySize() >= 10 && playerNormalPregnancyTotal() < 20) {
 		switch (playerNormalPregnancyTotal()) {
 			case 0:
 				T.pregnancyModifier = 36;
@@ -1495,8 +1530,6 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			case 3:
 			case 4:
 			case 5:
-				T.pregnancyModifier = 78;
-				break;
 			case 6:
 			case 7:
 				T.pregnancyModifier = 96;
@@ -1511,7 +1544,8 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 		case "skulduggery":
 			if (V.worn.hands.type.includes("sticky_fingers")) result = Math.floor(result * 1.05);
 			if (V.transformationParts.traits.sharpEyes !== "disabled") result = Math.floor(result * 1.05);
-			if (Transformations.effectiveLevel("fox") >= 6) result = Math.floor(result * 1.1);
+			// Vanilla 0.5.12.0 dropped the flat fox skulduggery bonus; the fox now helps only through
+			// the Sharp Eyes trait above. DoLX's own opt-in TF buffs below are separate and stay.
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
 				result = Math.round(result * Math.max(1 - 0.1 * Math.round(V.hallucinogen / 250), 0.6));
 			}
@@ -1833,7 +1867,7 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 			if (V.earSlime.growth > 100 && !V.player.vaginaExist && V.earSlime.focus === "pregnancy") {
 				result = Math.floor(result * (1 + (V.earSlime.growth - 100) / 500));
 			}
-			if (playerHeatMinArousal() && canBeMPregnant()) {
+			if (playerHeatMinArousal() && playerCanCarryAnally()) {
 				result = Math.floor(result * (1 + Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000));
 			}
 			if (V.hallucinogen >= 1 && V.substanceRebalance === 1) {
@@ -1972,7 +2006,14 @@ window.hallucinogenSexStatModifier = hallucinogenSexStatModifier;
  * @returns {number}
  */
 function heatRutSexStatModifier(input) {
-	const maxMinArousal = 5000; // Maximum value for minArousal.
+	/**
+	 * While the PC's minimum arousal can technically go higher than 2500, a PC with only a penis has this arousal max out at 1500, and a PC with only a vagina has this arousal max out at 2500 (when risk = 0 and taking fertility pills). This also assumes the PC does not have ear slimes and anal pregnancy is disabled.
+	 *
+	 * To account for this, the PC's Sex Stat mods will have their boosts max out at 2,500 minimum arousal to make the effects more noticeable.
+	 *
+	 * The PC's actual maximum minimum arousal threshold, meanwhile, is handled in a separate function.
+	 */
+	const maxMinArousal = 2500; // Maximum value for minArousal.
 	const minArousal = Math.clamp(playerHeatMinArousal() + playerRutMinArousal(), 0, maxMinArousal);
 	if (minArousal === 0) return 0;
 
@@ -1987,7 +2028,7 @@ function heatRutSexStatModifier(input) {
 
 	if (statName === "exhibitionism") return 0;
 
-	const maxHeatRutSexStatModifier = 40; // Maximum modifier for sexStat() from minArousal.
+	const maxHeatRutSexStatModifier = 30; // Maximum modifier for sexStat() from minArousal.
 	const heatRutSexStatModifierExponent = 0.6; // Lower to raise the final modifier at lower levels of minArousal.
 	const heatRutSexStatModifier = (maxHeatRutSexStatModifier / maxMinArousal ** heatRutSexStatModifierExponent) * minArousal ** heatRutSexStatModifierExponent;
 
@@ -3580,6 +3621,29 @@ function ingredientsNextAlternative(mainIngredient, recipe) {
 }
 window.ingredientsNextAlternative = ingredientsNextAlternative;
 
+/**
+ * Returns the key of a random recipe that contains the given ingredient.
+ *
+ * @param {string} ingredient
+ * @param {boolean} allowKnownRecipes true if you want this to return recipes that the player already knows
+ * @returns {string|undefined}
+ */
+function rollRecipeWithIngredient(ingredient, allowKnownRecipes) {
+	const matches = new Set();
+	for (const [key, data] of Object.entries(setup.foodstuff)) {
+		if (!data.recipe) continue;
+		if (!allowKnownRecipes && V.foodstuff[key]?.knows_recipe) continue;
+		if (data.recipe.ingredients.includes(ingredient)) {
+			matches.add(key);
+			continue;
+		}
+		const alts = [...Object.values(data.recipe.ingredient_alternatives?.normal ?? {}), ...Object.values(data.recipe.ingredient_alternatives?.lewd ?? {})];
+		if (alts.some(arr => arr.includes(ingredient))) matches.add(key);
+	}
+	return [...matches].random();
+}
+window.rollRecipeWithIngredient = rollRecipeWithIngredient;
+
 function kitchenFilter() {
 	T.recipeKeys = [];
 	T.recipesGroups = ["ingredients", "sweets", "savouries", "drinks"];
@@ -3729,6 +3793,11 @@ function teensPresentCheck(location) {
 	return present;
 }
 window.teensPresentCheck = teensPresentCheck;
+
+function beachCampfirePartyPresent() {
+	return Time.dayState === "night" && !Weather.isOvercast;
+}
+window.beachCampfirePartyPresent = beachCampfirePartyPresent;
 
 function insecurityExists(type) {
 	const [possible, returnedType] = statChange.insecurityPossible(type);
@@ -3920,3 +3989,29 @@ function whiteSoPaleHeld() {
 	return V.auriga_artefact === "pc";
 }
 window.whiteSoPaleHeld = whiteSoPaleHeld;
+
+/**
+ * The condom someone has on, and what shape it's in. "worn" is an intact one.
+ *
+ * @param {number|"player"} who an NPCList slot, or the player
+ * @returns {"none"|"worn"|"defective"|"sabotaged"}
+ */
+function condomState(who) {
+	const condom = who === "player" ? V.player.condom : V.NPCList[who]?.condom;
+	if (!condom || !condom.worn) return "none";
+	if (condom.state === "defective") return "defective";
+	if (condom.state === "sabotaged") return "sabotaged";
+	return "worn";
+}
+window.condomState = condomState;
+
+/**
+ * Whether someone has a condom on at all, whatever shape it's in.
+ *
+ * @param {number|"player"} who an NPCList slot, or the player
+ * @returns {boolean}
+ */
+function wearingCondom(who) {
+	return condomState(who) !== "none";
+}
+window.wearingCondom = wearingCondom;

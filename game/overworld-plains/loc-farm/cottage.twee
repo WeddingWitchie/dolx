@@ -98,7 +98,8 @@ You are downstairs in Alex's cottage. It's tight, and cosy. There's a kitchen wi
 	<<if $farm_stage gte 7>>
 		You notice Alex staring at your belly in horror. "You're...you're pregnant?! You didn't tell me anything..."
 
-		<<if getPregnancyObject().potentialFathers.length gte 2 or !getPregnancyObject().potentialFathers.find(s => s.source === "Alex")>>
+		<<set _preg to getPlayerPregnancy()>>
+		<<if _preg and (_preg.possibleDonors.length gte 2 or !couldBeDonor(_preg, "Alex"))>>
 			<<He>> sounds disappointed.
 			<br><br>
 
@@ -654,7 +655,7 @@ You snuggle under the covers.
 			<</if>>
 			<br><br>
 		<</if>>
-		<<if !_sleepinterrupt and (Time.hour gt 21 or Time.hour lt 6) and $bus is "farm_alex_room" or $alex_bed is "player" and !_alexWake>>
+		<<if !_sleepinterrupt and (Time.hour gt 21 or Time.hour lt 6) and $bus is "farm_alex_room" or $alex_bed is "player" and !_alexWakeNursery>>
 			<<switch random(1, 6)>>
 				<<case 1>>
 					<<if Time.hour is 5>>
@@ -707,7 +708,7 @@ You snuggle under the covers.
 		<br>
 	<<elseif _sleepinterrupt>>
 		<<npc Alex>><<person1>>
-		<<if _alexWake is 1>>
+		<<if _alexWakeNursery is 1>>
 			You awake to the sound of the staircase to the loft creaking.
 
 			<<if $bus is "farm_alex_room">>
@@ -1388,7 +1389,7 @@ You turn onto your other side, and push Alex away from you.
 <<effects>>
 
 You shove Alex away, harder this time.
-<<if C.npc.Alex.pregnancy.type is null>>
+<<if !npcIsPregnant("Alex")>>
 	<<He>> falls from the bed.
 <</if>>
 "Suit yourself," <<he>> says. "You know where to find me when you change your mind." <<He>> returns to <<his>> room.
@@ -1830,11 +1831,11 @@ You are in Alex's bedroom. It's similar to yours. Clothes tumble from the wardro
 		<</if>>
 		<<endevent>>
 
-		<<if playerIsPregnant() and playerAwareTheyArePregnant() and getPregnancyObject().potentialFathers.find(s => s.source === "Alex") and (C.npc.Alex.pregnancy.pcKnowledge isnot true or C.npc.Alex.pregnancy.test is true or C.npc.Alex.pregnancy.test is true) and C.npc.Alex.pregnancy.ultraSound isnot "requested">>
+		<<if playerIsPregnant() and playerAwareTheyArePregnant() and getActivePregnancies("pc").some(p => couldBeDonor(p, "Alex")) and (C.npc.Alex.pregnancy.pcKnowledge isnot true or C.npc.Alex.pregnancy.test is true or C.npc.Alex.pregnancy.test is true) and C.npc.Alex.pregnancy.ultraSound isnot "requested">>
 			<<pcPregnancyRevealToAlex>>
 		<</if>>
 
-		<<if C.npc.Alex.pregnancy.pcKnowledge is true and C.npc.Alex.pregnancy.ultraSoundPics is true and C.npc.Alex.pregnancy.sample isnot true and getPregnancyObject().potentialFathers.length is 1>>
+		<<if C.npc.Alex.pregnancy.pcKnowledge is true and C.npc.Alex.pregnancy.ultraSoundPics is true and C.npc.Alex.pregnancy.sample isnot true and getPlayerPregnancy()?.possibleDonors.length is 1>>
 			<<link [[Show Alex your ultrasound pictures (0:05)|Farm PC Ultrasound Pics Show]]>><</link>>
 			<br><br>
 		<</if>>
@@ -2645,10 +2646,10 @@ You sit in front of the TV as Alex enters the kitchen. You hear the water boil. 
 	"Anything else I can do?" <<he>> says, bending over to place the mug on the small table beside you.
 	<br><br>
 
-	<<link [[Kiss|Farm Breakfast Kiss]]>><<npcincr Alex love 1>><<npcincr Alex lust 5>><</link>><<kissvirginitywarning>><<glove>><<glust>>
+	<<link [[Kiss|Farm Breakfast Kiss]]>><<npcincr Alex love 1>><<npcincr Alex lust 5>><</link>><<promiscuous1>><<kissvirginitywarning>><<glove>><<glust>>
 	<br>
 	<<if hasSexStat("promiscuity", 4) and !playerChastity("hidden") and (!playerChastity("cage") or $player.vaginaExist)>>
-		<<link [[Press Alex's head into your groin|Farm Breakfast Receive Oral]]>><<set $sexstart to 1>><<set $daily.alex.breakfastSex to true>><</link>>
+		<<link [[Press Alex's head into your groin|Farm Breakfast Receive Oral]]>><<set $sexstart to 1>><<set $daily.alex.breakfastSex to true>><</link>><<promiscuous4>>
 		<br>
 	<</if>>
 	<<link [[Just drink your tea|Farm Breakfast Just]]>><</link>>
@@ -2735,7 +2736,7 @@ You hold the back of Alex's head, and pull <<him>> into a kiss.<<set $consensual
 <<set $outside to 0>><<effects>>
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation>>
-	Alex leans against the chair, panting. "Shit," <<he>> says. "I wanted to get you off."
+	Alex leans against the chair, panting. "Shit," <<he>> says. "I wanted to get you off."<<llust>><<npcincr Alex lust -2>>
 	<br><br>
 	<<tearful>> you make room for <<him>> on the sofa.
 	<br><br>
@@ -2936,7 +2937,7 @@ You get comfy beside Alex.
 		Feeling at peace, you gaze into each other's eyes.
 	<<case 7>>
 
-		<<if C.npc.Alex.pregnancy.noBirthControl isnot true and ($settings.playerPregnancyHumanEnabled or $settings.npcPregnancyEnabled) and (!npcIsPregnant("Alex") or !playerIsPregnant()) and C.npc.Alex.gender isnot $player.sex>>
+		<<if C.npc.Alex.pregnancy.noBirthControl isnot true and ($settings.playerPregnancyHumanEnabled or $settings.nnpcPregnancyEnabled) and (!npcIsPregnant("Alex") or !playerIsPregnant()) and C.npc.Alex.gender isnot $player.sex>>
 			<<set C.npc.Alex.pregnancy.noBirthControl to true>>
 		<</if>>
 
@@ -3983,7 +3984,7 @@ Alex slams the door.
 
 	<<else>>
 		<<if $phase isnot 4>>
-			<<switch getPregnancyObject().awareOf>>
+			<<switch playerLearnedPregnancyFrom()>>
 				<<case "temple">>
 					You tell <<him>> what Jordan from the temple told you. <<He>> freezes in place, but you can see a smile forming on <<his>> face.
 				<<case "pharmacy">>
@@ -4015,7 +4016,7 @@ Alex slams the door.
 			<br>
 			<<He>> laughs with you. "It's fine, I'm looking forward to the unexpected family."
 		<<else>>
-			<<switch getPregnancyObject().awareOf>>
+			<<switch playerLearnedPregnancyFrom()>>
 				<<case "temple">>
 					As <<he>> pulls away from you, <<he>> looks to you. "No idea who this Jordan is, but I wonder how <<nnpc_he "Jordan">> figured out you were pregnant?"
 					<br>
@@ -4060,7 +4061,7 @@ Alex slams the door.
 
 		<<elseif $phase is 4>>
 		<<else>>
-			<<switch getPregnancyObject().awareOf>>
+			<<switch playerLearnedPregnancyFrom()>>
 				<<case "temple">>
 					You tremble as you tell <<him>> what Jordan from the temple told you.
 				<<case "pharmacy">>
@@ -4149,7 +4150,7 @@ Alex slams the door.
 	You reach for Alex and grab <<his>> arm.
 <</if>>
 
-<<switch getPregnancyObject().awareOf>>
+<<switch playerLearnedPregnancyFrom()>>
 	<<case "wakingUp">>
 		You tremble as you tell <<him>> what you thought when you looked at yourself after waking up. You show <<him>> your belly.
 	<<case "mirror">>
@@ -4166,7 +4167,7 @@ Alex slams the door.
 <br><br>
 <<He>> looks at you with a baffled expression. "But... how?" <<he>> asks. "You don't have a vagina. Your condition could easily be something else; you should get checked at the hospital."
 
-<<if getPregnancyObject().ultrasoundDone>>
+<<set _pregnancy to getPlayerPregnancy()>><<if _pregnancy?.ultrasoundDone>>
 	<br><br>
 	"I already have." You hand Alex a printout of your ultrasound.
 	<br><br>
@@ -4175,7 +4176,7 @@ Alex slams the door.
 	"I'm not joking," you insist. "I'm pregnant."
 	<br><br>
 	<<if playerBellySize() gte 7>>
-		<<He>> doesn't seem convinced, so you grab <<his>> hand and put it on your belly. <span class="green">Your <<if getPregnancyObject().fetus.length gt 1>>babies shift<<else>>baby shifts<</if>> around inside you</span>. "What- but- how?" Alex's eyes widen and <<he>> stares at your belly bump. "How... how is this possible?"
+		<<He>> doesn't seem convinced, so you grab <<his>> hand and put it on your belly. <span class="green">Your <<if getChildrenOf(_pregnancy.pregnancyId).length gt 1>>babies shift<<else>>baby shifts<</if>> around inside you</span>. "What- but- how?" Alex's eyes widen and <<he>> stares at your belly bump. "How... how is this possible?"
 	<<else>>
 		<<He>> doesn't seem convinced, but there is nothing more you can do. "But how can you be pregnant?"
 	<</if>>
@@ -4409,7 +4410,7 @@ Alex is willing to build a Nursery at the cottage, but first <span class="gold">
 <</if>>
 
 :: Farm Alex Birth
-<<effects>><<set $alexBabiesCount to getPregnancyObject("Alex").fetus.length>>
+<<effects>><<set $alexBabiesCount to getLabouringLitter("Alex").length>>
 <<wearProp "telephone">>
 You make the call, explaining the situation to the dispatcher. As you talk, Alex winces, breathing through contractions.
 <br><br>
@@ -4582,7 +4583,7 @@ Alex hugs <<his>> <<pluralise $alexBabiesCount "baby">> close to <<his>> chest.
 "I've run all the tests," Harper says. "There's not a single health problem. Have you two thought of <<pluralise $alexBabiesCount "a name" "their names">>?"
 <br><br>
 
-"I'm too tired to think about names now and I'm not really good with this, you choose <<if getPregnancyObject("Alex").fetus.length gte 2>>them<<else>>it<</if>>," Alex says.
+"I'm too tired to think about names now and I'm not really good with this, you choose <<if getLabouringLitter("Alex").length gte 2>>them<<else>>it<</if>>," Alex says.
 <br>
 
 "Come on, give it a try, it's not fair that only I get to choose," you say.
@@ -4596,7 +4597,7 @@ Alex thinks for a moment. "Nope, nothing," <<he>> laughs.
 :: Farm Alex Birth 6
 <<endevent>><<effects>>
 <<npc "Alex" 1>><<npc "Harper" 2>><<person1>>
-<<getChildrenIds>><<childSelect _childrenIds.last()>>
+<<childSelect `getChildrenOf($recentBirthId).last().childId`>>
 
 Having named your <<pluralise $alexBabiesCount "child">>, you turn your attention to Alex again. <<He>> nods approvingly at your choice of <<pluralise $alexBabiesCount "name">>.
 <br>
@@ -4755,8 +4756,9 @@ Harper smiles and leaves, pulling <<his>> phone out of <<his>> pocket as if <<he
 <<effects>>
 
 <<set $ward_unlocked to true>>
-<<run Object.values(V.children).filter(child => {
-	if (child.location === "alex_cottage" && (child.father === "Alex" || child.mother === "Alex")) child.location = "home";
+<<run getChildrenAt("alex_cottage").forEach(child => {
+	const pregnancy = getPregnancyOf(child);
+	if (pregnancy.donor === "Alex" || pregnancy.carrier === "Alex") child.development.location = "home";
 })>>
 
 Alex turns to you. "I hate to say this, but this... offer might be a good thing, for the <<pluralise $alexBabiesCount "kid">> at least. I don't like the price, or losing <<pluralise $alexBabiesCount "it">>, but it will give us more time to prepare a room. It's only temporary, right?" You nod.
@@ -4824,8 +4826,7 @@ Tears roll down <<his>> face, but <<he>> does <<his>> best to keep up <<his>> st
 
 <<if !$ambulance>>
 	<<wearProp "tea">>
-	<<set [_farmBirthPregnancy, _farmBirthGenital] to getPlayerPregnancyForBirth(true)>>
-	<<set $pcBabyCount to _farmBirthPregnancy.fetus.length>>
+	<<set $pcBabyCount to getLabouringLitter("pc").length>>
 
 	<<He>> grabs <<his>> phone and makes the call, explaining the situation and where the farm is located.
 	<br><br>
@@ -4950,11 +4951,11 @@ You start to push with all the strength you have. The pain overwhelms you. <<ggp
 The pain becomes too much for you to endure as you continue pushing. Everything fades away.
 <br><br>
 
-<<set [_farmBirthPregnancy, _farmBirthGenital] to getPlayerPregnancyForBirth(true)>>
+<<set _farmBirthPregnancy to getLabouringPregnancy("pc")>>
 <<if $settings.realisticChildbirthEnabled is true>>
-	<<link [[Next (2:00)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"cottage","partner":"Alone","genital":_farmBirthGenital}>><<if $phase is 1>><<set $birth.partner to "Alex">><<else>><<set $birth.inlobby to "Alex">><</if>><<endevent>><<pass 120>><</link>>
+	<<link [[Next (2:00)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"cottage","partner":"Alone","genital":_farmBirthPregnancy ? _farmBirthPregnancy.orifice : "vagina"}>><<if $phase is 1>><<set $birth.partner to "Alex">><<else>><<set $birth.inlobby to "Alex">><</if>><<endevent>><<pass 120>><</link>>
 <<else>>
-	<<link [[Next (2:00)|Farm PC Birth 5]]>><<playerPrebirth>><<pass 120>><</link>>
+	<<link [[Next (2:00)|Farm PC Birth 5]]>><<run beginPlayerBirth()>><<pass 120>><</link>>
 <</if>>
 
 :: Farm PC Birth 5
@@ -4987,7 +4988,7 @@ Harper stands up and brings your <<pluralise $pcBabyCount "baby">> over to you a
 "I've run all the tests," Harper says. "There's not a single health problem. Have you two thought of <<pluralise $pcBabyCount "a name" "their names">>?"
 <br><br>
 
-"Well," Alex says. "You did all the hard work, you should name <<if $pcBabyCount is 1>><<if _farmBirthPregnancy.fetus[0].gender is "m">>him<<else>>her<</if>><<else>>them<</if>>."
+"Well," Alex says. "You did all the hard work, you should name <<if $pcBabyCount is 1>><<if getLabouringLitter("pc")[0].gender is "m">>him<<else>>her<</if>><<else>>them<</if>>."
 <br><br>
 
 <<birthUi "pc" "alex_cottage" "alex_cottage" "Farm PC Birth 6" 10>>
@@ -5164,8 +5165,9 @@ As you descend the stairs, you can hear talking. Alex sounds angry.
 <<effects>>
 
 <<set $ward_unlocked to true>>
-<<run Object.values(V.children).filter(child => {
-	if (child.location === "alex_cottage" && (child.father === "Alex" || child.mother === "Alex")) child.location = "home";
+<<run getChildrenAt("alex_cottage").forEach(child => {
+	const pregnancy = getPregnancyOf(child);
+	if (pregnancy.donor === "Alex" || pregnancy.carrier === "Alex") child.development.location = "home";
 })>>
 
 Alex turns to you. "I hate to say this, but this...offer might be a good thing, for the <<pluralise $pcBabyCount "kid">> at least. I don't like the price, or losing <<pluralise $pcBabyCount "it">>, but it will give us more time to prepare a room. It's only temporary, right?" You reluctantly nod.
@@ -5468,8 +5470,9 @@ Alex opens the door for you and you get in, still with your <<if childrenCountBe
 :: Farm Alex Orphanage Trip 3
 <<effects>>
 
-<<run Object.values(V.children).filter(child => {
-	if (child.location === "home" && (child.father === "Alex" || child.mother === "Alex")) child.location = "alex_cottage";
+<<run getChildrenAt("home").forEach(child => {
+	const pregnancy = getPregnancyOf(child);
+	if (pregnancy.donor === "Alex" || pregnancy.carrier === "Alex") child.development.location = "alex_cottage";
 })>>
 
 <<person1>><<His>> <<person3>><<father>> drives to the farm, occasionally looking at <<his>> <<if childrenCountBetweenParents("pc","Alex") is 1>>grandchild<<else>>grandchildren<</if>> and smiling.
@@ -5601,20 +5604,14 @@ Alex gives you a curious glance. "Sure, what is it?"
 You grab the ultrasound pictures Harper gave you and hand them to <<him>>. <<He>> seems to be having a hard time understanding what <<hes>> looking at.
 <br><br>
 
-<<if ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
-	"Seriously?" you sigh. "It's our <<pluralise getPregnancyObject().fetus.length "child" "children">>, dummy,"
+<<if $speech_attitude is "bratty">>
+	"Seriously?" you sigh. "It's our <<pluralise (getChildrenOf(getPlayerPregnancy().pregnancyId).length) "child">>, dummy,"
 
-<<elseif ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy") or (_speechAttitudeResolved is "docile"))>>
-	"S-sorry, I should've explained. It's our <<pluralise getPregnancyObject().fetus.length "child" "children">>,"
-
-<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant") or (_speechAttitudeResolved is "special"))>>
-	"I suppose I should have explained first. It's our <<pluralise getPregnancyObject().fetus.length "child" "children">>,"
-
-<<elseif _speechAttitudeResolved is "confident">>
-	"You really don't get it? It's our <<pluralise getPregnancyObject().fetus.length "child" "children">>,"
+<<elseif $speech_attitude is "meek">>
+	"S-Sorry, I should've explained, it's our <<pluralise (getChildrenOf(getPlayerPregnancy().pregnancyId).length) "child">>,"
 
 <<else>>
-	"You don't get it? It's our <<pluralise (getPregnancyObject().fetus.length) "child">>,"
+	"You don't get it? It's our <<pluralise (getChildrenOf(getPlayerPregnancy().pregnancyId).length) "child">>,"
 <</if>>
 
 you say.
@@ -5622,7 +5619,7 @@ you say.
 
 "Oh," <<he>> says, taking another look at the pictures. "I thought it was some kind of alien," <<he>> jokes.
 <br><br>
-<<set _children to getPregnancyObject().fetus.length>>
+<<set _children to getChildrenOf(getPlayerPregnancy().pregnancyId).length>>
 You give <<him>> a light punch on the shoulder. "I'm just joking," <<he>> says, embracing you. "Thanks for showing me this. It's nice to know our <<pluralise _children "child is" "children are">> growing nice and healthy."
 <br><br>
 

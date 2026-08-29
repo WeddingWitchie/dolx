@@ -98,10 +98,11 @@
 			return birth.type;
 		}
 		if (isObject(birth) && (birth.genital === "vagina" || birth.genital === "anus")) {
-			const pregnancy = V.sexStats && V.sexStats[birth.genital] && V.sexStats[birth.genital].pregnancy;
-			const fetusType = pregnancy && Array.isArray(pregnancy.fetus) && pregnancy.fetus[0] && pregnancy.fetus[0].type;
-			if (RCB_TYPES.includes(fetusType)) {
-				return fetusType;
+			// Real pregnancies live in records now; $sexStats only still holds parasites.
+			const pregnancy = typeof getActivePregnancy === "function" ? getActivePregnancy("pc", birth.genital) : null;
+			const childType = pregnancy && typeof childBaseSpecies === "function" ? childBaseSpecies(pregnancy.donorSpecies) : null;
+			if (RCB_TYPES.includes(childType)) {
+				return childType;
 			}
 		}
 		if (V.harpyEggs && V.harpyEggs.count > 0) {

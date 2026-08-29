@@ -1034,14 +1034,14 @@ The <<person>> looks at the <<print $pharmacyItem.name>> you're holding.
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 You ask the nurse for a morning-after pill.
 <br><br>
-<<if playerBellyVisible() or getPregnancyObject().awareOf>>
+<<if playerBellyVisible() or playerAwareTheyArePregnant()>>
 	The nurse looks at your <<bellyDescription "pc">> before answering.
 	<br><br>
 	"You <<if $pregnancyStats.aftermorningpills>>already know you <</if>>shouldn't take this while you're pregnant," <<he>> says. "It can make you seriously ill, and it won't work the way you want it to."
 	<br><br>
 	<<He>> keeps the packet behind the counter. "If you still insist, it's <<printprice 50000>>. I can only give you one, and you have to take it here while I watch."
 	<br><br>
-	<<if not getPregnancyObject().awareOf>>
+	<<if not playerAwareTheyArePregnant()>>
 		<<if setup.inflation.canAfford(50000, "pharmacyAfterPill")>>
 			<<link [[Hand over the money and take the pill anyway (0:15)|Pharmacy Morning After pill 2]]>><<pass 15>><</link>>
 		<<else>>
@@ -1060,7 +1060,7 @@ You ask the nurse for a morning-after pill.
 	<br><br>
 	<<He>> places the packet on the counter, but keeps one hand over it. "It's <<printprice 50000>>. I can't sell these in bulk, and you need to take it here so I can make sure you're all right."
 	<br><br>
-	<<if getPregnancyObject().awareOf>>
+	<<if playerAwareTheyArePregnant()>>
 		You know you are pregnant and decide not to risk taking it.
 	<<elseif setup.inflation.canAfford(50000, "pharmacyAfterPill")>>
 		<<link [[Hand over the money and take the pill (0:15)|Pharmacy Morning After pill 2]]>><<pass 15>><</link>>
@@ -1073,12 +1073,13 @@ You ask the nurse for a morning-after pill.
 
 :: Pharmacy Morning After pill 2
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
-<<money -50000 "pharmacyAfterPill">><<pregnancyMorningAfterPill>>
+<<money -50000 "pharmacyAfterPill">>
+<<set _morningAfterPillResult to takeMorningAfterPill()>>
 
 The nurse takes your payment, pushes a chair out from behind the counter and tells you to sit. <<He>> gives you the pill with a cup of water and watches until you swallow it.
 <br><br>
 <<switch _morningAfterPillResult>>
-	<<case "no pregnant">>
+	<<case "notPregnant">>
 		You wait in the chair. A cool feeling spreads through your lower belly, but nothing else happens.
 		<br><br>
 		The nurse checks your pupils, then wraps a blood-pressure cuff around your arm. After checking the reading, <<he>> removes it.
@@ -1089,7 +1090,7 @@ The nurse takes your payment, pushes a chair out from behind the counter and tel
 		<<arousal -5000>>
 		<<stress -12>>
 		<<link [[Go back|Pharmacy]]>><</link>>
-	<<case "successful">>
+	<<case "success">>
 		A cool feeling spreads through your lower belly. A mild ache follows, making you press a hand against your stomach while you wait.
 		<br><br>
 		The nurse notices and comes over to check your pupils and blood pressure.
@@ -1101,7 +1102,7 @@ The nurse takes your payment, pushes a chair out from behind the counter and tel
 		<<stress -12>>
 		<<pain 2>>
 		<<link [[Go back|Pharmacy]]>><</link>>
-	<<case "a little late">>
+	<<case "aLittleLate">>
 		An ache starts low in your belly and quickly becomes sharp enough to make you bend forward in the chair. You press both hands against your stomach.
 		<br><br>
 		The nurse comes over, checks your pupils, then takes your blood pressure.
@@ -1125,7 +1126,7 @@ The nurse takes your payment, pushes a chair out from behind the counter and tel
 		<<trauma 20>>
 		<<pain 20>>
 		<<link [[Go back|Pharmacy]]>><</link>>
-	<<case "too late">>
+	<<case "tooLate">>
 		A hard pain hits your belly before you have finished waiting. You double over in the chair, one hand pressed against your stomach.
 		<br><br>
 		The nurse rushes over and reaches for your arm, trying to keep you upright while checking you.
@@ -1159,7 +1160,7 @@ Harper looks down at you. "You're <span class="red">pregnant</span>. I don't kno
 <br><br>
 A strong cramp hits your belly before you can answer. You double over and grab your stomach. <<ggtrauma>><<gggpain>>
 <br><br>
-<<set getPregnancyObject().awareOf to "pharmacy">>
+<<run setPlayerLearnedPregnancyFrom("pharmacy")>>
 <<stress 12>>
 <<trauma 50>>
 <<pain 200>>

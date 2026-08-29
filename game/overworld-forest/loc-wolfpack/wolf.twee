@@ -40,7 +40,7 @@ The <<beasttype>> doesn't look content, but lets you go nonetheless. As you pass
 	You follow the Black Wolf deeper into the forest again, and once more <<bhe>> adjusts <<bhis>> stride to keep beside you rather than disappearing ahead.
 	<br><br>
 
-	You have already been to this part of the forest with the Black Wolf. Just like before, <<bhe>> has a confident expression on <<bhim>> <<if $monster is 1>>face<<else>>muzzle<</if>>, which brings peace to your heart.
+	You have already been to this part of the forest with the Black Wolf. Just like before, <<bhe>> has a confident expression on <<bhis>> <<if $monster is 1>>face<<else>>muzzle<</if>>, which brings peace to your heart.
 	<br><br>
 
 	Just like before, the sight of <<bhim>> walking ahead with such quiet certainty fills you with an unexpected sense of peace.
@@ -225,7 +225,7 @@ When you return to the cave, the pack's attention shifts toward you at once, and
 <<if $phase is 1>>
 	<<set $phase to 0>>
 	You make your way toward the Black Wolf.
-	<<if (effectiveTransformationLevel("wolf") gte 6) and $wolfpackferocity gte 15 and $wolfpackharmony gte 15 and Time.dayState isnot "night" and ($daily.blackWolfHeatEvent or 0) - Time.hour lte -3 and ((playerHeatMinArousal() and (V.player.vaginaExist or canBeMPregnant()) and C.npc["Black Wolf"].penis isnot "none") or
+	<<if (effectiveTransformationLevel("wolf") gte 6) and $wolfpackferocity gte 15 and $wolfpackharmony gte 15 and Time.dayState isnot "night" and ($daily.blackWolfHeatEvent or 0) - Time.hour lte -3 and ((playerHeatMinArousal() and (V.player.vaginaExist or playerCanCarryAnally()) and C.npc["Black Wolf"].penis isnot "none") or
 	(playerRutMinArousal() and C.npc["Black Wolf"].vagina isnot "none"))>>
 		<<set $daily.blackWolfHeatEvent to Time.hour>>
 		<<set _blackWolfHeatEvent to true>>
@@ -236,7 +236,7 @@ When you return to the cave, the pack's attention shifts toward you at once, and
 			<<bHis>> tail begins to wag after sniffing in your direction.
 		<</if>>
 
-	<<elseif C.npc["Black Wolf"].pregnancy.pcAwareOf is true or (playerIsPregnant() and playerAwareTheyArePregnant()) and knowsAboutPregnancy("pc","Black Wolf")>>
+	<<elseif knowsAboutPregnancy("Black Wolf", "pc") or (playerIsPregnant() and playerAwareTheyArePregnant()) and knowsAboutPregnancy("pc","Black Wolf")>>
 
 		<<bwpcinteraction>>
 
@@ -447,13 +447,7 @@ When you return to the cave, the pack's attention shifts toward you at once, and
 
 <<if $wolfevent is 1 and ($wolfstate is "cave" and !["finished","ongoing"].includes($huntstate) and ["dusk", "night"].includes(Weather.dayState))>>
 	<<set $huntstate to "ongoing">><<set $wolfpackpoisoned to 0>>
-	<<switch statusCheck("Black Wolf").gender>>
-	<<case "m">>
-		<<set _BWGender to 1>>
-	<<default>>
-		<<set _BWGender to 0>>
-	<</switch>>
-	<<if (statusCheck("Black Wolf").love gte random(100,200) or $wolfpackleader is 1 or parentFunction.findParent("Black Wolf", _BWGender, true)) and ($wolfpackharmony + $wolfpackferocity gte 20)>>
+	<<if (statusCheck("Black Wolf").love gte random(100,200) or $wolfpackleader is 1 or playerConceivedWith("Black Wolf")) and ($wolfpackharmony + $wolfpackferocity gte 20)>>
 		The pack begins to howl in excitement, readying for a hunt. You look to the Black Wolf, expecting <<bhim>> to join them, only to find <<bhim>> looking towards you instead.
 		<<if $wolfpackleader is 1>>
 			<<if $monster is 1>>
@@ -514,7 +508,7 @@ When you return to the cave, the pack's attention shifts toward you at once, and
 	<<link [[Stay|Wolf Cave Clearing]]>><<endevent>><</link>>
 <<else>>
 	<<if _blackWolfHeatEvent and hasSexStat("deviancy", 5)>>
-		<<if playerAwareTheyAreInHeat() and $NPCList[0].penis isnot "none" and (($player.vaginaExist and !playerChastity("vagina")) or (canBeMPregnant() and !playerChastity("anus")))>>
+		<<if playerAwareTheyAreInHeat() and $NPCList[0].penis isnot "none" and (($player.vaginaExist and !playerChastity("vagina")) or (playerCanCarryAnally() and !playerChastity("anus")))>>
 			<<ind>><<link [[Present your behind|Wolf Cave Black Wolf Before Mate]]>><</link>><<deviant5>><<wolfgirl>><<heat>>
 			<br>
 		<</if>>
@@ -1101,8 +1095,8 @@ You allow <<bhim>> to lick your face clean. <<bHe>> <<= $monster is 1 ? "reaches
 <<bHis>> tongue runs over your chest, lingering a bit too long around your nipples.<<arousal 1200 "breasts">><<ggarousal>>
 <br><br>
 <<if playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc","Black Wolf")>>
-	<<set _pregnancy to getPregnancyObject()>>
-	<<if _pregnancy.type is "wolf" and _pregnancy.potentialFathers.find(father => father.source === "Black Wolf")>>
+	<<set _pregnancy to getPlayerPregnancy()>>
+	<<if childBaseSpecies(_pregnancy.donorSpecies) is "wolf" and couldBeDonor(_pregnancy, "Black Wolf")>>
 		<<bHe>> stops <<bhis>> grooming to sniff your stomach. <<bHe>> nuzzles against it, and pays close attention to the area as <<bhe>> continues cleaning.
 	<<else>>
 		<<bHe>> stops <<bhis>> grooming to sniff your stomach. <<bHe>> gently presses <<bhis>> head against it before continuing.
@@ -1148,7 +1142,7 @@ You spread your legs, welcoming <<bhim>>.
 	<br><br>
 	Despite the barrier, <<bhe>> continues eagerly licking your <<genitals>> until <<bhe>> feels you tense up.<<gggarousal>>
 <<elseif $player.penisExist>>
-	<<set _parts.push("penis")>>
+	<<set _parts.push("penis")>><<set _virgin to C.npc["Black Wolf"].virginity.oral>>
 	<<bHe>> runs <<bhis>> tongue along your length, cradling it in <<bhis>> mouth. <<bHe>> pays extra attention to the head of your cock.<<takeNPCVirginity "Black Wolf" "oral">>
 	<br><br>
 	<<bHe>> continues licking, cradling your member in <<bhis>> mouth. As you shudder into an orgasm, <<bhe>> buries <<bhis>> nose <<if $settings.pubicHairEnabled and $pblevel gte 2>>in your pubes <</if>>against your pubic mound.<<gggarousal>>
@@ -1156,7 +1150,10 @@ You spread your legs, welcoming <<bhim>>.
 	<<set _parts.push("vagina", "vaginaoutside")>>
 	<<bHe>> runs <<bhis>> tongue along your vagina, alternating between focusing on your clit and lapping up lewd fluid. <<bHis>> tongue slides in and out of your vagina with each stroke. <<bHe>> pushes <<bhis>> nose against you, trying to taste more of you. <<gggarousal>>
 <</if>>
-<br><br>
+<br>
+<<if !_virgin>>
+	<br>
+<</if>>
 <<orgasm>>
 
 <<if $worn.genitals.name is "chastity parasite" or ($player.penisExist and $femaleclimax is 1)>>

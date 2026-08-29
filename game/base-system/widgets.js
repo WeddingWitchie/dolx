@@ -60,7 +60,7 @@ const hairStyleCap = {
 		ringlets: 300,
 		split: 300,
 		straight: 300,
-		"swept left": 200,
+		"swept right": 200,
 		back: 100,
 		parted: 100,
 		flat: 100,
@@ -80,7 +80,7 @@ function calculatePenisBulge() {
 	if (!V.player.penisExist || compressed) return 0;
 
 	if (V.worn.genitals.type.includes("cage")) {
-		return Math.clamp(V.player.penissize, 0, Infinity);
+		return Math.max(V.player.penissize, 0);
 	}
 	// Mentioned in combat about npcs `trying to force an erection`, when below the specific arousal checks
 	if ((V.arousal > 9000 && V.player.penissize === 1) || (V.arousal > 9500 && V.player.penissize === 0)) return 1;
@@ -91,7 +91,7 @@ function calculatePenisBulge() {
 	} else if (V.arousal >= 6000) {
 		erectionState = 2;
 	}
-	return Math.clamp((V.player.penissize - 1) * erectionState, 0, Infinity);
+	return Math.max((V.player.penissize - 1) * erectionState, 0);
 }
 window.calculatePenisBulge = calculatePenisBulge;
 
@@ -132,9 +132,9 @@ function nudeGenderAppearance() {
 	}
 	if (!(V.sexStats === undefined || !playerBellyVisible() || V.settings.nudeGenderPerception === 0)) {
 		if (V.settings.nudeGenderPerception === 1)
-			T.apparent_femininity_nude += Math.clamp((playerBellySize() - 7) * (V.settings.nudeGenderPerception === 1 ? 90 : 70), 0, Infinity);
-		else if (playerBellySize() >= 18) T.apparent_femininity_nude += Math.clamp(10000, 0, Infinity);
-		else if (playerBellySize() >= 8) T.apparent_femininity_nude += Math.clamp((playerBellySize() - 7) * 250, 0, Infinity);
+			T.apparent_femininity_nude += Math.max((playerBellySize() - 7) * (V.settings.nudeGenderPerception === 1 ? 90 : 70), 0);
+		else if (playerBellySize() >= 18) T.apparent_femininity_nude += 10000;
+		else if (playerBellySize() >= 8) T.apparent_femininity_nude += Math.max((playerBellySize() - 7) * 250, 0);
 	}
 	Object.keys(V.skin).forEach(label => {
 		if (["m", "f"].includes(V.skin[label].gender)) {
@@ -284,7 +284,7 @@ function genderappearancecheck() {
 	if (T.under_lower_protected && V.settings.nudeGenderPerception > 0) {
 		addfemininityfromfactor(T.bulge_size * -60, "Bulge visible through underwear", "noow");
 	} else if ((T.over_lower_protected || T.lower_protected) && V.settings.nudeGenderPerception > 0) {
-		addfemininityfromfactor(-Math.clamp((T.bulge_size - 6) * 60, 0, Infinity), "Bulge visible through clothing", "noow");
+		addfemininityfromfactor(-Math.max((T.bulge_size - 6) * 60, 0), "Bulge visible through clothing", "noow");
 	} else if (V.worn.genitals.exposed && V.settings.nudeGenderPerception === 1) {
 		if (V.player.penisExist) {
 			addfemininityfromfactor((V.player.penissize + 0.5) * -150, "Penis exposed", "noow");
@@ -339,7 +339,7 @@ function genderappearancecheck() {
 		T.bottom_visibility *= 0.75;
 		/* Bulge covered by lower clothes */
 		if (V.settings.nudeGenderPerception > 0) {
-			addfemininityfromfactor(-Math.clamp((T.bulge_size - 6) * 60, 0, Infinity), "Bulge visible through clothing");
+			addfemininityfromfactor(-Math.max((T.bulge_size - 6) * 60, 0), "Bulge visible through clothing");
 		}
 	}
 	/* Upper clothing and breasts */
@@ -360,11 +360,11 @@ function genderappearancecheck() {
 			addfemininityfromfactor((V.player.perceived_breastsize - 0.5) * 100, V.player.perceived_breastsize > 0 ? "Exposed breasts" : "Exposed flat chest");
 		} else {
 			/* Breasts covered by only underwear */
-			addfemininityfromfactor(Math.clamp((V.player.perceived_breastsize - 2) * 100, 0, Infinity), "Breast size visible through underwear");
+			addfemininityfromfactor(Math.max((V.player.perceived_breastsize - 2) * 100, 0), "Breast size visible through underwear");
 		}
 	} else {
 		/* Breast fully covered */
-		addfemininityfromfactor(Math.clamp((V.player.perceived_breastsize - 4) * 100, 0, Infinity), "Breast size visible through clothing");
+		addfemininityfromfactor(Math.max((V.player.perceived_breastsize - 4) * 100, 0), "Breast size visible through clothing");
 	}
 	/* Bottom */
 	addfemininityfromfactor(Math.trunc(V.player.bottomsize * T.bottom_visibility * 50), "Bottom size (" + Math.trunc(T.bottom_visibility * 100) + "% visible)");
@@ -373,13 +373,13 @@ function genderappearancecheck() {
 		// do glorious nothing
 	} else if (V.settings.nudeGenderPerception === 1) {
 		addfemininityfromfactor(
-			Math.clamp((playerBellySize() - 7) * (V.settings.nudeGenderPerception === 1 ? 90 : 70), 0, Infinity),
+			Math.max((playerBellySize() - 7) * (V.settings.nudeGenderPerception === 1 ? 90 : 70), 0),
 			playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly"
 		);
 	} else if (playerBellySize() >= 18) {
-		addfemininityfromfactor(Math.clamp(10000, 0, Infinity), playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly");
+		addfemininityfromfactor(10000, playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly");
 	} else if (playerBellySize() >= 8) {
-		addfemininityfromfactor(Math.clamp((playerBellySize() - 7) * 250, 0, Infinity), playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly");
+		addfemininityfromfactor(Math.max((playerBellySize() - 7) * 250, 0), playerAwareTheyArePregnant() ? "Pregnant Belly" : "Pregnant Looking Belly");
 	}
 	/* Body writing */
 	bodywritingExposureCheck(true);
@@ -629,23 +629,35 @@ function goocount() {
 }
 DefineMacro("goocount", goocount);
 
-/* set $allure to allure, set $attractiveness to attractiveness */
+/**
+ * Sets $allure to the calculated allure, and $attractiveness to the calculated attractiveness
+ */
 function calculateallure() {
-	/* attractiveness calcs */
+	// Attractiveness Calculations
 	let attractiveness;
-	/* baseline, reused later for allure danger mods */
+	// Increase attractiveness by 1/3 of $beauty and 1/4 of $hairlength
 	let baseattractiveness = V.beauty / 3 + V.hairlength / 4;
+
 	if (!V.worn.over_upper.type.includes("naked")) {
+		// Increase attractiveness by the reveal of the PC's upper overclothes, if the clothing slot isn't naked.
 		baseattractiveness += V.worn.over_upper.reveal;
 	} else {
+		// Otherwise, increase attractiveness by the reveal of the PC's upper clothes.
+		// If the PC is wearing overalls, halve the reveal from their upper clothing slot being naked.
 		const topmult = V.worn.lower.type.includes("overalls") ? 0.5 : 1;
 		baseattractiveness += V.worn.upper.reveal * topmult;
+
+		// If the PC's upper clothing slot has the "Naked" trait, add the reveal of their under upperclothes.
+		// If the PC is wearing overalls, halve the reveal from their upper underclothes.
 		if (V.worn.upper.type.includes("naked")) baseattractiveness += V.worn.under_upper.reveal * topmult;
 	}
 	if (!V.worn.over_lower.type.includes("naked")) {
+		// Increase attractiveness by the reveal of the PC's lower overclothes, if the clothing slot isn't naked.
 		baseattractiveness += V.worn.over_lower.reveal;
 	} else {
+		// Otherwise, increase Attractiveness by the reveal of the PC's lower clothes.
 		baseattractiveness += V.worn.lower.reveal;
+		// If the PC's lower clothing slot has the "Naked" trait, add the reveal of their lower underclothes.
 		if (V.worn.lower.type.includes("naked")) baseattractiveness += V.worn.under_lower.reveal;
 	}
 	attractiveness = baseattractiveness;
@@ -707,7 +719,7 @@ function calculateallure() {
 	}
 	V.attractiveness = Math.floor(attractiveness);
 
-	/* allure calcs */
+	// Allure calculations
 	let allure = attractiveness;
 	/* night mod to base attractiveness. minus one, because it's already included into attractiveness above */
 	const nightMod = Weather.dayState === "night" ? 1.5 : 1;
@@ -715,7 +727,8 @@ function calculateallure() {
 	/* bodyliquid danger */
 	goocount();
 	allure += V.liquidcount * 50;
-	/* ear slime */
+
+	// Allure changes from ear slimes
 	if (V.earSlime.growth > 50) allure += (V.earSlime.growth - 50) * 10;
 	/* fame mods */
 	let reputationMod = 1;
@@ -741,9 +754,11 @@ function calculateallure() {
 		// for (const badfame of ["sex", "prostitution", "rape", "bestiality", "exhibitionism", "pregnancy", "impreg"]) allure += V.fame[badfame] / 10;
 		// for (const goodfame of ["good", "scrap", "business", "social", "model", "pimp"]) allure -= V.fame[goodfame] / 2;
 	}
-	/* bloodmoon */
+
+	// Allure changes from the bloodmoon
 	if (Time.isBloodMoon()) allure += 2000;
-	/* Elk-scarred trait */
+
+	// Allure changes from the "Elk-scarred" trait
 	if (V.auriga_scar) allure += V.auriga_scar * 500;
 	/* Tidebloom ring: the flower on it keeps giving off scent */
 	if (wearingTidebloomRing()) allure += 300;
@@ -759,12 +774,17 @@ function calculateallure() {
 	allure += V.exposed * 500;
 
 	if (V.hallucinogen >= 1 && V.substanceRebalance === 1) allure *= 1 + 0.25 * (V.hallucinogen / 250);
-	/* extra modifiers */
+	/* Location/Time specific modifiers */
+	if (V.asylum_tunnels >= 6 && Time.dayState === "night" && V.location === "forest") allure -= 150;
+	/* extra modifiers. allureModifier is applied exactly once -- applying it a second time here was
+	   the double-modifier bug vanilla fixed in 0.5.12.0. */
 	allure *= V.settings.allureModifier;
 	if (V.moorLuck > 0) allure *= 1 - V.moorLuck / 100;
 	if (V.alluretest === 1) allure = 8000 * V.settings.allureModifier;
 	else if (V.alluretest === 2) allure = 0;
 
+	/* Vanilla 0.5.12.0 added this final ceiling; without it the multipliers above could run away. */
+	allure = Math.clamp(allure, 0, 16000);
 	V.allure = Math.floor(allure);
 }
 DefineMacro("calculateallure", calculateallure);
@@ -957,3 +977,58 @@ function getTransformParts(parts = []) {
 	else return false;
 }
 window.getTransformParts = getTransformParts;
+
+function wetStage(amount) {
+	if (amount >= 100) return 3;
+	if (amount >= 80) return 2;
+	if (amount >= 50) return 1;
+	return 0;
+}
+
+function wetUpper(amount = 200) {
+	const stage = wetStage(amount);
+	// if the clothing is waterproof, protect it and layers below from getting wet
+	if (waterproofCheck(V.worn.over_upper)) return;
+	if (!V.worn.over_upper.type.includes("naked")) {
+		V.overupperwet = Math.max(V.overupperwet, amount);
+		V.overupperwetstage = Math.max(V.overupperwetstage, stage);
+	}
+	if (waterproofCheck(V.worn.upper)) return;
+	if (!V.worn.upper.type.includes("naked")) {
+		// skin wetness system is not implemented... yet?
+		V.upperwet = Math.max(V.upperwet, amount);
+		V.upperwetstage = Math.max(V.upperwetstage, stage);
+	}
+	if (waterproofCheck(V.worn.under_upper)) return;
+	if (!V.worn.under_upper.type.includes("naked")) {
+		V.underupperwet = Math.max(V.underupperwet, amount);
+		V.underupperwetstage = Math.max(V.underupperwetstage, stage);
+	}
+}
+DefineMacro("wetUpper", wetUpper);
+
+function wetLower(amount = 200) {
+	const stage = wetStage(amount);
+	if (waterproofCheck(V.worn.over_lower)) return;
+	if (!V.worn.over_lower.type.includes("naked")) {
+		V.overlowerwet = Math.max(V.overlowerwet, amount);
+		V.overlowerwetstage = Math.max(V.overlowerwetstage, stage);
+	}
+	if (waterproofCheck(V.worn.lower)) return;
+	if (!V.worn.lower.type.includes("naked")) {
+		V.lowerwet = Math.max(V.lowerwet, amount);
+		V.lowerwetstage = Math.max(V.lowerwetstage, stage);
+	}
+	if (waterproofCheck(V.worn.under_lower)) return;
+	if (!V.worn.under_lower.type.includes("naked")) {
+		V.underlowerwet = Math.max(V.underlowerwet, amount);
+		V.underlowerwetstage = Math.max(V.underlowerwetstage, stage);
+	}
+}
+DefineMacro("wetLower", wetLower);
+
+function wetAll(amount = 200) {
+	wetUpper(amount);
+	wetLower(amount);
+}
+DefineMacro("wetAll", wetAll);

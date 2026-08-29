@@ -2066,7 +2066,7 @@ Tranquillity invades your mind. You wonder at how lucky you are, a simple <<pcow
 <br><br>
 <<if $player.vaginaExist>>
 	You start munching on the grass, and while you feel what feels like a small tube enter your vagina, followed by some cold liquid entering, it doesn't bother you.
-	<<recordSperm `{genital: "vagina", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
+	<<sceneInseminate "vagina" "Harper's serum" "human" "deep" 6 12>>
 	<<purity -3>><<internalejac>><<creampie "self" "vagina">><<set $hygiene += 1000>><<bodyliquid "vagina" "semen" 3>><<bodyliquid "vagina" "goo">>
 	<<if $xchange.pill.breederEffect and $pleasure gte $pleasuremax>>
 		<<orgasm>>
@@ -2074,7 +2074,7 @@ Tranquillity invades your mind. You wonder at how lucky you are, a simple <<pcow
 	<</if>>
 <<else>>
 	You start munching on the grass, and while you feel what feels like a small tube enter your anus, followed by some cold liquid entering, it doesn't bother you.
-	<<recordSperm `{genital: "anus", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
+	<<sceneInseminate "anus" "Harper's serum" "human" "deep" 6 12>>
 	<<purity -3>><<internalejac>><<creampie "self" "anus">><<set $hunger -= 200>><<set $thirst -= 200>><<set $hygiene += 1000>><<bodyliquid "anus" "semen" 3>><<bodyliquid "anus" "goo">>
 	<<if $xchange.pill.omegaEffect and $pleasure gte $pleasuremax>>
 		<<orgasm>>
@@ -2219,7 +2219,7 @@ When Harper's hand is close enough, you quickly clamp your teeth shut around it.
 <<if $player.breastsize gte 6 or $player.penissize gte 4>>
 	<span class="green">"I don't see any need for concern. <<pShe>> <<pverb "has" "have">> a fine body."</span>
 <!-- Checks if fetus exists before trying to access data to prevent TypeErrorException -->
-<<elseif playerBellyVisible() and (($sexStats.vagina.pregnancy.fetus[0] and $sexStats.vagina.pregnancy.fetus[0].father is "Harper's serum") or ($sexStats.anus.pregnancy.fetus[0] and $sexStats.anus.pregnancy.fetus[0].father is "Harper's serum"))>>
+<<elseif playerBellyVisible() and getActivePregnancies("pc").some(p => p.donor is "Harper's serum")>>
 	"Be sure to give <<phim>> the best quality food, fresh air, and water you have. My serum works best when the subject is in good condition." <<He>> pats your rear affectionately.
 <<elseif playerBellyVisible()>>
 	"Be sure to give <<phim>> a lot of food, fresh air, and water. <<pShe>> <<pverb "is" "are">> with child. It needs to be nourished."
@@ -3433,13 +3433,13 @@ The rest of your punishment passes by uneventfully.
 <</if>>
 <br><br>
 <<if Time.hour gte 19>>
-	<<if $livestock.obey gte 80 and C.npc.Remy.love gte 50 and random(1,100) gte 60 and !playerChastity()>>
+	<<if $livestock.obey gte 80 and C.npc.Remy.love gte 50 and random(1,100) gte 60 and !playerChastity() and $livestock.pride is 1>>
 		<<link [[Obey|Livestock Milking Obey]]>><<npcincr Remy dom 1>><<livestock_obey 5>><<set $phase to 1>><</link>><<ggobey>>
 		<br>
 		<<link [[Resist|Livestock Milking Refuse]]>><<npcincr Remy dom -1>><<livestock_obey -5>><</link>><<lobey>>
 		<br>
 	<<else>>
-		<<link [[Obey|Livestock Milking Obey]]>><<npcincr Remy dom 1>><<livestock_obey 5>><</link>><<ggobey>>
+		<<link [[Obey|Livestock Milking Obey]]>><<npcincr Remy dom 1>><<livestock_obey 5>><<set $phase to 0>><</link>><<ggobey>>
 		<br>
 		<<link [[Resist|Livestock Milking Refuse]]>><<npcincr Remy dom -1>><<livestock_obey -5>><</link>><<lobey>>
 		<br>

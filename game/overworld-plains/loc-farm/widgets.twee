@@ -1229,7 +1229,7 @@
 		<<person1>><<He>> looks at <<his>> watch, then reclines and pulls the brim of <<his>> hat over <<his>> face.
 		<br><br>
 
-		<<if playerIsPregnant() and playerAwareTheyArePregnant() and getPregnancyObject().potentialFathers.find(s => s.source === "Alex") and (C.npc.Alex.pregnancy.pcKnowledge isnot true or C.npc.Alex.pregnancy.test is true) and C.npc.Alex.pregnancy.ultraSound isnot "requested">>
+		<<if playerIsPregnant() and playerAwareTheyArePregnant() and getActivePregnancies("pc").some(p => couldBeDonor(p, "Alex")) and (C.npc.Alex.pregnancy.pcKnowledge isnot true or C.npc.Alex.pregnancy.test is true) and C.npc.Alex.pregnancy.ultraSound isnot "requested">>
 			<<pcPregnancyRevealToAlex>>
 
 		<<else>>
@@ -1245,7 +1245,7 @@
 		<<person1>><<He>> looks at <<his>> watch, and sighs. "I'd better get back to work," <<he>> says, rising to <<his>> feet. "Thanks for the company."
 		<br><br>
 
-		<<if playerIsPregnant() and playerAwareTheyArePregnant() and getPregnancyObject().potentialFathers.find(s => s.source === "Alex") and (C.npc.Alex.pregnancy.pcKnowledge isnot true or C.npc.Alex.pregnancy.test is true) and C.npc.Alex.pregnancy.ultraSound isnot "requested">>
+		<<if playerIsPregnant() and playerAwareTheyArePregnant() and getActivePregnancies("pc").some(p => couldBeDonor(p, "Alex")) and (C.npc.Alex.pregnancy.pcKnowledge isnot true or C.npc.Alex.pregnancy.test is true) and C.npc.Alex.pregnancy.ultraSound isnot "requested">>
 			<<pcPregnancyRevealToAlex>>
 
 		<<else>>
@@ -1349,8 +1349,8 @@
 
 					<<if $worn.under_lower.name is "naked">>
 						"No <<panties>>," <<he>> says. "Naughty <<girl>>."<<gtrauma>><<gstress>><<trauma 6>><<stress 6>>
+						<br><br>
 					<</if>>
-					<br><br>
 					<<link [[Ignore|Farm Work]]>><<endevent>><<stress 6>><</link>><<gstress>>
 					<br>
 					<<link [[Get angry|Farm Builders Skirt Angry]]>><<trauma -6>><<def 1>><</link>><<ltrauma>>
@@ -2522,7 +2522,7 @@
 
 <<widget "farm_cottage_tv_options">>
 
-	<<if C.npc.Alex.pregnancy.pcKnowledge is true and C.npc.Alex.pregnancy.ultraSoundPics is true and C.npc.Alex.pregnancy.sample isnot true and getPregnancyObject().potentialFathers.length is 1>>
+	<<if C.npc.Alex.pregnancy.pcKnowledge is true and C.npc.Alex.pregnancy.ultraSoundPics is true and C.npc.Alex.pregnancy.sample isnot true and getPlayerPregnancy()?.possibleDonors.length is 1>>
 		<<ind>><<link [[Show Alex your ultrasound pictures (0:05)|Farm PC Ultrasound Pics Show]]>><</link>>
 		<br><br>
 	<</if>>
@@ -2962,39 +2962,41 @@
 <</widget>>
 
 <<widget "farm_attack_auto_fight">>
-	<<set _farm_fight to 0>>
-	<<if $farm.kennel gte 1>>
-		<<set _farm_fight += 1>>
-	<</if>>
-	<<if $farm.wall gte 4>>
-		<<set _farm_fight += 4>>
-	<<elseif $farm.wall gte 3>>
-		<<set _farm_fight += 3>>
-	<<elseif $farm.wall gte 2>>
-		<<set _farm_fight += 2>>
-	<<elseif $farm.wall gte 1>>
-		<<set _farm_fight += 1>>
-	<</if>>
-	<<if $farm.tower gte 2 and $farm.tower_guard>>
-		<<set _farm_fight += Math.trunc($farm.tower_guard_skill / 250)>>
-	<<elseif $farm.tower gte 1 and $farm.tower_guard>>
-		<<set _farm_fight += Math.trunc($farm.tower_guard_skill / 500)>>
-	<</if>>
 	<<switch $farm_stage>>
 		<<case 12>>
-			<<set _farm_damage to (9 - _farm_fight)>>
+			<<set _farm_damage to 9>>
 		<<case 11>>
-			<<set _farm_damage to (8 - _farm_fight)>>
+			<<set _farm_damage to 8>>
 		<<case 10>>
-			<<set _farm_damage to (7 - _farm_fight)>>
+			<<set _farm_damage to 7>>
 		<<case 9>>
-			<<set _farm_damage to (6 - _farm_fight)>>
+			<<set _farm_damage to 6>>
 		<<case 8>>
-			<<set _farm_damage to (5 - _farm_fight)>>
+			<<set _farm_damage to 5>>
 		<<default>>
-			<<set _farm_damage to (4 - _farm_fight)>>
+			<<set _farm_damage to 4>>
 	<</switch>>
-	<<if _farm_damage is 0 and $farm_stage gte 12>>
+	<<if $bailey_encroach>>
+		<<set _farm_damage += 2>>
+	<</if>>
+	<<if $farm.kennel gte 1>>
+		<<set _farm_damage -= 1>>
+	<</if>>
+	<<if $farm.wall gte 4>>
+		<<set _farm_damage -= 4>>
+	<<elseif $farm.wall gte 3>>
+		<<set _farm_damage -= 3>>
+	<<elseif $farm.wall gte 2>>
+		<<set _farm_damage -= 2>>
+	<<elseif $farm.wall gte 1>>
+		<<set _farm_damage -= 1>>
+	<</if>>
+	<<if $farm.tower gte 2 and $farm.tower_guard>>
+		<<set _farm_damage -= Math.trunc($farm.tower_guard_skill / 250)>>
+	<<elseif $farm.tower gte 1 and $farm.tower_guard>>
+		<<set _farm_damage -= Math.trunc($farm.tower_guard_skill / 500)>>
+	<</if>>
+	<<if _farm_damage lte 0 and $farm_stage gte 12>>
 		<<run $timeMessages.pushUnique("heroicVictory")>>
 	<</if>>
 	<<damage_farm "loop" _farm_damage>>
@@ -3170,7 +3172,7 @@
 		<span class ="green">A nice place for your livings.</span>
 		<br>
 
-	<<elseif talkedAboutPregnancy("Alex","pc") or (talkedAboutPregnancy("pc","Alex") and getPregnancyObject().potentialFathers.length is 1 and getPregnancyObject().fetus[0].father is "Alex") or C.npc.Alex.pregnancy.knowledge is true>>
+	<<elseif talkedAboutPregnancy("Alex","pc") or (talkedAboutPregnancy("pc","Alex") and getActivePregnancies("pc").some(p => p.donor === "Alex" && p.possibleDonors.length === 1)) or C.npc.Alex.pregnancy.knowledge is true>>
 		Cottage:
 		<<link [[Nursery|Farm Upgrades Nursery]]>><</link>>
 		<br>
@@ -3477,7 +3479,7 @@
 			<<if $farm_stage gte 7>>
 				Alex stares at your belly in horror. "You're...you're pregnant?! You didn't tell me anything..."
 
-				<<if getPregnancyObject().potentialFathers.length gte 2>>
+				<<if getPlayerPregnancy()?.possibleDonors.length gte 2>>
 					<<He>> sounds disappointed.
 					<br><br>
 
@@ -3566,7 +3568,7 @@
 <</if>>
 	<<if talkedAboutPregnancy("pc","Alex")>>
 		<<if C.npc.Alex.pregnancy.pcKnowledge isnot true>>
-			<<if getPregnancyObject().fetus[0].father is "Alex" and getPregnancyObject().potentialFathers.length is 1>>
+			<<if getActivePregnancies("pc").some(p => p.donor === "Alex" && p.possibleDonors.length === 1)>>
 				<span class="blue">Maybe this is a good opportunity to tell Alex that <<he>> is the father.</span>
 				<br>
 
@@ -3649,7 +3651,7 @@
 		<</if>>
 
 	<<elseif playerIsPregnant() and playerAwareTheyArePregnant() and !talkedAboutPregnancy("pc","Alex")>>
-		<<if getPregnancyObject().fetus[0].father is "Alex" and getPregnancyObject().potentialFathers.length is 1>>
+		<<if getActivePregnancies("pc").some(p => p.donor === "Alex" && p.possibleDonors.length === 1)>>
 			<<if $genderknown.includes("Alex") and !$player.vaginaExist and !knowsAboutAnyPregnancy("pc","Alex")>>
 				<<if C.npc.Alex.pregnancy.ultraSound and C.npc.Alex.pregnancy.ultraSound.includes("collected")>>
 					<span class="blue">Maybe this is a good opportunity to talk to Alex about your pregnancy again.</span>
@@ -3716,7 +3718,7 @@
 <<widget "pcFarmBirth">>
 	<<speechresolve>>
 	<<npc "Alex">><<person1>>
-	<<if $farm_stage gte 7 and getPregnancyObject().potentialFathers.length is 1 and getPregnancyObject().fetus[0].father is "Alex" and talkedAboutPregnancy("pc","Alex") and C.npc.Alex.pregnancy.pcKnowledge is true>>
+	<<if $farm_stage gte 7 and getActivePregnancies("pc").some(p => p.donor === "Alex" && p.possibleDonors.length === 1) and talkedAboutPregnancy("pc","Alex") and C.npc.Alex.pregnancy.pcKnowledge is true>>
 
 		You call for Alex. "I'm coming!" <<he>> shouts.
 		<br>

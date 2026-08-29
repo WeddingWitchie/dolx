@@ -48,6 +48,15 @@ declare module "twine-sugarcube" {
 		baileyRefusedToPayTotal: number;
 		baileyRefusedToPayTotalStat: number;
 
+		bailey_confiscation: {
+			items: Array<
+				| { source: "clothing"; slot: string; name: string; value: number; item: object }
+				| { source: "furniture"; category: string; id: string; name: string; value: number }
+			>;
+			day: number;
+		} | null;
+		bailey_confiscation_lost: 0 | 1;
+
 		loveInterest: {
 			primary: string;
 			secondary: string;
@@ -448,7 +457,6 @@ declare global {
 		filter: string[];
 		hint?: string;
 		pregnancyLockable?: boolean;
-		pregnancySillyLockable?: boolean;
 		softLockable?: boolean;
 	}
 

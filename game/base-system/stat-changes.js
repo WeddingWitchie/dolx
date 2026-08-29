@@ -32,6 +32,42 @@ const statChange = (() => {
 	}
 
 	/**
+	 * $drunk has a maximum value of 1,000.
+	 *
+	 * Fatigue ($tiredness) has a maximum value of 2,000.
+	 * Trauma ($trauma) has a maximum value of 5,000.
+	 *
+	 * Conversion rates for excess $drunk are:
+	 * 1 $drunk ==> 1 $tiredness
+	 * 1 $drunk ==> 0.25 $trauma
+	 *
+	 * Trauma gains increase up to 100% at low $control.
+	 *
+	 * 1 bottle of alcohol gives 60 $drunk. At max $drunk, this overflows into:
+	 * 60 $tiredness (1 hour of time)
+	 * 15-30 $trauma.
+	 */
+	function drunkClamp() {
+		// Overflow check
+		const overflow = V.drunk - V.drunkmax;
+		if (overflow > 0) {
+			// Add 100% of the overflow to fatigue.
+			V.tiredness += overflow;
+
+			// Increase trauma gains by up to 2x if the player is at low control.
+			const controlMod = 2 - V.control / 1000;
+
+			// Add 25-50% of the overflow to the player's trauma, depending on the controlMod.
+			V.trauma += overflow * 0.25 * controlMod;
+		}
+
+		// Clamps for safety.
+		V.drunk = Math.clamp(V.drunk, 0, V.drunkmax);
+		fatigueClamp(); // Calls stressClamp() and traumaClamp()
+	}
+	DefineMacro("drunkClamp", drunkClamp);
+
+	/**
 	 * Returns the total temporary beauty bonus from all active sources.
 	 * Includes: bath, teeth, face, hands, hygiene (intimate), and makeup (dynamic).
 	 * Use this wherever game mechanics read beauty to include temporary boosts.
@@ -137,32 +173,36 @@ const statChange = (() => {
 	}
 	DefineMacro("fatigueClamp", fatigueClamp);
 
-	function alcoholClamp() {
-		const overflow = V.drunk - 1000;
-		if (Number.isFinite(overflow) && overflow > 0) {
-			V.tiredness += overflow;
-			const controlMod = 2 - V.control / V.controlmax;
-			V.trauma += overflow * 0.25 * controlMod;
-		}
-		V.drunk = Math.clamp(V.drunk, 0, 1000);
-		fatigueClamp();
-	}
-	DefineMacro("alcoholClamp", alcoholClamp);
-
-	function alcohol(amount) {
-		if (isNaN(amount)) paramError("alcohol", "amount", amount, "Expected a number.");
+	function drunk(amount) {
+		if (isNaN(amount)) paramError("drunk", "amount", amount, "Expected a number.");
 		amount = Number(amount);
-		let mod = Number(V.alcoholMod);
+		/**
+		 * Modify the effect of drink on the player, based on their tolerance.
+		 *
+		 * Note that their tolerance only changes how much they're IMPACTED by alcohol consumption. A heavyweight may be able to drink more than a lightweight, but their bodies will still flush out alcohol at the same rate.
+		 *
+		 * Because of that, V.drunkSensitivity is applied to both positive and negative changes to the player's drunk level.
+		 *
+		 * DoLX: guarded against a non-finite value, which used to poison $drunk permanently once written.
+		 */
+		let mod = Number(V.drunkSensitivity);
 		if (!Number.isFinite(mod)) {
-			V.alcoholMod = 1;
+			V.drunkSensitivity = 1;
 			mod = 1;
 			if (typeof updateMoment === "function") updateMoment();
 		}
+
+		/**
+		 * The "Dendrophile" trait amplifies the impact of alcohol consumption, without affecting how quickly the player
+		 * recovers. DoLX adds the opium addict background alongside it.
+		 */
 		if ((V.backgroundTraits.includes("plantlover") || V.backgroundTraits.includes("opiumaddict")) && amount > 0) mod *= 1.5;
+
 		V.drunk += amount * mod;
-		alcoholClamp();
+
+		drunkClamp();
 	}
-	DefineMacro("alcohol", alcohol);
+	DefineMacro("drunk", drunk);
 
 	function tiredness(amount, source) {
 		if (isNaN(amount)) paramError("tiredness", "amount", amount, "Expected a number.");
@@ -1611,11 +1651,11 @@ const statChange = (() => {
 	DefineMacro("badEndTrackingEnd", (source, optional) => badEndTrackingEnd(source, optional));
 
 	return {
-		alcoholClamp,
+		drunkClamp,
 		fatigueClamp,
 		stressClamp,
 		traumaClamp,
-		alcohol,
+		drunk,
 		tiredness,
 		stress,
 		trauma,

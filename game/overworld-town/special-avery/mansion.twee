@@ -1389,7 +1389,6 @@ You climb from the pool, and dry yourself using the towels stacks just inside th
 <</if>><<avery_mansion>><<avery_daily_talk>>
 <<npc "Avery">><<person1>>
 
-<<set $daily.avery.talk.count += 1>>
 <<unset $avery_ask>>
 <<if $daily.avery.talk.ignore and $daily.avery.talk.limit>> /* Avery's ignoring the PC */
 	Avery
@@ -1416,7 +1415,7 @@ You climb from the pool, and dry yourself using the towels stacks just inside th
 	You shouldn't bother Avery anymore for today.
 	<br><br>
 	<<getouticon>><<link [[Leave Avery be|Mansion Talk Leave]]>><</link>>
-<<elseif !$daily.avery.talk.limit and $daily.avery.talk.count gte 4>>
+<<elseif !$daily.avery.talk.limit and $daily.avery.talk.chat gte $daily.avery.talk.chat_limit + 1>>
 	<<set $daily.avery.talk.limit to true>>
 	<<if $averyragerevealed is 1 and C.npc.Avery.rage gte 80 and $avery_mansion.schedule isnot "party_prepare">>
 		<<if $avery_mansion.schedule is "pool" and $avery_pool is "swim">>
@@ -1498,7 +1497,7 @@ You climb from the pool, and dry yourself using the towels stacks just inside th
 		<br><br>
 		<<getouticon>><<link [[Leave Avery be|Mansion Talk Leave]]>><</link>>
 	<</if>>
-<<elseif $daily.avery.talk.count gte 3>>
+<<elseif $daily.avery.talk.chat gte $daily.avery.talk.chat_limit>>
 	<<set $daily.avery.talk.ignore to true>>
 	<<if $avery_mansion.schedule is "sleep">>
 		Avery glares at you. "Leave me the fuck alone," <<he>> <<= either(`growls`,`hisses`)>>. "I'm trying to sleep."
@@ -2524,7 +2523,6 @@ You climb from the pool, and dry yourself using the towels stacks just inside th
 	<<avery_housework_check>>
 	<<avery_current_room_dirty_check>>
 	<<if $avery_mansion.rage.assess gte 1 or $averypartymiss is 1>>
-		<<run console.log(_chat)>>
 		<<if _chat.rage_select is "hair">> /* Hair */
 			"Your hair." <<He>> raises a hand to curl a lock of it around <<his>> finger, tugging on it. "I seem to recall saying something about keeping it <<= $avery_mansion.jobs.includes("hairlength") and $hairlength gte 400 ? `neater than this when I get home—and shorter, too` : $hairtype isnot "neat" ? `neater than this when I get home` : `shorter than this`>>. Perhaps you simply didn't hear me?" <<He>> chuckles.<<if $averyragerevealed is 1 or $averySeen.includes("chase")>> It sounds more like a warning than a joke.<</if>>
 			<br><br>
@@ -6432,7 +6430,7 @@ With a flourish, <<he>> finishes the composition.
 		<<link [[Drink with <<him>>|Mansion Piano Fox Talk]]>><<set $mansion_fox_talk to "drink">><</link>>
 		<br>
 	<<else>>
-		<<link [[Drink with <<him>>|Mansion Piano Fox Talk]]>><<set $mansion_fox_talk to "drink">><<alcohol 60>><</link>><<galcohol>>
+		<<link [[Drink with <<him>>|Mansion Piano Fox Talk]]>><<set $mansion_fox_talk to "drink">><<drunk 60>><</link>><<gdrunk>>
 		<br>
 	<</if>>
 <</if>>

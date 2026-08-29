@@ -222,17 +222,18 @@ test.describe("sidebar canvas", () => {
 		await navigateTo(page, "Start2");
 		expect(await page.evaluate(() => (window as any).SugarCube.State.variables.options.bodySizeScaling)).toBe(false);
 
+		// Mirrors the <<canvasimg>> table in game/base-clothing/canvasmodel-img.twee.
 		const cases = [
-			{ bodySize: 1, animations: true, enabled: true, scale: 1 },
-			{ bodySize: 0, animations: true, enabled: true, scale: 0.985 },
-			{ bodySize: -1, animations: true, enabled: true, scale: 0.97 },
-			{ bodySize: 1, animations: false, enabled: true, scale: 1 },
-			{ bodySize: 0, animations: false, enabled: true, scale: 0.985 },
-			{ bodySize: -1, animations: false, enabled: true, scale: 0.97 },
+			{ bodySize: 1, animations: true, enabled: true, scale: 0.989 },
+			{ bodySize: 0, animations: true, enabled: true, scale: 0.987 },
+			{ bodySize: -1, animations: true, enabled: true, scale: 0.98 },
+			{ bodySize: 1, animations: false, enabled: true, scale: 0.989 },
+			{ bodySize: 0, animations: false, enabled: true, scale: 0.987 },
+			{ bodySize: -1, animations: false, enabled: true, scale: 0.98 },
 			{ bodySize: 2, animations: true, enabled: true, scale: 1 },
 			{ bodySize: 2.5, animations: true, enabled: true, scale: 1.01 },
-			{ bodySize: 3, animations: true, enabled: true, scale: 1.02 },
-			{ bodySize: 4, animations: true, enabled: true, scale: 1.03 },
+			{ bodySize: 3, animations: true, enabled: true, scale: 1.013 },
+			{ bodySize: 4, animations: true, enabled: true, scale: 1.023 },
 			{ bodySize: -1, animations: true, enabled: false, scale: 1 },
 		];
 

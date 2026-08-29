@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -952,7 +952,14 @@ function dayPassed(days) {
 			if (V.valentines && Time.monthDay === 13) V.timeMessages.pushUnique("valentinesTomorrow");
 			if (V.valentines && Time.monthDay === 14) V.timeMessages.pushUnique("valentinesToday");
 
-			if (V.avery_mansion && V.avery_fate !== "fallen" && V.avery_fate !== "kicked") {
+			// Vanilla 0.5.12.0: while the PC is stuck in a bad end Bailey knows about, the rent clock
+			// freezes entirely -- Bailey stops expecting payment and Avery stops covering it, so
+			// Avery's rage can't climb over a stay the PC couldn't walk out of.
+			const rentPaused = inRentPausedBadEnd();
+			const hasMansion = V.avery_mansion && V.avery_fate !== "fallen" && V.avery_fate !== "kicked";
+			if (rentPaused) {
+				// nothing ticks: no absence, no rent, no missed-rent debt
+			} else if (hasMansion) {
 				// Avery takes on the PC's debt, but stops if unsatisfied
 				if (Time.weekDay !== 1) {
 					V.avery_mansion.days_absent++;
@@ -977,7 +984,6 @@ function dayPassed(days) {
 					if (V.renttime <= 0) V.renttime = 7;
 					V.baileyRefusedToPayTotal = 0;
 				}
-				V.avery_mansion.study_unlocked = 0;
 			} else {
 				V.renttime--;
 				/* Let Robin's earned-independence scene happen before an old Bailey deposit silently pays the doubled demand. */
@@ -995,6 +1001,7 @@ function dayPassed(days) {
 					}
 				}
 			}
+			if (hasMansion) V.avery_mansion.study_unlocked = 0;
 
 			if (V.flashbacktown > 0) V.flashbacktown--;
 			if (V.flashbackhome > 0) V.flashbackhome--;
@@ -1142,8 +1149,8 @@ function dayPassed(days) {
 			}
 
 			wikifier("menstruationCycle", "daily");
-			pregnancyProgress();
-			pregnancyProgress("anus");
+			advancePregnancy("vagina");
+			advancePregnancy("anus");
 			wikifier("rutCycle");
 			npcPregnancyCycle();
 			randomPregnancyProgress();
@@ -1184,6 +1191,10 @@ function dayPassed(days) {
 				}
 			}
 
+			if (C.npc.Whitney.state === "dungeon") {
+				V.whitney.daysSinceCapture++;
+			}
+
 			/* Pirate journey countdown is handled in the "Pirate Deck" passage, computed from Time.days since the journey started.
 			Do NOT touch V.pirate_journey here. */
 			if (V.pirate_attack) {
@@ -1212,7 +1223,7 @@ function dayPassed(days) {
 				// no egg progress today
 			} else if (
 				V.waterDragonEggs &&
-				(!(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) || !Transformations.isFullWaterDragon()) &&
+				(!(V.player.vaginaExist || canBeMPregnant()) || !Transformations.isFullWaterDragon()) &&
 				!(V.waterDragonLab && V.waterDragonLab.active)
 			) {
 				delete V.waterDragonEggs;
@@ -1223,7 +1234,7 @@ function dayPassed(days) {
 				!eggCycleBlocked &&
 				!V.waterDragonEggs &&
 				V.settings.playerPregnancyEggLayingEnabled === true &&
-				(V.player.vaginaExist || (playerIsXChanged() && V.xchange.pill.omegaEffect)) &&
+				(V.player.vaginaExist || canBeMPregnant()) &&
 				!playerIsPregnant() &&
 				Transformations.isFullWaterDragon()
 			) {
@@ -1377,8 +1388,6 @@ function hourPassed(hours, advanceFirst) {
 			if (numberOfEarSlime() > 1 && V.earSlime.growth < 100) V.earSlime.defyCooldown--;
 			if (V.earSlime.defyCooldown <= 0) V.earSlime.defyCooldown = 0;
 		}
-		playerEndWaterProgress();
-
 		if (V.wolfpatrolsent >= 1) V.wolfpatrolsent++;
 
 		if (C.npc.Sydney.init === 1) {
@@ -1439,9 +1448,37 @@ function hourPassed(hours, advanceFirst) {
 		// time checks
 		if (Time.hour === 6) dawnCheck();
 		if (Time.hour === 12) noonCheck();
+
+		// Pregnancy reads the current time. DoLX advances the clock at the top of this loop rather
+		// than the bottom, so by here the hour is already the one being processed.
+		if (V.settings.pregnancyType !== "realistic") {
+			// Fetish mode. Pending conceptions from realistic mode are thrown out.
+			V.pendingPregnancies.vagina = null;
+			V.pendingPregnancies.anus = null;
+		}
+		hourlyPregnancyUpdate();
+		checkLabour();
+		if (V.settings.pregnancyType === "realistic") {
+			rollAndRecordConception("vagina");
+			rollAndRecordConception("anus");
+		}
+
+		if (V.fishing) {
+			// Decrease fishing danger values by 0.5 per hour, and remove the event if the danger is 0.
+			Object.values(V.fishing).forEach(location => {
+				if (location?.eventDanger > 0) {
+					location.eventDanger = Math.max(0, location.eventDanger - 0.5);
+					if (location.eventDanger === 0) {
+						location.event = "none";
+					}
+				}
+			});
+		}
 	}
 	/* changes that can be applied just once. consider if using V.hourly would make better sense before putting things here */
 	calchairlengthstage();
+
+	window.baileyConfiscationTick();
 
 	xchangeHourlyCheck(hours); // check for pill expiration and permanence conditions.
 	hourlyClothingFemininityCheck(hours); // take stock of clothing femininity on this hour for the purpose of gender identity shifts.
@@ -1571,7 +1608,7 @@ function minutePassed(minutes) {
 		// Metabolic tolerance: up to 1.5x faster alcohol clearance at max tolerance.
 		const clearanceMod = 1 + 0.5 * (newTolerance / 1000);
 		// warning: assumes 1:1 negative alcohol changes, true as of yet
-		statChange.alcohol(-minutes * alcoholRate * clearanceMod);
+		statChange.drunk(-minutes * alcoholRate * clearanceMod);
 		// V.drunk ranging from 0 to 1000, 1 minute at 1000 will add extra 1.25 of tiredness (2.25x total)
 		// reference values are 2x at 800, 1.5x at 400 (pain reduction from drunkenness starts at 360), 1.25x at 200
 		if (minutes < 1200) statChange.tiredness((drunkMod / 12000) * toleranceFactor);
@@ -1803,8 +1840,8 @@ function noonCheck() {
 	if (V.edenNightmareWake) delete V.edenNightmareWake;
 
 	wikifier("menstruationCycle");
-	pregnancyProgress();
-	pregnancyProgress("anus");
+	advancePregnancy("vagina");
+	advancePregnancy("anus");
 
 	if (V.weekly.schoolNightPoolParty && V.weekly.schoolNightPoolParty !== "intro") V.weekly.schoolNightPoolParty = false;
 	delete V.birdSleep;
@@ -1943,6 +1980,7 @@ function dailyNPCEffects() {
 	if (C.npc.Avery.state !== "dismissed") {
 		V.averyschoolpickup = 0;
 		V.averyseen = 0;
+		V.averyBodyWritingSeen = false;
 		if (V.averydate && Time.weekDay === 1) {
 			V.averydate = 0;
 			if (V.averydateattended !== 1 && !V.avery_injury) V.averydatemissed = 1;
@@ -1962,7 +2000,7 @@ function dailyNPCEffects() {
 		if (V.avery_mansion) {
 			V.avery_mansion.days++;
 			V.avery_mansion.date_ready = false;
-			if (Time.weekDay === 2 && !V.avery_injury) {
+			if (Time.weekDay === 2 && !V.avery_injury && !inRentPausedBadEnd()) {
 				if (["waiting", "skipped"].includes(V.avery_mansion.party_state)) {
 					V.avery_mansion.party_state = "missed";
 					V.avery_mansion.party_missed_guest = V.avery_mansion.hbsc_gala_pending ? "HBSC Gala" : V.avery_mansion.guest;
@@ -2006,7 +2044,7 @@ function dailyNPCEffects() {
 				}
 			}
 
-			if (V.avery_mansion.rage.dinner_done !== 1 && between(Time.weekDay, 3, 7) && !V.avery_injury) {
+			if (V.avery_mansion.rage.dinner_done !== 1 && between(Time.weekDay, 3, 7) && !V.avery_injury && !inRentPausedBadEnd()) {
 				if (V.avery_valentines?.done && Time.monthDay === 15 && Time.monthName === "February") {
 					// do not spoil the valentines
 				} else {
@@ -2904,7 +2942,9 @@ function dailySchoolEffects() {
 		V.schoolLessonsMissed.english += !Number(V.daily.school.attended.english);
 		V.schoolLessonsMissed.history += !Number(V.daily.school.attended.history);
 		V.schoolLessonsMissed.swimming += !Number(V.daily.school.attended.swimming);
-		V.lessonmissed += 5 - attended * 2; // Reduce lessonmissed if lessons are attended
+		const BREAKPOINTS = [200, 400, 700, 1000];
+		const bonus = BREAKPOINTS.filter(t => V.school / 4 >= t).length;
+		V.lessonmissed += 5 - attended * (2 + bonus); // Reduce lessonmissed if lessons are attended
 		V.lessonmissed = Math.max(0, V.lessonmissed);
 		V.lessonmissedtext = 5 - attended;
 	}
@@ -3458,7 +3498,7 @@ function getArousal(passMinutes, chastityArousalCap = Infinity, chastityFrustrat
 			} else if (V.earSlime.vibration > 0) {
 				addedArousal += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * genitalSensitivity;
 				V.earSlime.vibration -= Math.clamp(passMinutes, 0, V.earSlime.vibration);
-				V.earSlime.lastVibration = Math.clamp(passMinutes - V.earSlime.vibration, 0, Infinity);
+				V.earSlime.lastVibration = Math.max(passMinutes - V.earSlime.vibration, 0);
 			}
 		}
 	} else {
@@ -3622,3 +3662,9 @@ function supermarketWeekly() {
 	});
 }
 DefineMacro("supermarketWeekly", supermarketWeekly);
+
+function inRentPausedBadEnd() {
+	const badEnd = V.badEndStats?.last();
+	if (!Number.isFinite(badEnd?.trackedStart) || badEnd.trackedEnd !== undefined) return false;
+	return window.Constants.badEndsThatPauseRent.includes(badEnd.source);
+}

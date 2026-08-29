@@ -1,4 +1,4 @@
-/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive */
+/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancy canBeMPregnant playerIsPregnant */
 /* ============================================================
    X-CHANGE PILL DEFINITIONS  (all of them)
    ============================================================
@@ -100,9 +100,9 @@ window.makeGrayXChangePill = makeGrayXChangePill;
 const grayGate = {
 	always: () => true,
 	hasVagina: () => !!V.player.vaginaExist,
-	canConceive: () => !!V.player.vaginaExist && V.sexStats.vagina.pregnancy.type === null,
+	canConceive: () => !!V.player.vaginaExist && !getActivePregnancy("pc", "vagina"),
 	/* Omega (or another mpreg source) lets a vagina-less body conceive anally. */
-	canConceiveAnally: () => typeof canBeMPregnant === "function" && canBeMPregnant() && V.sexStats.anus.pregnancy.type === null,
+	canConceiveAnally: () => typeof canBeMPregnant === "function" && canBeMPregnant() && !getActivePregnancy("pc", "anus"),
 	canConceiveAnyHole: () => grayGate.canConceive() || grayGate.canConceiveAnally(),
 	/* The fertility course also potentiates sperm, so a penis qualifies on its own. */
 	fertilityCourse: () => grayGate.hasPenis() || grayGate.canConceiveAnyHole(),
@@ -377,7 +377,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -417,7 +417,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink", true)) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink", true);
@@ -466,7 +466,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -515,7 +515,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -564,7 +564,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -613,7 +613,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -662,7 +662,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -710,7 +710,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null && V.xchange.pill.xtendEffect ? 1 : 0;
+			return playerIsXChanged() && !getActivePregnancy("pc", "vagina") && V.xchange.pill.xtendEffect ? 1 : 0;
 		},
 		effects: [`<<xchange-restore>>`],
 		npc_display_condition() {
@@ -756,7 +756,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -804,7 +804,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -853,7 +853,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink", true)) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && V.sexStats.anus.pregnancy != null && V.sexStats.anus.pregnancy.type != null);
+			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
 			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
 		},
 		take_blocked_reason() {
@@ -893,7 +893,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -941,7 +941,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -989,7 +989,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -1037,7 +1037,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -1086,7 +1086,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -1134,7 +1134,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("pink");
@@ -1182,7 +1182,7 @@ setup.pills.push(
 			return this.owned() > 0 && V.xchange.pill.choiceEffect ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null && V.xchange.pill.choiceEffect ? 1 : 0;
+			return playerIsXChanged() && !getActivePregnancy("pc", "vagina") && V.xchange.pill.choiceEffect ? 1 : 0;
 		},
 		effects: [`<<xchange-restore>>`],
 	},
@@ -1217,7 +1217,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("pink")) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && V.sexStats.anus.pregnancy != null && V.sexStats.anus.pregnancy.type != null);
+			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
 			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
 		},
 		take_blocked_reason() {
@@ -1264,7 +1264,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && V.sexStats.anus.pregnancy != null && V.sexStats.anus.pregnancy.type != null);
+			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
 			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
@@ -1306,7 +1306,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1345,7 +1345,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue", true)) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue", true);
@@ -1393,7 +1393,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1442,7 +1442,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1489,7 +1489,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1538,7 +1538,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1587,7 +1587,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1635,7 +1635,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1684,7 +1684,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue", true)) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue", true);
@@ -1724,7 +1724,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue", true)) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && V.sexStats.anus.pregnancy != null && V.sexStats.anus.pregnancy.type != null);
+			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
 			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
 		},
 		take_blocked_reason() {
@@ -1764,7 +1764,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1812,7 +1812,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1860,7 +1860,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1908,7 +1908,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -1957,7 +1957,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -2005,7 +2005,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		take_blocked_reason() {
 			return xchangePillBlockedReason("blue");
@@ -2053,7 +2053,7 @@ setup.pills.push(
 			return this.owned() > 0 && V.xchange.pill.choiceEffect ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null && V.xchange.pill.choiceEffect ? 1 : 0;
+			return playerIsXChanged() && !getActivePregnancy("pc", "vagina") && V.xchange.pill.choiceEffect ? 1 : 0;
 		},
 		effects: [`<<xchange-restore>>`],
 	},
@@ -2089,7 +2089,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 1 "herm">>`],
 		npc_display_condition() {
@@ -2129,7 +2129,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 30 "herm">>`],
 		npc_display_condition() {
@@ -2169,7 +2169,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 3 "herm" "continue">>`],
 		npc_display_condition() {
@@ -2209,7 +2209,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 1 "herm" "resistance">>`],
 		npc_display_condition() {
@@ -2248,7 +2248,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 0.25 "herm">>`],
 		npc_display_condition() {
@@ -2288,7 +2288,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 7 "herm">>`],
 		npc_display_condition() {
@@ -2327,7 +2327,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 7 "herm" "breeder" "fertile">>`],
 		npc_display_condition() {
@@ -2366,7 +2366,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 7 "herm" "bull">>`],
 		npc_display_condition() {
@@ -2406,7 +2406,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			const isPregnantForXChange = playerIsPregnant() || (V.sexStats.anus?.pregnancy != null && V.sexStats.anus.pregnancy.type != null);
+			const isPregnantForXChange = playerIsPregnant() || !!getActivePregnancy("pc", "anus");
 			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
 		},
 		effects: [`<<take-xchange 7 "herm" "omega">>`],
@@ -2443,7 +2443,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 7 "herm" "alpha">>`],
 	},
@@ -2479,7 +2479,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			const isPregnantForXChange = playerIsPregnant() || (V.sexStats.anus?.pregnancy != null && V.sexStats.anus.pregnancy.type != null);
+			const isPregnantForXChange = playerIsPregnant() || !!getActivePregnancy("pc", "anus");
 			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
 		},
 		effects: [`<<take-xchange 7 "herm" "omega" "alpha">>`],
@@ -2516,7 +2516,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<take-xchange 7 "herm" "fertile" "fertility">>`],
 	},
@@ -2551,7 +2551,7 @@ setup.pills.push(
 		},
 		take_condition() {
 			if (!xchangePillSuitsBody("blue")) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && V.sexStats.anus.pregnancy != null && V.sexStats.anus.pregnancy.type != null);
+			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
 			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
 		},
 		take_blocked_reason() {
@@ -2600,7 +2600,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: [`<<xchange-clone 3 "Whitney">>`],
 	},
@@ -3118,7 +3118,7 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && V.sexStats.vagina.pregnancy.type === null ? 1 : 0;
+			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
 		},
 		effects: ["<<if !xchangePillProtectionActive()>><<pain 180>><<stress 130>><<trauma 80>><<gpain>><<gstress>><<gtrauma>><</if>>", "<<xchange-premium 7>>"],
 	},

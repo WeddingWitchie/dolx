@@ -1763,8 +1763,8 @@
 			<</if>>
 			<<set $birth.filters.static["PCParenthood"] to $parentList.mothers[0].kids>>
 			<<if playerIsPregnant()>>
-				<<set $birth.filters.static["FatherKnown"] to (_pregnancy.fetus[0].fatherKnown is 1 ? 0 : 999)>>
-				<<set $birth.filters.static["Father"] to _pregnancy.fetus[0].father>>
+				<<set $birth.filters.static["FatherKnown"] to (knowsDonor(_pregnancy.pregnancyId, "pc") ? 0 : 999)>>
+				<<set $birth.filters.static["Father"] to _pregnancy.donor>>
 			<<elseif $harpyEggs or $waterDragonBirthContext>>
 				<<set $birth.filters.static["FatherKnown"] to 999>>
 				<<set $birth.filters.static["Father"] to "none">>
@@ -1845,16 +1845,16 @@
 				<<set $birth.filters.static["Beastiality"] to 6>>
 			<</switch>>
 			<<if playerIsPregnant()>>
-				<<switch _pregnancy.fetus[0].type>>
+				<<switch childBaseSpecies(_pregnancy.donorSpecies)>>
 				<<case "human">>
-					<<set $birth.filters.static["FetusHuman"] to _pregnancy.fetus.length>>
+					<<set $birth.filters.static["FetusHuman"] to getChildrenOf(_pregnancy.pregnancyId).length>>
 				<<case "wolf">>
-					<<set $birth.filters.static["FetusWolf"] to _pregnancy.fetus.length>>
+					<<set $birth.filters.static["FetusWolf"] to getChildrenOf(_pregnancy.pregnancyId).length>>
 				<<case "hawk">>
 					<<if $harpyEggs or $waterDragonBirthContext>>
 						<<set $birth.filters.static["FetusHawk"] to $waterDragonBirthContext ? $waterDragonBirthContext.count : $harpyEggs.count>>
 					<<else>>
-						<<set $birth.filters.static["FetusHawk"] to _pregnancy.fetus.length>>
+						<<set $birth.filters.static["FetusHawk"] to getChildrenOf(_pregnancy.pregnancyId).length>>
 					<</if>>
 				<</switch>>
 			<<elseif $harpyEggs or $waterDragonBirthContext>>
@@ -2535,7 +2535,7 @@
 <<widget "playerEggLayEventAlternate">>
 	<<set [$_eggnant, $_eggnantGenital] to getPlayerPregnancyForBirth(true)>>
 	<<set $_eggnantGenital to $_eggnantGenital is "vagina" ? "cervix" : "ass">>
-	<<if $passage is "Bird Tower Sleep" and ($bedGuest is "Great Hawk" or $bird.state is "home" or (playerIsPregnant() and $_eggnant.type is "hawk" and $bird.state is "hunting"))>>
+	<<if $passage is "Bird Tower Sleep" and ($bedGuest is "Great Hawk" or $bird.state is "home" or (playerIsPregnant() and childBaseSpecies($_eggnant.donorSpecies) is "hawk" and $bird.state is "hunting"))>>
 		<<set _eggLayingWake to true>>
 	<<elseif ($passage is "Robin Sleep" or $passage is "Sleep") and $robinbed>>
 		<<set _eggLayingWake to true>>

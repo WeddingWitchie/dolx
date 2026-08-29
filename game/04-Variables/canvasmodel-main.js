@@ -228,36 +228,36 @@ const bodySizeIndependentLayers = new Set([
 const dollHighlightStyles = {
 	sides: new Set([
 		"afro pouf", "afro puffs", "all down", "bedhead", "braid left", "braid right", "bubble tails", "crescent tails",
-		"curly pigtails", "curly side up", "default", "dreads", "drill ringlets", "flat ponytail", "fluffy half up twintail",
-		"fluffy ponytail", "french bob", "half up twintail", "half-up", "heart braid", "jellyfish ponytail", "jellyfish twintails",
-		"layered bob", "left fishtail", "loop braid", "low tails", "messy bun", "messy ponytail", "neat", "pigtails",
-		"ponytail", "princess twintails", "princess wave", "ribbon tail", "right fishtail", "sailor buns", "scorpion tails",
+		"curly side up", "default", "dreads", "drill ringlets", "fishtail left", "fishtail right", "flat ponytail",
+		"fluffy pigtails", "fluffy ponytail", "french bob", "half up", "half up twintails",
+		"heart braid", "jellyfish ponytail", "jellyfish twintails", "layered bob", "loop braid", "low tails", "messy bun",
+		"messy ponytail", "neat", "pigtails", "ponytail", "princess twintails", "princess wave", "ribbon tail",
+		"sailor buns", "scorpion tails",
 		"shaved", "short spiky", "sidecut", "sidetail left", "sidetail right", "sleek", "space buns", "straight",
-		"straight bob", "swept left", "thick pigtails", "thick ponytail", "thick princess twintail", "thick sidetail",
-		"thick twintails", "twin braids", "twin double braids", "twin fishtails", "twintails", "wavy braid",
+		"straight bob", "swept right", "thick pigtails", "thick ponytail", "thick sidetail",
+		"thick twintails", "twin braids", "twin double braids", "twin fishtails", "twintails",
 	]),
 	fringe: new Set([
-		"aerial", "bedhead", "blunt locks", "bowl", "centred", "curtain", "default", "dread bun", "dreadlocks",
-		"drill ringlets", "emo", "emo left", "emo right", "fluffy wave", "framed", "fro", "front braids", "goopy",
-		"hime", "loose antenna", "messy curls", "middlepart", "mohawk", "old_hime", "opened curtain", "overgrown",
-		"parted", "princess wave", "quiff", "ringlet curl", "ringlets", "ruffled", "sectioned", "short air vents",
-		"side-pinned", "sideswept braid", "sleek", "split", "straight", "straight tails", "swept back", "swept left",
-		"thin flaps", "thorn and curl", "trident", "wavy sickle", "wide flaps", "wispy",
+		"aerial", "air vents", "bedhead", "blunt locks", "bowl", "curtain", "curtain locks", "default", "dreadlocks",
+		"drill ringlets", "emo", "emo left", "emo right", "framed", "fro", "front braids",
+		"hime", "loose antenna", "messy curls", "middlepart", "mohawk", "opened curtain", "overgrown", "parted",
+		"princess wave", "quiff", "ringlet curl", "ringlets", "ruffled", "sectioned", "side pinned",
+		"sideswept braid", "sleek", "split", "straight", "straight tails", "swept back", "swept right",
+		"thin flaps", "trident", "wide flaps",
 	]),
-	fringeByLength: new Set(["sidecut", "voluminous smoke"]),
+	fringeByLength: new Set(["sidecut"]),
 	sidesByLength: new Set(["all down"]),
 };
 
 /*
  * Length-suffixed styles need one color2_highlights.png per hair_*_length stage ("short".."feet", see calchairlengthstage in ingame.js);
- * "sidecut"/"voluminous smoke" ship the full set, but "all down" only ships "chest"/"feet" so far. 
+ * "sidecut" ships the full set, but "all down" only ships "chest"/"feet" so far.
  * Anything not listed here for a *ByLength style has no art yet.
  */
 const dollHighlightLengthCoverage = {
 	sides: { "all down": new Set(["chest", "feet"]) },
 	fringe: {
 		sidecut: new Set(["short", "shoulder", "chest", "navel", "thighs", "feet"]),
-		"voluminous smoke": new Set(["short", "shoulder", "chest", "navel", "thighs", "feet"]),
 	},
 };
 
@@ -949,7 +949,7 @@ Renderer.CanvasModels.main = {
 			options.upperMask.push(`img/clothes/upper/${options.worn.upper.setup.variable}/${options.worn.upper.integrity}.png`)
 		}
 
-		const hairTails = ["curly pigtails", "fluffy ponytail", "thick sidetail", "thick twintails", "ribbon tail", "thick sidetail", "thick ponytail", "half-up"];
+		const hairTails = ["fluffy pigtails", "fluffy ponytail", "thick sidetail", "thick twintails", "ribbon tail", "thick ponytail", "half up"];
 		const thickTails = ["scorpion tails", "thick pigtails", "thick twintails"];
 		const furCap = ["furcap f", "furcap m"];
 		if (
@@ -977,7 +977,7 @@ Renderer.CanvasModels.main = {
 			options.headMask.push(`img/clothes/handheld/${options.worn.handheld.setup.variable}/mask.png`);
 		}
 
-		if (["fro", "afro pouf", "afro puffs"].includes(options.hair_sides_type) && options.hair_fringe_type === "fro") {
+		if (["fro"].includes(options.hair_sides_type) && options.hair_fringe_type === "fro") {
 			options.fringe_mask_src = `img/hair/fringe/${options.hair_fringe_type}/mask.png`;
 		} else {
 			options.fringe_mask_src = null;
@@ -1807,27 +1807,30 @@ Renderer.CanvasModels.main = {
 					"braid left",
 					"braid right",
 					"bubble tails",
+					"classic",
+					"cornrows",
 					"crescent tails",
-					"crude",
 					"curl",
-					"curly pigtails",
 					"curly side up",
 					"default",
 					"defined curl",
 					"dreads",
 					"drill ringlets",
+					"fishtail left",
+					"fishtail right",
 					"flat ponytail",
-					"fluffy half up twintail",
+					"fluffy pigtails",
 					"fluffy ponytail",
 					"french bob",
+					"french curls",
 					"fro",
-					"half up twintail",
-					"half-up",
+					"half up",
+					"half up twintails",
 					"heart braid",
+					"jellyfish bob",
 					"jellyfish ponytail",
 					"jellyfish twintails",
 					"layered bob",
-					"left fishtail",
 					"loop braid",
 					"loose",
 					"low tails",
@@ -1837,10 +1840,10 @@ Renderer.CanvasModels.main = {
 					"neat",
 					"pigtails",
 					"ponytail",
+					"princess ponytail",
 					"princess twintails",
 					"princess wave",
 					"ribbon tail",
-					"right fishtail",
 					"ruffled",
 					"sailor buns",
 					"scorpion tails",
@@ -1854,18 +1857,16 @@ Renderer.CanvasModels.main = {
 					"space buns",
 					"straight",
 					"straight bob",
-					"swept left",
+					"swept right",
 					"thick pigtails",
 					"thick ponytail",
-					"thick princess twintail",
 					"thick sidetail",
 					"thick twintails",
 					"twin braids",
 					"twin double braids",
 					"twin fishtails",
 					"twintails",
-					"wavy braid"
-				  ];
+				];
 
 				const path = `img/hair/back/${options.hair_sides_type}`;
 				if (options.hair_sides_length === "feet" && hairs.includes(options.hair_sides_type))
@@ -3123,7 +3124,7 @@ Renderer.CanvasModels.main = {
 			showfn(options) {
 				return options.show_face
 					&& !!options.drip_mouth
-					&& !options.worn.face.setup.type.includesAny("mask", "face_covering");
+					&& !options.worn.face.setup.type.includesAny("face_covering");
 			},
 			dxfn(options) {
 				return options.facestyle === "small-eyes" ? 2 : 0;

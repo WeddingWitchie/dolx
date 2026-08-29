@@ -11,7 +11,7 @@ class ClothesItem {
 	/* Capitalized name of clothing | AUTOFILL | STRING */
 	name_cap;
 
-	/* Clothing name for variable purpose | REQUIRED | MUST BE UNIQUE | STRING */
+	/* Clothing name for variable purpose | REQUIRED | MUST BE UNIQUE TO SLOT | MUST MATCH OTHER OUTFIT PARTS | STRING */
 	variable;
 
 	/* Integrity of clothing | INT */
@@ -75,7 +75,7 @@ class ClothesItem {
 	/* */
 	type;
 
-	/* Clothing set | AUTOFILL | STRING */
+	/* Clothing set | AUTOFILL | MUST BE UNIQUE TO SLOT | MUST MATCH OTHER OUTFIT PARTS | STRING */
 	set;
 
 	/* Gender of the clothing | REQUIRED | STRING */
@@ -339,7 +339,7 @@ class ClothesItem {
 
 		/* autofill properties */
 		if (this.name && !this.name_cap) this.name_cap = this.name.substring(0, 1).toUpperCase() + this.name.slice(1);
-		if (this.slot && this.name && !this.set) this.set = this.outfitPrimary || this.outfitSecondary ? this.name : this.slot;
+		if (this.slot && this.name && !this.set) this.set = this.outfitPrimary || this.outfitSecondary ? this.variable : this.slot;
 		if (!this.one_piece) this.one_piece = this.outfitPrimary || this.outfitSecondary ? 1 : 0;
 		if (this.colour_options) this.colour_sidebar = this.colour_options.length ? 1 : 0;
 		if (this.accessory_colour_options) this.accessory_colour_sidebar = this.accessory_colour_options.length ? 1 : 0;

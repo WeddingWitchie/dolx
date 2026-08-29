@@ -511,7 +511,7 @@ Less than a minute later, you feel pressure low in your abdomen. It goes away, t
 		<br><br>
 	<</if>>
 	<<set _labTrueEggReady to false>>
-	<<set _labHatchingReady to Object.values($children).filter(child => child.location is "waterdragon_lab" and child.eggTimer and Time.date.timeStamp gte child.eggTimer).length>>
+	<<set _labHatchingReady to getChildrenAt("waterdragon_lab").filter(child => childIsUnhatchedEgg(child) and Time.date.timeStamp gte getHatchDate(getPregnancyOf(child))).length>>
 	<<if playerIsPregnant()>>
 		<<set [_labBirthPregnancy, _labBirthGenital] to getPlayerPregnancyForBirth(true)>>
 		<<if _labBirthPregnancy and isPregnancyEnding() and isFullWaterDragon()>>
@@ -981,10 +981,10 @@ Once it is empty <<he>> disconnects the syringe but leaves the tube where it is,
 <br><br>
 The cold turns to warmth behind your navel, then spreads through your hips.
 <<if $player.vaginaExist>>
-	<<recordSperm `{genital: "vagina", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
+	<<sceneInseminate "vagina" "Harper's serum" "human" "deep" 6 12>>
 	<<purity -3>><<internalejac>><<creampie "self" "vagina">><<set $hygiene += 1000>><<bodyliquid "vagina" "semen" 3>><<bodyliquid "vagina" "goo">>
 <<else>>
-	<<recordSperm `{genital: "anus", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
+	<<sceneInseminate "anus" "Harper's serum" "human" "deep" 6 12>>
 	<<purity -3>><<internalejac>><<creampie "self" "anus">><<set $hygiene += 1000>><<bodyliquid "anus" "semen" 3>><<bodyliquid "anus" "goo">>
 <</if>>
 <<drugs 45>><<arousal 150>><<stress 8>>
@@ -1068,14 +1068,14 @@ Padded cuffs close around your wrists and ankles, and you pull against them whil
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 <<set $waterDragonSerumCycles += 1>>
 <<if $player.vaginaExist and $settings.analEnabled>>
-	<<recordSperm `{genital: "vagina", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
-	<<recordSperm `{genital: "anus", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 6}`>>
+	<<sceneInseminate "vagina" "Harper's serum" "human" "deep" 6 12>>
+	<<sceneInseminate "anus" "Harper's serum" "human" "deep" 6 12>>
 	<<bodyliquid "vagina" "semen" 3>><<bodyliquid "vagina" "goo">><<bodyliquid "anus" "semen" 3>><<bodyliquid "anus" "goo">>
 <<elseif $player.vaginaExist>>
-	<<recordSperm `{genital: "vagina", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 12}`>>
+	<<sceneInseminate "vagina" "Harper's serum" "human" "deep" 12 12>>
 	<<bodyliquid "vagina" "semen" 3>><<bodyliquid "vagina" "goo">>
 <<else>>
-	<<recordSperm `{genital: "anus", target: "pc", spermOwner: "Harper's serum", spermType: "human", daysTillRemovalOverride: 12, quantity: 12}`>>
+	<<sceneInseminate "anus" "Harper's serum" "human" "deep" 12 12>>
 	<<bodyliquid "anus" "semen" 3>><<bodyliquid "anus" "goo">>
 <</if>>
 <<internalejac>><<set $hygiene += 1600>><<drugs 30>>
@@ -1631,9 +1631,9 @@ Someone puts a blanket around your shoulders. You remain in the ruined nest unti
 	<<if $settings.realisticChildbirthEnabled>>
 		The eggs shift inside you as another contraction starts. Harper has the chamber sealed and every incubator ready.
 		<br><br>
-		<<link [[Begin laying the fertilised eggs|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_lab", count:_labBirthPregnancy.fetus.length, fertilised:true}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_lab", genital:_labBirthGenital}>><<set $childbirthstart to 1>><</link>>
+		<<link [[Begin laying the fertilised eggs|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_lab", count:getChildrenOf(_labBirthPregnancy.pregnancyId).length, fertilised:true}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_lab", genital:_labBirthGenital}>><<set $childbirthstart to 1>><</link>>
 	<<else>>
-		<<link [[Lay the fertilised eggs|Water Dragon Lab Laying Realistic End]]>><<set $waterDragonBirthContext to {location:"waterdragon_lab", count:_labBirthPregnancy.fetus.length, fertilised:true}>><</link>>
+		<<link [[Lay the fertilised eggs|Water Dragon Lab Laying Realistic End]]>><<set $waterDragonBirthContext to {location:"waterdragon_lab", count:getChildrenOf(_labBirthPregnancy.pregnancyId).length, fertilised:true}>><</link>>
 	<</if>>
 <</if>>
 
@@ -1660,22 +1660,23 @@ The bed rolls into the observation room. Incubators glow along one wall, each al
 <<npc Harper>><<person1>>
 <<if $waterDragonBirthContext and $waterDragonBirthContext.fertilised>>
 	<<set [_labBirthPregnancy, _labBirthGenital] to getPlayerPregnancyForBirth(true)>>
-	<<set $dragonEggIds to _labBirthPregnancy.fetus.map(child => child.childId)>>
+	<<set $dragonEggIds to getChildrenOf(_labBirthPregnancy.pregnancyId).map(child => child.childId)>>
 	The last egg settles into Harper's padded cradle, still warm from your body. <<He>> says nothing at all for a while. There is something alive inside that shell, and you can see the surface move.
 	<br><br>
 	"Viable," <<he>> says at last. "Not a copy of the cycle. Not a dead sample. A future."
 	<<pregnancyFeats "pc">><<endPlayerPregnancy "hospital" "inventory">><<set $harpyEggsPrevent to 28>>
+	/* Harper's incubators bring the clutch on faster than a wild nest would. The shells stay hawk
+	   eggs until they open, which is what vanilla's egg machinery reads. */
 	<<run V.dragonEggIds.forEach(id => {
-		const child = V.children[id];
+		const child = V.childRecords[id];
 		if (!child) return;
-		child.location = "waterdragon_lab";
-		child.type = "human";
+		child.development.location = "waterdragon_lab";
+		child.development.dragonNest = true;
 		child.features.beastTransform = "waterdragon";
 		child.features.skinColour = "waterdragon";
-		child.eggTimer = new DateTime(Time.date).addDays(random(18, 24)).timeStamp;
-		if (!child.localVariables) child.localVariables = {};
-		child.localVariables.dragonNest = true;
 	})>>
+	<<run [...new Set(V.dragonEggIds.map(id => V.childRecords[id]?.pregnancyId).filter(id => id !== undefined))]
+		.forEach(pregnancyId => addEggCare(pregnancyId, 6 * TimeConstants.secondsPerDay))>>
 	<<set $waterDragonLab.eggsLaid += $waterDragonBirthContext.count>>
 	<<set $waterDragonNest.eggsLaid += $waterDragonBirthContext.count>>
 	<<set $waterDragonNest.labEggsLaid += $waterDragonBirthContext.count>>
@@ -1700,7 +1701,7 @@ The bed rolls into the observation room. Incubators glow along one wall, each al
 :: Water Dragon Lab Hatching
 <<set $outside to 0>><<set $location to "waterdragon_lab">><<effects>>
 <<npc Harper>><<person1>>
-<<set $eggsHatched to Object.keys($children).filter(id => $children[id].location is "waterdragon_lab" and $children[id].eggTimer and Time.date.timeStamp gte $children[id].eggTimer)>>
+<<set $eggsHatched to getChildrenAt("waterdragon_lab").filter(child => childIsUnhatchedEgg(child) and Time.date.timeStamp gte getHatchDate(getPregnancyOf(child))).map(child => child.childId)>>
 <<if $eggsHatched.length is 0>>
 	The incubators have gone quiet. Whatever you heard in the eggs is not ready to come out yet.
 	<br><br>

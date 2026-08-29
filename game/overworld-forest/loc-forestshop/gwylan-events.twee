@@ -272,6 +272,7 @@ Gwylan blushes and moves <<his>> hands to <<his>> stomach as if to ensure they'r
 	<</if>>
 	<br>
 <<else>>
+	<<set $gwylan_cafe_walk_refused to 1>>
 	<<speechresolve>>
 	<<switch _speechAttitudeResolved>>
 		<<case "meek" "shy">>
@@ -444,6 +445,7 @@ It doesn't take long for you to arrive at the cafe.
 <<set $outside to 1>><<set $location to "town">><<effects>>
 <<run statusCheck("Gwylan")>>
 <<walkBikeFrom "cliff" "oxford">>
+<<unset $gwylan_school_walk_refused>>
 
 <<if Time.hour is 7 or Time.hour is 8 and Time.minute lt 50>>
 	<<speechresolve>>
@@ -575,6 +577,7 @@ You soon arrive at the front gates.
 :: Gwylan Walk School Solo Decline
 <<effects>>
 <<run statusCheck("Gwylan")>>
+<<set $gwylan_school_walk_refused to 1>>
 
 /* ToDo: Gwylan - Gwylan 'convincing' PC to go to school */
 <<He>> tilts <<his>> head, but shrugs. "School is important, you know."
@@ -642,6 +645,7 @@ Robin walks ahead, wanting to get a head start on studying.
 :: Gwylan Ocean Breeze
 <<set $outside to 0>><<effects>><<run statusCheck("Gwylan")>>
 <<npc Gwylan>><<if getRobinLocation() is "cafe">><<npc Robin 2>><</if>><<person1>>
+<<unset $gwylan_cafe_walk_refused>>
 <<if $phase is 1>>
 	The two of you enter the cafe proper. <<if $rng gte 81>>Sam notices and greets you warmly. <</if>>You take a seat at the balcony table<<if $worn.handheld.name isnot "naked">> and put aside your $worn.handheld.name<</if>>.
 	<<if Weather.precipitation isnot "none">>
@@ -1011,8 +1015,8 @@ You stare out at the ocean with Gwylan<<if _robinPresent>> and Robin<</if>>, <<p
 	<br>
 	<<link [[Thoughts of a better future|Gwylan Talk Struggles Optimism]]>><</link>>
 	<br>
-	<<if Object.values(V.children).length>>
-		<<if Object.values(V.children).length is 1>>
+	<<if getBornChildren().length>>
+		<<if getBornChildren().length is 1>>
 			<<link [[Your child|Gwylan Talk Struggles Children]]>><</link>>
 		<<else>>
 			<<link [[Your children|Gwylan Talk Struggles Children]]>><</link>>
@@ -2394,7 +2398,7 @@ You stare out at the ocean with Gwylan<<if _robinPresent>> and Robin<</if>>, <<p
 	<<person2>><<He>> beams, and runs off in the direction of the boardwalk.
 	<br><br>
 
-	As Gwylan watches <<him>> go, you notice an expression on <<person1>><<his>> face so <<if $pronoun is "m">>fatherly<<else>>motherly<</if>> that you feel a tug in your chest. <<if Object.values(V.children).length>>Your mind wanders to your own child<<if Object.values(V.children).length gte 2>>ren<</if>>. <</if>><<He>> motions you back to the balcony. You hasten to follow.
+	As Gwylan watches <<him>> go, you notice an expression on <<person1>><<his>> face so <<if $pronoun is "m">>fatherly<<else>>motherly<</if>> that you feel a tug in your chest. <<if getBornChildren().length>>Your mind wanders to your own child<<if getBornChildren().length gte 2>>ren<</if>>. <</if>><<He>> motions you back to the balcony. You hasten to follow.
 	<br><br>
 
 	<<endevent>><<npc Gwylan>><<person1>>
@@ -2403,7 +2407,7 @@ You stare out at the ocean with Gwylan<<if _robinPresent>> and Robin<</if>>, <<p
 	You watch as Gwylan rushes to the <<person2>><<personsimple>>. <<person1>><<He>> spends quite a bit of time chatting. By the time <<he>> gives the <<person2>><<personsimple>> a light push, <<person2>><<hes>> already giggling. Gwylan waves as <<he>> skips away.
 	<br><br>
 
-	<<person1>><<He>> makes <<his>> way back to the balcony. There's an expression on <<his>> face so <<if $pronoun is "m">>fatherly<<else>>motherly<</if>> that you feel a tug in your chest. <<if Object.values(V.children).length>>Your mind wanders to your own child<<if Object.values(V.children).length gte 2>>ren<</if>>. <</if>><<He>> leans against the railing again.
+	<<person1>><<He>> makes <<his>> way back to the balcony. There's an expression on <<his>> face so <<if $pronoun is "m">>fatherly<<else>>motherly<</if>> that you feel a tug in your chest. <<if getBornChildren().length>>Your mind wanders to your own child<<if getBornChildren().length gte 2>>ren<</if>>. <</if>><<He>> leans against the railing again.
 	<br><br>
 
 	<<if $gwylanSeen.includes("yearning")>>
@@ -2606,7 +2610,7 @@ Gwylan stares at you, <<his>> head tilted and <<his>> mouth slightly open. <<He>
 
 :: Gwylan Talk Struggles Children
 <<effects>><<run statusCheck("Gwylan")>>
-<<if Object.values(V.children).length is 1>>
+<<if getBornChildren().length is 1>>
 	<<set $gwylan.triumph to "child">>
 	<<getChildrenIds null "both">><<childSelect _childrenIds.last()>>
 	<<speechresolve>>
@@ -3034,7 +3038,7 @@ Gwylan stands and pulls you into a tight hug. "You wouldn't be standing here if 
 	"Okay, well... you'll still walk with me though, right?" <<he>> asks.
 	<br><br>
 
-	<<schoolicon "building">><<link [[Walk to school (0:10)|Gwylan Walk School Robin]]>><<walkBikeFrom "cliff" "oxford">><<pass 1>><<set $phase to 2>><</link>>
+	<<schoolicon "building">><<link [[Walk to school (0:10)|Gwylan Walk School Robin]]>><<walkBikeFrom "cliff" "oxford">><<pass 10>><<set $phase to 2>><</link>>
 	<br>
 	<<clifficon>><<link [[Make an excuse and leave (0:01)|Cliff Street]]>><<pass 1>><<endevent>><</link>>
 <<else>>
@@ -4285,7 +4289,7 @@ Did you think you would be my first loss? Do you think yours are the first stori
 		<<npcincr Gwylan lust 5>><<gglust>>
 	<</if>>
 <<elseif $enemypleasure gte $enemypleasuremax>>
-	<<ejaculation "short">><<npcincr Gwylan lust -20>><<lllust>>
+	<<ejaculation "short">><<npcincr Gwylan lust -20>><<lllust>><br><br>
 	<<if $orgasmcurrent is 0>>
 		<<He>> looks up at you, irritated. "This was supposed to be for your sake, dear." <<He>> pouts, pushing away from you. <<set $yearningTalk.increase++>><<gyearning true>>
 	<<else>>

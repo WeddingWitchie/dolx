@@ -1,6 +1,6 @@
 // @ts-check
-const combatEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
-const combatEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
+const combatEnemyPleasure = () => Number(/** @type {any} */ (V).enemypleasure ?? 0);
+const combatEnemyPleasureMax = () => Number(/** @type {any} */ (V).enemypleasuremax ?? 500);
 /* globals Partial, PenetratorPositions */
 
 setup.clothingStates = [0, "chest", "midriff", "waist", "thighs", "knees", "ankles", "worn"];
@@ -104,7 +104,9 @@ class CombatSystem {
 	}
 
 	isVaginaPenetrated() {
-		const activeState = (V.vaginastate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.vaginastate)) || (V.portalPanties.state.vagina && !V.portalPanties.state.vagina.new && !V.portalPanties.state.vagina.tempRemoval);
+		const activeState =
+			(V.vaginastate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.vaginastate)) ||
+			(V.portalPanties.state.vagina && !V.portalPanties.state.vagina.new && !V.portalPanties.state.vagina.tempRemoval);
 		return !!activeState;
 	}
 
@@ -133,7 +135,9 @@ class CombatSystem {
 	}
 
 	isAnusPenetrated() {
-		const activeState = (V.anusstate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.anusstate)) || (V.portalPanties.state.anus && !V.portalPanties.state.anus.new && !V.portalPanties.state.anus.tempRemoval);
+		const activeState =
+			(V.anusstate && ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"].includes(V.anusstate)) ||
+			(V.portalPanties.state.anus && !V.portalPanties.state.anus.new && !V.portalPanties.state.anus.tempRemoval);
 		return !!activeState;
 	}
 
@@ -143,9 +147,7 @@ class CombatSystem {
 	isAnusActive(canvas) {
 		const activeState =
 			V.anusstate &&
-			["penetrated", "doublepenetrated", "cheeks", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(
-				V.anusstate
-			);
+			["penetrated", "doublepenetrated", "cheeks", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.anusstate);
 		if (canvas === "close" && V.anusstate && ["entrance", "imminent", "othermouthentrance", "othermouthimminent"].includes(V.anusstate)) {
 			return true;
 		}
@@ -172,8 +174,7 @@ class CombatSystem {
 
 	isPenisActive(canvas) {
 		const activeState =
-			V.penisstate &&
-			["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.penisstate);
+			V.penisstate && ["penetrated", "otheranus", "othermouth", "tentacleentrance", "tentacleimminent", "tentacle", "tentacledeep"].includes(V.penisstate);
 		const activeUse = V.penisuse === "tentaclerub";
 		if (
 			canvas === "close" &&
@@ -580,7 +581,7 @@ class CombatSystem {
 	 * @returns {boolean}
 	 */
 	isNpcWearingCondom(index) {
-		return wearingCondom(index || 0) !== false;
+		return wearingCondom(index || 0);
 	}
 
 	/**
@@ -588,8 +589,7 @@ class CombatSystem {
 	 * @returns {boolean}
 	 */
 	isNpcCondomDefective(index) {
-		const state = wearingCondom(index);
-		return state && ["defective", "sabotaged"].includes(state);
+		return ["defective", "sabotaged"].includes(condomState(index));
 	}
 
 	isPcGenitalsVisible() {

@@ -100,6 +100,7 @@
 		showCombatTools: false,
 		pepperSprayDisplay: "sprays",
 		condomsDisplay: "standard",
+		fishingBaitSelection: "sidebar",
 		closeButtonMobile: _globalGeneralDefaults.closeButtonMobile or false,
 		zoom: 100,
 		numberify_enabled: _globalGeneralDefaults.numberify_enabled or 1,
@@ -143,18 +144,20 @@
 			"updateClothes": 85,
 			"specialClothes": 22,
 			"feats": 2,
-			"wardrobes": 17,
+			"wardrobes": 18,
 			"customColors": 4,
 			"uncomfortable": 2,
 			"chastity": 3,
 			"skinColor": 1,
-			"prenancyObjectRepair": 2,
+			"pregnancyObjectRepair": 2,
 			"museumAntiques": 20,
 			"npcClothes": 1,
 			"animations": 1,
-			"foodstuff": 6,
+			"foodstuff": 7,
 			"npcPregnancyGenderChange" : 1,
 			"penisFix" : 1,
+			"pregnancyRecords": 1,
+			"childEyeColour": 1,
 		}>>
 	<</if>>
 
@@ -211,7 +214,17 @@
 	}>>
 	<<npcList>>
 	<<npcNamed>>
+
+	<!-- PC Stat Max Initializations. -->
+	<<set $arousalmax to 10000>>
+	<<set $beautymax to 10000>>
 	<<set $controlmax to 1000>>
+	<<set $drunkmax to 1000>>
+	<<set $physiquemax to 20000>>
+	<<set $stressmax to 10000>>
+	<<set $traumamax to 5000>>
+	<<set $willpowermax to 1000>>
+
 	<<set $control to 1000>>
 
 	<<clothinginit>>
@@ -233,15 +246,9 @@
 	<<set $hairtype to "default">>
 	<<set $fringetype to "default">>
 	<<set $trauma to 0>>
-	<<set $traumamax to 5000>>
-	<<set $stressmax to 10000>>
-	<<set $arousalmax to 10000>>
 	<<set $physique to 3500>>
-	<<set $physiquemax to 20000>>
 	<<set $willpower to 200>>
-	<<set $willpowermax to 1000>>
 	<<set $beauty to 0>>
-	<<set $beautymax to 10000>>
 	<<set $genderidentity to 750>>
 	<<set $genderidentitymax to 1500>>
 	<<set $birthmonth to "september">>
@@ -295,6 +302,8 @@
 	<<set $baileyRefusedToPayTotal to 0>>
 	<<set $baileyRefusedToPayTotalStat to 0>>
 	<<set $soldCount to 0>>
+	<<set $bailey_confiscation to null>>
+	<<set $bailey_confiscation_lost to 0>>
 	<<set $robinmoney to 300>>
 	<<set $robinGivenTotal to 0>>
 	<<run ensureRobinStand()>>
@@ -351,6 +360,12 @@
 	<<set $settings.tendingYieldModifier to 5>>
 	<<set $plants_known to ["green_manure"]>>
 	<<set $foodstuff to {}>>
+	<<set $fishing to {
+		locationsFound: [],
+		record: {},
+		autoRebait: false,
+		baitShopRequestsCompleted: 0,
+	}>>
 	<<set $stall_rejected to 0>>
 	<<set $produce_sold to 0>>
 	<<set $stat_shoot to 0>>
@@ -461,7 +476,8 @@
 	<<set $athletics to 0>>
 	<<set $tending to 0>>
 	<<set $housekeeping to 0>>
-	<<set $fishing to 0>>
+	/* $fishing is not a skill any more, it is the fishing record set above. Setting it to 0 here
+	   clobbered that object, and the journal's fishing section reads it. */
 
 	<<set $hygiene to 0>>
 	<<set $hunger to 0>>
@@ -481,7 +497,7 @@
 	<<set $breastsensitivity to 1>>
 	<<set $bottomsensitivity to 1>>
 	<<set $genitalsensitivity to 1>>
-	<<set $alcoholMod to 1>>
+	<<set $drunkSensitivity to 1>>
 	<<set $bottomsizeold to 0>>
 	<<set $bottomsizemax to 8>>
 	<<set $bottomsizemin to 0>>
@@ -599,7 +615,6 @@
 	<<set $tummyejacstat to 0>>
 	<<set $neckejacstat to 0>>
 	<<set $ejacstat to 0>>
-	<<set $unsafeSexTimeStat to {}>>
 	<<set $hitstat to 0>>
 	<<set $attackstat to 0>>
 	<<set $prostitutionstat to 0>>

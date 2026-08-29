@@ -4,8 +4,8 @@
 :: Poppy Pregnancy Reveal
 <<effects>><<speechresolve>><<endevent "phaseless">><<npc "Poppy">><<person1>>
 <<run poppySchedule()>><<run markPoppyInteraction()>><<set _poppyRevealHandled to false>>
-<<set _pregObj to getPregnancyObject()>>
-<<set _fatherIsPoppy to (_pregObj.fetus and _pregObj.fetus.length and _pregObj.potentialFathers and _pregObj.potentialFathers.some(f => f.source is "Poppy")) ? true : false>>
+<<set _pregObj to getPlayerPregnancy()>>
+<<set _fatherIsPoppy to !!(_pregObj and _pregObj.possibleDonors.some(d => d.name is "Poppy"))>>
 <<if ![3,4].includes($phase)>>
 	<<if $location is "poppy_flat">>
 		You sit down beside Poppy.
@@ -64,7 +64,7 @@
 	<<else>>
 		<<if $phase isnot 4 and $phase isnot 3>>
 			/* Hand over the test (or describe the equivalent awareness moment). */
-			<<switch getPregnancyObject().awareOf>>
+			<<switch playerLearnedPregnancyFrom()>>
 				<<case "temple">>
 					You tell <<him>> what Jordan from the temple told you.
 				<<case "pharmacy">>
@@ -169,7 +169,7 @@
 		<<setKnowsAboutPregnancy "pc" "Poppy">><<setTalkedAboutPregnancy "pc" "Poppy">><<set C.npc.Poppy.pregnancy.pcKnowledge to true>>
 		You see something flicker in Poppy's eyes before <<he>> hesitantly puts a hand on your belly.
 		<<if playerBellyVisible(true)>>
-			<span class="green">Your <<if getPregnancyObject().fetus.length gt 1>>babies shift<<else>>baby shifts<</if>> around inside you</span>. <<He>> caresses your baby bump.
+			<span class="green">Your <<if getPlayerPregnancyLitter().length gt 1>>babies shift<<else>>baby shifts<</if>> around inside you</span>. <<He>> caresses your baby bump.
 		<</if>>
 		"How did you...?"
 		<br><br>
@@ -218,7 +218,7 @@
 <br><br>
 Poppy tilts <<his>> head curiously. "Of course! What is it?"
 <br><br>
-<<switch getPregnancyObject().awareOf>>
+<<switch playerLearnedPregnancyFrom()>>
 	<<case "wakingUp">>
 		With trembling words, you tell <<him>> what you thought when you looked at yourself after waking up. You show <<him>> your belly.
 	<<case "mirror">>
@@ -236,7 +236,7 @@ Poppy tilts <<his>> head curiously. "Of course! What is it?"
 <br><br>
 You make a face. Poppy looks confused. "That can't be right... pregnancy tests have a probability of being inaccurate. You should get that checked out at the hospital."
 <br><br>
-<<if getPregnancyObject().ultrasoundDone or C.npc.Poppy.pregnancy.ultraSound is "collected">>
+<<if getPlayerPregnancy()?.ultrasoundDone or C.npc.Poppy.pregnancy.ultraSound is "collected">>
 	"I already have." You hand Poppy a printout of your ultrasound. <<He>> squints at the picture, looking more and more baffled as <<he>> stares at it. Finally <<he>> stares at you, waiting for you to speak.
 	<<poppyOpiumPulse>>
 	<<set C.npc.Poppy.pregnancy.ultraSound to "done">>
@@ -279,7 +279,7 @@ You nod.
 	<br><br>
 	<<He>> starts to doubt <<himself>>, but quickly shakes it off. "I think you should get that checked out. I'm worried for your health."
 	<br><br>
-	<<if getPregnancyObject().ultrasoundDone>>
+	<<if getPlayerPregnancy()?.ultrasoundDone>>
 		/* PC already has ultrasound; produce it now. */
 		"I already have." You hand Poppy a printout of your ultrasound. <<He>> squints at the picture, looking more and more baffled as <<he>> stares at it. Finally <<he>> stares at you, hoping for an answer.
 		<<poppyOpiumPulse>>
@@ -293,8 +293,8 @@ You nod.
 <<else>>
 	/* Vagina-PC route; Poppy sees, asks who. */
 	<<set _fatherIsPoppy to false>>
-	<<set _pregObj to getPregnancyObject()>>
-	<<if _pregObj.fetus.length and _pregObj.potentialFathers and _pregObj.potentialFathers.find(f => f.source is "Poppy")>>
+	<<set _pregObj to getPlayerPregnancy()>>
+	<<if _pregObj and _pregObj.possibleDonors.find(d => d.name is "Poppy")>>
 		<<set _fatherIsPoppy to true>>
 	<</if>>
 	Poppy gasps when <<he>> sees you. "Oh my, you're pregnant?! Why didn't you tell me?!" <<He>> pouts a little<<if !_fatherIsPoppy>>, but then the pout turns into a smile<</if>>.
@@ -430,7 +430,8 @@ Poppy pulls you into a tight hug. You can feel <<him>> shaking with excitement.
 :: Poppy Show Ultrasound
 <<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>>
 <<set C.npc.Poppy.pregnancy.ultrasoundShown to true>>
-<<set _fetusCount to (C.npc.Poppy.pregnancy.fetus && C.npc.Poppy.pregnancy.fetus.length) || 1>>
+<<set _poppyPreg to getActivePregnancies("Poppy")[0]>>
+<<set _fetusCount to (_poppyPreg ? getChildrenOf(_poppyPreg.pregnancyId).length : 0) || 1>>
 "My jewel, look!" Poppy shows you a printed picture of an ultrasound. "It's our <<if _fetusCount gt 1>>babies<<else>>baby<</if>>! There's their <<if _fetusCount gt 1>>heads<<else>>head<</if>>, their hands and feet..."
 <br><br>
 <<He>> points at the picture as <<he>> goes, eyes alight with the same wonder you remember from <<his>> announcement. Seeing your unborn <<if _fetusCount gt 1>>children<<else>>child<</if>> growing well fills you with relief.<<lllstress>><<stress -10>><<glove>><<npcincr Poppy love 1>>
@@ -528,7 +529,7 @@ Poppy pulls you into a tight hug. You can feel <<him>> shaking with excitement.
 		<</if>>
 	<<else>>
 		<<if random(1,2) is 1>>
-			Poppy rests a hand on your belly. <<if getPregnancyObject().fetus.length gt 1>>The babies stir<<else>>The baby stirs<</if>> beneath <<his>> palm, making <<him>> gasp.
+			Poppy rests a hand on your belly. <<if getPlayerPregnancyLitter().length gt 1>>The babies stir<<else>>The baby stirs<</if>> beneath <<his>> palm, making <<him>> gasp.
 			<br><br>
 			<<if _poppyFather>>
 				"Strong little thing," <<he>> says, beaming. "Takes after me."
@@ -574,7 +575,7 @@ You push the door open to let yourself in and close it behind you.
 <<run T.babyIntroEntry = T.babyIntroList.find(entry => entry.intro && entry.intro.mother === "Poppy") || null; T.babyIntro = T.babyIntroEntry ? T.babyIntroEntry.intro : null; T.babyIntroOwner = T.babyIntroEntry ? T.babyIntroEntry.owner : "Poppy">>
 <<set _babyCount to _babyIntro ? _babyIntro.children : 0>>
 <<if _babyCount lt 1>>
-	<<run T.babyCount = Object.values(V.children || {}).filter(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home").length>>
+	<<run T.babyCount = getChildrenAt("home").filter(child => { const p = getPregnancyOf(child); return p && (p.carrier === "Poppy" || p.donor === "Poppy"); }).length>>
 <</if>>
 <<if _babyCount lt 1>><<set _babyCount to 1>><</if>><<set _isMultiple to _babyCount gt 1>>
 You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> arms. "Look at our <<if _isMultiple>>children<<else>>child<</if>>, <<if _isMultiple>>aren't they<<else>>isn't the baby<</if>> cute? I haven't named <<if _isMultiple>>them<<else>>the baby<</if>> yet. Would you like to?"
@@ -596,7 +597,7 @@ You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> 
 <<run T.babyIntroEntry = T.babyIntroList.find(entry => entry.intro && entry.intro.mother === "Poppy") || null; T.babyIntro = T.babyIntroEntry ? T.babyIntroEntry.intro : null; T.babyIntroOwner = T.babyIntroEntry ? T.babyIntroEntry.owner : "Poppy">>
 <<set _babyCount to _babyIntro ? _babyIntro.children : 0>>
 <<if _babyCount lt 1>>
-	<<run T.babyCount = Object.values(V.children || {}).filter(child => child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home").length>>
+	<<run T.babyCount = getChildrenAt("home").filter(child => { const p = getPregnancyOf(child); return p && (p.carrier === "Poppy" || p.donor === "Poppy"); }).length>>
 <</if>>
 <<if _babyCount lt 1>><<set _babyCount to 1>><</if>><<set _isMultiple to _babyCount gt 1>>
 <<if $phase is 1>>
@@ -649,7 +650,7 @@ You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> 
 :: Poppy Nursery Intro
 <<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<npc "Bailey" 2>>
 <<run poppySchedule()>><<run markPoppyInteraction()>><<if $childPassageExit is undefined>><<set $childPassageExit to "Orphanage">><</if>><<set _poppyChildIds to []>>
-<<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
+<<run getChildrenAt("home").filter(child => { const p = getPregnancyOf(child); return p && (p.carrier === "Poppy" || p.donor === "Poppy"); }).forEach(child => T.poppyChildIds.push(child.childId))>>
 <<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>>
 You step foot into the orphanage nursery and see Poppy conversing with Bailey by <<childname>>'s cradle.
 <br><br>
@@ -673,7 +674,7 @@ Poppy pulls you towards <<childname>>'s cradle. The two of you look down at the 
  * ============================================================== */
 :: Poppy Nursery Reading
 <<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<run poppySchedule()>><<run markPoppyInteraction()>><<if $childPassageExit is undefined>><<set $childPassageExit to "Orphanage">><</if>><<set _poppyChildIds to []>>
-<<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
+<<run getChildrenAt("home").filter(child => { const p = getPregnancyOf(child); return p && (p.carrier === "Poppy" || p.donor === "Poppy"); }).forEach(child => T.poppyChildIds.push(child.childId))>>
 <<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>>
 You step into the nursery to find Poppy sitting on the ground with <<childname>> in <<his>> lap, reading a children's storybook. The sight of them fills you with unadulterated joy.<<llstress>><<stress -8>><<ltrauma>><<trauma -4>>
 <<poppyOpiumPulse>>
@@ -684,7 +685,7 @@ You step into the nursery to find Poppy sitting on the ground with <<childname>>
  * ============================================================== */
 :: Poppy Nursery Dismissed
 <<effects>><<endevent "phaseless">><<npc "Poppy">><<person1>><<if $childPassageExit is undefined>><<set $childPassageExit to "Orphanage">><</if>><<set _poppyChildIds to []>>
-<<run Object.values($children || {}).forEach(child => {if (child && (child.mother === "Poppy" || child.father === "Poppy") && child.location === "home") {T.poppyChildIds.push(child.childId);}})>>
+<<run getChildrenAt("home").filter(child => { const p = getPregnancyOf(child); return p && (p.carrier === "Poppy" || p.donor === "Poppy"); }).forEach(child => T.poppyChildIds.push(child.childId))>>
 <<if _poppyChildIds.length gt 0>><<childSelect _poppyChildIds[0]>><</if>><<set _isMultiple to _poppyChildIds.length gt 1>>
 You step foot into the nursery and freeze in your tracks. Inside the nursery is someone you did not expect or wish to see. It's Poppy.
 <br><br>
