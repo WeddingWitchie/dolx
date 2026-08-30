@@ -1238,10 +1238,7 @@ function dayPassed(days) {
 				!playerIsPregnant() &&
 				Transformations.isFullWaterDragon()
 			) {
-				V.waterDragonEggs = {
-					count: 1,
-					daysTillLaying: V.waterDragonIncubatorTrait ? random(12, 18) : random(23, 30),
-				};
+				V.waterDragonEggs = Transformations.rollWaterDragonEggCycle();
 			}
 
 			// Activate the robin pillory

@@ -232,6 +232,33 @@ class Transformations {
 		return !!(lastBadEnd && !lastBadEnd.trackedEnd);
 	}
 
+	/* --- Unfertilised egg cycle ---------------------------------------------------
+	Starts a new egg cycle. Accelerated Brood Cycle shortens the wait and gives a better egg-count roll.
+	Water Dragons usually lay one egg, sometimes two, and rarely three. */
+	static rollWaterDragonEggCycle() {
+		const fast = !!V.waterDragonIncubatorTrait;
+		const roll = () => (typeof rollLitterSize === "function" ? rollLitterSize("waterdragon") : 1);
+		const count = fast ? Math.max(roll(), roll()) : roll();
+		return { count, daysTillLaying: fast ? random(12, 18) : random(23, 30) };
+	}
+
+	/* Number of full days the eggs are overdue. 0 if they are not due yet.
+	daysTillLaying already counts below zero, so no extra value is needed. */
+	static waterDragonEggsOverdueDays() {
+		const eggs = V.waterDragonEggs;
+		if (!eggs || !Number.isFinite(Number(eggs.daysTillLaying))) return 0;
+		return Math.max(0, -Number(eggs.daysTillLaying));
+	}
+
+	/* After this many overdue days, the player lays the eggs wherever they sleep instead of waiting for the nest. */
+	static get waterDragonEggsOverdueLimit() {
+		return 3;
+	}
+
+	static waterDragonEggsOverdue() {
+		return this.waterDragonEggsOverdueDays() >= this.waterDragonEggsOverdueLimit;
+	}
+
 	/* --- Bakunawa blood moon resonance ------------------------------------------------
 	   The bakunawa is the moon-devouring serpent, so the chimera only stirs while the moon runs red.
 	   $forcedBloodmoon is included so scripted blood moons (the wraith nightmare) count like the real thing,

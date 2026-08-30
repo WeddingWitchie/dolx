@@ -149,6 +149,12 @@ const PregnancyConstants = ConstantsLoader.init({
 			[7, 2], // 20%
 			[8, 1], // 10%
 		],
+		waterdragonLitterWeights: [
+			// a dragon lays fewer but far larger eggs than a harpy
+			[1, 6], // 60%
+			[2, 3], // 30%
+			[3, 1], // 10%
+		],
 		hawkLitterWeights: [
 			// egg-count distribution
 			[1, 1], // 10%

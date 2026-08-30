@@ -80,26 +80,91 @@
 		</div>
 <</widget>>
 
-<<widget "waterDragonEggLayEvent">>
-	/* Keep waking-effect branches to one line plus the link. */
-	/* This link skips the normal bed exit, so return stored clothes first. */
-	<<bedstorereturn>>
-	<<if _args[0] is "waterDragonNest">>
-		You wake with your hands resting against the warm stones. A heavy weight presses low inside you,
-		and you go still when you realise what it means. <span class="navy">The egg is ready.</span>
+/* --- Shared egg-laying logic ---------------------------------------------------------------
+   Used by the normal, realistic childbirth, and overdue laying scenes to avoid duplicate code.
+   Results are stored in temp variables for the calling widget to use. */
+/* Roll each egg separately for a pastel shell. */
+<<widget "waterDragonEggPastelRoll">>
+	<<set _dragonClutchSize to Math.clamp(Number(_args[0]) || 1, 1, 3)>>
+	<<set _dragonPastelCount to 0>>
+	<<for _dragonEggIndex to 0; _dragonEggIndex lt _dragonClutchSize; _dragonEggIndex++>>
+		<<if random(1, 100) lte 23>><<set _dragonPastelCount++>><</if>>
+	<</for>>
+	<<set _dragonPlainCount to _dragonClutchSize - _dragonPastelCount>>
+<</widget>>
+
+/* Dragon egg laying now causes pain and arousal based on the number of eggs.
+   "rough" is used for overdue laying away from the nest. */
+<<widget "waterDragonEggStrain">>
+	<<set _dragonStrainCount to Math.clamp(Number(_args[0]) || 1, 1, 3)>>
+	<<set _dragonRough to _args[1] is "rough">>
+	<<set _dragonArousal to (_dragonRough ? 2000 : 3000) + 1000 * (_dragonStrainCount - 1)>>
+	<<set _dragonPain to (_dragonRough ? 22 : 14) + 6 * (_dragonStrainCount - 1)>>
+	<<set _dragonFatigue to 6 * _dragonStrainCount>>
+	<<arousal _dragonArousal>><<pain _dragonPain>><<tiredness _dragonFatigue>>
+	<<gggarousal>><<if _dragonRough>><<gggpain>><<else>><<ggpain>><</if>><<gtiredness>>
+	<<if $pleasure gte $pleasuremax>>
 		<br><br>
-		You are already in the nest, so there is nothing left to do but get it ready.
-		<br><br>
-		<<tficon "waterdragon">><<link [[Prepare the nest|Water Dragon Egg Laying]]>><</link>>
-	<<else>>
-		You wake suddenly with a strange weight low inside you. It grows stronger when you sit up,
-		and you put a hand over yourself. You can hear the sea, even though it is a long way from here.
-		<br><br>
-		<span class="blue">The egg is ready.</span> You know you need to reach the coastal cliffs and find somewhere safe to lay it.
-		<br><br>
-		<<tficon "waterdragon">><<link [[Follow the pull (0:30)|Water Dragon Nest Discovery]]>><<pass 30>><</link>>
+		<<orgasm>>
 	<</if>>
-	<<exitAll>>
+<</widget>>
+
+/* Hands over the clutch and records it. Reads the counts <<waterDragonEggPastelRoll>> set. */
+<<widget "waterDragonEggReward">>
+	<<waterDragonNestDefaults>>
+	<<if _dragonPlainCount gte 1>>
+		<<set _dragonPlainType to "water_dragon_egg">>
+		<<foodstufficon _dragonPlainType>> <span class="green">You gained <<if _dragonPlainCount is 1>>a<<else>><<print _dragonPlainCount>><</if>> <<print setup.foodstuff[_dragonPlainType].name>><<if _dragonPlainCount gt 1>>s<</if>>.</span><<tending_give _dragonPlainType _dragonPlainCount>>
+	<</if>>
+	<<if _dragonPastelCount gte 1>>
+		<<set _dragonPastelType to "water_dragon_egg_pastel">>
+		<<foodstufficon _dragonPastelType>> <span class="green">You gained <<if _dragonPastelCount is 1>>a<<else>><<print _dragonPastelCount>><</if>> <<print setup.foodstuff[_dragonPastelType].name>><<if _dragonPastelCount gt 1>>s<</if>>.</span><<tending_give _dragonPastelType _dragonPastelCount>>
+	<</if>>
+	<<set $waterDragonNest.eggsLaid += _dragonClutchSize>>
+	<<set $waterDragonNest.pastelEggsLaid += _dragonPastelCount>>
+<</widget>>
+
+<<widget "waterDragonEggLayEvent">>
+	<<if _args[0] isnot "waterDragonNest" and Transformations.waterDragonEggsOverdue()>>
+		<<set _dragonClutch to Math.clamp(Number($waterDragonEggs.count) || 1, 1, 3)>>
+		<<set _dragonClutchSize to _dragonClutch>>
+		<<set _dragonPastelCount to 0>>
+		<<set _dragonPlainCount to _dragonClutch>>
+		<<wearProp `"waterdragon egg " + _dragonClutch`>>
+		You wake in the dark with your knees already drawn up. The pull towards the sea is still there, but your body has stopped waiting for it.
+		<span class="red">You have carried this too long.</span>
+		<br><br>
+		There is no sea grass to rake up and no warm stone to brace against. You get onto your hands and knees where you are, bite down on whatever is nearest, and push.
+		<<waterDragonEggStrain _dragonClutch "rough">>
+		<br><br>
+		<<pluralise _dragonClutch "It comes" "They come">> out slowly and badly, and <<pluralise _dragonClutch "lands" "land">> against your leg. The <<pluralise _dragonClutch "shell is" "shells are">> pearl white and quite plain. Nothing glitters above <<pluralise _dragonClutch "it" "them">>, and no marks brighten anywhere.
+		<br><br>
+		<span class="blue">It should not have happened here.</span> <<gtrauma>><<trauma 6>><<ggstress>><<stress 6>>
+		<br><br>
+		You clean yourself up as best you can and wrap <<pluralise _dragonClutch "the egg" "the eggs">> to carry.
+		<<waterDragonEggReward>>
+		<<set $waterDragonEggs to Transformations.rollWaterDragonEggCycle()>>
+	<<else>>
+		/* Keep waking-effect branches to one line plus the link. */
+		/* This link skips the normal bed exit, so return stored clothes first. */
+		<<bedstorereturn>>
+		<<if _args[0] is "waterDragonNest">>
+			You wake with your hands resting against the warm stones. A heavy weight presses low inside you,
+			and you go still when you realise what it means. <span class="navy">The egg is ready.</span>
+			<br><br>
+			You are already in the nest, so there is nothing left to do but get it ready.
+			<br><br>
+			<<tficon "waterdragon">><<link [[Prepare the nest|Water Dragon Egg Laying]]>><</link>>
+		<<else>>
+			You wake suddenly with a strange weight low inside you. It grows stronger when you sit up,
+			and you put a hand over yourself. You can hear the sea, even though it is a long way from here.
+			<br><br>
+			<span class="blue">The egg is ready.</span> You know you need to reach the coastal cliffs and find somewhere safe to lay it.
+			<br><br>
+			<<tficon "waterdragon">><<link [[Follow the pull (0:30)|Water Dragon Nest Discovery]]>><<pass 30>><</link>>
+		<</if>>
+		<<exitAll>>
+	<</if>>
 <</widget>>
 
 /* Rendered inline among other waking-effect one-liners (the effect.js warning already narrates the waters breaking), so keep it to a single line plus the link. */

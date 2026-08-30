@@ -439,7 +439,8 @@
 	/* Don't show the "walk out to the sea" escape option in locked areas, soft bad ends, flashbacks, visions, or the hopeless cycle. */
 	<<set _dragonLayingBlocked to Transformations.waterDragonLayingBlocked()>>
 	<<set _dragonHeld to _dragonLayingBlocked or ($waterDragonLab and $waterDragonLab.active)>>
-	<<if _args[0] and playerIsPregnant() and isPregnancyEnding() and isFullWaterDragon() and !_dragonLayingBlocked>>
+	/* Water Dragon clutches do not break their waters, so isPregnancyEnding() could miss eggs that were ready to lay. playerClutchReadyToLay() handles this instead. */
+	<<if _args[0] and playerIsPregnant() and (isPregnancyEnding() or playerClutchReadyToLay()) and isFullWaterDragon() and !_dragonLayingBlocked>>
 		<<set _wakingEffect to "waterDragonPregnancy">>
 		<<if $waterDragonLab and $waterDragonLab.active>>
 			<<set $_text_output to `<<waterDragonLabPregnancyEvent>>`>>

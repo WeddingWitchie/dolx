@@ -139,6 +139,24 @@ function isPregnancyEnding() {
 }
 window.isPregnancyEnding = isPregnancyEnding;
 
+/**
+ * DoLX: checks whether an egg clutch is due to be laid.
+ *
+ * Egg pregnancies skipped by checkLabour because they laid instead of delivered, so isPregnancyEnding() doesn't detect them.
+ * This check is used anywhere that needs to know if the player is ready to lay eggs.
+ * Normal pregnancies are excluded and still rely on labour starting normally.
+ *
+ * @returns {boolean}
+ */
+function playerClutchReadyToLay() {
+	if (V.statFreeze) return false;
+	const pregnancy = getLabouringPregnancy("pc");
+	if (!pregnancy || pregnancy.birthInProgress) return false;
+	if (childBaseSpecies(pregnancy.donorSpecies) !== "hawk") return false;
+	return pregnancyProgress(pregnancy) >= 1;
+}
+window.playerClutchReadyToLay = playerClutchReadyToLay;
+
 function playerNormalPregnancyType() {
 	const pregnancy = getLabouringPregnancy("pc");
 	return pregnancy ? childBaseSpecies(pregnancy.donorSpecies) : null;

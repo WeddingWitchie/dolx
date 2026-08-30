@@ -36,7 +36,7 @@ The last egg comes to rest in the sea grass, bigger than both of your hands toge
 <<set $waterDragonNest.eggsLaid += $dragonEggIds.length>>
 /* Laying a fertilised clutch restarts the unfertilised cycle, the same way the plain laying scenes do.
    Without this the old timer is still sitting at or below zero and the next sleep demands another egg. */
-<<set $waterDragonEggs to {count: 1, daysTillLaying: random(($waterDragonIncubatorTrait ? 12 : 23), ($waterDragonIncubatorTrait ? 18 : 30))}>>
+<<set $waterDragonEggs to Transformations.rollWaterDragonEggCycle()>>
 <<unset $dragonEggIds>><<unset $waterDragonBirthContext>><<unset $birth>><<endcombat>>
 <br><br>
 The marks around the eggs slow down to a steady, even glow. The eggs are safe where they are, and when they hatch the children will carry their human parent's blood and yours together.
@@ -565,14 +565,14 @@ The tide pool is completely still, and your reflection is sharp. The marks shimm
 	<br><br>
 	<<link [[Return to the nest|Water Dragon Nest]]>><</link>>
 <<else>>
+	<<set _dragonClutch to Math.clamp(Number($waterDragonEggs.count) || 1, 1, 3)>>
 	<<if $settings.realisticChildbirthEnabled>>
 		The first proper contraction goes through you as the marks brighten around the stones.
 		<br><br>
-		<<link [[Let the laying begin|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:1, fertilised:false}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_nest", genital:(omegaTargetsAnus() ? "anus" : "vagina")} >><<set $childbirthstart to 1>><</link>>
+		<<link [[Let the laying begin|Childbirth]]>><<set $waterDragonBirthContext to {location:"waterdragon_nest", count:_dragonClutch, fertilised:false}>><<set $birth to {version:setup.RCB_BIRTH_VERSION, location:"waterdragon_nest", genital:(omegaTargetsAnus() ? "anus" : "vagina")} >><<set $childbirthstart to 1>><</link>>
 	<<else>>
-	<<set _pastelEgg to random(1, 100) lte 23>>
-	<<set _eggType to _pastelEgg ? "water_dragon_egg_pastel" : "water_dragon_egg">>
-	<<wearProp "waterdragon egg 1">>
+	<<waterDragonEggPastelRoll _dragonClutch>>
+	<<wearProp `"waterdragon egg " + _dragonClutch`>>
 	You rake the sea grass into a pile in the middle of the stones, kick off your shoes and kneel on it. You get your hands flat on the floor just before the first contraction hits.
 	<br><br>
 	Your back curls and your elbows give way. You end up on your forearms with your cheek against the warm stone, breathing at the floor.
@@ -581,22 +581,33 @@ The tide pool is completely still, and your reflection is sharp. The marks shimm
 	<br><br>
 	The next contraction lasts longer. It starts in your lower back and spreads around to your stomach. You push as the pressure grows. Halfway through, your knee slips on the grass. You fall onto your side with a curse, then pull yourself back onto the pile and try again.
 	<br><br>
-	The egg reaches its widest point and stops. The stretch is painful, and you cannot move. You breathe through clenched teeth and count the loose stones in front of you to take your mind off it.
+	The first egg reaches its widest point and stops. Your <<if omegaTargetsAnus()>>ass<<else>><<pussy>><</if>> is stretched further than you thought it could go, and you cannot move. You breathe through clenched teeth and count the loose stones in front of you to take your mind off it.
+	<<waterDragonEggStrain _dragonClutch>>
 	<br><br>
-	You push once more. The egg finally slips free and lands in the grass between your feet.
-	<br><br>
-	Your legs give way, and you drop down beside it.
-	<br><br>
-	You sit there and breathe until you can move again. The egg is bigger than both your hands together. The shell is pearl white, and the air just above it glitters.
-	<<if _pastelEgg>>
+	You push once more. It finally slips free and lands in the grass between your feet.
+	<<if _dragonClutch is 2>>
 		<br><br>
-		You put a hand out to steady it. Colour spreads across the shell under your palm in soft bands, running from your fingers to the far side. The old marks around the hut brighten while you watch. You take your hand away, and the colour stays. <<earnFeat "A Soft One's Legacy">>
+		You have barely stopped shaking when the pressure builds again. The second comes easier with the first one's work already done, though it is no smaller. You catch yourself on one hand as it drops into the grass beside its sibling.
+	<<elseif _dragonClutch gte 3>>
+		<br><br>
+		You have barely stopped shaking when the pressure builds again. The second comes easier with the first one's work already done, though it is no smaller.
+		<br><br>
+		The last one is the worst. There is nothing behind it to push it along, and you are already spent. You brace both hands on the stones and work at it in short, shallow pushes until it gives, and you are left open and aching around nothing at all.
 	<</if>>
 	<br><br>
-	You lift the egg into your arms. It takes two tries. You hold it against your chest until you can feel the warmth through the shell, then wrap it up to carry. <<foodstufficon _eggType>> <span class="green">You gained a <<print setup.foodstuff[_eggType].name>>.</span><<tending_give _eggType 1>>
-	<<set $waterDragonNest.eggsLaid += 1>>
-	<<if _pastelEgg>><<set $waterDragonNest.pastelEggsLaid += 1>><</if>>
-	<<set $waterDragonEggs to {count: 1, daysTillLaying: random(($waterDragonIncubatorTrait ? 12 : 23), ($waterDragonIncubatorTrait ? 18 : 30))}>>
+	Your legs give way, and you drop down beside <<pluralise _dragonClutch "it" "them">>.
+	<br><br>
+	You sit there and breathe until you can move again. Each egg is bigger than both your hands together. The shells are pearl white, and the air just above <<pluralise _dragonClutch "it" "them">> glitters.
+	<<if _dragonPastelCount gte 1>>
+		<br><br>
+		You put a hand out to steady <<if _dragonPastelCount is 1>>one of them<<else>>them<</if>>. Colour spreads across the shell under your palm in soft bands, running from your fingers to the far side. The old marks around the hut brighten while you watch. You take your hand away, and the colour stays. <<earnFeat "A Soft One's Legacy">>
+	<</if>>
+	<br><br>
+	You lift <<pluralise _dragonClutch "the egg" "the eggs">> into your arms. It takes two tries. You hold <<pluralise _dragonClutch "it" "them">> against your chest until you can feel the warmth through the <<pluralise _dragonClutch "shell" "shells">>, then wrap <<pluralise _dragonClutch "it" "them">> up to carry.
+	<<waterDragonEggReward>>
+	<br><br>
+	The hollow keeps its warmth against your back while you recover. <<ltrauma>><<trauma -6>><<lstress>><<stress -6>>
+	<<set $waterDragonEggs to Transformations.rollWaterDragonEggCycle()>>
 	<br><br>
 	<<link [[Rest beside the nest|Water Dragon Nest]]>><</link>>
 	<</if>>
@@ -604,15 +615,15 @@ The tide pool is completely still, and your reflection is sharp. The marks shimm
 
 :: Water Dragon Egg Laying Realistic End
 <<location "beach">><<set $outside to 0>><<effects>>
-<<set _pastelEgg to random(1, 100) lte 23>>
-<<set _eggType to _pastelEgg ? "water_dragon_egg_pastel" : "water_dragon_egg">>
-The marks dim as the last of the pain goes out of you. You sit back on your heels, still breathing hard, and look down between your knees. The egg is where your body left it, bigger than both your hands together, and the shell is still warm.
-<<if _pastelEgg>> Colour spreads across it in soft pastel bands, and the old marks brighten. <<earnFeat "A Soft One's Legacy">><</if>>
+/* The birth context carries the clutch size through the childbirth system; $waterDragonEggs is the fallback for a save that reached here before the context was set. */
+<<set _dragonClutch to Math.clamp(Number($waterDragonBirthContext ? $waterDragonBirthContext.count : ($waterDragonEggs ? $waterDragonEggs.count : 1)) || 1, 1, 3)>>
+<<waterDragonEggPastelRoll _dragonClutch>>
+The marks dim as the last of the pain goes out of you. You sit back on your heels, still breathing hard, and look down between your knees. <<pluralise _dragonClutch "The egg is" "The eggs are">> where your body left <<pluralise _dragonClutch "it" "them">>, each bigger than both your hands together, and the <<pluralise _dragonClutch "shell is" "shells are">> still warm.
+<<if _dragonPastelCount gte 1>> Colour spreads across <<if _dragonPastelCount is 1>>one of them<<else>>them<</if>> in soft pastel bands, and the old marks brighten. <<earnFeat "A Soft One's Legacy">><</if>>
 <br><br>
-You wrap it carefully for carrying. <<foodstufficon _eggType>> <span class="green">You gained a <<print setup.foodstuff[_eggType].name>>.</span><<tending_give _eggType 1>>
-<<set $waterDragonNest.eggsLaid += 1>>
-<<if _pastelEgg>><<set $waterDragonNest.pastelEggsLaid += 1>><</if>>
-<<set $waterDragonEggs to {count: 1, daysTillLaying: random(($waterDragonIncubatorTrait ? 12 : 23), ($waterDragonIncubatorTrait ? 18 : 30))}>>
+You wrap <<pluralise _dragonClutch "it" "them">> carefully for carrying.
+<<waterDragonEggReward>>
+<<set $waterDragonEggs to Transformations.rollWaterDragonEggCycle()>>
 <<unset $waterDragonBirthContext>><<unset $birth>><<endcombat>>
 <br><br>
 <<link [[Rest beside the nest|Water Dragon Nest]]>><</link>>
