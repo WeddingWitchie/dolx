@@ -762,6 +762,8 @@ function calculateallure() {
 	if (V.auriga_scar) allure += V.auriga_scar * 500;
 	/* Tidebloom ring: the flower on it keeps giving off scent */
 	if (wearingTidebloomRing()) allure += 300;
+	/* DoLX: the Alpha/Beta/Omega pills give off a scent of their own. */
+	allure += xchangePheromoneAllure();
 	allure = Math.clamp(allure, 0, 8000);
 	const baseAllure = Math.floor(allure);
 	V.baseAllure = baseAllure;

@@ -196,6 +196,16 @@ window.updatePronounSummary = updatePronounSummary;
 			}
 		}
 
+		// Alpha/Beta/Omega pill settings.
+		// Body-changing options default off to avoid changing existing saves on load. Flavour-only options default on.
+		if (V.xchange.omegaNeedsNoVagina === undefined) V.xchange.omegaNeedsNoVagina = 0;
+		if (V.xchange.alphaGrowsPenis === undefined) V.xchange.alphaGrowsPenis = 0;
+		if (V.xchange.aboDrivesHeat === undefined) V.xchange.aboDrivesHeat = 1;
+		if (V.xchange.pheromoneAllure === undefined) V.xchange.pheromoneAllure = 1;
+		for (const key of ["omegaNeedsNoVagina", "alphaGrowsPenis", "aboDrivesHeat", "pheromoneAllure"]) {
+			if (typeof V.xchange[key] === "boolean") V.xchange[key] = V.xchange[key] ? 1 : 0;
+		}
+
 		// story-functions.js uses V.xchange.breederDenial in arithmetic.
 		// If it's missing or invalid, recover the bounded feature default so heat math doesn't become NaN.
 		const bd = Number(V.xchange.breederDenial);

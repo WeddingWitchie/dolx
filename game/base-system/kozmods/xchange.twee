@@ -685,6 +685,76 @@
 		<<run updatePhysique()>>
 	<</widget>>
 
+	/* If Alpha is set to grow a cock and the player does not have one, it adds one. This does not change gender or remove anything else.
+	The vagina, breasts, cycle, face, and body history stay the same.
+
+	The resulting body is treated as herm-shaped, so virginity data is moved to that body type without changing its contents. */
+	<<widget "xchange-alpha-grow-penis">>
+		<<if $player.penisExist or !$player.vaginaExist>><<exit>><</if>>
+		<<run setup.xChangeRecordActiveBodyVirginity()>>
+		<<set $xchange.pill.alphaGrewPenis to true>>
+		<<set $xchange.pill.alphaGrewPenisPreviousSex to $player.sex>>
+		<<set $xchange.pill.alphaGrewPenisPreviousBodyGender to $player.gender_body>>
+		<<run setup.xchangeClearNpcGenitalLinks(["penis"])>>
+		<<set $penisuse to 0>>
+		<<set $penisstate to 0>>
+		<<set $player.penisExist to true>>
+		<<set $player.ballsExist to $xchange.useHermBalls eq 1>>
+		<<set $player.gender_body to "a">>
+		<<set $player.sex to "m">>
+		<<if Number.isInteger($penissizemin) and Number.isInteger($penissizemax) and $penissizemax gte $penissizemin>>
+			<<set $player.penissize to random($penissizemin, $penissizemax)>>
+		<<else>>
+			<<set $player.penissize to 4>>
+		<</if>>
+		<<if $player.ballsExist and (!Number.isInteger($ballssize) or $ballssize lt 1)>>
+			<<set $ballssize to random(1,5)>>
+		<</if>>
+		<<set $penisgrowthtimer to 500>>
+		/* Keep the body's existing virginity history instead of replacing it with a stored herm record.
+		Only the new cock starts virgin. Then save the current history under the herm body type. */
+		<<set $player.virginity.penile to true>>
+		<<if $player.virginityDetails isnot undefined>><<run delete $player.virginityDetails.penile>><</if>>
+		<<run setup.xChangeRecordActiveBodyVirginity()>>
+		<<set _chastityAdapted to setup.xchangeAdaptChastityToBody()>>
+		<<if _chastityAdapted>><<set $xchange.chastityAdaptedMessage to _chastityAdapted>><</if>>
+		<<set $xchangeAlphaGrewPenisMessage to true>>
+		<<set $effectsmessage to 1>>
+		<<run updatePhysique()>>
+		<<updatesidebarimg>>
+	<</widget>>
+
+	/* Restores the body changed by Alpha. This only runs if Alpha's cock is still present.
+	Other body-changing pills or xchange-restore handle their own changes separately. */
+	<<widget "xchange-alpha-remove-penis">>
+		<<if !$xchange.pill.alphaGrewPenis>><<exit>><</if>>
+		<<if $player.penisExist and $player.vaginaExist and $player.gender_body is "a">>
+			<<run setup.xChangeRecordActiveBodyVirginity()>>
+			<<run setup.xchangeClearNpcGenitalLinks(["penis"])>>
+			<<set $penisuse to 0>>
+			<<set $penisstate to 0>>
+			<<set $player.penisExist to false>>
+			<<set $player.ballsExist to false>>
+			<<set $player.penissize to 0>>
+			<<set $ballssize to 0>>
+			<<set $player.gender_body to ($xchange.pill.alphaGrewPenisPreviousBodyGender isnot undefined ? $xchange.pill.alphaGrewPenisPreviousBodyGender : "f")>>
+			<<set $player.sex to ($xchange.pill.alphaGrewPenisPreviousSex isnot undefined ? $xchange.pill.alphaGrewPenisPreviousSex : "f")>>
+			/* Same body again on the way out: keep its history and re-file it under the shape it is back to. */
+			<<run setup.xChangeRecordActiveBodyVirginity()>>
+			<<set _chastityAdapted to setup.xchangeAdaptChastityToBody()>>
+			<<if _chastityAdapted>><<set $xchange.chastityAdaptedMessage to _chastityAdapted>><</if>>
+			<<if $combat is 1>><<xchangeBodyDesyncCheck>><</if>>
+			<<xchangeMasturbationDesyncCheck>>
+			<<set $xchangeAlphaGrewPenisMessage to "end">>
+			<<set $effectsmessage to 1>>
+			<<run updatePhysique()>>
+			<<updatesidebarimg>>
+		<</if>>
+		<<set $xchange.pill.alphaGrewPenis to false>>
+		<<unset $xchange.pill.alphaGrewPenisPreviousSex>>
+		<<unset $xchange.pill.alphaGrewPenisPreviousBodyGender>>
+	<</widget>>
+
 	/* Applies the "Sexflipped Demeanour" setting when a pill puts you in another body.
 	   The demeanour you had in your own body is remembered on the pill and put back by
 	   <<xchange-restore-demeanour>> when you return to it. */
@@ -1217,6 +1287,10 @@
 			/* Reset Swell body sizes before the new pill saves them. Otherwise, they can get stuck at maximum size. */
 			<<xchange-removeeffect "swell">>
 		<</if>>
+		/* Remove a cock grown by the old Alpha before clearing its effect. If the new pill also has Alpha, keep the existing cock instead of growing a new one. */
+		<<if _xchangeRestack and $xchange.pill.alphaGrewPenis and !(Array.isArray(_effectsList) and _effectsList.includes("alpha"))>>
+			<<xchange-alpha-remove-penis>>
+		<</if>>
 
 		<<set $xchange.pill.active to true>>
 		/* A second pill taken while already transformed must not re-baseline: baseSex/baseGenitals describe the body the session started from, and clone names which body is worn.
@@ -1244,6 +1318,7 @@
 		<<set $xchange.pill.betaEffect to false>>
 		<<set $xchange.pill.alphaPenisSizeBoost to false>>
 		<<unset $xchange.pill.alphaPenisSizePrevious>>
+		<<if !_xchangeRestack>><<set $xchange.pill.alphaGrewPenis to false>><</if>>
 		<<set $xchange.pill.xtendEffect to false>>
 		<<unset $xchange.pill.xtendTracker>>
 		<<set $xchange.pill.resistanceEffect to false>>
@@ -1315,6 +1390,8 @@
 				<<set $sexStats.vagina.menstruation.running = true>>
 			<</if>>
 			<<if !$player.penisExist>><<set $xchange.pill.bullEffect to false>><<set $xchange.pill.alphaEffect to false>><</if>>
+			/* The flip rebuilt the body, so whatever cock it has now is the new body's, not one Alpha grew. */
+			<<set $xchange.pill.alphaGrewPenis to false>>
 			<<if $combat is 1>><<xchangeBodyDesyncCheck>><</if>>
 			<<xchangeMasturbationDesyncCheck>>
 		<</if>>
@@ -1358,6 +1435,8 @@
 				<<xchange-store-body-virginity "xchange">>
 			<</if>>
 			<<set $xchange.pill.hermEffect to true>>
+			/* Same as the flip: hermify builds the body's own cock, so Alpha stops owning one. */
+			<<set $xchange.pill.alphaGrewPenis to false>>
 			<<hermify>>
 			/* Herm body has a vagina; allow fertility/pregnancy if the original body did too, or if a Hyper Fertility effect was selected. */
 			<<if ($xchange.pill.baseGenitals and $xchange.pill.baseGenitals.vagina) or $xchange.pill.hyperFertilityEffect>>
@@ -1405,6 +1484,11 @@
 
 	<<case "alpha">>
 		<<set $xchange.pill.alphaEffect to true>>
+		/* Grow the cock first, so the size floor below treats it like any other Alpha cock. */
+		<<if $xchange.alphaGrowsPenis and !$player.penisExist and $player.vaginaExist>>
+			<<xchange-alpha-grow-penis>>
+			<<set _xchangeNeedsRefresh to true>>
+		<</if>>
 		<<if $player.penisExist and $player.penissize lt 2>>
 			<<if $xchange.pill.alphaPenisSizeBoost isnot true>>
 				<<set $xchange.pill.alphaPenisSizeBoost to true>>
@@ -1629,6 +1713,8 @@
 				<<set $xchange.pill.alphaPenisSizeBoost to false>>
 				<<unset $xchange.pill.alphaPenisSizePrevious>>
 			<</if>>
+			/* Runs after the size restore above, which would otherwise write a size onto an organ that is about to go. */
+			<<xchange-alpha-remove-penis>>
 		<<case "beta">>
 			<<set $xchange.pill.betaEffect to false>>
 			<<run ensurePendingPregnancySlots()>><<set $pendingPregnancies.vagina2 to null>>
@@ -2056,6 +2142,9 @@
 		<</if>>
 		<<set $xchange.pill.alphaPenisSizeBoost to false>>
 		<<unset $xchange.pill.alphaPenisSizePrevious>>
+		<<set $xchange.pill.alphaGrewPenis to false>>
+		<<unset $xchange.pill.alphaGrewPenisPreviousSex>>
+		<<unset $xchange.pill.alphaGrewPenisPreviousBodyGender>>
 		<<set $xchange.pill.fertile to false>>
 		<<set $xchange.breederDenial to 0>>
 		<<set $xchange.breederOrgasm to false>>
@@ -2623,7 +2712,8 @@
 		<<set _hasAnusTarget to (_bodyparts is "anus") or (Array.isArray(_bodyparts) and _bodyparts.includes("anus"))>>
 		<<set _hasBreederLiquid to (_liquids is "cum") or (_liquids is "semen") or (_liquids is "nectar") or (Array.isArray(_liquids) and (_liquids.includes("cum") or _liquids.includes("semen") or _liquids.includes("nectar")))>>
 
-		<<if !$statFreeze and playerIsXChanged() and (($xchange.pill.breederEffect and _hasVaginaTarget) or ($xchange.pill.omegaEffect and _hasAnusTarget)) and _hasBreederLiquid and _amount gte 1>>
+		/* Apply the effect to the hole Omega currently targets. If Omega is set to use the womb without a vagina, a creampie can trigger it directly. */
+		<<if !$statFreeze and playerIsXChanged() and (($xchange.pill.breederEffect and _hasVaginaTarget) or (omegaTargetsAnus() and _hasAnusTarget) or (omegaTargetsVagina() and _hasVaginaTarget)) and _hasBreederLiquid and _amount gte 1>>
 			<<set $pleasure to $pleasuremax>>
 			<<set $breederOrgasm to 1>>
 			<<set $breederCreampied to true>>

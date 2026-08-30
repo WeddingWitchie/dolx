@@ -634,8 +634,8 @@ function pleasure(amount, source) {
 				const pill = V.xchange.pill || {};
 				const arms = [V.leftarm, V.rightarm];
 
-				// Omega craves the ass: worn plug/beads, a hand-held toy actually inserted (masturbation or combat self-use), riding a floor toy, or an NPC working a dildo in.
-				if (pill.omegaEffect) {
+				// Omega prefers anal stimulation from inserted toys or NPC dildo use. If "needs no vagina" redirects Omega to vaginal use, use the Breeder logic below instead.
+				if (omegaTargetsAnus()) {
 					try {
 						if (playerHasButtPlug()) return true;
 					} catch (e) {}
@@ -645,7 +645,7 @@ function pleasure(amount, source) {
 				}
 
 				// Breeder craves the womb: same logic for the vagina.
-				if (pill.breederEffect && V.player?.vaginaExist) {
+				if ((pill.breederEffect || (pill.omegaEffect && !omegaTargetsAnus())) && V.player?.vaginaExist) {
 					try {
 						if (playerHasWornVaginalDildo()) return true;
 						if (playerHasVibrator()) return true;
@@ -924,6 +924,40 @@ function playerIsXChanged() {
 }
 window.playerIsXChanged = playerIsXChanged;
 
+/**
+ * Whether Alpha and Omega pills can trigger heat or rut.
+ * When "ABO drives" is enabled, Omega can enter heat through the fertility cycle,
+ * while Alpha can enter rut. When disabled, heat only happens through breeding denial.
+ *
+ * @returns {boolean}
+ */
+function aboDrivesHeat() {
+	return !V.statFreeze && !!V.xchange?.aboDrivesHeat && playerIsXChanged();
+}
+window.aboDrivesHeat = aboDrivesHeat;
+
+/**
+ * Adds extra allure from active Alpha, Beta, and Omega pheromones.
+ * Each active pheromone adds to allure and can stack with the others.
+ * Does not affect attractiveness.
+ *
+ * @returns {number} Extra allure, or 0 if none are active
+ */
+function xchangePheromoneAllure() {
+	if (V.statFreeze || !V.xchange?.pheromoneAllure || !playerIsXChanged()) return 0;
+	const pill = V.xchange.pill;
+	if (!pill) return 0;
+	let allure = 0;
+	// Alpha only signals while there is a cock to signal with, the same condition its knot runs on.
+	if (pill.alphaEffect && V.player?.penisExist) allure += 400;
+	// Omega signals from whichever hole it is aiming at, so it needs no anatomy test of its own.
+	if (pill.omegaEffect) allure += 400;
+	// Beta is the quiet one: two wombs to fill, but nothing about it advertises as loudly.
+	if (pill.betaEffect && V.player?.vaginaExist) allure += 200;
+	return allure;
+}
+window.xchangePheromoneAllure = xchangePheromoneAllure;
+
 function isNumber(value) {
 	return typeof value === "number" || value instanceof Number;
 }
@@ -1092,8 +1126,11 @@ window.playerIsAnalCreampied = playerIsAnalCreampied;
 
 function playerIsBreederCreampied() {
 	const pill = V.xchange?.pill;
-	if (pill?.breederEffect && pill?.omegaEffect) return playerIsCreampied() || playerIsAnalCreampied();
-	return pill?.omegaEffect ? playerIsAnalCreampied() : playerIsCreampied();
+	// Which hole has to be filled follows which hole the pill is aiming at, so an Omega turned toward
+	// the womb is satisfied by a vaginal creampie rather than waiting on an anal one that never comes.
+	const omegaAnal = omegaTargetsAnus();
+	if (pill?.breederEffect && omegaAnal) return playerIsCreampied() || playerIsAnalCreampied();
+	return omegaAnal ? playerIsAnalCreampied() : playerIsCreampied();
 }
 window.playerIsBreederCreampied = playerIsBreederCreampied;
 
@@ -1879,8 +1916,8 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.breederEdgingMessage) {
-		const breederTarget =
-			V.xchange?.pill?.omegaEffect && V.xchange?.pill?.breederEffect ? "pussy or ass." : V.xchange?.pill?.omegaEffect ? "ass." : either("pussy.", "vagina.");
+		const omegaAnal = omegaTargetsAnus();
+		const breederTarget = omegaAnal && V.xchange?.pill?.breederEffect ? "pussy or ass." : omegaAnal ? "ass." : either("pussy.", "vagina.");
 		element("span", "Your body refuses to cum like this.", "purple");
 		element("span", "You crave some thick gooey semen in your " + breederTarget, "red");
 		if ((V.xchange.breederEdgingStress ?? 0) >= 300) fragment.append(wikifier("ggstress"));
@@ -1898,7 +1935,8 @@ function xchangeEffectsMessages() {
 
 		element("span", "The toy pushes you over the edge, and your body finally gives in.", "purple");
 		if (fromBreederGate) {
-			const breederTarget = pill?.omegaEffect && pill?.breederEffect ? "holes" : pill?.omegaEffect ? "ass" : "womb";
+			const omegaAnal = omegaTargetsAnus();
+			const breederTarget = omegaAnal && pill?.breederEffect ? "holes" : omegaAnal ? "ass" : "womb";
 			element(
 				"span",
 				`The forced orgasm washes through you, but it feels hollow; your ${breederTarget} ${
@@ -2092,6 +2130,18 @@ function xchangeEffectsMessages() {
 		element("span", `The botched transformation has weakened your ${skills.join(", ")}.`, "purple");
 		br();
 		delete V.suspiciousPillDebuffMessage;
+	}
+
+	if (V.xchangeAlphaGrewPenisMessage) {
+		if (V.xchangeAlphaGrewPenisMessage === "end") {
+			element("span", "The ache from the Alpha pill fades. Your cock softens, then slowly shrinks away.", "purple");
+			br();
+		} else {
+			element("span", "You feel a growing ache between your legs.", "purple");
+			element("span", "The Alpha pill grows you a cock with a knot, without removing anything else.", "pink");
+			br();
+		}
+		delete V.xchangeAlphaGrewPenisMessage;
 	}
 
 	if (V.xchange?.chastityAdaptedMessage) {

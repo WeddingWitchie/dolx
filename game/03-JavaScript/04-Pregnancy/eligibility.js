@@ -110,6 +110,34 @@ function hasExceptionalAnalPregnancy() {
 }
 
 /**
+ * Returns whether Omega is targeting the butt instead of the womb.
+ *
+ * Without a vagina, Omega always uses the butt. With a vagina, the target depends on the "Omega needs no vagina" setting.
+ * This check is shared by conception, craving, denial and toy logic so they all use the same target.
+ * Disabled during $statFreeze scenes such as flashbacks, dreams and replays.
+ *
+ * @returns {boolean}
+ */
+function omegaTargetsAnus() {
+	if (V.statFreeze || !V.xchange?.pill?.active || !V.xchange.pill.omegaEffect) return false;
+	return !V.xchange.omegaNeedsNoVagina || !V.player?.vaginaExist;
+}
+window.omegaTargetsAnus = omegaTargetsAnus;
+
+/**
+ * Checks if Omega is targeting the womb instead of the butt.
+ * This only happens when "Omega needs no vagina" is enabled and the player has a vagina.
+ * In this case, Omega keeps the normal fertility cycle and breeder conception bonus.
+ *
+ * @returns {boolean}
+ */
+function omegaTargetsVagina() {
+	if (V.statFreeze || !V.xchange?.pill?.active || !V.xchange.pill.omegaEffect) return false;
+	return !!V.player?.vaginaExist && !omegaTargetsAnus();
+}
+window.omegaTargetsVagina = omegaTargetsVagina;
+
+/**
  * DoLX: whether an active X-Change Omega pill is remaking the body to carry a pregnancy in its butt.
  *
  * Granting that capability IS the pill's effect, so it is its own eligibility source rather than one
@@ -117,12 +145,10 @@ function hasExceptionalAnalPregnancy() {
  * routes, not this one. It takes the same road as the earslime from here on, without needing
  * earslime or carrying any of its side effects.
  *
- * $statFreeze marks a historical scene (flashback, dream, replay), where the live pill must not apply.
- *
  * @returns {boolean}
  */
 function hasOmegaAnalPregnancy() {
-	return !!(!V.statFreeze && V.xchange?.pill?.active && V.xchange.pill.omegaEffect);
+	return omegaTargetsAnus();
 }
 window.hasOmegaAnalPregnancy = hasOmegaAnalPregnancy;
 

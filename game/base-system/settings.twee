@@ -5108,24 +5108,6 @@
 
 <<widget "xchangeSettings">>
 	<div class="solidBorderContainer settings-container">
-		/* <div class="settingsGrid">
-			<div class="settingsHeader">
-				<span class="gold">Gratitude Corner</span>
-			</div>
-			<div class="settingsToggleItem numberslider-inline">
-				<<foldout false "_supportFoldout">>
-					<span class="gold"><b>Feeling generous?</b></span>
-					<ul>
-						<li><b>[[Vrelnir: | "https://subscribestar.adult/vrelnir"]]</b> The big man himself, to whom we owe this beautiful game's existence.</li>
-						<li><b>[[Frostberg: | "https://www.patreon.com/DegreesofLewdityPlus"]]</b> An incredibly dedicated developer thanks to whom we get to enjoy the expanded DoL experience that is DoLP.</li>
-						<li><b>[[Akoz: | "https://ko-fi.com/akozofbliss"]]</b> Yours truly, the kitty cat that put together this little X-Change adventure.</li>
-					</ul>
-					<b>This project has stayed free</b> thanks to the huge passion of the people above, along with the massive help of a talented group of artists and developers behind scenes.
-					<br><br>
-				<</foldout>>
-				Click above to discover where you can send your support. 
-			</div>
-		</div> */
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				<span class="gold">Core Settings</span><br>
@@ -5136,7 +5118,7 @@
 				<label><<checkbox "$xchange.pillPermanence" 0 1 autocheck>> Enable pill permanence</label> <mouse class="tooltip linkBlue">(?)<span>If disabled, pill mechanics no longer result in permanence. Instead, they result in large increases in duration or pauses in the pill timer.</span></mouse><br>
 				<label><<checkbox "$xchangeStatSplit" false true autocheck>> Enable lewd stat split</label> <mouse class="tooltip linkBlue">(?)<span>If enabled, lewd stats (Promiscuity, Exhibitionism, Deviancy) are tracked separately for each body. A new body starts with its own lewd stats, and switching back to a previous body restores that body's values. The stats are never merged.</span></mouse><br>
 				<label><<checkbox "$xchange.grayPillGenderflip" 0 1 autocheck>> Gray pills also flip your sex</label> <mouse class="tooltip linkBlue">(?)<span>Gray X-Change pills normally add only their special effect, without changing your body. If this setting is enabled, taking a gray pill while not already transformed will also swap your genitals, then apply the effect to that changed body.</span></mouse><br>
-				<label><<checkbox "$xchange.npcPillChangesGender" 0 1 autocheck>> Pilled NPCs also change gender</label> <mouse class="tooltip linkBlue">(?)<span>When enabled, genderswap pills change a pilled NPC's gender along with their body: their pronouns and descriptions flip to match the new sex. If disabled, pills change only the NPC's physical sex. Applies to both random NPCs and Named NPCs.</span></mouse><br>
+				<label><<checkbox "$xchange.npcPillChangesGender" 0 1 autocheck>> Pills also change NPC gender</label> <mouse class="tooltip linkBlue">(?)<span>When enabled, genderswap pills change both an NPC's sex and gender, including their pronouns and descriptions. When disabled, only their physical sex changes. Applies to random and Named NPCs.</span></mouse><br>
 			</div>
 
 			<div class="settingsToggleItem">
@@ -5175,7 +5157,10 @@
 				<<set _xchangeOldSaveGenitalMismatchNPC to []>>
 				<<for _xchangeOldSaveNPCIndex to 0; _xchangeOldSaveNPCIndex lt $NPCName.length; _xchangeOldSaveNPCIndex++>>
 					<<set _xchangeOldSaveNPC to $NPCName[_xchangeOldSaveNPCIndex]>>
-					<<if _xchangeOldSaveNPC and _xchangeOldSaveNPC.pregnancy and _xchangeOldSaveNPC.pregnancy.enabled isnot undefined and !_xchangeOldSaveNPC.pregnancy.fetus.length>>
+					/* Only a pre-records-model save carries a fetus array. Some NPCs never have one at all
+					   (Black Wolf, Alex and the Great Hawk on a brand-new game), and reading .length off
+					   the missing array threw, which took the whole X-Change settings tab down with it. */
+					<<if _xchangeOldSaveNPC and _xchangeOldSaveNPC.pregnancy and _xchangeOldSaveNPC.pregnancy.enabled isnot undefined and Array.isArray(_xchangeOldSaveNPC.pregnancy.fetus) and !_xchangeOldSaveNPC.pregnancy.fetus.length>>
 						<<if _xchangeOldSaveNPC.gender is "f" and (_xchangeOldSaveNPC.vagina is undefined or _xchangeOldSaveNPC.vagina is "none" or _xchangeOldSaveNPC.penis isnot "none")>>
 							<<set _xchangeOldSaveGenitalMismatchNPC.push(_xchangeOldSaveNPCIndex)>>
 						<<elseif _xchangeOldSaveNPC.gender is "m" and (_xchangeOldSaveNPC.penis is undefined or _xchangeOldSaveNPC.penis is "none" or _xchangeOldSaveNPC.vagina isnot "none")>>
@@ -5491,7 +5476,7 @@
 			</div>
 			<div class="settingsToggleItem">
 				<span class="gold bold">Continue Settings:</span><br>
-				<label><<checkbox "$xchange.continueDurationCapEnabled" false true autocheck>> Cap Continue duration</label> <mouse class="tooltip linkBlue">(?)<span>Stops Continue from extending your transformation once its remaining duration reaches the Resistance Pill-End Failure Penalty, up to Continue's existing 30-day ceiling. Continue is removed so the timer can count down normally; if your current body can become pregnant, Fertile is added. Existing excess duration is not erased. If it is already over the cap, the change takes effect the next time you climax. An already-permanent transformation stays permanent, though its Continue effect will still burn out on the next climax.</span></mouse><br>
+				<label><<checkbox "$xchange.continueDurationCapEnabled" false true autocheck>> Cap Continue duration</label> <mouse class="tooltip linkBlue">(?)<span>Stops Continue from extending a transformation past the Resistance Pill-End Failure Penalty, up to the normal 30-day limit. Once the cap is reached, Continue is removed and the transformation timer starts counting down normally. Fertile is added if your current body can become pregnant. Any time already above the cap is kept until your next climax. Permanent transformations stay permanent, but Continue will still be removed on your next climax.</span></mouse><br>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
 				<span class="gold bold">Portal Settings:</span>
@@ -5509,24 +5494,35 @@
 				<br>
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold bold">Breeder Settings:</span><mouse class="tooltip linkBlue">(?)<span><b>The breeder effect only works while you have a womb and vagina.</b> The orgasm requirement setting also applies to Omega's anal effect.</span></mouse><br>
-				<label><<checkbox "$xchange.breederFreeOrgasm" false true autocheck>> Orgasm without creampie</label> <mouse class="tooltip linkBlue">(?)<span>By default, breeder and omega pills stop you from climaxing unless there's cum inside you (in the vagina for breeder, in the ass for omega). Enable this to lift that restriction, so you can orgasm freely while on breeder or omega even with nothing inside. The extra-intense pleasure and stress relief from an actual creampie still only happen when you really do get creampied.</span></mouse><br>
-				<label><<checkbox "$xchange.breederInfertile" false true autocheck>> Fake breeder (infertile)</label> <mouse class="tooltip linkBlue">(?)<span>When enabled, breeder pills give only the behavioural breeder effect (cravings, creampie-focused pleasure, stress relief) but leave you infertile, so a breeder pill can no longer cause pregnancy. Disable for the default behaviour, where a breeder pill also makes you highly fertile. Overridden by "Always fertile" and by any Hyper Fertility on the same pill.</span></mouse><br>
+				<span class="gold bold">Breeder Settings:</span><mouse class="tooltip linkBlue">(?)<span><b>Breeder only works if you have a womb and vagina.</b> The orgasm setting below also affects Omega's anal effect.</span></mouse><br>
+				<label><<checkbox "$xchange.breederFreeOrgasm" false true autocheck>> Allow orgasm without creampie</label>
+				<mouse class="tooltip linkBlue">(?)<span>Normally, Breeder and Omega stop you from orgasming unless there is cum inside the affected hole. Enable this to allow orgasms without a creampie. A real creampie still gives the stronger pleasure and stress relief.</span></mouse><br>
+				<label><<checkbox "$xchange.breederInfertile" false true autocheck>> Breeder does not increase fertility</label>
+				<mouse class="tooltip linkBlue">(?)<span>Enable this to keep Breeder's cravings, pleasure, and stress effects without making you more fertile. "Always fertile" and Hyper Fertility can still make you fertile.</span></mouse><br>
 			</div>
 			<div class="settingsToggleItem">
-				<span class="gold bold">Omega Settings:</span><br>
-				<label><<checkbox "$xchange.omegaShrinkGenitals" 0 1 autocheck>> Omega uses Sissy-style shrinking</label> <mouse class="tooltip linkBlue">(?)<span>If enabled, X-Change Pink Omega applies the Sissy-style partial body change instead of a full sex flip, shrinking masculine genitals while keeping Omega's anal pregnancy effect.</span></mouse><br>
+				<span class="gold bold">Alpha/Beta/Omega Settings:</span><mouse class="tooltip linkBlue">(?)<span><b>Alpha</b> affects the penis, <b>Beta</b> gives a vaginal body two wombs, and <b>Omega</b> allows anal pregnancy.</span></mouse><br>
+				<label><<checkbox "$xchange.omegaShrinkGenitals" 0 1 autocheck>> Omega uses Sissy-style shrinking</label>
+				<mouse class="tooltip linkBlue">(?)<span>X-Change Pink Omega shrinks masculine genitals instead of fully changing your sex. Its anal pregnancy effect still works.</span></mouse><br>
+				<label><<checkbox "$xchange.omegaNeedsNoVagina" 0 1 autocheck>> Omega only affects the ass without a vagina</label>
+				<mouse class="tooltip linkBlue">(?)<span>When enabled, Omega only allows anal pregnancy if you have no vagina. If you have one, breeding uses the vagina instead.</span></mouse><br>
+				<label><<checkbox "$xchange.alphaGrowsPenis" 0 1 autocheck>> Alpha grows you a cock</label>
+				<mouse class="tooltip linkBlue">(?)<span>When enabled, Alpha grows a temporary cock if you do not already have one. It disappears when the Alpha effect ends.</span></mouse><br>
+				<label><<checkbox "$xchange.aboDrivesHeat" 0 1 autocheck>> Alpha and Omega cause rut and heat</label>
+				<mouse class="tooltip linkBlue">(?)<span>When enabled, Alpha can put you into rut and Omega can put you into heat through your fertility cycle.</span></mouse><br>
+				<label><<checkbox "$xchange.pheromoneAllure" 0 1 autocheck>> Alpha, Beta, and Omega increase allure</label>
+				<mouse class="tooltip linkBlue">(?)<span>When enabled, these pills increase allure while active. Alpha requires a cock, and Beta requires a vagina.</span></mouse><br>
 			</div>
 			<div class="settingsToggleItem">
 				<span class="gold bold">Fertility Settings:</span><br>
 				<label><<checkbox "$xchange.postPermanenceFertilityReset" 0 1 autocheck>> Reset fertility to normal rate after permanence </label> <mouse class="tooltip linkBlue">(?)<span>Pills that have reduced fertility rates as part of their effects go back to normal fertility rates after the first pregnancy. Note: Pills that have breeder effects remain the same even after pregnancy.</span></mouse><br>
-				<label><<checkbox "$xchange.alwaysFertile" false true autocheck>> Always fertile while X-Changed</label> <mouse class="tooltip linkBlue">(?)<span>While under any X-Change pill, keeps your body fertile with its cycle running, so conception stays possible regardless of the pill's own effects or cycle timing. Only applies while you're X-Changed and have a womb and vagina; your natural (un-pilled) body is unaffected.</span></mouse><br>
+				<label><<checkbox "$xchange.alwaysFertile" false true autocheck>> Always fertile while X-Changed</label> <mouse class="tooltip linkBlue">(?)<span>While an X-Change pill is active, you can become pregnant at any time if you have a womb and vagina. This does not affect your normal body when no pill is active.</span></mouse><br>
 				<span>Pilled chance modifier: (%)
 					<mouse class="tooltip linkBlue">(?)<span>A multiplier applied to a character's base pregnancy/impregnation chance while pilled and fertile (for breeder and bull effects, different rates apply).</span></mouse>
 				</span>
 				<<numberbox "$xchange.pregnancyMultPercent" $xchange.pregnancyMultPercent>><br>
 				<span>Fertility strength: (%)
-				<mouse class="tooltip linkBlue">(?)<span>How potent the Fertility / Hyper Fertility course is at causing conception. Higher values make pregnancy from the fertility effect more reliable; 100% is the default strength. Does not change pregnancy speed or the odds of twins/triplets.</span></mouse>
+					<mouse class="tooltip linkBlue">(?)<span>Controls how much Fertility and Hyper Fertility increase your chance of becoming pregnant. 100% is the normal strength. This does not affect pregnancy speed or the chance of twins or triplets.</span></mouse>
 				</span>
 				<<numberslider "$xchange.fertilityStrengthPercent" $xchange.fertilityStrengthPercent 25 400 25>>
 			</div>

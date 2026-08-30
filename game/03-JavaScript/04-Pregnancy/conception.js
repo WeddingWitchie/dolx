@@ -151,7 +151,9 @@ function xchangeConceptionModifier() {
 	// The roll clamps at 100%, so this is a ceiling-seeking boost rather than a literal 10x.
 	// An Omega body qualifies through its own route: pill.fertile is forced off on a body with no
 	// vagina, so a breeder pill would otherwise lose its boost exactly where Omega needs it.
-	const breeder = !!V.xchange?.pill?.breederEffect && (!!V.xchange.pill.fertile || (typeof hasOmegaAnalPregnancy === "function" && hasOmegaAnalPregnancy()));
+	const omegaFertile =
+		(typeof hasOmegaAnalPregnancy === "function" && hasOmegaAnalPregnancy()) || (typeof omegaTargetsVagina === "function" && omegaTargetsVagina());
+	const breeder = !!V.xchange?.pill?.breederEffect && (!!V.xchange.pill.fertile || omegaFertile);
 	const hyper = typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive();
 	if (breeder || hyper) modifier *= 10 * xchangeFertilityStrength();
 

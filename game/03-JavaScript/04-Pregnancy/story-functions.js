@@ -525,9 +525,7 @@ function playerHeatMinArousal() {
 	// The cycle's own curve, NOT fertilityOnCycleDay: a fertility booster lifts that to 0.8 on every
 	// day of the month, which would leave a beast-TF player permanently in heat.
 	const fertility = menstrualCycleFertility();
-	// DoLX: a denied breeder body runs hot whatever the cycle says, so denial raises the tier the
-	// cycle set rather than being scored separately. Tier now runs 0 (cold) to 2 (peak), the
-	// opposite direction to the old 0-6 risk value it replaced.
+	// DoLX: Breeder denial increases the current cycle tier. Tier ranges from 0 (cold) to 2 (peak), replacing the old 0-6 risk scale.
 	const breederDenial = Number(V.xchange?.breederDenial);
 	const breederDenialRisk = Number.isFinite(breederDenial) ? Math.clamp(breederDenial, 0, 6) : 0;
 	const tier = Math.clamp((fertility >= heat.full ? 2 : fertility >= heat.partial ? 1 : 0) + breederDenialRisk, 0, 2);
@@ -538,14 +536,16 @@ function playerHeatMinArousal() {
 		if (V.earSlime.growth > 50 && V.earSlime.focus === "pregnancy" && !V.earSlime.defyCooldown) {
 			minArousal += Math.clamp(V.earSlime.growth, 0, 200) * 5 * tier;
 		}
-		// DoLX: read transformation level and build through Transformations so temporary boosts and
-		// suppression count, cover the mod's extra bunny TF, and keep the mod's doubled heat weight.
+		// DoLX: read transformation level and build through Transformations so temporary boosts and suppression count, cover the mod's extra bunny TF, and keep the mod's doubled heat weight.
 		if (Transformations.effectiveLevel("wolf") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("wolf"), 0, 100) * 20 * tier;
 		if (Transformations.effectiveLevel("cat") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cat"), 0, 100) * 20 * tier;
 		if (Transformations.effectiveLevel("cow") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("cow"), 0, 100) * 20 * tier;
 		if (Transformations.effectiveLevel("fox") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("fox"), 0, 100) * 20 * tier;
 		if (Transformations.effectiveLevel("bunny") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("bunny"), 0, 100) * 20 * tier;
 		if (!V.statFreeze && playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect)) minArousal += 100 * 4 * breederDenialRisk;
+		// DoLX: Omega bodies can enter heat without relying on denial.
+		// The effect is slightly weaker than a full beast transformation because the pill is temporary.
+		if (aboDrivesHeat() && V.xchange.pill?.omegaEffect) minArousal += 1500 * tier;
 	}
 	if (minArousal === 0) V.pregnancyStats.heatStillEnabled = !playerIsPregnant();
 
@@ -581,6 +581,8 @@ function playerRutMinArousal() {
 		if (Transformations.effectiveLevel("fox") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("fox"), 0, 100) * 40;
 		if (Transformations.effectiveLevel("bunny") >= 2) minArousal += Math.clamp(Transformations.effectiveBuild("bunny"), 0, 100) * 40;
 		if (!V.statFreeze && playerIsXChanged() && V.xchange.pill?.bullEffect) minArousal += 100 * 40;
+		// DoLX: Alpha uses the same rut setting as Omega. Bull is stronger: Bull focuses on breeding, Alpha on knotting.
+		if (aboDrivesHeat() && V.xchange.pill?.alphaEffect) minArousal += 1500;
 	}
 	if (pills["fertility booster"].doseTaken > 2) {
 		minArousal += 500;
@@ -592,12 +594,11 @@ function playerRutMinArousal() {
 }
 window.playerRutMinArousal = playerRutMinArousal;
 
+// DoLX: X-Changed fertility is only shown after the pill effect is identified.
+// Omega allows anal pregnancy alongside vanilla's analPregnancy setting.
 function playerAwareTheyCanBePregnant() {
-	// DoLX: an X-Changed body only counts as knowably fertile once the pill's effects are known,
-	// so a player who hasn't identified their pill isn't told what it can do. The Omega effect is
-	// the mod's own route to carrying anally and stands alongside vanilla's analPregnancy setting.
 	const xchangeActive = playerIsXChanged() && !V.statFreeze;
-	const knowsVaginalFertility = !xchangeActive || (V.xchange.pill.fertile && V.xchange.pill.effectsKnown);
+	const knowsVaginalFertility = !xchangeActive || ((V.xchange.pill.fertile || omegaTargetsVagina()) && V.xchange.pill.effectsKnown);
 	const knowsOmegaFertility = hasOmegaAnalPregnancy() && V.xchange.pill.effectsKnown;
 	return (
 		(V.player.vaginaExist && knowsVaginalFertility) ||
