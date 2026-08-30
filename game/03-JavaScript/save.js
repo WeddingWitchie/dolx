@@ -1899,6 +1899,7 @@ function settingsObjects(type) {
 						fertility: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Hyper Fertility:" },
 						omega: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Omega:" },
 						alpha: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Alpha:" },
+						beta: { min: 0, max: 1, decimals: 0, displayName: "Spike pool - Beta:" },
 					},
 					spikerates: {
 						herm: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Herm:" },
@@ -1918,6 +1919,7 @@ function settingsObjects(type) {
 						portal: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Portal:" },
 						omega: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Omega:" },
 						alpha: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Alpha:" },
+						beta: { min: 1, max: 10, decimals: 0, displayName: "Spike rate - Beta:" },
 					},
 				},
 				identity: {

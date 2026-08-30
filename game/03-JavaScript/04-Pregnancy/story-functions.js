@@ -35,10 +35,7 @@ function playerBellySize(pregnancyOnly = false) {
 		// Pregnancies live in records. The belly grows with progress
 		// toward a term size set by the litter count. Both
 		// orifices can carry at once, so their bellies add up.
-		for (const orifice of ["vagina", "anus"]) {
-			const pregnancy = getActivePregnancy("pc", orifice);
-			if (pregnancy) bellySize += pregnancyBellySize(pregnancy);
-		}
+		for (const pregnancy of getActivePregnancies("pc")) bellySize += pregnancyBellySize(pregnancy);
 		// Parasites are a separate system from real pregnancies. They live directly on
 		// V.sexStats.*.pregnancy, not in records.
 		if (!pregnancyOnly) {
@@ -384,8 +381,9 @@ window.menstrualExposure = menstrualExposure;
  */
 function menstrualOutlook() {
 	// The same things that stop rollAndRecordConception rolling at all.
-	if (!readyToCarry()) return 0;
-	if (V.pendingPregnancies.vagina !== null || V.pendingPregnancies.anus !== null) return 0;
+	const betaSecondWombAvailable = betaSecondWombOpen() && availablePlayerPregnancySlot("vagina") !== null;
+	if (!readyToCarry() && !betaSecondWombAvailable) return 0;
+	if (!betaSecondWombAvailable && availablePlayerPregnancySlot("vagina") === null && availablePlayerPregnancySlot("anus") === null) return 0;
 	if (V.settings.basePlayerPregnancyChance <= 0) return 0; // the slider's floor turns pregnancy off
 	// A parasited orifice never rolls. Only a body with no clear orifice left is safe by it.
 	const orifices = [V.player.vaginaExist && "vagina", playerCanCarryAnally() && "anus"].filter(Boolean);

@@ -73,7 +73,9 @@ window.combatInseminate = combatInseminate;
  * @param {Load} load the load that conceives
  * @returns {number} the new pregnancyId
  */
-function conceiveNow(orifice, load) {
+
+function conceiveNow(orifice, load, slot = availablePlayerPregnancySlot(orifice)) {
+	if (slot === null) return null;
 	const pregnancyId = createPregnancy(
 		"pc",
 		"human",
@@ -82,7 +84,8 @@ function conceiveNow(orifice, load) {
 		[{ name: load.donor, species: load.donorSpecies }],
 		Time.date.timeStamp,
 		orifice,
-		load.location
+		load.location,
+		slot === "vagina2" ? 2 : 1
 	);
 	if (V.settings.pregnancyType === "fetish") {
 		setKnowsDonor(pregnancyId, "pc");
@@ -104,10 +107,11 @@ function conceiveNow(orifice, load) {
 function instantConception(orifice, load, force = false) {
 	const forced = force && !load.canWash;
 	if (!forced && V.settings.pregnancyType !== "fetish") return;
-	if (getActivePregnancies("pc").length) return;
+	const slot = availablePlayerPregnancySlot(orifice);
+	if (slot === null) return;
 	if (orificeHasParasites(orifice)) return;
-	const won = forced ? load : fetishPregnancyRoll(load);
-	if (won) conceiveNow(orifice, won);
+	const won = forced ? load : fetishPregnancyRoll(load, orifice);
+	if (won) conceiveNow(orifice, won, slot);
 }
 window.instantConception = instantConception;
 

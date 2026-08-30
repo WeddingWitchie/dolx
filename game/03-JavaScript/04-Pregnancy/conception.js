@@ -228,6 +228,54 @@ function readyToCarry() {
 }
 window.readyToCarry = readyToCarry;
 
+/** Keep the second Beta womb slot safe on new games and same-version old saves. */
+function ensurePendingPregnancySlots() {
+	if (!V.pendingPregnancies || typeof V.pendingPregnancies !== "object" || Array.isArray(V.pendingPregnancies)) {
+		V.pendingPregnancies = { vagina: null, vagina2: null, anus: null };
+	}
+	if (V.pendingPregnancies.vagina === undefined) V.pendingPregnancies.vagina = null;
+	if (V.pendingPregnancies.vagina2 === undefined) V.pendingPregnancies.vagina2 = null;
+	if (V.pendingPregnancies.anus === undefined) V.pendingPregnancies.anus = null;
+}
+window.ensurePendingPregnancySlots = ensurePendingPregnancySlots;
+
+/**
+ * The pending slot available to an insemination.
+ * Beta permits two independent vaginal conceptions; without it the original one-pregnancy-per-body rule remains intact.
+ *
+ * @param {"vagina"|"anus"} orifice where the load landed
+ * @returns {"vagina"|"vagina2"|"anus"|null} the free slot, or null when nothing can conceive here
+ */
+function availablePlayerPregnancySlot(orifice) {
+	ensurePendingPregnancySlots();
+	const pending = V.pendingPregnancies;
+	const active = getActivePregnancies("pc");
+	if (orifice === "anus") return active.length === 0 && pending.vagina === null && pending.vagina2 === null && pending.anus === null ? "anus" : null;
+	if (orifice !== "vagina") return null;
+	if (!playerHasBetaWombs()) {
+		return active.length === 0 && pending.vagina === null && pending.vagina2 === null && pending.anus === null ? "vagina" : null;
+	}
+	if (active.some(p => p.orifice === "anus") || pending.anus !== null) return null;
+	const occupied = new Set(getActiveVaginalPregnancies().map(p => p.womb ?? 1));
+	if (pending.vagina !== null) occupied.add(1);
+	if (pending.vagina2 !== null) occupied.add(2);
+	if (!occupied.has(1)) return "vagina";
+	if (!occupied.has(2)) return "vagina2";
+	return null;
+}
+window.availablePlayerPregnancySlot = availablePlayerPregnancySlot;
+
+/**
+ * Whether one Beta womb is pregnant while the other is still free.
+ * This allows a second pregnancy, so pregnancy and fertility checks should use this.
+ *
+ * @returns {boolean}
+ */
+function betaSecondWombOpen() {
+	return playerHasBetaWombs() && getActiveVaginalPregnancies().length === 1;
+}
+window.betaSecondWombOpen = betaSecondWombOpen;
+
 /**
  * How much the fertility boosters in the PC lift conception on a given day
  *
@@ -282,7 +330,8 @@ window.fertilityFloor = fertilityFloor;
  * @returns {number} 0 while carrying or recovering, otherwise the fertility floor at worst, up to 1 at ovulation
  */
 function fertilityOnCycleDay(day, daysAhead = 0) {
-	if (!readyToCarry()) return 0;
+	// Pregnancy or recovery normally removes fertility, unless Beta leaves one womb free to conceive.
+	if (!readyToCarry() && !betaSecondWombOpen()) return 0;
 	if (V.settings.fertilityCycleEnabled === false) return 1;
 	return Math.max(cycleFertilityRamp(day), fertilityFloor(daysAhead));
 }
@@ -394,14 +443,14 @@ window.npcConceptionModifier = npcConceptionModifier;
  * @param {"vagina"|"anus"} orifice
  */
 function rollAndRecordConception(orifice) {
-	// One real pregnancy per body: a pending or active pregnancy in either orifice prevents a new pregnancy.
-	if (V.pendingPregnancies[orifice] !== null || getActivePregnancies("pc").length > 0) return;
+	const slot = availablePlayerPregnancySlot(orifice);
+	if (slot === null) return;
 	if (orificeHasParasites(orifice)) return;
-	if (!readyToCarry()) return; // carrying or recovering: nothing to roll for
+	if (!readyToCarry() && !(orifice === "vagina" && betaSecondWombOpen())) return;
 
 	const now = Time.date.timeStamp;
 	const grace = PregnancyConstants.loadGracePeriod;
-	const eligible = V.cumLoads[orifice].filter(load => now - load.time >= grace);
+	const eligible = V.cumLoads[orifice].filter(load => !load.conceptionClaimed && now - load.time >= grace);
 	if (eligible.length === 0) return;
 	const clutchLoads = V.harpyEggs ? eligible.filter(load => childBaseSpecies(load.donorSpecies) === "hawk") : [];
 	const ripeClutch = clutchLoads.length > 0;
@@ -418,7 +467,7 @@ function rollAndRecordConception(orifice) {
 		const chance = Math.clamp(baseChance * playerConceptionModifier() * fertility * load.weight, 0, 100);
 		if (State.random() * 100 < chance) winners.push(load);
 	}
-	if (winners.length > 0) recordPendingPregnancy(orifice, winners[random(0, winners.length - 1)]);
+	if (winners.length > 0) recordPendingPregnancy(orifice, winners[random(0, winners.length - 1)], slot);
 }
 window.rollAndRecordConception = rollAndRecordConception;
 
@@ -439,9 +488,13 @@ window.hourlyPregnancyUpdate = hourlyPregnancyUpdate;
  *
  * @param {"vagina"|"anus"} orifice
  * @param {Load} load the picked load
+ * @param {"vagina"|"vagina2"|"anus"|null} [slot] the pending slot to fill, resolved from the orifice by default
+ * @returns {boolean} whether the pending conception was stored
  */
-function recordPendingPregnancy(orifice, load) {
-	V.pendingPregnancies[orifice] = {
+function recordPendingPregnancy(orifice, load, slot = availablePlayerPregnancySlot(orifice)) {
+	if (slot === null) return false;
+	load.conceptionClaimed = true;
+	V.pendingPregnancies[slot] = {
 		// The player's own body is the base of the child. Their transformations are read as heritage
 		// when the record is made in generateChildren.
 		carrierSpecies: "human",
@@ -455,6 +508,7 @@ function recordPendingPregnancy(orifice, load) {
 		conceivedDate: Time.date.timeStamp,
 		conceivedLocation: load.location,
 	};
+	return true;
 }
 window.recordPendingPregnancy = recordPendingPregnancy;
 
@@ -464,8 +518,9 @@ window.recordPendingPregnancy = recordPendingPregnancy;
  * @returns {boolean}
  */
 function birdConceptionPending() {
-	return ["vagina", "anus"].some(orifice => {
-		const pending = V.pendingPregnancies[orifice];
+	ensurePendingPregnancySlots();
+	return ["vagina", "vagina2", "anus"].some(slot => {
+		const pending = V.pendingPregnancies[slot];
 		return pending !== null && childBaseSpecies(pending.donorSpecies) === "hawk";
 	});
 }
@@ -490,7 +545,8 @@ function takeMorningAfterPill() {
 	if (getActivePregnancy("pc", "vagina") || getActivePregnancy("pc", "anus")) {
 		outcome = "tooLate";
 	} else {
-		const pending = [V.pendingPregnancies.vagina, V.pendingPregnancies.anus].filter(p => p !== null);
+		ensurePendingPregnancySlots();
+		const pending = [V.pendingPregnancies.vagina, V.pendingPregnancies.vagina2, V.pendingPregnancies.anus].filter(p => p !== null);
 		if (pending.length > 0) {
 			// Two conceptions at once are judged by the older one, the one closest to implanting.
 			const age = Math.max(...pending.map(p => Time.date.timeStamp - p.conceivedDate));
@@ -501,6 +557,7 @@ function takeMorningAfterPill() {
 		}
 	}
 	V.pendingPregnancies.vagina = null;
+	V.pendingPregnancies.vagina2 = null;
 	V.pendingPregnancies.anus = null;
 	V.cumLoads.vagina = [];
 	V.cumLoads.anus = [];
@@ -512,12 +569,18 @@ window.takeMorningAfterPill = takeMorningAfterPill;
  * Make the pregnancy record for any pending conception that has finished its window.
  */
 function startDuePregnancies() {
-	for (const orifice of ["vagina", "anus"]) {
-		const pending = V.pendingPregnancies[orifice];
+	ensurePendingPregnancySlots();
+	for (const slot of ["vagina", "vagina2", "anus"]) {
+		const pending = V.pendingPregnancies[slot];
 		if (pending === null) continue;
 		if (Time.date.timeStamp - pending.conceivedDate < PregnancyConstants.implantationWindow) continue;
+		const orifice = slot === "vagina2" ? "vagina" : slot;
+		if (slot === "vagina2" && !playerHasBetaWombs()) {
+			V.pendingPregnancies[slot] = null;
+			continue;
+		}
 		if (orificeHasParasites(orifice)) {
-			V.pendingPregnancies[orifice] = null;
+			V.pendingPregnancies[slot] = null;
 			continue;
 		}
 		createPregnancy(
@@ -528,9 +591,10 @@ function startDuePregnancies() {
 			pending.possibleDonors,
 			pending.conceivedDate,
 			orifice,
-			pending.conceivedLocation
+			pending.conceivedLocation,
+			slot === "vagina2" ? 2 : 1
 		);
-		V.pendingPregnancies[orifice] = null;
+		V.pendingPregnancies[slot] = null;
 	}
 }
 window.startDuePregnancies = startDuePregnancies;
@@ -540,10 +604,11 @@ window.startDuePregnancies = startDuePregnancies;
  * A win is an instant pregnancy. The caller makes the pregnancy record on the spot.
  *
  * @param {Load} load the load that just landed
+ * @param {"vagina"|"anus"} [orifice="vagina"] where it landed, so a free Beta womb can still take it
  * @returns {Load|null} the load when it took, or null when nothing happened
  */
-function fetishPregnancyRoll(load) {
-	if (!readyToCarry()) return null;
+function fetishPregnancyRoll(load, orifice = "vagina") {
+	if (!readyToCarry() && !(orifice === "vagina" && betaSecondWombOpen())) return null;
 	const chance = V.settings.basePlayerPregnancyChance * playerConceptionModifier() * menstrualFertility();
 	if (chance >= 100) return load;
 	return State.random() * 100 < Math.clamp(chance * load.weight, 0, 100) ? load : null;

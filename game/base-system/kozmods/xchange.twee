@@ -1241,6 +1241,7 @@
 		<<set $xchange.breederDenial to 0>>
 		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.alphaEffect to false>>
+		<<set $xchange.pill.betaEffect to false>>
 		<<set $xchange.pill.alphaPenisSizeBoost to false>>
 		<<unset $xchange.pill.alphaPenisSizePrevious>>
 		<<set $xchange.pill.xtendEffect to false>>
@@ -1411,6 +1412,9 @@
 			<</if>>
 			<<set $player.penissize to 2>>
 		<</if>>
+
+	<<case "beta">>
+		<<if $player.vaginaExist>><<set $xchange.pill.betaEffect to true>><</if>>
 
 	<<case "portal">>
 		<<if $portalPantiesEnabled>>
@@ -1625,6 +1629,9 @@
 				<<set $xchange.pill.alphaPenisSizeBoost to false>>
 				<<unset $xchange.pill.alphaPenisSizePrevious>>
 			<</if>>
+		<<case "beta">>
+			<<set $xchange.pill.betaEffect to false>>
+			<<run ensurePendingPregnancySlots()>><<set $pendingPregnancies.vagina2 to null>>
 		<<case "portal">>
 			<<if $portalPantiesEnabled>>
 				<<set $xchange.pill.portalEffect to false>>
@@ -2042,6 +2049,7 @@
 		<<set $xchange.pill.omegaEffect to false>>
 		<<set $xchange.pill.bullEffect to false>>
 		<<set $xchange.pill.alphaEffect to false>>
+		<<set $xchange.pill.betaEffect to false>>
 		<<semenvolume 0>>
 		<<if $xchange.pill.alphaPenisSizeBoost and $player.penisExist and $player.penissize lte 2 and $xchange.pill.alphaPenisSizePrevious isnot undefined>>
 			<<set $player.penissize to $xchange.pill.alphaPenisSizePrevious>>
@@ -2404,6 +2412,11 @@
 		<<if $xchange.pill.alphaEffect or !$xchange.spikepool.alpha or !$player.penisExist>>
 			<<run _effectPool.deleteWith((val)=>val==="alpha")>>
 		<</if>>
+
+		/* Beta forms a second womb and only makes sense on a body with a vagina. */
+		<<if $xchange.pill.betaEffect or !$xchange.spikepool.beta or !$player.vaginaExist>>
+			<<run _effectPool.deleteWith((val)=>val==="beta")>>
+		<</if>>
 	<</widget>>
 
 	/* Fear Toxin holds trauma at maximum and control at zero for as long as the pill runs.
@@ -2473,6 +2486,9 @@
 			</li><</if>>
 			<<if $xchange.pill.alphaEffect>><li>Alpha Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Gives your penis a knot in encounter views, makes orgasm demand that your cock be inside something, and raises base maximum semen volume.</span></mouse>
+			</li><</if>>
+			<<if $xchange.pill.betaEffect>><li>Beta Effect.
+				<mouse class="tooltip linkBlue">(?)<span>Forms a second womb. Each womb can conceive and carry its own pregnancy on an independent schedule.</span></mouse>
 			</li><</if>>
 			<<if $xchange.pill.hyperFertilityEffect>><li>Hyper Fertility Effect.
 				<mouse class="tooltip linkBlue">(?)<span>Strengthens conception, speeds up pregnancies, and greatly raises the odds of twins, triplets or quadruplets. It applies to vaginal pregnancy, Omega-enabled anal pregnancy, and pregnancies you sire. Lasts as long as this pill.</span></mouse>

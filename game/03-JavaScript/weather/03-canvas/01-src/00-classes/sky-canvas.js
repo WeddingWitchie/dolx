@@ -126,11 +126,7 @@ Weather.Renderer.Sky = class {
 
 	initMoon() {
 		const moonOrbitSettings = this.settings.orbits.moon;
-		this.orbitals.moon = new Orbital(
-			this.settings,
-			interpolateObject(moonOrbitSettings.summer, moonOrbitSettings.winter, Time.date.seasonFactor),
-			Time.date
-		);
+		this.orbitals.moon = new Orbital(this.settings, interpolateObject(moonOrbitSettings.summer, moonOrbitSettings.winter, Time.date.seasonFactor), Time.date);
 
 		const bloodMoonOrbitSettings = this.settings.orbits.bloodmoon;
 		this.orbitals.bloodMoon = new Orbital(this.settings, bloodMoonOrbitSettings, Time.date);
@@ -173,7 +169,8 @@ Weather.Renderer.Sky = class {
 
 	stopAll() {
 		for (const layer of this.layers.values()) {
-			for (const effect of layer.effects) effect.disable();
+			// A layer initialises its effects asynchronously, so a passage change can land here while the array still has an empty slot in it.
+			for (const effect of layer.effects) effect?.disable();
 			if (layer.animationGroup) {
 				layer.animationGroup.stop();
 				Weather.Renderer.ParticleEmitter?.destroyGroup?.(layer.animationGroup);

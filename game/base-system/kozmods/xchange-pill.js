@@ -104,6 +104,7 @@ const grayGate = {
 	/* Omega (or another mpreg source) lets a vagina-less body conceive anally. */
 	canConceiveAnally: () => typeof canBeMPregnant === "function" && canBeMPregnant() && !getActivePregnancy("pc", "anus"),
 	canConceiveAnyHole: () => grayGate.canConceive() || grayGate.canConceiveAnally(),
+	betaEligible: () => !!V.player.vaginaExist && getActiveVaginalPregnancies().length < 2,
 	/* The fertility course also potentiates sperm, so a penis qualifies on its own. */
 	fertilityCourse: () => grayGate.hasPenis() || grayGate.canConceiveAnyHole(),
 	hasPenis: () => !!V.player.penisExist,
@@ -170,6 +171,19 @@ function buildGrayXChangePills() {
 			canTake: grayGate.hasPenis,
 			blockedReason: "Needs a penis to do anything on your current body. It stays in your drawer until then.",
 			effects: [`<<xchange-gray 7 "alpha">>`],
+		},
+		{
+			name: "X-Change Beta",
+			subtype: "gray beta",
+			description:
+				"A colourless X-Change capsule carrying only the Beta agent: it divides a vaginal reproductive tract into two functional wombs, each able to conceive and gestate independently. Acts on whatever vaginal body you currently have.",
+			onTakeMessage: teal(
+				"A deep pressure gathers behind your cunt. It parts slowly into two distinct points of warmth, leaving you with the uncanny certainty that your body now has two separate places where life could take hold."
+			),
+			warning_label: "Warning: Requires a vagina. Both wombs may become pregnant at different times, and each pregnancy must be delivered separately.",
+			canTake: grayGate.betaEligible,
+			blockedReason: "Needs a vagina and an available womb to take effect. It stays in your drawer until then.",
+			effects: [`<<xchange-gray 7 "beta">>`],
 		},
 		{
 			name: "X-Change Swell",
@@ -860,6 +874,47 @@ setup.pills.push(
 			return xchangePillBlockedReason("pink", true);
 		},
 		effects: [`<<if $xchange.omegaShrinkGenitals>><<take-xchange 7 "crossdress" "omega">><<else>><<xchange-pink 7 "omega">><</if>>`],
+	},
+
+	{
+		name: "X-Change Pink Beta",
+		description:
+			"Temporary pill that applies the Beta agent to a vaginal body, forming two functional wombs that can conceive and carry children independently. Pill effects may last upto a whole week.",
+		onTakeMessage:
+			'<span class="teal">You take the pill.</span><br><br>A deep pressure gathers behind your cunt. It parts slowly into two distinct points of warmth, leaving you with the uncanny certainty that your body now has two separate places where life could take hold.',
+		warning_label:
+			"Warning: Requires a vagina. Both wombs may become pregnant at different times, and each pregnancy must be delivered separately. Pregnancy will halt the pill timer until the gestation runs its course.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "pink beta",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/xchange-pink.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return V.player.vaginaExist && !playerIsXChanged() && getActiveVaginalPregnancies().length < 2 ? 1 : 0;
+		},
+		take_blocked_reason() {
+			if (!V.player.vaginaExist) return "The Beta agent needs a vagina to form its paired wombs.";
+			if (getActiveVaginalPregnancies().length >= 2) return "Both wombs are already carrying pregnancies.";
+			return "You are already under the effects of an X-Change pill.";
+		},
+		effects: [`<<take-xchange 7 "beta">>`],
 	},
 
 	{
@@ -2775,6 +2830,40 @@ setup.pills.push(
 			return playerIsXChanged() && V.xchange.pill.alphaEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
 		effects: [`<<xchange-removeeffect "alpha">>`, '<<xchange-addsideeffect "antipill">>'],
+	},
+
+	{
+		name: "SWP Anti-beta Pill",
+		description: 'A shady pill advertised to deal with beta effects, 100% satisfaction guaranteed. <span class="red">Be aware of its side effects!</span>',
+		onTakeMessage:
+			'<span class="purple">You down the pill with some hesitation knowing the shady origins from whence it came.</span><br><br>The paired warmth behind your cunt draws together, leaving one steady centre again. <span class="red">Then the comedown crawls across your skin</span>, turning every touch sharp and oversensitive.<br><br>You grit your teeth and hope that means the Beta marker has been neutralised.',
+		warning_label: "Warning: May cause some side-effects. It cannot undo an established pregnancy in either womb.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "anti-pill",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/pillcure.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && V.xchange.pill.betaEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		effects: [`<<xchange-removeeffect "beta">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
 	{

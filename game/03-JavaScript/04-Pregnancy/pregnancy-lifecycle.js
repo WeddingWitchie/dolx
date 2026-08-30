@@ -13,8 +13,10 @@
  */
 function playerPregnancy(npc, npcType, donorKnown = false, orifice = "vagina", trackedNPCs, awareOf = false) {
 	if (!playerSpeciesPregnancyEnabled(npcType)) return false; // species disabled in settings, or a species that can't conceive
+	const womb = orifice === "vagina" && playerHasBetaWombs() && getActivePregnancy("pc", "vagina", 1) ? 2 : 1;
+	if (orifice === "vagina" && getActivePregnancy("pc", "vagina", womb)) return false;
 	const donors = trackedNPCs ? trackedNPCs.map(t => ({ name: t.source, species: t.type })) : [{ name: npc, species: npcType }];
-	const pregnancyId = createPregnancy("pc", "human", npc, npcType, donors, Time.date.timeStamp, orifice, V.location);
+	const pregnancyId = createPregnancy("pc", "human", npc, npcType, donors, Time.date.timeStamp, orifice, V.location, womb);
 	if (awareOf) setKnowsPregnancy(pregnancyId, "pc"); // this pregnancy only, not every active one
 	if (donorKnown) setKnowsDonor(pregnancyId, "pc");
 	return true;
@@ -35,12 +37,13 @@ window.playerPregnancyTest = playerPregnancyTest;
 // eslint-disable-next-line no-unused-vars
 function advancePregnancy(orifice) {
 	if (V.statFreeze) return null;
-	const pregnancy = getActivePregnancy("pc", orifice);
-	if (!pregnancy) return null;
+	const pregnancies = getActivePregnancies("pc").filter(p => p.orifice === orifice);
+	if (!pregnancies.length) return null;
 
 	V.pregnancyStats.totalDaysPregnant += 0.5;
-	if (knowsPregnancy(pregnancy.pregnancyId, "pc")) V.pregnancyStats.totalDaysPregnancyKnown += 0.5;
+	if (pregnancies.some(p => knowsPregnancy(p.pregnancyId, "pc"))) V.pregnancyStats.totalDaysPregnancyKnown += 0.5;
 
+	const pregnancy = pregnancies.reduce((a, b) => (pregnancyProgress(a) >= pregnancyProgress(b) ? a : b));
 	const progress = pregnancyProgress(pregnancy);
 
 	if (between(progress, PregnancyConstants.morningSickness.earlyStart, PregnancyConstants.morningSickness.earlyEnd)) {
@@ -60,8 +63,9 @@ function advancePregnancy(orifice) {
 	}
 
 	/* Breast growth and lactation. Term growth is two sizes but never past size 5 or breastsizemax. */
-	if (progress >= 1 && !pregnancy.termEffectsDone) {
-		pregnancy.termEffectsDone = true;
+	const newlyAtTerm = pregnancies.filter(p => pregnancyProgress(p) >= 1 && !p.termEffectsDone);
+	if (newlyAtTerm.length) {
+		newlyAtTerm.forEach(p => (p.termEffectsDone = true));
 		if (V.player.breastsize <= 4 && V.player.breastsize < V.breastsizemax) {
 			V.player.breastsize += 1;
 			if (V.player.breastsize <= 4 && V.player.breastsize < V.breastsizemax) V.player.breastsize += 1;

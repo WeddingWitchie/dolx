@@ -1454,6 +1454,7 @@ function hourPassed(hours, advanceFirst) {
 		if (V.settings.pregnancyType !== "realistic") {
 			// Fetish mode. Pending conceptions from realistic mode are thrown out.
 			V.pendingPregnancies.vagina = null;
+			V.pendingPregnancies.vagina2 = null;
 			V.pendingPregnancies.anus = null;
 		}
 		hourlyPregnancyUpdate();

@@ -2130,6 +2130,7 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 		xchange_gray_bull: "X-Change Bull",
 		xchange_gray_omega: "X-Change Omega",
 		xchange_gray_alpha: "X-Change Alpha",
+		xchange_gray_beta: "X-Change Beta",
 		xchange_gray_swell: "X-Change Swell",
 		xchange_gray_hyper_fertility: "X-Change Hyper Fertility",
 		xchange_gray_fertility: "X-Change Fertility",

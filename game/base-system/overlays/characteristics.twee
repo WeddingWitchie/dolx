@@ -274,69 +274,77 @@
 	<<set $_heatArousal to playerHeatMinArousal()>>
 	<<set $_rutArousal to playerRutMinArousal()>>
 	<<set $_heatRutDisplay to ($_heatArousal and playerAwareTheyAreInHeat() ? "heat" : "") + ($_heatArousal and playerAwareTheyAreInHeat() and $_rutArousal ? " and " : "") + ($_rutArousal ? "rut" : "")>>
-	<<set _preg to getActivePregnancies("pc").find(p => knowsPregnancy(p.pregnancyId, "pc"))>>
+	/* Beta can leave two wombs carrying at once, so each known pregnancy gets its own readout. */
+	<<set _knownPregnancies to getActivePregnancies("pc").filter(p => knowsPregnancy(p.pregnancyId, "pc"))>>
+	<<set _preg to _knownPregnancies[0]>>
 	<<if _preg>>
-		<<set _progress to pregnancyProgress(_preg)>>
-		<<if _progress lte 0.33>>
-			<<set _trimester to "first">>
-		<<elseif _progress lte 0.66>>
-			<<set _trimester to "second">>
-		<<else>>
-			<<set _trimester to "third">>
-		<</if>>
-		<<set _litter to getChildrenOf(_preg.pregnancyId)>>
-		<<set _species to childBaseSpecies(_preg.donorSpecies)>>
-		<<if playerKnowsLitterSpecies(_preg)>>
-			<<if playerKnowsLitterDetails(_preg)>>
-				<<set $_number to _litter.length>>
-			<<elseif _preg.awareOfMultiple>>
-				<<set $_number to _litter.length is 1 ? 1 : "more than one">>
+		<<for _preg range _knownPregnancies>>
+			<<set _progress to pregnancyProgress(_preg)>>
+			<<if _progress lte 0.33>>
+				<<set _trimester to "first">>
+			<<elseif _progress lte 0.66>>
+				<<set _trimester to "second">>
 			<<else>>
-				<<set $_number to "an unknown number of">>
+				<<set _trimester to "third">>
 			<</if>>
-			<<switch _species>>
-				<<case "human">>
-					<<if $_number isnot "an unknown number of" and $_number isnot "more than one" and $_number gt 1>>
-						<<set _childType to "">>
-						<<if _litter[0].identical isnot null and playerKnowsLitterDetails(_preg)>>
-							<<set _childType += "identical ">>
+			<<set _litter to getChildrenOf(_preg.pregnancyId)>>
+			/* Two wombs carrying at once need naming, or the two readouts read as one repeated twice. */
+			<<if _knownPregnancies.length gt 1>>
+				<span class="teal"><<= (_preg.womb ?? 1) is 2 ? "Right womb" : "Left womb">>:</span>
+			<</if>>
+			<<set _species to childBaseSpecies(_preg.donorSpecies)>>
+			<<if playerKnowsLitterSpecies(_preg)>>
+				<<if playerKnowsLitterDetails(_preg)>>
+					<<set $_number to _litter.length>>
+				<<elseif _preg.awareOfMultiple>>
+					<<set $_number to _litter.length is 1 ? 1 : "more than one">>
+				<<else>>
+					<<set $_number to "an unknown number of">>
+				<</if>>
+				<<switch _species>>
+					<<case "human">>
+						<<if $_number isnot "an unknown number of" and $_number isnot "more than one" and $_number gt 1>>
+							<<set _childType to "">>
+							<<if _litter[0].identical isnot null and playerKnowsLitterDetails(_preg)>>
+								<<set _childType += "identical ">>
+							<</if>>
+							<<set _childType += ($_number is 3 ? "triplets" : "twins")>>
+						<<else>>
+							<<set _childType to ($_number is 1 || $_number is "more than one" ? "baby" : "babies")>>
 						<</if>>
-						<<set _childType += ($_number is 3 ? "triplets" : "twins")>>
-					<<else>>
-						<<set _childType to ($_number is 1 || $_number is "more than one" ? "baby" : "babies")>>
-					<</if>>
-				<<case "wolf">>
-					<<set _childType to ($_number is 1 || $_number is "more than one" ? "wolf pup" : "wolf pups")>>
-				<<case "hawk">>
-					<<set _childType to ($_number is 1 || $_number is "more than one" ? "hawk egg" : "hawk eggs")>>
-			<</switch>>
-			<<if _species is "hawk">>
-				You're pregnant with <<number $_number>> _childType,
-				<<switch _trimester>>
-					<<case "first">>and it will be a while before you can lay <<if $_number is 1>>it<<else>>them<</if>>.
-					<<case "second">>but it will still take some time to lay <<if $_number is 1>>it<<else>>them<</if>>.
-					<<case "third">>and you'll be ready to lay <<if $_number is 1>>it<<else>>them<</if>> soon.
+					<<case "wolf">>
+						<<set _childType to ($_number is 1 || $_number is "more than one" ? "wolf pup" : "wolf pups")>>
+					<<case "hawk">>
+						<<set _childType to ($_number is 1 || $_number is "more than one" ? "hawk egg" : "hawk eggs")>>
 				<</switch>>
+				<<if _species is "hawk">>
+					You're pregnant with <<number $_number>> _childType,
+					<<switch _trimester>>
+						<<case "first">>and it will be a while before you can lay <<if $_number is 1>>it<<else>>them<</if>>.
+						<<case "second">>but it will still take some time to lay <<if $_number is 1>>it<<else>>them<</if>>.
+						<<case "third">>and you'll be ready to lay <<if $_number is 1>>it<<else>>them<</if>> soon.
+					<</switch>>
+				<<else>>
+					You're pregnant with <<if !["twins", "identical twins", "triplets"].includes(_childType)>><<number $_number>><</if>> _childType, in the _trimester trimester of your pregnancy.
+				<</if>>
 			<<else>>
-				You're pregnant with <<if !["twins", "identical twins", "triplets"].includes(_childType)>><<number $_number>><</if>> _childType, in the _trimester trimester of your pregnancy.
+				You know you're in the _trimester trimester of your pregnancy.
 			<</if>>
-		<<else>>
-			You know you're in the _trimester trimester of your pregnancy.
-		<</if>>
-		<<if between(_progress, 0.1, 1) and !$daily.ultrasoundDone>>
-			<span class="blue">You can get an ultrasound done at the hospital.</span>
-		<</if>>
-		<<if knowsDonor(_preg.pregnancyId, "pc")>>
-			You know that the father is <<print pregnancyNameCorrection(_preg.donor)>>.
-		<<elseif _preg.possibleDonors.length is 1>>
-			You know that the father is <<print pregnancyNameCorrection(_preg.possibleDonors[0].name)>>.
-		<<elseif _preg.possibleDonors.length is 2>>
-			You're sure that the father is either <<print pregnancyNameCorrection(_preg.possibleDonors[0].name)>> or <<print pregnancyNameCorrection(_preg.possibleDonors[1].name)>>.
-		<<elseif _preg.possibleDonors.length is 3>>
-			You're pretty sure that the father is either <<print pregnancyNameCorrection(_preg.possibleDonors[0].name)>>, <<print pregnancyNameCorrection(_preg.possibleDonors[1].name)>> or <<print pregnancyNameCorrection(_preg.possibleDonors[2].name)>>.
-		<<else>>
-			You're unsure who the father is.
-		<</if>>
+			<<if between(_progress, 0.1, 1) and !$daily.ultrasoundDone>>
+				<span class="blue">You can get an ultrasound done at the hospital.</span>
+			<</if>>
+			<<if knowsDonor(_preg.pregnancyId, "pc")>>
+				You know that the father is <<print pregnancyNameCorrection(_preg.donor)>>.
+			<<elseif _preg.possibleDonors.length is 1>>
+				You know that the father is <<print pregnancyNameCorrection(_preg.possibleDonors[0].name)>>.
+			<<elseif _preg.possibleDonors.length is 2>>
+				You're sure that the father is either <<print pregnancyNameCorrection(_preg.possibleDonors[0].name)>> or <<print pregnancyNameCorrection(_preg.possibleDonors[1].name)>>.
+			<<elseif _preg.possibleDonors.length is 3>>
+				You're pretty sure that the father is either <<print pregnancyNameCorrection(_preg.possibleDonors[0].name)>>, <<print pregnancyNameCorrection(_preg.possibleDonors[1].name)>> or <<print pregnancyNameCorrection(_preg.possibleDonors[2].name)>>.
+			<<else>>
+				You're unsure who the father is.
+			<</if>>
+		<</for>>
 		<br><br>
 	<<elseif $_knowsTheyCanBecomePregnant and $_pills.pills.contraceptive.doseTaken>>
 		<<if $_pills.pills.contraceptive.doseTaken gte 2>>

@@ -36,6 +36,7 @@ function pushPregnancyRecord(fields) {
 	if (fields.hatchDelay !== undefined) record.hatchDelay = fields.hatchDelay;
 	if (fields.layCare !== undefined) record.layCare = fields.layCare;
 	if (fields.waterBreaking !== undefined) record.waterBreaking = fields.waterBreaking;
+	if (fields.womb !== undefined) record.womb = fields.womb;
 	V.pregnancies.push(record);
 	return pregnancyId;
 }
@@ -79,9 +80,10 @@ window.pushChildRecord = pushChildRecord;
  * @param {number} conceivedDate timestamp of the conception
  * @param {"vagina"|"anus"} orifice which orifice the pregnancy is in
  * @param {string} conceivedLocation where the conception happened
+ * @param {1|2} [womb=1] which vaginal womb carries a PC pregnancy; ignored for other carriers/orifices
  * @returns {number} the new pregnancyId
  */
-function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleDonors, conceivedDate, orifice, conceivedLocation) {
+function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleDonors, conceivedDate, orifice, conceivedLocation, womb = 1) {
 	// layCare brings laying time down and hatchDelay brings hatching time down.
 	// addEggCare feeds whichever stage the clutch is currently in.
 	const isEggClutch = donorSpecies === "hawk" || donorSpecies === "harpy";
@@ -96,16 +98,17 @@ function createPregnancy(carrier, carrierSpecies, donor, donorSpecies, possibleD
 		conceivedDate,
 		conceivedLocation,
 		orifice,
+		womb: carrier === "pc" && orifice === "vagina" ? womb : undefined,
 		hatchDelay,
 		layCare,
 		gestationVariance: 1 + random(-PregnancyConstants.gestation.variancePercent, PregnancyConstants.gestation.variancePercent) / 100,
 	});
 	generateChildren(pregnancyId);
-	// A PC pregnancy pauses the menstrual cycle and voids any pending conception in the other orifice,
-	// so a body only ever carries one real pregnancy at a time.
+	// A PC pregnancy pauses the menstrual cycle. Normally it also voids every other pending
+	// conception. Beta's second womb is the sole exception, and keeps its own pending slot.
 	if (carrier === "pc") {
 		V.sexStats.vagina.menstruation.currentState = "pregnant";
-		V.pendingPregnancies = { vagina: null, anus: null };
+		if (!playerHasBetaWombs()) V.pendingPregnancies = { vagina: null, vagina2: null, anus: null };
 		delete V.harpyEggs;
 	}
 	return pregnancyId;
@@ -202,12 +205,30 @@ window.daysAlong = daysAlong;
  *
  * @param {string} carrier "pc" for the player, or an NPC's name
  * @param {"vagina"|"anus"} orifice which orifice to check
+ * @param {1|2} [womb] which Beta womb to match; omit to match either
+ * @returns {Pregnancy|undefined} the record, or undefined when there is none
  */
-function getActivePregnancy(carrier, orifice) {
+function getActivePregnancy(carrier, orifice, womb) {
 	// initnpcgendersingle calls this before a new game initialises $pregnancies, as getActivePregnancies notes.
-	return (V.pregnancies ?? []).find(p => p.carrier === carrier && p.orifice === orifice && p.deliveredDate === null);
+	return (V.pregnancies ?? []).find(
+		p => p.carrier === carrier && p.orifice === orifice && p.deliveredDate === null && (womb === undefined || (p.womb ?? 1) === womb)
+	);
 }
 window.getActivePregnancy = getActivePregnancy;
+
+/** Whether the active Beta agent has formed two vaginal wombs. */
+function playerHasBetaWombs() {
+	return !!(!V.statFreeze && V.player?.vaginaExist && V.xchange?.pill?.active && V.xchange.pill.betaEffect);
+}
+window.playerHasBetaWombs = playerHasBetaWombs;
+
+/** Every active vaginal pregnancy, ordered by womb for stable UI and birth fallbacks. */
+function getActiveVaginalPregnancies() {
+	return getActivePregnancies("pc")
+		.filter(p => p.orifice === "vagina")
+		.sort((a, b) => (a.womb ?? 1) - (b.womb ?? 1));
+}
+window.getActiveVaginalPregnancies = getActiveVaginalPregnancies;
 
 /**
  * Every active (undelivered) pregnancy a carrier has. 0, 1, or 2, one per orifice.
@@ -232,14 +253,19 @@ window.getPlayerPregnancy = getPlayerPregnancy;
 
 /**
  * The carrier's pregnancy that's currently giving birth. The player can carry two at once
- * (a vaginal and an anal one), so this picks the one whose water broke, not just the first active.
+ * (a vaginal and an anal one, or both Beta wombs), so this picks the one whose water broke,
+ * not just the first active.
+ *
+ * An egg clutch never breaks its waters -- checkLabour skips egg species, because a clutch is laid
+ * rather than delivered. So a clutch that has reached its laying date is preferred next, or it would
+ * sit unlaid behind a pregnancy that is still months from term.
  *
  * @param {string} carrier "pc" for the player, or an NPC's name
  * @returns {Pregnancy|undefined} undefined when the carrier has nothing active
  */
 function getLabouringPregnancy(carrier) {
 	const active = getActivePregnancies(carrier);
-	return active.find(p => p.waterBreaking) ?? active[0];
+	return active.find(p => p.waterBreaking) ?? active.find(p => pregnancyProgress(p) >= 1) ?? active[0];
 }
 window.getLabouringPregnancy = getLabouringPregnancy;
 
