@@ -227,6 +227,8 @@ class Transformations {
 	static waterDragonLayingBlocked() {
 		if (V.statFreeze || V.frozenValues || V.replayScene || V.hc) return true;
 		if (V.waterDragonLab && V.waterDragonLab.active) return false;
+		/* Match checkLabour's guard so wake events don't interrupt active scenes before cleanup. */
+		if (V.combat === 1 || V.possessed || V.NPCList?.[0]?.type) return true;
 		if (["asylum", "prison", "island", "pirate_ship"].includes(V.location)) return true;
 		const lastBadEnd = Array.isArray(V.badEndStats) ? V.badEndStats.last() : undefined;
 		return !!(lastBadEnd && !lastBadEnd.trackedEnd);

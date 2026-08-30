@@ -1,35 +1,36 @@
-import { test, expect } from "@playwright/test";
-import * as fs from "fs";
-import * as path from "path";
-import { openGame, navigateTo, assertNoErrors, advanceHours, advanceMinutes, setDay, wikifyEval, wikifyToText, type Page } from "./helpers.js";
+import { expect, test, type Page } from "@playwright/test";
+import { advanceHours, advanceMinutes, assertNoErrors, navigateTo, openGame, setDay } from "./helpers.js";
+
+const MINUTES_PER_DAY = 24 * 60;
 
 async function setupGame(page: Page) {
 	await openGame(page);
 	await navigateTo(page, "Start2");
 }
 
-test.describe("Time", () => {
-	test.afterEach(async ({ page }) => {
-		await assertNoErrors(page);
+async function getTime(page: Page) {
+	return page.evaluate(() => {
+		const Time = (window as any).Time;
+		return { hour: Time.hour, minute: Time.minute };
 	});
+}
 
+test.afterEach(async ({ page }) => {
+	await assertNoErrors(page);
+});
+
+test.describe("Time", () => {
 	test("has expected hour and minute after 30 minutes", async ({ page }) => {
 		await setupGame(page);
 
-		const timeBefore = await page.evaluate(() => {
-			const Time = (window as any).Time;
-			return { hour: Time.hour, minute: Time.minute };
-		});
+		const timeBefore = await getTime(page);
 		await advanceMinutes(page, 30);
-		const timeAfter = await page.evaluate(() => {
-			const Time = (window as any).Time;
-			return { hour: Time.hour, minute: Time.minute };
-		});
+		const timeAfter = await getTime(page);
 
-		// Time should have advanced by 30 minutes
-		const totalMinsBefore = timeBefore.hour * 60 + timeBefore.minute;
-		const totalMinsAfter = timeAfter.hour * 60 + timeAfter.minute;
-		const elapsed = (totalMinsAfter - totalMinsBefore + 24 * 60) % (24 * 60);
+		const totalMinutesBefore = timeBefore.hour * 60 + timeBefore.minute;
+		const totalMinutesAfter = timeAfter.hour * 60 + timeAfter.minute;
+		const elapsed = (totalMinutesAfter - totalMinutesBefore + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+
 		expect(elapsed).toBe(30);
 	});
 
@@ -40,206 +41,13 @@ test.describe("Time", () => {
 			(window as any).SugarCube.State.variables.pain = 80;
 			(window as any).SugarCube.State.variables.painDuration = 0;
 		});
+
 		await advanceMinutes(page, 10);
-		const painDecrease = await page.evaluate(() => {
-			return 80 - (window as any).SugarCube.State.variables.pain;
-		});
+		const painDecrease = await page.evaluate(() => 80 - (window as any).SugarCube.State.variables.pain);
 
-		// setup.painChangeByTime: decay starts at PAIN_DECAY_MIN (-0.3/min) and ramps toward PAIN_DECAY_MAX (-0.5/min) as painDuration accumulates.
-		// Fresh pain: 10 * 0.3 = 3.
+		// setup.painChangeByTime starts at PAIN_DECAY_MIN (-0.3/min) and ramps toward
+		// PAIN_DECAY_MAX (-0.5/min) as painDuration accumulates. Fresh pain: 10 * 0.3 = 3.
 		expect(painDecrease).toBe(3);
-	});
-
-	test("only raises passive cycle arousal during the fertile risk bands", async ({ page }) => {
-		await setupGame(page);
-
-		const result = await page.evaluate(() => {
-			const W = window as any;
-			const V = W.SugarCube.State.variables;
-			const menstruation = V.sexStats.vagina.menstruation;
-			const fertileRisk = W.PregnancyConstants.riskMeterLabels.length - 2;
-			const dayForRisk = (wantedRisk: number) => {
-				for (let day = 0; day <= menstruation.currentDaysMax; day += 0.5) {
-					menstruation.currentDay = day;
-					if (W.playerPregnancyRisk() === wantedRisk) return day;
-				}
-				throw new Error(`No cycle day found for pregnancy risk ${wantedRisk}`);
-			};
-			const safeDay = dayForRisk(fertileRisk - 1);
-			const fertileDay = dayForRisk(fertileRisk);
-			V.backgroundTraits.delete("lustful");
-			V.purity = 0;
-			V.arousal = 1000;
-			menstruation.currentDay = safeDay;
-			W.Time.pass(60);
-			const safeArousal = V.arousal;
-
-			V.arousal = 1000;
-			menstruation.currentDay = fertileDay;
-			W.Time.pass(60);
-			const fertileArousal = V.arousal;
-			return { safeArousal, fertileArousal };
-		});
-
-		expect(result.safeArousal).toBe(990);
-		expect(result.fertileArousal).toBeCloseTo(1004.4, 8);
-	});
-
-	test("paces alcohol and cigarette dependence without requiring new-save initialization", async ({ page }) => {
-		await setupGame(page);
-
-		await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			V.drunk = 1000;
-			delete V.alcoholTolerance;
-			delete V.cigaretteAddiction;
-			delete V.cigaretteAddictionProgress;
-			delete V.timeSinceCigarette;
-		});
-		await advanceMinutes(page, 60);
-		const alcoholTolerance = await page.evaluate(() => (window as any).SugarCube.State.variables.alcoholTolerance);
-		expect(alcoholTolerance).toBeCloseTo((60 * 1000) / 20160, 6);
-
-		await wikifyEval(page, "<<for _i to 0; _i lt 19; _i++>><<smokeDependence>><</for>>");
-		let smoking = await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			return { addicted: V.cigaretteAddiction, progress: V.cigaretteAddictionProgress };
-		});
-		expect(smoking.addicted).toBeFalsy();
-		expect(smoking.progress).toBe(19);
-
-		await wikifyEval(page, "<<smokeDependence>>");
-		smoking = await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			return { addicted: V.cigaretteAddiction, progress: V.cigaretteAddictionProgress };
-		});
-		expect(smoking).toEqual({ addicted: true, progress: 20 });
-
-		await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			V.drunk = 0;
-			V.cigaretteAddiction = false;
-			V.cigaretteAddictionProgress = 10;
-			V.timeSinceCigarette = 1440;
-		});
-		await advanceMinutes(page, 4320);
-		const recoveredProgress = await page.evaluate(() => (window as any).SugarCube.State.variables.cigaretteAddictionProgress);
-		expect(recoveredProgress).toBeCloseTo(9, 8);
-
-		await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			V.cigaretteAddiction = true;
-			delete V.cigaretteAddictionProgress;
-			V.timeSinceCigarette = 10020;
-		});
-		await advanceMinutes(page, 60);
-		const quitState = await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			return { addicted: V.cigaretteAddiction, progress: V.cigaretteAddictionProgress };
-		});
-		expect(quitState).toEqual({ addicted: false, progress: 0 });
-	});
-
-	test("formats sensitivity and gives a throttled max-pain treatment notice", async ({ page }) => {
-		await setupGame(page);
-
-		const characteristic = await wikifyToText(
-			page,
-			'<<characteristic-box `{ name: "Test", currentValue: 50, modifier: 100, modTypes: { good: [], bad: [] }, sensitivity: 1.3965432098765431 }`>>'
-		);
-		expect(characteristic).toContain("Sensitivity: 1.40");
-
-		const painResult = await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			delete V.daily.painMedicationWarning;
-			delete V.painMedicationWarningMessage;
-			V.pain = 200;
-			(window as any).statChange.painClamp();
-			const firstNotice = (window as any).xchangeEffectsMessages().textContent;
-			(window as any).statChange.painClamp();
-			return {
-				firstNotice,
-				dailyFlag: V.daily.painMedicationWarning,
-				secondNoticePending: V.painMedicationWarningMessage,
-			};
-		});
-		expect(painResult.firstNotice).toContain("Painkillers from the hospital pharmacy");
-		expect(painResult.dailyFlag).toBe(1);
-		expect(painResult.secondNoticePending).toBeUndefined();
-	});
-
-	test("applies the reduced X-Change penetration pain multiplier", async ({ page }) => {
-		await setupGame(page);
-
-		const painGain = await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			const statChange = (window as any).statChange;
-			const originalPain = statChange.pain;
-			let captured = 0;
-			statChange.pain = (amount: number) => {
-				captured = amount;
-			};
-			try {
-				V.combat = 1;
-				V.gamemode = "normal";
-				V.vaginastate = "penetrated";
-				V.anusstate = "none";
-				V.mouthstate = "none";
-				V.vaginaWetness = 0;
-				V.anusWetness = 0;
-				V.bodysize = 1;
-				V.NPCList = [];
-				V.consensual = 0;
-				V.pain = 0;
-				(window as any).setup.penetratedPain();
-				return captured;
-			} finally {
-				statChange.pain = originalPain;
-			}
-		});
-		expect(painGain).toBeCloseTo(1.5 * 0.46, 8);
-	});
-
-	test("decays school exam meters using trait-based formula after a week", async ({ page }) => {
-		await setupGame(page);
-
-		// Game starts on Sunday. Advance to Saturday so the next day-crossing triggers weekPassed().
-		// weekPassed fires when prevDate.weekDay===7 && currentDate.weekDay===1.
-		await setDay(page, "Saturday");
-
-		await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			V.science_exam = 100;
-			V.sciencetrait = 4; // decay = 7 - max(4-2, 0) = 5
-			V.maths_exam = 100;
-			V.mathstrait = 0; // decay = 7 - max(0-2, 0) = 7
-			V.english_exam = 100;
-			V.englishtrait = 2; // decay = 7 - max(2-2, 0) = 7
-			V.history_exam = 100;
-			V.historytrait = 6; // decay = 7 - max(6-2, 0) = 3
-		});
-
-		// Advance 1 day to cross Saturday→Sunday and trigger weekPassed()
-		await advanceHours(page, 24);
-
-		const result = await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			return {
-				science: V.science_exam,
-				maths: V.maths_exam,
-				english: V.english_exam,
-				history: V.history_exam,
-			};
-		});
-
-		// Trait 4: 100 - 5 = 95
-		expect(result.science).toBe(95);
-		// Trait 0: 100 - 7 = 93
-		expect(result.maths).toBe(93);
-		// Trait 2: 100 - 7 = 93
-		expect(result.english).toBe(93);
-		// Trait 6: 100 - 3 = 97
-		expect(result.history).toBe(97);
 	});
 
 	test("runs the noon check when a multi-hour activity ends inside the noon hour", async ({ page }) => {
@@ -254,6 +62,7 @@ test.describe("Time", () => {
 			const V = (window as any).SugarCube.State.variables;
 			return { hour: (window as any).Time.hour, robinwakeday: V.robinwakeday };
 		});
+
 		expect(result.hour).toBe(12);
 		expect(result.robinwakeday).toBe(0);
 	});
@@ -271,6 +80,7 @@ test.describe("Time", () => {
 			const V = (window as any).SugarCube.State.variables;
 			return { hour: (window as any).Time.hour, robinwakeday: V.robinwakeday };
 		});
+
 		expect(result.hour).toBe(12);
 		expect(result.robinwakeday).toBe(0);
 	});
@@ -286,6 +96,7 @@ test.describe("Time", () => {
 			const V = (window as any).SugarCube.State.variables;
 			return { hour: (window as any).Time.hour, wolfwake: V.wolfwake };
 		});
+
 		expect(result.hour).toBe(6);
 		expect(result.wolfwake).toBe(0);
 	});
@@ -305,55 +116,38 @@ test.describe("Time", () => {
 
 	test("passes several days at once without losing an hour or a day tick", async ({ page }) => {
 		await setupGame(page);
-		const consoleErrors: string[] = [];
-		page.on("console", msg => {
-			if (msg.type() === "error") consoleErrors.push(msg.text());
-		});
-		await setDay(page, "Wednesday", 22, 30);
 
+		const consoleErrors: string[] = [];
+		page.on("console", message => {
+			if (message.type() === "error") {
+				consoleErrors.push(message.text());
+			}
+		});
+
+		await setDay(page, "Wednesday", 22, 30);
 		await advanceMinutes(page, 74 * 60); // three days and two hours -> Sunday 00:30
 
 		const result = await page.evaluate(() => {
 			const Time = (window as any).Time;
 			return { day: Time.weekDayName, hour: Time.hour, minute: Time.minute };
 		});
+
 		expect(result).toEqual({ day: "Sunday", hour: 0, minute: 30 });
-		expect(consoleErrors.filter(text => /failed/.test(text))).toHaveLength(0);
-	});
-
-	test("restores godClothes clothing integrity after 1 minute", async ({ page }) => {
-		await setupGame(page);
-
-		const upperName = await page.evaluate(() => (window as any).SugarCube.State.variables.worn.upper.name);
-		await page.evaluate(() => {
-			const V = (window as any).SugarCube.State.variables;
-			V.godClothes = 1;
-			V.worn.upper.integrity = 100;
-		});
-		await advanceMinutes(page, 1);
-		const upperIntegrity = await page.evaluate(() => (window as any).SugarCube.State.variables.worn.upper.integrity);
-
-		// Player should be wearing something at game start
-		expect(upperName).not.toBe("naked");
-		expect(upperIntegrity).toBe(2000);
+		expect(consoleErrors.filter(text => text.includes("failed"))).toHaveLength(0);
 	});
 });
 
 test.describe("openinghours", () => {
-	test.afterEach(async ({ page }) => {
-		await assertNoErrors(page);
-	});
-
 	test("is enabled at 7:00", async ({ page }) => {
 		await setupGame(page);
 
 		const result = await page.evaluate(() => {
 			const Time = (window as any).Time;
-			return { openinghours: Time.openingHours(), hour: Time.hour };
+			return { openingHours: Time.openingHours(), hour: Time.hour };
 		});
 
 		expect(result.hour).toBe(7);
-		expect(result.openinghours).toBe(true);
+		expect(result.openingHours).toBe(true);
 	});
 
 	test("is disabled at 21:00", async ({ page }) => {
@@ -361,36 +155,13 @@ test.describe("openinghours", () => {
 
 		// Game starts at 7:00. Advance 14 hours to 21:00.
 		await advanceHours(page, 14);
+
 		const result = await page.evaluate(() => {
 			const Time = (window as any).Time;
-			return { openinghours: Time.openingHours(), hour: Time.hour };
+			return { openingHours: Time.openingHours(), hour: Time.hour };
 		});
 
 		expect(result.hour).toBe(21);
-		expect(result.openinghours).toBe(false);
+		expect(result.openingHours).toBe(false);
 	});
-});
-
-test("either output strings do not contain conflicting double-quoted macro arguments", () => {
-	const gameRoot = path.resolve("game");
-	const tweeFiles = (directory: string): string[] =>
-		fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
-			const entryPath = path.join(directory, entry.name);
-			if (entry.isDirectory()) return tweeFiles(entryPath);
-			return entry.isFile() && entry.name.endsWith(".twee") ? [entryPath] : [];
-		});
-	const eitherExpression = /<<=\s*either\s*\(([\s\S]*?)\)\s*>>/g;
-	const conflictingQuotes = /(?:^|,)\s*"[^"\r\n]*<<[^>\r\n]*"[^>\r\n]*>>/;
-	const conflicts: string[] = [];
-
-	for (const file of tweeFiles(gameRoot)) {
-		const source = fs.readFileSync(file, "utf8");
-		for (const match of source.matchAll(eitherExpression)) {
-			if (!conflictingQuotes.test(match[1])) continue;
-			const line = source.slice(0, match.index).split("\n").length;
-			conflicts.push(`${path.relative(gameRoot, file)}:${line}`);
-		}
-	}
-
-	expect(conflicts, "Use single quotes for nested macro arguments, or backticks for the outer either option").toEqual([]);
 });

@@ -157,6 +157,12 @@ function xchangeConceptionModifier() {
 	const hyper = typeof fertilityTreatmentActive === "function" && fertilityTreatmentActive();
 	if (breeder || hyper) modifier *= 10 * xchangeFertilityStrength();
 
+	/* Superfetation becomes less likely as the first Beta pregnancy progresses, but fertility boosts can still increase the chance. */
+	if (typeof betaSecondWombOpen === "function" && betaSecondWombOpen()) {
+		const firstPregnancy = getActiveVaginalPregnancies()[0];
+		if (firstPregnancy) modifier *= Math.max(0.1, 1 - pregnancyProgress(firstPregnancy));
+	}
+
 	return modifier;
 }
 window.xchangeConceptionModifier = xchangeConceptionModifier;
@@ -544,19 +550,18 @@ function takeMorningAfterPill() {
 
 	// Work out the result before clearing, since clearing throws away the conception it reads.
 	let outcome = "notPregnant";
-	if (getActivePregnancy("pc", "vagina") || getActivePregnancy("pc", "anus")) {
+	ensurePendingPregnancySlots();
+	const pending = [V.pendingPregnancies.vagina, V.pendingPregnancies.vagina2, V.pendingPregnancies.anus].filter(p => p !== null);
+	if (pending.length > 0) {
+		// With Beta, an established first pregnancy does not stop the pill clearing a pending second one.
+		// Multiple pending conceptions are judged by the older one, the one closest to implanting.
+		const age = Math.max(...pending.map(p => Time.date.timeStamp - p.conceivedDate));
+		const implantation = PregnancyConstants.implantationWindow;
+		if (age < implantation * PregnancyConstants.morningAfterPill.successFraction) outcome = "success";
+		else if (age < implantation * PregnancyConstants.morningAfterPill.aLittleLateFraction) outcome = "aLittleLate";
+		else outcome = "late";
+	} else if (getActivePregnancy("pc", "vagina") || getActivePregnancy("pc", "anus")) {
 		outcome = "tooLate";
-	} else {
-		ensurePendingPregnancySlots();
-		const pending = [V.pendingPregnancies.vagina, V.pendingPregnancies.vagina2, V.pendingPregnancies.anus].filter(p => p !== null);
-		if (pending.length > 0) {
-			// Two conceptions at once are judged by the older one, the one closest to implanting.
-			const age = Math.max(...pending.map(p => Time.date.timeStamp - p.conceivedDate));
-			const implantation = PregnancyConstants.implantationWindow;
-			if (age < implantation * PregnancyConstants.morningAfterPill.successFraction) outcome = "success";
-			else if (age < implantation * PregnancyConstants.morningAfterPill.aLittleLateFraction) outcome = "aLittleLate";
-			else outcome = "late";
-		}
 	}
 	V.pendingPregnancies.vagina = null;
 	V.pendingPregnancies.vagina2 = null;

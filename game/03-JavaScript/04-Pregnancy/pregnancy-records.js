@@ -231,7 +231,7 @@ function getActiveVaginalPregnancies() {
 window.getActiveVaginalPregnancies = getActiveVaginalPregnancies;
 
 /**
- * Every active (undelivered) pregnancy a carrier has. 0, 1, or 2, one per orifice.
+ * Every active (undelivered) pregnancy a carrier has. Beta can put two records in the vaginal orifice.
  *
  * @param {string} carrier "pc" for the player, or an NPC's name
  */
