@@ -869,7 +869,8 @@ window.pocketEatFood = pocketEatFood;
 
 /* Prepare the state carried by the Eat link into its normal passage. */
 function pocketEatFoodFromMenu(key) {
-	const destination = V.passage;
+	/* Keep the original passage when the player opens the Pocket again from the eating report. */
+	const destination = V.passage === "Pocket Eat Food" ? V.pocketFoodReturn : V.passage;
 	const result = pocketEatFood(key, false);
 	if (!result) return false;
 	V.pocketFoodReturn = destination;

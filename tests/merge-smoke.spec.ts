@@ -314,6 +314,8 @@ test.describe("merge smoke: legacy save migration", () => {
 					birthId: 1,
 					conceived: day,
 					born: day,
+					// Some old non-hawk records incorrectly retained this hawk-only field.
+					eggTimer: 123,
 					birthLocation: "hospital",
 					location: "home",
 					name: "Ada",
@@ -431,6 +433,48 @@ test.describe("merge smoke: overlays", () => {
 		expect(labels.length).toBeGreaterThan(1);
 		expect(labels[0].toLowerCase()).toContain("safe");
 		expect(labels[labels.length - 1].toLowerCase()).toContain("danger");
+	});
+});
+
+test.describe("merge smoke: pocket food", () => {
+	test("eating again before Next keeps the original return passage", async ({ page }) => {
+		const { pageErrors } = await boot(page);
+
+		const state = await page.evaluate(() => {
+			const W = window as any;
+			const V = W.SugarCube.State.variables;
+			const key = "choc_chip_cookie";
+			V.passage = "Orphanage";
+			V.foodstuff[key].amount = 2;
+			V.foodBatches[key] = [{ n: 2, day: W.Time.days, own: false }];
+			delete V.pocketFoodResult;
+			delete V.pocketFoodReturn;
+
+			const first = W.pocketEatFoodFromMenu(key);
+			V.passage = "Pocket Eat Food";
+			const second = W.pocketEatFoodFromMenu(key);
+			return {
+				first,
+				second,
+				amount: V.foodstuff[key].amount,
+				returnPassage: V.pocketFoodReturn,
+				resultKey: V.pocketFoodResult?.key,
+			};
+		});
+
+		expect(state).toEqual({
+			first: true,
+			second: true,
+			amount: 0,
+			returnPassage: "Orphanage",
+			resultKey: "choc_chip_cookie",
+		});
+
+		await navigateTo(page, "Pocket Eat Food");
+		expect(await page.locator("#passages").innerText()).toContain("You eat a chocolate chip cookie.");
+		expect(await page.locator('#passages a[data-passage="Orphanage"]').count()).toBe(1);
+		await assertNoErrors(page);
+		expect(pageErrors).toEqual([]);
 	});
 });
 

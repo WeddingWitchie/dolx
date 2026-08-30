@@ -133,12 +133,13 @@ function migrateChildrenToRecords() {
 
 	for (const members of litters.values()) {
 		const representative = members[0][1];
-		const isEggLitter = members.some(([, oldChild]) => !!oldChild.eggTimer);
+		const species = representative.type;
+		/* Some legacy non-hawk children carry a stray eggTimer. Only hawk records use it as egg state. */
+		const isEggLitter = species === "hawk" && members.some(([, oldChild]) => !!oldChild.eggTimer);
 		if (isEggLitter && !members.every(([, oldChild]) => !!oldChild.eggTimer)) {
 			throw new Error(`litter "${litterKeyOf(representative)}" mixes hatched and unhatched eggs, can't make one pregnancy from it`);
 		}
 
-		const species = representative.type;
 		if (species !== "human" && species !== "wolf" && species !== "hawk") {
 			throw new Error(`unknown child species "${species}"`);
 		}
@@ -152,7 +153,6 @@ function migrateChildrenToRecords() {
 			deliveredDate = oldDateToTimestamp(representative.laid);
 			deliveredLocation = representative.laidLocation ?? representative.birthLocation ?? "unknown";
 		} else {
-			if (isEggLitter) throw new Error(`eggTimer set on a non-hawk litter "${litterKeyOf(representative)}"`);
 			deliveredDate = oldDateToTimestamp(representative.born);
 			deliveredLocation = representative.birthLocation ?? "unknown";
 		}
@@ -198,7 +198,7 @@ function migrateChildrenToRecords() {
 					firstWord: oldChild.localVariables?.firstWord?.word ?? null, // source firstWord is a { word, date, ... } object
 					...(oldChild.adopted ? { adoptedDate: oldDateToTimestamp(oldChild.adopted) } : {}),
 				},
-				bornDate: oldChild.eggTimer ? null : oldDateToTimestamp(oldChild.born),
+				bornDate: species === "hawk" && oldChild.eggTimer ? null : oldDateToTimestamp(oldChild.born),
 				name: oldChild.name ?? null,
 				coParents: [],
 				awareOfChild: [],
