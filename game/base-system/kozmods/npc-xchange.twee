@@ -239,8 +239,16 @@
 			<<npc-xchange-clear-active-genital-state $vaginatarget "penis">>
 		<</if>>
 		<<set _xPenisTargetValid to Number.isInteger($penistarget) and $NPCList[$penistarget] and typeof $NPCList[$penistarget] is "object">>
+		<<set _xLeftPenisHeld to false>>
+		<<set _xLeftVaginaHeld to false>>
+		<<set _xRightPenisHeld to false>>
+		<<set _xRightVaginaHeld to false>>
 		<<for _xSlotIndex, _xSlot range $NPCList>>
 			<<if _xSlot and typeof _xSlot is "object">>
+				<<if ["leftarm","botharm"].includes(_xSlot.penis)>><<set _xLeftPenisHeld to true>><</if>>
+				<<if _xSlot.vagina is "leftarm">><<set _xLeftVaginaHeld to true>><</if>>
+				<<if ["rightarm","botharm"].includes(_xSlot.penis)>><<set _xRightPenisHeld to true>><</if>>
+				<<if _xSlot.vagina is "rightarm">><<set _xRightVaginaHeld to true>><</if>>
 				<<set _xSource to undefined>>
 				<<set _xSourceNames to [_xSlot.fullDescription, _xSlot.description, _xSlot.nam, _xSlot.name]>>
 				<<for _xSourceName range _xSourceNames>>
@@ -280,6 +288,19 @@
 				<</if>>
 			<</if>>
 		<</for>>
+
+		/* A hand can still claim an NPC's genitals after that genital moved or was reset.
+		   Release only the orphaned hand tracker before action generation tries to select its owner. */
+		<<if $leftarm is "penis" and !_xLeftPenisHeld>>
+			<<set $leftarm to 0>><<set $lefttarget to 0>><<set $leftaction to 0>><<set $leftactiondefault to "leftgrab">>
+		<<elseif $leftarm is "othervagina" and !_xLeftVaginaHeld>>
+			<<set $leftarm to 0>><<set $lefttarget to 0>><<set $leftaction to 0>><<set $leftactiondefault to "leftplay">>
+		<</if>>
+		<<if $rightarm is "penis" and !_xRightPenisHeld>>
+			<<set $rightarm to 0>><<set $righttarget to 0>><<set $rightaction to 0>><<set $rightactiondefault to "rightgrab">>
+		<<elseif $rightarm is "othervagina" and !_xRightVaginaHeld>>
+			<<set $rightarm to 0>><<set $righttarget to 0>><<set $rightaction to 0>><<set $rightactiondefault to "rightplay">>
+		<</if>>
 	<</widget>>
 
 	/* args 0: combat slot index, args 1: body record being copied to that slot.
