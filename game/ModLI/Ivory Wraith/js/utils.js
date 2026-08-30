@@ -1,6 +1,8 @@
 W.countPaleBabies = () => {
-	Wikifier.wikifyEval("<<getChildrenIds `{location:'home', father:'Ivory Wraith'}`>>");
-	return T.childrenIds.length;
+	return getChildrenAt("home").filter(child => {
+		const pregnancy = getPregnancyOf(child);
+		return pregnancy && pregnancy.carrier === "pc" && pregnancy.donor === "Ivory Wraith";
+	}).length;
 };
 
 W.countPaleCritters = () => {

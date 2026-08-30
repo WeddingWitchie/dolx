@@ -1717,7 +1717,8 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return `img/hair/sides/${options.hair_sides_type}/${options.hair_sides_length}.png`;
+				const length = options.hair_sides_type === "crude" ? "short" : options.hair_sides_length;
+				return `img/hair/sides/${options.hair_sides_type}/${length}.png`;
 			},
 			zfn(options) {
 				return options.hair_sides_position === "front" ? ZIndices.hair_forward : ZIndices.backhair;
@@ -1762,7 +1763,8 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			srcfn(options) {
-				return `img/hair/fringe/${options.hair_fringe_type}/${options.hair_fringe_length}.png`;
+				const length = options.hair_fringe_type === "crude" ? "short" : options.hair_fringe_length;
+				return `img/hair/fringe/${options.hair_fringe_type}/${length}.png`;
 			},
 			showfn(options) {
 				return !!options.show_hair && !!options.hair_fringe_type;
@@ -1893,6 +1895,25 @@ Renderer.CanvasModels.main = {
 			},
 			showfn(options) {
 				return !!options.show_hair && !!options.hair_sides_type;
+			},
+		},
+		"hair_fringe_extra": {
+			filters: ["hair_fringe"],
+			z: ZIndices.backhair,
+			animation: "idle",
+
+			srcfn(options) {
+				return `img/hair/back/voluminous smoke/${options.hair_fringe_length}.png`;
+			},
+			masksrcfn(options) {
+				if (options.worn.over_upper.setup.name === "kaiju costume")
+					return `img/clothes/over-upper/kaiju/mask.png`;
+				return options.headMask;
+			},
+			showfn(options) {
+				return !!options.show_hair
+					&& options.hair_fringe_type === "voluminous smoke"
+					&& ["thighs", "feet"].includes(options.hair_fringe_length);
 			},
 		},
 		/***

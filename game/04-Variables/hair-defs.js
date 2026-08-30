@@ -100,7 +100,7 @@ setup.hair = {
 		},
 		{
 			name: "short",
-			list: ["french bob", "layered bob", "messy", "short", "short spiky", "straight bob"],
+			list: ["crude", "french bob", "layered bob", "messy", "short", "short spiky", "straight bob"],
 			devolve: ["messy", "bedhead"],
 		},
 		{
@@ -120,6 +120,7 @@ setup.hair = {
 			name: "default",
 			list: [
 				"default",
+				"back",
 				"blunt locks",
 				"bowl cut",
 				"buzzcut",
@@ -189,6 +190,7 @@ setup.hair = {
 				"curtain locks",
 				"bantu crown",
 				"cornrows",
+				"crude",
 				"dread bun",
 				"droopy locks",
 				"framing locks",
