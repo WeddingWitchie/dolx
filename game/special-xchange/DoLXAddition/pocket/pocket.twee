@@ -194,11 +194,14 @@
 							<<if $options.images is 1>><span class="dolx-pocket-item-icon dolx-pocket-toy-icon"><<= pocketToyIcon(_toyItem.category, _toyItem.index)>></span><</if>>
 							<span class="dolx-pocket-item-name">
 								<span class="teal"><<= _toyItem.setupToy ? _toyItem.setupToy.name.toLocaleUpperFirst() : _toyItem.toy.name.toLocaleUpperFirst()>></span>
+								<<if _toyItem.count gt 1>><span class="gold">(<<= _toyItem.count>>)</span><</if>>
 								<<if _toyItem.worn>><span class="green">(worn)</span><</if>>
 							</span>
 							<span class="dolx-pocket-item-actions">
 								<<capture _toyItem>>
-									<<if !_toyItem.wearableKind>>
+									<<if _toyItem.stacked>>
+										<span class="grey"><<= _toyItem.uses>> use<<if _toyItem.uses isnot 1>>s<</if>></span>
+									<<elseif !_toyItem.wearableKind>>
 										<span class="grey">In hand</span>
 									<<elseif _toyItem.canWear>>
 										<<link _toyItem.wearLabel>>
@@ -211,7 +214,7 @@
 									<</if>>
 									|
 									<<link "Take out">>
-										<<run pocketToyPack(_toyItem.category, _toyItem.index, false)>>
+										<<if _toyItem.stacked>><<run pocketSlotToggle("toy", _toyItem.category)>><<else>><<run pocketToyPack(_toyItem.category, _toyItem.index, false)>><</if>>
 										<<replace #pocketPane>><<pocketBagContents>><</replace>>
 									<</link>>
 								<</capture>>

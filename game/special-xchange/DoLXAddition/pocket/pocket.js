@@ -1,5 +1,5 @@
 /* The POCKET menu: what the PC is physically carrying. */
-/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot sexShopIcon closeOverlay */
+/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay */
 
 /* ------------------------------------------------------------------ *
  * Setup tables
@@ -447,11 +447,12 @@ function pocketPillOwned(name) {
 }
 window.pocketPillOwned = pocketPillOwned;
 
-/* One row per toy owned, so each toy can be used or stored separately. */
+/* Wearable toys keep one row per copy so each can be used or stored separately.
+   Identical lube containers share a row because the whole kind already shares one pocket slot. */
 function pocketToyItems(category) {
 	const inv = V.player && V.player.inventory && V.player.inventory.sextoys;
 	if (!inv || !Array.isArray(inv[category])) return [];
-	return inv[category].flatMap((toy, index) => {
+	const items = inv[category].flatMap((toy, index) => {
 		if (!toy.packed) return [];
 		const setupToy = setup.sextoys[toy.index];
 		return [
@@ -469,17 +470,31 @@ function pocketToyItems(category) {
 			},
 		];
 	});
+	if (items.length > 0 && items.every(item => item.setupToy && item.setupToy.type.includes("lube"))) {
+		items[0].count = items.length;
+		items[0].uses = items.reduce(
+			(total, item) => total + (typeof item.toy.uses === "number" && !Number.isNaN(item.toy.uses) ? item.toy.uses : item.setupToy.uses || 3),
+			0
+		);
+		items[0].stacked = true;
+		return [items[0]];
+	}
+	return items;
 }
 window.pocketToyItems = pocketToyItems;
 
-/* The toy's own artwork, the same markup the shop and the cupboard use. */
+/* The toy's own artwork. Build the small pocket copy directly so repeated items do not reuse
+   the shop grid's element IDs, and so the ordinary icon macro cannot leave an empty wrapper. */
 function pocketToyIcon(category, index) {
 	const inv = V.player && V.player.inventory && V.player.inventory.sextoys;
 	const toy = inv && Array.isArray(inv[category]) ? inv[category][index] : undefined;
 	if (!toy) return "";
 	const setupToy = setup.sextoys[toy.index];
-	if (!setupToy || typeof sexShopIcon !== "function") return "";
-	return sexShopIcon(setupToy, setupToy.colour ? `clothes-${toy.colour}` : "").outerHTML;
+	if (!setupToy || !setupToy.icon) return "";
+	const colour = setupToy.colour && toy.colour ? ` clothes-${toy.colour.replace(/\s/g, "-")}` : "";
+	const main = `<span class="ssm_icon icon${colour}"><img class="icon" src="img/misc/icon/${setupToy.icon}"/></span>`;
+	const front = setupToy.iconFront ? `<span class="ssm_icon icon infront"><img class="icon" src="img/misc/icon/${setupToy.iconFront}"/></span>` : "";
+	return `<span class="ssm_icon_wrapper">${front}${main}</span>`;
 }
 window.pocketToyIcon = pocketToyIcon;
 
