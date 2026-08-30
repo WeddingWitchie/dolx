@@ -50,6 +50,41 @@ test.describe("Time", () => {
 		expect(painDecrease).toBe(3);
 	});
 
+	test("only raises passive cycle arousal during the fertile risk bands", async ({ page }) => {
+		await setupGame(page);
+
+		const result = await page.evaluate(() => {
+			const W = window as any;
+			const V = W.SugarCube.State.variables;
+			const menstruation = V.sexStats.vagina.menstruation;
+			const fertileRisk = W.PregnancyConstants.riskMeterLabels.length - 2;
+			const dayForRisk = (wantedRisk: number) => {
+				for (let day = 0; day <= menstruation.currentDaysMax; day += 0.5) {
+					menstruation.currentDay = day;
+					if (W.playerPregnancyRisk() === wantedRisk) return day;
+				}
+				throw new Error(`No cycle day found for pregnancy risk ${wantedRisk}`);
+			};
+			const safeDay = dayForRisk(fertileRisk - 1);
+			const fertileDay = dayForRisk(fertileRisk);
+			V.backgroundTraits.delete("lustful");
+			V.purity = 0;
+			V.arousal = 1000;
+			menstruation.currentDay = safeDay;
+			W.Time.pass(60);
+			const safeArousal = V.arousal;
+
+			V.arousal = 1000;
+			menstruation.currentDay = fertileDay;
+			W.Time.pass(60);
+			const fertileArousal = V.arousal;
+			return { safeArousal, fertileArousal };
+		});
+
+		expect(result.safeArousal).toBe(990);
+		expect(result.fertileArousal).toBeCloseTo(1004.4, 8);
+	});
+
 	test("paces alcohol and cigarette dependence without requiring new-save initialization", async ({ page }) => {
 		await setupGame(page);
 

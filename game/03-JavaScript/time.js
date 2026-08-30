@@ -1761,8 +1761,9 @@ function minutePassed(minutes) {
 	}
 	// Below the passive cap, casual arousal fades slowly. Above it, arousal gained from active stimulation fades normally.
 	const chastityFadeGuard = chastityFrustrationApplies && V.arousal < chastityArousalCap ? 0.25 : 1;
+	// The fertility meter ascends from very safe to dangerous; its final two entries are the fertile risk bands.
 	const arousalMultiplier =
-		V.backgroundTraits.includes("lustful") || risk <= 1 || underBreedingEffect
+		V.backgroundTraits.includes("lustful") || risk >= PregnancyConstants.riskMeterLabels.length - 2 || underBreedingEffect
 			? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0)
 			: -10 * chastityFadeGuard;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes, chastityArousalCap, chastityFrustrationApplies));
