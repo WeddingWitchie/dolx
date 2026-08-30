@@ -239,8 +239,10 @@ const statChange = (() => {
 		if (multiplierOverride && isNaN(multiplierOverride)) paramError("stress", "multiplierOverride", multiplierOverride, "Expected a number.");
 		amount = Number(amount);
 		multiplierOverride = Number(multiplierOverride);
+		const critterMagnetEncounter = V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0);
 		if (amount) {
 			if (multiplierOverride) {
+				if (amount > 0 && critterMagnetEncounter) multiplierOverride *= 0.25;
 				V.stress += amount * multiplierOverride;
 			} else if (amount < 0) {
 				V.stress += amount * 80;
@@ -270,9 +272,7 @@ const statChange = (() => {
 				) {
 					stressMod *= 0.1;
 				}
-				if (V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0)) {
-					stressMod *= 0.25;
-				}
+				if (critterMagnetEncounter) stressMod *= 0.25;
 				/* Harper's antidepressant course flattens stress build-up while the PC keeps taking the prescription. */
 				if (typeof antidepressantActive === "function" && antidepressantActive()) stressMod *= 0.6;
 				/* Well Fed: a well-fed PC takes things a little better. */
@@ -287,6 +287,7 @@ const statChange = (() => {
 	function trauma(amount, source) {
 		if (isNaN(amount)) return paramError("trauma", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		const critterMagnetEncounter = V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0);
 		if (amount) {
 			let traumaMod = 1;
 			if (amount >= 0) {
@@ -296,9 +297,7 @@ const statChange = (() => {
 				if (V.bestialitytrait >= 1 && V.enemytype === "beast") traumaMod *= 0.7;
 				// Reduce the PC's trauma gains by 0.7x if they have the "Prey" / "Witch" trait while being fucked by tentacles.
 				if (V.tentacletrait >= 1 && V.enemytype === "tentacles") traumaMod *= 0.7;
-				if (V.crittermagnettrait >= 1 && ["swarm", "struggle"].includes(V.enemytype) && (V.rapeavoid === 0 || V.sexavoid === 0)) {
-					traumaMod *= 0.25;
-				}
+				if (critterMagnetEncounter) traumaMod *= 0.25;
 				if (V.drunk >= 1 && V.substanceRebalance === 1) traumaMod *= 1 - 0.1 * Math.round(V.drunk / 120);
 				/* Well Fed: a well-fed PC takes things a little better. */
 				if (typeof wellFedMod === "function") traumaMod *= wellFedMod();
