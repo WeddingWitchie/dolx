@@ -302,3 +302,50 @@ class EventData {
 // Jimmy: Potentially flawed design style, static class basically.
 // But ends up being just an extended function in reality. (Not actually tho)
 window.EventSystem = new EventData();
+
+/**
+ * Refreshes the event-debug sidebar after the passage body has finished generating NPCs.
+ * The caption is wikified before passage content, so its first label can otherwise describe
+ * the previous passage while the overlay already sees the new, potentially broken state.
+ *
+ * @returns {void}
+ */
+function refreshEventDebugButton() {
+	const label = document.querySelector("#event-info-label");
+	if (!label || V.options?.debugdisable !== "f") return;
+
+	let text = "EVENT INFO";
+	let colour = "yellow";
+
+	if (EventSystem.any()) {
+		const event0 = EventSystem.has(0) ? EventSystem.get(0) : undefined;
+		const trackedPassages = Array.isArray(V.event?.buffer)
+			? V.event.buffer.reduce((passages, event) => {
+					if (event?.area?.[0] && !passages.includes(event.area[0])) passages.push(event.area[0]);
+					return passages;
+			  }, [])
+			: [];
+
+		if (!EventSystem.validate()) {
+			text = "EVENT DESYNC";
+			colour = "red";
+		} else if (event0?.area?.[0] === V.passage) {
+			text = "EVENT ACTIVE";
+			colour = "green";
+		} else if (setup.majorAreas.includes(V.passage)) {
+			text = "EVENT ESCAPED";
+			colour = "red";
+		} else if (trackedPassages.length === 1 && ["Forest Cabin", "Eden Cabin", "Eden Clearing"].includes(event0?.area?.[0])) {
+			text = "EVENT ACTIVE";
+			colour = "green";
+		} else {
+			text = "SHOW EVENT INFO";
+		}
+	}
+
+	label.className = colour;
+	label.textContent = text;
+}
+
+window.refreshEventDebugButton = refreshEventDebugButton;
+$(document).on(":passageend", refreshEventDebugButton);

@@ -65,6 +65,15 @@
 		<</for>>
 	<</if>>
 	<<set _eventValidationFailed to (EventSystem.any() and !EventSystem.validate())>>
+	<!-- Recalculate this when the overlay opens.
+	The caption is rendered before the passage body, so its temporary value can predate NPC generation on the current passage. -->
+	<<unset _eventAlertMajorArea>>
+	<<set _event0 to EventSystem.has(0) ? EventSystem.get(0) : undefined>>
+	<<if !_eventValidationFailed and _event0 and _event0.area and _event0.area[0] is $passage>>
+		<<set _eventAlertMajorArea to false>>
+	<<elseif !_eventValidationFailed and EventSystem.any() and setup.majorAreas.includes($passage)>>
+		<<set _eventAlertMajorArea to true>>
+	<</if>>
 	<<unset _eventreason>>
 	<!-- Liveness comes from isLiveNPC() in event-debug.js so this overlay and EventSystem.validate() can never disagree. 
 	Cleared slots are still truthy objects, so a presence-only or type-only check produces false positives on every cleanly-ended encounter. -->
