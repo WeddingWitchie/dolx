@@ -17,7 +17,7 @@
 
 <<widget "fox_gen">>
 	<!-- Modified for monster people -->
-	<<if ($settings.monsterChance gte 1 and $hallucinations gte 1) or ($settings.monsterChance gte 1 and !$settings.monsterHallucinationsOnly)>>
+	<<if isMonsterHallucinationAllowed(1)>>
 		<<if maleChance() lt random(1, 100)>>
 			<<set $foxGen to "female">>
 		<<else>>
@@ -123,17 +123,11 @@
 		<<set $farm_work.pig to {}>>
 		<<set $farm_work.horse to {}>>
 		<<set $farm_work.cattle to {}>>
-			<!-- Modified for monster people -->
-		<<set $farm_work.horse.monster_roll to false>>
-		<<set $farm_work.pig.monster_roll to false>>
-		<<set $farm_work.dog.monster_roll to false>>
-		<<set $farm_work.cattle.monster_roll to false>>
-		<<if $hallucinations gte 1 or !$settings.monsterHallucinationsOnly>>
-			<<set $farm_work.horse.monster_roll to $settings.monsterChance gte random(1, 100)>>
-			<<set $farm_work.pig.monster_roll to $settings.monsterChance gte random(1, 100)>>
-			<<set $farm_work.dog.monster_roll to $settings.monsterChance gte random(1, 100)>>
-			<<set $farm_work.cattle.monster_roll to $settings.monsterChance gte random(1, 100)>>
-		<</if>>
+		<!-- Modified for monster people -->
+		<<set $farm_work.horse.monster_roll to isMonsterHallucinationAllowed()>>
+		<<set $farm_work.pig.monster_roll to isMonsterHallucinationAllowed()>>
+		<<set $farm_work.dog.monster_roll to isMonsterHallucinationAllowed()>>
+		<<set $farm_work.cattle.monster_roll to isMonsterHallucinationAllowed()>>
 		<<unset $farm_kennel>>
 		<<farm_gen_all>>
 	<</if>>
@@ -940,7 +934,7 @@
 <</widget>>
 
 <<widget "farm_gen">>
-	<<if $farm_work[_args[0]].monster_roll is true and ($hallucinations gte 1 or !$settings.monsterHallucinationsOnly)>>
+	<<if $farm_work[_args[0]].monster_roll is true and isMonsterHallucinationAllowed(1)>>
 		<<set $farm_work[_args[0]].monster to true>>
 		<<if beastMaleChance() gte 100>>
 			<<set $farm_work[_args[0]].gender_plural to "m">>
