@@ -185,31 +185,35 @@
 	<<set _fishingRecordEntry to $fishing.record[_fish.type]>>
 	<<set _isBiggest to _fish.size is _fishingRecordEntry.largest>>
 
-	You swing the _fish.type out of the water.
+	You swing the <<= dolxFishName(_fish.type)>> out of the water.
 
 	<<if _isBiggest>><span class="green">_fish.size cm.</span><<else>>_fish.size cm.<</if>>
-	<<if _fishingRecordEntry.numCaught is 1>>
-		(The <span class="gold">first</span> _fish.type you've ever caught!)<<lstress>><<stress -10>>
+	<<if _fishingRecordEntry.numCaught is dolxFishCatchCount(_fish)>>
+		(The <span class="gold">first</span> <<= dolxFishName(_fish.type)>> you've ever caught!)<<lstress>><<stress -10>>
 	<<elseif _isBiggest>>
-		(The biggest _fish.type you've ever caught!)<<lstress>><<stress -5>>
+		(The biggest <<= dolxFishName(_fish.type)>> you've ever caught!)<<lstress>><<stress -5>>
 	<<elseif isPlayerFishingAlone()>>
 		<<if $rng gte 98 and $world_corruption_soft gte 40>>
-			The _fish.type hangs limp on the hook, eyes clouded and grey. It looks like it's been dead for a while, but that doesn't make sense.<<gstress>><<stress 4>>
+			The <<= dolxFishName(_fish.type)>> hangs limp on the hook, eyes clouded and grey. It looks like it's been dead for a while, but that doesn't make sense.<<gstress>><<stress 4>>
 		<<elseif $rng gte 96>>
-			The _fish.type thrashes wildly as you lift it up, whipping water all over you.<<wetUpper 80>><<gstress>><<stress 3>>
+			The <<= dolxFishName(_fish.type)>> thrashes wildly as you lift it up, whipping water all over you.<<wetUpper 80>><<gstress>><<stress 3>>
 		<<elseif $rng gte 94 and $world_corruption_soft gte 40>>
-			Something's wrong with this _fish.type. Its scales grow in uneven spirals, and pale growths cluster along its spine.<<gstress>><<stress 4>>
+			Something's wrong with this <<= dolxFishName(_fish.type)>>. Its scales grow in uneven spirals, and pale growths cluster along its spine.<<gstress>><<stress 4>>
 		<<elseif $rng gte 80 and Time.isBloodMoon()>>
-			The _fish.type has too many eyes, and they all fix on you at once, reflecting the red light of the moon.<<ggstress>><<stress 8>>
+			The <<= dolxFishName(_fish.type)>> has too many eyes, and they all fix on you at once, reflecting the red light of the moon.<<ggstress>><<stress 8>>
 		<<else>>
 			<<lstress>><<stress -2>>
 		<</if>>
 	<<else>>
 		<<lstress>><<stress -2>>
 	<</if>>
+	<<dolxSmallCatchNotice _fish>>
 <</widget>>
 
 <<widget "fishingEatFishTfProgress">>
+	/* A fish can be eaten straight out of the bag, anywhere, so the day's fishing bag may not
+	   have been created yet. It is cleared with the rest of $daily every night. */
+	<<set $daily.fishing to $daily.fishing ?? {}>>
 	<<if not $daily.fishing.eatenFishTf>>
 		<<set _fishEatTf to highestFishEatingTf()>>
 		<<transform _fishEatTf 1>>
@@ -222,6 +226,8 @@
 		<<case "fox">><<fox>>
 		<<case "bird">><<harpy>>
 		<<case "cat">><<cat>>
+		<<case "bear">><<bear>>
+		<<case "waterdragon">><<tficon "waterdragon">>
 	<</switch>>
 <</widget>>
 
@@ -285,7 +291,7 @@
 
 	<<addinlineevent 6>>
 		<<set _fishingSurfacer to weightedRandom(... fishingSurfacingFish(_fishingLocation))>>
-		You see <<a _fishingSurfacer>> break the surface for a moment.<<lstress>><<stress -1>>
+		You see <<a `dolxFishName(_fishingSurfacer)`>> break the surface for a moment.<<lstress>><<stress -1>>
 	<</addinlineevent>>
 
 	<<addinlineevent 3>>

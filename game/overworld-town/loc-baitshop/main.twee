@@ -35,7 +35,16 @@
 		
 		<<elseif $fishing.baitShopAmbient is "boughtBaitWorms">>
 			<<wearProp "bait_worm">>
-			<<He>> hands you a little can of bait worms. "Unless you're fishing for <span class="blue">baitfish,</span> you're better off using any bait other than these worms. But they're better than nothing, and they're all I've got. Need anything else?"
+			<<He>> hands you a little can of bait worms. "Unless you're fishing for <span class="blue">sardines,</span> you're better off using any bait other than these worms. But they're better than nothing, and they're all I've got. Need anything else?"
+
+		<<elseif $fishing.baitShopAmbient is "boughtWormCan">>
+			<<He>> sets a dented tin on the counter and thumbs the lid off to show you the soil inside. "Twenty in there, near enough. Bring it back when it's empty and I'll top it up for you, cheaper than buying the tin again." <<He>> pushes it across. "Keep the lid on in your bag."
+
+		<<elseif $fishing.baitShopAmbient is "refilledWormCan">>
+			<<He>> takes your tin, tips the old soil out into a bucket, and refills it from a sack under the counter. "There. Full again."
+
+		<<elseif $fishing.baitShopAmbient is "boughtTackle">>
+			<<He>> lifts the <<= $fishing.baitShopAmbientGear>> down and hands it over without much ceremony. "Look after it. Anything else?"
 
 		<<elseif $showPcEnterBaitShopText>>
 			A <<person>> behind the cluttered counter looks up as the door creaks open. Reels, hooks, and coils of line cover every surface of the cramped shack.
@@ -47,7 +56,7 @@
 		<<else>>
 			You're in the bait shop. Reels, hooks, and coils of line cover every surface. A <<person>> sits behind the counter, fiddling with <<print either("a knot", "some rope", "a fishing lure", "a fishing bob")>>.
 		<</if>>
-		<<unset $fishing.baitShopAmbient>>
+		<<unset $fishing.baitShopAmbient $fishing.baitShopAmbientGear>>
 	<</if>>
 	<br><br>
 
@@ -71,9 +80,11 @@
 		<<else>>
 			A pack of 5 bait worms (£6). <span class="blue">You can't afford it.</span>
 		<</if>>
+		<br>
+		<<baitShopTackle>>
 		<<if $daily.fishing.baitShopRequest is "ready" and $foodstuff[$daily.fishing.baitShopRequestFish]?.amount gte 1>>
 			<br>
-			<<icon `"fish/" + $daily.fishing.baitShopRequestFish + ".png"`>><<link [["Give the " + $daily.fishing.baitShopRequestFish|Bait Shop Give Fish]]>><</link>>
+			<<icon `setup.fishing.lootTables.fish[$daily.fishing.baitShopRequestFish].icon`>><<link [["Give the " + dolxFishName($daily.fishing.baitShopRequestFish)|Bait Shop Give Fish]]>><</link>>
 		<</if>>
 	<</if>>
 	<<if !baitShopOpen() and !$weekly.theft.baitShop>>
@@ -82,6 +93,11 @@
 	<</if>>
 	<br>
 	<<run linkifyDivs('.button-back-to-shop')>>
+
+	<<if baitShopOpen() and dolxPocketReachable() and dolxPocketBaitList().length gt 0>>
+		<div id="dolxBaitShopPack"><<pocketPackBait>></div>
+		<br>
+	<</if>>
 
 	<<if baitShopOpen() and $tryOn.value is 0>>
 		<<icon "hanger.png">><<link [[Changing room|Changing Room]]>><<ShowUnderEquip "normal">><<set $wardrobeExit to "Bait Shop">><<endevent>><</link>>
@@ -169,11 +185,11 @@
 		<<case "panicked">>
 			"Fish like <<a $daily.fishing.baitShopRequestFish>> tend to run and thrash about, but it's a pretty dumb fish, so if you give it some slack it'll probably just forget you're there and calm down. Though they tend to <span class="blue">panic,</span> thrashing about once you get one close to the shore, if it even notices. They seem to like <span class="green"><<print setup.foodstuff[_requestFish.preferredBait].plural>>,</span> if you have any for bait that'll help you hook one. What do you think? I know you could catch one for me."
 		<<case "thrasher">> /* Only pike */
-			"<<A $daily.fishing.baitShopRequestFish>> is an energetic bugger, and loves to <span class="blue">thrash</span> all over the place. Not easy to catch. You're always going to be fighting these things, and if you can't reel it in while it's thrashing, you won't be able to catch it. It's not going to forget about you either, so don't try to reel it in while it's just sitting there or it'll bolt. It'll honestly still run on you at least once, and you'd better be ready to stop it when it does. They seem to like <span class="green">baitfish</span> the best, I've always struggled to get them to bite them without. What do you think? I know you could catch one for me."
+			"<<A $daily.fishing.baitShopRequestFish>> is an energetic bugger, and loves to <span class="blue">thrash</span> all over the place. Not easy to catch. You're always going to be fighting these things, and if you can't reel it in while it's thrashing, you won't be able to catch it. It's not going to forget about you either, so don't try to reel it in while it's just sitting there or it'll bolt. It'll honestly still run on you at least once, and you'd better be ready to stop it when it does. You'll not hook one without a <span class="green">small fish</span> on the line, either. A small bass or a small carp, something with a bit of life left in it. What do you think? I know you could catch one for me."
 		<<case "slipper">> /* Only eel */
-			"<<A $daily.fishing.baitShopRequestFish>> is <span class="blue">slippery</span>, you'll need to be careful about when you reel it in, the more stamina it has when you pull it close to the bank, the more likely it is to shoot off with terrifying speed. They seem to like <span class="green">baitfish</span> the best, I've always struggled to get them to bite without. What do you think? I know you could catch one for me."
+			"<<A $daily.fishing.baitShopRequestFish>> is <span class="blue">slippery</span>, you'll need to be careful about when you reel it in, the more stamina it has when you pull it close to the bank, the more likely it is to shoot off with terrifying speed. You'll want a <span class="green">small fish</span> on the hook for it, a small carp does nicely. What do you think? I know you could catch one for me."
 		<<case "anchor">> /* Only cod */
-			"Reeling in <<a $daily.fishing.baitShopRequestFish>> is like trying to reel in an <span class="blue">anchor.</span> It's slow, hard, and your arms will get tired. But, they're also not fast runners, so don't be afraid to give your arms a bit of a rest if you need. They seem to like <span class="green">baitfish</span> the best, I've always struggled to get them to bite without. What do you think? I know you could catch one for me."
+			"Reeling in <<a $daily.fishing.baitShopRequestFish>> is like trying to reel in an <span class="blue">anchor.</span> It's slow, hard, and your arms will get tired. But, they're also not fast runners, so don't be afraid to give your arms a bit of a rest if you need. You'll need a <span class="green">small fish</span> on the hook, mind. A small herring, for preference. What do you think? I know you could catch one for me."
 		<<default>>
 			<<error { message: "Fish behavior not found for " + $daily.fishing.baitShopRequestFish }>>
 	<</switch>>

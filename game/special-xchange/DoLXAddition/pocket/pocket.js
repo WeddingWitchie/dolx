@@ -1,5 +1,5 @@
 /* The POCKET menu: what the PC is physically carrying. */
-/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay */
+/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay dolxPocketBaitValid */
 
 /* ------------------------------------------------------------------ *
  * Setup tables
@@ -222,8 +222,9 @@ window.pocketCommit = pocketCommit;
  * Gating
  * ------------------------------------------------------------------ */
 /* Returns why the pocket can't be opened, or "" if it can.
-   Only allows access when the PC is freely standing in their own body. */
-function pocketLockReason() {
+   Only allows access when the PC is freely standing in their own body.
+   `ignoreCompany` lets you access your bag even when a shopkeeper is present. */
+function pocketLockReason(ignoreCompany) {
 	if (V.passage === "Start" || V.passage === "Start2") return "Not yet.";
 	if (V.hc) return "There's nothing on you here but rags.";
 	if (V.statFreeze || V.frozenValues || V.replayScene) return "This already happened. You can't reach for anything now.";
@@ -234,7 +235,8 @@ function pocketLockReason() {
 	if (V.captured) return "Your belongings are out of reach.";
 	if (V.trance) return "Your hands won't answer you.";
 	/* Valid occupied NPC slots mean the PC is in an active character scene */
-	if (Array.isArray(V.NPCList) && V.NPCList.some(npc => npc && npc.gender && npc.description)) return "Not while someone is dealing with you.";
+	if (!ignoreCompany && Array.isArray(V.NPCList) && V.NPCList.some(npc => npc && npc.gender && npc.description))
+		return "Not while someone is dealing with you.";
 	return "";
 }
 window.pocketLockReason = pocketLockReason;
@@ -333,6 +335,9 @@ function pocketSlotStillValid(slot) {
 			return pocketPillOwned(slot.key) > 0;
 		case "toy":
 			return pocketToyPackedCount(slot.key) > 0;
+		case "bait":
+			/* The can stays a slot when it's empty: an empty tin is still a tin you can refill. */
+			return dolxPocketBaitValid(slot.key);
 		default:
 			return false;
 	}
@@ -1032,6 +1037,10 @@ $(document).on(":passageend", () => {
 	if (V.pocketFoodReturn && V.passage !== "Pocket Eat Food") {
 		delete V.pocketFoodReturn;
 		delete V.pocketFoodResult;
+	}
+	if (V.dolxBaitEatReturn && V.passage !== "Pocket Eat Bait") {
+		delete V.dolxBaitEatReturn;
+		delete V.dolxBaitEaten;
 	}
 	if (!V.pocket) return; /* Nothing to keep in step until the PC has opened the menu at least once. */
 	if (V.statFreeze || V.frozenValues || V.replayScene || V.hc) return;

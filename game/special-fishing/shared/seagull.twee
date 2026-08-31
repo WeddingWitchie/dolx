@@ -11,8 +11,8 @@
 	<</if>>
 
 	<<if $bus is "fishingBeach">>
-		<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Beach Wait]]>>
-			<<tending_give $fishingHookedFish.type 1>>
+		<<link [[dolxFishStowLabel($fishingHookedFish)|Fishing Beach Wait]]>>
+			<<run dolxFishStow($fishingHookedFish)>>
 			<<set $fishingAmbientOverride to "stowAway">>
 			<<if baitShopWants($fishingHookedFish.type)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 			<<endevent>>
@@ -24,8 +24,8 @@
 			<<link [[Eat the fish|Fishing Beach Cat Eat]]>><</link>><<fishEatingTf>>
 		<</if>>
 	<<elseif $bus is "fishingPier">>
-		<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Pier Wait]]>>
-			<<tending_give $fishingHookedFish.type 1>>
+		<<link [[dolxFishStowLabel($fishingHookedFish)|Fishing Pier Wait]]>>
+			<<run dolxFishStow($fishingHookedFish)>>
 			<<set $fishingAmbientOverride to "stowAway">>
 			<<if baitShopWants($fishingHookedFish.type)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 			<<endevent>>
@@ -37,8 +37,8 @@
 			<<link [[Eat the fish|Fishing Pier Cat Eat]]>><</link>><<fishEatingTf>>
 		<</if>>
 	<<elseif $bus is "fishingCoastPath">>
-		<<link [["Stow the " + $fishingHookedFish.type + " away"|Fishing Coast Path Wait]]>>
-			<<tending_give $fishingHookedFish.type 1>>
+		<<link [[dolxFishStowLabel($fishingHookedFish)|Fishing Coast Path Wait]]>>
+			<<run dolxFishStow($fishingHookedFish)>>
 			<<set $fishingAmbientOverride to "stowAway">>
 			<<if baitShopWants($fishingHookedFish.type)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 			<<endevent>>
@@ -67,7 +67,7 @@
 
 :: Fishing Seagull Give
 <<effects>>
-You hold the $fishingHookedFish.type out. The seagull eyes it, then takes it from your hand and flies off.<<lstress>><<stress -2>>
+You hold the <<= dolxFishName($fishingHookedFish.type)>> out. The seagull eyes it, then takes it from your hand and flies off.<<lstress>><<stress -2>>
 <<unset $fishingHookedFish>>
 <br><br>
 
@@ -91,12 +91,12 @@ You hold the $fishingHookedFish.type out. The seagull eyes it, then takes it fro
 	<<set $daily.fishing.seagullSteal to true>>
 
 	<<if _fish.size gte 120>>
-		A seagull circles overhead, spots the _fish.type, and lands beside you. It clamps its beak onto the fish and heaves. Nothing moves. It heaves again, harder, and still the fish doesn't budge. The seagull gives it one last look, then waddles then waddles away with the energy of a creature that has decided this never happened.
+		A seagull circles overhead, spots the <<= dolxFishName(_fish.type)>>, and lands beside you. It clamps its beak onto the fish and heaves. Nothing moves. It heaves again, harder, and still the fish doesn't budge. The seagull gives it one last look, then waddles then waddles away with the energy of a creature that has decided this never happened.
 		<br><br>
 
 		<<if _fishingLocation is "fishingBeach">>
-			<<link [["Stow the " + _fish.type + " away"|Fishing Beach Wait]]>>
-				<<tending_give _fish.type 1>>
+			<<link [[dolxFishStowLabel(_fish)|Fishing Beach Wait]]>>
+				<<run dolxFishStow(_fish)>>
 				<<set $fishingAmbientOverride to "stowAway">>
 				<<if baitShopWants(_fish.type)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 				<<endevent>>
@@ -104,8 +104,8 @@ You hold the $fishingHookedFish.type out. The seagull eyes it, then takes it fro
 			<br>
 			<<link [[Throw it back|Fishing Beach Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 		<<elseif _fishingLocation is "fishingPier">>
-			<<link [["Stow the " + _fish.type + " away"|Fishing Pier Wait]]>>
-				<<tending_give _fish.type 1>>
+			<<link [[dolxFishStowLabel(_fish)|Fishing Pier Wait]]>>
+				<<run dolxFishStow(_fish)>>
 				<<set $fishingAmbientOverride to "stowAway">>
 				<<if baitShopWants(_fish.type)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 				<<endevent>>
@@ -113,8 +113,8 @@ You hold the $fishingHookedFish.type out. The seagull eyes it, then takes it fro
 			<br>
 			<<link [[Throw it back|Fishing Pier Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 		<<elseif _fishingLocation is "fishingCoastPath">>
-			<<link [["Stow the " + _fish.type + " away"|Fishing Coast Path Wait]]>>
-				<<tending_give _fish.type 1>>
+			<<link [[dolxFishStowLabel(_fish)|Fishing Coast Path Wait]]>>
+				<<run dolxFishStow(_fish)>>
 				<<set $fishingAmbientOverride to "stowAway">>
 				<<if baitShopWants(_fish.type)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 				<<endevent>>
@@ -123,11 +123,11 @@ You hold the $fishingHookedFish.type out. The seagull eyes it, then takes it fro
 			<<link [[Throw it back|Fishing Coast Path Wait]]>><<set $fishingAmbientOverride to "throwBack">><</link>>
 		<</if>>
 	<<else>>
-		A seagull lands nearby and eyes your _fish.type. After a moment it hops forward and lunges for your catch.
+		A seagull lands nearby and eyes your <<= dolxFishName(_fish.type)>>. After a moment it hops forward and lunges for your catch.
 		<br><br>
 
 		<<link [[Shoo it away|Fishing Seagull Shoo]]>><</link>><<athleticsdifficulty -100 200>>
 		<br>
-		<<link [[Let it have the $fishingHookedFish.type|Fishing Seagull Give]]>><</link>>
+		<<link [["Let it have the " + dolxFishName($fishingHookedFish.type)|Fishing Seagull Give]]>><</link>>
 	<</if>>
 <</widget>>

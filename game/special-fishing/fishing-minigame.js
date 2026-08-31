@@ -1,3 +1,4 @@
+/* global dolxFishingTensionMult dolxFishingMisreelPenalty dolxFishingGearApplyResult */
 /*
  * The default state machine can be found in fishingMinigameBehaviorDefaults, and is by itself a working behavior, albeit with the most simple possible combat behavior.
  *
@@ -845,6 +846,8 @@ window.updateArmFatigue = updateArmFatigue;
  */
 function decrementFishingTimer(playerAction) {
 	const minigame = V.fishingMinigame;
+	/* DoLX: the whole turn's drain is scaled by the rod afterwards, so record where it started. */
+	const timerBeforeTurn = minigame.fishEscapeTimer;
 	if (minigame.fishDistance >= 2) {
 		if (minigame.fishAction !== "idle" && minigame.lastFishAction !== "idle") {
 			minigame.fishEscapeTimer -= 1;
@@ -860,6 +863,13 @@ function decrementFishingTimer(playerAction) {
 			minigame.fishEscapeTimer -= 0.25;
 		}
 	}
+
+	/* DoLX: better rods reduce line tension, while faster reels punish missed reels more. */
+	let tensionDrain = (timerBeforeTurn - minigame.fishEscapeTimer) * dolxFishingTensionMult();
+	if (fishingMinigameActionRequiresAthletics(playerAction) && !V.athleticsSuccess) {
+		tensionDrain += dolxFishingMisreelPenalty(playerAction);
+	}
+	minigame.fishEscapeTimer = timerBeforeTurn - tensionDrain;
 
 	minigame.fishEscapeTimer = Math.round(minigame.fishEscapeTimer * 100) / 100;
 }
@@ -893,6 +903,9 @@ function updateStateFromPlayerActions(playerAction) {
 	} else {
 		throw new Error(`updateStateFromPlayerActions: unexpected fishAction "${minigame.fishAction}"`);
 	}
+
+	/* DoLX: rod and reel scale what this turn produces, without changing what the actions do. */
+	dolxFishingGearApplyResult(result, playerAction);
 
 	minigame.armFatigue += result.armFatigue;
 	minigame.fishDistance += result.fishDistance;

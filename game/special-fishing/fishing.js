@@ -1,4 +1,5 @@
-/* global wardrobeContainsItem */
+/* global wardrobeContainsItem effectiveTransformationBuild */
+/* global dolxFishingBaitSizeBonus dolxFishingBaitWeightMultiplier dolxFishingCatchWeightBaitMultiplier dolxFishingBaitAffinity dolxFishingSmallFishWeight dolxBaitUsable dolxBaitTake dolxBaitReturn dolxFishRollShoal dolxSmallCatchThreshold dolxFishEatingTfs */
 /* global generateClothingItem */
 /**
  * Rolls the size of the input fish at the input location
@@ -22,6 +23,9 @@ function rollFishSize(bus, fishKey) {
 	if (fishConfig.preferredSeason.includes(Time.season)) {
 		preferredMatchCount++;
 	}
+
+	/* DoLX: bait that strongly suits this fish counts as one more preference. */
+	preferredMatchCount += dolxFishingBaitSizeBonus(fishKey);
 
 	const slope = Math.clamp(preferredMatchCount, 0, 2) - 1;
 	const rand = State.random();
@@ -50,6 +54,10 @@ function rollFishSize(bus, fishKey) {
 function fishingBaitWeightMultiplier(fishKey) {
 	const bait = V.fishing.currentBait;
 	const fishInfo = setup.fishing.lootTables.fish[fishKey];
+
+	/* DoLX: bait fish other than vanilla's baitfish answer for themselves. */
+	const moddedWeight = dolxFishingBaitWeightMultiplier(fishKey);
+	if (moddedWeight !== undefined) return moddedWeight;
 
 	if (!bait) {
 		if (fishInfo.requiresBaitFish) {
@@ -81,7 +89,9 @@ function fishingBaitWeightMultiplier(fishKey) {
 		if (fishInfo.requiresBaitFish) {
 			return 0.05;
 		} else if (fishInfo.isBaitFish) {
-			return 0.25;
+			/* DoLX: the small-fish supply replaces vanilla baitfish, so ordinary food bait must
+			   remain able to catch it instead of suppressing it. */
+			return 0.7;
 		} else {
 			return 0.7;
 		}
@@ -109,6 +119,11 @@ window.fishingPreferredBaitWeight = fishingPreferredBaitWeight;
  */
 function fishingCatchWeightBaitMultiplier() {
 	const bait = V.fishing.currentBait;
+
+	/* DoLX: modded bait carries its own bite weight. */
+	const moddedWeight = dolxFishingCatchWeightBaitMultiplier();
+	if (moddedWeight !== undefined) return moddedWeight;
+
 	if (!bait) {
 		return 0.2;
 	} else if (bait === "bait_worm") {
@@ -179,15 +194,21 @@ function rollFish(bus) {
 			const baitTypeMultiplier = fishingBaitWeightMultiplier(fishKey);
 			const preferredBaitMultiplier = fishingPreferredBaitWeight(fishKey);
 
-			possibleFish.push([fishKey, locationWeight * baitTypeMultiplier * preferredBaitMultiplier]);
+			/* DoLX: what the bait on the hook actually attracts. */
+			const baitAffinity = dolxFishingBaitAffinity(fishKey);
+			const smallCatchWeight = dolxFishingSmallFishWeight(fishKey);
+
+			possibleFish.push([fishKey, locationWeight * baitTypeMultiplier * preferredBaitMultiplier * baitAffinity * smallCatchWeight]);
 		}
 	}
 	const fishKey = weightedRandom(...possibleFish);
 	const size = Math.ceil(rollFishSize(bus, fishKey));
-	return {
+	const fish = {
 		type: fishKey,
 		size,
 	};
+	/* DoLX: shoaling species can come up more than one at a time. */
+	return dolxFishRollShoal(fish);
 }
 window.rollFish = rollFish;
 
@@ -284,8 +305,9 @@ window.rollFishingClothing = rollFishingClothing;
  * @param {string} fishKey
  * @param {number} fishSize
  * @param {string} bus
+ * @param {number} [count]
  */
-function updateFishRecord(fishKey, fishSize, bus) {
+function updateFishRecord(fishKey, fishSize, bus, count = 1) {
 	V.fishing.record[fishKey] ??= {
 		numCaught: 0,
 		largest: fishSize,
@@ -295,13 +317,15 @@ function updateFishRecord(fishKey, fishSize, bus) {
 	V.fishing.waitsSinceLastCatch = 0;
 
 	const fishRecord = V.fishing.record[fishKey];
-	fishRecord.numCaught += 1;
+	const caught = Math.max(1, Math.floor(Number(count) || 1));
+	const firstCatch = fishRecord.numCaught === 0;
+	fishRecord.numCaught += caught;
 	fishRecord.largest = Math.max(fishRecord.largest, fishSize);
 	if (!fishRecord.foundIn.includes(bus)) {
 		fishRecord.foundIn.push(bus);
 	}
 
-	if (fishKey === "bass" && fishRecord.numCaught === 1) {
+	if (fishKey === "bass" && firstCatch) {
 		Wikifier.wikifyEval('<<earnFeat "Nice Bass">>');
 	}
 }
@@ -425,6 +449,13 @@ function debugDiscoverAllFishing() {
 			updateFishRecord(fishKey, fishConfig.maxSize, busValues[0]);
 		}
 		V.fishing.record[fishKey].foundIn = busValues;
+	}
+	/* The undersized variants have their own records, but are not independently rolled species. */
+	for (const [parent, row] of Object.entries(setup.fishing.dolx.smallCatch)) {
+		const parentConfig = setup.fishing.lootTables.fish[parent];
+		const busValues = V.fishing.locationsFound.filter(loc => parentConfig.locations[loc] > 0);
+		updateFishRecord(row.key, Math.ceil((parentConfig.minSize + dolxSmallCatchThreshold(parent)) / 2), busValues[0]);
+		V.fishing.record[row.key].foundIn = busValues;
 	}
 }
 window.debugDiscoverAllFishing = debugDiscoverAllFishing;
@@ -576,13 +607,13 @@ function fishingChangeBaitFromDropdown(newBait) {
 	const current = V.fishing.currentBait;
 	if (current === chosen) return;
 
-	if (chosen && !(V.foodstuff[chosen]?.amount >= 1)) return;
+	if (chosen && !dolxBaitUsable(chosen)) return;
 
-	if (current) V.foodstuff[current].amount += 1;
+	if (current) dolxBaitReturn(current);
 	if (!chosen) {
 		delete V.fishing.currentBait;
 	} else {
-		V.foodstuff[chosen].amount -= 1;
+		dolxBaitTake(chosen);
 		V.fishing.currentBait = chosen;
 	}
 }
@@ -591,35 +622,34 @@ window.fishingChangeBaitFromDropdown = fishingChangeBaitFromDropdown;
 function onBaitLoss() {
 	const bait = V.fishing.currentBait;
 	delete V.fishing.currentBait;
-	if (V.fishing.autoRebait && bait && V.foodstuff[bait]?.amount >= 1) {
-		V.foodstuff[bait].amount -= 1;
+	if (V.fishing.autoRebait && bait && dolxBaitUsable(bait)) {
+		dolxBaitTake(bait);
 		V.fishing.currentBait = bait;
 	}
 }
 window.onBaitLoss = onBaitLoss;
 
 /**
- * If the player can eat the fish as a cat, fox, or bird tf
+ * If the player can eat the fish through an animal transformation.
+ * Which transformations qualify is set by setup.fishing.dolx.fishEatingTransformations.
  *
  * @param {object} fish
  * @returns {boolean}
  */
 function canEatFishTf(fish) {
-	return (V.cat >= 3 || V.fox >= 3 || V.harpy >= 3) && fish.size <= 20;
+	return dolxFishEatingTfs().length > 0 && fish.size <= setup.fishing.dolx.fishEatingMaxSize;
 }
 window.canEatFishTf = canEatFishTf;
 
 /**
- * Returns which animal tf (cat, fox, or bird) is highest.
+ * Returns which fish-eating transformation has the highest effective build.
  *
- * @returns {"cat"|"fox"|"bird"}
+ * @returns {string}
  */
 function highestFishEatingTf() {
-	return [
-		["cat", V.catbuild],
-		["bird", V.birdbuild],
-		["fox", V.foxbuild],
-	].reduce((max, current) => (current[1] > max[1] ? current : max))[0];
+	const eligible = dolxFishEatingTfs();
+	if (eligible.length === 0) return "cat";
+	return eligible.reduce((highest, current) => (effectiveTransformationBuild(current) > effectiveTransformationBuild(highest) ? current : highest));
 }
 window.highestFishEatingTf = highestFishEatingTf;
 

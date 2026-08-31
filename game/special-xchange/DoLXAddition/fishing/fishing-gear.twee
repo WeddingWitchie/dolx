@@ -1,0 +1,349 @@
+:: Widgets DoLX Fishing Gear [widget]
+
+/* ------------------------------------------------------------------ *
+ * The tackle summary shown before you cast
+ * ------------------------------------------------------------------ */
+<<widget "fishingKitSummary">>
+	<<run dolxFishingEnsure()>>
+	<<set _kitRod to dolxFishingRod()>>
+	<<set _kitReel to dolxFishingReel()>>
+	<div class="dolx-fishing-kit">
+		<div class="dolx-fishing-kit-row">
+			<<if $options.images is 1>><<icon _kitRod.icon>><</if>>
+			<span class="dolx-fishing-kit-label">Rod:</span> <span class="teal"><<= _kitRod.displayName>></span>
+		</div>
+		<div class="dolx-fishing-kit-row">
+			<<if $options.images is 1>><<icon _kitReel.icon>><</if>>
+			<span class="dolx-fishing-kit-label">Reel:</span> <span class="teal"><<= _kitReel.displayName>></span>
+		</div>
+		<div class="dolx-fishing-kit-row">
+			<<if $options.images is 1>>
+				<<if $fishing.currentBait and setup.foodstuff[$fishing.currentBait]>><<baiticon $fishing.currentBait>><<else>><<icon `"fish/hook.png"`>><</if>>
+			<</if>>
+			<span class="dolx-fishing-kit-label">Bait:</span>
+			<<if $fishing.currentBait and setup.foodstuff[$fishing.currentBait]>>
+				<span class="teal"><<= dolxBaitLabel($fishing.currentBait)>></span>
+			<<else>>
+				<span class="grey">Bare hook</span>
+			<</if>>
+		</div>
+	</div>
+<</widget>>
+
+/* ------------------------------------------------------------------ *
+ * The Tackle tab of the bait overlay
+ * ------------------------------------------------------------------ */
+<<widget "fishingTackleOverlay">>
+	<<run dolxFishingEnsure()>>
+	<div id="dolxTacklePane"><<fishingTackleContents>></div>
+<</widget>>
+
+<<widget "fishingTackleContents">>
+	<div class="small-description">A rod holds the tension of the fight. A reel decides how much of the water you take back. They are separate pieces, so mix them however suits the fish.</div>
+	<br>
+	<<fishingTackleList "rod">>
+	<<fishingTackleList "reel">>
+	<<pocketPackBaitList>>
+<</widget>>
+
+<<widget "fishingTackleList">>
+	<<set _gearKind to _args[0]>>
+	<<set _gearEquipped to _gearKind is "rod" ? dolxFishingRodKey() : dolxFishingReelKey()>>
+	<section class="dolx-pocket-section">
+		<header class="dolx-pocket-section-header">
+			<span><<= _gearKind is "rod" ? "Rod" : "Reel">></span>
+		</header>
+		<div class="dolx-pocket-slots">
+			<<for _gearEntry range dolxFishingGearList(_gearKind)>>
+			<<if dolxFishingGearOwned(_gearKind, _gearEntry.key) or _gearEntry.config.source is "shop">>
+					<div class="dolx-fishing-gear-row">
+						<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<icon _gearEntry.config.icon>></span><</if>>
+						<span class="dolx-pocket-item-name">
+							<span @class="_gearEntry.key is _gearEquipped ? 'teal' : ''"><<= _gearEntry.config.displayName>></span>
+							<br><span class="small-description"><<= _gearEntry.config.blurb>></span>
+						</span>
+						<span class="dolx-pocket-item-actions">
+							<<if !dolxFishingGearOwned(_gearKind, _gearEntry.key)>>
+								<<if dolxFishingGearUnlocked(_gearEntry.config)>>
+									<span class="grey">Buy at the bait shop</span>
+								<<else>>
+									<span class="grey">Locked:</span>
+									<<if _gearEntry.config.unlock.fishCaught>>
+										<span class="grey">catch <<= Math.min(numberOfFishCaught(), _gearEntry.config.unlock.fishCaught)>>/<<= _gearEntry.config.unlock.fishCaught>> fish</span>
+									<</if>>
+									<<if _gearEntry.config.unlock.requestsCompleted>>
+										<span class="grey">; finish <<= Math.min(Number($fishing.baitShopRequestsCompleted) || 0, _gearEntry.config.unlock.requestsCompleted)>>/<<= _gearEntry.config.unlock.requestsCompleted>> bait shop requests</span>
+									<</if>>
+								<</if>>
+							<<elseif _gearEntry.key is _gearEquipped>>
+								<span class="green">Equipped</span>
+							<<else>>
+								<<capture _gearKind _gearEntry>>
+									<<link "Equip">>
+										<<run dolxFishingGearEquip(_gearKind, _gearEntry.key)>>
+										<<run pocketCommit()>>
+										<<replace #dolxTacklePane>><<fishingTackleContents>><</replace>>
+									<</link>>
+								<</capture>>
+							<</if>>
+						</span>
+					</div>
+				<</if>>
+			<</for>>
+		</div>
+	</section>
+<</widget>>
+
+/* ------------------------------------------------------------------ *
+ * Packing bait into the POCKET
+ * ------------------------------------------------------------------ */
+<<widget "dolxRefreshBaitPack">>
+	<<if elementExists("#dolxTacklePane")>>
+		<<replace #dolxTacklePane>><<fishingTackleContents>><</replace>>
+	<<elseif elementExists("#dolxBaitPackPane")>>
+		<<replace #dolxBaitPackPane>><<pocketPackBaitList>><</replace>>
+	<</if>>
+<</widget>>
+
+<<widget "pocketPackBait">>
+	<<run pocketSyncBag()>>
+	<div id="dolxBaitPackPane"><<pocketPackBaitList>></div>
+<</widget>>
+
+<<widget "pocketPackBaitList">>
+	<<run dolxFishingEnsure()>>
+	<<run pocketSyncBag()>>
+	<<set _baitPackCapacity to pocketCarryCapacity()>>
+	<<set _baitPackUsed to $pocket.bag.slots.length>>
+	<<set _baitPackKeys to dolxPocketBaitList()>>
+	<section class="dolx-pocket-section">
+		<header class="dolx-pocket-section-header">
+			<span>Bait you're carrying</span>
+			<span @class="_baitPackUsed gte _baitPackCapacity ? 'red' : 'blue'"><<= _baitPackUsed>>/<<= _baitPackCapacity>> slots used</span>
+		</header>
+		<div class="small-description">One slot per kind, however many you have. The can takes one slot whether it's full or empty.</div>
+		<<if _baitPackKeys.length is 0>>
+			<div class="dolx-pocket-empty">You have no bait to pack.</div>
+		<<else>>
+			<div class="dolx-pocket-arrange">
+				<<for _baitPackKey range _baitPackKeys>>
+					<div class="dolx-pocket-arrange-row">
+						<span class="dolx-pocket-arrange-name">
+							<<if $options.images is 1>><<icon `dolxPocketBaitIconPath(_baitPackKey)`>><</if>>
+							<<= dolxPocketBaitName(_baitPackKey)>>
+							<span class="gold">(<<= dolxPocketBaitDetail(_baitPackKey)>>)</span>
+						</span>
+						<<capture _baitPackKey>>
+							<<if pocketCarrying("bait", _baitPackKey)>>
+								<<link "Take out">>
+									<<run dolxPocketBaitToggle(_baitPackKey)>>
+									<<dolxRefreshBaitPack>>
+								<</link>>
+							<<elseif _baitPackUsed gte _baitPackCapacity>>
+								<span class="grey"><<= pocketBagName().toLocaleUpperFirst()>> full</span>
+							<<else>>
+								<<link "Pack">>
+									<<run dolxPocketBaitToggle(_baitPackKey)>>
+									<<dolxRefreshBaitPack>>
+								<</link>>
+							<</if>>
+						<</capture>>
+					</div>
+				<</for>>
+			</div>
+		<</if>>
+	</section>
+<</widget>>
+
+/* ------------------------------------------------------------------ *
+ * Catching a small one
+ * ------------------------------------------------------------------ */
+/* Shown the first time the player catches a small fish. */
+<<widget "dolxSmallCatchNotice">>
+	<<if dolxFishCatchCount(_args[0]) gt 1>>
+		<br>
+		<span class="green"><<= dolxFishCatchCount(_args[0])>> of them</span> came up on the same hook.
+	<</if>>
+	<<set _baitHint to dolxFishBaitHint(_args[0])>>
+	<<if _baitHint>>
+		<br>
+		<<if dolxFishIsSmallCatch(_args[0])>>It's a small one. <</if>><span class="green"><<= _baitHint.toUpperFirst()>> make good live bait for something bigger.</span>
+	<</if>>
+<</widget>>
+
+/* ------------------------------------------------------------------ *
+ * The bait shop
+ * ------------------------------------------------------------------ */
+<<widget "baitShopTackle">>
+	<<run dolxFishingEnsure()>>
+
+	/* The can. Bought once, refilled after that. */
+	<<if !dolxWormCanOwned()>>
+		<<set _canPrice to dolxWormCanBuyPrice()>>
+		<<icon `"fish/mod/wormcan.png"`>>
+		<<if dolxFishingAfford(_canPrice)>>
+			<<link [["A can of worms, filled (" + formatMoney(dolxFishingPrice(_canPrice)) + ")"|Bait Shop]]>>
+				<<money `-_canPrice` "fishing">>
+				<<run dolxWormCanBuy()>>
+				<<set $fishing.baitShopAmbient to "boughtWormCan">>
+				<<endevent>>
+			<</link>>
+		<<else>>
+			A can of worms, filled (<<printprice _canPrice>>). <span class="blue">You can't afford it.</span>
+		<</if>>
+		<br>
+	<<elseif dolxWormCanCount() lt dolxWormCanCapacity()>>
+		<<set _refillPrice to dolxWormCanRefillPrice()>>
+		<<icon `"fish/mod/wormcan.png"`>>
+		<<if dolxFishingAfford(_refillPrice)>>
+			<<link [["Refill your can of worms, " + dolxWormCanCount() + "/" + dolxWormCanCapacity() + " (" + formatMoney(dolxFishingPrice(_refillPrice)) + ")"|Bait Shop]]>>
+				<<money `-_refillPrice` "fishing">>
+				<<run dolxWormCanRefill()>>
+				<<set $fishing.baitShopAmbient to "refilledWormCan">>
+				<<endevent>>
+			<</link>>
+		<<else>>
+			Refill your can of worms, <<= dolxWormCanCount()>>/<<= dolxWormCanCapacity()>> (<<printprice _refillPrice>>). <span class="blue">You can't afford it.</span>
+		<</if>>
+		<br>
+	<<else>>
+		<<icon `"fish/mod/wormcan.png"`>><span class="grey">Your can of worms is full, <<= dolxWormCanCount()>>/<<= dolxWormCanCapacity()>>.</span>
+		<br>
+	<</if>>
+
+	/* Rods and reels. */
+	<<baitShopGearStock "rod">>
+	<<baitShopGearStock "reel">>
+<</widget>>
+
+<<widget "baitShopGearStock">>
+	<<set _shopGearKind to _args[0]>>
+	<<for _shopGear range dolxFishingGearList(_shopGearKind)>>
+		<<capture _shopGearKind _shopGear>>
+			<<if _shopGear.config.source is "shop" and !dolxFishingGearOwned(_shopGearKind, _shopGear.key)>>
+				<<if $options.images is 1>><<icon _shopGear.config.icon>><</if>>
+			<<if !dolxFishingGearUnlocked(_shopGear.config)>>
+				<span class="grey"><<= _shopGear.config.displayName>> | Locked: catch <<= Math.min(numberOfFishCaught(), _shopGear.config.unlock.fishCaught)>>/<<= _shopGear.config.unlock.fishCaught>> fish<<if _shopGear.config.unlock.requestsCompleted>>; finish <<= Math.min(Number($fishing.baitShopRequestsCompleted) || 0, _shopGear.config.unlock.requestsCompleted)>>/<<= _shopGear.config.unlock.requestsCompleted>> bait shop requests<</if>>.</span>
+			<<elseif dolxFishingAfford(_shopGear.config.price)>>
+				<<link [[_shopGear.config.displayName + " (" + formatMoney(dolxFishingPrice(_shopGear.config.price)) + ")"|Bait Shop]]>>
+					<<money `-_shopGear.config.price` "fishing">>
+					<<run dolxFishingGearGive(_shopGearKind, _shopGear.key)>>
+					<<run dolxFishingGearEquip(_shopGearKind, _shopGear.key)>>
+					<<set $fishing.baitShopAmbient to "boughtTackle">>
+					<<set $fishing.baitShopAmbientGear to _shopGear.config.displayName>>
+					<<endevent>>
+				<</link>>
+			<<else>>
+				<<= _shopGear.config.displayName>> (<<printprice _shopGear.config.price>>). <span class="blue">You can't afford it.</span>
+			<</if>>
+			<br>
+			<</if>>
+		<</capture>>
+	<</for>>
+<</widget>>
+
+/* ------------------------------------------------------------------ *
+ * The journal
+ * ------------------------------------------------------------------ */
+/* One row of fish icons for a spot: caught ones show, the rest stay question marks. */
+<<widget "fishingLocationGrid">>
+	<div class="itemCollectible">
+		<<for _gridFishKey range _args[1]>>
+			<<if $fishing.record[_gridFishKey]?.foundIn.includes(_args[0])>>
+				<div class="item" @tooltip="dolxFishName(_gridFishKey).toUpperFirst()">
+					<<icon `dolxFishRecordConfig(_gridFishKey).icon`>>
+				</div>
+			<<else>>
+				<div class="item unknown" tooltip="Unknown fish">
+					<<mysteryicon>>
+				</div>
+			<</if>>
+		<</for>>
+	</div>
+<</widget>>
+
+/* The record cards for a set of fish. Bait fish get their own list rather than sitting among the
+   things you catch with them. */
+<<widget "fishingRecordList">>
+	<div class="fishingRecords">
+		<<for _recordFishKey range _args[0]>>
+			<<set _fishRecord to $fishing.record[_recordFishKey]>>
+			<<if _fishRecord and _fishRecord.numCaught gt 0>>
+				<<set _fishConfig to dolxFishRecordConfig(_recordFishKey)>>
+				<<set _fishName to dolxFishName(_recordFishKey)>>
+				<<set _largestSizePercent to (_fishRecord.largest - _fishConfig.minSize) / (_fishConfig.maxSize - _fishConfig.minSize)>>
+				<div class="fishingRecord">
+					<div class="item" @tooltip="_fishName.toUpperFirst()">
+						<<icon `_fishConfig.icon`>>
+					</div>
+					<div>
+						<span class="gold bold"><<= _fishName.toUpperFirst()>></span><br>
+						Caught: <<= _fishRecord.numCaught>><br>
+						Biggest: <<= _fishRecord.largest>> cm
+						<<if _largestSizePercent gte 1>>
+							<span class="journalFishingRecordStar" tooltip="Biggest possible!"><<iconUi "star-gold.png">></span>
+						<</if>>
+					</div>
+				</div>
+			<<else>>
+				<div class="fishingRecord">
+					<div class="item unknown" tooltip="Unknown fish">
+						<<mysteryicon>>
+					</div>
+				</div>
+			<</if>>
+		<</for>>
+	</div>
+<</widget>>
+
+:: Fishing Bone Tackle
+<<effects>>
+<<set _boneReturn to dolxFishingWaitPassage($bus)>>
+<<set _bonePiece to dolxBoneFindTake()>>
+<<if !_bonePiece>>
+	Your line comes back with nothing on it.
+	<br><br>
+	<<link [[Next|_boneReturn]]>><</link>>
+<<else>>
+	<<if _bonePiece is "rod">>
+		Your line goes heavy, and stays heavy. Whatever it is comes up slowly and without a fight.
+		<br><br>
+		It's a rod. Pale, jointed in three places, and far lighter than it looks, wound about with line that has long since gone to grey thread. You turn it over. The joints are set, not glued, and the grain of it runs the wrong way for wood.
+		<<awareness 2>><<gawareness>>
+		<br><br>
+		<span class="pink">You have found the Bone Rod.</span> It is far too rigid to be forgiving, but a fish will wear itself out against it quickly.<<ggstress>><<stress 6>>
+	<<else>>
+		Something knocks against your line, then hooks. It comes up without resisting.
+		<br><br>
+		It's a reel. The spool is a disc of something dense and pale, and the handle has been worked to fit a hand smaller than yours. It turns freely, and further than the line it takes up would explain.
+		<<awareness 2>><<gawareness>>
+		<br><br>
+		<span class="pink">You have found the Bone Reel.</span> It hauls line in fast, and it punishes a badly timed pull.<<ggstress>><<stress 6>>
+	<</if>>
+	<br><br>
+
+	<<link [[Put it in your tackle and cast back out|_boneReturn]]>><</link>>
+<</if>>
+
+
+:: Pocket Eat Bait
+<<effects>>
+<<set _baitEatDestination to $dolxBaitEatReturn or "Bedroom">>
+<<if $dolxBaitEaten is "bait_worm">>
+	You open the tin and pick out one of the worms. It wriggles between your fingers, making you stop before bringing it closer to your mouth.
+	<br><br>
+	You place it on your tongue. The worm moves against the inside of your mouth, and you nearly spit it out. Instead, you close your mouth and swallow before you can change your mind.
+	<br><br>
+	You feel it wriggling in your throat as you swallow. The feeling makes you want to gag, but you force it down.
+	Afterwards, you still with one hand over your stomach. You know the worm has already gone down, but you can still feel the same wriggling sensation inside you.
+	<br><br>
+	<span class="red">You cannot tell if the worm is still moving or if the feeling is only lingering after you swallowed it.</span> <<trauma 18>><<gggtrauma>>
+<<elseif $dolxBaitEaten>>
+	You take the <<= dolxFishName($dolxBaitEaten)>> from your bait supply and hold it in front of your mouth.
+	<br><br>
+	After looking at it for a few seconds, you open wide and put the whole fish into your mouth. You struggle to swallow it, but eventually force it down. <<fishingEatFishTfProgress>><<lstress>><<stress -6>>
+<<else>>
+	You have nothing to eat.
+<</if>>
+<br><br>
+<<link [[Next|_baitEatDestination]]>><<unset $dolxBaitEaten $dolxBaitEatReturn>><</link>>

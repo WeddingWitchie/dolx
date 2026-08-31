@@ -1834,6 +1834,10 @@ setup.debugMenu.eventList = {
 			widgets: [`<<run debugDiscoverAllFishing()>>`],
 		},
 		{
+			link: [`Unlock all fishing tackle`, stayOnPassageFn],
+			widgets: [`<<run debugUnlockAllFishingGear()>>`],
+		},
+		{
 			link: [`Super Debug Character`, stayOnPassageFn],
 			widgets: [
 				`<<set $school += 4000>>`,

@@ -10,23 +10,23 @@
 	<<if $fishingSelectedBait is "none" or _fishingHaveBait is true>>
 		<<link "Change bait">>
 			<<if $fishing.currentBait and $fishing.currentBait isnot $fishingSelectedBait>>
-				<<set $foodstuff[$fishing.currentBait].amount += 1>>
+				<<run dolxBaitReturn($fishing.currentBait)>>
 			<</if>>
 			<<if $fishingSelectedBait is "none">>
 				<<unset $fishing.currentBait>>
 			<<else>>
 				<<if $fishingSelectedBait isnot $fishing.currentBait>>
-					<<set $foodstuff[$fishingSelectedBait].amount -= 1>>
+					<<run dolxBaitTake($fishingSelectedBait)>>
 				<</if>>
 				<<set $fishing.currentBait to $fishingSelectedBait>>
 			<</if>>
 			<<unset $fishingSelectedBait>>
 			<<set _hasBait to $fishing.currentBait and setup.foodstuff[$fishing.currentBait]>>
-			<<set _newBaitTooltip to _hasBait ? "Bait: " + setup.foodstuff[$fishing.currentBait].name.replace(/_/g, " ").toUpperFirst() + " (" + $foodstuff[$fishing.currentBait].amount + " left)" : "No bait on your line (click to change)">>
+			<<set _newBaitTooltip to _hasBait ? "Bait: " + dolxBaitLabel($fishing.currentBait) : "No bait on your line (click to change)">>
 			<<if elementExists("#bait-sidebar")>>
 				<<replace "#bait-sidebar">>
 					<<if _hasBait>>
-						<<foodstufficon $fishing.currentBait>>
+						<<baiticon $fishing.currentBait>>
 					<<else>>
 						<<icon `"fish/hook.png"`>>
 					<</if>>
@@ -36,7 +36,7 @@
 			<<if elementExists("#bait-mobile-sidebar")>>
 				<<replace "#bait-mobile-sidebar">>
 					<<if _hasBait>>
-						<<foodstufficon $fishing.currentBait>>
+						<<baiticon $fishing.currentBait>>
 					<<else>>
 						<<icon `"fish/hook.png"`>>
 					<</if>>
@@ -47,31 +47,49 @@
 		<</link>>
 		<br>
 	<</if>>
-	<<link "Close">><<unset $fishingSelectedBait>><<run closeOverlay()>><</link>>
-	<br>
 <</widget>>
 
 <<widget "fishingBaitHelp">>
-	The goal of fishing is to reel in a fish before it works its way loose from your hook or gets too far out and snaps your line. Fish behave differently from each other, however they each fall into a category that defines how it behaves, and many fish share the same category. Learn how to treat different fish to influence their actions so you can catch them easier!
-	<br><br>
-	While fishing, your arms will tire out as you attempt to reel the fish in or hold it in place, and will tire more if you fail to do so. The more tired your arms are, the more likely you are to fail to reel in or hold the fish, so giving slack to the fish can be a good way to rest your arms — if you think you can get away with it without the fish taking too much advantage.
-	<br><br>
-	Each fish prefers a specific kind of bait, and fishing without any bait will not attract many fish. Bait worms are easily acquired in the bait shop, but aren't very good at attracting anything other than baitfish. Various kinds of food can be used as bait, and are all effective at catching your average fish, while baitfish attract larger, more difficult to catch fish. Each fish has a favorite kind of bait, experiment to find out which fish like which bait so you can better catch what you want!
+The goal of fishing is simple: reel the fish in before it escapes, gets too far away, or breaks your line!
+<br><br>
+Different fish behave in different ways. Fish of the same type often share the same habits, so learning how one fish reacts can help you with others like it. Pay attention to how they move, then choose whether to reel, hold, or give them some slack!
+<br><br>
+Your arms get tired while you reel a fish in or try to hold it in place. Failing either action tires you even more. The more tired your arms are, the harder it becomes to control the fish.
+If your arms need a rest, you can give the fish some slack. This lets you recover, but also gives the fish a chance to move farther away. Use it when you think you have enough room to spare!
+<br><br>
+Fishing without bait will still work, but you will see fewer bites.
+Worms are easy to buy from the bait shop. They work best for sardines and other small fish. Many kinds of food can also be used as bait and work well for common fish.
+Small live fish are different. They attract larger fish, which are usually harder to catch. A small bass, carp, herring, or trout can therefore be more useful as bait than something to sell.
+Bait fish and your can of worms must be kept in your pocket or bag before you can use them.
+Worms, the Bone Rod, and the Bone Reel each make small fish more likely to appear. Their bonuses stack when used together.
+<br><br>
+Each one attracts different larger fish:<br>
+<span class="blue">Small herring</span> works best for large sea fish.<br>
+<span class="blue">Small carp</span> works best for large, slow fish found in lakes and on the moor.<br>
+<span class="blue">Small trout</span> works best in cold water and rivers.<br>
+<span class="blue">Small bass</span> works best for large predators, especially freshwater fish.
+<br><br>
+Your rod and reel affect different parts of fishing:
+<br>
+The <span class="blue">rod</span> reduces strain and helps tire the fish out.<br>
+The <span class="blue">reel</span> affects how much distance you gain or lose while reeling and giving slack.
 <</widget>>
 
 <<widget "fishingRebaitMid">>
-	<<if $foodstuff[$fishing.currentBait].amount lte 0>>
+	<<set _rebaitLeft to dolxBaitStock($fishing.currentBait)>>
+	<<if _rebaitLeft lte 0>>
 		baiting your last piece of <<print setup.foodstuff[$fishing.currentBait].plural>> on the hook and casting back out.
 	<<else>>
-		re-baiting your line and casting back out. You have <<= $foodstuff[$fishing.currentBait].amount>> <<print setup.foodstuff[$fishing.currentBait].plural>> left.
+		re-baiting your line and casting back out. You have <<= _rebaitLeft>> <<print setup.foodstuff[$fishing.currentBait].plural>> left<<if $fishing.currentBait is "bait_worm" and dolxWormCanOwned()>> in the can<</if>>.
 	<</if>>
 <</widget>>
 
 <<widget "fishingRebaitStart">>
-	<<if $foodstuff[$fishing.currentBait].amount lte 0>>
+	<<set _rebaitLeft to dolxBaitStock($fishing.currentBait)>>
+	<<if _rebaitLeft lte 0>>
 		You bait your last piece of <<print setup.foodstuff[$fishing.currentBait].plural>> on the hook and cast back out.
 	<<else>>
-		You re-bait your line and cast back out. You have <<= $foodstuff[$fishing.currentBait].amount>> <<print setup.foodstuff[$fishing.currentBait].plural>> left.
+		You re-bait your line and cast back out. You have <<= _rebaitLeft>> <<print setup.foodstuff[$fishing.currentBait].plural>> left<<if $fishing.currentBait is "bait_worm" and dolxWormCanOwned()>> in the can<</if>>.
 	<</if>>
 <</widget>>
 
@@ -88,39 +106,56 @@
 		|
 	</label>
 
-	<<set _foodKeys to ["bait_worm", "baitfish"].concat(Object.keys(setup.foodstuff).filter(k => !["bait_worm", "baitfish"].includes(k)))>>
+	<<set _foodKeys to dolxBaitOrderedKeys()>>
 	<<for _i to 0; _i lt _foodKeys.length; _i++>>
 		<<set _food to _foodKeys[_i]>>
-		<<if setup.foodstuff[_food].is_fishing_bait is true and $foodstuff[_food]?.amount gte 1>>
-			<<set _fishingHaveBait to true>>
-			<<if !$fishingSelectedBait and $fishing.currentBait is _food>>
-				<<set $fishingSelectedBait to _food>>
-			<</if>>
-			<label class="fishing-select-bait-radio">
-				<<foodstufficon _food>><<recipe_name _food "cap">> (<<= $foodstuff[_food].amount>>)
-				<<if _food is $fishingSelectedBait>>
-					<<radiobutton "$fishingSelectedBait" _food checked>>
-				<<else>>
-					<<radiobutton "$fishingSelectedBait" _food>>
+		<<if setup.foodstuff[_food].is_fishing_bait is true and dolxBaitStock(_food) gte 1>>
+			<<if dolxBaitUsable(_food)>>
+				<<set _fishingHaveBait to true>>
+				<<if !$fishingSelectedBait and $fishing.currentBait is _food>>
+					<<set $fishingSelectedBait to _food>>
 				<</if>>
-				|
-			</label>
+				<label class="fishing-select-bait-radio">
+					<<baiticon _food>><<= dolxBaitLabel(_food)>>
+					<<if _food is $fishingSelectedBait>>
+						<<radiobutton "$fishingSelectedBait" _food checked>>
+					<<else>>
+						<<radiobutton "$fishingSelectedBait" _food>>
+					<</if>>
+					|
+				</label>
+			<<else>>
+				/* Owned, but left at home. Shown so the reason is obvious rather than the bait simply missing. */
+				<label class="fishing-select-bait-radio dolx-bait-unpacked">
+					<<baiticon _food>><span class="grey"><<= dolxBaitLabel(_food)>> not in your pocket</span>
+					|
+				</label>
+			<</if>>
 		<</if>>
 	<</for>>
 	<br><br>
+<</widget>>
+
+/* Bait worms coming out of the tin show the tin. */
+<<widget "baiticon">>
+	<<if _args[0] is "bait_worm" and dolxWormCanOwned() and dolxBaitLooseStock("bait_worm") is 0>>
+		<<icon `"fish/mod/wormcan.png"`>>
+	<<else>>
+		<<foodstufficon _args[0]>>
+	<</if>>
 <</widget>>
 
 <<widget "baitSidebar">>
 	<<set $fishing.displayBaitNotification ??= true>>
 	<<set _baitEditEnabled to canOpenBaitOverlay()>>
 	<<if $fishing?.currentBait and setup.foodstuff[$fishing.currentBait]>>
-		<<set _baitTooltip to "Bait: " + setup.foodstuff[$fishing.currentBait].name.replace(/_/g, " ").toUpperFirst() + " (" + $foodstuff[$fishing.currentBait].amount + " left)">>
+		<<set _baitTooltip to "Bait: " + dolxBaitLabel($fishing.currentBait)>>
 	<<else>>
 		<<set _baitTooltip to "No bait on your line (click to change)">>
 	<</if>>
 	<button type="button" id="bait-sidebar" @class="'bait-sidebar' + (_baitEditEnabled ? '' : ' bait-sidebar-disabled') + ($fishing.displayBaitNotification ? ' bait-sidebar-notify' : '')" tooltip="<span>_baitTooltip</span>" onclick="openBaitOverlay(); this.classList.remove('bait-sidebar-notify');">
 		<<if $fishing?.currentBait and setup.foodstuff[$fishing.currentBait]>>
-			<<foodstufficon $fishing.currentBait>>
+			<<baiticon $fishing.currentBait>>
 		<<else>>
 			<<icon `"fish/hook.png"`>>
 		<</if>>
@@ -130,11 +165,11 @@
 <<widget "baitMobileDropdown">>
 	<select id="fishing-bait-select" onchange="fishingChangeBaitFromDropdown(this.value)">
 		<option value="none">None</option>
-		<<set _foodKeys to ["bait_worm", "baitfish"].concat(Object.keys(setup.foodstuff).filter(k => !["bait_worm", "baitfish"].includes(k)))>>
+		<<set _foodKeys to dolxBaitOrderedKeys()>>
 		<<for _i to 0; _i lt _foodKeys.length; _i++>>
 			<<set _food to _foodKeys[_i]>>
-			<<if setup.foodstuff[_food].is_fishing_bait is true and ($foodstuff[_food]?.amount gte 1 or $fishing.currentBait is _food)>>
-				<option @value="_food"><<= setup.foodstuff[_food].name.replace(/_/g, " ").toUpperFirst()>> (<<= $foodstuff[_food].amount>>)</option>
+			<<if setup.foodstuff[_food].is_fishing_bait is true and (dolxBaitUsable(_food) or $fishing.currentBait is _food)>>
+				<option @value="_food"><<= dolxBaitLabel(_food)>></option>
 			<</if>>
 		<</for>>
 	</select>
@@ -148,13 +183,13 @@
 <<widget "baitMobileSidebar">>
 	<<set _baitEditEnabled to canOpenBaitOverlay()>>
 	<<if $fishing?.currentBait and setup.foodstuff[$fishing.currentBait]>>
-		<<set _baitTooltip to "Bait: " + setup.foodstuff[$fishing.currentBait].name.replace(/_/g, " ").toUpperFirst() + " (" + $foodstuff[$fishing.currentBait].amount + " left)">>
+		<<set _baitTooltip to "Bait: " + dolxBaitLabel($fishing.currentBait)>>
 	<<else>>
 		<<set _baitTooltip to "No bait on your line (click to change)">>
 	<</if>>
 	<button type="button" id="bait-mobile-sidebar" @class="'bait-mobile-sidebar' + (_baitEditEnabled ? '' : ' bait-sidebar-disabled')" tooltip="<span>_baitTooltip</span>" onclick="openBaitOverlay()">
 		<<if $fishing?.currentBait and setup.foodstuff[$fishing.currentBait]>>
-			<<foodstufficon $fishing.currentBait>>
+			<<baiticon $fishing.currentBait>>
 		<<else>>
 			<<icon `"fish/hook.png"`>>
 		<</if>>

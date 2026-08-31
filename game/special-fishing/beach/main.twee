@@ -22,7 +22,7 @@
 		<<exhibitionism "beachFishing">>
 		<br><br>
 	<</if>>
-	<<if $arousal gte $arousalmax>>
+	<<if $pleasure gte $pleasuremax>>
 		<<orgasmFishingBeach>>
 	<<elseif _exhibitionismCheck>>
 		<<fishingBeachWaitAmbient>>
@@ -35,18 +35,18 @@
 		<br>
 		<<link [[Return to the beach|Beach]]>><<set $bus to "beach">><</link>>
 	<<else>>
+		<<fishingKitSummary>>
 		<<link [[Wait for a bite (0:05)|Fishing Beach Wait Loop]]>><<pass 5>><</link>>
 		<br>
 		<<link [[Return to the beach|Beach]]>><<set $eventskip to 1>><<set $bus to "beach">><</link>>
 	<</if>>
 <</if>>
 
-<<if $options.fishingBaitSelection is "dropdown">>
-	<br><br>
-	<<baitMobileDropdown>>
-<<elseif $options.images isnot 1>>
+<<if canOpenBaitOverlay()>>
 	<br>
-	<<link "Change bait">><<run openBaitOverlay()>><</link>>
+	<<link "Change rod or reel">><<run dolxOpenFishingTackle()>><</link>>
+	|
+	<<if $options.fishingBaitSelection is "dropdown">><<baitMobileDropdown>><<else>><<link "Change bait">><<run openBaitOverlay()>><</link>><</if>>
 <</if>>
 
 <<fishingBeachDebugLinks>>
@@ -64,7 +64,7 @@
 		<<run fishingMinigameStart($fishingHookedFish.type)>>
 		<<include "Fishing Beach Minigame Loop">>
 	<<else>>
-		You feel a tug on your line as <<a $fishingHookedFish.type>><<if _isPreferredBait>> greedily<</if>> <<if $fishing.currentBait>>takes the bait<<else>>takes the hook<</if>>. You haul back on the line and pull it out of the water without a fight.
+		You feel a tug on your line as <<a `dolxFishName($fishingHookedFish.type)`>><<if _isPreferredBait>> greedily<</if>> <<if $fishing.currentBait>>takes the bait<<else>>takes the hook<</if>>. You haul back on the line and pull it out of the water without a fight.
 		<<onFishCaught>>
 		<<fishingCatchFishText $fishingHookedFish>>
 		<br><br>
@@ -76,6 +76,11 @@
 <<addinlineevent "trash" 1>>
 	<<set $fishingTrash to rollFishingTrash("fishingBeach")>>
 	<<include "Fishing Beach Trash Catch">>
+<</addinlineevent>>
+
+/* DoLX: the bone tackle. Weight is 0 unless the spot, the hour and the PC's experience all line up. */
+<<addinlineevent "dolxBoneTackle" dolxBoneFindWeight()>>
+	<<include "Fishing Bone Tackle">>
 <</addinlineevent>>
 
 <<addinlineevent "clothing" 1>>
@@ -183,7 +188,7 @@
 
 :: Fishing Beach Cat Eat
 <<effects>>
-You open wide and drop the whole $fishingHookedFish.type in your mouth. <<fishingEatFishTfProgress>><<lstress>><<stress -6>>
+You open wide and drop the whole <<= dolxFishName($fishingHookedFish.type)>> in your mouth. <<fishingEatFishTfProgress>><<lstress>><<stress -6>>
 <<unset $fishingHookedFish>>
 <br><br>
 
