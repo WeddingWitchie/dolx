@@ -784,6 +784,9 @@
 	<<set $combatExtended.reverseRapeEnd to 0>>
 	<<set $combatExtended.reverseRapeStart to 0>>
 	<<set $combatExtended.reverseRapeInit to 0>>
+	<<set $combatStall to 0>>
+	<<unset $combatStallArousal>>
+	<<unset $combatStallPleasure>>
 	<<unset $encounterHit>>
 	<<unset $npcStolenMoney>>
 	<<set $ejaculating to 0>>
@@ -1079,6 +1082,42 @@
 	<<set $npcspeechcycle += 1>>
 	<<if $npcspeechcycle gte 7>>
 		<<set $npcspeechcycle to 0>>
+	<</if>>
+<</widget>>
+
+/* Normal combat clamps these values at the end of each turn, but beast and tentacle fights do not.
+Some reactions can push them below zero, causing arousal to decrease instead of increase. */
+<<widget "combat-stall-tick">>
+	<<if !Number.isFinite($enemyarousal)>>
+		<<set $enemyarousal to 0>>
+	<<elseif Number.isFinite($enemyarousalmax)>>
+		<<set $enemyarousal to Math.clamp($enemyarousal, 0, $enemyarousalmax)>>
+	<</if>>
+	<<if !Number.isFinite($enemypleasure) or $enemypleasure lt 0>>
+		<<set $enemypleasure to 0>>
+	<</if>>
+
+	<<if !Number.isFinite($combatStall)>>
+		<<set $combatStall to 0>>
+	<</if>>
+	<<set _stallProgressed to false>>
+	<<if !Number.isFinite($combatStallArousal) or !Number.isFinite($combatStallPleasure)>>
+		/* First turn of the fight. */
+		<<set _stallProgressed to true>>
+	<<elseif $enemyarousal lt $combatStallArousal or $enemypleasure lt $combatStallPleasure>>
+		/* A meter went down, which only happens on an orgasm. That is progress, not a stall. */
+		<<set _stallProgressed to true>>
+	<<elseif Number.isFinite($enemyarousalmax) and ($enemyarousal - $combatStallArousal) gte Math.max(5, $enemyarousalmax / 20)>>
+		<<set _stallProgressed to true>>
+	<<elseif Number.isFinite($enemypleasuremax) and ($enemypleasure - $combatStallPleasure) gte Math.max(5, $enemypleasuremax / 20)>>
+		<<set _stallProgressed to true>>
+	<</if>>
+	<<set $combatStall to _stallProgressed ? 0 : $combatStall + 1>>
+	<<set $combatStallArousal to $enemyarousal>>
+	<<set $combatStallPleasure to $enemypleasure>>
+	/* Rage does not decay on its own, so a stalled fight can loop indefinitely. Let it cool once the fight stops progressing. */
+	<<if $combatStall gte 6 and Number.isFinite($enemyanger) and $enemyanger gt 0>>
+		<<set $enemyanger to Math.max(0, $enemyanger - 10)>>
 	<</if>>
 <</widget>>
 

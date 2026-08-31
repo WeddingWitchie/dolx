@@ -4412,6 +4412,23 @@ sugarcube-2:
       name: combat-set-hand-target
     combat-spank:
       name: combat-spank
+    combat-stall-tick:
+      name: combat-stall-tick
+      description: >-
+        Combat has no memory: every turn each NPC re-rolls its action from scratch. That lets a fight settle into
+        a rut nothing in the loop can push it out of - an NPC reaching for the same tattoo it can't write over,
+        one too angry to do anything but spank, a beast parked between the PC's thighs. The encounter only ends
+        when someone finishes, so a rut that produces no arousal is at best a very long fight and at worst a
+        softlock.
+
+        $combatStall counts consecutive turns in which the enemy pool moved neither of the two meters that end an
+        encounter by a twentieth of its bar. Both are needed: arousal alone reads as stalled once it saturates at
+        max, which is exactly when the NPC is closest to finishing. The action choosers read the count: the push
+        towards penetration ramps up from the first stalled turn, a beast lets go of the PC's thighs at 3, and at 6
+        the flavour actions drop out and rage starts to cool.
+
+        Reset in <<combatinit>> and <<endcombat>>; NOT in <<turnend>>, which runs at the end of every man-combat turn
+        and would wipe the count before anything could read it.
     combat-stroker-on-penis:
       name: combat-stroker-on-penis
     combat-stroker-on-penisentrance:
@@ -22626,6 +22643,12 @@ sugarcube-2:
       name: breeder-heat-chastity
     enemypleasure:
       name: enemypleasure
+      description: >-
+        $enemyarousal is written raw and unclamped in several places, including <<submission>> and reactions
+        that subtract 100 arousal when it is already near zero. Outside <<enemyarousal>>, the only clamp is in
+        <<turnend>>, which beast and tentacle combat never call. Negative arousal used to reverse this modifier,
+        causing arousing actions to drain NPC pleasure instead of building it. Floor the modifier so pleasure
+        always increases, even if slowly.
     glowstatbar:
       name: glowstatbar
     willpowercombatcheck:

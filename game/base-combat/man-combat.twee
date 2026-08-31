@@ -2211,7 +2211,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 
 	/* Its own band above the writing-tool one. At "lte 8" this sat in front of the pen branch and covered all of
 	its range, so a male PC with a bare face could never be written on again. */
-	<<elseif !$statFreeze and $settings.npcMakeupLevel gte 1 and $rng gt 7 and $rng lte ($settings.npcMakeupLevel is 1 ? 9 : $settings.npcMakeupLevel is 2 ? 12 : 22) and $consensual isnot 1 and $enemytype is "man" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and ($walltype is 0 or $walltype is "front") and !$worn.face.type.includes("mask") and !$NPCList[_n].lefthand.toString().startsWith("pen") and !$NPCList[_n].righthand.toString().startsWith("pen") and (($player.gender is "m" and !playerIsWearingMakeup()) or ($player.gender is "f" and playerIsWearingMakeup()))>>
+	<<elseif !$statFreeze and $settings.npcMakeupLevel gte 1 and ($combatStall || 0) lt 6 and $rng gt 7 and $rng lte ($settings.npcMakeupLevel is 1 ? 9 : $settings.npcMakeupLevel is 2 ? 12 : 22) and $consensual isnot 1 and $enemytype is "man" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and ($walltype is 0 or $walltype is "front") and !$worn.face.type.includes("mask") and !$NPCList[_n].lefthand.toString().startsWith("pen") and !$NPCList[_n].righthand.toString().startsWith("pen") and (($player.gender is "m" and !playerIsWearingMakeup()) or ($player.gender is "f" and playerIsWearingMakeup()))>>
 		<<set $tooltarget to $player.gender is "m" ? "makeup kit" : "makeup remover">>
 		<span class="purple"><<He>> pulls a $tooltarget from <<his>> pocket and reaches towards your face.</span>
 		<<if _args[0] is "left">>
@@ -2223,7 +2223,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<</if>>
 		<<neutral 1 _n>>
 
-	<<elseif !$statFreeze and $rng lte 5 and $NPCList[0].fullDescription is "Ivory Wraith" and $wli.cfg.bodywritinglvl gte 1 and $wraith.state>>
+	<<elseif !$statFreeze and $rng lte 5 and ($combatStall || 0) lt 6 and $NPCList[0].fullDescription is "Ivory Wraith" and $wli.cfg.bodywritinglvl gte 1 and $wraith.state>>
 		<span class="purple"><<His>> _args[0] hand glows ominously.</span>
 		<<set $tooltarget to W.brandMethod()>>
 		<<if _args[0] is "left">>
@@ -2235,7 +2235,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<</if>>
 		<<neutral 1 _n>>
 
-	<<elseif !$statFreeze and $NPCList[0].fullDescription isnot "Ivory Wraith" and $rng lte 7 and ($consensual isnot 1 or ["Whitney", "Kylar", "Sydney", "Gwylan", "Poppy"].includes($npc[$npcrow.indexOf(_n)])) and $settings.bodyWritingLevel gte 2 and $enemytype isnot "beast" and !$noBodyWriting and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and !["makeup kit", "makeup remover"].includes($NPCList[_n].lefttool) and !["makeup kit", "makeup remover"].includes($NPCList[_n].righttool)>>
+	<<elseif !$statFreeze and $NPCList[0].fullDescription isnot "Ivory Wraith" and $rng lte 7 and ($combatStall || 0) lt 6 and ($consensual isnot 1 or ["Whitney", "Kylar", "Sydney", "Gwylan", "Poppy"].includes($npc[$npcrow.indexOf(_n)])) and $settings.bodyWritingLevel gte 2 and $enemytype isnot "beast" and !$noBodyWriting and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and !["makeup kit", "makeup remover"].includes($NPCList[_n].lefttool) and !["makeup kit", "makeup remover"].includes($NPCList[_n].righttool)>>
 		<<set _rng to random(1, 5)>>
 		<<if (_rng is 5 and $NPCList[_n].type isnot "plant" and $role isnot "islander") or $npc.includes("Sydney")>>
 			<span class="purple"><<He>> pulls a <span class="pink">permanent</span> marker pen from <<his>> pocket, flicking off the lid.</span>
@@ -7010,6 +7010,8 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 
 <<widget "penisinit">>
 	<<rng>>
+	/* Nothing is happening: stop lingering on teasing and move towards something that ends the encounter. */
+	<<set _stallPush to Math.min(($combatStall || 0) * 12, 60)>>
 	<<set _npcPenetratorDesc to ($NPCList[_n] && $NPCList[_n].penisdesc) ? $NPCList[_n].penisdesc : "penis">>
 	<<set _npcPenetratorNoun to npcHasStrapon(_n) ? "strap-on" : "cock">>
 	<<if npcHasStrapon(_n)>>
@@ -7027,7 +7029,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<</switch>>
 	<<elseif $npcSub>>
 		<<His>> <<= _npcPenetratorDesc>> twitches, awaiting your touch.
-	<<elseif $enemyanger + $rng lte 20>>
+	<<elseif $enemyanger + $rng + _stallPush lte 20>>
 		<<if $NPCList[_n].lefthand is 0>>
 			<<if $enemyarousal lte 40>>
 				<<He>> slowly rubs <<his>> shaft.
@@ -7059,7 +7061,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<<submission 2 _n>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 25>>
+	<<elseif $enemyanger + $rng + _stallPush lte 25>>
 		<<if $position is "wall" and $walltype isnot "front">>
 			<<He>> rubs <<his>> <<= _npcPenetratorDesc>> against your thighs.
 			<<submission 2 _n>>
@@ -7068,7 +7070,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<submission 2 _n>>
 			<<if playerBellyVisible()>><<set $speechpregnant to 1>><</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 30>>
+	<<elseif $enemyanger + $rng + _stallPush lte 30>>
 		<<if $position is "wall" and $walltype isnot "front">>
 			<<He>> rubs <<his>> <<= _npcPenetratorDesc>> against your thighs.
 			<<submission 2 _n>>
@@ -7079,7 +7081,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<He>> rubs <<his>> <<= _npcPenetratorDesc>> against your <<breasts>>.
 			<<submission 2 _n>><<playWithBreasts>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 35>>
+	<<elseif $enemyanger + $rng + _stallPush lte 35>>
 		<<if $walltype is "front">>
 			<<He>> slaps <<his>> <<= _npcPenetratorDesc>> against your cheek.
 			<<submission 2 _n>>
@@ -7087,7 +7089,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<He>> rubs <<his>> <<= _npcPenetratorDesc>> against your thighs.
 			<<submission 2 _n>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 40>>
+	<<elseif $enemyanger + $rng + _stallPush lte 40>>
 		<<if $position is "wall" and $walltype isnot "front">>
 			<<He>> rubs <<his>> <<= _npcPenetratorDesc>> against your thighs.
 			<<submission 2 _n>>
@@ -7098,7 +7100,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<He>> rubs <<his>> <<= _npcPenetratorDesc>> against your thighs.
 			<<submission 2 _n>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 45 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 45 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<!-- anal -->
 		<<if $player.penisExist or playerHasStrapon()>>
 			<<if $penisuse is 0>>
@@ -7119,7 +7121,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<</if>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 60 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "head">>
+	<<elseif $enemyanger + $rng + _stallPush lte 60 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "head">>
 		<<if $mouthuse is 0>>
 			<<if $penisbitten is 0>>
 				<<if $position isnot "wall">>
@@ -7136,7 +7138,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<</if>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 70 and $penisuse is 0 and ($player.penisExist or (playerHasStrapon() and !npcHasStrapon(_n))) and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 70 and $penisuse is 0 and ($player.penisExist or (playerHasStrapon() and !npcHasStrapon(_n))) and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<<set $penisuse to "otherpenis">><<set $penisstate to "otherpenisentrance">><<set $NPCList[_n].penis to "penisentrance">><<sex 5 "genital" _n>><<set $penistarget to _n>>
 		<<if $NPCList[_n].chastity.penis.includes("chastity")>>
 			<span class="blue"><<He>> moves <<his>> caged <<= _npcPenetratorDesc>> close to your penis.</span>
@@ -7145,7 +7147,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<<else>>
 			<span class="blue"><<He>> moves <<his>> <<= _npcPenetratorDesc>> close to your <<penis>>.</span>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 100 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 100 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<<if $player.vaginaExist and $vaginause is 0 and ($anususe isnot 0 or random(0,100) gte 50)>>
 			<<if $NPCList[_n].condom and $NPCList[_n].condom.willUse is true and $NPCList[_n].condom.worn is false and !npcHasStrapon(_n)>>
 				<<if $NPCList[_n].chastity.penis.includes("chastity")>>
@@ -7301,7 +7303,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<</if>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 120>>
+	<<elseif $enemyanger + $rng + _stallPush lte 120>>
 		<<if $settings.analingusGivingEnabled and $enemyno gte 2 and $position isnot "wall"
 			and $mouthuse is 0 and $NPCList[_n].location.head isnot "head" and $NPCList[_n].location.genitals is 0
 			and (!$player.vaginaExist or $vaginause isnot 0)
@@ -7315,7 +7317,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<He>> slowly traces <<his>> length across your exposed skin.
 			<<neutral 1 _n>><<neutral 5 _n>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 140>>
+	<<elseif $enemyanger + $rng + _stallPush lte 140>>
 		<<if $penisbitten is 0>>
 			<<if $position isnot "wall">>
 				<<if $mouthuse is 0 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "head" and !$worn.face.type.includes("face_covering") and !$worn.face.type.includes("gag")>>
@@ -7338,7 +7340,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<<neutral 1 _n>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 150 and ($penisuse is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $settings.footFetishEnabled and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 150 and ($penisuse is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $settings.footFetishEnabled and $walltype isnot "front">>
 		<span class="purple"><<He>> presses <<his>> foot against your <<genitals>>.</span>
 		<<neutral 5 "genitals" _n>><<violence 1>><<set $NPCList[_n].penis to "footjob">>
 		<<if $player.penisExist and $penisuse is 0>>
@@ -7350,7 +7352,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<<set $speechvaginafoot to 1>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 170 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 170 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<<if $anususe is 0 and $settings.analEnabled>>
 			<<if $NPCList[_n].condom and $NPCList[_n].condom.willUse is true and $NPCList[_n].condom.worn is false and !npcHasStrapon(_n)>>
 				<<if $NPCList[_n].chastity.penis.includes("chastity")>>
@@ -7384,7 +7386,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<</if>>
 			<<set $NPCList[_n].location.genitals = "genitals">>
 		<</if>>
-	<<elseif $enemyanger + $rng gte 171 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush gte 171 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<<if $player.vaginaExist and $vaginause is 0 and (!$player.penisExist or $anususe isnot 0 or random(0,100) gte 50)>>
 			<<if $NPCList[_n].condom and $NPCList[_n].condom.willUse is true and $NPCList[_n].condom.worn is false and !npcHasStrapon(_n)>>
 				<<if $NPCList[_n].chastity.penis.includes("chastity")>>
@@ -7457,6 +7459,8 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 
 <<widget "vaginainit">>
 	<<rng>>
+	/* Nothing is happening: stop lingering on teasing and move towards something that ends the encounter. */
+	<<set _stallPush to Math.min(($combatStall || 0) * 12, 60)>>
 
 	<<if $gloryhole>>
 		<<switch $gloryHoleEvent ? $gloryHoleEvent.target : "">>
@@ -7470,13 +7474,13 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 	<<elseif $npcSub>>
 		<<His>> legs quiver, <<his>> <<pussy>> waiting for you to do something.
 		<<neutral 1 _n>><<set $speechvaginaflaunt to 1>>
-	<<elseif $enemyanger + $rng lte 20 and $NPCList[_n].location.genitals is 0>>
+	<<elseif $enemyanger + $rng + _stallPush lte 20 and $NPCList[_n].location.genitals is 0>>
 		<<He>> sways <<his>> hips suggestively.
 		<<neutral 1 _n>><<set $speechvaginaflaunt to 1>>
-	<<elseif $enemyanger + $rng lte 40>>
+	<<elseif $enemyanger + $rng + _stallPush lte 40>>
 		<<He>> rubs <<his>> pussy.
 		<<neutral 3 _n>><<set $speechvaginaflaunt to 1>>
-	<<elseif $enemyanger + $rng lte 50 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals"
+	<<elseif $enemyanger + $rng + _stallPush lte 50 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals"
 			and ($player.penisExist or playerHasStrapon()) and $penisuse is 0 and $settings.analEnabled and $walltype isnot "front">>
 		<<if $NPCList[_n].condom and $NPCList[_n].condom.willUse is true and !$player.condom and $parasite.penis.name is undefined and
 		$worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1>>
@@ -7491,7 +7495,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<span class="blue"><<He>> straddles you, rubbing <<his>> ass against your <<penis>>.</span>
 		<<neutral 5 "genitals">><<set $penisuse to "otheranus">><<set $NPCList[_n].vagina to "otheranusentrance">><<set $penisstate to "otheranusentrance">><<set $speechotheranusentrance to 1>><<set $penistarget to _n>>
 		<<set $NPCList[_n].location.genitals = "genitals">>
-	<<elseif $enemyanger + $rng lte 60 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "head" and $mouthuse is 0 and ($position isnot "wall" or $walltype is "front") and !$worn.face.type.includes("face_covering") and !$worn.face.type.includes("gag")>>
+	<<elseif $enemyanger + $rng + _stallPush lte 60 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "head" and $mouthuse is 0 and ($position isnot "wall" or $walltype is "front") and !$worn.face.type.includes("face_covering") and !$worn.face.type.includes("gag")>>
 		<<if $rng % 5 is 0 and $settings.facesitEnabled>>
 			<<if $position is "doggy">>
 				<<He>> gently rolls you onto your back.
@@ -7516,7 +7520,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<<if $NPCList[_n].type is "plant">>
 			<span class="pink">Nectar glistens at the entrance.</span>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 70>>
+	<<elseif $enemyanger + $rng + _stallPush lte 70>>
 		<<if $walltype is "front">>
 			<<He>> rubs <<his>> <<pussy>> against your cheek.
 			<<neutral 10 _n>>
@@ -7524,13 +7528,13 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<He>> rubs <<his>> <<pussy>> against your thigh.
 			<<neutral 10 _n>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 80 and $NPCList[_n].lefthand is 0>>
+	<<elseif $enemyanger + $rng + _stallPush lte 80 and $NPCList[_n].lefthand is 0>>
 		<span class="lblue"><<print either("<<He>> presses <<his>> fingers against <<his>> labia.", "<<He>> drags <<his>> fingertips teasingly over <<his>> labia.", "<<He>> spreads <<his>> labia with two fingers and touches <<himself>>.")>></span>
 		<<neutral 1 _n>><<enemyarousal 10>><!-- <<set $NPCList[_n].vagina to "lefthand">><<set $NPCList[_n].lefthand to "othervagina">> -->
-	<<elseif $enemyanger + $rng lte 80 and $NPCList[_n].righthand is 0>>
+	<<elseif $enemyanger + $rng + _stallPush lte 80 and $NPCList[_n].righthand is 0>>
 		<span class="lblue"><<print either("<<He>> presses <<his>> fingers against <<his>> labia.", "<<He>> drags <<his>> fingertips teasingly over <<his>> labia.", "<<He>> spreads <<his>> labia with two fingers and touches <<himself>>.")>></span>
 		<<neutral 1 _n>><<enemyarousal 10>><!-- <<set $NPCList[_n].vagina to "righthand">><<set $NPCList[_n].righthand to "othervagina">> -->
-	<<elseif $enemyanger + $rng lte 80>>
+	<<elseif $enemyanger + $rng + _stallPush lte 80>>
 		<<if $walltype is "front">>
 			<<He>> rubs <<his>> <<pussy>> against your cheek.
 			<<neutral 10 _n>>
@@ -7538,7 +7542,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<He>> rubs <<his>> <<pussy>> against your thigh.
 			<<neutral 10 _n>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 100 and $penisuse is 0 and ($player.penisExist or playerHasStrapon()) and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 100 and $penisuse is 0 and ($player.penisExist or playerHasStrapon()) and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<!-- mount and prepare for vaginal sex -->
 		<<set $penisuse to "othervagina">><<set $NPCList[_n].vagina to "penisentrance">><<set $penisstate to "entrance">><<set $penistarget to _n>>
 		<<if $NPCList[_n].condom and $NPCList[_n].condom.willUse is true and !$player.condom and $parasite.penis.name is undefined>>
@@ -7552,12 +7556,12 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<</if>>
 		<span class="blue"><<He>> straddles you, <<his>> <<pussy>> hovering close to your <<penis>>.</span>
 		<<set $NPCList[_n].location.genitals = "genitals">>
-	<<elseif $enemyanger + $rng lte 100 and $vaginause is 0 and $player.vaginaExist and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 100 and $vaginause is 0 and $player.vaginaExist and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<!-- tribbing -->
 		<<set $vaginause to "othervagina">><<set $vaginastate to "othervaginaentrance">><<set $NPCList[_n].vagina to "vaginaentrance">><<sex 5 "genital" _n>><<set $vaginatarget to _n>>
 		<span class="blue"><<He>> moves <<his>> <<pussy>> close to yours.</span>
 		<<set $NPCList[_n].location.genitals = "genitals">><<set $speechtribentrance to 1>>
-	<<elseif $enemyanger + $rng lte 120 and $penisuse is 0 and ($player.penisExist or playerHasStrapon()) and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and !playerChastity("penis") and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 120 and $penisuse is 0 and ($player.penisExist or playerHasStrapon()) and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and !playerChastity("penis") and $walltype isnot "front">>
 		<!-- forceful vaginal sex -->
 		<<set $penisuse to "othervagina">><<set $NPCList[_n].vagina to "penisimminent">><<set $penisstate to "imminent">><<set $penistarget to _n>>
 		<<if $NPCList[_n].condom and $NPCList[_n].condom.willUse is true and !$player.condom and $parasite.penis.name is undefined>>
@@ -7577,12 +7581,12 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<span class="purple"><<He>> wraps <<his>> legs around your pelvis, pressing <<his>> <<pussy>> against your <<genitals>>.</span>
 		<</if>>
 		<<set $NPCList[_n].location.genitals = "genitals">>
-	<<elseif $enemyanger + $rng lte 120 and $vaginause is 0 and $player.vaginaExist and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 120 and $vaginause is 0 and $player.vaginaExist and $worn.under_lower.vagina_exposed is 1 and $worn.lower.vagina_exposed is 1 and $worn.over_lower.vagina_exposed is 1 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $walltype isnot "front">>
 		<!-- forceful tribbing -->
 		<<set $vaginause to "othervagina">><<set $vaginastate to "othervaginaimminent">><<set $NPCList[_n].vagina to "vaginaimminent">><<sex 20 "genital" _n>><<set $vaginatarget to _n>>
 		<span class="purple"><<He>> pushes <<his>> <<pussy>> close to yours.</span>
 		<<set $NPCList[_n].location.genitals = "genitals">>
-	<<elseif $enemyanger + $rng lte 140 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals">>
+	<<elseif $enemyanger + $rng + _stallPush lte 140 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals">>
 		<<if $position is "wall" and $walltype isnot "front">>
 			<<He>> sits on your protruding <<bottom>>, pressing down on you painfully.
 			<<violence 3>>
@@ -7593,7 +7597,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 			<<He>> frots against your thigh while squeezing it with <<his>> own.
 			<<violence 3>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 160 and ($penisuse is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $settings.footFetishEnabled and $walltype isnot "front">>
+	<<elseif $enemyanger + $rng + _stallPush lte 160 and ($penisuse is 0 or $vaginause is 0) and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and $settings.footFetishEnabled and $walltype isnot "front">>
 		<!-- foot job -->
 		<span class="purple"><<He>> presses <<his>> foot against your <<genitals>>.</span>
 		<<neutral 5 "genitals" _n>><<violence 1>><<set $NPCList[_n].vagina to "footjob">>
@@ -7606,7 +7610,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<<set $speechvaginafoot to 1>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 180 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and !(playerBellySize(true) gte 8)>>
+	<<elseif $enemyanger + $rng + _stallPush lte 180 and $NPCList[_n].location.genitals is 0 and $NPCList[_n].location.head isnot "genitals" and !(playerBellySize(true) gte 8)>>
 		<<if $position is "wall" and $walltype isnot "front">>
 			<<He>> kicks you in the <<bottom>>.
 			<<violence 10>><<hitstat>><<bruise bottom>>
@@ -7642,7 +7646,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<<violence 10>><<hitstat>><<bruise tummy>><<combatExtendedStability -10>>
 			<</if>>
 		<</if>>
-	<<elseif $enemyanger + $rng lte 200 and $mouthuse is 0>>
+	<<elseif $enemyanger + $rng + _stallPush lte 200 and $mouthuse is 0>>
 		<<if $pullaway is 1>>
 			<<set $pullaway to 0>>
 			Saliva drips from <<his>> pussy.
