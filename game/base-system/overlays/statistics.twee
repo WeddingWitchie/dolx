@@ -1540,7 +1540,7 @@
 	<<set _orifice to _args[0]>>
 	<<set _label to _orifice is "anus" ? "Anal" : "Vaginal">>
 	<<set $_pregnancy to $sexStats[_orifice].pregnancy>>
-	<<if $_pregnancy.type is "parasite" or ($_pregnancy.type is null and !getActivePregnancy("pc", _orifice))>>
+	<<if $_pregnancy.type is "parasite" or ($_pregnancy.type is null and !pregnancyBlocksParasites(_orifice))>>
 		<<for _i to 0; _i lt maxParasites(_orifice); _i++>>
 			<<if $_pregnancy.fetus[_i] isnot undefined>>
 				/* A corrupted parasite record would otherwise print its own source in the prose. */
@@ -1572,7 +1572,7 @@
 			<</if>>
 		<</for>>
 	<<else>>
-		<<if playerAwareTheyArePregnant()>>
+		<<if playerAwareTheyArePregnant() and pregnancyBlocksParasites(_orifice)>>
 			Unable to host parasites due to other type of <<= _orifice is "anus" ? "anal" : "vaginal">> pregnancy.
 		<<else>>
 			<<for _i to 0; _i lt maxParasites(_orifice); _i++>>
@@ -1586,19 +1586,28 @@
 <<widget "pregnancyStatusBlock">>
 	<<set _orifice to _args[0]>>
 	<<set _menstruation to $sexStats.vagina.menstruation>>
-	<<set _record to getActivePregnancy("pc", _orifice)>>
-	<<if _record>>
-		<<set _litterCount to getChildrenOf(_record.pregnancyId).length>>
-		Currently pregnant with: <<print _litterCount>>
-		<<extraStatisticsPregnancyType childBaseSpecies(_record.donorSpecies) _litterCount>>
-		<br>
-		<<set _days to pregnancyDaysEta(_record)>>
-		<<if _days lt 1>>
-			ETA: Anytime.
-		<<elseif _days>>
-			ETA: <<print _days>> <<pluralise _days "day">>.
+	/* Beta gives two vaginal wombs, each carrying and delivering on its own schedule. */
+	<<set _records to _orifice is "vagina" ? getActiveVaginalPregnancies() : [getActivePregnancy("pc", _orifice)].filter(p => p)>>
+	<<set _betaWombs to _orifice is "vagina" and playerHasBetaWombs()>>
+	<<if _records.length>>
+		<<for _record range _records>>
+			<<set _litterCount to getChildrenOf(_record.pregnancyId).length>>
+			/* Naming them only matters once two readouts sit side by side. */
+			<<if _records.length gt 1>><span class="teal"><<= wombLabel(_record)>></span> &mdash; <</if>>Currently pregnant with: <<print _litterCount>>
+			<<extraStatisticsPregnancyType childBaseSpecies(_record.donorSpecies) _litterCount>>
+			<br>
+			<<set _days to pregnancyDaysEta(_record)>>
+			<<if _days lt 1>>
+				ETA: Anytime.
+			<<elseif _days>>
+				ETA: <<print _days>> <<pluralise _days "day">>.
+			<</if>>
+			<br>
+		<</for>>
+		<<if _betaWombs and _records.length lt 2>>
+			Your second womb is still empty, and can conceive on its own.
+			<br>
 		<</if>>
-		<br>
 	<<elseif orificeHasParasites(_orifice)>>
 		Parasites in <<= _orifice is "anus" ? "your anus" : "the womb">> are preventing <<= _orifice is "anus" ? "anal" : "vaginal">> pregnancy from occurring.
 	<<elseif (_orifice is "vagina" and !$player.vaginaExist) or !_menstruation.running>>
@@ -1608,6 +1617,10 @@
 	<<else>>
 		Not currently pregnant.
 		<br>
+		<<if _betaWombs>>
+			You have two wombs, each able to conceive and deliver on its own.
+			<br>
+		<</if>>
 		<<if $harpy gte 4>>
 			<<if $harpyEggs>>
 				You are carrying $harpyEggs.count eggs.

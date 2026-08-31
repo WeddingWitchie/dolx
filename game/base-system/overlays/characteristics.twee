@@ -276,8 +276,7 @@
 	<<set $_heatRutDisplay to ($_heatArousal and playerAwareTheyAreInHeat() ? "heat" : "") + ($_heatArousal and playerAwareTheyAreInHeat() and $_rutArousal ? " and " : "") + ($_rutArousal ? "rut" : "")>>
 	/* Beta can leave two wombs carrying at once, so each known pregnancy gets its own readout. */
 	<<set _knownPregnancies to getActivePregnancies("pc").filter(p => knowsPregnancy(p.pregnancyId, "pc"))>>
-	<<set _preg to _knownPregnancies[0]>>
-	<<if _preg>>
+	<<if _knownPregnancies.length>>
 		<<for _preg range _knownPregnancies>>
 			<<set _progress to pregnancyProgress(_preg)>>
 			<<if _progress lte 0.33>>
@@ -290,7 +289,7 @@
 			<<set _litter to getChildrenOf(_preg.pregnancyId)>>
 			/* Two wombs carrying at once need naming, or the two readouts read as one repeated twice. */
 			<<if _knownPregnancies.length gt 1>>
-				<span class="teal"><<= (_preg.womb ?? 1) is 2 ? "Right womb" : "Left womb">>:</span>
+				<span class="teal"><<= _preg.orifice is "anus" ? "Womb" : wombLabel(_preg)>>:</span>
 			<</if>>
 			<<set _species to childBaseSpecies(_preg.donorSpecies)>>
 			<<if playerKnowsLitterSpecies(_preg)>>

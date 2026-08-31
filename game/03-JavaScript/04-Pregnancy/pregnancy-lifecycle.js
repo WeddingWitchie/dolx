@@ -13,6 +13,8 @@
  */
 function playerPregnancy(npc, npcType, donorKnown = false, orifice = "vagina", trackedNPCs, awareOf = false) {
 	if (!playerSpeciesPregnancyEnabled(npcType)) return false; // species disabled in settings, or a species that can't conceive
+	// Parasites block the orifice. Reject direct conception attempts here too.
+	if (orificeHasParasites(orifice)) return false;
 	const womb = orifice === "vagina" && playerHasBetaWombs() && getActivePregnancy("pc", "vagina", 1) ? 2 : 1;
 	if (orifice === "vagina" && getActivePregnancy("pc", "vagina", womb)) return false;
 	const donors = trackedNPCs ? trackedNPCs.map(t => ({ name: t.source, species: t.type })) : [{ name: npc, species: npcType }];

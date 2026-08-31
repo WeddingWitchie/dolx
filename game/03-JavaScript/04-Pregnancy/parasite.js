@@ -162,16 +162,29 @@ function orificeHasParasites(orifice) {
 window.orificeHasParasites = orificeHasParasites;
 
 /**
- * Whether pc can take a new parasite in this orifice right now: parasites enabled, no anti-parasite
- * cream active, no real pregnancy there, and a free slot left.
+ * Whether a real pregnancy is holding this orifice against parasites.
+ * A free Beta second womb is still open to them, so one womb carrying a baby does not shut the other one out.
  *
- * @param {"anus"|"vagina"} orifice the orifice it targets
+ * @param {"anus"|"vagina"} orifice the orifice to check
+ * @returns {boolean}
+ */
+function pregnancyBlocksParasites(orifice) {
+	if (!getActivePregnancy("pc", orifice)) return false;
+	return !(orifice === "vagina" && betaSecondWombOpen());
+}
+window.pregnancyBlocksParasites = pregnancyBlocksParasites;
+
+/**
+ * Checks whether the PC can get a new parasite in this orifice.
+ * Requires parasites to be enabled, no active protection or pregnancy blocking it, and at least one free parasite slot.
+ *
+ * @param {"anus"|"vagina"} orifice
  * @returns {boolean}
  */
 function canImpregnateParasite(orifice = "anus") {
 	if (V.settings.parasitePregnancyEnabled === false || (orifice === "vagina" && !V.player.vaginaExist)) return false;
 	if (V.sexStats.pills.pills["Anti-Parasite Cream"] && V.sexStats.pills.pills["Anti-Parasite Cream"].doseTaken) return false;
-	if (getActivePregnancy("pc", orifice)) return false;
+	if (pregnancyBlocksParasites(orifice)) return false;
 	const pregnancy = V.sexStats[orifice].pregnancy;
 
 	if ((pregnancy.type !== null && pregnancy.type !== "parasite") || pregnancy.fetus.length >= maxParasites(orifice)) return false;
@@ -193,8 +206,8 @@ function parasitePrep(parasiteType, orifice) {
 	if (orifice === "vagina" && !V.player.vaginaExist) return "Player doesn't have a vagina for pregnancy";
 
 	const pregnancy = V.sexStats[orifice].pregnancy;
-	// An active pregnancy, or a non-parasite occupant, blocks the orifice.
-	if (getActivePregnancy("pc", orifice) || (pregnancy.type !== "parasite" && pregnancy.fetus.length)) {
+	// An active pregnancy, or a non-parasite occupant, blocks the orifice. A free Beta womb doesn't.
+	if (pregnancyBlocksParasites(orifice) || (pregnancy.type !== "parasite" && pregnancy.fetus.length)) {
 		return "Player currently pregnant and cannot support other types";
 	}
 	if (pregnancy.fetus.length >= maxParasites(orifice)) return "Player does not have room for more parasites";

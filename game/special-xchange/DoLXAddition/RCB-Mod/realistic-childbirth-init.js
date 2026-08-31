@@ -99,7 +99,14 @@
 		}
 		if (isObject(birth) && (birth.genital === "vagina" || birth.genital === "anus")) {
 			// Real pregnancies live in records now; $sexStats only still holds parasites.
-			const pregnancy = typeof getActivePregnancy === "function" ? getActivePregnancy("pc", birth.genital) : null;
+			// Two Beta wombs can be carrying different species, so it's the labouring one that counts.
+			const labouring = typeof getLabouringPregnancy === "function" ? getLabouringPregnancy("pc") : null;
+			const pregnancy =
+				labouring && labouring.orifice === birth.genital
+					? labouring
+					: typeof getActivePregnancy === "function"
+					? getActivePregnancy("pc", birth.genital)
+					: null;
 			const childType = pregnancy && typeof childBaseSpecies === "function" ? childBaseSpecies(pregnancy.donorSpecies) : null;
 			if (RCB_TYPES.includes(childType)) {
 				return childType;

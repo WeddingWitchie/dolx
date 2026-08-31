@@ -2822,10 +2822,6 @@
 		<<set _menstruation to $sexStats.vagina.menstruation>>
 		<<if !playerIsPregnant()>>
 			You aren't pregnant.
-			<<if $settings.pregnancyType is "realistic">>
-				<<set _stored to $cumLoads[_womb].filter(loadIsLive).length>>
-				You have <span id="cheatSpermSources"><span class="gold">_stored</span> <<pluralise _stored "stored load">></span> contributing to your chances of getting pregnant.
-			<</if>>
 			<br><br>
 			<<if $settings.fertilityCycleEnabled>>
 				<div class="settingsGrid">
@@ -2848,15 +2844,28 @@
 		<</if>>
 		<<if playerIsPregnant()>>
 			You are pregnant.
-			<<set _pregnancy to getPlayerPregnancy()>>
-			<<numberStepper "Pregnancy progress" pregnancyProgress(_pregnancy) {
-				callback: value => {
-					const preg = getPlayerPregnancy(); if (preg) { const term = getDueDate(preg) - preg.conceivedDate; preg.conceivedDate = Time.date.timeStamp - value * term; }
-					Wikifier.wikifyEval("<<updatesidebarimg>>");
-				},
-				min: 0, max: 0.99, step: 0.05,
-				colorArr: ["--teal", "--pink"], activeButtons: ["single", "double"]
-			}>>
+			/* Beta gives two vaginal wombs, so the player can be carrying more than one record at once. */
+			<<set _activePregnancies to getActivePregnancies("pc")>>
+			<<for _pregnancy range _activePregnancies>>
+				<<capture _pregnancy>>
+					<<set _pregLabel to _activePregnancies.length gt 1 ? (_pregnancy.orifice is "anus" ? "Anal pregnancy" : wombLabel(_pregnancy)) + " progress" : "Pregnancy progress">>
+					<<set _pregId to _pregnancy.pregnancyId>>
+					<<numberStepper _pregLabel pregnancyProgress(_pregnancy) {
+						callback: value => {
+							const preg = V.pregnancies[_pregId]; if (preg) { const term = getDueDate(preg) - preg.conceivedDate; preg.conceivedDate = Time.date.timeStamp - value * term; }
+							Wikifier.wikifyEval("<<updatesidebarimg>>");
+						},
+						min: 0, max: 0.99, step: 0.05,
+						colorArr: ["--teal", "--pink"], activeButtons: ["single", "double"]
+					}>>
+					<<if _activePregnancies.length gt 1>>
+						<<link [[Clear this one|$passage]]>>
+							<<run clearPregnancyRecord(_pregId)>>
+						<</link>>
+						<br>
+					<</if>>
+				<</capture>>
+			<</for>>
 			<br><br>
 			<<link [[Clear current pregnancy|$passage]]>>
 				<<run clearPlayerPregnancies()>>
@@ -2882,8 +2891,20 @@
 					<<run delete C.npc.Poppy.pregnancy.sample>>
 				<</if>>
 			<</link>>
-		<<else>>
-			<<if ($settings.playerPregnancyHumanEnabled or $settings.playerPregnancyBeastEnabled) and !playerIsPregnant()>>
+			<br>
+		<</if>>
+		/* A free Beta second womb can still conceive, so these stay open while the first one carries. */
+		<<if !playerIsPregnant() or betaSecondWombOpen()>>
+			<<if $settings.playerPregnancyHumanEnabled or $settings.playerPregnancyBeastEnabled>>
+				<<if betaSecondWombOpen()>>
+					Your second womb is still free.
+					<br>
+				<</if>>
+				<<if $settings.pregnancyType is "realistic">>
+					<<set _stored to $cumLoads[_womb].filter(loadIsLive).length>>
+					You have <span id="cheatSpermSources"><span class="gold">_stored</span> <<pluralise _stored "stored load">></span> contributing to your chances of getting pregnant.
+					<br><br>
+				<</if>>
 				Get pregnant from:
 				<br>
 				<<if $settings.playerPregnancyHumanEnabled>>
@@ -3047,7 +3068,7 @@
 					<br>
 					<<set _implantDays to PregnancyConstants.implantationWindow / TimeConstants.secondsPerDay>>
 					<<link "Force a conception from the newest stored load">>
-						<<if $cumLoads[_womb].length and $pendingPregnancies[_womb] is null and !getActivePregnancy("pc", _womb)>>
+						<<if $cumLoads[_womb].length and availablePlayerPregnancySlot(_womb) isnot null>>
 							<<run recordPendingPregnancy(_womb, $cumLoads[_womb].last())>>
 							<<replace "#cheatForcePick">><span class="green">pending conception recorded</span> (it implants <<= _implantDays>> days later, skip time to get there)<</replace>>
 						<<else>>

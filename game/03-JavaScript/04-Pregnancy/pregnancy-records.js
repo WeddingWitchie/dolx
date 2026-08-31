@@ -224,6 +224,18 @@ function playerHasBetaWombs() {
 }
 window.playerHasBetaWombs = playerHasBetaWombs;
 
+/**
+ * What to call a Beta womb on screen.
+ * Only worth printing when two pregnancies are showing at once, so every readout names them the same way.
+ *
+ * @param {Pregnancy} pregnancy the record to name
+ * @returns {string} "Left womb" or "Right womb"
+ */
+function wombLabel(pregnancy) {
+	return (pregnancy?.womb ?? 1) === 2 ? "Right womb" : "Left womb";
+}
+window.wombLabel = wombLabel;
+
 /** Every active vaginal pregnancy, ordered by womb for stable UI and birth fallbacks. */
 function getActiveVaginalPregnancies() {
 	return getActivePregnancies("pc")

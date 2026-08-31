@@ -335,10 +335,12 @@
 
 		<<set _breastMulti += (Math.clamp($sexStats.breasts.playedWith, 0, 500) / 250)>>
 
-		<<set _vaginaPregnancy to getActivePregnancy("pc", "vagina")>>
+		/* Beta can leave two wombs carrying, so both litters feed the growth. */
+		<<set _vaginalPregnancies to getActiveVaginalPregnancies()>>
 		<<set _anusPregnancy to getActivePregnancy("pc", "anus")>>
-		<<if _vaginaPregnancy>>
-			<<set _breastMulti += Math.clamp(getChildrenOf(_vaginaPregnancy.pregnancyId).length / 10, 0, 0.5)>>
+		<<if _vaginalPregnancies.length>>
+			<<set _vaginalChildren to _vaginalPregnancies.reduce((total, preg) => total + getChildrenOf(preg.pregnancyId).length, 0)>>
+			<<set _breastMulti += Math.clamp(_vaginalChildren / 10, 0, 0.5)>>
 		<<elseif $sexStats.vagina.pregnancy.type is "parasite">>
 			<<set _breastMulti += Math.clamp($sexStats.vagina.pregnancy.fetus.length / 10, 0, 0.5)>>
 		<</if>>
