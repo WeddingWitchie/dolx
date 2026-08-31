@@ -571,19 +571,20 @@ const DoLSaveGuard = (() => {
 			);
 		}
 		if (state.persisted !== true) {
-			let status;
-			if (state.requested)
-				status =
-					state.persisted === false
-						? "Persistent storage was not granted. Your browser decides this automatically; the game cannot force it. "
-						: "The persistent storage request could not be completed. ";
-			else status = state.supported ? "Persistent storage has not been granted. " : "This device does not report persistent-storage status. ";
+			const status = state.requested
+				? state.persisted === false
+					? "Your browser did not allow protected storage. "
+					: "The storage request could not be completed. "
+				: state.supported
+				? "Protected storage is not enabled. "
+				: "Your browser does not report whether storage is protected. ";
+
 			contents.push(
 				element("span", { class: "red" }, status),
 				isApp()
-					? "The app's saves and browser-side backup may both be removed if its site data is cleared. "
-					: "The browser may remove this origin's saves and browser-side backup together under storage pressure. ",
-				"Exporting to a file is the only independent protection."
+					? "Your saves will be deleted if the cache is cleared! "
+					: "Your saves will be deleted if your cache is cleared, or if your browser needs to free up space. ",
+				"Export your save to a file to keep a separate backup!"
 			);
 		}
 		if (!state.requested && state.persisted !== true && state.supported && navigator.storage != null && typeof navigator.storage.persist === "function") {
@@ -690,6 +691,10 @@ const DoLSaveGuard = (() => {
 	});
 })();
 window.DoLSaveGuard = DoLSaveGuard;
+
+/* Avoid duplicate export reminders: renderPersistenceHint already provides this message.
+   Clear the format's copy before L10n.init(), so this must run at top level. */
+l10nStrings.savesExportReminder = "";
 
 /* Run once per session, as early as the storage APIs allow. idb already requests persistence while
    opening its database, so this layer only reads the result instead of adding a redundant prompt. */

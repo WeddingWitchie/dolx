@@ -284,13 +284,13 @@ test.describe("Save resilience", () => {
 		});
 
 		const notice = page.locator("#saveGuardNotice");
-		await expect(notice).toContainText("Persistent storage has not been granted");
-		await expect(notice).toContainText("browser-side backup together");
+		await expect(notice).toContainText("Protected storage is not enabled");
+		await expect(notice).toContainText("Export your save to a file");
 		const button = notice.locator("br + input[value='Request persistent storage']");
 		await expect(button).toBeVisible();
 		await button.click();
-		await expect(notice).toContainText("Persistent storage was not granted");
-		await expect(notice).toContainText("the game cannot force it");
+		await expect(notice).toContainText("Your browser did not allow protected storage");
+		await expect(page.locator("#saves-export-reminder")).toBeEmpty();
 		await expect(button).toHaveCount(0);
 		expect(await page.evaluate(() => JSON.parse(localStorage.getItem("dolStoragePersistence") ?? "null").requested)).toBe(true);
 	});
