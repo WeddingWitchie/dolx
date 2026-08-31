@@ -47,6 +47,86 @@ window.canvaslayer = canvaslayer;
 // use 2x2 pixels in generated images
 Renderer.pixelSize = 2;
 
+/*
+ * Doll art resolution.
+ *
+ * Image packs replace files in `img/`, so the game cannot detect them directly.
+ * Some packs use higher-resolution art, which was previously scaled down and lost detail.
+ *
+ * Measure the installed art and render the model at the same resolution instead.
+ * Existing layer positions still use the standard 256px space and are scaled in calcLayerRects.
+ */
+Renderer.artScale = 1;
+
+const ART_SCALE_KEY = "dolx-doll-art-scale";
+/* Every pack replaces the body, so one core file answers for the whole set. */
+const ART_SCALE_PROBE = "img/body/base-classic.png";
+const ART_SCALE_MAX = 4;
+
+function applyDollArtScale(scale) {
+	if (!(scale >= 1) || scale === Renderer.artScale) return;
+	Renderer.artScale = scale;
+	/* Cached models hold their old dimensions, and the canvases built from them. */
+	Renderer.CanvasModelCaches = {};
+	/*
+	 * Cached images may still use the old model size.
+	 * Clear them so sprites reload at the correct size and frame layout.
+	 */
+	Renderer.ImageCaches = {};
+	Renderer.ImageErrors = {};
+}
+/* Exposed so the resolution can be forced from the console or a test. */
+Renderer.setArtScale = applyDollArtScale;
+
+/*
+ * Keep the canvas at its expected display size, even when rendered at a higher resolution.
+ *
+ * This lets high-resolution image packs show more detail without making the doll appear larger.
+ * The browser scales the extra pixels down to fit the normal canvas size.
+ * Nearest-neighbour scaling is disabled because it can remove detail when shrinking the image.
+ *
+ * @param {HTMLCanvasElement} canvasElement
+ * @param {{artScale?: number}} model The model used to render the canvas.
+ */
+Renderer.pinCanvasDisplaySize = function (canvasElement, model) {
+	const artScale = model?.artScale || 1;
+	if (artScale === 1 || !canvasElement) return;
+	canvasElement.style.width = `${canvasElement.width / artScale}px`;
+	canvasElement.style.height = `${canvasElement.height / artScale}px`;
+	canvasElement.style.imageRendering = "auto";
+};
+
+/*
+ * The result is cached because models are created before images finish loading.
+ * On a fresh install, the first passage may render at 1x, then update once the image is checked.
+ * After that, the cached value is used immediately.
+ *
+ * Only `img/` is checked. If `img2/` uses a different resolution, it will still use the scale detected from `img/`.
+ * Supporting both properly would require rebuilding the scale whenever `getGenderedPath` switches sprite sets.
+ */
+function measureDollArtScale() {
+	try {
+		const stored = Number(localStorage.getItem(ART_SCALE_KEY));
+		if (stored >= 1) applyDollArtScale(Math.min(ART_SCALE_MAX, Math.round(stored)));
+	} catch (e) {
+		/* Storage can be unavailable. The probe below still answers, just a passage later. */
+	}
+
+	const probe = new Image();
+	probe.addEventListener("load", () => {
+		/* Rounding keeps stock art (128/256) and the common 512x256 packs (256/256) alike at 1x. */
+		const scale = Math.max(1, Math.min(ART_SCALE_MAX, Math.round(probe.naturalHeight / 256)));
+		try {
+			localStorage.setItem(ART_SCALE_KEY, String(scale));
+		} catch (e) {
+			/* Not being able to remember it only costs the one-passage delay above. */
+		}
+		applyDollArtScale(scale);
+	});
+	probe.src = ART_SCALE_PROBE;
+}
+measureDollArtScale();
+
 Renderer.Stats = {
 	trace: false,
 	traceAnim: false,
@@ -109,17 +189,7 @@ Renderer.defaultListener = {
 	},
 	keyframe(animation, keyframeIndex, keyframe) {
 		if (Renderer.Stats.traceAnim) {
-			console.log(
-				performance.now().toFixed(3),
-				"animation",
-				animation,
-				"keyframe",
-				keyframeIndex,
-				"frame",
-				keyframe.frame,
-				"duration",
-				keyframe.duration
-			);
+			console.log(performance.now().toFixed(3), "animation", animation, "keyframe", keyframeIndex, "frame", keyframe.frame, "duration", keyframe.duration);
 		}
 	},
 	keyframeRender(spec, cacheHit, cacheRenderTime) {

@@ -38,6 +38,7 @@ class MultiCanvasModel {
 		this.animatingCanvas = null;
 		this.width = model.width;
 		this.height = model.height;
+		this.artScale = model.artScale || 1;
 		this.animated = isAnimated;
 		this.listener = Renderer.defaultListener;
 	}
@@ -159,6 +160,7 @@ Macro.add("setup-multi-canvas", {
 		}
 		MultiCanvasModel.debugLastInit = Utils.GetStack();
 		const model = MultiCanvasModel.create(key, id, slot);
+		Renderer.pinCanvasDisplaySize(model.canvas.canvas, model);
 		this.output.append(model.canvas.canvas);
 	},
 });

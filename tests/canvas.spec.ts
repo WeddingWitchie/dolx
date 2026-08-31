@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { inflateSync } from "zlib";
-import { navigateTo, waitForPassage } from "./helpers.js";
+import { navigateTo, openGame, waitForPassage } from "./helpers.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GAME_URL = `file://${path.resolve(__dirname, "../Degrees of Lewdity VERSION.html")}`;
@@ -10,7 +10,7 @@ const GAME_URL = `file://${path.resolve(__dirname, "../Degrees of Lewdity VERSIO
 const CANVAS_SIZE = 256;
 const PROBE_CLASS = "rendering-probe";
 
-async function openGame(page: Page, navigateToStart = false) {
+async function openCanvasTestGame(page: Page, navigateToStart = false) {
 	await page.addInitScript(() => localStorage.setItem("verifiedAge", "true"));
 	await page.goto(GAME_URL);
 	await waitForPassage(page);
@@ -128,7 +128,7 @@ test.describe("sidebar canvas", () => {
 	test.use({ viewport: { width: 412, height: 915 }, deviceScaleFactor: 2.75 });
 
 	test("keeps crisp pixel-art scaling on a high-DPI screen", async ({ page }) => {
-		await openGame(page, true);
+		await openCanvasTestGame(page, true);
 
 		const result = await page.evaluate(() => {
 			const main = document.querySelector("canvas.mainCanvas") as HTMLCanvasElement;
@@ -154,7 +154,7 @@ test.describe("sidebar canvas", () => {
 	});
 
 	test("pixelated produces only hard checkerboard edges at a fractional scale", async ({ page }) => {
-		await openGame(page);
+		await openCanvasTestGame(page);
 		await addCheckerboardProbe(page, 8, 220);
 
 		const checkerboard = page.locator(`canvas.${PROBE_CLASS}`);
@@ -182,7 +182,7 @@ test.describe("sidebar canvas", () => {
 	});
 
 	test("keeps body-size reductions and enlargements crisp", async ({ page }) => {
-		await openGame(page);
+		await openCanvasTestGame(page);
 
 		const levels = await page.evaluate(() => {
 			const render = (renderScale: number) => {
@@ -236,7 +236,7 @@ test.describe("sidebar canvas", () => {
 	});
 
 	test("canvas model size is deterministic and never mutated asynchronously after load", async ({ page }) => {
-		await openGame(page, true);
+		await openCanvasTestGame(page, true);
 
 		const immediate = await page.evaluate(() => {
 			const W = window as any;
@@ -261,7 +261,7 @@ test.describe("sidebar canvas at fractional device scale", () => {
 	test.use({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 1.25 });
 
 	test("keeps one-pixel canvas edges crisp", async ({ page }) => {
-		await openGame(page);
+		await openCanvasTestGame(page);
 		await addCheckerboardProbe(page, CANVAS_SIZE, CANVAS_SIZE);
 
 		const probe = page.locator(`canvas.${PROBE_CLASS}`);
@@ -283,7 +283,7 @@ for (const deviceScaleFactor of [1, 1.5, 2.75]) {
 		test.use({ viewport: { width: 1280, height: 900 }, deviceScaleFactor });
 
 		test("scales the sprite by a whole number of device pixels, on a whole device pixel", async ({ page }) => {
-			await openGame(page, true);
+			await openCanvasTestGame(page, true);
 			await page.locator(".doll-expand").click();
 			await page.waitForTimeout(400);
 
@@ -337,3 +337,139 @@ for (const deviceScaleFactor of [1, 1.5, 2.75]) {
 		});
 	});
 }
+
+/*
+ * An image pack that draws finer than the doll's stock 256-pixel model makes the model render at
+ * the pack's resolution (Renderer.artScale). These check that raising it changes only the pixel
+ * density: same sprite, same place, same layout.
+ *
+ * The art here is still the stock art, so the 2x doll is a magnified copy rather than a more
+ * detailed one - which is exactly what makes it comparable.
+ */
+
+/** Average alpha over a 32x32 grid, so canvases of different sizes can be compared. */
+async function silhouette(page: Page) {
+	return page.evaluate(() => {
+		const canvas = document.querySelector("#img canvas.mainCanvas") as HTMLCanvasElement;
+		const { data } = canvas.getContext("2d")!.getImageData(0, 0, canvas.width, canvas.height);
+		const cell = canvas.width / 32;
+		const grid: number[] = [];
+		for (let gridY = 0; gridY < 32; gridY++) {
+			for (let gridX = 0; gridX < 32; gridX++) {
+				let sum = 0;
+				let count = 0;
+				for (let y = Math.floor(gridY * cell); y < Math.floor((gridY + 1) * cell); y++) {
+					for (let x = Math.floor(gridX * cell); x < Math.floor((gridX + 1) * cell); x++) {
+						sum += data[(y * canvas.width + x) * 4 + 3];
+						count++;
+					}
+				}
+				grid.push(count ? sum / count : 0);
+			}
+		}
+		return { size: `${canvas.width}x${canvas.height}`, grid };
+	});
+}
+
+test.describe("doll rendered at an image pack's resolution", () => {
+	// Reading pixels back needs this: file:// images otherwise taint the canvas.
+	test.use({ launchOptions: { args: ["--allow-file-access-from-files"] } });
+	test("draws the same sprite in the same place, at twice the pixel density", async ({ page }) => {
+		await openGame(page);
+		await navigateTo(page, "Start2");
+		await page.waitForTimeout(1500);
+		const stock = await silhouette(page);
+
+		await page.evaluate(() => (window as any).Renderer.setArtScale(2));
+		await navigateTo(page, "Start2");
+		await page.waitForTimeout(2500);
+		const scaled = await silhouette(page);
+
+		expect(stock.size).toBe("256x256");
+		expect(scaled.size).toBe("512x512");
+
+		// Layer offsets, sub-sprite frames and masks are all authored in the stock space; if any of
+		// them failed to scale the sprite would land somewhere else, or be drawn doubled or halved.
+		const diffs = stock.grid.map((value, i) => Math.abs(value - scaled.grid[i]));
+		const meanDiff = diffs.reduce((a, b) => a + b, 0) / diffs.length;
+		expect(meanDiff).toBeLessThan(6);
+	});
+
+	test("keeps the sidebar box the same size and stops using nearest-neighbour", async ({ page }) => {
+		await openGame(page);
+		await navigateTo(page, "Start2");
+		await page.evaluate(() => (window as any).Renderer.setArtScale(2));
+		await navigateTo(page, "Start2");
+		await page.waitForTimeout(1500);
+
+		const sidebar = await page.evaluate(() => {
+			const canvas = document.querySelector("#img canvas.mainCanvas") as HTMLCanvasElement;
+			const rect = canvas.getBoundingClientRect();
+			return { bitmap: canvas.width, css: rect.width, rendering: getComputedStyle(canvas).imageRendering };
+		});
+
+		expect(sidebar.bitmap).toBe(512);
+		expect(sidebar.css).toBe(256);
+		expect(sidebar.rendering).toBe("auto");
+	});
+
+	test("leaves lighting layers outside the sidebar alone", async ({ page }) => {
+		/*
+		 * The shop mannequin, hairdresser, mirror and options preview each draw a lighting layer
+		 * beside a doll that the sidebar sizer knows nothing about. While that sizer matched the
+		 * `lighting` class anywhere on the page, it stretched those to the sidebar's size - 358px
+		 * under the enlarged-canvas option - while the doll beside them stayed put, leaving the
+		 * light offset from the body.
+		 */
+		await openGame(page);
+		await navigateTo(page, "Start2");
+		await page.waitForTimeout(1000);
+
+		const sizes = await page.evaluate(() => {
+			const w = window as any;
+			const elsewhere = document.createElement("div");
+			const light = document.createElement("canvas");
+			light.className = "lighting";
+			light.width = 256;
+			light.height = 256;
+			elsewhere.append(light);
+			document.body.append(elsewhere);
+
+			w.sizeSidebarDollCanvases(358);
+			const outside = light.style.width;
+			const inside = (document.querySelector("#img canvas.lighting") as HTMLElement)?.style.width;
+			elsewhere.remove();
+			return { outside, inside };
+		});
+
+		expect(sizes.outside).toBe("");
+		expect(sizes.inside).toBe("358px");
+	});
+
+	test("gives the popup's doll and lighting layers one box and one scaling mode", async ({ page }) => {
+		await openGame(page);
+		await navigateTo(page, "Start2");
+		await page.evaluate(() => (window as any).Renderer.setArtScale(2));
+		await navigateTo(page, "Start2");
+		await page.waitForTimeout(1500);
+		await page.evaluate(() => document.querySelector<HTMLElement>(".doll-expand")?.click());
+		await page.waitForTimeout(1500);
+
+		const layers = await page.evaluate(() =>
+			[...document.querySelectorAll(".doll-overlay-canvas canvas")].map(canvas => {
+				const rect = canvas.getBoundingClientRect();
+				return {
+					bitmap: (canvas as HTMLCanvasElement).width,
+					box: `${rect.width}x${rect.height}@${rect.left},${rect.top}`,
+					rendering: getComputedStyle(canvas).imageRendering,
+				};
+			})
+		);
+
+		expect(layers.length).toBeGreaterThan(1);
+		// The lighting layer stays at the stock size, so it only lines up if the box is shared.
+		expect(new Set(layers.map(layer => layer.bitmap)).size).toBe(2);
+		expect(new Set(layers.map(layer => layer.box)).size).toBe(1);
+		expect(layers.every(layer => layer.rendering === "auto")).toBe(true);
+	});
+});

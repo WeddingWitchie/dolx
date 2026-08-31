@@ -19,11 +19,18 @@ namespace Renderer {
 		const scaledWidth = scale ? targetHeight * aspectRatio : image.width;
 		const scaledHeight = scale ? targetHeight : image.height;
 		const i2 = createCanvas(scaledWidth, scaledHeight);
-		i2.imageSmoothingEnabled = false;
+		/*
+		* Nearest-neighbour works well when enlarging images, but loses detail when shrinking them.
+		*
+		* Most image packs are drawn at their own resolution, so shrinking is rare.
+		* If shrinking is needed, smoothing helps preserve the sprite's detail.
+		*/
+		const reducing = scaledHeight < image.height || scaledWidth < image.width;
+		i2.imageSmoothingEnabled = reducing;
+		if (reducing) i2.imageSmoothingQuality = "high";
 		i2.drawImage(image, 0, 0, scaledWidth, scaledHeight);
 		return i2.canvas;
 	}
-
 	export function isMaskObject(mask: string | HTMLCanvasElement | CanvasImageSource | MaskObject | undefined | null): mask is MaskObject {
 		const maskObj = mask as MaskObject;
 		return maskObj != undefined && maskObj.path !== undefined;

@@ -82,11 +82,16 @@ class CanvasModel {
 	 */
 	constructor(options) {
 		this.name = options.name;
-		this.width = options.width;
-		this.height = options.height;
+		this.scale = options.scale || false;
+		/*
+		 * Only models that use the art's own resolution need to be rendered larger.
+		 * Lighting stays at the normal size and is simply stretched over the doll.
+		 */
+		this.artScale = this.scale ? Renderer.artScale || 1 : 1;
+		this.width = options.width * this.artScale;
+		this.height = options.height * this.artScale;
 		this.frames = options.frames || 1;
 		this.metadata = options.metadata || {};
-		this.scale = options.scale || false;
 		if ("generatedOptions" in options) this.generatedOptions = options.generatedOptions;
 		if ("defaultOptions" in options) this.defaultOptions = options.defaultOptions;
 		if ("preprocess" in options) this.preprocess = options.preprocess;

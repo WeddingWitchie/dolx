@@ -903,6 +903,74 @@ DefineMacro("modelprepare-player-clothes", function () {
 });
 
 /*
+ * Checks whether the doll uses artwork larger than the standard 256px size.
+ *
+ * High-resolution image packs should scale smoothly to keep their extra detail,
+ * while standard pixel art still uses whole-number scaling.
+ * With no argument, this checks whether a high-resolution pack was detected.
+ */
+const STOCK_DOLL_CANVAS_HEIGHT = 256;
+function dollArtIsHighRes(canvas) {
+	if (canvas) return canvas.height > STOCK_DOLL_CANVAS_HEIGHT;
+	return (Renderer.artScale || 1) > 1;
+}
+window.dollArtIsHighRes = dollArtIsHighRes;
+
+/*
+ * Choose how the browser scales a doll canvas.
+ *
+ * Use `pixelated` for normal pixel art shown at its original size or larger.
+ * This keeps the sprite sharp by preserving its pixel grid.
+ *
+ * Do not use it when:
+ * - the canvas is being displayed smaller than its rendered size, as detail can be lost;
+ * - the doll is rendered at a high-resolution image pack's native size, where `pixelated`
+ *   can make edges look jagged.
+ *
+ * The size check uses device pixels, so high-DPI screens are handled correctly.
+ * The lighting layer stays at stock resolution. When the doll and lighting are drawn
+ * together, callers should use the same scaling mode for both so they stay visually consistent.
+ *
+ * @param {HTMLCanvasElement} canvas
+ * @param {number} [cssWidth] Display width in CSS pixels. Uses the element width if omitted.
+ * @param {number} [ratio] Rendered pixels per CSS pixel. Defaults to devicePixelRatio.
+ * @param {boolean} [highRes] Override the canvas resolution check.
+ */
+function setCanvasScalingMode(canvas, cssWidth, ratio, highRes) {
+	if (!canvas) return;
+	if (highRes ?? dollArtIsHighRes(canvas)) {
+		canvas.style.imageRendering = "auto";
+		return;
+	}
+	const displayed = cssWidth ?? canvas.getBoundingClientRect().width;
+	const native = canvas.width || displayed;
+	if (!displayed || !native) return;
+	const devicePixels = displayed * (ratio || window.devicePixelRatio || 1);
+	/* The tolerance stops rounding noise from flipping the mode on a canvas that is really 1:1. */
+	canvas.style.imageRendering = devicePixels < native - 0.5 ? "auto" : "pixelated";
+}
+window.setCanvasScalingMode = setCanvasScalingMode;
+
+/*
+ * Keep sidebar doll canvases at their normal display size.
+ *
+ * Image mods may use larger sprites, but the sidebar itself should not grow.
+ * Only the image scaling changes to match the sprite resolution.
+ * Scoped to `#img` so the popup lighting layer is not resized out of alignment.
+ *
+ * @param {number} cssSize Display size in CSS pixels.
+ */
+function sizeSidebarDollCanvases(cssSize) {
+	const highRes = dollArtIsHighRes();
+	for (const canvas of document.querySelectorAll("#img canvas.mainCanvas, #img canvas.lighting")) {
+		canvas.style.width = `${cssSize}px`;
+		canvas.style.height = `${cssSize}px`;
+		setCanvasScalingMode(canvas, cssSize, undefined, highRes || undefined);
+	}
+}
+window.sizeSidebarDollCanvases = sizeSidebarDollCanvases;
+
+/*
  * Check how much the zoom option enlarges the doll popup.
  *
  * The result is used to correct canvas sizes.
@@ -948,19 +1016,32 @@ function sizeDollOverlayCanvases() {
 
 	const nativeWidth = Math.max(...canvases.map(canvas => canvas.width || 256));
 	const nativeHeight = Math.max(...canvases.map(canvas => canvas.height || 256));
-	const scale = Math.max(1, Math.floor(Math.min((boxWidth * ratio) / nativeWidth, (boxHeight * ratio) / nativeHeight)));
+	/*
+	 * Whole-number scaling keeps enlarged pixel art sharp.
+	 * Don't use it when:
+	 * - rendering a high-resolution image pack at its native resolution;
+	 * - the image is larger than the popup and needs to scale down to fit.
+	 */
+	const highRes = dollArtIsHighRes();
+	const fit = Math.min((boxWidth * ratio) / nativeWidth, (boxHeight * ratio) / nativeHeight);
+	const scale = highRes || fit < 1 ? fit : Math.floor(fit);
 	/* Snap a CSS length to a whole rendered pixel. */
 	const snap = value => Math.round(value * ratio) / ratio;
 
 	for (const canvas of canvases) {
-		const width = ((canvas.width || nativeWidth) * scale) / ratio;
-		const height = ((canvas.height || nativeHeight) * scale) / ratio;
+		/*
+		 * All layers use the same size so lighting stays aligned with
+		 * higher-resolution image pack sprites.
+		 */
+		const width = (nativeWidth * scale) / ratio;
+		const height = (nativeHeight * scale) / ratio;
 		/*
 		 * Snap the sprite's absolute position to whole pixels.
 		 * The wrapper may sit on fractional pixels, which can still blur the sprite even at a whole-number scale.
 		 */
 		canvas.style.width = `${width}px`;
 		canvas.style.height = `${height}px`;
+		setCanvasScalingMode(canvas, width, ratio, highRes || undefined);
 		canvas.style.left = `${snap(boxLeft + (boxWidth - width) / 2) - boxLeft}px`;
 		canvas.style.top = `${snap(boxTop + (boxHeight - height) / 2) - boxTop}px`;
 		canvas.style.right = "auto";

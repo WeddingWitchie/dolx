@@ -17,7 +17,15 @@ var Renderer;
 		const scaledWidth = scale ? targetHeight * aspectRatio : image.width;
 		const scaledHeight = scale ? targetHeight : image.height;
 		const i2 = createCanvas(scaledWidth, scaledHeight);
-		i2.imageSmoothingEnabled = false;
+		/*
+		* Nearest-neighbour works well when enlarging images, but can lose detail when shrinking them.
+		*
+		* artScale normally prevents this by rendering at the image pack's own resolution.
+		* If an image still needs to be reduced, smoothing is used to keep the sprite clear.
+		*/
+		const reducing = scaledHeight < image.height || scaledWidth < image.width;
+		i2.imageSmoothingEnabled = reducing;
+		if (reducing) i2.imageSmoothingQuality = "high";
 		i2.drawImage(image, 0, 0, scaledWidth, scaledHeight);
 		return i2.canvas;
 	}
@@ -716,11 +724,15 @@ var Renderer;
 	}
 	Renderer.processLayer = processLayer;
 	function calcLayerRects(layer, layerImageWidth, targetWidth, targetHeight, frameCount) {
+		/*
+		* Layer sizes and offsets use the model's default resolution. Scale them to match higher-resolution image packs.
+		*/
+		const artScale = layer.model?.artScale || 1;
 		const frameWidth = targetWidth / frameCount;
-		const subspriteWidth = layer.width || frameWidth;
-		const subspriteHeight = layer.height || targetHeight;
-		const dx = (layer.dx || 0) + (layer.frameDx || 0);
-		const dy = (layer.dy || 0) + (layer.frameDy || 0);
+		const subspriteWidth = layer.width ? layer.width * artScale : frameWidth;
+		const subspriteHeight = layer.height ? layer.height * artScale : targetHeight;
+		const dx = ((layer.dx || 0) + (layer.frameDx || 0)) * artScale;
+		const dy = ((layer.dy || 0) + (layer.frameDy || 0)) * artScale;
 		const subspriteFrameCount = layerImageWidth / subspriteWidth;
 		return {
 			width: targetWidth,
@@ -944,6 +956,8 @@ var Renderer;
 				}
 			}
 			layer.maskOffsets = [];
+			/* Mask offsets are authored in the model's stock pixel space, like the layer's own. */
+			const maskScale = layer.model?.artScale || 1;
 			layer.maskOptions = {
 				convert: false,
 			};
@@ -954,7 +968,7 @@ var Renderer;
 							layer.maskOptions.convert = item.convert;
 						}
 						if (isMaskOffsetObject(item)) {
-							layer.maskOffsets.push({ x: item.offsetX || 0, y: item.offsetY || 0 });
+							layer.maskOffsets.push({ x: (item.offsetX || 0) * maskScale, y: (item.offsetY || 0) * maskScale });
 							return item.path;
 						}
 						return item;
@@ -968,7 +982,7 @@ var Renderer;
 					layer.maskOptions.convert = layer.masksrc.convert;
 				}
 				if (isMaskOffsetObject(layer.masksrc)) {
-					layer.maskOffsets.push({ x: layer.masksrc.offsetX || 0, y: layer.masksrc.offsetY || 0 });
+					layer.maskOffsets.push({ x: (layer.masksrc.offsetX || 0) * maskScale, y: (layer.masksrc.offsetY || 0) * maskScale });
 					layer.masksrc = layer.masksrc.path;
 				}
 			}

@@ -1,4 +1,4 @@
-/* globals pcIsBlinded */
+/* globals pcIsBlinded, sizeSidebarDollCanvases */
 function effectsWater(waterType = "liquid") {
 	const fragment = document.createDocumentFragment();
 
@@ -2369,7 +2369,7 @@ Macro.add("effects", {
 								setStyle("#imgInv", { top: "130px", transform: "scale(1.4)", transformOrigin: "top right" });
 								setStyle("#characterTemperature", { top: "223px", left: "92px", transform: "scale(1.4)", transformOrigin: "top left" });
 								setStyle("#characterTemperatureTooltip", { top: "220px", left: "94px", width: "22px", height: "41px" });
-								setStyle("canvas.mainCanvas, canvas.lighting", { height: "358px", width: "358px" });
+								sizeSidebarDollCanvases(358);
 								setStyle("#ui-bar", { width: "24.5em" });
 								setStyle("#stats", { width: "392px" });
 							} else {
@@ -2388,7 +2388,7 @@ Macro.add("effects", {
 								setStyle("#imgInv", { top: "93px", transform: "none" });
 								setStyle("#characterTemperature", { top: "159px", left: "66px", transform: "none" });
 								setStyle("#characterTemperatureTooltip", { top: "157px", left: "67px", width: "16px", height: "29px" });
-								setStyle("canvas.mainCanvas, canvas.lighting", { height: "256px", width: "256px" });
+								sizeSidebarDollCanvases(256);
 								setStyle("#ui-bar", { width: "17.5em" });
 								setStyle("#stats", { width: "280px" });
 							}
