@@ -2209,9 +2209,10 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 		<<giveNPCsextoy _n $NPCList[_n].heldSexToy _args[0]>>
 		<<combat-reveal-sextoy _args[0]>>
 
-	/* Its own band above the writing-tool one. At "lte 8" this sat in front of the pen branch and covered all of
-	its range, so a male PC with a bare face could never be written on again. */
-	<<elseif !$statFreeze and $settings.npcMakeupLevel gte 1 and ($combatStall || 0) lt 6 and $rng gt 7 and $rng lte ($settings.npcMakeupLevel is 1 ? 9 : $settings.npcMakeupLevel is 2 ? 12 : 22) and $consensual isnot 1 and $enemytype is "man" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and ($walltype is 0 or $walltype is "front") and !$worn.face.type.includes("mask") and !$NPCList[_n].lefthand.toString().startsWith("pen") and !$NPCList[_n].righthand.toString().startsWith("pen") and (($player.gender is "m" and !playerIsWearingMakeup()) or ($player.gender is "f" and playerIsWearingMakeup()))>>
+	/* Rolls its own die rather than carving a band out of the shared $rng, which the strip/sex-toy branches above
+	   already eat into - the old 8-to-12 band meant even "often" almost never landed. "$rng gt 7" is kept so the
+	   pen branch below still owns its $rng lte 7 band and body writing is not starved. */
+	<<elseif !$statFreeze and $settings.npcMakeupLevel gte 1 and ($combatStall || 0) lt 6 and $rng gt 7 and random(1, 100) lte ($settings.npcMakeupLevel is 1 ? 10 : $settings.npcMakeupLevel is 2 ? 25 : 50) and $consensual isnot 1 and $enemytype is "man" and ($combatExtended.stabilityLost is 1 or $combatExtended.standingFights is 0) and ($walltype is 0 or $walltype is "front") and !$worn.face.type.includes("mask") and !$NPCList[_n].lefthand.toString().startsWith("pen") and !$NPCList[_n].righthand.toString().startsWith("pen") and (($player.gender is "m" and !playerIsWearingMakeup()) or ($player.gender is "f" and playerIsWearingMakeup()))>>
 		<<set $tooltarget to $player.gender is "m" ? "makeup kit" : "makeup remover">>
 		<span class="purple"><<He>> pulls a $tooltarget from <<his>> pocket and reaches towards your face.</span>
 		<<if _args[0] is "left">>

@@ -460,7 +460,9 @@ function gwylanRequestClothes(override) {
 			const pick = ownedPool.pluck();
 			grcCreate(pick.name, pick.slot, pick.item);
 			if (extraItems) {
-				const second = ownedPool.filter(entry => entry.slot !== pick.slot).pluck();
+				/* One-piece items also fill a second slot (a dress takes "lower" through outfitPrimary), so
+				   compare every slot each item occupies, not just its own. */
+				const second = ownedPool.filter(entry => !entry.slots.some(slot => pick.slots.includes(slot))).pluck();
 				if (second) grcCreate(second.name, second.slot, second.item);
 			}
 			V.gwylan.request.details.fromWardrobe = true;
@@ -660,6 +662,18 @@ function gwylanRequestClothes(override) {
  *
  * @returns {Array<{name: string, slot: string, item: object, reveal: number}>}
  */
+/**
+ * Every clothing slot an item takes up, including the extra slots a one-piece fills via outfitPrimary.
+ *
+ * @param {string} slot The item's own slot
+ * @param {object} setupItem Its setup.clothes entry
+ * @returns {string[]}
+ */
+function gwylanRequestOccupiedSlots(slot, setupItem) {
+	return [slot, ...Object.keys(setupItem?.outfitPrimary ?? {})];
+}
+window.gwylanRequestOccupiedSlots = gwylanRequestOccupiedSlots;
+
 function gwylanWardrobeRequestPool() {
 	const slots = ["upper", "lower", "head"];
 	if (C.npc.Gwylan.lust >= 30) slots.push("under_upper", "under_lower");
@@ -685,6 +699,7 @@ function gwylanWardrobeRequestPool() {
 				if (setupItem.type?.includes("naked")) return;
 				if (setupItem.outfitSecondary) return; // Requested via its primary piece instead
 				if (setupItem.shop?.includes("school")) return; // The player needs their uniform
+				if (setupItem.shop?.includes("forest")) return; // No asking the player to bring back his own stock
 				if (!setupItem.shop?.length) return; // Gwylan keeps what he asks for, so it has to be replaceable
 				if (item.cursed) return;
 				if (window.isWardrobeFavorite?.(slot, item)) return; // Hands off the player's favourites
@@ -692,7 +707,7 @@ function gwylanWardrobeRequestPool() {
 				const key = slot + "/" + item.name + "/" + (item.colour ?? "") + "/" + (item.accessory_colour ?? "") + "/" + (item.pattern ?? "");
 				if (seen.has(key)) return;
 				seen.add(key);
-				pool.push({ name: item.name, slot, item, reveal: setupItem.reveal ?? 0 });
+				pool.push({ name: item.name, slot, item, reveal: setupItem.reveal ?? 0, slots: gwylanRequestOccupiedSlots(slot, setupItem) });
 			});
 		});
 	});
