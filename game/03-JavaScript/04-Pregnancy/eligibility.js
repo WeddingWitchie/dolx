@@ -261,7 +261,8 @@ function playerPregnancyPossibleWith(NPC) {
 	const { npc: resolvedNpc, name } = resolvePregnancyNpc(NPC);
 	if (!resolvedNpc) return false;
 	if (!playerPregnancyEligible(name, resolvedNpc.type, true)) return false;
-	if (playerIsPregnant() || getParasiteObject().fetus.length) return false;
+	// Beta's second womb can still take, so carrying one pregnancy doesn't rule this donor out.
+	if ((playerIsPregnant() && !betaSecondWombOpen()) || getParasiteObject().fetus.length) return false;
 	if (!(V.player.vaginaExist || playerCanCarryAnally())) return false;
 	if (resolvedNpc.gender !== "m" && resolvedNpc.gender !== "h") return false;
 	if ("strapon" in resolvedNpc) return false;

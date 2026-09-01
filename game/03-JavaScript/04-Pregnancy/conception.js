@@ -244,6 +244,10 @@ function ensurePendingPregnancySlots() {
 	if (V.pendingPregnancies.vagina === undefined) V.pendingPregnancies.vagina = null;
 	if (V.pendingPregnancies.vagina2 === undefined) V.pendingPregnancies.vagina2 = null;
 	if (V.pendingPregnancies.anus === undefined) V.pendingPregnancies.anus = null;
+	// Clear leftover second-womb conception data when Beta ends.
+	// Otherwise it can block new conceptions and delay the harpy egg cycle.
+	// statFreeze means the scene is using a saved body state instead of the current one.
+	if (!V.statFreeze && V.pendingPregnancies.vagina2 !== null && !playerHasBetaWombs()) V.pendingPregnancies.vagina2 = null;
 }
 window.ensurePendingPregnancySlots = ensurePendingPregnancySlots;
 

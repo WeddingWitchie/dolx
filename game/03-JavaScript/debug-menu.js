@@ -386,7 +386,7 @@ setup.debugMenu.eventList = {
 			widgets: [`<<unset $container>>`, `<<run delete $sexStats.anus>>`, `<<physicalAdjustmentsInit>>`, `<<containersInit>>`],
 		},
 		{
-			text_only: `\nVaginal Pregnancy<br>(New Pregnancy will only occur if not pregnant)\n`,
+			text_only: `\nVaginal Pregnancy<br>(New Pregnancy will only occur if not pregnant, or if a Beta womb is free)\n`,
 			condition() {
 				return V.player.penisExist === false;
 			},
@@ -394,7 +394,7 @@ setup.debugMenu.eventList = {
 		{
 			text_only: `Player is already pregnant\n`,
 			condition() {
-				return V.player.penisExist === false && playerIsPregnant();
+				return V.player.penisExist === false && playerIsPregnant() && !betaSecondWombOpen();
 			},
 		},
 		{
@@ -405,7 +405,7 @@ setup.debugMenu.eventList = {
 				},
 			],
 			condition() {
-				return V.player.penisExist === false && !playerIsPregnant();
+				return V.player.penisExist === false && (!playerIsPregnant() || betaSecondWombOpen());
 			},
 		},
 		{
@@ -416,7 +416,7 @@ setup.debugMenu.eventList = {
 				},
 			],
 			condition() {
-				return V.player.penisExist === false && !playerIsPregnant();
+				return V.player.penisExist === false && (!playerIsPregnant() || betaSecondWombOpen());
 			},
 		},
 		{
