@@ -11,7 +11,8 @@
  *
  * Some ordinary NPCs use their first name as fullDescription. This can cause a
  * false match with named NPCs such as Poppy. If .name and .fullDescription are
- * the same, the NPC is treated as ordinary instead.
+ * the same, the NPC is only accepted when <<npc>> mapped that character to the
+ * current slot.
  *
  * @param {string | number} index NPC slot in $NPCList.
  * @returns {string} The named NPC's name, or "" if the slot contains an ordinary NPC.
@@ -23,7 +24,12 @@ function namedNpcInSlot(index) {
 
 	const name = npc.fullDescription;
 	if (typeof name !== "string" || !setup.NPCNameList.includes(name)) return "";
-	if (npc.name === name) return "";
+
+	if (npc.name === name) {
+		const slot = Number(index);
+		const mappedIndex = V.npcrow?.findIndex(row => Number(row) === slot) ?? -1;
+		if (mappedIndex === -1 || V.npc?.[mappedIndex] !== name) return "";
+	}
 
 	return name;
 }

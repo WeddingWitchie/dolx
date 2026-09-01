@@ -1095,6 +1095,27 @@ function dolxRepairNonFiniteNumerics() {
 }
 window.dolxRepairNonFiniteNumerics = dolxRepairNonFiniteNumerics;
 
+/*
+ Clear old underscored clothing wetness variables.
+ 
+ Clothing wetness is stored without underscores, but the combat renderer previously looked for underscored versions instead.
+ These incorrect variables were never updated or dried, so they could leave under/over clothing stuck at half opacity in combat.
+ The renderer now uses the correct variable names, so remove the unused old ones from saves.
+*/
+function dolxClearOrphanWetnessKeys() {
+	if (!V) return;
+	const cleared = [];
+	for (const slot of ["over_upper", "over_lower", "under_upper", "under_lower"]) {
+		for (const key of [slot + "wet", slot + "wetstage"]) {
+			if (V[key] === undefined) continue;
+			cleared.push(`${key}=${V[key]}`);
+			delete V[key];
+		}
+	}
+	if (cleared.length) console.warn(`Cleared orphaned wetness keys: ${cleared.join(", ")}`);
+}
+window.dolxClearOrphanWetnessKeys = dolxClearOrphanWetnessKeys;
+
 /* Guarantee every transformationParts species/part key exists. */
 function dolxEnsureTransformationParts() {
 	const parts = V?.transformationParts;
