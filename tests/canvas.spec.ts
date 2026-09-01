@@ -4,6 +4,10 @@ import { fileURLToPath } from "url";
 import { inflateSync } from "zlib";
 import { navigateTo, openGame, waitForPassage } from "./helpers.js";
 
+// Pixel-readback tests use file:// sprites, which otherwise taint the canvas.
+// Playwright requires launch options at file scope because they create a new worker.
+test.use({ launchOptions: { args: ["--allow-file-access-from-files"] } });
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GAME_URL = `file://${path.resolve(__dirname, "../Degrees of Lewdity VERSION.html")}`;
 
@@ -372,8 +376,6 @@ async function silhouette(page: Page) {
 }
 
 test.describe("doll rendered at an image pack's resolution", () => {
-	// Reading pixels back needs this: file:// images otherwise taint the canvas.
-	test.use({ launchOptions: { args: ["--allow-file-access-from-files"] } });
 	test("draws the same sprite in the same place, at twice the pixel density", async ({ page }) => {
 		await openGame(page);
 		await navigateTo(page, "Start2");
