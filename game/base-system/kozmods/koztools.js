@@ -1741,9 +1741,10 @@ function getGenderedPath(path) {
 		if (sub[0] === "/") {
 			sub = sub.substring(1);
 		}
-		// Folders shared with the main 'img' set ; never redirect these to img2
+		// Folders shared with the main 'img' set; clothing preview icons are the one exception.
 		const sharedFolders = ["decorations", "sex", "ui", "misc"];
-		if (sharedFolders.includes(sub.split("/")[0])) {
+		const clothingIcon = sub.startsWith("misc/icon/clothes/");
+		if (sharedFolders.includes(sub.split("/")[0]) && !clothingIcon) {
 			return path; // keep the original img/ path untouched
 		}
 		return "img2/" + sub;

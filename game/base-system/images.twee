@@ -1782,6 +1782,7 @@
 
 <<widget "clothingicon">>
 	<<if $options.images is 1>>
+		/* Try the active pack's clothing icon first. Missing alternatives fall back once without probing every asset ahead of time. */
 		<<set $_item to setup.clothes[_args[1]][clothesIndex(_args[1],_args[0])]>>
 		<<set $_icon to $_item.iconFile ? normaliseFileName($_item.iconFile) : normaliseFileName($_item.name)>>
 		<<if $_item.iconFile>>
@@ -1798,10 +1799,13 @@
 			<<else>>
 				<<set $clothesiconFile = "img/misc/icon/clothes/" + $_icon + ".png">>
 			<</if>>
+			<<set _clothesiconFallback = $clothesiconFile>>
+			<<set $clothesiconFile = getGenderedPath($clothesiconFile)>>
+			<<if $clothesiconFile is _clothesiconFallback>><<set _clothesiconFallback = "">><</if>>
 			<<if _args[0].colour is 0 or $_item.colour_options.length lt 2>>
-				<img class="icon" alt="" @src="$clothesiconFile">
+				<img class="icon" alt="" @src="$clothesiconFile" @data-fallback="_clothesiconFallback" onerror="this.onerror=null; if (this.dataset.fallback) this.src=this.dataset.fallback;">
 			<<else>>
-				<img alt="" @class="'icon-'+ _args[0].colour.replace(/ /g, '-') + ' icon'" @src="$clothesiconFile" @style="(_args[0].colour is 'custom'? _args[0].colourCustom : '')">
+				<img alt="" @class="'icon-'+ _args[0].colour.replace(/ /g, '-') + ' icon'" @src="$clothesiconFile" @style="(_args[0].colour is 'custom'? _args[0].colourCustom : '')" @data-fallback="_clothesiconFallback" onerror="this.onerror=null; if (this.dataset.fallback) this.src=this.dataset.fallback;">
 			<</if>>
 		<</if>>
 		<<if $_item.accIcon isnot 0 and ($_item.accessory isnot 0 || $_item.breast_acc_img)>>
@@ -1816,11 +1820,14 @@
 			<<else>>
 				<<set $clothesiconFile = "img/misc/icon/clothes/" + $_accIcon + "-acc.png">>
 			<</if>>
+			<<set _clothesiconFallback = $clothesiconFile>>
+			<<set $clothesiconFile = getGenderedPath($clothesiconFile)>>
+			<<if $clothesiconFile is _clothesiconFallback>><<set _clothesiconFallback = "">><</if>>
 			<span class="spanIcon">
 				<<if !_args[0].accessory_colour or $_item.accessory_colour_options.length lt 2 or ($_item.accIcon is "pattern" and $_item.pattern_layer === "tertiary")>>
-					<img class="accIcon" alt="" @src="$clothesiconFile">
+					<img class="accIcon" alt="" @src="$clothesiconFile" @data-fallback="_clothesiconFallback" onerror="this.onerror=null; if (this.dataset.fallback) this.src=this.dataset.fallback;">
 				<<else>>
-					<img @class="'icon-'+ _args[0].accessory_colour.replace(/ /g, '-') + ' accIcon'" alt="" @src="$clothesiconFile" @style="(_args[0].accessory_colour is 'custom'? _args[0].accessory_colourCustom : '')">
+					<img @class="'icon-'+ _args[0].accessory_colour.replace(/ /g, '-') + ' accIcon'" alt="" @src="$clothesiconFile" @style="(_args[0].accessory_colour is 'custom'? _args[0].accessory_colourCustom : '')" @data-fallback="_clothesiconFallback" onerror="this.onerror=null; if (this.dataset.fallback) this.src=this.dataset.fallback;">
 				<</if>>
 			</span>
 		<</if>>
@@ -1835,8 +1842,11 @@
 			<<else>>
 				<<set $clothesiconFile = "img/misc/icon/clothes/" + $_detailIcon + "-detail.png">>
 			<</if>>
+			<<set _clothesiconFallback = $clothesiconFile>>
+			<<set $clothesiconFile = getGenderedPath($clothesiconFile)>>
+			<<if $clothesiconFile is _clothesiconFallback>><<set _clothesiconFallback = "">><</if>>
 			<span class="spanIcon">
-				<img class="accIcon" alt="" @src="$clothesiconFile">
+				<img class="accIcon" alt="" @src="$clothesiconFile" @data-fallback="_clothesiconFallback" onerror="this.onerror=null; if (this.dataset.fallback) this.src=this.dataset.fallback;">
 			</span>
 		<</if>>
 	<</if>>
