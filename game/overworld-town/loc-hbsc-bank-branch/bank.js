@@ -224,6 +224,12 @@ setup.hbsc.getSavingsTier = function (level) {
 	return setup.hbsc.savingsTiers[level] || setup.hbsc.savingsTiers[1];
 };
 
+setup.hbsc.getSavingsMinimumBalance = function (level) {
+	const V = State.variables;
+	if (level === 5 && V.xchange && V.xchange.bankHeist && V.xchange.bankHeist.landryReported) return 0;
+	return setup.hbsc.getSavingsTier(level).minimumBalance || 0;
+};
+
 setup.hbsc.getTierName = function (level) {
 	return setup.hbsc.getSavingsTier(level).name;
 };
@@ -363,7 +369,7 @@ setup.hbsc.simpleInterestFromAER = function (principal, aerPercent, fractionOfYe
 
 setup.hbsc.calcSavingsMonthInterest = function (balance, accountLevel) {
 	const tier = setup.hbsc.getSavingsTier(accountLevel);
-	if (!(balance > 0) || balance < (tier.minimumBalance || 0)) return 0;
+	if (!(balance > 0) || balance < setup.hbsc.getSavingsMinimumBalance(accountLevel)) return 0;
 	return setup.hbsc.simpleInterestFromAER(balance, tier.interestAER, 1 / 12);
 };
 

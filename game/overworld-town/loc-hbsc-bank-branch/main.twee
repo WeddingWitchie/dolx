@@ -134,7 +134,7 @@ You sit in a padded swivel chair at the quieter priority desk, away from the slo
 <<set _tierLevel to (_hasAccount ? $hbsc.account.level : 1)>>
 <<set _tier to setup.hbsc.getSavingsTier(_tierLevel)>>
 <<set _savingsBalance to $hbsc.account.deposit>>
-<<set _qualifyingBalance to (_tier.minimumBalance || 0)>>
+<<set _qualifyingBalance to setup.hbsc.getSavingsMinimumBalance(_tierLevel)>>
 <<set _qualifiesNow to (_qualifyingBalance lte 0 or _savingsBalance gte _qualifyingBalance)>>
 <<set _neededForTier to Math.max(0, _qualifyingBalance - _savingsBalance)>>
 
@@ -191,8 +191,11 @@ The teller slides a brochure over to you. "This is your normal HBSC savings bala
 	<span class="gold">Black</span><br>
 	• Deposit Limit: Unlimited<br>
 	• Savings Interest: 0.25% per year<br>
-	• Qualifying Balance: <<printmoney 25000000000>><br>
+	• Standard Qualifying Balance: <<printmoney 25000000000>><br>
 	• Perks: 10% lower fixed-term early-withdrawal fee
+	<<if _tierLevel is 5 and $xchange.bankHeist and $xchange.bankHeist.landryReported>><br>
+	• Your heist-granted Black account has no qualifying balance.
+	<</if>>
 </div>
 <br>
 <div class="hbsc-brochure">
@@ -222,6 +225,8 @@ The teller slides a brochure over to you. "This is your normal HBSC savings bala
 	The teller taps the brochure. "If you open an account today, you start on Basic. Higher tiers are upgrades. The qualifying balance only decides whether your monthly savings interest applies. It is not a one-time bonus."
 <<elseif _tierLevel is 1>>
 	The teller taps the brochure. "Your account is currently Basic. Basic has no qualifying balance, so any savings balance above zero can earn Basic's monthly savings interest when the month rolls over."
+<<elseif _tierLevel is 5 and $xchange.bankHeist and $xchange.bankHeist.landryReported>>
+	The teller taps the brochure. "Your Black account has no qualifying balance. Any savings balance above zero earns Black's monthly savings interest when the month rolls over."
 <<elseif _qualifiesNow>>
 	The teller taps the brochure. "Your account is currently <<print _tier.name>>. Your savings already meet the <<print _tier.name>> qualifying balance, so the <<print _tier.name>> interest rate will be used when the month rolls over. This is checked each month."
 <<else>>
@@ -350,6 +355,7 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 <<else>>
 	<<set _tier to setup.hbsc.getSavingsTier(_level)>>
 	<<set _room to setup.hbsc.getDepositRoom(_level, _deposit)>>
+	<<set _qualifyingBalance to setup.hbsc.getSavingsMinimumBalance(_level)>>
 	<<set _monthlyPreview to setup.hbsc.calcSavingsMonthInterest(_deposit, _level)>>
 
 	<<speechresolve>>
@@ -389,8 +395,8 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 		<br>
 		• Savings Interest: <<print _tier.interestAER>>% per year<br>
 		• Qualifying Balance:
-		<<if _tier.minimumBalance > 0>>
-			<<printmoney _tier.minimumBalance>>
+		<<if _qualifyingBalance > 0>>
+			<<printmoney _qualifyingBalance>>
 		<<else>>
 			None
 		<</if>>
