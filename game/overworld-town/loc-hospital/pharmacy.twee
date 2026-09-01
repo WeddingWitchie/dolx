@@ -226,7 +226,7 @@
 	<<icon "hairgel.png">><<link [[Tube of lube|Pharmacy Sale]]>><<set $phase2 to "hairgel">><<set $pharmacyItem to clone(setup.pharmacyItems["lube_tube"])>><</link>> | Owned: <span class="gold"><<= $player.inventory.sextoys["lube tube"]?.length || 0>></span>
 	<br><br>
 
-	<<if $prescriptions and ($prescriptions.painkiller or $prescriptions.sleep)>>
+	<<if $prescriptions and ($prescriptions.painkiller or $prescriptions.sleep or $prescriptions.antidepressant)>>
 		Prescription Counter:
 		<br>
 		<<if $prescriptions.painkiller>>
@@ -249,6 +249,17 @@
 				<br>
 			<</if>>
 			<<ind>><span class="gold">Sleeping pill prescription: <<= prescriptionDaysLeft("sleep")>> day<<if prescriptionDaysLeft("sleep") isnot 1>>s<</if>> left.</span>
+			<br>
+		<</if>>
+		<<if $prescriptions.antidepressant>>
+			<<if $prescriptions.collected.antidepressant>>
+				<<ind>><span class="blue">You've collected Doctor Harper's prescription with the antidepressant added.</span>
+				<br>
+			<<else>>
+				<<pillicon "pill">><<link [[Collect your antidepressant prescription|Pharmacy Prescription Collect]]>><<set $prescriptionCollect to "antidepressant">><</link>> | Owned: <span class="gold"><<= $sexStats.pills.pills["Dr Harper's prescription"]?.owned || 0>></span>
+				<br>
+			<</if>>
+			<<ind>><span class="gold">Antidepressant prescription: <<= prescriptionDaysLeft("antidepressant")>> day<<if prescriptionDaysLeft("antidepressant") isnot 1>>s<</if>> left.</span>
 			<br>
 		<</if>>
 		<br>
@@ -475,15 +486,18 @@ An assortment of colourful contact lenses is displayed behind the glass. You can
 	<<He>> checks your prescription on the screen, then fetches a box from the locked shelf behind the counter.
 	<<if $prescriptionCollect is "painkiller">>
 		"Ten doses. These are much stronger than the ones on the shelf, so no more than two in a day."
-	<<else>>
+	<<elseif $prescriptionCollect is "sleep">>
 		"Ten tablets. One before bed, never two. Using them too often will make it harder to sleep without them."
+	<<else>>
+		"Ten doses of Doctor Harper's usual tablets, with the antidepressant added. Take one each day."
 	<</if>>
 	<br><br>
 
 	<<He>> slides the box across. "No charge, it's on your prescription. That's your lot until next week."
 	<br><br>
 
-	<span class="green">You collected <<print _collected>> <<print $prescriptionCollect is "painkiller" ? "prescription painkillers" : "prescription sleeping pills">>.</span>
+	<<set _prescriptionName to $prescriptionCollect is "painkiller" ? "prescription painkillers" : ($prescriptionCollect is "sleep" ? "prescription sleeping pills" : "doses of Doctor Harper's prescription")>>
+	<span class="green">You collected <<print _collected>> <<print _prescriptionName>>.</span>
 	<br><br>
 <<else>>
 	<<He>> checks the screen and shakes <<his>> head. "Nothing due on that prescription right now."

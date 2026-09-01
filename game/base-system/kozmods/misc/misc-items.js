@@ -14,6 +14,7 @@ const PRESCRIPTION_BOX_SIZE = 10; /* Doses handed over per collection. */
 const PRESCRIPTION_PILL_NAMES = {
 	painkiller: "prescription painkillers",
 	sleep: "prescription sleeping pills",
+	antidepressant: "Dr Harper's prescription",
 };
 
 /* The trauma suppressant used to be branded "Calmoryl", which told the player nothing.
