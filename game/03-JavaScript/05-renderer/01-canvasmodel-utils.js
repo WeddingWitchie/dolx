@@ -66,6 +66,9 @@ const ART_SCALE_MAX = 4;
 function applyDollArtScale(scale) {
 	if (!(scale >= 1) || scale === Renderer.artScale) return;
 	Renderer.artScale = scale;
+	/* Stylesheets that crop a canvas (the hairstyle mannequins) need the scale to size the crop. */
+	document.documentElement.style.setProperty("--doll-art-scale", String(scale));
+	Renderer.mannequinCache = new Map();
 	/* Cached models hold their old dimensions, and the canvases built from them. */
 	Renderer.CanvasModelCaches = {};
 	/*
@@ -94,6 +97,64 @@ Renderer.pinCanvasDisplaySize = function (canvasElement, model) {
 	canvasElement.style.width = `${canvasElement.width / artScale}px`;
 	canvasElement.style.height = `${canvasElement.height / artScale}px`;
 	canvasElement.style.imageRendering = "auto";
+};
+
+/*
+ * Hair previews are expensive to render.
+ * Cache finished previews so reopening or changing pages does not render them again.
+ */
+Renderer.mannequinCache = new Map();
+const MANNEQUIN_CACHE_MAX = 60;
+
+function mannequinCacheKey(options) {
+	try {
+		return JSON.stringify(options);
+	} catch (e) {
+		/* Circular or otherwise unserialisable options simply skip the cache. */
+		return null;
+	}
+}
+
+/*
+ * Returns a copy of a previously rendered mannequin canvas, or null when there is none.
+ *
+ * @param {object} options The model options the mannequin was rendered with.
+ * @returns {HTMLCanvasElement|null}
+ */
+Renderer.cachedMannequin = function (options) {
+	const key = mannequinCacheKey(options);
+	if (key === null) return null;
+	const source = Renderer.mannequinCache.get(key);
+	if (!source || !source.width || !source.height) return null;
+	const copy = document.createElement("canvas");
+	copy.width = source.width;
+	copy.height = source.height;
+	try {
+		copy.getContext("2d").drawImage(source, 0, 0);
+	} catch (e) {
+		return null;
+	}
+	copy.className = source.className;
+	copy.style.cssText = source.style.cssText;
+	/* Keep it most-recently-used so the styles being browsed survive trimming. */
+	Renderer.mannequinCache.delete(key);
+	Renderer.mannequinCache.set(key, source);
+	return copy;
+};
+
+/*
+ * Remembers a rendered mannequin canvas for reuse.
+ *
+ * @param {object} options The model options it was rendered with.
+ * @param {HTMLCanvasElement} canvasElement
+ */
+Renderer.storeMannequin = function (options, canvasElement) {
+	const key = mannequinCacheKey(options);
+	if (key === null || !canvasElement) return;
+	Renderer.mannequinCache.set(key, canvasElement);
+	while (Renderer.mannequinCache.size > MANNEQUIN_CACHE_MAX) {
+		Renderer.mannequinCache.delete(Renderer.mannequinCache.keys().next().value);
+	}
 };
 
 /*

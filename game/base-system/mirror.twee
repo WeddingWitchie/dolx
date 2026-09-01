@@ -1818,7 +1818,7 @@
 
 <<widget "mirrorhairdisplay">>
 	<<if _hairCategory isnot _args[0]>>
-		<<set _perPage to $showMannequins ? 10 : 100>>
+		<<set _perPage to $showMannequins ? 12 : 100>>
 		<<set _page to 1>>
 	<</if>>
 	<<set _hairCategory to _args[0]>>
@@ -1953,10 +1953,26 @@
 	</div>
 <</widget>>
 
+<!-- Renders a hairstyle preview, reusing an already rendered one when the options match. -->
+<<widget "hairstylemannequin">>
+	<<script>>
+		const cached = Renderer.cachedMannequin(T.modeloptions);
+		if (cached) {
+			output.append(cached);
+		} else {
+			const canvas = T.modelclass.createCanvas(false);
+			T.modelclass.render(canvas, T.modeloptions, Renderer.defaultListener);
+			canvas.canvas.className = "hairstyleMannequin";
+			Renderer.pinCanvasDisplaySize(canvas.canvas, T.modelclass);
+			Renderer.storeMannequin(T.modeloptions, canvas.canvas);
+			output.append(canvas.canvas);
+		}
+	<</script>>
+<</widget>>
+
 <<widget "mirrorhairdisplayElements">>
 	<div id="hairGridSides"
-		@class="'no-numberify hairGrid' + ($options.images is 1 and $showMannequins is 1 ? ' hairGridMannequins' : '')"
-		style="grid-template-columns: repeat(5, 1fr);">
+		@class="'no-numberify hairGrid' + ($options.images is 1 and $showMannequins is 1 ? ' hairGridMannequins' : '')">
 		<<for _label, _hairName range _args[0]>>
 			<<capture _hairCategory, _hairName>>
 				<div
@@ -2012,8 +2028,7 @@
 							<<set _modeloptions.hair_sides_type to $hairtype>>
 						<</if>>
 						<<set _modeloptions.ears_position to $earsposition>>
-						<<rendermodel "hairstyleMannequin">>
-						<br>
+						<div class="hairstyleMannequinBox"><<hairstylemannequin>></div>
 					<</if>>
 					<<print toTitleCase(_label)>>
 				</div>

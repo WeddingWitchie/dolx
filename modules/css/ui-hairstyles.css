@@ -60,6 +60,10 @@
 	border-right: 1px solid var(--600);
 }
 
+#hairContainer {
+	max-width: 100%;
+}
+
 #hairContainerHairstyle {
 	padding: 20px;
 	background-color: var(--850);
@@ -155,11 +159,23 @@
 
 .hairGrid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+	/* min() keeps a single column from being wider than the screen on narrow displays. */
+	grid-template-columns: repeat(auto-fill, minmax(min(100px, 100%), 1fr));
 	grid-gap: 4px;
 	background-color: var(--850);
 	padding: 20px;
 	border: 1px solid var(--150);
+	max-width: 100%;
+}
+
+.hairGrid.hairGridMannequins {
+	grid-template-columns: repeat(auto-fill, minmax(min(116px, 100%), 1fr));
+}
+
+/* Long style names must wrap inside their cell instead of widening the grid. */
+.hairGrid .gridItem {
+	min-width: 0;
+	overflow-wrap: break-word;
 }
 
 #textbox--hairstylename {
@@ -216,11 +232,49 @@
 	color: var(--gold);
 }
 
-.hairstyleMannequin {
+.hairstyleMannequinBox {
+	display: block;
 	width: 100px;
+	max-width: 100%;
 	height: 100px;
+	margin: 0 auto;
+	overflow: hidden;
+}
+
+/*
+ * Keep high-resolution art previews inside their cells.
+ * The renderer sets --doll-art-scale to resize them correctly.
+ */
+canvas.hairstyleMannequin {
+	--mannequin-scale: var(--doll-art-scale, 1);
+
+	display: block;
+	width: calc(100px * var(--mannequin-scale)) !important;
+	height: calc(100px * var(--mannequin-scale)) !important;
 	object-fit: none;
 	object-position: 45% 14%;
+	transform: scale(calc(1 / var(--mannequin-scale)));
+	transform-origin: top left;
+}
+
+@media (max-width: 800px) {
+	.hairGrid,
+	#hairContainerHairstyle {
+		padding: 6px;
+	}
+
+	#hairContainerHairstyle .gridItem,
+	.saveHair {
+		padding: 8px;
+		margin: 0;
+	}
+
+	.containerFooter .tab button,
+	.hairContainerSave .tab button,
+	#hairContainerFilter .tab button {
+		width: auto;
+		padding: 5px 10px;
+	}
 }
 
 /* Updated Hairstyle UI: End */
