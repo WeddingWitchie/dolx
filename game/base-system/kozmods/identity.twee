@@ -34,8 +34,11 @@
 			<<set _identityCapFloor to Math.round(_range * 0.625)>>
 
 			/* NOTE: This math bypass the GI attitude setting */
-			<<if $backgroundTraits.includes("crossdresser") and !$background.transgender>><<set _multiplier *= _args[0] < 0 ? 1.25 : 0.50 >><</if>>
-			<<if $backgroundTraits.includes("genderAnxious")>><<set _multiplier *= _args[0] > 0 ? 1.25 : 0.50 >><</if>>
+			/* These traits use the player's original sex and should not flip after X-Change. Positive values move identity towards feminine, negative towards masculine. */
+			<<set _origSex to playerOriginalSex()>>
+			<<set _towardsOppositeSex to (_origSex is "m" ? _args[0] > 0 : _args[0] < 0)>>
+			<<if $backgroundTraits.includes("crossdresser") and !$background.transgender>><<set _multiplier *= _towardsOppositeSex ? 1.25 : 0.50 >><</if>>
+			<<if $backgroundTraits.includes("genderAnxious")>><<set _multiplier *= _towardsOppositeSex ? 0.50 : 1.25 >><</if>>
 
 			<<set $genderidentity += _args[0] * _multiplier>>
 			<<set $genderidentity to Math.clamp($genderidentity,0, _range)>>

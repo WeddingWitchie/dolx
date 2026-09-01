@@ -1457,6 +1457,15 @@ setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
 	return true;
 };
 
+// The player's original sex, not their current body.
+// Use this for traits based on original sex so their effects don't reverse after a genderflip.
+function playerOriginalSex() {
+	const pill = V.xchange && V.xchange.pill;
+	if (pill && pill.active && (pill.baseSex === "m" || pill.baseSex === "f")) return pill.baseSex;
+	return V.player ? V.player.sex : "f";
+}
+window.playerOriginalSex = playerOriginalSex;
+
 // Role of the body the player is currently in, by configuration not flags.
 // gender_body "a" is unambiguously a herm body regardless of session flags: hermEffect/genderflipEffect
 // get reset to false whenever a fresh pill session starts (xchange-effects), even if the player's actual

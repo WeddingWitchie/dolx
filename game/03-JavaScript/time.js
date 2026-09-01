@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1513,9 +1513,11 @@ function minutePassed(minutes) {
 	// decay/rise and crossdresser trait
 	const isCrossdresser = V.backgroundTraits.includes("crossdresser");
 	const isGenderAnxious = V.backgroundTraits.includes("genderAnxious");
-	// Not using isCrossdressing() since the stress gains/penalties should not be based on NudeGenderDC
-	// A herm body (both sets of genitals) can't be crossdressing, whichever way it presents.
-	const isCrossdressing = V.player.sex !== V.player.gender_appearance && !(V.player.penisExist && V.player.vaginaExist);
+	// Don't use isCrossdressing() here, since NudeGenderDC should not affect stress.
+	// Herm bodies can't crossdress.
+	// These traits use original sex, so X-Change doesn't reverse their effects.
+	const originalSex = playerOriginalSex();
+	const isCrossdressing = originalSex !== V.player.gender_appearance && !(V.player.penisExist && V.player.vaginaExist);
 	if (V.controlled === 0 && V.anxiety >= 2 && V.timeSkip === undefined) {
 		V.stress += minutes * (((isCrossdresser && !isCrossdressing) || (isGenderAnxious && isCrossdressing)) + 1);
 	} else if (V.stress < V.stressmax && (V.controlled === 1 || V.anxiety === 0)) {

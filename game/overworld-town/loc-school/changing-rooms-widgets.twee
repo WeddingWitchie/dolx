@@ -86,8 +86,8 @@
 		/* Trans players: comfort is tied to gender identity, not sex. Same-gender room = home; opposite-gender room = wrong room. */
 		<<set _uncomfortable to (_transChangingRoomGender isnot _args[0] and _transChangingRoomGender isnot "h")>>
 	<<elseif $backgroundTraits.includes("crossdresser")>>
-		/* Crossdresser background: uncomfortable in their birth-sex room, the one they don't prefer. */
-		<<set _uncomfortable to ($player.sex is _args[0])>>
+		/* Crossdresser background: uncomfortable in their birth-sex changing room. Use original sex so X-Change does not reverse this. */
+		<<set _uncomfortable to (playerOriginalSex() is _args[0])>>
 	<<else>>
 		<<set _uncomfortable to false>>
 	<</if>>
@@ -157,7 +157,7 @@
 
 <<widget "changingRoomFeelings">>
 	<<if $schoolrep.crossdress lt 3 and _args[0] is undefined>>
-		<<if ($background.transgender and _transChangingRoomGender is _changingRoomGenderType) or (!$background.transgender and $backgroundTraits.includes("crossdresser") and $player.sex isnot _changingRoomGenderType)>>
+		<<if ($background.transgender and _transChangingRoomGender is _changingRoomGenderType) or (!$background.transgender and $backgroundTraits.includes("crossdresser") and playerOriginalSex() isnot _changingRoomGenderType)>>
 			<<if !$daily.school.changingRoomStressRelief>>
 				<span class="green">You feel good about that.</span><<lstress>><<stress -3>><<set $daily.school.changingRoomStressRelief to true>>
 			<<else>>
