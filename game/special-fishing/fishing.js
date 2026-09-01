@@ -1,5 +1,5 @@
 /* global wardrobeContainsItem effectiveTransformationBuild */
-/* global dolxFishingBaitSizeBonus dolxFishingBaitWeightMultiplier dolxFishingCatchWeightBaitMultiplier dolxFishingBaitAffinity dolxFishingSmallFishWeight dolxBaitUsable dolxBaitTake dolxBaitReturn dolxFishRollShoal dolxSmallCatchThreshold dolxFishEatingTfs */
+/* global dolxFishKeepKey dolxFishingBaitSizeBonus dolxFishingBaitWeightMultiplier dolxFishingCatchWeightBaitMultiplier dolxFishingBaitAffinity dolxFishingSmallFishWeight dolxBaitUsable dolxBaitTake dolxBaitReturn dolxFishRollShoal dolxSmallCatchThreshold dolxFishEatingTfs */
 /* global generateClothingItem */
 /**
  * Rolls the size of the input fish at the input location
@@ -405,13 +405,15 @@ function rollIfBaitShopRequestsFishToday() {
 window.rollIfBaitShopRequestsFishToday = rollIfBaitShopRequestsFishToday;
 
 /**
- * If the fish is the fish being requested
+ * If the catch is the fish being requested. Takes the whole fish, because an undersized bass or
+ * trout is kept as a small fish and cannot be handed over as its parent species.
  *
- * @param {string} fishType
+ * @param {object|string} fish
  * @returns {boolean}
  */
-function baitShopWants(fishType) {
-	return V.daily.fishing?.baitShopRequest === "requested" && V.daily.fishing?.baitShopRequestFish === fishType && baitShopOpen();
+function baitShopWants(fish) {
+	const keptAs = typeof fish === "string" ? fish : dolxFishKeepKey(fish);
+	return V.daily.fishing?.baitShopRequest === "requested" && V.daily.fishing?.baitShopRequestFish === keptAs && baitShopOpen();
 }
 window.baitShopWants = baitShopWants;
 

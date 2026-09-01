@@ -182,16 +182,18 @@
 
 <<widget "fishingCatchFishText">>
 	<<set _fish to _args[0]>>
-	<<set _fishingRecordEntry to $fishing.record[_fish.type]>>
-	<<set _isBiggest to _fish.size is _fishingRecordEntry.largest>>
+	/* The record is filed under the keep key, which is the bait fish for an undersized catch, not $fish.type. */
+	<<set _fishRecordKey to dolxFishKeepKey(_fish) ?? _fish.type>>
+	<<set _fishingRecordEntry to $fishing.record[_fishRecordKey]>>
+	<<set _isBiggest to _fishingRecordEntry and _fish.size is _fishingRecordEntry.largest>>
 
 	You swing the <<= dolxFishName(_fish.type)>> out of the water.
 
 	<<if _isBiggest>><span class="green">_fish.size cm.</span><<else>>_fish.size cm.<</if>>
-	<<if _fishingRecordEntry.numCaught is dolxFishCatchCount(_fish)>>
-		(The <span class="gold">first</span> <<= dolxFishName(_fish.type)>> you've ever caught!)<<lstress>><<stress -10>>
+	<<if _fishingRecordEntry and _fishingRecordEntry.numCaught is dolxFishCatchCount(_fish)>>
+		(The <span class="gold">first</span> <<= dolxFishName(_fishRecordKey)>> you've ever caught!)<<lstress>><<stress -10>>
 	<<elseif _isBiggest>>
-		(The biggest <<= dolxFishName(_fish.type)>> you've ever caught!)<<lstress>><<stress -5>>
+		(The biggest <<= dolxFishName(_fishRecordKey)>> you've ever caught!)<<lstress>><<stress -5>>
 	<<elseif isPlayerFishingAlone()>>
 		<<if $rng gte 98 and $world_corruption_soft gte 40>>
 			The <<= dolxFishName(_fish.type)>> hangs limp on the hook, eyes clouded and grey. It looks like it's been dead for a while, but that doesn't make sense.<<gstress>><<stress 4>>
