@@ -5647,6 +5647,10 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<</if>>
 			<</if>>
 
+			/* Some release branches above free the genitals without clearing where they were. The leftover "head"/"genitals" location then blocks every later genital action, stranding them. "idle" is a deliberate block and stays. */
+			<<if $NPCList[_n].location and [0,"none","clothed"].includes($NPCList[_n].vagina) and [0,"none","clothed"].includes($NPCList[_n].penis) and ["head","genitals"].includes($NPCList[_n].location.genitals)>>
+				<<set $NPCList[_n].location.genitals to 0>>
+			<</if>>
 			<<if $NPCList[_n].vagina is 0 and $NPCList[_n].penis is 0>>
 				<<if random(0,1) is 0>>
 					<<vaginainit>>
@@ -6222,7 +6226,10 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 									<<brat 2>>
 								<</if>>
 							<<case 2>>
-								<span class="lblue"><<He>> moves <<his>> <<= npcHasStrapon(_n) ? "strap-on" : "penis">> away from your mouth.</span>								<<set $NPCList[_n].penis to 0>><<set $mouthuse to 0>><<set $mouthstate to 0>>
+								/* This is the kiss branch: it used to announce a penis and clear .penis, which stranded the kiss on .mouth and wiped whatever the NPC's penis was actually doing. */
+								<span class="lblue"><<He>> pulls <<his>> mouth away from yours.</span>
+								<<set $NPCList[_n].mouth to 0>><<set $mouthuse to 0>><<set $mouthstate to 0>>
+								<<set $NPCList[_n].location.head to 0>>
 								<<if $consensual isnot 1>>
 									<<brat 2>>
 								<</if>>
@@ -6340,6 +6347,7 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 						<<if random(1, 100) gte 81>>
 							<<He>> pulls <<his>> head away from your chest.
 							<<set $chestuse to 0>><<set $cheststate to 0>><<set $NPCList[_n].mouth to 0>>
+							<<set $NPCList[_n].location.head to 0>>
 						<<else>>
 							<<if $enemyanger gte 100 and $combatExtended.reverseRapeStart is 0>>
 								<<He>> kneads your <<nipple>> between <<his>> teeth.
@@ -6375,6 +6383,11 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 					<<set $chestuse to 0>><<set $cheststate to 0>><<set $NPCList[_n].mouth to 0>>
 					<<set $NPCList[_n].location.head to 0>>
 				<</if>>
+			<</if>>
+
+			/* Clear a released mouth's old position so it doesn't block kissing, oral, or breast play. A mouth held against the chest still counts as in use through .chest. */
+			<<if $NPCList[_n].location and ["head","genitals"].includes($NPCList[_n].location.head) and [0,"none","speech_only"].includes($NPCList[_n].mouth) and !["mouth","mouthentrance"].includes($NPCList[_n].chest)>>
+				<<set $NPCList[_n].location.head to 0>>
 			<</if>>
 			<<rng>>
 			<<unset _npc_speech>>

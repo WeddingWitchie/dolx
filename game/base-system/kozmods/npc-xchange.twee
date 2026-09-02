@@ -299,6 +299,18 @@
 					<<set _xSlot.vagina to 0>>
 					<<if _xSlot.location>><<set _xSlot.location.genitals to 0>><</if>>
 				<</if>>
+
+				/* Clear the genital location when released so the NPC can use them again. "idle" intentionally keeps them blocked. */
+				<<if _xSlot.location and ["head","genitals"].includes(_xSlot.location.genitals)
+					and [0,"none","clothed"].includes(_xSlot.penis) and [0,"none","clothed"].includes(_xSlot.vagina)>>
+					<<set _xSlot.location.genitals to 0>>
+				<</if>>
+
+				/* location.head can stay set after the mouth position ends, blocking kissing, oral, and breast play. A head held against the NPC's chest uses .chest instead, so that still counts as in use. */
+				<<if _xSlot.location and ["head","genitals"].includes(_xSlot.location.head)
+					and [0,"none","speech_only"].includes(_xSlot.mouth) and !["mouth","mouthentrance"].includes(_xSlot.chest)>>
+					<<set _xSlot.location.head to 0>>
+				<</if>>
 			<</if>>
 		<</for>>
 
@@ -434,6 +446,20 @@
 		}[$anusstate]>>
 		<<set _xAnusPositionValid to !_xAnusPosition or _xHasPart(_xAnusPosition[0], _xAnusPosition[1])>>
 		<<if !_xAnusPositionValid>><<set $anususe to 0>><<set $anusstate to 0>><<set $anusaction to 0>><</if>>
+
+		/* Breast play is tracked from both ends: the NPC's mouth on the player's chest, and the player's mouth on the NPC's chest. Either tracker can outlive the other side. */
+		<<set _xNpcMouthOnChest to ["chestentrance","chestimminent","chest"].some(pos => _xHasPart("mouth", pos))>>
+		<<if $chestuse is "mouth" and !_xNpcMouthOnChest>>
+			<<set $chestuse to 0>><<set $cheststate to 0>><<set $chestaction to 0>>
+		<</if>>
+		<<set _xHeadOnNpcChest to ["mouthentrance","mouth"].some(pos => _xHasPart("chest", pos))>>
+		<<if ($mouthuse is "breasts" or ["breasts","nipple"].includes($mouthstate)) and !_xHeadOnNpcChest>>
+			<<set $mouthuse to 0>><<set $mouthstate to 0>><<set $mouthaction to 0>>
+		<</if>>
+		/* $head only ever holds "breasts" while an NPC is pressing the player's face into their chest, and the release paths forget to let it go. */
+		<<if $head is "breasts" and !_xHeadOnNpcChest>>
+			<<set $head to 0>>
+		<</if>>
 	<</widget>>
 
 	/* args 0: combat slot index, args 1: body record being copied to that slot.
