@@ -225,6 +225,25 @@
 
 	<<widget "npc-xchange-repair-active-genital-targets">>
 		<<if !$NPCList>><<exit>><</if>>
+
+		/* Match the combat slot limit and treat "botharm" as either arm. This keeps position checks consistent and prevents stale trackers. */
+		<<set _xSlotCount to (Number.isInteger($enemynomax) and $enemynomax gt 0) ? Math.min($enemynomax, $NPCList.length) : $NPCList.length>>
+		<<set _xHasPart to (part, position) => {
+			for (let j = 0; j < _xSlotCount; j++) {
+				const npc = $NPCList[j];
+				if (!npc || typeof npc !== "object") continue;
+				if (part === "hand") {
+					if (npc.lefthand === position || npc.righthand === position) return true;
+					continue;
+				}
+				if (npc[part] === position) return true;
+				if ((position === "leftarm" || position === "rightarm") && npc[part] === "botharm") return true;
+			}
+			return false;
+		}>>
+		/* An NPC's anus is tracked on whichever genital field is free, so both have to be checked. */
+		<<set _xHasGenital to position => _xHasPart("penis", position) || _xHasPart("vagina", position)>>
+
 		/* Repair saves where a genital's active position was replaced by its idle position */
 		<<set _xPenisPositions to { entrance: "penisentrance", imminent: "penisimminent", penetrated: "penis" }>>
 		<<set _xVaginaPositions to { entrance: "vaginaentrance", imminent: "vaginaimminent", penetrated: "vagina" }>>
@@ -239,16 +258,10 @@
 			<<npc-xchange-clear-active-genital-state $vaginatarget "penis">>
 		<</if>>
 		<<set _xPenisTargetValid to Number.isInteger($penistarget) and $NPCList[$penistarget] and typeof $NPCList[$penistarget] is "object">>
-		<<set _xLeftPenisHeld to false>>
-		<<set _xLeftVaginaHeld to false>>
-		<<set _xRightPenisHeld to false>>
-		<<set _xRightVaginaHeld to false>>
-		<<for _xSlotIndex, _xSlot range $NPCList>>
+		/* Widget temporaries are shared, so use a loop counter that other widgets cannot overwrite. */
+		<<for _xLoopIndex = 0; _xLoopIndex lt _xSlotCount; _xLoopIndex++>>
+			<<set _xSlot to $NPCList[_xLoopIndex]>>
 			<<if _xSlot and typeof _xSlot is "object">>
-				<<if ["leftarm","botharm"].includes(_xSlot.penis)>><<set _xLeftPenisHeld to true>><</if>>
-				<<if _xSlot.vagina is "leftarm">><<set _xLeftVaginaHeld to true>><</if>>
-				<<if ["rightarm","botharm"].includes(_xSlot.penis)>><<set _xRightPenisHeld to true>><</if>>
-				<<if _xSlot.vagina is "rightarm">><<set _xRightVaginaHeld to true>><</if>>
 				<<set _xSource to undefined>>
 				<<set _xSourceNames to [_xSlot.fullDescription, _xSlot.description, _xSlot.nam, _xSlot.name]>>
 				<<for _xSourceName range _xSourceNames>>
@@ -259,10 +272,10 @@
 					<</if>>
 				<</for>>
 
-				<<set _xLostPenis to _xSlot.penis is "none" or (!npcHasStrapon(_xSlotIndex) and ((_xSource and _xSource.penis is "none") or !_xSlot.penisdesc or _xSlot.penisdesc is "none" or (_xSlot.penissize isnot undefined and _xSlot.penissize lte 0)))>>
+				<<set _xLostPenis to _xSlot.penis is "none" or (!npcHasStrapon(_xLoopIndex) and ((_xSource and _xSource.penis is "none") or !_xSlot.penisdesc or _xSlot.penisdesc is "none" or (_xSlot.penissize isnot undefined and _xSlot.penissize lte 0)))>>
 				<<if _xLostPenis>>
-					<<npc-xchange-clear-active-genital-state _xSlotIndex "penis">>
-					<<if !npcHasStrapon(_xSlotIndex) and _xSlot.penis isnot "none" and ((_xSource and _xSource.penis is "none") or !_xSlot.penisdesc or _xSlot.penisdesc is "none" or (_xSlot.penissize isnot undefined and _xSlot.penissize lte 0))>>
+					<<npc-xchange-clear-active-genital-state _xLoopIndex "penis">>
+					<<if !npcHasStrapon(_xLoopIndex) and _xSlot.penis isnot "none" and ((_xSource and _xSource.penis is "none") or !_xSlot.penisdesc or _xSlot.penisdesc is "none" or (_xSlot.penissize isnot undefined and _xSlot.penissize lte 0))>>
 						<<set _xSlot.penis to "none">>
 						<<set _xSlot.penisdesc to "none">>
 						<<set _xSlot.penissize to 0>>
@@ -271,36 +284,156 @@
 
 				<<set _xLostVagina to _xSlot.vagina is "none" or (_xSource and _xSource.vagina is "none")>>
 				<<if _xLostVagina>>
-					<<npc-xchange-clear-active-genital-state _xSlotIndex "vagina">>
+					<<npc-xchange-clear-active-genital-state _xLoopIndex "vagina">>
 					<<if _xSource and _xSource.vagina is "none" and _xSlot.vagina isnot "none">>
 						<<set _xSlot.vagina to "none">>
 					<</if>>
 				<</if>>
 
 				/* Older versions could free the player's penis while leaving a second NPC's anal state behind. */
-				<<if _xPenisTargetValid and $penistarget isnot _xSlotIndex and ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xSlot.penis)>>
+				<<if _xPenisTargetValid and $penistarget isnot _xLoopIndex and ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xSlot.penis)>>
 					<<set _xSlot.penis to 0>>
 					<<if _xSlot.location>><<set _xSlot.location.genitals to 0>><</if>>
 				<</if>>
-				<<if _xPenisTargetValid and $penistarget isnot _xSlotIndex and ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xSlot.vagina)>>
+				<<if _xPenisTargetValid and $penistarget isnot _xLoopIndex and ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xSlot.vagina)>>
 					<<set _xSlot.vagina to 0>>
 					<<if _xSlot.location>><<set _xSlot.location.genitals to 0>><</if>>
 				<</if>>
 			<</if>>
 		<</for>>
 
-		/* A hand can still claim an NPC's genitals after that genital moved or was reset.
-		   Release only the orphaned hand tracker before action generation tries to select its owner. */
-		<<if $leftarm is "penis" and !_xLeftPenisHeld>>
+		/* Release stale player combat trackers when the matching NPC position no longer exists. This also prevents broken save data from causing selector errors. */
+		<<if $leftarm is "penis" and !_xHasPart("penis", "leftarm")>>
 			<<set $leftarm to 0>><<set $lefttarget to 0>><<set $leftaction to 0>><<set $leftactiondefault to "leftgrab">>
-		<<elseif $leftarm is "othervagina" and !_xLeftVaginaHeld>>
+		<<elseif $leftarm is "othervagina" and !_xHasPart("vagina", "leftarm")>>
 			<<set $leftarm to 0>><<set $lefttarget to 0>><<set $leftaction to 0>><<set $leftactiondefault to "leftplay">>
+		<<elseif $leftarm is "dildoOtherPussyFuck" and !_xHasPart("vagina", "leftDildo")>>
+			<<set $leftarm to "heldSexToy">><<set $leftaction to 0>><<set $leftactiondefault to "rest">>
+		<<elseif $leftarm is "dildoOtherAnusFuck" and !_xHasGenital("leftDildoAnus")>>
+			<<set $leftarm to "heldSexToy">><<set $leftaction to 0>><<set $leftactiondefault to "rest">>
 		<</if>>
-		<<if $rightarm is "penis" and !_xRightPenisHeld>>
+		<<if $rightarm is "penis" and !_xHasPart("penis", "rightarm")>>
 			<<set $rightarm to 0>><<set $righttarget to 0>><<set $rightaction to 0>><<set $rightactiondefault to "rightgrab">>
-		<<elseif $rightarm is "othervagina" and !_xRightVaginaHeld>>
+		<<elseif $rightarm is "othervagina" and !_xHasPart("vagina", "rightarm")>>
 			<<set $rightarm to 0>><<set $righttarget to 0>><<set $rightaction to 0>><<set $rightactiondefault to "rightplay">>
+		<<elseif $rightarm is "dildoOtherPussyFuck" and !_xHasPart("vagina", "rightDildo")>>
+			<<set $rightarm to "heldSexToy">><<set $rightaction to 0>><<set $rightactiondefault to "rest">>
+		<<elseif $rightarm is "dildoOtherAnusFuck" and !_xHasGenital("rightDildoAnus")>>
+			<<set $rightarm to "heldSexToy">><<set $rightaction to 0>><<set $rightactiondefault to "rest">>
 		<</if>>
+		<<if $feetuse is "penis" and !_xHasPart("penis", "feet")>>
+			<<set $feetuse to 0>><<set $feetaction to 0>><<set $feetactiondefault to "grab">>
+		<<elseif $feetuse is "othervagina" and !_xHasPart("vagina", "feet")>>
+			<<set $feetuse to 0>><<set $feetaction to 0>><<set $feetactiondefault to "vaginagrab">>
+		<</if>>
+		<<if $chestuse is "penis" and !_xHasPart("penis", "chest")>>
+			<<set $chestuse to 0>><<set $chestaction to 0>>
+		<</if>>
+		<<if $thighuse is "mouth" and !_xHasPart("mouth", "thigh")>>
+			<<set $thighuse to 0>><<set $thighaction to 0>>
+		<<elseif $thighuse is "penis" and !_xHasPart("penis", "thighs")>>
+			<<set $thighuse to 0>><<set $thighaction to 0>>
+		<</if>>
+		/* Runs before the anus checks below, because losing the cheeks also releases the anal trackers. */
+		<<if $bottomuse is "mouth" and !_xHasPart("mouth", "bottom")>>
+			<<set $bottomuse to 0>><<set $anusaction to 0>>
+		<<elseif $bottomuse is "penis" and !_xHasPart("penis", "cheeks")>>
+			<<set $bottomuse to 0>><<set $anususe to 0>><<set $anusstate to 0>><<set $anusaction to 0>>
+		<<elseif $bottomuse is "hand" and !_xHasPart("hand", "bottom")>>
+			<<set $bottomuse to 0>><<set $anusaction to 0>>
+		<</if>>
+
+		<<set _xMouthPosition to {
+			entrance: "mouthentrance", imminent: "mouthimminent", penetrated: "mouth",
+			kissentrance: "kissentrance", kissimminent: "kissimminent", kiss: "kiss"
+		}[$mouthstate]>>
+		<<set _xMouthPositionValid to !_xMouthPosition or (
+			$mouthuse is "kiss" ? _xHasPart("mouth", _xMouthPosition) : _xHasPart("penis", _xMouthPosition)
+		)>>
+		<<if $mouthuse is "othervagina" and !["mouth","mouthentrance","mouthimminent"].some(pos => _xHasPart("vagina", pos))>>
+			<<set _xMouthPositionValid to false>>
+		<<elseif $mouthuse is "facesit" and !(($mouthstate is "vagina" and _xHasPart("vagina", "facesit")) or ($mouthstate is "anal" and _xHasGenital("facesitanal")))>>
+			<<set _xMouthPositionValid to false>>
+		<<elseif $mouthstate is "otheranus" and !_xHasGenital("mouthotheranus")>>
+			<<set _xMouthPositionValid to false>>
+		<<elseif ["lefthand","righthand"].includes($mouthuse) and !_xHasPart("hand", "mouth")>>
+			<<set _xMouthPositionValid to false>>
+		<</if>>
+		<<if !_xMouthPositionValid>><<set $mouthuse to 0>><<set $mouthstate to 0>><<set $mouthaction to 0>><</if>>
+
+		<<set _xPenisPosition to {
+			othermouthentrance: ["mouth", "penisentrance"], othermouthimminent: ["mouth", "penisimminent"], othermouth: ["mouth", "penis"],
+			entrance: ["vagina", "penisentrance"], imminent: ["vagina", "penisimminent"], penetrated: ["vagina", "penis"],
+			otherpenisentrance: ["penis", "penisentrance"], otherpenisimminent: ["penis", "penisimminent"], otherpenis: ["penis", "penis"],
+			otherhandentrance: ["hand", "penisentrance"], otherhand: ["hand", "penis"], stroker: ["hand", "penisstroker"]
+		}[$penisstate]>>
+		<<set _xPenisPositionValid to !_xPenisPosition or _xHasPart(_xPenisPosition[0], _xPenisPosition[1])>>
+		<<if ["otheranusentrance","otheranusimminent","otheranus"].includes($penisstate) and !_xHasGenital($penisstate)>>
+			<<set _xPenisPositionValid to false>>
+		<<elseif $penisuse is "clit" and !_xHasPart("vagina", "frot")>>
+			<<set _xPenisPositionValid to false>>
+		<<elseif $penisuse is "otheranusrub" and !_xHasGenital("otheranusfrot")>>
+			<<set _xPenisPositionValid to false>>
+		<</if>>
+		<<if !_xPenisPositionValid>><<set $penisuse to 0>><<set $penisstate to 0>><<set $penisaction to 0>><</if>>
+
+		<<if typeof $vaginastate is "string" and $vaginastate.includes("double")>>
+			<<set _xDoubleSlots to []>>
+			<<for _xDoubleIndex = 0; _xDoubleIndex lt _xSlotCount; _xDoubleIndex++>>
+				<<if $NPCList[_xDoubleIndex] and ["vaginadouble","vaginaimminentdouble","vaginaentrancedouble"].includes($NPCList[_xDoubleIndex].penis)>>
+					<<run _xDoubleSlots.push(_xDoubleIndex)>>
+				<</if>>
+			<</for>>
+			<<if _xDoubleSlots.length is 1>>
+				<<set _xDoubleIndex to _xDoubleSlots[0]>><<set $vaginatarget to _xDoubleIndex>><<set $vaginadoubletarget to 0>><<set $vaginause to "penis">>
+				<<switch $NPCList[_xDoubleIndex].penis>>
+					<<case "vaginadouble">><<set $NPCList[_xDoubleIndex].penis to "vagina">><<set $vaginastate to "penetrated">>
+					<<case "vaginaimminentdouble">><<set $NPCList[_xDoubleIndex].penis to "vaginaimminent">><<set $vaginastate to "imminent">>
+					<<case "vaginaentrancedouble">><<set $NPCList[_xDoubleIndex].penis to "vaginaentrance">><<set $vaginastate to "entrance">>
+				<</switch>>
+				/* Keep the queued action minus its "double" half, the way <<npc-xchange-clear-active-genital-state>> does. */
+				<<if $vaginaaction and typeof $vaginaaction is "string">><<set $vaginaaction to $vaginaaction.replace("double","")>><</if>>
+			<<elseif _xDoubleSlots.length is 0>>
+				<<set $vaginause to 0>><<set $vaginastate to 0>><<set $vaginaaction to 0>><<set $vaginadoubletarget to 0>>
+			<</if>>
+		<</if>>
+		<<set _xVaginaPosition to {
+			othermouthentrance: ["mouth", "vaginaentrance"], othermouthimminent: ["mouth", "vaginaimminent"], othermouth: ["mouth", "vagina"],
+			entrance: ["penis", "vaginaentrance"], imminent: ["penis", "vaginaimminent"], penetrated: ["penis", "vagina"],
+			othervaginaentrance: ["vagina", "vaginaentrance"], othervaginaimminent: ["vagina", "vaginaimminent"], othervagina: ["vagina", "vagina"],
+			otherhandentrance: ["hand", "vaginaentrance"], otherhand: ["hand", "vagina"]
+		}[$vaginastate]>>
+		<<set _xVaginaPositionValid to !_xVaginaPosition or _xHasPart(_xVaginaPosition[0], _xVaginaPosition[1])>>
+		<<if !_xVaginaPositionValid>><<set $vaginause to 0>><<set $vaginastate to 0>><<set $vaginaaction to 0>><</if>>
+
+		<<if typeof $anusstate is "string" and $anusstate.includes("double")>>
+			<<set _xDoubleSlots to []>>
+			<<for _xDoubleIndex = 0; _xDoubleIndex lt _xSlotCount; _xDoubleIndex++>>
+				<<if $NPCList[_xDoubleIndex] and ["anusdouble","anusimminentdouble","anusentrancedouble"].includes($NPCList[_xDoubleIndex].penis)>>
+					<<run _xDoubleSlots.push(_xDoubleIndex)>>
+				<</if>>
+			<</for>>
+			<<if _xDoubleSlots.length is 1>>
+				<<set _xDoubleIndex to _xDoubleSlots[0]>><<set $anustarget to _xDoubleIndex>><<set $anusdoubletarget to 0>><<set $anususe to "penis">>
+				<<switch $NPCList[_xDoubleIndex].penis>>
+					<<case "anusdouble">><<set $NPCList[_xDoubleIndex].penis to "anus">><<set $anusstate to "penetrated">>
+					<<case "anusimminentdouble">><<set $NPCList[_xDoubleIndex].penis to "anusimminent">><<set $anusstate to "imminent">>
+					<<case "anusentrancedouble">><<set $NPCList[_xDoubleIndex].penis to "anusentrance">><<set $anusstate to "entrance">>
+				<</switch>>
+				<<if $anusaction and typeof $anusaction is "string">><<set $anusaction to $anusaction.replace("double","")>><</if>>
+			<<elseif _xDoubleSlots.length is 0>>
+				<<set $anususe to 0>><<set $anusstate to 0>><<set $anusaction to 0>><<set $anusdoubletarget to 0>>
+			<</if>>
+		<</if>>
+		/* Vanilla spells the fully-penetrated rimming state both ways, so both have to map. */
+		<<set _xAnusPosition to {
+			othermouthentrance: ["mouth", "anusentrance"], othermouthimminent: ["mouth", "anusimminent"],
+			othermouth: ["mouth", "anus"], othermouthpenetrated: ["mouth", "anus"],
+			handentrance: ["hand", "anusentrance"], hand: ["hand", "anus"],
+			entrance: ["penis", "anusentrance"], imminent: ["penis", "anusimminent"], penetrated: ["penis", "anus"]
+		}[$anusstate]>>
+		<<set _xAnusPositionValid to !_xAnusPosition or _xHasPart(_xAnusPosition[0], _xAnusPosition[1])>>
+		<<if !_xAnusPositionValid>><<set $anususe to 0>><<set $anusstate to 0>><<set $anusaction to 0>><</if>>
 	<</widget>>
 
 	/* args 0: combat slot index, args 1: body record being copied to that slot.
@@ -331,6 +464,8 @@
 		<<set _xClearedByTarget to false>>
 		<<set _xAnalStoredOnPenis to ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xNpc.penis)>>
 		<<set _xAnalStoredOnVagina to ["otherfrot","otheranusfrot","otheranusentrance","otheranusimminent","otheranus"].includes(_xNpc.vagina)>>
+		/* Only combat slots count, the same bound <<selectNpcWithPartInPosition>> uses. */
+		<<set _xClearSlotCount to (Number.isInteger($enemynomax) and $enemynomax gt 0) ? Math.min($enemynomax, $NPCList.length) : $NPCList.length>>
 
 		<<if _xPart is "penis">>
 			<<switch _xNpc.penis>>
@@ -366,7 +501,7 @@
 				<<case "anusdouble" "anusentrancedouble" "anusimminentdouble">>
 					<<set _xNpc.penis to 0>>
 					<<set _xFoundPartner to false>>
-					<<for _xK = 0; _xK lt $NPCList.length; _xK++>>
+					<<for _xK = 0; _xK lt _xClearSlotCount; _xK++>>
 						<<if _xK isnot _xSlotIndex and $NPCList[_xK] and ["anusdouble","anusimminentdouble","anusentrancedouble"].includes($NPCList[_xK].penis)>>
 							<<switch $NPCList[_xK].penis>>
 								<<case "anusdouble">><<set $NPCList[_xK].penis to "anus">><<set $anusstate to "penetrated">>
@@ -383,7 +518,7 @@
 				<<case "vaginadouble" "vaginaentrancedouble" "vaginaimminentdouble">>
 					<<set _xNpc.penis to 0>>
 					<<set _xFoundPartner to false>>
-					<<for _xK = 0; _xK lt $NPCList.length; _xK++>>
+					<<for _xK = 0; _xK lt _xClearSlotCount; _xK++>>
 						<<if _xK isnot _xSlotIndex and $NPCList[_xK] and ["vaginadouble","vaginaimminentdouble","vaginaentrancedouble"].includes($NPCList[_xK].penis)>>
 							<<switch $NPCList[_xK].penis>>
 								<<case "vaginadouble">><<set $NPCList[_xK].penis to "vagina">><<set $vaginastate to "penetrated">>

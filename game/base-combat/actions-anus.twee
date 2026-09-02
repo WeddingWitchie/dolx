@@ -266,11 +266,19 @@
 :: Widgets Effects Anus [widget]
 <<widget "effectsanustopenis">>
 	<<if $anusaction is "anustopenis">>
+		<<set _j to -1>>
 		<<if $anusstate is "entrance">>
-			<<selectNpcWithPartInPosition "penis" "anusentrance">>
-			<<set $anusdoubletarget to $anustarget>>
-			<<set $anustarget to _j>>
-			<<set $anusaction to "anustopenisdouble">>
+			/* A penis is already at the entrance, so this one becomes the second. Only scan active combat slots to match the normal selector. */
+			<<for _anusSlot = 0; _anusSlot lt Math.min($enemynomax, $NPCList.length); _anusSlot++>>
+				<<if _j lt 0 and $NPCList[_anusSlot] and $NPCList[_anusSlot].penis is "anusentrance">><<set _j to _anusSlot>><</if>>
+			<</for>>
+			<<if _j lt 0>>
+				/* Another action already moved this penis. Clear the old anal state and continue the chosen action. */
+				<<set $anususe to 0>><<set $anusstate to 0>>
+			<</if>>
+		<</if>>
+		<<if _j gte 0>>
+			<<personselect _j>><<set $anusdoubletarget to $anustarget>><<set $anustarget to _j>><<set $anusaction to "anustopenisdouble">>
 		<<else>>
 			<<personselect $anustarget>>
 			<<set $anusaction to 0>><<submission 10>><<analskilluse>><<combatpromiscuity5>>

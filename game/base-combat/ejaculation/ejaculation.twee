@@ -1,6 +1,7 @@
 :: Widgets Ejaculation [widget]
 <<widget "ejaculation">>
 	<<set $ejaculating to 1>>
+	<<npc-xchange-repair-active-genital-targets>>
 	<<speechresolve>>
 
 	<!-- Dev Notes -->
@@ -67,13 +68,40 @@
 					<span class="red"><<He>> doesn't pull out.</span>
 				<<elseif $combatExtended.reverseRapeStart isnot 1>>
 					<span class="green"><<He>> pulls out at the last minute.</span>
+					<!-- Entrance positions need entrance states or the trackers can desync. If one NPC pulls out of double penetration, the remaining NPC keeps the single penetration state. -->
 					<<if $NPCList[_nn].penis is "vagina" or $NPCList[_nn].penis is "vaginadouble">>
+						<<if $NPCList[_nn].penis is "vaginadouble">>
+							<<set _pullOutPartner to $NPCList.slice(0, Math.min($enemynomax, $NPCList.length)).findIndex((npc, idx) => idx isnot _nn and npc and npc.penis is "vaginadouble")>>
+							<<if _pullOutPartner gte 0>>
+								<<set $NPCList[_pullOutPartner].penis to "vagina">>
+								<<set $vaginatarget to _pullOutPartner>>
+								<<set $vaginause to "penis">>
+								<<set $vaginadoubletarget to 0>>
+								<<set $vaginastate to "penetrated">>
+							<<else>>
+								<<set $vaginastate to "entrance">>
+							<</if>>
+						<<else>>
+							<<set $vaginastate to "entrance">>
+						<</if>>
 						<<set $NPCList[_nn].penis to "vaginaentrance">>
-						<<set $vaginastate to ($vaginastate is "doublepenetrated" ? "penetrated" : "imminent")>>
 						<<set _pullOutVagina to true>>
 					<<elseif $NPCList[_nn].penis is "anus" or $NPCList[_nn].penis is "anusdouble">>
+						<<if $NPCList[_nn].penis is "anusdouble">>
+							<<set _pullOutPartner to $NPCList.slice(0, Math.min($enemynomax, $NPCList.length)).findIndex((npc, idx) => idx isnot _nn and npc and npc.penis is "anusdouble")>>
+							<<if _pullOutPartner gte 0>>
+								<<set $NPCList[_pullOutPartner].penis to "anus">>
+								<<set $anustarget to _pullOutPartner>>
+								<<set $anususe to "penis">>
+								<<set $anusdoubletarget to 0>>
+								<<set $anusstate to "penetrated">>
+							<<else>>
+								<<set $anusstate to "entrance">>
+							<</if>>
+						<<else>>
+							<<set $anusstate to "entrance">>
+						<</if>>
 						<<set $NPCList[_nn].penis to "anusentrance">>
-						<<set $anusstate to ($anusstate is "doublepenetrated" ? "penetrated" : "imminent")>>
 						<<set _pullOutAnus to true>>
 					<</if>>
 				<</if>>
