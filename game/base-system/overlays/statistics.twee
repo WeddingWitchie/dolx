@@ -1491,11 +1491,15 @@
 				<span class="red">Invalid (NaN)</span>
 			<</if>>
 			<br>
+			/* Parasites have their own foldout, so don't show them here just to say they block an anal pregnancy that couldn't happen anyway. */
+			<<set _analBlock to !!(getActivePregnancy("pc", "anus") or !$player.vaginaExist or canBeMPregnant())>>
+			/* Two unlabelled readouts in a row read as one contradicting itself, so name them when both show. */
+			<<set _labelBlocks to $player.vaginaExist and _analBlock>>
 			<<if $player.vaginaExist>>
-				<<pregnancyStatusBlock "vagina">>
+				<<pregnancyStatusBlock "vagina" _labelBlocks>>
 			<</if>>
-			<<if getActivePregnancy("pc", "anus") or $sexStats.anus.pregnancy.type is "parasite" or !$player.vaginaExist or canBeMPregnant()>>
-				<<pregnancyStatusBlock "anus">>
+			<<if _analBlock>>
+				<<pregnancyStatusBlock "anus" _labelBlocks>>
 			<</if>>
 			<<xchangePregnancyCounterRepair>>
 		<</foldout>>
@@ -1573,7 +1577,7 @@
 		<</for>>
 	<<else>>
 		<<if playerAwareTheyArePregnant() and pregnancyBlocksParasites(_orifice)>>
-			Unable to host parasites due to other type of <<= _orifice is "anus" ? "anal" : "vaginal">> pregnancy.
+			Unable to host parasites due to other type of <<= _orifice is "anus" ? "anal" : "vaginal">> pregnancy.<br>
 		<<else>>
 			<<for _i to 0; _i lt maxParasites(_orifice); _i++>>
 				_label slot <<=_i+1>> is empty.<br>
@@ -1582,10 +1586,14 @@
 	<</if>>
 <</widget>>
 
-/* Pregnancy status for one orifice. _args[0] is "vagina" or "anus". */
+/* Shows pregnancy status for either the vagina or anus. _args[1] gives each block a unique name when both are shown. */
 <<widget "pregnancyStatusBlock">>
 	<<set _orifice to _args[0]>>
 	<<set _menstruation to $sexStats.vagina.menstruation>>
+	<<if _args[1]>>
+		<span class="teal"><<= _orifice is "anus" ? "Rear" : "Womb">>:</span>
+		<br>
+	<</if>>
 	/* Beta gives two vaginal wombs, each carrying and delivering on its own schedule. */
 	<<set _records to _orifice is "vagina" ? getActiveVaginalPregnancies() : [getActivePregnancy("pc", _orifice)].filter(p => p)>>
 	<<set _betaWombs to _orifice is "vagina" and playerHasBetaWombs()>>
@@ -1610,7 +1618,17 @@
 		<</if>>
 	<<elseif orificeHasParasites(_orifice)>>
 		Parasites in <<= _orifice is "anus" ? "your anus" : "the womb">> are preventing <<= _orifice is "anus" ? "anal" : "vaginal">> pregnancy from occurring.
-	<<elseif (_orifice is "vagina" and !$player.vaginaExist) or !_menstruation.running>>
+	<<elseif _orifice is "vagina" and !$player.vaginaExist>>
+		You cannot currently get pregnant.
+	/* One pregnancy at a time: the free orifice must say it is shut, not that nothing is happening. */
+	<<elseif getActivePregnancy("pc", _orifice is "vagina" ? "anus" : "vagina") and !availablePlayerPregnancySlot(_orifice)>>
+		Your body carries one pregnancy at a time, and <<= _orifice is "vagina" ? "your anus is" : "your womb is">> already carrying it.
+		<br>
+		<<if _betaWombs>>
+			Neither womb can conceive until it is delivered.
+			<br>
+		<</if>>
+	<<elseif !_menstruation.running>>
 		You cannot currently get pregnant.
 	<<elseif _menstruation.currentState is "recovering">>
 		You are not quite ready to get pregnant so soon after your last one.

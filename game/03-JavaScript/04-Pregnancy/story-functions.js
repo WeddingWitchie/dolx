@@ -325,11 +325,38 @@ function pregnancyNameCorrection(name, caps = false) {
 }
 window.pregnancyNameCorrection = pregnancyNameCorrection;
 
+/* DoLX: non-person donors can't be called the father, so use the source instead. */
+const nonPersonPregnancyDonors = ["portal", "Harper's serum"];
+
+/**
+ * DoLX: whether a pregnancy's donor is someone who could be called a father.
+ *
+ * @param {string} source the donor key on the pregnancy record
+ * @returns {boolean}
+ */
+function pregnancyDonorIsPerson(source) {
+	return !nonPersonPregnancyDonors.includes(source);
+}
+window.pregnancyDonorIsPerson = pregnancyDonorIsPerson;
+
+/**
+ * DoLX: Returns who or what caused the pregnancy for "You know that..." lines.
+ *
+ * @param {string} source Pregnancy donor key
+ * @returns {string}
+ */
+function pregnancyDonorAttribution(source) {
+	const name = pregnancyNameCorrection(source);
+	if (!pregnancyDonorIsPerson(source)) return name + " is to blame";
+	return "the father is " + name;
+}
+window.pregnancyDonorAttribution = pregnancyDonorAttribution;
+
 /* DoLX: full "who fathered this" reveal sentence. Sources that aren't people can't be a
    "father", so they get their own phrasing. */
 function pregnancyFatherReveal(source) {
-	if (source === "portal") return "It's clear the portal is to blame.";
 	const name = pregnancyNameCorrection(source);
+	if (!pregnancyDonorIsPerson(source)) return "It's clear " + name + " is to blame.";
 	return "It's clear that " + (name === "yourself" ? "you are" : name + " is") + " the father.";
 }
 window.pregnancyFatherReveal = pregnancyFatherReveal;

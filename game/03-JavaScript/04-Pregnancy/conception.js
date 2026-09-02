@@ -457,6 +457,9 @@ window.npcConceptionModifier = npcConceptionModifier;
 function rollAndRecordConception(orifice) {
 	const slot = availablePlayerPregnancySlot(orifice);
 	if (slot === null) return;
+	// Anal pregnancy is checked for several days after ejaculation.
+	// Stop those checks if the player can no longer carry an anal pregnancy.
+	if (orifice === "anus" && !playerCanCarryAnally()) return;
 	if (orificeHasParasites(orifice)) return;
 	if (!readyToCarry() && !(orifice === "vagina" && betaSecondWombOpen())) return;
 
@@ -587,6 +590,12 @@ function startDuePregnancies() {
 		if (Time.date.timeStamp - pending.conceivedDate < PregnancyConstants.implantationWindow) continue;
 		const orifice = slot === "vagina2" ? "vagina" : slot;
 		if (slot === "vagina2" && !playerHasBetaWombs()) {
+			V.pendingPregnancies[slot] = null;
+			continue;
+		}
+		// Pending anal conception also requires a body that can still carry it when implantation happens.
+		// statFreeze uses a saved body, so don't discard it then.
+		if (orifice === "anus" && !V.statFreeze && !playerCanCarryAnally()) {
 			V.pendingPregnancies[slot] = null;
 			continue;
 		}
