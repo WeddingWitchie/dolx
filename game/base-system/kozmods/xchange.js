@@ -1579,6 +1579,20 @@ function xchangeEffectsMessages() {
 		delete V.gamblingUpkeepFailedMessage;
 	}
 
+	if (V.xchangeSpikedMessage) {
+		delete V.xchangeSpikedMessage;
+		// Revalidate at render:
+		// the notice is queued when the pill is applied, and a scene may have cured, blocked or reverted it before this ever reaches the screen.
+		if (V.xchange && V.xchange.pill && V.xchange.pill.active && V.xchange.pill.effectsKnown === false) {
+			element(
+				"span",
+				"You've been dosed with an unidentified X-Change pill. There's no telling what it's done to you until you take an X-Change test.",
+				"pink"
+			);
+			br();
+		}
+	}
+
 	if (V.xchange_passion_message) {
 		element("span", `Aphrodisiacs have been released into your bloodstream.`, "pink");
 		br();
