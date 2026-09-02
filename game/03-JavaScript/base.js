@@ -621,8 +621,8 @@ window.mobBtnShow = mobBtnShow;
  *
  * Options with a higher weight have a higher chance of being chosen.
  *
- * @param {Array} options Each option is an array where the first item is a value, and the second item is its weight.
- * @param {object} [rngInstance] Optional rngInstance. Otherwise it uses State.random.
+ * @param {...(Array|PRNG)} options Each option is an array where the first item is a value, and the second item is its weight.
+ *     A PRNG instance may be passed as the final argument; without one, State.random is used.
  * @returns {*} The selected item
  * @example
  *     console.log(weightedRandom(["apple", 1], ["banana", 2], ["cherry", 3]));  // Relative probability for these will be: apple: 16.67%, banana: 33.33%, cherry: 50%

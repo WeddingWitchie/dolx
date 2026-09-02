@@ -105,7 +105,7 @@ Renderer.CanvasModels.sexdemo = {
 	 * This function is called before compiling layers for rendering or animation.
 	 * Generated options and filters implementations go here.
 	 *
-	 * @param options
+	 * @param {object} options The model's render options.
 	 */
 	preprocess(options) {
 		if (!options.xray_vaginal_speed) {
@@ -147,7 +147,7 @@ Renderer.CanvasModels.sexdemo = {
 			/**
 			 * Shift down for futas.
 			 *
-			 * @param options
+			 * @param {object} options The model's render options.
 			 */
 			dyfn(options) {
 				return options.penis && options.vagina ? 64 : 0;
@@ -163,7 +163,7 @@ Renderer.CanvasModels.sexdemo = {
 			 * You'll need <<set _modeloptions.xray_vaginal_show = true>> instead.
 			 * Not much difference but it makes more sense when you toggle multiple layers with one option.
 			 *
-			 * @param options
+			 * @param {object} options The model's render options.
 			 */
 			showfn(options) {
 				return options.xray_vaginal_show && options.vagina_state === "penetrated";
@@ -203,7 +203,7 @@ Renderer.CanvasModels.sexdemo = {
 			/**
 			 * Returns name of animation, or empty string if none.
 			 *
-			 * @param options
+			 * @param {object} options The model's render options.
 			 */
 			animationfn(options) {
 				/**

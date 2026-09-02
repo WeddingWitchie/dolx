@@ -139,12 +139,7 @@ Renderer.CanvasModels.lighting = {
 				const linearGradientCanvas = new BaseCanvas(Renderer.CanvasModels.main.width, Renderer.CanvasModels.main.height, 1);
 
 				// Draw linear gradient
-				drawLinearGradient(
-					linearGradientCanvas.ctx,
-					options.lights.gradient.maxAlpha,
-					options.lights.gradient.intensity,
-					options.lights.gradient.height
-				);
+				drawLinearGradient(linearGradientCanvas.ctx, options.lights.gradient.maxAlpha, options.lights.gradient.intensity, options.lights.gradient.height);
 
 				return linearGradientCanvas.element;
 			},

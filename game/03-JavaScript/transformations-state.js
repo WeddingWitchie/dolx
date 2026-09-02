@@ -306,7 +306,7 @@ class Transformations {
 	    Noun phrase for a description key without an article, e.g. "hellhound", "fallen cat".
 	    Returns "" when the key is a plain single-species description (handled elsewhere).
 	 *
-	 * @param id
+	 * @param {string} id Transformation description key.
 	 */
 	static descriptionPhrase(id) {
 		if (typeof id !== "string") return "";
@@ -321,7 +321,7 @@ class Transformations {
 	/**
 	 * Full phrase with article for body text, e.g. "a hellhound", "a fallen cat". "" if not a combo.
 	 *
-	 * @param id
+	 * @param {string} id Transformation description key.
 	 */
 	static descriptionComboLabel(id) {
 		const phrase = this.descriptionPhrase(id);
@@ -332,7 +332,7 @@ class Transformations {
 	/**
 	 * Capitalised phrase for the mirror listbox, e.g. "Hellhound", "Fallen cat". "" if not a combo.
 	 *
-	 * @param id
+	 * @param {string} id Transformation description key.
 	 */
 	static descriptionComboMenuLabel(id) {
 		const phrase = this.descriptionPhrase(id);

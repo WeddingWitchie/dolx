@@ -75,7 +75,7 @@ const ccmUtils = {
 
 	/**
 	 * @param {string} filterString
-	 * @returns {[string,number]}
+	 * @returns {Array<string|number>} [hex, brightness]
 	 */
 	stringDecode(filterString) {
 		return dolxColor.stringDecode(filterString);
@@ -216,7 +216,7 @@ const ccmUtils = {
 	/**
 	 * @param {Canvasfilter} filter
 	 * @param {boolean} waterproof
-	 * @param count
+	 * @param {number} [count] Remaining uses.
 	 * @returns {ccmItem}
 	 */
 	itemGen(filter, waterproof = false, count = 0) {
@@ -373,7 +373,7 @@ const ccmUtils = {
 
 	/**
 	 * @param {string} presetName
-	 * @returns {Canvasfilter}
+	 * @returns {Canvasfilter|undefined} undefined when no such preset is loaded
 	 */
 	presetLoadTmp(presetName) {
 		if (T.ccmLoaded.passed[presetName]) {

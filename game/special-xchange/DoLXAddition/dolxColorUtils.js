@@ -84,7 +84,7 @@ window.dolxColor = {
 
 	/**
 	 * @param {string} filterString
-	 * @returns {[string, number]} [hex, brightness]
+	 * @returns {Array<string|number>} [hex, brightness]
 	 */
 	stringDecode(filterString) {
 		if (this.stringIsValid(filterString)) {

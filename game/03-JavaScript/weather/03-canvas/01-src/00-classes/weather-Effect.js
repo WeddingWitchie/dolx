@@ -152,8 +152,8 @@ Weather.Renderer.Effect = class Effect {
 	 * Draws the effect onto its canvas.
 	 * It will wait for the init to complete before drawing - to assure any images loaded in init will be drawn
 	 *
-	 * @param canvas
-	 * @param layerCanvas
+	 * @param {object} canvas The canvas this effect draws onto.
+	 * @param {object} layerCanvas The owning layer's canvas.
 	 */
 	draw(canvas, layerCanvas) {
 		this.canvas.clear();

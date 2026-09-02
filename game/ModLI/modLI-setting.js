@@ -1,11 +1,13 @@
-/*------------------ ModLI shared helpers -------------------*/
+/* ------------------ ModLI shared helpers ------------------- */
+/* globals ensureModLISettings, registerModLI */
 
 window.ensureModLISettings = function ensureModLISettings() {
 	if (V.modLIUnlocks == null) V.modLIUnlocks = {};
 	if (V.ModExclusiveLIEnabled == null) V.ModExclusiveLIEnabled = 0;
 
 	if (!Array.isArray(setup.modLIRegistry)) {
-		setup.modLIRegistry = []; setup._modLIRegistrySanitized = true;
+		setup.modLIRegistry = [];
+		setup._modLIRegistrySanitized = true;
 		return;
 	}
 	if (setup._modLIRegistrySanitized) return;

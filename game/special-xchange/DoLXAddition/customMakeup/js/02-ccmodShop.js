@@ -3,8 +3,7 @@ const ccmShop = {
 	picker: {},
 
 	/**
-	 *@param {string} category
-	 * @param category
+	 * @param {string} category
 	 */
 	newSession(category) {
 		ccmUtils.ensurePickerSlots();

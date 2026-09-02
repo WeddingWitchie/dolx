@@ -24,21 +24,7 @@ function hcItemSetup() {
 window.hcItemSetup = hcItemSetup;
 
 function hcItemAdd(item, loc = "held", actionText = undefined) {
-	const acceptedTypes = [
-		"torch",
-		"snuffer",
-		"water",
-		"bucket",
-		"container",
-		"bandages",
-		"food",
-		"sheets",
-		"prisoner",
-		"clothes",
-		"clutter",
-		"herbs",
-		"bones",
-	];
+	const acceptedTypes = ["torch", "snuffer", "water", "bucket", "container", "bandages", "food", "sheets", "prisoner", "clothes", "clutter", "herbs", "bones"];
 
 	// water can only be stored in containers, this is a brute force fallback if other conditions fail for any reason
 	if (loc !== "held") {
@@ -167,21 +153,7 @@ function hcItemHasFreeHand() {
 window.hcItemHasFreeHand = hcItemHasFreeHand;
 
 function hcItemCanReach(id, filterfn) {
-	const acceptedItems = [
-		"torch",
-		"snuffer",
-		"water",
-		"bucket",
-		"container",
-		"bandages",
-		"food",
-		"sheets",
-		"prisoner",
-		"clothes",
-		"clutter",
-		"herbs",
-		"bones",
-	];
+	const acceptedItems = ["torch", "snuffer", "water", "bucket", "container", "bandages", "food", "sheets", "prisoner", "clothes", "clutter", "herbs", "bones"];
 
 	if (!id || !acceptedItems.includes(id)) {
 		V.itemAction = "Invalid item not found";

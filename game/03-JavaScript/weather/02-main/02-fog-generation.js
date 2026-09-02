@@ -31,6 +31,8 @@ Weather.FogGeneration = (() => {
 	/**
 	 * Extend fog keypoints so they cover `date`. No-op if already covered.
 	 * Generates the underlying weather first, then derives matching fog keypoints.
+	 *
+	 * @param {DateTime} date The date coverage must reach.
 	 */
 	function ensureFogCoverage(date) {
 		const fogKeypoints = V.weatherObj.fogKeypoints;

@@ -31,10 +31,7 @@ window.defineGlobalNamespaces = namespaces => {
 	Object.entries(namespaces).forEach(([name, namespaceObject]) => {
 		try {
 			if (window[name] && window[name] !== namespaceObject) {
-				console.warn(
-					`Attempted to set ${name} in the global namespace, but it's already in use. Skipping this assignment. Existing Object:`,
-					window[name]
-				);
+				console.warn(`Attempted to set ${name} in the global namespace, but it's already in use. Skipping this assignment. Existing Object:`, window[name]);
 			} else {
 				// Make it more difficult to shadow/overwrite things (users can still Object.defineProperty if they really mean it
 				Object.defineProperty(window, name, { value: namespaceObject, writeable: false });

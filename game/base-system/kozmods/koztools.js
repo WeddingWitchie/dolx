@@ -1767,6 +1767,11 @@ $(document).on(":passageinit", () => {
 */
 function getGenderedPath(path) {
 	if (typeof path === "string" && (V.options?.altImgAlways === 1 || (V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender))) {
+		/*
+		 * Only redirect paths starting with "img/".
+		 * Mod paths, data URIs, and existing "img2" paths are left unchanged.
+		 */
+		if (!path.startsWith("img/")) return path;
 		let sub = path.substring(4); // strip leading "img/"
 		if (sub[0] === "/") {
 			sub = sub.substring(1);

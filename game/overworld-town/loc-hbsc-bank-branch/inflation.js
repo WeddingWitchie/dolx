@@ -329,7 +329,7 @@
 	 * Current price multiplier (>= 1) based on the player's net wealth.
 	 * Pass an explicit amount to preview the multiplier at a different wealth level.
 	 *
-	 * @param wealth
+	 * @param {number} [wealth] Net wealth in pennies; defaults to the player's current total.
 	 */
 	setup.inflation.multiplier = function (wealth) {
 		if (!setup.inflation.isEnabled()) return 1;
@@ -344,7 +344,7 @@
 	 * Convert a base price (pennies) into the inflation-adjusted price.
 	 * Single source of truth so the money() charge and the displayed label agree.
 	 *
-	 * @param base
+	 * @param {number} base Base price in pennies.
 	 */
 	setup.inflation.price = function (base) {
 		if (!Number.isFinite(base)) return base;
@@ -378,7 +378,7 @@
 	 * The stepped price multiplier made rent lurch (e.g. 3.0 <-> 6.0) whenever the player's wealth crossed a tier boundary (including just by paying the rent) so the demand fluctuated week to week.
 	 * Interpolating removes those jumps; rent now changes gradually.
 	 *
-	 * @param wealth
+	 * @param {number} [wealth] Net wealth in pennies; defaults to the player's current total.
 	 */
 	setup.inflation.rentMultiplier = function (wealth) {
 		if (!setup.inflation.isEnabled()) return 1;
@@ -407,7 +407,7 @@
 	/**
 	 * Whether a given <<money>> spend source should be inflated by the central hook.
 	 *
-	 * @param source
+	 * @param {string} source The <<money>> spend source.
 	 */
 	setup.inflation.appliesToSpend = function (source) {
 		if (!setup.inflation.isEnabled()) return false;
@@ -564,7 +564,7 @@
 	/**
 	 * Apply Bailey's tiered demand to a base rent amount (pennies). Called by the `rentmod` widget.
 	 *
-	 * @param amount
+	 * @param {number} amount Base rent in pennies.
 	 */
 	setup.inflation.applyToRent = function (amount) {
 		return setup.inflation.rentDemand(amount);
@@ -573,7 +573,7 @@
 	/**
 	 * Convenience for UI: current inflation as a percentage above base (0 when inactive).
 	 *
-	 * @param wealth
+	 * @param {number} [wealth] Net wealth in pennies; defaults to the player's current total.
 	 */
 	setup.inflation.percent = function (wealth) {
 		return Math.round((setup.inflation.multiplier(wealth) - 1) * 100);
@@ -582,7 +582,7 @@
 	/**
 	 * True once inflation has reached the Bailey crisis setting. Gates aggressive Bailey.
 	 *
-	 * @param wealth
+	 * @param {number} [wealth] Net wealth in pennies; defaults to the player's current total.
 	 */
 	setup.inflation.isCrisis = function (wealth) {
 		const tier = setup.inflation.baileyCrisisTierData();
@@ -630,7 +630,7 @@
 	/**
 	 * Whether loading into `dest` should be hijacked by the parody event.
 	 *
-	 * @param dest
+	 * @param {string} dest Passage being loaded into.
 	 */
 	setup.inflation.moneyParodyDue = function (dest) {
 		if (typeof V === "undefined" || !setup.inflation.isEnabled()) return false;

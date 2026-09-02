@@ -10,9 +10,7 @@ Weather.WeatherGeneration = (() => {
 
 		if (date && targetDate.timeStamp < Time.date.timeStamp) {
 			if (V.debug) {
-				console.warn(
-					`getWeather: Provided date is before the current timestamp. Returning the current weather type.`
-				);
+				console.warn(`getWeather: Provided date is before the current timestamp. Returning the current weather type.`);
 			}
 			return interpolateWeather(new DateTime(Time.date));
 		}

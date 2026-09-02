@@ -63,6 +63,23 @@ var Renderer;
 		},
 	};
 	Renderer.ImageLoader = Renderer.DefaultImageLoader;
+	/**
+	 * If an alternate 'img2' sprite is missing, retry the original 'img' path.
+	 * This also allows modded sprites that only provide an 'img' path to load.
+	 *
+	 * @param {*} src
+	 * @returns {string|null} the original path, or null if no redirect occurred
+	 */
+	function altPathFallback(src) {
+		if (typeof src !== "string" || !src.startsWith("img2/")) return null;
+		return "img/" + src.substring(5);
+	}
+	Renderer.altPathFallback = altPathFallback;
+	/*
+	* Remember missing alt-set sprites and use the main set next time, avoiding repeated failed requests.
+	* This list is kept when caches are cleared.
+	*/
+	Renderer.AltPathMisses = new Set();
 	function rendererError(listener, error, context) {
 		if (listener && listener.error) {
 			listener.error(error, context);
@@ -871,33 +888,41 @@ var Renderer;
 			}
 		}
 		function loadLayerImage(layer) {
-			Renderer.ImageLoader.loadImage(
-				layer.src,
-				layer,
-				(src, layer, image) => {
-					layersLoaded++;
-					if (listener && listener.loaded) {
-						listener.loaded(layer.name || "unnamed", src);
-					}
-					layer.image = image;
-					layer.imageSrc = src;
-					if (!(layer.src instanceof HTMLCanvasElement)) {
-						Renderer.ImageCaches[src] = image;
-					}
-					maybeRenderResult();
-				},
-				(src, layer, error) => {
-					// Mark this src as erroneous to avoid blinking due to reload attempts
-					Renderer.ImageErrors[src] = true;
-					if (listener && listener.loadError) {
-						listener.loadError(layer.name || "unnamed", src);
-					} else {
-						console.error("Failed to load image " + src + (layer.name ? " for layer " + layer.name : ""));
-					}
-					layer.show = false;
-					maybeRenderResult();
+			// Keep the original src as the cache key, even when using the fallback image.
+			const cacheKey = layer.src;
+			const onLoad = (src, layer, image) => {
+				layersLoaded++;
+				if (listener && listener.loaded) {
+					listener.loaded(layer.name || "unnamed", src);
 				}
-			);
+				layer.image = image;
+				layer.imageSrc = cacheKey;
+				if (!(layer.src instanceof HTMLCanvasElement)) {
+					Renderer.ImageCaches[cacheKey] = image;
+				}
+				maybeRenderResult();
+			};
+			const onError = (src, layer, error) => {
+				const fallback = altPathFallback(src);
+				if (fallback && !Renderer.ImageErrors[fallback]) {
+					// Sprite is missing from the alt set - try the main set before giving up.
+					// Safe against looping: a fallback path is never itself an alt-set path.
+					Renderer.AltPathMisses.add(src);
+					Renderer.ImageLoader.loadImage(fallback, layer, onLoad, onError);
+					return;
+				}
+				// Mark this src as erroneous to avoid blinking due to reload attempts
+				Renderer.ImageErrors[cacheKey] = true;
+				Renderer.ImageErrors[src] = true;
+				if (listener && listener.loadError) {
+					listener.loadError(layer.name || "unnamed", src);
+				} else {
+					console.error("Failed to load image " + src + (layer.name ? " for layer " + layer.name : ""));
+				}
+				layer.show = false;
+				maybeRenderResult();
+			};
+			Renderer.ImageLoader.loadImage(Renderer.AltPathMisses.has(cacheKey) ? altPathFallback(cacheKey) : cacheKey, layer, onLoad, onError);
 		}
 		function loadLayerMask(layer) {
 			if (!Array.isArray(layer.masksrc)) {
@@ -908,34 +933,38 @@ var Renderer;
 			let masksToLoad = layer.masksrc.length;
 			layer.masksrc.forEach((src, index) => {
 				let imgSrc = src.toString();
-				let convert = false;
 				if (isMaskObject(src)) {
 					imgSrc = src.path;
-					convert = !!src.convert;
 				}
-				Renderer.ImageLoader.loadImage(
-					imgSrc,
-					layer,
-					(src, layer, image) => {
-						masksLoaded[index] = image;
-						masksToLoad--;
-						if (!(src instanceof HTMLCanvasElement)) {
-							Renderer.ImageCaches[src] = image;
-						}
-						if (masksToLoad === 0) {
-							layer.mask = masksLoaded.length === 1 ? masksLoaded[0] : masksLoaded;
-							layer.cachedMaskSrc = layer.masksrc;
-							maybeRenderResult();
-						}
-					},
-					(src, layer, error) => {
-						console.error("Failed to load mask " + src + (layer.name ? " for layer " + layer.name : ""));
-						layer.show = false;
-						Renderer.ImageErrors[src] = true;
-						layer.masksrc = null;
+				// As with layer images, the requested src stays the cache key across a fallback.
+				const onLoad = (loadedSrc, layer, image) => {
+					masksLoaded[index] = image;
+					masksToLoad--;
+					if (!(loadedSrc instanceof HTMLCanvasElement)) {
+						Renderer.ImageCaches[imgSrc] = image;
+					}
+					if (masksToLoad === 0) {
+						layer.mask = masksLoaded.length === 1 ? masksLoaded[0] : masksLoaded;
+						layer.cachedMaskSrc = layer.masksrc;
 						maybeRenderResult();
 					}
-				);
+				};
+				const onError = (erroredSrc, layer, error) => {
+					const fallback = altPathFallback(erroredSrc);
+					if (fallback && !Renderer.ImageErrors[fallback]) {
+						// Same alt-spriteset/mod gap as layer images - retry the main set.
+						Renderer.AltPathMisses.add(erroredSrc);
+						Renderer.ImageLoader.loadImage(fallback, layer, onLoad, onError);
+						return;
+					}
+					console.error("Failed to load mask " + erroredSrc + (layer.name ? " for layer " + layer.name : ""));
+					layer.show = false;
+					Renderer.ImageErrors[imgSrc] = true;
+					Renderer.ImageErrors[erroredSrc] = true;
+					layer.masksrc = null;
+					maybeRenderResult();
+				};
+				Renderer.ImageLoader.loadImage(Renderer.AltPathMisses.has(imgSrc) ? altPathFallback(imgSrc) : imgSrc, layer, onLoad, onError);
 			});
 		}
 		for (const layer of layers) {

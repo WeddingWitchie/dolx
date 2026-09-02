@@ -1,21 +1,21 @@
 // @ts-check
-const npcMapperEnemyPleasure = () => Number((/** @type {any} */ (V)).enemypleasure ?? 0);
-const npcMapperEnemyPleasureMax = () => Number((/** @type {any} */ (V)).enemypleasuremax ?? 500);
+const npcMapperEnemyPleasure = () => Number(/** @type {any} */ (V).enemypleasure ?? 0);
+const npcMapperEnemyPleasureMax = () => Number(/** @type {any} */ (V).enemypleasuremax ?? 500);
 /* globals CombatRenderer, CharacterTypes, AnimationSpeed, PenetratorTypes, CombatPositions, CombatRendererBeastStateSetup, CombatRendererBeastSetup, BeastStates, BestialTypes, Partial, Dict */
-setup["getNPC"] = function (idx) {
-	const list = (typeof V !== "undefined" && V && Array.isArray(V.NPCList)) ? V.NPCList : null;
+setup.getNPC = function (idx) {
+	const list = typeof V !== "undefined" && V && Array.isArray(V.NPCList) ? V.NPCList : null;
 	if (!list) return null;
 	if (idx === undefined || idx === null) return null;
 	return list[idx] || null;
 };
 
-setup["npcPenis"] = function (idx) {
-	const npc = setup["getNPC"](idx);
+setup.npcPenis = function (idx) {
+	const npc = setup.getNPC(idx);
 	return npc && typeof npc.penis === "string" ? npc.penis : "";
 };
 
-setup["npcStrapon"] = function (idx) {
-	const npc = setup["getNPC"](idx);
+setup.npcStrapon = function (idx) {
+	const npc = setup.getNPC(idx);
 	return !!(npc && npc.strapon);
 };
 
@@ -73,8 +73,7 @@ setup["npcStrapon"] = function (idx) {
 const beastModels = ["bear", "boar", "cat", "creature", "dog", "dolphin", "fox", "hawk", "horse", "centaur", "lizard", "pig", "wolf"];
 
 function sanitizeDoublePenetrationStates() {
-	const list =
-		(typeof V !== "undefined" && V && Array.isArray(V.NPCList)) ? V.NPCList : null;
+	const list = typeof V !== "undefined" && V && Array.isArray(V.NPCList) ? V.NPCList : null;
 	if (!list) return;
 
 	const anus = [];
@@ -576,16 +575,8 @@ class NpcCombatMapper {
 		// Defensive: sometimes called with missing NPC
 		if (!npc || typeof npc !== "object") return {};
 
-		return setup.colours.getSkinFilter(
-			npc.skincolour === "ghost"
-				? "ghost"
-				: npc.skincolour === "white"
-					? "light"
-					: "dark",
-			0
-		);
+		return setup.colours.getSkinFilter(npc.skincolour === "ghost" ? "ghost" : npc.skincolour === "white" ? "light" : "dark", 0);
 	}
-
 
 	/**
 	 * @param {Npc} npc

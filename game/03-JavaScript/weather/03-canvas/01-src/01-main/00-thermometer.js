@@ -127,8 +127,7 @@ Weather.Thermometer = (() => {
 			}
 		} else {
 			thermometerCanvas.ctx.fillStyle =
-				Weather.bodyTemperature > setup.WeatherTemperature.baseBodyTemperature - 1 &&
-				Weather.bodyTemperature < setup.WeatherTemperature.baseBodyTemperature + 1
+				Weather.bodyTemperature > setup.WeatherTemperature.baseBodyTemperature - 1 && Weather.bodyTemperature < setup.WeatherTemperature.baseBodyTemperature + 1
 					? color.mid
 					: color.warn;
 		}

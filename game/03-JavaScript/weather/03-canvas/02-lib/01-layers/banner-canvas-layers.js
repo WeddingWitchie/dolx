@@ -737,9 +737,7 @@ Weather.Renderer.Layers.add({
 		{
 			effect: "imageOverlay",
 			drawCondition() {
-				return (
-					!this.renderInstance.sidebarSkyDisabled && Weather.overcast > 0.5 && Weather.precipitationIntensity >= 1 && Weather.precipitation === "snow"
-				);
+				return !this.renderInstance.sidebarSkyDisabled && Weather.overcast > 0.5 && Weather.precipitationIntensity >= 1 && Weather.precipitation === "snow";
 			},
 			compositeOperation: "destination-out",
 			params: {

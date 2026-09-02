@@ -149,9 +149,7 @@ Weather.Renderer.Particle = class Particle {
 
 	draw(ctx) {
 		const driftX =
-			this.#sinDriftAmplitude && this.#sinDriftWavelength
-				? this.#sinDriftAmplitude * Math.sin((this.position.y / this.#sinDriftWavelength) * 2 * Math.PI)
-				: 0;
+			this.#sinDriftAmplitude && this.#sinDriftWavelength ? this.#sinDriftAmplitude * Math.sin((this.position.y / this.#sinDriftWavelength) * 2 * Math.PI) : 0;
 
 		ctx.save();
 

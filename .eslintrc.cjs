@@ -603,6 +603,16 @@ module.exports = {
 			1,
 			{
 				definedTypes: [
+					"Canvasfilter",
+					"ccmItem",
+					"DhmObj",
+					"ColorDict",
+					"FileLog",
+					"CanvasModelLayers",
+					"TransformationKeys",
+					"Record",
+					"Partial",
+					"Readonly",
 					"EventNpc",
 					"ClothesItem",
 					"FoodstuffItem",

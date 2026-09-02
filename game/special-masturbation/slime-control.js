@@ -187,10 +187,7 @@ function masturbationSlimeControl() {
 						(V[armAction] === "slime" || (V[armAction] === "mchest" && random(0, 100) <= 3))
 					) {
 						V[armAction] = "mvaginaentrance";
-					} else if (
-						!playerChastity("anus") &&
-						((random(0, 100) < 25 && V[armAction] === "slime") || (V[armAction] === "mchest" && random(0, 100) <= 3))
-					) {
+					} else if (!playerChastity("anus") && ((random(0, 100) < 25 && V[armAction] === "slime") || (V[armAction] === "mchest" && random(0, 100) <= 3))) {
 						V[armAction] = "manusentrance";
 					} else if (V[armAction] === "slime") {
 						if (V.player.breastsize >= 3 && random(0, 100) <= 10) V[armAction] = "mbreasthold";
@@ -281,10 +278,7 @@ function masturbationSlimeControl() {
 								!(V.canSelfSuckPenis && V.penisuse === 0)
 							) {
 								V[armAction] = "mdildomouthentrance";
-							} else if (
-								!["mvaginaentrancedildo", "manusentrancedildo"].includes(V.leftaction) &&
-								["bullet vibe", "wand vibe"].includes(currentToy.name)
-							) {
+							} else if (!["mvaginaentrancedildo", "manusentrancedildo"].includes(V.leftaction) && ["bullet vibe", "wand vibe"].includes(currentToy.name)) {
 								actions.push("mchestvibrate");
 								if (V.player.penisExist && V.penisuse === 0 && !playerChastity("penis")) actions.push("mpenisvibrate");
 								if (!V.player.penisExist && !playerChastity("vagina")) {
@@ -303,12 +297,7 @@ function masturbationSlimeControl() {
 					}
 					break;
 				case "mpenisentrancestroker":
-					if (
-						V.worn.over_lower.vagina_exposed >= 1 &&
-						V.worn.lower.vagina_exposed >= 1 &&
-						V.worn.under_lower.vagina_exposed >= 1 &&
-						V.penisuse === 0
-					) {
+					if (V.worn.over_lower.vagina_exposed >= 1 && V.worn.lower.vagina_exposed >= 1 && V.worn.under_lower.vagina_exposed >= 1 && V.penisuse === 0) {
 						if (random(0, 100) >= 50) {
 							V[armAction] = "mpenisstroker";
 						} else if (V[armAction] !== "mpenisstroker") {
@@ -373,11 +362,7 @@ function masturbationSlimeControl() {
 				if (V.canSelfSuckPenis && V.penisuse === 0 && V.worn.genitals.name === "chastity parasite" && V.earSlime.defyCooldown) {
 					// Tries to punish the player
 					V.mouthaction = "chastity parasite";
-				} else if (
-					V.canSelfSuckPenis &&
-					V.penisuse === 0 &&
-					(random(0, 100) >= 50 || !(V.canSelfSuckVagina && V.vaginause === 0 && V.fingersInVagina === 0))
-				) {
+				} else if (V.canSelfSuckPenis && V.penisuse === 0 && (random(0, 100) >= 50 || !(V.canSelfSuckVagina && V.vaginause === 0 && V.fingersInVagina === 0))) {
 					V.mouthaction = V.worn.genitals.name === "chastity parasite" ? "mchastityparasiteentrance" : "mpenisentrance";
 				} else if (V.canSelfSuckVagina && V.vaginause === 0 && V.fingersInVagina === 0) {
 					V.mouthaction = "mvaginaentrance";

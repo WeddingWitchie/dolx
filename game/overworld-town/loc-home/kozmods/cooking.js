@@ -6,7 +6,7 @@
 (function () {
 	"use strict";
 
-	var scSetup = window.setup;
+	let scSetup = window.setup;
 	if (!scSetup && typeof setup !== "undefined") {
 		scSetup = setup;
 	}
@@ -15,9 +15,13 @@
 		return;
 	}
 
-	var raf = window.requestAnimationFrame || function (fn) { return window.setTimeout(fn, 16); };
-	var caf = window.cancelAnimationFrame || window.clearTimeout;
-	var activeMeters = Object.create(null);
+	const raf =
+		window.requestAnimationFrame ||
+		function (fn) {
+			return window.setTimeout(fn, 16);
+		};
+	const caf = window.cancelAnimationFrame || window.clearTimeout;
+	const activeMeters = Object.create(null);
 
 	function clamp(value, min, max) {
 		value = Number(value);
@@ -49,12 +53,12 @@
 	}
 
 	function num(root, attr, fallback) {
-		var value = Number(root.getAttribute(attr));
+		const value = Number(root.getAttribute(attr));
 		return Number.isFinite(value) ? value : fallback;
 	}
 
 	function ensureDuration(root) {
-		var duration = Number(root.getAttribute("data-duration"));
+		let duration = Number(root.getAttribute("data-duration"));
 		if (!Number.isFinite(duration) || duration <= 0) {
 			duration = randomInt(1500, 3000);
 		}
@@ -80,7 +84,7 @@
 	}
 
 	function setFill(root, pos) {
-		var fill = fillEl(root);
+		const fill = fillEl(root);
 		if (!fill) return;
 		pos = clamp(pos, 0, 100);
 		fill.style.width = "100%";
@@ -90,32 +94,32 @@
 	function prepareRoot(root) {
 		if (!root) return;
 
-		var width = clamp(num(root, "data-width", 22), 14, 30);
-		var minStart = clamp(num(root, "data-min-start", 18), 8, 78);
-		var maxEnd = clamp(num(root, "data-max-end", 88), minStart + width + 2, 96);
-		var maxStart = Math.max(minStart, maxEnd - width);
-		var start = num(root, "data-start", NaN);
+		const width = clamp(num(root, "data-width", 22), 14, 30);
+		const minStart = clamp(num(root, "data-min-start", 18), 8, 78);
+		const maxEnd = clamp(num(root, "data-max-end", 88), minStart + width + 2, 96);
+		const maxStart = Math.max(minStart, maxEnd - width);
+		let start = num(root, "data-start", NaN);
 
 		if (!Number.isFinite(start) || start < minStart || start > maxStart) {
 			start = randomInt(minStart, maxStart);
 		}
 
-		var end = start + width;
+		const end = start + width;
 		root.setAttribute("data-start", String(start));
 		root.setAttribute("data-width", String(width));
 		root.setAttribute("data-end", String(end));
 		ensureDuration(root);
 
-		var hasStarted = root.getAttribute("data-started") === "1";
+		const hasStarted = root.getAttribute("data-started") === "1";
 
-		var zone = zoneEl(root);
+		const zone = zoneEl(root);
 		if (zone) {
 			zone.style.left = start + "%";
 			zone.style.width = width + "%";
 			zone.style.display = hasStarted ? "block" : "none";
 		}
 
-		var scorch = scorchEl(root);
+		const scorch = scorchEl(root);
 		if (scorch) {
 			scorch.style.left = end + "%";
 			scorch.style.width = Math.max(0, 100 - end) + "%";
@@ -127,15 +131,15 @@
 
 	function currentPos(root) {
 		if (!root) return 100;
-		var startedAt = num(root, "data-start-time", 0);
-		var duration = ensureDuration(root);
+		const startedAt = num(root, "data-start-time", 0);
+		const duration = ensureDuration(root);
 		if (!startedAt || duration <= 0) return num(root, "data-pos", 0);
 		return clamp(((Date.now() - startedAt) / duration) * 100, 0, 100);
 	}
 
 	function cancelMeter(root) {
 		if (!root) return;
-		var id = getId(root);
+		const id = getId(root);
 		if (activeMeters[id]) {
 			caf(activeMeters[id]);
 			delete activeMeters[id];
@@ -159,7 +163,7 @@
 	function finish(root, result) {
 		if (!root || root.getAttribute("data-done") === "1") return;
 
-		var pos = currentPos(root);
+		const pos = currentPos(root);
 		root.setAttribute("data-done", "1");
 		root.classList.add("loftBurnDone");
 		root.classList.remove("loftBurnReady");
@@ -169,7 +173,7 @@
 		root.setAttribute("data-pos", String(pos));
 		setFill(root, pos);
 
-		var button = buttonEl(root);
+		const button = buttonEl(root);
 		if (button) button.disabled = true;
 
 		if (typeof State !== "undefined" && State.variables && State.variables.loftCook) {
@@ -194,15 +198,15 @@
 		if (!root.hasAttribute("data-end") || !root.hasAttribute("data-start")) {
 			prepareRoot(root);
 		}
-		var pos = currentPos(root);
-		var zoneStart = num(root, "data-start", 45);
-		var zoneEnd = num(root, "data-end", zoneStart + num(root, "data-width", 22));
+		const pos = currentPos(root);
+		const zoneStart = num(root, "data-start", 45);
+		const zoneEnd = num(root, "data-end", zoneStart + num(root, "data-width", 22));
 		root.setAttribute("data-pos", String(pos));
 		setFill(root, pos);
 		root.classList.toggle("loftBurnReady", pos >= zoneStart && pos <= zoneEnd);
 		root.classList.toggle("loftBurnLate", pos > zoneEnd);
 
-		var hint = root.querySelector(".loftBurnHint");
+		const hint = root.querySelector(".loftBurnHint");
 		if (hint) {
 			if (pos >= zoneStart && pos <= zoneEnd) {
 				hint.textContent = "Plate it now.";
@@ -218,11 +222,13 @@
 			return;
 		}
 
-		activeMeters[getId(root)] = raf(function () { tick(root); });
+		activeMeters[getId(root)] = raf(function () {
+			tick(root);
+		});
 	}
 
 	function start(root) {
-		var button = buttonEl(root);
+		const button = buttonEl(root);
 		root.classList.remove("loftBurnNeedsJs");
 		root.classList.remove("loftBurnReady");
 		root.classList.remove("loftBurnLate");
@@ -236,9 +242,10 @@
 		setFill(root, 0);
 		if (button) button.textContent = "Plate it!";
 		cancelMeter(root);
-		activeMeters[getId(root)] = raf(function () { tick(root); });
+		activeMeters[getId(root)] = raf(function () {
+			tick(root);
+		});
 	}
-
 
 	function storyVars(vars) {
 		if (vars) return vars;
@@ -256,16 +263,16 @@
 	 * READY   = finished/edible things   -> kept aside, eaten via vignettes.
 	 * Anything in either group is "stockable" (donatable to the loft).
 	 */
-	var LESSON_CATEGORIES = ["ingredient", "vegetable", "mushroom", "meat"];
-	var READY_CATEGORIES  = ["dish", "fruit", "seafood"];
+	const LESSON_CATEGORIES = ["ingredient", "vegetable", "mushroom", "meat"];
+	const READY_CATEGORIES = ["dish", "fruit", "seafood"];
 
 	function isLessonFood(key) {
-		var def = foodDef(key);
+		const def = foodDef(key);
 		return !!def && LESSON_CATEGORIES.indexOf(def.category) !== -1;
 	}
 
 	function isReadyFood(key) {
-		var def = foodDef(key);
+		const def = foodDef(key);
 		return !!def && READY_CATEGORIES.indexOf(def.category) !== -1;
 	}
 
@@ -274,7 +281,7 @@
 	}
 
 	function foodName(key, amount) {
-		var def = foodDef(key);
+		const def = foodDef(key);
 		if (!def) return String(key || "").replace(/_/g, " ");
 		if (amount === 1 && def.singular) return def.singular;
 		return def.plural || def.name || String(key || "").replace(/_/g, " ");
@@ -287,18 +294,20 @@
 	}
 
 	function foodstuffCount(key, vars) {
-		var inv = foodstuffInventory(vars);
-		var item = inv[key];
-		var count = item && Number(item.amount);
+		const inv = foodstuffInventory(vars);
+		const item = inv[key];
+		const count = item && Number(item.amount);
 		return Number.isFinite(count) ? count : 0;
 	}
 
 	function stockableKeys(vars) {
-		var inv = foodstuffInventory(vars);
-		var keys = Object.keys(inv).filter(function (key) {
+		const inv = foodstuffInventory(vars);
+		const keys = Object.keys(inv).filter(function (key) {
 			return isStockableFood(key) && foodstuffCount(key, vars) >= 1;
 		});
-		keys.sort(function (a, b) { return foodName(a).localeCompare(foodName(b)); });
+		keys.sort(function (a, b) {
+			return foodName(a).localeCompare(foodName(b));
+		});
 		return keys;
 	}
 
@@ -318,16 +327,16 @@
 
 	scSetup.loftCookTakeInventory = function (key, amount, vars) {
 		amount = Math.max(1, Math.trunc(Number(amount) || 1));
-		var inv = foodstuffInventory(vars);
-		var item = inv[key];
-		var count = item && Number(item.amount);
+		const inv = foodstuffInventory(vars);
+		const item = inv[key];
+		const count = item && Number(item.amount);
 		if (!Number.isFinite(count) || count < amount) return false;
 		item.amount = Math.max(0, Math.trunc(count - amount));
 		return true;
 	};
 
 	scSetup.loftCookBurnClick = function (button) {
-		var root = closestBurnRoot(button);
+		const root = closestBurnRoot(button);
 		if (!root || root.getAttribute("data-done") === "1") return false;
 
 		root.classList.remove("loftBurnNeedsJs");
@@ -338,9 +347,9 @@
 			return false;
 		}
 
-		var pos = currentPos(root);
-		var zoneStart = num(root, "data-start", 45);
-		var zoneEnd = num(root, "data-end", zoneStart + num(root, "data-width", 22));
+		const pos = currentPos(root);
+		const zoneStart = num(root, "data-start", 45);
+		const zoneEnd = num(root, "data-end", zoneStart + num(root, "data-width", 22));
 
 		if (pos < zoneStart) {
 			finish(root, "raw");
@@ -361,4 +370,4 @@
 	if (window.jQuery && jQuery(document).on) {
 		jQuery(document).on(":passageinit", cancelAllMeters);
 	}
-}());
+})();

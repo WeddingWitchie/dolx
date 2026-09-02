@@ -220,7 +220,13 @@ Macro.add("numberStepper", {
 
 			// Left buttons
 			T.stepperStaticElements.goToMin = createButton("numberStepper doubleIcon", ["fa-icon fa-bar", "fa-icon fa-left"]);
-			T.stepperStaticElements.pentaLeft = createButton("numberStepper pentaIcon", ["fa-icon fa-left", "fa-icon fa-left", "fa-icon fa-left", "fa-icon fa-left", "fa-icon fa-left"]);
+			T.stepperStaticElements.pentaLeft = createButton("numberStepper pentaIcon", [
+				"fa-icon fa-left",
+				"fa-icon fa-left",
+				"fa-icon fa-left",
+				"fa-icon fa-left",
+				"fa-icon fa-left",
+			]);
 			T.stepperStaticElements.quadLeft = createButton("numberStepper quadIcon", ["fa-icon fa-left", "fa-icon fa-left", "fa-icon fa-left", "fa-icon fa-left"]);
 			T.stepperStaticElements.tripleLeft = createButton("numberStepper doubleIcon", ["fa-icon fa-left", "fa-icon fa-left", "fa-icon fa-left"]);
 			T.stepperStaticElements.doubleLeft = createButton("numberStepper doubleIcon hideable", ["fa-icon fa-left", "fa-icon fa-left"]);
@@ -230,8 +236,19 @@ Macro.add("numberStepper", {
 			T.stepperStaticElements.singleRight = createButton("numberStepper", ["fa-icon fa-right"]);
 			T.stepperStaticElements.doubleRight = createButton("numberStepper doubleIcon hideable", ["fa-icon fa-right", "fa-icon fa-right"]);
 			T.stepperStaticElements.tripleRight = createButton("numberStepper doubleIcon", ["fa-icon fa-right", "fa-icon fa-right", "fa-icon fa-right"]);
-			T.stepperStaticElements.quadRight = createButton("numberStepper quadIcon", ["fa-icon fa-right", "fa-icon fa-right", "fa-icon fa-right", "fa-icon fa-right"]);
-			T.stepperStaticElements.pentaRight = createButton("numberStepper pentaIcon", ["fa-icon fa-right", "fa-icon fa-right", "fa-icon fa-right", "fa-icon fa-right", "fa-icon fa-right"]);
+			T.stepperStaticElements.quadRight = createButton("numberStepper quadIcon", [
+				"fa-icon fa-right",
+				"fa-icon fa-right",
+				"fa-icon fa-right",
+				"fa-icon fa-right",
+			]);
+			T.stepperStaticElements.pentaRight = createButton("numberStepper pentaIcon", [
+				"fa-icon fa-right",
+				"fa-icon fa-right",
+				"fa-icon fa-right",
+				"fa-icon fa-right",
+				"fa-icon fa-right",
+			]);
 			T.stepperStaticElements.goToMax = createButton("numberStepper doubleIcon", ["fa-icon fa-right", "fa-icon fa-bar"]);
 		}
 
@@ -265,7 +282,16 @@ Macro.add("numberStepper", {
 		const increment10000 = reverseButtons ? step * 100 : -step * 10000;
 
 		const activeCount = activeButtons.length;
-		const groupClass = activeCount === 5 ? "five-buttons" : activeCount === 4 ? "quad-buttons" : activeCount === 3 ? "three-buttons" : activeCount === 2 ? "two-buttons" : "one-button";
+		const groupClass =
+			activeCount === 5
+				? "five-buttons"
+				: activeCount === 4
+				? "quad-buttons"
+				: activeCount === 3
+				? "three-buttons"
+				: activeCount === 2
+				? "two-buttons"
+				: "one-button";
 		const group = $("<div>", { class: `numberStepperGroup ${groupClass}` }).appendTo(container);
 
 		// Left buttons

@@ -164,7 +164,7 @@ const dhmUtils = {
 	 * was this 100% necessary? no. did i do it anyway? well.
 	 *
 	 * @param	{string} hex
-	 * @param colorMap
+	 * @param {ColorDict} [colorMap] Name-to-hex lookup; defaults to the built-in colours.
 	 * @returns	{string}
 	 */
 	colorCompareHsl(hex, colorMap = this.defaultColors) {
@@ -216,7 +216,7 @@ const dhmUtils = {
 	 * {{{ */
 	/**
 	 * @param	{string} filterString
-	 * @returns	{[string, number]}
+	 * @returns	{Array<string|number>} [hex, brightness]
 	 */
 	stringDecode(filterString) {
 		return dolxColor.stringDecode(filterString);
@@ -552,7 +552,7 @@ const dhmUtils = {
 
 	/**
 	 * @param {string} presetName
-	 * @returns {Canvasfilter}
+	 * @returns {Canvasfilter|undefined} undefined when no such preset is loaded
 	 */
 	presetLoadTmp(presetName) {
 		if (T.dhmLoaded.passed[presetName]) {
