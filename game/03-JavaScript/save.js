@@ -1,4 +1,4 @@
-/* globals traversePair */
+/* globals traversePair autismTalentLimit */
 
 const DoLSave = ((Story, Save) => {
 	"use strict";
@@ -789,6 +789,12 @@ function importSettingsData(data) {
 			}
 		}
 	}
+
+	/* Imported talents are the player's picks now, so the snapshot taken before Insanity forced them all on is out of date. */
+	if (overrides.general?.AMCTraits != null) delete V.AMCTraitsPreInsanity;
+
+	/* Reject / Accepted / Preferred are imported as independent flags, so an import or a Random start can leave contradictions behind. */
+	if (typeof window.identityNormalisePresentation === "function") window.identityNormalisePresentation();
 }
 window.importSettingsData = importSettingsData;
 
@@ -1224,7 +1230,7 @@ function settingsObjects(type) {
 				ModExclusiveLIEnabled: { min: 0, max: 1, decimals: 0, displayName: "Mod-exclusive love interests:" },
 				disableAutoSelect: { bool: true, displayName: "Disable settings text auto-select:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
-				wardrobeMult: { min: 0, max: 20, decimals: 0, displayName: "Wardrobe Capacity Multiplier:" },
+				wardrobeMult: { min: 1, max: 20, decimals: 0, displayName: "Wardrobe Capacity Multiplier:" },
 				bicycle: {
 					persistentLocation: { bool: true, displayName: "Persistent Bike Location:" },
 					theftEnabled: { bool: true, displayName: "Bike Security:" },
@@ -1546,11 +1552,11 @@ function settingsObjects(type) {
 					},
 					inflationEnabled: { bool: true, displayName: "Economy inflation:" },
 					inflationBaileyRelentless: { bool: true, displayName: "Relentless Bailey:" },
-					inflationOnsetPct: { min: 3, max: 30, decimals: 0, displayName: "Inflation onset (%):" },
-					inflationBadPct: { min: 10, max: 100, decimals: 0, displayName: "Inflation bad economy (%):" },
-					inflationCrisisPct: { min: 25, max: 200, decimals: 0, displayName: "Inflation crisis (%):" },
-					inflationExtremePct: { min: 50, max: 400, decimals: 0, displayName: "Inflation extreme (%):" },
-					inflationParodyPct: { min: 300, max: 3000, decimals: 0, displayName: "Inflation parody spiral (%):" },
+					inflationOnsetPct: { min: 11, max: 30, decimals: 0, displayName: "Inflation onset (%):" },
+					inflationBadPct: { min: 28, max: 100, decimals: 0, displayName: "Inflation bad economy (%):" },
+					inflationCrisisPct: { min: 56, max: 200, decimals: 0, displayName: "Inflation crisis (%):" },
+					inflationExtremePct: { min: 113, max: 400, decimals: 0, displayName: "Inflation extreme (%):" },
+					inflationParodyPct: { min: 450, max: 3000, decimals: 0, displayName: "Inflation parody spiral (%):" },
 					inflationBaileyRentPct: { min: 3, max: 300, decimals: 0, displayName: "Inflation extra rent start (%):" },
 					inflationBaileyCrisisTier: { strings: ["onset", "bad", "crisis", "extreme", "parody"], displayName: "Inflation refusal/hunt tier:" },
 					inflationBaileyCapLow: { min: 500000, max: 5000000, decimals: 0, displayName: "Inflation low-wealth rent cap:" },
@@ -2178,12 +2184,31 @@ function resolveExclusiveBackgroundTraits(starting) {
 }
 
 /**
- * gender_body has no character creation control of its own (sex is the only genital choice offered), but it's still a valid randomizable leaf,
- * so an unfiltered "randomize everything" pass rolls it independently of sex — it can land on "a" (which reads as a DoLX herm body to
- * setup.xChangeTransformedRole everywhere else, despite the character having only one set of genitals) or simply the wrong letter for the sex that got rolled.
- * Force it back in line with whichever sex this pass produced (or the character's current sex, if this pass didn't touch sex).
+ * Random talents can exceed the normal character creation limit.
+ * Trim each talent group to a random valid amount so random characters keep a legal set of talents.
  *
- * @param {object} starting the "starting" branch of a randomizeSettings() result
+ * @param {object} general Randomised general settings
+ * @param {object} starting Randomised starting settings, including background
+ */
+function resolveRandomizedTalents(general, starting) {
+	const traits = general?.AMCTraits;
+	const groups = window.autismTalentGroups;
+	if (!traits || !groups) return;
+
+	const bonusActive = starting?.background?.autism ?? V.background?.autism ?? false;
+	for (const [group, stats] of Object.entries(groups)) {
+		const taken = stats.filter(stat => traits[stat] === 2);
+		const limit = autismTalentLimit(group, bonusActive === true);
+		while (taken.length > limit) traits[taken.pluck()] = 1;
+	}
+}
+
+/**
+ * gender_body is not set directly during character creation, but "randomize everything" can still randomize it separately from sex.
+ * This can give it the wrong value, including "a" (herm), even when the character only has one set of genitals.
+ * Keep gender_body matched to the randomized sex, or the current sex if sex was not randomized.
+ *
+ * @param {object} starting The "starting" branch returned by randomizeSettings().
  */
 function resolveRandomizedGenderBody(starting) {
 	const player = starting?.player;
@@ -2230,6 +2255,7 @@ function randomizeSettings(filter) {
 	}
 
 	result.general = randomizeSettingsWalk(settingsObjects("general"));
+	resolveRandomizedTalents(result.general, result.starting);
 
 	return JSON.stringify(result);
 }

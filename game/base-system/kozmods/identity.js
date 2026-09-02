@@ -10,6 +10,68 @@
  */
 /* globals ANDROGYNOUS_FEMININITY_DEADZONE makeupPartEquipped */
 
+/*
+ * Reject, Accepted, and Preferred are parts of the same choice, but importing settings and Random start can roll them
+ * separately. This can create combinations that are impossible to select normally, such as rejecting and preferring
+ * every pronoun, or preferring something that was never accepted.
+ *
+ * This only fixes invalid combinations. Rejected + Accepted is allowed during play because it represents a Begrudged
+ * characteristic, which can also be Preferred. During character creation, Begrudged cannot exist yet, so Rejected wins.
+ *
+ * "Don't care" clothing and makeup options are handled by their own normalisers because they also affect dysphoria
+ * and tolerance, so they are skipped here.
+ */
+function identityNormalisePresentation() {
+	const presentation = V.identity?.presentation;
+	if (!presentation || typeof presentation !== "object") return;
+	const creatingCharacter = V.passage === "Start";
+
+	const isAccepted = characteristic => {
+		if (!characteristic || typeof characteristic !== "object") return false;
+		if (creatingCharacter && characteristic.reject) characteristic.acceptance = false;
+		return characteristic.acceptance === true;
+	};
+
+	const pronouns = presentation.pronouns;
+	if (pronouns && typeof pronouns === "object") {
+		/* Nothing preferred at all is a state <<repairPronounPreferenceFallback>> already resolves at lock-in. */
+		if (!isAccepted(pronouns.masculine)) pronouns.preferredMasculine = false;
+		if (!isAccepted(pronouns.feminine)) pronouns.preferredFeminine = false;
+		if (!isAccepted(pronouns.neutral)) pronouns.preferredNeutral = false;
+		/* The dynamic modes are only offered while all three are preferred. */
+		if (!(pronouns.preferredMasculine && pronouns.preferredFeminine && pronouns.preferredNeutral)) pronouns.pronounDynamicMode = "";
+	}
+
+	const exclusiveGroups = [
+		{ group: presentation.appearance, options: { m: "masculine", f: "feminine", n: "neutral" }, dontCare: null },
+		{ group: presentation.clothing, options: { m: "masculine", f: "feminine", u: "neutral" }, dontCare: "n" },
+		{ group: presentation.makeup, options: { wearing: "wearing", bare: "bare" }, dontCare: "n" },
+	];
+	for (const { group, options, dontCare } of exclusiveGroups) {
+		if (!group || typeof group !== "object") continue;
+		if (dontCare != null && group.preferred === dontCare) continue;
+		for (const name of Object.values(options)) isAccepted(group[name]);
+
+		const preferredName = options[group.preferred];
+		if (preferredName && group[preferredName]?.acceptance === true) continue;
+		/* The preferred option has to be one the character accepts. Move it to another accepted option if there is one. */
+		const accepted = Object.keys(options).find(value => group[options[value]]?.acceptance === true);
+		if (accepted != null) {
+			group.preferred = accepted;
+		} else if (creatingCharacter) {
+			/* A randomised character who rejected every option still needs one to live with. Keep the one already chosen. */
+			const fallbackName = preferredName || Object.values(options)[0];
+			const fallback = group[fallbackName];
+			if (fallback && typeof fallback === "object") {
+				fallback.reject = false;
+				fallback.acceptance = true;
+				group.preferred = Object.keys(options).find(value => options[value] === fallbackName);
+			}
+		}
+	}
+}
+window.identityNormalisePresentation = identityNormalisePresentation;
+
 function playerCaresForGender() {
 	// Normalised to a strict boolean by setup.xchangeEnsureGiSafety; older saves may still hold the numeric 1.
 	return V.xchange.genderIdentityEnabled === true || V.xchange.genderIdentityEnabled === 1;

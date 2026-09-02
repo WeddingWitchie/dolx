@@ -1270,7 +1270,14 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 <<widget "xchangeSettingsSliderRepair">>
 	<<run (() => {
 		const V = (typeof State !== "undefined" && State.variables) ? State.variables : window.V;
-		const x = V && V.xchange;
+		if (!V) return;
+		const topLevelSliders = { wardrobeMult: { min: 1, max: 20, def: 1 }, parasiteCapMult: { min: 1, max: 10, def: 1 } };
+		for (const k of Object.keys(topLevelSliders)) {
+			const s = topLevelSliders[k];
+			const v = Number(V[k]);
+			V[k] = Number.isFinite(v) ? Math.min(s.max, Math.max(s.min, v)) : s.def;
+		}
+		const x = V.xchange;
 		if (!x) return;
 		/* spikerates: sliders use 1-10. genderflip and fertile have no sliders, but still need valid values for the spike pool. */
 		const rateDefaults = {

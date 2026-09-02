@@ -1,4 +1,4 @@
-/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune loadIsLive */
+/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune loadIsLive autismEnforceTalentLimits */
 /**
  * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
@@ -874,7 +874,26 @@ function applyPermanentInsanityTalents() {
 	if (!V.AMCTraits || typeof V.AMCTraits !== "object" || Array.isArray(V.AMCTraits)) return;
 
 	if (!permanentInsanityTalentLockActive()) {
+		// Turning Insanity off refunds the free talents. Without this, both talents in max-1 pairs can stay active for free.
+		if (V.AMCTraitsPreInsanity && typeof V.AMCTraitsPreInsanity === "object" && !Array.isArray(V.AMCTraitsPreInsanity)) {
+			permanentInsanityTalentKeys.forEach(key => {
+				V.AMCTraits[key] = V.AMCTraitsPreInsanity[key] === 2 ? 2 : 1;
+			});
+			delete V.AMCTraitsPreInsanity;
+			// The restored picks were legal when they were made. Autism Spectrum may have been dropped since, taking its extra picks with it.
+			if (typeof autismEnforceTalentLimits === "function") autismEnforceTalentLimits();
+			return;
+		}
+		delete V.AMCTraitsPreInsanity;
 		return;
+	}
+
+	// Snapshot the player's own picks the first time the lock takes hold, so they survive the forced-on pass.
+	if (!V.AMCTraitsPreInsanity || typeof V.AMCTraitsPreInsanity !== "object" || Array.isArray(V.AMCTraitsPreInsanity)) {
+		V.AMCTraitsPreInsanity = {};
+		permanentInsanityTalentKeys.forEach(key => {
+			V.AMCTraitsPreInsanity[key] = V.AMCTraits[key] === 2 ? 2 : 1;
+		});
 	}
 
 	permanentInsanityTalentKeys.forEach(key => {

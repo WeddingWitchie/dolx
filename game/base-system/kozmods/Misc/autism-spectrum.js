@@ -164,18 +164,27 @@ function playerHasAutismSpectrum() {
  */
 const autismTalentBonus = Object.freeze({ general: 5, sex: 3 });
 const autismTalentBase = Object.freeze({ general: 3, sex: 2 });
+/* The paired talents are one-of-two whether or not the trait is present, so the bonus never touches them. */
+const fixedTalentLimits = Object.freeze({ physical: 1, volume: 1 });
 
 function autismTalentBonusActive() {
 	return playerHasAutismSpectrum() || V.background?.autism === true;
 }
 
-function autismTalentLimit(group) {
-	const limits = autismTalentBonusActive() ? autismTalentBonus : autismTalentBase;
+/*
+ * @param {string} group A key from autismTalentGroups
+ * @param {boolean} bonusActive Whether the trait is active
+ */
+function autismTalentLimit(group, bonusActive = autismTalentBonusActive()) {
+	if (group in fixedTalentLimits) return fixedTalentLimits[group];
+	const limits = bonusActive ? autismTalentBonus : autismTalentBase;
 	return limits[group === "sex" ? "sex" : "general"];
 }
 
-/* The two talent groups the trait raises the limit on. 1 is untempered, 2 is tempered. */
+/* Every talent group and how many picks it allows. The trait raises the general and sex limits only. 1 is untempered, 2 is tempered. */
 const autismTalentGroups = Object.freeze({
+	physical: ["physique", "willpower"],
+	volume: ["milk", "semen"],
 	general: [
 		"skulduggery",
 		"dancing",
@@ -198,6 +207,7 @@ const autismTalentGroups = Object.freeze({
 /*
  * Removing the trait also removes its bonus picks.
  * If a group is over the limit, it is cleared instead of guessing which picks to remove.
+ * The paired groups can only go over the limit through a randomised or imported start, since the settings screen greys out the second pick.
  */
 function autismEnforceTalentLimits() {
 	if (!V.AMCTraits) return false;
@@ -936,6 +946,7 @@ Object.assign(window, {
 	autismJobPayMultiplier,
 	autismPlaceIsLoud,
 	autismTalentLimit,
+	autismTalentGroups,
 	autismEnforceTalentLimits,
 	autismOverloadForm,
 	autismOverloadPlace,
