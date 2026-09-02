@@ -119,6 +119,7 @@
 
 <<widget "blackmail-endquest">>
 	<<unset $xchange.blackmail.activeQuest>>
+	<<unset $xchange.blackmail.conclusionDays>>
 	<<unset $xchange.blackmail.passedOutRecently>>
 	<<unset $xchange.blackmail.hasGenderswappedRecently>>
 	<<unset $xchange.blackmail.gracePeriod>>
@@ -150,6 +151,7 @@
 	<<run restoreActiveBlackmailQuest()>>
 	<<set _activeQuest to $xchange.blackmail.activeQuest>>
 	<<set _blackmailDaysPassed to Math.max(Number(_args[0]) || 1, 1)>>
+	<<set _blackmailWasPending to $xchange.blackmail.conclusionPending>>
 
 	<<if !$xchange.blackmail.conclusionPending>>
 		<<if _activeQuest?.cleared and !_activeQuest?.failed>>
@@ -176,6 +178,26 @@
 
 		<!-- TODO: handle if you should apply the penalty hit even if PC didn't read the letter -->
 
+		<</if>>
+	<</if>>
+
+	/* The conclusion letter only ever appears in the player's bedroom, and every future delivery is gated behind
+	   reading it, so a player who stops sleeping at home used to lock the whole arc up permanently.
+	   After a week the club stops waiting and settles the task without them. */
+	<<if _blackmailWasPending and $xchange.blackmail.conclusionPending>>
+		<<set $xchange.blackmail.conclusionDays to (Number($xchange.blackmail.conclusionDays) || 0) + _blackmailDaysPassed>>
+		<<if $xchange.blackmail.conclusionDays gte 7>>
+			<<set _blackmailLateReward to 0>>
+			<<if _activeQuest?.cleared and !_activeQuest?.failed and !$xchange.blackmail.paymentsRemoved>>
+				<<set _blackmailLateReward to Math.floor(Number(getStaticQuestData(_activeQuest)?.reward()) || 0)>>
+			<</if>>
+			<<if _blackmailLateReward gt 0>>
+				<<money _blackmailLateReward "blackmail">>
+				<<set $xchange.blackmail.effectmessage to 4>>
+			<<else>>
+				<<set $xchange.blackmail.effectmessage to 5>>
+			<</if>>
+			<<blackmail-endquest>>
 		<</if>>
 	<</if>>
 
@@ -211,6 +233,7 @@
 
 <<widget "blackmail-cancelquest">>
 	<<unset $xchange.blackmail.activeQuest>>
+	<<unset $xchange.blackmail.conclusionDays>>
 	<<unset $xchange.blackmail.passedOutRecently>>
 	<<unset $xchange.blackmail.hasGenderswappedRecently>>
 	<<unset $xchange.blackmail.gracePeriod>>
@@ -250,6 +273,10 @@
 		<span class="green"><b>You are compliant with your clear conditions.</b> Keep it up until midnight and you'll succeed your task.</span><br><br>
 	<<elseif $xchange.blackmail.effectmessage is 3>>
 		<span class="red"><b>You have failed your task.</b> Your blackmailer won't be happy.</span><br><br>
+	<<elseif $xchange.blackmail.effectmessage is 4>>
+		<span class="purple">You never collected the Gentleman's Club's last letter. Your payment arrives folded into a new envelope instead, with a note reminding you they know where you sleep.</span><br><br>
+	<<elseif $xchange.blackmail.effectmessage is 5>>
+		<span class="purple">You never collected the Gentleman's Club's last letter. They've stopped waiting on your answer, and consider the matter closed.</span><br><br>
 	<</if>>
 	<<unset $xchange.blackmail.effectmessage>>
 <</widget>>

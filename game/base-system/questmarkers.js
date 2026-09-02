@@ -81,6 +81,18 @@ const events = [
 		text: "<<blackmail-marker>>",
 	},
 	{
+		name: "blackmail conclusion",
+		condition() {
+			const blackmail = V.xchange?.blackmail;
+			// The conclusion letter waits in the bedroom, and blocks every future delivery until it's read.
+			return !!(blackmail?.intro && blackmail.conclusionPending);
+		},
+		starthour: 0,
+		endhour: 23,
+		priority: 6,
+		text: "The Gentleman's Club left a letter <span class='purple'>in your bedroom</span>. You should read it.",
+	},
+	{
 		name: "poppy valentines date",
 		condition() {
 			return modLISelected("Poppy") && C.npc.Poppy?.init === 1 && V.valentines_poppy_flat_accept && Time.month === 2 && Time.monthDay === 14;
