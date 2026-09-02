@@ -469,6 +469,20 @@ function dolxBoneFindWeight() {
 }
 window.dolxBoneFindWeight = dolxBoneFindWeight;
 
+/* Whether the record holds at least one of every small fish */
+function dolxSmallFishRecordComplete() {
+	const keys = dolxBaitFishKeys();
+	if (!keys.length) return false;
+	return keys.every(key => V.fishing?.record?.[key]?.numCaught > 0);
+}
+window.dolxSmallFishRecordComplete = dolxSmallFishRecordComplete;
+
+/* Both halves of the bone tackle, found rather than bought. */
+function dolxBoneSetOwned() {
+	return dolxFishingGearOwned("rod", "bone") && dolxFishingGearOwned("reel", "bone");
+}
+window.dolxBoneSetOwned = dolxBoneSetOwned;
+
 function dolxBoneFindTake() {
 	const piece = dolxBoneFindPiece();
 	if (!piece) return undefined;

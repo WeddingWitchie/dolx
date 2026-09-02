@@ -1609,6 +1609,14 @@ setup.feats = {
 		filter: ["All", "Discoveries-Other"],
 		hint: "Hint: Reel in a bass.",
 	},
+	"Bare Bones": {
+		title: "Bare Bones",
+		desc: "Caught every small fish, and pulled a full set of bone tackle out of the water.",
+		difficulty: 3,
+		series: "fishing",
+		filter: ["All", "Discoveries-Other"],
+		hint: "Hint: Land every kind of small fish, and let the water hand you both pieces of bone.",
+	},
 	"Pride of the Farm": {
 		title: "Pride of the Farm",
 		desc: "Out-produced all others.",
@@ -3610,6 +3618,11 @@ function earnHourlyFeats() {
 		})
 	) {
 		earnFeat("Master Baiter");
+	}
+
+	/* DoLX: the small fish and the bone tackle both come out of the same quiet, patient fishing. */
+	if (dolxSmallFishRecordComplete() && dolxBoneSetOwned()) {
+		earnFeat("Bare Bones");
 	}
 
 	return fragment;
