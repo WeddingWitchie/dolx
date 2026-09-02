@@ -1705,22 +1705,37 @@ function minutePassed(minutes) {
 		(!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
 	// The PC gradually gets used to being locked up. Chastity can keep them needy, but passive pressure alone cannot leave them overwhelmed.
 	V.chastityAcclimation = Number.isFinite(V.chastityAcclimation) ? V.chastityAcclimation : 0;
+	const chastityAcclimatedEnabled = !!V.xchange?.chastityAcclimatedTraitEnabled;
 	// Ten days of it stops feeling new. Mark that permanently instead of leaving it as an invisible number the player can't act on.
-	V.chastityAcclimatedTrait = Number.isFinite(V.chastityAcclimatedTrait) ? V.chastityAcclimatedTrait : V.chastityAcclimation >= 14400 ? 1 : 0;
+	V.chastityAcclimatedTrait = Number.isFinite(V.chastityAcclimatedTrait)
+		? V.chastityAcclimatedTrait
+		: chastityAcclimatedEnabled && V.chastityAcclimation >= 14400
+		? 1
+		: 0;
+	if (chastityAcclimatedEnabled && V.chastityAcclimatedTrait === -1) {
+		// Previously earned, then disabled. Restore it silently, since its acclimation may have dropped too low to earn again.
+		V.chastityAcclimatedTrait = 1;
+	} else if (!chastityAcclimatedEnabled && V.chastityAcclimatedTrait === 1) {
+		// -1 means the trait was earned but disabled by the setting, so it has no gameplay effect.
+		V.chastityAcclimatedTrait = -1;
+	}
 	// Once the body has learned it, time out of the device dulls the habit but never erases it
 	// so the trait's promised reduction stays real instead of decaying back to nothing and leaving the trait card lying about what it does.
-	const chastityAcclimationFloor = V.chastityAcclimatedTrait === 1 ? 7200 : 0;
+	// -1 counts here too: the trait is only suppressed by the setting, so its progress must survive to mean something if it's switched back on.
+	const chastityAcclimationFloor = V.chastityAcclimatedTrait !== 0 ? 7200 : 0;
 	if (playerChastity()) {
 		V.chastityAcclimation = Math.clamp(V.chastityAcclimation + minutes, chastityAcclimationFloor, 14400);
 	} else {
 		V.chastityAcclimation = Math.clamp(V.chastityAcclimation - minutes / 2, chastityAcclimationFloor, 14400);
 	}
-	if (V.chastityAcclimation >= 14400 && V.chastityAcclimatedTrait === 0) {
+	if (chastityAcclimatedEnabled && V.chastityAcclimation >= 14400 && V.chastityAcclimatedTrait === 0) {
 		V.effectsmessage = 1;
 		V.chastityAcclimatedTraitMessage = 1;
 		V.chastityAcclimatedTrait = 1;
 	}
-	const chastityArousalCap = V.arousalmax * (0.5 - 0.45 * (V.chastityAcclimation / 14400));
+	// With the trait suppressed, chastity frustration builds as if the body never got used to it.
+	const chastityAcclimationEffect = chastityAcclimatedEnabled ? V.chastityAcclimation : 0;
+	const chastityArousalCap = V.arousalmax * (0.5 - 0.45 * (chastityAcclimationEffect / 14400));
 	// Being constantly horny (Lustful) or having spent long enough locked in chastity both wear the edge off arousal itself, not just chastity's own frustration.
 	V.lustfulAcclimation = Number.isFinite(V.lustfulAcclimation) ? V.lustfulAcclimation : 0;
 	if (V.backgroundTraits.includes("lustful")) {

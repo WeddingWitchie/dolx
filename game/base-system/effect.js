@@ -1188,15 +1188,20 @@ function effects() {
 			}
 		});
 
+		// Both messages are queued a tick before they print. Drop them silently if the trait was switched off in between.
 		if (V.chastityAcclimatedTraitMessage) {
-			element("span", `Being locked away doesn't gnaw at you like it used to. You've gained the "Chastity Acclimated" trait.`, "gold");
-			br();
+			if (V.chastityAcclimatedTrait === 1) {
+				element("span", `Being locked away doesn't gnaw at you like it used to. You've gained the "Chastity Acclimated" trait.`, "gold");
+				br();
+			}
 			delete V.chastityAcclimatedTraitMessage;
 		}
 
 		if (V.arousalDesensitizedTraitMessage) {
-			element("span", `Being turned on has stopped feeling urgent. You've gained the "Arousal Acclimated" trait.`, "gold");
-			br();
+			if (V.arousalDesensitizedTrait === 1) {
+				element("span", `Being turned on has stopped feeling urgent. You've gained the "Arousal Acclimated" trait.`, "gold");
+				br();
+			}
 			delete V.arousalDesensitizedTraitMessage;
 		}
 

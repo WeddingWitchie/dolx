@@ -1732,6 +1732,7 @@ function settingsObjects(type) {
 					faceChangesEnabled: { min: 0, max: 1, decimals: 0, displayName: "Face changes for pills:" },
 					genitalAddictTraitsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Cock/hole addict traits:" },
 					critterMagnetTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Critter Magnet trait:" },
+					chastityAcclimatedTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Chastity Acclimated trait:" },
 					arousalAcclimatedTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Arousal Acclimated trait:" },
 					insanityDisturbedTraitsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Full Insanity dissociation:" },
 					insanityBecomesPermanent: { min: 0, max: 1, decimals: 0, displayName: "Natural Insanity is permanent:" },

@@ -515,6 +515,9 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if ndef $xchange.critterMagnetTraitEnabled>>
 		<<set $xchange.critterMagnetTraitEnabled to 1>>
 	<</if>>
+	<<if ndef $xchange.chastityAcclimatedTraitEnabled>>
+		<<set $xchange.chastityAcclimatedTraitEnabled to 1>>
+	<</if>>
 	<<if ndef $xchange.arousalAcclimatedTraitEnabled>>
 		<<set $xchange.arousalAcclimatedTraitEnabled to 1>>
 	<</if>>
@@ -1292,6 +1295,14 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			const v = x[k];
 			x[k] = Number.isFinite(v) ? Math.min(s.max, Math.max(s.min, v)) : s.def;
 		}
+		/* Trait toggles. Missing settings count as off, so only add missing ones without changing the player's choices. */
+		const toggleDefaults = {
+			genitalAddictTraitsEnabled: 1, critterMagnetTraitEnabled: 1, chastityAcclimatedTraitEnabled: 1,
+			arousalAcclimatedTraitEnabled: 1, insanityDisturbedTraitsEnabled: 0, insanityBecomesPermanent: 0,
+		};
+		for (const k of Object.keys(toggleDefaults)) {
+			if (x[k] === undefined || x[k] === null) x[k] = toggleDefaults[k];
+		}
 	})()>>
 <</widget>>
 
@@ -1325,10 +1336,10 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<run dolxFishingEnsure()>>
 	/* Chastity control data lives on each item. Backfill old purchases in every owned-clothing location without rewriting NPC-fitted devices. */
 	<<if $chastityAcclimation is undefined>><<set $chastityAcclimation to 0>><</if>>
-	<<if $chastityAcclimatedTrait is undefined>><<set $chastityAcclimatedTrait to $chastityAcclimation gte 14400 ? 1 : 0>><</if>>
+	/* Uses the same setting check as the hourly update, so disabled traits stay hidden when loading a save. */
+	<<if $chastityAcclimatedTrait is undefined>><<set $chastityAcclimatedTrait to ($xchange?.chastityAcclimatedTraitEnabled isnot 0 and $chastityAcclimation gte 14400) ? 1 : 0>><</if>>
 	<<if $lustfulAcclimation is undefined>><<set $lustfulAcclimation to 0>><</if>>
-	/* Gated on the setting the same way the hourly check is, so a save loaded with the trait switched off doesn't show it (and halve arousal) until the next tick corrects it. */
-	<<if $arousalDesensitizedTrait is undefined>><<set $arousalDesensitizedTrait to ($xchange?.arousalAcclimatedTraitEnabled and ($lustfulAcclimation gte 20160 or $chastityAcclimatedTrait is 1)) ? 1 : 0>><</if>>
+	<<if $arousalDesensitizedTrait is undefined>><<set $arousalDesensitizedTrait to ($xchange?.arousalAcclimatedTraitEnabled isnot 0 and ($lustfulAcclimation gte 20160 or $chastityAcclimatedTrait is 1)) ? 1 : 0>><</if>>
 	<<run window.dolxBackfillChastityKeys()>>
 	<<if $worn?.vibrator>>
 		<<run window.initWornVibratorDefaults($worn.vibrator)>>
