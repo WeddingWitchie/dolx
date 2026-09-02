@@ -209,7 +209,7 @@
 					<<set $player.virginity[_args[1]] to false>>
 				<</if>>
 				<!-- virgin purity loss -->
-				<<set _tempXChangedPurity to !$statFreeze and (typeof playerIsXChanged === "function" and typeof pillIsPermanent === "function") and (playerIsXChanged() and !pillIsPermanent())>>
+				<<set _tempXChangedPurity to typeof playerInTemporaryXChangeBody === "function" and playerInTemporaryXChangeBody()>>
 				<<if !_tempXChangedPurity>>
 					<<switch _args[1]>>
 						<<case "vaginal" "penile">>
@@ -226,10 +226,7 @@
 					<<earnFeat "Monogamous">>
 				<</if>>
 			<</if>>
-			<<set _trueBodyOK to true>>
-			<<run _trueBodyOK = (typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function")
-				? (V.statFreeze || !playerIsXChanged() || pillIsPermanent())
-				: true; >>
+			<<run _trueBodyOK = typeof playerInTemporaryXChangeBody === "function" ? !playerInTemporaryXChangeBody() : true; >>
 			<<if ($player.virginity.temple is true or $player.virginity.temple is 1)
 				and (_args[1] is "vaginal" or _args[1] is "penile")
 				and $templePromised isnot $_taker
@@ -270,10 +267,7 @@
 		<<if _args[1] is "penile" and playerHasStrapon()>>
 			<!-- Do nothing -->
 		<<else>>
-			<<set _trueBodyOK to true>>
-			<<run _trueBodyOK = (typeof playerIsXChanged === "function" && typeof pillIsPermanent === "function")
-				? (V.statFreeze || !playerIsXChanged() || pillIsPermanent())
-				: true; >>
+			<<run _trueBodyOK = typeof playerInTemporaryXChangeBody === "function" ? !playerInTemporaryXChangeBody() : true; >>
 			<<set _templeLostThisTurn to (_args[1] is "vaginal" and _vaginalLostThisTurn)>>
 			<<if _templeLostThisTurn and $player.virginity.temple and $player.virginity.temple isnot true and $player.virginity.temple isnot 1 and $templePromised isnot _args[0] and _args[0] isnot undefined and _args[0] isnot 0 and _trueBodyOK>>
 				<<set _previousTempleTaker to $player.virginity.temple>>
