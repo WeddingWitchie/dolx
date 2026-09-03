@@ -45,7 +45,7 @@ declare module "twine-sugarcube" {
 			playerPregnancyEggLayingEnabled: true | false;
 			playerPregnancyBeastEnabled: true | false;
 			playerPregnancyHumanEnabled: true | false;
-			pregnancyType: "realistic" | "fetish";
+			pregnancyType: "realistic" | "fetish" | "silly";
 			pubicHairEnabled: true | false;
 			ruinedOrgasmEnabled: true | false;
 			skillCheckStyle: "percentage" | "words" | "skillname";

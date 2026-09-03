@@ -4,6 +4,7 @@
 	series: "seriesName", //Will only show the first locked feat in a series to the player
 	softLockable: true, //Will disable the unlocking of the feat if softmode is enabled
 	pregnancyLockable: true, //Will disable the unlocking of the feat if certain pregnancy settings are too low
+	pregnancySillyLockable: true, //Will disable the unlocking of the feat if the silly pregnancy mode is enabled
 	hidden: true, //Will hide the feat at all times unless unlocked, best for feats for unreleased content
 	alt: "altTitle", //Alternate title to display if the feat is unlocked and altCond is met
 	altCond: "conditional" //Conditional evaluated to decide whether or not to display the altTitle (the feat must be owned in the current save for this to happen, regardless of the conditional)
@@ -1337,6 +1338,7 @@ setup.feats = {
 		filter: ["All", "Pregnancy"],
 		hint: "Hint: Gained something but not at the cost of something else.",
 		pregnancyLockable: true,
+		pregnancySillyLockable: true,
 	},
 	"Bicycle Mother": {
 		title: "Bicycle Mother",
@@ -3200,7 +3202,8 @@ function earnFeat(featName) {
 	if (
 		V.feats.currentSave[featName] !== undefined ||
 		(V.feats.soft && setup.feats[featName].softLockable) ||
-		(V.feats.pregnancyLocked && setup.feats[featName].pregnancyLockable)
+		(V.feats.pregnancyLocked && setup.feats[featName].pregnancyLockable) ||
+		(V.feats.pregnancySillyLocked && setup.feats[featName].pregnancySillyLockable)
 	)
 		return;
 

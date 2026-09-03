@@ -87,7 +87,8 @@ function conceiveNow(orifice, load, slot = availablePlayerPregnancySlot(orifice)
 		load.location,
 		slot === "vagina2" ? 2 : 1
 	);
-	if (V.settings.pregnancyType === "fetish") {
+	// Realistic mode keeps the player in the dark. Fetish and silly both tell them at once.
+	if (V.settings.pregnancyType !== "realistic") {
 		setKnowsDonor(pregnancyId, "pc");
 		setKnowsCarrier(pregnancyId, "pc");
 		T.playerIsNowPregnant = load.donor;
@@ -221,8 +222,8 @@ function npcPregnancyRoll(carrier, carrierSpecies, donor, donorSpecies, orifice,
 	)
 		return null;
 
-	// Fetish mode only, and only when the player is the donor/the one impregnating
-	const playerImpregnated = donor === "pc" && V.settings.pregnancyType === "fetish";
+	// Fetish and silly modes only, and only when the player is the donor/the one impregnating
+	const playerImpregnated = donor === "pc" && V.settings.pregnancyType !== "realistic";
 	if (playerImpregnated) T.pregnantNpc = carrier; // the fetishPregnancyImg widget prints the banner from this
 	let recorded = carrier;
 	if (generated) {
@@ -243,6 +244,61 @@ function npcPregnancyRoll(carrier, carrierSpecies, donor, donorSpecies, orifice,
 }
 window.npcPregnancyRoll = npcPregnancyRoll;
 
+// Silly pregnancy mode. Handholding and kissing conceive, sex does not.
+// The virginity widgets call this on every handhold and kiss, and it is a no-op in the other modes.
+const sillyTriggers = ["hand", "kiss"];
+
+/**
+ * Silly mode only. A handhold or a kiss can conceive, in either direction.
+ *
+ * `<<sillyInseminate "kiss" $_fullDescription $_type>>`
+ *
+ * The touch has to be skin on skin, so gloves stop a handhold and a face covering stops a kiss.
+ * Being close to a love interest doubles the odds, the way the old silly mode did.
+ *
+ * @param {"hand"|"kiss"} trigger which contact happened
+ * @param {string|object} other the other party: a name, or an NPC object
+ * @param {DonorSpecies} [otherSpecies] their species, when `other` is a name
+ * @returns {number|null} the player's new pregnancyId, null when nothing came of it
+ */
+function sillyInseminate(trigger, other, otherSpecies) {
+	if (V.settings.pregnancyType !== "silly") return null;
+	if (!sillyTriggers.includes(trigger) || !other) return null;
+
+	// The widgets pass either the name or the whole NPC, so accept both.
+	const name = typeof other === "string" || other instanceof String ? String(other) : other.fullDescription;
+	const species = (typeof other === "string" || other instanceof String ? otherSpecies : other.type) || otherSpecies;
+	if (!name || !species) return null;
+	// Gwylan has to be hardcoded out, or their story content breaks down beyond repair.
+	if (name === "Gwylan") return null;
+	if (setup.pregnancy.infertile.includes(name)) return null;
+	// A nightmare, flashback, dream or replay is not really happening, so nothing comes of it.
+	if (V.activeNightmare || V.statFreeze || impregnationDisabled(false)) return null;
+
+	// Skin on skin only.
+	if (trigger === "hand" && V.worn.hands.name !== "naked") return null;
+	if (trigger === "kiss" && V.worn.face.type.includes("face_covering")) return null;
+
+	// Someone the player loves being in the scene makes it twice as likely.
+	const boost = V.loveInterest && Object.values(V.loveInterest).some(n => V.NPCNameList.includes(n)) ? 2 : 1;
+
+	// NPC side: one pregnancy roll, like a creampie.
+	// Named NPCs only, since generated NPC pregnancies cannot be saved without an NPCList slot.
+	if (C.npc[name]) npcPregnancyRoll(name, species, "pc", "human", "vagina", "deep", V.location, boost);
+
+	// The player's side: the touch lands wherever their body can carry.
+	if (!setup.pregnancy.typesEnabled.includes(species)) return null;
+	const orifice = V.player.vaginaExist ? "vagina" : "anus";
+	const slot = availablePlayerPregnancySlot(orifice);
+	if (slot === null || orificeHasParasites(orifice)) return null;
+	// Nothing is stored: silly mode is instant, like fetish mode, so this load only carries the roll.
+	const load = inseminate(orifice, name, species, "deep", V.location, boost, null);
+	if (!load || !fetishPregnancyRoll(load, orifice)) return null;
+	return conceiveNow(orifice, load, slot);
+}
+window.sillyInseminate = sillyInseminate;
+
 DefineMacro("combatInseminate", combatInseminate);
 DefineMacro("sceneInseminate", sceneInseminate);
 DefineMacro("npcPregnancyRoll", npcPregnancyRoll);
+DefineMacro("sillyInseminate", sillyInseminate);

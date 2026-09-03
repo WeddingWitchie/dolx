@@ -1527,7 +1527,7 @@ function settingsObjects(type) {
 					playerPregnancyEggLayingEnabled: { bool: true, displayName: "Player egg laying:" },
 					playerPregnancyBeastEnabled: { bool: true, displayName: "Player pregnancy with beasts:" },
 					playerPregnancyHumanEnabled: { bool: true, displayName: "Player pregnancy with humans:" },
-					pregnancyType: { strings: ["realistic", "fetish"], displayName: "Pregnancy mode:" },
+					pregnancyType: { strings: ["realistic", "fetish", "silly"], displayName: "Pregnancy mode:" },
 					pubicHairEnabled: { bool: true, displayName: "Pubic hair:" },
 					ruinedOrgasmEnabled: { bool: true, displayName: "Ruined orgasms:" },
 					skillCheckStyle: { strings: ["percentage", "words", "skillname"], randomize: "gameplay", displayName: "Skill check display:" },

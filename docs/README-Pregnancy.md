@@ -468,7 +468,7 @@ The pregnancy mode remains controlled by `$settings.pregnancyType` and can be on
 
 - `realistic` records sperm first, then attempts pregnancy later. The player might not know they are pregnant immediately, and the father might not be known at first.
 - `fetish` can create pregnancy as soon as semen gets inside the player. The player immediately knows the pregnancy and father.
-- `silly` uses non-standard triggers such as kissing or holding hands. Some pregnancy feats are disabled while this mode is active.
+- `silly` drops the sex triggers entirely: holding hands or kissing conceives instead. The `<<sillyInseminate>>` macro in `pregnancy-macros.js` is the whole entry point, called from `<<takeHandholdingVirginity>>` and `<<takeKissVirginity>>` in `game/base-combat/widgets.twee`. It rolls both directions, needs bare hands for a handhold and an uncovered face for a kiss, doubles the odds when a love interest is present, and excludes Gwylan because her story content cannot survive it. Conception is instant, as in `fetish`. The `Hail Mary` feat is disabled while this mode is active (`pregnancySillyLockable`).
 
 Realistic childbirth is separate from pregnancy mode. It is controlled by `$settings.realisticChildbirthEnabled`, shown as `Enable realistic childbirth` under the pregnancy settings. Turning it on does not change how pregnancy starts; it only changes eligible birth scenes so they route through the `:: Childbirth` encounter.
 
