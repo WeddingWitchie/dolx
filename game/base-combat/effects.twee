@@ -44,16 +44,30 @@
 
 		/* Check if standing fights toggle is on and if the fight is non-consensual */
 		<<if $combatExtended.standingFights is 1 and $consensual is 0 and $position isnot "wall" and $punishmentposition isnot "gloryhole">>
+			/* If the encounter starts mid-sex, keep the NPC's genitals active so the position does not disappear on the first turn. Oral already works this way. */
+			<<set _npcAlreadyEngaged to (() => {
+				const list = Array.isArray($NPCList) ? $NPCList : [];
+				/* Only the live combat slots, the same bound the position selectors use. Retired slots keep stale parts. */
+				const slots = (Number.isInteger($enemynomax) && $enemynomax > 0) ? Math.min($enemynomax, list.length) : list.length;
+				const idle = [0, "0", "none", "clothed", "idle", "", undefined, null];
+				for (let i = 0; i < slots; i++) {
+					const npc = list[i];
+					if (!npc || typeof npc !== "object") continue;
+					if (npc.location && ["head", "genitals"].includes(npc.location.genitals)) return true;
+					if (!idle.includes(npc.penis) || !idle.includes(npc.vagina) || !idle.includes(npc.chest)) return true;
+				}
+				return false;
+			})()>>
 			/* Start Standing Fights if not stuck in a wall or gloryhole */
 			<<if $combatExtended.standingFightStart is 1
 				and $position isnot "wall"
 				and $punishmentposition isnot "gloryhole"
-				and $NPCList[0].location.genitals isnot "head">>
+				and !_npcAlreadyEngaged>>
 				<<set $combatExtended.standingFightStart to 0>>
 				<<set $combatExtended.stability to 100>>
 				<<unset $encounterHit>>
 				<<npcidlegenitals>>
-			<<elseif $combatExtended.standingFightStart is 1 and $NPCList[0].location.genitals is "head">>
+			<<elseif $combatExtended.standingFightStart is 1 and _npcAlreadyEngaged>>
 				<<set $combatExtended.standingFightStart to 0>>
 				<<set $combatExtended.stability to 0>>
 				<<set $combatExtended.stabilityLost to 1>>

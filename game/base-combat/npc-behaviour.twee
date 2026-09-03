@@ -263,6 +263,31 @@
 <</widget>>
 
 <<widget "reversenpcidlegenitals">>
+	/* True if any NPC part is still positioned at this player body part. */
+	<<set _npcOccupiesPlayerPart to part => {
+		const prefixes = {
+			penis: ["penis"],
+			vagina: ["vagina"],
+			anus: ["anus"],
+			mouth: ["mouth", "kiss"],
+			chest: ["chest", "breast", "nipple"],
+		}[part] || [part];
+		const occupied = value => typeof value === "string" && prefixes.some(prefix => value.startsWith(prefix));
+		const fields = ["penis", "vagina", "mouth", "chest", "lefthand", "righthand"];
+		const list = Array.isArray(V.NPCList) ? V.NPCList : [];
+		const slots = (Number.isInteger(V.enemynomax) && V.enemynomax > 0)
+			? Math.min(V.enemynomax, list.length)
+			: list.length;
+		for (let i = 0; i < slots; i++) {
+			const npc = list[i];
+			if (!npc || typeof npc !== "object") continue;
+			if (fields.some(field => occupied(npc[field]))) return true;
+		}
+		/* Tentacles and struggle creatures are not in $NPCList, so falling should not remove them. Tentacle heads use the same position names as NPC parts. */
+		if (Array.isArray(V.tentacles) && V.tentacles.some(tentacle => tentacle && occupied(tentacle.head))) return true;
+		if (V.struggle && V.struggle[part] && V.struggle[part].creature) return true;
+		return false;
+	}>>
 	<<for _i = 0; _i < $NPCList.length; _i++>>
 		<<if $NPCList[_i]>>
 			/* Leaving idle now restores the NPC's covered state, so dressed NPCs properly undress before sex. */
@@ -291,22 +316,30 @@
 				and [0,"none","clothed"].includes($NPCList[_i].penis) and [0,"none","clothed"].includes($NPCList[_i].vagina)>>
 				<<set $NPCList[_i].location.genitals to 0>>
 			<</if>>
-			<<if $player.penisExist or playerHasStrapon()>>
-				<<set $penisuse to 0>>
-				<<set $penisstate to 0>>
-			<</if>>
-			<<if $player.vaginaExist>>
-				<<set $vaginause to 0>>
-				<<set $vaginastate to 0>>
-			<</if>>
-			<<set $chestuse to 0>>
-			<<set $cheststate to 0>>
-			<<set $anususe to 0>>
-			<<set $anusstate to 0>>
-			<<set $mouthuse to 0>>
-			<<set $mouthstate to 0>>
 		<</if>>
 	<</for>>
+
+	/* Only clear player trackers for body parts no longer in use. Clearing them all could make an occupied part count as free and hide related actions. */
+	<<if ($player.penisExist or playerHasStrapon()) and !_npcOccupiesPlayerPart("penis")>>
+		<<set $penisuse to 0>>
+		<<set $penisstate to 0>>
+	<</if>>
+	<<if $player.vaginaExist and !_npcOccupiesPlayerPart("vagina")>>
+		<<set $vaginause to 0>>
+		<<set $vaginastate to 0>>
+	<</if>>
+	<<if !_npcOccupiesPlayerPart("chest")>>
+		<<set $chestuse to 0>>
+		<<set $cheststate to 0>>
+	<</if>>
+	<<if !_npcOccupiesPlayerPart("anus")>>
+		<<set $anususe to 0>>
+		<<set $anusstate to 0>>
+	<</if>>
+	<<if !_npcOccupiesPlayerPart("mouth")>>
+		<<set $mouthuse to 0>>
+		<<set $mouthstate to 0>>
+	<</if>>
 <</widget>>
 
 <<widget "npc_submissive_multiple">>
