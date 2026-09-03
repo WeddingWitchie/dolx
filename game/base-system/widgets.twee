@@ -5497,8 +5497,10 @@
 	<<set _wardrobe to Furniture.get('wardrobe', $location)>>
 	<<set _playOptions to ($englishPlay is 'ongoing' and $englishPlayRoles.Player isnot 'none')>>
 	<<set _lockpickOptions to $lockpickTrainingSet gte 1>>
+	/* Picking your own shackles open needs the desk block to render even when there's nothing else on the desk to do. */
+	<<set _shackleOptions to $worn.feet.type.includes("shackle") and $worn.feet.name isnot "vines" and ($lockpickTrainingSet gte 5 or $skulduggery gte 2000)>>
 
-	<<if _projectOptions || _playOptions || _bookOptions || _lockpickOptions || ($christmas_wrap is 1 && $christmas_gift_robin_wrapped isnot 1) || ($christmas_wrap is 1 && $christmas_gift is "clothes_unwrapped") || ($christmas_wrap is 1 && $christmas_gift_bailey isnot undefined && !$christmas_gift_bailey_wrapped) || ($christmas_wrap is 1 && $christmas_gift_poppy isnot undefined && !$christmas_gift_poppy_wrapped && !poppyFlatAccessible())>>
+	<<if _projectOptions || _playOptions || _bookOptions || _lockpickOptions || _shackleOptions || ($christmas_wrap is 1 && $christmas_gift_robin_wrapped isnot 1) || ($christmas_wrap is 1 && $christmas_gift is "clothes_unwrapped") || ($christmas_wrap is 1 && $christmas_gift_bailey isnot undefined && !$christmas_gift_bailey_wrapped) || ($christmas_wrap is 1 && $christmas_gift_poppy isnot undefined && !$christmas_gift_poppy_wrapped && !poppyFlatAccessible())>>
 		<<if _args[0] is "noicon">>
 			Your _desk.name and <<if _chair.name isnot "chair">>_chair.article <</if>>_chair.nameSolo are wedged next to your wardrobe.
 			<br>
@@ -5510,6 +5512,9 @@
 			<</if>>
 			<<if $stress lt $stressmax and !$possessed and $bedroomUI.orphanage.lts and ["home", "alex_cottage"].includes($location)>>
 				<<lockpickTrainingSet>>
+			<</if>>
+			<<if ["home", "alex_cottage"].includes($location)>>
+				<<shackleLockpick>>
 			<</if>>
 			<<if $location is "home" or $bedroomUI.orphanage.christmas is true>>
 				<<christmas_options>>

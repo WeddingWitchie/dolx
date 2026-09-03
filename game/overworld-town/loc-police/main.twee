@@ -150,7 +150,128 @@ You are led down a flight of steps, and into a tiny cell. The door rattles shut 
 "Dunno what you expect us to do," <<he>> laughs, looking at your ankles. "These aren't the Middle Ages." <<He>> laughs again. <span class="gold">"Try a museum."</span>
 <br><br>
 
+<<He>> watches you turn to go, then leans over the desk. The lobby is empty. "Hold on," <<he>> says, quieter now. "There's a workshop out back. Bolt cutters, angle grinder, the lot. Off the books."
+<br><br>
+
+<<if $policeShackleDeal is 1>>
+	/* Money already handed over on an earlier visit: only the other half of the price is outstanding. */
+	"Word gets around back there," <<he>> says. "You've paid already. The rest of it's still owed, and I'm happy to collect."
+	<br><br>
+
+	<<link [[Follow the officer to the back room|Police Station Shackle Deal]]>><</link>> | <<note "You already handed over the money" "purple">>
+	<br>
+<<else>>
+	"It'll cost you <<printprice 60000 "pink">>," <<he>> says. "That's for the tools going missing off the log, and for me not writing any of this down."
+	<br><br>
+
+	<<He>> looks you over from your ankles to your face. "You also come with me to the back room and let me use your body. <span class="red">I want the money and that</span>. You don't get to choose only one."
+	<br><br>
+
+	<<He>> points at your shackles. "Pay the full price, or keep wearing those."
+	<br><br>
+
+	<<if setup.inflation.canAfford(60000, "shackleRemoval")>>
+		<<link [[Pay <<printprice 60000>> and agree to go with <<him>>|Police Station Shackle Deal]]>><<money -60000 "shackleRemoval">><<set $policeShackleDeal to 1>><</link>>
+		<br>
+	<<else>>
+		<span class="blue">You don't have the <<printprice 60000>> <<he>> demands.</span>
+		<br>
+	<</if>>
+<</if>>
 <<link [[Leave|Police Station]]>><</link>>
+<br>
+
+:: Police Station Shackle Deal
+<<set $outside to 0>><<set $location to "police_station">><<effects>>
+<<He>> turns the desk sign around to show that the counter is closed, then leads you through a side door. The shackles around your ankles keep your steps short, forcing you to follow slowly.
+<br><br>
+The back room smells of oil. A workbench stands against one wall, with tools hanging above it.
+<<He>> taps the edge of the bench. "Up."
+<br><br>
+<<if $innocencestate is 1>>
+	/* Innocence isn't a shield here: the scene costs an innocent PC the innocence itself. */
+	You sit on the bench and wait for <<him>> to remove the shackles. Instead of reaching for the cutters, <<he>> steps closer and puts <<his>> hands on your knees.
+	<br><br>
+	<<He>> pushes your legs apart.
+	<br><br>
+	You freeze. Only now do you understand what <<he>> meant when <<he>> said there was another part of the price. You agreed before you understood what <<he>> was asking from you.
+	<<awareness 20>><<gggawareness>><<trauma 8>><<ggtrauma>><<stress 4>><<gstress>>
+	<br><br>
+<<else>>
+	You sit on the bench and wait for <<him>> to remove the shackles. <<He>> leaves the cutters where they are and steps closer instead.
+	<<trauma 6>><<gtrauma>><<stress 6>><<gstress>>
+	<br><br>
+<</if>>
+<<He>> moves between your legs.
+<br><br>
+<<link [[Next|Police Station Shackle Sex]]>><<set $sexstart to 1>><</link>>
+<br>
+
+
+:: Police Station Shackle Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 60>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Police Station Shackle Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Police Station Shackle Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Police Station Shackle Sex Finish
+<<set $outside to 0>><<set $location to "police_station">><<schooleffects>><<effects>>
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>><<set $prostitutionstat += 1>><<fameprostitution 1>>
+	<<He>> stays against you for a few seconds while <<he>> catches <<his>> breath, then steps away from the bench.
+	<br><br>
+	<<He>> takes an angle grinder from the wall and kneels beside your ankles. The spinning blade cuts through the metal shackles, throwing sparks across the floor.
+	After cutting through both sides, <<he>> pulls the broken metal away and <span class="green">frees your ankles</span>.
+	<br><br>
+	<<He>> kicks the pieces under the bench.
+	"Never happened. You were never in this room."
+	<br><br>
+	<<remove_shackle>>
+	<<clotheson>>
+	<<endcombat>>
+	<<unset $policeShackleDeal>>
+<<elseif $enemyhealth lte 0>>
+	The <<person>> bends over the workbench, struggling to catch <<his>> breath.
+	<<He>> is in no condition to use the angle grinder, so your shackles remain around your ankles.
+	<br><br>
+	<<tearful>> you leave through the side door before <<he>> can stop you.
+	<<clotheson>>
+	<span class="purple">You have already paid <<him>>, but your shackles are still on.</span>
+	If you return later, you can continue the deal and have <<him>> remove them without paying again.
+	<<endcombat>>
+<<else>>
+	<<if $finish is 1>>
+	<<encounterEndViolence>>
+		When you stop cooperating, <<he>> grabs you and pushes you away from the bench.
+		<br><br>
+		"Then wear them," <<he>> says. <<He>> opens the side door and keeps it open until you leave.
+	<<else>>
+		<<He>> steps back from the bench, clearly dissatisfied.
+		"We're not finished. Come back when you mean it."
+	<</if>>
+	<br><br>
+	<span class="purple">Your shackles are still around your ankles</span>.
+	You have already paid for their removal, so you will not need to pay again when you return.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+<</if>>
+<<link [[Next|Police Station]]>><</link>>
 <br>
 
 :: Police Station Seduce
