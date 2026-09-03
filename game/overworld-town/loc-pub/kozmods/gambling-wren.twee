@@ -1,0 +1,182 @@
+:: Pub Gambling Wren Widgets [widget]
+<<widget "pubGamblingWrenCheck">>
+	<<set _wrenAtRing to false>>
+	<<if $xchange.pubGamblingEnabled and !$weekly.gamblingStartupPeriod and ["dusk", "night"].includes(Time.dayState)>>
+		<<if !$daily.wrenGamblingRing>>
+			<<initBankHeist>>
+			<<set _wrenRingChance to ($xchange.bankHeist.landryWarned and !$xchange.bankHeist.wrenRecruited) ? 65 : 35>>
+			<<set $daily.wrenGamblingRing to (random(1, 100) lte _wrenRingChance) ? 1 : 2>>
+		<</if>>
+		<<set _wrenAtRing to $daily.wrenGamblingRing is 1>>
+	<</if>>
+<</widget>>
+
+/* The hub of options while sitting with Wren at the ring. */
+<<widget "pubGamblingWren">>
+	<<bankHeistWrenOptions "gambling">>
+	<<if !$daily.wrenDiceTip>>
+		<<icon "die.png">><<link [[Ask Wren to read the table (0:10)|Pub Gambling Wren Tip]]>><<pass 10>><</link>>
+		<br>
+	<</if>>
+	<<socialiseicon>><<link [[Chat (0:30)|Pub Gambling Wren Chat]]>><<pass 30>><<npcincr Wren love 1>><</link>><<glove>>
+	<br>
+	<<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
+	<br>
+<</widget>>
+
+:: Pub Gambling Wren
+<<endevent>>
+<<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
+<<npc Wren>><<person1>>
+<<if !$wrenSeen>><<set $wrenSeen to []>><</if>>
+<<if $wren_intro is undefined>>
+	<<set $wren_intro to true>>
+	The <<personsimple>> doesn't look up when you sit down. <<He>> keeps watching the dice as they cross the table,
+	then shifts <<his>> attention to the player gathering them for the next throw.
+	<br><br>
+	"Third throw in a row from the same hand," <<he>> says, without turning towards you.
+	"The one in the corner is going to lose everything <<he>> owns tonight."
+	The next throw lands, and <<he>> finally looks your way with a small smile.
+	<br><br>
+	<span class="gold">"Wren,"</span> <<he>> says, offering a hand. "I hear this table is new.
+	I like new tables. Nobody's worked out how to cheat at them yet."
+<<else>>
+	Wren is leaning back in <<his>> chair with a drink <<he>> isn't drinking,
+	watching the dice rather than the players.
+	<br><br>
+	<<if $wrenSeenLast is "bankheist">>
+		"Fancy seeing you here, partner," <<he>> says. "Don't worry.
+		Nobody at this table listens to anything that isn't a number."
+	<<elseif $wrenSeenLast is "pregnancy">>
+		<<He>> studies your face, then relaxes back into <<his>> chair. "You look better than the last time I saw you."
+	<<elseif $wrenSeenLast is "prison">>
+		"Out and about," <<he>> smirk. "Prison makes people careful. Careful people are terrible gamblers."
+	<<elseif $wrenSeenLast is "catsuit">>
+		"The docks, and now here," <<he>> says. "You do get around."
+	<<elseif $wrenSeenLast is "gambling">>
+		"Back again," <<he>> says. "So am I. Neither of us should be proud of that."
+	<<else>>
+		"Look who it is," <<he>> says. "Pull up a chair."
+	<</if>>
+	<br><br>
+	<<He>> tips <<his>> glass towards the table. "Whoever paid the police to look the other way did a sloppy job of it,
+	but I'm not complaining. There's nowhere else in town I can lose money this quickly."
+	<br><br>
+<</if>>
+<<set $wrenSeen.pushUnique("gambling")>>
+<<set $wrenSeenLast to "gambling">>
+<<pubGamblingWren>>
+
+:: Pub Gambling Wren Tip
+<<effects>>
+You ask Wren what <<he>> sees.
+<br><br>
+<<if !$daily.wrenDiceTip>>
+	<<set $daily.wrenDiceTip to true>>
+	<<He>> doesn't answer straight away. <<He>> watches two more throws,
+	following the shooter's hand from the moment the dice leave <<his>> fingers until they stop.
+	Then <<he>> leans closer and lowers <<his>> voice.
+	<br><br>
+	"Watch the shooter. Before a weak throw, <<he>> lowers one shoulder and releases too early."
+	Wren points towards the person collecting the stakes. "That one keeps counting the same money twice.
+	If they make a mistake with your bet, make them count it again in front of you."
+	<br><br>
+	<<He>> taps one of the dice with a fingertip. "These also favour the lower numbers more than they should.
+	Keep that in mind before you bet."
+	<br><br>
+	<span class="green">Wren's read on the table improves your odds at the dice game today.</span>
+<<else>>
+	"I've told you everything I can see," <<he>> says. "Watching it twice won't change the dice."
+<</if>>
+<br><br>
+<<pubGamblingWren>>
+
+
+:: Pub Gambling Wren Chat
+<<effects>>
+<<cleareventpool>>
+<<addinlineevent "pub_ring_wren_chat_1" 1>>
+	Wren nods at the far end of the table, where one of the players is stacking and restacking the same small pile of notes.
+	Each time the dice come back, they count the notes again before putting another one on the table.
+	<br><br>
+	"That one has already lost more than they came in with, and they know it," <<he>> says.
+	The player watches another throw, then adds more money to the bet. "They'll stay until somebody makes them leave.
+	Every ring has one. It's how the ring pays for itself."
+	<br><br>
+	<<pubGamblingWren>>
+<</addinlineevent>>
+
+<<addinlineevent "pub_ring_wren_chat_2" 1>>
+	You ask Wren whether <<he>> ever wins. <<He>> looks down at the notes in front of <<him>>,
+	separates a small stack from the rest, then pushes them towards the next bet.
+	<br><br>
+	"Sometimes," <<he>> says. "I don't come here for the money.
+	I come here because people say things at a dice table that they'd never say sober and standing up."
+	<<He>> shrugs as the dealer takes the notes. "The money is a fee I pay for listening."
+	<br><br>
+	<<pubGamblingWren>>
+<</addinlineevent>>
+
+<<addinlineevent "pub_ring_wren_chat_3" 1>>
+	Wren rolls a die between <<his>> fingers while <<he>> talks, passing it from one hand to the other without looking down.
+	A player at the next table cheers over a win, and Wren waits until the shouting settles.
+	<br><br>
+	"The police know about this room," <<he>> says. "They've known since the first week. That's not a warning
+	but just how this works. Stop paying the right people and the police will suddenly decide the gambling bothers them."
+	<br><br>
+	<<pubGamblingWren>>
+<</addinlineevent>>
+
+<<addinlineevent "pub_ring_wren_chat_4" 1>>
+	You ask Wren how <<he>> learned to read a table.
+	<<He>> catches the die in <<his>> palm and sets it beside <<his>> drink.
+	<br><br>
+	"Cargo," <<he>> says. "Spend a few years watching customs officers decide which crate to open
+	and you learn what people do before they make a choice." <<He>> finally takes a sip from <<his>> drink.
+	"Dice are easier than customs officers. They land where they land. People are the ones who lie."
+	<br><br>
+	<<pubGamblingWren>>
+<</addinlineevent>>
+
+<<addinlineevent "pub_ring_wren_chat_5" 1>>
+	Wren watches Landry move between the tables, shaking hands and refilling glasses.
+	Two players start arguing over a pile of notes, and Landry steps between them before either
+	raises their voice much further.
+	<br><br>
+	After a few quiet words, both sit down again.
+	<br><br>
+	"<<nnpc_Hes "Landry">> good at this," <<he>> says. "<<nnpc_He "Landry">>
+	looks like the least dangerous <<nnpc_gender "Landry">> in any room <<nnpc_hes "Landry">> standing in but can always make people shut.
+	That takes work." Wren turns back to you. "Don't tell <<nnpc_him "Landry">> I said anything nice."
+	<br><br>
+	<<pubGamblingWren>>
+<</addinlineevent>>
+
+<<addinlineevent "pub_ring_wren_chat_6" 1>>
+	A nervous player across the table keeps rubbing across the edge of a folded note. Wren notices too.
+	<br><br>
+	"Watch this," <<he>> says quietly. When the next round starts,
+	Wren puts down a small bet and looks directly at the nervous player.
+	The player hesitate, copy Wren's bet, but then change it and move the money somewhere else.
+	<br><br>
+	Wren waits until the dice stop before turning back to you. "Didn't matter what I bet.
+	People were waiting for somebody else to make the decision first." <<He>> gathers <<his>> own winnings.
+	"People who don't trust their own choice are easy to influence."
+	<br><br>
+	<<pubGamblingWren>>
+<</addinlineevent>>
+
+<<addinlineevent "pub_ring_wren_chat_7" 1>>
+	A player reaches across the table to collect the winnings. Wren grabs your sleeve before you can move closer.
+	<br><br>
+	"Left hand," <<he>> says. You watch more carefully as the player gathers the notes with right hand pulls the winnings
+	closer, while left one stays near the edge of the pile. The player slide one folded note,
+	then move it into the pocket while the other players watch the dice.
+	<br><br>
+	Wren lets go of your sleeve. "Small theft. That's why it works. Take too much and somebody counts."
+	<<He>> watches the player move away from the table. "Take one and everyone assumes they made a mistake counting."
+	<br><br>
+	<<pubGamblingWren>>
+<</addinlineevent>>
+
+<<runeventpool>>
