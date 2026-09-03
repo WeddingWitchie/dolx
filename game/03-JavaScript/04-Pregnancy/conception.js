@@ -262,7 +262,11 @@ function availablePlayerPregnancySlot(orifice) {
 	ensurePendingPregnancySlots();
 	const pending = V.pendingPregnancies;
 	const active = getActivePregnancies("pc");
-	if (orifice === "anus") return active.length === 0 && pending.vagina === null && pending.vagina2 === null && pending.anus === null ? "anus" : null;
+	if (orifice === "anus") {
+		/* Shared anal pregnancy check. This also covers fetish mode and Force Impregnation, which create pregnancies directly. statFreeze scenes are excluded because they use a saved body state. */
+		if (!V.statFreeze && !playerCanCarryAnally()) return null;
+		return active.length === 0 && pending.vagina === null && pending.vagina2 === null && pending.anus === null ? "anus" : null;
+	}
 	if (orifice !== "vagina") return null;
 	if (!playerHasBetaWombs()) {
 		return active.length === 0 && pending.vagina === null && pending.vagina2 === null && pending.anus === null ? "vagina" : null;

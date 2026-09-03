@@ -355,6 +355,11 @@ function namedNpcPregnancy(carrier, donor, donorInputSpecies, donorKnown = false
 	if (!donorSpecies) return false;
 
 	const carrierOrifice = namedNpc.vagina !== "none" ? "vagina" : "anus";
+	// Scenes call this directly, bypassing canNpcConceive, so the anal toggles have to be honoured here too.
+	if (carrierOrifice === "anus") {
+		if (!V.settings.npcAnalPregnancyEnabled) return false;
+		if (namedNpc.pregnancy && namedNpc.pregnancy.analEnabled === false) return false;
+	}
 	const pregnancyId = createPregnancy(
 		carrier,
 		namedNpc.type,

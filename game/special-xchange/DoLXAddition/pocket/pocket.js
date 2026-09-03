@@ -529,6 +529,16 @@ function pocketPillIcon(name) {
 }
 window.pocketPillIcon = pocketPillIcon;
 
+/* Why a bagged pill can't be taken right now, in the same words the medicine drawer uses. */
+function pocketPillBlockedReason(name) {
+	const item = pocketPillSetup(name);
+	if (!item) return "";
+	const reason = typeof item.take_blocked_reason === "function" ? item.take_blocked_reason() : "";
+	if (reason) return reason;
+	return item.type === "xchange" ? "You can't take this pill in your current state." : "";
+}
+window.pocketPillBlockedReason = pocketPillBlockedReason;
+
 /* Take one from the bag using the normal medicine path, preserving repeat-dose and overdose effects.
    PillCollection then returns to the current passage. */
 function pocketTakePill(name) {

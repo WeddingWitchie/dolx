@@ -1,4 +1,4 @@
-/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancy canBeMPregnant playerIsPregnant */
+/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancy canBeMPregnant knowsPregnancy */
 /* ============================================================
    X-CHANGE PILL DEFINITIONS  (all of them)
    ============================================================
@@ -32,6 +32,82 @@ function xchangePillBlockedReason(color, allowDualGenitals = false) {
 	return "This formula has nothing to change on your current body, so swallowing it would be a waste. Someone else could still be made to take it.";
 }
 window.xchangePillBlockedReason = xchangePillBlockedReason;
+
+/* ---- pregnancy gate ----
+   A pill is blocked only if it would change a body part that is currently pregnant.
+
+   - Vaginal pregnancy blocks pills that remove or rebuild the vagina. Ignore stale vaginal pregnancies if the current body has no vagina.
+   - Anal pregnancy only blocks pills with unknown or herm outcomes, such as Omega or suspicious pills. Plain pink pills do not affect the anus, so they can still be taken.
+   If the player does not know about the pregnancy yet, keep the blocked reason vague to avoid spoilers.
+*/
+function xchangeBlockingPregnancy(includeAnus = false) {
+	if (V.player.vaginaExist) {
+		const vaginal = getActivePregnancy("pc", "vagina");
+		if (vaginal) return vaginal;
+	}
+	if (includeAnus) {
+		const anal = getActivePregnancy("pc", "anus");
+		if (anal) return anal;
+	}
+	return undefined;
+}
+window.xchangeBlockingPregnancy = xchangeBlockingPregnancy;
+
+function xchangePregnancyBlocksPill(includeAnus = false) {
+	return !!xchangeBlockingPregnancy(includeAnus);
+}
+window.xchangePregnancyBlocksPill = xchangePregnancyBlocksPill;
+
+function xchangePregnancyBlockedReason(includeAnus = false) {
+	const pregnancy = xchangeBlockingPregnancy(includeAnus);
+	if (!pregnancy) return "";
+	const pregnancyId = pregnancy.pregnancyId ?? V.pregnancies.indexOf(pregnancy);
+	const known = typeof knowsPregnancy === "function" && knowsPregnancy(pregnancyId, "pc");
+	if (known) return "X-Change compounds won't rewrite a body that's carrying. The pill would do nothing.";
+	return "Something in your body's chemistry rejects the compound. It wouldn't take hold right now.";
+}
+window.xchangePregnancyBlockedReason = xchangePregnancyBlockedReason;
+
+/* Reverting removes the body changes from the pill, so it follows the same vagina restriction as a blue pill. */
+function xchangePregnancyBlocksRevert() {
+	return xchangePregnancyBlocksPill();
+}
+window.xchangePregnancyBlocksRevert = xchangePregnancyBlocksRevert;
+
+function xchangeRevertPregnancyBlockedReason() {
+	return xchangePregnancyBlockedReason();
+}
+window.xchangeRevertPregnancyBlockedReason = xchangeRevertPregnancyBlockedReason;
+
+/* ---- standard transformation check ----
+   Used by all pills that start a transformation.
+   Checks that the pill suits the current body, no transformation is already active, and no pregnancy blocks the parts the pill would change.
+   Use null for pills that suit any body, and risksEveryOrifice for pills that may also change the anus. */
+function xchangeCanStartTransform(color = null, allowDualGenitals = false, risksEveryOrifice = false) {
+	if (color && !xchangePillSuitsBody(color, allowDualGenitals)) return false;
+	return !playerIsXChanged() && !xchangePregnancyBlocksPill(risksEveryOrifice);
+}
+window.xchangeCanStartTransform = xchangeCanStartTransform;
+
+function xchangeTransformBlockedReason(color = null, allowDualGenitals = false, risksEveryOrifice = false) {
+	if (color) {
+		const bodyReason = xchangePillBlockedReason(color, allowDualGenitals);
+		if (bodyReason) return bodyReason;
+	}
+	if (playerIsXChanged()) return "You're already under the effects of an X-Change pill. Wait for it to run out, or take an antidote.";
+	return xchangePregnancyBlockedReason(risksEveryOrifice);
+}
+window.xchangeTransformBlockedReason = xchangeTransformBlockedReason;
+
+/* ---- SWP anti-pill gate ----
+   Counter-agents only work on active, tested effects. Untested pills never reveal their effects. */
+function xchangeAntiPillBlockedReason(...effectFlags) {
+	if (!playerIsXChanged()) return "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
+	if (!V.xchange.pill.effectsKnown) return "You don't know what your current dose is doing. Test it before taking a counter-agent.";
+	if (effectFlags.some(flag => !V.xchange.pill[flag])) return "Your current dose isn't carrying that effect, so there's nothing for this to cancel.";
+	return "";
+}
+window.xchangeAntiPillBlockedReason = xchangeAntiPillBlockedReason;
 
 /* ---- protection gate ----
    Harper's treatment and the permanent purity trait stop an X-Change pill taking hold, so the drawer reports the dose as neutralised.
@@ -390,11 +466,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "fertile" "fertility">>`],
 	},
@@ -430,11 +505,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink", true)) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink", true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink", true);
+			return xchangeTransformBlockedReason("pink", true);
 		},
 		effects: [`<<xchange-pink 0.25>>`],
 		npc_display_condition() {
@@ -479,11 +553,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1>>`],
 		npc_display_condition() {
@@ -528,11 +601,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7>>`],
 		npc_display_condition() {
@@ -577,11 +649,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 30 "fertile">>`],
 		npc_display_condition() {
@@ -626,11 +697,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 3 "continue">>`],
 		npc_display_condition() {
@@ -675,11 +745,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "xtend" "fertile">>`, `<<set V.sexStats.pills["pills"]["X-Change X-Tend Cancel"].owned++>>`],
 		npc_display_condition() {
@@ -724,7 +793,12 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && !getActivePregnancy("pc", "vagina") && V.xchange.pill.xtendEffect ? 1 : 0;
+			return playerIsXChanged() && !xchangePregnancyBlocksRevert() && V.xchange.pill.xtendEffect ? 1 : 0;
+		},
+		take_blocked_reason() {
+			if (!playerIsXChanged()) return "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
+			if (!V.xchange.pill.xtendEffect) return "Your current dose doesn't carry the X-Tend agent, so there's nothing for it to undo.";
+			return xchangeRevertPregnancyBlockedReason();
 		},
 		effects: [`<<xchange-restore>>`],
 		npc_display_condition() {
@@ -769,11 +843,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "resistance">>`],
 		npc_display_condition() {
@@ -817,11 +890,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "breeder" "fertile">>`],
 		npc_display_condition() {
@@ -866,12 +938,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink", true)) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
-			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
+			return xchangeCanStartTransform("pink", true, true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink", true);
+			return xchangeTransformBlockedReason("pink", true, true);
 		},
 		effects: [`<<if $xchange.omegaShrinkGenitals>><<take-xchange 7 "crossdress" "omega">><<else>><<xchange-pink 7 "omega">><</if>>`],
 	},
@@ -947,11 +1017,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "innocence">>`],
 		npc_display_condition() {
@@ -995,11 +1064,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "swell">>`],
 		npc_display_condition() {
@@ -1043,11 +1111,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 1 "bimbo" "swell">>`],
 		npc_display_condition() {
@@ -1091,11 +1158,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-pink 7 "cumcure">>`],
 		npc_display_condition() {
@@ -1140,11 +1206,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<take-xchange 1 "crossdress">>`],
 		npc_display_condition() {
@@ -1188,11 +1253,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (F)"].owned++>>`],
 		npc_display_condition() {
@@ -1237,7 +1301,12 @@ setup.pills.push(
 			return this.owned() > 0 && V.xchange.pill.choiceEffect ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && !getActivePregnancy("pc", "vagina") && V.xchange.pill.choiceEffect ? 1 : 0;
+			return playerIsXChanged() && !xchangePregnancyBlocksRevert() && V.xchange.pill.choiceEffect ? 1 : 0;
+		},
+		take_blocked_reason() {
+			if (!playerIsXChanged()) return "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
+			if (!V.xchange.pill.choiceEffect) return "Your current dose doesn't carry the Choice agent, so there's nothing for it to undo.";
+			return xchangeRevertPregnancyBlockedReason();
 		},
 		effects: [`<<xchange-restore>>`],
 	},
@@ -1271,12 +1340,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("pink")) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
-			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
+			return xchangeCanStartTransform("pink", false, true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("pink");
+			return xchangeTransformBlockedReason("pink", false, true);
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {
@@ -1319,8 +1386,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
-			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
+			return xchangeCanStartTransform(null, false, true) ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason(null, false, true);
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {
@@ -1360,11 +1429,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7 "fertile" "fertility">>`],
 	},
@@ -1399,11 +1467,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue", true)) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue", true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue", true);
+			return xchangeTransformBlockedReason("blue", true);
 		},
 		effects: [`<<xchange-blue 0.25>>`],
 		npc_display_condition() {
@@ -1447,11 +1514,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1>>`],
 		npc_display_condition() {
@@ -1496,11 +1562,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7>>`],
 		npc_display_condition() {
@@ -1543,11 +1608,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 30>>`],
 		npc_display_condition() {
@@ -1592,11 +1656,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 3 "continue">>`],
 		npc_display_condition() {
@@ -1641,11 +1704,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "resistance">>`],
 		npc_display_condition() {
@@ -1689,11 +1751,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7 "bull">>`],
 		npc_display_condition() {
@@ -1738,11 +1799,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue", true)) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue", true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue", true);
+			return xchangeTransformBlockedReason("blue", true);
 		},
 		effects: [`<<xchange-blue 7 "alpha">>`],
 	},
@@ -1778,12 +1838,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue", true)) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
-			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
+			return xchangeCanStartTransform("blue", true, true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue", true);
+			return xchangeTransformBlockedReason("blue", true, true);
 		},
 		effects: [`<<xchange-blue 7 "omega">>`],
 	},
@@ -1818,11 +1876,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "innocence">>`],
 		npc_display_condition() {
@@ -1866,11 +1923,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "swell">>`],
 		npc_display_condition() {
@@ -1914,11 +1970,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 1 "bimbo" "swell">>`],
 		npc_display_condition() {
@@ -1962,11 +2017,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-blue 7 "cumcure">>`],
 		npc_display_condition() {
@@ -2011,11 +2065,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<take-xchange 1 "crossdress">>`],
 		npc_display_condition() {
@@ -2059,11 +2112,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-choice>>`, `<<set V.sexStats.pills["pills"]["X-Change Choice Reversal (M)"].owned++>>`],
 		npc_display_condition() {
@@ -2108,7 +2160,12 @@ setup.pills.push(
 			return this.owned() > 0 && V.xchange.pill.choiceEffect ? 1 : 0;
 		},
 		take_condition() {
-			return playerIsXChanged() && !getActivePregnancy("pc", "vagina") && V.xchange.pill.choiceEffect ? 1 : 0;
+			return playerIsXChanged() && !xchangePregnancyBlocksRevert() && V.xchange.pill.choiceEffect ? 1 : 0;
+		},
+		take_blocked_reason() {
+			if (!playerIsXChanged()) return "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
+			if (!V.xchange.pill.choiceEffect) return "Your current dose doesn't carry the Choice agent, so there's nothing for it to undo.";
+			return xchangeRevertPregnancyBlockedReason();
 		},
 		effects: [`<<xchange-restore>>`],
 	},
@@ -2144,7 +2201,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 1 "herm">>`],
 		npc_display_condition() {
@@ -2184,7 +2244,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 30 "herm">>`],
 		npc_display_condition() {
@@ -2224,7 +2287,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 3 "herm" "continue">>`],
 		npc_display_condition() {
@@ -2264,7 +2330,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 1 "herm" "resistance">>`],
 		npc_display_condition() {
@@ -2303,7 +2372,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 0.25 "herm">>`],
 		npc_display_condition() {
@@ -2343,7 +2415,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "herm">>`],
 		npc_display_condition() {
@@ -2382,7 +2457,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "herm" "breeder" "fertile">>`],
 		npc_display_condition() {
@@ -2421,7 +2499,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "herm" "bull">>`],
 		npc_display_condition() {
@@ -2461,8 +2542,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			const isPregnantForXChange = playerIsPregnant() || !!getActivePregnancy("pc", "anus");
-			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
+			return xchangeCanStartTransform(null, false, true) ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason(null, false, true);
 		},
 		effects: [`<<take-xchange 7 "herm" "omega">>`],
 	},
@@ -2498,7 +2581,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "herm" "alpha">>`],
 	},
@@ -2534,8 +2620,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			const isPregnantForXChange = playerIsPregnant() || !!getActivePregnancy("pc", "anus");
-			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
+			return xchangeCanStartTransform(null, false, true) ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason(null, false, true);
 		},
 		effects: [`<<take-xchange 7 "herm" "omega" "alpha">>`],
 	},
@@ -2571,7 +2659,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "herm" "fertile" "fertility">>`],
 	},
@@ -2605,12 +2696,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			if (!xchangePillSuitsBody("blue")) return 0;
-			const isPregnantForXChange = playerIsPregnant() || (canBeMPregnant() && !!getActivePregnancy("pc", "anus"));
-			return !playerIsXChanged() && !isPregnantForXChange ? 1 : 0;
+			return xchangeCanStartTransform("blue", false, true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangePillBlockedReason("blue");
+			return xchangeTransformBlockedReason("blue", false, true);
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {
@@ -2655,7 +2744,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<xchange-clone 3 "Whitney">>`],
 	},
@@ -2692,6 +2784,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.genderflipEffect && V.xchange.pill.genderificationEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("genderflipEffect", "genderificationEffect");
+		},
 		effects: [`<<xchange-removeeffect "crossdress">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -2727,6 +2822,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.breederEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("breederEffect");
+		},
 		effects: [`<<xchange-removeeffect "breeder">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -2760,6 +2858,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.omegaEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("omegaEffect");
 		},
 		effects: [`<<xchange-removeeffect "omega">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -2795,6 +2896,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.bullEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("bullEffect");
+		},
 		effects: [`<<xchange-removeeffect "bull">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -2828,6 +2932,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.alphaEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("alphaEffect");
 		},
 		effects: [`<<xchange-removeeffect "alpha">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -2863,6 +2970,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.betaEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("betaEffect");
+		},
 		effects: [`<<xchange-removeeffect "beta">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -2896,6 +3006,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.continueEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("continueEffect");
 		},
 		effects: [`<<xchange-removeeffect "continue">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -2932,6 +3045,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.resistanceEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("resistanceEffect");
+		},
 		effects: [`<<xchange-removeeffect "resistance">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -2965,6 +3081,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.portalEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("portalEffect");
 		},
 		effects: [`<<xchange-removeeffect "portal">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -3000,6 +3119,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.fertile && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("fertile");
+		},
 		effects: [`<<xchange-removeeffect "fertile">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -3033,6 +3155,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.passionEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("passionEffect");
 		},
 		effects: [`<<xchange-removeeffect "passion">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -3069,6 +3194,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.dumbBitchEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("dumbBitchEffect");
+		},
 		effects: [`<<xchange-removeeffect "dumb-bitch">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -3102,6 +3230,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.swellEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("swellEffect");
 		},
 		effects: [`<<xchange-removeeffect "swell">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -3138,6 +3269,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.bimboEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("bimboEffect");
+		},
 		effects: [`<<xchange-removeeffect "bimbo">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -3171,6 +3305,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.cumcureEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("cumcureEffect");
 		},
 		effects: [`<<xchange-removeeffect "cumcure">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -3207,7 +3344,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return !playerIsXChanged() && !getActivePregnancy("pc", "vagina") ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeTransformBlockedReason();
 		},
 		effects: ["<<if !xchangePillProtectionActive()>><<pain 180>><<stress 130>><<trauma 80>><<gpain>><<gstress>><<gtrauma>><</if>>", "<<xchange-premium 7>>"],
 	},
@@ -3244,6 +3384,9 @@ setup.pills.push(
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.hyperFertilityEffect && V.xchange.pill.effectsKnown ? 1 : 0;
 		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("hyperFertilityEffect");
+		},
 		effects: [`<<xchange-removeeffect "fertility">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
 
@@ -3278,6 +3421,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return playerIsXChanged() && V.xchange.pill.feartoxinEffect && V.xchange.pill.effectsKnown ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return xchangeAntiPillBlockedReason("feartoxinEffect");
 		},
 		effects: [`<<xchange-removeeffect "feartoxin">>`, '<<xchange-addsideeffect "antipill">>'],
 	},
@@ -3393,6 +3539,9 @@ setup.pills.push(
 		},
 		take_condition() {
 			return V.xchange.pill && V.xchange.pill.active ? 1 : 0;
+		},
+		take_blocked_reason() {
+			return playerIsXChanged() ? "" : "You aren't under the effects of any X-Change pill. There's nothing to test for.";
 		},
 		effects: [`<<set V.xchange.pill.testPending to true>>`],
 	}

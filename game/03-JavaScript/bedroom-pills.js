@@ -1002,7 +1002,9 @@ function initPillContextButtons(item) {
 		document.getElementById("hpi_take_pills").classList.add("hpi_greyed_out"); // grey the "Take Pill" button out
 		document.getElementById("hpi_take_pills").onclick = ""; // disable "Take Pill" onclick event.
 		/* Pills can self-report why they're blocked (e.g. X-Change body mismatch) so the grey button isn't unexplained. */
-		const blockedReason = typeof item.take_blocked_reason === "function" ? item.take_blocked_reason() : "";
+		let blockedReason = typeof item.take_blocked_reason === "function" ? item.take_blocked_reason() : "";
+		/* X-Change pills have enough gates that a silent grey button reads as a bug; always say something. */
+		if (!blockedReason && item.type === "xchange") blockedReason = "You can't take this pill in your current state.";
 		if (blockedReason && document.getElementById("hpi_blocked_reason") == null) {
 			document
 				.getElementById("hpi_desc_action")

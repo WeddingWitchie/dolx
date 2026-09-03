@@ -1,4 +1,4 @@
-/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune loadIsLive autismEnforceTalentLimits */
+/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune loadIsLive autismEnforceTalentLimits xchangePregnancyBlocksPill */
 /**
  * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
@@ -1200,7 +1200,8 @@ window.xchangePillProtectionActive = xchangePillProtectionActive;
 function playerMayBeSpiked() {
 	if (V.statFreeze) return false;
 	if (xchangeTherapyActive()) return false;
-	return V.xchange.nonconEnabled === 1 && ((!playerIsXChanged() && !playerIsPregnant()) || playerIsXChanged());
+	/* Use the same pill checks as the drawer, so spiking follows the same rules and old pregnancy data can't block it forever. */
+	return V.xchange.nonconEnabled === 1 && (playerIsXChanged() || !xchangePregnancyBlocksPill());
 }
 window.playerMayBeSpiked = playerMayBeSpiked;
 
