@@ -165,9 +165,10 @@
 		<span class="green"><<= dolxFishCatchCount(_args[0])>> of them</span> came up on the same hook.
 	<</if>>
 	<<set _baitHint to dolxFishBaitHint(_args[0])>>
+	/* The catch text already names an undersized fish as its small variant */
 	<<if _baitHint>>
 		<br>
-		<<if dolxFishIsSmallCatch(_args[0])>>It's a small one. <</if>><span class="green"><<= _baitHint.toUpperFirst()>> make good live bait for something bigger.</span>
+		<span class="green"><<= _baitHint.toUpperFirst()>> make good live bait for something bigger.</span>
 	<</if>>
 <</widget>>
 
@@ -347,8 +348,22 @@
 :: Pocket Eat Bait
 <<effects>>
 <<set _baitEatDestination to $dolxBaitEatReturn or "Bedroom">>
-<<if $dolxBaitEaten is "bait_worm">>
-	You open the tin and pick out one of the worms. It wriggles between your fingers, making you stop before bringing it closer to your mouth.
+/* dolxEatBait records which supply the worm came out of, the can or a loose pack. */
+<<set _wormFromCan to $dolxBaitEatenFromCan is true>>
+<<if $dolxBaitEaten is "bait_worm" and effectiveTransformationLevel("bird") gte 3>>
+	You open <<if _wormFromCan>>the tin<<else>>your little can of bait worms<</if>> and pick out one of the worms. It wriggles between your fingers.
+	<br><br>
+	You tip your head back and drop it in. It goes down without nicely, and the wriggling stops
+	almost at once. Without thinking, you reach for another worm. Your fingers are nearly around it before you realise what you're doing and stop yourself.
+	<br><br>
+	<span class="gold">It tasted good.</span><<lstress>><<stress -6>>
+	<<set $daily.fishing to $daily.fishing ?? {}>>
+	<<if not $daily.fishing.eatenWormTf>>
+		<<transform bird 1>>
+		<<set $daily.fishing.eatenWormTf to true>>
+	<</if>>
+<<elseif $dolxBaitEaten is "bait_worm">>
+	You open <<if _wormFromCan>>the tin<<else>>your little can of bait worms<</if>> and pick out one of the worms. It wriggles between your fingers, making you stop before bringing it closer to your mouth.
 	<br><br>
 	You place it on your tongue. The worm moves against the inside of your mouth, and you nearly spit it out. Instead, you close your mouth and swallow before you can change your mind.
 	<br><br>
@@ -364,4 +379,4 @@
 	You have nothing to eat.
 <</if>>
 <br><br>
-<<link [[Next|_baitEatDestination]]>><<unset $dolxBaitEaten $dolxBaitEatReturn>><</link>>
+<<link [[Next|_baitEatDestination]]>><<unset $dolxBaitEaten $dolxBaitEatReturn $dolxBaitEatenFromCan>><</link>>

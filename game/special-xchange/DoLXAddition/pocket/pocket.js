@@ -1041,6 +1041,7 @@ $(document).on(":passageend", () => {
 	if (V.dolxBaitEatReturn && V.passage !== "Pocket Eat Bait") {
 		delete V.dolxBaitEatReturn;
 		delete V.dolxBaitEaten;
+		delete V.dolxBaitEatenFromCan;
 	}
 	if (!V.pocket) return; /* Nothing to keep in step until the PC has opened the menu at least once. */
 	if (V.statFreeze || V.frozenValues || V.replayScene || V.hc) return;

@@ -322,12 +322,6 @@ function dolxFishKeepKey(fish) {
 }
 window.dolxFishKeepKey = dolxFishKeepKey;
 
-function dolxFishIsSmallCatch(fish) {
-	const keep = dolxFishKeepKey(fish);
-	return !!keep && keep !== fish?.type;
-}
-window.dolxFishIsSmallCatch = dolxFishIsSmallCatch;
-
 /* Whether the catch text should explain what a bait fish is for. Covers both ways of getting
    one -- an undersized bass, and a small carp caught outright -- and stops once the player has
    actually used one. */
@@ -713,9 +707,9 @@ function dolxCanEatBaitFish(key) {
 }
 window.dolxCanEatBaitFish = dolxCanEatBaitFish;
 
-/* Worms need no transformation. Anyone can swallow one; almost nobody enjoys it. */
+/* Worms need no transformation. Anyone can swallow one; almost nobody enjoys it */
 function dolxCanEatWorm() {
-	return dolxWormCanOwned() && dolxWormCanCount() > 0;
+	return (dolxWormCanOwned() && dolxWormCanCount() > 0) || dolxBaitLooseStock("bait_worm") > 0;
 }
 window.dolxCanEatWorm = dolxCanEatWorm;
 
@@ -724,7 +718,14 @@ window.dolxCanEatWorm = dolxCanEatWorm;
 function dolxEatBait(key, commit = true) {
 	if (key === "bait_worm") {
 		if (!dolxCanEatWorm()) return false;
-		V.fishing.wormCan.worms -= 1;
+		/* The can empties first, the same order the hook takes them in */
+		if (dolxWormCanOwned() && dolxWormCanCount() > 0) {
+			V.fishing.wormCan.worms -= 1;
+			V.dolxBaitEatenFromCan = true;
+		} else {
+			V.foodstuff.bait_worm.amount -= 1;
+			V.dolxBaitEatenFromCan = false;
+		}
 	} else {
 		if (!dolxCanEatBaitFish(key)) return false;
 		V.foodstuff[key].amount -= 1;
