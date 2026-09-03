@@ -1,4 +1,4 @@
-/* global statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod */
+/* global amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod */
 
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -127,8 +127,7 @@ const statChange = (() => {
 	 * Respects AMCTraits.beauty multiplier (e.g. 2x for immutable double-cap saves).
 	 */
 	function getEffectiveBeauty() {
-		const max = (V.beautymax || 1000) * (V.AMCTraits?.beauty || 1);
-		return Math.clamp((V.beauty || 0) + getBeautyBoost(), 0, max);
+		return amcClamp((V.beauty || 0) + getBeautyBoost(), V.beautymax || 1000, V.AMCTraits?.beauty || 1, V.beauty || 0);
 	}
 
 	function traumaClamp() {
@@ -1148,7 +1147,7 @@ const statChange = (() => {
 		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1) amount = Number(amount) / V.AMCTraits.willpower;
 		else amount = Number(amount);
 		if (amount) {
-			V.willpower = Math.clamp(V.willpower + amount * 2, 0, V.willpowermax * V.AMCTraits.willpower);
+			V.willpower = amcClamp(V.willpower + amount * 2, V.willpowermax, V.AMCTraits.willpower, V.willpower);
 		}
 	}
 	DefineMacro("willpower", willpower);
@@ -1285,7 +1284,7 @@ const statChange = (() => {
 			const maxValue = (type === "beauty" ? V.beautymax : V[type + "max"]) || 1000;
 			const maxMultiplier = V.AMCTraits?.[type] || 1;
 			if (V[type] >= maxValue || V.AMCTraits?.halfGain === 1) amount /= 2;
-			V[type] = Math.clamp(V[type] + amount * (V.statGainMult / 100), 0, maxValue * maxMultiplier);
+			V[type] = amcClamp(V[type] + amount * (V.statGainMult / 100), maxValue, maxMultiplier, V[type]);
 		}
 	}
 	DefineMacro("oralskill", amount => skill("oralskill", amount));

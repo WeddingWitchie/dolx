@@ -1,4 +1,4 @@
-/* globals pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune loadIsLive autismEnforceTalentLimits xchangePregnancyBlocksPill */
+/* globals amcClamp pcIsBlinded wornSetupClothes playerHasWornVaginalDildo playerHasVibrator npcXChangeHourlyCheck chastityConsensual chastityFrustrationImmune loadIsLive autismEnforceTalentLimits xchangePregnancyBlocksPill */
 /**
  * D.N.A. separated some X-Change misc/helper widgets from the main pill handling file:
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
@@ -804,8 +804,11 @@ function updatePhysique() {
 	}
 
 	// Respect the same ceiling as clamp; this runs on :passageend and would otherwise overwrite the clamped value with an uncapped one.
-	const cap = V.physiquesize * (Number(V.AMCTraits?.physique) || 1);
-	V.physique = Math.clamp(Math.round(V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physiquesize) * (genderMismatch ? pct : 1)), 0, cap);
+	V.physique = amcClamp(
+		Math.round(V.xchange.baseStats.physique * (V.physiquesize / V.xchange.baseStats.physiquesize) * (genderMismatch ? pct : 1)),
+		V.physiquesize,
+		Number(V.AMCTraits?.physique) || 1
+	);
 }
 window.updatePhysique = updatePhysique;
 

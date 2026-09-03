@@ -1039,12 +1039,13 @@
 <<widget "combatskulduggeryskilluse">>
 	<<if $statFreeze isnot true and $skulduggery lt 1000 * $AMCTraits.skulduggery>>
 		<<set _autismMod to autismStatGainMultiplier("skulduggery", 3)>>
+		<<set _amcPrev to $skulduggery>>
 		<<if $skulduggery gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $skulduggery += 3 / $AMCTraits.skulduggery * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<<else>>
 			<<set $skulduggery += 3 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<</if>>
-		<<set $skulduggery to Math.clamp($skulduggery, 0, 1000 * $AMCTraits.skulduggery)>>
+		<<set $skulduggery to amcClamp($skulduggery, 1000, $AMCTraits.skulduggery, _amcPrev)>>
 		<span class="gold"> You learned a thing or two about skulduggery.</span>
 	<</if>>
 <</widget>>
@@ -1059,6 +1060,7 @@
 			<<set _mod *= 0.25>>
 		<</if>>
 		<<set _mod *= autismStatGainMultiplier("swimming", 9, "training")>>
+		<<set _amcPrev to $swimmingskill>>
 		<<if $swimmingskill gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $swimmingskill += 9 / $AMCTraits.swimming * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _mod>>
 		<<else>>
@@ -1067,7 +1069,7 @@
 		<<if $swimmingskill lt 1000 * $AMCTraits.swimming>>
 			<span class="gold"> You've become more confident at swimming.</span>
 		<</if>>
-		<<set $swimmingskill to Math.clamp($swimmingskill, 0, 1000 * $AMCTraits.swimming)>>
+		<<set $swimmingskill to amcClamp($swimmingskill, 1000, $AMCTraits.swimming, _amcPrev)>>
 	<</if>>
 <</widget>>
 
@@ -1282,12 +1284,13 @@
 	<<if $player.breastsize gte 6 and !$worn.under_upper.type.includes("athletic")>>
 		<<set _temp /= 1.1>>
 	<</if>>
+	<<set _amcPrev to $athletics>>
 	<<if $athletics gt 1000 or $AMCTraits.halfGain is 1>>
 		<<set $athletics += _temp * 1.3 / $AMCTraits.athletics * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 	<<else>>
 		<<set $athletics += _temp * 1.3 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 	<</if>>
-	<<set $athletics to Math.clamp($athletics, 0, 1000 * $AMCTraits.athletics)>>
+	<<set $athletics to amcClamp($athletics, 1000, $AMCTraits.athletics, _amcPrev)>>
 	<<set Weather.BodyTemperature.addActivity("athletics")>>
 <</widget>>
 
@@ -1298,12 +1301,13 @@
 			<<set _bgMod *= 2>>
 		<</if>>
 		<<set _bgMod *= autismStatGainMultiplier("tending", _args[0], "training")>>
+		<<set _amcPrev to $tending>>
 		<<if $tending gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $tending += (_args[0] * 2 / $AMCTraits.tending * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _bgMod>>
 		<<else>>
 			<<set $tending += (_args[0] * 2 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _bgMod>>
 		<</if>>
-		<<set $tending to Math.clamp($tending, 0, 1000 * $AMCTraits.tending)>>
+		<<set $tending to amcClamp($tending, 1000, $AMCTraits.tending, _amcPrev)>>
 	<</if>>
 <</widget>>
 
@@ -1311,22 +1315,24 @@
 <<if _args[1]>>
 	<<if _args[0] and $statFreeze isnot true and ($housekeeping lt _args[1] or _args[1] gte 1000 or $easyHousekeeping gte 1)>>
 		<<set _autismMod to autismStatGainMultiplier("housekeeping", _args[0], "training")>>
+		<<set _amcPrev to $housekeeping>>
 		<<if $housekeeping gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<<else>>
 			<<set $housekeeping += (_args[0] * 2 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<</if>>
-		<<set $housekeeping to Math.clamp($housekeeping, 0, 1000 * $AMCTraits.housekeeping)>>
+		<<set $housekeeping to amcClamp($housekeeping, 1000, $AMCTraits.housekeeping, _amcPrev)>>
 	<</if>>
 <<else>>
 	<<if _args[0] and $statFreeze isnot true>>
 		<<set _autismMod to autismStatGainMultiplier("housekeeping", _args[0], "training")>>
+		<<set _amcPrev to $housekeeping>>
 		<<if $housekeeping gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $housekeeping += (_args[0] * 2 / $AMCTraits.housekeeping * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<<else>>
 			<<set $housekeeping += (_args[0] * 2 * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))) * _autismMod>>
 		<</if>>
-		<<set $housekeeping to Math.clamp($housekeeping, 0, 1000 * $AMCTraits.housekeeping)>>
+		<<set $housekeeping to amcClamp($housekeeping, 1000, $AMCTraits.housekeeping, _amcPrev)>>
 	<</if>>
 <</if>>
 <</widget>>
@@ -1343,12 +1349,13 @@
 		/* _bgMod above is vanilla dead code: the gain lines below never applied it. Left as-is rather than
 		   silently rebalancing athlete/nerd dancing, so the autism modifier is applied on its own. */
 		<<set _autismMod to autismStatGainMultiplier("dancing", _args[0], "training")>>
+		<<set _amcPrev to $danceskill>>
 		<<if $danceskill gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $danceskill += _args[0] / $AMCTraits.dancing * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<<else>>
 			<<set $danceskill += _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _autismMod>>
 		<</if>>
-		<<set $danceskill to Math.clamp($danceskill, 0, 1000 * $AMCTraits.dancing)>>
+		<<set $danceskill to amcClamp($danceskill, 1000, $AMCTraits.dancing, _amcPrev)>>
 	<</if>>
 <</widget>>
 
@@ -1372,6 +1379,7 @@
 	<</if>>
 	/* Passive: physique ticks up from ordinary travel, so it must not feed focus fatigue. */
 	<<set _temp *= autismStatGainMultiplier("physique", _temp)>>
+	<<set _amcPrev to $xchange.baseStats.physique>>
 	<<if $xchange.baseStats.physique gt $xchange.baseStats.physiquesize>>
 		<<set $xchange.baseStats.physique += ($xchange.baseStats.physiquesize / 1200) * _temp / $AMCTraits.physique>>
 	<<else>>
@@ -1391,7 +1399,7 @@
 	<<else>>
 		<span class="gold"> You get a good workout.</span>
 	<</if>>
-	<<set $xchange.baseStats.physique = Math.clamp($xchange.baseStats.physique, 0, $xchange.baseStats.physiquesize * $AMCTraits.physique)>>
+	<<set $xchange.baseStats.physique = amcClamp($xchange.baseStats.physique, $xchange.baseStats.physiquesize, $AMCTraits.physique, _amcPrev)>>
 	<<set Weather.BodyTemperature.addActivity("physique")>>
 	<<run updatePhysique()>>
 <</widget>>
@@ -1405,12 +1413,13 @@
 		<<if $backgroundTraits.includesAny("nerd", "insanity")>>
 			<<set _args[0] *= 0.75>>
 		<</if>>
+		<<set _amcPrev to $combatExtended.footwork>>
 		<<if $combatExtended.footwork gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $combatExtended.footwork += _args[0] / $AMCTraits.footwork * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 		<<else>>
 			<<set $combatExtended.footwork += _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 		<</if>>
-		<<set $combatExtended.footwork to Math.clamp($combatExtended.footwork, 0, 1000 * $AMCTraits.footwork)>>
+		<<set $combatExtended.footwork to amcClamp($combatExtended.footwork, 1000, $AMCTraits.footwork, _amcPrev)>>
 	<</if>>
 <</widget>>
 
@@ -1423,12 +1432,13 @@
 		<<if $backgroundTraits.includesAny("nerd", "insanity")>>
 			<<set _args[0] *= 0.75>>
 		<</if>>
+		<<set _amcPrev to $combatExtended.striking>>
 		<<if $combatExtended.striking gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $combatExtended.striking += _args[0] / $AMCTraits.striking * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 		<<else>>
 			<<set $combatExtended.striking += _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 		<</if>>
-		<<set $combatExtended.striking to Math.clamp($combatExtended.striking, 0, 1000 * $AMCTraits.striking)>>
+		<<set $combatExtended.striking to amcClamp($combatExtended.striking, 1000, $AMCTraits.striking, _amcPrev)>>
 	<</if>>
 <</widget>>
 
@@ -1441,12 +1451,13 @@
 		<<if $backgroundTraits.includesAny("nerd", "insanity")>>
 			<<set _args[0] *= 0.75>>
 		<</if>>
+		<<set _amcPrev to $combatExtended.kicking>>
 		<<if $combatExtended.kicking gt 1000 or $AMCTraits.halfGain is 1>>
 			<<set $combatExtended.kicking += _args[0] / $AMCTraits.kicking * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 		<<else>>
 			<<set $combatExtended.kicking += _args[0] * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100))>>
 		<</if>>
-		<<set $combatExtended.kicking to Math.clamp($combatExtended.kicking, 0, 1000 * $AMCTraits.kicking)>>
+		<<set $combatExtended.kicking to amcClamp($combatExtended.kicking, 1000, $AMCTraits.kicking, _amcPrev)>>
 	<</if>>
 <</widget>>
 
@@ -1459,7 +1470,7 @@
 			<<set _args[0] *= 1.25>>
 		<</if>>
 		<<set $xchange.baseStats.physique -= 10 * _args[0]>>
-		<<set $xchange.baseStats.physique = Math.clamp($xchange.baseStats.physique, 0, $xchange.baseStats.physiquesize * $AMCTraits.physique)>>
+		<<set $xchange.baseStats.physique = amcClamp($xchange.baseStats.physique, $xchange.baseStats.physiquesize, $AMCTraits.physique)>>
 		<<run updatePhysique()>>
 	<</if>>
 <</widget>>
@@ -5790,10 +5801,10 @@
 <</widget>>
 
 <<widget "adjust_school_traits">>
-	<<set $english to Math.clamp($english, 0, 1000 * $AMCTraits.english)>>
-	<<set $maths to Math.clamp($maths, 0, 1000 * $AMCTraits.maths)>>
-	<<set $science to Math.clamp($science, 0, 1000 * $AMCTraits.science)>>
-	<<set $history to Math.clamp($history, 0, 1000 * $AMCTraits.history)>>
+	<<set $english to amcClamp($english, 1000, $AMCTraits.english)>>
+	<<set $maths to amcClamp($maths, 1000, $AMCTraits.maths)>>
+	<<set $science to amcClamp($science, 1000, $AMCTraits.science)>>
+	<<set $history to amcClamp($history, 1000, $AMCTraits.history)>>
 	<<if $science gte 2000>>
 		<<set $sciencetrait to 8>>
 	<<elseif $science gte 1750>>
