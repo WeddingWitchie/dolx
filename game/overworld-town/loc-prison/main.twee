@@ -23,7 +23,7 @@ You are in your cell. There's a bed in one corner, and a cupboard in another. A 
 <<elseif $prison.schedule is "hunt" and $prison.morning isnot 1>>
 	<<set $prison.schedule to "wake">>
 	<<generate_methodical_guard 0>><<person1>>
-	The lights buzz into life, and a rattle echoes as the cell doors slide open. A <<personsimple "normal">>'s voice rings through the hall. "Roll call." You see other prisoners lining up.
+	The lights switch on as the cell doors rattle open. You hear a <<personsimple "normal">> call down the hall, "Roll call." Other prisoners step out and line up along the walkway.
 	<br><br>
 
 	<<link [[Line up|Prison Cell Role]]>><<cell_trouble -1>><</link>>
@@ -36,7 +36,7 @@ You are in your cell. There's a bed in one corner, and a cupboard in another. A 
 	<<if $unbind is 1>>
 		<<unset $unbind>>
 		<<if $possessed>>
-			You stare down at your bindings. You pull, and they fall apart, unable to hold against you.
+			You brace your arms against the bindings and pull until the material tears apart, freeing you.
 			<br><br>
 		<<else>>
 			<span class="green">You rub your bindings against a sharp piece of metal.</span> It takes some effort, but eventually the material yields, freeing your limbs.
@@ -119,14 +119,14 @@ You are in your cell. There's a bed in one corner, and a cupboard in another. A 
 You examine your poster.
 <<if $prison.poster is "man">>
 	He wears a seductive expression, but there's something in his eyes. Like he's keeping a secret.
-<<elseif $prison.poster is "lady">>
+<<elseif $prison.poster is "woman">>
 	She wears a seductive expression, but there's something in her eyes. Like she's keeping a secret.
 <<elseif $prison.poster is "puppy">>
 	The puppy looks spirited and mischievous. Almost like it's hiding something.
 <</if>>
 <br><br>
 
-You remember the crack in the wall. You pull the poster back and run your finger down the schism. Some of the stone crumbles away.
+You remember the crack in the wall. You pull the poster back and run your finger along it, knocking a few loose pieces of stone free.
 <br><br>
 
 <<if $prison.hammer>>
@@ -159,7 +159,7 @@ You could only dig during lockdown. Too risky otherwise.
 <<effects>>
 
 <<if $prison.tunnel gte 120>>
-	You peer down the tunnel. The sky peers back.
+	You peer down the tunnel and see open sky at the far end.
 	<br><br>
 
 	<<ind>><<link [[Crawl to the edge (0:03)|Prison Tunnel Edge]]>><<pass 3>><</link>>
@@ -211,18 +211,16 @@ You could only dig during lockdown. Too risky otherwise.
 <<unset $prison_dig>>
 
 <<if $prison.tunnel gte 120>>
-	You crawl deep into the dark, and continue digging.
-	<br><br>
-	<span class="green">You're struck by a sudden, exhilarating breeze.</span> The smell of salt. You dig away the last of the rock, widening the hole large enough to fit your body.
+	You crawl to the end of the tunnel and keep digging until cool air reaches your face. <span class="green">You can smell salt.</span> A few more blows open a gap to the outside, and you widen it until your body can fit through.
 	<br><br>
 	<<earnFeat "Time and Pressure">>
-	You're at the edge of the island, above the sea.
+	The tunnel now opens onto the edge of the island, above the sea.
 <<elseif $prison.tunnel gte 100>>
 	You crawl deep into the dark, and continue digging.
 	<<set _rng to random(1, 3)>>
 	<<switch random(1, 3)>>
 	<<case 1>>
-		Shells melt into the surrounding stone.
+		You find shells embedded in the surrounding stone.
 	<<case 2>>
 		You think you hear a seagull, but you might be imagining it.
 	<<case 3>>
@@ -277,7 +275,7 @@ You could only dig during lockdown. Too risky otherwise.
 	<<set _rng to random(1, 3)>>
 	<<switch random(1, 3)>>
 	<<case 1>>
-		The poster flaps in a sudden breeze. You pause a moment before continuing.
+		The poster shifts behind you. You stop digging long enough to check the cell, then continue.
 	<<case 2>>
 		It's too dark to see, but you find yourself glancing at the cell door to make sure no one's watching.
 	<<case 3>>
@@ -290,7 +288,7 @@ You could only dig during lockdown. Too risky otherwise.
 	<<case 1>>
 		The crack widens.
 	<<case 2>>
-		You hear a cough, and freeze for a moment before continuing.<<gstress>><<stress 6>>
+		You stop when you hear a cough outside the cell, then continue once no one comes in.<<gstress>><<stress 6>>
 	<<case 3>>
 		It crumbles with little effort.
 	<</switch>>
@@ -306,7 +304,7 @@ You could only dig during lockdown. Too risky otherwise.
 		You cover the entrance with the poster.
 	<</if>>
 
-	A <<personsimple "normal">>'s voice rings through the hall. "Roll call." You see other prisoners lining up.
+	You hear a <<personsimple "normal">> call down the hall, "Roll call." Other prisoners step out and line up.
 	<br><br>
 
 	<<link [[Line up|Prison Cell Role]]>><<cell_trouble -1>><</link>>
@@ -327,7 +325,7 @@ You could only dig during lockdown. Too risky otherwise.
 	You climb the rocks, and squeeze into your tunnel.
 	<<set $phase to 0>>
 <<else>>
-	You crawl to the precipice, and peer off the edge. There's a sandy beach, trailing out of sight. It's not far down, but the waves are violent.
+	You crawl to the edge and look down. A sandy beach runs along the base of the rocks. It isn't far below, but strong waves break against the shore.
 	<<if !Weather.isOvercast>>
 		You can see the surrounding mist in the moonlight.
 	<<else>>
@@ -502,7 +500,22 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 <<if $worn.face.type.includes("gag")>>
 	"Mmmhr!" you say. The inmates laugh.<<lrespect>><<prison_inmates -1>>
 <<else>>
-	"Here," you say.
+	<<speechresolve>>
+	<<if _speechAttitudeResolved is "shy">>
+		"H-here," you say, keeping your voice low.
+	<<elseif _speechAttitudeResolved is "meek">>
+		"Here," you say quietly.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Here, sir," you answer.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Here," you say. "Good morning."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Here," you call back clearly.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Yeah, I'm here," you say.
+	<<else>>
+		"Here," you say.
+	<</if>>
 <</if>>
 <br><br>
 
@@ -613,7 +626,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 			<br>
 		<<case "blindfold">>
 			<<set $prison.active_punishments.delete("blindfold")>>
-			The walkway moves as steps approach.
+			Footsteps rattle the walkway as someone approaches.
 			<br><br>
 
 			<<link [[Next|Prison Remove Blindfold]]>><</link>>
@@ -737,7 +750,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 <<else>>
 	<<if $prison.cell_trouble gte 5>>
 		<<generate_veteran_guard 1>><<generate_anxious_guard 2>><<generate_relaxed_guard 3>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
 		<br><br>
 
 		<<He>> arrives at your cell, with <<veteran_guard 1>>, <<anxious_guard 2>>, and <<relaxed_guard 3>> close behind. They unstrap their batons.
@@ -747,7 +760,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 		<br>
 	<<elseif $prison.cell_trouble gte 4>>
 		<<generate_veteran_guard 1>><<generate_anxious_guard 2>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
 		<br><br>
 
 		<<He>> arrives at your cell, with <<veteran_guard 1>> and <<anxious_guard 2>> close behind. They unstrap their batons.
@@ -757,7 +770,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 		<br>
 	<<elseif $prison.cell_trouble gte 3>>
 		<<generate_veteran_guard 1>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
 		<br><br>
 
 		<<He>> arrives at your cell, with <<veteran_guard 1>> close behind. They unstrap their batons.
@@ -766,7 +779,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 		<<link [[Next|Prison Cell Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
 	<<elseif $prison.cell_trouble gte 2>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. "You'd better be sick in there," <<he>> says. "Or you'll be sorry."
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. "You'd better be sick in there," <<he>> says. "Or you'll be sorry."
 		<br><br>
 
 		<<He>> finds you lazing on your bed, and unstraps the baton from <<his>> side.
@@ -775,7 +788,24 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 		<<link [[Next|Prison Cell Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
 	<<else>>
-		You remain in your cell. "Number 144," <<methodical_guard 0>> says. "Leave your cell at once."
+		<<speechresolve>>
+		<<if _speechAttitudeResolved is "shy">>
+			You stay near the back of your cell. "I-I don't want to," you say.
+		<<elseif _speechAttitudeResolved is "meek">>
+			You hesitate instead of going to the door. "Please, I don't want to go."
+		<<elseif _speechAttitudeResolved is "docile">>
+			You stay close to the doorway without stepping through. "Do I have to?"
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			You remain inside your cell. "I'd rather stay here, thank you."
+		<<elseif _speechAttitudeResolved is "confident">>
+			You stand your ground. "I'm staying here."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			You sit back on the bed. "Make me."
+		<<else>>
+			You remain inside your cell. "I'm not coming out."
+		<</if>>
+		<br><br>
+		"Number 144," <<methodical_guard 0>> says. "Leave your cell at once."
 		<br><br>
 		<<link [[Leave your cell|Prison Cell Role]]>><</link>>
 		<br>
@@ -786,6 +816,24 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 
 :: Prison Cell Punishment Refuse
 <<effects>><<effects_prison>>
+
+<<speechresolve>>
+<<if _speechAttitudeResolved is "shy">>
+	You take a small step back. "N-no. I don't want to go."
+<<elseif _speechAttitudeResolved is "meek">>
+	"Please, don't make me go," you say.
+<<elseif _speechAttitudeResolved is "docile">>
+	You hesitate instead of following. "Please... do I have to?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'd rather not go with you, thank you," you say.
+<<elseif _speechAttitudeResolved is "confident">>
+	"No. I'm not going with you," you say.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Fuck off. I'm not going anywhere," you say.
+<<else>>
+	"I'm not going," you say.
+<</if>>
+<br><br>
 
 <<if $prison.shock is 1>>
 	<<methodical_guard 0 cap>> sighs, and reaches into <<his>> shirt pocket. <span class="red">A terrible jolt runs through you,</span> emanating from your neck. It only lasts a moment, but it's enough to make you fall to the ground, and twitch.<<gtrauma>><<ggstress>><<gggpain>><<trauma 4>><<stress 4>><<pain 4>>
@@ -798,7 +846,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 <<else>>
 	<<if $prison.cell_trouble gte 5>>
 		<<generate_veteran_guard 1>><<generate_anxious_guard 2>><<generate_relaxed_guard 3>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
 		<br><br>
 
 		<<He>> arrives at your cell, with <<veteran_guard 1>>, <<anxious_guard 2>>, and <<relaxed_guard 3>> close behind. They unstrap their batons.
@@ -808,7 +856,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 		<br>
 	<<elseif $prison.cell_trouble gte 4>>
 		<<generate_veteran_guard 1>><<generate_anxious_guard 2>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
 		<br><br>
 
 		<<He>> arrives at your cell, with <<veteran_guard 1>> and <<anxious_guard 2>> close behind. They unstrap their batons.
@@ -818,7 +866,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 		<br>
 	<<elseif $prison.cell_trouble gte 3>>
 		<<generate_veteran_guard 1>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. <<Hes>> not alone. "Must we make an example of you?" <<he>> says. "Because we will."
 		<br><br>
 
 		<<He>> arrives at your cell, with <<veteran_guard 1>> close behind. They unstrap their batons.
@@ -827,7 +875,7 @@ You stand outside your cell and wait as <<methodical_guard 0>> reads out each nu
 		<<link [[Next|Prison Cell Fight]]>><<set $fightstart to 1>><</link>>
 		<br>
 	<<else>>
-		The walkway rattles beneath <<methodical_guard 0 apo>> feet. "You're holding up the whole system." <<He>> unstraps the baton from <<his>> side before <<he>> arrives at the cell.
+		Heavy footsteps rattle the walkway as <<methodical_guard 0>> approaches. "You're holding up the whole system." <<He>> unstraps the baton from <<his>> side before <<he>> arrives at the cell.
 		<br><br>
 
 		<<link [[Next|Prison Cell Fight]]>><<set $fightstart to 1>><</link>>
@@ -1029,7 +1077,7 @@ You are on the metal walkway outside your cell, at the top of the cell block. Th
 				<<prisonicon "medical">><<link [[Medical|Prison Medical]]>><</link>>
 				<br><br>
 			<</if>>
-			The stairs snake around the central tower.
+			The stairs circle the central tower.
 			<br>
 			<<stairsicon "down" "prison">><<link [[Downstairs|Prison Block]]>><</link>>
 			<br><br>
@@ -1086,7 +1134,7 @@ You are at the bottom of the cell block. There are stairs leading to a walkway a
 			<br>
 			<<bathroomicon "shower">><<link [[Showers|Prison Shower]]>><</link>>
 			<br><br>
-			A faint chemical smell surrounds another door. The closest cells are vacant, the metal warped and corroded.
+			A chemical smell comes from another door. The closest cells are empty, with warped and corroded metal around them.
 			<br>
 			<<prisonicon "laundry">><<link [[Laundry|Prison Laundry]]>><</link>>
 			<br><br>
@@ -1236,16 +1284,16 @@ You approach the black and yellow door. There's no visible lock, but there is a 
 :: Prison Medical Shock
 <<effects>>
 
-You input the code, a green light flickers on above the door, and it slides open.
+You enter the code. A green light flashes above the door before it slides open.
 <br><br>
 
-The interior is dark, even compared to the rest of the prison. There's a rack of hammers, screwdrivers, and other tools near the entrance. As your eyes adjust, you see a machine the size of a small bus, also black and yellow. An array of metal coils spring from the top. There's a plaque. You get a static shock when you wipe away the grime.
+The room is darker than the rest of the prison. A rack near the entrance holds hammers, screwdrivers, and other tools. Once your eyes adjust, you make out a black and yellow machine about the size of a small bus, with rows of metal coils fixed to the top. A dirty plaque is bolted to its side. When you wipe it clean, static snaps against your fingers.
 <br><br>
 
 "Experimental shock generator. Requires specialised collars to function."
 <br><br>
 
-This machine doesn't look or sound stable. You could probably inflict irreparable damage with one of the tools lying around, but you wouldn't get away with it.
+The machine shudders every few seconds, and small sparks jump between two of the coils. One of the tools nearby could do a lot of damage, though the guards would know who did it.
 <br><br>
 
 <<choreicon "fix">><<link [[Sabotage|Prison Medical Sabotage]]>><<prison_hope 20>><<prison_reb 20>><<set $prison.shock to 0>><<prison_guards -20>><<prison_inmates 20>><</link>><<gggsuspicion>><<gggreb>><<ggghope>><<gggrespect>>
@@ -1257,19 +1305,19 @@ This machine doesn't look or sound stable. You could probably inflict irreparabl
 <<effects>><<wearProp "hammer">>
 
 <<earnFeat "Breaker">>
-You lift the largest hammer, one with a wooden handle, and get to work. You smash pipes, shatter glass, and dent plates.
+You take the largest hammer from the rack and swing it into the machine. A pipe bends under the first blow. You keep going, smashing the glass panels and driving dents into the metal casing.
 
 <<if currentSkillValue('physique') gte 8000>>
-	With your strength, you're able to inflict considerable damage before the guards arrive.<<ggrespect>><<prison_inmates 10>>
+	You drive the hammer through the controls and crack open part of the casing before the guards arrive.<<ggrespect>><<prison_inmates 10>>
 <<else>>
-	Even with your limited strength, you're able to inflict a lot of damage before the guards arrive.
+	It takes several swings, but by the time the guards arrive, pipes are bent and the front panel hangs loose.
 <</if>>
 <br><br>
 
 <<generate_methodical_guard 0>>
 <<generate_veteran_guard 1>>
 
-<<methodical_guard 0 cap>><<person1>> arrives with <<veteran_guard 1>> in tow. "What have you done?" <<he>> asks, reaching into <<his>> shirt pocket. <<He>> pulls out a remote, points at you, and presses the button. <span class="green">Nothing happens.</span> <<He>> tries again and again, to no avail.
+<<methodical_guard 0 cap>><<person1>> arrives with <<veteran_guard 1>> close behind. "What have you done?" <<he>> asks, reaching into <<his>> shirt pocket. <<He>> points a remote at you and presses the button. <span class="green">Nothing happens.</span> <<He>> presses it twice more, but the collar stays silent.
 <br><br>
 
 "Back to basics," <<veteran_guard 1>><<person2>> says, stepping forward with <<his>> baton at the ready. "Good. Best come quietly."
@@ -1289,7 +1337,26 @@ You lift the largest hammer, one with a wooden handle, and get to work. You smas
 	<<set $enemytrust -= 100>>
 	<<set $enemyanger += 200>>
 	<<npcidlegenitals>>
-	Inmates crowd around the door to watch, some wearing bandages.
+	<<if !$worn.face.type.includes("gag")>>
+		<<speechresolve>>
+		<<if _speechAttitudeResolved is "shy">>
+			You swallow and face the guards. "Stay back."
+		<<elseif _speechAttitudeResolved is "meek">>
+			"Please, just leave me alone," you say.
+		<<elseif _speechAttitudeResolved is "docile">>
+			"Please don't make me fight you," you say.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"I'd rather you stepped aside," you say.
+		<<elseif _speechAttitudeResolved is "confident">>
+			"I'm not going quietly," you say.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Come on, then. Try me," you say.
+		<<else>>
+			"I'm not going with you," you say.
+		<</if>>
+		<br><br>
+	<</if>>
+	Inmates gather around the doorway, some still wearing bandages.
 	<br><br>
 <</if>>
 
@@ -1328,8 +1395,8 @@ You lift the largest hammer, one with a wooden handle, and get to work. You smas
 	<<prison_revolt_options>>
 <<else>>
 	<<if $finish is 1>><<encounterEndViolence>><</if>>
-    You can't take it anymore.
-	<<He>> cuffs you, and pulls to you to your feet. The other inmates tease you as you pass.<<lrespect>><<prison_inmates -1>>
+	You can't keep fighting.
+	<<He>> cuffs you and pulls you to your feet. The other inmates call after you as you pass.<<lrespect>><<prison_inmates -1>>
 	<<bind>>
 	<br><br>
 	<<clotheson>>
@@ -1348,11 +1415,11 @@ You are in the prison yard. It's spacious, but the surrounding walls are unreaso
 <br><br>
 
 <<if $prison.schedule is "yard">>
-	Inmates lift weights and socialise. <<generate_veteran_guard 0>><<veteran_guard 0 cap>> watches with a sternful gaze.<<endevent>>
+	Inmates lift weights and talk in small groups. <<generate_veteran_guard 0>><<veteran_guard 0 cap>> walks along the wall, watching them.<<endevent>>
 	<br><br>
 <<elseif $prison.schedule is "revolt">>
 	<<beastNEWinit 6 hawk>>
-	Shadows roam the grass as <<beastsplural>> fly overhead. Inmates dart across the yard in groups, or stick to the shadows. Some are caught and carried into the sky. You're not sure where they're taken.
+	The <<beastsplural>> circle above the yard while inmates run between the walls and doorways below. Some prisoners move in groups, trying to stay under cover, but others are caught by talons and carried into the sky. You lose sight of them above the prison.
 	<<endevent>>
 	<br><br>
 <</if>>
@@ -1523,7 +1590,7 @@ You return to the yard.
 <<location "underground">><<set $outside to 0>><<effects>>
 <<wearProp "rope">>
 
-You tie the rope firm, and toss the other end down the hole. You hear a thud below after a few seconds. You test the rope. It seems safe. You can descend whenever you want.
+You tie the rope tightly and throw the other end down the hole. A few seconds later, it hits something below with a thud. You pull hard on the rope twice; the knot holds, leaving you a way down.
 <br><br>
 
 <<link [[Next|Prison Yard]]>><<location "prison">><</link>>
@@ -1587,7 +1654,7 @@ You approach the large door. It's locked.
 :: Prison Yard Door Key
 <<effects>>
 
-The key fits, but needs a lot of force to turn. The door creaks open. A straight stone tunnel slopes downwards. There's light at the bottom.
+The key fits, but you have to lean into it before the lock turns. The door creaks open, revealing a straight stone tunnel that slopes towards a patch of daylight.
 <br><br>
 
 You close the door behind you, and walk towards the light, emerging on a beach.
@@ -1600,7 +1667,7 @@ You close the door behind you, and walk towards the light, emerging on a beach.
 :: Prison Yard Door Pick
 <<effects>>
 
-The lock is sophisticated. It'd have to be, here. But it's still no match for you. The door creaks open. A straight stone tunnel slopes downwards. There's light at the bottom.
+The lock has several pins, but you work through them one by one until it clicks open. You ease the door aside and find a straight stone tunnel sloping towards a patch of daylight.
 <br><br>
 
 You close the door behind you, and walk towards the light, emerging on a beach.
@@ -1626,9 +1693,24 @@ You close the door behind you, and walk towards the light, emerging on a beach.
 	<br>
 <<else>>
 	<<generate3>>
-	You approach <<veteran_guard 0>>.
+	<<speechresolve>>
+	<<if _speechAttitudeResolved is "shy">>
+		You approach <<veteran_guard 0>>, slowing as you get close. "Um... mind if I stay with you for a bit?"
+	<<elseif _speechAttitudeResolved is "meek">>
+		You approach <<veteran_guard 0>>. "Could I talk to you for a while?"
+	<<elseif _speechAttitudeResolved is "docile">>
+		You stop beside <<veteran_guard 0>>. "Is it all right if I walk with you for a while?"
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		You approach <<veteran_guard 0>>. "Mind if I keep you company?"
+	<<elseif _speechAttitudeResolved is "confident">>
+		You walk up beside <<veteran_guard 0>>. "Got time to talk?"
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		You approach <<veteran_guard 0>>. "You look bored. Talk to me."
+	<<else>>
+		You approach <<veteran_guard 0>>. "Mind if we talk?"
+	<</if>>
 
-	<<He>> seems happy to chat, despite <<his>> gruff demeanour.
+	<<He>> gives you a short nod and starts walking, letting you fall into step beside <<him>>.
 	<br><br>
 
 	<<if $rng gte 81>>
@@ -1773,7 +1855,7 @@ Panting, <<veteran_guard 0>> steps away from the curled <<person2>><<person>>. Y
 <<effects>>
 
 <<beastNEWinit 2 hawk>><<person1>>
-You run and jump, letting the wind catch your wings. You soar.
+You run across the platform and jump from the edge, spreading your wings. The wind catches beneath them and lifts you above the prison.
 
 
 <<if $prison.schedule is "revolt">>
@@ -1785,7 +1867,7 @@ You run and jump, letting the wind catch your wings. You soar.
 	<<link [[Land|Prison Spire]]>><<endevent>><</link>>
 	<br>
 <<elseif $prison.watchers_friend gte 2>>
-	Two <<beastsplural>> fly alongside you for a moment.
+	Two <<beastsplural>> fly alongside you, keeping pace until you're clear of the spire.
 	<<if $monster is 1>>
 		"Safe journey," one shouts over the wind.
 	<<else>>
@@ -1836,7 +1918,7 @@ You soar away from the island, over the mist, and towards the mainland.
 	You feel the air tear away your bondage, piece by piece.
 <</if>>
 
-It's a tiring journey, but the wind is on your side. Free as a bird, you swoop onto the beach.
+By the time you reach the mainland, your shoulders ache from keeping your wings spread. You angle down towards the beach and land on the sand.
 <br><br>
 
 <<link [[Next|Beach]]>><<endevent>><<set $eventskip to 1>><</link>>
@@ -1850,7 +1932,7 @@ The beacon is covered with nests, made mostly of driftwood. The other <<beastspl
 <br><br>
 
 <<if $monster is 1>>
-	"Egg stolen," <<bhe>> says. "Eggs rare. Please, find below. Far below! Too far below." The others sing a melancholy tune.
+	"Egg stolen," <<bhe>> says. "Eggs rare. Please, find below. Far below! Too far below." The others answer with low calls.
 <<else>>
 	Are they missing an egg? It would have to be hidden somewhere they couldn't reach.
 <</if>>
@@ -1909,10 +1991,10 @@ Another <<beasttype>> grasps your shoulders, and carries you back to the platfor
 :: Prison Spire Intro
 <<set $outside to 1>><<effects>>
 
-The climb takes your breath. You pass through another metal door, and onto a wide-open platform. There's another, smaller tower some distance away. Atop it perches a light, now dim. It's the beacon.
+By the time you reach the top, you're breathing hard. You pass through another metal door and step onto a wide platform. A smaller tower stands some distance away, with a dim light fixed to its top. It's the beacon.
 <br><br>
 
-A great wind howls. You're far above the prison block.
+Strong wind pushes at your clothes. The prison block is far below.
 <br><br>
 
 <<link [[Next|Prison Spire Intro 2]]>><</link>>
@@ -1927,7 +2009,7 @@ A great wind howls. You're far above the prison block.
 
 You hasten towards <<him>> as you hear a whoosh, as if the wind were picking up. "Fuck," <<anxious_guard 0>> says as <<he>> recoils into the building. "Run!"
 <br><br>
-Animated by a terrible fear, you run for the door, sparing a glance behind. A <<beasttype 1>> swoops through the air, talons outstretched.<<ggstress>><<stress 12>>
+You sprint for the cabin. When you look over your shoulder, a <<beasttype 1>> is already diving towards you with <<bhis>> talons outstretched.<<ggstress>><<stress 12>>
 <br><br>
 You manage to clear the cabin entrance just moments before the <<beasttype 1>> lands, <<anxious_guard 0>> shutting the door behind you. The <<beasttype 1>> takes off again, leaving talon marks in the stone. You watch through the window as other <<beastsplural 1>> descend, landing on and around the beacon.
 <br><br>
@@ -1963,7 +2045,7 @@ You manage to clear the cabin entrance just moments before the <<beasttype 1>> l
 <<anxious_guard 0 cap>> shouts, but <<his>> words are incoherent. <<He>> isn't carried high, or far, before release, but the force sends <<him>> rolling <span class="red">off the edge.</span>
 <br><br>
 
-Only <<his>> fingers can be seen, grasping the ledge in desperation.
+You rush closer. <<His>> fingers are hooked over the ledge, but the rest of <<him>> hangs below it.
 <br><br>
 
 <<link [[Help|Prison Spire Precipice Help]]>><<famegood 20>><<prison_rep anxious 1>><</link>><<gggperlove "anxious_guard">>
@@ -1974,7 +2056,7 @@ Only <<his>> fingers can be seen, grasping the ledge in desperation.
 :: Prison Spire Precipice Help
 <<effects>>
 
-You rush over to the edge and grasp <<anxious_guard 0 apo>> hand. Together, you're able to pull <<him>> up and over the top.
+You drop beside the edge and catch <<anxious_guard 0 apo>> hand. <<He>> gets one elbow onto the stone while you pull, then rolls onto the platform beside you.
 <br><br>
 
 <<He>> staggers towards the cabin, but collapses to <<his>> shaking knees after a couple of steps. You help <<him>> up again, and hold <<him>> until you make it to safety.
@@ -1993,6 +2075,28 @@ You rush over to the edge and grasp <<anxious_guard 0 apo>> hand. Together, you'
 :: Prison Spire Precipice Demand
 <<effects>>
 
+<<if $worn.face.type.includes("gag")>>
+	You answer through the gag and refuse to pull <<anxious_guard 0>> up. After another muffled demand, <<he>> understands that you want something first.
+<<else>>
+	<<speechresolve>>
+	<<if _speechAttitudeResolved is "shy">>
+		"I-I'll help, but... can you give me something first?" you ask.
+	<<elseif _speechAttitudeResolved is "meek">>
+		"Please, I need something in return," you say.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I can help. Just... give me something useful first," you say.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Give me something useful, and I'll pull you up," you say.
+	<<elseif _speechAttitudeResolved is "confident">>
+		"What will you give me if I pull you up?" you ask.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"What have you got that's worth saving you for?" you ask.
+	<<else>>
+		"Give me something, and I'll help you up," you say.
+	<</if>>
+<</if>>
+<br><br>
+
 "I-I don't have anything," <<anxious_guard 0>> says. "Please, just... Wait. I have a key! The key to the beach. I'll give it to you if you save me, and I won't tell anyone you have it."
 <br><br>
 
@@ -2001,7 +2105,7 @@ You rush over to the edge and grasp <<anxious_guard 0 apo>> hand. Together, you'
 	<br><br>
 <</if>>
 
-You grasp <<anxious_guard 0 apo>> hand. Together, you're able to pull <<him>> up and over the top.
+You catch <<anxious_guard 0 apo>> hand and pull while <<he>> works an elbow onto the stone. Once <<he>> has enough leverage, <<he>> rolls back onto the platform.
 <br><br>
 
 <<He>> staggers towards the cabin, but collapses to <<his>> shaking knees after a couple of steps. You help <<him>> up again, and hold <<him>> until you make it to safety.
@@ -2064,16 +2168,25 @@ It's enough to bask in your victory, for now.
 	<<faceruined>>
 	<br><br>
 <</if>>
-<<if $speech_attitude is "meek">>
-	"It's time to end their bullying," you shout. "Let's show them we won't be pushed around!"
-<<elseif $speech_attitude is "bratty">>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "shy">>
+	You draw a breath. "W-we can't keep letting them do this!" you shout. "We have to fight back!"
+<<elseif _speechAttitudeResolved is "meek">>
+	"They can't keep treating us like this!" you shout. "We need to stand together!"
+<<elseif _speechAttitudeResolved is "docile">>
+	"We've done what they asked long enough!" you shout. "We need to stand together now!"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"We've followed enough orders!" you call. "Let's take this prison back!"
+<<elseif _speechAttitudeResolved is "confident">>
+	"Enough waiting!" you shout. "We're taking control of this place!"
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"I'm fed up with these fuckers telling us what to do!" you shout. "Let's fuck them up!"
 <<else>>
-	"It's time for some changes around here," you shout. "We're in charge now!"
+	"It's time for some changes around here!" you shout. "We're in charge now!"
 <</if>>
 <br><br>
 <<generate1>><<person1>><<generate2>>
-The inmates cheer. A <<person>> grasps the bars of a nearby window, and pulls them apart with <<his>> bare hands. Another throws a rock, shattering one of the lights. Anarchy breaks out.
+The inmates cheer. A <<person>> grabs the bars of a nearby window and pulls them apart with <<his>> bare hands, while another prisoner hurls a rock through one of the lights. More inmates rush out of their cells as guards shout from below.
 <br><br>
 <<set $prison.attention to 0>>
 <<destination_prison>>
@@ -2085,10 +2198,10 @@ The inmates cheer. A <<person>> grasps the bars of a nearby window, and pulls th
 <<generate_relaxed_guard 1>>
 <<generate_anxious_guard 2>>
 <<generate_veteran_guard 3>>
-You awaken on a medical bed. Several blurry figures move around. One leans closer, <<his>> features coalescing into those of <<methodical_guard 0>>. "Relax. <<if $prison.schedule is "lockdown">>You're lucky someone found you. I'll overlook you being out of your cell, given the circumstances. You're in medical.<<else>>In case you've forgotten, you're in medical. You're in labour.<</if>>"
+You wake on a medical bed with several blurry figures moving around you. One leans closer, and your vision clears enough to recognise <<methodical_guard 0>>. "Relax. <<if $prison.schedule is "lockdown">>You're lucky someone found you. I'll overlook you being out of your cell, given the circumstances. You're in medical.<<else>>In case you've forgotten, you're in medical. You're in labour.<</if>>"
 <br><br>
 
-You feel a light prick on your arm, and you start to feel fuzzy. "You'll be feeling the effects of the sedative shortly..." <<His>> voice fades again. The pain starts to blissfully trickle away.
+You feel a light prick in your arm. "You'll be feeling the effects of the sedative shortly..." Your arms grow heavy as <<his>> voice becomes harder to follow, while the pain dulls enough for you to breathe more easily.
 <br><br>
 
 <<person3>>
@@ -2115,30 +2228,11 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 :: Pregnancy Birth Prison 2
 <<effects>>
 
-<<methodical_guard 0 cap>> places a mask over your face. You feel your consciousness fade again.
+<<methodical_guard 0 cap>> places a mask over your face. Your eyes grow heavy as the sedative pulls you back towards sleep.
 <br><br>
 
 <<set [_pregnancy, _pregnancyGenital] to getPlayerPregnancyForBirth(true)>>
 <<set _timeCalc to birthLaborTime(_pregnancy)>>
-
-	<<set _mult to 1 + Math.floor(_fetusLength * 0.2)>>
-	<<set _max to Math.floor(_max * _mult)>>
-	<<set _min to Math.floor(_min * _mult)>>
-
-	<<if !Number.isInteger(_min) or !Number.isInteger(_max) or _min lt 0 or _max lt _min>>
-		<<run console.error("[Pregnancy Birth Prison 2] Invalid random bounds", {
-			min: _min,
-			max: _max,
-			birthEvents: _birthEvents,
-			fetusLength: _fetusLength,
-			pregnancy: _pregnancy
-		})>>
-		<<set _birthTimingValid to false>>
-	<<else>>
-		<<set _timeCalc to random(_min, _max)>>
-		<<set _hours to Math.floor(_timeCalc / 60)>>
-		<<set _minutes to _timeCalc % 60>>
-	<</if>>
 
 <<switch _pregnancy.type>>
 	<<case "human">>
@@ -2151,7 +2245,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 		<<if $settings.realisticChildbirthEnabled is true>>
 			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"prison","partner":"Alone","epidural":50,"genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 		<<else>>
-			<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Prison 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Prison 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 		<</if>>
 
 	<<case "wolf">>
@@ -2164,7 +2258,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 		<<if $settings.realisticChildbirthEnabled is true>>
 			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Childbirth]]>><<set $childbirthstart to 1>><<set $birth to {"location":"prison","partner":"Alone","epidural":50,"genital":_pregnancyGenital}>><<endevent>><<pass _timeCalc>><</link>>
 		<<else>>
-			<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Prison Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+			<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Prison Wolf]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 		<</if>>
 
 	<<default>>
@@ -2174,7 +2268,7 @@ Another voice cuts through the haze. It sounds like <<anxious_guard 2>>. "I-I ca
 		The pain grows as time seems to rapidly speed up and slow down. You hear the words "breathe" and "push" many times, and you do your best to comply.
 		<br><br>
 
-		<<link [[Next (<<print getTimeString(_timeCalc)>>)| Pregnancy Birth Prison 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
+		<<link [[Next (<<print getTimeString(_timeCalc)>>)|Pregnancy Birth Prison 3]]>><<endevent>><<pass _timeCalc>><<playerPrebirth>><</link>>
 <</switch>>
 
 :: Pregnancy Birth Prison 3
@@ -2199,7 +2293,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	"Looks like mummy's awake," <<he>> says, passing you one, and then the other. One sits in each of your arms, eyes shut, chests rising and falling with gentle breaths.
 	<br><br>
 
-	"I got here as fast as I could. That guard did a wonderful job delivering your babies. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of their names?" the midwife asks.
+	"I got here as fast as I could. That guard did a wonderful job delivering your babies. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of their names?"
 	<br><br>
 
 <<else>>
@@ -2210,7 +2304,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	"Looks like mummy's awake," <<he>> says, passing you one, and then another. One sits in each of your arms. The midwife holds the third right in front of your chest. Their eyes are shut, their chests rising and falling with gentle breaths.
 	<br><br>
 
-	"I got here as fast as I could. That guard did a wonderful job delivering your babies. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of their names?" the midwife asks.
+	"I got here as fast as I could. That guard did a wonderful job delivering your babies. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of their names?"
 	<br><br>
 <</if>>
 
@@ -2237,7 +2331,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	<</if>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your baby in the meantime. You've been exempted from your duties for the day."
 	<br><br>
-	You want nothing more than to hold <<childname>>, but you find yourself dozing all the same.
+	You keep <<childname>> against your chest until your eyelids start to droop. The midwife takes <<childhim>> so you can sleep.
 	<br><br>
 <<elseif $litter_size is 2>>
 	You cradle your babies for a while longer, enjoying their tiny breaths and movements. They spend most of the time sleeping, but open their eyes occasionally, and gaze into yours.
@@ -2251,7 +2345,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	<</if>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your babies in the meantime. You've been exempted from your duties for the day."
 	<br><br>
-	You want nothing more than to hold the twins, but you find yourself dozing all the same.
+	You try to stay awake with the twins in your arms, but your head keeps dipping. The midwife takes them when you can no longer keep your eyes open.
 	<br><br>
 <<elseif $litter_size is 3>>
 	You cradle your babies for a while longer, enjoying their tiny breaths and movements. They spend most of the time sleeping, but open their eyes occasionally, and gaze into yours.
@@ -2265,7 +2359,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 	<</if>>
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your babies in the meantime. You've been exempted from your duties for the day."
 	<br><br>
-	You want nothing more than to hold the triplets, but you find yourself dozing all the same.
+	Your eyelids start to droop while you hold them. You let the midwife take the triplets back so you can sleep.
 	<br><br>
 <</if>>
 
@@ -2326,7 +2420,7 @@ You awaken in the medical room. A smiling midwife stands beside your bed,
 :: Pregnancy Birth Prison 6
 <<effects>>
 
-You're returned to your cell. You already miss the embrace of <<childrenNames $bornChildrenIds>>. You feel a renewed sense of determination to leave this place. <<stress -10>><<llstress>><<trauma -10>><<lltrauma>>
+You're returned to your cell. As soon as the gate shuts, you miss holding <<childrenNames $bornChildrenIds>>. You sit on the bed, already thinking about how to get out of the prison. <<stress -10>><<llstress>><<trauma -10>><<lltrauma>>
 <br><br>
 
 <<link [[Next|Prison Cell]]>><<unset $litter_size>><<unset $first_birth>><<endevent>><<unset $bornChildrenIds>><</link>>
@@ -2341,23 +2435,23 @@ You're returned to your cell. You already miss the embrace of <<childrenNames $b
 <<set _baby_type to _litter[0]?.species>>
 You awaken in another room. You hear faint whimpering. A smiling midwife stands beside your bed,
 <<if $litter_size is 1>>
-	holding a bundled _baby_type pup in <<his>> arms.
+	holding a bundled <<print _baby_type>> pup in <<his>> arms.
 	<br><br>
 
 	"Looks like mummy's awake," <<he>> says, passing you the pup. They sit in your arms, eyes shut, chest rising and falling with gentle breaths.
 	<br><br>
 
-	"I got here as fast as I could. That guard did a wonderful job delivering your babies. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of a name?"
+	"I got here as fast as I could. That guard did a wonderful job delivering your pup. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of a name?"
 	<br><br>
 
 <<else>>
-	pushing a cot with <<number $litter_size>> _baby_type pups inside.
+	pushing a cot with <<number $litter_size>> <<print _baby_type>> pups inside.
 	<br><br>
 
-	"Looks like mummy's awake," <<he>> says, pushing the cot into your reach. You hold them one by one, their eyes shut, chests rising and falling with gentle breaths.
+	"Looks like mummy's awake," <<he>> says, pushing the cot into your reach. You lift the pups one by one, holding each against you before placing them back in the cot.
 	<br><br>
 
-	"I got here as fast as I could. That guard did a wonderful job delivering your babies. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of their names?" the midwife asks.
+	"I got here as fast as I could. That guard did a wonderful job delivering your babies. I've run all the tests," the midwife says. "There's not a single health problem. Have you thought of their names?"
 	<br><br>
 
 <</if>>
@@ -2377,7 +2471,7 @@ You awaken in another room. You hear faint whimpering. A smiling midwife stands 
 	The midwife returns.
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your pup in the meantime."
 	<br><br>
-	You want nothing more than to hold <<childname>>, but you find yourself dozing all the same.
+	You keep <<childname>> close until your eyelids start to droop. The midwife takes <<childhim>> so you can sleep.
 	<br><br>
 <<else>>
 	You cradle your pups for a while longer, enjoying their tiny breaths and movements. They spend most of the time sleeping, but open their eyes occasionally, and gaze into yours.
@@ -2385,7 +2479,7 @@ You awaken in another room. You hear faint whimpering. A smiling midwife stands 
 	The midwife returns.
 	"Let me know when you're feeling sleepy," <<he>> says. "You need your rest as well, and we can take care of your pups in the meantime."
 	<br><br>
-	You want nothing more than to hold them, but you find yourself dozing all the same.
+	You keep reaching for the pups until your eyelids grow too heavy. The midwife settles them back in the cot while you sleep.
 	<br><br>
 <</if>>
 
