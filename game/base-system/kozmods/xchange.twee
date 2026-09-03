@@ -110,19 +110,9 @@
 			<</if>>
 		<<else>>
 			<<xchange-apply-body-virginity "xchange">>
-			<<if !Number.isInteger($breastsizemin) or !Number.isInteger($breastsizemax) or !Number.isInteger($bottomsizemin) or !Number.isInteger($bottomsizemax) or $breastsizemax lt $breastsizemin or $bottomsizemax lt $bottomsizemin>>
-				<<run console.error("[xchange-pink/xchange restore] Invalid body size bounds", {
-					breastsizemin: V.breastsizemin,
-					breastsizemax: V.breastsizemax,
-					bottomsizemin: V.bottomsizemin,
-					bottomsizemax: V.bottomsizemax
-				})>>
-				<<error { message: "X-Change cannot generate a transformed body because breast/bottom size bounds are invalid. Please report this with your save and steps." }>>
-				<<exit>>
-			<<else>>
-				<<set $player.breastsize to random($breastsizemin,$breastsizemax)>>
-				<<set $player.bottomsize to random($bottomsizemin,$bottomsizemax)>>
-			<</if>>
+			/* Sizes come from the X-Change body limits when the player has set them, otherwise from their own limits. */
+			<<set $player.breastsize to setup.xChangeRollBodySize("breast")>>
+			<<set $player.bottomsize to setup.xChangeRollBodySize("bottom")>>
 			<<set $player.penissize to 0>>
 			<<set $ballssize to 0>>
 
@@ -384,17 +374,9 @@
 		<<else>>
 			<<xchange-apply-body-virginity "xchange">>
 			<<set $player.breastsize to 0>>
-			<<set $player.bottomsize to 0>>
-			<<if !Number.isInteger($penissizemin) or !Number.isInteger($penissizemax) or $penissizemax lt $penissizemin>>
-				<<run console.error("[xchange-blue/xchange restore] Invalid penis size bounds", {
-					penissizemin: V.penissizemin,
-					penissizemax: V.penissizemax
-				})>>
-				<<error { message: "X-Change cannot generate a transformed body because penis size bounds are invalid. Please report this with your save and steps." }>>
-				<<exit>>
-			<<else>>
-				<<set $player.penissize to random($penissizemin,$penissizemax)>>
-			<</if>>
+			/* Male X-Change bodies only get a random bottom size when size limits are enabled. Otherwise, they stay flat as before. */
+			<<set $player.bottomsize to (setup.xChangeBodySizeLimitsActive() ? setup.xChangeRollBodySize("bottom") : 0)>>
+			<<set $player.penissize to setup.xChangeRollBodySize("penis")>>
 			<<set $ballssize to random(0,5)>>
 
 			/* --- Ivory Wraith roll (tweak chance here), default is 0.70 (70%) --- */
@@ -657,11 +639,8 @@
 		/* Safety net: a herm always has a penis, so never leave it stuck at 0 (Micro) or invalid e.g. from a stale cached body, an odd origin sex, or a low genderflip roll.
 		Give it at least Normal, capped to the configured penis-size range. */
 		<<if $player.penisExist and (!Number.isInteger($player.penissize) or $player.penissize lt 1)>>
-			<<if Number.isInteger($penissizemin) and Number.isInteger($penissizemax) and $penissizemax gte $penissizemin>>
-				<<set $player.penissize to random(Math.clamp(4, $penissizemin, $penissizemax), $penissizemax)>>
-			<<else>>
-				<<set $player.penissize to 4>>
-			<</if>>
+			<<set _xPenisRange to setup.xChangeBodySizeRange("penis")>>
+			<<set $player.penissize to random(Math.clamp(4, _xPenisRange.min, _xPenisRange.max), _xPenisRange.max)>>
 			<<if $player.ballsExist and (!Number.isInteger($ballssize) or $ballssize lt 1)>>
 				<<set $ballssize to random(1,5)>>
 			<</if>>
@@ -702,11 +681,7 @@
 		<<set $player.ballsExist to $xchange.useHermBalls eq 1>>
 		<<set $player.gender_body to "a">>
 		<<set $player.sex to "m">>
-		<<if Number.isInteger($penissizemin) and Number.isInteger($penissizemax) and $penissizemax gte $penissizemin>>
-			<<set $player.penissize to random($penissizemin, $penissizemax)>>
-		<<else>>
-			<<set $player.penissize to 4>>
-		<</if>>
+		<<set $player.penissize to setup.xChangeRollBodySize("penis")>>
 		<<if $player.ballsExist and (!Number.isInteger($ballssize) or $ballssize lt 1)>>
 			<<set $ballssize to random(1,5)>>
 		<</if>>
@@ -1031,6 +1006,13 @@
 		<<set $player.penissize to _body.penissize>>
 		<<set $ballssize to _body.ballssize>>
 
+		/* A cached X-Change body keeps its old shape, but its sizes use your current limits. Missing parts stay at zero. */
+		<<if _slotName is "genderswapped" or _slotName is "herm">>
+			<<if $player.breastsize gt 0>><<set $player.breastsize to setup.xChangeFitBodySize("breast", $player.breastsize)>><</if>>
+			<<if $player.bottomsize gt 0>><<set $player.bottomsize to setup.xChangeFitBodySize("bottom", $player.bottomsize)>><</if>>
+			<<if $player.penissize gt 0>><<set $player.penissize to setup.xChangeFitBodySize("penis", $player.penissize)>><</if>>
+		<</if>>
+
 
 		/* Sex / genital state (IMPORTANT for proper revert) */
 		<<if _body.sex isnot undefined>><<set $player.sex to _body.sex>><</if>>
@@ -1179,19 +1161,20 @@
 					<<set $xchange.pill.changedBody.bottomsize to $xchange.bottomsize>>
 				<</if>>
 			<</if>>
+			/* The swell is a boost on top of this body's own size, so it is recomputed from the size the body came with. */
 			<<if $xchange.pill.swellTarget is "penis" and $player.penisExist>>
-				<<if Number.isFinite(Number($player.penissize)) and Number.isFinite(Number($penissizemax))>>
+				<<if Number.isFinite(Number($player.penissize))>>
 					<<set $xchange.penissize to Number($player.penissize)>>
-					<<set $player.penissize to Number($penissizemax)>>
+					<<set $player.penissize to setup.xChangeSwellBodySize("penis", $xchange.penissize)>>
 				<</if>>
 			<<elseif $xchange.pill.swellTarget is "curves">>
-				<<if Number.isFinite(Number($player.breastsize)) and Number.isFinite(Number($breastsizemax))>>
+				<<if Number.isFinite(Number($player.breastsize))>>
 					<<set $xchange.breastsize to Number($player.breastsize)>>
-					<<set $player.breastsize to Number($breastsizemax)>>
+					<<set $player.breastsize to setup.xChangeSwellBodySize("breast", $xchange.breastsize)>>
 				<</if>>
-				<<if Number.isFinite(Number($player.bottomsize)) and Number.isFinite(Number($bottomsizemax))>>
+				<<if Number.isFinite(Number($player.bottomsize))>>
 					<<set $xchange.bottomsize to Number($player.bottomsize)>>
-					<<set $player.bottomsize to Number($bottomsizemax)>>
+					<<set $player.bottomsize to setup.xChangeSwellBodySize("bottom", $xchange.bottomsize)>>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -1554,12 +1537,7 @@
 					<<exit>>
 				<</if>>
 				<<set $xchange.penissize to _ps>>
-				<<set _psMax to Number($penissizemax)>>
-				<<if isNaN(_psMax)>>
-					<<run setup.xChangeRepairNoticeOnce("repair_xchange_penissizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>penissizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
-					<<set _psMax to $xchange.penissize>>
-				<</if>>
-				<<set $player.penissize to _psMax>>
+				<<set $player.penissize to setup.xChangeSwellBodySize("penis", _ps)>>
 			<<else>>
 				<<set $xchange.pill.swellTarget to "curves">>
 				<<set _bs to Number($player.breastsize)>>
@@ -1569,12 +1547,7 @@
 					<<exit>>
 				<</if>>
 				<<set $xchange.breastsize to _bs>>
-				<<set _bsMax to Number($breastsizemax)>>
-				<<if isNaN(_bsMax)>>
-					<<run setup.xChangeRepairNoticeOnce("repair_xchange_breastsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>breastsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
-					<<set _bsMax to $xchange.breastsize>>
-				<</if>>
-				<<set $player.breastsize to _bsMax>>
+				<<set $player.breastsize to setup.xChangeSwellBodySize("breast", _bs)>>
 
 				<<set _bot to Number($player.bottomsize)>>
 				<<if isNaN(_bot)>>
@@ -1583,12 +1556,7 @@
 					<<exit>>
 				<</if>>
 				<<set $xchange.bottomsize to _bot>>
-				<<set _botMax to Number($bottomsizemax)>>
-				<<if isNaN(_botMax)>>
-					<<run setup.xChangeRepairNoticeOnce("repair_xchange_bottomsizemax_nan", "<b>Save repair notice</b><br>X-Change could not read <b>bottomsizemax</b> during the Swell effect, so it kept the current size instead of writing an invalid value.<br><br><b>Please report this with your save and steps.</b>")>>
-					<<set _botMax to $xchange.bottomsize>>
-				<</if>>
-				<<set $player.bottomsize to _botMax>>
+				<<set $player.bottomsize to setup.xChangeSwellBodySize("bottom", _bot)>>
 			<</if>>
 		<</if>>
 
@@ -2034,15 +2002,19 @@
 		<</if>>
 
 		<<if $xchange.pill.xtendEffect and $xchange.pill.xtendTracker>>
+			/* Pill size changes build on the body's starting size, up to the physical maximum. */
+			<<set _xPenisAbs to setup.xChangeBodySizeAbsolute("penis")>>
+			<<set _xPenisNow to (Number.isFinite(Number($player.penissize)) ? Number($player.penissize) : setup.xChangeRollBodySize("penis"))>>
 			<<if $xchange.pill.xtendTracker.orgasmed>>
 				<<set _loss to $xchange.pill.xtendTracker.orgasmed>>
-				<<set $player.penissize to Math.clamp($player.penissize - _loss, $penissizemin, $penissizemax)>>
+				<<set $player.penissize to Math.clamp(_xPenisNow - _loss, _xPenisAbs.min, _xPenisAbs.max)>>
 				<<set $xtendMessage to 4>>
 				<<set $xtendMessageValue to (_loss * 3).toFixed(2)>>
 			<<else>>
-				<<set _increase to Math.trunc($xchange.pill.xtendTracker.penisSizeGains / 1000)>>
-				<<set _remainder to $xchange.pill.xtendTracker.penisSizeGains % 1000>>
-				<<set $player.penissize to Math.clamp($player.penissize + _increase, $penissizemin, $penissizemax)>>
+				<<set _xGains to (Number.isFinite(Number($xchange.pill.xtendTracker.penisSizeGains)) ? Number($xchange.pill.xtendTracker.penisSizeGains) : 0)>>
+				<<set _increase to Math.trunc(_xGains / 1000)>>
+				<<set _remainder to _xGains % 1000>>
+				<<set $player.penissize to Math.clamp(_xPenisNow + _increase, _xPenisAbs.min, _xPenisAbs.max)>>
 				<<set $penisgrowthtimer to Math.max(0, $penisgrowthtimer - _remainder)>>
 				<<set $xtendMessage to 5>>
 				<<set $xtendMessageValue to (_increase * 3 + _remainder / 500).toFixed(2)>>

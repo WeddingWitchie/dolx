@@ -252,6 +252,113 @@ window.updatePronounSummary = updatePronounSummary;
 		repairBounds("ballssizemin", "ballssizemax", 0, 6);
 	};
 
+	/* --- X-Change body size limits ---------------------------------------------
+	X-Change uses separate size limits for pill-created bodies.
+	All pill size changes use these limits and stay within valid ranges, preventing invalid values or NaN from reaching $player. */
+	setup.xChangeBodySizeParts = {
+		breast: { absMax: 12, globalMin: "breastsizemin", globalMax: "breastsizemax", setting: "bodyBreastSize", swellBoost: 3 },
+		bottom: { absMax: 8, globalMin: "bottomsizemin", globalMax: "bottomsizemax", setting: "bodyBottomSize", swellBoost: 2 },
+		penis: { absMax: 6, globalMin: "penissizemin", globalMax: "penissizemax", setting: "bodyPenisSize", swellBoost: 2 },
+	};
+
+	// True only while the player has asked X-Change bodies to use their own size limits.
+	setup.xChangeBodySizeLimitsActive = function () {
+		const x = State?.variables?.xchange;
+		return !!x && (x.bodySizeLimitsEnabled === 1 || x.bodySizeLimitsEnabled === true);
+	};
+
+	// Absolute range for a part, regardless of any setting. Unknown parts get a harmless 0-0.
+	setup.xChangeBodySizeAbsolute = function (part) {
+		const cfg = setup.xChangeBodySizeParts[part];
+		return { min: 0, max: cfg ? cfg.absMax : 0 };
+	};
+
+	/* Clean up the configured size range and keep it within the part's limits. Invalid values fall back to the full allowed range. */
+	const sanitiseSizeRange = (cfg, rawMin, rawMax) => {
+		let min = Number(rawMin);
+		let max = Number(rawMax);
+		if (!Number.isFinite(min)) min = 0;
+		if (!Number.isFinite(max)) max = cfg.absMax;
+		min = Math.clamp(Math.round(min), 0, cfg.absMax);
+		max = Math.clamp(Math.round(max), 0, cfg.absMax);
+		return min <= max ? { min, max } : { min: max, max: min };
+	};
+
+	// The player's own "Body Part Size Limits" setting for a part.
+	setup.xChangeGlobalSizeRange = function (part) {
+		const cfg = setup.xChangeBodySizeParts[part];
+		if (!cfg) return { min: 0, max: 0 };
+		const V = State?.variables;
+		if (!V) return { min: 0, max: cfg.absMax };
+		return sanitiseSizeRange(cfg, V[cfg.globalMin], V[cfg.globalMax]);
+	};
+
+	/* Range used when generating a new X-Change body: X-Change size limits if enabled, otherwise the player's own limits. */
+	setup.xChangeBodySizeRange = function (part) {
+		const cfg = setup.xChangeBodySizeParts[part];
+		if (!cfg) return { min: 0, max: 0 };
+		if (!setup.xChangeBodySizeLimitsActive()) return setup.xChangeGlobalSizeRange(part);
+		const x = State.variables.xchange;
+		const min = Number(x[cfg.setting + "Min"]);
+		const max = Number(x[cfg.setting + "Max"]);
+		if (!Number.isFinite(min) || !Number.isFinite(max)) return setup.xChangeGlobalSizeRange(part);
+		return sanitiseSizeRange(cfg, min, max);
+	};
+
+	/* Size limits for the current body. X-Change limits apply only to bodies created by pills.
+	Natural growth and identity drift also follow these limits. */
+	setup.xChangeCurrentBodySizeRange = function (part) {
+		const inPilledBody = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
+		return inPilledBody && setup.xChangeBodySizeLimitsActive() ? setup.xChangeBodySizeRange(part) : setup.xChangeGlobalSizeRange(part);
+	};
+
+	// Roll a size for a brand new X-Change body.
+	setup.xChangeRollBodySize = function (part) {
+		const range = setup.xChangeBodySizeRange(part);
+		return range.min + Math.floor(Math.random() * (range.max - range.min + 1));
+	};
+
+	/* Fit an existing size to the current X-Change limits. */
+	setup.xChangeFitBodySize = function (part, value) {
+		const range = setup.xChangeBodySizeRange(part);
+		const num = Number(value);
+		if (!Number.isFinite(num)) return setup.xChangeRollBodySize(part);
+		return Math.clamp(Math.round(num), range.min, range.max);
+	};
+
+	/* Size pills add to the current size instead of setting a fixed size, up to the part's maximum. */
+	setup.xChangeSwellBodySize = function (part, current) {
+		const cfg = setup.xChangeBodySizeParts[part];
+		if (!cfg) return 0;
+		const base = Number(current);
+		const range = setup.xChangeBodySizeRange(part);
+		const from = Number.isFinite(base) ? base : range.max;
+		// Never let a swell shrink a part, and never let it exceed what the part can physically be.
+		return Math.clamp(Math.round(from) + cfg.swellBoost, Math.clamp(Math.round(from), 0, cfg.absMax), cfg.absMax);
+	};
+
+	// Fills in the X-Change body size settings and keeps them inside their sliders' ranges.
+	setup.xChangeEnsureBodySizeSettings = function () {
+		const V = State?.variables;
+		if (!V || !V.xchange || typeof V.xchange !== "object") return;
+		const x = V.xchange;
+		if (x.bodySizeLimitsEnabled === undefined || x.bodySizeLimitsEnabled === null) x.bodySizeLimitsEnabled = 0;
+		if (typeof x.bodySizeLimitsEnabled === "boolean") x.bodySizeLimitsEnabled = x.bodySizeLimitsEnabled ? 1 : 0;
+		if (!Number.isFinite(Number(x.bodySizeLimitsEnabled))) x.bodySizeLimitsEnabled = 0;
+		for (const part of Object.keys(setup.xChangeBodySizeParts)) {
+			const cfg = setup.xChangeBodySizeParts[part];
+			const minKey = cfg.setting + "Min";
+			const maxKey = cfg.setting + "Max";
+			// Seed from the player's own limits so turning the setting on doesn't change anything until it's adjusted.
+			const seed = setup.xChangeGlobalSizeRange(part);
+			const min = Number.isFinite(Number(x[minKey])) ? x[minKey] : seed.min;
+			const max = Number.isFinite(Number(x[maxKey])) ? x[maxKey] : seed.max;
+			const range = sanitiseSizeRange(cfg, min, max);
+			x[minKey] = range.min;
+			x[maxKey] = range.max;
+		}
+	};
+
 	setup.xchangeEnsureAlphaUsable = function () {
 		const V = State?.variables;
 		const pill = V?.xchange?.pill;

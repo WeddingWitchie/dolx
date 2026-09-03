@@ -1685,19 +1685,17 @@
 		<<set _giRange to Math.max(1, Number($xchange.giRange) || 1500)>>
 		<<set _giCurrent to Math.clamp(Number($genderidentity) || 0, 0, _giRange)>>
 		<<set _giProgress to _giCurrent / _giRange>>
-		/* The meter only lands exactly on an endpoint when every identity group sits at exactly +1, which a single
-		   diluting trait prevents, so the last few percent counts as a finished transition. */
+		/* Treat the last few percent as complete, since some traits can prevent the meter from reaching exactly 100%. */
 		<<set _giCompleteBand to Math.max(1, Math.round(_giRange * 0.03))>>
 		<<set _giComplete to _giCurrent gte (_giRange - _giCompleteBand)>>
 
-		/* Configured size limits. Read through local fallbacks so a missing setting can't poison a target with NaN:
-		   a NaN target never compares equal to the current size, so stage 2 would step that trait forever. */
-		<<set _breastMin to Number.isInteger($breastsizemin) ? $breastsizemin : 0>>
-		<<set _breastMax to Number.isInteger($breastsizemax) ? Math.max($breastsizemax, _breastMin) : Math.max(12, _breastMin)>>
-		<<set _bottomMin to Number.isInteger($bottomsizemin) ? $bottomsizemin : 0>>
-		<<set _bottomMax to Number.isInteger($bottomsizemax) ? Math.max($bottomsizemax, _bottomMin) : Math.max(8, _bottomMin)>>
-		<<set _penisMin to Number.isInteger($penissizemin) ? $penissizemin : 0>>
-		<<set _penisMax to Number.isInteger($penissizemax) ? Math.max($penissizemax, _penisMin) : Math.max(6, _penisMin)>>
+		/* Size limits for the body being changed. The helper keeps the values valid and prevents NaN. Bodies created by X-Change pills use the X-Change size limits. */
+		<<set _giBreastRange to setup.xChangeCurrentBodySizeRange("breast")>>
+		<<set _giBottomRange to setup.xChangeCurrentBodySizeRange("bottom")>>
+		<<set _giPenisRange to setup.xChangeCurrentBodySizeRange("penis")>>
+		<<set _breastMin to _giBreastRange.min>><<set _breastMax to _giBreastRange.max>>
+		<<set _bottomMin to _giBottomRange.min>><<set _bottomMax to _giBottomRange.max>>
+		<<set _penisMin to _giPenisRange.min>><<set _penisMax to _giPenisRange.max>>
 		/* A newly grown penis starts at Mini, unless the configured range puts it elsewhere. */
 		<<set _newPenisSize to Math.clamp(1, _penisMin, _penisMax)>>
 
@@ -1875,19 +1873,17 @@
 		<<set _giRange to Math.max(1, Number($xchange.giRange) || 1500)>>
 		<<set _giCurrent to Math.clamp(Number($genderidentity) || 0, 0, _giRange)>>
 		<<set _giProgress to (_giRange - _giCurrent) / _giRange>>
-		/* The meter only lands exactly on an endpoint when every identity group sits at exactly -1, which a single
-		   diluting trait prevents, so the last few percent counts as a finished transition. */
+		/* A single diluted trait can stop the meter reaching the exact endpoint, so the last few percent still counts as complete. */
 		<<set _giCompleteBand to Math.max(1, Math.round(_giRange * 0.03))>>
 		<<set _giComplete to _giCurrent lte _giCompleteBand>>
 
-		/* Configured size limits. Read through local fallbacks so a missing setting can't poison a target with NaN:
-		   a NaN target never compares equal to the current size, so stage 2 would step that trait forever. */
-		<<set _breastMin to Number.isInteger($breastsizemin) ? $breastsizemin : 0>>
-		<<set _breastMax to Number.isInteger($breastsizemax) ? Math.max($breastsizemax, _breastMin) : Math.max(12, _breastMin)>>
-		<<set _bottomMin to Number.isInteger($bottomsizemin) ? $bottomsizemin : 0>>
-		<<set _bottomMax to Number.isInteger($bottomsizemax) ? Math.max($bottomsizemax, _bottomMin) : Math.max(8, _bottomMin)>>
-		<<set _penisMin to Number.isInteger($penissizemin) ? $penissizemin : 0>>
-		<<set _penisMax to Number.isInteger($penissizemax) ? Math.max($penissizemax, _penisMin) : Math.max(6, _penisMin)>>
+		/* Size limits for the body being changed. X-Change bodies use the X-Change size limits. Invalid or missing settings are kept from causing NaN or endless size changes. */
+		<<set _giBreastRange to setup.xChangeCurrentBodySizeRange("breast")>>
+		<<set _giBottomRange to setup.xChangeCurrentBodySizeRange("bottom")>>
+		<<set _giPenisRange to setup.xChangeCurrentBodySizeRange("penis")>>
+		<<set _breastMin to _giBreastRange.min>><<set _breastMax to _giBreastRange.max>>
+		<<set _bottomMin to _giBottomRange.min>><<set _bottomMax to _giBottomRange.max>>
+		<<set _penisMin to _giPenisRange.min>><<set _penisMax to _giPenisRange.max>>
 		/* A newly grown penis starts at Mini, unless the configured range puts it elsewhere. */
 		<<set _newPenisSize to Math.clamp(1, _penisMin, _penisMax)>>
 

@@ -2914,10 +2914,7 @@
 			<span class="gold">Breast Size Limits:</span> <span class="tooltip-anchor linkBlue" tooltip="<span class='linkBlue'>Breasts already below the minimum size won't automatically grow.</span>">(?)</span>
 			<br>
 			<<rangeslider "$breastsizemin" "$breastsizemax" $breastsizemin $breastsizemax 0 12 1
-				{
-					minClamp: 5,
-					minClampMessage: `<span class="red">Cannot increase minimum size further.</span>`
-				}
+				{}
 				{
 					value: (v1, v2) => {
 						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 12, 0));
@@ -2933,10 +2930,7 @@
 			<span class="gold">Ass Size Limits:</span> <span class="tooltip-anchor linkBlue" tooltip="<span class='linkBlue'>Bottoms already below the minimum size won't automatically grow.</span>">(?)</span>
 			<br>
 			<<rangeslider "$bottomsizemin" "$bottomsizemax" $bottomsizemin $bottomsizemax 0 8 1
-				{
-					minClamp: 3,
-					minClampMessage: `<span class="red">Cannot increase minimum size further.</span>`
-				}
+				{}
 				{
 					value: (v1, v2) => {
 						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 8, 0));
@@ -2952,10 +2946,7 @@
 			<div class="settingsToggleItemWide">
 			<span class="gold">Penis Size Limits:</span> <span class="tooltip-anchor linkBlue" tooltip="<span class='linkBlue'>Penises already below the minimum size won't automatically grow.</span>">(?)</span>
 			<<rangeslider "$penissizemin" "$penissizemax" $penissizemin $penissizemax 0 6 1
-				{
-					minClamp: 2,
-					minClampMessage: `<span class="red">Cannot increase minimum size further.</span>`
-				}
+				{}
 				{
 					value: (v1, v2) => {
 						const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 6, 0));
@@ -5345,6 +5336,52 @@
 				<mouse class="tooltip linkBlue">(?)<span>A multiplier applied to a character's x-changed physique on transformation, after the body size scaling has been applied.</span></mouse>
 				</span>
 				<<numberbox "$xchange.physiqueChangePercent" $xchange.physiqueChangePercent>>
+			</div>
+			<<run setup.xChangeEnsureBodySizeSettings?.()>>
+			<div class="settingsToggleItemWide">
+				<span class="gold bold">Sexflipped Body Size Limits:</span> <mouse class="tooltip linkBlue">(?)<span>The size range a body given to you by a pill is generated in. With this off, X-Change bodies use your own Body Part Size Limits instead.<br><br>Your current body keeps the size it already has. The change shows up the next time a pill builds or brings back a body.<br><br>Pills that grow a part still add their growth on top of whatever size these limits produced.</span></mouse>
+				<br>
+				<label><span>Use separate limits for X-Change bodies</span> <<checkbox "$xchange.bodySizeLimitsEnabled" 0 1 autocheck>></label>
+				<div data-target="xchange.bodySizeLimitsEnabled" data-disabledif="!V.xchange.bodySizeLimitsEnabled">
+				<span class="gold">Breast Size Limits:</span>
+				<<rangeslider "$xchange.bodyBreastSizeMin" "$xchange.bodyBreastSizeMax" $xchange.bodyBreastSizeMin $xchange.bodyBreastSizeMax 0 12 1
+					{}
+					{
+						value: (v1, v2) => {
+							const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 12, 0));
+							const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 12, 0));
+							var name = ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"];
+							return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+						},
+					}
+				>>
+				<br>
+				<span class="gold">Ass Size Limits:</span>
+				<<rangeslider "$xchange.bodyBottomSizeMin" "$xchange.bodyBottomSizeMax" $xchange.bodyBottomSizeMin $xchange.bodyBottomSizeMax 0 8 1
+					{}
+					{
+						value: (v1, v2) => {
+							const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 8, 0));
+							const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 8, 0));
+							var name = ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"];
+							return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+						},
+					}
+				>>
+				<br>
+				<span class="gold">Penis Size Limits:</span>
+				<<rangeslider "$xchange.bodyPenisSizeMin" "$xchange.bodyPenisSizeMax" $xchange.bodyPenisSizeMin $xchange.bodyPenisSizeMax 0 6 1
+					{}
+					{
+						value: (v1, v2) => {
+							const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 6, 0));
+							const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 6, 0));
+							var name = ["Micro", "Mini", "Tiny", "Small", "Normal", "Large", "Enormous"];
+							return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+						},
+					}
+				>>
+				</div>
 			</div>
 			<div class="settingsToggleItem numberslider-inline">
 				<span class="gold bold">Sensitivity Boost:</span>
