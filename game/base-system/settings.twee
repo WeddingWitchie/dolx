@@ -1931,7 +1931,7 @@
 			<<dolpSettingsTabButton "Combat Extended Settings" "combatExtended">>
 		</div>
 		<div id="settingsAMCTraits">
-			<<dolpSettingsTabButton "Talents Settings" "amcTraits">>
+			<<dolpSettingsTabButton "Talents & Traits" "amcTraits">>
 		</div>
 		<div id="settingsXChange">
 			<<dolpSettingsTabButton "X-Change Settings" "xchange">>
@@ -4385,7 +4385,89 @@
 				<label data-target='["AMCTraits.seductionskill","AMCTraits.oralskill","AMCTraits.chestskill","AMCTraits.handskill","AMCTraits.bottomskill","AMCTraits.penileskill","AMCTraits.vaginalskill","AMCTraits.analskill","AMCTraits.thighskill","AMCTraits.feetskill"]' data-disabledif="permanentInsanityTalentLockActive() || sumSexTalents()-10 >= autismTalentLimit('sex') && V.AMCTraits.feetskill !== 2"><span class="blue">Tempered Feet Skill</span> <<checkbox "$AMCTraits.feetskill" 1 2 autocheck>></label><br>
 			</div>
 		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				<span class="gold">Traits</span><br>
+			</div>
+			<div class="settingsToggleItemWide">
+				<label><<checkbox "$xchange.genitalAddictTraitsEnabled" 0 1 autocheck>> Enable Cock/Hole Addict traits</label> <mouse class="tooltip linkBlue">(?)<span>Gain acquisition of Cock/Hole Addict traits, which stop you from orgasming unless you're undergoing penetration of some kind (depending on the respective trait).</span></mouse><br>
+				<label><<checkbox "$xchange.critterMagnetTraitEnabled" 0 1 autocheck>> Enable Critter Magnet trait</label> <mouse class="tooltip linkBlue">(?)<span>Allows the Critter Magnet trait to be gained. Disable to remove and suppress it. Re-enable it to regain the trait if you've already met its requirement.</span></mouse><br>
+				<label><<checkbox "$xchange.chastityAcclimatedTraitEnabled" 0 1 autocheck>> Enable Chastity Acclimated trait</label> <mouse class="tooltip linkBlue">(?)<span>Allows the Chastity Acclimated trait to be gained after ten straight days locked in chastity. It greatly reduces the frustration that chastity you didn't choose builds up. Disable to remove and suppress it. Re-enable it to regain the trait if you've already met its requirement.</span></mouse><br>
+				<label><<checkbox "$xchange.arousalAcclimatedTraitEnabled" 0 1 autocheck>> Enable Arousal Acclimated trait</label> <mouse class="tooltip linkBlue">(?)<span>Allows the Arousal Acclimated trait to be gained after two straight weeks of being Lustful, or once Chastity Acclimated. It halves all arousal gain and lets you sleep, leave the bath or shower, walk away from Wren's card table, and refuse advances no matter how aroused you are. Disable to remove and suppress it. Re-enable it to regain the trait if you've already met its requirement.</span></mouse><br>
+				<label><<checkbox "$xchange.insanityDisturbedTraitsEnabled" 0 1 autocheck>> Enable full Dissociation for Insanity</label> <mouse class="tooltip linkBlue">(?)<span>By default, Insanity's Dissociation only paralyses you for the first two encounter sequences before becoming mild. Enable this to also become Visibly Disturbed and use normal severe Dissociation, which can keep you completely paralysed.</span></mouse><br>
+				<label><<checkbox "$xchange.insanityBecomesPermanent" 0 1 autocheck>> Enable permanent naturally-gained Insanity</label> <mouse class="tooltip linkBlue">(?)<span>Normally, an Insanity gained in-game (from staying severely traumatised for over a week) fades once your trauma subsides. With this on, the moment it takes hold it becomes <b>permanent</b>. It does <i>not</i> grant the doubled skill caps of a character-creation Insanity. The only relief is Gwylan, who can hypnotise the madness into temporary quiet.</span></mouse><br>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				<span class="gold">Willpower System</span><br>
+			</div>
+			<div class="settingsToggleItem">
+				<label><<checkbox "$xchange.willpowerSystemEnabled" 0 1 autocheck>> Enable willpower system</label> <mouse class="tooltip linkBlue">(?)<span>Willpower is turned into a daily resource, that gets weaker and weaker as it gets spent during the day, as well as a result of resisting pleasure during combat.</span></mouse><br>
+			</div>
+			<div class="settingsToggleItem">
+				<label data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1"><<checkbox "$xchange.willpowerRestEnabled" 0 1 autocheck>> Rest and calm restore willpower</label>
+				<mouse class="tooltip linkBlue">(?)<span>Resting, eating, praying, meditating, and reducing stress can restore some willpower. Daily recovery is limited, so sleep remains the main source.</span></mouse><br>
+			</div>
+
+			<div class="settingsToggleItem numberslider-inline" data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1">
+				<span class="gold bold">Success Cost:
+				<mouse class="tooltip linkBlue">(?)<span>The amount of willpower spent whenever you succeed a willpower difficulty check. (For reference, vanilla willpower goes up to 1000. And up to 2000 with AMC Traits).</span></mouse>
+				</span>
+				<<numberbox "$xchange.willpowerSuccessCost" $xchange.willpowerSuccessCost>>
+			</div>
+			<div class="settingsToggleItem numberslider-inline" data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1">
+				<span class="gold bold">Failure Cost:
+				<mouse class="tooltip linkBlue">(?)<span>The amount of willpower spent whenever you fail a willpower difficulty check. (For reference, vanilla willpower goes up to 1000. And up to 2000 with AMC Traits).</span></mouse>
+				</span>
+				<<numberbox "$xchange.willpowerFailureCost" $xchange.willpowerFailureCost>>
+			</div>
+			<div class="settingsToggleItemWide numberslider-inline" data-target='["xchange.willpowerSystemEnabled","xchange.willpowerRestEnabled"]' data-disabledif="V.xchange?.willpowerSystemEnabled!==1||V.xchange?.willpowerRestEnabled===0">
+				<span class="gold bold">Rest Recovery Strength: (%)
+					<mouse class="tooltip linkBlue">(?)<span>Changes how much willpower resting restores and its daily limit. At 100%, you can recover up to 40% of your willpower pool per day.</span></mouse>
+				</span>
+				<<numberslider "$xchange.willpowerRestPercent" $xchange.willpowerRestPercent 0 300 25>>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				<span class="gold">Hypnosis Settings</span><br>
+			</div>
+			<div class="settingsToggleItem">
+				<label>
+					<<checkbox "$angryHypnotist" false true autocheck>> Hypnotists are more likely to hypnotise you when angered
+				</label><br>
+				<label>
+					<<checkbox "$deviantHypnotist" false true autocheck>> Hypnotists can give you hypnotic deviancy
+				</label>
+			</div>
+			<div class="settingsToggleItem">
+				<label><span class="gold">Enemy Hypnotist Chance (%)</span>
+				<br>
+				<<numberslider "$hypnotistChance" $hypnotistChance 0 100 1>>
+				</label><br>
+			</div>
+		</div>
+		<div class="settingsGrid">
+			<div class="settingsHeader">
+				<span class="gold">Heat System</span><br>
+			</div>
+			<div class="settingsToggleItem">
+				<label><<checkbox "$xchange.heat.systemOn" 0 1 autocheck>> Enable forceful heat</label> 
+				<mouse class="tooltip linkBlue">(?)<span>Being in heat can lead to characters losing themselves to their primal needs. If chastity blocks every breeding hole, they will claw at the device instead, slowly wearing it down.</span></mouse>
+			</div>
+			<div class="settingsToggleItem">
+				<label><<checkbox "$xchange.heat.permanentOn" 0 1 autocheck>> Enable permanent system</label>
+				<mouse class="tooltip linkBlue">(?)<span>Forces to stay in heat and/or rut at <b>all times</b>, regardless of pills, fertility, or cycle timing.</span></mouse>
+			</div>
+			<div class="settingsToggleItem">
+				<label><<checkbox "$xchange.heat.resistWithWillpower" 0 1 autocheck>> Resist heat with willpower</label>
+				<mouse class="tooltip linkBlue">(?)<span>When checked, a high willpower can hold heat back; it only overrides your actions when you <b>fail</b> a willpower check. Un-checking this ignores willpower and lets heat take over every time.</span></mouse>
+			</div>
+		</div>
 	</div>
+	/* Sub-settings grey out when their parent toggle is off; nothing re-evaluates them without this. */
+	<<run settingsDisableElement()>>
 <</widget>>
 
 <<widget "modLISettingsSection">>
@@ -5022,18 +5104,53 @@
 
 				<label><<checkbox "$xchange.chastityKeepBeltShape" 0 1 autocheck>> Keep chastity belt shape on sex change</label> <mouse class="tooltip linkBlue">(?)<span>If enabled, a chastity belt stays a belt when your body becomes male instead of reshaping into a cage. A belt locks a male body just fine, so this keeps the device you originally chose. Disable for the old behaviour, where becoming male turns a belt into a cage. Note: a cage always reshapes into a belt when you gain a vagina, since a cage can't enclose one.</span></mouse><br>
 
-				<br><span class="gold bold">Traits:</span><br>
-				<label><<checkbox "$xchange.genitalAddictTraitsEnabled" 0 1 autocheck>> Enable Cock/Hole Addict traits</label> <mouse class="tooltip linkBlue">(?)<span>Gain acquisition of Cock/Hole Addict traits, which stop you from orgasming unless you're undergoing penetration of some kind (depending on the respective trait).</span></mouse><br>
-
-				<label><<checkbox "$xchange.critterMagnetTraitEnabled" 0 1 autocheck>> Enable Critter Magnet trait</label> <mouse class="tooltip linkBlue">(?)<span>Allows the Critter Magnet trait to be gained. Disable to remove and suppress it. Re-enable it to regain the trait if you've already met its requirement.</span></mouse><br>
-
-				<label><<checkbox "$xchange.chastityAcclimatedTraitEnabled" 0 1 autocheck>> Enable Chastity Acclimated trait</label> <mouse class="tooltip linkBlue">(?)<span>Allows the Chastity Acclimated trait to be gained after ten straight days locked in chastity. It greatly reduces the frustration that chastity you didn't choose builds up. Disable to remove and suppress it. Re-enable it to regain the trait if you've already met its requirement.</span></mouse><br>
-
-				<label><<checkbox "$xchange.arousalAcclimatedTraitEnabled" 0 1 autocheck>> Enable Arousal Acclimated trait</label> <mouse class="tooltip linkBlue">(?)<span>Allows the Arousal Acclimated trait to be gained after two straight weeks of being Lustful, or once Chastity Acclimated. It halves all arousal gain and lets you sleep, leave the bath or shower, walk away from Wren's card table, and refuse advances no matter how aroused you are. Disable to remove and suppress it. Re-enable it to regain the trait if you've already met its requirement.</span></mouse><br>
-
-				<label><<checkbox "$xchange.insanityDisturbedTraitsEnabled" 0 1 autocheck>> Enable full Dissociation for Insanity</label> <mouse class="tooltip linkBlue">(?)<span>By default, Insanity's Dissociation only paralyses you for the first two encounter sequences before becoming mild. Enable this to also become Visibly Disturbed and use normal severe Dissociation, which can keep you completely paralysed.</span></mouse><br>
-
-				<label><<checkbox "$xchange.insanityBecomesPermanent" 0 1 autocheck>> Enable permanent naturally-gained Insanity</label> <mouse class="tooltip linkBlue">(?)<span>Normally, an Insanity gained in-game (from staying severely traumatised for over a week) fades once your trauma subsides. With this on, the moment it takes hold it becomes <b>permanent</b>. It does <i>not</i> grant the doubled skill caps of a character-creation Insanity. The only relief is Gwylan, who can hypnotise the madness into temporary quiet.</span></mouse><br>
+				<br>
+				<<run setup.xChangeEnsureBodySizeSettings?.()>>
+				<div class="xchangeBodySizeLimits">
+					<span class="gold bold">Sexflipped Body Size Limits:</span> <mouse class="tooltip linkBlue">(?)<span>The size range a body given to you by a pill is generated in. With this off, X-Change bodies use your own Body Part Size Limits instead.<br><br>Your current body keeps the size it already has. The change shows up the next time a pill builds or brings back a body.<br><br>Pills that grow a part still add their growth on top of whatever size these limits produced.</span></mouse>
+					<br>
+					<label><span>Use separate limits for X-Change bodies</span> <<checkbox "$xchange.bodySizeLimitsEnabled" 0 1 autocheck>></label>
+					<div data-target="xchange.bodySizeLimitsEnabled" data-disabledif="!V.xchange.bodySizeLimitsEnabled">
+					<span class="gold">Breast Size Limits:</span>
+					<<rangeslider "$xchange.bodyBreastSizeMin" "$xchange.bodyBreastSizeMax" $xchange.bodyBreastSizeMin $xchange.bodyBreastSizeMax 0 12 1
+						{}
+						{
+							value: (v1, v2) => {
+								const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 12, 0));
+								const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 12, 0));
+								var name = ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"];
+								return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+							},
+						}
+					>>
+					<br>
+					<span class="gold">Ass Size Limits:</span>
+					<<rangeslider "$xchange.bodyBottomSizeMin" "$xchange.bodyBottomSizeMax" $xchange.bodyBottomSizeMin $xchange.bodyBottomSizeMax 0 8 1
+						{}
+						{
+							value: (v1, v2) => {
+								const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 8, 0));
+								const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 8, 0));
+								var name = ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"];
+								return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+							},
+						}
+					>>
+					<br>
+					<span class="gold">Penis Size Limits:</span>
+					<<rangeslider "$xchange.bodyPenisSizeMin" "$xchange.bodyPenisSizeMax" $xchange.bodyPenisSizeMin $xchange.bodyPenisSizeMax 0 6 1
+						{}
+						{
+							value: (v1, v2) => {
+								const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 6, 0));
+								const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 6, 0));
+								var name = ["Micro", "Mini", "Tiny", "Small", "Normal", "Large", "Enormous"];
+								return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
+							},
+						}
+					>>
+					</div>
+				</div>
 
 				<<set _xchangeActiveHermMismatch to playerIsXChanged() and $xchange.pill and $xchange.pill.hermEffect and (!$player.penisExist or !$player.vaginaExist or !["m", "f"].includes($player.sex))>>
 				<<set _xchangeStoredOriginalSexMismatch to false>>
@@ -5337,52 +5454,6 @@
 				</span>
 				<<numberbox "$xchange.physiqueChangePercent" $xchange.physiqueChangePercent>>
 			</div>
-			<<run setup.xChangeEnsureBodySizeSettings?.()>>
-			<div class="settingsToggleItemWide">
-				<span class="gold bold">Sexflipped Body Size Limits:</span> <mouse class="tooltip linkBlue">(?)<span>The size range a body given to you by a pill is generated in. With this off, X-Change bodies use your own Body Part Size Limits instead.<br><br>Your current body keeps the size it already has. The change shows up the next time a pill builds or brings back a body.<br><br>Pills that grow a part still add their growth on top of whatever size these limits produced.</span></mouse>
-				<br>
-				<label><span>Use separate limits for X-Change bodies</span> <<checkbox "$xchange.bodySizeLimitsEnabled" 0 1 autocheck>></label>
-				<div data-target="xchange.bodySizeLimitsEnabled" data-disabledif="!V.xchange.bodySizeLimitsEnabled">
-				<span class="gold">Breast Size Limits:</span>
-				<<rangeslider "$xchange.bodyBreastSizeMin" "$xchange.bodyBreastSizeMax" $xchange.bodyBreastSizeMin $xchange.bodyBreastSizeMax 0 12 1
-					{}
-					{
-						value: (v1, v2) => {
-							const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 12, 0));
-							const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 12, 0));
-							var name = ["Flat", "Budding", "Tiny", "Small", "Pert", "Modest", "Full", "Large", "Ample", "Massive", "Huge", "Gigantic", "Enormous"];
-							return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
-						},
-					}
-				>>
-				<br>
-				<span class="gold">Ass Size Limits:</span>
-				<<rangeslider "$xchange.bodyBottomSizeMin" "$xchange.bodyBottomSizeMax" $xchange.bodyBottomSizeMin $xchange.bodyBottomSizeMax 0 8 1
-					{}
-					{
-						value: (v1, v2) => {
-							const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 8, 0));
-							const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 8, 0));
-							var name = ["Slender", "Slim", "Modest", "Cushioned", "Soft", "Round", "Plump", "Large", "Huge"];
-							return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
-						},
-					}
-				>>
-				<br>
-				<span class="gold">Penis Size Limits:</span>
-				<<rangeslider "$xchange.bodyPenisSizeMin" "$xchange.bodyPenisSizeMax" $xchange.bodyPenisSizeMin $xchange.bodyPenisSizeMax 0 6 1
-					{}
-					{
-						value: (v1, v2) => {
-							const color1 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v1, 6, 0));
-							const color2 = ColourUtils.interpolateMultiple(["--teal", "--pink"], normalise(v2, 6, 0));
-							var name = ["Micro", "Mini", "Tiny", "Small", "Normal", "Large", "Enormous"];
-							return `<span style="color: ${color1}">${name[v1]}</span> - <span style="color: ${color2}">${name[v2]}</span>`;
-						},
-					}
-				>>
-				</div>
-			</div>
 			<div class="settingsToggleItem numberslider-inline">
 				<span class="gold bold">Sensitivity Boost:</span>
 				<span>Due to pill:
@@ -5460,75 +5531,8 @@
 				<<numberslider "$xchange.fertilityStrengthPercent" $xchange.fertilityStrengthPercent 25 400 25>>
 			</div>
 		</div>
-		<div class="settingsGrid">
-			<div class="settingsHeader">
-				<span class="gold">Willpower System</span><br>
-			</div>
-			<div class="settingsToggleItem">
-				<label><<checkbox "$xchange.willpowerSystemEnabled" 0 1 autocheck>> Enable willpower system</label> <mouse class="tooltip linkBlue">(?)<span>Willpower is turned into a daily resource, that gets weaker and weaker as it gets spent during the day, as well as a result of resisting pleasure during combat.</span></mouse><br>
-			</div>
-			<div class="settingsToggleItem">
-				<label data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1"><<checkbox "$xchange.willpowerRestEnabled" 0 1 autocheck>> Rest and calm restore willpower</label>
-				<mouse class="tooltip linkBlue">(?)<span>Resting, eating, praying, meditating, and reducing stress can restore some willpower. Daily recovery is limited, so sleep remains the main source.</span></mouse><br>
-			</div>
-
-			<div class="settingsToggleItem numberslider-inline" data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1">
-				<span class="gold bold">Success Cost:
-				<mouse class="tooltip linkBlue">(?)<span>The amount of willpower spent whenever you succeed a willpower difficulty check. (For reference, vanilla willpower goes up to 1000. And up to 2000 with AMC Traits).</span></mouse>
-				</span>
-				<<numberbox "$xchange.willpowerSuccessCost" $xchange.willpowerSuccessCost>>
-			</div>
-			<div class="settingsToggleItem numberslider-inline" data-target="xchange.willpowerSystemEnabled" data-disabledif="V.xchange?.willpowerSystemEnabled!==1">
-				<span class="gold bold">Failure Cost:
-				<mouse class="tooltip linkBlue">(?)<span>The amount of willpower spent whenever you fail a willpower difficulty check. (For reference, vanilla willpower goes up to 1000. And up to 2000 with AMC Traits).</span></mouse>
-				</span>
-				<<numberbox "$xchange.willpowerFailureCost" $xchange.willpowerFailureCost>>
-			</div>
-			<div class="settingsToggleItemWide numberslider-inline" data-target='["xchange.willpowerSystemEnabled","xchange.willpowerRestEnabled"]' data-disabledif="V.xchange?.willpowerSystemEnabled!==1||V.xchange?.willpowerRestEnabled===0">
-				<span class="gold bold">Rest Recovery Strength: (%)
-					<mouse class="tooltip linkBlue">(?)<span>Changes how much willpower resting restores and its daily limit. At 100%, you can recover up to 40% of your willpower pool per day.</span></mouse>
-				</span>
-				<<numberslider "$xchange.willpowerRestPercent" $xchange.willpowerRestPercent 0 300 25>>
-			</div>
-		</div>
-		<div class="settingsGrid">
-			<div class="settingsHeader">
-				<span class="gold">Hypnosis Settings</span><br>
-			</div>
-			<div class="settingsToggleItem">
-				<label>
-					<<checkbox "$angryHypnotist" false true autocheck>> Hypnotists are more likely to hypnotise you when angered
-				</label><br>
-				<label>
-					<<checkbox "$deviantHypnotist" false true autocheck>> Hypnotists can give you hypnotic deviancy
-				</label>
-			</div>
-			<div class="settingsToggleItem">
-				<label><span class="gold">Enemy Hypnotist Chance (%)</span>
-				<br>
-				<<numberslider "$hypnotistChance" $hypnotistChance 0 100 1>>
-				</label><br>
-			</div>
-		</div>
-		<div class="settingsGrid">
-			<div class="settingsHeader">
-				<span class="gold">Heat System</span><br>
-			</div>
-			<div class="settingsToggleItem">
-				<label><<checkbox "$xchange.heat.systemOn" 0 1 autocheck>> Enable forceful heat</label> 
-				<mouse class="tooltip linkBlue">(?)<span>Being in heat can lead to characters losing themselves to their primal needs. If chastity blocks every breeding hole, they will claw at the device instead, slowly wearing it down.</span></mouse>
-			</div>
-			<div class="settingsToggleItem">
-				<label><<checkbox "$xchange.heat.permanentOn" 0 1 autocheck>> Enable permanent system</label>
-				<mouse class="tooltip linkBlue">(?)<span>Forces to stay in heat and/or rut at <b>all times</b>, regardless of pills, fertility, or cycle timing.</span></mouse>
-			</div>
-			<div class="settingsToggleItem">
-				<label><<checkbox "$xchange.heat.resistWithWillpower" 0 1 autocheck>> Resist heat with willpower</label>
-				<mouse class="tooltip linkBlue">(?)<span>When checked, a high willpower can hold heat back; it only overrides your actions when you <b>fail</b> a willpower check. Un-checking this ignores willpower and lets heat take over every time.</span></mouse>
-			</div>
-		</div>
 	</div>
-	/* Sub-settings of the willpower system grey out when it is off; nothing re-evaluates them without this. */
+	/* Sub-settings grey out when their parent toggle is off; nothing re-evaluates them without this. */
 	<<run settingsDisableElement()>>
 <</widget>>
 
