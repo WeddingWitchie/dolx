@@ -3809,6 +3809,13 @@ function setupFeatBoosts(force) {
 			max: 1,
 			missing: "",
 		},
+		xchangeGrayAgentTrait: {
+			name: "X-Change Gray Agent",
+			required: [],
+			cost: 100,
+			max: 1,
+			missing: "",
+		},
 		orgasmTrait: {
 			name: "Orgasm Addict",
 			required: ["A Special Trait", "A Special Trait Collector"],
@@ -4222,6 +4229,7 @@ function applyFeatBoosts() {
 		if (V.fertiliser) ++V.fertiliser.current;
 	}
 	if (upgrades.xchangePurityTrait) V.xchange.pillPurityTrait = true;
+	if (upgrades.xchangeGrayAgentTrait) V.xchange.grayAgentTrait = true;
 	if (upgrades.orgasmTrait) V.orgasmtrait = 1;
 	if (upgrades.chokeTrait) V.choketrait = 1;
 	if (upgrades.ejacTrait) V.ejactrait = 1;

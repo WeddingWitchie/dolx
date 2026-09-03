@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation */
-/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised sleepAidPending sleepAidOtcStrongEnough pillDosesTodayByType pocketBagCapacity pocketBagName pocketAvailable pocketCarrying pocketSlotToggle */
+/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised sleepAidPending sleepAidOtcStrongEnough pillDosesTodayByType pocketBagCapacity pocketBagName pocketAvailable pocketCarrying pocketSlotToggle xchangeVoluntaryDoseBegin xchangeVoluntaryDoseEnd */
 /*
  * if display_condition is 1, item is displayed, else it's not
  * current max doses for Harper/Asylum pills is 1; 2 for every other pills
@@ -1087,8 +1087,14 @@ function onTakeClick(itemName) {
 
 	for (const item of setup.pills) {
 		if (item.name === itemName) {
-			for (const widget of item.effects) // run the widgets associated with a pill
-				Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
+			/* The player is swallowing this themselves, so the X-Change Gray Agent trait must not strip its body swap. */
+			xchangeVoluntaryDoseBegin();
+			try {
+				for (const widget of item.effects) // run the widgets associated with a pill
+					Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
+			} finally {
+				xchangeVoluntaryDoseEnd();
+			}
 			V.sexStats.pills.lastTaken[item.type] = item.subtype; // keep track of the category of pill we last took
 			V.sexStats.pills.mostTaken[item.type] = window.redetermineMostTaken(item.type, item.subtype);
 			const dosesForOverdose =
@@ -1163,8 +1169,14 @@ function onTakeClickSilent(itemName) {
 
 	for (const item of setup.pills) {
 		if (item.name === itemName) {
-			for (const widget of item.effects) {
-				Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
+			/* Deliberate dose: exempt from the X-Change Gray Agent trait, which only neuters pills forced on the player. */
+			xchangeVoluntaryDoseBegin();
+			try {
+				for (const widget of item.effects) {
+					Wikifier.wikifyEval(typeof widget === "function" ? widget() : widget);
+				}
+			} finally {
+				xchangeVoluntaryDoseEnd();
 			}
 
 			V.sexStats.pills.lastTaken[item.type] = item.subtype;

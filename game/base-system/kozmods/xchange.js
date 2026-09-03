@@ -1195,6 +1195,67 @@ function xchangePillPurityActive() {
 }
 window.xchangePillPurityActive = xchangePillPurityActive;
 
+/* X-Change Gray Agent (feat boost): forced pills act like gray pills.
+The pill's other effects still apply, but it cannot change the player's gender or body type.
+Pills the player takes willingly are unaffected. */
+function xchangeGrayAgentActive() {
+	return V.xchange?.grayAgentTrait === true;
+}
+window.xchangeGrayAgentActive = xchangeGrayAgentActive;
+
+/* Use a depth counter instead of a save variable, since the dose is handled in one render and won't persist across save/load. */
+let xchangeVoluntaryDoseDepth = 0;
+function xchangeVoluntaryDoseBegin() {
+	xchangeVoluntaryDoseDepth++;
+}
+window.xchangeVoluntaryDoseBegin = xchangeVoluntaryDoseBegin;
+
+function xchangeVoluntaryDoseEnd() {
+	xchangeVoluntaryDoseDepth = Math.max(0, xchangeVoluntaryDoseDepth - 1);
+}
+window.xchangeVoluntaryDoseEnd = xchangeVoluntaryDoseEnd;
+
+function xchangeDoseIsVoluntary() {
+	return xchangeVoluntaryDoseDepth > 0;
+}
+
+/* Body shape before this pill dose, so scenes can check if it actually changed anything.
+	Don't use $xchange.pill.genderflipEffect, as it may still be set from an earlier pill. */
+let xchangeSpikeBodyBefore = null;
+function xchangeSpikeBodyMark() {
+	xchangeSpikeBodyBefore = {
+		sex: V.player?.sex,
+		penis: !!V.player?.penisExist,
+		vagina: !!V.player?.vaginaExist,
+	};
+}
+window.xchangeSpikeBodyMark = xchangeSpikeBodyMark;
+
+/* Whether the latest dose actually changed the player's body.
+   Gray Agent prevents the body change, so spike scenes check this before describing a transformation.
+   Checked live so forced gender changes after the spike still work correctly. */
+function xchangeSpikeChangedBody() {
+	const before = xchangeSpikeBodyBefore;
+	/* No dose was marked this passage, so fall back to whether a body-changing effect is running at all. */
+	if (!before) return !!(V.xchange?.pill?.genderflipEffect || V.xchange?.pill?.hermEffect);
+	return V.player?.sex !== before.sex || !!V.player?.penisExist !== before.penis || !!V.player?.vaginaExist !== before.vagina;
+}
+window.xchangeSpikeChangedBody = xchangeSpikeChangedBody;
+
+/* Safety net: reset both per-dose values so they don't carry over to the next dose. */
+$(document).on(":passageinit", () => {
+	xchangeVoluntaryDoseDepth = 0;
+	xchangeSpikeBodyBefore = null;
+});
+
+/* True when the Gray Agent trait should swallow this effect. Only the two body-swapping effects are blocked. */
+function xchangeGrayAgentBlocks(effect) {
+	if (effect !== "genderflip" && effect !== "herm") return false;
+	if (!xchangeGrayAgentActive()) return false;
+	return !xchangeDoseIsVoluntary();
+}
+window.xchangeGrayAgentBlocks = xchangeGrayAgentBlocks;
+
 function xchangePillProtectionActive() {
 	return xchangeTherapyActive() || xchangePillPurityActive();
 }

@@ -1264,6 +1264,7 @@
 	<</widget>>
 
 	<<widget "xchange-effects">>
+		<<run xchangeSpikeBodyMark()>>
 		<<set $xchange.everConsumed to true>>
 		<<if xchangePillProtectionActive()>>
 			/* X-Change protection is active. The pill is still consumed, but it's neutralised, no session starts and the body is left untouched. */
@@ -1366,6 +1367,8 @@
 	/* IMPORTANT: For purple effect, PC's sex should be set to male, and balls should be removed */
 	<<if xchangePillProtectionActive()>>
 		/* No new pill effect can take hold while temporary therapy or permanent X-Change purity is active. */
+	<<elseif xchangeGrayAgentBlocks(_args[0])>>
+		/* X-Change Gray Agent: forced pills act as gray pills, blocking body swaps while keeping all other effects. */
 	<<else>>
 	<<set _xchangeNeedsRefresh to false>>
 	<<switch _args[0]>>
@@ -1897,6 +1900,14 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "xchange-dose-deliberate">>
+		<<run xchangeVoluntaryDoseBegin()>>
+	<</widget>>
+
+	<<widget "xchange-dose-deliberate-end">>
+		<<run xchangeVoluntaryDoseEnd()>>
+	<</widget>>
+
 	<<widget "take-xchange">>
 		<<set _duration to _args[0]>>
 		<<set _effects to _args.slice(1)>>
@@ -2306,6 +2317,7 @@
 	<</widget>>
 
 	<<widget "xchange-random-spike">>
+		<<run xchangeSpikeBodyMark()>>
 		<<if !playerMayBeSpiked() and xchangeTherapyActive()>>
 			/* Anti X-Change therapy: the dose is administered but the treatment neutralises it. Body stays unchanged. */
 			<<if _args[0] isnot "suppress">>
@@ -2337,7 +2349,8 @@
 				<<if $player.sex is "m">>
 
 					<<rng>>
-					<<if $rng gt _crossdressThreshold and $xchange.spikepool.crossdresser>>
+					/* Gray Agent filters the body swap out entirely, so send the roll to crossdress instead of wasting it on an effect that can't apply. */
+					<<if ($rng gt _crossdressThreshold or xchangeGrayAgentBlocks("genderflip")) and $xchange.spikepool.crossdresser>>
 						<<xchange-addeffect "crossdress">>
 					<<else>>
 						<<xchange-addeffect "genderflip">>
@@ -2361,7 +2374,8 @@
 				<<elseif $player.sex is "f">>
 
 					<<rng>>
-					<<if $rng gt _crossdressThreshold and $xchange.spikepool.crossdresser>>
+					/* Gray Agent filters the body swap out entirely, so send the roll to crossdress instead of wasting it on an effect that can't apply. */
+					<<if ($rng gt _crossdressThreshold or xchangeGrayAgentBlocks("genderflip")) and $xchange.spikepool.crossdresser>>
 						<<xchange-addeffect "crossdress">>
 					<<else>>
 						<<xchange-addeffect "genderflip">>
@@ -2400,12 +2414,18 @@
 			<</if>>
 			<<if _args[0] isnot "suppress">>
 				<span class="pink">You got spiked with an unknown pill.</span>
+				<<if xchangeGrayAgentActive()>>
+					<span class="teal">Whatever was in it, the gray agent in your blood strips the body swap out of it.</span>
+				<</if>>
 				<br><br>
 			<</if>>
 		<</if>>
 	<</widget>>
 
+	/* args[0] "npc": building an NPC pill pool.
+	Gray Agent only affects the player, so it should not filter NPC effects. All other filters are shared. */
 	<<widget "xchange-get-spikepool">>
+		<<set _spikepoolForNpc to _args[0] is "npc">>
 		<<set _effectPool to []>>
 		<<for _pillType range Object.keys($xchange.spikerates)>>
 			<<for _i to 0; _i lt $xchange.spikerates[_pillType]; _i++>>
@@ -2413,9 +2433,8 @@
 			<</for>>
 		<</for>>
 
-		/* Gate genital-specific effects on actual anatomy, not sex, so a spike never applies an effect the current body can't use.
-		The spike's genderflip has already run by the time the pool is rebuilt, so $player reflects the final body (herm has both, so keeps both).
-		Breeder and Fertile need a vagina; Bull needs a penis. */
+		/* Only apply genital effects if the player has the required anatomy.
+		Breeder and Fertile require a vagina; Bull requires a penis. Genderflip has already updated the body, and herms can use both. */
 		<<if !$player.vaginaExist>>
 			<<run _effectPool.deleteWith((val)=>val==="breeder")>>
 			<<run _effectPool.deleteWith((val)=>val==="fertile")>>
@@ -2425,7 +2444,8 @@
 			<<run _effectPool.deleteWith((val)=>val==="bull")>>
 		<</if>>
 
-		<<if $xchange.pill.genderflipEffect>>
+		<<if $xchange.pill.genderflipEffect or (!_spikepoolForNpc and xchangeGrayAgentBlocks("genderflip"))>>
+			/* Gray Agent filters genderflip out of a spike, so drop it from the pool too and let the roll land on an effect that can actually apply. */
 			<<run _effectPool.deleteWith((val)=>val==="genderflip")>>
 		<</if>>
 
@@ -2433,7 +2453,7 @@
 			<<run _effectPool.deleteWith((val)=>val==="crossdress")>>
 		<</if>>
 
-		<<if $xchange.pill.hermEffect or !$xchange.spikepool.herm>>
+		<<if $xchange.pill.hermEffect or !$xchange.spikepool.herm or (!_spikepoolForNpc and xchangeGrayAgentBlocks("herm"))>>
 			<<run _effectPool.deleteWith((val)=>val==="herm")>>
 		<</if>>
 
