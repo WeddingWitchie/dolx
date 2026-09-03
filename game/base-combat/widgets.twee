@@ -705,57 +705,68 @@
 	<</if>>
 <</widget>>
 
-<<widget "combatTrainAdvance">>/*For use after a beast/monster in a train is finished with their turn. Loads next in line into $NPCList[0]. Loads them all back into $NPCList if at the end of the train.*/
-	<<if $beastGroupFight is 0 and !$ejaculatingMid>>
-		<<clearnpc>>
-	<</if>>
-	<<if $combatTrain.length gt 0>>
-		<<set $combatTrain.length-->>
-		<<set $combatTrain.active += 1>>
-		<<loadNPC 0 `"beast_" + $combatTrain.active`>>
-		/* Sync event buffer: retire old entry for slot 0, push fresh one for the
-		   beast we just loaded.  Without this, validate() sees the old NPC's entry
-		   but slot 0 now holds a different beast → mismatch → false error. */
-		<<if $event isnot undefined and $event.buffer isnot undefined>>
-			<<for _evtTrainI to $event.buffer.length - 1; _evtTrainI gte 0; _evtTrainI-->>
-				<<if $event.buffer[_evtTrainI] and $event.buffer[_evtTrainI].slot is 0>>
-					<<run $event.buffer.splice(_evtTrainI, 1)>>
-				<</if>>
-			<</for>>
+<<widget "combatTrainAdvance">>/* Advances sequential beast trains. Group fights keep their original NPC slots and skip the train reload lifecycle. */
+	<<if $beastGroupFight is 0>>
+		<<if $combatTrain.orgasmStates and $npcOrgasmState and $npcOrgasmState[0]>>
+			<<set $combatTrain.orgasmStates[$combatTrain.active] to clone($npcOrgasmState[0])>>
 		<</if>>
-		<<run EventSystem.push($passage, 0, $timeStamp)>>
-		<<if $NPCList[0].monster is "monster">>
-			<<set $monster to 1>>
-		<<else>>
-			<<set $monster to 0>>
+		<<if !$ejaculatingMid>>
+			<<clearnpc>>
 		<</if>>
-		<!-- since we're not calling <<combatinit>>, re-init the first npc here -->
-		<<if $NPCList[0].penis is "none" and $player.penisExist>>
-			<<set $position to "missionary">>
-		<<else>>
-			<<set $position to ["doggy", "doggy", "doggy", "doggy", "missionary"].random()>>
-		<</if>>
-		<<if $NPCList[0].stance isnot "defeated">>
-			<<set $NPCList[0].active to "active">>
-		<</if>>
-		<<resetLastOptions>>
-		<<wetnessCalculate>>
-	<<else>>
-		<<for _e_n to 0; _e_n lt $combatTrain.total_length + 1; _e_n++>>
-			<<loadNPC _e_n `"beast_" + _e_n`>>
-			/* Sync event buffer for each reloaded beast slot */
+		<<if $combatTrain.length gt 0>>
+			<<set $combatTrain.length-->>
+			<<set $combatTrain.active += 1>>
+			<<loadNPC 0 `"beast_" + $combatTrain.active`>>
+			<<if $combatTrain.orgasmStates and $combatTrain.orgasmStates[$combatTrain.active]>>
+				<<set $npcOrgasmState[0] to clone($combatTrain.orgasmStates[$combatTrain.active])>>
+			<</if>>
+			/* Sync event buffer: retire old entry for slot 0, push fresh one for the
+			   beast we just loaded.  Without this, validate() sees the old NPC's entry
+			   but slot 0 now holds a different beast → mismatch → false error. */
 			<<if $event isnot undefined and $event.buffer isnot undefined>>
-				<<for _evtReloadI to $event.buffer.length - 1; _evtReloadI gte 0; _evtReloadI-->>
-					<<if $event.buffer[_evtReloadI] and $event.buffer[_evtReloadI].slot is _e_n>>
-						<<run $event.buffer.splice(_evtReloadI, 1)>>
+				<<for _evtTrainI to $event.buffer.length - 1; _evtTrainI gte 0; _evtTrainI-->>
+					<<if $event.buffer[_evtTrainI] and $event.buffer[_evtTrainI].slot is 0>>
+						<<run $event.buffer.splice(_evtTrainI, 1)>>
 					<</if>>
 				<</for>>
 			<</if>>
-			<<run EventSystem.push($passage, _e_n, $timeStamp)>>
-			<<if $beastGroupFight is 0 and !$ejaculatingMid>>
-				<<clearNPC `"beast_" + _e_n`>>
+			<<run EventSystem.push($passage, 0, $timeStamp)>>
+			<<if $NPCList[0].monster is "monster">>
+				<<set $monster to 1>>
+			<<else>>
+				<<set $monster to 0>>
 			<</if>>
-		<</for>>
+			<!-- since we're not calling <<combatinit>>, re-init the first npc here -->
+			<<if $NPCList[0].penis is "none" and $player.penisExist>>
+				<<set $position to "missionary">>
+			<<else>>
+				<<set $position to ["doggy", "doggy", "doggy", "doggy", "missionary"].random()>>
+			<</if>>
+			<<if $NPCList[0].stance isnot "defeated">>
+				<<set $NPCList[0].active to "active">>
+			<</if>>
+			<<resetLastOptions>>
+			<<wetnessCalculate>>
+		<<else>>
+			<<for _e_n to 0; _e_n lt $combatTrain.total_length + 1; _e_n++>>
+				<<loadNPC _e_n `"beast_" + _e_n`>>
+				<<if $combatTrain.orgasmStates and $combatTrain.orgasmStates[_e_n]>>
+					<<set $npcOrgasmState[_e_n] to clone($combatTrain.orgasmStates[_e_n])>>
+				<</if>>
+				/* Sync event buffer for each reloaded beast slot */
+				<<if $event isnot undefined and $event.buffer isnot undefined>>
+					<<for _evtReloadI to $event.buffer.length - 1; _evtReloadI gte 0; _evtReloadI-->>
+						<<if $event.buffer[_evtReloadI] and $event.buffer[_evtReloadI].slot is _e_n>>
+							<<run $event.buffer.splice(_evtReloadI, 1)>>
+						<</if>>
+					<</for>>
+				<</if>>
+				<<run EventSystem.push($passage, _e_n, $timeStamp)>>
+				<<if !$ejaculatingMid>>
+					<<clearNPC `"beast_" + _e_n`>>
+				<</if>>
+			<</for>>
+		<</if>>
 	<</if>>
 	<<if $combatExtended.reverseRapeStart is 1>>
 		<<set $consensual to 0>>
@@ -773,7 +784,7 @@
 	<<unset $leglocktarget>>
 <</widget>>
 
-<<widget "beastTrainGenerate">>/*Saves all beasts/monsters in $NPCList, then loads the first into slot 0.*/
+<<widget "beastTrainGenerate">>/* Records encounter metadata. Sequential fights also save each beast and load the first into slot 0. */
 	<<set _enemyno to $enemyno - 1>>
 	<<set $combatTrain to {
 		length: _enemyno,
@@ -781,28 +792,32 @@
 		active: 0,
 		pronouns: [],
 		monsters: [],
-		beastTypes: []
+		beastTypes: [],
+		orgasmStates: clone($npcOrgasmState || {})
 	}>>
 	<<for _e_n to 0; _e_n lt $enemyno; _e_n++>>
-		<<saveNPC _e_n `"beast_" + _e_n`>>
+		<<if $beastGroupFight is 0>><<saveNPC _e_n `"beast_" + _e_n`>><</if>>
 		<<set $combatTrain.beastTypes.push($NPCList[_e_n].type)>>
 		<<set $combatTrain.pronouns.push($NPCList[_e_n].pronoun)>>
 		<<set $combatTrain.monsters.push($NPCList[_e_n].monster)>>
 	<</for>>
 	<<if $beastGroupFight is 0>>
 		<<clearnpc>>
+		<<loadNPC 0 beast_0>>
+		<<if $combatTrain.orgasmStates[0]>>
+			<<set $npcOrgasmState[0] to clone($combatTrain.orgasmStates[0])>>
+		<</if>>
+		/* Sync event buffer: after clearnpc + loadNPC the buffer is stale.
+		   Clear any leftover entries for slot 0, then register the loaded beast. */
+		<<if $event isnot undefined and $event.buffer isnot undefined>>
+			<<for _evtGenI to $event.buffer.length - 1; _evtGenI gte 0; _evtGenI-->>
+				<<if $event.buffer[_evtGenI] and $event.buffer[_evtGenI].slot is 0>>
+					<<run $event.buffer.splice(_evtGenI, 1)>>
+				<</if>>
+			<</for>>
+		<</if>>
+		<<run EventSystem.push($passage, 0, $timeStamp)>>
 	<</if>>
-	<<loadNPC 0 beast_0>>
-	/* Sync event buffer: after clearnpc + loadNPC the buffer is stale.
-	   Clear any leftover entries for slot 0, then register the loaded beast. */
-	<<if $event isnot undefined and $event.buffer isnot undefined>>
-		<<for _evtGenI to $event.buffer.length - 1; _evtGenI gte 0; _evtGenI-->>
-			<<if $event.buffer[_evtGenI] and $event.buffer[_evtGenI].slot is 0>>
-				<<run $event.buffer.splice(_evtGenI, 1)>>
-			<</if>>
-		<</for>>
-	<</if>>
-	<<run EventSystem.push($passage, 0, $timeStamp)>>
 <</widget>>
 
 /* Cannot remove as it is used in combat logic */
