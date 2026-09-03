@@ -122,15 +122,19 @@ You shove the <<= dolxFishName($fishingHookedFish.type)>> toward the <<beasttype
 		You stow the <<= dolxFishName(dolxFishKeepKey($fishingHookedFish))>> safely away.
 		<<run dolxFishStow($fishingHookedFish)>>
 		<<if baitShopWants($fishingHookedFish)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
+		<<unset $fishingHookedFish>>
 	<</if>>
 	<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
 	<br><br>
 
-	<<tearful>> you wonder if all that was worth it for a <<= dolxFishName($fishingHookedFish.type)>>.
+	<<if $fishingMoorFoxPhase is 1>>
+		<<tearful>> you wonder if all that was worth it for a fish.
+	<<else>>
+		<<tearful>> you gather yourself.
+	<</if>>
 
 	<<clotheson>>
 	<<endcombat>>
-	<<unset $fishingHookedFish>>
 	<<unset $fishingMoorFoxPhase>>
 	<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
 	<br>
@@ -138,16 +142,42 @@ You shove the <<= dolxFishName($fishingHookedFish.type)>> toward the <<beasttype
 <<elseif $pain gte 100 and $willpowerpain is 0>>
 	<<if $fishingMoorFoxPhase is 1>>
 		You're too battered to continue fighting as the <<beasttype>> grabs your <<= dolxFishName($fishingHookedFish.type)>> and darts off into the heather.
+		<br><br>
+
+		<<tearful>> you wonder if all that was worth it for a fish.
+		<<unset $fishingHookedFish>>
+	<<else>>
+		The <<beasttype>> leaves you battered in the heather and bolts away.
+		<br><br>
+
+		<<tearful>> you gather yourself.
 	<</if>>
 	<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
-	<br><br>
-	
-	<<tearful>> you wonder if all that was worth it for a <<= dolxFishName($fishingHookedFish.type)>>.
-	<<unset $fishingHookedFish>>
 
 	<<clotheson>>
 	<<endcombat>>
+	<<unset $fishingMoorFoxPhase>>
 
+	<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
+	<br>
+	<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
+<<else>>
+	/* No decisive outcome, such as giving up the encounter. */
+	<<encounterEndViolence>>
+	The <<beasttype>> loses interest in you and disappears into the heather.
+	<<if $fishingMoorFoxPhase is 1>>
+		You stow the <<= dolxFishName(dolxFishKeepKey($fishingHookedFish))>> safely away.
+		<<run dolxFishStow($fishingHookedFish)>>
+		<<if baitShopWants($fishingHookedFish)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
+		<<unset $fishingHookedFish>>
+	<</if>>
+	<<set $daily.fishing.fishingMoor.fox.phase to "finished">>
+	<br><br>
+
+	<<tearful>> you gather yourself.
+	<<clotheson>>
+	<<endcombat>>
+	<<unset $fishingMoorFoxPhase>>
 	<<link [[Return to fishing|Fishing Moor Wait]]>><</link>>
 	<br>
 	<<link [[Leave|Moor]]>><<set $eventskip to 1>><</link>>
