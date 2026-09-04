@@ -4,7 +4,7 @@
 	{{{-->
 	A sign by the mirror lists services and prices. You estimate how much you'd pay based on your hair length:
 	<table class="dhm prices">
-		<tr><td class="empty"></td><th>Plain dye</th><th>Two-tone dye</th><th>Cut</th></tr>
+		<tr><td class="empty"></td><th>Plain dye</th><th>Two-tone dye</th><th>Cut or extend</th></tr>
 		<tr><th>Full head</th>
 			<td><<calcWrapper 'simple' 'hair'>></td>
 			<td><<calcWrapper 'gradient' 'hair'>></td>
@@ -62,55 +62,59 @@
 		<div id="item-cuts" class="flexitem">
 		<!-- {{{ -->
 			<div class="settingsToggleItem">
-				<div class="gold bold">Haircut</div>
-				<<if (setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000), "hairdressers") or $hairOption isnot $hairlength) and $hairlength gt 100>>
+				<div class="gold bold">Haircut &amp; Extensions</div>
+				<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.hairCut : 3000), "hairdressers") or $hairOption isnot $hairlength>>
 					<<if $hairOption isnot $hairlength and not dhmod.cfg.prices>>
 						<<set _currentCost += 3000>>
 					<</if>>
 					<div>
-						Have your sides cut to your:
+						Have your sides cut or extended to your:
 						<br>
 						<<set _hairNames to ["Ears", "Chin", "Shoulders", "Upper chest", "Middle chest", "Upper stomach", "Navel", "Thighs", "Knees", "Ankles"]>>
-						<<set _hairOptions to {"Don't cut":$hairlength}>>
+						<<set _hairOptions to {"Leave as is":$hairlength}>>
 						<<for _i to 9; _i gte 0; _i-->>
 							<<set $_length to (_i * 100)>> 
 							<<if $_length + 50 lt $hairlength>> /* + 50 to ensure it's not cut too early */
 								<<set _hairOptions[_hairNames[_i]] to $_length>>
+							<<elseif $_length gt $hairlength + 50>>
+								<<set _hairOptions[_hairNames[_i] + " (extensions)"] to $_length>>
 							<</if>>
 						<</for>>
 						<<listbox "$hairOption" autoselect>>
 							<<optionsfrom _hairOptions>>
 						<</listbox>>
 					</div>
-				<<elseif $hairlength gt 100>>
-					You don't have enough money to cut your hair.
+				<<else>>
+					You don't have enough money to change the length of your hair.
 				<</if>>
 			</div>
 
 			<div class="settingsToggleItem">
-				<div class="gold bold">Fringe Trim</div>
-				<<if (setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000), "hairdressers") or $fringeOption isnot $fringelength) and $fringelength gte 100>>
+				<div class="gold bold">Fringe Trim &amp; Extensions</div>
+				<<if setup.inflation.canAfford(_currentCost + (dhmod.cfg.prices ? dhmShop.prices.fringeCut : 3000), "hairdressers") or $fringeOption isnot $fringelength>>
 					<<if $fringeOption isnot $fringelength and not dhmod.cfg.prices>>
 						<<set _currentCost += 3000>>
 					<</if>>
 					<div>
-						Have your fringe cut until it's:
+						Have your fringe cut or extended until it's:
 						<br>
-						<<set _fringeNames to ["Very short", "Short", "Standard", "Long"]>>
-						<<set _fringeOptions to {"Don't cut":$fringelength}>>
+						<<set _fringeNames to ["Very short", "Short", "Standard", "Long", "Very long"]>>
+						<<set _fringeOptions to {"Leave as is":$fringelength}>>
 					
-						<<for _i to 3; _i gte 0; _i-->>
+						<<for _i to 4; _i gte 0; _i-->>
 							<<set $_length to (_i * 200) + 100>>
 							<<if $_length + 50 lt $fringelength>> /* + 50 to ensure it's not cut too early */
 								<<set _fringeOptions[_fringeNames[_i]] to $_length>>
+							<<elseif $_length gt $fringelength + 50>>
+								<<set _fringeOptions[_fringeNames[_i] + " (extensions)"] to $_length>>
 							<</if>>
 						<</for>>
 						<<listbox "$fringeOption" autoselect>>
 							<<optionsfrom _fringeOptions>>
 						<</listbox>>
 					</div>
-				<<elseif $fringelength gte 100>>
-					You don't have enough money to cut your fringe.
+				<<else>>
+					You don't have enough money to change the length of your fringe.
 					<br><br>
 				<</if>>
 			</div>

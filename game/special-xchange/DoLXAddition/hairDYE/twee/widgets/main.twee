@@ -39,7 +39,7 @@
 		<<modelprepare-player-clothes>>
 
 		<!-- hair fringe/length setup -->
-		<<set _modeloptions.hair_sides_length to $hairOption != $hairlength ? convertHairLengthToStage("sides", $hairOption || 1) : $hairlengthstage>>
+		<<set _modeloptions.hair_sides_length to $hairOption != $hairlength ? convertHairLengthToStage("sides", $hairOption) : $hairlengthstage>>
 		<<set _modeloptions.hair_fringe_length to $fringeOption != $fringelength ? convertHairLengthToStage("fringe", $fringeOption) : $fringelengthstage>>
 
 		<<if $browsDyeOption isnot "noChange" and $browsDyeOption isnot "removeDye">>
@@ -61,14 +61,19 @@
 				<<set _modeloptions.hair_colour_gradient to _preview_gradient>>
 			<</if>>
 		<<else>>
-			<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
-				<<set _modeloptions.hair_fringe_colour_style to "simple">>
-				<<set _modeloptions.hair_fringe_colour to _colorNames[0]>>
-			<</if>>
+			/* Only apply a plain colour when previewing a new dye or custom colour.
+			Otherwise, keep the player's current hair so two-tone gradients display correctly. */
+			<<set _plainDyePreview to _args[0] isnot "default" or ($dyeOption isnot "noChange" and $dyeOption isnot "" and def $dyeOption)>>
+			<<if _plainDyePreview>>
+				<<if $dyedHairPart is "fringe" or $dyedHairPart is "hair">>
+					<<set _modeloptions.hair_fringe_colour_style to "simple">>
+					<<set _modeloptions.hair_fringe_colour to _colorNames[0]>>
+				<</if>>
 
-			<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
-				<<set _modeloptions.hair_colour_style to "simple">>
-				<<set _modeloptions.hair_colour to _colorNames[0]>>
+				<<if $dyedHairPart is "sides" or $dyedHairPart is "hair">>
+					<<set _modeloptions.hair_colour_style to "simple">>
+					<<set _modeloptions.hair_colour to _colorNames[0]>>
+				<</if>>
 			<</if>>
 		<</if>>
 

@@ -203,6 +203,8 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<br>
 	Fringe trim: <<printprice 3000>>
 	<br>
+	Extensions, hair or fringe: <<printprice 3000>>
+	<br>
 	Full head colouring: <<printprice 6000>>
 	<br>
 	Fringe or sides colouring: <<printprice 5000>>
@@ -252,22 +254,24 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<if $hairOption isnot $hairlength and not dhmod.cfg.prices>>
 					<<set _currentCost += 3000>>
 				<</if>>
-				Have your sides cut to your:
+				Have your sides cut or extended to your:
 				<br>
 				<<set _hairNames to ["Ears", "Chin", "Shoulders", "Upper chest", "Middle chest", "Upper stomach", "Navel", "Thighs", "Knees", "Ankles"]>>
-				<<set _hairOptions to {"Don't cut":$hairlength}>>
+				<<set _hairOptions to {"Leave as is":$hairlength}>>
 				<<for _i to 9; _i gte 0; _i-->>
 					<<set $_length to (_i * 100)>> 
 					<<if $_length + 50 lt $hairlength>> /* + 50 to ensure it's not cut too early */
 						<<set _hairOptions[_hairNames[_i]] to $_length>>
+					<<elseif $_length gt $hairlength + 50>>
+						<<set _hairOptions[_hairNames[_i] + " (extensions)"] to $_length>>
 					<</if>>
 				<</for>>
 				<<listbox "$hairOption" autoselect>>
 					<<optionsfrom _hairOptions>>
 				<</listbox>>
 				<br><br>
-			<<elseif $hairlength gt 100>>
-				You don't have enough money to cut your hair.
+			<<else>>
+				You don't have enough money to change the length of your hair.
 				<br><br>
 			<</if>>
 
@@ -275,22 +279,24 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 				<<if $fringeOption isnot $fringelength and not dhmod.cfg.prices>>
 					<<set _currentCost += 3000>>
 				<</if>>
-				Have your fringe cut until it's:
+				Have your fringe cut or extended until it's:
 				<br>
-				<<set _fringeNames to ["Very short", "Short", "Standard", "Long"]>>
-				<<set _fringeOptions to {"Don't cut":$fringelength}>>
-				<<for _i to 3; _i gte 0; _i-->>
+				<<set _fringeNames to ["Very short", "Short", "Standard", "Long", "Very long"]>>
+				<<set _fringeOptions to {"Leave as is":$fringelength}>>
+				<<for _i to 4; _i gte 0; _i-->>
 					<<set $_length to (_i * 200) + 100>>
 					<<if $_length + 50 lt $fringelength>> /* + 50 to ensure it's not cut too early */
 						<<set _fringeOptions[_fringeNames[_i]] to $_length>>
+					<<elseif $_length gt $fringelength + 50>>
+						<<set _fringeOptions[_fringeNames[_i] + " (extensions)"] to $_length>>
 					<</if>>
 				<</for>>
 				<<listbox "$fringeOption" autoselect>>
 					<<optionsfrom _fringeOptions>>
 				<</listbox>>
 				<br><br>
-			<<elseif $fringelength gte 100>>
-				You don't have enough money to cut your fringe.
+			<<else>>
+				You don't have enough money to change the length of your fringe.
 				<br><br>
 			<</if>>
 
@@ -473,7 +479,15 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<br><br>
 	<<set _pass to 0>>
 	<<if $hairOption isnot $hairlength>>
-		The hairdresser starts snipping away, locks floating to the ground all around you. After a short while, <<he>> stands back while brandishing a mirror for you to examine <<his>> handiwork.
+		<<if $hairOption gt $hairlength>>
+			The hairdresser opens a drawer of hair extensions and compares several of them with your <<haircolourtext>> hair until <<he>> finds a close match. <<He>> attaches the extensions to your hair one section at a time, gradually making it longer.
+			<br><br>
+			When <<he>> finishes, <<he>> steps back and holds up a mirror so you can see the result.
+		<<else>>
+			The hairdresser begins cutting your hair. Small pieces fall onto the floor as <<he>> works around your head, shortening each section to the length you chose.
+			<br><br>
+			When <<he>> finishes, <<he>> steps back and holds up a mirror so you can see the result.
+		<</if>>
 		<br><br>
 		<<set $hairlength to clone($hairOption)>>
 		<<set _pass += 15>>
@@ -481,10 +495,12 @@ The hairdresser makes small talk as <<he>> rings up your purchase. "That stuff's
 	<</if>>
 
 	<<if $fringeOption isnot $fringelength>>
-		<<if _pass gt 0>>
-			<<He>> continues snipping away, and locks continue floating to the ground all around you. After a short while, <<he>> again stands back while brandishing a mirror for you to examine <<his>> handiwork further.
+		<<if $fringeOption gt $fringelength>>
+			<<He>> attaches extensions to your fringe, then adjusts the new hair so it matches the rest. When <<he>> is finished, <<he>> holds up a mirror for you to see the result.
+		<<elseif _pass gt 0>>
+			<<He>> continues cutting your fringe, with more pieces of hair falling to the floor. After a short while, <<he>> steps back and holds up the mirror again so you can check the result.
 		<<else>>
-			The hairdresser starts snipping away, locks floating to the ground all around you. After a short while, <<he>> stands back while brandishing a mirror for you to examine <<his>> handiwork.
+			The hairdresser starts cutting your fringe, with pieces of hair falling to the floor. After a short while, <<he>> steps back and holds up a mirror so you can check the result.
 		<</if>>
 		<br><br>
 		<<set $fringelength to clone($fringeOption)>>

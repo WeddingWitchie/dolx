@@ -3056,23 +3056,13 @@ function dailyConvert() {
 }
 window.dailyConvert = dailyConvert;
 
+/* Must stay in step with calchairlengthstage(), which is what the length actually becomes once paid for.
+   The hairdresser preview reads this, so any divergence shows the player a length they won't get. */
 function convertHairLengthToStage(hair, length) {
-	if (!hair || !length) throw new Error(`Hair AND Length must be provided to be converted: ${hair} / ${length}`);
-	if (hair === "fringe") {
-		if (length >= 900) return "feet";
-		else if (length >= 700) return "thighs";
-		else if (length >= 600) return "navel";
-		else if (length >= 400) return "chest";
-		else if (length >= 200) return "shoulder";
-		else return "short";
-	} else if (hair === "sides") {
-		if (length >= 900) return "feet";
-		else if (length >= 700) return "thighs";
-		else if (length >= 600) return "navel";
-		else if (length >= 400) return "chest";
-		else if (length >= 200) return "shoulder";
-		else return "short";
-	}
+	if (!hair || length == null) throw new Error(`Hair AND Length must be provided to be converted: ${hair} / ${length}`);
+	if (hair !== "fringe" && hair !== "sides") return undefined;
+	const stages = ["short", "shoulder", "chest", "navel", "thighs", "feet"];
+	return stages[Math.trunc(Math.clamp(length, 0, 1000) / 200)];
 }
 window.convertHairLengthToStage = convertHairLengthToStage;
 
