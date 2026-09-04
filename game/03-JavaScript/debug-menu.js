@@ -1518,6 +1518,23 @@ setup.debugMenu.eventList = {
 			widgets: [`<<set $detention += 10>>`],
 		},
 		{
+			link: [`Suspend Now`, stayOnPassageFn],
+			widgets: [
+				`<<set $delinquency to 1000>>`,
+				`<<run ensureSchoolDiscipline()>>`,
+				`<<set $schoolDiscipline.cooldown to 0>>`,
+				`<<set $schoolDiscipline.suspended to 0>>`,
+			],
+		},
+		{
+			link: [`End Suspension`, stayOnPassageFn],
+			widgets: [
+				`<<run ensureSchoolDiscipline()>>`,
+				`<<set $schoolDiscipline.daysLeft to 0>>`,
+				`<<set $schoolDiscipline.serviceDone to $schoolDiscipline.serviceRequired>>`,
+			],
+		},
+		{
 			link: [`School Skills`, stayOnPassageFn],
 			widgets: [
 				`<<set $school += 8000>>`,
@@ -1630,6 +1647,24 @@ setup.debugMenu.eventList = {
 		{
 			link: [`Robin Romance`, stayOnPassageFn],
 			widgets: [`<<set $robinromance to 1>>`],
+		},
+		{
+			link: [`Robin Cafe Job Offered`, stayOnPassageFn],
+			widgets: [`<<set $oceanbreezejob to 1>>`, `<<run ensureRobinCafe()>>`, `<<set $robinCafe.stage to 1>>`, `<<set $robinCafe.ended to "">>`],
+		},
+		{
+			link: [`Maid Outfit To Wardrobe`, stayOnPassageFn],
+			widgets: [
+				`<<generalSend "wardrobe" "upper" "maid dress">>`,
+				`<<generalSend "wardrobe" "lower" "maid skirt">>`,
+				`<<generalSend "wardrobe" "head" "maid band">>`,
+				`<<generalSend "wardrobe" "upper" "sexy butler top">>`,
+				`<<generalSend "wardrobe" "lower" "sexy butler shorts">>`,
+			],
+		},
+		{
+			link: [`Robin Cafe +5 Shifts`, stayOnPassageFn],
+			widgets: [`<<run ensureRobinCafe()>>`, `<<set $robinCafe.shifts += 5>>`, `<<set $robinCafe.weekShifts += 5>>`],
 		},
 		{
 			text_only: "\n\n",

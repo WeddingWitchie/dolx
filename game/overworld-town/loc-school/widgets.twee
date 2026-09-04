@@ -157,20 +157,29 @@
 
 
 <<widget "schoolperiod">>
-	<<if $exposed lte 0>>
+	<!-- A lesson link is late once that lesson has already started. Repeat offenders can't walk
+	straight in: the link leads to the head's office instead, and the passage explains why.
+	$schoolLateSlipTarget carries the lesson through the office, because <<endevent>> there wipes $phase. -->
+	<<set _lessonLate to $schoollesson is 1 and schoolLateSlipRequired()>>
+	<<if !_lessonLate>><<unset $schoolLateSlipTarget>><</if>>
+	<<if $exposed lte 0 and !schoolSuspended()>>
 		<<if $schoolstate is "morning" or ($schoolstate is "first" and Time.minute lte 58)>>
-			<<scienceicon>><<link [[Go to your science lesson (0:01)|Science Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
+			<<set _lessonTarget to (_lessonLate and $schoolstate is "first") ? "School Late Slip" : "Science Classroom">>
+			<<scienceicon>><<link [[Go to your science lesson (0:01)|_lessonTarget]]>><<if _lessonLate and $schoolstate is "first">><<set $schoolLateSlipTarget to "Science Classroom">><</if>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "first" or ($schoolstate is "second" and Time.minute lte 58)>>
 			<<if Time.weekDay is 3 or Time.weekDay is 5>>
-				<<icon "housekeeping.png">><<link [[Go to your housekeeping lesson (0:01)|Housekeeping Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
+				<<set _lessonTarget to (_lessonLate and $schoolstate is "second") ? "School Late Slip" : "Housekeeping Classroom">>
+				<<icon "housekeeping.png">><<link [[Go to your housekeeping lesson (0:01)|_lessonTarget]]>><<if _lessonLate and $schoolstate is "second">><<set $schoolLateSlipTarget to "Housekeeping Classroom">><</if>><<set $justEntered to true>><<pass 1>><</link>>
 				<br><br>
 			<<else>>
-				<<mathicon>><<link [[Go to your maths lesson (0:01)|Maths Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
+				<<set _lessonTarget to (_lessonLate and $schoolstate is "second") ? "School Late Slip" : "Maths Classroom">>
+				<<mathicon>><<link [[Go to your maths lesson (0:01)|_lessonTarget]]>><<if _lessonLate and $schoolstate is "second">><<set $schoolLateSlipTarget to "Maths Classroom">><</if>><<set $justEntered to true>><<pass 1>><</link>>
 				<br><br>
 			<</if>>
 		<<elseif $schoolstate is "second" or ($schoolstate is "third" and Time.minute lte 58)>>
-			<<englishicon>><<link [[Go to your English lesson (0:01)|English Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
+			<<set _lessonTarget to (_lessonLate and $schoolstate is "third") ? "School Late Slip" : "English Classroom">>
+			<<englishicon>><<link [[Go to your English lesson (0:01)|_lessonTarget]]>><<if _lessonLate and $schoolstate is "third">><<set $schoolLateSlipTarget to "English Classroom">><</if>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "third" or ($schoolstate is "lunch" and Time.minute lte 58)>>
 			<<foodicon "eat">><<link [[Join the masses in the canteen (0:01)|Canteen]]>><<pass 1>><</link>>
@@ -178,10 +187,12 @@
 			<<historyicon>><<link [[Wait in the history classroom (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "lunch" or ($schoolstate is "fourth" and Time.minute lte 58)>>
-			<<historyicon>><<link [[Go to your history lesson (0:01)|History Classroom]]>><<set $justEntered to true>><<pass 1>><</link>>
+			<<set _lessonTarget to (_lessonLate and $schoolstate is "fourth") ? "School Late Slip" : "History Classroom">>
+			<<historyicon>><<link [[Go to your history lesson (0:01)|_lessonTarget]]>><<if _lessonLate and $schoolstate is "fourth">><<set $schoolLateSlipTarget to "History Classroom">><</if>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<<elseif $schoolstate is "fourth" or ($schoolstate is "fifth" and Time.minute lte 58)>>
-			<<swimmingicon>><<link [[Go to your swimming lesson (0:01)|School Pool Entrance]]>><<set $justEntered to true>><<pass 1>><</link>>
+			<<set _lessonTarget to (_lessonLate and $schoolstate is "fifth") ? "School Late Slip" : "School Pool Entrance">>
+			<<swimmingicon>><<link [[Go to your swimming lesson (0:01)|_lessonTarget]]>><<if _lessonLate and $schoolstate is "fifth">><<set $schoolLateSlipTarget to "School Pool Entrance">><</if>><<set $justEntered to true>><<pass 1>><</link>>
 			<br><br>
 		<</if>>
 	<</if>>

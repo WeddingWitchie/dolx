@@ -1,3 +1,4 @@
+/* globals robinCafeShiftNow robinOutfitWorn */
 (function () {
 	$(document).on(":passageend", function () {
 		if (typeof window.updatePhysique !== "function") return;
@@ -698,6 +699,9 @@ function getRobinLocation() {
 		} else {
 			T.robin_location = "orphanage";
 		}
+	} else if (typeof robinCafeShiftNow === "function" && robinCafeShiftNow()) {
+		/* Weekday shift at the Ocean Breeze. Deliberately outside the weekend stand hours below. */
+		T.robin_location = "cafe";
 	} else if (V.halloween === 1 && between(Time.hour, 16, 18) && Time.monthDay === 31) {
 		T.robin_location = "halloween";
 	} else if (Time.isWeekEnd() && between(Time.hour, 9, 16) && Weather.precipitation !== "rain" && C.npc.Robin.trauma < 80) {
@@ -744,6 +748,12 @@ function getRobinCrossdressingStatus(crossdressLevel) {
 			break;
 		case "school":
 			if (crossdressLevel >= 5) T.robin_cd = 2;
+			break;
+		case "cafe":
+			/* Robin only crossdresses at work in an outfit the player gave them, and only after they're willing to wear it in public. */
+			if (typeof robinOutfitWorn === "function" && robinOutfitWorn() && V.robinCafe.outfit.crossdress && crossdressLevel >= 4) {
+				T.robin_cd = 2;
+			}
 			break;
 		case "missing":
 			T.robin_cd = 0;

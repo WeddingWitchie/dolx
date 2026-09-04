@@ -1,5 +1,5 @@
 /* The POCKET menu: what the PC is physically carrying. */
-/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay dolxPocketBaitValid */
+/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay dolxPocketBaitValid pocketOutfitPieceCount pocketOutfitUnpackAll */
 
 /* ------------------------------------------------------------------ *
  * Setup tables
@@ -315,6 +315,12 @@ function pocketSyncBag() {
 
 	V.pocket.bag.slots = kept;
 
+	/* A serving outfit is the one kind whose slot holds the only copy of its contents, so losing the
+	slot to a smaller bag has to put the garments back in the wardrobe rather than strand them. */
+	if (typeof pocketOutfitUnpackAll === "function" && !V.pocket.bag.slots.some(slot => slot.kind === "outfit")) {
+		pocketOutfitUnpackAll();
+	}
+
 	/* Toys removed with bag slots return to the cupboard. */
 	const toySlots = new Set(V.pocket.bag.slots.filter(slot => slot.kind === "toy").map(slot => slot.key));
 	const inv = V.player && V.player.inventory && V.player.inventory.sextoys;
@@ -338,6 +344,9 @@ function pocketSlotStillValid(slot) {
 		case "bait":
 			/* The can stays a slot when it's empty: an empty tin is still a tin you can refill. */
 			return dolxPocketBaitValid(slot.key);
+		case "outfit":
+			/* The bundle holds the only copy of its garments. See pocket-outfit.js. */
+			return typeof pocketOutfitPieceCount === "function" && pocketOutfitPieceCount() > 0;
 		default:
 			return false;
 	}

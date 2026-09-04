@@ -1,3 +1,4 @@
+/* globals robinCafeStandModifier */
 /* Robin's drink stand economy (DoLX).
  *
  * Replaces the flat weekly stand income in time.js with a tier/upgrade/skill/weather driven calculation, still funnelled through $robinmoney.
@@ -123,6 +124,8 @@ function robinStandWeeklyIncome() {
 	const fluct = setup.robinStand.tiers[stand.tier].fluct;
 	let income = robinStandBaseIncome();
 	income *= robinStandWeatherModifier();
+	/* Cafe shifts eat into the hours Robin needs to prep and restock. See robin-cafe.js. */
+	if (typeof robinCafeStandModifier === "function") income *= robinCafeStandModifier();
 	income *= 1 + (Math.random() * 2 - 1) * fluct;
 	if (V.robin.stayup >= 1) income -= 50;
 	income += V.robin.moneyModifier;

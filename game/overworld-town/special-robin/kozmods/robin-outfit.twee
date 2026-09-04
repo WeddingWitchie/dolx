@@ -1,0 +1,375 @@
+:: Robin Outfit Widgets [widget]
+/* Offer, and the follow-up once Robin has grown into an outfit they wouldn't wear at first.
+Called from robinCafeOptions and from the cafe shift. */
+<<widget "robinOutfitOptions">>
+	<<run ensureRobinCafe()>>
+	<<if robinOutfitOfferAvailable()>>
+		<<skinicon "give">><<link [[Offer Robin the <<= pocketOutfitName()>> (0:10)|Robin Outfit Offer]]>><<pass 10>><</link>>
+		<br>
+	<<elseif robinOutfitReadyToWear()>>
+		<<skinicon "give">><<link [[Ask if Robin will wear the <<= $robinCafe.outfit.name>> (0:10)|Robin Outfit Wear]]>><<pass 10>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* Where the three outfit outcomes send you back to, and the end of the offer scene. */
+<<widget "robinOutfitReturn">>
+	<<unset $robinOutfitPending>>
+	<<if $location is "cafe">>
+		<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+		<br>
+	<<elseif $location is "park" or $location is "beach">>
+		<<link [[Next|Robin Stand Business]]>><<endevent>><</link>>
+		<br>
+	<<else>>
+		<<robinoptions>>
+	<</if>>
+<</widget>>
+
+/* How Robin looks behind the counter in the gift. */
+<<widget "robinOutfitLook">>
+	<<if robinOutfitWorn()>>
+		<<if $robinCafe.outfit.sexy>>
+			Robin is wearing the <<= $robinCafe.outfit.name>>, which covers much less than Sam's usual apron.
+		<<elseif $robinCafe.outfit.modest>>
+			Robin is wearing the <<= $robinCafe.outfit.name>>, buttoned all the way up to the neck.
+		<<else>>
+			Robin is wearing the <<= $robinCafe.outfit.name>>, with the apron tied around <<his>> waist.
+		<</if>>
+	<</if>>
+<</widget>>
+
+:: Robin Outfit Offer
+<!-- $location is still the passage you came from: the cafe, the stand, or Robin's room. Keep it. -->
+<<set $outside to 0>><<set _outfitVenue to ["cafe", "park", "beach"].includes($location) ? $location : "home">><<set $location to _outfitVenue>><<effects>>
+<<person1>>
+<<run ensureRobinCafe()>>
+<<set _reaction to robinOutfitReaction($pocket.outfit.pieces)>>
+<!-- The outcome passages need this after the bundle has left the player's hands. Cleared on the way out. -->
+<<set $robinOutfitPending to {
+	verdict: _reaction.verdict,
+	reason: _reaction.reason,
+	crossdress: _reaction.crossdress,
+	sexy: _reaction.sexy,
+	modest: _reaction.modest,
+	name: pocketOutfitName(),
+	list: pocketOutfitPieceNames()
+}>>
+You take the folded bundle out and put it in Robin's hands before <<he>> can ask what it is.
+<<He>> lifts the top fold and looks underneath. "Is this—"
+<br><br>
+<<He>> unfolds the <<= $robinOutfitPending.name>> and holds it against <<his>> body to see how it would look.
+When <<he>> notices you watching, <<his>> face quickly turns red and <<he>> lowers it.
+<<if $robinOutfitPending.list.length gt 1>>
+	<br><br>
+	<<He>> finds more pieces underneath: <<= $robinOutfitPending.list.slice(1).join(", ")>>.
+	<<He>> takes them out one by one and lays them beside the first piece, looking over the whole outfit before saying anything.
+<</if>>
+<br><br>
+<<if $robinOutfitPending.verdict is "refuse">>
+	<<link [[Wait for <<him>> to say something|Robin Outfit Refuse]]>><</link>>
+<<elseif $robinOutfitPending.verdict is "keep">>
+	<<link [[Wait for <<him>> to say something|Robin Outfit Keep]]>><</link>>
+<<else>>
+	<<link [[Wait for <<him>> to say something|Robin Outfit Accept]]>><</link>>
+<</if>>
+<br>
+
+:: Robin Outfit Refuse
+<<set $outside to 0>><<effects>>
+<<if ndef $robinOutfitPending>><<run robinOutfitPendingRebuild()>><</if>>
+<<if $robinOutfitPending.reason is "trauma">>
+	<<His>> hands stop over the clothes. After looking at them for a few seconds, <<he>> folds each piece and puts the bundle back into your hands.
+	<br><br>
+	"Not now," <<he>> says. "Please."<<npcincr Robin trauma 1>><<grtrauma>>
+	<br><br>
+	<span class="blue">Robin is too distressed to consider wearing the outfit</span>. You keep it.
+<<else>>
+	<<He>> looks over the <<= $robinOutfitPending.name>> again.
+	When <<he>> realises what you are asking <<him>> to wear, <<his>> hands stop.
+	<br><br>
+	"It's... that's a <<print $robinOutfitPending.crossdress ? "girl's" : "boy's">> one," <<he>> says.
+	<<He>> lowers the outfit towards <<his>> lap. "I've never worn something like this. Not even here.
+	I wouldn't know how to start."
+	<br><br>
+	<<He>> folds it again and puts it back into your hands.
+	Afterwards, <<he>> keeps looking down at the clothes instead of at you.
+	<br><br>
+	<span class="blue">Robin isn't ready to wear something like that</span>. You keep the outfit.
+<</if>>
+<br><br>
+<<robinOutfitReturn>>
+
+:: Robin Outfit Keep
+<<set $outside to 0>><<effects>>
+<<if ndef $robinOutfitPending>><<run robinOutfitPendingRebuild()>><</if>>
+<<if $robinOutfitPending.sexy>>
+	<<He>> opens the outfit fully and holds it up. When <<he>> sees how much skin it would leave uncovered,
+	<<he>> quickly lowers it onto the bed.
+	<br><br>
+	"People would <i>look</i>," <<he>> says, staring at it with a red face.
+<<elseif $robinOutfitPending.crossdress>>
+	<<He>> holds the outfit against <<his>> body again, then looks towards the closed door.
+	<br><br>
+	"I could wear it," <<he>> says. <<He>> pauses and lowers <<his>> voice.
+	"I mean here. In this room, with the door shut. I don't think I could wear it outside yet."
+<<else>>
+	<<He>> puts <<his>> thumb along one of the seams while looking over the outfit.
+	"It's proper. Like the uniforms people wear in the nicer places."
+<</if>>
+<br><br>
+<<He>> folds each piece, places them together, then puts the outfit in the drawer where
+<<he>> keeps things hidden from Bailey.
+<br><br>
+"Thank you. Really." <<He>> closes the drawer and keeps <<his>> hand on it.
+"I don't think I can wear it at work yet. Ask me again sometime?"
+<<npcincr Robin love 2>><<npcincr Robin trauma -2>><<gglove>><<lrtrauma>>
+<br><br>
+<span class="blue">Ask again when Robin has more confidence<<if $robinOutfitPending.crossdress>>, and is comfortable crossdressing where people can see<</if>>.</span>
+<<run robinOutfitAccept(false)>>
+<br><br>
+<<robinOutfitReturn>>
+
+:: Robin Outfit Accept
+<<set $outside to 0>><<effects>>
+<<if ndef $robinOutfitPending>><<run robinOutfitPendingRebuild()>><</if>>
+<<if $robinOutfitPending.sexy and $robinOutfitPending.crossdress>>
+	<<He>> opens the outfit fully and holds it against <<his>> body again.
+	This time, <<he>> keeps it there while looking down at it.
+	<br><br>
+	"You bought this for me," <<he>> says. <<His>> face turns red, but <<he>> starts smiling.
+	"You actually bought <i>this</i> one."<<npcincr Robin lust 6>><<gglust>>
+<<elseif $robinOutfitPending.sexy>>
+	<<He>> turns the outfit around to look at the front and back.
+	<<His>> face turns pink when <<he>> sees how revealing it is.
+	<br><br>
+	"Sam is definitely going to say something about this," <<he>> says. <<He>> looks at the outfit again.
+	"That's fine. I'm still wearing it."<<npcincr Robin lust 3>><<glust>>
+<<elseif $robinOutfitPending.crossdress>>
+	<<He>> looks down at the outfit, then towards the door before turning back to you.
+	<br><br>
+	"At <i>work</i>?" <<he>> asks. <<His>> face turns red as <<he>> looks down at the clothes again.
+	"Where everyone can see me wearing it?"
+	<br><br>
+	You start to answer, but <<he>> takes a breath and lifts the outfit again.
+	"Yes," <<he>> says. "Okay. I'll do it."<<npcincr Robin lust 2>><<glust>>
+<<else>>
+	<<He>> holds the outfit against <<his>> body again, this time deliberately checking how it looks.
+	<br><br>
+	"This is a real uniform," <<he>> says, smoothing the front with one hand.
+	"It's mine. I won't have to use an apron someone lent me."
+<</if>>
+<<npcincr Robin love 2>><<gglove>>
+<br><br>
+Before you leave, Robin starts talking about when <<he>> could wear it.
+<<He>> considers which shift to choose, whether Sam will object, and how the outfit needs to be washed.
+<<run robinOutfitAccept(true)>>
+<br><br>
+<<robinOutfitReturn>>
+
+:: Robin Outfit Wear
+<<set $outside to 0>><<set _outfitVenue to ["cafe", "park", "beach"].includes($location) ? $location : "home">><<set $location to _outfitVenue>><<effects>>
+<<run ensureRobinCafe()>>
+<!-- Reaching an outfit scene without the outfit (an old save, the debug menu) degrades instead of throwing.
+The <<exit>> has to be here rather than in a widget: inside a widget it only ends the widget. -->
+<<if !$robinCafe.outfit>>
+	Robin doesn't have anything of yours to wear.
+	<br><br>
+	<<robinOutfitReturn>>
+	<<exit>>
+<</if>>
+<<set $robinCafe.outfit.worn to true>>
+You ask Robin if <<he>> still has the <<= $robinCafe.outfit.name>>.
+<br><br>
+"You remembered," Robin says. <<He>> smiles, then opens the drawer where <<he>> left it.
+<<He>> takes the outfit out and unfolds it across the bed. The fabric has several fold lines in different places.
+<br><br>
+"I've taken it out a few times," <<he>> admits. "I kept thinking about wearing it, then putting it back."
+<br><br>
+<<if $robinCafe.outfit.crossdress>>
+	"I tried it on too, but only in here." Robin smooths the outfit with one hand before looking back at you.
+	"I thought I'd want to take it off after a while. Turns out I can't..."
+<<elseif $robinCafe.outfit.sexy>>
+	"I kept telling myself I'd wear it. Then I'd look at it and change my mind."
+	<<He>> lifts the outfit against <<his>> body and looks at <<himself>> in the mirror.
+	This time, <<he>> keeps it there instead of lowering it straight away.
+<<else>>
+	"I wanted to wear it but kept wondering if I should." <<He>> looks down at the outfit in <<his>> hands.
+	"I think I wanted someone else to say it was okay."
+<</if>>
+<br><br>
+<<link [[Next|Robin Outfit Wear 2]]>><</link>>
+<br>
+
+:: Robin Outfit Wear 2
+<<effects>>
+<<run ensureRobinCafe()>>
+<<if !$robinCafe.outfit>>
+	Robin doesn't have anything of yours to wear.
+	<br><br>
+	<<robinOutfitReturn>>
+	<<exit>>
+<</if>>
+Robin folds the outfit over <<his>> arm. "Tomorrow. Yes. Tomorrow I'll wear it before I change my mind again."
+<<npcincr Robin love 1>><<npcincr Robin dom 3>><<glove>><<ggdom>>
+<br><br>
+<span class="gold"><i>Robin will wear the <<= $robinCafe.outfit.name>> during <<his>> next shift.</i></span>
+<br><br>
+<<robinOutfitReturn>>
+
+:: Robin Outfit Debut
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<run ensureRobinCafe()>>
+<!-- Reaching an outfit scene without the outfit (an old save, the debug menu) degrades instead of throwing.
+The <<exit>> has to be here rather than in a widget: inside a widget it only ends the widget. -->
+<<if !$robinCafe.outfit>>
+	Robin doesn't have anything of yours to wear.
+	<br><br>
+	<<robinOutfitReturn>>
+	<<exit>>
+<</if>>
+<<robinOutfitLook>>
+<<set $robinCafe.outfit.seen.debut to true>>
+As soon as you enter the cafe, you notice how quiet it is. A few customers are watching Robin while <<he>> works.
+<br><br>
+<<He>> is carrying three plates towards a table. <<He>> keeps <<his>> eyes on them as <<he>> walks,
+careful not to look at anyone around <<him>>.
+<br><br>
+<<if $robinCafe.outfit.crossdress and $robinCafe.outfit.sexy>>
+	Two regulars by the window stop talking when Robin passes them.
+	Sam stays behind the coffee machine and keeps working without looking over.
+	<br><br>
+	Robin places the plates on the table, then returns to the counter. <<He>> puts both hands on it and looks at you.
+	"Don't say anything about the outfit."
+	<br><br>
+	"I wasn't going to." You shrug.
+	<br><br>
+	Robin looks away. "You were still thinking about it."<<npcincr Robin lust 3>><<glust>>
+<<elseif $robinCafe.outfit.sexy>>
+	One of the regulars by the window leans towards <<his>> friend and says something quietly while watching Robin.
+	Robin hears <<him>>. <<His>> ears turn red, but <<he>> keeps carrying the order to the table.
+	<br><br>
+	When <<he>> returns to the counter, <<he>> sets down the empty tray.
+	"That's the third person who's commented on the outfit. I've been counting."
+	<<npcincr Robin lust 2>><<glust>>
+<<elseif $robinCafe.outfit.crossdress>>
+	People look at Robin when <<he>> walks past, but nobody says anything about <<his>> outfit.
+	<br><br>
+	<<He>> finishes serving the tables, then comes back behind the counter.
+	"They all just ordered." <<He>> looks down at <<his>> outfit, then back at you. "I thought someone would say something."
+	<<npcincr Robin trauma -4>><<llrtrauma>>
+<<else>>
+	Robin moves between the tables in <<his>> new outfit without anyone paying much attention.
+	<br><br>
+	When <<he>> returns to the counter, <<he>> looks pleased.
+	"A woman asked me where the toilets were. Because I <i>looked like I'd know</i> where they were."
+	<<npcincr Robin dom 2>><<gdom>>
+<</if>>
+<br><br>
+<<link [[Next|Robin Outfit Debut 2]]>><</link>>
+<br>
+
+:: Robin Outfit Debut 2
+<<effects>>
+Sam walks past carrying a tray and stops beside Robin for a second.
+"Suits you," <<nnpc_he "Sam">> says, then continues towards the tables.
+<br><br>
+Robin watches <<nnpc_him "Sam">> leave. <<He>> does not answer, but a smile spreads across <<his>> face.
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+<br>
+
+:: Robin Outfit Regulars
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<person1>>
+<<run ensureRobinCafe()>>
+<!-- Reaching an outfit scene without the outfit (an old save, the debug menu) degrades instead of throwing.
+The <<exit>> has to be here rather than in a widget: inside a widget it only ends the widget. -->
+<<if !$robinCafe.outfit>>
+	Robin doesn't have anything of yours to wear.
+	<br><br>
+	<<robinOutfitReturn>>
+	<<exit>>
+<</if>>
+<<generates2>>
+<<set $robinCafe.outfit.seen.regulars to true>>
+There are more customers in the cafe than you usually see on a weekday.
+Several of them look towards Robin while <<he>> moves between the tables.
+<br><br>
+Sam notices you looking around.
+<br><br>
+"Someone shared a photo of Robin in that outfit," <<he>> says while entering an order into Old Betsy.
+"People have been talking about it. I've already had four customers this week ask if the other staff can wear one too."
+<br><br>
+<<He>> smiles as <<he>> says it, though <<he>> keeps glancing towards Robin to check how <<he>> is doing. <<robinOutfitLook>>
+Robin carries an order across the cafe, stopping briefly beside another table to ask if they need anything before continuing.
+<br><br>
+<<He>> no longer waits beside every table until the customers finish talking,
+which lets <<him>> move between them much faster.
+<br><br>
+<<link [[Next|Robin Outfit Regulars 2]]>><</link>>
+<br>
+
+:: Robin Outfit Regulars 2
+<<effects>>
+<<person2>>A <<person>> sitting at the corner table raises a hand as Robin passes. "Can I get a photo with you?"
+<<run ensureRobinCafe()>>
+<<if !$robinCafe.outfit>>
+	Robin doesn't have anything of yours to wear.
+	<br><br>
+	<<robinOutfitReturn>>
+	<<exit>>
+<</if>>
+<br><br>
+<<person1>>Robin stops beside the table. <<He>> looks at the <<person2>><<person>>,
+then down at <<his>> tray while <<he>> decides what to say.
+<br><br>
+You have seen Robin agree to requests before because <<he>> was too nervous to refuse.
+This time, <<he>> takes a few seconds before answering.
+<<if C.npc.Robin.dom gte 70>>
+	"No, thanks. What would you like to order?"
+	<br><br>
+	The <<person2>><<person>> accepts the answer and gives <<him>> an order instead.
+	<<person1>>Later, Robin comes back to the counter and looks towards you.
+	<br><br>
+	"I can say no to that. Sam told me I don't have to let customers take photos just because they ask."
+	<<He>> gives a small smile. "I think I'm getting better at remembering that." <<npcincr Robin dom 3>><<ggdom>>
+<<elseif $robinCafe.outfit.sexy>>
+	"...Alright," <<he>> says after a short pause. "But only from here up. Nothing lower."
+	<<He>> places one hand across <<his>> waist to show what <<he>> means.
+	<br><br>
+	The <<person2>><<person>> agrees. Robin puts <<his>> tray in front of <<his>> waist while the photograph is taken,
+	then returns to the counter. <<His>> cheeks are red, but <<he>> is smiling.
+	<<npcincr Robin lust 3>><<npcincr Robin dom 1>><<gglust>><<gdom>>
+<<else>>
+	"Alright," <<he>> says, "but you have to order something first."
+	<br><br>
+	The <<person2>><<person>> laughs, then gives <<him>> an order before taking the photograph.
+	<br><br>
+	When Robin returns to the counter, <<he>> shows you the money from the order with a small smile.
+	"I didn't think they'd agree to that."<<npcincr Robin dom 2>><<ggdom>>
+<</if>>
+<br><br>
+<<link [[Next|Robin Outfit Regulars 3]]>><</link>>
+<br>
+
+:: Robin Outfit Regulars 3
+<<effects>>
+<<person1>>The cafe becomes quieter after several customers leave.
+<<run ensureRobinCafe()>>
+<<if !$robinCafe.outfit>>
+	Robin doesn't have anything of yours to wear.
+	<br><br>
+	<<robinOutfitReturn>>
+	<<exit>>
+<</if>>
+Robin comes back to the counter and takes some money from <<his>> pocket.
+<br><br>
+"I've been getting tips," <<he>> says. "People actually leave money for me now. Sam lets us keep our own tips."
+<br><br>
+<<He>> puts the money away, then looks down at the <<= $robinCafe.outfit.name>>
+and smooths part of the fabric with <<his>> hand.
+<br><br>
+"I thought I'd feel embarrassed wearing this in front of everyone," <<he>> says. "But I don't feel as embarrassed anymore."
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<endevent>><</link>> <br>

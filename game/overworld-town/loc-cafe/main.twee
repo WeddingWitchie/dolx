@@ -322,6 +322,16 @@ You are in the Ocean Breeze Cafe.
 	<</if>>
 <</if>>
 
+<<if Time.openingHours() and $exposed lte 0 and robinCafeIntroAvailable()>>
+	<!-- Robin's second job. See special-robin/kozmods/robin-cafe.js. -->
+	<<socialiseicon>><<link [[Ask Sam whether Robin could work here (0:10)|Robin Cafe Ask Sam]]>><<pass 10>><</link>>
+	<br>
+<</if>>
+<<if Time.openingHours() and $exposed lte 0 and getRobinLocation() is "cafe">>
+	<<robinicon "lemonade">><<link [[Say hello to Robin (0:10)|Robin Cafe Visit]]>><<pass 10>><</link>>
+	<br>
+<</if>>
+
 <<if !Time.openingHours() and Time.hour isnot $closinghour and !$weekly.theft.oceanBreeze>>
 	<<shopicon "register">><<link [[Examine the cash register|Ocean Breeze Register]]>><</link>>
 	<br>
@@ -481,8 +491,48 @@ Sam shows you around, conversing along the way. "We serve smiles just as much as
 	<br>
 <<else>>
 	<<cleareventpool>>
+	<<run ensureRobinCafe()>>
 
-	<<if !$weekly.robinCafeVisit and C.npc.Robin.init gte 1 and $robinmissing is 0 and !["school", "sleep"].includes(getRobinLocation())>>
+	<<if robinCafeShiftNow() and $robinCafe.shifts gte 2 and !$robinCafe.seen.shortage>>
+		<!-- A one-off event for a shift the PC and Robin actually work together. -->
+		<<addinlineevent "robin_cafe_shortage" 6>>
+			<<set $robinCafe.seen.shortage to true>>
+			<<set $phase to either("cream", "milk")>>
+			<<npc Robin>><<person1>>
+			You are carrying an empty tray back towards the counter when you notice Robin standing in front of the open fridge.
+			<<He>> checks the same shelf twice, then lifts an empty carton and stares at it.
+			<br><br>
+			"No, no, no," <<he>> whispers. "We're out of $phase. There's another order waiting. Sam's going to&mdash;"
+			<br><br>
+			<<He>> turns at the sound of the machine and nearly drops the carton. The queue is growing, and Robin's breathing is getting quicker.
+			<br><br>
+			<<link [[Walk over to Robin|Robin Cafe Shortage]]>><</link>>
+			<br>
+			<<link [[Continue your own shift|Robin Cafe Shortage Continue]]>><</link>>
+			<br>
+		<</addinlineevent>>
+	<</if>>
+	<<if robinCafeShiftNow() and $robinCafe.seen.shortage and !$robinCafe.seen.shortageMilk and ($robinromance is 1 or $robinsexfriend) and C.npc.Robin.trauma lt 60>>
+		<!-- A follow-up one-off event, once the shortage panic is a familiar problem and Robin trusts the PC with more than the till. -->
+		<<addinlineevent "robin_cafe_shortage_milk" 6>>
+			<<set $robinCafe.seen.shortageMilk to true>>
+			<<set $phase to either("cream", "milk")>>
+			<<npc Robin>><<person1>>
+			You're stacking cups when Robin swears quietly behind you. <<He>> almost never does that, so you turn to look.
+			<br><br>
+			Robin is standing by the sink with an empty carton of $phase. <<He>> tips it upside down and gives it another shake, but nothing comes out.
+			"Not again," <<he>> says. "We're out of $phase... again. I only just told Sam I'd keep an eye on it."
+			<br><br>
+			<<He>> looks towards the counter, where more customers are waiting to be served. After a second, <<he>> turns back to you and hesitates before speaking.
+			<br><br>
+			<<link [[Walk over to Robin|Robin Cafe Shortage Milk]]>><</link>>
+			<br>
+			<<link [[Continue your own shift|Robin Cafe Shortage Continue]]>><</link>>
+			<br>
+		<</addinlineevent>>
+	<</if>>
+
+	<<if !$weekly.robinCafeVisit and C.npc.Robin.init gte 1 and $robinmissing is 0 and !robinCafeShiftNow() and !["school", "sleep"].includes(getRobinLocation())>>
 		<<set $weekly.robinCafeVisit to true>>
 		<<if _gwylanLocation is "cafe" and $gwylanSeen?.includes("cafe") and $gwylan_cafe_intro and $gwylan?.robin gte 5>>
 			<<addinlineevent "robin_cafe_gwylan" 4>>

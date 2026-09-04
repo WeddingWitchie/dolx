@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered ensureRobinStand robinStandWeeklyTick robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -650,6 +650,9 @@ function weekPassed() {
 		/* Stand income from tier, upgrades, skill and weather; also handles Robin's own weekly stand purchases.
 		See robin-stand.js. */
 		V.robinmoney += robinStandWeeklyTick();
+		/* Weekday cafe wages, if Robin took the second job. Must stay below the stand payout above:
+		robinCafeStandModifier() reads weekShifts, which this call clears. See special-robin/kozmods/robin-cafe.js. */
+		if (typeof robinCafeWeeklyTick === "function") V.robinmoney += robinCafeWeeklyTick();
 		// if (V.robinmoney > 4000) V.robinmoney = 4000;
 		if (V.edenfreedom >= 1 && V.edenshopping === 2) V.edenshopping = 0;
 		if (V.loft_kylar || V.loft_independentLab) V.loft_spray = 0;
@@ -1918,6 +1921,10 @@ function dailyNPCEffects() {
 	}
 
 	// Robin
+	/* Records the shift Robin worked yesterday, so it has to run before the lines below age
+	robinmissing, robindebtevent and Robin's trauma into today's values.
+	See special-robin/kozmods/robin-cafe.js. */
+	if (typeof robinCafeDayPassed === "function") robinCafeDayPassed();
 	if (V.robindebtevent > 0) {
 		V.robindebtevent--;
 		switch (V.robinmissing) {
@@ -2946,7 +2953,10 @@ function dailySchoolEffects() {
 	if (V.combat === 1) statChange.trauma(schoolTrauma, "combat");
 	else statChange.trauma(schoolTrauma);
 
-	if (Time.isSchoolDay(Time.yesterday) && V.location !== "prison") {
+	/* Completed suspension service excuses the lessons the player was barred from, including the
+	per-subject records. schoolDisciplineDayPassed() clears servedToday later in this function. */
+	const suspensionServiceAttended = V.schoolDiscipline?.suspended === 1 && V.schoolDiscipline.servedToday === 1;
+	if (Time.isSchoolDay(Time.yesterday) && V.location !== "prison" && !suspensionServiceAttended) {
 		const attended = Object.keys(V.daily.school.attended).length;
 		V.schoolLessonsMissed.science += !Number(V.daily.school.attended.science);
 		if ([4, 6].includes(Time.weekDay)) {
@@ -2985,6 +2995,9 @@ function dailySchoolEffects() {
 		statChange.delinquency(-delinquencyDecay / 4);
 		if (V.schoolfameblackmail !== undefined) V.schoolfameblackmail++;
 	}
+
+	/* Handles suspension days and community service after the normal school attendance update. */
+	if (typeof schoolDisciplineDayPassed === "function") schoolDisciplineDayPassed();
 
 	if (V.science_star >= 1) {
 		wikifier("scienceskill", Math.clamp(V.science_star, 0, 3));

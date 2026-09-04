@@ -1,0 +1,1053 @@
+:: Robin Cafe Widgets [widget]
+/* Shown when the player discusses the stand while Robin also works at the cafe. */
+<<widget "robinCafeNotice">>
+	<<run ensureRobinCafe()>>
+	<<if robinCafeEmployed()>>
+		<br>
+		"I work at the cafe during the week now, so I only run the stand at weekends," Robin says while wiping the counter.
+		<<if $robinCafe.lastWage gt 0>>
+			"Sam paid me <span class="gold">£<<print $robinCafe.lastWage>></span> last week. I put it with the money from the stand."
+		<<else>>
+			"The cafe doesn't pay much yet, but at least I know how much I'll earn each week."
+		<</if>>
+		<br><br>
+		<span class="blue">Robin now earns cafe wages during the week, but the stand only makes money at weekends.</span>
+	<</if>>
+<</widget>>
+
+/* Cafe conversations the player can start at the orphanage. */
+<<widget "robinCafeOptions">>
+	<<run ensureRobinCafe()>>
+	<<if robinCafeTellAvailable()>>
+		<<cafeicon>><<link [[Tell Robin about the cafe job (0:15)|Robin Cafe Tell]]>><<pass 15>><</link>>
+		<br>
+	<<elseif robinCafeResolutionAvailable()>>
+		<<cafeicon>><<link [[Ask Robin about the cafe (0:15)|Robin Cafe Decision]]>><<pass 15>><</link>>
+		<br>
+	<</if>>
+	<<robinOutfitOptions>>
+<</widget>>
+
+:: Robin Cafe Ask Sam
+<<endevent>>
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<npc Sam>><<person1>>
+<<run ensureRobinCafe()>>
+You wait until there are no customers at the counter before speaking to Sam.
+"A friend?" Sam asks. "How old?"
+<br><br>
+You tell <<him>> Robin's age. Sam thinks for a few seconds before answering.
+"Same age as you, then. Can <<nnpc_he "Robin">> work weekday afternoons?"
+<br><br>
+You say yes.
+<br><br>
+Sam turns towards the work rota pinned beside Old Betsy. Several afternoon shifts still have nobody assigned to them.
+"I could use the help. But <<nnpc_he "Robin">> needs to handle customers. Some of them get rude when they're angry or impatient."
+ <br><br>
+<<if $speech_attitude is "bratty">>
+	"<<nnpc_He "Robin">>'ll be fine," you say. "<<nnpc_He "Robin">> can handle that."
+<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"<<nnpc_He "Robin">> works harder than anyone I know," you say quietly.
+	"<<nnpc_Hes "Robin">> been running a drinks stand alone since <<nnpc_he "Robin">> was small."
+<<else>>
+	You tell Sam about Robin's drinks stand, explaining how <<nnpc_he "Robin">>
+	sells lemonade in warm weather and cocoa in winter.
+	You also mention that <<nnpc_he "Robin">> makes <<nnpc_his "Robin">> own signs and serves the customers alone.
+<</if>>
+<br><br>
+<<link [[Next|Robin Cafe Ask Sam 2]]>><</link>>
+<br>
+
+:: Robin Cafe Ask Sam 2
+<<effects>>
+Sam listens with <<his>> arms folded. By the time you finish, <<he>> is smiling.
+"<<nnpc_He "Robin">> runs <<nnpc_his "Robin">> own stall already?"
+<br><br>
+Sam thinks about it, then nods. "Bring <<nnpc_him "Robin">> in. I'll give <<nnpc_him "Robin">> two weeks to try the job.
+If <<nnpc_he "Robin">> does well, <<nnpc_he "Robin">> can stay."
+<br><br>
+<<He>> points towards the tables. "And tell <<nnpc_him "Robin">> that any tips customers give <<nnpc_him "Robin">>
+are <<nnpc_his "Robin">> to keep. We don't share tips between the staff here."
+<br><br>
+<span class="gold"><i>Sam has a place for Robin. You need to tell Robin about it.</i></span>
+<<set $robinCafe.stage to 1>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Tell
+<<endevent>>
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<npc Robin>><<person1>>
+<<run ensureRobinCafe()>>
+You tell Robin what Sam said. <<He>> listens without interrupting, unusually quiet.
+<br><br>
+"A real job," <<he>> says when you finish. "I'd get paid every week, and I'd know which days I'm working."
+<br><br>
+<<He>> sits on the edge of the bed and looks down at <<his>> hands.
+"I've been trying to work out the money while you were talking. We'd still be okay. I know that."
+<br><br>
+<<He>> rubs <<his>> palms against <<his>> knees.
+"But what if I'm bad at it?"
+<br><br>
+<<if $speech_attitude is "bratty">>
+	"Then you'll be bad at it for two weeks and Sam'll tell you," you say. "That's why <<he>> gave you a trial."
+<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"You've been working on your own since you were nine," you say. "You can learn this too."
+<<else>>
+	"Then you'll learn," you say. "That's what the two-week trial is for."
+<</if>>
+<br><br>
+<<link [[Next|Robin Cafe Tell 2]]>><</link>>
+<br>
+
+:: Robin Cafe Tell 2
+<<effects>>
+Robin stays quiet for a few seconds, then starts counting the days on <<his>> fingers.
+"Only weekdays... So I can still run the stand at weekends."
+<br><br>
+<<He>> looks up at you.
+"I wouldn't have to give it up."
+<br><br>
+Robin pushes <<himself>> to <<his>> feet so quickly that <<he>> loses <<his>> balance.
+<<He>> grabs the bedframe with one hand and steadies <<himself>>.
+<br><br>
+"Okay," <<he>> says. "Tell Sam yes."
+<br><br>
+<<He>> pauses, then shakes <<his>> head.
+<br><br>
+"No. I'll tell <<nnpc_him "Sam">> myself. I should do that."
+<<npcincr Robin love 2>><<npcincr Robin dom 2>><<glove>><<ggdom>>
+<br><br>
+<<link [[Next|Robin Cafe Tell 3]]>><</link>>
+<br>
+
+:: Robin Cafe Tell 3
+<<effects>>
+<span class="gold">Robin starts work at the Ocean Breeze on the next school day</span>, from five until seven.
+<br><br>
+Robin will spend less time at the stand during the week, <span class="purple">so the stand will earn less money.</span>
+<<set $robinCafe.stage to 2>><<set $robinCafe.startTime to Time.date.timeStamp>>
+<br><br>
+<<robinoptions>>
+
+:: Robin Cafe Visit
+<<endevent>>
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<npc Robin>><<person1>>
+<<run ensureRobinCafe()>>
+<<set _due to robinCafeSceneDue()>>
+<<set _outfitDue to robinOutfitSceneDue()>>
+<<if _due is "first">>
+	<<link [[Next|Robin Cafe First Shift]]>><</link>>
+<<elseif _due is "difficult">>
+	<<link [[Next|Robin Cafe Difficult]]>><</link>>
+<<elseif _outfitDue is "debut">>
+	<<link [[Next|Robin Outfit Debut]]>><</link>>
+<<elseif _outfitDue is "regulars">>
+	<<link [[Next|Robin Outfit Regulars]]>><</link>>
+<<else>>
+	<<if robinOutfitWorn()>>
+		<<robinOutfitLook>>
+	<<else>>
+		Robin stands behind the counter wearing an apron that is too long for <<him>>.
+		Sam has folded it over twice at the waist to make it fit.
+	<</if>>
+	<br><br>
+	<<if $robinCafe.stage gte 5 and $robinCafe.ended is "kept">>
+		Robin takes a customer's order, passes it to the kitchen, then collects two empty plates on
+		<<his>> way back to the counter. <<He>> moves from one job to the next without stopping.
+		<br><br>
+		<<He>> spots you while carrying the plates and gives you a quick grin before continuing back to the counter.
+	<<elseif $robinCafe.stage gte 3>>
+		Robin serves the last few people in a short queue, pressing each order into the till
+		before moving straight to the next customer.
+		<br><br>
+		When the queue is gone, <<he>> comes over to you while the coffee machine prepares another drink behind <<him>>.
+		"Eleven tables since five! I counted."
+	<<else>>
+		Robin is staring at the till, checking each button before pressing it.
+		<<He>> does not notice you until you reach the counter.
+		<br><br>
+		When <<he>> looks up and sees you, <<he>> forgets which part of the order <<he>> was entering.
+		<<He>> looks back at the screen and starts it again from the beginning with flushed cheeks.
+	<</if>>
+	<br><br>
+	<<if !$daily.robin.cafeVisit>>
+		<<set $daily.robin.cafeVisit to 1>>
+		Robin places a drink in front of you even though you did not order anything.
+		"Staff discount! On me. I get one every shift and I never use it."
+		<<stress -6>><<lstress>><<npcincr Robin love 1>><<glove>>
+		<br><br>
+	<<else>>
+		Robin keeps moving between the till and the waiting orders.
+		You decide not to distract <<him>> while <<he>> is working.
+		<br><br>
+	<</if>>
+	<<robinOutfitOptions>>
+	<<link [[Leave <<him>> to it|Ocean Breeze]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Robin Cafe First Shift
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<run ensureRobinCafe()>>
+<<set $robinCafe.seen.first to true>>
+You find Robin carrying two plates while four customers wait near the counter.
+A third plate is ready beside Sam, but Robin keeps looking between the food in <<his>> hands and the table numbers.
+<br><br>
+Sam prepares another order behind the counter.
+"Table six!" Sam calls.
+<br><br>
+Robin quietly repeats the number to <<himself>> while walking away.
+<br><br>
+"Two coffees for table three!" Sam calls after <<him>>.
+<br><br>
+Robin looks back, loses track of what <<he>> was repeating, then turns towards the nearest occupied table.
+<<He>> sets both plates down.
+<br><br>
+<<link [[Next|Robin Cafe First Shift 2]]>><</link>>
+<br>
+
+:: Robin Cafe First Shift 2
+<<effects>>
+One of the customers looks at the food. "We didn't order these."
+<br><br>
+Robin freezes, then quickly picks the plates back up.
+"Sorry. Sorry..."
+<br><br>
+<<He>> turns towards the other tables, but stops after a few steps.
+<<He>> looks down at the two plates and moves one slightly in <<his>> hand, trying to remember which order belongs where.
+<br><br>
+<<if C.npc.Robin.dom gte 40>>
+	Robin carries both plates back to the counter and puts them down.
+	<<He>> takes a slow breath, then returns to the customers.
+	<br><br>
+	"Sorry. Which one was yours?" <<he>> asks.
+	<br><br>
+	The customers point out their order. Robin checks the plates again, then carries the right one back to them.
+	<br><br>
+	When <<he>> returns, <<he>> stares at the remaining plate for a second, surprised that asking actually solved the problem.
+<<else>>
+	Robin's ears turn red. <<He>> brings both plates back to the counter and puts them down beside Sam.
+	<br><br>
+	"Sorry," <<he>> says again, though nobody has spoken to <<him>>.
+	<br><br>
+	Sam checks the plates, points towards the correct tables, and sends <<him>> back out.
+<</if>>
+<br><br>
+<<link [[Next|Robin Cafe First Shift 3]]>><</link>>
+<br>
+
+:: Robin Cafe First Shift 3
+<<effects>>
+The rush slowly dies down. Fewer customers are waiting now, and Robin finally has a chance to stop moving.
+<br><br>
+<<He>> comes over to you after clearing another table. There is an empty chair beside you, but <<he>> remains standing.
+<br><br>
+"That was awful," <<he>> says. "...I was awful."
+<br><br>
+<<if $speech_attitude is "bratty">>
+	"You were," you say. "Really bad. And you're doing it again tomorrow."
+	<br><br>
+	Robin stares at you, then laughs when <<he>> realises you're teasing <<him>>.
+<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"You stayed until the end," you say. "That's enough for your first day."
+	<br><br>
+	Robin looks back towards the counter before giving a small nod.
+<<else>>
+	"You were new," you say. "Tomorrow you'll know more than you did today."
+	<br><br>
+	Robin pulls a face, but <<he>> does not argue.
+<</if>>
+<br><br>
+<<link [[Next|Robin Cafe First Shift 4]]>><</link>>
+<br>
+
+:: Robin Cafe First Shift 4
+<<effects>>
+Sam looks over from behind the counter. When Robin is not looking,
+Sam gives you a small shrug and points towards <<him>>, as if to say that new staff often struggle on their first shift.
+<br><br>
+Robin got through the first shift.
+<<npcincr Robin love 1>><<npcincr Robin trauma 2>><<glove>><<grtrauma>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Difficult
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<person1>>
+<<generates2>>
+<<run ensureRobinCafe()>>
+You've barely taken two steps into the cafe when you hear someone raising <<his>> voice at the counter.
+A <<person2>><<person>> stands in front of Robin with a cup on the counter between them.
+<br><br>
+<<He>> points at the drink as <<he>> speaks.
+"I asked for no milk. Twice! Did the till get it wrong, or did you?"
+<br><br>
+<<person1>>Robin stands behind the counter with both hands pressed against the wood.
+<<He>> looks at the customer without answering, but Sam is in the kitchen with the door shut.
+The people at two nearby tables have stopped talking and are watching the argument.
+<br><br>
+Robin still hasn't apologised. Usually, <<he>> would have done that already.
+<br><br>
+<<link [[Step in|Robin Cafe Difficult Step]]>><<pass 10>><</link>>
+<br>
+<<link [[Stay where you are|Robin Cafe Difficult Wait]]>><<pass 10>><</link>>
+<br>
+
+:: Robin Cafe Difficult Step
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<run ensureRobinCafe()>>
+<<set $robinCafe.handled to "player">>
+<<set $robinCafe.stage to 4>>
+Before Robin can answer, you step in beside <<him>> and take the cup from the customer.
+<br><br>
+"Sorry about that," you say. You empty the drink and make another one while <<he>> watches,
+this time leaving out the milk.
+<br><br>
+The <<person2>><<person>> watches you finish the new drink before taking it from you.
+<<He>> complains about the cafe's standards, then turns away and carries the cup to a table.
+<<person1>>Robin stays beside you the whole time. <<He>> does not interrupt or try to take over.
+<br><br>
+Once the customer is gone, Robin looks down at <<his>> apron. <<He>> pulls the knot loose behind <<his>> back,
+then ties it again more slowly.
+<br><br>
+"Thanks," <<he>> says.
+<br><br>
+<<He>> keeps <<his>> attention on the apron for another second before looking up.
+"I think I could've handled that. I was trying to work out what to say."
+<br><br>
+<<link [[Next|Robin Cafe Difficult Step 2]]>><</link>>
+<br>
+
+:: Robin Cafe Difficult Step 2
+<<effects>>
+<<if $speech_attitude is "bratty">>
+	"You were taking your time about it," you say. The words are already out before you realise how they sound.
+<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"I'm sorry," you say. "I didn't think."
+<<else>>
+	"I know," you say. "I just didn't want you to have to deal with <<him>>."
+<</if>>
+<br><br>
+Robin pulls <<his>> hands away from the apron. "That's the problem.
+People keep stepping in because they don't want me to deal with things like that. I need to learn how to do it myself."
+<br><br>
+<<He>> picks up a cloth and walks over to an empty table. There are only a few crumbs on it,
+but <<he>> wipes them away anyway.<<npcincr Robin dom -2>><<lldom>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Difficult Wait
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<run ensureRobinCafe()>>
+<<set $robinCafe.handled to "robin">>
+<<set $robinCafe.stage to 4>>
+You stay by the door instead of stepping in. Part of you wants to help, but you wait and let Robin handle it.
+<br><br>
+Robin takes the cup from <<person2>>the <<person>> without arguing.
+"I'll make you another one. It'll take about a minute. You can sit down while you wait, or stay here.
+Which do you want?"
+<br><br>
+<<person2>>The <<person>> starts to answer, then stops. <<He>> looks at the nearby chair, then back at Robin.
+After a few seconds, <<he>> pulls the chair out and sits down.
+<br><br>
+Robin turns back to the counter and makes the drink again. When it's ready, <<person1>><<he>>
+carries it over and places it in front of <<person2>>the <<person>>. "Here you go."
+<br><br>
+<<person1>><<He>> returns to the counter before <<person2>>the <<person>> can start another argument
+<br><br>
+<<link [[Next|Robin Cafe Difficult Wait 2]]>><</link>>
+<br>
+
+:: Robin Cafe Difficult Wait 2
+<<effects>>
+The people at the two nearby tables watch for another few seconds. When nothing else happens,
+they turn back to their drinks and conversations.
+<br><br>
+<<person1>>You walk over to Robin. <<His>> hands shake slightly as <<he>> puts the used cup aside.
+When <<he>> notices you looking, <<he>> lowers them behind the counter.
+<br><br>
+"I've watched Sam do that about ten times," <<he>> says. "You give them something to choose.
+Then they have to think about the choice instead of shouting."
+<br><br>
+<<if $speech_attitude is "bratty">>
+	"Look at you," you say. "Terrifying."
+	<br><br>
+	"Shut up," <<he>> says, smiling.
+<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+	"That was really good," you manage.
+	<br><br>
+	Robin looks down for a second. This time, <<he>> doesn't immediately deny it.
+<<else>>
+	"You didn't need me," you say.
+	<br><br>
+	Robin pauses before answering. "No," <<he>> says, sounding a little surprised by it too.
+<</if>>
+<<npcincr Robin dom 6>><<gggdom>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Decision
+<<endevent>>
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<npc Robin>><<person1>>
+<<run ensureRobinCafe()>>
+Robin takes a folded work schedule from <<his>> pocket. <<He>> looks down at it for a few seconds,
+turning it over between <<his>> fingers without opening it.
+"Sam asked if I want to keep working at the cafe... Properly this time. Not as a trial."
+<br><br>
+<<if $robinCafe.handled is "robin">>
+	<<He>> rubs <<his>> thumb along the edge of the paper. "I keep thinking about that customer with the milk.
+	I actually dealt with it myself."
+	<br><br>
+	<<He>> looks down at the schedule again.
+	"I'm not used to that. Usually, when something goes wrong, I'm the one who needs help."
+<<else>>
+	<<He>> rubs <<his>> thumb along the edge of the paper. "I keep thinking about that customer with the milk.
+	You handled it for me. That was kind of you. But afterwards,
+	I kept thinking that I should've been able to deal with it myself."
+<</if>>
+<br><br>
+Robin folds the schedule once more, making the crease sharper.
+<br><br>
+<<link [[Next|Robin Cafe Decision 2]]>><</link>>
+<br>
+
+:: Robin Cafe Decision 2
+<<effects>>
+"The cafe is different from my stand," <<he>> says. "Sam gave me a chance there. The stand was something I started myself."
+<br><br>
+<<He>> holds the folded paper against <<his>> knee.
+<br><br>
+"I don't know if I should keep the job, or just go back to the stand."
+<br><br>
+<<link [[Tell <<him>> to keep the job|Robin Cafe Decision Keep]]>><<pass 10>><</link>>
+<br>
+<<link [[Tell <<him>> the stand is enough|Robin Cafe Decision Quit]]>><<pass 10>><</link>>
+<br>
+<<link [[Tell <<him>> it's <<his>> call|Robin Cafe Decision Own]]>><<pass 10>><</link>>
+<br>
+
+:: Robin Cafe Decision Keep
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<run ensureRobinCafe()>>
+<<set $robinCafe.stage to 5>><<set $robinCafe.ended to "kept">>
+"Keep the café job," you say. "You can still run the stand on Saturday."
+<br><br>
+Robin looks down at the rota again. <<He>> reads through the empty shifts, then picks up a pen.
+<br><br>
+"I can work from five to seven, Monday to Friday," <<he>> says as <<he>> writes <<his>> name beside each shift.
+"I'll keep Saturday and Sunday for the stand."
+<br><br>
+<<He>> finishes writing and puts the pen down. <<He>> looks over the rota once more before folding it.
+"No one's ever asked me what I wanted to do before. They usually just tell me."
+<<npcincr Robin love 2>><<npcincr Robin trauma -3>><<glove>><<llrtrauma>>
+<br><br>
+<<link [[Next|Robin Cafe Decision Keep 2]]>><</link>>
+<br>
+
+:: Robin Cafe Decision Keep 2
+<<effects>>
+<span class="green">Robin has decided to keep working at Ocean Breeze.</span>
+ <br><br>
+<<robinoptions>>
+
+:: Robin Cafe Decision Quit
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<run ensureRobinCafe()>>
+<<set $robinCafe.stage to 5>><<set $robinCafe.ended to "quit">>
+"You don't need to keep working at the cafe," you say. "You can spend that time on the stand instead."
+<br><br>
+Robin looks down at the folded work schedule in <<his>> hands. After a few seconds,
+<<he>> places it on the desk without opening it. "I'll tell <<nnpc_him "Sam">> tomorrow.
+<<nnpc_He "Sam">>'ll probably understand... <<nnpc_He "Sam">> usually does."
+<br><br>
+Robin turns towards the window, thinking about it before continuing.
+<br><br>
+"I'm still glad I worked there. I learned how to use the till, and I got better at dealing with angry customers.
+I'll still know how to do those things even after I leave."<<npcincr Robin trauma -2>><<lrtrauma>>
+<br><br>
+<<link [[Next|Robin Cafe Decision Quit 2]]>><</link>>
+<br>
+
+:: Robin Cafe Decision Quit 2
+<<effects>>
+<span class="gold">Robin has left the cafe</span>, but keeps the skills <<he>> learned there.
+<span class="blue">Robin now has more time to run the stand</span>, and <<he>> is better prepared to manage it.
+<br><br>
+<<robinoptions>>
+
+:: Robin Cafe Decision Own
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<run ensureRobinCafe()>>
+<<set $robinCafe.stage to 5>>
+"It's your name on the rota," you say. "Not mine."
+<br><br>
+Robin watches you, waiting for you to tell <<him>> what to do. When you say nothing else,
+<<he>> looks back down at the paper.
+<br><br>
+<<if C.npc.Robin.dom gte 55 or $robinCafe.handled is "robin">>
+	<<set $robinCafe.ended to "kept">>
+	<<He>> unfolds the rota and reads it again.
+	"I'm keeping the job. The money helps, obviously. But I want to stay too."
+	<br><br>
+	<<He>> picks up a pen and writes <<his>> name on the rota. <<He>> finishes without looking to you for approval.
+	<<npcincr Robin dom 5>><<npcincr Robin trauma -4>><<ggdom>><<llrtrauma>>
+	<br><br>
+<<else>>
+	<<set $robinCafe.ended to "quit">>
+	Robin turns the folded rota over in <<his>> hands, then sets it down without opening it.
+	"I don't want the job. I know I could keep doing it. But I've been spending more time there and less time at my stand."
+	<br><br>
+	<<He>> rests a hand on the rota. "The stand is mine. I don't want to keep neglecting it."
+	<br><br>
+	<<He>> pushes the rota aside. "I'll tell <<nnpc_him "Sam">> myself. I want to do that part."
+	<<npcincr Robin dom 3>><<npcincr Robin trauma -2>><<gdom>><<lrtrauma>>
+	<br><br>
+<</if>>
+<br><br>
+<<link [[Next|Robin Cafe Decision Own 2]]>><</link>>
+<br>
+
+:: Robin Cafe Decision Own 2
+<<effects>>
+<<if $robinCafe.ended is "kept">>
+	<span class="green">Robin decided to stay at the cafe.</span>
+<<else>>
+	<span class="green">Robin chose to focus on the stand.</span>
+<</if>>
+<<robinoptions>>
+
+:: Robin Cafe Shortage
+<<endevent>>
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<npc Robin>><<person1>>
+You step behind the counter and take the empty carton from Robin before <<he>> squeezes it any harder.
+"Come with me," you say. "Just for a minute."
+<br><br>
+You lead <<him>> into the staff room and shut the door. Robin turns to you as soon as you are alone.
+"We're out of $phase," <<he>> says. "I checked the fridge and the shelf next to the machine. There's none left."
+<br><br>
+<<He>> rubs <<his>> hands against <<his>> apron.
+<br><br>
+"I was supposed to tell Sam when we opened the last one. I didn't realise it was the last carton until just now."
+<<He>> looks back towards the door. "People have already ordered drinks that need it. I don't know what to tell them."
+<br><br>
+<<link [[Help Robin calm down and work out what to do|Robin Cafe Shortage Reassure]]>><</link>>
+<br>
+<<link [[Cover the counter while Robin buys more|Robin Cafe Shortage Cover]]>><</link>>
+<br>
+<<if setup.inflation.canAfford(1000, "cafe")>>
+	<<link [[Go and buy more yourself|Robin Cafe Shortage Fetch]]>><<money -1000 "cafe">><</link>>
+	<br>
+<</if>>
+<<if $chef_state gte 1>>
+	<<link [[Use something else from the kitchen|Robin Cafe Shortage Substitute]]>><</link>>
+	<br>
+<</if>>
+
+:: Robin Cafe Shortage Continue
+<<endevent>>
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<npc Robin>><<person1>>
+You return to your tables. Several customers are still waiting for their orders,
+so you keep working instead of stopping to help Robin.
+<br><br>
+Later, you pass the counter again and see Sam standing beside Robin.
+Robin's face is red as <<he>> watches Sam write <i>CHECK THE LAST CARTON</i> on the stock sheet,
+then draw two lines under it.
+<br><br>
+"It's fine if we run out of something," Sam says. "But you need to tell me when we're getting low.
+I can't fix it if I don't know."
+<br><br>
+Robin looks at you for a second before lowering <<his>> eyes.
+<<He>> turns back to the counter and continues working.<<npcincr Robin trauma 2>><<grtrauma>>
+<br><br>
+<<waiter_default>><<pass 1 hour>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<unset $phase>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Shortage Reassure
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+"Robin, look at me," you say.
+<br><br>
+<<He>> keeps looking towards the cafe for a few seconds before turning back to you.
+<br><br>
+"We've only run out of $phase," you say. "Nobody's hurt, and the cafe is fine. What do you need to do?"
+<br><br>
+Robin opens <<his>> mouth, but no words come out. <<He>> takes a slow breath and tries again.
+"Tell Sam we're out. Then tell the customers we can make their orders without $phase, or they can choose something else.
+After that, I need to buy more."
+<br><br>
+You nod. "You got it. Start with Sam."
+<br><br>
+<<link [[Next|Robin Cafe Shortage Reassure 2]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Reassure 2
+<<effects>>
+Robin follows you back into the cafe. <<He>> slows down when you reach Sam, but you stay beside <<him>> until <<he>> speaks.
+<br><br>
+"We ran out of $phase," Robin says. <<His>> voice shakes, but <<he>> manages to finish.
+"I didn't notice until we needed another carton."
+<br><br>
+Sam looks at Robin, then raises a hand and points towards the top shelf in the pantry.
+Robin follows <<his>> finger. A spare carton is sitting there.
+<br><br>
+<<He>> stares at it for a few seconds before covering <<his>> face with one hand. A laugh escapes <<him>>,
+followed by another. <<He>> leans against you while <<he>> tries to stop.<<npcincr Robin love 1>><<glove>>
+<br><br>
+"I looked everywhere," <<he>> says. "I didn't look up."
+<br><br>
+<<waiter_default>><<pass 1 hour>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<unset $phase>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Shortage Cover
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+You tell Robin to take some money from the till and buy what the cafe needs from the corner shop.
+You will handle <<his>> work until <<he>> gets back.
+<br><br>
+"You'd do that?" <<he>> asks.
+<br><br>
+Another customer calls from the counter before you can answer. You turn back to work,
+and Robin quickly grabs the money before heading outside.
+<br><br>
+While <<he>> is gone, you move between your own tables and Robin's customers.
+More orders arrive before you can finish the drinks already waiting at the counter.
+<br><br>
+<<link [[Next|Robin Cafe Shortage Cover 2]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Cover 2
+<<effects>>
+Robin soon returns carrying two cartons against <<his>> chest, with the receipt held between <<his>> teeth.
+<<He>> puts everything down, takes one look at the waiting orders, then starts helping you prepare the unfinished drinks.
+<br><br>
+The two of you keep working until the number of waiting customers finally drops.
+<br><br>
+By the time things calm down, both of you are tired,
+but every customer has been served and the cafe has enough supplies again.
+<<tiredness 4>><<npcincr Robin love 2>><<ggtiredness>><<gglove>>
+<br><br>
+<<waiter_default>><<pass 1 hour>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<unset $phase>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Shortage Fetch
+<<set $outside to 1>><<set $location to "town">><<effects>>
+"Keep serving the customers," you tell Robin. "I'll go get more."
+<br><br>
+You take some money from the till and hurry to the corner shop. You buy two cartons of $phase,
+then carry them back to the café. They are heavier than you expected,
+so you hold them tightly against your chest as you walk.
+<br><br>
+<<link [[Next|Robin Cafe Shortage Fetch 2]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Fetch 2
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+When you return, Robin is still serving the queue.
+<<He>> has crossed the drinks you cannot make from the board and helped several customers choose something else.
+<br><br>
+You put the fresh $phase into the fridge. As soon as you close the door, Robin steps over and hugs you tightly.
+<br><br>
+"I didn't freeze," <<he>> says. <<He>> pulls back a little, still holding your arms. "I nearly did, but I kept going."
+<<tiredness 2>><<npcincr Robin love 2>><<gtiredness>><<gglove>>
+<br><br>
+<<waiter_default>><<pass 1 hour>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<unset $phase>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Shortage Substitute
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+You lead Robin into the kitchen and check the cupboards for anything you can use.
+<br><br>
+<<if $phase is "milk">>
+	There is no fresh milk left. At the back of one shelf, you find a packet of powdered milk from an old delivery mistake.
+	<br><br>
+	You pour some into a jug, add warm water, then whisk it until no powder remains.
+	Once it is smooth, you place the jug in a bowl of ice water to cool it quickly.
+	<br><br>
+	When the milk is cold enough to use, you hand the jug to Robin and show <<him>> how much powder and water you used.
+<<else>>
+	There is no cream left, but you find milk and butter in the fridge.
+	<br><br>
+	You pour the milk into a cold bowl, then add softened butter a little at a time while whisking.
+	Robin watches as the mixture becomes thicker and smoother.
+	<br><br>
+	Once it is thick enough for the drinks waiting outside, you show Robin how much milk and butter you used.
+<</if>>
+<br><br>
+<<link [[Next|Robin Cafe Shortage Substitute 2]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Substitute 2
+<<effects>>
+Robin makes another batch while you watch. <<He>> checks the amounts carefully,
+then repeats the same steps without needing your help.
+<br><br>
+"We should put that on the stock sheet," <<he>> says. "Not that we ran out. The other thing. What to do when we run out."
+<br><br>
+Sam tastes a little from the second batch. <<He>> gives Robin a nod,
+then takes it out to finish the waiting orders.<<housekeeping 6>><<gghousekeeping>>
+<br><br>
+<<waiter_default>><<pass 1 hour>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<unset $phase>><<endevent>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk
+<<endevent>>
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<npc Robin>><<person1>>
+You find Robin behind the counter with an empty carton in <<his>> hands. <<He>> turns it upside down over the machine,
+but nothing comes out. Robin checks inside the carton again before reaching towards the shelves behind <<him>>.
+<br><br>
+You take the carton from <<his>> hands. "Staff room," you say. "Come on, before Sam sees you panicking."
+<br><br>
+Robin follows you into the staff room. You close the door behind you, leaving the customers and cafe equipment outside.
+<<He>> rests both hands on the counter and takes a slow breath.
+<br><br>
+"We've run out of $phase," <<he>> says. "I checked the fridge, the storage shelves, everything.
+The next delivery isn't here yet, and we've still got customers waiting."
+<br><br>
+<<if $lactating is 1 and $settings.breastFeedingEnabled and hasSexStat("promiscuity", 2)>>
+	<<link [[Offer your own <<breasts>>|Robin Cafe Shortage Milk Breast]]>><</link>>
+	<br>
+<</if>>
+<<if $player.penisExist and $player.penissize gte 3 and hasSexStat("promiscuity", 2)>>
+	<<link [[Offer to be milked yourself|Robin Cafe Shortage Milk Penis]]>><</link>>
+	<br>
+<</if>>
+<<link [[Help Robin slow down and think|Robin Cafe Shortage Reassure]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Breast
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<set $robinCafe.milkPath to "breast">>
+"There's one thing we haven't tried," you say.
+<br><br>
+Robin looks at you as you begin unbuttoning your shirt. <<He>> starts to speak, but stops when <<he>> realises what you mean.
+<<His>> face turns red. <<He>> looks towards the staff-room door, walks over to check the lock, then returns to you.
+<br><br>
+<<overupperstrip>><<upperstrip>><<underupperstrip>>
+You remove the last of your clothing from your chest and <span class="pink">expose your <<breasts>></span>.
+<br><br>
+Robin's eyes drop to them before <<he>> quickly looks back at your face.
+"Are... are you sure?" <<he>> asks. <<He>> raises one hand towards you, but stops before touching you. "Can I...?"
+<br><br>
+You nod. "I want you to."
+<br><br>
+Robin steps closer and places <<his>> hands against the sides of your <<breasts>>.
+<<He>> pauses there, watching your face, before slowly closing <<his>> fingers around them.
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Breast 2]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Breast 2
+<<effects>>
+You lean slightly into <<his>> hands. Robin notices and tries again with a little more pressure,
+moving <<his>> palms over your <<breasts>> while <<his>> thumbs pass across your nipples.
+<br><br>
+<<arousal 500 "breasts">> A quiet moan leaves you when one thumb rubs directly over a nipple.<<garousal>>
+<br><br>
+Robin stops and looks at you. "That felt good?"
+<br><br>
+You nod again.
+<br><br>
+Robin rubs the same spot once more. This time <<he>> watches what <<he>> is doing,
+moving <<his>> thumb slowly over your nipple before pressing around the <<breasts>> with <<his>> other hand.
+You feel pressure build inside it. Robin squeezes from the base towards the nipple,
+and a small drop of milk appears at the tip.
+<br><br>
+<<He>> immediately stops.
+<br><br>
+"Oh," <<he>> says, staring at the drop. "It actually worked."<<npcincr Robin lust 7>><<glust>>
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Breast 3]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Breast 3
+<<effects>>
+Robin brings <<his>> fingers closer and gently presses around your nipple. Another drop follows.
+<<He>> tries again, changing where <<he>> places <<his>> hand until more milk comes out.
+<br><br>
+<<arousal 1000 "breasts">><<ggarousal>>
+<br><br>
+Each time you tense or make a sound, <<he>> slows down and checks your face before continuing.
+<br><br>
+Once <<he>> understands what works, <<his>> movements become more certain. <<He>> supports one <<breasts>>
+with <<his>> palm, presses it towards the nipple, then repeats the motion when another small stream of milk comes out.
+<br><br>
+Robin looks from the milk to you.
+<br><br>
+"We might actually have enough. Sam's never going to believe this is what fixed it," Robin says,
+and leans in to take a nipple into <<his>> mouth before you can answer.
+<<arousal 1500>><<gggarousal>><<npcincr Robin lust 10>><<gglust>>
+<br><br>
+<<He>> sucks gently, pulling milk into <<his>> mouth a little at a time while <<his>> tongue moves over the nipple
+between each pull. The repeated pressure makes your <<breasts>> ache pleasantly as more milk begins to flow,
+and <<he>> swallows it without pulling back.
+<<milkvolume 10>><<milk_amount 20>>
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Breast 4]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Breast 4
+<<effects>>
+While <<he>> drinks, Robin brings <<his>> free hand to your other <<breasts>>. <<He>> cups it from underneath,
+then slowly squeezes it with <<his>> fingers. <<He>> changes the position of <<his>> hand and presses again,
+working from the fuller part of your <<breasts>> towards the nipple.
+<br><br>
+After several squeezes, a small drop of milk forms at the tip.
+<br><br>
+Robin releases the first <<breasts>>, leaving the nipple wet with <<his>> saliva.
+A little milk remains at the corner of <<his>> mouth as <<he>> turns towards your other side.
+<br><br>
+<<He>> takes the second nipple into <<his>> mouth and starts sucking again.
+This time, <<he>> spends more time using <<his>> tongue between each pull,
+rubbing it over the tip before closing <<his>> lips around it again.
+<br><br>
+<<He>> circles the nipple with <<his>> tongue, then gives it a small bite.
+<br><br>
+<<arousal 1500 "breasts">><<gggarousal>> Your shoulders pull back slightly as
+Robin keeps <<his>> mouth against your <<breasts>>.
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Breast 5]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Breast 5
+<<effects>>
+At the same time, <<his>> hand returns to the first <<breasts>>. <<He>> squeezes it with more confidence now,
+pressing from the sides before moving <<his>> fingers closer to the nipple.
+Milk runs over <<his>> fingers and down the front of your <<breasts>>.
+<br><br>
+Robin makes a quiet sound against your nipple when <<he>> sees it.
+<<He>> leans across your chest and catches some of the milk with <<his>> tongue,
+following the wet line over your skin before returning to the nipple.
+<br><br>
+More escapes while <<he>> drinks, leaving thin trails across your chest whenever <<he>> cannot catch it quickly enough.
+<<milkvolume 15>><<milk_amount 30>>
+<br><br>
+Robin finally pulls <<his>> mouth away. <<His>> lips are wet with milk.
+<<He>> wipes at it with the back of <<his>> hand, then looks at your <<breasts>> again.
+"I don't think... I should drink it, right? But—"
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Sex]]>><<set $sexstart to 1>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Penis
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<set $robinCafe.milkPath to "penis">>
+"There's one thing we haven't tried," you say, your fingers moving to your belt.
+You start to undo it while Robin watches your hands, slowly realising what you're suggesting.
+<br><br>
+Robin starts to protest, but the words stop when <<he>> sees what you're doing.
+<<He>> quickly looks towards the door, walks over to check that it's locked, then turns back to you.
+A nervous blush spreads across <<his>> cheeks as <<he>> watches you continue.
+<br><br>
+<<overlowerstrip>><<lowerstrip>><<underlowerstrip>>
+<span class="pink">You free your <<penis>> in front of <<him>></span>, letting it spring into view.
+Robin stares at it with <<his>> eyes wide and <<his>> lips slightly parted.
+<br><br>
+<<His>> eyes move down to your <<penis>> before <<he>> looks back at your face, then down again.
+<br><br>
+Robin swallows before <<he>> manages to speak. "It's really nice... I-I mean, nice shape!"
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Penis 2]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Penis 2
+<<effects>>
+Robin slowly reaches towards you. <<His>> fingertips touch your <<penis>> first,
+caressing along the side as <<he>> watches your reaction. When you stay still and let <<him>> continue,
+<<he>> wraps <<his>> hand around the shaft.
+<br><br>
+The warmth of Robin's palm makes your dick twitch in <<his>> grip.
+<<He>> immediately looks down at it and lets out a small sound of surprise,
+then smiles when <<he>> realises <<his>> touch caused it.
+<br><br>
+Robin moves <<his>> hand experimentally, sliding it down your shaft before bringing it back up.
+Your breathing hitches when <<he>> squeezes a little more firmly.
+Robin notices, and <<he>> adjusts <<his>> fingers around you.
+<br><br>
+After a few strokes, you start moving your hips with <<his>> hand. Each time Robin pulls <<his>> hand back,
+you push forwards into <<his>> grip, making the movement stronger.<<arousal 500 "penis">><<garousal>>
+<br><br>
+Robin notices immediately. <<His>> eyes widen, then <<he>> grins as you do it again.
+"Oh," <<he>> says, clearly delighted. "It actually worked."<<npcincr Robin lust 7>><<glust>>
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Penis 3]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Penis 3
+<<effects>>
+Robin keeps stroking for another few seconds, watching your face whenever your breathing changes.
+Then <<he>> leans closer and presses a kiss against the side of your <<penis>>.<<arousal 1500>><<gggarousal>>
+<br><br>
+<<He>> gives you another kiss slightly higher, then another, slowly working <<his>> way towards the tip.
+When <<he>> reaches it, <<he>> presses <<his>> tongue against the underside and slowly drags it upwards before
+circling around the head.
+<br><br>
+Your hips shift towards <<him>> again, pushing your dick to <<his>> lips.
+Robin glances up at you, then opens <<his>> mouth and closes <<his>> lips around the tip.
+<br><br>
+The warmth of <<his>> mouth makes you gasp.<<arousal 1000 "penis">><<ggarousal>>
+<br><br>
+<<His>> tongue moves around the head while <<he>> keeps one hand around the lower part of your shaft,
+stroking what <<he>> has not taken into <<his>> mouth.
+<br><br>
+Robin closes <<his>> lips a little more firmly around you, then gives the tip a light bite before rubbing <<his>>
+tongue over the same spot. Your hips jerk forwards at the sudden feeling, pushing more of your <<penis>> into <<his>> mouth.
+<br><br>
+<<He>> makes a surprised sound but does not pull away. Instead, <<he>> opens <<his>> mouth wider and takes you deeper,
+adjusting <<his>> position as your hips move towards <<him>> again.
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Penis 4]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Penis 4
+<<effects>>
+Robin's free hand moves between your legs and cups your balls. <<He>> rolls them gently in
+<<his>> palm while continuing to suck you, tightening <<his>> fingers slightly whenever your hips push
+harder towards <<his>> mouth.
+<br><br>
+<<arousal 1500 "penis">> You moan again and press forwards.<<gggarousal>>
+<br><br>
+Robin takes the movement more easily this time, opening <<his>> mouth wider before lowering
+<<his>> head along your <<penis>>, bobbing <<his>> head.
+<br><br>
+After another slow pass of <<his>> tongue over the tip, Robin pulls back just to speak,
+"Sam's never going to believe this is what fixed it," <<he>> says, breathing a little faster.<<npcincr Robin lust 10>><<gglust>>
+<br><br>
+Robin gradually takes you deeper with each movement. When <<he>> reaches the back of <<his>> throat,
+<<he>> holds you there briefly before pulling back enough to breathe, then lowers <<his>> head again.
+<br><br>
+Your legs begin to shake as your hips move forwards on their own.
+Robin braces one hand against your thigh when you push harder, keeping close instead of pulling away.
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Penis 5]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Penis 5
+<<effects>>
+Robin's other hand moves beneath your cock and cups your balls again.
+<<He>> rolls them carefully between <<his>> fingers while continuing to suck you,
+occasionally squeezing them when your hips press further into <<his>> mouth.
+<br><br>
+Whenever Robin pulls back towards the tip, <<his>> tongue moves around the head before <<he>> takes you deeper again.
+<<He>> alternates between sucking and pressing <<his>> tongue against the underside,
+keeping <<his>> mouth around you as your thrusts become less controlled.
+<br><br>
+A quiet moan comes from Robin while your dick is still in <<his>> mouth.
+You feel the sound through <<his>> lips and throat, making your hips jerk forwards again.
+And another pass of Robin's tongue over the head makes your cock twitch inside <<his>> mouth.
+<br><br>
+<<orgasm>>
+You gasp as you finally come. Your hips push forwards while your dick jerks against Robin's tongue,
+spilling into <<his>> mouth and throat. Robin freezes for a second at the first taste, then swallows
+each time your cock twitches.
+<br><br>
+Only after you stop does <<he>> slowly pull back. Your <<penis>> slips from <<his>> mouth, leaving <<his>> lips wet.
+<br><br>
+Robin wipes the corner of <<his>> mouth with the back of <<his>> hand. "I don't think... I should drink it, right? But—"
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Sex]]>><<set $sexstart to 1>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Sex
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust += 500>><<npckiss>>
+	<<set $enemyarousalmax to 600>>
+	<<set $enemyarousalmax to $enemyarousalmax * ($nnpcArousalMult / 100)>>
+<</if>>
+<<set $enemyanger to 0>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Robin Cafe Shortage Milk Sex Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Robin Cafe Shortage Milk Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Robin Cafe Shortage Milk Sex Finish
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>><<npcincr Robin lust -20>>
+	Robin keeps <<his>> arms around you for a few seconds, grinning as <<he>> takes <<his>> breath.
+	<br><br>
+<<elseif $enemyhealth lte 0>>
+	"Ow!" Robin says as <<he>> pulls back from you. Despite the complaint, <<he>> is still smiling.
+	<br><br>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	Robin stays close for a few seconds before finally letting you go. <<He>> gives you a tired smile.
+	<br><br>
+<</if>>
+You both look towards the door and remember that you are still in the café storeroom.
+<<endcombat>>
+<<link [[Next|Robin Cafe Shortage Milk Sex Finish 2]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Sex Finish 2
+<<effects>>
+Robin quickly reaches for <<his>> clothes. You do the same,
+pulling everything back into place before someone comes looking for you.<<silently>><<clotheson>><</silently>>
+<br><br>
+Once <<he>> is dressed, Robin strokes <<his>> own hair and looks at <<his>> reflection in the fridge door.
+<<He>> tries to fix it, stops after a few seconds, then turns back to you.
+<br><br>
+<<switch $robinCafe.milkPath>>
+<<case "breast">>
+	"That's probably the least useful way we could have dealt with running out of milk,"
+	<<he>> says. <<He>> wipes <<his>> mouth with the back of <<his>> hand.
+	"I wasn't actually going to put any of it in someone's coffee. I just wanted an excuse to do that with you."
+<<case "penis">>
+	"Well, that didn't help with the milk," <<he>> says. <<He>> takes another breath before giving you a small smile. "I knew it wouldn't. I just wanted an excuse."
+<<default>>
+	"That didn't solve the milk problem at all," you say.
+	<br><br>
+	Robin laughs. "No. I know! Still worth it, though."
+<</switch>>
+<<unset $robinCafe.milkPath>>
+<br><br>
+<<link [[Next|Robin Cafe Shortage Milk Sex Finish 3]]>><</link>>
+<br>
+
+:: Robin Cafe Shortage Milk Sex Finish 3
+<<effects>>
+You leave the storeroom together and return to the counter.
+Sam is already standing beside the coffee machine. A fresh carton of milk sits next to <<him>>.
+<br><br>
+"Found another one behind the flour," <<he>> says while opening it. "We keep some spare stock back there."
+<br><br>
+Robin stops beside you.
+<br><br>
+Sam glances between the two of you. "Found it while you were busy in the back."
+<br><br>
+Robin's face turns red. <<He>> quickly walks back to <<his>> place behind the counter and starts
+working again without replying to Sam.<<npcincr Robin love 3>><<gglove>>
+<br><br>
+<<waiter_default>><<pass 1 hour>>
+<br><br>
+<<link [[Next|Ocean Breeze]]>><<unset $phase>><<endevent>><</link>>
+<br>

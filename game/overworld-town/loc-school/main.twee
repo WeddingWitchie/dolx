@@ -52,6 +52,7 @@
 <</if>>
 
 <<schoolperiodtext>>
+<<schoolDisciplineStatus>>
 <<if ["intro", "discover"].includes($weekly.schoolNightPoolParty) and Time.hour gte 21 and $passagePrev is "hallway">><<set $weekly.schoolNightPoolParty to "admission">><</if>>
 <<if $stress gte $stressmax>>
 	<<if isPregnancyEnding()>>
@@ -59,6 +60,20 @@
 	<<else>>
 		<<link [[Everything fades to black...|School Passout]]>><</link>>
 	<</if>>
+<<elseif $exposed lte 0 and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15 and schoolSuspensionDue()>>
+	<!-- Delinquency has run past what detention can answer for: see discipline.js. -->
+	<<npc Leighton>><<person1>>
+	Leighton is standing between you and the entrance, and doesn't move aside.
+	<br><br>
+	<<link [[Next|School Suspension Notice]]>><<endevent>><</link>>
+	<br>
+<<elseif $exposed lte 0 and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15 and schoolSuspended() and $schoolDiscipline.notice is "ran">>
+	<<link [[Next|School Service Absconded]]>><</link>>
+
+<<elseif $exposed lte 0 and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15 and schoolSuspended() and $schoolDiscipline.notice is "warn">>
+	<<link [[Next|School Service Warning]]>><</link>>
+	<br>
+
 <<elseif $adultshopintro is undefined and $adultshopunlocked is undefined and $adultshopintrosirris is undefined and $schoolstate is "afternoon" and Time.weekDay is 6 and $exposed lte 0>>
 	<<set $adultshopintrosirris to 1>>
 
@@ -99,7 +114,11 @@
 			<<sneakicon>><<link [[Sneak behind the school (0:05)|School Rear Courtyard]]>><<pass 5>><</link>>
 			<br>
 		<<else>>
-			<<if _whitneyXChangeFirstMeeting>>
+			<<schoolDisciplineOptions>>
+			<<if schoolSuspended() and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15>>
+				<span class="red">You're not allowed inside while you're suspended.</span>
+				<br>
+			<<elseif _whitneyXChangeFirstMeeting>>
 				<<entranceicon>><<link [[Enter the school (0:01)|Bully XChange Reaction]]>><<pass 1>><</link>>
 			<<elseif _whitneyXChangeFollowUp>>
 				<<entranceicon>><<link [[Enter the school (0:01)|Bully XChange Lie Follow Up]]>><<pass 1>><</link>>
@@ -235,7 +254,12 @@
 				<br>
 			<</if>>
 			<<smokeHere "school" "School Rear Courtyard">>
-			<<entranceicon>><<link [[Enter the school (0:01)|Hallways]]>><<pass 1>><</link>>
+			<<if schoolSuspended() and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15>>
+				<!-- The head watches the front gate, not the back. Going in anyway is trespassing. -->
+				<<sneakicon>><<link [[Slip in the back way (0:01)|Hallways]]>><<pass 1>><<detention 3>><</link>><<ggdelinquency>>
+			<<else>>
+				<<entranceicon>><<link [[Enter the school (0:01)|Hallways]]>><<pass 1>><</link>>
+			<</if>>
 			<br>
 			<<schoolicon "courtyard">><<link [[Front courtyard (0:02)|School Front Courtyard]]>><<pass 2>><</link>>
 			<br><br>

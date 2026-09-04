@@ -251,8 +251,68 @@
 						</div>
 					<</for>>
 				</div>
+			<<case "outfit">>
+				/* One folded serving outfit. Each garment is the only copy: see pocket-outfit.js. */
+				<div class="dolx-pocket-toy-list">
+					<<for _outfitIndex to 0; _outfitIndex lt $pocket.outfit.pieces.length; _outfitIndex++>>
+						<<capture _outfitIndex>>
+							<<set _outfitPiece to $pocket.outfit.pieces[_outfitIndex]>>
+							<div class="dolx-pocket-item-row dolx-pocket-toy-row">
+								<span class="dolx-pocket-item-name">
+									<span class="teal"><<= pocketOutfitPieceName(_outfitPiece.slot, _outfitPiece.item).toLocaleUpperFirst()>></span>
+								</span>
+								<span class="dolx-pocket-item-actions">
+									<<link "Take out">>
+										<<run pocketOutfitUnpack(_outfitIndex)>>
+										<<replace #pocketPane>><<pocketBagContents>><</replace>>
+									<</link>>
+								</span>
+							</div>
+						<</capture>>
+					<</for>>
+				</div>
 		<</switch>>
 	</div>
+<</widget>>
+
+<<widget "pocketPackOutfitList">>
+	<div class="small-description">The whole outfit takes one slot. Maid, butler and waiting clothes only, and only what's in this wardrobe.</div>
+	<br>
+	<<if $pocket.outfit.pieces.length gt 0>>
+		<span class="teal">Folded up:</span>
+		<div class="dolx-pocket-arrange">
+			<<for _packedIndex to 0; _packedIndex lt $pocket.outfit.pieces.length; _packedIndex++>>
+				<<capture _packedIndex>>
+					<<set _packedPiece to $pocket.outfit.pieces[_packedIndex]>>
+					<div class="dolx-pocket-arrange-row">
+						<span class="dolx-pocket-arrange-name"><<= pocketOutfitPieceName(_packedPiece.slot, _packedPiece.item).toLocaleUpperFirst()>></span>
+						<<link [[Put back|Pocket Pack Outfit]]>><<run pocketOutfitUnpack(_packedIndex)>><</link>>
+					</div>
+				<</capture>>
+			<</for>>
+		</div>
+		<br>
+	<</if>>
+	<<set _outfitBlocked to pocketOutfitPackBlocked()>>
+	<<set _outfitCandidates to pocketOutfitCandidates()>>
+	<<if _outfitCandidates.length is 0>>
+		<div class="dolx-pocket-empty">There's nothing in here a maid or a butler would wear.</div>
+	<<else>>
+		<div class="dolx-pocket-arrange">
+			<<for _outfitOption range _outfitCandidates>>
+				<<capture _outfitOption>>
+					<div class="dolx-pocket-arrange-row">
+						<span class="dolx-pocket-arrange-name"><<= _outfitOption.name.toLocaleUpperFirst()>></span>
+						<<if _outfitBlocked isnot "">>
+							<span class="grey"><<= _outfitBlocked>></span>
+						<<else>>
+							<<link [[Fold up|Pocket Pack Outfit]]>><<run pocketOutfitPack(_outfitOption.slot, _outfitOption.index)>><</link>>
+						<</if>>
+					</div>
+				<</capture>>
+			<</for>>
+		</div>
+	<</if>>
 <</widget>>
 
 <<widget "pocketEatReport">>
@@ -391,3 +451,15 @@
 	<br><br>
 	<<link [[Next|_pocketFoodDestination]]>><<unset $pocketFoodReturn>><</link>>
 <</if>>
+
+:: Pocket Pack Outfit [exitCheckBypass]
+<<effects>>
+<<run pocketOutfitEnsure()>>
+<<run pocketSyncBag()>>
+<<set _outfitReturn to $pocketOutfitReturn or "Wardrobe">>
+<span class="gold bold">Fold an outfit set into your <<if pocketBagItem()>><<bagname>><<else>>pocket<</if>>.</span>
+<br><br>
+<<pocketPackOutfitList>>
+<br>
+<<link "Done" _outfitReturn>><<unset $pocketOutfitReturn>><</link>>
+<br>

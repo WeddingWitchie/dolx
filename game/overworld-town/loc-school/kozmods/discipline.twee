@@ -1,0 +1,487 @@
+:: School Discipline Widgets [widget]
+/* Status line shown in the front courtyard while a suspension is being served. */
+<<widget "schoolDisciplineStatus">>
+	<<run ensureSchoolDiscipline()>>
+	<<if $schoolDiscipline.suspended is 1>>
+		<span class="red">You're suspended.</span>
+		<<if $schoolDiscipline.serviceDone gte $schoolDiscipline.serviceRequired>>
+			You've served every session the school asked for.
+			<<if $schoolDiscipline.daysLeft gt 0>>
+				<span class="blue">There are still <<print $schoolDiscipline.daysLeft>> day<<if $schoolDiscipline.daysLeft isnot 1>>s<</if>> left on the suspension itself.</span>
+			<</if>>
+		<<else>>
+			<span class="blue">Community service: <<print $schoolDiscipline.serviceDone>> of <<print $schoolDiscipline.serviceRequired>> sessions done.</span>
+			<<if $schoolDiscipline.serviceMissed gt 0>>
+				<span class="red">You've skipped <<print $schoolDiscipline.serviceMissed>>.</span>
+			<</if>>
+		<</if>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* Links the courtyard offers a suspended PC: the service muster, and the readmission meeting. */
+<<widget "schoolDisciplineOptions">>
+	<<run ensureSchoolDiscipline()>>
+	<<if $schoolDiscipline.suspended is 1>>
+		<<if schoolReadmissionDue() and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15>>
+			<<schoolicon "headdesk">><<link [[See the head about coming back|School Readmission]]>><<pass 5>><</link>>
+			<br>
+		<<elseif schoolServiceAvailable()>>
+			<<if $exposed gte 1>>
+				<span class="blue">You can't report for community service while you're this exposed.</span>
+				<br>
+			<<else>>
+				<<schoolicon "courtyard">><<link [[Report for community service|School Service Report]]>><<pass 5>><</link>>
+				<br>
+			<</if>>
+		<<elseif $schoolDiscipline.servedToday is 1>>
+			<span class="blue">You've done your service for today.</span>
+			<br>
+		<<elseif $schoolDiscipline.leftToday is 1>>
+			<span class="red">You walked out on today's session. The van has gone.</span>
+			<br>
+		<<elseif schoolReadmissionDue()>>
+			<span class="blue">You've done everything the school asked. You need to catch the head during school hours.</span>
+			<br>
+		<<elseif !Time.schoolDay>>
+			<span class="blue">There's no service muster at the weekend.</span>
+			<br>
+		<<elseif Time.hour lt 9>>
+			<span class="blue">The service muster isn't until nine.</span>
+			<br>
+		<<else>>
+			<span class="blue">You've missed today's service muster.</span>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+:: School Late Slip
+<<endevent>>
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<set $daily.school.lateSlip to 1>>
+You are halfway down the corridor before you remember the rule.
+<br><br>
+You have been late often enough that no teacher will let you into a lesson without a slip from the head.
+Before you can go to class, you have to report to Leighton's office and get one.
+<br><br>
+You turn around, walk back past the stairs, and open the office door.
+<br><br>
+<<link [[Next|School Late Slip 2]]>><<pass 10>><</link>>
+<br>
+
+:: School Late Slip 2
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>><<npc Leighton>><<person1>>
+Leighton sits behind <<his>> desk with a pad of late slips in front of <<him>>.
+<<He>> keeps looking at the paperwork on <<his>> desk as you approach.
+<br><br>
+"Name and lesson," <<he>> says, pushing the pad closer.
+<br><br>
+<<if $delinquency gte 700>>
+	You start to answer, but <<he>> begins writing before you finish.
+	"I've filled out enough of these for you to remember most of it."
+<<elseif $delinquency gte 500>>
+	<<He>> looks at the clock before writing your name on the slip.
+	"Third time in two weeks, isn't it?"
+<<else>>
+	<<He>> writes your name and lesson on the slip, then tears it from the pad.
+<</if>>
+<br><br>
+<<if $delinquency gte 700>>
+	Leighton finishes writing and puts the pen down.
+	"If you keep arriving late, I won't keep giving you slips. I'll start sending letters home instead."
+	<br><br>
+<</if>>
+<<He>> holds the slip towards you. When you take it, <<he>> keeps hold of the other end for a second.
+"You need this before your teacher will let you into the lesson.
+Next time, leave enough time to get here before class starts."<<stress 3>><<gstress>>
+<br><br>
+<<He>> releases the slip, leaving it in your hand.
+<br><br>
+<<link [[Next|School Late Slip Go]]>><<pass 5>><</link>>
+<br>
+
+:: School Late Slip Go
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<endevent>>
+<<if ["Science Classroom", "Maths Classroom", "Housekeeping Classroom", "English Classroom", "History Classroom", "School Pool Entrance"].includes($schoolLateSlipTarget)>>
+	<<set _target to $schoolLateSlipTarget>>
+<<else>>
+	<<set _target to "Hallways">>
+<</if>>
+<<unset $schoolLateSlipTarget>>
+You take the slip and head for the lesson.
+<br><br>
+<<link "Next" _target>><<set $justEntered to true>><<pass 1>><</link>>
+<br>
+
+:: School Suspension Notice
+<<endevent>>
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<npc Leighton>><<person1>>
+<<run schoolSuspensionBegin()>>
+Leighton is waiting for you in the corridor. <<He>> does not have <<his>> usual detention pad with <<him>>.
+<br><br>
+"My office. Now."
+<br><br>
+You follow <<him>> inside.
+<br><br>
+<<link [[Next|School Suspension Notice 2]]>><</link>>
+<br>
+
+:: School Suspension Notice 2
+<<effects>>
+Leighton sits behind the desk and opens a file filled with reports about your behaviour at school.
+<<He>> turns the file towards you so you can see them.
+"I chose not to punish you more seriously for these incidents... And that ends today."
+<br><br>
+<<if $schoolDiscipline.suspensions is 1>>
+	<<He>> glares at you. "<span class="red">You're suspended for <<print $schoolDiscipline.daysLeft>> school days</span>, starting today."
+<<else>>
+	<<He>> glares at you. "<span class="red">You're suspended again</span>. This time, it's <<print $schoolDiscipline.daysLeft>> school days.
+	Your last suspension clearly wasn't enough to stop this behaviour."
+<</if>>
+<br><br>
+You stay in front of the desk, waiting while Leighton reaches into a drawer and takes out another sheet.
+"Don't treat the suspension as time off.
+You still have to report to the front gate at nine every school day during your suspension."
+<br><br>
+<<He>> places the second sheet beside the file.
+"The council has arranged community service for you. You must complete <<print $schoolDiscipline.serviceRequired>> sessions.
+Miss a required session, and your punishment will be extended."
+<br><br>
+Leighton signs the sheet and pushes it across the desk towards you.
+"Now leave the school grounds."
+<<stress 12>><<ggstress>><<trauma 3>><<gtrauma>>
+<br><br>
+<<link [[Leave|School Gate Exit]]>><<endevent>><<schoolclothesreset>><</link>>
+<br>
+
+:: School Service Warning
+<<endevent>>
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+<<npc Leighton>><<person1>>
+<<run ensureSchoolDiscipline()>>
+<<set $schoolDiscipline.notice to "">>
+Leighton is waiting by the school gate when you arrive, holding a clipboard against <<his>> chest.
+<br><br>
+<<He>> speaks as soon as <<he>> sees you. "You've missed <<print $schoolDiscipline.serviceMissed>> community service sessions."
+<br><br>
+<<if $speech_attitude is "bratty">>
+	You start to explain yourself, but <<he>> raises a hand before you get far. You stop speaking.
+<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+	You lower your eyes. Leighton waits until you look back at <<him>> before continuing.
+<<else>>
+	You stay quiet. Leighton gives you a few seconds to answer, then continues.
+<</if>>
+<br><br>
+"I need you to understand what happens if you keep missing them," <<he>> says.
+"Community service is your last chance to deal with this through the school. If you keep skipping it,
+I'll have to report it to the governors. After that, I won't be the one deciding what happens to you."
+<br><br>
+<<He>> lowers the clipboard and checks the page.
+<br><br>
+"You still <span class="red">have <<print Math.max($schoolDiscipline.serviceRequired - $schoolDiscipline.serviceDone, 0)>> sessions left to complete</span>. Start today."
+<<stress 8>><<ggstress>>
+<br><br>
+<<link [[Next|School Front Courtyard]]>><<endevent>><</link>>
+<br>
+
+:: School Service Absconded
+<<endevent>>
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+<<npc Leighton>><<person1>><<run ensureSchoolDiscipline()>>
+<<set $schoolDiscipline.notice to "">>
+Leighton is waiting just inside the school gate with a sheet of paper in <<his>> hand. When you get closer,
+<<he>> raises it so you can see your name.
+<br><br>
+"The supervisor sent this to me last night," <<he>> says. "It says you left before finishing your work yesterday."
+<br><br>
+<<if $speech_attitude is "bratty">>
+	You tell <<him>> the work was pointless and you were wasting your time there.
+	Leighton waits until you finish before answering. "You were still supposed to stay until the session was over."
+<<elseif $speech_attitude is "meek" or $speech_attitude is "shy">>
+	You start to apologise, but Leighton stops you before you finish.
+	"I don't need an apology. You still owe the time you missed."
+<<else>>
+	You stay quiet instead of making an excuse. Leighton watches you for a second, then lowers the paper.
+	"At least you're not going to pretend it didn't happen."
+<</if>>
+<br><br>
+<<link [[Next|School Service Absconded 2]]>><</link>>
+<br>
+
+:: School Service Absconded 2
+<<effects>>
+"The supervisor could have refused to let you come back," Leighton says. "I spoke to <<him>>,
+and <<he>> agreed to give you another chance."
+<br><br>
+Leighton folds the paper and puts it in <<his>> pocket.
+<br><br>
+"If you leave early again, I won't ask <<him>> to take you back."<<detention 2>><<stress 12>><<ggstress>><<gdelinquency>>
+<br><br>
+<span class="purple">The session you left early has been added back to the work you still need to complete</span>.
+You have also received one extra session for leaving.
+<<set _serviceOwed to schoolServiceAbscondPenalty()>>
+<br><br>
+You still <span class="red">have <<print _serviceOwed>> session<<if _serviceOwed isnot 1>>s<</if>> left to complete</span>.
+<br><br>
+<<link [[Next|School Front Courtyard]]>><<endevent>><</link>>
+<br>
+
+:: School Readmission
+<<endevent>>
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<npc Leighton>><<person1>>
+<<set _missed to $schoolDiscipline.serviceMissed>>
+<<run schoolReadmit()>>
+Leighton looks over the record of your community service,
+checking each completed session before placing the sheet on <<his>> desk.
+<<if _missed is 0>>
+	"You attended every session and completed all of them. I was expecting to have to extend your punishment."
+	<br><br>
+	<<He>> slides your timetable across the desk towards you. "You can return to lessons from today. Try not to give me another reason to suspend you."
+<<else>>
+	<br><br>
+	"You missed <<print _missed>> <<if _missed is 1>>session<<else>>sessions<</if>>, and someone had to remind you to attend," <<he>> says,
+	looking over the sheet again. "Still, you've completed everything required."
+	<br><br>
+	<<He>> slides your timetable across the desk towards you. "You can return to lessons. I would prefer not to suspend you again."
+<</if>>
+<br><br>
+<span class="green">Your suspension has ended.</span> You can attend lessons again.
+<<stress -12>><<lllstress>>
+<br><br>
+<<link [[Next|Hallways]]>><<endevent>><</link>>
+<br>
+
+:: School Service Report
+<<endevent>>
+<<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
+<<run ensureSchoolDiscipline()>>
+<<generate1>><<person1>>
+
+A council van is parked outside the school gate. A <<person>> wearing a bright safety jacket
+stands beside it with a list of names.
+<br><br>
+<<He>> checks the list, finds your name, then marks it with a pen.
+"Right. You're with me until eleven."
+<br><br>
+<<if $schoolDiscipline.serviceDone is 0>>
+	<<He>> hands you a safety jacket several sizes too big and a worn pair of work gloves.
+	"Rules are simple. Do the work and I sign off your hours. Leave before we're finished and I don't."
+<<elseif $schoolDiscipline.serviceDone gte $schoolDiscipline.serviceRequired - 1>>
+	<<He>> checks the list again.
+	"Last one, isn't it? Finish this properly and you're done."
+<<else>>
+	<<He>> takes a safety jacket from the van and hands it to you.
+	"Same one as last time," <<he>> says.
+<</if>>
+<br><br>
+<<link [[Next|School Service Report 2]]>><</link>>
+<br>
+
+:: School Service Report 2
+<<effects>>
+<<set $phase to random(1, 3)>>
+<<if $phase is 1>>
+	You climb into the van with the other workers. It takes you to the park, where litter has been left across the grass behind the fountain.
+	<br><br>
+	The <<person>> gives you a rubbish bag and a litter picker, then points towards the grass.
+<<elseif $phase is 2>>
+	The van takes you to the high street. Someone has covered part of a wall with graffiti.
+	The <<person>> hands you a bucket and a wire brush.
+	<br><br>
+	"Start there," <<he>> says, pointing to the nearest section of paint.
+<<else>>
+	Instead of getting into the van, the <<person>> leads you back through the school gate.
+	<br><br>
+	<<He>> takes you to a corridor, puts a mop and bucket in front of you, then points down the floor.
+	"Start here. Do the whole corridor."
+<</if>>
+<br><br>
+<<link [[Get to work (2:00)|School Service Work]]>><<pass 120>><</link>>
+<br>
+<<set $skulduggerydifficulty to 400>>
+<<link [[Slip away while <<hes>> not looking|School Service Slip Away]]>><<pass 5>><</link>><<skulduggerydifficulty>>
+<br>
+<<link [[Put the jacket down and walk off|School Service Walk Off]]>><<pass 5>><</link>>
+<br>
+
+:: School Service Slip Away
+<<set $outside to $phase is 3 ? 0 : 1>><<set $location to "school">><<schooleffects>><<effects>>
+<<skulduggerycheck>>
+<br><br>
+<<if $skulduggerysuccess is 1>>
+	You wait until the <<person>> turns away and starts moving things around in the back of the van.
+	While <<he>> is busy, you walk away without saying anything.<<stress -3>><<lstress>>
+	<br><br>
+	You continue down the road without rushing. When you finally look back, the van is too far away for you to see.
+	The <<person>> did not notice you leave, so <<he>> does not stop you or mark the session as completed.
+	<br><br>
+	<<run schoolServiceSlipAway()>>
+	<<set _serviceExit to $phase is 1 ? "Park" : ($phase is 2 ? "High Street" : "Oxford Street")>>
+	<<link [[Leave|_serviceExit]]>><<endevent>><<schoolclothesreset>><</link>>
+	<br>
+<<else>>
+	You wait until the <<person>> turns towards the back of the van, then start walking away.
+	<br><br>
+	You only make it a short distance before <<he>> notices. "Where do you think you're going?"
+	<br><br>
+	You stop and look back. The <<person>> remains beside the van, watching to see what you do next.
+	You can return and finish the work, or keep walking and leave the session early.
+	<br><br>
+	<<link [[Keep walking|School Service Walk Off]]>><</link>>
+	<br>
+	<<link [[Go back and work|School Service Work]]>><<pass 120>><</link>>
+	<br>
+<</if>>
+
+:: School Service Walk Off
+<<set $outside to $phase is 3 ? 0 : 1>><<set $location to "school">><<schooleffects>><<effects>>
+<<run schoolServiceAbscond()>>
+You take off the safety jacket, leave it on the bench, and walk away from the work session.<<stress -6>><<lstress>>
+<br><br>
+The <<person>> watches you leave. <<He>> does not try to stop you. Instead,
+<<he>> takes a pen from <<his>> pocket and marks your name on the attendance sheet.
+<br><br>
+"Fine," <<he>> calls after you. "<span class="red">I'll report that you left early</span>."
+<<ggdelinquency>><<delinquency 3>>
+<br><br>
+<<set _serviceExit to $phase is 1 ? "Park" : ($phase is 2 ? "High Street" : "Oxford Street")>>
+<<link [[Leave|_serviceExit]]>><<endevent>><<schoolclothesreset>><</link>>
+<br>
+
+:: School Service Work
+<<set $outside to $phase is 3 ? 0 : 1>><<set $location to "school">><<schooleffects>><<effects>>
+<<if $phase is 1>>
+	You walk along the grass with a litter picker in one hand and a rubbish sack in the other.
+	Before long, the sack starts pulling heavily against your arm.
+	<br><br>
+	You pick up bottles, wrappers, empty cans, and even an old shoe.
+	Students and other people pass along the nearby path while you work.
+	Some glance at you as they go, making it obvious that they know why you are here.<<status -10>><<llcool>>
+	<br><br>
+	<<if $exhibitionism gte 35>>
+		Instead of hiding from the attention,
+		you find yourself standing a little straighter whenever someone looks your way.<<stress -3>><<lstress>>
+	<<else>>
+		You keep your eyes on the ground and focus on filling the sack, trying not to notice who is watching you.
+		<<stress 6>><<gstress>>
+	<</if>>
+	<<tiredness 8>><<gtiredness>>
+<<elseif $phase is 2>>
+	You spend the morning removing paint from a wall. You press the tool against one small section at a time,
+	rubbing until the paint finally starts to come away.
+	<br><br>
+	Your shoulders begin to ache, but there is still plenty left to clean.
+	<br><br>
+	<<if $schoolDiscipline.serviceDone gte 3>>
+		You have done this enough times to know what works.
+		You start at the top and clean one small area before moving to the next, finishing each section before going lower.
+	<<else>>
+		Some of the paint spreads across the wall instead of coming off.
+		The <<person>> points out the marks and makes you clean those areas again.
+	<</if>>
+	<<tiredness 10>><<stress 6>><<gtiredness>><<gstress>>
+	<br><br>
+	Two students from your year walk past on the other side of the road.
+	One says something to the other while looking towards you, and they both laugh before continuing on.
+	<<status -10>><<llcool>>
+<<else>>
+	You spend the next two hours cleaning the school corridors.
+	You mop the science block from one end to the other, then clean the stairs.
+	<br><br>
+	When you return, the <<person>> points out several marks left on the floor,
+	so you have to mop part of the corridor again.
+	<br><br>
+	<<if $schoolstate is "lunch" or $schoolstate is "third">>
+		The school bell rings. A few moments later, students begin filling the corridor.
+		<br><br>
+		You move against the wall and hold the mop close to yourself so people can pass.
+		Several students look at you while they walk by,
+		and you have to stand there until the corridor is clear enough to continue.
+		<<stress 8>><<gstress>><<status -10>><<llcool>>
+	<<else>>
+		Very few people pass through this part of the school.
+		Without anyone watching you, the work feels easier to get through.
+		<<stress -3>><<lstress>>
+	<</if>>
+<</if>>
+<br><br>
+<<link [[Next|School Service Work 2]]>><</link>>
+<br>
+
+:: School Service Work 2
+<<effects>><<set _last to schoolServiceComplete()>>
+When done, the <<person>> takes your sheet and signs it after checking that your work is finished.
+<span class="green">One session down.</span>
+<br><br>
+<<if _last>>
+	<<if $schoolDiscipline.daysLeft gt 0>>
+		"That's your lot," <<he>> says, tucking the clipboard under <<his>> arm.
+		"School still won't have you back for another <<print $schoolDiscipline.daysLeft>> day<<if $schoolDiscipline.daysLeft isnot 1>>s<</if>>, mind.
+		That part's not mine."
+		<<else>>
+		"That's your lot," <<he>> says, tucking the clipboard under <<his>> arm. "Go and get yourself signed back in."
+	<</if>>
+	<br><br>
+<</if>>
+<<link [[Next|School Front Courtyard]]>><<endevent>><</link>>
+<br>
+
+:: School Duty Cleaning
+<<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<set $daily.school.detentionAttended to 1>>
+<<if $phase is 1>>
+	The changing rooms are filthy after a swimming lesson. Wet footprints cover the floor,
+	the benches are covered in water, and Leighton leaves you to clean all of it.
+	<br><br>
+	You rinse the mop until the water runs clearer, then wipe down the benches before starting on the floor.
+	Water from the mop splashes onto the benches again, forcing you to wipe them a second time.
+	<br><br>
+	Someone has also left a wet sock beneath one of the benches. You try to ignore it,
+	but eventually pick it up and throw it away with the rest of the rubbish.
+	<<tiredness 8>><<gtiredness>>
+<<elseif $phase is 2>>
+	"Clean under the desks as well," Leighton tells you before leaving.
+	<br><br>
+	You spend the next forty minutes kneeling beside each desk in an empty classroom.
+	Old chewing gum has been stuck underneath many of them, so you use a plastic scraper to remove it piece by piece.
+	<br><br>
+	<<if $exhibitionism gte 35 and $worn.lower.type.includes("skirt")>>
+		Working on the floor in a skirt makes the position awkward.
+		You keep adjusting your clothes as you move from one desk to the next, but nobody enters the classroom.
+		<<arousal 200>><<garousal>>
+	<<else>>
+		Your knees begin to hurt before you reach the last row.
+		The edge of the plastic scraper wears down as you work, but several desks still have gum stuck beneath them.
+	<</if>>
+	<<tiredness 8>><<gtiredness>>
+<<else>>
+	Leighton makes you empty every bin in the ground-floor classrooms and carry the rubbish outside to the yard.
+	<br><br>
+	There is a trolley nearby, but Leighton tells you that only staff are allowed to use it.
+	You have to carry the bags out by hand, making several trips between the classrooms and the yard.
+	<br><br>
+	By the fourth trip, the smell bothers you less than having to walk past the unused trolley again.
+	<<tiredness 10>><<gtiredness>>
+<</if>>
+<br><br>
+<<link [[Next|School Duty Cleaning 2]]>><</link>>
+<br>
+
+:: School Duty Cleaning 2
+<<effects>>
+When you finish, Leighton returns to inspect your work. <<He>> walks through the area slowly,
+checking what you cleaned before coming back to you.
+<br><br>
+<<if $delinquency gte 700>>
+	"Better," <<he>> says. "You've had plenty of practice."
+<<else>>
+	"It'll do," <<he>> says. "You can always come back tomorrow if you enjoyed it."
+<</if>>
+<<stress 6>><<gstress>><<delinquency -3>><<lldelinquency>>
+<br><br>
+<<link [[Next|Hallways]]>><<endevent>><</link>>
+<br>
