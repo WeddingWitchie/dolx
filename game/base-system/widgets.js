@@ -114,9 +114,15 @@ function makeupPartEquipped(part) {
 }
 window.makeupPartEquipped = makeupPartEquipped;
 
+/* Whether the player has both sets of genitals, so their exposed body reads as neither sex on genitals alone. */
+function playerGenitalsAmbiguous() {
+	return !!(V.player?.penisExist && V.player?.vaginaExist);
+}
+window.playerGenitalsAmbiguous = playerGenitalsAmbiguous;
+
 /* Calculate the player's gender appearance if their genitals and chest are exposed */
 function nudeGenderAppearance() {
-	if (V.settings.nudeGenderPerception === 2 && !playerChastity("hidden")) return V.player.sex;
+	if (V.settings.nudeGenderPerception === 2 && !playerChastity("hidden") && !playerGenitalsAmbiguous()) return V.player.sex;
 
 	genderappearancecheck();
 	T.apparent_femininity_nude += (V.player.breastsize - 0.5) * 100;
@@ -126,7 +132,9 @@ function nudeGenderAppearance() {
 		This can leave femininity undefined, so use 300 as the fallback value. */
 		const _hiddenFemininity = setup.clothes.genitals[clothesIndex("genitals", V.worn.genitals)].femininity;
 		T.apparent_femininity_nude += _hiddenFemininity !== undefined ? _hiddenFemininity : 300;
-	} else if (V.settings.nudeGenderPerception === 1) {
+	} else if (V.settings.nudeGenderPerception === 1 && !playerGenitalsAmbiguous()) {
+		/* A hermaphrodite body carries both, so the genitals settle nothing and the rest of the body decides the read.
+		Scoring them anyway let one side outweigh the other, which flipped an androgynous player to "boy" the moment they undressed. */
 		if (V.player.penisExist) T.apparent_femininity_nude += (-V.player.penissize - 0.5) * 150;
 		if (V.player.vaginaExist) T.apparent_femininity_nude += 450;
 	}
@@ -176,8 +184,11 @@ function perceivedGender() {
 
 	// Genitals visible then reconsider.
 	if (setting === 2) {
-		// "Judge": genitals decide, full stop. Hermaphrodite falls back to appearance.
-		return V.player.penisExist && V.player.vaginaExist ? V.player.gender_appearance : V.player.sex;
+		// "Judge": genitals decide, full stop. A hermaphrodite settles nothing that way, so they're read the same as when clothed.
+		if (playerGenitalsAmbiguous()) {
+			return Math.abs(V.player.femininity) <= ANDROGYNOUS_FEMININITY_DEADZONE ? "n" : V.player.gender_appearance;
+		}
+		return V.player.sex;
 	}
 
 	// Setting 1: re-run the nude calculation, which weights the whole body
