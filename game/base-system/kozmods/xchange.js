@@ -1264,8 +1264,8 @@ window.xchangePillProtectionActive = xchangePillProtectionActive;
 function playerMayBeSpiked() {
 	if (V.statFreeze) return false;
 	if (xchangeTherapyActive()) return false;
-	/* Use the same pill checks as the drawer, so spiking follows the same rules and old pregnancy data can't block it forever. */
-	return V.xchange.nonconEnabled === 1 && (playerIsXChanged() || !xchangePregnancyBlocksPill());
+	/* Use the same checks as the drawer. Pregnancy blocks forced pills, even during an active transformation. */
+	return V.xchange.nonconEnabled === 1 && !xchangePregnancyBlocksPill();
 }
 window.playerMayBeSpiked = playerMayBeSpiked;
 

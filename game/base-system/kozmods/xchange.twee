@@ -1880,7 +1880,9 @@
 		<<set _duration to _args[0]>>
 		<<set _effects to _args.slice(1)>>
 
-		<<if !playerIsXChanged()>>
+		/* Final pregnancy check: blocks any new dose while carrying, regardless of how the pill was taken.
+		Scenes handle their own refusal text. Cheats can bypass this with $xchange._cheatDose. */
+		<<if !playerIsXChanged() and (!xchangePregnancyBlocksPill() or $xchange._cheatDose)>>
 			<<save-body>>
 			<<xchange-effects _duration _effects>>
 			<<exposedcheck>>
@@ -1896,7 +1898,7 @@
 		/* Optional args: effect list for the body change, defaulting to ["genderflip"].
 		   e.g. xchange-choice "herm" for a Choice pill that grants both sets of genitals. */
 
-		<<if !playerIsXChanged()>>
+		<<if !playerIsXChanged() and !xchangePregnancyBlocksPill()>>
 			<<save-body>>
 			<<set _effects to (_args.length gt 0 ? Array.from(_args) : ["genderflip"])>>
 			<<xchange-effects 1 _effects>>
@@ -1919,7 +1921,7 @@
 		<<set _effects to _args.slice(1)>>
 		<<run _effects.unshift("genderflip")>>
 
-		<<if !playerIsXChanged()>>
+		<<if !playerIsXChanged() and !xchangePregnancyBlocksPill()>>
 			<<save-body>>
 			<<xchange-effects _duration _effects>>
 			<<exposedcheck>>
@@ -1942,7 +1944,7 @@
 		<<set _effects to _args.slice(1)>>
 		<<run _effects.unshift("genderflip")>>
 
-		<<if !playerIsXChanged()>>
+		<<if !playerIsXChanged() and !xchangePregnancyBlocksPill()>>
 
 			<<save-body>>
 			<<xchange-effects _duration _effects>>

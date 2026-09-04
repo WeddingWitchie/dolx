@@ -1,4 +1,4 @@
-/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancy canBeMPregnant knowsPregnancy */
+/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancy getActivePregnancies canBeMPregnant knowsPregnancy */
 /* ============================================================
    X-CHANGE PILL DEFINITIONS  (all of them)
    ============================================================
@@ -34,68 +34,85 @@ function xchangePillBlockedReason(color, allowDualGenitals = false) {
 window.xchangePillBlockedReason = xchangePillBlockedReason;
 
 /* ---- pregnancy gate ----
-   A pill is blocked only if it would change a body part that is currently pregnant.
-
-   - Vaginal pregnancy blocks pills that remove or rebuild the vagina. Ignore stale vaginal pregnancies if the current body has no vagina.
-   - Anal pregnancy only blocks pills with unknown or herm outcomes, such as Omega or suspicious pills. Plain pink pills do not affect the anus, so they can still be taken.
-   If the player does not know about the pregnancy yet, keep the blocked reason vague to avoid spoilers.
+   Any active pregnancy blocks all X-Change doses, no matter how the pill is given.
+   This includes vaginal, anal, parasite, and egg pregnancies.
+   Invalid pregnancy records are ignored so they cannot block the player forever. If the player does not know they are pregnant yet, keep the reason vague.
 */
-function xchangeBlockingPregnancy(includeAnus = false) {
-	if (V.player.vaginaExist) {
-		const vaginal = getActivePregnancy("pc", "vagina");
-		if (vaginal) return vaginal;
-	}
-	if (includeAnus) {
-		const anal = getActivePregnancy("pc", "anus");
-		if (anal) return anal;
+function xchangeBlockingPregnancy() {
+	for (const pregnancy of getActivePregnancies("pc")) {
+		/* A record for an orifice this body no longer has can never end, so it can't be allowed to block doses forever. */
+		if (pregnancy.orifice === "vagina" && !V.player?.vaginaExist) continue;
+		return pregnancy;
 	}
 	return undefined;
 }
 window.xchangeBlockingPregnancy = xchangeBlockingPregnancy;
 
-function xchangePregnancyBlocksPill(includeAnus = false) {
-	return !!xchangeBlockingPregnancy(includeAnus);
+/* Parasite broods live on $sexStats[orifice].pregnancy rather than in the $pregnancies records, so they need their own look. */
+function xchangeParasitesBlockPill() {
+	return ["vagina", "anus"].some(orifice => {
+		if (orifice === "vagina" && !V.player?.vaginaExist) return false;
+		const pregnancy = V.sexStats?.[orifice]?.pregnancy;
+		return !!(pregnancy && pregnancy.type === "parasite" && pregnancy.fetus?.length);
+	});
+}
+window.xchangeParasitesBlockPill = xchangeParasitesBlockPill;
+
+function xchangePregnancyBlocksPill() {
+	/* A clutch waiting to be laid needs no check of its own: eggs stay an active record until they leave the body. */
+	return !!xchangeBlockingPregnancy() || xchangeParasitesBlockPill();
 }
 window.xchangePregnancyBlocksPill = xchangePregnancyBlocksPill;
 
-function xchangePregnancyBlockedReason(includeAnus = false) {
-	const pregnancy = xchangeBlockingPregnancy(includeAnus);
-	if (!pregnancy) return "";
+/* Drawer message for a blocked dose. Unknown pregnancies and parasite broods use a vague message. */
+function xchangePregnancyReason(pregnancy) {
+	const vague = "Something in your body's chemistry rejects the compound. It wouldn't take hold right now.";
+	if (!pregnancy) return vague;
 	const pregnancyId = pregnancy.pregnancyId ?? V.pregnancies.indexOf(pregnancy);
-	const known = typeof knowsPregnancy === "function" && knowsPregnancy(pregnancyId, "pc");
-	if (known) return "X-Change compounds won't rewrite a body that's carrying. The pill would do nothing.";
-	return "Something in your body's chemistry rejects the compound. It wouldn't take hold right now.";
+	/* knowsPregnancy reads the record's awareness lists directly. A half-written record would throw and take the whole drawer with it, so check first. */
+	const readable = Array.isArray(V.pregnancies?.[pregnancyId]?.awareOfPregnancy);
+	const known = readable && typeof knowsPregnancy === "function" && knowsPregnancy(pregnancyId, "pc");
+	return known ? "X-Change compounds won't rewrite a body that's carrying. The pill would do nothing." : vague;
+}
+
+function xchangePregnancyBlockedReason() {
+	if (!xchangePregnancyBlocksPill()) return "";
+	return xchangePregnancyReason(xchangeBlockingPregnancy());
 }
 window.xchangePregnancyBlockedReason = xchangePregnancyBlockedReason;
 
-/* Reverting removes the body changes from the pill, so it follows the same vagina restriction as a blue pill. */
+/* Reverting uses the same vagina check as a blue pill.
+   It stays available during parasite broods and anal pregnancies so the player cannot get stuck with the pill's body changes. */
+function xchangeRevertBlockingPregnancy() {
+	return V.player?.vaginaExist ? getActivePregnancy("pc", "vagina") : undefined;
+}
+
 function xchangePregnancyBlocksRevert() {
-	return xchangePregnancyBlocksPill();
+	return !!xchangeRevertBlockingPregnancy();
 }
 window.xchangePregnancyBlocksRevert = xchangePregnancyBlocksRevert;
 
 function xchangeRevertPregnancyBlockedReason() {
-	return xchangePregnancyBlockedReason();
+	const pregnancy = xchangeRevertBlockingPregnancy();
+	return pregnancy ? xchangePregnancyReason(pregnancy) : "";
 }
 window.xchangeRevertPregnancyBlockedReason = xchangeRevertPregnancyBlockedReason;
 
 /* ---- standard transformation check ----
-   Used by all pills that start a transformation.
-   Checks that the pill suits the current body, no transformation is already active, and no pregnancy blocks the parts the pill would change.
-   Use null for pills that suit any body, and risksEveryOrifice for pills that may also change the anus. */
-function xchangeCanStartTransform(color = null, allowDualGenitals = false, risksEveryOrifice = false) {
+Used by pills that start a transformation. Checks body requirements, active transformations, and pregnancy. Use null if the pill works with any body. */
+function xchangeCanStartTransform(color = null, allowDualGenitals = false) {
 	if (color && !xchangePillSuitsBody(color, allowDualGenitals)) return false;
-	return !playerIsXChanged() && !xchangePregnancyBlocksPill(risksEveryOrifice);
+	return !playerIsXChanged() && !xchangePregnancyBlocksPill();
 }
 window.xchangeCanStartTransform = xchangeCanStartTransform;
 
-function xchangeTransformBlockedReason(color = null, allowDualGenitals = false, risksEveryOrifice = false) {
+function xchangeTransformBlockedReason(color = null, allowDualGenitals = false) {
 	if (color) {
 		const bodyReason = xchangePillBlockedReason(color, allowDualGenitals);
 		if (bodyReason) return bodyReason;
 	}
 	if (playerIsXChanged()) return "You're already under the effects of an X-Change pill. Wait for it to run out, or take an antidote.";
-	return xchangePregnancyBlockedReason(risksEveryOrifice);
+	return xchangePregnancyBlockedReason();
 }
 window.xchangeTransformBlockedReason = xchangeTransformBlockedReason;
 
@@ -157,30 +174,41 @@ function makeGrayXChangePill(cfg) {
 			return V.sexStats.pills.pills[this.name].overdose;
 		},
 		icon: cfg.icon || "img/misc/icon/xchange-gray.png",
-		/* An owned pill always lists in the drawer (matching the coloured pills); it greys out when it can't currently be taken rather than vanishing. The old cfg.display gate hid stack-only pills like Resistance/Continue when no session was active, which made freshly-bought pills look lost. */
+		/* Owned pills always stay visible in the drawer. If they can't be used yet, they grey out instead of disappearing. This prevents pills like Resistance and Continue from looking lost after purchase. */
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
+		/* Carrying blocks all X-Change pills, including gray ones. Stack-only pills are still allowed because they manage an existing dose instead of starting a new one. */
 		take_condition() {
-			return cfg.canTake() ? 1 : 0;
+			if (!cfg.canTake()) return 0;
+			if (!grayPillIsStackOnly(cfg) && xchangePregnancyBlocksPill()) return 0;
+			return 1;
 		},
 		take_blocked_reason() {
-			return cfg.canTake() ? "" : cfg.blockedReason || "";
+			if (!cfg.canTake()) return cfg.blockedReason || "";
+			if (!grayPillIsStackOnly(cfg)) return xchangePregnancyBlockedReason();
+			return "";
 		},
 		effects: cfg.effects,
 	};
 }
+/* Stack-only gray pills act on a dose that's already running (Resistance, Continue), so the pregnancy gate skips them. */
+function grayPillIsStackOnly(cfg) {
+	return cfg.canTake === grayGate.activeSession;
+}
+
 window.makeGrayXChangePill = makeGrayXChangePill;
 
 /* ---- shared gate helpers (read at click time) ---- */
 const grayGate = {
 	always: () => true,
 	hasVagina: () => !!V.player.vaginaExist,
-	canConceive: () => !!V.player.vaginaExist && !getActivePregnancy("pc", "vagina"),
+	/* These ask only whether the body could conceive at all. Whether it's carrying right now is the pregnancy gate's job, and every gray pill goes through it. */
+	canConceive: () => !!V.player.vaginaExist,
 	/* Omega (or another mpreg source) lets a vagina-less body conceive anally. */
-	canConceiveAnally: () => typeof canBeMPregnant === "function" && canBeMPregnant() && !getActivePregnancy("pc", "anus"),
+	canConceiveAnally: () => typeof canBeMPregnant === "function" && canBeMPregnant(),
 	canConceiveAnyHole: () => grayGate.canConceive() || grayGate.canConceiveAnally(),
-	betaEligible: () => !!V.player.vaginaExist && getActiveVaginalPregnancies().length < 2,
+	betaEligible: () => !!V.player.vaginaExist,
 	/* The fertility course also potentiates sperm, so a penis qualifies on its own. */
 	fertilityCourse: () => grayGate.hasPenis() || grayGate.canConceiveAnyHole(),
 	hasPenis: () => !!V.player.penisExist,
@@ -938,10 +966,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform("pink", true, true) ? 1 : 0;
+			return xchangeCanStartTransform("pink", true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason("pink", true, true);
+			return xchangeTransformBlockedReason("pink", true);
 		},
 		effects: [`<<if $xchange.omegaShrinkGenitals>><<take-xchange 7 "crossdress" "omega">><<else>><<xchange-pink 7 "omega">><</if>>`],
 	},
@@ -977,12 +1005,11 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return V.player.vaginaExist && !playerIsXChanged() && getActiveVaginalPregnancies().length < 2 ? 1 : 0;
+			return V.player.vaginaExist && xchangeCanStartTransform() ? 1 : 0;
 		},
 		take_blocked_reason() {
 			if (!V.player.vaginaExist) return "The Beta agent needs a vagina to form its paired wombs.";
-			if (getActiveVaginalPregnancies().length >= 2) return "Both wombs are already carrying pregnancies.";
-			return "You are already under the effects of an X-Change pill.";
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "beta">>`],
 	},
@@ -1340,10 +1367,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform("pink", false, true) ? 1 : 0;
+			return xchangeCanStartTransform("pink") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason("pink", false, true);
+			return xchangeTransformBlockedReason("pink");
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {
@@ -1386,10 +1413,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform(null, false, true) ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason(null, false, true);
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {
@@ -1838,10 +1865,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform("blue", true, true) ? 1 : 0;
+			return xchangeCanStartTransform("blue", true) ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason("blue", true, true);
+			return xchangeTransformBlockedReason("blue", true);
 		},
 		effects: [`<<xchange-blue 7 "omega">>`],
 	},
@@ -2542,10 +2569,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform(null, false, true) ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason(null, false, true);
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "herm" "omega">>`],
 	},
@@ -2620,10 +2647,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform(null, false, true) ? 1 : 0;
+			return xchangeCanStartTransform() ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason(null, false, true);
+			return xchangeTransformBlockedReason();
 		},
 		effects: [`<<take-xchange 7 "herm" "omega" "alpha">>`],
 	},
@@ -2696,10 +2723,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform("blue", false, true) ? 1 : 0;
+			return xchangeCanStartTransform("blue") ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason("blue", false, true);
+			return xchangeTransformBlockedReason("blue");
 		},
 		effects: [`<<xchange-suspicious-pill>>`],
 		npc_display_condition() {

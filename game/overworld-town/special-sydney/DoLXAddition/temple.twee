@@ -29,7 +29,7 @@
 
 :: Sydney Temple Pill Atonement
 <<effects>>
-<<set _templePillBlocked to xchangePillProtectionActive()>><<temple-purity-pill 7>>
+<<set _templePillPregnant to !playerIsXChanged() and xchangePregnancyBlocksPill()>><<set _templePillBlocked to xchangePillProtectionActive() or _templePillPregnant>><<temple-purity-pill 7>>
 <<if !_templePillBlocked and $xchange.pill.innocenceEffect and $xchange.pill.cumcureEffect>>
 	The pill dissolves almost as soon as it touches your tongue.
 	A cool, pearly numbness spreads behind your eyes, softening each thought before it can fully form.
@@ -53,7 +53,7 @@
 		<br><br>
 	<</if>>
 <<else>>
-	The pill dissolves, but the cleansing warmth dies before it can spread. <span class="blue">Your resistance neutralises it, leaving your thoughts and body unchanged.</span>
+	The pill dissolves, but the cleansing warmth dies before it can spread. <<if _templePillPregnant>><span class="blue">Something in your body's chemistry rejects it, leaving your thoughts and body unchanged.</span><<else>><span class="blue">Your resistance neutralises it, leaving your thoughts and body unchanged.</span><</if>>
 	<br><br>
 	Jordan's expression hardens. "The dose was taken. We will proceed."
 	<br><br>
@@ -64,7 +64,7 @@
 :: Temple Pill Atonement
 <<endevent>><<effects>><<pass 5>>
 <<generateConfessor 1>><<person1>><<generateConfessor 2>><<generateConfessor 3>>
-<<set _templePillBlocked to xchangePillProtectionActive()>><<temple-purity-pill 7>>
+<<set _templePillPregnant to !playerIsXChanged() and xchangePregnancyBlocksPill()>><<set _templePillBlocked to xchangePillProtectionActive() or _templePillPregnant>><<temple-purity-pill 7>>
 <<if !_templePillBlocked and $xchange.pill.innocenceEffect and $xchange.pill.cumcureEffect>>
 	The pill sits cold on your tongue, then dissolves with impossible speed.
 	A clean, dizzy warmth slides down your throat and blooms behind your eyes.
@@ -79,7 +79,7 @@
 	<br><br>
 	The <<person1>><<monk>> watches until your breathing steadies. "Good. Now we may begin."
 <<else>>
-	The pill dissolves, but its warmth fades at once. <span class="blue">Your resistance neutralises it, leaving your thoughts and body unchanged.</span>
+	The pill dissolves, but its warmth fades at once. <<if _templePillPregnant>><span class="blue">Something in your body's chemistry rejects it, leaving your thoughts and body unchanged.</span><<else>><span class="blue">Your resistance neutralises it, leaving your thoughts and body unchanged.</span><</if>>
 	<br><br>
 	The <<person1>><<monk>> frowns. "The dose was taken. We proceed."
 <</if>>
@@ -95,6 +95,8 @@
 	<<set _durationHours to _days * 24 - 1>>
 	<<if xchangePillProtectionActive()>>
 		<<silently>><<xchange-effects _days `[]`>><</silently>>
+	<<elseif !playerIsXChanged() and xchangePregnancyBlocksPill()>>
+		/* Carrying: the dose is swallowed but never takes hold, so no session starts. */
 	<<elseif playerIsXChanged()>>
 		<<if !pillIsPermanent()>>
 			<<set $xchange.pill.duration to Math.max($xchange.pill.duration || 0, _durationHours)>>

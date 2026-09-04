@@ -6,21 +6,29 @@
             <<set _isPure to (random(1, 100) lte _pureRatio)>>
         <</if>>
 
-        <<if _isPure>>
+        <<if !playerMayBeSpiked()>>
+            /* Carrying, or spiking switched off, since the pill was drawn. The dose still goes down, it just can't take hold. */
+            <<if xchangeTherapyActive()>>
+                /* The widget applies nothing here and prints the treatment's own line, so it doesn't need saying twice. */
+                <<xchange-random-spike>>
+            <<else>>
+                <br><span class="blue">You swallow the pill, but nothing happens</span>. Whatever effect it was supposed to have, it does not affect your body.<br><br>
+            <</if>>
+        <<elseif _isPure>>
             /* Clean Pink/Blue pill that the same as one from the Hospital. Picked by body sex: the assailant grabs whichever pill actually works on what's between your legs. */
             <<if $player.sex is "m">>
                 <<xchange-pink 1>>
             <<else>>
                 <<xchange-blue 1>>
             <</if>>
-            <br><span class="blue">It tastes plain like a normal, over-the-counter X-Change pill.</span><br><br>
+            <br><span class="blue">It tastes like a normal X-Change pill from the pharmacy.</span><br><br>
         <<else>>
             /* Suspicious pill: random extras (and side effects, if the toggle is on; handled inside xchange-random-spike). */
             <<xchange-random-spike "suppress">>
             <<if $xchange isnot undefined and ($xchange.spikeSideEffectsEnabled !== undefined ? $xchange.spikeSideEffectsEnabled : 1)>>
-                <br><span class="pink">The pill burns acridly going down. Your skin feels painful and you know that was no clean pill.<<gstress>><<stress 4>><<gpain>><<pain 3>></span><br><br>
+                <br><span class="pink">The pill leaves a bitter taste in your mouth and burns your throat as you swallow it.</span> Your skin starts to hurt soon after. Whatever was in that pill, it was more than a normal X-Change dose.<<gstress>><<stress 4>><<gpain>><<pain 3>><br><br>
             <<else>>
-                <br><span class="pink">You can't tell exactly what was in that pill.<<trauma 3>><<gtrauma>></span><br><br>
+                <br><span class="pink">The pill tastes different from a normal X-Change pill, but you cannot tell what was added to it.</span><<trauma 3>><<gtrauma>><br><br>
             <</if>>
         <</if>>
         <<set $playerWasSpikedInEncounter to 1>>
