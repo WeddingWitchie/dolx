@@ -210,10 +210,11 @@ class Transformations {
 	   
 	   Either way the PC would start producing eggs, and a plain human birth would be hijacked by the nesting instinct at the hospital.
 	   Egg laying, dragon labour and the nest therefore key off this instead: the parts must be
-	   backed by actual transformation progress ($waterdragon 6 grows the tail, 7 sets $waterdragontf). */
+	   backed by current transformation progress. $waterdragontf is not used here because old genome dumps could leave
+	   that hidden flag set after manifestation reached zero ($waterdragon 6 grows the tail, 7 sets $waterdragontf). */
 	static isFullWaterDragon() {
 		if (this.effectiveLevel("waterdragon") < 7) return false;
-		return V.waterdragontf === 1 || (Number(V.waterdragon) || 0) >= 6;
+		return (Number(V.waterdragon) || 0) >= 6;
 	}
 
 	/* --- Egg laying / dragon labour lockout -------------------------------------------
