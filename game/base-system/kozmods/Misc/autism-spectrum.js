@@ -870,6 +870,7 @@ const autismSceneBlockedPassages = Object.freeze([
 	"Autism Overload Leave",
 	"Autism Overload Mask",
 	"Autism Overload End",
+	"Police Molestation Finish",
 	"Sleep",
 	"Bed",
 	"Passout",
