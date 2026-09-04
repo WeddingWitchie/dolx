@@ -123,7 +123,7 @@ const autismLoadBurnoutRelief = 55;
 
 /* Maximum load recovery per day across all recovery methods.
    Recovery is slower than load gain, so one good day cannot erase several bad days. */
-const autismDailyRecoveryCap = 12;
+const autismDailyRecoveryCap = 15;
 
 /* How much load a day of recovery can take off, for the tooltips. */
 function autismRecoveryCapValue() {
@@ -298,15 +298,20 @@ function ensureAutismSpectrumState() {
  * All load changes go through here. Recovery is capped per day so one good day cannot remove too much built-up strain.
  * Load gain is not capped.
  */
-function autismAdjustLoad(delta) {
+function autismAdjustLoad(delta, ignoreDailyCap = false) {
 	delta = Number(delta) || 0;
 	if (!delta || V.statFreeze) return;
 	const state = ensureAutismSpectrumState();
 	if (delta < 0) {
-		const allowance = autismDailyRecoveryCap - state.recoveredToday;
-		if (allowance <= 0) return;
-		delta = Math.max(delta, -allowance);
-		state.recoveredToday += -delta;
+		/* Only remove load if there is any. Don't waste the daily allowance on nothing. */
+		delta = Math.max(delta, -state.load);
+		if (delta === 0) return;
+		if (!ignoreDailyCap) {
+			const allowance = autismDailyRecoveryCap - state.recoveredToday;
+			if (allowance <= 0) return;
+			delta = Math.max(delta, -allowance);
+			state.recoveredToday += -delta;
+		}
 	}
 	state.load = Math.clamp(state.load + delta, 0, autismLoadMax);
 	autismUpdateCapacity();
@@ -594,8 +599,10 @@ function autismSettleTraining() {
 	if (minutes >= autismSpectrumBreakMinutes) {
 		state.trainingMinutes = 0;
 		delete state.lastPractice;
+		/* The first long break counts as sleep, so it doesn't use the day's recovery limit. */
+		const firstBreak = state.restedToday !== true;
 		state.restedToday = true;
-		autismAdjustLoad(-Math.min(20, (minutes / 60) * 2));
+		autismAdjustLoad(-Math.min(20, (minutes / 60) * 2), firstBreak);
 		return;
 	}
 
