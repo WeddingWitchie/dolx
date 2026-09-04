@@ -3805,14 +3805,14 @@ function setupFeatBoosts(force) {
 		xchangePurityTrait: {
 			name: "X-Change Purity",
 			required: [],
-			cost: 150,
+			cost: 100,
 			max: 1,
 			missing: "",
 		},
 		xchangeGrayAgentTrait: {
 			name: "X-Change Gray Agent",
 			required: [],
-			cost: 100,
+			cost: 75,
 			max: 1,
 			missing: "",
 		},

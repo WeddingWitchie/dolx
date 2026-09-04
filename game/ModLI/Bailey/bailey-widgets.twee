@@ -385,13 +385,22 @@ Call sites own their own spacing. */
 	/* Recompute rather than trusting $bratTax: not every path in announces the tax first. */
 	<<bratTaxCalc>>
 	<<set _offerRentDue to $rentmoney + ($babyRent or 0) + ($bratTax or 0)>>
-	<<if $money gte _offerRentDue>>
+	/* Pockets short but savings can cover it: Bailey marches the player to the bank, same as <<rentpay>>. */
+	<<set _offerCashBefore to $money>>
+	<<if $money lt _offerRentDue>><<baileyBankDraw `_offerRentDue - $money`>><</if>>
+	/* <<baileyBankDraw>> prints a scene of its own when it withdraws, so keep it off the next paragraph. */
+	<<if $money gt _offerCashBefore>><br><br><</if>>
+	<<set _offerRentPaid to $money gte _offerRentDue>>
+	<<if _offerRentPaid>>
 		<<money `-_offerRentDue` "baileyRent">>
 	<</if>>
 	<<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
 	<<set $baileydefeatedchain to 0>>
-	<<set $baileyRefusedToPay to 0>>
-	<<set $baileyRefusedToPayTotal to $baileyRefusedToPayTotal lt _offerRentDue ? 0 : $baileyRefusedToPayTotal - _offerRentDue>>
+	/* Only wipe the arrears if the money actually changed hands. */
+	<<if _offerRentPaid>>
+		<<set $baileyRefusedToPay to 0>>
+		<<set $baileyRefusedToPayTotal to $baileyRefusedToPayTotal lt _offerRentDue ? 0 : $baileyRefusedToPayTotal - _offerRentDue>>
+	<</if>>
 	<<unset $bailey_encroach>>
 <</widget>>
 

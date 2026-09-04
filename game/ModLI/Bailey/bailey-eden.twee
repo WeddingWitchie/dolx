@@ -175,11 +175,15 @@ Bailey stands. <<He>> shoulders the rod.
 <<He>> holds out <<his>> hand. "Pay up."
 <br><br>
 
-<<if $money gte $rentmoney + ($babyRent || 0)>>
+/* Savings count, same as the doorstep and the street hunt: Bailey walks you to the bank if your pockets are short. */
+<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
+<<set _rentTotal to ($rentmoney + ($babyRent || 0) + _loanSurcharge)>>
+<<set _rentAffordable to (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+<<if _rentAffordable>>
 	<<link [[Pay|Bailey Eden Lake Solo Pay]]>><</link>>
 	<br>
 <</if>>
-<<if $syndromebaileybuild gte 1 and $money gte $rentmoney + ($babyRent || 0)>>
+<<if $syndromebaileybuild gte 1 and _rentAffordable>>
 	<span class="red bailey-stockholm"><<link [[Offer yourself|Bailey Eden Lake Solo Offer]]>><</link>></span>
 	<br>
 <</if>>

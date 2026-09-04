@@ -647,6 +647,10 @@ You crouch by the plot, frowning at the state of it. Half the beds have dried ou
 	and a narrow pipe now runs along the back wall, dripping into the earth below.
 	<br><br>
 <</if>>
+<<if $plots["avery_mansion"].some(plot => plot.stage gte 1)>>
+	/* Remember that the player has actually been using the beds, so Avery doesn't accuse them of neglect after a harvest */
+	<<set $avery_mansion.gardenUsed to true>>
+<</if>>
 <<if $avery_mansion.schedule is "garden" and !$daily.avery.gardenPlant and $plots["avery_mansion"].every(plot => plot.stage is 0)>>
 	<<set $daily.avery.gardenPlant to true>>
 	<<set _averySeeds to Object.entries(setup.foodstuff)
@@ -673,12 +677,29 @@ You crouch by the plot, frowning at the state of it. Half the beds have dried ou
 You open the glass door and enter the garden room. As you walk towards the tools, the door closes behind you.
 <br><br>
 You turn around and see Avery carrying a shallow wooden box under one arm.
-<<He>> walks over to the empty planting bed and looks down at the soil.
-"You still haven't planted anything?"
-<br><br>
-Before you can answer, Avery puts the box down and kneels beside the bed.
-"I gave you this space to grow something, <<pcpetname "Avery">>. I'm not leaving it empty."
-<br><br>
+<<He>> walks over to the empty planting bed and looks over the soil.
+<<if $avery_mansion.gardenUsed and currentSkillValue('tending') gte 800>>
+	"You've harvested everything already."
+	<br><br>
+	<<He>> crouches beside the bed and presses a thumb into the soil before looking across the empty rows.
+	"You've been taking good care of this. The soil is in better condition than I expected, and you got a lot out of such a small space."
+	<br><br>
+	Avery sets the box beside the bed and kneels down. "So I'm not going to leave it empty until you decide what to plant next, <<pcpetname "Avery">>."
+	<br><br>
+<<elseif $avery_mansion.gardenUsed>>
+	"Finished harvesting already?"
+	<br><br>
+	<<He>> looks across the empty rows, then turns to you. "You've been keeping up with it. Good."
+	<br><br>
+	Avery sets the box beside the bed and kneels down. "I gave you this space to grow things, <<pcpetname "Avery">>. We may as well plant something else while the bed is empty."
+	<br><br>
+<<else>>
+	"You still haven't planted anything?"
+	<br><br>
+	Before you can answer, Avery sets the box beside the bed and kneels down.
+	"I gave you this space to grow things, <<pcpetname "Avery">>. There's no point leaving it empty."
+	<br><br>
+<</if>>
 <<He>> opens the box. Inside are two pairs of gardening gloves, a small trowel,
 and a packet marked <span class="gold"><<print _plant.name>></span>.
 "I had several things brought over," <<he>> says, picking up the packet. "I chose this one for you."
