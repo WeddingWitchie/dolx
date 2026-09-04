@@ -2324,7 +2324,7 @@ Renderer.CanvasModels.main = {
 				return `img/transformations/bear/tail/${options.bear_tail_type}.png`;
 			},
 			showfn(options) {
-				return options.show_tf && isPartEnabled(options.bear_tail_type) && !options.hide_all;
+				return options.show_tf && isPartEnabled(options.bear_tail_type) && !options.hide_all && !kaijuHidesTail(options);
 			},
 			zfn(options) {
 				if (options.bear_tail_layer === "back") {
@@ -2655,7 +2655,7 @@ Renderer.CanvasModels.main = {
 				return `img/transformations/bunny/tail/${options.bunny_tail_type}.png`;
 			},
 			showfn(options) {
-				return options.show_tf && isPartEnabled(options.bunny_tail_type);
+				return options.show_tf && isPartEnabled(options.bunny_tail_type) && !kaijuHidesTail(options);
 			},
 			zfn(options) {
 				if (options.bunny_tail_layer === "back") {
@@ -2723,7 +2723,7 @@ Renderer.CanvasModels.main = {
 				return `img/transformations/okami/tail/${options.okami_tail_type}.png`;
 			},
 			showfn(options) {
-				return options.show_tf && isPartEnabled(options.okami_tail_type) && !options.hide_all;
+				return options.show_tf && isPartEnabled(options.okami_tail_type) && !options.hide_all && !kaijuHidesTail(options);
 			},
 			zfn(options) {
 				if (options.okami_tail_layer === "back") {
@@ -2836,7 +2836,7 @@ Renderer.CanvasModels.main = {
 				return `img/transformations/kitsune/tail/${options.kitsune_tail_type}.png`;
 			},
 			showfn(options) {
-				return options.show_tf && isPartEnabled(options.kitsune_tail_type) && !options.hide_all;
+				return options.show_tf && isPartEnabled(options.kitsune_tail_type) && !options.hide_all && !kaijuHidesTail(options);
 			},
 			zfn(options) {
 				return options.kitsune_tail_layer === "back" ? ZIndices.tail : ZIndices.back_lower;
@@ -6320,6 +6320,11 @@ function genlayer_tanning(slot, index, tanningLayer, value, animation = "idle") 
 	};
 }
 
+/* Kaiju is a full-body costume, so transformation tails are hidden. Wings stay visible because the costume has wings. */
+function kaijuHidesTail(options) {
+	return options.worn?.over_upper?.setup?.name === "kaiju costume";
+}
+
 function genlayer_tf(tf, folder, part, overrideOptions) {
 	return Object.assign({
 		filters: [`${tf}_${part}`],
@@ -6402,6 +6407,10 @@ function genlayer_tail(tf, overrideOptions) {
 	return genlayer_tf(tf, "tail", "tail", Object.assign({
 		z: ZIndices.tailPenisCover,
 		filters: [`${tf}_tail`],
+
+		showfn(options) {
+			return options.show_tf && isPartEnabled(options[`${tf}_tail_type`]) && !options.hide_all && !kaijuHidesTail(options);
+		},
 
 		srcfn(options) {
 			const tail = isDemonTail() ? `tail-${options.demon_tail_state}` : "tail-idle";
