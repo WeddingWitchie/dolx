@@ -52,6 +52,9 @@ function initOverUpper() {
 			name: "froggy coat",
 			name_cap: "Froggy coat",
 			variable: "froggy",
+			combat: {
+				hasMainImg: false,
+			},
 			integrity: 300,
 			integrity_max: 300,
 			fabric_strength: 30,
@@ -97,6 +100,9 @@ function initOverUpper() {
 			name: "cream",
 			name_cap: "Cream",
 			variable: "cream",
+			combat: {
+				hasMainImg: false,
+			},
 			integrity: 100,
 			integrity_max: 100,
 			fabric_strength: 30,
@@ -140,6 +146,9 @@ function initOverUpper() {
 			name: "kaiju costume",
 			name_cap: "Kaiju costume",
 			variable: "kaiju",
+			combat: {
+				hasMainImg: false,
+			},
 			integrity: 500,
 			integrity_max: 500,
 			fabric_strength: 30,

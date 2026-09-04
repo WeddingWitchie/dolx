@@ -52,6 +52,7 @@ function initOverLower() {
 			name_cap: "Froggy skirt",
 			variable: "froggy",
 			combat: {
+				hasMainImg: false,
 				renderType: "skirt",
 			},
 			integrity: 300,
@@ -102,6 +103,7 @@ function initOverLower() {
 			name_cap: "Cream",
 			variable: "cream",
 			combat: {
+				hasMainImg: false,
 				renderType: "skirt",
 			},
 			integrity: 100,
@@ -150,6 +152,9 @@ function initOverLower() {
 			name: "kaiju bottoms",
 			name_cap: "Kaiju bottoms",
 			variable: "kaiju",
+			combat: {
+				hasMainImg: false,
+			},
 			integrity: 500,
 			integrity_max: 500,
 			fabric_strength: 30,

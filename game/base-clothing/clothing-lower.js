@@ -8847,7 +8847,7 @@ function initLower() {
 			name_cap: "Novice nun's habit skirt",
 			variable: "nunnovice",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 				mainColour: "#4c4c4c",
 			},
 			integrity: 100,
@@ -9217,7 +9217,7 @@ function initLower() {
 			name_cap: "Exorcist's habit skirt",
 			variable: "exorcisthabit",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 				mainColour: "#2a2433",
 			},
 			integrity: 160,
@@ -9724,7 +9724,7 @@ function initLower() {
 			name_cap: "Swan lake skirt",
 			variable: "swandress",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 200,
 			integrity_max: 200,
@@ -9776,7 +9776,7 @@ function initLower() {
 			name_cap: "Fancy swan lake skirt",
 			variable: "swandressfancy",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 200,
 			integrity_max: 200,
@@ -9829,7 +9829,7 @@ function initLower() {
 			name_cap: "Butterfly dress skirt",
 			variable: "butterflydress",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 200,
 			integrity_max: 200,
@@ -9882,7 +9882,7 @@ function initLower() {
 			name_cap: "Succubus lower back wings",
 			variable: "succubus",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 160,
 			integrity_max: 160,
@@ -10024,7 +10024,7 @@ function initLower() {
 			name_cap: "Mini rose wedding dress skirt",
 			variable: "rosedressmini",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 160,
 			integrity_max: 160,
@@ -11262,7 +11262,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["normal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			state: "waist",
 			state_base: "waist",
@@ -11358,7 +11358,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["normal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			state: "waist",
 			state_base: "waist",
@@ -11502,7 +11502,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["normal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			state: "waist",
 			state_base: "waist",
@@ -11661,7 +11661,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["normal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			state: "waist",
 			state_base: "waist",
@@ -12077,7 +12077,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["normal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			state: "waist",
 			state_base: "waist",
@@ -12127,7 +12127,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["school", "formal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 300,
 			integrity_max: 300,
@@ -12153,7 +12153,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["formal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 50,
 			integrity_max: 50,
@@ -12183,7 +12183,7 @@ function initLower() {
 			shop: ["clothing"],
 			type: ["normal"],
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			integrity: 50,
 			integrity_max: 50,
@@ -12242,7 +12242,7 @@ function initLower() {
 			name_cap: "Denim skirt",
 			variable: "denim skirt",
 			combat: {
-				reference: "skirt",
+				reference: "sundress",
 			},
 			description: "Timeless design.",
 			cost: 2500,

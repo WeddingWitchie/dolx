@@ -2167,6 +2167,9 @@ function initNeck() {
 			name: "harness",
 			name_cap: "Harness",
 			variable: "harness",
+			combat: {
+				hasMainImg: false,
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 250,
@@ -2219,6 +2222,9 @@ function initNeck() {
 			name: "harness with leash",
 			name_cap: "Harness with leash",
 			variable: "harnessleash",
+			combat: {
+				hasMainImg: false,
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 250,

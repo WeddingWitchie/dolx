@@ -3042,6 +3042,9 @@ function initHead() {
 			cost: 900,
 			description: "For labelling yourself.",
 			shop: ["forest"],
+			combat: {
+				reference: "bow",
+			},
 			accessory: 0,
 			accessory_colour: 0,
 			accessory_colour_options: [],

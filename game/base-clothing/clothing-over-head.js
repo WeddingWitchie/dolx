@@ -41,6 +41,9 @@ function initOverHead() {
 			name: "froggy hood",
 			name_cap: "Froggy hood",
 			variable: "froggy",
+			combat: {
+				hasMainImg: false,
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 300,
@@ -74,6 +77,9 @@ function initOverHead() {
 			name: "kaiju hood",
 			name_cap: "Kaiju hood",
 			variable: "kaiju",
+			combat: {
+				hasMainImg: false,
+			},
 			state: 0,
 			state_base: 0,
 			integrity: 500,
