@@ -18,8 +18,23 @@
 
 	<<tinyPenisDryOrgasmChance>>
 
+	<!-- Breeder/Omega denial.
+     Blocks scripted orgasms unless the player has been inseminated. Forced creampie and toy orgasms still bypass this check. -->
+	<<if !$statFreeze and !$sexRitual and breederOrgasmDenied() and !$xchange.breederOrgasm and !$breederCreampied and !$xchange.breakthroughOrgasm>>
+		<<set _breederTarget to (omegaTargetsAnus() and $xchange.pill.breederEffect) ? "pussy or ass" : omegaTargetsAnus() ? "ass" : "pussy">>
+		<span class="purple">You are almost overcome by sensation, but your body refuses to let go.</span> <span class="red">You crave some thick gooey semen in your _breederTarget.</span>
+		/* Same escalating denial cost the pleasure() gate and the cafe scene charge, so a denial feels the same wherever it happens. */
+		<<set _breederDenialStress to Math.clamp(Number($xchange.breederEdgingStress) || 100, 50, 400)>>
+		<<stress _breederDenialStress 1>><<if _breederDenialStress gte 300>><<ggstress>><<else>><<gstress>><</if>>
+		<<set $xchange.breederEdgingStress to Math.min(_breederDenialStress + 25, 400)>>
+		<<set $xchange.breederDenial to Math.clamp((Number($xchange.breederDenial) || 0) + 1, 0, 6)>>
+		<<set $xchange.breederEdgingCount to 0>>
+		<br>
+		<<set _deniedOrgasm to true>>
+	<</if>>
+
 	<!-- Orgasm denial -->
-	<<if $earSlime.growth gte 100 and $earSlime.defyCooldown gte Math.clamp(30 - Math.floor($earSlime.growth / 9), 2, 20) and !$possessed and $settings.ruinedOrgasmEnabled and !_noSlimes>>
+	<<if !_deniedOrgasm and $earSlime.growth gte 100 and $earSlime.defyCooldown gte Math.clamp(30 - Math.floor($earSlime.growth / 9), 2, 20) and !$possessed and $settings.ruinedOrgasmEnabled and !_noSlimes>>
 		<<set _earSlimeResisted to false>>
 		<<if !$statFreeze and $xchange.willpowerSystemEnabled is 1>>
 			<<willpowercheck>>
@@ -698,7 +713,11 @@
 	<</if>>
 
 	<<unset _continuousOrgasm>>
-	<<if $creampie>><<unset $breederCreampied>><</if>>
+	/* Breeder bypasses only apply to the climax caused by a creampie. Clear them after orgasm so later climaxes check what is actually inside the player. */
+	<<if !_deniedOrgasm>>
+		<<unset $breederCreampied>>
+		<<if $xchange>><<set $xchange.breederOrgasm to false>><</if>>
+	<</if>>
 
 	<<unset $orgasmInProgress>>
 <</widget>>
