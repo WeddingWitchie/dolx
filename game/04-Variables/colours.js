@@ -246,6 +246,27 @@ setup.colours = {
 			blendMode: "multiply",
 			desaturate: false,
 		},
+		// Demon skin. Auto follows the tan slider from blue through purple to red; the rest are the fixed picks.
+		demon: {
+			gradient: ["#6faefc", "#a96ae0", "#c8353c"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		demonBlue: {
+			gradient: ["#6faefc", "#6faefc"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		demonPurple: {
+			gradient: ["#a96ae0", "#a96ae0"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
+		demonRed: {
+			gradient: ["#c8353c", "#c8353c"],
+			blendMode: "multiply",
+			desaturate: false,
+		},
 		ghost: {
 			gradient: ["#ffffff", "#ffffff"],
 			blendMode: "multiply",
@@ -259,6 +280,20 @@ setup.colours = {
 			desaturate: true,
 		},
 	},
+	// Skin colours used by transformations.
+	// This prevents one TF from saving another TF's colour as the player's normal skin colour.
+	tf_skin_colors: [
+		"waterdragon",
+		"waterdragonLilac",
+		"waterdragonPurple",
+		"waterdragonBlue",
+		"waterdragonSkyblue",
+		"waterdragonPink",
+		"demon",
+		"demonBlue",
+		"demonPurple",
+		"demonRed",
+	],
 	/*
 	 * Get canvas filter for skin of given type and tan progression (0..1).
 	 */

@@ -1,4 +1,4 @@
-/* global amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod */
+/* global amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod blackmailCancelQuestForBadEnd */
 
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -1624,6 +1624,9 @@ const statChange = (() => {
 		if (optional.reason) newBadEnd.reasonStart = optional.reason;
 		if (optional.notes) newBadEnd.notesStart = optional.notes;
 		V.badEndStats.push(newBadEnd);
+
+		// Soft bad ends make the task impossible to complete, so drop it instead of failing it.
+		if (typeof blackmailCancelQuestForBadEnd === "function") blackmailCancelQuestForBadEnd();
 	}
 	DefineMacro("badEndTracking", (source, optional) => badEndTracking(source, optional));
 

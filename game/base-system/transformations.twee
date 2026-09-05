@@ -580,6 +580,7 @@
 	<<set $transformationParts.demon.tail to "default">>
 	<<set $transformationParts.demon.wings to "default">>
 	<<set $demontf to 1>>
+	<<syncDemonSkin>>
 	<<arousal 600>>
 <</widget>>
 
@@ -754,6 +755,7 @@
 		<<set $transformationParts.demon.tail to "default">>
 		<<set $transformationParts.demon.wings to "default">>
 	<</if>>
+	<<syncDemonSkin>>
 <</widget>>
 
 /* <<wolfTransform step>> If neither is provided, force full transformation */
@@ -1763,18 +1765,42 @@
 		<<set _waterDragonSkinChoice to (($waterdragon gte 7 or $waterdragontf is 1) ? "auto" : "none")>>
 	<</if>>
 	<<if _waterDragonSkinChoice is "auto">>
-		<<if !_waterDragonSkinColours.includes($player.skin.color)>>
+		<<if !setup.colours.tf_skin_colors.includes($player.skin.color)>>
 			<<set $player.skin_temp.color to $player.skin.color>>
 		<</if>>
 		<<set $player.skin.color to "waterdragon">>
 	<<elseif ["lilac", "purple", "blue", "skyblue", "pink"].includes(_waterDragonSkinChoice)>>
-		<<if !_waterDragonSkinColours.includes($player.skin.color)>>
+		<<if !setup.colours.tf_skin_colors.includes($player.skin.color)>>
 			<<set $player.skin_temp.color to $player.skin.color>>
 		<</if>>
 		<<set $player.skin.color to "waterdragon" + _waterDragonSkinChoice.toUpperFirst()>>
-	<<else>>
-		<<if _waterDragonSkinColours.includes($player.skin.color)>>
-			<<set $player.skin.color to $player.skin_temp.color>>
+	<<elseif _waterDragonSkinColours.includes($player.skin.color)>>
+		<<set $player.skin.color to $player.skin_temp.color>>
+		/* The demon skin may have been waiting behind the water dragon's; let it claim the skin now. */
+		<<syncDemonSkin>>
+	<</if>>
+<</widget>>
+
+<<widget "syncDemonSkin">>
+	<<if !["auto", "off", "blue", "purple", "red"].includes($demonSkinLock)>>
+		<<set $demonSkinLock to "auto">>
+	<</if>>
+	<<set _demonSkinColours to ["demon", "demonBlue", "demonPurple", "demonRed"]>>
+	<<set _waterDragonOwnsSkin to ["waterdragon", "waterdragonLilac", "waterdragonPurple", "waterdragonBlue", "waterdragonSkyblue", "waterdragonPink"].includes($player.skin.color)>>
+	<<set _demonSkinChoice to ($demon gte 6 ? $demonSkinLock : "off")>>
+	<<if _waterDragonOwnsSkin>>
+		/* Nothing to do: the water dragon skin is showing, and its own sync hands the skin back when it ends. */
+	<<elseif _demonSkinChoice is "auto">>
+		<<if !setup.colours.tf_skin_colors.includes($player.skin.color)>>
+			<<set $player.skin_temp.color to $player.skin.color>>
 		<</if>>
+		<<set $player.skin.color to "demon">>
+	<<elseif ["blue", "purple", "red"].includes(_demonSkinChoice)>>
+		<<if !setup.colours.tf_skin_colors.includes($player.skin.color)>>
+			<<set $player.skin_temp.color to $player.skin.color>>
+		<</if>>
+		<<set $player.skin.color to "demon" + _demonSkinChoice.toUpperFirst()>>
+	<<elseif _demonSkinColours.includes($player.skin.color)>>
+		<<set $player.skin.color to $player.skin_temp.color>>
 	<</if>>
 <</widget>>

@@ -2832,6 +2832,8 @@
 	<<set _waterdragonUnlockedCheck to ($waterdragonCosmeticUnlocked is 1)>>
 	<<set _waterdragonTraitsCheck to (_waterdragonFullCheck or _waterdragonUnlockedCheck)>>
 	<<set _waterdragonSkinMenuCheck to (_waterdragonTraitsCheck or !["auto", "off"].includes($waterdragonSkinLock))>>
+	/* Matches syncDemonSkin: the skin only shows while the demon TF is actually on, so neither does the menu. */
+	<<set _demonSkinMenuCheck to ($demon gte 6)>>
 	<<set _wolfFullCheck to _tfStageUnlocked($wolfgirl, $wolftf, 6)>>
 	<<set _birdFullCheck to _tfStageUnlocked($harpy, $harpytf, 6)>>
 	<<set _foxFullCheck to _tfStageUnlocked($fox, $foxtf, 6)>>
@@ -3043,6 +3045,22 @@
 			<div class="tf-misc">
 				<<listbox "_miscChoice" autoselect>>
 					<<optionsfrom _options>>
+				<</listbox>>
+			</div>
+		</label>
+		<br>
+	<</if>>
+
+	<<if _demonSkinMenuCheck>>
+		/* "auto" follows your tan. Choosing a colour locks it instead. */
+		<<set _demonSkinChoice to ($demonSkinLock is "auto" ? (Skin.color.tan gte 66 ? "red" : Skin.color.tan gte 33 ? "purple" : "blue") : $demonSkinLock is "off" ? "none" : $demonSkinLock)>>
+		<label>Demon Skin:
+			<div class="tf-demon-skin">
+				<<listbox "_demonSkinChoice" autoselect>>
+					<<option "None" "none">>
+					<<option "Blue" "blue">>
+					<<option "Purple" "purple">>
+					<<option "Red" "red">>
 				<</listbox>>
 			</div>
 		</label>
@@ -3924,6 +3942,9 @@
 		});
 		jQuery('.passage').on('change', 'div.tf-waterdragon-skin select.macro-listbox', function (e) {
 			Wikifier.wikifyEval('<<set $waterdragonSkinLock to (_waterDragonSkinChoice is "none" ? "off" : _waterDragonSkinChoice)>><<syncWaterDragonSkin>>');
+		});
+		jQuery('.passage').on('change', 'div.tf-demon-skin select.macro-listbox', function (e) {
+			Wikifier.wikifyEval('<<set $demonSkinLock to (_demonSkinChoice is "none" ? "off" : _demonSkinChoice)>><<syncDemonSkin>>');
 		});
 		jQuery('.passage').on('change', 'select.macro-listbox', function (e) {
 			if (V.transformationParts.cat.heterochromia === "hidden") {

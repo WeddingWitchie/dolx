@@ -121,3 +121,40 @@ function blackmailGrantStall() {
 	return true;
 }
 window.blackmailGrantStall = blackmailGrantStall;
+
+/* Soft bad ends can keep the player away for several days, making the current task impossible to complete.
+badEndTracking calls this to cancel the task without penalty.
+The club keeps the blackmail material and can send another task after the cooldown. */
+function blackmailCancelQuestForBadEnd() {
+	const blackmail = V.xchange?.blackmail;
+	if (!blackmail || !blackmail.activeQuest) return false;
+	// The day's outcome is already locked in and its reward or penalty is waiting on the conclusion letter.
+	// Cancelling here would throw that away, and blackmail-daypassed settles it on its own after a week.
+	if (blackmail.conclusionPending) return false;
+
+	delete blackmail.activeQuest;
+	delete blackmail.conclusionDays;
+	delete blackmail.passedOutRecently;
+	delete blackmail.hasGenderswappedRecently;
+	delete blackmail.gracePeriod;
+	delete blackmail.paymentsRemoved;
+	blackmail.hasReadLetter = false;
+	blackmail.conclusionPending = false;
+	blackmail.cooldown = Math.max(Number(blackmail.cooldown) || 0, 3);
+
+	/* Keep the courier, but restart their week-long patience so the next letter isn't already stale on return.
+	   A missing courier would leave held material with no way to deliver it, so fall back to the orphanage drop. */
+	if (blackmail.hasMaterial) {
+		if (blackmail.courier) {
+			blackmail.courierReady = 7;
+		} else {
+			blackmail.courier = "orphanage";
+			blackmail.courierAfk = true;
+			blackmail.courierReady = 0;
+		}
+	}
+
+	blackmail.effectmessage = 6;
+	return true;
+}
+window.blackmailCancelQuestForBadEnd = blackmailCancelQuestForBadEnd;
