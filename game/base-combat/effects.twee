@@ -3026,20 +3026,22 @@
 			<<if $leftaction is "npcremovecondom" and $rightaction is "npcremovecondom">>
 				<<set $leftaction to 0>><<set $leftactiondefault to "rest">><<set $rightaction to 0>><<set $rightactiondefault to "rest">>
 				<<if $lefttarget is $righttarget>>
-					<<set $_target to $lefttarget>><<handskilluse>><<brat 2 $_target>>
+					<<set $_target to $lefttarget>><<handskilluse>><<brat 2 $_target `npcWelcomesBreeding($_target) ? "welcomed" : ""`>>
 				<<else>>
-					<<set $_target to $lefttarget>><<set $_target2 to $righttarget>><<handskilluse>><<brat 1 $_target>><<brat 1 $_target2>>
+					<<set $_target to $lefttarget>><<set $_target2 to $righttarget>><<handskilluse>><<brat 1 $_target `npcWelcomesBreeding($_target) ? "welcomed" : ""`>><<brat 1 $_target2 `npcWelcomesBreeding($_target2) ? "welcomed" : ""`>>
 				<</if>>
 			<<elseif $leftaction is "npcremovecondom">>
 				<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
-				<<set $_target to $lefttarget>><<handskilluse>><<brat 1 $_target>>
+				<<set $_target to $lefttarget>><<handskilluse>><<brat 1 $_target `npcWelcomesBreeding($_target) ? "welcomed" : ""`>>
 			<<elseif $rightaction is "npcremovecondom">>
 				<<set $rightaction to 0>><<set $rightactiondefault to "rest">>
-				<<set $_target to $righttarget>><<handskilluse>><<brat 1 $_target>>
+				<<set $_target to $righttarget>><<handskilluse>><<brat 1 $_target `npcWelcomesBreeding($_target) ? "welcomed" : ""`>>
 			<</if>>
 			<<if $consensual is 0 and playerPregnancyPossibleWith($NPCList[$_target])>><<combatpromiscuity6>><</if>>
 			<<personselect $_target>>
 			<<set $_npc to $NPCList[$_target]>>
+			/* removeNPCCondom wipes the condom object, so note a sabotaged one before it goes */
+			<<set $_condomWasFake to condomState($_target) is "sabotaged">>
 			<<if $_npc.pregnancyAvoidance gte 80>>
 				<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $_target)>>
 					<<combatPerson>> tries to stop you from removing <<his>> condom, <span class="green">but you manage to do it anyways.</span>
@@ -3051,9 +3053,13 @@
 				You stealthily remove the condom from <<combatpersons>> penis.
 				<<removeNPCCondom $_target>>
 			<</if>>
+			<<if npcWelcomesBreeding($_target) and !wearingCondom($_target)>>
+				<<set $speechcondomremoved to ($_condomWasFake ? "sabotaged" : 1)>>
+			<</if>>
 			<<if $_target2>>
 				<<personselect $_target2>>
 				<<set $_npc to $NPCList[$_target2]>>
+				<<set $_condomWasFake to condomState($_target2) is "sabotaged">>
 				<<if $_npc.pregnancyAvoidance gte 80>>
 					<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $_target2)>>
 						<<combatPerson>> tries to stop you from removing <<his>> condom, <span class="green">but you manage to do it anyways.</span>
@@ -3064,6 +3070,9 @@
 				<<else>>
 					You stealthily remove the condom from <<combatpersons>> penis.
 					<<removeNPCCondom $_target2>>
+				<</if>>
+				<<if npcWelcomesBreeding($_target2) and !wearingCondom($_target2)>>
+					<<set $speechcondomremoved to ($_condomWasFake ? "sabotaged" : 1)>>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -4458,7 +4467,7 @@
 			<<set _target to (typeof $feettarget).isEqual("number")? $feettarget : 0>>
 			<<set $_legLockDif to Math.floor((100 - $NPCList[_target].pregnancyAvoidance) * 15)>>
 			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("thigh", _target, $NPCList[_target].fullDescription, $_legLockDif)>>
-				<<brat 2>><<sex 5 "genitals" _target>><<set $feetactiondefault to "legLocked">><<set $feetuse to "legLock">><<set $leglocktarget to _target>>
+				<<brat 2 _target `npcWelcomesBreeding(_target) ? "welcomed" : ""`>><<sex 5 "genitals" _target>><<set $feetactiondefault to "legLocked">><<set $feetuse to "legLock">><<set $leglocktarget to _target>>
 				<<set $speechleglock to 1>><<personselect _target>>
 				<<thighstat>><span class="lblue">You <<thightext>> <<if $position is "missionary">>wrap your legs around<<else>>push back against<</if>> <<combatperson _target>>, preventing <<him>> from pulling out.</span>
 			<<else>>
@@ -4471,7 +4480,7 @@
 			<<set _target to (typeof $feettarget).isEqual("number")? $feettarget : 0>>
 			<<set $_legLockDif to Math.floor((100 - $NPCList[_target].pregnancyAvoidance) * 10)>>
 			<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("thigh", _target, $NPCList[_target].fullDescription, $_legLockDif)>>
-				<<brat 2>><<sex 5 "genitals" _target>><<set $speechleglock to 1>><<personselect _target>>
+				<<brat 2 _target `npcWelcomesBreeding(_target) ? "welcomed" : ""`>><<sex 5 "genitals" _target>><<set $speechleglock to 1>><<personselect _target>>
 				<span class="lewd">You keep <<if $position is "missionary">>your legs wrapped around<<else>>pushing back against<</if>> <<combatperson _target>>, giving <<him>> no chance to escape.</span>
 			<<elseif $orgasmdown gte 1>>
 				<<sex 5 "genitals" _target>><<set $speechleglock to 1>><<personselect _target>>

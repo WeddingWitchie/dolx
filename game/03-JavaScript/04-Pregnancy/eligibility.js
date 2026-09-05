@@ -302,3 +302,24 @@ function NPCPregnancyPossibleWithPlayer(NPC) {
 	return true;
 }
 window.NPCPregnancyPossibleWithPlayer = NPCPregnancyPossibleWithPlayer;
+
+/**
+ * Returns whether this NPC likes having protection removed instead of getting angry.
+ * This includes pulling off a condom or stopping them from withdrawing.
+ *
+ * NPCs with pregnancyAvoidance below 50 do not normally use condoms.
+ * Since they already wanted unprotected sex, removing protection should not increase anger.
+ *
+ * @param {number|string|object} NPC combat slot, named NPC name, or NPC object
+ * @returns {boolean}
+ */
+function npcWelcomesBreeding(NPC) {
+	const npc = typeof NPC === "number" ? V.NPCList?.[NPC] : resolvePregnancyNpc(NPC).npc;
+	if (!npc) return false;
+	/* If avoidance is missing or invalid, the NPC gets angry instead of treating it as a kink.
+	 * Reject null first, since Number(null) becomes 0. */
+	if (npc.pregnancyAvoidance === null || npc.pregnancyAvoidance === undefined) return false;
+	const avoidance = Number(npc.pregnancyAvoidance);
+	return Number.isFinite(avoidance) && avoidance < 50;
+}
+window.npcWelcomesBreeding = npcWelcomesBreeding;
