@@ -689,6 +689,12 @@ function compatibilityConversion(rawData) {
 		incoming.nnpcPregnancyEnabled = incoming.npcPregnancyEnabled;
 	}
 
+	// A settings file exported before ear slimes became their own toggle carries only the slime flag.
+	// It governed both kinds of slime, so ear slimes inherit it.
+	if (incoming.slimesEnabled !== undefined && incoming.earSlimesEnabled === undefined) {
+		incoming.earSlimesEnabled = incoming.slimesEnabled;
+	}
+
 	return JSON.stringify(processed);
 }
 
@@ -1461,6 +1467,7 @@ function settingsObjects(type) {
 					transformDivineEnabled: { bool: true, displayName: "Divine Transformations:" },
 					analDoubleEnabled: { bool: true, displayName: "Double Anal:" },
 					vaginalDoubleEnabled: { bool: true, displayName: "Double Vaginal:" },
+					earSlimesEnabled: { bool: true, displayName: "Ear slimes:" },
 					allureModifier: { min: 0.2, max: 2, decimals: 1, displayName: "Encounter rate:", randomize: "gameplay" },
 					facesitEnabled: { bool: true, displayName: "Facesitting:" },
 					pregnancySpeechEnabled: { bool: true, displayName: "Fertility references:" },

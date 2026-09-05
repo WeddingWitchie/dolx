@@ -3676,13 +3676,20 @@
 
 <<widget "WhitneyParasite">>
 	/* roll of the die where they place what parasite */
-	/* 2 kinds of parasite, 3 target locations */
-	<<set _parasite_type to ["urchin","slime"].random()>>
-	<<if playerChastity()>>
-		<<set _parasite_loc to ["bottom","nipples"].random()>>
-	<<else>>
-		<<set _parasite_loc to ["bottom","nipples","genitals"].random()>>
+	/* Type and target are picked from pools, so disabled content is simply never rolled. */
+	<<set _parasite_type_pool to ["urchin"]>>
+	<<if $settings.slimesEnabled>>
+		<<run _parasite_type_pool.push("slime")>>
 	<</if>>
+	<<set _parasite_type to _parasite_type_pool.random()>>
+	<<set _parasite_loc_pool to ["nipples"]>>
+	<<if $settings.analEnabled>>
+		<<run _parasite_loc_pool.push("bottom")>>
+	<</if>>
+	<<if !playerChastity()>>
+		<<run _parasite_loc_pool.push("genitals")>>
+	<</if>>
+	<<set _parasite_loc to _parasite_loc_pool.random()>>
 
 	/* lets handle common events in one place */
 	<<if $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and $worn.under_lower.type.includes("naked") or $worn.upper.type.includes("naked") and $worn.lower.type.includes("naked") and playerChastity()>>
@@ -3805,7 +3812,7 @@
 
 	<<endevent>>
 	<<clotheson>>
-	<<link [[Next|Hallways]]>><<unset _parasite_type>><<unset _parasite_loc>><<set $eventskip to 1>><</link>>
+	<<link [[Next|Hallways]]>><<unset _parasite_type>><<unset _parasite_loc>><<unset _parasite_type_pool>><<unset _parasite_loc_pool>><<set $eventskip to 1>><</link>>
 <</widget>>
 
 <<widget "WhitneyParasitePenisComment">>

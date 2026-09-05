@@ -145,6 +145,7 @@ function beastTogglesCheck() {
 		"parasitePregnancyEnabled",
 		"tentaclesEnabled",
 		"slimesEnabled",
+		"earSlimesEnabled",
 		"voreEnabled",
 		"spidersEnabled",
 		"slugsEnabled",
