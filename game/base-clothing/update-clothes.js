@@ -887,3 +887,77 @@ function repairWardrobeSlots() {
 	}
 }
 window.repairWardrobeSlots = repairWardrobeSlots;
+
+/* Only these slots have damaged sprites (full/frayed/torn/tattered).
+ * Other slots do not, so damage would cause missing images and incorrect descriptions.
+ */
+setup.tearableSlots = ["upper", "lower", "legs", "under_upper", "under_lower", "over_upper", "over_lower"];
+
+/* Items in these slots that do not have damaged artwork.
+ * Re-check this list if damaged artwork is added later.
+ */
+setup.noDamageArt = {
+	lower: ["schoolskirtplaid2"],
+	legs: ["harness garter stockings", "patterned leggings", "striped garter stockings"],
+};
+
+/* Whether the player can tear a worn item by hand.
+ * Blocks items that cannot be torn or have no damaged artwork.
+ */
+function canTearClothing(slot, item) {
+	if (!slot || !item || !setup.tearableSlots.includes(slot)) return false;
+	if (!item.name || item.name === "naked") return false;
+	let setupItem;
+	try {
+		setupItem = setup.clothes[slot][clothesIndex(slot, item)];
+	} catch (e) {
+		return false;
+	}
+	if (!setupItem) return false;
+	const type = item.type || setupItem.type || [];
+	if (type.includes("naked") || type.includes("chastity")) return false;
+	if (item.altDamage ?? setupItem.altDamage) return false;
+	if (item.cursed || setupItem.cursed) return false;
+	if (setup.noDamageArt[slot]?.includes(setupItem.variable)) return false;
+	const max = item.integrity_max ?? setupItem.integrity_max;
+	if (!max) return false;
+	return Number(item.integrity) > max * 0.2;
+}
+window.canTearClothing = canTearClothing;
+
+/* Match the wardrobe UI rules when setting $wardrobe_location manually,
+ * so clothes are not stored in an inaccessible wardrobe.
+ */
+function resolveWardrobeLocation(location) {
+	if (!location || location === "wardrobe") return "wardrobe";
+	if (!V.settings?.multipleWardrobes) return "wardrobe";
+	const wardrobe = V.wardrobes?.[location];
+	if (!wardrobe) return "wardrobe";
+	if (V.settings.multipleWardrobes === "isolated" && !wardrobe.isolated) return "wardrobe";
+	return location;
+}
+window.resolveWardrobeLocation = resolveWardrobeLocation;
+
+/* Moves clothes from unreachable wardrobes back to the orphanage wardrobe.
+ * Shared wardrobes and old school pool lockers may contain stuck clothes.
+ * Other isolated wardrobes keep their contents.
+ */
+function reclaimStrandedWardrobeItems() {
+	if (!V.wardrobes || typeof V.wardrobes !== "object" || Array.isArray(V.wardrobes)) return;
+	if (!V.wardrobe || typeof V.wardrobe !== "object") return;
+	const lockers = ["schoolBoys", "schoolGirls"];
+	for (const name of Object.keys(V.wardrobes)) {
+		/* "shopReturn" is a string, "wardrobe" is a metadata-only stub, "inventory" is the handbag */
+		if (name === "shopReturn" || name === "wardrobe" || name === "inventory") continue;
+		const wardrobe = V.wardrobes[name];
+		if (!wardrobe || typeof wardrobe !== "object" || Array.isArray(wardrobe)) continue;
+		if (wardrobe.isolated && !lockers.includes(name)) continue;
+		if (resolveWardrobeLocation(name) === name) continue;
+		for (const slot of setup.clothes_all_slots) {
+			if (!Array.isArray(wardrobe[slot]) || !wardrobe[slot].length) continue;
+			if (!Array.isArray(V.wardrobe[slot])) V.wardrobe[slot] = [];
+			V.wardrobe[slot].push(...wardrobe[slot].splice(0));
+		}
+	}
+}
+window.reclaimStrandedWardrobeItems = reclaimStrandedWardrobeItems;

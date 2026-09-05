@@ -9,35 +9,6 @@
  * If what you're looking for isn't defined here, check other files too.
  */
 
-function kofiValidate(code) {
-	const versionNumber = window.StartConfig.version;
-
-	const versionMatch = versionNumber.match(/DoLX (\d+)\.(\d+)\.(\d+)\w{0,1}/);
-	if (!versionMatch) {
-		throw new Error("Version number doesn't match convention.");
-	}
-
-	const codeMatch = code.match(/(\d+)[A-Z]{3}(\w)[A-Z]{1}(\w)[A-Z]{1,3}(\d+)/);
-	if (codeMatch === null) return 0;
-
-	const verMajor = codeMatch[1];
-	const codeMajor = codeMatch[2];
-	const codeMinor = codeMatch[3];
-	const verMinor = Math.sqrt(codeMatch[4]);
-
-	const majorHash = String.fromCharCode(((verMajor << 11) % 25) + 65);
-	const minorHash = String.fromCharCode(((verMinor << 11) % 25) + 65);
-
-	const isValid = versionMatch[1] >= verMajor && versionMatch[2] >= verMinor && codeMajor === majorHash && codeMinor === minorHash;
-
-	if (isValid) {
-		return +verMajor * 1000 + +verMinor;
-	} else {
-		return 0;
-	}
-}
-window.kofiValidate = kofiValidate;
-
 function wornSetupClothes(slot) {
 	return setup.clothes[slot][clothesIndex(slot, V.worn[slot])];
 }

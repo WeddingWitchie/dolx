@@ -976,9 +976,6 @@
 	<<set _ripAmount to _args[1] || 10>>
 	<<if $worn[_slot] isnot undefined and clothingData(_slot, $worn[_slot], 'integrity') isnot undefined>>
 		<<set $worn[_slot].integrity to Math.max(0, $worn[_slot].integrity - _ripAmount)>>
-		<<if $worn[_slot].integrity is 0>>
-			<<clothingBreak _slot>>
-		<</if>>
 	<</if>>
 <</widget>>
 
@@ -989,7 +986,7 @@
 */
 <<widget "ripToNextState">>
 	<<set _slot to _args[0]>>
-	<<if $worn[_slot] isnot undefined and clothingData(_slot, $worn[_slot], 'integrity') isnot undefined>>
+	<<if canTearClothing(_slot, $worn[_slot])>>
 		<<set _max to clothingData(_slot, $worn[_slot], 'integrity_max')>>
 		<<set _curr to Number($worn[_slot].integrity) || 0>>
 		<<set _t90 to (_max / 10) * 9>>
@@ -1342,7 +1339,7 @@
 				<div class="no-numberify"><<repairClothing>></div>
 			<</if>>
 
-			<<if $worn[_wardrobe_list].integrity gt 10 and clothingData(_wardrobe_list, $worn[_wardrobe_list], 'integrity_max') isnot undefined>>
+			<<if canTearClothing(_wardrobe_list, $worn[_wardrobe_list])>>
 				<div class="no-numberify"><<link `"Tear " + $worn[_wardrobe_list].name`>><<ripToNextState _wardrobe_list>><<updatesidebarimg>><<updatewardrobe>><</link>></div>
 			<</if>>
 
@@ -2156,12 +2153,10 @@
 <</widget>>
 
 <<widget "wardrobeSelection">>
-	<<if !$settings.multipleWardrobes or !$wardrobes[$wardrobe_location]>>
-		<<set $wardrobe_location to "wardrobe">>
-	<<elseif $forceWardrobeLocation>>
+	<<if $forceWardrobeLocation and $settings.multipleWardrobes and $wardrobes[$wardrobe_location]>>
 		<<set $wardrobe_location to $forceWardrobeLocation>>
-	<<elseif $settings.multipleWardrobes is "isolated" and !$wardrobes[$wardrobe_location].isolated>>
-		<<set $wardrobe_location to "wardrobe">>
+	<<else>>
+		<<set $wardrobe_location to resolveWardrobeLocation($wardrobe_location)>>
 	<</if>>
 	<<if $debug and $settings.multipleWardrobes and !_args[0]>>
 		<div class="no-numberify">Debug:
@@ -2412,7 +2407,7 @@ You look through the rustic wardrobe.
 :: School Pool Wardrobe [exitCheckBypass]
 
 <<effects>>
-<<set $wardrobe_location to $changingRoomGender is "boys"? "schoolBoys": "schoolGirls">>
+<<set $wardrobe_location to resolveWardrobeLocation($changingRoomGender is "boys" ? "schoolBoys" : "schoolGirls")>>
 <<wardrobeSelection>>
 <<set _earSlimeEnableSwimwear to true>>
 You stand in front of your open locker.
