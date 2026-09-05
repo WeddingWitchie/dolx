@@ -2426,10 +2426,16 @@ Renderer.CanvasModels.main = {
 		"nnpc": {
 			srcfn() {
 				// Helpers
+				// NPCs with no art folder of their own, borrowing the generic "others" set.
+				// 'Mickey' is stored with the quotes as part of the name, so strip those before matching.
+				const folderAliases = {
+					mickey: "others",
+				};
 				const norm = (name) => {
 					if (!name || name === 0) return null;
 					// Folder names are the lowercased name with spaces as underscores, so this is the whole mapping.
-					return String(name).trim().toLowerCase().replace(/\s+/g, "_");
+					const key = String(name).trim().replace(/^['"]+|['"]+$/g, "").toLowerCase().replace(/\s+/g, "_");
+					return folderAliases[key] ?? key;
 				};
 
 				const autoEnabled = V.options?.autoNNPCDisplay?.enabled === true;
