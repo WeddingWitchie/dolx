@@ -128,7 +128,6 @@ Weather.Renderer.Effect = class Effect {
 						await result;
 					}
 				} catch (e) {
-					console.log("p1", this);
 					console.error("Error during effect '", this.parentLayer.name, "' init function. Error:", e.target ?? e);
 				}
 			}
@@ -169,13 +168,17 @@ Weather.Renderer.Effect = class Effect {
 			return;
 		}
 
+		/*
+		 * Always restore in finally so errors don't keep stacking saved states every frame.
+		 */
+		this.canvas.ctx.save();
 		try {
-			this.canvas.ctx.save();
 			this.onDraw(canvas, layerCanvas);
-			this.canvas.ctx.restore();
 		} catch (e) {
 			console.error("Error during effect '", this.parentLayer.name, "' function:", e.target ?? e);
 			return e;
+		} finally {
+			this.canvas.ctx.restore();
 		}
 	}
 };

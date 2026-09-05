@@ -9,7 +9,7 @@ Weather.Renderer.Layer = class Layer {
 		if (animation) {
 			this.animationGroup = new Weather.Renderer.AnimationGroup(animation, () => {
 				if (this.renderInstance) {
-					this.renderInstance.drawLayers(this.name);
+					this.renderInstance.requestDrawLayers(this.name);
 				}
 			});
 		}
@@ -57,7 +57,13 @@ Weather.Renderer.Layer = class Layer {
 	async init() {
 		this.loading = true;
 		if (!this.renderInstance) return;
-		this.canvas = new this.renderInstance.Canvas();
+		/*
+		 * Sidebar and banner share sky layers, and effects load asynchronously.
+		 * Check that this sky still owns the layer before starting the effect.
+		 */
+		const renderer = this.renderInstance;
+		const token = renderer.teardownToken;
+		this.canvas = new renderer.Canvas();
 
 		// Reset animations on that layer
 		if (this.animationGroup) {
@@ -69,6 +75,15 @@ Weather.Renderer.Layer = class Layer {
 		// Sequentially initialise each effect
 		for (const effect of this.effects) {
 			await effect.init();
+		}
+
+		/*
+		 * The sky was removed while loading. Don't start the animation, or it may keep running forever.
+		 */
+		if (this.renderInstance !== renderer || renderer.teardownToken !== token) {
+			this.animationGroup?.stop();
+			this.loading = false;
+			return;
 		}
 
 		// Start playing animations once effects are loaded

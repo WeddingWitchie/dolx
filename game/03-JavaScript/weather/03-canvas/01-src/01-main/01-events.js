@@ -68,7 +68,6 @@ $(document).on(":passagestart", () => {
 						"fogOverlay",
 						"rainbow",
 						"lightning",
-						"lightningPulse",
 					],
 					resizable: true,
 				});

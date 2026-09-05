@@ -8,13 +8,12 @@ Weather.Renderer.Layers.add({
 			effect: "imageOverlay",
 			drawCondition() {
 				return (
-					true ||
-					(!this.renderInstance.sidebarSkyDisabled &&
-						!Weather.bloodMoon &&
-						this.renderInstance.orbitals.sun.factor > 0.7 &&
-						this.renderInstance.orbitals.sun.factor < 0.85 &&
-						Weather.overcast < 1 &&
-						(Weather.precipitation === "rain" || Weather.fog > 0.4))
+					!this.renderInstance.sidebarSkyDisabled &&
+					!Weather.bloodMoon &&
+					this.renderInstance.orbitals.sun.factor > 0.7 &&
+					this.renderInstance.orbitals.sun.factor < 0.85 &&
+					Weather.overcast < 1 &&
+					(Weather.precipitation === "rain" || Weather.fog > 0.4)
 				);
 			},
 			compositeOperation: "destination-out",

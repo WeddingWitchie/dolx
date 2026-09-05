@@ -36,6 +36,19 @@ Weather.Renderer.Sky = class {
 		this.layers = new Map();
 		this.orbitals = {};
 
+		/*
+		 * Increased by stopAll.
+		 * If a layer finishes loading after the sky has been stopped, Layer.init detects the change and cancels its animation.
+		 */
+		this.teardownToken = 0;
+
+		/* Composite state. See drawLayers and requestDrawLayers. */
+		this.compositeCanvas = null;
+		this.compositeInFlight = null;
+		this.pendingLayers = new Set();
+		this.pendingAllLayers = false;
+		this.pendingFrameId = null;
+
 		this.loaded = new ObservableValue(false);
 		this.loading = false;
 		this.initializationPromise = null;
@@ -133,7 +146,10 @@ Weather.Renderer.Sky = class {
 	}
 
 	async initEffects() {
+		const token = this.teardownToken;
 		for (const layer of this.layers.values()) {
+			/* Stop feeding a teardown that already happened. */
+			if (this.teardownToken !== token) return;
 			layer.setRenderer(this);
 			await layer.init();
 		}
@@ -147,7 +163,47 @@ Weather.Renderer.Sky = class {
 	 * @param {string} args
 	 */
 	async drawLayers(...args) {
-		const tempCanvas = new this.Canvas();
+		/*
+		 * Compositing is async and uses one shared canvas.
+		 * If another pass starts during one, it waits and runs once after.
+		 */
+		if (this.compositeInFlight) {
+			if (args.length === 0) this.pendingAllLayers = true;
+			else for (const name of args) this.pendingLayers.add(name);
+			return this.compositeInFlight;
+		}
+
+		/*
+		 * Handle errors here because drawLayers is not awaited.
+		 * This prevents unhandled rejections and keeps the queue running.
+		 */
+		this.compositeInFlight = this.composite(...args).catch(error => console.error("Error compositing sky layers:", error));
+		try {
+			await this.compositeInFlight;
+		} finally {
+			this.compositeInFlight = null;
+		}
+
+		if (this.pendingAllLayers || this.pendingLayers.size > 0) {
+			const all = this.pendingAllLayers;
+			const names = [...this.pendingLayers];
+			this.pendingAllLayers = false;
+			this.pendingLayers.clear();
+			return all ? this.drawLayers() : this.drawLayers(...names);
+		}
+	}
+
+	/* The composite itself. Always go through drawLayers, which keeps passes from overlapping. */
+	async composite(...args) {
+		/*
+		 * Reuse one canvas for the sky instead of creating a new one every pass.
+		 * This reduces memory use and improves performance, especially on phones.
+		 */
+		if (!this.compositeCanvas) this.compositeCanvas = new this.Canvas();
+		const tempCanvas = this.compositeCanvas;
+		tempCanvas.clear();
+		tempCanvas.ctx.globalAlpha = 1;
+		tempCanvas.ctx.globalCompositeOperation = "source-over";
 		for (const layer of this.layers.values()) {
 			if (args.length === 0 || args.includes(layer.name)) {
 				try {
@@ -167,7 +223,35 @@ Weather.Renderer.Sky = class {
 		this.mainLayer.ctx.drawImage(tempCanvas.element, 0, 0, this.mainLayer.element.width, this.mainLayer.element.height);
 	}
 
+	/*
+	 * Animation path. Animated layers used to redraw the whole sky separately, causing many unnecessary redraws.
+	 * They are now combined into one redraw per animation frame.
+	 */
+	requestDrawLayers(...args) {
+		if (args.length === 0) this.pendingAllLayers = true;
+		else for (const name of args) this.pendingLayers.add(name);
+
+		if (this.pendingFrameId != null) return;
+		this.pendingFrameId = requestAnimationFrame(() => {
+			this.pendingFrameId = null;
+			const all = this.pendingAllLayers;
+			const names = [...this.pendingLayers];
+			this.pendingAllLayers = false;
+			this.pendingLayers.clear();
+			/*
+			 * An empty batch means another pass already drained it.
+			 * Calling drawLayers with no arguments would ask for a full recompute of every layer, so stop here instead.
+			 */
+			if (!all && names.length === 0) return;
+			/* Nothing on screen to update - skip the pass entirely. */
+			if (!this.mainLayer?.element?.isConnected) return;
+			if (all) this.drawLayers();
+			else this.drawLayers(...names);
+		});
+	}
+
 	stopAll() {
+		this.teardownToken++;
 		for (const layer of this.layers.values()) {
 			// A layer initialises its effects asynchronously, so a passage change can land here while the array still has an empty slot in it.
 			for (const effect of layer.effects) effect?.disable();
@@ -177,6 +261,12 @@ Weather.Renderer.Sky = class {
 				layer.animationGroup.reset();
 			}
 		}
+		if (this.pendingFrameId != null) {
+			cancelAnimationFrame(this.pendingFrameId);
+			this.pendingFrameId = null;
+		}
+		this.pendingLayers.clear();
+		this.pendingAllLayers = false;
 		this.loaded.value = false;
 	}
 
