@@ -2346,6 +2346,9 @@ function initLegs() {
 			name: "patterned leggings",
 			name_cap: "Patterned leggings",
 			variable: "patterned leggings",
+			combat: {
+				reference: "tights",
+			},
 			description: "Adds some details.",
 			cost: 2500,
 			shop: ["clothing"],
