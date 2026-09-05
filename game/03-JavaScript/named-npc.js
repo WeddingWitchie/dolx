@@ -576,6 +576,17 @@ function averyMansionScore() {
 window.averyMansionScore = averyMansionScore;
 
 /**
+ * Returns whether the player currently lives in Avery's mansion.
+ * $avery_mansion can stay true after the arc ends, so it cannot be used alone.
+ *
+ * @returns {boolean}
+ */
+function livesInAveryMansion() {
+	return !!V.avery_mansion && V.avery_fate !== "fallen" && V.avery_fate !== "kicked";
+}
+window.livesInAveryMansion = livesInAveryMansion;
+
+/**
  * @param {"Eden" | "Black Wolf" | "Ivory Wraith" | "Gwylan" | "forest trio"} npc which npc to check
  */
 function npcCanHunt(npc) {

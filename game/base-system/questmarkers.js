@@ -84,8 +84,11 @@ const events = [
 		name: "blackmail conclusion",
 		condition() {
 			const blackmail = V.xchange?.blackmail;
-			// The conclusion letter waits in the bedroom, and blocks every future delivery until it's read.
-			return !!(blackmail?.intro && blackmail.conclusionPending);
+			// The conclusion letter stays in the bedroom until read and blocks future deliveries.
+			// The delivery notice only appears on the day it arrives.
+			// The journal keeps showing the letter until you collect it.
+			if (!blackmail?.intro || !blackmail.conclusionPending) return false;
+			return !Number(blackmail.conclusionDays);
 		},
 		starthour: 0,
 		endhour: 23,
