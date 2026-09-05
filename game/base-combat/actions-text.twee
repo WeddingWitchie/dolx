@@ -1906,29 +1906,16 @@
 
 /* Special widget for Angel TF's unique "Forgive" action */
 <<widget "actionsforgive">>
-	<<checkforloveinterests>>
 	<<if $enemytype is "beast">>
 		"You don't know any better. You're just a <<beasttype>>," you say. "I forgive you."
-	<<else>>
-		<<if _loveInterest isnot undefined>> 
-			/* Removing RNG since it's straightforward. Might add `and random(0, 100) lte 15` back if the situation calls for it */
-			<<set $speechnamedrop to $npc.includes(_loveInterest) ? 0 : 1>>
-			<<rng>>
-			<<switch _loveInterest>>
-				<<case "Avery">>
-					<<if $npc.includes("Avery")>>
-						<<if $avery_fate is undefined>>
-							"You're just angry," you say. "Everyone gets angry sometimes. I forgive you."
-						<<else>>
-							"Now I understand why you get so angry, Avery," you say. "And I forgive you."
-						<</if>>
-					<</if>>
-				<<default>>
-					"Even though you're doing such a horrible thing, don't worry," you say. "I forgive you."
-			<</switch>>
+	<<elseif $npc.includes("Avery") and Object.values($loveInterest).includes("Avery")>>
+		<<if $avery_fate is undefined>>
+			"You're just angry," you say. "Everyone gets angry sometimes. I forgive you."
 		<<else>>
-			"Even though you're doing such a horrible thing, don't worry," you say. "I forgive you."
+			"Now I understand why you get so angry, Avery," you say. "And I forgive you."
 		<</if>>
+	<<else>>
+		"Even though you're doing such a horrible thing, don't worry," you say. "I forgive you."
 	<</if>>
 <</widget>>
 
@@ -2132,7 +2119,7 @@
 			<</if>>
 		<</if>>
 	<<else>>
-		<<if _loveInterest isnot undefined and random(0, 100) lte 15>>
+		<<if setup.namedropLoveInterests.includes(_loveInterest) and random(0, 100) lte 15>>
 			<<set $speechnamedrop to $npc.includes(_loveInterest) ? 0 : 1>>
 			<<if $speechnamedrop is 0>>
 				You speak.
@@ -4029,7 +4016,7 @@
 				"I'm not going without a fight!"
 			<</if>>
 
-		<<elseif _loveInterest isnot undefined and random(0,100) lte 15>>
+		<<elseif setup.namedropLoveInterests.includes(_loveInterest) and random(0,100) lte 15>>
 			<<set $speechnamedrop to $npc.includes(_loveInterest) ? 0 : 1>>
 			<<if $speechnamedrop is 0>>
 				You speak.
