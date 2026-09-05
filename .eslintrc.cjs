@@ -460,6 +460,7 @@ module.exports = {
 		poppyStatusCheck: "readonly",
 		modLISelected: "readonly",
 		// X-Change / merge-surfaced globals (top-level functions shared across concatenated scripts)
+		resolveWardrobeLocation: "readonly",
 		playerIsXChanged: "readonly",
 		playerIsBreederCreampied: "readonly",
 		ensureBirthId: "readonly",

@@ -21,6 +21,26 @@ function ensureDanceStudioWardrobe() {
 }
 window.ensureDanceStudioWardrobe = ensureDanceStudioWardrobe;
 
+/* The MMA gym only stored clothes in a pile, so they did not appear in the wardrobe UI. This adds a proper locker like the dance studio's. */
+function ensureMmaGymWardrobe() {
+	if (!V.wardrobes || typeof V.wardrobes !== "object" || Array.isArray(V.wardrobes)) return;
+	if (!V.wardrobes.mmaGym || typeof V.wardrobes.mmaGym !== "object" || Array.isArray(V.wardrobes.mmaGym)) {
+		V.wardrobes.mmaGym = {};
+	}
+	const locker = V.wardrobes.mmaGym;
+	for (const slot of setup.clothes_all_slots) {
+		if (!Array.isArray(locker[slot])) locker[slot] = [];
+	}
+	if (locker.name === undefined) locker.name = "MMA gym locker";
+	if (locker.unlocked === undefined) locker.unlocked = true;
+	if (locker.isolated === undefined) locker.isolated = true;
+	if (locker.shopSend === undefined) locker.shopSend = false;
+	if (locker.transfer === undefined) locker.transfer = true;
+	if (!Number.isFinite(locker.space)) locker.space = 5 * (V.wardrobeMult || 1);
+	if (!Array.isArray(locker.locationRequirement) || !locker.locationRequirement.length) locker.locationRequirement = ["mma_gym"];
+}
+window.ensureMmaGymWardrobe = ensureMmaGymWardrobe;
+
 function getWardrobeItemCount(wardrobeId) {
 	let wardrobe;
 	if (wardrobeId === "wardrobe") {

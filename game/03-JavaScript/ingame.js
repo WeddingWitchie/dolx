@@ -1296,13 +1296,28 @@ function clothesReturnLocation(item, type) {
 	switch (type) {
 		case "rebuy":
 			if (isolated.includes(V.location) && item.type.includes(V.location)) return V.location;
+			/* Only send replacements to wardrobes that accept deliveries and are currently accessible. Otherwise, send them to the orphanage. */
+			if (!canReceiveRebuy(lastTaken)) return "wardrobe";
 			break;
 		default:
 			if (isolated.includes(V.location)) return V.location;
 	}
-	if (!isolated.includes(lastTaken)) return lastTaken;
+	if (!isolated.includes(lastTaken)) return resolveWardrobeLocation(lastTaken);
 	return "wardrobe";
 }
+
+/* Whether an automatic clothing-rebuy replacement can be delivered to this wardrobe. */
+function canReceiveRebuy(location) {
+	if (!location || location === "wardrobe") return true;
+	if (resolveWardrobeLocation(location) !== location) return false;
+	const wardrobe = V.wardrobes?.[location];
+	if (!wardrobe || !wardrobe.unlocked || !wardrobe.shopSend) return false;
+	if (Array.isArray(wardrobe.locationRequirement) && wardrobe.locationRequirement.length && !wardrobe.locationRequirement.includes(V.location)) {
+		return false;
+	}
+	return true;
+}
+window.canReceiveRebuy = canReceiveRebuy;
 window.clothesReturnLocation = clothesReturnLocation;
 
 /* Only the upper layers track a separate top edge in .state_top; everything else has a single hem in .state */
