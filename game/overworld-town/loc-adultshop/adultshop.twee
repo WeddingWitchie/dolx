@@ -543,3 +543,14 @@ You count the money and give it to <<nnpc_him Sirris>>.
 <<unset $lubeBought>>
 <<earnFeat "Brothel Provider">>
 <<link [[Next|Adult Shop]]>><</link>>
+
+:: Widgets lubePrice [widget]
+/* Sets _price to the tiered bulk cost of _args[0] bottles of lube.
+   2000 a bottle: 2% off the first 50, 5% off the next 100, 8% off the rest. */
+<<widget "lubePrice">>
+	<<set $_bottles to Math.max(0, Number(_args[0]) || 0)>>
+	<<set $_tier1 to Math.min($_bottles, 50)>>
+	<<set $_tier2 to Math.min(Math.max($_bottles - 50, 0), 100)>>
+	<<set $_tier3 to Math.max($_bottles - 150, 0)>>
+	<<set _price to Math.round($_tier1 * 2000 * 0.98 + $_tier2 * 2000 * 0.95 + $_tier3 * 2000 * 0.92)>>
+<</widget>>

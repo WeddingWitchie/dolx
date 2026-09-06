@@ -12763,6 +12763,8 @@ function initUpper() {
 			one_piece: 1,
 			set: "striped sweater",
 			outfitPrimary: { lower: "striped sweater" },
+			altposition: "none",
+			altdisabled: [],
 			cursed: 0,
 			location: 0,
 			iconFile: "striped-sweater.png",

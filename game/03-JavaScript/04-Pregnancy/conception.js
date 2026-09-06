@@ -220,6 +220,7 @@ window.xchangeDonorFertility = xchangeDonorFertility;
  */
 function fertilityRamp(daysFromPeak, windowDays) {
 	if (daysFromPeak <= 0) return 1;
+	if (!(windowDays > 0)) return 0;
 	return Math.clamp(1 - daysFromPeak / windowDays, 0, 1);
 }
 window.fertilityRamp = fertilityRamp;
@@ -431,7 +432,9 @@ function npcMenstrualFertility(carrier) {
 	if (V.settings.fertilityCycleEnabled === false) return 1;
 	if (carrier === "Great Hawk") return p.cycleDay >= p.cycleDangerousDay ? 1 : 0;
 	if (p.cycleDay > p.cycleDangerousDay + PregnancyConstants.menstrualCycle.postOvulationDays) return 0;
-	return fertilityRamp(p.cycleDangerousDay - p.cycleDay, p.fertileLeadDays);
+	const c = PregnancyConstants.menstrualCycle;
+	const fertileLeadDays = p.fertileLeadDays ?? Math.round((c.fertileLeadDaysMin + c.fertileLeadDaysMax) / 2);
+	return fertilityRamp(p.cycleDangerousDay - p.cycleDay, fertileLeadDays);
 }
 window.npcMenstrualFertility = npcMenstrualFertility;
 

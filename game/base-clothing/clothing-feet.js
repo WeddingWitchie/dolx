@@ -2675,13 +2675,14 @@ function initFeet() {
 			name: "platform clogs with fur",
 			name_cap: "Platform clogs with fur",
 			variable: "platformclogswithfur",
+			combat: {
+				reference: "wedgesandals",
+				accColour: "#cdb493",
+			},
 			description: "Cosy.",
 			cost: 15500,
 			shop: ["clothing"],
 			type: ["normal"],
-			combat: {
-				reference: "wedgesandals",
-			},
 			state: 0,
 			state_base: 0,
 			integrity: 100,

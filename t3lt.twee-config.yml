@@ -1769,8 +1769,22 @@ sugarcube-2:
       description: Unsets story variables used for Avery's Valetine's date that should
         not be maintianed, and satiates Avery.
     avery_valentines_init:
-      description: Initialises the $avery_valentines object, used for Avery's
-        Valentine's date.
+      description: |-
+        Initialises the $avery_valentines object, used for Avery's Valentine's date.
+    averyBaseSpeech:
+      description: |-
+        Avery's default speech when no speech flag or specific scenario plays out.
+
+        Contains rage variations, comments on player's transformations and clothes.
+    averyCondomUseSpeech:
+      description: |-
+        Avery speech variations over condom usage when the player asks them to use a condom. Contains rage and lust dialogue variations.
+
+        `<<averyCondomUseSpeech "acceptHas">>`
+
+        - **condomSpeech**: `"accept"|"acceptHas"|"acceptGive"|"refuse"` - The different scenario cases for condom usage
+      parameters:
+        - '"accept"|"acceptHas"|"acceptGive"|"refuse"'
     averyofficeoptions:
       description: >-
         Displays links available to the player while working in Avery's office,
@@ -1801,14 +1815,6 @@ sugarcube-2:
         - '|+ "pay"'
         - '"pay" &+ "housekeeping"|"english"|"both"'
         - '"" &+ "housekeeping"|"english"|"both"'
-    averyLungingForGenitalsAss:
-      description: Displays a custom sentence for Avery everytime the player moves
-        lips, genitals or anus to Avery's genitals or ass
-    averyOralImminent:
-      description: |-
-        Speech lines when Avery is about to give the player oral. 
-
-        Has consensual and noncon variants.
     averySchedule:
       description: >-
         Sets _avery_available to "office", "office invite", "office unlock",
@@ -1850,19 +1856,13 @@ sugarcube-2:
         - You have been on dates with Avery at least once 
 
         - It's Sunday 
-
-        - You haven't upset Avery during the last encounter at the spa (see
-        `$averySpaBanWeeks`)
-    averySpeechDaddyChoke:
-      description: Speech variations when Avery chokes the player after being called
-        "daddy"/"mummy" (`_daddy` is set to true). Contains rage variations.
+        - You haven't upset Avery during the last encounter at the spa (see `$averySpaBanWeeks`)
+        
     averyTfComments:
       description: Avery speech comments on the player's transformation parts
     averyUndergroundBrothelSpeech:
-      description: Avery speech pertaining to the player and Avery's reunion on the
-        underground brothel
-    averyUndressReaction:
-      description: Makes Avery react to the player using the "Undress/Unbutton" action
+      description: |-
+        Avery speech pertaining to the player and Avery's reunion on the underground brothel
     awardVirginityFeat:
       description: |-
         Awards virginity loss feat if the NPC gives one.
@@ -2728,6 +2728,14 @@ sugarcube-2:
       name: bodypart_admire
     bodypart_admire_arrow:
       name: bodypart_admire_arrow
+    bodypart_admire_avery:
+      description: |-
+        Avery's reactions to reading bodywriting on the player, called from `<<bodypart_admire_named>>`.
+
+        `<<bodypart_admire_avery bodypartID>>`
+        - **bodypartID**: `string` - key into `$skin`
+      parameters:
+        - string
     bodypart_admire_bestiality:
       name: bodypart_admire_bestiality
     bodypart_admire_boyish:
@@ -14282,6 +14290,27 @@ sugarcube-2:
       name: namedNpcComments
     namedNpcEjaculation:
       name: namedNpcEjaculation
+    namedNpcReaction:
+      description: |-
+        Resolves a named NPC's reaction to a combat action.
+
+        `<<namedNpcReaction index event [detail]>>`
+        - **index**: `number` - index into `$NPCList`
+        - **event**: `string` - what just happened
+          - `choke`
+          - `expose`
+          - `fondle`
+          - `initiative`
+          - `kiss`
+          - `kissDeep`
+          - `kissImminent`
+          - `kissSkin`
+          - `undress`
+        - **detail**: `string` - optional combat-state detail, e.g. which body part
+      parameters:
+        - number
+        - string
+        - string|null
     namedNpcPregnancy:
       name: namedNpcPregnancy
     nDays:
@@ -17595,10 +17624,27 @@ sugarcube-2:
     rapestat:
       name: rapestat
     rapeTrait:
-      description: Prints `| Survivor` or `| Fucktoy` depending on pc's `$submissive`
-      tags:
-        - unused
-        - text
+      description: |-
+        Prints `| Survivor` or `| Fucktoy` depending on pc's `$submissive`
+      tags: ["unused", "text"]
+    reaction-avery-choke:
+      name: reaction-avery-choke
+    reaction-avery-fondle:
+      name: reaction-avery-fondle
+    reaction-avery-initiative:
+      name: reaction-avery-initiative
+    reaction-avery-kissImminent:
+      name: reaction-avery-kissImminent
+    reaction-avery-kissSkin:
+      name: reaction-avery-kissSkin
+    reaction-avery-undress:
+      name: reaction-avery-undress
+    reaction-gwylan-kiss:
+      name: reaction-gwylan-kiss
+    reaction-gwylan-kissDeep:
+      name: reaction-gwylan-kissDeep
+    reaction-sydney-expose:
+      name: reaction-sydney-expose
     reading_nook_recipe:
       name: reading_nook_recipe
     reb:
@@ -24801,6 +24847,10 @@ sugarcube-2:
       name: naughtygirl
     badgirl:
       name: badgirl
+    Naughtygirl:
+      name: Naughtygirl
+    Badgirl:
+      name: Badgirl
     AGirl:
       name: AGirl
     earringsstrip:
@@ -24837,19 +24887,6 @@ sugarcube-2:
 
         Contains rage variations, comments on player's transformations and
         clothes.
-    averyBodywritingSpeech:
-      description: >-
-        Avery comments on the player's bodywriting. A small daily rage reduction
-        is provided depending of the nature of the player's bodywriting, as well
-        as Avery's mood.
-
-        `<<averyBodywritingSpeech bodywritingPart bodyPart>>`
-
-        - **bodywritingPart**: `BodywritingObject` - the player's bodywriting
-        object - **bodyPart**: `string|var` - the body part containing the
-        writing
-      parameters:
-        - bareword|var &+ bareword|var
     averyCondomUseSpeech:
       description: >-
         Avery speech variations over condom usage when the player asks them to
@@ -24863,30 +24900,6 @@ sugarcube-2:
         different scenario cases for condom usage
       parameters:
         - '"accept"|"acceptHas"|"acceptGive"|"refuse"'
-    averyFondlingSpeech:
-      description: >-
-        Avery speech widget where Avery comments the player's body part when
-        groping.
-
-
-        `<<averyFondlingSpeech bodyPart>>`
-
-        - **bodyPart**: `string` - the player's body part. Can be `chest`,
-        `bottom`, or `breasts`
-      parameters:
-        - string
-    averyKissSkin:
-      description: >-
-        Avery speech widget where Avery comments the player's body part when
-        about to kiss the player.
-
-
-        `<<averyKissSkin bodyPart>>`
-
-        - **bodyPart**: `string` - the player's body part. Can be `chest`,
-        `bottom`, `forehead` or `thighs`
-      parameters:
-        - string
     baitMobileDropdown:
       name: baitMobileDropdown
     baitMobileSidebar:

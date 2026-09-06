@@ -15,7 +15,7 @@
 
 ## Changes and Additions
 
-- **Updated vanilla to 0.5.12.8**
+- **Updated vanilla to 0.5.12.9**
 
 - **Updated DoLP to v0.775**
 

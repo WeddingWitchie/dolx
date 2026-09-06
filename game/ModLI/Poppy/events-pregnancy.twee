@@ -600,24 +600,17 @@ You see Poppy cradling <<if _isMultiple>>babies<<else>>a baby<</if>> in <<his>> 
 	<<run T.babyCount = getChildrenAt("home").filter(child => { const p = getPregnancyOf(child); return p && (p.carrier === "Poppy" || p.donor === "Poppy"); }).length>>
 <</if>>
 <<if _babyCount lt 1>><<set _babyCount to 1>><</if>><<set _isMultiple to _babyCount gt 1>>
+/* Children are named when their record is created, so there is no naming menu to open here.
+   Either way the queued introduction is consumed so this handoff cannot be offered again. */
+<<if _babyIntro>>
+	<<removeBabyIntro _babyIntro.mother _babyIntroOwner _babyIntro.birthId>>
+<</if>>
 <<if $phase is 1>>
-	/* PC chose to name the babies; route through the standard naming UI. */
-	<<if _babyIntro>>
-		<<setBabyIntro _babyIntroOwner "pc" _babyIntro.birthId>>
-		<<babyIntro _babyIntroOwner>>
-	<<else>>
-		/* Fallback if babyIntro data is missing; display the line and continue. */
-		You ask to name the <<if _isMultiple>>children<<else>>baby<</if>>.
-		<br><br>
-	<</if>>
+	You ask to name the <<if _isMultiple>>children<<else>>baby<</if>>.
+	<br><br>
 	Poppy smiles at the name you've chosen. "That's beautiful, my jewel. I love it."
 	<br><br>
 <<else>>
-	/* PC declined; Poppy picks. Trigger the standard naming UI with auto-pick instead. */
-	<<if _babyIntro>>
-		<<setBabyIntro _babyIntroOwner "pc" _babyIntro.birthId>>
-		/* Skip the naming menu; vanilla babyIntro auto-generates names when bypassed. */
-	<</if>>
 	Poppy smiles. "That's alright, I'll pick <<if _isMultiple>>names for them<<else>>a name for the baby<</if>>."
 	<br><br>
 <</if>>

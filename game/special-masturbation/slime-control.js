@@ -421,3 +421,10 @@ function masturbationSlimeControl() {
 	}
 	return fragment;
 }
+
+/* The live path calls this directly; the macro form exists for <<masturbationeffectsOld>>. */
+Macro.add("masturbationSlimeControl", {
+	handler() {
+		this.output.append(masturbationSlimeControl());
+	},
+});
