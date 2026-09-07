@@ -40,7 +40,7 @@
 		"Why don't you come over here and we can talk, sexy?",
 		"Hey, do you have a <<partnerfriend 'stranger'>>?",
 		"I bet your <<partnerfriend 'stranger'>> doesn't appreciate you like I would.",
-		"Hey cutie, want to be my <<girlfriend>>?",
+		"Hey cutie, want to be my <<girlfriend 'stranger'>>?",
 		"Your <<partnerfriend 'stranger'>> is a lucky <<print perceivedGender() is 'm' ? 'lady' : 'man'>>.")>>"
 <</widget>>
 
@@ -2270,7 +2270,10 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "girlfriend">><<silently>>
+	/* Prints the player's side of a relationship. Pass the speaking NPC's name so the term follows how that NPC addresses the player; no argument means narration or the player's own words, which use their own pronouns. */
 	<<set _playerPronoun to (_args[0] ? npcAddressPronoun(_args[0]) : playerPronoun())>>
+	/* No <<misgender>> here on purpose: these terms are also printed by status panels and journal
+	   entries, which re-render on their own and would charge dysphoria for simply opening a menu. */
 	<<set _text_output to (_playerPronoun is "m" ? "boyfriend" : _playerPronoun is "f" ? "girlfriend" : "partner")>>
 <</silently>><<print _text_output>><</widget>>
 
@@ -2282,13 +2285,8 @@
 
 <<widget "friend">><<silently>>
 	<<if $robinromance is 1>>
-		<<if playerFeelsManlike()>>
-			<<set _text_output to "boyfriend">>
-		<<elseif playerFeelsGirllike()>>
-			<<set _text_output to "girlfriend">>
-		<<else>>
-			<<set _text_output to "partner">>
-		<</if>>
+		/* Robin is the only speaker of this line, so the partner term matches <<girlfriend "Robin">>. */
+		<<girlfriend "Robin">>
 	<<elseif _args[0] is "bff">>
 		<<set _text_output to "best friend">>
 	<<else>>

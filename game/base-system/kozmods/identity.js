@@ -778,6 +778,20 @@ function getPronounDynamicMode(pronouns) {
 	return (!hasPreferenceFlags || allPronounsPreferred) && PRONOUN_DYNAMIC_MODES.includes(savedDynamicMode) ? savedDynamicMode : "";
 }
 
+/**
+ * The pronoun sets the player has marked as preferred and still accepts, as an array of "m"/"f"/"n".
+ *
+ * @param {object} pronouns `V.identity.presentation.pronouns`
+ */
+function preferredPronounSet(pronouns) {
+	const preferred = [];
+	if (pronouns.preferredMasculine && pronouns.masculine?.acceptance !== false) preferred.push("m");
+	if (pronouns.preferredFeminine && pronouns.feminine?.acceptance !== false) preferred.push("f");
+	if (pronouns.preferredNeutral && pronouns.neutral?.acceptance !== false) preferred.push("n");
+	return preferred;
+}
+window.preferredPronounSet = preferredPronounSet;
+
 function playerPronoun() {
 	const pronouns = V.identity?.presentation?.pronouns || {};
 	const dynamicMode = getPronounDynamicMode(pronouns);
@@ -796,10 +810,7 @@ function playerPronoun() {
 	if (dynamicMode === "appearance") return ["m", "f"].includes(V.player.gender_appearance) ? V.player.gender_appearance : "n";
 	if (dynamicMode === "posture") return ["m", "f"].includes(V.player.gender_posture) ? V.player.gender_posture : "n";
 
-	const preferred = [];
-	if (pronouns.preferredMasculine && pronouns.masculine?.acceptance !== false) preferred.push("m");
-	if (pronouns.preferredFeminine && pronouns.feminine?.acceptance !== false) preferred.push("f");
-	if (pronouns.preferredNeutral && pronouns.neutral?.acceptance !== false) preferred.push("n");
+	const preferred = preferredPronounSet(pronouns);
 
 	if (preferred.length === 1) return preferred[0];
 	if (preferred.length > 1) {
@@ -825,10 +836,7 @@ function pronounSummaryLabel() {
 
 	if (dynamicMode) return PRONOUN_LABELS[playerPronoun()];
 
-	const preferred = [];
-	if (pronouns.preferredMasculine && pronouns.masculine?.acceptance !== false) preferred.push("m");
-	if (pronouns.preferredFeminine && pronouns.feminine?.acceptance !== false) preferred.push("f");
-	if (pronouns.preferredNeutral && pronouns.neutral?.acceptance !== false) preferred.push("n");
+	const preferred = preferredPronounSet(pronouns);
 
 	if (preferred.length > 0) return preferred.map(gender => PRONOUN_LABELS[gender]).join(" or ");
 	return PRONOUN_LABELS[playerPronoun()];
@@ -857,7 +865,19 @@ window.npcKnowsPlayerIdentity = npcKnowsPlayerIdentity;
  * @param {string} npcName The NPC's name as used in `C.npc`.
  */
 function npcAddressPronoun(npcName) {
-	return npcKnowsPlayerIdentity(npcName) ? playerPronoun() : perceivedGender();
+	if (!npcKnowsPlayerIdentity(npcName)) return perceivedGender();
+
+	/* Known NPCs use felt gender to break pronoun preference ties instead of appearance. Dynamic pronouns still take priority. */
+	const pronouns = V.identity?.presentation?.pronouns || {};
+	if (!getPronounDynamicMode(pronouns)) {
+		const preferred = preferredPronounSet(pronouns);
+		/* playerFeltGender() rebuilds the identity meter, so only ask when the tie actually needs breaking. */
+		if (preferred.length > 1 && typeof window.playerFeltGender === "function") {
+			const felt = window.playerFeltGender();
+			if (preferred.includes(felt)) return felt;
+		}
+	}
+	return playerPronoun();
 }
 window.npcAddressPronoun = npcAddressPronoun;
 
