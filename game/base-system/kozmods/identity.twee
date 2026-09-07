@@ -1373,6 +1373,7 @@
 		<</if>>
 		<<if _usedPronoun is "m">>
 			<<identitySelector "Masculine Pronouns">>
+			<<set $identityOption.misgendered to 2>>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
 			<<else>>
@@ -1383,6 +1384,7 @@
 			<</if>>
 		<<elseif _usedPronoun is "f">>
 			<<identitySelector "Feminine Pronouns">>
+			<<set $identityOption.misgendered to 2>>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
 			<<else>>
@@ -1393,6 +1395,7 @@
 			<</if>>
 		<<elseif _usedPronoun is "n">>
 			<<identitySelector "Neutral Pronouns">>
+			<<set $identityOption.misgendered to 2>>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
 			<<else>>
@@ -1538,16 +1541,18 @@
 				<<set _range to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 				<<set _step to Math.max(1, Number($xchange.giStepPerDay) || 30)>>
 
-				<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 7 or $xchange.giInitialized isnot true>>
-					<<set $genderidentity to $xchange.giTarget>>
+				<<if $xchange.giAutoEnabled isnot true>>
+					/* Preserve the current meter while auto-update is off, including fresh and partially initialised saves. */
 					<<set $xchange.giInitialized to true>>
 					<<set $xchange.giMeterVersion to 7>>
-				<<elseif $xchange.giAutoEnabled isnot true>>
-					/* Gender Identity auto-update is off. The target still shows in statistics, but identity will not move towards it. */
 					<<gi-disarm>>
 				<<elseif !Number.isFinite(Number($xchange.giTarget))>>
 					/* If the identity target is invalid, stop here to prevent $genderidentity becoming NaN. */
 					<<gi-disarm>>
+				<<elseif $genderidentity is undefined or $xchange.giMeterVersion isnot 7 or $xchange.giInitialized isnot true>>
+					<<set $genderidentity to $xchange.giTarget>>
+					<<set $xchange.giInitialized to true>>
+					<<set $xchange.giMeterVersion to 7>>
 				<<else>>
 					<<set _delta to Math.clamp($xchange.giTarget - $genderidentity, 0 - _step, _step)>>
 
