@@ -100,6 +100,17 @@ End of '<<print $replayScene.name>>' scene.
 	<<if $scenePassages is undefined>>
 		<<set $scenePassages to []>>
 	<</if>>
+	<<if playerHasAutismSpectrum()>>
+		<<run $scenePassages.pushUnique("AutismOverload")>>
+		<<run $scenePassages.pushUnique("AutismSchoolBeats")>>
+		<<run $scenePassages.pushUnique("AutismAssessment")>>
+		<<if autismHasDocumentation()>>
+			<<run $scenePassages.pushUnique("AutismDisclosure")>>
+		<</if>>
+		<<if $autismSpectrum.kylarDiscussed>>
+			<<run $scenePassages.pushUnique("KylarAutism")>>
+		<</if>>
+	<</if>>
 	<<if C.npc.Avery.init is 1>>
 		<<run $scenePassages.pushUnique("Park Lichen")>>
 	<</if>>
@@ -1160,6 +1171,41 @@ End of '<<print $replayScene.name>>' scene.
 				passages:["SV Prison Scarred","Prison Scarred","Prison Scarred Bars","Prison Scarred Bars 2","Prison Scarred Bars Say","Prison Scarred Bars Refuse","Prison Scarred Bars Sob","Prison Scarred Refuse","Prison Scarred Pair","Prison Scarred Pair 2","Prison Scarred Pair Calm","Prison Scarred Pair Spank","Prison Scarred Pair Silent","Prison Scarred Pair Help","Prison Scarred Molestation","Prison Scarred Molestation 2","Prison Scarred Rape","Prison Scarred Rape Finish","Prison Scarred Turn","Prison Scarred Resist","Prison Scarred Fight","Prison Scarred Fight Finish","Prison Scarred Walk","Prison Scarred Walk 2","Prison Scarred Yard","Prison Scarred Yard Warn","Prison Scarred Yard End","Prison Scarred Yard Rape","Prison Scarred Yard Rape Finish","Prison Scarred Inmate Rape","Prison Scarred Inmate Rape Finish","Prison Scarred Inmate Help","Prison Scarred Sex","Prison Scarred Sex Finish","Prison Scarred Ask","Prison Scarred Sibling Refuse","Prison Scarred Sibling Agree","Prison Scarred Sibling 2","Prison Scarred Sibling 3","Prison Scarred Sibling 4","Prison Scarred Sex Refuse"],
 				manualVariableChanges:"<<set $location to 'prison'>><<run Time.setTime(13,0)>>",
 				unlocked: $scenePassages.includes("PrisonScarredInmate")
+			},
+			"AutismOverload":{
+				name:"Autism Overload and Shutdown",
+				startPassage:"Autism Overload",
+				passages:["Autism Overload","Autism Overload Stim","Autism Overload Card","Autism Overload Leave","Autism Overload Mask","Autism Overload End","Autism Shutdown","Autism Shutdown Alone","Autism Shutdown Asked","Autism Shutdown Word","Autism Shutdown Wait","Autism Aftermath Hallway"],
+				manualVariableChanges:"<<run $backgroundTraits.pushUnique('autism')>><<run ensureAutismSpectrumState()>><<set $autismSpectrum.overloadForm to 'shutdown'>><<set $autismSpectrum.overloadPlace to 'strangers'>><<set $autismSpectrum.overloadSeen to 'strangers'>><<set $autismSpectrum.overloadWasForm to 'shutdown'>><<set $autismSpectrum.overloadDay to Time.days>><<set $autismSpectrum.documentation to true>>",
+				unlocked: $scenePassages.includes("AutismOverload")
+			},
+			"AutismSchoolBeats":{
+				name:"Autism School Day",
+				startPassage:"Autism Lesson",
+				passages:["Autism Lesson","Autism Lesson Ask","Autism Lesson Push","Autism Lesson Leave","Autism Lesson Stall","Autism Lesson Stall Small","Autism Lesson Stall Ask","Autism Lesson Stall Force","Autism Lesson Stall Wait","Autism Corridor Strain","Autism Corridor Quiet","Autism Corridor Corner","Autism Corridor Push","Autism School Day","Autism Cold Start","Autism Cold Start Small","Autism Cold Start Routine","Autism Cold Start Force","Autism Cold Start Abandon","Autism Service Stall","Autism Suspension Day"],
+				manualVariableChanges:"<<run $backgroundTraits.pushUnique('autism')>><<run ensureAutismSpectrumState()>><<run autismSetLoad(50)>><<set $autismLessonTeacher to 'River'>><<set $autismLessonReturn to 'Hallways'>><<set $autismColdKind to 'study'>><<set $autismServiceReturn to 'Hallways'>><<set $autismSuspensionReturn to 'Bedroom'>><<set $location to 'school'>>",
+				unlocked: $scenePassages.includes("AutismSchoolBeats")
+			},
+			"AutismAssessment":{
+				name:"Autism Assessment and Diagnosis",
+				startPassage:"Doctor Harper Autism Check-up",
+				passages:["Doctor Harper Autism Check-up","Doctor Harper Autism Check-up 1","Doctor Harper Autism Check-up 2","Doctor Harper Autism Referral","Doctor Harper Autism Referral Decline","Doctor Harper Autism Go Private","Doctor Harper Autism Intake","Doctor Harper Autism Intake 2","Doctor Harper Autism Feedback","Doctor Harper Autism Feedback 2","Doctor Harper Autism Now Relief","Doctor Harper Autism Now Flat","Doctor Harper Autism Now Worried","Doctor Harper Autism Now Practical","Doctor Harper Autism Now End","Autism Identity","Autism Identity Set","Autism Assessment Questionnaire","Autism Assessment Records","Autism Assessment Teacher","Autism Assessment Guardian","Autism Checkup","Autism Checkup Honest","Autism Checkup Downplay","Autism Checkup Unsure","Autism Checkup End"],
+				manualVariableChanges:"<<run $backgroundTraits.pushUnique('autism')>><<run ensureAutismSpectrumState()>><<set $autismIdentityChoice to 'relief'>><<set $autismPrefChoice to 'space'>><<set $autismAssessmentTeacher to 'River'>><<set $autismCheckupTopic to autismCheckupTopic()>><<set $location to 'hospital'>>",
+				unlocked: $scenePassages.includes("AutismAssessment")
+			},
+			"AutismDisclosure":{
+				name:"Autism Disclosure and Accommodations",
+				startPassage:"Autism Disclose Leighton",
+				passages:["Autism Disclose Leighton","Autism Disclose Leighton Adjust","Autism Disclose Leighton Quiet","Autism Disclose Leighton Specific","Autism Disclose Leighton Withdraw","Autism Disclose Nurse","Autism Disclose Nurse 2","Autism Nurse Pref","Autism Disclose Nurse End","Autism Disclose Teacher","Autism Disclose Teacher Brief","Autism Disclose Teacher Full","Autism Disclose Teacher Back","Autism Disclose Bailey","Autism Disclose Bailey Know","Autism Disclose Bailey Explain","Autism Disclose Bailey Owe","Autism Disclose Bailey Regret"],
+				manualVariableChanges:"<<run $backgroundTraits.pushUnique('autism')>><<run ensureAutismSpectrumState()>><<set $autismSpectrum.documentation to true>><<set $autismSpectrum.assessmentStage to 'diagnosed'>><<set $autismDiscloseTarget to 'Doren'>><<set $autismPrefChoice to 'space'>><<set $location to 'school'>>",
+				unlocked: $scenePassages.includes("AutismDisclosure")
+			},
+			"KylarAutism":{
+				name:"Kylar Autism",
+				startPassage:"Kylar Autism Documentation",
+				passages:["Kylar Autism Documentation","Kylar Autism Documentation Harper","Kylar Autism Documentation Kylar","Kylar Autism Documentation Kylar 1","Kylar Autism Documentation Offer","Kylar Autism Training Choice","Kylar Autism Training Return","Kylar Autism Training Decline","Kylar Autism Draw Fixation","Kylar Autism Draw Portrait","Kylar Autism Masking","Kylar Autism Masking Rest","Kylar Autism Masking Hold","Autism Kylar Quiet","Autism Kylar Quiet 2","Autism Kylar Quiet Same","Autism Kylar Quiet Silence"],
+				manualVariableChanges:"<<run $backgroundTraits.pushUnique('autism')>><<run ensureAutismSpectrumState()>><<set $autismSpectrum.documentation to true>><<set $autismSpectrum.kylarDiscussed to true>><<run autismBeginKylarTraining()>>",
+				unlocked: $scenePassages.includes("KylarAutism")
 			},
 		}>>
 	<</if>>

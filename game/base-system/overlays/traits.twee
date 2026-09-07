@@ -324,33 +324,44 @@
 
 						const effects = {
 							settled: `
-								<li class='green'>+5% gains to all stats.</li>
-								<li class='green'>+25% school grades.</li>
+								<li class='green'>All stat gains are increased by 5%.</li>
+								<li class='green'>School grade gains are increased by 25%.</li>
 							`,
 							strained: `
 								<li class='default-colour'>No bonus or penalty.</li>
 							`,
 							burnout: `
-								<li class='red'>-20% gains to all stats.</li>
-								<li class='red'>-30% school grades.</li>
-								<li class='red'>Study-related demand gives twice as much stress.</li>
-								<li class='red'>Practising can cause trauma.</li>
+								<li class='red'>All stat gains are reduced by 20%.</li>
+								<li class='red'>School grade gains are reduced by 30%.</li>
+								<li class='red'>Study-related demands cause twice as much stress.</li>
+								<li class='red'>Practising skills can cause trauma.</li>
 							`,
 						};
 
 						return `<mouse class='tooltip ${colour}'>${heading}: ${autismLoadPercent()}% Load
 							<span class='tooltiptext'>
-								Comes from Autism Spectrum. Load shows how worn down you are by ongoing demands.
+								Comes from Autism Spectrum. Load shows how much ongoing demands are wearing you down.
 								<br><br>
-								Modifiers:
+
+								Current effects:
 								<ul>
 									${effects[capacity] || effects.strained}
 								</ul>
-								<b class='red'>Abrupt task changes, unclear social demands, loud or crowded places, midday glare, prolonged effort, heat, discomfort, and going too long without rest can raise Load.</b>
+
+								<i class='red'>Load increases from sudden changes, crowds, noise, bright midday light, heat, unclear social situations, and going too long without rest.</i>
+								<i class='green'>Load decreases from sleep, quiet time, calm activities, and spending time on your current interest.</i>
 								<br><br>
-								Rest, quiet time, direct communication, calming activities, and your focused interest help reduce Load.
-								A night's sleep always lowers Load. On top of that, you can recover up to ${autismRecoveryCapValue()} Load each day.
-								You can still recover ${autismRecoveryLeftToday()} today.
+								You can still recover <b class='gold'>${autismRecoveryLeftToday()}</b> Load today.
+								<b class='gold'>${autismDeliberateLeftToday()}</b> of that requires deliberate regulation.
+								<br><br>
+								Your willpower affects when Strained and Burnout begin.
+								<br>
+								<b class='gold'>Strained: ${autismStrainedThreshold()}% Load</b>
+								<br>
+								<b class='red'>Burnout: ${autismBurnoutThreshold()}% Load</b>
+								<br><br>
+								A meltdown can happen at <b class='red'>${autismMeltdownLoadValue()}% Load</b> while you also have <b class='red'>${autismMeltdownStressPercent()}% stress</b>.
+								Staying at <b class='red'>${autismLoadTraumaValue()}% Load</b> for a full day without resting causes trauma.
 							</span>
 						</mouse>`;
 					},
@@ -362,9 +373,82 @@
 					text: () => {
 						const capacity = autismSpectrumPhase();
 
-						if (capacity === "settled") return "Your low Load makes things easier to handle.";
-						if (capacity === "burnout") return "Your high Load makes it harder to recover.";
-						return "Your Load is rising, making things take more effort.";
+						if (capacity === "settled") return "Your Load is low, making daily demands easier to handle.";
+						if (capacity === "burnout") return "Your Load is very high, reducing your gains and making some activities more harmful.";
+						return "Your Load is high enough that you no longer receive the benefits of low Load.";
+					},
+				},
+				{
+					name: () => {
+						const items = autismObligationLabels();
+						return `<mouse class='tooltip red'>Outstanding: ${items.length}
+							<span class='tooltiptext'>
+								Comes from Autism Spectrum. These are tasks or problems you know about but have not dealt with yet.
+								<br><br>
+								<ul>
+									${items.map(item => `<li class='red'>${item.toUpperFirst()}</li>`).join("")}
+								</ul>
+								<b class='red'>Each outstanding item adds Load every day until you deal with it.</b>
+								Once you deal with an item, it stops adding Load.
+							</span>
+						</mouse>`;
+					},
+					colour: "red",
+					has: playerHasAutismSpectrum() && autismObligationLabels().length > 0,
+					text: "Things you know you still need to deal with add Load each day.",
+				},
+				{
+					name: () => {
+						const masking = autismMaskingLevel();
+						const colour = masking >= 70 ? "red" : masking >= 35 ? "gold" : "purple";
+						const active = autismMaskingActive()
+							? "<b class='gold'>You are masking right now.</b>"
+							: "You are not masking right now.";
+						const composure =
+							autismComposureLeft() > 0
+								? "<b class='green'>You prepared yourself beforehand. For about " +
+									autismComposureLeft() +
+									" more minutes, Masking builds more slowly.</b>"
+								: "";
+						return `<mouse class='tooltip ${colour}'>Masking: ${masking}%
+							<span class='tooltiptext'>
+								Comes from Autism Spectrum. Masking means changing how you act to match what other people expect.
+								<br><br>
+								${active}
+								<br><br>
+								Modifiers:
+								<ul>
+									<li class='red'>Masking adds Load. Higher Masking adds Load faster.</li>
+									<li class='red'>Masking for too long makes shutdown more likely during an overload.</li>
+									<li class='green'>Stopping Masking in private removes some of the Load and lowers stress.</li>
+								</ul>
+								Masking builds faster around strangers and more slowly around people who know you.
+								It does not build when you are alone or only with people you trust.
+								People you live with also count as present while they are at home.
+								<br><br>
+								${composure}
+							</span>
+						</mouse>`;
+					},
+					colour: () => {
+						const masking = autismMaskingLevel();
+						return masking >= 70 ? "red" : masking >= 35 ? "gold" : "purple";
+					},
+					has: playerHasAutismSpectrum(),
+					text: () => {
+						const masking = autismMaskingLevel();
+
+						if (masking >= 70) return "Masking is taking most of your attention.";
+						if (masking >= 35) return "Masking is taking steady effort.";
+						if (masking > 0) return "You are masking with little effort.";
+						return "You are not masking.";
+					},
+					meter: {
+						has: playerHasAutismSpectrum(),
+						value: autismMaskingLevel(),
+						min: 0,
+						max: 100,
+						colour: "purplebar",
 					},
 				},
 				{

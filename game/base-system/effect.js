@@ -2205,17 +2205,78 @@ function effects() {
 					}
 					if (state.focusChanged) {
 						const focusDays = autismHyperfixationDaysRemaining();
-						element(
-							"span",
-							`${autismHyperfixationName().toUpperFirst()} is drawing you especially strongly now. It may remain your main interest for about ${focusDays} day${
-								focusDays === 1 ? "" : "s"
-							}.`,
-							"gold"
-						);
+						const focusName = autismHyperfixationName();
+						const arrival = {
+							academic: `You first looked into ${focusName} because you had a question about it. Since then, you have kept thinking about it and looking for more information whenever you have the chance. ${focusName.toUpperFirst()} has become difficult to put aside.`,
+							physical: `You have caught yourself thinking about ${focusName} several times today. You keep wanting to do it again, even when you are not trying to practise or improve.`,
+							practical: `${focusName.toUpperFirst()} has become one of the parts of the day you look forward to most. You enjoy focusing on each step and seeing the result of your work.`,
+							combat: `You keep thinking about the same movement and how you could do it better. Each time you practise ${focusName}, you want to try it again with a small change.`,
+							inner: `You have been thinking more often about how you react, what you want, and when you should stand your ground. You keep going back over those thoughts because you want to understand yourself better.`,
+						};
+						element("span", arrival[autismHyperfixationCategory()] || arrival.academic, "gold");
+						br();
+						element("span", `It may remain your main interest for about ${focusDays} day${focusDays === 1 ? "" : "s"}.`, "gold");
 						br();
 					}
 					delete state.phaseChanged;
 					delete state.focusChanged;
+					break;
+				}
+				case "autismBurnout": {
+					if (!playerHasAutismSpectrum()) break;
+					const bState = ensureAutismSpectrumState();
+					if (bState.burnoutEntered && autismSpectrumPhase() === "burnout") {
+						const where = V.location === "school" ? "school" : autismPrivacyTier() === "alone" ? "private" : "public";
+						const lines = {
+							school: [
+								"Someone asks you a simple question. You know the answer, but it takes longer than usual to put the words together. By the time you reply, they are watching you with concern.",
+								"You try to focus on what someone is saying, but every sound around you keeps getting your attention. Voices, moving chairs, the lights, and people in the corridor all make it harder to listen.",
+								"You try to speak and act the way you usually do at school, but keeping up takes more effort than you can manage. You pause more often, and even simple replies take time.",
+							],
+							public: [
+								"You stop to decide which way to go. People walk around you while you think through each option, even though you normally make this choice without much effort.",
+								"You try to focus on where you are going, but every sound keeps pulling your attention away. Traffic, nearby conversations, doors opening, and your own footsteps all feel difficult to ignore.",
+								"Your movements become slower. Each step takes more effort, and getting to where you are going feels harder than it did a few minutes ago.",
+							],
+							private: [
+								"You sit down to do something, but you cannot make yourself start. You know what you need to do and where to begin, yet you stay where you are.",
+								"You notice yourself repeating the same small movement. You keep doing it because it feels easier than deciding what to do next.",
+								"You try to put your thoughts into words, but even simple sentences take longer to form. You are alone, so nobody is waiting for you to answer.",
+							],
+						};
+						element("span", (lines[where] || lines.public).random(), "red");
+						br();
+						element("span", "You have reached Burnout.", "red");
+						br();
+					}
+					delete bState.burnoutEntered;
+					break;
+				}
+				case "autismUnmasked": {
+					if (!playerHasAutismSpectrum()) break;
+					const uLine = autismUnmaskedLine();
+					if (uLine) {
+						element("span", uLine, "teal");
+						br();
+					}
+					break;
+				}
+				case "autismMasking": {
+					if (!playerHasAutismSpectrum()) break;
+					const mLine = autismMaskingLine();
+					if (mLine) {
+						element("span", mLine, "pink");
+						br();
+					}
+					break;
+				}
+				case "autismAmbient": {
+					if (!playerHasAutismSpectrum()) break;
+					const ambient = autismAmbientLine();
+					if (ambient) {
+						element("span", ambient, autismSpectrumPhase() === "burnout" ? "purple" : "pink");
+						br();
+					}
 					break;
 				}
 				case "autismFocus": {
@@ -2237,6 +2298,10 @@ function effects() {
 						element("span", `You spend the time on ${reliefFocus}. It comes easier, and you feel calmer.`, "green");
 						br();
 					}
+					if (state.coldStartNotice) {
+						element("span", "Starting the task feels difficult, even when you know what to do. Once you begin, it becomes easier.", "pink");
+						br();
+					}
 					if (state.meltdownNotice) {
 						element(
 							"span",
@@ -2249,6 +2314,7 @@ function effects() {
 						element("span", "You can think clearly again. The worst of it has passed.", "green");
 						br();
 					}
+					delete state.coldStartNotice;
 					delete state.fatigueNotice;
 					delete state.reliefNoticeFocus;
 					delete state.reliefNotice;

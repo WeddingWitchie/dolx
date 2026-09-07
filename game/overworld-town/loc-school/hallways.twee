@@ -131,7 +131,16 @@
 		<<link [[Everything fades to black...|School Passout]]>><</link>>
 	<</if>>
 
-<<elseif playerHasAutismSpectrum() and autismLoadPercent() gte 35 and !autismInMeltdown() and $schoolstate is "lunch" and $eventskip is 0 and $exposed lte 0 and !$weekly.autismAwareness>>
+<<elseif playerHasAutismSpectrum() and autismLastOverloadWitnessed() and !$autismSpectrum.aftermathDone and $eventskip is 0 and $exposed lte 0 and !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
+	<!-- Someone saw the overload. Fires once per episode, and only if it happened where it could be seen. -->
+	<<include "Autism Aftermath Hallway">>
+
+<<elseif playerHasAutismSpectrum() and autismSpectrumPhase() isnot "settled" and !autismInMeltdown() and $eventskip is 0 and $exposed lte 0 and !$weekly.autismCorridor and ["first", "second", "third", "fourth", "fifth"].includes($schoolstate)>>
+	<!-- The noisy transition between lessons. -->
+	<<set $weekly.autismCorridor to 1>>
+	<<include "Autism Corridor Strain">>
+
+<<elseif playerHasAutismSpectrum() and autismLoadPercent() gte autismStrainedThreshold() and !autismInMeltdown() and $schoolstate is "lunch" and $eventskip is 0 and $exposed lte 0 and !$weekly.autismAwareness>>
 	<<include "Autism Hallway Overload">>
 
 <<elseif _poppyCanHallwayEvent and $eventskip is 0>>
@@ -166,6 +175,8 @@
 		<br>
 		<</if>>
 
+		<<autism-npc "Leighton">>
+
 		Hallway
 		<br>
 		<<lockericon>><<link [[Lockers|School Lockers]]>><</link>>
@@ -195,6 +206,8 @@
 			<<schoolicon "headdesk">><<link [[Head's office (0:02)|Head's Office]]>><<pass 2>><</link>>
 			<br>
 		<</if>>
+		<<autism-assessment-school>>
+		<<autism-disclose-school>>
 		<<schoolicon "infirmary">><<link [[Infirmary (0:02)|School Infirmary]]>><<pass 2>><<set $phase to 0>><</link>>
 		<br>
 		<<bathroomicon "toilet">><<link [[Toilets (0:02)|School Toilets]]>><<pass 2>><</link>>

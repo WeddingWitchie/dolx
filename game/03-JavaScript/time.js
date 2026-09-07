@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1258,7 +1258,11 @@ function dayPassed(days) {
 
 		/* Always runs, even if the block above fails, so daily flags still reset properly. */
 		V.daily.clearProperties();
-		if (typeof autismSpectrumDailyUpdate === "function") autismSpectrumDailyUpdate();
+		try {
+			if (typeof autismSpectrumDailyUpdate === "function") autismSpectrumDailyUpdate();
+		} catch (ex) {
+			reportTickFailure("dayPassed:autism", ex);
+		}
 
 		try {
 			dailyInsanityEffects();
@@ -1555,6 +1559,7 @@ function minutePassed(minutes) {
 	if (V.timeSkip === undefined) {
 		V.stress += Math.round(Weather.BodyTemperature.stressModifier * minutes);
 		if (typeof autismSensoryUpdate === "function") autismSensoryUpdate(minutes);
+		if (typeof autismMaskingUpdate === "function") autismMaskingUpdate(minutes);
 		statChange.stressClamp();
 	}
 

@@ -136,7 +136,22 @@
 <<widget "lessonEvents">>
 	<<set $_mod to _args[1] or 1>> <!-- $_mod multiplies the effect that allure has on your odds of getting an unsafe event -->
 
-	<<if dangerEvent($_mod, 8900)>>
+	<!-- Autism Spectrum: Strained or Burnt Out PCs can get this event once a week. It replaces the normal lesson event. $autismLessonReturn sends the player back to the current lesson afterwards. -->
+	<<if autismLessonEventReady()>>
+		<<set $weekly.autismLesson to 1>>
+		<!-- This slot can now trigger either the original demand/transition event or a task-start delay when a teacher knows about the accommodation. -->
+		<<set $autismLessonScene to (!$weekly.autismStall and random(1, 2) is 1) ? "Autism Lesson Stall" : "Autism Lesson">>
+		<<if $autismLessonScene is "Autism Lesson Stall">><<set $weekly.autismStall to 1>><</if>>
+		<<set $autismLessonReturn to {
+			maths: "Maths Lesson", science: "Science Lesson", english: "English Lesson",
+			history: "History Lesson", housekeeping: "Housekeeping Lesson"
+		}[_args[0]] || "Hallways">>
+		<<set $autismLessonTeacher to {
+			maths: "River", science: "Sirris", english: "Doren",
+			history: "Winter", housekeeping: "River"
+		}[_args[0]] || "River">>
+		<<include $autismLessonScene>>
+	<<elseif dangerEvent($_mod, 8900)>>
 		<<switch _args[0]>>
 			<<case "maths">><<eventsmaths>>
 			<<case "science">><<eventsscience>>
@@ -4480,6 +4495,7 @@
 <</widget>>
 
 <<widget "school_infirmary_options">>
+	<<autism-disclose-nurse>>
 	<<if $passage isnot "School Infirmary Ask Painkiller">>
 		<<schoolicon "infirmary">><<link [[Ask for a painkiller|School Infirmary Ask Painkiller]]>><</link>>
 		<br>

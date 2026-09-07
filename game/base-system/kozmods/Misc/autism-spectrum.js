@@ -1,17 +1,7 @@
-/* globals permanentInsanityTalentLockActive isLiveNPC */
+/* globals permanentInsanityTalentLockActive isLiveNPC namedNpcInSlot livesInAveryMansion */
 
-/* Autism Spectrum starting trait.
- *
- * Includes three systems:
- * 	Load and capacity: demands raise your load, while recovery lowers it. Your current load decides whether you are Settled,
- *  Strained, or in Burnout. Burnout has no timer; it starts when load stays too high and ends after enough recovery.
- *  Settled means you are coping well, so its bonus only lasts while your load stays low.
- *  Focused interest: one activity remains especially engaging for a few weeks. Practising it can help regulate stress and load.
- *  Demand fatigue: abrupt task changes and prolonged deliberate practice raise stress and load until the PC gets a proper break.
- *
- * Stat bonuses apply to all gains, but demand fatigue only counts deliberate practice.
- * Some stats always count as practice when gained. Physique and athletics only count at training locations,
- * so normal travelling does not build demand fatigue. */
+/* Autism Spectrum starting trait: load and capacity, a rotating focused interest, and demand fatigue.
+ * Physique and athletics only count as practice at a training location, so travelling does not build fatigue. */
 
 const autismSpectrumStats = Object.freeze({
 	science: "science",
@@ -115,19 +105,83 @@ function autismRollHyperfixationDays() {
    The current state depends on recent activity instead of a timer. */
 const autismLoadMax = 100;
 
-/* Burnout starts at high load and ends only after load drops below the recovery point.
-   This prevents small changes from switching Burnout on or off too easily. */
+/* Baselines for a PC of middling willpower. The thresholds in use are scaled from these; see
+   autismStrainedThreshold. Burnout releases at a lower load than it starts, so it cannot flicker. */
 const autismLoadStrained = 35;
 const autismLoadBurnout = 70;
 const autismLoadBurnoutRelief = 55;
 
-/* Maximum load recovery per day across all recovery methods.
-   Recovery is slower than load gain, so one good day cannot erase several bad days. */
-const autismDailyRecoveryCap = 15;
+/* How far below the Burnout threshold load must fall before Burnout lifts. Held constant as the thresholds move,
+   so scaling changes where Burnout starts without also changing how hard it is to climb out of. */
+const autismBurnoutReliefGap = autismLoadBurnout - autismLoadBurnoutRelief;
 
-/* How much load a day of recovery can take off, for the tooltips. */
+/*
+ * Ratio against a full willpower bar: 0 to 1, or up to 2 with the AMC talent. Null when unavailable.
+ *
+ * Deliberately reads the trained stat, not currentSkillValue: a drink or a spent willpower pool must not move
+ * the thresholds and shunt the PC across one when nothing about their situation has changed.
+ */
+const autismWillpowerPoolFloor = 200;
+
+function autismWillpowerCapacity() {
+	const max = Number(V.willpowermax);
+	if (!Number.isFinite(max) || max <= 0) return null;
+	const skill = Number(V.willpower);
+	if (!Number.isFinite(skill)) return null;
+	/* Daily consumption on: the pool's ceiling, which is the trained stat with the same floor the clamp applies. */
+	const capacity = V.xchange?.willpowerSystemEnabled === 1 ? Math.max(autismWillpowerPoolFloor, skill) : skill;
+	return Math.clamp(capacity / max, 0, 2);
+}
+
+/* Pivoted at half a bar so an ordinary PC gets the baseline numbers. Shallow: headroom, not immunity. */
+const autismThresholdSlope = 0.3;
+const autismThresholdPivot = 0.5;
+const autismThresholdMultiplier = Object.freeze({ min: 0.85, max: 1.2 });
+
+/* Absolute bounds, so no combination of stats can make overload unreachable or leave the PC permanently strained. */
+const autismStrainedBounds = Object.freeze({ min: 28, max: 44 });
+const autismBurnoutBounds = Object.freeze({ min: 56, max: 88 });
+
+function autismThresholdScale() {
+	const capacity = autismWillpowerCapacity();
+	if (capacity === null) return 1;
+	return Math.clamp(1 + (capacity - autismThresholdPivot) * autismThresholdSlope, autismThresholdMultiplier.min, autismThresholdMultiplier.max);
+}
+
+/* Computed live rather than stored, so a save can never carry a threshold that its stats no longer support. */
+function autismStrainedThreshold() {
+	return Math.round(Math.clamp(autismLoadStrained * autismThresholdScale(), autismStrainedBounds.min, autismStrainedBounds.max));
+}
+
+/* Kept at about twice Strained, which is the shape the trait was balanced around. */
+function autismBurnoutThreshold() {
+	return Math.round(Math.clamp(autismStrainedThreshold() * 2, autismBurnoutBounds.min, autismBurnoutBounds.max));
+}
+
+function autismBurnoutReliefThreshold() {
+	return autismBurnoutThreshold() - autismBurnoutReliefGap;
+}
+
+/* Two budgets, not one: incidental stress relief anywhere in the game draws on the passive cap, and
+   deliberate regulation on its own. Sharing one lets an ordinary day spend the lot before the player
+   chooses to regulate at all. */
+const autismPassiveRecoveryCap = 12;
+const autismDeliberateRecoveryCap = 15;
+const autismDailyRecoveryCap = autismPassiveRecoveryCap + autismDeliberateRecoveryCap;
+
 function autismRecoveryCapValue() {
 	return autismDailyRecoveryCap;
+}
+
+function autismDeliberateCapValue() {
+	return autismDeliberateRecoveryCap;
+}
+
+/* Which budget a recovery draws on. "free" skips both, for sleep. */
+function autismRecoveryBudget(budget) {
+	if (budget === true || budget === "free") return "free";
+	if (budget === "deliberate") return "deliberate";
+	return "passive";
 }
 
 /* A break this long counts as rest. Sleeping, long journeys, or time in a cell clears demand fatigue. */
@@ -149,6 +203,20 @@ const autismMeltdownTrauma = 10;
 const autismLoadTraumaThreshold = 95;
 const autismLoadDailyTrauma = 4;
 
+/* Overload and the trauma check stay absolute where Strained and Burnout scale: they are hard extremes,
+   not states a PC lives in. The trait screen says so, or the mix of fixed and scaled numbers reads as a bug. */
+function autismMeltdownLoadValue() {
+	return autismMeltdownLoad;
+}
+
+function autismMeltdownStressPercent() {
+	return Math.round(autismMeltdownStress * 100);
+}
+
+function autismLoadTraumaValue() {
+	return autismLoadTraumaThreshold;
+}
+
 /* Maximum time counted as one practice session.
    Short actions like lessons, swimming, or gardening count normally.
    Longer events may raise a stat along the way, but their full duration should not count as practice or Burnout. */
@@ -158,10 +226,7 @@ function playerHasAutismSpectrum() {
 	return V.backgroundTraits?.includes("autism") === true;
 }
 
-/*
- * Autism trait: 5 general talents instead of 3, and 3 sex skills instead of 2.
- * Also works during character creation before the trait is fully applied.
- */
+/* Also called during character creation, before the trait is fully applied. */
 const autismTalentBonus = Object.freeze({ general: 5, sex: 3 });
 const autismTalentBase = Object.freeze({ general: 3, sex: 2 });
 /* The paired talents are one-of-two whether or not the trait is present, so the bonus never touches them. */
@@ -204,11 +269,8 @@ const autismTalentGroups = Object.freeze({
 	sex: ["seductionskill", "oralskill", "chestskill", "handskill", "bottomskill", "penileskill", "vaginalskill", "analskill", "thighskill", "feetskill"],
 });
 
-/*
- * Removing the trait also removes its bonus picks.
- * If a group is over the limit, it is cleared instead of guessing which picks to remove.
- * The paired groups can only go over the limit through a randomised or imported start, since the settings screen greys out the second pick.
- */
+/* An over-limit group is cleared rather than guessing which picks to drop. Only a randomised or imported
+   start can exceed a paired group, since the settings screen greys out the second pick. */
 function autismEnforceTalentLimits() {
 	if (!V.AMCTraits) return false;
 	if (typeof permanentInsanityTalentLockActive === "function" && permanentInsanityTalentLockActive()) return false;
@@ -228,11 +290,9 @@ function ensureAutismSpectrumState() {
 	}
 	const state = V.autismSpectrum;
 	const today = Number(Time?.days) || 0;
-	/* Also re-rolls a focused interest on a combat skill the player has since switched off. */
 	if (!autismAvailableHyperfixations().includes(state.hyperfixation)) {
 		state.hyperfixation = autismRollHyperfixation();
 		state.hyperfixationEndsDay = today + autismRollHyperfixationDays();
-		/* This also makes the first queued trait notice contain the newly chosen interest. */
 		state.focusChanged = true;
 	}
 	/* Older saves have a focus but no end day. Give that interest a full new stretch instead of replacing it on load. */
@@ -246,7 +306,7 @@ function ensureAutismSpectrumState() {
 	if (state.lastPractice != null && !autismHyperfixationPool.includes(state.lastPractice)) delete state.lastPractice;
 	/* The previous focus-fatigue model stored minutes without a task. Do not reinterpret that stale streak as demand fatigue. */
 	if (state.lastPractice == null && state.trainingMinutes > 0) state.trainingMinutes = 0;
-	delete state.fatigueNoticeFocus;
+	if (!Number.isFinite(state.fatigueNotice)) delete state.fatigueNotice;
 	if (state.kylarTrainingFocus != null && !autismHyperfixationPool.includes(state.kylarTrainingFocus)) delete state.kylarTrainingFocus;
 	if (state.kylarEventFocus != null && !autismHyperfixationPool.includes(state.kylarEventFocus)) delete state.kylarEventFocus;
 	/* Clear any invalid leftover outing location so it can't move the player somewhere unexpected. */
@@ -263,11 +323,50 @@ function ensureAutismSpectrumState() {
 	if (!Number.isFinite(state.load)) state.load = 0;
 	state.load = Math.clamp(state.load, 0, autismLoadMax);
 	if (!Number.isFinite(state.recoveredToday) || state.recoveredToday < 0) state.recoveredToday = 0;
-	else state.recoveredToday = Math.min(state.recoveredToday, autismDailyRecoveryCap);
-	/* Notices only need storage while queued. Remove false values left by older versions. */
+	else state.recoveredToday = Math.min(state.recoveredToday, autismPassiveRecoveryCap);
+	if (!Number.isFinite(state.masking) || state.masking < 0) state.masking = 0;
+	else state.masking = Math.min(state.masking, autismMaskingMax);
+	if (!Number.isFinite(state.deliberateRecoveredToday) || state.deliberateRecoveredToday < 0) state.deliberateRecoveredToday = 0;
+	else state.deliberateRecoveredToday = Math.min(state.deliberateRecoveredToday, autismDeliberateRecoveryCap);
 	if (state.phaseChanged !== true) delete state.phaseChanged;
 	if (state.focusChanged !== true) delete state.focusChanged;
 	if (state.reliefNotice !== true) delete state.reliefNotice;
+	if (!Number.isFinite(state.reliefNoticeDay)) delete state.reliefNoticeDay;
+	if (typeof state.reliefNoticeFocus !== "string") delete state.reliefNoticeFocus;
+	if (state.coldStartNotice !== true) delete state.coldStartNotice;
+	if (state.burnoutEntered !== true) delete state.burnoutEntered;
+	if (!Number.isFinite(state.ambientStamp)) delete state.ambientStamp;
+	if (!Number.isFinite(state.maskProseStamp)) delete state.maskProseStamp;
+	if (!Number.isFinite(state.unmaskedProseStamp)) delete state.unmaskedProseStamp;
+	if (state.composureLapseSaid !== true) delete state.composureLapseSaid;
+	if (!Number.isFinite(state.overloadDay)) delete state.overloadDay;
+	if (!Number.isFinite(state.composedUntil)) delete state.composedUntil;
+	if (state.schoolPlan !== true) delete state.schoolPlan;
+	if (!Array.isArray(state.preferences)) delete state.preferences;
+	else state.preferences = state.preferences.filter(pref => autismSupportPreferences.includes(pref)).slice(0, autismPreferenceMax);
+	if (!state.disclosureDepth || typeof state.disclosureDepth !== "object" || Array.isArray(state.disclosureDepth)) delete state.disclosureDepth;
+	if (!Number.isFinite(state.schoolDayStamp)) delete state.schoolDayStamp;
+	if (!Array.isArray(state.schoolDayBeats)) delete state.schoolDayBeats;
+	if (!state.history || typeof state.history !== "object" || Array.isArray(state.history)) delete state.history;
+	if (typeof state.lastCheckupTopic !== "string") delete state.lastCheckupTopic;
+	if (!autismIdentityPositions.includes(state.identityView)) delete state.identityView;
+	if (state.privateNudged !== true) delete state.privateNudged;
+	if (!Array.isArray(state.disclosed)) delete state.disclosed;
+	else state.disclosed = state.disclosed.filter(who => autismDisclosureTargets.includes(who));
+	if (!["alone", "known", "strangers"].includes(state.overloadSeen)) delete state.overloadSeen;
+	if (state.overloadWasForm !== "meltdown" && state.overloadWasForm !== "shutdown") delete state.overloadWasForm;
+	if (state.aftermathDone !== true) delete state.aftermathDone;
+	if (state.shutdownSeen !== true) delete state.shutdownSeen;
+	if (!autismAssessmentStages.includes(state.assessmentStage)) delete state.assessmentStage;
+	if (!autismAssessmentRoutes.includes(state.assessmentRoute)) delete state.assessmentRoute;
+	if (!Number.isFinite(state.assessmentDay)) delete state.assessmentDay;
+	if (!Array.isArray(state.assessmentSources)) delete state.assessmentSources;
+	else state.assessmentSources = state.assessmentSources.filter(source => autismAssessmentSources.includes(source));
+	/* Older saves hold documentation without a stage. Those PCs are diagnosed, not restarted. */
+	if (state.documentation === true && !state.assessmentStage) {
+		state.assessmentStage = "diagnosed";
+		state.assessmentDay = Number(Time?.days) || 0;
+	}
 	if (state.meltdownNotice !== true) delete state.meltdownNotice;
 	if (state.meltdownEndNotice !== true) delete state.meltdownEndNotice;
 	/* Use the same load rules as live updates, so saves always restore the correct state while preserving Burnout hysteresis. */
@@ -289,32 +388,52 @@ function ensureAutismSpectrumState() {
 	if (state.stimReturn != null && (typeof state.stimReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.stimReturn)))) {
 		delete state.stimReturn;
 	}
-	/* Left over from when both phases were a fixed 90 days and the phase was derived from it. */
+	if (state.unmaskReturn != null && (typeof state.unmaskReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.unmaskReturn)))) {
+		delete state.unmaskReturn;
+	}
+	if (state.focusReturn != null && (typeof state.focusReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.focusReturn)))) {
+		delete state.focusReturn;
+	}
+	if (state.composeReturn != null && (typeof state.composeReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.composeReturn)))) {
+		delete state.composeReturn;
+	}
+	if (state.coldReturn != null && (typeof state.coldReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.coldReturn)))) {
+		delete state.coldReturn;
+	}
+	if (typeof state.coldCost !== "string" || !state.coldCost) delete state.coldCost;
+	if (state.kylarQuietReturn != null && (typeof state.kylarQuietReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.kylarQuietReturn)))) {
+		delete state.kylarQuietReturn;
+	}
+	if (state.assessmentReturn != null && (typeof state.assessmentReturn !== "string" || (typeof Story !== "undefined" && !Story.has(state.assessmentReturn)))) {
+		delete state.assessmentReturn;
+	}
+	/* Left over from the timed phase cycle, which startDay was measured against. */
 	if (state.startDay !== undefined) delete state.startDay;
 	return state;
 }
 
-/*
- * All load changes go through here. Recovery is capped per day so one good day cannot remove too much built-up strain.
- * Load gain is not capped.
- */
-function autismAdjustLoad(delta, ignoreDailyCap = false) {
+/* The one entry point for load changes. Recovery is capped per day; gain is not. */
+function autismAdjustLoad(delta, budget = "passive") {
 	delta = Number(delta) || 0;
 	if (!delta || V.statFreeze) return;
 	const state = ensureAutismSpectrumState();
 	if (delta < 0) {
-		/* Only remove load if there is any. Don't waste the daily allowance on nothing. */
 		delta = Math.max(delta, -state.load);
 		if (delta === 0) return;
-		if (!ignoreDailyCap) {
-			const allowance = autismDailyRecoveryCap - state.recoveredToday;
+		const kind = autismRecoveryBudget(budget);
+		if (kind !== "free") {
+			const deliberate = kind === "deliberate";
+			const spent = deliberate ? state.deliberateRecoveredToday : state.recoveredToday;
+			const allowance = (deliberate ? autismDeliberateRecoveryCap : autismPassiveRecoveryCap) - spent;
 			if (allowance <= 0) return;
 			delta = Math.max(delta, -allowance);
-			state.recoveredToday += -delta;
+			if (deliberate) state.deliberateRecoveredToday += -delta;
+			else state.recoveredToday += -delta;
 		}
 	}
+	const previousPhase = state.phase;
 	state.load = Math.clamp(state.load + delta, 0, autismLoadMax);
-	autismUpdateCapacity();
+	autismUpdateCapacity(previousPhase);
 }
 
 function autismLoadPercent() {
@@ -327,34 +446,57 @@ state its load no longer supports. Skips the daily recovery cap on purpose: this
 function autismSetLoad(value) {
 	if (!playerHasAutismSpectrum()) return;
 	const state = ensureAutismSpectrumState();
+	const previousPhase = state.phase;
 	state.load = Math.clamp(Number(value) || 0, 0, autismLoadMax);
-	autismUpdateCapacity();
+	autismUpdateCapacity(previousPhase);
 }
 
-/* How much recovery is left today, for the trait screen. */
 function autismRecoveryLeftToday() {
 	if (!playerHasAutismSpectrum()) return 0;
-	return Math.max(0, Math.round(autismDailyRecoveryCap - ensureAutismSpectrumState().recoveredToday));
+	const state = ensureAutismSpectrumState();
+	const passive = autismPassiveRecoveryCap - state.recoveredToday;
+	const deliberate = autismDeliberateRecoveryCap - state.deliberateRecoveredToday;
+	return Math.max(0, Math.round(Math.max(0, passive) + Math.max(0, deliberate)));
 }
 
-/*
- * Gets the state from the current load.
- * Burnout starts at the upper limit and ends only after load drops below the lower limit.
- * Pass null for current to ignore the current state.
- */
+/* Scenes read this to say the budget is spent rather than implying the stim itself stopped working. */
+function autismDeliberateSpent() {
+	if (!playerHasAutismSpectrum()) return false;
+	return ensureAutismSpectrumState().deliberateRecoveredToday >= autismDeliberateRecoveryCap;
+}
+
+/* Deliberate regulation left today, so the trait screen can say why stimming has stopped helping. */
+function autismDeliberateLeftToday() {
+	if (!playerHasAutismSpectrum()) return 0;
+	return Math.max(0, Math.round(autismDeliberateRecoveryCap - ensureAutismSpectrumState().deliberateRecoveredToday));
+}
+
+/* Pass null for current to derive from load alone, ignoring Burnout's hysteresis. */
 function autismDerivedCapacity(load, current) {
-	if (current === "burnout" && load >= autismLoadBurnoutRelief) return "burnout";
-	if (load >= autismLoadBurnout) return "burnout";
-	if (load >= autismLoadStrained) return "strained";
+	if (current === "burnout" && load >= autismBurnoutReliefThreshold()) return "burnout";
+	if (load >= autismBurnoutThreshold()) return "burnout";
+	if (load >= autismStrainedThreshold()) return "strained";
 	return "settled";
 }
 
-function autismUpdateCapacity() {
+/*
+ * ensureAutismSpectrumState re-derives state.phase from the current load, so a caller that has just changed
+ * the load must capture the old phase first and pass it as previousOverride. Reading state.phase here
+ * instead would compare the new value with itself and never detect a change.
+ */
+function autismUpdateCapacity(previousOverride) {
 	const state = ensureAutismSpectrumState();
-	const previous = state.phase;
+	const previous = previousOverride !== undefined ? previousOverride : state.phase;
 	state.phase = autismDerivedCapacity(state.load, previous);
 	if (state.phase !== previous) {
-		/* Sticky: the notice has to survive until effects() actually renders it. */
+		/* Entering Burnout is the one transition worth its own beat, and only on the way in. Coming out is
+		   gradual and already has the capacity notice; going in is a threshold the PC crosses once. */
+		if (state.phase === "burnout" && previous !== "burnout") {
+			state.burnoutEntered = true;
+			autismHistoryAdd("burnouts");
+			V.timeMessages ||= [];
+			V.timeMessages.pushUnique("autismBurnout");
+		}
 		state.phaseChanged = true;
 		V.timeMessages ||= [];
 		V.timeMessages.pushUnique("autismHyperfixation");
@@ -377,16 +519,12 @@ function autismInMeltdown() {
 	return ensureAutismSpectrumState().meltdown === true;
 }
 
-/* Queues a focus notice so it still appears on the next passage, then clears it after showing. */
 function autismQueueFocusMessage() {
 	V.timeMessages ||= [];
 	V.timeMessages.pushUnique("autismFocus");
 }
 
-/*
- * Trauma from pushing through severe overload. Only Burnout and meltdowns cause it; Strained does not.
- * "amount" uses the same scale as statChange.stress.
- */
+/* Burnout and meltdowns only; Strained causes no trauma. amount is on the statChange.stress scale. */
 function autismOverloadTrauma(amount) {
 	amount = Number(amount) || 0;
 	if (amount <= 0 || V.statFreeze) return;
@@ -401,10 +539,8 @@ function autismUpdateOverload() {
 	const state = ensureAutismSpectrumState();
 	/* Keeps capacity synced when load changes outside autismAdjustLoad, such as migration or cheats. */
 	autismUpdateCapacity();
-	/* effects() reads V.timeMessages with forEach and then empties it, so a key queued while it is
-	already rendering would be dropped without ever being shown. That can happen when another time
-	message lowers stress far enough to change capacity. The flags are sticky and effects() clears
-	them, so re-queueing until then costs nothing and guarantees the notice appears. */
+	/* effects() empties V.timeMessages after iterating it, so anything queued mid-render is lost. The
+	flags are sticky and effects() clears them, so re-queueing until it lands is free. */
 	if (state.phaseChanged || state.focusChanged) {
 		V.timeMessages ||= [];
 		V.timeMessages.pushUnique("autismHyperfixation");
@@ -414,6 +550,7 @@ function autismUpdateOverload() {
 		state.meltdown = true;
 		/* The streak ends here, so escalation restarts from nothing and one meltdown cannot run straight into another. */
 		state.trainingMinutes = 0;
+		autismBreakComposure();
 		statChange.trauma(autismMeltdownTrauma);
 		state.meltdownNotice = true;
 		/* Decided once, as it starts, so the scene cannot change form while the player is reading it. */
@@ -480,7 +617,6 @@ function autismFinishKylarTraining() {
 /* Called once, from character creation, after "autism" is pushed onto $backgroundTraits. */
 function initAutismSpectrumState() {
 	if (!playerHasAutismSpectrum()) return;
-	/* Start with no load carried and the first focused interest already chosen. */
 	delete V.autismSpectrum;
 	ensureAutismSpectrumState();
 	V.timeMessages ||= [];
@@ -497,6 +633,11 @@ function autismSpectrumDailyUpdate() {
 	if (!rested) autismAdjustLoad(6);
 	state.restedToday = false;
 	state.recoveredToday = 0;
+	state.deliberateRecoveredToday = 0;
+
+	/* Things left undone are their own demand, whether or not the day contained any attempt at them. */
+	const backlog = autismObligationLoad();
+	if (backlog > 0) autismAdjustLoad(backlog);
 
 	/* Sitting at high stress all day is a demand in itself, whatever caused it. */
 	const stressFraction = autismStressFraction();
@@ -508,7 +649,6 @@ function autismSpectrumDailyUpdate() {
 	if (today >= state.hyperfixationEndsDay) {
 		state.hyperfixation = autismRollHyperfixation(state.hyperfixation);
 		state.hyperfixationEndsDay = today + autismRollHyperfixationDays();
-		/* Sticky for the same reason as phaseChanged: it has to survive until effects() renders it. */
 		state.focusChanged = true;
 	}
 	state.trainingMinutes = 0;
@@ -533,8 +673,7 @@ function autismSpectrumDailyUpdate() {
 function autismStatGainMultiplier(stat, amount = 1, kind = "") {
 	if (!playerHasAutismSpectrum() || !(Number(amount) > 0) || !autismSpectrumStats[stat]) return 1;
 	const state = ensureAutismSpectrumState();
-	/* Kylar's outing uses the actual beach, park, and orphanage locations.
-   	only the real practice reward counts as training. */
+	/* Kylar's outing uses the actual beach, park, and orphanage locations; only the real practice reward counts as training. */
 	const kylarTraining = typeof T !== "undefined" && T.autismKylarTraining === true && state.kylarEventFocus === stat;
 	/* The outing holds the interest it set out with, even if midnight has since rolled the current one over. */
 	const activeFocus = kylarTraining ? stat : state.hyperfixation;
@@ -542,7 +681,6 @@ function autismStatGainMultiplier(stat, amount = 1, kind = "") {
 		kind === "training" || kind === "school" || kylarTraining || (autismVenueTrainableStats.includes(stat) && autismTrainingLocations.includes(V.location));
 	const school = kind === "school" || kind === "schoolPassive";
 
-	/* Capacity is based on load, not a timed cycle. Settled gives bonuses, Strained is normal, and Burnout adds penalties. */
 	let multiplier = 1;
 	if (state.phase === "settled") {
 		multiplier = 1.05;
@@ -552,7 +690,7 @@ function autismStatGainMultiplier(stat, amount = 1, kind = "") {
 		if (school) multiplier *= 0.875;
 	}
 
-	/* A focused interest can help regulate Stress and Load, but does not grant exceptional skill gains. */
+	/* A meltdown replaces demand fatigue rather than compounding with it. */
 	if (state.meltdown) multiplier *= 0.65;
 	else if (training && state.trainingMinutes >= autismDemandGraceMinutes) {
 		const tiredHours = 1 + Math.floor((state.trainingMinutes - autismDemandGraceMinutes) / 60);
@@ -576,9 +714,7 @@ function autismTrainingTimePassed(minutes) {
 	state.pendingMinutes += Math.max(0, Number(minutes) || 0);
 }
 
-/*
- * Check this at the end of the turn so time passes and skill gains are both counted first.
- */
+/* Runs at the end of the turn, so time passed and skill gains are both already counted. */
 function autismSettleTraining() {
 	if (!playerHasAutismSpectrum()) return;
 	const state = ensureAutismSpectrumState();
@@ -591,6 +727,9 @@ function autismSettleTraining() {
 	delete state.pendingFocus;
 	delete state.pendingPhase;
 
+	/* A historical scene is not the PC's day */
+	if (V.statFreeze) return;
+
 	/* A zero-time passage change is neither training nor a break. */
 	if (minutes <= 0) return;
 
@@ -602,7 +741,7 @@ function autismSettleTraining() {
 		/* The first long break counts as sleep, so it doesn't use the day's recovery limit. */
 		const firstBreak = state.restedToday !== true;
 		state.restedToday = true;
-		autismAdjustLoad(-Math.min(20, (minutes / 60) * 2), firstBreak);
+		autismAdjustLoad(-Math.min(20, (minutes / 60) * 2), firstBreak ? "free" : "deliberate");
 		return;
 	}
 
@@ -620,7 +759,9 @@ function autismSettleTraining() {
 	const practisedInterest = trained.includes(focus);
 	if (practisedInterest) {
 		statChange.stress(-(minutes / 20));
-		autismAdjustLoad(-minutes / 40);
+		/* Deliberate: the player chose to spend the time on the interest, so it must not be crowded out
+		   by whatever incidental stress relief the day happened to contain. */
+		autismAdjustLoad(-minutes / 20, "deliberate");
 		/* Only once a day, so the recovery line is not printed after every lesson. */
 		const today = Number(Time?.days) || 0;
 		if (!V.statFreeze && state.reliefNoticeDay !== today) {
@@ -630,6 +771,9 @@ function autismSettleTraining() {
 			autismQueueFocusMessage();
 		}
 	}
+
+	/* Nothing in progress and nothing carried over: this turn is where the task actually began. */
+	if (!state.lastPractice && state.trainingMinutes === 0 && !practisedInterest) autismColdStart(phase);
 
 	const priorMinutes = state.trainingMinutes;
 	state.trainingMinutes += minutes;
@@ -647,11 +791,9 @@ function autismSettleTraining() {
 
 	if (demand > 0) {
 		autismAdjustLoad(demand * 0.5);
-		if (state.meltdown) autismOverloadTrauma(demand);
-		else {
-			statChange.stress(demand);
-			autismOverloadTrauma(demand);
-		}
+		/* During a meltdown the demand lands entirely as trauma */
+		if (!state.meltdown) statChange.stress(demand);
+		autismOverloadTrauma(demand);
 	}
 
 	/* Announce a disruptive switch or each additional hour of sustained demand, not every action. */
@@ -661,6 +803,431 @@ function autismSettleTraining() {
 		state.fatigueNotice = changedTask ? 0 : Math.min(3, tier);
 		autismQueueFocusMessage();
 	}
+}
+
+/*
+ * Ambient strain lines: prose for the load that accrues quietly from sensory input, so a loud afternoon
+ * does not read the same as a calm one. Purely descriptive and change no stats, so the meters stay the only
+ * thing moving load.
+ *
+ * Queued from the sensory tick, which already runs everywhere load accrues, so this needs no per-location wiring
+ * and automatically covers every place in autismLoudPlaces along with bright outdoor glare.
+ */
+
+/* Hours between ambient lines. Long, because this is texture, not a status readout. */
+const autismAmbientCooldownHours = 3;
+
+/* Even off cooldown, only this often, so the lines do not arrive on a predictable clock. */
+const autismAmbientChance = 35;
+
+function autismAmbientStamp() {
+	const days = Number(Time?.days) || 0;
+	const hour = Number(Time?.hour) || 0;
+	return days * 24 + hour;
+}
+
+/*
+ * Whether somewhere is currently worth remarking on. Kept separate from the message itself so the render
+ * can ask the same question again: a queued message must not describe a room the PC has since left.
+ */
+function autismAmbientPlaceKind() {
+	const loud = autismPlaceIsLoud();
+	const bright = autismPlaceIsBright();
+	if (loud && bright) return "both";
+	if (loud) return "loud";
+	if (bright) return "bright";
+	return "";
+}
+
+function autismAmbientReady() {
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.timeSkip !== undefined || V.combat === 1) return false;
+	const state = ensureAutismSpectrumState();
+	/* A meltdown has its own scene and its own text. Nothing ambient belongs on top of it. */
+	if (state.meltdown) return false;
+	if (state.phase === "settled") return false;
+	return autismAmbientPlaceKind() !== "";
+}
+
+function autismQueueAmbient() {
+	if (!autismAmbientReady()) return;
+	const state = ensureAutismSpectrumState();
+	const now = autismAmbientStamp();
+	if (Number.isFinite(state.ambientStamp) && now - state.ambientStamp < autismAmbientCooldownHours) return;
+	if (random(1, 100) > autismAmbientChance) return;
+	state.ambientStamp = now;
+	V.timeMessages ||= [];
+	V.timeMessages.pushUnique("autismAmbient");
+}
+
+const autismAmbientLines = Object.freeze({
+	strained: {
+		loud: [
+			"There are too many sounds around you to ignore. You can still pick out individual voices and noises, but doing so takes more concentration than usual.",
+			"Somebody laughs close behind you. You tense and turn towards the sound before realising they were not speaking to you.",
+			"You keep noticing every nearby conversation. You try to ignore them, but your attention moves back whenever someone speaks.",
+		],
+		bright: [
+			"Sunlight reflects off the pavement and makes you narrow your eyes. You start watching the ground ahead because looking around is becoming uncomfortable.",
+			"You narrow your eyes against the glare, relax them when you notice, then find yourself doing it again a few seconds later.",
+		],
+		both: [
+			"The glare makes you narrow your eyes while nearby voices keep pulling your attention away. You can manage both, but concentrating on anything else is becoming difficult.",
+			"The area is bright and crowded with noise. As you move through it, you start choosing quieter parts of the route without thinking much about where you originally meant to walk.",
+		],
+	},
+	burnout: {
+		loud: [
+			"Voices, footsteps, traffic and other nearby noises reach you at the same time. You struggle to separate the sounds long enough to decide which ones matter.",
+			"Someone speaks to you. You hear their voice, but the words do not make sense straight away. You need them to repeat themselves, though even asking feels difficult.",
+			"You react to every nearby noise now, even when it has nothing to do with you. You try to focus on one sound at a time, but another interrupts before you can.",
+		],
+		bright: [
+			"The light makes it difficult to keep your eyes fully open. You watch the darker parts of the ground as you walk so you do not have to look directly at the glare.",
+			"You realise you have been walking with your eyes partly closed. When you try to open them properly, the glare makes you narrow them again.",
+		],
+		both: [
+			"The glare hurts your eyes while every nearby sound demands your attention. You keep looking for somewhere darker and quieter because concentrating here is becoming difficult.",
+			"You struggle to ignore any of the light or noise around you. Your eyes stay narrowed while each new sound pulls your attention away from what you were trying to do.",
+		],
+	},
+});
+
+function autismAmbientLine() {
+	if (!autismAmbientReady()) return "";
+	const phase = ensureAutismSpectrumState().phase;
+	const set = autismAmbientLines[phase === "burnout" ? "burnout" : "strained"];
+	const lines = set?.[autismAmbientPlaceKind()];
+	if (!Array.isArray(lines) || !lines.length) return "";
+	return lines.random();
+}
+
+/* Referral, intake, gathering, feedback. Waits are compressed; a realistic one would outlast the game. */
+const autismAssessmentStages = Object.freeze(["raised", "intake", "ready", "diagnosed"]);
+
+/* "nhs" is free and slow, "private" costs money and is quick. The free route always completes, so a PC
+   who never has money is never locked out of diagnosis. */
+const autismAssessmentRoutes = Object.freeze(["nhs", "private"]);
+
+/* In pence, matching the rest of the hospital's pricing. */
+const autismPrivateAssessmentCost = 150000;
+
+/* Days to wait at each stage before the next appointment, by route. */
+const autismAssessmentWaits = Object.freeze({
+	nhs: { raised: 45, intake: 14 },
+	private: { raised: 3, intake: 7 },
+});
+
+/* Saves predating the routes were on the fast timings, so they default to private rather than stalling an
+   assessment the player had already started. */
+function autismAssessmentRoute() {
+	if (!playerHasAutismSpectrum()) return "";
+	const route = ensureAutismSpectrumState().assessmentRoute;
+	return autismAssessmentRoutes.includes(route) ? route : "private";
+}
+
+function autismSetAssessmentRoute(route) {
+	if (!playerHasAutismSpectrum() || !autismAssessmentRoutes.includes(route)) return false;
+	ensureAutismSpectrumState().assessmentRoute = route;
+	return true;
+}
+
+function autismPrivateCost() {
+	return autismPrivateAssessmentCost;
+}
+
+/* Must match printprice: both run the base through the inflation hook, so comparing against the raw
+   base would offer the option to someone who cannot pay the price on the label. */
+function autismPrivateChargedCost() {
+	if (typeof setup !== "undefined" && setup.inflation && setup.inflation.price) {
+		return setup.inflation.price(autismPrivateAssessmentCost);
+	}
+	return autismPrivateAssessmentCost;
+}
+
+function autismCanAffordPrivate() {
+	return (Number(V.money) || 0) >= autismPrivateChargedCost();
+}
+
+/* Stays available mid-wait, not only at referral: giving up on the queue is usually a later decision. */
+function autismCanGoPrivate() {
+	if (!playerHasAutismSpectrum()) return false;
+	const stage = autismAssessmentStage();
+	if (stage !== "raised" && stage !== "intake") return false;
+	return autismAssessmentRoute() === "nhs" && autismCanAffordPrivate();
+}
+
+/* Waits for the route currently in use. */
+const autismAssessmentWait = new Proxy(
+	{},
+	{
+		get(_target, key) {
+			const waits = autismAssessmentWaits[autismAssessmentRoute()] || autismAssessmentWaits.private;
+			return waits[key];
+		},
+	}
+);
+
+/* None is individually required. The self-report is always available, so a PC with no cooperative adult
+   can still finish the assessment. */
+const autismAssessmentSources = Object.freeze(["self", "school", "teacher", "guardian"]);
+
+/* How many sources are enough to move to the feedback appointment. */
+const autismAssessmentSourcesNeeded = 1;
+
+function autismAssessmentStage() {
+	if (!playerHasAutismSpectrum()) return "";
+	const stage = ensureAutismSpectrumState().assessmentStage;
+	return autismAssessmentStages.includes(stage) ? stage : "";
+}
+
+function autismAssessmentDaysAtStage() {
+	const state = ensureAutismSpectrumState();
+	if (!Number.isFinite(state.assessmentDay)) return 0;
+	return Math.max(0, (Number(Time?.days) || 0) - state.assessmentDay);
+}
+
+function autismAssessmentSetStage(stage) {
+	if (!playerHasAutismSpectrum() || !autismAssessmentStages.includes(stage)) return;
+	const state = ensureAutismSpectrumState();
+	state.assessmentStage = stage;
+	state.assessmentDay = Number(Time?.days) || 0;
+}
+
+function autismAssessmentGathered() {
+	const state = ensureAutismSpectrumState();
+	if (!Array.isArray(state.assessmentSources)) state.assessmentSources = [];
+	return state.assessmentSources;
+}
+
+function autismAssessmentHasSource(source) {
+	return autismAssessmentGathered().includes(source);
+}
+
+function autismAssessmentAddSource(source) {
+	if (!playerHasAutismSpectrum() || !autismAssessmentSources.includes(source)) return false;
+	const gathered = autismAssessmentGathered();
+	if (gathered.includes(source)) return false;
+	gathered.pushUnique(source);
+	return true;
+}
+
+/* Whether the intake appointment can be attended: referred, and the wait has passed. */
+function autismIntakeReady() {
+	return autismAssessmentStage() === "raised" && autismAssessmentDaysAtStage() >= autismAssessmentWait.raised;
+}
+
+/*
+ * Whether the feedback appointment can be attended. Needs both the wait and at least one source of history,
+ * so a PC who gathers nothing at all is held at the gathering stage rather than blocked outright.
+ */
+function autismFeedbackReady() {
+	const stage = autismAssessmentStage();
+	if (stage === "ready") return true;
+	if (stage !== "intake") return false;
+	return autismAssessmentDaysAtStage() >= autismAssessmentWait.intake && autismAssessmentGathered().length >= autismAssessmentSourcesNeeded;
+}
+
+function autismDiagnosed() {
+	return autismAssessmentStage() === "diagnosed";
+}
+
+/* Days still to wait at the current stage, for the prose to name a real number. */
+function autismAssessmentWaitLeft() {
+	const stage = autismAssessmentStage();
+	const wait = autismAssessmentWait[stage];
+	if (!wait) return 0;
+	return Math.max(0, wait - autismAssessmentDaysAtStage());
+}
+
+/*
+ * Which kind of thing the current focused interest is.
+ *
+ * A read helper, so scenes can carry one set of words per kind of interest rather than needing fifteen
+ * bespoke variants, and so a new entry in the pool inherits sensible prose instead of falling through
+ * to nothing. Purely descriptive: nothing keys off this mechanically.
+ */
+const autismFocusCategories = Object.freeze({
+	science: "academic",
+	maths: "academic",
+	english: "academic",
+	history: "academic",
+	physique: "physical",
+	athletics: "physical",
+	swimming: "physical",
+	dancing: "physical",
+	tending: "practical",
+	housekeeping: "practical",
+	brawling: "combat",
+	footwork: "combat",
+	striking: "combat",
+	kicking: "combat",
+	willpower: "inner",
+});
+
+function autismHyperfixationCategory() {
+	if (!playerHasAutismSpectrum()) return "academic";
+	return autismFocusCategories[ensureAutismSpectrumState().hyperfixation] || "academic";
+}
+
+/* What form the last overload took, for scenes reacting to it afterwards. */
+function autismLastOverloadForm() {
+	if (!playerHasAutismSpectrum()) return "meltdown";
+	return ensureAutismSpectrumState().overloadWasForm === "shutdown" ? "shutdown" : "meltdown";
+}
+
+/*
+ * Whether the last overload happened somewhere other people could see it, which is what decides
+ * whether anyone has anything to react to at all.
+ */
+function autismLastOverloadWitnessed() {
+	if (!playerHasAutismSpectrum()) return false;
+	return ensureAutismSpectrumState().overloadSeen !== "alone" && autismOverloadDaysAgo() >= 0;
+}
+
+/*
+ * Whether the phase-aware lesson event should replace this lesson's ordinary safe event.
+ * At most once a week, only while the PC is carrying real strain, and never on top of a meltdown,
+ * which owns a scene of its own.
+ */
+function autismLessonEventReady() {
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed) return false;
+	if (Number(V.exposed) > 0) return false;
+	if (V.weekly?.autismLesson) return false;
+	const state = ensureAutismSpectrumState();
+	if (state.meltdown) return false;
+	return state.phase !== "settled";
+}
+
+/* Days an overload stays recent enough for someone to bring it up. */
+const autismOverloadRecentDays = 2;
+
+/*
+ * Whether the PC had an overload recently enough for a scene to react to it, and how long ago.
+ * Returns -1 when there is nothing recent.
+ */
+function autismOverloadDaysAgo() {
+	if (!playerHasAutismSpectrum()) return -1;
+	const state = ensureAutismSpectrumState();
+	if (!Number.isFinite(state.overloadDay)) return -1;
+	const ago = (Number(Time?.days) || 0) - state.overloadDay;
+	if (ago < 0 || ago > autismOverloadRecentDays) return -1;
+	return ago;
+}
+
+/*
+ * Executive dysfunction.
+ *
+ * The backlog: obligations the PC knows about and has not dealt with cost something just by being outstanding.
+ * This is drawn from state the game already tracks, so it only ever names things the player can actually see and
+ * act on, and it stops charging the moment the obligation is settled rather than when the scene acknowledging it plays.
+ *
+ * Cold starts: the hard part of an unwanted task is beginning it. Starting deliberate work that is not the focused
+ * interest, from a standstill, costs willpower and stress on top of the work itself. It is charged once per start,
+ * not per minute, so a long session is not punished twice for being long.
+ */
+
+/* What each outstanding obligation is worth per day. */
+const autismObligationWeights = Object.freeze({ rent: 3, service: 2.5, suspension: 1.5 });
+
+/* Rent stops being a distant fact and starts being a problem this many days out. */
+const autismRentNoticeDays = 3;
+
+/* However bad the backlog gets, it is not the whole day's load on its own. */
+const autismObligationDailyMax = 7;
+
+/* Reads live state only, so an obligation cannot go stale in a save. */
+function autismObligations() {
+	const list = [];
+	if (!playerHasAutismSpectrum()) return list;
+
+	/* Rent counts only when it is close and the money is not already put aside, which is when it starts
+	   occupying the PC rather than simply existing on a calendar. */
+	const due = Number(V.renttime);
+	if (Number.isFinite(due) && due <= autismRentNoticeDays && V.rentday !== undefined) {
+		const owed = (Number(V.rentmoney) || 0) + (Number(V.babyRent) || 0);
+		if (owed > 0 && (Number(V.baileyDeposit) || 0) < owed) {
+			list.push({ label: due <= 0 ? "rent overdue" : `rent due in ${due} ${due === 1 ? "day" : "days"}`, weight: autismObligationWeights.rent });
+		}
+	}
+
+	const discipline = V.schoolDiscipline;
+	if (discipline?.suspended === 1) {
+		const outstanding = Math.max(0, (Number(discipline.serviceRequired) || 0) - (Number(discipline.serviceDone) || 0));
+		if (outstanding > 0) {
+			list.push({
+				label: `${outstanding} community service ${outstanding === 1 ? "session" : "sessions"} left`,
+				weight: autismObligationWeights.service,
+			});
+		}
+		const daysLeft = Math.max(0, Number(discipline.daysLeft) || 0);
+		if (daysLeft > 0)
+			list.push({ label: `${daysLeft} school ${daysLeft === 1 ? "day" : "days"} of suspension left`, weight: autismObligationWeights.suspension });
+	}
+	return list;
+}
+
+function autismObligationLoad() {
+	const total = autismObligations().reduce((sum, item) => sum + item.weight, 0);
+	return Math.min(total, autismObligationDailyMax);
+}
+
+function autismObligationLabels() {
+	return autismObligations().map(item => item.label);
+}
+
+/*
+ * Whether the PC could settle the rent right now, for the rent-day beat in <<autism-bailey>>.
+ *
+ * Mirrors the affordability test the rent widgets use, so the explanation the PC gives Bailey matches
+ * what the payment options below it are about to offer. Deposits and surcharges are deliberately left
+ * out: this asks whether the money was there to hand over, not what the final bill comes to.
+ */
+function autismRentCanPay() {
+	const owed = (Number(V.rentmoney) || 0) + (Number(V.babyRent) || 0);
+	const held = setup.inflation?.rentPayable ? Number(setup.inflation.rentPayable()) : Number(V.money);
+	return (Number.isFinite(held) ? held : 0) >= owed;
+}
+
+const autismColdStartWillpower = 30;
+const autismColdStartStress = 6;
+
+/*
+ * Charged when deliberate off-interest work begins from a standstill.
+ *
+ * Spends the daily willpower pool and never the willpower stat: the stat is what autismWillpowerCapacity
+ * reads, so draining it here would lower the Load thresholds mid-day and push the PC into Strained for
+ * having started a task. With daily consumption off, the cost lands entirely as stress and Load.
+ */
+function autismColdStart(phase) {
+	const state = ensureAutismSpectrumState();
+	/* Below Strained, starting something is not the problem. */
+	if (V.statFreeze || phase === "settled") return false;
+	const capacity = autismWillpowerCapacity();
+	/* A full reserve halves the cost. An empty one pays it whole. */
+	const scale = 1 - Math.clamp(capacity === null ? 0.5 : capacity / 2, 0, 1) * 0.5;
+	const heavier = phase === "burnout" ? 1.5 : 1;
+	if (V.xchange?.willpowerSystemEnabled === 1 && Number.isFinite(V.xchange.willpowerPoints)) {
+		V.xchange.willpowerPoints = Math.max(0, V.xchange.willpowerPoints - autismColdStartWillpower * scale * heavier);
+	}
+	statChange.stress(Math.round(autismColdStartStress * scale * heavier));
+	autismAdjustLoad(1.5 * heavier);
+	state.coldStartNotice = true;
+	autismHistoryAdd("coldStarts");
+	autismQueueFocusMessage();
+	return true;
+}
+
+/* These describe difficulty starting a task, not being bad at it. Once the PC starts, the task is normal. */
+const autismColdStartLines = Object.freeze([
+	"You know what you need to do and how to do it, but you still cannot make yourself start. You stand there for a while, waiting for your body to move.",
+	"You get everything ready, then check it all again. You know nothing else needs preparing, but starting still feels difficult.",
+	"The hardest part is beginning. Once you finally start, the work itself feels easier than the effort it took to get moving.",
+	"Your hands know what to do, but you still hesitate before using them. You try to make yourself begin, but your body does not respond straight away.",
+	"You have already gone through the task several times in your head. None of that gets the work done, and you already feel tired before you begin.",
+]);
+
+function autismColdStartLine() {
+	return autismColdStartLines.random();
 }
 
 /*
@@ -692,7 +1259,10 @@ function autismSensoryUpdate(minutes) {
 	if (extra > 0) {
 		extra = Math.round(extra);
 		statChange.stress(extra, 1);
-		autismAdjustLoad(extra / 300);
+		autismQueueAmbient();
+		/* Sustained sensory input is the main way load builds, so a whole day in the loudest, brightest part
+		   of town has to be able to reach Strained on its own. */
+		autismAdjustLoad(extra / 45);
 		return;
 	}
 
@@ -761,7 +1331,7 @@ function autismRestBreak(load) {
 	if (!playerHasAutismSpectrum() || V.statFreeze) return;
 	load = Math.max(0, Number(load) || 0);
 	if (!load) return;
-	autismAdjustLoad(-load);
+	autismAdjustLoad(-load, "deliberate");
 }
 
 /*
@@ -831,6 +1401,8 @@ function autismRollOverloadForm() {
 	const willMax = Number(V.willpowermax) || 1000;
 	const willFraction = Math.clamp((Number(V.willpower) || 0) / willMax, 0, 1);
 	shutdownChance += Math.round((willFraction - 0.5) * 30);
+	/* A mask held all day is already effort turned inward, so an overload under one tends to keep going that way. */
+	shutdownChance += Math.round((ensureAutismSpectrumState().masking / autismMaskingMax) * 25);
 	return random(1, 100) <= Math.clamp(shutdownChance, 5, 95) ? "shutdown" : "meltdown";
 }
 
@@ -862,11 +1434,627 @@ function autismStim(minutes, place = autismPrivacyTier()) {
 	if (!["alone", "known", "strangers"].includes(place)) place = autismPrivacyTier();
 	/* Masking takes most of it back. Somewhere that knows you costs less than a room of strangers. */
 	const scale = place === "alone" ? 1 : place === "known" ? 0.6 : 0.35;
-	autismAdjustLoad(-autismStimLoadRelief * scale * (minutes / 10));
+	autismAdjustLoad(-autismStimLoadRelief * scale * (minutes / 10), "deliberate");
+	autismHistoryAdd("stims");
 	statChange.stress(-Math.round(minutes * 1.2 * scale));
 	/* Holding a stim down is work, so what masking saves is not free. */
 	if (place !== "alone") autismAdjustLoad(minutes / 60);
 	return place;
+}
+
+/* Masking accrues only where there is an audience, so it keys off the privacy tiers. The meter itself is
+   not damage: it bleeds into Load for as long as it is held. */
+const autismMaskingMax = 100;
+
+/* Masking gained per hour at each privacy tier, before familiarity. */
+const autismMaskingRate = Object.freeze({ strangers: 9, known: 4, alone: 0 });
+
+/* Masking lost per hour with nobody to perform for. Slower than deliberately unmasking, which is the point:
+   the mask comes down on its own eventually, but waiting for it wastes the day. */
+const autismMaskingDrift = 4;
+
+/* A full mask bleeds this much Load per hour. */
+const autismMaskingLoadPerHour = 1.2;
+
+/* Below this the mask is not costing anything worth reporting. */
+const autismMaskingNoticeable = 20;
+
+/* Sustained masking text: only while masking heavily, on a long cooldown. */
+const autismMaskingProseFloor = 55;
+const autismMaskingProseCooldownHours = 4;
+const autismMaskingProseChance = 40;
+
+const autismMaskingLines = Object.freeze([
+	"You check your expression to make sure it looks right. A minute later, you check again. You cannot tell when your face changes unless you think about it.",
+	"Your last sentence sounded too flat. When you speak again, you make your voice sound friendlier to avoid drawing attention.",
+	"Someone finishes speaking. You quickly choose between the replies you have prepared and use the one that seems to fit best.",
+	"You notice that you have been keeping your shoulders in the same position. You relax them, then immediately wonder how you are supposed to hold them.",
+	"You realise you laughed slightly later than everyone else. Nobody reacts, but you still think about whether your timing looked strange.",
+	"You look at their eyes for a few seconds, look away, then look back. You keep track of when to do each part while also trying to follow what they are saying.",
+]);
+
+/* The one "is the mask high" question, so scenes stop inventing their own thresholds. */
+function autismMaskingHigh() {
+	return autismMaskingLevel() >= autismMaskingProseFloor;
+}
+
+/* A lighter reading, for scenes where any noticeable mask is worth remarking on. */
+function autismMaskingNoticed() {
+	return autismMaskingLevel() >= autismMaskingNoticeable;
+}
+
+function autismMaskingProseReady() {
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.timeSkip !== undefined || V.combat === 1) return false;
+	const state = ensureAutismSpectrumState();
+	if (state.meltdown) return false;
+	if (state.masking < autismMaskingProseFloor) return false;
+	/* Only while it is actually being held up, not while it drains somewhere safe. */
+	return autismMaskingRateNow() > 0;
+}
+
+function autismQueueMaskingProse() {
+	if (!autismMaskingProseReady()) return;
+	const state = ensureAutismSpectrumState();
+	const now = autismAmbientStamp();
+	if (Number.isFinite(state.maskProseStamp) && now - state.maskProseStamp < autismMaskingProseCooldownHours) return;
+	if (random(1, 100) > autismMaskingProseChance) return;
+	state.maskProseStamp = now;
+	V.timeMessages ||= [];
+	V.timeMessages.pushUnique("autismMasking");
+}
+
+/* The PC is using something prepared instead of improvising. Easier, but not easy. */
+const autismComposedLines = Object.freeze([
+	"You use the expression you practised earlier. You still have to think about it, but you already know what your face should do.",
+	"You pause, then remember the sentence you practised. You say it the way you planned, and the other person responds normally.",
+	"You remember the tone you practised in front of the mirror and use it now. Your voice comes out close to how you wanted it to.",
+	"You look at their eyes for three seconds, then look away. You practised this enough that you no longer need to count each second.",
+]);
+
+/* A rehearsed response runs out mid-interaction, and the PC goes back to responding normally. */
+const autismComposureLapsedLines = Object.freeze([
+	"You have used up the answers you prepared earlier. Now you have to think through each reply as the conversation continues, which takes much more effort.",
+	"The replies you practised are no longer coming automatically. You have to stop, work out what the other person expects, then decide what to say.",
+	"You cannot rely on rehearsed responses anymore. You watch the other person, think about what they want from you, then build each answer as you go.",
+]);
+
+function autismMaskingLine() {
+	if (!autismMaskingProseReady()) return "";
+	/* A prepared performance and an improvised one are different experiences of the same work. */
+	if (autismComposed()) return autismComposedLines.random();
+	const state = ensureAutismSpectrumState();
+	/* Composure that ran out during a demanding stretch gets said once, then falls back to the ordinary lines. */
+	if (Number.isFinite(state.composedUntil) && !state.composureLapseSaid) {
+		state.composureLapseSaid = true;
+		return autismComposureLapsedLines.random();
+	}
+	return autismMaskingLines.random();
+}
+
+function autismMaskingLevel() {
+	if (!playerHasAutismSpectrum()) return 0;
+	return Math.round(ensureAutismSpectrumState().masking);
+}
+
+/* Cheat menu only, matching autismSetLoad. */
+function autismSetMasking(value) {
+	if (!playerHasAutismSpectrum()) return;
+	ensureAutismSpectrumState().masking = Math.clamp(Number(value) || 0, 0, autismMaskingMax);
+}
+
+/* How comfortable one particular person is to be around, from 0 to 1. Love and trust are different routes to
+   the same thing here, so the higher of the two stands rather than being averaged with the lower. */
+function autismNpcFamiliarity(npc) {
+	if (!npc) return 0;
+	const love = Math.clamp(Number(npc.love) || 0, 0, 100);
+	const trust = Math.clamp(Number(npc.trust) || 0, 0, 100);
+	return Math.max(love, trust) / 100;
+}
+
+/* Cohabiting only puts the person in the room. Comfort still comes from the same love/trust scaling as
+   anyone else, so living with someone the PC is wary of helps nothing. */
+const autismResidences = Object.freeze([
+	{ location: "home", npc: "Robin" },
+	{ location: "flats", npc: "Poppy" },
+	{ location: "farm", npc: "Alex" },
+	{ location: "avery_mansion", npc: "Avery", requires: () => typeof livesInAveryMansion === "function" && livesInAveryMansion() },
+]);
+
+/* When someone who lives here is plausibly in rather than out at school or work. Deliberately coarse:
+   this stands in for a housemate being somewhere in the building, not for them being in the room. */
+const autismResidenceHomeHours = Object.freeze({ from: 18, until: 8 });
+
+function autismResidentFamiliarity() {
+	const home = autismResidences.find(entry => entry.location === V.location);
+	if (!home) return 0;
+	if (typeof home.requires === "function" && !home.requires()) return 0;
+	const npc = C.npc?.[home.npc];
+	/* Someone who has never been introduced is not living with the PC yet. */
+	if (!npc || npc.init !== 1) return 0;
+	const hour = Number(Time?.hour);
+	if (!Number.isFinite(hour)) return 0;
+	if (hour < autismResidenceHomeHours.from && hour >= autismResidenceHomeHours.until) return 0;
+	return autismNpcFamiliarity(npc);
+}
+
+/* 0 for strangers to 1 for complete trust. Named NPCs only, and the safest person present sets the figure. */
+function autismCompanyFamiliarity() {
+	let best = autismResidentFamiliarity();
+	if (!Array.isArray(V.NPCList) || typeof isLiveNPC !== "function") return best;
+	for (let i = 0; i < V.NPCList.length; i++) {
+		if (!isLiveNPC(V.NPCList[i])) continue;
+		const name = typeof namedNpcInSlot === "function" ? namedNpcInSlot(i) : "";
+		if (!name) continue;
+		best = Math.max(best, autismNpcFamiliarity(C.npc?.[name]));
+		if (best >= 1) break;
+	}
+	return best;
+}
+
+/* Below this, someone present is not company the PC can relax in front of. */
+const autismFamiliarThreshold = 0.5;
+
+/* A public place always counts: the onlookers are an audience whether or not they exist as NPC slots. */
+function autismUntrustedCompany() {
+	if (autismPrivacyTier() === "strangers") return true;
+	if (!Array.isArray(V.NPCList) || typeof isLiveNPC !== "function") return false;
+	for (let i = 0; i < V.NPCList.length; i++) {
+		if (!isLiveNPC(V.NPCList[i])) continue;
+		const name = typeof namedNpcInSlot === "function" ? namedNpcInSlot(i) : "";
+		/* An ordinary NPC has no name and no history, so there is nobody there to be comfortable with. */
+		if (!name || autismNpcFamiliarity(C.npc?.[name]) < autismFamiliarThreshold) return true;
+	}
+	return false;
+}
+
+/* The most a trusted person can help while someone else in the room still expects a performance.
+   Having a safe person there is a real relief, but it does not excuse the PC from the rest of the audience. */
+const autismMaskingTrustCap = 0.6;
+
+/*
+ * Masking gained per hour right now, after company. Zero means nothing is being held, which happens only
+ * with nobody to perform for or in company that is entirely safe.
+ */
+function autismMaskingRateNow() {
+	if (V.combat === 1 || ensureAutismSpectrumState().meltdown) return 0;
+	const base = autismMaskingRate[autismPrivacyTier()];
+	if (!base) return 0;
+	const trusted = autismCompanyFamiliarity();
+	const relief = autismUntrustedCompany() ? trusted * autismMaskingTrustCap : trusted;
+	const rate = base * (1 - Math.clamp(relief, 0, 1));
+	/* A rehearsed performance is cheaper to keep up than an improvised one. */
+	return autismComposed() ? rate * autismComposureRate : rate;
+}
+
+/* Whether anything is currently asking the PC to hold a presentation together. */
+function autismMaskingActive() {
+	if (!playerHasAutismSpectrum()) return false;
+	if (V.statFreeze || V.possessed || V.timeSkip !== undefined || V.combat === 1) return false;
+	return autismMaskingRateNow() > 0;
+}
+
+/* Runs alongside the sensory update, so masking follows the same clock as everything else timed. */
+function autismMaskingUpdate(minutes) {
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.timeSkip !== undefined) return;
+	minutes = Math.max(0, Number(minutes) || 0);
+	if (!minutes) return;
+	const state = ensureAutismSpectrumState();
+	const hours = minutes / 60;
+
+	/* Nothing is held during a meltdown or a fight: whatever the PC was holding has already gone. */
+	const suppressed = V.combat === 1 || state.meltdown;
+	const rate = autismMaskingRateNow();
+
+	if (rate > 0) state.masking = Math.min(autismMaskingMax, state.masking + rate * hours);
+	else {
+		state.masking = Math.max(0, state.masking - autismMaskingDrift * hours);
+		autismQueueUnmaskedProse();
+	}
+
+	/* Holding it is the cost, so this is charged on the level held rather than on the moment it went up. */
+	if (state.masking > 0 && !suppressed) {
+		autismAdjustLoad((state.masking / autismMaskingMax) * autismMaskingLoadPerHour * hours);
+		autismQueueMaskingProse();
+	}
+}
+
+/*
+ * Two independent routes: the school plan obliges staff generally, a personal disclosure covers one person.
+ * autismTeacherKnows is the single question every school scene asks, so accommodation has one source of truth.
+ */
+/* Everyone the game actually provides a way of telling. Avery is deliberately absent: there is no Avery
+   disclosure scene, so an entry here would be a promise the content does not keep. */
+const autismDisclosureTargets = Object.freeze(["Leighton", "nurse", "River", "Sirris", "Doren", "Winter", "Bailey", "Kylar"]);
+
+function autismDisclosureList() {
+	const state = ensureAutismSpectrumState();
+	if (!Array.isArray(state.disclosed)) state.disclosed = [];
+	return state.disclosed;
+}
+
+function autismDisclosedTo(who) {
+	return autismDisclosureList().includes(who);
+}
+
+function autismDiscloseTo(who) {
+	if (!playerHasAutismSpectrum() || !autismDisclosureTargets.includes(who)) return false;
+	const list = autismDisclosureList();
+	if (list.includes(who)) return false;
+	list.pushUnique(who);
+	return true;
+}
+
+/* Whether the recommended adjustments are formally on the school's file. */
+function autismSchoolPlan() {
+	if (!playerHasAutismSpectrum()) return false;
+	return ensureAutismSpectrumState().schoolPlan === true;
+}
+
+function autismSetSchoolPlan() {
+	if (!playerHasAutismSpectrum()) return;
+	ensureAutismSpectrumState().schoolPlan = true;
+}
+
+/*
+ * Whether a given teacher is obliged to accommodate. The plan covers everyone; a personal disclosure covers
+ * that one person even without it. Documentation is a prerequisite for both: there is nothing to show
+ * before the assessment concludes.
+ */
+function autismTeacherKnows(teacher) {
+	if (!playerHasAutismSpectrum() || !ensureAutismSpectrumState().documentation) return false;
+	return autismSchoolPlan() || autismDisclosedTo(teacher);
+}
+
+/* Whether the PC has anything to show anyone yet. */
+function autismHasDocumentation() {
+	return playerHasAutismSpectrum() && ensureAutismSpectrumState().documentation === true;
+}
+
+/* Ordered by clinical urgency; the check-up takes one per visit so it does not read as a status screen. */
+function autismCheckupTopics() {
+	if (!playerHasAutismSpectrum()) return [];
+	const state = ensureAutismSpectrumState();
+	const h = autismHistory();
+	const topics = [];
+
+	if (autismOverloadDaysAgo() >= 0) topics.push("overload");
+	if (state.phase === "burnout") topics.push("burnout");
+	else if (h.burnouts > 0) topics.push("burnoutPast");
+	if (state.masking >= 55) topics.push("masking");
+	if (h.coldStarts >= 3) topics.push("coldstarts");
+	if (autismObligations().length) topics.push("backlog");
+	if (!autismSchoolPlan() && !autismDisclosureList().some(w => ["River", "Sirris", "Doren", "Winter", "nurse"].includes(w))) topics.push("disclosure");
+	else topics.push("accommodations");
+	if (h.composures > 0) topics.push("composure");
+	if (h.stims > 0 || h.unmasks > 0) topics.push("regulation");
+	topics.push("focus");
+	return topics;
+}
+
+/* The one topic this visit is about. */
+function autismCheckupTopic() {
+	const topics = autismCheckupTopics();
+	if (!topics.length) return "focus";
+	const state = ensureAutismSpectrumState();
+	/* Do not open on the same subject twice running when there is anything else to talk about. */
+	const fresh = topics.filter(t => t !== state.lastCheckupTopic);
+	const chosen = (fresh.length ? fresh : topics)[0];
+	state.lastCheckupTopic = chosen;
+	return chosen;
+}
+
+/*
+ * Burnout in normal scenes.
+ * The PC still acts normally, but is slower, more literal, relies more on routine, and has less energy to keep up appearances.
+ */
+const autismBurnoutLines = Object.freeze({
+	social: [
+		"You take longer to answer than usual. Sometimes you respond to the exact words someone used, then realise from their reaction that they meant something else.",
+		"Making up a reply is difficult. You keep using familiar answers and phrases because thinking of something new takes too much effort.",
+		"You understand what people are saying, but finding the words to answer takes longer. Sometimes you know what you want to say and still cannot get the sentence out properly.",
+	],
+	work: [
+		"You follow the same steps in the same order you usually use. Stopping to decide what to do next feels harder than simply continuing with what you already know.",
+		"You still finish your work, but everything takes longer. You check simple steps again because it is harder to remember whether you already did them.",
+		"When something unexpected happens, you have to stop. You need time to work out what changed and what to do before you can continue.",
+	],
+	decide: [
+		"Even a small choice takes longer than it should. You look through the options one at a time because considering all of them together is too difficult.",
+		"You choose the familiar option because you already know what will happen. Working through the other choices feels like more than you can manage right now.",
+	],
+});
+
+function autismBurnoutLine(kind = "social") {
+	if (!playerHasAutismSpectrum()) return "";
+	if (ensureAutismSpectrumState().phase !== "burnout") return "";
+	const lines = autismBurnoutLines[kind] || autismBurnoutLines.social;
+	return lines.random();
+}
+
+/*
+ * Whether some activity is the PC's current focused interest, or in the same family as it. Lets ordinary
+ * content light up when it happens to coincide with what the PC is fixed on this month, without every
+ * interest needing bespoke scenes written for it.
+ */
+function autismIsFocus(stat) {
+	if (!playerHasAutismSpectrum() || typeof stat !== "string") return false;
+	return ensureAutismSpectrumState().hyperfixation === stat;
+}
+
+/* Prose for doing the thing the PC is currently fixed on. */
+const autismFocusEngagedLines = Object.freeze([
+	"You become so focused on what you are doing that everything else fades from your attention. For a while, you barely notice anything beyond the task in front of you.",
+	"Someone says your name twice before you notice. You look up after the second time, already wishing they had not interrupted you.",
+	"You keep going longer than you planned. Even when you know you should stop, pulling yourself away feels harder than continuing.",
+	"You did not have to make yourself start this. Once you began, you kept going without needing to push yourself.",
+]);
+
+function autismFocusEngagedLine() {
+	return autismFocusEngagedLines.random();
+}
+
+/* Private recovery text for when nothing is being held up. */
+const autismUnmaskedLines = Object.freeze([
+	"You stopped thinking about what expression your face should have. A few minutes pass before you even notice.",
+	"You have not worried about how long the silence lasts since you got here.",
+	"You sit however feels comfortable. You are not trying to make your posture look normal for anyone.",
+	"You say what you are thinking without planning how to introduce it or explain it first. Nobody here minds.",
+	"At some point, you stopped checking everything you said and did before doing it. You only notice after a while.",
+]);
+
+/*
+ * Only where there is genuinely nothing to perform for. Deliberately routed through the same rate the masking
+ * system uses, so this can never claim comfort the masking logic does not agree exists — trusted company that
+ * still leaves an audience is not the same as being off duty.
+ */
+function autismUnmaskedProseReady() {
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.timeSkip !== undefined || V.combat === 1) return false;
+	const state = ensureAutismSpectrumState();
+	if (state.meltdown) return false;
+	if (autismMaskingRateNow() > 0) return false;
+	/* Nothing to notice the absence of unless something was recently being held. */
+	return state.masking >= autismMaskingNoticeable;
+}
+
+const autismUnmaskedCooldownHours = 5;
+
+function autismQueueUnmaskedProse() {
+	if (!autismUnmaskedProseReady()) return;
+	const state = ensureAutismSpectrumState();
+	const now = autismAmbientStamp();
+	if (Number.isFinite(state.unmaskedProseStamp) && now - state.unmaskedProseStamp < autismUnmaskedCooldownHours) return;
+	if (random(1, 100) > 35) return;
+	state.unmaskedProseStamp = now;
+	V.timeMessages ||= [];
+	V.timeMessages.pushUnique("autismUnmasked");
+}
+
+function autismUnmaskedLine() {
+	if (!autismUnmaskedProseReady()) return "";
+	return autismUnmaskedLines.random();
+}
+/*
+ * How the PC holds the diagnosis. Recorded once, at the end of the feedback appointment, and read by later
+ * scenes so that the game does not assume one canonical emotional response to being diagnosed. It gates
+ * nothing mechanical; it only changes how the PC is written talking about it.
+ */
+const autismIdentityPositions = Object.freeze(["relief", "label", "practical", "identity", "embarrassed", "unsure", "private"]);
+
+function autismIdentity() {
+	if (!playerHasAutismSpectrum()) return "";
+	const held = ensureAutismSpectrumState().identityView;
+	return autismIdentityPositions.includes(held) ? held : "";
+}
+
+function autismSetIdentity(view) {
+	if (!playerHasAutismSpectrum() || !autismIdentityPositions.includes(view)) return;
+	ensureAutismSpectrumState().identityView = view;
+}
+
+/* Whether the PC would rather this were not passed around. Read by disclosure prompts. */
+function autismPrefersPrivate() {
+	return autismIdentity() === "private";
+}
+
+/*
+ * Support preferences.
+ *
+ * What the PC has asked staff to actually do. Set once with the school nurse and read by later scenes so that
+ * the people who were told behave like people who were told. Deliberately a short list of flags rather than a
+ * system: these change prose and the odd branch, and nothing else.
+ */
+const autismSupportPreferences = Object.freeze(["space", "plain", "notouch", "quiet", "person"]);
+
+function autismPreferenceList() {
+	const state = ensureAutismSpectrumState();
+	if (!Array.isArray(state.preferences)) state.preferences = [];
+	return state.preferences;
+}
+
+function autismHasPreference(pref) {
+	return autismPreferenceList().includes(pref);
+}
+
+/* Two is the cap: a list long enough to be ignored is not a plan. */
+const autismPreferenceMax = 2;
+
+function autismAddPreference(pref) {
+	if (!playerHasAutismSpectrum() || !autismSupportPreferences.includes(pref)) return false;
+	const list = autismPreferenceList();
+	if (list.includes(pref) || list.length >= autismPreferenceMax) return false;
+	list.pushUnique(pref);
+	return true;
+}
+
+function autismPreferenceCount() {
+	return autismPreferenceList().length;
+}
+
+/*
+ * How much of themselves the PC handed over along with the paperwork. A teacher can act on the recommended
+ * adjustments without having been told what any of it is like from the inside, and which of those happened
+ * changes how they speak about it afterwards.
+ */
+function autismDisclosureDepth(who) {
+	const state = ensureAutismSpectrumState();
+	if (!state.disclosureDepth || typeof state.disclosureDepth !== "object") return "";
+	return state.disclosureDepth[who] === "full" ? "full" : state.disclosureDepth[who] === "brief" ? "brief" : "";
+}
+
+function autismSetDisclosureDepth(who, depth) {
+	if (!playerHasAutismSpectrum() || !autismDisclosureTargets.includes(who)) return;
+	if (depth !== "full" && depth !== "brief") return;
+	const state = ensureAutismSpectrumState();
+	if (!state.disclosureDepth || typeof state.disclosureDepth !== "object") state.disclosureDepth = {};
+	state.disclosureDepth[who] = depth;
+}
+
+/*
+ * Whether the PC may step out of a room without it being misconduct. This is the practical thing the whole
+ * disclosure arc buys, so every scene that offers an exit asks this one question.
+ */
+function autismMayStepOut(teacher) {
+	if (!autismHasDocumentation()) return false;
+	return autismSchoolPlan() || autismDisclosedTo("nurse") || (teacher && autismDisclosedTo(teacher));
+}
+
+/*
+ * The integrated school day. One marker so the separate events of a bad day can tell they are part of the
+ * same day rather than firing independently, and so the evening can look back at it.
+ */
+function autismSchoolDay() {
+	const state = ensureAutismSpectrumState();
+	const today = Number(Time?.days) || 0;
+	if (state.schoolDayStamp !== today) {
+		state.schoolDayStamp = today;
+		state.schoolDayBeats = [];
+	}
+	if (!Array.isArray(state.schoolDayBeats)) state.schoolDayBeats = [];
+	return state.schoolDayBeats;
+}
+
+function autismSchoolDayHas(beat) {
+	return autismSchoolDay().includes(beat);
+}
+
+function autismSchoolDayAdd(beat) {
+	if (!playerHasAutismSpectrum() || typeof beat !== "string") return false;
+	const beats = autismSchoolDay();
+	if (beats.includes(beat)) return false;
+	beats.pushUnique(beat);
+	return true;
+}
+
+function autismSchoolDayCount() {
+	return autismSchoolDay().length;
+}
+
+/*
+ * Recent history, so the weekly check-up can follow up on what actually happened rather than reciting
+ * general facts about autism. Counters are cheap and are reset when Harper reviews them.
+ */
+function autismHistory() {
+	const state = ensureAutismSpectrumState();
+	if (!state.history || typeof state.history !== "object") state.history = {};
+	const h = state.history;
+	for (const key of ["coldStarts", "burnouts", "overloads", "stims", "unmasks", "composures"]) {
+		if (!Number.isFinite(h[key])) h[key] = 0;
+	}
+	return h;
+}
+
+function autismHistoryAdd(key, amount = 1) {
+	if (!playerHasAutismSpectrum()) return;
+	const h = autismHistory();
+	if (!Number.isFinite(h[key])) return;
+	h[key] += Number(amount) || 0;
+}
+
+function autismHistoryReset() {
+	if (!playerHasAutismSpectrum()) return;
+	ensureAutismSpectrumState().history = {};
+	autismHistory();
+}
+
+/*
+ * One temporary state that discounts the masking rate and expires on the clock, not a second resource.
+ * Costed in stress rather than Load: a lower mask saves little Load directly, and stress feeds the meltdown
+ * check, so preparing to cope socially raises the stakes for a PC already near the edge.
+ */
+const autismComposureMinutes = 120;
+const autismComposureRate = 0.4;
+const autismComposureStress = 8;
+const autismComposureLoad = 1;
+
+/* Minutes since the start of the game, so the state expires on the clock rather than on passage count. */
+function autismClockStamp() {
+	const days = Number(Time?.days) || 0;
+	const hour = Number(Time?.hour) || 0;
+	const minute = Number(Time?.minute) || 0;
+	return days * 1440 + hour * 60 + minute;
+}
+
+function autismComposed() {
+	if (!playerHasAutismSpectrum()) return false;
+	const until = ensureAutismSpectrumState().composedUntil;
+	if (!Number.isFinite(until)) return false;
+	return autismClockStamp() < until;
+}
+
+/* Minutes of composure left, for the trait screen. */
+function autismComposureLeft() {
+	if (!autismComposed()) return 0;
+	return Math.max(0, Math.round(ensureAutismSpectrumState().composedUntil - autismClockStamp()));
+}
+
+/*
+ * Rehearsing. Returns false when the PC already has composure running, so the scene can say so
+ * rather than charging twice for the same preparation.
+ */
+function autismCompose() {
+	if (!playerHasAutismSpectrum() || V.statFreeze) return false;
+	const state = ensureAutismSpectrumState();
+	/* Refreshing while it is still running would extend the state for free, so an active composure
+	   is left exactly as it is and the scene is told nothing happened. */
+	if (autismComposed()) return false;
+	state.composedUntil = autismClockStamp() + autismComposureMinutes;
+	delete state.composureLapseSaid;
+	autismHistoryAdd("composures");
+	statChange.stress(autismComposureStress);
+	autismAdjustLoad(autismComposureLoad);
+	return true;
+}
+
+/* An overload ends the performance, so whatever was rehearsed goes with it. */
+function autismBreakComposure() {
+	if (!playerHasAutismSpectrum()) return;
+	delete ensureAutismSpectrumState().composedUntil;
+}
+
+/*
+ * Deliberately dropping the mask somewhere private. Returns how much masking was actually shed,
+ * so the scene can describe what happened instead of asserting relief.
+ */
+function autismUnmask(minutes = 15) {
+	if (!playerHasAutismSpectrum()) return 0;
+	const state = ensureAutismSpectrumState();
+	const before = state.masking;
+	if (before <= 0) return 0;
+	minutes = Math.max(1, Number(minutes) || 15);
+	/* Most of it goes at once. The mask does not need to be worn down, only put aside. */
+	const shed = Math.min(before, Math.max(before * 0.6, (minutes / 15) * 25));
+	autismHistoryAdd("unmasks");
+	state.masking = Math.max(0, before - shed);
+	/* What the mask cost to hold comes back, at the rate it was charged. */
+	autismAdjustLoad(-(shed / autismMaskingMax) * 12, "deliberate");
+	statChange.stress(-Math.round(shed * 0.6));
+	return shed;
+}
+
+function autismCanUnmask() {
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.combat === 1) return false;
+	if (autismPrivacyTier() !== "alone") return false;
+	return ensureAutismSpectrumState().masking >= autismMaskingNoticeable;
 }
 
 /* The scene must never tear the player out of anything that owns cleanup of its own. */
@@ -880,8 +2068,9 @@ const autismSceneBlockedPassages = Object.freeze([
 	"Police Molestation Finish",
 	"Sleep",
 	"Bed",
-	"Passout",
 ]);
+/* Every passout landing is its own passage, so these are matched by prefix rather than named one by one. */
+const autismSceneBlockedPrefixes = Object.freeze(["Passout "]);
 const autismSceneBlockedTags = Object.freeze(["widget", "script", "stylesheet", "nosave", "ending", "exitCheckBypass"]);
 
 function autismSceneReady() {
@@ -894,6 +2083,7 @@ function autismSceneReady() {
 	}
 	if (Array.isArray(V.NPCList) && typeof isLiveNPC === "function" && V.NPCList.some(isLiveNPC)) return false;
 	if (autismSceneBlockedPassages.includes(V.passage)) return false;
+	if (autismSceneBlockedPrefixes.some(prefix => V.passage.startsWith(prefix))) return false;
 	return true;
 }
 
@@ -907,6 +2097,16 @@ function autismTryOverloadScene() {
 	if (!autismSceneReady()) return;
 	delete state.pendingScene;
 	state.overloadPlace = autismPrivacyTier();
+	/* Stamped so later scenes can react to an overload that has already ended. Without this the world has no
+	   way to know one happened: state.meltdown only describes the present moment. */
+	state.overloadDay = Number(Time?.days) || 0;
+	/* Kept past the scene so aftermath reactions know what people actually saw. state.overloadPlace and
+	   state.overloadForm are both cleared when the scene ends, so they cannot answer this later. */
+	state.overloadSeen = state.overloadPlace;
+	autismHistoryAdd("overloads");
+	state.overloadWasForm = state.overloadForm === "shutdown" ? "shutdown" : "meltdown";
+	/* A new episode is a new thing for people to react to, so any aftermath already spent is cleared. */
+	delete state.aftermathDone;
 	state.sceneReturn = {
 		passage: V.passage,
 		location: V.location,
@@ -930,6 +2130,13 @@ Object.assign(window, {
 	playerHasAutismSpectrum,
 	autismInMeltdown,
 	autismRecoveryCapValue,
+	autismStrainedThreshold,
+	autismMeltdownLoadValue,
+	autismMeltdownStressPercent,
+	autismLoadTraumaValue,
+	autismBurnoutThreshold,
+	autismDeliberateCapValue,
+	autismDeliberateLeftToday,
 	autismSpectrumPhase,
 	autismLoadPercent,
 	autismSetLoad,
@@ -952,7 +2159,6 @@ Object.assign(window, {
 	autismSocialDemand,
 	autismPrivacyTier,
 	autismJobPayMultiplier,
-	autismPlaceIsLoud,
 	autismTalentLimit,
 	autismTalentGroups,
 	autismEnforceTalentLimits,
@@ -960,4 +2166,65 @@ Object.assign(window, {
 	autismOverloadPlace,
 	autismStim,
 	autismStimIsMasked,
+	autismMaskingLevel,
+	autismSetMasking,
+	autismMaskingActive,
+	autismMaskingUpdate,
+	autismUnmask,
+	autismCanUnmask,
+	autismComposed,
+	autismComposureLeft,
+	autismCompose,
+	autismObligationLabels,
+	autismRentCanPay,
+	autismAmbientLine,
+	autismOverloadDaysAgo,
+	autismLessonEventReady,
+	autismLastOverloadForm,
+	autismLastOverloadWitnessed,
+	autismHyperfixationCategory,
+	autismAssessmentStage,
+	autismAssessmentSetStage,
+	autismAssessmentGathered,
+	autismAssessmentHasSource,
+	autismAssessmentAddSource,
+	autismAssessmentWaitLeft,
+	autismIntakeReady,
+	autismAssessmentRoute,
+	autismSetAssessmentRoute,
+	autismPrivateCost,
+	autismCanAffordPrivate,
+	autismCanGoPrivate,
+	autismFeedbackReady,
+	autismDiagnosed,
+	autismDisclosedTo,
+	autismDiscloseTo,
+	autismSchoolPlan,
+	autismSetSchoolPlan,
+	autismTeacherKnows,
+	autismHasDocumentation,
+	autismColdStartLine,
+	autismMaskingLine,
+	autismDeliberateSpent,
+	autismMaskingHigh,
+	autismMaskingNoticed,
+	autismBurnoutLine,
+	autismIsFocus,
+	autismFocusEngagedLine,
+	autismUnmaskedLine,
+	autismIdentity,
+	autismSetIdentity,
+	autismPrefersPrivate,
+	autismHasPreference,
+	autismAddPreference,
+	autismPreferenceCount,
+	autismDisclosureDepth,
+	autismSetDisclosureDepth,
+	autismMayStepOut,
+	autismSchoolDayHas,
+	autismSchoolDayAdd,
+	autismSchoolDayCount,
+	autismHistory,
+	autismHistoryReset,
+	autismCheckupTopic,
 });
