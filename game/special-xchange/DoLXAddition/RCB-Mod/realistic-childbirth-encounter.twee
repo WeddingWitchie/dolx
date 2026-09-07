@@ -1779,7 +1779,8 @@
 			<<elseif ($bunnytf isnot undefined) and $bunnytf is 1>>
 				<<set $birth.filters.static["AnimalTF"] to "Bunny">>
 			<</if>>
-			<<set $birth.filters.static["PCParenthood"] to $parentList.mothers[0].kids>>
+			/* $parentList was retired by the pregnancy-record rework. Count the PC's existing children from the live records. */
+			<<set $birth.filters.static["PCParenthood"] to getBornChildren().filter(child => getPregnancyOf(child).carrier === "pc").length>>
 			<<if playerIsPregnant()>>
 				<<set $birth.filters.static["FatherKnown"] to (knowsDonor(_pregnancy.pregnancyId, "pc") ? 0 : 999)>>
 				<<set $birth.filters.static["Father"] to _pregnancy.donor>>
@@ -1939,12 +1940,7 @@
 							<<set $birth.filters.dynamic["Stat1"] to $wolfpackharmony>>
 							<<set $birth.filters.dynamic["Stat2"] to $wolfpackferocity>>
 						<</switch>>
-						<<for _j = 0 ; _j < $parentList.fathers.length ; _j++>>
-							<<if ($parentList.fathers[_j].name isnot undefined) and $parentList.fathers[_j].name is $birth.partner>>
-								<<set $birth.filters.dynamic["PartnerParenthood"] to $parentList.fathers[_j].kids>>
-								<<set _j to 999>>
-							<</if>>
-						<</for>>
+						<<set $birth.filters.dynamic["PartnerParenthood"] to getBornChildren().filter(child => getPregnancyOf(child).donor === $birth.partner).length>>
 						<<set _i to 999>>
 					<</if>>
 				<</for>>
@@ -2027,12 +2023,7 @@
 									<<set $birth.filters.dynamic["Stat1"] to $wolfpackharmony>>
 									<<set $birth.filters.dynamic["Stat2"] to $wolfpackferocity>>
 								<</switch>>
-								<<for _k = 0 ; _k < $parentList.fathers.length ; _k++>>
-									<<if ($parentList.fathers[_k].name isnot undefined) and $parentList.fathers[_k].name is $birth.partner>>
-										<<set $birth.filters.dynamic["PartnerParenthood"] to $parentList.fathers[_k].kids>>
-										<<set _k to 999>>
-									<</if>>
-								<</for>>
+								<<set $birth.filters.dynamic["PartnerParenthood"] to getBornChildren().filter(child => getPregnancyOf(child).donor === $birth.partner).length>>
 								<<set _j to 999>>
 							<</if>>
 						<</for>>

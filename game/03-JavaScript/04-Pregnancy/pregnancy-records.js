@@ -167,12 +167,17 @@ window.getDueDate = getDueDate;
  * @param {Pregnancy} pregnancy must be an egg species (hawk/harpy) that has already been laid
  */
 function getHatchDate(pregnancy) {
+	if (pregnancy.deliveredDate === null) throw new Error("no hatch date before the lay");
 	switch (pregnancy.donorSpecies) {
 		case "hawk":
 		case "harpy":
-			if (pregnancy.deliveredDate === null) throw new Error("no hatch date before the lay");
 			return pregnancy.deliveredDate + PregnancyConstants.birdNestTime + pregnancy.hatchDelay;
 		default:
+			// A full Water Dragon can transmute any carried litter into eggs while laying. Those
+			// records retain the real donor species for parentage, and hatchDelay marks the egg lifecycle.
+			if (typeof pregnancy.hatchDelay === "number") {
+				return pregnancy.deliveredDate + PregnancyConstants.birdNestTime + pregnancy.hatchDelay;
+			}
 			throw new Error(`species "${pregnancy.donorSpecies}" does not lay eggs`);
 	}
 }

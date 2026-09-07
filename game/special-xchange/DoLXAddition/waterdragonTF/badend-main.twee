@@ -455,6 +455,7 @@ Less than a minute later, you feel pressure low in your abdomen. It goes away, t
 
 :: Water Dragon Lab
 <<set $outside to 0>><<set $location to "hospital">><<effects>><<endevent phaseless>>
+<<waterDragonNestDefaults>>
 <<if !$waterDragonLab or !$waterDragonLab.active>>
 	<<waterDragonLabCleanup false>>
 	The underground room is gone from your immediate reach.
@@ -1664,9 +1665,13 @@ The bed rolls into the observation room. Incubators glow along one wall, each al
 	The last egg settles into Harper's padded cradle, still warm from your body. <<He>> says nothing at all for a while. There is something alive inside that shell, and you can see the surface move.
 	<br><br>
 	"Viable," <<he>> says at last. "Not a copy of the cycle. Not a dead sample. A future."
+	/* Convert the litter before shared delivery so human and wolf pregnancies remain unhatched eggs. */
+	<<if typeof _labBirthPregnancy.hatchDelay isnot "number">><<set _labBirthPregnancy.hatchDelay to random(0, PregnancyConstants.birdHatchDelay)>><</if>>
+	<<run V.dragonEggIds.forEach(id => {
+		const child = V.childRecords[id];
+		if (child) child.species = "hawk";
+	})>>
 	<<pregnancyFeats "pc">><<endPlayerPregnancy "hospital" "inventory">><<set $harpyEggsPrevent to 28>>
-	/* Harper's incubators bring the clutch on faster than a wild nest would. The shells stay hawk
-	   eggs until they open, which is what vanilla's egg machinery reads. */
 	<<run V.dragonEggIds.forEach(id => {
 		const child = V.childRecords[id];
 		if (!child) return;

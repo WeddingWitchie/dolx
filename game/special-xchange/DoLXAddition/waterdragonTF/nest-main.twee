@@ -24,6 +24,11 @@ The marks on the walls brighten and dim in time with your contractions. Dry sea 
 <<set [_dragonPregnancy, _dragonPregnancyGenital] to getPlayerPregnancyForBirth(true)>>
 <<set $dragonEggIds to getChildrenOf(_dragonPregnancy.pregnancyId).map(child => child.childId)>>
 The last egg comes to rest in the sea grass, bigger than both of your hands together. The shells are warm, and if you look closely you can see something moving inside them. Whatever you were carrying before the change took hold of you, this place has made them yours, and every shell has come out the pearl white of a water dragon.
+<<if typeof _dragonPregnancy.hatchDelay isnot "number">><<set _dragonPregnancy.hatchDelay to random(0, PregnancyConstants.birdHatchDelay)>><</if>>
+<<run V.dragonEggIds.forEach(id => {
+	const child = V.childRecords[id];
+	if (child) child.species = "hawk";
+})>>
 <<pregnancyFeats "pc">><<endPlayerPregnancy "waterdragon_nest" "waterdragon_nest">><<set $harpyEggsPrevent to 28>>
 <<run V.dragonEggIds.forEach(id => {
 	const child = V.childRecords[id];
@@ -150,6 +155,7 @@ You need to start from the cliffs above.
 
 :: Water Dragon Nest
 <<location "beach">><<set $outside to 0>><<effects>>
+<<waterDragonNestDefaults>>
 <<if !isFullWaterDragon() and !$waterDragonNest?.discovered>>
 	The markings around the doorway stay dark. You push against the old door, but it does not move.
 	Whatever opened the way through the cave before is no longer working.

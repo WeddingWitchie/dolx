@@ -30,6 +30,13 @@
 		<</if>>
 	<</if>>
 	<<set $waterDragonNest.cleanliness to Math.clamp($waterDragonNest.cleanliness, 0, 100)>>
+	/* Repair clutches laid before Water Dragon transmutation recorded an incubation delay. */
+	<<run (V.childRecords || []).filter(child => child.species === "hawk" && child.development?.dragonNest && child.bornDate === null).forEach(child => {
+		const pregnancy = V.pregnancies?.[child.pregnancyId];
+		if (pregnancy && pregnancy.deliveredDate !== null && typeof pregnancy.hatchDelay !== "number") {
+			pregnancy.hatchDelay = random(0, PregnancyConstants.birdHatchDelay);
+		}
+	})>>
 <</widget>>
 
 <<widget "waterDragonDecorationArrange">>
