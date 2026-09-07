@@ -484,7 +484,8 @@ function playerHasCharacteristic(characteristic) {
 			return lactating && enabled ? 2 : 0;
 		}
 		case "Pregnancy":
-			return playerAwareTheyArePregnant() || (playerAwareTheyCanBePregnant() && (playerIsCreampied() || playerIsAnalCreampied())) ? 2 : 0;
+			/* Creampies already trigger immediate dysphoria. Viable loads should not repeat it every hour. */
+			return playerAwareTheyArePregnant() ? 2 : 0;
 		case "In Heat":
 		case "In heat":
 			return typeof playerHeatMinArousal === "function" && playerHeatMinArousal() > 0 ? 2 : 0;
