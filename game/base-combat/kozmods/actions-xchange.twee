@@ -1,5 +1,7 @@
 :: Combat Actions XChange Widgets [widget]
     <<widget "combat-apply-spike">>
+        /* _args[0]: "anal" when the pill was pushed into the anus instead of swallowed. */
+        <<set _spikeAnal to (_args[0] is "anal")>>
         <<set _isPure to false>>
         <<if !playerIsXChanged() and $xchange isnot undefined and ($xchange.combatPillingPureRatio !== undefined ? $xchange.combatPillingPureRatio : 0) gte 1>>
             <<set _pureRatio to ($xchange.combatPillingPureRatio !== undefined ? $xchange.combatPillingPureRatio : 0)>>
@@ -12,7 +14,11 @@
                 /* The widget applies nothing here and prints the treatment's own line, so it doesn't need saying twice. */
                 <<xchange-random-spike>>
             <<else>>
-                <br><span class="blue">You swallow the pill, but nothing happens</span>. Whatever effect it was supposed to have, it does not affect your body.<br><br>
+                <<if _spikeAnal>>
+                    <br><span class="blue">The pill dissolves inside you, but nothing happens</span>. Whatever effect it was supposed to have, it does not affect your body.<br><br>
+                <<else>>
+                    <br><span class="blue">You swallow the pill, but nothing happens</span>. Whatever effect it was supposed to have, it does not affect your body.<br><br>
+                <</if>>
             <</if>>
         <<elseif _isPure>>
             /* Clean Pink/Blue pill that the same as one from the Hospital. Picked by body sex: the assailant grabs whichever pill actually works on what's between your legs. */
@@ -21,14 +27,26 @@
             <<else>>
                 <<xchange-blue 1>>
             <</if>>
-            <br><span class="blue">It tastes like a normal X-Change pill from the pharmacy.</span><br><br>
+            <<if _spikeAnal>>
+                <br><span class="blue">It feels like a normal X-Change pill from the pharmacy, just taken the wrong way.</span><br><br>
+            <<else>>
+                <br><span class="blue">It tastes like a normal X-Change pill from the pharmacy.</span><br><br>
+            <</if>>
         <<else>>
             /* Suspicious pill: random extras (and side effects, if the toggle is on; handled inside xchange-random-spike). */
             <<xchange-random-spike "suppress">>
             <<if $xchange isnot undefined and ($xchange.spikeSideEffectsEnabled !== undefined ? $xchange.spikeSideEffectsEnabled : 1)>>
-                <br><span class="pink">The pill leaves a bitter taste in your mouth and burns your throat as you swallow it.</span> Your skin starts to hurt soon after. Whatever was in that pill, it was more than a normal X-Change dose.<<gstress>><<stress 4>><<gpain>><<pain 3>><br><br>
+                <<if _spikeAnal>>
+                    <br><span class="pink">The pill burns as it melts inside your rear.</span> Your skin starts to hurt soon after. Whatever was in that pill, it was more than a normal X-Change dose.<<gstress>><<stress 4>><<gpain>><<pain 3>><br><br>
+                <<else>>
+                    <br><span class="pink">The pill leaves a bitter taste in your mouth and burns your throat as you swallow it.</span> Your skin starts to hurt soon after. Whatever was in that pill, it was more than a normal X-Change dose.<<gstress>><<stress 4>><<gpain>><<pain 3>><br><br>
+                <</if>>
             <<else>>
-                <br><span class="pink">The pill tastes different from a normal X-Change pill, but you cannot tell what was added to it.</span><<trauma 3>><<gtrauma>><br><br>
+                <<if _spikeAnal>>
+                    <br><span class="pink">The pill feels different from a normal X-Change pill, but you cannot tell what was added to it.</span><<trauma 3>><<gtrauma>><br><br>
+                <<else>>
+                    <br><span class="pink">The pill tastes different from a normal X-Change pill, but you cannot tell what was added to it.</span><<trauma 3>><<gtrauma>><br><br>
+                <</if>>
             <</if>>
         <</if>>
         <<set $playerWasSpikedInEncounter to 1>>
@@ -97,7 +115,7 @@
             /* forced pilling */
             Confident your focus is on keeping your mouth closed off and guarded, <<he>> goes for your rear instead. <span class="pink">In a blink, the pill slips up inside your anus.</span>
             <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-            <<combat-apply-spike>>
+            <<combat-apply-spike "anal">>
         
         <<else>>
             <<if $mouthuse is "righthand" or $mouthuse is "lefthand">>
@@ -130,7 +148,7 @@
                         /* forced pilling */
                         Confident your focus is on keeping your mouth closed off and guarded, <<he>> goes for your rear instead. <span class="pink">In a blink, the pill slips up inside your anus.</span>
                         <<combat-reset-hand _args[0]>><<set $NPCList[_n][_hand + "tool"] to 0>>
-                        <<combat-apply-spike>>
+                        <<combat-apply-spike "anal">>
                     <<else>>
                         /* forced pilling */
                         <span class="pink"><<He>> forces <<his>> pill down your throat.</span>
