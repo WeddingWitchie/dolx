@@ -182,19 +182,19 @@ Weather.WeatherGeneration = (() => {
 		const timeApart = Math.clamp(Weather.genSettings.forecast.weather.minTimeApartKeyPoints, 0, 1400);
 		const maxKeyPointsPerDay = Math.clamp(Weather.genSettings.forecast.weather.maxKeyPointsPerDay, 1, Math.floor((24 * 60) / timeApart));
 		const minKeyPointsPerDay = Math.clamp(Weather.genSettings.forecast.weather.minKeyPointsPerDay, 1, maxKeyPointsPerDay);
+		const exceptionWindows = [];
 
 		// Iterate over each day to add weather keypoints
 		for (let dayCount = 0; dayCount < daysToGenerate; dayCount++) {
 			const date = new DateTime(startDate).addDays(dayCount);
 
-			// Only add exceptions for current day
-			const exceptions = setup.WeatherExceptions.filter(exception => {
-				const exceptionDate = exception.date;
-				if (!exceptionDate || typeof exceptionDate !== "function") {
-					throw new Error("Could not read date from setup.WeatherExceptions");
-				}
-				return exceptionDate().dayDifference(date) === 0;
-			});
+			// Only add exception keypoints on their starting day.
+			const exceptions = setup.WeatherExceptions.map(exception => {
+				if (typeof exception.date !== "function") throw new Error("Could not read date from setup.WeatherExceptions");
+				const start = exception.date(date);
+				return { exception, start, end: new DateTime(start).addHours(exception.duration) };
+			}).filter(window => window.start.dayDifference(date) === 0);
+			exceptionWindows.push(...exceptions);
 
 			const numKeyPoints = Weather.activeRenderer.rng.randomInt(
 				Math.max(minKeyPointsPerDay - exceptions.length, 0),
@@ -203,9 +203,7 @@ Weather.WeatherGeneration = (() => {
 			const dayKeypoints = [];
 
 			// Add two keypoints. One for start and one for after the duration
-			exceptions.forEach(exception => {
-				const start = exception.date();
-				const end = new DateTime(start).addHours(exception.duration);
+			exceptions.forEach(({ exception, start, end }) => {
 				const weatherTypeIndex = Weather.genSettings.weatherTypes.findIndex(wt => wt.name === exception.weatherType);
 
 				if (weatherTypeIndex === -1) {
@@ -220,18 +218,19 @@ Weather.WeatherGeneration = (() => {
 			// Generate random keypoints, ensuring they do not overlap with exceptions
 			for (let i = 0; i < numKeyPoints; i++) {
 				let isValid = false;
+				let attempts = 0;
 				let timestamp, time;
 
-				while (!isValid) {
+				while (!isValid && attempts++ < 100) {
 					const timeWindow = 24 * 60 - timeApart;
 					time = Weather.activeRenderer.rng.randomInt(timeApart, timeWindow);
 					timestamp = new DateTime(date.year, date.month, date.day, Math.floor(time / 60), time % 60).timeStamp;
 
-					isValid = !dayKeypoints.some(rt => rt.timestamp <= timestamp && timestamp <= rt.timestamp);
+					isValid = !exceptionWindows.some(window => window.start.timeStamp <= timestamp && timestamp <= window.end.timeStamp);
 				}
 
 				if (isValid) {
-					const value = getRandomWeatherValue();
+					const value = getRandomWeatherValue(date);
 					dayKeypoints.push({ timestamp, value });
 				}
 			}
@@ -247,8 +246,8 @@ Weather.WeatherGeneration = (() => {
 		// printSeasonalWeatherKeypoints();
 	}
 
-	function getRandomWeatherValue() {
-		const currentSeason = Time.season;
+	function getRandomWeatherValue(date = Time.date) {
+		const currentSeason = Time.getSeason(date);
 		const options = Weather.genSettings.weatherTypes.map((weatherType, index) => {
 			const weight = weatherType.probability?.[currentSeason] ?? 0;
 			return [index, weight];

@@ -17,7 +17,7 @@ const Weather = (() => {
 
 		let accumulatedSnow = V.weatherObj.snow || 0;
 
-		if (Weather.isFreezing && precipitationIntensity > 0) {
+		if (Weather.precipitation === "snow") {
 			// Accumulate snow
 			accumulatedSnow += minutes * snowfallRate * precipitationIntensity;
 			accumulatedSnow = Math.min(accumulatedSnow, maxSnow);
@@ -128,7 +128,7 @@ const Weather = (() => {
 		},
 		get precipitation() {
 			if (Weather.WeatherGeneration.getWeather().precipitationIntensity === 0) return "none";
-			return Weather.isFreezing ? "snow" : "rain";
+			return Weather.isFreezing && (Time.month <= 4 || Time.month >= 10) ? "snow" : "rain";
 		},
 		get precipitationIntensity() {
 			return resolveValue(Weather.WeatherGeneration.getWeather().precipitationIntensity);

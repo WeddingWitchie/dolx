@@ -77,7 +77,7 @@ setup.WeatherGeneration = {
 			// May
 			temperatureRange: {
 				average: [7, 19],
-				extreme: [0, 32],
+				extreme: [6, 32],
 			},
 			extremeChance: 0.3,
 			sunIntensity: 0.7,
@@ -88,7 +88,7 @@ setup.WeatherGeneration = {
 			// Jun
 			temperatureRange: {
 				average: [11, 23],
-				extreme: [3, 36],
+				extreme: [6, 36],
 			},
 			extremeChance: 0.35,
 			sunIntensity: 1,
@@ -121,7 +121,7 @@ setup.WeatherGeneration = {
 			// Sep
 			temperatureRange: {
 				average: [11, 20],
-				extreme: [0, 32],
+				extreme: [6, 32],
 			},
 			extremeChance: 0.3,
 			sunIntensity: 0.7,

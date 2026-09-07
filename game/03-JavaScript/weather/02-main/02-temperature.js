@@ -312,11 +312,11 @@ Weather.Temperature = (() => {
 
 		// Add exceptions to the key points
 		setup.WeatherExceptions.filter(exception => {
-			const exceptionDate = exception.date();
+			const exceptionDate = exception.date(date);
 			return exception.temperature && exceptionDate.year === date.year && exceptionDate.month === date.month;
 		}).forEach(exception => {
 			const temperature = boundedRandom(exception.temperature, 1, 1, Weather.activeRenderer.rng);
-			keyPoints.set(exception.date().day - 1, temperature);
+			keyPoints.set(exception.date(date).day - 1, temperature);
 		});
 
 		while (keyPoints.size < numberOfKeyPoints) {
