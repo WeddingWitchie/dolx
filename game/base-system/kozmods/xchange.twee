@@ -984,7 +984,6 @@
 		<</if>>
 
 		<<if _body is undefined>>
-			/* <<break>> outside a <<for>> is a macro error; <<exit>> is what leaves a widget early. */
 			<<exit>>
 		<</if>>
 
@@ -993,6 +992,12 @@
 			<<run console.error("[X-Change load-body] Invalid body snapshot", { slot: _slotName, body: _body })>>
 			<<error { message: "X-Change cannot load this body snapshot because it is invalid. It was not modified. Please report this with your save and steps." }>>
 			<<exit>>
+		<</if>>
+
+		/* Save the outgoing body before its shape is overwritten. */
+		<<if !$statFreeze>>
+			<<set _outgoingVrole to setup.xChangeActiveBodyVirginityRole()>>
+			<<if _outgoingVrole isnot "">><<xchange-store-body-virginity _outgoingVrole>><</if>>
 		<</if>>
 
 		/* Core appearance */

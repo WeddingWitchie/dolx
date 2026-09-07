@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { advanceHours, advanceMinutes, assertNoErrors, navigateTo, openGame, setDay } from "./helpers.js";
+import { advanceHours, advanceMinutes, assertNoErrors, getVar, navigateTo, openGame, setDay, setVar, wikifyEval } from "./helpers.js";
 
 const MINUTES_PER_DAY = 24 * 60;
 
@@ -134,6 +134,43 @@ test.describe("Time", () => {
 
 		expect(result).toEqual({ day: "Sunday", hour: 0, minute: 30 });
 		expect(consoleErrors.filter(text => text.includes("failed"))).toHaveLength(0);
+	});
+
+	test("clears a leaked $statFreeze so daily flags reset again", async ({ page }) => {
+		await setupGame(page);
+
+		// A save that left a frozen scene without its teardown: the flag is set, with no snapshot to restore.
+		await setVar(page, "statFreeze", true);
+		await setVar(page, "daily", { confessed: true });
+		await navigateTo(page, "Bedroom");
+
+		expect(await getVar(page, "statFreeze")).toBeUndefined();
+
+		await advanceHours(page, 24);
+		const daily = await getVar(page, "daily");
+		expect(daily.confessed).toBeUndefined();
+	});
+
+	test("leaves a frozen scene alone until the player is back in the world", async ({ page }) => {
+		await setupGame(page);
+
+		// $frozenValues holds a copy of every variable, so only ever ask the page whether it is there.
+		const frozenState = () =>
+			page.evaluate(() => {
+				const V = (window as any).SugarCube.State.variables;
+				return { statFreeze: V.statFreeze, hasSnapshot: V.frozenValues !== undefined };
+			});
+
+		await wikifyEval(page, "<<freezePlayerStats>>");
+		expect(await frozenState()).toEqual({ statFreeze: true, hasSnapshot: true });
+
+		// Still inside the scene: the Temple is not one of setup.majorAreas, so the freeze must survive.
+		await navigateTo(page, "Temple");
+		expect(await frozenState()).toEqual({ statFreeze: true, hasSnapshot: true });
+
+		// Back at a modern-day hub while still frozen: the scene's teardown was missed, so run it.
+		await navigateTo(page, "Bedroom");
+		expect(await frozenState()).toEqual({ statFreeze: undefined, hasSnapshot: false });
 	});
 });
 

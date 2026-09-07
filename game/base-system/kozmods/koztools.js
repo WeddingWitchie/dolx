@@ -14,11 +14,7 @@ function wornSetupClothes(slot) {
 }
 window.wornSetupClothes = wornSetupClothes;
 
-// ==================================================
-// GLOBAL MOD HELPER
-// ==================================================
-// Keeps the "Currently used: he/him | she/her | they/them" pronoun summary in the Identity settings tab live,
-// since radiobutton/checkbox clicks there don't trigger a full passage re-render (see settingsDisableElement).
+// Keep the Identity pronoun summary live because its controls do not re-render the passage.
 function updatePronounSummary() {
 	$(() => {
 		const el = jQuery("#pronoun-current-label");
@@ -46,20 +42,17 @@ function updatePronounSummary() {
 window.updatePronounSummary = updatePronounSummary;
 
 (() => {
-	// Ensure setup exists
 	if (typeof window.setup !== "object" || window.setup === null) {
 		window.setup = {};
 	}
 
-	// Ensure Math.clamp exists (some forks have it, some don't)
+	// Polyfill for forks without Math.clamp.
 	if (typeof Math.clamp !== "function") {
 		Math.clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 	}
 
-	// Valid bodysize values in build
 	setup.bodySizeSteps = [-1, 0, 1, 2, 2.5, 3, 4];
 
-	// Snap any number to nearest valid bodysize step
 	setup.snapBodySize = function (v) {
 		v = Number(v);
 		if (!Number.isFinite(v)) return 2;
@@ -77,7 +70,6 @@ window.updatePronounSummary = updatePronounSummary;
 		return best;
 	};
 
-	// Move by N steps in the discrete list (prevents 1.5 / 3.5 etc)
 	setup.stepBodySize = function (cur, stepDelta) {
 		cur = setup.snapBodySize(cur);
 		stepDelta = Math.trunc(Number(stepDelta) || 0);
@@ -105,25 +97,20 @@ window.updatePronounSummary = updatePronounSummary;
 })();
 
 (() => {
-	// Ensure setup exists
 	if (typeof window.setup !== "object" || window.setup === null) {
 		window.setup = {};
 	}
 
-	// Ensure Math.clamp exists
 	if (typeof Math.clamp !== "function") {
 		Math.clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 	}
 
-	// Back-compat: old saves may be missing newer X-Change pill fields.
-	// We only fill in missing fields; we don't wipe or rewrite existing data.
+	// Fill only missing pill fields for save compatibility.
 	setup.xchangeEnsurePillDefaults = function () {
 		const V = State?.variables;
 		const pill = V?.xchange?.pill;
 		if (!pill) return;
 
-		// effectsKnown was introduced later; if missing and the pill is active or any effect is present,
-		// assume the player is aware (they'd notice the changes anyway).
 		if (pill.effectsKnown === undefined) {
 			const hasAnyEffect =
 				!!pill.fertile ||
@@ -140,12 +127,11 @@ window.updatePronounSummary = updatePronounSummary;
 
 			pill.effectsKnown = !!pill.active || hasAnyEffect;
 		}
-		// Zero means no tester reading.
-		// A positive roll both records that the duration was tested and keeps its approximate week wording stable between Traits-panel redraws.
+		// Zero means untested; a positive roll also keeps the displayed duration stable between redraws.
 		if (pill.durationDetailRoll === undefined) pill.durationDetailRoll = 0;
 	};
 
-	// Back-compat: older saves may be missing or have invalid scalar X-Change fields that core game code expects.
+	// Repair missing or invalid X-Change globals expected by core code.
 	setup.xchangeEnsureCompatGlobals = function () {
 		const V = State?.variables;
 		if (!V) return;
@@ -154,21 +140,19 @@ window.updatePronounSummary = updatePronounSummary;
 		if (V.xchange.heat.permanentOn === undefined) {
 			V.xchange.heat.permanentOn = 0;
 		}
-		// Default: heat is resisted by high willpower (the vanilla behavior).
-		// Missing reads as falsy, which would make heat always override, so restore the intended default here.
+		// Missing resistWithWillpower must default on; falsy would make heat always override.
 		if (V.xchange.heat.resistWithWillpower === undefined) {
 			V.xchange.heat.resistWithWillpower = 1;
 		}
 
-		// Older saves stored these as booleans while their checkboxes and the settings export treat them as 0/1.
+		// Legacy saves may store these 0/1 settings as booleans.
 		for (const key of ["systemOn", "permanentOn", "resistWithWillpower"]) {
 			if (typeof V.xchange.heat[key] === "boolean") {
 				V.xchange.heat[key] = V.xchange.heat[key] ? 1 : 0;
 			}
 		}
 
-		// Alpha/Beta/Omega pill settings.
-		// Body-changing options default off to avoid changing existing saves on load. Flavour-only options default on.
+		// Body-changing ABO options default off; flavour-only options default on.
 		if (V.xchange.omegaNeedsNoVagina === undefined) V.xchange.omegaNeedsNoVagina = 0;
 		if (V.xchange.alphaGrowsPenis === undefined) V.xchange.alphaGrowsPenis = 0;
 		if (V.xchange.aboDrivesHeat === undefined) V.xchange.aboDrivesHeat = 1;
@@ -177,8 +161,7 @@ window.updatePronounSummary = updatePronounSummary;
 			if (typeof V.xchange[key] === "boolean") V.xchange[key] = V.xchange[key] ? 1 : 0;
 		}
 
-		// story-functions.js uses V.xchange.breederDenial in arithmetic.
-		// If it's missing or invalid, recover the bounded feature default so heat math doesn't become NaN.
+		// breederDenial feeds heat arithmetic, so keep it finite and bounded.
 		const bd = Number(V.xchange.breederDenial);
 		if (!Number.isFinite(bd)) {
 			V.xchange.breederDenial = 0;
@@ -186,7 +169,6 @@ window.updatePronounSummary = updatePronounSummary;
 			V.xchange.breederDenial = Math.clamp(bd, 0, 6);
 		}
 
-		// story-functions.js also gates heat when pregnant using V.pregnancyStats.heatStillEnabled
 		V.pregnancyStats ??= {};
 		if (typeof V.pregnancyStats.heatStillEnabled !== "boolean") {
 			try {
@@ -196,7 +178,7 @@ window.updatePronounSummary = updatePronounSummary;
 			}
 		}
 
-		// Ensure $ballssize always exists (female-start characters may never have it initialised, which causes NaN when save-body runs Number($ballssize)).
+		// $ballssize may be absent on female-start saves; keep save-body arithmetic finite.
 		const balls = Number(V.ballssize);
 		if (!Number.isFinite(balls)) {
 			const penisSize = Number(V.player?.penissize);
@@ -205,7 +187,7 @@ window.updatePronounSummary = updatePronounSummary;
 			V.ballssize = Math.clamp(balls, 0, 6);
 		}
 
-		// Body-size bounds are static limits. If an old save has broken bounds, restore the known ranges so transformed bodies can be generated without writing NaN body sizes.
+		// Restore invalid body-size bounds before transformed bodies are generated.
 		const repairBounds = (minKey, maxKey, fallbackMin, fallbackMax) => {
 			const min = Number(V[minKey]);
 			const max = Number(V[maxKey]);
@@ -223,28 +205,23 @@ window.updatePronounSummary = updatePronounSummary;
 		repairBounds("ballssizemin", "ballssizemax", 0, 6);
 	};
 
-	/* --- X-Change body size limits ---------------------------------------------
-	X-Change uses separate size limits for pill-created bodies.
-	All pill size changes use these limits and stay within valid ranges, preventing invalid values or NaN from reaching $player. */
+	// X-Change body limits are separate from the player's global body-part limits.
 	setup.xChangeBodySizeParts = {
 		breast: { absMax: 12, globalMin: "breastsizemin", globalMax: "breastsizemax", setting: "bodyBreastSize", swellBoost: 3 },
 		bottom: { absMax: 8, globalMin: "bottomsizemin", globalMax: "bottomsizemax", setting: "bodyBottomSize", swellBoost: 2 },
 		penis: { absMax: 6, globalMin: "penissizemin", globalMax: "penissizemax", setting: "bodyPenisSize", swellBoost: 2 },
 	};
 
-	// True only while the player has asked X-Change bodies to use their own size limits.
 	setup.xChangeBodySizeLimitsActive = function () {
 		const x = State?.variables?.xchange;
 		return !!x && (x.bodySizeLimitsEnabled === 1 || x.bodySizeLimitsEnabled === true);
 	};
 
-	// Absolute range for a part, regardless of any setting. Unknown parts get a harmless 0-0.
 	setup.xChangeBodySizeAbsolute = function (part) {
 		const cfg = setup.xChangeBodySizeParts[part];
 		return { min: 0, max: cfg ? cfg.absMax : 0 };
 	};
 
-	/* Clean up the configured size range and keep it within the part's limits. Invalid values fall back to the full allowed range. */
 	const sanitiseSizeRange = (cfg, rawMin, rawMax) => {
 		let min = Number(rawMin);
 		let max = Number(rawMax);
@@ -255,7 +232,6 @@ window.updatePronounSummary = updatePronounSummary;
 		return min <= max ? { min, max } : { min: max, max: min };
 	};
 
-	// The player's own "Body Part Size Limits" setting for a part.
 	setup.xChangeGlobalSizeRange = function (part) {
 		const cfg = setup.xChangeBodySizeParts[part];
 		if (!cfg) return { min: 0, max: 0 };
@@ -264,7 +240,6 @@ window.updatePronounSummary = updatePronounSummary;
 		return sanitiseSizeRange(cfg, V[cfg.globalMin], V[cfg.globalMax]);
 	};
 
-	/* Range used when generating a new X-Change body: X-Change size limits if enabled, otherwise the player's own limits. */
 	setup.xChangeBodySizeRange = function (part) {
 		const cfg = setup.xChangeBodySizeParts[part];
 		if (!cfg) return { min: 0, max: 0 };
@@ -276,20 +251,17 @@ window.updatePronounSummary = updatePronounSummary;
 		return sanitiseSizeRange(cfg, min, max);
 	};
 
-	/* Size limits for the current body. X-Change limits apply only to bodies created by pills.
-	Natural growth and identity drift also follow these limits. */
+	// The current body uses X-Change limits only while inhabiting a pill-created body.
 	setup.xChangeCurrentBodySizeRange = function (part) {
 		const inPilledBody = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
 		return inPilledBody && setup.xChangeBodySizeLimitsActive() ? setup.xChangeBodySizeRange(part) : setup.xChangeGlobalSizeRange(part);
 	};
 
-	// Roll a size for a brand new X-Change body.
 	setup.xChangeRollBodySize = function (part) {
 		const range = setup.xChangeBodySizeRange(part);
 		return range.min + Math.floor(Math.random() * (range.max - range.min + 1));
 	};
 
-	/* Fit an existing size to the current X-Change limits. */
 	setup.xChangeFitBodySize = function (part, value) {
 		const range = setup.xChangeBodySizeRange(part);
 		const num = Number(value);
@@ -297,18 +269,16 @@ window.updatePronounSummary = updatePronounSummary;
 		return Math.clamp(Math.round(num), range.min, range.max);
 	};
 
-	/* Size pills add to the current size instead of setting a fixed size, up to the part's maximum. */
 	setup.xChangeSwellBodySize = function (part, current) {
 		const cfg = setup.xChangeBodySizeParts[part];
 		if (!cfg) return 0;
 		const base = Number(current);
 		const range = setup.xChangeBodySizeRange(part);
 		const from = Number.isFinite(base) ? base : range.max;
-		// Never let a swell shrink a part, and never let it exceed what the part can physically be.
+		// Swell effects may grow a part but must never shrink it.
 		return Math.clamp(Math.round(from) + cfg.swellBoost, Math.clamp(Math.round(from), 0, cfg.absMax), cfg.absMax);
 	};
 
-	// Fills in the X-Change body size settings and keeps them inside their sliders' ranges.
 	setup.xChangeEnsureBodySizeSettings = function () {
 		const V = State?.variables;
 		if (!V || !V.xchange || typeof V.xchange !== "object") return;
@@ -320,7 +290,7 @@ window.updatePronounSummary = updatePronounSummary;
 			const cfg = setup.xChangeBodySizeParts[part];
 			const minKey = cfg.setting + "Min";
 			const maxKey = cfg.setting + "Max";
-			// Seed from the player's own limits so turning the setting on doesn't change anything until it's adjusted.
+			// Seed new X-Change limits from the player's current limits.
 			const seed = setup.xChangeGlobalSizeRange(part);
 			const min = Number.isFinite(Number(x[minKey])) ? x[minKey] : seed.min;
 			const max = Number.isFinite(Number(x[maxKey])) ? x[maxKey] : seed.max;
@@ -348,7 +318,7 @@ window.updatePronounSummary = updatePronounSummary;
 		const parasite = V?.parasite;
 		if (!parasite || typeof parasite !== "object" || Array.isArray(parasite)) return false;
 
-		// Fallbacks mirror <<parasiteinit>> (game/base-system/parasites.twee) exactly; keep them in sync if base-DoL adds body parts.
+		// Fallbacks mirror <<parasiteinit>>; keep this list in sync with base-DoL body parts.
 		const bodyparts = Array.isArray(parasite.bodyparts)
 			? parasite.bodyparts
 			: [
@@ -378,8 +348,7 @@ window.updatePronounSummary = updatePronounSummary;
 					"hair",
 			  ];
 		const types = Array.isArray(parasite.types) ? parasite.types : ["urchin", "slime", "maggot", "parasite"];
-		// The "parasite" type (chastity/ear-slime genital parasite) is always applied with the "noSuck" flag, so base-DoL never lists it in the display-cache arrays and renders it separately from slots (caption.twee).
-		// Rebuilding it here would double-display it, so it is deliberately excluded and its array is forced empty below.
+		// "parasite" is rendered separately by base-DoL, so exclude it from this display cache to avoid duplicates.
 		const displayTypes = types.filter(type => type !== "parasite");
 		const rebuilt = {};
 
@@ -406,9 +375,7 @@ window.updatePronounSummary = updatePronounSummary;
 		return changed;
 	};
 
-	// Ear slime is GLOBAL (it lives in the player's head, not a body), so it must survive body swaps even though wild parasites are body-scoped.
-	// Both parasiteinit and restoring a body's parasite snapshot replace the whole $parasite object and would wipe the ear slots;
-	// capture them first, then re-apply with xchangeRestoreEarParasites so the ear slime rides along.
+	// Ear slime is global and must survive body swaps even though other parasites are body-scoped.
 	setup.xchangeCaptureEarParasites = function () {
 		const V = State?.variables;
 		const parasite = V?.parasite;
@@ -432,20 +399,12 @@ window.updatePronounSummary = updatePronounSummary;
 		}
 	};
 
-	/**
-	 * Reshapes a worn chastity device to fit the player's current body.
-	 *
-	 * Call this AFTER penisExist/vaginaExist are updated.
-	 * The item's .variable stays unchanged so it remains the same owned item. Only its shape-related fields are changed.
-	 * Use .type to check its current shape, not .variable.
-	 *
-	 * Returns: "feminize", "butchify", "fellOff", or null if nothing changed.
-	 */
+	// Call after penisExist/vaginaExist update. Keep .variable as the owned item ID; use .type for its current shape.
 	setup.xchangeAdaptChastityToBody = function () {
 		const V = State?.variables;
 		const worn = V?.worn?.genitals;
 		if (!worn || !Array.isArray(worn.type) || !worn.type.includes("chastity")) return null;
-		// A chastity parasite is living slime rather than a metal device; it already fits whatever body it is on.
+
 		if (worn.name === "chastity parasite") return null;
 
 		const cloneFn = typeof clone === "function" ? clone : o => JSON.parse(JSON.stringify(o));
@@ -455,7 +414,7 @@ window.updatePronounSummary = updatePronounSummary;
 			const swap = text =>
 				typeof text === "string" ? text.replace(new RegExp(`\\b${from}\\b`, "gi"), m => (m[0] === m[0].toUpperCase() ? to.toUpperFirst() : to)) : text;
 			worn.name = swap(worn.name);
-			// name_cap is what the statistics overlay and other capitalised references print, so it has to follow the name.
+			// name_cap is printed separately, so it must follow name changes.
 			worn.name_cap = swap(worn.name_cap);
 		};
 		const setType = (tag, present) => {
@@ -465,9 +424,7 @@ window.updatePronounSummary = updatePronounSummary;
 		};
 
 		if (isCage && !V.player?.penisExist) {
-			// Nothing left to cage.
-			// A bought cage is not a curse forcing it to stay, so it simply comes off into the wardrobe back home.
-			// Without somewhere to put it the device would be destroyed, so in that case reshape it instead of losing it.
+			// An uncursed cage falls into the wardrobe when possible; otherwise reshape it instead of destroying it.
 			if (worn.cursed === 0 && Array.isArray(V.wardrobe?.genitals)) {
 				V.wardrobe.genitals.push(cloneFn(worn));
 				V.worn.genitals = cloneFn(setup.clothes.genitals[0]);
@@ -475,7 +432,7 @@ window.updatePronounSummary = updatePronounSummary;
 			}
 			setType("cage", false);
 			setType("hidden", true);
-			// Every belt in the catalogue is "constricting" and no cage is; pregnancy checks read this, so it has to follow the shape.
+			// "constricting" must follow belt/cage shape because pregnancy checks read it.
 			setType("constricting", true);
 			worn.exposed = 0;
 			worn.exposed_base = 0;
@@ -496,7 +453,7 @@ window.updatePronounSummary = updatePronounSummary;
 		return null;
 	};
 
-	// GI safety: keep the Gender Identity drift system truly OFF unless explicitly enabled, and prevent "armed" drift/stage from firing later.
+	// Keep disabled Gender Identity drift from retaining queued state that could fire later.
 	setup.xchangeEnsureGiSafety = function () {
 		const V = State?.variables;
 		if (!V) return;
@@ -512,8 +469,7 @@ window.updatePronounSummary = updatePronounSummary;
 		x.giTransformEnabled = toStrictBool(x.giTransformEnabled);
 		if (Object.hasOwn(x, "giTransformConsent")) delete x.giTransformConsent;
 
-		// Complete the existing single-to-dual genital preference migration on normal loads too.
-		// New and same-version saves can otherwise keep the legacy field until the Identity screen is opened.
+		// Complete the single-to-dual genital preference migration on normal loads too.
 		const genitals = V.identity?.body?.genitals;
 		if (genitals && typeof genitals === "object" && !Array.isArray(genitals)) {
 			const penisPreferences = ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"];
@@ -529,20 +485,15 @@ window.updatePronounSummary = updatePronounSummary;
 		x.giShiftStage = stage === 3 ? 2 : [0, 1, 2].includes(stage) ? stage : 0;
 		if (!["", "f", "m"].includes(x.giShiftMode)) x.giShiftMode = "";
 
-		// Lock behind the same unlock the UI uses.
-		// identityCap is NOT checked here; it controls how far the meter can drift, not whether the system is enabled.
-		// The genderidentity widget already enforces the cap floor when identityCap is true.
+		// identityCap limits drift range; it does not control whether the system is enabled.
 		const unlocked = V.attitudesControl?.unlockGender === true;
 		if (!unlocked) {
 			x.giAutoEnabled = false;
 			x.giTransformEnabled = false;
 		}
 
-		// Body changes require daily drift.
-		// If "Update Gender Identity" is off, "Allow slow body changes" is also turned off to prevent inconsistent saves.
+		// Slow body changes require daily drift; disabling either clears queued drift.
 		if (x.giAutoEnabled !== true) x.giTransformEnabled = false;
-
-		// If the system isn't fully enabled, clear queued drift/stage so it can't "fire later".
 		if (x.giAutoEnabled !== true || x.giTransformEnabled !== true) {
 			x.giDrift = 0;
 			x.giShiftStage = 0;
@@ -569,7 +520,6 @@ window.updatePronounSummary = updatePronounSummary;
 		} catch (e) {}
 	};
 
-	// Run once now, then when a save is loaded. These are compatibility fills for old/missing setup, not an every-passage data cleaner.
 	runXChangeLoadCompat();
 
 	if (typeof jQuery === "function") {
@@ -582,7 +532,6 @@ window.updatePronounSummary = updatePronounSummary;
 	}
 })();
 
-// ---------- X-CHANGE SAVE REPAIR NOTICE ----------
 window.xChangeQueueNotice = function (id, html) {
 	const V = typeof State !== "undefined" && State.variables ? State.variables : window.V;
 	if (!V) return;
@@ -663,9 +612,6 @@ function xChangeCachedBodyUsable(slotName) {
 window.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
 setup.xChangeCachedBodyUsable = xChangeCachedBodyUsable;
 
-// ==================================================
-// OTHER FUNCTIONAL HELPER
-// ==================================================
 function pruneNPCName() {
 	const V = State.variables;
 	if (!Array.isArray(V.NPCName) || !Array.isArray(V.NPCNameList)) return;
@@ -710,7 +656,7 @@ function pruneFoodstuff() {
 		}
 	}
 
-	/* Beds planted with a foreign crop: reset the bed (mirrors clear_plot), never delete it. */
+	// Foreign crops reset their bed; the bed itself is never deleted.
 	if (V.plots && typeof V.plots === "object") {
 		for (const plots of Object.values(V.plots)) {
 			if (!Array.isArray(plots)) continue;
@@ -727,8 +673,6 @@ function pruneFoodstuff() {
 		}
 	}
 
-	/* Scalar foodstuff-key vars. Stall selection uses unset as its idle state;
-	 Avery's dinner request falls back to its routine-start default. */
 	for (const varName of ["stall_foodstuff", "stall_expensive", "lastRecipeViewed"]) {
 		if (V[varName] === undefined || allowed.has(V[varName])) continue;
 		pruned.add(V[varName]);
@@ -749,8 +693,7 @@ function pruneFoodstuff() {
 }
 window.pruneFoodstuff = pruneFoodstuff;
 
-/* Drop unresolvable or malformed saved clothing (worn/carried/wardrobes/store), plus temporary storage placeholders that escaped into an equipped slot or wardrobe.
-   Mirrors clothesIndex()'s own matching rules (variable+modder, variable-only, then oldVariable/name recovery) so anything the game can still resolve is left alone. */
+// Remove only clothing the game cannot resolve with clothesIndex-compatible matching.
 function pruneClothes() {
 	const V = State.variables;
 	if (!setup?.clothes || !Array.isArray(setup.clothes_all_slots)) return;
@@ -763,8 +706,6 @@ function pruneClothes() {
 			? Object.entries(V.wardrobes).filter(([name, wardrobe]) => name !== "wardrobe" && wardrobe && typeof wardrobe === "object")
 			: [];
 
-	/* A large wardrobe used to rescan the entire clothing catalogue up to four times
-	   for every saved item. Build the same matching keys once per slot instead. */
 	for (const slot of setup.clothes_all_slots) {
 		const catalog = setup.clothes[slot];
 		if (!Array.isArray(catalog)) continue;
@@ -795,7 +736,6 @@ function pruneClothes() {
 	}
 
 	for (const slot of setup.clothes_all_slots) {
-		/* $worn / $carried: one item per slot; reset to the slot's naked default when unresolvable. */
 		for (const dictName of ["worn", "carried"]) {
 			const item = V[dictName]?.[slot];
 			if (!item?.temp && isKnownItem(slot, item)) continue;
@@ -804,7 +744,6 @@ function pruneClothes() {
 			if (fallback) V[dictName][slot] = clone(fallback);
 		}
 
-		/* $wardrobe: array per slot. */
 		if (Array.isArray(V.wardrobe?.[slot])) {
 			V.wardrobe[slot] = V.wardrobe[slot].filter(item => {
 				if (!item?.temp && !skippedNames.has(item?.name) && isKnownItem(slot, item)) return true;
@@ -813,7 +752,6 @@ function pruneClothes() {
 			});
 		}
 
-		/* $wardrobes.*: array per slot for every named wardrobe except the metadata-only "wardrobe" entry. */
 		if (namedWardrobes.length) {
 			for (const [name, wd] of namedWardrobes) {
 				if (!wd || !Array.isArray(wd[slot])) continue;
@@ -825,7 +763,6 @@ function pruneClothes() {
 			}
 		}
 
-		/* $store: array per slot. */
 		if (Array.isArray(V.store?.[slot])) {
 			V.store[slot] = V.store[slot].filter(item => {
 				if (item?.temp || isKnownItem(slot, item)) return true;
@@ -856,21 +793,9 @@ function updateDynamicStatCaps() {
 }
 window.updateDynamicStatCaps = updateDynamicStatCaps;
 
-/**
- * Dodge ceilings by body size.
- *
- * Small bodies can build an evasion-focused style: their dodge chance keeps scaling further before diminishing returns kick in, and their hard cap is higher.
- * Large bodies hit the wall early, since they already take pain better and are harder to move out of the way.
- *
- * `soft` is the point where extra dodge chance starts counting for a quarter.
- * `hard` is the ceiling applied when the player has not turned off the dodge cap.
- *
- * @param {number} [size] body size, defaults to $bodysize
- * @returns {{soft: number, hard: number}}
- */
+// Smaller bodies get higher dodge soft/hard caps; invalid sizes fall back to the neutral size.
 function bodySizeDodgeCaps(size) {
 	const raw = size ?? State.variables.bodysize;
-	/* A missing or broken size must not read as "tiny" and hand out the highest caps. */
 	const bodysize = Number.isFinite(raw) ? raw : 2;
 	if (bodysize >= 4) return { soft: 40, hard: 52 };
 	if (bodysize >= 3) return { soft: 50, hard: 65 };
@@ -882,20 +807,9 @@ function bodySizeDodgeCaps(size) {
 }
 window.bodySizeDodgeCaps = bodySizeDodgeCaps;
 
-/**
- * Flat dodge chance granted or taken away by body size.
- *
- * A large frame is the worst dodger in the game and always will be, but the old penalty was steep enough to wipe out
- * everything dance and brawling training contributed, leaving a heavy character on a flat zero chance no matter how
- * hard they trained.
- * The penalty is now roughly half as harsh, so training still buys a heavy build something while keeping it clearly behind a light one.
- *
- * @param {number} [size] body size, defaults to $bodysize
- * @returns {number} percentage points added to the dodge roll
- */
+// Body size adds a flat dodge modifier; invalid sizes fall back to the neutral size.
 function bodySizeDodgeModifier(size) {
 	const raw = size ?? State.variables.bodysize;
-	/* A missing or broken size must not read as "tiny" and hand out the largest bonus. */
 	const bodysize = Number.isFinite(raw) ? raw : 2;
 	if (bodysize >= 4) return -18;
 	if (bodysize >= 3) return -10;
@@ -907,15 +821,7 @@ function bodySizeDodgeModifier(size) {
 }
 window.bodySizeDodgeModifier = bodySizeDodgeModifier;
 
-/**
- * Counter chance multiplier by body size.
- *
- * Countering means reading a blow and turning it back, which suits a light frame the way blocking and raw damage suit a heavy one.
- * Without this a large character got the best block, the most damage and an undiminished counter, paying for all of it only in dodge.
- *
- * @param {number} [size] body size, defaults to $bodysize
- * @returns {number} multiplier applied to the counter chance
- */
+// Body size also scales counter chance so large builds do not keep full counter strength.
 function bodySizeCounterMultiplier(size) {
 	const raw = size ?? State.variables.bodysize;
 	const bodysize = Number.isFinite(raw) ? raw : 2;
@@ -929,11 +835,7 @@ function bodySizeCounterMultiplier(size) {
 }
 window.bodySizeCounterMultiplier = bodySizeCounterMultiplier;
 
-/**
- * $settings.npcChastityLevel, defaulting to the normal level for saves made before the setting existed.
- *
- * @returns {number} 0 (never) to 3 (often)
- */
+// npcChastityLevel defaults to 2 for older saves and is clamped to 0..3.
 function npcChastityLevel() {
 	const level = Number(V.settings?.npcChastityLevel);
 	if (!Number.isFinite(level)) return 2;
@@ -941,27 +843,11 @@ function npcChastityLevel() {
 }
 window.npcChastityLevel = npcChastityLevel;
 
-/**
- * Whether NPCs can put the player in chastity.
- *
- * Applies to scripted chastity scenes. Existing devices can still be
- * replaced or re-locked. Random chances use npcChastityChance().
- *
- * @returns {boolean}
- */
 function npcChastityAllowed() {
 	return npcChastityLevel() > 0;
 }
 window.npcChastityAllowed = npcChastityAllowed;
 
-/**
- * Scales NPC chastity chance using $settings.npcChastityLevel.
- *
- * Returns 0 when disabled and never goes above 100.
- *
- * @param {number} base Base chance out of 100
- * @returns {number} Adjusted chance
- */
 function npcChastityChance(base) {
 	const raw = Number(base);
 	if (!Number.isFinite(raw) || raw <= 0) return 0;
@@ -998,12 +884,7 @@ function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 }
 window.dolxRepairMissingJewelleryWornSlots = dolxRepairMissingJewelleryWornSlots;
 
-/* One-time cleanup for saves affected by the old <<animatemodel>> NPC corruption bug (ee84ce2b79, now fixed).
- * The portrait renderer could overwrite a stale $NPCList slot with a fake "vine" NPC, which then persisted in the save and could later appear as "the undefined vineperson".
- * Only slots matching the COMPLETE corrupted stub are reset. Individual values are not enough, since many are also valid for real or cleared NPCs.
- * This keeps the cleanup safe and avoids touching legitimate data.
- *
- * Partially corrupted slots are intentionally left alone; <<clearnpc>> will reset them normally later. */
+// Repair fabricated "vine" NPC stubs without touching valid NPC data.
 function dolxScrubFabricatedNPCStubs() {
 	if (!V || !Array.isArray(V.NPCList)) return;
 
@@ -1024,28 +905,24 @@ function dolxScrubFabricatedNPCStubs() {
 	for (let i = 0; i < V.NPCList.length; i++) {
 		const npc = V.NPCList[i];
 		if (!npc || typeof npc !== "object") continue;
-		/* A fully generated NPC keeps its own data; the old stub only ever filled in blanks there. */
+
 		if (window.isLiveNPC?.(npc)) continue;
 
-		/* Both corrupted shapes (the slot the stub conjured from nothing, and the empty padding clone it filled in) end up carrying every stub value and no fullDescription.
-		   Nothing real looks like this. */
+		// Reset only the complete stub signature; partial real NPC data is preserved.
 		if (npc.fullDescription === undefined && Object.entries(stubProps).every(([key, value]) => npc[key] === value)) {
-			/* Restore the standard empty shape rather than leaving a bare object or a hole
-			   (combat iterates slots 0..$enemyno-1 as a contiguous prefix). */
+			// Restore the standard empty NPC shape because combat expects a contiguous NPCList prefix.
 			if (setup.baseNPC) V.NPCList[i] = clone(setup.baseNPC);
 			scrubbed.push(`${i} (full stub)`);
 			continue;
 		}
 
-		/* Residue on a slot that carried some real fields of its own:
-		"vine" is never a real $NPCList type (real ones are human/plant/wolf/centaur/...), so drop just that key and leave everything else. */
+		// A stray type:"vine" is not a valid live NPC type, so remove only that key.
 		if (npc.type === "vine") {
 			delete npc.type;
 			scrubbed.push(`${i} (stray type)`);
 		}
 	}
 
-	/* Dead key from the superseded water-breaking workaround that the stub's NPCList[0] pollution forced. */
 	for (const genital of ["vagina", "anus"]) {
 		const pregnancy = V.sexStats?.[genital]?.pregnancy;
 		if (pregnancy && pregnancy.stuckAtOne !== undefined) delete pregnancy.stuckAtOne;
@@ -1055,7 +932,7 @@ function dolxScrubFabricatedNPCStubs() {
 }
 window.dolxScrubFabricatedNPCStubs = dolxScrubFabricatedNPCStubs;
 
-/* NaN/Infinity repair for core numerics the game derives other state from. */
+// Repair non-finite core numerics that other systems derive state from.
 function dolxRepairNonFiniteNumerics() {
 	if (!V) return;
 
@@ -1087,13 +964,13 @@ function dolxRepairNonFiniteNumerics() {
 		fix(mult, 100);
 	}
 
-	/* statNerf feeds currentSkillValue and combatExtendedSkillValue as a raw*(nerf/100) multiplier; a non-finite value silently NaNs combat damage AND every skill check. */
+	// statNerf must stay finite or skill and combat calculations become NaN.
 	if (V.options && !Number.isFinite(V.options.statNerf)) {
 		repaired.push(`options.statNerf=${V.options.statNerf}`);
 		V.options.statNerf = 100;
 	}
 
-	/* A save made inside an already-poisoned fight would stay endless without this. */
+	// Repair live combat state too; otherwise a poisoned fight can become unwinnable.
 	if (V.combat === 1) {
 		const enemyno = Number.isFinite(V.enemyno) && V.enemyno > 0 ? V.enemyno : 1;
 		fix("enemyno", enemyno);
@@ -1101,7 +978,6 @@ function dolxRepairNonFiniteNumerics() {
 		fix("enemyarousalmax", 500 * enemyno * ((named ? V.nnpcArousalMult : V.npcArousalMult) / 100));
 		fix("enemyarousal", 0);
 
-		/* NaN enemyhealth hides the enemy's health line and makes "enemyhealth lte 0" forever false: the fight can never be won. */
 		if (!Number.isFinite(V.enemyhealth)) {
 			let sum = 0;
 			let any = false;
@@ -1121,37 +997,31 @@ function dolxRepairNonFiniteNumerics() {
 			V.enemyhealthmax = Math.max(Number(V.enemyhealth) || 199, 199);
 		}
 	} else {
-		/* Outside combat these are inert leftovers, not live state. Just zero them. */
 		for (const name of ["enemyarousal", "enemyhealth", "enemytrust", "enemystrength"]) {
 			fix(name, 0);
 		}
 	}
 
-	/* Prepaid stall deposit rollover left stall_lewdity uninitialised, then lewdity NaN'd it. */
 	if (V.daily && "stall_lewdity" in V.daily && !Number.isFinite(V.daily.stall_lewdity)) {
 		repaired.push(`daily.stall_lewdity=${V.daily.stall_lewdity}`);
 		V.daily.stall_lewdity = 0;
 	}
 
-	/* The moor gold ring used to deduct 3000 instead of 1500 from $antiquemoney,
-	which could make it negative and block antique museum options. Refund the extra 1500 on affected saves. */
+	// Refund the extra 1500 from affected negative antiquemoney saves, then clamp at zero.
 	if (Number.isFinite(V.antiquemoney) && V.antiquemoney < 0) {
 		repaired.push(`antiquemoney=${V.antiquemoney}`);
 		V.antiquemoney = Math.max(0, V.antiquemoney + 1500);
 	}
 	fix("antiquemoney", 0);
 
-	/* Poppy's patience/anger slider NaNs on some saves;
-	a raw "gte 0" comparison against NaN is always false, silently locking every patience/anger check onto the anger branch. */
+	// A non-finite Poppy patience value forces every comparison down the anger branch.
 	const poppyIndex = V.NPCNameList?.indexOf("Poppy");
 	if (poppyIndex > -1 && V.NPCName?.[poppyIndex] && !Number.isFinite(V.NPCName[poppyIndex].patience)) {
 		repaired.push(`NPCName[${poppyIndex}].patience=${V.NPCName[poppyIndex].patience}`);
 		V.NPCName[poppyIndex].patience = 100;
 	}
 
-	/* Fluid tallies are display-only counters, but old saves may store them as strings.
-	This makes "+=" join digits instead of adding numbers, causing impossible values.
-	Convert them back to numbers and reset anything beyond a realistic amount. */
+	// Fluid tallies may be legacy strings; normalise them before "+=" can concatenate digits.
 	const fluidStatCap = (Time.days + 1) * 50000;
 	for (const stat of ["milk_produced_stat", "milk_drank_stat", "semen_produced_stat", "lube_produced_stat", "nectar_drank_stat"]) {
 		if (V[stat] === undefined) continue;
@@ -1173,13 +1043,7 @@ function dolxRepairNonFiniteNumerics() {
 }
 window.dolxRepairNonFiniteNumerics = dolxRepairNonFiniteNumerics;
 
-/*
- Clear old underscored clothing wetness variables.
- 
- Clothing wetness is stored without underscores, but the combat renderer previously looked for underscored versions instead.
- These incorrect variables were never updated or dried, so they could leave under/over clothing stuck at half opacity in combat.
- The renderer now uses the correct variable names, so remove the unused old ones from saves.
-*/
+// Remove obsolete underscored clothing wetness keys from saves.
 function dolxClearOrphanWetnessKeys() {
 	if (!V) return;
 	const cleared = [];
@@ -1194,7 +1058,7 @@ function dolxClearOrphanWetnessKeys() {
 }
 window.dolxClearOrphanWetnessKeys = dolxClearOrphanWetnessKeys;
 
-/* Guarantee every transformationParts species/part key exists. */
+// Backfill missing transformationParts keys using the same defaults as setupTransformationPiecesObject.
 function dolxEnsureTransformationParts() {
 	const parts = V?.transformationParts;
 	if (!parts || typeof parts !== "object") return;
@@ -1203,7 +1067,6 @@ function dolxEnsureTransformationParts() {
 	const special = V.specialTransform === 1;
 	const physical = V.physicalTransform === 1;
 
-	/* Rules mirror setupTransformationPiecesObject; parts it leaves inactive on a fresh setup have no rule and fill as "disabled". */
 	const defaults = {
 		angel: { halo: () => special && lvl("angel") >= 4, wings: () => special && lvl("angel") >= 6 },
 		fallenAngel: { halo: () => special && lvl("fallenangel") >= 2, wings: () => special && lvl("fallenangel") >= 2 },
@@ -1258,26 +1121,21 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 }
 
 (() => {
-	// Ensure setup exists (defensive; other blocks in this file already do this)
 	if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
-	// Internal helper, closure-scoped (not used outside this block).
+
 	const stateInvalid = (...states) => states.some(state => state === undefined);
 
-	// Pain multiplier per bodysize step.
-	// Keyed by VALUE, not array index, so it stays aligned with setup.bodySizeSteps = [-1, 0, 1, 2, 2.5, 3, 4].
-	// The old [2, 1, 0.5, 0] array silently returned undefined for bodysize -1, 2.5, and 4, which the `|| 0` then swallowed into zero pain.
-	// Adjust the -1 / 2.5 / 4 entries if the game-design intent differs.
+	// Key pain modifiers by actual bodysize value so every discrete body-size step is covered.
 	const BODY_SIZE_PAIN_MODIFIER = new Map([
-		[-1, 3], // very small frame: extra pain
+		[-1, 3],
 		[0, 2],
 		[1, 1],
 		[2, 0.5],
-		[2.5, 0.25], // between 2 and 3
+		[2.5, 0.25],
 		[3, 0],
-		[4, 0], // very large frame: no extra pain
+		[4, 0],
 	]);
 
-	// Increase pain based on penetration states every turn in combat.
 	setup.penetratedPain = function penetratedPain() {
 		if (V.combat !== 1 || V.gamemode === "soft") return;
 		if (stateInvalid(V.vaginastate, V.anusstate, V.mouthstate, V.bodysize)) return;
@@ -1289,36 +1147,26 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 			tentacledeep: 3,
 		};
 
-		// Wetness eases penetration pain. Maps a hole's wetness (0-100) to a multiplier:
-		//   dry (0)        -> WET_PAIN_MAX_MULT (full pain)
-		//   drenched (100) -> WET_PAIN_MIN_MULT (reduced, but never zero; penetration still hurts)
-		const WET_PAIN_MAX_MULT = 1; // pain multiplier when completely dry
-		const WET_PAIN_MIN_MULT = 0.4; // pain multiplier when fully wet (floor: stays hurtful)
+		// Wetness scales base penetration pain from 1.0 dry to 0.4 fully wet.
+		const WET_PAIN_MAX_MULT = 1;
+		const WET_PAIN_MIN_MULT = 0.4;
 		const wetnessMult = wetness => {
 			const w = Math.clamp(wetness ?? 0, 0, 100) / 100;
 			return WET_PAIN_MAX_MULT - w * (WET_PAIN_MAX_MULT - WET_PAIN_MIN_MULT);
 		};
 
-		// Size (stretch) pain: large penetrators add extra pain on top of the base.
-		//   SIZE_PAIN_THRESHOLD = sizes at or below this add NO stretch pain (1=Mini ... 4=Normal).
-		//   SIZE_PAIN_PER_STEP  = pain added per size step above the threshold (5=Large, 6=Enormous).
-		// So with threshold 4 / step 2: size 5 -> +2, size 6 -> +4 (before wetness/body modifiers).
+		// Stretch pain starts above penetrator size 4; full wetness can only reduce it to 70%.
 		const SIZE_PAIN_THRESHOLD = 4;
 		const SIZE_PAIN_PER_STEP = 2;
 		const sizePain = size => Math.max(0, (size ?? 0) - SIZE_PAIN_THRESHOLD) * SIZE_PAIN_PER_STEP;
 
-		// Wetness only PARTIALLY eases stretch pain; a big penis still hurts even when fully wet.
-		//   SIZE_WET_MIN_MULT = fraction of stretch pain that remains when fully wet (floor).
 		const SIZE_WET_MIN_MULT = 0.7;
 		const sizeWetMult = wetness => {
 			const w = Math.clamp(wetness ?? 0, 0, 100) / 100;
 			return 1 - w * (1 - SIZE_WET_MIN_MULT);
 		};
 
-		// Find the largest penis fully seated in a hole. Full penetration sets the NPC's
-		// .penis to exactly the hole name (or holename+"double"); "entrance"/"imminent" don't count.
-		// Scanning NPCList by .penis avoids relying on $vaginatarget/$anustarget indices,
-		// where 0 ambiguously means both "NPC #0" and "none".
+		// Scan NPCList by .penis because target index 0 ambiguously means both NPC #0 and "none".
 		const maxPenetratorSize = (...penisValues) => {
 			if (!Array.isArray(V.NPCList)) return 0;
 			let maxSize = 0;
@@ -1340,39 +1188,31 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 			pain += painStates[V.anusstate] * wetnessMult(V.anusWetness);
 			pain += sizePain(maxPenetratorSize("anus", "anusdouble")) * sizeWetMult(V.anusWetness);
 		}
-		// Mouth has no wetness stat (saliva assumed); keep its existing 0.5 weighting unchanged.
+		// Mouth has no wetness stat, so it keeps the fixed 0.5 weighting.
 		if (V.mouthstate in painStates) {
 			pain += painStates[V.mouthstate] * 0.5;
 			pain += sizePain(maxPenetratorSize("mouth")) * 0.5;
 		}
 
-		// Global rebalance: penetration pain accumulates at 46% of its raw rate.
-		// This is a further 8% reduction from the previous 0.5 multiplier, keeping pain relevant without making repeated high-fame encounters spiral as quickly.
-		// (Applies only to this function's per-turn penetration pain; other pain sources unaffected.)
+		// PENETRATION_PAIN_MULT applies only to this function's per-turn penetration pain.
 		const PENETRATION_PAIN_MULT = 0.46;
 
 		const modifier = BODY_SIZE_PAIN_MODIFIER.get(V.bodysize) ?? 0;
 		statChange.pain(pain * modifier * PENETRATION_PAIN_MULT);
 
-		// --- Consensual vs non-consensual aftermath -------------------------------
-		// V.consensual:  1 = consensual encounter, 0 = assault.
-		// V.orgasmcount: the PC's orgasms this encounter (DoL's own per-scene counter, reset by combat init).
+		// Consensual encounters can adapt after repeated orgasms; assaults convert severe pain into trauma.
 		if (V.consensual === 1) {
-			// CONSENSUAL: after enough orgasms the PC acclimates and pain eases off each turn,
-			// faster the wetter things are (can fully null pain over time). "How wet during the action."
-			const ADAPT_ORGASM_THRESHOLD = 3; // orgasms required before adaptation kicks in
-			const ADAPT_BASE = 1; // pain removed per turn once adapted, when dry
-			const ADAPT_WET_BONUS = 4; // extra removal that scales up to full wetness
+			const ADAPT_ORGASM_THRESHOLD = 3;
+			const ADAPT_BASE = 1;
+			const ADAPT_WET_BONUS = 4;
 			if ((V.orgasmcount || 0) >= ADAPT_ORGASM_THRESHOLD) {
 				const wet = Math.clamp(Math.max(V.vaginaWetness ?? 0, V.anusWetness ?? 0), 0, 100) / 100;
 				const adapt = ADAPT_BASE + wet * ADAPT_WET_BONUS;
-				statChange.pain(-adapt, 1); // modifier 1 => removes exactly `adapt` pain
+				statChange.pain(-adapt, 1);
 			}
 		} else {
-			// NON-CONSENSUAL: severe pain slowly converts to trauma so 1 pain -> 1 trauma per turn
-			// (straighttrauma = raw 1:1, no control multiplier) once pain crosses the threshold.
 			const TRAUMA_CONVERT_RATE = 1;
-			const TRAUMA_CONVERT_THRESHOLD = 100; // pain level at which conversion begins
+			const TRAUMA_CONVERT_THRESHOLD = 100;
 			if (V.pain >= TRAUMA_CONVERT_THRESHOLD) {
 				statChange.pain(-TRAUMA_CONVERT_RATE, 1);
 				statChange.straighttrauma(TRAUMA_CONVERT_RATE);
@@ -1380,14 +1220,7 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		}
 	};
 
-	// Per-minute pain decay rate.
-	// Used as the `modifier` arg to statChange.pain from time.js, so this returns a negative number (pain decreases over time).
-	// Acclimation model: pain fades gently, speeding up the longer the PC has been hurting, within a fixed band.
-	//   PAIN_DECAY_MIN  = decay during the first interval (per minute).
-	//   PAIN_DECAY_MAX  = fastest decay once fully acclimated (per minute, hard cap).
-	//   PAIN_DECAY_STEP = added to the rate at each adaptation step (capped at PAIN_DECAY_MAX).
-	//   Steps trigger at 1h, 3h, 7h, 15h, 31h ... in pain (each gap doubles: 1, 2, 4, 8 ...).
-	// V.painDuration (minutes spent continuously in pain) is maintained in time.js minutePassed().
+	// Returns a negative per-minute pain modifier that increases logarithmically with continuous pain duration.
 	setup.painChangeByTime = function painChangeByTime(currentPain) {
 		const PAIN_DECAY_MIN = 0.3;
 		const PAIN_DECAY_MAX = 0.5;
@@ -1397,16 +1230,12 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 		return -Math.min(PAIN_DECAY_MIN + steps * PAIN_DECAY_STEP, PAIN_DECAY_MAX);
 	};
 
-	// Multiplier on tiredness gain due to pain.
-	// Used as a per-tick multiplier in stat-changes.js, where the fallback when this is missing is 1.
-	// Floor of 1 is intentional: pain only ever amplifies tiredness gain, never reduces it.
+	// Pain may amplify tiredness gain but never reduce it below the normal rate.
 	setup.tirednessChangeByPain = function tirednessChangeByPain(currentPain) {
 		return Math.max(0.00181 * Math.pow(currentPain, 1.45), 1);
 	};
 
-	// Multiplier on badend escape amount. Lower = harder to escape.
-	// Note: V.pain is clamped to [0, 200] by painClamp(), within which the painModifier quartic stays in roughly [0.05, 1].
-	// If the pain cap is ever raised above ~440, wrap the polynomial in Math.clamp(..., 0, 1) to prevent negative values from flipping the multiplier sign.
+	// This polynomial assumes pain stays within the current 0..200 cap; clamp it if that cap rises substantially.
 	setup.escapeAmount = function escapeAmount() {
 		if (stateInvalid(V.pain, V.tiredness)) return 1;
 		const currentPain = V.pain;
@@ -1417,15 +1246,11 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 	};
 })();
 
-/* ------------------------------------------------------------------ *
- * X-Change per-body virginity
- * ------------------------------------------------------------------ */
+// Per-body virginity
 setup.xChangeBodyVirginityKeys = ["vaginal", "penile", "anal", "oral", "handholding", "kiss"];
 setup.xChangeVirginTraitKeys = ["vaginal", "penile"];
 
-/* Canonical role for the transformed body the player is currently inhabiting, derived from its configuration (gender_body) rather than stale effect flags.
- * herm bodies are gender_body "a"; genderflip bodies are "m"/"f".
- * Using this one signal everywhere a save/apply decides herm-vs-xchange keeps the store and the re-entry path in agreement, so new saves never split. */
+// Derive transformed role from live body configuration, not session effect flags.
 setup.xChangeTransformedRole = function xChangeTransformedRole(genderBody) {
 	return genderBody === "a" ? "herm" : "xchange";
 };
@@ -1454,13 +1279,11 @@ function xChangeBodyProp(role) {
 	if (role === "real") return "originalBody";
 	if (role === "xchange") return "changedBody";
 	if (role === "herm") return "hermBody";
-	// Clone bodies ("clone:<NPC name>") have no legacy snapshot to seed from,
-	// so they fall through to the intact seed wearing a copy of someone's body does not come with their history.
+	// Clone bodies have no legacy body snapshot to seed from.
 	return "";
 }
 
-// Clone pills give the player a copy of a named NPC's body, cached per NPC in pill.clonedBody.
-// Each of those is its own body and so needs its own virginity record, or a clone's losses land on whichever of real/xchange/herm its shape happens to resemble.
+// Each named clone gets its own virginity role so histories cannot leak between bodies.
 setup.xChangeCloneVirginityRole = function xChangeCloneVirginityRole(npcName) {
 	return typeof npcName === "string" && npcName !== "" && npcName !== "none" ? `clone:${npcName}` : "";
 };
@@ -1488,10 +1311,7 @@ function xChangeCopyVirginityEntry(entry) {
 }
 
 function xChangeMigrateTransformedVirginityRoles() {
-	// One-time old-save bridge. Old saves could record a transformed body's losses under one role (e.g. "herm") while the re-entry path read the other ("xchange"), because the save slot used to be chosen by stale effect flags.
-	// Reconcile that split EXACTLY ONCE: if one transformed store has taken virginity and its sibling is still the all-true seed, copy it across.
-	//   - never touches "real"
-	//   - never overwrites a transformed store that already has taken data
+	// One-time migration: copy taken transformed-body data into an untouched sibling role, never into "real" or over existing taken data.
 	const pill = V.xchange && V.xchange.pill;
 	if (!pill || pill.bodyVirginityRoleMigrated === true) return;
 	pill.bodyVirginityRoleMigrated = true;
@@ -1514,19 +1334,16 @@ function xChangeSeedBodyVirginity(role) {
 	const prop = xChangeBodyProp(role);
 	const snap = prop && pill ? pill[prop] : undefined;
 
-	// Prefer legacy snapshot data if a save was made while virginity still lived in the body cache.
+	// Prefer cached legacy snapshot data when seeding an existing body record.
 	if (snap && typeof snap === "object" && snap.virginity) {
 		return xChangeVirginityEntryFrom(snap.virginity, snap.virginityDetails);
 	}
 
-	// The original body should already have been recorded by save-body before transformation, so a missing "real" record means a save from before virginity was split per body
-	// back then both bodies shared one history, and the live player still carries it.
-	// Seed from that rather than handing the player back a blank record, which would erase everything the real body ever did.
+	// If the real record is missing, seed it from the live player history; new transformed bodies start intact.
 	if (role === "real") {
 		return xChangeVirginityEntryFrom(V.player && V.player.virginity, V.player && V.player.virginityDetails);
 	}
 
-	// Brand-new X-Change/herm bodies start intact.
 	return xChangeVirginityEntryFrom({}, {});
 }
 
@@ -1542,6 +1359,11 @@ setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
 	const store = xChangeVirginityStore();
 	if (!store || !role || !V.player || !V.player.virginity) return false;
 	xChangeMigrateTransformedVirginityRoles();
+	// Before applying another body's record, bank the active body when it is genuinely different.
+	if (!V.statFreeze) {
+		const activeRole = setup.xChangeActiveBodyVirginityRole();
+		if (activeRole && activeRole !== role) setup.xChangeRecordBodyVirginity(activeRole);
+	}
 	if (!store[role] || store[role].seen !== true) {
 		store[role] = xChangeSeedBodyVirginity(role);
 	}
@@ -1556,8 +1378,7 @@ setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
 	return true;
 };
 
-// The player's original sex, not their current body.
-// Use this for traits based on original sex so their effects don't reverse after a genderflip.
+// Original-sex traits must use the pre-transformation sex, not the current body.
 function playerOriginalSex() {
 	const pill = V.xchange && V.xchange.pill;
 	if (pill && pill.active && (pill.baseSex === "m" || pill.baseSex === "f")) return pill.baseSex;
@@ -1565,27 +1386,16 @@ function playerOriginalSex() {
 }
 window.playerOriginalSex = playerOriginalSex;
 
-// Role of the body the player is currently in, by configuration not flags.
-// gender_body "a" is unambiguously a herm body regardless of session flags: hermEffect/genderflipEffect
-// get reset to false whenever a fresh pill session starts (xchange-effects), even if the player's actual
-// body never reverted (e.g. a still-herm-shaped body carried into a brand-new grey-only session).
-//
-// Trusting pill.active alone here misfiled virginity events onto the wrong body's record; check the live shape first.
-//
-// Transformed-vs-real is decided by comparing the live sex against pill.baseSex (the sex the player had when this session began) not by genderflipEffect.
-// The flag can still be stale when a second pill re-runs xchange-effects mid-session, and a stale "no flip" reading writes the transformed body's losses onto the real body's record.
-// sex is the right signal: a genderflip always swaps it, while a crossdress body (sissify/butchify) keeps it,
-// and a crossdress body shares the real body's genitals and so its virginity too. This is the same test characteristics.twee uses to decide body dysphoria.
+// Determine active virginity role from the live body: clone first, then true herm shape, then sex vs baseSex.
 setup.xChangeActiveBodyVirginityRole = function xChangeActiveBodyVirginityRole() {
 	const pill = V.xchange && V.xchange.pill;
 	const transformed = typeof window.playerIsXChanged === "function" && window.playerIsXChanged();
-	// A clone is checked first: it can take any shape, including a herm one.
+	// Clone role takes priority because a clone can have any body shape.
 	if (transformed && pill) {
 		const cloneRole = setup.xChangeCloneVirginityRole(pill.clone);
 		if (cloneRole) return cloneRole;
 	}
-	// A herm is a body with BOTH sets of genitals. gender_body "a" alone is not enough: vanilla also uses it for a merely
-	// androgynous single-genital body (the bimbo/pimp outfit drift parks a body there on its way from "m" to "f").
+	// A herm role requires both genital sets; gender_body "a" alone can also describe an androgynous single-genital body.
 	if (V.player && V.player.gender_body === "a" && V.player.penisExist && V.player.vaginaExist) return "herm";
 	if (!transformed) return "real";
 	if (pill && (pill.baseSex === "m" || pill.baseSex === "f")) {
@@ -1599,17 +1409,11 @@ setup.xChangeRecordActiveBodyVirginity = function xChangeRecordActiveBodyVirgini
 	return setup.xChangeRecordBodyVirginity(setup.xChangeActiveBodyVirginityRole());
 };
 
-/* Sydney's prayer room restores virginity changes when you leave.
- * X-Change can switch the player's body inside the room, so restoring one old snapshot could overwrite the new body's
- * real virginity history.
- *
- * These helpers now restore each body's own record. Changes made inside the room still do not count, while virginity
- * lost outside the room is preserved. Temple records are restored separately.
- */
+// Prayer-room restoration is per body so switching bodies inside the room cannot overwrite another body's real history.
 setup.xChangeCapturePrayerRoomVirginity = function xChangeCapturePrayerRoomVirginity() {
 	const pill = V.xchange && V.xchange.pill;
 	const role = setup.xChangeActiveBodyVirginityRole();
-	// An older active pill may not have a per-body store yet. Seed its current body before taking the room snapshot.
+
 	if (pill) setup.xChangeRecordBodyVirginity(role);
 	return {
 		role,
@@ -1621,7 +1425,7 @@ setup.xChangeRestorePrayerRoomVirginity = function xChangeRestorePrayerRoomVirgi
 	if (!saved || !saved.playerVirginity || !V.player || !V.player.virginity) return false;
 	const pill = V.xchange && V.xchange.pill;
 
-	// Saves made mid-scene before this fix have no recorded body role: restore exactly as the old code did.
+	// Mid-scene legacy saves without bodyRole fall back to the whole-player snapshot.
 	if (!pill || saved.bodyRole === undefined) {
 		V.player.virginity = xChangeClone(saved.playerVirginity);
 		if (saved.playerVirginityDetails) V.player.virginityDetails = xChangeClone(saved.playerVirginityDetails);
@@ -1629,8 +1433,7 @@ setup.xChangeRestorePrayerRoomVirginity = function xChangeRestorePrayerRoomVirgi
 	}
 
 	pill.bodyVirginity = saved.bodyVirginityStore ? xChangeClone(saved.bodyVirginityStore) : {};
-	// The current virginity belongs to the body worn when the scene started and may be newer than the saved record.
-	// Update that body's stored history so switching back to it later restores the correct virginity.
+	// Preserve the body worn when the scene began so returning to it restores the correct history.
 	if (saved.bodyRole) pill.bodyVirginity[saved.bodyRole] = xChangeVirginityEntryFrom(saved.playerVirginity, saved.playerVirginityDetails);
 
 	if (setup.xChangeActiveBodyVirginityRole() === saved.bodyRole) {
@@ -1655,8 +1458,6 @@ function xChangeOtherBodyVirginity() {
 	if (transformed) {
 		role = "real";
 	} else {
-		// In the real body the "other" body is the transformed one.
-		// Prefer whichever transformed store has actually been recorded; fall back to xchange.
 		if (store && store.xchange && store.xchange.seen) role = "xchange";
 		else if (store && store.herm && store.herm.seen) role = "herm";
 		else role = "xchange";
@@ -1690,11 +1491,7 @@ function playerCountsAsVirgin() {
 }
 window.playerCountsAsVirgin = playerCountsAsVirgin;
 
-// ==================================================
-// MOVED FROM time.js to keeps vanilla time.js untouched
-// ==================================================
-/* Brothel vending state repair / defaults. Called from time.js (weekPassed, dayPassed, etc.). 
-	Exported on window so those call sites continue to resolve after the move. */
+// Repair brothel vending fields used by time.js.
 function ensureBrothelVendingState() {
 	if (V.brothelVending == null) return false;
 
@@ -1739,8 +1536,6 @@ function ensureBrothelVendingState() {
 }
 window.ensureBrothelVendingState = ensureBrothelVendingState;
 
-/* Daily speech-attitude roll for the "fickle" attitude.
- * Called from dayPassed() in time.js. Exported on window for the call site. */
 function speechDailyCheck() {
 	if (V.statFreeze) return;
 
@@ -1760,11 +1555,40 @@ function speechDailyCheck() {
 }
 window.speechDailyCheck = speechDailyCheck;
 
-/* globals Wikifier */
-/* Safety cleanup for the Raul and Janet daydream.
-The scene temporarily changes the player's body and stats, including virginity.
-Normally <<sleepJanet>> restores everything, but it only runs on the normal endings.
-This makes sure the player is restored if they leave the scene another way. Only affects the Raul and Janet daydream. */
+/* globals Wikifier, onLoadUpdateCheck, versionUpdateCheck */
+// Repair leaked $statFreeze once the player reaches a normal hub where a frozen scene should already have torn down.
+function dolxRepairLeakedStatFreeze(passageName) {
+	if (!V || !V.statFreeze || V.replayScene) return false;
+
+	// A freeze without its snapshot cannot represent a valid in-progress frozen scene.
+	if (!V.frozenValues) {
+		console.warn("[DoLX] $statFreeze was set with no frozen snapshot; clearing it so daily resets and stat changes run again.");
+		delete V.statFreeze;
+		delete V.frozenXchangeValues;
+		return true;
+	}
+
+	const title = passageName || V.passage;
+	if (!title || !setup.majorAreas || !setup.majorAreas.includes(title)) return false;
+
+	// Do not trigger unfreeze teardown while a load/version migration is still pending.
+	if (onLoadUpdateCheck || versionUpdateCheck) return false;
+
+	// Use the scene's own teardown so restored body and stats match the intended exit.
+	console.warn(`[DoLX] A frozen-stat scene was left without its teardown (reached ${title} still frozen); restoring the real body and stats.`);
+	Wikifier.wikifyEval("<<unfreezePlayerStats>>");
+
+	delete V.statFreeze;
+	return true;
+}
+window.dolxRepairLeakedStatFreeze = dolxRepairLeakedStatFreeze;
+
+$(document).on(":passageinit", ev => {
+	// :passageinit exposes the incoming title before V.passage necessarily updates.
+	if (V && V.statFreeze) dolxRepairLeakedStatFreeze(ev?.passage?.title);
+});
+
+// If the Raul/Janet daydream is exited abnormally, run its normal teardown to restore body and stats.
 const scarletVisionPassages = [
 	"ScarletBook5",
 	"ScarletBook6",
@@ -1782,20 +1606,16 @@ const scarletVisionPassages = [
 ];
 $(document).on(":passageinit", ev => {
 	if (!V.scarletVision || V.replayScene) return;
-	/* Prefer the incoming passage from the event, falling back to V.passage
-	If both still read as the old passage on some build, the net simply fires one passage later, which still restores. */
+	// Prefer the incoming event title; V.passage is only a fallback.
 	const title = (ev && ev.passage && ev.passage.title) || V.passage;
 	if (!title || scarletVisionPassages.includes(title)) return;
-	/* Left the daydream without passing through an ending
-	Run the scene's own teardown so the restore is identical to the intended exit rather than a second, drifting copy of it. */
+
 	console.warn("[DoLX] Raul and Janet daydream was left via " + title + " without its ending; restoring the real body.");
 	Wikifier.wikifyEval("<<sleepJanet>>");
 });
 
-/* beautyBoost save-compat / expiry; relocated out of vanilla time.js's :passageinit handler.
-Runs on every passage as before, behavior identical. */
+// Save compatibility and expiry handling for beautyBoost.
 $(document).on(":passageinit", () => {
-	/* Ensure beautyBoost object exists (save compatibility) */
 	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0, tan: 0 };
 	if (V.beautyBoost.bath == null) V.beautyBoost.bath = 0;
 	if (V.sleepTimePassing) V.sleepTimePassing = false;
@@ -1821,7 +1641,6 @@ $(document).on(":passageinit", () => {
 		V.beautyBoost.spa.expiredNotice = true;
 	}
 
-	/* Salon manicure boost, parallel slot to spa */
 	if (V.beautyBoost.nails == null || typeof V.beautyBoost.nails === "number") {
 		V.beautyBoost.nails = {
 			amount: Number.isFinite(V.beautyBoost.nails) ? V.beautyBoost.nails : 0,
@@ -1839,42 +1658,30 @@ $(document).on(":passageinit", () => {
 	}
 });
 
-/* 
-	@args:
-	 - path: type string, representing the relative path to an 'img' asset.
-*/
 function getGenderedPath(path) {
 	if (typeof path === "string" && (V.options?.altImgAlways === 1 || (V.options?.useAltImg === 1 && V.player?.sex === V.options?.altImgGender))) {
-		/*
-		 * Only redirect paths starting with "img/".
-		 * Mod paths, data URIs, and existing "img2" paths are left unchanged.
-		 */
+		// Redirect only img/ paths; leave mod paths, data URIs and existing img2/ paths untouched.
 		if (!path.startsWith("img/")) return path;
-		let sub = path.substring(4); // strip leading "img/"
+		let sub = path.substring(4);
 		if (sub[0] === "/") {
 			sub = sub.substring(1);
 		}
-		// Folders shared with the main 'img' set; clothing preview icons are the one exception.
+		// These folders stay on the main img set; clothing preview icons are the exception.
 		const sharedFolders = ["decorations", "sex", "ui", "misc"];
 		const clothingIcon = sub.startsWith("misc/icon/clothes/");
 		if (sharedFolders.includes(sub.split("/")[0]) && !clothingIcon) {
-			return path; // keep the original img/ path untouched
+			return path;
 		}
 		return "img2/" + sub;
 	} else return path;
 }
 window.getGenderedPath = getGenderedPath;
 
-/*
-	Returns the list of "outer" bodyliquid parts that the rain can actually reach.
-	Extremities (face, hair, neck, arms, feet) are always exposed to falling rain;
-	the torso, lower body and genitals are only reached when the relevant clothing layers are exposed, using the same `.exposed`/`lower_covering` semantics as bodywritingExposureCheck().
-*/
+// Rain can reach extremities directly; covered torso, lower body and genitals follow clothing exposure rules.
 function rainExposedBodyparts() {
 	const w = V.worn;
 	if (!w) return [];
 
-	// face, hair, neck, arms and feet are treated as always reached by the rain
 	const parts = ["face", "hair", "neck", "rightarm", "leftarm", "feet"];
 
 	const upperBare = w.over_upper.exposed >= 1 && w.upper.exposed >= 1 && w.under_upper.exposed >= 1;
@@ -1893,17 +1700,12 @@ function rainExposedBodyparts() {
 }
 window.rainExposedBodyparts = rainExposedBodyparts;
 
-/*
-	Rain gradually washes lewd fluids off exposed skin.
-	Called once per hour-block from hourPassed().
-	Only acts while the player is outdoors in the rain; heavier rain rinses faster, and clothing shields whatever it covers (see rainExposedBodyparts).
-*/
+// Rain washes exposed body fluids hourly; heavier rain removes more.
 function rainWashFluids(hours = 1) {
 	if (V.statFreeze || hours < 1) return;
 	if (V.outside !== 1 || Weather.precipitation !== "rain") return;
 	if (!V.player?.bodyliquid) return;
 
-	// precipitationIntensity ~1.3 (drizzle) -> 1, ~2 (rain) -> 2, 3.5 (storm) -> 3 points rinsed per hour
 	const perHour = Math.clamp(Math.round(Weather.precipitationIntensity), 1, 3);
 	const amount = perHour * hours;
 
@@ -1917,33 +1719,7 @@ function rainWashFluids(hours = 1) {
 }
 window.rainWashFluids = rainWashFluids;
 
-/* ---------------------------------------------------------------------------
-	Player voiceover configuration
-
-	The audio engine (base-system/kozmods/audio.twee) only has two voice sets:
-	a female set ("v1"/"v2" prefix, full moan/chupa/breath/orgasm) and a male
-	set ("m_" prefix, breath/orgasm only). Vanilla picks between them straight
-	from $player.sex (or gender_posture when $options.postureAffectsVoice is on).
-
-	These helpers add a configurable layer on top so the player can map each
-	body/identity bucket to whichever voice they want (or silence it), and so a
-	herm PC — who is forced into sex "m"/"f" for the rest of the game's systems
-	— gets their own independent voice instead of inheriting male moans.
-
-	Buckets ("categories"):
-		male   - masculine body, masculine/neutral posture
-		female - feminine body, feminine/neutral posture
-		sissy  - masculine body presenting feminine (needs postureAffectsVoice)
-		butch  - feminine body presenting masculine (needs postureAffectsVoice)
-		herm   - X-Change herm effect active (takes priority over the above)
-
-	Per-category config: { voice: "m"|"v1"|"v2", enabled: bool, npc: "all"|"m"|"f"|"off" }
-		voice   - which voice set this bucket uses
-		enabled - whether the player's own voiceover plays at all
-		npc     - which NPC voices the player hears while in this bucket
---------------------------------------------------------------------------- */
-
-/* True when the PC is currently a herm via the X-Change herm effect. */
+// Voice routing uses male/female/sissy/butch/herm buckets; herm takes priority over sex/posture routing.
 function playerIsHerm() {
 	return !!(
 		!V.statFreeze &&
@@ -1956,7 +1732,6 @@ function playerIsHerm() {
 }
 window.playerIsHerm = playerIsHerm;
 
-/* Resolve the player's current voice bucket from sex + posture + herm effect. */
 function playerVoiceCategory() {
 	if (playerIsHerm()) return "herm";
 	const sex = V.player && V.player.sex;
@@ -1964,12 +1739,11 @@ function playerVoiceCategory() {
 	const usePosture = !!(V.options && V.options.postureAffectsVoice);
 	if (sex === "m") return usePosture && posture === "f" ? "sissy" : "male";
 	if (sex === "f") return usePosture && posture === "m" ? "butch" : "female";
-	return "male"; // safety net for unexpected sex values
+	return "male";
 }
 window.playerVoiceCategory = playerVoiceCategory;
 
-/* Per-category defaults. These exactly reproduce vanilla routing (male/butch -> male voice, female/sissy -> the chosen female voice) so existing saves are unchanged;
-only herm is new, defaulting to the v1 female voice. */
+// Defaults preserve existing male/female routing; herm defaults to the v1 voice.
 function defaultVoiceConfig() {
 	const fv = (V.options && V.options.f_voice) || "v1";
 	return {
@@ -1982,7 +1756,6 @@ function defaultVoiceConfig() {
 }
 window.defaultVoiceConfig = defaultVoiceConfig;
 
-/* Fill in any missing pieces of $options.voiceConfig without clobbering the player's choices. Called once per load from the version-update widget. */
 function ensureVoiceConfig() {
 	if (!V.options) return;
 	const def = defaultVoiceConfig();
@@ -2005,58 +1778,42 @@ function ensureVoiceConfig() {
 }
 window.ensureVoiceConfig = ensureVoiceConfig;
 
-/* Resolved settings for the player's current bucket, falling back to defaults. */
 function playerVoiceSettings() {
 	const cat = playerVoiceCategory();
 	const def = defaultVoiceConfig()[cat];
 	const cur = (V.options && V.options.voiceConfig && V.options.voiceConfig[cat]) || {};
 	return {
 		category: cat,
-		voice: cur.voice || def.voice, // "m" | "v1" | "v2"
-		enabled: cur.enabled !== false, // player's own voiceover on/off
-		npc: cur.npc || def.npc, // "all" | "m" | "f" | "off"
+		voice: cur.voice || def.voice,
+		enabled: cur.enabled !== false,
+		npc: cur.npc || def.npc,
 	};
 }
 window.playerVoiceSettings = playerVoiceSettings;
 
-/* True when the player's voice should currently use the female set. */
 function playerVoiceIsFemale() {
 	const s = playerVoiceSettings();
 	return s.enabled && (s.voice === "v1" || s.voice === "v2");
 }
 window.playerVoiceIsFemale = playerVoiceIsFemale;
 
-/* True when the player's voice should currently use the male set. */
 function playerVoiceIsMale() {
 	const s = playerVoiceSettings();
 	return s.enabled && s.voice === "m";
 }
 window.playerVoiceIsMale = playerVoiceIsMale;
 
-/* Whether an NPC of the given pronoun ("m"/"f") may be voiced right now, honouring the global NPC toggle and the current bucket's NPC filter. */
 function npcVoiceAllowed(pronoun) {
 	if (!V.options || V.options.npcVoiceoverAudio === 0) return false;
 	const npc = playerVoiceSettings().npc;
 	if (npc === "off") return false;
 	if (npc === "m") return pronoun === "m";
 	if (npc === "f") return pronoun === "f";
-	return true; // "all"
+	return true;
 }
 window.npcVoiceAllowed = npcVoiceAllowed;
 
-/**
- * X-Change skill-scaled income bonus.
- *
- * The 0.5.11 vanilla "Balance proposal" nerfed many low/mid income sources.
- * To give players a reason to push a skill past its S grade, income from a nerfed source is boosted once its governing skill reaches grade S (value 1000), scaling from +10% at S up to +50% at SSS (2000).
- * Below S there is no bonus, so the rebalance stands for anyone who hasn't specialised.
- *
- * Grade thresholds (see characteristics.twee): S 1000, S+ 1250, SS 1500, SS+ 1750, SSS 2000.
- *
- * @param {string|number} skill a skill name understood by currentSkillValue (e.g. "housekeeping"),
- *                              or a raw numeric skill value.
- * @returns {number} an income multiplier >= 1.
- */
+// Skill income bonus: none below S (1000), +10% at S scaling to +50% at SSS (2000).
 function skillIncomeMultiplier(skill) {
 	let value;
 	if (typeof skill === "number") {
@@ -2067,20 +1824,12 @@ function skillIncomeMultiplier(skill) {
 		value = V[skill];
 	}
 	if (!Number.isFinite(value) || value < 1000) return 1;
-	// +10% at S (1000), ramping linearly to +50% at SSS (2000).
+
 	return 1 + 0.1 + 0.4 * Math.clamp((value - 1000) / 1000, 0, 1);
 }
 window.skillIncomeMultiplier = skillIncomeMultiplier;
 
-/**
- * Multiplies a value once for every active transformation in `types`.
- * This deliberately compounds so compatible chimera/custom TF benefits stack.
- *
- * @param {number} value value to modify
- * @param {number} bonus fractional bonus per full transformation
- * @param {...string} types transformation types to check
- * @returns {number} modified value
- */
+// Apply the bonus once per completed transformation; compatible chimera/custom TF bonuses intentionally compound.
 function animalTfMultiplier(value, bonus, ...types) {
 	let result = Number(value) || 0;
 	for (const type of types.flat()) {
@@ -2090,8 +1839,6 @@ function animalTfMultiplier(value, bonus, ...types) {
 }
 window.animalTfMultiplier = animalTfMultiplier;
 
-/* Fractional income bonus granted by one completed animal transformation.
-   Rebalanced from +100% to +75%: doubling the payout outclassed every other income modifier. */
 const animalTfIncomeBonus = 0.75;
 window.animalTfIncomeBonus = animalTfIncomeBonus;
 
@@ -2100,16 +1847,7 @@ function animalTfIncome(value, ...types) {
 }
 window.animalTfIncome = animalTfIncome;
 
-/**
- * Applies the full divine transformation income bonus.
- * Fallen angels gain +20% from every income type. Angels gain +50% from non-sexual income, while demons gain +50% from sexualised work.
- * The source names mirror moneyStats; callers can pass "slut" or "normal" when a generic source does not describe the action clearly.
- *
- * @param {number} value income value to modify
- * @param {string} [source] moneyStats source
- * @param {string} [incomeType] explicit "slut" or "normal" classification
- * @returns {number} modified value
- */
+// Divine income: fallen +20% all income; angel +50% non-sexual; demon +50% sexualised work.
 function divineTfIncome(value, source = "", incomeType) {
 	let result = Number(value) || 0;
 	if (result <= 0) return result;
@@ -2163,16 +1901,7 @@ function antiqueSaleValue() {
 }
 window.antiqueSaleValue = antiqueSaleValue;
 
-/**
- * X-Change value (in pennies) the player gets for fencing their stolen goods ($blackmoney) at the pub.
- *
- * Vanilla's 0.5.11 rebalance roughly halved raw theft loot ($blackmoney gains).
- * The pub fence sale used a flat <<money>> and so, unlike every other crime payout (which <<moneyGain>>'s crime flag scales by 1 + skulduggery/2000), never rewarded skulduggery.
- * This brings it in line: base loot, times the optional maths "haggling" buff, times the same skulduggery crime multiplier.
- * Single source of truth so the pub sale and the journal estimate always agree.
- *
- * @returns {number} sale value in pennies (0 with no stolen goods).
- */
+// Pub fencing value combines loot, maths haggling, skulduggery and valuable-sale bonuses in one shared calculation.
 function blackMoneySaleValue() {
 	const base = (Number.isFinite(V.blackmoney) ? V.blackmoney : 0) * 100;
 	if (base <= 0) return 0;
@@ -2183,46 +1912,25 @@ function blackMoneySaleValue() {
 }
 window.blackMoneySaleValue = blackMoneySaleValue;
 
-/**
- * Display value of a sale that has not been paid out yet.
- *
- * `money()` applies the divine TF income bonus itself, so the raw sale value quoted in the journal or in a shopkeeper's
- * line of dialogue came out lower than the amount the player actually received. This mirrors that bonus for preview text only.
- *
- * @param {number} value raw sale value in pennies
- * @param {string} source moneyStats source the payout will use
- * @returns {number} value the payout will actually credit
- */
+// Preview the same divine bonus that payout applies so displayed and credited sale values match.
 function previewSaleValue(value, source) {
 	return divineTfIncome(value, source);
 }
 window.previewSaleValue = previewSaleValue;
 
-/**
- * Extra "allure" folded into office danger rolls when the player chooses to work a temp assignment in a revealing outfit.
- * Dressing provocatively at the agency is allowed, but it draws far more harassment on the upper floors.
- * Derived live from the current outfit, so clothes torn mid-assignment ramp the danger up too.
- *
- * @returns {number} bonus allure (0 when decently dressed)
- */
+// Derived from the current outfit so torn clothes can raise office danger mid-assignment.
 function officeSluttyAllure() {
 	// eslint-disable-next-line no-undef
 	if (!inappropriatePlayerState("clothes")) return 0;
-	let bonus = 1200; // a revealing, work-inappropriate outfit
-	if (V.exposed >= 1) bonus += 900; // underwear or lewd parts on show
-	if (V.exposed >= 2) bonus += 900; // fully exposed
+	let bonus = 1200;
+	if (V.exposed >= 1) bonus += 900;
+	if (V.exposed >= 2) bonus += 900;
 	return bonus;
 }
 window.officeSluttyAllure = officeSluttyAllure;
 
-/**
- * Tidebloom ring: a plaited water lily stem kept from the lab's day room planter.
- * Worn, it keeps a nectar craving from fading and gives off a faint sweet scent.
- *
- * @returns {boolean} true while the ring is on the player's hand
- */
 function wearingTidebloomRing() {
-	/* Keyed off variable, the identity clothesIndex uses; worn names get blanked to "naked" by the strip widgets. */
+	// Use variable, not name: strip widgets may blank the displayed worn name to "naked".
 	return V.worn?.rings?.variable === "tidebloom";
 }
 window.wearingTidebloomRing = wearingTidebloomRing;
