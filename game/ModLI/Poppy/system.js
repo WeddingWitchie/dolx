@@ -157,8 +157,8 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 	//   • LI
 	//       – interacted that day  → 0 decay
 	//       – missed that day      → 2 decay
-	//   • After the post-bad-end talk, days spent in a bad end no longer count as missed days.
-	// 	   Normal decay resumes once the player returns, with no retroactive refund.
+	//   • Days spent in a bad end or stranded on the island do not count as missed days.
+	// 	   Normal decay resumes once the player returns.
 	const isLI = typeof V.poppyromance === "number" && V.poppyromance >= 0;
 	if (!isLI) {
 		// Still stamp the decay timer so the date-roll bookkeeping moves on,
@@ -177,7 +177,6 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 		If daysPassed is 2 and Time.days is 10, the ended days being scored are 8 and 9.
 	*/
 	const today = Time.days;
-	const comfortAgreed = V.poppySeen.includes("bad_end_comfort");
 	let patience = Number(poppy.patience) || 0;
 	let dirty = false;
 
@@ -187,8 +186,9 @@ function poppyDailyPatienceDecay(daysPassed = 1, poppy = C.npc.Poppy) {
 		// Pass = interaction stamped on or after the day being scored.
 		if (lastInteractionDay >= endedDay) continue;
 
-		// Pass = the player was locked in a bad end for the day, as Poppy expected.
-		if (comfortAgreed && poppyDayInBadEnd(endedDay, today)) continue;
+		// Pass = the player could not reasonably return to town. Island time is
+		// checked directly as older saves do not consistently have bad-end tracking.
+		if (["island", "pirate_ship"].includes(V.location) || poppyDayInBadEnd(endedDay, today)) continue;
 
 		patience -= 2;
 
@@ -392,8 +392,16 @@ function poppySchedule() {
 			// 9AM–3PM (gaps not covered by prep/lesson): skipping / hallways
 			loc = "schoolHallways";
 			msg = "skipping";
+		} else if (mins >= 960 && mins < 1020 && [2, 4, 6].includes(weekDay)) {
+			// 4–5PM on Monday/Wednesday/Friday: unwind in the park.
+			loc = "park";
+			msg = "park";
+		} else if (mins >= 960 && mins < 1080) {
+			// 4–6PM on the days without a park slot, and 5–6PM on every school day:
+			// walk across town before the charity shift.
+			loc = "townStreet";
+			msg = "walking";
 		}
-		// 4PM–6PM on school days: no explicit slot → stays at flatApartment (home after prep)
 	}
 	// ---------- Weekend / school-holiday timetable ----------
 	// Same slots whether it's a normal weekend day or a weekday during a school holiday
@@ -413,16 +421,27 @@ function poppySchedule() {
 				loc = "lake";
 				msg = "lake";
 			}
+		} else if (mins >= 720 && mins < 780) {
+			// Noon–1PM: walk into town for lunch.
+			loc = "townStreet";
+			msg = "walking";
 		} else if (mins >= 780 && mins < 900) {
 			// 1–3PM: tea time at the café
 			loc = "cafe";
 			msg = "tea";
+		} else if (mins >= 900 && mins < 960) {
+			// 3–4PM: spend time in the park after tea.
+			loc = "park";
+			msg = "park";
 		} else if (mins >= 960 && mins < 1020) {
 			// 4–5PM: lounging at home
 			loc = "flatApartment";
 			msg = "lounging";
+		} else if (mins >= 1020 && mins < 1080) {
+			// 5–6PM: walk into town before the charity shift.
+			loc = "townStreet";
+			msg = "walking";
 		}
-		// 12–1PM, 3–4PM, 5–6PM gaps: no explicit slot → flatApartment (transitioning/resting)
 	}
 
 	// ---------- Low patience restriction ----------
@@ -434,6 +453,8 @@ function poppySchedule() {
 			case "housekeepingClassroom":
 			case "housekeepingLesson":
 			case "schoolHallways":
+			case "park":
+			case "townStreet":
 			case "flatApartment":
 			case "flatKitchen":
 				break;
