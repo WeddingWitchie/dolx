@@ -395,8 +395,9 @@ function gwylanRequestClothes(override) {
 				const outfitPart = clone(setup.clothes[targetSlot].find(outfit => outfit.outfitSecondary?.includesAll(clothingSlot, toCheck.name)));
 				const outfitSecondary = clone(baseItem);
 				grcAssign(outfitSecondary, outfitPart);
-				outfitSecondary.colour_requirement = base.colour_requirement;
-				outfitSecondary.acc_colour_requirement = base.acc_colour_requirement;
+				/* Only demand a colour the part can actually be dyed */
+				outfitSecondary.colour_requirement = outfitPart.colour_options?.length ? base.colour_requirement : "any";
+				outfitSecondary.acc_colour_requirement = outfitPart.accessory_colour_options?.length ? base.acc_colour_requirement : "any";
 				outfitSecondary.integrity_requirement = "any";
 				outfitSecondary.integrity_word = "any";
 				outfitSecondary.pattern_requirement = "any";
@@ -1093,9 +1094,12 @@ function gwylanRequestClothingSlotCheck(slot) {
 			V.worn[slot].name === thing.name &&
 			(thing.slot !== "upper" || (V.worn[slot].one_piece === 1 && V.worn.lower.name !== "naked") || V.worn[slot].one_piece === 0) &&
 			(thing.colour_requirement === "any" ||
+				!setup.clothes[slot].find(item => item.name === thing.name)?.colour_options?.length ||
 				V.worn[slot].colour === thing.colour_requirement ||
 				window.clothesColour(V.worn[slot]) === thing.colour_requirement) &&
-			(thing.acc_colour_requirement === "any" || V.worn[slot].accessory_colour === thing.acc_colour_requirement) &&
+			(thing.acc_colour_requirement === "any" ||
+				!setup.clothes[slot].find(item => item.name === thing.name)?.accessory_colour_options?.length ||
+				V.worn[slot].accessory_colour === thing.acc_colour_requirement) &&
 			(thing.pattern_requirement === "any" || V.worn[slot].pattern === thing.pattern_requirement) &&
 			(thing.integrity_requirement === "any" ||
 				(thing.integrity_word === "full" && V.worn[slot].integrity >= thing.integrity_max * 0.9) ||
