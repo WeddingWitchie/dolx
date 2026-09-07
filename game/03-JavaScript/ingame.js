@@ -2072,8 +2072,12 @@ function innocenceSexStatModifier() {
 	if (!V.innocencestate) return 0;
 
 	const maxValue = 100; // max innoncence makes you oblivious to dangers of your actions
-	const obliviousness = -V.awareness / 200; // how oblivious PC is
 	const curveExponential = 2; // 2 makes the function start slow, but ramp up faster at higher innocence values
+
+	/* Obliviousness should only apply while awareness is below zero.
+	Because `$innocencestate` can stay active after awareness rises, the old formula could wrongly max all sex stats to 100 and bypass every lewdness check. */
+	const awareness = Number.isFinite(V.awareness) ? V.awareness : 0;
+	const obliviousness = Math.clamp(-awareness / 200, 0, 1); // how oblivious PC is
 
 	return Math.floor(maxValue * obliviousness ** curveExponential);
 }

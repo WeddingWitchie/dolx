@@ -2372,7 +2372,8 @@ function dailyPlayerEffects() {
 		V.trauma = 0;
 	} else if (V.awareness >= 0 && V.innocencestate === 1) {
 		V.innocencestate = 0;
-		V.trauma = V.innocencetrauma;
+		V.trauma = Number.isFinite(V.innocencetrauma) ? V.innocencetrauma : 0;
+		V.innocencetrauma = 0;
 		V.innocencemessage = "end";
 	}
 	/* Keep trauma symptoms in sync when Innocence directly changes trauma above. */

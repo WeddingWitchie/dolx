@@ -132,6 +132,8 @@ const statChange = (() => {
 
 	function traumaClamp() {
 		if (V.innocencestate === 1 && V.trauma > 0) {
+			/* Innocence could set trauma to NaN if it ended without stored trauma. */
+			if (!Number.isFinite(V.innocencetrauma)) V.innocencetrauma = 0;
 			V.innocencetrauma += V.trauma;
 			V.trauma = 0;
 		}
