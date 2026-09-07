@@ -1404,11 +1404,19 @@ function mapToLegacyGenderIdentity() {
 	}
 	V.xchange.giBreakdown = breakdown;
 
-	if (V.genderidentity === undefined || Number.isNaN(V.genderidentity) || V.xchange.giMeterVersion !== meterVersion) {
-		V.genderidentity = V.xchange.giTarget;
-		V.xchange.giInitialized = true;
-		V.xchange.giMeterVersion = meterVersion;
-	}
+	/* The Gender Identity meter is handled here so all callers use the same state.
+
+	If the meter has never been initialised, seed it from the current Identity target.
+	Existing meters are only adjusted when auto-update is enabled. With auto-update off,
+	the current value is preserved and will resume gradual daily changes if re-enabled. */
+	const currentMeter = Number(V.genderidentity);
+	const meterUsable = V.genderidentity !== null && V.genderidentity !== "" && Number.isFinite(currentMeter);
+	const needsSeed = !meterUsable || V.xchange.giInitialized !== true;
+	const needsMigration = V.xchange.giMeterVersion !== meterVersion && V.xchange.giAutoEnabled === true;
+
+	V.genderidentity = needsSeed || needsMigration ? V.xchange.giTarget : currentMeter;
+	V.xchange.giInitialized = true;
+	V.xchange.giMeterVersion = meterVersion;
 	V.genderidentity = Math.clamp(V.genderidentity, 0, range);
 	return V.xchange.giTarget;
 }

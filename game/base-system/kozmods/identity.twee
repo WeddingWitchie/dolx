@@ -1373,7 +1373,7 @@
 		<</if>>
 		<<if _usedPronoun is "m">>
 			<<identitySelector "Masculine Pronouns">>
-			<<set $identityOption.misgendered to 2>>
+			<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
 			<<else>>
@@ -1384,7 +1384,7 @@
 			<</if>>
 		<<elseif _usedPronoun is "f">>
 			<<identitySelector "Feminine Pronouns">>
-			<<set $identityOption.misgendered to 2>>
+			<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
 			<<else>>
@@ -1395,7 +1395,7 @@
 			<</if>>
 		<<elseif _usedPronoun is "n">>
 			<<identitySelector "Neutral Pronouns">>
-			<<set $identityOption.misgendered to 2>>
+			<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
 			<<if !$identityOption.acceptance>>
 				<<dysphoria 10>>
 			<<else>>
@@ -1509,12 +1509,12 @@
 			try { console.warn("[X-Change: Save repair notice] failed", id, e); } catch(_) {}}};})(
 	);>>
 
-<<if $genderidentity is undefined or $xchange.giMeterVersion isnot 7>>
+<<if $genderidentity is undefined>>
 	<<run mapToLegacyGenderIdentity()>>
-	<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
-	<<set _giInitDefault to $player is undefined ? 0 : $player.gender is "f" ? _giInitRange : $player.gender is "n" ? _giInitRange / 2 : 0>>
-	<<set $genderidentity to ($xchange.giTarget is undefined ? _giInitDefault : $xchange.giTarget)>>
-	<<set $xchange.giMeterVersion to 7>>
+	<<if $genderidentity is undefined>>
+		<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
+		<<set $genderidentity to ($player is undefined ? 0 : $player.gender is "f" ? _giInitRange : $player.gender is "n" ? _giInitRange / 2 : 0)>>
+	<</if>>
 <</if>>
 
 	<<widget "gi-disarm">>
@@ -1542,17 +1542,10 @@
 				<<set _step to Math.max(1, Number($xchange.giStepPerDay) || 30)>>
 
 				<<if $xchange.giAutoEnabled isnot true>>
-					/* Preserve the current meter while auto-update is off, including fresh and partially initialised saves. */
-					<<set $xchange.giInitialized to true>>
-					<<set $xchange.giMeterVersion to 7>>
+					/* Auto-update is off. The target still shows in statistics, but nothing moves the meter. */
 					<<gi-disarm>>
-				<<elseif !Number.isFinite(Number($xchange.giTarget))>>
-					/* If the identity target is invalid, stop here to prevent $genderidentity becoming NaN. */
+				<<elseif !Number.isFinite(Number($xchange.giTarget)) or !Number.isFinite(Number($genderidentity))>>
 					<<gi-disarm>>
-				<<elseif $genderidentity is undefined or $xchange.giMeterVersion isnot 7 or $xchange.giInitialized isnot true>>
-					<<set $genderidentity to $xchange.giTarget>>
-					<<set $xchange.giInitialized to true>>
-					<<set $xchange.giMeterVersion to 7>>
 				<<else>>
 					<<set _delta to Math.clamp($xchange.giTarget - $genderidentity, 0 - _step, _step)>>
 
