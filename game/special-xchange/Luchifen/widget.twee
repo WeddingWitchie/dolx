@@ -1,0 +1,160 @@
+:: X-Change Silver Stranger [widget]
+<<widget "silverStrangerInit">>
+	<<if $xchange.silverStranger is undefined or typeof $xchange.silverStranger isnot "object" or Array.isArray($xchange.silverStranger)>>
+		<<set $xchange.silverStranger to { unlocked: false, met: false }>>
+	<</if>>
+	/* Hidden named NPC "Luchifen", shown as "???". Uses standard C.npc relationship tracking. */
+	<<if Array.isArray($NPCNameList) and !$NPCNameList.includes("Luchifen")>>
+		/* "h" starts the architect with both genital sets. */
+		<<set _luchifenDef to {nam: "Luchifen", title: "architect", insecurity: "looks", adult: 1, gender: "h"}>>
+		<<newNamedNpc _luchifenDef>>
+	<</if>>
+	/* Fill missing architect sexes from old saves; don't overwrite an active pill. */
+	<<set _luchifenIdx to Array.isArray($NPCNameList) ? $NPCNameList.indexOf("Luchifen") : -1>>
+	<<if _luchifenIdx gte 0 and $NPCName[_luchifenIdx] and $NPCName[_luchifenIdx].gender isnot "h" and !$NPCName[_luchifenIdx].xchange>>
+		<<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
+		<<set $NPCName[_luchifenIdx].gender to "h">>
+		<<set _targetNameIndex to _luchifenIdx>>
+		<<set _targetName to undefined>>
+		<<set _targetNo to undefined>>
+		<<npc-hermify>>
+	<</if>>
+	/* Reveal them in the social tab (as "???") once they've been met. */
+	<<if $xchange.silverStranger.met and $NPCNameList.includes("Luchifen") and C.npc.Luchifen.init isnot 1>>
+		<<set C.npc.Luchifen.init to 1>>
+	<</if>>
+<</widget>>
+
+/* Renders the stranger's hidden name as a glowing silver "???". Used in the social tab and dialogue. */
+<<widget "silverName">>
+	<span class="silverStranger">???</span>
+<</widget>>
+
+<<widget "silverStrangerCheck">>
+	<<silverStrangerInit>>
+	<<set _silverActive to false>>
+	/* Lazily unlock once either condition is met, then it stays unlocked. */
+	<<if !$xchange.silverStranger.unlocked and
+	(($xchange.bankHeist and $xchange.bankHeist.keptEarpiece) or ($xchange.bankHeist and $xchange.bankHeist.earpieceCompromised) or ($xchange_fame gte 1000))>>
+		<<set $xchange.silverStranger.unlocked to true>>
+	<</if>>
+	<<if $xchange.silverStranger.unlocked>>
+		<<if $daily.silverStranger is undefined>>
+			<<set $daily.silverStranger to (random(1, 100) lte 35)>>
+		<</if>>
+		/* Separate daily 33% "feeling generous" roll; grants at most one free pill that day. */
+		<<if $daily.silverGenerous is undefined>>
+			<<set $daily.silverGenerous to (random(1, 100) lte 33)>>
+		<</if>>
+		<<set _silverActive to $daily.silverStranger>>
+	<</if>>
+<</widget>>
+
+/* Park hub link only before the first meeting, and never at night. */
+<<widget "silverStrangerPark">>
+	<<silverStrangerCheck>>
+	<<if _silverActive and !$xchange.silverStranger.met and Time.dayState isnot "night">>
+		Off the path, near the tulip beds, <span class="purple">someone seems to loiter</span>.
+		<br>
+		<<icon "mark.gif">><<link [[Approach the loitering figure (0:05)|Silver Stranger Meet]]>><<set $xchange.silverStranger.met to true>><<pass 5>><</link>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* Docks hub link only after the first meeting. */
+<<widget "silverStrangerDocks">>
+	<<silverStrangerCheck>>
+	<<if _silverActive and $xchange.silverStranger.met is true>>
+		Near the edge of the water, a <span class="purple">figure of silver</span> watches the tide, in no hurry to be anywhere.
+		<br>
+		/* If Mickey's earpiece is kept but the confrontation hasn't happened, trigger it before the normal questions. */
+		<<if $xchange.bankHeist and $xchange.bankHeist.keptEarpiece and !$xchange.silverStranger.mickeyConfronted>>
+			<<icon "mark.gif">><<link [[Approach the silver figure (0:05)|Silver Stranger Meet 2]]>><<pass 5>><</link>>
+		<<else>>
+			<<icon "mark.gif">><<link [[Approach the silver figure (0:05)|Silver Stranger]]>><<pass 5>><</link>>
+		<</if>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* Renders one purchasable line for a pill whose inventory name and pre-markup base price are known directly.
+_args: 0 pill name, 1 base price, 2 pill icon. */
+<<widget "silverStockRaw">>
+	<<set _srName to _args[0]>>
+	<<set _srBase to Math.round((_args[1] || 0) * 1.6)>>
+	<<set _srCost to -_srBase>>
+	<<set _srIcon to _args[2] or "pill">>
+	<<set _srLabel to "Buy " + _srName + " (" + formatMoney(setup.inflation.spendPrice(_srBase, "blackMarket")) + ")">>
+	<<pillicon _srIcon>>
+	<<if setup.inflation.canAfford(_srBase, "blackMarket")>>
+		<<capture _srName _srCost _srLabel>><<link _srLabel "Silver Stranger Buy">>
+			<<if $sexStats.pills.pills[_srName] is undefined>><<set $sexStats.pills.pills[_srName] to { owned: 0 }>><</if>>
+			<<set $sexStats.pills.pills[_srName].owned += 1>>
+			<<set $sexStats.pills.boughtOnce to true>>
+			<<silverStrangerCharge _srCost>>
+		<</link>><</capture>>
+	<<else>>
+		<span class="grey"><<= _srName>> (<<= formatMoney(setup.inflation.spendPrice(_srBase, "blackMarket"))>>)</span> <span class="purple">You can't afford this.</span>
+	<</if>>
+	<br>
+<</widget>>
+
+/* Renders one purchasable line from a setup.pharmacyItems key. _args: 0 key, 1 icon, 2 optional pre-markup base price override. */
+<<widget "silverStockLine">>
+	<<set _slKey to _args[0]>>
+	<<set _slItem to setup.pharmacyItems[_slKey]>>
+	<<if _slItem>>
+		<<if _slKey.includes("portal") and !$portalPantiesEnabled>>
+			/* portal line hidden unless the portal-panties system is enabled */
+		<<else>>
+			<<set _slPrice to (_args[2] isnot undefined ? _args[2] : _slItem.price)>>
+			<<silverStockRaw _slItem.name _slPrice _args[1]>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+/* Renders every setup.pharmacyItems entry whose key starts with a prefix. _args: 0 prefix, 1 icon, 2 optional base price override for the whole category. */
+<<widget "silverStockByPrefix">>
+	<<set _spref to _args[0]>>
+	<<set _spicon to _args[1]>>
+	<<set _spprice to _args[2]>>
+	<<set _spkeys to []>>
+	<<run (function () {
+		Object.keys(setup.pharmacyItems || {}).forEach(function (k) {
+			if (k.indexOf(State.temporary.spref) === 0) State.temporary.spkeys.push(k);
+		});
+	})()>>
+	<<for _spk range _spkeys>>
+		<<silverStockLine _spk _spicon _spprice>>
+	<</for>>
+<</widget>>
+
+/* Applies the Silver Stranger pill cost. Pills may be free on generous days, up to 4 per week; otherwise normal pricing applies.
+ * _args[0]: negative money delta
+ * Sets $silverLastFree for the Buy passage.
+ */
+<<widget "silverStrangerCharge">>
+	<<if $daily.silverGenerous is undefined>>
+		<<set $daily.silverGenerous to (random(1, 100) lte 33)>>
+	<</if>>
+	<<if $weekly.silverFreebies is undefined>><<set $weekly.silverFreebies to 0>><</if>>
+	/* Free only if generous today, they haven't already given one today, and under the weekly cap. */
+	<<if $daily.silverGenerous and !$daily.silverGaveFree and $weekly.silverFreebies lte 4>>
+		<<set $silverLastFree to true>>
+		<<set $daily.silverGaveFree to true>>
+		<<set $weekly.silverFreebies += 1>>
+	<<else>>
+		<<set $silverLastFree to false>>
+		<<money _args[0] "blackMarket">>
+	<</if>>
+	/* Daily purchase cap: at most 3 pills a day (free or paid both count). Resets with $daily. */
+	<<set $daily.silverBought to ($daily.silverBought or 0) + 1>>
+<</widget>>
+
+
+:: Silver Stranger Styles [stylesheet]
+.silverStranger {
+	color: #e6e8f4;
+	font-weight: bold;
+	text-shadow: 0 0 4px #cfd3e6, 0 0 10px #9aa0c0, 0 0 16px #6b70a0;
+}

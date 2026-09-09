@@ -1,0 +1,1046 @@
+:: Underground Colosseum Prefight Event
+<<effects>>
+<<pass 3>>
+<<set _eventRoll to $xchange.colosseum.eventRoll>>
+<<if _eventRoll is 1>>
+	<<generate1>><<person1>>
+	A contestant steps across the changing-room doorway before you can enter, then puts one arm across it at chest height.
+	<<He>> has left enough space for other fighters to pass behind <<him>>, so the obstruction is meant for you.
+	<br><br>
+	"I've watched you twice," <<he>> says, looking at your wrist band. "Both times, you chose fighters people expected you to beat.
+	Are you going to challenge somebody difficult, or are you only here for easy wins?"
+	<br><br>
+	A couple of nearby contestants slow down to listen. <<He>> notices them too, but keeps <<his>> arm where it is.
+	<br><br>
+	<<link [[Tell <<him>> who you are fighting|Underground Colosseum Prefight Challenge]]>><<set $xchange.colosseum.prefightAnswer to "name">><</link>>
+	<br>
+	<<if $xchange.colosseum.rank lt 6>>
+		<<link [[Tell <<him>> to take the slot <<himself>>|Underground Colosseum Prefight Challenge]]>><<set $xchange.colosseum.prefightAnswer to "swap">><</link>>
+		<br>
+	<</if>>
+	<<link [[Duck under <<his>> arm|Underground Colosseum Prefight Challenge]]>><<set $xchange.colosseum.prefightAnswer to "duck">><</link>>
+<<elseif _eventRoll is 2>>
+	<<generate1>><<person1>>
+	Two contestants have a smaller fighter backed against the cages. One keeps a hand against <<his>> shoulder while the other has hold of the knot on <<his>> robe.
+	The smaller fighter grips the robe closed with both hands, but every time <<he>> fixes the knot the contestant hooks a finger under it again and pulls it loose.
+	<br><br>
+	"You're coming out of it in ten minutes anyway," <<he>> says, laughing when the smaller fighter tries to turn away. "What are you being shy for?"
+	<br><br>
+	Neither of them is preparing for a match any more. The smaller fighter tells them to stop. Several people nearby turn to watch instead of moving on.
+	<br><br>
+	<<link [[Step between them|Underground Colosseum Protect Contestant]]>><<set $xchange.colosseum.eventChoice to "protect">><</link>>
+	<br>
+	<<link [[Fetch a goon|Underground Colosseum Protect Contestant]]>><<set $xchange.colosseum.eventChoice to "security">><</link>>
+	<br>
+<<elseif _eventRoll is 3>>
+	<<set _fixerKnown to $per_npc?.colosseum_fixer isnot undefined>>
+	<<colosseumFixer>>
+	<<if _fixerKnown>>
+		The same well-dressed <<person>> is waiting beside the betting booth. This time, there is no introduction. Before you have fully recognised the familiar face, a thick envelope is pressed into your hands.
+	<<else>>
+		A well-dressed <<person>> steps into your path beside the betting booth. Before you can get past, a thick envelope is pressed into your hands.
+	<</if>>
+	<br><br>
+	The flap is already open. You can see banknotes inside.
+	"Fight normally at the start so the crowd believes you're trying to win. Then let your opponent put you down and stay down. <span class="gold"><<printmoney 150000>></span> now, in your hand, and nobody has to know you lost on purpose."
+	<br><br>
+	<<He>> keeps two fingers on the envelope until you look up. "Take it and the result belongs to me. Fuck me over and that advance goes straight on your debt. I'll collect."
+	<br><br>
+	<<link [[Take it and lose|Underground Colosseum Prepare Ready]]>><<money 150000 "colosseumFix">><<set $xchange.colosseum.matchFix to "throw">><<set $xchange.colosseum.fixes += 1>><<endevent>><</link>>
+	<br>
+	<<link [[Take it and win anyway|Underground Colosseum Prepare Ready]]>><<money 150000 "colosseumFix">><<set $xchange.colosseum.matchFix to "betray">><<set $xchange.colosseum.fixes += 1>><<set $xchange.colosseum.dirtyFights += 1>><<set $xchange.colosseum.callbacks.fix to Time.days + 2>><<crimeUp 30 "thievery">><<endevent>><</link>><<crime "thievery">>
+	<br>
+	<<link [[Give it back|Underground Colosseum Prepare Ready]]>><<set $xchange.colosseum.matchFix to "refused">><<colosseumHeat 3>><<endevent>><</link>>
+<<elseif _eventRoll is 4>>
+	<<set $xchange.colosseum.drinkType to random(1, 5)>><<set $xchange.colosseum.eventReturn to "Underground Colosseum Prepare Ready">>
+	<<include "Underground Colosseum Drink Offer">>
+<<elseif _eventRoll is 5>>
+	<<generate1>><<person1>>
+	The bookmaker notices you before you reach the changing area and turns <<his>> board around so you can see your own name. The old payout beside it has been erased, with a much smaller payout written in its place.
+	<br><br>
+	"An hour ago, someone betting on you could win four times what they paid. Now the payout is only one and a half times, and people are already complaining." <<He>> taps the new number with the end of <<his>> pencil.
+	"Your opponent went up to the balcony before the doors opened. After that, several people upstairs suddenly started betting on you to win."
+	<br><br>
+	<<He>> lowers the board a little. "I don't know what your opponent said upstairs. I'm telling you because you should know that before you get in the cage."
+	<<colosseumHeat 2>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Prepare Ready]]>><<endevent>><</link>>
+<<else>>
+	<<generate1>><<person1>>
+	Somebody in the lower seats calls your name as you pass the pit. A second person joins in, then the rest of the row follows until the chant reaches the people standing behind them.
+	<br><br>
+	Your promotion opponent hears it from the other side. <<He>> climbs onto the rail above the pit, holds on with one hand, then points straight at you. The crowd answers by shouting <<his>> name back at yours.
+	<br><br>
+	The receptionist pushes through the crowd until <<he>> reaches you. "You wanted the next rank," <<he>> shouts over the noise. "The fighter you have to beat for that promotion has been asking when you'd finally show up. Your presence here is known now."
+	<br><br>
+	Your opponent stays on the rail, waiting to see what you do.
+	<br><br>
+	<<link [[Next|Underground Colosseum Prepare Ready]]>><<set $xchange.colosseum.keepOpponent to 1>><</link>>
+<</if>>
+<br>
+
+:: Underground Colosseum Prefight Challenge
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<speechresolve>>
+<<pass 2>>
+<<set _booked to Math.clamp(Math.trunc($xchange.colosseum.opponentRank ?? 0), 0, 6)>>
+<<set _mine to $xchange.colosseum.rank>>
+<<set _answer to $xchange.colosseum.prefightAnswer>>
+<<unset $xchange.colosseum.prefightAnswer>>
+<<if _answer is "swap">>
+	<<set $xchange.colosseum.opponentRank to Math.min(6, _mine + 1)>>
+	<<set $xchange.colosseum.promotion to 0>>
+	<<set $xchange.colosseum.keepOpponent to 1>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Then take the slot yourself."
+	<<elseif (_speechAttitudeResolved is "cruel" or _speechAttitudeResolved is "bratty")>>
+		"Take the slot yourself and stop talking about it."
+	<<else>>
+		"Take the slot yourself."
+	<</if>>
+	<br><br>
+	<<He>> drops the arm. One of the fighters who stopped to listen is already walking to the desk to tell the receptionist, so you do not have to.
+	<br><br>
+	The board is changed while you are still standing in the doorway. Your name comes off the line it was on and goes beside <<his>>, a rank above where you were booked, and the odds next to it are rubbed out and left blank until the bookmaker decides what to do with you.
+	<<colosseumHeat 2>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Prepare Ready]]>><</link>>
+<<elseif _answer is "name">>
+	<<if (_speechAttitudeResolved is "cruel" or _speechAttitudeResolved is "bratty")>>
+		You tell <<him>> the rank you are booked against, and tell <<him>> to read the board <<himself>> next time.
+	<<else>>
+		You tell <<him>> the rank you are booked against.
+	<</if>>
+	<br><br>
+	<<if _booked gte _mine>>
+		One of the fighters behind <<him>> says the rank back, louder, so the rest of the corridor gets it. <<He>> takes the arm off the doorway and stands out of your way.
+		<br><br>
+		"Right," <<he>> says. "I'll watch that one."
+		<<colosseumHeat 1>>
+	<<else>>
+		The arm stays where it is. <<He>> looks over at the fighters who stopped to listen and waits, and one of them laughs before <<he>> has to say anything at all.
+		<br><br>
+		"That's what I said." <<He>> lifts the arm then, having got what <<he>> came for. "Win it... if you can."
+		<br><br>
+		You go past <<him>> with the corridor watching, and it will have reached the bench before you do.
+		<<colosseumBackDown `50 + _mine * 15`>><<stress 6>><<ggstress>>
+	<</if>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Prepare Ready]]>><<endevent>><</link>>
+<<else>>
+	You duck under the arm without answering.
+	<br><br>
+	<<He>> lets you pass. Somehow, that makes it worse as <<he>> turns toward the fighters who were watching and leaves the arm stretched across the empty doorway, showing them just how easily you gave in.
+	<br><br>
+	Someone behind you says something you do not catch, and some of them laugh at you.
+	<<colosseumBackDown `70 + _mine * 20`>><<stress 8>><<ggstress>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Prepare Ready]]>><<endevent>><</link>>
+<</if>>
+
+:: Underground Colosseum Protect Contestant
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<speechresolve>>
+<<pass 3>>
+<<set _rankIndex to $xchange.colosseum.rank>>
+<<if $xchange.colosseum.eventChoice is "protect">>
+	You step between the smaller fighter and the two contestants. Your body blocks the contestant's hand from the robe, forcing <<him>> to release it before <<he>> can keep pulling at the knot.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Please. Leave <<him>> alone."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"That's enough. Leave <<him>> alone, please."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"You've had your fun. Please let <<him>> go."
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"Take your hands off <<him>> before I make you."
+	<<elseif _speechAttitudeResolved is "bratty">>
+		"Hands off. Find somebody who actually wants to play with you."
+	<<else>>
+		"Leave <<him>> alone."
+	<</if>>
+	<br><br>
+	<<if _rankIndex gte 3>>
+		The contestant starts to answer, then notices your wrist band and looks at the rank shown on it. <<He>> stops, nods towards the exit to <<his>> friend, and both of them step away rather than start a fight with someone at your rank.
+		<br><br>
+		The smaller fighter turns towards the cages and reties the robe. <<His>> hands are shaking enough that <<he>> has to try twice before the knot stays closed. Once it is secure, <<he>> gives you a quick nod and moves to a cage farther down the row.
+		<br><br>
+		A few spectators above the changing area boo when they realise there will be no fight before the fight. One of the contestants looks up at them, swears, then follows <<his>> friend away.
+		<br><br>
+		<<link [[Next|Underground Colosseum Prepare Ready]]>><<set $xchange.colosseum.protects += 1>><<set $xchange.colosseum.callbacks.protect to Time.days + 2>><<famegood 1>><<colosseumHeat 2>><<endevent>><</link>>
+	<<else>>
+		The contestant lets go of the robe, but only so <<he>> can turn fully towards you. <<His>> friend moves away from the smaller fighter as well and comes to stand beside <<him>>.
+		<br><br>
+		"Or what?" <<he>> asks. <<He>> spreads <<his>> hands, inviting you to answer while the smaller fighter slips away along the cages behind you.
+		<br><br>
+		People nearby make space. Nobody calls a goon.
+		<br><br>
+		<<link [[Next|Underground Colosseum Ambush Start]]>><<set $xchange.colosseum.ambushReturn to "Underground Colosseum Prepare Ready">><<set $xchange.colosseum.protects += 1>><<set $xchange.colosseum.callbacks.protect to Time.days + 2>><<colosseumHeat 2>><</link>>
+	<</if>>
+<<else>>
+	<<if _rankIndex gte 4>>
+		You point towards the two contestants and call one of the goons over. <<He>> looks at your wrist band before asking any questions, then crosses the changing area at a quick walk.
+		<<He>> takes a fistful of each contestant's collar and pulls them away from the smaller fighter. They complain all the way to the service door, but neither tries to make <<him>> let go.
+		<br><br>
+		On the way back, the goon stops beside you. "Want me to report them to the organisers upstairs?"
+		<br><br>
+		"No need. They backed off as soon as you stepped in," you say.
+		<br><br>
+		The goon laughs, then leaves you alone.
+		<<colosseumHeat 1>>
+	<<else>>
+		You call a goon over and point towards the cages. <<He>> looks at the smaller fighter, the loosened robe, then the two contestants standing beside <<him>>.
+		<br><br>
+		"No blood, nothing broken, no rule." <<He>> turns away before you can argue. "Come and get me when there's something I'm paid to give a shit about."
+		<br><br>
+		The two contestants laugh after <<him>>. The smaller fighter pulls the robe closed again while you are left standing there with them.
+		<<stress 2>><<gstress>>
+	<</if>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Prepare Ready]]>><<endevent>><</link>>
+<</if>>
+<<unset $xchange.colosseum.eventChoice>>
+<br>
+
+:: Underground Colosseum Drink Offer
+The bartender puts a glass down in front of you before you have ordered anything. The drink is pale, strong-smelling, and served with a slice of orange floating on top.
+You look along the counter. Nobody else has been given fruit with anything.
+<br><br>
+You do not reach for it straight away.
+<br><br>
+"From upstairs," the bartender says. <<He>> wipes <<his>> hands on a cloth, then points vaguely towards the dark windows above the far side of the pit. "That's all I was told."
+<br><br>
+<<link [[Drink it|Underground Colosseum Drink Result]]>><<set $xchange.colosseum.drinkChoice to "drink">><</link>>
+<br>
+<<if $xchange.colosseum.drinkChoice is "smell" and (currentSkillValue("science") gte 400 or $awareness gte 400)>>
+	<<link [[Smell it first|Underground Colosseum Drink Result]]>><<set $xchange.colosseum.drinkChoice to "smell">><</link>>
+	<br>
+<</if>>
+<<link [[Ask who sent it|Underground Colosseum Drink Result]]>><<set $xchange.colosseum.drinkChoice to "ask">><</link>>
+<br>
+<<link [[Leave it on the bar|Underground Colosseum Drink Result]]>><<set $xchange.colosseum.drinkChoice to "refuse">><</link>>
+<br>
+
+:: Underground Colosseum Drink Result
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<speechresolve>>
+<<pass 5>>
+<<set _drinkType to $xchange.colosseum.drinkType>>
+<<set _return to $xchange.colosseum.eventReturn or "Underground Colosseum Pit">>
+<<if $xchange.colosseum.drinkChoice is "refuse">>
+	You push the glass back towards the bartender and leave your hand off it.
+	<br><br>
+	<<He>> takes it without asking whether you are sure, tips the whole drink into the sink, then drops the orange into a bin under the counter.
+	<br><br>
+	<<He>> has done that too quickly for this to be the first unwanted drink sent down from the gallery.
+<<elseif $xchange.colosseum.drinkChoice is "ask">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Do you know who sent this?" you ask.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Could you tell me who sent this, please?" you ask.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Did they tell you who sent it?" you ask.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Who the hell sent this?" you ask.
+	<<else>>
+		"Who sent this?" you ask.
+	<</if>>
+	<br><br>
+	The bartender nods towards the dark windows above the far side of the pit. "No name comes down with it, as I said. Just a seat number. Half the time I don't even know who's sitting there."
+	<br><br>
+	You look from the windows back to the untouched glass. The bartender waits until you push it away, then takes it off the counter without showing any surprise.
+	<<colosseumHeat 1>>
+<<elseif $xchange.colosseum.drinkChoice is "smell" and (currentSkillValue("science") gte 400 or $awareness gte 400)>>
+	You lift the glass to smell it without drinking.
+	<br><br>
+	<<if _drinkType is 1>>
+		The alcohol is strong, but there is no chemical sweetness or powder at the bottom. The orange has only changed the smell. As far as you can tell, somebody really did send you an expensive drink.
+	<<elseif _drinkType is 2>>
+		There is a sweet medicinal smell under the alcohol that the orange does not hide. You recognise an aphrodisiac, with enough mixed into the glass to affect you quickly.
+	<<elseif _drinkType is 3>>
+		A fine residue has settled near the bottom of the glass. When you turn it slightly, the powder lifts into the drink. It looks like a sedative, with far more than you would want before a fight.
+	<<elseif _drinkType is 4>>
+		A bitter chemical smell comes through behind the fruit. You recognise a stimulant, the sort that could keep a tired fighter moving while putting extra strain on the body.
+	<<else>>
+		You smell the fruit, the spirit, then check the bottom of the glass. Nothing looks or smells out of place.
+	<</if>>
+	<br><br>
+	You put the glass back down and push it away.
+	<<colosseumHeat 1>>
+<<else>>
+	<<if _drinkType is 1>>
+		The first mouthful is much better than anything normally sold at this bar. You slow down after that, tasting the orange under the liquor while the warmth of the alcohol spreads through you.
+		<br><br>
+		Whoever sent it paid for the good bottle.<<drunk 80>><<stress -2>><<lstress>><<gdrunk>>
+	<<elseif _drinkType is 2>>
+		The sweetness under the alcohol is easy to miss until you swallow. Heat begins low in your stomach and spreads quickly through your body.
+		<br><br>
+		You set the glass down, then grip the edge of the counter when another stronger wave follows.<<drugs 80>><<arousal 800>><<gdrugged>><<ggarousal>>
+	<<elseif _drinkType is 3>>
+		Your arms start to feel heavy before you finish the drink. You blink hard, but your eyes are slower to focus when you open them again.
+		<br><br>
+		Across the counter, the bartender looks down and starts wiping a clean section of wood instead of looking at you.<<drugs 100>><<tiredness 10>><<ggdrugged>><<gggtiredness>>
+	<<elseif _drinkType is 4>>
+		A bitter taste remains after the fruit. Within a minute your tiredness begins to disappear, but the feeling keeps building after you are already alert.
+		<br><br>
+		Your fingers will not stay still on the counter and your heart is beating far faster than it was before you drank.<<tiredness -10>><<stress 2>><<llltiredness>><<gstress>>
+	<<else>>
+		The drink tastes of pear and citrus, with a much better spirit underneath than this bar normally serves. When you finish, the bartender slides a small card across the counter showing what the sender paid.
+		<br><br>
+		The amount is more than some fighters here will earn in a month.
+	<</if>>
+<</if>>
+<<unset $xchange.colosseum.drinkType>><<unset $xchange.colosseum.drinkChoice>><<unset $xchange.colosseum.eventReturn>><<unset $xchange.colosseum.eventRoll>>
+<br><br>
+<<link "Next" _return>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Entry Event
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<generate1>><<person1>>
+<<pass 5>>
+<<set $daily.colosseumEntryEvent to 1>>
+<<set $xchange.colosseum.visitEvents to Math.min(2, $xchange.colosseum.visitEvents + 1)>>
+<<set _rankIndex to $xchange.colosseum.rank>>
+<<set _assaultChance to [45, 38, 28, 20, 12, 6, 3][_rankIndex]>>
+<<set _eventRoll to Number.isFinite($xchange.colosseum.eventRoll) ? $xchange.colosseum.eventRoll : random(1, 100)>>
+<<unset $xchange.colosseum.eventRoll>>
+<<if _eventRoll lte _assaultChance>>
+	A hand closes around your wrist as you pass behind the stands. Before you can turn fully, the <<person>> holding you yanks your arm and tries to drag you through an open service doorway.
+	<br><br>
+	You stumble forward two steps. At the doorway, you press one foot against the frame and lean your weight backwards, stopping yourself from being pulled any farther. The sudden stop jerks your shoulder, but it also forces the <<person>> to turn back towards you.
+	<br><br>
+	<<if _rankIndex gte 5>>
+		<<He>> looks at your free arm and notices the rank band around your wrist. <<He>> stops pulling, releases you at once, then takes a step away.
+		"Sorry. Wrong target."
+		<br><br>
+		<<He>> moves back against the wall with both hands visible, making it clear <<he>> will not try to grab you again. You return to the main crowd. Once several people are between you, <<he>> leaves through the corridor in the opposite direction.
+		<br><br>
+		<<link [[Next|Underground Colosseum]]>><<endevent>><</link>>
+	<<else>>
+		<<He>> does not let go. <<He>> pulls your wrist again, still trying to get you through the doorway and away from the main crowd.
+		<br><br>
+		<<link [[Grab <<him>> back|Underground Colosseum Entry Resolve]]>><<set $xchange.colosseum.eventChoice to "threaten">><</link>>
+		<br>
+		<<link [[Shout for a goon|Underground Colosseum Entry Resolve]]>><<set $xchange.colosseum.eventChoice to "security">><</link>>
+		<br>
+		<<link [[Pull free|Underground Colosseum Entry Resolve]]>><<set $xchange.colosseum.eventChoice to "leave">><</link>>
+	<</if>>
+<<elseif _eventRoll lte 45>>
+	The bookmaker sees you approaching and waves you over to <<his>> booth. <<He>> erases the old payout beside your name, then writes a new number in its place.
+	<br><br>
+	"People <<if _rankIndex gte 4>>expect you to win<<else>>still expect your opponent to beat you<</if>> on this card," <<he>> says. "Someone in the upstairs gallery has just put <span class="gold"><<printmoney `200000 + _rankIndex * 300000`>></span> on your opponent to beat you.
+	A bet that large changes how much everyone else can win from this match."
+	<br><br>
+	You look towards the gallery, where the wealthier spectators watch the fights from above. The bookmaker follows your eyes and shakes <<his>> head.
+	"Don't ask me who placed it. Bets from up there come through clerks. I see the amount and which fighter they picked, but I don't see the person handing over the money."
+	<br><br>
+	A runner reaches the booth and gives <<him>> another betting slip. The bookmaker reads it, looks at you again, then changes the number beside your name for a second time.
+	"Now somebody has put a large bet on you to win. Two big bets in opposite directions before your fight has even started. Either people upstairs disagree about you, or somebody expects this match to be interesting."
+	<<colosseumHeat 1>>
+	<br><br>
+	<<link [[Next|Underground Colosseum]]>><<endevent>><</link>>
+<<elseif _eventRoll lte 67>>
+	<<if $xchange.colosseum.rivals.rookie is 0>>
+		An F-rank contestant comes around the stairs too quickly and nearly walks straight into you. <<He>> grabs the handrail to stop <<himself>>, while <<his>> other hand lands briefly on your shoulder to keep both of you from falling.
+		<br><br>
+		"Sorry. I thought nobody was coming up." <<He>> removes <<his>> hand and steps aside, then notices your rank band. "You're fairly new here too, aren't you?"
+		<br><br>
+		<<He>> glances towards the match board before continuing. "I keep checking who I'm fighting and hoping they know even less than I do. So far, everyone seems to know exactly how to hit me."
+		<br><br>
+		Another fighter walks past. The rookie stops talking until the walkway is clear again, then gives you an embarrassed smile.
+		<<set $xchange.colosseum.rivals.rookie to 1>>
+	<<elseif $xchange.colosseum.rivals.rookie is 1 and _rankIndex gte 2>>
+		The rookie finds you before you reach the match board. The bruises you remember have mostly faded, and a D-rank band is now fastened around <<his>> wrist.
+		<br><br>
+		<<He>> lifts the band so you can see it. "I finally started winning more often! Enough to get out of F-rank."
+		<br><br>
+		<<He>> explains what changed. "I used to run after people as soon as I landed a good hit. They would wait for me to rush in, then hit me while my guard was open. Now I stop after I hit them, put my hands back up, and make them come towards me."
+		<br><br>
+		<<He>> looks towards the stairs leading down to the pit. "I still get nervous before they call my name. At least now I know what mistake I'm trying not to make."
+		<<set $xchange.colosseum.rivals.rookie to 2>>
+	<<elseif $xchange.colosseum.rivals.rookie is 2 and _rankIndex gte 4>>
+		The rookie is waiting beside the match board when you arrive. A B-rank band is now around <<his>> wrist, and <<he>> is studying the list of upcoming fights instead of watching every fighter who passes.
+		<br><br>
+		When <<he>> notices you, <<he>> points at your name on the board. "Watching you climb through the ranks made me realise I was treating every loss like bad luck," <<he>> says. "So after each match, I started writing down when I got hit and what I had done just before it."
+		<br><br>
+		<<He>> taps <<his>> own name next. "Most of the time, the problem was simple. I rushed in when I should have waited, or I dropped my guard because I thought the other person was already hurt. Fixing those mistakes took weeks, but it worked."
+		<br><br>
+		<<He>> looks back at you. "I'm grateful you made me take it seriously. I'm also annoyed by how much work that caused me. I want to fight you now and see whether I've actually improved."
+		<<set $xchange.colosseum.rivals.rookie to 3>><<colosseumHeat 2>>
+	<<else>>
+		A veteran with a crooked, badly healed nose watches you while you come down the steps. <<He>> waits until you are close to hear clearly, then points at the rank band around your wrist.
+		<br><br>
+		"That band changes how people treat you in here," <<he>> says. "A higher rank gets you better matches, and some fighters will think twice before starting trouble with you."
+		<br><br>
+		<<He>> steps aside so you can pass. "Just don't confuse that with being safe everywhere. The goons enforce the rules inside this building. If somebody waits for you in the car park because they want revenge, your rank band won't make anyone come and help."
+		<<set $xchange.colosseum.rivals.veteran to Math.min(3, $xchange.colosseum.rivals.veteran + 1)>>
+	<</if>>
+	<br><br>
+	<<set _canBook to ($daily.colosseumFights ?? 0) lt 3 and !playerIsPregnant() and !["walked", "disrupted"].includes($xchange.colosseum.ending) and $xchange.colosseum.injury lt 3>>
+	<<if _canBook>>
+		<<link [[Offer <<him>> your next match|Underground Colosseum Challenger]]>><</link>>
+		<br>
+	<</if>>
+	<<if _canBook and $xchange.colosseum.rivals.rookie is 3>>
+		<<link [[Tell <<him>> to find somebody else|Underground Colosseum Back Down]]>><<set $phase to "rival">><</link>>
+	<<else>>
+		<<link [[Just walk past|Underground Colosseum]]>><<endevent>><</link>>
+	<</if>>
+<<elseif _eventRoll lte 84>>
+	<<endevent>><<set _cameo to random(1, 4)>>
+	<<if _cameo is 1>>
+		<<npc Wren>><<person1>>
+		Wren is sitting near the end of a crowded row. The seats on either side are empty, even though several spectators are standing because they cannot find anywhere else to sit.
+		<br><br>
+		"You're blocking the light," <<he>> says without looking up from the programme.
+		<br><br>
+		You move aside. A folded betting slip is lying under your shoe, although it was not there when you stopped. When you pick it up, you find three contestant names written in pencil, each marked as the expected winner of a different bout.
+		<br><br>
+		Those bouts have not been announced on the public board yet. You look back at Wren, but <<he>> continues reading the programme and makes no attempt to take the slip from you.
+		<<colosseumHeat 2>>
+	<<elseif _cameo is 2>>
+		<<npc Bailey>><<person1>>
+		Bailey is standing behind the betting booth with an open leather money bag on the table. A clerk counts the money into separate stacks, then reads the total aloud while Bailey checks it against a list of figures.
+		<br><br>
+		<<He>> counts one of the stacks again, compares it with the number on the paper, then points to the beginning of the column. "Again."
+		<br><br>
+		The clerk starts the count from the beginning. Bailey notices you watching, briefly taps the line that did not match the money on the table, then returns to checking the new count.
+		<<colosseumHeat 2>>
+	<<elseif _cameo is 3>>
+		<<npc Briar>><<person1>>
+		Briar is standing beside two of <<his>> regulars while they argue with a bookmaker. One of them insists the promised payout changed after the bet was placed, while the bookmaker keeps pointing at the number printed on the slip as proof of what was agreed.
+		<br><br>
+		The regular reaches for a second wallet. <<He>> puts a hand flat over it before it opens.
+		<br><br>
+		"You have already lost what you brought to lose," Briar says. <<He>> turns the regular away from the booth and walks the pair of them several steps towards the exit. The other one follows, still looking back at the betting board.
+		<<colosseumHeat 2>>
+	<<else>>
+		<<npc Leighton>><<person1>>
+		Leighton is standing near the cages with a camera held low against <<his>> coat. A student has just come out after a bout and is still pulling clothes straight while an attendant steers the student towards the changing area.
+		<br><br>
+		<<He>> starts raising the camera towards the student's face.
+		<br><br>
+		You step between the camera and the student before Leighton can take the picture. <<He>> looks at you, pauses, then lowers the camera. The student reaches the changing-room door without noticing what nearly happened.
+		<<colosseumHeat 3>>
+	<</if>>
+	<br><br>
+	<<link [[Next|Underground Colosseum]]>><<endevent>><</link>>
+<<else>>
+	A contestant is sitting halfway down the steps with an ice pack pressed over one eye. <<He>> moves to one side when you approach, leaving enough room for you to sit beside <<him>> if you want.
+	<br><br>
+	The ice pack slides down while <<he>> is moving and presses against the swollen cheek below the eye. <<He>> flinches, adjusts the pack carefully, then rests <<his>> elbow on <<his>> knee to keep it in place.
+	<br><br>
+	"You can sit if you want," <<he>> says. "I spent the whole fight joking every time I got hit. I'm too tired to keep doing that now."
+	<br><br>
+	<<link [[Sit with <<him>> a while|Underground Colosseum Sit]]>><</link>>
+	<br>
+	<<link [[Just walk past|Underground Colosseum]]>><<endevent>><</link>>
+<</if>>
+
+:: Underground Colosseum Sit
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<speechresolve>>
+<<pass 15>>
+You sit down on the step. <<He>> shifts the ice pack to the other hand, leaving the space between you clear.
+<br><br>
+Neither of you says anything for a while. Below, a bout ends badly for somebody neither of you knows. The crowd cheers, then gradually settles down again.
+<br><br>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"Does it get easier?" you ask.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"How long have you been coming here?" you ask.
+<<elseif (_speechAttitudeResolved is "cruel" or _speechAttitudeResolved is "bratty")>>
+	"You should have blocked," you say.
+<<else>>
+	"How bad is it?" you ask.
+<</if>>
+<br><br>
+<<He>> lifts the ice pack and lets you look at the bruised eye before pressing it back into place.
+"It'll probably swell tomorrow. A few days after that, it'll open again." <<He>> rests an elbow on <<his>> knee. "After a while, you learn how long each injury takes."
+<br><br>
+<<He>> looks down at the pit. "The jokes are for the crowd. People remember a fighter who looks like they're enjoying themselves. If they remember you, they want to see you again. That's how you get put on the fight card."
+<br><br>
+<<if $xchange.colosseum.rank gte 4>>
+	<<He>> glances at the band on your wrist, then back toward the pit. "You won't need a trick like that much longer. People are already coming here to watch you."
+<<else>>
+	<<He>> nods toward the sand. "You'll find your own way of keeping them interested. Every fighter has something. A joke, a pose, a way of fighting. Nobody tells you what theirs is."
+<</if>>
+<br><br>
+Your name will not be on the board for a while yet, so you stay where you are until the ice pack has gone soft.<<stress -6>><<llstress>><<famegood 1>>
+<br><br>
+<<link [[Next|Underground Colosseum]]>><<endevent>><</link>>
+
+
+:: Underground Colosseum Entry Resolve
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<speechresolve>>
+<<pass 3>>
+<<set _rankIndex to $xchange.colosseum.rank>>
+<<if $xchange.colosseum.eventChoice is "threaten">>
+	You grab the wrist of the hand holding you, giving yourself something to pull against while you turn to face <<him>>.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Please let go of me."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Take your hand off me, please."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I don't want trouble. Let me go."
+	<<elseif _speechAttitudeResolved is "cruel">>
+		"Let go before I break the hand you're using."
+	<<elseif _speechAttitudeResolved is "bratty">>
+		"Wrong person. Let go."
+	<<else>>
+		"Let go of me."
+	<</if>>
+	<br><br>
+	<<if _rankIndex gte 2>>
+		You press <<his>> wrist until the fingers around your arm begin to open. <<He>> tries to keep hold of you, but then <<he>> notices your rank band and looks at it properly.
+		<br><br>
+		<<He>> releases you. Instead of trying again, <<he>> backs towards the corridor entrance, checks the nearby crowd, then walks away with several people between you.
+	<<else>>
+		<<He>> looks at the hand you have around <<his>> wrist and laughs.
+		"Or what?"
+		<br><br>
+		<<He>> drives a shoulder into your chest and forces you one step farther into the corridor. <<He>> still has your wrist when <<he>> repeats the question.
+		"C'mon... What are you going to do?"
+		<br><br>
+		The main crowd is only a few metres away, but nobody nearby comes to help.
+		<br><br>
+		<<link [[Fight|Underground Colosseum Ambush Start]]>><<set $xchange.colosseum.ambushReturn to "Underground Colosseum">><</link>>
+	<</if>>
+<<elseif $xchange.colosseum.eventChoice is "security">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Help! Goon!" you shout towards the main floor.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Security! I need help here!" you call.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Goon! Please, over here!" you shout.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Goon! Get this bastard off me!" you shout.
+	<<else>>
+		"Goon! Over here!" you shout.
+	<</if>>
+	<br><br>
+	<<if _rankIndex gte 4>>
+		<<generate2>><<person2>>
+		The nearest goon turns towards you and sees your rank band. <<He>> comes through the people between you without slowing down, takes hold of an arm, and folds it up behind the attacker's back until the hand on your wrist opens on its own.
+		<br><br>
+		"Want this one taken to the staff?" <<he>> asks, keeping the grip while <<he>> waits for you to answer.
+		<br><br>
+		<<link [[Have them taken to the staff|Underground Colosseum Entry Goon]]>><<set $xchange.colosseum.goonChoice to "staff">><</link>>
+		<br>
+		<<link [[Tell the goon to let them go|Underground Colosseum Entry Goon]]>><<set $xchange.colosseum.goonChoice to "release">><</link>>
+	<<else>>
+		The nearest goon looks over, notices your low-rank band, then looks at the <<person>> holding you.
+		"Win a few fights before you expect me to step in."
+		<br><br>
+		<<He>> turns away instead of helping. The <<person>> keeps hold of you until several spectators stop and begin watching. With that much attention on the corridor, <<he>> finally releases your wrist rather than drag you farther inside.
+		<br><br>
+		You pull your arm close to your body and move back into the main crowd.<<stress 8>><<ggstress>>
+	<</if>>
+<<else>>
+	You twist your wrist so the narrowest part of your hand points towards the space between <<his>> thumb and fingers. When <<he>> squeezes harder, you yank your hand backwards through that gap and break free.
+	<br><br>
+	You move directly towards the main floor. <<He>> follows you for two steps, but stops when two goons come into view near the corridor entrance. When you look back from the crowd, <<he>> is already walking away.<<stress 2>><<gstress>>
+<</if>>
+<<set _goonPending to ($xchange.colosseum.eventChoice is "security" and _rankIndex gte 4)>>
+<<unset $xchange.colosseum.eventChoice>>
+<<if !_goonPending>>
+	<br><br>
+	<<link [[Next|Underground Colosseum]]>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Colosseum Entry Goon
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person2>>
+<<switch $xchange.colosseum.goonChoice>>
+	<<case "staff">>
+		You tell <<him>> to take them through.
+		<br><br>
+		The goon walks the <<person1>><<person>> down the corridor by the folded arm, at a pace that makes stumbling the only option. A door opens somewhere out of sight and does not close for a while.
+		<br><br>
+		<<person2>>When <<he>> comes back <<he>> is alone, and does not talk about it, and neither do you.
+		<<colosseumHeat 1>>
+	<<default>>
+		You tell <<him>> to let go.
+		<br><br>
+		The goon does, immediately, and looks faintly disappointed about it. The <<person1>><<person>> works <<his>> shoulder, gets one look at your face, and goes back into the crowd without saying anything.
+		<br><br>
+		<<person2>>"Your call," the goon says. "And be careful, you will see people like this in here again."
+		<<famegood 1>>
+<</switch>>
+<<unset $xchange.colosseum.goonChoice>>
+<br><br>
+<<link [[Next|Underground Colosseum]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Challenger
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<speechresolve>>
+You stop <<him>> before <<he>> can move away and point towards the match desk.
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"If you don't mind... would you fight me next?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'd like our names put together for the next match, if you're willing."
+<<elseif _speechAttitudeResolved is "docile">>
+	"If you want to, we could ask them to put us together next."
+<<elseif _speechAttitudeResolved is "cruel">>
+	"Put your name next to mine. I want to see how much of that confidence survives the cage."
+<<elseif _speechAttitudeResolved is "bratty">>
+	"Come on. Put your name next to mine and show me what you've got."
+<<else>>
+	"Let's have the desk put our names together for the next match."
+<</if>>
+<br><br>
+<<He>> looks from you to the board, then back at you. "You're serious?"
+<br><br>
+When you do not withdraw the offer, <<he>> points towards the betting booth. "If we request each other, they'll advertise it as a fight between two people who specifically wanted each other, because spectators will pay to watch that.
+The Colosseum takes advantage of the extra attention, so both of us usually get less prize money."
+<br><br>
+<<He>> waits, giving you a chance to withdraw the challenge before either name reaches the board.
+<br><br>
+<<link [[Insist|Underground Colosseum Challenger Book]]>><</link>>
+<br>
+<<link [[Let it go|Underground Colosseum Back Down]]>><<set $phase to "withdraw">><</link>>
+
+:: Underground Colosseum Back Down
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>>
+<<set _rival to $phase is "rival">>
+<<if _rival>>
+	<<He>> stays in front of you instead of letting you leave. "You watched me fight my way up the board until I finally reached your rank. Now that I'm asking you for a match, you're telling me to find somebody else?!"
+<<else>>
+	<<He>> raises <<his>> voice so the fighters around the desk can hear. "You're backing out?!"
+<</if>>
+<br><br>
+The conversations around the match desk stop. A fighter sitting nearby pauses halfway through winding a strip of cloth around their knuckles, while another turns on the bench to see what is happening.
+The receptionist lowers the chalk and looks between you and <<him>>.
+<br><br>
+Someone in the seats above the barrier shouts, "Coward!"
+<br><br>
+A few people laugh. Another spectator repeats it, then several more join in. By the time you start down the stairs, part of the crowd is shouting the word together and booing.
+Before you can take the first step, <<he>> moves in front of you again. <<He>> raises one hand and slaps you across the side of the face. Your head turns with the hit, and the sound is loud for the nearby fighters to hear.
+<br><br>
+The goons standing against the wall look over, but none of them interfere. <<violence 12>><<gpain>><<ggstress>>
+<br><br>
+<<He>> lowers <<his>> hand. "Everyone near that desk heard you refuse the fight. Now they just watched me slap you, and you still didn't fight back. Weakling!"
+<<if _rival>>
+	<<colosseumBackDown 60>>
+<<else>>
+	<<colosseumBackDown 40>>
+<</if>>
+<<unset $phase>>
+<br><br>
+<<link [[Next|Underground Colosseum]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Challenger Book
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>>
+<<pass 3>>
+You take the challenge to the receptionist together. <<He>> listens to both names, checks the current board, then writes them side by side on a fresh line.
+<br><br>
+<<He>> looks at the pair of you again before putting chalk to the main board.
+<br><br>
+"Fine. The gallery likes matches where both fighters chose each other." <<He>> draws a box around the match so the bookmaker can see it from the booth. "You're on after the next one as you both accept the prize money shown now,
+and neither of you can cancel after I send someone to prepare the cages."
+<br><br>
+<<He>> puts the chalk down. "Now go and get out of your clothes before I have to delay the whole board for you."
+<<set $xchange.colosseum.opponentRank to Math.max(0, $xchange.colosseum.rank)>><<set $xchange.colosseum.promotion to 0>><<colosseumHeat 1>>
+<br><br>
+<<link [[Next|Underground Colosseum Prepare Ready]]>><<set $xchange.colosseum.keepOpponent to 1>><</link>>
+
+:: Underground Colosseum Bar
+<<set $outside to 0>><<set $location to "colosseum">><<effects>>
+<<if typeof $daily.colosseumBarDrinks isnot "number" or Number.isNaN($daily.colosseumBarDrinks)>>
+	<<set $daily.colosseumBarDrinks to 0>>
+<</if>>
+The fighters' bar is a small room away from the public seating. Three old tables fill most of the space, while a narrow counter runs along one wall. Bottles are lined up on shelves behind it, with the prices written on a board nearby.
+Drinks are much cheaper here than they are upstairs, since this room is meant for the fighters rather than the paying spectators.
+<br><br>
+Most fighters keep their wristbands where other people can see them. Even while resting, people still check who they are sitting beside before choosing a table or taking an empty stool.
+<br><br>
+<<if !$weekly.colosseumBarTalk>>
+	<<if $xchange.colosseum.injuryDays gt 0>>
+		You lower yourself onto a stool carefully, trying not to put too much pressure on your injuries. A fighter farther down the counter notices the way you are moving. They reach into the ice bucket beside them, wrap some ice in a cloth, then slide it along the counter towards you.
+		<br><br>
+		You catch it before it reaches the edge and press it against the part of your body that hurts most. Nobody asks how you were injured. Everyone in this room has fought in the cage, and they recognise the way an injured fighter moves.<<pain -2>><<lpain>><<stress -3>><<lstress>>
+	<<else>>
+		You take an empty stool at the end of the counter and settle in. Nobody approaches you to arrange another fight or asks you to place a bet. For now, you are simply another fighter taking a break after spending time in the Colosseum.<<stress -6>><<llstress>>
+	<</if>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Bar 2]]>><<set $weekly.colosseumBarTalk to 1>><</link>>
+<<else>>
+	<<include "Underground Colosseum Drink Lists">>
+<</if>>
+<br>
+
+:: Underground Colosseum Bar 2
+<<effects>>
+Two fighters at the end table are looking through old match cards. One of them points at a name and asks how long it has been. Several weeks, is the answer. The other one goes back through the cards and finds a second regular who also stopped coming.
+They keep going until they have found four fighters who used to be on the card every week and are not on it at all any more.
+<br><br>
+"That's four in about a month," one of them says. "Maybe they quit, but none of them said anything before they disappeared."
+<br><br>
+The other fighter looks at the four names again. "People leave. It happens."
+<br><br>
+"Four regulars this close together?" Neither of them has an answer. After a few seconds they put the cards away.
+<<colosseumHeat 2>>
+<br><br>
+<<include "Underground Colosseum Drink Lists">>
+
+:: Underground Colosseum Drink Lists
+<<set _drinks to Math.max(0, Math.trunc($daily.colosseumBarDrinks ?? 0))>>
+<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+	<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
+	<br><br>
+<<elseif _drinks gte 3>>
+	The barman stops in front of you and glances at the band around your wrist. Instead of reaching for another glass, the barman picks up the cloth beside the counter.
+	<br><br>
+	"Three. That's what anybody on tonight's card gets out of me." The cloth moves across the counter again.
+	"Coffee, or the corridor. I'm not the one carrying you off the sand."
+	<br><br>
+<<elseif $drunk gte 480>>
+	You place your money on the counter. The barman looks at it, then at you, but does not take it. Instead, he turns away and starts serving someone at the other end of the bar, leaving you waiting.
+	<br><br>
+	<span class="red">You are too drunk to be served.</span>
+	<br><br>
+<<else>>
+	<<if setup.inflation.canAfford(500, "colosseumBar")>>
+		<<foodicon "beer">><<link [[Beer (<<printprice 500>> 0:10)|Underground Colosseum Bar Drink]]>><<set $phase to "beer">><<money -500 "colosseumBar">><<pass 10>><</link>>
+		<br>
+		<<foodicon "cider">><<link [[Cider (<<printprice 500>> 0:10)|Underground Colosseum Bar Drink]]>><<set $phase to "cider">><<money -500 "colosseumBar">><<pass 10>><</link>>
+		<br>
+	<</if>>
+	<<if setup.inflation.canAfford(800, "colosseumBar")>>
+		<<foodicon "gin">><<link [[Gin (<<printprice 800>> 0:05)|Underground Colosseum Bar Drink]]>><<set $phase to "gin">><<money -800 "colosseumBar">><<pass 5>><</link>>
+		<br>
+		<<foodicon "vodka">><<link [[Vodka (<<printprice 800>> 0:05)|Underground Colosseum Bar Drink]]>><<set $phase to "vodka">><<money -800 "colosseumBar">><<pass 5>><</link>>
+		<br>
+	<</if>>
+	<<if setup.inflation.canAfford(900, "colosseumBar")>>
+		<<foodicon "whisky">><<link [[Whisky (<<printprice 900>> 0:05)|Underground Colosseum Bar Drink]]>><<set $phase to "whisky">><<money -900 "colosseumBar">><<pass 5>><</link>>
+		<br>
+	<</if>>
+	<<if setup.inflation.canAfford(1200, "colosseumBar")>>
+		<<foodicon "brandy">><<link [[Brandy (<<printprice 1200>> 0:05)|Underground Colosseum Bar Drink]]>><<set $phase to "brandy">><<money -1200 "colosseumBar">><<pass 5>><</link>>
+		<br>
+	<</if>>
+	<<if !setup.inflation.canAfford(500, "colosseumBar")>>
+		<<ind>><span class="black">You can't buy anything.</span>
+		<br>
+	<</if>>
+<</if>>
+<<if setup.inflation.canAfford(200, "colosseumBar")>>
+	<<foodicon "coffee">><<link [[Coffee (<<printprice 200>> 0:10)|Underground Colosseum Bar Drink]]>><<set $phase to "coffee">><<money -200 "colosseumBar">><<pass 10>><</link>>
+	<br>
+<</if>>
+<br>
+<<link [[Back out to the corridor|Underground Colosseum Corridor]]>><</link>>
+<br>
+
+:: Underground Colosseum Bar Drink
+<<set $outside to 0>><<set $location to "colosseum">><<effects>>
+<<if $phase isnot "coffee">><<set $daily.colosseumBarDrinks to ($daily.colosseumBarDrinks ?? 0) + 1>><</if>>
+<<switch $phase>>
+	<<case "beer">>
+		<<wearProp "beer mug">>
+		The bartender fills a cloudy glass with beer and slides it towards you. The first mouthful is cold, though the beer has already started to lose its fizz. You keep drinking until only a thin layer of foam remains at the bottom.
+		<<drunk 80>>
+	<<case "cider">>
+		<<wearProp "cider">>
+		The cider tastes sweet. You take another mouthful before the first taste has completely left your tongue, then another after that. By the time you sit properly on the stool, most of the glass is already empty.
+		<<drunk 80>>
+	<<case "gin">>
+		The bartender pours gin into a small glass. There is nothing mixed with it, so the alcohol burns across your tongue and throat as you swallow. You finish it in two mouthfuls, then breathe through your mouth while the sharp taste fades.
+		<<drunk 160>>
+	<<case "vodka">>
+		<<wearProp "vodka">>
+		The vodka comes in a very small glass. You lift it, swallow everything at once, then put the empty glass back on the counter. Your throat burns and your eyes water for several seconds before the feeling starts to pass.
+		<<drunk 160>>
+	<<case "whisky">>
+		<<wearProp "whisky">>
+		The whisky has a rough taste that stays in your mouth after you swallow. Nobody else at the counter seems surprised by the quality; several of them are drinking from the same bottle. A few seconds later, warmth spreads through your throat and chest.
+		<<drunk 160>>
+	<<case "brandy">>
+		<<wearProp "brandy">>
+		The brandy is the most expensive drink written on the board. The bartender takes a bottle from the shelf, wipes the neck, then pours you a small glass. A fighter sitting two stools away glances at the bottle, then at you, before returning to their own drink.
+		<<drunk 160>>
+	<<default>>
+		<<wearProp "coffee">>
+		The bartender pours coffee into a thick cup and places it in front of you without asking whether you want milk or sugar. It has been sitting in the pot for some time, so the taste is strong and bitter. After a fight, however, that is what you need.
+		<<tiredness -2>><<ltiredness>>
+<</switch>>
+<<if $phase is "coffee">>
+	<br><br>
+	The cup is hot that you hold it with both hands at first. After a few minutes, it cools enough for you to hold it normally while you continue drinking.<<stress -4>><<llstress>>
+<<else>>
+	<<gdrunk>>
+	<br><br>
+	As you continue drinking, some of the tension left over from the fight begins to ease. And you stop sitting so stiffly.<<stress -4>><<llstress>>
+<</if>>
+<br><br>
+<<link [[Next|Underground Colosseum Bar]]>><</link>>
+<br>
+
+:: Underground Colosseum Ambush Start
+<<controlloss>><<violence 1>><<neutral 1>><<molested>><<maninit>><<set $enemyanger += 80>>
+<<effects>>
+The service corridor is too narrow for either of you to move around the other. Your attacker steps closer and raises both hands while the noise from the main floor continues beyond the doorway.
+<br><br>
+Nobody comes in after you.
+<br><br>
+<<link [[Next|Underground Colosseum Ambush]]>><</link>>
+
+:: Underground Colosseum Ambush
+<<effects>><<effectsman>><<alarmstate>><<man>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Colosseum Ambush Result]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Colosseum Ambush]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Colosseum Ambush Result
+<<effects>>
+<<set _victory to $enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax>>
+<<set _return to $xchange.colosseum.ambushReturn or "Underground Colosseum">>
+<<if _victory>>
+	The fight ends against the wall. Your attacker can no longer keep it going, so you force enough distance between you to make sure the fight stays over.
+	<br><br>
+	<<if $outside is 1>>
+		You straighten your clothes and head towards the main road. Someone looks down the alley, sees your attacker on the ground, and hurries past.
+	<<else>>
+		You straighten your clothes and step back towards the main floor. Several people near the corridor entrance glance at you as you return, but nobody asks what happened. No goon comes to check the corridor either.
+	<</if>>
+	<br><br>
+	Nobody from the Colosseum comes to help.<<stress 4>><<gstress>>
+<<else>>
+	The fight ends with your back against the concrete. By the time you can push yourself upright, your attacker has already left.
+	<br><br>
+	You stay seated until you get your breathing under control, then check yourself for anything worse than the pain you can already feel.
+	<<if $outside is 1>>
+		You use the wall to get back to your feet and limp towards the road.
+	<<else>>
+		When you finally return to the main floor, the people nearest the entrance make room without asking questions.
+	<</if>>
+	<<colosseumInjure 1 2>>
+<</if>>
+<<unset $xchange.colosseum.ambushReturn>>
+<<silently>><<clotheson>><</silently>><<endcombat>>
+<<link "Next" _return>><</link>>
+
+:: Underground Colosseum Postfight Event
+<<set $outside to 0>><<set $location to "colosseum">><<effects>>
+<<if $xchange.colosseum.matchFix>><<colosseumFixer>><<else>><<generate1>><<person1>><</if>>
+<<pass 5>>
+<<if $xchange.colosseum.matchFix is "betray" and $xchange.colosseum.lastResult is "win">>
+	The well-dressed <<person>> who offered you the money is waiting at the bottom of the steps when you come back from the cage. <<His>> hands are in <<his>> pockets, and the people passing between you have started giving <<him>> extra space.
+	<br><br>
+	<<He>> waits until you are close before speaking.
+	"You took my money."
+	<br><br>
+	<<His>> voice stays quiet that you have to listen, but two people nearby stop their conversation anyway. "I paid you to lose. You took the envelope, got in the cage, then won with my money still in your pocket."
+	<br><br>
+	<<He>> steps closer to the wall, leaving the walkway clear so passing fighters no longer move between you. "I'm not starting a fight in here. There are too many goons and too many witnesses. I'm leaving now, then I'm going to find out where you live."
+	<<He>> glares at you. "I'll deal with you somewhere without a crowd watching."
+	<<colosseumHeat 3>><<set $xchange.colosseum.betrayAmbush to 1>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Pit]]>><<unset $xchange.colosseum.matchFix>><<endevent>><</link>>
+<<elseif ["throw", "betray"].includes($xchange.colosseum.matchFix)>>
+	<<if $xchange.colosseum.lastResult is "loss">>
+		The fixer checks the result board, then folds the extra notes into your hand. "<span class="gold"><<printmoney 30000>> extra</span>. You stayed down when you were told. Keep doing that and we'll keep paying."
+		<<money 30000 "colosseumFix">>
+	<<elseif $xchange.colosseum.lastResult is "quit">>
+		"We bought a result, not you fucking walking out." The fixer points towards the desk. "<span class="red">The advance goes on your debt</span>."
+		<<colosseumDebt 150000>>
+	<<else>>
+		"You were paid to lose." The fixer blocks your way until you look up. "<span class="purple">The clerk's put the money on your debt</span>. Don't make me come looking for it."
+	<</if>>
+	<br><br>
+	<<link [[Return to the pit|Underground Colosseum Pit]]>><<unset $xchange.colosseum.matchFix>><<endevent>><</link>>
+<<elseif $xchange.colosseum.matchFix is "refused">>
+	<<He>> is standing in the narrow space you have to use to reach the stairs. When you approach, <<he>> stays exactly where <<hes>> and makes you stop or walk into <<him>>.
+	"You gave it back."
+	<br><br>
+	<<He>> taps the envelope against your chest. "Everybody down here needs something. Rent. A debt paid. Somebody kept off their back."
+	<br><br>
+	<<He>> leans closer. "I'll ask around. Next time I'll know what to put in the fucking envelope." <<He>> pockets it and lets you pass.<<stress 4>><<gstress>>
+	<<colosseumHeat 2>>
+	<br><br>
+	Someone at the booth calls <<his>> name. <<He>> answers them as though you are already gone.
+	<br><br>
+	<<link [[Next|Underground Colosseum Pit]]>><<unset $xchange.colosseum.matchFix>><<endevent>><</link>>
+<<elseif $xchange.colosseum.lastResult is "quit">>
+	You return behind the cages after stopping the match yourself.
+	<br><br>
+	Two fighters waiting for the next bout are using most of the bench. They make enough room for you to sit at the far end, but neither greets you or asks why you stopped the match.
+	<br><br>
+	Another fighter starts walking towards you, then hears one of the attendants say that you quit. <<He>> changes direction and goes to the water table instead. The only person who speaks directly to you is an attendant who needs access to the cage door behind your shoulder.
+	"Move over."
+	<br><br>
+	You dress without anyone interrupting you. The fighters on the bench keep talking while you gather the rest of your things.<<stress 4>><<ggstress>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
+<<elseif $xchange.colosseum.lastResult is "loss">>
+	You sit on the bench after your loss and start putting yourself back together. A fighter drops into the space beside you carrying two bottles of water.
+	<br><br>
+	<<He>> puts one bottle on the floor beside your foot. "Drink. Before some bastard charges you for that as well."
+	<br><br>
+	You reach for it slowly. <<He>> watches your hand shake, then turns towards the pit as the crowd starts shouting again. "Listen to them. Already lost money on somebody else."
+	<br><br>
+	<<He>> takes a drink. "Don't let the desk talk you into another one while you're seeing double. They'll pay you fuck-all and call you brave."
+	<br><br>
+	<<He>> does not ask how you lost. <<He>> stays until you have taken a drink, then gets up when <<his>> own name is called.<<stress -3>><<lstress>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
+<<else>>
+	A group of spectators has come down from the public seats and gathered near the cages, crossing the painted line that marks where they are supposed to stop. A goon makes a half-hearted attempt to move them, then gives up when they keep calling your name.
+	<br><br>
+	One spectator gets close to hold out a betting slip and a pen. Your name is printed across the winning side of the ticket.
+	<br><br>
+	"Sign it," <<he>> says. "Please. I had half my pay on you."
+	<br><br>
+	More hands appear behind <<him>> with programmes, slips, and scraps of paper. The attention blocks most of the path back to the changing area.
+	<br><br>
+	<<link [[Sign it|Underground Colosseum Pit]]>><<colosseumHeat 1>><<endevent>><</link>>
+	<br>
+	<<link [[Get past them|Underground Colosseum Pit]]>><<stress 2>><<endevent>><</link>><<gstress>>
+<</if>>
+
+:: Underground Colosseum Wager
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<generate1>><<person1>><<speechresolve>>
+<<pass 3>>
+<<colosseumCardOffer>><<colosseumBetLimit>>
+<<set _canSelfBet to _colosseumBetsLeft gt 0 and $xchange.colosseum.joined gte 1 and !$xchange.colosseum.wager and !["walked", "disrupted"].includes($xchange.colosseum.ending) and !playerIsPregnant()>>
+<<set _canCardBet to _colosseumBetsLeft gt 0 and !$xchange.colosseum.cardBet and $money gte 25000>>
+The queue at the middle booth moves faster than it looks like it should. The bookmaker takes cash with one hand, writes with the other, and does not stop doing either while <<he>> talks to you.
+<br><br>
+The chalkboard above the counter has the current card on it. Two names near the top have been circled.
+<br>
+<span class="gold"><<print $xchange.colosseum.cardOffer.a>></span>
+&nbsp;&nbsp;against&nbsp;&nbsp;
+<span class="gold"><<print $xchange.colosseum.cardOffer.b>></span>
+<br><br>
+"Next," <<he>> says, which is as close as you will get to being greeted.
+<br><br>
+<<if _colosseumBetsLeft lte 0>>
+	<<link [[Next|Underground Colosseum Bet Cut Off]]>><</link>>
+<<else>>
+	<<if _canCardBet>>
+		<<link `"Back " + $xchange.colosseum.cardOffer.a` "Underground Colosseum Wager Card">><<set $xchange.colosseum.cardPick to 0>><</link>>
+		<br>
+		<<link `"Back " + $xchange.colosseum.cardOffer.b` "Underground Colosseum Wager Card">><<set $xchange.colosseum.cardPick to 1>><</link>>
+		<br>
+	<<elseif $xchange.colosseum.cardBet>>
+		<span class="gold">You already have <<printmoney $xchange.colosseum.cardBet.stake>> on <<print $xchange.colosseum.cardBet.pick is 0 ? $xchange.colosseum.cardBet.a : $xchange.colosseum.cardBet.b>></span>.
+		Find a seat before that bout is called.
+		<br>
+	<</if>>
+	<<if _canSelfBet>>
+		<<link [[Ask about putting money on your own bout|Underground Colosseum Wager Self]]>><</link>>
+		<br>
+	<<elseif $xchange.colosseum.wager>>
+		<span class="black">You already have <<printmoney $xchange.colosseum.wager>> on your own next bout.</span>
+		<br>
+	<</if>>
+	<br>
+	<<getouticon>><<link [[Keep your money|Underground Colosseum Terraces]]>><<run delete $xchange.colosseum.cardOffer>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Underground Colosseum Bet Cut Off
+<<effects>>
+<<He>> checks the band around your wrist, then looks through the betting slips beside <<his>> till. After finding the ones you placed earlier, <<he>> puts <<his>> pencil down.
+<br><br>
+"You're on the card," <<he>> says. "Fighters get <<print $daily.colosseumBetLimit>> slip<<if $daily.colosseumBetLimit isnot 1>>s<</if>> a day out of me, and you've had them.
+You've already placed <<print $daily.colosseumBets>>, so I can't take another one from you."
+<br><br>
+A few people waiting behind you stop talking. They can hear the bookmaker refusing your bet, and several of them look towards you while they wait for the queue to move again.
+<br><br>
+"Want more off this place, earn it on the sand," <<he>> says, already looking past you. "The desk is down there. You're getting nothing else out of this counter today."
+<br><br>
+Before you can argue, <<he>> looks past you and calls for the next person in the queue. An attendant walks over and gestures for you to step away from the counter so the next customer can place their bet.<<stress 4>><<gstress>>
+<br><br>
+<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Wager Card
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>>
+<<set _pick to $xchange.colosseum.cardPick is 1 ? 1 : 0>>
+<<set _name to _pick is 0 ? $xchange.colosseum.cardOffer.a : $xchange.colosseum.cardOffer.b>>
+<<set _odds to _pick is 0 ? $xchange.colosseum.cardOffer.oddsA : $xchange.colosseum.cardOffer.oddsB>>
+You say the name. The bookmaker writes it without looking up.
+<br><br>
+<<if _odds gte 4>>
+	<<He>> stops writing then, and looks up after all. "At that price? People bet that one to lose so they have somebody to shout at." <<He>> goes back to the slip. "Your money."
+<<elseif _odds gte 3>>
+	"Long odds on that one," <<he>> says. "You will be one of about four."
+<<else>>
+	"You won't get rich off it," <<he>> says, "but you'll probably get paid, which is more than most of this board manages."
+<</if>>
+<br><br>
+<<set _cardStakes to [25000, 50000, 100000]>>
+<<for _w range _cardStakes>>
+	<<if $money gte _w>>
+		<<capture _w _pick _name _odds>>
+			<<link `"Put " + formatMoney(_w) + " on " + _name` "Underground Colosseum Wager Placed">>
+				<<money `-_w` "colosseumBet">><<set $daily.colosseumBets to ($daily.colosseumBets ?? 0) + 1>>
+				<<set $xchange.colosseum.cardBet to {stake: _w, pick: _pick, a: $xchange.colosseum.cardOffer.a, b: $xchange.colosseum.cardOffer.b, odds: _odds}>>
+				<<run delete $xchange.colosseum.cardOffer>><<run delete $xchange.colosseum.cardPick>>
+			<</link>>
+		<</capture>>
+		<br>
+	<</if>>
+<</for>>
+<br>
+<<link [[Change your mind|Underground Colosseum Wager]]>><<run delete $xchange.colosseum.cardPick>><</link>>
+<br>
+
+:: Underground Colosseum Wager Placed
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>>
+<<He>> tears off your betting slip, places it on the counter, then slides it towards you.
+<br><br>
+"Hold on to it. No slip, no payout, and don't come crying to me about it." <<He>> points towards the spectator seats. "The match you bet on starts after the current fight. Find a seat before it begins."
+<br><br>
+<span class="gold">You have bet <<printmoney $xchange.colosseum.cardBet.stake>> on <<print $xchange.colosseum.cardBet.pick is 0 ? $xchange.colosseum.cardBet.a : $xchange.colosseum.cardBet.b>></span>.
+Go to the terraces and watch the fight to see whether your bet wins.
+<br><br>
+<<link [[Next|Underground Colosseum Terraces]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Wager Self
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"Can I... bet on my own match?"
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'd like to place a wager on my own match, if that's allowed."
+<<elseif _speechAttitudeResolved is "docile">>
+	"Am I allowed to put money on my own fight?"
+<<elseif _speechAttitudeResolved is "cruel">>
+	"Take my money. I know exactly who I'm betting on."
+<<elseif _speechAttitudeResolved is "bratty">>
+	"Put me down for my own fight. Might as well get paid twice if I win."
+<<else>>
+	"I want to bet on my own match."
+<</if>>
+<br><br>
+The bookmaker is already reaching for a fresh slip before you finish. <<He>> pulls it from the stack, sets it on the counter, then gives you a tired look.
+"A fighter backing themselves." <<He>> snorts. "Heard that one before."
+<br><br>
+<<He>> picks up <<his>> pencil. "I'll take a bet on you winning your own fight. The payout can be small if you're expected to win, because everyone already knows you have a reason to fight seriously.
+What I will not take is a bet from you on your own opponent. That would let you make money by deliberately losing."
+<br><br>
+<<He>> turns the payout table around and points down the list. The amount you can win depends on your opponent's rank, so the bookmaker cannot calculate your exact payout until you choose who you are fighting.
+<br><br>
+<<link [[Next|Underground Colosseum Wager Self 2]]>><</link>>
+<br>
+
+:: Underground Colosseum Wager Self 2
+<span class="gold">An opponent below your rank pays 1.5&times;. Your own rank pays 2&times;. One rank above pays 3&times;. Two ranks above pays 4&times;.</span>
+<br><br>
+"Choose how much you want to bet now," <<he>> says. "Pick your opponent after. Once both names are on the board, I'll use the same payout offered to everyone else. You don't get a special rate just because you're one of the fighters."
+<br><br>
+<<set _stakes to [25000, 50000, 100000]>>
+<<for _w range _stakes>>
+	<<if $money gte _w>>
+		<<capture _w>>
+			<<link `"Bet " + formatMoney(_w)` "Underground Colosseum Terraces">><<money `-_w` "colosseumBet">><<set $daily.colosseumBets to ($daily.colosseumBets ?? 0) + 1>><<set $xchange.colosseum.wager to _w>><<endevent>><</link>>
+		<</capture>>
+		<br>
+	<</if>>
+<</for>>
+<br>
+<<link [[Keep your money|Underground Colosseum Terraces]]>><<endevent>><</link>>
+<br>

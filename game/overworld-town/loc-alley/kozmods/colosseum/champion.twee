@@ -1,0 +1,240 @@
+:: Underground Colosseum Champion Booking
+<<effects>><<colosseumHost>>
+<<if !$daily.colosseumChampionBooking>>
+	<<set $daily.colosseumChampionBooking to 1>>
+	<<if random(1, 100) lte 35>>
+		<<set $xchange.colosseum.matchFix to "throw">><<money 150000 "colosseumFix">><<set $xchange.colosseum.fixes += 1>>
+		The receptionist slides an envelope across the desk. "<span class="gold">Fifteen hundred</span>. The gallery wants you to lose this fight on purpose, so fight normally until your opponent puts you down, then stay there."
+		<br><br>
+		<<link [[Prepare for the booked fight|Underground Colosseum Prepare Ready]]>><</link>>
+	<<elseif !colosseumDrugStage() and random(1, 100) lte 45>>
+		An attendant puts a capped medicine cup beside your booking slip. "House drug. <span class="gold">It reduce most of the pain for an hour</span>, but it won't stop you getting injured.
+		When it wears off, you'll feel detached and confused for a couple of hours. Don't book another fight until that passes."
+		<br><br>
+		<<link [[Take the dose and prepare|Underground Colosseum Prepare Ready]]>><<set $xchange.colosseum.drugUntil to $timeStamp + 3600>><</link>>
+		<br>
+		<<link [[Refuse the dose and prepare|Underground Colosseum Prepare Ready]]>><</link>>
+	<<else>>
+		The receptionist pushes your booking slip across the desk. "Your name's up. Get downstairs. Keep the crowd waiting and they'll find somebody else to bet on."
+		<br><br>
+		<<link [[Prepare for the booked fight|Underground Colosseum Prepare Ready]]>><</link>>
+	<</if>>
+<<else>>
+	The receptionist checks your next booking. "Same rank as you. Get downstairs."
+	<br><br>
+	<<link [[Prepare for the booked fight|Underground Colosseum Prepare Ready]]>><</link>>
+<</if>>
+<br>
+
+:: Underground Colosseum Gallery Desk
+<<set $outside to 0>><<set $location to "colosseum">><<effects>>
+The clerk closes a drawer as you approach. Through the glass behind the desk, a worker is cleaning the pit between fights.
+"You booked? Then get downstairs. Don't stand around here."
+<br><br>
+<<if $xchange.colosseum.ending is "inside">>
+	<<set _records to $xchange.colosseum.records>>
+	<<if !_records or _records.count gte 8>>
+		You have copies showing that eight gallery members paid the Colosseum to change opponents, reduce fighters' pay, buy debts, or decide match results in advance.
+		<br><br>
+		<<if (!_records or _records.count is 8) and $xchange.colosseum.debt gt 0>>
+			<<link [[Use the copies to demand your debt be cleared|Underground Colosseum Records Leverage]]>><</link>>
+			<br><br>
+		<<elseif _records?.count is 9>>
+			The house has already cleared your debt after your demand. You still have the copies.
+			<br><br>
+		<<else>>
+			You do not owe the house anything at the moment. You keep the copies in case you need them later.
+			<br><br>
+		<</if>>
+	<<else>>
+		<span class="small-description">Records copied: <<= _records.count>> / 8.</span>
+		<br>
+		<<if $timeStamp gte _records.nextAt>>
+			Workers regularly bring betting money to the desk. The clerk leaves to deal with them, giving you a chance to copy a new page from the record book.
+			<br><br>
+			<<link [[Wait for the clerk to leave, then copy the page (0:20)|Underground Colosseum Copy Records]]>><</link>>
+			<<skill_difficulty `currentSkillValue("skulduggery")` "Skulduggery" 0 1000>>
+			<br><br>
+		<<else>>
+			There will not be another safe chance for about <<= Math.ceil((_records.nextAt - $timeStamp) / 3600)>> hours.
+		<</if>>
+		<br><br>
+	<</if>>
+<</if>>
+<<link [[Return to the terraces|Underground Colosseum Terraces]]>><</link>>
+<br>
+
+:: Underground Colosseum Copy Records
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 4>>
+<<if $xchange.colosseum.ending is "inside" and $xchange.colosseum.records?.count lt 8 and $timeStamp gte $xchange.colosseum.records.nextAt>>
+	<<if random(1, 1000) lte Math.clamp(currentSkillValue("skulduggery"), 100, 1000)>>
+		<<set $xchange.colosseum.records.count += 1>><<set $xchange.colosseum.records.nextAt to $timeStamp + 518400>><<skulduggeryskilluse>>
+		<<switch $xchange.colosseum.records.count>>
+			<<case 1>>The first page names a gallery member, their seat number, and a cash payment. Beside the payment is an order for one fighter to lose. You copy the name, date, amount, and the clerk's initials.
+			<<case 2>>The second record shows a payment made shortly before a fight. The booking beside it was changed at the same time, replacing one opponent with another. You copy both records so the connection is clear.
+			<<case 3>>The third account shows money taken from injured fighters instead of being paid to them. You copy the member's name, the amounts taken, and the notes saying the fighters still owe more.
+			<<case 4>>The fourth record is for a private fight. The fighter's original payment has been crossed out and replaced with a smaller amount. You copy both figures and the name of the person who approved the change.
+			<<case 5>>The fifth record shows a gallery member paying to make a fighter face someone two ranks above them. You copy the payment and the instruction changing the fight.
+			<<case 6>>The sixth account lists several fights where the winner was decided in advance. You copy the dates, fighter names, and the payments beside each result.
+			<<case 7>>The seventh record shows a gallery member buying several fighters' debts from the house, then charging those fighters more than the amount originally owed. You copy the original debts and the larger amounts added afterwards.
+			<<case 8>>The final receipt gives you the eighth name. You match its reference number to the entry in the record book, copy the payment and instruction, then put everything back where you found it. You now have enough evidence to identify all eight members.
+		<</switch>>
+		<br><br>
+		You hear someone coming along the corridor. You close the drawer and step away before the clerk returns.
+	<<else>>
+		<<set $xchange.colosseum.records.nextAt to $timeStamp + 86400>><<set $xchange.colosseum.vipPenalty to 0.5>><<stress 10>><<ggstress>>
+		The key jams while you are trying to close the drawer. The clerk returns before you can free it and slams the drawer shut.
+		"Trying to go through my records? Tsk. Half the pay from your next fight is gone. Now get downstairs, motherfucker!"
+		<br><br>
+		The clerk takes the key and calls a guard. You leave without copying anything new.<<stress 4>><<gstress>>
+	<</if>>
+<<else>>
+	There is no new record you can safely copy now.
+<</if>>
+<br><br>
+<<link [[Return to the terraces|Underground Colosseum Terraces]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Records Leverage
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 2>>
+<<if $xchange.colosseum.ending is "inside" and $xchange.colosseum.debt gt 0 and (!$xchange.colosseum.records or $xchange.colosseum.records.count is 8)>>
+	You place one copied receipt on the desk. "I have seven more like this. Clear my debt, and I won't show them to anyone."
+	<br><br>
+	The clerk reads the copy, then takes it into the back office. A few minutes later, the organiser comes out.
+	"You little shit."
+	<br><br>
+	The organiser tells the clerk to clear your balance. You wait until the full amount is crossed out, then take the slip showing that you owe nothing.
+	<<colosseumDebt `-$xchange.colosseum.debt`>><<set $xchange.colosseum.records to {count: 9, nextAt: 0}>>
+	<br><br>
+	The organiser spits into the bin beside the desk. "That balance is dead. Run up another and you'll pay every fucking penny. We're done bargaining."
+<<else>>
+	You do not have a debt you can clear this way.
+<</if>>
+<br><br>
+<<link [[Leave the gallery|Underground Colosseum Terraces]]>><</link>>
+<br>
+
+:: Underground Colosseum Detention
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 3>>
+The attendants drag you through the grey door and down the stairs. One keeps your arm twisted behind you until they reach a small room with a bench fixed to the floor.
+<br><br>
+They push you inside and lock the door. A guard stops at the small window and holds up a charge sheet.
+"Five hundred quid handling fee. Pay through the slot and you can walk out now. Refuse, and it goes on the book with everything else you owe."
+<br><br>
+The guard points to the bench. "Then you stay in here."
+<br><br>
+Someone in the next room asks for clean water. The guard tells them to be quiet and walks away.
+<br><br>
+<<link [[Wait in the room (1:00)|Underground Colosseum Detention Wait]]>><</link>>
+<br>
+<<link [[Try to open the latch (0:15)|Underground Colosseum Detention Escape]]>><</link>><<skill_difficulty `currentSkillValue("skulduggery")` "Skulduggery" 0 1000>>
+<br>
+
+:: Underground Colosseum Detention Escape
+<<effects>><<pass 15>>
+<<if random(1, 1000) lte Math.clamp(currentSkillValue("skulduggery"), 100, 1000)>>
+	You remove a loose screw from beneath the bench and push it into the door latch. After several attempts, the latch moves far enough for you to open the door.
+	<br><br>
+	You leave the room and head upstairs. Near the top, two workers pass with empty crates, and you walk behind them until you reach the pit again.
+	<br><br>
+	A guard notices your wristband after you are already out of the detention corridor. You escaped the room without paying cash, but the five-hundred-pound fee is still added to your Colosseum debt.
+	<<colosseumDebt 50000>>
+<<else>>
+	You try to move the latch with the screw, but it makes enough noise for the guard to hear. The door opens and the guard grabs your wrist before you can hide what you are doing.
+	"Trying to break out? Fine. It's a grand now."
+	<<pain 5>><<stress 10>><<colosseumDebt 100000>>
+	<br><br>
+	The guard pushes you back towards the desk. The new charge is added to your debt.
+<</if>>
+<br><br>
+<<if $xchange.colosseum.matchFix>>
+	<<link [[Return to the desk|Underground Colosseum Postfight Event]]>><</link>>
+<<else>>
+	<<link [[Return to the pit|Underground Colosseum Pit]]>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Colosseum Detention Wait
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 40>>
+<<colosseumDebt 50000>>
+The guard writes the five-hundred-pound fee beside your name before leaving. You sit on the bench and wait.
+<br><br>
+Later, the door unlocks. Three guards enter. One comes towards you while the other two remain near the open door.
+"You chose to stay," the first says. "We've still got time before they need this room again."
+<br><br>
+The first guard reaches for you while the other two block the doorway.
+<br><br>
+<<link [[Next|Underground Colosseum Detention Molest]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+:: Underground Colosseum Detention Molest
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<endevent>>
+	<<controlloss>><<violence 1>><<neutral 1>><<molested>>
+	<<generateRole 0 "brisk" "guard">><<generateRole 1 "heavy" "guard">>
+	<<generateRole 2 "bored" "guard">>
+	<<maninit>>
+	<<set $enemyanger += 40>>
+<</if>>
+<<effects>><<effectsman>><<man>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Colosseum Detention Molest Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Colosseum Detention Molest]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Colosseum Detention Molest Finish
+<<set $outside to 0>><<set $location to "colosseum">><<effects>>
+<<pass 20>><<if $finish is 1>><<encounterEndViolence>><</if>>
+Another fight begins and ends upstairs before the guards finally stop. Two of them leave and start talking about the next fight. The <<person1>><<person>> stays to straighten <<his>> uniform.
+<br><br>
+<<He>> drops the charge sheet onto the bench. The five-hundred-pound fee is still written beside your name.
+<<stress 8>><<ggstress>>
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<if $xchange.colosseum.matchFix>>
+	<<link [[Return to the desk|Underground Colosseum Postfight Event]]>><</link>>
+<<else>>
+	<<link [[Return to the pit|Underground Colosseum Pit]]>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Colosseum Champion Disrupt
+<<set $outside to 0>><<set $location to "colosseum">><<effects>>
+You leave the unsigned contract on the desk and head towards the service stairs. A guard sits beside the locked door at the bottom, with the room keys hanging on a hook behind the desk.
+<br><br>
+The fighters are kept beyond that door, with the delivery exit further down the corridor.
+<br><br>
+You need the keys to get inside.
+<br><br>
+<<if setup.inflation.canAfford(20000, "colosseum")>>
+	<<link [[Pay a worker to call the guard upstairs (<<printprice 20000>> 0:10)|Underground Colosseum Champion Disrupt Open]]>><<money -20000 "colosseum">><<pass 10>><</link>>
+	<br>
+<</if>>
+<<link [[Wait until the guard moves, then slip through (0:15)|Underground Colosseum Champion Disrupt Attempt]]>><</link>><<skill_difficulty `currentSkillValue("skulduggery")` "Skulduggery" 0 1000>>
+<br>
+<<link [[Leave the service stairs|Underground Colosseum Terraces]]>><</link>>
+<br>
+
+:: Underground Colosseum Champion Disrupt Attempt
+<<effects>><<pass 5>>
+<<if random(1, 1000) lte Math.clamp(currentSkillValue("skulduggery"), 100, 1000)>>
+	A worker in the storage room calls the guard over. The guard leaves the desk to answer.
+	<br><br>
+	You reach the corridor door before it closes and slip through.
+	<br><br>
+	<<link [[Take the room keys|Underground Colosseum Champion Disrupt Open]]>><</link>>
+<<else>>
+	The guard sees you heading for the restricted stairs and grabs your shoulder.
+	"Wrong stairs."
+	<br><br>
+	The guard takes you back to the desk. The clerk marks your name and <span class="red">bans you from the Colosseum for one day</span>.
+	<<set $xchange.colosseum.banUntil to Time.date.timeStamp + 86400>><<stress 10>><<ggstress>>
+	<br><br>
+	<<link [[Leave|Industrial Alleyways]]>><<endevent>><</link>>
+<</if>>
+<br>

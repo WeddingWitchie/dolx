@@ -3443,6 +3443,10 @@
 		<<set $baileyStreetHuntPending to false>>
 		<<set $eventforced to 0>>
 		<<baileyStreetHunt>>
+	<<elseif $colosseumHuntPending>>
+		<<set $colosseumHuntPending to false>>
+		<<set $eventforced to 0>>
+		<<include "Colosseum Street Hunt">>
 	<<elseif $wraith.state and $eventforced and Time.isBloodMoon() and !_wraithEventSkipped>>
 		<<wraithEventStreet>>
 	<<elseif $kylarwatched is 1>>
@@ -4211,7 +4215,24 @@
 			<<set $baileyHuntReturn to $passage>>
 			<<set $baileyStreetHuntPending to true>>
 			<<set $eventforced to 1>>
-		<<else>>
+		<<elseif $eventskip is 0 and $tutorial isnot 0 and !$daily.colosseumHunt and $xchange?.colosseum?.joined gte 1>>
+			/* The Colosseum sends someone after fighters who cost it money or manpower */
+			<<colosseumHuntLevel>>
+			<<if _colosseumHunt gte 1 and random(1, 100) lte (30 + _colosseumHunt * 25)>>
+				<<set $colosseumHuntPending to true>>
+				<<set $eventforced to 1>>
+			<<else>>
+				<<set $daily.colosseumHunt to 1>>
+			<</if>>
+		<</if>>
+		/* When you're being hunted, every other street visit becomes more dangerous as people who owe the house recognise you */
+		<<if $eventskip is 0 and !$eventforced and !$colosseumHuntPending>>
+			<<colosseumHuntLevel>>
+			<<if _colosseumHunt gte 1 and random(1, 100) lte (12 + _colosseumHunt * 13)>>
+				<<set $eventforced to 1>>
+			<</if>>
+		<</if>>
+		<<if !$colosseumHuntPending and !$baileyStreetHuntPending>>
 		<<run statusCheck("Kylar")>>
 		<<set _kylarLocation to getKylarLocation()>>
 		<<if npcCanHunt("Ivory Wraith") and $wraith.state and $wraith.hunt is 0 and $wraith.timer gte (random(0, 60))>>

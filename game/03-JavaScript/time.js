@@ -207,6 +207,7 @@ const Time = (() => {
 		} finally {
 			// finally, set the time where it should be
 			setDate(new DateTime(prevDate.timeStamp + seconds));
+			if (V.xchange?.colosseum?.drugUntil !== undefined) window.colosseumDrugTick();
 			if (typeof autismTrainingTimePassed === "function") autismTrainingTimePassed(minutes);
 		}
 

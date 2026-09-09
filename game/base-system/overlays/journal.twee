@@ -184,6 +184,42 @@
 				<li>You already paid the gambling ring's upkeep this week.</li>
 			<</if>>
 
+			<<if $xchange.colosseum.heard gte 1 and $xchange.colosseum.keyKnown is 0>>
+				<li>You heard about an Underground Colosseum beneath the industrial district. Landry, Briar, or Bailey may know how to enter.</li>
+			<<elseif $xchange.colosseum.keyKnown gte 1 and $xchange.colosseum.joined is 0>>
+				<li>You know the passphrase for a steel door behind the old factory in the Industrial Alleyways.
+				<<if $fame.scrap lt 1200>>
+					You need a stronger fighting reputation before they will let you in.
+				<<else>>
+					Your fighting reputation is high enough to enter.
+				<</if>></li>
+			<<elseif $xchange.colosseum.joined gte 1>>
+				<li>You fight at the Underground Colosseum as <span class="pink"><<underworld_nickname>></span>. You are <span class="gold"><<colosseumRankName>>-rank</span> with <<= $xchange.colosseum.rankPoints>> points, <<= $xchange.colosseum.wins>> <<pluralise $xchange.colosseum.wins "win" "wins">>, and <<= $xchange.colosseum.losses>> <<pluralise $xchange.colosseum.losses "loss" "losses">>.
+				<<if ($daily.colosseumFights ?? 0) gt 0>>
+					You have fought <<= $daily.colosseumFights>> <<pluralise $daily.colosseumFights "time" "times">> today.
+				<</if>></li>
+				<<if $xchange.colosseum.promotionReady>>
+					<li>You can book a promotion bout against the next rank at the match board.</li>
+				<</if>>
+				<<if $xchange.colosseum.injuryDays gt 0>>
+					<li><span class="red">You are still injured from the arena.</span></li>
+				<</if>>
+				<<if $xchange.colosseum.debt gt 0>>
+					<li><span class="red">You owe the Colosseum <span class="gold"><<printmoney $xchange.colosseum.debt>></span>.</span> You can repay it at the fighters' desk or the entrance, even while banned.
+					<<if $xchange.colosseum.debtDeferred>>The house will take your winnings until the balance is cleared.<</if>></li>
+				<</if>>
+				<<if $xchange.colosseum.ending is "walked">><li>You retired from Colosseum bouts. You can still visit the terraces.</li><</if>>
+				<<if $xchange.colosseum.ending is "inside">>
+					<li>Gallery records: <<= Math.min(8, $xchange.colosseum.records?.count ?? 8)>> / 8 copied.
+					<<if $xchange.colosseum.records?.count lt 8>>
+						<<if $timeStamp gte $xchange.colosseum.records.nextAt>>Return to the private gallery to copy the next page.
+						<<else>>The next opportunity is in about <<= Math.ceil(($xchange.colosseum.records.nextAt - $timeStamp) / 3600)>> hours.<</if>>
+					<<elseif ($xchange.colosseum.records?.count ?? 8) is 8>>You can use the copies at the gallery desk to clear your current Colosseum debt.
+					<<else>>You used the copies to clear your debt. Future debts still count.<</if>></li>
+				<</if>>
+				<<if colosseumDrugStage()>><li><<colosseumDrugDescription>></li><</if>>
+			<</if>>
+
 			<<if $avery_mansion?.schedule isnot "away" and $averydate is 1 and Time.hour lte 21 and $averydatedone isnot 1>> 
 				<li>You have a date scheduled with Avery <span class="pink"><<this_saturday>></span>. <<nnpc_He "Avery">>'ll wait for you <<= $avery_mansion ? "in the garage" : "on Domus Street">> between <span class="gold"><<ampm 20 00>></span> and <span class="gold"><<ampm 21 00>></span>.</li>
 			<</if>>

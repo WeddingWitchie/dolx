@@ -1441,6 +1441,23 @@ function xchangeDailyCheck(days = 1) {
 
 		wikifier("blackmail-daypassed", days);
 
+		// Underground Colosseum: heal injuries and reduce heat over time.
+		try {
+			const col = V.xchange?.colosseum;
+			if (col) {
+				if (col.injuryDays > 0) {
+					col.injuryDays = Math.max(0, col.injuryDays - days);
+					if (col.injuryDays === 0) col.injury = 0;
+					else if (col.injuryDays <= 1 && col.injury > 1) col.injury -= 1;
+				}
+				if (col.joined && Time.days - (col.storyDay || 0) > 7) {
+					col.heat = Math.max(0, col.heat - days);
+				}
+			}
+		} catch (e) {
+			/* defensive: never let the colosseum break the daily tick */
+		}
+
 		V.recentmolest = Math.max(V.recentmolest - 1 * days, 0);
 		V.recentrape = Math.max(V.recentrape - 1 * days, 0);
 
@@ -1650,6 +1667,15 @@ function xchangeEffectsMessages() {
 		br();
 		br();
 		delete V.hermSaveWarningMessage;
+	}
+
+	/* Set by colosseumDrugTick when an arena dose wears off. */
+	if (V.colosseumDrugCrashMessage) {
+		delete V.colosseumDrugCrashMessage;
+		element("span", "The arena dose lets go of you all at once.", "red");
+		element("span", "Every hit it held off arrives at the same time, and none of it feels like it happened to you.", "red");
+		br();
+		br();
 	}
 
 	if (V.identityWarningMessage) {

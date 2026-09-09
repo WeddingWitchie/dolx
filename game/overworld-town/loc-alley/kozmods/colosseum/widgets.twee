@@ -1,0 +1,434 @@
+:: Widgets Colosseum [widget]
+<<widget "colosseumDrugDescription">>
+	<<if colosseumDrugStage() is "active">>
+		<br><span class="purple">Arena drug: 90% of incoming pain is blocked for <<= Math.ceil(($xchange.colosseum.drugUntil - $timeStamp) / 60)>> more minutes.</span><br>
+	<<elseif colosseumDrugStage() is "crash">>
+		<br><span class="red">Arena drug crash: you feel detached from your body and surroundings for <<= Math.ceil(($xchange.colosseum.drugUntil + 7200 - $timeStamp) / 60)>> more minutes.</span><br>
+	<</if>>
+<</widget>>
+
+<!--
+	Underground Colosseum helpers.
+	- State: $xchange.colosseum
+	- Story progression uses HEAT; events unlock at stage thresholds.
+	- Arena name follows the shared Combat fame nickname.
+	- Colosseum injuries persist across days and outside the arena.
+-->
+<<widget "colosseumRankName">>
+	<<set _rankIndex to Math.clamp(Math.trunc(_args[0] ?? $xchange.colosseum.rank), 0, 6)>>
+	<<print ["F", "E", "D", "C", "B", "A", "S"][_rankIndex]>>
+<</widget>>
+
+<!-- Minimum ranking points per rank. Index = rank index. -->
+<<widget "colosseumThresholds">>
+	<<set _colosseumThresholds to [0, 100, 225, 375, 550, 725, 900]>>
+<</widget>>
+
+<!--
+	Raise story heat.
+	Example: <<colosseumHeat 3 "You memorised the guard rota.">>
+-->
+<<widget "colosseumHeat">>
+	<<set _amount to Math.max(0, Math.trunc(_args[0] ?? 0))>>
+	<<if _amount gt 0 and $statFreeze isnot true>>
+		<<set $xchange.colosseum.heat to Math.clamp($xchange.colosseum.heat + _amount, 0, 100)>>
+		<<if _args[1]>>
+			<br><span class="purple"><<print _args[1]>></span>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<!-- Heat needed for the next story event. Stage 6 is the end, so its threshold is unreachable. -->
+<<widget "colosseumStoryReady">>
+	<<set _storyGates to [6, 12, 18, 26, 34, 44, 999]>>
+	<<set _colosseumStoryReady to $xchange.colosseum.heat gte _storyGates[Math.clamp($xchange.colosseum.story, 0, 6)]>>
+<</widget>>
+
+<!-- Advance the story stage, record the day, and spend 6 heat. -->
+<<widget "colosseumStoryAdvance">>
+	<<set $xchange.colosseum.story to Math.clamp(Math.trunc(_args[0]), 0, 6)>>
+	<<set $xchange.colosseum.storyDay to Time.days>>
+	<<set $xchange.colosseum.heat to Math.max(0, $xchange.colosseum.heat - 6)>>
+<</widget>>
+
+<!-- Check whether the extended combat options required by ranked Colosseum fights are enabled. -->
+<<widget "colosseumCombatReady">>
+	<<set _colosseumCombatMissing to []>>
+	<<if $combatExtended?.standingFights isnot 1>><<run _colosseumCombatMissing.push("Standing Fights")>><</if>>
+	<<if $combatExtended?.countering isnot 1>><<run _colosseumCombatMissing.push("Countering")>><</if>>
+	<<if $combatExtended?.feinting isnot 1>><<run _colosseumCombatMissing.push("Feinting")>><</if>>
+	<<if $combatExtended?.hookpunching isnot 1>><<run _colosseumCombatMissing.push("Hook Punching")>><</if>>
+	<<if $combatExtended?.enemyPassiveDodging isnot 1>><<run _colosseumCombatMissing.push("Enemy Passive Dodging")>><</if>>
+	<<if $combatExtended?.enemyActiveDodging isnot 1>><<run _colosseumCombatMissing.push("Enemy Active Dodging")>><</if>>
+	<<if $combatExtended?.enemyBlocking isnot 1>><<run _colosseumCombatMissing.push("Enemy Blocking")>><</if>>
+	<<if $combatExtended?.enemyCountering isnot 1>><<run _colosseumCombatMissing.push("Enemy Countering")>><</if>>
+	<<if $combatExtended?.enemyFeinting isnot 1>><<run _colosseumCombatMissing.push("Enemy Feinting")>><</if>>
+	<<set _colosseumCombatReady to _colosseumCombatMissing.length is 0>>
+<</widget>>
+
+<!--
+	Create a ranked opponent.
+	Arg 1: rank (0–6).
+	Arg 2: "keep" if NPC slot 0 already has the correct fighter.
+
+	Each rank applies fixed health and dodgeChance after NPC generation.
+	dodgeChance is the main difficulty value; health is set separately due to damage scaling.
+	Applying these after generation keeps difficulty consistent across fighters.
+-->
+<<widget "colosseumOpponent">>
+	<<set _colRank to Math.trunc(Number(_args[0]))>>
+	<<if !Number.isFinite(_colRank)>><<set _colRank to 0>><</if>>
+	<<set _colRank to Math.clamp(_colRank, 0, 6)>>
+	<<if _args[1] isnot "keep">>
+		<<endevent>>
+		<<set _colLvl to [10, 12, 14, 16, 17, 18, 22][_colRank]>>
+		<<set _colAny to "r">>
+		<<generateNPC 1 "a" _colAny _colAny _colLvl>>
+	<</if>>
+	<<if $NPCList[0]>>
+		<<set _colMult to Number($npcHealthMult)>>
+		<<if !Number.isFinite(_colMult)>><<set _colMult to 100>><</if>>
+		<<set _colHealth to Math.round([400, 600, 850, 1200, 1600, 2000, 2600][_colRank] * Math.clamp(_colMult, 25, 300) / 100)>>
+		<<set $NPCList[0].healthmax to _colHealth>>
+		<<set $NPCList[0].health to _colHealth>>
+		<<set $NPCList[0].dodgeChance to [4, 9, 15, 21, 26, 32, 38][_colRank]>>
+	<</if>>
+	<<person1>>
+<</widget>>
+
+<!-- Wren: the smuggler pub, the estate card game and the gambling ring under the town pub -->
+<<widget "colosseumWrenOption">>
+	<<set _wrenColosseumVenue to ["pub", "gambling"].includes(_args[0]) ? _args[0] : "estate">>
+	<<if $xchange?.colosseum?.joined gte 1 and $xchange.colosseum.rank gte 2 and !$daily.colosseumWrenTip and !$xchange.colosseum.insideTip and random(1, 100) lte 35>>
+		<<socialiseicon "ask">><<link [[Ask what Wren knows about your next fight|Wren Colosseum Tip]]>><<set $wrenTalkLocation to _wrenColosseumVenue>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<!--
+	Create and store one betting-card matchup.
+	Win chance = 90 / odds (e.g. 3x = 30%), giving the house ~10% overall.
+	Joined fighters have a daily booth-bet limit, rolled once and stored in $daily.
+
+	Hostile pursuit:
+	hunt: 0-3 pursuit strength.
+	huntUntil: end day; 0 = continues until fought down.
+	huntWins: wins toward reducing the current hunt level.
+-->
+<<widget "colosseumInjuryCare">>
+	<<set _colosseumHurt to $xchange?.colosseum?.injury gte 2 and $xchange.colosseum.injuryDays gt 0>>
+<</widget>>
+
+<<widget "colosseumInjuryNurse">>
+	<<colosseumInjuryCare>>
+	<<if _colosseumHurt and !$daily.colosseumNurse>>
+		<<schoolicon "infirmary">><<link [[Show nurse the bruises (0:15)|Colosseum Nurse Visit]]>><<pass 15>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "colosseumInjuryDorenLunch">>
+	<<colosseumInjuryCare>>
+	<<if _colosseumHurt and $daily.colosseumInjuryDoren and !$daily.colosseumDorenLunch>>
+		<<foodicon "eat">><<link [[Sit with Doren (0:20)|Colosseum Doren Lunch]]>><<pass 20>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "colosseumHuntLevel">>
+	<<if $xchange?.colosseum>>
+		<<if !Number.isFinite($xchange.colosseum.hunt)>><<set $xchange.colosseum.hunt to 0>><</if>>
+		<<if !Number.isFinite($xchange.colosseum.huntUntil)>><<set $xchange.colosseum.huntUntil to 0>><</if>>
+		<<if !Number.isFinite($xchange.colosseum.huntWins)>><<set $xchange.colosseum.huntWins to 0>><</if>>
+		<<if $xchange.colosseum.huntUntil gt 0 and Time.days gte $xchange.colosseum.huntUntil>>
+			<<set $xchange.colosseum.hunt to 0>><<set $xchange.colosseum.huntUntil to 0>><<set $xchange.colosseum.huntWins to 0>>
+		<</if>>
+		<<set _colosseumHunt to Math.clamp(Math.trunc($xchange.colosseum.hunt), 0, 3)>>
+	<<else>>
+		<<set _colosseumHunt to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "colosseumHuntRaise">>
+	<<colosseumHuntLevel>>
+	<<set _raiseTo to Math.clamp(Math.trunc(Number(_args[0]) || 0), 0, 3)>>
+	<<set _raiseDays to Math.max(0, Math.trunc(Number(_args[1]) || 0))>>
+	<<if _raiseTo gt _colosseumHunt>>
+		<<set $xchange.colosseum.hunt to _raiseTo>>
+		<<set $xchange.colosseum.huntWins to 0>>
+		<<set $xchange.colosseum.huntUntil to _raiseDays gt 0 ? Time.days + _raiseDays : 0>>
+		<<set _colosseumHunt to _raiseTo>>
+	<<elseif _raiseTo is _colosseumHunt and _raiseTo gt 0>>
+		<<if _raiseDays is 0>>
+			<<set $xchange.colosseum.huntUntil to 0>>
+		<<elseif $xchange.colosseum.huntUntil gt 0>>
+			<<set $xchange.colosseum.huntUntil to Math.max($xchange.colosseum.huntUntil, Time.days + _raiseDays)>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "colosseumHuntEase">>
+	<<colosseumHuntLevel>>
+	<<set _colosseumHuntDropped to false>>
+	<<set _colosseumHuntOver to false>>
+	<<if _colosseumHunt gt 0>>
+		<<set $xchange.colosseum.huntWins += 1>>
+		<<if $xchange.colosseum.huntWins gte 3>>
+			<<set $xchange.colosseum.huntWins to 0>>
+			<<set $xchange.colosseum.hunt to Math.max(0, _colosseumHunt - 1)>>
+			<<set _colosseumHuntDropped to true>>
+			<<if $xchange.colosseum.hunt is 0>>
+				<<set $xchange.colosseum.huntUntil to 0>>
+				<<set _colosseumHuntOver to true>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "colosseumHuntNpc">>
+	<<colosseumHuntLevel>>
+	<<endevent>>
+	<<set _huntAny to "r">>
+	<<set _huntLvl to [17, 17, 18, 19][_colosseumHunt]>>
+	<<generateNPC 1 "a" _huntAny _huntAny _huntLvl>>
+	<<if $NPCList[0]>>
+		<<set _huntMult to Number($npcHealthMult)>>
+		<<if !Number.isFinite(_huntMult)>><<set _huntMult to 100>><</if>>
+		<<set _huntHealth to Math.round([900, 900, 1400, 2000][_colosseumHunt] * Math.clamp(_huntMult, 25, 300) / 100)>>
+		<<set $NPCList[0].healthmax to _huntHealth>>
+		<<set $NPCList[0].health to _huntHealth>>
+		<<set $NPCList[0].dodgeChance to [12, 12, 20, 28][_colosseumHunt]>>
+	<</if>>
+	<<person1>>
+<</widget>>
+
+<<widget "colosseumBetLimit">>
+	<<if typeof $daily.colosseumBetLimit isnot "number" or $daily.colosseumBetLimit lt 2 or $daily.colosseumBetLimit gt 5>>
+		<<set $daily.colosseumBetLimit to random(2, 5)>>
+	<</if>>
+	<<if typeof $daily.colosseumBets isnot "number" or Number.isNaN($daily.colosseumBets)>>
+		<<set $daily.colosseumBets to 0>>
+	<</if>>
+	<<if $xchange.colosseum.joined gte 1>>
+		<<set _colosseumBetsLeft to Math.max(0, $daily.colosseumBetLimit - $daily.colosseumBets)>>
+	<<else>>
+		<<set _colosseumBetsLeft to 99>>
+	<</if>>
+<</widget>>
+
+<<widget "colosseumCardOffer">>
+	<<if !$xchange.colosseum.cardOffer or typeof $xchange.colosseum.cardOffer isnot "object">>
+		<<set _cardPool to ["Ox", "Kettle", "Nine Fingers", "The Wall", "Grandmother", "Pike", "Little Sunday", "Hammerhead", "Cabbage", "The Dentist", "Half Past", "Boots", "The Postman", "Sixpence"]>>
+		<<set _cardA to _cardPool.pluck()>>
+		<<set _cardB to _cardPool.pluck()>>
+		<<set _favOdds to [1.5, 1.5, 2][random(0, 2)]>>
+		<<set _dogOdds to [3, 4, 5][random(0, 2)]>>
+		<<if random(1, 2) is 1>>
+			<<set $xchange.colosseum.cardOffer to {a: _cardA, b: _cardB, oddsA: _favOdds, oddsB: _dogOdds}>>
+		<<else>>
+			<<set $xchange.colosseum.cardOffer to {a: _cardA, b: _cardB, oddsA: _dogOdds, oddsB: _favOdds}>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<!--
+	Keep the match fixer and steel-door attendant consistent throughout the save.
+	Store both in $per_npc so their identity, appearance, and pronouns remain stable across scenes.
+-->
+<<widget "colosseumDoor">>
+	<<endevent>>
+	<<if $per_npc?.colosseum_door>>
+		<<loadNPC 0 "colosseum_door">>
+	<<else>>
+		<<generate1>><<saveNPC 0 "colosseum_door">>
+	<</if>>
+	<<person1>>
+<</widget>>
+
+<<widget "colosseumFixer">>
+	<<endevent>>
+	<<if $per_npc?.colosseum_fixer>>
+		<<loadNPC 0 "colosseum_fixer">>
+	<<else>>
+		<<generate1>><<saveNPC 0 "colosseum_fixer">>
+	<</if>>
+	<<person1>>
+<</widget>>
+
+<!-- Automatic insanity attack used during Colosseum combat -->
+<<widget "colosseumLashOut">>
+	<<if $combat is 1
+		and typeof activeInsanityTrait === "function" and activeInsanityTrait()
+		and ($xchange.colosseum.lashOuts ?? 0) lt 4
+		and $enemyhealth gt 0
+		and $NPCList[0] and Number($NPCList[0].health) gt 0
+		and random(1, 100) lte 20>>
+		<<set $xchange.colosseum.lashOuts to ($xchange.colosseum.lashOuts ?? 0) + 1>>
+		<<set _lashPool to Number($enemyhealthmax)>>
+		<<if !Number.isFinite(_lashPool) or _lashPool lte 0>><<set _lashPool to 200>><</if>>
+		<<set _lash to Math.max(60, Math.round(_lashPool * 0.3))>>
+		<<set $enemyhealth -= _lash>>
+		<<set $NPCList[0].health to Math.max(0, Number($NPCList[0].health) - _lash)>>
+		<<set $enemyanger += 30>><<set $enemytrust -= 20>>
+		<<person1>>
+		<br><br>
+		<<switch random(1, 3)>>
+			<<case 1>>
+				You step in without thinking and strike the <<person>> across the jaw. <<He>> stumbles back as laughter bursts from you. <span class="lustful">"HaHAhahHAHahaha!"</span>
+			<<case 2>>
+				You rush the <<person>> and keep punching until <<he>> drops to one knee. Your knuckles split from the repeated blows, but you barely notice. <span class="lustful">"HAHAhahHAHahaha!"</span>
+			<<default>>
+				You duck under <<his>> guard and hit <<him>> three times before stepping back. The crowd nearest the rail falls quiet. <span class="lustful">"HaHAhahHAHahaha!"</span>
+		<</switch>>
+		<<combatcontrol -10>>
+	<</if>>
+<</widget>>
+
+<!--
+	The Colosseum uses DoL's existing <<underworld_nickname>>, based on $fame.scrap.
+	Colosseum fights raise scrap fame, so the nickname may change naturally.
+
+	CONDUCT is tracked separately. It affects how fighters and staff respond, but does not change the player's nickname.
+-->
+<<widget "colosseumConduct">>
+	<<if $xchange.colosseum.fixes gte 2>>
+		<<set _colosseumConduct to "bought">>
+	<<elseif $xchange.colosseum.dirtyFights gte 3>>
+		<<set _colosseumConduct to "dirty">>
+	<<elseif ($xchange.colosseum.backDowns ?? 0) gte 2>>
+		<<set _colosseumConduct to "soft">>
+	<<elseif $xchange.colosseum.protects gte 2>>
+		<<set _colosseumConduct to "straight">>
+	<<elseif $xchange.colosseum.losses gte 4 and $xchange.colosseum.losses gte $xchange.colosseum.wins>>
+		<<set _colosseumConduct to "gameful">>
+	<<else>>
+		<<set _colosseumConduct to "">>
+	<</if>>
+<</widget>>
+
+<!-- Record backing down; affects scrap fame and fighter reactions. -->
+<<widget "colosseumBackDown">>
+	<<set _loss to Math.max(0, Math.trunc(_args[0] ?? 0))>>
+	<<if $statFreeze isnot true>>
+		<<if _loss gt 0>>
+			<<set $fame.scrap to Math.max(0, $fame.scrap - _loss)>><<fameclamp>>
+		<</if>>
+		<<set $xchange.colosseum.backDowns to Math.min(99, ($xchange.colosseum.backDowns ?? 0) + 1)>>
+	<</if>>
+<</widget>>
+
+<!--
+	Colosseum injury levels:
+	1: Visible only.
+	2: Affects the player outside the arena.
+	3: No further fights will be booked.
+
+	Injury days stack up to 14 days.
+-->
+<<widget "colosseumInjure">>
+	<<set _level to Math.clamp(Math.trunc(_args[0] ?? 1), 1, 3)>>
+	<<set _days to Math.max(1, Math.trunc(_args[1] ?? _level))>>
+	<<set $xchange.colosseum.injury to Math.max($xchange.colosseum.injury, _level)>>
+	<<set $xchange.colosseum.injuryDays to Math.min(14, $xchange.colosseum.injuryDays + _days)>>
+<</widget>>
+
+<!-- True if the player's Colosseum injury prevents booking a match. -->
+<<widget "colosseumUnfit">>
+	<<set _colosseumUnfit to $xchange.colosseum.injury gte 3 and $xchange.colosseum.injuryDays gt 0>>
+<</widget>>
+
+<!-- Print the player's visible Colosseum injury, if any. -->
+<<widget "colosseumInjuryDescription">>
+	<<if $xchange.colosseum.injuryDays gt 0>>
+		<<if $xchange.colosseum.injury gte 3>>You keep one arm pressed against your ribs because moving hurts.
+		<<elseif $xchange.colosseum.injury is 2>>Your lip is split, and one eye is swollen half shut.
+		<<else>>A bruise along your jaw is still visible.
+		<</if>>
+	<</if>>
+<</widget>>
+
+<!-- Adjust Colosseum debt, usually from kept fixed-match money. Collector events can read it outside the arena. -->
+<<widget "colosseumDebt">>
+	<<set $xchange.colosseum.debt to Math.max(0, $xchange.colosseum.debt + Math.trunc(_args[0] ?? 0))>>
+	<<if $xchange.colosseum.debt is 0>>
+		<<set $xchange.colosseum.debtDeferred to 0>><<set $xchange.colosseum.callbacks.fix to 0>>
+		<<if $xchange.colosseum.ending isnot "disrupted">>
+			<<set $xchange.colosseum.hunt to 0>><<set $xchange.colosseum.huntUntil to 0>><<set $xchange.colosseum.huntWins to 0>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<!--
+	Load the recurring Colosseum receptionist.
+	Pronoun is stored in $xchange.colosseum.hostPronoun for consistency.
+	Call this widget before any passage using their pronouns. Uses NPC slot 0.
+-->
+<<widget "colosseumHost">>
+	<<if !["m", "f"].includes($xchange.colosseum.hostPronoun)>>
+		<<set $xchange.colosseum.hostPronoun to either("m", "f")>>
+	<</if>>
+	<<generateRole 0 "brisk" "receptionist">>
+	<<set $NPCList[0].pronoun to $xchange.colosseum.hostPronoun>>
+	<<person1>>
+<</widget>>
+
+<!--
+	Show reactions to visible Colosseum injuries outside the arena.
+	Used only at Bailey, Doren, school, and street. No output for level 1 or healed injuries.
+-->
+<<widget "colosseumInjuryReact">>
+	<<if $xchange.colosseum.injury gte 2 and $xchange.colosseum.injuryDays gt 0>>
+		<<set _severe to $xchange.colosseum.injury gte 3>>
+		<<switch _args[0]>>
+		<<case "bailey">>
+			<<if !$daily.colosseumInjuryBailey>>
+				<<set $daily.colosseumInjuryBailey to 1>>
+				Bailey looks over your injuries before returning to the ledger.
+				<br><br>
+				<<if _severe>>
+					"You can't work like that." <<He>> looks back at the ledger. "Rent is still due later. Find another way to pay it."
+				<<else>>
+					"If somebody robbed you, you would have said so already," Bailey says, looking back at the ledger. "So you were paid for whatever did this. Bring the money here."
+				<</if>>
+				<br><br>
+			<</if>>
+		<<case "doren">>
+			<<if !$daily.colosseumInjuryDoren>>
+				<<set $daily.colosseumInjuryDoren to 1>>
+				<<npc Doren>><<person1>>
+				Doren stops you before you reach a desk and turns your chin towards the window with two fingers, using the daylight to see the bruises clearly.
+				<br><br>
+				<<if _severe>>
+					"Someone hurt you." <<He>> waits for an answer. When you stay silent, <<he>> lowers the hand from your chin. "Go to the infirmary. You do not have to tell me what happened, but let somebody look at it."
+				<<else>>
+					"Put some ice on that bruise," <<he>> says. "More make-up will only make the skin sore." <<He>> steps aside, then adds, "I eat in the canteen at lunch. Sit with me if you want to."
+				<</if>>
+				<br><br>
+			<</if>>
+		<<case "school">>
+			<<if !$daily.colosseumInjurySchool>>
+				<<set $daily.colosseumInjurySchool to 1>>
+				<<if _severe>>
+					You lower yourself into your seat carefully because your injuries hurt when you bend. Several students notice. Someone behind you makes a joke about your injuries, and three people laugh.
+					<<if $fame.scrap gte 400>>
+						<br><br>
+						A student near the back quietly says <span class="pink"><<underworld_nickname>></span>. The laughter stops as the others look towards you again.
+					<</if>>
+				<<else>>
+					Two students notice the bruise on your face as they walk past. They say nothing to you, but one looks back at it before taking a seat.
+				<</if>>
+				<<stress 2>><<gstress>>
+			<</if>>
+		<<case "street">>
+			<<if !$daily.colosseumInjuryStreet>>
+				<<set $daily.colosseumInjuryStreet to 1>>
+				<<if _severe>>
+					A stranger walking towards you notices your injuries and steps aside early, leaving plenty of room for you to pass.
+				<<else>>
+					Someone waiting at the crossing takes in your face, then your hands, making a small disapproving noise and looks back at the road.
+				<</if>>
+				<br><br>
+			<</if>>
+		<</switch>>
+	<</if>>
+<</widget>>

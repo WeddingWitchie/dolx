@@ -57,6 +57,86 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.known is undefined>><<set $xchange.known to []>><</if>>
 	/* optional: if an old save made it the wrong type */
 	<<if $xchange.known isnot undefined and !Array.isArray($xchange.known)>><<set $xchange.known to []>><</if>>
+	/* Underground Colosseum */
+	<<if $xchange.colosseum is undefined or $xchange.colosseum is null or typeof $xchange.colosseum isnot "object" or Array.isArray($xchange.colosseum)>>
+		<<set $xchange.colosseum to {heat: 0, injury: 0, injuryDays: 0, debt: 0, quits: 0, watcherSeen: 0, watcherAsk: 0, hostPronoun: "", briarWatch: 0, briarReported: 0, baileyKnows: 0, baileyTitleUsed: 0, debtDeferred: 0, heard: 0, keyKnown: 0, joined: 0, route: "", story: 0, storyDay: 0, contacts: 0, ending: "", banUntil: 0, rank: 0, rankPoints: 0, promotionReady: 0, wins: 0, losses: 0, protects: 0, fixes: 0, dirtyFights: 0, lastOpponentRank: -1, opponentStreak: 0, visitEvents: 0, backDowns: 0, nurseKnows: 0, hunt: 0, huntUntil: 0, huntWins: 0, callbacks: {protect: 0, fix: 0}, rivals: {rookie: 0, veteran: 0}}>>
+	<</if>>
+	<<if !Number.isFinite($xchange.colosseum.heard)>><<set $xchange.colosseum.heard to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.keyKnown)>><<set $xchange.colosseum.keyKnown to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.joined)>><<set $xchange.colosseum.joined to 0>><</if>>
+	<<if !["", "landry", "briar", "bailey"].includes($xchange.colosseum.route)>><<set $xchange.colosseum.route to $xchange.colosseum.keyKnown ? "landry" : "">><</if>>
+	<<if !Number.isFinite($xchange.colosseum.story)>><<set $xchange.colosseum.story to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.storyDay)>><<set $xchange.colosseum.storyDay to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.contacts)>><<set $xchange.colosseum.contacts to 0>><</if>>
+	<<if typeof $xchange.colosseum.ending isnot "string">><<set $xchange.colosseum.ending to "">><</if>>
+	<<if !Number.isFinite($xchange.colosseum.banUntil)>><<set $xchange.colosseum.banUntil to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.nurseKnows)>><<set $xchange.colosseum.nurseKnows to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.hunt)>><<set $xchange.colosseum.hunt to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.huntUntil)>><<set $xchange.colosseum.huntUntil to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.huntWins)>><<set $xchange.colosseum.huntWins to 0>><</if>>
+	<<set $xchange.colosseum.hunt to Math.clamp(Math.trunc($xchange.colosseum.hunt), 0, 3)>>
+	<<set $xchange.colosseum.huntUntil to Math.max(0, Math.trunc($xchange.colosseum.huntUntil))>>
+	<<set $xchange.colosseum.huntWins to Math.clamp(Math.trunc($xchange.colosseum.huntWins), 0, 3)>>
+	<<if $xchange.colosseum.banUntil gt Time.date.timeStamp + 259200>>
+		<<set $xchange.colosseum.banUntil -= $xchange.colosseum.banUntil gt Time.date.timeStamp + 172800000 ? (259200000 - 259200) : (172800000 - 172800)>>
+	<</if>>
+	<<if !Number.isFinite($xchange.colosseum.rankPoints)>><<set $xchange.colosseum.rankPoints to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.rank)>><<set $xchange.colosseum.rank to $xchange.colosseum.rankPoints gte 900 ? 6 : $xchange.colosseum.rankPoints gte 725 ? 5 : $xchange.colosseum.rankPoints gte 550 ? 4 : $xchange.colosseum.rankPoints gte 375 ? 3 : $xchange.colosseum.rankPoints gte 225 ? 2 : $xchange.colosseum.rankPoints gte 100 ? 1 : 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.promotionReady)>><<set $xchange.colosseum.promotionReady to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.wins)>><<set $xchange.colosseum.wins to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.losses)>><<set $xchange.colosseum.losses to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.protects)>><<set $xchange.colosseum.protects to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.fixes)>><<set $xchange.colosseum.fixes to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.dirtyFights)>><<set $xchange.colosseum.dirtyFights to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.lastOpponentRank)>><<set $xchange.colosseum.lastOpponentRank to -1>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.opponentStreak)>><<set $xchange.colosseum.opponentStreak to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.visitEvents)>><<set $xchange.colosseum.visitEvents to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.backDowns)>><<set $xchange.colosseum.backDowns to 0>><</if>>
+	<<if $xchange.colosseum.callbacks is undefined or $xchange.colosseum.callbacks is null or typeof $xchange.colosseum.callbacks isnot "object" or Array.isArray($xchange.colosseum.callbacks)>><<set $xchange.colosseum.callbacks to {protect: 0, fix: 0}>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.callbacks.protect)>><<set $xchange.colosseum.callbacks.protect to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.callbacks.fix)>><<set $xchange.colosseum.callbacks.fix to 0>><</if>>
+	<<if $xchange.colosseum.rivals is undefined or $xchange.colosseum.rivals is null or typeof $xchange.colosseum.rivals isnot "object" or Array.isArray($xchange.colosseum.rivals)>><<set $xchange.colosseum.rivals to {rookie: 0, veteran: 0}>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.rivals.rookie)>><<set $xchange.colosseum.rivals.rookie to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.rivals.veteran)>><<set $xchange.colosseum.rivals.veteran to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.heat)>><<set $xchange.colosseum.heat to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.injury)>><<set $xchange.colosseum.injury to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.injuryDays)>><<set $xchange.colosseum.injuryDays to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.debt)>><<set $xchange.colosseum.debt to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.quits)>><<set $xchange.colosseum.quits to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.betrayAmbush)>><<run delete $xchange.colosseum.betrayAmbush>><</if>>
+	<<run delete $xchange.colosseum.showerCold>>
+	<<if $xchange.colosseum.cardBet and (typeof $xchange.colosseum.cardBet isnot "object" or Array.isArray($xchange.colosseum.cardBet) or !Number.isFinite($xchange.colosseum.cardBet.stake) or !Number.isFinite($xchange.colosseum.cardBet.odds))>>
+		<<run delete $xchange.colosseum.cardBet>>
+	<</if>>
+	<<if $xchange.colosseum.records isnot undefined>>
+		<<if typeof $xchange.colosseum.records isnot "object" or $xchange.colosseum.records is null or Array.isArray($xchange.colosseum.records) or !Number.isFinite($xchange.colosseum.records.count) or !Number.isFinite($xchange.colosseum.records.nextAt)>>
+			<<run delete $xchange.colosseum.records>>
+		<<else>>
+			<<set $xchange.colosseum.records.count to Math.clamp(Math.trunc($xchange.colosseum.records.count), 0, 9)>>
+			<<set $xchange.colosseum.records.nextAt to Math.max(0, Math.trunc($xchange.colosseum.records.nextAt))>>
+		<</if>>
+	<</if>>
+	<<if !Number.isFinite($xchange.colosseum.drugUntil)>><<run delete $xchange.colosseum.drugCrashed>><</if>>
+	<<if $xchange.colosseum.matchFix isnot undefined and !["throw", "betray", "refused"].includes($xchange.colosseum.matchFix)>>
+		<<run delete $xchange.colosseum.matchFix>>
+	<</if>>
+	<<if $xchange.colosseum.vipPenalty isnot undefined>>
+		<<if !Number.isFinite($xchange.colosseum.vipPenalty) or $xchange.colosseum.vipPenalty lte 0 or $xchange.colosseum.vipPenalty gte 1>>
+			<<run delete $xchange.colosseum.vipPenalty>>
+		<</if>>
+	<</if>>
+	<<if !Number.isFinite($xchange.colosseum.watcherSeen)>><<set $xchange.colosseum.watcherSeen to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.watcherAsk)>><<set $xchange.colosseum.watcherAsk to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.wager) or $xchange.colosseum.wager lte 0>><<run delete $xchange.colosseum.wager>><</if>>
+	<<if !["m", "f"].includes($xchange.colosseum.hostPronoun)>><<set $xchange.colosseum.hostPronoun to "">><</if>>
+	<<if !Number.isFinite($xchange.colosseum.briarWatch)>><<set $xchange.colosseum.briarWatch to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.baileyKnows)>><<set $xchange.colosseum.baileyKnows to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.baileyTitleUsed)>><<set $xchange.colosseum.baileyTitleUsed to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.briarReported)>><<set $xchange.colosseum.briarReported to 0>><</if>>
+	<<if !Number.isFinite($xchange.colosseum.debtDeferred)>><<set $xchange.colosseum.debtDeferred to 0>><</if>>
+	<<if $xchange.colosseum.injuryDays lte 0>><<set $xchange.colosseum.injury to 0>><<set $xchange.colosseum.injuryDays to 0>><</if>>
+	<<if !["", "champion", "inside", "disrupted", "walked"].includes($xchange.colosseum.ending)>><<set $xchange.colosseum.ending to "">><</if>>
+	<<set $xchange.colosseum.rank to Math.clamp(Math.trunc($xchange.colosseum.rank), 0, 6)>><<set $xchange.colosseum.rankPoints to Math.clamp(Math.trunc($xchange.colosseum.rankPoints), 0, 1000)>><<set $xchange.colosseum.story to Math.clamp(Math.trunc($xchange.colosseum.story), 0, 6)>><<set $xchange.colosseum.storyDay to Math.max(0, Math.trunc($xchange.colosseum.storyDay))>><<set $xchange.colosseum.contacts to Math.clamp(Math.trunc($xchange.colosseum.contacts), 0, 31)>><<set $xchange.colosseum.banUntil to Math.max(0, $xchange.colosseum.banUntil)>><<set $xchange.colosseum.protects to Math.max(0, Math.trunc($xchange.colosseum.protects))>><<set $xchange.colosseum.fixes to Math.max(0, Math.trunc($xchange.colosseum.fixes))>><<set $xchange.colosseum.dirtyFights to Math.max(0, Math.trunc($xchange.colosseum.dirtyFights))>><<set $xchange.colosseum.visitEvents to Math.clamp(Math.trunc($xchange.colosseum.visitEvents), 0, 2)>><<set $xchange.colosseum.backDowns to Math.clamp(Math.trunc($xchange.colosseum.backDowns), 0, 99)>><<set $xchange.colosseum.callbacks.protect to Math.max(0, Math.trunc($xchange.colosseum.callbacks.protect))>><<set $xchange.colosseum.callbacks.fix to Math.max(0, Math.trunc($xchange.colosseum.callbacks.fix))>><<set $xchange.colosseum.rivals.rookie to Math.clamp(Math.trunc($xchange.colosseum.rivals.rookie), 0, 4)>><<set $xchange.colosseum.rivals.veteran to Math.clamp(Math.trunc($xchange.colosseum.rivals.veteran), 0, 3)>><<set $xchange.colosseum.heat to Math.clamp(Math.trunc($xchange.colosseum.heat), 0, 100)>><<set $xchange.colosseum.injury to Math.clamp(Math.trunc($xchange.colosseum.injury), 0, 3)>><<set $xchange.colosseum.injuryDays to Math.clamp(Math.trunc($xchange.colosseum.injuryDays), 0, 14)>><<set $xchange.colosseum.debt to Math.max(0, Math.trunc($xchange.colosseum.debt))>><<set $xchange.colosseum.quits to Math.max(0, Math.trunc($xchange.colosseum.quits))>><<set $xchange.colosseum.watcherSeen to Math.clamp(Math.trunc($xchange.colosseum.watcherSeen), 0, 3)>>
 
 	/* Anti X-Change therapy (Harper hospital treatment that keeps the player "clean" from involuntary pilling).
 	   questStage: 0 not asked, 1 asked & refused (waiting for Harper), 2 Harper found PC (explanation pending), 3 unlocked & purchasable.
@@ -1992,7 +2072,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if Array.isArray($NPCName)>>
 		<<for _hermIdx to 0; _hermIdx lt $NPCName.length; _hermIdx++>>
 			<<set _hermNpc to $NPCName[_hermIdx]>>
-			<<if _hermNpc and !["m","f"].includes(_hermNpc.gender) and !_hermNpc.xchange>>
+			<!-- Luchifen is a DoLX herm by design, not leftover cross-mod data. -->
+			<<if _hermNpc and !["m","f"].includes(_hermNpc.gender) and !_hermNpc.xchange and ($NPCNameList && $NPCNameList[_hermIdx]) isnot "Luchifen">>
 				<<set _targetNameIndex to _hermIdx>>
 				<<set _targetName to undefined>>
 				<<set _targetNo to undefined>>

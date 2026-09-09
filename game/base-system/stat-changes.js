@@ -1,4 +1,4 @@
-/* global amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod blackmailCancelQuestForBadEnd */
+/* global colosseumDrugStage amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod blackmailCancelQuestForBadEnd */
 
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -399,6 +399,7 @@ const statChange = (() => {
 		if (typeof calmorylDissociationActive === "function" && calmorylDissociationActive()) {
 			V.dissociation = 2;
 		}
+		if (colosseumDrugStage() === "crash") V.dissociation = 2;
 	}
 	DefineMacro("updatePlayerTraumaState", updatePlayerTraumaState);
 
@@ -668,6 +669,8 @@ const statChange = (() => {
 			let pain = amount * modifier;
 
 			if (pain > 0) {
+				/* The arena dose blocks 90% of pain, but some still gets through. */
+				if (colosseumDrugStage() === "active") pain *= window.COLOSSEUM_DRUG_PAIN_LET_THROUGH;
 				// physique reduction
 				pain *= 1 - Math.min(V.physique / 20000, 0.9);
 
@@ -696,6 +699,8 @@ const statChange = (() => {
 	function masopain(amount) {
 		if (isNaN(amount)) paramError("masopain", "amount", amount, "Expected a number.");
 		amount = Number(amount);
+		/* Masochistic arousal comes from pain, so the dose reduces both together. */
+		if (amount > 0 && colosseumDrugStage() === "active") amount *= window.COLOSSEUM_DRUG_PAIN_LET_THROUGH;
 		if (amount) {
 			V.pain += amount * (1 - V.masochism / 1200) * 4;
 			arousal(amount * ((-100 + V.masochism) / 18) * 4);

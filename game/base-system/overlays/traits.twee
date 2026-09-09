@@ -2273,23 +2273,25 @@
 					name: "Visibly Disturbed",
 					colour: "red",
 					/* Insanity only carries this outward sign with the opt-in X-Change setting. Real trauma and Calmoryl still grant it normally. */
-					has: $dissociation gte 1 and (!$backgroundTraits.includes("insanity") or $xchange?.insanityDisturbedTraitsEnabled or $trauma gte ($traumamax / 10) * 8.5 or calmorylDissociationActive()),
+					has: $dissociation gte 1 and (!$backgroundTraits.includes("insanity") or $xchange?.insanityDisturbedTraitsEnabled or $trauma gte ($traumamax / 10) * 8.5 or calmorylDissociationActive() or colosseumDrugStage() is "crash"),
 					text: "There's something wrong with you, and people can tell.",
 					textColour: "red",
 				},
 				{
 					name: () => {
+						if (colosseumDrugStage() === "crash") return "Arena Drug Crash";
 						if (calmorylDissociationActive()) return "Calmoryl Dissociation";
 						if (V.controlled > 0) return "Controlled Dissociation";
 						return "Dissociation";
 					},
 					colour: () => {
-						if (calmorylDissociationActive()) return "red";
+						if (calmorylDissociationActive() || colosseumDrugStage() === "crash") return "red";
 						if (V.controlled > 0) return "blue";
 						return "red";
 					},
 					has: $dissociation gte 2,
 					text: () => {
+						if (colosseumDrugStage() === "crash") return `The arena drug has worn off. You feel detached from everything around you. It should ease in about ${Math.ceil((V.xchange.colosseum.drugUntil + 7200 - V.timeStamp) / 60)} minutes.`;
 						if (calmorylDissociationActive()) {
 							const hours = calmorylDissociationRemainingHours();
 							return `The anti-anxiety tablets make everything feel distant. The effect should last about ${hours} more hour${hours === 1 ? "" : "s"}.`;
@@ -2299,7 +2301,7 @@
 						}
 						return "Nothing feels real.";
 					},
-					textColour: () => calmorylDissociationActive() || V.controlled === 0 ? "red" : "black",
+					textColour: () => calmorylDissociationActive() || colosseumDrugStage() === "crash" || V.controlled === 0 ? "red" : "black",
 				},
 			],
 		},

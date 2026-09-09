@@ -41,6 +41,26 @@ function ensureMmaGymWardrobe() {
 }
 window.ensureMmaGymWardrobe = ensureMmaGymWardrobe;
 
+/* Colosseum cages are cleared after each event. One washroom locker is kept for regular fighters. */
+function ensureColosseumWardrobe() {
+	if (!V.wardrobes || typeof V.wardrobes !== "object" || Array.isArray(V.wardrobes)) return;
+	if (!V.wardrobes.colosseum || typeof V.wardrobes.colosseum !== "object" || Array.isArray(V.wardrobes.colosseum)) {
+		V.wardrobes.colosseum = {};
+	}
+	const locker = V.wardrobes.colosseum;
+	for (const slot of setup.clothes_all_slots) {
+		if (!Array.isArray(locker[slot])) locker[slot] = [];
+	}
+	if (locker.name === undefined) locker.name = "Colosseum locker";
+	if (locker.unlocked === undefined) locker.unlocked = true;
+	if (locker.isolated === undefined) locker.isolated = true;
+	if (locker.shopSend === undefined) locker.shopSend = false;
+	if (locker.transfer === undefined) locker.transfer = true;
+	if (!Number.isFinite(locker.space)) locker.space = 5 * (V.wardrobeMult || 1);
+	if (!Array.isArray(locker.locationRequirement) || !locker.locationRequirement.length) locker.locationRequirement = ["colosseum"];
+}
+window.ensureColosseumWardrobe = ensureColosseumWardrobe;
+
 function getWardrobeItemCount(wardrobeId) {
 	let wardrobe;
 	if (wardrobeId === "wardrobe") {
