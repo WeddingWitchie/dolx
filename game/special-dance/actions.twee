@@ -98,6 +98,15 @@
 		<br>
 		<<link [[Pull Darryl onto the stage|$passage]]>><<set $danceaction to "darrylpull">><</link>>
 		<br>
+	<<elseif $danceevent is "bailey">>
+		<<if hasSexStat("exhibitionism", 4)>>
+			<<link [[Flash Bailey|$passage]]>><<set $danceaction to "baileyflash">><</link>><<exhibitionist4>>
+			<br>
+		<</if>>
+		<<link [[Flip Bailey off|$passage]]>><<set $danceaction to "baileyflip">><</link>>
+		<br>
+		<<link [[Look away|$passage]]>><<set $danceaction to "baileyignore">><</link>>
+		<br>
 	<<elseif $danceevent is "briar">>
 		<<link [[Wink at Briar|$passage]]>><<set $danceaction to "briarwink">><<npcincr Briar love 1>><</link>><<glove "Briar" "simple">>
 		<br>
@@ -449,7 +458,9 @@
 						<<dancedarryl>>
 					<</if>>
 				<<else>>
-					<<if $rng gte 99>>
+					<<if Time.isWeekEnd() and !$weekly.baileyDanceSeen and (!$bailey_monogamous or baileyStraying()) and $rng gte 90>>
+						<<dancebailey>>
+					<<elseif $rng gte 99>>
 						<<dancedarryl>>
 					<</if>>
 				<</if>>
@@ -770,6 +781,58 @@
 		<<set $danceevent to "underupperstrip">><<molested>>
 	<</if>>
 	<<trauma 6>><<stress 6>>
+<</widget>>
+
+/* RBE Writer: Priondizz */
+<<widget "dancebailey">>
+	<<set $danceevent to "bailey">>
+	<<set $weekly.baileyDanceSeen to true>>
+	You recognize a familiar figure sitting at a table away from the audience. The figure separates from <<nnpc_his "Bailey">> laughing partner and takes a swig from <<nnpc_his "Bailey">> glass. Your eyes meet when <<nnpc_he "Bailey">> looks up.
+	<br><br>
+
+	<<if baileyStraying()>>
+		<<person1>><span class="red">It seems that Bailey is back to fooling around with others because you didn't meet <<his>> demands.</span>
+		<br><br>
+	<</if>>
+
+	<<if $renttime lte 0 and $uncomfortable.prostituting is false>>
+		<span class="bailey-red">It's <<baileyTitleNarration>>.</span>
+		<br><br>
+
+		You look away, trying to resume your show. But your legs trip with each other, and you fall onto the stage without a chance to soften it.<<gpain>><<pain 10>>
+		<br><br>
+
+		The audience is disappointed, and audibly lets you know.
+		<br><br>
+
+		"Give me my money back, <<bitch>>!" someone yells. A few people stretch their arms to take back the tips thrown at you.
+		<br><br>
+
+		<span class="red">Panic overtakes you.</span> You scramble around the stage to snatch whatever notes remain. It gains you multiple jeers and insults from the audience, but you endure the humiliation.
+		<br><br>
+
+		No one in the audience knows what will happen to you if you don't have the money.
+		<br><br>
+
+		No one, <span class="red">except <<nnpc_him "Bailey">>.</span>
+		<br><br>
+
+		The thought overwhelms you. You flee the stage.<<ggtrauma>><<trauma 12>><<ggstress>><<stress 12>>
+		<<set $daily.baileyStripClub to "rent">>
+		<<set $danceevent to "finish">>
+	<<elseif $renttime lte 0>>
+		<span class="bailey-red">It's <<baileyTitleNarration>>.</span> <<nnpc_He "Bailey">> stares at you.
+		<br><br>
+
+		You look away, but <<nnpc_his "Bailey">> eyes follow you across the stage.<<ggstress>><<stress 12>>
+		<<set $daily.baileyStripClub to "rent">>
+		<<set $danceevent to 0>>
+	<<else>>
+		<span class="purple">It's <<baileyTitleNarration>>.</span>
+		<<if ($bailey_monogamous or isLoveInterest("Bailey")) and C.npc.Bailey.lust gte 80>>
+			<<set $daily.baileyStripClub to "lust">>
+		<</if>>
+	<</if>>
 <</widget>>
 
 <<widget "dancefinish">>

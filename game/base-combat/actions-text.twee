@@ -1919,6 +1919,34 @@
 	<</if>>
 <</widget>>
 
+/* Special widget for Angel TF's unique "Forgive" action */
+<<widget "actionsforgive">>
+	<<checkforloveinterests>>
+	<<if $enemytype is "beast">>
+		"You don't know any better. You're just a <<beasttype>>," you say. "I forgive you."
+	<<else>>
+		<<if _loveInterest isnot undefined>> 
+			/* Removing RNG since it's straightforward. Might add `and random(0, 100) lte 15` back if the situation calls for it */
+			<<set $speechnamedrop to $npc.includes(_loveInterest) ? 0 : 1>>
+			<<rng>>
+			<<switch _loveInterest>>
+				<<case "Avery">>
+					<<if $npc.includes("Avery")>>
+						<<if $avery_fate is undefined>>
+							"You're just angry," you say. "Everyone gets angry sometimes. I forgive you."
+						<<else>>
+							"Now I understand why you get so angry, Avery," you say. "And I forgive you."
+						<</if>>
+					<</if>>
+				<<default>>
+					"Even though you're doing such a horrible thing, don't worry," you say. "I forgive you."
+			<</switch>>
+		<<else>>
+			"Even though you're doing such a horrible thing, don't worry," you say. "I forgive you."
+		<</if>>
+	<</if>>
+<</widget>>
+
 <<widget "actionsplead">>
 	<<checkforloveinterests>>
 	<<if $robinRentEvent is 1 and ["Robin","pay","still"].includes($combatPhase)>>
@@ -3362,6 +3390,16 @@
 				"You make everything feel soft and sweet, Poppy."
 			<<case "Gwylan">>
 				"I think I'm bewitched."
+			<<case "Bailey">>
+				<<set _possibleSentences to []>>
+				<<set _possibleSentences.push({ sentence: `"Take what's yours, <<baileyTitle>>."`, dialogueID: "bailey_moan_yours"})>>
+				<<set _possibleSentences.push({ sentence: `"Show me what I'm worth to you, <<baileyTitle>>."`, dialogueID: "bailey_moan_worth"})>>
+				<<if $syndromebailey>>
+					<<set _possibleSentences.push({ sentence: either(`"I'm yours, <<baileyTitle>>. I've always been yours."`, `"It's always been you, <<baileyTitle>>."`), dialogueID: "bailey_moan_always"})>>
+				<</if>>
+				<<set _chosenSentence to _possibleSentences.random()>>
+				<<set $speechspecialdialogue to _chosenSentence.dialogueID>>
+				<<print _chosenSentence.sentence>>
 		<</switch>>
 	<<elseif $enemytype is "beast">>
 		<<if $vaginastate is "imminent">>

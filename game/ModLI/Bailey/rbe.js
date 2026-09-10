@@ -94,7 +94,7 @@ Macro.add("gbaileyMood", {
 	},
 });
 
-const BAILEY_EXPANSION_VERSION = "0.6.0";
+const BAILEY_EXPANSION_VERSION = "0.6.1";
 
 $(document).one(":storyready", function () {
 	function migrateLegacyStockholm() {

@@ -142,9 +142,9 @@
 	<<elseif $speechspray is 1>>
 		<<set $speechspray to 0>>
 		<<if C.npc.Bailey.dom lte 30>>
-			<<print `<<He>> makes a sound of disgust. "Disgusting brat."`>>
+			<<print `<<He>> snarls, reeling back in pain. "You'll pay for that, you little shit."`>>
 		<<else>>
-			<<print `<<He>> makes a sound of disgust. "You're making a mess."`>>
+			<<print `<<He>> snarls, reeling back in pain. "You'll pay for that."`>>
 		<</if>>
 
 	<<elseif $speechnamedrop is 1>>
@@ -332,37 +332,69 @@
 			)>>
 		<</if>>
 	<<elseif $speechmoan is 1>>
-		<<if C.npc.Bailey.dom lte 30>>
-			<<print $_stringsPre + either(
-				`"Save the moaning for clients."`,
-				`"Shut up. I don't need the racket."`,
-				`"Save the racket for someone who pays."`,
-				`"Save the moaning for the customers."`
-			)>>
-		<<elseif C.npc.Bailey.dom gte 70>>
-			<<print $_stringsPre + either(
-				`"Every sound you make is mine."`,
-				`"Don't hold your voice back. Let me hear them."`,
-				`"There it is. Let it out."`
-			)>>
-		<<elseif $enemyanger lte 20>>
-			<<print $_stringsPre + either(
-				`"Good to know what works."`,
-				`"This is what makes you valuable."`,
-				`"Louder. Let's hear it."`
-			)>>
-		<<elseif $enemyanger lte 100>>
-			<<print $_stringsPre + either(
-				`"Keep it down."`,
-				`"I don't need the noise."`,
-				`"Just take it."`
-			)>>
+		<<if $speechspecialdialogue is "bailey_moan_yours" or $speechspecialdialogue is "bailey_moan_worth" or $speechspecialdialogue is "bailey_moan_always">>
+			<<switch $speechspecialdialogue>>
+				<<case "bailey_moan_yours">> /* Take what's yours */
+					<<if baileyStraying()>>
+						<<print $_stringsPre + `"It was never yours to offer."`>>
+					<<elseif $bailey_monogamous>>
+						<<print $_stringsPre + `"You've always been mine."`>>
+					<<elseif $syndromebailey>>
+						<<print $_stringsPre + `"You're offering me what's already mine."`>>
+					<<else>>
+						<<print $_stringsPre + either(
+							`"I don't need your permission, brat."`,
+							`"I plan to collect."`
+						)>>
+					<</if>>
+				<<case "bailey_moan_worth">> /* Show me what I'm worth to you */
+					<<if baileyStraying()>>
+						<<print $_stringsPre + `"Ask the highest bidder."`>>
+					<<elseif $bailey_monogamous>>
+						<<print $_stringsPre + `"Worth enough to keep."`>>
+					<<else>>
+						<<print $_stringsPre + `"Show me you're worth keeping, first."`>>
+					<</if>>
+				<<case "bailey_moan_always">> /* I'm yours / It's always been you */
+					<<print $_stringsPre + either(
+						`"Prove it."`,
+						`"I know."`,
+						`"You're catching up. Good."`
+					)>>
+			<</switch>>
 		<<else>>
-			<<print $_stringsPre + either(
-				`"Not another sound, you little shit."`,
-				`"Shut your mouth, brat."`,
-				`"One more sound and I'll give you something to moan about."`
-			)>>
+			<<if C.npc.Bailey.dom lte 30>>
+				<<print $_stringsPre + either(
+					`"Save the moaning for clients."`,
+					`"Shut up. I don't need the racket."`,
+					`"Save the racket for someone who pays."`,
+					`"Save the moaning for the customers."`
+				)>>
+			<<elseif C.npc.Bailey.dom gte 70>>
+				<<print $_stringsPre + either(
+					`"Every sound you make is mine."`,
+					`"Don't hold your voice back. Let me hear them."`,
+					`"There it is. Let it out."`
+				)>>
+			<<elseif $enemyanger lte 20>>
+				<<print $_stringsPre + either(
+					`"Good to know what works."`,
+					`"This is what makes you valuable."`,
+					`"Louder. Let's hear it."`
+				)>>
+			<<elseif $enemyanger lte 100>>
+				<<print $_stringsPre + either(
+					`"Keep it down."`,
+					`"I don't need the noise."`,
+					`"Just take it."`
+				)>>
+			<<else>>
+				<<print $_stringsPre + either(
+					`"Not another sound, you little shit."`,
+					`"Shut your mouth, brat."`,
+					`"One more sound and I'll give you something to moan about."`
+				)>>
+			<</if>>
 		<</if>>
 	<<elseif $speechdemand is 1>>
 		<<if $enemyanger lte 20>>
@@ -815,7 +847,7 @@
 			)>>
 		<</if>>
 	<<elseif $speechmouthentrance is 1>>
-		<<if $syndromebailey and !$baileyUniqueComments.includes("mouthentrance")>>
+		<<if $syndromebailey and $bailey_title_unlocked and $bailey_title isnot "Bailey" and !$baileyUniqueComments.includes("mouthentrance")>>
 			<<set $baileyUniqueComments.pushUnique("mouthentrance")>>
 			<<print `"That's it, open for <<baileyTitle>>."`>>
 		<<elseif $syndromebailey>>
@@ -1973,99 +2005,129 @@
 		<</if>>
 
 	<<elseif $enemyanger lte 60>>
-		<<print $_stringsPre + either(
-			`"Hold still. You're wasting both our time."`,
-			`"Keep still. I'm almost done with you."`,
-			`"There it is. Get it out of your system."`,
-			`"You've always been the most difficult one. I hope you know that."`,
-			`"Are you going to listen to me now?"`,
-			`"You're learning. Good."`,
-			`"Stay still."`,
-			`"Don't make this harder than it needs to be."`,
-			`"Just relax. I'll handle everything like always."`,
-			`"You were always the best looking little ` + ["bastard","shit","<<bitch>>"][random(0,2)] + `."`,
-			`"It's easier this way. Trust me."`,
-			`"You're so valuable!"`,
-			`"Don't look surprised. I know exactly what you're worth."`,
-			`"You'd be amazed what someone will pay for a familiar face."`,
-			`"You never were good with accounts. Let me deal with it."`,
-			`"Trust me. Or don't. The result is the same."`,
-			`"Be sensible. Sensible people cost me less time."`,
-			`"Stay still and this stays simple."`,
-			`"Stand still. I need to check what condition you're in."`,
-			`"Let's see how much trouble you've caused me."`,
-			`"Long hair photographs well. That's useful."`,
-			`"Someone asked for hair like yours once. Paid upfront, too."`,
-			`"Look at you. Practically a premium listing."`,
-			`"Some buyers are very specific. You're fortunate, or unlucky."`,
-			`"Good muscle tone. That keeps your value up."`,
-			`"Fit enough to struggle, then. Some clients like that."`,
-			`"That's the face that sells. Try not to ruin it."`,
-			`"You're easier to manage when your body betrays you."`
-		)>>
+		<<cleareventpool>>
+		<<if $hairlength gte 600 and !$baileyUniqueComments.includes("long_hair")>>
+			<<addinlineevent "hair" 3>>
+				<<set $baileyUniqueComments.pushUnique("long_hair")>>
+				<<print $_stringsPre + `"Kept your hair long? I know someone who will like that."`>>
+			<</addinlineevent>>
+		<</if>>
+		<<if ($player.breastsize gte 8 or $player.penissize gte 5) and !$baileyUniqueComments.includes("cow")>>
+			<<addinlineevent "cow" 3>>
+				<<set $baileyUniqueComments.pushUnique("cow")>>
+				<<print $_stringsPre + `"Cows fetch a high price these days, you know."`>>
+			<</addinlineevent>>
+		<</if>>
+		<<if $hairlength gte 600>>
+			<<addinlineevent "hair_value" 2>>
+				<<print $_stringsPre + either(
+					`"Long hair photographs well. That's useful."`,
+					`"Someone asked for hair like yours once. Paid upfront, too."`
+				)>>
+			<</addinlineevent>>
+		<</if>>
+		<<if ($athletics gte 750 or $physique gte $physiquesize * 0.75) and !$baileyUniqueComments.includes("strong")>>
+			<<addinlineevent "strong" 3>>
+				<<set $baileyUniqueComments.pushUnique("strong")>>
+				<<print $_stringsPre + `"You're strong. Good. Some people pay for the fight."`>>
+			<</addinlineevent>>
+		<</if>>
+		<<if $athletics gte 750 or $physique gte $physiquesize * 0.75>>
+			<<addinlineevent "strong_value" 2>>
+				<<print $_stringsPre + either(
+					`"Good muscle tone. That keeps your value up."`,
+					`"Fit enough to struggle, then. Some clients like that."`
+				)>>
+			<</addinlineevent>>
+		<</if>>
+		<<if $arousal gte ($arousalmax * 0.7) and !$baileyUniqueComments.includes("aroused")>>
+			<<addinlineevent "aroused" 3>>
+				<<set $baileyUniqueComments.pushUnique("aroused")>>
+				<<if C.npc.Bailey.dom gte 70>>
+					<<print $_stringsPre + `"You need this. Let me take care of it."`>>
+				<<else>>
+					<<print $_stringsPre + either(
+						`"Nice look. Some people would pay big to see you hot and bothered like this."`,
+						`"Should've brought a camera. Your profile would look great with this expression."`
+					)>>
+				<</if>>
+			<</addinlineevent>>
+		<</if>>
+		<<if ($leftEyeColour is "green" or $leftEyeColour is "lime green") and !$baileyUniqueComments.includes("eyes")>>
+			<<addinlineevent "eyes" 3>>
+				<<set $baileyUniqueComments.pushUnique("eyes")>>
+				<<print `<<His>> eyes search yours for a moment too long. "Green eyes. Rare." <<He>> looks away.`>>
+			<</addinlineevent>>
+		<</if>>
+		<<if $skin.left_bottom.writing is "cattle brand" and !$baileyUniqueComments.includes("brand")>>
+			<<addinlineevent "brand" 3>>
+				<<set $baileyUniqueComments.pushUnique("brand")>>
+				<<if C.npc.Bailey.dom gte 70>>
+					<<print `<<He>> sees the brand on your buttock. <<He>> exhales. "You came back."`>>
+				<<else>>
+					<<print `<<He>> sees the brand on your buttock. <<He>> exhales. "Got my money's worth, at least."`>>
+				<</if>>
+			<</addinlineevent>>
+		<</if>>
+		<<if $worn.neck.name is "Bailey's collar" and !$baileyUniqueComments.includes("collar")>>
+			<<addinlineevent "collar" 3>>
+				<<set $baileyUniqueComments.pushUnique("collar")>>
+				<<He>> eyes your lotus flower collar. <<print either(`"You didn't lose it. Good."`, `"<<goodGirl>>."`)>>
+			<</addinlineevent>>
+		<</if>>
+		<<addinlineevent "calm_default" 12>>
+			<<print $_stringsPre + either(
+				`"Hold still. You're wasting both our time."`,
+				`"Keep still. I'm almost done with you."`,
+				`"There it is. Get it out of your system."`,
+				`"You've always been the most difficult one. I hope you know that."`,
+				`"Are you going to listen to me now?"`,
+				`"You're learning. Good."`,
+				`"Stay still."`,
+				`"Don't make this harder than it needs to be."`,
+				`"Just relax. I'll handle everything like always."`,
+				`"You were always the best looking little ` + ["bastard","shit","<<bitch>>"][random(0,2)] + `."`,
+				`"It's easier this way. Trust me."`,
+				`"You're so valuable!"`,
+				`"Don't look surprised. I know exactly what you're worth."`,
+				`"You'd be amazed what someone will pay for a familiar face."`,
+				`"You never were good with accounts. Let me deal with it."`,
+				`"Trust me. Or don't. The result is the same."`,
+				`"Be sensible. Sensible people cost me less time."`,
+				`"Stay still and this stays simple."`,
+				`"Stand still. I need to check what condition you're in."`,
+				`"Let's see how much trouble you've caused me."`,
+				`"Look at you. Practically a premium listing."`,
+				`"Some buyers are very specific. You're fortunate, or unlucky."`,
+				`"That's the face that sells. Try not to ruin it."`,
+				`"You're easier to manage when your body betrays you."`
+			)>>
+		<</addinlineevent>>
+		<<runeventpool>>
 
-	<<elseif $enemyanger lte 200>>
+	<<else>>
 		<<print $_stringsPre + either(
 			`"Why do you shits have to make it harder on yourselves?"`,
-			`"You're costing me money every time you move."`,
-			`"Every second you fight me is a second you owe me."`,
-			`"Stop squirming, you're not going anywhere."`,
-			`"You chose this."`,
-			`"Keep fighting. See where it gets you."`,
-			`"You owe me for the inconvenience."`,
-			`"This would be over already if you'd just behave."`,
 			`"I told you to hold still."`,
 			`"You're making it harder on both of us."`,
+			`"You chose this."`,
+			`"Are you going to listen to me now?"`,
+			`"I have someone willing to pay big for you."`,
+			`"You're coming with me, and that's that."`,
+			`"You owe me for the inconvenience."`,
+			`"Keep fighting. See where it gets you."`,
+			`"You'll fetch a decent sum if you keep your mouth shut."`,
+			`"Be grateful someone wants you at all."`,
+			`"You're costing me money every time you move."`,
+			`"This would be over already if you'd just behave."`,
+			`"Stop squirming, you're not going anywhere."`,
+			`"Every second you fight me is a second you owe me."`,
 			`"Keep fighting and I'll put the damage on your account."`,
 			`"Someone already asked for you. Don't make me disappoint them."`,
 			`"I know things about you that you never told me."`,
-			`"Stop struggling. You're only lowering your price."`
+			`"Stop struggling. You're only lowering your price."`,
+			`"Maybe I should inspect you before we go."`
 		)>>
-
-	<<else>>
-		<<if $hairlength gte 600>>
-			<<print $_stringsPre + `"Kept your hair long? I know someone who will like that."`>>
-		<<elseif $player.breastsize gte 8 or $player.penissize gte 5>>
-			<<print $_stringsPre + `"Cows fetch a high price these days, you know."`>>
-		<<elseif ($player.athletics gte 600 or $player.physique gte 600) and random(0,2) is 0>>
-			<<print $_stringsPre + `"You're strong. Good. Some people pay for the fight."`>>
-		<<elseif $arousal gte ($arousalmax * 0.7)>>
-			<<if C.npc.Bailey.dom gte 70>>
-				<<print $_stringsPre + `"You need this. Let me take care of it."`>>
-			<<else>>
-				<<print $_stringsPre + either(
-					`"Nice look. Some people would pay big to see you hot and bothered like this."`,
-					`"Should've brought a camera. Your profile would look great with this expression."`
-				)>>
-			<</if>>
-		<<elseif $leftEyeColour is "green" or $leftEyeColour is "lime green">>
-			<<print `<<His>> eyes search yours for a moment too long. "Green eyes. Rare." <<He>> looks away.`>>
-		<<elseif $skin.left_bottom.writing is "cattle brand">>
-			<<if C.npc.Bailey.dom gte 70>>
-				<<print `<<He>> sees the brand on your buttock. <<He>> exhales. "You came back."`>>
-			<<else>>
-				<<print `<<He>> sees the brand on your buttock. <<He>> exhales. "Got my money's worth, at least."`>>
-			<</if>>
-		<<else>>
-			<<print $_stringsPre + either(
-				`"Why do you shits have to make it harder on yourselves?"`,
-				`"I told you to hold still."`,
-				`"You're making it harder on both of us."`,
-				`"You chose this."`,
-				`"Are you going to listen to me now?"`,
-				`"I have someone willing to pay big for you."`,
-				`"You're coming with me, and that's that."`,
-				`"You owe me for the inconvenience."`,
-				`"Keep fighting. See where it gets you."`,
-				`"You'll fetch a decent sum if you keep your mouth shut."`,
-				`"Be grateful someone wants you at all."`,
-				`"You're costing me money every time you move."`,
-				`"This would be over already if you'd just behave."`,
-				`"Stop squirming, you're not going anywhere."`,
-				`"Every second you fight me is a second you owe me."`,
-				`"Maybe I should inspect you before we go."`
-			)>>
-		<</if>>
 	<</if>>
 	<</if>>
 <</widget>>
