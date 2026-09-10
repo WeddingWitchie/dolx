@@ -7,6 +7,9 @@
 		"I work at the cafe during the week now, so I only run the stand at weekends," Robin says while wiping the counter.
 		<<if $robinCafe.lastWage gt 0>>
 			"Sam paid me <span class="gold">£<<print $robinCafe.lastWage>></span> last week. I put it with the money from the stand."
+			<<if $robinCafe.totalWage gt $robinCafe.lastWage>>
+				"That's <span class="gold">£<<print $robinCafe.totalWage>></span> from the cafe altogether."
+			<</if>>
 		<<else>>
 			"The cafe doesn't pay much yet, but at least I know how much I'll earn each week."
 		<</if>>
@@ -132,20 +135,25 @@ Robin will spend less time at the stand during the week, <span class="purple">so
 <<robinoptions>>
 
 :: Robin Cafe Visit
-<<endevent>>
-<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<endevent>><<effects>>
+<<set $outside to 0>><<set $location to "cafe">>
 <<npc Robin>><<person1>>
 <<run ensureRobinCafe()>>
 <<set _due to robinCafeSceneDue()>>
 <<set _outfitDue to robinOutfitSceneDue()>>
-<<if _due is "first">>
-	<<link [[Next|Robin Cafe First Shift]]>><</link>>
-<<elseif _due is "difficult">>
-	<<link [[Next|Robin Cafe Difficult]]>><</link>>
-<<elseif _outfitDue is "debut">>
-	<<link [[Next|Robin Outfit Debut]]>><</link>>
-<<elseif _outfitDue is "regulars">>
-	<<link [[Next|Robin Outfit Regulars]]>><</link>>
+<<if _due or _outfitDue>>
+	The cafe is busy. You make your way through it towards the counter.
+	<br><br>
+	<<if _due is "first">>
+		<<link [[Next|Robin Cafe First Shift]]>><</link>>
+	<<elseif _due is "difficult">>
+		<<link [[Next|Robin Cafe Difficult]]>><</link>>
+	<<elseif _outfitDue is "debut">>
+		<<link [[Next|Robin Outfit Debut]]>><</link>>
+	<<else>>
+		<<link [[Next|Robin Outfit Regulars]]>><</link>>
+	<</if>>
+	<br>
 <<else>>
 	<<if robinOutfitWorn()>>
 		<<robinOutfitLook>>
@@ -646,7 +654,7 @@ but every customer has been served and the cafe has enough supplies again.
 <<set $outside to 1>><<set $location to "town">><<effects>>
 "Keep serving the customers," you tell Robin. "I'll go get more."
 <br><br>
-You take some money from the till and hurry to the corner shop. You buy two cartons of $phase,
+You take money from your own pocket and hurry to the corner shop. You buy two cartons of $phase,
 then carry them back to the café. They are heavier than you expected,
 so you hold them tightly against your chest as you walk.
 <br><br>
@@ -721,7 +729,7 @@ Robin follows you into the staff room. You close the door behind you, leaving th
 "We've run out of $phase," <<he>> says. "I checked the fridge, the storage shelves, everything.
 The next delivery isn't here yet, and we've still got customers waiting."
 <br><br>
-<<if $lactating is 1 and $settings.breastFeedingEnabled and hasSexStat("promiscuity", 2)>>
+<<if $lactating is 1 and $milk_amount gte 1 and $settings.breastFeedingEnabled and hasSexStat("promiscuity", 2)>>
 	<<link [[Offer your own <<breasts>>|Robin Cafe Shortage Milk Breast]]>><</link>>
 	<br>
 <</if>>
@@ -798,7 +806,7 @@ and leans in to take a nipple into <<his>> mouth before you can answer.
 <<He>> sucks gently, pulling milk into <<his>> mouth a little at a time while <<his>> tongue moves over the nipple
 between each pull. The repeated pressure makes your <<breasts>> ache pleasantly as more milk begins to flow,
 and <<he>> swallows it without pulling back.
-<<milkvolume 10>><<milk_amount 20>>
+<<set $milk_produced_stat += Math.min($milk_amount, 200)>><<milk_amount -200>>
 <br><br>
 <<link [[Next|Robin Cafe Shortage Milk Breast 4]]>><</link>>
 <br>
@@ -837,7 +845,7 @@ Robin makes a quiet sound against your nipple when <<he>> sees it.
 following the wet line over your skin before returning to the nipple.
 <br><br>
 More escapes while <<he>> drinks, leaving thin trails across your chest whenever <<he>> cannot catch it quickly enough.
-<<milkvolume 15>><<milk_amount 30>>
+<<set $milk_produced_stat += Math.min($milk_amount, 400)>><<milk_amount -400>>
 <br><br>
 Robin finally pulls <<his>> mouth away. <<His>> lips are wet with milk.
 <<He>> wipes at it with the back of <<his>> hand, then looks at your <<breasts>> again.
@@ -1003,7 +1011,7 @@ Robin wipes the corner of <<his>> mouth with the back of <<his>> hand. "I don't 
 	Robin stays close for a few seconds before finally letting you go. <<He>> gives you a tired smile.
 	<br><br>
 <</if>>
-You both look towards the door and remember that you are still in the café storeroom.
+You both look towards the door and remember that you are still in the cafe's staff room.
 <<endcombat>>
 <<npc Robin>><<person1>>
 <<link [[Next|Robin Cafe Shortage Milk Sex Finish 2]]>><</link>>
@@ -1036,7 +1044,7 @@ Once <<he>> is dressed, Robin strokes <<his>> own hair and looks at <<his>> refl
 
 :: Robin Cafe Shortage Milk Sex Finish 3
 <<effects>>
-You leave the storeroom together and return to the counter.
+You leave the staff room together and return to the counter.
 Sam is already standing beside the coffee machine. A fresh carton of milk sits next to <<nnpc_him "Sam">>.
 <br><br>
 "Found another one behind the flour," <<nnpc_he "Sam">> says while opening it. "We keep some spare stock back there."

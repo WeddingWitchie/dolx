@@ -676,6 +676,10 @@ function getRobinLocation() {
 		T.robin_location = "orphanage";
 	} else if (Time.schoolDay && between(Time.hour, 8, 15)) {
 		T.robin_location = "school";
+		// Checked ahead of the bath/garden slot below: a shift starts at 17:00, and Robin will not be late for it.
+	} else if (typeof robinCafeShiftNow === "function" && robinCafeShiftNow()) {
+		/* Weekday shift at the Ocean Breeze. Deliberately outside the weekend stand hours below. */
+		T.robin_location = "cafe";
 		// Start bathing time half an hour later if Robin has been asked to water the player's garden
 		// Robin will only water if crops are planted, will not water in the rain at all, and will not water during snow before the greenhouse is built
 	} else if (
@@ -699,9 +703,6 @@ function getRobinLocation() {
 		} else {
 			T.robin_location = "orphanage";
 		}
-	} else if (typeof robinCafeShiftNow === "function" && robinCafeShiftNow()) {
-		/* Weekday shift at the Ocean Breeze. Deliberately outside the weekend stand hours below. */
-		T.robin_location = "cafe";
 	} else if (V.halloween === 1 && between(Time.hour, 16, 18) && Time.monthDay === 31) {
 		T.robin_location = "halloween";
 	} else if (Time.isWeekEnd() && between(Time.hour, 9, 16) && Weather.precipitation !== "rain" && C.npc.Robin.trauma < 80) {

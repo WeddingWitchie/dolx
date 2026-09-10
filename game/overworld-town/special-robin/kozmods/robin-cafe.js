@@ -81,7 +81,8 @@ function robinCafeShiftNow() {
 	if (C.npc.Robin.trauma >= 70) return false;
 	if (V.robin.timer.hurt >= 1) return false;
 	if (V.robinmissing) return false;
-	return between(Time.hour, setup.robinCafe.shiftStart, setup.robinCafe.shiftEnd);
+	/* Half-open: shiftEnd is when Robin clocks off, so 17-19 is five until seven, not until 19:59. */
+	return Time.hour >= setup.robinCafe.shiftStart && Time.hour < setup.robinCafe.shiftEnd;
 }
 window.robinCafeShiftNow = robinCafeShiftNow;
 
