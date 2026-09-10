@@ -12,7 +12,7 @@ const StartConfig = {
 	debug: false,
 	enableImages: true,
 	enableLinkNumberify: true,
-	version: "0.5.12.9 DoLP v0.775 DoLX 0.21.0",
+	version: "0.5.12.11 DoLP v0.775 DoLX 0.21.0",
 	versionName: `"Abyssal" edition`,
 	sneaky: false,
 	socialMediaEnabled: true,

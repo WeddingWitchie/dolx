@@ -38,6 +38,8 @@ function parasiteProgressDay(orifice = "anus") {
 }
 DefineMacro("parasiteProgressDay", parasiteProgressDay);
 
+const parasiteEventCooldown = 21600; // 6 hours
+
 // eslint-disable-next-line no-unused-vars
 function parasiteProgressTime(pass, orifice = "anus") {
 	const pregnancy = V.sexStats[orifice].pregnancy;
@@ -48,9 +50,11 @@ function parasiteProgressTime(pass, orifice = "anus") {
 				parasite.timeLeft -= pass;
 				if (parasite.timeLeft <= 0) {
 					parasite.timeLeft = parasite.stats.speed;
+					if (Time.date.timeStamp - (V.daily.parasiteEventLast ?? 0) < parasiteEventCooldown) return;
 					if (!V.daily.parasiteEvent) {
 						V.daily.parasiteEvent = [];
 					}
+					const eventCount = V.daily.parasiteEvent.length;
 					if (parasite.stats.gender === "Hermaphrodite" && parasite.daysLeft <= 3) {
 						if ((parasite.daysLeft <= 3 && random(0, 100) < 20) || (parasite.daysLeft === 0 && random(0, 100) < 50)) {
 							V.daily.parasiteEvent.pushUnique(orifice + 0);
@@ -69,7 +73,10 @@ function parasiteProgressTime(pass, orifice = "anus") {
 							V.daily.parasiteEvent.pushUnique(orifice + 3);
 						}
 					}
-					if (V.daily.parasiteEvent.length > 0) V.effectsmessage = 1;
+					if (V.daily.parasiteEvent.length > eventCount) {
+						V.daily.parasiteEventLast = Time.date.timeStamp;
+						V.effectsmessage = 1;
+					}
 				}
 			}
 		});

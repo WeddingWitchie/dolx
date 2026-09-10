@@ -293,6 +293,6 @@ Weather.Renderer.Sky = class {
 	}
 
 	setMoonPhase() {
-		this.layers.get("moon").init();
+		this.layers.get("moon")?.init();
 	}
 };
