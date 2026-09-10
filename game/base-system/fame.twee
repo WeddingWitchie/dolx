@@ -3,7 +3,7 @@
 	<!-- Usage: <<fame 10 "scrap" "good">>. Raises fames regardless of mask, gloryhole, etc. -->
 	<<if _args.length gte 2 and $statFreeze isnot true>>
 		<<set [$_gain, ...($_fameTypes)] to _args>> <!-- remove first element of array since it's the number -->
-		<<run $_fameTypes.forEach(fameType => $fame[fameType] += $_gain * 2)>> <!-- add the specified amount to each specified fame type -->
+		<<run $_fameTypes.forEach(fameType => $fame[fameType] = fameType === "scrap" ? Math.min($fame.scrap + $_gain * 2, Math.max(2000, $fame.scrap)) : $fame[fameType] + $_gain * 2)>> <!-- Ordinary Combat fame gains stop at 2000 without removing Colosseum fame. -->
 		<<fameclamp>>
 	<</if>>
 <</widget>>
@@ -268,6 +268,7 @@
 <</widget>>
 
 <<widget "famescrap">>
+	<!-- Only explicit "colosseum" rewards in the second argument can raise Combat fame above 2000. -->
 	<<if _args[0] and $statFreeze isnot true>>
 		<<if !$gloryhole or _args[2] is true>>
 			<<if _args[2] is true or ($face isnot "covered" and !$worn.face.type.includes("mask"))>>
@@ -284,12 +285,13 @@
 				<<if $backgroundTraits.includes("nerd")>>
 					<<set _mod *= 2>>
 				<</if>>
+				<<set _scrapCap to _args[1] is "colosseum" ? 4000 : Math.min(4000, Math.max(2000, $fame.scrap))>>
 				<<if $fame.scrap gte 2000 and $AMCTraits.halfGain is 1>>
 					<<set $fame.scrap += _args[0] / $AMCTraits.scrapFame * _mod * 2>>
 				<<else>>
 					<<set $fame.scrap += _args[0] * _mod * 2>>
 				<</if>>
-				<<set $fame.scrap to Math.clamp($fame.scrap, 0, 2000 * $AMCTraits.scrapFame)>>
+				<<set $fame.scrap to Math.clamp($fame.scrap, 0, _scrapCap)>>
 			<</if>>
 		<</if>>
 	<</if>>
