@@ -15,392 +15,306 @@
 
 ## Changes and Additions
 
-- **Updated vanilla to 0.5.12.9**
+- **Updated Vanilla to 0.5.12.11**
 
-- **Updated DoLP to v0.775**
+- **Updated DoLP to v0.778**
 
-- **Added Wren to the pub gambling ring**
+- **Updated RBE to v0.6.1**
 
-  - Wren can now appear at the pub dice table during dusk and night once the gambling ring is running.
-  - They are more likely to appear while the bank heist is waiting for the player to find them.
-  - Wren can be met here for the first time, continue the bank heist quest, or be chatted with through several new scenes.
-  - Once per day, **Ask Wren to read the table** gives a 10% Luck bonus for dice.
-  - The bonus stacks with other Luck effects and appears as **Wren's Read** in the Traits menu.
-  - Landry now points the player towards Wren at the gambling ring, with dialogue and Journal hints changing based on whether the ring is open, funded, or not yet funded.
+- **Expanded Autism Spectrum: diagnosis, disclosure, and daily life**
 
-- **Restored Silly Pregnancy Mode**
+  - Noise, bright light, crowds, and stressful demands now build **Load**, leaving the player Settled, Strained, or Burnt Out depending on their current state.
+  - Maximum Load depends on Willpower.
+  - Sleep, quiet time, stimming, and spending time on the current fixation reduce Load, each with its own daily limit.
+  - **Masking** now tracks the effort of acting as others expect. It builds faster around strangers, slower around people who know the player is autistic, and not at all around people they fully trust.
+  - Keeping the mask up costs energy, while dropping it somewhere safe helps recovery.
+  - The player can practise masking in a mirror for a temporary benefit.
+  - Autistic characters can have difficulty starting tasks, affecting lessons, chores, jobs, training, and community service.
+  - Unresolved problems such as rent, suspension, and community service can add daily Stress.
+  - Added a full autism diagnosis route through Harper, including developmental history and supporting evidence.
+  - The free waiting-list route takes several months, while a £1,500 private assessment is much faster.
+  - The player can switch from the free route to private assessment at any time.
+  - After diagnosis, the player chooses who can access the report, including the school office, nurse, individual teachers, Bailey, or nobody.
+  - Robin, Kylar, Whitney, Sydney, Eden, Avery, Alex, Leighton, Bailey, and teachers can react differently based on the player's state and relationship with them.
+  - **Stimming** can now be used anywhere in a safe zone.
 
-  - Silly Pregnancy Mode can again be selected at character creation or in Pregnancy Mode settings.
-  - Holding hands or kissing can cause pregnancy instead of sex.
-  - Direct skin contact is required: gloves block hand-holding pregnancy and face coverings block kissing pregnancy.
-  - Being near someone the player loves doubles the chance.
-  - The **Base Player Pregnancy Chance** slider controls the chance in this mode.
-  - **Hail Mary** is disabled while Silly mode is active.
-  - Pregnancy cannot occur during dreams, flashbacks, or replays.
-  - Strangers who cannot be met again can no longer become pregnant.
-  - Pregnancy notices now display correctly for both the player and the other person.
-  - Restored the missing Silly-mode divider in settings.
-  - Older saves automatically moved to Fetishised mode remain there unless Silly is selected again.
+- **Added new “enemies with benefits” content for Whitney**
 
-- **Added the X-Change Gray Agent trait**
+  - Defeating Whitney in combat once permanently unlocks new eager, consensual options.
+  - These can appear during street make-outs and fondling, public oral scenes, milkshake escalation, and post-rescue reward scenes.
+  - Requires Promiscuity 4–5.
+  - Public options also require Exhibitionism 3–4, while private options do not.
+  - These choices increase Arousal and Whitney's Lust without increasing Dominance, Submission, Stress, or Trauma.
+  - Make-out scenes now have unique text showing the player genuinely enjoying them.
 
-  - A VrelCoin feat boost that prevents forced pills from changing the player's sex.
-  - Forced pills behave like gray pills: other effects still apply, but they cannot swap sex or give both sets of genitals.
-  - Pills taken willingly are unaffected.
-  - Forced Choice pills still apply the Choice agent.
-  - Protects against forced pilling from spikes, laced drinks, combat, school, Remy, Avery, prison, mansion events, and similar routes.
-  - Spike scenes now only describe a body change when one actually happens.
-  - Also fixes incorrect transformation text when another pill effect is already active.
-  - The feat boost costs 75 coins.
+- **Added more Poppy content**
 
-- **Added configurable body sizes for pilled bodies**
+  - Poppy can now visit the park, walk around town, and appear in repeatable park and street encounters.
+  - The player can invite Poppy on park or cafe dates from their flat.
+  - Street, park, cafe, and scheduled park scenes now include more activities, conversations, choices, affection, and endings.
 
-  - Character-creation size sliders can now use their full range.
-  - X-Change settings now allow separate breast, ass, and penis size limits for pilled bodies.
-  - These limits apply the next time a pill creates or restores that body.
-  - Natural growth and Gender Identity drift also respect these limits.
-  - Size-changing pills now build from the selected limits instead of jumping straight to maximum size.
-  - Physical body-part limits still cannot be exceeded.
+- **Added the Underground Colosseum**
 
-- **Added a Chastity Acclimated trait toggle**
+  - Added an illegal fighting arena beneath an old factory in the industrial alleyways.
+  - The player can discover it through rumours, get the passphrase from Landry, and find the entrance behind a skip.
+  - **Extended combat** must be enabled to enter.
+  - Fight naked before a paying crowd and rise from F to S rank.
+  - The player begins as unknown **meat**, but can earn an arena name after enough fights.
+  - Higher ranks introduce faster opponents and make blocking, countering, feinting, and hook punches more important.
+  - Up to three fights can be entered per day, with extra risk on the third bout.
+  - Losing can cause injuries lasting several days, with visible injuries affecting reactions around town, school, and Bailey.
+  - The arena includes bookmakers, a fighters' bar, locker rooms, showers, a mirror, and a private gallery.
+  - The player can bet on other fights or themselves, with daily limits for fighters.
+  - Match-fixing offers can appear, with consequences for failing to throw the fight.
+  - Arena debt can attract collectors.
+  - Successful fighters can eventually receive a champion offer from the gallery.
+  - The player can cooperate, steal the arena's records, refuse them, or free the indebted fighters held downstairs.
+  - Freeing the fighters permanently closes the Colosseum and puts the arena's people on the streets until enough have been dealt with.
+  - Combat Fame can reach 4,000 through the Colosseum. Other sources remain capped at 2,000.
 
-  - **Chastity Acclimated** can now be enabled or disabled under **Settings > X-Change > Traits**.
-  - Disabling it removes the trait and restores normal frustration from unwanted chastity.
-  - Re-enabling it keeps previously earned progress and restores the trait if it had already been unlocked.
-  - Also fixes modded trait settings sometimes failing to apply correctly to existing saves.
-
-- **Added two new ways to remove shackles**
-
-  - Police can remove shackles in the back workshop in exchange for money and sex.
-  - Players with Landry's Lockpick Lawyer training set and SSS Skulduggery can pick the shackles themselves in their room.
-
-- **Added a second job for Robin at the Ocean Breeze**
-
-  - After the player has worked at the cafe, Robin can be recommended to Sam for a two-week weekday-afternoon trial.
-  - Robin works from 5 PM to 7 PM on school days while the drink stand remains a weekend job.
-  - The storyline develops over several weeks, including a difficult first shift and a rude-customer event.
-  - Letting Robin handle the rude customer personally grants the confidence needed for later progress.
-  - Robin eventually chooses whether to stay on the cafe rota or return to the stand full time.
-  - The player can encourage either option or leave the choice to Robin.
-  - Cafe wages go into the same savings tin for Robin as drink-stand earnings.
-
-- **Added serving outfits for Robin**
-
-  - Maid, butler, and waiting outfits can be folded at the wardrobe and carried in a bag.
-  - A full serving outfit uses one POCKET slot and is physically removed from the wardrobe while packed.
-  - The outfit can be given to Robin once they work at the cafe.
-  - Robin's reaction depends on the outfit, their confidence, and whether it involves crossdressing.
-  - Traumatised Robin refuses the outfit.
-  - Crossdressing outfits require the normal crossdressing arc to have started.
-  - A shy Robin may keep an outfit without wearing it until their confidence improves.
-  - Added new shift scenes for Robin's first day wearing the outfit and the town's later reaction.
-  - If Robin returns to the stand, they can wear the outfit there instead.
-
-- **Added hair extensions at the hairdresser**
-
-  - Hair can now be lengthened with extensions for the same price as a normal haircut.
-  - Longer options are marked **(extensions)**.
-  - Fringe now has a **Very long** length option.
-  - Also fixed two-tone preview colours and previews sometimes showing hair slightly longer than the selected length.
-
-- **Added Water Dragon reactions for Sydney**
-
-  - Sydney now reacts to the Water Dragon transformation.
-  - The Water Dragon tail is included in the scene.
-
-- **Added hypno brooding for Gwylan hypnosis**
-
-- **Added antidepressant prescription collection**
-
-  - The pharmacy now recognises active antidepressant prescriptions from Dr Harper.
-  - Harper's prescription bundle provides 10 free doses including the antidepressant.
-  - Expiry dates and collection dialogue are handled correctly.
-  - The same prescription cannot be collected twice.
-
-- **Added demon transformation skin colours**
-
-  - Full Demon transformation now changes skin colour based on tan: blue when pale, purple in the middle, and red when fully tanned.
-  - The mirror can lock one colour or disable the effect.
-  - Normal skin returns when the transformation ends.
-  - Water Dragon skin takes priority while active, with Demon skin returning afterward.
-  - Also fixes transformation skin colours overwriting the player's real skin colour and normal bodies receiving Water Dragon skin from pills.
-
-- **Expanded Avery's after-school pickup destinations**
-
-  - Mansion residents can ask Avery for a lift to 13 locations, including home, the orphanage, and major town streets.
-  - Non-residents retain the original orphanage destination.
-  - Robin, crime, and Rage events are unchanged.
-
-- **Virginity statistics now record when virginity is lost while Heat** controls the player's actions.
+- **Added a mirror to the office agency**
 
 ## Tweaks and Rebalancing
 
-- **Improved fishing**
+- **Optimised sidebar sky performance**
 
-  - The secret coastal path now has roughly twice the normal bite chance.
-  - Added the **Bare Bones** feat for catching every small-fish type and finding both Bone tackle pieces.
-  - Small bass, herring, and trout now record and display correctly when kept.
-  - Small fish no longer count toward bait-shop requests for their larger species.
-  - Fish kept after fox or drunk-fisher encounters now count toward active requests.
-  - Fishing catch names now correctly match the fish caught, including small fish.
-  - Harpies far enough into their transformation can eat worms without disgust or Trauma and gain 1 Bird point once per day.
-  - Worms can be eaten from either a worm tin or a shop-bought pack.
-  - Banish Tentacle is now available during fishing encounters.
-  - Intentional-loss endings no longer lead to broken fishing encounter states.
+  - The animated sidebar weather sky now redraws only when needed, reuses its canvas, and shares a single animation loop.
+  - Hidden title-screen sky animations stop after leaving the title screen.
+  - Turning off **Use new weather renderer for sidebar** now fully disables the renderer.
+  - Fixed invisible title-screen rendering, weather effects running too slowly, and an unused rain mask.
+  - No save data is affected.
 
-- **Improved the hairstyle menu on mobile**
+- **Split Ear Slime settings**
 
-  - The hairstyle grid now adapts to smaller screens instead of always forcing five columns.
-  - Long hairstyle names no longer stretch the menu or push content off-screen.
-  - Preview sprites no longer overflow into neighbouring tiles, including with high-resolution art.
-  - Hairstyle previews are cached and reused instead of being fully rerendered when changing pages or reopening the menu.
-  - Page switching and reopening the hairstyle menu should now be faster.
+  - Ear Slimes now have their own toggle separate from normal Slimes.
+  - Existing saves copy the current Slime setting to both options so behaviour stays unchanged until the player edits the new setting.
+  - Imported older settings now carry over correctly.
+  - Whitney can no longer give a slime while Slimes are disabled; they use an urchin instead, or skip the rear parasite when anal content is disabled.
+  - Sewer Slimes can no longer attach to the clitoris while Parasites are disabled.
 
-- **Improved tooltips on mobile and narrow screens**
+- **Updated Autism Spectrum Load recovery**
 
-  - Tooltips no longer jump to the top of the screen on phones, tablets, or narrow windows.
-  - They now stay near the hovered or tapped option and move only as needed to remain visible.
-  - Wide-screen behaviour is unchanged.
-  - Fixed trait tooltips becoming extremely narrow or running off-screen in landscape mode.
+  - Sleeping no longer consumes the daily Load recovery limit.
+  - Calm time at 0 Load no longer consumes the limit either.
+  - Daytime recovery from rest, quiet time, and focused interests remains available.
+  - Daily Load recovery increased from 12 to 15.
 
-- **Reorganised X-Change settings**
+- **Updated combat stat gains**
 
-  - Renamed **Talents Settings** to **Talents & Traits**.
-  - Moved Traits, Willpower System, Hypnosis Settings, and Heat System into this tab.
-  - **X-Change Settings** now focuses on pills, body customisation, combat pilling, and fertility.
-  - Trait settings now have their own section instead of being hidden under Appearance.
-  - Related sub-settings now grey out correctly when their parent option is disabled.
-  - Existing saves, presets, and exported settings are unaffected.
+  - Deviancy can now increase during non-consensual beast encounters while in Rut, Heat, or under Hypnotic Deviancy.
+  - Reverse rape grants Deviancy against beasts and Promiscuity against humans.
+  - Normal non-consensual human encounters still grant neither.
 
-- **Tempered skills now retain SSS progress**
+- **Hyper Fertility speeds up pregnancies again**
 
-  - Disabling a Tempered talent or importing mismatched talent choices no longer permanently drops an affected skill back to S.
-  - Earned SSS progress remains stored.
-  - Without the required Tempered talent, further progress pauses until the talent is restored.
-  - Applies to skills, combat skills, school subjects, Physique, Willpower, and Beauty.
-  - Characteristics and cheat displays now show the retained value correctly.
-  - Values already lost in older versions cannot be restored because the old values were not saved.
+  - Pregnancies affected by Hyper Fertility once again progress at **6× normal speed**.
+  - If Beta gives the player a second womb, both pregnancies speed up together.
+  - Conception boosts and multiple births are unchanged.
+  - Labour that has already started keeps its normal timing.
+  - Existing saves need no repair and start progressing correctly from the next day.
+  - The tooltip now explicitly says it also speeds up parasite and non-humanoid pregnancies.
 
-- **Let heist-granted Black accounts earn interest**
+- **Updated relationship pet names**
 
-  - Black accounts granted through heist content can now earn interest without requiring £250 million.
+  - Partners and friends no longer guess the player's gender from clothing.
+  - Characters who know the player use what they know about the player's identity when choosing words such as boyfriend or girlfriend.
+  - Whitney, Kylar, Avery, Sydney, Poppy, Gwylan, and Robin now follow this behaviour.
+  - Strangers and bullies still judge by appearance.
+  - The player's own dialogue follows their pronouns.
 
-- **Relentless Bailey now takes belongings**
+- **Transgender characters now start with matching Identity defaults**
 
-  - If rent is two weeks overdue and Bailey catches the player in the street, Bailey can have the bedroom cleared instead of only taking carried cash.
-  - Taken belongings can be bought back from Bailey's office for one week.
-  - Paying the rent returns everything normally.
+  - Choosing Transgender now sets appearance, clothing, pronoun, and genital preferences opposite to the starting body by default.
+  - Birth-sex options are marked as unaccepted so misgendering can cause Dysphoria as intended.
+  - Manual choices on the Identity screen still override these defaults.
+  - Existing saves are unchanged.
 
-- **Updated Bailey, Avery, Gwylan, and starting balance**
-
-  - Bailey's rent checks now count money in the bank when determining whether the Pay option should appear.
-  - Offering yourself to Bailey no longer clears rent for free when the money is in the bank; Bailey takes the player to HBSC to withdraw it first.
-  - Avery has a unique response when the player loses a pilled body after using the anti-pill stolen from the HBSC gala.
-  - Avery's garden scene recognises a freshly harvested garden and gives a Tending S+ compliment.
-  - Honey challah can now be ordered from Gwylan on the cafe balcony.
-  - **X-Change Purity** now costs 100 coins instead of 150.
-  - New characters now start with **Mindful** Willpower instead of **Fainthearted**.
-
-- **Updated Autism Spectrum recovery**
-
-  - Sleeping no longer consumes the daily Load recovery allowance.
-  - Calm time at 0 Load also no longer consumes it.
-  - Daytime Load recovery can still come from rest, quiet time, and focused interests.
-  - The daily Load recovery limit increased from 12 to 15.
-
-- **Updated reverse rape and Breeder/Omega orgasm rules**
-
-  - Reverse rape can now trigger regardless of how an enemy is defeated, including counters, escaping grabs, or chastity-gear damage.
-  - Breeder and Omega characters cannot orgasm without something inside them unless the relevant setting allows it.
-  - Creampies no longer incorrectly permit every later orgasm until the next bath.
-  - Forced-orgasm scenes now follow the normal Breeder/Omega denial rules, including Stress and buildup.
-  - The trait description now reflects the **Allow orgasm without creampie** setting.
-
-- **Kaiju suits now hide transformation tails**
-
-- **Updated Water Dragon egg-cycle requirements**
-
-  - Reproductive checks now require the Water Dragon transformation to be currently manifested.
-  - Genome Dump immediately clears the egg cycle unless Harper's active lab route is running.
-
-- **No X-Change pills while pregnant**
-  - X-Change transformation pills can no longer be taken during any pregnancy, including normal, anal, parasite, or egg pregnancies.
-  - This restriction applies to bought pills, drinks, offers, forced pills, and encounter pilling.
-  - Medicine-drawer pills are disabled with an explanation.
-  - Unknown pregnancies use vague wording so they are not revealed early.
-  - Characters who would normally offer or force a pill react differently instead of dosing the player.
-  - Antidotes and pills that manage an already-active X-Change dose still work.
-  - X-Change Pink Beta must be taken before pregnancy.
-  - Existing dual-womb pregnancies continue to work normally.
+- **Kylar and other NPCs no longer get angry when protection is already unwanted**
+  - Removing an NPC's condom or locking their legs no longer causes Anger or Trust loss when that NPC already does not want protection.
+  - Applies to Kylar, Eden, Black Wolf, Gwylan, Great Hawk, Ivory Wraith, and monogamous Bailey.
+  - Normal Defiance and Stress relief still apply.
+  - Kylar has unique dialogue for both actions, including removing one of their sabotaged condoms.
+  - Kylar and Robin will not force chastity on the player again.
 
 ## Fixes and Improvements
 
-- **Fixed Beta second-womb pregnancies**
+- **Fixed Gender Identity and pronoun tracking**
 
-  - Named characters and love interests can now cause a second pregnancy through cheat-menu **get pregnant from** options.
-  - Demon **Force Impregnation** is available whenever a womb is free.
-  - The anal option still requires no vaginal pregnancy.
-  - Losing Beta shortly after conception no longer leaves a hidden pregnancy in the removed womb.
-  - Clearing a pregnancy through cheats also clears Poppy's knowledge of it.
+  - Disabling **Update Gender Identity from your Identity system** now fully freezes the Gender Identity meter.
+  - Older saves no longer change the meter during load when the setting is disabled.
+  - New games still start with a meter matching the player's Identity choices.
+  - Missing meters repair automatically.
+  - Re-enabling automatic updates resumes gradual changes from the current value instead of resetting it.
+  - Masculine, feminine, and neutral pronoun use is tracked correctly so pronoun tolerance can increase as intended.
+  - Pronouns used during flashbacks, dreams, and replays are no longer recorded.
+  - Temporary pronoun tracking clears correctly each hour.
+  - Event-driven Gender Identity changes remain separate from daily drift.
 
-- **Fixed pregnancy status and anal conception**
+- **Fixed Ivory Wraith bodywriting settings**
 
-  - Pregnancy status now clearly shows when another womb or the rear is unavailable because the body is already carrying a pregnancy.
-  - When both pregnancy readouts are shown, they are labelled **Womb** and **Rear**.
-  - Anal cum cannot cause pregnancy after Omega ends or while anal pregnancy is disabled.
-  - Parasite pregnancy text no longer mentions blocking an impossible anal pregnancy.
-  - Harper's serum is no longer listed as “the father” and instead appears as the cause.
+  - **Can overwrite existing tattoos** and **Even during nightmares** are now correctly disabled when supernatural bodywriting is turned off.
+  - Fixed the tattoo-bypass checkbox.
 
-- **Fixed pill restrictions and anal-pregnancy settings**
+- **Fixed Gentleman's Club letters going missing**
 
-  - X-Change pills no longer become permanently unavailable after switching away from a previously pregnant body.
-  - Pills are blocked only by pregnancies that actually conflict with the body they would create.
-  - Disabled pills now explain whether the problem is body incompatibility, another active pill, pregnancy, or an untested SWP counter-agent.
-  - Inventory pills show the same explanations.
-  - NPC spiking now uses the same pill restrictions as voluntary use.
-  - Anal pregnancy can no longer occur while its setting is disabled, including Fetish mode, Force Impregnation, and named-NPC pregnancies.
+  - Letters are now sent to the room where the player currently sleeps instead of an unavailable former home.
+  - Existing saves repair themselves on load.
+  - Waiting letters can be collected again.
+  - The sidebar notice appears only on the delivery day, while the Journal continues to show unread letters.
+  - Bailey no longer tells the player to ask Avery for food before Avery has been met.
 
-- **Fixed parasite birth and container replacement**
+- **Fixed daily events and stats getting stuck**
 
-- **Fixed several combat action and penetration states**
+  - Saves stuck in a dream, vision, or flashback state now repair once the player returns to a normal area.
+  - Daily and hourly updates resume normally.
+  - The player's real body and stats are restored.
+  - This fixes daily events remaining permanently used and stats such as Innocence and Awareness no longer changing.
+  - Affected saves repair automatically.
 
-  - Fixed stale or incorrect anal, vaginal, penis, mouth, hand, and NPC-position states.
-  - Anal follow-up actions no longer fail or get skipped.
-  - Hands and mouths now release previous body parts when moving away.
-  - Pull-out and escape actions use the correct NPC and position.
-  - Double-penetration escape states are assigned correctly.
-  - Anal state no longer remains stale after an NPC moves.
-  - Penis actions no longer switch to incorrect penetration states.
-  - Mouth penetration states are recognised and repaired correctly.
-  - Fixed several incorrect states in Kylar and beast scenes.
-  - Removed duplicated and unused combat handling that could interfere with these actions.
+- **Fixed Exhibitionist Fame and combat soft caps**
 
-- **Fixed NPC body parts getting stuck in combat**
+  - Exhibitionist now correctly reduces Exhibition Fame gains by 75%, including exposed dancing.
+  - The old check incorrectly used the Nerd background.
+  - Promiscuity and Deviancy can continue gaining slowly in combat after reaching their rank soft caps, matching non-combat behaviour.
 
-  - NPC genitals and mouths are now released correctly when actions end.
-  - Already-stuck body parts repair themselves during combat, including saves made mid-fight.
-  - Fixed masked kissing mentioning a penis the NPC did not have or interrupting an active penis action.
+- **Fixed Innocence bypassing lewdness checks**
 
-- **Fixed combat positions vanishing mid-scene**
+  - The Innocence bonus now weakens properly as Awareness rises toward zero.
+  - The bonus disappears completely when Innocence ends.
+  - The Characteristics overlay no longer says **You are innocent** when the trait is inactive.
+  - The Innocence meter no longer tries to render a negative bar width.
+  - Ending Innocence safely restores Trauma even if none was stored beforehand.
+  - Fixed one X-Change pill route failing to clear stored Trauma after restoration.
 
-  - Ongoing penetration, grabs, and other occupied positions are no longer incorrectly cleared.
-  - Covers encounters that begin with penetration already active, submitting during standing fights, losing footing while held by tentacles or critters, choking ending incorrectly, and attackers becoming submissive mid-penetration.
+- **Fixed stored cum and pregnancy Dysphoria**
 
-- **Fixed beast gangbangs after orgasm**
+  - **Scoop out** now detects and removes both visible fluid and stored vaginal/anal cum loads.
+  - Works in the home bathroom, cabin, park toilets, and school toilets.
+  - Dildo and butt-plug removal and reinsertion are unchanged.
+  - Bathing still removes only washable fluid, while scooping can remove deeper stored loads.
+  - Stored viable cum no longer triggers pregnancy Dysphoria every hour.
+  - Creampies still trigger their normal immediate Dysphoria reaction.
+  - Known pregnancies continue to cause hourly Dysphoria normally.
+  - Fixed orgasm cleanup after **Scoop Out Vagina/Anus** in school and park toilets.
 
-  - Multi-beast encounters now end correctly.
-  - Each beast retains its own orgasm progress.
-  - Group fights no longer duplicate enemies.
-  - Existing saves that stuck can continue normally.
+- **Fixed Gwylan sex, chastity, and clothing requests**
 
-- **Fixed combat speech**
+  - Gwylan's penis now stays synchronised with the correct vagina, anus, or mouth target during purging sex.
+  - The previous oral action no longer appears incorrectly while riding.
+  - Gwylan is excluded from the generic angry-opponent chastity punishment and will not force a device or steal its key.
+  - One-piece clothing requests no longer become impossible because hidden outfit parts inherit unsupported colour requirements.
+  - Existing affected requests should work correctly.
 
-  - Angel **Forgive**, **Plead**, and **Threaten** no longer trigger jealousy over an unnamed rival.
-  - Fixed missing Avery and Ivory Wraith responses.
-  - Love interests without special name-drop dialogue now fall back to normal responses.
+- **Fixed Avery misreading wrong-way pills**
 
-- **Fixed Blackmail Club quests getting stuck**
+  - Avery now separates Gender Identity from physical sex.
+  - Dialogue can recognise nonbinary characters while forced-pill logic continues to use physical sex.
+  - If a pill has already changed the player into Avery's sex, Avery now tells them to reverse it or wait for it to wear off instead of blaming clothing.
+  - Updated date invitation and pre-date checks.
+  - Fixed nearby grammar errors.
 
-  - Conclusion letters left unread for seven days now resolve the job automatically.
-  - Successful jobs still pay out, with a message explaining what happened.
-  - Added a quest marker and Journal reminder while a conclusion letter is waiting in the bedroom.
-  - Existing stuck saves resolve automatically after seven in-game days.
-  - Failed jobs still reset threat progress as before.
+- **Fixed Robin cafe issues**
 
-- **Fixed swimsuit locker storage**
+  - Fixed broken pronouns in Robin cafe milk scenes.
+  - Robin now actually leaves their room and works at the Ocean Breeze from 5–7 PM.
+  - A note appears on their door during the shift.
+  - Robin goes directly to work instead of stopping for a bath first.
+  - Talking to Robin at the cafe no longer opens an empty page with only a **Next** link.
+  - The shift ends correctly at 7 PM.
+  - Robin drinking the player's milk now drains it instead of refilling it.
 
-  - Changing swimsuits repeatedly no longer sends the original outfit back to the home wardrobe.
-  - The player's outfit stays correctly stored in the changing room after swimming lessons.
-  - Works in both locker rooms and with all body configurations.
+- **Fixed encounters ending without a climax**
 
-- **Fixed alternate spriteset fallback**
+  - Scenes ending because of alarms, passing out, timers, or other interruptions no longer leave a broken leftover **Next** link.
+  - Alleyways Rescue Fight and Kylar's park streak no longer show **You can't take it anymore** every turn.
+  - Give-up links now appear only when the player actually gives up.
+  - 79 scenes were fixed.
 
-  - Missing `img2` sprites now fall back to the normal sprite instead of appearing blank.
-  - Fixes modded hair and other modded sprites not appearing with the alternate spriteset.
-  - Prevents mod and embedded image paths from being incorrectly rewritten to `img2`.
-  - Missing fallback checks are cached after the first lookup.
+- **Fixed fame propagation**
 
-- **Fixed missing clothing sprites and combat image errors**
+  - Fame propagation no longer crashes the daily blackmail update or applies duplicate Fame penalties.
+  - Stored identities now respect normal Fame limits.
 
-- **Fixed duplicated settings and cheat options**
+- **Fixed Bailey card-game docks detour**
 
-- **Fixed silent X-Change pill effects**
+  - The first eligible Bailey win always triggers the docks detour.
+  - Repeat eligible wins have a 34% chance to use the docks route.
+  - Other wins continue to use the Reiyu's **Drive Home** scene.
+  - The Intimidate option is unchanged.
 
-  - Unknown pill effects hidden by a passage transition now display a notice on the next passage.
-  - Added missing drugging/transformation narration for Bailey, the moors abduction, office party, pub, and underwater prison.
-  - Scenes that already describe the pill or transformation are unchanged.
+- **Fixed Temple quest travel issues**
 
-- **Fixed Robin's chest-binder descriptions**
+  - Fixed the pirate ship getting stuck at sea, including already-affected saves.
+  - Starting a new voyage resets stale journey state.
+  - Visiting the Pirate Deck repairs a stuck voyage automatically.
 
-  - Robin is no longer described as wearing a chest binder while gender-flipped.
-  - Covers room-entry and lemonade-stand scenes, including the scene viewer.
-  - Other scenes that already handled Robin's X-Changed body correctly are unchanged.
+- **Fixed cheat menu**
 
-- **Fixed Avery date, dinner, and X-Change vow interactions**
+  - Fixed Bird Tower bonfire upgrades not applying correctly through **Quick-Complete Tower**.
+  - Reusing Quick-Complete updates the firepit to the correct burn time, cooking speed, and rack capacity.
+  - Fixed island teleport cleanup missing many island passages.
+  - Water Dragon crossing counters now reset correctly.
 
-  - Removed repeated dialogue and questions during Avery's Valentine's dinner.
-  - Avery now comments on pregnancy only when they actually intended to give the player a pill.
-  - Temple-vow forgiveness text now appears only while using a borrowed body.
-  - Gray and crossdress pills still count as the player's own body.
-  - Avery's home is now consistently called a mansion in fishing thoughts.
+- **Fixed pronoun errors**
 
-- **Fixed Randomizer settings, talents, and identity**
+  - Sydney's corrupt nightmare no longer fills the page with undefined-pronoun errors.
+  - Pronouns are now checked throughout each part of the dream.
+  - Fixed Avery's drinks-cabinet warning showing pronoun errors while Avery was away.
+  - Fixed Avery handing the player a drink “himself” regardless of Avery's pronouns.
 
-  - Random starts no longer create invalid settings that break the Modded Settings page.
-  - Existing saves with invalid values repair on load.
-  - Turning off Insanity restores the original talent choices instead of leaving free talents behind.
-  - Random starts now grant a valid number of talents.
-  - Random starts no longer create conflicting identity preferences.
+- **Fixed wardrobe delivery and MMA storage**
 
-- **Fixed gender being misread while undressing**
+  - Automatically replaced clothes are no longer sent to inaccessible lockers.
+  - Replacements now go only to wardrobes that accept deliveries, with the orphanage as fallback.
+  - Added a proper locker to the MMA gym changing room for storing gym clothing.
 
-  - Characters with both a penis and vagina are no longer automatically read as male when genitals are visible.
-  - Gender recognition now continues to use overall appearance during undressing and sex.
+- **Fixed realistic childbirth and Water Dragon egg births**
 
-- **Fixed clothes tearing and school locker storage**
+- **Fixed incorrect seasonal weather**
 
-  - Accessories, cursed clothing, chastity devices, and unsupported items no longer show **Tear**.
-  - School pool locker clothing no longer disappears when **Multiple wardrobes** is disabled.
-  - Clothing already stuck there is moved to the orphanage wardrobe when loading a save.
-  - Separate wardrobes such as Eden's cabin and the farm remain separate.
+- **Fixed missing NPC in the pub pop quiz & police bribe**
 
-- **Fixed lost NPC state after stimming** after Police Molestation.
+- **Fixed tooltip behaviour again**
 
-- **Fixed temple Innocence-pill issues**
+- **Fixed Danube Meal**
 
-  - Fixed an error when receiving the Innocence pill with Sydney.
-  - Added the missing Innocence-pill atonement in confession after both temple vows are broken.
-
-- **Fixed tanning lines from clothing**
-
-- **Fixed blackmail edge cases**
-
-  - Gentleman's Club blackmail tasks are cancelled when a soft bad end prevents completion, including farm, asylum, prison, pound, wolf cave, Eden, Kylar, and mines.
-  - The blackmail remains active and a new task arrives a few days after returning.
-  - Tasks already waiting for a reply letter are unchanged.
-
-- **Fixed fishing-related UI**
-  - The sidebar drunk indicator now changes colour with drunkenness instead of always appearing red.
+- **Fixed X-Change combat pill text**
+  - Anal pill insertion now has unique aftermath text.
+  - It no longer uses swallowing or bitter-taste lines.
+  - Applies to no-effect pills, normal pills, and spiked pills with or without side effects.
 
 ## Art and Graphics
 
-- **Fixed Aoki Utage Masc and Fem penis sprites** by Bec.
+- **Added Foreground 1**
 
-- **Updated vanilla graphics**
+  - By germa\_\_.
 
-  - Changed Melusine wings by Zero.
-  - Added Sam Storiez vanilla face slots 3, 4, and 5.
-  - Added vanilla modded face slots 6, 7, and 8 based on original vanilla faces and Sam Storiez mixes.
+- **Updated B3S art**
+
+  - **Hollow double Circles** for Swirly Glasses.
+  - **Corrincian** for Flaccid Penises.
+  - **Farius** for Succubus upper and lower, and Fishnet Garter Stockings.
 
 - **Added new DoLP NNPC sprites**
 
-  - Added new variants for Avery, Night Monster, Remy, River, Kylar, Gwylan, Jordan, Harper, Wren, Bailey, Eden, Whitney, Great Hawk, and Ivory Wraith.
-  - Contributions include Maganat, RazzPixel, Rei (5eire), kon (konpm), Mad.W.D, morguesuite, illumihoti, Blue (bluechiizu), kkamikurisa, sunaraei, Kan (pissapissa), reis.luuv, and rairai_21.
+  - **cloverchord** for KylarMasc and RobinMasc variants.
+  - **Juliet (j2citrus)** for a RobinFem variant.
+  - **ENNE (_enneth_)** for RobinMasc and RobinFem variants.
+  - **Keykey** for KylarFem variants.
+  - **soump** for WhitneyFem and RobinFem variants.
+  - **Ryonanoia/Koma** for an EdenMasc variant.
+  - **True_Doll** for Doren, Leighton, Mason, River, Sirris, and Winter masculine variants.
+  - **RazzPixel** for Sam, Alex, Black Wolf, and Doren feminine variants.
+  - **Mozumelody** for Briar, Charlie, Darryl, Gwylan, Jordan, Landry, Sydney, and Others variants across different sexes, skin tones, and pure/corrupt states.
+  - **Mickey** is now mapped to the **Others** NNPC art folder to use Mozumelody's artwork.
 
-- **Restored Landry female dark portrait by Maganat**
-
-  - Maganat's version is back in slot 1.
-  - RazzPixel's version remains available in slot 2.
-
-- **Added Bailey's collar art** by MJ
-  - For B3s and GooseMasc.
+- **Updated GooseFem**
+  - Urchin parasite by **TooKi58**.
+  - Fringe swept left by **kio —☆ (stainedpantiezs)**.
+  - Side crude by **halpy**.
+  - Side swept left by **seaslug**.
+  - Fringe thorn and curl by **sugarpawzi**.
+  - Fringe hime classic by **Froggy**.
+  - Fringe centred by **Kmagi**.
+  - Fringe side-pinned & goopy by **mars (herdeshe.r)**.
+  - Fringe crude by **iqj83298kw (cuttercircuitcookie)**.
