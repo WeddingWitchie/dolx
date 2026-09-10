@@ -203,8 +203,8 @@
    Toys may still allow orgasm. Used only to enable a fallback, never to block anything. */
 function playerCannotSelfClimax() {
 	return !!(
-		V.penis_addict_trait === 1 ||
-		(V.hole_addict_trait === 1 && V.player?.penisExist) ||
+		(!V.statFreeze && V.penis_addict_trait === 1) ||
+		(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) ||
 		(V.xchange?.pill?.alphaEffect && V.player?.penisExist) ||
 		// eslint-disable-next-line no-undef
 		breederOrgasmDenied()

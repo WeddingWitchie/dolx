@@ -223,6 +223,7 @@ function autismLoadTraumaValue() {
 const autismSpectrumSessionMaxMinutes = 120;
 
 function playerHasAutismSpectrum() {
+	if (V.statFreeze) return false;
 	return V.backgroundTraits?.includes("autism") === true;
 }
 

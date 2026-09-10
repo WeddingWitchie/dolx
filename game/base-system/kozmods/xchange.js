@@ -374,7 +374,7 @@ function pleasure(amount, source) {
 		// $sexRitual only exists between gwylanRitualStart and gwylanRitualEnd, so this cleanly brackets the whole scene.
 		const gwylanRitualActive = !!V.sexRitual;
 		// The hole addiction craves getting the player's own cock into something; with no penis (e.g. genderflipped by a pill) it cannot possibly be fulfilled, so it lies dormant instead of soft-locking every orgasm.
-		const holeAddictActive = !gwylanRitualActive && ((V.hole_addict_trait === 1 && V.player?.penisExist === true) || alphaEffectActive);
+		const holeAddictActive = !gwylanRitualActive && ((!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist === true) || alphaEffectActive);
 
 		// Apply effect according to source
 		let sensitivity = 0;
@@ -416,7 +416,7 @@ function pleasure(amount, source) {
 			case "bottom_grope":
 				if (amount > 0 && anusPenetratedNow) {
 					statChange.pain(V.analPain || 0);
-					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
+					if (!V.statFreeze && V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("bottom");
 				break;
@@ -434,7 +434,7 @@ function pleasure(amount, source) {
 			case "penis_grope":
 				if (amount > 0 && V.player.vaginaExist === true && vaginaPenetratedNow) {
 					statChange.pain(V.vaginalPain);
-					if (V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
+					if (!V.statFreeze && V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("genital");
 				if (playerIsPregnant()) sensitivity += insanitySensitivityAdjustment(0.5);
@@ -466,7 +466,11 @@ function pleasure(amount, source) {
 			}
 		}
 
-		if (amount > 0 && !gwylanRitualActive && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled))) {
+		if (
+			amount > 0 &&
+			!gwylanRitualActive &&
+			((!V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled))
+		) {
 			mod *= 0.6;
 		}
 
@@ -496,7 +500,8 @@ function pleasure(amount, source) {
 		V.pleasure += pleasureChange;
 
 		// Prevent orgasming unless addictions are fulfilled (suspended during Gwylan's ritual, see gwylanRitualActive above)
-		const addictionsUnmet = !gwylanRitualActive && ((V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled));
+		const addictionsUnmet =
+			!gwylanRitualActive && ((!V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled));
 
 		const cap = (V.pleasuremax * 4) / 5 - 1;
 
@@ -558,7 +563,7 @@ function pleasure(amount, source) {
 				const arms = [V.leftarm, V.rightarm];
 
 				// --- Penis Addict: needs something INSIDE the player ---
-				if (V.penis_addict_trait === 1 && !penisAddictionFulfilled) {
+				if (!V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled) {
 					// Worn (inserted) toys: the V.worn slots are the single source of truth for what's actually in the body, and these helpers verify state === "worn".
 					// The per-item inventory `worn` flags are shop-UI bookkeeping that other systems (combat "removed" state, vision morphs, save/load breaking the slot↔item alias) don't maintain, so they must never be read here as a stale flag made merely carried toys count as inserted.
 					// Every insertable worn toy lands in one of these three slots (anal beads share butt_plug; all vibes share vibrator).
@@ -599,7 +604,7 @@ function pleasure(amount, source) {
 			// 1 = penis craving unmet, 2 = hole/alpha craving unmet, 3 = both.
 			// This makes the notice show the actual missing craving instead of guessing from traits.
 			const showBlockedMsg = () => {
-				const penisUnmet = V.penis_addict_trait === 1 && !penisAddictionFulfilled;
+				const penisUnmet = !V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled;
 				const holeUnmet = holeAddictActive && !holeAddictionFulfilled;
 				V.effectsmessage = 1;
 				V.sexual_addiction_message = penisUnmet && holeUnmet ? 3 : holeUnmet ? 2 : 1;
@@ -859,6 +864,7 @@ function insanitySuppressed() {
 window.insanitySuppressed = insanitySuppressed;
 
 function activeInsanityTrait() {
+	if (V.statFreeze) return false;
 	if (insanitySuppressed()) return false;
 	return V.backgroundTraits?.includes("insanity") === true;
 }
@@ -874,6 +880,7 @@ function insanitySensitivityAdjustment(amount) {
 window.insanitySensitivityAdjustment = insanitySensitivityAdjustment;
 
 function applyPermanentInsanityTalents() {
+	if (V.statFreeze) return;
 	if (!V.AMCTraits || typeof V.AMCTraits !== "object" || Array.isArray(V.AMCTraits)) return;
 
 	if (!permanentInsanityTalentLockActive()) {
@@ -1810,7 +1817,7 @@ function xchangeEffectsMessages() {
 		delete V.antiPillSensitivityEndMessage;
 	}
 
-	if (V.alcoholToleranceMessage) {
+	if (!V.statFreeze && V.alcoholToleranceMessage) {
 		switch (V.alcoholToleranceMessage) {
 			case "developing":
 				element("span", "Your body is starting to adapt to being drunk.", "pink");
@@ -1844,7 +1851,7 @@ function xchangeEffectsMessages() {
 		delete V.alcoholToleranceMessage;
 	}
 
-	if (V.cigaretteCravingMessage) {
+	if (!V.statFreeze && V.cigaretteCravingMessage) {
 		switch (V.cigaretteCravingMessage) {
 			case "craving":
 				element("span", "You crave a cigarette.", "pink");
@@ -2098,14 +2105,14 @@ function xchangeEffectsMessages() {
 		// Old saves may still use 1, so the trait check below handles that case.
 		const unmet = V.sexual_addiction_message;
 		const holeLine =
-			alphaEffectActive && V.hole_addict_trait !== 1
+			alphaEffectActive && (V.statFreeze || V.hole_addict_trait !== 1)
 				? "Your knot aches to lock inside someone, and it demands it now!"
 				: "Your dick craves some pussy, and it demands it now!";
 		element("span", "Your body refuses to cum like this.", "purple");
 		if (unmet === 3) element("span", "You need real sex! Doesn't matter who does the fucking.", "red");
 		else if (unmet === 2) element("span", holeLine, "red");
-		else if (V.penis_addict_trait === 1) element("span", "You need dick, and you need it deep inside you. Now!", "red");
-		else if ((V.hole_addict_trait === 1 && V.player.penisExist) || alphaEffectActive) element("span", holeLine, "red");
+		else if (!V.statFreeze && V.penis_addict_trait === 1) element("span", "You need dick, and you need it deep inside you. Now!", "red");
+		else if ((!V.statFreeze && V.hole_addict_trait === 1 && V.player.penisExist) || alphaEffectActive) element("span", holeLine, "red");
 
 		br();
 

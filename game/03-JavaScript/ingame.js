@@ -1491,6 +1491,7 @@ window.fatigueSkillPenaltyFraction = fatigueSkillPenaltyFraction;
 
 /* Drunkenness that still impairs the PC after accounting for their built-up tolerance. */
 function effectiveDrunk() {
+	if (V.statFreeze) return Number(V.drunk) || 0;
 	return (Number(V.drunk) || 0) * (1 - Math.clamp(Number(V.alcoholTolerance) || 0, 0, 1000) / 1000);
 }
 window.effectiveDrunk = effectiveDrunk;
@@ -4006,6 +4007,7 @@ window.hypnosisTrait = hypnosisTrait;
  * @returns {boolean} true while the player holds the stones
  */
 function whiteSoPaleHeld() {
+	if (V.statFreeze) return false;
 	return V.auriga_artefact === "pc";
 }
 window.whiteSoPaleHeld = whiteSoPaleHeld;

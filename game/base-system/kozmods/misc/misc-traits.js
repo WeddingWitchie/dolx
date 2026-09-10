@@ -157,6 +157,7 @@ setup.masteryTraits = [
  * @returns {boolean} whether the PC currently has this mastery trait
  */
 function masteryTrait(id) {
+	if (V.statFreeze) return false;
 	const trait = setup.masteryTraits.find(t => t.id === id);
 	if (!trait) return false;
 	try {

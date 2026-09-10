@@ -1422,7 +1422,7 @@ setup.horserace = setup.horserace || {};
 			const wetPenalty = race.condition === "wet" ? -0.15 : race.condition === "muddy" ? -0.35 : 0;
 			const trackChaos = race.trackId === "cross" ? HR.randFloat(-0.35, 0.45) : HR.randFloat(-0.2, 0.25);
 			const finalKick = horse.progress >= 75 ? horse.finishKick : 0;
-			const gamblingLuck = 1 + (V.daily?.moorGamblingLuck ? 0.4 : 0) + (V.foodstuff?.four_leaf_clover?.amount >= 1 ? 0.07 : 0);
+			const gamblingLuck = V.statFreeze ? 1 : 1 + (V.daily?.moorGamblingLuck ? 0.4 : 0) + (V.foodstuff?.four_leaf_clover?.amount >= 1 ? 0.07 : 0);
 			const pace =
 				(horse.baseSpeed / 21 + staminaPressure + horse.boost + finalKick + wetPenalty + trackChaos + HR.randFloat(-0.85, 1.05)) *
 				(horse.id === race.betHorseId ? gamblingLuck : 1);

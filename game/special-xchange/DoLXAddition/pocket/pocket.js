@@ -967,6 +967,7 @@ function pocketFoodFullness() {
 window.pocketFoodFullness = pocketFoodFullness;
 
 function bloatedActive() {
+	if (V.statFreeze) return false;
 	return !!(V.pocket && (Number(V.pocket.bloated) || 0) > 0);
 }
 window.bloatedActive = bloatedActive;
@@ -984,6 +985,7 @@ window.bloatedSkillPenalty = bloatedSkillPenalty;
 
 /* A PC who keeps themselves fed weathers things better. */
 function wellFedActive() {
+	if (V.statFreeze) return false;
 	return (Number(V.foodSatiety) || 0) > 50 || bloatedActive();
 }
 window.wellFedActive = wellFedActive;
@@ -1027,6 +1029,7 @@ function pocketSpoiledNotice() {
 window.pocketSpoiledNotice = pocketSpoiledNotice;
 
 function pocketHourPassed() {
+	if (V.statFreeze) return;
 	pocketEnsure();
 	V.foodSatiety = Math.clamp((Number(V.foodSatiety) || 0) - 2, 0, 60);
 	V.pocket.bloated = Math.clamp((Number(V.pocket.bloated) || 0) - 1, 0, 10);

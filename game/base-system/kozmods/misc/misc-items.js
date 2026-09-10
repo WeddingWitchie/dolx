@@ -121,12 +121,14 @@ window.prescriptionBoxSize = () => PRESCRIPTION_BOX_SIZE;
 
 /* The antidepressant course rides on Harper's existing prescription: it only works while the PC is actually medicated. */
 function antidepressantActive() {
+	if (V.statFreeze) return false;
 	if (!V.prescriptions || V.prescriptions.antidepressant !== true) return false;
 	return (Number(V.medicated) || 0) >= 1;
 }
 window.antidepressantActive = antidepressantActive;
 
 function sleepAidPending() {
+	if (V.statFreeze) return null;
 	const aid = ensureMedicationState().sleepAid;
 	if (!aid.strength) return null;
 	if (V.timeStamp - aid.takenAt > MEDICATION_SLEEP_WINDOW) return null;
@@ -135,6 +137,7 @@ function sleepAidPending() {
 window.sleepAidPending = sleepAidPending;
 
 function takeSleepAid(strength) {
+	if (V.statFreeze) return;
 	const aid = ensureMedicationState().sleepAid;
 	aid.strength = strength === "prescription" ? "prescription" : "otc";
 	aid.takenAt = V.timeStamp;
@@ -170,12 +173,14 @@ window.insomniaSuppressedBySleepAid = insomniaSuppressedBySleepAid;
 
 /* Once the body is used to the pills, sleeping without them is broken sleep on its own. */
 function sleepAidWithdrawal() {
+	if (V.statFreeze) return false;
 	const aid = ensureMedicationState().sleepAid;
 	return aid.dependence >= MEDICATION_WITHDRAWAL_THRESHOLD && !sleepAidPending();
 }
 window.sleepAidWithdrawal = sleepAidWithdrawal;
 
 function sleepAidDependenceLevel() {
+	if (V.statFreeze) return 0;
 	const aid = ensureMedicationState().sleepAid;
 	if (aid.dependence >= 12) return 2;
 	if (aid.dependence >= MEDICATION_WITHDRAWAL_THRESHOLD) return 1;
@@ -195,6 +200,7 @@ window.sleepAidOversleepHours = sleepAidOversleepHours;
 
 /* A dose only covers one sleep. */
 function consumeSleepAid() {
+	if (V.statFreeze) return;
 	const aid = ensureMedicationState().sleepAid;
 	aid.strength = null;
 	aid.takenAt = 0;
@@ -205,6 +211,7 @@ window.consumeSleepAid = consumeSleepAid;
 /* Insomnia is only recalculated when trauma changes, so a dose that quietly wore off would otherwise
    leave the PC sleeping well on nothing. Called from the passage header; only recalculates when the answer moved. */
 function refreshSleepAidState() {
+	if (V.statFreeze) return;
 	const aid = ensureMedicationState().sleepAid;
 	/* A dose taken and never slept on simply wears off. */
 	if (aid.strength && V.timeStamp - aid.takenAt > MEDICATION_SLEEP_WINDOW) {
@@ -219,6 +226,7 @@ function refreshSleepAidState() {
 window.refreshSleepAidState = refreshSleepAidState;
 
 function medicationDayPassed() {
+	if (V.statFreeze) return;
 	const aid = ensureMedicationState().sleepAid;
 	if (!aid.usedToday) aid.dependence = Math.clamp(aid.dependence - 0.5, 0, MEDICATION_DEPENDENCE_MAX);
 	aid.usedToday = false;

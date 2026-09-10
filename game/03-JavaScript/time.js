@@ -1519,8 +1519,8 @@ function hourPassed(hours, advanceFirst) {
 function minutePassed(minutes) {
 	// Stress
 	// decay/rise and crossdresser trait
-	const isCrossdresser = V.backgroundTraits.includes("crossdresser");
-	const isGenderAnxious = V.backgroundTraits.includes("genderAnxious");
+	const isCrossdresser = !V.statFreeze && V.backgroundTraits.includes("crossdresser");
+	const isGenderAnxious = !V.statFreeze && V.backgroundTraits.includes("genderAnxious");
 	// Don't use isCrossdressing() here, since NudeGenderDC should not affect stress.
 	// Herm bodies can't crossdress.
 	// These traits use original sex, so X-Change doesn't reverse their effects.
@@ -1570,9 +1570,7 @@ function minutePassed(minutes) {
 
 	// Effects
 	V.stress = Math.min(V.stress, V.stressmax);
-	// substanceRebalance only affects metabolism rates, not tolerance logic itself.
-	// Alcohol calmed down: full drunk meter now clears in ~22.5h instead of 30h (a ~25% reduction),
-	// so time-passing scenes no longer leave the player surprisingly drunk afterward.
+	// substanceRebalance only affects metabolism rates, not tolerance logic.
 	const alcoholRate = V.substanceRebalance === 1 ? 1000 / (22.5 * 60) : 1;
 	const hallucinogenRate = V.substanceRebalance === 1 ? 1000 / (54 * 60) : 1;
 	const druggedRate = V.substanceRebalance === 1 ? 1000 / (27 * 60) : 1;
@@ -1582,19 +1580,16 @@ function minutePassed(minutes) {
 		const sum = (from, to) => ((from - to) * (from + to + 1)) / 2;
 		const drunkMod = sum(V.drunk, Math.max(V.drunk - minutes, 0));
 
-		// --- Alcohol tolerance: build phase ---
-		// Reset the sobriety counter since alcohol is in the system.
-		V.timeSinceDrunk = 0;
+		// Reset sobriety counter while alcohol is present.
+		if (!V.statFreeze) V.timeSinceDrunk = 0;
 
-		const prevTolerance = V.alcoholTolerance || 0;
-		// Tolerance builds while heavily drunk (matches the existing >=360 heavy-drunk threshold).
-		// Full tolerance (1000) after ~14 in-game days continuously at V.drunk=1000.
-		// The old two-day rate made a few long drinking sessions look like chronic addiction.
-		if (V.drunk >= 360) {
+		const prevTolerance = V.statFreeze ? 0 : V.alcoholTolerance || 0;
+		// Tolerance builds while heavily drunk (>=360). Full tolerance after ~14 in-game days at V.drunk=1000.
+		if (!V.statFreeze && V.drunk >= 360) {
 			const buildRate = (minutes * (V.drunk / 1000) * 1000) / 20160;
 			V.alcoholTolerance = Math.clamp(prevTolerance + buildRate, 0, 1000);
 		}
-		const newTolerance = V.alcoholTolerance || 0;
+		const newTolerance = V.statFreeze ? 0 : V.alcoholTolerance || 0;
 
 		// Upward threshold notifications.
 		if (prevTolerance < 100 && newTolerance >= 100) {
@@ -1618,18 +1613,15 @@ function minutePassed(minutes) {
 		const clearanceMod = 1 + 0.5 * (newTolerance / 1000);
 		// warning: assumes 1:1 negative alcohol changes, true as of yet
 		statChange.drunk(-minutes * alcoholRate * clearanceMod);
-		// V.drunk ranging from 0 to 1000, 1 minute at 1000 will add extra 1.25 of tiredness (2.25x total)
-		// reference values are 2x at 800, 1.5x at 400 (pain reduction from drunkenness starts at 360), 1.25x at 200
+		// V.drunk: 0–1000. Tiredness multiplier: 1.25x @200, 1.5x @400, 2x @800, 2.25x @1000. Pain reduction starts @360.
 		if (minutes < 1200) statChange.tiredness((drunkMod / 12000) * toleranceFactor);
-	} else if (V.alcoholTolerance > 0) {
-		// --- Sober: rehabilitation phase, ~30 in-game days for full decay ---
-		// Rate-independent: body recovery doesn't care about substanceRebalance.
+	} else if (!V.statFreeze && V.alcoholTolerance > 0) {
+		// --- Sober: ~30 in-game days for full recovery ---
 		V.timeSinceDrunk = (V.timeSinceDrunk || 0) + minutes;
 		const prevTolerance = V.alcoholTolerance;
 		V.alcoholTolerance = Math.max(0, V.alcoholTolerance - minutes * (1000 / 43200));
 
-		// Acute withdrawal stress: only during the first ~3 days of sobriety,
-		// only if tolerance was actually meaningful. Mirrors real-life acute withdrawal window.
+		// Acute withdrawal stress: first ~3 days sober, only with meaningful tolerance.
 		if (prevTolerance > 300 && V.timeSinceDrunk < 4320 && minutes < 1200) {
 			statChange.stress(minutes * (prevTolerance / 1000) * 0.5);
 			// Only remind about withdrawal once per in-game hour rather than every passage.
@@ -1653,10 +1645,10 @@ function minutePassed(minutes) {
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
 	if (minutes < 1200 && V.timeSkip === undefined) statChange.tiredness(minutes / 15);
 
-	// Cigarette dependence builds across repeated smoking rather than starting with the first cigarette.
-	// Before dependence, progress starts fading after 24h clean at one cigarette's worth per three days.
+	// Dependence builds with repeated smoking, not the first cigarette.
+	// Before dependence, progress fades after 24h clean at ~1 cigarette per 3 days.
 	const cigaretteAddictionProgress = Number(V.cigaretteAddictionProgress) || 0;
-	if (V.cigaretteAddiction || cigaretteAddictionProgress > 0) {
+	if (!V.statFreeze && (V.cigaretteAddiction || cigaretteAddictionProgress > 0)) {
 		const prevSince = V.timeSinceCigarette || 0;
 		V.timeSinceCigarette = prevSince + minutes;
 		if (!V.cigaretteAddiction && V.timeSinceCigarette > 1440) {
@@ -1680,9 +1672,8 @@ function minutePassed(minutes) {
 			V.cigaretteCravingMessage = "quit";
 		}
 	}
-	// Pain acclimation: painChangeByTime ramps decay up the longer the PC has been hurting,
-	// so V.painDuration tracks how many minutes pain has been continuous. Compute decay first
-	// (so this block uses the time already spent in pain), then advance/reset the counter.
+	// Pain acclimation: decay increases with continuous pain duration.
+	// Apply decay before updating/resetting V.painDuration.
 	const painDecay = setup.painChangeByTime(V.pain);
 	statChange.pain(minutes, painDecay);
 	if (V.pain > statChange.minPain()) {
@@ -1691,8 +1682,7 @@ function minutePassed(minutes) {
 		V.painDuration = 0;
 	}
 
-	// Living in constant pain gradually conditions the PC toward masochism, with a hint of submission.
-	// The harder it hurts and the longer it lingers, the better the odds of internalising the ache.
+	// Constant pain gradually conditions the PC toward masochism and submission; greater intensity and duration increase the chance of internalising it.
 	if (V.pain >= 60 && V.masochism < 1000 && !V.statFreeze) {
 		const painIntensity = Math.min(V.pain / 200, 1); // 0-1 scale of how bad it hurts
 		const enduranceBonus = Math.min((V.painDuration || 0) / 240, 1); // ramps up over ~4h of continuous pain
@@ -1704,8 +1694,6 @@ function minutePassed(minutes) {
 		}
 	}
 
-	// If passive Trauma decreases ever get implemented, they will need to be handled in a way that prevents the "trauma" widget from automatically updating the PC's trauma traits during combat.
-
 	// Arousal
 	const risk = playerPregnancyRisk();
 	const underBreedingEffect =
@@ -1713,63 +1701,61 @@ function minutePassed(minutes) {
 		playerIsXChanged() &&
 		(!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
 	// The PC gradually gets used to being locked up. Chastity can keep them needy, but passive pressure alone cannot leave them overwhelmed.
-	V.chastityAcclimation = Number.isFinite(V.chastityAcclimation) ? V.chastityAcclimation : 0;
-	const chastityAcclimatedEnabled = !!V.xchange?.chastityAcclimatedTraitEnabled;
-	// Ten days of it stops feeling new. Mark that permanently instead of leaving it as an invisible number the player can't act on.
-	V.chastityAcclimatedTrait = Number.isFinite(V.chastityAcclimatedTrait)
-		? V.chastityAcclimatedTrait
-		: chastityAcclimatedEnabled && V.chastityAcclimation >= 14400
-		? 1
-		: 0;
-	if (chastityAcclimatedEnabled && V.chastityAcclimatedTrait === -1) {
-		// Previously earned, then disabled. Restore it silently, since its acclimation may have dropped too low to earn again.
-		V.chastityAcclimatedTrait = 1;
-	} else if (!chastityAcclimatedEnabled && V.chastityAcclimatedTrait === 1) {
-		// -1 means the trait was earned but disabled by the setting, so it has no gameplay effect.
-		V.chastityAcclimatedTrait = -1;
+	if (!V.statFreeze) {
+		V.chastityAcclimation = Number.isFinite(V.chastityAcclimation) ? V.chastityAcclimation : 0;
+		const chastityAcclimatedEnabled = !!V.xchange?.chastityAcclimatedTraitEnabled;
+		V.chastityAcclimatedTrait = Number.isFinite(V.chastityAcclimatedTrait)
+			? V.chastityAcclimatedTrait
+			: chastityAcclimatedEnabled && V.chastityAcclimation >= 14400
+			? 1
+			: 0;
+		if (chastityAcclimatedEnabled && V.chastityAcclimatedTrait === -1) {
+			V.chastityAcclimatedTrait = 1;
+		} else if (!chastityAcclimatedEnabled && V.chastityAcclimatedTrait === 1) {
+			// -1 means the trait was earned but disabled by the setting, so it has no gameplay effect.
+			V.chastityAcclimatedTrait = -1;
+		}
+		// Time away dulls the habit but never erases it, preserving the trait's promised reduction.
+		// This also applies to -1: suppressed progress must persist if the setting is re-enabled.
+		const chastityAcclimationFloor = V.chastityAcclimatedTrait !== 0 ? 7200 : 0;
+		if (playerChastity()) {
+			V.chastityAcclimation = Math.clamp(V.chastityAcclimation + minutes, chastityAcclimationFloor, 14400);
+		} else {
+			V.chastityAcclimation = Math.clamp(V.chastityAcclimation - minutes / 2, chastityAcclimationFloor, 14400);
+		}
+		if (chastityAcclimatedEnabled && V.chastityAcclimation >= 14400 && V.chastityAcclimatedTrait === 0) {
+			V.effectsmessage = 1;
+			V.chastityAcclimatedTraitMessage = 1;
+			V.chastityAcclimatedTrait = 1;
+		}
+		// Suppressing the trait makes chastity frustration build as if unaccustomed.
+		// Lustful or prolonged chastity also reduces general arousal.
+		V.lustfulAcclimation = Number.isFinite(V.lustfulAcclimation) ? V.lustfulAcclimation : 0;
+		if (V.backgroundTraits.includes("lustful")) {
+			V.lustfulAcclimation = Math.clamp(V.lustfulAcclimation + minutes, 0, 20160);
+		} else {
+			V.lustfulAcclimation = Math.clamp(V.lustfulAcclimation - minutes / 2, 0, 20160);
+		}
+		const arousalAcclimatedEnabled = !!V.xchange?.arousalAcclimatedTraitEnabled;
+		const arousalAcclimatedEarned = V.lustfulAcclimation >= 20160 || V.chastityAcclimatedTrait === 1;
+		V.arousalDesensitizedTrait = Number.isFinite(V.arousalDesensitizedTrait)
+			? V.arousalDesensitizedTrait
+			: arousalAcclimatedEnabled && arousalAcclimatedEarned
+			? 1
+			: 0;
+		if (arousalAcclimatedEnabled && V.arousalDesensitizedTrait === -1) {
+			V.arousalDesensitizedTrait = 1;
+		} else if (arousalAcclimatedEnabled && arousalAcclimatedEarned && V.arousalDesensitizedTrait === 0) {
+			V.effectsmessage = 1;
+			V.arousalDesensitizedTraitMessage = 1;
+			V.arousalDesensitizedTrait = 1;
+		} else if (!arousalAcclimatedEnabled && V.arousalDesensitizedTrait === 1) {
+			// -1 means the trait was earned but disabled by the setting, so it has no gameplay effect.
+			V.arousalDesensitizedTrait = -1;
+		}
 	}
-	// Once the body has learned it, time out of the device dulls the habit but never erases it
-	// so the trait's promised reduction stays real instead of decaying back to nothing and leaving the trait card lying about what it does.
-	// -1 counts here too: the trait is only suppressed by the setting, so its progress must survive to mean something if it's switched back on.
-	const chastityAcclimationFloor = V.chastityAcclimatedTrait !== 0 ? 7200 : 0;
-	if (playerChastity()) {
-		V.chastityAcclimation = Math.clamp(V.chastityAcclimation + minutes, chastityAcclimationFloor, 14400);
-	} else {
-		V.chastityAcclimation = Math.clamp(V.chastityAcclimation - minutes / 2, chastityAcclimationFloor, 14400);
-	}
-	if (chastityAcclimatedEnabled && V.chastityAcclimation >= 14400 && V.chastityAcclimatedTrait === 0) {
-		V.effectsmessage = 1;
-		V.chastityAcclimatedTraitMessage = 1;
-		V.chastityAcclimatedTrait = 1;
-	}
-	// With the trait suppressed, chastity frustration builds as if the body never got used to it.
-	const chastityAcclimationEffect = chastityAcclimatedEnabled ? V.chastityAcclimation : 0;
+	const chastityAcclimationEffect = !V.statFreeze && V.xchange?.chastityAcclimatedTraitEnabled ? V.chastityAcclimation : 0;
 	const chastityArousalCap = V.arousalmax * (0.5 - 0.45 * (chastityAcclimationEffect / 14400));
-	// Being constantly horny (Lustful) or having spent long enough locked in chastity both wear the edge off arousal itself, not just chastity's own frustration.
-	V.lustfulAcclimation = Number.isFinite(V.lustfulAcclimation) ? V.lustfulAcclimation : 0;
-	if (V.backgroundTraits.includes("lustful")) {
-		V.lustfulAcclimation = Math.clamp(V.lustfulAcclimation + minutes, 0, 20160);
-	} else {
-		V.lustfulAcclimation = Math.clamp(V.lustfulAcclimation - minutes / 2, 0, 20160);
-	}
-	const arousalAcclimatedEnabled = !!V.xchange?.arousalAcclimatedTraitEnabled;
-	const arousalAcclimatedEarned = V.lustfulAcclimation >= 20160 || V.chastityAcclimatedTrait === 1;
-	V.arousalDesensitizedTrait = Number.isFinite(V.arousalDesensitizedTrait)
-		? V.arousalDesensitizedTrait
-		: arousalAcclimatedEnabled && arousalAcclimatedEarned
-		? 1
-		: 0;
-	if (arousalAcclimatedEnabled && V.arousalDesensitizedTrait === -1) {
-		// Previously earned, then disabled. Restore it silently, since its acclimation may have dropped too low to earn again.
-		V.arousalDesensitizedTrait = 1;
-	} else if (arousalAcclimatedEnabled && arousalAcclimatedEarned && V.arousalDesensitizedTrait === 0) {
-		V.effectsmessage = 1;
-		V.arousalDesensitizedTraitMessage = 1;
-		V.arousalDesensitizedTrait = 1;
-	} else if (!arousalAcclimatedEnabled && V.arousalDesensitizedTrait === 1) {
-		// -1 means the trait was earned but disabled by the setting, so it has no gameplay effect.
-		V.arousalDesensitizedTrait = -1;
-	}
 	// The belt only causes frustration when the PC was locked against their will. Voluntary locks, including temple vows, do not gain extra frustration from the Lustful trait.
 	const chastityFrustrationImmunity = chastityFrustrationImmune();
 	const chastityFrustrationApplies = playerChastity() && !chastityConsensual() && !chastityFrustrationImmunity;
@@ -1787,7 +1773,7 @@ function minutePassed(minutes) {
 	const chastityFadeGuard = chastityFrustrationApplies && V.arousal < chastityArousalCap ? 0.25 : 1;
 	// The fertility meter ascends from very safe to dangerous; its final two entries are the fertile risk bands.
 	const arousalMultiplier =
-		V.backgroundTraits.includes("lustful") || risk >= PregnancyConstants.riskMeterLabels.length - 2 || underBreedingEffect
+		(!V.statFreeze && V.backgroundTraits.includes("lustful")) || risk >= PregnancyConstants.riskMeterLabels.length - 2 || underBreedingEffect
 			? 0.2 * (12 - Math.floor(V.purity / 80)) + 1 + (V.purity <= 50 ? 1 : 0)
 			: -10 * chastityFadeGuard;
 	statChange.arousal(minutes * arousalMultiplier + getArousal(minutes, chastityArousalCap, chastityFrustrationApplies));

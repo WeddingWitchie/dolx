@@ -169,7 +169,7 @@ Coverage:
 			caughtCheating: false,
 			endPassage: _args[0]
 		}>>
-		<<set _gamblingLuck to ($daily.moorGamblingLuck ? 40 : 0) + ($foodstuff.four_leaf_clover?.amount gte 1 ? 7 : 0)>>
+		<<set _gamblingLuck to $statFreeze ? 0 : (($daily.moorGamblingLuck ? 40 : 0) + ($foodstuff.four_leaf_clover?.amount gte 1 ? 7 : 0))>>
 		<<if _gamblingLuck gt 0 and random(1, 100) lte _gamblingLuck>>
 			<<set _aceIndex to $blackjack.cards.findIndex(card => card.name === "A")>>
 			<<set _card to $blackjack.cards[0]>>
@@ -2117,7 +2117,7 @@ more suspicion if you actually lose the round. -->
 			<span class="red">If you lose, Wren will take your first kiss.</span>
 		<</if>>
 		<br>
-		<<if $arousal lt ($arousalmax*4/5) or $arousalDesensitizedTrait is 1 or (typeof activeInsanityTrait === "function" and activeInsanityTrait())>>
+		<<if $arousal lt ($arousalmax*4/5) or (!$statFreeze and $arousalDesensitizedTrait is 1) or (typeof activeInsanityTrait === "function" and activeInsanityTrait())>>
 			<<getouticon>><<link [[Leave|Estate Cards Leave]]>><<npcincr Wren love -1>><<handheldon>><</link>><<llove>>
 		<<else>>
 			<<silently>><<willpowerdifficulty 200 1000>><</silently>>

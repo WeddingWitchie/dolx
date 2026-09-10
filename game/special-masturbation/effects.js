@@ -80,8 +80,8 @@ function masturbationEffects() {
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
 		} else if (
-			V.penis_addict_trait === 1 ||
-			(V.hole_addict_trait === 1 && V.player?.penisExist) ||
+			(!V.statFreeze && V.penis_addict_trait === 1) ||
+			(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) ||
 			(V.xchange?.pill?.alphaEffect && V.player?.penisExist) ||
 			breederOrgasmDenied()
 		) {
@@ -291,8 +291,8 @@ function masturbationEffects() {
 		V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
 		V.corruptionMasturbation === undefined &&
 		!V.hypnosis_traits?.silence &&
-		V.penis_addict_trait !== 1 &&
-		!(V.hole_addict_trait === 1 && V.player?.penisExist) &&
+		(V.statFreeze || V.penis_addict_trait !== 1) &&
+		!(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) &&
 		!(V.xchange?.pill?.alphaEffect && V.player?.penisExist) &&
 		!breederOrgasmDenied()
 	) {
@@ -347,8 +347,8 @@ function masturbationEffectsArms(
 			V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
 			V.corruptionMasturbation === undefined &&
 			!V.hypnosis_traits?.silence &&
-			V.penis_addict_trait !== 1 &&
-			!(V.hole_addict_trait === 1 && V.player?.penisExist) &&
+			(V.statFreeze || V.penis_addict_trait !== 1) &&
+			!(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) &&
 			!(V.xchange?.pill?.alphaEffect && V.player?.penisExist) &&
 			!breederOrgasmDenied()
 		) {

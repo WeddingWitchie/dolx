@@ -401,7 +401,7 @@ function effectsMakeup() {
 	}
 
 	/* Well Fed uses the same one-time gain/loss notice pattern as bathing freshness. */
-	if (typeof window.wellFedActive === "function" && V.pocket) {
+	if (!V.statFreeze && typeof window.wellFedActive === "function" && V.pocket) {
 		if (window.wellFedActive() && !V.pocket._wellFedShown) {
 			V.pocket._wellFedShown = true;
 			span("You feel comfortably full and well fed.", "gold");
@@ -413,7 +413,7 @@ function effectsMakeup() {
 		}
 	}
 
-	if (typeof window.bloatedActive === "function" && V.pocket) {
+	if (!V.statFreeze && typeof window.bloatedActive === "function" && V.pocket) {
 		if (window.bloatedActive() && !V.pocket._bloatedShown) {
 			V.pocket._bloatedShown = true;
 			span("Your stomach feels painfully bloated.", "red");
@@ -1189,7 +1189,7 @@ function effects() {
 		});
 
 		// Both messages are queued a tick before they print. Drop them silently if the trait was switched off in between.
-		if (V.chastityAcclimatedTraitMessage) {
+		if (!V.statFreeze && V.chastityAcclimatedTraitMessage) {
 			if (V.chastityAcclimatedTrait === 1) {
 				element("span", `Being locked away doesn't gnaw at you like it used to. You've gained the "Chastity Acclimated" trait.`, "gold");
 				br();
@@ -1197,8 +1197,8 @@ function effects() {
 			delete V.chastityAcclimatedTraitMessage;
 		}
 
-		if (V.arousalDesensitizedTraitMessage) {
-			if (V.arousalDesensitizedTrait === 1) {
+		if (!V.statFreeze && V.arousalDesensitizedTraitMessage) {
+			if (!V.statFreeze && V.arousalDesensitizedTrait === 1) {
 				element("span", `Being turned on has stopped feeling urgent. You've gained the "Arousal Acclimated" trait.`, "gold");
 				br();
 			}

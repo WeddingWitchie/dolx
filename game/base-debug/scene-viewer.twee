@@ -1386,6 +1386,11 @@ End of '<<print $replayScene.name>>' scene.
 		V.frozenXchangeValues.deepMerge(V.xchange, (key, value, depth) => {
 			return !(depth === 1 && xchangeKeysToSkip.includes(key)) && typeof value !== "function";
 		});
+		/* The temporary body does not inherit the real player's background or anatomical talents. */
+		V.backgroundTraits = [];
+		for (const key of Object.keys(V.AMCTraits || {})) {
+			V.AMCTraits[key] = key === "halfGain" ? 0 : 1;
+		}
 	<</script>>
 <</widget>>
 
@@ -1393,7 +1398,7 @@ End of '<<print $replayScene.name>>' scene.
 	<<if $replayScene>><<exit>><</if>> /* Should never be run when a scene is running */
 	<<script>>
 		const skipKeysOnFreeze = ["replayScene", "frozenValues", "frozenXchangeValues", "statFreeze", "passage", "debug", "debugMenu", "options", "hcChallenge", "hcChallengesCompleted", "xchange"];
-		const objectsToHardRestore = ["skin", "worn", "prof", "player", "transformationParts", "sexStats", "hypnosis_traits", "hypnosisTimers", "parasite"];
+		const objectsToHardRestore = ["AMCTraits", "autismSpectrum", "sleepAid", "skin", "worn", "prof", "player", "transformationParts", "sexStats", "hypnosis_traits", "hypnosisTimers", "parasite"];
 		const xchangeKeysToSkip = ["blackmail"];
 		const xchangeObjectsToHardRestore = ["pill"];
 		delete V.statFreeze;
