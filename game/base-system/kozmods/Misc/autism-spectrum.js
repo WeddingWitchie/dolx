@@ -879,7 +879,7 @@ const autismAmbientLines = Object.freeze({
 	burnout: {
 		loud: [
 			"Voices, footsteps, traffic and other nearby noises reach you at the same time. You struggle to separate the sounds long enough to decide which ones matter.",
-			"Someone speaks to you. You hear their voice, but the words do not make sense straight away. You need them to repeat themselves, though even asking feels difficult.",
+			"The sounds around you blur together. Focusing on one takes effort, and you lose track of it whenever another noise interrupts.",
 			"You react to every nearby noise now, even when it has nothing to do with you. You try to focus on one sound at a time, but another interrupts before you can.",
 		],
 		bright: [
@@ -1284,7 +1284,7 @@ const autismQuietPassages = Object.freeze([
 ]);
 
 function autismPlaceIsLoud() {
-	return autismLoudPlaces.includes(V.location) && !autismQuietPassages.includes(V.passage);
+	return autismLoudPlaces.includes(V.location) && !autismQuietPassages.includes(V.passage) && !autismPrivateRooms.includes(V.passage);
 }
 
 /*
@@ -1371,8 +1371,15 @@ const autismAlonePlaces = Object.freeze([
 
 const autismKnownPlaces = Object.freeze(["home", "flats", "temple", "asylum", "farm", "compound", "riding_school", "avery_mansion", "forest_shop", "prison"]);
 
-/* Rooms with a door the PC can shut, inside locations that are otherwise full of people. */
+/* Private rooms/unseen activities may still have witnesses at entrances, if caught, or in later encounters. */
 const autismPrivateRooms = Object.freeze([
+	"Temple Prayer",
+	"Temple Prayer Sneak",
+	"Docks Sneak Pick",
+	"Docks Search",
+	"Docks Gold",
+	"Docks Gold Careful",
+	"Docks Gold Tear",
 	"Bedroom",
 	"Bathroom",
 	"Farm Bedroom",
@@ -1460,18 +1467,18 @@ const autismMaskingLoadPerHour = 1.2;
 /* Below this the mask is not costing anything worth reporting. */
 const autismMaskingNoticeable = 20;
 
-/* Sustained masking text: only while masking heavily, on a long cooldown. */
+/* Masking text only during heavy masking, with a long cooldown. */
 const autismMaskingProseFloor = 55;
 const autismMaskingProseCooldownHours = 4;
 const autismMaskingProseChance = 40;
 
 const autismMaskingLines = Object.freeze([
 	"You check your expression to make sure it looks right. A minute later, you check again. You cannot tell when your face changes unless you think about it.",
-	"Your last sentence sounded too flat. When you speak again, you make your voice sound friendlier to avoid drawing attention.",
-	"Someone finishes speaking. You quickly choose between the replies you have prepared and use the one that seems to fit best.",
+	"You catch yourself rehearsing a friendlier tone in your head, in case you need to speak. It takes effort to stop checking how you might sound.",
+	"You run through possible replies in your head, preparing for questions nobody has asked yet.",
 	"You notice that you have been keeping your shoulders in the same position. You relax them, then immediately wonder how you are supposed to hold them.",
-	"You realise you laughed slightly later than everyone else. Nobody reacts, but you still think about whether your timing looked strange.",
-	"You look at their eyes for a few seconds, look away, then look back. You keep track of when to do each part while also trying to follow what they are saying.",
+	"You keep wondering whether your expression looks natural. Each time you adjust it, you start thinking about it again.",
+	"You keep checking where you are looking and how long you hold your gaze there. Even that has become something you have to manage deliberately.",
 ]);
 
 /* The one "is the mask high" question, so scenes stop inventing their own thresholds. */
@@ -1507,16 +1514,16 @@ function autismQueueMaskingProse() {
 /* The PC is using something prepared instead of improvising. Easier, but not easy. */
 const autismComposedLines = Object.freeze([
 	"You use the expression you practised earlier. You still have to think about it, but you already know what your face should do.",
-	"You pause, then remember the sentence you practised. You say it the way you planned, and the other person responds normally.",
-	"You remember the tone you practised in front of the mirror and use it now. Your voice comes out close to how you wanted it to.",
-	"You look at their eyes for three seconds, then look away. You practised this enough that you no longer need to count each second.",
+	"You remember the sentences you practised earlier. Having words ready makes the possibility of speaking feel easier to manage.",
+	"You recall the tone you practised in front of the mirror, keeping it ready in case you need it.",
+	"You settle into the posture you practised earlier. For a while, you do not have to keep correcting it.",
 ]);
 
 /* A rehearsed response runs out mid-interaction, and the PC goes back to responding normally. */
 const autismComposureLapsedLines = Object.freeze([
-	"You have used up the answers you prepared earlier. Now you have to think through each reply as the conversation continues, which takes much more effort.",
-	"The replies you practised are no longer coming automatically. You have to stop, work out what the other person expects, then decide what to say.",
-	"You cannot rely on rehearsed responses anymore. You watch the other person, think about what they want from you, then build each answer as you go.",
+	"The preparation that helped earlier feels harder to draw on now. You start checking your expression and posture again.",
+	"The replies you practised are harder to remember. You worry about finding the words if someone asks you something.",
+	"You no longer feel as prepared as you did earlier. Holding your expression steady takes more of your attention again.",
 ]);
 
 function autismMaskingLine() {
@@ -1785,7 +1792,7 @@ function autismIsFocus(stat) {
 /* Prose for doing the thing the PC is currently fixed on. */
 const autismFocusEngagedLines = Object.freeze([
 	"You become so focused on what you are doing that everything else fades from your attention. For a while, you barely notice anything beyond the task in front of you.",
-	"Someone says your name twice before you notice. You look up after the second time, already wishing they had not interrupted you.",
+	"You look up and realise you have lost track of your surroundings. Your attention soon returns to what you were doing.",
 	"You keep going longer than you planned. Even when you know you should stop, pulling yourself away feels harder than continuing.",
 	"You did not have to make yourself start this. Once you began, you kept going without needing to push yourself.",
 ]);
@@ -1799,7 +1806,7 @@ const autismUnmaskedLines = Object.freeze([
 	"You stopped thinking about what expression your face should have. A few minutes pass before you even notice.",
 	"You have not worried about how long the silence lasts since you got here.",
 	"You sit however feels comfortable. You are not trying to make your posture look normal for anyone.",
-	"You say what you are thinking without planning how to introduce it or explain it first. Nobody here minds.",
+	"You let your thoughts wander without rehearsing how you would explain them.",
 	"At some point, you stopped checking everything you said and did before doing it. You only notice after a while.",
 ]);
 
