@@ -1102,45 +1102,42 @@ function fertilityTreatmentApplyMultiples(baseCount, max = 4) {
 }
 window.fertilityTreatmentApplyMultiples = fertilityTreatmentApplyMultiples;
 
-function xchangePregnancyDailyRate(type) {
-	const s = V.settings || {};
-	switch (type) {
-		case "human": {
-			const months = Number(s.humanPregnancyMonths);
-			return months > 0 ? 9 / months : 1;
-		}
-		case "wolf": {
-			const weeks = Number(s.wolfPregnancyWeeks);
-			return weeks > 0 ? 12 / weeks : 1;
-		}
-		default:
-			return 1;
-	}
-}
-
+/* Since Vanilla 0.5.12, pregnancy progress is based on $pregnancies.conceivedDate.
+ * Acceleration works by moving conceivedDate backward; parasites still use $sexStats.
+ */
 function fertilityTreatmentDailyTick(days = 1) {
 	if (!fertilityTreatmentActive()) return;
 	const cfg = setup.xchangeHyperFertility;
 	const extraFactor = Math.max(0, cfg.speedMultiplier - 1);
-	const stats = V.sexStats;
-	if (!stats) return;
+	if (extraFactor <= 0 || days <= 0) return;
+	const extraSeconds = extraFactor * days * TimeConstants.secondsPerDay;
 
-	["vagina", "anus"].forEach(genital => {
-		const preg = stats[genital]?.pregnancy;
-		if (!preg?.type) return;
-
-		if (preg.type === "parasite") {
-			if (!cfg.accelerateParasites || !Array.isArray(preg.fetus)) return;
-			preg.fetus.forEach(fetus => {
-				if (typeof fetus?.daysLeft === "number") fetus.daysLeft = Math.max(0, fetus.daysLeft - extraFactor * days);
-			});
+	(typeof getActivePregnancies === "function" ? getActivePregnancies("pc") : []).forEach(preg => {
+		if (!Number.isFinite(preg?.conceivedDate)) return;
+		// Once the waters break the birth runs on its own clock, so leave a labouring record alone
+		if (preg.waterBreaking) return;
+		// Skip malformed spans to avoid writing NaN to conceivedDate
+		let span;
+		try {
+			span = getDueDate(preg) - preg.conceivedDate;
+		} catch (e) {
 			return;
 		}
+		if (!Number.isFinite(span) || span <= 0) return;
+		// Never advance a pregnancy past its due date; overdue pregnancies must remain unchanged.
+		const earliest = Time.date.timeStamp - span;
+		preg.conceivedDate = Math.min(preg.conceivedDate, Math.max(preg.conceivedDate - extraSeconds, earliest));
+	});
 
-		if (typeof preg.timer === "number" && typeof preg.timerEnd === "number") {
-			const extra = extraFactor * xchangePregnancyDailyRate(preg.type) * days;
-			preg.timer = Math.min(preg.timer + extra, preg.timerEnd);
-		}
+	if (!cfg.accelerateParasites) return;
+	const stats = V.sexStats;
+	if (!stats) return;
+	["vagina", "anus"].forEach(genital => {
+		const preg = stats[genital]?.pregnancy;
+		if (preg?.type !== "parasite" || !Array.isArray(preg.fetus)) return;
+		preg.fetus.forEach(fetus => {
+			if (typeof fetus?.daysLeft === "number") fetus.daysLeft = Math.max(0, fetus.daysLeft - extraFactor * days);
+		});
 	});
 }
 window.fertilityTreatmentDailyTick = fertilityTreatmentDailyTick;

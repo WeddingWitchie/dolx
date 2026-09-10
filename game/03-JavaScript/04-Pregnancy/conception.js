@@ -76,10 +76,8 @@ function trimExpiredLoads() {
 window.trimExpiredLoads = trimExpiredLoads;
 
 /**
- * Washing removes every washable load from both orifices. Cum inside stays.
- *
- * DoLX: a butt plug or an inserted dildo holds an orifice's load in, so washing leaves it alone --
- * the same rule the waterwash widget already applies to visible fluid.
+ * Washing removes all washable loads from both orifices; internal cum remains.
+ * Inserted plugs/dildos prevent washing that orifice's load, matching waterwash behavior.
  */
 function washLoads() {
 	const retained = genital => typeof playerGenitalFluidRetained === "function" && playerGenitalFluidRetained(genital);
@@ -126,14 +124,10 @@ function playerConceptionModifier(daysAhead = 0) {
 window.playerConceptionModifier = playerConceptionModifier;
 
 /**
- * DoLX: how the X-Change pills and their settings scale the player's own conception chance.
+ * DoLX: Scales the player's conception chance based on X-Change pills/settings.
+ * Only affects potency; cycle fertility is handled separately.
  *
- * Folded into playerConceptionModifier so every reader agrees -- the daily conception roll, the
- * fetish-mode roll at insemination, and the projected fertility meter on the character screen.
- * It only scales potency; whether the body can conceive at all is still the cycle's business,
- * which is what xchangeFertilityFloor covers.
- *
- * @returns {number} a multiplier on the base pregnancy chance. 0 blocks conception outright
+ * @returns {number} Multiplier on base pregnancy chance; 0 prevents conception.
  */
 function xchangeConceptionModifier() {
 	if (V.statFreeze || typeof playerIsXChanged !== "function" || !playerIsXChanged()) return 1;
@@ -147,10 +141,8 @@ function xchangeConceptionModifier() {
 	const mult = Number(V.xchange?.pregnancyMultPercent);
 	if (Number.isFinite(mult) && mult >= 0) modifier *= mult / 100;
 
-	// A breeder pill with its fertility intact, or the Hyper Fertility course, conceives readily.
-	// The roll clamps at 100%, so this is a ceiling-seeking boost rather than a literal 10x.
-	// An Omega body qualifies through its own route: pill.fertile is forced off on a body with no
-	// vagina, so a breeder pill would otherwise lose its boost exactly where Omega needs it.
+	// Breeder pill or Hyper Fertility greatly boosts conception, capped at 100%.
+	// Omega bodies qualify separately because breeder-pill fertility is disabled without a vagina.
 	const omegaFertile =
 		(typeof hasOmegaAnalPregnancy === "function" && hasOmegaAnalPregnancy()) || (typeof omegaTargetsVagina === "function" && omegaTargetsVagina());
 	const breeder = !!V.xchange?.pill?.breederEffect && (!!V.xchange.pill.fertile || omegaFertile);
@@ -179,10 +171,7 @@ function xchangeFertilityStrength() {
 window.xchangeFertilityStrength = xchangeFertilityStrength;
 
 /**
- * DoLX: whether an X-Change effect should keep the player fertile whatever the cycle says.
- *
- * Hyper Fertility and the "always fertile" setting both mean conception must not be gated on
- * ovulation timing -- which matters doubly because an X-Changed body pauses its cycle.
+ * DoLX: whether an X-Change effect keeps the player fertile regardless of cycle state.
  *
  * @returns {boolean}
  */
@@ -195,12 +184,9 @@ function xchangeIgnoresCycleTiming() {
 window.xchangeIgnoresCycleTiming = xchangeIgnoresCycleTiming;
 
 /**
- * DoLX: extra conception weight the player brings as the donor, siring on an NPC.
+ * Extra conception weight when the player sires an NPC.
  *
- * The Bull pill and the Hyper Fertility course both make the player's own seed take, mirroring
- * what a breeder pill does for the player's womb.
- *
- * @returns {number} a multiplier on an NPC's conception chance
+ * @returns {number} NPC conception chance multiplier
  */
 function xchangeDonorFertility() {
 	if (V.statFreeze || typeof playerIsXChanged !== "function" || !playerIsXChanged()) return 1;
@@ -245,9 +231,8 @@ function ensurePendingPregnancySlots() {
 	if (V.pendingPregnancies.vagina === undefined) V.pendingPregnancies.vagina = null;
 	if (V.pendingPregnancies.vagina2 === undefined) V.pendingPregnancies.vagina2 = null;
 	if (V.pendingPregnancies.anus === undefined) V.pendingPregnancies.anus = null;
-	// Clear leftover second-womb conception data when Beta ends.
-	// Otherwise it can block new conceptions and delay the harpy egg cycle.
-	// statFreeze means the scene is using a saved body state instead of the current one.
+	// Clear second-womb conception data when Beta ends to prevent blocked conceptions and delayed harpy egg cycles.
+	// statFreeze uses a saved body state instead of the current one.
 	if (!V.statFreeze && V.pendingPregnancies.vagina2 !== null && !playerHasBetaWombs()) V.pendingPregnancies.vagina2 = null;
 }
 window.ensurePendingPregnancySlots = ensurePendingPregnancySlots;
@@ -329,9 +314,7 @@ window.contraceptiveGuard = contraceptiveGuard;
  */
 function fertilityFloor(daysAhead = 0) {
 	const c = PregnancyConstants.menstrualCycle;
-	// DoLX: Hyper Fertility and the "always fertile" setting hold the floor at full, so the
-	// cycle's timing stops mattering. Heat reads menstrualCycleFertility, which skips the floor,
-	// so this does not leave the player permanently in heat.
+	// DoLX: Hyper Fertility and "always fertile" keep fertility at full, but Heat uses menstrualCycleFertility, so the player is not permanently in heat.
 	if (xchangeIgnoresCycleTiming()) return 1;
 	const doses = Math.clamp(doseTakenIn("fertility booster", daysAhead), 0, PregnancyConstants.fertilityMaxDoses);
 	return Math.clamp(Math.max(c.baselineFertility, doses * c.fertilityFloorPerDose), 0, 1);
@@ -556,8 +539,7 @@ window.birdConceptionPending = birdConceptionPending;
  * @returns {"notPregnant"|"success"|"aLittleLate"|"late"|"tooLate"} what the pill did
  */
 function takeMorningAfterPill() {
-	// DoLX: count the pills taken. The pharmacist's dialogue and the statistics screen both read
-	// this, and a non-finite value here used to stay poisoned forever, so it is repaired on the way.
+	// DoLX: count pills taken; repair non-finite values before use.
 	V.pregnancyStats ??= {};
 	const taken = Number(V.pregnancyStats.aftermorningpills);
 	V.pregnancyStats.aftermorningpills = (Number.isFinite(taken) ? taken : 0) + 1;
@@ -567,8 +549,8 @@ function takeMorningAfterPill() {
 	ensurePendingPregnancySlots();
 	const pending = [V.pendingPregnancies.vagina, V.pendingPregnancies.vagina2, V.pendingPregnancies.anus].filter(p => p !== null);
 	if (pending.length > 0) {
-		// With Beta, an established first pregnancy does not stop the pill clearing a pending second one.
-		// Multiple pending conceptions are judged by the older one, the one closest to implanting.
+		// Beta can clear a pending second conception despite an established first pregnancy.
+		// For multiple pending conceptions, judge by the oldest (closest to implantation).
 		const age = Math.max(...pending.map(p => Time.date.timeStamp - p.conceivedDate));
 		const implantation = PregnancyConstants.implantationWindow;
 		if (age < implantation * PregnancyConstants.morningAfterPill.successFraction) outcome = "success";
@@ -600,8 +582,7 @@ function startDuePregnancies() {
 			V.pendingPregnancies[slot] = null;
 			continue;
 		}
-		// Pending anal conception also requires a body that can still carry it when implantation happens.
-		// statFreeze uses a saved body, so don't discard it then.
+		// Keep the saved body for pending anal conception; statFreeze may still need it for implantation.
 		if (orifice === "anus" && !V.statFreeze && !playerCanCarryAnally()) {
 			V.pendingPregnancies[slot] = null;
 			continue;
