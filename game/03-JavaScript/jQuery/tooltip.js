@@ -119,8 +119,10 @@ const getTooltipSettings = element => {
 	const settings = { ...defaultTooltipSettings };
 	$.each(element.attributes, function () {
 		if (this.name.startsWith("tooltip-")) {
-			const key = this.name.substring(8);
-			if (key in defaultTooltipSettings) {
+			// HTML lowercases attribute names, so tooltip-maxwidth has to find the maxWidth setting.
+			const attrKey = this.name.substring(8);
+			const key = Object.keys(defaultTooltipSettings).find(name => name.toLowerCase() === attrKey.toLowerCase());
+			if (key) {
 				// Convert to appropriate type if necessary
 				if (key === "delay" || key === "width" || key === "maxWidth") {
 					settings[key] = parseInt(this.value, 10) || defaultTooltipSettings[key];
@@ -143,7 +145,7 @@ const getTooltipSettings = element => {
 $(document).on("mouseenter.tooltip", "[tooltip]", function (event) {
 	const $this = $(this);
 
-	const pluginSettings = $this.data("tooltip-settings") || {};
+	const pluginSettings = $this.data("tooltip-plugin-settings") || {};
 	const attrSettings = getTooltipSettings(this);
 	const settings = $.extend({}, attrSettings, pluginSettings);
 
@@ -245,70 +247,76 @@ const updatePosition = ($element, tooltip) => {
 
 	const position = settings.position.toLowerCase();
 	const distance = 15; // Distance from cursor
+	const popup = tooltip[0];
+	const anchor = $element[0];
+
+	// The tooltip scales with body zoom, so convert its layout coordinates to screen pixels using the container origin and scale.
+	popup.style.position = "fixed";
+	popup.style.left = "0px";
+	popup.style.top = "0px";
+	const originRect = popup.getBoundingClientRect();
+	const measured = popup.offsetWidth > 0 ? originRect.width / popup.offsetWidth : 1;
+	const unit = Number.isFinite(measured) && measured > 0 ? measured : 1;
+
+	const tooltipWidth = originRect.width;
+	const tooltipHeight = originRect.height;
 	let left = 0;
 	let top = 0;
 
-	const zoomLevel = parseFloat($("body").css("zoom")) || 1;
-
 	if (position === "cursor") {
+		// Cursor coordinates are already screen coordinates.
 		const cursor = $element.data("cursorPosition") || { x: 0, y: 0 };
-		left = cursor.x / zoomLevel + distance;
-		top = cursor.y / zoomLevel + distance;
+		left = cursor.x + distance;
+		top = cursor.y + distance;
 	} else {
-		const offset = $element.offset();
-		const elementWidth = $element.outerWidth();
-		const elementHeight = $element.outerHeight();
-		const tooltipWidth = tooltip.outerWidth();
-		const tooltipHeight = tooltip.outerHeight();
+		const rect = anchor.getBoundingClientRect();
+		const elementWidth = rect.width;
+		const elementHeight = rect.height;
 
 		const positions = {
 			top: () => {
-				left = offset.left + (elementWidth - tooltipWidth) / 2;
-				top = offset.top - tooltipHeight - distance;
+				left = rect.left + (elementWidth - tooltipWidth) / 2;
+				top = rect.top - tooltipHeight - distance;
 			},
 			bottom: () => {
-				left = offset.left + (elementWidth - tooltipWidth) / 2;
-				top = offset.top + elementHeight + distance;
+				left = rect.left + (elementWidth - tooltipWidth) / 2;
+				top = rect.bottom + distance;
 			},
 			left: () => {
-				left = offset.left - tooltipWidth - distance;
-				top = offset.top + (elementHeight - tooltipHeight) / 2;
+				left = rect.left - tooltipWidth - distance;
+				top = rect.top + (elementHeight - tooltipHeight) / 2;
 			},
 			right: () => {
-				left = offset.left + elementWidth + distance;
-				top = offset.top + (elementHeight - tooltipHeight) / 2;
+				left = rect.right + distance;
+				top = rect.top + (elementHeight - tooltipHeight) / 2;
 			},
 			bottomright: () => {
-				left = offset.left + elementWidth - tooltipWidth;
-				top = offset.top + elementHeight + distance;
+				left = rect.right - tooltipWidth;
+				top = rect.bottom + distance;
 			},
 			bottomleft: () => {
-				left = offset.left;
-				top = offset.top + elementHeight + distance;
+				left = rect.left;
+				top = rect.bottom + distance;
 			},
 			topleft: () => {
-				left = offset.left;
-				top = offset.top - tooltipHeight - distance;
+				left = rect.left;
+				top = rect.top - tooltipHeight - distance;
 			},
 			topright: () => {
-				left = offset.left + elementWidth - tooltipWidth;
-				top = offset.top - tooltipHeight - distance;
+				left = rect.right - tooltipWidth;
+				top = rect.top - tooltipHeight - distance;
 			},
 		};
 		(positions[position] || positions.top)();
 	}
 
-	if (settings.position.toLowerCase() === "cursor") {
-		left = Math.max(distance, Math.min(left, window.innerWidth - tooltip.outerWidth() - distance));
-		top = Math.max(distance, Math.min(top, window.innerHeight - tooltip.outerHeight() - distance));
-	} else {
-		const windowWidth = $(window).width();
-		const windowHeight = $(window).height();
-		left = Math.max(distance, Math.min(left, windowWidth - tooltip.outerWidth() - distance));
-		top = Math.max(distance, Math.min(top, windowHeight - tooltip.outerHeight() - distance));
-	}
+	// Keep it on screen. Both sides of this comparison are screen pixels.
+	left = Math.max(distance, Math.min(left, window.innerWidth - tooltipWidth - distance));
+	top = Math.max(distance, Math.min(top, window.innerHeight - tooltipHeight - distance));
 
-	tooltip.css({ left, top, position: "fixed" });
+	// Turn the screen position back into the numbers this tooltip's own container measures in.
+	popup.style.left = (left - originRect.left) / unit + "px";
+	popup.style.top = (top - originRect.top) / unit + "px";
 };
 
 // .tooltip() jQuery method
@@ -334,7 +342,8 @@ $.fn.tooltip = function (options = {}) {
 			return;
 		}
 
-		const settings = $.extend({}, defaultTooltipSettings, $this.data("tooltip-settings"), options);
+		const settings = $.extend({}, defaultTooltipSettings, $this.data("tooltip-plugin-settings"), options);
+		$this.data("tooltip-plugin-settings", settings);
 		$this.data("tooltip-settings", settings);
 
 		if (settings.cursor) $this.css("cursor", settings.cursor);
