@@ -95,6 +95,20 @@ Items:
   Artist: "randomreadsalone"
   Origin: [https://discord.com/channels/1211659603427860480/1286562170947239978/1515475200756547737]
 
+- Name:
+  "Swirly Glasses"
+  Artist: "Hollow double Circles"
+
+- Name:
+  "Flaccid Penises"
+  Artist: "Corrincian"
+
+- Name:
+  "succubus upper"
+  "succubus lower"
+  "fishnet garter stockings"
+  Artist: "Farius"
+
 Submission Packs:
 
 - List:
