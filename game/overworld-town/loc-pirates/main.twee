@@ -541,15 +541,16 @@ You jump out of the way, <span class="red">but it's no good.</span> The <<person
 :: Pirate Deck
 <<set $location to "pirate_ship">><<set $outside to 1>><<effects>><<getTarget true>>
 
-/* Pirate journey countdown. Single source of truth: days elapsed since startDay.
-   total + startDay are seeded ONCE and never reset mid-journey,
-   so the countdown can actually reach 0 instead of looping forever. */
+/* Pirate journey countdown: days elapsed since startDay.
+   total/startDay are set once per voyage and cleared when finished to avoid reset loops or stale-state freezes. */
+<<if $pirate_journey_done and $pirate_journey_total isnot undefined>>
+	<<unset $pirate_journey_done>>
+<</if>>
 <<if !$pirate_journey_done and $temple_spear_mission is 1>>
 	<<if $pirate_journey_total is undefined>>
 		<<set $pirate_journey_total to ($pirate_journey isnot undefined ? $pirate_journey : 7)>>
 	<</if>>
 	<<if $pirate_journey_startDay is undefined>><<set $pirate_journey_startDay to Time.days>><</if>>
-
 	<<set _elapsedDays to Time.days - $pirate_journey_startDay>>
 	<<if _elapsedDays lt 0>><<set _elapsedDays to 0>><</if>>
 	<<set _remaining to $pirate_journey_total - _elapsedDays>>
@@ -1215,6 +1216,7 @@ Zephyr rows the boat up to a pier on Mer Street. "This is where we part. Until w
 <<if $pirate_journey is undefined>>
 	"As ye like," Zephyr says. "I've been meaning to sail there. The locals have some interesting, eh, trinkets." <<He>> pauses, and when <<he>> next speaks it's in an odd hurry. "Journey should take a week."
 	<br><br>
+	<<unset $pirate_journey_done>>
 	<<set $pirate_journey_total to 7>>
 	<<set $pirate_journey_startDay to Time.days>>
 	<<set $pirate_journey to $pirate_journey_total>>
@@ -1415,6 +1417,7 @@ The open sea comes into view ahead. There's an audible sigh of relief as the boa
 "Now then," Zephyr announces once the shore is a great distance away, turning to you.
 
 <<if $temple_spear_mission is 1>>
+	<<unset $pirate_journey_done>>
 	<<set $pirate_journey_total to 7>>
 	<<set $pirate_journey_startDay to Time.days>>
 	<<set $pirate_journey to $pirate_journey_total>>
