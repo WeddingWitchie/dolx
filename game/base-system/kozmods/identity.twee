@@ -1111,7 +1111,35 @@
 		<</if>>
 	<</widget>>
 
+	<<widget "seedTransgenderIdentity">>
+		<<set _bodySide to (!!$player.penisExist is !!$player.vaginaExist) ? "n" : ($player.penisExist ? "m" : "f")>>
+		<<if _bodySide isnot "n">>
+			<<set _identitySide to (_bodySide is "m" ? "f" : "m")>>
+			<<set _bodyPronounPreferred to (_bodySide is "m" ? !!$identity.presentation.pronouns.preferredMasculine : !!$identity.presentation.pronouns.preferredFeminine)>>
+			<<set _otherPronounPreferred to (_bodySide is "m" ? !!$identity.presentation.pronouns.preferredFeminine : !!$identity.presentation.pronouns.preferredMasculine)>>
+			<<set _untouched to $identity.presentation.appearance.preferred is "f" and $identity.presentation.clothing.preferred is "f" and _bodyPronounPreferred and !_otherPronounPreferred and !$identity.presentation.pronouns.preferredNeutral>>
+			<<if _untouched>>
+				<<set $identity.presentation.appearance.preferred to _identitySide>>
+				<<set $identity.presentation.clothing.preferred to _identitySide>>
+				<<set $identity.presentation.pronouns.preferred to _identitySide>>
+				<<set $identity.presentation.pronouns.preferredMasculine to (_identitySide is "m")>>
+				<<set $identity.presentation.pronouns.preferredFeminine to (_identitySide is "f")>>
+				<<set $identity.presentation.pronouns.preferredNeutral to false>>
+				<<set _bodyKey to (_bodySide is "m" ? "masculine" : "feminine")>>
+				<<set $identity.presentation.appearance[_bodyKey].acceptance to false>>
+				<<set $identity.presentation.clothing[_bodyKey].acceptance to false>>
+				<<set $identity.presentation.pronouns[_bodyKey].acceptance to false>>
+				<<set $identity.body.genitals.preferredVagina to (_identitySide is "f")>>
+				<<set $identity.body.genitals.preferredPenis to (_identitySide is "m" ? "mediumpenis" : false)>>
+			<</if>>
+		<</if>>
+	<</widget>>
+
 	<<widget "lockInIdentity">>
+		<<if $background.transgender and $identity.init isnot 2 and !$xchange.transIdentitySeeded>>
+			<<set $xchange.transIdentitySeeded to true>>
+			<<seedTransgenderIdentity>>
+		<</if>>
 		<<repairPronounPreferenceFallback>>
 		<<normaliseNeutralClothing>>
 		<<normaliseMakeupPreference>>
