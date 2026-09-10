@@ -372,7 +372,8 @@ You do not reach for it straight away.
 		<<set $xchange.colosseum.rivals.veteran to Math.min(3, $xchange.colosseum.rivals.veteran + 1)>>
 	<</if>>
 	<br><br>
-	<<set _canBook to ($daily.colosseumFights ?? 0) lt 3 and !playerIsPregnant() and !["walked", "disrupted"].includes($xchange.colosseum.ending) and $xchange.colosseum.injury lt 3>>
+	<<colosseumUnfit>>
+	<<set _canBook to ($daily.colosseumFights ?? 0) lt 3 and !playerAwareTheyArePregnant() and !["walked", "disrupted"].includes($xchange.colosseum.ending) and !_colosseumUnfit and $drunk lt 360 and colosseumDrugStage() isnot "crash">>
 	<<if _canBook>>
 		<<link [[Offer <<him>> your next match|Underground Colosseum Challenger]]>><</link>>
 		<br>
@@ -681,7 +682,7 @@ The other fighter looks at the four names again. "People leave. It happens."
 
 :: Underground Colosseum Drink Lists
 <<set _drinks to Math.max(0, Math.trunc($daily.colosseumBarDrinks ?? 0))>>
-<<if playerIsPregnant() and playerAwareTheyArePregnant()>>
+<<if playerAwareTheyArePregnant()>>
 	<span class="blue">You can't bring yourself to drink while you know you're with child.</span>
 	<br><br>
 <<elseif _drinks gte 3>>
@@ -903,7 +904,8 @@ Nobody comes in after you.
 <<set $outside to 0>><<set $location to "colosseum">><<effects>><<generate1>><<person1>><<speechresolve>>
 <<pass 3>>
 <<colosseumCardOffer>><<colosseumBetLimit>>
-<<set _canSelfBet to _colosseumBetsLeft gt 0 and $xchange.colosseum.joined gte 1 and !$xchange.colosseum.wager and !["walked", "disrupted"].includes($xchange.colosseum.ending) and !playerIsPregnant()>>
+<<colosseumUnfit>>
+<<set _canSelfBet to _colosseumBetsLeft gt 0 and $xchange.colosseum.joined gte 1 and !$xchange.colosseum.wager and !["walked", "disrupted"].includes($xchange.colosseum.ending) and !playerAwareTheyArePregnant() and !_colosseumUnfit and ($daily.colosseumFights ?? 0) lt 3 and $drunk lt 360 and colosseumDrugStage() isnot "crash">>
 <<set _canCardBet to _colosseumBetsLeft gt 0 and !$xchange.colosseum.cardBet and $money gte 25000>>
 The queue at the middle booth moves faster than it looks like it should. The bookmaker takes cash with one hand, writes with the other, and does not stop doing either while <<he>> talks to you.
 <br><br>
