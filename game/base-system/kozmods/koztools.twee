@@ -1,18 +1,17 @@
 :: X-Change Misc Widgets [widget]
-	<!-- Usage: <<fame 10 "scrap" "good">>. Raises fames regardless of mask, gloryhole, etc. -->
-    <<widget "fame-propagate">>
+	<!-- Usage: <<fame-propagate 10 "scrap" "good">> after <<fame>>. Applies the same change to other stored body identities. -->
+	<<widget "fame-propagate">>
 		<<if _args.length gte 2 and $statFreeze isnot true>>
-			<<set [$_gain, ...($_fameTypes)] to _args>> <!-- remove first element of array since it's the number -->
-			<<if Object.keys($xchange.pill.changedBody).length gt 0>>
-				<<run $_fameTypes.forEach(fameType => $xchange.pill.changedBody.fame[fameType] += $_gain * 2)>> <!-- add the specified amount to each specified fame type -->
-			<</if>>
-			<<if Object.keys($xchange.pill.originalBody).length gt 0>>
-				<<run $_fameTypes.forEach(fameType => $xchange.pill.originalBody.fame[fameType] += $_gain * 2)>> <!-- add the specified amount to each specified fame type -->
-			<</if>>
-			<<if Object.keys($xchange.pill.hermBody).length gt 0>>
-				<<run $_fameTypes.forEach(fameType => $xchange.pill.hermBody.fame[fameType] += $_gain * 2)>> <!-- add the specified amount to each specified fame type -->
-			<</if>>
-			<<fameclamp>>
+			<!-- Partial body records have no identity fame yet. Shared fame objects must only receive the penalty once. -->
+			<<set _propagateCurrentFame to $fame>>
+			<<set _propagateFames to [...new Set([$xchange.pill.changedBody?.fame, $xchange.pill.originalBody?.fame, $xchange.pill.hermBody?.fame])].filter(fame => fame && typeof fame === "object" && !Array.isArray(fame) && fame !== $fame)>>
+			<<for _propagateFame range _propagateFames>>
+				<<set $fame to _propagateFame>>
+				<<for _propagateType range _args.slice(1)>>
+					<<fame _args[0] _propagateType>>
+				<</for>>
+			<</for>>
+			<<set $fame to _propagateCurrentFame>>
 		<</if>>
 	<</widget>>
 
