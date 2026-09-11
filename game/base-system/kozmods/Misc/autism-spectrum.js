@@ -173,10 +173,6 @@ function autismRecoveryCapValue() {
 	return autismDailyRecoveryCap;
 }
 
-function autismDeliberateCapValue() {
-	return autismDeliberateRecoveryCap;
-}
-
 /* Which budget a recovery draws on. "free" skips both, for sleep. */
 function autismRecoveryBudget(budget) {
 	if (budget === true || budget === "free") return "free";
@@ -2068,43 +2064,32 @@ function autismCanUnmask() {
 }
 
 /* The scene must never tear the player out of anything that owns cleanup of its own. */
-const autismSceneBlockedPassages = Object.freeze([
-	"Autism Overload",
-	"Autism Overload Stim",
-	"Autism Overload Card",
-	"Autism Overload Leave",
-	"Autism Overload Mask",
-	"Autism Overload End",
-	"Police Molestation Finish",
-	"Sleep",
-	"Bed",
-]);
-/* Every passout landing is its own passage, so these are matched by prefix rather than named one by one. */
-const autismSceneBlockedPrefixes = Object.freeze(["Passout "]);
+const autismSceneBlockedPassages = Object.freeze(["Police Molestation Finish", "Sleep", "Bed"]);
+const autismSceneBlockedPrefixes = Object.freeze(["Passout ", "Autism "]);
 const autismSceneBlockedTags = Object.freeze(["widget", "script", "stylesheet", "nosave", "ending", "exitCheckBypass"]);
 
-function autismSceneReady() {
+function autismSceneReadyFor(dest) {
 	if (!playerHasAutismSpectrum()) return false;
 	if (V.statFreeze || V.possessed || V.combat === 1) return false;
-	/* Do not save an interface, setup passage, or ending as a gameplay return point. */
+	/* Do not send the player into the scene from an interface, setup passage, or ending. */
+	if (typeof dest !== "string") return false;
 	if (typeof Story !== "undefined") {
-		if (typeof V.passage !== "string" || !Story.has(V.passage)) return false;
-		if (Story.get(V.passage).tags.some(tag => autismSceneBlockedTags.includes(tag))) return false;
+		if (!Story.has(dest)) return false;
+		if (Story.get(dest).tags.some(tag => autismSceneBlockedTags.includes(tag))) return false;
 	}
 	if (Array.isArray(V.NPCList) && typeof isLiveNPC === "function" && V.NPCList.some(isLiveNPC)) return false;
-	if (autismSceneBlockedPassages.includes(V.passage)) return false;
-	if (autismSceneBlockedPrefixes.some(prefix => V.passage.startsWith(prefix))) return false;
+	if (autismSceneBlockedPassages.includes(dest)) return false;
+	if (autismSceneBlockedPrefixes.some(prefix => dest.startsWith(prefix))) return false;
 	return true;
 }
 
 /*
- * The overload is not optional, but it waits for a moment where leaving the passage is safe.
- * Until then its penalties already apply, so waiting costs the player nothing.
+ * Overload waits until leaving the passage is safe; its penalties already apply while waiting.
  */
-function autismTryOverloadScene() {
+function autismOverloadRedirect(dest) {
 	const state = ensureAutismSpectrumState();
-	if (!state.pendingScene) return;
-	if (!autismSceneReady()) return;
+	if (!state.pendingScene) return null;
+	if (!autismSceneReadyFor(dest)) return null;
 	delete state.pendingScene;
 	state.overloadPlace = autismPrivacyTier();
 	/* Stamped so later scenes can react to an overload that has already ended. Without this the world has no
@@ -2117,21 +2102,38 @@ function autismTryOverloadScene() {
 	state.overloadWasForm = state.overloadForm === "shutdown" ? "shutdown" : "meltdown";
 	/* A new episode is a new thing for people to react to, so any aftermath already spent is cleared. */
 	delete state.aftermathDone;
+	/* The interrupted destination is where "Carry on" sends the player, so it runs its own effects then. */
 	state.sceneReturn = {
-		passage: V.passage,
-		location: V.location,
+		passage: dest,
+		location: typeof V.location === "string" ? V.location : "",
 		outside: Number.isFinite(Number(V.outside)) ? V.outside : 0,
 	};
-	/* Out of the render pass before navigating, or the passage would be replaced while still drawing. */
-	setTimeout(() => Engine.play("Autism Overload"), 0);
+	return "Autism Overload";
 }
+
+/* Chained so the version-migration waiting rooms and passage remaps installed elsewhere still win. */
+(function installAutismOverloadOverride() {
+	if (typeof Config === "undefined" || !Config.navigation) return;
+	const previousOverride = Config.navigation.override;
+	Config.navigation.override = function (dest) {
+		if (typeof previousOverride === "function") {
+			const previousDest = previousOverride.apply(this, arguments);
+			if (previousDest) return previousDest;
+		}
+		try {
+			return autismOverloadRedirect(dest) || false;
+		} catch (e) {
+			console.error("autism overload redirect failed", e);
+			return false;
+		}
+	};
+})();
 
 /* Settle first so this turn's practice has been charged, then judge the resulting stress level. */
 function autismPassageEnd() {
 	if (!playerHasAutismSpectrum()) return;
 	autismSettleTraining();
 	autismUpdateOverload();
-	autismTryOverloadScene();
 }
 
 $(document).on(":passageend", autismPassageEnd);
@@ -2145,7 +2147,6 @@ Object.assign(window, {
 	autismMeltdownStressPercent,
 	autismLoadTraumaValue,
 	autismBurnoutThreshold,
-	autismDeliberateCapValue,
 	autismDeliberateLeftToday,
 	autismSpectrumPhase,
 	autismLoadPercent,
