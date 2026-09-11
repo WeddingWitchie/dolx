@@ -1359,11 +1359,8 @@ setup.xChangeApplyBodyVirginity = function xChangeApplyBodyVirginity(role) {
 	const store = xChangeVirginityStore();
 	if (!store || !role || !V.player || !V.player.virginity) return false;
 	xChangeMigrateTransformedVirginityRoles();
-	// Before applying another body's record, bank the active body when it is genuinely different.
-	if (!V.statFreeze) {
-		const activeRole = setup.xChangeActiveBodyVirginityRole();
-		if (activeRole && activeRole !== role) setup.xChangeRecordBodyVirginity(activeRole);
-	}
+	// Callers bank history before changing shape. Here the live shape and clone/effect
+	// flags may already describe different bodies, so do not infer an outgoing role.
 	if (!store[role] || store[role].seen !== true) {
 		store[role] = xChangeSeedBodyVirginity(role);
 	}

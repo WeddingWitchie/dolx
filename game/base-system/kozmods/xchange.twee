@@ -28,6 +28,7 @@
 	<</widget>>
 
 	<<widget "become-girl">>
+		<<run setup.xChangeRecordActiveBodyVirginity()>>
 		<<wash>>
 
 		<<set $player.gender_body to "f">>
@@ -306,6 +307,7 @@
 	<</widget>>
 
 	<<widget "become-boy">>
+		<<run setup.xChangeRecordActiveBodyVirginity()>>
 		<<wash>>
 		<<set $player.gender_body to "m">>
 		<<set $player.bodyshape to "classic">>
@@ -544,6 +546,7 @@
 	<</widget>>
 
 	<<widget "hermify">>
+		<<run setup.xChangeRecordActiveBodyVirginity()>>
 		<<wash>>
 		<<set $player.gender_body to "a">>
 		<<xchange-apply-demeanour>>
@@ -1088,7 +1091,10 @@
 		<<run setup.xchangeRestoreEarParasites(_xchangeEarKeep)>>
 		<<run if (setup.xchangeRepairParasiteDisplayCache) setup.xchangeRepairParasiteDisplayCache() >>
 
-		/* Apply this body's stored genital virginity from the stable store.
+		<<run window.dolxEjectOrphanVaginalDildo?.()>>
+		<<if _args[0] is undefined>><<set $sexStats.vagina.menstruation.running to !!$player.vaginaExist>><</if>>
+
+		/* Apply this body's stored virginity from the stable store.
 		   Entering a body restores its own record; a body that has never existed before is seeded (X-Change/herm => virgin, real => keeps current). */
 		<<set _vrole to "">>
 		<<if _args[0] is undefined>><<set _vrole to "real">>
@@ -1652,11 +1658,6 @@
 			<</if>>
 			<<set $xchange.pill.genderflipEffect to false>>
 			<<if _xchangeNeedsBodyRevert>>
-				<<if $player.gender is "m">>
-					<<become-boy "restore">>
-				<<else>>
-					<<become-girl "restore">>
-				<</if>>
 				<<load-body>>
 				<<xchangeMasturbationDesyncCheck>>
 			<</if>>
@@ -1977,14 +1978,9 @@
 				<<save-body "genderswapped">>
 			<</if>>
 
-			<<if _xchangeNeedsBodyRevert>>
-				<<if $player.gender is "m">>
-					<<become-boy "restore">>
-				<<elseif $player.gender is "f">>
-					<<become-girl "restore">>
-					<<set $sexStats.vagina.menstruation.running = true>>
-				<</if>>
-			<</if>>
+			/* Load the original snapshot directly; generating a body here would apply
+			   the transformed history before load-body banks the outgoing history. */
+			<<if _xchangeNeedsBodyRevert>><<wash>><</if>>
 		<</if>>
 
 		<<if _xchangeNeedsBodyRevert>>
