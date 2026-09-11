@@ -206,7 +206,8 @@ $(document).one(":storyready", function () {
 			C.npc.Bailey.pregnancyAvoidance = 0;
 		}
 	}
-	$(document).on(":passagestart", function () {
+	/* syncBaileyDom handles load-time migrations and one-off repairs; enforceBaileyState cheaply maintains state during play */
+	function runSyncBaileyDom() {
 		try {
 			syncBaileyDom();
 		} catch (e) {
@@ -214,72 +215,76 @@ $(document).one(":storyready", function () {
 				console.error("[BaileyExpansion] syncBaileyDom", e);
 			}
 		}
-	});
+	}
+	runSyncBaileyDom();
+	$(document).on(":onloadsave", runSyncBaileyDom);
 	$(document).on(":passageend", enforceBaileyState);
 
-	/* Stood-up check: date scheduled but not attended by midnight -> missed. */
+	/* One :passagestart handler for all Bailey passage checks */
 	$(document).on(":passagestart", function () {
-		if (typeof Time === "undefined" || typeof Time.hour === "undefined") return;
-		/* Only after a midnight has actually passed, or booking at night marks it missed
-            on the very next passage. */
-		if (V.bailey_date_sched_day !== undefined && Time.days <= V.bailey_date_sched_day) return;
-		if (V.bailey_date_scheduled === 1) {
-			if (V.bailey_date_attended !== 1) {
-				V.bailey_date_missed = 1;
-				V.bailey_brat = V.bailey_brat || { points: 0, reasons: [] };
-				V.bailey_brat.points = Math.clamp(V.bailey_brat.points + 2, 0, 20);
-				if (!V.bailey_brat.reasons.includes("stoodup")) V.bailey_brat.reasons.push("stoodup");
+		/* Stood-up check: date scheduled but not attended by midnight -> missed. */
+		(function () {
+			if (typeof Time === "undefined" || typeof Time.hour === "undefined") return;
+			/* Mark missed only after midnight passes, or on the next night passage. */
+			if (V.bailey_date_sched_day !== undefined && Time.days <= V.bailey_date_sched_day) return;
+			if (V.bailey_date_scheduled === 1) {
+				if (V.bailey_date_attended !== 1) {
+					V.bailey_date_missed = 1;
+					V.bailey_brat = V.bailey_brat || { points: 0, reasons: [] };
+					V.bailey_brat.points = Math.clamp(V.bailey_brat.points + 2, 0, 20);
+					if (!V.bailey_brat.reasons.includes("stoodup")) V.bailey_brat.reasons.push("stoodup");
+				}
+				V.bailey_date_scheduled = 0;
+				V.bailey_date_attended = 0;
 			}
-			V.bailey_date_scheduled = 0;
-			V.bailey_date_attended = 0;
-		}
-		if (V.bailey_date_allnight_scheduled === 1) {
-			if (V.bailey_date_attended !== 1) {
-				V.bailey_date_missed = 1;
-				V.bailey_brat = V.bailey_brat || { points: 0, reasons: [] };
-				V.bailey_brat.points = Math.clamp(V.bailey_brat.points + 2, 0, 20);
-				if (!V.bailey_brat.reasons.includes("stoodup")) V.bailey_brat.reasons.push("stoodup");
+			if (V.bailey_date_allnight_scheduled === 1) {
+				if (V.bailey_date_attended !== 1) {
+					V.bailey_date_missed = 1;
+					V.bailey_brat = V.bailey_brat || { points: 0, reasons: [] };
+					V.bailey_brat.points = Math.clamp(V.bailey_brat.points + 2, 0, 20);
+					if (!V.bailey_brat.reasons.includes("stoodup")) V.bailey_brat.reasons.push("stoodup");
+				}
+				V.bailey_date_allnight_scheduled = 0;
+				V.bailey_date_attended = 0;
 			}
-			V.bailey_date_allnight_scheduled = 0;
-			V.bailey_date_attended = 0;
-		}
-	});
+		})();
 
-	/* +1 lust/day once Stockholm's active, +2 while monogamous. */
-	$(document).on(":passagestart", function () {
-		if (typeof Time === "undefined" || typeof Time.days === "undefined") return;
-		if (V.bailey_lust_lastday === undefined) {
-			V.bailey_lust_lastday = Time.days;
-			return;
-		}
-		const delta = Time.days - V.bailey_lust_lastday;
-		if (delta <= 0) {
-			if (delta < 0) {
+		/* +1 lust/day once Stockholm's active, +2 while monogamous. */
+		(function () {
+			if (typeof Time === "undefined" || typeof Time.days === "undefined") return;
+			if (V.bailey_lust_lastday === undefined) {
 				V.bailey_lust_lastday = Time.days;
+				return;
 			}
-			return;
-		}
-		V.bailey_lust_lastday = Time.days;
-		if (V.syndromebailey === true && C.npc.Bailey && typeof C.npc.Bailey.lust === "number") {
-			const _perDay = V.bailey_monogamous ? 2 : 1;
-			C.npc.Bailey.lust = Math.max(0, Math.min(100, C.npc.Bailey.lust + delta * _perDay));
-		}
-	});
+			const delta = Time.days - V.bailey_lust_lastday;
+			if (delta <= 0) {
+				if (delta < 0) {
+					V.bailey_lust_lastday = Time.days;
+				}
+				return;
+			}
+			V.bailey_lust_lastday = Time.days;
+			if (V.syndromebailey === true && C.npc.Bailey && typeof C.npc.Bailey.lust === "number") {
+				const _perDay = V.bailey_monogamous ? 2 : 1;
+				C.npc.Bailey.lust = Math.max(0, Math.min(100, C.npc.Bailey.lust + delta * _perDay));
+			}
+		})();
 
-	/* Christmas gift reset. */
-	$(document).on(":passagestart", function () {
-		if (V.christmas) return;
-		if (V.christmas_gift_bailey === undefined && V.christmas_gift_bailey_wrapped === undefined && V.christmas_gift_bailey_given === undefined) return;
-		delete V.christmas_gift_bailey;
-		delete V.christmas_gift_bailey_wrapped;
-		delete V.christmas_gift_bailey_given;
-	});
+		/* Christmas gift reset. */
+		(function () {
+			if (V.christmas) return;
+			if (V.christmas_gift_bailey === undefined && V.christmas_gift_bailey_wrapped === undefined && V.christmas_gift_bailey_given === undefined) return;
+			delete V.christmas_gift_bailey;
+			delete V.christmas_gift_bailey_wrapped;
+			delete V.christmas_gift_bailey_given;
+		})();
 
-	/* Keeps the Christmas Fishing Lure Gift permanent. */
-	$(document).on(":passagestart", function () {
-		if (V.bailey_office_gift === "lure" && !V.bailey_lure_received) {
-			V.bailey_lure_received = true;
-		}
+		/* Keeps the Christmas Fishing Lure Gift permanent. */
+		(function () {
+			if (V.bailey_office_gift === "lure" && !V.bailey_lure_received) {
+				V.bailey_lure_received = true;
+			}
+		})();
 	});
 
 	/* Glowing "mod active" stamp on the Start screen.

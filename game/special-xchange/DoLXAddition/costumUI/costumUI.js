@@ -185,10 +185,7 @@
 		init();
 	}
 
-	/* Passage events remain the primary, reliable trigger. 
-	Combined with the narrowly-scoped observer above, this covers UI changes that happen outside passage navigation
-	(e.g. opening an overlay) without watching the entire document. */
 	if (window.jQuery) {
-		jQuery(document).on(":passagestart :passagerender :passagedisplay", scheduleEnsureBreezeCompatAnchors);
+		jQuery(document).on(":passagedisplay", scheduleEnsureBreezeCompatAnchors);
 	}
 })();

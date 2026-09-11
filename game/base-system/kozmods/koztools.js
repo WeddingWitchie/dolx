@@ -1611,11 +1611,10 @@ $(document).on(":passageinit", ev => {
 	Wikifier.wikifyEval("<<sleepJanet>>");
 });
 
-// Save compatibility and expiry handling for beautyBoost.
-$(document).on(":passageinit", () => {
+// Save compatibility runs on load; only expiry checks need a per-passage tick.
+function repairBeautyBoostShape() {
 	V.beautyBoost ??= { bath: 0, teeth: 0, face: 0, hands: 0, hygiene: 0, tan: 0 };
 	if (V.beautyBoost.bath == null) V.beautyBoost.bath = 0;
-	if (V.sleepTimePassing) V.sleepTimePassing = false;
 	if (V.beautyBoost.teeth == null) V.beautyBoost.teeth = 0;
 	if (V.beautyBoost.face == null) V.beautyBoost.face = 0;
 	if (V.beautyBoost.hands == null) V.beautyBoost.hands = 0;
@@ -1633,10 +1632,6 @@ $(document).on(":passageinit", () => {
 	if (!Number.isFinite(V.beautyBoost.spa.amount)) V.beautyBoost.spa.amount = 0;
 	if (!Number.isFinite(V.beautyBoost.spa.expires)) V.beautyBoost.spa.expires = 0;
 	if (typeof V.beautyBoost.spa.treatment !== "string") V.beautyBoost.spa.treatment = "spa treatment";
-	if (V.beautyBoost.spa.amount > 0 && V.beautyBoost.spa.expires > 0 && Time.days > V.beautyBoost.spa.expires) {
-		V.beautyBoost.spa.amount = 0;
-		V.beautyBoost.spa.expiredNotice = true;
-	}
 
 	if (V.beautyBoost.nails == null || typeof V.beautyBoost.nails === "number") {
 		V.beautyBoost.nails = {
@@ -1649,9 +1644,24 @@ $(document).on(":passageinit", () => {
 	if (!Number.isFinite(V.beautyBoost.nails.amount)) V.beautyBoost.nails.amount = 0;
 	if (!Number.isFinite(V.beautyBoost.nails.expires)) V.beautyBoost.nails.expires = 0;
 	if (typeof V.beautyBoost.nails.treatment !== "string") V.beautyBoost.nails.treatment = "salon manicure";
-	if (V.beautyBoost.nails.amount > 0 && V.beautyBoost.nails.expires > 0 && Time.days > V.beautyBoost.nails.expires) {
-		V.beautyBoost.nails.amount = 0;
-		V.beautyBoost.nails.expiredNotice = true;
+}
+window.repairBeautyBoostShape = repairBeautyBoostShape;
+$(document).on(":storyready :onloadsave", repairBeautyBoostShape);
+
+$(document).on(":passageinit", () => {
+	if (V.sleepTimePassing) V.sleepTimePassing = false;
+	// One cheap guard covers a save that reached a passage without a load event running first.
+	if (typeof V.beautyBoost?.spa !== "object" || typeof V.beautyBoost?.nails !== "object") repairBeautyBoostShape();
+
+	const spa = V.beautyBoost.spa;
+	if (spa.amount > 0 && spa.expires > 0 && Time.days > spa.expires) {
+		spa.amount = 0;
+		spa.expiredNotice = true;
+	}
+	const nails = V.beautyBoost.nails;
+	if (nails.amount > 0 && nails.expires > 0 && Time.days > nails.expires) {
+		nails.amount = 0;
+		nails.expiredNotice = true;
 	}
 });
 

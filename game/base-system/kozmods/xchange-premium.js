@@ -22,8 +22,15 @@
 		}
 	}
 
+	let pillDefsSignatureCache = { defs: null, length: -1, signature: "" };
+
 	function getPillDefsSignature(defs) {
-		return defs.map(def => (def && typeof def.name === "string" ? def.name : "")).join("|");
+		if (pillDefsSignatureCache.defs === defs && pillDefsSignatureCache.length === defs.length) {
+			return pillDefsSignatureCache.signature;
+		}
+		const signature = defs.map(def => (def && typeof def.name === "string" ? def.name : "")).join("|");
+		pillDefsSignatureCache = { defs, length: defs.length, signature };
+		return signature;
 	}
 
 	function ensureInvEntry(name) {

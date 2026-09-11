@@ -430,6 +430,12 @@
 			.first();
 	}
 
+	/* The DOM-lock pass only has anything to act on while a settings panel is rendered. */
+	function settingsDomPresent() {
+		if (typeof document === "undefined") return false;
+		return !!document.querySelector("#settingsDiv, #subsectionDiv, #npcSettingsMenu, #nnpcDisplay, #worldGenderOverrideSettingsBody");
+	}
+
 	function forceCurrentSettingsDom(mode = getMode()) {
 		if (typeof window.jQuery !== "function") return;
 		const V = ensureState();
@@ -791,8 +797,10 @@
 		const timer = setInterval(() => {
 			tries += 1;
 			const done = installWrappers();
-			syncRewriteState();
-			if (done || tries >= maxTries) clearInterval(timer);
+			if (done || tries >= maxTries) {
+				clearInterval(timer);
+				syncRewriteState();
+			}
 		}, 250);
 	}
 
@@ -804,12 +812,13 @@
 			syncRewriteState();
 		});
 		jQuery(document).on(":passagedisplay", function () {
-			ensureState();
+			const V = ensureState();
 			installSettingsRefreshHooks();
+			const mode = getMode();
+			const pendingRestore = !!(V.settings.genderOverrideBackup || V.settings.genderOverrideDisplayBackup);
+			if (!isRewriteActive(mode) && !pendingRestore) return;
 			syncRewriteState();
-			/* Settings panels finish rendering after this event, so re-apply the DOM locks once more.
-			   Only the DOM pass repeats: re-running the full NPC sweep here would be wasted work. */
-			setTimeout(() => forceCurrentSettingsDom(), 0);
+			if (settingsDomPresent()) setTimeout(() => forceCurrentSettingsDom(), 0);
 		});
 	}
 

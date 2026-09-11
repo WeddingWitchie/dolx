@@ -278,7 +278,8 @@ window.combatListColor = combatListColor;
 DefineMacroS("combatListColor", combatListColor);
 
 function combatButtonAdjustments(name, extra) {
-	jQuery(document).on("change", "#listbox-" + name, { name, extra }, function (e) {
+	jQuery(document).off("change.combatButtonAdjustments-" + name);
+	jQuery(document).on("change.combatButtonAdjustments-" + name, "#listbox-" + name, { name, extra }, function (e) {
 		/* console.log(e.data); */
 		Wikifier.wikifyEval("<<replace #" + e.data.name + "Difficulty>><<" + e.data.name + "Difficulty" + e.data.extra + ">><</replace>>");
 		$("#" + e.data.name + "Select").removeClass("whiteList bratList meekList defList subList");
@@ -289,7 +290,8 @@ function combatButtonAdjustments(name, extra) {
 DefineMacroS("combatButtonAdjustments", combatButtonAdjustments);
 
 function combatDefaults() {
-	jQuery(document).on("change", "#listbox--defaultoption", function (e) {
+	jQuery(document).off("change.combatDefaults");
+	jQuery(document).on("change.combatDefaults", "#listbox--defaultoption", function (e) {
 		Wikifier.wikifyEval("<<replace #othersFeelings>><<othersFeelings " + this.value + ">><</replace>>");
 	});
 	return "";
@@ -399,11 +401,12 @@ function hairdressersResetAlt() {
 DefineMacro("hairdressersResetAlt", hairdressersResetAlt);
 
 function browsDyeReset() {
-	$(() =>
-		jQuery(document).on("change", "#listbox-browsdyeoption", function (e) {
+	$(() => {
+		jQuery(document).off("change.browsDyeReset");
+		jQuery(document).on("change.browsDyeReset", "#listbox-browsdyeoption", function (e) {
 			Wikifier.wikifyEval("<<replace #browsColourPreview>><<browsColourPreview>><</replace>>");
-		})
-	);
+		});
+	});
 }
 DefineMacro("browsDyeReset", browsDyeReset);
 
@@ -415,27 +418,33 @@ function NPCSettingsReset() {
 DefineMacro("NPCSettingsReset", NPCSettingsReset);
 
 function loveInterestFunction() {
-	jQuery(document).on("change", "#listbox-loveinterestprimary", function (e) {
+	jQuery(document).off("change.loveInterest-primary");
+	jQuery(document).on("change.loveInterest-primary", "#listbox-loveinterestprimary", function (e) {
 		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
-	jQuery(document).on("change", "#listbox-loveinterestsecondary", function (e) {
+	jQuery(document).off("change.loveInterest-secondary");
+	jQuery(document).on("change.loveInterest-secondary", "#listbox-loveinterestsecondary", function (e) {
 		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
-	jQuery(document).on("change", "#listbox-loveinteresttertiary", function (e) {
+	jQuery(document).off("change.loveInterest-tertiary");
+	jQuery(document).on("change.loveInterest-tertiary", "#listbox-loveinteresttertiary", function (e) {
 		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
-	jQuery(document).on("change", "#listbox-loveinterestquarternary", function (e) {
+	jQuery(document).off("change.loveInterest-quarternary");
+	jQuery(document).on("change.loveInterest-quarternary", "#listbox-loveinterestquarternary", function (e) {
 		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
-	jQuery(document).on("change", "#listbox-loveinterestquinary", function (e) {
+	jQuery(document).off("change.loveInterest-quinary");
+	jQuery(document).on("change.loveInterest-quinary", "#listbox-loveinterestquinary", function (e) {
 		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
-	jQuery(document).on("change", "#listbox-loveinterestsenary", function (e) {
+	jQuery(document).off("change.loveInterest-senary");
+	jQuery(document).on("change.loveInterest-senary", "#listbox-loveinterestsenary", function (e) {
 		delete T.awareChecked;
 		Wikifier.wikifyEval("<<replace #loveInterest>><<loveInterest>><</replace>>");
 	});
@@ -450,7 +459,8 @@ function cheatPregnancyNPCReset() {
 DefineMacro("cheatPregnancyNPCReset", cheatPregnancyNPCReset);
 
 function featsPointsMenuReset() {
-	jQuery(document).on("change", "#listbox--upgradenameid", () => {
+	jQuery(document).off("change.featsPointsMenuReset");
+	jQuery(document).on("change.featsPointsMenuReset", "#listbox--upgradenameid", () => {
 		Wikifier.wikifyEval("<<updateFeatsPointsMenu>>");
 	});
 	return "";
@@ -458,7 +468,8 @@ function featsPointsMenuReset() {
 DefineMacroS("featsPointsMenuReset", featsPointsMenuReset);
 
 function startingPlayerImageReset() {
-	jQuery(document).on("change", "#settingsDiv .macro-radiobutton,#settingsDiv ,#settingsDiv .macro-checkbox", () => {
+	jQuery(document).off("change.startingPlayerImageReset");
+	jQuery(document).on("change.startingPlayerImageReset", "#settingsDiv .macro-radiobutton,#settingsDiv ,#settingsDiv .macro-checkbox", () => {
 		Wikifier.wikifyEval("<<startingPlayerImageUpdate>>");
 	});
 	return "";
@@ -586,7 +597,8 @@ function shuffle(o) {
 window.shuffle = shuffle;
 
 function updateAskColour() {
-	jQuery(document).on("change", "#listbox-askaction", function (e) {
+	jQuery(document).off("change.updateAskColour");
+	jQuery(document).on("change.updateAskColour", "#listbox-askaction", function (e) {
 		Wikifier.wikifyEval("<<replaceAskColour>>");
 	});
 	return "";
