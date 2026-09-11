@@ -320,3 +320,57 @@ function npcXChangeHourlyCheck(hours = 1) {
 	}
 }
 window.npcXChangeHourlyCheck = npcXChangeHourlyCheck;
+
+/**
+ * Returns an NPC's genitals based on anatomy.
+ *
+ * @param {number} index NPCList slot
+ * @param {boolean} countStrapon treat a strapon as a penis
+ * @returns {"penis"|"pussy"|"genitals"}
+ */
+function npcGenitalDescriptor(index = V.index, countStrapon = false) {
+	const npc = V.NPCList?.[index];
+	if (!npc) return "genitals";
+	const hasPenis = npc.penis !== "none" || (countStrapon && npcHasStrapon(index));
+	const hasVagina = npc.vagina !== "none";
+	if (hasPenis && hasVagina) return "genitals";
+	if (hasPenis) return "penis";
+	if (hasVagina) return "pussy";
+	return "genitals";
+}
+window.npcGenitalDescriptor = npcGenitalDescriptor;
+
+/**
+ * Returns the NPC genital currently in play, defaulting to their available genital.
+ *
+ * @param {number} index NPCList slot
+ * @param {boolean} countStrapon treat a worn strapon as a penis
+ * @returns {"penis"|"vagina"}
+ */
+function npcActiveGenital(index = V.index, countStrapon = true) {
+	const npc = V.NPCList?.[index];
+	if (!npc) return "penis";
+	const inUse = value => value !== 0 && value !== "none" && value !== "clothed" && !!value;
+	const hasPenis = npc.penis !== "none" || (countStrapon && npcHasStrapon(index));
+	const hasVagina = npc.vagina !== "none";
+	if (hasPenis && inUse(npc.penis)) return "penis";
+	if (hasVagina && inUse(npc.vagina)) return "vagina";
+	if (hasPenis) return "penis";
+	if (hasVagina) return "vagina";
+	return "penis";
+}
+window.npcActiveGenital = npcActiveGenital;
+
+/**
+ * Picks the right noun for an NPC's genitals in prose.
+ *
+ * @param {number} index NPCList slot
+ * @param {string} penisWord wording for a penis (or strapon)
+ * @param {string} vaginaWord wording for a vagina
+ * @param {boolean} countStrapon treat a worn strapon as a penis
+ * @returns {string}
+ */
+function npcGenitalWord(index, penisWord, vaginaWord, countStrapon = true) {
+	return npcActiveGenital(index, countStrapon) === "penis" ? penisWord : vaginaWord;
+}
+window.npcGenitalWord = npcGenitalWord;
