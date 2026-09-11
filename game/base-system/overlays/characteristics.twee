@@ -655,7 +655,7 @@
 
 				<!--PHYSIQUE-->
 				<<if $AMCTraits.physique is 2 or $physique gt $physiquesize>>
-					<<set _physiqueConfig = { name : "Physique", icon : "ui/sym-physique", displayType : "level", currentValue : $physique, maxValue: Math.max($physiquesize * $AMCTraits.physique, $physique), modifier: 100, modTypes: { good: [], bad: [] },
+					<<set _physiqueConfig = { skill: "physique", name : "Physique", icon : "ui/sym-physique", displayType : "level", currentValue : $physique, maxValue: Math.max($physiquesize * $AMCTraits.physique, $physique), modifier: 100, modTypes: { good: [], bad: [] },
 						states : [
 							{ requiredValue:	0,							level: 0, color: 'red',		description: `You are ${$player.bodyshape === "soft" ? "malnourished" : "emaciated"}.`},
 							{ requiredValue:	$physiquesize / 7,			level: 1, color: 'pink',	description: `Your body is ${$player.bodyshape === "soft" ? "squishy" : "skinny"}.`},
@@ -674,7 +674,7 @@
 						]
 					}>>
 				<<else>>
-					<<set _physiqueConfig = { name : "Physique", icon : "ui/sym-physique", displayType : "level", currentValue : $physique, maxValue: $physiquesize, modifier: 100, modTypes: { good: [], bad: [] },
+					<<set _physiqueConfig = { skill: "physique", name : "Physique", icon : "ui/sym-physique", displayType : "level", currentValue : $physique, maxValue: $physiquesize, modifier: 100, modTypes: { good: [], bad: [] },
 						states : [
 							{ requiredValue:	0,							level: 0, color: 'red',		description: `You are ${$player.bodyshape === "soft" ? "malnourished" : "emaciated"}.`},
 							{ requiredValue:	$physiquesize / 7,			level: 1, color: 'pink',	description: `Your body is ${$player.bodyshape === "soft" ? "squishy" : "skinny"}.`},
@@ -686,77 +686,9 @@
 						]
 					}>>
 				<</if>>
-				<<if playerBellySize() gte 10 and playerNormalPregnancyTotal() lt 20>>
-					<<switch playerNormalPregnancyTotal()>>
-						<<case 0>><<set _pregnancyModifier to 36>>
-						<<case 1>><<set _pregnancyModifier to 48>>
-						<<case 2>><<set _pregnancyModifier to 60>>
-						<<case 3 4 5 6 7>><<set _pregnancyModifier to 96>>
-						<<default>><<set _pregnancyModifier to 120>>
-					<</switch>>
-					<<set _physiqueConfig.modifier to Math.floor(_physiqueConfig.modifier * (1 - (playerBellySize() / _pregnancyModifier)))>>
-					<<set _physiqueConfig.modTypes.bad.pushUnique(playerAwareTheyArePregnant() ? "Pregnant" : "Large Belly")>>
-				<</if>>
-				<<switch $location>>
-					<<case "forest" "moor" "farm" "alex_farm">>
-						<<if $worn.feet.type.includes("heels")>>
-							<<set _physiqueConfig.modifier to Math.floor(_physiqueConfig.modifier * (1 - ($worn.feet.reveal / 5000)))>>
-							<<set _physiqueConfig.modTypes.bad.pushUnique("heels")>>
-						<</if>>
-						<<if $worn.feet.type.includes("rugged")>>
-							<<set _physiqueConfig.modifier to Math.floor(_physiqueConfig.modifier * (1 + (currentSkillValue("feetskill") / 10000)))>>
-							<<set _physiqueConfig.modTypes.good.pushUnique("rugged footwear")>>
-						<</if>>
-				<</switch>>
-				<<if effectiveDrunk() gte 120 and $substanceRebalance is 1>>
-					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
-					<<set _physiqueConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<<elseif effectiveDrunk() gte 1 and $substanceRebalance is 1>>
-					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.95)>>
-					<<set _physiqueConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<</if>>
-				<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
-					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
-					<<set _physiqueConfig.modTypes.bad.pushUnique("hallucinogens")>>
-				<</if>>
-				<<if $DoLPTFBuffs is 1>>
-					<<if $TFWolfBuffs is 1>>
-						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 1.2)>>
-						<<set _physiqueConfig.modTypes.good.pushUnique("spirit of the wild")>>
-					<</if>>
-					<<if $TFCatBuffs is 1>>
-						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.8)>>
-						<<set _physiqueConfig.modTypes.bad.pushUnique("felinous mischief")>>
-					<</if>>
-					<<if $TFCowBuffs is 1>>
-						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 1.4)>>
-						<<set _physiqueConfig.modTypes.good.pushUnique("nature's nurturer")>>
-					<</if>>
-					<<if $TFBearBuffs is 1>>
-						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 1.5)>>
-						<<set _physiqueConfig.modTypes.good.pushUnique("ursine strength")>>
-					<</if>>
-					<<if $TFBirdBuffs is 1>>
-						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.7)>>
-						<<set _physiqueConfig.modTypes.bad.pushUnique("sky's embrace")>>
-					<</if>>
-					<<if $TFFoxBuffs is 1>>
-						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.9)>>
-						<<set _physiqueConfig.modTypes.bad.pushUnique("vixen's guile")>>
-					<</if>>
-					<<if $TFBunnyBuffs is 1>>
-						<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * 0.7)>>
-						<<set _physiqueConfig.modTypes.bad.pushUnique("lapine's celerity")>>
-					<</if>>
-				<</if>>
-				<<if whiteSoPaleHeld()>>
-					<<set _physiqueConfig.modifier to Math.floor(_physiqueConfig.modifier * 1.1)>>
-					<<set _physiqueConfig.modTypes.good.pushUnique("<i>white so pale</i>")>>
-				<</if>>
-
 				<!--WILLPOWER-->
 				<<if $AMCTraits.willpower is 2 or $willpower gt $willpowermax>>
-					<<set _willpowerConfig = { name : "Willpower", icon : "ui/sym-trauma", displayType : "level", currentValue : $willpower, maxValue: Math.max($willpowermax * $AMCTraits.willpower, $willpower), modifier: 100, modTypes: { good: [], bad: [] },
+					<<set _willpowerConfig = { skill: "willpower", name : "Willpower", icon : "ui/sym-trauma", displayType : "level", currentValue : $willpower, maxValue: Math.max($willpowermax * $AMCTraits.willpower, $willpower), modifier: 100, modTypes: { good: [], bad: [] },
 						states : [
 							{ requiredValue:	0,							level: 0, color: 'red',		description: 'You are timid.'},
 							{ requiredValue:	$willpowermax / 7,			level: 1, color: 'pink',	description: 'You are fainthearted.'},
@@ -775,7 +707,7 @@
 						]
 					}>>
 				<<else>>
-					<<set _willpowerConfig = { name : "Willpower", icon : "ui/sym-trauma", displayType : "level", currentValue : $willpower, maxValue: $willpowermax, modifier: 100, modTypes: { good: [], bad: [] },
+					<<set _willpowerConfig = { skill: "willpower", name : "Willpower", icon : "ui/sym-trauma", displayType : "level", currentValue : $willpower, maxValue: $willpowermax, modifier: 100, modTypes: { good: [], bad: [] },
 						states : [
 							{ requiredValue:	0,							level: 0, color: 'red',		description: 'You are timid.'},
 							{ requiredValue:	$willpowermax / 7,			level: 1, color: 'pink',	description: 'You are fainthearted.'},
@@ -787,43 +719,31 @@
 						]
 					}>>
 				<</if>>
+				<<if $xchange.willpowerSystemEnabled is 1 and Number.isFinite($xchange.willpowerPoints) and $xchange.willpowerPoints lt $willpower>>
+					<<set _willpowerConfig.modTypes.bad.pushUnique("spent willpower")>>
+				<</if>>
 				<<if numberOfEarSlime() gte 2 and $earSlime.growth gt 50>>
-					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * (0.9 - Math.clamp(($earSlime.growth - 50) / 1000, 0, 0.1)))>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("ear slimes")>>
 				<<elseif numberOfEarSlime() gte 2>>
-					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * 0.9)>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("ear slimes")>>
 				<</if>>
-				<!-- <<if $drunk gte 120 and $substanceRebalance is 1>>
-					<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * (1 - (0.1 * Math.round(V.drunk / 120))))>>
-					<<set _willpowerConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<<elseif $drunk gte 1 and $substanceRebalance is 1>>
-					<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 0.95)>>
-					<<set _willpowerConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<</if>> -->
-				<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
-					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
+				<<if Math.round($hallucinogen / 250) gt 0 and $substanceRebalance is 1>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("hallucinogens")>>
 				<</if>>
 				<<if $DoLPTFBuffs is 1>>
 					<<if $TFWolfBuffs is 1>>
-						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 1.1)>>
 						<<set _willpowerConfig.modTypes.good.pushUnique("spirit of the wild")>>
 					<</if>>
 					<<if $TFCatBuffs is 1>>
-						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 1.1)>>
 						<<set _willpowerConfig.modTypes.good.pushUnique("felinous mischief")>>
 					<</if>>
 					<<if $TFCowBuffs is 1>>
-						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 0.8)>>
 						<<set _willpowerConfig.modTypes.bad.pushUnique("nature's nurturer")>>
 					<</if>>
 					<<if $TFBearBuffs is 1>>
-						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 1.2)>>
 						<<set _willpowerConfig.modTypes.good.pushUnique("ursine strength")>>
 					<</if>>
 					<<if $TFBunnyBuffs is 1>>
-						<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * 0.8)>>
 						<<set _willpowerConfig.modTypes.bad.pushUnique("lapine's celerity")>>
 					<</if>>
 				<</if>>
@@ -888,59 +808,27 @@
 					]
 				}>>
 
-				<!-- Visual indicator for lewd stats being affected by alcohol -->
-				<<if $drunk gte 1>>
-					<<set _promiscuityConfig.modTypes.good.pushUnique("alcohol")>>
-					<<set _exhibitionismConfig.modTypes.good.pushUnique("alcohol")>>
-					<<set _deviancyConfig.modTypes.good.pushUnique("alcohol")>>
-				<</if>>
-
-				<<if $hallucinogen gte 1>>
-					<<set _promiscuityConfig.modTypes.good.pushUnique("hallucinogen")>>
-					<<set _exhibitionismConfig.modTypes.good.pushUnique("hallucinogen")>>
-					<<set _deviancyConfig.modTypes.good.pushUnique("hallucinogen")>>
-				<</if>>
-
-				<!-- Visual indicator for lewd stats being affected by heat -->
-				<<if playerHeatMinArousal() gte 1>>
-					<<set _promiscuityConfig.modTypes.good.pushUnique("in heat")>>
-					<<set _deviancyConfig.modTypes.good.pushUnique("in heat")>>
-				<</if>>
-
-				<!-- Visual indicator for lewd stats being affected by rut -->
-				<<if playerRutMinArousal() gte 1>>
-					<<set _promiscuityConfig.modTypes.good.pushUnique("in rut")>>
-					<<set _deviancyConfig.modTypes.good.pushUnique("in rut")>>
-				<</if>>
-
-				<!-- MOOR LUCK, at the end so it appears at the end of the mouseover tooltip -->
-				<<if $moorLuck gt 0>>
-					<<set _physiqueConfig.modifier to Math.floor(_physiqueConfig.modifier * (1 + ($moorLuck / 100)))>>
-					<<set _physiqueConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * (1 + ($moorLuck / 100)))>>
-					<<set _willpowerConfig.modTypes.good.pushUnique("<i>????</i>")>>
-				<</if>>
-				<<if $options.statNerf lt 100>>
-					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * ($options.statNerf / 100))>>
-					<<set _physiqueConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * ($options.statNerf / 100))>>
-					<<set _willpowerConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<</if>>
-
+				<<for _statConfig range [_promiscuityConfig, _exhibitionismConfig, _deviancyConfig]>>
+					<<if drunkSexStatModifier(_statConfig.currentValue) gte 1>>
+						<<set _statConfig.modTypes.good.pushUnique("alcohol")>>
+					<</if>>
+					<<if hallucinogenSexStatModifier(_statConfig.currentValue) gte 1>>
+						<<set _statConfig.modTypes.good.pushUnique("hallucinogen")>>
+					<</if>>
+					<<if heatRutSexStatModifier(_statConfig.name.toLowerCase()) gte 1>>
+						<<if playerHeatMinArousal() gt 0>><<set _statConfig.modTypes.good.pushUnique("in heat")>><</if>>
+						<<if playerRutMinArousal() gt 0>><<set _statConfig.modTypes.good.pushUnique("in rut")>><</if>>
+					<</if>>
+				<</for>>
 
 				<<if effectiveDrunk() gt 0>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * ((1000 - effectiveDrunk()) / 1000))>>
 				<</if>>
 				<<if $drugged gt 0>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("aphrodisiacs")>>
-					<<set _willpowerConfig.modifier to Math.floor(_willpowerConfig.modifier * ((1000-$drugged) / 1000))>>
 				<</if>>
 				<<if fatigueSkillPenaltyFraction() gt 0>>
-					<<set _fatigueMod to 1 - fatigueSkillPenaltyFraction()>>
-					<<set _physiqueConfig.modifier to Math.round(_physiqueConfig.modifier * _fatigueMod)>>
 					<<set _physiqueConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _willpowerConfig.modifier to Math.round(_willpowerConfig.modifier * _fatigueMod)>>
 					<<set _willpowerConfig.modTypes.bad.pushUnique("fatigued")>>
 				<</if>>
 			<</silently>>
@@ -997,22 +885,19 @@
 			<!--Additional skills configurations-->
 			<<silently>>
 				<<set _corruptionConfig =	{ name : "Corruption",	displayType : "none",	currentValue : $earSlime.corruption,	modifier: 100, modTypes: { good: [], bad: [] },		meterColor: $earSlime.startedThreats ? "purple" : "blue", secondValue: $earSlime.growth / 2, secondMeterColor: "red"}>>
-				<<set _skulduggeryConfig =	{ name : "Skulduggery", displayType : "grade",	currentValue : $skulduggery,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
-				<<set _dancingConfig =		{ name : "Dancing",		displayType : "grade",	currentValue : $danceskill,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
-				<<set _swimmingConfig =		{ name : "Swimming",	displayType : "grade",	currentValue : $swimmingskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
-				<<set _athleticsConfig =	{ name : "Athletics",	displayType : "grade",	currentValue : $athletics,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
-				<<set _tendingConfig =		{ name : "Tending",		displayType : "grade",	currentValue : $tending,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
-				<<set _housekeepingConfig =	{ name : "Housekeeping",displayType : "grade",	currentValue : $housekeeping,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
+				<<set _skulduggeryConfig =	{ skill: "skulduggery", name : "Skulduggery", displayType : "grade",	currentValue : $skulduggery,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
+				<<set _dancingConfig =		{ skill: "danceskill", name : "Dancing",		displayType : "grade",	currentValue : $danceskill,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
+				<<set _swimmingConfig =		{ skill: "swimmingskill", name : "Swimming",	displayType : "grade",	currentValue : $swimmingskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
+				<<set _athleticsConfig =	{ skill: "athletics", name : "Athletics",	displayType : "grade",	currentValue : $athletics,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
+				<<set _tendingConfig =		{ skill: "tending", name : "Tending",		displayType : "grade",	currentValue : $tending,			modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
+				<<set _housekeepingConfig =	{ skill: "housekeeping", name : "Housekeeping",displayType : "grade",	currentValue : $housekeeping,		modifier: 100, modTypes: { good: [], bad: [] },		states : _detailedSkillGrades}>>
 				<<if $danceStudio?.training?.masteryUntil gt $timeStamp>>
-					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 1.10)>>
 					<<set _dancingConfig.modTypes.good.pushUnique("recent grade mastery")>>
 				<</if>>
 				<<if $danceStudio?.training?.injuryUntil gt $timeStamp>>
 					<<if $danceStudio.training.injury is "hard">>
-						<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 0.85)>>
 						<<set _dancingConfig.modTypes.bad.pushUnique("dance injury")>>
 					<<elseif $danceStudio.training.injury is "light">>
-						<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 0.99)>>
 						<<set _dancingConfig.modTypes.bad.pushUnique("sore feet")>>
 					<</if>>
 				<</if>>
@@ -1047,45 +932,24 @@
 				<</if>>
 				<<set _bellySize to playerBellySize()>>
 				<<if _bellySize gte 10 and playerNormalPregnancyTotal() lt 20>>
-					<<switch playerNormalPregnancyTotal()>>
-						<<case 0>><<set _pregnancyModifier to 36>>
-						<<case 1>><<set _pregnancyModifier to 48>>
-						<<case 2>><<set _pregnancyModifier to 60>>
-						<<case 3 4 5 6 7>><<set _pregnancyModifier to 96>>
-						<<default>><<set _pregnancyModifier to 120>>
-					<</switch>>
-					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * (1 - (_bellySize / _pregnancyModifier)))>>
 					<<set _dancingConfig.modTypes.bad.pushUnique(playerAwareTheyArePregnant() ? "Pregnant" : "Large Belly")>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (1 - (_bellySize / _pregnancyModifier)))>>
 					<<set _swimmingConfig.modTypes.bad.pushUnique(playerAwareTheyArePregnant() ? "Pregnant" : "Large Belly")>>
-					<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * (1 - (_bellySize / _pregnancyModifier)))>>
 					<<set _athleticsConfig.modTypes.bad.pushUnique(playerAwareTheyArePregnant() ? "Pregnant" : "Large Belly")>>
 				<</if>>
 				<<if $transformationParts.traits.chase isnot "disabled">>
-					<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * 1.10)>>
 					<<set _athleticsConfig.modTypes.good.pushUnique("thrill of the chase")>>
 				<</if>>
 				<<if $worn.hands.type.includes("sticky_fingers")>>
-					<<set _skulduggeryConfig.modifier to Math.floor(_skulduggeryConfig.modifier * 1.05)>>
 					<<set _skulduggeryConfig.modTypes.good.pushUnique("sticky fingers")>>
 				<</if>>
 				<<if $transformationParts.traits.sharpEyes isnot "disabled">>
-					<<set _skulduggeryConfig.modifier to Math.floor(_skulduggeryConfig.modifier * 1.05)>>
 					<<set _skulduggeryConfig.modTypes.good.pushUnique("sharp eyes")>>
 				<</if>>
 				<<if $transformationParts.traits.leviathan isnot "disabled">>
-					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 1.5)>>
 					<<set _swimmingConfig.modTypes.good.pushUnique("dragon's grace")>>
-				<</if>>
-				<<if $transformationParts.traits.strongFeet isnot "disabled">>
-					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 1.05)>>
-					<<set _dancingConfig.modTypes.good.pushUnique("strong feet")>>
-					<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * 1.05)>>
-					<<set _athleticsConfig.modTypes.good.pushUnique("strong feet")>>
 				<</if>>
 				<<if $worn.under_upper.type.includesAny("dance", "naked") and $worn.under_lower.type.includesAny("dance", "naked")
 				and $worn.upper.type.includesAny("dance", "naked")and $worn.lower.type.includesAny("dance", "naked")>>
-					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 1.05)>>
 					<<if [$worn.under_upper.type, $worn.under_lower.type, $worn.upper.type, $worn.lower.type].flat().includes("dance")>>
 						<<set _dancingConfig.modTypes.good.pushUnique("dancing attire")>>
 					<<else>>
@@ -1094,7 +958,6 @@
 				<</if>>
 				<<if $worn.under_upper.type.includesAny("swim", "naked") and $worn.under_lower.type.includesAny("swim", "naked")
 				and $worn.upper.type.includesAny("swim", "naked") and $worn.lower.type.includesAny("swim", "naked")>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * 1.05)>>
 					<<if $worn.under_upper.type.includes("swim") or $worn.under_lower.type.includes("swim")
 					or $worn.upper.type.includes("swim") or $worn.lower.type.includes("swim")>>
 						<<set _swimmingConfig.modTypes.good.pushUnique("swimwear")>>
@@ -1103,52 +966,52 @@
 					<</if>>
 				<</if>>
 				<<if $worn.feet.type.includes("swim")>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (1 + (currentSkillValue("feetskill") / 10000)))>>
-					<<set _swimmingConfig.modTypes.good.pushUnique("flippers")>>
-				<<elseif !$worn.feet.type.includes("naked")>>
-					<<if $worn.feet.type.includes("heels")>>
-						<<set _heels to 0.1>>
-						<<set _swimmingConfig.modTypes.bad.pushUnique("heels")>>
-					<<else>>
-						<<set _heels to 0>>
-						<<set _swimmingConfig.modTypes.bad.pushUnique("shoes")>>
+					<<if currentSkillValue("feetskill", 1) gt 0>>
+						<<set _swimmingConfig.modTypes.good.pushUnique("flippers")>>
 					<</if>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (0.9 + (currentSkillValue("feetskill") / 10000) - _heels))>>
+				<<elseif !$worn.feet.type.includes("naked")>>
+					<<set _footwearMod to ($worn.feet.type.includes("heels") ? 0.8 : 0.9) + currentSkillValue("feetskill", 1) / 10000>>
+					<<if _footwearMod gt 1>>
+						<<set _swimmingConfig.modTypes.good.pushUnique($worn.feet.type.includes("heels") ? "heels" : "shoes")>>
+					<<elseif _footwearMod lt 1>>
+						<<set _swimmingConfig.modTypes.bad.pushUnique($worn.feet.type.includes("heels") ? "heels" : "shoes")>>
+					<</if>>
 				<</if>>
 				<<switch $location>>
 					<<case "forest" "moor" "farm" "alex_farm">>
 						<<if $worn.feet.type.includes("heels")>>
-							<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * (1 - ($worn.feet.reveal / 5000)))>>
 							<<set _athleticsConfig.modTypes.bad.pushUnique("heels")>>
 						<</if>>
-						<<if $worn.feet.type.includes("rugged")>>
-							<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * (1 + (currentSkillValue("feetskill") / 10000)))>>
+						<<if $worn.feet.type.includes("rugged") and currentSkillValue("feetskill", 1) gt 0>>
 							<<set _athleticsConfig.modTypes.good.pushUnique("rugged footwear")>>
 						<</if>>
 				<</switch>>
 				<<if $worn.feet.type.includes("shackle")>>
-					<<set _athleticsConfig.modifier to 0>>
 					<<set _athleticsConfig.modTypes.bad.pushUnique("<b>shackled</b>")>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * 0.5)>>
-					<<run _swimmingConfig.modTypes.bad.delete("heels","shoes")>>
 					<<set _swimmingConfig.modTypes.bad.pushUnique("<b>shackled</b>")>>
-					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * 0.5)>>
 					<<set _dancingConfig.modTypes.bad.pushUnique("<b>shackled</b>")>>
 				<</if>>
 				<<if $worn.upper.type.includes("heavy") or $worn.lower.type.includes("heavy")>>
-					<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * (V.physique / V.physiquesize) / 1.5)>>
-					<<set _athleticsConfig.modTypes.bad.pushUnique("<b>armoured</b>")>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * ((V.physique / V.physiquesize) / 3))>>
-					<<set _swimmingConfig.modTypes.bad.pushUnique("<b>armoured</b>")>>
-					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * ((V.physique / V.physiquesize) / 3))>>
-					<<set _dancingConfig.modTypes.bad.pushUnique("<b>armoured</b>")>>
+					<<if $physique / $physiquesize gt 1.5>>
+						<<set _athleticsConfig.modTypes.good.pushUnique("<b>armoured</b>")>>
+					<<elseif $physique / $physiquesize lt 1.5>>
+						<<set _athleticsConfig.modTypes.bad.pushUnique("<b>armoured</b>")>>
+					<</if>>
+					<<if $physique / $physiquesize gt 3>>
+						<<set _swimmingConfig.modTypes.good.pushUnique("<b>armoured</b>")>>
+					<<elseif $physique / $physiquesize lt 3>>
+						<<set _swimmingConfig.modTypes.bad.pushUnique("<b>armoured</b>")>>
+					<</if>>
+					<<if $physique / $physiquesize gt 3>>
+						<<set _dancingConfig.modTypes.good.pushUnique("<b>armoured</b>")>>
+					<<elseif $physique / $physiquesize lt 3>>
+						<<set _dancingConfig.modTypes.bad.pushUnique("<b>armoured</b>")>>
+					<</if>>
 				<</if>>
-				<<if $worn.feet.type.includes("rugged")>>
-					<<set _tendingConfig.modifier to Math.floor(_tendingConfig.modifier * (1 + (currentSkillValue("feetskill") / 10000)))>>
+				<<if $worn.feet.type.includes("rugged") and currentSkillValue("feetskill", 1) gt 0>>
 					<<set _tendingConfig.modTypes.good.pushUnique("rugged footwear")>>
 				<</if>>
-				<<if $backgroundTraits.includes("plantlover")>>
-					<<set _tendingConfig.modifier to Math.floor(_tendingConfig.modifier * (1 + ($trauma / ($traumamax * 2))))>>
+				<<if $backgroundTraits.includes("plantlover") and $trauma gt 0>>
 					<<if $submissive lte 850>>
 						<<set _tendingConfig.modTypes.good.pushUnique("dendrophile")>>
 					<<else>>
@@ -1156,183 +1019,106 @@
 					<</if>>
 				<</if>>
 				<<if $worn.upper.type.includes("maid")>>
-					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * 1.05)>>
 					<<set _housekeepingConfig.modTypes.good.pushUnique("maid outfit")>>
 				<</if>>
 				<<if $worn.lower.type.includes("maid")>>
-					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * 1.05)>>
 					<<set _housekeepingConfig.modTypes.good.pushUnique("maid outfit")>>
 				<</if>>
 				<<if $worn.head.type.includes("maid")>>
-					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * 1.05)>>
 					<<set _housekeepingConfig.modTypes.good.pushUnique("maid outfit")>>
 				<</if>>
 				<<if $worn.handheld.type.includes("maid")>>
-					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * 1.05)>>
 					<<set _housekeepingConfig.modTypes.good.pushUnique("cleaning supplies")>>
 				<</if>>
-				<<if effectiveDrunk() gte 120 and $substanceRebalance is 1>>
-					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
+				<<if effectiveDrunk() gte 1 and $substanceRebalance is 1>>
 					<<set _skulduggeryConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 					<<set _dancingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 					<<set _swimmingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 					<<set _athleticsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 					<<set _tendingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
-					<<set _housekeepingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<<elseif effectiveDrunk() gte 1 and $substanceRebalance is 1>>
-					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 0.95)>>
-					<<set _skulduggeryConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 0.95)>>
-					<<set _dancingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.95)>>
-					<<set _swimmingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 0.95)>>
-					<<set _athleticsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * 0.95)>>
-					<<set _tendingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.95)>>
 					<<set _housekeepingConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
 				<</if>>
-				<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
-					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
+				<<if Math.round($hallucinogen / 250) gt 0 and $substanceRebalance is 1>>
 					<<set _skulduggeryConfig.modTypes.bad.pushUnique("hallucinogens")>>
-					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
 					<<set _dancingConfig.modTypes.bad.pushUnique("hallucinogens")>>
-					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
 					<<set _swimmingConfig.modTypes.bad.pushUnique("hallucinogens")>>
-					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
 					<<set _athleticsConfig.modTypes.bad.pushUnique("hallucinogens")>>
-					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
 					<<set _tendingConfig.modTypes.bad.pushUnique("hallucinogens")>>
-					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
 					<<set _housekeepingConfig.modTypes.bad.pushUnique("hallucinogens")>>
 				<</if>>
 				<<if $DoLPTFBuffs is 1>>
 					<<if $TFWolfBuffs is 1>>
-						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.1)>>
 						<<set _dancingConfig.modTypes.good.pushUnique("spirit of the wild")>>
-						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.2)>>
 						<<set _athleticsConfig.modTypes.good.pushUnique("spirit of the wild")>>
-						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.9)>>
 						<<set _housekeepingConfig.modTypes.bad.pushUnique("spirit of the wild")>>
 					<</if>>
 					<<if $TFCatBuffs is 1>>
-						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 1.2)>>
 						<<set _skulduggeryConfig.modTypes.good.pushUnique("felinous mischief")>>
-						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.4)>>
 						<<set _dancingConfig.modTypes.good.pushUnique("felinous mischief")>>
-						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.8)>>
 						<<set _swimmingConfig.modTypes.bad.pushUnique("felinous mischief")>>
-						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.1)>>
 						<<set _athleticsConfig.modTypes.good.pushUnique("felinous mischief")>>
-						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.9)>>
 						<<set _housekeepingConfig.modTypes.bad.pushUnique("felinous mischief")>>
 					<</if>>
 					<<if $TFCowBuffs is 1>>
-						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 0.9)>>
 						<<set _dancingConfig.modTypes.bad.pushUnique("nature's nurturer")>>
-						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 0.9)>>
 						<<set _athleticsConfig.modTypes.bad.pushUnique("nature's nurturer")>>
-						<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * 1.4)>>
 						<<set _tendingConfig.modTypes.good.pushUnique("nature's nurturer")>>
 					<</if>>
 					<<if $TFBearBuffs is 1>>
-						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 0.9)>>
 						<<set _skulduggeryConfig.modTypes.bad.pushUnique("ursine strength")>>
-						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 0.7)>>
 						<<set _dancingConfig.modTypes.bad.pushUnique("ursine strength")>>
-						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 1.3)>>
 						<<set _swimmingConfig.modTypes.good.pushUnique("ursine strength")>>
-						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.2)>>
 						<<set _athleticsConfig.modTypes.good.pushUnique("ursine strength")>>
-						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 0.8)>>
 						<<set _housekeepingConfig.modTypes.bad.pushUnique("ursine strength")>>
 					<</if>>
 					<<if $TFBirdBuffs is 1>>
-						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 1.1)>>
 						<<set _skulduggeryConfig.modTypes.good.pushUnique("sky's embrace")>>
-						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.3)>>
 						<<set _dancingConfig.modTypes.good.pushUnique("sky's embrace")>>
-						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.8)>>
 						<<set _swimmingConfig.modTypes.bad.pushUnique("sky's embrace")>>
-						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.2)>>
 						<<set _athleticsConfig.modTypes.good.pushUnique("sky's embrace")>>
-						<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * 1.3)>>
 						<<set _housekeepingConfig.modTypes.good.pushUnique("sky's embrace")>>
 					<</if>>
 					<<if $TFFoxBuffs is 1>>
-						<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * 1.3)>>
 						<<set _skulduggeryConfig.modTypes.good.pushUnique("vixen's guile")>>
-						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.1)>>
 						<<set _dancingConfig.modTypes.good.pushUnique("vixen's guile")>>
-						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 0.9)>>
 						<<set _swimmingConfig.modTypes.bad.pushUnique("vixen's guile")>>
-						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.1)>>
 						<<set _athleticsConfig.modTypes.good.pushUnique("vixen's guile")>>
 					<</if>>
 					<<if $TFBunnyBuffs is 1>>
-						<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * 1.4)>>
 						<<set _dancingConfig.modTypes.good.pushUnique("lapine's celerity")>>
-						<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * 1.5)>>
 						<<set _athleticsConfig.modTypes.good.pushUnique("lapine's celerity")>>
 					<</if>>
 					<<if $TFWaterDragonBuffs is 1>>
-						<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * 1.5)>>
 						<<set _swimmingConfig.modTypes.good.pushUnique("dragon's grace")>>
 					<</if>>
 				<</if>>
 				<<if $moorLuck gt 0>>
-					<<set _skulduggeryConfig.modifier to Math.floor(_skulduggeryConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _skulduggeryConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _dancingConfig.modifier to Math.floor(_dancingConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _dancingConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _swimmingConfig.modifier to Math.floor(_swimmingConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _swimmingConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _athleticsConfig.modifier to Math.floor(_athleticsConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _athleticsConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _tendingConfig.modifier to Math.floor(_tendingConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _tendingConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _housekeepingConfig.modifier to Math.floor(_housekeepingConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _housekeepingConfig.modTypes.good.pushUnique("<i>????</i>")>>
 				<</if>>
 				<<if $options.statNerf lt 100>>
-					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * ($options.statNerf / 100))>>
 					<<set _skulduggeryConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * ($options.statNerf / 100))>>
 					<<set _dancingConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * ($options.statNerf / 100))>>
 					<<set _swimmingConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * ($options.statNerf / 100))>>
 					<<set _athleticsConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * ($options.statNerf / 100))>>
 					<<set _tendingConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * ($options.statNerf / 100))>>
 					<<set _housekeepingConfig.modTypes.bad.pushUnique("stat nerf")>>
 				<</if>>
-				<<set _tendingConfig.modifier to Math.floor(_tendingConfig.modifier * (1 + (0.1 * $sciencetrait)))>>
 				<<if $sciencetrait gt 0>>
 					<<set _tendingConfig.modTypes.good.pushUnique("science knowledge")>>
-				<<elseif $siencetrait lt 0>>
+				<<elseif $sciencetrait lt 0>>
 					<<set _tendingConfig.modTypes.bad.pushUnique("science knowledge")>>
 				<</if>>
 				<<if fatigueSkillPenaltyFraction() gt 0>>
-					<<set _fatigueMod to 1 - fatigueSkillPenaltyFraction()>>
-					<<set _skulduggeryConfig.modifier to Math.round(_skulduggeryConfig.modifier * _fatigueMod)>>
 					<<set _skulduggeryConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _dancingConfig.modifier to Math.round(_dancingConfig.modifier * _fatigueMod)>>
 					<<set _dancingConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _swimmingConfig.modifier to Math.round(_swimmingConfig.modifier * _fatigueMod)>>
 					<<set _swimmingConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _athleticsConfig.modifier to Math.round(_athleticsConfig.modifier * _fatigueMod)>>
 					<<set _athleticsConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _tendingConfig.modifier to Math.round(_tendingConfig.modifier * _fatigueMod)>>
 					<<set _tendingConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _housekeepingConfig.modifier to Math.round(_housekeepingConfig.modifier * _fatigueMod)>>
 					<<set _housekeepingConfig.modTypes.bad.pushUnique("fatigued")>>
 				<</if>>
 			<</silently>>
@@ -1368,212 +1154,137 @@
 			<<else>>
 				<<set _drugMod to 1 + V.drugged / 1000>>
 			<</if>>
-			<<set _seductionConfig =	{ name : "Seduction",	displayType : "grade",	currentValue : $seductionskill, modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
-			<<set _oralConfig =			{ name : "Oral",		displayType : "grade",	currentValue : $oralskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("mouth")}>>
-			<<set _chestConfig =		{ name : "Chest",		displayType : "grade",	currentValue : $chestskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("breast") * _drugMod}>>
-			<<set _handsConfig =  		{ name : "Hands",    	displayType : "grade", 	currentValue : $handskill,  	modifier: 100, modTypes: { good: [], bad: [] }, 	states : _basicSkillGrades, 	sensitivity : getGeneralSensitivity("hands")}>>
-			<<set _buttocksConfig =		{ name : "Buttocks",	displayType : "grade",	currentValue : $bottomskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("bottom") * _drugMod}>>
-			<<set _analConfig =			{ name : "Anal",		displayType : "grade",	currentValue : $analskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("bottom") * _drugMod}>>
-			<<set _thighsConfig =   	{ name : "Thighs",   	displayType : "grade", 	currentValue : $thighskill, 	modifier: 100, modTypes: { good: [], bad: [] }, 	states : _basicSkillGrades, 		sensitivity : getGeneralSensitivity("thighs")}>>
-			<<set _feetConfig =     	{ name : "Feet",     	displayType : "grade", 	currentValue : $feetskill,  	modifier: 100, modTypes: { good: [], bad: [] }, 	states : _basicSkillGrades, 	sensitivity : getGeneralSensitivity("feet")}>>
+			<<set _seductionConfig =	{ skill: "seductionskill", name : "Seduction",	displayType : "grade",	currentValue : $seductionskill, modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
+			<<set _oralConfig =			{ skill: "oralskill", name : "Oral",		displayType : "grade",	currentValue : $oralskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("mouth")}>>
+			<<set _chestConfig =		{ skill: "chestskill", name : "Chest",		displayType : "grade",	currentValue : $chestskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("breast") * _drugMod}>>
+			<<set _handsConfig =  		{ skill: "handskill", name : "Hands",    	displayType : "grade", 	currentValue : $handskill,  	modifier: 100, modTypes: { good: [], bad: [] }, 	states : _basicSkillGrades, 	sensitivity : getGeneralSensitivity("hands")}>>
+			<<set _buttocksConfig =		{ skill: "bottomskill", name : "Buttocks",	displayType : "grade",	currentValue : $bottomskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("bottom") * _drugMod}>>
+			<<set _analConfig =			{ skill: "analskill", name : "Anal",		displayType : "grade",	currentValue : $analskill,		modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("bottom") * _drugMod}>>
+			<<set _thighsConfig =   	{ skill: "thighskill", name : "Thighs",   	displayType : "grade", 	currentValue : $thighskill, 	modifier: 100, modTypes: { good: [], bad: [] }, 	states : _basicSkillGrades, 		sensitivity : getGeneralSensitivity("thighs")}>>
+			<<set _feetConfig =     	{ skill: "feetskill", name : "Feet",     	displayType : "grade", 	currentValue : $feetskill,  	modifier: 100, modTypes: { good: [], bad: [] }, 	states : _basicSkillGrades, 	sensitivity : getGeneralSensitivity("feet")}>>
 			<<if $player.penisExist>>
-				<<set _penileConfig =	{ name : "Penile",		displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("genital") * _drugMod}>>
+				<<set _penileConfig =	{ skill: "penileskill", name : "Penile",		displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("genital") * _drugMod}>>
 			<</if>>
 			<<if playerHasStrapon()>>
-				<<set _penileConfig =	{ name : "Strap-on use",displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
+				<<set _penileConfig =	{ skill: "penileskill", name : "Strap-on use",displayType : "grade",	currentValue : $penileskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : 0}>>
 			<</if>>
 			<<if $player.vaginaExist>>
-				<<set _vaginalConfig =	{ name : "Vaginal",		displayType : "grade",	currentValue : $vaginalskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("genital") * _drugMod}>>
+				<<set _vaginalConfig =	{ skill: "vaginalskill", name : "Vaginal",		displayType : "grade",	currentValue : $vaginalskill,	modifier: 100, modTypes: { good: [], bad: [] },		states : _basicSkillGrades, 	sensitivity : getSensitivity("genital") * _drugMod}>>
 			<</if>>
 			
-			<<if $drunk gt 0 and $drunk lt 240>>
-				<<set _seductionConfig.modTypes.good.pushUnique("tipsy")>>
-				<<set _seductionSkill to currentSkillValue("seductionskill")>>
-				<<set _seductionConfig.modifier to Math.floor(_seductionConfig.modifier * (1+ $drunk / _seductionSkill))>>
-			<<elseif $drunk gte 240>>
-				<<set _seductionConfig.modTypes.good.pushUnique("tipsy")>>
+			<<if $drunk gt 0 and $drunk lt 480>>
+				<<set _seductionConfig.modTypes.good.pushUnique($drunk lt 240 ? "tipsy" : "drunken confidence")>>
+			<<elseif $drunk gt 480>>
 				<<set _seductionConfig.modTypes.bad.pushUnique("drunk")>>
-				<<set _seductionSkill to currentSkillValue("seductionskill")>>
-				<<set _seductionConfig.modifier to Math.floor(_seductionConfig.modifier * (1+ (480-$drunk) / _seductionSkill))>>
-			<<elseif $drunk gte 480>>
-				<<set _seductionConfig.modTypes.bad.pushUnique("smashed")>>
-				<<set _seductionSkill to currentSkillValue("seductionskill")>>
-				<<set _seductionConfig.modifier to Math.floor(_seductionConfig.modifier * (1+ (480-$drunk) / _seductionSkill))>>
 			<</if>>
 			<<if $earSlime.growth gt 50 and !V.earSlime.defyCooldown>>
 				<<set _seductionConfig.modTypes.good.pushUnique("ear slimes")>>
-				<<set _seductionConfig.modifier to Math.floor(_seductionConfig.modifier * (1 + (($earSlime.growth - 50) / 600)))>>
 			<</if>>
-			<<if $earSlime.growth gte 100 and $earSlime.focus is "pregnancy">>
-				<<if _vaginalConfig>>
+			<<if $earSlime.growth gt 100 and $earSlime.focus is "pregnancy">>
+				<<if $player.vaginaExist>>
 					<<set _vaginalConfig.modTypes.good.pushUnique("ear slimes")>>
-					<<set _vaginalConfig.modifier to Math.floor(_vaginalConfig.modifier * (1 + (($earSlime.growth - 100) / 500)))>>
 				<</if>>
-				<<if _penileConfig>>
+				<<if $player.penisExist or playerHasStrapon()>>
 					<<set _penileConfig.modTypes.bad.pushUnique("ear slimes")>>
-					<<set _penileConfig.modifier to Math.floor(_penileConfig.modifier * (1 - (($earSlime.growth - 100) / 400)))>>
 				<</if>>
 				<<if !$player.vaginaExist>>
 					<<set _analConfig.modTypes.good.pushUnique("ear slimes")>>
-					<<set _analConfig.modifier to Math.floor(_analConfig.modifier * (1 + (($earSlime.growth - 100) / 500)))>>
 				<</if>>
 			<</if>>
-			<<if $earSlime.growth gte 100 and $earSlime.focus is "impregnation">>
-				<<if _vaginalConfig>>
+			<<if $earSlime.growth gt 100 and $earSlime.focus is "impregnation">>
+				<<if $player.vaginaExist>>
 					<<set _vaginalConfig.modTypes.bad.pushUnique("ear slimes")>>
-					<<set _vaginalConfig.modifier to Math.floor(_vaginalConfig.modifier * (1 - (($earSlime.growth - 100) / 400)))>>
 				<</if>>
-				<<if _penileConfig>>
+				<<if $player.penisExist or playerHasStrapon()>>
 					<<set _penileConfig.modTypes.good.pushUnique("ear slimes")>>
-					<<set _penileConfig.modifier to Math.floor(_penileConfig.modifier * (1 + (($earSlime.growth - 100) / 500)))>>
 				<</if>>
 			<</if>>
 			<<if Transformations.partActive("traits", "dragonTongue")>>
-				<<set _oralConfig.modifier to Math.floor(_oralConfig.modifier * 1.05)>>
 				<<set _oralConfig.modTypes.good.pushUnique("dragon tongue")>>
 			<</if>>
 			<<if playerHeatMinArousal()>>
-				<<if _vaginalConfig>>
+				<<if $player.vaginaExist>>
 					<<set _vaginalConfig.modTypes.good.pushUnique("in heat")>>
-					<<set _vaginalConfig.modifier to Math.floor(_vaginalConfig.modifier * (1 + (Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000)))>>
 				<</if>>
-				<<if !$player.vaginaExist>>
+				<<if playerCanCarryAnally()>>
 					<<set _analConfig.modTypes.good.pushUnique(playerAwareTheyCanBePregnant() ? "in heat" : "<i>????</i>")>>
-					<<set _analConfig.modifier to Math.floor(_analConfig.modifier * (1 + (Math.clamp(playerHeatMinArousal(), 0, 4000) / 20000)))>>
 				<</if>>
 			<</if>>
-			<<if playerRutMinArousal()>>
+			<<if playerRutMinArousal() and ($player.penisExist or playerHasStrapon())>>
 				<<set _penileConfig.modTypes.good.pushUnique("in rut")>>
-				<<set _penileConfig.modifier to Math.floor(_penileConfig.modifier * (1 + (Math.clamp(playerRutMinArousal(), 0, 4000) / 20000)))>>
 			<</if>>
-			<<if effectiveDrunk() gte 120 and $substanceRebalance is 1>>
-				<<if _vaginalConfig>>
-					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
+			<<if effectiveDrunk() gte 1 and $substanceRebalance is 1>>
+				<<if $player.vaginaExist>>
 					<<set _vaginalConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
 				<</if>>
-				<<if _penileConfig>>
-					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
+				<<if $player.penisExist or playerHasStrapon()>>
 					<<set _penileConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
 				<</if>>
-				<<set _analConfig.modifier to Math.round(_analConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 				<<set _analConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-			<<elseif effectiveDrunk() gte 1 and $substanceRebalance is 1>>
-				<<if _vaginalConfig>>
-					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * 0.95)>>
-					<<set _vaginalConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<</if>>
-				<<if _penileConfig>>
-					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * 0.95)>>
-					<<set _penileConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<</if>>
-				<<set _analConfig.modifier to Math.round(_analConfig.modifier * 0.95)>>
-				<<set _analConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 0.95)>>
-				<<set _seductionConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _oralConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _chestConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _handsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _buttocksConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _thighsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
+				<<set _feetConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
 			<</if>>
-			<<if $hallucinogen gte 1 and $substanceRebalance is 1>>
-				<<if _vaginalConfig>>
-					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
+			<<if Math.round($hallucinogen / 250) gt 0 and $substanceRebalance is 1>>
+				<<if $player.vaginaExist>>
 					<<set _vaginalConfig.modTypes.bad.pushUnique("hallucinogens")>>
 				<</if>>
-				<<if _penileConfig>>
-					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
+				<<if $player.penisExist or playerHasStrapon()>>
 					<<set _penileConfig.modTypes.bad.pushUnique("hallucinogens")>>
 				<</if>>
-				<<set _analConfig.modifier to Math.round(_analConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
 				<<set _analConfig.modTypes.bad.pushUnique("hallucinogens")>>
-				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * (1 - (0.125 * Math.round(V.hallucinogen / 250))))>>
 				<<set _seductionConfig.modTypes.bad.pushUnique("hallucinogens")>>
 			<</if>>
 			<<if $DoLPTFBuffs is 1>>
 				<<if $TFCatBuffs is 1>>
-					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.2)>>
 					<<set _seductionConfig.modTypes.good.pushUnique("felinous mischief")>>
 				<</if>>
 				<<if $TFCowBuffs is 1>>
-					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.1)>>
 					<<set _seductionConfig.modTypes.good.pushUnique("nature's nurturer")>>
 				<</if>>
 				<<if $TFBearBuffs is 1>>
-					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 0.9)>>
 					<<set _seductionConfig.modTypes.bad.pushUnique("ursine strength")>>
 				<</if>>
 				<<if $TFBirdBuffs is 1>>
-					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.1)>>
 					<<set _seductionConfig.modTypes.good.pushUnique("sky's embrace")>>
 				<</if>>
 				<<if $TFFoxBuffs is 1>>
-					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.2)>>
 					<<set _seductionConfig.modTypes.good.pushUnique("vixen's guile")>>
 				<</if>>
-				<<if $TFBunnyBuffs is 1>>
-					<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * 1.1)>>
-					<<set _seductionConfig.modTypes.good.pushUnique("lapine's celerity")>>
-				<</if>>
-			<</if>>
-
-			/* Long-nail hand-skill penalty. Modest at level 2 (long), substantial at level 3 (claw-like). */
-			<<playerClawType>>
-			<<if _hasClaws>>
-				/* Cat claws are retractable; no fine-motor penalty. */
-			<<elseif def $nailslevel and $nailslevel gte 3>>
-				<<set _handsConfig.modifier to Math.round(_handsConfig.modifier * 0.75)>>
-				<<set _handsConfig.modTypes.bad.pushUnique("long nails")>>
-			<<elseif def $nailslevel and $nailslevel gte 2>>
-				<<set _handsConfig.modifier to Math.round(_handsConfig.modifier * 0.9)>>
-				<<set _handsConfig.modTypes.bad.pushUnique("long nails")>>
 			<</if>>
 
 			<<if $options.statNerf lt 100>>
-				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * ($options.statNerf / 100))>>
 				<<set _seductionConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<<set _oralConfig.modifier to Math.round(_oralConfig.modifier * ($options.statNerf / 100))>>
 				<<set _oralConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<<set _chestConfig.modifier to Math.round(_chestConfig.modifier * ($options.statNerf / 100))>>
 				<<set _chestConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<<set _handsConfig.modifier to Math.round(_handsConfig.modifier * ($options.statNerf / 100))>>
 				<<set _handsConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<<set _buttocksConfig.modifier to Math.round(_buttocksConfig.modifier * ($options.statNerf / 100))>>
 				<<set _buttocksConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<<set _analConfig.modifier to Math.round(_analConfig.modifier * ($options.statNerf / 100))>>
 				<<set _analConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<<set _thighsConfig.modifier to Math.round(_thighsConfig.modifier * ($options.statNerf / 100))>>
 				<<set _thighsConfig.modTypes.bad.pushUnique("stat nerf")>>
-				<<set _feetConfig.modifier to Math.round(_feetConfig.modifier * ($options.statNerf / 100))>>
 				<<set _feetConfig.modTypes.bad.pushUnique("stat nerf")>>
 				<<if $player.penisExist || playerHasStrapon()>>
-					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * ($options.statNerf / 100))>>
 					<<set _penileConfig.modTypes.bad.pushUnique("stat nerf")>>
 				<</if>>
 				<<if $player.vaginaExist>>
-					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * ($options.statNerf / 100))>>
 					<<set _vaginalConfig.modTypes.bad.pushUnique("stat nerf")>>
 				<</if>>
 			<</if>>
 			<<if fatigueSkillPenaltyFraction() gt 0>>
-				<<set _fatigueMod to 1 - fatigueSkillPenaltyFraction()>>
-				<<set _seductionConfig.modifier to Math.round(_seductionConfig.modifier * _fatigueMod)>>
 				<<set _seductionConfig.modTypes.bad.pushUnique("fatigued")>>
-				<<set _oralConfig.modifier to Math.round(_oralConfig.modifier * _fatigueMod)>>
 				<<set _oralConfig.modTypes.bad.pushUnique("fatigued")>>
-				<<set _chestConfig.modifier to Math.round(_chestConfig.modifier * _fatigueMod)>>
 				<<set _chestConfig.modTypes.bad.pushUnique("fatigued")>>
-				<<set _handsConfig.modifier to Math.round(_handsConfig.modifier * _fatigueMod)>>
 				<<set _handsConfig.modTypes.bad.pushUnique("fatigued")>>
-				<<set _buttocksConfig.modifier to Math.round(_buttocksConfig.modifier * _fatigueMod)>>
 				<<set _buttocksConfig.modTypes.bad.pushUnique("fatigued")>>
-				<<set _analConfig.modifier to Math.round(_analConfig.modifier * _fatigueMod)>>
 				<<set _analConfig.modTypes.bad.pushUnique("fatigued")>>
-				<<set _thighsConfig.modifier to Math.round(_thighsConfig.modifier * _fatigueMod)>>
 				<<set _thighsConfig.modTypes.bad.pushUnique("fatigued")>>
-				<<set _feetConfig.modifier to Math.round(_feetConfig.modifier * _fatigueMod)>>
 				<<set _feetConfig.modTypes.bad.pushUnique("fatigued")>>
 				<<if $player.penisExist || playerHasStrapon()>>
-					<<set _penileConfig.modifier to Math.round(_penileConfig.modifier * _fatigueMod)>>
 					<<set _penileConfig.modTypes.bad.pushUnique("fatigued")>>
 				<</if>>
 				<<if $player.vaginaExist>>
-					<<set _vaginalConfig.modifier to Math.round(_vaginalConfig.modifier * _fatigueMod)>>
 					<<set _vaginalConfig.modTypes.bad.pushUnique("fatigued")>>
 				<</if>>
 			<</if>>
@@ -1687,68 +1398,32 @@
 					{ requiredValue: 8,		level: 'SSS',	color: 'lustful'}
 				]>>
 
-				<<set _scienceConfig =	{ name : 'Science', icon : 'misc/icon/science', displayType : "grade",	currentValue : $sciencetrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $science_exam,		showStars: true, starLevel: $science_star,	states : _schoolGradeStates}>>
-				<<set _mathsConfig =	{ name : 'Maths',	icon : 'misc/icon/math',	displayType : "grade",	currentValue : $mathstrait,		modifier: 100, modTypes: { good: [], bad: [] },	percent: $maths_exam,		showStars: true, starLevel: $maths_star,	states : _schoolGradeStates}>>
-				<<set _englishConfig =	{ name : 'English', icon : 'misc/icon/english', displayType : "grade",	currentValue : $englishtrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $english_exam,		showStars: true, starLevel: $english_star,	states : _schoolGradeStates}>>
-				<<set _historyConfig =	{ name : 'History', icon : 'misc/icon/history', displayType : "grade",	currentValue : $historytrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $history_exam,		showStars: true, starLevel: $history_star,	states : _schoolGradeStates}>>
-				<<if effectiveDrunk() gte 120 and $substanceRebalance is 1>>
-					<<set _scienceConfig.modifier to Math.round(_scienceConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
+				<<set _scienceConfig =	{ skill: "science", name : 'Science', icon : 'misc/icon/science', displayType : "grade",	currentValue : $sciencetrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $science_exam,		showStars: true, starLevel: $science_star,	states : _schoolGradeStates}>>
+				<<set _mathsConfig =	{ skill: "maths", name : 'Maths',	icon : 'misc/icon/math',	displayType : "grade",	currentValue : $mathstrait,		modifier: 100, modTypes: { good: [], bad: [] },	percent: $maths_exam,		showStars: true, starLevel: $maths_star,	states : _schoolGradeStates}>>
+				<<set _englishConfig =	{ skill: "english", name : 'English', icon : 'misc/icon/english', displayType : "grade",	currentValue : $englishtrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $english_exam,		showStars: true, starLevel: $english_star,	states : _schoolGradeStates}>>
+				<<set _historyConfig =	{ skill: "history", name : 'History', icon : 'misc/icon/history', displayType : "grade",	currentValue : $historytrait,	modifier: 100, modTypes: { good: [], bad: [] },	percent: $history_exam,		showStars: true, starLevel: $history_star,	states : _schoolGradeStates}>>
+				<<if effectiveDrunk() gte 1 and $substanceRebalance is 1>>
 					<<set _scienceConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _mathsConfig.modifier to Math.round(_mathsConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 					<<set _mathsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 					<<set _englishConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _historyConfig.modifier to Math.round(_historyConfig.modifier * (1 - (0.1 * Math.round(effectiveDrunk() / 120))))>>
 					<<set _historyConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<<elseif effectiveDrunk() gte 1 and $substanceRebalance is 1>>
-					<<set _scienceConfig.modifier to Math.round(_scienceConfig.modifier * 0.95)>>
-					<<set _scienceConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _mathsConfig.modifier to Math.round(_mathsConfig.modifier * 0.95)>>
-					<<set _mathsConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * 0.95)>>
-					<<set _englishConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-					<<set _historyConfig.modifier to Math.round(_historyConfig.modifier * 0.95)>>
-					<<set _historyConfig.modTypes.bad.pushUnique("alcohol intoxication")>>
-				<</if>>
-				<<if $DoLPTFBuffs is 1>>
-					<<if $TFBirdBuffs is 1>>
-						<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * 1.1)>>
-						<<set _englishConfig.modTypes.good.pushUnique("sky's embrace")>>
-					<</if>>
-					<<if $TFFoxBuffs is 1>>
-						<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * 1.2)>>
-						<<set _englishConfig.modTypes.good.pushUnique("vixen's guile")>>
-					<</if>>
 				<</if>>
 				<<if $moorLuck gt 0>>
-					<<set _scienceConfig.modifier to Math.floor(_scienceConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _scienceConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _mathsConfig.modifier to Math.floor(_mathsConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _mathsConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _englishConfig.modifier to Math.floor(_englishConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _englishConfig.modTypes.good.pushUnique("<i>????</i>")>>
-					<<set _historyConfig.modifier to Math.floor(_historyConfig.modifier * (1 + ($moorLuck / 100)))>>
 					<<set _historyConfig.modTypes.good.pushUnique("<i>????</i>")>>
 				<</if>>
 				<<if $options.statNerf lt 100>>
-					<<set _scienceConfig.modifier to Math.round(_scienceConfig.modifier * ($options.statNerf / 100))>>
 					<<set _scienceConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _mathsConfig.modifier to Math.round(_mathsConfig.modifier * ($options.statNerf / 100))>>
 					<<set _mathsConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * ($options.statNerf / 100))>>
 					<<set _englishConfig.modTypes.bad.pushUnique("stat nerf")>>
-					<<set _historyConfig.modifier to Math.round(_historyConfig.modifier * ($options.statNerf / 100))>>
 					<<set _historyConfig.modTypes.bad.pushUnique("stat nerf")>>
 				<</if>>
 				<<if fatigueSkillPenaltyFraction() gt 0>>
-					<<set _fatigueMod to 1 - fatigueSkillPenaltyFraction()>>
-					<<set _scienceConfig.modifier to Math.round(_scienceConfig.modifier * _fatigueMod)>>
 					<<set _scienceConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _mathsConfig.modifier to Math.round(_mathsConfig.modifier * _fatigueMod)>>
 					<<set _mathsConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _englishConfig.modifier to Math.round(_englishConfig.modifier * _fatigueMod)>>
 					<<set _englishConfig.modTypes.bad.pushUnique("fatigued")>>
-					<<set _historyConfig.modifier to Math.round(_historyConfig.modifier * _fatigueMod)>>
 					<<set _historyConfig.modTypes.bad.pushUnique("fatigued")>>
 				<</if>>
 			<</silently>>

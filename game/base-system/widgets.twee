@@ -3836,7 +3836,7 @@
 				<img class="characteristic-icon" @src="'img/' + _config.icon + '.png'" />
 			<</if>>
 			<span class="characteristic-title">
-				_config.name<<characteristic-box-modifier `clone(_config.modifier)` `clone(_config.modTypes)` `clone(_config.name)`>>
+				_config.name<<characteristic-box-modifier _config.modifier _config.modTypes _config.name _config.skill>>
 				
 				<<if _config.sensitivity gte 1>>
 					<<set _heartCount to Math.clamp(Math.ceil(_config.sensitivity), 0, 20)>>
@@ -3885,32 +3885,36 @@
 <</widget>>
 
 <<widget "characteristic-box-modifier">><<silently>>
-	<<if _args[0] isnot undefined or _args[0] isnot 100>>
-		<<set $_modifier to _args[0] - 100>>
-		<<if $_modifier gt 0>>
-			<<set $_result to " <small class='green characteristic-modifier'>(+"+$_modifier+"%)</small>">>
-		<<elseif $_modifier lt 0>>
-			<<set $_result to " <small class='red characteristic-modifier'>("+$_modifier+"%)</small>">>
-		<<elseif ["Promiscuity", "Exhibitionism", "Deviancy"].includes(_args[2]) and (drunkSexStatModifier(V[_args[2].toLowerCase()]) gte 1 or hallucinogenSexStatModifier(V[_args[2].toLowerCase()]) gte 1 or heatRutSexStatModifier(_args[2].toLowerCase()) gte 1)>>
-			<<set $_result to " <span class='" + getLargestSexStatModifierCssClasses(_args[2].toLowerCase()) + "'><small class='blue characteristic-modifier'>(???%)</small></span>">>
-		<</if>>
+	<<set $_result to "">>
+	<<set $_tooltip to "">>
+	<<set $_good to _args[1].good>>
+	<<set $_bad to _args[1].bad>>
+	<<set $_stat to _args[2].toLowerCase()>>
+	<<set $_modifier to Number.isFinite(_args[0]) ? _args[0] - 100 : 0>>
+	<<if _args[3]>>
+		/* Use the same final value as skill checks, including additive effects and rounding. */
+		<<set $_effective to currentSkillValue(_args[3])>>
+		<<set $_base to V[_args[3]]>>
+		<<set $_modifier to $_base > 0 ? Math.round(100 * ($_effective / $_base - 1)) : 0>>
+		<<set $_tooltip to "Effective " + $_stat + ": " + Math.round($_effective) + " (base " + Math.round($_base) + ").">>
 	<</if>>
-	<</silently>>
-	<<if $_result>>
-		<<set $_good to _args[1].good>>
-		<<set $_bad to _args[1].bad>>
-		<<set $_stat to _args[2].toLowerCase()>>
-		<span @class="$_modifier gt 0 ? 'green' : 'red'"><mouse class = "tooltip-small">
-			$_result
-			<<if $_good.length gt 0 and $_bad.length gt 0>>
-				<span><span class="green">Increasing your $_stat: <<print $_good>></span><br><span class="red">Decreasing your $_stat: <<print $_bad>></span></span>
-			<<elseif $_good.length gt 0>>
-				<span class="green">Increasing your $_stat: <<print $_good>></span>
-			<<elseif $_bad.length gt 0>>
-				<span class="red">Decreasing your $_stat: <<print $_bad>></span>
-			<</if>>
-		</mouse></span>
+	<<if $_modifier gt 0>>
+		<<set $_result to " <small class='green characteristic-modifier'>(+" + $_modifier + "%)</small>">>
+	<<elseif $_modifier lt 0>>
+		<<set $_result to " <small class='red characteristic-modifier'>(" + $_modifier + "%)</small>">>
+	<<elseif ["Promiscuity", "Exhibitionism", "Deviancy"].includes(_args[2]) and (drunkSexStatModifier(V[$_stat]) gte 1 or hallucinogenSexStatModifier(V[$_stat]) gte 1 or heatRutSexStatModifier($_stat) gte 1)>>
+		<<set $_result to " <span class='" + getLargestSexStatModifierCssClasses($_stat) + "'><small class='blue characteristic-modifier'>(???%)</small></span>">>
+	<<elseif $_good.length or $_bad.length or (_args[3] and $_effective isnot $_base)>>
+		/* Keep offsetting effects inspectable; a zero base cannot have a percentage change. */
+		<<set $_result to " <small class='characteristic-modifier'>[Modifiers]</small>">>
 	<</if>>
+	<<if $_good.length>>
+		<<set $_tooltip += ($_tooltip ? "<br>" : "") + "<span class='green'>Increasing your " + $_stat + ": " + $_good.join(", ") + "</span>">>
+	<</if>>
+	<<if $_bad.length>>
+		<<set $_tooltip += ($_tooltip ? "<br>" : "") + "<span class='red'>Decreasing your " + $_stat + ": " + $_bad.join(", ") + "</span>">>
+	<</if>>
+<</silently>><<if $_result>><span @tooltip="$_tooltip"><<print $_result>></span><</if>>
 <</widget>>
 
 <<widget "relation-text">>
