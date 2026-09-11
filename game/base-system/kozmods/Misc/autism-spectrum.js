@@ -363,11 +363,14 @@ function ensureAutismSpectrumState() {
 	if (!Number.isFinite(state.assessmentDay)) delete state.assessmentDay;
 	if (!Array.isArray(state.assessmentSources)) delete state.assessmentSources;
 	else state.assessmentSources = state.assessmentSources.filter(source => autismAssessmentSources.includes(source));
-	/* Older saves hold documentation without a stage. Those PCs are diagnosed, not restarted. */
-	if (state.documentation === true && !state.assessmentStage) {
+	/* The completed assessment owns the report. Convert the old duplicate flag once. */
+	if (state.documentation === true && state.assessmentStage !== "diagnosed") {
 		state.assessmentStage = "diagnosed";
 		state.assessmentDay = Number(Time?.days) || 0;
 	}
+	delete state.documentation;
+	/* A saved assessment without its date must still be able to finish its wait. */
+	if (state.assessmentStage && !Number.isFinite(state.assessmentDay)) state.assessmentDay = today;
 	if (state.meltdownNotice !== true) delete state.meltdownNotice;
 	if (state.meltdownEndNotice !== true) delete state.meltdownEndNotice;
 	/* Use the same load rules as live updates, so saves always restore the correct state while preserving Burnout hysteresis. */
@@ -605,7 +608,7 @@ function autismKylarTrainingName() {
 function autismKylarTrainingAvailable() {
 	if (!playerHasAutismSpectrum()) return false;
 	const state = ensureAutismSpectrumState();
-	return state.documentation === true && state.kylarDiscussed === true && state.kylarTrainingFocus !== state.hyperfixation;
+	return state.assessmentStage === "diagnosed" && state.kylarDiscussed === true && state.kylarTrainingFocus !== state.hyperfixation;
 }
 
 function autismFinishKylarTraining() {
@@ -615,10 +618,9 @@ function autismFinishKylarTraining() {
 	delete state.kylarEventFocus;
 }
 
-/* Called once, from character creation, after "autism" is pushed onto $backgroundTraits. */
+/* Character creation, enabling the trait, and imported settings all use this entry point. */
 function initAutismSpectrumState() {
 	if (!playerHasAutismSpectrum()) return;
-	delete V.autismSpectrum;
 	ensureAutismSpectrumState();
 	V.timeMessages ||= [];
 	V.timeMessages.pushUnique("autismHyperfixation");
@@ -1237,7 +1239,7 @@ function autismColdStartLine() {
  * with none of that going on, brings load back down. Uses raw stress points, so the multiplier is 1.
  */
 function autismSensoryUpdate(minutes) {
-	if (!playerHasAutismSpectrum() || V.timeSkip !== undefined || V.possessed) return;
+	if (!playerHasAutismSpectrum() || V.timeSkip !== undefined || V.possessed || V.sleepTimePassing) return;
 	minutes = Math.max(0, Number(minutes) || 0);
 	if (!minutes) return;
 	let extra = 0;
@@ -1624,7 +1626,7 @@ const autismMaskingTrustCap = 0.6;
  * with nobody to perform for or in company that is entirely safe.
  */
 function autismMaskingRateNow() {
-	if (V.combat === 1 || ensureAutismSpectrumState().meltdown) return 0;
+	if (V.sleepTimePassing || V.combat === 1 || ensureAutismSpectrumState().meltdown) return 0;
 	const base = autismMaskingRate[autismPrivacyTier()];
 	if (!base) return 0;
 	const trusted = autismCompanyFamiliarity();
@@ -1649,14 +1651,14 @@ function autismMaskingUpdate(minutes) {
 	const state = ensureAutismSpectrumState();
 	const hours = minutes / 60;
 
-	/* Nothing is held during a meltdown or a fight: whatever the PC was holding has already gone. */
-	const suppressed = V.combat === 1 || state.meltdown;
+	/* Sleeping never requires a social performance, even in a shared or public sleeping place. */
+	const suppressed = V.sleepTimePassing || V.combat === 1 || state.meltdown;
 	const rate = autismMaskingRateNow();
 
 	if (rate > 0) state.masking = Math.min(autismMaskingMax, state.masking + rate * hours);
 	else {
 		state.masking = Math.max(0, state.masking - autismMaskingDrift * hours);
-		autismQueueUnmaskedProse();
+		if (!suppressed) autismQueueUnmaskedProse();
 	}
 
 	/* Holding it is the cost, so this is charged on the level held rather than on the moment it went up. */
@@ -1709,13 +1711,13 @@ function autismSetSchoolPlan() {
  * before the assessment concludes.
  */
 function autismTeacherKnows(teacher) {
-	if (!playerHasAutismSpectrum() || !ensureAutismSpectrumState().documentation) return false;
+	if (!autismHasDocumentation()) return false;
 	return autismSchoolPlan() || autismDisclosedTo(teacher);
 }
 
 /* Whether the PC has anything to show anyone yet. */
 function autismHasDocumentation() {
-	return playerHasAutismSpectrum() && ensureAutismSpectrumState().documentation === true;
+	return autismDiagnosed();
 }
 
 /* Ordered by clinical urgency; the check-up takes one per visit so it does not read as a status screen. */
@@ -1816,7 +1818,7 @@ const autismUnmaskedLines = Object.freeze([
  * still leaves an audience is not the same as being off duty.
  */
 function autismUnmaskedProseReady() {
-	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.timeSkip !== undefined || V.combat === 1) return false;
+	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.timeSkip !== undefined || V.sleepTimePassing || V.combat === 1) return false;
 	const state = ensureAutismSpectrumState();
 	if (state.meltdown) return false;
 	if (autismMaskingRateNow() > 0) return false;
@@ -2205,6 +2207,7 @@ Object.assign(window, {
 	autismCanGoPrivate,
 	autismFeedbackReady,
 	autismDiagnosed,
+	autismDisclosureList,
 	autismDisclosedTo,
 	autismDiscloseTo,
 	autismSchoolPlan,

@@ -544,6 +544,7 @@ module.exports = {
 		autismCanGoPrivate: "readonly",
 		autismFeedbackReady: "readonly",
 		autismDiagnosed: "readonly",
+		autismDisclosureList: "readonly",
 		autismDisclosedTo: "readonly",
 		autismDiscloseTo: "readonly",
 		autismSchoolPlan: "readonly",
