@@ -229,7 +229,7 @@ function averySchedule() {
 	if (V.avery_mansion.schedule === "away" && V.avery_skyscraper_fire_time <= 0 && V.avery_injury) V.avery_mansion.schedule = "return";
 	else if (
 		V.avery_mansion.schedule === "away" &&
-		V.avery_mansion.away_timer >= 0 &&
+		V.avery_mansion.away_timer <= 0 &&
 		!V.avery_injury &&
 		Time.hour >= 18 &&
 		V.avery_mansion.party_state === "waiting" &&
