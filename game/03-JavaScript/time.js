@@ -2494,21 +2494,30 @@ function dailyPlayerEffects() {
 	if (V.xchange_fame_message) V.effectsmessage = 1;
 
 	if (V.settings.pubicHairEnabled === true) {
-		V.pbgrowth++;
-		if (V.pbgrowth >= 24) V.pblevel = 9;
-		else if (V.pbgrowth >= 19) V.pblevel = 8;
-		else if (V.pbgrowth >= 14) V.pblevel = 7;
-		else if (V.pbgrowth >= 10) V.pblevel = 6;
-		else if (V.pbgrowth >= 7) V.pblevel = 5;
-		else if (V.pbgrowth >= 5) V.pblevel = 3;
-		else if (V.pbgrowth >= 2) V.pblevel = 2;
-		else if (V.pbgrowth >= 1) V.pblevel = 1;
+		// Waxed and sugared hair is pulled out at the root, so it takes weeks to start growing back.
+		if (V.pbwax > 0) {
+			V.pbwax--;
+		} else {
+			V.pbgrowth++;
+			if (V.pbgrowth >= 24) V.pblevel = 9;
+			else if (V.pbgrowth >= 19) V.pblevel = 8;
+			else if (V.pbgrowth >= 14) V.pblevel = 7;
+			else if (V.pbgrowth >= 10) V.pblevel = 6;
+			else if (V.pbgrowth >= 7) V.pblevel = 5;
+			else if (V.pbgrowth >= 5) V.pblevel = 3;
+			else if (V.pbgrowth >= 2) V.pblevel = 2;
+			else if (V.pbgrowth >= 1) V.pblevel = 1;
+		}
 		if (V.player.ballsExist) {
-			V.pbgrowthballs++;
-			if (V.pbgrowthballs >= 24) V.pblevelballs = 9;
-			else if (V.pbgrowthballs >= 19) V.pblevelballs = 7;
-			else if (V.pbgrowthballs >= 10) V.pblevelballs = 5;
-			else if (V.pbgrowthballs >= 5) V.pblevelballs = 3;
+			if (V.pbwaxballs > 0) {
+				V.pbwaxballs--;
+			} else {
+				V.pbgrowthballs++;
+				if (V.pbgrowthballs >= 24) V.pblevelballs = 9;
+				else if (V.pbgrowthballs >= 19) V.pblevelballs = 7;
+				else if (V.pbgrowthballs >= 10) V.pblevelballs = 5;
+				else if (V.pbgrowthballs >= 5) V.pblevelballs = 3;
+			}
 		}
 	}
 

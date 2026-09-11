@@ -1,0 +1,62 @@
+
+:: Widgets VIP Spa [widget]
+
+/* <<waxApply area days>> - Wax "full", "pubis", or "balls"; pauses regrowth for `days`.
+Commits $pbwaxShape so only waxed hair keeps the style. */
+<<widget "waxApply">>
+	<<set _applyArea to _args[0]>>
+	<<set _waxDuration to Math.round(_args[1] ?? 24)>>
+	<<if _applyArea is "full" or _applyArea is "pubis">>
+		<<set $pblevel to 0>>
+		<<set $pbgrowth to 0>>
+		<<set $pbstrip to $pbwaxShape ?? 0>>
+		<<set $pbwax to _waxDuration>>
+	<</if>>
+	<<if _applyArea is "full" or _applyArea is "balls">>
+		<<set $pblevelballs to 0>>
+		<<set $pbgrowthballs to 0>>
+		<<set $pbwaxballs to _waxDuration>>
+	<</if>>
+	<<if $pblevel is 0 and $pbstrip is 0 and $pblevelballs is 0>>
+		<<set $makeup.pbcolour to 0>>
+	<</if>>
+<</widget>>
+
+/* Tells the player how long they have before their pubic hair starts growing back. */
+<<widget "waxStatus">>
+	<<if $pbwax gte 1 or $pbwaxballs gte 1>>
+		<<set _waxLeft to Math.max($pbwax ?? 0, $pbwaxballs ?? 0)>>
+		<i>Your skin is still smooth from waxing. Your hair shouldn't start growing back for <span class="green"><<print _waxLeft>> day<<print _waxLeft is 1 ? "" : "s">></span>.</i>
+		<<if _args[0] isnot "compact">><br><</if>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* Home waxing options. Needs enough length for the wax to grip, and a willpower check to see it through. */
+<<widget "waxOptions">>
+	<<if !$waxKits or $waxKits lt 1>>
+		You have no waxing kits left. You can buy more at the cosmetics shop.
+		<br><br>
+	<<elseif $pblevel lt 3 and !($player.ballsExist and $pblevelballs gte 3)>>
+		Your hair is still too short to wax. Let it grow longer first, so the wax can stick to the hair and pull it out.
+		<br><br>
+	<<else>>
+		You have <span class="gold"><<print $waxKits>></span> waxing kit<<print $waxKits is 1 ? "" : "s">> left.
+		<br><br>
+		<<if $pblevel gte 3>>
+			<<shavestyleicon 'clean'>><<link [[Wax bare (0:30)|Wax Pubic Hair]]>><<set $phase2 to "wax">><<set $pbwaxShape to 0>><<set $pbwaxArea to ($player.ballsExist and $pblevelballs gte 3) ? "full" : "pubis">><<set $waxKits to $waxKits - 1>><<pass 30>><</link>><<willpowerdifficulty 200 900>>
+			<br>
+			<<shavestyleicon 'strip'>><<link [[Wax around a landing strip (0:30)|Wax Pubic Hair]]>><<set $phase2 to "wax">><<set $pbwaxArea to ($player.ballsExist and $pblevelballs gte 3) ? "full" : "pubis">><<set $waxKits to $waxKits - 1>><<set $pbstripName to "neat landing strip">><<set $pbwaxShape to 1>><<pass 30>><</link>><<willpowerdifficulty 200 900>>
+			<br>
+			<<shavestyleicon 'heart'>><<link [[Wax around a heart (0:30)|Wax Pubic Hair]]>><<set $phase2 to "wax">><<set $pbwaxArea to ($player.ballsExist and $pblevelballs gte 3) ? "full" : "pubis">><<set $waxKits to $waxKits - 1>><<set $pbstripName to "cute heart shape">><<set $pbwaxShape to 2>><<pass 30>><</link>><<willpowerdifficulty 200 900>>
+			<br>
+			<<shavestyleicon 'triangle'>><<link [[Wax around a triangle (0:30)|Wax Pubic Hair]]>><<set $phase2 to "wax">><<set $pbwaxArea to ($player.ballsExist and $pblevelballs gte 3) ? "full" : "pubis">><<set $waxKits to $waxKits - 1>><<set $pbstripName to "neat triangle">><<set $pbwaxShape to 3>><<pass 30>><</link>><<willpowerdifficulty 200 900>>
+			<br>
+		<</if>>
+		<<if $player.ballsExist and $pblevelballs gte 3>>
+			<<shavestyleicon 'balls'>><<link [[Wax only your balls (0:15)|Wax Pubic Hair]]>><<set $phase2 to "wax">><<set $pbwaxArea to "balls">><<set $waxKits to $waxKits - 1>><<pass 15>><</link>><<willpowerdifficulty 200 900>>
+			<br>
+		<</if>>
+		<br>
+	<</if>>
+<</widget>>

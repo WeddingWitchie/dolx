@@ -187,6 +187,75 @@
 
 <<link [[Next|_exit]]>><<endevent>><<canvas-model-override "clear">><<run delete $bathroomExit>><</link>>
 
+:: Wax Pubic Hair
+<<effects>><<dontHideForNow>>
+<<if $phase2 is "wax">>
+	<<silently>><<willpowerdifficulty 200 900>><</silently>>
+	<<set _waxSuccess to $willpowerSuccess is 1>>
+	<<set _waxDays to _waxSuccess ? 24 : 12>>
+	<<set _waxArea to $pbwaxArea or "pubis">>
+	<<set _waxShaped to _waxArea isnot "balls" and ($pbwaxShape ?? 0) gte 1>>
+	You warm the pot of <<print $waxKitType is "sugar" ? "sugar paste" : "wax">> until it becomes soft enough to spread. You apply a thin layer to your skin
+	<<if _waxArea is "balls">>
+		and press a strip over the hair on your balls.
+	<<elseif _waxShaped>>
+		around the <<print $pbstripName>> you want to leave on your pubis, then press the strips firmly over the surrounding hair.
+	<<elseif _waxArea is "pubis" and $player.ballsExist>>
+		across your pubis, then press a strip firmly over it.
+	<<else>>
+		over the hair you want to remove, then press the strips firmly against your skin.
+	<</if>>
+	<br><br>
+	You grip one end of the first strip, count to three, then pull it away from your skin in one quick movement.
+	<br><br>
+	<<if _waxSuccess>>
+		A sharp pain spreads across the skin where the strip was removed, making your eyes water. You stop for a few seconds until the pain becomes easier to bear, then press down another strip and pull that one away as well.
+		You repeat the process across the remaining hair, taking a short pause after each strip before moving to the next area.<<ggpain>><<pain 25>><<garousal>><<arousal 50>><<gwillpower>><<willpower 1>>
+		<br><br>
+		<<if _waxArea is "balls">>
+			When you finish, there is no hair left on your balls. The skin is sore from the waxing, but the hairs have been pulled out from the roots.
+		<<elseif _waxShaped>>
+			When you finish, your <<genitals_are 2>> bare apart from the <<print $pbstripName>> left on your pubis. The exposed skin is sore, while the hair around the shape has been pulled out from the roots.
+		<<elseif _waxArea is "pubis" and $player.ballsExist>>
+			When you finish, there is no hair left on your pubis. The skin is sore, but the hairs have been pulled out from the roots.
+		<<else>>
+			When you finish, your <<genitals_are 2>> bare. The skin is sore from the waxing, but the hairs have been pulled out from the roots.
+		<</if>>
+		<span class="green">The hair should take several weeks to grow back.</span>
+	<<else>>
+		The first pull hurts more than you expected. You yelp and stop before the strip comes all the way off, leaving part of it stuck to your skin. You slowly peel the rest of it off with your fingers, then hold still until the pain passes.
+		You try another strip, but this time you hesitate before pulling. Some hairs remain behind, so you apply more wax to the same patches and try again. After several attempts, your skin becomes red and sore, and you decide to stop.<<gggpain>><<pain 45>><<ggstress>><<stress 12>><<garousal>><<arousal 50>>
+		<br><br>
+		Most of the hair is gone, but some hairs snapped close to the skin instead of being pulled out from the roots. <span class="purple">Those hairs will start growing back sooner.</span>
+	<</if>>
+	<<waxApply _waxArea _waxDays>>
+	<hr>
+<<else>>
+	<<if pcAreArmsBound("both")>>
+		<span class="red">Both of your arms are bound</span>, so you cannot use the waxing kit on yourself.
+		<br><br>
+		<<link [[Back|$bathroomExit]]>><<endevent>><<run delete $bathroomExit>><<dontHideRevert>><</link>>
+		<<exitAll>>
+	<<else>>
+		<<outfitChecks>>
+		You <<if !_fullyNaked>>take off your clothes and <</if>>place the waxing kit beside you, then look at your <<genitals 1>>.
+		<<shavestrip>>
+		<<if playerChastity("hidden")>>
+			The belt covers the area too closely for you to spread wax underneath it or place a strip against your skin.
+			<br><br>
+			<<getouticon>><<link [[Back|$bathroomExit]]>><<endevent>><<run delete $bathroomExit>><<clotheson>><<dontHideRevert>><</link>>
+			<<exitAll>>
+		<</if>>
+		<<if playerChastity("cage")>>
+			Your penis is <<if $worn.genitals.name is "chastity parasite">>sealed inside the parasite<<else>>locked inside the cage<</if>>. You will have to wax around it, but the rest of the area is still accessible.
+		<</if>>
+	<</if>>
+<</if>>
+<br>
+<<waxStatus>>
+<<waxOptions>>
+<<getouticon>><<link [[Back|$bathroomExit]]>><<endevent>><<run delete $bathroomExit>><<clotheson>><<dontHideRevert>><</link>>
+
 
 :: Widgets Pubic Hair [widget]
 
@@ -211,6 +280,18 @@
 	<<if $pbstrip lt 0 or !$pbstrip>>
 		<<set $pbstrip to 0>>
 	<</if>>
+
+	<<if !$pbwax or $pbwax lt 0>>
+		<<set $pbwax to 0>>
+	<</if>>
+
+	<<if !$pbwaxballs or $pbwaxballs lt 0>>
+		<<set $pbwaxballs to 0>>
+	<</if>>
+
+	<<if !$waxKits or $waxKits lt 0>>
+		<<set $waxKits to 0>>
+	<</if>>
 <</widget>>
 
 <<widget "personalUpkeep">>
@@ -233,9 +314,19 @@
 		<<icon "clippers.png">><<link [[Trim nails (0:05)|Nail Trim]]>><<pass 5>><</link>>
 		<br>
 	<</if>>
+	<<if $settings.pubicHairEnabled and ($pbwax gte 1 or $pbwaxballs gte 1)>>
+		<<waxStatus "compact">>
+	<</if>>
+	<!-- in Avery's bathroom the last entry must not end with a line break -->
+	<<set _upkeepDye to $makeup.owned.hairdye.length gt 0>>
+	<<set _upkeepWax to $settings.pubicHairEnabled and $waxKits gte 1 and ($pblevel gte 3 or ($player.ballsExist and $pblevelballs gte 3))>>
 	<<if $settings.pubicHairEnabled and ($pblevel gte 2 or $pbstrip gte 1 or $pblevelballs gte 2)>>
 		<<bathroomicon "shave">><<link [[Groom pubic hair|Shave]]>><</link>>
-		<<if ($makeup.owned.hairdye.length gt 0 and $bus is "avery_bathroom") or $bus isnot "avery_bathroom">><br><</if>>
+		<<if _upkeepWax or _upkeepDye or $bus isnot "avery_bathroom">><br><</if>>
+	<</if>>
+	<<if _upkeepWax>>
+		<<bathroomicon "shave">><<link [[Wax pubic hair|Wax Pubic Hair]]>><<set $phase2 to 0>><</link>>
+		<<if _upkeepDye or $bus isnot "avery_bathroom">><br><</if>>
 	<</if>>
 	<<if $makeup.owned.hairdye.length gt 0>>
 		<<cosmeticsicon "dyes">><<link [[Use hair dye|Dye Hair]]>><</link>>
