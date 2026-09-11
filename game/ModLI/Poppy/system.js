@@ -695,42 +695,40 @@ DefineMacro("poppySchedule", poppySchedule);
 
 /*
  * ==============================================================
- * Bad end aftermath comfort talk
+ * Long absence aftermath comfort talk
  * ==============================================================
- * After escaping a soft bad end, the player can talk with Poppy once.
- * This restores her patience to the middle of the scale.
+ * Long absence comfort talk
+ * After a long absence, the player can talk with Poppy once, restoring patience to the middle of the scale.
+ * Triggers based on absence duration, regardless of the reason.
  */
-const POPPY_COMFORT_MIN_CAPTIVITY_DAYS = 3;
 const POPPY_COMFORT_WINDOW_DAYS = 14;
 const POPPY_COMFORT_PATIENCE_FLOOR = 50;
 
 /**
- * Returns the recent bad end the player can talk to Poppy about.
- * Only includes long bad ends that ended recently and have not been discussed yet.
+ * Returns the recent absence the player can talk to Poppy about.
+ * Only includes long absences that ended recently and have not been discussed yet.
  *
- * @returns {object|undefined} The bad end entry, or undefined if none.
+ * @returns {object|undefined} An entry describing the absence, or undefined if none.
  */
 function poppyBadEndComfortAvailable() {
 	const poppy = C.npc.Poppy;
 	if (!poppy || poppy.init !== 1 || poppyDismissed()) return undefined;
 	if (!(typeof V.poppyromance === "number" && V.poppyromance >= 0)) return undefined;
 	if (!poppy.timer || typeof poppy.timer !== "object" || Array.isArray(poppy.timer)) return undefined;
-	if (!Array.isArray(V.badEndStats) || !V.badEndStats.length) return undefined;
 	if (V.replayScene || V.statFreeze) return undefined;
 
-	const badEnd = V.badEndStats.last();
-	if (!badEnd || badEnd.source === "Poppy") return undefined;
-	if (!Number.isFinite(badEnd.trackedStart) || !Number.isFinite(badEnd.trackedEnd)) return undefined;
+	// She was there for it, so her own bad end is not something she needs telling about.
+	if (V.badEndStats?.last()?.source === "Poppy") return undefined;
 
-	const day = TimeConstants.secondsPerDay;
-	// Strictly longer than the minimum: a three day absence is not the crisis this talk is for.
-	if (badEnd.trackedEnd - badEnd.trackedStart <= POPPY_COMFORT_MIN_CAPTIVITY_DAYS * day) return undefined;
-	if (Time.date.timeStamp - badEnd.trackedEnd > POPPY_COMFORT_WINDOW_DAYS * day) return undefined;
+	const ended = playerAbsenceEnded();
+	const days = playerMissingDays();
+	if (!ended || days < C.playerAbsence.daysToCountAsMissing) return undefined;
+	if (Time.date.timeStamp - ended > POPPY_COMFORT_WINDOW_DAYS * TimeConstants.secondsPerDay) return undefined;
 
-	// One talk per bad end: the stamp is the trackedEnd of the bad end already discussed.
-	if (Number(poppy.timer.lastBadEndComfort) === badEnd.trackedEnd) return undefined;
+	// One talk per absence: the stamp is when the absence already discussed ended.
+	if (Number(poppy.timer.lastBadEndComfort) === ended) return undefined;
 
-	return badEnd;
+	return { trackedEnd: ended, days };
 }
 window.poppyBadEndComfortAvailable = poppyBadEndComfortAvailable;
 
@@ -761,12 +759,11 @@ window.poppyBadEndComfortResolve = poppyBadEndComfortResolve;
 /**
  * Returns how many whole days the player was gone.
  *
- * @param {object} badEnd The bad end data.
- * @returns {number} Whole days of captivity.
+ * @param {object} absence The absence data from poppyBadEndComfortAvailable.
+ * @returns {number} Whole days away.
  */
-function poppyBadEndComfortDays(badEnd) {
-	if (!badEnd || !Number.isFinite(badEnd.trackedStart) || !Number.isFinite(badEnd.trackedEnd)) return 1;
-	const days = Math.floor((badEnd.trackedEnd - badEnd.trackedStart) / TimeConstants.secondsPerDay);
-	return days < 1 ? 1 : days;
+function poppyBadEndComfortDays(absence) {
+	const days = Number(absence?.days);
+	return Number.isFinite(days) && days >= 1 ? Math.floor(days) : 1;
 }
 window.poppyBadEndComfortDays = poppyBadEndComfortDays;

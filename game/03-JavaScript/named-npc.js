@@ -465,12 +465,8 @@ function gwylanStatusCheck() {
 	if (V.avery_fate === "ascended" && V.auriga_scar >= 1 && !V.gwylanSeen.includes("auriga_scar") && V.gwylanSeen.includes("ritual_sex")) {
 		gwylanStatus.push("aurigaScarConfront");
 	}
-	if (
-		V.badEndStats.last()?.source !== "Gwylan" &&
-		V.badEndStats.last()?.trackedStart >= V.gwylan.timer.lastSeen &&
-		T.gwylanLastSeenDays >= 14 &&
-		V.gwylanSeen.includes("lights")
-	) {
+	/* Any long disappearance counts, regardless of cause */
+	if (V.badEndStats.last()?.source !== "Gwylan" && T.gwylanLastSeenDays >= 14 && V.gwylanSeen.includes("lights")) {
 		gwylanStatus.push("reunion");
 	}
 	if (

@@ -28,6 +28,66 @@ const constants = {
 	badEndsThatPauseRent: ["Prison", "Asylum", "Underground Farm", "Underground Dungeon"],
 
 	/**
+	 * Determines whether the town considers the player missing based on time since they were last seen by townsfolk.
+	 */
+	playerAbsence: {
+		// Whole days away before the player counts as missing.
+		daysToCountAsMissing: 7,
+		/**
+		 * Being seen in these locations resets the absence counter.
+		 * All other locations, including captivity, let it run.
+		 */
+		seenLocations: [
+			"town",
+			"home",
+			"orphanage",
+			"school",
+			"school_rear_courtyard",
+			"flats",
+			"baileys_flat",
+			"chalets",
+			"farm",
+			"farm_manors",
+			"alex_farm",
+			"alex_cottage",
+			"riding_school",
+			"cafe",
+			"pub",
+			"park",
+			"alley",
+			"shopping_centre",
+			"market",
+			"boutique",
+			"dilapidated_shop",
+			"adult_shop",
+			"brothel",
+			"strip_club",
+			"hospital",
+			"temple",
+			"police_station",
+			"museum",
+			"arcade",
+			"dance_studio",
+			"studio",
+			"mma_gym",
+			"colosseum",
+			"pool",
+			"spa",
+			"docks",
+			"beach",
+			"promenade",
+			"hotel",
+			"office",
+			"industrial",
+			"factory",
+			"landfill",
+			"estate",
+			"avery_mansion",
+			"avery_skyscraper",
+		],
+	},
+
+	/**
 	 * Minimum and maximum values for the player's stats
 	 *
 	 * Grouped by category, then sorted in alphabetical order

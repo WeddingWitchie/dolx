@@ -1,0 +1,772 @@
+:: Robin Stand Haggle Firm
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<set _robin to statusCheck("Robin")>>
+You step up beside Robin.
+<<speechresolve>>
+<<if _speechAttitudeResolved is "shy">>
+	"S-Sorry, but Robin already told you the price," you say. "If you want another cup, you need to pay for it."
+<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+	"Please pay for the refill," you say. "Robin can't keep giving drinks away."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Robin has already told you the price," you say. "Please pay for the refill if you still want it."
+<<elseif _speechAttitudeResolved is "confident">>
+	"You heard Robin," you say. "Pay for the refill, or give the cup back."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"You heard <<him>>. Pay for it," you say. "You're holding up everyone behind you."
+<<else>>
+	"The price hasn't changed," you say. "Pay for the refill, or give the cup back."
+<</if>>
+<br><br>
+The <<person2>><<person>> looks behind <<him>> at the waiting customers, then puts the money on the counter. "Fine," <<he>> says before taking <<his>> refill.
+<<set $robinmoney += $robinStandVenue is "park" ? 2 : 1>>
+<br><br>
+<<endevent>><<npc Robin>><<person1>>
+<<if _robin.trauma gte 40>>
+	Robin lowers <<his>> shoulders after the customer leaves. "I never know what to say to people like that. I know I should say no, but then I can't get the words out."
+	<<ltrauma>><<trauma -3>>
+<<else>>
+	"I should have said that myself," Robin says as the customer leaves. <<He>> repeats your last sentence quietly, then nods to <<himself>>.
+	<<npcincr Robin dom 1>><<gdom>>
+<</if>>
+<<run V.robinStand.skill = Math.min(ensureRobinStand().skill + 10, 1000)>>
+<br><br>
+<<robinStandOptions $robinStandVenue>>
+
+:: Robin Stand Haggle Charm
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<set $seductiondifficulty to 3000>>
+<<seductioncheck>>
+<<seductionskilluptext>>
+<<seductionskilluse>>
+<<promiscuity1>>
+You lean on the counter beside the <<person2>><<person>>.
+<<speechresolve>>
+<<if _speechAttitudeResolved is "shy">>
+	"I-I think you're lucky Robin only asked for the normal price," you say, trying to smile. "I'd have charged you more for making such a fuss."
+<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+	"Robin's being nicer than I would be," you say. "I'd have charged you double for another cup."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Robin is being very generous," you say with a smile. "I would have charged you double for the refill."
+<<elseif _speechAttitudeResolved is "confident">>
+	"You're lucky Robin is serving you," you say. "I'd charge double after all that complaining."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"You want another cup after all that whining?" you say. "I'd charge you double."
+<<else>>
+	"Robin's nicer than me," you say. "I'd have charged you double for the refill."
+<</if>>
+<br><br>
+<<if $seductionrating gte $seductionrequired>>
+	<br><br>
+	<<He>> laughs and puts down more money than the refill costs. Instead of leaving, <<he>> stays at the counter and keeps looking at you while <<he>> drinks.
+	<<set _tip to 3 + Math.round(robinStandCrowdPull())>>
+	<span class="green">Robin takes £<<print _tip>>.</span><<set $robinmoney += _tip>>
+	<<famebusiness 1>>
+	<br><br>
+	<<endevent>><<npc Robin>><<person1>>
+	Robin laughs. "That's not fair. You didn't even argue with <<person2>><<him>>."
+<<else>>
+	The <<person2>><<person>> does not laugh. <<He>> takes the refill from Robin, turns away from the counter, and leaves without paying.
+	<<gstress>><<stress 6>>
+	<br><br>
+	<<endevent>><<npc Robin>><<person1>>
+	Robin looks at your expression. "It's one cup," <<he>> says quickly. "Honestly. It's one cup."
+<</if>>
+<br><br>
+<<robinStandOptions $robinStandVenue>>
+
+:: Robin Stand Haggle Robin
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<run ensureRobinStand()>>
+<<set _handled to $robinStand.skill gte 400 or C.npc.Robin.dom gte 60>>
+You stay where you are and let Robin deal with it.
+<br><br>
+<<if _handled>>
+	Robin takes the cup and fills it to the top before setting it back on the counter. <<He>> repeats the price, then leaves the cup in front of <<him>> without saying anything else.
+	<br><br>
+	The <<person2>><<person>> waits a few seconds, then puts the money down and takes the cup.
+	<<set $robinmoney += $robinStandVenue is "park" ? 2 : 1>>
+	<br><br>
+	<<endevent>><<npc Robin>><<person1>>
+	Robin looks at you after the customer leaves. <<His>> cheeks turn pink. "I've been practising that."
+	<<npcincr Robin dom 2>><<npcincr Robin love 1>><<ggdom>><<glove>>
+	<<run V.robinStand.skill = Math.min(ensureRobinStand().skill + 20, 1000)>>
+<<else>>
+	Robin apologises before refilling the cup. When the <<person2>><<person>> takes it without paying, Robin says sorry again instead of asking for the money. The next two customers ask for free refills as well, and Robin refills both cups without asking for payment.
+	<br><br>
+	<<endevent>><<npc Robin>><<person1>>
+	"I know," Robin says before you can speak. <<He>> keeps looking down at the counter. "I know. I should have told them no."
+	<<npcincr Robin dom -1>><<ldom>><<npcincr Robin trauma 1>>
+	<<run V.robinStand.skill = Math.min(ensureRobinStand().skill + 5, 1000)>>
+<</if>>
+<br><br>
+<<robinStandOptions $robinStandVenue>>
+
+:: Robin Stand Spill Buy
+<<endevent>>
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<npc Robin>><<person1>>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "shy">>
+	"K-Keep serving what you still have," you say. "I'll go and buy the replacement stock."
+<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+	"Keep serving," you say. "I'll replace what was lost."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Keep the stand open," you say. "I'll go and buy what you need."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Keep serving," you say. "I'll handle the replacement stock."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Don't close the stand over one spill," you say. "Keep serving. I'll get more stock."
+<<else>>
+	"Keep serving," you say. "I'll go and replace what was lost."
+<</if>>
+<br><br>
+<<if $robinStandVenue is "park">>
+	You come back with milk, cocoa and a bag of sugar, and the queue is still there.
+<<else>>
+	You come back with a crate of lemons and two bags of sugar, and the queue is still there.
+<</if>>
+<br><br>
+<<if _robin.trauma gte 40>>
+	Robin takes the bags from you and starts putting the ingredients away. For the rest of the afternoon, <<he>> keeps working beside you instead of moving to the other end of the stand.
+	<<ltrauma>><<trauma -4>>
+<<else>>
+	"You didn't have to do that," Robin says while unpacking the bags. "I'm writing down what it cost. I'm paying you back."
+	When you object, <<he>> shakes <<his>> head and writes the amount down anyway.
+<</if>>
+<<npcincr Robin love 2>><<npcincr Robin dom -1>><<glove>><<ldom>>
+<<set $robinmoney += 20>>
+<br><br>
+<<robinStandOptions $robinStandVenue>>
+
+:: Robin Stand Spill Help
+<<endevent>>
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<npc Robin>><<person1>>
+<<run ensureRobinStand()>>
+<<set _housekeeping to currentSkillValue("housekeeping")>>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "shy">>
+	"I-I'll help," you say, stepping behind the counter. "We can make another batch together."
+<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+	"I'll help you make another batch," you say, moving behind the counter beside <<him>>.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Move over a little. I'll help you make the next batch," you say.
+<<elseif _speechAttitudeResolved is "confident">>
+	"We're not closing yet," you say as you step behind the counter. "Let's make another batch."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Come on, we can fix this," you say, moving behind the counter. "Start measuring."
+<<else>>
+	"I'll help," you say, stepping behind the counter. "Let's make another batch."
+<</if>>
+<br><br>
+<<if _housekeeping gte 600>>
+	You measure the ingredients while Robin prepares the cups, then speak to the waiting customers whenever <<he>> needs both hands. The new batch is ready before anyone leaves the queue.
+	<<set _recovered to 15>>
+	<<run V.robinStand.skill = Math.min(V.robinStand.skill + 15, 1000)>>
+<<elseif _housekeeping gte 300>>
+	You measure while Robin mixes, stopping twice to correct the amounts. A few customers leave while you work, but most stay until the new batch is ready.
+	<<set _recovered to 8>>
+	<<run V.robinStand.skill = Math.min(V.robinStand.skill + 10, 1000)>>
+<<else>>
+	You measure the ingredients twice after getting the amounts wrong, while Robin tries to keep the remaining customers waiting. Most of the queue leaves before the new batch is ready to serve.
+	<<set _recovered to 3>>
+	<<run V.robinStand.skill = Math.min(V.robinStand.skill + 5, 1000)>>
+<</if>>
+<<set $robinmoney += _recovered>>
+<br><br>
+<<if _robin.trauma gte 40>>
+	"I thought we'd have to close for the day," Robin says. <<He>> holds your sleeve while looking at the fresh batch.
+<<else>>
+	"Two people make this so much faster," Robin says, wiping <<his>> forehead with <<his>> sleeve. "I didn't know we could recover that quickly."
+<</if>>
+<<npcincr Robin love 1>><<glove>><<ltrauma>><<lstress>><<trauma -2>><<stress -6>>
+<br><br>
+<<robinStandOptions $robinStandVenue>>
+
+:: Robin Stand Spill Sell
+<<endevent>>
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<set _robin to statusCheck("Robin")>>
+<<npc Robin>><<person1>>
+<<run ensureRobinStand()>>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "shy">>
+	"M-Maybe we can still sell what's left," you say. "The customers might not notice."
+<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+	"We could still serve what is left," you say. "It would save some of the money."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Use what is left and keep serving," you say. "We can still recover some of the loss."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Sell what is left," you say. "Keep the line moving and recover what you can."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Sell it anyway," you say. "They won't know until they've paid."
+<<else>>
+	"Sell what's left," you say. "The people in the queue probably won't notice until they taste it."
+<</if>>
+<br><br>
+<<if _robin.trauma gte 40>>
+	Robin follows your instruction, but keeps <<his>> eyes on the cups while serving them. <<He>> avoids looking at both the customers and you.
+	<<npcincr Robin trauma 2>>
+<<else>>
+	"I don't think we should—" Robin starts. <<He>> looks at the waiting customers, then fills the remaining cups anyway. The drinks are watery and gritty, and several customers complain after tasting them.
+	<<npcincr Robin love -1>><<llove>>
+<</if>>
+<<set $robinmoney += 12>>
+<span class="green">Robin takes £12 that <<he>> would have lost.</span>
+<br><br>
+<span class="red">Customers tell other people that the last batch was poor.</span><<famebusiness -2>>
+<<run V.robinStand.skill = Math.max(ensureRobinStand().skill - 15, 0)>>
+<br><br>
+<<robinStandOptions $robinStandVenue>>
+
+:: Robin Stand Naming
+<<endevent>>
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<npc Robin>><<person1>>
+<<run ensureRobinStand()>>
+<<set _robin to statusCheck("Robin")>>
+Robin takes a tin of paint from under the counter and sets it between you.
+<<if _robin.trauma gte 40>>
+	"People keep asking what the stand is called," <<he>> says. "It doesn't have a name. It's just... mine." <<He>> pushes the paint towards you. "Could you decide? I'll choose something stupid."
+<<else>>
+	"A <<personsimple>> asked me for a receipt yesterday," <<he>> says with a small laugh. "A <i>receipt</i>. I think the stand needs a name now. I've had this paint for a week and still haven't chosen one."
+<</if>>
+<br><br>
+<<link [[Put <<his>> own name on it|Robin Stand Naming Done]]>><<set $phase to "robin">><</link>>
+<br>
+<<link [[Pick something that isn't about <<him>>|Robin Stand Naming Done]]>><<set $phase to "neutral">><</link>>
+<br>
+<<link [[Put both of you on it|Robin Stand Naming Done]]>><<set $phase to "both">><</link>>
+<br>
+<<link [[Tell <<him>> it's <<his>> stand and <<his>> choice|Robin Stand Naming Done]]>><<set $phase to "robinsChoice">><</link>>
+<br>
+
+:: Robin Stand Naming Done
+<<robinStandLocation $robinStandVenue>><<effects>>
+<<run ensureRobinStand()>>
+<<set _robin to statusCheck("Robin")>>
+<<set _cold to $robinStandVenue is "park">>
+<<switch $phase>>
+	<<case "robin">>
+		<<set $robinStand.named to _cold ? "Robin's Hot Chocolate" : "Robin's Lemonade">>
+		<<speechresolve>>
+		<<if _speechAttitudeResolved is "shy">>
+			"M-maybe use your own name," you say. "It's your stand, so people should know it's yours."
+		<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+			"Put your own name on it," you say. "You built the stand up yourself."
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"Use your own name," you say. "Put it across the front where everyone can see it."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Put your name on it," you say. "Big letters. Make sure people know whose stand this is."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Use your own name," you say. "You did the work. Stop hiding behind the counter."
+		<<else>>
+			"Put your own name on it," you say. "Use the biggest letters that will fit."
+		<</if>>
+		<br><br>
+		<<if _robin.trauma gte 40>>
+			Robin paints one letter, then looks at you before starting the next. When <<he>> finishes, <<he>> puts the brush down and reads <<his>> name across the front without speaking.
+		<<else>>
+			"Mine?" Robin asks. <<He>> smiles, takes the brush, and paints <<his>> name across the front in uneven letters. When <<he>> finishes, <<he>> steps aside to look at it again.
+		<</if>>
+		<<npcincr Robin dom 2>><<npcincr Robin love 1>><<ggdom>><<glove>><<ltrauma>><<trauma -4>>
+	<<case "neutral">>
+		<<set $robinStand.named to _cold ? "The Little Kettle" : "The Yellow Parasol">>
+		<<speechresolve>>
+		<<if _speechAttitudeResolved is "shy">>
+			"M-maybe choose something simple," you say. "A name for the stand, not for you."
+		<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+			"You could give the stand its own name," you say. "Then people don't need to know who runs it."
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"Give the stand a name of its own," you say. "Something anyone can ask for without knowing you first."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Keep your name out of it," you say. "Give the stand a simple name people will remember."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Don't put your name on it if that makes you nervous," you say. "Call the stand something else."
+		<<else>>
+			"Give the stand its own name," you say. "Something people can ask for without knowing who runs it."
+		<</if>>
+		<br><br>
+		Robin paints the new name carefully. When <<he>> finishes, <<he>> lowers <<his>> shoulders and puts the brush down. "I like that people can just... come to the stand," <<he>> says. "Not to me."
+		<<npcincr Robin love 2>><<glove>><<ltrauma>><<lstress>><<trauma -4>><<stress -6>>
+	<<case "both">>
+		<<set $robinStand.named to "Robin & Co.">>
+		<<speechresolve>>
+		<<if _speechAttitudeResolved is "shy">>
+			"C-Could you put both of us on it?" you ask. "If you want to."
+		<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+			"Put both of us on it," you say. "I helped too."
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"Why not put both of us on it?" you say. "Robin and company."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Put both of us on it," you say. "Robin and company. That sounds proper."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Put me on it too," you say. "I've helped with this stand too. Give me the '& Co.'"
+		<<else>>
+			"Put both of us on it," you say. "Robin and company."
+		<</if>>
+		<br><br>
+		<<if _robin.trauma gte 40>>
+			Robin raises the brush, then pauses before touching the wood. "Both of us," <<he>> repeats. <<He>> looks at you once more, then starts painting before you can change your answer.
+		<<else>>
+			"And Co.," <<he>> reads back, grinning. "That's you. You're Co." <<He>> takes <<his>> time with these letters, keeping them straighter than the ones already painted on the stall.
+		<</if>>
+		<<npcincr Robin love 3>><<npcincr Robin dom 1>><<gglove>><<gdom>><<ltrauma>><<lstress>><<trauma -6>><<stress -6>>
+	<<default>>
+		<<speechresolve>>
+		<<if _speechAttitudeResolved is "shy">>
+			"I-I think you should choose," you say, pushing the paint back towards <<him>>. "It's your stand."
+		<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "docile")>>
+			"You should choose the name," you say. "The stand belongs to you."
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"The choice should be yours," you say, returning the paint. "You're the one running the stand."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Your stand, your choice," you say, pushing the paint back towards <<him>>. "Pick something."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"I'm not naming your stand for you," you say. "Pick one yourself."
+		<<else>>
+			"It's your stand," you say, handing the paint back. "You should choose the name."
+		<</if>>
+		<br><br>
+		<<if C.npc.Robin.dom gte 60>>
+			<<set $robinStand.named to _cold ? "Robin's Hot Chocolate" : "Robin's Lemonade">>
+			Robin looks at the empty space on the front, then starts painting <<his>> own name. When <<he>> finishes, <<he>> turns towards you with <<his>> chin raised. "Don't laugh."
+			<<npcincr Robin dom 3>><<ggdom>>
+		<<else>>
+			<<set $robinStand.named to _cold ? "Hot Drinks" : "Cold Drinks">>
+			Robin keeps looking between the paint and the empty space on the stand. After a while, <<he>> writes the simplest name <<he>> can think of.
+			<br><br>
+			"It's honest," <<he>> says when <<he>> notices your expression. <<He>> keeps the brush in <<his>> hand as if <<he>> might change it, but leaves the name where it is.
+			<<npcincr Robin dom 1>><<gdom>>
+		<</if>>
+		<<npcincr Robin love 1>><<glove>><<ltrauma>><<trauma -3>>
+<</switch>>
+<br><br>
+<span class="gold">The stand is now called <<print $robinStand.named>>.</span>
+<span class="green">Customers remember a named stand more easily, increasing its weekly earnings.</span>
+<br><br>
+<<robinStandOptions $robinStandVenue>>
+
+:: Robin Stand Nude Start
+<<endevent>>
+<<run ensureRobinNudeAd()>><<robinStandLocation $robinNudeAd.venue>><<effects>>
+<<npc Robin>><<person1>>
+<<set _robin to statusCheck("Robin")>>
+<<if ensureRobinStand().nudeRounds gte 1>>
+	You tell Robin that you will bring customers over the same way as before.
+	<br><br>
+	<<if _robin.trauma gte 40>>
+		Robin nods while arranging the cups instead of looking at you. "Just... don't go far. Come back if anyone bothers you."
+	<<else>>
+		"I still can't believe that works," <<he>> says, already lining up cups. "I'll have a batch ready for when they get here."
+	<</if>>
+<<else>>
+	<<speechresolve>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"I-I could get people to look," you say, plucking at the hem of your clothes. "At me, I mean. And then they'd see the stand."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "docile")>>
+		"I have an idea," you say. "People look at me anyway. I could give them a reason to look this way."
+	<<elseif _speechAttitudeResolved is "flamboyant">>
+		"Darling, forget the sign," you say, sweeping a hand at the <<print $robinNudeAd.venue is "park" ? "path" : "sand">>. "I'll be the advertisement."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"I can bring them over," you say. "Keep the cups ready and let me handle the crowd."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Your sign's rubbish," you say. "Watch. I'll get you a queue in ten minutes."
+	<<else>>
+		"Let me try something," you say. "People will come over. Just keep pouring."
+	<</if>>
+	<br><br>
+	Robin nods at first. Then <<he>> looks at your clothes, looks back at you, and realises that you mean taking them off. <<He>> opens <<his>> mouth to answer, but no words come out.
+	<br><br>
+	<<if _robin.trauma gte 40>>
+		"You don't have to do that for me," <<he>> says, gripping the edge of the stand. "But... if you want to. Please stay where I can see you."
+	<<elseif _robin.dom gte 60>>
+		"You're serious." Robin laughs and rubs the back of <<his>> neck. "Okay. I'm not going to pretend I understand it, but it's your choice. I'll keep the cups ready."
+	<<else>>
+		"H-here? In front of everyone?" Robin's cheeks turn red. <<He>> looks down and starts arranging the cups in rows. "If you're sure. I'm not going to argue if it brings customers over."
+	<</if>>
+<</if>>
+<br><br>
+<<strip>>
+You remove your clothes beside the stand, fold them, and place them behind the counter.
+<<if $robinNudeAd.venue is "park">>
+	Cold air reaches your bare skin as soon as the last piece comes off, making you tense your shoulders.
+<<else>>
+	The breeze from the sea passes over your bare skin as you step away from the stand.
+<</if>>
+<<exhibitionism5>>
+<br><br>
+<<link [[Work the crowd|Robin Stand Nude Round]]>><<endevent>><</link>>
+<br>
+
+:: Robin Stand Nude Round
+<<run ensureRobinNudeAd()>><<location $robinNudeAd.venue>><<effects>>
+<<set _outcome to robinStandNudeOutcome()>>
+<<set _round to $robinNudeAd.rounds>>
+<<set _income to robinStandNudeRound()>>
+<<crimeUp 30 "exposure">>
+<<famebusiness 2>><<fameexhibitionism 6>>
+<<if _round is 0>>
+	You walk past the <<print $robinNudeAd.venue is "park" ? "benches" : "towels">> without any clothes on.
+	<<flaunting>> you slow your pace so people have time to notice you, then turn back towards Robin's stand once several are watching.
+<<elseif _round lte 2>>
+	You walk out again. Several people recognise you from the earlier round, and others turn to see what they are looking at. Before you reach the far side of the area, people are already following you back towards the stand.
+<<else>>
+	You only need to walk a short distance now. People notice you near the stand and begin following before you turn back.
+<</if>>
+<br><br>
+<<if _round is 0>>
+	The first few people who follow you stop at the counter and order a <<robinStandDrink $robinNudeAd.venue>> while continuing to look at you.
+<<elseif _round lte 2>>
+	The queue at Robin's stand is twice as long as before. Several people buy another cup after finishing the first so they can stay near the stand.
+<<else>>
+	Robin fills one cup after another without stopping. <<print $robinNudeAd.venue is "park" ? "Steam rises from the hot chocolate" : "Water from the cold cups wets the counter">> while more coins go into the money tin.
+<</if>>
+<br><br>
+<<if _income gte 1>>
+	<span class="green">Robin takes £<<print _income>></span> while the crowd stays near the stand to watch you.
+<<else>>
+	The people around the stand have stopped buying drinks. They remain nearby because they are watching you.
+<</if>>
+<br><br>
+<<if _outcome is "molested">>
+	<<generate1>><<person1>>
+	A <<person>> leaves the crowd and steps directly in front of you, blocking the way back to the stand.
+	"You've been showing everyone all afternoon," <<he>> says as <<he>> reaches towards you. <span class="purple">"My turn."</span>
+	<<gstress>><<stress 6>>
+	<br><br>
+	<<link [[Next|Robin Stand Nude Molestation]]>><<set $molestationstart to 1>><</link>>
+	<br>
+<<elseif _outcome is "caught">>
+	<<generate1>><<person1>>
+	<<if $robinNudeAd.venue is "park">>
+		A park keeper pushes through the people around you with a radio in <<his>> hand. "Right. That's enough of that." <<He>> points towards Robin's stand. "Get dressed, or I call it in."
+	<<else>>
+		A lifeguard blows <<his>> whistle several times until people move aside. "Clothes," <<he>> says, pointing towards Robin's stand. "Now, or I'm calling the police."
+	<</if>>
+	<br><br>
+	People begin walking away after the official sends you back to the stand.
+	<br><br>
+	<<link [[Get dressed|Robin Stand Nude End]]>><<endevent>><<set $phase to "caught">><</link>>
+	<br>
+<<else>>
+	<<if robinStandNudeCanContinue()>>
+		You could go out again. <span class="green">More people gather after every round</span>, but staying out longer also gives someone more chances to approach you.
+		<br><br>
+		<<link [[Keep working the crowd (0:20)|Robin Stand Nude Round]]>><<pass 20>><</link>><<crime "exposure">>
+		<br>
+	<<else>>
+		Almost everyone who wanted a drink has already bought one. Going out again will not bring Robin more customers.
+		<br><br>
+	<</if>>
+	<<link [[Get dressed|Robin Stand Nude End]]>><<set $phase to "stopped">><</link>>
+	<br>
+<</if>>
+
+:: Robin Stand Nude Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>><<set $enemyanger += 50>>
+	<<enable_rescue>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<alarmstate>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Robin Stand Nude Molestation Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Robin Stand Nude Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Robin Stand Nude Molestation Finish
+<<run ensureRobinNudeAd()>><<location $robinNudeAd.venue>><<effects>>
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	<<He>> steps back into the crowd without a word, leaving you where you stand.
+	<br><br>
+<<elseif $enemyhealth lte 0>>
+	<<He>> bends forward after the fight, then pushes through the people behind <<him>> to get away. A few people clap as <<he>> leaves.
+	<br><br>
+<<elseif $finish is 1>>
+	"Forget it," <<he>> says before releasing you and stepping away.
+	<br><br>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	You cannot keep fighting.
+	<br><br>
+	<<set $rescued += 1>>
+	You shout for help. Several people in the crowd stop watching and turn towards the <<person>> instead. <<He>> looks around at them, releases you, then backs away.
+	<br><br>
+<</if>>
+<<endcombat>>
+<<link [[Get dressed|Robin Stand Nude End]]>><<clotheson>><<set $phase to "molested">><</link>>
+<br>
+
+:: Robin Stand Nude End
+<<run ensureRobinNudeAd()>><<robinStandLocation $robinNudeAd.venue>><<effects>>
+<<npc Robin>><<person1>>
+<<set _robin to statusCheck("Robin")>>
+<<set _earned to $robinNudeAd.earned>>
+<<set _rounds to $robinNudeAd.rounds>>
+<<set _venue to $robinNudeAd.venue>>
+You collect your clothes from behind the stand and put them back on.
+<br><br>
+<<if $phase is "molested">>
+	<<if _robin.trauma gte 40>>
+		Robin comes around the stand as soon as you return. <<He>> stays beside you without speaking while you put your clothes back on and slow your breathing.
+		<<ltrauma>><<lstress>><<trauma -4>><<stress -6>>
+	<<else>>
+		"I saw what happened," Robin says, placing a cup in your hands. "I should have shouted sooner. I'm sorry."
+		<<ltrauma>><<lstress>><<trauma -4>><<stress -6>>
+	<</if>>
+	<<npcincr Robin love 1>><<glove>>
+<<elseif $phase is "caught">>
+	<<if _robin.trauma gte 40>>
+		"I thought we were going to be in trouble," Robin says while watching the direction the official left. <<He>> checks the money tin, then lowers <<his>> shoulders. "At least the stand did well."
+	<<else>>
+		"Well," Robin says, "we're definitely not getting a permit now." <<He>> presses <<his>> lips together, but starts laughing before <<he>> can finish counting the money.
+	<</if>>
+<<else>>
+	<<if _robin.trauma gte 40>>
+		Robin watches while you finish dressing, then breathes out slowly. "That was a lot of people," <<he>> says. "But they were nice. Mostly."
+	<<elseif _rounds gte 4>>
+		Robin is still counting the money when you return. <<He>> loses track twice and starts again from the first coin. "I've never had a day like this," <<he>> says.
+	<<else>>
+		"Thank you," Robin says. <<He>> looks at the crowd moving away, then back at you. "I don't think I could ever do that. But thank you."
+	<</if>>
+	<<npcincr Robin love 1>><<glove>>
+<</if>>
+<br><br>
+<<if _earned gte 1>>
+	<span class="green">Robin made £<<print _earned>> over <<print _rounds>> <<print _rounds is 1 ? "round" : "rounds">>.</span>
+	<br><br>
+<</if>>
+<<run delete $robinNudeAd>>
+<<robinStandOptions _venue>>
+
+:: Robin Stand Event Widgets [widget]
+<<widget "robinStandOptions">>
+	<<if _args[0] is "park">>
+		<<robinChocolateOfferHelp>>
+	<<else>>
+		<<lemonade_stand_options>>
+	<</if>>
+<</widget>>
+
+<<widget "robinStandLocation">>
+	<<if _args[0] is "park">>
+		<<set $outside to 0>><<set $location to "park">>
+	<<else>>
+		<<location "beach">>
+	<</if>>
+<</widget>>
+
+<<widget "robinStandDrink">><<if _args[0] is "park">>hot chocolate<<else>>lemonade<</if>><</widget>>
+
+<<widget "robinStandQuietEvent">>
+	<<set $_venue to _args[0]>>
+	<<run ensureRobinStand()>>
+	<<set $_quietPool to ["regular", "till", "child", "future"]>>
+	<<if $robinStand.nudeRounds gte 1 and !$daily.robin.standRecognised>>
+		<<run $_quietPool.push("recognised")>>
+	<</if>>
+	<<if $balloonStand.open is true and $_venue is "beach">>
+		<<run $_quietPool.push("rival")>>
+	<</if>>
+	<<if $_venue is "park">>
+		<<run $_quietPool.push("cold")>>
+	<<else>>
+		<<run $_quietPool.push("heat")>>
+	<</if>>
+	<<switch $_quietPool.random()>>
+		<<case "regular">>
+			<<generate2>><<person2>>
+			A <<person>> walks up to the stand and places the exact payment on the counter without saying an order. Robin sees <<him>> coming and starts pouring before <<he>> reaches the counter.
+			<br><br>
+			"That's my Saturday <<personsimple>>," <<person1>>Robin says after <<person2>><<he>> leaves. <<person1>>"Same time, same order, every week. I still don't know <<person2>><<his>> name." <<person1>><<He>> smiles while wiping the counter.
+			<<endevent>><<npc Robin>><<person1>>
+		<<case "till">>
+			Robin counts the money under the counter twice. <<His>> lips move as <<he>> adds the coins, then <<he>> writes the total on the inside of <<his>> wrist.
+			<br><br>
+			<<set $_wish to robinStandAvailablePurchases()>>
+			<<if $_wish.length and $robinmoney lt $_wish[0].cost>>
+				"I need £<<print Math.max($_wish[0].cost - Math.max($robinmoney, 0), 0)>> more," <<he>> says, looking at the number on <<his>> wrist. "That's all I need for the <<print $_wish[0].name>>."
+			<<elseif $_wish.length>>
+				"I can actually afford the <<print $_wish[0].name>> now," <<he>> says. <<He>> checks the number on <<his>> wrist again before closing the tin.
+			<<else>>
+				"I keep counting it," <<he>> admits. "I don't have anything left to save for. I'm not used to that."
+			<</if>>
+		<<case "child">>
+			<<generatey2>><<person2>>
+			A young <<person>> stands on tiptoe to see over the counter and puts <<his>> coins down. Robin counts them, and the child lowers <<his>> head when there is not enough money for a cup.
+			<br><br>
+			Robin pushes the coins back, pours a full cup, then places it in front of <<him>>. <<person1>>"Staff discount," <<he>> says seriously. "You're staff now."
+			<<npcincr Robin dom 1>><<gdom>><<ltrauma>><<trauma -2>>
+			<<endevent>><<npc Robin>><<person1>>
+		<<case "future">>
+			<<if $robinStand.selfSufficient is 1>>
+				"I keep expecting to fall behind again," Robin says, watching the <<print $_venue is "park" ? "path" : "water">>. "But I'm still keeping up with everything."
+			<<elseif $robinpaid is 1>>
+				"When I don't have to give Bailey money from this any more, I want a second stand," Robin says. "Two stands. You could run one." <<He>> looks down at the counter. "Sorry. I shouldn't decide that for you."
+			<<else>>
+				"Every cup pays off a little more of what I owe," Robin says. <<He>> taps one finger against the money tin. "It still feels slow, but I can see the number getting smaller."
+			<</if>>
+			<<lstress>><<stress -3>>
+		<<case "recognised">>
+			<<set $daily.robin.standRecognised to 1>>
+			<<generate2>><<person2>>
+			A <<person>> buys a <<robinStandDrink $_venue>>, but stays at the counter and keeps looking at you. "It <i>is</i> you," <<he>> says. "My mate said you'd be here."
+			<br><br>
+			<<He>> buys another cup, looks at you again, then finally leaves.
+			<<famebusiness 2>><<fameexhibitionism 2>>
+			<<set $robinmoney += 3>>
+			<br><br>
+			<<endevent>><<npc Robin>><<person1>>
+			Robin waits until <<person2>><<he>> walks away from the stand and joins the other people nearby. <<person1>>"They came back because of you," <<he>> says. "Not because of the drink. I don't know how I feel about that."
+		<<case "rival">>
+			Robin glances across at the popcorn stall and away again.
+			<br><br>
+			<<if $balloonStand.robin.status is "helped">>
+				"The popcorn seller sent me three customers this morning," <<he>> says. "I sent two back. I think that's how it works."
+			<<elseif $balloonStand.robin.status is "sabotaged">>
+				"The popcorn seller won't look at me," <<he>> says quietly. "I don't know what I did."
+			<<else>>
+				"I should say hello to the popcorn <<personsimple>> properly one day," <<he>> says. "We're the only two out here when it rains."
+			<</if>>
+		<<case "heat">>
+			The afternoon gets hotter. Robin uses the last of the ice, then the last clean cup, and starts washing used cups in a bucket so <<he>> can keep serving.
+			<br><br>
+			"Best day I've had," <<he>> says, wiping sweat from <<his>> forehead with <<his>> sleeve. "I hate it. It's the best day I've had."
+			<<set $robinmoney += 8>>
+		<<case "cold">>
+			The air gets colder as the afternoon continues, and people hurry along the path with their hands in their pockets. Several slow down when they smell the hot chocolate and turn towards the stand.
+			<br><br>
+			Robin holds the ladle with both hands between customers. "I can't feel my fingers," <<he>> says, smiling as <<he>> points towards the money tin. "Look at the tin."
+			<<set $robinmoney += 8>>
+	<</switch>>
+	<br><br>
+<</widget>>
+
+<<widget "robinStandCompanyEvent">>
+	<<set $_venue to _args[0]>>
+	<<if $pleasure gte $pleasuremax>>
+		<<if $_venue is "park">>
+			You try to answer, but you can no longer form the words.
+		<<else>>
+			You hear Robin speaking, but cannot follow what <<he>> is saying.
+		<</if>>
+		<<orgasm>>
+		Robin quickly turns towards the cups, but <<his>> cheeks redden and <<he>> keeps <<his>> eyes on the counter.<<npcincr Robin lust 1>>
+		<br><br>
+	<</if>>
+	<<set $_roll to random(1, 100)>>
+	<<if $_roll lte 25 and !$daily.robin.standHaggle>>
+		<<robinStandHaggleIntro $_venue>>
+	<<elseif $_roll lte 45 and !$daily.robin.standSpill>>
+		<<robinStandSpillIntro $_venue>>
+	<<elseif $_roll lte 80>>
+		<<robinStandQuietEvent $_venue>>
+		Robin finishes serving the next customer before turning back to you. "Thank you for staying with me," <<he>> says.
+		<br><br>
+		<<robinStandOptions $_venue>>
+	<<else>>
+		After serving another customer, Robin rests <<his>> hands on the counter and looks at you. "Thank you for staying with me," <<he>> says.
+		<br><br>
+		<<robinStandOptions $_venue>>
+	<</if>>
+<</widget>>
+
+<<widget "robinStandHaggleIntro">>
+	<<set $daily.robin.standHaggle to 1>>
+	<<set $robinStandVenue to _args[0]>>
+	<<generate2>><<person2>>
+	A <<person>> drains <<his>> cup at the counter, then holds it back out.
+	<<if _args[0] is "park">>
+		"Top up. It was half froth."
+	<<else>>
+		"Top up. It was mostly ice."
+	<</if>>
+	<br><br>
+	<<person1>>"Oh—! Um..." Robin looks at the cup, then at the queue building behind <<person2>><<him>>. "It's <<print _args[0] is "park" ? "two pounds" : "a pound">> a cup. I'm sorry."
+	<br><br>
+	"For <i>that</i>?" The <<person2>><<person>> doesn't move, and doesn't lower <<his>> arm. Someone further back in the queue sighs and walks off.
+	<br><br>
+	<<if displayDefiantOption(300)>>
+		<<link [[Tell <<him>> the price is the price|Robin Stand Haggle Firm]]>><<wolfDefiant 300>><<def 1>><</link>><<defianttext 300>>
+		<br>
+	<</if>>
+	<<if hasSexStat("promiscuity", 1)>>
+		<<link [[Charm <<him>> into paying|Robin Stand Haggle Charm]]>><</link>><<promiscuous1>>
+		<br>
+	<</if>>
+	<<link [[Let Robin handle it|Robin Stand Haggle Robin]]>><</link>>
+	<br>
+<</widget>>
+
+<<widget "robinStandSpillIntro">>
+	<<set $daily.robin.standSpill to 1>>
+	<<set $robinStandVenue to _args[0]>>
+	<<if _args[0] is "park">>
+		Robin lifts the pot, but it slips from <<his>> hands and tips across the inside of the stall. Most of the hot chocolate pours over the counter and floor before <<he>> can lift it upright again.
+	<<else>>
+		Robin reaches across the counter and knocks the jug over with <<his>> arm. Most of the lemonade pours into the sand, along with the last cut lemons.
+	<</if>>
+	<br><br>
+	Robin looks at the spill, then at the customers waiting in front of the stand. "That's— that was the rest of the afternoon," <<he>> says. The people at the front begin stepping away when they realise there is almost nothing left to serve.
+	<br><br>
+	<<if setup.inflation.canAfford(1500, "robin")>>
+		<<link [[Buy replacement stock (<<printprice 1500>>)|Robin Stand Spill Buy]]>><<money -1500 "robin">><<pass 15>><</link>>
+		<br>
+	<<else>>
+		<span class="black">Buy replacement stock (<<printprice 1500>>)</span>
+		<br>
+	<</if>>
+	<<link [[Help <<him>> make another batch (0:30)|Robin Stand Spill Help]]>><<pass 30>><</link>>
+	<br>
+	<<link [[Tell <<him>> to sell what's left|Robin Stand Spill Sell]]>><</link>>
+	<br>
+<</widget>>
+
+<<widget "robinStandBusinessBeat">>
+	<<run ensureRobinStand()>>
+	<<set $_beatPool to ["queue"]>>
+	<<if $robinStand.named>><<run $_beatPool.push("named")>><</if>>
+	<<if $robinStand.nudeRounds gte 3>><<run $_beatPool.push("reputation")>><</if>>
+	<<if $robinStand.tier gte 3>><<run $_beatPool.push("fixture")>><</if>>
+	<<if $robinStand.skill gte 600>><<run $_beatPool.push("practised")>><</if>>
+	<<if $robinStand.selfSufficient isnot 1 and $robinpaid isnot 1>><<run $_beatPool.push("owing")>><</if>>
+	<<switch $_beatPool.random()>>
+		<<case "named">>
+			Someone asks for "the usual" and uses the stand's name instead of Robin's. Robin starts pouring immediately, then pauses after realising what the customer called it.
+		<<case "reputation">>
+			Two people in the queue keep looking at you instead of the menu. Robin notices and prepares their drinks before either of them finishes ordering.
+		<<case "fixture">>
+			A <<personsimple>> asks what time the stand opens tomorrow. Robin pauses before answering, then looks at you after the customer leaves. "I have opening hours now."
+		<<case "practised">>
+			Robin listens to an order, pours the drink, takes the payment, then counts the correct change into the customer's hand without stopping to check what <<he>> is doing.
+		<<case "owing">>
+			Robin puts part of each payment into a separate tin without being reminded. That money is for what <<he>> still owes.
+		<<default>>
+			Customers keep arriving while you talk. Robin answers you between orders without making anyone wait, something <<he>> struggled to do when the stand first opened.
+	<</switch>>
+	<br><br>
+<</widget>>
+
+<<widget "robinStandNudeLink">>
+	<<if robinStandNudeEligible()>>
+		<<skinicon "strip">><<link [[Advertise with nothing on (0:20)|Robin Stand Nude Start]]>><<run robinStandNudeStart(_args[0])>><<pass 20>><</link>><<exhibitionist5>><<promiscuous2>><<crime "exposure">>
+		<br>
+	<</if>>
+<</widget>>

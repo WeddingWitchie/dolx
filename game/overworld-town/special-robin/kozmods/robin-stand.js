@@ -9,6 +9,8 @@
  *   upgrades        array of owned upgrade ids (shared between lemonade/hot chocolate)
  *   skill           0..1000, Robin's serving/stand skill
  *   helpCount       times the player helped at the stand (gates auto-upgrades)
+ *   nudeRounds      lifetime naked advertising rounds, which give the stand a reputation of its own
+ *   named           the name painted on the stand, "" until Robin picks one
  *   lastIncome      last weekly income in £ (drives the self-sufficiency scene)
  *   selfSufficient  0|1, set when Robin takes their rent back from the player
  *   notice          name of the last thing Robin bought on their own, "" if none
@@ -72,6 +74,9 @@ function ensureRobinStand() {
 	if (!Number.isFinite(stand.skill)) stand.skill = 0;
 	stand.skill = Math.clamp(Math.round(stand.skill), 0, 1000);
 	if (!Number.isFinite(stand.helpCount)) stand.helpCount = 0;
+	/* Lifetime naked advertising rounds. See robin-stand-nude.js. */
+	if (!Number.isFinite(stand.nudeRounds)) stand.nudeRounds = 0;
+	if (typeof stand.named !== "string") stand.named = "";
 	if (!Number.isFinite(stand.saveWeeks)) stand.saveWeeks = 0;
 	if (!Number.isFinite(stand.lastIncome)) stand.lastIncome = 0;
 	if (stand.selfSufficient !== 1) stand.selfSufficient = 0;
@@ -114,6 +119,8 @@ function robinStandBaseIncome() {
 		if (upgrade) income += upgrade.income;
 	});
 	income *= 1 + stand.skill / 2000;
+	/* A named, painted stand reads as a real business rather than a kid with a table. */
+	if (stand.named) income *= 1.05;
 	return Math.round(income);
 }
 window.robinStandBaseIncome = robinStandBaseIncome;
@@ -175,6 +182,13 @@ function robinStandAutoUpgradeEligible() {
 	return V.robinpaid === 1 || stand.selfSufficient === 1 || stand.helpCount >= 8 || (V.robinGivenTotal || 0) >= 400;
 }
 window.robinStandAutoUpgradeEligible = robinStandAutoUpgradeEligible;
+
+/* Robin is ready to put a name on the stand once it is a real fixture rather than a table. */
+function robinStandNamingReady() {
+	const stand = ensureRobinStand();
+	return !stand.named && stand.tier >= 3 && V.robin.timer.hurt === 0 && !V.robinbreakupCooldown;
+}
+window.robinStandNamingReady = robinStandNamingReady;
 
 function robinStandSelfSufficiencyReady() {
 	const stand = ensureRobinStand();

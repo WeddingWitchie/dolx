@@ -69,13 +69,17 @@ Robin stares at the money in <<his>> hands, then back at you.
 
 
 :: Robin Stand Business
-<<if $robinStandVenue is "park">><<set $outside to 0>><<set $location to "park">><<else>><<location "beach">><</if>><<effects>>
+<<robinStandLocation $robinStandVenue>><<effects>>
 <<npc Robin>><<person1>>
 <<run ensureRobinStand()>>
 <<set _robin to statusCheck("Robin")>>
 <<set _tier to setup.robinStand.tiers[$robinStand.tier]>>
 <<set _drinkKey to $robinStandVenue is "park" ? "cocoa" : "lemonade">>
-You look over Robin's <<print _tier.name>> while <<he>> serves a customer.
+<<if $robinStand.named>>
+	You look over <span class="gold"><<print $robinStand.named>></span> — Robin's <<print _tier.name>>, name painted along the front — while <<he>> serves a customer.
+<<else>>
+	You look over Robin's <<print _tier.name>> while <<he>> serves a customer.
+<</if>>
 <<if $robinStand.skill gte 800>>
 	<<His>> hands move with confidence, pouring and counting change without a wasted motion.
 <<elseif $robinStand.skill gte 500>>
@@ -86,6 +90,7 @@ You look over Robin's <<print _tier.name>> while <<he>> serves a customer.
 	<<He>> fumbles a little with the change, apologising to the customer.
 <</if>>
 <br><br>
+<<robinStandBusinessBeat>>
 "I made about <span class="gold">£<<print $robinStand.lastIncome>></span> last weekend,"
 <<he>> says<<if $robinStand.lastIncome gte 1000>>, unable to keep the pride out of
 <<his>> voice<<elseif $robinStand.lastIncome lte 200>>, shoulders slumping a little<</if>>.
@@ -142,18 +147,18 @@ You look over Robin's <<print _tier.name>> while <<he>> serves a customer.
 	<br><br>
 <</if>>
 <<robinOutfitOptions>>
+<<if robinStandNamingReady()>>
+	<<icon "assignment.png">><<link [[Help Robin name the stand (0:20)|Robin Stand Naming]]>><<pass 20>><<endevent>><</link>><<note "+5% base income a week" "green">>
+	<br>
+<</if>>
 <<if !$daily.robin.standTrain and $robinStand.skill lt 1000>>
 	<<icon "kitchen-messy.png">><<link [[Give Robin pointers (0:30)|Robin Stand Train]]>><<pass 30>><<endevent>><</link>><<note "Trains Robin's serving skill" "green">>
 	<br>
 <</if>>
-<<if $robinStandVenue is "park">>
-	<<robinChocolateOfferHelp>>
-<<else>>
-	<<lemonade_stand_options>>
-<</if>>
+<<robinStandOptions $robinStandVenue>>
 
 :: Robin Stand Buy
-<<if $robinStandVenue is "park">><<set $outside to 0>><<set $location to "park">><<else>><<location "beach">><</if>><<effects>>
+<<robinStandLocation $robinStandVenue>><<effects>>
 <<npc Robin>><<person1>>
 <<run ensureRobinStand()>>
 <<set _boughtTier to $phase is "tier">>
@@ -181,14 +186,10 @@ You look over Robin's <<print _tier.name>> while <<he>> serves a customer.
 	<<npcincr Robin love 1>><<npcincr Robin dom -1>><<glove>><<ldom>>
 <</if>>
 <br><br>
-<<if $robinStandVenue is "park">>
-	<<robinChocolateOfferHelp>>
-<<else>>
-	<<lemonade_stand_options>>
-<</if>>
+<<robinStandOptions $robinStandVenue>>
 
 :: Robin Stand Train
-<<if $robinStandVenue is "park">><<set $outside to 0>><<set $location to "park">><<else>><<location "beach">><</if>><<effects>>
+<<robinStandLocation $robinStandVenue>><<effects>>
 <<npc Robin>><<person1>>
 <<run ensureRobinStand()>>
 <<set $daily.robin.standTrain to 1>>
@@ -215,8 +216,4 @@ You look over Robin's <<print _tier.name>> while <<he>> serves a customer.
 <br><br>
 <span class="gold"><i>Robin seems more capable behind the stand.</i></span>
 <br>
-<<if $robinStandVenue is "park">>
-	<<robinChocolateOfferHelp>>
-<<else>>
-	<<lemonade_stand_options>>
-<</if>>
+<<robinStandOptions $robinStandVenue>>
