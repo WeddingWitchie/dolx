@@ -332,9 +332,11 @@ $(document).on(":passagestart", clothingIdentityChangeCheck);
 function hourlyClothingFemininityCheck(hours = 1) {
 	const currentWornFemininity = getCurrentWornFemininity();
 
-	// Tick the hourly counter
-	V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
-	V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
+	// Tick the hourly counter, excluding sleep so waking outfits aren't outweighed by sleepwear.
+	if (!V.sleepTimePassing) {
+		V.hourlyFemininity += currentWornFemininity > 0 ? 1 : 0;
+		V.hourlyFemininity += currentWornFemininity < 0 ? -1 : 0;
+	}
 
 	/* A chest binder can cause pain over time. Check once per hour, then apply the total pain and show one message. */
 	if (!V.statFreeze && V.worn?.under_upper?.variable === "chestbinder" && V.worn.under_upper.integrity > 0 && V.worn.under_upper.exposed < 1) {
@@ -355,7 +357,7 @@ function hourlyClothingFemininityCheck(hours = 1) {
 	 * Unlike identity dysphoria this one is a standing compulsion, so it does belong on the clock.
 	 */
 	const { genderifyActive, hypnoCrossdressLevel } = clothingCompulsionState();
-	if (genderifyActive || hypnoCrossdressLevel >= 1) {
+	if ((genderifyActive || hypnoCrossdressLevel >= 1) && !V.sleepTimePassing) {
 		if (V.player.gender === "m" && currentWornFemininity < 0) {
 			wikifier("stress", 30 * hours, 1);
 			V.genderificationStressMessage = 1;

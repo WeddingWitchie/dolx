@@ -1941,3 +1941,20 @@ function wearingTidebloomRing() {
 	return V.worn?.rings?.variable === "tidebloom";
 }
 window.wearingTidebloomRing = wearingTidebloomRing;
+
+/*
+ * Use player.perceived_breastsize for the visible bust size.
+ * Refresh before reading, since clothing changes can affect it.
+ */
+function apparentBreastSize() {
+	window.apparentbreastsizecheck();
+	const perceived = V.player?.perceived_breastsize;
+	return Number.isFinite(perceived) ? perceived : Number(V.player?.breastsize) || 0;
+}
+window.apparentBreastSize = apparentBreastSize;
+
+/* True when clothing is hiding some of the PC's bust, so commentary about their chest is reacting to the clothes. */
+function breastsAreBound() {
+	return apparentBreastSize() < (Number(V.player?.breastsize) || 0);
+}
+window.breastsAreBound = breastsAreBound;

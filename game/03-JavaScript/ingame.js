@@ -1508,6 +1508,20 @@ function effectiveDrunk() {
 }
 window.effectiveDrunk = effectiveDrunk;
 
+/*
+ * Difficulty of noticing something slipped into a drink. Checked only for S-grade skulduggery; sober experts always catch it,
+ * while drink and drugs reduce their chances. Very drunk (480+) is the worst case.
+ */
+function drinkWatchDifficulty() {
+	let difficulty = 850;
+	difficulty += Math.clamp(effectiveDrunk() / 480, 0, 1) * 500;
+	difficulty += Math.clamp((Number(V.drugged) || 0) / 2, 0, 150);
+	difficulty -= Math.clamp((Number(V.awareness) || 0) / 10, 0, 100);
+	if (typeof window.pcIsBlinded === "function" && window.pcIsBlinded()) difficulty += 200;
+	return Math.round(Math.clamp(difficulty, 100, 1500));
+}
+window.drinkWatchDifficulty = drinkWatchDifficulty;
+
 function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf = 0) {
 	if (disableModifiers !== 0 || disableStatNerf !== 0) return result;
 	const penalty = fatigueSkillPenaltyFraction();
