@@ -314,9 +314,10 @@ function audienceCompanyGender() {
 	const list = Array.isArray(V.NPCList) ? V.NPCList : [];
 	const present = list.filter(npc => npc && npc.description && (npc.type === undefined || npc.type === "human"));
 	if (present.length < AUDIENCE_MIN_GROUP) return "";
-	const gender = present[0].gender;
+	/* Strap-ons change combat gender to "m", but leave the NPC's pronouns unchanged. */
+	const gender = present[0].pronoun;
 	if (gender !== "m" && gender !== "f") return "";
-	return present.every(npc => npc.gender === gender) ? gender : "";
+	return present.every(npc => npc.pronoun === gender) ? gender : "";
 }
 window.audienceCompanyGender = audienceCompanyGender;
 
