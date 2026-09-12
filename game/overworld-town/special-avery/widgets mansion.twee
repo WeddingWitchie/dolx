@@ -917,7 +917,7 @@
 
 <<widget "avery_housework_assess">>
 	<<avery_rage_assess>>
-	/* Saved route: Avery forgives a missed meal outright, so it no longer feeds his anger */
+	/* Saved route: Avery forgives a missed meal outright, so it no longer feed anger */
 	<<if $avery_fate is "saved" and $avery_mansion.rage.dinner_missed gte 1>>
 		<<set $avery_mansion.rage.assess -= $avery_mansion.rage.dinner_missed>>
 		<<set $avery_mansion.rage.dinner_missed to 0>>
@@ -940,7 +940,7 @@
 		You watch as <<he>> strides up to you.
 	<</if>>
 
-	/* Saved route: Avery has learned to hold himself back, so the same failings raise his rage far less */
+	/* Saved route: Avery has learned to hold himself back, so the same failings raise rage far less */
 	<<set _rageGain to $avery_fate is "saved" ? Math.ceil($avery_mansion.rage.assess / 2) : $avery_mansion.rage.assess>>
 	<<if !$avery_mansion.rage.apologetic>>
 		<<if $avery_mansion.rage.assess gte 18>>
@@ -3114,6 +3114,8 @@
 <<if typeof $averytimespilled isnot "number" or Number.isNaN($averytimespilled)>>
 	<<set $averytimespilled to 0>>
 <</if>>
+	/* Resolve the interrupt early (side-effect free without the argument) so room contents can tell whether an Avery scene is about to take over. */
+	<<avery_mansion_interrupt>>
 	<<if $bus is "avery_pool">>
 		You are beside Avery's pool.
 
@@ -3164,7 +3166,7 @@
 			/* The selected courier can still deliver first, but an available unread letter must never be hidden from the player's actual home. */
 			<<set $xchange.blackmail.courier to "home">>
 		<</if>>
-		<<if $avery_mansion.schedule isnot "return">>
+		<<if $avery_mansion.schedule isnot "return" and !_avery_interrupt>>
 			<<if $xchange.blackmail.conclusionPending>>
 				<span class="gold"><b>NEW!</b></span> <span class="purple">There's an envelope on the floor by the door.</span> It looks like it was slid in from outside.
 				<br>

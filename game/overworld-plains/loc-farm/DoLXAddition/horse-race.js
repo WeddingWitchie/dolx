@@ -316,9 +316,9 @@ setup.horserace = setup.horserace || {};
 			watch: "You look up and down the row. Nobody is coming yet.",
 		},
 		bribe_money: {
-			scene: "The rider is listening, but hasn't agreed to anything yet. You need to close the deal before he loses his nerve or someone walks over.",
+			scene: "The rider is listening, but hasn't agreed to anything yet. Close the deal before nerves get in the way or someone walks over.",
 			quick: "Push the offer harder",
-			careful: "Talk him through it calmly",
+			careful: "Talk through it calmly",
 			watchLabel: "Check who's within earshot",
 			quickSuccess: "The rider stops hesitating and holds out a hand.",
 			quickFail: "The rider hesitates and looks towards the stalls, checking who's around.",
