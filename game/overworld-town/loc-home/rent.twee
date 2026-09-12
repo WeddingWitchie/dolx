@@ -81,6 +81,10 @@
 			<<baileyGripDemand>>
 			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
 			<br>
+			<<if $syndromebailey isnot true>>
+				<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
+				<br>
+			<</if>>
 		<<else>>
 			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
 			<br>
@@ -97,8 +101,8 @@
 				<br>
 			<</if>>
 		<</if>>
-		/* Not while Bailey is relentless (he takes cash only) or while the bank is collecting through him. */
-		<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !(setup.inflation and setup.inflation.baileyAggressive()) and !setup.hbsc.hasLoan()>>
+		/* Keep Stockholm progression available under aggressive rent demands; bank debt still requires money. */
+		<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and ($syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
 			<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
 			<br>
 		<</if>>
@@ -197,6 +201,14 @@
 		<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
 			<<if setup.inflation and setup.inflation.baileyAggressive()>>
 				<<baileyGripDemand>>
+				<<if $syndromebailey isnot true>>
+					<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
+					<br>
+					<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
+						<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
+						<br>
+					<</if>>
+				<</if>>
 				<<if $inRobinsRoom>>
 					<<link [[Pay|Rent Pay Robin]]>><<set $inRobinsRoom to true>><</link>>
 				<<else>>
@@ -213,7 +225,7 @@
 				<<link [[Refuse|Rent Refuse Robin]]>><<def 1>><</link>>
 				<br>
 				/* Already inside the non-relentless branch; only the bank's claim needs excluding here. */
-				<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan()>>
+				<<if ($syndromebaileybuild gte 1 or $baileydefeated gte 5) and !setup.hbsc.hasLoan() and !(setup.inflation and setup.inflation.isEnabled() and ["extreme", "parody"].includes(setup.inflation.tierForWealth()?.id))>>
 					<span class="bailey-red bailey-stockholm"><<link "Offer yourself" "Bailey Offer Yourself">><</link>></span>
 					<br>
 				<</if>>
@@ -883,7 +895,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 
 		<<link [[Pay|Rent Pay]]>><</link>>
 		<br>
-		<<if !(setup.inflation and setup.inflation.baileyAggressive())>>
+		<<if $syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())>>
 			<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
 			<br>
 		<</if>>
@@ -923,7 +935,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 
 		<<link [[Pay|Rent Pay]]>><</link>>
 		<br>
-		<<if !(setup.inflation and setup.inflation.baileyAggressive())>>
+		<<if $syndromebailey isnot true or !(setup.inflation and setup.inflation.baileyAggressive())>>
 			<<link [[Refuse|Rent Refuse]]>><<def 1>><</link>>
 			<br>
 		<</if>>
