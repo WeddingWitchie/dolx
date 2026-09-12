@@ -602,7 +602,7 @@ function getAvailableWardrobeHomes(includeShared = false) {
 	const homeLocations = ["wardrobe", "edensCabin", "alexFarm", "temple", "birdTower", "waterDragonNest"];
 	return homeLocations.filter(location => {
 		const wardrobe = V.wardrobes[location];
-		return wardrobe?.unlocked && (includeShared || V.settings.multipleWardrobes !== "isolated" || location === "wardrobe" || wardrobe.isolated);
+		return wardrobe?.unlocked && (includeShared || !wardrobesIsolated() || location === "wardrobe" || wardrobe.isolated);
 	});
 }
 window.getAvailableWardrobeHomes = getAvailableWardrobeHomes;
@@ -928,27 +928,40 @@ function canTearClothing(slot, item) {
 }
 window.canTearClothing = canTearClothing;
 
-/* Match the wardrobe UI rules when setting $wardrobe_location manually,
- * so clothes are not stored in an inaccessible wardrobe.
- */
+/* "isolated" and "strict" both use separate wardrobes; only changing-room access differs. */
+function wardrobesIsolated() {
+	return V.settings?.multipleWardrobes === "isolated" || V.settings?.multipleWardrobes === "strict";
+}
+window.wardrobesIsolated = wardrobesIsolated;
+
+/* Whether changing rooms can browse other wardrobes. "strict" disables this. */
+function remoteWardrobeAccessAllowed() {
+	return !!V.settings?.multipleWardrobes && V.settings.multipleWardrobes !== "strict";
+}
+window.remoteWardrobeAccessAllowed = remoteWardrobeAccessAllowed;
+
+/* Keep manually set wardrobes accessible. */
 function resolveWardrobeLocation(location) {
+	if (location === "changingRoom") return "wardrobe";
 	if (!location || location === "wardrobe") return "wardrobe";
 	if (!V.settings?.multipleWardrobes) return "wardrobe";
 	const wardrobe = V.wardrobes?.[location];
 	if (!wardrobe) return "wardrobe";
-	if (V.settings.multipleWardrobes === "isolated" && !wardrobe.isolated) return "wardrobe";
+	if (wardrobesIsolated() && !wardrobe.isolated) return "wardrobe";
 	return location;
 }
 window.resolveWardrobeLocation = resolveWardrobeLocation;
 
-/* Moves clothes from unreachable wardrobes back to the orphanage wardrobe.
- * Shared wardrobes and old school pool lockers may contain stuck clothes.
- * Other isolated wardrobes keep their contents.
- */
+/* Moves stuck clothes from unreachable wardrobes back to the orphanage wardrobe. */
 function reclaimStrandedWardrobeItems() {
 	if (!V.wardrobes || typeof V.wardrobes !== "object" || Array.isArray(V.wardrobes)) return;
 	if (!V.wardrobe || typeof V.wardrobe !== "object") return;
-	const lockers = ["schoolBoys", "schoolGirls"];
+	const lockers = ["schoolBoys", "schoolGirls", "changingRoom"];
+	/* Sydney's changing room now uses the public beach wardrobe, including saved outfits. */
+	if (V.wardrobes.changingRoom) V.wardrobes.changingRoom.unlocked = false;
+	for (const outfit of V.outfit || []) {
+		if (outfit.location === "changingRoom") outfit.location = "wardrobe";
+	}
 	for (const name of Object.keys(V.wardrobes)) {
 		/* "shopReturn" is a string, "wardrobe" is a metadata-only stub, "inventory" is the handbag */
 		if (name === "shopReturn" || name === "wardrobe" || name === "inventory") continue;

@@ -1483,7 +1483,7 @@ function settingsObjects(type) {
 					fertilityCycleEnabled: { bool: true, displayName: "Menstrual cycle:" },
 					arousalMoanEnabled: { bool: true, displayName: "Moans and grunts:" },
 					toyMultiplePenetrationEnabled: { bool: true, displayName: "Multiple penetration with sex toys:" },
-					multipleWardrobes: { strings: [false, "isolated"], displayName: "Multiple wardrobes:" }, //, "all"
+					multipleWardrobes: { strings: [false, "isolated", "strict"], displayName: "Multiple wardrobes:" }, //, "all"
 					maleChanceSplit: { bool: true, displayName: "NPC attraction split by gender appearance:" },
 					incompletePregnancyEnabled: { bool: true, displayName: "Incomplete pregnancy content:" },
 					npcPregnancyEnabled: { bool: true, displayName: "Generic NPC pregnancy:" },

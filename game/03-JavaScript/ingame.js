@@ -1300,9 +1300,10 @@ function clothesReturnLocation(item, type) {
 	// prettier-ignore
 	if (
 		!lastTaken ||
-		(V.settings.multipleWardrobes !== "all" && V.settings.multipleWardrobes !== "isolated") ||
+		(V.settings.multipleWardrobes !== "all" && !wardrobesIsolated()) ||
 		!V.wardrobes[lastTaken] ||
-		!V.wardrobes[lastTaken].unlocked
+		!V.wardrobes[lastTaken].unlocked ||
+		lastTaken === "changingRoom"
 	) {
 		lastTaken = "wardrobe";
 	}

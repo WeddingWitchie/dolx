@@ -154,12 +154,16 @@
 	<<set $wardrobe_location to _args[0]>>
 	<<set _store_location to _args[1] || _args[0]>>
 	<<set $_indent to _args[2] || false>>
-	<<wardrobeSelection true>>
+	<<set $wardrobe_location to resolveWardrobeLocation($wardrobe_location)>>
+	<<set _swimWardrobe to $wardrobe_location>>
 	<<for _index, _outfit range $outfit>>
-		<<if (_outfit.location and _outfit.location isnot $wardrobe_location) or !_outfit.type.includes("swim")>>
+		<<if !_outfit.type.includes("swim")>>
 			<<continue>>
 		<</if>>
-		<<capture _index _outfit>>
+		<<if _outfit.location and _outfit.location isnot _swimWardrobe>>
+			<<continue>>
+		<</if>>
+		<<capture _index _outfit _swimWardrobe _store_location>>
 			<<if $_indent>><<ind>><</if>>
 			<<if _outfit.name is currentOutfit()>>
 				<span class="grey"><<print _outfit.name>> (Equipped)</span>
@@ -171,7 +175,9 @@
 					<<set $wearoutfittext to _outfit.name>>
 					<<set $eventskip to 1>>
 					<<set $wear_outfit to _index>>
-					<<set $storeLocation to _args[0]>>
+					/* <<wearoutfit>> runs before the menu is drawn again, so the wardrobe has to be pinned here. */
+					<<set $wardrobe_location to _swimWardrobe>>
+					<<set $storeLocation to _swimWardrobe>>
 				<</link>>
 			<</if>>
 			<br>
@@ -1001,7 +1007,7 @@
 		<<capture $_var>>
 			<label>
 				<<checkbox $_var false true autocheck>> <<print $_name>>
-				<<if (!$settings.multipleWardrobes or ($settings.multipleWardrobes is "isolated" and !$_value.isolated)) and $_label isnot "wardrobe">>
+				<<if (!$settings.multipleWardrobes or (wardrobesIsolated() and !$_value.isolated)) and $_label isnot "wardrobe">>
 					(No access)
 				<</if>>
 			</label> |
@@ -1144,7 +1150,7 @@
 			<<for $_label, $_value range $wardrobes>>
 				<<if $_value.unlocked>>
 					<<set _warning to "">>
-					<<if (!$settings.multipleWardrobes or ($settings.multipleWardrobes is "isolated" and !$_value.isolated)) and $_label isnot "wardrobe">>
+					<<if (!$settings.multipleWardrobes or (wardrobesIsolated() and !$_value.isolated)) and $_label isnot "wardrobe">>
 						<<set _warning to " (No access)">>
 					<</if>>
 					<<set $_locations[$_value.name + _warning] to $_label>>

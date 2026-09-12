@@ -2154,6 +2154,10 @@
 <</widget>>
 
 <<widget "wardrobeSelection">>
+	<<set _nativeWardrobe to resolveWardrobeLocation($wardrobe_location)>>
+	<<if $forceWardrobeLocation and !$debug and !wardrobeReachableFromHere($forceWardrobeLocation, _nativeWardrobe)>>
+		<<unset $forceWardrobeLocation>>
+	<</if>>
 	<<if $forceWardrobeLocation and $settings.multipleWardrobes and $wardrobes[$wardrobe_location]>>
 		<<set $wardrobe_location to $forceWardrobeLocation>>
 	<<else>>
@@ -2167,6 +2171,26 @@
 					<span class="gold"><<print _value.name>></span> |
 				<<else>>
 					<<capture _label>><<link [[_value.name|$passage]]>><<set $forceWardrobeLocation to _label>><</link>> |<</capture>>
+				<</if>>
+			<</for>>
+		</div>
+		<br>
+	<<elseif remoteWardrobeAccessAllowed() and !_args[0]>>
+		<<wardrobeSwitcher _nativeWardrobe>>
+	<</if>>
+<</widget>>
+
+/* Lets changing rooms, lockers, and wardrobes access other reachable wardrobes. */
+<<widget "wardrobeSwitcher">>
+	<<set _wardrobeOptions to accessibleWardrobeOptions(_args[0])>>
+	<<if _wardrobeOptions.length gt 1>>
+		<div class="no-numberify">Wardrobe:
+			<<for _optionIndex, _option range _wardrobeOptions>>
+				<<if _optionIndex gt 0>>|<</if>>
+				<<if $wardrobe_location is _option.key>>
+					<span class="gold"><<print _option.name>></span>
+				<<else>>
+					<<capture _option>><<link [[_option.name|$passage]]>><<set $forceWardrobeLocation to _option.key>><</link>><</capture>>
 				<</if>>
 			<</for>>
 		</div>
@@ -2251,6 +2275,8 @@
 			<<getouticon>><<link [[Leave|Underground Colosseum Washroom]]>><<cleanupOnWardrobeExit>><</link>>
 		<<case "Dance Studio Locker">>
 			<<getouticon>><<link [[Leave|Dance Studio Changing Room]]>><<cleanupOnWardrobeExit>><</link>>
+		<<case "Lake Stash">>
+			<<getouticon>><<link [[Leave|Lake Shore]]>><<cleanupOnWardrobeExit>><</link>>
 		<<case "MMA Gym Locker">>
 			<<getouticon>><<link [[Leave|MMA Gym Changing Room]]>><<cleanupOnWardrobeExit>><</link>>
 		<<case "School Pool Wardrobe">>

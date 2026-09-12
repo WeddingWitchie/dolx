@@ -465,6 +465,12 @@ module.exports = {
 		modLISelected: "readonly",
 		// X-Change / merge-surfaced globals (top-level functions shared across concatenated scripts)
 		resolveWardrobeLocation: "readonly",
+		wardrobesIsolated: "readonly",
+		remoteWardrobeAccessAllowed: "readonly",
+		remoteWardrobeOptions: "readonly",
+		accessibleWardrobeOptions: "readonly",
+		wardrobeReachableFromHere: "readonly",
+		ensureLakeStashWardrobe: "readonly",
 		playerIsXChanged: "readonly",
 		playerIsBreederCreampied: "readonly",
 		ensureBirthId: "readonly",

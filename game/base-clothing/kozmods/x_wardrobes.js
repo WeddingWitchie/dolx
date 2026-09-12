@@ -61,6 +61,66 @@ function ensureColosseumWardrobe() {
 }
 window.ensureColosseumWardrobe = ensureColosseumWardrobe;
 
+/* Rocky alcove for storing wetsuits between dives. */
+function ensureLakeStashWardrobe() {
+	if (!V.wardrobes || typeof V.wardrobes !== "object" || Array.isArray(V.wardrobes)) return;
+	if (!V.wardrobes.lakeStash || typeof V.wardrobes.lakeStash !== "object" || Array.isArray(V.wardrobes.lakeStash)) {
+		V.wardrobes.lakeStash = {};
+	}
+	const locker = V.wardrobes.lakeStash;
+	for (const slot of setup.clothes_all_slots) {
+		if (!Array.isArray(locker[slot])) locker[slot] = [];
+	}
+	if (locker.name === undefined) locker.name = "Lake alcove";
+	if (locker.unlocked === undefined) locker.unlocked = true;
+	if (locker.isolated === undefined) locker.isolated = true;
+	/* Nobody delivers to a hole in a rock, but the player may carry things out of it. */
+	if (locker.shopSend === undefined) locker.shopSend = false;
+	if (locker.transfer === undefined) locker.transfer = true;
+	if (!Number.isFinite(locker.space)) locker.space = 5 * (V.wardrobeMult || 1);
+	if (!Array.isArray(locker.locationRequirement) || !locker.locationRequirement.length) locker.locationRequirement = ["lake"];
+}
+window.ensureLakeStashWardrobe = ensureLakeStashWardrobe;
+
+/* Wardrobes accessible remotely. Requires both shopSend and transfer. Excludes locked wardrobes and isolated-orphanage duplicates. */
+function remoteWardrobeOptions() {
+	const options = [{ key: "wardrobe", name: V.wardrobes?.wardrobe?.name || "Orphanage" }];
+	if (!remoteWardrobeAccessAllowed() || !V.wardrobes) return options;
+	for (const key of Object.keys(V.wardrobes)) {
+		if (key === "wardrobe" || key === "shopReturn" || key === "inventory") continue;
+		const wardrobe = V.wardrobes[key];
+		if (!wardrobe || typeof wardrobe !== "object" || Array.isArray(wardrobe)) continue;
+		if (!wardrobe.unlocked || !wardrobe.transfer || !wardrobe.shopSend) continue;
+		if (Array.isArray(wardrobe.locationRequirement) && wardrobe.locationRequirement.length && !wardrobe.locationRequirement.includes(V.location)) {
+			continue;
+		}
+		if (resolveWardrobeLocation(key) !== key) continue;
+		options.push({ key, name: wardrobe.name || key });
+	}
+	return options;
+}
+window.remoteWardrobeOptions = remoteWardrobeOptions;
+
+/* All wardrobes accessible from the current location, including local-only lockers. */
+function accessibleWardrobeOptions(current) {
+	const local = resolveWardrobeLocation(current || V.wardrobe_location);
+	const localWardrobe = V.wardrobes?.[local];
+	const options =
+		remoteWardrobeAccessAllowed() && localWardrobe?.transfer !== false && !["prison", "asylum", "tower"].includes(V.location) ? remoteWardrobeOptions() : [];
+	if (local && local !== "shopReturn" && local !== "inventory" && !options.some(option => option.key === local)) {
+		const wardrobe = local === "wardrobe" ? V.wardrobes?.wardrobe : V.wardrobes?.[local];
+		if (wardrobe && wardrobe.unlocked) options.unshift({ key: local, name: wardrobe.name || local });
+	}
+	return options;
+}
+window.accessibleWardrobeOptions = accessibleWardrobeOptions;
+
+function wardrobeReachableFromHere(key, current) {
+	if (!key) return false;
+	return accessibleWardrobeOptions(current).some(option => option.key === key);
+}
+window.wardrobeReachableFromHere = wardrobeReachableFromHere;
+
 function getWardrobeItemCount(wardrobeId) {
 	let wardrobe;
 	if (wardrobeId === "wardrobe") {

@@ -446,6 +446,7 @@
 <<widget "lakeclothes">>
 	<<if !$possessed>>
 		<br>
+		<<run ensureLakeStashWardrobe()>>
 		<<set $wardrobe_location to "wardrobe">>
 		<<storeactions "lakeshore">>
 		<<wardrobeSelection true>>
@@ -489,7 +490,19 @@
 		<</if>>
 		//Swimming sets://
 		<br>
-		<<listswimoutfits $wardrobe_location _store_location true>>
+		<<set _swimWardrobes to remoteWardrobeOptions()>>
+		<<if resolveWardrobeLocation("lakeStash") is "lakeStash">>
+			<<run _swimWardrobes.push({key: "lakeStash", name: $wardrobes.lakeStash.name})>>
+		<</if>>
+		<<for _swimOption range _swimWardrobes>>
+			<<if $outfit.some(outfit => outfit.type.includes("swim") && (!outfit.location || outfit.location === _swimOption.key))>>
+				<<if _swimWardrobes.length gt 1>><<print _swimOption.name>>:<br><</if>>
+				<<listswimoutfits _swimOption.key "lakeshore" true>>
+			<</if>>
+		<</for>>
+		<<set $wardrobe_location to "wardrobe">>
+		<br>
+		<<lockericon>><<link [[Rocky alcove|Lake Stash]]>><</link>>
 		<br>
 		<<unset $wearoutfittext>>
 	<</if>>
