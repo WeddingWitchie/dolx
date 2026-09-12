@@ -1305,9 +1305,12 @@ function updateRemoverPillCatalogue() {
 	V.xchange.removerPillCatalogue = [];
 
 	const picks = Math.min(shownTypes, pool.length);
+	// Anti-pills already in the medicine cabinet get one tenth the selection weight.
+	let weightedPool = pool.flatMap(type => Array(V.sexStats?.pills?.pills?.[`SWP Anti-${type} Pill`]?.owned > 0 ? 1 : 10).fill(type));
 
 	for (let i = 0; i < picks; i++) {
-		const type = pool.pluck(); // random unique pick
+		const type = weightedPool.pluck();
+		weightedPool = weightedPool.filter(candidate => candidate !== type); // Keep the two offers distinct, regardless of their weights.
 		for (let j = 0; j < stockPerType; j++) {
 			V.xchange.removerPillCatalogue.push(type);
 		}
