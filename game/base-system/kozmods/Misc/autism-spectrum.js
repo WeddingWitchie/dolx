@@ -1,4 +1,4 @@
-/* globals permanentInsanityTalentLockActive isLiveNPC namedNpcInSlot livesInAveryMansion */
+/* globals permanentInsanityTalentLockActive isLiveNPC namedNpcInSlot livesInAveryMansion isPlayerFishingAlone */
 
 /* Autism Spectrum starting trait: load and capacity, a rotating focused interest, and demand fatigue.
  * Physique and athletics only count as practice at a training location, so travelling does not build fatigue. */
@@ -1380,7 +1380,11 @@ const autismPrivateRooms = Object.freeze([
 	"Docks Gold Tear",
 	"Bedroom",
 	"Bathroom",
+	"Bathroom Brush",
+	"Bath",
 	"Farm Bedroom",
+	"Farm Shed",
+	"Farm Shower",
 	"Flats Poppy Bedroom",
 	"Flats Poppy Bathroom",
 	"School Toilets",
@@ -1389,9 +1393,32 @@ const autismPrivateRooms = Object.freeze([
 ]);
 
 function autismPrivacyTier(passage = V.passage) {
-	if (autismPrivateRooms.includes(passage)) return "alone";
+	/* A private place stops being private when someone is actually in the scene. Empty NPC slots and animals are not an audience. */
+	let company = "alone";
+	if (Array.isArray(V.NPCList) && typeof isLiveNPC === "function") {
+		for (let i = 0; i < V.NPCList.length; i++) {
+			if (!isLiveNPC(V.NPCList[i]) || V.NPCList[i].type !== "human") continue;
+			if (typeof namedNpcInSlot !== "function" || !namedNpcInSlot(i)) {
+				company = "strangers";
+				break;
+			}
+			company = "known";
+		}
+	}
+	/* Fishing keeps visitors in its own event phases between encounters, without live NPC slots. Limit this to the ordinary fishing loop. */
+	if (
+		/^Fishing (Pier|Beach|Moor|Coast Path|Forest Lake) (Wait(?: Loop)?|Minigame Loop|Catch|Trash Catch|Clothing Catch|Cut|Snapped|Fish Too Far|Cat Eat)$/.test(
+			passage
+		) &&
+		["fishingPier", "fishingBeach", "fishingMoor", "fishingCoastPath", "fishingForestLake"].includes(V.bus)
+	) {
+		/* The moor's fox counts as company for fishing flavour, but does not require masking. */
+		const alone = V.bus === "fishingMoor" ? [undefined, "finished"].includes(V.daily?.fishing?.fishingMoor?.hikers?.phase) : isPlayerFishingAlone();
+		return alone ? company : "strangers";
+	}
+	if (autismPrivateRooms.includes(passage)) return company;
 	const place = V.location;
-	if (autismAlonePlaces.includes(place)) return "alone";
+	if (autismAlonePlaces.includes(place)) return company;
 	if (autismKnownPlaces.includes(place)) return "known";
 	return "strangers";
 }
@@ -1588,7 +1615,7 @@ function autismCompanyFamiliarity() {
 	let best = autismResidentFamiliarity();
 	if (!Array.isArray(V.NPCList) || typeof isLiveNPC !== "function") return best;
 	for (let i = 0; i < V.NPCList.length; i++) {
-		if (!isLiveNPC(V.NPCList[i])) continue;
+		if (!isLiveNPC(V.NPCList[i]) || V.NPCList[i].type !== "human") continue;
 		const name = typeof namedNpcInSlot === "function" ? namedNpcInSlot(i) : "";
 		if (!name) continue;
 		best = Math.max(best, autismNpcFamiliarity(C.npc?.[name]));
@@ -1605,7 +1632,7 @@ function autismUntrustedCompany() {
 	if (autismPrivacyTier() === "strangers") return true;
 	if (!Array.isArray(V.NPCList) || typeof isLiveNPC !== "function") return false;
 	for (let i = 0; i < V.NPCList.length; i++) {
-		if (!isLiveNPC(V.NPCList[i])) continue;
+		if (!isLiveNPC(V.NPCList[i]) || V.NPCList[i].type !== "human") continue;
 		const name = typeof namedNpcInSlot === "function" ? namedNpcInSlot(i) : "";
 		/* An ordinary NPC has no name and no history, so there is nobody there to be comfortable with. */
 		if (!name || autismNpcFamiliarity(C.npc?.[name]) < autismFamiliarThreshold) return true;
