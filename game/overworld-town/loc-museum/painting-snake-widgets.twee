@@ -11,7 +11,13 @@
 	<<unset $condoms>>
 	<<unset $damagedCondoms>>
 
-	<<set $player.gender to "m">>
+	<<set $player.gender to worldGenderOverrideForcedGender() || "m">>
+	/* Use the gaoler's temporary identity; freezePlayerStats restores the real player's preferences. */
+	<<set $identity.presentation.pronouns.preferredMasculine to $player.gender is "m">>
+	<<set $identity.presentation.pronouns.preferredFeminine to $player.gender is "f">>
+	<<set $identity.presentation.pronouns.preferredNeutral to false>>
+	<<set $identity.presentation.pronouns.pronounDynamicMode to "">>
+	<<set $identity.presentation.pronouns[$player.gender is "m" ? "masculine" : "feminine"].acceptance to true>>
 	<<set $genderidentity to 0>>
 	<<set $player.sex to "m">>
 	<<set $player.breastsize to 0>>
@@ -980,69 +986,69 @@
 		<</switch>>
 		<br>
 		<<if _prisonerClothesItem>>
-			She wears a _prisonerClothesItem.nameText.
+			<<worldFemale 'She' 'He'>> wears a _prisonerClothesItem.nameText.
 			<<if _prisonerSheet>>
-				<span class="blue">A bedsheet covers her lower body.</span>
+				<span class="blue">A bedsheet covers <<worldFemale 'her' 'his'>> lower body.</span>
 			<</if>>
 		<<else>>
 			<<if !$prisoner.bandagesOn>>
-				<span class="red">She is fully naked.</span>
+				<span class="red"><<worldFemale 'She' 'He'>> is fully naked.</span>
 			<<else>>
-				<span class="lewd">She is naked, save for her bandages.</span>
+				<span class="lewd"><<worldFemale 'She' 'He'>> is naked, save for <<worldFemale 'her' 'his'>> bandages.</span>
 			<</if>>
 			<<if _prisonerSheet>>
-				<span class="blue">A bedsheet covers her lower body.</span>
+				<span class="blue">A bedsheet covers <<worldFemale 'her' 'his'>> lower body.</span>
 			<<elseif Time.dayState is "night">>
-				<span class="red">She shivers.</span>
+				<span class="red"><<worldFemale 'She' 'He'>> shivers.</span>
 			<</if>>
 		<</if>>
 		<br>
 		<<switch $prisoner.cleanBody>>
-			<<case 4>><span class="green">Her body is clean.</span>
-			<<case 3>><span class="teal">Her body is mostly clean.</span>
-			<<case 2>><span class="purple">Dirt clings to her body.</span>
-			<<case 1>><span class="pink">Dirt and grime stick to her body.</span>
-			<<case 0>><span class="red">Black, ichorous fluid trails down her body.</span>
+			<<case 4>><span class="green"><<worldFemale 'Her' 'His'>> body is clean.</span>
+			<<case 3>><span class="teal"><<worldFemale 'Her' 'His'>> body is mostly clean.</span>
+			<<case 2>><span class="purple">Dirt clings to <<worldFemale 'her' 'his'>> body.</span>
+			<<case 1>><span class="pink">Dirt and grime stick to <<worldFemale 'her' 'his'>> body.</span>
+			<<case 0>><span class="red">Black, ichorous fluid trails down <<worldFemale 'her' 'his'>> body.</span>
 		<</switch>>
 		<<if !$prisonerEvents.includes("wash") and ($prisoner.bandagesOn or _prisonerClothesItem)>>
-			<span class="pink"><i>She must be fully naked to be washed.</i></span>
+			<span class="pink"><i><<worldFemale 'She' 'He'>> must be fully naked to be washed.</i></span>
 		<</if>>
 		<br>
 		<<if $prisoner.bandagesOn>>
 			<<switch $prisoner.cleanBandages>>
-				<<case 4>><span class="green">Her bandages are fresh.</span>
-				<<case 3>><span class="teal">Her bandages are clean.</span>
-				<<case 2>><span class="purple">Her bandages are frayed and reddened.</span>
-				<<case 1>><span class="pink">Her bandages are filthy.</span>
-				<<case 0>><span class="red">Her bandages are tainted.</span>
+				<<case 4>><span class="green"><<worldFemale 'Her' 'His'>> bandages are fresh.</span>
+				<<case 3>><span class="teal"><<worldFemale 'Her' 'His'>> bandages are clean.</span>
+				<<case 2>><span class="purple"><<worldFemale 'Her' 'His'>> bandages are frayed and reddened.</span>
+				<<case 1>><span class="pink"><<worldFemale 'Her' 'His'>> bandages are filthy.</span>
+				<<case 0>><span class="red"><<worldFemale 'Her' 'His'>> bandages are tainted.</span>
 			<</switch>>
 		<<else>>
-			<span class="purple">Her bandages have been removed, and <<= $prisoner.harmedRecently gt 0 and $prisonerEvents.includes("punishmentIntro") ? "fresh wounds" : "her injuries">> are exposed.</span>
+			<span class="purple"><<worldFemale 'Her' 'His'>> bandages have been removed, and <<= $prisoner.harmedRecently gt 0 and $prisonerEvents.includes("punishmentIntro") ? "fresh wounds" : "her injuries">> are exposed.</span>
 		<</if>>
 		<br>
 	<</if>>
 	<<if $prisonerEvents.includes("hunger")>>
 		<<if $hc.daily.fed>>
-			<span class="green">She's been fed today.</span>
+			<span class="green"><<worldFemale 'She' 'He'>>'s been fed today.</span>
 		<<else>>
-			<span class="pink">She hasn't been fed today.</span>
+			<span class="pink"><<worldFemale 'She' 'He'>> hasn't been fed today.</span>
 		<</if>>
 		<br>
 	<</if>>
 	<<if $prisonerEvents.includes("wash")>>
 		<<if $hc.daily.washed>>
 			<<if $hcChallenge.prisonerClean and $prisoner.cleanBody lt 4>>
-				<span class="blue">She's been washed today,</span> <span class="purple">but her wounds are too foul to clean in a single session.</span>
+				<span class="blue"><<worldFemale 'She' 'He'>>'s been washed today,</span> <span class="purple">but <<worldFemale 'her' 'his'>> wounds are too foul to clean in a single session.</span>
 				<<if $prisoner.bandagesOn or _prisonerClothesItem>>
-					<span class="purple italic">She must be fully naked to be washed.</span>
+					<span class="purple italic"><<worldFemale 'She' 'He'>> must be fully naked to be washed.</span>
 				<</if>>
 			<<else>>
-				<span class="green">She's been washed today.</span>
+				<span class="green"><<worldFemale 'She' 'He'>>'s been washed today.</span>
 			<</if>>
 		<<else>>
-			<span class="pink">She hasn't been washed today.
+			<span class="pink"><<worldFemale 'She' 'He'>> hasn't been washed today.
 			<<if $prisoner.bandagesOn or _prisonerClothesItem>>
-				<i>She must be fully naked to be washed.</i>
+				<i><<worldFemale 'She' 'He'>> must be fully naked to be washed.</i>
 			<</if>>
 			</span>
 		<</if>>
@@ -1050,11 +1056,11 @@
 	<</if>>
 	<<if $prisonerEvents.includes("brand")>>
 		<<if $hc.daily.treated>>
-			<span class="green">Her burns have been treated.</span>
+			<span class="green"><<worldFemale 'Her' 'His'>> burns have been treated.</span>
 		<<else>>
-			<span class="red">Her burns haven't been treated.
+			<span class="red"><<worldFemale 'Her' 'His'>> burns haven't been treated.
 			<<if $prisoner.bandagesOn or _prisonerClothesItem>>
-				<i>She must be fully naked to treat them.</i>
+				<i><<worldFemale 'She' 'He'>> must be fully naked to treat them.</i>
 			<</if>>
 			</span>
 		<</if>>
@@ -1091,30 +1097,30 @@
 		<<switch $prisoner.state>>
 			<<case "lucid">>
 				<<set $prisoner.state to "awake">>
-				<span class="gold">She seems to be lucid again.</span>
+				<span class="gold"><<worldFemale 'She' 'He'>> seems to be lucid again.</span>
 			<<case "awake">>
-				She's currently awake.
+				<<worldFemale 'She' 'He'>>'s currently awake.
 			<<case "asleep">>
-				<span class="blue">She's currently asleep.</span>
+				<span class="blue"><<worldFemale 'She' 'He'>>'s currently asleep.</span>
 			<<case "dogs">>
 				<<if $hc.dogs.includes("loud")>>
-					<span class="red">She writhes on the ground, lashing out as a dog barks outside.</span>
+					<span class="red"><<worldFemale 'She' 'He'>> writhes on the ground, lashing out as a dog barks outside.</span>
 				<<else>>
-					<span class="red">She writhes on the ground.</span>
+					<span class="red"><<worldFemale 'She' 'He'>> writhes on the ground.</span>
 				<</if>>
 			<<default>>
-				<span class="red">She doesn't seem to be aware of her surroundings.</span>
+				<span class="red"><<worldFemale 'She' 'He'>> doesn't seem to be aware of <<worldFemale 'her' 'his'>> surroundings.</span>
 		<</switch>>
 		<<if $hcAction is "enter">>
 			<<if $prisoner.state is "awake">>
 				<<if $prisoner.harmed gte Math.floor($prisoner.love / 6)>>
-					<span class="red">She glares with hatred as you enter.</span>
+					<span class="red"><<worldFemale 'She' 'He'>> glares with hatred as you enter.</span>
 				<<elseif $prisoner.love gte 60>>
-					<span class="green">She warmly smiles at you as you enter.</span>
+					<span class="green"><<worldFemale 'She' 'He'>> warmly smiles at you as you enter.</span>
 				<<elseif $prisoner.love gte 25 and $prisonerEvents.includes("tongue")>>
-					<span class="teal">The tension in her body fades as you enter. She seems relieved that it's you.</span>
+					<span class="teal">The tension in <<worldFemale 'her' 'his'>> body fades as you enter. <<worldFemale 'She' 'He'>> seems relieved that it's you.</span>
 				<<else>>
-					<span class="pink">She tenses up as you enter.</span>
+					<span class="pink"><<worldFemale 'She' 'He'>> tenses up as you enter.</span>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -1230,19 +1236,19 @@
 			<<case "undressPrisoner">>
 				You undress <<print $prisoner.name>>.
 				<<if $prisoner.harmed gte Math.floor($prisoner.love / 6)>>
-					She doesn't make it easy.
+					<<worldFemale 'She' 'He'>> doesn't make it easy.
 				<<elseif $prisoner.love gte 45>>
-					She glares at you suggestively.
+					<<worldFemale 'She' 'He'>> glares at you suggestively.
 				<</if>>
 			<<case "undressPrisonerAsleep">>
 				You undress <<print $prisoner.name>>.
 				<<if $prisoner.love gte 45>>
-					She quickly wakes up, but calms down upon seeing that it's you.
+					<<worldFemale 'She' 'He'>> quickly wakes up, but calms down upon seeing that it's you.
 				<<else>>
-					She quickly wakes up and tries to push you away.
+					<<worldFemale 'She' 'He'>> quickly wakes up and tries to push you away.
 				<</if>>
 			<<case "dressPrisoner">>You dress <<print $prisoner.name>> in the $itemActionObject.name.
-			<<case "bandagesRemove">>You remove her bandages. <<if $hc.daily.treatedDayBefore>><<run delete $hc.daily.treatedDayBefore>>The spent medicinal herbs fall away from her body.<</if>>
+			<<case "bandagesRemove">>You remove <<worldFemale 'her' 'his'>> bandages. <<if $hc.daily.treatedDayBefore>><<run delete $hc.daily.treatedDayBefore>>The spent medicinal herbs fall away from <<worldFemale 'her' 'his'>> body.<</if>>
 			<<case "bandagesApply">>You apply $itemActionObject.nameText.
 
 			<<case "petTheDog">>You pet the dog. It happily bounds around you.
@@ -1801,9 +1807,9 @@
 		/* Specific actions */
 		<<if _item.type is "clothes" and $bus is "cell" and _canSee and !_clothesCurrent and $prisonerEvents.includes("wash")>>
 			<<if !$prisonerEvents.includes("newClothes") and !_item.dirty>>
-				| <<link [[Dress her (0:05)|Hopeless Cycle Cell Clean Clothes]]>><<pass 5>><<stress 24>><<trauma 12>><<set _item.location to "prisoner">><</link>><<ggstress>><<gtrauma>><<hopelessCycleLove 2>><<hopelessCycleSus 1>>
+				| <<link [[Dress <<worldFemale 'her' 'him'>> (0:05)|Hopeless Cycle Cell Clean Clothes]]>><<pass 5>><<stress 24>><<trauma 12>><<set _item.location to "prisoner">><</link>><<ggstress>><<gtrauma>><<hopelessCycleLove 2>><<hopelessCycleSus 1>>
 			<<else>>
-				| <<link [[Dress her (0:05)|$passage]]>><<pass 5>><<set $itemAction to "dressPrisoner">><<set $itemActionObject to _item>><<set _item.location to "prisoner">><</link>>
+				| <<link [[Dress <<worldFemale 'her' 'him'>> (0:05)|$passage]]>><<pass 5>><<set $itemAction to "dressPrisoner">><<set $itemActionObject to _item>><<set _item.location to "prisoner">><</link>>
 			<</if>>
 		<</if>>
 	<</capture>>
@@ -1811,7 +1817,7 @@
 <</widget>>
 
 <<widget "hopelessCyclePassout">>
-	<span class="narration">The gaoler had pushed himself too much.</span>
+	<span class="narration">The gaoler had pushed <<worldMale 'himself' 'herself'>> too much.</span>
 	<br><br>
 	<<set $stress -= 7000>>
 	<<pass 1 hour>>

@@ -26,7 +26,18 @@
 		boy: "girl",
 		men: "women",
 	};
+	const PRONOUN_MAP_T = {
+		he: "they",
+		his: "their",
+		hers: "theirs",
+		him: "them",
+		himself: "themselves",
+		man: "person",
+		boy: "person",
+		men: "people",
+	};
 	function pronounMap(forced) {
+		if (forced === "t") return PRONOUN_MAP_T;
 		return forced === "m" ? PRONOUN_MAP_M : PRONOUN_MAP_F;
 	}
 
@@ -78,6 +89,32 @@
 
 	function isRewriteActive(mode = getMode()) {
 		return !!getForcedGender(mode);
+	}
+
+	/* Fixed story characters do not always have an NPC record. Each call supplies the
+	   original wording and its opposite explicitly, including ambiguous her/his forms.
+	   An optional third argument preserves mixed-group wording when the override is off.
+	   This only renders opted-in text; it never rewrites passage source or player text. */
+	Macro.add(["worldFemale", "worldMale"], {
+		handler() {
+			const opposite = this.name === "worldFemale" ? "m" : "f";
+			const forced = getForcedGender();
+			const text = !forced && this.args.length > 2 ? this.args[2] : this.args[forced === opposite ? 1 : 0];
+			this.output.append(document.createTextNode(text));
+		},
+	});
+
+	/* Crowd wording for places whose occupants vary at runtime, such as the school
+	   changing rooms and toilets. The room keeps its own name; only the people in it
+	   follow the override. Pass the room's own word and get back who is actually inside. */
+	const CROWD_M = { boys: "boys", girls: "boys", men: "men", women: "men" };
+	const CROWD_F = { boys: "girls", girls: "girls", men: "women", women: "women" };
+	function occupants(roomWord) {
+		const forced = getForcedGender();
+		if (!forced || typeof roomWord !== "string") return roomWord;
+		const key = roomWord.toLowerCase();
+		const mapped = (forced === "m" ? CROWD_M : CROWD_F)[key];
+		return mapped === undefined ? roomWord : mapped;
 	}
 
 	function modeLabel(mode = getMode()) {
@@ -206,7 +243,7 @@
 
 	function rewriteGenderedType(type, forced) {
 		if (typeof type !== "string") return type;
-		if (/(wolf|fox|cat|cow|harpy|hawk|plant|bunny|bear)(boy|girl)$/i.test(type)) {
+		if (/(wolf|fox|cat|cow|bull|harpy|hawk|plant|bunny|bear)(boy|girl)$/i.test(type)) {
 			const suffix = forced === "m" ? "boy" : "girl";
 			return type.replace(/(boy|girl)$/i, suffix);
 		}
@@ -221,54 +258,47 @@
 		target.pronouns ||= {};
 		/* Unconditional assignment; must overwrite stale pronouns left over from the prior gender. */
 		Object.assign(target.pronouns, map);
-		/* Some checks in DoL/DoLX read these top-level aliases directly. */
-		target.he = map.he;
-		target.him = map.him;
-		target.his = map.his;
-		target.man = map.man;
-		target.boy = map.boy;
+		/* Older overrides added unused copies outside the canonical pronouns object. */
+		for (const key of ["he", "him", "his", "man", "boy"]) delete target[key];
 	}
 
-	function normalizeTitle(npc, forced) {
-		if (!npc || typeof npc !== "object") return;
-		if (typeof npc.title !== "string") return;
+	function rewriteGenderedTitle(title, forced) {
+		if (typeof title !== "string") return title;
 		const isMale = forced === "m";
-		switch (npc.title.toLowerCase()) {
+		switch (title.toLowerCase()) {
 			case "man":
 			case "woman":
-				npc.title = isMale ? "man" : "woman";
-				break;
+				return isMale ? "man" : "woman";
 			case "boy":
 			case "girl":
-				npc.title = isMale ? "boy" : "girl";
-				break;
+				return isMale ? "boy" : "girl";
+			case "priest":
+			case "priestess":
+				return isMale ? "priest" : "priestess";
+			case "headmaster":
+			case "headmistress":
+				return isMale ? "headmaster" : "headmistress";
+			case "hunter":
+			case "huntress":
+				return isMale ? "hunter" : "huntress";
+			case "businessman":
+			case "businesswoman":
+				return isMale ? "businessman" : "businesswoman";
 		}
-	}
-
-	function isNamedNpcObject(npc) {
-		if (!npc || typeof npc !== "object") return false;
-		const C = getC();
-		if (C?.npc && typeof C.npc === "object") {
-			for (const [name, namedNpc] of Object.entries(C.npc)) {
-				if (namedNpc === npc) return true;
-				if (typeof npc.description === "string" && npc.description === name) return true;
-				if (typeof npc.fullDescription === "string" && npc.fullDescription === name) return true;
-			}
-		}
-		const V = getV();
-		if (Array.isArray(V.NPCName) && V.NPCName.includes(npc)) return true;
-		if (Array.isArray(V.NPCNameList)) {
-			if (typeof npc.description === "string" && V.NPCNameList.includes(npc.description)) return true;
-			if (typeof npc.fullDescription === "string" && V.NPCNameList.includes(npc.fullDescription)) return true;
-		}
-		return false;
+		return title;
 	}
 
 	function rebuildFullDescription(npc, forced) {
 		if (!npc || typeof npc !== "object") return;
 		if (typeof npc.description !== "string" || !npc.description.length) return;
-		if (typeof npc.role === "string" && npc.role !== "normal" && npc.role.length) {
-			npc.fullDescription = npc.description + " " + npc.role;
+		/* Only rebuild generated descriptions. Scenes also store custom names here. */
+		if (typeof npc.fullDescription !== "string" || !npc.fullDescription.startsWith(npc.description)) return;
+		const suffix = npc.fullDescription.slice(npc.description.length);
+		if (!/^ (?:plant)?(?:man|woman|boy|girl)$/.test(suffix)) {
+			/* A role is also a gameplay identifier: only change its displayed wording. */
+			if (/^ (?:priest|priestess|headmaster|headmistress|hunter|huntress|businessman|businesswoman)$/.test(suffix)) {
+				npc.fullDescription = npc.description + " " + rewriteGenderedTitle(suffix.trim(), forced);
+			}
 			return;
 		}
 		const sexWord = forced === "m" ? (npc.teen === 1 ? "boy" : "man") : npc.teen === 1 ? "girl" : "woman";
@@ -278,6 +308,15 @@
 	function normalizeNpcObject(npc, options = {}) {
 		const forced = getForcedGender(options.mode);
 		if (!forced || !npc || typeof npc !== "object") return npc;
+		if (!npc.pronoun) return npc;
+		/* Preserve neutral characters, and repair Mickey records rewritten by older overrides.
+		   Luchifen's narration also consistently uses they/them. Never revive cleared slots. */
+		if (npc.pronoun === "t" || npc.role === "hacker" || npc.per === "hacker" || npc.nam === "Luchifen" || npc.fullDescription === "Luchifen") {
+			npc.pronoun = "t";
+			applyPronounMap(npc, "t");
+			return npc;
+		}
+		if (npc.pronoun !== "m" && npc.pronoun !== "f") return npc;
 
 		/* World gender override locks presentation/social gender, but leaves genital/body sliders available. */
 		npc.pronoun = forced;
@@ -288,14 +327,19 @@
 			npc.gender = forced;
 		}
 		applyPronounMap(npc, forced);
-		normalizeTitle(npc, forced);
-		if (!isNamedNpcObject(npc)) rebuildFullDescription(npc, forced);
+		if (typeof npc.title === "string") npc.title = rewriteGenderedTitle(npc.title, forced);
+		if (npc.per === "pinch" || /^(?:Mr|Ms) Pinch$/.test(npc.fullDescription)) {
+			npc.fullDescription = (forced === "m" ? "Mr" : "Ms") + " Pinch";
+			npc.name = npc.fullDescription;
+		}
+		rebuildFullDescription(npc, forced);
 		return npc;
 	}
 
 	function normalizeChildObject(child, options = {}) {
 		const forced = getForcedGender(options.mode);
 		if (!forced || !child || typeof child !== "object") return child;
+		if (child.pronoun === "t") return child;
 		child.gender = forced;
 		// Legacy children carried "type"; records children carry "species". Rewrite whichever is present.
 		if (child.type !== undefined) child.type = rewriteGenderedType(child.type, forced);
@@ -312,6 +356,7 @@
 		const C = getC();
 
 		if (Array.isArray(V.NPCList)) V.NPCList.forEach(npc => normalizeNpcObject(npc, options));
+		if (V.pillory?.tenant?.person) normalizeNpcObject(V.pillory.tenant.person, options);
 		if (V.per_npc && typeof V.per_npc === "object") Object.values(V.per_npc).forEach(npc => normalizeNpcObject(npc, options));
 		if (V.storedNPCs && typeof V.storedNPCs === "object") {
 			Object.values(V.storedNPCs).forEach(entry => {
@@ -319,10 +364,11 @@
 			});
 		}
 		if (Array.isArray(V.NPCName)) V.NPCName.forEach(npc => normalizeNpcObject(npc, options));
-		if (C?.npc && typeof C.npc === "object") Object.values(C.npc).forEach(npc => normalizeNpcObject(npc, options));
+		else if (C?.npc && typeof C.npc === "object") Object.values(C.npc).forEach(npc => normalizeNpcObject(npc, options));
 		if (V.children && typeof V.children === "object") Object.values(V.children).forEach(child => normalizeChildObject(child, options));
 		// Children live in $childRecords since the 0.5.12 pregnancy rewrite.
 		if (Array.isArray(V.childRecords)) V.childRecords.forEach(child => normalizeChildObject(child, options));
+		if (V.orphanHawkPreview) normalizeChildObject(V.orphanHawkPreview, options);
 	}
 
 	/* ---------------- Settings DOM lock UI ---------------- */
@@ -777,7 +823,9 @@
 			"#worldGenderOverrideSettingsBody input",
 		].join(", ");
 		let queued = false;
-		function queueSync() {
+		function queueSync(event) {
+			/* Ignore the input/change notifications emitted while reflecting locked sliders. */
+			if (event.isTrigger) return;
 			if (queued) return;
 			queued = true;
 			setTimeout(() => {
@@ -811,14 +859,15 @@
 			installWrappers();
 			syncRewriteState();
 		});
-		jQuery(document).on(":passagedisplay", function () {
+		jQuery(document).on(":passageinit", function () {
 			const V = ensureState();
-			installSettingsRefreshHooks();
 			const mode = getMode();
 			const pendingRestore = !!(V.settings.genderOverrideBackup || V.settings.genderOverrideDisplayBackup);
 			if (!isRewriteActive(mode) && !pendingRestore) return;
 			syncRewriteState();
-			if (settingsDomPresent()) setTimeout(() => forceCurrentSettingsDom(), 0);
+		});
+		jQuery(document).on(":passagedisplay", function () {
+			if (isRewriteActive() && settingsDomPresent()) forceCurrentSettingsDom();
 		});
 	}
 
@@ -832,6 +881,7 @@
 	window.worldGenderOverrideNormalizeChild = normalizeChildObject;
 	window.worldGenderOverrideForceSettingsDom = forceCurrentSettingsDom;
 	window.worldGenderOverrideActive = isRewriteActive;
+	window.worldOccupants = occupants;
 
 	ensureState();
 	installSettingsRefreshHooks();

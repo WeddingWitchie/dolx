@@ -564,13 +564,14 @@
 			<<case "t">>
 				<<set _args[0].pronouns.he = "they">>
 				<<set _args[0].pronouns.his = "their">>
-				<<set _args[0].pronouns.hers = "they">>
+				<<set _args[0].pronouns.hers = "theirs">>
 				<<set _args[0].pronouns.him = "them">>
 				<<set _args[0].pronouns.himself = "themselves">>
-				<<set _args[0].pronouns.man = "man">>
-				<<set _args[0].pronouns.boy = "boy">>
-				<<set _args[0].pronouns.men = "men">>
+				<<set _args[0].pronouns.man = "person">>
+				<<set _args[0].pronouns.boy = "person">>
+				<<set _args[0].pronouns.men = "people">>
 		<</switch>>
+		<<run worldGenderOverrideNormalizeNpc(_args[0])>>
 	<</if>>
 <</widget>>
 
@@ -1993,13 +1994,16 @@
 <<widget "genderswap">>
 	<!-- Changes the current pronoun, without modifying the NPC it's referencing. Useful for crossdressing NPC dialogue. -->
 	<!-- Usage: <<person1>><<genderswap>><<he>> -->
-
-	<!-- Cannot use genderswap when pronoun is anything other than "m" or "f". -->
-	<<switch $pronoun>>
-		<<case "m">> <<set $pronoun to "f">>
-		<<case "f">> <<set $pronoun to "m">>
-		<<default>> <<print `<span class="red">[ERROR: invalid pronoun in genderswap, `+ $pronoun +`]</span>`>>
-	<</switch>>
+	<<if worldGenderOverrideActive() and ["m", "f"].includes($pronoun)>>
+		<<set $pronoun to worldGenderOverrideForcedGender()>>
+	<<else>>
+		<!-- Cannot use genderswap when pronoun is anything other than "m" or "f". -->
+		<<switch $pronoun>>
+			<<case "m">> <<set $pronoun to "f">>
+			<<case "f">> <<set $pronoun to "m">>
+			<<default>> <<print `<span class="red">[ERROR: invalid pronoun in genderswap, `+ $pronoun +`]</span>`>>
+		<</switch>>
+	<</if>>
 <</widget>>
 
 <<widget "personselect">>
@@ -2023,6 +2027,7 @@
 		/* Safe defaults so narration continues */
 		<<set $npcadult to 1>><<set $pronoun to "m">><<set $description to "someone">><<set $role to "normal">><<set $npc_named to 0>>
 	<<else>>
+		<<run worldGenderOverrideNormalizeNpc($NPCList[_n])>>
 		<<set $npcadult to $NPCList[_n].adult>>
 		<<set $pronoun to $NPCList[_n].pronoun>>
 		<<if $npcrow.includes(_n)>>
@@ -6610,7 +6615,7 @@
 
 <<widget "nnpc_he">><<silently>>
 	<<set _npcPronoun to C.npc[_args[0]].pronoun>>
-	<<set _text_output to (_npcPronoun is "m" ? "he" : "she")>>
+	<<set _text_output to (_npcPronoun is "t" ? "they" : _npcPronoun is "m" ? "he" : "she")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "nnpc_He">><<silently>>
@@ -6619,7 +6624,7 @@
 
 <<widget "nnpc_him">><<silently>>
 	<<set _npcPronoun to C.npc[_args[0]].pronoun>>
-	<<set _text_output to (_npcPronoun is "m" ? "him" : "her")>>
+	<<set _text_output to (_npcPronoun is "t" ? "them" : _npcPronoun is "m" ? "him" : "her")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "nnpc_Him">><<silently>>
@@ -6628,7 +6633,7 @@
 
 <<widget "nnpc_his">><<silently>>
 	<<set _npcPronoun to C.npc[_args[0]].pronoun>>
-	<<set _text_output to (_npcPronoun is "m" ? "his" : "her")>>
+	<<set _text_output to (_npcPronoun is "t" ? "their" : _npcPronoun is "m" ? "his" : "her")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "nnpc_His">><<silently>>
@@ -6637,12 +6642,12 @@
 
 <<widget "nnpc_hers">><<silently>>
 	<<set _npcPronoun to C.npc[_args[0]].pronoun>>
-	<<set _text_output to (_npcPronoun is "m" ? "his" : "hers")>>
+	<<set _text_output to (_npcPronoun is "t" ? "theirs" : _npcPronoun is "m" ? "his" : "hers")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "nnpc_hes">><<silently>>
 	<<set _npcPronoun to C.npc[_args[0]].pronoun>>
-	<<set _text_output to (_npcPronoun is "m" ? "he's" : "she's")>>
+	<<set _text_output to (_npcPronoun is "t" ? "they're" : _npcPronoun is "m" ? "he's" : "she's")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "nnpc_Hes">><<silently>>
@@ -6651,7 +6656,7 @@
 
 <<widget "nnpc_himself">><<silently>>
 	<<set _npcPronoun to C.npc[_args[0]].pronoun>>
-	<<set _text_output to (_npcPronoun is "m" ? "himself" : "herself")>>
+	<<set _text_output to (_npcPronoun is "t" ? "themselves" : _npcPronoun is "m" ? "himself" : "herself")>>
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "nnpc_wife">><<silently>>
