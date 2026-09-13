@@ -256,7 +256,16 @@
 			<br>
 	<</addinlineevent>>
 
-	<<runeventpool>>
+	/* Each random hallway event can only be viewed once per day. */
+	<<set _eventpool to _eventpool.filter(event => !$daily.school["hallways_" + event.name])>>
+	<<if _eventpool.length>>
+		<<run _eventpool.forEach(event => {
+			event.content = '<<set $daily.school["hallways_' + event.name + '"] to true>>' + event.content;
+		})>>
+		<<runeventpool>>
+	<<else>>
+		<<set _hallwaysNoEvent to true>>
+	<</if>>
 <</widget>>
 
 <<widget "eventsschoolhallways">>
@@ -1414,7 +1423,16 @@
 			<</addinlineevent>>
 		<</if>>
 
-		<<runeventpool>>
+		/* Each random hallway event can only be viewed once per day. */
+		<<set _eventpool to _eventpool.filter(event => !$daily.school["hallways_" + event.name])>>
+		<<if _eventpool.length>>
+			<<run _eventpool.forEach(event => {
+				event.content = '<<set $daily.school["hallways_' + event.name + '"] to true>>' + event.content;
+			})>>
+			<<runeventpool>>
+		<<else>>
+			<<set _hallwaysNoEvent to true>>
+		<</if>>
 	<</if>>
 <</widget>>
 
