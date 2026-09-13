@@ -3,7 +3,7 @@
 :: Brothel
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<unset $corruptionDancing>>
-<<unset $brothelClientType>><<unset $brothelClientSkill>><<unset $brothelClientBonus>><<unset $brothelAuctionTip>><<unset $brothelAuctionBonus>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><<unset $brothelAuctionDanceBonus>><<unset $brothelAuctionNegotiation>>
+<<unset $brothelClientType>><<unset $brothelClientSkill>><<unset $brothelClientRate>><<unset $brothelClientTier>><<unset $brothelClientSuccess>><<unset $brothelAuctionTip>><<unset $brothelAuctionBonus>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><<unset $brothelAuctionDanceBonus>><<unset $brothelAuctionNegotiation>>
 
 <<if $brotheljob>>
 	<<timeTrackingEndBrothel>>
@@ -107,7 +107,7 @@ You are in the brothel. Staff circulate between crowded tables, flirting with pa
 	<<timeTrackingStart "brothel">><<pass 10>><<stress -2>><<tiredness 2>>
 <</link>><<lstress>><<gtiredness>>
 <br>
-	<<if $fame.prostitution gte 500 and !$daily.brothelClientAuction and (hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false)>>
+	<<if $fame.prostitution gte 300 and !$daily.brothelClientAuction and (hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false)>>
 		<<icon "crystal-purple.png">><<link [[Auction a private appointment|Brothel Dance]]>><<timeTrackingStart "brothel">><<timeTrackingStart "brothelDanceTips">><<set $brothelAuctionDance to true>><<set $dancestart to 1>><<stress -4>><<tiredness 4>><</link>><<lstress>><<gtiredness>>
 		<br>
 	<</if>>
@@ -366,11 +366,25 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 
 :: Brothel Intro
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<speechresolve>>
 
 <<if $phase is 1>>
-	<<generate1>>You enter the building, not sure what to expect. <<person1>>A <<person>> stands at the end of an antechamber, guarding another set of doors. <<He>> smiles when <<he>> sees you. "You look lost, <<girl>>. What brings you here?"
+	<<generate1>>You enter the building, not sure what to expect. <<person1>>A <<person>> stands at the end of the small entrance room, guarding another set of doors. <<He>> smiles when <<he>> sees you. "You look lost, <<girl>>. What brings you here?"
 	<br><br>
-	"I was told to come here," you reply sheepishly. <<His>> smile broadens.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"I-I was told to come here," you say, keeping your voice low.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I was told to come here," you say. "So... here I am."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I was told to come here," you say. "I believe someone is expecting me."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"I was told to come here," you say. "Who's in charge?"
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Someone told me to come here," you say. "So are you going to tell me why?"
+	<<else>>
+		"I was told to come here," you reply sheepishly.
+	<</if>>
+	<<His>> smile broadens.
 	<br><br>
 	"Good. Wait just a moment." <<He>> presses a finger against <<his>> ear before speaking to the air. "We have a... That's right. Yes, boss."
 	<br><br>
@@ -387,13 +401,13 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 		an expensive-looking red gown with a plunging neckline, revealing a portion of <<his>> $NPCList[0].breastsdesc. Long chestnut hair flows behind <<him>> as <<he>> enters.
 	<</if>>
 	<br><br>
-	<<He>> fixes you with hazel eyes, wordlessly grabs your wrist and pulls you through the doors.
+	<<He>> looks directly at you with hazel eyes, grabs your wrist without saying anything, and pulls you through the doors.
 	<br><br>
-	You enter a large crowded room. The smell of sweat is palpable. Staff in various states of undress circulate between tables, <span class="lewd">showing themselves off and negotiating with patrons</span> before leading clients towards private rooms.
+	You enter a large, crowded room that smells strongly of sweat. Staff wearing different amounts of clothing move between the tables, <span class="lewd">showing themselves off and talking to patrons about what they want</span> before taking clients to private rooms.
 	<br><br>
-	You are led through the room and through an inconspicuous door. A flight of stairs later and you find yourself in a lavishly-decorated office. <<He>> lies down on a velvet sofa in the middle of the room, props <<his>> head up with one arm and observes you.
+	Briar leads you through the room, opens a plain door, and takes you up a flight of stairs. At the top, you enter an expensive office. <<He>> lies down on a velvet sofa in the middle of the room, rests <<his>> head on one hand, and watches you.
 	<br><br>
-	You look around for a place to sit but other than the sofa there's no seating. <<He>> interrupts your search. "My name is Briar. Welcome to my establishment."
+	You look around for somewhere to sit, but the sofa is the only seat. Before you can decide where to stand, <<he>> speaks. "My name is Briar. Welcome to my establishment."
 	<br><br>
 
 	<<link [[Next|Brothel Intro2]]>><<set $phase to 0>><</link>>
@@ -464,22 +478,49 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 <br>
 <<if hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false>>
 	<<set _serviceSkill to Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
-	<<socialiseicon>><<link [[Flirt and offer private company|Brothel Client Flirt]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.5>><<set $phase to 0>><<seductionskill 2>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>><<promiscuous3>><<gtiredness>>
+	<<set _displaySkill to Math.max(currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("penileskill"), currentSkillValue("vaginalskill"))>>
+	<<brothelicon>><<link [[Show off your best assets|Brothel Client Assets]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _displaySkill>><<set $brothelClientTier to "assets">><<set $phase to 0>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `_displaySkill` "Body Skill" 1 600>><<promiscuous3>><<gtiredness>>
 	<br>
-	<<brothelicon>><<link [[Show off your best assets|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to Math.max(currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("penileskill"), currentSkillValue("vaginalskill"))>><<set $brothelClientBonus to 0.25>><<set $phase to 0>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>><<gtiredness>>
+	<<socialiseicon>><<link [[Flirt and offer private company|Brothel Client Flirt]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientTier to "flirt">><<set $phase to 0>><<seductionskill 2>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>><<promiscuous3>><<gtiredness>>
 	<br>
-	<<brothelicon>><<link [[Offer your best sexual service|Brothel Private]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientBonus to 0.75>><<set $phase to 0>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<promiscuous3>><<gtiredness>>
+	<<if hasSexStat("promiscuity", 4)>>
+		<<brothelicon>><<link [[Offer your best sexual service|Brothel Client Service]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientTier to "service">><<set $phase to 0>><<tiredness 2>><</link>><<skill_difficulty `_serviceSkill` "Sex Skill" 200 1200>><<promiscuous4>><<gtiredness>>
+	<<else>>
+		<<ind>><<insufficientStat "promiscuity" "to offer your best service">>
+	<</if>>
 	<br>
 <<else>>
-	<<brothelicon>><<insufficientStat "promiscuity" "to offer private services">>
+	<<ind>><<insufficientStat "promiscuity" "to offer private services">>
 	<br>
 <</if>>
 <br>
 <<getouticon>><<link [[Back|Brothel]]>><<endevent>><</link>>
 <br>
 
+:: Brothel Client Assets
+<<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
+<<if $brothelClientSuccess is undefined>>
+	<<set $brothelClientSuccess to ($brothelClientSkill ?? 0) gte random(1, 600)>>
+	<<set $brothelClientRate to $brothelClientSuccess ? 0.85 : 0.65>>
+<</if>>
+
+You stay on your feet and let the <<person>> look, turning slowly so the light catches you from every angle. It's the safest way to earn here. The staff are close, the room is watching, and nobody expects more than a show.
+<br><br>
+<<if $brothelClientSuccess>>
+	<span class="green">You hold <<his>> attention easily.</span> <<He>> abandons <<his>> drink and asks, almost politely, whether you're free for the next half hour.
+<<else>>
+	The <<person>> watches, but <<his>> interest never quite catches fire. <<He>> asks for your company anyway, though <<he>> makes it clear <<he>> won't be paying a premium for it.<span class="purple"> You'll earn less than you hoped.</span>
+<</if>>
+<br><br>
+<<link [[Lead <<him>> to a private room|Brothel Private]]>><</link>>
+<br>
+
 :: Brothel Client Flirt
 <<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
+<<if $brothelClientSuccess is undefined>>
+	<<set $brothelClientSuccess to currentSkillValue("seductionskill") gte random(1, 1000)>>
+	<<set $brothelClientRate to $brothelClientSuccess ? 1.1 : 0.85>>
+<</if>>
 <<set _brothelClientRisk to random(1, 100)>>
 <<if _brothelClientRisk lte 8>>
 	You lean close and make your offer. The <<person>> catches your wrist before you can finish, pulling you between the tables.
@@ -490,11 +531,46 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 		<<He>> pushes you against the edge of the table. The surrounding patrons turn to watch instead of helping.
 	<</if>>
 	<br><br>
-	<<getouticon>><<link [[Try to break free|Brothel Client Assault]]>><<set $enemyno to _brothelClientRisk lte 3 ? random(2, 4) : 1>><<set $molestationstart to 1>><</link>>
+	<<link [[Try to break free|Brothel Client Assault]]>><<set $enemyno to _brothelClientRisk lte 3 ? random(2, 4) : 1>><<set $molestationstart to 1>><</link>>
 <<else>>
-	The <<person>> responds eagerly to your attention. <<He>> finishes the rest of <<his>> drink and follows when you indicate the private rooms.
+	<<if $brothelClientSuccess>>
+		<span class="green">You read the <<person>> perfectly</span>, matching <<his>> mood until <<he>> forgets <<he>> was ever undecided. <<He>> finishes the rest of <<his>> drink and follows when you indicate the private rooms, already agreeing to more than <<he>> meant to spend.
+	<<else>>
+		The <<person>> responds to your attention, but your flattery lands a little too obviously.<span class="purple"> <<He>> follows you to the private rooms with <<his>> guard, and <<his>> wallet, still half closed.</span>
+	<</if>>
 	<br><br>
-	<<brothelicon>><<link [[Lead <<him>> to a private room|Brothel Private]]>><</link>>
+	<<link [[Lead <<him>> to a private room|Brothel Private]]>><</link>>
+<</if>>
+<br>
+
+:: Brothel Client Service
+<<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
+<<if $brothelClientSuccess is undefined>>
+	<<set $brothelClientSuccess to ($brothelClientSkill ?? 0) gte random(200, 1200)>>
+	<<set $brothelClientRate to $brothelClientSuccess ? 1.8 : 0.95>>
+<</if>>
+<<set _brothelClientRisk to random(1, 100)>>
+You sit on the arm of the <<persons>> chair and tell <<him>>, in detail, exactly what you're willing to do. Word carries across the nearest tables. It's the offer that pays best here.
+<br><br>
+<<if _brothelClientRisk lte 16>>
+	<<if _brothelClientRisk lte 7>>
+		Two of <<his>> companions push their chairs back before you finish speaking. "<<pShe>> offered," one of them says, to nobody in particular. They close around you while the staff are still on the far side of the room.
+		<br><br>
+		<<link [[Try to break free|Brothel Client Assault]]>><<set $enemyno to random(2, 4)>><<set $molestationstart to 1>><</link>>
+	<<else>>
+		The <<person>> doesn't answer. <<He>> takes a handful of your hair and pulls you down across <<his>> lap, deciding that the offer began the moment you made it.
+		<br><br>
+		<<link [[Try to break free|Brothel Client Assault]]>><<set $enemyno to 1>><<set $molestationstart to 1>><</link>>
+	<</if>>
+<<else>>
+	<<if $brothelClientSuccess>>
+		You describe it well enough that <span class="green"><<he>> stops pretending to consider.</span> <<He>> names a figure well above the usual rate before you've even stood up, anxious that someone at the next table might outbid <<him>>.
+		<br><br>
+	<<else>>
+		You make the offer, but stumble over the details, and a little of the confidence goes out of it. <<He>> accepts,<span class="purple"> at a price that doesn't match the promise.</span>
+		<br><br>
+	<</if>>
+	<<link [[Lead <<him>> to a private room|Brothel Private]]>><</link>>
 <</if>>
 <br>
 
@@ -788,8 +864,11 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 	Briar sprawls on the sofa, holding a glass of wine. <<if $passagePrev isnot "Brothel">>"Anything else I can do for you?"<<else>><<He>> looks up as you enter. "Something I can do for you?"<</if>>
 	<br><br>
 
-	<<if $brothelClientComplaint>>
-		<<socialiseicon "ask">><<link [[Tell Briar about being assaulted without payment|Briar Client Complaint]]>><</link>>
+	<<if $brothelClientComplaint is "runaway">>
+		<<socialiseicon "angry">><<link [[Tell Briar a patron left without paying|Briar Client Complaint]]>><</link>>
+		<br>
+	<<elseif $brothelClientComplaint>>
+		<<socialiseicon "angry">><<link [[Tell Briar about being assaulted without payment|Briar Client Complaint]]>><</link>>
 		<br>
 	<</if>>
 	<<if $xchange.colosseum.heard gte 1 and $xchange.colosseum.keyKnown is 0>>
@@ -874,7 +953,7 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 		<<pillicon>><<link [[Ask again about "premium" pill|Briar Premium Pill Offer]]>><</link>>
 		<br>
 	<<elseif $weekly.briarPremiumPill>>
-		<span class="grey">Briar told you to come back next week.</span>
+		<<ind>><span class="black">Briar told you to come back next week.</span>
 		<br>
 	<</if>>
 	<<if $undergroundbrothelescaped and !$undergroundbrothelcontract and !$undergroundbrothel?.active>>
@@ -891,16 +970,47 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 :: Briar Client Complaint
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<npc Briar>><<person1>>
-You tell Briar about the attack, and that the patron... or patron<i>s</i>, tried to use the brothel without paying.
-<br><br>
-Briar's expression hardens. "They stole from my business and mistreated one of my workers," <<he>> says. "I will take care of it. They will regret using our services without paying."
+<<speechresolve>>
+
+<<if $brothelClientComplaint is "runaway">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Th-the patron left without paying me," you say. "I thought you should know."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"The patron left the room without paying," you say. "What should I do?"
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I need to report a patron who left without paying," you say.
+	<<elseif _speechAttitudeResolved is "confident">>
+		"A patron left without paying me," you say. "I'm telling you before they get too far."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"One of your cheap bastards left without paying," you say. "Deal with them."
+	<<else>>
+		You tell Briar that the patron walked out of the private room without settling up.
+	<</if>>
+	<br><br>
+	Briar stops smiling and puts <<his>> glass down. "They took your time and my cut with them," <<he>> says. "I know every face that comes through that door. I will take care of it."
+<<else>>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Th-they attacked me," you say. "They tried to use the brothel without paying."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"The patron attacked me and tried to leave without paying," you say.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I need to report an attack," you say. "The patron tried to use the brothel without paying."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"The patron attacked me and tried to leave without paying," you say. "I want you to deal with them."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Your customer attacked me and tried to get out without paying," you say. "Make them regret it."
+	<<else>>
+		You tell Briar about the attack, and that the patron... or patron<i>s</i>, tried to use the brothel without paying.
+	<</if>>
+	<br><br>
+	Briar stops smiling and puts <<his>> glass down. "They stole from my business and mistreated one of my workers," <<he>> says. "I will take care of it. They will regret using our services without paying."
+<</if>>
 <br><br>
 <<He>> reaches for the phone beside <<his>> sofa. Whatever follows does not require you to stay.
 <<unset $brothelClientComplaint>>
 <br><br>
 <<link [[Leave Briar to it|Briar's Office]]>><</link>>
 <br>
-
 
 :: Briar Machine Ask
 <<effects>>
@@ -909,14 +1019,12 @@ Briar's expression hardens. "They stole from my business and mistreated one of m
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"Th-there's a lewd machine," you say. "Behind the stage—"
 <<elseif _speechAttitudeResolved is "docile">>
-	"There's a lewd machine behind the stage," you say softly. "I thought you should know."
+	"There's a lewd machine behind the stage," you say. "I thought you should know."
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	"There's a lewd machine behind the stage," you say. "I thought that might interest you."
+	"There's a lewd machine behind the stage," you say. "I thought you might want to know about it."
 <<elseif _speechAttitudeResolved is "confident">>
-	"There's a lewd machine behind the stage," you say. "Figured you'd want to hear about it."
-<<elseif _speechAttitudeResolved is "cruel">>
-	"There's a fuck machine behind the stage," you say. "Thought you'd care once it stopped being useful."
-<<elseif _speechAttitudeResolved is "bratty">>
+	"There's a lewd machine behind the stage," you say. "I thought you'd want to know."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"There's a fuck machine," you say. "Behind the stage—"
 <<else>>
 	"There's a lewd machine," you say. "Behind the stage—"
@@ -931,7 +1039,7 @@ Briar's expression hardens. "They stole from my business and mistreated one of m
 	"A special fuel." It's your turn to interrupt. Briar looks surprised. "It has no plugs." You shrug. "And it doesn't take batteries, so I suspected that was the problem."
 	<br><br>
 
-	"I should be careful where I let you snoop around," Briar laughs. "You're right. They make the fuel nearby, a pink gel, but refuse to sell it."<<gcontrol>><<control 10>><<glove>><<npcincr Briar love 1>><<npcincr Briar dom -1>>
+	"I should be careful what I let you look at," Briar says with a laugh. "You're right. They make the fuel nearby, a pink gel, but refuse to sell it."<<gcontrol>><<control 10>><<glove>><<npcincr Briar love 1>><<npcincr Briar dom -1>>
 	<br><br>
 <<else>>
 	Briar laughs before you finish. "That old thing," <<he>> says. "Doesn't work. Was fun for a while, but it needs a special fuel. A pink gel. They make it nearby, but refuse to sell it."
@@ -981,7 +1089,7 @@ Briar walks across the room and leans beside the window, looking over the buildi
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
 	"You must have found some gel before," you say. "So where did it come from?"
 <<elseif _speechAttitudeResolved is "confident">>
-	"You must have sourced some gel before," you say. "So how?"
+	"You found some gel before," you say. "So where did you get it?"
 <<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"You used the machine before," you say. "So where did you get the gel then?"
 <<else>>
@@ -989,7 +1097,7 @@ Briar walks across the room and leans beside the window, looking over the buildi
 <</if>>
 <br><br>
 
-Briar smiles again, caught off guard for just a moment. "You're inquisitive," <<he>> says. "And right, but no one's going to investigate a rogue fucktoy. Unless we make too much noise. The machine will be for VIPs only."
+Briar stops smiling for a second and raises an eyebrow. "You're curious," <<he>> says. "And you're right, but no one's going to investigate a fucktoy they don't know about. We'll keep the machine for VIPs so fewer people see it."
 <br><br>
 
 Briar reclines in <<his>> chair. "Anything else?"
@@ -1052,7 +1160,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 <<else>>
 	<<set $tip_add to 0>>
 	<<set _serviceSkill to $brothelClientSkill ?? Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
-	<<set $tipmod to (1.25 + Math.min(currentSkillValue("seductionskill"), 1000) / 500 + Math.min(_serviceSkill, 1000) / 300 + ($brothelClientBonus ?? 0) + 0.2 * (C.npc.Briar.love / 100)) * 0.75>><<tipset>>
+	<<set $tipmod to (1.25 + Math.min(currentSkillValue("seductionskill"), 1000) / 500 + Math.min(_serviceSkill, 1000) / 300 + 0.2 * (C.npc.Briar.love / 100)) * 0.375 * ($brothelClientRate ?? 1)>><<tipset>>
 <</if>>
 
 	<<promiscuity3>>
@@ -1068,7 +1176,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 		<br>
 		<<link [[Refuse|Brothel Private]]>><<set $phase to 4>><</link>>
 		<br>
-	<<elseif $rng gte 71>>
+	<<elseif $rng gte ($brothelClientTier is "service" ? 51 : $brothelClientTier is "assets" ? 86 : 71)>>
 		Before you can turn around, the <<person>> has <<his>> hands wrapped around your waist and <<his>> mouth nuzzled against your neck.
 		<br><br>
 
@@ -1089,7 +1197,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 			"I know it's not much," <<he>> exclaims, "but it's all I can afford and still eat tomorrow." <<He>> looks down at <<his>> feet.
 			<br><br>
 
-			<<if $brothelClientType is undefined and $rng gte 51>>
+			<<if $brothelClientTier is "assets" and $rng gte 51>>
 				"Also, if it's okay, I don't want any touching. Well, maybe some, but mainly I'd just like to talk."
 				<br><br>
 
@@ -1108,7 +1216,7 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 			You take <<him>> by the hands and sit on the sofa. You negotiate a price of <<printmoney $tip>>, which seems reasonable.
 			<br><br>
 
-			<<if $brothelClientType is undefined and $rng gte 51>>
+			<<if $brothelClientTier is "assets" and $rng gte 51>>
 				<<He>> speaks softly, "If it's okay, I don't want any touching. Well, maybe some, but mainly I'd just like to talk."
 				<br><br>
 
@@ -1182,13 +1290,26 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 	<<He>> rests <<his>> head on your lap and you gently stroke <<his>> hair. <<He>> talks about mundane topics while you lend a sympathetic ear. Despite the banality of the conversation <<he>> becomes tearful at one point, while mentioning how <<he>> doesn't feel able to open up to <<his>> spouse.
 	<br><br>
 
-	After <<his>> thirty minutes are up, <<he>> pays you the agreed fee and thanks you for you time. <<He>> seems genuinely grateful.
-	<br><br>
-	<<fameprostitution 1>>
+	<<if random(1, 100) lte brothelRunawayChance()>>
+		After <<his>> thirty minutes are up, <<he>> thanks you for your time, promises to settle up at the bar on <<his>> way out, and leaves. <<He>> walks straight past it and out of the door.
+		<br><br>
+		<span class="red">You weren't paid.</span> <span class="blue">You should tell Briar.</span>
+		<br><br>
+		<<set $brothelClientComplaint to "runaway">>
+		<<fameprostitution 1>>
 
-	<<clotheson>>
+		<<clotheson>>
 
-	<<link [[Next|Brothel]]>><<money $tip "prostitution">><<endevent>><</link>>
+		<<link [[Next|Brothel]]>><<endevent>><</link>>
+	<<else>>
+		After <<his>> thirty minutes are up, <<he>> pays you the agreed fee and thanks you for you time. <<He>> seems genuinely grateful.
+		<br><br>
+		<<fameprostitution 1>>
+
+		<<clotheson>>
+
+		<<link [[Next|Brothel]]>><<money $tip "prostitution">><<endevent>><</link>>
+	<</if>>
 
 <<elseif $phase is 4>>
 	<<He>> nods, eyes downcast. <<He>> doesn't waste any time leaving the room.
@@ -1304,16 +1425,22 @@ You've made <<moneyGain 2000 false false "briarGel">>.
 
 	<<if $enemypleasure gte $enemypleasuremax>>
 		<<ejaculation>><<set $prostitutionstat += 1>><<fameprostitution 1>>
-		<<if $phase is 2>>
-			"Here's your pay, whore," the <<person>> gasps as <<he>> finishes off. <<He>> leaves the room without looking at you.
+		<<if $brothelClientType isnot "auction" and random(1, 100) lte brothelRunawayChance()>>
+			<<set $brothelClientComplaint to "runaway">>
+			<<if $phase is 1 or $phase is 2>>
+				The <<person>> is dressed before you've caught your breath. "Bill me," <<he>> says, and walks out.
+			<<else>>
+				<<He>> pats <<his>> pockets, mumbles something about having left <<his>> wallet at the bar, and slips out of the room. <<He>> does not come back.
+			<</if>>
 			<br><br>
-			<<tipreceive "brothel">>
-		<<elseif $phase is 1>>
-			"Here's your pay, whore," the <<person>> gasps as <<he>> finishes off. <<He>> leaves the room without looking at you.
+			<span class="red">You weren't paid.</span> <span class="blue">You should tell Briar.</span>
 			<br><br>
-			<<tipreceive "brothel">>
 		<<else>>
-			<<He>> smiles in contentment. "Thank you for your time. Here you go." <<He>> gives you a broad smile before leaving the room.
+			<<if $phase is 1 or $phase is 2>>
+				"Here's your pay, whore," the <<person>> gasps as <<he>> finishes off. <<He>> leaves the room without looking at you.
+			<<else>>
+				<<He>> smiles in contentment. "Thank you for your time. Here you go." <<He>> gives you a broad smile before leaving the room.
+			<</if>>
 			<br><br>
 			<<tipreceive "brothel">>
 		<</if>>
@@ -1733,6 +1860,7 @@ Briar sips <<his>> wine. "So, what takes your fancy?"
 
 :: Briar's Office Show 2
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<speechresolve>>
 <<if $brothelshowdata.type is "flirt">>
 	You accept <<his>> offer to flirt with the audience and get fucked on stage. "Alright," <<he>> says as <<he>> stands up. "Just act cute.
 <<elseif $brothelshowdata.type is "gangbang">>
@@ -1751,7 +1879,19 @@ Briar sips <<his>> wine. "So, what takes your fancy?"
 		<<set $brothelHorse to 1>>
 		Briar laughs. "That would be a show to remember," <<he>> says. "But I don't have access to a horse."
 		<br><br>
-		"I do," you say.
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"I-I do," you say. "I can bring one."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"I do," you say. "I can bring one for the show."
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"I have access to one," you say. "I can arrange it."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"I do," you say. "I can bring it."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"I do," you say. "So that part's already handled."
+		<<else>>
+			"I do," you say.
+		<</if>>
 	<</if>>
 		Briar claps <<his>> hands. "Excellent. You supply your co-performer.
 <<elseif $brothelshowdata.type is "bukkake">>
@@ -1760,12 +1900,36 @@ Briar sips <<his>> wine. "So, what takes your fancy?"
 		<<set $brothelBukkake to 1>>
 		Briar strokes <<his>> chin in thought. "The audience would like it. There'll be quite a mess to clean up."
 		<br><br>
-		"Only if I don't catch it," you reply.
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"O-only if I let it hit the floor," you say.
+		<<elseif _speechAttitudeResolved is "docile">>
+			"Only if I let it hit the floor," you say.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"Only if I let it make a mess," you say.
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Only if I let it hit the floor," you say.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Then I won't let it hit the floor," you say.
+		<<else>>
+			"Only if I let it hit the floor," you say.
+		<</if>>
 		<br><br>
 	<<else>>
 		"The audience did enjoy it the last time you did it," Briar says. "There was quite a mess to clean up."
 		<br><br>
-		"I'll try and catch more of it this time," you reply.
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"I-I'll try to keep more of it off the floor this time," you say.
+		<<elseif _speechAttitudeResolved is "docile">>
+			"I'll try to keep more of it off the floor this time," you say.
+		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+			"I'll try to leave less for the staff to clean this time," you say.
+		<<elseif _speechAttitudeResolved is "confident">>
+			"I'll keep more of it off the floor this time," you say.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"I'll make less of a mess this time," you say.
+		<<else>>
+			"I'll try to keep more of it off the floor this time," you say.
+		<</if>>
 		<br><br>
 	<</if>>
 	Briar laughs. "We've got ourselves a show. I'll pay you <<printmoney 5000>> per helping.
@@ -1796,19 +1960,19 @@ I'm sure your fans will be excited."
 	<br><br>
 	<<if $awarelevel gte 1>>
 		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-			You blush at once, caught between embarrassment and a nervous little smile.
+			Your face grows warm, and you look down at your hands. You cannot think of anything to say before Briar continues.
 		<<elseif _speechAttitudeResolved is "docile">>
-			You lower your gaze, heat rising in your cheeks before you can hide it.
+			You lower your eyes and rub one hand over the other while your face grows warm.
 		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-			You manage a strained smile, but the warmth in your face gives you away.
+			You straighten your clothes and try to answer calmly. "That's rather personal." Your face still feels warm.
 		<<elseif _speechAttitudeResolved is "confident">>
-			You hold Briar's gaze for a beat, but the blush still creeps up on you.
+			You keep looking at Briar. "So what if I am?" Your face grows warm despite the answer.
 		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
-			You smirk on instinct, but the colour in your cheeks betrays you anyway.
+			You fold your arms. "Why, interested?" you ask. Your face grows warm while you wait for <<his>> response.
 		<<else>>
-			You try to keep a straight face, but the blush still finds you.
+			You hesitate and look to the side as your face grows warm.
 		<</if>>
-		Even you find it hard to believe, considering what you've been through.<<stress -6>><<trauma -6>><<lstress>><<ltrauma>>
+		Considering everything you've been through, you can understand why Briar finds it hard to believe.<<stress -6>><<trauma -6>><<lstress>><<ltrauma>>
 	<<else>>
 		You tilt your head in confusion. Why would anyone care about that?
 	<</if>>
@@ -1834,15 +1998,15 @@ I'm sure your fans will be excited."
 	<br><br>
 	<<if $awarelevel gte 3>>
 		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-			You look away, unsure whether to be ashamed or relieved that <<he>> already knows.
+			You look down and rub your thumb against your palm. At least you do not have to explain it yourself.
 		<<elseif _speechAttitudeResolved is "docile">>
-			You give a small, quiet nod, not bothering to deny it.
+			You give a small nod and wait for Briar to continue.
 		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-			You offer a wry smile. "No sense pretending, then."
+			You give a small nod. "Then there's no point pretending."
 		<<elseif _speechAttitudeResolved is "confident">>
-			You hold <<his>> gaze. "I never claimed otherwise."
+			You keep looking at Briar. "I never said I was."
 		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
-			"Glad we're past the polite part," you say with a smirk.
+			You fold your arms. "Glad we got that out of the way."
 		<<else>>
 			You say nothing, waiting to hear where <<he>> is going with this.
 		<</if>>
@@ -1850,10 +2014,10 @@ I'm sure your fans will be excited."
 		You tilt your head in confusion. Why would anyone care about that?
 	<</if>>
 	<br><br>
-	"But I keep a doctor on retainer who can fix that. Temporarily." <<He>> leans forward.
-	"Harper restores the goods, you survive a little calibration in front of the crowd, and we auction off your <span class="gold">second debut</span> for more than an ordinary cherry would fetch."
+	"But I keep a doctor on retainer who can restore it. Temporarily." <<He>> leans forward.
+	"Harper can make you pass as a virgin again. After that, you go on stage, prove it to the crowd, and we auction off your <span class="gold">second first time</span>. That will sell for much more than an ordinary show."
 	<br><br>
-	"It won't be gentle, and Harper's fee comes out of the take. Fail the test too many times and you still owe me a show. Pass it, and you walk away with a small fortune."
+	"Harper's fee comes out of your payment, and the treatment won't be pleasant. If the treatment fails after several attempts, you still owe me a different show. If it works, you could leave with a small fortune."
 	<br><br>
 
 	<<if hasSexStat("promiscuity", 2)>>
@@ -1908,12 +2072,12 @@ I'm sure your fans will be excited."
 		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 			You quickly shake your head, blushing at the very thought. "I-I can't do that."
 		<<elseif _speechAttitudeResolved is "docile">>
-			You shrink back a little. "No... I don't want that."
+			You take a small step back. "No... I don't want that."
 		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-			You give Briar an uneasy look. "No, thank you. I couldn't do that."
-		<<elseif _speechAttitudeResolved is "cruel">>
-			"Not a chance," you say coldly. "Find someone else to sell."
-		<<elseif _speechAttitudeResolved is "bratty">>
+			You shake your head. "No, thank you. I couldn't do that."
+		<<elseif _speechAttitudeResolved is "confident">>
+			You shake your head. "No. I'm not selling my first time."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 			"Yeah, right. Like I'd ever agree to that," you scoff.
 		<<else>>
 			"I'm not sure I could do that." You shake your head at the thought.
@@ -1922,22 +2086,20 @@ I'm sure your fans will be excited."
 		You scratch your head, still confused by what <<he>> is asking you to do. "I think I'll decline."
 	<</if>>
 	<br><br>
-	Briar gives a noncommittal hum, but it's clear <<hes>> displeased. "A shame. It would be a very good moneymaker."
+	Briar frowns and picks up <<his>> glass. "A shame. It would be a very good moneymaker."
 <<else>> /* Say you're not a virgin (lie) */
 	<<set $brothelVirginityState to "lie">>
 	<<if $awarelevel gte 1>>
 		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-			You quietly shake your head, looking away from Briar. "B-But I'm not a virgin." It's a lie,
+			You shake your head and look down. "B-But I'm not a virgin." It's a lie,
 		<<elseif _speechAttitudeResolved is "docile">>
-			You swallow and answer softly. "I'm not a virgin." It's a lie,
+			You rub your hands together. "I'm not a virgin." It's a lie,
 		<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-			You clear your throat and offer a careful smile. "I'm not a virgin." It's a lie,
+			You clear your throat. "I'm not a virgin." It's a lie,
 		<<elseif _speechAttitudeResolved is "confident">>
-			You lift your chin. "I'm not a virgin." It's a lie,
-		<<elseif _speechAttitudeResolved is "cruel">>
-			You give Briar a smirk. "I'm no virgin." It's a bald-faced lie,
-		<<elseif _speechAttitudeResolved is "bratty">>
-			You smirk. "I'm no virgin." It's a bald-faced lie,
+			You keep your eyes on Briar. "I'm not a virgin." It's a lie,
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			You fold your arms. "I'm no virgin." It's a lie,
 		<<else>>
 			You clear your throat awkwardly. "I'm not a virgin though." It's a lie,
 		<</if>>
@@ -2364,26 +2526,61 @@ The police will soon be here.
 :: Brothel Raid Escape
 
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
-<<generate1>><<person1>>Creeping into the empty hallway, you can hear the chaos getting closer. There are several empty rooms you could hide in, but they will likely be searched.
+<<speechresolve>>
+<<generate1>><<person1>>You step into the empty hallway as shouting and running footsteps get closer. Several rooms are empty, but the police will probably search them.
 <br><br>
-A <<person>> bursts into the hallway and looks for somewhere to hide.
+A <<person>> runs into the hallway and looks from one door to another.
 "This can't be happening. What will <<if $pronoun is "m">>Mother say?<<else>>Father say?<</if>>"
 <br><br>
-"In here!" you say, pointing to an empty room. "Hide yourself here. And lock the door."
+
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"In here," you say, pointing to an empty room. "P-please lock the door and stay inside."
+	<br><br>
+	"W-what about you? What will you do?"
+	<br><br>
+	"You're a customer," you say. "I'll stay out here and try to keep them away from you."
+<<elseif _speechAttitudeResolved is "docile">>
+	"Use this room," you say, pointing to an empty room. "Lock the door and stay inside."
+	<br><br>
+	"W-what about you? What will you do?"
+	<br><br>
+	"You're a customer," you say. "I'll stay here and try to keep the police away from you."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Hide in this room and lock the door," you say, pointing to it. "Don't come out until the police are gone."
+	<br><br>
+	"W-what about you? What will you do?"
+	<br><br>
+	"You're a customer. I'll stay here and try to draw their attention away from you."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Get in here and lock the door," you say, pointing to an empty room. "Don't open it for anyone."
+	<br><br>
+	"W-what about you? What will you do?"
+	<br><br>
+	"You're a customer. I'll stay here and keep them away from your room."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Get your ass in here and lock the damn door," you say, pointing to an empty room. "Stay quiet."
+	<br><br>
+	"W-what about you? What will you do?"
+	<br><br>
+	"You're a customer," you say. "I'll stay right here and make sure those bastards don't get to you."
+<<else>>
+	"In here!" you say, pointing to an empty room. "Hide yourself here. And lock the door."
+	<br><br>
+	"W-what about you? What will you do?"
+	<br><br>
+	"You're a customer," you say firmly. "I'll stand right here and make sure the bastards never get to you."
+<</if>>
 <br><br>
-"W-what about you? What will you do?"
-<br><br>
-"You're a customer," you say firmly. "I'll stand right here and make sure the bastards never get to you."
-<br><br>
+
 <<skulduggerycheck>>
 <br><br>
 <<if $skulduggerysuccess is 1>>
-	<<His>> eyes light up. "Thank you!"
+	<<He>> looks at you and smiles. "Thank you!"
 	<br><br>
-	The door slams shut and the lock clicks into place. You scan the corridor and spot a pair of bright, <<print either("red","striped","yellow","pink","white")>> panties wedged under a nearby door. You hang them on the door-handle of the <<persons>> room before slipping into the empty room opposite.
-	You leave your door wide open so anyone can see into the empty room and tuck yourself behind the door.
+	<<He>> shuts the door, and you hear the lock click. You look along the corridor and spot a pair of bright, <<print either("red","striped","yellow","pink","white")>> panties sticking out from under a nearby door. You pick them up and hang them on the handle of the <<persons>> room, then enter the empty room opposite.
+	You leave your door open so the police can see the room from the hallway, then stand behind the open door where they cannot see you from outside.
 	<br><br>
-	A moment later, police charge the corridor.
+	Soon after, police run into the corridor.
 	<br><br>
 	"Oi oi! Look at that. The door handle."
 	<br>
@@ -2393,7 +2590,7 @@ A <<person>> bursts into the hallway and looks for somewhere to hide.
 	<br>
 	"Open up!" You hear a loud knocking. "Police. We know you're in there."
 	<br>
-	A floorboard creaks in front of you as someone looks into your room. You press back against the wall.
+	Someone steps into your room. A floorboard creaks under <<his>> foot while you press your back against the wall behind the door.
 	<br>
 	"Anyone in that one?"
 	<br>
@@ -2401,15 +2598,15 @@ A <<person>> bursts into the hallway and looks for somewhere to hide.
 	<br>
 	"Think this one's gonna need a kick."
 	<br>
-	"Okay." The floorboard creaks again as they move away.
+	"Okay." The floorboard creaks again as the officer steps back into the hallway.
 	<br><br>
-	A moment later you hear a loud crash, then a yell, then begging and whimpering as the <<person>> is hauled away.
+	You hear a loud crash from the other room, followed by a yell. The <<person>> starts begging while the police pull <<him>> out into the corridor.
 	<br><br>
 	<<skulduggeryuse>>
 	<<link [[Wait (1:00)|Brothel Raid Escape 2]]>><<pass 60>><<endevent>><<npc Briar>><<person1>><</link>>
 	<br>
 <<else>>
-	"You lying scumbag," <<he>> shouts, shoving you over a chair. Moments later hands drag you to your feet.
+	"You lying scumbag," <<he>> shouts. <<He>> shoves you into a chair, knocking you over it. Police grab your arms and pull you back to your feet.
 	<br><br>
 	<span class="red">"You're under arrest."</span>
 	<br><br>
@@ -2502,6 +2699,7 @@ Due to the high police presence, you have to wait for things to calm down before
 
 :: Brothel Raid Arrest Sex
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<speechresolve>>
 
 <<if $sexstart is 1>>
 	<<set $sexstart to 0>>
@@ -2514,7 +2712,19 @@ Due to the high police presence, you have to wait for things to calm down before
 	<<promiscuity3>>
 	You smile at them seductively.
 	<br><br>
-	"If you're nice to me and let me go," you say, "I can be very nice to you."
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"I-if you're nice to me and let me go," you say, "I can be very nice to you."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"If you let me go," you say, "I can be very nice to you."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Perhaps we can make a deal," you say. "Let me go, and I'll make you feel good in return."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Let me go," you say. "I'll make you feel good in return."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Let me go and lose the cuffs," you say. "I'll make it fun for you."
+	<<else>>
+		"If you're nice to me and let me go," you say, "I can be very nice to you."
+	<</if>>
 	<br><br>
 
 	<<person1>>"Okay," the <<person>> says.
@@ -2674,19 +2884,17 @@ You stand still and wait for the <<person1>><<person>> to get bored, enduring <<
 <<elseif _speechAttitudeResolved is "docile">>
 	"Please don't touch me," you say. "You can't just do that."
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	"Please keep your hands to yourself," you say. "You had no permission."
+	"Please keep your hands to yourself," you say. "I didn't give you permission."
 <<elseif _speechAttitudeResolved is "confident">>
 	"I didn't say you could touch me," you say. "Stop."
-<<elseif _speechAttitudeResolved is "cruel">>
-	"Touch me again," you say, "and you'll regret it."
-<<elseif _speechAttitudeResolved is "bratty">>
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
 	"Keep your hands to yourself," you say. "Creep."
 <<else>>
 	"I didn't say you could touch me," you say. "Stop."
 <</if>>
 <br><br>
 
-The <<person>> gives your <<nipples>> a final, painful pinch, but then leaves you be.
+The <<person>> pinches your <<nipples>> hard one last time, then takes <<his>> hand away and leaves.
 <br><br>
 
 <<link [[Next|Brothel]]>><<endevent>><</link>>
@@ -2834,21 +3042,19 @@ You ask the <<person>> to help distract Briar.
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
 	"Y-you might want to take a look downstairs," you say. "I heard there was going to be a p-police raid."
 <<elseif _speechAttitudeResolved is "docile">>
-	"You should check downstairs," you say quietly. "I heard there might be a police raid."
+	"You should check downstairs," you say. "I heard there might be a police raid."
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	"You may want to take a look downstairs," you say. "I overheard talk of a police raid."
+	"You may want to check downstairs," you say. "I heard the police are planning a raid."
 <<elseif _speechAttitudeResolved is "confident">>
-	"I heard the police might raid this place," you say. "You should decide what you're doing fast."
-<<elseif _speechAttitudeResolved is "cruel">>
-	"Heads up," you say. "The police are coming, and I thought you'd like a little warning before they drag you out."
-<<elseif _speechAttitudeResolved is "bratty">>
-	"Heads up," you say, jerking your head toward the stairs. "The fuzz are gonna be here any minute. You're welcome for the advance warning."
+	"I heard the police are about to raid this place," you say. "You should deal with it now."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Heads up," you say, pointing towards the stairs. "The fuzz are gonna be here any minute. You're welcome for the warning."
 <<else>>
 	"I heard some cops say they were going to raid here," you say. "What do you think we should do?"
 <</if>>
 <br><br>
 
-Briar chuckles, and lifts <<himself>> up off the sofa. "Don't you worry your little head.
+Briar chuckles and stands up from the sofa. "Don't you worry your little head.
 <<if $pubfame.briar.distract is 2>>
 	<<loadNPC 1 "pubfame_distract">><<clearNPC "pubfame_distract">>
 	I'll take—"
@@ -2857,14 +3063,14 @@ Briar chuckles, and lifts <<himself>> up off the sofa. "Don't you worry your lit
 	From downstairs, you hear the sound of shattering glass. "This is the police!" you hear the <<person2>><<person>> shout. "Everyone on the ground, now!"
 	<br><br>
 
-	Briar grimaces. Without another glance at you, <<person1>><<he>> makes for the stairs.
+	Briar grimaces. Without another glance at you, <<person1>><<he>> hurries towards the stairs.
 <<else>>
-	I'll take care of this." <<He>> walks, almost leisurely, to the stairs.
+	I'll take care of this." <<He>> walks towards the stairs without rushing.
 <</if>>
 <<His>> laptop remains open.
 <br><br>
 
-You wait until you're sure Briar is gone, then rush to the laptop. You plug the USB in. You can't see anything happening on the screen, but you assume it's doing something.
+You wait until Briar disappears down the stairs, then hurry to the laptop and plug in the USB. Nothing changes on the screen, so you leave it connected and wait for the program on it to work.
 <br><br>
 
 <<link [[Next|Briar Hack 2]]>><<pass 1>><</link>>
@@ -2982,7 +3188,20 @@ The car comes to a stop, and Briar pulls you out. "I like avoiding this place. I
 
 :: Brothel VM income
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
-You ask Briar if <<he>> has already checked your vending machine's stock and collected the money this week.
+<<speechresolve>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"Um... did you check my vending machine this week?" you ask. "And did you collect the money from it?"
+<<elseif _speechAttitudeResolved is "docile">>
+	"Did you check my vending machine and collect the money this week?" you ask.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Have you had a chance to check my vending machine and collect this week's money?" you ask.
+<<elseif _speechAttitudeResolved is "confident">>
+	"Did you check the vending machine and collect this week's money?" you ask.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"So, did you check my machine this week, or am I doing your part too?" you ask.
+<<else>>
+	You ask Briar if <<he>> has already checked your vending machine's stock and collected the money this week.
+<</if>>
 <br><br>
 <<if $brothelVending.status is "sold">>
 	Briar snorts. "Your vending machine was cleared out for $brothelVending.weeksEmpty weeks. I told you if it was empty for three weeks in a row, I was going to throw it away. You have no vending machine anymore."
@@ -3024,7 +3243,7 @@ You ask Briar if <<he>> has already checked your vending machine's stock and col
 			<<famebusiness 2>>
 			<<money _pcProfit "brothelVendingMachine" { divineTfAdjusted: true }>>
 		<<else>>
-			but unfortunately, that eats up the rest of the profits. All you're getting back is the money you spent stocking the machine." <<He>> hands you your earnings. You make <<printmoney _productCost>>. "Try stocking more products next time, if you want to do more than break even."
+			but unfortunately, the rent uses the rest of the profit. All you're getting back is the money you spent stocking the machine." <<He>> hands you your earnings. You make <<printmoney _productCost>>. "Try stocking more products next time if you want to make a profit instead of only getting your costs back."
 		<</if>>
 		/* Returning the stock cost is reimbursement, not income. Only the separately awarded profit receives transformation bonuses. */
 		<<money _productCost "brothelVendingMachine" { incomeType: "none" }>>
@@ -3042,9 +3261,24 @@ You ask Briar if <<he>> has already checked your vending machine's stock and col
 
 :: Brothel VM ask
 <<effects>>
-You tell Briar about your idea for a vending machine in the brothel restrooms, explaining that it would be a convenient method for the workers to get what they need for their jobs.
+<<speechresolve>>
 
-Briar's grin is somewhere between disgusted and amused. "I've already told you, I'm not anybody's <<mummy>>. If any of my whores need <<if $settings.condomLevel gte 1>>condoms<</if>><<if $settings.condomLevel gte 1 and $adultshopunlocked>> or <</if>><<if $adultshopunlocked>>lube<</if>>, they know where they can find some. It's not my job to supply them, it's their obligation. So, no, I will not be funding your little venture."
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"I-I had an idea," you say. "What if we put a vending machine in the brothel bathrooms? The workers could buy what they need here."
+<<elseif _speechAttitudeResolved is "docile">>
+	"I thought a vending machine in the bathrooms might help," you say. "The workers could buy what they need without leaving."
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"I'd like to suggest a vending machine for the brothel bathrooms," you say. "It would give the workers an easier way to buy what they need."
+<<elseif _speechAttitudeResolved is "confident">>
+	"We should put a vending machine in the bathrooms," you say. "The workers need an easier way to buy supplies."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"You know what this place needs?" you say. "A vending machine in the bathrooms, so your workers don't have to leave every time they need supplies."
+<<else>>
+	You tell Briar about your idea for a vending machine in the brothel restrooms, explaining that it would be a convenient method for the workers to get what they need for their jobs.
+<</if>>
+<br><br>
+
+Briar's grin is somewhere between disgusted and amused. "I've already told you, I'm not anybody's <<mummy>>. If any of my whores need <<if $settings.condomLevel gte 1>>condoms<</if>><<if $settings.condomLevel gte 1 and $adultshopunlocked>> or <</if>><<if $adultshopunlocked>>lube<</if>>, they know where to buy them. Supplying that stuff is their responsibility, not mine. So no, I will not be paying for your little venture."
 <br><br>
 <<link [[Insist (0:10)|Brothel VM insist]]>><<pass 10>><</link>>
 <br>
@@ -3080,8 +3314,23 @@ You accept Briar's conditions and tell <<him>> you will buy the vending machine 
 
 :: Brothel VM decline
 <<effects>>
-You tell Briar you are not interested in <<his>> conditions.
+<<speechresolve>>
+
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"N-no, I don't think I can agree to that," you say.
+<<elseif _speechAttitudeResolved is "docile">>
+	"I don't think those conditions will work for me," you say.
+<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+	"Thank you for explaining it, but I'm not interested under those conditions," you say.
+<<elseif _speechAttitudeResolved is "confident">>
+	"No. Those conditions aren't worth it," you say.
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Keep your deal," you say. "I'm not agreeing to those conditions."
+<<else>>
+	You tell Briar you are not interested in <<his>> conditions.
+<</if>>
 <br><br>
+
 "Suit yourself. I'm not going to change my mind." <<He>> returns to sipping <<his>> wine.
 <br><br>
 <<link [[Next|Briar's Office]]>><<endevent>><</link>>
@@ -3525,32 +3774,69 @@ With a smile <<he>> hands you another <<moneyGain 200 false false "prostitution"
 
 :: Brothel Escort Job End 5
 <<effects>>
+<<speechresolve>>
 
 <<if $phase is 1>>
 	As a parting gift you kiss <<his>> cheek before you take the money. <<He>> blushes.
 	<br><br>
 
-	"Thank you," you say.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Th-thank you," you say, looking down at the money.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Thank you," you say, holding the money close.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Thank you. That's very generous," you say.
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Thanks. I appreciate it," you say.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"Not bad," you say as you take the money. "Thanks."
+	<<else>>
+		"Thank you," you say.
+	<</if>>
 	<br><br>
 
-	That said you leave <<him>> standing there, gazing after you.
+	You leave <<him>> standing there while <<he>> watches you go.
 	<br><br>
 
 <<elseif $phase is 2>>
-	"Thank you," you say, taking the money from <<his>> hand.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Th-thank you," you say as you take the money from <<his>> hand.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"Thank you," you say, taking the money carefully.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Thank you. That's kind of you," you say as you take the money.
+	<<elseif _speechAttitudeResolved is "confident">>
+		"Thanks," you say, taking the money from <<his>> hand.
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"I'll take it," you say, taking the money. "Thanks."
+	<<else>>
+		"Thank you," you say, taking the money from <<his>> hand.
+	<</if>>
 	<br><br>
 
-	<<He>> looks at you expectantly, but you simply leave.
+	<<He>> waits as if <<he>> expects you to say something else, but you leave.
 	<br><br>
 
 <<else>>
-	"I already got paid," you say surprised.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"B-but you already paid me," you say.
+	<<elseif _speechAttitudeResolved is "docile">>
+		"You already paid me," you say. "You don't have to give me more."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"You've already paid me," you say. "You really don't need to give me anything else."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"You already paid me," you say. "Keep it."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"You already paid me," you say. "What's this for?"
+	<<else>>
+		"I already got paid," you say surprised.
+	<</if>>
 	<br><br>
 
-	"Sorry, I just wanted to give you something extra," <<he>> stammers. <<He>> looks at the money in <<his>> hand, before shaking <<his>> head and walking back inside.
+	"Sorry, I just wanted to give you something extra," <<he>> stammers. <<He>> looks down at the money in <<his>> hand, shakes <<his>> head, and walks back inside.
 	<br><br>
 
-	You leave <<him>> be and move on.
+	You leave <<him>> alone and move on.
 	<br><br>
 
 	<<money -20000 "brothel">>
@@ -3664,36 +3950,33 @@ With a smile <<he>> hands you another <<moneyGain 200 false false "prostitution"
 
 <<if $xchange.premium.fromIntro>>
 	<<set $xchange.premium.fromIntro to false>>
-	Briar's smile lingers as you hesitate, as if <<he>> already knows what you're thinking. 
+	Briar watches you while you hesitate. <<He>> does not rush you, and the smile stays on <<his>> face.
 <<else>>
-Briar looks up as you step in and, unexpectedly, <<his>> expression softens.
+	Briar looks up when you enter. Instead of <<his>> usual sharp smile, <<he>> gives you a calmer one.
 	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-		Something in <<his>> face makes your shoulders loosen before you can stop it. That alone puts you on edge, as Briar doesn't usually bother with anything resembling "gentle."
+		You stop near the door and keep your hands close to your body. Briar rarely speaks to you this gently, so you wait for <<him>> to explain what <<he>> wants.
 	<<elseif _speechAttitudeResolved is "docile">>
-		The softness almost draws you in. That only makes it worse. Briar being tender feels less like comfort and more like a trap laid carefully.
+		You take a small step towards the desk, then stop. Briar's gentle tone is unusual, so you watch <<him>> while <<he>> speaks.
 	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-		You keep your composure, but the change in <<his>> manner lands like a wrong note in a familiar song.
+		You return the smile but stay on the other side of the desk. "What did you want to talk about?"
 	<<elseif _speechAttitudeResolved is "confident">>
-		You hold steady, though the shift in <<his>> mood makes every instinct in you sharpen.
-	<<elseif _speechAttitudeResolved is "cruel">>
-		Your mouth nearly curls. Briar being "kind" is almost insulting, like <<he>> thinks softer teeth will make the bite easier to miss.
-	<<elseif _speechAttitudeResolved is "bratty">>
-		Your hackles rise. Briar being "nice" always feels like a leash with velvet wrapped around it.
+		You walk up to the desk and fold your arms. "All right. What do you want?"
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		You stop in front of the desk. "Quit the sweet act. What do you want?"
 	<<else>>
-		It's subtle, but you notice it immediately. Briar's usual edge is blunted, make you wonder what <<he>> wants from you.
+		You stop beside the desk. Briar is being unusually gentle, so you wait for <<him>> to explain why.
 	<</if>>
 <</if>>
 
-<<He>> drifts back to the desk and taps two fingers against the wood. "Did you know <span class="red">we</span> have other variants? 
-A <span class="lewd">premium</span> line. Cleaner. Controlled. Better for... <i>analysis</i>."
+<<He>> walks back to the desk and taps two fingers against the wood. "Did you know <span class="red">we</span> have other variants? There's a <span class="lewd">premium</span> line. The effects are more predictable and easier to control, which makes it better for... <i>analysis</i>."
 <br><br>
-Briar's gaze stays on you. "Interested?"
+Briar keeps looking at you. "Would you like to try one?"
 
 <<set _vPreg to $sexStats.vagina.pregnancy>><<set _aPreg to $sexStats.anus.pregnancy>>
 <<set _isPregnant to (_vPreg isnot undefined and _vPreg.type isnot undefined and _vPreg.type isnot null) or (_aPreg isnot undefined and _aPreg.type isnot undefined and _aPreg.type isnot null)>>
 <<if playerIsXChanged() or _isPregnant>>
 	<br><br>
-	But <<he>> pauses as <<his>> gaze catches on you, then clicks <<his>> tongue. "Ah, no... Not today." <<He>> gestures you away like you're a minor inconvenience. "Come back when you're in a state worth testing."
+	Briar looks over your body again, then clicks <<his>> tongue. "Ah, no. Not today." <<He>> waves you away from the desk. "Come back when your body isn't already dealing with something else. I want to see what the pill does on its own."
 	<br><br>
 	<<getouticon>><<link [[Leave|Briar's Office]]>><<endevent>><</link>>
 <<else>>
@@ -3708,25 +3991,23 @@ Briar's gaze stays on you. "Interested?"
 <<speechresolve>>
 <<set _premiumPillName to "X-Change Premium">>
 
-You take the pill between your fingers. It's warm, and you know it's been held too long. Then Briar's hand covers yours as <<he>> passes it over. You find yourself wondering why <<he>> bothers with gestures like this at all.
+Briar holds the pill between two fingers. You reach for it, but <<his>> hand closes over yours for a second as <<he>> passes it to you. When <<he>> lets go, the pill is warm from being in <<his>> hand.
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-	Your stomach dips, and you hate the part of you that wants to mistake it for kindness.
+	You pull your hand back quickly and look down at the pill instead of Briar.
 <<elseif _speechAttitudeResolved is "docile">>
-	The touch makes you go still. For a second, it almost feels gentle. That thought unsettles you more than the contact itself.
+	You bring your hand back towards your chest and close your fingers around the pill, then look up at Briar again.
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	You withdraw with care, hiding the tension in your fingers behind a composed little motion.
+	You pull your hand back. "Thank you. You can let go now."
 <<elseif _speechAttitudeResolved is "confident">>
-	You pull your hand back and keep your expression level. "That's close enough."
-<<elseif _speechAttitudeResolved is "cruel">>
-	You jerk your hand away at once. "Don't touch me unless you want to lose the privilege."
-<<elseif _speechAttitudeResolved is "bratty">>
-	You snatch your hand back. "Don't touch me."
+	You pull your hand back. "Hand me the pill. You don't need to hold my hand as well."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	You pull your hand free. "The pill, Briar. Not my hand."
 <<else>>
-	You keep your face neutral, but your pulse tells a different story.
+	You pull your hand back, look at Briar, then look down at the pill in your hand.
 <</if>>
 <br><br>
 
-"Good. Whatever. Take it when you're ready." Briar leans back with a smile still not reaching <<his>> eyes. "Then come tell me how it feels. If it works, you're welcome to come back next week. Same deal. Free."
+"There. Take it when you're ready," Briar says, sitting back down. "After you use it, come back and tell me exactly what it did. If it works properly, you can have another one next week. Same deal. Free."
 <br><br>
 
 <<set $weekly.briarPremiumPill to 1>>
@@ -3745,24 +4026,25 @@ You take the pill between your fingers. It's warm, and you know it's been held t
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<speechresolve>>
 
-You don't reach for it.
+You leave the pill on Briar's side of the desk.
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-	Your fingers curl into your palm instead.
+	You shake your head and keep your hands close to your body. "N-no, thank you."
 <<elseif _speechAttitudeResolved is "docile">>
-	You keep your hands folded close, making the refusal gentle but unmistakable.
+	You fold your hands in front of yourself and take a small step back. "I'd rather not."
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	You leave your hands neatly at your sides and let the silence answer for you.
+	You shake your head. "No, thank you. I'll pass."
 <<elseif _speechAttitudeResolved is "confident">>
-	You hold Briar's gaze and leave the pill where it is.
+	You stay where you are. "No, I'm not taking it."
 <<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
-	You make a point of not moving an inch.
+	You fold your arms. "Keep it. I'm not swallowing something just because you hand it to me."
 <<else>>
-	You let the silence do the work.
+	You shake your head. "No, thanks."
 <</if>>
 <br><br>
-Briar's smile lingers, patient and unfazed, as though <<he>> expected resistance and planned around it. "All right. That's fine. I'll be here with the same offer."
+
+Briar keeps smiling as <<he>> picks the pill up again. "All right. I'll offer again another time."
 <br><br>
-<<He>> draws the pill back to <<his>> side of the desk.
+<<He>> puts the pill back on <<his>> side of the desk.
 <br><br>
 
 <<getouticon>><<link [[Leave|Briar's Office]]>><<endevent>><</link>>
@@ -3852,26 +4134,23 @@ Briar hums, unimpressed or maybe just thinking. "Interesting. Either the dose is
 <<speechresolve>>
 <<set $xchange.premium.unlocked to true>>
 
-Briar rises from behind <<his>> desk the moment you step into the office. "Ah... there you are!"
+Briar stands up from behind <<his>> desk as soon as you enter. "Ah... there you are!"
 <br><br>
-<<He>> looks you up and down slowly like <<he>>'s taking inventory of what you've let happen to your body. 
-A small smile tugs at <<his>> mouth, then. "So you've tried the <i>pill</i>." <<He>> lets the words hang. "Curious little thing."
+<<He>> looks from your face down over your body, then back up. <<He>> smiles. "So you've tried the <i>pill</i>. Curious little thing."
 <br><br>
 
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-	For a heartbeat, the room feels calmer. Like you could just nod and let <<him>> steer, and everything would become simple. The ease of that thought makes your stomach twist.
+	You stay near the door and look down. "Y-yeah. I tried it."
 <<elseif _speechAttitudeResolved is "docile">>
-	The softness in <<his>> tone almost coaxes you into listening. That only makes you more wary. Briar never sounds gentle without wanting something in return.
+	You give a small nod. "I did."
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	You keep your posture steady, but the way <<he>> studies you sets your nerves humming. That smile of <<his>> is too warm by half.
+	You nod. "I have. I suppose you want to ask me about it?"
 <<elseif _speechAttitudeResolved is "confident">>
-	You hold yourself straight, yet every instinct tells you that a smile like that is simply another instrument in <<his>> hands.
-<<elseif _speechAttitudeResolved is "cruel">>
-	Your jaw tightens. Briar acting pleasant now is almost laughable. You can feel the bait hidden behind every softened word.
-<<elseif _speechAttitudeResolved is "bratty">>
-	Your jaw tightens. Briar acts "pleasant" now? You know it's never kindness. You can practically feel the bait behind <<his>> smile.
+	You fold your arms. "Yeah. What about it?"
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	You fold your arms. "Yeah, I tried it. You going to charge me for the review too?"
 <<else>>
-	There's something off about the softness in <<his>> tone. Briar doesn't do warm unless <<he>> wants something.
+	"I tried it," you say. "Why?"
 <</if>>
 <br><br>
 
@@ -3883,21 +4162,21 @@ A small smile tugs at <<his>> mouth, then. "So you've tried the <i>pill</i>." <<
 <<set $xchange.premium.unlocked to true>>
 
 <<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-	You hesitate, then keep your distance.
+	You shake your head and take a small step back. "N-no. I'm not interested."
 <<elseif _speechAttitudeResolved is "docile">>
-	You draw back with quiet care, refusing without quite relaxing.
+	You step back from the desk. "I don't think I want that."
 <<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	You decline with a small, controlled stillness.
+	You shake your head. "No, thank you. I'll pass."
 <<elseif _speechAttitudeResolved is "confident">>
-	You stay where you are and make the refusal plain with your stare.
+	You stay where you are. "No, I'm not interested."
 <<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
-	You don't bother hiding your distrust.
+	You fold your arms. "Keep your mystery pill. I'm not interested."
 <<else>>
-	You hold back.
+	You shake your head. "I'll pass."
 <</if>>
 <br><br>
-Briar's smile doesn't falter. If anything, it sharpens. "As you like. No pressure."
-<br><br>
-<<He>> tilts <<his>> head. "Just remember... I'm always here. And so is the offer."
+
+Briar keeps smiling. "As you like," <<he>> says. "I'm not forcing you, and the offer will still be here if you change your mind."
 <br><br>
 <<getouticon>><<link [[Back|Briar's Office]]>><<endevent>><</link>>
+

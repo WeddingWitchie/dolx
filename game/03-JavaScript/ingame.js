@@ -4064,3 +4064,14 @@ function wearingCondom(who) {
 	return condomState(who) !== "none";
 }
 window.wearingCondom = wearingCondom;
+
+/**
+ * Chance a brothel client leaves without paying.
+ * Higher-paying clients have a higher chance, up to 37%.
+ *
+ * @returns {number} percentage chance, 10–37
+ */
+function brothelRunawayChance() {
+	return Math.clamp(Math.round((V.brothelClientRate ?? 1) * 23), 10, 37);
+}
+window.brothelRunawayChance = brothelRunawayChance;
