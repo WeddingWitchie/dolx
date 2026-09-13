@@ -76,10 +76,6 @@ function playerHasButtPlug() {
 }
 window.playerHasButtPlug = playerHasButtPlug;
 
-// Reconcile the inventory items' `worn` bookkeeping flags with the V.worn slots for the source of truth for what's actually on/in the body.
-// The two copies desync when code outside the toy inventory UI clears a worn slot (e.g. visionPrepMorph), and once a save/load has broken the slot↔item object alias nothing repairs the flag, leaving a phantom "worn" toy that's only carried.
-// Presence in a slot is enough to keep the flag: a combat-"removed" plug (state !== "worn") still occupies its slot and gets re-inserted by buttplugon, so its flag must survive.
-// Strap-ons are skipped; they're synced against V.worn.under_lower elsewhere.
 function dolxSyncSexToyWornFlags() {
 	const inv = V.player?.inventory?.sextoys;
 	if (!inv) return;
@@ -97,7 +93,7 @@ function dolxSyncSexToyWornFlags() {
 window.dolxSyncSexToyWornFlags = dolxSyncSexToyWornFlags;
 
 // A vaginal dildo can't stay inside a vagina that no longer exists.
-// Called at the fork-owned genderflip sites (X-Change apply, gradual-identity shift, cheat menu) and on every load via <<xchange-modupdate>> to catch vanilla transformation scenes (snake painting, Olive, schism).
+
 function dolxEjectOrphanVaginalDildo() {
 	if (V.worn?.vaginal_dildo && !V.player?.vaginaExist) {
 		delete V.worn.vaginal_dildo;
@@ -228,9 +224,6 @@ function playerVibratorOn() {
 }
 window.playerVibratorOn = playerVibratorOn;
 
-// The sidebar vibrator controls do not trigger passage navigation, so State.top may still contain
-// the old vibrator state when saving. Copy the change to State.top immediately so saving and
-// reloading before changing passages keeps the correct on/off and power settings.
 function syncVibratorToSaveMoment() {
 	const topVibrator = State.top?.variables?.worn?.vibrator;
 	if (!topVibrator || !V.worn.vibrator) return;
@@ -246,10 +239,8 @@ function setPlayerVibrator(on, link) {
 	V.worn.vibrator.vibrating = on ? 1 : 0;
 	syncVibratorToSaveMoment();
 
-	// Optional: update link text if you pass the DOM link in
 	if (link) {
-		const label = playerHasBulletVibe() ? "bullet vibe" : "vibrator";
-		link.innerText = V.worn.vibrator.vibrating ? `Turn ${label} off` : `Turn ${label} on`;
+		link.innerText = V.worn.vibrator.vibrating ? "On" : "Off";
 	}
 }
 window.setPlayerVibrator = setPlayerVibrator;
@@ -270,8 +261,7 @@ function changePlayerVibratorPower(delta, link) {
 	syncVibratorToSaveMoment();
 
 	if (link) {
-		const label = playerHasBulletVibe() ? "Bullet vibe" : "Vibrator";
-		link.innerText = `${label} power: ${V.worn.vibrator.power}/${V.worn.vibrator.powerMax}`;
+		link.innerText = `${V.worn.vibrator.power}/${V.worn.vibrator.powerMax}`;
 	}
 }
 window.changePlayerVibratorPower = changePlayerVibratorPower;
