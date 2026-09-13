@@ -953,6 +953,13 @@ function playerIsXChanged() {
 }
 window.playerIsXChanged = playerIsXChanged;
 
+// Recognition requires a body swap, not gray effects, height changes, or a makeover.
+function playerHasXChangeBody() {
+	const pill = V.xchange.pill;
+	return !!(playerIsXChanged() && (pill.genderflipEffect || pill.hermEffect || setup.xChangeCloneVirginityRole(pill.clone)));
+}
+window.playerHasXChangeBody = playerHasXChangeBody;
+
 /**
  * Whether Alpha and Omega pills can trigger heat or rut.
  * When "ABO drives" is enabled, Omega can enter heat through the fertility cycle,

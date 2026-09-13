@@ -1,6 +1,6 @@
 /* eslint-disable no-new */
 /* eslint-disable jsdoc/require-description-complete-sentence */
-/* globals wornSetupClothes, playerIsXChanged, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing, effectiveDrunk, ccmUtils */
+/* globals wornSetupClothes, playerHasXChangeBody, Transformations, playerGenitalFluidLeakBlocked, wearingTidebloomRing, effectiveDrunk, ccmUtils */
 function setfemininitymultiplierfromgender(gender) {
 	if (gender === "f") {
 		T.femininity_multiplier = 1;
@@ -270,7 +270,7 @@ function genderappearancecheck() {
 	const actingMultiplier = V.englishtrait + 1;
 	addfemininityfromfactor(T.femininity_multiplier * 100 * actingMultiplier, "Posture (x" + actingMultiplier + " effectiveness due to English skill)");
 	/* Sexswap fame */
-	if (!V.statFreeze && playerIsXChanged() && V.xchange_fame >= 2) {
+	if (!V.statFreeze && playerHasXChangeBody() && V.xchange_fame >= 2) {
 		if (V.player.sex === "m") {
 			addfemininityfromfactor(V.xchange_fame / 2, "Sex flipped");
 		} else {
