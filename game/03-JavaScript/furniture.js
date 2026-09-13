@@ -24,6 +24,7 @@ const Furniture = (() => {
 		plush: "plush",
 		radio: "radio",
 		console: "console",
+		refrigenerator: "refrigenerator",
 		/* Special category for Kylar event */
 		owlplushie: "owlplushie",
 	});
@@ -36,7 +37,7 @@ const Furniture = (() => {
 		{ id: "chair", label: "Chairs", categories: ["chair"] },
 		{ id: "desk", label: "Desks", categories: ["desk"] },
 		{ id: "wardrobe", label: "Wardrobe", categories: ["wardrobe"] },
-		{ id: "electronic", label: "Electronic", categories: ["radio", "console"] },
+		{ id: "electronic", label: "Electronic", categories: ["radio", "console", "refrigenerator"] },
 		{ id: "decoration", label: "Decorations", categories: ["decoration", "plush"] },
 		{ id: "windowsill", label: "Miscellaneous", categories: ["windowsill", "shelf"] },
 	]);
@@ -538,6 +539,15 @@ const Furniture = (() => {
 			description: "A space-friendly radio, includes weather forecasts!",
 			iconFile: "radio",
 		});
+		mapper.set("refrigenerator", {
+			name: "Refrigenerator",
+			nameCap: "Refrigenerator",
+			category: ["refrigenerator"],
+			type: [],
+			cost: 1500,
+			description: "Keeps stored food and its effects fresh indefinitely.",
+			showCheck: "refrigenerator",
+		});
 		mapper.set("handheldConsole", {
 			name: "console",
 			nameCap: "Console",
@@ -765,6 +775,8 @@ const Furniture = (() => {
 
 	function showFn(item) {
 		switch (item.showCheck) {
+			case "refrigenerator":
+				return V.furnitureShopTarget === "bedroom" ? V.loft_known === 1 : V.furnitureShopTarget === "cottage" && V.farm_stage >= 7;
 			case "isWardrobeHigherTier":
 				// console.log("isWardrobeHigherTier", isWardrobeHigherTier(item));
 				return isWardrobeHigherTier(item);

@@ -1040,6 +1040,7 @@ window.pocketHourPassed = pocketHourPassed;
 /* Food thrown out overnight is recorded in $daily for the Journal's whole-day notice. */
 function pocketDayPassed(days = 1) {
 	pocketEnsure();
+	window.refrigeneratorDayPassed(days);
 	/* Batch dates do not update over time.
 	With spoilage disabled, old batches stay stored and foodEffects treats them as stale. */
 	if (!foodSpoilageEnabled()) return [];

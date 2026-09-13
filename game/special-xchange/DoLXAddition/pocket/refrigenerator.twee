@@ -1,0 +1,148 @@
+:: Loft Refrigenerator
+<<set $location to "home">><<set $outside to 0>><<effects>>
+<<set _fridge to $furniture?.bedroom?.refrigenerator>>
+<<set _note to _fridge?.notes?.[0]>>
+<<if _note and setup.foodstuff[_note.key]>>
+	<<wearProp "paper sheet">>
+	As you open the Refrigenerator, a folded piece of paper comes loose from beneath the magnet and starts to fall.
+	You reach down and grab it before it reaches the floor, then unfold it in your hands.
+	<br><br>
+	The handwriting is small, with some words written closer together than others. You move nearer to the light and read the note.
+	<br><br>
+	<<if _note.type is "taken">>
+		<i>"I took a serving of <<= setup.foodstuff[_note.key].name>>. Sorry, I was hungry. Thank you. I only took one."</i><<ghope>><<hope 1>>
+		<br><br>
+		The words <i>"I only took one"</i> have been added beneath the rest of the message in smaller writing, pressed into the little space left at the bottom of the paper.
+		You look towards the sink and notice a clean plate standing beside it to dry. Whoever took the food ate one serving, washed the plate afterwards, then left the note where you would see it.
+	<<else>>
+		<i>"There was some <<= setup.foodstuff[_note.key].name>> left over, so I put it in here for you. Please eat it before someone else does."</i><<greb>><<reb 1>>
+		<br><br>
+		There is a small, uneven smile drawn beneath the message. You open the refrigenerator farther and find the food inside, put away where it will stay fresh.
+		Whoever wrote the note could have eaten the rest or left it where it was, but instead they saved a serving for you and made sure you knew where to find it.
+	<</if>><<ltrauma>><<trauma -3>>
+	<br><br>
+	<<link [[Next|Loft Refrigenerator Interior]]>><<run $furniture.bedroom.refrigenerator.notes.shift()>><<endevent>><</link>>
+<<else>>
+	<<refrigenerator "bedroom">>
+	<br>
+	<<link [[Close the door|Orphanage Loft]]>><</link>>
+<</if>>
+<br>
+
+:: Loft Refrigenerator Interior
+<<set $location to "home">><<set $outside to 0>><<effects>>
+<<refrigenerator "bedroom">>
+<br>
+<<link [[Close the door|Orphanage Loft]]>><</link>>
+<br>
+
+:: Cottage Refrigenerator
+<<set $location to "alex_cottage">><<set $outside to 0>><<effects>>
+<<refrigenerator "cottage">>
+<br>
+<<link [[Close the door|Farm Cottage]]>><</link>>
+<br>
+
+:: Mansion Refrigenerator
+<<set $location to "avery_mansion">><<set $bus to "avery_kitchen">><<set $outside to 0>><<effects>>
+<<if !$furniture.avery_mansion>><<set $furniture.avery_mansion to {}>><</if>>
+<<if !$furniture.avery_mansion.refrigenerator>><<set $furniture.avery_mansion.refrigenerator to { id: "refrigenerator" }>><</if>>
+<<refrigenerator "avery_mansion">>
+<br>
+<<link [[Close the door|Mansion Kitchen]]>><</link>>
+<br>
+
+:: Refrigenerator Widgets [widget]
+<<widget "refrigenerator">>
+	<<set _fridgeLocation to _args[0]>>
+	<<set _fridge to $furniture?.[_fridgeLocation]?.refrigenerator>>
+	<<set _fridgePassage to _fridgeLocation is "bedroom" ? "Loft Refrigenerator Interior" : _fridgeLocation is "avery_mansion" ? "Mansion Refrigenerator" : "Cottage Refrigenerator">>
+	<<if _fridge>>
+		<<run pocketCheckSpoilage()>>
+		<<set _available to pocketFoodList()>>
+		<<set _storedKeys to _fridge.contents ? Object.keys(_fridge.contents).filter(key => foodIsDish(key) && _fridge.contents[key].length) : []>>
+		<div class="dolx-fridge">
+		<div class="dolx-fridge-bulk-actions">
+			<<capture _fridgeLocation>>
+				<<if _available.length>><<link "Store all food" _fridgePassage>><<run refrigeneratorTransferAll(_fridgeLocation, false)>><</link>><<else>><span class="grey">Store all food</span><</if>>
+				<span class="grey"> | </span>
+				<<if _storedKeys.length>><<link "Take all food" _fridgePassage>><<run refrigeneratorTransferAll(_fridgeLocation, true)>><</link>><<else>><span class="grey">Take all food</span><</if>>
+			<</capture>>
+		</div>
+		<section class="dolx-pocket-section">
+			<header class="dolx-pocket-section-header">
+				<span>Stored food</span>
+				<span class="grey">Preserved</span>
+			</header>
+			<<if !_storedKeys.length>>
+				<div class="dolx-pocket-empty">The shelves are empty.</div>
+			<<else>>
+				<div class="dolx-fridge-list">
+					<<for _key range _storedKeys>>
+						<<set _batches to _fridge.contents[_key]>>
+						<<set _count to _batches.reduce((sum, batch) => sum + batch.n, 0)>>
+						<<set _oldestAge to _batches.reduce((age, batch) => Math.max(age, batch.age), 0)>>
+						<<set _daysLeft to foodShelfLife(_key) - _oldestAge>>
+						<div @class="$options.images is 1 ? 'dolx-fridge-row dolx-fridge-row-icon' : 'dolx-fridge-row'">
+							<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<foodstufficon _key>></span><</if>>
+							<div class="dolx-fridge-food-info">
+								<div class="dolx-fridge-food-name"><span class="teal"><<= setup.foodstuff[_key].name.toLocaleUpperFirst()>></span> <span class="gold">×<<= _count>></span></div>
+								<<if !isFinite(_daysLeft)>><span class="grey">Does not spoil</span>
+								<<elseif _daysLeft lte 0>><span class="grey">Past its date · no effects</span>
+								<<elseif !$foodSpoilage>><span class="green">Effects for <<= Math.floor(_daysLeft)>> <<pluralise Math.floor(_daysLeft) "day">> after removal</span>
+								<<elseif _daysLeft lte 1>><span class="red">Goes off overnight after removal</span>
+								<<elseif _daysLeft lte 3>><span class="red"><<= Math.floor(_daysLeft)>> days after removal</span>
+								<<elseif _daysLeft lte 7>><span class="gold"><<= Math.floor(_daysLeft)>> days after removal</span>
+								<<else>><span class="green"><<= Math.floor(_daysLeft)>> days after removal</span><</if>>
+							</div>
+							<div class="dolx-fridge-actions">
+								<<capture _key _fridgeLocation>>
+									<span class="dolx-fridge-action"><<link "Take one" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, true)>><</link>></span>
+									<span class="dolx-fridge-action"><<link "Take all" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, true, true)>><</link>></span>
+								<</capture>>
+							</div>
+						</div>
+					<</for>>
+				</div>
+			<</if>>
+		</section>
+		<section class="dolx-pocket-section">
+			<header class="dolx-pocket-section-header">
+				<span>Food you can store</span>
+				<span class="grey">Cooked food</span>
+			</header>
+			<<if !_available.length>>
+				<div class="dolx-pocket-empty">You have no food to put away.</div>
+			<<else>>
+				<div class="dolx-fridge-list">
+					<<for _key range _available>>
+						<<set _daysLeft to foodDaysLeft(_key)>>
+						<div @class="$options.images is 1 ? 'dolx-fridge-row dolx-fridge-row-icon' : 'dolx-fridge-row'">
+							<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<foodstufficon _key>></span><</if>>
+							<div class="dolx-fridge-food-info">
+								<div class="dolx-fridge-food-name"><span class="teal"><<= setup.foodstuff[_key].name.toLocaleUpperFirst()>></span> <span class="gold">×<<= foodBatchCount(_key)>></span></div>
+								<<if !isFinite(_daysLeft)>><span class="grey">Does not spoil</span>
+								<<elseif !$foodSpoilage and _daysLeft lte 0>><span class="grey">Past its date · no effects</span>
+								<<elseif !$foodSpoilage and _daysLeft lte 1>><span class="gold">Effects end overnight</span>
+								<<elseif !$foodSpoilage>><span class="green">Effects for <<= Math.floor(_daysLeft)>> more days</span>
+								<<elseif _daysLeft lte 1>><span class="red">Goes off overnight</span>
+								<<elseif _daysLeft lte 3>><span class="red"><<= Math.floor(_daysLeft)>> days left</span>
+								<<elseif _daysLeft lte 7>><span class="gold"><<= Math.floor(_daysLeft)>> days left</span>
+								<<else>><span class="green"><<= Math.floor(_daysLeft)>> days left</span><</if>>
+							</div>
+							<div class="dolx-fridge-actions">
+								<<capture _key _fridgeLocation>>
+									<span class="dolx-fridge-action"><<link "Store one" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, false)>><</link>></span>
+									<span class="dolx-fridge-action"><<link "Store all" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, false, true)>><</link>></span>
+								<</capture>>
+							</div>
+						</div>
+					<</for>>
+				</div>
+			<</if>>
+		</section>
+		</div>
+	<<else>>
+		There is no Refrigenerator here.
+	<</if>>
+<</widget>>

@@ -343,18 +343,19 @@
 			<</for>>
 		</div>
 	<</if>>
-	<<set _journalFoods to pocketFoodList()>>
+	<<set _journalFoods to [...new Set(pocketFoodList().concat(refrigeneratorFoodList()))]>>
 	<<if _journalFoods.length is 0>>
 		<div class="dolx-pocket-empty">You have no cooked food stored.</div>
 	<<else>>
 		<div class="dolx-food-journal">
 			<<for _foodKey range _journalFoods>>
+				<<set _storedFoodRows to refrigeneratorFoodRows(_foodKey)>>
 				<div @class="$options.images is 1 ? 'dolx-food-journal-row dolx-food-journal-row-icon' : 'dolx-food-journal-row'">
 					<<if $options.images is 1>><span class="dolx-food-journal-icon"><<foodstufficon _foodKey>></span><</if>>
 					<div class="dolx-food-journal-body">
 						<div class="dolx-food-journal-name">
 							<span class="teal"><<= setup.foodstuff[_foodKey].name.toLocaleUpperFirst()>></span>
-							<span class="gold">(<<= foodBatchCount(_foodKey)>>)</span>
+							<span class="gold">(<<= foodBatchCount(_foodKey) + _storedFoodRows.reduce((sum, row) => sum + row.amount, 0)>>)</span>
 						</div>
 						<div class="dolx-food-journal-batches">
 							<<for _foodBatch range foodExpiryRows(_foodKey)>>
@@ -368,6 +369,21 @@
 									<<elseif _foodBatch.daysLeft lte 3>><span class="red"><<= Math.floor(_foodBatch.daysLeft)>> days left</span>
 									<<elseif _foodBatch.daysLeft lte 7>><span class="gold"><<= Math.floor(_foodBatch.daysLeft)>> days left</span>
 									<<else>><span class="green"><<= Math.floor(_foodBatch.daysLeft)>> days left</span><</if>>
+								</div>
+							<</for>>
+							<<for _storedBatch range _storedFoodRows>>
+								<div class="dolx-food-journal-batch dolx-food-journal-batch-stored">
+									<span><<= _storedBatch.amount>> <<= _storedBatch.amount is 1 ? "serving" : "servings">></span>
+									<span class="dolx-food-journal-stored">
+										<span class="blue">Stored · <<= _storedBatch.location>></span><br>
+										<<if !isFinite(_storedBatch.daysLeft)>><span class="grey">Does not spoil</span>
+										<<elseif _storedBatch.daysLeft lte 0>><span class="grey">Past its date · no effects</span>
+										<<elseif !$foodSpoilage>><span class="green">Effects for <<= Math.floor(_storedBatch.daysLeft)>> <<pluralise Math.floor(_storedBatch.daysLeft) "day">> after removal</span>
+										<<elseif _storedBatch.daysLeft lte 1>><span class="red">Goes off overnight after removal</span>
+										<<elseif _storedBatch.daysLeft lte 3>><span class="red"><<= Math.floor(_storedBatch.daysLeft)>> days after removal</span>
+										<<elseif _storedBatch.daysLeft lte 7>><span class="gold"><<= Math.floor(_storedBatch.daysLeft)>> days after removal</span>
+										<<else>><span class="green"><<= Math.floor(_storedBatch.daysLeft)>> days after removal</span><</if>>
+									</span>
 								</div>
 							<</for>>
 						</div>
