@@ -471,6 +471,17 @@ setup.colours.hair = [
 		},
 	},
 	{
+		variable: "lemon",
+		name: "lemon",
+		name_cap: "Lemon",
+		csstext: "lemon",
+		natural: false,
+		dye: true,
+		canvasfilter: {
+			blend: "#f0dd4f",
+		},
+	},
+	{
 		variable: "strawberryblond",
 		name: "strawberry blond",
 		name_cap: "Strawberry Blond",
@@ -677,6 +688,17 @@ setup.colours.hair = [
 		},
 	},
 	{
+		variable: "mint",
+		name: "mint",
+		name_cap: "Mint",
+		csstext: "mint",
+		natural: false,
+		dye: true,
+		canvasfilter: {
+			blend: "#9fe0b0",
+		},
+	},
+	{
 		variable: "pink",
 		name: "pink",
 		name_cap: "Pink",
@@ -723,8 +745,8 @@ setup.colours.hair = [
 	},
 	{
 		variable: "rosegold",
-		name: "rosegold",
-		name_cap: "Rosegold",
+		name: "rose gold",
+		name_cap: "Rose Gold",
 		csstext: "rosegold",
 		natural: false,
 		dye: true,
@@ -787,6 +809,17 @@ setup.colours.hair = [
 		dye: true,
 		canvasfilter: {
 			blend: "#ab66ff",
+		},
+	},
+	{
+		variable: "lavender",
+		name: "lavender",
+		name_cap: "Lavender",
+		csstext: "lavender",
+		natural: false,
+		dye: true,
+		canvasfilter: {
+			blend: "#c8a2d8",
 		},
 	},
 	{

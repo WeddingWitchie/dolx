@@ -1092,26 +1092,8 @@ function settingsObjects(type) {
 					displayName: "Eye colour:",
 				},
 				hairselect: {
-					strings: [
-						"red",
-						"jetblack",
-						"black",
-						"darkbrown",
-						"brown",
-						"copperbrown",
-						"softbrown",
-						"lightbrown",
-						"burntorange",
-						"blond",
-						"softblond",
-						"platinumblond",
-						"ashyblond",
-						"strawberryblond",
-						"ginger",
-						"white",
-						"snowwhite",
-						"random",
-					],
+					strings: setup.colours.hair.filter(c => c.natural || c.dye).map(c => c.variable),
+					randomStrings: setup.colours.hair.filter(c => c.natural).map(c => c.variable),
 					displayName: "Hair colour:",
 					randomize: "characterAppearance",
 				},
@@ -1871,41 +1853,7 @@ function settingsObjects(type) {
 						displayName: "Sexflipped eye colour:",
 					},
 					customisedHairColour: {
-						strings: [
-							"nochange",
-							"red",
-							"jetblack",
-							"black",
-							"brown",
-							"softbrown",
-							"lightbrown",
-							"burntorange",
-							"strawberryblond",
-							"ginger",
-							"blond",
-							"softblond",
-							"platinumblond",
-							"ashyblond",
-							"bloodorange",
-							"blue",
-							"deepblue",
-							"neonblue",
-							"green",
-							"darklime",
-							"toxicgreen",
-							"teal",
-							"pink",
-							"brightpink",
-							"hotpink",
-							"softpink",
-							"crimson",
-							"purple",
-							"mediumpurple",
-							"brightpurple",
-							"white",
-							"snowwhite",
-							"random",
-						],
+						strings: ["nochange", ...setup.colours.hair.filter(c => c.natural || c.dye).map(c => c.variable)],
 						displayName: "Sexflipped hair colour:",
 					},
 					customisedSkinColour: {
@@ -2374,7 +2322,8 @@ const randomizeSettingSet = function (setting) {
 		result = randomNumber(setting.min, setting.max, setting.decimals);
 	}
 	if (keys.includes("strings")) {
-		result = setting.strings.pluck();
+		/* randomStrings narrows what a randomised game may roll without narrowing what is valid to set or import */
+		result = (setting.randomStrings ?? setting.strings).pluck();
 	}
 	if (keys.includes("boolLetter")) {
 		result = ["t", "f"].pluck();
