@@ -156,22 +156,9 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange.therapy.countdown is undefined>><<set $xchange.therapy.countdown to 0>><</if>>
 	<<if $xchange.therapy.duration is undefined>><<set $xchange.therapy.duration to 0>><</if>>
 
-	<<if $xchange._didSpikepoolKeyFix is not true>>
-		<<set $xchange._didSpikepoolKeyFix to true>> /* delete later */
-		/* Migrate dumb-bitch setting key variants -> canonical $xchange.spikepool.dumbbitch */
-		<<if $xchange.spikepool isnot undefined>>
-			<<if $xchange.spikepool.dumbbitch is undefined>>
-				<<if $xchange.spikepool["dumb-bitch"] is not undefined>>
-					<<set $xchange.spikepool.dumbbitch to $xchange.spikepool["dumb-bitch"]>>
-				<<elseif $xchange.spikepool.dumbBitch is not undefined>>
-					<<set $xchange.spikepool.dumbbitch to $xchange.spikepool.dumbBitch>>
-				<</if>>
-			<</if>>
-		<</if>>
-	<</if>>
-
 	<<if $xchange._didSpikepoolKeyFix2 is not true>>
-		<<set $xchange._didSpikepoolKeyFix2 to true>> /* delete later; delete above first then this */
+		<<if $xchange._didSpikepoolKeyFix isnot undefined>><<unset $xchange._didSpikepoolKeyFix>><</if>>
+		<<set $xchange._didSpikepoolKeyFix2 to true>> /* delete later */
 		/* Consolidate all dumb-bitch toggle variants into canonical $xchange.spikepool.dumbbitch, then drop the legacy keys so settings and the spike pool read one source of truth. */
 		<<if $xchange.spikepool isnot undefined>>
 			<<set _dbDisabled to $xchange.spikepool.dumbbitch is 0 or $xchange.spikepool.dumbbitch is false
@@ -1754,10 +1741,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchangeStatSplit to false>>
 	<</if>>
 
-	<<if $xchangeStatsMerged is undefined>>
-		<<set $xchangeStatsMerged to false>>
-	<</if>>
-
 	<<if $xchange.heat.message is undefined>>
 		<<set $xchange.heat.message to false>>
 	<</if>>
@@ -2094,13 +2077,13 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 				<<set $effectsmessage to 1>>
 				<<set $hermSaveWarningMessage to 1>>
 				<<set $xchange.saveWasLoadedAsHerm to 1>>
-				<<run $xchange.errorLog.push(`Leftover non-DoLX herm NPC "${($NPCNameList && $NPCNameList[_hermIdx]) || _hermNpc.fullDescription || _hermNpc.description || _hermIdx}" was adapted to ${_hermNpc.gender is "f" ? "female" : "male"}.`)>>
+				<<run $xchange.errorLog.push(`Leftover herm NPC from another build "${($NPCNameList && $NPCNameList[_hermIdx]) || _hermNpc.fullDescription || _hermNpc.description || _hermIdx}" was adapted to ${_hermNpc.gender is "f" ? "female" : "male"}.`)>>
 			<</if>>
 		<</for>>
 	<</if>>
 
 	<<if $xchange.saveWasLoadedAsHerm>>
-		<<run console.warn("WARNING: This save featured a non-DoLX herm at some point! This bug report may be invalid!")>>
+		<<run console.warn("WARNING: This save featured a herm from another build at some point! This bug report may be invalid!")>>
 	<</if>>
 
 	<<if $beauty gt 18600>>

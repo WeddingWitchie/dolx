@@ -282,8 +282,8 @@
 		<<set _selectedStart to "default">>
 	<</if>>
 
-	<div class="dolx-start-shell">
-		<div class="dolx-start-heading"><p class="gold m-0">Select your settings:</p></div>
+	<div class="start-shell">
+		<div class="start-heading"><p class="gold m-0">Select your settings:</p></div>
 		<div id="startOptions" class="no-numberify">
 			<<startOptions>>
 		</div>
@@ -829,55 +829,7 @@
 
 			<div class="settingsToggleItem">
 				<<if $passage is "Start">>
-				<span class="gold">Generic NPC Genders</span>
-				<<numberslider "$settings.maleChance" $settings.maleChance 0 100 25 {
-					onInputChange: v => {
-						if (V.settings.maleChanceSplit === true && v === 50) {
-							V.settings.maleChanceMale = random (1, 99);
-							V.settings.maleChanceFemale = random (1, 99);
-							return;
-						}
-						if (V.settings.maleChanceSplit === true) {
-							V.settings.maleChanceMale = 100 - v;
-							V.settings.maleChanceFemale = v;
-							return;
-						}
-					},
-					value: v => {
-						if (V.settings.maleChanceSplit === true) {
-							switch (v) {
-								case 100:
-									return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
-								case 75:
-									return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
-								case 50:
-									return `<span class="small-description">NPC sexual preferences will be <span class='gold inline-colour'>randomly</span> split.</span>`;
-								case 25:
-									return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
-								case 0:
-									return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
-								default:
-									return `<span class="small-description"><span class='gold inline-colour'>${v}%</span> of NPCs will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
-							}
-						} else {
-							switch (v) {
-								case 100:
-									return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will be <span class='blue inline-colour'>male</span>.</span>`;
-								case 75:
-									return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will be <span class='blue inline-colour'>male</span>.</span>`;
-								case 50:
-									return `<span class="small-description">NPCs will be <span class='gold inline-colour'>evenly</span> split between <span class='blue inline-colour'>male</span> and <span class='pink inline-colour'>female</span> genders.</span>`;
-								case 25:
-									return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will be <span class='pink inline-colour'>female</span>.</span>`;
-								case 0:
-									return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will be <span class='pink inline-colour'>female</span>.</span>`;
-								default:
-									return `<span class="small-description"><span class='gold inline-colour'>${v}%</span> of NPCs will be <span class='blue inline-colour'>male</span>.</span>`;
-							}
-						}
-					},
-				}>>
-					<span id="humanSplitBy"><<humanSplitBy>></span>
+					<<quickNpcGenderSlider>>
 				<<else>>
 					<<npcAttractionSettings>>
 				<</if>>
@@ -885,55 +837,7 @@
 
 			<div class="settingsToggleItem">
 				<<if $passage is "Start">>
-					<span class="gold">Beast Genders</span>
-					<<numberslider "$settings.beastMaleChance" $settings.beastMaleChance 0 100 25 {
-						onInputChange: v => {
-							if (V.settings.beastMaleChanceSplit === true && v === 50) {
-								V.settings.beastMaleChanceMale = random (1, 99);
-								V.settings.beastMaleChanceFemale = random (1, 99);
-								return;
-							}
-							if (V.settings.beastMaleChanceSplit === true) {
-								V.settings.beastMaleChanceMale = 100 - v;
-								V.settings.beastMaleChanceFemale = v;
-								return;
-							}
-						},
-						value: v => {
-							if (V.settings.beastMaleChanceSplit === true) {
-								switch (v) {
-									case 100:
-										return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
-									case 75:
-										return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
-									case 50:
-										return `<span class="small-description">Beast sexual preferences will be <span class='gold inline-colour'>randomly</span> split.</span>`;
-									case 25:
-										return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
-									case 0:
-										return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
-									default:
-										return `<span class="small-description"><span class='gold inline-colour'>${v}%</span> of beasts will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
-								}
-							} else {
-								switch (v) {
-									case 100:
-										return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will be <span class='blue inline-colour'>male</span>.</span>`;
-									case 75:
-										return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will be <span class='blue inline-colour'>male</span>.</span>`;
-									case 50:
-										return `<span class="small-description">Beasts will be <span class='gold inline-colour'>evenly</span> split between <span class='blue inline-colour'>male</span> and <span class='pink inline-colour'>female</span> genders.</span>`;
-									case 25:
-										return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will be <span class='pink inline-colour'>female</span>.</span>`;
-									case 0:
-										return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will be <span class='pink inline-colour'>female</span>.</span>`;
-									default:
-										return `<span class="small-description"><span class='gold inline-colour'>" + ${v} + "%</span> of beasts will be <span class='blue inline-colour'>male</span>.</span>`;
-								}
-							}
-						},
-					}>>
-					<span id="beastSplitBy"><<beastSplitBy>></span>
+					<<quickBeastGenderSlider>>
 				<<else>>
 					<<beastAttractionSettings>>
 				<</if>>
@@ -965,6 +869,109 @@
 	</div>
 <</widget>>
 
+<<widget "quickNpcGenderSlider">>
+	<span class="gold">Generic NPC Genders</span>
+	<<numberslider "$settings.maleChance" $settings.maleChance 0 100 25 {
+		onInputChange: v => {
+			if (V.settings.maleChanceSplit === true && v === 50) {
+				V.settings.maleChanceMale = random (1, 99);
+				V.settings.maleChanceFemale = random (1, 99);
+				return;
+			}
+			if (V.settings.maleChanceSplit === true) {
+				V.settings.maleChanceMale = 100 - v;
+				V.settings.maleChanceFemale = v;
+				return;
+			}
+		},
+		value: v => {
+			if (V.settings.maleChanceSplit === true) {
+				switch (v) {
+					case 100:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
+					case 75:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
+					case 50:
+						return `<span class="small-description">NPC sexual preferences will be <span class='gold inline-colour'>randomly</span> split.</span>`;
+					case 25:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
+					case 0:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
+					default:
+						return `<span class="small-description"><span class='gold inline-colour'>${v}%</span> of NPCs will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
+				}
+			} else {
+				switch (v) {
+					case 100:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will be <span class='blue inline-colour'>male</span>.</span>`;
+					case 75:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will be <span class='blue inline-colour'>male</span>.</span>`;
+					case 50:
+						return `<span class="small-description">NPCs will be <span class='gold inline-colour'>evenly</span> split between <span class='blue inline-colour'>male</span> and <span class='pink inline-colour'>female</span> genders.</span>`;
+					case 25:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of NPCs will be <span class='pink inline-colour'>female</span>.</span>`;
+					case 0:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> NPCs will be <span class='pink inline-colour'>female</span>.</span>`;
+					default:
+						return `<span class="small-description"><span class='gold inline-colour'>${v}%</span> of NPCs will be <span class='blue inline-colour'>male</span>.</span>`;
+				}
+			}
+		},
+	}>>
+		<span id="humanSplitBy"><<humanSplitBy>></span>
+<</widget>>
+
+<<widget "quickBeastGenderSlider">>
+	<span class="gold">Beast Genders</span>
+	<<numberslider "$settings.beastMaleChance" $settings.beastMaleChance 0 100 25 {
+		onInputChange: v => {
+			if (V.settings.beastMaleChanceSplit === true && v === 50) {
+				V.settings.beastMaleChanceMale = random (1, 99);
+				V.settings.beastMaleChanceFemale = random (1, 99);
+				return;
+			}
+			if (V.settings.beastMaleChanceSplit === true) {
+				V.settings.beastMaleChanceMale = 100 - v;
+				V.settings.beastMaleChanceFemale = v;
+				return;
+			}
+		},
+		value: v => {
+			if (V.settings.beastMaleChanceSplit === true) {
+				switch (v) {
+					case 100:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
+					case 75:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
+					case 50:
+						return `<span class="small-description">Beast sexual preferences will be <span class='gold inline-colour'>randomly</span> split.</span>`;
+					case 25:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
+					case 0:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will prefer the <span class='gold inline-colour'>same sex</span>.</span>`;
+					default:
+						return `<span class="small-description"><span class='gold inline-colour'>${v}%</span> of beasts will prefer the <span class='gold inline-colour'>opposite sex</span>.</span>`;
+				}
+			} else {
+				switch (v) {
+					case 100:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will be <span class='blue inline-colour'>male</span>.</span>`;
+					case 75:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will be <span class='blue inline-colour'>male</span>.</span>`;
+					case 50:
+						return `<span class="small-description">Beasts will be <span class='gold inline-colour'>evenly</span> split between <span class='blue inline-colour'>male</span> and <span class='pink inline-colour'>female</span> genders.</span>`;
+					case 25:
+						return `<span class="small-description"><span class='gold inline-colour'>75%</span> of beasts will be <span class='pink inline-colour'>female</span>.</span>`;
+					case 0:
+						return `<span class="small-description"><span class='gold inline-colour'>All</span> beasts will be <span class='pink inline-colour'>female</span>.</span>`;
+					default:
+						return `<span class="small-description"><span class='gold inline-colour'>" + ${v} + "%</span> of beasts will be <span class='blue inline-colour'>male</span>.</span>`;
+				}
+			}
+		},
+	}>>
+	<span id="beastSplitBy"><<beastSplitBy>></span>
+<</widget>>
 <<widget "humanSplitByFull">>
 	<<link `$settings.maleChanceSplit is true ? "Ignore sexual orientation" : "Set sexual orientation"`>>
 		<<set $settings.maleChanceSplit to $settings.maleChanceSplit is true ? false : true>>
@@ -1002,8 +1009,7 @@
 <</widget>>
 
 <<widget "characterSettings">>
-
-<div class="solidBorderContainer settings-container">
+	<div class="solidBorderContainer settings-container">
 	<div class="settingsGrid">
 		<div class="settingsToggleItem">
 		<span class="gold">Randomise:</span><br>
@@ -1018,12 +1024,50 @@
 		<</if>>
 		</div>
 	</div>
+	</div>
+	<<if _charTab is undefined>><<set _charTab to "physical">><</if>>
 	<hr>
-	
+	<div id="characterTabs" class="no-numberify"><<characterTabButtons>></div>
+	<div id="characterTabContent"><<characterTabContent>></div>
+	<br>
+	<<link "Top of Page">>
+		<<script>>
+			document.body.scrollTop = 0;
+			document.documentElement.scrollTop = 0;
+		<</script>>
+	<</link>>
+<</widget>>
+
+<<widget "characterTabButtons">>
+	<div class="containerStart">
+		<<characterTabButton "Physical Attributes" "physical">>
+		<<characterTabButton "Mental Attributes" "mental">>
+		<<characterTabButton "Starting Conditions" "starting">>
+	</div>
+<</widget>>
+
+<<widget "characterTabButton">>
+	<div @class="_charTab is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'">
+		<<button _args[0]>>
+			<<set _charTab to _args[1]>>
+			<<replace #characterTabs>><<characterTabButtons>><</replace>>
+			<<replace #characterTabContent>><<characterTabContent>><</replace>>
+			<<run settingsDisableElement()>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "characterTabContent">>
+	<<switch _charTab>>
+		<<case "mental">><<characterMentalSettings>>
+		<<case "starting">><<characterStartingSettings>>
+		<<default>><<characterPhysicalSettings>>
+	<</switch>>
+<</widget>>
+
+<<widget "characterPhysicalSettings">>
+	<div class="solidBorderContainer settings-container">
 	<div class="settingsGrid">
-		<div class="settingsHeader">
-			<h2>PHYSICAL ATTRIBUTES</h2>
-		</div>
 
 		<div class="settingsHeader">
 			Body
@@ -1310,13 +1354,12 @@
 			<label><span class="red">Lightweight</span> <<radiobutton "$drunkSensitivity" 1.5 autocheck>></label>
 		</div>
 	</div>
+	</div>
+<</widget>>
 
-	<hr>
-
+<<widget "characterMentalSettings">>
+	<div class="solidBorderContainer settings-container">
 	<div class="settingsGrid">
-		<div class="settingsHeader">
-			<h2>MENTAL ATTRIBUTES</h2>
-		</div>
 		<div class="settingsHeader">
 			Personality
 		</div>
@@ -1521,33 +1564,110 @@
 			</span></mouse></label>
 		</div>
 	</div>
-	</div>
 	<<identitySettings>>
-	<hr>
+	</div>
+<</widget>>
 
+<<widget "characterStartingSettings">>
+	<<set _foundPregnancy to !!Object.values($NPCName || {}).find(npc => npc && npc.pregnancy && npc.pregnancy.enabled && getActivePregnancies(npc.fullDescription).length && !setup.pregnancy.canBePregnant.includes(npc.fullDescription))>>
+	<div class="solidBorderContainer settings-container">
 	<div class="settingsGrid">
-		<div class="settingsHeader">
-			<h2>STARTING CONDITIONS</h2>
-		</div>
-		<div class="settingsHeader">
-			Season <mouse class="tooltip linkBlue">(?)<span style="font-size:16px;">The game will start on the first Sunday of the chosen season.</span></mouse>
-		</div>
 		<div class="settingsToggleItemWide">
+			<span class="gold">Starting Season</span> <mouse class="tooltip linkBlue">(?)<span style="font-size:16px;">The game will start on the first Sunday of the chosen season.</span></mouse>
+			<br>
 			<label><mouse class="tooltip tangerine">Autumn <<radiobutton "$startingseason" "autumn" autocheck>><span class="green"><i>Recommended for beginners.</i></span></mouse></label> |
 			<label><span class="teal">Winter</span> <<radiobutton "$startingseason" "winter" autocheck>></label> |
 			<label><span class="lime-green">Spring</span> <<radiobutton "$startingseason" "spring" autocheck>></label> |
 			<label><span class="red">Summer</span> <<radiobutton "$startingseason" "summer" autocheck>></label> |
 			<label>Random <<radiobutton "$startingseason" "random" autocheck>></label>
 		</div>
+
+		<div class="settingsToggleItem">
+			<<gameMode>>
+		</div>
+
+		<div class="settingsToggleItem">
+			<span class="gold">Pregnancy Mode</span>
+			<br>
+			<<if _selectedStart is "default">>
+				/* The Basic start applies _pregnancytype when the game begins, so this tab has to write the same temp value. */
+				<label><<radiobutton "_pregnancytype" "realistic" `_pregnancytype ? "autocheck" : ($settings.pregnancyType is "realistic" ? "checked": "")`>> <mouse class="tooltip green">Realistic<span>Pregnancy will not happen immediately, and you won't know right away when it happens. You may need to use a pregnancy test, and the father may not be known to you initially. Cum on the outside of your vagina may get you pregnant as well, unless washed off within the next several hours.</span></mouse></label> |
+				<label><<radiobutton "_pregnancytype" "fetish" `_pregnancytype ? "autocheck" : ($settings.pregnancyType is "fetish" ? "checked": "")`>> <mouse class="tooltip pink">Fetishised<span>Pregnancy may happen as soon as semen gets inside you. You will know as soon as it happens, and will immediately know the father.</span></mouse></label> |
+				<label><<radiobutton "_pregnancytype" "silly" `_pregnancytype ? "autocheck" : ($settings.pregnancyType is "silly" ? "checked": "")`>> <mouse class="tooltip gold">Silly<span>Pregnancy may happen as soon as you hold hands or kiss, especially with those you love. <i class="red none">There may be story content related issues with this mode. Some feats will be disabled with this mode.</i></span></mouse></label> |
+				<label><<radiobutton "_pregnancytype" "disabled" autocheck>> <mouse class="tooltip red">Disabled<span>Pregnancy will be disabled.</span></mouse></label>
+			<<else>>
+				<<pregnancyType>>
+			<</if>>
+			<br>
+			<<realisticChildbirth>>
+			<br>
+			<<fertilityCycles>>
+			<br>
+			<label data-target='["settingsincompletepregnancyenabled", "settingspregnancytype", "settingsnnpcpregnancyenabled", "settingsplayerpregnancyhumanenabled", "settingsplayerpregnancybeastenabled"]' data-disabledif="(T.foundPregnancy&&V.settings.incompletePregnancyEnabled===true)||(!V.settings.nnpcPregnancyEnabled&&!V.settings.playerPregnancyHumanEnabled&&!V.settings.playerPregnancyBeastEnabled)">
+				<<incompletePregnancy>>
+			</label>
+		</div>
+
+		<div class="settingsToggleItem">
+			<<quickNpcGenderSlider>>
+		</div>
+
+		<div class="settingsToggleItem">
+			<span class="gold">Named NPC Genders</span>
+			<mouse class="tooltip linkBlue">(?)<span>Setting applies as you save changes.</span></mouse>
+			<br>
+			<<if _namedNpcPreset is undefined>><<set _namedNpcPreset to "namedNpcDefaultGender">><</if>>
+			<label>All Male <<radiobutton "_namedNpcPreset" "namedNpcAllMaleGender" autocheck>></label> |
+			<label><<print $passage is "Start" ? "Random Genders" : "Current Genders">> <<radiobutton "_namedNpcPreset" "namedNpcDefaultGender" autocheck>></label> |
+			<label>All Female <<radiobutton "_namedNpcPreset" "namedNpcAllFemaleGender" autocheck>></label>
+		</div>
+
+		<div class="settingsToggleItem">
+			<<quickBeastGenderSlider>>
+		</div>
+
+		<div class="settingsToggleItem">
+			<<if _selectedStart is "default">>
+				/* The Basic start applies _monstersPreset when the game begins, so this tab has to write the same temp value. */
+				<<if _monstersPreset is undefined>><<set _monstersPreset to "monstersDefault">><</if>>
+				<span class="gold">Replace beasts with monster girls and boys</span>
+				<br>
+				<label>All the time <<radiobutton "_monstersPreset" "monstersAll" autocheck>></label> |
+				<label>Only when hallucinating <<radiobutton "_monstersPreset" "monstersDefault" autocheck>></label> |
+				<label>Never <<radiobutton "_monstersPreset" "monstersNone" autocheck>></label>
+			<<else>>
+				<<monsterSettings>>
+			<</if>>
+		</div>
+
+		<<if _selectedStart is "default">>
+			<div class="settingsToggleItem">
+				<span class="gold">Fetish Settings</span>
+				<br>
+				<<if _kinkPreset is undefined>><<set _kinkPreset to "kinkDefault">><</if>>
+				<label><mouse class="tooltip" style="border-bottom: 2px dotted var(--link)">Vanilla<span>All beast-related toggles are disabled, as well as plant people, tentacles, slimes, lactation, facesitting, double penetration, and hypnosis.</span></mouse>
+				<<radiobutton "_kinkPreset" "kinkVanilla" autocheck>></label> |
+				<label><mouse class="tooltip" style="border-bottom: 2px dotted var(--link)">Reasonably Debauched<span>Default settings. All kinks are enabled, except for watersports.</span></mouse>
+				<<radiobutton "_kinkPreset" "kinkDefault" autocheck>></label> |
+				<label><mouse class="tooltip" style="border-bottom: 2px dotted var(--link)">No Beasts<span>All beast-related settings are disabled, including bestiality, swarms, vore, parasites, spiders, slugs, wasps, lurkers, bees, and horses.</span></mouse>
+				<<radiobutton "_kinkPreset" "kinkNoBeasts" autocheck>></label> |
+				<label><mouse class="tooltip" style="border-bottom: 2px dotted var(--link)">Anything Goes<span>All kinks are enabled, including watersports.</span></mouse>
+				<<radiobutton "_kinkPreset" "kinkEverything" autocheck>></label>
+			</div>
+		<</if>>
+
+		<div class="settingsToggleItem">
+			<<if _selectedStart is "default">>
+				<i>For finer control over fetish and gameplay settings, use the <span class="gold">Custom</span> start. Gameplay settings can still be changed after you start the game.</i>
+			<<else>>
+				<i>Fetish toggles, prices, and the rest of the world settings live in the <span class="gold">Game Settings</span> tab. They can still be changed after you start the game.</i>
+			<</if>>
+		</div>
 	</div>
-	<br>
-	<<link "Top of Page">>
-		<<script>>
-			document.body.scrollTop = 0;
-			document.documentElement.scrollTop = 0;
-		<</script>>
-	<</link>>
+	</div>
+	<<run settingsDisableElement()>>
 <</widget>>
+
 
 <<widget "featExplanation">>
 	<<link "Hide explanation...">>
@@ -1712,8 +1832,8 @@
 <<widget "gameMode">>
 	<span class="gold">Game Mode</span>
 	<br>
-	<div class="dolx-game-mode-row">
-		<label class="dolx-mode-option">
+	<div class="game-mode-row">
+		<label class="mode-option">
 			<mouse class="tooltip green">Normal mode<span>Survive in a dangerous world.</span></mouse>
 			<<if ($ironmanmode is true and $gamemode is "hard") and $passage != "Start">>
 				<input id="radiobutton-gamemode-normal" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
@@ -1721,7 +1841,7 @@
 				<<radiobutton "$gamemode" "normal" autocheck>>
 			<</if>>
 		</label>
-		<label class="dolx-mode-option">
+		<label class="mode-option">
 			<mouse class="tooltip blue">Soft mode<span>For those who prefer a light-hearted lewd adventure, though the game is still dark in places.<br><i class="red normal">This is an experimental feature and contains gamebreaking bugs. It will be changed or removed in the future. Leaving the settings with soft mode will prevent you from earning feats until it is set to normal mode. Doing this will permanently prevent some feats from being earned in this save.</i></span></mouse>
 			<<if ($ironmanmode is true and ["hard","normal"].includes($gamemode) is true) and $passage != "Start">>
 				<input id="radiobutton-gamemode-soft" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
@@ -1730,7 +1850,7 @@
 			<</if>>
 		</label>
 		<<if $intro is 1 or $gamemode is "hard">>
-			<label class="dolx-mode-option">
+			<label class="mode-option">
 				<mouse class="tooltip purple">Hard mode<span>Removes lewd stat decay (promiscuity, exhibitionism, deviancy), making trauma and control increasingly difficult to manage. Can only be chosen at the game's start, and being incarcerated in the asylum will put you in normal mode. <br><i class="red normal">This is an experimental feature and will be changed or removed in the future.</i></span></mouse>
 				<<if $ironmanmode is true and $passage != "Start">>
 					<input id="radiobutton-gamemode-hard" name="radiobutton-gamemode" type="radio" tabindex="0" class="macro-radiobutton" disabled>
@@ -3891,11 +4011,7 @@
 					<<set $npcHealthMult to 100>>
 					<<set $beastHealthMult to 200>>
 					<<set _subsection to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
-				<</link>><br>
-			</div>
-			<div class="settingsToggleItem">
-				<span class="gold">Special:</span>
-				<br>
+				<</link>><br><br>
 				<<link "Casual Recommendation">>
 					<<set $combatExtended.standingFights to 1>>
 					<<set $combatExtended.enemyDamageMult to 125>>
@@ -3991,13 +4107,9 @@
 					<<set _subsection to "combatExtended">><<replace #subsectionDiv>><<combatExtendedSettings>><</replace>>
 				<</link>>
 			</div>
-		</div>
-		<hr>
-		<div class="settingsGrid">
-			<div class="settingsHeader">
-				Encounter Reworks
-			</div>
 			<div class="settingsToggleItem">
+				<span class="gold">Encounter Reworks:</span>
+				<br>
 				<<link "Toggle All">>
 					<<set $combatExtended.standingFights to 1>>
 					<<set $combatExtended.reverseRape to 1>>
@@ -4017,7 +4129,39 @@
 				<br>
 			</div>
 		</div>
-		<hr>
+	</div>
+	<<if _ceTab is undefined>><<set _ceTab to "player">><</if>>
+	<hr>
+	<div id="ceTabs" class="no-numberify"><<combatExtendedTabButtons>></div>
+	<div id="ceTabContent"><<combatExtendedTabContent>></div>
+<</widget>>
+
+<<widget "combatExtendedTabButtons">>
+	<div class="containerStart">
+		<<combatExtendedTabButton "Player" "player">>
+		<<combatExtendedTabButton "Enemy" "enemy">>
+	</div>
+<</widget>>
+
+<<widget "combatExtendedTabButton">>
+	<div @class="_ceTab is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'">
+		<<button _args[0]>>
+			<<set _ceTab to _args[1]>>
+			<<replace #ceTabs>><<combatExtendedTabButtons>><</replace>>
+			<<replace #ceTabContent>><<combatExtendedTabContent>><</replace>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "combatExtendedTabContent">>
+	<<switch _ceTab>>
+		<<case "enemy">><<combatExtendedEnemySettings>>
+		<<default>><<combatExtendedPlayerSettings>>
+	<</switch>>
+<</widget>>
+
+<<widget "combatExtendedPlayerSettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Player CE Actions
@@ -4058,6 +4202,7 @@
 			</div>
 		</div>
 		<hr>
+
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Player Skills
@@ -4109,7 +4254,12 @@
 				</label>
 			</div>
 		</div>
-		<hr>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
+
+<<widget "combatExtendedEnemySettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Enemy CE Actions
@@ -4302,7 +4452,9 @@
 			</div>
 		</div>
 	</div>
+	<<run settingsDisableElement()>>
 <</widget>>
+
 
 <<widget "amcTraitsSettings">>
 	/% Dropping the Autism Spectrum trait drops the talents it paid for %/
@@ -4310,6 +4462,39 @@
 	<<if typeof applyPermanentInsanityTalents is "function">>
 		<<run applyPermanentInsanityTalents()>>
 	<</if>>
+	<<if _amcTab is undefined>><<set _amcTab to "talents">><</if>>
+	<hr>
+	<div id="amcTabs" class="no-numberify"><<amcTabButtons>></div>
+	<div id="amcTabContent"><<amcTabContent>></div>
+<</widget>>
+
+<<widget "amcTabButtons">>
+	<div class="containerStart">
+		<<amcTabButton "Talents" "talents">>
+		<<amcTabButton "Traits" "traits">>
+		<<amcTabButton "Misc" "systems">>
+	</div>
+<</widget>>
+
+<<widget "amcTabButton">>
+	<div @class="_amcTab is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'">
+		<<button _args[0]>>
+			<<set _amcTab to _args[1]>>
+			<<replace #amcTabs>><<amcTabButtons>><</replace>>
+			<<replace #amcTabContent>><<amcTabContent>><</replace>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "amcTabContent">>
+	<<switch _amcTab>>
+		<<case "traits">><<amcTraitsTraitSettings>>
+		<<case "systems">><<amcTraitsSystemSettings>>
+		<<default>><<amcTraitsTalentSettings>>
+	<</switch>>
+<</widget>>
+
+<<widget "amcTraitsTalentSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsToggleItemWide">
@@ -4360,6 +4545,12 @@
 				<label data-target='["AMCTraits.seductionskill","AMCTraits.oralskill","AMCTraits.chestskill","AMCTraits.handskill","AMCTraits.bottomskill","AMCTraits.penileskill","AMCTraits.vaginalskill","AMCTraits.analskill","AMCTraits.thighskill","AMCTraits.feetskill"]' data-disabledif="permanentInsanityTalentLockActive() || sumSexTalents()-10 >= autismTalentLimit('sex') && V.AMCTraits.feetskill !== 2"><span class="blue">Tempered Feet Skill</span> <<checkbox "$AMCTraits.feetskill" 1 2 autocheck>></label><br>
 			</div>
 		</div>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
+
+<<widget "amcTraitsTraitSettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				<span class="gold">Traits</span><br>
@@ -4373,6 +4564,12 @@
 				<label><<checkbox "$xchange.insanityBecomesPermanent" 0 1 autocheck>> Enable permanent naturally-gained Insanity</label> <mouse class="tooltip linkBlue">(?)<span>Normally, an Insanity gained in-game (from staying severely traumatised for over a week) fades once your trauma subsides. With this on, the moment it takes hold it becomes <b>permanent</b>. It does <i>not</i> grant the doubled skill caps of a character-creation Insanity. The only relief is Gwylan, who can hypnotise the madness into temporary quiet.</span></mouse><br>
 			</div>
 		</div>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
+
+<<widget "amcTraitsSystemSettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				<span class="gold">Willpower System</span><br>
@@ -4441,9 +4638,9 @@
 			</div>
 		</div>
 	</div>
-	/* Sub-settings grey out when their parent toggle is off; nothing re-evaluates them without this. */
 	<<run settingsDisableElement()>>
 <</widget>>
+
 
 <<widget "modLISettingsSection">>
 	<<run ensureModLISettings()>>
@@ -4576,6 +4773,39 @@
 	<</if>>
 	<<set $fatigueSkillPenaltyMax to Math.clamp(Math.round($fatigueSkillPenaltyMax), 0, 100)>>
 	<<script>>setup.inflation?.ensureSettings?.();<</script>>
+	<<if _rebalTab is undefined>><<set _rebalTab to "economy">><</if>>
+	<hr>
+	<div id="rebalTabs" class="no-numberify"><<rebalanceTabButtons>></div>
+	<div id="rebalTabContent"><<rebalanceTabContent>></div>
+<</widget>>
+
+<<widget "rebalanceTabButtons">>
+	<div class="containerStart">
+		<<rebalanceTabButton "Economy Inflation" "economy">>
+		<<rebalanceTabButton "Rebalancing Settings" "rebalancing">>
+		<<rebalanceTabButton "Grind Settings" "grind">>
+	</div>
+<</widget>>
+
+<<widget "rebalanceTabButton">>
+	<div @class="_rebalTab is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'">
+		<<button _args[0]>>
+			<<set _rebalTab to _args[1]>>
+			<<replace #rebalTabs>><<rebalanceTabButtons>><</replace>>
+			<<replace #rebalTabContent>><<rebalanceTabContent>><</replace>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "rebalanceTabContent">>
+	<<switch _rebalTab>>
+		<<case "rebalancing">><<rebalanceRebalancingSettings>>
+		<<case "grind">><<rebalanceGrindSettings>>
+		<<default>><<rebalanceEconomySettings>>
+	<</switch>>
+<</widget>>
+
+<<widget "rebalanceEconomySettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
@@ -4599,11 +4829,6 @@
 				<div class="small-description">Crisis <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £5,000,000.</span></mouse>: <<numberslider "$settings.inflationCrisisPct" $settings.inflationCrisisPct 56 200 1 { value: v => v + "%" }>></div>
 				<div class="small-description">Extreme <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £15,000,000.</span></mouse>: <<numberslider "$settings.inflationExtremePct" $settings.inflationExtremePct 113 400 5 { value: v => v + "%" }>></div>
 				<div class="small-description">Parody spiral <mouse class="tooltip linkBlue">(?)<span>Price increase once total net wealth reaches £100,000,000. This is the runaway-comedy tier, not the money-confiscation cap.</span></mouse>: <<numberslider "$settings.inflationParodyPct" $settings.inflationParodyPct 450 3000 50 { value: v => v + "%" }>></div>
-			</div>
-
-			<div class="settingsToggleItem">
-				<span class="gold">Gentleman's Club Income</span>
-				<div class="small-description">Blackmail quest reward <mouse class="tooltip linkBlue">(?)<span>Controls how much the Gentleman's Club pays for completed blackmail quests. This is a percentage of the normal reward. Set it to 0% if you want the quests to pay nothing.</span></mouse>: <<numberslider "$settings.inflationBlackmailRewardPct" $settings.inflationBlackmailRewardPct 0 100 5 { value: v => v + "%" }>></div>
 			</div>
 
 			<div class="settingsToggleItem">
@@ -4635,7 +4860,10 @@
 			</div>
 		</div>
 	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
 
+<<widget "rebalanceRebalancingSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
@@ -4787,9 +5015,12 @@
 				</div>
 			</div>
 		</div>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
 
-		<hr>
-
+<<widget "rebalanceGrindSettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				Grind Settings
@@ -4813,15 +5044,51 @@
 					<<numberslider "$statGainMult" $statGainMult 10 1000 10>>
 				</div>
 			</div>
+
+			<div class="settingsToggleItem">
+				<span class="gold">Gentleman's Club Income</span>
+				<div class="small-description">Blackmail quest reward <mouse class="tooltip linkBlue">(?)<span>Controls how much the Gentleman's Club pays for completed blackmail quests. This is a percentage of the normal reward. Set it to 0% if you want the quests to pay nothing.</span></mouse>: <<numberslider "$settings.inflationBlackmailRewardPct" $settings.inflationBlackmailRewardPct 0 100 5 { value: v => v + "%" }>></div>
+			</div>
 		</div>
 	</div>
-	/* Re-apply data-disabledif greying (e.g. Bailey Rent Limits while Relentless Bailey is on) after any in-place re-render of this widget, such as the preset buttons. */
 	<<run settingsDisableElement()>>
 <</widget>>
 
+
 <<widget "npcDoLPSettings">>
-<<wliSettings>>
-<<worldGenderOverrideSettings>>
+	<<if _npcDoLPTab is undefined>><<set _npcDoLPTab to "behaviour">><</if>>
+	<hr>
+	<div id="npcDoLPTabs" class="no-numberify"><<npcDoLPTabButtons>></div>
+	<div id="npcDoLPTabContent"><<npcDoLPTabContent>></div>
+<</widget>>
+
+<<widget "npcDoLPTabButtons">>
+	<div class="containerStart">
+		<<npcDoLPTabButton "Arousal &amp; Multipliers" "behaviour">>
+		<<npcDoLPTabButton "Theft &amp; Generation" "flavour">>
+		<<npcDoLPTabButton "Wraith &amp; World Override" "world">>
+	</div>
+<</widget>>
+
+<<widget "npcDoLPTabButton">>
+	<div @class="_npcDoLPTab is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'">
+		<<button _args[0]>>
+			<<set _npcDoLPTab to _args[1]>>
+			<<replace #npcDoLPTabs>><<npcDoLPTabButtons>><</replace>>
+			<<replace #npcDoLPTabContent>><<npcDoLPTabContent>><</replace>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "npcDoLPTabContent">>
+	<<switch _npcDoLPTab>>
+		<<case "flavour">><<npcDoLPFlavourSettings>>
+		<<case "world">><<npcDoLPWorldSettings>>
+		<<default>><<npcDoLPBehaviourSettings>>
+	<</switch>>
+<</widget>>
+
+<<widget "npcDoLPBehaviourSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
@@ -4861,7 +5128,6 @@
 				</label>
 			</div>
 		</div>
-
 		<hr>
 
 		<div class="settingsGrid">
@@ -4883,7 +5149,6 @@
 				<<numberbox "$nnpcArousalMult" $nnpcArousalMult>>
 			</div>
 		</div>
-
 		<hr>
 
 		<div class="settingsGrid">
@@ -4905,9 +5170,12 @@
 				<<numberbox "$npcArousalMult" $npcArousalMult>>
 			</div>
 		</div>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
 
-		<hr>
-
+<<widget "npcDoLPFlavourSettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				NPCs Stealing Money Settings
@@ -4953,9 +5221,8 @@
 				<<numberslider "$npcStealCardWeeklyLimit" $npcStealCardWeeklyLimit 0 1000 1>>
 			</div>
 		</div>
-
 		<hr>
-		
+
 		<div class="settingsGrid">
 			<div class="settingsHeader">
 				NPC Flavor Generation Settings
@@ -4989,7 +5256,14 @@
 			</div>
 		</div>
 	</div>
+	<<run settingsDisableElement()>>
 <</widget>>
+
+<<widget "npcDoLPWorldSettings">>
+	<<wliSettings>>
+	<<worldGenderOverrideSettings>>
+<</widget>>
+
 
 <<widget "beastDoLPSettings">>
 	<div class="solidBorderContainer settings-container">
@@ -5073,11 +5347,43 @@
 <</widget>>
 
 <<widget "xchangeSettings">>
+	<<if _xchangeTab is undefined>><<set _xchangeTab to "core">><</if>>
+	<hr>
+	<div id="xchangeTabs" class="no-numberify"><<xchangeTabButtons>></div>
+	<div id="xchangeTabContent"><<xchangeTabContent>></div>
+<</widget>>
+
+<<widget "xchangeTabButtons">>
+	<div class="containerStart">
+		<<xchangeTabButton "Core Settings" "core">>
+		<<xchangeTabButton "Spiking Preferences" "spiking">>
+		<<xchangeTabButton "Sexflipped Appearance" "appearance">>
+		<<xchangeTabButton "Pill Effects" "effects">>
+	</div>
+<</widget>>
+
+<<widget "xchangeTabButton">>
+	<div @class="_xchangeTab is _args[1] ? 'gold buttonSettingsSelected' : 'buttonSettings'">
+		<<button _args[0]>>
+			<<set _xchangeTab to _args[1]>>
+			<<replace #xchangeTabs>><<xchangeTabButtons>><</replace>>
+			<<replace #xchangeTabContent>><<xchangeTabContent>><</replace>>
+		<</button>>
+	</div>
+<</widget>>
+
+<<widget "xchangeTabContent">>
+	<<switch _xchangeTab>>
+		<<case "spiking">><<xchangeSpikingSettings>>
+		<<case "appearance">><<xchangeAppearanceSettings>>
+		<<case "effects">><<xchangeEffectSettings>>
+		<<default>><<xchangeCoreSettings>>
+	<</switch>>
+<</widget>>
+
+<<widget "xchangeCoreSettings">>
 	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
-			<div class="settingsHeader">
-				<span class="gold">Core Settings</span><br>
-			</div>
 
 			<div class="settingsToggleItem">
 				<span class="gold bold">Pill Behaviour:</span><br>
@@ -5255,10 +5561,13 @@
 				</label>
 			</div>
 		</div>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
+
+<<widget "xchangeSpikingSettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
-			<div class="settingsHeader">
-				<span class="gold">Spiking Preferences</span><br>
-			</div>
 			<div class="settingsToggleItemWide">
 				<span class="small-description">Select the checkboxes to enable or disable each of the respective pill effects, and use the slide bar to tweak the relative frequency on which the respective effect will be featured during a spike.</span>
 
@@ -5336,10 +5645,13 @@
 				<<numberslider "$xchange.spikerates.beta" $xchange.spikerates.beta 1 10 1>>
 			</div>
 		</div>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
+
+<<widget "xchangeAppearanceSettings">>
+	<div class="solidBorderContainer settings-container">
 		<div class="settingsGrid">
-			<div class="settingsHeader">
-				<span class="gold">Pill Customisation</span><br>
-			</div>
 			<div class="settingsToggleItemWide">
 				<span class="gold bold">Sexflipped Eye Colour:</span><br>
 				<label><span>Same as before</span> <<radiobutton "$xchange.customisedEyeColour" "nochange" autocheck>></label> |
@@ -5424,6 +5736,14 @@
 				</span>
 				<<numberbox "$xchange.physiqueChangePercent" $xchange.physiqueChangePercent>>
 			</div>
+		</div>
+	</div>
+	<<run settingsDisableElement()>>
+<</widget>>
+
+<<widget "xchangeEffectSettings">>
+	<div class="solidBorderContainer settings-container">
+		<div class="settingsGrid">
 			<div class="settingsToggleItem numberslider-inline">
 				<span class="gold bold">Sensitivity Boost:</span>
 				<span>Due to pill:
@@ -5502,9 +5822,9 @@
 			</div>
 		</div>
 	</div>
-	/* Sub-settings grey out when their parent toggle is off; nothing re-evaluates them without this. */
 	<<run settingsDisableElement()>>
 <</widget>>
+
 
 <<widget "loadAllFeats">>
 	<div id="featsBeginLoadingText">

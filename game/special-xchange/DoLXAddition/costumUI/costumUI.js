@@ -46,8 +46,8 @@
 		overlay.querySelectorAll("#overlayTabs button").forEach(button => {
 			const label = button.textContent.trim().replace(/\s+/g, " ");
 			const icon = overlayTabIcons[label];
-			if (icon) button.dataset.dolxTabIcon = icon;
-			else delete button.dataset.dolxTabIcon;
+			if (icon) button.dataset.tabIcon = icon;
+			else delete button.dataset.tabIcon;
 		});
 	}
 
@@ -83,7 +83,7 @@
 		if (h4) return;
 
 		h4 = document.createElement("h4");
-		h4.className = "dolx-breeze-anchor-title";
+		h4.className = "breeze-anchor-title";
 		h4.setAttribute("aria-hidden", "true");
 		h4.textContent = (document.getElementById("story-title")?.textContent || "").trim() || "Degrees of Lewdity";
 
@@ -99,16 +99,16 @@
 		let splitCount = overlayButtons.querySelectorAll(".sidebarButtonSplit").length;
 		if (splitCount >= 2) return;
 
-		let anchorGroup = overlayButtons.querySelector(".dolx-breeze-anchor-group");
+		let anchorGroup = overlayButtons.querySelector(".breeze-anchor-group");
 		if (!anchorGroup) {
 			anchorGroup = document.createElement("div");
-			anchorGroup.className = "sidebarButtonGroup dolx-breeze-anchor-group";
+			anchorGroup.className = "sidebarButtonGroup breeze-anchor-group";
 			overlayButtons.insertBefore(anchorGroup, overlayButtons.firstChild);
 		}
 
 		while (splitCount < 2) {
 			const split = document.createElement("div");
-			split.className = "sidebarButtonSplit dolx-breeze-anchor-split";
+			split.className = "sidebarButtonSplit breeze-anchor-split";
 			anchorGroup.appendChild(split);
 			splitCount++;
 		}

@@ -672,9 +672,7 @@ setup.hbsc.receiveExternalDeposit = function (amount) {
 	return { ok: true, toDeposit, toCash, overflow: toCash > 0 };
 };
 
-/* ===========================================
-   HBSC AUTOMATIC PAYMENTS (ADDITIVE)
-   =========================================== */
+/* HBSC automatic payments */
 
 /* The bills the bank is willing to handle. 
 `id` is the key each bill's event code passes to canAutoPay()/tryAutoPay(). 
@@ -820,9 +818,7 @@ setup.hbsc.cancelIfShort = function (id, amount) {
 	return true;
 };
 
-/* ---------------------------------------------------------------------
-   WEEKLY RUNNER  (call once per week from weekPassed() in time.js, before xchangeWeeklyCheck()). 
-   --------------------------------------------------------------------- */
+/* Weekly runner: call once per week from weekPassed() in time.js, before xchangeWeeklyCheck(). */
 setup.hbsc.runStandingOrders = function () {
 	setup.hbsc.ensureAutoPayState();
 	setup.hbsc.autoPayFarmGuard();
@@ -894,14 +890,14 @@ setup.hbsc.autoPayGamblingUpkeep = function () {
 	return true;
 };
 
-/* ===========================================================================
-   HBSC personal loan ("rent money").
-   Borrowed in fixed chunks, capped by outstanding PRINCIPAL (not the interest-inflated balance).
-   owed = principal * (1 + INTEREST), and repayments shrink owed (and thus principal) proportionally.
-   Borrowed cash is neutral to the inflation calc (see inflation.js totalWealth()).
-   If the player ignores the loan for a month, collection is handed to Bailey's rent (see rent.twee rentpay).
-   All amounts are in pennies (raw $money units).
-   =========================================================================== */
+/*
+ *    HBSC personal loan ("rent money").
+ *    Borrowed in fixed chunks, capped by outstanding PRINCIPAL (not the interest-inflated balance).
+ *    owed = principal * (1 + INTEREST), and repayments shrink owed (and thus principal) proportionally.
+ *    Borrowed cash is neutral to the inflation calc (see inflation.js totalWealth()).
+ *    If the player ignores the loan for a month, collection is handed to Bailey's rent (see rent.twee rentpay).
+ *    All amounts are in pennies (raw $money units).
+ */
 setup.hbsc.LOAN_CHUNK = 30000000; // £300,000 advanced per request
 setup.hbsc.LOAN_PRINCIPAL_MAX = 100000000; // £1,000,000 max outstanding principal
 setup.hbsc.LOAN_INTEREST = 0.5; // repay 1.5x principal (£1,000 -> £1,500)

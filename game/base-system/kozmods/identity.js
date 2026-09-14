@@ -2,11 +2,8 @@
  * As the v0.17.0 DoLX update, D.N.A. separated gender-identity and pill related handling:
  * - JS-side logic moved/split from `xchange.js` into `identity.js`
  * - The split also applied for the corresponding Twine-side logic
- * =========================
- * Important!
- * Some gender-identity "core" functions / related utilities are still live inside `xchange.js`.
- * If what you're looking for isn't defined here, there's a good chance it's still in `xchange.js`
- * (likewise, some mirrored behavior may be in `identity.twee` and its Twine-side correspondence)
+ * Some gender-identity core functions and utilities are still in `xchange.js`, and some mirrored behaviour
+ * is in `identity.twee`. Check both if what you're looking for isn't defined here.
  */
 /* globals ANDROGYNOUS_FEMININITY_DEADZONE makeupPartEquipped */
 
@@ -364,11 +361,6 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.effectsmessage = 1;
 		} else if (V.player.gender === "m" && currentWornFemininity > 0 && (genderifyActive || hypnoCrossdressLevel < 4)) {
 			wikifier("stress", -3 * hours, 1);
-			/*
-			 * Route through the tiredness macro instead of direct V.tiredness writes.
-			 * This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
-			 * Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
-			 */
 			wikifier("tiredness", -2.5 * hours, 1);
 
 			if (Math.random() < 0.5) {
@@ -383,11 +375,6 @@ function hourlyClothingFemininityCheck(hours = 1) {
 			V.effectsmessage = 1;
 		} else if (V.player.gender === "f" && currentWornFemininity < 0 && (genderifyActive || hypnoCrossdressLevel < 4)) {
 			wikifier("stress", -3 * hours, 1);
-			/*
-			 * Route through the tiredness macro instead of direct V.tiredness writes.
-			 * This prevents fractional/direct fatigue changes and lets normal fatigue modifiers apply.
-			 * Negative tiredness macro values are multiplied by 20, so -2.5 hours = -50 raw fatigue per hour before modifiers.
-			 */
 			wikifier("tiredness", -2.5 * hours, 1);
 
 			if (Math.random() < 0.5) {
@@ -500,189 +487,90 @@ function playerHasCharacteristic(characteristic) {
 }
 window.playerHasCharacteristic = playerHasCharacteristic;
 
-function getFemininityContribution(characteristic) {
-	let femininity = 0;
+/* Identity characteristic config.
+   group      - meter/state group
+   dir/meterW - meter direction and weight
+   fem        - femininity weight; null = no contribution
+   femKey     - key used for femininity checks
+   key        - selector key; "self" = use the container itself
+   pref       - preferred state check ({ field, value } or { flag })
 
-	switch (characteristic) {
-		case "Masculine Appearance":
-			femininity += Number(V.identity.presentation.appearance.masculine.acceptance) * -100;
-			femininity += Number(V.identity.presentation.appearance.masculine.reject) * 100;
-			femininity += (V.identity.presentation.appearance.preferred === "m") * -100;
-			break;
-		case "Feminine Appearance":
-			femininity += Number(V.identity.presentation.appearance.feminine.acceptance) * 100;
-			femininity += Number(V.identity.presentation.appearance.feminine.reject) * -100;
-			femininity += (V.identity.presentation.appearance.preferred === "f") * 100;
-			break;
-		case "Androgynous Appearance":
-			/* Neutral-axis trait, like Neutral Pronouns: wanting to read as neither pulls the score toward neither, so it contributes nothing in either direction.
-			Listed to stay exhaustive over the axes. */
-			break;
-		case "Masculine Clothing":
-			if (clothingIdentityIsNeutral()) break;
-			femininity += Number(V.identity.presentation.clothing.masculine.acceptance) * -100;
-			femininity += Number(V.identity.presentation.clothing.masculine.reject) * 100;
-			femininity += (V.identity.presentation.clothing.preferred === "m") * -100;
-			break;
-		case "Feminine Clothing":
-			if (clothingIdentityIsNeutral()) break;
-			femininity += Number(V.identity.presentation.clothing.feminine.acceptance) * 100;
-			femininity += Number(V.identity.presentation.clothing.feminine.reject) * -100;
-			femininity += (V.identity.presentation.clothing.preferred === "f") * 100;
-			break;
-		case "Neutral Clothing":
-			/* As above: a balanced outfit is the goal, so this axis pulls the score neither way. */
-			break;
-		case "Wearing Makeup":
-			if (makeupIdentityIsIgnored()) break;
-			femininity += Number(V.identity.presentation.makeup.wearing.acceptance) * 100;
-			femininity += Number(V.identity.presentation.makeup.wearing.reject) * -100;
-			femininity += Number(V.identity.presentation.makeup.preferred === "wearing") * 100;
-			break;
-		case "Bare Face":
-			if (makeupIdentityIsIgnored()) break;
-			femininity += Number(V.identity.presentation.makeup.bare.acceptance) * -100;
-			femininity += Number(V.identity.presentation.makeup.bare.reject) * 100;
-			femininity += Number(V.identity.presentation.makeup.preferred === "bare") * -100;
-			break;
-		case "Masculine Pronouns":
-			femininity += Number(V.identity.presentation.pronouns.masculine.acceptance) * -100;
-			femininity += Number(V.identity.presentation.pronouns.masculine.reject) * 100;
-			femininity += !!V.identity.presentation.pronouns.preferredMasculine * -100;
-			break;
-		case "Feminine Pronouns":
-			femininity += Number(V.identity.presentation.pronouns.feminine.acceptance) * 100;
-			femininity += Number(V.identity.presentation.pronouns.feminine.reject) * -100;
-			femininity += !!V.identity.presentation.pronouns.preferredFeminine * 100;
-			break;
-		case "Neutral Pronouns":
-			femininity += Number(V.identity.presentation.pronouns.neutral.acceptance) * 0;
-			femininity += Number(V.identity.presentation.pronouns.neutral.reject) * -0;
-			femininity += !!V.identity.presentation.pronouns.preferredNeutral * 0;
-			break;
-		case "Flat Chest":
-			femininity += Number(V.identity.body.chest.flat.acceptance) * -50;
-			femininity += Number(V.identity.body.chest.flat.reject) * 50;
-			femininity += (V.identity.body.chest.preferred === "flat") * -50;
-			break;
-		case "Small Breasts":
-			femininity += Number(V.identity.body.chest.small.acceptance) * 25;
-			femininity += Number(V.identity.body.chest.small.reject) * -25;
-			femininity += (V.identity.body.chest.preferred === "small") * 25;
-			break;
-		case "Medium Breasts":
-			femininity += Number(V.identity.body.chest.medium.acceptance) * 50;
-			femininity += Number(V.identity.body.chest.medium.reject) * -50;
-			femininity += (V.identity.body.chest.preferred === "medium") * 50;
-			break;
-		case "Big Breasts":
-			femininity += Number(V.identity.body.chest.big.acceptance) * 50;
-			femininity += Number(V.identity.body.chest.big.reject) * -50;
-			femininity += (V.identity.body.chest.preferred === "big") * 50;
-			break;
-		case "Small Ass":
-			femininity += Number(V.identity.body.bottom.small.acceptance) * 50;
-			femininity += Number(V.identity.body.bottom.small.reject) * -50;
-			femininity += (V.identity.body.bottom.preferred === "small") * 50;
-			break;
-		case "Medium Ass":
-			femininity += Number(V.identity.body.bottom.medium.acceptance) * 50;
-			femininity += Number(V.identity.body.bottom.medium.reject) * -50;
-			femininity += (V.identity.body.bottom.preferred === "medium") * 50;
-			break;
-		case "Big Ass":
-			femininity += Number(V.identity.body.bottom.big.acceptance) * 50;
-			femininity += Number(V.identity.body.bottom.big.reject) * -50;
-			femininity += (V.identity.body.bottom.preferred === "big") * 50;
-			break;
-		case "Vagina":
-			femininity += Number(V.identity.body.genitals.vagina.acceptance) * 50;
-			femininity += Number(V.identity.body.genitals.vagina.reject) * -50;
-			femininity += !!V.identity.body.genitals.preferredVagina * 50;
-			break;
-		case "Tiny Penis":
-			femininity += Number(V.identity.body.genitals.tinypenis.acceptance) * -15;
-			femininity += Number(V.identity.body.genitals.tinypenis.reject) * 15;
-			femininity += (V.identity.body.genitals.preferredPenis === "tinypenis") * -15;
-			break;
-		case "Small Penis":
-			femininity += Number(V.identity.body.genitals.smallpenis.acceptance) * -25;
-			femininity += Number(V.identity.body.genitals.smallpenis.reject) * 25;
-			femininity += (V.identity.body.genitals.preferredPenis === "smallpenis") * -25;
-			break;
-		case "Medium Penis":
-			femininity += Number(V.identity.body.genitals.mediumpenis.acceptance) * -50;
-			femininity += Number(V.identity.body.genitals.mediumpenis.reject) * 50;
-			femininity += (V.identity.body.genitals.preferredPenis === "mediumpenis") * -50;
-			break;
-		case "Big Penis":
-			femininity += Number(V.identity.body.genitals.bigpenis.acceptance) * -50;
-			femininity += Number(V.identity.body.genitals.bigpenis.reject) * 50;
-			femininity += (V.identity.body.genitals.preferredPenis === "bigpenis") * -50;
-			break;
-		case "Short Hair":
-			femininity += Number(V.identity.body.hairlength.short.acceptance) * -50;
-			femininity += Number(V.identity.body.hairlength.short.reject) * 50;
-			femininity += (V.identity.body.hairlength.preferred === "short") * -50;
-			break;
-		case "Medium Hair":
-			femininity += Number(V.identity.body.hairlength.medium.acceptance) * 25;
-			femininity += Number(V.identity.body.hairlength.medium.reject) * -25;
-			femininity += (V.identity.body.hairlength.preferred === "medium") * 25;
-			break;
-		case "Long Hair":
-			femininity += Number(V.identity.body.hairlength.long.acceptance) * 50;
-			femininity += Number(V.identity.body.hairlength.long.reject) * -50;
-			femininity += (V.identity.body.hairlength.preferred === "long") * 50;
-			break;
-		case "Miniature Body":
-			femininity += Number(V.identity.body.bodysize.tiny.acceptance) * 50;
-			femininity += Number(V.identity.body.bodysize.tiny.reject) * -50;
-			femininity += (V.identity.body.bodysize.preferred === "tiny") * 50;
-			break;
-		case "Tiny Body":
-			femininity += Number(V.identity.body.bodysize.tiny.acceptance) * 50;
-			femininity += Number(V.identity.body.bodysize.tiny.reject) * -50;
-			femininity += (V.identity.body.bodysize.preferred === "tiny") * 50;
-			break;
-		case "Small Body":
-			femininity += Number(V.identity.body.bodysize.small.acceptance) * 0;
-			femininity += Number(V.identity.body.bodysize.small.reject) * -0;
-			femininity += (V.identity.body.bodysize.preferred === "small") * 0;
-			break;
-		case "Normal Body":
-			femininity += Number(V.identity.body.bodysize.normal.acceptance) * 0;
-			femininity += Number(V.identity.body.bodysize.normal.reject) * -0;
-			femininity += (V.identity.body.bodysize.preferred === "normal") * 0;
-			break;
-		case "Tall Body":
-			femininity += Number(V.identity.body.bodysize.normal.acceptance) * 0;
-			femininity += Number(V.identity.body.bodysize.normal.reject) * -0;
-			femininity += (V.identity.body.bodysize.preferred === "normal") * 0;
-			break;
-		case "Large Body":
-			femininity += Number(V.identity.body.bodysize.large.acceptance) * -50;
-			femininity += Number(V.identity.body.bodysize.large.reject) * 50;
-			femininity += (V.identity.body.bodysize.preferred === "large") * -50;
-			break;
-		case "Giant Body":
-			femininity += Number(V.identity.body.bodysize.large.acceptance) * -50;
-			femininity += Number(V.identity.body.bodysize.large.reject) * 50;
-			femininity += (V.identity.body.bodysize.preferred === "large") * -50;
-			break;
-		case "Lactation":
-			femininity += Number(V.identity.body.lactation.acceptance) * 50;
-			femininity += Number(V.identity.body.lactation.reject) * -50;
-			femininity += (V.identity.body.lactation.preferred === "lactation") * 50;
-			break;
-		case "Pregnancy":
-			femininity += Number(V.identity.body.pregnancy.acceptance) * 50;
-			femininity += Number(V.identity.body.pregnancy.reject) * -50;
-			femininity += (V.identity.body.pregnancy.preferred === "pregnancy") * 50;
-			break;
-		default:
-			break;
-	}
+   Add new characteristics by adding a row here. */
+const IDENTITY_GROUPS = {
+	appearance: { fem: id => id.presentation.appearance, sel: (p, b) => p.appearance },
+	clothing: { fem: id => id.presentation.clothing, sel: (p, b) => p.clothing },
+	pronouns: { fem: id => id.presentation.pronouns, sel: (p, b) => p.pronouns },
+	makeup: { fem: id => id.presentation.makeup, sel: (p, b) => p.makeup },
+	chest: { fem: id => id.body.chest, sel: (p, b) => b.chest },
+	ass: { fem: id => id.body.bottom, sel: (p, b) => b.bottom },
+	genitals: { fem: id => id.body.genitals, sel: (p, b) => b.genitals },
+	hair: { fem: id => id.body.hairlength, sel: (p, b) => b.hairlength },
+	bodysize: { fem: id => id.body.bodysize, sel: (p, b) => b.bodysize },
+	lactation: { fem: id => id.body.lactation, sel: (p, b) => b.lactation },
+	pregnancy: { fem: id => id.body.pregnancy, sel: (p, b) => b.pregnancy },
+};
+
+const IDENTITY_CHARACTERISTICS = {
+	"Masculine Appearance": { group: "appearance", dir: -1, meterW: 1, fem: -100, key: "masculine", pref: { field: "preferred", value: "m" } },
+	"Feminine Appearance": { group: "appearance", dir: 1, meterW: 1, fem: 100, key: "feminine", pref: { field: "preferred", value: "f" } },
+	"Androgynous Appearance": { group: "appearance", dir: 0, meterW: 1.25, fem: null, key: "neutral", pref: { field: "preferred", value: "n" } },
+	"Masculine Clothing": { group: "clothing", dir: -1, meterW: 1, fem: -100, key: "masculine", pref: { field: "preferred", value: "m" } },
+	"Feminine Clothing": { group: "clothing", dir: 1, meterW: 1, fem: 100, key: "feminine", pref: { field: "preferred", value: "f" } },
+	"Neutral Clothing": { group: "clothing", dir: 0, meterW: 1.25, fem: null, key: "neutral", pref: { field: "preferred", value: "u" } },
+	"Masculine Pronouns": { group: "pronouns", dir: -1, meterW: 1, fem: -100, key: "masculine", pref: { flag: "preferredMasculine" } },
+	"Feminine Pronouns": { group: "pronouns", dir: 1, meterW: 1, fem: 100, key: "feminine", pref: { flag: "preferredFeminine" } },
+	"Neutral Pronouns": { group: "pronouns", dir: 0, meterW: 1.25, fem: 0, key: "neutral", pref: { flag: "preferredNeutral" } },
+	"Wearing Makeup": { group: "makeup", dir: 1, meterW: 1, fem: 100, key: "wearing", pref: { field: "preferred" } },
+	"Bare Face": { group: "makeup", dir: -1, meterW: 1, fem: -100, key: "bare", pref: { field: "preferred" } },
+	"Flat Chest": { group: "chest", dir: -1, meterW: 1, fem: -50, key: "flat", pref: { field: "preferred" } },
+	"Small Breasts": { group: "chest", dir: 0, meterW: 1.25, fem: 25, key: "small", pref: { field: "preferred" } },
+	"Medium Breasts": { group: "chest", dir: 1, meterW: 1, fem: 50, key: "medium", pref: { field: "preferred" } },
+	"Big Breasts": { group: "chest", dir: 1, meterW: 1, fem: 50, key: "big", pref: { field: "preferred" } },
+	"Small Ass": { group: "ass", dir: 0, meterW: 1.25, fem: 50, key: "small", pref: { field: "preferred" } },
+	"Medium Ass": { group: "ass", dir: 1, meterW: 1, fem: 50, key: "medium", pref: { field: "preferred" } },
+	"Big Ass": { group: "ass", dir: 1, meterW: 1, fem: 50, key: "big", pref: { field: "preferred" } },
+	Vagina: { group: "genitals", dir: 1, meterW: 1, fem: 50, key: "vagina", pref: { flag: "preferredVagina" } },
+	"Tiny Penis": { group: "genitals", dir: -1, meterW: 1, fem: -15, key: "tinypenis", pref: { field: "preferredPenis" } },
+	"Small Penis": { group: "genitals", dir: -1, meterW: 1, fem: -25, key: "smallpenis", pref: { field: "preferredPenis" } },
+	"Medium Penis": { group: "genitals", dir: -1, meterW: 1, fem: -50, key: "mediumpenis", pref: { field: "preferredPenis" } },
+	"Big Penis": { group: "genitals", dir: -1, meterW: 1, fem: -50, key: "bigpenis", pref: { field: "preferredPenis" } },
+	"Short Hair": { group: "hair", dir: -1, meterW: 1, fem: -50, key: "short", pref: { field: "preferred" } },
+	"Medium Hair": { group: "hair", dir: 0, meterW: 1.25, fem: 25, key: "medium", pref: { field: "preferred" } },
+	"Long Hair": { group: "hair", dir: 1, meterW: 1, fem: 50, key: "long", pref: { field: "preferred" } },
+	"Miniature Body": { group: "bodysize", dir: 0, meterW: 1.25, fem: 50, femKey: "tiny", key: "miniature", pref: { field: "preferred" } },
+	"Tiny Body": { group: "bodysize", dir: 0, meterW: 1.25, fem: 50, key: "tiny", pref: { field: "preferred" } },
+	"Small Body": { group: "bodysize", dir: 0, meterW: 1.25, fem: 0, key: "small", pref: { field: "preferred" } },
+	"Normal Body": { group: "bodysize", dir: 0, meterW: 1.25, fem: 0, key: "normal", pref: { field: "preferred" } },
+	"Tall Body": { group: "bodysize", dir: -1, meterW: 1, fem: 0, femKey: "normal", key: "tall", pref: { field: "preferred" } },
+	"Large Body": { group: "bodysize", dir: -1, meterW: 1, fem: -50, key: "large", pref: { field: "preferred" } },
+	"Giant Body": { group: "bodysize", dir: -1, meterW: 1, fem: -50, femKey: "large", key: "giant", pref: { field: "preferred" } },
+	Lactation: { group: "lactation", dir: 1, meterW: 1, fem: 50, key: "self", pref: { field: "preferred", value: "lactation" } },
+	Pregnancy: { group: "pregnancy", dir: 1, meterW: 1, fem: 50, key: "self", pref: { field: "preferred", value: "pregnancy" } },
+};
+
+/* True if `preferred` is set for this characteristic. */
+function identityPreferenceMatches(container, entry, key) {
+	if (entry.pref.flag) return !!container?.[entry.pref.flag];
+	const wanted = entry.pref.value === undefined ? key : entry.pref.value;
+	return container?.[entry.pref.field] === wanted;
+}
+
+function getFemininityContribution(characteristic) {
+	const entry = IDENTITY_CHARACTERISTICS[characteristic];
+	if (!entry || entry.fem === null) return 0;
+	/* A neutral outfit or an ignored face takes those axes out of the score entirely. */
+	if (entry.group === "clothing" && clothingIdentityIsNeutral()) return 0;
+	if (entry.group === "makeup" && makeupIdentityIsIgnored()) return 0;
+
+	const container = IDENTITY_GROUPS[entry.group].fem(V.identity);
+	const key = entry.femKey === undefined ? entry.key : entry.femKey;
+	const option = key === "self" ? container : container[key];
+	const weight = entry.fem;
+
+	let femininity = 0;
+	femininity += Number(option.acceptance) * weight;
+	femininity += Number(option.reject) * -weight;
+	femininity += identityPreferenceMatches(container, entry, key) * weight;
 	return femininity;
 }
 window.getFemininityContribution = getFemininityContribution;
@@ -725,9 +613,8 @@ function identityCharacteristicCategory(category) {
 window.identityCharacteristicCategory = identityCharacteristicCategory;
 
 /**
- * Whether the player has explicitly Accepted (and not Rejected) their current chest-size bucket in the Gender Identity screen.
- * Only meaningful while GI breast-size tracking is on; used to stop the vanilla insecurity system from forcing distress over a chest the player
- * has deliberately accepted (e.g. a trans man who prefers a flat/small chest).
+ * Whether the player has accepted their current chest size in Gender Identity.
+ * Prevents breast-size insecurity from triggering for an accepted chest size.
  */
 function chestIdentityAccepted() {
 	if (!V.xchange?.giBreastSizeEnabled) return false;
@@ -750,7 +637,8 @@ function penisIdentityAccepted() {
 window.penisIdentityAccepted = penisIdentityAccepted;
 
 /**
- * Same idea as chestIdentityAccepted(), for pregnancy. Only meaningful while GI fecundity tracking is on.
+ * Same idea as chestIdentityAccepted(), for pregnancy.
+ * Only meaningful while GI fecundity tracking is on.
  */
 function pregnancyIdentityAccepted() {
 	if (!V.xchange?.giFecundityEnabled) return false;
@@ -848,10 +736,10 @@ window.pronounSummaryLabel = pronounSummaryLabel;
 /* globals perceivedGender */
 
 /**
- * Whether a named NPC knows the player's actual identity/pronoun well enough to address them correctly, rather than guessing from appearance.
- * True once love reaches 50 (established relationship) or the NPC is explicitly tracked in $genderknown (identity reveal plot flag).
+ * Whether a named NPC knows the player's actual identity/pronouns.
+ * True at 50+ love or if tracked in $genderknown.
  *
- * @param {string} npcName The NPC's name as used in `C.npc`.
+ * @param {string} npcName NPC name in `C.npc`.
  */
 function npcKnowsPlayerIdentity(npcName) {
 	if (!npcName) return false;
@@ -862,18 +750,16 @@ function npcKnowsPlayerIdentity(npcName) {
 window.npcKnowsPlayerIdentity = npcKnowsPlayerIdentity;
 
 /**
- * Pronoun an NPC would use to address the player: their stated preference if the NPC already knows them, otherwise a guess from appearance alone.
+ * Gets the pronoun an NPC uses for the player, based on known preference or appearance.
  *
- * @param {string} npcName The NPC's name as used in `C.npc`.
+ * @param {string} npcName NPC name in `C.npc`.
  */
 function npcAddressPronoun(npcName) {
 	if (!npcKnowsPlayerIdentity(npcName)) return perceivedGender();
 
-	/* Known NPCs use felt gender to break pronoun preference ties instead of appearance. Dynamic pronouns still take priority. */
 	const pronouns = V.identity?.presentation?.pronouns || {};
 	if (!getPronounDynamicMode(pronouns)) {
 		const preferred = preferredPronounSet(pronouns);
-		/* playerFeltGender() rebuilds the identity meter, so only ask when the tie actually needs breaking. */
 		if (preferred.length > 1 && typeof window.playerFeltGender === "function") {
 			const felt = window.playerFeltGender();
 			if (preferred.includes(felt)) return felt;
@@ -884,10 +770,8 @@ function npcAddressPronoun(npcName) {
 window.npcAddressPronoun = npcAddressPronoun;
 
 /**
- * Whether <<misgender>> should apply identity effects for this pronoun.
- * The same pronoun may appear several times in one turn, but it should only count as one identity event.
- * Effects apply on the first use and are skipped for repeated uses of that pronoun.
- * This is temporary render data and is not saved.
+ * Checks whether <<misgender>> should apply identity effects.
+ * Each pronoun only counts once per turn.
  *
  * @param {string} pronoun The player's pronoun ("m", "f" or "n").
  */
@@ -917,321 +801,63 @@ function preferredPronouns(gender) {
 window.preferredPronouns = preferredPronouns;
 
 function getIdentityMeterDirection(characteristic) {
-	switch (characteristic) {
-		/* Universal axis:
-		 *   min	= strongly masculine
-		 *   max	= strongly feminine
-		So masculine-leaning traits should push NEGATIVE and feminine-leaning POSITIVE. */
-		case "Masculine Clothing":
-		case "Masculine Appearance":
-		case "Masculine Pronouns":
-		case "Bare Face":
-		case "Tiny Penis":
-		case "Small Penis":
-		case "Medium Penis":
-		case "Big Penis":
-		case "Flat Chest":
-		case "Short Hair":
-		case "Tall Body":
-		case "Large Body":
-		case "Giant Body":
-			return { dir: -1, weight: 1 };
-		case "Feminine Clothing":
-		case "Feminine Appearance":
-		case "Feminine Pronouns":
-		case "Wearing Makeup":
-		case "Vagina":
-		case "Medium Breasts":
-		case "Big Breasts":
-		case "Medium Ass":
-		case "Big Ass":
-		case "Long Hair":
-		case "Pregnancy":
-		case "Lactation":
-			return { dir: 1, weight: 1 };
-		/* Neutral-ish */
-		case "Neutral Pronouns":
-		case "Androgynous Appearance":
-		case "Neutral Clothing":
-		case "Medium Hair":
-		case "Small Breasts":
-		case "Small Ass":
-		case "Miniature Body":
-		case "Tiny Body":
-		case "Small Body":
-		case "Normal Body":
-			return { dir: 0, weight: 1.25 };
-		default:
-			return { dir: 0, weight: 0 };
-	}
+	/* Universal axis:
+	 *   min	= strongly masculine
+	 *   max	= strongly feminine
+	So masculine-leaning traits push NEGATIVE and feminine-leaning POSITIVE. */
+	const entry = IDENTITY_CHARACTERISTICS[characteristic];
+	if (!entry) return { dir: 0, weight: 0 };
+	return { dir: entry.dir, weight: entry.meterW };
 }
 window.getIdentityMeterDirection = getIdentityMeterDirection;
 
+/* Checks whether this characteristic is enabled.
+   gi* flags may be stored as booleans or 0/1 in older saves. */
+function identitySelectorEnabled(group, x) {
+	switch (group) {
+		case "clothing":
+			return !clothingIdentityIsNeutral();
+		case "makeup":
+			return !makeupIdentityIsIgnored();
+		case "chest":
+			return x.giBreastSizeEnabled;
+		case "ass":
+			return x.giAssSizeEnabled;
+		case "genitals":
+			return x.giGenitalsEnabled;
+		case "hair":
+			return x.giHairLengthEnabled;
+		case "bodysize":
+			return x.giBodySizeEnabled;
+		case "pregnancy":
+		case "lactation":
+			return x.giFecundityEnabled;
+		default:
+			return true;
+	}
+}
+
 function selectIdentityCharacteristic(characteristic) {
-	let option;
-	let preferred = false;
 	const id = V.identity || {};
 	const x = V.xchange || {};
 	const presentation = id.presentation || {};
 	const body = id.body || {};
-	switch (characteristic) {
-		case "Masculine Clothing":
-			if (!clothingIdentityIsNeutral()) {
-				option = presentation.clothing?.masculine;
-				preferred = presentation.clothing?.preferred === "m";
-			}
-			break;
-		case "Feminine Clothing":
-			if (!clothingIdentityIsNeutral()) {
-				option = presentation.clothing?.feminine;
-				preferred = presentation.clothing?.preferred === "f";
-			}
-			break;
-		case "Neutral Clothing":
-			if (!clothingIdentityIsNeutral()) {
-				option = presentation.clothing?.neutral;
-				preferred = presentation.clothing?.preferred === "u";
-			}
-			break;
-		case "Masculine Appearance":
-			option = presentation.appearance?.masculine;
-			preferred = presentation.appearance?.preferred === "m";
-			break;
-		case "Feminine Appearance":
-			option = presentation.appearance?.feminine;
-			preferred = presentation.appearance?.preferred === "f";
-			break;
-		case "Androgynous Appearance":
-			option = presentation.appearance?.neutral;
-			preferred = presentation.appearance?.preferred === "n";
-			break;
-		case "Masculine Pronouns":
-			option = presentation.pronouns?.masculine;
-			preferred = !!presentation.pronouns?.preferredMasculine;
-			break;
-		case "Feminine Pronouns":
-			option = presentation.pronouns?.feminine;
-			preferred = !!presentation.pronouns?.preferredFeminine;
-			break;
-		case "Neutral Pronouns":
-			option = presentation.pronouns?.neutral;
-			preferred = !!presentation.pronouns?.preferredNeutral;
-			break;
-		case "Wearing Makeup":
-			if (!makeupIdentityIsIgnored()) {
-				option = presentation.makeup?.wearing;
-				preferred = presentation.makeup?.preferred === "wearing";
-			}
-			break;
-		case "Bare Face":
-			if (!makeupIdentityIsIgnored()) {
-				option = presentation.makeup?.bare;
-				preferred = presentation.makeup?.preferred === "bare";
-			}
-			break;
-		case "Flat Chest":
-			if (x.giBreastSizeEnabled) {
-				option = body.chest?.flat;
-				preferred = body.chest?.preferred === "flat";
-			}
-			break;
-		case "Small Breasts":
-			if (x.giBreastSizeEnabled) {
-				option = body.chest?.small;
-				preferred = body.chest?.preferred === "small";
-			}
-			break;
-		case "Medium Breasts":
-			if (x.giBreastSizeEnabled) {
-				option = body.chest?.medium;
-				preferred = body.chest?.preferred === "medium";
-			}
-			break;
-		case "Big Breasts":
-			if (x.giBreastSizeEnabled) {
-				option = body.chest?.big;
-				preferred = body.chest?.preferred === "big";
-			}
-			break;
-		case "Small Ass":
-			if (x.giAssSizeEnabled) {
-				option = body.bottom?.small;
-				preferred = body.bottom?.preferred === "small";
-			}
-			break;
-		case "Medium Ass":
-			if (x.giAssSizeEnabled) {
-				option = body.bottom?.medium;
-				preferred = body.bottom?.preferred === "medium";
-			}
-			break;
-		case "Big Ass":
-			if (x.giAssSizeEnabled) {
-				option = body.bottom?.big;
-				preferred = body.bottom?.preferred === "big";
-			}
-			break;
-		case "Vagina":
-			if (x.giGenitalsEnabled) {
-				option = body.genitals?.vagina;
-				preferred = !!body.genitals?.preferredVagina;
-			}
-			break;
-		case "Tiny Penis":
-			if (x.giGenitalsEnabled) {
-				option = body.genitals?.tinypenis;
-				preferred = body.genitals?.preferredPenis === "tinypenis";
-			}
-			break;
-		case "Small Penis":
-			if (x.giGenitalsEnabled) {
-				option = body.genitals?.smallpenis;
-				preferred = body.genitals?.preferredPenis === "smallpenis";
-			}
-			break;
-		case "Medium Penis":
-			if (x.giGenitalsEnabled) {
-				option = body.genitals?.mediumpenis;
-				preferred = body.genitals?.preferredPenis === "mediumpenis";
-			}
-			break;
-		case "Big Penis":
-			if (x.giGenitalsEnabled) {
-				option = body.genitals?.bigpenis;
-				preferred = body.genitals?.preferredPenis === "bigpenis";
-			}
-			break;
-		case "Short Hair":
-			if (x.giHairLengthEnabled) {
-				option = body.hairlength?.short;
-				preferred = body.hairlength?.preferred === "short";
-			}
-			break;
-		case "Medium Hair":
-			if (x.giHairLengthEnabled) {
-				option = body.hairlength?.medium;
-				preferred = body.hairlength?.preferred === "medium";
-			}
-			break;
-		case "Long Hair":
-			if (x.giHairLengthEnabled) {
-				option = body.hairlength?.long;
-				preferred = body.hairlength?.preferred === "long";
-			}
-			break;
-		case "Miniature Body":
-			if (x.giBodySizeEnabled) {
-				option = body.bodysize?.miniature;
-				preferred = body.bodysize?.preferred === "miniature";
-			}
-			break;
-		case "Tiny Body":
-			if (x.giBodySizeEnabled) {
-				option = body.bodysize?.tiny;
-				preferred = body.bodysize?.preferred === "tiny";
-			}
-			break;
-		case "Small Body":
-			if (x.giBodySizeEnabled) {
-				option = body.bodysize?.small;
-				preferred = body.bodysize?.preferred === "small";
-			}
-			break;
-		case "Normal Body":
-			if (x.giBodySizeEnabled) {
-				option = body.bodysize?.normal;
-				preferred = body.bodysize?.preferred === "normal";
-			}
-			break;
-		case "Tall Body":
-			if (x.giBodySizeEnabled) {
-				option = body.bodysize?.tall;
-				preferred = body.bodysize?.preferred === "tall";
-			}
-			break;
-		case "Large Body":
-			if (x.giBodySizeEnabled) {
-				option = body.bodysize?.large;
-				preferred = body.bodysize?.preferred === "large";
-			}
-			break;
-		case "Giant Body":
-			if (x.giBodySizeEnabled) {
-				option = body.bodysize?.giant;
-				preferred = body.bodysize?.preferred === "giant";
-			}
-			break;
-		case "Lactation":
-			if (x.giFecundityEnabled) {
-				option = body.lactation;
-				preferred = body.lactation?.preferred === "lactation";
-			}
-			break;
-		case "Pregnancy":
-			if (x.giFecundityEnabled) {
-				option = body.pregnancy;
-				preferred = body.pregnancy?.preferred === "pregnancy";
-			}
-			break;
-	}
+
+	const entry = IDENTITY_CHARACTERISTICS[characteristic];
+	if (!entry || !identitySelectorEnabled(entry.group, x)) return { option: undefined, preferred: false };
+
+	const container = IDENTITY_GROUPS[entry.group].sel(presentation, body);
+	const option = entry.key === "self" ? container : container?.[entry.key];
+	const preferred = identityPreferenceMatches(container, entry, entry.key);
 	return { option, preferred };
 }
 window.selectIdentityCharacteristic = selectIdentityCharacteristic;
 
 function getIdentityMeterGroup(characteristic) {
-	switch (characteristic) {
-		case "Masculine Pronouns":
-		case "Feminine Pronouns":
-		case "Neutral Pronouns":
-			return "pronouns";
-		case "Masculine Appearance":
-		case "Feminine Appearance":
-		case "Androgynous Appearance":
-			return "appearance";
-		case "Masculine Clothing":
-		case "Feminine Clothing":
-		case "Neutral Clothing":
-			return "clothing";
-		case "Wearing Makeup":
-		case "Bare Face":
-			return "makeup";
-		case "Flat Chest":
-		case "Small Breasts":
-		case "Medium Breasts":
-		case "Big Breasts":
-			return "chest";
-		case "Small Ass":
-		case "Medium Ass":
-		case "Big Ass":
-			return "ass";
-		case "Vagina":
-		case "Tiny Penis":
-		case "Small Penis":
-		case "Medium Penis":
-		case "Big Penis":
-			return "genitals";
-		case "Short Hair":
-		case "Medium Hair":
-		case "Long Hair":
-			return "hair";
-		case "Miniature Body":
-		case "Tiny Body":
-		case "Small Body":
-		case "Normal Body":
-		case "Tall Body":
-		case "Large Body":
-		case "Giant Body":
-			return "bodysize";
-		case "Pregnancy":
-			return "pregnancy";
-		case "Lactation":
-			return "lactation";
-		default:
-			return false;
-	}
+	const entry = IDENTITY_CHARACTERISTICS[characteristic];
+	return entry ? entry.group : false;
 }
 window.getIdentityMeterGroup = getIdentityMeterGroup;
-
 function isIdentityMeterCharacteristicEnabled(characteristic) {
 	const x = V.xchange || {};
 	switch (getIdentityMeterGroup(characteristic)) {
@@ -1329,10 +955,10 @@ function mapToLegacyGenderIdentity() {
 	}
 
 	/* Universal meter:
-	 *   axis -1 => fully masculine => 0
-	 *   axis +1 => fully feminine => range
-	 * Do NOT flip by the player's starting gender.
-	 * When no identity topics are active, default based on player's current gender */
+	 * -1 = masculine, +1 = feminine.
+	 * Don't flip by starting gender.
+	 * If inactive, use current gender.
+	 */
 	let axis;
 	if (categoryCount === 0) {
 		axis = V.player?.gender === "f" ? 1 : V.player?.gender === "m" ? -1 : 0;
@@ -1345,14 +971,10 @@ function mapToLegacyGenderIdentity() {
 	V.xchange.giAxis = axis;
 	V.xchange.giTarget = absVal;
 
-	/* === Full breakdown for the Statistics "Choice Breakdown" foldout ===
-	 * Re-walks every enabled characteristic so the UI can show even the ones that currently push nothing (e.g. "Not accepted" with zero dysphoria)
-	 * Three buckets per group:
-	 *   included  — actually moves the meter (|effect| > 0)
-	 *   diluting  — has a stance but dir is neutral, so it only pulls the
-	 *               group's axis toward centre (contributes weight, no push)
-	 *   dormant   — no stance at all (unaccepted, no dysphoria, not preferred)
-	 * This is derived data; safe to overwrite every call */
+	/* Breakdown data for the Statistics "Choice Breakdown" UI.
+	 * Groups characteristics as included, diluting, or dormant.
+	 * Derived data; safe to overwrite each call.
+	 */
 	const breakdown = {};
 	if (setup?.identityIndex) {
 		for (const category in setup.identityIndex) {
@@ -1406,11 +1028,6 @@ function mapToLegacyGenderIdentity() {
 	}
 	V.xchange.giBreakdown = breakdown;
 
-	/* The Gender Identity meter is handled here so all callers use the same state.
-
-	If the meter has never been initialised, seed it from the current Identity target.
-	Existing meters are only adjusted when auto-update is enabled. With auto-update off,
-	the current value is preserved and will resume gradual daily changes if re-enabled. */
 	const currentMeter = Number(V.genderidentity);
 	const meterUsable = V.genderidentity !== null && V.genderidentity !== "" && Number.isFinite(currentMeter);
 	const needsSeed = !meterUsable || V.xchange.giInitialized !== true;
@@ -1471,12 +1088,9 @@ function playerFeelsGirllike() {
 }
 window.playerFeelsGirllike = playerFeelsGirllike;
 
-/* Returns the player's identity: "m", "f", or "n" (nonbinary).
-   Always use this for gender identity, including transgender players.
-   Do not determine identity from the player's body, as this can misidentify trans and nonbinary characters. */
+/* Returns player identity: "m", "f", or "n". Use this instead of body sex for gender identity. */
 function playerFeltGender() {
-	/* Called through window so premium pills can apply presentationGenderOverride.
-	A direct call would skip the X-Change wrapper and lose the override. */
+	/* Use window so premium pills preserve presentationGenderOverride. */
 	if (window.playerFeelsManlike()) return "m";
 	if (window.playerFeelsGirllike()) return "f";
 	return "n";
@@ -1515,10 +1129,9 @@ function playerTransLabel() {
 }
 window.playerTransLabel = playerTransLabel;
 
-/* Determines the direction of a crossdress/genderification body change.
-X-Change uses body sex ($player.sex), not gender identity: male body = "sissy", female body = "butch".
-Only applies to a normal crossdress effect, not genderflip or herm changes.
-Returns "sissy" | "butch" | "none". */
+/* Determines crossdress/genderification direction by body sex:
+male = "sissy", female = "butch".
+Not used for genderflip or herm changes. */
 function xchangeGenderificationDirection() {
 	const pill = V.xchange?.pill;
 	if (pill && (pill.genderflipEffect || pill.hermEffect)) return "none";

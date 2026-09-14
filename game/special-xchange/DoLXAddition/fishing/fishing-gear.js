@@ -7,9 +7,7 @@
 
 /* globals numberOfFishCaught pocketEnsure pocketSyncBag pocketCommit pocketBagItem pocketBagCapacity pocketSlotIndex pocketLockReason canOpenBaitOverlay wikifier closeOverlay effectiveTransformationLevel */
 
-/* ------------------------------------------------------------------ *
- * State
- * ------------------------------------------------------------------ */
+/* State */
 /* Runs on load and before anything reads the gear, so old saves and new ones look the same. */
 function dolxFishingEnsure() {
 	/* StoryInit builds the config before any save loads, so this only guards against the mod's
@@ -56,9 +54,7 @@ function dolxFishingEnsure() {
 }
 window.dolxFishingEnsure = dolxFishingEnsure;
 
-/* ------------------------------------------------------------------ *
- * The can of worms
- * ------------------------------------------------------------------ */
+/* The can of worms */
 function dolxWormCanCapacity() {
 	return setup.fishing.dolx.wormCanCapacity;
 }
@@ -112,9 +108,7 @@ function dolxWormCanRefill() {
 }
 window.dolxWormCanRefill = dolxWormCanRefill;
 
-/* ------------------------------------------------------------------ *
- * Bait stock
- * ------------------------------------------------------------------ */
+/* Bait stock */
 /* Bait worms live in two places: loose ones bought by the pack, and the ones in the can.
    Everywhere that adds or removes a bait goes through these three, so the can drains and
    refills like ordinary stock without vanilla needing to know it exists. */
@@ -237,9 +231,7 @@ function dolxBaitOrderedKeys() {
 }
 window.dolxBaitOrderedKeys = dolxBaitOrderedKeys;
 
-/* ------------------------------------------------------------------ *
- * Catch weighting
- * ------------------------------------------------------------------ */
+/* Catch weighting */
 /* Replaces vanilla's per-fish bait weight class when the current bait is one of ours.
    Returns undefined so vanilla keeps its own answer for every bait it already knows. */
 function dolxFishingBaitWeightMultiplier(fishKey) {
@@ -299,9 +291,7 @@ function dolxFishingCatchWeightBaitMultiplier() {
 }
 window.dolxFishingCatchWeightBaitMultiplier = dolxFishingCatchWeightBaitMultiplier;
 
-/* ------------------------------------------------------------------ *
- * Small catches
- * ------------------------------------------------------------------ */
+/* Small catches */
 /* The largest a catch can be and still count as a small one. */
 function dolxSmallCatchThreshold(fishKey) {
 	const row = setup.fishing.dolx.smallCatch[fishKey];
@@ -374,9 +364,7 @@ function dolxFishStow(fish, amount) {
 }
 window.dolxFishStow = dolxFishStow;
 
-/* ------------------------------------------------------------------ *
- * Rods and reels
- * ------------------------------------------------------------------ */
+/* Rods and reels */
 function dolxFishingRodKey() {
 	dolxFishingEnsure();
 	return V.fishing.gear.rod;
@@ -439,9 +427,7 @@ function dolxFishingGearUnlocked(config) {
 }
 window.dolxFishingGearUnlocked = dolxFishingGearUnlocked;
 
-/* ------------------------------------------------------------------ *
- * The bone set
- * ------------------------------------------------------------------ */
+/* The bone set */
 /* Not stocked anywhere. It comes up on the line in the quiet places, once the PC has fished
    enough to recognise what they have pulled out. */
 function dolxBoneFindPiece() {
@@ -485,9 +471,7 @@ function dolxBoneFindTake() {
 }
 window.dolxBoneFindTake = dolxBoneFindTake;
 
-/* ------------------------------------------------------------------ *
- * Minigame modifiers
- * ------------------------------------------------------------------ */
+/* Minigame modifiers */
 /* Fractional gear effects are resolved by chance rather than accumulated, so a 20% better reel
    is 20% better on average and the turn still moves the fish a whole number of lengths. */
 function dolxFishingRoundRandom(value) {
@@ -541,9 +525,7 @@ function dolxFishingMisreelPenalty(playerAction) {
 }
 window.dolxFishingMisreelPenalty = dolxFishingMisreelPenalty;
 
-/* ------------------------------------------------------------------ *
- * POCKET
- * ------------------------------------------------------------------ */
+/* POCKET */
 /* Bait packs like everything else: one slot per kind of thing, however many of it you carry.
    The can is one slot whatever is in it, and stays a slot when it's empty, because an empty
    tin is still a tin you can refill. */
@@ -630,9 +612,7 @@ function dolxPocketBaitList() {
 }
 window.dolxPocketBaitList = dolxPocketBaitList;
 
-/* ------------------------------------------------------------------ *
- * Shop and UI helpers
- * ------------------------------------------------------------------ */
+/* Shop and UI helpers */
 /* Prices go through the X-Change inflation hook so the label matches the charge. */
 function dolxFishingPrice(base) {
 	return typeof setup !== "undefined" && setup.inflation ? setup.inflation.spendPrice(base, "fishing") : base;
@@ -672,9 +652,7 @@ function dolxFishingWaitPassage(bus) {
 }
 window.dolxFishingWaitPassage = dolxFishingWaitPassage;
 
-/* ------------------------------------------------------------------ *
- * Debug
- * ------------------------------------------------------------------ */
+/* Debug */
 /* Hands over every rod and reel and a full can, for testing the fight modifiers side by side. */
 function debugUnlockAllFishingGear() {
 	dolxFishingEnsure();
@@ -690,9 +668,7 @@ function debugUnlockAllFishingGear() {
 }
 window.debugUnlockAllFishingGear = debugUnlockAllFishingGear;
 
-/* ------------------------------------------------------------------ *
- * Eating a fish whole
- * ------------------------------------------------------------------ */
+/* Eating a fish whole */
 /* The animal transformations far enough along to swallow a fish, strongest build last so the
    caller can just take the highest. */
 function dolxFishEatingTfs() {
@@ -749,9 +725,7 @@ function dolxPocketEatBaitFromMenu(key) {
 }
 window.dolxPocketEatBaitFromMenu = dolxPocketEatBaitFromMenu;
 
-/* ------------------------------------------------------------------ *
- * The journal
- * ------------------------------------------------------------------ */
+/* The journal */
 /* The species an undersized catch comes from, or undefined for a bait fish that is caught
    outright. The small carp is the only one of those. */
 function dolxSmallCatchParent(baitKey) {
@@ -804,9 +778,7 @@ function dolxFishRecordConfig(fishKey) {
 }
 window.dolxFishRecordConfig = dolxFishRecordConfig;
 
-/* ------------------------------------------------------------------ *
- * Names
- * ------------------------------------------------------------------ */
+/* Names */
 /* Vanilla prints a fish's loot-table key as its name, which works only while the two are the
    same word. The sardine keeps the key `baitfish` for compatibility with vanilla and with future
    fishing updates, so every player-facing print goes through here instead. */

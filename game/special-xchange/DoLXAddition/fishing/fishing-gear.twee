@@ -1,26 +1,24 @@
 :: Widgets DoLX Fishing Gear [widget]
 
-/* ------------------------------------------------------------------ *
- * The tackle summary shown before you cast
- * ------------------------------------------------------------------ */
+/* The tackle summary shown before you cast */
 <<widget "fishingKitSummary">>
 	<<run dolxFishingEnsure()>>
 	<<set _kitRod to dolxFishingRod()>>
 	<<set _kitReel to dolxFishingReel()>>
-	<div class="dolx-fishing-kit">
-		<div class="dolx-fishing-kit-row">
+	<div class="fishing-kit">
+		<div class="fishing-kit-row">
 			<<if $options.images is 1>><<icon _kitRod.icon>><</if>>
-			<span class="dolx-fishing-kit-label">Rod:</span> <span class="teal"><<= _kitRod.displayName>></span>
+			<span class="fishing-kit-label">Rod:</span> <span class="teal"><<= _kitRod.displayName>></span>
 		</div>
-		<div class="dolx-fishing-kit-row">
+		<div class="fishing-kit-row">
 			<<if $options.images is 1>><<icon _kitReel.icon>><</if>>
-			<span class="dolx-fishing-kit-label">Reel:</span> <span class="teal"><<= _kitReel.displayName>></span>
+			<span class="fishing-kit-label">Reel:</span> <span class="teal"><<= _kitReel.displayName>></span>
 		</div>
-		<div class="dolx-fishing-kit-row">
+		<div class="fishing-kit-row">
 			<<if $options.images is 1>>
 				<<if $fishing.currentBait and setup.foodstuff[$fishing.currentBait]>><<baiticon $fishing.currentBait>><<else>><<icon `"fish/hook.png"`>><</if>>
 			<</if>>
-			<span class="dolx-fishing-kit-label">Bait:</span>
+			<span class="fishing-kit-label">Bait:</span>
 			<<if $fishing.currentBait and setup.foodstuff[$fishing.currentBait]>>
 				<span class="teal"><<= dolxBaitLabel($fishing.currentBait)>></span>
 			<<else>>
@@ -30,9 +28,7 @@
 	</div>
 <</widget>>
 
-/* ------------------------------------------------------------------ *
- * The Tackle tab of the bait overlay
- * ------------------------------------------------------------------ */
+/* The Tackle tab of the bait overlay */
 <<widget "fishingTackleOverlay">>
 	<<run dolxFishingEnsure()>>
 	<div id="dolxTacklePane"><<fishingTackleContents>></div>
@@ -49,20 +45,20 @@
 <<widget "fishingTackleList">>
 	<<set _gearKind to _args[0]>>
 	<<set _gearEquipped to _gearKind is "rod" ? dolxFishingRodKey() : dolxFishingReelKey()>>
-	<section class="dolx-pocket-section">
-		<header class="dolx-pocket-section-header">
+	<section class="pocket-section">
+		<header class="pocket-section-header">
 			<span><<= _gearKind is "rod" ? "Rod" : "Reel">></span>
 		</header>
-		<div class="dolx-pocket-slots">
+		<div class="pocket-slots">
 			<<for _gearEntry range dolxFishingGearList(_gearKind)>>
 			<<if dolxFishingGearOwned(_gearKind, _gearEntry.key) or _gearEntry.config.source is "shop">>
-					<div class="dolx-fishing-gear-row">
-						<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<icon _gearEntry.config.icon>></span><</if>>
-						<span class="dolx-pocket-item-name">
+					<div class="fishing-gear-row">
+						<<if $options.images is 1>><span class="pocket-item-icon"><<icon _gearEntry.config.icon>></span><</if>>
+						<span class="pocket-item-name">
 							<span @class="_gearEntry.key is _gearEquipped ? 'teal' : ''"><<= _gearEntry.config.displayName>></span>
 							<br><span class="small-description"><<= _gearEntry.config.blurb>></span>
 						</span>
-						<span class="dolx-pocket-item-actions">
+						<span class="pocket-item-actions">
 							<<if !dolxFishingGearOwned(_gearKind, _gearEntry.key)>>
 								<<if dolxFishingGearUnlocked(_gearEntry.config)>>
 									<span class="grey">Buy at the bait shop</span>
@@ -94,9 +90,7 @@
 	</section>
 <</widget>>
 
-/* ------------------------------------------------------------------ *
- * Packing bait into the POCKET
- * ------------------------------------------------------------------ */
+/* Packing bait into the POCKET */
 <<widget "dolxRefreshBaitPack">>
 	<<if elementExists("#dolxTacklePane")>>
 		<<replace #dolxTacklePane>><<fishingTackleContents>><</replace>>
@@ -116,19 +110,19 @@
 	<<set _baitPackCapacity to pocketCarryCapacity()>>
 	<<set _baitPackUsed to $pocket.bag.slots.length>>
 	<<set _baitPackKeys to dolxPocketBaitList()>>
-	<section class="dolx-pocket-section">
-		<header class="dolx-pocket-section-header">
+	<section class="pocket-section">
+		<header class="pocket-section-header">
 			<span>Bait you're carrying</span>
 			<span @class="_baitPackUsed gte _baitPackCapacity ? 'red' : 'blue'"><<= _baitPackUsed>>/<<= _baitPackCapacity>> slots used</span>
 		</header>
 		<div class="small-description">One slot per kind, however many you have. The can takes one slot whether it's full or empty.</div>
 		<<if _baitPackKeys.length is 0>>
-			<div class="dolx-pocket-empty">You have no bait to pack.</div>
+			<div class="pocket-empty">You have no bait to pack.</div>
 		<<else>>
-			<div class="dolx-pocket-arrange">
+			<div class="pocket-arrange">
 				<<for _baitPackKey range _baitPackKeys>>
-					<div class="dolx-pocket-arrange-row">
-						<span class="dolx-pocket-arrange-name">
+					<div class="pocket-arrange-row">
+						<span class="pocket-arrange-name">
 							<<if $options.images is 1>><<icon `dolxPocketBaitIconPath(_baitPackKey)`>><</if>>
 							<<= dolxPocketBaitName(_baitPackKey)>>
 							<span class="gold">(<<= dolxPocketBaitDetail(_baitPackKey)>>)</span>
@@ -155,9 +149,7 @@
 	</section>
 <</widget>>
 
-/* ------------------------------------------------------------------ *
- * Catching a small one
- * ------------------------------------------------------------------ */
+/* Catching a small one */
 /* Shown the first time the player catches a small fish. */
 <<widget "dolxSmallCatchNotice">>
 	<<if dolxFishCatchCount(_args[0]) gt 1>>
@@ -172,9 +164,7 @@
 	<</if>>
 <</widget>>
 
-/* ------------------------------------------------------------------ *
- * The bait shop
- * ------------------------------------------------------------------ */
+/* The bait shop */
 <<widget "baitShopTackle">>
 	<<run dolxFishingEnsure()>>
 
@@ -243,9 +233,7 @@
 	<</for>>
 <</widget>>
 
-/* ------------------------------------------------------------------ *
- * The journal
- * ------------------------------------------------------------------ */
+/* The journal */
 /* One row of fish icons for a spot: caught ones show, the rest stay question marks. */
 <<widget "fishingLocationGrid">>
 	<div class="itemCollectible">

@@ -20,7 +20,7 @@
 <<widget "pocketMain">>
 	<<set _pocketLock to pocketLockReason()>>
 	<<if _pocketLock isnot "">>
-		<div class="dolx-pocket-locked">
+		<div class="pocket-locked">
 			<span class="gold">Pocket</span>
 			<br><br>
 			<span class="red"><<= _pocketLock>></span>
@@ -33,9 +33,7 @@
 /* The name of the carried container, including the PC's own pocket when they have no bag. */
 <<widget "bagname">><<print pocketBagName()>><</widget>>
 
-/* ------------------------------------------------------------------ *
- * Hand mirror
- * ------------------------------------------------------------------ */
+/* Hand mirror */
 
 /* The real mirror, held in the hand. */
 <<widget "pocketMirrorTab">>
@@ -45,11 +43,11 @@
 	<<else>>
 		<<run pocketEnsure()>>
 		<<if !$pocket.mirror>>
-			<div class="dolx-pocket-empty">
+			<div class="pocket-empty">
 				You don't own a hand mirror. The cosmetics store in the shopping centre sells them.
 			</div>
 		<<elseif Weather.bloodMoon>>
-			<div class="dolx-pocket-locked">
+			<div class="pocket-locked">
 				<span class="red">You have a feeling something bad will happen if you check the mirror now.</span>
 				<<if !$daily.pocketMirrorBloodMoon>>
 					<<set $daily.pocketMirrorBloodMoon to true>>
@@ -67,9 +65,7 @@
 	<</if>>
 <</widget>>
 
-/* ------------------------------------------------------------------ *
- * Bag
- * ------------------------------------------------------------------ */
+/* Bag */
 
 /* Read-only by design: things go into the bag where they live. */
 <<widget "pocketBagTab">>
@@ -95,32 +91,32 @@
 	<</if>>
 	<div id="pocketUseReport"></div>
 
-	<section class="dolx-pocket-section">
-		<header class="dolx-pocket-section-header">
+	<section class="pocket-section">
+		<header class="pocket-section-header">
 			<span>Pocket</span>
 			<span @class="_personalSlots.length ? 'red' : 'blue'"><<= _personalSlots.length>>/1 slot</span>
 		</header>
 		<<if _personalSlots.length>>
-			<div class="dolx-pocket-slots">
+			<div class="pocket-slots">
 				<<for _slot range _personalSlots>><<pocketSlotRow _slot>><</for>>
 			</div>
 		<<else>>
-			<div class="dolx-pocket-empty">Your pocket is empty.</div>
+			<div class="pocket-empty">Your pocket is empty.</div>
 		<</if>>
 	</section>
 
 	<<if pocketBagItem()>>
-		<section class="dolx-pocket-section">
-			<header class="dolx-pocket-section-header">
+		<section class="pocket-section">
+			<header class="pocket-section-header">
 				<span><<= pocketBagName().toLocaleUpperFirst()>></span>
 				<span @class="_bagSlots.length gte pocketBagCapacity() ? 'red' : 'blue'"><<= _bagSlots.length>>/<<= pocketBagCapacity()>> slots</span>
 			</header>
 			<<if _bagSlots.length>>
-				<div class="dolx-pocket-slots">
+				<div class="pocket-slots">
 					<<for _slot range _bagSlots>><<pocketSlotRow _slot>><</for>>
 				</div>
 			<<else>>
-				<div class="dolx-pocket-empty">The bag is empty.</div>
+				<div class="pocket-empty">The bag is empty.</div>
 			<</if>>
 		</section>
 	<</if>>
@@ -128,16 +124,16 @@
 
 <<widget "pocketSlotRow">>
 	<<set _rowSlot to _args[0]>>
-	<div class="dolx-pocket-slot">
+	<div class="pocket-slot">
 		<<switch _rowSlot.kind>>
 			<<case "food">>
-				<div @class="$options.images is 1 ? 'dolx-pocket-item-row dolx-pocket-item-row-icon' : 'dolx-pocket-item-row'">
-					<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<foodstufficon _rowSlot.key>></span><</if>>
-					<span class="dolx-pocket-item-name">
+				<div @class="$options.images is 1 ? 'pocket-item-row pocket-item-row-icon' : 'pocket-item-row'">
+					<<if $options.images is 1>><span class="pocket-item-icon"><<foodstufficon _rowSlot.key>></span><</if>>
+					<span class="pocket-item-name">
 						<span class="teal"><<= setup.foodstuff[_rowSlot.key].name.toLocaleUpperFirst()>></span>
 						<span class="gold">(<<= foodBatchCount(_rowSlot.key)>>)</span>
 					</span>
-					<span class="dolx-pocket-item-actions">
+					<span class="pocket-item-actions">
 						<<capture _rowSlot>>
 							<<if bloatedActive()>><span class="red">Keeps you bloated</span><br>
 							<<elseif foodWouldBloat(_rowSlot.key)>><span class="red">Will make you bloated</span><br><</if>>
@@ -156,13 +152,13 @@
 				</div>
 			<<case "pill">>
 				<<set _rowPill to pocketPillSetup(_rowSlot.key)>>
-				<div @class="$options.images is 1 ? 'dolx-pocket-item-row dolx-pocket-item-row-icon' : 'dolx-pocket-item-row'">
-					<<if $options.images is 1>><span class="dolx-pocket-item-icon dolx-pocket-pill-icon"><<= pocketPillIcon(_rowSlot.key)>></span><</if>>
-					<span class="dolx-pocket-item-name">
+				<div @class="$options.images is 1 ? 'pocket-item-row pocket-item-row-icon' : 'pocket-item-row'">
+					<<if $options.images is 1>><span class="pocket-item-icon pocket-pill-icon"><<= pocketPillIcon(_rowSlot.key)>></span><</if>>
+					<span class="pocket-item-name">
 						<span class="teal"><<= _rowSlot.key.toLocaleUpperFirst()>></span>
 						<span class="gold">(<<= pocketPillOwned(_rowSlot.key)>>)</span>
 					</span>
-					<span class="dolx-pocket-item-actions">
+					<span class="pocket-item-actions">
 						<<capture _rowSlot _rowPill>>
 							<<if _rowPill and _rowPill.take_condition() isnot 0>>
 								<<link "Take one">>
@@ -187,9 +183,9 @@
 					</span>
 				</div>
 			<<case "bait">>
-				<div @class="$options.images is 1 ? 'dolx-pocket-item-row dolx-pocket-item-row-icon' : 'dolx-pocket-item-row'">
-					<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<icon `dolxPocketBaitIconPath(_rowSlot.key)`>></span><</if>>
-					<span class="dolx-pocket-item-name">
+				<div @class="$options.images is 1 ? 'pocket-item-row pocket-item-row-icon' : 'pocket-item-row'">
+					<<if $options.images is 1>><span class="pocket-item-icon"><<icon `dolxPocketBaitIconPath(_rowSlot.key)`>></span><</if>>
+					<span class="pocket-item-name">
 						<<if _rowSlot.key is "worm_can">>
 							<span class="teal"><<= dolxWormCanLabel()>></span>
 						<<else>>
@@ -197,7 +193,7 @@
 							<span class="gold">(<<= dolxPocketBaitDetail(_rowSlot.key)>>)</span>
 						<</if>>
 					</span>
-					<span class="dolx-pocket-item-actions">
+					<span class="pocket-item-actions">
 						<<capture _rowSlot>>
 							<<if _rowSlot.key is "worm_can">>
 								<<if dolxCanEatWorm()>>
@@ -217,16 +213,16 @@
 				</div>
 			<<case "toy">>
 				/* No group heading: every row already names the toy. */
-				<div class="dolx-pocket-toy-list">
+				<div class="pocket-toy-list">
 					<<for _toyItem range pocketToyItems(_rowSlot.key)>>
-						<div @class="'dolx-pocket-item-row dolx-pocket-toy-row' + ($options.images is 1 ? ' dolx-pocket-item-row-icon' : '')">
-							<<if $options.images is 1>><span class="dolx-pocket-item-icon dolx-pocket-toy-icon"><<= pocketToyIcon(_toyItem.category, _toyItem.index)>></span><</if>>
-							<span class="dolx-pocket-item-name">
+						<div @class="'pocket-item-row pocket-toy-row' + ($options.images is 1 ? ' pocket-item-row-icon' : '')">
+							<<if $options.images is 1>><span class="pocket-item-icon pocket-toy-icon"><<= pocketToyIcon(_toyItem.category, _toyItem.index)>></span><</if>>
+							<span class="pocket-item-name">
 								<span class="teal"><<= _toyItem.setupToy ? _toyItem.setupToy.name.toLocaleUpperFirst() : _toyItem.toy.name.toLocaleUpperFirst()>></span>
 								<<if _toyItem.count gt 1>><span class="gold">(<<= _toyItem.count>>)</span><</if>>
 								<<if _toyItem.worn>><span class="green">(worn)</span><</if>>
 							</span>
-							<span class="dolx-pocket-item-actions">
+							<span class="pocket-item-actions">
 								<<capture _toyItem>>
 									<<if _toyItem.stacked>>
 										<span class="grey"><<= _toyItem.uses>> use<<if _toyItem.uses isnot 1>>s<</if>></span>
@@ -253,15 +249,15 @@
 				</div>
 			<<case "outfit">>
 				/* One folded serving outfit. Each garment is the only copy: see pocket-outfit.js. */
-				<div class="dolx-pocket-toy-list">
+				<div class="pocket-toy-list">
 					<<for _outfitIndex to 0; _outfitIndex lt $pocket.outfit.pieces.length; _outfitIndex++>>
 						<<capture _outfitIndex>>
 							<<set _outfitPiece to $pocket.outfit.pieces[_outfitIndex]>>
-							<div class="dolx-pocket-item-row dolx-pocket-toy-row">
-								<span class="dolx-pocket-item-name">
+							<div class="pocket-item-row pocket-toy-row">
+								<span class="pocket-item-name">
 									<span class="teal"><<= pocketOutfitPieceName(_outfitPiece.slot, _outfitPiece.item).toLocaleUpperFirst()>></span>
 								</span>
-								<span class="dolx-pocket-item-actions">
+								<span class="pocket-item-actions">
 									<<link "Take out">>
 										<<run pocketOutfitUnpack(_outfitIndex)>>
 										<<replace #pocketPane>><<pocketBagContents>><</replace>>
@@ -280,12 +276,12 @@
 	<br>
 	<<if $pocket.outfit.pieces.length gt 0>>
 		<span class="teal">Folded up:</span>
-		<div class="dolx-pocket-arrange">
+		<div class="pocket-arrange">
 			<<for _packedIndex to 0; _packedIndex lt $pocket.outfit.pieces.length; _packedIndex++>>
 				<<capture _packedIndex>>
 					<<set _packedPiece to $pocket.outfit.pieces[_packedIndex]>>
-					<div class="dolx-pocket-arrange-row">
-						<span class="dolx-pocket-arrange-name"><<= pocketOutfitPieceName(_packedPiece.slot, _packedPiece.item).toLocaleUpperFirst()>></span>
+					<div class="pocket-arrange-row">
+						<span class="pocket-arrange-name"><<= pocketOutfitPieceName(_packedPiece.slot, _packedPiece.item).toLocaleUpperFirst()>></span>
 						<<link [[Put back|Pocket Pack Outfit]]>><<run pocketOutfitUnpack(_packedIndex)>><</link>>
 					</div>
 				<</capture>>
@@ -296,13 +292,13 @@
 	<<set _outfitBlocked to pocketOutfitPackBlocked()>>
 	<<set _outfitCandidates to pocketOutfitCandidates()>>
 	<<if _outfitCandidates.length is 0>>
-		<div class="dolx-pocket-empty">There's nothing in here a maid or a butler would wear.</div>
+		<div class="pocket-empty">There's nothing in here a maid or a butler would wear.</div>
 	<<else>>
-		<div class="dolx-pocket-arrange">
+		<div class="pocket-arrange">
 			<<for _outfitOption range _outfitCandidates>>
 				<<capture _outfitOption>>
-					<div class="dolx-pocket-arrange-row">
-						<span class="dolx-pocket-arrange-name"><<= _outfitOption.name.toLocaleUpperFirst()>></span>
+					<div class="pocket-arrange-row">
+						<span class="pocket-arrange-name"><<= _outfitOption.name.toLocaleUpperFirst()>></span>
 						<<if _outfitBlocked isnot "">>
 							<span class="grey"><<= _outfitBlocked>></span>
 						<<else>>
@@ -335,7 +331,7 @@
 <<widget "pocketFoodJournal">>
 	<<set _spoiledFood to pocketSpoiledNotice()>>
 	<<if _spoiledFood.length>>
-		<div class="dolx-pocket-spoiled">
+		<div class="pocket-spoiled">
 			<<for _gone range _spoiledFood>>
 				<span class="red">
 					<<= _gone.amount>> <<= _gone.amount is 1 ? setup.foodstuff[_gone.key].singular : setup.foodstuff[_gone.key].plural>> went off and <<if _gone.amount is 1>>was<<else>>were<</if>> thrown away today.
@@ -345,21 +341,21 @@
 	<</if>>
 	<<set _journalFoods to [...new Set(pocketFoodList().concat(refrigeneratorFoodList()))]>>
 	<<if _journalFoods.length is 0>>
-		<div class="dolx-pocket-empty">You have no cooked food stored.</div>
+		<div class="pocket-empty">You have no cooked food stored.</div>
 	<<else>>
-		<div class="dolx-food-journal">
+		<div class="food-journal">
 			<<for _foodKey range _journalFoods>>
 				<<set _storedFoodRows to refrigeneratorFoodRows(_foodKey)>>
-				<div @class="$options.images is 1 ? 'dolx-food-journal-row dolx-food-journal-row-icon' : 'dolx-food-journal-row'">
-					<<if $options.images is 1>><span class="dolx-food-journal-icon"><<foodstufficon _foodKey>></span><</if>>
-					<div class="dolx-food-journal-body">
-						<div class="dolx-food-journal-name">
+				<div @class="$options.images is 1 ? 'food-journal-row food-journal-row-icon' : 'food-journal-row'">
+					<<if $options.images is 1>><span class="food-journal-icon"><<foodstufficon _foodKey>></span><</if>>
+					<div class="food-journal-body">
+						<div class="food-journal-name">
 							<span class="teal"><<= setup.foodstuff[_foodKey].name.toLocaleUpperFirst()>></span>
 							<span class="gold">(<<= foodBatchCount(_foodKey) + _storedFoodRows.reduce((sum, row) => sum + row.amount, 0)>>)</span>
 						</div>
-						<div class="dolx-food-journal-batches">
+						<div class="food-journal-batches">
 							<<for _foodBatch range foodExpiryRows(_foodKey)>>
-								<div class="dolx-food-journal-batch">
+								<div class="food-journal-batch">
 									<span><<= _foodBatch.amount>> <<= _foodBatch.amount is 1 ? "serving" : "servings">></span>
 									<<if !$foodSpoilage and _foodBatch.daysLeft lte 0>><span class="grey">Past its date</span>
 									<<elseif !$foodSpoilage and _foodBatch.daysLeft lte 1>><span class="gold">Effects end overnight</span>
@@ -372,9 +368,9 @@
 								</div>
 							<</for>>
 							<<for _storedBatch range _storedFoodRows>>
-								<div class="dolx-food-journal-batch dolx-food-journal-batch-stored">
+								<div class="food-journal-batch food-journal-batch-stored">
 									<span><<= _storedBatch.amount>> <<= _storedBatch.amount is 1 ? "serving" : "servings">></span>
-									<span class="dolx-food-journal-stored">
+									<span class="food-journal-stored">
 										<span class="blue">Stored · <<= _storedBatch.location>></span><br>
 										<<if !isFinite(_storedBatch.daysLeft)>><span class="grey">Does not spoil</span>
 										<<elseif _storedBatch.daysLeft lte 0>><span class="grey">Past its date · no effects</span>
@@ -394,9 +390,7 @@
 	<</if>>
 <</widget>>
 
-/* ------------------------------------------------------------------ *
- * Packing, shown where the things are kept
- * ------------------------------------------------------------------ */
+/* Packing, shown where the things are kept */
 /* The kitchen's packing panel. The PC always has one personal slot, even without a bag. */
 <<widget "pocketPackFood">>
 	<<run pocketSyncBag()>>
@@ -422,12 +416,12 @@
 	<br>
 	<<set _packFoodKeys to pocketFoodList()>>
 	<<if _packFoodKeys.length is 0>>
-		<div class="dolx-pocket-empty">You've no cooked food to pack.</div>
+		<div class="pocket-empty">You've no cooked food to pack.</div>
 	<<else>>
-		<div class="dolx-pocket-arrange">
+		<div class="pocket-arrange">
 			<<for _packKey range _packFoodKeys>>
-				<div class="dolx-pocket-arrange-row">
-					<span class="dolx-pocket-arrange-name">
+				<div class="pocket-arrange-row">
+					<span class="pocket-arrange-name">
 						<<if $options.images is 1>><<foodstufficon _packKey>><</if>>
 						<<= setup.foodstuff[_packKey].name.toLocaleUpperFirst()>>
 						<span class="gold">(<<= foodBatchCount(_packKey)>>)</span>

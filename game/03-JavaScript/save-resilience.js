@@ -96,7 +96,7 @@ const DoLSaveGuard = (() => {
 		return typeof idb !== "undefined" && idb != null && idb.active === true && !V.ironmanmode;
 	}
 
-	/* ------------------------------------------------------------------ mirror */
+	/* mirror */
 
 	/**
 	 * Reduce an idb details row to the few fields the mirror needs. Keeping this small matters because
@@ -135,7 +135,7 @@ const DoLSaveGuard = (() => {
 		});
 	}
 
-	/* ------------------------------------------------------------ loss report */
+	/* loss report */
 
 	/**
 	 * @returns {object|null} the pending loss report, or null when there is nothing to report
@@ -154,7 +154,7 @@ const DoLSaveGuard = (() => {
 		removeKey(LOSS_KEY);
 	}
 
-	/* --------------------------------------------------------- clearance token */
+	/* clearance token */
 
 	/**
 	 * @returns {Promise<IDBDatabase>}
@@ -271,7 +271,7 @@ const DoLSaveGuard = (() => {
 		return recorded;
 	}
 
-	/* --------------------------------------------------------------- lifeboat */
+	/* lifeboat */
 
 	/**
 	 * Build a save payload in the same shape idb stores, so restoring can reuse the normal load path.
@@ -391,7 +391,7 @@ const DoLSaveGuard = (() => {
 		}
 	}
 
-	/* ------------------------------------------------------------ persistence */
+	/* persistence */
 
 	/**
 	 * Check whether the origin has persistent storage without prompting the player.
@@ -443,7 +443,7 @@ const DoLSaveGuard = (() => {
 		return readJSON(PERSIST_KEY) ?? persistState;
 	}
 
-	/* ---------------------------------------------------------- diagnostics */
+	/* diagnostics */
 
 	/**
 	 * Everything worth knowing when a player reports vanished saves. Rendered in the debug section of
@@ -478,7 +478,7 @@ const DoLSaveGuard = (() => {
 		return out;
 	}
 
-	/* ----------------------------------------------------------------- notice */
+	/* notice */
 
 	/**
 	 * @param {number} ms
@@ -659,7 +659,7 @@ const DoLSaveGuard = (() => {
 		);
 	}
 
-	/* ---------------------------------------------------------------- wiring */
+	/* wiring */
 
 	/* idb's saveState runs the Save.onSave handlers. The work is deferred so it never sits in the
 	   middle of the save the player asked for. Legacy saves already occupy localStorage and are not

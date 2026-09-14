@@ -4,8 +4,6 @@ const dhmShop = {
 	pickers: [],
 
 	/**
-	 * PRESET PRESET PRESET PRESET
-	 *
 	 * @param {number} index
 	 */
 	presetAttachHooks(index = 0) {
@@ -172,8 +170,6 @@ const dhmShop = {
 	},
 
 	/**
-	 * PICKER PICKER PICKER PICKER
-	 *
 	 * @param {number} index
 	 */
 	setColorHex(index = 0) {
@@ -256,7 +252,7 @@ const dhmShop = {
 		}
 	},
 
-	// slightly modified vanilla snippet 😇
+	// Slightly modified vanilla snippet.
 	// resizes the picker according to window size
 	pickerAutoWidth() {
 		if (V.twoToneHairDye || V.specialTwoToneHairDye || V.moddedTwoToneHairDye) {

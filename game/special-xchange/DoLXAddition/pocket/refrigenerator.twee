@@ -61,32 +61,32 @@
 		<<run pocketCheckSpoilage()>>
 		<<set _available to pocketFoodList()>>
 		<<set _storedKeys to _fridge.contents ? Object.keys(_fridge.contents).filter(key => foodIsDish(key) && _fridge.contents[key].length) : []>>
-		<div class="dolx-fridge">
-		<div class="dolx-fridge-bulk-actions">
+		<div class="fridge-panel">
+		<div class="fridge-bulk-actions">
 			<<capture _fridgeLocation>>
 				<<if _available.length>><<link "Store all food" _fridgePassage>><<run refrigeneratorTransferAll(_fridgeLocation, false)>><</link>><<else>><span class="grey">Store all food</span><</if>>
 				<span class="grey"> | </span>
 				<<if _storedKeys.length>><<link "Take all food" _fridgePassage>><<run refrigeneratorTransferAll(_fridgeLocation, true)>><</link>><<else>><span class="grey">Take all food</span><</if>>
 			<</capture>>
 		</div>
-		<section class="dolx-pocket-section">
-			<header class="dolx-pocket-section-header">
+		<section class="pocket-section">
+			<header class="pocket-section-header">
 				<span>Stored food</span>
 				<span class="grey">Preserved</span>
 			</header>
 			<<if !_storedKeys.length>>
-				<div class="dolx-pocket-empty">The shelves are empty.</div>
+				<div class="pocket-empty">The shelves are empty.</div>
 			<<else>>
-				<div class="dolx-fridge-list">
+				<div class="fridge-list">
 					<<for _key range _storedKeys>>
 						<<set _batches to _fridge.contents[_key]>>
 						<<set _count to _batches.reduce((sum, batch) => sum + batch.n, 0)>>
 						<<set _oldestAge to _batches.reduce((age, batch) => Math.max(age, batch.age), 0)>>
 						<<set _daysLeft to foodShelfLife(_key) - _oldestAge>>
-						<div @class="$options.images is 1 ? 'dolx-fridge-row dolx-fridge-row-icon' : 'dolx-fridge-row'">
-							<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<foodstufficon _key>></span><</if>>
-							<div class="dolx-fridge-food-info">
-								<div class="dolx-fridge-food-name"><span class="teal"><<= setup.foodstuff[_key].name.toLocaleUpperFirst()>></span> <span class="gold">×<<= _count>></span></div>
+						<div @class="$options.images is 1 ? 'fridge-row fridge-row-icon' : 'fridge-row'">
+							<<if $options.images is 1>><span class="pocket-item-icon"><<foodstufficon _key>></span><</if>>
+							<div class="fridge-food-info">
+								<div class="fridge-food-name"><span class="teal"><<= setup.foodstuff[_key].name.toLocaleUpperFirst()>></span> <span class="gold">×<<= _count>></span></div>
 								<<if !isFinite(_daysLeft)>><span class="grey">Does not spoil</span>
 								<<elseif _daysLeft lte 0>><span class="grey">Past its date · no effects</span>
 								<<elseif !$foodSpoilage>><span class="green">Effects for <<= Math.floor(_daysLeft)>> <<pluralise Math.floor(_daysLeft) "day">> after removal</span>
@@ -95,10 +95,10 @@
 								<<elseif _daysLeft lte 7>><span class="gold"><<= Math.floor(_daysLeft)>> days after removal</span>
 								<<else>><span class="green"><<= Math.floor(_daysLeft)>> days after removal</span><</if>>
 							</div>
-							<div class="dolx-fridge-actions">
+							<div class="fridge-actions">
 								<<capture _key _fridgeLocation>>
-									<span class="dolx-fridge-action"><<link "Take one" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, true)>><</link>></span>
-									<span class="dolx-fridge-action"><<link "Take all" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, true, true)>><</link>></span>
+									<span class="fridge-action"><<link "Take one" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, true)>><</link>></span>
+									<span class="fridge-action"><<link "Take all" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, true, true)>><</link>></span>
 								<</capture>>
 							</div>
 						</div>
@@ -106,21 +106,21 @@
 				</div>
 			<</if>>
 		</section>
-		<section class="dolx-pocket-section">
-			<header class="dolx-pocket-section-header">
+		<section class="pocket-section">
+			<header class="pocket-section-header">
 				<span>Food you can store</span>
 				<span class="grey">Cooked food</span>
 			</header>
 			<<if !_available.length>>
-				<div class="dolx-pocket-empty">You have no food to put away.</div>
+				<div class="pocket-empty">You have no food to put away.</div>
 			<<else>>
-				<div class="dolx-fridge-list">
+				<div class="fridge-list">
 					<<for _key range _available>>
 						<<set _daysLeft to foodDaysLeft(_key)>>
-						<div @class="$options.images is 1 ? 'dolx-fridge-row dolx-fridge-row-icon' : 'dolx-fridge-row'">
-							<<if $options.images is 1>><span class="dolx-pocket-item-icon"><<foodstufficon _key>></span><</if>>
-							<div class="dolx-fridge-food-info">
-								<div class="dolx-fridge-food-name"><span class="teal"><<= setup.foodstuff[_key].name.toLocaleUpperFirst()>></span> <span class="gold">×<<= foodBatchCount(_key)>></span></div>
+						<div @class="$options.images is 1 ? 'fridge-row fridge-row-icon' : 'fridge-row'">
+							<<if $options.images is 1>><span class="pocket-item-icon"><<foodstufficon _key>></span><</if>>
+							<div class="fridge-food-info">
+								<div class="fridge-food-name"><span class="teal"><<= setup.foodstuff[_key].name.toLocaleUpperFirst()>></span> <span class="gold">×<<= foodBatchCount(_key)>></span></div>
 								<<if !isFinite(_daysLeft)>><span class="grey">Does not spoil</span>
 								<<elseif !$foodSpoilage and _daysLeft lte 0>><span class="grey">Past its date · no effects</span>
 								<<elseif !$foodSpoilage and _daysLeft lte 1>><span class="gold">Effects end overnight</span>
@@ -130,10 +130,10 @@
 								<<elseif _daysLeft lte 7>><span class="gold"><<= Math.floor(_daysLeft)>> days left</span>
 								<<else>><span class="green"><<= Math.floor(_daysLeft)>> days left</span><</if>>
 							</div>
-							<div class="dolx-fridge-actions">
+							<div class="fridge-actions">
 								<<capture _key _fridgeLocation>>
-									<span class="dolx-fridge-action"><<link "Store one" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, false)>><</link>></span>
-									<span class="dolx-fridge-action"><<link "Store all" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, false, true)>><</link>></span>
+									<span class="fridge-action"><<link "Store one" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, false)>><</link>></span>
+									<span class="fridge-action"><<link "Store all" _fridgePassage>><<run refrigeneratorTransfer(_fridgeLocation, _key, false, true)>><</link>></span>
 								<</capture>>
 							</div>
 						</div>

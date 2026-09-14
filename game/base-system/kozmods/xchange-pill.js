@@ -1,7 +1,6 @@
 /* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancy getActivePregnancies canBeMPregnant knowsPregnancy */
 /* ============================================================
    X-CHANGE PILL DEFINITIONS  (all of them)
-   ============================================================
    This file now owns every X-Change pill object, migrated out of bedroom-pills.js so that file stays purely vanilla. 
    It contains:
      1. the gray (effect-only) pills, built from a factory + data table;
@@ -14,7 +13,7 @@
      - Effect names resolve through setup.xchangeEffectFlag() (xchange.js) and <<xchange-addeffect>> (xchange.twee).
 */
 
-/* ---- coloured-pill body gate ----
+/* coloured-pill body gate
    X-Change rewrites $player.sex (anatomy) and never touches $player.gender (identity),
    so suitability is judged on sex: cuntboys and dickgirls can take whatever their current body can actually be changed from.
    
@@ -33,7 +32,7 @@ function xchangePillBlockedReason(color, allowDualGenitals = false) {
 }
 window.xchangePillBlockedReason = xchangePillBlockedReason;
 
-/* ---- pregnancy gate ----
+/* pregnancy gate
    Any active pregnancy blocks all X-Change doses, no matter how the pill is given.
    This includes vaginal, anal, parasite, and egg pregnancies.
    Invalid pregnancy records are ignored so they cannot block the player forever. If the player does not know they are pregnant yet, keep the reason vague.
@@ -98,7 +97,7 @@ function xchangeRevertPregnancyBlockedReason() {
 }
 window.xchangeRevertPregnancyBlockedReason = xchangeRevertPregnancyBlockedReason;
 
-/* ---- standard transformation check ----
+/* standard transformation check
 Used by pills that start a transformation. Checks body requirements, active transformations, and pregnancy. Use null if the pill works with any body. */
 function xchangeCanStartTransform(color = null, allowDualGenitals = false) {
 	if (color && !xchangePillSuitsBody(color, allowDualGenitals)) return false;
@@ -116,7 +115,7 @@ function xchangeTransformBlockedReason(color = null, allowDualGenitals = false) 
 }
 window.xchangeTransformBlockedReason = xchangeTransformBlockedReason;
 
-/* ---- SWP anti-pill gate ----
+/* SWP anti-pill gate
    Counter-agents only work on active, tested effects. Untested pills never reveal their effects. */
 function xchangeAntiPillBlockedReason(...effectFlags) {
 	if (!playerIsXChanged()) return "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
@@ -126,7 +125,7 @@ function xchangeAntiPillBlockedReason(...effectFlags) {
 }
 window.xchangeAntiPillBlockedReason = xchangeAntiPillBlockedReason;
 
-/* ---- protection gate ----
+/* protection gate
    Harper's treatment and the permanent purity trait stop an X-Change pill taking hold, so the drawer reports the dose as neutralised.
    They only apply to pills that would start or extend a transformation. The support pills (antidotes, SWP anti-pills and the test strip)
    act on a session that is already running and keep working normally, so they must not claim to have dissolved to nothing. */
@@ -199,7 +198,7 @@ function grayPillIsStackOnly(cfg) {
 
 window.makeGrayXChangePill = makeGrayXChangePill;
 
-/* ---- shared gate helpers (read at click time) ---- */
+/* shared gate helpers (read at click time) */
 const grayGate = {
 	always: () => true,
 	hasVagina: () => !!V.player.vaginaExist,
@@ -219,7 +218,7 @@ const grayGate = {
 	activeSession: () => playerIsXChanged(),
 };
 
-/* ---- the data table: one row per effect ----
+/* the data table: one row per effect
    duration is in days; it's the timer the pill starts/extends to. */
 function buildGrayXChangePills() {
 	const teal = msg => `<span class="teal">You swallow the colourless pill.</span><br><br>${msg}`;
@@ -411,7 +410,7 @@ function buildGrayXChangePills() {
 			effects: [`<<xchange-gray 7 "xtend">>`, `<<set V.sexStats.pills["pills"]["X-Change X-Tend Cancel"].owned++>>`],
 		},
 
-		/* ---- stack-only: only useful layered onto an active X-Change session ---- */
+		/* stack-only: only useful layered onto an active X-Change session */
 		{
 			name: "X-Change Resistance",
 			subtype: "gray resistance",
@@ -436,7 +435,7 @@ function buildGrayXChangePills() {
 			effects: [`<<xchange-gray 3 "continue">>`],
 		},
 
-		/* ---- the duration extender ---- */
+		/* the duration extender */
 		{
 			name: "X-Change Weekly Extension",
 			subtype: "gray extension",
@@ -457,11 +456,10 @@ window.buildGrayXChangePills = buildGrayXChangePills;
 /* Append the gray pills to the catalogue. */
 setup.pills.push(...buildGrayXChangePills());
 
-/* ============================================================
-   X-CHANGE COLOURED / SUSPICIOUS / UTILITY PILL DEFINITIONS
-   Migrated out of bedroom-pills.js so the vanilla file stays vanilla.
-   Inventory records auto-register via ensurePillInventoryRecords() (bedroom-pills.js), which loops over setup.pills.
-   ============================================================ */
+/*
+ * Coloured, suspicious and utility pill definitions, kept out of bedroom-pills.js so the vanilla file stays vanilla.
+ * Inventory records auto-register via ensurePillInventoryRecords() (bedroom-pills.js), which loops over setup.pills.
+ */
 setup.pills.push(
 	{
 		name: "X-Change Pink Hyper Fertility",

@@ -4,9 +4,7 @@
  * - Core pill, body-save, effect, and transformation handling remains here or `xchange.twee`
  * - Misc/shared helper widgets are being moved/split into `koztools`
  * - JS-side logic may still live across `xchange.js`, `identity.js`, and related files
- * =========================
- * Important!
- * If what you're looking for isn't defined here, check other files too.
+ * If what you're looking for isn't defined here, check the other files too.
  */
 
 function paramError(functionName = "", param = "", value, expectedValues = "") {
@@ -563,7 +561,7 @@ function pleasure(amount, source) {
 				// NOTE: deliberately NOT using V.currentToyLeft/Right/Vagina/Anus here those are indices into the carried-toys list, are set the moment a toy is picked up, and can go stale; they don't prove anything is inserted.
 				const arms = [V.leftarm, V.rightarm];
 
-				// --- Penis Addict: needs something INSIDE the player ---
+				// Penis Addict: needs something INSIDE the player
 				if (!V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled) {
 					// Worn (inserted) toys: the V.worn slots are the single source of truth for what's actually in the body, and these helpers verify state === "worn".
 					// The per-item inventory `worn` flags are shop-UI bookkeeping that other systems (combat "removed" state, vision morphs, save/load breaking the slot↔item alias) don't maintain, so they must never be read here as a stale flag made merely carried toys count as inserted.
@@ -591,7 +589,7 @@ function pleasure(amount, source) {
 					if (npcHands.includes("vaginadildo") || npcHands.includes("anusdildo")) return true;
 				}
 
-				// --- Hole Addict: needs the penis INSIDE something ---
+				// Hole Addict: needs the penis INSIDE something
 				if (holeAddictActive && !holeAddictionFulfilled && V.player?.penisExist) {
 					if (V.penisuse === "stroker" || V.penisuse === "strokerSelfPenis") return true;
 					if (arms.some(a => ["mpenisstroker", "strokerSelfPenis"].includes(a))) return true;
@@ -2319,12 +2317,11 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 
 /* ============================================================
    GRAY X-CHANGE PILLS helpers (consolidated)
-   ============================================================
 */
 (function () {
 	"use strict";
 	if (typeof window.setup !== "object" || window.setup === null) window.setup = {};
-	/* ---------- hospital pharmacy stock ---------- */
+	/* hospital pharmacy stock */
 	/* Hospital gray price. 
 	Landry sells the full line at 6000 "twice the hospital price" so the hospital baseline is 3000 per pill. */
 	const GRAY_PRICE = 300000;
@@ -2378,7 +2375,6 @@ window.xchangeEffectsMessages = xchangeEffectsMessages;
 
 /* ============================================================
    HERM SCHOOL RUMOUR DECAY ACROSS BODY CHANGES
-   ============================================================
    $schoolrep.herm is the "student with both boy and girl parts" rumour (0-5). Vanilla never lowers it,
    so a player who spent one afternoon herm kept a maxed rumour forever, and one who swapped bodies twice
    a week kept collecting rumours nobody could ever confirm.

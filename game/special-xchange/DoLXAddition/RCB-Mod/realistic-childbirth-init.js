@@ -1,11 +1,7 @@
 /*
  * "Realistic Childbirth" birth safety init / version gate
- * -------------------------------------------------------
- * Heavy validation + version-migration logic for the `$birth` object lives here in JS rather than in Twine macros, because:
- *   - timing is predictable (loaded once, before any passage renders),
- *   - nested-shape validation and early-return decision trees read cleanly,
- *   - real try/catch and console logging are available for debugging,
- *   - it is parsed once instead of on every widget call.
+ * Validation and version-migration for the `$birth` object runs here in JS, not in Twine macros, so it is loaded
+ * once before any passage renders.
  *
  * The entry point is `setup.rcbBirthSafetyCheck()`, called at the very top of the `:: Childbirth` passage.
  * It implements this decision flow:
@@ -181,7 +177,7 @@
 			return { action: "continue" };
 		}
 
-		// --- continuation round: the object should already be fully initialised ---
+		// continuation round: the object should already be fully initialised
 
 		// "Is $birth.version defined?"
 		if (typeof birth.version !== "number") {

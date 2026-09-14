@@ -1,6 +1,5 @@
 /**
  * X-Change "Inflation" economy feature.
- * ======================================
  * Premise: once the player is rich the city is far too cheap.
  * This makes wealth have a cost: as the player's net wealth climbs through tiers, market prices (and Bailey's rent) scale up.
  * It is fully dynamic with spend down and prices fall back through the tiers, so getting poor makes things cheap again.
@@ -628,10 +627,10 @@
 		return setup.inflation.baileyAggressionReason() !== "";
 	};
 
-	/* ------------------------------------------------------------------ *
+	/*
 	 * Parody money-cap event.
-       Self-gating: it re-fires whenever wealth crosses the cap again, so there is no "seen" flag.
-	 * ------------------------------------------------------------------ */
+	 *        Self-gating: it re-fires whenever wealth crosses the cap again, so there is no "seen" flag.
+	 */
 	setup.inflation.PARODY_WEALTH = 300000000000; // £3,000,000,000 displayed
 	setup.inflation.PARODY_LEFTOVER = 100000000000; // £1,000,000,000 left in hand
 	setup.inflation.PARODY_PASSAGES = ["Money Parody Intro", "Money Parody Take", "Money Parody Take 2"];

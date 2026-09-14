@@ -58,7 +58,7 @@ Renderer.pixelSize = 2;
  */
 Renderer.artScale = 1;
 
-const ART_SCALE_KEY = "dolx-doll-art-scale";
+const ART_SCALE_KEY = "doll-art-scale";
 /* Every pack replaces the body, so one core file answers for the whole set. */
 const ART_SCALE_PROBE = "img/body/base-classic.png";
 const ART_SCALE_MAX = 4;

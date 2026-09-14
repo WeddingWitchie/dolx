@@ -176,9 +176,7 @@ function robinCafeStandModifier() {
 }
 window.robinCafeStandModifier = robinCafeStandModifier;
 
-/* ------------------------------------------------------------------ *
- * The serving outfit the player can hand over
- * ------------------------------------------------------------------ */
+/* The serving outfit the player can hand over */
 /* Reveal above this reads as a deliberately sexy outfit; below the lower one it reads as modest.
 A plain t-shirt sits at 400, for scale. */
 setup.robinOutfit = {

@@ -878,7 +878,7 @@ function updateOptions() {
 		if (viewingHistory) {
 			V.options = optionsData;
 
-			console.warn("[DoLX] Skipped options passage refresh while viewing history state.", {
+			console.warn("Skipped options passage refresh while viewing history state.", {
 				passage: V.passage,
 				statePassage: State.passage,
 				stateLength: State.length,

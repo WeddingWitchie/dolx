@@ -258,7 +258,7 @@
 		return scSetup.foodstuff && scSetup.foodstuff[key] ? scSetup.foodstuff[key] : null;
 	}
 
-	/* ----- Canonical category split (single source of truth) ----------------
+	/* Canonical category split (single source of truth)
 	 * LESSON  = raw things you cook with -> may appear as minigame pick choices.
 	 * READY   = finished/edible things   -> kept aside, eaten via vignettes.
 	 * Anything in either group is "stockable" (donatable to the loft).

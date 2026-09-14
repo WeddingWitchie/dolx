@@ -158,7 +158,7 @@ const ccmShop = {
 		});
 	},
 
-	// slightly modified vanilla snippet 😇
+	// Slightly modified vanilla snippet.
 	pickerAutoWidth() {
 		if (window.innerWidth > 400) return 250;
 		if (window.innerWidth > 325) return 230;

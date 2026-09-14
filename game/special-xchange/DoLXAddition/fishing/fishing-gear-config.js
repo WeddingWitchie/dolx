@@ -7,9 +7,7 @@ function initDolxFishing() {
 	const fish = setup.fishing.lootTables.fish;
 
 	setup.fishing.dolx = {
-		/* ------------------------------------------------------------------ *
-		 * Bait
-		 * ------------------------------------------------------------------ */
+		/* Bait */
 		/* How many worms one can holds. */
 		wormCanCapacity: 20,
 		/* Pennies. The can itself, plus the worms it comes filled with. */
@@ -103,9 +101,7 @@ function initDolxFishing() {
 			},
 		},
 
-		/* ------------------------------------------------------------------ *
-		 * Rods and reels
-		 * ------------------------------------------------------------------ */
+		/* Rods and reels */
 		/* A rod governs tension: how much punishment the line and your arms take while the fish
 		   fights, and how fast the fish wears itself out against the rod's backbone.
 		     tensionMult - scales the line-tension clock and arm fatigue. Below 1 is forgiving.
@@ -218,9 +214,7 @@ function initDolxFishing() {
 		},
 	};
 
-	/* ------------------------------------------------------------------ *
-	 * The sardine
-	 * ------------------------------------------------------------------ */
+	/* The sardine */
 	/* Vanilla's "baitfish" is a proper fish in DoLX: a sardine. The key and the sprite filename
 	   stay `baitfish` so vanilla's own references and any future fishing update still line up.
 	   Only its player-facing identity and where it swims change here.
@@ -248,9 +242,7 @@ function initDolxFishing() {
 		shop: { sell_price: 150 },
 	});
 
-	/* ------------------------------------------------------------------ *
-	 * New species: small carp
-	 * ------------------------------------------------------------------ */
+	/* New species: small carp */
 	/* The other three bait fish are undersized catches of a species vanilla already has. Vanilla
 	   has no carp, so the small carp is caught directly instead: the freshwater counterpart to the
 	   sardine, and the little fish a worm brings up in the lake and on the moor.
@@ -278,9 +270,7 @@ function initDolxFishing() {
 		config.icon ??= `fish/${key}.png`;
 	}
 
-	/* ------------------------------------------------------------------ *
-	 * Foodstuff entries
-	 * ------------------------------------------------------------------ */
+	/* Foodstuff entries */
 	const smallFishFood = {
 		small_bass: { index: 166, name: "small bass", plural: "small bass", icon: "fish/mod/small-bass.png", sell_price: 220 },
 		small_carp: { index: 167, name: "small carp", plural: "small carp", icon: "fish/mod/small-carp.png", sell_price: 200 },
@@ -317,9 +307,7 @@ function initDolxFishing() {
 		});
 	setup.foodstuff = sortedFoodstuff;
 
-	/* ------------------------------------------------------------------ *
-	 * Held props
-	 * ------------------------------------------------------------------ */
+	/* Held props */
 	/* No new sprites: a small fish in your hand is a small fish. */
 	for (const key of Object.keys(smallFishFood)) {
 		setup.props[`caught_${key}`] = {

@@ -1,4 +1,4 @@
-/* ------------------ ModLI shared helpers ------------------- */
+/* ModLI shared helpers */
 /* globals ensureModLISettings, registerModLI */
 
 window.ensureModLISettings = function ensureModLISettings() {

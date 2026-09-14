@@ -1,9 +1,7 @@
 /* The POCKET menu: what the PC is physically carrying. */
 /* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay dolxPocketBaitValid pocketOutfitPieceCount pocketOutfitUnpackAll */
 
-/* ------------------------------------------------------------------ *
- * Setup tables
- * ------------------------------------------------------------------ */
+/* Setup tables */
 /* How many item types each handheld bag can hold.
    Unlisted bags default to 4 slots. Add an entry here if a bag should hold a different amount. */
 setup.pocketBagCapacity = {
@@ -188,9 +186,7 @@ setup.foodFlavourText = {
 	light: "The light meal helps you relax a little and wakes you up.",
 };
 
-/* ------------------------------------------------------------------ *
- * State
- * ------------------------------------------------------------------ */
+/* State */
 function pocketEnsure() {
 	if (!V.pocket || typeof V.pocket !== "object" || Array.isArray(V.pocket)) V.pocket = {};
 	if (typeof V.pocket.mirror !== "boolean") V.pocket.mirror = false;
@@ -218,9 +214,7 @@ function pocketCommit() {
 }
 window.pocketCommit = pocketCommit;
 
-/* ------------------------------------------------------------------ *
- * Gating
- * ------------------------------------------------------------------ */
+/* Gating */
 /* Returns why the pocket can't be opened, or "" if it can.
    Only allows access when the PC is freely standing in their own body.
    `ignoreCompany` lets you access your bag even when a shopkeeper is present. */
@@ -246,9 +240,7 @@ function pocketAvailable() {
 }
 window.pocketAvailable = pocketAvailable;
 
-/* ------------------------------------------------------------------ *
- * The bag
- * ------------------------------------------------------------------ */
+/* The bag */
 /* The worn handheld, but only when it's actually a bag. */
 function pocketBagItem() {
 	const held = V.worn && V.worn.handheld;
@@ -452,9 +444,7 @@ function pocketToyUnpackAll(category) {
 }
 window.pocketToyUnpackAll = pocketToyUnpackAll;
 
-/* ------------------------------------------------------------------ *
- * What can go in a slot
- * ------------------------------------------------------------------ */
+/* What can go in a slot */
 function pocketPillOwned(name) {
 	const record = V.sexStats && V.sexStats.pills && V.sexStats.pills.pills && V.sexStats.pills.pills[name];
 	return record ? Number(record.owned) || 0 : 0;
@@ -571,9 +561,7 @@ function pocketTakePill(name) {
 }
 window.pocketTakePill = pocketTakePill;
 
-/* ------------------------------------------------------------------ *
- * Food: shelf life and batches
- * ------------------------------------------------------------------ */
+/* Food: shelf life and batches */
 function foodIsDish(key) {
 	const item = setup.foodstuff && setup.foodstuff[key];
 	return !!(item && item.category === "dish" && item.recipe);
@@ -739,9 +727,7 @@ function foodExpiryRows(key) {
 }
 window.foodExpiryRows = foodExpiryRows;
 
-/* ------------------------------------------------------------------ *
- * Food: eating
- * ------------------------------------------------------------------ */
+/* Food: eating */
 /* Stat changes per serving, scaled by its value. Expired food has no effects when spoilage is disabled. */
 /* Defines the dish's flavour type. */
 function foodFlavour(key) {
@@ -933,9 +919,7 @@ DefineMacro("pocketStatArrows", function () {
 	});
 });
 
-/* ------------------------------------------------------------------ *
- * Well Fed and Bloated
- * ------------------------------------------------------------------ */
+/* Well Fed and Bloated */
 /* Snacks use 2 fullness points, while regular and filling meals use 3. */
 function foodFullnessPoints(key) {
 	return foodValueScale(key) < 0.85 ? 2 : 3;
@@ -1048,9 +1032,7 @@ function pocketDayPassed(days = 1) {
 }
 window.pocketDayPassed = pocketDayPassed;
 
-/* ------------------------------------------------------------------ *
- * Upkeep
- * ------------------------------------------------------------------ */
+/* Upkeep */
 /* Clear carried toy flags as soon as the backpack is removed, instead of waiting for the menu to reopen. */
 $(document).on(":passageend", () => {
 	/* Clear old portable-pill destinations so they do not affect later medicine drawer visits. */

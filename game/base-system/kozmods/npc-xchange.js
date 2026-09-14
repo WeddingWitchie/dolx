@@ -124,7 +124,7 @@ function npcRepairBodyText(npc, where) {
 		}
 	}
 
-	if (fixed.length) console.warn("[DoLX] repaired NPC text fields [" + fixed.join(", ") + "] in " + (where || "unknown") + " (passage " + V.passage + ")");
+	if (fixed.length) console.warn("repaired NPC text fields [" + fixed.join(", ") + "] in " + (where || "unknown") + " (passage " + V.passage + ")");
 	return fixed;
 }
 window.npcRepairBodyText = npcRepairBodyText;

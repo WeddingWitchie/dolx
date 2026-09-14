@@ -1,17 +1,7 @@
-/* ==============================================================
- * POPPY CORE FUNCTIONS WERE MOVED HERE ON PURPOSE
- * ==============================================================
- * The core Poppy functions were separated into this file to:
- * 1. avoid overpopulating the vanilla named NPC system
- * 2. keep upstream merge conflicts smaller
- * 3. make mod-specific behaviour easier to find
- * 4. keep vanilla files cleaner and more readable
- * 5. reduce the chance of unrelated regressions in shared NPC code
- *
- * This means named-npc.js should only keep the minimum integration
- * points needed to recognise and route Poppy through the normal NPC
- * pipeline, while the actual Poppy-specific logic stays here.
- * ============================================================== */
+/*
+ * Poppy's core functions live here rather than in named-npc.js, to keep upstream merge conflicts small.
+ * named-npc.js should only hold the minimum needed to route Poppy through the normal NPC pipeline.
+ */
 function poppyStatusCheck(poppy = C.npc.Poppy) {
 	if (!poppy) return (T.poppyStatus = []);
 
@@ -339,7 +329,7 @@ function poppySchedule() {
 	let msg = "apartment";
 	let nightActive = 0;
 
-	// ---------- Shared daily timetable (applies every day) ----------
+	// Shared daily timetable (applies every day)
 	if ((mins >= 1380 && mins < 1440) || (mins >= 0 && mins < 60)) {
 		// 11PM–midnight  and  midnight–1AM: nightly activities (streets / pub)
 		loc = "nightly";
@@ -378,7 +368,7 @@ function poppySchedule() {
 			msg = "dinner";
 		}
 	}
-	// ---------- School-day timetable ----------
+	// School-day timetable
 	else if (isSchoolDay) {
 		if ((mins >= 420 && mins < 540) || (mins >= 720 && mins < 780) || (mins >= 900 && mins < 960)) {
 			// 7–9AM, 12–1PM, 3–4PM: prep in housekeeping classroom
@@ -403,7 +393,7 @@ function poppySchedule() {
 			msg = "walking";
 		}
 	}
-	// ---------- Weekend / school-holiday timetable ----------
+	// Weekend / school-holiday timetable
 	// Same slots whether it's a normal weekend day or a weekday during a school holiday
 	// Poppy isn't at school either way, so their routine is the same.
 	else if (useWeekendTimetable) {
@@ -444,7 +434,7 @@ function poppySchedule() {
 		}
 	}
 
-	// ---------- Low patience restriction ----------
+	// Low patience restriction
 	// If patience is low, Poppy only appears at locations where she can ignore the PC or stay at home behind a locked door
 	if (T.poppyStatus?.includes("LowPatience")) {
 		// Inline the allow-list as a switch to avoids constructing an array and an indexOf call on every schedule pass.
@@ -466,12 +456,12 @@ function poppySchedule() {
 		}
 	}
 
-	// ---------- Commit location to temp vars ----------
+	// Commit location to temp vars
 	T.poppy_location = loc;
 	T.poppy_location_message = msg;
 	T.poppy_night_active = nightActive;
 
-	// ---------- Update flat presence state ----------
+	// Update flat presence state
 	// These drive $poppyFlat.home / .room / .meal checks in the flat passages.
 	if (!V.poppyFlat) V.poppyFlat = {};
 	const atFlat = loc === "flatApartment" || loc === "flatKitchen";
@@ -487,11 +477,7 @@ function poppySchedule() {
 window.poppySchedule = poppySchedule;
 DefineMacro("poppySchedule", poppySchedule);
 
-/*
- * ==============================================================
- * global V, T, C, Time, DefineMacro, statChange
- * ==============================================================
- */
+/* global V, T, C, Time, DefineMacro */
 (function () {
 	"use strict";
 
@@ -694,10 +680,7 @@ DefineMacro("poppySchedule", poppySchedule);
 })();
 
 /*
- * ==============================================================
- * Long absence aftermath comfort talk
- * ==============================================================
- * Long absence comfort talk
+ * Long absence comfort talk.
  * After a long absence, the player can talk with Poppy once, restoring patience to the middle of the scale.
  * Triggers based on absence duration, regardless of the reason.
  */

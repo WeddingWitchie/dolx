@@ -6,7 +6,7 @@ setup.horserace = setup.horserace || {};
 	const HR = setup.horserace;
 	HR.DEFAULT_WATCH_DELAY = 1600;
 
-	/* ---- Gambling balance configuration -------------------------------- *
+	/* Gambling balance configuration.
 	 * INJURY_CHANCE_PERCENT: chance that the backed horse will be pulled up
 	 *   late in the race after a bet is placed.
 	 *
@@ -16,7 +16,7 @@ setup.horserace = setup.horserace || {};
 	 *
 	 * The weekly reset is handled by DoL's native $weekly cleanup; all weekly
 	 * counters live on $weekly, so they clear automatically each game week.
-	 * ------------------------------------------------------------------- */
+	 */
 	HR.INJURY_CHANCE_PERCENT = 80;
 	HR.PAYOUT_MARGIN = 0.92;
 

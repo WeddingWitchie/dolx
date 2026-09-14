@@ -4,9 +4,7 @@
  * - Main X-Change pill/effect/body handling should remain in `xchange.twee`
  * - Gender-identity logic remains split across `identity.twee`, `identity.js`
  * - Any still-live compatibility helpers in `xchange.js`
- * =========================
- * Important!
- * If what you're looking for isn't defined here, check other files too.
+ * If what you're looking for isn't defined here, check the other files too.
  */
 
 function wornSetupClothes(slot) {
@@ -877,7 +875,7 @@ function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 		const fallback = setup.clothes[slot]?.[0];
 		if (!fallback) continue;
 
-		warn(`missing-worn-jewellery:${slot}`, `[DoLX] Missing $worn.${slot} during ${context}; repairing with default naked ${slot}.`, V.worn[slot]);
+		warn(`missing-worn-jewellery:${slot}`, `Missing $worn.${slot} during ${context}; repairing with default naked ${slot}.`, V.worn[slot]);
 
 		V.worn[slot] = clone(fallback);
 	}
@@ -928,7 +926,7 @@ function dolxScrubFabricatedNPCStubs() {
 		if (pregnancy && pregnancy.stuckAtOne !== undefined) delete pregnancy.stuckAtOne;
 	}
 
-	if (scrubbed.length) console.warn(`[DoLX] Removed fabricated NPC stub data from $NPCList slots: ${scrubbed.join(", ")}`);
+	if (scrubbed.length) console.warn(`Removed fabricated NPC stub data from $NPCList slots: ${scrubbed.join(", ")}`);
 }
 window.dolxScrubFabricatedNPCStubs = dolxScrubFabricatedNPCStubs;
 
@@ -1039,7 +1037,7 @@ function dolxRepairNonFiniteNumerics() {
 	}
 
 	if (hairRepaired && typeof window.calchairlengthstage === "function") window.calchairlengthstage();
-	if (repaired.length) console.warn(`[DoLX] Repaired non-finite save numerics: ${repaired.join(", ")}`);
+	if (repaired.length) console.warn(`Repaired non-finite save numerics: ${repaired.join(", ")}`);
 }
 window.dolxRepairNonFiniteNumerics = dolxRepairNonFiniteNumerics;
 
@@ -1104,7 +1102,7 @@ function dolxEnsureTransformationParts() {
 			filled.push(`${species}.${part}`);
 		}
 	}
-	if (filled.length) console.warn(`[DoLX] Backfilled missing transformationParts keys: ${filled.join(", ")}`);
+	if (filled.length) console.warn(`Backfilled missing transformationParts keys: ${filled.join(", ")}`);
 }
 window.dolxEnsureTransformationParts = dolxEnsureTransformationParts;
 
@@ -1559,7 +1557,7 @@ function dolxRepairLeakedStatFreeze(passageName) {
 
 	// A freeze without its snapshot cannot represent a valid in-progress frozen scene.
 	if (!V.frozenValues) {
-		console.warn("[DoLX] $statFreeze was set with no frozen snapshot; clearing it so daily resets and stat changes run again.");
+		console.warn("$statFreeze was set with no frozen snapshot; clearing it so daily resets and stat changes run again.");
 		delete V.statFreeze;
 		delete V.frozenXchangeValues;
 		return true;
@@ -1606,7 +1604,7 @@ $(document).on(":passagestart", ev => {
 	const title = (ev && ev.passage && ev.passage.title) || V.passage;
 	if (!title || scarletVisionPassages.includes(title)) return;
 
-	console.warn("[DoLX] Raul and Janet daydream was left via " + title + " without its ending; restoring the real body.");
+	console.warn("Raul and Janet daydream was left via " + title + " without its ending; restoring the real body.");
 	Wikifier.wikifyEval("<<sleepJanet>>");
 });
 

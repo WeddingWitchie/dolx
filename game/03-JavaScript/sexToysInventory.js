@@ -172,7 +172,7 @@ function refreshOwnedTags() {
 		const item = V.player.inventory.sextoys?.[c]?.[ind];
 
 		if (!item) {
-			console.warn("[DoLX] stale sextoy UI index", {
+			console.warn("stale sextoy UI index", {
 				category: c,
 				index: ind,
 				id: element.id,
@@ -279,7 +279,7 @@ window.sexToysInventoryOnCarryClick = sexToysInventoryOnCarryClick;
 function sexToysInventoryOnWearClick(index, category) {
 	const toy = V.player.inventory.sextoys?.[category]?.[index];
 	if (!toy) {
-		console.error("[DoLX] Missing sextoy in wear click", {
+		console.error("Missing sextoy in wear click", {
 			category,
 			index,
 			sextoys: V.player.inventory.sextoys,
