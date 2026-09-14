@@ -271,15 +271,16 @@ function getBreastSensitiveRubSlot() {
 	const upperTypes = upper.type || [];
 	const underBare = wornSlotIsBare("under_upper");
 	const upperBare = wornSlotIsBare("upper");
+	// Sticky nipple coverings protect even when their minimal coverage gives them the "naked" trait.
 	const protectedByUnder =
-		!underBare &&
+		(!underBare || underTypes.includes("sticky")) &&
 		under.exposed < 2 &&
 		(underTypes.includes("sticky") || underTypes.includes("chest_bind") || underSetup.formfitting === 1 || under.name === "swim shirt");
 
 	if (protectedByUnder) return null;
 	if (!underBare && under.exposed < 2) return "under_upper";
 	if (
-		!upperBare &&
+		(!upperBare || upperTypes.includes("sticky")) &&
 		upper.exposed < 2 &&
 		(upperTypes.includes("sticky") || upperTypes.includes("chest_bind") || upperSetup.formfitting === 1 || upper.name === "swim shirt")
 	)
