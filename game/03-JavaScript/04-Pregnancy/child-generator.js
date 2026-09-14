@@ -162,7 +162,7 @@ window.pcHeritage = pcHeritage;
  * A child's size, weighted toward the pc's build. Half the time it matches, otherwise it's a step
  * smaller or larger. NPC carriers with no build roll evenly.
  *
- * @param {0|1|2|3|undefined} bodySize the carrier's build
+ * @param {-1|0|1|2|2.5|3|4|undefined} bodySize the carrier's build
  * @returns {"tiny"|"small"|"normal"|"large"}
  */
 function rollChildSize(bodySize) {
@@ -170,7 +170,7 @@ function rollChildSize(bodySize) {
 	if (bodySize === undefined) return childSizes.random();
 	const roll = random(1, 100);
 	const step = roll <= PregnancyConstants.childGen.childSizeSameMax ? 0 : roll <= PregnancyConstants.childGen.childSizeSmallerMax ? -1 : 1;
-	return childSizes[Math.clamp(bodySize + step, 0, childSizes.length - 1)];
+	return childSizes[Math.clamp(Math.round(bodySize) + step, 0, childSizes.length - 1)];
 }
 
 /**
