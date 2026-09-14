@@ -561,8 +561,9 @@ function autismUpdateOverload() {
 	} else if (state.meltdown && fraction <= autismMeltdownRecovery) {
 		state.meltdown = false;
 		state.meltdownEndNotice = true;
-		/* Keep the chosen form while a queued or active scene still needs to describe the episode. */
-		if (!state.pendingScene && !state.sceneReturn) {
+		/* Recovery during another event cancels the interruption. Do not replay it later. */
+		delete state.pendingScene;
+		if (!state.sceneReturn) {
 			delete state.overloadForm;
 			delete state.overloadPlace;
 		}
@@ -2090,14 +2091,32 @@ function autismCanUnmask() {
 	return ensureAutismSpectrumState().masking >= autismMaskingNoticeable;
 }
 
-/* The scene must never tear the player out of anything that owns cleanup of its own. */
-const autismSceneBlockedPassages = Object.freeze(["Police Molestation Finish", "Sleep", "Bed"]);
-const autismSceneBlockedPrefixes = Object.freeze(["Passout ", "Autism "]);
+/* Only ordinary navigation between hubs can host a standalone overload scene */
+const autismSceneHubs = Object.freeze([
+	"Bedroom",
+	"Hallways",
+	"Barb Street",
+	"Cliff Street",
+	"Connudatus Street",
+	"Danube Street",
+	"Domus Street",
+	"Elk Street",
+	"Harvest Street",
+	"High Street",
+	"Mer Street",
+	"Nightingale Street",
+	"Oxford Street",
+	"Starfish Street",
+	"Wolf Street",
+]);
 const autismSceneBlockedTags = Object.freeze(["widget", "script", "stylesheet", "nosave", "ending", "exitCheckBypass"]);
 
 function autismSceneReadyFor(dest) {
 	if (!playerHasAutismSpectrum()) return false;
 	if (V.statFreeze || V.possessed || V.combat === 1) return false;
+	if (V.sleepTimePassing || V.timeSkip !== undefined) return false;
+	if (!autismSceneHubs.includes(V.passage) || !autismSceneHubs.includes(dest)) return false;
+	if (V.phase || V.phase2) return false;
 	/* Do not send the player into the scene from an interface, setup passage, or ending. */
 	if (typeof dest !== "string") return false;
 	if (typeof Story !== "undefined") {
@@ -2105,8 +2124,6 @@ function autismSceneReadyFor(dest) {
 		if (Story.get(dest).tags.some(tag => autismSceneBlockedTags.includes(tag))) return false;
 	}
 	if (Array.isArray(V.NPCList) && typeof isLiveNPC === "function" && V.NPCList.some(isLiveNPC)) return false;
-	if (autismSceneBlockedPassages.includes(dest)) return false;
-	if (autismSceneBlockedPrefixes.some(prefix => dest.startsWith(prefix))) return false;
 	return true;
 }
 
@@ -2116,6 +2133,10 @@ function autismSceneReadyFor(dest) {
 function autismOverloadRedirect(dest) {
 	const state = ensureAutismSpectrumState();
 	if (!state.pendingScene) return null;
+	if (!state.meltdown) {
+		delete state.pendingScene;
+		return null;
+	}
 	if (!autismSceneReadyFor(dest)) return null;
 	delete state.pendingScene;
 	state.overloadPlace = autismPrivacyTier();
