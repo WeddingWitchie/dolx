@@ -762,7 +762,6 @@ function dayPassed(days) {
 			if (setup.hbsc?.ensureState) setup.hbsc.ensureState();
 			if (setup.hbsc?.processDay) setup.hbsc.processDay();
 
-			V.physiquechange = 1;
 			V.home_event_timer--;
 			V.park_fame = Math.clamp(V.park_fame - 7, 0, 100);
 			V.museuminterest = Math.clamp(V.museuminterest - (V.museuminterest >= 60 ? 5 : 2), 0, 100);
@@ -2366,12 +2365,23 @@ function dailyPlayerEffects() {
 	/* Keep trauma symptoms in sync when Innocence directly changes trauma above. */
 	statChange.updatePlayerTraumaState();
 
+	V.physiquechange = 0;
 	if (V.physique >= 1000) {
 		const decayRate = V.farm_stage >= 6 ? 4 : 5;
 		/* White so Pale: holding the wishing stones slows the body's decline. */
 		const decayMod = whiteSoPaleHeld() ? 0.8 : 1;
-		V.xchange.baseStats.physique -= ((V.xchange.baseStats.physique * decayRate) / V.xchange.baseStats.physiquesize) * decayMod;
+		const decay = ((V.xchange.baseStats.physique * decayRate) / V.xchange.baseStats.physiquesize) * decayMod;
+		const exercise =
+			((V.xchange.baseStats.physiquesize / 1200) * V.physiqueuse) /
+			(V.xchange.baseStats.physique > V.xchange.baseStats.physiquesize ? V.AMCTraits.physique : 1);
+		if (exercise >= decay) {
+			V.physiquechange = V.xchange.baseStats.physique >= V.xchange.baseStats.physiquesize * V.AMCTraits.physique ? 3 : 1;
+		} else {
+			V.xchange.baseStats.physique -= decay;
+			V.physiquechange = 2;
+		}
 	}
+	V.physiqueuse = 0;
 
 	let genderFactor = !V.xchange.genderIdentityEnabled
 		? 1

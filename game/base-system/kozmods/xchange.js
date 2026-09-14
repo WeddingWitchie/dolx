@@ -807,6 +807,7 @@ function updatePhysique() {
 		if (factor > 0) {
 			V.xchange.baseStats.physique = Math.max(0, Math.round(target / factor));
 		}
+		delete V.xchange.physiqueCheatTarget;
 	}
 
 	// Respect the same ceiling as clamp; this runs on :passageend and would otherwise overwrite the clamped value with an uncapped one.
