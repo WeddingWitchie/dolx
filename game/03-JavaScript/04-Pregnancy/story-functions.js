@@ -126,7 +126,8 @@ window.birdEggsReady = birdEggsReady;
  * Including stories and paintings.
  */
 function currentBodyPregnancies() {
-	const firstOfThisVision = V.statFreeze && V.frozenValues ? V.frozenValues.pregnancies.length : 0;
+	// Saves frozen before the records migration have no pregnancy array in their snapshot.
+	const firstOfThisVision = V.statFreeze ? V.frozenValues?.pregnancies?.length ?? 0 : 0;
 	return getActivePregnancies("pc").filter(p => p.pregnancyId >= firstOfThisVision);
 }
 window.currentBodyPregnancies = currentBodyPregnancies;

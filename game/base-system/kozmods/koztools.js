@@ -1571,17 +1571,16 @@ function dolxRepairLeakedStatFreeze(passageName) {
 	// Do not trigger unfreeze teardown while a load/version migration is still pending.
 	if (onLoadUpdateCheck || versionUpdateCheck) return false;
 
-	// Use the scene's own teardown so restored body and stats match the intended exit.
-	console.warn(`[DoLX] A frozen-stat scene was left without its teardown (reached ${title} still frozen); restoring the real body and stats.`);
-	Wikifier.wikifyEval("<<unfreezePlayerStats>>");
-
+	console.warn(`Reached ${title} with stale frozen stats; clearing the freeze and keeping the current character.`);
 	delete V.statFreeze;
+	delete V.frozenValues;
+	delete V.frozenXchangeValues;
 	return true;
 }
 window.dolxRepairLeakedStatFreeze = dolxRepairLeakedStatFreeze;
 
-$(document).on(":passageinit", ev => {
-	// :passageinit exposes the incoming title before V.passage necessarily updates.
+$(document).on(":passagestart", ev => {
+	// Repair the incoming history moment, not the previous passage's saved state.
 	if (V && V.statFreeze) dolxRepairLeakedStatFreeze(ev?.passage?.title);
 });
 
@@ -1601,7 +1600,7 @@ const scarletVisionPassages = [
 	"Drama",
 	"Drama Finish",
 ];
-$(document).on(":passageinit", ev => {
+$(document).on(":passagestart", ev => {
 	if (!V.scarletVision || V.replayScene) return;
 	// Prefer the incoming event title; V.passage is only a fallback.
 	const title = (ev && ev.passage && ev.passage.title) || V.passage;
