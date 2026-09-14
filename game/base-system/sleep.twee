@@ -36,6 +36,7 @@
 	<<set $sleepHoursTotal to 0>>
 	<<set $_bonusFatigueLoss to 10>>
 	<<set _poppy_interrupt to false>>
+	<<set _gwylanFoxPlushieComfort to ($location is "home" and $bus is "home" and $gwylanSeen?.includes("fox_plushie")) ? 1 + ($hypnosis_traits.devotion || 0) : 0>>
 	<<set _whitneyWaterdragonPlushieSleepLocation to "">>
 	<<switch $location>>
 		<<case "home">><<if $bus is "home">><<set _whitneyWaterdragonPlushieSleepLocation to "bedroom">><</if>>
@@ -477,6 +478,9 @@
 
 		/* Apply sleep recovery after hourly effects, so sleep is not immediately undone by the hour pass. */
 		<<set $tiredness -= _sleepTirednessRecovery>><<set $tiredness to Math.max(0, Math.round($tiredness))>>
+		<<if _gwylanFoxPlushieComfort>>
+			<<stress `-_gwylanFoxPlushieComfort`>><<trauma `-_gwylanFoxPlushieComfort / 2`>>
+		<</if>>
 
 		<<if $nightmares gte 1 and $controlled is 0>>
 			<<stress 6>>
@@ -533,6 +537,18 @@
 	<</if>>
 	<<if _whitneyWaterdragonPlushieComfort and $sleepHoursTotal gt 0>>
 		<span class="green">You sleep with Whitney's water dragon plushie held close. It helps calm you.</span> <<ltrauma>>
+		<br><br>
+	<</if>>
+	<<if _gwylanFoxPlushieComfort and $sleepHoursTotal gt 0>>
+		You wake still holding the fox plushie against your chest.
+		<<if _gwylanFoxPlushieComfort gte 5>>
+			You remember Gwylan telling you to relax. You hold the plushie for a little longer before getting out of bed.
+		<<elseif _gwylanFoxPlushieComfort gt 1>>
+			Holding the plushie reminds you of resting in Gwylan's shop while Gwylan spoke to you.
+		<<else>>
+			Holding the soft plushie helped you sleep a little better.
+		<</if>>
+		<span class="green">You feel calmer.</span> <<lstress>><<ltrauma>>
 		<br><br>
 	<</if>>
 	<<if $scienceproject is "ongoing" and $sciencephallusknown isnot 1 and hasSexStat("promiscuity", 3)>>
