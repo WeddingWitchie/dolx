@@ -271,7 +271,7 @@ The fighting pit is directly below. Higher up, behind the public seats, dark gla
 <<set _fightsToday to $daily.colosseumFights ?? 0>>
 A service corridor behind the stands leads down to floor level. The fighters' desk is built against the wall beside the match board, close enough to the pit that staff have to raise their voices whenever the crowd reacts to a hit.
 <br><br>
-The board lists you as <span class="pink"><<underworld_nickname>></span>. You are currently <span class="gold"><<colosseumRankName _rankIndex>>-rank</span>, with <<print $xchange.colosseum.rankPoints>> ranking points, <<print $xchange.colosseum.wins>> <<pluralise $xchange.colosseum.wins "win" "wins">>, and <<print $xchange.colosseum.losses>> <<pluralise $xchange.colosseum.losses "loss" "losses">>.
+The board lists you as <span class="pink"><<colosseumName>></span>. You are currently <span class="gold"><<colosseumRankName _rankIndex>>-rank</span>, with <<print $xchange.colosseum.rankPoints>> ranking points, <<print $xchange.colosseum.wins>> <<pluralise $xchange.colosseum.wins "win" "wins">>, and <<print $xchange.colosseum.losses>> <<pluralise $xchange.colosseum.losses "loss" "losses">>.
 <<if $xchange.colosseum.promotionReady and _rankIndex lt 6>> You have reached the point limit for this rank. To move up, you must win a promotion bout against the next rank.
 <<elseif _rankIndex lt 6>> You need <<print _colosseumThresholds[_rankIndex + 1] - $xchange.colosseum.rankPoints>> more points before you qualify for a promotion bout.<</if>>
 <br><br>
@@ -301,12 +301,14 @@ The board lists you as <span class="pink"><<underworld_nickname>></span>. You ar
 	<br>
 <</if>>
 <br>
-<<icon "changing-room.png">><<link [[Along to the changing corridor (0:02)|Underground Colosseum Corridor]]>><<pass 2>><</link>>
-<br>
 <<if $xchange.colosseum.debt gt 0>>
 	<<link `$money gt 0 ? "Pay " + formatMoney(Math.min($money, $xchange.colosseum.debt)) + " towards your debt" : "Discuss your unpaid debt"` "Colosseum Debt Pay">><</link>>
 	<br>
 <</if>>
+<<link [[Change your arena name|Underground Colosseum Name]]>><</link>>
+<br><br>
+<<icon "changing-room.png">><<link [[Along to the changing corridor (0:02)|Underground Colosseum Corridor]]>><<pass 2>><</link>>
+<br>
 <<laddericon>><<link [[Back up the ladder to the top of the stands (0:03)|Underground Colosseum]]>><<pass 3>><</link>>
 <br>
 
@@ -675,7 +677,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<if playerAwareTheyArePregnant() and playerBellyVisible(true)>>
 		Two regular spectators notice you looking for room and move closer together so you can sit. One of them glances at your belly before looking back towards the fight.
 	<<elseif $fame.scrap gte 400>>
-		Between bouts, the announcer notices you in the seats and calls out your arena name. Several people shout <span class="pink"><<underworld_nickname>></span> back.
+		Between bouts, the announcer notices you in the seats and calls out your arena name. Several people shout <span class="pink"><<colosseumName>></span> back.
 	<<else>>
 		Nobody in the seating recognises you yet, so you can watch without taking much attention.
 	<</if>>
@@ -1329,3 +1331,40 @@ The seat is empty now. You search the nearby rows and stairway, but you cannot f
 <br><br>
 <<link [[Next|Underground Colosseum Terraces]]>><</link>>
 <br>
+
+:: Underground Colosseum Name
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<colosseumHost>>
+The receptionist turns your booking slip around. "Want something else on the board? Write it here. I'll tell the announcer."
+<br><br>
+Your current arena name is <span class="pink"><<colosseumName>></span>.
+<br><br>
+<<set _arenaTitle to "">>
+<<set _arenaTitles to {"Automatic underworld nickname": "", "meat": "meat"}>>
+<<set _combatTitles to ["Scrappy", "Slugger", "Brawler", "Heavy Hitter", "Street King", "Bonebreaker", "Iron Fist", "Knockout King", "The Champ", "The Undisputed"]>>
+<<for _i to 0; _i lt _combatTitles.length; _i++>>
+	<<if $fame.scrap gte (_i + 1) * 400>><<set _arenaTitles[_combatTitles[_i]] to _combatTitles[_i]>><</if>>
+<</for>>
+<label>Choose a title:
+<<listbox "_arenaTitle">>
+	<<optionsfrom _arenaTitles>>
+<</listbox>>
+</label>
+<<link "Use this title" "Underground Colosseum Pit">>
+	<<set $xchange.colosseum.arenaName to _arenaTitle>>
+<</link>>
+<br><br>
+<<set _arenaCustomName to $xchange.colosseum.arenaName ?? "">>
+<label>Or write your own name: <<textbox "_arenaCustomName" _arenaCustomName>></label>
+<<run $("#textbox--arenacustomname").attr("maxlength", 40)>>
+<<link "Use this name">>
+	<<set _arenaCustomName to _arenaCustomName.trim().slice(0, 40)>>
+	<<if _arenaCustomName>>
+		<<set $xchange.colosseum.arenaName to _arenaCustomName>>
+		<<goto "Underground Colosseum Pit">>
+	<<else>>
+		<<replace "#arena-name-error">><span class="red">Enter a name first.</span><</replace>>
+	<</if>>
+<</link>>
+<span id="arena-name-error"></span>
+<br>
+<<link [[Leave your name as it is|Underground Colosseum Pit]]>><</link>>
