@@ -246,7 +246,17 @@
 	setup.inflation.CRISIS_PCT = setup.inflation.settingDefault("inflationCrisisPct");
 
 	/* Spend sources excluded from inflation. Bets use raw stakes for payouts, and debts use fixed values. */
-	setup.inflation.EXCLUDED_SOURCES = ["baileyRent", "bankLoan", "tailorDeposit", "robinGift", "estateBetting", "colosseumBet", "colosseumDebt"];
+	setup.inflation.EXCLUDED_SOURCES = [
+		"stolenMoney",
+		"bankCard",
+		"baileyRent",
+		"bankLoan",
+		"tailorDeposit",
+		"robinGift",
+		"estateBetting",
+		"colosseumBet",
+		"colosseumDebt",
+	];
 
 	setup.inflation.isEnabled = function () {
 		/* Always enabled for now. `$settings.inflationEnabled` is kept reserved for a future UI toggle. */
@@ -357,16 +367,17 @@
 
 	setup.inflation.canAfford = function (base, source) {
 		if (typeof V === "undefined" || !Number.isFinite(V.money)) return false;
-		return V.money >= setup.inflation.spendPrice(base, source);
+		return setup.hbsc.paymentBalance(source) >= setup.inflation.spendPrice(base, source);
 	};
 
 	setup.inflation.affordableBase = function (base, source) {
 		if (typeof V === "undefined" || !Number.isFinite(V.money) || !Number.isFinite(base)) return 0;
+		const balance = setup.hbsc.paymentBalance(source);
 		const limit = Math.max(0, Math.floor(base));
-		if (!setup.inflation.appliesToSpend(source)) return Math.min(limit, Math.max(0, Math.floor(V.money)));
-		let affordable = Math.min(limit, Math.floor(V.money / setup.inflation.multiplier()));
-		while (affordable > 0 && setup.inflation.spendPrice(affordable, source) > V.money) affordable--;
-		while (affordable < limit && setup.inflation.spendPrice(affordable + 1, source) <= V.money) affordable++;
+		if (!setup.inflation.appliesToSpend(source)) return Math.min(limit, Math.max(0, Math.floor(balance)));
+		let affordable = Math.min(limit, Math.floor(balance / setup.inflation.multiplier()));
+		while (affordable > 0 && setup.inflation.spendPrice(affordable, source) > balance) affordable--;
+		while (affordable < limit && setup.inflation.spendPrice(affordable + 1, source) <= balance) affordable++;
 		return affordable;
 	};
 

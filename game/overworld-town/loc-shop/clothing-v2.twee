@@ -835,7 +835,7 @@
 					<span class="red">You can't carry any more clothes with you.</span> You should take them to your wardrobe.
 					<br>
 				<</if>>
-			<<elseif $money >= (setup.inflation ? setup.inflation.spendPrice(getClothingCost(_temp_choice,$clothingShopSlot), "clothes") : getClothingCost(_temp_choice,$clothingShopSlot))>>
+			<<elseif setup.hbsc.paymentBalance("clothes") >= (setup.inflation ? setup.inflation.spendPrice(getClothingCost(_temp_choice,$clothingShopSlot), "clothes") : getClothingCost(_temp_choice,$clothingShopSlot))>>
 				<<if _cursedPrevent>>
 					<<printcursed>>
 				<<elseif _preggyPrevent>>
@@ -956,11 +956,11 @@
 <<widget "printbuysendtohandbag">>
 	<<set _clothingCost = getClothingCost(_temp_choice, $clothingShopSlot)>>
 	<<set _clothingTotal = (setup.inflation ? setup.inflation.spendPrice(_clothingCost * $buyMultiple, "clothes") : _clothingCost * $buyMultiple)>>
-	<<set _canAfford = ($money >= _clothingTotal and $wardrobes.inventory.space - getWardrobeItemCount("inventory") >= $buyMultiple) ? "" : "disabled">>
+	<<set _canAfford = (setup.hbsc.paymentBalance("clothes") >= _clothingTotal and $wardrobes.inventory.space - getWardrobeItemCount("inventory") >= $buyMultiple) ? "" : "disabled">>
 	<div id="send-to-handbag" class="buy-button">
 		<div @class="'buy-button-inner buy-multiple div-link ' + _canAfford">
 			<<link `'Buy and keep in handbag × ' + $buyMultiple`>>
-				<<if $money >= _clothingTotal and $wardrobes.inventory.space - getWardrobeItemCount("inventory") >= $buyMultiple>>
+				<<if setup.hbsc.paymentBalance("clothes") >= _clothingTotal and $wardrobes.inventory.space - getWardrobeItemCount("inventory") >= $buyMultiple>>
 					<<clothingReset _realSlot>>
 					<<shopbuyv2 _realSlot "buy" "handbag" _realIndex $buyMultiple>>
 					<<money `-_clothingCost * $buyMultiple` "clothes">>
@@ -991,7 +991,7 @@
 				el.text(text.join(' '));
 
 				$('#buy-send > #send-to-handbag.buy-button > .buy-button-inner > span > span').text('£' + (setup.inflation ? setup.inflation.price(cost * $buyMultiple) : cost * $buyMultiple) / 100);
-				$('#buy-send > #send-to-handbag.buy-button > .buy-button-inner').toggleClass('disabled', $money < (setup.inflation ? setup.inflation.price(cost * $buyMultiple) : cost * $buyMultiple) || $wardrobes.inventory.space - getWardrobeItemCount("inventory") < $buyMultiple);
+				$('#buy-send > #send-to-handbag.buy-button > .buy-button-inner').toggleClass('disabled', setup.hbsc.paymentBalance("clothes") < (setup.inflation ? setup.inflation.price(cost * $buyMultiple) : cost * $buyMultiple) || $wardrobes.inventory.space - getWardrobeItemCount("inventory") < $buyMultiple);
 			});
 		})>>
 	</div>
@@ -1015,11 +1015,11 @@
 <<widget "printbuysendhome">>
 	<<set _clothingCost = getClothingCost(_temp_choice, $clothingShopSlot)>>
 	<<set _clothingTotal = (setup.inflation ? setup.inflation.spendPrice(_clothingCost * $buyMultiple, "clothes") : _clothingCost * $buyMultiple)>>
-	<<set _canAfford = ($money >= _clothingTotal and _spaceLeft >= $buyMultiple) ? "" : "disabled">>
+	<<set _canAfford = (setup.hbsc.paymentBalance("clothes") >= _clothingTotal and _spaceLeft >= $buyMultiple) ? "" : "disabled">>
 	<div id="send-home" class="buy-button">
 		<div @class="'buy-button-inner buy-multiple div-link ' + _canAfford">
 			<<link `'Buy and send <<if $wardrobes.shopReturn is "wardrobe">>home<<else>>to $wardrobes[$wardrobes.shopReturn].name<</if>> × ' + $buyMultiple`>>
-				<<if $money >= _clothingTotal and _spaceLeft >= $buyMultiple>>
+				<<if setup.hbsc.paymentBalance("clothes") >= _clothingTotal and _spaceLeft >= $buyMultiple>>
 					<<clothingReset _realSlot>>
 					<<shopbuyv2 _realSlot "buy" "send" _realIndex $buyMultiple>>
 					<<money `-_clothingCost * $buyMultiple` "clothes">>
@@ -1050,7 +1050,7 @@
 				el.text(text.join(' '));
 
 				$('#buy-send > #send-home.buy-button > .buy-button-inner > span > span').text('£' + (setup.inflation ? setup.inflation.price(cost * $buyMultiple) : cost * $buyMultiple) / 100);
-				$('#buy-send > #send-home.buy-button > .buy-button-inner').toggleClass('disabled', $money < (setup.inflation ? setup.inflation.price(cost * $buyMultiple) : cost * $buyMultiple) || _spaceLeft < $buyMultiple);
+				$('#buy-send > #send-home.buy-button > .buy-button-inner').toggleClass('disabled', setup.hbsc.paymentBalance("clothes") < (setup.inflation ? setup.inflation.price(cost * $buyMultiple) : cost * $buyMultiple) || _spaceLeft < $buyMultiple);
 			});
 		})>>
 	</div>
@@ -1947,7 +1947,7 @@
 
 <<widget "shopCommandoCheck">>
 	<<if $earSlime.forcedCommando isnot undefined or ($worn.under_lower.type.includes("naked") and setup.clothes.under_lower.find(item => {
-		if (!item.shop.includes($shopName) or $money lt (setup.inflation ? setup.inflation.spendPrice(getClothingCost(item, "under_lower"), "clothes") : getClothingCost(item, "under_lower"))) return false;
+		if (!item.shop.includes($shopName) or setup.hbsc.paymentBalance("clothes") lt (setup.inflation ? setup.inflation.spendPrice(getClothingCost(item, "under_lower"), "clothes") : getClothingCost(item, "under_lower"))) return false;
 		if (playerBellySize() >= 12 and item.type.includes("constricting")) return false;
 		if (V.earSlime.forcedDressing and V.earSlime.forcedDressing.days gt 0 and item.gender isnot V.earSlime.forcedDressing.type and item.gender isnot "n" and !item.type.includesAny("event")) return false;
 		return true;

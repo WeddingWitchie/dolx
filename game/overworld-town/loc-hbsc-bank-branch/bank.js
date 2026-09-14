@@ -482,6 +482,7 @@ setup.hbsc.processDay = function () {
 	}
 
 	setup.hbsc.processLoanDay();
+	setup.hbsc.processCardDay();
 
 	return maturedCount;
 };
@@ -798,9 +799,6 @@ setup.hbsc.summariseAutoPay = function (clear) {
 	return summary;
 };
 
-/* If a standing order is switched on but the savings can't cover the amount due, cancel the order and leave a notice so the player is told.
-   Returns true if it cancelled, false otherwise (disabled, no account, or the balance actually covers it). 
-   Called whenever a bill falls due. */
 setup.hbsc.cancelIfShort = function (id, amount) {
 	const V = State.variables;
 	setup.hbsc.ensureAutoPayState();
@@ -859,10 +857,7 @@ setup.hbsc.autoPayFarmGuard = function () {
 	return true;
 };
 
-/* Wren's Remy-sabotage retainer.
-Unlike the weekly bills, this falls due when one of Remy's attacks on the farm resolves (farm_attack_auto / Farm Assault Intro), not from the weekly runner:
-one payment covers exactly one attack. If the standing order covers the fee, Wren's crews stay on the job for the next attack cycle; otherwise the arrangement lapses until the player pays in person.
-Never activates for players who haven't struck the deal with Wren (V.farm.wrenSabotage undefined). */
+/* Wren's Remy-sabotage retainer */
 setup.hbsc.WREN_SABOTAGE_COST = 1500000; // £15,000 per attack cycle
 setup.hbsc.autoPayWrenSabotage = function () {
 	const V = State.variables;
@@ -879,8 +874,6 @@ setup.hbsc.autoPayWrenSabotage = function () {
 	return false;
 };
 
-/* Gambling-ring upkeep (Landry): pay the current tier's upkeep and mark the week paid, mirroring <<gambling-pay-upkeep>>.
-Skips the startup week, when gambling-init has already set gamblingUpkeepPaid. */
 setup.hbsc.autoPayGamblingUpkeep = function () {
 	const V = State.variables;
 	setup.hbsc.ensureAutoPayState();
@@ -994,15 +987,12 @@ setup.hbsc.loanRentSurchargeAmount = function () {
 	return Math.min(Math.max(Math.round(amount), 50000), 300000);
 };
 
-/* Weekly amount Bailey collects toward the loan once it's gone a month unpaid. */
 setup.hbsc.loanRentSurcharge = function () {
 	const loan = setup.hbsc.ensureLoanState();
 	if (!loan.autoRepay || loan.owed <= 0) return 0;
 	return Math.min(setup.hbsc.loanRentSurchargeAmount(), loan.owed);
 };
 
-/* Called by rentpay AFTER rent (incl. surcharge) is deducted: books the collected surcharge against the loan and resets the overdue clock.
-Cash already moved. */
 setup.hbsc.collectLoanFromRent = function (amount) {
 	const loan = setup.hbsc.ensureLoanState();
 	const collected = Math.min(setup.hbsc.roundMoney(amount), loan.owed);
@@ -1017,11 +1007,165 @@ setup.hbsc.collectLoanFromRent = function (amount) {
 	return collected;
 };
 
-/* Daily: if the loan has gone a month with no payment, hand collection to Bailey. */
 setup.hbsc.processLoanDay = function () {
 	const loan = setup.hbsc.ensureLoanState();
 	if (loan.owed > 0 && !loan.autoRepay && Time.days - loan.lastPaymentDay >= setup.hbsc.LOAN_OVERDUE_DAYS) {
 		loan.autoRepay = true;
 		loan.baileyAnnouncePending = true;
 	}
+};
+
+// Card
+setup.hbsc.CARD_REPLACEMENT_DAYS = 14;
+setup.hbsc.CARD_REPLACEMENT_FEE = 1000;
+setup.hbsc.cardSources = new Set([
+	"supermarket",
+	"shopping",
+	"clothes",
+	"cafe",
+	"pub",
+	"arcade",
+	"bus",
+	"furniture",
+	"hairdressers",
+	"tailor",
+	"tattoo",
+	"toyShop",
+	"pharmacy",
+	"pharmacyBreastPump",
+	"pharmacyPregnancyTest",
+	"pharmacyCream",
+	"pharmacyLube",
+	"pharmacyXChange",
+	"pharmacyContacts",
+	"pharmacyAfterPill",
+	"pharmacyCondoms",
+	"libraryBooks",
+	"danceStudioSubscription",
+	"danceStudioLessons",
+	"mmaGymLessons",
+	"hospitalDanceInjury",
+	"hospitalPaternityTest",
+	"hospitalBreastReduction",
+	"hospitalBreastEnlargement",
+	"hospitalPenisReduction",
+	"hospitalPenisEnlargement",
+	"hospitalTattooRemoval",
+	"hospitalParasiteRemoval",
+	"childbirthEpidural",
+]);
+
+setup.hbsc.theftPresets = {
+	easy: { min: 1, max: 10, chance: 1, weekly: 25 },
+	normal: { min: 1, max: 25, chance: 5, weekly: 100 },
+	hard: { min: 10, max: 50, chance: 15, weekly: 250 },
+};
+
+setup.hbsc.setTheftPreset = function (name) {
+	const preset = setup.hbsc.theftPresets[name];
+	if (!preset) return;
+	const V = State.variables;
+	V.npcStealMoneyToggle = 1;
+	V.npcStealMoneyRandomToggle = 1;
+	V.npcStealMoneyMin = preset.min;
+	V.npcStealMoneyMax = preset.max;
+	V.npcStealCardChance = preset.chance;
+	V.npcStealCardWeeklyLimit = preset.weekly;
+};
+
+setup.hbsc.stolenCashAmount = function () {
+	const V = State.variables;
+	const min = Math.clamp(V.npcStealMoneyMin ?? 1, 1, 100);
+	const max = Math.clamp(V.npcStealMoneyMax ?? 25, 1, 100);
+	const percentage = V.npcStealMoneyRandomToggle === 1 ? random(Math.min(min, max), Math.max(min, max)) : Math.clamp(V.npcStealMoneyPercentage ?? 10, 1, 100);
+	return Math.min(V.money, Math.floor((V.money * percentage) / 100));
+};
+
+setup.hbsc.cardBalance = function (source) {
+	const bank = State.variables.hbsc;
+	if (!setup.hbsc.cardSources.has(source) || bank?.account?.level < 1 || !bank?.card?.preferred || bank.card.status !== "active") return 0;
+	return bank.account.deposit;
+};
+
+setup.hbsc.paymentBalance = function (source) {
+	return Math.max(State.variables.money, setup.hbsc.cardBalance(source));
+};
+
+setup.hbsc.issueCard = function () {
+	const bank = State.variables.hbsc;
+	if (!bank || bank.account.level < 1 || setup.hbsc.isBanned() || bank.card) return false;
+	bank.card = { status: "active", preferred: true, losses: 0 };
+	return true;
+};
+
+setup.hbsc.stealCard = function () {
+	const V = State.variables;
+	const card = V.hbsc?.card;
+	if (V.npcStealMoneyToggle !== 1 || V.hbsc?.account?.level < 1 || card?.status !== "active") return false;
+	if (random(1, 100) > Math.clamp(V.npcStealCardChance ?? 5, 0, 100)) return false;
+	card.status = "stolen";
+	card.stolenDay = Math.floor(Time.date.timeStamp / 86400);
+	card.lastChargeDay = card.stolenDay;
+	card.weekSpent = 0;
+	card.week = 0;
+	card.losses = 0;
+	return true;
+};
+
+setup.hbsc.processCardDay = function () {
+	const V = State.variables;
+	const card = V.hbsc?.card;
+	const today = Math.floor(Time.date.timeStamp / 86400);
+	if (card?.status !== "stolen" || card.lastChargeDay >= today) return;
+	// Anchor each seven-day allowance to the theft, so changing calendar weeks cannot double it.
+	for (let day = card.lastChargeDay + 1; day <= today; day++) {
+		const week = Math.floor((day - card.stolenDay - 1) / 7);
+		if (card.week !== week) {
+			card.week = week;
+			card.weekSpent = 0;
+		}
+		if (V.npcStealMoneyToggle !== 1 || V.hbsc.account.level < 1) continue;
+		const limit = Math.clamp(V.npcStealCardWeeklyLimit ?? 100, 0, 1000) * 100;
+		const amount = Math.min(random(100, 2000), Math.max(0, limit - card.weekSpent), V.hbsc.account.deposit);
+		if (amount > 0) {
+			V.hbsc.account.deposit -= amount;
+			card.weekSpent += amount;
+			card.losses += amount;
+			statChange.money(-amount, "stolenMoney", { recordOnly: true });
+		}
+	}
+	card.lastChargeDay = today;
+};
+
+setup.hbsc.reportCard = function () {
+	const card = State.variables.hbsc?.card;
+	if (card?.status !== "stolen") return false;
+	card.status = "blocked";
+	delete card.stolenDay;
+	delete card.lastChargeDay;
+	delete card.weekSpent;
+	delete card.week;
+	return true;
+};
+
+setup.hbsc.orderReplacementCard = function () {
+	const V = State.variables;
+	const bank = V.hbsc;
+	if (bank?.card?.status !== "blocked" || bank.account.level < 1 || setup.hbsc.isBanned()) return false;
+	const fee = setup.hbsc.CARD_REPLACEMENT_FEE;
+	if (bank.account.deposit >= fee) bank.account.deposit -= fee;
+	else if (V.money >= fee) V.money -= fee;
+	else return false;
+	statChange.money(-fee, "bankCard", { recordOnly: true });
+	bank.card.status = "replacement";
+	bank.card.readyDay = Time.days + setup.hbsc.CARD_REPLACEMENT_DAYS;
+	return true;
+};
+
+setup.hbsc.collectReplacementCard = function () {
+	const bank = State.variables.hbsc;
+	if (bank?.card?.status !== "replacement" || bank.card.readyDay > Time.days || bank.account.level < 1 || setup.hbsc.isBanned()) return false;
+	bank.card.status = "active";
+	delete bank.card.readyDay;
+	return true;
 };

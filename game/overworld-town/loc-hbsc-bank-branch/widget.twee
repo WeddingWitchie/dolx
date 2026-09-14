@@ -1,6 +1,9 @@
 :: Widgets HBSC Bank [widget]
 
 <<widget "hbscOptions">>
+	<<if $hbsc.account.level gte 1 and $passage isnot "HBSC Bank Card">>
+		<<icon "access-card.png">><<link [[Manage your debit card (0:02)|HBSC Bank Card]]>><<pass 2>><</link>><br>
+	<</if>>
 	<<if $passage isnot "HBSC Bank Account">>
 		<<if $hbsc.account.level < 1>>
 			<<if $id>>
@@ -63,6 +66,7 @@
 			<hr>
 			<h1 class="header gold bold">HBSC Banking</h1>
 			<ul class="journal">
+				<<if $hbsc.card>><li><<hbscCardStatus>></li><</if>>
 				<<if $hbsc.account.level >= 1>>
 					<<icon "access-card.png">><span class="gold"><<print setup.hbsc.getTierName($hbsc.account.level)>></span>
 					|
@@ -165,6 +169,28 @@
 				<br>
 				Ready-to-collect total: <<printmoney _hbscTermSummary.maturedReadyTotal>>
 			<</foldout>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "hbscCardStatus">>
+	<<if $hbsc.card>>
+		<<switch $hbsc.card.status>>
+			<<case "active">>
+				Debit card: <<if $hbsc.card.preferred>>paying by card where accepted<<else>>paying with cash<</if>>.
+			<<case "stolen">>
+				<span class="red">Your debit card has been stolen.</span> Report it at HBSC to stop contactless charges. Thieves can spend up to &pound;<<print $npcStealCardWeeklyLimit ?? 100>> every seven days until you report it.
+			<<case "blocked">>
+				Your stolen card is blocked. You can order a replacement at HBSC.
+			<<case "replacement">>
+				<<if Time.days gte $hbsc.card.readyDay>>
+					Your replacement card is ready to collect at HBSC.
+				<<else>>
+					Your replacement card will be ready in <<print $hbsc.card.readyDay - Time.days>> days.
+				<</if>>
+		<</switch>>
+		<<if $hbsc.card.losses gt 0>>
+			<br>Unauthorised charges from the last card theft: <span class="red"><<printmoney $hbsc.card.losses>></span>.
 		<</if>>
 	<</if>>
 <</widget>>

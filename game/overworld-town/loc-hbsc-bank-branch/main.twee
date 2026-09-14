@@ -33,9 +33,15 @@ Inside, the waiting hall is all polished wood, soft carpet, and closed office do
 	<br>
 <</if>>
 <<if $xchange.bankHeist.wrenRecruited and $xchange.bankHeist.observationDays lt 7 and !setup.hbsc.isBanned()>>
-	<<crimeicon "mark">><<link [[Observe the security (1:00)|Heist Bank Observation]]>><<pass 60>><</link>><br>
+	<<crimeicon "mark">><<link [[Observe the security (1:00)|Heist Bank Observation]]>><<pass 60>><</link>>
+	<br>
+<</if>>
+<<if $hbsc.card and $hbsc.card.status is "stolen">>
+	<<link [[Report your stolen card (0:05)|HBSC Bank Branch]]>><<run setup.hbsc.reportCard()>><<pass 5>><</link>>
+	<br>
 <</if>>
 <<getouticon>><<link [[Leave|High Street]]>><<endevent>><</link>>
+<br>
 
 :: HBSC Bank Wait
 <<effects>>
@@ -75,14 +81,14 @@ You wait in line behind a <<person2>><<person>>.
 <<elseif $rng gte 51>>
 	<<He>> rubs <<his>> forehead as <<he>> reaches the counter. "I lost my debit card. Can I get a replacement?"
 	<br><br>
-	The teller checks the account. "I can freeze the old card and order a new one. I can also give you a temporary card today, if you need one."
+	The teller checks the account. "I can block the old card now. A replacement costs ten pounds and takes two weeks. You can withdraw cash at the counter while you wait."
 	<br><br>
 	"Yes, please."
 	<br><br>
 <<elseif $rng gte 41>>
 	<<He>> lays a stack of documents on the counter. "I need to report a charge I didn't authorise."
 	<br><br>
-	The teller reads the forms. "We'll start looking into it today. You'll get a temporary refund within 24 hours while we check it."
+	The teller reads the forms. "We can block the card today to stop any further payments. Charges made before you report it are not refunded."
 	<br><br>
 	<<He>> nods, looking satisfied.
 	<br><br>
@@ -1310,3 +1316,125 @@ The teller places a second brochure in front of you. "A fixed-term deposit locks
 	<br><br>
 <</if>>
 <<hbscOptions>>
+
+:: HBSC Bank Card
+<<effects>>
+<<run setup.hbsc.ensureState()>>
+<<if $hbsc.account.level lt 1>>
+	You need an HBSC account before you can request a debit card.
+<<elseif setup.hbsc.isBanned()>>
+	Counter service is suspended. You can still report a stolen card at the entrance.
+<<elseif !$hbsc.card>>
+	"Your first debit card is free," the teller says. "Payments come out of your savings. You can still withdraw cash when you need it."
+	<br><br>
+	<<link [[Request a debit card (0:05)|HBSC Bank Card]]>><<run setup.hbsc.issueCard()>><<pass 5>><</link>>
+<<else>>
+	Savings available: <<printmoney $hbsc.account.deposit>>.
+	<br><br>
+	<<hbscCardStatus>>
+	<br><br>
+	<<switch $hbsc.card.status>>
+		<<case "active">>
+			<label><<checkbox "$hbsc.card.preferred" false true autocheck>> Pay by card where accepted.</label>
+			<br>
+			Clothes, groceries, furniture, toys, haircuts, tattoos, cafe and pub orders, arcade games, bus fares, lessons, and hospital and pharmacy services accept your card. Your card pays the full bill when savings cover it; otherwise you pay cash. Cash left in closed shops, gifts, bribes, bets, and bank deposits still need carried money.
+		<<case "stolen">>
+			<<link [[Report your stolen card (0:05)|HBSC Bank Card]]>><<run setup.hbsc.reportCard()>><<pass 5>><</link>>
+			<br>Reporting is free and blocks further charges immediately.
+		<<case "blocked">>
+			A replacement costs <<printmoney setup.hbsc.CARD_REPLACEMENT_FEE>> and takes <<print setup.hbsc.CARD_REPLACEMENT_DAYS>> days. You can withdraw cash while you wait. Past unauthorised charges are not refunded.
+			<br>
+			<<if Math.max($money, $hbsc.account.deposit) gte setup.hbsc.CARD_REPLACEMENT_FEE>>
+				<<link [[Order a replacement card (0:10)|HBSC Bank Card]]>><<run setup.hbsc.orderReplacementCard()>><<pass 10>><</link>>
+			<<else>>
+				You cannot afford the replacement fee yet. Your stolen card remains blocked.
+			<</if>>
+		<<case "replacement">>
+			<<if Time.days gte $hbsc.card.readyDay>>
+				<<link [[Collect your replacement card (0:05)|HBSC Bank Card]]>><<run setup.hbsc.collectReplacementCard()>><<pass 5>><</link>>
+			<</if>>
+	<</switch>>
+<</if>>
+<br><br>
+<<hbscOptions>>
+
+:: HBSC Bank Standing Orders
+<<effects>>
+<<set _level to $hbsc.account.level>><<set _deposit to $hbsc.account.deposit>>
+<<if _level < 1>>
+	<<speechresolve>>
+	"Can you set up automatic payments for me? Something that handles my regular bills?" you ask.
+	<br><br>
+	The teller gives an apologetic smile. "Standing orders are tied to a savings account, I'm afraid. Open one with us first and we can route your recurring payments straight from your balance."
+	<br><br>
+	<<hbscOptions>>
+<<else>>
+	<<speechresolve>>
+	<<if ((_speechAttitudeResolved is "meek") or (_speechAttitudeResolved is "shy") or (_speechAttitudeResolved is "docile"))>>
+		"Could you help me with regular weekly payments, please?" you ask quietly.
+	<<elseif ((_speechAttitudeResolved is "polite") or (_speechAttitudeResolved is "flamboyant"))>>
+		"I was wondering if you could help me set up some recurring payments?" you ask.
+	<<elseif (_speechAttitudeResolved is "confident")>>
+		"I want to set up automatic payments for my regular bills," you say.
+	<<elseif ((_speechAttitudeResolved is "bratty") or (_speechAttitudeResolved is "cruel"))>>
+		"Set up my regular payments so I don't have to deal with them," you say.
+	<<else>>
+		"Can you help me with weekly payments? The ones that keep coming back?" you ask.
+	<</if>>
+	<br><br>
+	"Of course," the teller says brightly. "We call those <i>standing orders</i>. 
+    You tell me which regular payments to cover, and whenever one falls due we draw it straight from your savings balance. No need to carry the cash or be there in person."
+	<br><br>
+	<<set _hbscCancelled to $hbsc.notices.filter(n => n and n.type is "autoPayCancelled")>>
+	<<if _hbscCancelled.length > 0>>
+		<div class="hbsc-brochure">
+			<span class="red">Recently cancelled, due to insufficient savings:</span><br>
+			<<for _i, _c range _hbscCancelled>>
+				&bull; <<print _c.label>><br>
+			<</for>>
+		</div>
+		<br>
+		<<run $hbsc.notices = $hbsc.notices.filter(n => !(n and n.type is "autoPayCancelled"))>>
+	<</if>>
+	<div class="hbsc-brochure">
+		<span class="gold">How a standing order works</span><br>
+		&bull; The payment is taken from your savings balance.<br>
+		&bull; It only goes through if your balance covers the full amount when it falls due.<br>
+		&bull; If your savings can't cover it when it's due, the order is cancelled automatically.<br>
+		&bull; You can switch any order on or off, free of charge.
+	</div>
+	<br>
+	<span class="gold">Your savings balance:</span> <<printmoney _deposit>>
+	<br><br>
+	<<set _apAvail to {
+		bailey:       (def $rentmoney and $rentmoney gt 0 and $tutorial isnot 0),
+		farmGuard:    (def $farm and $farm.tower_guard),
+		wrenSabotage: (def $farm and def $farm.wrenSabotage),
+		gamblingRing: (def $xchange and $xchange.pubGamblingEnabled)
+	}>>
+	<<set _anyShown to false>>
+	<<for _i, _bill range setup.hbsc.AUTOPAY_BILLS>>
+		<<if _apAvail[_bill.id]>>
+			<<set _anyShown to true>>
+			<<set _on to setup.hbsc.isAutoPayEnabled(_bill.id)>>
+			<span class="teal"><<print _bill.label>></span>:
+			<<if _on>><span class="green">On</span><<else>><span class="red">Off</span><</if>>
+			<br>
+			<i><<print _bill.blurb>></i>
+			<br>
+			<<capture _bill>>
+				<<if _on>>
+					<<link "Cancel this standing order" "HBSC Bank Standing Orders">><<run setup.hbsc.setAutoPay(_bill.id, false)>><</link>>
+				<<else>>
+					<<link "Set up this standing order" "HBSC Bank Standing Orders">><<run setup.hbsc.setAutoPay(_bill.id, true)>><</link>>
+				<</if>>
+			<</capture>>
+			<br><br>
+		<</if>>
+	<</for>>
+	<<if not _anyShown>>
+		The teller checks the system. "It doesn't look like you have any regular payments we can take on right now. Come back if that changes."
+		<br><br>
+	<</if>>
+	<<hbscOptions>>
+<</if>>

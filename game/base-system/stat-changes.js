@@ -1442,17 +1442,20 @@ const statChange = (() => {
 			const inflated = -setup.inflation.price(-amount);
 			/* Only add the surcharge if the player can afford the base price.
 			If they cannot afford the surcharge, charge the base price instead. price() matches the amount shown by printprice. */
-			if (inflated < amount && V.money >= -amount && V.money + inflated >= 0) amount = inflated;
+			const balance = optional.cashOnly ? V.money : setup.hbsc.paymentBalance(source);
+			if (inflated < amount && balance >= -amount && balance + inflated >= 0) amount = inflated;
 		}
 
 		if (!optional.recordOnly) {
-			if (amount < 0 && V.money + amount < 0) {
+			const payByCard = amount < 0 && !optional.cashOnly && setup.hbsc.cardBalance(source) >= -amount;
+			if (amount < 0 && !payByCard && V.money + amount < 0) {
 				/* Included both types of error reporting, since this often will only occur in a link */
 				Errors.report(`Unexpected use for the function "money" in the passage "${V.passage}". Player doesn't have enough money to spend.`);
 				throw new Error(`Unexpected use for the function "money". Player doesn't have enough money to spend.`);
 			}
 
-			V.money += amount;
+			if (payByCard) V.hbsc.account.deposit += amount;
+			else V.money += amount;
 		}
 		if (nonIncomeCredit) return;
 

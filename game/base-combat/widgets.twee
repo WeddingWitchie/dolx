@@ -1493,12 +1493,8 @@ The surrounding scene wording is untouched; only the pocket-rifling + money tran
 	<<set _stealBlocked to (_stealKylarAbduction or (_stealLoveInterest and _stealAnger lte 0))>>
 	<<if $npcStealMoneyToggle is 1 and $npcStolenMoney is undefined and _stealBlocked is false>>
 		<br>
-		<<if $npcStealMoneyRandomToggle is 1>>
-			<<set _stolenMoney to $money * (random(1, 100)/100)>>
-		<<else>>
-			<<set _stolenMoney to $money * ($npcStealMoneyPercentage/100)>>
-		<</if>>
-		<<He>> rifles through your pockets and take <<printmoney _stolenMoney>>.
+		<<set _stolenMoney to setup.hbsc.stolenCashAmount()>>
+		<<He>> rifles through your pockets and takes <<printmoney _stolenMoney>>.
 		<<if _stolenMoney gte 100000>>
 			"That's a lot of money, I'll take that thank you."
 		<<elseif _stolenMoney gte 50000>>
@@ -1512,6 +1508,9 @@ The surrounding scene wording is untouched; only the pocket-rifling + money tran
 		<</if>>
 		<<set _stolenMoney to _stolenMoney * -1>>
 		<<money _stolenMoney "stolenMoney">>
+		<<if setup.hbsc.stealCard()>>
+			<br><span class="red"><<He>> takes your bank card as well.</span> You should report it at HBSC before someone uses it.
+		<</if>>
 		<<set $npcStolenMoney to 1>>
 	<</if>>
 <</widget>>
