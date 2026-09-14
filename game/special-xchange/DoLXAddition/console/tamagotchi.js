@@ -66,13 +66,12 @@ const Tamagotchi = (() => {
 		robinSitLove: 80,
 	});
 
-	/* Starters: base stats + type + icon. Pets start with no skills; they draft them through training. */
+	/* Starters: base stats and type. Pets start with no skills; they draft them through training. */
 	const SPECIES = {
 		embit: {
 			name: "Embit",
 			type: "fire",
 			blurb: "A hot-headed little lizard.",
-			icon: "embit",
 			evolution: "blazilisk",
 			base: { hp: 28, atk: 8, def: 5, spd: 6, mp: 8 },
 		},
@@ -80,7 +79,6 @@ const Tamagotchi = (() => {
 			name: "Pudduck",
 			type: "water",
 			blurb: "A calm, dependable duckling.",
-			icon: "pudduck",
 			evolution: "pondswan",
 			base: { hp: 34, atk: 6, def: 7, spd: 4, mp: 8 },
 		},
@@ -88,7 +86,6 @@ const Tamagotchi = (() => {
 			name: "Sprout",
 			type: "grass",
 			blurb: "A sturdy little seedling.",
-			icon: "sprout",
 			evolution: "oakguard",
 			base: { hp: 32, atk: 6, def: 8, spd: 4, mp: 8 },
 		},
@@ -96,7 +93,6 @@ const Tamagotchi = (() => {
 			name: "Voltpup",
 			type: "electric",
 			blurb: "A jittery, lightning-fast pup.",
-			icon: "voltpup",
 			evolution: "thundrover",
 			base: { hp: 26, atk: 8, def: 5, spd: 8, mp: 8 },
 		},
@@ -104,13 +100,11 @@ const Tamagotchi = (() => {
 
 	/* Evolved forms. Reached by sacrificing skills (see evolve()); they inherit the base type and the pet's name. */
 	const EVOLVED = {
-		blazilisk: { name: "Blazilisk", type: "fire", icon: "blazilisk", blurb: "A towering ember serpent." },
-		pondswan: { name: "Pondswan", type: "water", icon: "pondswan", blurb: "A regal river swan." },
-		oakguard: { name: "Oakguard", type: "grass", icon: "oakguard", blurb: "A bark-plated sentinel." },
-		thundrover: { name: "Thundrover", type: "electric", icon: "thundrover", blurb: "A storm-charged hound." },
+		blazilisk: { name: "Blazilisk", type: "fire", blurb: "A towering ember serpent." },
+		pondswan: { name: "Pondswan", type: "water", blurb: "A regal river swan." },
+		oakguard: { name: "Oakguard", type: "grass", blurb: "A bark-plated sentinel." },
+		thundrover: { name: "Thundrover", type: "electric", blurb: "A storm-charged hound." },
 	};
-	const BOSS_ICON = "boss-dragon";
-	const MINIBOSS_ICON = "bossmini-golem";
 	/* Combined lookup so species helpers resolve both base and evolved ids. */
 	const speciesDef = id => SPECIES[id] || EVOLVED[id] || null;
 	/* Resolve any species id (base or evolved) back to its base starter id, so two pets of the same line can't coexist. */
@@ -254,10 +248,6 @@ const Tamagotchi = (() => {
 	function atCap(t) {
 		return !!t && capMissing(t).length === 0;
 	}
-	const speciesIcon = id => {
-		const d = speciesDef(id);
-		return d && d.icon ? "mini-game/" + d.icon + ".png" : "";
-	};
 
 	function exists() {
 		return typeof V !== "undefined" && V.tamagotchi != null && typeof V.tamagotchi === "object";
@@ -805,7 +795,6 @@ const Tamagotchi = (() => {
 			usesSkills: true,
 			skillPower: 28,
 			skillChance: 0.55,
-			icon: MINIBOSS_ICON,
 			kind: "miniboss",
 		};
 	}
@@ -832,7 +821,6 @@ const Tamagotchi = (() => {
 			reviveUsed: false,
 			skillPower: 32,
 			skillChance: 0.65,
-			icon: BOSS_ICON,
 			kind: "boss",
 		};
 	}
@@ -1327,7 +1315,6 @@ const Tamagotchi = (() => {
 			speciesLabel: s ? s.name : "",
 			type: t.type || (s ? s.type : ""),
 			typeLabel: cap(t.type || (s ? s.type : "")),
-			icon: speciesIcon(t.species),
 			hunger: t.hunger,
 			energy: t.energy,
 			sick: !!t.sick,
@@ -1383,7 +1370,6 @@ const Tamagotchi = (() => {
 			speciesLabel: s ? s.name : "",
 			type: t.type,
 			typeLabel: cap(t.type),
-			icon: speciesIcon(t.species),
 			evolved: !!t.evolved,
 			maxHp: t.maxHp,
 			maxMp: t.maxMp,
@@ -1460,20 +1446,15 @@ const Tamagotchi = (() => {
 		if (kind === "happiness") return sick && scale <= 10 ? "bad" : scale <= 50 ? "warn" : "good";
 		return scale <= 50 ? "warn" : "good";
 	}
-	/* Inline <img> for a mini-game icon path (e.g. "mini-game/embit.png"), honouring the image-display option. */
-	function iconImg(icon, cls) {
-		if (!icon || (typeof V !== "undefined" && V.options && V.options.images === false)) return "";
-		return `<img class="${cls || "tama-icon"}" src="img/misc/icon/${icon}" alt="">`;
-	}
 	function statusHtml() {
 		if (!exists()) return "";
 		const s = status();
 		const chip = (k, v) => `<div class="tama-stat"><span class="tama-k">${k}</span><span class="tama-v">${v}</span></div>`;
 		const care = (k, wd, cls) => `<div class="tama-care-item ${cls}"><span class="tama-k">${k}</span><span class="tama-v">${wd}</span></div>`;
 		let h = `<div class="tama-card">`;
-		h += `<div class="tama-head">${iconImg(s.icon, "tama-portrait")}<span class="tama-name">${esc(s.name)}</span> <span class="tama-sub">${esc(
-			s.stageLabel
-		)} &middot; ${esc(s.speciesLabel)} (${esc(s.typeLabel)})${s.evolved ? " &middot; evolved" : ""}</span></div>`;
+		h += `<div class="tama-head"><span class="tama-name">${esc(s.name)}</span> <span class="tama-sub">${esc(s.stageLabel)} &middot; ${esc(
+			s.speciesLabel
+		)} (${esc(s.typeLabel)})${s.evolved ? " &middot; evolved" : ""}</span></div>`;
 		h += `<div class="tama-row">${chip("HP", s.maxHp)}${chip("MP", s.maxMp)}${chip("ATK", s.atk)}${chip("DEF", s.def)}${chip("SPD", s.spd)}</div>`;
 		h += `<div class="tama-row">${care("Hunger", s.hungerWord, careClass(s.hunger, "hunger", s.sick))}${care(
 			"Mood",
@@ -1495,16 +1476,14 @@ const Tamagotchi = (() => {
 		const b = battleState();
 		if (!b) return "";
 		const pet = V.tamagotchi;
-		const petIcon = iconImg(speciesIcon(pet.species), "tama-portrait");
-		const eIcon = iconImg(b.enemy.icon ? "mini-game/" + b.enemy.icon + ".png" : "", "tama-portrait");
 		const eLabel = b.kind === "boss" ? "Boss " : b.kind === "miniboss" ? "Miniboss " : b.kind === "dungeon" ? "Dungeon " : "Wild ";
 		let h = `<div class="tama-battle">`;
-		h += `<div class="tama-fighter">${petIcon}<div class="tama-fname">${esc(pet.name)}</div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(
+		h += `<div class="tama-fighter"><div class="tama-fname">${esc(pet.name)}</div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(
 			b.hp,
 			b.maxHp,
 			b.hp <= b.maxHp / 4 ? "hp-low" : "hp"
 		)}</div><div class="tama-barline"><span class="tama-blabel">MP</span>${bar(b.mp, b.maxMp, "mp")}</div></div>`;
-		h += `<div class="tama-fighter">${eIcon}<div class="tama-fname">${eLabel}${esc(b.enemy.name)} <span class="tama-sub">(${esc(
+		h += `<div class="tama-fighter"><div class="tama-fname">${eLabel}${esc(b.enemy.name)} <span class="tama-sub">(${esc(
 			b.enemy.type
 		)})</span></div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(
 			b.enemy.hp,
