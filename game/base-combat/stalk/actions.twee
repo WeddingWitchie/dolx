@@ -55,6 +55,44 @@
 	<</if>>
 <</widget>>
 
+<<widget "feet_discard">>
+	<<if !$stalk_end and $NPCList[0].state is "stalk" and $dissociation lt 2 and $panicviolence lte 0 and $leftarm isnot "bound" and $rightarm isnot "bound" and $leftleg isnot "bound" and $rightleg isnot "bound">>
+		<<set _stalkDiscardLayers to {
+			over_head: [], head: ["over_head"], face: [], neck: [], hands: [],
+			over_upper: [], over_lower: [], upper: ["over_upper"], lower: ["over_lower"],
+			under_upper: ["over_upper", "upper"], under_lower: ["over_lower", "lower"],
+			legs: ["over_lower", "lower"], feet: []
+		}>>
+		<<set _stalkDiscardValues to {
+			over_head: 1, head: 1, face: 1, neck: 1, hands: 1,
+			feet: 2, legs: 2, under_upper: 2, under_lower: 2,
+			over_upper: 3, over_lower: 3, upper: 3, lower: 3
+		}>>
+		<<for _stalkDiscardSlot, _stalkDiscardCover range _stalkDiscardLayers>>
+			<<set _stalkDiscardItem to $worn[_stalkDiscardSlot]>>
+			<<if _stalkDiscardItem.name isnot "naked" and _stalkDiscardItem.cursed isnot 1 and !_stalkDiscardItem.type.includesAny("heavy", "binding", "strap-on", "mask") and (!_stalkDiscardItem.outfitSecondary or $worn[_stalkDiscardItem.outfitSecondary[0]].name isnot _stalkDiscardItem.outfitSecondary[1])>>
+				<<set _stalkDiscardAllowed to _stalkDiscardCover.every(slot => $worn[slot].name === "naked")>>
+				<<for _stalkDiscardPart, _stalkDiscardName range (_stalkDiscardItem.outfitPrimary || {})>>
+					<<if $worn[_stalkDiscardPart].name is _stalkDiscardName and ($worn[_stalkDiscardPart].cursed is 1 or $worn[_stalkDiscardPart].type.includesAny("heavy", "binding") or (_stalkDiscardLayers[_stalkDiscardPart] || []).some(slot => $worn[slot].name !== "naked"))>>
+						<<set _stalkDiscardAllowed to false>>
+					<</if>>
+				<</for>>
+				<<if _stalkDiscardAllowed>>
+					<<set _stalkDiscardWorth to _stalkDiscardValues[_stalkDiscardSlot] || 1>>
+					<<if _stalkDiscardWorth gte 3>>
+						<<set _stalkDiscardNote to "lose clothing, good distraction">>
+					<<elseif _stalkDiscardWorth lte 1>>
+						<<set _stalkDiscardNote to "lose clothing, weak distraction">>
+					<<else>>
+						<<set _stalkDiscardNote to "lose clothing">>
+					<</if>>
+					<<set _feetaction["Abandon your " + _stalkDiscardItem.name + " to distract followers (" + _stalkDiscardNote + ")"] to "stalk_discard_" + _stalkDiscardSlot>>
+				<</if>>
+			<</if>>
+		<</for>>
+	<</if>>
+<</widget>>
+
 <<widget "feet_ambush">>
 	<<if $NPCList[0].legs is "run" and $NPCList[0].state isnot "pursuit" and $NPCList[0].state isnot "chased" and $transformationParts.traits.chase isnot "disabled">>
 		<<set _feetaction["Ambush"] to "ambush">>

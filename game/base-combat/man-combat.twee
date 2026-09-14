@@ -1756,20 +1756,16 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 		<<set $removed to []>>
 	<</if>>
 
-	/* === FIX: always handle naked slots early and exit === */
 	<<if $worn[$_slot].name is "naked">>
 		<<if $removed.indexOf($_slot) is -1>>
 			<<set $removed.push($_slot)>>
 		<</if>>
 
-		/* <<cast_aside_clothes>> */
 		<<combat-reset-hand $_hand>>
 		<<hand_section_two $_hand _n>>
 		<<exit>>
 	<</if>>
 
-	/* Optional:Enable by changing <<if false>> to <<if true>> if want to catch real corruption on non-naked items. */
-	/* Currently enabled to see why the bug happens */
 	<<if false>>
 		<<if $worn[$_slot].state is 0>>
 			<span class="red">[BUG] Invalid clothing state=0 — slot: <<print $_slot>>, item: <<print $worn[$_slot].name>></span>
@@ -1887,6 +1883,40 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 <</widget>>
 
 
+<<widget "combat-hand-on-breasts">>
+	<<rng>>
+	<<if $chestuse isnot "hand">>
+		<span class="blue"><<He>> takes <<his>> _args[0] hand off your chest.</span>
+		<<combat-reset-hand _args[0]>>
+	<<elseif $rng gte 96>>
+		<span class="blue"><<He>> takes <<his>> _args[0] hand off your chest.</span>
+		<<combat-reset-hand _args[0]>>
+		<<set $chestuse to 0>><<set $cheststate to 0>>
+	<<elseif $enemyanger gte 100 and $combatExtended.reverseRapeStart is 0>>
+		<<He>> pinches your <<nipple>> between the fingers of <<his>> _args[0] hand.
+		<<violence 2>><<playWithBreasts>>
+		<<namedNpcReaction _n "fondle" "breasts">>
+	<<elseif !$worn.upper.type.includes("naked") and $worn.upper.state isnot "chest" and $worn.upper.state_top is "chest">>
+		<<He>> kneads your <<breasts>> through your $worn.upper.name with <<his>> _args[0] hand.
+		<<neutral 5 "breasts" _n>><<playWithBreasts>>
+		<<namedNpcReaction _n "fondle" "breasts">>
+		<<bodypart_admire_chance breasts>>
+	<<elseif !$worn.under_upper.type.includes("naked") and $worn.under_upper.state isnot "chest" and $worn.under_upper.state_top is "chest">>
+		<<He>> kneads your <<breasts>> through your $worn.under_upper.name with <<his>> _args[0] hand.
+		<<neutral 5 "breasts" _n>><<playWithBreasts>>
+		<<namedNpcReaction _n "fondle" "breasts">>
+		<<bodypart_admire_chance breasts>>
+	<<else>>
+		<<He>> fondles your exposed <<breasts>> with <<his>> _args[0] hand, rolling your <<nipple>> beneath <<his>> thumb.
+		<<if Weather.BodyTemperature.state is "chilly" or Weather.BodyTemperature.state is "cold">>
+			Your buds stand erect and vulnerable in the cold.
+		<</if>>
+		<<neutral 10 "breasts" _n>><<playWithBreasts>>
+		<<namedNpcReaction _n "fondle" "breasts">>
+		<<bodypart_admire_chance breasts>>
+	<</if>>
+<</widget>>
+
 <<widget "combat-hand-on-head_breasts">>
 	<<rng>>
 	<<if $rng gte 69 and ($worn.face.type.includes("face_covering") or $worn.face.type.includes("gag"))>>
@@ -1966,7 +1996,6 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 
 <<widget "combat-hand-on-chastity">>
 	<<if $worn.genitals.name is "naked">>
-		/* <<cast_aside_clothes>> */
 		<<combat-reset-hand _args[0]>>
 		/* _args[0] may be "left", "right", or "both" (from hand_section's both-hands path).
 		   hand_section_two only accepts "left" or "right", so split "both" into two calls. */
@@ -2084,11 +2113,6 @@ Hands are 'inverted': NPC holds PC's left hand with their right one, and vice ve
 	<<combat-reset-hand _hand>><<set $NPCList[_n][_hand + "tool"] to 0>>
 <</widget>>
 
-/* === Combat-pilling pre-roll ===
-Per-NPC "does this NPC carry a pill" decision is cached on the NPC object so it survives
-for the whole encounter but vanishes when the NPCList is rebuilt for the next fight.
-The per-turn draw chance is rolled fresh each turn. Both are gated on _npcWillDrawPill
-below so eligibility checks (mouth-free, not already pilled, etc.) still apply. */
 <<widget "combat-set-hand-start">>
 	<<rng>>
 	<<outfitChecks>>
@@ -6349,7 +6373,6 @@ below so eligibility checks (mouth-free, not already pilled, etc.) still apply. 
 				<</if>>
 			<</if>>
 
-			/* Clear a released mouth's old position so it doesn't block kissing, oral, or breast play. A mouth held against the chest still counts as in use through .chest. */
 			<<if $NPCList[_n].location and ["head","genitals"].includes($NPCList[_n].location.head) and [0,"none","speech_only"].includes($NPCList[_n].mouth) and !["mouth","mouthentrance"].includes($NPCList[_n].chest)>>
 				<<set $NPCList[_n].location.head to 0>>
 			<</if>>

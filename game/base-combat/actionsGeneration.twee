@@ -1138,6 +1138,7 @@
 		<<feet_hobble>>
 		<<feet_stand>>
 		<<feet_hide>>
+		<<feet_discard>>
 		<<feet_confront>>
 		<<feet_ambush>>
 	<<else>>
@@ -2121,17 +2122,23 @@
 			<<case "penis">>
 				<<set _chestOptions to "penis">><<selectNpcWithPartInPosition "penis" "chest">><<set $chesttarget to $index>>
 				<span @class="($lastOptions.chest isnot _chestOptions ?'gold':'')"><<combatPersons>> <<npcPenisSimple $chesttarget>> rests <<print ($player.breastsize is 0 ?"against":"between")>> your <<breasts>>.</span>
+			<<case "hand">>
+				<<selectNpcWithPartInPosition "hand" "breasts">>
+				<<if _npc>>
+					<<set _chestOptions to "hand">><<set $chesttarget to $index>>
+					<span @class="($lastOptions.chest isnot _chestOptions ?'gold':'')"><<combatPersons>> hand rests on your <<breasts>>.</span>
+				<<else>>
+					/* The hand left without clearing the slot. */
+					<<set $chestuse to 0>><<set $cheststate to 0>>
+				<</if>>
 			<<case "tentaclerub">>
 				<<set $_changetype to true>><<chestActionInitTentacle>>
 		<</switch>>
 		<<if $_changetype isnot true>>
 			<<chestActions>>
 			<<if Object.keys(_chestaction).length gt 0>>
-				<<if $chestactiondefault is 0>>
-					<<set $chestactiondefault to Object.values(_chestaction)[0]>>
-				<</if>>
-
-				<<set $chestaction to $chestactiondefault>>
+				/* Keeps the remembered default in step with the options actually on offer, the way every other body part does. */
+				<<assignCombatDefaults "chest" _args[0]>>
 				<<generateCombatAction _chestaction "chestaction">>
 
 				/*Checks/Difficulty*/
@@ -2172,6 +2179,10 @@
 			<<case "penis">>
 				<<set _chestaction["Rub"] to "rub">>
 				<<set _chestaction["Stop"] to "stop">>
+			<<case "hand">>
+				<<set _chestHandHis to ($NPCList[$chesttarget] ? $NPCList[$chesttarget].pronouns.his : "their")>>
+				<<set _chestaction["Keep " + _chestHandHis + " hand there"] to "handkeep">>
+				<<set _chestaction["Push " + _chestHandHis + " hand away"] to "handpush">>
 		<</switch>>
 	<</if>>
 <</widget>>
