@@ -300,13 +300,13 @@ The board lists you as <span class="pink"><<colosseumName>></span>. You are curr
 	<<ind>><span class="black">You've fought three times today. Come back another day.</span>
 	<br>
 <</if>>
+<<prisonicon "man">><<link [[Change your arena name|Underground Colosseum Name]]>><</link>>
 <br>
 <<if $xchange.colosseum.debt gt 0>>
 	<<link `$money gt 0 ? "Pay " + formatMoney(Math.min($money, $xchange.colosseum.debt)) + " towards your debt" : "Discuss your unpaid debt"` "Colosseum Debt Pay">><</link>>
 	<br>
 <</if>>
-<<link [[Change your arena name|Underground Colosseum Name]]>><</link>>
-<br><br>
+<br>
 <<icon "changing-room.png">><<link [[Along to the changing corridor (0:02)|Underground Colosseum Corridor]]>><<pass 2>><</link>>
 <br>
 <<laddericon>><<link [[Back up the ladder to the top of the stands (0:03)|Underground Colosseum]]>><<pass 3>><</link>>
@@ -468,16 +468,16 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<set $enemyanger += 200>><<set $enemytrust -= 100>>
 <</if>>
 <<effects>>
-<<if $pain lt 200>>
+<<if $pain lt 200 and !($pain gte 100 and $willpowerpain is 0)>>
 	<<effectsman>><<colosseumLashOut>><<man>><<stateman>>
 	<br><br>
 	<<actionsman>>
 <</if>>
-<<if $pain gte 200 and $enemyhealth gt 0 and $enemypleasure lt $enemypleasuremax and $finish isnot 1>>
+<<if ($pain gte 200 or ($pain gte 100 and $willpowerpain is 0)) and $enemyhealth gt 0 and $finish isnot 1>>
 	<span class="red">Your legs give way. The referee steps between you and your opponent and stops the bout.</span>
 	<br><br>
 <</if>>
-<<if _combatend or $pain gte 200>>
+<<if _combatend or $pain gte 200 or ($pain gte 100 and $willpowerpain is 0)>>
 	<span id="next"><<link [[Next|Underground Colosseum Result]]>><</link>></span><<nexttext>>
 <<else>>
 	<span id="next"><<link [[Next|Underground Colosseum Fight]]>><</link>></span><<nexttext>>
@@ -487,7 +487,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 <<effects>><<pass 2>>
 <<colosseumThresholds>>
 <<set _wasMock to $xchange.colosseum.mock>>
-<<set _victory to $enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax>>
+<<set _victory to $enemyhealth lte 0>>
 <<set _rankIndex to $xchange.colosseum.mock ? 0 : $xchange.colosseum.matchRank>>
 <<set _playerRank to $xchange.colosseum.rank>>
 <<set _rewardTable to [20000, 35000, 55000, 80000, 120000, 170000, 240000]>>
@@ -1352,9 +1352,9 @@ Your current arena name is <span class="pink"><<colosseumName>></span>.
 <<link "Use this title" "Underground Colosseum Pit">>
 	<<set $xchange.colosseum.arenaName to _arenaTitle>>
 <</link>>
-<br><br>
+<br>
 <<set _arenaCustomName to $xchange.colosseum.arenaName ?? "">>
-<label>Or write your own name: <<textbox "_arenaCustomName" _arenaCustomName>></label>
+<label>Write your own: <<textbox "_arenaCustomName" _arenaCustomName>></label>
 <<run $("#textbox--arenacustomname").attr("maxlength", 40)>>
 <<link "Use this name">>
 	<<set _arenaCustomName to _arenaCustomName.trim().slice(0, 40)>>
@@ -1366,5 +1366,5 @@ Your current arena name is <span class="pink"><<colosseumName>></span>.
 	<</if>>
 <</link>>
 <span id="arena-name-error"></span>
-<br>
-<<link [[Leave your name as it is|Underground Colosseum Pit]]>><</link>>
+<br><br>
+<<getouticon>><<link [[Leave your name as it is|Underground Colosseum Pit]]>><</link>>

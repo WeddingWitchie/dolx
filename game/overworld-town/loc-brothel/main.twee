@@ -1,6 +1,7 @@
 <!-- Version 2.X.X - REV 190709 -->
 
 :: Brothel
+<<if typeof $daily.brothel isnot "object" or $daily.brothel is null or Array.isArray($daily.brothel)>><<set $daily.brothel to {}>><</if>>
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<unset $corruptionDancing>>
 <<unset $brothelClientType>><<unset $brothelClientSkill>><<unset $brothelClientRate>><<unset $brothelClientTier>><<unset $brothelClientSuccess>><<unset $brothelAuctionTip>><<unset $brothelAuctionBonus>><<unset $brothelAuctionDance>><<unset $brothelAuctionDanceStart>><<unset $brothelAuctionDanceBonus>><<unset $brothelAuctionNegotiation>>
@@ -103,10 +104,15 @@ You are in the brothel. Staff circulate between crowded tables, flirting with pa
 
 <<if $brotheljob is 1>>
 
-<<socialiseicon>><<link [[Work the floor (0:10)|Brothel Client Floor]]>>
-	<<timeTrackingStart "brothel">><<pass 10>><<stress -2>><<tiredness 2>>
-<</link>><<lstress>><<gtiredness>>
-<br>
+<<if $daily.brothel.floorRounds gte 5>>
+	The other staff have already claimed the remaining tables. <span class="blue">Maybe you can work the floor again tomorrow.</span>
+	<br>
+<<else>>
+	<<socialiseicon>><<link [[Work the floor (0:10)|Brothel Client Floor]]>>
+		<<timeTrackingStart "brothel">><<pass 10>><<stress -2>><<tiredness 2>>
+	<</link>><<lstress>><<gtiredness>>
+	<br>
+<</if>>
 	<<if $fame.prostitution gte 300 and !$daily.brothelClientAuction and (hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false)>>
 		<<icon "crystal-purple.png">><<link [[Auction a private appointment|Brothel Dance]]>><<timeTrackingStart "brothel">><<timeTrackingStart "brothelDanceTips">><<set $brothelAuctionDance to true>><<set $dancestart to 1>><<stress -4>><<tiredness 4>><</link>><<lstress>><<gtiredness>>
 		<br>
@@ -468,23 +474,26 @@ Briar's goon keeps a close eye on you as you peek out the front exit. The street
 <</if>>
 
 :: Brothel Client Floor
+<<if typeof $daily.brothel isnot "object" or $daily.brothel is null or Array.isArray($daily.brothel)>><<set $daily.brothel to {}>><</if>>
 <<set $outside to 0>><<set $location to "brothel">><<effects>>
 <<generate1>><<person1>><<set $enemyno to 1>>
 
 You make your way between the tables, studying the patrons. A <<person>> sitting alone follows you with <<his>> eyes. A half-finished drink rests in front of <<him>>.
 <br><br>
 
-<<socialiseicon>><<link [[Sit and draw them into conversation (0:30)|Brothel Client Talk]]>><<pass 30>><<tiredness 2>><</link>><<englishdifficulty 100 800>><<gtiredness>>
+<<if $daily.brothel.floorRounds gte 5>>
+<<ind>>You've already taken every patron the floor has to offer today. <span class="blue">Maybe you can try again tomorrow.</span>
+<br>
+<<else>>
+<<socialiseicon>><<link [[Sit and draw them into conversation (0:30)|Brothel Client Talk]]>><<pass 30>><<tiredness 2>><<set $daily.brothel.floorRounds to ($daily.brothel.floorRounds ?? 0) + 1>><</link>><<englishdifficulty 100 800>><<gtiredness>>
 <br>
 <<if hasSexStat("promiscuity", 3) or $uncomfortable.prostituting is false>>
 	<<set _serviceSkill to Math.max(currentSkillValue("oralskill"), currentSkillValue("handskill"), currentSkillValue("vaginalskill"), currentSkillValue("analskill"), currentSkillValue("penileskill"), currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("feetskill"))>>
 	<<set _displaySkill to Math.max(currentSkillValue("chestskill"), currentSkillValue("bottomskill"), currentSkillValue("thighskill"), currentSkillValue("penileskill"), currentSkillValue("vaginalskill"))>>
-	<<brothelicon>><<link [[Show off your best assets|Brothel Client Assets]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _displaySkill>><<set $brothelClientTier to "assets">><<set $phase to 0>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `_displaySkill` "Body Skill" 1 600>><<promiscuous3>><<gtiredness>>
-	<br>
-	<<socialiseicon>><<link [[Flirt and offer private company|Brothel Client Flirt]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientTier to "flirt">><<set $phase to 0>><<seductionskill 2>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>><<promiscuous3>><<gtiredness>>
+	<<brothelicon>><<link [[Flirt and offer private company|Brothel Client Flirt]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientTier to "flirt">><<set $daily.brothel.floorRounds to ($daily.brothel.floorRounds ?? 0) + 1>><<set $phase to 0>><<seductionskill 2>><<tiredness 2>><<if !hasSexStat("promiscuity", 3)>><<set $desperateaction to 1>><</if>><</link>><<skill_difficulty `currentSkillValue("seductionskill")` "Seduction" 1 1000>><<promiscuous3>><<gtiredness>>
 	<br>
 	<<if hasSexStat("promiscuity", 4)>>
-		<<brothelicon>><<link [[Offer your best sexual service|Brothel Client Service]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientTier to "service">><<set $phase to 0>><<tiredness 2>><</link>><<skill_difficulty `_serviceSkill` "Sex Skill" 200 1200>><<promiscuous4>><<gtiredness>>
+		<<brothelicon>><<link [[Offer your best sexual service|Brothel Client Service]]>><<set $brothelClientType to "sex">><<set $brothelClientSkill to _serviceSkill>><<set $brothelClientTier to "service">><<set $daily.brothel.floorRounds to ($daily.brothel.floorRounds ?? 0) + 1>><<set $phase to 0>><<tiredness 2>><</link>><<skill_difficulty `_serviceSkill` "Sex Skill" 200 1200>><<promiscuous4>><<gtiredness>>
 	<<else>>
 		<<ind>><<insufficientStat "promiscuity" "to offer your best service">>
 	<</if>>
@@ -493,26 +502,9 @@ You make your way between the tables, studying the patrons. A <<person>> sitting
 	<<ind>><<insufficientStat "promiscuity" "to offer private services">>
 	<br>
 <</if>>
+<</if>>
 <br>
 <<getouticon>><<link [[Back|Brothel]]>><<endevent>><</link>>
-<br>
-
-:: Brothel Client Assets
-<<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
-<<if $brothelClientSuccess is undefined>>
-	<<set $brothelClientSuccess to ($brothelClientSkill ?? 0) gte random(1, 600)>>
-	<<set $brothelClientRate to $brothelClientSuccess ? 0.85 : 0.65>>
-<</if>>
-
-You stay on your feet and let the <<person>> look, turning slowly so the light catches you from every angle. It's the safest way to earn here. The staff are close, the room is watching, and nobody expects more than a show.
-<br><br>
-<<if $brothelClientSuccess>>
-	<span class="green">You hold <<his>> attention easily.</span> <<He>> abandons <<his>> drink and asks, almost politely, whether you're free for the next half hour.
-<<else>>
-	The <<person>> watches, but <<his>> interest never quite catches fire. <<He>> asks for your company anyway, though <<he>> makes it clear <<he>> won't be paying a premium for it.<span class="purple"> You'll earn less than you hoped.</span>
-<</if>>
-<br><br>
-<<link [[Lead <<him>> to a private room|Brothel Private]]>><</link>>
 <br>
 
 :: Brothel Client Flirt
@@ -615,7 +607,7 @@ You sit on the arm of the <<persons>> chair and tell <<him>>, in detail, exactly
 :: Brothel Client Talk
 <<set $outside to 0>><<set $location to "brothel">><<effects>><<person1>>
 <<run autismSocialDemand(2)>>
-<<set $tip_add to 0>><<set $tipmod to Math.clamp(0.5 + currentSkillValue("english") / 500 + $fame.good / 2000, 0.5, 3) * 0.75>><<tipset>>
+<<set $tip_add to 0>><<set $tipmod to Math.clamp(0.5 + currentSkillValue("english") / 500 + $fame.good / 2000, 0.5, 3) * 0.75 * 0.6>><<tipset>>
 <<if $englishSuccess>>
 	You listen carefully and keep the conversation flowing. The <<person>> gradually relaxes, talking about troubles <<he>> cannot share elsewhere. Your reputation for kindness puts <<him>> further at ease.
 	<br><br>
