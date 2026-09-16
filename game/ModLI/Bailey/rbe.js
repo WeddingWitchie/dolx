@@ -94,7 +94,7 @@ Macro.add("gbaileyMood", {
 	},
 });
 
-const BAILEY_EXPANSION_VERSION = "0.6.1";
+const BAILEY_EXPANSION_VERSION = "0.6.1.1";
 
 $(document).one(":storyready", function () {
 	function migrateLegacyStockholm() {
@@ -124,6 +124,7 @@ $(document).one(":storyready", function () {
 		if (typeof V.bailey_title_unlocked !== "boolean") V.bailey_title_unlocked = false;
 		migrateLegacyStockholm();
 		if (!C.npc.Bailey) return;
+		if (C.npc.Bailey.sextoys == null) C.npc.Bailey.sextoys = {};
 
 		["dom", "love"].forEach(function (stat) {
 			const old = V["bailey_" + stat];

@@ -522,7 +522,7 @@ function checkIfNPCHasCategorySextoy(npcName, category) {
 	}
 
 	const npcSexToys = [];
-	Object.values(npc.sextoys).forEach(category => {
+	Object.values(npc.sextoys || {}).forEach(category => {
 		category.forEach(item => {
 			if (categoryToyNames.includes(item.name) && item.gift_state !== "held") npcSexToys.push(item);
 		});
