@@ -251,17 +251,18 @@ IMPORTANT:
 				<br>
 				<div id="autoNNPCGenderOverride">
 					<span id="autoNNPCGenderOverrideToggle">
-						<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
+						<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0 and $options.nnpcDisplay isnot "ivory_wraith">>
 							Gender Override: <label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<checkbox "$options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride" false true autocheck>> <mouse class="tooltip linkBlue">(?)<span>Enable Gender Override. Allows you to pick the NNPC gender sprite instead of their physical gender.</span></mouse></label>
 						<</if>>
 					</span>
 				</div>
 				<span id="manualNNPC">
 					<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
-						<<if $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true>>
+						<<if $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true and $options.nnpcDisplay isnot "ivory_wraith">>
 							Gender: 
 							<label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
 							<label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
+							<<if $options.nnpcDisplay is "night_monster">> | <label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplayGender" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
 							<br>
 						<</if>>
 						/* Beast skin selector: always available for Black Wolf / Great Hawk
@@ -273,10 +274,11 @@ IMPORTANT:
 							<label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster</label>
 							<br>
 						<</if>>
-					<<else>>
+					<<elseif $options.nnpcDisplay isnot "ivory_wraith">>
 						Gender: 
 						<label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
 						<label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
+						<<if $options.nnpcDisplay is "night_monster">> | <label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplayGender" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
 						<br>
 						Skin: 
 						<label data-target='["options.NnpcDisplaySystem"]' data-disabledif="V.options.NnpcDisplaySystem !== 'dolp'"><<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale</label> |
@@ -359,6 +361,10 @@ IMPORTANT:
 							<<set $options._lastNNPCSelected to _nnpcKey>>
 						<</if>>
 
+						<<if $options.nnpcDisplayGender is "monster" and _nnpcKey isnot "night_monster">>
+							<<set $options.nnpcDisplayGender to "male">>
+						<</if>>
+
 						/* Skin guards */
 						<<if $options.nnpcDisplaySkin is "monster" and !(_nnpcKey is "black_wolf" || _nnpcKey is "great_hawk")>>
 							<<set $options.nnpcDisplaySkin to "pale">>
@@ -373,10 +379,11 @@ IMPORTANT:
 
 							<<replace #manualNNPC>>
 								<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
-									<<if $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true>>
+									<<if $options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride is true and $options.nnpcDisplay isnot "ivory_wraith">>
 										Gender: 
 										<label><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
 										<label><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
+										<<if $options.nnpcDisplay is "night_monster">> | <label><<radiovar "$options.nnpcDisplayGender" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
 										<br>
 									<</if>>
 									/* Beast skin selector also surfaces in Auto Mode so Monster form is reachable. */
@@ -387,10 +394,11 @@ IMPORTANT:
 										<label><<radiovar "$options.nnpcDisplaySkin" "monster">><<updatesidebarimg>><</radiovar>> Monster</label>
 										<br>
 									<</if>>
-								<<else>>
+								<<elseif $options.nnpcDisplay isnot "ivory_wraith">>
 									Gender: 
 									<label><<radiovar "$options.nnpcDisplayGender" "male">><<updatesidebarimg>><</radiovar>> Male</label> |
 									<label><<radiovar "$options.nnpcDisplayGender" "female">><<updatesidebarimg>><</radiovar>> Female</label>
+									<<if $options.nnpcDisplay is "night_monster">> | <label><<radiovar "$options.nnpcDisplayGender" "monster">><<updatesidebarimg>><</radiovar>> Monster</label><</if>>
 									<br>
 									Skin: 
 									<label><<radiovar "$options.nnpcDisplaySkin" "pale">><<updatesidebarimg>><</radiovar>> Pale</label> |
@@ -410,7 +418,7 @@ IMPORTANT:
 							<</replace>>
 
 							<<replace #autoNNPCGenderOverrideToggle>>
-								<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0>>
+								<<if $options.autoNNPCDisplay.enabled is true and $options.nnpcDisplay isnot 0 and $options.nnpcDisplay isnot "ivory_wraith">>
 									Gender Override: <label><<checkbox "$options.autoNNPCDisplay[$options.nnpcDisplay].genderOverride" false true autocheck>> <mouse class="tooltip linkBlue">(?)<span>Enable Gender Override. Allows you to pick the NNPC gender sprite instead of their physical gender.</span></mouse></label>
 								<</if>>
 							<</replace>>

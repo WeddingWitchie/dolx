@@ -2509,8 +2509,8 @@ Renderer.CanvasModels.main = {
 						skin += (C.npc.Sydney.purity >= 1) ? "/pure" : "/corrupt";
 					}
 					if (active === "ivory_wraith" || active === "others") skin = "";
-					// "others" art is a flat set of numbered files, with no gender folder at all.
-					const genderPath = active === "others" ? "" : "/" + gender;
+					// Ivory Wraith and "others" use numbered files without gender folders.
+					const genderPath = (active === "ivory_wraith" || active === "others") ? "" : "/" + gender;
 
 					return `img/ui/nnpc/${active}${genderPath}${skin}/${V.options.nnpcDisplaySlot}.png`;
 				}
@@ -2540,8 +2540,8 @@ Renderer.CanvasModels.main = {
 						skin += (C.npc.Sydney.purity >= 1) ? "/pure" : "/corrupt";
 					}
 					if (active === "ivory_wraith" || active === "others") skin = "";
-					// "others" art is a flat set of numbered files, with no gender folder at all.
-					const genderPath = active === "others" ? "" : "/" + gender;
+					// Ivory Wraith and "others" use numbered files without gender folders.
+					const genderPath = (active === "ivory_wraith" || active === "others") ? "" : "/" + gender;
 
 					return `img/ui/nnpc/${active}${genderPath}${skin}/${V.options.nnpcDisplaySlot}.png`;
 				}
@@ -2620,8 +2620,8 @@ Renderer.CanvasModels.main = {
 				}
 				if (active === "gwylan" && activeNpc?.description === "brown fox") skin += "/brownfox";
 				if (active === "ivory_wraith" || active === "others") skin = "";
-				// "others" art is a flat set of numbered files, with no gender folder at all.
-				const genderPath = active === "others" ? "" : "/" + gender;
+				// Ivory Wraith and "others" use numbered files without gender folders.
+				const genderPath = (active === "ivory_wraith" || active === "others") ? "" : "/" + gender;
 
 				return `img/ui/nnpc/${active}${genderPath}${skin}/${cfg.slot}.png`;
 			},
