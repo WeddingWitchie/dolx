@@ -18,6 +18,11 @@ replace (?<!["'\w])_(?=\w) with T.
 "to", "is", "gte" etc - fix manually
 */
 // noinspection JSUnusedGlobalSymbols,JSUnusedLocalSymbols
+
+// "andro" only ships its own base sprite; arms, masks and clips reuse the slender art.
+function bodyArtType(bodyType) {
+	return bodyType === "andro" ? "slender" : bodyType;
+}
 /**
  * MODEL OPTIONS
  * =============
@@ -1048,11 +1053,11 @@ Renderer.CanvasModels.main = {
 		}
 		*/
 
-		const notMasc = ["curvy", "slender"].includes(options.body_type);
+		const notMasc = ["curvy", "slender", "andro"].includes(options.body_type);
 		const soft = options.body_type === "soft" && !(between(options.belly, 8, 24));
 		if (notMasc && options.breasts === "cleavage") {
 			const suffix = between(options.breast_size, 3, 4) ? "-3-4.png" : ".png";
-			options.breasts_mask_src = `img/body/breasts/mask-${options.body_type}${suffix}`
+			options.breasts_mask_src = `img/body/breasts/mask-${bodyArtType(options.body_type)}${suffix}`
 		} else {
 			options.breasts_mask_src = null;
 		}
@@ -1070,7 +1075,7 @@ Renderer.CanvasModels.main = {
 		if (notMasc) {
 			["upper", "under_upper"].forEach(slot => {
 				const isFormfitting = options.worn[slot].setup.formfitting;
-				options[`${slot}_fitted_clip_src`] = isFormfitting ? `img/clothes/masks/formfitting-${options.body_type}.png` : null;
+				options[`${slot}_fitted_clip_src`] = isFormfitting ? `img/clothes/masks/formfitting-${bodyArtType(options.body_type)}.png` : null;
 				options[`${slot}_fitted_right_move_src`] = isFormfitting ? "img/clothes/masks/formfitting-right-move.png" : null;
 				options[`${slot}_fitted_left_move_src`] = isFormfitting ? "img/clothes/masks/formfitting-left-move.png" : null;
 			});
@@ -1389,7 +1394,7 @@ Renderer.CanvasModels.main = {
 			srcfn(options) {
 				if (options.mannequin) return "img/body/mannequin/left-arm-idle.png";
 				if (options.arm_left === "cover") return "img/body/left-arm-cover.png";
-				return `img/body/left-arm-idle-${options.body_type}.png`;
+				return `img/body/left-arm-idle-${bodyArtType(options.body_type)}.png`;
 			},
 		},
 		"rightarm": {
@@ -1405,7 +1410,7 @@ Renderer.CanvasModels.main = {
 			},
 			srcfn(options) {
 				if (options.mannequin) return `img/body/mannequin/right-arm-${options.arm_right}.png`;
-				if (options.arm_right === "idle") return `img/body/right-arm-idle-${options.body_type}.png`;
+				if (options.arm_right === "idle") return `img/body/right-arm-idle-${bodyArtType(options.body_type)}.png`;
 				return `img/body/right-arm-${options.arm_right}.png`;
 			},
 		},
@@ -4268,7 +4273,7 @@ Renderer.CanvasModels.main = {
 				// return options.show_clothes
 				// 	&& options.worn.hands.index > 0
 				// 	&& options.worn.hands.setup.leftImage === 1
-				// 	&& ["curvy", "slender"].includes(options.body_type)
+				// 	&& ["curvy", "slender", "andro"].includes(options.body_type)
 				// 	&& options.arm_left === "idle"
 				// 	&& !(options.belly > 7)
 				return false;
@@ -4296,7 +4301,7 @@ Renderer.CanvasModels.main = {
 					&& options.worn.hands.index > 0
 					&& options.worn.hands.setup.leftImage === 1
 					&& options.worn.hands.setup.accessory === 1
-					&& ["curvy", "slender"].includes(options.body_type)
+					&& ["curvy", "slender", "andro"].includes(options.body_type)
 					&& options.arm_left === "idle"
 					&& !(options.belly > 7);
 			},
@@ -5655,7 +5660,7 @@ function genlayer_clothing_fitted_left(slot, overrideOptions) {
 			const checks = options.show_clothes
 				&& options.worn[slot].index > 0
 				&& options.worn[slot].setup.mainImage !== 0
-				&& ((options.worn[slot].setup.formfitting === 1 && ["curvy", "slender"].includes(options.body_type)) || (options.body_type === "soft" && ((V.bellyTucked && ["under_lower", "lower"].includes(slot)) || V.worn[slot].setup.one_piece)))
+				&& ((options.worn[slot].setup.formfitting === 1 && ["curvy", "slender", "andro"].includes(options.body_type)) || (options.body_type === "soft" && ((V.bellyTucked && ["under_lower", "lower"].includes(slot)) || V.worn[slot].setup.one_piece)))
 				&& !between(options.belly, 8, 24);
 			return checks;
 		},
@@ -5681,7 +5686,7 @@ function genlayer_clothing_fitted_left_acc(slot, overrideOptions) {
 			const checks = options.worn[slot].index > 0
 				&& options.worn[slot].setup.accImage !== 0
 				&& options.worn[slot].setup.accessory === 1
-				&& ((options.worn[slot].setup.formfitting === 1 && ["curvy", "slender"].includes(options.body_type)) || (options.body_type === "soft" && (V.bellyTucked || V.worn[slot].setup.one_piece)))
+				&& ((options.worn[slot].setup.formfitting === 1 && ["curvy", "slender", "andro"].includes(options.body_type)) || (options.body_type === "soft" && (V.bellyTucked || V.worn[slot].setup.one_piece)))
 				&& !(options.worn[slot].setup.formfittingDisabled ?? []).includes("acc")
 				&& !between(options.belly, 8, 24);
 			return checks;
@@ -6216,7 +6221,7 @@ function genlayer_clothing_arm_fitted(arm, slot, overrideOptions) {
 			// return options.show_clothes
 			// 	&& options.worn[slot].index > 0
 			// 	&& options.worn[slot].setup.sleeve_img === 1
-			// 	&& ["curvy", "slender"].includes(options.body_type)
+			// 	&& ["curvy", "slender", "andro"].includes(options.body_type)
 			// 	&& options.arm_left === "idle"
 			// 	&& !(options.belly > 7)
 			// 	&& options["arm_" + arm] !== "none";
@@ -6280,7 +6285,7 @@ function genlayer_clothing_arm_acc_fitted(arm, slot, overrideOptions) {
 				&& options.worn[slot].index > 0
 				&& options.worn[slot].setup.sleeve_img === 1
 				&& options.worn[slot].setup.sleeve_acc_img === 1
-				&& ["curvy", "slender"].includes(options.body_type)
+				&& ["curvy", "slender", "andro"].includes(options.body_type)
 				&& options.arm_left === "idle"
 				&& !(options.belly > 7)
 				&& !(options.worn.under_upper.setup.formfittingDisabled ?? []).includes("sleeve_acc")
