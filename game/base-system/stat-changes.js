@@ -1150,6 +1150,8 @@ const statChange = (() => {
 			amount *= V.backgroundTraits.includes("insanity") && !V.hypnosis_traits?.clarity ? 1.45 : 1.35;
 		}
 		if (amount > 0 && typeof autismStatGainMultiplier === "function") amount *= autismStatGainMultiplier("willpower", amount);
+		// Willpower trains far slower than the other core stats, so every gain is raised by half. Losses are untouched.
+		if (amount > 0) amount *= 1.5;
 
 		if (V.willpower > 1000 || V.AMCTraits.halfGain === 1) amount = Number(amount) / V.AMCTraits.willpower;
 		else amount = Number(amount);
