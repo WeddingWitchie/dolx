@@ -192,6 +192,7 @@ const playerMapperEnemyPleasureMax = () => Number(/** @type {any} */ (V).enemypl
  * @type {object}
  * @property {ClothesItem} item The clothing item's setup with worn properties copied over.
  * @property {ClothedSlots} slot
+ * @property {ClothedSlots=} imgSlot The slot whose art folder the clothing borrows, when it isn't its own.
  * @property {string?} name The name of the clothing directory.
  * @property {PositionStates?} positions The position related state, typically holding leg state information for legwear/lowerwear.
  * @property {TotalClothingStates} state The state of the clothing, the file name.
@@ -1592,7 +1593,7 @@ class PlayerCombatMapper {
 		const state = clothing.state;
 		let show = name != null;
 
-		if (slot === "upper" && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
+		if (["upper", "over_upper"].includes(slot) && (state === 0 || (typeof state === "string" && !["midriff", "chest", "waist"].includes(state)))) {
 			show = false;
 		}
 
@@ -1620,6 +1621,7 @@ class PlayerCombatMapper {
 		const clothes = {
 			item: clothing,
 			slot,
+			imgSlot: defaults.imgSlot,
 			name,
 			positions: CombatRenderer.getPositionStates(options.position, options.legFrontPosition, options.legBackPosition, slot, defaults),
 			state: state || "full",

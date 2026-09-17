@@ -628,14 +628,16 @@ class CombatRenderer {
 		if (reference == null) {
 			return item;
 		}
+		// Items that borrow another slot's art reference that slot's items.
+		const referenceSlot = item.imgSlot || slot;
 		// Check combatImg's redirect for a possible clothing item:
-		const source = setup.clothes[slot].find(c => c.variable === reference);
+		const source = setup.clothes[referenceSlot].find(c => c.variable === reference);
 		if (source == null) {
 			return item;
 		}
 		// If this redirect item has combatImg, we'll want to look again:
 		if (source.combat != null && source.combat.reference != null) {
-			return CombatRenderer.getSourceClothing(slot, source, failsafe);
+			return CombatRenderer.getSourceClothing(referenceSlot, source, failsafe);
 		}
 		return source;
 	}
@@ -659,14 +661,16 @@ class CombatRenderer {
 		if (predicate(item)) {
 			return item;
 		}
+		// Items that borrow another slot's art reference that slot's items.
+		const referenceSlot = item.imgSlot || slot;
 		// Check combatImg's redirect for a possible clothing item:
-		const source = setup.clothes[slot].find(c => c.variable === reference);
+		const source = setup.clothes[referenceSlot].find(c => c.variable === reference);
 		if (source == null) {
 			return item;
 		}
 		// If this redirect item has combatImg, we'll want to look again:
 		if (source.combat != null && source.combat.reference != null) {
-			return CombatRenderer.findClothingByProperty(slot, source, predicate, failsafe);
+			return CombatRenderer.findClothingByProperty(referenceSlot, source, predicate, failsafe);
 		}
 		return source;
 	}

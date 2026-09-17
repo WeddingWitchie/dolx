@@ -24,7 +24,7 @@
 	<<if _args[1]>>
 		<<set $clothingShopSlot to _args[1]>>
 	<</if>>
-	<<set _outfits to _args[2] == "outfits" or _args[2] == true>>
+	<<set _outfits to _args[2] == "both" ? "both" : (_args[2] == "outfits" or _args[2] == true)>>
 
 	<<if $shopClothingFilter is undefined>>
 		<<shopClothingFilterReset>>
@@ -106,6 +106,8 @@
 	<!-- List of clothes -->
 	<<set _items = setup.clothes[$clothingShopSlot].filter(x => x.shop.includes(_shopLocation) and x.outfitSecondary is undefined
 		and ($clothingShopSlot === 'all'
+			or
+			_outfits === "both"
 			or
 			(_outfits and x.outfitPrimary isnot undefined and Object.keys(x.outfitPrimary).some(secSlot => secSlot.includes("lower")))
 			or
@@ -393,7 +395,7 @@
 									<<set $clothes_choice = clothesIndex(_csslot,_item)>>
 									<<set $clothes_choice_reveal = _item.reveal>>
 									<<set $clothes_choice_integrity = _itemData.integrity_max>>
-									<<if ["over_upper", "upper", "under_upper"].includes(_csslot) and _itemData.outfitPrimary and Object.keys(_itemData.outfitPrimary).some(secSlot => secSlot.includes("lower"))>><<set _outfits to true>><</if>>
+									<<if _outfits isnot "both" and ["over_upper", "upper", "under_upper"].includes(_csslot) and _itemData.outfitPrimary and Object.keys(_itemData.outfitPrimary).some(secSlot => secSlot.includes("lower"))>><<set _outfits to true>><</if>>
 									<<unset $colouraction>>
 									<<unset $accessorycolouraction>>
 									<<unset $patternaction>>

@@ -1,4 +1,4 @@
-/* globals normaliseFileName, nnpcSpriteGender */
+/* globals normaliseFileName, clothesImgFolder, nnpcSpriteGender */
 /* eslint-disable jsdoc/check-tag-names */
 /* eslint-disable jsdoc/no-undefined-types */
 /* eslint-disable jsdoc/newline-after-description */
@@ -685,6 +685,10 @@ Renderer.CanvasModels.main = {
 			"zupper": ZIndices.upper, // generated options
 			"zupperleft": ZIndices.upper_arms, // generated options
 			"zupperright": ZIndices.upper_arms, // generated options
+			"zreacharmleft": ZIndices.left_cover_arm, // generated options
+			"zreacharmright": ZIndices.right_cover_arm, // generated options
+			"zreachgloveleft": ZIndices.left_cover_arm + 0.5, // generated options
+			"zreachgloveright": ZIndices.right_cover_arm + 0.5, // generated options
 			// filters
 			"filters": {
 				body: { blend: "#ffffff", blendMode: "multiply", desaturate: false },
@@ -873,7 +877,8 @@ Renderer.CanvasModels.main = {
 		// Show arm and hand just below outermost clothes layer to fully show its main/breasts layer and hide others
 		// -0.1 is to move arms behind sleeves; to display gloves above sleeves they get +0.2 in hand layer decls
 
-		if (options.worn.over_upper.index) {
+		// A sleeveless coat has no arm layer to hide the skin behind, so the arms stay with the top underneath.
+		if (options.worn.over_upper.index && options.worn.over_upper.setup.sleeve_img === 1) {
 			options.zarms = ZIndices.over_upper_arms - 0.1;
 		} else if (options.worn.upper.index) {
 			if (options.arm_left === "cover") {
@@ -907,6 +912,12 @@ Renderer.CanvasModels.main = {
 			}
 		}
 
+		// Arms reaching across the body draw over clothes, but under coat sleeves.
+		options.zreacharmleft = options.worn.over_upper.index ? ZIndices.over_upper_arms + 0.5 : ZIndices.left_cover_arm;
+		options.zreacharmright = options.worn.over_upper.index ? ZIndices.over_upper_arms + 0.6 : ZIndices.right_cover_arm;
+		options.zreachgloveleft = options.worn.over_upper.index ? options.zreacharmleft + 0.2 : ZIndices.left_cover_arm + 0.5;
+		options.zreachgloveright = options.worn.over_upper.index ? options.zreacharmright + 0.2 : ZIndices.right_cover_arm + 0.5;
+
 		options.zneck = (options.neck_tucked) ? ZIndices.neck_tucked : ZIndices.neck;
 		options.hide_all = false;
 		if (options.worn.upper.setup.name === "cocoon") {
@@ -922,8 +933,10 @@ Renderer.CanvasModels.main = {
 			options.zupperright = (options.upper_tucked) ? ZIndices.upper_arms_tucked : ZIndices.upper_arms;
 		}	
 
-		if (options.arm_right === "cover" || options.arm_right === "hold") options.zupperright = ZIndices.right_cover_arm + 1;
-		if (options.arm_left === "cover" || options.arm_left === "hold") options.zupperleft = ZIndices.left_cover_arm + 1;
+		if (options.arm_right === "cover" || options.arm_right === "hold")
+			options.zupperright = options.worn.over_upper.index ? options.zreachgloveright + 0.05 : ZIndices.right_cover_arm + 1;
+		if (options.arm_left === "cover" || options.arm_left === "hold")
+			options.zupperleft = options.worn.over_upper.index ? options.zreachgloveleft + 0.05 : ZIndices.left_cover_arm + 1;
 		if (options.worn.head.setup.name === "sage witch hat") {
 			const ears = isPartEnabled(options.fox_ears_type) || isPartEnabled(options.wolf_ears_type) || isPartEnabled(options.cat_ears_type)
 			if (ears) options.hideHeadAcc = true;
@@ -1386,7 +1399,7 @@ Renderer.CanvasModels.main = {
 			filters: ["tan"],
 			animation: "idle",
 			zfn(options) {
-				return (options.arm_left === "cover") ? ZIndices.left_cover_arm : ZIndices.armsidle;
+				return (options.arm_left === "cover") ? options.zreacharmleft : ZIndices.armsidle;
 			},
 			showfn(options) {
 				return options.arm_left !== "none";
@@ -1402,7 +1415,7 @@ Renderer.CanvasModels.main = {
 			animation: "idle",
 
 			zfn(options) {
-				if (["cover", "hold"].includes(options.arm_right)) return ZIndices.right_cover_arm;
+				if (["cover", "hold"].includes(options.arm_right)) return options.zreacharmright;
 				return (V.rightArmPosition == "above") ? ZIndices.under_upper_arm_right - 0.2 : options.zarms;
 			},
 			showfn(options) {
@@ -4239,7 +4252,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_left !== "none";
 			},
 			zfn(options) {
-				return options.arm_left === "cover" ? options.zupperleft - 0.5 : options.zarms + 0.2;
+				return options.arm_left === "cover" ? options.zreachgloveleft : options.zarms + 0.2;
 			},
 		},
 		"hands_left_acc": {
@@ -4258,7 +4271,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_left !== "none";
 			},
 			zfn(options) {
-				return options.arm_left === "cover" ? options.zupperleft - 0.5 : options.zarms + 0.2;
+				return options.arm_left === "cover" ? options.zreachgloveleft : options.zarms + 0.2;
 			},
 		},
 		"hands_left_fitted": {
@@ -4349,7 +4362,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_right !== "none";
 			},
 			zfn(options) {
-				return ["cover", "hold"].includes(options.arm_right) ? options.zupperright - 0.5 : ((V.rightArmPosition == "above") ? ZIndices.under_upper_arm_right + 0.2 : options.zarms + 0.2);
+				return ["cover", "hold"].includes(options.arm_right) ? options.zreachgloveright : ((V.rightArmPosition == "above") ? ZIndices.under_upper_arm_right + 0.2 : options.zarms + 0.2);
 			},
 		},
 		"hands_right_acc": {
@@ -4368,7 +4381,7 @@ Renderer.CanvasModels.main = {
 					&& options.arm_right !== "none";
 			},
 			zfn(options) {
-				return ["cover", "hold"].includes(options.arm_right) ? options.zupperright - 0.5 : ((V.rightArmPosition == "above") ? ZIndices.under_upper_arm_right + 0.2 : options.zarms + 0.2);
+				return ["cover", "hold"].includes(options.arm_right) ? options.zreachgloveright : ((V.rightArmPosition == "above") ? ZIndices.under_upper_arm_right + 0.2 : options.zarms + 0.2);
 			},
 		},
 		"hands_right_detail": {
@@ -5530,7 +5543,7 @@ function getClothingPathBreastsAcc(slot, options) {
 	const breastAccImg = options.worn[slot].setup.breast_acc_img;
 	const breastSize = typeof breastAccImg === 'object' ? breastAccImg[options.breast_size] : typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
 	const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-	const folder = normaliseFileName(slot);
+	const folder = clothesImgFolder(slot, options.worn[slot].setup);
 	return `img/clothes/${folder}/${options.worn[slot].setup.variable}/${breastSize}-acc${pattern}.png`;
 }
 
@@ -5633,7 +5646,7 @@ function genlayer_clothing_main(slot, overrideOptions) {
 		},
 		srcfn(options) {
 			const setup = options.worn[slot].setup;
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 
 			const isHoodDown = options.hood_down
 				&& setup.hoodposition !== undefined
@@ -5706,7 +5719,7 @@ function genlayer_clothing_fitted_left_acc(slot, overrideOptions) {
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 			const end = isHoodDown ? '-down' : isAltPosition ? '-alt' : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
 		},
 	}, overrideOptions));
@@ -5738,7 +5751,7 @@ function genlayer_clothing_fitted_right_acc(slot, overrideOptions) {
 			const integrity = setup.accessory_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 			const end = isHoodDown ? '-down' : isAltPosition ? '-alt' : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
 		},
 	}, overrideOptions));
@@ -5774,7 +5787,7 @@ function genlayer_clothing_accessory(slot, overrideOptions) {
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 			const end = isHoodDown ? '-down' : isAltPosition ? '-alt' : '';
 
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${end}.png`;
 		},
 		masksrcfn(options) {
@@ -5805,7 +5818,7 @@ function genlayer_clothing_detail(slot, overrideOptions) {
 			const pattern = options.worn[slot].pattern ? options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
 			const end = isAltPosition ? '-alt' : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/${pattern}${end}.png`;
 		},
 		masksrcfn(options) {
@@ -5833,7 +5846,7 @@ function genlayer_clothing_breasts_detail(slot, overrideOptions) {
 			if (breastSize == null) return null;
 
 			const pattern = options.worn[slot].pattern ? options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return`img/clothes/${folder}/${options.worn[slot].setup.variable}/${breastSize}-${pattern}.png`;
 		},
 		masksrcfn(options) {
@@ -5850,7 +5863,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 
 			const variable = options.worn[slot].setup.variable;
 			const integrity = options.worn[slot].integrity;
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			if (options.worn[slot].setup.mask_img === 1) return `img/clothes/${folder}/${variable}/mask-${integrity}.png`;
 			return null;
 		},
@@ -5872,7 +5885,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 			const breastSize = typeof breastImg === 'object' ? breastImg[options.breast_size] : Math.min(options.breast_size, 6);
 			const pattern = options.worn[slot].pattern && !["tertiary", "secondary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 			const end = isAltPosition ? '-alt' : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/${breastSize}${pattern}${end}.png`;
 		},
 	}, overrideOptions));
@@ -5911,7 +5924,7 @@ function genlayer_clothing_belly(slot, overrideOptions) {
 			const integrity = options.worn[slot].integrity;
 			const end = isAltPosition ? '-alt' : '';
 			const pattern = options.worn[slot].pattern && !["tertiary", "secondary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/${integrity}${pattern}${end}.png`;
 		},
 	}, overrideOptions));
@@ -5974,7 +5987,7 @@ function genlayer_clothing_belly_split_acc(slot, overrideOptions) {
 			const end = isAltPosition ? '-alt' : '';
 			const hoodDown = isHoodDown ? '-down' : end;
 
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${hoodDown}.png`;
 		},
 	}, overrideOptions));
@@ -5985,7 +5998,7 @@ function genlayer_clothing_belly_shadow(slot, overrideOptions) {
 		z: ZIndices.bellyClothesShadow,
 		srcfn(options) {
 			const pattern = options.worn[slot].pattern && !["tertiary", "secondary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${options.worn[slot].setup.variable}/${options.worn[slot].integrity}${pattern}.png`
 		},
 		showfn(options) {
@@ -6044,7 +6057,7 @@ function genlayer_clothing_belly_acc(slot, overrideOptions) {
 			const end = isAltPosition ? '-alt' : '';
 			const hoodDown = isHoodDown ? '-down' : end;
 
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/acc${integrity}${pattern}${hoodDown}.png`;
 		},
 		dxfn(options) {
@@ -6116,7 +6129,7 @@ function genlayer_clothing_back_img(slot, overrideOptions) {
 			const suffix = options.worn[slot].setup.back_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && !["tertiary", "secondary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${options.worn[slot].setup.variable}/${prefix}${suffix}${pattern}.png`;
 		},
 		masksrcfn(options) {
@@ -6160,7 +6173,7 @@ function genlayer_clothing_back_img_acc(slot, overrideOptions) {
 			const suffix = options.worn[slot].setup.back_integrity_img ? `-${options.worn[slot].integrity}` : '';
 			const pattern = options.worn[slot].pattern && options.worn[slot].setup.pattern_layer === "secondary" ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${options.worn[slot].setup.variable}/${prefix}${suffix}${pattern}-acc.png`;
 		},
 		masksrcfn(options) {
@@ -6202,7 +6215,7 @@ function genlayer_clothing_arm(arm, slot, overrideOptions) {
 			const alt = isAltPosition ? "-alt" : '';
 			const rolled = isAltSleeve ? '-rolled' : '';
 			const pattern = setup.sleeve_colour === "pattern" && options.worn[slot].pattern ? `-${options.worn[slot].pattern?.replace(/ /g,"-")}` : '';
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/${arm}-${options[`arm_${arm}`]}${alt}${pattern}${rolled}.png`;
 		},
 	}, overrideOptions));
@@ -6265,7 +6278,7 @@ function genlayer_clothing_arm_acc(arm, slot, overrideOptions) {
 			let filename = `${arm}-${options[`arm_${arm}`]}`;
 			filename += (isAltPosition) ? '-alt-acc' : '-acc';
 
-			const folder = normaliseFileName(slot);
+			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 			return `img/clothes/${folder}/${setup.variable}/${filename}.png`;
 		},
 	}, overrideOptions));

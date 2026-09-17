@@ -240,16 +240,23 @@ You are at Remy's riding school. Stables surround a central courtyard. A small o
 			<<generate1>><<person1>>
 			You hear hooves coming up from behind.
 
-			<<if $worn.upper.name is "punk leather jacket"
-				or $worn.upper.name is "leather jacket"
-				or $worn.upper.name is "vampire jacket">>
+			<!-- The leather jackets sit in the coat slot, the vampire jacket in the top slot -->
+			<<set _jacketNames to ["punk leather jacket", "leather jacket", "vampire jacket"]>>
+			<<set _jacketIsCoat to _jacketNames.includes($worn.over_upper.name)>>
+			<<set _jacket to _jacketIsCoat ? $worn.over_upper : $worn.upper>>
+			<<set _beneathIsTop to _jacketIsCoat and !$worn.upper.type.includes("naked")>>
+			<<set _beneathJacket to _beneathIsTop ? $worn.upper : $worn.under_upper>>
+			<<if _jacketNames.includes(_jacket.name)>>
 					<!-- Special interaction with unzipped jackets -->
-					<<if $worn.under_upper.type.includes("naked")>>
+					<<if _beneathJacket.type.includes("naked")>>
 						<!-- Revealing undertop or naked -->
-						A <<person>> rides alongside you and grasps the side of your $worn.upper.name. <<He>> pulls it open, revealing your <<breasts>>.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 100>>
+						A <<person>> rides alongside you and grasps the side of your _jacket.name. <<He>> pulls it open, revealing your <<breasts>>.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 100>>
+					<<elseif _beneathIsTop>>
+						<!-- Top worn beneath the coat -->
+						A <<person>> rides alongside you and grasps the side of your _jacket.name. <<He>> pulls it open, revealing your _beneathJacket.name.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 40>>
 					<<else>>
 						<!-- Generic undertop -->
-						A <<person>> rides alongside you and grasps the side of your $worn.upper.name. <<He>> pulls it open, revealing your <<undertop>>.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 40>>
+						A <<person>> rides alongside you and grasps the side of your _jacket.name. <<He>> pulls it open, revealing your <<undertop>>.<<gtrauma>><<gstress>><<garousal>><<trauma 6>><<stress 6>><<arousal 40>>
 					<</if>>
 
 					<br><br>

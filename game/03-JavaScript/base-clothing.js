@@ -56,8 +56,8 @@ window.tailorClothingCost = tailorClothingCost;
 // makes all existing specified upper/lower clothes to be over_upper/over_lower
 // it assumes that over_xxx equipment slots are empty, otherwise it will overwrite anything in those slots
 // use this function in version update widget when over clothes will be ready
-function convertNormalToOver() {
-	const clothesToConvert = [
+function convertNormalToOver(names) {
+	const clothesToConvert = names ?? [
 		"bathrobe",
 		"bathrobe bottom",
 		"peacoat",
@@ -162,24 +162,28 @@ function convertNormalToOver() {
 			}
 		}
 
-		// convert try on stored
-		if (V.tryOn.ownedStored.upper.name === itemName) {
-			V.tryOn.ownedStored.over_upper = convertItem(V.tryOn.ownedStored.upper);
-			V.tryOn.ownedStored.upper = clone(setup.clothes.upper[0]);
-		}
-		if (V.tryOn.ownedStored.lower.name === itemName) {
-			V.tryOn.ownedStored.over_lower = convertItem(V.tryOn.ownedStored.lower);
-			V.tryOn.ownedStored.lower = clone(setup.clothes.lower[0]);
+		// convert try on stored, which only exists while the player is trying clothes on in a shop
+		if (V.tryOn?.ownedStored) {
+			if (V.tryOn.ownedStored.upper.name === itemName) {
+				V.tryOn.ownedStored.over_upper = convertItem(V.tryOn.ownedStored.upper);
+				V.tryOn.ownedStored.upper = clone(setup.clothes.upper[0]);
+			}
+			if (V.tryOn.ownedStored.lower.name === itemName) {
+				V.tryOn.ownedStored.over_lower = convertItem(V.tryOn.ownedStored.lower);
+				V.tryOn.ownedStored.lower = clone(setup.clothes.lower[0]);
+			}
 		}
 
 		// convert try on equipped
-		if (V.tryOn.tryingOn.upper && V.tryOn.tryingOn.upper.name === itemName) {
-			V.tryOn.tryingOn.over_upper = convertItem(V.tryOn.tryingOn.upper);
-			V.tryOn.tryingOn.upper = null;
-		}
-		if (V.tryOn.tryingOn.lower && V.tryOn.tryingOn.lower.name === itemName) {
-			V.tryOn.tryingOn.over_lower = convertItem(V.tryOn.tryingOn.lower);
-			V.tryOn.tryingOn.lower = null;
+		if (V.tryOn?.tryingOn) {
+			if (V.tryOn.tryingOn.upper && V.tryOn.tryingOn.upper.name === itemName) {
+				V.tryOn.tryingOn.over_upper = convertItem(V.tryOn.tryingOn.upper);
+				V.tryOn.tryingOn.upper = null;
+			}
+			if (V.tryOn.tryingOn.lower && V.tryOn.tryingOn.lower.name === itemName) {
+				V.tryOn.tryingOn.over_lower = convertItem(V.tryOn.tryingOn.lower);
+				V.tryOn.tryingOn.lower = null;
+			}
 		}
 	}
 }

@@ -5,6 +5,9 @@ class ClothesItem {
 	/* Clothing Slot | REQUIRED | STRING */
 	slot;
 
+	/* Slot whose art folder this item's images live in, when it isn't its own slot | STRING */
+	imgSlot;
+
 	/* Lowercase name of clothing | REQUIRED | STRING */
 	name;
 
