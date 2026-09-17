@@ -9,12 +9,6 @@
 	You are in the adult shop. It has a large selection of fetish clothing and strap-ons.
 	<br><br>
 
-	<<if $adultshopstate isnot "closed" and playerChastity() and $worn.genitals.cursed is 1 and !["chastity parasite", "gold chastity belt"].includes($worn.genitals.name)>>
-		<<set _chastityRemovalCost to 5000>>
-		<<lockicon "unlock">><<link [[Ask Sirris to remove your chastity device|Adult Shop Chastity Removal]]>><</link>> (<<printprice _chastityRemovalCost>>)
-		<br><br>
-	<</if>>
-
 	<<if $stress gte $stressmax>>
 		<<passoutadultshop>>
 	<<else>>
@@ -40,6 +34,12 @@
 				<br><br>
 			<<elseif $exposed gte 1>>
 				You are hiding within a gimp suit stand to protect your dignity.
+				<br><br>
+			<</if>>
+
+			<<if $adultshopstate isnot "closed" and playerChastity() and $worn.genitals.cursed is 1 and $worn.genitals.name isnot "gold chastity belt">>
+				<<set _chastityRemovalCost to 250000>>
+				<<lockicon "unlock">><<link [[Ask Sirris to remove your chastity device (0:01)|Adult Shop Chastity Removal]]>><<pass 1>><</link>> (<<printprice _chastityRemovalCost>>)
 				<br><br>
 			<</if>>
 
@@ -187,9 +187,13 @@
 <</widget>>
 
 :: Adult Shop Chastity Removal
-<<effects>><<set $outside to 0>><<set $location to "adult_shop">>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
 <<set _chastityRemovalCost to 5000>>
-<<if !playerChastity() or $worn.genitals.cursed isnot 1 or ["chastity parasite", "gold chastity belt"].includes($worn.genitals.name)>>
+<<if playerChastity() and $worn.genitals.name is "gold chastity belt">>
+	Sirris taps the gold belt with a fingernail and shakes <<nnpc_his "Sirris">> head. "That's beyond me. Whatever made it wasn't leaving a way out."
+	<br><br>
+	<<link [[Back|Adult Shop Store]]>><</link>>
+<<elseif !playerChastity() or $worn.genitals.cursed isnot 1>>
 	Sirris gives you a puzzled look. "I can't help with something that isn't there."
 	<br><br>
 	<<link [[Back|Adult Shop Store]]>><</link>>
@@ -198,23 +202,34 @@
 	<br><br>
 	<<link [[Back|Adult Shop Store]]>><</link>>
 <<else>>
-	Sirris turns the $worn.genitals.name over in practiced hands. "No key? That's alright. We sell restraints; we know how to get someone out of one too. The device won't survive, though."
+	<<if $worn.genitals.name is "chastity parasite">>
+		Sirris presses a gloved finger against the parasite. It moves under <<nnpc_his "Sirris">> finger. "It's still alive. I've removed two of these before. I can cut it off, but the parasite will die, and you'll feel it when that happens."
+	<<else>>
+		Sirris examines the $worn.genitals.name. "No key? That's fine. We sell restraints, so we also know how to remove them. I can get it off, but the device will be ruined."
+	<</if>>
 	<br><br>
-	<<link [[Pay Sirris to cut it off|Adult Shop Chastity Removal Finish]]>><</link>>
+	<<link [[Pay Sirris to cut it off (0:15)|Adult Shop Chastity Removal Finish]]>><<pass 15>><</link>>
 	<br>
 	<<link [[Change your mind|Adult Shop Store]]>><</link>>
 <</if>>
 
 :: Adult Shop Chastity Removal Finish
-<<effects>><<set $outside to 0>><<set $location to "adult_shop">>
+<<set $outside to 0>><<set $location to "adult_shop">><<effects>>
 <<set _chastityRemovalCost to 5000>>
-<<if !playerChastity() or $worn.genitals.cursed isnot 1 or ["chastity parasite", "gold chastity belt"].includes($worn.genitals.name)>>
+<<if playerChastity() and $worn.genitals.name is "gold chastity belt">>
+	Sirris taps the gold belt with a fingernail and shakes <<nnpc_his "Sirris">> head. "That's beyond me. Whatever made it wasn't leaving a way out."
+<<elseif !playerChastity() or $worn.genitals.cursed isnot 1>>
 	Sirris gives you a puzzled look. "I can't help with something that isn't there."
 <<elseif !setup.inflation.canAfford(_chastityRemovalCost, "clothes")>>
 	Sirris examines the lock again. You no longer have enough money for the work.
 <<else>>
 	<<money `-_chastityRemovalCost` "clothes">>
-	Sirris shields your skin, works a narrow cutter into the lock, and splits it with a sharp crack. The ruined device falls away. <span class="green">You are free.</span>
+	<<if $worn.genitals.name is "chastity parasite">>
+		Sirris carefully slips a narrow blade under the parasite and cuts it away without cutting your skin. The parasite squeezes your genitals once, causing a sharp pain, then releases you and falls off. <span class="green">You are free.</span>
+		<<pain 21>><<gggpain>>
+	<<else>>
+		Sirris carefully inserts a narrow cutter into the lock and breaks it open. The broken device falls off. <span class="green">You are free.</span>
+	<</if>>
 	<<if $vaginalchastityparasite>>
 		 The trapped parasite slips from your vagina.
 		<<set $vaginalchastityparasite to 0>>
