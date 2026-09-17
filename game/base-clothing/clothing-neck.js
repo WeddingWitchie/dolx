@@ -5479,7 +5479,7 @@ function initNeck() {
 			slot: "neck",
 			name: "Bailey's collar",
 			name_cap: "Bailey's collar",
-			variable: "baileys collar",
+			variable: "baileys_collar_reiyu_goose",
 			combat: {
 				reference: "clothchoker",
 			},

@@ -1,3 +1,59 @@
+/* ══════════════════════════════════════════════════════
+LOTUS COLLAR ART PICKER
+The dropdown fills itself from window.baileyCollarRegistry.
+To add a new collar, just add it to that registry in rbe.js.
+══════════════════════════════════════════════════════ */
+:: Lotus Collar Picker Widgets [widget nobr]
+
+<<widget "lotus_listbox">>
+	/* Build the dropdown as raw HTML so options can be grouped by pack (SugarCube's <<listbox>> can't group).
+	A handler in rbe.js saves the choice to $bailey_collar_art and redraws the sidebar. */
+	<span id="collar-listbox"><<script>>
+		var reg = window.baileyCollarRegistry || [];
+		var hasCustom = !!(window.baileyCollarImages && window.baileyCollarImages.custom);
+		var current = (State.variables.bailey_collar_art) || "reiyu_goose";
+
+		/* Group the registry entries by pack, keeping their original order. */
+		var groups = [];
+		var seen = {};
+		reg.forEach(function (e) {
+			var p = e.pack || "Other";
+			if (!seen[p]) { seen[p] = []; groups.push([p, seen[p]]); }
+			seen[p].push(e);
+		});
+
+		var html = '<select class="macro-listbox">';
+		groups.forEach(function (pair) {
+			html += '<optgroup label="' + pair[0] + '">';
+			pair[1].forEach(function (e) {
+				var sel = (e.key === current) ? ' selected' : '';
+				html += '<option value="' + e.key + '"' + sel + '>' + e.label + '</option>';
+			});
+			html += '</optgroup>';
+		});
+		if (hasCustom) {
+			html += '<optgroup label="Your Upload">';
+			var sel = (current === "custom") ? ' selected' : '';
+			html += '<option value="custom"' + sel + '>Custom (your image)</option>';
+			html += '</optgroup>';
+		}
+		html += '</select>';
+		$(this.output).append(html);
+	<</script>></span>
+<</widget>>
+
+<<widget "lotus_collar_buttons">>
+	<span class="custom-collar-btn no-numberify"><<button "Upload your own...">><<script>>window.baileyCollarUpload();<</script>><</button>></span>
+	<<if window.baileyCollarImages && window.baileyCollarImages.custom>>
+		<span style="font-size: 1.2em;"> | </span>
+		<span class="custom-collar-btn no-numberify"><<button "Remove custom">><<script>>
+			window.baileyCollarRemoveCustom();
+			/* Redraw the listbox so the "Custom (your image)" option disappears. */
+			$.wiki('<<replace "#collar-listbox">><<lotus_listbox>><</replace>>');
+			<</script>><</button>></span>
+	<</if>>
+<</widget>>
+
 :: Bailey Title Widget [widget]
 <<widget "baileyTitle">><<silently>>
 		<<if $bailey_title and $bailey_title isnot "Bailey">>
@@ -52,6 +108,18 @@
 <<link [[Bailey (default)|Bailey Title Set]]>><<set $bailey_title to "Bailey">><</link>>
 <br><br>
 
+<<if $worn.neck.name is "Bailey's collar">>
+	<hr>
+	<span class="gold">Collar art style:</span>
+	<br><br>
+	<<lotus_listbox>>
+	<br>
+	<<lotus_collar_buttons>>
+	<br>
+	<br>
+	<br>
+<</if>>
+
 <<if $bailey_title_from is "office">>
 	<<link [[Back|Bailey's Office]]>><<endevent>><</link>>
 <<elseif $bailey_title_from is "date_menu">>
@@ -100,6 +168,20 @@ Type a name (15 characters max):
 <br>
 
 
+:: Bailey Collar Art Choose
+<<npc Bailey>><<person1>>
+<span class="gold">Collar art style:</span>
+<br><br>
+<<lotus_listbox>>
+<br>
+<<lotus_collar_buttons>>
+<br>
+<br>
+<br>
+<<link [[Back|Bailey's Office]]>><<endevent>><</link>>
+<br>
+
+
 :: Bailey Office Options Widget [widget]
 <<widget "baileyofficeoptions">>
 	<<autism-assessment-guardian>>
@@ -127,6 +209,11 @@ Type a name (15 characters max):
 
 	<<if $syndromebailey>>
 		<<ind>><<link [[Change what you call <<him>>|Bailey Title Choose]]>><<set $bailey_title_from to "office">><</link>>
+		<br>
+	<</if>>
+
+	<<if $worn.neck.name is "Bailey's collar">>
+		<<ind>><<link [[Change collar art style|Bailey Collar Art Choose]]>><</link>>
 		<br>
 	<</if>>
 
