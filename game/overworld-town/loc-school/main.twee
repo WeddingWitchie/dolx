@@ -742,7 +742,8 @@ You haul yourself over the fence and drop down on the other side.
 			Leighton looks up from <<his>> desk as you enter. "How can I help you?"
 			<br><br>
 
-			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1 and $headphotoshoot isnot 1 and $headnoinspections isnot 1>>
+			<<set _headDemands to ($headnodetention is 1 ? 1 : 0) + ($headmoney is 1 ? 1 : 0) + ($headphotoshoot is 1 ? 1 : 0) + ($headnoinspections is 1 ? 1 : 0)>>
+			<<if $headdrive is 1 and _headDemands lt 2>>
 				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
@@ -780,7 +781,8 @@ You haul yourself over the fence and drop down on the other side.
 				<br><br>
 			<</if>>
 
-			<<if $headdrive is 1 and $headnodetention isnot 1 and $headmoney isnot 1 and $headphotoshoot isnot 1 and $headnoinspections isnot 1>>
+			<<set _headDemands to ($headnodetention is 1 ? 1 : 0) + ($headmoney is 1 ? 1 : 0) + ($headphotoshoot is 1 ? 1 : 0) + ($headnoinspections is 1 ? 1 : 0)>>
+			<<if $headdrive is 1 and _headDemands lt 2>>
 				<<techicon "usb">><<link [[Blackmail|Head's Office Blackmail]]>><</link>><<crime "coercion">>
 				<br>
 			<</if>>
@@ -1586,28 +1588,63 @@ You settle under the desk and set to work on the lock.
 	<br><br>
 <</if>>
 
-<<if $speech_attitude is "bratty">>
-	You give <<him>> a wicked smile. "I've been on your computer," you say. "I've seen what you keep there. I made copies."
+<<speechresolve>>
+
+<<if $headblackmailed is 1>>
+	<<if _speechAttitudeResolved is "meek">>
+		"I-I still have the copies," you say. "There's s-something else I want."
+	<<elseif _speechAttitudeResolved is "shy">>
+		You look down before speaking. "I-I still have the copies. There's... something else I want."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I still have the copies," you say. "There's something else I want, if you'll hear me out."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I still have the copies," you say. "I'd like to ask for something else."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		"I still have those copies," you say, grinning. "And I want something else."
+	<<else>>
+		"I still have the copies," you say. "There's something else I want."
+	<</if>>
 	<br><br>
-<<elseif $speech_attitude is "meek">>
-	You can't bring yourself to look <<him>> in the eye. "I-I've seen what you did to that student. On your computer," you manage to say. "I-I made copies."
+
+	<<crimeUp 1000 "coercion">>
+	<<He>> looks at the door, then back at you. "Of course there is," <<he>> says. "What do you want?"
 	<br><br>
 <<else>>
-	"I've been on your computer," you say. "I've seen what you did to that student. I made copies."
+	<<if _speechAttitudeResolved is "meek">>
+		You can't bring yourself to look <<him>> in the eye. "I-I've seen what you did to that student. On your computer," you manage to say. "I-I made copies."
+	<<elseif _speechAttitudeResolved is "shy">>
+		You look down at the floor. "I-I saw what you did to that student. It was on your computer." You swallow before continuing. "I made copies."
+	<<elseif _speechAttitudeResolved is "docile">>
+		"I saw what you did to that student on your computer," you say. "I made copies. I don't want any trouble, but I need you to listen to me."
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"I've seen what you did to that student," you say. "I found it on your computer, and I made copies."
+	<<elseif _speechAttitudeResolved is "confident">>
+		"I've seen what's on your computer," you say. "I know what you did to that student, and I made copies."
+	<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+		You give <<him>> a wicked smile. "I've been on your computer," you say. "I've seen what you keep there. I made copies."
+	<<else>>
+		"I've been on your computer," you say. "I've seen what you did to that student. I made copies."
+	<</if>>
+	<br><br>
+
+	<<crimeUp 1000 "coercion">>
+	<<He>> stares at you, then looks towards the door. <<He>> stays quiet for a few seconds before turning back to you. "What do you want?"
 	<br><br>
 <</if>>
-
-<<crimeUp 1000 "coercion">>
-<<He>> stares at you, not moving a muscle. Then <<he>> glances at the door, and sizes you up. <<He>> seems to think better of whatever <<he>> was planning however, and sighs. "What do you want?"
-<br><br>
 <<npcincr Leighton dom -10>>
 <<npcincr Leighton love -10>>
-<<link [[Your watch|Head's Office Money]]>><</link>>
-<br>
-<<link [[No detention|Head's Office No Detention]]>><</link>>
-<br>
-<<link [[No more health inspections|Head's Office No Inspections]]>><</link>>
-<br>
+<<if $headmoney isnot 1>>
+	<<link [[Your watch|Head's Office Money]]>><</link>>
+	<br>
+<</if>>
+<<if $headnodetention isnot 1>>
+	<<link [[No detention|Head's Office No Detention]]>><</link>>
+	<br>
+<</if>>
+<<if $headnoinspections isnot 1>>
+	<<link [[No more health inspections|Head's Office No Inspections]]>><</link>>
+	<br>
+<</if>>
 <<if $schoolfameboard isnot 1 and $schoolfameblackmail isnot undefined>>
 	<<link [[No more photoshoots|Head's Office No Photoshoots]]>><</link>>
 	<br>
