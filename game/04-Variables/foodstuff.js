@@ -1128,7 +1128,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1500,
+				sell_price: 1200,
 			},
 			recipe: {
 				recipe_name: "prawn bisque",
@@ -1280,7 +1280,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 200,
+				sell_price: 600,
 			},
 			recipe: {
 				recipe_name: "quiche",
@@ -1671,7 +1671,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1800,
+				sell_price: 1600,
 			},
 			recipe: {
 				recipe_name: "salmon wellington",
@@ -2116,7 +2116,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 3000,
+				sell_price: 1500,
 			},
 			recipe: {
 				recipe_name: "souffl\u00E9s",
@@ -2164,7 +2164,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1600,
+				sell_price: 1100,
 			},
 			recipe: {
 				recipe_name: "lemon meringue pie",
@@ -2213,7 +2213,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1500,
+				sell_price: 1300,
 			},
 			recipe: {
 				recipe_name: "Swiss rolls",
@@ -2261,7 +2261,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 300,
+				sell_price: 500,
 			},
 			recipe: {
 				recipe_name: "brownies",
@@ -2285,7 +2285,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1400,
+				sell_price: 800,
 			},
 			recipe: {
 				recipe_name: "carrot cake",
@@ -2353,7 +2353,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1200,
+				sell_price: 1000,
 			},
 			recipe: {
 				recipe_name: "sticky toffee pudding",
@@ -2723,7 +2723,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1200,
+				sell_price: 1000,
 			},
 			recipe: {
 				recipe_name: "bangers and mash",
@@ -3029,7 +3029,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-food.png",
 			prop_folder: "food",
 			shop: {
-				sell_price: 1400,
+				sell_price: 1200,
 			},
 			recipe: {
 				recipe_name: "plum pudding",

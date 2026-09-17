@@ -242,11 +242,13 @@ window.ensurePendingPregnancySlots = ensurePendingPregnancySlots;
  * Beta permits two independent vaginal conceptions; without it the original one-pregnancy-per-body rule remains intact.
  *
  * @param {"vagina"|"anus"} orifice where the load landed
+ * @param {boolean} [ignorePending=false] treat pending conceptions as absent, for the fertility meter:
+ * a pending conception is one the player has no way to know about yet, so it must not read as a full slot.
  * @returns {"vagina"|"vagina2"|"anus"|null} the free slot, or null when nothing can conceive here
  */
-function availablePlayerPregnancySlot(orifice) {
+function availablePlayerPregnancySlot(orifice, ignorePending = false) {
 	ensurePendingPregnancySlots();
-	const pending = V.pendingPregnancies;
+	const pending = ignorePending ? { vagina: null, vagina2: null, anus: null } : V.pendingPregnancies;
 	const active = getActivePregnancies("pc");
 	if (orifice === "anus") {
 		/* Shared anal pregnancy check. This also covers fetish mode and Force Impregnation, which create pregnancies directly. statFreeze scenes are excluded because they use a saved body state. */
