@@ -1408,6 +1408,24 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<script>>window.dolxRepairNonFiniteNumerics?.();<</script>>
 	<<script>>window.dolxClearOrphanWetnessKeys?.();<</script>>
 	<<script>>window.dolxEjectOrphanVaginalDildo?.();<</script>>
+	<<if !$jacketsMovedToCoatSlot>>
+		<<script>>
+			const jackets = setup.clothes.over_upper.filter(item => item.imgSlot === "upper").map(item => item.name);
+			/* The conversion overwrites the coat slot, so a coat already worn is shelved first. */
+			["worn", "carried"].forEach(where => {
+				const slots = V[where];
+				if (!slots || !slots.upper || !slots.over_upper) return;
+				if (jackets.includes(slots.upper.name) && slots.over_upper.index > 0) {
+					V.wardrobe.over_upper.push(clone(slots.over_upper));
+					slots.over_upper = clone(setup.clothes.over_upper[0]);
+				}
+			});
+			convertNormalToOver(jackets);
+		<</script>>
+		/* The moved items carry their old upper index, so every container is re-pointed at the coat catalogue. */
+		<<updateClothes>>
+		<<set $jacketsMovedToCoatSlot to true>>
+	<</if>>
 	<<run pruneClothes()>>
 	<<run repairWardrobeSlots()>>
 	<<run reclaimStrandedWardrobeItems()>>

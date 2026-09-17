@@ -81,7 +81,9 @@ window.getTrueWarmth = getTrueWarmth;
 function clothingSlotToIconName(slotName, outfits) {
 	switch (slotName) {
 		case "over_upper":
-			return "overoutfit";
+			// "both" is the merged coat category; the other two are the split views some shops still use.
+			if (outfits === "both") return "overoutfit";
+			return outfits ? "overoutfitonly" : "overtop";
 		case "upper":
 			return outfits ? "outfit" : "upper";
 		case "under_upper":

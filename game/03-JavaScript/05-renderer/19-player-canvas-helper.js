@@ -1,5 +1,5 @@
 // @ts-check
-/* global CombatRenderer, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption, ClothingRendererStep, ClothedSlots, TransformationPartOptions, TransformationParts, normaliseFileName */
+/* global CombatRenderer, CombatPlayerOptions, CanvasModelLayers, TransformationKeys, BodywritingOption, ClothingRendererStep, ClothedSlots, TransformationPartOptions, TransformationParts, clothesImgFolder */
 
 class PlayerCanvasHelper {
 	/**
@@ -134,7 +134,7 @@ class PlayerCanvasHelper {
 			states.push("acc");
 		}
 		const state = states.join("-");
-		const folder = normaliseFileName(slot);
+		const folder = clothesImgFolder(slot, clothes);
 		const path = `${options.src}clothing/${folder}/${clothes.name}/${state}.png`;
 		return path;
 	}
@@ -193,7 +193,7 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				const clothes = options.clothes[slot];
 				if (clothes == null || clothes.name == null) return "";
-				const folder = normaliseFileName(slot);
+				const folder = clothesImgFolder(slot, clothes);
 				const path = `${options.src}clothing/${folder}/${clothes.name}/${clothes.state}.png`;
 				return path;
 			},
@@ -238,7 +238,7 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				const clothes = options.clothes[slot];
 				if (clothes?.name == null) return "";
-				const folder = normaliseFileName(slot);
+				const folder = clothesImgFolder(slot, clothes);
 				const path = `${options.src}clothing/${folder}/${clothes.name}/breasts/${clothes.breasts.size}.png`;
 				return path;
 			},
@@ -285,7 +285,7 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				const clothes = options.clothes[slot];
 				if (clothes?.name == null) return "";
-				const folder = normaliseFileName(slot);
+				const folder = clothesImgFolder(slot, clothes);
 				const path = `${options.src}clothing/${folder}/${clothes.name}/breasts/${clothes.breasts.size}-acc.png`;
 				return path;
 			},
@@ -330,11 +330,11 @@ class PlayerCanvasHelper {
 				const clothes = options.clothes[slot];
 				if (clothes?.name == null) return "";
 				if (layer === "front" && options.position === "doggy" && PlayerCanvasHelper.isBestialHandjob(options, "front")) {
-					const folder = normaliseFileName(slot);
+					const folder = clothesImgFolder(slot, clothes);
 					return `${options.src}clothing/${folder}/${clothes.name}/sleeves/front-stroke.png`;
 				}
 				const position = layer === "front" ? options.armFrontPosition : options.armBackPosition;
-				const folder = normaliseFileName(slot);
+				const folder = clothesImgFolder(slot, clothes);
 				const path = `${options.src}clothing/${folder}/${clothes.name}/sleeves/${layer}-${position}.png`;
 				return path;
 			},
@@ -389,7 +389,7 @@ class PlayerCanvasHelper {
 				const clothes = options.clothes[slot];
 				if (clothes?.name == null) return "";
 				const position = layer === "front" ? options.armFrontPosition : options.armBackPosition;
-				const folder = normaliseFileName(slot);
+				const folder = clothesImgFolder(slot, clothes);
 				const path = `${options.src}clothing/${folder}/${clothes.name}/sleeves/${layer}-${position}-acc.png`;
 				return path;
 			},
@@ -429,7 +429,7 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				const clothes = options.clothes[slot];
 				if (clothes == null || clothes.name == null) return "";
-				const folder = normaliseFileName(slot);
+				const folder = clothesImgFolder(slot, clothes);
 				const path = `${options.src}clothing/${folder}/${clothes.name}/${clothes.state}-acc.png`;
 				return path;
 			},
@@ -469,7 +469,7 @@ class PlayerCanvasHelper {
 			srcfn(options) {
 				const clothes = options.clothes[slot];
 				if (clothes == null || clothes.name == null) return "";
-				const folder = normaliseFileName(slot);
+				const folder = clothesImgFolder(slot, clothes);
 				const path = `${options.src}clothing/${folder}/${clothes.name}/${clothes.pattern}.png`;
 				return path;
 			},

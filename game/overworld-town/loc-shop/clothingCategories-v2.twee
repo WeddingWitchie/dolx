@@ -41,6 +41,24 @@
 	</div>
 <</widget>>
 
+<<widget "OverShop">>
+	<<set $outside to 0>><<effects>>
+
+	<<if $clothes_choice and $clothes_choice_previous>>
+		<<if $clothes_choice is $clothes_choice_previous>>
+			<<shopbuyv2 "over_upper">>
+		<<else>>
+			<<shopbuyv2 "over_upper" "reset">>
+		<</if>>
+	<<else>>
+		<<shopbuyv2 "over_upper" "reset">>
+	<</if>>
+
+	<div id="clothes-list" class="clothes-list">
+		<<clothingShopv2 $shopName "over_upper" "both">>
+	</div>
+<</widget>>
+
 <<widget "OverTopShop">>
 	<<set $outside to 0>><<effects>>
 
@@ -363,14 +381,15 @@
 				</div>
 			</div>
 			<div class="category-group">
-				<<set _active = _args[0] == "overoutfit" ? "active" : "">>
+				<!-- Shops that still split coats into outfits and tops highlight the same tab. -->
+				<<set _active = ["overoutfit", "overtop", "overoutfitonly"].includes(_args[0]) ? "active" : "">>
 				<div @class="'div-link category-tab ' + _active">
 					<<if $options.images is 1>>
 						<<clothingcategoryicon "over-outfit">>
 					<<else>>
 						<div class="category-icon-alt">OO</div>
 					<</if>>
-					<<link "">><<set $shopPage = 0>><<unset $clothes_choice>><<set _shopNameFilter to ''>><<replace "#clothingShop-div">><<OverOutfitShop>><</replace>><</link>>
+					<<link "">><<set $shopPage = 0>><<unset $clothes_choice>><<set _shopNameFilter to ''>><<replace "#clothingShop-div">><<OverShop>><</replace>><</link>>
 				</div>
 			</div>
 			<div class="category-group">
@@ -599,7 +618,9 @@
 <<widget "shopCategoryReplace">>
 	<<switch _args[0]>>
 		<<case "all">><<replace "#clothingShop-div">><<AllShop>><</replace>>
-		<<case "overoutfit">><<replace "#clothingShop-div">><<OverOutfitShop>><</replace>>
+		<<case "overoutfit">><<replace "#clothingShop-div">><<OverShop>><</replace>>
+		<<case "overtop">><<replace "#clothingShop-div">><<OverTopShop>><</replace>>
+		<<case "overoutfitonly">><<replace "#clothingShop-div">><<OverOutfitShop>><</replace>>
 		<<case "outfit">><<replace "#clothingShop-div">><<OutfitShop>><</replace>>
 		<<case "upper">><<replace "#clothingShop-div">><<TopShop>><</replace>>
 		<<case "lower">><<replace "#clothingShop-div">><<BottomShop>><</replace>>

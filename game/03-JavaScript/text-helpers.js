@@ -18,3 +18,9 @@ function normaliseFileName(text) {
 		.toLowerCase();
 }
 window.normaliseFileName = normaliseFileName;
+
+/* Art folder for a clothing slot. Items that keep their images in another slot's folder declare imgSlot. */
+function clothesImgFolder(slot, item) {
+	return normaliseFileName(item && item.imgSlot ? item.imgSlot : slot);
+}
+window.clothesImgFolder = clothesImgFolder;
