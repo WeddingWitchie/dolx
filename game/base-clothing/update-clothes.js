@@ -614,6 +614,7 @@ function wardrobesUpdate() {
 		feet: [],
 		hands: [],
 		handheld: [],
+		bag: [],
 		earrings: [],
 		rings: [],
 		head: [],

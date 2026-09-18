@@ -21,6 +21,7 @@ setup.pocketBagCapacity = {
 	messengerbag: 5,
 	/* Barely more than a phone and a purse. */
 	purse: 2,
+	honeypouch: 2,
 	heartpurse: 2,
 	"clock purse": 2,
 	"cloud purse": 2,
@@ -241,13 +242,14 @@ function pocketAvailable() {
 window.pocketAvailable = pocketAvailable;
 
 /* The bag */
-/* The worn handheld, but only when it's actually a bag. */
+/* Whatever the player is carrying that can hold things: a bag, or a foraging basket in hand. */
 function pocketBagItem() {
-	const held = V.worn && V.worn.handheld;
-	if (!held || !Array.isArray(held.type)) return undefined;
-	/* Bookbags, and foraging baskets, which carry things without being school bags. */
-	if (!held.type.includesAny("bookbag", "foraging")) return undefined;
-	return held;
+	for (const carried of [V.worn && V.worn.bag, V.worn && V.worn.handheld]) {
+		if (!carried || !Array.isArray(carried.type)) continue;
+		/* Bookbags, and foraging baskets, which carry things without being school bags. */
+		if (carried.type.includesAny("bookbag", "foraging")) return carried;
+	}
+	return undefined;
 }
 window.pocketBagItem = pocketBagItem;
 

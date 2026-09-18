@@ -114,17 +114,17 @@ function convertNormalToOver(names) {
 			}
 		});
 
-		// convert clothes in wardrobe
-		for (let i = V.wardrobe.upper.length - 1; i >= 0; i--) {
-			if (V.wardrobe.upper[i].name === itemName) {
-				V.wardrobe.over_upper.push(convertItem(V.wardrobe.upper[i]));
-				V.wardrobe.upper.splice(i, 1);
-			}
-		}
-		for (let i = V.wardrobe.lower.length - 1; i >= 0; i--) {
-			if (V.wardrobe.lower[i].name === itemName) {
-				V.wardrobe.over_lower.push(convertItem(V.wardrobe.lower[i]));
-				V.wardrobe.lower.splice(i, 1);
+		// every wardrobe, because pruneClothes deletes whatever is left in the old slot
+		for (const wardrobe of [V.wardrobe, ...Object.values(V.wardrobes || {})]) {
+			if (!wardrobe || typeof wardrobe !== "object") continue;
+			for (const slot of ["upper", "lower"]) {
+				if (!Array.isArray(wardrobe[slot])) continue;
+				if (!Array.isArray(wardrobe["over_" + slot])) wardrobe["over_" + slot] = [];
+				for (let i = wardrobe[slot].length - 1; i >= 0; i--) {
+					if (wardrobe[slot][i]?.name !== itemName) continue;
+					wardrobe["over_" + slot].push(convertItem(wardrobe[slot][i]));
+					wardrobe[slot].splice(i, 1);
+				}
 			}
 		}
 
@@ -174,6 +174,16 @@ function convertNormalToOver(names) {
 			}
 		}
 
+		// convert what Bailey confiscated, which records the slot each item came from
+		if (V.bailey_confiscation && Array.isArray(V.bailey_confiscation.items)) {
+			for (const held of V.bailey_confiscation.items) {
+				if (held.source !== "clothing" || held.item?.name !== itemName) continue;
+				if (held.slot !== "upper" && held.slot !== "lower") continue;
+				held.slot = "over_" + held.slot;
+				convertItem(held.item);
+			}
+		}
+
 		// convert try on equipped
 		if (V.tryOn?.tryingOn) {
 			if (V.tryOn.tryingOn.upper && V.tryOn.tryingOn.upper.name === itemName) {
@@ -189,6 +199,65 @@ function convertNormalToOver(names) {
 }
 window.convertNormalToOver = convertNormalToOver;
 
+/* Bags moved out of the handheld slot so they can be carried alongside an umbrella. */
+function convertHandheldToBag() {
+	for (const holder of [V.worn, V.carried]) {
+		if (holder && !holder.bag) holder.bag = clone(setup.clothes.bag[0]);
+	}
+	if (V.store && !Array.isArray(V.store.bag)) V.store.bag = [];
+
+	const bagRefs = setup.clothes.bag.slice(1);
+	const bagVariables = new Set(bagRefs.map(item => item.variable));
+	const catalogueNames = new Set(bagRefs.map(item => item.name));
+	const isBag = item =>
+		!!item && (bagVariables.has(item.variable) || catalogueNames.has(item.name) || (Array.isArray(item.type) && item.type.includes("bookbag")));
+	const reslot = item => {
+		item.slot = "bag";
+		if (item.set === "handheld") item.set = "bag";
+		return item;
+	};
+
+	const holders = [V.worn, V.carried, V.tryOn && V.tryOn.ownedStored, V.tryOn && V.tryOn.tryingOn];
+	for (const holder of holders) {
+		if (!holder || !isBag(holder.handheld)) continue;
+		holder.bag = reslot(holder.handheld);
+		holder.handheld = holder === V.tryOn?.tryingOn ? null : clone(setup.clothes.handheld[0]);
+	}
+
+	/* V.store is what the player stripped off and left somewhere. */
+	const lists = [V.wardrobe, ...Object.values(V.wardrobes || {}), V.store].filter(w => w && typeof w === "object" && Array.isArray(w.handheld));
+	for (const list of lists) {
+		if (!Array.isArray(list.bag)) list.bag = [];
+		for (let i = list.handheld.length - 1; i >= 0; i--) {
+			if (!isBag(list.handheld[i])) continue;
+			list.bag.push(reslot(list.handheld[i]));
+			list.handheld.splice(i, 1);
+		}
+	}
+
+	/* Saved outfits name their garments, so the name moves to the bag field. */
+	for (const outfit of V.outfit || []) {
+		if (!catalogueNames.has(outfit.handheld)) continue;
+		outfit.bag = outfit.handheld;
+		outfit.handheld = "naked";
+		if (outfit.colors) {
+			outfit.colors.bag = outfit.colors.handheld;
+			outfit.colors.handheld = [0, 0];
+		}
+	}
+
+	/* Bailey's confiscated pile records the slot it took each item from. */
+	if (V.bailey_confiscation && Array.isArray(V.bailey_confiscation.items)) {
+		for (const held of V.bailey_confiscation.items) {
+			if (held.source === "clothing" && held.slot === "handheld" && isBag(held.item)) {
+				held.slot = "bag";
+				reslot(held.item);
+			}
+		}
+	}
+}
+window.convertHandheldToBag = convertHandheldToBag;
+
 function getVisibleClothesList() {
 	const visibleClothes = [
 		V.worn.over_upper,
@@ -198,6 +267,7 @@ function getVisibleClothesList() {
 		V.worn.neck,
 		V.worn.hands,
 		V.worn.handheld,
+		V.worn.bag,
 		V.worn.earrings,
 		V.worn.rings,
 		V.worn.legs,
@@ -210,7 +280,8 @@ function getVisibleClothesList() {
 	if (V.worn.upper.exposed >= 2 || V.upperwetstage >= 3) visibleClothes.push(V.worn.under_upper);
 	if (V.worn.lower.exposed >= 2 || V.lowerwetstage >= 3) visibleClothes.push(V.worn.under_lower);
 	if (V.worn.under_lower.exposed >= 1 || V.underlowerwetstage >= 3) visibleClothes.push(V.worn.genitals);
-	return visibleClothes;
+	/* A save from before a slot existed has nothing in it until the load-time conversion runs. */
+	return visibleClothes.filter(Boolean);
 }
 window.getVisibleClothesList = getVisibleClothesList;
 
@@ -576,6 +647,7 @@ function getClothingOptions() {
 		["under_upper", V.underupperwetstage],
 		["hands"],
 		["handheld"],
+		["bag"],
 		["earrings"],
 		["rings"],
 		["head"],
@@ -653,6 +725,7 @@ function importOutfit() {
 			"neck",
 			"hands",
 			"handheld",
+			"bag",
 			"legs",
 			"feet",
 		]) {

@@ -123,6 +123,7 @@ declare global {
 		| "neck"
 		| "hands"
 		| "handheld"
+		| "bag"
 		| "legs"
 		| "feet"
 		| "genitals"
@@ -158,6 +159,10 @@ declare global {
 	export interface ClothesItem {
 		index: number;
 		slot: ClothedSlots;
+		/**
+		 * Slot whose image folder holds this item's art, when it differs from its own
+		 */
+		imgSlot?: ClothedSlots;
 		name: string;
 		name_cap: string;
 		name_simple?: string;
@@ -416,6 +421,7 @@ declare global {
 		neck: ClothesItem[];
 		hands: ClothesItem[];
 		handheld: ClothesItem[];
+		bag: ClothesItem[];
 		legs: ClothesItem[];
 		feet: ClothesItem[];
 		genitals: ClothesItem[];

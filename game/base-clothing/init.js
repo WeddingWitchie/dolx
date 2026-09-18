@@ -1,4 +1,4 @@
-/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initEarrings, initRings, initLegs, initFeet, initSpecialClothes, initProps, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
+/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initBag, initEarrings, initRings, initLegs, initFeet, initSpecialClothes, initProps, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
 
 /*
 Modded clothes are added to `setup.clothes` through `setup.moddedClothes`.
@@ -43,6 +43,7 @@ function clothingDataInit() {
 	initNeck();
 	initHands();
 	initHandheld();
+	initBag();
 	initEarrings();
 	initRings();
 	initLegs();
@@ -65,6 +66,7 @@ function clothingDataInit() {
 		"neck",
 		"hands",
 		"handheld",
+		"bag",
 		"earrings",
 		"rings",
 		"legs",
@@ -261,7 +263,8 @@ function givestartclothing() {
 				head: "naked",
 				face: "naked",
 				neck: "naked",
-				handheld: "backpack",
+				handheld: "naked",
+				bag: "backpack",
 				earrings: "naked",
 				rings: "naked",
 				hands: "naked",
@@ -389,7 +392,8 @@ function givestartclothing() {
 				head: "hairpin",
 				face: "naked",
 				neck: "naked",
-				handheld: "backpack",
+				handheld: "naked",
+				bag: "backpack",
 				earrings: "naked",
 				rings: "naked",
 				hands: "naked",
@@ -503,7 +507,8 @@ function givestartclothing() {
 				head: "naked",
 				face: "naked",
 				neck: "naked",
-				handheld: "backpack",
+				handheld: "naked",
+				bag: "backpack",
 				earrings: "naked",
 				rings: "naked",
 				hands: "naked",
