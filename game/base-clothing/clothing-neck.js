@@ -5480,6 +5480,7 @@ function initNeck() {
 			name: "Bailey's collar",
 			name_cap: "Bailey's collar",
 			variable: "baileys_collar_reiyu_goose",
+			oldVariable: [{ name: "Bailey's collar", variable: "baileys collar" }],
 			combat: {
 				reference: "clothchoker",
 			},

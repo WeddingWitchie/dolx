@@ -175,6 +175,10 @@ function syncBaileyDom() {
 		}
 	});
 
+	if (!Number.isFinite(bailey.dom)) bailey.dom = baileyRevealed() ? 100 : 50;
+	if (!Number.isFinite(bailey.love)) bailey.love = 0;
+	if (!Number.isFinite(V.syndromebaileybuild)) V.syndromebaileybuild = 0;
+
 	/* A save that predates RBE has the baseNNPC dom of 0 and the vanilla outfit list. */
 	if (V.bailey_rbe_init !== true) {
 		if (bailey.dom === 0) {
@@ -271,8 +275,8 @@ window.baileyCollarImages.custom = (function () {
 	}
 })();
 
-const customCollarSrcs = ["full", "frayed", "torn", "tattered"].map(function (n) {
-	return "img/clothes/neck/baileys_collar_custom/" + n + ".png";
+const customCollarSrcs = ["full", "frayed", "torn", "tattered"].flatMap(function (n) {
+	return ["img/clothes/neck/baileys_collar_custom/" + n + ".png", "img2/clothes/neck/baileys_collar_custom/" + n + ".png"];
 });
 let customCollarCanvas = null;
 
