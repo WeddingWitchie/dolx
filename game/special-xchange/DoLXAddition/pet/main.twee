@@ -1,0 +1,368 @@
+:: Pet Care
+<<set $outside to 0>><<effects>><<petSync>>
+<<set _p to Menagerie.getPet($petCareTarget)>>
+<<set _def to Menagerie.speciesDef($petCareTarget)>>
+<<if !_p or !_def>>
+	There's nothing here.
+	<br><br>
+	<<link [[Back|Bedroom]]>><</link>>
+<<else>>
+	<<set _s to Menagerie.status($petCareTarget)>>
+	<<if _p.where is "carried" and $petCareTarget is "snake">>
+		You walk over to your empty enclosure and your adorable <<= _s.label>> stirs slightly and hisses <<= _def.carriedOn>>.
+	<<elseif _p.where is "carried">>
+		You walk over to the empty jar, the slime on your head gurgles and vibrates.
+	<<elseif $petCareTarget is "snake">>
+		You walk over to your snake's enclosure and peer inside at your adorable <<= _s.label>>.
+	<<else>>
+		You walk over to the jar containing a <<= _s.label>>, it gurgles happily at your approach.
+	<</if>>
+	<<set _mgLooks to _s.hunger gte Menagerie.Tuning.starvingThreshold ? "starving" : _s.hunger gte Menagerie.Tuning.hungryThreshold ? "hungry" : "healthy">>
+	<<if _mgLooks is "starving">>
+		<<if _p.where is "carried">>As you glance at<<else>>As you observe<</if>>
+		<<if $petCareTarget is "snake">>
+			<<if _p.where is "carried">>your snake, the snake<<else>>it, the snake<</if>>
+		<<else>>
+			<<if _p.where is "carried">>the slime, the slime<<else>>it, the slime<</if>>
+		<</if>>
+		looks like it's <span class="red">Starving!</span>
+	<<else>>
+		<<if _p.where is "carried">>You glance at<<else>>As you observe<</if>>
+		<<if $petCareTarget is "snake">>
+			<<if _p.where is "carried">>your snake, the snake<<else>>it, the snake<</if>>
+		<<else>>
+			<<if _p.where is "carried">>the slime, the slime<<else>>it, the slime<</if>>
+		<</if>>
+		looks rather <<if _mgLooks is "hungry">><span class="orange">Hungry!</span><<else>><span class="green">Healthy!</span><</if>>
+	<</if>>
+	<br><br>
+	<<petCard $petCareTarget>>
+	<<if _s.sick>>
+		<span class="red">It's sick. Seems the last thing it ate made it feel ill.</span>
+		<br><br>
+	<</if>>
+
+	<<if _def.diet is "feed">>
+		<<set _m to Menagerie.state()>>
+		<span @class="_m.feed gt 0 ? 'gold' : 'red'">Feed:</span> <<= _m.feed>>
+		<<if _m.premiumFeed gt 0>>
+			&nbsp;<span class="green">Premium:</span> <<= _m.premiumFeed>>
+		<</if>>
+		<br>
+		<<if _m.feed gt 0>>
+			<<link [[Feed it|Pet Feed]]>><<set $petFeedPremium to false>><</link>>
+			<br>
+		<</if>>
+		<<if _m.premiumFeed gt 0>>
+			<<link [[Feed it premium feed|Pet Feed]]>><<set $petFeedPremium to true>><</link>>
+			<br>
+		<</if>>
+		<<if _m.feed lte 0 and _m.premiumFeed lte 0>>
+			<span class="red">You have nothing to feed it.</span>
+			<br>
+		<</if>>
+	<<else>>
+		/* A slime lives on what you produce, so feeding it is the encounter, and it can have
+		   one whenever it needs one. The snake's is a separate thing it has to want, once a day. */
+		<<link [[Feed it|Pet Intimacy]]>><</link>>
+		<br>
+	<</if>>
+
+	<<if Menagerie.playBlock($petCareTarget) is "">>
+		<<link [[Play with it|Pet Play]]>><</link>>
+		<br>
+	<</if>>
+
+	<<if _def.diet is "feed" and Menagerie.intimacyBlock($petCareTarget) is "" and !$daily.petIntimacy>>
+		<<link [[Let it wander over you|Pet Intimacy]]>><<set $daily.petIntimacy to true>><</link>>
+		<br>
+	<</if>>
+
+	<<if _p.where is "carried">>
+		<<link [[Put it back|Pet Stow]]>><</link>>
+		<br>
+	<<elseif Menagerie.canCarry($petCareTarget)>>
+		<<link [[Take it with you|Pet Carry]]>><</link>>
+		<br>
+	<<elseif Menagerie.carried()>>
+		<span class="red">You're already carrying a pet.</span>
+		<br>
+	<</if>>
+
+	<br>
+	<<link [[Back|Bedroom]]>><</link>>
+<</if>>
+<br>
+
+:: emptySnakeTank
+<<set $outside to 0>><<effects>>
+You walk over to the empty terrarium, which is still waiting for an animal.
+<br><br>
+<<link [[Back|Bedroom]]>><</link>>
+<br>
+
+:: Pet Feed
+<<set $outside to 0>><<effects>>
+<<set _def to Menagerie.speciesDef($petCareTarget)>>
+<<set _s to Menagerie.status($petCareTarget)>>
+<<if Menagerie.feed($petCareTarget, $petFeedPremium)>>
+	<<if _def.diet is "feed">>
+		You grab a bag of <<if $petFeedPremium>>premium <</if>>feed laying at the end of your bed and open it, inside it there is chunks of red pellets, it's obviously crushed and ground up meat which is suitable for a snake to eat.
+		<<if _s.where is "carried">>
+			Without much waiting, you pick up a few pieces and hold it out to the <<= _s.label>> neatly wrapped around your shoulder. It hisses and lashes at the pellets, swallowing each one.
+		<<else>>
+			Without much waiting, you drop a few pellets into the terrarium and watch your <<= _s.label>> slither towards it before lashing out and swallowing it whole.
+		<</if>>
+	<</if>>
+<<else>>
+	<span class="red">You have nothing to feed it.</span>
+<</if>>
+<br><br>
+<<link [[Next|Pet Care]]>><</link>>
+<br>
+
+:: Pet Play
+<<set $outside to 0>><<effects>>
+<<set _s to Menagerie.status($petCareTarget)>>
+<<if Menagerie.play($petCareTarget)>>
+	<<if $petCareTarget is "snake">>
+		You hold your <<= _s.label>> in both hands and let it crawl between your fingers. Its scales feel cool and dry against your skin. It wraps around your wrist and rests there, flicking its tongue.
+	<<else>>
+		You press your fingers into your <<= _s.label>> and gently squeeze it. It makes a soft gurgling sound as its body changes shape around your hands. Its small black eyes look up at you.
+	<</if>>
+	<br><br>
+	<<if _s.bond gte 70>>
+		<span class="green">It enjoys being close to you.</span>
+	<<elseif _s.bond gte 45>>
+		<span class="teal">It moves closer to your hand.</span>
+	<<elseif _s.bond gte 20>>
+		<span class="lblue">It's becoming more comfortable with you.</span>
+	<<else>>
+		<span class="purple">It lets you touch it.</span>
+	<</if>>
+<</if>>
+<br><br>
+<<link [[Next|Pet Care]]>><</link>>
+<br>
+
+:: Pet Carry
+<<set $outside to 0>><<effects>>
+<<set _def to Menagerie.speciesDef($petCareTarget)>>
+<<set _s to Menagerie.status($petCareTarget)>>
+<<if Menagerie.carry($petCareTarget)>>
+	<<if $petCareTarget is "snake">>
+		You reach into the tank, your <<= _s.label>> hisses and curls around your arm before slithering up and around your neck.
+	<<else>>
+		You reach out and grab the jar that contained your gurgling companion and slowly unscrew the lid.
+		Once the lid is off the jar, the <<= _s.label>> crawls out and up your arm and eventually settles on your head.
+	<</if>>
+	<br><br>
+	<<if _s.bond gte Menagerie.Tuning.supportMinBond>>
+		<span class="green">It knows you well enough now that it might act if you're threatened.</span>
+	<<else>>
+		<span class="purple">It doesn't know you well enough to be much use if things turn bad.</span>
+	<</if>>
+<</if>>
+<br><br>
+<<link [[Next|Bedroom]]>><</link>>
+<br>
+
+:: Pet Stow
+<<set $outside to 0>><<effects>>
+<<set _s to Menagerie.status($petCareTarget)>>
+<<if Menagerie.stow($petCareTarget)>>
+	<<if $petCareTarget is "snake">>
+		You reach up and pry the snake off your neck, it gives a slight hiss in protest as you wrap your hands around it gently before placing it into its enclosure.
+	<<else>>
+		You reach up and pull your <<= _s.label>> off your head.
+		It lets out a cute gurgle as you grab it, seemingly not wanting to depart from you, but eventually you manage to pry it off and place it in the jar.
+		<br><br>
+		The slime swirls around in the jar, its dotted cute eyes following your every movement.
+	<</if>>
+<</if>>
+<br><br>
+<<link [[Next|Bedroom]]>><</link>>
+<br>
+
+:: Pocket Feed Pet
+<<effects>>
+<<set _petFoodBack to $petFoodReturn or "Bedroom">>
+<<if $petFoodResult>>
+	<<set _r to $petFoodResult>>
+	<<set _food to setup.foodstuff[_r.key].singular>>
+	<<set _pet to Menagerie.carried()>>
+	<<set _snake to _pet and _pet.species is "snake">>
+	<<switch _r.verdict>>
+		<<case "eat">>
+			<<if _snake>>
+				You offer your <<= _r.label>> a piece of <<= _food>>. It strikes and swallows it.
+			<<else>>
+				You put the <<= _food>> into your <<= _r.label>>. It closes around the food until nothing is left.
+			<</if>>
+			<br><br>
+			<span class="green">That should keep it fed for a while.</span>
+		<<case "sick">>
+			<<if _snake>>
+				You offer your <<= _r.label>> a piece of <<= _food>>. It eats it, but soon throws it back up over your hand before lying still.
+			<<else>>
+				You put the <<= _food>> into your <<= _r.label>>. It closes around the food, then pushes it back out over your arm. Its body turns cloudy and its eyes disappear from view.
+			<</if>>
+			<br><br>
+			<span class="red">It looks sick. It will need some time to recover.</span>
+		<<default>>
+			<<if _snake>>
+				You offer your <<= _r.label>> a piece of <<= _food>>. It tastes the air, turns its head away, and refuses to eat it.
+			<<else>>
+				You offer the <<= _food>> to your <<= _r.label>>. It pulls away from your hand and refuses it.
+			<</if>>
+			<br>
+			<span class="purple">It doesn't want that food.</span>
+	<</switch>>
+	<br><br>
+	<<link [[Next|_petFoodBack]]>>
+		<<unset $petFoodResult $petFoodReturn>>
+	<</link>>
+<<else>>
+	Nothing happens.
+	<br><br>
+	<<link [[Next|_petFoodBack]]>>
+		<<unset $petFoodReturn>>
+	<</link>>
+<</if>>
+<br>
+
+:: Pet Recovered
+<<effects>>
+<<set _mgS to Menagerie.status($petRecoverTarget)>>
+<<set _mgCause to _mgS.lostCause>>
+<<run Menagerie.recover($petRecoverTarget)>>
+<<if _mgCause is "drowned">>
+	It is lying in the shallow water, partly above the surface. It does not move, and you think it might be dead.
+	<br><br>
+	<<if $petRecoverTarget is "snake">>
+		Then its body moves slightly. You lift the snake from the water. It lies weakly across your hands, too cold and tired to grip you.
+	<<else>>
+		Then the slime moves slightly. You scoop it out of the water and hold it in your palms. Its body is thin and weak, and its eyes slowly appear on its surface.
+	<</if>>
+<<elseif $petRecoverTarget is "snake">>
+	You crouch and hold out your arm. The snake stays still while its tongue flicks at the air. After a few seconds, it crawls onto your wrist and moves along your arm.
+<<else>>
+	You crouch and hold out your hand. The slime waits before moving over your fingers and into your palm. It gives a quiet gurgle as two small black eyes appear on its surface and look at you.
+<</if>>
+<br><br>
+<<if _mgCause is "drowned">>
+	<span class="red">It is starving and very weak.</span>
+	It will need several days of food and care to recover. If you stop caring for it, it may leave again.
+<<elseif _mgCause is "neglect">>
+	<span class="purple">It left because you stopped looking after it, but it still came back.</span>
+<<elseif _mgCause is "swept">>
+	<span class="green">It's thinner than before and still cold, but it's alive.</span>
+<<else>>
+	<span class="green">It's thinner than before, but it's alive.</span>
+<</if>>
+You put it back in its enclosure when you get home.
+<br><br>
+<<link [[Next|$petRecoverReturn]]>><</link>>
+<br>
+
+:: Pet Intimacy
+<<set $outside to 0>><<effects>>
+<<set _def to Menagerie.speciesDef($petCareTarget)>>
+<<set _s to Menagerie.status($petCareTarget)>>
+<<if _def.diet is "feed" and Menagerie.intimacyBlock($petCareTarget) isnot "">>
+	It isn't interested.
+	<br><br>
+	<<link [[Back|Pet Care]]>><</link>>
+<<else>>
+	<<if $petCareTarget is "snake">>
+		You take your <<= _s.label>> out and let it move freely. It slides over your collarbone, then starts moving down your body while flicking its tongue against your skin.
+	<<elseif _s.where is "carried">>
+		You reach up and grab your pet slime and gently set it on the ground, then strip and lie back for it. Your <<= _s.label>> crawls onto you and spreads over your skin.
+		<br><br>
+		It is hungry and starts feeding from you, moving toward the damp areas of your body.
+	<<else>>
+		You reach out and unscrew the jar, allowing your adorable slime to crawl out. Once it's on the floor you strip naked, and your <<= _s.label>> spreads over your skin.
+		<br><br>
+		It is hungry and starts feeding from you, moving toward the damp areas of your body.
+	<</if>>
+	<br><br>
+	<<link [[Next|Pet Intimacy Swarm]]>><<set $swarmstart to 1>><</link>>
+<</if>>
+<br>
+
+:: Pet Intimacy Swarm
+<<if $swarmstart is 1>>
+	<<unset $swarmstart>>
+	<<set $combat to 1>>
+	<<set $enemytype to "swarm">>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<set $petEncounter to 1>>
+	<<set $nochoke to 1>>
+	<<if $petCareTarget is "snake">>
+		<<swarminit "snakes" "snake" "slithering" "slither" "keep back" 1 0>>
+	<<else>>
+		<<swarminit "slimes" "slime" "oozing" "ooze" "keep back" 1 0>>
+	<</if>>
+	<<set $petIntimacyOrgasms to $orgasmcount>>
+	<<set $petIntimacyTurns to 0>>
+<</if>>
+<<effects>>
+<<set $petIntimacyTurns += 1>>
+<<if $swarm.amount.genital[0] lte 0 and $swarm.amount.genital[1] lte 0 and $swarm.amount.butt[1] lte 0>>
+	<<if $worn.over_lower.vagina_exposed gte 1 and $worn.lower.vagina_exposed gte 1 and $worn.under_lower.vagina_exposed gte 1>>
+		<<set $swarm.amount.chest to 0>>
+		<<set $swarm.amount.butt[0] to 0>>
+		<<set $swarm.amount.active[4] to 0>>
+		<<set $swarm.amount.genital[0] to 1>>
+	<</if>>
+<</if>>
+<<swarmeffects>>
+<<swarm>>
+<<swarmactions>>
+<<if breederOrgasmDenied() and $orgasmcount lte $petIntimacyOrgasms>>
+	<span class="pink">This doesn't give your body what it needs.</span>
+	<br><br>
+<</if>>
+<<if $orgasmcount gt $petIntimacyOrgasms or $petIntimacyTurns gte Menagerie.Tuning.intimacyTurns>>
+	<span id="next"><<link [[Next|Pet Intimacy End]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Pet Intimacy Swarm]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Pet Intimacy End
+<<set $outside to 0>><<effects>>
+<<set _r to Menagerie.intimacyEnd($petCareTarget, $orgasmcount gt $petIntimacyOrgasms)>>
+<<if _r>>
+	<<if _r.satisfied>>
+		<<if $petCareTarget is "snake">>
+			Your <<= _r.label>> stops and curls up beside your thigh to rest.
+		<<else>>
+			When it finally ends, the slime bounces and gurgles with happiness.
+			<br><br>
+			Your <<= _r.label>> slides off you and settles on the floorboards. Slime still covers your legs up to your knees.
+		<</if>>
+	<<else>>
+		<<if $petCareTarget is "snake">>
+			Your <<= _r.label>> stops trying and moves away from you, searching for somewhere warm.
+		<<else>>
+			Your <<= _r.label>> slides off you and spreads across the floorboards. It is still hungry.
+		<</if>>
+	<</if>>
+	<br><br>
+	<<if _r.fed>>
+		<span class="gold">It won't need feeding for a long while.</span>
+		<br>
+	<<elseif $petCareTarget is "slime">>
+		<span class="purple">It's still hungry.</span>
+		<br>
+	<</if>>
+	<<if _r.satisfied>>
+		<span class="green">It trusts you more than before.</span>
+	<<else>>
+		<span class="green">It trusts you a little more than before.</span>
+	<</if>>
+<</if>>
+<<endcombat>><<clotheson>>
+<<link [[Next|Bedroom]]>><</link>>
+<br>

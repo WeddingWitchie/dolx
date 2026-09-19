@@ -1,0 +1,370 @@
+:: Pet Shop Terrarium
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+<<petShopClerk>>
+<<menagerieShopPrice `Menagerie.Tuning.terrariumPrice`>>
+<<if $money lt _mgPrice>>
+	<span class="red">You can't afford it.</span>
+<<else>>
+	<<set $money -= _mgPrice>>
+	<<run Menagerie.state().terrarium = true>>
+	<<petClerkAction>>
+	<br><br>
+	<<petClerk>>
+	<br><br>
+	You point out one of the glass terrariums stacked along the back wall. The clerk hauls it down, checks the seals and the heat lamp, and tapes the lid shut for the walk home.
+	<br><br>
+	"It'll want a warm corner, out of the draught," <<he>> says. "Set it up before you put anything in it."
+<</if>>
+<br><br>
+<<link [[Back|Pet Shop]]>><<endevent>><</link>>
+<br>
+
+:: Pet Shop Snakes
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+You crouch beside the lit tanks. A snake rests inside each one, with a small card showing its colour.
+<br><br>
+<<for _colour range Menagerie.SPECIES.snake.colours>>
+	<<capture _colour>>
+		<<icon `"pet/" + _colour + "snaketank.png"`>><<link `_colour.toUpperFirst() + " snake"` "Pet Shop Snake Buy">><<set $petShopColour to _colour>><</link>>
+	<</capture>>
+	<br>
+<</for>>
+<br>
+<<link [[Back|Pet Shop]]>><</link>>
+<br>
+
+:: Pet Shop Snake Buy
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+<<petShopClerk>>
+<<set _mgBase to $fame.bestiality gte 600 ? Menagerie.Tuning.snakePriceFamous : Menagerie.Tuning.snakePrice>>
+<<menagerieShopPrice _mgBase>>
+<<if $money lt _mgPrice>>
+	<span class="red">You can't afford it.</span>
+	<br><br>
+	<<link [[Back|Pet Shop Snakes]]>><<endevent>><</link>>
+<<else>>
+	<<set $money -= _mgPrice>>
+	<<run Menagerie.acquire("snake", $petShopColour)>>
+	<<petClerkAction>>
+	<br><br>
+	<<petClerk>>
+	<br><br>
+	<<if $fame.bestiality gte 600>>
+		The clerk lifts the <<= $petShopColour>> snake out without a word and boxes it, and you notice <<he>> takes care that <<his>> hands never come near yours. The price <<he>> quotes is higher than the card says. You pay it.
+	<<else>>
+		"Good choice," the clerk says, easing the <<= $petShopColour>> snake into a ventilated box. "Handle it daily and it'll settle to you. Ignore it and it won't."
+	<</if>>
+	<br><br>
+	<<He>> talks you through the heat lamp, the feeding, and how to tell when a snake has had enough of being held.
+	<br><br>
+	<<link [[Back|Pet Shop]]>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Pet Shop Feed
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+<<menagerieShopPrice `Menagerie.Tuning.feedPrice`>>
+<<if $money lt _mgPrice>>
+	<span class="red">You can't afford it.</span>
+<<else>>
+	<<set $money -= _mgPrice>>
+	<<run Menagerie.state().feed += Menagerie.Tuning.feedServings>>
+	You buy a sealed bag of feed pellets.
+<</if>>
+<br><br>
+<<link [[Back|Pet Shop]]>><</link>>
+<br>
+
+:: Pet Shop Ask
+<<set $outside to 0>><<set $location to "shopping_centre">><<effects>>
+<<petShopClerk>>
+<<set $daily.petShopAsked to true>>
+<<petClerkAction>>
+<br><br>
+<<petClerk>>
+<br><br>
+You ask, carefully, whether the shop ever gets anything in that isn't on the floor.
+<br><br>
+The clerk's smile doesn't move, but something behind it does. <<He>> glances past you at the door, then busies <<himself>> straightening a shelf that doesn't need it.
+<br><br>
+<<if $skulduggery gte 200 and random(1, 100) lte Math.clamp(20 + $skulduggery / 10, 20, 80)>>
+	You let the silence sit. You've asked enough people for things they shouldn't give you to know that the next person to speak loses.
+	<br><br>
+	The clerk breaks. "Not here," <<he>> says quietly, and writes something on the back of a receipt. "There's a cabin past the lake. Don't say where you got this, and don't go in daylight."
+	<br><br>
+	<<run Menagerie.state().note = true>>
+	<span class="green">You pocket the note.</span>
+<<else>>
+	"Everything we have is out front," <<he>> says brightly, and moves down the counter to serve someone else.
+	<br><br>
+	You've lost <<him>>. Maybe another day.
+<</if>>
+<br><br>
+<<link [[Back|Pet Shop]]>><<endevent>><</link>>
+<br>
+
+:: MysteriousCabin
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<petSync>>
+<<set _mgT to Menagerie.Tuning>>
+<<set _mgFee to $garterBluffed ? _mgT.ubmFeeBluffed : _mgT.ubmFee>>
+<<if !$garterLeave>>
+	A small dilapidated cabin sits near the lake, the paint flaking off the walls and a half-collapsed chimney still puffing white smoke into the night sky. A single lantern and the light of a fire illuminate the cracked windows.
+	<br><br>
+	You knock on the cabin door. There's a yelp from inside the cabin, followed by the frantic rustling and muffled cursing. The sounds stop and you are left in silence. A moment later there is the sound of multiple locks being undone, before finally the door cracks open.
+	<br><br>
+	A hooded figure peers out at you. <<Hes>> tall but <<his>> frame is hidden by a large black cloak and hood, and a featureless black mask aside from two dark eye holes conceals <<his>> face. <<He>> is holding a hunting rifle in one hand.
+	<br><br>
+	"The fuck you want?" <<he>> asks, <<his>> voice strangely altered by the mask <<he>> wore.
+	<br><br>
+	<<if Menagerie.state().note>>
+		<<link [[Hand <<him>> the note|garterNote]]>><</link>>
+		<br>
+	<</if>>
+	<<link [[Sorry, I was just leaving|Forest]]>><<endevent>><<set $garterLeave to 1>><</link>>
+<<else>>
+	You knock on the cabin door. There is silence for a moment before the door is suddenly wrenched open, a hunting rifle pointed at you.
+	<br><br>
+	"Get off my property you son of a-," the figure pauses, the front of the barrel dropping away from your face. "You again?! If you ain't got the money then stop wasting my time! I'm a very busy person ya know."
+	<br><br>
+	<<if $money gte _mgFee>>
+		<<link [[I have the money now|garterReturn]]>><</link>>
+	<<elseif $garterBluffed>>
+		<span class="red">Come back when you're less broke.</span>
+	<<else>>
+		<span class="red">Come back when you have the money.</span>
+	<</if>>
+	<br>
+	<<link [[Leave|Forest]]>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: garterNote
+<<location "UBM">><<effects>>
+<<garterNpc>>
+You hold out the note the pet shop clerk gave you. Quicker than you can react, the hooded figure snatches the slip of paper from your hands and reads it.
+<br><br>
+"Oh ho! A customer, ay? Looking for a more exotic companion are ya? Well let's see if you got the money for the merchandise. There's a uh... A membership fee! Yeah, a membership fee! It's <<printprice `Menagerie.Tuning.ubmFee`>> to join and get access to the merchandise."
+<br><br>
+<<link [[Call <<his>> bluff|garterBluff]]>><</link>> <span class="yellow">Skulduggery required</span>
+<br>
+<<garterFee `Menagerie.Tuning.ubmFee`>>
+<<link [[Leave|Forest]]>><<endevent>><<set $garterLeave to 1>><</link>>
+<br>
+
+:: garterReturn
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<if $garterBluffed>>
+	"About damn time! Now pay up, its <<printprice `Menagerie.Tuning.ubmFeeBluffed`>>, I'm surprised you couldn't even afford that much," <<he>> murmurs, lowering the rifle fully and holding out a hand expectantly.
+	<br><br>
+	<<garterFee `Menagerie.Tuning.ubmFeeBluffed`>>
+<<else>>
+	"About damn time! Now pay up, its <<printprice `Menagerie.Tuning.ubmFee`>>," <<he>> demands, lowering the rifle fully and holding out a hand expectantly.
+	<br><br>
+	<<link [[Call <<his>> bluff|garterBluff]]>><</link>> <span class="yellow">Skulduggery required</span>
+	<br>
+	<<garterFee `Menagerie.Tuning.ubmFee`>>
+<</if>>
+<<link [[Leave|Forest]]>><<endevent>><</link>>
+<br>
+
+:: garterBluff
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<if $skulduggery gte Menagerie.Tuning.bluffSkulduggery>>
+	<<set $garterBluffed to 1>>
+	You have spent enough time around seedy people to know when someone is blatantly lying. This person is no different from the countless other money hungry people you've met.
+	<br><br>
+	You call <<him>> out on <<his>> bluff, crossing your arms and glaring at <<him>>, unimpressed.
+	<br><br>
+	"Huh... You're not as dumb as you look. Fine, I'll let you in for <<printprice `Menagerie.Tuning.ubmFeeBluffed`>> flat. But you better buy something, these things aren't easy to catch ya know."
+	<br><br>
+	<<garterFee `Menagerie.Tuning.ubmFeeBluffed`>>
+	<<link [[Leave|Forest]]>><<endevent>><<set $garterLeave to 1>><</link>>
+<<else>>
+	You haven't spent a lot of time around seedy people, so you are unsure whether the cloaked figure is lying or not.
+	<br><br>
+	You call <<him>> out on <<his>> bluff anyway, but the words don't come out as confident sounding as you would have liked them to be. Your nervous fidgeting isn't helping either.
+	<br><br>
+	"You calling me a fucking liar?!" <<he>> barks, grabbing you by the scruff of your shirt. "Do you have any idea how expensive what I do is? If you ain't got the god damn money then go out and catch your own beast you damn brat! Don't come back until you can pay!"
+	<br><br>
+	<<He>> shoves you to the ground and slams the door in your face.
+	<<stress 6>><<gstress>>
+	<br><br>
+	<<link [[Next|Forest]]>><<endevent>><<set $garterLeave to 1>><</link>>
+<</if>>
+<br>
+
+:: garterPaid
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<set $garter to 1>>
+"Perfect! Pleasure doing business with you. Now come along, I'll show you what I got in-stock so far."
+<br><br>
+<<He>> leads you inside the cabin. The interior is rather bare and utilitarian but clearly lived in. Crackling orange flames blaze in the fire place, casting a flickering orange glow across the cabin.
+<br><br>
+"You can call me Garter by the way," <<he>> says while leading you down a set of stairs tucked away in the corner of the room. "I can sell you any manner of creature and the stuff needed to take care of them. Keep in mind I don't deal in cats, dogs, rabbits, or any of those mundane animals. Though I'm sure the pet shop clerk wouldn't have guided you to me if they didn't think you could handle something more... interesting."
+<br><br>
+Garter leads you down the stairs and into a surprisingly large room that seems to stretch on for hundreds of feet. The room is filled with cages, tanks, and habitats full of animals. Despite Garter's gruff and impolite nature, all the animals look to be well taken care of. They have plenty of food, clean water, and habitats large enough for most of the animals to comfortably roam around in.
+<br><br>
+"Go ahead, look around. See if anything strikes your fancy," Garter says before taking a seat behind a nearby counter. "Keep in mind though that these animals aren't cheap, nor are they cheap to take care of. Got an inventory list here if ya want to look through it."
+<br><br>
+<<link [[Next|UBM]]>><</link>>
+<br>
+
+:: UBM
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<petSync>>
+Garter sits behind the counter near the stairs reading a magazine, completely ignoring your existence. You roam around the underground pet shop, looking at all the strange and unique creatures.
+<br><br>
+<<link [[Browse pets|UBMPets]]>><</link>>
+<br>
+<<link [[Browse enclosures|UBMTanks]]>><</link>>
+<br>
+<<menagerieShopPrice `Menagerie.Tuning.premiumFeedPrice`>>
+<<if $money gte _mgPrice>>
+	<<link [[Buy premium feed (<<printprice `Menagerie.Tuning.premiumFeedPrice`>>)|UBMFeed]]>><</link>> | Owned: <span class="gold"><<= Menagerie.state().premiumFeed>></span>
+<<else>>
+	<span class="red">You can't afford premium feed (<<printprice `Menagerie.Tuning.premiumFeedPrice`>>).</span>
+<</if>>
+<br>
+
+/* Anything Bailey confiscated ends up here, and Garter will happily sell it back to you. */
+<<set _mgHeld to Menagerie.lostAt("ubm")>>
+<<if _mgHeld.length>>
+	<br>
+	<<for _mgPet range _mgHeld>>
+		<<capture _mgPet>>
+			<<menagerieShopPrice `Menagerie.Tuning.recoveryFee`>>
+			<<if $money gte _mgPrice>>
+				<span class="gold">Garter has your <<= _mgPet.colour>> <<= Menagerie.speciesDef(_mgPet.species).name>>.</span>
+				<<link [[Buy it back (<<printprice `Menagerie.Tuning.recoveryFee`>>)|UBM Recover]]>><<set $petRecoverTarget to _mgPet.species>><</link>>
+			<<else>>
+				<span class="red">Garter has your <<= _mgPet.colour>> <<= Menagerie.speciesDef(_mgPet.species).name>>, but you can't afford the finder's fee.</span>
+			<</if>>
+		<</capture>>
+		<br>
+	<</for>>
+<</if>>
+<br>
+<<link [[Leave|Forest]]>><<endevent>><</link>>
+<br>
+
+:: UBM Recover
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<menagerieShopPrice `Menagerie.Tuning.recoveryFee`>>
+<<if $money lt _mgPrice>>
+	<span class="red">You can't afford it.</span>
+<<else>>
+	<<set $money -= _mgPrice>>
+	<<set _mgS to Menagerie.status($petRecoverTarget)>>
+	<<run Menagerie.recover($petRecoverTarget)>>
+	"Ah, that one." Garter doesn't look up from the magazine. "Landlord of yours sold it on. Not my business how they got it."
+	<br><br>
+	They lift the container down and set it on the counter. Your <<= _mgS.label>> presses itself against the glass the moment it sees you.
+<</if>>
+<br><br>
+<<link [[Next|UBM]]>><</link>>
+<br>
+
+:: UBMTanks
+<<location "UBM">><<effects>>
+<<garterNpc>>
+Look around, you spot various abnormally large cages and glass tanks for sale, most of which have price tags that a normal person would never be able to afford.
+<br><br>
+<<link [[Go back|UBM]]>><</link>>
+<br>
+
+:: UBMFeed
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<menagerieShopPrice `Menagerie.Tuning.premiumFeedPrice`>>
+<<if $money lt _mgPrice>>
+	<span class="red">You can't afford it.</span>
+<<else>>
+	<<set $money -= _mgPrice>>
+	<<run Menagerie.state().premiumFeed += Menagerie.Tuning.feedServings>>
+	You walk over to the feed section and grab a large bag of premium feed, it should be more than enough to last a while.
+<</if>>
+<br><br>
+<<link [[Next|UBM]]>><</link>>
+<br>
+
+:: UBMPets
+<<location "UBM">><<effects>>
+<<garterNpc>>
+You take the time to browse the various pets.
+<br><br>
+<<menagerieShopPrice `Menagerie.Tuning.slimePrice`>>
+<<if Menagerie.owned("slime")>>
+	<span class="green">You already have a slime.</span>
+<<elseif $money gte _mgPrice>>
+	<<link [[Slimes (<<printprice `Menagerie.Tuning.slimePrice`>>)|UBMSlime]]>><</link>>
+<<else>>
+	<span class="red">You can't afford a slime (<<printprice `Menagerie.Tuning.slimePrice`>>).</span>
+<</if>>
+<br>
+<<link [[Go back|UBM]]>><</link>>
+<br>
+
+:: UBMSlime
+<<location "UBM">><<effects>>
+<<garterNpc>>
+While looking around Garter's beast market you notice a wall of shelves tucked away in the corner. On those shelves are dozens of large bottles all containing various coloured liquids.
+<br><br>
+You approach the shelves out of curiosity. As you get closer you notice little black dots appearing in the liquid of the bottles you are closest to. You move along the shelves, the little black dots following your movements.
+<br><br>
+More black dots, or rather eyes you've realised, begin to appear in all of the jars. Soon, you find yourself being examined by whatever living liquid is inside these jars.
+<br><br>
+"Ah, I see you've found my slime collection," Garter says, walking up beside you and gesturing to the array of jarred slimes. "These little guys were rather slippery to catch, but they sell well."
+<br><br>
+<<for _colour range Menagerie.SPECIES.slime.colours>>
+	<<capture _colour>>
+		<<icon `"pet/" + _colour + "slimejar.png"`>><<link `_colour.toUpperFirst() + " slime"` "Buy Slime">><<set $petShopColour to _colour>><</link>>
+	<</capture>>
+	<br>
+<</for>>
+<br>
+<<link [[Go back|UBMPets]]>><</link>>
+<br>
+
+:: Buy Slime
+<<location "UBM">><<effects>>
+<<garterNpc>>
+<<menagerieShopPrice `Menagerie.Tuning.slimePrice`>>
+<<if $money lt _mgPrice>>
+	<span class="red">You can't afford it.</span>
+	<br><br>
+	<<link [[Back|UBMSlime]]>><</link>>
+<<else>>
+	<<set $money -= _mgPrice>>
+	<<run Menagerie.acquire("slime", $petShopColour)>>
+	You approach a jar containing a <<= $petShopColour>> slime. Its little black eyes grow wider as you approach and the jar begins to lightly rattle in place.
+	<br><br>
+	"Seems that one likes you. They make excellent pets. Or playthings. Plenty of my clientele buy one to be a living fuck toy. Not a bad idea considering they can consume the bodily fluids of other organic beings to sustain themselves. Makes taking care of them rather easy."
+	<br><br>
+	"I'll take this one," you say, picking up the jar containing the <<= $petShopColour>> slime.
+	<br><br>
+	"Excellent choice!" Garter exclaims, clapping <<his>> hands. You swear you could see a hint of greed flashing in those dark eye holes of <<his>> mask.
+	<br><br>
+	Garter leads you back to <<his>> counter and tallies up the cost of the slime.
+	<br><br>
+	"That will be <<printprice `Menagerie.Tuning.slimePrice`>>!"
+	<br><br>
+	<<link [[Next|UBM]]>><</link>>
+<</if>>
+<br>
+
+:: garterGone
+<<location "UBM">><<effects>>
+<<garterNpc>>
+You knock on the cabin door. No one answers. You try to peer through the windows, but heavy curtains obscure your view.
+<br><br>
+It seems like no one is home.
+<br><br>
+<<link [[Leave|Forest]]>><<endevent>><</link>>
+<br>

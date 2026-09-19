@@ -141,3 +141,17 @@ function namedNpcReaction(index, event, detail) {
 
 window.namedNpcReaction = namedNpcReaction;
 DefineMacroS("namedNpcReaction", namedNpcReaction);
+
+/**
+ * Returns the correct swarm noun for the given creature count.
+ *
+ * @param {number} [count] Defaults to the current swarm count.
+ * @returns {string} Singular name for 1 creature, plural type otherwise.
+ */
+function swarmWord(count) {
+	if (!V.swarm) return "";
+	const n = count === undefined ? V.swarm.amount?.active?.[0] : count;
+	return n === 1 ? V.swarm.name : V.swarm.type;
+}
+
+window.swarmWord = swarmWord;

@@ -463,6 +463,12 @@ module.exports = {
 		poppyDailyTraits: "readonly",
 		poppyStatusCheck: "readonly",
 		modLISelected: "readonly",
+		// Magical Menagerie (pet/01-menagerie.js), exported on window
+		Menagerie: "readonly",
+		// pocket/pocket.js, exported on window
+		foodConsumeServing: "readonly",
+		// base-combat/combat.js, exported on window
+		swarmWord: "readonly",
 		// X-Change / merge-surfaced globals (top-level functions shared across concatenated scripts)
 		resolveWardrobeLocation: "readonly",
 		wardrobesIsolated: "readonly",

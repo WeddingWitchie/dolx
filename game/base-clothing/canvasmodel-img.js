@@ -86,6 +86,11 @@ DefineMacro("modelprepare-player-body", function () {
 
 	T.modeloptions.tummy_parasite = V.parasite.tummy.name;
 
+	/* Magical Menagerie */
+	T.modeloptions.pet = "";
+	const carriedPetRender = typeof Menagerie !== "undefined" ? Menagerie.renderInfo() : null;
+	if (carriedPetRender) T.modeloptions.pet = carriedPetRender.sprite;
+
 	/*
 			██   ██  █████  ██ ██████
 			██   ██ ██   ██ ██ ██   ██

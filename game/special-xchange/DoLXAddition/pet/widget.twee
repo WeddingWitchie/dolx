@@ -1,0 +1,421 @@
+:: Menagerie Widgets [widget]
+/* Thin bridge between twee and Menagerie (01-menagerie.js). No game logic lives here. */
+
+<<widget "petSync">>
+	<<run Menagerie.sync()>>
+<</widget>>
+
+<<widget "petCard">>
+	<<= Menagerie.petCardHtml(_args[0])>>
+<</widget>>
+
+<<widget "petIcon">>
+	<<set _mgP to Menagerie.getPet(_args[0])>>
+	<<set _mgDef to Menagerie.speciesDef(_args[0])>>
+	<<if _mgP and _mgP.where is "home">>
+		<<icon _mgDef.icon(_mgP.colour)>>
+	<<else>>
+		<<icon _mgDef.emptyIcon>>
+	<</if>>
+<</widget>>
+
+<<widget "pet-combat-support">>
+	<<if Menagerie.exists()>>
+		<<set _mgPlan to Menagerie.combatSupport()>>
+		<<if _mgPlan>>
+			<<set _mgIndexWas to $index>>
+			<<personselect _mgPlan.target>>
+			<<set _mgNamed to namedNpcInSlot(_mgPlan.target)>>
+			<br>
+			<<if _mgPlan.act is "bolt">>
+				<<petBolts _mgPlan>>
+			<<else>>
+				<<petAttacks _mgPlan>>
+				<<petAttackReaction _mgPlan _mgNamed>>
+			<</if>>
+			<br><br>
+			<<personselect _mgIndexWas>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "petBolts">>
+	<<set _b to _args[0]>>
+	<<if _b.species is "snake">>
+		<span class="red">Your <<= _b.label>> quickly slips from around your neck</span> and drops to the ground.
+		It slithers away from the noise before you can grab it.
+	<<else>>
+		<span class="red">Your <<= _b.label>> quickly climbs down from your head</span> and drops to the ground.
+		It moves away from the noise before you can grab it.
+	<</if>>
+	<br>
+	<span class="purple">It doesn't know you well enough to stay in the middle of this.</span>
+<</widget>>
+
+<<widget "petAttacks">>
+	<<set _a to _args[0]>>
+	<<if _a.act is "strike">>
+		Your <<= _a.label>> jumps from your shoulder and <span class="green">bites the <<person>> with its fangs.</span>
+		<<if $enemyno gte 2>>
+			<<set _thedamage to _a.power>>
+			<<npcdamage _a.target>>
+			<<set $enemyhealth -= _a.power>>
+		<<else>>
+			<<set $enemyhealth -= _a.power>>
+			<<if $NPCList[_a.target] and Number.isFinite(Number($NPCList[_a.target].health))>>
+				<<set $NPCList[_a.target].health to Math.max(0, Number($NPCList[_a.target].health) - _a.power)>>
+			<</if>>
+		<</if>>
+	<<else>>
+		Your <<= _a.label>> spills from your head and <span class="green">slaps the <<persons>> face</span>.
+		<<if $enemyno gte 2>>
+			<<set _thedamage to _a.power>>
+			<<npcdamage _a.target>>
+			<<set $enemyhealth -= _a.power>>
+		<<else>>
+			<<set $enemyhealth -= _a.power>>
+			<<if $NPCList[_a.target] and Number.isFinite(Number($NPCList[_a.target].health))>>
+				<<set $NPCList[_a.target].health to Math.max(0, Number($NPCList[_a.target].health) - _a.power)>>
+			<</if>>
+		<</if>>
+		<<if $pain gt 0>>
+			<br>
+			<span class="teal">You feel less stressed.</span><<lstress>><<stress -3>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "petLoseCarried">>
+	<<if Menagerie.exists()>>
+		<<set _mgLost to Menagerie.loseCarried(_args[0])>>
+		<<if _mgLost>>
+			<br>
+			<span class="red">Your <<= _mgLost.colour>> <<= Menagerie.speciesDef(_mgLost.species).name>> is gone.</span>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "menagerieSocial">>
+	<<if Menagerie.exists() and Menagerie.allPets().length>>
+		<br>
+		<span class="gold">Pets</span>
+		<div id="menagerie-relations" class="relation-box-list">
+			<<= Menagerie.socialHtml()>>
+		</div>
+	<</if>>
+<</widget>>
+
+<<widget "petRunaway">>
+	<<petSync>>
+	<<set _mgFleds to Menagerie.takeFlightReports()>>
+	<<if _mgFleds.length>>
+		<<for _mgFled range _mgFleds>>
+			<<if _mgFled.species is "snake">>
+				<<if _mgFled.from is "carried">>
+					As you enter your room, your <<= _mgFled.label>> hisses and bites at you in agitation. You instinctively flinch and fall backwards, and when your eyes open again, the snake is no longer around your neck.
+					<br><br>
+					You spot the tail of the snake leaving the window just before vanishing into the thicket.
+				<<else>>
+					As you enter your room, you notice the lid of the snake terrarium has been pushed open. Your <<= _mgFled.label>> is nowhere to be seen.
+				<</if>>
+			<<else>>
+				<<if _mgFled.from is "carried">>
+					As you enter your room, your <<= _mgFled.label>> jumps off your head, and before you have a chance to catch it, the slime slips into the floorboards and disappears.
+				<<else>>
+					As you enter your room, you notice the lid of your slime's jar is lying on the floor. Your beloved slime companion is nowhere to be found.
+				<</if>>
+			<</if>>
+			<br><br>
+		<</for>>
+		<<link [[Next|Bedroom]]>><</link>>
+		<br>
+		<<exitAll>>
+	<</if>>
+<</widget>>
+
+<<widget "petRoomLinks">>
+	<<petSync>>
+	<<for _mgPet range Menagerie.petsAtHome()>>
+		<<capture _mgPet>>
+			<<petIcon _mgPet.species>><<link `_mgPet.colour.toUpperFirst() + " " + Menagerie.speciesDef(_mgPet.species).name` "Pet Care">><<set $petCareTarget to _mgPet.species>><</link>>
+		<</capture>>
+		<br>
+	<</for>>
+	<<if Menagerie.exists() and Menagerie.state().terrarium and !Menagerie.owned("snake")>>
+		<<icon "pet/emptysnaketank.png">><<link [[Empty terrarium|emptySnakeTank]]>><</link>>
+		<br>
+	<</if>>
+	<<set _mgCarried to Menagerie.carried()>>
+	<<if _mgCarried>>
+		<<petIcon _mgCarried.species>><<link `"Your " + _mgCarried.colour + " " + Menagerie.speciesDef(_mgCarried.species).name` "Pet Care">><<set $petCareTarget to _mgCarried.species>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "petShopClerk">>
+	<<endevent>>
+	<<if $per_npc.pet_shop_clerk>>
+		<<loadNPC 0 pet_shop_clerk>>
+	<<else>>
+		<<generate1>><<saveNPC 0 pet_shop_clerk>>
+	<</if>>
+	<<person1>>
+<</widget>>
+
+<<widget "petClerkAction">>
+	<<if $fame.bestiality gte 600>>
+		<<switch random(1, 4)>>
+			<<case 1>>
+				The clerk is sweeping the floor. <<He>> looks up at you as you approach and frowns.
+			<<case 2>>
+				The clerk isn't behind the counter. You notice <<him>> running around the store feeding the animals. It's not long before <<he>> returns.
+			<<case 3>>
+				You approach the counter and find the clerk missing. You look around and see <<him>> stocking the shelves nearby. <<He>> notices you at the counter and glares. <<He>> takes <<his>> time finishing before slowly coming over.
+			<<default>>
+				The clerk frowns as you approach the counter.
+		<</switch>>
+	<<else>>
+		<<switch random(1, 4)>>
+			<<case 1>>
+				The clerk is sweeping the floor. <<He>> looks up at you as you approach and smiles.
+			<<case 2>>
+				The clerk isn't behind the counter. You notice <<him>> running around the store feeding the animals. It's not long before <<he>> returns.
+			<<case 3>>
+				You approach the counter and find the clerk missing. You look around and see <<him>> stocking the shelves nearby. <<He>> notices you at the counter and waves, placing one final item on the shelf before hurrying over.
+			<<default>>
+				The clerk smiles as you approach the counter.
+		<</switch>>
+	<</if>>
+<</widget>>
+
+<<widget "petClerk">>
+	<<if $fame.bestiality gte 600>>
+		"<<print either(
+			"Oh, its you. What do you want?",
+			"You again? Don't try anything or I'll call security.",
+			"Guess you're looking for something other than a red rocket now, huh?",
+			"Be grateful I have to help you or get fired.",
+			"Touch any of my animals and I swear they won't find your body.",
+			"What do you want, animal fucker?",
+			"Looking for another animal to traumatize? Better look somewhere else, freak.",
+			"I'm watching you! I don't want to see you within 10 feet of the animals.",
+			"Back again? Looking to add another poor animal to your fucked up harem?",
+			"Go get lost in the forest if you want to get fucked by animals so bad.")>>"
+	<<else>>
+		"<<print either(
+			"Finding everything alright?",
+			"Looking for anything in particular?",
+			"How can I help you today?",
+			"Welcome to Highstreet Pet Shop!",
+			"What can I do for you?",
+			"Hey there! Have you checked out our reptiles yet?",
+			"Hello! Would you be interested in adopting a pet today?",
+			"Hi, welcome in! Sorry for the noise, the animals can get a bit loud sometimes.")>>"
+	<</if>>
+<</widget>>
+
+<<widget "garterNpc">>
+	<<endevent>>
+	<<if $per_npc.garter>>
+		<<loadNPC 0 garter>>
+	<<else>>
+		<<generate1>><<saveNPC 0 garter>>
+	<</if>>
+	<<person1>>
+<</widget>>
+
+<<widget "garterFee">>
+	<<menagerieShopPrice _args[0]>>
+	<<if $money gte _mgPrice>>
+		<<link `"Pay " + formatMoney(_mgPrice)` "garterPaid">><<set $money -= _mgPrice>><</link>>
+	<<else>>
+		<span class="red">You can't afford the asking price.</span>
+	<</if>>
+	<br>
+<</widget>>
+
+<<widget "petRecoveryLinks">>
+	<<if Menagerie.exists()>>
+		<<petSync>>
+		<<for _mgPet range Menagerie.lostAt(_args[0])>>
+			<<capture _mgPet>>
+				<br>
+				<<switch _args[0]>>
+					<<case "lake">>
+						<span class="purple">You spot your lost pet moving in the shallow water.</span>
+					<<case "ubm">>
+						<span class="purple">You spot your lost pet moving inside one of the tanks.</span>
+					<<default>>
+						<span class="purple">You spot your lost pet moving through the plants.</span>
+				<</switch>>
+				<br>
+				<<link `"Approach the " + _mgPet.colour + " " + Menagerie.speciesDef(_mgPet.species).name` "Pet Recovered">>
+					<<set $petRecoverTarget to _mgPet.species>>
+					<<set $petRecoverReturn to $passage>>
+				<</link>>
+				<br>
+			<</capture>>
+		<</for>>
+	<</if>>
+<</widget>>
+
+<<widget "garterCabinLink">>
+	<<if Menagerie.exists() and (Menagerie.state().note or $garter)>>
+		<<if Time.dayState is "night" or Time.dayState is "dusk">>
+			<<link [[Mysterious cabin (0:10)|MysteriousCabin]]>><<pass 10>><</link>>
+		<<else>>
+			<<link [[Mysterious cabin (0:10)|garterGone]]>><<pass 10>><</link>>
+		<</if>>
+		<br>
+	<</if>>
+<</widget>>
+
+<<widget "petCombatEnd">>
+	<<if Menagerie.exists()>>
+		<<set _mgEnd to Menagerie.combatEnd()>>
+		<<if _mgEnd>>
+			<br>
+			<<if _mgEnd.outcome is "fled">>
+				<span class="red">Your <<= _mgEnd.label>> escaped and ran away.</span>
+			<<else>>
+				<span class="red">Someone took your <<= _mgEnd.label>></span> while you could not stop them.
+			<</if>>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "petSwimPanic">>
+	<<if Menagerie.exists()>>
+		<<set _mgSwim to Menagerie.swimPanic()>>
+		<<if _mgSwim>>
+			<br>
+			<<switch _mgSwim.outcome>>
+				<<case "thrash">>
+					<span class="red">Your <<= _mgSwim.label>> panics as soon as it goes underwater.</span>
+					It kicks and struggles in your arms. You manage to keep hold of it, but it hurts you while trying to escape.
+					<<pain `Menagerie.Tuning.swimThrashPain`>><<ggpain>>
+				<<case "swept">>
+					<span class="red">Your <<= _mgSwim.label>> panics and pulls free from your arms.</span>
+					You reach for it, but miss. When you come back to the surface, you cannot see it anywhere.
+					<<stress 6>><<gstress>>
+				<<case "drown">>
+					<span class="red">Your <<= _mgSwim.label>> panics and struggles before suddenly stopping.</span>
+					You dive after it, but cannot find it. It disappears beneath the water, and you stay where you last saw it.
+					<<stress 20>><<gggstress>><<trauma 6>><<gtrauma>>
+				<<default>>
+					Your <<= _mgSwim.label>> holds tightly onto you while you swim, only letting go after you leave the water.
+			<</switch>>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "petAttackReaction">>
+	<<set _r to _args[0]>>
+	<<set _named to _args[1]>>
+	<br>
+	<<if _named isnot "">>
+		<<petAttackNamed _r _named>>
+	<<elseif _r.consensual>>
+		<<switch random(1, 3)>>
+			<<case 1>>
+				<<He>> quickly pulls away from you. "What the fuck was that?"
+			<<case 2>>
+				<<He>> pulls back and covers the bite mark with one hand. "You brought that with you? Here?!"
+			<<default>>
+				<<He>> swears and moves away from you, watching the <<= _r.label>> on your shoulder.
+		<</switch>>
+		<span class="purple">You agreed to this. Your <<= _r.label>> did not.</span>
+	<<else>>
+		<<switch random(1, 3)>>
+			<<case 1>>
+				<<He>> screams and tries to hit it away. <<His>> grip on you loosens.
+			<<case 2>>
+				"Fuck it!" <<He>> pulls back and raises <<his>> hands to protect <<his>> face.
+			<<default>>
+				<<He>> cries out and raises one arm between <<himself>> and your shoulder.
+		<</switch>>
+	<</if>>
+<</widget>>
+
+<<widget "petAttackNamed">>
+	<<set _r to _args[0]>>
+	<<switch _args[1]>>
+		<<case "Whitney">>
+			<<if _r.consensual>>
+				Whitney jerks away from you and points at the animal on your shoulder.
+				"You're <span class="red">joking</span>. Get rid of that fucking thing!"
+			<<else>>
+				Whitney yells and quickly lets go of you. <<nnpc_He "Whitney">> backs away from the animal, too shocked to insult you.
+			<</if>>
+		<<case "Robin">>
+			Robin yelps and pulls away, pressing a hand over the bite.
+			"I-It's okay," <<nnpc_he "Robin">> says quickly. <<nnpc_He "Robin">> looks at the animal on your shoulder. "It was just scared. It didn't mean to hurt me."
+		<<case "Eden">>
+			Eden pulls back and looks at the animal on your shoulder, then turns to you.
+			"Hah!" <<nnpc_he "Eden">> snorts. "At least something out here knows when to protect you."
+		<<case "Kylar">>
+			Kylar yelps and quickly backs away. <<nnpc_He "Kylar">> rubs the bitten spot, then looks at your pet.
+			"I-It was protecting you," <<nnpc_he "Kylar">> says. "It knew I... I was getting too close."
+		<<case "Avery">>
+			Avery quickly pulls away and stares at the animal on your shoulder.
+			"That animal will not be here again."
+		<<case "Sydney">>
+			Sydney gasps and lets go of you immediately. <<nnpc_He "Sydney">> steps back, rubbing the bitten spot.
+			"I'm sorry! I didn't mean to scare you," <<nnpc_he "Sydney">> says to the animal, before looking at you. "Are you all right?"
+		<<default>>
+			<<nnpc_He _args[1]>> jerks away from you and swears, then stares at the animal on your shoulder.
+	<</switch>>
+	<<if _r.consensual>>
+		<br>
+		<span class="purple">You agreed to this. Your <<= _r.label>> did not.</span>
+	<</if>>
+<</widget>>
+
+<<widget "menagerieShopPrice">>
+	<<set _mgPrice to setup.inflation ? setup.inflation.price(_args[0]) : _args[0]>>
+<</widget>>
+
+<<widget "menagerieShop">>
+	<<petSync>>
+	<<set _mgM to Menagerie.state()>>
+	<<set _mgT to Menagerie.Tuning>>
+	<<set _mgSnakeBase to $fame.bestiality gte 600 ? _mgT.snakePriceFamous : _mgT.snakePrice>>
+	__Reptiles and supplies:__
+	<br>
+	<<if !_mgM.terrarium>>
+		<<menagerieShopPrice _mgT.terrariumPrice>>
+		<<if $money gte _mgPrice>>
+			<<icon "pet/emptysnaketank.png">><<link [[Buy a terrarium (<<printprice _mgT.terrariumPrice>>)|Pet Shop Terrarium]]>><</link>>
+		<<else>>
+			<<ind>><span class="red">You can't afford the terrarium (<<printprice _mgT.terrariumPrice>>).</span>
+		<</if>>
+		<br>
+	<<else>>
+		<<if Menagerie.owned("snake")>>
+			<<ind>><span class="green">You already have a snake at home.</span>
+			<br>
+		<<else>>
+			<<menagerieShopPrice _mgSnakeBase>>
+			<<if $money gte _mgPrice>>
+				<<icon "pet/bluesnaketank.png">><<link [[Buy a snake (<<printprice _mgSnakeBase>>)|Pet Shop Snakes]]>><</link>>
+			<<else>>
+				<<ind>><span class="red">You can't afford a snake (<<printprice _mgSnakeBase>>).</span>
+			<</if>>
+			<br>
+		<</if>>
+	<</if>>
+	<<menagerieShopPrice _mgT.feedPrice>>
+	<<if $money gte _mgPrice>>
+		<<icon "invite-fish.png">><<link [[Buy animal feed (<<printprice _mgT.feedPrice>>)|Pet Shop Feed]]>><</link>> | Servings: <span class="gold"><<= _mgM.feed>></span>
+	<<else>>
+		<<ind>><span class="red">You can't afford animal feed (<<printprice _mgT.feedPrice>>).</span> | Servings: <span class="gold"><<= _mgM.feed>></span>
+	<</if>>
+	<br>
+	<<if !_mgM.note and Menagerie.allPets().length and $fame.bestiality lt 600 and !$daily.petShopAsked>>
+		<<investigateicon>><<link [[Ask about rarer animals|Pet Shop Ask]]>><</link>>
+		<br>
+	<</if>>
+<</widget>>

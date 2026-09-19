@@ -587,6 +587,10 @@ function pleasure(amount, source) {
 
 					// An NPC actively fucking the player with a dildo in combat
 					if (npcHands.includes("vaginadildo") || npcHands.includes("anusdildo")) return true;
+
+					// Swarm creatures inside the body are tracked separately from hand or worn slots.
+					if (V.swarm?.amount?.butt?.[1] > 0) return true;
+					if (V.player?.vaginaExist && V.swarm?.amount?.genital?.[1] > 0) return true;
 				}
 
 				// Hole Addict: needs the penis INSIDE something
@@ -595,6 +599,9 @@ function pleasure(amount, source) {
 					if (arms.some(a => ["mpenisstroker", "strokerSelfPenis"].includes(a))) return true;
 					// An NPC working a stroker over the player's penis in combat
 					if (npcHands.includes("penisstroker")) return true;
+
+					// A swarm at the genitals envelops the penis rather than entering anything.
+					if (V.swarm?.amount?.genital?.[1] > 0) return true;
 				}
 
 				return false;
@@ -2086,7 +2093,13 @@ function xchangeEffectsMessages() {
 		const fromBreederGate = V.sexual_addiction_toy_breakthrough_message === 2;
 		const pill = !V.statFreeze && playerIsXChanged() ? V.xchange?.pill : null;
 
-		element("span", "The toy pushes you over the edge, and your body finally gives in.", "purple");
+		// A swarm can reach the same gates a toy does, and it is still on the player as this prints.
+		const swarmAmounts = V.swarm?.amount;
+		const swarmRelief = !!swarmAmounts && (swarmAmounts.genital?.[1] > 0 || swarmAmounts.butt?.[1] > 0);
+		const pushedYou = swarmRelief
+			? `The ${swarmWord()} ${swarmAmounts.active?.[0] === 1 ? "pushes" : "push"} you over the edge, and your body finally gives in.`
+			: "The toy pushes you over the edge, and your body finally gives in.";
+		element("span", pushedYou, "purple");
 		if (fromBreederGate) {
 			const omegaAnal = omegaTargetsAnus();
 			const breederTarget = omegaAnal && pill?.breederEffect ? "holes" : omegaAnal ? "ass" : "womb";

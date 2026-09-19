@@ -819,16 +819,10 @@ function foodNextBatch(key) {
 }
 window.foodNextBatch = foodNextBatch;
 
-/* Eat one serving and return the result for the UI.
-   Overlay actions save the change immediately, while meal passage links handle it after navigation. */
-function pocketEatFood(key, commit = true) {
-	if (!pocketAvailable()) return undefined;
-	pocketEnsure();
+/* Take one serving out of stock, oldest batch first, and report whether it was there to take */
+function foodConsumeServing(key) {
 	if (!foodIsDish(key) || foodBatchCount(key) <= 0) return undefined;
-
 	const batch = foodNextBatch(key);
-	const own = batch ? batch.own !== false : false;
-	const stale = !foodSpoilageEnabled() && batch && foodBatchExpiryDay(key, batch) <= Time.days;
 	if (batch) {
 		batch.n -= 1;
 		if (batch.n <= 0) {
@@ -838,6 +832,20 @@ function pocketEatFood(key, commit = true) {
 		}
 	}
 	V.foodstuff[key].amount = Math.max(0, (Number(V.foodstuff[key].amount) || 0) - 1);
+	return batch || {};
+}
+window.foodConsumeServing = foodConsumeServing;
+
+/* Eat one serving and return the result for the UI */
+function pocketEatFood(key, commit = true) {
+	if (!pocketAvailable()) return undefined;
+	pocketEnsure();
+	if (!foodIsDish(key) || foodBatchCount(key) <= 0) return undefined;
+
+	const batch = foodNextBatch(key);
+	const own = batch ? batch.own !== false : false;
+	const stale = !foodSpoilageEnabled() && batch && foodBatchExpiryDay(key, batch) <= Time.days;
+	foodConsumeServing(key);
 
 	const effects = foodEffects(key, batch);
 	if (effects.stress) statChange.stress(effects.stress);

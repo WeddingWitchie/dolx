@@ -4847,6 +4847,152 @@ sugarcube-2:
       name: combat-set-hand-target
     combat-spank:
       name: combat-spank
+    petCombatEnd:
+      name: petCombatEnd
+      description: >-
+        Called from the top of <<endcombat>>, above the <<set $finish to 0>>.
+        Clears the carried pet's per-fight support cooldown, and when $finish
+        is 1 (a forced ending rather than the player walking away) the carried
+        pet is taken: a bonded one bolts and can be tracked down in the forest,
+        a barely-bonded one is picked up and turns up on Garter's shelves.
+    petSwimPanic:
+      name: petSwimPanic
+      description: >-
+        Rolls a carried pet's reaction to deep water. Bond is the protection: a
+        devoted pet clings on, a wary one thrashes (dealing pain), writhes free
+        and is swept to the lake shore, or drowns. Drowning is the only
+        permanent loss in the system, and only ever from the player's own
+        choice to swim with an animal that can't. Rate-limited to one roll per
+        Menagerie.Tuning.swimRollCooldownMinutes so a long swim doesn't re-roll
+        on every move.
+    petSync:
+      name: petSync
+      description: >-
+        Brings every Magical Menagerie pet's care meters up to date. Lazy catch-up
+        on a lastTick stamp, so nothing needs to run on a timer. Safe to call
+        repeatedly.
+    petCard:
+      name: petCard
+      description: >-
+        Prints one pet's hunger/mood/bond meters. Takes the species id, e.g.
+        <<petCard "snake">>.
+      parameters:
+        - text
+    petIcon:
+      name: petIcon
+      description: >-
+        Prints the icon for a pet, or its empty housing when the pet is not in it.
+        Takes the species id.
+      parameters:
+        - text
+    pet-combat-support:
+      name: pet-combat-support
+      description: >-
+        Rolls a carried pet's combat support once per player turn, from
+        <<effectsman>>. The pet is never a combat entity: it holds no $NPCList
+        slot, takes no turn of its own and cannot be targeted or hurt. Above
+        Menagerie.Tuning.supportMinBond it attacks a live slot; below it, it can
+        panic and bolt instead. Per-fight cooldown cleared by <<endcombat>>.
+    petBolts:
+      name: petBolts
+      description: >-
+        Narrates a carried pet panicking and running from a fight. Takes the
+        plan object from Menagerie.combatSupport().
+      parameters:
+        - text
+    petAttacks:
+      name: petAttacks
+      description: >-
+        Narrates a pet's attack and applies its damage. Deliberately outside
+        <<violence>>: that widget scales by physique and caps a blow at a share
+        of the target's health because it models the PLAYER swinging, and a pet
+        is not the player. Takes the plan object from Menagerie.combatSupport().
+      parameters:
+        - text
+    petAttackReaction:
+      name: petAttackReaction
+      description: >-
+        Narrates how the NPC takes a pet's attack, including mid-consensual,
+        where the player agreed and the animal did not. Takes the plan object
+        and the result of namedNpcInSlot() for the target.
+      parameters:
+        - text &+ text
+    petAttackNamed:
+      name: petAttackNamed
+      description: >-
+        Named-NPC speech in reaction to a pet's attack. Takes the plan object
+        and the NPC name.
+      parameters:
+        - text &+ text
+    petLoseCarried:
+      name: petLoseCarried
+      description: >-
+        Marks the carried pet lost, with a cause that decides where it turns up
+        again. Pets left at home are never affected. Causes: badEnd, bailey,
+        swept, neglect.
+      parameters:
+        - text
+    menagerieSocial:
+      name: menagerieSocial
+      description: >-
+        The Pets block in the social menu, showing each pet's bond alongside
+        every other relationship.
+    petRoomLinks:
+      name: petRoomLinks
+      description: >-
+        Bedroom links for every owned pet. Pets live in their enclosures here,
+        not in a wardrobe slot.
+    petShopClerk:
+      name: petShopClerk
+      description: >-
+        Loads the persistent Highstreet pet shop clerk into slot 0, generating them on first
+        meeting. Clears the slot first, so re-entering cannot stack $enemyno.
+    garterNpc:
+      name: garterNpc
+      description: >-
+        Loads the persistent Garter into slot 0, generating them on first meeting. Clears the
+        slot first, so re-entering cannot stack $enemyno.
+    petClerkAction:
+      name: petClerkAction
+      description: >-
+        Flavour line for the Highstreet pet shop clerk approaching the counter.
+        Changes once $fame.bestiality reaches 600.
+    petClerk:
+      name: petClerk
+      description: >-
+        A spoken greeting from the Highstreet pet shop clerk. Changes once
+        $fame.bestiality reaches 600.
+    menagerieShop:
+      name: menagerieShop
+      description: >-
+        The Magical Menagerie storefront inside :: Pet Shop - terrarium, snakes,
+        feed, and the hidden Skulduggery ask that unlocks Garter.
+    menagerieShopPrice:
+      name: menagerieShopPrice
+      description: >-
+        Sets _mgPrice to the inflation-adjusted price of the base amount in
+        pennies, so a label printed with <<printprice>> matches the charge.
+      parameters:
+        - number
+    garterFee:
+      name: garterFee
+      description: >-
+        Garter's membership fee link, priced through the inflation economy.
+        Takes the base amount in pennies.
+      parameters:
+        - number
+    petRecoveryLinks:
+      name: petRecoveryLinks
+      description: >-
+        Offers recovery of any pet lost to this site. Takes a site key: forest,
+        lake or ubm. Recovering keeps the bond.
+      parameters:
+        - text
+    garterCabinLink:
+      name: garterCabinLink
+      description: >-
+        The forest link to Garter's cabin. Garter deals at night only; in
+        daylight the link goes to :: garterGone.
     combat-stall-tick:
       name: combat-stall-tick
       description: >-
@@ -20081,6 +20227,10 @@ sugarcube-2:
       name: smugglerobject
     social:
       name: social
+    socialReputation:
+      description: |-
+        The Reputation tab of the social menu: factions, farm status and fame.
+      name: socialReputation
     someone:
       description: |-
         Prints `<<him>>` of an NPC, either provided or previously selected

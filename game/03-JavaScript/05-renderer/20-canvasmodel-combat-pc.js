@@ -1212,6 +1212,22 @@ const combatMainPc = {
 			filters: ["parasiteClothing"],
 			z: CombatRenderer.indices.frontLowerUnderwear - 1,
 		},
+		/* A carried Magical Menagerie pet. Its art is position-independent, so it is not under options.src. */
+		menageriePet: {
+			srcfn(options) {
+				return `img/body/pet/${options.pet.sprite}.png`;
+			},
+			showfn(options) {
+				return options.pet.show;
+			},
+			animationfn(options) {
+				return options.animKey;
+			},
+			zfn(options) {
+				return options.pet.z || CombatRenderer.indices.hair + 4;
+			},
+			z: CombatRenderer.indices.hair + 4,
+		},
 		/*
 		 *    ████████ ██████   █████  ███    ██ ███████ ███████  ██████  ██████  ███    ███  █████  ████████ ██  ██████  ███    ██
 		 *       ██    ██   ██ ██   ██ ████   ██ ██      ██      ██    ██ ██   ██ ████  ████ ██   ██    ██    ██ ██    ██ ████   ██

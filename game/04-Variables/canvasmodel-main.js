@@ -325,6 +325,8 @@ Renderer.CanvasModels.main = {
 			"balls": false,
 			"nipples_parasite": "",
 			"chest_parasite": "",
+			// Magical Menagerie: sprite name of the carried pet, "" for none.
+			"pet": "",
 			"clit_parasite": "",
 			"arm_left": "idle",
 			"arm_right": "idle",
@@ -1291,6 +1293,20 @@ Renderer.CanvasModels.main = {
 		for (const layer of Object.values(options.generatedLayers)) layer.renderScale = bodySizeScale;
 	},
 	layers: {
+		/* A carried Magical Menagerie pet, drawn as its own layer beside the parasites */
+		"pet": {
+			animation: "idle",
+			srcfn(options) {
+				return `img/body/pet/${options.pet}.png`;
+			},
+			showfn(options) {
+				return !!options.pet;
+			},
+			zfn(options) {
+				return options.pet.endsWith("slime") ? ZIndices.over_head + 1 : ZIndices.front_hair + 1;
+			},
+			z: ZIndices.over_head + 1,
+		},
 		// banner comments generated in http://patorjk.com/software/taag/#p=display&c=c&f=ANSI%20Regular&t=base
 		/***
 		 *    ██████   █████  ███████ ███████

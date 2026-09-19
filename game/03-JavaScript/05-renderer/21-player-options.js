@@ -638,6 +638,12 @@ class PlayerCombatMapper {
 					type: "panties",
 				},
 			},
+			/* Magical Menagerie */
+			pet: {
+				show: false,
+				sprite: "",
+				z: 0,
+			},
 		};
 	}
 
@@ -744,6 +750,16 @@ class PlayerCombatMapper {
 				blend: "#f00",
 				blendMode: "hard-light",
 			};
+		}
+
+		// Magical Menagerie: the carried pet, if any
+		options.pet.show = false;
+		options.pet.sprite = "";
+		const petRender = typeof Menagerie !== "undefined" ? Menagerie.renderInfo() : null;
+		if (petRender) {
+			options.pet.show = true;
+			options.pet.sprite = petRender.sprite;
+			options.pet.z = petRender.z;
 		}
 
 		// Set animation speed

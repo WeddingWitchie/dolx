@@ -1639,6 +1639,11 @@ const statChange = (() => {
 
 		// Soft bad ends make the task impossible to complete, so drop it instead of failing it.
 		if (typeof blackmailCancelQuestForBadEnd === "function") blackmailCancelQuestForBadEnd();
+
+		// A carried pet goes missing if the player is taken away. Pets left safely at home are unaffected.
+		if (typeof Menagerie !== "undefined" && Menagerie.exists()) {
+			Menagerie.loseCarried(/bailey/i.test(optional.reason || "") ? "bailey" : "badEnd");
+		}
 	}
 	DefineMacro("badEndTracking", (source, optional) => badEndTracking(source, optional));
 

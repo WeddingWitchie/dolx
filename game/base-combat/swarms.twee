@@ -85,6 +85,7 @@
 		<<set _swarmcreature to $swarm.type>>
 
 		<<set _swarmactive to _swarmamounts.active[0]>>
+		<<set _swarmword to swarmWord(_swarmactive)>>
 
 		/* Swarm Targeting priorities */
 		<<set _swarmchance to {"chest":30,"butt":30,"genital":30}>>
@@ -329,27 +330,27 @@
 
 		<<if _swarmactive lte 0>>
 		<<elseif _swarmactive lte 1>>
-			The _swarmcreature are squirming over you.
+			The _swarmword is squirming over you.
 		<<elseif _swarmactive lte 2>>
-			The _swarmcreature are swarming over you.
+			The _swarmword are swarming over you.
 		<<elseif _swarmactive lte 3>>
-			The _swarmcreature teem around you.
+			The _swarmword teem around you.
 		<<elseif _swarmactive lte 4>>
-			You're practically swimming in _swarmcreature.
+			You're practically swimming in _swarmword.
 		<<elseif _swarmactive lte 9>>
-			The _swarmcreature completely surround you.
+			The _swarmword completely surround you.
 		<<elseif _swarmactive gte 10>>
-			<span class="pink">The _swarmcreature completely surround you, as if you are in a living pit.<<if $orgasmdown gte 1>> Not an inch of skin is spared the torment.<</if>></span>
+			<span class="pink">The _swarmword completely surround you, as if you are in a living pit.<<if $orgasmdown gte 1>> Not an inch of skin is spared the torment.<</if>></span>
 		<</if>>
 
 		<<rng>>
 		<<if $rng gte 91 and $leftarm is 0 and $rightarm is 0>>
 			<<if $rng gte 96>>
 				<<set $leftarm to "swarmgrappled">><<set $lefttarget to "swarm">>
-				<span class="purple">The $swarm["type"] swarm over your left arm, restraining it.</span>
+				<span class="purple">The <<= swarmWord()>> <<if _swarmactive is 1>>swarms<<else>>swarm<</if>> over your left arm, restraining it.</span>
 			<<else>>
 				<<set $rightarm to "swarmgrappled">><<set $righttarget to "swarm">>
-				<span class="purple">The $swarm["type"] swarm over your right arm, restraining it.</span>
+				<span class="purple">The <<= swarmWord()>> <<if _swarmactive is 1>>swarms<<else>>swarm<</if>> over your right arm, restraining it.</span>
 			<</if>>
 		<</if>>
 
@@ -362,7 +363,7 @@
 
 		<<if _swarmnote.chestmolest gte 1>>
 			<<set _swarmnote.chestmolest to 0>>
-			They writhe over your <<print either("chest", "stomach", "back", "neck", "arms")>>.
+			The <<= swarmWord()>> <<= _swarmactive is 1 ? "writhes" : "writhe">> over your <<print either("chest", "stomach", "back", "neck", "arms")>>.
 		<</if>>
 
 		<<if _swarmnote.chestclothed gte 1>>
@@ -420,7 +421,7 @@
 
 		<<if _swarmnote.buttmolest gte 1>>
 			<<set _swarmnote.buttmolest to 0>>
-			They writhe over your <<print either("butt", "thighs", "legs")>>.
+			The <<= swarmWord()>> <<= _swarmactive is 1 ? "writhes" : "writhe">> over your <<print either("butt", "thighs", "legs")>>.
 		<</if>>
 
 		<<if _swarmnote.buttlowerclothed gte 1>>
@@ -481,12 +482,12 @@
 
 		<<if _swarmnote.buttinsideintro gte 1>>
 			<<set _swarmnote.buttinsideintro to 0>>
-			<span class="pink">They start squirming their way into your <<bottom>>!</span>
+			<span class="pink">The <<= swarmWord()>> <<= _swarmactive is 1 ? "starts squirming its" : "start squirming their">> way into your <<bottom>>!</span>
 		<</if>>
 
 		<<if _swarmamounts.butt[1] gte 1>>
 			<<raped>><<neutral 10 "bottom">><<impregnateParasite $swarm["type"] _swarmamounts.butt[1]>>
-			They writhe inside your lower intestine<<if $player.sex isnot "f">>, blindly teasing your prostate<</if>><<if _impreg is true>><<if $player.sex isnot "f">>,<</if>> and <span class="red">attempt to move further inside you</span><</if>>.
+			The <<= swarmWord()>> <<= _swarmactive is 1 ? "writhes" : "writhe">> inside your lower intestine<<if $player.sex isnot "f">>, blindly teasing your prostate<</if>><<if _impreg is true>><<if $player.sex isnot "f">>,<</if>> and <span class="red">attempt to move further inside you</span><</if>>.
 			<<set _impreg to false>>
 			<<arousal `_swarmamounts.butt[1] * 20`>>
 		<</if>>
@@ -500,7 +501,7 @@
 
 		<<if _swarmnote.genitalmolest gte 1>>
 			<<set _swarmnote.genitalmolest to 0>>
-				You feel them writhing over your <<if !$worn.lower.type.includes("naked") and wornSetupClothes("lower").skirt isnot 1>><<genitals>> through your
+				You feel the <<= swarmWord()>> writhing over your <<if !$worn.lower.type.includes("naked") and wornSetupClothes("lower").skirt isnot 1>><<genitals>> through your
 				<<if !$worn.over_lower.type.includes("naked")>>
 					$worn.over_lower.name<<if !$worn.lower.type.includes("naked")>> and<<else>>.<</if>>
 				<</if>>
@@ -571,9 +572,9 @@
 		<<if _swarmnote.genitalinsideintro gte 1>>
 			<<set _swarmnote.genitalinsideintro to 0>>
 			<<if $player.vaginaExist>>
-				<span class="pink">They start squirming their way into your pussy!</span>
+				<span class="pink">The <<= swarmWord()>> <<= _swarmactive is 1 ? "starts squirming its" : "start squirming their">> way into your pussy!</span>
 			<<elseif $player.penisExist>>
-				<span class="pink">They start enveloping your penis!</span>
+				<span class="pink">The <<= swarmWord()>> <<= _swarmactive is 1 ? "starts" : "start">> enveloping your penis!</span>
 			<</if>>
 		<</if>>
 
@@ -581,12 +582,12 @@
 			<<raped>>
 			<<if $player.vaginaExist>>
 				<<impregnateParasite $swarm["type"] _swarmamounts.genital[1] "vagina">>
-				They writhe and squirm inside your vagina, probing and teasing without mercy<<if _impreg is true>>, and <span class="red">attempt to move further inside you</span><</if>>.
+				The <<= swarmWord()>> <<= _swarmactive is 1 ? "writhes and squirms" : "writhe and squirm">> inside your vagina, probing and teasing without mercy<<if _impreg is true>>, and <span class="red">attempt to move further inside you</span><</if>>.
 				<<set _impreg to false>>
 				<<arousal `_swarmamounts.genital[1] * 20 * getSensitivity("genitals")`>>
 				<<neutral 10 "genitals">>
 			<<elseif $player.penisExist>>
-				They writhe and squirm over your penis, rubbing and teasing the entire length.
+				The <<= swarmWord()>> <<= _swarmactive is 1 ? "writhes and squirms" : "writhe and squirm">> over your penis, rubbing and teasing the entire length.
 				<<arousal `_swarmamounts.genital[1] * 20 * getSensitivity("genitals")`>>
 				<<neutral 10 "genitals">>
 			<</if>>
