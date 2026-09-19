@@ -45,11 +45,11 @@
   - Robin can encounter difficult customers, missing stock, and quieter moments between shifts.
   - Once the stand becomes a wagon, the player can help name it for a small income boost.
 
-- **Added the Refrigenerator**
+- **Added the Refrigerator**
 
   - Stored food no longer expires while inside it, preserving effects, and remaining shelf life.
   - It can be bought from the furniture shop under **Electronics** and placed in the **Orphanage loft** or **Alex's cottage**.
-  - Orphans may occasionally eat stored food and leave a note, or restock the Refrigenerator.
+  - Orphans may occasionally eat stored food and leave a note, or restock the Refrigerator.
   - Avery's mansion kitchen now has one by default.
   - Stored food still appears in the **Journal**, counts toward the dish total, and shows where it is stored.
   - Removing food restores its preserved remaining shelf life.

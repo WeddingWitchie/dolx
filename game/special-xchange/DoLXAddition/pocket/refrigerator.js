@@ -1,8 +1,8 @@
 /* globals foodBatchReconcile foodIsDish foodShelfLife pocketCheckSpoilage foodBatchCount foodBatchExpiryDay pocketFoodList pocketSyncBag */
 /* Contents belong to the installed appliance, outside the kitchen and pocket stock.
  * Batch ages are frozen on deposit and restored on withdrawal. */
-function refrigeneratorTransfer(location, key, takeOut, all = false) {
-	const fridge = V.furniture?.[location]?.refrigenerator;
+function refrigeratorTransfer(location, key, takeOut, all = false) {
+	const fridge = V.furniture?.[location]?.refrigerator;
 	if (!fridge) return;
 	if (!takeOut) pocketCheckSpoilage();
 	const keys = key == null ? (takeOut ? Object.keys(fridge.contents || {}).filter(foodIsDish) : pocketFoodList()) : [key].filter(foodIsDish);
@@ -51,18 +51,18 @@ function refrigeneratorTransfer(location, key, takeOut, all = false) {
 	}
 	pocketSyncBag();
 }
-window.refrigeneratorTransfer = refrigeneratorTransfer;
+window.refrigeratorTransfer = refrigeratorTransfer;
 
-function refrigeneratorTransferAll(location, takeOut) {
-	refrigeneratorTransfer(location, null, takeOut, true);
+function refrigeratorTransferAll(location, takeOut) {
+	refrigeratorTransfer(location, null, takeOut, true);
 }
-window.refrigeneratorTransferAll = refrigeneratorTransferAll;
+window.refrigeratorTransferAll = refrigeratorTransferAll;
 
 /* Cooked food held outside the normal food inventory, for the Journal. */
-function refrigeneratorFoodList() {
+function refrigeratorFoodList() {
 	const keys = [];
 	["bedroom", "cottage", "avery_mansion"].forEach(location => {
-		const contents = V.furniture?.[location]?.refrigenerator?.contents;
+		const contents = V.furniture?.[location]?.refrigerator?.contents;
 		if (!contents || typeof contents !== "object") return;
 		Object.keys(contents).forEach(key => {
 			if (foodIsDish(key) && Array.isArray(contents[key]) && contents[key].some(batch => Number(batch?.n) > 0)) keys.pushUnique(key);
@@ -70,9 +70,9 @@ function refrigeneratorFoodList() {
 	});
 	return keys;
 }
-window.refrigeneratorFoodList = refrigeneratorFoodList;
+window.refrigeratorFoodList = refrigeratorFoodList;
 
-function refrigeneratorFoodRows(key) {
+function refrigeratorFoodRows(key) {
 	if (!foodIsDish(key)) return [];
 	const rows = [];
 	[
@@ -80,7 +80,7 @@ function refrigeneratorFoodRows(key) {
 		["cottage", "Farm cottage"],
 		["avery_mansion", "Avery's mansion"],
 	].forEach(([location, label]) => {
-		const batches = V.furniture?.[location]?.refrigenerator?.contents?.[key];
+		const batches = V.furniture?.[location]?.refrigerator?.contents?.[key];
 		if (!Array.isArray(batches)) return;
 		const grouped = new Map();
 		batches.forEach(batch => {
@@ -94,10 +94,10 @@ function refrigeneratorFoodRows(key) {
 	});
 	return rows.sort((a, b) => a.daysLeft - b.daysLeft);
 }
-window.refrigeneratorFoodRows = refrigeneratorFoodRows;
+window.refrigeratorFoodRows = refrigeratorFoodRows;
 
-function refrigeneratorDayPassed(days = 1) {
-	const fridge = V.furniture?.bedroom?.refrigenerator;
+function refrigeratorDayPassed(days = 1) {
+	const fridge = V.furniture?.bedroom?.refrigerator;
 	if (!fridge) return;
 	if (!fridge.contents) fridge.contents = {};
 	if (!fridge.notes) fridge.notes = [];
@@ -123,4 +123,4 @@ function refrigeneratorDayPassed(days = 1) {
 		}
 	}
 }
-window.refrigeneratorDayPassed = refrigeneratorDayPassed;
+window.refrigeratorDayPassed = refrigeratorDayPassed;
