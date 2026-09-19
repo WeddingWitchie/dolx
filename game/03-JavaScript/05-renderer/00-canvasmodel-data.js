@@ -34,7 +34,7 @@ const ZIndices = {
 	highBreasts: 115,
 	breastsparasite: 36,
 	tanbreasts: 30,
-	blush: 28,
+	blush: 50,
 	freckles: 51,
 	mascara_running: 51.5,
 	skin: 52,
