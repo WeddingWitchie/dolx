@@ -27,6 +27,7 @@ declare global {
 	export interface Pregnancy {
 		pregnancyId: number;
 		carrier: string;
+		carrierDescription?: string;
 		carrierSpecies: string;
 		donor: string;
 		donorSpecies: string;

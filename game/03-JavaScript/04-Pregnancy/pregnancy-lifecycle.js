@@ -497,6 +497,7 @@ function randomPregnancyProgress() {
 	Object.keys(V.storedNPCs).forEach(npcKey => {
 		const record = getActivePregnancies(npcKey)[0];
 		if (record && Time.date.timeStamp >= getDueDate(record)) {
+			record.carrierDescription = V.storedNPCs[npcKey].npc?.fullDescription;
 			const [birthLocation, location] = defaultBirthLocations(record.donorSpecies);
 			birthRecordedLitter(record.pregnancyId, birthLocation, location);
 			if (location === "home") {

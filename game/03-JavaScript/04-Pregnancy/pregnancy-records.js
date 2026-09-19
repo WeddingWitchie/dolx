@@ -37,6 +37,10 @@ function pushPregnancyRecord(fields) {
 	if (fields.layCare !== undefined) record.layCare = fields.layCare;
 	if (fields.waterBreaking !== undefined) record.waterBreaking = fields.waterBreaking;
 	if (fields.womb !== undefined) record.womb = fields.womb;
+	if (fields.carrierDescription) record.carrierDescription = fields.carrierDescription;
+	else if (record.deliveredDate === null && V.storedNPCs[record.carrier]?.npc?.fullDescription) {
+		record.carrierDescription = V.storedNPCs[record.carrier].npc.fullDescription;
+	}
 	V.pregnancies.push(record);
 	return pregnancyId;
 }
@@ -724,7 +728,10 @@ function resolvePaternity(pregnancyId) {
 	if (knowsDonor(pregnancyId, "pc")) return; // already resolved
 	const litter = getChildrenOf(pregnancyId);
 	const litterBase = litter[0].species; // child.species is already the base (human/wolf/hawk)
-	const fits = pregnancy.possibleDonors.filter(donor => childBaseSpecies(donor.species) === litterBase);
+	const fits = pregnancy.possibleDonors.filter(donor => {
+		const species = pregnancy.carrier === "pc" ? donor.species : offspringSpecies(donor.species, pregnancy.carrierSpecies);
+		return species && childBaseSpecies(species) === litterBase;
+	});
 	if (fits.length === 1) setKnowsDonor(pregnancyId, "pc");
 }
 window.resolvePaternity = resolvePaternity;

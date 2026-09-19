@@ -346,6 +346,9 @@
 	<<if _args[0]?.childId isnot undefined>>
 		<<capture _args>>
 			<<set _pregnancy to getPregnancyOf(_args[0])>>
+			<<if _pregnancy.carrier is "pc" or _pregnancy.donor is "pc">>
+				<<run setKnowsCarrier(_pregnancy.pregnancyId, "pc"); resolvePaternity(_pregnancy.pregnancyId)>>
+			<</if>>
 			<div class="childItem m-0 childName">
 				<div>
 					<label><div>Name:</div><div><<print '<<textbox "_args[0].name" `_args[0].name or ""`>>'>></div></label>
@@ -363,7 +366,7 @@
 				<hr>
 				<span class="gold">Mother:</span>
 				<<if knowsCarrier(_pregnancy.pregnancyId, "pc")>>
-					<<print pregnancyNameCorrection(_pregnancy.carrier, true)>>
+					<<print pregnancyNameCorrection(_pregnancy.carrier, true, _pregnancy)>>
 				<<else>>
 					????
 				<</if>>

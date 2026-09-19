@@ -800,10 +800,14 @@ Groups littermates by pregnancyId.*/
 
 <<widget "childViewerHiddenElements">>
 	<<if _args[0] isnot undefined>>
+		<<set _parentage to getPregnancyOf($childRecords[_args[0]])>>
+		<<if _parentage.deliveredDate isnot null and _parentage.carrier isnot "pc" and _parentage.donor is "pc">>
+			<<run setKnowsCarrier(_parentage.pregnancyId, "pc"); setKnowsDonor(_parentage.pregnancyId, "pc")>>
+		<</if>>
 		<div @id="'childViewerHidden-'+_args[0]" @class="'childViewerHidden' + (_args[1] ? '' : ' hidden')">
 			<span class="gold">Mother:</span>
 			<<if knowsCarrier($childRecords[_args[0]].pregnancyId, "pc")>>
-				<<print pregnancyNameCorrection(getPregnancyOf($childRecords[_args[0]]).carrier, true)>>
+				<<print pregnancyNameCorrection(_parentage.carrier, true, _parentage)>>
 			<<else>>
 				????
 			<</if>>

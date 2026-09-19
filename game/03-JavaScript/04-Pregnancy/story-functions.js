@@ -317,7 +317,13 @@ function dailyPregnancyEvent() {
 }
 window.dailyPregnancyEvent = dailyPregnancyEvent;
 
-function pregnancyNameCorrection(name, caps = false) {
+function pregnancyNameCorrection(name, caps = false, pregnancy) {
+	if (/^pregnancy_\d+$/.test(name)) {
+		const intro = Object.values(V.babyIntros || {})
+			.flat()
+			.find(entry => entry.birthId === pregnancy?.pregnancyId && entry.mother === name);
+		name = pregnancy?.carrierDescription || intro?.description || "stranger";
+	}
 	switch (name) {
 		case "Black Wolf":
 		case "Great Hawk":
