@@ -962,8 +962,21 @@
 		<br><br>
 	<</if>>
 
-	<<if $averytimespilled gte 1 and !playerIsXChanged() and $player.sex is C.npc.Avery.pronoun and perceivedGenderBinary() is C.npc.Avery.pronoun>>
+	/* Saved route: Avery no longer forces a chase over an unpilled body. Rage takes over from here. */
+	<<if $avery_fate is "saved" and $averytimespilled gte 1 and !playerIsXChanged() and $player.sex is C.npc.Avery.pronoun and perceivedGenderBinary() is C.npc.Avery.pronoun and !$averySeen?.includes("saved_unpilled_accepted")>>
+		<<set $averySeen.pushUnique("saved_unpilled_accepted")>>
+		<<He>> looks at you carefully, then relaxes a little.
+		"You're not pilled," <<he>> says. "I used to care about that. I don't anymore. Choose whatever body you want."
+		<br><br>
+	<</if>>
 
+	<<set _averyUnpilled to $avery_fate isnot "saved" and $averytimespilled gte 1 and !playerIsXChanged() and $player.sex is C.npc.Avery.pronoun and perceivedGenderBinary() is C.npc.Avery.pronoun>>
+	<<set _averyUnpilledRage to _averyUnpilled and $averyragerevealed gte 1 and C.npc.Avery.rage gte 20 and $avery_mansion.rage.timer lte 0>>
+	<<if _averyUnpilled and !_averyUnpilledRage>>
+		<<He>> notices you're no longer pilled. <<His>> eyes linger on you a moment too long. "You let it wear off," <<he>> says, level. "I expect you pilled while you're under my roof. Don't make me say it twice."<<garage>><<npcincr Avery rage 1>>
+		<br><br>
+	<</if>>
+	<<if _averyUnpilledRage>>
 		<<if $avery_party?.hbsc?.pillShown>>
 			<<He>> notices you're no longer pilled, and <<he>> snaps. "That pill from the gala." <<His>> voice rises. "I said you could <i>keep</i> it. I didn't say you could take it. Do you think I let you walk out of that bank with it so you could undo yourself with it the moment my back was turned?"
 			<br><br>
@@ -972,14 +985,11 @@
 			<<He>> notices you're no longer pilled, and <<he>> snaps. "You let it wear off?" <<He>> demands, <<his>> voice rising. "You knew what I expected. You're mine, and you will stay the way I want you to be!" <span class="red"><<He>> grasps your arm.</span> <<npcincr Avery rage 10>>
 		<</if>>
 		<<gggarage>>
-		<br><br>
-		
+		<br><br>		
 		<<avery_mansion_rage_housework>>
 		<<avery_mansion_chase_init>>
-
 		<span class="red"><<He>> wants to hurt you.</span>
 		<br><br>
-
 		<<link [[Apologise|Mansion Chase Apologise]]>><<trauma 6>><<npcincr Avery dom 5>><</link>><<gtrauma>><<ggdom>>
 		<br>
 		<<link [[Brace yourself|Mansion Chase Brace]]>><</link>>
