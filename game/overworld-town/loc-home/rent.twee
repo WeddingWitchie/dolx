@@ -68,15 +68,14 @@
 	<</if>>
 	<<autism-bailey>>
 	<<set _rentTotal to ($rentmoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
-	<<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
-		/* HBSC standing order is set up and the savings cover it: settle automatically. */
+	<<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
 		<<rentpay "bank">>
 		<<link [[Next|Rent Pay Auto]]>><<set $phase to $_robinWasInRoom>><</link>>
 	<<else>>
 		<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
 			<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
 		<</if>>
-		<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+		<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 		<<if setup.inflation and setup.inflation.baileyAggressive()>>
 			<<baileyGripDemand>>
 			<<link [[Pay|Rent Pay]]>><<set $phase to $_robinWasInRoom>><</link>>
@@ -190,15 +189,14 @@
 	<</if>>
 	<<autism-bailey>>
 	<<set _rentTotal to ($rentmoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0))>>
-	<<if setup.hbsc.canAutoPay("bailey", _rentTotal)>>
-		/* HBSC standing order is set up and the savings cover it: settle automatically. */
+	<<if ($baileyDeposit or 0) gte _rentTotal or setup.hbsc.canAutoPay("bailey", _rentTotal)>>
 		<<rentpay "bank">>
 		<<link [[Next|Rent Pay Auto]]>><<if $inRobinsRoom>><<set $inRobinsRoom to true>><</if>><</link>>
 	<<else>>
 		<<if setup.hbsc.cancelIfShort("bailey", _rentTotal)>>
 			<span class="red">Your HBSC standing order couldn't cover the rent, so it's been cancelled.</span><br>
 		<</if>>
-		<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+		<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 			<<if setup.inflation and setup.inflation.baileyAggressive()>>
 				<<baileyGripDemand>>
 				<<if $syndromebailey isnot true>>
@@ -369,26 +367,34 @@
 	/* Recompute here rather than trusting $bratTax: not every path into rentpay runs a demand passage first, and the tax must match what was announced before $rentmoney rolls over below. */
 	<<bratTaxCalc>>
 	<<set _rentDue to ($rentmoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge)>>
-	<<if _payVia is "bank">>
+	<<set _depositPay to Math.min(Math.max($baileyDeposit or 0, 0), _rentDue)>>
+	<<if _depositPay gt 0>>
+		<<set $baileyDeposit -= _depositPay>>
+		<<set _rentDue -= _depositPay>>
+		<<if _rentDue lte 0>><<set _payVia to "deposit">><</if>>
+	<</if>>
+	<<set $rentLastPaidVia to _payVia>>
+	<<if _rentDue lte 0>>
+		/* Nothing left to hand over. */
+	<<elseif _payVia is "bank">>
 		<<set _bankPay to setup.hbsc.tryAutoPay("bailey", _rentDue)>>
 		<<if not _bankPay.paid>>
-			/* Savings no longer cover it (edge case) and fall back to cash so rent is still settled. */
 			<<if $money lt _rentDue>><<baileyBankDraw `_rentDue - $money`>><</if>>
 			<<money `-_rentDue` "baileyRent">>
-			<<set _payVia to "cash">>
+			<<set _payVia to "cash">><<set $rentLastPaidVia to "cash">>
 		<</if>>
 	<<else>>
-		/* Pockets short but savings can cover it: Bailey marches the player to the bank. */
 		<<if $money lt _rentDue>><<baileyBankDraw `_rentDue - $money`>><</if>>
 		<<money `-_rentDue` "baileyRent">>
 	<</if>>
-	/* Book the surcharge portion against the loan now that the cash has moved. */
 	<<if _loanSurcharge gt 0>><<run setup.hbsc.collectLoanFromRent(_loanSurcharge)>><</if>>
 	<<if setup.inflation and setup.inflation.advanceRentPressure>><<run setup.inflation.advanceRentPressure()>><</if>>
 	<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>> <!-- note: clamping to 1 is intentional -->
 	<<rentmod>>
 
-	<<if _payVia is "bank">>
+	<<if _payVia is "deposit">>
+		Bailey holds out <<nnpc_his "Bailey">> hand, then checks <<nnpc_his "Bailey">> notes and remembers the money you paid <<nnpc_him "Bailey">> in advance. <<nnpc_He "Bailey">> takes this week out of it. "Hm. Paid up.
+	<<elseif _payVia is "bank">>
 		Bailey goes to demand the cash, then glances at <<nnpc_his "Bailey">> phone. Seems your HBSC standing order has already cleared. <<nnpc_He "Bailey">> gives a short grunt, almost disappointed at the lack of fuss. "Hm. Paid up.
 	<<else>>
 		Bailey snatches the money from your hand and starts counting. "Good," <<nnpc_he "Bailey">> says, satisfied. "You came through.
@@ -889,7 +895,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 	<br><br>
 
 	<<He>> releases you and presses <<his>> hand on your chest, shoving you. You stumble backwards as Bailey takes a menacing step towards you
-	<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+	<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 		with <<his>> palm open expectantly. "Your payment. Now."
 		<br><br>
 
@@ -928,7 +934,7 @@ Robin hugs you softly after Bailey leaves. "I'm so sorry," <<he>> says.
 	<</if>>
 	It's too late to negotiate with Bailey. <<He>> wants <<his>> payment.
 
-	<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+	<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 		<<He>> holds out <<his>> hand.
 		<br><br>
 

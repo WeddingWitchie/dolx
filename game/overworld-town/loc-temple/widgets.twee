@@ -661,8 +661,10 @@
 <<widget "temple_bailey_options">>
 	<<babyRent>>
 	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
-	<<set _rentTotal to ($rentmoney + ($babyRent or 0) + _loanSurcharge)>>
-	<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _rentTotal>>
+	<<bratTaxCalc>>
+	/* The brat tax is part of what <<rentpay>> collects, so the affordability test has to count it too. */
+	<<set _rentTotal to ($rentmoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge)>>
+	<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 		<<if setup.inflation and setup.inflation.baileyAggressive()>>
 			<<baileyGripDemand>>
 			<<link [[Pay up|Temple Bailey Pay]]>><</link>>

@@ -481,14 +481,15 @@ Call sites own their own spacing. */
 	/* Recompute rather than trusting $bratTax: not every path in announces the tax first. */
 	<<bratTaxCalc>>
 	<<set _offerRentDue to $rentmoney + ($babyRent or 0) + ($bratTax or 0)>>
-	/* Pockets short but savings can cover it: Bailey marches the player to the bank, same as <<rentpay>>. */
+	<<set _offerDeposit to Math.min(Math.max($baileyDeposit or 0, 0), _offerRentDue)>>
+	<<set _offerCashDue to _offerRentDue - _offerDeposit>>
 	<<set _offerCashBefore to $money>>
-	<<if $money lt _offerRentDue>><<baileyBankDraw `_offerRentDue - $money`>><</if>>
-	/* <<baileyBankDraw>> prints a scene of its own when it withdraws, so keep it off the next paragraph. */
+	<<if $money lt _offerCashDue>><<baileyBankDraw `_offerCashDue - $money`>><</if>>
 	<<if $money gt _offerCashBefore>><br><br><</if>>
-	<<set _offerRentPaid to $money gte _offerRentDue>>
+	<<set _offerRentPaid to $money gte _offerCashDue>>
 	<<if _offerRentPaid>>
-		<<money `-_offerRentDue` "baileyRent">>
+		<<set $baileyDeposit -= _offerDeposit>>
+		<<if _offerCashDue gt 0>><<money `-_offerCashDue` "baileyRent">><</if>>
 	<</if>>
 	<<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
 	<<set $baileydefeatedchain to 0>>
