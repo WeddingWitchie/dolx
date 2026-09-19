@@ -3551,7 +3551,7 @@ function canGiftFood(npc) {
 	let amount = 0;
 
 	Object.entries(setup.foodstuff).forEach(([key, item]) => {
-		if (item.category === "dish" && V.foodstuff[key]?.amount > 0) {
+		if (item.category === "dish" && !item.food.tags.includes("tainted") && V.foodstuff[key]?.amount > 0) {
 			amount++;
 		}
 	});
@@ -3690,6 +3690,10 @@ function rollRecipeWithIngredient(ingredient, allowKnownRecipes) {
 			continue;
 		}
 		const alts = [...Object.values(data.recipe.ingredient_alternatives?.normal ?? {}), ...Object.values(data.recipe.ingredient_alternatives?.lewd ?? {})];
+		data.recipe.ingredients.forEach(key => {
+			const alternatives = setup.foodstuff[key]?.ingredient_alternatives;
+			if (alternatives) alts.push(alternatives.normal, alternatives.lewd);
+		});
 		if (alts.some(arr => arr.includes(ingredient))) matches.add(key);
 	}
 	return [...matches].random();

@@ -378,6 +378,10 @@ function initFoodstuff() {
 			category: "mushroom",
 			kitchen_item_type_icon: "recipe-shroom.png",
 			prop_folder: "tending",
+			ingredient_alternatives: {
+				normal: ["wolfshroom", "ghostshroom", "hen_of_the_woods", "truffle"],
+				lewd: [],
+			},
 			tending: {
 				affected_by_tending_skill: true,
 				tags: [],
@@ -593,7 +597,7 @@ function initFoodstuff() {
 			kitchen_item_type_icon: "recipe-produce.png",
 			prop_folder: "tending",
 			ingredient_alternatives: {
-				normal: ["bird_egg"],
+				normal: ["bird_egg", "water_dragon_egg", "water_dragon_egg_pastel"],
 				lewd: [],
 			},
 			tending: {
@@ -1565,7 +1569,7 @@ function initFoodstuff() {
 				ingredients: ["haddock", "rice", "chicken_egg", "butter", "vegetable_oil", "lemon", "cream"],
 				ingredient_alternatives: {
 					normal: {
-						haddock: ["cod", "herring", "mackerel", "salmon", "trout", "whiting", "eel"],
+						haddock: ["cod", "herring", "mackerel", "salmon", "trout", "whiting", "eel", "chub", "grayling", "roach"],
 					},
 					lewd: {},
 				},
@@ -2637,7 +2641,7 @@ function initFoodstuff() {
 				ingredients: ["cod", "chips", "vegetable_oil", "flour"],
 				ingredient_alternatives: {
 					normal: {
-						cod: ["haddock", "whiting", "flounder", "bass", "perch", "pike"],
+						cod: ["haddock", "whiting", "flounder", "bass", "perch", "pike", "chub", "grayling", "roach"],
 					},
 					lewd: {},
 				},
@@ -3624,6 +3628,12 @@ function initFoodstuff() {
 				cook_minutes: 5,
 				servings: 1,
 				ingredients: ["strawberry", "sugar"],
+				ingredient_alternatives: {
+					normal: {
+						strawberry: ["blackberry", "cloudberry"],
+					},
+					lewd: {},
+				},
 				tags: [],
 			},
 		},
