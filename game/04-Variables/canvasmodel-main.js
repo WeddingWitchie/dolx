@@ -1251,7 +1251,7 @@ Renderer.CanvasModels.main = {
 			// Only use necessary data for tanning layers. Filter out the rest.
 			// Only clothing items that aren't handheld or headwear will be used
 			// Only use the base pregnancy layers
-			const skippedSlots = ["handheld", "rings", "earrings", "head", "neck", "face", "under_upper_belly_", "upper_belly_", "lower_belly_", "under_lower_belly_"];
+			const skippedSlots = ["handheld", "bag", "rings", "earrings", "head", "neck", "face", "under_upper_belly_", "upper_belly_", "lower_belly_", "under_lower_belly_"];
 			this.tanningLayers = this.layerList
 				.filter(obj => obj.show === true
 					&& obj.worn

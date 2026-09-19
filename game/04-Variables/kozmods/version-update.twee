@@ -1388,6 +1388,35 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	})()>>
 <</widget>>
 
+/* Garments that changed slot, for both load paths. This has to run before <<backComp>>,
+   <<modupdate>> and pruneClothes(): each of those drops or rewrites an item whose slot no
+   longer lists it, so a bag left in the handheld slot is destroyed before it can be moved. */
+<<widget "clothingSlotMigration">>
+	<<if !$jacketsMovedToCoatSlot or !$bagsMovedToOwnSlot>>
+		<<if !$jacketsMovedToCoatSlot>>
+			<<script>>
+				const jackets = setup.clothes.over_upper.filter(item => item.imgSlot === "upper").map(item => item.name);
+				["worn", "carried"].forEach(where => {
+					const slots = V[where];
+					if (!slots || !slots.upper || !slots.over_upper) return;
+					if (jackets.includes(slots.upper.name) && slots.over_upper.index > 0 && Array.isArray(V.wardrobe?.over_upper)) {
+						V.wardrobe.over_upper.push(clone(slots.over_upper));
+						slots.over_upper = clone(setup.clothes.over_upper[0]);
+					}
+				});
+				convertNormalToOver(jackets);
+			<</script>>
+		<</if>>
+		<<if !$bagsMovedToOwnSlot>>
+			<<script>>convertHandheldToBag();<</script>>
+		<</if>>
+		/* The moved items still carry their old slot's index, so re-point every container. */
+		<<updateClothes>>
+		<<set $jacketsMovedToCoatSlot to true>>
+		<<set $bagsMovedToOwnSlot to true>>
+	<</if>>
+<</widget>>
+
 <<widget "xchange-loadinit">>
 	<<if $xchange isnot undefined and $xchange.transIdentitySeeded is undefined>><<set $xchange.transIdentitySeeded to true>><</if>>
 	<<identityIndexInit>>
@@ -1408,29 +1437,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<script>>window.dolxRepairNonFiniteNumerics?.();<</script>>
 	<<script>>window.dolxClearOrphanWetnessKeys?.();<</script>>
 	<<script>>window.dolxEjectOrphanVaginalDildo?.();<</script>>
-	<<if !$jacketsMovedToCoatSlot or !$bagsMovedToOwnSlot>>
-		<<if !$jacketsMovedToCoatSlot>>
-			<<script>>
-				const jackets = setup.clothes.over_upper.filter(item => item.imgSlot === "upper").map(item => item.name);
-				["worn", "carried"].forEach(where => {
-					const slots = V[where];
-					if (!slots || !slots.upper || !slots.over_upper) return;
-					if (jackets.includes(slots.upper.name) && slots.over_upper.index > 0) {
-						V.wardrobe.over_upper.push(clone(slots.over_upper));
-						slots.over_upper = clone(setup.clothes.over_upper[0]);
-					}
-				});
-				convertNormalToOver(jackets);
-			<</script>>
-		<</if>>
-		<<if !$bagsMovedToOwnSlot>>
-			<<script>>convertHandheldToBag();<</script>>
-		<</if>>
-		/* The moved items still carry their old slot's index, so re-point every container. */
-		<<updateClothes>>
-		<<set $jacketsMovedToCoatSlot to true>>
-		<<set $bagsMovedToOwnSlot to true>>
-	<</if>>
 	<<run pruneClothes()>>
 	<<run repairWardrobeSlots()>>
 	<<run reclaimStrandedWardrobeItems()>>

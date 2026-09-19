@@ -121,6 +121,7 @@ declare global {
 		| "head"
 		| "face"
 		| "neck"
+		| "scarf"
 		| "hands"
 		| "handheld"
 		| "bag"
@@ -419,6 +420,7 @@ declare global {
 		head: ClothesItem[];
 		face: ClothesItem[];
 		neck: ClothesItem[];
+		scarf: ClothesItem[];
 		hands: ClothesItem[];
 		handheld: ClothesItem[];
 		bag: ClothesItem[];

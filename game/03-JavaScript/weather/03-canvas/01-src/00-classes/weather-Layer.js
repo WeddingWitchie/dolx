@@ -103,6 +103,11 @@ Weather.Renderer.Layer = class Layer {
 		}
 		const initPromises = this.effects.map(effect => effect.initPromise);
 		await Promise.all(initPromises);
+		/* The sky can be torn down while the effects load, taking this layer's canvas with it. */
+		if (!this.canvas) {
+			this.loading = false;
+			return errors;
+		}
 		this.canvas.clear();
 		for (const effect of this.effects) {
 			try {
