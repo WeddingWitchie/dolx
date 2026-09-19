@@ -772,7 +772,7 @@
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "overworld_nickname_dolp">><<silently>>
-	<<set $fameTitles = {
+	<<set _fameTitles = {
 		"good": [
 			{ "level": 400, "title": "Kind Soul" },
 			{ "level": 800, "title": "Compassionate" },
@@ -805,6 +805,14 @@
 			{ "level": 3200, "title": "Supermodel Muse" },
 			{ "level": 4000, "title": "Photoshoot Legend" }
 		],
+		"xchange": [
+			{ "level": 100, "title": "Pill Popper" },
+			{ "level": 200, "title": "Quick Change" },
+			{ "level": 400, "title": "Gender Bender" },
+			{ "level": 600, "title": "Shapeshifter" },
+			{ "level": 800, "title": "The Chameleon" },
+			{ "level": 1000, "title": "The Many-Faced" }
+		],
 		"combinations": [
 			{ "levels": [400, 400], "categories": ["good", "business"], "title": "Compassionate Capitalist" },
 			{ "levels": [400, 400], "categories": ["good", "social"], "title": "Beloved Figure" },
@@ -812,6 +820,10 @@
 			{ "levels": [400, 400], "categories": ["business", "social"], "title": "Networking Guru" },
 			{ "levels": [400, 400], "categories": ["business", "model"], "title": "Corporate Star" },
 			{ "levels": [400, 400], "categories": ["social", "model"], "title": "Photogenic Charmer" },
+			{ "levels": [400, 100], "categories": ["good", "xchange"], "title": "Kindly Stranger" },
+			{ "levels": [400, 100], "categories": ["business", "xchange"], "title": "Two-Faced Dealer" },
+			{ "levels": [400, 100], "categories": ["social", "xchange"], "title": "Social Chameleon" },
+			{ "levels": [400, 100], "categories": ["model", "xchange"], "title": "Dual Cover Star" },
 
 			{ "levels": [1600, 1600], "categories": ["good", "business"], "title": "Altruistic Mogul" },
 			{ "levels": [1600, 1600], "categories": ["good", "social"], "title": "Saint of the People" },
@@ -819,6 +831,10 @@
 			{ "levels": [1600, 1600], "categories": ["business", "social"], "title": "Social Mogul" },
 			{ "levels": [1600, 1600], "categories": ["business", "model"], "title": "Marketable Beauty" },
 			{ "levels": [1600, 1600], "categories": ["social", "model"], "title": "Celebrity" },
+			{ "levels": [1600, 400], "categories": ["good", "xchange"], "title": "Secret Samaritan" },
+			{ "levels": [1600, 400], "categories": ["business", "xchange"], "title": "Double Dealer" },
+			{ "levels": [1600, 400], "categories": ["social", "xchange"], "title": "Life of Every Party" },
+			{ "levels": [1600, 400], "categories": ["model", "xchange"], "title": "Versatile Muse" },
 
 			{ "levels": [3200, 3200], "categories": ["good", "business"], "title": "Philanthropist Tycoon" },
 			{ "levels": [3200, 3200], "categories": ["good", "social"], "title": "Guiding Light" },
@@ -826,44 +842,62 @@
 			{ "levels": [3200, 3200], "categories": ["business", "social"], "title": "Power Broker" },
 			{ "levels": [3200, 3200], "categories": ["business", "model"], "title": "Media Mogul" },
 			{ "levels": [3200, 3200], "categories": ["social", "model"], "title": "Fashion Royalty" },
+			{ "levels": [3200, 800], "categories": ["good", "xchange"], "title": "Guardian Unknown" },
+			{ "levels": [3200, 800], "categories": ["business", "xchange"], "title": "Phantom Tycoon" },
+			{ "levels": [3200, 800], "categories": ["social", "xchange"], "title": "Face of the Season" },
+			{ "levels": [3200, 800], "categories": ["model", "xchange"], "title": "Both Covers" },
 
-			{ "levels": [4000, 4000, 4000, 4000], "categories": ["good", "business", "social", "model"], "title": "The One and Only" }
+			{ "levels": [4000, 4000, 4000, 4000], "categories": ["good", "business", "social", "model"], "title": "The One and Only" },
+			{ "levels": [4000, 4000, 4000, 4000, 1000], "categories": ["good", "business", "social", "model", "xchange"], "title": "The One and Only, Twice Over" }
 		]
-	} >>
-	<<set _fame_types = ["good", "business", "social", "model"]>>
+	}>>
+	<<set _fame_types = ["good", "business", "social", "model", "xchange"]>>
 	<<set _text_output = "Some Orphan">>  <!-- Default title -->
-	<<set _highest_fame = {}>>  <!-- Track highest title per fame type -->
+	<<set _highest_fame = {}>>  <!-- Highest title reached per fame type -->
+	<<set _fame_values = {}>>
+	<<set _fame_tier = {}>>  <!-- How many rungs up its own ladder each fame type has climbed -->
 
 	<!-- Get highest fame titles -->
 	<<for _type range _fame_types>>
-		<<set _fame_value = $fame[_type]>>
-		<<for _entry range $fameTitles[_type]>>
-			<<if _fame_value >= _entry.level>>
+		<<set _fame_values[_type] to (_type is "xchange" ? $xchange_fame : $fame[_type]) || 0>>
+		<<for _i, _entry range _fameTitles[_type]>>
+			<<if _fame_values[_type] gte _entry.level>>
 				<<set _highest_fame[_type] to _entry.title>>
+				<<set _fame_tier[_type] to _i + 1>>
 			<</if>>
 		<</for>>
 	<</for>>
 
-	<!-- Check for best combination -->
-	<<for _combo range $fameTitles.combinations>>
-		<<set _match_count = 0>>
-		<<for _category range _combo.categories>>
-			<<if _highest_fame[_category] is not undefined>>
-				<<set _match_count += 1>>
+	<!-- Best qualifying combination -->
+	<<set _best_count to 0>>
+	<<set _best_weight to -1>>
+	<<for _combo range _fameTitles.combinations>>
+		<<set _qualifies to true>>
+		<<set _combo_weight to 0>>
+		<<for _i, _category range _combo.categories>>
+			<<if _fame_values[_category] is undefined or _fame_values[_category] lt _combo.levels[_i]>>
+				<<set _qualifies to false>>
+			<<else>>
+				<<set _combo_weight += _combo.levels[_i]>>
 			<</if>>
 		<</for>>
-		
-		<!-- If all required categories match, use this combo title -->
-		<<if _match_count == _combo.categories.length>>
-			<<set _text_output = _combo.title>>
+		<<if _qualifies and (_combo.categories.length gt _best_count or (_combo.categories.length is _best_count and _combo_weight gt _best_weight))>>
+			<<set _best_count to _combo.categories.length>>
+			<<set _best_weight to _combo_weight>>
+			<<set _text_output to _combo.title>>
 		<</if>>
 	<</for>>
 
-	<!-- If no combination title matched, use the highest individual one -->
-	<<if _text_output is "Some Orphan" and _highest_fame[Object.keys(_highest_fame)[0]] isnot undefined>>
-		<<set _text_output = _highest_fame[Object.keys(_highest_fame)[0]]>>
+	<!-- No combination qualified -->
+	<<if _best_count is 0>>
+		<<set _best_tier to 0>>
+		<<for _type range _fame_types>>
+			<<if _fame_tier[_type] and _fame_tier[_type] gt _best_tier>>
+				<<set _best_tier to _fame_tier[_type]>>
+				<<set _text_output to _highest_fame[_type]>>
+			<</if>>
+		<</for>>
 	<</if>>
-
 <</silently>><<print _text_output>><</widget>>
 
 <<widget "fisherPerson">><<silently>>
