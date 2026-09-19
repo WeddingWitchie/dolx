@@ -1388,11 +1388,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	})()>>
 <</widget>>
 
-/* Garments that changed slot, for both load paths. This has to run before <<backComp>>,
-   <<modupdate>> and pruneClothes(): each of those drops or rewrites an item whose slot no
-   longer lists it, so a bag left in the handheld slot is destroyed before it can be moved. */
 <<widget "clothingSlotMigration">>
-	<<if !$jacketsMovedToCoatSlot or !$bagsMovedToOwnSlot>>
+	<<if !$jacketsMovedToCoatSlot or !$bagsMovedToOwnSlot or !$scarvesMovedToOwnSlot>>
 		<<if !$jacketsMovedToCoatSlot>>
 			<<script>>
 				const jackets = setup.clothes.over_upper.filter(item => item.imgSlot === "upper").map(item => item.name);
@@ -1410,10 +1407,14 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<if !$bagsMovedToOwnSlot>>
 			<<script>>convertHandheldToBag();<</script>>
 		<</if>>
+		<<if !$scarvesMovedToOwnSlot>>
+			<<script>>convertNeckToScarf();<</script>>
+		<</if>>
 		/* The moved items still carry their old slot's index, so re-point every container. */
 		<<updateClothes>>
 		<<set $jacketsMovedToCoatSlot to true>>
 		<<set $bagsMovedToOwnSlot to true>>
+		<<set $scarvesMovedToOwnSlot to true>>
 	<</if>>
 <</widget>>
 

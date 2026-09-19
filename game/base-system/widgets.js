@@ -673,7 +673,7 @@ function calculateallure() {
 	}
 	attractiveness = baseattractiveness;
 	/* extra attractiveness from accessories */
-	for (const slot of ["head", "face", "neck", "legs", "feet", "handheld", "earrings", "rings", "hands"]) attractiveness += V.worn[slot].reveal || 0;
+	for (const slot of ["head", "face", "neck", "scarf", "legs", "feet", "handheld", "earrings", "rings", "hands"]) attractiveness += V.worn[slot].reveal || 0;
 	/* tf bonuses */
 	const partEnabled = (tf, part) => {
 		const value = V.transformationParts?.[tf]?.[part];

@@ -199,64 +199,76 @@ function convertNormalToOver(names) {
 }
 window.convertNormalToOver = convertNormalToOver;
 
-/* Bags moved out of the handheld slot so they can be carried alongside an umbrella. */
-function convertHandheldToBag() {
-	for (const holder of [V.worn, V.carried]) {
-		if (holder && !holder.bag) holder.bag = clone(setup.clothes.bag[0]);
-	}
-	if (V.store && !Array.isArray(V.store.bag)) V.store.bag = [];
-
-	const bagRefs = setup.clothes.bag.slice(1);
-	const bagVariables = new Set(bagRefs.map(item => item.variable));
-	const catalogueNames = new Set(bagRefs.map(item => item.name));
-	const isBag = item =>
-		!!item && (bagVariables.has(item.variable) || catalogueNames.has(item.name) || (Array.isArray(item.type) && item.type.includes("bookbag")));
+/* Re-files garments that changed slot before pruneClothes() deletes them from the old slot. */
+function moveClothingSlot(fromSlot, toSlot, isMatch) {
+	const refs = setup.clothes[toSlot].slice(1);
+	const variables = new Set(refs.map(item => item.variable));
+	const names = new Set(refs.map(item => item.name));
+	const matches = item => !!item && (variables.has(item.variable) || names.has(item.name) || (isMatch ? isMatch(item) : false));
 	const reslot = item => {
-		item.slot = "bag";
-		if (item.set === "handheld") item.set = "bag";
+		item.slot = toSlot;
+		if (item.set === fromSlot) item.set = toSlot;
 		return item;
 	};
 
+	for (const holder of [V.worn, V.carried]) {
+		/* Another init may have reserved the key with an empty object, which prunes as invalid. */
+		if (holder && !holder[toSlot]?.variable) holder[toSlot] = clone(setup.clothes[toSlot][0]);
+	}
+	if (V.store && !Array.isArray(V.store[toSlot])) V.store[toSlot] = [];
+
 	const holders = [V.worn, V.carried, V.tryOn && V.tryOn.ownedStored, V.tryOn && V.tryOn.tryingOn];
 	for (const holder of holders) {
-		if (!holder || !isBag(holder.handheld)) continue;
-		holder.bag = reslot(holder.handheld);
-		holder.handheld = holder === V.tryOn?.tryingOn ? null : clone(setup.clothes.handheld[0]);
+		if (!holder || !matches(holder[fromSlot])) continue;
+		holder[toSlot] = reslot(holder[fromSlot]);
+		holder[fromSlot] = holder === V.tryOn?.tryingOn ? null : clone(setup.clothes[fromSlot][0]);
 	}
 
 	/* V.store is what the player stripped off and left somewhere. */
-	const lists = [V.wardrobe, ...Object.values(V.wardrobes || {}), V.store].filter(w => w && typeof w === "object" && Array.isArray(w.handheld));
+	const lists = [V.wardrobe, ...Object.values(V.wardrobes || {}), V.store].filter(w => w && typeof w === "object" && Array.isArray(w[fromSlot]));
 	for (const list of lists) {
-		if (!Array.isArray(list.bag)) list.bag = [];
-		for (let i = list.handheld.length - 1; i >= 0; i--) {
-			if (!isBag(list.handheld[i])) continue;
-			list.bag.push(reslot(list.handheld[i]));
-			list.handheld.splice(i, 1);
+		if (!Array.isArray(list[toSlot])) list[toSlot] = [];
+		for (let i = list[fromSlot].length - 1; i >= 0; i--) {
+			if (!matches(list[fromSlot][i])) continue;
+			list[toSlot].push(reslot(list[fromSlot][i]));
+			list[fromSlot].splice(i, 1);
 		}
 	}
 
-	/* Saved outfits name their garments, so the name moves to the bag field. */
+	/* Saved outfits name their garments, so the name moves to the new field. */
 	for (const outfit of V.outfit || []) {
-		if (!catalogueNames.has(outfit.handheld)) continue;
-		outfit.bag = outfit.handheld;
-		outfit.handheld = "naked";
+		if (!names.has(outfit[fromSlot])) continue;
+		outfit[toSlot] = outfit[fromSlot];
+		outfit[fromSlot] = "naked";
 		if (outfit.colors) {
-			outfit.colors.bag = outfit.colors.handheld;
-			outfit.colors.handheld = [0, 0];
+			outfit.colors[toSlot] = outfit.colors[fromSlot];
+			outfit.colors[fromSlot] = [0, 0];
 		}
 	}
 
 	/* Bailey's confiscated pile records the slot it took each item from. */
 	if (V.bailey_confiscation && Array.isArray(V.bailey_confiscation.items)) {
 		for (const held of V.bailey_confiscation.items) {
-			if (held.source === "clothing" && held.slot === "handheld" && isBag(held.item)) {
-				held.slot = "bag";
+			if (held.source === "clothing" && held.slot === fromSlot && matches(held.item)) {
+				held.slot = toSlot;
 				reslot(held.item);
 			}
 		}
 	}
 }
+window.moveClothingSlot = moveClothingSlot;
+
+/* Bags moved out of the handheld slot so they can be carried alongside an umbrella. */
+function convertHandheldToBag() {
+	moveClothingSlot("handheld", "bag", item => Array.isArray(item.type) && item.type.includes("bookbag"));
+}
 window.convertHandheldToBag = convertHandheldToBag;
+
+/* Scarves and other draped neckwear moved off the neck so they can be worn with a collar. */
+function convertNeckToScarf() {
+	moveClothingSlot("neck", "scarf");
+}
+window.convertNeckToScarf = convertNeckToScarf;
 
 function getVisibleClothesList() {
 	const visibleClothes = [
@@ -265,6 +277,7 @@ function getVisibleClothesList() {
 		V.worn.over_head,
 		V.worn.face,
 		V.worn.neck,
+		V.worn.scarf,
 		V.worn.hands,
 		V.worn.handheld,
 		V.worn.bag,
@@ -654,6 +667,7 @@ function getClothingOptions() {
 		["over_head"],
 		["face"],
 		["neck"],
+		["scarf"],
 		["legs"],
 		["feet"],
 	];

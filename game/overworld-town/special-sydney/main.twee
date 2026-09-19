@@ -625,12 +625,14 @@
 				You chat with Sydney. <<He>> shakes <<his>> head to startle a fly away, and <<his>> <<npcHairColour "Sydney">> <<if $sydney.hair is "ponytail">>ponytail<<else>>hair<</if>> whips you in the face. It's too soft to hurt, but it makes you jump. Sydney spends a few minutes <<if _sydneyStatus.includes("corrupt")>>giggling at you<<else>>fussing over you and apologising<</if>>.
 			<<case 12>>
 				You chat with Sydney.
-				<<if !$daily.sydney.pendant and ($worn.neck.type.includesAny("holy", "dark", "eerie") or $worn.neck.name is "scarf" or $worn.neck.name is "collar" or $worn.head.name is "feathered hair clip")>>
+				<<if !$daily.sydney.pendant and ($worn.neck.type.includesAny("holy", "dark", "eerie") or $worn.scarf.type.includesAny("holy", "dark", "eerie") or $worn.scarf.name is "scarf" or $worn.neck.name is "collar" or $worn.head.name is "feathered hair clip")>>
 					<<set $daily.sydney.pendant to true>>
 					<<if $worn.head.name is "feathered hair clip" and random(1, 2) is 1>>
 						<<His>> eyes catch on your unusual hairclip. "Wow, those are real feathers! It's very pretty." <<He>> reaches up and runs a finger along the edge. <<He>> keeps stroking it, and your head, absentmindedly for some time.
 					<<else>>
-						<<switch $worn.neck.name>>
+						/* Scarves and stoles sit in their own slot now, so pick whichever one Sydney would notice. */
+						<<set _sydneyNeckwear to ($worn.scarf.index > 0 and $worn.neck.index is 0) ? $worn.scarf : $worn.neck>>
+						<<switch _sydneyNeckwear.name>>
 							<<case "holy pendant" "holy stole">>
 								<<He>> looks at the holy pendant around your neck, and smiles at you.
 								<<if _sydneyStatus.includes("corrupt")>>
@@ -645,9 +647,9 @@
 								<<He>> remains silent for an unusually long time. You look over to <<him>>, and see <<his>> eyes glazed over, staring at your dark pendant. You snap your fingers, and <<he>> gasps before placing <<his>> hands over <<his>> mouth, suddenly looking nervous. "Sorry. Must be more tired than I thought." <<npcincr Sydney purity -2>><<lspurity>>
 							<<case "cat bell collar" "cow bell">>
 								<<if ["early","morning","first","second"].includes($schoolstate)>>
-									You catch <<him>> dozing off. You ring your $worn.neck.name. The sound is enough to jolt <<him>> awake. "Thanks. Cute collar. I think I saw a few of those in packages at <<nnpc_Mum "Sirris">>'s new shop."
+									You catch <<him>> dozing off. You ring your <<print _sydneyNeckwear.name>>. The sound is enough to jolt <<him>> awake. "Thanks. Cute collar. I think I saw a few of those in packages at <<nnpc_Mum "Sirris">>'s new shop."
 								<<else>>
-									You hear a ring. Sydney is poking your $worn.neck.name. "This is a really cute collar. I think I saw a few of those in packages at <<nnpc_Mum "Sirris">>'s new shop."
+									You hear a ring. Sydney is poking your <<print _sydneyNeckwear.name>>. "This is a really cute collar. I think I saw a few of those in packages at <<nnpc_Mum "Sirris">>'s new shop."
 								<</if>>
 							<<case "spiked collar" "spiked collar with leash">>
 								Sydney spares a glance at your spiked collar. "That looks... wicked. Vicious, even.

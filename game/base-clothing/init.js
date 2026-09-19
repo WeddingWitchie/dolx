@@ -1,4 +1,4 @@
-/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initHands, initHandheld, initBag, initEarrings, initRings, initLegs, initFeet, initSpecialClothes, initProps, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
+/* global initOverUpper, initOverLower, initUpper, initLower, initUnderUpper, initUnderLower, initGenitals, initOverHead, initHead, initFace, initNeck, initScarf, initHands, initHandheld, initBag, initEarrings, initRings, initLegs, initFeet, initSpecialClothes, initProps, wardrobesUpdate, clothesDataTrimmerLoop, npcAssignClothesToSet */
 
 /*
 Modded clothes are added to `setup.clothes` through `setup.moddedClothes`.
@@ -41,6 +41,7 @@ function clothingDataInit() {
 	initHead();
 	initFace();
 	initNeck();
+	initScarf();
 	initHands();
 	initHandheld();
 	initBag();
@@ -64,6 +65,7 @@ function clothingDataInit() {
 		"head",
 		"face",
 		"neck",
+		"scarf",
 		"hands",
 		"handheld",
 		"bag",

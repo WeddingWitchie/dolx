@@ -598,58 +598,6 @@ function initNeck() {
 		new ClothesItem({
 			index: 16,
 			slot: "neck",
-			name: "scarf",
-			name_cap: "Scarf",
-			variable: "scarf",
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 100,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: [
-				"black",
-				"navy blue",
-				"blue",
-				"neon blue",
-				"wine",
-				"brown",
-				"green",
-				"pink",
-				"light pink",
-				"purple",
-				"lilac",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			femininity: 0,
-			warmth: 4,
-			cost: 1200,
-			description: "Snug.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "scarf.png",
-			accIcon: 0,
-			zIndex: "head",
-		}),
-		new ClothesItem({
-			index: 17,
-			slot: "neck",
 			name: "gold chain",
 			name_cap: "Gold chain",
 			variable: "chaingold",
@@ -685,7 +633,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 18,
+			index: 17,
 			slot: "neck",
 			name: "iron chain",
 			name_cap: "Iron chain",
@@ -721,44 +669,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 19,
-			slot: "neck",
-			name: "holy stole",
-			name_cap: "Holy stole",
-			variable: "holystole",
-			combat: {
-				reference: "naked",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 100,
-			reveal: 1,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: ["black", "blue", "wine", "forest green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
-			colour_sidebar: 1,
-			type: ["holy"],
-			gender: "n",
-			femininity: 0,
-			warmth: 2,
-			cost: 10000,
-			description: "Ecclesiastical attire.",
-			shop: ["forest"],
-			shopGroup: "holystole",
-			collared: 0,
-			accessory: 1,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "holy_stole.png",
-			accIcon: "holy_stole_acc.png",
-		}),
-		new ClothesItem({
-			index: 20,
+			index: 18,
 			slot: "neck",
 			name: "free use collar",
 			name_cap: "Free use collar",
@@ -794,7 +705,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 21,
+			index: 19,
 			slot: "neck",
 			name: "collar with leash",
 			name_cap: "Collar with leash",
@@ -831,7 +742,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 22,
+			index: 20,
 			slot: "neck",
 			name: "free use collar with leash",
 			name_cap: "Free use collar with leash",
@@ -868,7 +779,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 23,
+			index: 21,
 			slot: "neck",
 			name: "ivory necklace",
 			name_cap: "Ivory necklace",
@@ -903,7 +814,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 24,
+			index: 22,
 			slot: "neck",
 			name: "leather collar with leash",
 			name_cap: "Leather collar with leash",
@@ -940,7 +851,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 25,
+			index: 23,
 			slot: "neck",
 			name: "leather collar",
 			name_cap: "Leather collar",
@@ -976,7 +887,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 26,
+			index: 24,
 			slot: "neck",
 			name: "spiked collar with leash",
 			name_cap: "Spiked collar with leash",
@@ -1014,7 +925,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 27,
+			index: 25,
 			slot: "neck",
 			name: "short tie",
 			name_cap: "Short tie",
@@ -1052,59 +963,7 @@ function initNeck() {
 			accIcon: "necktie_acc.png",
 		}),
 		new ClothesItem({
-			index: 28,
-			slot: "neck",
-			name: "fur boa",
-			name_cap: "Fur boa",
-			variable: "boa",
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 100,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: [
-				"black",
-				"navy blue",
-				"wine",
-				"blue",
-				"brown",
-				"green",
-				"pink",
-				"light pink",
-				"purple",
-				"lilac",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			warmth: 4,
-			cost: 3000,
-			description: "Soft and stylish.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			accessory_colour_sidebar: 0,
-			cursed: 0,
-			location: 0,
-			iconFile: "boa.png",
-		}),
-		new ClothesItem({
-			index: 29,
+			index: 26,
 			slot: "neck",
 			name: "sailor ribbon",
 			name_cap: "Sailor ribbon",
@@ -1140,7 +999,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 30,
+			index: 27,
 			slot: "neck",
 			name: "love locket",
 			name_cap: "Love locket",
@@ -1177,7 +1036,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 31,
+			index: 28,
 			slot: "neck",
 			name: "classic lace choker",
 			name_cap: "Classic lace choker",
@@ -1215,7 +1074,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 32,
+			index: 29,
 			slot: "neck",
 			name: "bowtie",
 			name_cap: "Bowtie",
@@ -1253,7 +1112,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 33,
+			index: 30,
 			slot: "neck",
 			name: "ribbon tie",
 			name_cap: "Ribbon tie",
@@ -1291,7 +1150,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 34,
+			index: 31,
 			slot: "neck",
 			name: "whistle",
 			name_cap: "Whistle",
@@ -1327,7 +1186,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 35,
+			index: 32,
 			slot: "neck",
 			name: "large ribbon tie",
 			name_cap: "Large ribbon tie",
@@ -1365,7 +1224,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 36,
+			index: 33,
 			slot: "neck",
 			name: "bolo tie",
 			name_cap: "Bolo tie",
@@ -1403,44 +1262,7 @@ function initNeck() {
 			accIcon: "bolo_tie_acc.png",
 		}),
 		new ClothesItem({
-			index: 37,
-			slot: "neck",
-			name: "long holy stole",
-			name_cap: "Long holy stole",
-			variable: "holystolelong",
-			combat: {
-				reference: "naked",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 100,
-			reveal: 1,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: ["black", "blue", "wine", "forest green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
-			colour_sidebar: 1,
-			type: ["holy"],
-			gender: "n",
-			femininity: 0,
-			warmth: 2,
-			cost: 10000,
-			description: "Ecclesiastical attire.",
-			shop: ["forest"],
-			shopGroup: "holystole",
-			collared: 0,
-			accessory: 1,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "holy_stole.png",
-			accIcon: "holy_stole_acc.png",
-		}),
-		new ClothesItem({
-			index: 38,
+			index: 34,
 			slot: "neck",
 			name: "feather necklace",
 			name_cap: "Feather necklace",
@@ -1474,7 +1296,7 @@ function initNeck() {
 			accIcon: "feather_necklace_acc.png",
 		}),
 		new ClothesItem({
-			index: 39,
+			index: 35,
 			slot: "neck",
 			name: "jasper pendant",
 			name_cap: "Jasper pendant",
@@ -1509,7 +1331,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 40,
+			index: 36,
 			slot: "neck",
 			name: "familiar collar",
 			name_cap: "Familiar collar",
@@ -1547,262 +1369,7 @@ function initNeck() {
 			accIcon: 0,
 		}),
 		new ClothesItem({
-			index: 41,
-			slot: "neck",
-			name: "wool scarf",
-			name_cap: "Wool scarf",
-			variable: "woolscarf",
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 100,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			femininity: 0,
-			warmth: 5,
-			cost: 12000,
-			description: "Thick and wooly.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "woolscarf.png",
-			accIcon: 0,
-			zIndex: "head",
-		}),
-		new ClothesItem({
-			index: 42,
-			slot: "neck",
-			name: "flannel scarf",
-			name_cap: "Flannel scarf",
-			variable: "flannelscarf",
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 100,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: ["black", "blue", "wine", "forest green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			femininity: 0,
-			warmth: 4,
-			cost: 4500,
-			description: "Thick and wooly.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 1,
-			accessory_colour: 0,
-			accessory_colour_options: ["black", "blue", "wine", "forest green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
-			accessory_colour_sidebar: 1,
-			cursed: 0,
-			location: 0,
-			iconFile: "flannelscarf.png",
-			accIcon: "flannelscarf_acc.png",
-			zIndex: "head",
-		}),
-		new ClothesItem({
-			index: 43,
-			slot: "neck",
-			name: "fox scarf",
-			name_cap: "Fox scarf",
-			variable: "foxscarf",
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 200,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: ["tangerine", "forest green", "brown", "custom"],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			femininity: 0,
-			warmth: 5,
-			cost: 4500,
-			description: "No foxes were harmed in the making of this scarf.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 1,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "foxscarf.png",
-			accIcon: "foxscarf_acc.png",
-			zIndex: "head",
-		}),
-		new ClothesItem({
-			index: 44,
-			slot: "neck",
-			name: "pompom scarf",
-			name_cap: "Pompom scarf",
-			variable: "pompomscarf",
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 200,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "custom"],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			femininity: 0,
-			warmth: 4,
-			cost: 2500,
-			description: "So fluffy.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "pompomscarf.png",
-			accIcon: 0,
-			zIndex: "head",
-		}),
-		new ClothesItem({
-			index: 45,
-			slot: "neck",
-			name: "ribbon scarf",
-			name_cap: "Ribbon scarf",
-			variable: "ribbonscarf",
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 200,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: [
-				"black",
-				"navy blue",
-				"wine",
-				"brown",
-				"olive",
-				"pink",
-				"light pink",
-				"purple",
-				"lilac",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			femininity: 0,
-			warmth: 4,
-			cost: 5500,
-			description: "Cute and snug.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "ribbonscarf.png",
-			accIcon: 0,
-			zIndex: "head",
-		}),
-		new ClothesItem({
-			index: 46,
-			slot: "neck",
-			name: "cashmere scarf",
-			name_cap: "Cashmere scarf",
-			variable: "cashmerescarf",
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 20,
-			reveal: 200,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: [
-				"black",
-				"navy blue",
-				"wine",
-				"brown",
-				"olive",
-				"pink",
-				"light pink",
-				"purple",
-				"lilac",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
-			colour_sidebar: 1,
-			type: ["normal"],
-			gender: "n",
-			femininity: 0,
-			warmth: 5,
-			cost: 12000,
-			description: "Cute and snug.",
-			shop: ["clothing"],
-			collared: 0,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			cursed: 0,
-			location: 0,
-			iconFile: "cashmerescarf.png",
-			accIcon: 0,
-			zIndex: "head",
-		}),
-		new ClothesItem({
-			index: 47,
+			index: 37,
 			slot: "neck",
 			name: "bow brooch",
 			name_cap: "Bow brooch",
@@ -1869,7 +1436,7 @@ function initNeck() {
 			accIcon: "bow-brooch-acc.png",
 		}),
 		new ClothesItem({
-			index: 48,
+			index: 38,
 			slot: "neck",
 			name: "gothic choker",
 			name_cap: "Gothic choker",
@@ -1936,109 +1503,7 @@ function initNeck() {
 			accIcon: "gothic-choker-acc.png",
 		}),
 		new ClothesItem({
-			index: 49,
-			slot: "neck",
-			name: "kitty neck cushion",
-			name_cap: "Kitty neck cushion",
-			variable: "kitty neck cushion",
-			description: "A kitty pillow wrapping around your neck.",
-			cost: 6500,
-			shop: ["clothing"],
-			type: ["normal", "sleep"],
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 25,
-			reveal: 100,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: [
-				"black",
-				"navy blue",
-				"wine",
-				"brown",
-				"olive",
-				"pink",
-				"light pink",
-				"purple",
-				"lilac",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
-			colour_sidebar: 1,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			gender: "n",
-			warmth: 2,
-			shopGroup: "animal neck cushion",
-			cursed: 0,
-			location: 0,
-			iconFile: "kitty-neck-cushion.png",
-			accIcon: 0,
-		}),
-		new ClothesItem({
-			index: 50,
-			slot: "neck",
-			name: "puppy neck cushion",
-			name_cap: "Puppy neck cushion",
-			variable: "puppy neck cushion",
-			description: "A puppy pillow wrapping around your neck.",
-			cost: 6500,
-			shop: ["clothing"],
-			type: ["normal", "sleep"],
-			combat: {
-				reference: "scarf",
-			},
-			state: 0,
-			state_base: 0,
-			integrity: 100,
-			integrity_max: 100,
-			fabric_strength: 25,
-			reveal: 200,
-			word: "a",
-			plural: 0,
-			colour: 0,
-			colour_options: [
-				"black",
-				"navy blue",
-				"wine",
-				"brown",
-				"olive",
-				"pink",
-				"light pink",
-				"purple",
-				"lilac",
-				"red",
-				"tangerine",
-				"teal",
-				"white",
-				"yellow",
-				"custom",
-			],
-			colour_sidebar: 1,
-			accessory: 0,
-			accessory_colour: 0,
-			accessory_colour_options: [],
-			gender: "n",
-			warmth: 2,
-			shopGroup: "animal neck cushion",
-			cursed: 0,
-			location: 0,
-			iconFile: "puppy-neck-cushion.png",
-			accIcon: 0,
-		}),
-		new ClothesItem({
-			index: 51,
+			index: 39,
 			slot: "neck",
 			name: "gemstone necklace",
 			name_cap: "Gemstone necklace",
@@ -2089,7 +1554,7 @@ function initNeck() {
 			accIcon: "gemstone necklace-acc.png",
 		}),
 		{
-			index: 52,
+			index: 40,
 			slot: "neck",
 			name: "Whitney's collar",
 			name_cap: "Whitney's collar",
@@ -2125,7 +1590,7 @@ function initNeck() {
 			accIcon: 0,
 		},
 		{
-			index: 53,
+			index: 41,
 			slot: "neck",
 			name: "Whitney's collar with leash",
 			name_cap: "Whitney's collar with leash",
@@ -2162,7 +1627,7 @@ function initNeck() {
 			accIcon: 0,
 		},
 		{
-			index: 54,
+			index: 42,
 			slot: "neck",
 			name: "harness",
 			name_cap: "Harness",
@@ -2217,7 +1682,7 @@ function initNeck() {
 			accIcon: 0,
 		},
 		{
-			index: 55,
+			index: 43,
 			slot: "neck",
 			name: "harness with leash",
 			name_cap: "Harness with leash",
@@ -2272,7 +1737,7 @@ function initNeck() {
 			accIcon: 0,
 		},
 		{
-			index: 56,
+			index: 44,
 			slot: "neck",
 			name: "metal chain",
 			name_cap: "Metal chain",
@@ -2309,7 +1774,7 @@ function initNeck() {
 			accIcon: 0,
 		},
 		{
-			index: 57,
+			index: 45,
 			slot: "neck",
 			name: "metal choker",
 			name_cap: "Metal choker",
@@ -2347,7 +1812,7 @@ function initNeck() {
 		},
 
 		{
-			index: 58,
+			index: 46,
 			slot: "neck",
 			name: "heart jewel choker",
 			name_cap: "Heart jewel choker",
@@ -2389,7 +1854,7 @@ function initNeck() {
 		},
 
 		{
-			index: 59,
+			index: 47,
 			slot: "neck",
 			name: "small solitaire faux jewel pendant",
 			name_cap: "Small solitaire faux jewel pendant",
@@ -2429,7 +1894,7 @@ function initNeck() {
 		},
 
 		{
-			index: 60,
+			index: 48,
 			slot: "neck",
 			name: "Classic solitaire faux jewel pendant",
 			name_cap: "Classic solitaire faux jewel pendant",
@@ -2469,7 +1934,7 @@ function initNeck() {
 		},
 
 		{
-			index: 61,
+			index: 49,
 			slot: "neck",
 			name: "multistone faux jewel pendant",
 			name_cap: "Multistone faux jewel pendant",
@@ -2509,7 +1974,7 @@ function initNeck() {
 		},
 
 		{
-			index: 62,
+			index: 50,
 			slot: "neck",
 			name: "fringe faux jewel necklace",
 			name_cap: "Fringe faux jewel necklace",
@@ -2549,7 +2014,7 @@ function initNeck() {
 		},
 
 		{
-			index: 63,
+			index: 51,
 			slot: "neck",
 			name: "rivière faux jewel necklace",
 			name_cap: "Rivière faux jewel necklace",
@@ -2589,7 +2054,7 @@ function initNeck() {
 		},
 
 		{
-			index: 64,
+			index: 52,
 			slot: "neck",
 			name: "bib faux jewel strand",
 			name_cap: "Big faux jewel strand",
@@ -2629,7 +2094,7 @@ function initNeck() {
 		},
 
 		{
-			index: 65,
+			index: 53,
 			slot: "neck",
 			name: "full faux jewel strand",
 			name_cap: "Full faux jewel strand",
@@ -2668,7 +2133,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 66,
+			index: 54,
 			slot: "neck",
 			name: "heart diamond choker",
 			name_cap: "Heart diamond choker",
@@ -2709,7 +2174,7 @@ function initNeck() {
 		},
 
 		{
-			index: 67,
+			index: 55,
 			slot: "neck",
 			name: "small solitaire diamond pendant",
 			name_cap: "Small solitaire diamond pendant",
@@ -2750,7 +2215,7 @@ function initNeck() {
 		},
 
 		{
-			index: 68,
+			index: 56,
 			slot: "neck",
 			name: "Classic solitaire diamond pendant",
 			name_cap: "Classic solitaire diamond pendant",
@@ -2791,7 +2256,7 @@ function initNeck() {
 		},
 
 		{
-			index: 69,
+			index: 57,
 			slot: "neck",
 			name: "multistone diamond pendant",
 			name_cap: "Multistone diamond pendant",
@@ -2832,7 +2297,7 @@ function initNeck() {
 		},
 
 		{
-			index: 70,
+			index: 58,
 			slot: "neck",
 			name: "fringe diamond necklace",
 			name_cap: "Fringe diamond necklace",
@@ -2873,7 +2338,7 @@ function initNeck() {
 		},
 
 		{
-			index: 71,
+			index: 59,
 			slot: "neck",
 			name: "rivière diamond necklace",
 			name_cap: "Rivière diamond necklace",
@@ -2914,7 +2379,7 @@ function initNeck() {
 		},
 
 		{
-			index: 72,
+			index: 60,
 			slot: "neck",
 			name: "bib diamond strand",
 			name_cap: "Big diamond strand",
@@ -2955,7 +2420,7 @@ function initNeck() {
 		},
 
 		{
-			index: 73,
+			index: 61,
 			slot: "neck",
 			name: "full diamond strand",
 			name_cap: "Full diamond strand",
@@ -2995,7 +2460,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 74,
+			index: 62,
 			slot: "neck",
 			name: "heart ruby choker",
 			name_cap: "Heart ruby choker",
@@ -3036,7 +2501,7 @@ function initNeck() {
 		},
 
 		{
-			index: 75,
+			index: 63,
 			slot: "neck",
 			name: "Classic solitaire ruby pendant",
 			name_cap: "Classic solitaire ruby pendant",
@@ -3077,7 +2542,7 @@ function initNeck() {
 		},
 
 		{
-			index: 76,
+			index: 64,
 			slot: "neck",
 			name: "multistone ruby pendant",
 			name_cap: "Multistone ruby pendant",
@@ -3118,7 +2583,7 @@ function initNeck() {
 		},
 
 		{
-			index: 77,
+			index: 65,
 			slot: "neck",
 			name: "fringe ruby necklace",
 			name_cap: "Fringe ruby necklace",
@@ -3159,7 +2624,7 @@ function initNeck() {
 		},
 
 		{
-			index: 78,
+			index: 66,
 			slot: "neck",
 			name: "rivière ruby necklace",
 			name_cap: "Rivière ruby necklace",
@@ -3200,7 +2665,7 @@ function initNeck() {
 		},
 
 		{
-			index: 79,
+			index: 67,
 			slot: "neck",
 			name: "bib ruby strand",
 			name_cap: "Big ruby strand",
@@ -3241,7 +2706,7 @@ function initNeck() {
 		},
 
 		{
-			index: 80,
+			index: 68,
 			slot: "neck",
 			name: "full ruby strand",
 			name_cap: "Full ruby strand",
@@ -3281,7 +2746,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 81,
+			index: 69,
 			slot: "neck",
 			name: "heart emerald choker",
 			name_cap: "Heart emerald choker",
@@ -3321,7 +2786,7 @@ function initNeck() {
 			accIcon: "jewellery/emerald_heart_choker_acc.png",
 		},
 		{
-			index: 82,
+			index: 70,
 			slot: "neck",
 			name: "Classic solitaire emerald pendant",
 			name_cap: "Classic solitaire emerald pendant",
@@ -3362,7 +2827,7 @@ function initNeck() {
 		},
 
 		{
-			index: 83,
+			index: 71,
 			slot: "neck",
 			name: "multistone emerald pendant",
 			name_cap: "Multistone emerald pendant",
@@ -3403,7 +2868,7 @@ function initNeck() {
 		},
 
 		{
-			index: 84,
+			index: 72,
 			slot: "neck",
 			name: "fringe emerald necklace",
 			name_cap: "Fringe emerald necklace",
@@ -3444,7 +2909,7 @@ function initNeck() {
 		},
 
 		{
-			index: 85,
+			index: 73,
 			slot: "neck",
 			name: "rivière emerald necklace",
 			name_cap: "Rivière emerald necklace",
@@ -3485,7 +2950,7 @@ function initNeck() {
 		},
 
 		{
-			index: 86,
+			index: 74,
 			slot: "neck",
 			name: "bib emerald strand",
 			name_cap: "Big emerald strand",
@@ -3526,7 +2991,7 @@ function initNeck() {
 		},
 
 		{
-			index: 87,
+			index: 75,
 			slot: "neck",
 			name: "full emerald strand",
 			name_cap: "Full emerald strand",
@@ -3566,7 +3031,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 88,
+			index: 76,
 			slot: "neck",
 			name: "heart sapphire choker",
 			name_cap: "Heart sapphire choker",
@@ -3607,7 +3072,7 @@ function initNeck() {
 		},
 
 		{
-			index: 89,
+			index: 77,
 			slot: "neck",
 			name: "Classic solitaire sapphire pendant",
 			name_cap: "Classic solitaire sapphire pendant",
@@ -3648,7 +3113,7 @@ function initNeck() {
 		},
 
 		{
-			index: 90,
+			index: 78,
 			slot: "neck",
 			name: "multistone sapphire pendant",
 			name_cap: "Multistone sapphire pendant",
@@ -3689,7 +3154,7 @@ function initNeck() {
 		},
 
 		{
-			index: 91,
+			index: 79,
 			slot: "neck",
 			name: "fringe sapphire necklace",
 			name_cap: "Fringe sapphire necklace",
@@ -3730,7 +3195,7 @@ function initNeck() {
 		},
 
 		{
-			index: 92,
+			index: 80,
 			slot: "neck",
 			name: "rivière sapphire necklace",
 			name_cap: "Rivière sapphire necklace",
@@ -3771,7 +3236,7 @@ function initNeck() {
 		},
 
 		{
-			index: 93,
+			index: 81,
 			slot: "neck",
 			name: "bib sapphire strand",
 			name_cap: "Big sapphire strand",
@@ -3812,7 +3277,7 @@ function initNeck() {
 		},
 
 		{
-			index: 94,
+			index: 82,
 			slot: "neck",
 			name: "full sapphire strand",
 			name_cap: "Full sapphire strand",
@@ -3852,7 +3317,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 95,
+			index: 83,
 			slot: "neck",
 			name: "heart aquamarine choker",
 			name_cap: "Heart aquamarine choker",
@@ -3892,7 +3357,7 @@ function initNeck() {
 			accIcon: "jewellery/aquamarine_heart_choker_acc.png",
 		},
 		{
-			index: 96,
+			index: 84,
 			slot: "neck",
 			name: "Classic solitaire aquamarine pendant",
 			name_cap: "Classic solitaire aquamarine pendant",
@@ -3933,7 +3398,7 @@ function initNeck() {
 		},
 
 		{
-			index: 97,
+			index: 85,
 			slot: "neck",
 			name: "multistone aquamarine pendant",
 			name_cap: "Multistone aquamarine pendant",
@@ -3974,7 +3439,7 @@ function initNeck() {
 		},
 
 		{
-			index: 98,
+			index: 86,
 			slot: "neck",
 			name: "fringe aquamarine necklace",
 			name_cap: "Fringe aquamarine necklace",
@@ -4015,7 +3480,7 @@ function initNeck() {
 		},
 
 		{
-			index: 99,
+			index: 87,
 			slot: "neck",
 			name: "rivière aquamarine necklace",
 			name_cap: "Rivière aquamarine necklace",
@@ -4056,7 +3521,7 @@ function initNeck() {
 		},
 
 		{
-			index: 100,
+			index: 88,
 			slot: "neck",
 			name: "bib aquamarine strand",
 			name_cap: "Big aquamarine strand",
@@ -4097,7 +3562,7 @@ function initNeck() {
 		},
 
 		{
-			index: 101,
+			index: 89,
 			slot: "neck",
 			name: "full aquamarine strand",
 			name_cap: "Full aquamarine strand",
@@ -4137,7 +3602,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 102,
+			index: 90,
 			slot: "neck",
 			name: "heart tanzanite choker",
 			name_cap: "Heart tanzanite choker",
@@ -4177,7 +3642,7 @@ function initNeck() {
 			accIcon: "jewellery/tanzanite_heart_choker_acc.png",
 		},
 		{
-			index: 103,
+			index: 91,
 			slot: "neck",
 			name: "Classic solitaire tanzanite pendant",
 			name_cap: "Classic solitaire tanzanite pendant",
@@ -4218,7 +3683,7 @@ function initNeck() {
 		},
 
 		{
-			index: 104,
+			index: 92,
 			slot: "neck",
 			name: "multistone tanzanite pendant",
 			name_cap: "Multistone tanzanite pendant",
@@ -4259,7 +3724,7 @@ function initNeck() {
 		},
 
 		{
-			index: 105,
+			index: 93,
 			slot: "neck",
 			name: "fringe tanzanite necklace",
 			name_cap: "Fringe tanzanite necklace",
@@ -4300,7 +3765,7 @@ function initNeck() {
 		},
 
 		{
-			index: 106,
+			index: 94,
 			slot: "neck",
 			name: "rivière tanzanite necklace",
 			name_cap: "Rivière tanzanite necklace",
@@ -4341,7 +3806,7 @@ function initNeck() {
 		},
 
 		{
-			index: 107,
+			index: 95,
 			slot: "neck",
 			name: "bib tanzanite strand",
 			name_cap: "Big tanzanite strand",
@@ -4382,7 +3847,7 @@ function initNeck() {
 		},
 
 		{
-			index: 108,
+			index: 96,
 			slot: "neck",
 			name: "full tanzanite strand",
 			name_cap: "Full tanzanite strand",
@@ -4422,7 +3887,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 109,
+			index: 97,
 			slot: "neck",
 			name: "heart topaz choker",
 			name_cap: "Heart topaz choker",
@@ -4463,7 +3928,7 @@ function initNeck() {
 		},
 
 		{
-			index: 110,
+			index: 98,
 			slot: "neck",
 			name: "small solitaire topaz pendant",
 			name_cap: "Small solitaire topaz pendant",
@@ -4504,7 +3969,7 @@ function initNeck() {
 		},
 
 		{
-			index: 111,
+			index: 99,
 			slot: "neck",
 			name: "Classic solitaire topaz pendant",
 			name_cap: "Classic solitaire topaz pendant",
@@ -4545,7 +4010,7 @@ function initNeck() {
 		},
 
 		{
-			index: 112,
+			index: 100,
 			slot: "neck",
 			name: "multistone topaz pendant",
 			name_cap: "Multistone topaz pendant",
@@ -4586,7 +4051,7 @@ function initNeck() {
 		},
 
 		{
-			index: 113,
+			index: 101,
 			slot: "neck",
 			name: "fringe topaz necklace",
 			name_cap: "Fringe topaz necklace",
@@ -4627,7 +4092,7 @@ function initNeck() {
 		},
 
 		{
-			index: 114,
+			index: 102,
 			slot: "neck",
 			name: "rivière topaz necklace",
 			name_cap: "Rivière topaz necklace",
@@ -4668,7 +4133,7 @@ function initNeck() {
 		},
 
 		{
-			index: 115,
+			index: 103,
 			slot: "neck",
 			name: "bib topaz strand",
 			name_cap: "Big topaz strand",
@@ -4709,7 +4174,7 @@ function initNeck() {
 		},
 
 		{
-			index: 116,
+			index: 104,
 			slot: "neck",
 			name: "full topaz strand",
 			name_cap: "Full topaz strand",
@@ -4749,7 +4214,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 117,
+			index: 105,
 			slot: "neck",
 			name: "heart amethyst choker",
 			name_cap: "Heart amethyst choker",
@@ -4790,7 +4255,7 @@ function initNeck() {
 		},
 
 		{
-			index: 118,
+			index: 106,
 			slot: "neck",
 			name: "small solitaire amethyst pendant",
 			name_cap: "Small solitaire amethyst pendant",
@@ -4831,7 +4296,7 @@ function initNeck() {
 		},
 
 		{
-			index: 119,
+			index: 107,
 			slot: "neck",
 			name: "Classic solitaire amethyst pendant",
 			name_cap: "Classic solitaire amethyst pendant",
@@ -4872,7 +4337,7 @@ function initNeck() {
 		},
 
 		{
-			index: 120,
+			index: 108,
 			slot: "neck",
 			name: "multistone amethyst pendant",
 			name_cap: "Multistone amethyst pendant",
@@ -4913,7 +4378,7 @@ function initNeck() {
 		},
 
 		{
-			index: 121,
+			index: 109,
 			slot: "neck",
 			name: "fringe amethyst necklace",
 			name_cap: "Fringe amethyst necklace",
@@ -4954,7 +4419,7 @@ function initNeck() {
 		},
 
 		{
-			index: 122,
+			index: 110,
 			slot: "neck",
 			name: "rivière amethyst necklace",
 			name_cap: "Rivière amethyst necklace",
@@ -4995,7 +4460,7 @@ function initNeck() {
 		},
 
 		{
-			index: 123,
+			index: 111,
 			slot: "neck",
 			name: "bib amethyst strand",
 			name_cap: "Big amethyst strand",
@@ -5036,7 +4501,7 @@ function initNeck() {
 		},
 
 		{
-			index: 124,
+			index: 112,
 			slot: "neck",
 			name: "full amethyst strand",
 			name_cap: "Full amethyst strand",
@@ -5076,7 +4541,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 125,
+			index: 113,
 			slot: "neck",
 			name: "heart spinel choker",
 			name_cap: "Heart spinel choker",
@@ -5117,7 +4582,7 @@ function initNeck() {
 		},
 
 		{
-			index: 126,
+			index: 114,
 			slot: "neck",
 			name: "small solitaire spinel pendant",
 			name_cap: "Small solitaire spinel pendant",
@@ -5158,7 +4623,7 @@ function initNeck() {
 		},
 
 		{
-			index: 127,
+			index: 115,
 			slot: "neck",
 			name: "Classic solitaire spinel pendant",
 			name_cap: "Classic solitaire spinel pendant",
@@ -5199,7 +4664,7 @@ function initNeck() {
 		},
 
 		{
-			index: 128,
+			index: 116,
 			slot: "neck",
 			name: "multistone spinel pendant",
 			name_cap: "Multistone spinel pendant",
@@ -5240,7 +4705,7 @@ function initNeck() {
 		},
 
 		{
-			index: 129,
+			index: 117,
 			slot: "neck",
 			name: "fringe spinel necklace",
 			name_cap: "Fringe spinel necklace",
@@ -5281,7 +4746,7 @@ function initNeck() {
 		},
 
 		{
-			index: 130,
+			index: 118,
 			slot: "neck",
 			name: "rivière spinel necklace",
 			name_cap: "Rivière spinel necklace",
@@ -5322,7 +4787,7 @@ function initNeck() {
 		},
 
 		{
-			index: 131,
+			index: 119,
 			slot: "neck",
 			name: "bib spinel strand",
 			name_cap: "Big spinel strand",
@@ -5363,7 +4828,7 @@ function initNeck() {
 		},
 
 		{
-			index: 132,
+			index: 120,
 			slot: "neck",
 			name: "full spinel strand",
 			name_cap: "Full spinel strand",
@@ -5403,7 +4868,7 @@ function initNeck() {
 			accIcon: "jewellery/20ct_necklace_acc.png",
 		},
 		{
-			index: 133,
+			index: 121,
 			slot: "neck",
 			name: "antique gold amulet",
 			name_cap: "Antique gold amulet",
@@ -5439,7 +4904,7 @@ function initNeck() {
 			accIcon: 0,
 		},
 		{
-			index: 134,
+			index: 122,
 			slot: "neck",
 			name: "antique gold necklace",
 			name_cap: "Antique gold necklace",
@@ -5475,7 +4940,7 @@ function initNeck() {
 			accIcon: 0,
 		},
 		{
-			index: 135,
+			index: 123,
 			slot: "neck",
 			name: "Bailey's collar",
 			name_cap: "Bailey's collar",

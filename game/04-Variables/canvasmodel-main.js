@@ -591,6 +591,15 @@ Renderer.CanvasModels.main = {
 					pattern: 0,
 					setup: { type: [] },
 				},
+				scarf: {
+					index: 0,
+					alpha: 1,
+					integrity: "full",
+					colour: "white",
+					accColour: "white",
+					pattern: 0,
+					setup: { type: [] },
+				},
 				earrings: {
 					index: 0,
 					alpha: 1,
@@ -928,6 +937,7 @@ Renderer.CanvasModels.main = {
 		options.zreachgloveright = options.worn.over_upper.index ? options.zreacharmright + 0.2 : ZIndices.right_cover_arm + 0.5;
 
 		options.zneck = (options.neck_tucked) ? ZIndices.neck_tucked : ZIndices.neck;
+		options.zscarf = options.neck_tucked ? ZIndices.neck_tucked + 0.1 : ZIndices.neck + 0.1;
 		options.hide_all = false;
 		if (options.worn.upper.setup.name === "cocoon") {
 			options.hide_all = true;
@@ -1251,7 +1261,7 @@ Renderer.CanvasModels.main = {
 			// Only use necessary data for tanning layers. Filter out the rest.
 			// Only clothing items that aren't handheld or headwear will be used
 			// Only use the base pregnancy layers
-			const skippedSlots = ["handheld", "bag", "rings", "earrings", "head", "neck", "face", "under_upper_belly_", "upper_belly_", "lower_belly_", "under_lower_belly_"];
+			const skippedSlots = ["handheld", "bag", "rings", "earrings", "head", "neck", "scarf", "face", "under_upper_belly_", "upper_belly_", "lower_belly_", "under_lower_belly_"];
 			this.tanningLayers = this.layerList
 				.filter(obj => obj.show === true
 					&& obj.worn
@@ -4641,6 +4651,58 @@ Renderer.CanvasModels.main = {
 			},
 			dyfn(options) {
 				return options.high_waist_suspenders ? -8 : 0;
+			},
+		}),
+		"scarf": genlayer_clothing_main('scarf', {
+			srcfn(options) {
+				const isAltPosition = !options.alt_override
+					&& options.worn.scarf.setup.altposition !== undefined
+					&& options.worn.scarf.alt === "alt";
+				const pattern = options.worn.scarf.pattern && !["tertiary", "secondary"].includes(options.worn.scarf.pattern_layer) ? "-" + options.worn.scarf.pattern?.replace(/ /g,"-") : '';
+				const alt = isAltPosition ? '-alt' : '';
+
+				const setupVar = options.worn.scarf.setup.variable;
+				const integrity = options.worn.scarf.integrity;
+				return `img/clothes/${clothesImgFolder('scarf', options.worn.scarf.setup)}/${setupVar}/${integrity}${pattern}${alt}.png`;
+			},
+			showfn(options) {
+				return options.show_clothes
+					&& options.worn.scarf.index > 0
+					&& options.worn.scarf.setup.mainImage !== 0
+					&& !options.hide_all;
+			},
+			zfn(options) {
+				const setup = options.worn.scarf.setup;
+				if (setup.zIndex) return ZIndices[setup.zIndex];
+				return options.hood_mask ? ZIndices.collar : options.zscarf;
+			},
+		}),
+		"scarf_acc": genlayer_clothing_accessory('scarf', {
+			srcfn(options) {
+				const isAltPosition = !options.alt_override
+					&& options.worn.scarf.setup.altposition !== undefined
+					&& options.worn.scarf.alt === "alt";
+				const integrity = options.worn.scarf.setup.accessory_integrity_img ? `-${options.worn.scarf.integrity}` : '';
+				const alt = isAltPosition ? '-alt' : '';
+				const pattern = options.worn.scarf?.pattern && options.worn.scarf?.pattern_layer === "secondary" ? "-" + options.worn.scarf.pattern?.replace(/ /g,"-") : '';
+
+				const setupVar = options.worn.scarf.setup.variable;
+				return `img/clothes/${clothesImgFolder('scarf', options.worn.scarf.setup)}/${setupVar}/acc${integrity}${pattern}${alt}.png`;
+			},
+			showfn(options) {
+				return options.show_clothes
+					&& options.worn.scarf.index > 0
+					&& options.worn.scarf.setup.accImage !== 0
+					&& options.worn.scarf.setup.accessory === 1;
+			},
+			zfn(options) {
+				const setup = options.worn.scarf.setup;
+				if (setup.zIndex) return ZIndices[setup.zIndex];
+				const check = options.worn.head.setup.mask_img === 1
+					&& !(options.hood_down
+						&& options.worn.head.setup.hood
+						&& options.worn.head.setup.outfitSecondary !== undefined);
+				return check ? ZIndices.collar : options.zscarf;
 			},
 		}),
 		/***
