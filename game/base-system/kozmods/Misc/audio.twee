@@ -240,6 +240,12 @@
 			<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
 			<<playlist setup.bgmCurrentPlaylist play loop shuffle>>
 		<</if>>
+	<<elseif _args[0] isnot "stop" and !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
+		/* The selected theme may have failed to start or been interrupted by the browser. */
+		<<if SimpleAudio.lists.get(setup.bgmCurrentPlaylist).tracks.some(entry => entry.track.isUnavailable())>>
+			<<playlist setup.bgmCurrentPlaylist load>>
+		<</if>>
+		<<playlist setup.bgmCurrentPlaylist play loop>>
 	<</if>>	
 <</widget>>
 
@@ -266,6 +272,11 @@
 		<<init-playlist setup.bgmCurrentPlaylist>>
 		<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
 		<<playlist setup.bgmCurrentPlaylist play loop shuffle>>
+	<<elseif !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
+		<<if SimpleAudio.lists.get(setup.bgmCurrentPlaylist).tracks.some(entry => entry.track.isUnavailable())>>
+			<<playlist setup.bgmCurrentPlaylist load>>
+		<</if>>
+		<<playlist setup.bgmCurrentPlaylist play loop>>
 	<</if>>	
 <</widget>>
 
