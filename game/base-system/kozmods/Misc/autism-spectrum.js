@@ -1366,6 +1366,8 @@ const autismAlonePlaces = Object.freeze([
 	"alley",
 	"cabin",
 	"forest_shop_garden",
+	"meadow",
+	"coastpath",
 ]);
 
 const autismKnownPlaces = Object.freeze(["home", "flats", "temple", "asylum", "farm", "compound", "riding_school", "avery_mansion", "forest_shop", "prison"]);
