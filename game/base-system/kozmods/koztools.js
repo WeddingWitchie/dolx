@@ -863,7 +863,7 @@ function npcChastityChance(base) {
 }
 window.npcChastityChance = npcChastityChance;
 
-function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
+function repairMissingJewelleryWornSlots(context = "clothing render") {
 	if (!V?.worn || !setup?.clothes) return;
 
 	const warn =
@@ -880,10 +880,10 @@ function dolxRepairMissingJewelleryWornSlots(context = "clothing render") {
 		V.worn[slot] = clone(fallback);
 	}
 }
-window.dolxRepairMissingJewelleryWornSlots = dolxRepairMissingJewelleryWornSlots;
+window.repairMissingJewelleryWornSlots = repairMissingJewelleryWornSlots;
 
 // Repair fabricated "vine" NPC stubs without touching valid NPC data.
-function dolxScrubFabricatedNPCStubs() {
+function scrubFabricatedNPCStubs() {
 	if (!V || !Array.isArray(V.NPCList)) return;
 
 	const stubProps = {
@@ -928,10 +928,10 @@ function dolxScrubFabricatedNPCStubs() {
 
 	if (scrubbed.length) console.warn(`Removed fabricated NPC stub data from $NPCList slots: ${scrubbed.join(", ")}`);
 }
-window.dolxScrubFabricatedNPCStubs = dolxScrubFabricatedNPCStubs;
+window.scrubFabricatedNPCStubs = scrubFabricatedNPCStubs;
 
 // Repair non-finite core numerics that other systems derive state from.
-function dolxRepairNonFiniteNumerics() {
+function repairNonFiniteNumerics() {
 	if (!V) return;
 
 	const repaired = [];
@@ -1039,10 +1039,41 @@ function dolxRepairNonFiniteNumerics() {
 	if (hairRepaired && typeof window.calchairlengthstage === "function") window.calchairlengthstage();
 	if (repaired.length) console.warn(`Repaired non-finite save numerics: ${repaired.join(", ")}`);
 }
-window.dolxRepairNonFiniteNumerics = dolxRepairNonFiniteNumerics;
+window.repairNonFiniteNumerics = repairNonFiniteNumerics;
+
+// Replace invalid hair colours that no longer exist in `setup.colours.hair_map`, preventing `canvasfilter` errors that blank the passage.
+function repairInvalidHairColours() {
+	if (!V || !setup.colours?.hair_map) return;
+	// tmp0/tmp1 are preview-only colours. If found in a save, they are leftovers from a bug.
+	const isValid = colour => typeof colour === "string" && colour !== "tmp0" && colour !== "tmp1" && !!setup.colours.hair_map[colour];
+	const fallback = isValid(V.naturalhaircolour) ? V.naturalhaircolour : "brown";
+	const repaired = [];
+
+	for (const key of ["haircolour", "hairfringecolour", "naturalhaircolour"]) {
+		if (V[key] === undefined || isValid(V[key])) continue;
+		repaired.push(`${key}=${V[key]}`);
+		V[key] = fallback;
+	}
+	for (const key of ["hairColourGradient", "hairFringeColourGradient"]) {
+		const colours = V[key]?.colours;
+		if (!Array.isArray(colours)) continue;
+		colours.forEach((colour, index) => {
+			if (isValid(colour)) return;
+			repaired.push(`${key}[${index}]=${colour}`);
+			colours[index] = fallback;
+		});
+	}
+	if (V.makeup?.browscolour && !isValid(V.makeup.browscolour)) {
+		repaired.push(`browscolour=${V.makeup.browscolour}`);
+		V.makeup.browscolour = fallback;
+	}
+
+	if (repaired.length) console.warn(`Repaired unknown hair colours: ${repaired.join(", ")}`);
+}
+window.repairInvalidHairColours = repairInvalidHairColours;
 
 // Remove obsolete underscored clothing wetness keys from saves.
-function dolxClearOrphanWetnessKeys() {
+function clearOrphanWetnessKeys() {
 	if (!V) return;
 	const cleared = [];
 	for (const slot of ["over_upper", "over_lower", "under_upper", "under_lower"]) {
@@ -1054,10 +1085,10 @@ function dolxClearOrphanWetnessKeys() {
 	}
 	if (cleared.length) console.warn(`Cleared orphaned wetness keys: ${cleared.join(", ")}`);
 }
-window.dolxClearOrphanWetnessKeys = dolxClearOrphanWetnessKeys;
+window.clearOrphanWetnessKeys = clearOrphanWetnessKeys;
 
 // Backfill missing transformationParts keys using the same defaults as setupTransformationPiecesObject.
-function dolxEnsureTransformationParts() {
+function ensureTransformationParts() {
 	const parts = V?.transformationParts;
 	if (!parts || typeof parts !== "object") return;
 
@@ -1104,7 +1135,7 @@ function dolxEnsureTransformationParts() {
 	}
 	if (filled.length) console.warn(`Backfilled missing transformationParts keys: ${filled.join(", ")}`);
 }
-window.dolxEnsureTransformationParts = dolxEnsureTransformationParts;
+window.ensureTransformationParts = ensureTransformationParts;
 
 if (Array.isArray(V.NPCList)) {
 	V.NPCList.forEach(npc => {
@@ -1552,7 +1583,7 @@ window.speechDailyCheck = speechDailyCheck;
 
 /* globals Wikifier, onLoadUpdateCheck, versionUpdateCheck */
 // Repair leaked $statFreeze once the player reaches a normal hub where a frozen scene should already have torn down.
-function dolxRepairLeakedStatFreeze(passageName) {
+function repairLeakedStatFreeze(passageName) {
 	if (!V || !V.statFreeze || V.replayScene) return false;
 
 	// A freeze without its snapshot cannot represent a valid in-progress frozen scene.
@@ -1575,11 +1606,11 @@ function dolxRepairLeakedStatFreeze(passageName) {
 	delete V.frozenXchangeValues;
 	return true;
 }
-window.dolxRepairLeakedStatFreeze = dolxRepairLeakedStatFreeze;
+window.repairLeakedStatFreeze = repairLeakedStatFreeze;
 
 $(document).on(":passagestart", ev => {
 	// Repair the incoming history moment, not the previous passage's saved state.
-	if (V && V.statFreeze) dolxRepairLeakedStatFreeze(ev?.passage?.title);
+	if (V && V.statFreeze) repairLeakedStatFreeze(ev?.passage?.title);
 });
 
 // If the Raul/Janet daydream is exited abnormally, run its normal teardown to restore body and stats.

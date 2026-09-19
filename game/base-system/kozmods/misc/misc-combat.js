@@ -163,7 +163,7 @@
 	 * Clears every player body-position tracker that still points at an NPC.
 	 * Called from <<endevent>>, after the NPC list has been wiped.
 	 */
-	window.dolxClearOrphanedNpcState = function dolxClearOrphanedNpcState() {
+	window.clearOrphanedNpcState = function clearOrphanedNpcState() {
 		try {
 			const V = State.variables;
 			const player = V.player || {};
@@ -194,7 +194,7 @@
 				delete V[flag];
 			});
 		} catch (ex) {
-			console.error("dolxClearOrphanedNpcState failed", ex);
+			console.error("clearOrphanedNpcState failed", ex);
 		}
 	};
 })();

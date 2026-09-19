@@ -476,7 +476,7 @@ window.patchStraponsWearStatus = patchStraponsWearStatus;
 // One-time cleanup.
 // Undressing used to file a worn strap-on into the wardrobe as if it were underwear (swapping one strap-on for another in the toy inventory did it every time),
 // leaving a garment copy of a toy that still lives in the inventory. Wardrobes only, $carried and $store legitimately hold a worn strap-on while a scene has the player stripped.
-function dolxRemovePhantomStraponGarments() {
+function removePhantomStraponGarments() {
 	let removed = 0;
 	const wardrobes = new Set([V.wardrobe, ...Object.values(V.wardrobes ?? {})]);
 	for (const wardrobe of wardrobes) {
@@ -490,12 +490,12 @@ function dolxRemovePhantomStraponGarments() {
 	}
 	return removed;
 }
-window.dolxRemovePhantomStraponGarments = dolxRemovePhantomStraponGarments;
+window.removePhantomStraponGarments = removePhantomStraponGarments;
 
 // One-time cleanup.
 // Clothing sets used to record the genitals slot, which no set operation has ever been able to apply; it only showed up as a dead row in the set editor.
 // Drop it so the editor stops offering it.
-function dolxDropClothingSetGenitals() {
+function dropClothingSetGenitals() {
 	if (!Array.isArray(V.outfit)) return 0;
 	let dropped = 0;
 	for (const outfit of V.outfit) {
@@ -506,7 +506,7 @@ function dolxDropClothingSetGenitals() {
 	}
 	return dropped;
 }
-window.dolxDropClothingSetGenitals = dolxDropClothingSetGenitals;
+window.dropClothingSetGenitals = dropClothingSetGenitals;
 
 function checkIfNPCHasCategorySextoy(npcName, category) {
 	const npc = V.NPCName.find(n => n.nam === npcName);

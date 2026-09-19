@@ -1421,6 +1421,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 <<widget "xchange-loadinit">>
 	<<if $xchange isnot undefined and $xchange.transIdentitySeeded is undefined>><<set $xchange.transIdentitySeeded to true>><</if>>
 	<<identityIndexInit>>
+	<<script>>window.repairInvalidHairColours?.();<</script>>
 	<<run dolxFishingEnsure()>>
 	<<waterDragonNestDefaults>><<if $waterDragonLab>><<waterDragonLabDefaults>><</if>>
 	<<if $waterDragonEggs and !isFullWaterDragon() and !($waterDragonLab and $waterDragonLab.active)>><<unset $waterDragonEggs>><</if>>
@@ -1435,9 +1436,9 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<run restoreActiveBlackmailQuest()>>
 	<<xchangeSettingsSliderRepair>>
 	<<script>>setup.inflation?.ensureSettings?.();<</script>>
-	<<script>>window.dolxRepairNonFiniteNumerics?.();<</script>>
-	<<script>>window.dolxClearOrphanWetnessKeys?.();<</script>>
-	<<script>>window.dolxEjectOrphanVaginalDildo?.();<</script>>
+	<<script>>window.repairNonFiniteNumerics?.();<</script>>
+	<<script>>window.clearOrphanWetnessKeys?.();<</script>>
+	<<script>>window.ejectOrphanVaginalDildo?.();<</script>>
 	<<run pruneClothes()>>
 	<<run repairWardrobeSlots()>>
 	<<run reclaimStrandedWardrobeItems()>>
@@ -1454,7 +1455,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $chastityAcclimatedTrait is undefined>><<set $chastityAcclimatedTrait to ($xchange?.chastityAcclimatedTraitEnabled isnot 0 and $chastityAcclimation gte 14400) ? 1 : 0>><</if>>
 	<<if $lustfulAcclimation is undefined>><<set $lustfulAcclimation to 0>><</if>>
 	<<if $arousalDesensitizedTrait is undefined>><<set $arousalDesensitizedTrait to ($xchange?.arousalAcclimatedTraitEnabled isnot 0 and ($lustfulAcclimation gte 20160 or $chastityAcclimatedTrait is 1)) ? 1 : 0>><</if>>
-	<<run window.dolxBackfillChastityKeys()>>
+	<<run window.backfillChastityKeys()>>
 	<<if $worn?.vibrator>>
 		<<run window.initWornVibratorDefaults($worn.vibrator)>>
 	<</if>>
@@ -1481,20 +1482,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<run ensureRobinStand()>>
 	/* Self-sufficiency and Bailey's Robin-targeting flag are mutually exclusive; older saves could hold both. */
 	<<if $robinStand.selfSufficient is 1 and $robinfirstrentfight>><<set $robinfirstrentfight to 0>><</if>>
+	<<unset $dolxHairColourSlotRepaired>> /* delete later: its one-time repair is covered by repairInvalidHairColours() */
 
-	<<if !$dolxHairColourSlotRepaired>>
-		<<set $dolxHairColourSlotRepaired to true>> /* delete later */
-		<<run (() => {
-			const bad = new Set(["tmp0", "tmp1"]);
-			if (!bad.has(V.haircolour) && !bad.has(V.hairfringecolour) && !bad.has(V.naturalhaircolour)) return;
-			const pool = Object.keys(setup.colours.hair_map).filter(k => k !== "random" && !bad.has(k) && !/^colorWheelTemporary/i.test(k));
-			if (!pool.length) return;
-			const reroll = pool[Math.floor(Math.random() * pool.length)];
-			if (bad.has(V.haircolour)) V.haircolour = reroll;
-			if (bad.has(V.hairfringecolour)) V.hairfringecolour = reroll;
-			if (bad.has(V.naturalhaircolour)) V.naturalhaircolour = reroll;
-		})()>>
-	<</if>>
 	/* Re-resolve fertility so toggling the Fake Breeder / Always fertile settings mid-session takes effect on the running pill. */
 	<<if playerIsXChanged()>><<xchange-fertility-override>><</if>>
 	<<ccmodVersionCheck>>
@@ -1527,8 +1516,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if !$xchange.backComp.clothingSetStraponCleanup>>
 		<<set $xchange.backComp.clothingSetStraponCleanup to true>> /* delete later */
 		<<script>>
-			window.dolxRemovePhantomStraponGarments?.();
-			window.dolxDropClothingSetGenitals?.();
+			window.removePhantomStraponGarments?.();
+			window.dropClothingSetGenitals?.();
 		<</script>>
 	<</if>>
 	<<if !$xchange.backComp.childHairColourSpacing>>
@@ -1540,11 +1529,11 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</script>>
 	<</if>>
 	<<script>>setup.inflation?.ensureSettings?.();<</script>>
-	<<script>>window.dolxRepairNonFiniteNumerics?.();<</script>>
+	<<script>>window.repairNonFiniteNumerics?.();<</script>>
 	/* The combat renderer used to read wetness under the underscored slot name; those keys never dried and pinned the under/over layers half-transparent. */
-	<<script>>window.dolxClearOrphanWetnessKeys?.();<</script>>
+	<<script>>window.clearOrphanWetnessKeys?.();<</script>>
 	/* Vanilla transformation scenes remove the vagina without knowing about the worn-dildo slot; eject any orphaned toy on load. */
-	<<script>>window.dolxEjectOrphanVaginalDildo?.();<</script>>
+	<<script>>window.ejectOrphanVaginalDildo?.();<</script>>
 
 	/* In here because ModLoader inject and remove without the need to wait the game updating; only refresh */
 	<<run pruneClothes()>><<run pruneNPCName()>>
@@ -1604,13 +1593,13 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	/* One-time scrub: saves written while animatemodel stamped a fabricated "vine" NPC stub into $NPCList still carry it, and it renders as "the undefined vineperson" until the slot is next cleared. */
 	<<if !$dolxNpcStubsScrubbed>>
 		<<set $dolxNpcStubsScrubbed to true>> /* delete later */
-		<<run window.dolxScrubFabricatedNPCStubs?.()>>
+		<<run window.scrubFabricatedNPCStubs?.()>>
 	<</if>>
 
 	/* One-time repair: inventory sextoy `worn` flags stranded by old code that cleared V.worn slots without syncing them (made carried toys count as worn for the addiction/pill orgasm gates). */
 	<<if !$dolxSexToyWornFlagsSynced>>
 		<<set $dolxSexToyWornFlagsSynced to true>> /* delete later */
-		<<run window.dolxSyncSexToyWornFlags?.()>>
+		<<run window.syncSexToyWornFlags?.()>>
 	<</if>>
 
 	<<if !$dolxSageHatRelocked>>
@@ -1636,6 +1625,8 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			}
 		})()>>
 	<</if>>
+
+	<<script>>window.repairInvalidHairColours?.();<</script>>
 
 	/* One-time repair two-tone dye */
 	<<if !$dolxTwoToneStyleRepaired2>> /* delete later */

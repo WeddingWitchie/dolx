@@ -358,7 +358,7 @@ window.templeChastityRefusalReason = templeChastityRefusalReason;
 
 // Old saves may already own adult-shop chastity from before keys were tracked on the item.
 // Cover every place owned clothing can live while leaving cursed, NPC-fitted devices under their original holder's control.
-function dolxBackfillChastityKeys() {
+function backfillChastityKeys() {
 	const items = [];
 	if (V.worn?.genitals) items.push(V.worn.genitals);
 	if (V.carried?.genitals) items.push(V.carried.genitals);
@@ -394,7 +394,7 @@ function dolxBackfillChastityKeys() {
 		}
 	}
 }
-window.dolxBackfillChastityKeys = dolxBackfillChastityKeys;
+window.backfillChastityKeys = backfillChastityKeys;
 
 function playerChastity(slots, inAllSlots = false) {
 	let chastity = false;
@@ -442,7 +442,7 @@ window.playerChastity = playerChastity;
 /**
  * True when the player is locked up by their own choice, rather than against their will.
  * Covers both cases: a device they hold the key to, and a keyless device they asked to be fitted with, like the temple's.
- * Devices stamped before chastityKey existed fall back to the same rule dolxBackfillChastityKeys() uses,
+ * Devices stamped before chastityKey existed fall back to the same rule backfillChastityKeys() uses,
  * so a device behaves identically before and after the save is reloaded.
  */
 function chastityConsensual() {

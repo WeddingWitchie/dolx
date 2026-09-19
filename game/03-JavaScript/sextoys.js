@@ -76,7 +76,7 @@ function playerHasButtPlug() {
 }
 window.playerHasButtPlug = playerHasButtPlug;
 
-function dolxSyncSexToyWornFlags() {
+function syncSexToyWornFlags() {
 	const inv = V.player?.inventory?.sextoys;
 	if (!inv) return;
 	const slotToys = [V.worn?.butt_plug, V.worn?.vaginal_dildo, V.worn?.vibrator, V.worn?.bullet_vibe].filter(Boolean);
@@ -90,29 +90,29 @@ function dolxSyncSexToyWornFlags() {
 		}
 	}
 }
-window.dolxSyncSexToyWornFlags = dolxSyncSexToyWornFlags;
+window.syncSexToyWornFlags = syncSexToyWornFlags;
 
 // A vaginal dildo can't stay inside a vagina that no longer exists.
 
-function dolxEjectOrphanVaginalDildo() {
+function ejectOrphanVaginalDildo() {
 	if (V.worn?.vaginal_dildo && !V.player?.vaginaExist) {
 		delete V.worn.vaginal_dildo;
-		dolxSyncSexToyWornFlags();
+		syncSexToyWornFlags();
 	}
 }
-window.dolxEjectOrphanVaginalDildo = dolxEjectOrphanVaginalDildo;
+window.ejectOrphanVaginalDildo = ejectOrphanVaginalDildo;
 
 // An expelled vibe remains in the toy inventory, but is no longer inserted or automatically restored after combat.
-function dolxEjectWornVibrator() {
+function ejectWornVibrator() {
 	if (!V.worn?.vibrator) return false;
 	V.worn.vibrator.state = "removed";
 	V.worn.vibrator.vibrating = 0;
 	V.worn.vibrator.worn = false;
 	delete V.worn.vibrator;
-	dolxSyncSexToyWornFlags();
+	syncSexToyWornFlags();
 	return true;
 }
-window.dolxEjectWornVibrator = dolxEjectWornVibrator;
+window.ejectWornVibrator = ejectWornVibrator;
 
 function playerMasturbationToyByIndex(index) {
 	if (index === undefined || index === null || index === "none" || Number.isNaN(Number(index)) || typeof listUniqueCarriedSextoys !== "function") return null;
