@@ -1273,8 +1273,8 @@
 	<hr>
 
 	<div class="settingsGrid">
-		<<set _skinTone to "">>
-		<<set _skinShade to "light">>
+		<<set _skinShade to ["light", "medium", "dark", "gyaru"].find(shade => ($player.skin?.color || "light").endsWith(shade)) || "light">>
+		<<set _skinTone to ($player.skin?.color || "").slice(0, -_skinShade.length)>>
 
 		<div class="settingsHeader">
 			Skin Colour
@@ -5697,12 +5697,13 @@
 				<label><span>Random</span> <<radiobutton "$xchange.customisedDemeanour" "random" autocheck>></label>
 			</div>
 			<div class="settingsToggleItem">
-				/* <span class="gold bold">Genderflipped Skin:</span><br>
-				<label>Same as before <<radiobutton "$xchange.customisedSkinColour" "nochange" autocheck>></label> |
-				<label>Random <<radiobutton "$xchange.customisedSkinColour" "random" autocheck>></label>
-				<br><br> */
-				<<set _xchangeSkinTone to "no">>
-				<<set _xchangeSkinShade to "change">>
+				<<set _xchangeSkinShade to ["light", "medium", "dark", "gyaru"].find(shade => ($xchange?.customisedSkinColour || "").endsWith(shade))>>
+				<<if _xchangeSkinShade>>
+					<<set _xchangeSkinTone to $xchange.customisedSkinColour.slice(0, -_xchangeSkinShade.length)>>
+				<<else>>
+					<<set _xchangeSkinTone to "no">>
+					<<set _xchangeSkinShade to "change">>
+				<</if>>
 				<span class="gold bold">Sexflipped Skin Tone:</span><br>
 				<label>Same as before <<radiovar "_xchangeSkinTone" "no">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |<br>
 				<label>Neutral <<radiovar "_xchangeSkinTone" "">><<xchangeSkinColourVariableCombine>><</radiovar>></label> |

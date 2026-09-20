@@ -1010,6 +1010,31 @@ window.exportSettings = exportSettings;
 
 const settingContainers = ["player", "skin", "settings", "background"];
 
+/**
+ * The demeanours the character creation and mirror menus offer for the current face style, as a { "Display name": value } map.
+ * Reading them from setup keeps randomisation in step with whatever face styles and modded demeanours are installed.
+ *
+ * @returns {object}
+ */
+function faceVariantsForStyle() {
+	const options = setup.faceVariantOptions ?? {};
+	const style = options[V.facestyle] ? V.facestyle : "default";
+	const variants = options[style];
+	if (Array.isArray(variants)) return Object.fromEntries(variants.map(v => [v.toUpperFirst(), v]));
+	return variants ?? { Gentle: "default" };
+}
+
+/**
+ * Empty "Modded" demeanour slots are offered so art packs can fill them, but rolling one at random would leave the face blank.
+ *
+ * @param {string} variant
+ * @returns {boolean}
+ */
+function faceVariantHasArt(variant) {
+	const slot = /^modded(\d+)$/.exec(variant);
+	return !slot || Number(slot[1]) <= (setup.moddedFaceVariantsWithArt ?? 0);
+}
+
 function settingsObjects(type) {
 	let result;
 	/* boolLetter type also requires the bool type aswell */
@@ -1018,17 +1043,19 @@ function settingsObjects(type) {
 			result = {
 				beauty: { min: 0, max: 10000, decimals: 0, displayName: "Beauty:" },
 				bodysize: {
-					min: 0,
-					max: 3,
-					decimals: 0,
+					min: -1,
+					max: 4,
+					decimals: 1,
+					randomNumbers: [-1, 0, 1, 2, 2.5, 3, 4],
 					displayName: "Body size:",
-					textMap: { 0: "Tiny", 1: "Small", 2: "Normal", 3: "Large" },
+					textMap: { "-1": "Miniature", 0: "Tiny", 1: "Small", 2: "Normal", 2.5: "Tall", 3: "Large", 4: "Giant" },
 					randomize: "characterAppearance",
 				},
 				facevariant: {
-					strings: ["default", "catty", "aloof", "sweet", "foxy", "gloomy"],
+					strings: Object.values(faceVariantsForStyle()),
+					randomStrings: Object.values(faceVariantsForStyle()).filter(faceVariantHasArt),
 					displayName: "Demeanour:",
-					textMap: { default: "Default", catty: "Catty", aloof: "Aloof", sweet: "Sweet", foxy: "Foxy", gloomy: "Gloomy" },
+					textMap: Object.fromEntries(Object.entries(faceVariantsForStyle()).map(([name, value]) => [value, name])),
 					randomize: "characterAppearance",
 				},
 				breastsensitivity: {
@@ -1080,6 +1107,7 @@ function settingsObjects(type) {
 						"hazel",
 						"brown",
 						"green",
+						"light green",
 						"lime green",
 						"red",
 						"pink",
@@ -1093,11 +1121,17 @@ function settingsObjects(type) {
 				},
 				hairselect: {
 					strings: setup.colours.hair.filter(c => c.natural || c.dye).map(c => c.variable),
-					randomStrings: setup.colours.hair.filter(c => c.natural).map(c => c.variable),
 					displayName: "Hair colour:",
 					randomize: "characterAppearance",
 				},
-				hairlength: { min: 0, max: 400, decimals: 0, displayName: "Hair length:", randomize: "characterAppearance" },
+				hairlength: {
+					min: 0,
+					max: 900,
+					decimals: 0,
+					randomNumbers: [0, 200, 400, 600, 700, 900],
+					displayName: "Hair length:",
+					randomize: "characterAppearance",
+				},
 				awareselect: {
 					strings: ["innocent", "knowledgeable"],
 					displayName: "Awareness:",
@@ -1176,7 +1210,7 @@ function settingsObjects(type) {
 							displayName: "Natural Skintone:",
 						},
 					},
-					ballsExist: { bool: true, displayName: "Balls:", textMap: { true: "Existent", false: "Nonexistent" }, randomize: "characterAppearance" },
+					ballsExist: { bool: true, displayName: "Balls:", textMap: { true: "Existent", false: "Nonexistent" } },
 					freckles: {
 						bool: true,
 						displayName: "Freckles:",
@@ -1186,26 +1220,50 @@ function settingsObjects(type) {
 					},
 					breastsize: {
 						min: 0,
-						max: 4,
+						max: 12,
 						decimals: 0,
 						displayName: "Breast size:",
-						textMap: { 0: "Flat", 1: "Budding", 2: "Tiny", 3: "Small", 4: "Pert" },
+						textMap: {
+							0: "Flat",
+							1: "Budding",
+							2: "Tiny",
+							3: "Small",
+							4: "Pert",
+							5: "Modest",
+							6: "Full",
+							7: "Large",
+							8: "Ample",
+							9: "Massive",
+							10: "Huge",
+							11: "Gigantic",
+							12: "Enormous",
+						},
 						randomize: "characterAppearance",
 					},
 					penissize: {
 						min: 0,
-						max: 2,
+						max: 6,
 						decimals: 0,
 						displayName: "Penis size:",
-						textMap: { 0: "Tiny", 1: "Small", 2: "Normal" },
+						textMap: { 0: "Micro", 1: "Mini", 2: "Tiny", 3: "Small", 4: "Normal", 5: "Large", 6: "Enormous" },
 						randomize: "characterAppearance",
 					},
 					bottomsize: {
 						min: 0,
-						max: 3,
+						max: 8,
 						decimals: 0,
 						displayName: "Bottom size:",
-						textMap: { 0: "Slender", 1: "Slim", 2: "Modest", 3: "Cushioned" },
+						textMap: {
+							0: "Slender",
+							1: "Slim",
+							2: "Modest",
+							3: "Cushioned",
+							4: "Soft",
+							5: "Round",
+							6: "Plump",
+							7: "Large",
+							8: "Huge",
+						},
 						randomize: "characterAppearance",
 					},
 				},
@@ -2267,6 +2325,26 @@ function resolveRandomizedGenderBody(starting) {
 }
 
 /**
+ * Body part sizes and the min/max growth limits are separate settings, so a full random start can roll a character whose breasts,
+ * bottom or penis start outside their own growth range - a size that can then never change. Clamp the starting sizes into the limits.
+ *
+ * @param {object} general Randomised general settings
+ * @param {object} starting Randomised starting settings
+ */
+function resolveRandomizedBodySizes(general, starting) {
+	const player = starting?.player;
+	if (!player) return;
+
+	for (const size of ["breastsize", "bottomsize", "penissize"]) {
+		if (player[size] == null) continue;
+		const min = general?.[size + "min"] ?? V[size + "min"];
+		const max = general?.[size + "max"] ?? V[size + "max"];
+		if (!Number.isFinite(min) || !Number.isFinite(max)) continue;
+		player[size] = Math.clamp(player[size], Math.min(min, max), Math.max(min, max));
+	}
+}
+
+/**
  * @param {string} filter
  * @returns {string}
  */
@@ -2306,6 +2384,7 @@ function randomizeSettings(filter) {
 
 	result.general = randomizeSettingsWalk(settingsObjects("general"));
 	resolveRandomizedTalents(result.general, result.starting);
+	resolveRandomizedBodySizes(result.general, result.starting);
 
 	return JSON.stringify(result);
 }
@@ -2323,7 +2402,8 @@ const randomizeSettingSet = function (setting) {
 	let result;
 	const keys = Object.keys(setting);
 	if (keys.includes("min")) {
-		result = randomNumber(setting.min, setting.max, setting.decimals);
+		/* randomNumbers narrows a numeric setting to the discrete values the menu actually offers, without narrowing what is valid to set or import */
+		result = setting.randomNumbers ? setting.randomNumbers.random() : randomNumber(setting.min, setting.max, setting.decimals);
 	}
 	if (keys.includes("strings")) {
 		/* randomStrings narrows what a randomised game may roll without narrowing what is valid to set or import */
