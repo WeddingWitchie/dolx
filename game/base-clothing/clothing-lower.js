@@ -2787,7 +2787,7 @@ function initLower() {
 			warmth: 2,
 			cost: 2800,
 			description: "For hot days away from shore.",
-			shop: ["baitShop"],
+			shop: ["baitShop", "adult"],
 			accessory: 0,
 			accessory_colour: 0,
 			accessory_colour_options: [],
