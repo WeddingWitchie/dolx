@@ -313,11 +313,11 @@
 			/*Set the target wardrobe*/
 			<<set _wardrobeTransferObject to selectWardrobe(_wardrobeTransfer, "return")>>
 			/*Make sure there is enough space*/
-			<<if _wardrobeTransferObject[_slot].length gt _wardrobeTransferObject.space>>
+			<<if _wardrobeTransferObject[_slot].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 1000>>
 				<<set _slotsFull to true>>
 			<</if>>
 			<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
-				<<if _wardrobeTransferObject[$_outfitSlot].length gt _wardrobeTransferObject.space>>
+				<<if _wardrobeTransferObject[$_outfitSlot].length gte _wardrobeTransferObject.space>>
 					<<set _slotsFull to true>>
 				<</if>>
 			<</for>>
@@ -325,9 +325,9 @@
 			<<if !_slotsFull>>
 				You transferred the <<print _item.name>> to the <<print $wardrobes[_wardrobeTransfer].name>> storage.
 				/*Transfer everything*/
-				<<run transferClothing(_slot,_wearId,$wardrobe_location,_wardrobeTransfer)>>
+				<<run transferClothing(_slot,_wearId,$wardrobe_location,_wardrobeTransfer, { moveLinkedPieces: false })>>
 				<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
-					<<run transferClothing($_outfitSlot,$_outfitId,$wardrobe_location,_wardrobeTransfer)>>
+					<<run transferClothing($_outfitSlot,$_outfitId,$wardrobe_location,_wardrobeTransfer, { moveLinkedPieces: false })>>
 				<</for>>
 			<<else>>
 				You were unable to transfer the <<print _item.name>> to the <<print $wardrobes[_wardrobeTransfer].name>> wardrobe due to lack of space there.
@@ -536,19 +536,23 @@
 					<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
 					<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe)>>
 
-					<<for _slot range setup.clothes_all_slots>>
-						<<capture _currentWardrobeObj, _slot>>
-							<<if !Array.isArray(_currentWardrobeObj[_slot])>><<continue>><</if>>
-							<<for _i = _currentWardrobeObj[_slot].length; _i gt 0; _i-->>
-								<<if Number.isFinite(_targetWardrobeObj.space) and (!Array.isArray(_targetWardrobeObj[_slot]) or _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space)>>
-									<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe, { moveLinkedPieces: false })>>
-								<<else>>
-									<<break>>
-								<</if>>
-							<</for>>
-						<</capture>>
-					<</for>>
-					<<updatewardrobe>>
+					<<if getWardrobeItemCount(_targetWardrobeObj, true) + getWardrobeItemCount(_currentWardrobeObj, true) gt 1000>>
+						<<replace "#wardrobewear">><span class="red">There isn't enough room to transfer all your clothes. The destination is limited to 1,000 total items.</span><</replace>>
+					<<else>>
+						<<for _slot range setup.clothes_all_slots>>
+							<<capture _currentWardrobeObj, _slot>>
+								<<if !Array.isArray(_currentWardrobeObj[_slot])>><<continue>><</if>>
+								<<for _i = _currentWardrobeObj[_slot].length; _i gt 0; _i-->>
+									<<if getWardrobeItemCount(_targetWardrobeObj, true) lt 1000 and Number.isFinite(_targetWardrobeObj.space) and (!Array.isArray(_targetWardrobeObj[_slot]) or _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space)>>
+										<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe, { moveLinkedPieces: false })>>
+									<<else>>
+										<<break>>
+									<</if>>
+								<</for>>
+							<</capture>>
+						<</for>>
+						<<updatewardrobe>>
+					<</if>>
 				<</link>>
 			</div>
 		<</if>>
@@ -760,6 +764,28 @@
 	<</if>>
 
 	<label><<checkbox "$wardrobeRepeat" false true autocheck>> Repeat Actions</label>
+	<br><br>
+	Wardrobe total: <<= getWardrobeItemCount(_selectedWardrobe, true)>> / 1,000 items. Automatic returns can exceed this limit.
+	<br>
+	<<set _discardSlot to $lastWardrobeSlot is "over" ? "over_upper" : $lastWardrobeSlot>>
+	Destroy all in slot:
+	<<listbox "_discardSlot" autoselect>>
+		<<optionsfrom Object.fromEntries(setup.clothes_all_slots.filter(slot => Array.isArray(_selectedWardrobe[slot])).map(slot => [slot.replace(/_/g, " "), slot]))>>
+	<</listbox>>
+	<span id="wardrobe-bulk-discard">
+		<<link "Destroy all...">>
+			<<capture _discardSlot>>
+				<<replace "#wardrobe-bulk-discard">>
+					Destroy all <<= _selectedWardrobe[_discardSlot].length>> items in <<= _discardSlot.replace(/_/g, " ")>>, including favorites? Other outfit pieces will be left incomplete.
+					<<link "Confirm destruction">>
+						<<run discardWardrobeSlot(_selectedWardrobe, _discardSlot)>>
+						<<updatewardrobe>>
+					<</link>> |
+					<<link "Cancel">><<updatewardrobe>><</link>>
+				<</replace>>
+			<</capture>>
+		<</link>>
+	</span>
 
 	<<if $wardrobeOption is "delete" and $wardrobeRepeat is true>>
 		<h2 class="red">Discard On Repeat</h2>
@@ -1509,12 +1535,12 @@
 						/*Set the target wardrobe*/
 						<<set _wardrobeTransferObject to selectWardrobe($wardrobe_location)>>
 						/*Make sure there is enough space*/
-						<<if _wardrobeTransferObject[_wardrobe_list].length gt _wardrobeTransferObject.space>>
+						<<if _wardrobeTransferObject[_wardrobe_list].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 1000>>
 							<<set _slotsFull to true>>
 						<</if>>
 						<<if _itemOutfitData>>
 							<<for $_outfitSlot, $_outfitId range _itemOutfitData>>
-								<<if _wardrobeTransferObject[$_outfitSlot].length gt _wardrobeTransferObject.space>>
+								<<if _wardrobeTransferObject[$_outfitSlot].length gte _wardrobeTransferObject.space>>
 									<<set _slotsFull to true>>
 								<</if>>
 							<</for>>
@@ -1525,9 +1551,9 @@
 								<<capture _wardrobe_list, _i, _outfitPieceIds>>
 									<span></span>
 									<<link "Move to Wardrobe">>
-										<<run transferClothing(_wardrobe_list,_i, "inventory",$wardrobe_location)>>
+										<<run transferClothing(_wardrobe_list,_i, "inventory",$wardrobe_location, { moveLinkedPieces: false })>>
 										<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
-											<<run transferClothing($_outfitSlot,$_outfitId, "inventory",$wardrobe_location)>>
+											<<run transferClothing($_outfitSlot,$_outfitId, "inventory",$wardrobe_location, { moveLinkedPieces: false })>>
 										<</for>>
 										<<updatewardrobe>>
 									<</link>>

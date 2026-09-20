@@ -121,22 +121,44 @@ function wardrobeReachableFromHere(key, current) {
 }
 window.wardrobeReachableFromHere = wardrobeReachableFromHere;
 
-function getWardrobeItemCount(wardrobeId) {
+function getWardrobeItemCount(wardrobeId, allSlots = false) {
 	let wardrobe;
-	if (wardrobeId === "wardrobe") {
+	if (typeof wardrobeId === "object") {
+		wardrobe = wardrobeId;
+	} else if (wardrobeId === "wardrobe") {
 		wardrobe = V.wardrobe;
 	} else {
 		wardrobe = V.wardrobes[wardrobeId];
 	}
 
 	let total = 0;
-	Object.keys(V.worn).forEach(slot => {
-		if (!["over_upper", "over_lower", "over_head", "genitals"].includes(slot)) total += wardrobe[slot]?.length ?? 0;
+	setup.clothes_all_slots.forEach(slot => {
+		if (allSlots || !["over_upper", "over_lower", "over_head", "genitals"].includes(slot)) total += wardrobe[slot]?.length ?? 0;
 	});
 
 	return total;
 }
 window.getWardrobeItemCount = getWardrobeItemCount;
+
+function discardWardrobeSlot(wardrobe, slot) {
+	if (!setup.clothes_all_slots.includes(slot) || !Array.isArray(wardrobe[slot])) return;
+	wardrobe[slot].length = 0;
+	for (const otherSlot of setup.clothes_all_slots) {
+		for (const item of wardrobe[otherSlot] || []) {
+			if (item.outfitPrimary?.[slot] && !["broken", "split"].includes(item.outfitPrimary[slot])) {
+				item.outfitPrimary[slot] = "broken";
+				item.one_piece = "broken";
+			}
+			if (item.outfitSecondary?.[0] === slot && !["broken", "split"].includes(item.outfitSecondary[1])) {
+				item.outfitSecondary[1] = "broken";
+				item.one_piece = "broken";
+				item.set = otherSlot;
+			}
+		}
+		V["wear_" + otherSlot] = "none";
+	}
+}
+window.discardWardrobeSlot = discardWardrobeSlot;
 
 const wardrobeFavoriteItemIdKey = "wardrobeFavoriteId";
 const wardrobeFavoriteRequiredKeys = ["slot", "variable", "modder"];

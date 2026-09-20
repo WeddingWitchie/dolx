@@ -1,4 +1,4 @@
-/* globals robinCafeShiftNow robinOutfitWorn */
+/* globals robinCafeShiftNow robinOutfitWorn getWardrobeItemCount */
 (function () {
 	$(document).on(":passageend", function () {
 		if (typeof window.updatePhysique !== "function") return;
@@ -1037,6 +1037,7 @@ function transferClothing(slot, index, oldWardrobe, newWardrobe, _opts) {
 	const newW = resolveWardrobe(newWardrobe);
 
 	if (!oldW || !oldW[slot] || oldW[slot][index] == null) return;
+	if (oldW === newW || getWardrobeItemCount(newW, true) >= 1000 || (newW[slot]?.length || 0) >= newW.space) return false;
 	if (!Array.isArray(newW[slot])) newW[slot] = [];
 
 	// Keep a reference so we can re-find it if indices shift
@@ -1121,6 +1122,11 @@ function transferClothing(slot, index, oldWardrobe, newWardrobe, _opts) {
 			}
 		}
 
+		if (getWardrobeItemCount(newW, true) + toMove.length + 1 > 1000) return false;
+		const slotsNeeded = { [slot]: 1 };
+		for (const [s] of toMove) slotsNeeded[s] = (slotsNeeded[s] || 0) + 1;
+		if (Object.entries(slotsNeeded).some(([s, count]) => (newW[s]?.length || 0) + count > newW.space)) return false;
+
 		// Move those pieces (recursion with guard)
 		for (const [s, i] of toMove) {
 			transferClothing(s, i, oldWardrobe, newWardrobe, { moveLinkedPieces: false });
@@ -1138,6 +1144,7 @@ function transferClothing(slot, index, oldWardrobe, newWardrobe, _opts) {
 	// Remove from old wardrobe
 	if (typeof oldW[slot].deleteAt === "function") oldW[slot].deleteAt(index);
 	else oldW[slot].splice(index, 1);
+	return true;
 }
 
 window.transferClothing = transferClothing;
