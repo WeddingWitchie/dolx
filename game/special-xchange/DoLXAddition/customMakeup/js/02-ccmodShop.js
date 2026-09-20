@@ -142,7 +142,7 @@ const ccmShop = {
 	pickerGen(color = "FFFFFF") {
 		this.picker = new iro.ColorPicker("#picker", {
 			color,
-			width: 250,
+			width: this.pickerAutoWidth(),
 			layout: [
 				{
 					component: iro.ui.Box,
@@ -158,11 +158,10 @@ const ccmShop = {
 		});
 	},
 
-	// Slightly modified vanilla snippet.
+	// The picker shares a grid column, so size it to the column rather than the window.
 	pickerAutoWidth() {
-		if (window.innerWidth > 400) return 250;
-		if (window.innerWidth > 325) return 230;
-		return 200;
+		const available = $("#color-controls").width() || window.innerWidth;
+		return Math.clamp(Math.floor(available) - 4, 120, 250);
 	},
 };
 

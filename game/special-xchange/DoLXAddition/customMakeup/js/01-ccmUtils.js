@@ -126,6 +126,9 @@ const ccmUtils = {
 						name: "color picker slot",
 						canvasfilter: this.filterGen(),
 					};
+				} else {
+					// the slot outlives the colour being picked, so follow the desaturate toggle
+					map[slot].canvasfilter.desaturate = !ccmod?.cfg?.skipDesaturate;
 				}
 			}
 		}
