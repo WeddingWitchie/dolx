@@ -1278,6 +1278,7 @@ var Renderer;
 			if (listener && listener.keyframe) listener.keyframe(animation.name, animation.keyframeIndex, animation.keyframe);
 		}
 		function stopCheck() {
+			if (!animatingCanvas.playing) return true;
 			if (autoStop && animatingCanvas.time > 0 && !document.body.contains(targetCanvas.canvas)) {
 				/* the canvas was removed from DOM. we exclude frame 0 because it might not yet be added */
 				animatingCanvas.stop();
@@ -1294,7 +1295,7 @@ var Renderer;
 				requestAnimationFrame(() => {
 					animatingCanvas.busy = false;
 					try {
-						doCompose0();
+						if (!stopCheck()) doCompose0();
 						resolve();
 					} catch (e) {
 						rendererError(listener, e);
@@ -1319,9 +1320,17 @@ var Renderer;
 					}
 					const myListener = Object.assign({}, listener, {
 						renderingDone(time) {
-							let canvas = createCanvas(targetCanvas.canvas.width, targetCanvas.canvas.height);
-							canvas.drawImage(targetCanvas.canvas, 0, 0);
-							keyframeCaches[genAnimationSpec()] = canvas;
+							if (stopCheck()) return;
+							// Limit RGBA frame copies to 16 MiB per animation, including high-resolution packs.
+							const frameBytes = targetCanvas.canvas.width * targetCanvas.canvas.height * 4;
+							const cacheLimit = Math.min(64, Math.floor((16 * 1024 * 1024) / Math.max(1, frameBytes)));
+							if (cacheLimit > 0) {
+								const keys = Object.keys(keyframeCaches);
+								while (keys.length >= cacheLimit) delete keyframeCaches[keys.shift()];
+								let canvas = createCanvas(targetCanvas.canvas.width, targetCanvas.canvas.height);
+								canvas.drawImage(targetCanvas.canvas, 0, 0);
+								keyframeCaches[genAnimationSpec()] = canvas;
+							}
 							if (listener && listener.renderingDone) listener.renderingDone.apply(listener, arguments);
 						},
 					});
