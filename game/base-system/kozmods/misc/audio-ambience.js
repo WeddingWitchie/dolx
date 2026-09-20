@@ -16,10 +16,10 @@ window.AmbienceAudio = (() => {
 	let lastLightning = -Infinity;
 	let lightningIndex = 0;
 
-	function getTrack(name) {
+	function getTrack(name, folder = "rain") {
 		if (!tracks.has(name)) {
 			const id = `ambience-${name}`;
-			SimpleAudio.tracks.add(id, [`audio/sfx/ambience/rain/${name}.mp3`]);
+			SimpleAudio.tracks.add(id, [`audio/sfx/ambience/${folder ? folder + "/" : ""}${name}.mp3`]);
 			const track = SimpleAudio.tracks.get(id);
 			// Browsers treat file:// media as cross-origin and silence it through Web Audio.
 			if (window.location.protocol !== "file:" && (window.AudioContext || window.webkitAudioContext)) {
@@ -42,11 +42,11 @@ window.AmbienceAudio = (() => {
 		return tracks.get(name);
 	}
 
-	function volume() {
-		return (V.options.ambience_volume ?? 1) * (V.outside ? 1 : 0.1);
+	function volume(muffled = true) {
+		return (V.options.ambience_volume ?? 1) * (muffled && !V.outside ? 0.3 : 1);
 	}
 
-	function play(track, loop) {
+	function play(track, loop, muffled = true) {
 		if (context) {
 			filter.frequency.setTargetAtTime(V.outside ? 22000 : 650, context.currentTime, 0.08);
 			if (context.state === "suspended") {
@@ -58,7 +58,7 @@ window.AmbienceAudio = (() => {
 					});
 			}
 		}
-		track.volume(volume()).loop(loop);
+		track.volume(volume(muffled)).loop(loop);
 		if (loop) looping.add(track);
 		else looping.delete(track);
 		if (track.isPlaying() || pending.has(track)) return;
@@ -93,6 +93,9 @@ window.AmbienceAudio = (() => {
 			if (name.startsWith("lightning")) {
 				if (!enabled || !Weather.enableLightning) track.stop();
 				else track.volume(volume());
+			} else if (name === "money" || name === "meds") {
+				if (!enabled) track.stop();
+				else track.volume(volume(false));
 			} else if (!wanted.has(name)) {
 				looping.delete(track);
 				track.loop(false);
@@ -118,7 +121,14 @@ window.AmbienceAudio = (() => {
 		play(track, false);
 	}
 
+	function effect(name) {
+		if (V.options?.audio !== 1 || (V.options.ambience_volume ?? 1) <= 0) return;
+		const track = getTrack(name, "");
+		track.stop();
+		play(track, false, false);
+	}
+
 	$(document).on(":onWeatherChange.ambience", update);
 
-	return { update, lightning };
+	return { update, lightning, effect };
 })();

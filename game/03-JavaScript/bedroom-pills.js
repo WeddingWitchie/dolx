@@ -1,5 +1,5 @@
 /* eslint-disable dot-notation */
-/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised sleepAidPending sleepAidOtcStrongEnough pillDosesTodayByType pocketBagCapacity pocketBagName pocketAvailable pocketCarrying pocketSlotToggle xchangeVoluntaryDoseBegin xchangeVoluntaryDoseEnd */
+/* globals getSensitivityMedication sensitivityMedicationRemainingHours xchangePillNeutralised sleepAidPending sleepAidOtcStrongEnough pillDosesTodayByType pocketBagCapacity pocketBagName pocketAvailable pocketCarrying pocketSlotToggle xchangeVoluntaryDoseBegin xchangeVoluntaryDoseEnd AmbienceAudio */
 /*
  * if display_condition is 1, item is displayed, else it's not
  * current max doses for Harper/Asylum pills is 1; 2 for every other pills
@@ -1066,6 +1066,7 @@ window.redetermineMostTaken = redetermineMostTaken;
 
 function onTakeClick(itemName) {
 	V.sexStats.pills["pills"][itemName].owned -= 1;
+	AmbienceAudio.effect("meds");
 
 	switch (itemName) {
 		case "Anti-Parasite Cream":

@@ -1,4 +1,4 @@
-/* global colosseumDrugStage amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod blackmailCancelQuestForBadEnd */
+/* global colosseumDrugStage amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod blackmailCancelQuestForBadEnd AmbienceAudio */
 
 /* globals playerHasXChangeBody */
 const statChange = (() => {
@@ -1460,6 +1460,7 @@ const statChange = (() => {
 
 			if (payByCard) V.hbsc.account.deposit += amount;
 			else V.money += amount;
+			if (amount < 0) AmbienceAudio.effect("money");
 		}
 		if (nonIncomeCredit) return;
 
