@@ -501,6 +501,10 @@ window.updatePronounSummary = updatePronounSummary;
 
 	const runXChangeLoadCompat = () => {
 		if (V.xchange && Object.hasOwn(V.xchange, "_debugEffectHistory")) delete V.xchange._debugEffectHistory;
+		if (V.wraith && !Number.isFinite(V.wraith.will)) {
+			if (V.possessed) V.wraith.will = random(1300, 1700);
+			else delete V.wraith.will;
+		}
 		try {
 			setup.xchangeEnsurePillDefaults();
 		} catch (e) {}
@@ -523,6 +527,10 @@ window.updatePronounSummary = updatePronounSummary;
 	if (typeof jQuery === "function") {
 		jQuery(document).on(":onloadsave", runXChangeLoadCompat);
 		jQuery(document).on(":passagestart", () => {
+			if (V.wraith && !Number.isFinite(V.wraith.will)) {
+				if (V.possessed) V.wraith.will = random(1300, 1700);
+				else delete V.wraith.will;
+			}
 			try {
 				setup.xchangeEnsurePillDefaults();
 			} catch (e) {}
