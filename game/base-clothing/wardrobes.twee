@@ -67,12 +67,13 @@
 		<<set $DoLPSpools -= _repairCount>>
 		<<pass _timeNeeded>>
 	<</if>>
-	<<set _equip to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower", "over_head", "head", "face", "neck", "scarf", "hands", "handheld", "bag", "earrings", "rings", "legs", "feet", "genitals"]>>
+	<!-- Every slot the wardrobe can equip from, in the order it works through them. The $wear_<slot> reset at the end of this widget walks the same list, so a slot added here can't be left pending. -->
+	<<set _wardrobeEquipSlots to ["over_upper", "over_lower", "upper", "lower", "under_upper", "under_lower", "over_head", "head", "face", "neck", "scarf", "hands", "handheld", "bag", "earrings", "rings", "legs", "feet", "genitals"]>>
 	<<set _slimePrevent to ["upper", "lower", "under_upper", "under_lower"]>>
 	<<set _towelCheck to ["upper", "lower"]>>
 	<<set _equipSkip to {"over_upper":false, "over_lower":false, "upper":false, "lower":false, "under_upper":false, "under_lower":false, "over_head":false, "head":false, "face":false, "neck":false, "scarf":false, "hands":false, "handheld":false, "bag":false, "earrings":false, "rings":false, "legs":false, "feet":false, "genitals":false}>>
 	<<set _eIndextemNames to []>>
-	<<for _slot range _equip>>
+	<<for _slot range _wardrobeEquipSlots>>
 		<<if $equipFromInventory is _slot>>
 			<<set _selectedWardrobe to selectWardrobe("inventory")>>
 			<<wardrobeSanityCheck>>
@@ -366,23 +367,10 @@
 		<br><br>
 	<</if>>
 	<<unset _wearAction>>
-	<<set $wear_over_upper to "none">>
-	<<set $wear_over_lower to "none">>
-	<<set $wear_upper to "none">>
-	<<set $wear_lower to "none">>
-	<<set $wear_under_upper to "none">>
-	<<set $wear_under_lower to "none">>
-	<<set $wear_over_head to "none">>
-	<<set $wear_head to "none">>
-	<<set $wear_face to "none">>
-	<<set $wear_neck to "none">>
-	<<set $wear_hands to "none">>
-	<<set $wear_handheld to "none">>
-	<<set $wear_earrings to "none">>
-	<<set $wear_rings to "none">>
-	<<set $wear_legs to "none">>
-	<<set $wear_feet to "none">>
-	<<set $wear_genitals to "none">>
+	/* Clear every pending request */
+	<<for _clearSlot range _wardrobeEquipSlots>>
+		<<set V["wear_" + _clearSlot] to "none">>
+	<</for>>
 	<<set $wear_outfit to "none">>
 	<<exposure>>
 <</widget>>

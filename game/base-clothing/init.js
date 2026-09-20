@@ -187,8 +187,10 @@ function clothingInit() {
 	V.wear_head = "none";
 	V.wear_face = "none";
 	V.wear_neck = "none";
+	V.wear_scarf = "none";
 	V.wear_hands = "none";
 	V.wear_handheld = "none";
+	V.wear_bag = "none";
 	V.wear_earrings = "none";
 	V.wear_rings = "none";
 	V.wear_legs = "none";
