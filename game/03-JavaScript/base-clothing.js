@@ -237,7 +237,13 @@ function moveClothingSlot(fromSlot, toSlot, isMatch) {
 
 	/* Saved outfits name their garments, so the name moves to the new field. */
 	for (const outfit of V.outfit || []) {
-		if (!names.has(outfit[fromSlot])) continue;
+		if (!names.has(outfit[fromSlot])) {
+			if (outfit[toSlot] === undefined) {
+				outfit[toSlot] = "naked";
+				if (outfit.colors) outfit.colors[toSlot] = [0, 0];
+			}
+			continue;
+		}
 		outfit[toSlot] = outfit[fromSlot];
 		outfit[fromSlot] = "naked";
 		if (outfit.colors) {
@@ -726,23 +732,7 @@ function importOutfit() {
 		const outfit = JSON.parse(outfitText);
 		document.querySelector("#outfitEditorImportText").value = "";
 
-		for (const slot of [
-			"over_upper",
-			"over_lower",
-			"upper",
-			"lower",
-			"under_upper",
-			"under_lower",
-			"over_head",
-			"head",
-			"face",
-			"neck",
-			"hands",
-			"handheld",
-			"bag",
-			"legs",
-			"feet",
-		]) {
+		for (const slot of setup.clothingLayer.all) {
 			if (!(slot in outfit)) {
 				outfit[slot] = "naked";
 			}

@@ -392,6 +392,13 @@
 					<<set _foundEquip to null>><<set _lastResort to null>>
 					<<unset _randomColourData>>
 					<<unset _randomColourAccData>>
+					<<unset _randomColourPatternData>>
+					<<set _slotColours to $outfit[$wear_outfit].colors ? $outfit[$wear_outfit].colors[$_slot] : undefined>>
+					<<if (!_slotColours or !_slotColours[0]) and $worn[$_slot].name is $_incomingItemName>>
+						<<set _keepWornColour to $worn[$_slot].colour>>
+					<<else>>
+						<<unset _keepWornColour>>
+					<</if>>
 					<<for $_equipIndex, $_wardrobeItem range _selectedWardrobe[$_slot]>>
 						<<if $_incomingItemName isnot $_wardrobeItem.name or ($_wardrobeItem.outfitSecondary and !["broken", "split"].includes($_wardrobeItem.outfitSecondary[1]))>>
 							<<continue>>
@@ -599,6 +606,9 @@
 							<</if>>
 						<</if>>
 						<<if _damage is 0>>
+							<<if _keepWornColour isnot undefined and $_wardrobeItem.colour isnot _keepWornColour>>
+								<<continue>>
+							<</if>>
 							<<set _foundEquip to {}>>
 							<<set _foundEquip[$_slot] to clone($_equipIndex)>>
 							<<break>>
@@ -1287,7 +1297,7 @@
 								V.outfit[outfitIndex].colors[slot][0] = 0;
 							}
 							if(item.accessory_colour_options.length > 0 && V.outfit[outfitIndex].colors[slot][1] === 0){
-								V.outfit[outfitIndex].colors[slot][0] = item.accessory_colour_options[0];
+								V.outfit[outfitIndex].colors[slot][1] = item.accessory_colour_options[0];
 							} else if(item.accessory_colour_options.length === 0 && V.outfit[outfitIndex].colors[slot][1] !== 0) {
 								V.outfit[outfitIndex].colors[slot][1] = 0;
 							}

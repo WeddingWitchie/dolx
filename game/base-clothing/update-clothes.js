@@ -892,6 +892,23 @@ function repairWardrobeSlots() {
 }
 window.repairWardrobeSlots = repairWardrobeSlots;
 
+/* A saved set only touches the slots it names. Sets made before a slot existed or migrated into one by
+ * moveClothingSlot, leave that field undefined, and wearing the set then leaves the slot alone instead of
+ * emptying it, which is how a bag you never saved stays on when you change outfits.
+ */
+function backfillOutfitSlots() {
+	if (!Array.isArray(V.outfit) || !Array.isArray(setup.clothingLayer?.all)) return;
+	for (const outfit of V.outfit) {
+		if (!outfit || typeof outfit !== "object") continue;
+		for (const slot of setup.clothingLayer.all) {
+			if (outfit[slot] !== undefined) continue;
+			outfit[slot] = "naked";
+			if (outfit.colors) outfit.colors[slot] = [0, 0];
+		}
+	}
+}
+window.backfillOutfitSlots = backfillOutfitSlots;
+
 /* Only these slots have damaged sprites (full/frayed/torn/tattered).
  * Other slots do not, so damage would cause missing images and incorrect descriptions.
  */
