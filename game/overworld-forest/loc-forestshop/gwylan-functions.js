@@ -493,6 +493,7 @@ function gwylanRequestClothes(override) {
 			availableShops.includesAny(clothes.shop) &&
 			clothes.type.includes("costume") &&
 			availableGenders.includes(clothes.gender) &&
+			!gwylanClothingHypnosisBlocked(clothes) &&
 			!clothes.type.includes("naked") &&
 			!clothes.shop.includes("forest") &&
 			!clothes.outfitPrimary?.head &&
@@ -502,6 +503,10 @@ function gwylanRequestClothes(override) {
 			(!requireColoursAdv || (requireColoursAdv && clothes.colour_options.length)) &&
 			!(C.npc.Gwylan.lust >= 50 && clothes.reveal < 300)
 	);
+	if (!possibleClothes.length) {
+		V.gwylan.request.event = "ingredients";
+		return gwylanRequestIngredients();
+	}
 	const roll = clone(possibleClothes.pluck());
 	V.gwylan.request.details.shops = roll.shop.filter(shops => availableShops.includes(shops));
 
@@ -654,8 +659,31 @@ function gwylanRequestClothes(override) {
 			grcCreate(roll.name, roll.slot);
 			break;
 	}
+	// A neutral accessory can select a set whose other pieces are forbidden.
+	if (V.gwylan.request.items.some(item => !item.alt && gwylanClothingHypnosisBlocked(item))) {
+		V.gwylan.request.event = "ingredients";
+		V.gwylan.request.items = [];
+		delete V.gwylan.request.special;
+		delete V.gwylan.request.details;
+		return gwylanRequestIngredients();
+	}
 	return V.gwylan.request;
 }
+
+function gwylanClothingHypnosisBlocked(item) {
+	const level = window.hypnosisTrait("crossdressing");
+	if (level < 2) return false;
+	const clothes = setup.clothes[item.slot]?.find(clothes => clothes.name === item.name);
+	if (!clothes || clothes.type.includes("event")) return false;
+	if (level >= 4 && (clothes.gender === V.player.gender || clothes.type.includes("chest_bind"))) return true;
+	return (
+		clothes.gender === V.player.gender &&
+		["under_upper", "under_lower"].some(
+			slot => item.slot === slot || (clothes.outfitPrimary?.[slot] && !["broken", "split"].includes(clothes.outfitPrimary[slot]))
+		)
+	);
+}
+window.gwylanClothingHypnosisBlocked = gwylanClothingHypnosisBlocked;
 
 /**
  * Every garment the player owns that Gwylan could plausibly ask them to wear.
@@ -697,6 +725,7 @@ function gwylanWardrobeRequestPool() {
 				if (!setupItem) return;
 				if (blockedItems.includes(item.name)) return;
 				if (!allowedGenders.includes(setupItem.gender)) return;
+				if (gwylanClothingHypnosisBlocked(setupItem)) return;
 				if (setupItem.type?.includes("naked")) return;
 				if (setupItem.outfitSecondary) return; // Requested via its primary piece instead
 				if (setupItem.shop?.includes("school")) return; // The player needs their uniform
