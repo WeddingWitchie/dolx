@@ -4,85 +4,7 @@ stages:
 
 variables:
   GIT_STRATEGY: fetch
-  # Set DOLX_UPLOAD_AUDIO to "true" only when the audio files actually change!
-  DOLX_AUDIO_PACKAGE_VERSION: "0.22.0"
-  DOLX_UPLOAD_AUDIO: "true"
 
-audio_job:
-  stage: build
-  script:
-    - |
-      $ErrorActionPreference = "Stop"
-      $FULLVERSION = Get-Content -Raw ./version
-      $AUDIO_VERSION = "$env:DOLX_AUDIO_PACKAGE_VERSION"
-
-      if ([string]::IsNullOrWhiteSpace($AUDIO_VERSION)) {
-        throw "DOLX_AUDIO_PACKAGE_VERSION is empty. Set it to the latest uploaded audio package version."
-      }
-
-      if ($env:DOLX_UPLOAD_AUDIO -ne "true") {
-        Write-Host "Audio upload skipped."
-        Write-Host "Game version: $FULLVERSION"
-        Write-Host "Release will reuse existing audio package version $AUDIO_VERSION."
-      }
-      else {
-        Write-Host "Building Audio Release $AUDIO_VERSION"
-
-        $buildDir = "./build_audio"
-        $zipPath = "./DoLX_Audio_$AUDIO_VERSION.zip"
-
-        Remove-Item -Recurse -Force $buildDir -ErrorAction SilentlyContinue
-        Remove-Item -Force $zipPath -ErrorAction SilentlyContinue
-
-        New-Item -ItemType Directory -Force "$buildDir/audio" | Out-Null
-        Copy-Item -Path ./audio/* -Destination "$buildDir/audio/" -Recurse -Force
-
-        $audioFiles = Get-ChildItem "$buildDir/audio" -File -Recurse
-        $rawAudioSize = ($audioFiles | Measure-Object Length -Sum).Sum
-        if ($null -eq $rawAudioSize) { $rawAudioSize = 0 }
-        Write-Host ("Raw audio size: {0:N2} MB" -f ($rawAudioSize / 1MB))
-
-        tar.exe -a -cf $zipPath -C $buildDir audio
-        if ($LASTEXITCODE -ne 0) { throw "Audio archive creation failed." }
-
-        Add-Type -AssemblyName System.IO.Compression.FileSystem
-        $archive = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $zipPath).Path)
-        try {
-          $invalidEntries = @($archive.Entries | Where-Object { $_.FullName -match '\\' } | ForEach-Object FullName)
-        }
-        finally {
-          $archive.Dispose()
-        }
-        if ($invalidEntries) {
-          throw "Audio archive contains Windows-style paths: $($invalidEntries -join ', ')"
-        }
-
-        $zipSize = (Get-Item $zipPath).Length
-        Write-Host ("Audio zip size: {0:N2} MB" -f ($zipSize / 1MB))
-
-        Write-Host "Finished Building Audio Release $AUDIO_VERSION"
-        Write-Host "Uploading Audio Release $AUDIO_VERSION"
-
-        $uploadUrl = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$AUDIO_VERSION/DoLX_Audio_$AUDIO_VERSION.zip"
-
-        curl.exe --fail --show-error --silent `
-          --header "JOB-TOKEN: $env:CI_JOB_TOKEN" `
-          --header "Content-Type: application/zip" `
-          --retry 5 `
-          --retry-all-errors `
-          --retry-delay 5 `
-          --upload-file $zipPath `
-          "$uploadUrl"
-
-        if ($LASTEXITCODE -ne 0) { throw "Audio upload failed." }
-
-        Remove-Item -Recurse -Force $buildDir -ErrorAction SilentlyContinue
-        Remove-Item -Force $zipPath -ErrorAction SilentlyContinue
-
-        Write-Host "Finished Uploading Audio Release $AUDIO_VERSION"
-      }
-  only:
-    - master
 img_job:
   stage: build
   script:
@@ -206,7 +128,6 @@ html_job:
 release_job:
   stage: deploy
   needs:
-    - job: audio_job
     - job: img_job
     - job: html_job
   rules:
@@ -226,13 +147,7 @@ release_job:
         throw "Could not parse release version from version file: $FULLVERSION"
       }
 
-      $AUDIO_VERSION = "$env:DOLX_AUDIO_PACKAGE_VERSION"
-      if ([string]::IsNullOrWhiteSpace($AUDIO_VERSION)) {
-        throw "DOLX_AUDIO_PACKAGE_VERSION is empty. Set it to the latest uploaded audio package version."
-      }
-
       Write-Host "Creating release $VERSION..."
-      Write-Host "Release will link audio package $AUDIO_VERSION."
 
       function Test-PackageLink {
         param(
@@ -265,15 +180,8 @@ release_job:
       }
       $imageJSON = ($imageObj | ConvertTo-Json -Compress) -replace '"', '\"'
 
-      $audioObj = @{
-        name = "DownloadMe_DoLX_Audio_$AUDIO_VERSION"
-        url  = "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/generic/DoLX_Audio/$AUDIO_VERSION/DoLX_Audio_$AUDIO_VERSION.zip"
-      }
-      $audioJSON = ($audioObj | ConvertTo-Json -Compress) -replace '"', '\"'
-
       Test-PackageLink "HTML" $htmlObj.url
       Test-PackageLink "Images" $imageObj.url
-      Test-PackageLink "Audio" $audioObj.url
 
       $releaseArgs = @(
         "create",
@@ -282,8 +190,7 @@ release_job:
         "--ref", "$env:CI_COMMIT_SHA",
         "--tag-name", "$VERSION",
         "--assets-link", "$htmlJSON",
-        "--assets-link", "$imageJSON",
-        "--assets-link", "$audioJSON"
+        "--assets-link", "$imageJSON"
       )
 
       & "C:\GitLab-Runner\release-cli.exe" @releaseArgs
