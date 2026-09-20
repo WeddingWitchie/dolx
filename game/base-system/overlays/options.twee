@@ -6,6 +6,7 @@ IMPORTANT:
 
 :: Options Overlay [widget]
 <<widget "setupOptions">>
+	<<if $options.ambience_volume is undefined>><<set $options.ambience_volume to 1>><</if>>
 	<<if $options.npcVoiceoverAudio is undefined>><<set $options.npcVoiceoverAudio to 1>><</if>>
 	<<if $options.showGameVersion is undefined>><<set $options.showGameVersion to true>><</if>>
 	<<set _optionsEnabled to true>>
@@ -802,7 +803,6 @@ IMPORTANT:
 		<div class="settingsHeader options">Audio</div>
 		<div class="settingsToggleItemWide">
 			<label><<checkbox "$options.audio" 0 1 autocheck>> Enable audio</label>
-			<mouse class="tooltip-small linkBlue">(?)<span>EXPERIMENTAL: Audio is currently a work-in-progress. Bugs are to be expected.</span></mouse>
 		</div>
 		<div class="settingsToggleItem">
 			<label data-target="options.audio" data-disabledif="V.options.audio===0"><<checkbox "$options.muteonhide" 0 1 autocheck>> Mute on hide</label>
@@ -842,6 +842,7 @@ IMPORTANT:
 				<<option "All" "all">><<option "Male only" "m">><<option "Female only" "f">><<option "None" "off">>
 			<</listbox>>
 		</div>
+		<<if !$statFreeze and playerIsXChanged() and $xchange.pill.genderificationEffect and xchangeGenderificationDirection() is "sissy">>
 		<div class="settingsToggleItem">
 			<label data-target="options.audio" data-disabledif="V.options.audio===0"><<checkbox "$options.voiceConfig.sissy.enabled" false true autocheck>> Sissy</label>
 			<<listbox "$options.voiceConfig.sissy.voice" autoselect>>
@@ -851,6 +852,8 @@ IMPORTANT:
 				<<option "All" "all">><<option "Male only" "m">><<option "Female only" "f">><<option "None" "off">>
 			<</listbox>>
 		</div>
+		<</if>>
+		<<if !$statFreeze and playerIsXChanged() and $xchange.pill.genderificationEffect and xchangeGenderificationDirection() is "butch">>
 		<div class="settingsToggleItem">
 			<label data-target="options.audio" data-disabledif="V.options.audio===0"><<checkbox "$options.voiceConfig.butch.enabled" false true autocheck>> Butch</label>
 			<<listbox "$options.voiceConfig.butch.voice" autoselect>>
@@ -860,6 +863,7 @@ IMPORTANT:
 				<<option "All" "all">><<option "Male only" "m">><<option "Female only" "f">><<option "None" "off">>
 			<</listbox>>
 		</div>
+		<</if>>
 		<<if playerIsHerm()>>
 		<div class="settingsToggleItem">
 			<label data-target="options.audio" data-disabledif="V.options.audio===0"><<checkbox "$options.voiceConfig.herm.enabled" false true autocheck>> Herm</label>
@@ -884,7 +888,7 @@ IMPORTANT:
 		<div class="settingsToggleItem numberslider-inline">
 			<label data-target="options.audio" data-disabledif="V.options.audio===0">
 			<span class="gold">BGM:</span>
-			<mouse class="tooltip-small linkBlue">(?)<span>Controls the overall volume of the background music.</span></mouse>
+			<mouse class="tooltip-small linkBlue">(?)<span>Controls the overall volume of the background music. Set to 0% to turn BGM off.</span></mouse>
 			<<numberslider "$options.bgm_volume" $options.bgm_volume 0 1 0.01 {
 				onInputChange: value => wikifier("<<master-audio-update>>"),
 				value: () => Math.round($options.bgm_volume * 100)+`%`
@@ -898,6 +902,16 @@ IMPORTANT:
 			<<numberslider "$options.bgs_volume" $options.bgs_volume 0 1 0.01 {
 				onInputChange: value => wikifier("<<master-audio-update>>"),
 				value: () => Math.round($options.bgs_volume * 100)+`%`
+			}>>
+			</label><br>
+		</div>
+		<div class="settingsToggleItem numberslider-inline">
+			<label data-target="options.audio" data-disabledif="V.options.audio===0">
+			<span class="gold">Ambience:</span>
+			<mouse class="tooltip-small linkBlue">(?)<span>Controls weather and lightning ambience independently of BGS. Set to 0% to disable ambience. Sounds are quieter indoors.</span></mouse>
+			<<numberslider "$options.ambience_volume" $options.ambience_volume 0 1 0.01 {
+				onInputChange: value => wikifier("<<master-audio-update>>"),
+				value: () => Math.round($options.ambience_volume * 100)+`%`
 			}>>
 			</label><br>
 		</div>

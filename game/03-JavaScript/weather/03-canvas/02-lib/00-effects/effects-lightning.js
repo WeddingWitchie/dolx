@@ -1,3 +1,4 @@
+/* globals AmbienceAudio */
 Weather.Renderer.Effects.add({
 	name: "lightning",
 	defaultParameters: {
@@ -133,6 +134,7 @@ Weather.Renderer.Effects.add({
 			const strikeProbability = strikesPerSecond * dt;
 
 			if (Math.random() < strikeProbability) {
+				AmbienceAudio.lightning(this.renderInstance);
 				const viewWidth = this.canvas.element.width;
 				const viewHeight = this.canvas.element.height;
 

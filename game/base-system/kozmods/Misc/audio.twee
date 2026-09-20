@@ -49,7 +49,9 @@
 				<<break>>
 			<</if>>
 		<</for>>
-		<<if $combat is 1 and $consensual isnot 1>>
+		<<if $possessed>>
+			<<bgm-intermission "IvoryWraith">>
+		<<elseif $combat is 1 and $consensual isnot 1>>
 			<<bgm-intermission "encounter-noncon">>
 		<<elseif _npcFound is 1>>
 			<<bgm-intermission _npcTheme>>
@@ -161,6 +163,7 @@
 <</widget>>
 
 <<widget "master-audio-update">>
+	<<run AmbienceAudio.update()>>
 	<<if $options.npcVoiceoverAudio is undefined>><<set $options.npcVoiceoverAudio to 1>><</if>>
 	<<if $voiceoverActive is undefined>>
 		<<set $voiceoverActive to "f">>
@@ -180,7 +183,14 @@
 	<</if>>
 	<<masteraudio volume `$options.mastervolume ?? 0`>>
 	<<if setup.bgmCurrentPlaylist isnot "none" and setup.bgmCurrentPlaylist isnot undefined>>
-		<<playlist setup.bgmCurrentPlaylist volume `$options.bgm_volume ?? 1`>>
+		<<if ($options.bgm_volume ?? 1) gt 0>>
+			<<playlist setup.bgmCurrentPlaylist volume `$options.bgm_volume ?? 1`>>
+			<<if !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
+				<<playlist setup.bgmCurrentPlaylist play loop>>
+			<</if>>
+		<<else>>
+			<<playlist setup.bgmCurrentPlaylist pause>>
+		<</if>>
 	<</if>>
 	<<if setup.bgsCurrentPlaylist isnot "none" and setup.bgsCurrentPlaylist isnot undefined>>
 		<<playlist setup.bgsCurrentPlaylist volume `$options.bgs_volume ?? 1`>>
@@ -227,7 +237,7 @@
 			<<set setup.bgmCurrentPlaylist to setup.bgmPausedPlaylist>>
 			<<set setup.bgmPausedPlaylist to "none">>
 			<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
-			<<playlist setup.bgmCurrentPlaylist play loop>>
+			<<if $options.bgm_volume gt 0>><<playlist setup.bgmCurrentPlaylist play loop>><</if>>
 		<<else>>
 			/* A real location change supersedes both the active and paused themes. */
 			<<audio-release-playlist setup.bgmCurrentPlaylist>>
@@ -238,9 +248,9 @@
 			<<set setup.bgmPausedPlaylist to "none">>
 			<<init-playlist setup.bgmCurrentPlaylist>>
 			<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
-			<<playlist setup.bgmCurrentPlaylist play loop shuffle>>
+			<<if $options.bgm_volume gt 0>><<playlist setup.bgmCurrentPlaylist play loop shuffle>><</if>>
 		<</if>>
-	<<elseif _args[0] isnot "stop" and !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
+	<<elseif _args[0] isnot "stop" and $options.bgm_volume gt 0 and !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
 		/* The selected theme may have failed to start or been interrupted by the browser. */
 		<<if SimpleAudio.lists.get(setup.bgmCurrentPlaylist).tracks.some(entry => entry.track.isUnavailable())>>
 			<<playlist setup.bgmCurrentPlaylist load>>
@@ -271,8 +281,8 @@
 		<<set setup.bgmCurrentPlaylist to _args[0]>>
 		<<init-playlist setup.bgmCurrentPlaylist>>
 		<<playlist setup.bgmCurrentPlaylist volume $options.bgm_volume>>
-		<<playlist setup.bgmCurrentPlaylist play loop shuffle>>
-	<<elseif !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
+		<<if $options.bgm_volume gt 0>><<playlist setup.bgmCurrentPlaylist play loop shuffle>><</if>>
+	<<elseif $options.bgm_volume gt 0 and !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
 		<<if SimpleAudio.lists.get(setup.bgmCurrentPlaylist).tracks.some(entry => entry.track.isUnavailable())>>
 			<<playlist setup.bgmCurrentPlaylist load>>
 		<</if>>
