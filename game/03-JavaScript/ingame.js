@@ -3608,6 +3608,7 @@ function ingredientAlternativesSetup(recipe) {
 
 	return alternatives;
 }
+window.ingredientAlternativesSetup = ingredientAlternativesSetup;
 
 function ingredientsProvided(mainIngredient, recipe) {
 	if (!setup.foodstuff[mainIngredient] || !setup.foodstuff[recipe]) return false;
