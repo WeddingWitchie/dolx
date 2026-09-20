@@ -1,5 +1,6 @@
 /* global colosseumDrugStage amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod blackmailCancelQuestForBadEnd */
 
+/* globals playerHasXChangeBody */
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
 		if (typeof value === "object") value = JSON.stringify(value);
@@ -73,7 +74,7 @@ const statChange = (() => {
 	 * Use this wherever game mechanics read beauty to include temporary boosts.
 	 */
 	function getBeautyBoost() {
-		let boost = 0;
+		let boost = V.xchange?.pill?.active && !playerHasXChangeBody() ? 340 : 0;
 		if (V.beautyBoost) {
 			boost +=
 				(V.beautyBoost.bath || 0) +
@@ -101,6 +102,7 @@ const statChange = (() => {
 	 */
 	function getBeautyBoostSources() {
 		const sources = [];
+		if (V.xchange?.pill?.active && !playerHasXChangeBody()) sources.push("X-Change effects");
 		if (V.beautyBoost) {
 			if (V.beautyBoost.bath > 0) sources.push("bathed");
 			if (V.beautyBoost.teeth > 0) sources.push("clean teeth");

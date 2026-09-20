@@ -33,7 +33,7 @@ function xchangePillBlockedReason(color, allowDualGenitals = false) {
 window.xchangePillBlockedReason = xchangePillBlockedReason;
 
 /* pregnancy gate
-   Any active pregnancy blocks all X-Change doses, no matter how the pill is given.
+   Any active pregnancy blocks body-changing X-Change doses, no matter how the pill is given.
    This includes vaginal, anal, parasite, and egg pregnancies.
    Invalid pregnancy records are ignored so they cannot block the player forever. If the player does not know they are pregnant yet, keep the reason vague.
 */
@@ -177,15 +177,15 @@ function makeGrayXChangePill(cfg) {
 		display_condition() {
 			return this.owned() > 0 ? 1 : 0;
 		},
-		/* Carrying blocks all X-Change pills, including gray ones. Stack-only pills are still allowed because they manage an existing dose instead of starting a new one. */
+		/* Only standalone gray doses with the optional body swap need the pregnancy gate. */
 		take_condition() {
 			if (!cfg.canTake()) return 0;
-			if (!grayPillIsStackOnly(cfg) && xchangePregnancyBlocksPill()) return 0;
+			if (!grayPillIsStackOnly(cfg) && !playerIsXChanged() && V.xchange.grayPillGenderflip && xchangePregnancyBlocksPill()) return 0;
 			return 1;
 		},
 		take_blocked_reason() {
 			if (!cfg.canTake()) return cfg.blockedReason || "";
-			if (!grayPillIsStackOnly(cfg)) return xchangePregnancyBlockedReason();
+			if (!grayPillIsStackOnly(cfg) && !playerIsXChanged() && V.xchange.grayPillGenderflip) return xchangePregnancyBlockedReason();
 			return "";
 		},
 		effects: cfg.effects,
@@ -202,7 +202,7 @@ window.makeGrayXChangePill = makeGrayXChangePill;
 const grayGate = {
 	always: () => true,
 	hasVagina: () => !!V.player.vaginaExist,
-	/* These ask only whether the body could conceive at all. Whether it's carrying right now is the pregnancy gate's job, and every gray pill goes through it. */
+	/* These ask only whether the body could conceive at all. Effect-only doses remain available while carrying. */
 	canConceive: () => !!V.player.vaginaExist,
 	/* Omega (or another mpreg source) lets a vagina-less body conceive anally. */
 	canConceiveAnally: () => typeof canBeMPregnant === "function" && canBeMPregnant(),
@@ -3369,10 +3369,10 @@ setup.pills.push(
 			return this.owned() > 0 ? 1 : 0;
 		},
 		take_condition() {
-			return xchangeCanStartTransform() ? 1 : 0;
+			return !playerIsXChanged() ? 1 : 0;
 		},
 		take_blocked_reason() {
-			return xchangeTransformBlockedReason();
+			return playerIsXChanged() ? xchangeTransformBlockedReason() : "";
 		},
 		effects: ["<<if !xchangePillProtectionActive()>><<pain 180>><<stress 130>><<trauma 80>><<gpain>><<gstress>><<gtrauma>><</if>>", "<<xchange-premium 7>>"],
 	},
