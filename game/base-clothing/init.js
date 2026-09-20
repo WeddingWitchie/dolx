@@ -297,7 +297,7 @@ function givestartclothing() {
 			}
 		);
 
-		V.worn.upper = clone(setup.clothes.upper[39]); /* overalls */
+		V.worn.upper = clone(setup.clothes.upper[38]); /* overalls */
 		V.worn.upper.colour = "denim";
 		V.worn.upper.accessory_colour = "silver";
 		V.worn.lower = clone(setup.clothes.lower[41]); /* overall bottoms */
@@ -353,8 +353,8 @@ function givestartclothing() {
 			V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[6])); /* school swimsuit bottom */
 			V.wardrobe.under_lower.last().colour = "blue";
 		}
-		V.wardrobe.handheld.push(clone(setup.clothes.handheld[8])); /* backpack */
-		V.wardrobe.handheld.last().colour = "blue";
+		V.wardrobe.bag.push(clone(setup.clothes.bag[4])); /* backpack */
+		V.wardrobe.bag.last().colour = "blue";
 	} else if (clothesType === "female") {
 		V.outfit.push(
 			{
@@ -468,8 +468,8 @@ function givestartclothing() {
 		V.wardrobe.under_upper.last().colour = "blue";
 		V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[6]));
 		V.wardrobe.under_lower.last().colour = "blue";
-		V.wardrobe.handheld.push(clone(setup.clothes.handheld[8]));
-		V.wardrobe.handheld.last().colour = "purple";
+		V.wardrobe.bag.push(clone(setup.clothes.bag[4]));
+		V.wardrobe.bag.last().colour = "purple";
 	} else {
 		V.outfit.push(
 			{
@@ -569,8 +569,8 @@ function givestartclothing() {
 		V.wardrobe.under_lower.last().colour = "blue";
 		V.wardrobe.under_lower.last().accessory_colour = "white";
 		V.wardrobe.head.push(clone(setup.clothes.head[1]));
-		V.wardrobe.handheld.push(clone(setup.clothes.handheld[8]));
-		V.wardrobe.handheld.last().colour = "blue";
+		V.wardrobe.bag.push(clone(setup.clothes.bag[4]));
+		V.wardrobe.bag.last().colour = "blue";
 	}
 
 	// strip the unneeded vars from starting clothes
