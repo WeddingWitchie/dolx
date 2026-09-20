@@ -51,12 +51,16 @@ You take a lift to <<checkfloor>> and make your way to the office in question. Y
 		<<outfitChecks>>
 		<<danceStripActionObject>>
 		<<if $worn.lower.name isnot "naked">>
-			<<if _middleOutfit>>
+			<<if _middleOutfit and _danceExhibition.middleOutfit>>
 				<<set _statRequired to _danceExhibition.middleOutfit[0]>>
 				<<set _cloth to $worn.upper.name>>
-			<<else>>
+			<<elseif !_middleOutfit and _danceExhibition.lower>>
 				<<set _statRequired to _danceExhibition.lower[0]>>
 				<<set _cloth to $worn.lower.name>>
+			<<else>>
+				/* slot is hidden beneath an over layer, so stripping it shows little */
+				<<set _statRequired to 1>>
+				<<set _cloth to _middleOutfit ? $worn.upper.name : $worn.lower.name>>
 			<</if>>
 
 			"I'll give you a nice tip if you are bottomless while you work. Don't worry, it's just you and me."
@@ -78,10 +82,13 @@ You take a lift to <<checkfloor>> and make your way to the office in question. Y
 		<<outfitChecks>>
 		<<danceStripActionObject>>
 		<<if $worn.upper.name isnot "naked">>
-			<<if _middleOutfit>>
+			<<if _middleOutfit and _danceExhibition.middleOutfit>>
 				<<set _statRequired to _danceExhibition.middleOutfit[0]>>
-			<<else>>
+			<<elseif !_middleOutfit and _danceExhibition.upper>>
 				<<set _statRequired to _danceExhibition.upper[0]>>
+			<<else>>
+				/* slot is hidden beneath an over layer, so stripping it shows little */
+				<<set _statRequired to 1>>
 			<</if>>
 
 			"I'll give you a nice tip if you are topless while you work. Don't worry, it's just you and me."
@@ -118,7 +125,7 @@ You take a lift to <<checkfloor>> and make your way to the office in question. Y
 		<br><br>
 	<</if>>
 	You remove all of the books and begin rearranging them as per <<his>> instructions.
-	<<if $execFetish is 1 and $worn.feet.name is "naked">>
+	<<if $execFetish is 5 and $worn.feet.name is "naked">>
 		<br><br>
 		While placing a stack of books on a particularly high shelf, you nearly lose your footing. You grip the tread of the stepladder with your toes to maintain your balance and look back at the <<person1>><<person>> in embarrassment. <<He>> is staring intently at your feet.
 	<</if>>
@@ -133,7 +140,7 @@ You take a lift to <<checkfloor>> and make your way to the office in question. Y
 		<br><br>
 	<</if>>
 	After a few minutes, you finally make it through one stack of papers and move on to the next.
-	<<if $execFetish is 1 and $worn.feet.name is "naked">>
+	<<if $execFetish is 5 and $worn.feet.name is "naked">>
 		<br><br>
 		Hastily running back and forth feels easier without shoes, and you occasionally catch the <<person1>><<person>> tracking your movements from behind <<his>> computer screen, <<his>> eyes locked on your feet.
 	<</if>>
@@ -163,7 +170,7 @@ You complete the work and return to the <<person1>><<person>>.
 		<<set $tipTotal to 5>>
 	<</if>>
 	"You did good work here," <<he>> says, handing you a tip. <<assignmenttip $tipTotal>> "Effective and obedient. I like that in a temp."
-	<<if $execFetish is 1 and $stripCount isnot 0>>
+	<<if $execFetish is 5 and $stripCount isnot 0>>
 		<<set $execSell to (200 * $officeFloor)>>
 		<<He>> starts to hand you your shoes but hesitates. "If you let me keep these, I'll give you an extra <span class="gold"><<printmoney $execSell>></span>."
 		<br><br>
@@ -210,7 +217,7 @@ You complete the work and return to the <<person1>><<person>>.
 :: Office Executive Sell
 <<effects>>
 You agree to take the extra money from the <<person1>><<person>>.
-<<if $execFetish isnot 1>>
+<<if $execFetish isnot 5>>
 	<<storeon "exec room">>
 	<<execdestroyclothes>>
 	<<if $exposed gte 1>>
@@ -229,7 +236,7 @@ You agree to take the extra money from the <<person1>><<person>>.
 :: Office Executive Sell Decline
 <<effects>>
 You decline the <<person1>><<persons>> offer. <<storeon "exec room">>
-<<if $execFetish is 1>>
+<<if $execFetish is 5>>
 	<<He>> tosses your $worn.feet.name on the floor. "Fine, you may leave now."
 <<else>>
 	<<He>> tosses you your clothes and sighs. "Very well. You may excuse yourself now."
@@ -239,7 +246,7 @@ You decline the <<person1>><<persons>> offer. <<storeon "exec room">>
 :: Office Executive Refuse
 <<effects>>
 <<speechresolve>>
-<<if $execFetish is 1>>
+<<if $execFetish is 5>>
 	<<if _speechAttitudeResolved is "docile">>
 		"I know you asked, <<sir>>, but I'd rather keep my $worn.feet.name on," you say, keeping your eyes low.
 	<<elseif (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
@@ -532,6 +539,7 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 		<br><br>
 		"You <<bitch>>!" you hear <<him>> scream as you run out of the room to safety. <<set $officecomplaints += 2>>
 		<br><br>
+		<<storeon "exec room">>
 		<<clotheson>>
 		<<endcombat>>
 		<<if $exposed lte 1>>
@@ -542,6 +550,7 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 	<<elseif $enemypleasure gte $enemypleasuremax>>
 		<<effects>>
 		<<ejaculation>>
+		<<storeon "exec room">>
 		<<clotheson>>
 		The <<person1>><<person>> keeps an eye on you as <<he>> presses a button on <<his>> desk. Soon after, a security guard comes into the office.
 		<br><br>
@@ -556,6 +565,7 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 		<br>
 		The <<person1>><<person>> quickly lets you go and returns to <<his>> desk as <<he>> clears <<his>> throat. "I think we're done here. I believe that was enough for you to learn your lesson about stealing. You two can go now."
 		<br><br>
+		<<storeon "exec room">>
 		<<clotheson>>
 		The <<person2>><<person>> escorts you out of the room.
 		<br><br>
@@ -567,6 +577,21 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 		<br><br><<set $officecomplaints += 1>>
 		<<endcombat>>
 		<<link [[Return to lobby|Office Lobby]]>><</link>>
+	<<else>>
+		/* No decisive outcome, such as giving up the encounter. */
+		<<effects>>
+		<<encounterEndViolence>>
+		<<if $finish is 1>>
+			<<link [[Next|Office Executive Rape Finish]]>>
+				<<set $enemypleasure to $enemypleasuremax>>
+				<<set $finish to 0>>
+			<</link>>
+		<<else>>
+			<<storeon "exec room">>
+			<<clotheson>>
+			<<endcombat>>
+			<<link [[Return to lobby|Office Lobby]]>><</link>>
+		<</if>>
 	<</if>>
 
 
@@ -897,7 +922,7 @@ You manage to push the <<person1>><<person>> off of you and gather up your cloth
 <</widget>>
 
 <<widget "execstriporder">>
-	<<if $execFetish is 1 or $execFetish is 5>>
+	<<if $execFetish is 5>>
 		<<if $worn.feet.name isnot "naked">>
 			<<set $stripItems.push("shoes")>>
 		<</if>>
