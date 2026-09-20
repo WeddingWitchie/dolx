@@ -87,8 +87,6 @@ function clothingDataInit() {
 	// create an "all" category in setup.clothes
 	const clothes = [];
 	setup.clothes_all_slots.forEach(slot => {
-		// do not include over_ layers until they are properly implemented
-		if (["over_head", "over_upper", "over_lower"].includes(slot)) return;
 		setup.clothes[slot].forEach(c => clothes.push(c));
 	});
 	setup.clothes.all = clothes;

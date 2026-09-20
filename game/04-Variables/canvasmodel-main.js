@@ -6049,7 +6049,8 @@ function genlayers_carried(slot) {
 
 			const pattern = options.worn[slot].pattern && !["tertiary", "secondary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
-			return `img/clothes/${clothesImgFolder(slot, options.worn[slot].setup)}/${options.worn[slot].setup.variable}/right-${options.arm_right}${pattern}.png`;
+			const arm = slot === "bag" ? (options.worn[slot].setup.holdPosition === "right_cover" || options.arm_right === "cover" ? "cover" : "hold") : options.arm_right;
+			return `img/clothes/${clothesImgFolder(slot, options.worn[slot].setup)}/${options.worn[slot].setup.variable}/right-${arm}${pattern}.png`;
 		},
 		showfn(options) {
 			if (options.worn[slot].index <= 0 || !options.show_clothes || options.hide_all || options.arm_right === "none" || (options.prop && options.prop.armPosition !== "handsfree")) return false;
@@ -6078,7 +6079,8 @@ function genlayers_carried(slot) {
 		srcfn(options) {
 			const pattern = options.worn[slot].pattern && !["tertiary", "primary"].includes(options.worn[slot].setup.pattern_layer) ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : '';
 
-			return `img/clothes/${clothesImgFolder(slot, options.worn[slot].setup)}/${options.worn[slot].setup.variable}/right-${options.arm_right}${pattern}-acc.png`;
+			const arm = slot === "bag" ? (options.worn[slot].setup.holdPosition === "right_cover" || options.arm_right === "cover" ? "cover" : "hold") : options.arm_right;
+			return `img/clothes/${clothesImgFolder(slot, options.worn[slot].setup)}/${options.worn[slot].setup.variable}/right-${arm}${pattern}-acc.png`;
 		},
 		showfn(options) {
 			if (options.worn[slot].index <= 0 || !options.show_clothes || options.hide_all || options.arm_right === "none" || (options.prop && options.prop?.armPosition !== "handsfree")) return false;
@@ -6097,7 +6099,8 @@ function genlayers_carried(slot) {
 	[`${slot}_right_detail`]: genlayer_clothing_detail(slot, {
 		srcfn(options) {
 			const pattern = options.worn[slot].pattern ? "-" + options.worn[slot].pattern?.replace(/ /g,"-") : "";
-			return `img/clothes/${clothesImgFolder(slot, options.worn[slot].setup)}/${options.worn[slot].setup.variable}/right-${options.arm_right}${pattern}.png`;
+			const arm = slot === "bag" ? (options.worn[slot].setup.holdPosition === "right_cover" || options.arm_right === "cover" ? "cover" : "hold") : options.arm_right;
+			return `img/clothes/${clothesImgFolder(slot, options.worn[slot].setup)}/${options.worn[slot].setup.variable}/right-${arm}${pattern}.png`;
 		},
 		showfn(options) {
 			if (options.worn[slot].index <= 0 || !options.show_clothes || options.hide_all || options.arm_right === "none" || (options.prop && options.prop?.armPosition !== "handsfree")) return false;
