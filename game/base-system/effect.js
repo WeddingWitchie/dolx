@@ -1598,7 +1598,7 @@ function effects() {
 			);
 			sWikifier(`<<pain -4>><<stress -6>><<trauma -12>><<lpain>><<lltrauma>><<lstress>>`);
 			if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy" && V.worn.genitals.name === "naked") {
-				sWikifier(`<span class="purple">A new chastity parasite forms around your penis.</span> <<genitalswear 8>>`);
+				sWikifier(`<span class="purple">A new chastity parasite forms around your penis.</span> <<genitalswear "chastity parasite">>`);
 				V.worn.genitals.origin = "ear slime";
 			}
 			br();

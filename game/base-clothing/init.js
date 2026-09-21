@@ -299,63 +299,63 @@ function givestartclothing() {
 			}
 		);
 
-		V.worn.upper = clone(setup.clothes.upper[38]); /* overalls */
+		V.worn.upper = clone(setup.clothes.upper.find(item => item.name === "overalls"));
 		V.worn.upper.colour = "denim";
 		V.worn.upper.accessory_colour = "silver";
-		V.worn.lower = clone(setup.clothes.lower[41]); /* overall bottoms */
+		V.worn.lower = clone(setup.clothes.lower.find(item => item.name === "overall bottoms"));
 		V.worn.lower.colour = "denim";
-		V.worn.legs = clone(setup.clothes.legs[13]); /* ankle socks */
-		V.worn.feet = clone(setup.clothes.feet[1]); /* school shoes */
+		V.worn.legs = clone(setup.clothes.legs.find(item => item.name === "ankle socks"));
+		V.worn.feet = clone(setup.clothes.feet.find(item => item.name === "school shoes"));
 
 		if (masculineBody) {
-			V.worn.under_lower = clone(setup.clothes.under_lower[4]); /* briefs */
+			V.worn.under_lower = clone(setup.clothes.under_lower.find(item => item.name === "briefs"));
 			V.worn.under_lower.colour = "black";
 		} else {
-			V.worn.under_lower = clone(setup.clothes.under_lower[1]); /* plain panties */
+			V.worn.under_lower = clone(setup.clothes.under_lower.find(item => item.name === "plain panties"));
 			V.worn.under_lower.colour = "pale white";
 		}
 
 		if (V.player.breastsize <= 3) {
-			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper[12])); /* plain bra */
+			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper.find(item => item.name === "plain bra")));
 			V.wardrobe.under_upper.last().colour = "pale white";
 		} else {
-			V.worn.under_upper = clone(setup.clothes.under_upper[12]);
+			V.worn.under_upper = clone(setup.clothes.under_upper.find(item => item.name === "plain bra"));
 			V.worn.under_upper.colour = "pale white";
 			V.outfit[1].under_upper = "plain bra";
 			V.outfit[2].under_upper = "plain bra";
 		}
 
 		if (V.background.nerd) {
-			V.worn.face = clone(setup.clothes.face[1]);
+			V.worn.face = clone(setup.clothes.face.find(item => item.name === "glasses"));
 			V.worn.face.colour = "black";
 			V.outfit[1].face = "glasses";
 			V.outfit[2].face = "glasses";
 		}
 
-		V.wardrobe.upper.push(clone(setup.clothes.upper[5])); /* school shirt */
+		V.wardrobe.upper.push(clone(setup.clothes.upper.find(item => item.name === "school shirt")));
 		V.wardrobe.upper.last().colour = "white";
 		V.wardrobe.upper.last().accessory_colour = "light blue";
 		V.wardrobe.lower.push(clone(setup.clothes.lower[masculineBody ? 6 : 7])); /* school shorts / skirt */
 		V.wardrobe.lower.last().colour = "black";
-		V.wardrobe.upper.push(clone(setup.clothes.upper[4])); /* t-shirt, so Everyday isn't the only casual top */
+		V.wardrobe.upper.push(clone(setup.clothes.upper.find(item => item.name === "t-shirt"))); /* t-shirt, so Everyday isn't the only casual top */
 		V.wardrobe.upper.last().colour = "white";
-		V.wardrobe.lower.push(clone(setup.clothes.lower[22])); /* jeans */
+		V.wardrobe.lower.push(clone(setup.clothes.lower.find(item => item.name === "jeans")));
 		V.wardrobe.lower.last().colour = "denim";
-		V.wardrobe.upper.push(clone(setup.clothes.upper[2])); /* pyjama shirt */
+		V.wardrobe.upper.push(clone(setup.clothes.upper.find(item => item.name === "pyjama shirt")));
 		V.wardrobe.upper.last().colour = "blue";
-		V.wardrobe.lower.push(clone(setup.clothes.lower[2])); /* pyjama bottoms */
+		V.wardrobe.lower.push(clone(setup.clothes.lower.find(item => item.name === "pyjama bottoms")));
 		V.wardrobe.lower.last().colour = "blue";
 		if (masculineBody) {
-			V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[7])); /* school swim shorts */
+			V.wardrobe.under_lower.push(clone(setup.clothes.under_lower.find(item => item.name === "school swim shorts")));
 			V.wardrobe.under_lower.last().colour = "blue";
 			V.wardrobe.under_lower.last().accessory_colour = "white";
 		} else {
-			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper[2])); /* school swimsuit */
+			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper.find(item => item.name === "school swimsuit")));
 			V.wardrobe.under_upper.last().colour = "blue";
-			V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[6])); /* school swimsuit bottom */
+			V.wardrobe.under_lower.push(clone(setup.clothes.under_lower.find(item => item.name === "school swimsuit bottom")));
 			V.wardrobe.under_lower.last().colour = "blue";
 		}
-		V.wardrobe.bag.push(clone(setup.clothes.bag[4])); /* backpack */
+		V.wardrobe.bag.push(clone(setup.clothes.bag.find(item => item.name === "backpack")));
 		V.wardrobe.bag.last().colour = "blue";
 	} else if (clothesType === "female") {
 		V.outfit.push(
@@ -428,49 +428,49 @@ function givestartclothing() {
 			}
 		);
 
-		V.worn.upper = clone(setup.clothes.upper[1]);
+		V.worn.upper = clone(setup.clothes.upper.find(item => item.name === "sundress"));
 		V.worn.upper.colour = "white";
-		V.worn.lower = clone(setup.clothes.lower[1]);
+		V.worn.lower = clone(setup.clothes.lower.find(item => item.name === "sundress skirt"));
 		V.worn.lower.colour = "white";
-		V.worn.under_lower = clone(setup.clothes.under_lower[1]);
+		V.worn.under_lower = clone(setup.clothes.under_lower.find(item => item.name === "plain panties"));
 		V.worn.under_lower.colour = "pale white";
-		V.worn.legs = clone(setup.clothes.legs[3]);
-		V.worn.head = clone(setup.clothes.head[1]);
+		V.worn.legs = clone(setup.clothes.legs.find(item => item.name === "girl's gym socks"));
+		V.worn.head = clone(setup.clothes.head.find(item => item.name === "hairpin"));
 		V.worn.head.colour = "white";
 		V.worn.head.accessory_colour = "white";
-		V.worn.feet = clone(setup.clothes.feet[1]);
+		V.worn.feet = clone(setup.clothes.feet.find(item => item.name === "school shoes"));
 
 		if (V.player.breastsize <= 3) {
-			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper[12]));
+			V.wardrobe.under_upper.push(clone(setup.clothes.under_upper.find(item => item.name === "plain bra")));
 			V.wardrobe.under_upper.last().colour = "pale white";
 		} else {
-			V.worn.under_upper = clone(setup.clothes.under_upper[12]);
+			V.worn.under_upper = clone(setup.clothes.under_upper.find(item => item.name === "plain bra"));
 			V.worn.under_upper.colour = "pale white";
 			V.outfit[1].under_upper = "plain bra";
 			V.outfit[2].under_upper = "plain bra";
 		}
 
 		if (V.background.nerd) {
-			V.worn.face = clone(setup.clothes.face[1]);
+			V.worn.face = clone(setup.clothes.face.find(item => item.name === "glasses"));
 			V.worn.face.colour = "black";
 			V.outfit[1].face = "glasses";
 			V.outfit[2].face = "glasses";
 		}
 
-		V.wardrobe.upper.push(clone(setup.clothes.upper[5]));
+		V.wardrobe.upper.push(clone(setup.clothes.upper.find(item => item.name === "school shirt")));
 		V.wardrobe.upper.last().colour = "white";
 		V.wardrobe.upper.last().accessory_colour = "light blue";
-		V.wardrobe.lower.push(clone(setup.clothes.lower[7]));
+		V.wardrobe.lower.push(clone(setup.clothes.lower.find(item => item.name === "school skirt")));
 		V.wardrobe.lower.last().colour = "black";
-		V.wardrobe.upper.push(clone(setup.clothes.upper[2]));
+		V.wardrobe.upper.push(clone(setup.clothes.upper.find(item => item.name === "pyjama shirt")));
 		V.wardrobe.upper.last().colour = "blue";
-		V.wardrobe.lower.push(clone(setup.clothes.lower[2]));
+		V.wardrobe.lower.push(clone(setup.clothes.lower.find(item => item.name === "pyjama bottoms")));
 		V.wardrobe.lower.last().colour = "blue";
-		V.wardrobe.under_upper.push(clone(setup.clothes.under_upper[2]));
+		V.wardrobe.under_upper.push(clone(setup.clothes.under_upper.find(item => item.name === "school swimsuit")));
 		V.wardrobe.under_upper.last().colour = "blue";
-		V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[6]));
+		V.wardrobe.under_lower.push(clone(setup.clothes.under_lower.find(item => item.name === "school swimsuit bottom")));
 		V.wardrobe.under_lower.last().colour = "blue";
-		V.wardrobe.bag.push(clone(setup.clothes.bag[4]));
+		V.wardrobe.bag.push(clone(setup.clothes.bag.find(item => item.name === "backpack")));
 		V.wardrobe.bag.last().colour = "purple";
 	} else {
 		V.outfit.push(
@@ -543,35 +543,35 @@ function givestartclothing() {
 			}
 		);
 
-		V.worn.upper = clone(setup.clothes.upper[4]);
+		V.worn.upper = clone(setup.clothes.upper.find(item => item.name === "t-shirt"));
 		V.worn.upper.colour = "tangerine";
-		V.worn.lower = clone(setup.clothes.lower[5]);
+		V.worn.lower = clone(setup.clothes.lower.find(item => item.name === "shorts"));
 		V.worn.lower.colour = "blue";
-		V.worn.under_lower = clone(setup.clothes.under_lower[4]);
+		V.worn.under_lower = clone(setup.clothes.under_lower.find(item => item.name === "briefs"));
 		V.worn.under_lower.colour = "black";
-		V.worn.legs = clone(setup.clothes.legs[2]);
-		V.worn.feet = clone(setup.clothes.feet[1]);
+		V.worn.legs = clone(setup.clothes.legs.find(item => item.name === "boy's gym socks"));
+		V.worn.feet = clone(setup.clothes.feet.find(item => item.name === "school shoes"));
 		if (V.background.nerd) {
-			V.worn.face = clone(setup.clothes.face[1]);
+			V.worn.face = clone(setup.clothes.face.find(item => item.name === "glasses"));
 			V.worn.face.colour = "black";
 			V.outfit[1].face = "glasses";
 			V.outfit[2].face = "glasses";
 		}
 
-		V.wardrobe.upper.push(clone(setup.clothes.upper[5]));
+		V.wardrobe.upper.push(clone(setup.clothes.upper.find(item => item.name === "school shirt")));
 		V.wardrobe.upper.last().colour = "white";
 		V.wardrobe.upper.last().accessory_colour = "light blue";
-		V.wardrobe.lower.push(clone(setup.clothes.lower[6]));
+		V.wardrobe.lower.push(clone(setup.clothes.lower.find(item => item.name === "school shorts")));
 		V.wardrobe.lower.last().colour = "black";
-		V.wardrobe.upper.push(clone(setup.clothes.upper[2]));
+		V.wardrobe.upper.push(clone(setup.clothes.upper.find(item => item.name === "pyjama shirt")));
 		V.wardrobe.upper.last().colour = "blue";
-		V.wardrobe.lower.push(clone(setup.clothes.lower[2]));
+		V.wardrobe.lower.push(clone(setup.clothes.lower.find(item => item.name === "pyjama bottoms")));
 		V.wardrobe.lower.last().colour = "blue";
-		V.wardrobe.under_lower.push(clone(setup.clothes.under_lower[7]));
+		V.wardrobe.under_lower.push(clone(setup.clothes.under_lower.find(item => item.name === "school swim shorts")));
 		V.wardrobe.under_lower.last().colour = "blue";
 		V.wardrobe.under_lower.last().accessory_colour = "white";
-		V.wardrobe.head.push(clone(setup.clothes.head[1]));
-		V.wardrobe.bag.push(clone(setup.clothes.bag[4]));
+		V.wardrobe.head.push(clone(setup.clothes.head.find(item => item.name === "hairpin")));
+		V.wardrobe.bag.push(clone(setup.clothes.bag.find(item => item.name === "backpack")));
 		V.wardrobe.bag.last().colour = "blue";
 	}
 

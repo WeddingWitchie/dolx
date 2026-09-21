@@ -918,7 +918,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Prison`, `Police Prison Intro Bailey`],
-			widgets: [`<<npc Bailey>>`, `<<generate2>>`, `<<generate3>>`, `<<generate4>>`, `<<person2>>`, `<<neckwear 1>>`, `<<crimeUpFlat 5000 "thievery">>`],
+			widgets: [`<<npc Bailey>>`, `<<generate2>>`, `<<generate3>>`, `<<generate4>>`, `<<person2>>`, `<<neckwear "collar">>`, `<<crimeUpFlat 5000 "thievery">>`],
 		},
 		{
 			link: [`Remy's Farm`, `Livestock Intro`],
@@ -1421,11 +1421,11 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Chastity Belt`, stayOnPassageFn],
-			widgets: [`<<genitalswear 1>>`],
+			widgets: [`<<genitalswear "chastity belt">>`],
 		},
 		{
 			link: [`Chastity Cage`, stayOnPassageFn],
-			widgets: [`<<genitalswear 2>>`],
+			widgets: [`<<genitalswear "chastity cage">>`],
 		},
 		{
 			link: [`Collar`, stayOnPassageFn],

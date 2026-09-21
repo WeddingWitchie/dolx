@@ -691,14 +691,14 @@ function wardrobesUpdate() {
 		/* school pool boys */
 		V.wardrobes.schoolBoys.name = "Schools boy's locker";
 		V.wardrobes.schoolBoys.unlocked = true;
-		V.wardrobes.schoolBoys.under_lower.push(clone(setup.clothes.under_lower[7]));
+		V.wardrobes.schoolBoys.under_lower.push(clone(setup.clothes.under_lower.find(item => item.name === "school swim shorts")));
 		V.wardrobes.schoolBoys.under_lower.last().colour = "blue";
 		/* school pool girls */
 		V.wardrobes.schoolGirls.name = "Schools girl's locker";
 		V.wardrobes.schoolGirls.unlocked = true;
-		V.wardrobes.schoolGirls.under_lower.push(clone(setup.clothes.under_lower[6]));
+		V.wardrobes.schoolGirls.under_lower.push(clone(setup.clothes.under_lower.find(item => item.name === "school swimsuit bottom")));
 		V.wardrobes.schoolGirls.under_lower.last().colour = "blue";
-		V.wardrobes.schoolGirls.under_upper.push(clone(setup.clothes.under_upper[2]));
+		V.wardrobes.schoolGirls.under_upper.push(clone(setup.clothes.under_upper.find(item => item.name === "school swimsuit")));
 		V.wardrobes.schoolGirls.under_upper.last().colour = "blue";
 		/* prison */
 		V.wardrobes.prison.name = "Prison locker";
