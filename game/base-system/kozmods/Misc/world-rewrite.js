@@ -321,9 +321,13 @@
 		/* World gender override locks presentation/social gender, but leaves genital/body sliders available. */
 		npc.pronoun = forced;
 		npc.type = rewriteGenderedType(npc.type, forced);
-		/* Beasts have no anatomy sliders, so existing beasts need their gender updated by the override.
-		Human gender stays anatomy-based because pregnancy checks depend on it. */
-		if (typeof npc.type === "string" && npc.type !== "human" && (npc.gender === "m" || npc.gender === "f")) {
+		if (
+			typeof npc.type === "string" &&
+			npc.type !== "human" &&
+			!npc.nam &&
+			!getV().NPCNameList?.includes(npc.fullDescription) &&
+			(npc.gender === "m" || npc.gender === "f")
+		) {
 			npc.gender = forced;
 		}
 		applyPronounMap(npc, forced);
