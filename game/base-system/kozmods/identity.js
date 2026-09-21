@@ -1030,7 +1030,7 @@ function mapToLegacyGenderIdentity() {
 
 	const currentMeter = Number(V.genderidentity);
 	const meterUsable = V.genderidentity !== null && V.genderidentity !== "" && Number.isFinite(currentMeter);
-	const needsSeed = !meterUsable || V.xchange.giInitialized !== true;
+	const needsSeed = !meterUsable;
 	const needsMigration = V.xchange.giMeterVersion !== meterVersion && V.xchange.giAutoEnabled === true;
 
 	V.genderidentity = needsSeed || needsMigration ? V.xchange.giTarget : currentMeter;
@@ -1076,7 +1076,7 @@ function playerFeelsManlike() {
 	mapToLegacyGenderIdentity();
 	const range = Number(V.xchange?.giRange) || 1500;
 	const current = Math.clamp(Number(V.genderidentity) || 0, 0, range);
-	return current <= Math.round(range * (6 / 15));
+	return current < Math.round(range * (6 / 15));
 }
 window.playerFeelsManlike = playerFeelsManlike;
 

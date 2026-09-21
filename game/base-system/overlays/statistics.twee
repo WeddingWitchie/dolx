@@ -966,6 +966,7 @@
 		<<if $xchange and $xchange.genderIdentityEnabled>>
 		<<foldout false "_genderIdentityFoldout">>
 			<span class="gold">Gender Identity</span>
+			<<gi-compute-target>>
 
 			<<set _giRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
 			<<set _giMid to Math.floor(_giRange / 2)>>
@@ -994,7 +995,7 @@
 			<br>
 
 			<<if $xchange.giAutoEnabled isnot true>>
-				Drift status: <span class="blue">Held</span> <span class="small-description">(the meter only changes through events)</span>
+				Drift status: <span class="blue">Held</span> <span class="small-description">(routine changes are disabled; specific story events can still change it)</span>
 			<<elseif Math.abs(_giDelta) lte 1>>
 				Drift status: <span class="green">Stable (already at target)</span>
 			<<else>>
@@ -1007,7 +1008,7 @@
 			<br>
 			<span class="gold">Body Transformation</span>
 			<br>
-			<<set _giPregnancyPaused to !!($sexStats?.vagina?.pregnancy?.type || $sexStats?.anus?.pregnancy?.type)>>
+			<<set _giPregnancyPaused to playerIsPregnant()>>
 			<<set _giEarSlimePaused to !!($earSlime && $earSlime.growth gt 50)>>
 			<<if $xchange.giAutoEnabled isnot true>>
 				Body changes: <span class="red">Off</span> <span class="small-description">(needs daily drift, above)</span>
@@ -1103,7 +1104,6 @@
 			<br><br>
 
 			/* Choice Breakdown to explains how every identity choice shapes the meter target. Covers active pushes, neutral dilution, and dormant (no-opinion) characteristics. */
-			<<gi-compute-target>>
 			<<foldout false "_giBreakdownFoldout">>
 				<span class="gold">Choice Breakdown</span>
 

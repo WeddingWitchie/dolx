@@ -465,6 +465,9 @@ window.updatePronounSummary = updatePronounSummary;
 
 		x.giAutoEnabled = toStrictBool(x.giAutoEnabled);
 		x.giTransformEnabled = toStrictBool(x.giTransformEnabled);
+		for (const key of ["giBreastSizeEnabled", "giAssSizeEnabled", "giGenitalsEnabled", "giHairLengthEnabled", "giBodySizeEnabled", "giFecundityEnabled"]) {
+			x[key] = toStrictBool(x[key]);
+		}
 		if (Object.hasOwn(x, "giTransformConsent")) delete x.giTransformConsent;
 
 		// Complete the single-to-dual genital preference migration on normal loads too.
@@ -485,7 +488,7 @@ window.updatePronounSummary = updatePronounSummary;
 
 		// identityCap limits drift range; it does not control whether the system is enabled.
 		const unlocked = V.attitudesControl?.unlockGender === true;
-		if (!unlocked) {
+		if (!unlocked || !x.genderIdentityEnabled) {
 			x.giAutoEnabled = false;
 			x.giTransformEnabled = false;
 		}

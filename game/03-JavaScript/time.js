@@ -2375,13 +2375,7 @@ function dailyPlayerEffects() {
 	}
 	V.physiqueuse = 0;
 
-	let genderFactor = !V.xchange.genderIdentityEnabled
-		? 1
-		: V.player.gender === "m"
-		? 1 + (1000 - V.genderidentity) / 1000
-		: V.player.gender === "f"
-		? 1 + V.genderidentity / 1000
-		: 1;
+	let genderFactor = V.xchange.genderIdentityEnabled ? 1 + V.genderidentity / (Number(V.xchange.giRange) || 1500) : 1;
 	/* A corrupted $genderidentity must not poison $hairlength/$fringelength into NaN. */
 	if (!Number.isFinite(genderFactor)) genderFactor = 1;
 	V.hairlength += 3 * genderFactor;
