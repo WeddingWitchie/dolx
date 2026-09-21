@@ -4,6 +4,15 @@
 */
 
 (function ($) {
+	$(window).on(
+		"resize.fontResizer",
+		$.debounce(100, () => {
+			$(".font-resizer").each(function () {
+				$(this).triggerHandler("resize.fontResizer");
+			});
+		})
+	);
+
 	$.fn.fontResizer = function (options) {
 		const settings = $.extend(
 			{
@@ -37,7 +46,8 @@
 				container.css("font-size", newFontSize + "px");
 			};
 
-			$(window).on("resize", $.debounce(100, resizeHandler));
+			// Keep the handler on the element so removing a control releases it.
+			container.addClass("font-resizer").off("resize.fontResizer").on("resize.fontResizer", resizeHandler);
 			setTimeout(resizeHandler, 0);
 		});
 	};

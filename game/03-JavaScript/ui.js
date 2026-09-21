@@ -945,6 +945,7 @@ window.loadCharacterViewerDate = () => {
 };
 
 function updateCaptionTooltip() {
+	$(document).off("mousemove.captionTooltip");
 	const elementId = "#characterTooltip";
 	const element = $(elementId);
 	const content = $("<div>");
@@ -1003,12 +1004,12 @@ function updateCaptionTooltip() {
 	$(document).off(":passageend", updateCaptionTooltip);
 	$(document).on(":passageend", updateCaptionTooltip);
 	// Add event listeners only when the mouse is over the canvas
-	canvas.on("mouseenter", () => {
-		$(document).on("mousemove", checkMousePosition);
+	canvas.off(".captionTooltip").on("mouseenter.captionTooltip", () => {
+		$(document).off("mousemove.captionTooltip").on("mousemove.captionTooltip", checkMousePosition);
 	});
 
-	canvas.on("mouseleave", () => {
-		$(document).off("mousemove", checkMousePosition);
+	canvas.on("mouseleave.captionTooltip", () => {
+		$(document).off("mousemove.captionTooltip");
 		if (isMouseOverElement) {
 			// Cleanup if mouse leaves the canvas while over the tooltip element
 			element.trigger("mouseleave");

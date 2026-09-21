@@ -64,50 +64,23 @@ const defaultTooltipSettings = {
 	maxWidth: null,
 };
 
-// Robust cleanup if the tooltip element was removed while hover over it with the cursor, to prevent orphaned tooltip elements
-const observer = new MutationObserver(mutations => {
-	let shouldCleanup = false;
+// Keep cleanup handles outside jQuery data, which passage removal clears before the observer runs.
+const openTooltips = new Map();
 
-	mutations.forEach(mutation => {
-		mutation.removedNodes.forEach(node => {
-			const $node = $(node);
+const forgetTooltip = anchorEl => {
+	const entry = openTooltips.get(anchorEl);
+	if (!entry) return;
+	openTooltips.delete(anchorEl);
+	$(window).off("resize.tooltip", entry.resizeHandler);
+	entry.tooltip.remove();
+	$(anchorEl).removeData("tooltip-instance");
+};
 
-			if ($node.is("[tooltip], .tooltip-popup") || $node.find("[tooltip], .tooltip-popup").length > 0) {
-				shouldCleanup = true;
-			}
-
-			$node
-				.find("[tooltip]")
-				.addBack("[tooltip]")
-				.each(function () {
-					const tooltipId = $(this).data("tooltip-id");
-					if (tooltipId) {
-						$(`.tooltip-popup[data-tooltip-id="${tooltipId}"]`).remove();
-					}
-				});
-
-			$node
-				.find(".tooltip-popup")
-				.addBack(".tooltip-popup")
-				.each(function () {
-					const tooltipId = $(this).data("tooltip-id");
-					$(`[tooltip][data-tooltip-id="${tooltipId}"]`).removeData("tooltip-id tooltip-instance");
-				});
-		});
+const observer = new MutationObserver(() => {
+	// Only inspect open tooltips, never the outgoing passage's descendants.
+	openTooltips.forEach((entry, anchorEl) => {
+		if (!document.contains(anchorEl) || !document.contains(entry.tooltip[0])) forgetTooltip(anchorEl);
 	});
-
-	// Check for orphaned tooltips - remove them if their container was removed
-	if (shouldCleanup) {
-		$(".tooltip-popup").each(function () {
-			const $tooltip = $(this);
-			const tooltipId = $tooltip.attr("data-tooltip-id");
-
-			const associatedAnchor = $(`[tooltip][data-tooltip-id="${tooltipId}"]`);
-			if (associatedAnchor.length === 0) {
-				$tooltip.remove();
-			}
-		});
-	}
 });
 
 observer.observe(document.body, {
@@ -195,19 +168,12 @@ const show = ($element, force = false) => {
 
 const hide = $element => {
 	clearTimeout($element.data("tooltip-timeout"));
-	const tooltip = $element.data("tooltip-instance");
-	if (tooltip) {
-		tooltip.remove();
-		$element.removeData("tooltip-instance");
-	}
-	$(window).off("resize.tooltip", $element.data("resizeHandler"));
+	forgetTooltip($element[0]);
 };
 
 const createTooltip = ($element, settings) => {
-	const tooltipId = `tooltip-${Date.now()}-${Math.random()}`;
-	$element.data("tooltip-id", tooltipId);
-
-	const tooltip = $("<div>").addClass("tooltip-popup").attr("data-tooltip-id", tooltipId);
+	if (!document.contains($element[0])) return;
+	const tooltip = $("<div>").addClass("tooltip-popup");
 
 	if (settings.title) {
 		$("<div>").addClass("tooltip-header").html(settings.title).appendTo(tooltip);
@@ -226,7 +192,7 @@ const createTooltip = ($element, settings) => {
 
 	const resizeHandler = () => updatePosition($element, tooltip);
 	$(window).on("resize.tooltip", resizeHandler);
-	$element.data("resizeHandler", resizeHandler);
+	openTooltips.set($element[0], { tooltip, resizeHandler });
 };
 
 const updateMousePosition = ($element, tooltip) => {

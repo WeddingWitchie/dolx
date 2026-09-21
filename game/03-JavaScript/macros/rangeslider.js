@@ -34,7 +34,6 @@ Macro.add("rangeslider", {
 		}
 
 		function handleEvent() {
-			console.log("handle event");
 			checkDisabled();
 			render();
 		}
@@ -46,7 +45,7 @@ Macro.add("rangeslider", {
 			requestAnimationFrame(() => {
 				renderPending = false;
 
-				if (disabled) return;
+				if (disabled || disposed) return;
 
 				const trackWidth = $track.width();
 				const handleWidth = $thumbMin.outerWidth();
@@ -194,7 +193,7 @@ Macro.add("rangeslider", {
 		}
 
 		const throttledInput = $.throttle(200, () => {
-			if (callbacks.onInputChange) {
+			if (!disposed && callbacks.onInputChange) {
 				callbacks.onInputChange(state.minVal, state.maxVal);
 			}
 		});
@@ -258,12 +257,16 @@ Macro.add("rangeslider", {
 		let isDragging = false;
 		let draggingThumbMin = null;
 		let cursorOffset = 0;
+		let disposed = false;
 
 		// Events
 		$track.on("mousedown touchstart", handlePointerDown);
 		$(document).on("rangeslider::update", handleEvent);
 		$container.on("remove", () => {
+			disposed = true;
 			$(document).off("rangeslider::update", handleEvent);
+			$(document).off("mousemove touchmove", handlePointerMove);
+			$(document).off("mouseup touchend", handlePointerUp);
 		});
 
 		// When element is resized, update the thumbs
@@ -274,6 +277,7 @@ Macro.add("rangeslider", {
 		});
 
 		requestAnimationFrame(() => {
+			if (disposed) return;
 			state.minVal = validateAndApply(true, state.minVal);
 			state.maxVal = validateAndApply(false, state.maxVal);
 			Wikifier.setValue(minName, state.minVal);

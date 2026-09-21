@@ -109,6 +109,7 @@ Macro.add("doubleslider", {
 			});
 
 		const slider = input.data("ionRangeSlider");
+		input.on("remove", () => slider.destroy());
 		const oldDrawHandles = slider.drawHandles;
 		slider.drawHandles = function () {
 			oldDrawHandles.call(this);

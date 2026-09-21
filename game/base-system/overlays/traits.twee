@@ -2840,12 +2840,21 @@
 		if (!held.length) return;
 		T.traitLists.push({
 			title: "Mastery Traits",
-			traits: held.map(trait => ({
-				name: trait.name,
-				colour: trait.colour,
-				has: true,
-				text: `[${trait.requires}] ${trait.text}`,
-			})),
+			traits: held.map(trait => {
+				const items = trait.requires
+					.split(" + ")
+					.map(part => `<li class='green'>${part} maxed out.</li>`)
+					.join("");
+				return {
+					name: `<mouse class='tooltip ${trait.colour}'>${trait.name}<span>
+						Earned from:
+						<ul>${items}</ul>
+					</span></mouse>`,
+					colour: trait.colour,
+					has: true,
+					text: trait.text,
+				};
+			}),
 		});
 	})()>>
 
