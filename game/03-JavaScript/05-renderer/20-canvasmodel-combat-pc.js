@@ -1758,6 +1758,15 @@ const combatMainPc = {
 		neckWearPattern: PlayerCanvasHelper.genClothingPatternLayer("neck", {
 			z: CombatRenderer.indices.head - 1,
 		}),
+		scarfWear: PlayerCanvasHelper.genClothingLayer("scarf", {
+			z: CombatRenderer.indices.head - 0.9,
+		}),
+		scarfWearAcc: PlayerCanvasHelper.genClothingAccLayer("scarf", {
+			z: CombatRenderer.indices.head - 0.9,
+		}),
+		scarfWearPattern: PlayerCanvasHelper.genClothingPatternLayer("scarf", {
+			z: CombatRenderer.indices.head - 0.9,
+		}),
 		overHead: PlayerCanvasHelper.genClothingLayer("over_head", {
 			z: CombatRenderer.indices.head + 2,
 		}),

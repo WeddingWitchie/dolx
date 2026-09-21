@@ -126,6 +126,7 @@ class CombatRenderer {
 			"head",
 			"face",
 			"neck",
+			"scarf",
 			"hands",
 			"handheld",
 			// "earrings",

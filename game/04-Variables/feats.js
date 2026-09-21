@@ -4405,6 +4405,7 @@ function applyFeatBoosts() {
 			"head",
 			"face",
 			"neck",
+			"scarf",
 			"upper",
 			"upper",
 			"upper",
