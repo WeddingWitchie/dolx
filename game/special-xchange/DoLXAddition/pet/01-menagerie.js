@@ -84,7 +84,7 @@ const Menagerie = (() => {
 			name: "slime",
 			colours: ["blue", "red", "green", "orange", "pink", "purple", "teal", "yellow", "gray"],
 			housing: "jar",
-			carriedOn: "on your head",
+			carriedOn: "against your feet",
 			diet: "fluids",
 			eats: { categories: ["fruit", "produce", "vegetable", "mushroom"], tags: ["drink", "sweet", "vegan", "vegetarian"] },
 			sickens: { categories: [], tags: ["alcohol", "tainted", "spicy"] },
