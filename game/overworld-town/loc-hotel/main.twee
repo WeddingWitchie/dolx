@@ -1644,7 +1644,7 @@ You hand over <<printmoney 10000>>. The <<person>> counts it, writes something i
 The <<person>> at the front desk catches your eye as you pass, and taps the ledger with one finger.
 <br><br>
 
-<<set _hotelRentAmount to [10000, 15000, 20000, 30000, 40000][Math.clamp(($hotelRent ? $hotelRent.stage : 1) - 1, 0, 4)]>><<set _hotelRentDue to _hotelRentAmount + ($hotelRent ? $hotelRent.arrears : 0)>>
+<<set _hotelRentAmount to setup.hbsc.HOTEL_RENT_STAGES[Math.clamp(($hotelRent ? $hotelRent.stage : 1) - 1, 0, 4)]>><<set _hotelRentDue to _hotelRentAmount + ($hotelRent ? $hotelRent.arrears : 0)>>
 <<if $hotelRent.arrears gt 0>>
     "You're behind," <<he>> says. "<<printmoney _hotelRentDue>>, including what you owe."
 <<else>>
@@ -1655,6 +1655,9 @@ The <<person>> at the front desk catches your eye as you pass, and taps the ledg
 <<if $money gte _hotelRentDue>>
     <<link [[Pay|Seaspray Hotel Rent Pay]]>><</link>>
     <br>
+<<elseif setup.hbsc.canAutoPay("hotelRent", setup.inflation.spendPrice(_hotelRentDue, "hotelRent"))>>
+    <<link [[Pay from your savings|Seaspray Hotel Rent Pay]]>><</link>>
+    <br>
 <</if>>
 <<link [[Say you'll pay later|Seaspray Hotel Rent Refuse]]>><</link>>
 <br>
@@ -1663,16 +1666,21 @@ The <<person>> at the front desk catches your eye as you pass, and taps the ledg
 :: Seaspray Hotel Rent Pay
 <<effects>>
 
-<<set _hotelRentAmount to [10000, 15000, 20000, 30000, 40000][Math.clamp(($hotelRent ? $hotelRent.stage : 1) - 1, 0, 4)]>><<set _hotelRentDue to _hotelRentAmount + ($hotelRent ? $hotelRent.arrears : 0)>>
-<<money `-_hotelRentDue` "hotelRent">>
+<<set _hotelRentAmount to setup.hbsc.HOTEL_RENT_STAGES[Math.clamp(($hotelRent ? $hotelRent.stage : 1) - 1, 0, 4)]>><<set _hotelRentDue to _hotelRentAmount + ($hotelRent ? $hotelRent.arrears : 0)>>
+<<if $money gte _hotelRentDue>>
+    <<money `-_hotelRentDue` "hotelRent">>
+<<else>>
+    <!-- the lobby only offers this branch when the standing order covers the desk's price -->
+    <<run setup.hbsc.tryAutoPay("hotelRent", setup.inflation.spendPrice(_hotelRentDue, "hotelRent"))>>
+<</if>>
 <<set $hotelRent.arrears to 0>>
 <<set $hotelRent.due to Time.days + 7>>
 <<set $hotelRent.stage to Math.min($hotelRent.stage + 1, 5)>>
-You count out <<printmoney _hotelRentDue>>. The <<person>> writes it down without looking up.
+You pay <<printmoney _hotelRentDue>>. The <<person>> writes it down without looking up.
 <br><br>
 
 <<if $hotelRent.stage gte 2 and $hotelRent.stage lte 5>>
-    "The room's worth more than it was," <<he>> adds, as you turn to go. "Next week it's <<printmoney `[10000, 15000, 20000, 30000, 40000][Math.clamp($hotelRent.stage - 1, 0, 4)]`>>."
+    "The room's worth more than it was," <<he>> adds, as you turn to go. "Next week it's <<printmoney `setup.hbsc.HOTEL_RENT_STAGES[Math.clamp($hotelRent.stage - 1, 0, 4)]`>>."
     <br><br>
 <</if>>
 
@@ -1686,11 +1694,12 @@ You count out <<printmoney _hotelRentDue>>. The <<person>> writes it down withou
 "Later," you say.
 <br><br>
 
-<<set _hotelRentAmount to [10000, 15000, 20000, 30000, 40000][Math.clamp(($hotelRent ? $hotelRent.stage : 1) - 1, 0, 4)]>><<set _hotelRentDue to _hotelRentAmount + ($hotelRent ? $hotelRent.arrears : 0)>><<set $hotelRent.arrears += _hotelRentAmount>>
+<<set _hotelRentAmount to setup.hbsc.HOTEL_RENT_STAGES[Math.clamp(($hotelRent ? $hotelRent.stage : 1) - 1, 0, 4)]>><<set _hotelRentDue to _hotelRentAmount + ($hotelRent ? $hotelRent.arrears : 0)>><<set $hotelRent.arrears += _hotelRentAmount>>
 <<set $hotelRent.due to Time.days + 7>>
 <<if $hotelRent.arrears gte _hotelRentAmount * 3>>
     <<set $hotel112 to 1>>
     <<unset $hotelRent>>
+    <<run setup.hbsc.setAutoPay("hotelRent", false)>>
     <!-- don't strand clothes in a room the player no longer has -->
     <<storeon "Seaspray Hotel Bed" "wardrobe">>
     The <<person>> doesn't argue. <<He>> reaches under the desk, and drops a key on a plain ring into a drawer.

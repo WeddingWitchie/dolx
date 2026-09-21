@@ -479,6 +479,7 @@ setup.hbsc.processDay = function () {
 
 	setup.hbsc.processLoanDay();
 	setup.hbsc.processCardDay();
+	setup.hbsc.autoPayHotelRent();
 
 	return maturedCount;
 };
@@ -675,6 +676,7 @@ setup.hbsc.AUTOPAY_BILLS = [
 	{ id: "farmGuard", label: "Farm tower guard wages", blurb: "The watchtower guard's outstanding wages." },
 	{ id: "wrenSabotage", label: "Remy sabotage retainer", blurb: "Wren's fee to cripple Remy's next raid on the farm, settled after each attack." },
 	{ id: "gamblingRing", label: "Gambling-ring upkeep", blurb: "Landry's weekly upkeep that keeps the cops away from the ring." },
+	{ id: "hotelRent", label: "Seaspray Hotel room rent", blurb: "The front desk's weekly charge for room 112, including any arrears." },
 ];
 
 setup.hbsc.getAutoPayBill = function (id) {
@@ -861,6 +863,31 @@ setup.hbsc.autoPayWrenSabotage = function () {
 	setup.hbsc.cancelIfShort("wrenSabotage", due);
 	V.farm.wrenSabotage = 0;
 	return false;
+};
+
+/* Seaspray Hotel room 112: the front desk charges every seven days, but only notices when the player walks through the lobby */
+setup.hbsc.HOTEL_RENT_STAGES = [10000, 15000, 20000, 30000, 40000];
+setup.hbsc.autoPayHotelRent = function () {
+	const V = State.variables;
+	setup.hbsc.ensureAutoPayState();
+	if (!V.hotelRent) return false;
+	if (!setup.hbsc.isAutoPayEnabled("hotelRent")) return false;
+	const dayStarting = Time.days + 1;
+	if (!(dayStarting >= V.hotelRent.due)) return false;
+
+	const stage = Math.clamp((Number(V.hotelRent.stage) || 1) - 1, 0, 4);
+	const amount = setup.hbsc.HOTEL_RENT_STAGES[stage];
+	/* The desk's cash price runs through money(), which inflates "hotelRent"; charge savings the same. */
+	const due = setup.inflation.spendPrice(amount + (Number(V.hotelRent.arrears) || 0), "hotelRent");
+	if (!setup.hbsc.tryAutoPay("hotelRent", due).paid) {
+		setup.hbsc.cancelIfShort("hotelRent", due);
+		return false;
+	}
+
+	V.hotelRent.arrears = 0;
+	V.hotelRent.due = dayStarting + 7;
+	V.hotelRent.stage = Math.min((Number(V.hotelRent.stage) || 1) + 1, 5);
+	return true;
 };
 
 setup.hbsc.autoPayGamblingUpkeep = function () {
