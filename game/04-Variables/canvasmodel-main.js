@@ -5361,11 +5361,17 @@ function createHairColourGradient(hairPart, gradient, hairType, hairLength, pref
 	};
 
 	for (const colorIndex in filter.blend.colors) {
+		const colourRecord = setup.colours.hair_map[gradient.colours[colorIndex]];
+		if (!colourRecord) {
+			console.error("unknown hair gradient colour:", gradient.colours[colorIndex], "part:", hairPart);
+		}
 		filter.brightness.adjustments[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
-		filter.brightness.adjustments[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.brightness || 0;
+		filter.brightness.adjustments[colorIndex][1] = (colourRecord && colourRecord.canvasfilter.brightness) || 0;
 
 		filter.blend.colors[colorIndex][0] = filter.blend.lengthFunctions[0](hairLength, filter.blend.colors[colorIndex][0]);
-		filter.blend.colors[colorIndex][1] = setup.colours.hair_map[gradient.colours[colorIndex]].canvasfilter.blend;
+		if (colourRecord) {
+			filter.blend.colors[colorIndex][1] = colourRecord.canvasfilter.blend;
+		}
 	}
 
 	Renderer.mergeLayerData(filter, setup.colours.sprite_prefilters[prefilterName], true);
