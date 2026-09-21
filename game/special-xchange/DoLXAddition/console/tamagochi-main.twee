@@ -47,7 +47,7 @@
 <br><br>
 <<run Tamagotchi.sync()>>
 <<if not Tamagotchi.exists()>>
-	The screen shows a speckled egg. As it hatches, the game asks you to pick your starter.
+	A small egg covered in coloured spots appears on the screen. It shakes, cracks open, and reveals the list of pets you can start with.
 	<br><br>
 	What will you name it?
 	<br>
@@ -64,20 +64,20 @@
 
 <<elseif not Tamagotchi.isAlive()>>
 	<<set _t to Tamagotchi.status()>>
-	The screen displays a small headstone. <span class="blue">_t.name</span>
+	The screen shows a small headstone with <span class="blue">_t.name</span>'s name on it.
 	<<if _t.deathCause is "battle">>
-		was struck down defending itself, and didn't survive.
+		Your pet was defeated in battle and did not survive.
 	<<elseif _t.deathCause is "boss">>
-		was hunted down by the blood-moon boss you never faced.
+		The blood-moon boss attacked while you were away. You never returned to fight it before it reached _t.name.
 	<<elseif _t.deathCause is "abandoned">>
-		was overwhelmed by an attacker you never came back to fend off.
+		An enemy attacked while you were away, and you did not return in time to defend _t.name.
 	<<elseif _t.deathCause is "illness">>
-		passed away from an untreated illness.
+		_t.name became sick and died before receiving medicine.
 	<<else>>
-		passed away from hunger and neglect.
+		_t.name went without food and care for too long.
 	<</if>>
 	<br><br>
-	You feel a pang of guilt.<<stress 4>><<gstress>>
+	Your hand stays still on the console while you read the cause of death again, remembering the time you spent feeding, playing with, and training _t.name. You look back at its name on the headstone and wish you could go back and keep it alive.<<stress 9>><<ggstress>>
 	<br><br>
 	<<if _t.elixirs gt 0>>
 		<span class="green">You have _t.elixirs <<= _t.elixirs is 1 ? "Elixir" : "Elixirs">> from Robin. You could use one to bring <span class="blue">_t.name</span> back.</span>
@@ -105,7 +105,7 @@
 <<else>>
 	<<set _t to Tamagotchi.status()>>
 	<<if Tamagotchi.ackWoke()>>
-		<span class="green"><<= _t.name>> has woken from its nap, fully rested but ravenous, and it's left a mess.</span>
+		<span class="green"><<= _t.name>> has woken from its nap. Its energy is restored, but it is very hungry, and it has left a mess for you to clean.</span>
 		<br>
 	<</if>>
 	You check in on <span class="blue">_t.name</span>.
@@ -117,10 +117,10 @@
 	<<= Tamagotchi.statusHtml()>>
 
 	<<if _t.bossDue>>
-		<span class="red">A monstrous boss has risen under the blood moon and stalks <<= _t.name>>!
-		Beat it within _t.bossDaysLeft <<= _t.bossDaysLeft is 1 ? "day" : "days">>, or it will kill your pet.</span>
+		<span class="red">A monstrous boss has appeared under the blood moon and is coming after <<= _t.name>>!
+		You have _t.bossDaysLeft <<= _t.bossDaysLeft is 1 ? "day" : "days">> to defeat it. If you leave it alone after that, the boss will kill your pet.</span>
 		<<if _t.backupAlive>>
-			<br><span class="green">A teammate stands ready. If <<= _t.name>> falls, one other pet can charge in.</span>
+			<br><span class="green">One of your other living pets is ready to help. If <<= _t.name>> is defeated, that pet will take its place in the battle.</span>
 		<</if>>
 		<br>
 		<<link [[Face the boss!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
@@ -129,7 +129,7 @@
 	<<if _t.pendingAttack and not _t.bossDue>>
 		<span class="red">An enemy is attacking <<= _t.name>> right now! You have to defend it!</span>
 		<<if _t.backupAlive>>
-			<br><span class="green">A teammate stands ready. If <<= _t.name>> falls, one other pet can charge in.</span>
+			<br><span class="green">One of your other living pets is ready to help. If <<= _t.name>> is defeated, that pet will take its place in the battle.</span>
 		<</if>>
 		<br>
 		<<link [[Defend your pet!|Home Console Pet Battle]]>><<run Tamagotchi.startWeeklyBattle()>><<pass 5>><</link>>
@@ -142,7 +142,7 @@
 		<<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
 	<<else>>
 		<<if _t.pendingSkillChoice>>
-			<span class="gold"><<= _t.name>> has trained enough to learn a new skill!</span>
+			<span class="gold"><<= _t.name>> has completed the training needed to learn a new skill!</span>
 			<br>
 			<<link [[Choose a new skill|Home Console Pet Skill Pick]]>><</link>>
 			<br><br>
@@ -174,8 +174,8 @@
 		<</if>>
 		<br><br>
 		<<if _t.canEvolve>>
-			<span class="gold"><<= _t.name>> trembles with pent-up power.
-			It could evolve, sacrificing _t.evolveCost of its skills to transform!</span>
+			<span class="gold"><<= _t.name>> is ready to evolve.
+			Evolving will make it much stronger, but _t.evolveCost of its learned skills will be permanently removed.</span>
 			<br>
 			<<link [[Evolve your pet|Home Console Pet Evolve]]>><</link>>
 			<br><br>
@@ -213,19 +213,19 @@
 			<br>
 		<</if>>
 		<<if _t.canAdopt>>
-			<span class="gold">Your collection has room for a new element. All your living pets are fully grown.</span>
+			<span class="gold">You can add another elemental pet to your collection. Every living pet you already have has reached its current maximum strength.</span>
 			<br>
 			<<link [[Adopt another pet|Home Console Pet Adopt]]>><</link>>
 			<br><br>
 		<<elseif _t.collectionComplete and _t.atCap>>
-			<span class="gold"><<= _t.name>> has reached its limits, and your collection already includes all four elements.</span>
+			<span class="gold"><<= _t.name>> cannot grow any stronger, and your collection already contains pets from all four elements.</span>
 			<br><br>
 		<<elseif _t.atCap and _t.adoptableCount gt 0>>
-			<span class="gold"><<= _t.name>> has grown as strong as it possibly can and can't get any stronger.
-			Raise every living pet in your collection to its limit to adopt another element.</span>
+			<span class="gold"><<= _t.name>> cannot grow any stronger.
+			To adopt another elemental pet, every other living pet in your collection must also reach its maximum strength.</span>
 			<br><br>
 		<<elseif _t.adoptableCount gt 0 and _t.capMissingText>>
-			<span class="small-description"><i>Adoption unlocks when this pet reaches every stat cap. Still needs: <<= _t.capMissingText>>.</i></span>
+			<span class="small-description"><i>You can adopt another elemental pet after this pet reaches the maximum value for every stat. It still needs: <<= _t.capMissingText>>.</i></span>
 			<br><br>
 		<</if>>
 		<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
@@ -249,31 +249,31 @@
 
 <<switch _result>>
 	<<case "fed">>
-		You feed <span class="blue">_t.name</span>. It gobbles the food down happily.
+		You give <span class="blue">_t.name</span> some food. It walks over and eats quickly until the food is gone.
 	<<case "overfed">>
-		<span class="blue">_t.name</span> turns its nose up at more food. It's already full.
+		You offer <span class="blue">_t.name</span> more food, but it steps away and refuses to eat. It's already full.
 	<<case "played">>
-		You play a quick minigame with <span class="blue">_t.name</span>. It bounces with delight.<<stress -10>><<lstress>>
+		You start a quick minigame with <span class="blue">_t.name</span>. It follows your commands until the game ends, then jumps up and down on the screen.<<stress -10>><<lstress>>
 	<<case "tooTired">>
 		<span class="blue">_t.name</span> is too tired to play. It needs to rest first.
 	<<case "cleaned">>
-		You wipe the screen clean. <span class="blue">_t.name</span> looks much more comfortable.
+		You clear the mess from <span class="blue">_t.name</span>'s area. Once the floor is clean again, it walks back across the screen without avoiding the dirty spots.
 	<<case "alreadyClean">>
 		There's nothing to clean.
 	<<case "sleeping">>
-		You dim the screen and <span class="blue">_t.name</span> curls up to sleep. It'll nap for about 6 hours and can't be disturbed until it wakes.
+		You tell <span class="blue">_t.name</span> to rest. It lies down, closes its eyes, and goes to sleep. It'll nap for about 6 hours and can't be disturbed until it wakes.
 	<<case "alreadyAsleep">>
 		<span class="blue">_t.name</span> is already fast asleep.
 	<<case "asleep">>
 		<span class="blue">_t.name</span> is asleep and can't be disturbed right now.
 	<<case "cured">>
-		You give <span class="blue">_t.name</span> some medicine. The colour returns to its little face.
+		You give <span class="blue">_t.name</span> some medicine. After a short pause, the sick status disappears and it starts moving normally again.
 	<<case "notSick">>
 		<span class="blue">_t.name</span> isn't sick.
 	<<case "dead">>
-		The screen is dark. There's nothing more you can do.
+		The game only shows your pet's death screen. None of the normal care options can help it now.
 	<<default>>
-		You fiddle with the console.
+		You press a few buttons, but nothing useful happens.
 <</switch>>
 <br><br>
 <<link [[Back|Home Console Pet]]>><</link>>
@@ -314,22 +314,22 @@
 	<<set _t to Tamagotchi.status()>>
 	<<switch _r.type>>
 		<<case "strength">>
-			You set <span class="blue">_t.name</span> to smashing little training blocks. It huffs and puffs, and looks stronger for it.
+			You have <span class="blue">_t.name</span> strike a row of small training blocks. Its first hits barely move them, but it keeps trying until one breaks. By the end of the session, each hit lands harder than the first.
 		<<case "endurance">>
-			You run <span class="blue">_t.name</span> through lap after lap. It's worn out, but its stamina is clearly growing.
+			You have <span class="blue">_t.name</span> run repeated laps around the training track. Its pace slows near the end, but it finishes every lap before stopping to rest.
 		<<case "agility">>
-			You guide <span class="blue">_t.name</span> through an obstacle course. It darts about, getting quicker with each run.
+			You guide <span class="blue">_t.name</span> through an obstacle course several times. It bumps into a few obstacles at first, then starts turning sooner and finishing the course faster.
 		<<case "defense">>
-			You drill <span class="blue">_t.name</span> on bracing and blocking. It learns to stand its ground.
+			You have <span class="blue">_t.name</span> practise blocking repeated attacks. At first it raises its guard too late, but after several tries it starts blocking before each hit reaches it.
 		<<case "focus">>
-			You sit <span class="blue">_t.name</span> down to meditate. It calms, and its mind feels sharper.
+			You have <span class="blue">_t.name</span> sit still for a focus exercise. It keeps breaking concentration at first, but after several tries it remains still until the exercise ends.
 		<<default>>
 			<span class="blue">_t.name</span> finishes its training session.
 	<</switch>>
 	<<= " <span class='green'>(+" + _r.gain + " " + _r.stat + ")</span>">>
 	<br><br>
 	<<if _r.unlocked>>
-		<span class="gold"><<= _t.name>> has trained enough to learn a new skill!</span>
+		<span class="gold"><<= _t.name>> has completed the training needed to learn a new skill!</span>
 		<br>
 		<<link [[Choose a new skill|Home Console Pet Skill Pick]]>><</link>>
 		<br>
@@ -411,19 +411,19 @@
 
 <<if _sum.result is "win">>
 	<<if _sum.boss>>
-		Your pet vanquished the <span class="green"><<= _sum.enemy>></span> beneath the blood moon!<<stress -10>><<lllstress>>
-		<br><span class="green">The monthly threat is over... until the next blood moon.</span>
+		Your pet lands the final hit on the <span class="green"><<= _sum.enemy>></span>, and the boss falls.<<stress -10>><<lllstress>>
+		<br><span class="green">The blood-moon boss is defeated. Your pet is safe from it for the rest of this month.</span>
 	<<elseif _sum.keyGained>>
-		Your pet smashed through the <span class="green"><<= _sum.enemy>></span>!<<stress -8>><<llstress>>
-		<br><span class="gold">It dropped a dungeon key! You now hold <<= _sum.keys>>.</span>
+		Your pet defeats the <span class="green"><<= _sum.enemy>></span> and remains standing after the fight.<<stress -8>><<llstress>>
+		<br><span class="gold">The game awards you a dungeon key. You now hold <<= _sum.keys>>.</span>
 	<<elseif _sum.dungeon>>
-		Your pet cut down the <span class="green"><<= _sum.enemy>></span> deeper in the dungeon.<<stress -4>><<lstress>>
+		Your pet defeats the <span class="green"><<= _sum.enemy>></span> blocking the way deeper into the dungeon.<<stress -4>><<lstress>>
 	<<else>>
-		Your pet drove off the wild <span class="green"><<= _sum.enemy>></span>!<<stress -8>><<llstress>>
-		<br><span class="green">It's survived another week. The next challenger will be tougher.</span>
+		Your pet defeats the wild <span class="green"><<= _sum.enemy>></span> and survives the attack.<<stress -8>><<llstress>>
+		<br><span class="green">It is safe for now. The next weekly challenger will be stronger.</span>
 	<</if>>
 	<<if _sum.teammateRevived>>
-		<br><span class="green">Your fallen teammate is helped back to its feet, exhausted but alive.</span>
+		<br><span class="green">The teammate that was defeated during the fight gets back up afterward. It is exhausted, but it survived.</span>
 	<</if>>
 	<<if _sum.statBoost>>
 		<br>
@@ -431,10 +431,10 @@
 		<<= "(+" + _sum.hpBoost + " max HP, +" + _sum.statBoost + " to ATK, DEF, SPD and max MP)">></span>
 	<</if>>
 	<<if _sum.capped>>
-		<br><span class="gold">It has reached its limits and can grow no further.</span>
+		<br><span class="gold">Its stats have reached their maximum values. Further victories will not increase them.</span>
 	<</if>>
 <<elseif _sum.result is "lose">>
-	Your pet fought bravely, but the <span class="purple"><<= _sum.enemy>></span> was too strong. <span class="red">It didn't survive.</span><<stress 6>><<gstress>>
+	The <span class="purple"><<= _sum.enemy>></span> lands the final hit. Your pet falls, and the battle ends before it can get back up. <span class="red">It didn't survive.</span><<stress 6>><<gstress>>
 <<else>>
 	The battle ends.
 <</if>>
@@ -457,7 +457,7 @@
 	<br><br>
 	<<link [[Back|Home Console Pet]]>><</link>>
 <<else>>
-	The screen glows as <span class="blue">_t.name</span> stands ready to evolve. The transformation multiplies every stat tenfold, but you must <span class="red">choose _t.evolveCost of its skills to sacrifice</span> in the ritual.
+	<span class="blue">_t.name</span> is ready to evolve. Evolution will multiply every stat by ten, but the process permanently removes <span class="red">_t.evolveCost learned skills</span>. Choose which skills you want to lose.
 	<br><br>
 	<span class="gold"><<= $evoPick.length>> / _t.evolveCost selected.</span>
 	<br>
@@ -496,8 +496,8 @@
 	You sacrifice <span class="red"><<= _evo.sacrificed.join(", ")>></span>.
 	<br>
 
-	Light floods the little screen. When it fades, <span class="blue">_t.name</span>
-	has evolved from <span class="teal"><<= _evo.from>></span> into <span class="gold"><<= _evo.to>></span>!
+	The evolution animation begins. <span class="blue">_t.name</span>'s image flashes several times before changing into its new form.
+	<span class="blue">_t.name</span> has evolved from <span class="teal"><<= _evo.from>></span> into <span class="gold"><<= _evo.to>></span>!
 	<<stress -10>><<lllstress>>
 	<br><br>
 	<<= Tamagotchi.statusHtml()>>
@@ -517,7 +517,7 @@
 	<br><br>
 	<<link [[Back|Home Console Pet]]>><</link>>
 <<else>>
-	A new egg appears on the screen, ready to hatch alongside your other pets. It belongs to an elemental line you haven't collected yet. What will you name it?
+	A new egg appears beside your other pets. The game only offers elements that are still missing from your collection. Choose a species, then give the new pet a name.
 	<br>
 	<<textbox "_petname" "Pixel">>
 	<br><br>

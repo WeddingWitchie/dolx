@@ -1083,6 +1083,10 @@ function moneyStatsProcess(stats) {
 					case "flatsHookah":
 						compressTo = "flats";
 						break;
+					case "hotelCleaning":
+					case "hotelRent":
+						compressTo = "hotel";
+						break;
 					case "cafeWaiter":
 					case "cafeChef":
 					case "cafeBuns":
