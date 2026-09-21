@@ -409,9 +409,13 @@ function shopSearchReplacer(name) {
 }
 window.shopSearchReplacer = shopSearchReplacer;
 
-function getOwnedClothingCount(index, type) {
-	const wardrobe = V.wardrobes.shopReturn === "wardrobe" ? V.wardrobe : V.wardrobes[V.wardrobes.shopReturn] || V.wardrobe;
-	return wardrobe[type].reduce((p, c) => p + Number(c.index === index), 0);
+function getOwnedClothingCount(index, type, wardrobeName) {
+	// Defaults to the shop's delivery target. Callers asking about a specific location name it.
+	const key = wardrobeName ?? V.wardrobes.shopReturn;
+	const wardrobe = key === "wardrobe" ? V.wardrobe : V.wardrobes[key] || V.wardrobe;
+	// Accept a garment name as well as an index, matching <<generalWear>> and <<generalSend>>.
+	const idx = typeof index === "string" ? setup.clothes[type].findIndex(item => item.name === index) : index;
+	return wardrobe[type].reduce((p, c) => p + Number(c.index === idx), 0);
 }
 window.getOwnedClothingCount = getOwnedClothingCount;
 

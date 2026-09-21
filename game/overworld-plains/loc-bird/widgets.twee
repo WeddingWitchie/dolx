@@ -2286,7 +2286,7 @@
 				}>>
 				<<set $_upgrade.housekeeping to 100>>
 				<<set $_upgrade.clothingSlot to "handheld">>
-				<<set $_upgrade.clothingIndex to 10>>
+				<<set $_upgrade.clothingName to "feather duster">>
 			<<case "clip">>
 				<span class="teal">Feathered Hair Clip</span>: Makes you feel flighty.
 				<<set $_upgrade.passage to "Bird Tower Build Clip">>
@@ -2301,7 +2301,7 @@
 				}>>
 				<<set $_upgrade.housekeeping to 200>>
 				<<set $_upgrade.clothingSlot to "head">>
-				<<set $_upgrade.clothingIndex to 31>>
+				<<set $_upgrade.clothingName to "feathered hair clip">>
 				<<set $_upgrade.colourSelectNeeded to true>>
 			<<case "shelter">>
 				<<switch $bird.upgrades.shelter>>
@@ -2777,17 +2777,17 @@
 				<br>
 				<span class="red">You can't remove your $worn[$_upgrade.clothingSlot].name!</span>
 				<<set $_disableBuild to true>>
-			<<elseif $worn[$_upgrade.clothingSlot].index is $_upgrade.clothingIndex>>
+			<<elseif $worn[$_upgrade.clothingSlot].name is $_upgrade.clothingName>>
 				<br>
 				<span class="purple">You're already <<if $_upgrade.clothingSlot is "handheld">>holding<<else>>wearing<</if>> this!</span>
 				<<set $_disableBuild to true>>
-			<<elseif $_upgrade.clothingIndex is 12 and $bird.duster is true>>
+			<<elseif $_upgrade.clothingName is "feather duster" and $bird.duster is true>>
 				<br>
 				<span class="purple">You already have one of these hanging up.</span>
 				<<set $_disableBuild to true>>
-			<<elseif $bird.upgrades.wardrobe is 1 and getOwnedClothingCount($_upgrade.clothingIndex, $_upgrade.clothingSlot) gte 1>>
+			<<elseif $bird.upgrades.wardrobe is 1 and getOwnedClothingCount($_upgrade.clothingName, $_upgrade.clothingSlot, "birdTower") gte 1>>
 				<br>
-				<span class="blue">You already own <<print getOwnedClothingCount($_upgrade.clothingIndex, $_upgrade.clothingSlot)>> of these.</span>
+				<span class="blue">You already own <<print getOwnedClothingCount($_upgrade.clothingName, $_upgrade.clothingSlot, "birdTower")>> of these.</span>
 			<<elseif $worn[$_upgrade.clothingSlot].name isnot "naked">>
 				<br>
 				<span class="blue">Will replace your <<print $worn[$_upgrade.clothingSlot].name>></span>
@@ -2814,7 +2814,7 @@
 			<<link [[$_linkText|_towerUpgrades[_upgrade].passage]]>>
 				<<if _towerUpgrades[_upgrade].clothingSlot>>
 					<<if !_towerUpgrades[_upgrade].colourSelectNeeded>>
-						<<generalWear _towerUpgrades[_upgrade].clothingSlot _towerUpgrades[_upgrade].clothingIndex>>
+						<<generalWear _towerUpgrades[_upgrade].clothingSlot _towerUpgrades[_upgrade].clothingName>>
 					<</if>>
 				<<else>>
 					<<set $bird.upgrades[_upgrade]++>>
@@ -2826,7 +2826,8 @@
 					})>>
 				<</if>>
 				<<if _towerUpgrades[_upgrade].housekeeping gt 0>>
-					<<set _houseKeepingUp to ($bird.upgrades[_upgrade] * 4)>>
+					/* Clothing upgrades have no level counter, so they train as a first tier. */
+					<<set _houseKeepingUp to (($bird.upgrades[_upgrade] ?? 1) * 4)>>
 					<<housekeeping _houseKeepingUp>>
 				<</if>>
 			<</link>>
