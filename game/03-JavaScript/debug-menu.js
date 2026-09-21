@@ -6,7 +6,6 @@ const stayOnPassageFn = function () {
 	return V.passage;
 };
 
-/* Condition for entries that mutate the current enemy — only usable mid-combat. */
 const hasActiveEnemyFn = function () {
 	return V.enemyno >= 1 && V.NPCList != null && V.NPCList[V.enemyno - 1] != null;
 };

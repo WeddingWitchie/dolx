@@ -191,10 +191,6 @@ setup.hbsc.ensureState = function () {
 	if (typeof V.hbsc.selectedFixedTermId !== "string") V.hbsc.selectedFixedTermId = "";
 	if (!Number.isFinite(V.hbsc.lastSavingsInterest)) V.hbsc.lastSavingsInterest = 0;
 
-	/* Auto-queue Avery's bank-account notice for any player who already has
-	   an HBSC account but hasn't seen the event yet.  This covers saves that
-	   were created before the notice was added — the flag is set on ANY bank
-	   interaction, not only on account opening. */
 	if (V.hbsc.account.level >= 1 && V.hbsc.averyAccountUnlockNoticeSeen !== true && V.hbsc.averyAccountUnlockPending !== true) {
 		V.hbsc.averyAccountUnlockPending = true;
 	}
@@ -638,9 +634,7 @@ setup.hbsc.closeFixedTerm = function (id, withdrawalKind = "full", target = "dep
 };
 
 /**
- * Receive money from an outside source (charity payout, NPC transfer, etc.)
- * directly into the player's HBSC savings.  Respects the current tier's
- * deposit limit — any overflow is added to carried cash instead.
+ * Receive money from an outside source (charity payout, NPC transfer, etc.) directly into the player's HBSC savings.
  *
  * @param {number} amount  Internal-currency amount to transfer.
  * @returns {{ok:boolean, toDeposit:number, toCash:number, overflow:boolean}}
@@ -652,7 +646,6 @@ setup.hbsc.receiveExternalDeposit = function (amount) {
 	const requested = setup.hbsc.roundMoney(amount);
 	if (!(requested > 0)) return { ok: false, toDeposit: 0, toCash: 0, overflow: false };
 
-	/* No account — give as carried cash */
 	if (V.hbsc.account.level < 1) {
 		V.money += requested;
 		return { ok: true, toDeposit: 0, toCash: requested, overflow: true };

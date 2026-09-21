@@ -159,9 +159,6 @@ const Time = (() => {
 		const days = Math.floor((prevDate.hour + hours) / 24);
 
 		try {
-			/* Each stage is guarded so one that throws cannot cancel the stages after it. Without this, a broken
-			   subsystem anywhere in the pyramid silently skips dayPassed() — and with it every $daily reset —
-			   while the finally below still moves the clock to the correct time. */
 			// it is safe to let secondPassed handle all seconds at once
 			runTickStage("secondPassed", () => secondPassed(seconds));
 
@@ -523,9 +520,7 @@ function reportTickFailure(label, ex) {
 }
 
 /**
- * Run one stage of the time pyramid. A stage that throws is reported and skipped so the stages after it still
- * run — most importantly dayPassed(), which resets $daily. Stages with large bodies use an inline try/catch
- * around the same reportTickFailure() call.
+ * Run one stage of the time pyramid.
  *
  * @param {string} label Name of the stage, used in the error report.
  * @param {Function} fn The stage to run.
@@ -1432,8 +1427,6 @@ function hourPassed(hours, advanceFirst) {
 		// robin pillory
 		if (V.robinPillory && V.robinPillory.danger !== undefined && V.robinPillory.active) wikifier("robinPilloryHour");
 
-		// Beauty boost decay (bath, teeth, face, hands, hygiene, tan — makeup is dynamic, no decay needed; spa uses a day-based expiry)
-		// Hours spent asleep don't burn the washing boosts, so bathing or brushing before bed isn't wasted. Tan still fades.
 		if (V.beautyBoost) {
 			if (!V.sleepTimePassing) {
 				if (V.beautyBoost.bath > 0) V.beautyBoost.bath = Math.max(V.beautyBoost.bath - 333, 0);

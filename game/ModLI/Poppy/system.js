@@ -521,8 +521,6 @@ DefineMacro("poppySchedule", poppySchedule);
 		if (typeof data.pendingPavlov !== "boolean") data.pendingPavlov = false;
 		if (typeof data.insomniaSuppress !== "boolean") data.insomniaSuppress = false;
 
-		// Mirror writes only when the value actually differs — avoids writing
-		// the same property back to the state proxy every call.
 		if (V.opium_addiction !== data.addiction) V.opium_addiction = data.addiction;
 		if (V.opium_timer !== data.timer) V.opium_timer = data.timer;
 		if (V.opium_knowledge !== data.knowledge) V.opium_knowledge = data.knowledge;

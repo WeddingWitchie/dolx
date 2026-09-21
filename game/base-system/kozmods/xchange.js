@@ -78,7 +78,7 @@ function xChangeDeriveSnapshotGenderBody(body) {
 	if (hasPenis && hasVagina) return "a";
 	if (hasVagina) return "f";
 	if (hasPenis) return "m";
-	return undefined; // indeterminate — leave it so validation still reports it
+	return undefined;
 }
 
 function xChangeDeriveSnapshotSex(body, genderBody) {
@@ -1037,13 +1037,7 @@ function pillIsPermanent() {
 }
 window.pillIsPermanent = pillIsPermanent;
 
-/* Whether the player is currently wearing a borrowed, temporary body.
- * The temple vow (and virgin purity) is forgiven only in that case: what a rented body does is not held
- * against the person who returns to their own. A pill being active is NOT enough on its own — a grey/Beta
- * pill, a crossdress pill, or any pill that leaves the player in their own shape keeps them in their real
- * body, and losses there are real. xChangeActiveBodyVirginityRole() is the same body-shape test the
- * per-body virginity store uses, so both agree on which body an act belongs to.
- */
+/* Whether the player is currently wearing a borrowed, temporary body */
 function playerInTemporaryXChangeBody() {
 	if (V.statFreeze) return false;
 	if (!playerIsXChanged() || pillIsPermanent()) return false;

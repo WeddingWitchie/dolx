@@ -469,8 +469,7 @@ const Tamagotchi = (() => {
 		let hours = (currentTime - (Number.isFinite(t.lastTick) ? t.lastTick : currentTime)) / 3600;
 		if (hours > 0) {
 			hours = Math.min(hours, Tuning.maxElapsedHours);
-			/* A fully grown pet fends for itself: no hunger, mess, sickness or neglect. Endgame threats
-			 * (the weekly attacker and the blood-moon boss below) still apply — those are battles, not care. */
+			/* A fully grown pet fends for itself: no hunger, mess, sickness or neglect */
 			const selfSufficient = atCap(t);
 			const sleepingNow = (t.sleepUntil || 0) > currentTime;
 			if (selfSufficient) {

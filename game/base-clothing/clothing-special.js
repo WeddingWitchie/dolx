@@ -977,7 +977,8 @@ function specialSetStoryImported(setName) {
 window.specialSetStoryImported = specialSetStoryImported;
 
 /**
- * X-Change: whether a set's route/story dialogue with Gwylan is available — its live requirements are met, or the rank-3 feat boost imported its story unlock.
+ * X-Change: whether a set's route/story dialogue with Gwylan is available.
+ * Its live requirements are met, or the rank-3 feat boost imported its story unlock.
  *
  * @param {string} setName
  */

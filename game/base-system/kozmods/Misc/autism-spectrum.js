@@ -1839,16 +1839,13 @@ const autismUnmaskedLines = Object.freeze([
 ]);
 
 /*
- * Only where there is genuinely nothing to perform for. Deliberately routed through the same rate the masking
- * system uses, so this can never claim comfort the masking logic does not agree exists — trusted company that
- * still leaves an audience is not the same as being off duty.
+ * Only where there is genuinely nothing to perform for.
  */
 function autismUnmaskedProseReady() {
 	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.timeSkip !== undefined || V.sleepTimePassing || V.combat === 1) return false;
 	const state = ensureAutismSpectrumState();
 	if (state.meltdown) return false;
 	if (autismMaskingRateNow() > 0) return false;
-	/* Nothing to notice the absence of unless something was recently being held. */
 	return state.masking >= autismMaskingNoticeable;
 }
 
