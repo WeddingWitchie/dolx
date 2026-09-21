@@ -53,6 +53,8 @@ const Menagerie = (() => {
 		intimacyMinBond: 40,
 		// How many turns before the pet has had its fill and stops on its own.
 		intimacyTurns: 12,
+		// Arousal per turn while the pet is feeding.
+		intimacyArousal: 1500,
 
 		// Pocket food is intentionally less effective than feeding at home.
 		pocketFeedRelief: 45,
