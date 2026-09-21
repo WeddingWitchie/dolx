@@ -90,7 +90,7 @@ function initOverUpper() {
 			breast_img: 0,
 			cursed: 0,
 			location: 0,
-			iconFile: "",
+			iconFile: "froggy-souwester.png",
 			accIcon: 0,
 			outfitPrimary: { over_lower: "froggy skirt", over_head: "froggy hood" },
 		}),

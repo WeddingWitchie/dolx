@@ -546,6 +546,7 @@ const Furniture = (() => {
 			type: [],
 			cost: 1500,
 			description: "Keeps stored food and its effects fresh indefinitely.",
+			iconFile: "refrigerator",
 			showCheck: "refrigerator",
 		});
 		mapper.set("handheldConsole", {
