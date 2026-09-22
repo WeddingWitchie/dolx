@@ -468,6 +468,8 @@ function gwylanStatusCheck() {
 	/* Any long disappearance counts, regardless of cause */
 	if (V.badEndStats.last()?.source !== "Gwylan" && T.gwylanLastSeenDays >= 14 && V.gwylanSeen.includes("lights")) {
 		gwylanStatus.push("reunion");
+		const reunionBadEnd = V.badEndStats.last();
+		T.gwylanReunionSource = reunionBadEnd?.trackedStart >= V.gwylan.timer.lastSeen ? reunionBadEnd.source : undefined;
 	}
 	if (
 		V.gwylanSeen.includes("romance") &&
