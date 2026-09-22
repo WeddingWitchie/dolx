@@ -606,7 +606,8 @@ const statChange = (() => {
 			// Apply source-specific side effects. Sensitivity/arousal modifiers are handled by the <<pleasure>> widget below.
 			switch (source) {
 				case "maso":
-					V.arousalmasochism += amount;
+					// Arousal lost to pain must not drag this below zero, or the pain-share check on orgasm can never pass again.
+					V.arousalmasochism = Math.max(0, V.arousalmasochism + amount);
 					break;
 				case "time": {
 					const trackedArousal = Math.clamp(V.arousal + amount, 0, V.arousalmax);
@@ -662,6 +663,11 @@ const statChange = (() => {
 		return Math.clamp(result, 0, V.arousalmax / 2);
 	}
 
+	/* Negative below the masochism threshold, positive above it. */
+	function masochismArousalScale() {
+		return V.masochism >= 100 ? V.masochism : V.masochism - 100;
+	}
+
 	function pain(amount, modifier = 4) {
 		if (isNaN(amount)) paramError("pain", "amount", amount, "Expected a number.");
 		if (isNaN(modifier)) paramError("pain", "modifier", amount, "Expected a number.");
@@ -686,8 +692,8 @@ const statChange = (() => {
 					pain *= 1 - V.masochism / 1200;
 				}
 
-				// Pain reduces arousal until masoquism hits 100
-				arousal((amount * (-100 + V.masochism)) / 6, "maso");
+				// Pain reduces arousal until masoquism hits 100, and feeds it from then on.
+				arousal((amount * masochismArousalScale()) / 6, "maso");
 			}
 
 			if (V.drunk >= 1 && V.substanceRebalance === 1) pain *= 1 - 0.075 * (1 + Math.round(V.drunk / 120));
@@ -705,7 +711,7 @@ const statChange = (() => {
 		if (amount > 0 && colosseumDrugStage() === "active") amount *= window.COLOSSEUM_DRUG_PAIN_LET_THROUGH;
 		if (amount) {
 			V.pain += amount * (1 - V.masochism / 1200) * 4;
-			arousal(amount * ((-100 + V.masochism) / 18) * 4);
+			arousal(amount * (masochismArousalScale() / 18) * 4);
 			painClamp();
 		}
 	}
