@@ -621,6 +621,7 @@ function wardrobesUpdate() {
 		legs: [],
 		lower: [],
 		neck: [],
+		scarf: [],
 		over_head: [],
 		over_lower: [],
 		over_upper: [],
