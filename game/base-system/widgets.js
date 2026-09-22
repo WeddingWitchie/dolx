@@ -789,9 +789,12 @@ function calculateallure() {
 	if (V.hallucinogen >= 1 && V.substanceRebalance === 1) allure *= 1 + 0.25 * (V.hallucinogen / 250);
 	/* Location/Time specific modifiers */
 	if (V.asylum_tunnels >= 6 && Time.dayState === "night" && V.location === "forest") allure -= 150;
-	/* extra modifiers. allureModifier is applied exactly once -- applying it a second time here was
-	   the double-modifier bug vanilla fixed in 0.5.12.0. */
 	allure *= V.settings.allureModifier;
+	/* Cat stance */
+	if (Transformations.effectiveLevel("cat") >= 6) {
+		if (V.catStance === "slink") allure *= 0.8;
+		else if (V.catStance === "preen") allure *= 1.2;
+	}
 	if (V.moorLuck > 0) allure *= 1 - V.moorLuck / 100;
 	if (V.alluretest === 1) allure = 8000 * V.settings.allureModifier;
 	else if (V.alluretest === 2) allure = 0;

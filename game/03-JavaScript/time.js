@@ -1635,7 +1635,11 @@ function minutePassed(minutes) {
 	if (V.hallucinogen > 0) statChange.hallucinogen(-minutes * hallucinogenRate);
 	if (V.drugged > 0) statChange.drugs(-minutes * druggedRate);
 	// prevent fatigue from being an issue when passing days (actually 20+ hours) at a time
-	if (minutes < 1200 && V.timeSkip === undefined) statChange.tiredness(minutes / 15);
+	if (minutes < 1200 && V.timeSkip === undefined) {
+		statChange.tiredness(minutes / 15);
+		// Slinking is held posture, not idling. It costs a quarter again as much fatigue as moving normally.
+		if (V.catStance === "slink" && !V.sleepTimePassing && Transformations.effectiveLevel("cat") >= 6) statChange.tiredness(minutes / 60);
+	}
 
 	// Dependence builds with repeated smoking, not the first cigarette.
 	// Before dependence, progress fades after 24h clean at ~1 cigarette per 3 days.

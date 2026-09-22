@@ -14,6 +14,8 @@ declare module "twine-sugarcube" {
 			bear: BearTransformationParts;
 			waterdragon: WaterDragonTransformationParts;
 			bunny: BunnyTransformationParts;
+			/* Holds pattern_colour only: the cat sith markings are art over the cat tail, not a part of their own. */
+			catsith: { pattern_colour?: { h: number; s: number; l: number } };
 			traits: {
 				fangs: string;
 				flaunting: string;
@@ -230,7 +232,7 @@ declare module "twine-sugarcube" {
 }
 
 declare global {
-	export type TransformationKeys = "angel" | "bird" | "cat" | "cow" | "demon" | "fallenAngel" | "fox" | "wolf" | "bear" | "waterdragon" | "bunny";
+	export type TransformationKeys = "angel" | "bird" | "cat" | "cow" | "demon" | "fallenAngel" | "fox" | "wolf" | "bear" | "waterdragon" | "bunny" | "catsith";
 
 	export type SkinPositions =
 		| "forehead"

@@ -411,6 +411,9 @@ Renderer.CanvasModels.main = {
 			"cat_tail_state": "idle",
 			"cat_tail_layer": "front",
 			"cat_ears_type": "disabled",
+			"catsith_tail_type": "disabled",
+			"catsith_tail_layer": "front",
+			"catsith_ears_type": "disabled",
 			"cow_horns_type": "disabled",
 			"cow_horns_layer": "back",
 			"cow_tail_type": "disabled",
@@ -852,6 +855,12 @@ Renderer.CanvasModels.main = {
 		options.filters.demon_wings = { ...filterBase, blend: ColourUtils.toHslString(V.transformationParts.demon.wings_colour, demonHsl) };
 		options.filters.demon_tail = { ...filterBase, blend: ColourUtils.toHslString(V.transformationParts.demon.tail_colour, demonHsl) };
 		options.filters.demon_horns = { ...filterBase, blend: ColourUtils.toHslString(V.transformationParts.demon.horns_colour, demonHsl) };
+		// eslint-disable-next-line no-undef
+		const catsithHsl = ColourUtils.toHslString(Transformations.defaults.catsith.colour);
+		options.filters.catsith_pattern = {
+			...filterBase,
+			blend: ColourUtils.toHslString(V.transformationParts?.catsith?.pattern_colour, catsithHsl),
+		};
 
 		// Animal TF parts keep their natural renderer filter until the player assigns a custom colour.
 		const hairColouredAnimalTfs = new Set(["wolf", "cat", "bird", "fox", "bunny", "bear"]);
@@ -2158,6 +2167,19 @@ Renderer.CanvasModels.main = {
 
 		"cat_tail": genlayer_tail("cat"),
 		"cat_ears": genlayer_ears("cat"),
+		"catsith_tail": genlayer_tail("catsith", { filters: ["cat_tail"] }),
+		"catsith_tail_pattern": genlayer_tail("catsith", {
+			filters: ["catsith_pattern"],
+			srcfn(options) {
+				return `img/transformations/catsith/tail-${options.cat_tail_state}/${options.catsith_tail_type}-cat.png`;
+			},
+			zfn(options) {
+				if (["cover", "flaunt"].includes(options.cat_tail_state)) return ZIndices.tailPenisCoverOverlay;
+				if (options.catsith_tail_layer === "back") return ZIndices.tail + 0.5;
+				return ZIndices.back_lower + 0.5;
+			},
+		}),
+		"catsith_ears": genlayer_ears("catsith", { filters: ["cat_ears"] }),
 
 		/***
 		 *     ██████  ██████  ██     ██
@@ -6536,6 +6558,9 @@ function genlayer_tail(tf, overrideOptions) {
 	// True for the demon tail, or this TF's own demon-chimera tail when it's active.
 	const isDemonTail = () => tf === "demon" || (!!demonChimera[tf] && isChimeraEnabled(demonChimera[tf], "tail"));
 
+	// The cat sith tail ships cover/flaunt poses of its own.
+	const isCatSithTail = () => tf === "catsith";
+
 	return genlayer_tf(tf, "tail", "tail", Object.assign({
 		z: ZIndices.tailPenisCover,
 		filters: [`${tf}_tail`],
@@ -6545,11 +6570,14 @@ function genlayer_tail(tf, overrideOptions) {
 		},
 
 		srcfn(options) {
-			const tail = isDemonTail() ? `tail-${options.demon_tail_state}` : "tail-idle";
+			let tail = "tail-idle";
+			if (isCatSithTail()) tail = `tail-${options.cat_tail_state}`;
+			else if (isDemonTail()) tail = `tail-${options.demon_tail_state}`;
 
 			return `img/transformations/${tf}/${tail}/${options[`${tf}_tail_type`]}.png`;
 		},
 		zfn(options) {
+			if (isCatSithTail() && ["cover", "flaunt"].includes(options.cat_tail_state)) return ZIndices.tailPenisCover;
 			if (isDemonTail() && ["cover", "flaunt"].includes(options.demon_tail_state)) return ZIndices.tailPenisCover;
 			if (options[`${tf}_tail_layer`] === "back") return ZIndices.tail;
 			return ZIndices.back_lower;

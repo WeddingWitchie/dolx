@@ -14,8 +14,6 @@
 	You ███████████████████████████████.<br>
 	██████████████████████████████████████████.<br>
 <<else>>
-	/* --- TF presence detection (single source of truth: <<tfDescValidList>> in mirror.twee).
-	   It populates _present.* (per-TF presence + xenos), sets/validates $tfDesc and $tfDescValid, and treats missing/undefined parts as inactive. --- */
 	<<tfDescValidList>>
 	<<set _hasAngel to _present.angel>><<set _hasFallen to _present.fallen>><<set _hasDemon to _present.demon>>
 	<<set _hasWolf to _present.wolf>><<set _hasCat to _present.cat>><<set _hasCow to _present.cow>><<set _hasHarpy to _present.harpy>><<set _hasFox to _present.fox>>
@@ -28,6 +26,8 @@
 	<<set _bakunawaActive to _present.bakunawa>>
 	<<set _ryuujinActive to _present.ryuujin>>
 	<<set _melusineActive to _present.melusine>>
+	<<set _kashaActive to _present.kasha>>
+	<<set _catsithActive to _present.catsith>>
 	/* --- Manual description override (mirror > Transformation > Description) --- */
 	<<set _descActive to ($tfDesc.primary isnot "default" and $tfDescValid.includes($tfDesc.primary))>>
 	<<set _tfDescLabel to id => ({
@@ -41,6 +41,8 @@
 		bakunawa: "a bakunawa",
 		ryuujin: "a ryuujin",
 		melusine: "a melusine",
+		kasha: "a kasha",
+		catsith: "a cat sith",
 		wolf: "a wolf",
 		cat: "a cat",
 		cow: ($player.gender_appearance is "m" ? "a bull" : "a cow"),
@@ -65,8 +67,6 @@
 			<<print _tfDescLabel($tfDesc.primary)>>
 		<</if>>
 	<<elseif _melusineActive>>
-		/* Checked before Xenos: Melusine's 3 sources (water dragon + harpy animal TFs, angel non-animal TF) would
-		   otherwise always also satisfy the Xenos auto-description rule and get overridden by it. */
 		a melusine
 	<<elseif _isXenos>>
 		a xenos
@@ -83,9 +83,7 @@
 		
 	<!-- Animal TFs -->
 	<<elseif _hasWolf or _hasCat or _hasCow or _hasHarpy or _hasFox or _hasBunny or _hasBear or _hasWaterDragon>>
-		/* Special named chimeras (hellhound/dog/jackalope/moon rabbit) already imply their celestial half, so they drop the angelic/fallen/demonic adjective.
-		The condition matches exactly when the name chain below resolves to one of those four (respecting the wolf > cat > bunny priority). */
-		<<set _specialCombo to (_hasWolf and (_hasDemon or _hasFallen or _hasAngel)) or (!_hasWolf and !_hasCat and _hasBunny and (_hasDemon or _hasAngel))>>
+		<<set _specialCombo to (_hasWolf and (_hasDemon or _hasFallen or _hasAngel)) or (!_hasWolf and _hasCat and (_kashaActive or _catsithActive)) or (!_hasWolf and !_hasCat and _hasBunny and (_hasDemon or _hasAngel))>>
 		<<if _specialCombo>>
 			a
 		<<elseif _hasAngel>>
@@ -105,6 +103,10 @@
 			dog
 		<<elseif _hasWolf>>
 			wolf
+		<<elseif _hasCat and _catsithActive>>
+			cat sith
+		<<elseif _hasCat and _kashaActive>>
+			kasha
 		<<elseif _hasCat>>
 			cat
 		<<elseif _hasBunny and _hasDemon>>

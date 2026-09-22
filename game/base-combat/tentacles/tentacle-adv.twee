@@ -1663,6 +1663,51 @@
 		<</if>>
 	<</if>>
 
+	/* Cat swat */
+	<<if ($leftaction is "leftswattentacle" and $leftactionTarget is _tentacle.id) or ($rightaction is "rightswattentacle" and $rightactionTarget is _tentacle.id)>>
+		<<if $leftaction is "leftswattentacle" and $rightaction is "rightswattentacle" and $leftactionTarget is $rightactionTarget>>
+			<<= either(
+				"You hit _the _tentacle.fullDesc with both hands. It pulls back.",
+				"You slap _the _tentacle.fullDesc twice, once with each hand. It pulls away.",
+				"You strike _the _tentacle.fullDesc with both hands. It moves away from you."
+			)>>
+			<<set _multi to 2>>
+			<<set $leftaction to 0>><<set $leftactiondefault to "leftswattentacle">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "rightswattentacle">>
+		<<elseif $leftaction is "leftswattentacle" and $leftactionTarget is _tentacle.id>>
+			<<= either(
+				"You hit _the _tentacle.fullDesc with your left hand. It pulls back.",
+				"You slap _the _tentacle.fullDesc with your left hand. It moves away.",
+				"You swing your left hand at _the _tentacle.fullDesc and hit it. It pulls away."
+			)>>
+			<<set _multi to 1>><<set $leftaction to 0>>
+			<<set $leftactiondefault to "leftswattentacle">>
+		<<else>>
+			<<= either(
+				"You hit _the _tentacle.fullDesc with your right hand. It pulls back.",
+				"You slap _the _tentacle.fullDesc with your right hand. It moves away.",
+				"You swing your right hand at _the _tentacle.fullDesc and hit it. It pulls away."
+			)>>
+			<<set _multi to 1>>
+			<<set $rightaction to 0>><<set $rightactiondefault to "rightswattentacle">>
+		<</if>>
+		<<defiance `1 * _multi`>>
+		<<set $speechhit to 1 * _multi>><<set $attackstat += 1 * _multi>>
+		<<set _tentacle.tentaclehealth -= Math.round(1 + (currentSkillValue('physique') / 16000)) * _multi>><<tentacle_record "damage" Math.round(1 + (currentSkillValue('physique') / 16000)) * _multi>>
+		<<set _swatHead to (_tentacle.head or "")>>
+		<<if typeof _swatHead is "string" and ["mouth", "anus", "vagina", "penis"].some(part => _swatHead.startsWith(part)) and !_swatHead.endsWith("rub")>>
+			<<= either(
+				"<span class='purple'>You hit it, but it stays where it is.</span>",
+				"<span class='purple'>The hit does not make it pull out.</span>"
+			)>>
+		<<else>>
+			<<tentacleadvdisable _tentacle>>
+		<</if>>
+		<<if $abomination is 1>>
+			The <<person>> flinches.
+		<</if>>
+	<</if>>
+
 	<<if ($leftaction is "leftbanish" and $leftactionTarget is _tentacle.id)
 	or ($rightaction is "rightbanish" and $rightactionTarget is _tentacle.id)>>
 		<<if $leftaction is "leftbanish" and $rightaction is "rightbanish" and $leftactionTarget is $rightactionTarget and $angelBanish gte 2>>

@@ -23,6 +23,26 @@
 
 		<<combat-dislodge-vaginal-dildo>>
 
+		<<if $illOmen is 2 and random(1, 3) is 1>>
+			<<= either(
+				"The <<person>> reaches for something and misses, nearly losing <<his>> balance.",
+				"The room keeps tilting away from everyone in it but you.",
+				"Another thing fails the way you meant it to fail."
+			)>>
+			<<ltrauma>><<trauma -3>>
+			<br><br>
+		<</if>>
+
+		<<if $fortuneStolen is 2 and random(1, 3) is 1>>
+			<<= either(
+				"You feel a small warmth in your chest and remember the luck you took.",
+				"You feel that familiar warmth inside you. The luck you took is still there.",
+				"A brief warmth passes through your chest, reminding you of the fortune you stole."
+			)>>
+			<<lstress>><<stress -3>>
+			<br><br>
+		<</if>>
+
 		/* Player CE Actions Reset */
 		<<set $combatExtended.activeDodgingActive to 0>>
 		<<set $combatExtended.activeDodgingTarget to 0>>
@@ -505,7 +525,7 @@
 			<<else>>
 				You struggle with all your might.
 				<<defiance 2 $lefttarget>>
-				<<if currentSkillValue('physique') gte random(1, 32000) and !$robinRentEvent>>
+				<<if currentSkillValue('physique') gte random(1, effectiveTransformationLevel("cat") gte 6 ? 24000 : 32000) and !$robinRentEvent>>
 					<span class="teal">You manage to twist your arms free.</span>
 					<<defiance 5 $lefttarget>>
 					<<set $leftarm to 0>><<set $rightarm to 0>>
@@ -530,7 +550,7 @@
 			<<else>>
 				You struggle.
 				<<defiance 1 $lefttarget>>
-				<<if currentSkillValue('physique') gte random(1, 64000) and !$robinRentEvent>>
+				<<if currentSkillValue('physique') gte random(1, effectiveTransformationLevel("cat") gte 6 ? 48000 : 64000) and !$robinRentEvent>>
 					<span class="teal">You manage to twist your arms free.</span>
 					<<defiance 5 $lefttarget>>
 					<<set $leftarm to 0>><<set $rightarm to 0>>
@@ -555,7 +575,7 @@
 			<<else>>
 				You struggle.
 				<<defiance 1 $righttarget>>
-				<<if currentSkillValue('physique') gte random(1, 64000) and !$robinRentEvent>>
+				<<if currentSkillValue('physique') gte random(1, effectiveTransformationLevel("cat") gte 6 ? 48000 : 64000) and !$robinRentEvent>>
 					<span class="teal">You manage to twist your arms free.</span>
 					<<defiance 5 $righttarget>>
 					<<set $leftarm to 0>><<set $rightarm to 0>>
@@ -5161,6 +5181,83 @@
 				<<set $speechgrowl to 1>>
 				<<actionsgrowl>>
 				<<brat 2>>
+			<</if>>
+		<</if>>
+		<<if $mouthaction is "illomen">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "rest">><<personselect $mouthtarget>>
+			<<set $illOmen to 1>>
+			<<= either(
+				"You speak quietly, using words you do not recognise. But you say each one without stopping.",
+				"A sentence leaves your mouth in a language you have never learned. Yet your mouth forms each one clearly.",
+				"You lower your voice and begin speaking in a language you have never heard before.",
+				"You hear yourself say something. You have no idea what they mean or how you know how to pronounce them."
+			)>>
+			<<willpowercombatcheck>>
+			<<if $willpowerSuccess>>
+				<<set $illOmen to 2>>
+				<<= either(
+					"The <<person>> reaches towards you, <span class='green'>but <<his>> hand misses.</span> <<He>> pulls it back and stares at <<his>> fingers.",
+					"The <<person>> moves, <span class='green'>but then slides out of place.</span> <<He>> stops and tries again more carefully.",
+					"The <<person>> tries to move, <span class='green'>but keeps stumbling.</span> <<He>> stops and looks at you, realising something is wrong."
+				)>>
+				<<set $enemyarousal -= 200>>
+			<<else>>
+				<<= either(
+					'You finish speaking the unfamiliar words, <span class="red">but the <<person>> does not react.</span>',
+					'The strange sentence leaves your mouth. <span class="red">The <<person>> only looks at you, unaffected.</span>',
+					'You hear yourself finish the unfamiliar phrase, <span class="red">but nothing around you changes.</span>'
+				)>>
+			<</if>>
+			<<set $enemyanger += 20>>
+		<</if>>
+		<<if $mouthaction is "stealfortune">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "rest">><<personselect $mouthtarget>>
+			<<set $fortuneStolen to 1>>
+			<<= either(
+				"You look into the <<persons>> eyes and try to steal some of <<his>> luck.",
+				"You stare into the <<persons>> eyes and focus on taking some of <<his>> luck.",
+				"You keep looking into the <<persons>> eyes as you try to take some of <<his>> luck."
+			)>>
+			<<set $skulduggerydifficulty to 1000>>
+			<<if currentSkillValue('skulduggery') gte random(1, $skulduggerydifficulty)>>
+				<<set _fortuneGained to Transformations.stealFortune()>>
+				<<set $fortuneStolen to 2>>
+				<<if _fortuneGained gt 0>>
+					<<= either(
+						"<span class='green'>You steal some of <<his>> luck.</span> <<He>> looks confused.",
+						"<span class='green'>Some of <<his>> luck becomes yours.</span> <<He>> looks around, unsure what happened.",
+						"<span class='green'>You successfully take some of <<his>> luck.</span> <<He>> looks uncomfortable, but does not seem to know why."
+					)>>
+				<<else>>
+					<span class="purple">You can't take any more stolen luck.</span>
+				<</if>>
+			<<else>>
+				<<= either(
+					'<span class="red">You fail to steal any of <<his>> luck.</span> <<He>> notices you staring at <<him>>.',
+					'<span class="red">You try to take some of <<his>> luck, but fail.</span> <<He>> frowns at you.',
+					'<span class="red">Your attempt fails.</span> <<He>> watches you carefully.'
+				)>>
+			<</if>>
+			<<set $enemyanger += 20>>
+		<</if>>
+		<<if $mouthaction is "chirrup">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "chirrup">><<set _sound to 1>>
+			<<actionschirrup>>
+			<<if currentSkillValue('tending') gte random(1, 1400)>>
+				<<= either(
+					'<span class="teal"><<bHe>> stops and chirrups back at you.</span>',
+					'<span class="teal"><<bHe>> stops and tilts <<bhis>> head.</span>',
+					'<span class="teal"><<bHe>> slows down, then stops.</span>'
+				)>>
+				<<set $enemyanger -= 20>><<set $enemyarousal -= 50>>
+				<<set $speechchirrup to 1>>
+			<<else>>
+				<<= either(
+					'<span class="red"><<bHe>> chirrups back and comes closer.</span>',
+					'<span class="red"><<bHe>> looks at you, then comes closer.</span>',
+					'<span class="red"><<bHe>> answers your chirrup and keeps approaching.</span>'
+				)>>
+				<<set $enemyarousal += 50>>
 			<</if>>
 		<</if>>
 

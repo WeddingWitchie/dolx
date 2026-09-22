@@ -151,7 +151,7 @@ const combatActionColours = {
 	Tentacle: {
 		def: [
 			/* leftaction or rightaction */
-			"lefthittentacle", "righthittentacle", "lefthit", "righthit", "leftscratch", "rightscratch", "leftbanish", "rightbanish",
+			"lefthittentacle", "righthittentacle", "leftswattentacle", "rightswattentacle", "lefthit", "righthit", "leftscratch", "rightscratch", "leftbanish", "rightbanish",
 			/* feetaction */
 			"feethit",
 			/* mouthaction */

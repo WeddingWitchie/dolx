@@ -10,6 +10,10 @@ class Transformations {
 			demon: {
 				colour: { h: 275, s: 100, l: 30 },
 			},
+			/* Cat sith markings */
+			catsith: {
+				colour: { h: 0, s: 0, l: 50 },
+			},
 		});
 	}
 
@@ -62,6 +66,15 @@ class Transformations {
 				return anyPart("kitsune", ["ears", "tail", "cheeks", "misc"]);
 			case "okami":
 				return anyPart("okami", ["ears", "tail", "wings", "misc"]);
+			case "kasha":
+				return !!(this.partActive("cat", "ears") && this.partActive("cat", "tail") && this.partActive("demon", "horns") && this.partActive("demon", "wings"));
+			case "catsith":
+				return !!(
+					this.partActive("cat", "ears") &&
+					this.partActive("cat", "tail") &&
+					this.partActive("fallenAngel", "halo") &&
+					this.partActive("fallenAngel", "wings")
+				);
 			case "bakunawa":
 				return !!(
 					(V.chimera?.bakunawa?.tail && this.partActive("waterdragon", "tail") && this.partActive("demon", "tail")) ||
@@ -118,15 +131,15 @@ class Transformations {
 	static get levelDefinitions() {
 		return {
 			wolf: { value: V.wolfgirl, parts: { ears: 4, cheeks: 5, tail: 6 }, chimeras: ["okami"], full: 6 },
-			cat: { value: V.cat, parts: { ears: 4, tail: 6 }, chimeras: [], full: 6 },
+			cat: { value: V.cat, parts: { ears: 4, tail: 6 }, chimeras: ["kasha", "catsith"], full: 6 },
 			cow: { value: V.cow, parts: { horns: 2, ears: 4, tail: 6 }, chimeras: [], full: 6 },
 			bear: { value: V.bear, parts: { ears: 4, tail: 6 }, chimeras: [], full: 6 },
 			bird: { value: V.harpy, parts: { eyes: 2, malar: 2, tail: 4, plumage: 4, wings: 6 }, chimeras: ["seraphim", "melusine"], full: 6 },
 			fox: { value: V.fox, parts: { ears: 4, cheeks: 5, tail: 6 }, chimeras: ["kitsune"], full: 6 },
 			bunny: { value: V.bunny, parts: { ears: 4, tail: 6 }, chimeras: [], full: 6 },
 			angel: { value: V.angel, parts: { halo: 4, wings: 6 }, chimeras: ["seraphim", "kitsune", "okami", "ryuujin", "melusine"], full: 6 },
-			fallen: { value: V.fallenangel, partKey: "fallenAngel", parts: { halo: 2, wings: 2 }, chimeras: [], full: 4 },
-			demon: { value: V.demon, parts: { horns: 2, tail: 4, wings: 6 }, chimeras: ["bakunawa"], full: 6 },
+			fallen: { value: V.fallenangel, partKey: "fallenAngel", parts: { halo: 2, wings: 2 }, chimeras: ["catsith"], full: 4 },
+			demon: { value: V.demon, parts: { horns: 2, tail: 4, wings: 6 }, chimeras: ["bakunawa", "kasha"], full: 6 },
 			waterdragon: { value: V.waterdragon, parts: { horns: 2, ears: 4, tail: 7 }, chimeras: ["bakunawa", "ryuujin", "melusine"], full: 7 },
 		};
 	}
@@ -168,14 +181,14 @@ class Transformations {
 		};
 		const sources = {
 			wolf: ["okami"],
-			cat: [],
+			cat: ["kasha", "catsith"],
 			cow: [],
 			bear: [],
 			bird: ["seraphim", "melusine"],
 			fox: ["kitsune"],
 			bunny: [],
 			angel: ["seraphim", "kitsune", "okami", "ryuujin", "melusine"],
-			demon: ["bakunawa"],
+			demon: ["bakunawa", "kasha"],
 			waterdragon: ["bakunawa", "ryuujin", "melusine"],
 		};
 		const definition = builds[name];
@@ -262,10 +275,6 @@ class Transformations {
 		return this.waterDragonEggsOverdueDays() >= this.waterDragonEggsOverdueLimit;
 	}
 
-	/* --- Bakunawa blood moon resonance ------------------------------------------------
-	   The bakunawa is the moon-devouring serpent, so the chimera only stirs while the moon runs red.
-	   $forcedBloodmoon is included so scripted blood moons (the wraith nightmare) count like the real thing,
-	   matching how the sidebar and road icons decide to show the blood moon. */
 	static get bakunawaBloodMoonDamageBonus() {
 		return 0.15;
 	}
@@ -279,15 +288,24 @@ class Transformations {
 		return this.bakunawaResonant() ? 1 + this.bakunawaBloodMoonDamageBonus : 1;
 	}
 
-	/* --- Description (mirror "Described as") helpers ---------------------------------
-	   Combination descriptions come in two shapes, matching the automatic <<characteristics>> title:
-	   - Special named chimeras whose name already implies the celestial half, so they take NO adjective:
-	  	 hellhound (wolf + demon/fallen), dog (wolf + angel), jackalope (bunny + demon), moon rabbit (bunny + angel).
-	     Stored as the bare keys "hellhound"/"dog"/"jackalope"/"moonrabbit".
-	   - Generic animal + celestial blends, e.g. "fallen cat", "demonic fox". Stored as "<animal>+<celestial>". */
+	static get fortuneStealAmount() {
+		return 2;
+	}
+
+	static get fortuneStealCap() {
+		return 10;
+	}
+
+	static stealFortune() {
+		if (!this.chimeraActive("kasha")) return 0;
+		const before = Number(V.moorLuck) || 0;
+		if (before >= this.fortuneStealCap) return 0;
+		V.moorLuck = Math.min(before + this.fortuneStealAmount, this.fortuneStealCap);
+		return V.moorLuck - before;
+	}
 
 	static get descriptionSpecialNames() {
-		return { hellhound: "hellhound", dog: "dog", jackalope: "jackalope", moonrabbit: "moon rabbit" };
+		return { hellhound: "hellhound", dog: "dog", jackalope: "jackalope", moonrabbit: "moon rabbit", kasha: "kasha", catsith: "cat sith" };
 	}
 
 	static descriptionAnimalNoun(animal) {

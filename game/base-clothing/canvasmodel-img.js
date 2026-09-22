@@ -129,7 +129,8 @@ DefineMacro("modelprepare-player-body", function () {
 			Transformations.partActive("waterdragon", "tail"))
 	);
 	const demonTail = !T.disabled.includes(V.transformationParts.demon.tail);
-	const crotchCoveringTf = wings || demonTail;
+	const catSithTail = V.chimera?.catsith?.tail && Transformations.chimeraActive("catsith") && !T.disabled.includes(V.transformationParts.cat.tail);
+	const crotchCoveringTf = wings || demonTail || catSithTail;
 	const flauntingWhenExposed = !V.dontHide && V.libertine !== 2 && V.transformationParts.traits.flaunting === "default";
 	const coverBreasts = !V.dontHide && ((V.uncomfortable.nude && T.exposedUpper >= 2) || (V.uncomfortable.underwear && T.exposedUpper >= 1));
 	const coverCrotch = !V.dontHide && ((V.uncomfortable.nude && T.exposedLower >= 2) || (V.uncomfortable.underwear && T.exposedLower >= 1));
@@ -231,6 +232,9 @@ DefineMacro("modelprepare-player-body", function () {
 			T.modeloptions.demon_tail_state = flauntingWhenExposed ? "flaunt" : "cover";
 			T.modeloptions.arm_right = rightArm;
 			if (!T.disabled.includes(V.transformationParts.cat.tail)) T.modeloptions.cat_tail_state = "cover";
+		} else if (catSithTail) {
+			T.modeloptions.cat_tail_state = flauntingWhenExposed ? "flaunt" : "cover";
+			T.modeloptions.arm_right = rightArm;
 		} else if (melusineWingsActive) {
 			T.modeloptions.melusine_wing_left = "cover";
 		} else if (!T.disabled.includes(V.transformationParts.angel.wings)) {
@@ -244,6 +248,8 @@ DefineMacro("modelprepare-player-body", function () {
 		}
 	} else if (demonTail && V.exposed >= 2 && flauntingWhenExposed) {
 		T.modeloptions.demon_tail_state = "flaunt";
+	} else if (catSithTail && V.exposed >= 2 && flauntingWhenExposed) {
+		T.modeloptions.cat_tail_state = "flaunt";
 	}
 
 	if (T.prop) {
@@ -527,10 +533,24 @@ DefineMacro("modelprepare-player-body", function () {
 			██████ ██   ██ ██ ██      ██ ███████ ██   ██ ██   ██
 		*/
 
-	// Demon-cat tail
+	const fallenPresent = [T.modeloptions.fallen_halo_type, T.modeloptions.fallen_wings_type].some(isPartEnabled);
+
+	// Kasha (cat + demon) tail
 	if (isPartEnabled(T.modeloptions.cat_tail_type) && isPartEnabled(T.modeloptions.demon_tail_type) && isChimeraEnabled("demoncat", "tail")) {
 		T.modeloptions.demon_tail_type = "default-cat";
 		T.modeloptions.demon_tail_layer = "cover";
+	}
+	// Cat sith (cat + fallen angel)
+	T.modeloptions.catsith_ears_type = "disabled";
+	if (isPartEnabled(T.modeloptions.cat_ears_type) && fallenPresent && isChimeraEnabled("catsith", "ears")) {
+		T.modeloptions.catsith_ears_type = "default";
+		T.modeloptions.cat_ears_type = "hidden";
+	}
+	T.modeloptions.catsith_tail_type = "disabled";
+	if (isPartEnabled(T.modeloptions.cat_tail_type) && fallenPresent && isChimeraEnabled("catsith", "tail")) {
+		T.modeloptions.catsith_tail_type = "default";
+		T.modeloptions.catsith_tail_layer = T.modeloptions.cat_tail_layer;
+		T.modeloptions.cat_tail_type = "hidden";
 	}
 	// Demon-harpy wings
 	if (isPartEnabled(T.modeloptions.demon_wings_type) && isPartEnabled(T.modeloptions.bird_wings_type) && isChimeraEnabled("demonharpy", "wings")) {

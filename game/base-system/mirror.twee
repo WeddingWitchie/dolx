@@ -3850,6 +3850,16 @@
 		<</for>>
 	<</for>>
 
+	<<if Transformations.chimeraActive("catsith") and $chimera?.catsith?.tail and Transformations.partActive("cat", "tail")>>
+		<<if $transformationParts.catsith is undefined>>
+			<<set $transformationParts.catsith to {}>>
+		<</if>>
+		<<run _animalColourParts.push({
+			label: "Cat sith markings",
+			target: "$transformationParts.catsith.pattern_colour"
+		})>>
+	<</if>>
+
 	<<if _isMenuEnabled or _animalColourParts.length gt 0>>
 		<details class="expandMenu tf-custom-colours">
 			<summary class="expandMenu">Custom Transformation Colours</summary>
@@ -4027,6 +4037,9 @@
 	<<set _waterDragonPresent to ["horns", "ears", "tail"].some(p => _waterdragon[p] isnot undefined and !_hiddenParts.includesAny(_waterdragon[p]))>>
 	<<set _birdPresent to (_bird.wings isnot undefined and !_hiddenParts.includesAny(_bird.wings))>>
 	<<set _demoncatTail to (_demon.tail isnot undefined and _cat.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _cat.tail))>>
+	<<set _fallenPresent to ["halo", "wings"].some(p => _fallen[p] isnot undefined and !_hiddenParts.includesAny(_fallen[p]))>>
+	<<set _catsithEars to (_cat.ears isnot undefined and !_hiddenParts.includesAny(_cat.ears) and _fallenPresent)>>
+	<<set _catsithTail to (_cat.tail isnot undefined and !_hiddenParts.includesAny(_cat.tail) and _fallenPresent)>>
 	<<set _demoncowTail to (_demon.tail isnot undefined and _cow.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _cow.tail))>>
 	<<set _demonwolfTail to (_demon.tail isnot undefined and _wolf.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _wolf.tail))>>
 	<<set _demonfoxTail to (_demon.tail isnot undefined and _fox.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _fox.tail))>>
@@ -4046,7 +4059,7 @@
 	<<set _melusineHalo to (_angel.halo isnot undefined and !_hiddenParts.includesAny(_angel.halo) and _waterDragonPresent and _birdPresent)>>
 	<<set _melusineWings to (_bird.wings isnot undefined and !_hiddenParts.includesAny(_bird.wings) and _angelPresent and _waterDragonPresent)>>
 	<<set _chimeraEnabled to " hide">>
-	<<if _demoncatTail or _demoncowTail or _demonwolfTail or _demonfoxTail or _demonfoxEars or _demonharpyWings or _angelharpyWings or _fallenharpyWings or _bakunawaTail or _bakunawaHorns or _bakunawaEars or _ryuujinTail or _ryuujinHorns or _ryuujinHalo or _melusineEars or _melusineHorns or _melusineTail or _melusineHalo or _melusineWings>>
+	<<if _demoncatTail or _catsithEars or _catsithTail or _demoncowTail or _demonwolfTail or _demonfoxTail or _demonfoxEars or _demonharpyWings or _angelharpyWings or _fallenharpyWings or _bakunawaTail or _bakunawaHorns or _bakunawaEars or _ryuujinTail or _ryuujinHorns or _ryuujinHalo or _melusineEars or _melusineHorns or _melusineTail or _melusineHalo or _melusineWings>>
 		<<set _chimeraEnabled to "">>
 	<</if>>
 
@@ -4054,9 +4067,29 @@
 		<<if _divine>><<tficon _divine>><</if>>
 		<span class="gold bold">Chimera</span><br>
 		<<if _demoncatTail>>
-			/* Using demon cat chimera tail. */
-			<label>Demon cat tail:
+			/* Using kasha (cat + demon) chimera tail. */
+			<label>Kasha tail:
 				<<listbox "$chimera.demoncat.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _catsithEars>>
+			/* Cat sith ears. Hiding these keeps the plain cat ears; it does not stop you being a cat sith. */
+			<label>Cat sith ears:
+				<<listbox "$chimera.catsith.ears" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _catsithTail>>
+			/* As above: art only. */
+			<label>Cat sith tail:
+				<<listbox "$chimera.catsith.tail" autoselect>>
 					<<option "Show" true>>
 					<<option "Hide" false>>
 				<</listbox>>
@@ -4275,6 +4308,8 @@
 	<<set _present.bakunawa to Transformations.chimeraActive("bakunawa")>>
 	<<set _present.ryuujin to Transformations.chimeraActive("ryuujin")>>
 	<<set _present.melusine to Transformations.chimeraActive("melusine")>>
+	<<set _present.kasha to Transformations.chimeraActive("kasha")>>
+	<<set _present.catsith to Transformations.chimeraActive("catsith")>>
 
 	/* Manual Description options may remain available from permanent unlock flags.
 	   Automatic description uses _present only, so Genome Dump + hidden/disabled limbs reads as human on Default. */
@@ -4296,6 +4331,8 @@
 	<<set _descOption.bakunawa to (_present.bakunawa or (_descOption.waterdragon and _descOption.demon))>>
 	<<set _descOption.ryuujin to (_present.ryuujin or (_descOption.waterdragon and _descOption.angel))>>
 	<<set _descOption.melusine to (_present.melusine or (_descOption.waterdragon and _descOption.angel and _descOption.harpy))>>
+	<<set _descOption.kasha to (_present.kasha or (_descOption.cat and _descOption.demon))>>
+	<<set _descOption.catsith to (_present.catsith or (_descOption.cat and _descOption.fallen))>>
 
 	<<set _animalIds to ["wolf", "cat", "cow", "harpy", "fox", "bunny", "bear", "waterdragon"]>>
 	<<set _nonAnimalIds to ["angel", "fallen", "demon"]>>
@@ -4308,7 +4345,7 @@
 	<<set _optionNonAnimalN to _nonAnimalIds.filter(id => _descOption[id]).length>>
 	<<set _descOption.xenos to (_optionAnimalN gte 1 and _optionNonAnimalN gte 1 and (_optionAnimalN + _optionNonAnimalN) gte 3)>>
 
-	<<set $tfDescValid to ["demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "bakunawa", "ryuujin", "melusine", "xenos"].filter(id => _descOption[id])>>
+	<<set $tfDescValid to ["demon", "angel", "fallen", "cat", "cow", "bear", "waterdragon", "wolf", "harpy", "fox", "bunny", "okami", "kitsune", "seraphim", "bakunawa", "ryuujin", "melusine", "kasha", "catsith", "xenos"].filter(id => _descOption[id])>>
 
 	/* Special named chimeras: their name already implies the celestial half, so no adjective and a single entry each (hellhound covers wolf + demon OR fallen). */
 	<<if _descOption.wolf and (_descOption.demon or _descOption.fallen)>><<run $tfDescValid.push("hellhound")>><</if>>
