@@ -1219,20 +1219,37 @@ if (!V.npcOrgasmState || typeof V.npcOrgasmState !== "object" || Array.isArray(V
 			return maxSize;
 		};
 
+		// Skill relaxes the hole: 0 skill takes full pain, 1000 takes half.
+		const SKILL_MIN_MULT = 0.5;
+		const skillMult = skill => 1 - (Math.clamp(currentSkillValue(skill), 0, 1000) / 1000) * (1 - SKILL_MIN_MULT);
+
+		// Arousal relaxes the body in consensual sex only, up to 30% less pain.
+		const AROUSAL_MIN_MULT = 0.7;
+		const relaxMult = V.consensual === 1 ? 1 - Math.clamp((V.arousal || 0) / (V.arousalmax || 10000), 0, 1) * (1 - AROUSAL_MIN_MULT) : 1;
+
 		let pain = 0;
 		if (V.vaginastate in painStates) {
-			pain += painStates[V.vaginastate] * wetnessMult(V.vaginaWetness);
-			pain += sizePain(maxPenetratorSize("vagina", "vaginadouble")) * sizeWetMult(V.vaginaWetness);
+			pain +=
+				(painStates[V.vaginastate] * wetnessMult(V.vaginaWetness) + sizePain(maxPenetratorSize("vagina", "vaginadouble")) * sizeWetMult(V.vaginaWetness)) *
+				skillMult("vaginalskill");
 		}
 		if (V.anusstate in painStates) {
-			pain += painStates[V.anusstate] * wetnessMult(V.anusWetness);
-			pain += sizePain(maxPenetratorSize("anus", "anusdouble")) * sizeWetMult(V.anusWetness);
+			pain +=
+				(painStates[V.anusstate] * wetnessMult(V.anusWetness) + sizePain(maxPenetratorSize("anus", "anusdouble")) * sizeWetMult(V.anusWetness)) *
+				skillMult("analskill");
 		}
-		// Mouth has no wetness stat, so it keeps the fixed 0.5 weighting.
+		// Mouth has no wetness stat; forced oral weighs more since the PC cannot set pace or depth.
 		if (V.mouthstate in painStates) {
-			pain += painStates[V.mouthstate] * 0.5;
-			pain += sizePain(maxPenetratorSize("mouth")) * 0.5;
+			const mouthWeight = V.consensual === 1 ? 0.5 : 0.75;
+			// Jaw strain grows each unbroken turn (cap +1.5); every 5th turn also costs tiredness.
+			V.oralStrainTurns = (V.oralStrainTurns || 0) + 1;
+			const jawStrain = Math.min(V.oralStrainTurns * 0.1, 1.5);
+			pain += (painStates[V.mouthstate] + sizePain(maxPenetratorSize("mouth")) + jawStrain) * mouthWeight * skillMult("oralskill");
+			if (V.oralStrainTurns % 5 === 0 && !V.statFreeze) statChange.tiredness(1);
+		} else {
+			delete V.oralStrainTurns;
 		}
+		pain *= relaxMult;
 
 		// PENETRATION_PAIN_MULT applies only to this function's per-turn penetration pain.
 		const PENETRATION_PAIN_MULT = 0.46;
