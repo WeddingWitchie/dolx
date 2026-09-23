@@ -181,6 +181,7 @@
 	<<unset $stall_foodstuff>>
 	<<unset $stall_cost>>
 	<<unset $stall_expensive>>
+	<<unset $stall_bag>>
 <</widget>>
 
 <<widget "stall_sell">>
@@ -197,6 +198,9 @@
 	<<money `Math.round($stall_cost * $stall_amount)` "marketStall">>
 	<<set $stall_money += Math.round($stall_cost * $stall_amount)>>
 	<<set $produce_sold += $stall_amount>>
+	<<set _stall_bag to $stall_bag>>
+	<<set _stall_bagFee to pcStallUseBag()>>
+	<<if _stall_bagFee gt 0>><<money _stall_bagFee "marketStall">><</if>>
 	You sell
 	<<if $stall_amount gte 2>>
 		$stall_amount <<print setup.foodstuff[$stall_foodstuff].plural>>
@@ -204,6 +208,13 @@
 		one <<print setup.foodstuff[$stall_foodstuff].name.replace(/_/g," ")>>
 	<</if>>
 	for <<printmoney `$stall_cost * $stall_amount`>>.
+	<<if _stall_bag is "reusable">>
+		<<He>> pays <<printmoney _stall_bagFee>> for a tote bag to carry the purchase in.
+	<<elseif _stall_bag is "own">>
+		<<He>> brought back a tote bag from an earlier visit.
+	<<elseif _stall_bag is "disposable">>
+		You hand it over in a paper bag.
+	<</if>>
 	<<if ["water_dragon_egg", "water_dragon_egg_pastel"].includes($stall_foodstuff)>>
 		<<wearProp "waterdragon egg 1">>
 		<br>The <<person>> turns the big pearl-coloured egg over in <<his>> hands, watching the light move across the shell like water.
@@ -235,7 +246,7 @@
 <<widget "eventsstall">>
 	/* $stall_rejected is now a dead variable, but kept in case it is reintroduced later. */
 	<<rng 10>>
-	<<if $daily.stall_lewdity gt 0 and $daily.stall_lewdity+2 gte random(1, 18)>>
+	<<if $daily.stall_lewdity gt 0 and $daily.stall_lewdity+2 gte random(1, pcStallIncidentRange())>>
 		/* Bad events happen between 1/6 and 1/3 of the cases */
 		<<if $rng is 1>>
 			<<generate1>><<person1>>
@@ -752,7 +763,7 @@
 
 <<widget "stall_init">>
 	<<set $stall_foodstuff to $foodstuff_inventory.random()>>
-	<<set $enemytrust to 0>>
+	<<set $enemytrust to pcStallStartTrust()>>
 	<<set $enemyarousal to 0>>
 	<<set $stall_seduced to 0>>
 	<<stall_update>>
@@ -773,6 +784,7 @@
 			/* At most 120 products in one unlikely sale. Averages are (5,10,20,40,80) */
 		<</if>>
 	<</if>>
+	<<set $stall_amount to pcStallBagAmount($stall_amount)>>
 	<<if $stall_amount gte $foodstuff[$stall_foodstuff].amount>>
 		<<set $stall_amount to clone($foodstuff[$stall_foodstuff].amount)>>
 	<</if>>
@@ -781,6 +793,7 @@
 	<<else>>
 		<<set $stall_cost to Math.round(setup.foodstuff[$stall_foodstuff].shop.sell_price)>>
 	<</if>>
+	<<set $stall_cost to Math.round($stall_cost * pcStallPriceMult($stall_foodstuff))>>
 <</widget>>
 
 <<widget "stall_amount">>
@@ -876,7 +889,7 @@
 <</widget>>
 
 <<widget "stallCustomerArousal">>
-	<<set $enemyarousal += 10*random(1,2)*random(1,2)>>
+	<<set $enemyarousal += Math.round(10*random(1,2)*random(1,2)*pcStallArousalMult())>>
 	/*
 	25% +10 arousal
 	50% +20 arousal
@@ -889,7 +902,7 @@
 	<<silently>><<stall_inventory>><</silently>>
 	<<stall_init>>
 
-	<<if Math.min(10000,3000 + $attractiveness/2 + $fame.business + (currentSkillValue('tending') * 2) + (Math.min($foodstuff_inventory.length,10) * 500)) gte random(1, 15000)>>
+	<<if Math.min(10000,3000 + $attractiveness/2 + $fame.business + (currentSkillValue('tending') * 2) + (Math.min($foodstuff_inventory.length,10) * 500) + pcStallAttentionBonus()) gte random(1, 15000)>>
 	    /* No sale in 1/3 of the cases. */
 		<<set _stall_attention to 2>>
 		<<set $stall_foodstuff to $foodstuff_inventory.random()>>

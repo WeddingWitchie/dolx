@@ -1,0 +1,60 @@
+:: Stall Upgrades
+<<set $outside to 0>><<set $location to "market">><<effects>>
+<<run ensurePcStall()>>
+You enter the small office responsible for the Connudatus market. A clerk behind the desk slides a catalogue of fittings and supplies across to you.
+<br><br>
+<<if $phase is "bought">>
+	<span class="green">The clerk notes the order. It will be in place the next time you open your stall.</span>
+	<br><br>
+<<elseif $phase is "bags">>
+	<span class="green">The clerk hands you the bags.</span>
+	<br><br>
+<</if>>
+<<set $phase to 0>>
+<<set _owned to setup.pcStall.upgrades.filter(u => pcStallHas(u.id))>>
+<<if _owned.length gt 0>>
+	Your stall has: <<print _owned.map(u => u.name).join(", ")>>.
+	<br><br>
+<</if>>
+<<set _available to pcStallAvailable()>>
+<<if _available.length gt 0>>
+	<<for _p range _available>>
+		<<capture _p>>
+			<<if setup.inflation.canAfford(_p.cost, "marketStall")>>
+				<<shopicon "register">><<link `"Buy the " + _p.name + " (" + formatMoney(setup.inflation.price(_p.cost)) + ")"` "Stall Upgrades">>
+					<<money `-_p.cost` "marketStall">><<run pcStallBuy(_p.id)>><<set $phase to "bought">><</link>><<note `_p.note` "green">>
+				<br>
+			<<else>>
+				<span class="grey">Buy the <<print _p.name>> (<<printprice _p.cost>>)</span><<note `_p.note` "grey">>
+				<br>
+			<</if>>
+		<</capture>>
+	<</for>>
+<<else>>
+	You own everything in the catalogue.
+<</if>>
+<br>
+Paper bags make customers buy a little more. You give them away, one per sale.
+You have <span class="gold"><<print $pcStall.bagsDisposable>></span>.
+<br>
+<<set _pack to setup.pcStall.disposablePack>>
+<<if setup.inflation.canAfford(_pack.cost, "marketStall")>>
+	<<shopicon "register">><<link `"Buy " + _pack.amount + " paper bags (" + formatMoney(setup.inflation.price(_pack.cost)) + ")"` "Stall Upgrades">>
+		<<money `-_pack.cost` "marketStall">><<set $pcStall.bagsDisposable += _pack.amount>><<set $phase to "bags">><</link>>
+	<br>
+<</if>>
+<<if pcStallHas("toteRack")>>
+	<br>
+	Tote bags make customers buy more than paper bags do. Customers pay you back what a tote costs, and returning customers sometimes bring their own. Totes are used before paper bags.
+	You have <span class="gold"><<print $pcStall.bagsReusable>></span>.
+	<br>
+	<<set _toteCost to setup.pcStall.reusableCost * setup.pcStall.reusablePack>>
+	<<if setup.inflation.canAfford(_toteCost, "marketStall")>>
+		<<shopicon "register">><<link `"Buy " + setup.pcStall.reusablePack + " tote bags (" + formatMoney(setup.inflation.price(_toteCost)) + ")"` "Stall Upgrades">>
+			<<money `-_toteCost` "marketStall">><<set $pcStall.bagsReusable += setup.pcStall.reusablePack>><<set $phase to "bags">><</link>>
+		<br>
+	<</if>>
+<</if>>
+<br>
+<<connudatusicon>><<link [[Leave|Connudatus Street]]>><</link>>
+<br>
