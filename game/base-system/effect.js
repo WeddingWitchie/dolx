@@ -1181,6 +1181,7 @@ function effects() {
 			["cum", "Cumoisseur", "Cum Dump"],
 			["penis_addict", "Cock Enthusiast", "Cock Addict"],
 			["hole_addict", "Hole Enthusiast", "Hole Addict"],
+			["oral_fixation", "Oral Fixation", "Oral Fixation"],
 		].forEach(([variable, defiantName, submissiveName]) => {
 			if (V[`${variable}_trait_message`]) {
 				element("span", `You've gained the "${V.submissive <= 850 ? defiantName : submissiveName}" trait.`, "gold");

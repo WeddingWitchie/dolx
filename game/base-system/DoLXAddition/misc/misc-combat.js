@@ -199,13 +199,17 @@
 	};
 })();
 
-/* True when the player cannot orgasm from masturbation alone.
-   Toys may still allow orgasm. Used only to enable a fallback, never to block anything. */
+/* True when an orgasm restriction is actually in force (setting off, not paused), so masturbation alone can't finish.
+   Scenes use it only to enable fallbacks and early exits. */
 function playerCannotSelfClimax() {
+	if (V.statFreeze || V.hc || V.sexRitual) return false;
 	return !!(
-		(!V.statFreeze && V.penis_addict_trait === 1) ||
-		(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) ||
-		(V.xchange?.pill?.alphaEffect && V.player?.penisExist) ||
+		(V.penis_addict_trait === 1 && !V.xchange?.genitalAddictFreeOrgasm) ||
+		(V.hole_addict_trait === 1 && V.player?.penisExist && !V.xchange?.genitalAddictFreeOrgasm) ||
+		// eslint-disable-next-line no-undef
+		(playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player?.penisExist && !V.xchange?.alphaFreeOrgasm) ||
+		// eslint-disable-next-line no-undef
+		oralFixationDenies() ||
 		// eslint-disable-next-line no-undef
 		breederOrgasmDenied()
 	);

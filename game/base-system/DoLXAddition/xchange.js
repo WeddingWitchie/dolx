@@ -230,8 +230,10 @@ function getSensitivity(part) {
 	const antiPillMod = insanitySensitivityAdjustment(getAntiPillSensitivityBonus(part));
 
 	switch (part) {
-		case "mouth":
-			return applySensitivityMedication(V.mouthsensitivity + antiPillMod, 6);
+		case "mouth": {
+			const oralFixationMod = insanitySensitivityAdjustment(oralFixationActive() ? 2 : 0);
+			return applySensitivityMedication(V.mouthsensitivity + antiPillMod + oralFixationMod, 6);
+		}
 		case "breast":
 		case "breasts":
 			return applySensitivityMedication(V.breastsensitivity + purityMod + xchangeMod + orgasmingMod + antiPillMod, 8);
@@ -304,6 +306,28 @@ function getGenitalSensitiveRubSlot() {
 }
 window.getGenitalSensitiveRubSlot = getGenitalSensitiveRubSlot;
 
+function oralFixationActive() {
+	return !V.statFreeze && !V.hc && V.oral_fixation_trait === 1 && !!V.xchange?.oralFixationTraitEnabled;
+}
+window.oralFixationActive = oralFixationActive;
+
+/* Oral Fixation craves the mouth busy with a partner, or (optional setting) cum swallowed within the last hour. */
+function oralFixationCravingUnmet() {
+	if (!oralFixationActive()) return false;
+	if (["penis", "othervagina", "otheranus", "facesit", "tentacle"].includes(V.mouthuse)) return false;
+	if (["penetrated", "othervagina", "otheranus"].includes(V.mouthstate)) return false;
+	if (Array.isArray(V.NPCList) && V.NPCList.some(npc => npc && npc.penis === "mouth")) return false;
+	if (V.xchange.oralFixationSwallowRelief && Number.isFinite(V.oralFixationLastSwallow) && V.timeStamp - V.oralFixationLastSwallow <= 3600) return false;
+	return true;
+}
+window.oralFixationCravingUnmet = oralFixationCravingUnmet;
+
+/* The craving only blocks orgasm while "allow orgasm" is off. */
+function oralFixationDenies() {
+	return !V.xchange?.oralFixationFreeOrgasm && oralFixationCravingUnmet();
+}
+window.oralFixationDenies = oralFixationDenies;
+
 function pleasure(amount, source) {
 	if (isNaN(amount)) paramError("pleasure", "amount", amount, "Expected a number.");
 	amount = Number(amount);
@@ -367,13 +391,19 @@ function pleasure(amount, source) {
 
 		const penisAddictionFulfilled = playerIsBeingPenetrated;
 		const holeAddictionFulfilled = penetrating.includes(V.penisuse);
-		const alphaEffectActive = !V.statFreeze && playerIsXChanged() && V.xchange.pill?.alphaEffect && V.player?.penisExist;
+		const alphaEffectActive = !V.statFreeze && !V.hc && playerIsXChanged() && V.xchange.pill?.alphaEffect && V.player?.penisExist;
 		// Gwylan's ritual has its own bespoke orgasm pacing ($sexRitual.playerOrgasms / orgasmTarget);
 		// the addiction/breeder/alpha/omega denial gates below fight that system instead of complementing it, so they're suspended for the ritual's duration.
 		// $sexRitual only exists between gwylanRitualStart and gwylanRitualEnd, so this cleanly brackets the whole scene.
 		const gwylanRitualActive = !!V.sexRitual;
 		// The hole addiction craves getting the player's own cock into something; with no penis (e.g. genderflipped by a pill) it cannot possibly be fulfilled, so it lies dormant instead of soft-locking every orgasm.
-		const holeAddictActive = !gwylanRitualActive && ((!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist === true) || alphaEffectActive);
+		// Each craving's "allow orgasm" setting lifts its block; the orgasm then comes out hollow instead (see freedCravings below).
+		const penisAddictActive = !V.statFreeze && !V.hc && V.penis_addict_trait === 1 && !V.xchange.genitalAddictFreeOrgasm;
+		const holeAddictActive =
+			!gwylanRitualActive &&
+			((!V.statFreeze && !V.hc && V.hole_addict_trait === 1 && V.player?.penisExist === true && !V.xchange.genitalAddictFreeOrgasm) ||
+				(alphaEffectActive && !V.xchange.alphaFreeOrgasm));
+		const oralFixationUnmet = !gwylanRitualActive && oralFixationDenies();
 
 		// Apply effect according to source
 		let sensitivity = 0;
@@ -415,7 +445,7 @@ function pleasure(amount, source) {
 			case "bottom_grope":
 				if (amount > 0 && anusPenetratedNow) {
 					statChange.pain(V.analPain || 0);
-					if (!V.statFreeze && V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
+					if (!V.statFreeze && !V.hc && V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("bottom");
 				break;
@@ -433,7 +463,7 @@ function pleasure(amount, source) {
 			case "penis_grope":
 				if (amount > 0 && V.player.vaginaExist === true && vaginaPenetratedNow) {
 					statChange.pain(V.vaginalPain);
-					if (!V.statFreeze && V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
+					if (!V.statFreeze && !V.hc && V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("genital");
 				if (playerIsPregnant()) sensitivity += insanitySensitivityAdjustment(0.5);
@@ -468,7 +498,7 @@ function pleasure(amount, source) {
 		if (
 			amount > 0 &&
 			!gwylanRitualActive &&
-			((!V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled))
+			((penisAddictActive && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled) || oralFixationUnmet)
 		) {
 			mod *= 0.6;
 		}
@@ -499,8 +529,8 @@ function pleasure(amount, source) {
 		V.pleasure += pleasureChange;
 
 		// Prevent orgasming unless addictions are fulfilled (suspended during Gwylan's ritual, see gwylanRitualActive above)
-		const addictionsUnmet =
-			!gwylanRitualActive && ((!V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled));
+		const genitalAddictionsUnmet = !gwylanRitualActive && ((penisAddictActive && !penisAddictionFulfilled) || (holeAddictActive && !holeAddictionFulfilled));
+		const addictionsUnmet = genitalAddictionsUnmet || oralFixationUnmet;
 
 		const cap = (V.pleasuremax * 4) / 5 - 1;
 
@@ -515,7 +545,7 @@ function pleasure(amount, source) {
 			Shared escalating "pity" roll for toy relief.
 			Each denied roll at the edge raises the next chance (10%, 25%, 40%... guaranteed by the 7th), so the hollow forced orgasm reliably arrives within a few combat turns.
 			The old flat 10% only LOOKED functional in masturbation because the "To orgasm" skip-loop ran up to 100 iterations of pleasure() calls; combat gets roughly one roll per turn and encounters ended long before the orgasm ever fired.
-			messageKind: 1 = addiction/alpha gate, 2 = breeder/omega gate (picks the notice flavour).
+			messageKind: 1 = addiction/alpha gate, 2 = breeder/omega gate, 3 = Oral Fixation alone, with no toy (picks the notice flavour).
 		*/
 		let toyBreakthroughRolled = false;
 		const rollToyBreakthrough = messageKind => {
@@ -562,7 +592,7 @@ function pleasure(amount, source) {
 				const arms = [V.leftarm, V.rightarm];
 
 				// Penis Addict: needs something INSIDE the player
-				if (!V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled) {
+				if (penisAddictActive && !penisAddictionFulfilled) {
 					// Worn (inserted) toys: the V.worn slots are the single source of truth for what's actually in the body, and these helpers verify state === "worn".
 					// The per-item inventory `worn` flags are shop-UI bookkeeping that other systems (combat "removed" state, vision morphs, save/load breaking the slot↔item alias) don't maintain, so they must never be read here as a stale flag made merely carried toys count as inserted.
 					// Every insertable worn toy lands in one of these three slots (anal beads share butt_plug; all vibes share vibrator).
@@ -610,17 +640,20 @@ function pleasure(amount, source) {
 			// 1 = penis craving unmet, 2 = hole/alpha craving unmet, 3 = both.
 			// This makes the notice show the actual missing craving instead of guessing from traits.
 			const showBlockedMsg = () => {
-				const penisUnmet = !V.statFreeze && V.penis_addict_trait === 1 && !penisAddictionFulfilled;
+				const penisUnmet = penisAddictActive && !penisAddictionFulfilled;
 				const holeUnmet = holeAddictActive && !holeAddictionFulfilled;
 				V.effectsmessage = 1;
-				V.sexual_addiction_message = penisUnmet && holeUnmet ? 3 : holeUnmet ? 2 : 1;
+				if (penisUnmet || holeUnmet) V.sexual_addiction_message = penisUnmet && holeUnmet ? 3 : holeUnmet ? 2 : 1;
+				if (oralFixationUnmet) V.oral_fixation_message = 1;
 			};
 
-			if (usingSexToy) {
+			// No toy stands in for a mouthful, so an Oral Fixation that is the only craving left always gets the escalating breakthrough roll.
+			// Without it, scenes with no oral option would pin pleasure at the edge forever.
+			if (usingSexToy || !genitalAddictionsUnmet) {
 				// Soft gate: clamp to cap, with an escalating chance of breakthrough orgasm
 				if (V.pleasure > cap) V.pleasure = cap;
 
-				if (V.pleasure >= cap && !rollToyBreakthrough(1)) {
+				if (V.pleasure >= cap && !rollToyBreakthrough(usingSexToy ? 1 : 3)) {
 					showBlockedMsg();
 				}
 			} else {
@@ -636,7 +669,8 @@ function pleasure(amount, source) {
 		// Cannot orgasm under breeder/omega unless there is actual internal semen, or a valid insemination event just occurred.
 		// Skipped entirely when the player has enabled free orgasms (breederOrgasmDenied() returns false).
 		// Also skipped when a breakthrough orgasm already fired this call (addiction/alpha toy gate above); re-clamping here used to silently eat that orgasm along with its message and stress.
-		const breederEffectActive = !V.statFreeze && !gwylanRitualActive && playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
+		const breederEffectActive =
+			!V.statFreeze && !V.hc && !gwylanRitualActive && playerIsXChanged() && (V.xchange.pill?.breederEffect || V.xchange.pill?.omegaEffect);
 		const breederSatisfied = !breederOrgasmDenied() || V.xchange.breederOrgasm || V.breederCreampied;
 		if (breederEffectActive && !breederSatisfied && !V.xchange.breakthroughOrgasm && oldPleasure + pleasureChange >= (V.pleasuremax * 4) / 5) {
 			// Toy relief: a toy working the needy hole turns the hard denial into the same soft gate the addiction traits get, clamped at the edge with an escalating chance of a hollow forced orgasm.
@@ -694,6 +728,22 @@ function pleasure(amount, source) {
 			// Treat the denial like a failed climax instead of leaving pleasure pinned at the edge.
 			// The player must build back from 40% before another denial can charge, preventing one sex action from chaining stress/trauma hits.
 			V.pleasure = Math.min(V.pleasure, (V.pleasuremax * 2) / 5 - 1);
+		}
+
+		// Cravings whose block a setting lifted but which are still unmet. <<orgasm>> reads this to make the release hollow and stressful.
+		if (amount > 0) {
+			const freedCravings = [];
+			if (!gwylanRitualActive && !V.statFreeze && !V.hc) {
+				if (V.xchange.genitalAddictFreeOrgasm && V.penis_addict_trait === 1 && !penisAddictionFulfilled) freedCravings.push("penis");
+				if (V.xchange.genitalAddictFreeOrgasm && V.hole_addict_trait === 1 && V.player?.penisExist && !holeAddictionFulfilled) freedCravings.push("hole");
+				else if (V.xchange.alphaFreeOrgasm && alphaEffectActive && !holeAddictionFulfilled) freedCravings.push("alpha");
+				if (V.xchange.oralFixationFreeOrgasm && oralFixationCravingUnmet()) freedCravings.push("oral");
+				const breederUnfilled = breederEffectActive && !playerIsBreederCreampied() && !V.xchange.breederOrgasm && !V.breederCreampied;
+				if (breederUnfilled && V.xchange.breederFreeOrgasm && V.xchange.pill?.breederEffect) freedCravings.push("breeder");
+				if (breederUnfilled && V.xchange.omegaFreeOrgasm && V.xchange.pill?.omegaEffect) freedCravings.push("omega");
+			}
+			if (freedCravings.length) V.xchange.freedCravings = { kinds: freedCravings, at: V.timeStamp };
+			else delete V.xchange.freedCravings;
 		}
 
 		fragment.append(wikifier("arousal-moan", amount * (amount > 0 ? mod : 1) * (amount > 0 ? Weather.BodyTemperature.arousalModifier : 1), sensitivity));
@@ -975,7 +1025,7 @@ window.playerHasXChangeBody = playerHasXChangeBody;
  * @returns {boolean}
  */
 function aboDrivesHeat() {
-	return !V.statFreeze && !!V.xchange?.aboDrivesHeat && playerIsXChanged();
+	return !V.statFreeze && !V.hc && !!V.xchange?.aboDrivesHeat && playerIsXChanged();
 }
 window.aboDrivesHeat = aboDrivesHeat;
 
@@ -987,7 +1037,7 @@ window.aboDrivesHeat = aboDrivesHeat;
  * @returns {number} Extra allure, or 0 if none are active
  */
 function xchangePheromoneAllure() {
-	if (V.statFreeze || !V.xchange?.pheromoneAllure || !playerIsXChanged()) return 0;
+	if (V.statFreeze || V.hc || !V.xchange?.pheromoneAllure || !playerIsXChanged()) return 0;
 	const pill = V.xchange.pill;
 	if (!pill) return 0;
 	let allure = 0;
@@ -1184,11 +1234,13 @@ function playerIsBreederCreampied() {
 window.playerIsBreederCreampied = playerIsBreederCreampied;
 
 // Whether the breeder/omega "you can't climax unless there's cum inside you" restriction is currently in force.
-// The "Orgasm freely" setting (breederFreeOrgasm) lifts it, so the denial can be skipped consistently everywhere it's checked.
+// Breeder and Omega each have their own "allow orgasm" setting (breederFreeOrgasm / omegaFreeOrgasm) that lifts only that effect's block.
 function breederOrgasmDenied() {
-	if (V.statFreeze || !playerIsXChanged() || V.xchange?.breederFreeOrgasm) return false;
+	if (V.statFreeze || V.hc || !playerIsXChanged()) return false;
 	const pill = V.xchange?.pill;
-	return !!((pill?.breederEffect || pill?.omegaEffect) && !playerIsBreederCreampied());
+	const breederBlocks = pill?.breederEffect && !V.xchange.breederFreeOrgasm;
+	const omegaBlocks = pill?.omegaEffect && !V.xchange.omegaFreeOrgasm;
+	return !!((breederBlocks || omegaBlocks) && !playerIsBreederCreampied());
 }
 window.breederOrgasmDenied = breederOrgasmDenied;
 
@@ -2090,11 +2142,16 @@ function xchangeEffectsMessages() {
 		// A swarm can reach the same gates a toy does, and it is still on the player as this prints.
 		const swarmAmounts = V.swarm?.amount;
 		const swarmRelief = !!swarmAmounts && (swarmAmounts.genital?.[1] > 0 || swarmAmounts.butt?.[1] > 0);
-		const pushedYou = swarmRelief
+		const fromOralGate = V.sexual_addiction_toy_breakthrough_message === 3;
+		const pushedYou = fromOralGate
+			? "You stay on the edge so long that your body finally gives in."
+			: swarmRelief
 			? `The ${swarmWord()} ${swarmAmounts.active?.[0] === 1 ? "pushes" : "push"} you over the edge, and your body finally gives in.`
 			: "The toy pushes you over the edge, and your body finally gives in.";
 		element("span", pushedYou, "purple");
-		if (fromBreederGate) {
+		if (fromOralGate) {
+			element("span", "The orgasm washes through you, but it feels hollow. Your mouth still aches to be filled.", "blue");
+		} else if (fromBreederGate) {
 			const omegaAnal = omegaTargetsAnus();
 			const breederTarget = omegaAnal && pill?.breederEffect ? "holes" : omegaAnal ? "ass" : "womb";
 			element(
@@ -2116,13 +2173,14 @@ function xchangeEffectsMessages() {
 		delete V.sexual_addiction_toy_breakthrough_message;
 	}
 
+	const refusalShown = !!V.sexual_addiction_message;
 	if (V.sexual_addiction_message) {
-		const alphaEffectActive = !V.statFreeze && playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player.penisExist;
+		const alphaEffectActive = !V.statFreeze && !V.hc && playerIsXChanged() && V.xchange?.pill?.alphaEffect && V.player.penisExist;
 		// Tracks which craving is unmet: 1 = penis, 2 = hole/alpha, 3 = both.
 		// Old saves may still use 1, so the trait check below handles that case.
 		const unmet = V.sexual_addiction_message;
 		const holeLine =
-			alphaEffectActive && (V.statFreeze || V.hole_addict_trait !== 1)
+			alphaEffectActive && (V.statFreeze || V.hole_addict_trait !== 1 || V.xchange.genitalAddictFreeOrgasm)
 				? "Your knot aches to lock inside someone, and it demands it now!"
 				: "Your dick craves some pussy, and it demands it now!";
 		element("span", "Your body refuses to cum like this.", "purple");
@@ -2134,6 +2192,15 @@ function xchangeEffectsMessages() {
 		br();
 
 		delete V.sexual_addiction_message;
+	}
+
+	if (V.oral_fixation_message) {
+		if (oralFixationActive()) {
+			if (!refusalShown) element("span", "Your body refuses to cum like this.", "purple");
+			element("span", "You need something in your mouth, or a fresh taste of cum on your tongue.", "red");
+			br();
+		}
+		delete V.oral_fixation_message;
 	}
 
 	if (V.xtendMessage) {

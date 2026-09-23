@@ -20,7 +20,7 @@
 
 	<!-- Breeder/Omega denial.
      Blocks scripted orgasms unless the player has been inseminated. Forced creampie and toy orgasms still bypass this check. -->
-	<<if !$statFreeze and !$sexRitual and breederOrgasmDenied() and !$xchange.breederOrgasm and !$breederCreampied and !$xchange.breakthroughOrgasm>>
+	<<if !$statFreeze and !$hc and !$sexRitual and breederOrgasmDenied() and !$xchange.breederOrgasm and !$breederCreampied and !$xchange.breakthroughOrgasm>>
 		<<set _breederTarget to (omegaTargetsAnus() and $xchange.pill.breederEffect) ? "pussy or ass" : omegaTargetsAnus() ? "ass" : "pussy">>
 		<span class="purple">You are almost overcome by sensation, but your body refuses to let go.</span> <span class="red">You crave some thick gooey semen in your _breederTarget.</span>
 		/* Same escalating denial cost the pleasure() gate and the cafe scene charge, so a denial feels the same wherever it happens. */
@@ -56,6 +56,33 @@
 				<<set $masturbationRuinedOrgasm++>>
 			<</if>>
 		<</if>>
+	<</if>>
+
+	<!-- Freed cravings: an "allow orgasm" setting let this orgasm through, but the trait's need went unmet, so it comes out hollow like a forced one. -->
+	<<if !_deniedOrgasm and !$statFreeze and !$hc and !$sexRitual and !$xchange.breakthroughOrgasm and $xchange.freedCravings?.kinds and $timeStamp - $xchange.freedCravings.at lte 600>>
+		<<if $xchange.freedCravings.kinds.includes("breeder")>>
+			<span class="purple">You cum, but your pussy feels empty. Your body wanted to be filled with cum.</span>
+		<</if>>
+		<<if $xchange.freedCravings.kinds.includes("omega")>>
+			<span class="purple">You cum, but your <<= omegaTargetsAnus() ? "ass feels" : "pussy feels">> empty. Your body wanted to be bred.</span>
+		<</if>>
+		<<if $xchange.freedCravings.kinds.includes("penis")>>
+			<span class="purple">You cum, but it feels empty without a cock inside you.</span>
+		<</if>>
+		<<if $xchange.freedCravings.kinds.includes("hole")>>
+			<span class="purple">You cum, but it feels empty without your cock inside someone.</span>
+		<</if>>
+		<<if $xchange.freedCravings.kinds.includes("alpha")>>
+			<span class="purple">You cum, but your knot throbs. It needed to lock inside someone.</span>
+		<</if>>
+		<<if $xchange.freedCravings.kinds.includes("oral")>>
+			<span class="purple">You cum, but your mouth feels painfully empty.</span>
+		<</if>>
+		<span class="red">The release brings no relief.</span><<stress 15>><<ggstress>>
+		<br>
+		<<run delete $xchange.freedCravings>>
+	<<elseif $xchange.freedCravings>>
+		<<run delete $xchange.freedCravings>>
 	<</if>>
 
 	<<if _continuousOrgasm and !_deniedOrgasm>>
@@ -125,7 +152,7 @@
 						<<set $_earslimeEjaculateTask to true>>
 					<</if>>
 					<<internalejac>><<creampie "npc" "vagina">><<fillOther>>
-					<<if !$statFreeze and playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
+					<<if !$statFreeze and !$hc and playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
 						<<if $combat is 1>>
 							<<if !$alphaKnotSwollen>><<knot_stat>><</if>>
 							<<set $alphaKnotSwollen to true>>
@@ -165,7 +192,7 @@
 							<<penileejacstat>>
 							<span class="pink">You are overcome by sensation and ejaculate<<if _cumDesc isnot "cum">> _cumDesc<</if>> deep into <<his>> bowels.</span>
 							<<internalejac>><<creampie "npc" "anus">><<fillOther>>
-							<<if !$statFreeze and playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
+							<<if !$statFreeze and !$hc and playerIsXChanged() and $xchange.pill.alphaEffect and $player.penisExist>>
 								<<if $combat is 1>>
 									<<if !$alphaKnotSwollen>><<knot_stat>><</if>>
 									<<set $alphaKnotSwollen to true>>
@@ -296,6 +323,9 @@
 
 	<<if ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"].includes($vaginause) or ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"].includes($anususe) or $portalPanties.state.vagina or $portalPanties.state.anus or $portalejacvagina or $portalejacanus>>
 		<<set $beingPenetratedOrgasmStat += 1>>
+	<</if>>
+	<<if !$statFreeze and !$hc and (["penis", "othervagina", "otheranus", "facesit", "tentacle"].includes($mouthuse) or ["penetrated", "othervagina", "otheranus"].includes($mouthstate))>>
+		<<set $oralFixationStat to ($oralFixationStat or 0) + 1>>
 	<</if>>
 
 	<!-- Vaginal orgasm -->

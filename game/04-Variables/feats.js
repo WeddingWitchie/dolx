@@ -1264,6 +1264,15 @@ setup.feats = {
 		filter: ["All", "Special"],
 		hidden: true,
 	},
+	"Throat Goat": {
+		title: "Throat Goat",
+		desc: "Your mouth got so used to being full that you can't cum without it.",
+		difficulty: 2,
+		series: "",
+		hint: "Hint: Put your mouth to work, a lot.",
+		filter: ["All", "Special"],
+		hidden: true,
+	},
 	"Cracked Mind": {
 		title: "Cracked Mind",
 		desc: "Unrelenting trauma shattered your grip on reality.",

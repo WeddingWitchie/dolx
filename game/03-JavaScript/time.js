@@ -1697,7 +1697,8 @@ function minutePassed(minutes) {
 		playerIsXChanged() &&
 		(!!V.xchange.pill?.breederEffect || !!V.xchange.pill?.bullEffect || !!V.xchange.pill?.omegaEffect || !!V.xchange.pill?.alphaEffect);
 	// The PC gradually gets used to being locked up. Chastity can keep them needy, but passive pressure alone cannot leave them overwhelmed.
-	if (!V.statFreeze) {
+	// Paused during the hopeless cycle too, so the acclimation traits neither build up nor get earned there.
+	if (!V.statFreeze && !V.hc) {
 		V.chastityAcclimation = Number.isFinite(V.chastityAcclimation) ? V.chastityAcclimation : 0;
 		const chastityAcclimatedEnabled = !!V.xchange?.chastityAcclimatedTraitEnabled;
 		V.chastityAcclimatedTrait = Number.isFinite(V.chastityAcclimatedTrait)
@@ -1750,7 +1751,7 @@ function minutePassed(minutes) {
 			V.arousalDesensitizedTrait = -1;
 		}
 	}
-	const chastityAcclimationEffect = !V.statFreeze && V.xchange?.chastityAcclimatedTraitEnabled ? V.chastityAcclimation : 0;
+	const chastityAcclimationEffect = !V.statFreeze && !V.hc && V.xchange?.chastityAcclimatedTraitEnabled ? V.chastityAcclimation : 0;
 	const chastityArousalCap = V.arousalmax * (0.5 - 0.45 * (chastityAcclimationEffect / 14400));
 	// The belt only causes frustration when the PC was locked against their will. Voluntary locks, including temple vows, do not gain extra frustration from the Lustful trait.
 	const chastityFrustrationImmunity = chastityFrustrationImmune();
@@ -2433,6 +2434,14 @@ function dailyPlayerEffects() {
 		V.penis_addict_trait = -1;
 	} else if (!V.xchange.genitalAddictTraitsEnabled && V.hole_addict_trait === 1) {
 		V.hole_addict_trait = 0;
+	}
+	if ((V.oralFixationStat >= 500 || (V.orgasmtrait && V.oralFixationStat >= 50)) && V.oral_fixation_trait !== 1 && V.xchange.oralFixationTraitEnabled) {
+		V.effectsmessage = 1;
+		V.oral_fixation_trait_message = 1;
+		V.oral_fixation_trait = 1;
+		if (typeof earnFeat === "function") earnFeat("Throat Goat");
+	} else if (!V.xchange.oralFixationTraitEnabled && V.oral_fixation_trait === 1) {
+		V.oral_fixation_trait = 0;
 	}
 	if (V.ejacstat >= 1000 && V.ejactrait === 0) {
 		V.effectsmessage = 1;

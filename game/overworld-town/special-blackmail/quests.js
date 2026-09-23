@@ -1,4 +1,4 @@
-/* globals playerMayBeSpiked, blackmailGiveDaisies, blackmailGrantStall, hasSexStat */
+/* globals playerMayBeSpiked, blackmailGiveDaisies, blackmailGrantStall, hasSexStat, playerCannotSelfClimax */
 // All quests part from the assumption that PC starts their day at the orphanage
 function blackmailReward(rentShare = 1, scaleIncome = true) {
 	let rent = Number(V.rentmoney) || 0;
@@ -765,7 +765,7 @@ blackmailQuests.mid.push(
 		id: 14,
 		summary: "Sell flowers at your market stall on Connudatus Street without lowerwear, and masturbate while doing so, before midnight.",
 		prerequisites() {
-			return Time.dayState === "dawn" && !playerIsXChanged() && (V.statFreeze || V.penis_addict_trait !== 1) && (V.statFreeze || V.hole_addict_trait !== 1);
+			return Time.dayState === "dawn" && !playerIsXChanged() && !playerCannotSelfClimax();
 		},
 		reward() {
 			return blackmailReward(1 / 2);

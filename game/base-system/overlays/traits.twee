@@ -1433,10 +1433,10 @@
 					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && V.xchange.pill?.omegaEffect,
 					text: `${
 						omegaTargetsAnus()
-							? V.xchange.breederFreeOrgasm
+							? V.xchange.omegaFreeOrgasm
 								? "Enables anal pregnancy. Triggers an earthshattering orgasm upon getting filled. Diminishes stress while sperm remains inside the anus."
 								: "Enables anal pregnancy. Cannot orgasm unless anally inseminated, but triggers an earthshattering orgasm upon getting filled. Diminishes stress while sperm remains inside the anus. Butt plugs and other anal toys can force an orgasm, but the hollow release is stressful."
-							: V.xchange.breederFreeOrgasm
+							: V.xchange.omegaFreeOrgasm
 								? "Aimed at your womb rather than your ass. Triggers an earthshattering orgasm upon getting creampied. Diminishes stress while sperm remains inside the vagina."
 								: "Aimed at your womb rather than your ass. Cannot orgasm unless inseminated there, but triggers an earthshattering orgasm upon getting creampied. Diminishes stress while sperm remains inside the vagina. Vaginal toys can force an orgasm, but the hollow release is stressful."
 					} Keeps your ass a little slick with natural lubrication.${aboDrivesHeat() ? " Drives your body into heat as your fertile days come around." : ""}${
@@ -1461,7 +1461,11 @@
 					name: "Alpha effect",
 					colour: "lewd",
 					has: V.xchange.pill?.active && V.xchange.pill?.effectsKnown && V.xchange.pill?.alphaEffect,
-					text: `Gives your penis a knot and prevents orgasm unless your cock is inside something, making you prioritize penetrating others over being penetrated. A stroker can force an orgasm, but the hollow release is stressful.${
+					text: `Gives your penis a knot${
+						V.xchange.alphaFreeOrgasm
+							? ", and cumming without your cock inside something feels hollow and stressful"
+							: " and prevents orgasm unless your cock is inside something"
+					}, making you prioritize penetrating others over being penetrated.${V.xchange.alphaFreeOrgasm ? "" : " A stroker can force an orgasm, but the hollow release is stressful."}${
 						V.xchange.pill?.alphaGrewPenis ? " This cock is the pill's own work, and goes when it does." : ""
 					}${aboDrivesHeat() && V.player.penisExist ? " Keeps you in rut." : ""}${V.xchange.pheromoneAllure && V.player.penisExist ? " Gives off a scent that draws attention." : ""}`,
 				},
@@ -1652,14 +1656,20 @@
 				{
 					name: () => V.submissive <= 850 ? "Cock Enthusiast" : "Cock Addict",
 					colour: "lewd",
-					has: !$statFreeze and ($penis_addict_trait gte 1),
-					text: `So many orgasms while getting pounded have had a physiological effect. You've become unable to orgasm unless you're getting railed in your ass<<= $player.vaginaExist? " or your pussy":"">>. Insertable toys can force an orgasm, but the hollow release is stressful.`,
+					has: !$statFreeze and !$hc and ($penis_addict_trait gte 1),
+					text: `So many orgasms while getting pounded have had a physiological effect. <<if $xchange.genitalAddictFreeOrgasm>>Cumming without getting railed in your ass<<= $player.vaginaExist? " or your pussy":"">> feels hollow and stressful.<<else>>You've become unable to orgasm unless you're getting railed in your ass<<= $player.vaginaExist? " or your pussy":"">>. Insertable toys can force an orgasm, but the hollow release is stressful.<</if>>`,
 				},
 				{
 					name: () => V.submissive <= 850 ? "Hole Enthusiast" : "Hole Addict",
 					colour: "lewd",
-					has: !$statFreeze and ($hole_addict_trait gte 1),
-					text: `So many orgasms while ramming away at fleshy holes have had a physiological effect. You've become unable to orgasm unless you get your cock into something. A stroker can force an orgasm, but the hollow release is stressful.<<= !$player.penisExist? " Without a cock, the craving lies dormant and doesn't hold back your orgasms.":"">>`,
+					has: !$statFreeze and !$hc and ($hole_addict_trait gte 1),
+					text: `So many orgasms while ramming away at fleshy holes have had a physiological effect. <<if $xchange.genitalAddictFreeOrgasm>>Cumming without your cock inside something feels hollow and stressful.<<else>>You've become unable to orgasm unless you get your cock into something. A stroker can force an orgasm, but the hollow release is stressful.<</if>><<= !$player.penisExist? " Without a cock, the craving lies dormant and doesn't hold back your orgasms.":"">>`,
+				},
+				{
+					name: "Oral Fixation",
+					colour: "lewd",
+					has: oralFixationActive(),
+					text: `So much sex with your mouth has had a physiological effect. <<= $xchange.oralFixationFreeOrgasm ? "Cumming without" : "You can't orgasm without">> giving oral<<= $xchange.oralFixationSwallowRelief ? " or having swallowed cum within the last hour" : "">><<= $xchange.oralFixationFreeOrgasm ? " feels hollow and stressful" : "">>. Your mouth is far more sensitive, and swallowed cum has an addictive, arousing effect on your body that makes your head spin.`,
 				},
 				{
 					name: "Asphyxiophilia",
@@ -1670,13 +1680,13 @@
 				{
 					name: "Chastity Acclimated",
 					colour: "lewd",
-					has: !$statFreeze and ($chastityAcclimatedTrait gte 1),
+					has: !$statFreeze and !$hc and ($chastityAcclimatedTrait gte 1),
 					text: "Ten straight days locked away has taken the edge off for good. Chastity you didn't choose builds far less frustration.",
 				},
 				{
 					name: "Arousal Acclimated",
 					colour: "lewd",
-					has: !$statFreeze and ($arousalDesensitizedTrait gte 1),
+					has: !$statFreeze and !$hc and ($arousalDesensitizedTrait gte 1),
 					text: "Two straight weeks of being constantly horny, or long enough locked in chastity, has left you desensitised to your own arousal. Anything that would turn you on now only gets you half as worked up, and being aroused can no longer force your hand.",
 				},
 				{

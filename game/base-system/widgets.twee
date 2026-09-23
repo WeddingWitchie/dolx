@@ -6147,6 +6147,7 @@
 	<<if $statFreeze isnot true and _args[0] isnot undefined>>
 		<<set $semenswallowedstat += _args[0]>>
 		<<purity -1>>
+		<<oralFixationSwallow _args[0]>>
 	<</if>>
 <</widget>>
 
@@ -6154,6 +6155,26 @@
 	<<if $statFreeze isnot true and _args[0] isnot undefined>>
 		<<set $animalsemenswallowedstat += _args[0]>>
 		<<purity -1>>
+		<<oralFixationSwallow _args[0]>>
+	<</if>>
+<</widget>>
+
+/* Every swallow counts toward Oral Fixation. Once it is gained, cum acts like plant nectar: the same addiction, aphrodisiac and head spin. */
+<<widget "oralFixationSwallow">>
+	<<if !$hc>><<set $oralFixationStat to ($oralFixationStat or 0) + 1>><</if>>
+	<<if oralFixationActive()>>
+		<<set $oralFixationLastSwallow to $timeStamp>>
+		<<set _cumNectar to Math.clamp(Math.round(_args[0] / 5), 1, 20)>>
+		<<set _nectarGain to Math.ceil(_cumNectar / 10) + random(0,2)>>
+		<<set $nectar_addiction = Math.clamp($nectar_addiction + _nectarGain, 0, 200)>>
+		<<drugs _cumNectar>><<set $arousal += _cumNectar>>
+		<<drunk `_cumNectar * 3`>>
+		<<if $backgroundTraits.includes("plantlover")>>
+			<<if $nectar_timer lte 14>>
+				<span class="green">You feel an overwhelming sense of relief.</span> <<stress -12>><<llstress>><<pain -4>><<lpain>>
+			<</if>>
+			<<set $nectar_timer to 21>>
+		<</if>>
 	<</if>>
 <</widget>>
 

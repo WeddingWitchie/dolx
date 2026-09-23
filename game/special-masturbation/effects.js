@@ -1,4 +1,4 @@
-/* globals breederOrgasmDenied */
+/* globals playerCannotSelfClimax */
 /*
 	Old version can be found at https://gitgud.io/Vrelnir/degrees-of-lewdity/-/blob/master/game/special-masturbation/effects.twee?ref_type=7f47147b
 */
@@ -79,12 +79,7 @@ function masturbationEffects() {
 			fragment.append(" ");
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
-		} else if (
-			(!V.statFreeze && V.penis_addict_trait === 1) ||
-			(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) ||
-			(V.xchange?.pill?.alphaEffect && V.player?.penisExist) ||
-			breederOrgasmDenied()
-		) {
+		} else if (playerCannotSelfClimax()) {
 			sWikifier(
 				`The slime in your ears gets frustrated as it notices that, despite its best effort, you're unable to cum. And making no progress, <span class="blue">it gives up.</span><<arousal 600 "masturbation">><<pain 4>><<stress 6>><<gstress>><<gpain>>`
 			);
@@ -291,10 +286,7 @@ function masturbationEffects() {
 		V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
 		V.corruptionMasturbation === undefined &&
 		!V.hypnosis_traits?.silence &&
-		(V.statFreeze || V.penis_addict_trait !== 1) &&
-		!(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) &&
-		!(V.xchange?.pill?.alphaEffect && V.player?.penisExist) &&
-		!breederOrgasmDenied()
+		!playerCannotSelfClimax()
 	) {
 		V.corruptionMasturbation = true;
 		V.corruptionMasturbationCount = random(1, 4);
@@ -347,10 +339,7 @@ function masturbationEffectsArms(
 			V.earSlime.corruption > currentSkillValue("willpower") / 10 &&
 			V.corruptionMasturbation === undefined &&
 			!V.hypnosis_traits?.silence &&
-			(V.statFreeze || V.penis_addict_trait !== 1) &&
-			!(!V.statFreeze && V.hole_addict_trait === 1 && V.player?.penisExist) &&
-			!(V.xchange?.pill?.alphaEffect && V.player?.penisExist) &&
-			!breederOrgasmDenied()
+			!playerCannotSelfClimax()
 		) {
 			V.corruptionMasturbation = true;
 			V.corruptionMasturbationCount = random(2, 6);
