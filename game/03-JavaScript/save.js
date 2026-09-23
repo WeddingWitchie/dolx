@@ -1406,6 +1406,7 @@ function settingsObjects(type) {
 					feetskill: { min: 1, max: 2, decimals: 0, displayName: "Tempered Feet Skill:" },
 				},
 				multiOrgasmToggle: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm:" },
+				multiOrgasmChance: { min: 0, max: 100, decimals: 0, displayName: "Multi-Orgasm Chance:" },
 				multiOrgasmGroupDisable: { min: 0, max: 1, decimals: 0, displayName: "Disable group multi-orgasms:" },
 				multiOrgasmLustScaling: { min: 0, max: 1, decimals: 0, displayName: "Multi-Orgasm Lust Scaling:" },
 				settings: {
