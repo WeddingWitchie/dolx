@@ -17,6 +17,9 @@ DECOMP CO ⁝ ⚰ (naturesmorticians)
 monoski1 
 linnnn
 supervamp78
+Mixxie
+Fox Familiar
+CARCARA
 
 YU-NO_ A Girl Who Chants Love at the Bound of this World backgrounds ripped by buddludd: https://www.spriters-resource.com/
 

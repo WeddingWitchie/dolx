@@ -318,4 +318,4 @@ Zombie: fancy swan lake dress, janet dress
 
 (__=__=___): ropes
 
-Snowy (Me!): general fixes + comp maanger, foxy demeanor, gloomy demeanor, some breast size sprites for clothes, parasites, vest, classic school swimsuit, kitty/duck/puppy slippers, long-sleeve shirt, striped knee highs (og by Froggy), briefs alt, pj bottoms alt, modded 22, modded 23, modded 24
+Snowy (Me!): general fixes + comp maanger, foxy demeanor, gloomy demeanor, some breast size sprites for clothes, parasites, vest, classic school swimsuit, kitty/duck/puppy slippers, long-sleeve shirt, striped knee highs (og by Froggy), briefs alt, pj bottoms alt, modded 22, modded 23, modded 24, modded 27
