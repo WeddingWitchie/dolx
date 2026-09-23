@@ -3869,6 +3869,16 @@ function insecurityExists(type) {
 }
 window.insecurityExists = insecurityExists;
 
+// Semen capacity is too low for the player's cum to carry any semen.
+// Starts below 50 capacity and only ends once it is back to 90. Synced on every read because
+// body swaps and the cheat menu set $semen_volume directly.
+function playerClearClimax() {
+	if (V.semen_volume < 50) V.clearClimax = true;
+	else if (V.semen_volume >= 90) V.clearClimax = false;
+	return !!V.settings.clearClimaxEnabled && !!V.clearClimax && V.player.penisExist;
+}
+window.playerClearClimax = playerClearClimax;
+
 function isDragonEyesActive() {
 	const dragonEyes = V.transformationParts?.traits?.dragonEyes;
 	return !!dragonEyes && !["disabled", "hidden"].includes(dragonEyes);

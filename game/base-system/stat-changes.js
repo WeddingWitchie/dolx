@@ -1,6 +1,6 @@
 /* global colosseumDrugStage amcClamp statDisplay chastityConsensual calmorylDissociationActive antidepressantActive sleepAidSuppressesInsomnia sleepAidWithdrawal wellFedMod blackmailCancelQuestForBadEnd AmbienceAudio */
 
-/* globals playerHasXChangeBody */
+/* globals playerHasXChangeBody, playerClearClimax */
 const statChange = (() => {
 	function paramError(functionName = "", param = "", value, expectedValues = "") {
 		if (typeof value === "object") value = JSON.stringify(value);
@@ -491,6 +491,7 @@ const statChange = (() => {
 
 			V.semen_volume = Math.clamp(V.semen_volume, 0, semenCapacityMax());
 		}
+		playerClearClimax(); // moves the clear climax state along with the new capacity
 	}
 	DefineMacro("semenvolume", semenvolume);
 
@@ -1018,8 +1019,8 @@ const statChange = (() => {
 	}
 
 	function insecurityPossible(type) {
-		if (!["penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"].includes(type)) {
-			paramError("insecurity", "type", type, 'Expected values include "penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"');
+		if (!["penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy", "clear_climax"].includes(type)) {
+			paramError("insecurity", "type", type, 'Expected values include "penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy", "clear_climax"');
 		}
 		if (V.player.gender === "m" && type === "breasts_small") type = "breasts_big";
 
@@ -1042,6 +1043,7 @@ const statChange = (() => {
 				breasts_small: V.player.gender === "f" && between(V.player.breastsize, 0, 4),
 				breasts_big: V.player.breastsize >= (V.player.gender === "m" ? 1 : 8),
 				pregnancy: playerBellySize() >= 8,
+				clear_climax: V.player.penisExist && playerClearClimax(),
 			}[type] && V["acceptance_" + type] < 1000,
 			type,
 		];
@@ -1096,8 +1098,8 @@ const statChange = (() => {
 	function acceptance(type, amount) {
 		if (V.statFreeze) return;
 		if (isNaN(amount)) paramError("acceptance", "amount", amount, "Expected a number.");
-		if (!["penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"].includes(type)) {
-			paramError("acceptance", "type", type, 'Expected values include "penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy"');
+		if (!["penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy", "clear_climax"].includes(type)) {
+			paramError("acceptance", "type", type, 'Expected values include "penis_small", "penis_big", "breasts_small", "breasts_big", "pregnancy", "clear_climax"');
 			return;
 		}
 		amount = Number(amount);

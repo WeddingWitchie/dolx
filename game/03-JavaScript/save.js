@@ -1506,6 +1506,7 @@ function settingsObjects(type) {
 					underwearCostModifier: { min: 1, max: 2, decimals: 1, displayName: "Cost of underwear:", randomize: "gameplay" },
 					tendingYieldModifier: { min: 1, max: 10, decimals: 1, displayName: "Crop yield:", randomize: "gameplay" },
 					femaleClimaxAlways: { bool: true, displayName: "Cum like a girl regardless of penis size:" },
+					clearClimaxEnabled: { bool: true, displayName: "Clear climax at low semen volume:" },
 					toyDildoEnabled: { bool: true, displayName: "Dildos:" },
 					smallPenisSemenVolumeLossDisabled: { bool: true, displayName: "Disable semen volume loss from dry orgasms:" },
 					toyVirginityEnabled: { bool: true, displayName: "Toys can take virginity:" },

@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate playerClearClimax */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -2551,6 +2551,7 @@ function dailyPlayerEffects() {
 	if (V.player.sex === "f" && !between(V.player.breastsize, 0, 4)) statChange.acceptance("breasts_small", -5);
 	if (!(V.player.breastsize >= (V.player.sex === "m" ? 1 : 8))) statChange.acceptance("breasts_big", -5);
 	*/
+	if (!playerClearClimax()) statChange.insecurity("clear_climax", -5);
 	if (playerBellySize() < 8) {
 		statChange.insecurity("pregnancy", -5);
 		// after third pregnancy, acceptance no longer decays

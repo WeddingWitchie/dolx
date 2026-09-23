@@ -1,4 +1,4 @@
-/* globals xchangeDonorFertility */
+/* globals xchangeDonorFertility, playerClearClimax */
 // The pregnancy macros that scenes can call.
 // Combat calls <<combatInseminate>> and everything about the load is worked out from the fight.
 // Story scenes call <<sceneInseminate>> and provide the details themselves.
@@ -203,6 +203,7 @@ function npcPregnancyRoll(carrier, carrierSpecies, donor, donorSpecies, orifice,
 	if (!V.settings.incompletePregnancyEnabled && C.npc[carrier] && !setup.pregnancy.canBePregnant.includes(carrier)) return null;
 	// Dream sex leaves nothing behind, so a nightmare counts as a disabled scene.
 	if (V.activeNightmare || impregnationDisabled(T.npcForceImpregnation)) return null;
+	if (donor === "pc" && playerClearClimax()) return null; // clear climax carries no semen
 	const infertile = setup.pregnancy.infertile.includes(carrier) || setup.pregnancy.infertile.includes(donor);
 	if (!canNpcConceive(orifice, carrier, infertile)) return null;
 	// GH bears eggs, BW bears pups
