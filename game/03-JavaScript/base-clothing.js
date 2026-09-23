@@ -304,6 +304,13 @@ function getVisibleClothesList() {
 }
 window.getVisibleClothesList = getVisibleClothesList;
 
+/* Visible items with the "prey" trait. Reads the catalogue, not the worn copy, so items bought before the trait existed count too. */
+function preyClothesCount() {
+	if (V.preyTrait === 0) return 0;
+	return getVisibleClothesList().filter(item => setup.clothes[item.slot]?.find(c => c.name === item.name)?.type.includes("prey")).length;
+}
+window.preyClothesCount = preyClothesCount;
+
 // True when the genitals a bystander can actually see don't match the player's outward gender presentation (e.g. a penis while presenting female). Used to bias forced-chastity encounters toward "wrong body, so we're locking it away" framing.
 function chastityGenderMismatch() {
 	const visibleSex = V.player.penisExist && V.player.vaginaExist ? "h" : V.player.vaginaExist ? "f" : V.player.penisExist ? "m" : null;

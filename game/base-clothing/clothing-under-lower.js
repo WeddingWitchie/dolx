@@ -684,7 +684,7 @@ function initUnderLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["costume", "serving", "dance", "antitransparent"],
+			type: ["costume", "serving", "dance", "antitransparent", "prey"],
 			anal_shield: 0,
 			set: "leotardbunny",
 			gender: "f",

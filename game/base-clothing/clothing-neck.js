@@ -101,7 +101,7 @@ function initNeck() {
 			colour_options: ["white", "custom"],
 			colour_sidebar: 1,
 			colour_combat: "white",
-			type: ["costume", "serving"],
+			type: ["costume", "serving", "prey"],
 			gender: "n",
 			warmth: 0,
 			cost: 3000,

@@ -49,6 +49,11 @@ setup.shopDetails = {
 		desc: "Encourages tips when working as a bartender, waiter or waitress if visible.",
 		details: "Increases the amount of money gained from tips by 25% when wearing an item with the trait. Each additional item is 33% less effective.",
 	},
+	prey: {
+		name: "Prey",
+		desc: "Makes you look like something worth hunting.",
+		details: "Makes wild beasts in the forest and the hawk over the moor more likely to find you. Each additional item adds to the effect.",
+	},
 	fetish: {
 		name: "Fetish",
 		desc: "Intrinsically lewd.",

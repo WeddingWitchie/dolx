@@ -4426,7 +4426,7 @@ function initUpper() {
 			colour_combat: "white",
 			exposed: 0,
 			exposed_base: 0,
-			type: ["sleep", "costume", "bellyHide", "antitransparent"],
+			type: ["sleep", "costume", "bellyHide", "antitransparent", "prey"],
 			set: "cowonesie",
 			gender: "n",
 			warmth: 5,

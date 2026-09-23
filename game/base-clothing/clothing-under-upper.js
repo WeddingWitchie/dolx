@@ -426,7 +426,7 @@ function initUnderUpper() {
 			colour_combat: 0,
 			exposed: 0,
 			exposed_base: 0,
-			type: ["costume", "serving", "dance", "antitransparent"],
+			type: ["costume", "serving", "dance", "antitransparent", "prey"],
 			set: "leotardbunny",
 			gender: "f",
 			femininity: 300,

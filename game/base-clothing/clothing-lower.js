@@ -4218,7 +4218,7 @@ function initLower() {
 			vagina_exposed_base: 0,
 			anus_exposed: 0,
 			anus_exposed_base: 0,
-			type: ["sleep", "costume", "antitransparent"],
+			type: ["sleep", "costume", "antitransparent", "prey"],
 			set: "cowonesie",
 			gender: "n",
 			warmth: 6,
