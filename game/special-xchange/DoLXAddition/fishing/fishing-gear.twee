@@ -2,9 +2,9 @@
 
 /* The tackle summary shown before you cast */
 <<widget "fishingKitSummary">>
-	<<run dolxFishingEnsure()>>
-	<<set _kitRod to dolxFishingRod()>>
-	<<set _kitReel to dolxFishingReel()>>
+	<<run fishingEnsure()>>
+	<<set _kitRod to fishingRod()>>
+	<<set _kitReel to fishingReel()>>
 	<div class="fishing-kit">
 		<div class="fishing-kit-row">
 			<<if $options.images is 1>><<icon _kitRod.icon>><</if>>
@@ -20,7 +20,7 @@
 			<</if>>
 			<span class="fishing-kit-label">Bait:</span>
 			<<if $fishing.currentBait and setup.foodstuff[$fishing.currentBait]>>
-				<span class="teal"><<= dolxBaitLabel($fishing.currentBait)>></span>
+				<span class="teal"><<= baitLabel($fishing.currentBait)>></span>
 			<<else>>
 				<span class="grey">Bare hook</span>
 			<</if>>
@@ -30,8 +30,8 @@
 
 /* The Tackle tab of the bait overlay */
 <<widget "fishingTackleOverlay">>
-	<<run dolxFishingEnsure()>>
-	<div id="dolxTacklePane"><<fishingTackleContents>></div>
+	<<run fishingEnsure()>>
+	<div id="tacklePane"><<fishingTackleContents>></div>
 <</widget>>
 
 <<widget "fishingTackleContents">>
@@ -44,14 +44,14 @@
 
 <<widget "fishingTackleList">>
 	<<set _gearKind to _args[0]>>
-	<<set _gearEquipped to _gearKind is "rod" ? dolxFishingRodKey() : dolxFishingReelKey()>>
+	<<set _gearEquipped to _gearKind is "rod" ? fishingRodKey() : fishingReelKey()>>
 	<section class="pocket-section">
 		<header class="pocket-section-header">
 			<span><<= _gearKind is "rod" ? "Rod" : "Reel">></span>
 		</header>
 		<div class="pocket-slots">
-			<<for _gearEntry range dolxFishingGearList(_gearKind)>>
-			<<if dolxFishingGearOwned(_gearKind, _gearEntry.key) or _gearEntry.config.source is "shop">>
+			<<for _gearEntry range fishingGearList(_gearKind)>>
+			<<if fishingGearOwned(_gearKind, _gearEntry.key) or _gearEntry.config.source is "shop">>
 					<div class="fishing-gear-row">
 						<<if $options.images is 1>><span class="pocket-item-icon"><<icon _gearEntry.config.icon>></span><</if>>
 						<span class="pocket-item-name">
@@ -59,8 +59,8 @@
 							<br><span class="small-description"><<= _gearEntry.config.blurb>></span>
 						</span>
 						<span class="pocket-item-actions">
-							<<if !dolxFishingGearOwned(_gearKind, _gearEntry.key)>>
-								<<if dolxFishingGearUnlocked(_gearEntry.config)>>
+							<<if !fishingGearOwned(_gearKind, _gearEntry.key)>>
+								<<if fishingGearUnlocked(_gearEntry.config)>>
 									<span class="grey">Buy at the bait shop</span>
 								<<else>>
 									<span class="grey">Locked:</span>
@@ -76,9 +76,9 @@
 							<<else>>
 								<<capture _gearKind _gearEntry>>
 									<<link "Equip">>
-										<<run dolxFishingGearEquip(_gearKind, _gearEntry.key)>>
+										<<run fishingGearEquip(_gearKind, _gearEntry.key)>>
 										<<run pocketCommit()>>
-										<<replace #dolxTacklePane>><<fishingTackleContents>><</replace>>
+										<<replace #tacklePane>><<fishingTackleContents>><</replace>>
 									<</link>>
 								<</capture>>
 							<</if>>
@@ -91,25 +91,25 @@
 <</widget>>
 
 /* Packing bait into the POCKET */
-<<widget "dolxRefreshBaitPack">>
-	<<if elementExists("#dolxTacklePane")>>
-		<<replace #dolxTacklePane>><<fishingTackleContents>><</replace>>
-	<<elseif elementExists("#dolxBaitPackPane")>>
-		<<replace #dolxBaitPackPane>><<pocketPackBaitList>><</replace>>
+<<widget "refreshBaitPack">>
+	<<if elementExists("#tacklePane")>>
+		<<replace #tacklePane>><<fishingTackleContents>><</replace>>
+	<<elseif elementExists("#baitPackPane")>>
+		<<replace #baitPackPane>><<pocketPackBaitList>><</replace>>
 	<</if>>
 <</widget>>
 
 <<widget "pocketPackBait">>
 	<<run pocketSyncBag()>>
-	<div id="dolxBaitPackPane"><<pocketPackBaitList>></div>
+	<div id="baitPackPane"><<pocketPackBaitList>></div>
 <</widget>>
 
 <<widget "pocketPackBaitList">>
-	<<run dolxFishingEnsure()>>
+	<<run fishingEnsure()>>
 	<<run pocketSyncBag()>>
 	<<set _baitPackCapacity to pocketCarryCapacity()>>
 	<<set _baitPackUsed to $pocket.bag.slots.length>>
-	<<set _baitPackKeys to dolxPocketBaitList()>>
+	<<set _baitPackKeys to pocketBaitList()>>
 	<section class="pocket-section">
 		<header class="pocket-section-header">
 			<span>Bait you're carrying</span>
@@ -123,22 +123,22 @@
 				<<for _baitPackKey range _baitPackKeys>>
 					<div class="pocket-arrange-row">
 						<span class="pocket-arrange-name">
-							<<if $options.images is 1>><<icon `dolxPocketBaitIconPath(_baitPackKey)`>><</if>>
-							<<= dolxPocketBaitName(_baitPackKey)>>
-							<span class="gold">(<<= dolxPocketBaitDetail(_baitPackKey)>>)</span>
+							<<if $options.images is 1>><<icon `pocketBaitIconPath(_baitPackKey)`>><</if>>
+							<<= pocketBaitName(_baitPackKey)>>
+							<span class="gold">(<<= pocketBaitDetail(_baitPackKey)>>)</span>
 						</span>
 						<<capture _baitPackKey>>
 							<<if pocketCarrying("bait", _baitPackKey)>>
 								<<link "Take out">>
-									<<run dolxPocketBaitToggle(_baitPackKey)>>
-									<<dolxRefreshBaitPack>>
+									<<run pocketBaitToggle(_baitPackKey)>>
+									<<refreshBaitPack>>
 								<</link>>
 							<<elseif _baitPackUsed gte _baitPackCapacity>>
 								<span class="grey"><<= pocketBagName().toLocaleUpperFirst()>> full</span>
 							<<else>>
 								<<link "Pack">>
-									<<run dolxPocketBaitToggle(_baitPackKey)>>
-									<<dolxRefreshBaitPack>>
+									<<run pocketBaitToggle(_baitPackKey)>>
+									<<refreshBaitPack>>
 								<</link>>
 							<</if>>
 						<</capture>>
@@ -151,12 +151,12 @@
 
 /* Catching a small one */
 /* Shown the first time the player catches a small fish. */
-<<widget "dolxSmallCatchNotice">>
-	<<if dolxFishCatchCount(_args[0]) gt 1>>
+<<widget "smallCatchNotice">>
+	<<if fishCatchCount(_args[0]) gt 1>>
 		<br>
-		<span class="green"><<= dolxFishCatchCount(_args[0])>> of them</span> came up on the same hook.
+		<span class="green"><<= fishCatchCount(_args[0])>> of them</span> came up on the same hook.
 	<</if>>
-	<<set _baitHint to dolxFishBaitHint(_args[0])>>
+	<<set _baitHint to fishBaitHint(_args[0])>>
 	/* The catch text already names an undersized fish as its small variant */
 	<<if _baitHint>>
 		<br>
@@ -166,16 +166,16 @@
 
 /* The bait shop */
 <<widget "baitShopTackle">>
-	<<run dolxFishingEnsure()>>
+	<<run fishingEnsure()>>
 
 	/* The can. Bought once, refilled after that. */
-	<<if !dolxWormCanOwned()>>
-		<<set _canPrice to dolxWormCanBuyPrice()>>
+	<<if !wormCanOwned()>>
+		<<set _canPrice to wormCanBuyPrice()>>
 		<<icon `"fish/mod/wormcan.png"`>>
-		<<if dolxFishingAfford(_canPrice)>>
-			<<link [["A can of worms, filled (" + formatMoney(dolxFishingPrice(_canPrice)) + ")"|Bait Shop]]>>
+		<<if fishingAfford(_canPrice)>>
+			<<link [["A can of worms, filled (" + formatMoney(fishingPrice(_canPrice)) + ")"|Bait Shop]]>>
 				<<money `-_canPrice` "fishing">>
-				<<run dolxWormCanBuy()>>
+				<<run wormCanBuy()>>
 				<<set $fishing.baitShopAmbient to "boughtWormCan">>
 				<<endevent>>
 			<</link>>
@@ -183,22 +183,22 @@
 			A can of worms, filled (<<printprice _canPrice>>). <span class="blue">You can't afford it.</span>
 		<</if>>
 		<br>
-	<<elseif dolxWormCanCount() lt dolxWormCanCapacity()>>
-		<<set _refillPrice to dolxWormCanRefillPrice()>>
+	<<elseif wormCanCount() lt wormCanSize()>>
+		<<set _refillPrice to wormCanRefillPrice()>>
 		<<icon `"fish/mod/wormcan.png"`>>
-		<<if dolxFishingAfford(_refillPrice)>>
-			<<link [["Refill your can of worms, " + dolxWormCanCount() + "/" + dolxWormCanCapacity() + " (" + formatMoney(dolxFishingPrice(_refillPrice)) + ")"|Bait Shop]]>>
+		<<if fishingAfford(_refillPrice)>>
+			<<link [["Refill your can of worms, " + wormCanCount() + "/" + wormCanSize() + " (" + formatMoney(fishingPrice(_refillPrice)) + ")"|Bait Shop]]>>
 				<<money `-_refillPrice` "fishing">>
-				<<run dolxWormCanRefill()>>
+				<<run wormCanRefill()>>
 				<<set $fishing.baitShopAmbient to "refilledWormCan">>
 				<<endevent>>
 			<</link>>
 		<<else>>
-			Refill your can of worms, <<= dolxWormCanCount()>>/<<= dolxWormCanCapacity()>> (<<printprice _refillPrice>>). <span class="blue">You can't afford it.</span>
+			Refill your can of worms, <<= wormCanCount()>>/<<= wormCanSize()>> (<<printprice _refillPrice>>). <span class="blue">You can't afford it.</span>
 		<</if>>
 		<br>
 	<<else>>
-		<<icon `"fish/mod/wormcan.png"`>><span class="grey">Your can of worms is full, <<= dolxWormCanCount()>>/<<= dolxWormCanCapacity()>>.</span>
+		<<icon `"fish/mod/wormcan.png"`>><span class="grey">Your can of worms is full, <<= wormCanCount()>>/<<= wormCanSize()>>.</span>
 		<br>
 	<</if>>
 
@@ -209,17 +209,17 @@
 
 <<widget "baitShopGearStock">>
 	<<set _shopGearKind to _args[0]>>
-	<<for _shopGear range dolxFishingGearList(_shopGearKind)>>
+	<<for _shopGear range fishingGearList(_shopGearKind)>>
 		<<capture _shopGearKind _shopGear>>
-			<<if _shopGear.config.source is "shop" and !dolxFishingGearOwned(_shopGearKind, _shopGear.key)>>
+			<<if _shopGear.config.source is "shop" and !fishingGearOwned(_shopGearKind, _shopGear.key)>>
 				<<if $options.images is 1>><<icon _shopGear.config.icon>><</if>>
-			<<if !dolxFishingGearUnlocked(_shopGear.config)>>
+			<<if !fishingGearUnlocked(_shopGear.config)>>
 				<span class="grey"><<= _shopGear.config.displayName>> | Locked: catch <<= Math.min(numberOfFishCaught(), _shopGear.config.unlock.fishCaught)>>/<<= _shopGear.config.unlock.fishCaught>> fish<<if _shopGear.config.unlock.requestsCompleted>>; finish <<= Math.min(Number($fishing.baitShopRequestsCompleted) || 0, _shopGear.config.unlock.requestsCompleted)>>/<<= _shopGear.config.unlock.requestsCompleted>> bait shop requests<</if>>.</span>
-			<<elseif dolxFishingAfford(_shopGear.config.price)>>
-				<<link [[_shopGear.config.displayName + " (" + formatMoney(dolxFishingPrice(_shopGear.config.price)) + ")"|Bait Shop]]>>
+			<<elseif fishingAfford(_shopGear.config.price)>>
+				<<link [[_shopGear.config.displayName + " (" + formatMoney(fishingPrice(_shopGear.config.price)) + ")"|Bait Shop]]>>
 					<<money `-_shopGear.config.price` "fishing">>
-					<<run dolxFishingGearGive(_shopGearKind, _shopGear.key)>>
-					<<run dolxFishingGearEquip(_shopGearKind, _shopGear.key)>>
+					<<run fishingGearGive(_shopGearKind, _shopGear.key)>>
+					<<run fishingGearEquip(_shopGearKind, _shopGear.key)>>
 					<<set $fishing.baitShopAmbient to "boughtTackle">>
 					<<set $fishing.baitShopAmbientGear to _shopGear.config.displayName>>
 					<<endevent>>
@@ -239,8 +239,8 @@
 	<div class="itemCollectible">
 		<<for _gridFishKey range _args[1]>>
 			<<if $fishing.record[_gridFishKey]?.foundIn.includes(_args[0])>>
-				<div class="item" @tooltip="dolxFishName(_gridFishKey).toUpperFirst()">
-					<<icon `dolxFishRecordConfig(_gridFishKey).icon`>>
+				<div class="item" @tooltip="fishDisplayName(_gridFishKey).toUpperFirst()">
+					<<icon `fishRecordConfig(_gridFishKey).icon`>>
 				</div>
 			<<else>>
 				<div class="item unknown" tooltip="Unknown fish">
@@ -258,8 +258,8 @@
 		<<for _recordFishKey range _args[0]>>
 			<<set _fishRecord to $fishing.record[_recordFishKey]>>
 			<<if _fishRecord and _fishRecord.numCaught gt 0>>
-				<<set _fishConfig to dolxFishRecordConfig(_recordFishKey)>>
-				<<set _fishName to dolxFishName(_recordFishKey)>>
+				<<set _fishConfig to fishRecordConfig(_recordFishKey)>>
+				<<set _fishName to fishDisplayName(_recordFishKey)>>
 				<<set _largestSizePercent to (_fishRecord.largest - _fishConfig.minSize) / (_fishConfig.maxSize - _fishConfig.minSize)>>
 				<div class="fishingRecord">
 					<div class="item" @tooltip="_fishName.toUpperFirst()">
@@ -287,8 +287,8 @@
 
 :: Fishing Bone Tackle
 <<effects>>
-<<set _boneReturn to dolxFishingWaitPassage($bus)>>
-<<set _bonePiece to dolxBoneFindTake()>>
+<<set _boneReturn to fishingWaitPassage($bus)>>
+<<set _bonePiece to boneFindTake()>>
 <<if !_bonePiece>>
 	You reel your line back in, but there is nothing caught on the hook.
 	<br><br>
@@ -336,7 +336,7 @@
 :: Pocket Eat Bait
 <<effects>>
 <<set _baitEatDestination to $dolxBaitEatReturn or "Bedroom">>
-/* dolxEatBait records which supply the worm came out of, the can or a loose pack. */
+/* eatBait records which supply the worm came out of, the can or a loose pack. */
 <<set _wormFromCan to $dolxBaitEatenFromCan is true>>
 <<if $dolxBaitEaten is "bait_worm" and effectiveTransformationLevel("bird") gte 3>>
 	You open <<if _wormFromCan>>the tin<<else>>your little can of bait worms<</if>> and pick out one of the worms. It wriggles between your fingers.
@@ -360,7 +360,7 @@
 	<br><br>
 	<span class="red">You cannot tell if the worm is still moving or if the feeling is only lingering after you swallowed it.</span> <<trauma 18>><<gggtrauma>>
 <<elseif $dolxBaitEaten>>
-	You take the <<= dolxFishName($dolxBaitEaten)>> from your bait supply and hold it in front of your mouth.
+	You take the <<= fishDisplayName($dolxBaitEaten)>> from your bait supply and hold it in front of your mouth.
 	<br><br>
 	After looking at it for a few seconds, you open wide and put the whole fish into your mouth. You struggle to swallow it, but eventually force it down. <<fishingEatFishTfProgress>><<lstress>><<stress -6>>
 <<else>>

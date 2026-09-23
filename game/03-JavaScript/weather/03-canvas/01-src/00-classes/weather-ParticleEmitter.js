@@ -222,6 +222,8 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			}
 		}
 
+		/* A broken image would throw in every particle's drawImage, every frame. */
+		imagePromise.catch(() => (this.imageMissing = true));
 		this.initialSettings = initialSettings;
 
 		this.active = true;
@@ -312,6 +314,7 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 	}
 
 	draw() {
+		if (this.imageMissing) return;
 		for (const p of this.particles) {
 			p.draw(this.ctx);
 		}

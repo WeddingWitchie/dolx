@@ -1,4 +1,4 @@
-/* global dolxFishingTensionMult dolxFishingMisreelPenalty dolxFishingGearApplyResult */
+/* global fishingTensionMult fishingMisreelPenalty fishingGearApplyResult */
 /*
  * The default state machine can be found in fishingMinigameBehaviorDefaults, and is by itself a working behavior, albeit with the most simple possible combat behavior.
  *
@@ -865,9 +865,9 @@ function decrementFishingTimer(playerAction) {
 	}
 
 	/* DoLX: better rods reduce line tension, while faster reels punish missed reels more. */
-	let tensionDrain = (timerBeforeTurn - minigame.fishEscapeTimer) * dolxFishingTensionMult();
+	let tensionDrain = (timerBeforeTurn - minigame.fishEscapeTimer) * fishingTensionMult();
 	if (fishingMinigameActionRequiresAthletics(playerAction) && !V.athleticsSuccess) {
-		tensionDrain += dolxFishingMisreelPenalty(playerAction);
+		tensionDrain += fishingMisreelPenalty(playerAction);
 	}
 	minigame.fishEscapeTimer = timerBeforeTurn - tensionDrain;
 
@@ -905,7 +905,7 @@ function updateStateFromPlayerActions(playerAction) {
 	}
 
 	/* DoLX: rod and reel scale what this turn produces, without changing what the actions do. */
-	dolxFishingGearApplyResult(result, playerAction);
+	fishingGearApplyResult(result, playerAction);
 
 	minigame.armFatigue += result.armFatigue;
 	minigame.fishDistance += result.fishDistance;

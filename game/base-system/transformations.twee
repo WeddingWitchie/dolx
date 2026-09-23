@@ -375,10 +375,10 @@
 		<</for>>
 	<</if>>
 
-	<<set _tfs to ["angel", "fallenangel", "demon", "dryad", "wolfgirl", "cat", "cow", "harpy", "fox"]>>
+	<<set _tfs to ["angel", "fallenangel", "demon", "dryad", "wolfgirl", "cat", "cow", "harpy", "fox", "bear", "bunny", "waterdragon"]>>
 	<<for _i to 0; _i lt _tfs.length; _i++>>
 		<<set _tf to _tfs[_i]>>
-		<<if V[_tf] gte (_tf is "fallenangel" ? 2 : 6)>>
+		<<if V[_tf] gte (_tf is "fallenangel" ? 2 : _tf is "waterdragon" ? 7 : 6)>>
 			<<set $transformationHistory.pushUnique(_tf)>>
 		<</if>>
 	<</for>>
@@ -446,6 +446,9 @@
 	<</if>>
 	<<if !$settings.pubicHairEnabled and !["hidden", "disabled"].includes($transformationParts.bird.pubes)>>
 		<<set $transformationParts.bird.pubes to "hidden">>
+	<</if>>
+	<<if !$settings.pubicHairEnabled and !["hidden", "disabled"].includes($transformationParts.bear.pubes)>>
+		<<set $transformationParts.bear.pubes to "hidden">>
 	<</if>>
 <</widget>>
 
@@ -553,6 +556,7 @@
 			<<case 99>>
 				<<if $fallenangel gt 0>><<set $specialTransform to 0>><</if>>
 				<<set $fallenangel to 0>>
+				<<set $fallenbuild to 0>>
 				<<set $transformationParts.traits.ironWill to "disabled">>
 				<<set $transformationParts.fallenAngel.halo to "disabled">>
 				<<set $transformationParts.fallenAngel.wings to "disabled">>
@@ -792,7 +796,7 @@
 				<<elseif $wolfbuild lt 10>>
 					<<set $wolfgirl to 1>>
 					<<run $timeMessages.pushUnique("wolfDown1")>>
-					<<set $transformationParts.traits.fangs to "disabled">>
+					<<run Transformations.dropTraits("wolfgirl", "fangs")>>
 				<</if>>
 			<<case 3>>
 				<<if $wolfbuild gte 20>>
@@ -843,7 +847,7 @@
 				<<set $wolfgirl to 0>>
 				<<set $TFWolfBuffs to 0>>
 				<<set $wolfbuild to 0>>
-				<<set $transformationParts.traits.fangs to "disabled">>
+				<<run Transformations.dropTraits("wolfgirl", "fangs")>>
 				<<set $transformationParts.wolf.cheeks to "disabled">>
 				<<set $transformationParts.wolf.ears to "disabled">>
 				<<set $transformationParts.wolf.pubes to "disabled">>
@@ -895,8 +899,7 @@
 				<<elseif $catbuild lt 30>>
 					<<set $cat to 1>>
 					<<run $timeMessages.pushUnique("catDown1")>>
-					<<set $transformationParts.traits.fangs to "disabled">>
-					<<set $transformationParts.traits.sharpEyes to "disabled">>
+					<<run Transformations.dropTraits("cat", "fangs", "sharpEyes")>>
 				<</if>>
 			<<case 3>>
 				<<if $catbuild gte 40 and $settings.transformAnimalEnabled>>
@@ -989,13 +992,16 @@
 				<<if ($cat gte 6 or Transformations.partActive("cat", "tail"))>>
 					<<set $physicalTransform to 0>>
 				<</if>>
+				<<if $transformationParts.cat.heterochromia is "default">>
+					<<catHeterochromiaTF "hide">>
+				<</if>>
 				<<set $cat to 0>>
 				<<set $TFCatBuffs to 0>>
 				<<set $catbuild to 0>>
-				<<set $transformationParts.traits.fangs to "disabled">>
-				<<set $transformationParts.traits.sharpEyes to "disabled">>
+				<<run Transformations.dropTraits("cat", "fangs", "sharpEyes")>>
 				<<set $transformationParts.cat.ears to "disabled">>
 				<<set $transformationParts.cat.tail to "disabled">>
+				<<set $transformationParts.cat.heterochromia to "disabled">>
 		<</switch>>
 	<<else>>
 		<<clearAnimalTransformations>>
@@ -1162,8 +1168,7 @@
 				<<elseif $waterdragonbuild lt 10>>
 					<<set $waterdragon to 1>>
 					<<run $timeMessages.pushUnique("waterdragonDown1")>>
-					<<set $transformationParts.traits.fangs to "disabled">>
-					<<set $transformationParts.traits.sharpEyes to "disabled">>
+					<<run Transformations.dropTraits("waterdragon", "fangs", "sharpEyes")>>
 					<<set $transformationParts.traits.dragonEyes to "disabled">>
 					<<set $transformationParts.traits.dragonTongue to "disabled">>
 				<</if>>
@@ -1231,8 +1236,7 @@
 				<<set $transformationParts.waterdragon.tail to "disabled">>
 				<<set $transformationParts.waterdragon.ears to "disabled">>
 				<<set $transformationParts.waterdragon.horns to "disabled">>
-				<<set $transformationParts.traits.fangs to "disabled">>
-				<<set $transformationParts.traits.sharpEyes to "disabled">>
+				<<run Transformations.dropTraits("waterdragon", "fangs", "sharpEyes")>>
 				<<set $transformationParts.traits.dragonEyes to "disabled">>
 				<<set $transformationParts.traits.dragonTongue to "disabled">>
 				<<set $transformationParts.traits.aquatic to "disabled">>
@@ -1287,7 +1291,7 @@
 				<<elseif $bearbuild lt 10>>
 					<<set $bear to 1>>
 					<<run $timeMessages.pushUnique("bearDown1")>>
-					<<set $transformationParts.traits.fangs to "disabled">>
+					<<run Transformations.dropTraits("bear", "fangs")>>
 				<</if>>
 
 			<<case 3>>
@@ -1317,9 +1321,7 @@
 					<<set $bear to 6>>
 					<<run $timeMessages.pushUnique("bearUp6")>>
 					<<set $transformationParts.bear.tail to "default">>
-					<<if $settings.pubicHairEnabled>>
-						<<set $transformationParts.bear.pubes to "default">>
-					<</if>>
+					<<set $transformationParts.bear.pubes to ($settings.pubicHairEnabled ? "default" : "hidden")>>
 					<<set $beartf to 1>>
 					<<set $TFBearBuffs to 1>>
 					<<earnFeat "Bear">>
@@ -1348,7 +1350,7 @@
 				<<set $transformationParts.bear.pubes to "disabled">>
 				<<set $transformationParts.bear.plumage to "disabled">>
 				<<set $transformationParts.bear.ears to "disabled">>
-				<<set $transformationParts.traits.fangs to "disabled">>
+				<<run Transformations.dropTraits("bear", "fangs")>>
 		<</switch>>
 	<<else>>
 		<<clearAnimalTransformations>>
@@ -1358,9 +1360,7 @@
 		<<set $bear to 6>>
 		<<set $bearbuild to 100>>
 		<<set $transformationParts.bear.tail to "default">>
-		<<if $settings.pubicHairEnabled>>
-			<<set $transformationParts.bear.pubes to "default">>
-		<</if>>
+		<<set $transformationParts.bear.pubes to ($settings.pubicHairEnabled ? "default" : "hidden")>>
 		<<set $transformationParts.bear.plumage to "default">>
 		<<set $transformationParts.bear.ears to "default">>
 		<<set $transformationParts.traits.fangs to "default">>
@@ -1400,7 +1400,7 @@
 					<<run $timeMessages.pushUnique("harpyDown1")>>
 					<<set $transformationParts.bird.eyes to "disabled">>
 					<<set $transformationParts.bird.malar to "disabled">>
-					<<set $transformationParts.traits.sharpEyes to "disabled">>
+					<<run Transformations.dropTraits("harpy", "sharpEyes")>>
 				<</if>>
 			<<case 3>>
 				<<if $birdbuild gte 20>>
@@ -1411,7 +1411,7 @@
 				<<elseif $birdbuild lt 15>>
 					<<set $harpy to 2>>
 					<<run $timeMessages.pushUnique("harpyDown2")>>
-					<<set $transformationParts.traits.mateForLife to "disabled">>
+					<<run Transformations.dropTraits("harpy", "mateForLife")>>
 				<</if>>
 			<<case 4>>
 				<<if $birdbuild gte 25>>
@@ -1446,15 +1446,7 @@
 					<<run $timeMessages.pushUnique("harpyDown5")>>
 					<<set $transformationParts.bird.wings to "disabled">>
 					<<set $transformationParts.bird.pubes to "disabled">>
-					<<if ($angel gte 6 or Transformations.partActive("angel", "wings"))>>
-						<<set $transformationParts.angel.wings to "default">>
-					<</if>>
-					<<if ($demon gte 6 or Transformations.partActive("demon", "wings"))>>
-						<<set $transformationParts.demon.wings to "default">>
-					<</if>>
-					<<if ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings"))>>
-						<<set $transformationParts.fallenAngel.wings to "default">>
-					<</if>>
+					<<unhideDivineWings>>
 				<</if>>
 			<<case 99>>
 				<<if ($harpy gte 6 or Transformations.partActive("bird", "wings"))>>
@@ -1468,20 +1460,9 @@
 				<<set $transformationParts.bird.tail to "disabled">>
 				<<set $transformationParts.bird.plumage to "disabled">>
 				<<set $transformationParts.bird.pubes to "disabled">>
-				<<set $transformationParts.traits.sharpEyes to "disabled">>
-				<<set $transformationParts.traits.mateForLife to "disabled">>
+				<<run Transformations.dropTraits("harpy", "sharpEyes", "mateForLife")>>
 				<<set $transformationParts.bird.wings to "disabled">>
-				<<if !["hidden", "disabled"].includes($transformationParts.bird.wings)>>
-					<<if ($angel gte 6 or Transformations.partActive("angel", "wings"))>>
-						<<set $transformationParts.angel.wings to "default">>
-					<</if>>
-					<<if ($demon gte 6 or Transformations.partActive("demon", "wings"))>>
-						<<set $transformationParts.demon.wings to "default">>
-					<</if>>
-					<<if ($fallenangel gte 2 or Transformations.partActive("fallenAngel", "wings"))>>
-						<<set $transformationParts.fallenAngel.wings to "default">>
-					<</if>>
-				<</if>>
+				<<unhideDivineWings>>
 		<</switch>>
 	<<else>>
 		<<set $physicalTransform to 1>>
@@ -1535,8 +1516,7 @@
 				<<elseif $foxbuild lt 10>>
 					<<set $fox to 1>>
 					<<run $timeMessages.pushUnique("foxDown1")>>
-					<<set $transformationParts.traits.fangs to "disabled">>
-					<<set $transformationParts.traits.sharpEyes to "disabled">>
+					<<run Transformations.dropTraits("fox", "fangs", "sharpEyes")>>
 				<</if>>
 			<<case 3>>
 				<<if $foxbuild gte 20>>
@@ -1547,7 +1527,7 @@
 				<<elseif $foxbuild lt 15>>
 					<<set $fox to 2>>
 					<<run $timeMessages.pushUnique("foxDown2")>>
-					<<set $transformationParts.traits.mateForLife to "disabled">>
+					<<run Transformations.dropTraits("fox", "mateForLife")>>
 				<</if>>
 			<<case 4>>
 				<<if $foxbuild gte 25>>
@@ -1586,9 +1566,7 @@
 				<<set $fox to 0>>
 				<<set $TFFoxBuffs to 0>>
 				<<set $foxbuild to 0>>
-				<<set $transformationParts.traits.fangs to "disabled">>
-				<<set $transformationParts.traits.sharpEyes to "disabled">>
-				<<set $transformationParts.traits.mateForLife to "disabled">>
+				<<run Transformations.dropTraits("fox", "fangs", "sharpEyes", "mateForLife")>>
 				<<set $transformationParts.traits.chase to "disabled">>
 				<<set $transformationParts.fox.cheeks to "disabled">>
 				<<set $transformationParts.fox.ears to "disabled">>
@@ -1686,7 +1664,9 @@
 				<</if>>
 
 			<<case 99>>
-				<<set $physicalTransform to 0>>
+				<<if ($bunny gte 6 or Transformations.partActive("bunny", "tail"))>>
+					<<set $physicalTransform to 0>>
+				<</if>>
 				<<set $bunny to 0>>
 				<<set $TFBunnyBuffs to 0>>
 				<<set $bunnybuild to 0>>
@@ -1707,6 +1687,19 @@
 	<</if>>
 	/* Keep Prey/Predator traits in sync immediately, even on direct calls (genome dump, events). */
 	<<recomputePredatorPrey>>
+<</widget>>
+
+/* Divine wings are hidden behind bird wings (see fallenButNotOut); once the bird wings go, show them again. */
+<<widget "unhideDivineWings">>
+	<<if $angel gte 6 and $transformationParts.angel.wings is "hidden">>
+		<<set $transformationParts.angel.wings to "default">>
+	<</if>>
+	<<if $demon gte 6 and $transformationParts.demon.wings is "hidden">>
+		<<set $transformationParts.demon.wings to "default">>
+	<</if>>
+	<<if $fallenangel gte 2 and $transformationParts.fallenAngel.wings is "hidden">>
+		<<set $transformationParts.fallenAngel.wings to "default">>
+	<</if>>
 <</widget>>
 
 <<widget "clearAnimalTransformations">>

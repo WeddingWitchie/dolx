@@ -3,16 +3,16 @@
    The vanilla Reel / Hold / Slack fight is untouched. Everything here either feeds the numbers
    vanilla already uses (catch weights, size rolls, the values a turn produces) or lives entirely
    beside it (the can, the gear the PC owns). Every tunable value comes from
-   setup.fishing.dolx in fishing-gear-config.js. */
+   setup.fishing.config in fishing-gear-config.js. */
 
 /* globals numberOfFishCaught pocketEnsure pocketSyncBag pocketCommit pocketBagItem pocketBagCapacity pocketSlotIndex pocketLockReason canOpenBaitOverlay wikifier closeOverlay effectiveTransformationLevel */
 
 /* State */
 /* Runs on load and before anything reads the gear, so old saves and new ones look the same. */
-function dolxFishingEnsure() {
+function fishingEnsure() {
 	/* StoryInit builds the config before any save loads, so this only guards against the mod's
 	   own config file being absent. Freezing the load path over it would be far worse. */
-	if (!setup.fishing || !setup.fishing.dolx) return V.fishing;
+	if (!setup.fishing || !setup.fishing.config) return V.fishing;
 	if (!V.fishing || typeof V.fishing !== "object" || Array.isArray(V.fishing)) V.fishing = {};
 
 	const can = V.fishing.wormCan;
@@ -20,7 +20,7 @@ function dolxFishingEnsure() {
 		V.fishing.wormCan = { owned: false, worms: 0 };
 	} else {
 		can.owned = can.owned === true;
-		can.worms = Math.clamp(Number(can.worms) || 0, 0, dolxWormCanCapacity());
+		can.worms = Math.clamp(Number(can.worms) || 0, 0, wormCanSize());
 	}
 
 	const gear = V.fishing.gear;
@@ -32,8 +32,8 @@ function dolxFishingEnsure() {
 		/* The plain set comes with the rod itself, so it can never be missing. */
 		if (!gear.rods.includes("black")) gear.rods.unshift("black");
 		if (!gear.reels.includes("black")) gear.reels.unshift("black");
-		gear.rods = gear.rods.filter(key => setup.fishing.dolx.rods[key]);
-		gear.reels = gear.reels.filter(key => setup.fishing.dolx.reels[key]);
+		gear.rods = gear.rods.filter(key => setup.fishing.config.rods[key]);
+		gear.reels = gear.reels.filter(key => setup.fishing.config.reels[key]);
 		if (!gear.rods.includes(gear.rod)) gear.rod = "black";
 		if (!gear.reels.includes(gear.reel)) gear.reel = "black";
 	}
@@ -46,140 +46,140 @@ function dolxFishingEnsure() {
 
 	/* New foodstuff keys need a row before anything reads .amount off them. */
 	if (V.foodstuff && typeof V.foodstuff === "object") {
-		for (const key of dolxBaitFishKeys()) {
+		for (const key of baitFishKeys()) {
 			if (V.foodstuff[key] === undefined) V.foodstuff[key] = { amount: 0 };
 		}
 	}
 	return V.fishing;
 }
-window.dolxFishingEnsure = dolxFishingEnsure;
+window.fishingEnsure = fishingEnsure;
 
 /* The can of worms */
-function dolxWormCanCapacity() {
-	return setup.fishing.dolx.wormCanCapacity;
+function wormCanSize() {
+	return setup.fishing.config.wormCanCapacity;
 }
-window.dolxWormCanCapacity = dolxWormCanCapacity;
+window.wormCanSize = wormCanSize;
 
-function dolxWormCanOwned() {
+function wormCanOwned() {
 	return V.fishing?.wormCan?.owned === true;
 }
-window.dolxWormCanOwned = dolxWormCanOwned;
+window.wormCanOwned = wormCanOwned;
 
-function dolxWormCanCount() {
-	return dolxWormCanOwned() ? Math.clamp(Number(V.fishing.wormCan.worms) || 0, 0, dolxWormCanCapacity()) : 0;
+function wormCanCount() {
+	return wormCanOwned() ? Math.clamp(Number(V.fishing.wormCan.worms) || 0, 0, wormCanSize()) : 0;
 }
-window.dolxWormCanCount = dolxWormCanCount;
+window.wormCanCount = wormCanCount;
 
 /* "Can of Worms | 7/20", or "Empty Can of Worms | 0/20". */
-function dolxWormCanName() {
-	return dolxWormCanCount() > 0 ? "Can of Worms" : "Empty Can of Worms";
+function wormCanName() {
+	return wormCanCount() > 0 ? "Can of Worms" : "Empty Can of Worms";
 }
-window.dolxWormCanName = dolxWormCanName;
+window.wormCanName = wormCanName;
 
-function dolxWormCanLabel() {
-	return `${dolxWormCanName()} | ${dolxWormCanCount()}/${dolxWormCanCapacity()}`;
+function wormCanLabel() {
+	return `${wormCanName()} | ${wormCanCount()}/${wormCanSize()}`;
 }
-window.dolxWormCanLabel = dolxWormCanLabel;
+window.wormCanLabel = wormCanLabel;
 
 /* Buying the first can gets the tin and a full fill. After that the tin is yours for good. */
-function dolxWormCanBuyPrice() {
-	return setup.fishing.dolx.wormCanPrice + setup.fishing.dolx.wormPrice * dolxWormCanCapacity();
+function wormCanBuyPrice() {
+	return setup.fishing.config.wormCanPrice + setup.fishing.config.wormPrice * wormCanSize();
 }
-window.dolxWormCanBuyPrice = dolxWormCanBuyPrice;
+window.wormCanBuyPrice = wormCanBuyPrice;
 
-function dolxWormCanRefillPrice() {
-	return setup.fishing.dolx.wormPrice * (dolxWormCanCapacity() - dolxWormCanCount());
+function wormCanRefillPrice() {
+	return setup.fishing.config.wormPrice * (wormCanSize() - wormCanCount());
 }
-window.dolxWormCanRefillPrice = dolxWormCanRefillPrice;
+window.wormCanRefillPrice = wormCanRefillPrice;
 
-function dolxWormCanBuy() {
-	dolxFishingEnsure();
+function wormCanBuy() {
+	fishingEnsure();
 	V.fishing.wormCan.owned = true;
-	V.fishing.wormCan.worms = dolxWormCanCapacity();
+	V.fishing.wormCan.worms = wormCanSize();
 	/* A tin of worms is the point of the pocket, so put it there if there is room. */
-	dolxPocketAutoPack("worm_can");
+	pocketAutoPack("worm_can");
 }
-window.dolxWormCanBuy = dolxWormCanBuy;
+window.wormCanBuy = wormCanBuy;
 
-function dolxWormCanRefill() {
-	dolxFishingEnsure();
-	if (!dolxWormCanOwned()) return;
-	V.fishing.wormCan.worms = dolxWormCanCapacity();
+function wormCanRefill() {
+	fishingEnsure();
+	if (!wormCanOwned()) return;
+	V.fishing.wormCan.worms = wormCanSize();
 }
-window.dolxWormCanRefill = dolxWormCanRefill;
+window.wormCanRefill = wormCanRefill;
 
 /* Bait stock */
 /* Bait worms live in two places: loose ones bought by the pack, and the ones in the can.
    Everywhere that adds or removes a bait goes through these three, so the can drains and
    refills like ordinary stock without vanilla needing to know it exists. */
-function dolxBaitConfig(key) {
-	return key ? setup.fishing.dolx.bait[key] : undefined;
+function baitConfig(key) {
+	return key ? setup.fishing.config.bait[key] : undefined;
 }
-window.dolxBaitConfig = dolxBaitConfig;
+window.baitConfig = baitConfig;
 
 /* Every foodstuff flagged as usable bait fish. Reads the flag, not a list of keys, so adding a
    fifth bait fish is a config change and nothing else. */
-function dolxBaitFishKeys() {
-	return Object.keys(setup.foodstuff).filter(dolxIsBaitFishItem);
+function baitFishKeys() {
+	return Object.keys(setup.foodstuff).filter(isBaitFishItem);
 }
-window.dolxBaitFishKeys = dolxBaitFishKeys;
+window.baitFishKeys = baitFishKeys;
 
 /* The one test for "this is a small fish you can bait a hook with". Everything else asks this:
    the weight class, the carry rule, the POCKET list, and requiresBaitFish. */
-function dolxIsBaitFishItem(key) {
+function isBaitFishItem(key) {
 	return !!key && setup.foodstuff[key]?.baitFish === true;
 }
-window.dolxIsBaitFishItem = dolxIsBaitFishItem;
+window.isBaitFishItem = isBaitFishItem;
 
-function dolxBaitLooseStock(key) {
+function baitLooseStock(key) {
 	return Math.max(0, Number(V.foodstuff?.[key]?.amount) || 0);
 }
-window.dolxBaitLooseStock = dolxBaitLooseStock;
+window.baitLooseStock = baitLooseStock;
 
-function dolxBaitStock(key) {
+function baitStock(key) {
 	if (!key) return 0;
-	if (key === "bait_worm") return dolxBaitLooseStock(key) + dolxWormCanCount();
-	return dolxBaitLooseStock(key);
+	if (key === "bait_worm") return baitLooseStock(key) + wormCanCount();
+	return baitLooseStock(key);
 }
-window.dolxBaitStock = dolxBaitStock;
+window.baitStock = baitStock;
 
 /* The can is only a source of worms while it is actually on you. Loose worms bought by the pack
    are unaffected, so the plain vanilla worm loop never depends on the POCKET. */
-function dolxWormCanUsable() {
-	return dolxWormCanOwned() && dolxWormCanCount() > 0 && dolxBaitPacked("bait_worm");
+function wormCanUsable() {
+	return wormCanOwned() && wormCanCount() > 0 && baitPacked("bait_worm");
 }
-window.dolxWormCanUsable = dolxWormCanUsable;
+window.wormCanUsable = wormCanUsable;
 
 /* What the PC can actually put on a hook right now, as opposed to what they own. */
-function dolxBaitUsableStock(key) {
-	if (key === "bait_worm") return dolxBaitLooseStock(key) + (dolxWormCanUsable() ? dolxWormCanCount() : 0);
-	return dolxBaitStock(key);
+function baitUsableStock(key) {
+	if (key === "bait_worm") return baitLooseStock(key) + (wormCanUsable() ? wormCanCount() : 0);
+	return baitStock(key);
 }
-window.dolxBaitUsableStock = dolxBaitUsableStock;
+window.baitUsableStock = baitUsableStock;
 
 /* Takes one bait off the shelf and onto the hook. Worms come out of the can first, so the can is
    what actually empties while you fish. Returns false when there was nothing to take. */
-function dolxBaitTake(key) {
+function baitTake(key) {
 	if (!key) return false;
-	if (key === "bait_worm" && dolxWormCanUsable()) {
+	if (key === "bait_worm" && wormCanUsable()) {
 		V.fishing.wormCan.worms -= 1;
 		return true;
 	}
-	if (dolxBaitLooseStock(key) > 0) {
+	if (baitLooseStock(key) > 0) {
 		V.foodstuff[key].amount -= 1;
 		/* Once a bait fish has been on the hook the player knows what they are for, so the
 		   catch text stops explaining it. */
-		if (dolxIsBaitFishItem(key)) V.fishing.baitFishLearned = true;
+		if (isBaitFishItem(key)) V.fishing.baitFishLearned = true;
 		return true;
 	}
 	return false;
 }
-window.dolxBaitTake = dolxBaitTake;
+window.baitTake = baitTake;
 
 /* Puts an unused bait back. Worms go back in the can when it's on you and has room. */
-function dolxBaitReturn(key) {
+function baitReturn(key) {
 	if (!key) return;
-	if (key === "bait_worm" && dolxWormCanUsable() && dolxWormCanCount() < dolxWormCanCapacity()) {
+	if (key === "bait_worm" && wormCanUsable() && wormCanCount() < wormCanSize()) {
 		V.fishing.wormCan.worms += 1;
 		return;
 	}
@@ -187,71 +187,71 @@ function dolxBaitReturn(key) {
 	if (!V.foodstuff[key]) V.foodstuff[key] = { amount: 0 };
 	V.foodstuff[key].amount = (Number(V.foodstuff[key].amount) || 0) + 1;
 }
-window.dolxBaitReturn = dolxBaitReturn;
+window.baitReturn = baitReturn;
 
 /* A bait fish is only usable when it is actually in the POCKET. Vanilla food bait is unaffected,
    so nothing the base game lets you hook stops working. */
-function dolxBaitNeedsPacking(key) {
-	return dolxIsBaitFishItem(key);
+function baitNeedsPacking(key) {
+	return isBaitFishItem(key);
 }
-window.dolxBaitNeedsPacking = dolxBaitNeedsPacking;
+window.baitNeedsPacking = baitNeedsPacking;
 
-function dolxBaitPacked(key) {
+function baitPacked(key) {
 	if (typeof pocketSlotIndex !== "function") return true;
 	if (key === "bait_worm") return pocketSlotIndex("bait", "worm_can") !== -1;
 	return pocketSlotIndex("bait", key) !== -1;
 }
-window.dolxBaitPacked = dolxBaitPacked;
+window.baitPacked = baitPacked;
 
 /* Can this bait go on the hook right now? */
-function dolxBaitUsable(key) {
-	if (key === "bait_worm") return dolxBaitUsableStock(key) > 0;
-	if (dolxBaitStock(key) <= 0) return false;
-	if (!dolxBaitNeedsPacking(key)) return true;
-	return dolxBaitPacked(key);
+function baitUsable(key) {
+	if (key === "bait_worm") return baitUsableStock(key) > 0;
+	if (baitStock(key) <= 0) return false;
+	if (!baitNeedsPacking(key)) return true;
+	return baitPacked(key);
 }
-window.dolxBaitUsable = dolxBaitUsable;
+window.baitUsable = baitUsable;
 
 /* The name and count shown in the bait list, the sidebar tooltip and the tackle summary. */
-function dolxBaitLabel(key) {
+function baitLabel(key) {
 	if (!key) return "No bait";
-	if (key === "bait_worm" && dolxWormCanOwned() && dolxBaitLooseStock(key) === 0) {
-		return `${dolxWormCanName()} (${dolxWormCanCount()} remaining)`;
+	if (key === "bait_worm" && wormCanOwned() && baitLooseStock(key) === 0) {
+		return `${wormCanName()} (${wormCanCount()} remaining)`;
 	}
 	const food = setup.foodstuff[key];
 	const name = food ? food.name.replace(/_/g, " ").toUpperFirst() : key;
-	return `${name} (${dolxBaitUsableStock(key)})`;
+	return `${name} (${baitUsableStock(key)})`;
 }
-window.dolxBaitLabel = dolxBaitLabel;
+window.baitLabel = baitLabel;
 
 /* Bait worms and the four bait fish first, then everything else the kitchen can spare. */
-function dolxBaitOrderedKeys() {
-	const front = ["bait_worm"].concat(dolxBaitFishKeys());
+function baitOrderedKeys() {
+	const front = ["bait_worm"].concat(baitFishKeys());
 	return front.concat(Object.keys(setup.foodstuff).filter(key => !front.includes(key)));
 }
-window.dolxBaitOrderedKeys = dolxBaitOrderedKeys;
+window.baitOrderedKeys = baitOrderedKeys;
 
 /* Catch weighting */
 /* Replaces vanilla's per-fish bait weight class when the current bait is one of ours.
    Returns undefined so vanilla keeps its own answer for every bait it already knows. */
-function dolxFishingBaitWeightMultiplier(fishKey) {
-	if (!dolxIsBaitFishItem(V.fishing?.currentBait)) return undefined;
+function gearBaitWeightMultiplier(fishKey) {
+	if (!isBaitFishItem(V.fishing?.currentBait)) return undefined;
 	const fishInfo = setup.fishing.lootTables.fish[fishKey];
 	if (fishInfo.requiresBaitFish) return 0.75;
 	/* Live bait favours large fish, but it must not make the replacement small-fish supply vanish. */
 	if (fishInfo.isBaitFish) return 0.7;
 	return 0.5;
 }
-window.dolxFishingBaitWeightMultiplier = dolxFishingBaitWeightMultiplier;
+window.gearBaitWeightMultiplier = gearBaitWeightMultiplier;
 
 /* What the bait actually attracts, expressed against the fish's tags rather than its name.
    Multiplied into the roll weight on top of vanilla's location and preferred-bait weights. */
-function dolxFishingBaitAffinity(fishKey) {
-	const config = dolxBaitConfig(V.fishing?.currentBait);
+function fishingBaitAffinity(fishKey) {
+	const config = baitConfig(V.fishing?.currentBait);
 	if (!config || !config.favours) return 1;
 	/* Every bait remains viable for the direct small-fish roll. */
 	if (setup.fishing.lootTables.fish[fishKey]?.isBaitFish) return 1;
-	const tags = setup.fishing.dolx.fishTags[fishKey];
+	const tags = setup.fishing.config.fishTags[fishKey];
 	if (!tags) return 1;
 	let multiplier = 1;
 	for (const tag of tags) {
@@ -259,246 +259,246 @@ function dolxFishingBaitAffinity(fishKey) {
 	}
 	return multiplier;
 }
-window.dolxFishingBaitAffinity = dolxFishingBaitAffinity;
+window.fishingBaitAffinity = fishingBaitAffinity;
 
 /* Small carp and the parents of small catches fill vanilla's old baitfish niche. Worms and each
    equipped bone piece multiply this weight independently, so all three bonuses stack. */
-function dolxFishingSmallFishWeight(fishKey) {
-	const dolx = setup.fishing.dolx;
-	const isSmallCatchParent = dolx.smallCatch[fishKey] !== undefined;
+function fishingSmallFishWeight(fishKey) {
+	const config = setup.fishing.config;
+	const isSmallCatchParent = config.smallCatch[fishKey] !== undefined;
 	const isDirectSmallFish = setup.fishing.lootTables.fish[fishKey]?.isBaitFish === true;
 	if (!isSmallCatchParent && !isDirectSmallFish) return 1;
 
-	let weight = isSmallCatchParent ? dolx.smallCatchWeight : 1;
-	if (V.fishing?.currentBait === "bait_worm") weight *= dolx.smallFishBonuses.worm;
-	if (dolxFishingRodKey() === "bone") weight *= dolx.smallFishBonuses.boneRod;
-	if (dolxFishingReelKey() === "bone") weight *= dolx.smallFishBonuses.boneReel;
+	let weight = isSmallCatchParent ? config.smallCatchWeight : 1;
+	if (V.fishing?.currentBait === "bait_worm") weight *= config.smallFishBonuses.worm;
+	if (fishingRodKey() === "bone") weight *= config.smallFishBonuses.boneRod;
+	if (fishingReelKey() === "bone") weight *= config.smallFishBonuses.boneReel;
 	return weight;
 }
-window.dolxFishingSmallFishWeight = dolxFishingSmallFishWeight;
+window.fishingSmallFishWeight = fishingSmallFishWeight;
 
 /* Bait that strongly suits a fish also pulls a bigger one, the same way its preferred season
    and location do. Worth one step, never more, so bait tilts the odds without deciding them. */
-function dolxFishingBaitSizeBonus(fishKey) {
-	return dolxFishingBaitAffinity(fishKey) >= setup.fishing.dolx.baitSizeBonusAt ? 1 : 0;
+function fishingBaitSizeBonus(fishKey) {
+	return fishingBaitAffinity(fishKey) >= setup.fishing.config.baitSizeBonusAt ? 1 : 0;
 }
-window.dolxFishingBaitSizeBonus = dolxFishingBaitSizeBonus;
+window.fishingBaitSizeBonus = fishingBaitSizeBonus;
 
 /* Replaces vanilla's bite-event weight for our bait. Undefined leaves vanilla alone. */
-function dolxFishingCatchWeightBaitMultiplier() {
-	const config = dolxBaitConfig(V.fishing?.currentBait);
+function gearCatchWeightBaitMultiplier() {
+	const config = baitConfig(V.fishing?.currentBait);
 	return config && config.catchWeight !== undefined ? config.catchWeight : undefined;
 }
-window.dolxFishingCatchWeightBaitMultiplier = dolxFishingCatchWeightBaitMultiplier;
+window.gearCatchWeightBaitMultiplier = gearCatchWeightBaitMultiplier;
 
 /* Small catches */
 /* The largest a catch can be and still count as a small one. */
-function dolxSmallCatchThreshold(fishKey) {
-	const row = setup.fishing.dolx.smallCatch[fishKey];
+function smallCatchThreshold(fishKey) {
+	const row = setup.fishing.config.smallCatch[fishKey];
 	if (!row) return 0;
 	const config = setup.fishing.lootTables.fish[fishKey];
-	const fraction = row.fraction ?? setup.fishing.dolx.smallCatchFraction;
+	const fraction = row.fraction ?? setup.fishing.config.smallCatchFraction;
 	return config.minSize + (config.maxSize - config.minSize) * fraction;
 }
-window.dolxSmallCatchThreshold = dolxSmallCatchThreshold;
+window.smallCatchThreshold = smallCatchThreshold;
 
 /* The foodstuff a catch is worth keeping as: its own species, or the small variant when the
    fish came in under the threshold. */
-function dolxFishKeepKey(fish) {
+function fishKeepKey(fish) {
 	if (!fish || !fish.type) return undefined;
-	const row = setup.fishing.dolx.smallCatch[fish.type];
+	const row = setup.fishing.config.smallCatch[fish.type];
 	if (!row) return fish.type;
-	return fish.size <= dolxSmallCatchThreshold(fish.type) ? row.key : fish.type;
+	return fish.size <= smallCatchThreshold(fish.type) ? row.key : fish.type;
 }
-window.dolxFishKeepKey = dolxFishKeepKey;
+window.fishKeepKey = fishKeepKey;
 
 /* Whether the catch text should explain what a bait fish is for. Covers both ways of getting
    one -- an undersized bass, and a small carp caught outright -- and stops once the player has
    actually used one. */
-function dolxFishBaitHint(fish) {
+function fishBaitHint(fish) {
 	if (V.fishing?.baitFishLearned) return "";
-	const keep = dolxFishKeepKey(fish);
-	if (!dolxIsBaitFishItem(keep)) return "";
-	return dolxFishNamePlural(keep);
+	const keep = fishKeepKey(fish);
+	if (!isBaitFishItem(keep)) return "";
+	return fishNamePlural(keep);
 }
-window.dolxFishBaitHint = dolxFishBaitHint;
+window.fishBaitHint = fishBaitHint;
 
 /* Shoaling fish come up more than one at a time. Rolled once, when the fish is hooked, and
    carried on the catch so the text and the stow agree. */
-function dolxFishRollShoal(fish) {
+function fishRollShoal(fish) {
 	const shoal = setup.fishing.lootTables.fish[fish.type]?.shoal;
 	if (!shoal) return fish;
 	if (State.random() >= shoal.chance) return fish;
 	fish.count = random(shoal.min, shoal.max);
 	return fish;
 }
-window.dolxFishRollShoal = dolxFishRollShoal;
+window.fishRollShoal = fishRollShoal;
 
-function dolxFishCatchCount(fish) {
+function fishCatchCount(fish) {
 	const count = Number(fish?.count);
 	return Number.isFinite(count) && count > 1 ? count : 1;
 }
-window.dolxFishCatchCount = dolxFishCatchCount;
+window.fishCatchCount = fishCatchCount;
 
 /* The label on the "Stow the ... away" link. */
-function dolxFishStowLabel(fish) {
-	const keep = dolxFishKeepKey(fish);
-	const count = dolxFishCatchCount(fish);
+function fishStowLabel(fish) {
+	const keep = fishKeepKey(fish);
+	const count = fishCatchCount(fish);
 	if (count > 1) {
-		return `Stow the ${count} ${dolxFishNamePlural(keep)} away`;
+		return `Stow the ${count} ${fishNamePlural(keep)} away`;
 	}
-	return `Stow the ${dolxFishName(keep)} away`;
+	return `Stow the ${fishDisplayName(keep)} away`;
 }
-window.dolxFishStowLabel = dolxFishStowLabel;
+window.fishStowLabel = fishStowLabel;
 
 /* Keeps the catch. A small one goes into the tin as bait; anything else is the fish itself. */
-function dolxFishStow(fish, amount) {
-	const keep = dolxFishKeepKey(fish);
+function fishStow(fish, amount) {
+	const keep = fishKeepKey(fish);
 	if (!keep) return;
-	const kept = amount ?? dolxFishCatchCount(fish);
+	const kept = amount ?? fishCatchCount(fish);
 	if (!V.foodstuff) V.foodstuff = {};
 	if (!V.foodstuff[keep]) V.foodstuff[keep] = { amount: 0 };
 	V.foodstuff[keep].amount = (Number(V.foodstuff[keep].amount) || 0) + kept;
 	/* Bait is no use in the cupboard at home, so put it where it can reach the hook. */
-	if (dolxBaitNeedsPacking(keep)) dolxPocketAutoPack(keep);
+	if (baitNeedsPacking(keep)) pocketAutoPack(keep);
 }
-window.dolxFishStow = dolxFishStow;
+window.fishStow = fishStow;
 
 /* Rods and reels */
-function dolxFishingRodKey() {
-	dolxFishingEnsure();
+function fishingRodKey() {
+	fishingEnsure();
 	return V.fishing.gear.rod;
 }
-window.dolxFishingRodKey = dolxFishingRodKey;
+window.fishingRodKey = fishingRodKey;
 
-function dolxFishingReelKey() {
-	dolxFishingEnsure();
+function fishingReelKey() {
+	fishingEnsure();
 	return V.fishing.gear.reel;
 }
-window.dolxFishingReelKey = dolxFishingReelKey;
+window.fishingReelKey = fishingReelKey;
 
-function dolxFishingRod() {
-	return setup.fishing.dolx.rods[dolxFishingRodKey()] ?? setup.fishing.dolx.rods.black;
+function fishingRod() {
+	return setup.fishing.config.rods[fishingRodKey()] ?? setup.fishing.config.rods.black;
 }
-window.dolxFishingRod = dolxFishingRod;
+window.fishingRod = fishingRod;
 
-function dolxFishingReel() {
-	return setup.fishing.dolx.reels[dolxFishingReelKey()] ?? setup.fishing.dolx.reels.black;
+function fishingReel() {
+	return setup.fishing.config.reels[fishingReelKey()] ?? setup.fishing.config.reels.black;
 }
-window.dolxFishingReel = dolxFishingReel;
+window.fishingReel = fishingReel;
 
-function dolxFishingGearOwned(kind, key) {
-	dolxFishingEnsure();
+function fishingGearOwned(kind, key) {
+	fishingEnsure();
 	return V.fishing.gear[kind === "rod" ? "rods" : "reels"].includes(key);
 }
-window.dolxFishingGearOwned = dolxFishingGearOwned;
+window.fishingGearOwned = fishingGearOwned;
 
-function dolxFishingGearGive(kind, key) {
-	dolxFishingEnsure();
+function fishingGearGive(kind, key) {
+	fishingEnsure();
 	const list = V.fishing.gear[kind === "rod" ? "rods" : "reels"];
 	if (!list.includes(key)) list.push(key);
 }
-window.dolxFishingGearGive = dolxFishingGearGive;
+window.fishingGearGive = fishingGearGive;
 
-function dolxFishingGearEquip(kind, key) {
-	dolxFishingEnsure();
-	if (!dolxFishingGearOwned(kind, key)) return false;
+function fishingGearEquip(kind, key) {
+	fishingEnsure();
+	if (!fishingGearOwned(kind, key)) return false;
 	V.fishing.gear[kind === "rod" ? "rod" : "reel"] = key;
 	return true;
 }
-window.dolxFishingGearEquip = dolxFishingGearEquip;
+window.fishingGearEquip = fishingGearEquip;
 
 /* Gear listed in the order it is meant to be worked through. */
-function dolxFishingGearList(kind) {
-	const table = kind === "rod" ? setup.fishing.dolx.rods : setup.fishing.dolx.reels;
+function fishingGearList(kind) {
+	const table = kind === "rod" ? setup.fishing.config.rods : setup.fishing.config.reels;
 	return Object.entries(table)
 		.sort((a, b) => a[1].order - b[1].order)
 		.map(([key, config]) => ({ key, config }));
 }
-window.dolxFishingGearList = dolxFishingGearList;
+window.fishingGearList = fishingGearList;
 
 /* The shop only puts a piece out once the PC has done enough fishing to want it. */
-function dolxFishingGearUnlocked(config) {
+function fishingGearUnlocked(config) {
 	const unlock = config.unlock;
 	if (!unlock) return true;
 	if (unlock.fishCaught !== undefined && numberOfFishCaught() < unlock.fishCaught) return false;
 	if (unlock.requestsCompleted !== undefined && (Number(V.fishing?.baitShopRequestsCompleted) || 0) < unlock.requestsCompleted) return false;
 	return true;
 }
-window.dolxFishingGearUnlocked = dolxFishingGearUnlocked;
+window.fishingGearUnlocked = fishingGearUnlocked;
 
 /* The bone set */
 /* Not stocked anywhere. It comes up on the line in the quiet places, once the PC has fished
    enough to recognise what they have pulled out. */
-function dolxBoneFindPiece() {
-	dolxFishingEnsure();
-	if (!dolxFishingGearOwned("rod", "bone")) return "rod";
-	if (!dolxFishingGearOwned("reel", "bone")) return "reel";
+function boneFindPiece() {
+	fishingEnsure();
+	if (!fishingGearOwned("rod", "bone")) return "rod";
+	if (!fishingGearOwned("reel", "bone")) return "reel";
 	return undefined;
 }
-window.dolxBoneFindPiece = dolxBoneFindPiece;
+window.boneFindPiece = boneFindPiece;
 
-function dolxBoneFindWeight() {
-	const find = setup.fishing.dolx.boneFind;
+function boneFindWeight() {
+	const find = setup.fishing.config.boneFind;
 	if (!find.locations.includes(V.bus)) return 0;
-	if (!dolxBoneFindPiece()) return 0;
+	if (!boneFindPiece()) return 0;
 	if (numberOfFishCaught() < find.minFishCaught) return 0;
 	/* The water only gives it up in the dark, or under a blood moon. */
 	if (Weather.dayState !== "night" && !Time.isBloodMoon()) return 0;
 	return find.eventWeight;
 }
-window.dolxBoneFindWeight = dolxBoneFindWeight;
+window.boneFindWeight = boneFindWeight;
 
 /* Whether the record holds at least one of every small fish */
-function dolxSmallFishRecordComplete() {
-	const keys = dolxBaitFishKeys();
+function smallFishRecordComplete() {
+	const keys = baitFishKeys();
 	if (!keys.length) return false;
 	return keys.every(key => V.fishing?.record?.[key]?.numCaught > 0);
 }
-window.dolxSmallFishRecordComplete = dolxSmallFishRecordComplete;
+window.smallFishRecordComplete = smallFishRecordComplete;
 
 /* Both halves of the bone tackle, found rather than bought. */
-function dolxBoneSetOwned() {
-	return dolxFishingGearOwned("rod", "bone") && dolxFishingGearOwned("reel", "bone");
+function boneSetOwned() {
+	return fishingGearOwned("rod", "bone") && fishingGearOwned("reel", "bone");
 }
-window.dolxBoneSetOwned = dolxBoneSetOwned;
+window.boneSetOwned = boneSetOwned;
 
-function dolxBoneFindTake() {
-	const piece = dolxBoneFindPiece();
+function boneFindTake() {
+	const piece = boneFindPiece();
 	if (!piece) return undefined;
-	dolxFishingGearGive(piece, "bone");
+	fishingGearGive(piece, "bone");
 	return piece;
 }
-window.dolxBoneFindTake = dolxBoneFindTake;
+window.boneFindTake = boneFindTake;
 
 /* Minigame modifiers */
 /* Fractional gear effects are resolved by chance rather than accumulated, so a 20% better reel
    is 20% better on average and the turn still moves the fish a whole number of lengths. */
-function dolxFishingRoundRandom(value) {
+function fishingRoundRandom(value) {
 	if (!Number.isFinite(value)) return 0;
 	const whole = Math.floor(value);
 	return whole + (State.random() < value - whole ? 1 : 0);
 }
-window.dolxFishingRoundRandom = dolxFishingRoundRandom;
+window.fishingRoundRandom = fishingRoundRandom;
 
 /* Applied to the turn's result before vanilla writes it into the minigame state.
    Reel and Hold and Slack still do what they did; the gear only changes by how much. */
-function dolxFishingGearApplyResult(result, playerAction) {
+function fishingGearApplyResult(result, playerAction) {
 	if (!result) return result;
-	const rod = dolxFishingRod();
-	const reel = dolxFishingReel();
+	const rod = fishingRod();
+	const reel = fishingReel();
 
 	/* Ground the reel takes back. */
 	if (playerAction === "reel" && result.fishDistance < 0) {
-		result.fishDistance = -dolxFishingRoundRandom(-result.fishDistance * (reel.reelMult ?? 1));
+		result.fishDistance = -fishingRoundRandom(-result.fishDistance * (reel.reelMult ?? 1));
 	}
 	/* Ground given away while the line is slack. A good drag holds some of it. */
 	if (playerAction === "slack" && result.fishDistance > 0) {
-		result.fishDistance = dolxFishingRoundRandom(result.fishDistance * (reel.slackMult ?? 1));
+		result.fishDistance = fishingRoundRandom(result.fishDistance * (reel.slackMult ?? 1));
 	}
 	/* How hard the fish works against the rod. */
 	if (result.fishStamina < 0) {
-		result.fishStamina = -dolxFishingRoundRandom(-result.fishStamina * (rod.exhaustMult ?? 1));
+		result.fishStamina = -fishingRoundRandom(-result.fishStamina * (rod.exhaustMult ?? 1));
 	}
 	/* A rod with backbone tires a fish just by being held against it. */
 	if (playerAction === "hold" && (rod.holdBonus ?? 0) > 0 && State.random() < rod.holdBonus) {
@@ -506,69 +506,69 @@ function dolxFishingGearApplyResult(result, playerAction) {
 	}
 	/* Everything the fight puts through your arms. */
 	if (result.armFatigue > 0) {
-		result.armFatigue = dolxFishingRoundRandom(result.armFatigue * (rod.tensionMult ?? 1));
+		result.armFatigue = fishingRoundRandom(result.armFatigue * (rod.tensionMult ?? 1));
 	}
 	return result;
 }
-window.dolxFishingGearApplyResult = dolxFishingGearApplyResult;
+window.fishingGearApplyResult = fishingGearApplyResult;
 
 /* How fast the line-tension clock runs down. Below 1 is a more forgiving rod. */
-function dolxFishingTensionMult() {
-	return dolxFishingRod().tensionMult ?? 1;
+function fishingTensionMult() {
+	return fishingRod().tensionMult ?? 1;
 }
-window.dolxFishingTensionMult = dolxFishingTensionMult;
+window.fishingTensionMult = fishingTensionMult;
 
 /* What a Reel that misses costs on top of the ordinary failure. Only the bone reel charges it. */
-function dolxFishingMisreelPenalty(playerAction) {
+function fishingMisreelPenalty(playerAction) {
 	if (playerAction !== "reel") return 0;
-	return dolxFishingReel().misreelPenalty ?? 0;
+	return fishingReel().misreelPenalty ?? 0;
 }
-window.dolxFishingMisreelPenalty = dolxFishingMisreelPenalty;
+window.fishingMisreelPenalty = fishingMisreelPenalty;
 
 /* POCKET */
 /* Bait packs like everything else: one slot per kind of thing, however many of it you carry.
    The can is one slot whatever is in it, and stays a slot when it's empty, because an empty
    tin is still a tin you can refill. */
-function dolxPocketBaitKeys() {
-	return ["worm_can"].concat(dolxBaitFishKeys());
+function pocketBaitKeys() {
+	return ["worm_can"].concat(baitFishKeys());
 }
-window.dolxPocketBaitKeys = dolxPocketBaitKeys;
+window.pocketBaitKeys = pocketBaitKeys;
 
-function dolxPocketBaitValid(key) {
-	if (key === "worm_can") return dolxWormCanOwned();
-	return dolxIsBaitFishItem(key) && dolxBaitLooseStock(key) > 0;
+function pocketBaitValid(key) {
+	if (key === "worm_can") return wormCanOwned();
+	return isBaitFishItem(key) && baitLooseStock(key) > 0;
 }
-window.dolxPocketBaitValid = dolxPocketBaitValid;
+window.pocketBaitValid = pocketBaitValid;
 
-function dolxPocketBaitName(key) {
-	if (key === "worm_can") return dolxWormCanName();
+function pocketBaitName(key) {
+	if (key === "worm_can") return wormCanName();
 	const food = setup.foodstuff[key];
 	return food ? food.name.toLocaleUpperFirst() : key;
 }
-window.dolxPocketBaitName = dolxPocketBaitName;
+window.pocketBaitName = pocketBaitName;
 
-function dolxPocketBaitIconPath(key) {
+function pocketBaitIconPath(key) {
 	if (key === "worm_can") return "fish/mod/wormcan.png";
 	return setup.foodstuff[key]?.icon_path ?? "fish/hook.png";
 }
-window.dolxPocketBaitIconPath = dolxPocketBaitIconPath;
+window.pocketBaitIconPath = pocketBaitIconPath;
 
 /* The line under a packed bait: how much is in it, and what it's for. */
-function dolxPocketBaitDetail(key) {
-	if (key === "worm_can") return `${dolxWormCanCount()}/${dolxWormCanCapacity()}`;
-	return String(dolxBaitLooseStock(key));
+function pocketBaitDetail(key) {
+	if (key === "worm_can") return `${wormCanCount()}/${wormCanSize()}`;
+	return String(baitLooseStock(key));
 }
-window.dolxPocketBaitDetail = dolxPocketBaitDetail;
+window.pocketBaitDetail = pocketBaitDetail;
 
 /* Put a new bait item straight into the pocket when there's room, so buying a can or landing a
    bait fish doesn't quietly leave it behind. Never bumps anything already packed. */
-function dolxPocketAutoPack(key) {
+function pocketAutoPack(key) {
 	if (typeof pocketEnsure !== "function" || typeof pocketLockReason !== "function") return false;
-	if (!dolxPocketReachable()) return false;
+	if (!pocketReachable()) return false;
 	pocketEnsure();
 	pocketSyncBag();
 	if (pocketSlotIndex("bait", key) !== -1) return true;
-	if (!dolxPocketBaitValid(key)) return false;
+	if (!pocketBaitValid(key)) return false;
 
 	let location = "pocket";
 	if (V.pocket.bag.slots.some(slot => slot.location === "pocket")) {
@@ -580,20 +580,20 @@ function dolxPocketAutoPack(key) {
 	pocketCommit();
 	return true;
 }
-window.dolxPocketAutoPack = dolxPocketAutoPack;
+window.pocketAutoPack = pocketAutoPack;
 
 /* Bait is bought and landed at counters and riverbanks where an NPC often sits in the scene, so
    the bait panel uses the relaxed gate: it still refuses when the PC genuinely can't reach their
    things, but a shopkeeper standing there is not a reason to keep you out of your own bag. */
-function dolxPocketReachable() {
+function pocketReachable() {
 	if (typeof pocketLockReason !== "function") return false;
 	return pocketLockReason(true) === "";
 }
-window.dolxPocketReachable = dolxPocketReachable;
+window.pocketReachable = pocketReachable;
 
 /* Packs or unpacks one bait kind. Mirrors pocketSlotToggle, on the relaxed gate. */
-function dolxPocketBaitToggle(key) {
-	if (!dolxPocketReachable()) return false;
+function pocketBaitToggle(key) {
+	if (!pocketReachable()) return false;
 	pocketEnsure();
 	pocketSyncBag();
 	const existing = pocketSlotIndex("bait", key);
@@ -602,39 +602,39 @@ function dolxPocketBaitToggle(key) {
 		pocketCommit();
 		return true;
 	}
-	return dolxPocketAutoPack(key);
+	return pocketAutoPack(key);
 }
-window.dolxPocketBaitToggle = dolxPocketBaitToggle;
+window.pocketBaitToggle = pocketBaitToggle;
 
 /* Everything the PC could pack right now, for the packing panel. */
-function dolxPocketBaitList() {
-	return dolxPocketBaitKeys().filter(key => dolxPocketBaitValid(key));
+function pocketBaitList() {
+	return pocketBaitKeys().filter(key => pocketBaitValid(key));
 }
-window.dolxPocketBaitList = dolxPocketBaitList;
+window.pocketBaitList = pocketBaitList;
 
 /* Shop and UI helpers */
 /* Prices go through the X-Change inflation hook so the label matches the charge. */
-function dolxFishingPrice(base) {
+function fishingPrice(base) {
 	return typeof setup !== "undefined" && setup.inflation ? setup.inflation.spendPrice(base, "fishing") : base;
 }
-window.dolxFishingPrice = dolxFishingPrice;
+window.fishingPrice = fishingPrice;
 
-function dolxFishingAfford(base) {
+function fishingAfford(base) {
 	if (typeof setup !== "undefined" && setup.inflation) return setup.inflation.canAfford(base, "fishing");
 	return V.money >= base;
 }
-window.dolxFishingAfford = dolxFishingAfford;
+window.fishingAfford = fishingAfford;
 
 /* Opens the bait overlay on its Tackle tab. */
-function dolxOpenFishingTackle() {
+function openFishingTackle() {
 	if (!canOpenBaitOverlay()) return;
 	V.fishing.displayBaitNotification = false;
 	wikifier("overlayReplace", '"tackle"');
 }
-window.dolxOpenFishingTackle = dolxOpenFishingTackle;
+window.openFishingTackle = openFishingTackle;
 
 /* The passage a fishing spot's wait loop returns to. */
-function dolxFishingWaitPassage(bus) {
+function fishingWaitPassage(bus) {
 	switch (bus) {
 		case "fishingBeach":
 			return "Fishing Beach Wait";
@@ -647,55 +647,55 @@ function dolxFishingWaitPassage(bus) {
 		case "fishingMoor":
 			return "Fishing Moor Wait";
 		default:
-			throw new Error(`dolxFishingWaitPassage: unknown bus "${bus}"`);
+			throw new Error(`fishingWaitPassage: unknown bus "${bus}"`);
 	}
 }
-window.dolxFishingWaitPassage = dolxFishingWaitPassage;
+window.fishingWaitPassage = fishingWaitPassage;
 
 /* Debug */
 /* Hands over every rod and reel and a full can, for testing the fight modifiers side by side. */
 function debugUnlockAllFishingGear() {
-	dolxFishingEnsure();
-	for (const key of Object.keys(setup.fishing.dolx.rods)) dolxFishingGearGive("rod", key);
-	for (const key of Object.keys(setup.fishing.dolx.reels)) dolxFishingGearGive("reel", key);
+	fishingEnsure();
+	for (const key of Object.keys(setup.fishing.config.rods)) fishingGearGive("rod", key);
+	for (const key of Object.keys(setup.fishing.config.reels)) fishingGearGive("reel", key);
 	V.fishing.wormCan.owned = true;
-	V.fishing.wormCan.worms = dolxWormCanCapacity();
-	for (const key of dolxBaitFishKeys()) {
+	V.fishing.wormCan.worms = wormCanSize();
+	for (const key of baitFishKeys()) {
 		if (!V.foodstuff[key]) V.foodstuff[key] = { amount: 0 };
 		V.foodstuff[key].amount += 10;
 	}
-	dolxPocketAutoPack("worm_can");
+	pocketAutoPack("worm_can");
 }
 window.debugUnlockAllFishingGear = debugUnlockAllFishingGear;
 
 /* Eating a fish whole */
 /* The animal transformations far enough along to swallow a fish, strongest build last so the
    caller can just take the highest. */
-function dolxFishEatingTfs() {
-	const names = setup.fishing?.dolx?.fishEatingTransformations || [];
+function fishEatingTfs() {
+	const names = setup.fishing?.config?.fishEatingTransformations || [];
 	return names.filter(name => effectiveTransformationLevel(name) >= 3);
 }
-window.dolxFishEatingTfs = dolxFishEatingTfs;
+window.fishEatingTfs = fishEatingTfs;
 
 /* A bait fish is small by definition, so the size test a hooked fish gets is already satisfied. */
-function dolxCanEatBaitFish(key) {
-	return dolxIsBaitFishItem(key) && dolxBaitLooseStock(key) > 0 && dolxFishEatingTfs().length > 0;
+function canEatBaitFish(key) {
+	return isBaitFishItem(key) && baitLooseStock(key) > 0 && fishEatingTfs().length > 0;
 }
-window.dolxCanEatBaitFish = dolxCanEatBaitFish;
+window.canEatBaitFish = canEatBaitFish;
 
 /* Worms need no transformation. Anyone can swallow one; almost nobody enjoys it */
-function dolxCanEatWorm() {
-	return (dolxWormCanOwned() && dolxWormCanCount() > 0) || dolxBaitLooseStock("bait_worm") > 0;
+function canEatWorm() {
+	return (wormCanOwned() && wormCanCount() > 0) || baitLooseStock("bait_worm") > 0;
 }
-window.dolxCanEatWorm = dolxCanEatWorm;
+window.canEatWorm = canEatWorm;
 
 /* Takes one bait out of the bag to eat. The stat effects belong to the passage, the way they do
    when a fish is eaten off the hook. Returns false when there was nothing to take. */
-function dolxEatBait(key, commit = true) {
+function eatBait(key, commit = true) {
 	if (key === "bait_worm") {
-		if (!dolxCanEatWorm()) return false;
+		if (!canEatWorm()) return false;
 		/* The can empties first, the same order the hook takes them in */
-		if (dolxWormCanOwned() && dolxWormCanCount() > 0) {
+		if (wormCanOwned() && wormCanCount() > 0) {
 			V.fishing.wormCan.worms -= 1;
 			V.dolxBaitEatenFromCan = true;
 		} else {
@@ -703,7 +703,7 @@ function dolxEatBait(key, commit = true) {
 			V.dolxBaitEatenFromCan = false;
 		}
 	} else {
-		if (!dolxCanEatBaitFish(key)) return false;
+		if (!canEatBaitFish(key)) return false;
 		V.foodstuff[key].amount -= 1;
 	}
 	/* The can stays in the bag when it empties; a fish leaves once the last one is gone. */
@@ -711,83 +711,83 @@ function dolxEatBait(key, commit = true) {
 	if (commit) pocketCommit();
 	return true;
 }
-window.dolxEatBait = dolxEatBait;
+window.eatBait = eatBait;
 
 /* Prepare the state the Eat link carries into its passage, the same way the POCKET's food does. */
-function dolxPocketEatBaitFromMenu(key) {
+function pocketEatBaitFromMenu(key) {
 	/* Keep the original passage when the player opens the bag again from the eating report. */
 	const destination = V.passage === "Pocket Eat Bait" ? V.dolxBaitEatReturn : V.passage;
-	if (!dolxEatBait(key, false)) return false;
+	if (!eatBait(key, false)) return false;
 	V.dolxBaitEatReturn = destination;
 	V.dolxBaitEaten = key;
 	if (typeof closeOverlay === "function") closeOverlay();
 	return true;
 }
-window.dolxPocketEatBaitFromMenu = dolxPocketEatBaitFromMenu;
+window.pocketEatBaitFromMenu = pocketEatBaitFromMenu;
 
 /* The journal */
 /* The species an undersized catch comes from, or undefined for a bait fish that is caught
    outright. The small carp is the only one of those. */
-function dolxSmallCatchParent(baitKey) {
-	return Object.keys(setup.fishing.dolx.smallCatch).find(parent => setup.fishing.dolx.smallCatch[parent].key === baitKey);
+function smallCatchParent(baitKey) {
+	return Object.keys(setup.fishing.config.smallCatch).find(parent => setup.fishing.config.smallCatch[parent].key === baitKey);
 }
-window.dolxSmallCatchParent = dolxSmallCatchParent;
+window.smallCatchParent = smallCatchParent;
 
 /* Every fish that has a record of its own, bait fish included. */
-function dolxJournalAllFishKeys() {
+function journalAllFishKeys() {
 	const keys = Object.keys(setup.fishing.lootTables.fish);
-	return keys.concat(dolxBaitFishKeys().filter(key => !keys.includes(key)));
+	return keys.concat(baitFishKeys().filter(key => !keys.includes(key)));
 }
-window.dolxJournalAllFishKeys = dolxJournalAllFishKeys;
+window.journalAllFishKeys = journalAllFishKeys;
 
 /* An undersized catch turns up wherever its parent does; everything else reads its own table.
    No location means "anywhere", which is what the records list wants. */
-function dolxFishAtLocation(fishKey, location) {
+function fishAtLocation(fishKey, location) {
 	if (!location) return true;
 	const fish = setup.fishing.lootTables.fish;
-	const key = fish[fishKey] ? fishKey : dolxSmallCatchParent(fishKey);
+	const key = fish[fishKey] ? fishKey : smallCatchParent(fishKey);
 	return !!key && (fish[key]?.locations?.[location] || 0) > 0;
 }
-window.dolxFishAtLocation = dolxFishAtLocation;
+window.fishAtLocation = fishAtLocation;
 
 /* The journal lists bait fish apart from the fish they are used to catch. Passing a location
    narrows either list to what can be caught there. */
-function dolxJournalFishKeys(location) {
-	return dolxJournalAllFishKeys().filter(key => !dolxIsBaitFishItem(key) && dolxFishAtLocation(key, location));
+function journalFishKeys(location) {
+	return journalAllFishKeys().filter(key => !isBaitFishItem(key) && fishAtLocation(key, location));
 }
-window.dolxJournalFishKeys = dolxJournalFishKeys;
+window.journalFishKeys = journalFishKeys;
 
-function dolxJournalBaitFishKeys(location) {
-	return dolxBaitFishKeys().filter(key => dolxFishAtLocation(key, location));
+function journalBaitFishKeys(location) {
+	return baitFishKeys().filter(key => fishAtLocation(key, location));
 }
-window.dolxJournalBaitFishKeys = dolxJournalBaitFishKeys;
+window.journalBaitFishKeys = journalBaitFishKeys;
 
 /* Icon and size range for a record entry. A bait fish with no loot table of its own borrows its
    parent's floor and tops out at the threshold that made it small in the first place, so the
    biggest-possible star still means something. */
-function dolxFishRecordConfig(fishKey) {
+function fishRecordConfig(fishKey) {
 	const config = setup.fishing.lootTables.fish[fishKey];
 	if (config) return config;
-	const parent = dolxSmallCatchParent(fishKey);
+	const parent = smallCatchParent(fishKey);
 	const parentConfig = setup.fishing.lootTables.fish[parent];
 	return {
 		minSize: parentConfig ? parentConfig.minSize : 0,
-		maxSize: parent ? dolxSmallCatchThreshold(parent) : 0,
+		maxSize: parent ? smallCatchThreshold(parent) : 0,
 		icon: setup.foodstuff[fishKey] ? setup.foodstuff[fishKey].icon_path : undefined,
 	};
 }
-window.dolxFishRecordConfig = dolxFishRecordConfig;
+window.fishRecordConfig = fishRecordConfig;
 
 /* Names */
 /* Vanilla prints a fish's loot-table key as its name, which works only while the two are the
    same word. The sardine keeps the key `baitfish` for compatibility with vanilla and with future
    fishing updates, so every player-facing print goes through here instead. */
-function dolxFishName(fishKey) {
+function fishDisplayName(fishKey) {
 	return setup.foodstuff[fishKey]?.name?.replace(/_/g, " ") ?? fishKey;
 }
-window.dolxFishName = dolxFishName;
+window.fishDisplayName = fishDisplayName;
 
-function dolxFishNamePlural(fishKey) {
-	return setup.foodstuff[fishKey]?.plural?.replace(/_/g, " ") ?? dolxFishName(fishKey);
+function fishNamePlural(fishKey) {
+	return setup.foodstuff[fishKey]?.plural?.replace(/_/g, " ") ?? fishDisplayName(fishKey);
 }
-window.dolxFishNamePlural = dolxFishNamePlural;
+window.fishNamePlural = fishNamePlural;

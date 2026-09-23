@@ -1651,7 +1651,7 @@ Args: reason ("broken", "stolen", or "lost"), optional holder, optional target (
 			<<if $debug is 1>><<run console.log("_args[1] is defined", _args[1])>><</if>>
 			<<set $_item to $outfitTmp[_args[0]][_args[1]]>>
 			<<storeloaditem $_item _args[1]>>
-			<<run delete V.outfitTmp[_args[0][_args[1]]]>>
+			<<run delete V.outfitTmp[_args[0]][_args[1]]>>
 			<<if Object.keys(V.outfitTmp[_args[0]]).length is 0>>
 				<<run delete V.outfitTmp[_args[0]]>>
 			<</if>>
@@ -1715,11 +1715,8 @@ Args: reason ("broken", "stolen", or "lost"), optional holder, optional target (
 							<<else>>
 								<<set $_selectedWardrobe to selectWardrobe($wardrobe_location)>>
 							<</if>>
-							<<if $_selectedWardrobe isnot "wardrobe" and $wardrobes[$_selectedWardrobe]>>
-								<<set $_selectedWardrobe to $wardrobes[$_selectedWardrobe]>>
-							<<else>>
-								<<set $_wardrobe to $wardrobe>>
-							<</if>>
+							/* selectWardrobe() returns the wardrobe object itself, already falling back to $wardrobe */
+							<<set $_wardrobe to $_selectedWardrobe or $wardrobe>>
 							<<if $debug is 1>><<run console.log($store[$_slot][$_storedIndex])>><</if>>
 							<<run $_wardrobe[$_slot].push(clone($store[$_slot][$_storedIndex]))>>
 							<<run $store[$_slot].deleteAt($_storedIndex)>>

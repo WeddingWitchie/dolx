@@ -38,13 +38,28 @@
 	<<replace `'#ccm-presetman-mannequin-' + _presetType`>><<ccmodManagerMannequin _presetType>><</replace>>
 <</widget>>
 
-<<widget "ccmodManagerButton">>
-	<<furnitureicon "candyPillow">><<link "Custom Makeup mod">>
-		<<replace '#ccmod-options'>><<ccmodManager>><</replace>>
-		<<run linkifyDivs('#ccmod-options')>>
-		<<toggleclass '#ccmod-options' 'hidden'>>
+/* One panel for both cosmetic mods' options and preset managers, opened from the mirror's makeup menu. */
+<<widget "cosmeticOptionsButton">>
+	<<furnitureicon "candyPillow">><<link "Makeup and hair dye options">>
+		<<replace '#cosmetic-options'>>
+			<div class="options-div" onclick="event.stopPropagation()">
+				<div class="options-buttons-div">
+					<div class="options-button button-apply div-link">
+						<<link "Save and Close">>
+							<<addclass '#cosmetic-options' 'hidden'>>
+						<</link>>
+					</div>
+				</div>
+				<div class="options-body">
+					<<ccmodManager>>
+					<<dhmCfgLoad>>
+				</div>
+			</div>
+		<</replace>>
+		<<run linkifyDivs('#cosmetic-options')>>
+		<<toggleclass '#cosmetic-options' 'hidden'>>
 	<</link>>
-	<div id="ccmod-options" class="no-click-overlay no-numberify hidden" onclick="$(this).addClass('hidden')">
+	<div id="cosmetic-options" class="no-click-overlay no-numberify hidden" onclick="$(this).addClass('hidden')">
 		<!-- load delayed -->
 	</div>
 <</widget>>
@@ -208,18 +223,10 @@
 		<<set _presetModetmp to "eyeshadow">>
 	<</if>>
 
-	<div class="ccmod options-div" onclick="event.stopPropagation()">
-		<div id="options-buttons" class="options-buttons-div">
-			<div class="options-button button-apply div-link">
-				<<link "Save and Close">>
-					<<addclass '#ccmod-options' 'hidden'>>
-				<</link>>
-			</div>
-		</div>
-
-		<div class="options-body">
+	<div class="ccmod">
+		<div>
 			<div class="settingsGrid">
-				<div class="settingsHeader">Mod options</div>
+				<div class="settingsHeader">Custom makeup options</div>
 				<div class="settingsToggleItemWide">
 					<label>
 						<<checkbox "$ccmod.cfg.skipDesaturate" false true autocheck>>
@@ -229,7 +236,7 @@
 			</div>
 
 			<div id="ccm-preset-manager" class="settingsGrid">
-				<div class="settingsHeader">Preset Manager</div>
+				<div class="settingsHeader">Custom makeup presets</div>
 
 				<div class="settingsToggleItem">
 					<span class="gold bold">Saved presets</span><br>

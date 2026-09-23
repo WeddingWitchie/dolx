@@ -247,7 +247,7 @@ function hawkChildActivity(childId) {
 		activity.push("flap");
 	}
 	// DoLX: a chick the player has said farewell to shows only the dismissal beat.
-	if (child.development.farewell !== false && typeof child.development.farewell !== "undefined") {
+	if (child.development.farewell === true) {
 		activity = ["dismissed"];
 	}
 

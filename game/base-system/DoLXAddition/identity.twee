@@ -51,7 +51,7 @@
 		<</if>>
 	<</widget>>
 
-	/* Is this even do anything right now? */
+	/* Yesterday's outfit line in the daily report, printed by xchange.js from $genderIdentityMessage. */
 	<<widget "genderidentity-text">>
 		<<if $xchange.genderIdentityEnabled>>
 			<<if _args[0] is "f">>
@@ -480,9 +480,7 @@
 				<br>
 				Miniature:
 				<br>
-				<label data-target='["identity.body.bodysize.miniature.acceptance"]' data-disabledif="V.identity.body.bodysize.miniature.acceptance" class="red">
-					Reject <<checkbox "$identity.body.bodysize.miniature.reject" false true autocheck>>
-				</label> |
+				<label data-target='["identity.body.bodysize.miniature.acceptance", "identity.body.bodysize.miniature.reject"]' data-disabledif="V.identity.body.bodysize.miniature.acceptance && !V.identity.body.bodysize.miniature.reject" class="red">Reject <<checkbox "$identity.body.bodysize.miniature.reject" false true autocheck>></label> |
 				<<if $identity.init isnot 2 or $background.transgender or !$xchange.giBodySizeConfigured>>
 					<label data-target='["identity.body.bodysize.preferred", "identity.init"]' data-disabledif="V.identity.body.bodysize.preferred === 'miniature'">
 						Unaccepted <<radiobutton "$identity.body.bodysize.miniature.acceptance" false autocheck>>
@@ -591,30 +589,6 @@
 		<</if>>
 	<</widget>>
 	
-	<<widget "dysphoriaBar">>
-		<div @class="(_args[3] is true ? 'rightMeter' : 'meter')">
-			<<if _args[1] is 0>>
-			<<else>>
-				<<set _percent to Math.floor((_args[1]/_args[2])*100)>>
-				<<set _minPercent to Math.clamp(Math.floor((_args[0]/_args[2])*100), 0, _percent)>>
-				<<set _pin to Math.clamp(Math.floor((_args[4]/_args[2])*100), 0, _args[2])>>
-				<<switch Math.floor(_percent/10)>>
-					<<case 7 8>><<set _statColor to "pinkbar">>
-					<<case 5 6>><<set _statColor to "purplebar">>
-					<<case 3 4>><<set _statColor to "bluebar">>
-					<<case 1 2>><<set _statColor to "lbluebar">>
-					<<case 0>><<set _statColor to "tealbar">>
-					<<default>><<set _statColor to "redbar">>
-				<</switch>>
-				<<set _tolPercent to 100>>
-				<div class="whitebar" style="width:100%">
-				<div class="meter" @style="'width:' + _tolPercent + '%'"></div>
-				</div>
-				<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
-			<</if>>
-		</div>
-	<</widget>>
-
 	<<widget "identity-box-simple">>
 		<<set _boxConfig = _args[0]>>
 		<div class="relation-box" @style="(_boxConfig.style || '')">
@@ -726,178 +700,11 @@
 	<</widget>>
 
 	<<widget "identitySelector">>
-	<<set $identityTopic to _args[0]>>
-		<<set $identityOption to undefined>>
-		<<set $identityPreference to false>>
-		<<if _args[0] isnot undefined>>
-			<<switch _args[0]>>
-			<<case "Masculine Clothing">>
-				/* "Neutral" clothing preference leaves $identityOption undefined, which drops the topic out of the Identity screen and every dysphoria/tolerance tick. */
-				<<if $identity.presentation.clothing.preferred isnot "n">>
-					<<set $identityOption to $identity.presentation.clothing.masculine>>
-					<<set $identityPreference to $identity.presentation.clothing.preferred is "m" ? true : false>>
-				<</if>>
-			<<case "Feminine Clothing">>
-				<<if $identity.presentation.clothing.preferred isnot "n">>
-					<<set $identityOption to $identity.presentation.clothing.feminine>>
-					<<set $identityPreference to $identity.presentation.clothing.preferred is "f" ? true : false>>
-				<</if>>
-			<<case "Neutral Clothing">>
-				<<if $identity.presentation.clothing.preferred isnot "n">>
-					<<set $identityOption to $identity.presentation.clothing.neutral>>
-					<<set $identityPreference to $identity.presentation.clothing.preferred is "u" ? true : false>>
-				<</if>>
-			<<case "Masculine Appearance">>
-				<<set $identityOption to $identity.presentation.appearance.masculine>>
-				<<set $identityPreference to $identity.presentation.appearance.preferred is "m" ? true : false>>
-			<<case "Feminine Appearance">>
-				<<set $identityOption to $identity.presentation.appearance.feminine>>
-				<<set $identityPreference to $identity.presentation.appearance.preferred is "f" ? true : false>>
-			<<case "Androgynous Appearance">>
-				<<set $identityOption to $identity.presentation.appearance.neutral>>
-				<<set $identityPreference to $identity.presentation.appearance.preferred is "n" ? true : false>>
-			<<case "Masculine Pronouns">>
-				<<set $identityOption to $identity.presentation.pronouns.masculine>>
-				<<set $identityPreference to !!$identity.presentation.pronouns.preferredMasculine>>
-			<<case "Feminine Pronouns">>
-				<<set $identityOption to $identity.presentation.pronouns.feminine>>
-				<<set $identityPreference to !!$identity.presentation.pronouns.preferredFeminine>>
-			<<case "Neutral Pronouns">>
-				<<set $identityOption to $identity.presentation.pronouns.neutral>>
-				<<set $identityPreference to !!$identity.presentation.pronouns.preferredNeutral>>
-			<<case "Wearing Makeup">>
-				<<if !makeupIdentityIsIgnored()>>
-					<<set $identityOption to $identity.presentation.makeup.wearing>>
-					<<set $identityPreference to $identity.presentation.makeup.preferred is "wearing" ? true : false>>
-				<</if>>
-			<<case "Bare Face">>
-				<<if !makeupIdentityIsIgnored()>>
-					<<set $identityOption to $identity.presentation.makeup.bare>>
-					<<set $identityPreference to $identity.presentation.makeup.preferred is "bare" ? true : false>>
-				<</if>>
-			<<case "Flat Chest">>
-				<<if $xchange.giBreastSizeEnabled>>
-					<<set $identityOption to $identity.body.chest.flat>>
-					<<set $identityPreference to $identity.body.chest.preferred is "flat" ? true : false>>
-				<</if>>
-			<<case "Small Breasts">>
-				<<if $xchange.giBreastSizeEnabled>>
-					<<set $identityOption to $identity.body.chest.small>>
-					<<set $identityPreference to $identity.body.chest.preferred is "small" ? true : false>>
-				<</if>>
-			<<case "Medium Breasts">>
-				<<if $xchange.giBreastSizeEnabled>>
-					<<set $identityOption to $identity.body.chest.medium>>
-					<<set $identityPreference to $identity.body.chest.preferred is "medium" ? true : false>>
-				<</if>>
-			<<case "Big Breasts">>
-				<<if $xchange.giBreastSizeEnabled>>
-					<<set $identityOption to $identity.body.chest.big>>
-					<<set $identityPreference to $identity.body.chest.preferred is "big" ? true : false>>
-				<</if>>
-			<<case "Small Ass">>
-				<<if $xchange.giAssSizeEnabled>>
-					<<set $identityOption to $identity.body.bottom.small>>
-					<<set $identityPreference to $identity.body.bottom.preferred is "small" ? true : false>>
-				<</if>>
-			<<case "Medium Ass">>
-				<<if $xchange.giAssSizeEnabled>>
-					<<set $identityOption to $identity.body.bottom.medium>>
-					<<set $identityPreference to $identity.body.bottom.preferred is "medium" ? true : false>>
-				<</if>>
-			<<case "Big Ass">>
-				<<if $xchange.giAssSizeEnabled>>
-					<<set $identityOption to $identity.body.bottom.big>>
-					<<set $identityPreference to $identity.body.bottom.preferred is "big" ? true : false>>
-				<</if>>
-			<<case "Vagina">>
-				<<if $xchange.giGenitalsEnabled>>
-					<<set $identityOption to $identity.body.genitals.vagina>>
-					<<set $identityPreference to !!$identity.body.genitals.preferredVagina>>
-				<</if>>
-			<<case "Tiny Penis">>
-				<<if $xchange.giGenitalsEnabled>>
-					<<set $identityOption to $identity.body.genitals.tinypenis>>
-					<<set $identityPreference to $identity.body.genitals.preferredPenis is "tinypenis" ? true : false>>
-				<</if>>
-			<<case "Small Penis">>
-				<<if $xchange.giGenitalsEnabled>>
-					<<set $identityOption to $identity.body.genitals.smallpenis>>
-					<<set $identityPreference to $identity.body.genitals.preferredPenis is "smallpenis" ? true : false>>
-				<</if>>
-			<<case "Medium Penis">>
-				<<if $xchange.giGenitalsEnabled>>
-					<<set $identityOption to $identity.body.genitals.mediumpenis>>
-					<<set $identityPreference to $identity.body.genitals.preferredPenis is "mediumpenis" ? true : false>>
-				<</if>>
-			<<case "Big Penis">>
-				<<if $xchange.giGenitalsEnabled>>
-					<<set $identityOption to $identity.body.genitals.bigpenis>>
-					<<set $identityPreference to $identity.body.genitals.preferredPenis is "bigpenis" ? true : false>>
-				<</if>>
-			<<case "Short Hair">>
-				<<if $xchange.giHairLengthEnabled>>
-					<<set $identityOption to $identity.body.hairlength.short>>
-					<<set $identityPreference to $identity.body.hairlength.preferred is "short" ? true : false>>
-				<</if>>
-			<<case "Medium Hair">>
-				<<if $xchange.giHairLengthEnabled>>
-					<<set $identityOption to $identity.body.hairlength.medium>>
-					<<set $identityPreference to $identity.body.hairlength.preferred is "medium" ? true : false>>
-				<</if>>
-			<<case "Long Hair">>
-				<<if $xchange.giHairLengthEnabled>>
-					<<set $identityOption to $identity.body.hairlength.long>>
-					<<set $identityPreference to $identity.body.hairlength.preferred is "long" ? true : false>>
-				<</if>>
-			<<case "Miniature Body">>
-				<<if $xchange.giBodySizeEnabled>>
-					<<set $identityOption to $identity.body.bodysize.miniature>>
-					<<set $identityPreference to $identity.body.bodysize.preferred is "miniature" ? true : false>>
-				<</if>>
-			<<case "Tiny Body">>
-				<<if $xchange.giBodySizeEnabled>>
-					<<set $identityOption to $identity.body.bodysize.tiny>>
-					<<set $identityPreference to $identity.body.bodysize.preferred is "tiny" ? true : false>>
-				<</if>>
-			<<case "Small Body">>
-				<<if $xchange.giBodySizeEnabled>>
-					<<set $identityOption to $identity.body.bodysize.small>>
-					<<set $identityPreference to $identity.body.bodysize.preferred is "small" ? true : false>>
-				<</if>>
-			<<case "Normal Body">>
-				<<if $xchange.giBodySizeEnabled>>
-					<<set $identityOption to $identity.body.bodysize.normal>>
-					<<set $identityPreference to $identity.body.bodysize.preferred is "normal" ? true : false>>
-				<</if>>
-			<<case "Tall Body">>
-				<<if $xchange.giBodySizeEnabled>>
-					<<set $identityOption to $identity.body.bodysize.tall>>
-					<<set $identityPreference to $identity.body.bodysize.preferred is "tall" ? true : false>>
-				<</if>>
-			<<case "Large Body">>
-				<<if $xchange.giBodySizeEnabled>>
-					<<set $identityOption to $identity.body.bodysize.large>>
-					<<set $identityPreference to $identity.body.bodysize.preferred is "large" ? true : false>>
-				<</if>>
-			<<case "Giant Body">>
-				<<if $xchange.giBodySizeEnabled>>
-					<<set $identityOption to $identity.body.bodysize.giant>>
-					<<set $identityPreference to $identity.body.bodysize.preferred is "giant" ? true : false>>
-				<</if>>
-			<<case "Lactation">>
-				<<if $xchange.giFecundityEnabled>>
-					<<set $identityOption to $identity.body.lactation>>
-					<<set $identityPreference to $identity.body.lactation.preferred is "lactation" ? true : false>>
-				<</if>>
-			<<case "Pregnancy">>
-				<<if $xchange.giFecundityEnabled>>
-					<<set $identityOption to $identity.body.pregnancy>>
-					<<set $identityPreference to $identity.body.pregnancy.preferred is "pregnancy" ? true : false>>
-				<</if>>
-			<<default>>
-			<</switch>>
-		<</if>>
+		/* The characteristic table lives in identity.js (IDENTITY_CHARACTERISTICS); a disabled topic, or "Don't care" clothing/makeup, leaves $identityOption undefined. */
+		<<set $identityTopic to _args[0]>>
+		<<set _identitySelected to selectIdentityCharacteristic(_args[0])>>
+		<<set $identityOption to _identitySelected.option>>
+		<<set $identityPreference to _identitySelected.preferred>>
 	<</widget>>
 
 	<<widget "dysphoria">>
@@ -1039,18 +846,6 @@
 					<</if>>
 				<</if>>
 			<</if>>
-			<</if>>
-		<</if>>
-	<</widget>>
-
-	<<widget "identityEffects">>
-		<<if $identityOption.dysphoria gt 0>>
-			<<set _shift to $identityOption.dysphoria / 20>>
-			<<if !$identityOption.acceptance or $identityOption.reject>>
-				<<stress _shift>>
-			<</if>>
-			<<if !$identityOption.reject or $identityOption.acceptance>>
-				<<trauma $identityOption.dysphoria>>
 			<</if>>
 		<</if>>
 	<</widget>>
@@ -1397,32 +1192,12 @@
 		<<if !misgenderShouldCount(_usedPronoun)>>
 			<<set _usedPronoun to "">>
 		<</if>>
-		<<if _usedPronoun is "m">>
-			<<identitySelector "Masculine Pronouns">>
+		<<set _pronounTopic to {m: "Masculine Pronouns", f: "Feminine Pronouns", n: "Neutral Pronouns"}[_usedPronoun]>>
+		<<if _pronounTopic>>
+			<<identitySelector _pronounTopic>>
 			<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
-			<<if !$identityOption.acceptance>>
-				<<dysphoria 10>>
-			<<else>>
-				<<dysphoria -1>>
-				<<if $identityPreference>>
-					<<stress -1 1>><<trauma -1>>
-				<</if>>
-			<</if>>
-		<<elseif _usedPronoun is "f">>
-			<<identitySelector "Feminine Pronouns">>
-			<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
-			<<if !$identityOption.acceptance>>
-				<<dysphoria 10>>
-			<<else>>
-				<<dysphoria -1>>
-				<<if $identityPreference>>
-					<<stress -1 1>><<trauma -1>>
-				<</if>>
-			<</if>>
-		<<elseif _usedPronoun is "n">>
-			<<identitySelector "Neutral Pronouns">>
-			<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
-			<<if !$identityOption.acceptance>>
+			/* Begrudged (rejected but accepted) still hurts, the same as for every other topic. */
+			<<if !$identityOption.acceptance or $identityOption.reject>>
 				<<dysphoria 10>>
 			<<else>>
 				<<dysphoria -1>>
@@ -1534,14 +1309,6 @@
 		} catch(e) {
 			try { console.warn("[X-Change: Save repair notice] failed", id, e); } catch(_) {}}};})(
 	);>>
-
-<<if $genderidentity is undefined>>
-	<<run mapToLegacyGenderIdentity()>>
-	<<if $genderidentity is undefined>>
-		<<set _giInitRange to ($xchange.giRange is undefined ? 1500 : $xchange.giRange)>>
-		<<set $genderidentity to ($player is undefined ? 0 : $player.gender is "f" ? _giInitRange : $player.gender is "n" ? _giInitRange / 2 : 0)>>
-	<</if>>
-<</if>>
 
 	<<widget "gi-disarm">>
 		<<set $xchange.giDrift to 0>><<set $xchange.giShiftStage to 0>><<set $xchange.giShiftMode to "">>
@@ -1713,68 +1480,15 @@
 		<<set _giCompleteBand to Math.max(1, Math.round(_giRange * 0.03))>>
 		<<set _giComplete to _giCurrent gte (_giRange - _giCompleteBand)>>
 
-		/* Size limits for the body being changed. The helper keeps the values valid and prevents NaN. Bodies created by X-Change pills use the X-Change size limits. */
-		<<set _giBreastRange to setup.xChangeCurrentBodySizeRange("breast")>>
-		<<set _giBottomRange to setup.xChangeCurrentBodySizeRange("bottom")>>
-		<<set _giPenisRange to setup.xChangeCurrentBodySizeRange("penis")>>
-		<<set _breastMin to _giBreastRange.min>><<set _breastMax to _giBreastRange.max>>
-		<<set _bottomMin to _giBottomRange.min>><<set _bottomMax to _giBottomRange.max>>
-		<<set _penisMin to _giPenisRange.min>><<set _penisMax to _giPenisRange.max>>
-		/* A newly grown penis starts at Mini, unless the configured range puts it elsewhere. */
-		<<set _newPenisSize to Math.clamp(1, _penisMin, _penisMax)>>
-
 		/* Stage machine init */
 		<<if $xchange.giShiftMode isnot "f">>
 			<<set $xchange.giShiftMode to "f">>
 			<<set $xchange.giShiftStage to 0>>
 		<</if>>
 
-		/* Compute preferred targets from identity settings */
-		<<set _breastTarget to null>>
-		<<if $xchange.giBreastSizeEnabled and $identity.body.chest.preferred>>
-			<<if $identity.body.chest.preferred is "flat">><<set _breastTarget to 0>>
-			<<elseif $identity.body.chest.preferred is "small">><<set _breastTarget to 3>>
-			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
-			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
-			<</if>>
-			<<set _breastTarget to Math.round(_breastTarget * _giProgress)>>
-			<<set _breastTarget to Math.clamp(_breastTarget, _breastMin, _breastMax)>>
-		<</if>>
-		<<set _bottomTarget to null>>
-		<<if $xchange.giAssSizeEnabled and $identity.body.bottom.preferred>>
-			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 2>>
-			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
-			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
-			<</if>>
-			<<set _bottomTarget to Math.round(_bottomTarget * _giProgress)>>
-			<<set _bottomTarget to Math.clamp(_bottomTarget, _bottomMin, _bottomMax)>>
-		<</if>>
-		<<set _penisPreference to $identity.body.genitals.preferredPenis>>
-		/* Only use the old field for saves made before the split. Otherwise, it could restore a size the player intentionally cleared. */
-		<<if _penisPreference is undefined and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes($identity.body.genitals.preferred)>>
-			<<set _penisPreference to $identity.body.genitals.preferred>>
-		<</if>>
-		<<set _preferVagina to $xchange.giGenitalsEnabled and ($identity.body.genitals.preferredVagina is true or ($identity.body.genitals.preferredVagina is undefined and $identity.body.genitals.preferred is "vagina"))>>
-		<<set _preferPenis to $xchange.giGenitalsEnabled and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes(_penisPreference)>>
-		<<set _penisTarget to null>>
-		<<if _preferPenis>>
-			<<if _penisPreference is "tinypenis">><<set _penisTarget to 2>>
-			<<elseif _penisPreference is "smallpenis">><<set _penisTarget to 3>>
-			<<elseif _penisPreference is "mediumpenis">><<set _penisTarget to 4>>
-			<<elseif _penisPreference is "bigpenis">><<set _penisTarget to 6>>
-			<</if>>
-			/* Floor at Mini while the body still keeps both sets: a size-0 penis on a two-genital body is the
-			   Micro state the herm repair in version-update exists to undo. The configured cap still wins. */
-			<<set _penisTarget to Math.max(1, Math.round(_penisTarget * (1 - _giProgress)))>>
-			<<set _penisTarget to Math.clamp(_penisTarget, _penisMin, _penisMax)>>
-		<</if>>
-		<<set _bodySizeTarget to null>>
-		<<if $xchange.giBodySizeEnabled>>
-			<<set _bodySizeMap to {miniature:-1, tiny:0, small:1, normal:2, tall:2.5, large:3, giant:4}>>
-			<<if _bodySizeMap[$identity.body.bodysize.preferred] isnot undefined>>
-				<<set _bodySizeTarget to _bodySizeMap[$identity.body.bodysize.preferred]>>
-			<</if>>
-		<</if>>
+		/* Targets scale with the meter: the chest and hips fill in as it rises, the penis recedes. */
+		<<set _giBreastScale to _giProgress>><<set _giPenisScale to 1 - _giProgress>>
+		<<gi-step-targets>>
 
 		/* Stage 0: setup */
 		<<if $xchange.giShiftStage is 0>>
@@ -1845,48 +1559,7 @@
 
 		/* Stage 2: secondary characteristics; grow toward preferred targets */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
-			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "short" and $hairlength gt 100>>
-				<<set $hairlength to Math.max($hairlength - 60, 100)>>
-				<<gi-note "Your hair has shortened a little.">>
-				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength lt 100>>
-				<<set $hairlength to Math.min($hairlength + 60, 100)>>
-				<<gi-note "Your hair has grown a little longer.">>
-				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength gt 600>>
-				<<set $hairlength to Math.max($hairlength - 60, 600)>>
-				<<gi-note "Your hair has shortened a little.">>
-				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
-				<<set $hairlength to Math.min($hairlength + 60, 601)>>
-				<<gi-note "Your hair has grown a little longer.">>
-				<<set _giStepDone to true>>
-			<<elseif _bodySizeTarget isnot null and $bodysize isnot _bodySizeTarget>>
-				<<set _bodySizeCurrent to setup.snapBodySize($bodysize)>>
-				<<set _bodySizeGrowing to _bodySizeCurrent lt _bodySizeTarget>>
-				<<set $bodysize to setup.stepBodySize(_bodySizeCurrent, _bodySizeGrowing ? 1 : -1)>>
-				<<run updatePhysique()>>
-				<<updatesidebarimg>>
-				<<gi-note `_bodySizeGrowing ? "Your body stretches a little taller." : "Your body settles into a slightly shorter frame."`>>
-				<<set _giStepDone to true>>
-			<<elseif _breastTarget isnot null and $player.breastsize isnot _breastTarget>>
-				<<set _breastsGrowing to $player.breastsize lt _breastTarget>>
-				<<set $player.breastsize += _breastsGrowing ? 1 : -1>>
-				<<set $breastgrowthtimer to (_breastsGrowing ? 700 : 300)>>
-				<<gi-note `_breastsGrowing ? "Your chest feels a little fuller." : "Your chest feels a little flatter."`>>
-				<<set _giStepDone to true>>
-			<<elseif _bottomTarget isnot null and $player.bottomsize isnot _bottomTarget>>
-				<<set _bottomGrowing to $player.bottomsize lt _bottomTarget>>
-				<<set $player.bottomsize += _bottomGrowing ? 1 : -1>>
-				<<set $bottomgrowthtimer to (_bottomGrowing ? 700 : 300)>>
-				<<gi-note `_bottomGrowing ? "Your hips and ass feel a little softer and fuller." : "Your hips and ass feel a little leaner."`>>
-				<<set _giStepDone to true>>
-			<<else>>
-				/* Back to stage 1, not a dead end. The genital targets move as the meter climbs, and the
-				   completion step only becomes available at the top of the meter, so stage 1 has to be
-				   reachable again. Direction never flips on the way to an endpoint, so nothing else resets it. */
-				<<set $xchange.giShiftStage to 1>>
-			<</if>>
+			<<gi-step-secondary>>
 		<</if>>
 
 		<<if _args[0] isnot undefined>><<set _args[0].done to _giStepDone>><</if>>
@@ -1901,72 +1574,19 @@
 		<<set _giCompleteBand to Math.max(1, Math.round(_giRange * 0.03))>>
 		<<set _giComplete to _giCurrent lte _giCompleteBand>>
 
-		/* Size limits for the body being changed. X-Change bodies use the X-Change size limits. Invalid or missing settings are kept from causing NaN or endless size changes. */
-		<<set _giBreastRange to setup.xChangeCurrentBodySizeRange("breast")>>
-		<<set _giBottomRange to setup.xChangeCurrentBodySizeRange("bottom")>>
-		<<set _giPenisRange to setup.xChangeCurrentBodySizeRange("penis")>>
-		<<set _breastMin to _giBreastRange.min>><<set _breastMax to _giBreastRange.max>>
-		<<set _bottomMin to _giBottomRange.min>><<set _bottomMax to _giBottomRange.max>>
-		<<set _penisMin to _giPenisRange.min>><<set _penisMax to _giPenisRange.max>>
-		/* A newly grown penis starts at Mini, unless the configured range puts it elsewhere. */
-		<<set _newPenisSize to Math.clamp(1, _penisMin, _penisMax)>>
-
 		/* Stage machine init */
 		<<if $xchange.giShiftMode isnot "m">>
 			<<set $xchange.giShiftMode to "m">>
 			<<set $xchange.giShiftStage to 0>>
 		<</if>>
 
-		/* Compute preferred targets from identity settings */
-		<<set _breastTarget to null>>
-		<<if $xchange.giBreastSizeEnabled and $identity.body.chest.preferred>>
-			<<if $identity.body.chest.preferred is "flat">><<set _breastTarget to 0>>
-			<<elseif $identity.body.chest.preferred is "small">><<set _breastTarget to 3>>
-			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
-			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
-			<</if>>
-			<<set _breastTarget to Math.round(_breastTarget * (1 - _giProgress))>>
-			<<set _breastTarget to Math.clamp(_breastTarget, _breastMin, _breastMax)>>
-		<</if>>
-		<<set _bottomTarget to null>>
-		<<if $xchange.giAssSizeEnabled and $identity.body.bottom.preferred>>
-			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 2>>
-			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
-			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
-			<</if>>
-			<<set _bottomTarget to Math.round(_bottomTarget * (1 - _giProgress))>>
-			<<set _bottomTarget to Math.clamp(_bottomTarget, _bottomMin, _bottomMax)>>
-		<</if>>
-		<<set _penisPreference to $identity.body.genitals.preferredPenis>>
-		/* Only use the old field for saves made before the split. Otherwise, it could restore a size the player intentionally cleared. */
-		<<if _penisPreference is undefined and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes($identity.body.genitals.preferred)>>
-			<<set _penisPreference to $identity.body.genitals.preferred>>
-		<</if>>
-		<<set _preferVagina to $xchange.giGenitalsEnabled and ($identity.body.genitals.preferredVagina is true or ($identity.body.genitals.preferredVagina is undefined and $identity.body.genitals.preferred is "vagina"))>>
-		<<set _preferPenis to $xchange.giGenitalsEnabled and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes(_penisPreference)>>
-		<<set _penisTarget to null>>
-		<<if _preferPenis>>
-			<<if _penisPreference is "tinypenis">><<set _penisTarget to 2>>
-			<<elseif _penisPreference is "smallpenis">><<set _penisTarget to 3>>
-			<<elseif _penisPreference is "mediumpenis">><<set _penisTarget to 4>>
-			<<elseif _penisPreference is "bigpenis">><<set _penisTarget to 6>>
-			<</if>>
-			/* Floor at Mini while the body still keeps both sets: a size-0 penis on a two-genital body is the
-			   Micro state the herm repair in version-update exists to undo. The configured cap still wins. */
-			<<set _penisTarget to Math.max(1, Math.round(_penisTarget * _giProgress))>>
-			<<set _penisTarget to Math.clamp(_penisTarget, _penisMin, _penisMax)>>
-		<</if>>
+		/* Targets scale with the meter: the chest and hips recede as it falls, the penis grows. */
+		<<set _giBreastScale to 1 - _giProgress>><<set _giPenisScale to _giProgress>>
+		<<gi-step-targets>>
 		/* A finished male body needs a penis even with no size preference recorded (the meter reads -1 outright when
 		   no identity topics are active). Normal is the same no-information default the herm repair uses, not the cap. */
 		<<if _giComplete and $xchange.giGenitalsEnabled and _penisTarget is null>>
 			<<set _penisTarget to Math.clamp(4, _penisMin, _penisMax)>>
-		<</if>>
-		<<set _bodySizeTarget to null>>
-		<<if $xchange.giBodySizeEnabled>>
-			<<set _bodySizeMap to {miniature:-1, tiny:0, small:1, normal:2, tall:2.5, large:3, giant:4}>>
-			<<if _bodySizeMap[$identity.body.bodysize.preferred] isnot undefined>>
-				<<set _bodySizeTarget to _bodySizeMap[$identity.body.bodysize.preferred]>>
-			<</if>>
 		<</if>>
 
 		/* Stage 0: setup */
@@ -2042,51 +1662,114 @@
 
 		/* Stage 2: move secondary characteristics toward the meter-scaled preferred targets. */
 		<<if not _giStepDone and $xchange.giShiftStage is 2>>
-			<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "short" and $hairlength gt 100>>
-				<<set $hairlength to Math.max($hairlength - 60, 100)>>
-				<<gi-note "Your hair has shortened a little.">>
-				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength lt 100>>
-				<<set $hairlength to Math.min($hairlength + 60, 100)>>
-				<<gi-note "Your hair has grown a little longer.">>
-				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength gt 600>>
-				<<set $hairlength to Math.max($hairlength - 60, 600)>>
-				<<gi-note "Your hair has shortened a little.">>
-				<<set _giStepDone to true>>
-			<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
-				<<set $hairlength to Math.min($hairlength + 60, 601)>>
-				<<gi-note "Your hair has grown a little longer.">>
-				<<set _giStepDone to true>>
-			<<elseif _bodySizeTarget isnot null and $bodysize isnot _bodySizeTarget>>
-				<<set _bodySizeCurrent to setup.snapBodySize($bodysize)>>
-				<<set _bodySizeGrowing to _bodySizeCurrent lt _bodySizeTarget>>
-				<<set $bodysize to setup.stepBodySize(_bodySizeCurrent, _bodySizeGrowing ? 1 : -1)>>
-				<<run updatePhysique()>>
-				<<updatesidebarimg>>
-				<<gi-note `_bodySizeGrowing ? "Your body stretches a little taller." : "Your body settles into a slightly shorter frame."`>>
-				<<set _giStepDone to true>>
-			<<elseif _breastTarget isnot null and $player.breastsize isnot _breastTarget>>
-				<<set _breastsGrowing to $player.breastsize lt _breastTarget>>
-				<<set $player.breastsize += _breastsGrowing ? 1 : -1>>
-				<<set $breastgrowthtimer to (_breastsGrowing ? 700 : 300)>>
-				<<gi-note `_breastsGrowing ? "Your chest feels a little fuller." : "Your chest feels a little flatter."`>>
-				<<set _giStepDone to true>>
-			<<elseif _bottomTarget isnot null and $player.bottomsize isnot _bottomTarget>>
-				<<set _bottomGrowing to $player.bottomsize lt _bottomTarget>>
-				<<set $player.bottomsize += _bottomGrowing ? 1 : -1>>
-				<<set $bottomgrowthtimer to (_bottomGrowing ? 700 : 300)>>
-				<<gi-note `_bottomGrowing ? "Your hips and ass feel a little softer and fuller." : "Your hips and ass feel a little leaner."`>>
-				<<set _giStepDone to true>>
-			<<else>>
-				/* Back to stage 1, not a dead end. The genital targets move as the meter falls, and the
-				   completion step only becomes available at the bottom of the meter, so stage 1 has to be
-				   reachable again. Direction never flips on the way to an endpoint, so nothing else resets it. */
-				<<set $xchange.giShiftStage to 1>>
-			<</if>>
+			<<gi-step-secondary>>
 		<</if>>
 
 		<<if _args[0] isnot undefined>><<set _args[0].done to _giStepDone>><</if>>
+	<</widget>>
+
+	/* Shared by gi-feminise-step and gi-masculinise-step. The caller sets _giBreastScale (chest and hips) and _giPenisScale for its direction. */
+	<<widget "gi-step-targets">>
+		/* Size limits for the body being changed. The helper keeps the values valid and prevents NaN. Bodies created by X-Change pills use the X-Change size limits. */
+		<<set _giBreastRange to setup.xChangeCurrentBodySizeRange("breast")>>
+		<<set _giBottomRange to setup.xChangeCurrentBodySizeRange("bottom")>>
+		<<set _giPenisRange to setup.xChangeCurrentBodySizeRange("penis")>>
+		<<set _breastMin to _giBreastRange.min>><<set _breastMax to _giBreastRange.max>>
+		<<set _bottomMin to _giBottomRange.min>><<set _bottomMax to _giBottomRange.max>>
+		<<set _penisMin to _giPenisRange.min>><<set _penisMax to _giPenisRange.max>>
+		/* A newly grown penis starts at Mini, unless the configured range puts it elsewhere. */
+		<<set _newPenisSize to Math.clamp(1, _penisMin, _penisMax)>>
+
+		<<set _breastTarget to null>>
+		<<if $xchange.giBreastSizeEnabled and $identity.body.chest.preferred>>
+			<<if $identity.body.chest.preferred is "flat">><<set _breastTarget to 0>>
+			<<elseif $identity.body.chest.preferred is "small">><<set _breastTarget to 3>>
+			<<elseif $identity.body.chest.preferred is "medium">><<set _breastTarget to 6>>
+			<<elseif $identity.body.chest.preferred is "big">><<set _breastTarget to 8>>
+			<</if>>
+			<<set _breastTarget to Math.round(_breastTarget * _giBreastScale)>>
+			<<set _breastTarget to Math.clamp(_breastTarget, _breastMin, _breastMax)>>
+		<</if>>
+		<<set _bottomTarget to null>>
+		<<if $xchange.giAssSizeEnabled and $identity.body.bottom.preferred>>
+			<<if $identity.body.bottom.preferred is "small">><<set _bottomTarget to 2>>
+			<<elseif $identity.body.bottom.preferred is "medium">><<set _bottomTarget to 5>>
+			<<elseif $identity.body.bottom.preferred is "big">><<set _bottomTarget to 7>>
+			<</if>>
+			<<set _bottomTarget to Math.round(_bottomTarget * _giBreastScale)>>
+			<<set _bottomTarget to Math.clamp(_bottomTarget, _bottomMin, _bottomMax)>>
+		<</if>>
+		<<set _penisPreference to $identity.body.genitals.preferredPenis>>
+		/* Only use the old field for saves made before the split. Otherwise, it could restore a size the player intentionally cleared. */
+		<<if _penisPreference is undefined and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes($identity.body.genitals.preferred)>>
+			<<set _penisPreference to $identity.body.genitals.preferred>>
+		<</if>>
+		<<set _preferVagina to $xchange.giGenitalsEnabled and ($identity.body.genitals.preferredVagina is true or ($identity.body.genitals.preferredVagina is undefined and $identity.body.genitals.preferred is "vagina"))>>
+		<<set _preferPenis to $xchange.giGenitalsEnabled and ["tinypenis", "smallpenis", "mediumpenis", "bigpenis"].includes(_penisPreference)>>
+		<<set _penisTarget to null>>
+		<<if _preferPenis>>
+			<<if _penisPreference is "tinypenis">><<set _penisTarget to 2>>
+			<<elseif _penisPreference is "smallpenis">><<set _penisTarget to 3>>
+			<<elseif _penisPreference is "mediumpenis">><<set _penisTarget to 4>>
+			<<elseif _penisPreference is "bigpenis">><<set _penisTarget to 6>>
+			<</if>>
+			/* Floor at Mini while the body still keeps both sets: a size-0 penis on a two-genital body is the
+			   Micro state the herm repair in version-update exists to undo. The configured cap still wins. */
+			<<set _penisTarget to Math.max(1, Math.round(_penisTarget * _giPenisScale))>>
+			<<set _penisTarget to Math.clamp(_penisTarget, _penisMin, _penisMax)>>
+		<</if>>
+		<<set _bodySizeTarget to null>>
+		<<if $xchange.giBodySizeEnabled>>
+			<<set _bodySizeMap to {miniature:-1, tiny:0, small:1, normal:2, tall:2.5, large:3, giant:4}>>
+			<<if _bodySizeMap[$identity.body.bodysize.preferred] isnot undefined>>
+				<<set _bodySizeTarget to _bodySizeMap[$identity.body.bodysize.preferred]>>
+			<</if>>
+		<</if>>
+	<</widget>>
+
+	/* Stage 2 of both shifts: hair, body size, chest and hips move one step toward the preferred targets. */
+	<<widget "gi-step-secondary">>
+		<<if $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "short" and $hairlength gt 100>>
+			<<set $hairlength to Math.max($hairlength - 60, 100)>>
+			<<gi-note "Your hair has shortened a little.">>
+			<<set _giStepDone to true>>
+		<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength lte 100>>
+			/* 100 itself is Short Hair, the same way 600 is the last Medium length. */
+			<<set $hairlength to Math.min($hairlength + 60, 101)>>
+			<<gi-note "Your hair has grown a little longer.">>
+			<<set _giStepDone to true>>
+		<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "medium" and $hairlength gt 600>>
+			<<set $hairlength to Math.max($hairlength - 60, 600)>>
+			<<gi-note "Your hair has shortened a little.">>
+			<<set _giStepDone to true>>
+		<<elseif $xchange.giHairLengthEnabled and $identity.body.hairlength.preferred is "long" and $hairlength lte 600>>
+			<<set $hairlength to Math.min($hairlength + 60, 601)>>
+			<<gi-note "Your hair has grown a little longer.">>
+			<<set _giStepDone to true>>
+		<<elseif _bodySizeTarget isnot null and $bodysize isnot _bodySizeTarget>>
+			<<set _bodySizeCurrent to setup.snapBodySize($bodysize)>>
+			<<set _bodySizeGrowing to _bodySizeCurrent lt _bodySizeTarget>>
+			<<set $bodysize to setup.stepBodySize(_bodySizeCurrent, _bodySizeGrowing ? 1 : -1)>>
+			<<run updatePhysique()>>
+			<<updatesidebarimg>>
+			<<gi-note `_bodySizeGrowing ? "Your body stretches a little taller." : "Your body settles into a slightly shorter frame."`>>
+			<<set _giStepDone to true>>
+		<<elseif _breastTarget isnot null and $player.breastsize isnot _breastTarget>>
+			<<set _breastsGrowing to $player.breastsize lt _breastTarget>>
+			<<set $player.breastsize += _breastsGrowing ? 1 : -1>>
+			<<set $breastgrowthtimer to (_breastsGrowing ? 700 : 300)>>
+			<<gi-note `_breastsGrowing ? "Your chest feels a little fuller." : "Your chest feels a little flatter."`>>
+			<<set _giStepDone to true>>
+		<<elseif _bottomTarget isnot null and $player.bottomsize isnot _bottomTarget>>
+			<<set _bottomGrowing to $player.bottomsize lt _bottomTarget>>
+			<<set $player.bottomsize += _bottomGrowing ? 1 : -1>>
+			<<set $bottomgrowthtimer to (_bottomGrowing ? 700 : 300)>>
+			<<gi-note `_bottomGrowing ? "Your hips and ass feel a little softer and fuller." : "Your hips and ass feel a little leaner."`>>
+			<<set _giStepDone to true>>
+		<<else>>
+			/* Back to stage 1, not a dead end */
+			<<set $xchange.giShiftStage to 1>>
+		<</if>>
 	<</widget>>
 
 	<<widget "gi-sync-anatomy">>
@@ -2218,7 +1901,7 @@
 
 			<<if $xchange.permaReflection.answer is "yes">>
 				<<set _yesLines to [
-					"A quiet moment draws your attention back to the body the pill left you with. <span class='green'>The thought no longer hurtful.</span>",
+					"A quiet moment draws your attention back to the body the pill left you with. <span class='green'>The thought no longer hurts.</span>",
 					"For a moment, you notice the shape of yourself again. <span class='green'>It does not feel strange the way it once did.</span>",
 					"The thought of your changed body passes through you, familiar now rather than frightening. <span class='green'>It feels like home.</span>",
 					"You become aware of your body and find no urge to pull away from it. <span class='green'>It belongs to you.</span>",
@@ -2236,7 +1919,7 @@
 					"For a moment, you notice the shape of yourself again, and <span class='red'>everything about it feels out of place.</span>",
 					"The sex flip crosses your mind. <span class='red'>This is not what you wanted.</span>",
 					"You become aware of your body and still find yourself grimacing from it. <span class='red'>It feels wrong.</span>",
-					"The changed of genital presses at the edge of your thoughts. <span class='red'>You never chose this.</span>"
+					"The change to your genitals presses at the edge of your thoughts. <span class='red'>You never chose this.</span>"
 				]>>
 				<<if _isTrans>>
 					<<run _noLines.push("A bitter feeling rises as you think about the body the pill left behind. <span class='red'>This is not the body you fought to have.</span>")>>

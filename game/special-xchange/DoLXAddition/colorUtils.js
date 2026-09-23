@@ -7,7 +7,7 @@
  *
  * These methods are only ever called at runtime (from inside mod methods), so load order relative to the mods does not matter.
  */
-window.dolxColor = {
+window.colorUtils = {
 	/**
 	 * Rate-limit a function so heavy work (e.g. a full canvas re-render) runs at most once per `wait` ms during continuous input,
 	 * with a guaranteed trailing call so the final value is always applied.

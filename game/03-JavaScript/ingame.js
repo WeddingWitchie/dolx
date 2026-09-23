@@ -1441,7 +1441,10 @@ function clothesIndex(slot, itemToIndex) {
 		});
 		return 0;
 	}
-	const index = setup.clothes[slot].findIndex(item => item.variable === itemToIndex.variable && item.modder === itemToIndex.modder);
+	const sameVariable = item => item.variable === itemToIndex.variable && item.modder === itemToIndex.modder;
+	/* Items can share a .variable to share art (chastity belt / dildo chastity belt), so prefer the one with the same name. */
+	let index = setup.clothes[slot].findIndex(item => sameVariable(item) && item.name === itemToIndex.name);
+	if (index === -1) index = setup.clothes[slot].findIndex(sameVariable);
 	if (index === -1) {
 		console.log(`clothesIndex - ${slot} clothing item index not found for the '${itemToIndex.name}' with the modder set to '${itemToIndex.modder}'`);
 		/* try and correct .modder mismatches */
@@ -1474,6 +1477,7 @@ function clothesIndex(slot, itemToIndex) {
 				itemToIndex.set = recovery.set;
 				itemToIndex.iconFile = recovery.iconFile;
 				if (recovery.outfitPrimary) {
+					itemToIndex.outfitPrimary ??= {};
 					Object.entries(recovery.outfitPrimary).forEach(([key, value]) => {
 						if (itemToIndex.outfitPrimary && (itemToIndex.outfitPrimary[key] === "broken" || itemToIndex.outfitPrimary[key] === "split")) {
 							// Do Nothing
@@ -1481,9 +1485,9 @@ function clothesIndex(slot, itemToIndex) {
 							itemToIndex.outfitPrimary[key] = value;
 						}
 					});
-					itemToIndex.outfitPrimary = recovery.outfitPrimary;
 				}
-				if (recovery.outfitSecondary && itemToIndex.outfitSecondary[1] !== "broken" && itemToIndex.outfitSecondary[1] !== "split")
+				if (recovery.outfitSecondary && !itemToIndex.outfitSecondary) itemToIndex.outfitSecondary = clone(recovery.outfitSecondary);
+				else if (recovery.outfitSecondary && itemToIndex.outfitSecondary[1] !== "broken" && itemToIndex.outfitSecondary[1] !== "split")
 					itemToIndex.outfitSecondary[1] = recovery.outfitSecondary[1];
 			}
 			console.log(`attempting to recover the mismatch, new index is '${recovery.index}'`);

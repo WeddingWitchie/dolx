@@ -128,6 +128,8 @@ Weather.Renderer.Effects.add({
 		this.glowRadius = this.radius / 2 + this.scaledOuterRadius;
 	},
 	draw() {
+		/* diameter can be bound to an orbital image that failed to load */
+		if (!Number.isFinite(this.radius)) return;
 		const { x, y } = this.position;
 
 		const gradient = this.canvas.ctx.createRadialGradient(x, y, 0, x, y, this.radius + this.scaledOuterRadius);
@@ -162,6 +164,7 @@ Weather.Renderer.Effects.add({
 		this.glowStart = (this.radius - this.innerRadius * this.renderInstance.settings.scale) / this.radius;
 	},
 	draw() {
+		if (!Number.isFinite(this.radius)) return;
 		const { x, y } = this.position;
 
 		const gradient = this.canvas.ctx.createRadialGradient(x, y, 0, x, y, this.radius);

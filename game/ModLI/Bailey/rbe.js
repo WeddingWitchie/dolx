@@ -466,6 +466,8 @@ $(document).on(":passagestart", function () {
 		seedCustomCollar();
 		redrawCollar();
 	}
+	/* Flashbacks, visions, replays and the Hopeless Cycle are frozen; lust catches up by days once they end. */
+	if (V.statFreeze || V.frozenValues || V.replayScene || V.hc) return;
 	checkStoodUp();
 	dailyLust();
 	resetChristmasGift();

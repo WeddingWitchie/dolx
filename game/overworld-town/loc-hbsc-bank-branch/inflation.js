@@ -645,6 +645,8 @@
 		if (setup.inflation.PARODY_PASSAGES.includes(dest)) return false;
 		/* Never yank the player out of combat or a scripted scene. */
 		if (V.combat || V.enemyno > 0 || V.fightstart || V.molestationstart || V.sexstart) return false;
+		/* Flashbacks, visions, replays and the Hopeless Cycle run on frozen stats; taking the money there would hit the real save. */
+		if (V.statFreeze || V.frozenValues || V.replayScene || V.hc) return false;
 		if (V.event !== undefined && typeof EventSystem !== "undefined" && EventSystem.any && EventSystem.any()) return false;
 		const badEnd = Array.isArray(V.badEndStats) && V.badEndStats.length > 0 ? V.badEndStats[V.badEndStats.length - 1] : null;
 		if (badEnd && badEnd.trackedStart && badEnd.trackedEnd === undefined) return false;

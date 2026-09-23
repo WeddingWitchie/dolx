@@ -211,6 +211,24 @@ class Transformations {
 		return Math.max(Number(definition.value) || 0, floor);
 	}
 
+	/* Traits several animals grant, keyed by the level variable and the level that grants it. */
+	static get sharedTraitSources() {
+		return {
+			fangs: { wolfgirl: 2, cat: 2, fox: 2, bear: 2, waterdragon: 2 },
+			sharpEyes: { cat: 2, harpy: 2, fox: 2, waterdragon: 2 },
+			mateForLife: { harpy: 3, fox: 3 },
+		};
+	}
+
+	/* Disables traits that `source` is losing, unless another transformation still grants them. */
+	static dropTraits(source, ...traits) {
+		for (const trait of traits) {
+			const sources = this.sharedTraitSources[trait] || {};
+			const kept = Object.entries(sources).some(([tf, level]) => tf !== source && (Number(V[tf]) || 0) >= level);
+			if (!kept) V.transformationParts.traits[trait] = "disabled";
+		}
+	}
+
 	static canBanish() {
 		return this.effectiveLevel("angel") >= 4 && V.angelBanish >= 1;
 	}

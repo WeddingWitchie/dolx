@@ -1675,7 +1675,7 @@
 <</widget>>
 
 <<widget "wearlink_norefresh">>
-	<<capture _args[1] _args[2] _args[3]>>
+	<<capture _args[1] _args[2] _args[3] _wear>>
 		<<link _args[0]>>
 			<<if _args[2]>>
 				<<set V[_args[2]] = _args[1]>>
@@ -1965,7 +1965,8 @@
 			<</for>>
 		<</switch>>
 
-		<<if _newWardrobeItems isnot []>>
+		/* Each sort re-adds items by matching a value; an unmatched one (NaN integrity, unexpected one_piece) would be dropped, so only apply a complete reorder. */
+		<<if _newWardrobeItems.length is _wardrobeItems.length>>
 			<<set _selectedWardrobe[_slot] to clone(_newWardrobeItems)>>
 		<</if>>
 		<<run Dynamic.render()>>

@@ -2469,6 +2469,8 @@
 					eyelenses:clone($makeup.eyelenses),
 				}>>
 			<</link>>
+			<br><br>
+			<<cosmeticOptionsButton>>
 		</div>
 		<<if !$simpleMirror>>
 			<div class="settingsToggleItemWide">
@@ -2864,7 +2866,7 @@
 	<<set _birdTraitCheck to _tfStageUnlocked($harpy, $harpytf, 3)>>
 	<<set _foxTraitCheck to _tfStageUnlocked($fox, $foxtf, 3)>>
 
-	<<if _fallenPlusFullCheck or _wolfInitialCheck or _catInitialCheck or _cowFullCheck or _bearFullCheck or _waterdragonMenuCheck or _birdTraitCheck or _foxTraitCheck or _bunnyInitialCheck or (_demonPartialCheck and $exhibitionism gte 95)>>
+	<<if _fallenPlusFullCheck or _wolfInitialCheck or _catInitialCheck or _foxInitialCheck or _bearInitialCheck or _birdInitialCheck or _cowFullCheck or _waterdragonMenuCheck or _bunnyInitialCheck or (_demonPartialCheck and hasSexStat("exhibitionism", 6))>>
 		__Traits__<br>
 		<<if _fallenPlusFullCheck>>
 			Iron Will: <<checkbox "_traits.ironWill" "disabled" "default" autocheck>><br>
@@ -2872,10 +2874,10 @@
 		<<if _wolfInitialCheck or _catInitialCheck or _foxInitialCheck or _bearInitialCheck or _waterdragonMenuCheck>>
 			Fangs: <<checkbox "_traits.fangs" "disabled" "default" autocheck>><br>
 		<</if>>
-		<<if _catInitialCheck or _birdInitialCheck or _foxInitialCheck>>
+		<<if _catInitialCheck or _birdInitialCheck or _foxInitialCheck or _waterdragonMenuCheck>>
 			Sharp Eyes: <<checkbox "_traits.sharpEyes" "disabled" "default" autocheck>><br>
 		<</if>>
-		<<if _waterdragonTraitsCheck>>
+		<<if _waterdragonMenuCheck>>
 			Dragon Eyes: <<checkbox "_traits.dragonEyes" "disabled" "default" autocheck>><br>
 			Dragon Tongue: <<checkbox "_traits.dragonTongue" "disabled" "default" autocheck>><br>
 		<</if>>
@@ -2904,7 +2906,7 @@
 		<<if _tfStageUnlocked($cat, $cattf, 7)>>
 			Heterochromia:
 			<<if _cat.heterochromia isnot "default">>
-				<<link [[Set|$passage]]>><<set _cat.heterochromia = "default">><<run window.determineCatEyeStages()>><<set $original_colour = [$leftEyeColour, $rightEyeColour]>><<catHeterochromiaTF 3>><<updatesidebarimg>><</link>>
+				<<link [[Set|$passage]]>><<set _cat.heterochromia = "default">><<if V.custom_eyecolours.findIndex(c => c.variable && c.variable.startsWith("cat_tf_stage_")) === -1>><<run window.determineCatEyeStages()>><</if>><<set $original_colour = [$leftEyeColour, $rightEyeColour]>><<catHeterochromiaTF `$cat gte 7 ? Math.min($cat - 7, 3) : 3`>><<updatesidebarimg>><</link>>
 			<<else>>
 				<<link [[Clear|$passage]]>><<set _cat.heterochromia = "disabled">><<set $leftEyeColour to $original_colour[0]>><<set $rightEyeColour to $original_colour[1]>><<catHeterochromiaTF "hide">><<updatesidebarimg>><</link>>
 			<</if>>
@@ -3094,7 +3096,7 @@
 			<<set _cheeksChoice to _options["Fox"]>>
 		<</if>>
 	<</if>>
-	<<if _wolfFullCheck>>
+	<<if _tfStageUnlocked($wolfgirl, $wolftf, 5)>>
 		<<set _options["Wolf"] = ["wolf", "feral"]>>
 		<<if _wolf.cheeks is "feral">>
 			<<set _cheeksChoice to _options["Wolf"]>>
@@ -3213,7 +3215,7 @@
 				<<set _pubesChoice to _options["Bear"]>>
 			<</if>>
 		<</if>>
-		<<if _birdPartialCheck>>
+		<<if _birdFullCheck>>
 			<<set _options["Bird"] = ["bird", "default"]>>
 			<<if _bird.pubes is "default">>
 				<<set _pubesChoice to _options["Bird"]>>
@@ -3243,7 +3245,7 @@
 	/* Ears */
 	<<set _options = {}>>
 	<<set _options["None"] = 0>>
-	<<if _bearFullCheck>>
+	<<if _bearPartialCheck>>
 		<<set _options["Bear"] = ["bear", "default"]>>
 		<<if _bear.ears is "default">>
 			<<set _earsChoice to _options["Bear"]>>
@@ -3359,12 +3361,6 @@
 			<<set _eyesChoice to _options["Seraphim"]>>
 		<</if>>
 	<</if>>
-	<<if _catInitialCheck or _birdInitialCheck or _kitsuneInitialCheck>>
-		<<set _options["Bird"] = ["bird", "default"]>>
-		<<if _bird.eyes is "default">>
-			<<set _eyesChoice to _options["Bird"]>>
-		<</if>>
-	<</if>>
 	<<if !_eyesChoice>>
 		<<set _eyesChoice to 0>>
 	<</if>>
@@ -3465,7 +3461,7 @@
 			<<set _hornsChoice to _options["Cow"]>>
 		<</if>>
 	<</if>>
-	<<if (_waterdragonPartialCheck or _waterdragonUnlockedCheck)>>
+	<<if _tfStageUnlocked($waterdragon, $waterdragontf, 3) or _waterdragonUnlockedCheck>>
 		<<set _options["Water Dragon"] = ["waterdragon", "default"]>>
 		<<set _options["Water Dragon Short"] = ["waterdragon", "short"]>>
 		<<if _waterdragon.horns is "default">>
@@ -3538,7 +3534,7 @@
 	/* Tail */
 	<<set _options = {}>>
 	<<set _options["None"] = 0>>
-	<<if _bearPartialCheck>>
+	<<if _bearFullCheck>>
 		<<set _options["Bear"] = ["bear", "default"]>>
 		<<if _bear.tail is "default">>
 			<<set _tailChoice to _options["Bear"]>>
@@ -3592,7 +3588,7 @@
 			<<set _tailChoice to _options["Wolf Feral"]>>
 		<</if>>
 	<</if>>
-	<<if _waterdragonTraitsCheck>>
+	<<if _tfStageUnlocked($waterdragon, $waterdragontf, 6) or _waterdragonUnlockedCheck>>
 		<<set _options["Water Dragon Long Purple"] = ["waterdragon", "purple"]>>
 		<<set _options["Water Dragon Long Blue"] = ["waterdragon", "default"]>>
 		<<set _options["Water Dragon Long Gray"] = ["waterdragon", "gray"]>>
@@ -3769,7 +3765,7 @@
 			<</switch>>
 			<br>
 		<</if>>
-		<<if !["demon", "cat", "cow", "bear", "wolf", "bird", "fox", "okami", "kitsune", "waterdragon"].every(transform => T[transform].tail is "disabled")>>
+		<<if !["demon", "cat", "cow", "bear", "wolf", "bird", "fox", "bunny", "okami", "kitsune", "waterdragon"].every(transform => T[transform].tail is "disabled")>>
 			<<switch $taillayer>>
 				<<case "front">>
 					<<link "Push tail back">>
@@ -3789,7 +3785,7 @@
 			<</switch>>
 			<br>
 		<</if>>
-		<<if !["angel", "fallen", "demon", "bird", "okami"].every(transform => T[transform].wings is "disabled")>>
+		<<if !["angel", "fallen", "demon", "bird", "okami", "seraphim"].every(transform => T[transform].wings is "disabled")>>
 			<<switch $wingslayer>>
 				<<case "front">>
 					<<link "Push wings behind">>
@@ -4043,7 +4039,8 @@
 	<<set _demoncowTail to (_demon.tail isnot undefined and _cow.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _cow.tail))>>
 	<<set _demonwolfTail to (_demon.tail isnot undefined and _wolf.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _wolf.tail))>>
 	<<set _demonfoxTail to (_demon.tail isnot undefined and _fox.tail isnot undefined and !_hiddenParts.includesAny(_demon.tail, _fox.tail))>>
-	<<set _demonfoxEars to (_fox.ears isnot undefined and !_hiddenParts.includesAny(_fox.ears) and $demontf is 1)>>
+	<<set _demonfoxEars to (_fox.ears isnot undefined and !_hiddenParts.includesAny(_fox.ears) and effectiveTransformationLevel("demon") gte 6)>>
+	<<set _demoncowHorns to (_demon.horns isnot undefined and _cow.horns isnot undefined and !_hiddenParts.includesAny(_demon.horns, _cow.horns))>>
 	<<set _demonharpyWings to (_demon.wings isnot undefined and _bird.wings isnot undefined and !_hiddenParts.includesAny(_demon.wings, _bird.wings))>>
 	<<set _angelharpyWings to (_angel.wings isnot undefined and _bird.wings isnot undefined and !_hiddenParts.includesAny(_angel.wings, _bird.wings))>>
 	<<set _fallenharpyWings to (_fallen.wings isnot undefined and _bird.wings isnot undefined and !_hiddenParts.includesAny(_fallen.wings, _bird.wings))>>
@@ -4059,12 +4056,11 @@
 	<<set _melusineHalo to (_angel.halo isnot undefined and !_hiddenParts.includesAny(_angel.halo) and _waterDragonPresent and _birdPresent)>>
 	<<set _melusineWings to (_bird.wings isnot undefined and !_hiddenParts.includesAny(_bird.wings) and _angelPresent and _waterDragonPresent)>>
 	<<set _chimeraEnabled to " hide">>
-	<<if _demoncatTail or _catsithEars or _catsithTail or _demoncowTail or _demonwolfTail or _demonfoxTail or _demonfoxEars or _demonharpyWings or _angelharpyWings or _fallenharpyWings or _bakunawaTail or _bakunawaHorns or _bakunawaEars or _ryuujinTail or _ryuujinHorns or _ryuujinHalo or _melusineEars or _melusineHorns or _melusineTail or _melusineHalo or _melusineWings>>
+	<<if _demoncatTail or _catsithEars or _catsithTail or _demoncowHorns or _demoncowTail or _demonwolfTail or _demonfoxTail or _demonfoxEars or _demonharpyWings or _angelharpyWings or _fallenharpyWings or _bakunawaTail or _bakunawaHorns or _bakunawaEars or _ryuujinTail or _ryuujinHorns or _ryuujinHalo or _melusineEars or _melusineHorns or _melusineTail or _melusineHalo or _melusineWings>>
 		<<set _chimeraEnabled to "">>
 	<</if>>
 
 	<div class="chimera<<=_chimeraEnabled>>">
-		<<if _divine>><<tficon _divine>><</if>>
 		<span class="gold bold">Chimera</span><br>
 		<<if _demoncatTail>>
 			/* Using kasha (cat + demon) chimera tail. */
@@ -4090,6 +4086,15 @@
 			/* As above: art only. */
 			<label>Cat sith tail:
 				<<listbox "$chimera.catsith.tail" autoselect>>
+					<<option "Show" true>>
+					<<option "Hide" false>>
+				<</listbox>>
+			</label>
+			<br>
+		<</if>>
+		<<if _demoncowHorns>>
+			<label>Demon cow horns:
+				<<listbox "$chimera.demoncow.horns" autoselect>>
 					<<option "Show" true>>
 					<<option "Hide" false>>
 				<</listbox>>

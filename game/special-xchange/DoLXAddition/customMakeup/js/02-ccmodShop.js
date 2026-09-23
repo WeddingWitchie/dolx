@@ -104,7 +104,7 @@ const ccmShop = {
 	// script load order)
 	mannequinUpdate() {
 		if (!this._mannequinUpdate) {
-			this._mannequinUpdate = dolxColor.throttle(() => {
+			this._mannequinUpdate = colorUtils.throttle(() => {
 				Wikifier.wikifyEval('<<ccmodMannequinUpdate $ccmod.tmp.category "custom">>');
 			}, 150);
 		}

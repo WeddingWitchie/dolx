@@ -10,19 +10,19 @@
 	<<if $fishingSelectedBait is "none" or _fishingHaveBait is true>>
 		<<link "Change bait">>
 			<<if $fishing.currentBait and $fishing.currentBait isnot $fishingSelectedBait>>
-				<<run dolxBaitReturn($fishing.currentBait)>>
+				<<run baitReturn($fishing.currentBait)>>
 			<</if>>
 			<<if $fishingSelectedBait is "none">>
 				<<unset $fishing.currentBait>>
 			<<else>>
 				<<if $fishingSelectedBait isnot $fishing.currentBait>>
-					<<run dolxBaitTake($fishingSelectedBait)>>
+					<<run baitTake($fishingSelectedBait)>>
 				<</if>>
 				<<set $fishing.currentBait to $fishingSelectedBait>>
 			<</if>>
 			<<unset $fishingSelectedBait>>
 			<<set _hasBait to $fishing.currentBait and setup.foodstuff[$fishing.currentBait]>>
-			<<set _newBaitTooltip to _hasBait ? "Bait: " + dolxBaitLabel($fishing.currentBait) : "No bait on your line (click to change)">>
+			<<set _newBaitTooltip to _hasBait ? "Bait: " + baitLabel($fishing.currentBait) : "No bait on your line (click to change)">>
 			<<if elementExists("#bait-sidebar")>>
 				<<replace "#bait-sidebar">>
 					<<if _hasBait>>
@@ -76,20 +76,20 @@ The <span class="blue">reel</span> affects how much distance you gain or lose wh
 <</widget>>
 
 <<widget "fishingRebaitMid">>
-	<<set _rebaitLeft to dolxBaitStock($fishing.currentBait)>>
+	<<set _rebaitLeft to baitStock($fishing.currentBait)>>
 	<<if _rebaitLeft lte 0>>
 		baiting your <span class="red">last</span> piece of <<print setup.foodstuff[$fishing.currentBait].plural>> on the hook and casting back out.
 	<<else>>
-		re-baiting your line and casting back out. You have <<= _rebaitLeft>> <<print setup.foodstuff[$fishing.currentBait].plural>> left<<if $fishing.currentBait is "bait_worm" and dolxWormCanOwned()>> in the can<</if>>.
+		re-baiting your line and casting back out. You have <<= _rebaitLeft>> <<print setup.foodstuff[$fishing.currentBait].plural>> left<<if $fishing.currentBait is "bait_worm" and wormCanOwned()>> in the can<</if>>.
 	<</if>>
 <</widget>>
 
 <<widget "fishingRebaitStart">>
-	<<set _rebaitLeft to dolxBaitStock($fishing.currentBait)>>
+	<<set _rebaitLeft to baitStock($fishing.currentBait)>>
 	<<if _rebaitLeft lte 0>>
 		You bait your <span class="red">last</span> piece of <<print setup.foodstuff[$fishing.currentBait].plural>> on the hook and cast back out.
 	<<else>>
-		You re-bait your line and cast back out. You have <<= _rebaitLeft>> <<print setup.foodstuff[$fishing.currentBait].plural>> left<<if $fishing.currentBait is "bait_worm" and dolxWormCanOwned()>> in the can<</if>>.
+		You re-bait your line and cast back out. You have <<= _rebaitLeft>> <<print setup.foodstuff[$fishing.currentBait].plural>> left<<if $fishing.currentBait is "bait_worm" and wormCanOwned()>> in the can<</if>>.
 	<</if>>
 <</widget>>
 
@@ -106,17 +106,17 @@ The <span class="blue">reel</span> affects how much distance you gain or lose wh
 		|
 	</label>
 
-	<<set _foodKeys to dolxBaitOrderedKeys()>>
+	<<set _foodKeys to baitOrderedKeys()>>
 	<<for _i to 0; _i lt _foodKeys.length; _i++>>
 		<<set _food to _foodKeys[_i]>>
-		<<if setup.foodstuff[_food].is_fishing_bait is true and dolxBaitStock(_food) gte 1>>
-			<<if dolxBaitUsable(_food)>>
+		<<if setup.foodstuff[_food].is_fishing_bait is true and baitStock(_food) gte 1>>
+			<<if baitUsable(_food)>>
 				<<set _fishingHaveBait to true>>
 				<<if !$fishingSelectedBait and $fishing.currentBait is _food>>
 					<<set $fishingSelectedBait to _food>>
 				<</if>>
 				<label class="fishing-select-bait-radio">
-					<<baiticon _food>><<= dolxBaitLabel(_food)>>
+					<<baiticon _food>><<= baitLabel(_food)>>
 					<<if _food is $fishingSelectedBait>>
 						<<radiobutton "$fishingSelectedBait" _food checked>>
 					<<else>>
@@ -127,7 +127,7 @@ The <span class="blue">reel</span> affects how much distance you gain or lose wh
 			<<else>>
 				/* Owned, but left at home. Shown so the reason is obvious rather than the bait simply missing. */
 				<label class="fishing-select-bait-radio bait-unpacked">
-					<<baiticon _food>><span class="grey"><<= dolxBaitLabel(_food)>> not in your pocket</span>
+					<<baiticon _food>><span class="grey"><<= baitLabel(_food)>> not in your pocket</span>
 					|
 				</label>
 			<</if>>
@@ -138,7 +138,7 @@ The <span class="blue">reel</span> affects how much distance you gain or lose wh
 
 /* Bait worms coming out of the tin show the tin. */
 <<widget "baiticon">>
-	<<if _args[0] is "bait_worm" and dolxWormCanOwned() and dolxBaitLooseStock("bait_worm") is 0>>
+	<<if _args[0] is "bait_worm" and wormCanOwned() and baitLooseStock("bait_worm") is 0>>
 		<<icon `"fish/mod/wormcan.png"`>>
 	<<else>>
 		<<foodstufficon _args[0]>>
@@ -149,7 +149,7 @@ The <span class="blue">reel</span> affects how much distance you gain or lose wh
 	<<set $fishing.displayBaitNotification ??= true>>
 	<<set _baitEditEnabled to canOpenBaitOverlay()>>
 	<<if $fishing?.currentBait and setup.foodstuff[$fishing.currentBait]>>
-		<<set _baitTooltip to "Bait: " + dolxBaitLabel($fishing.currentBait)>>
+		<<set _baitTooltip to "Bait: " + baitLabel($fishing.currentBait)>>
 	<<else>>
 		<<set _baitTooltip to "No bait on your line (click to change)">>
 	<</if>>
@@ -165,11 +165,11 @@ The <span class="blue">reel</span> affects how much distance you gain or lose wh
 <<widget "baitMobileDropdown">>
 	<select id="fishing-bait-select" onchange="fishingChangeBaitFromDropdown(this.value)">
 		<option value="none">None</option>
-		<<set _foodKeys to dolxBaitOrderedKeys()>>
+		<<set _foodKeys to baitOrderedKeys()>>
 		<<for _i to 0; _i lt _foodKeys.length; _i++>>
 			<<set _food to _foodKeys[_i]>>
-			<<if setup.foodstuff[_food].is_fishing_bait is true and (dolxBaitUsable(_food) or $fishing.currentBait is _food)>>
-				<option @value="_food"><<= dolxBaitLabel(_food)>></option>
+			<<if setup.foodstuff[_food].is_fishing_bait is true and (baitUsable(_food) or $fishing.currentBait is _food)>>
+				<option @value="_food"><<= baitLabel(_food)>></option>
 			<</if>>
 		<</for>>
 	</select>
@@ -183,7 +183,7 @@ The <span class="blue">reel</span> affects how much distance you gain or lose wh
 <<widget "baitMobileSidebar">>
 	<<set _baitEditEnabled to canOpenBaitOverlay()>>
 	<<if $fishing?.currentBait and setup.foodstuff[$fishing.currentBait]>>
-		<<set _baitTooltip to "Bait: " + dolxBaitLabel($fishing.currentBait)>>
+		<<set _baitTooltip to "Bait: " + baitLabel($fishing.currentBait)>>
 	<<else>>
 		<<set _baitTooltip to "No bait on your line (click to change)">>
 	<</if>>

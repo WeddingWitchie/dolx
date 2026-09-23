@@ -1,4 +1,4 @@
-/* global dhmod, dhmUtils, dollHighlightsAvailable, dolxColor, moddedTwoToneStyle, vanillaTwoToneStyle */
+/* global dhmod, dhmUtils, dollHighlightsAvailable, colorUtils, moddedTwoToneStyle, vanillaTwoToneStyle */
 
 const dhmShop = {
 	pickers: [],
@@ -190,7 +190,7 @@ const dhmShop = {
 	// keeps the heavy canvas render from firing on every picker / slider tick (lazily built so it works regardless of script load order)
 	mannequinUpdate() {
 		if (!this._mannequinUpdate) {
-			this._mannequinUpdate = dolxColor.throttle(() => {
+			this._mannequinUpdate = colorUtils.throttle(() => {
 				Wikifier.wikifyEval("<<dhmMannequinUpdate>>");
 			}, 150);
 		}

@@ -1404,7 +1404,7 @@ function initFeet() {
 			},
 			state: 0,
 			state_base: 0,
-			integrity: 300,
+			integrity: 200,
 			integrity_max: 200,
 			fabric_strength: 20,
 			reveal: 100,

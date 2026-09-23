@@ -5,22 +5,6 @@ W.countPaleBabies = () => {
 	}).length;
 };
 
-W.countPaleCritters = () => {
-	const containers = V.container.list;
-	let pales = 0;
-
-	for (const container of containers) {
-		if (V.container[container].count > 0) {
-			for (const critter of Object.values(V.container[container].creatures)) {
-				if (critter.creature.includes("Pale")) {
-					pales++;
-				}
-			}
-		}
-	}
-	return pales;
-};
-
 W.countSpecialTattoos = () => {
 	return W.wraithBrandParts().length;
 };
@@ -71,7 +55,7 @@ W.wraithBrandWeight = () => {
 	Requires $wraith.nightmare and can only trigger once per bad end.
 */
 W.badEndPossessionCheck = () => {
-	if (V.statFreeze || V.replayScene || V.possessed) return false;
+	if (V.statFreeze || V.replayScene || V.hc || V.possessed) return false;
 	if (!V.wraith || !V.wraith.init || V.wraith.state === "" || !(V.wraith.nightmare >= 1)) return false;
 	if (!Time.isBloodMoon()) return false;
 
@@ -107,7 +91,7 @@ W.badEndPossessionCheck = () => {
 	This is not limited to the blood moon. The blood moon only makes it more likely.
 */
 W.combatGripCheck = () => {
-	if (V.statFreeze || V.replayScene || V.possessed || V.wraithGrip) return false;
+	if (V.statFreeze || V.replayScene || V.hc || V.possessed || V.wraithGrip) return false;
 	if (V.combat !== 1) return false;
 	if (!V.wraith || !V.wraith.init || V.wraith.state === "") return false;
 

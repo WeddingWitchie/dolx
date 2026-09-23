@@ -170,26 +170,27 @@ Heavy work only runs when a slot is missing, mismatched, or carries vestige fiel
             return stub;
         }
 
+        /* Same rule as the named-NPC integrity guard: find the LI's own row, append when it has none,
+           and never overwrite or truncate a row that may belong to another NPC. */
+        var realign = false;
         for (var r = 0; r < names.length; r++) {
             var name = names[r];
             var idx = V.NPCNameList.indexOf(name);
-            if (idx === -1) {
-                if (!unlocks[name]) continue;
-                V.NPCNameList.push(name);
-                V.NPCName.push(makeStub(name));
-            } else {
-                var slot = V.NPCName[idx];
-                if (!slot || slot.nam !== name) {
-                    V.NPCName[idx] = makeStub(name);
-                } else {
-                    cleanVestige(slot, name);
-                    patchMissing(slot, name);
-                }
+            var row = V.NPCName.findIndex(function (s) { return s && s.nam === name; });
+            if (row !== -1) {
+                if (row !== idx) realign = true;
+                cleanVestige(V.NPCName[row], name);
+                patchMissing(V.NPCName[row], name);
+                continue;
             }
+            if (idx === -1 && !unlocks[name]) continue;
+            V.NPCName.push(makeStub(name));
+            realign = true;
         }
 
-        if (V.NPCName.length > V.NPCNameList.length) {
-            V.NPCName.length = V.NPCNameList.length;
+        if (realign || V.NPCName.length !== V.NPCNameList.length) {
+            var oldList = V.NPCNameList;
+            V.NPCNameList = V.NPCName.map(function (s, i) { return s && s.nam ? s.nam : oldList[i]; });
         }
     })();
     <</script>>

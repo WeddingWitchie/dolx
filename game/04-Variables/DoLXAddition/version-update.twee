@@ -1446,7 +1446,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $xchange isnot undefined and $xchange.transIdentitySeeded is undefined>><<set $xchange.transIdentitySeeded to true>><</if>>
 	<<identityIndexInit>>
 	<<script>>window.repairInvalidHairColours?.();<</script>>
-	<<run dolxFishingEnsure()>>
+	<<run fishingEnsure()>>
 	<<waterDragonNestDefaults>><<if $waterDragonLab>><<waterDragonLabDefaults>><</if>>
 	<<if $waterDragonEggs and !isFullWaterDragon() and !($waterDragonLab and $waterDragonLab.active)>><<unset $waterDragonEggs>><</if>>
 	<<dhmInit>>
@@ -1473,7 +1473,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 <</widget>>
 
 <<widget "xchange-modupdate">>
-	<<run dolxFishingEnsure()>>
+	<<run fishingEnsure()>>
 	/* Chastity control data lives on each item. Backfill old purchases in every owned-clothing location without rewriting NPC-fitted devices. */
 	<<if $chastityAcclimation is undefined>><<set $chastityAcclimation to 0>><</if>>
 	/* Uses the same setting check as the hourly update, so disabled traits stay hidden when loading a save. */
@@ -1714,10 +1714,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<elseif ndef $xchange.breederEdgingStress>>
 		<<set $xchange.breederEdgingStress to (($xchange.pill.breederEffect or $xchange.pill.omegaEffect) ? 100 : 0)>>
 	<</if>>
-	<<if $xchange.willpowerPoints is undefined or $xchange.willpowerPoints is null or isNaN($xchange.willpowerPoints)>>
-		<<set $xchange.willpowerPoints to 0>>
-	<</if>>
-	
+
 	<<physicalAdjustmentsInit>>
 
 	<<if $genderknown is undefined or $genderknown is null>><<set $genderknown to []>><</if>>
@@ -1789,18 +1786,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<<if $xchange.heat.message is undefined>>
 		<<set $xchange.heat.message to false>>
-	<</if>>
-
-	<<if $xchange.bottomsize is undefined>>
-		<<set $xchange.bottomsize to $bottomsizemin>>
-	<</if>>
-
-	<<if $xchange.breastsize is undefined>>
-		<<set $xchange.breastsize to $breastsizemin>>
-	<</if>>
-
-	<<if $xchange.penissize is undefined>>
-		<<set $xchange.penissize to $penissizemin>>
 	<</if>>
 
 	<<if $xchange.science is undefined>>
@@ -1928,7 +1913,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 	<!-- Repairing corrupted variables -->
 	<<if isNaN(V.arousal)>><<set V.arousal to 0>><</if>>
-	<<if isNaN(V.xchange.willpowerPoints)>><<set V.xchange.willpowerPoints to V.willpower>><</if>>
 	<<run (function () {
 		var V = State.variables;
 		if (!Array.isArray(V.trackedArousal) || V.trackedArousal.includes(NaN)) { V.trackedArousal = [0]; }
@@ -2106,7 +2090,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<!-- Adapt any leftover non-DoLX herm NPCs (gender not m/f) to a single available sex, mirroring the player pass above.
 	     Routes by the NPC's canonical startingSex so they return to their normal sex (default male).
 		 Skips NPCs that are herm via a live DoLX pill (.xchange), since that's an intended, temporary state, not stale cross-mod data. -->
-	<<if $xchange.savedNpcBodies is undefined>><<set $xchange.savedNpcBodies to {}>><</if>>
 	<<if Array.isArray($NPCName)>>
 		<<for _hermIdx to 0; _hermIdx lt $NPCName.length; _hermIdx++>>
 			<<set _hermNpc to $NPCName[_hermIdx]>>

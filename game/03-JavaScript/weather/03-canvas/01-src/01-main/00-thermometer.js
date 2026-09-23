@@ -54,22 +54,26 @@ Weather.Thermometer = (() => {
 			return 0;
 		});
 
-		Promise.all(loadPromises).then(() => {
-			if (thermometerCanvas) {
-				thermometerCanvas.canvas.remove();
-				thermometerCanvas = null;
-			}
-			thermometerCanvas = new BaseCanvas(0, 0, 0.5);
-			const baseImg = images.baseImg.img;
-			size.width = baseImg.width * size.scaleFactor;
-			size.height = baseImg.height * size.scaleFactor;
-			thermometerCanvas.element.width = size.width * 2;
-			thermometerCanvas.element.height = size.height;
-			thermometerCanvas.ctx.imageSmoothingEnabled = false;
-			element.append(thermometerCanvas.canvas);
-			allImagesLoaded = true;
-			update();
-		});
+		Promise.all(loadPromises)
+			.then(() => {
+				if (thermometerCanvas) {
+					thermometerCanvas.canvas.remove();
+					thermometerCanvas = null;
+				}
+				thermometerCanvas = new BaseCanvas(0, 0, 0.5);
+				const baseImg = images.baseImg.img;
+				size.width = baseImg.width * size.scaleFactor;
+				size.height = baseImg.height * size.scaleFactor;
+				thermometerCanvas.element.width = size.width * 2;
+				thermometerCanvas.element.height = size.height;
+				thermometerCanvas.ctx.imageSmoothingEnabled = false;
+				element.append(thermometerCanvas.canvas);
+				allImagesLoaded = true;
+				update();
+			})
+			.catch(() => {
+				Errors.report("Warning: Missing thermometer image, the thermometer will not be shown.");
+			});
 	}
 
 	function update() {

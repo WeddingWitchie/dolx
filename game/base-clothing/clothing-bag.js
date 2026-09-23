@@ -554,7 +554,7 @@ function initBag() {
 			word: "a",
 			plural: 0,
 			colour: 0,
-			colour_options: ["tangerine", "custom", "eerie"],
+			colour_options: ["tangerine", "custom"],
 			colour_sidebar: 1,
 			type: ["costume", "bookbag", "eerie"],
 			gender: "n",

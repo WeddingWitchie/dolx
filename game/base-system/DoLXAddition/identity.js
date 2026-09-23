@@ -448,7 +448,8 @@ function playerHasCharacteristic(characteristic) {
 		case "Short Hair":
 			return V.hairlength <= 100 ? 2 : 0;
 		case "Medium Hair":
-			return between(V.hairlength, 100, 600) ? 2 : 0;
+			// Exclusive at 100: between() is inclusive, and 100 is already Short Hair.
+			return V.hairlength > 100 && V.hairlength <= 600 ? 2 : 0;
 		case "Long Hair":
 			return V.hairlength > 600 ? 2 : 0;
 		case "Miniature Body":
@@ -788,18 +789,6 @@ function misgenderShouldCount(pronoun) {
 }
 window.misgenderShouldCount = misgenderShouldCount;
 
-function preferredPronouns(gender) {
-	const pronouns = V.identity?.presentation?.pronouns || {};
-	const dynamicModes = ["body", "clothing", "appearance", "posture"];
-	const dynamicMode = pronouns.pronounDynamicMode || (dynamicModes.includes(pronouns.preferred) ? pronouns.preferred : "");
-	if (dynamicModes.includes(dynamicMode)) return playerPronoun() === gender;
-	if (gender === "m") return !!pronouns.preferredMasculine;
-	if (gender === "f") return !!pronouns.preferredFeminine;
-	if (gender === "n") return !!pronouns.preferredNeutral;
-	return false;
-}
-window.preferredPronouns = preferredPronouns;
-
 function getIdentityMeterDirection(characteristic) {
 	/* Universal axis:
 	 *   min	= strongly masculine
@@ -858,29 +847,9 @@ function getIdentityMeterGroup(characteristic) {
 	return entry ? entry.group : false;
 }
 window.getIdentityMeterGroup = getIdentityMeterGroup;
+/* Same gate the selector uses, so the meter and dysphoria can never disagree about a topic being on. */
 function isIdentityMeterCharacteristicEnabled(characteristic) {
-	const x = V.xchange || {};
-	switch (getIdentityMeterGroup(characteristic)) {
-		case "clothing":
-			return !clothingIdentityIsNeutral();
-		case "makeup":
-			return !makeupIdentityIsIgnored();
-		case "chest":
-			return x.giBreastSizeEnabled === true;
-		case "ass":
-			return x.giAssSizeEnabled === true;
-		case "genitals":
-			return x.giGenitalsEnabled === true;
-		case "hair":
-			return x.giHairLengthEnabled === true;
-		case "bodysize":
-			return x.giBodySizeEnabled === true;
-		case "pregnancy":
-		case "lactation":
-			return x.giFecundityEnabled === true;
-		default:
-			return true;
-	}
+	return !!identitySelectorEnabled(getIdentityMeterGroup(characteristic), V.xchange || {});
 }
 window.isIdentityMeterCharacteristicEnabled = isIdentityMeterCharacteristicEnabled;
 

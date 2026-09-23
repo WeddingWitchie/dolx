@@ -219,7 +219,7 @@ const dhmUtils = {
 	 * @returns	{Array<string|number>} [hex, brightness]
 	 */
 	stringDecode(filterString) {
-		return dolxColor.stringDecode(filterString);
+		return colorUtils.stringDecode(filterString);
 	},
 
 	/**
@@ -234,7 +234,7 @@ const dhmUtils = {
 	 * @returns	{boolean}
 	 */
 	stringIsValid(filterString) {
-		return dolxColor.stringIsValid(filterString);
+		return colorUtils.stringIsValid(filterString);
 	},
 
 	/**
@@ -246,7 +246,7 @@ const dhmUtils = {
 	 * @returns {string}
 	 */
 	stringFromHex(hexCode) {
-		return dolxColor.stringFromHex(hexCode);
+		return colorUtils.stringFromHex(hexCode);
 	},
 	// }}}
 	// }}}
@@ -282,7 +282,7 @@ const dhmUtils = {
 	 * @param {Canvasfilter} filter
 	 */
 	filterEncode(filter) {
-		return dolxColor.filterEncode(filter);
+		return colorUtils.filterEncode(filter);
 	},
 
 	/**

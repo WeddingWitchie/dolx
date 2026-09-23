@@ -2402,6 +2402,17 @@
 	Gray Agent only affects the player, so it should not filter NPC effects. All other filters are shared. */
 	<<widget "xchange-get-spikepool">>
 		<<set _spikepoolForNpc to _args[0] is "npc">>
+		/* An NPC roll filters on the NPC being pilled (its body and the pill being built in _pill), not on the player. */
+		<<if _spikepoolForNpc>>
+			<<set _spikeNpc to (_targetNo isnot undefined ? $NPCList[_targetNo] : $NPCName[_targetNameIndex])>>
+			<<set _spikePill to _pill ?? {}>>
+			<<set _spikeHasVagina to !!_spikeNpc and _spikeNpc.vagina isnot "none">>
+			<<set _spikeHasPenis to !!_spikeNpc and _spikeNpc.penis isnot "none">>
+		<<else>>
+			<<set _spikePill to $xchange.pill>>
+			<<set _spikeHasVagina to $player.vaginaExist>>
+			<<set _spikeHasPenis to $player.penisExist>>
+		<</if>>
 		<<set _effectPool to []>>
 		<<for _pillType range Object.keys($xchange.spikerates)>>
 			<<for _i to 0; _i lt $xchange.spikerates[_pillType]; _i++>>
@@ -2411,55 +2422,55 @@
 
 		/* Only apply genital effects if the player has the required anatomy.
 		Breeder and Fertile require a vagina; Bull requires a penis. Genderflip has already updated the body, and herms can use both. */
-		<<if !$player.vaginaExist>>
+		<<if !_spikeHasVagina>>
 			<<run _effectPool.deleteWith((val)=>val==="breeder")>>
 			<<run _effectPool.deleteWith((val)=>val==="fertile")>>
 		<</if>>
 
-		<<if !$player.penisExist>>
+		<<if !_spikeHasPenis>>
 			<<run _effectPool.deleteWith((val)=>val==="bull")>>
 		<</if>>
 
-		<<if $xchange.pill.genderflipEffect or (!_spikepoolForNpc and xchangeGrayAgentBlocks("genderflip"))>>
+		<<if _spikePill.genderflipEffect or (!_spikepoolForNpc and xchangeGrayAgentBlocks("genderflip"))>>
 			/* Gray Agent filters genderflip out of a spike, so drop it from the pool too and let the roll land on an effect that can actually apply. */
 			<<run _effectPool.deleteWith((val)=>val==="genderflip")>>
 		<</if>>
 
-		<<if $xchange.pill.genderificationEffect or !$xchange.spikepool.crossdresser>>
+		<<if _spikePill.genderificationEffect or !$xchange.spikepool.crossdresser>>
 			<<run _effectPool.deleteWith((val)=>val==="crossdress")>>
 		<</if>>
 
-		<<if $xchange.pill.hermEffect or !$xchange.spikepool.herm or (!_spikepoolForNpc and xchangeGrayAgentBlocks("herm"))>>
+		<<if _spikePill.hermEffect or !$xchange.spikepool.herm or (!_spikepoolForNpc and xchangeGrayAgentBlocks("herm"))>>
 			<<run _effectPool.deleteWith((val)=>val==="herm")>>
 		<</if>>
 
-		<<if $xchange.pill.breederEffect or !$xchange.spikepool.breeder>>
+		<<if _spikePill.breederEffect or !$xchange.spikepool.breeder>>
 			<<run _effectPool.deleteWith((val)=>val==="breeder")>>
 		<</if>>
 
-		<<if $xchange.pill.bullEffect or !$xchange.spikepool.bull>>
+		<<if _spikePill.bullEffect or !$xchange.spikepool.bull>>
 			<<run _effectPool.deleteWith((val)=>val==="bull")>>
 		<</if>>
 
-		<<if $xchange.pill.continueEffect or $xchange.pill.resistanceEffect or !$xchange.spikepool.continue or pillIsPermanent()>>
+		<<if _spikePill.continueEffect or _spikePill.resistanceEffect or !$xchange.spikepool.continue or (!_spikepoolForNpc and pillIsPermanent())>>
 			<<run _effectPool.deleteWith((val)=>val==="continue")>>
 		<</if>>
 
-		<<if $xchange.pill.resistanceEffect or $xchange.pill.continueEffect or !$xchange.spikepool.resistance or pillIsPermanent()>>
+		<<if _spikePill.resistanceEffect or _spikePill.continueEffect or !$xchange.spikepool.resistance or (!_spikepoolForNpc and pillIsPermanent())>>
 			<<run _effectPool.deleteWith((val)=>val==="resistance")>>
 		<</if>>
 
-		<<if $xchange.pill.passionEffect or !$xchange.spikepool.passion>>
+		<<if _spikePill.passionEffect or !$xchange.spikepool.passion>>
 			<<run _effectPool.deleteWith((val)=>val==="passion")>>
 		<</if>>
 
-		<<if $xchange.pill.portalEffect or !$portalPantiesEnabled>>
+		<<if _spikePill.portalEffect or !$portalPantiesEnabled>>
 			<<run _effectPool.deleteWith((val)=>val==="portal")>>
 		<</if>>
 
 		/* FIX: if ANY variant key is explicitly disabled, treat as disabled */
-		<<if $xchange.pill.dumbBitchEffect
-			or $xchange.pill.bimboEffect
+		<<if _spikePill.dumbBitchEffect
+			or _spikePill.bimboEffect
 			or $xchange.spikepool.dumbbitch is 0
 			or $xchange.spikepool["dumb-bitch"] is 0
 			or $xchange.spikepool.dumbBitch is 0
@@ -2469,24 +2480,24 @@
 			<<run _effectPool.deleteWith((val)=>val==="dumb-bitch" || val==="dumbbitch" || val==="dumbBitch")>>
 		<</if>>
 
-		<<if $xchange.pill.innocenceEffect or !$xchange.spikepool.innocence or $xchange.pill.feartoxinEffect>>
+		<<if _spikePill.innocenceEffect or !$xchange.spikepool.innocence or _spikePill.feartoxinEffect>>
 			<<run _effectPool.deleteWith((val)=>val==="innocence")>>
 		<</if>>
 
 		/* Fear Toxin and Innocence pull trauma in opposite directions, so they never share a session. */
-		<<if $xchange.pill.feartoxinEffect or !$xchange.spikepool.feartoxin or $xchange.pill.innocenceEffect or $innocencestate is 1>>
+		<<if _spikePill.feartoxinEffect or !$xchange.spikepool.feartoxin or _spikePill.innocenceEffect or (!_spikepoolForNpc and $innocencestate is 1)>>
 			<<run _effectPool.deleteWith((val)=>val==="feartoxin")>>
 		<</if>>
 
-		<<if $xchange.pill.swellEffect or !$xchange.spikepool.swell>>
+		<<if _spikePill.swellEffect or !$xchange.spikepool.swell>>
 			<<run _effectPool.deleteWith((val)=>val==="swell")>>
 		<</if>>
 
-		<<if $xchange.pill.bimboEffect or $xchange.pill.dumbBitchEffect or !$xchange.spikepool.bimbo>>
+		<<if _spikePill.bimboEffect or _spikePill.dumbBitchEffect or !$xchange.spikepool.bimbo>>
 			<<run _effectPool.deleteWith((val)=>val==="bimbo")>>
 		<</if>>
 
-		<<if $xchange.pill.cumcureEffect or !$xchange.spikepool.cumcure>>
+		<<if _spikePill.cumcureEffect or !$xchange.spikepool.cumcure>>
 			<<run _effectPool.deleteWith((val)=>val==="cumcure")>>
 		<</if>>
 
@@ -2495,17 +2506,17 @@
 		<</if>>
 
 		/* Omega (anal pregnancy + anal insemination pleasure) works on any body, so no sex gate. */
-		<<if $xchange.pill.omegaEffect or !$xchange.spikepool.omega>>
+		<<if _spikePill.omegaEffect or !$xchange.spikepool.omega>>
 			<<run _effectPool.deleteWith((val)=>val==="omega")>>
 		<</if>>
 
 		/* Alpha (knotted penis + orgasm demands penetration) only makes sense with a penis. */
-		<<if $xchange.pill.alphaEffect or !$xchange.spikepool.alpha or !$player.penisExist>>
+		<<if _spikePill.alphaEffect or !$xchange.spikepool.alpha or !_spikeHasPenis>>
 			<<run _effectPool.deleteWith((val)=>val==="alpha")>>
 		<</if>>
 
 		/* Beta forms a second womb and only makes sense on a body with a vagina. */
-		<<if $xchange.pill.betaEffect or !$xchange.spikepool.beta or !$player.vaginaExist>>
+		<<if _spikePill.betaEffect or !$xchange.spikepool.beta or !_spikeHasVagina>>
 			<<run _effectPool.deleteWith((val)=>val==="beta")>>
 		<</if>>
 	<</widget>>

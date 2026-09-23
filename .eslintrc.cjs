@@ -113,7 +113,7 @@ module.exports = {
 		dhmod: "readonly",
 		dhmShop: "readonly",
 		dhmUtils: "readonly",
-		dolxColor: "readonly",
+		colorUtils: "readonly",
 		colorNamer: "readonly",
 		colorNameTranslate: "readonly",
 		// DoL SC2 functions

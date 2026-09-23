@@ -15,7 +15,7 @@
 	<<set _cookOffer to $rng gte 50 and fishingHasMinutesPassedSinceNpcArrival(30) and canCookFish($fishingHookedFish.type) and $daily.fishing.fishingMoor.hikers.phase isnot "campfire">>
 
 	<<if _cookOffer>>
-		The <<person1>><<personsimple>> looks over the <<= dolxFishName($fishingHookedFish.type)>>. "We could probably start a fire and make a meal out of that, what do you think?"
+		The <<person1>><<personsimple>> looks over the <<= fishDisplayName($fishingHookedFish.type)>>. "We could probably start a fire and make a meal out of that, what do you think?"
 		<br><br>
 	<<elseif random(1, 5) is 1>>
 		<<switch random(1, 2)>>
@@ -32,8 +32,8 @@
 		<br><br>
 	<</if>>
 
-	<<link [[dolxFishStowLabel($fishingHookedFish)|Fishing Moor Wait]]>>
-		<<run dolxFishStow($fishingHookedFish)>>
+	<<link [[fishStowLabel($fishingHookedFish)|Fishing Moor Wait]]>>
+		<<run fishStow($fishingHookedFish)>>
 		<<set $fishingAmbientOverride to "stowAway">>
 		<<if baitShopWants($fishingHookedFish)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 		<<endevent>>
@@ -59,14 +59,14 @@
 	<<set _foxLunges to $daily.fishing.fishingMoor.fox.closeness gte 8 and dangerEvent()>>
 
 	<<if _foxLunges>>
-		But before you can do anything, the <<beasttype>> lunges for the <<= dolxFishName($fishingHookedFish.type)>>.
+		But before you can do anything, the <<beasttype>> lunges for the <<= fishDisplayName($fishingHookedFish.type)>>.
 		<br><br>
 	<<else>>
 		<<if $daily.fishing.fishingMoor.fox.closeness gte 8>>
-			The <<beasttype>> watches your <<= dolxFishName($fishingHookedFish.type)>> intently.
+			The <<beasttype>> watches your <<= fishDisplayName($fishingHookedFish.type)>> intently.
 			<br><br>
 		<<else>>
-			The <<beasttype>> perks up as you pull up the <<= dolxFishName($fishingHookedFish.type)>>.
+			The <<beasttype>> perks up as you pull up the <<= fishDisplayName($fishingHookedFish.type)>>.
 			<br><br>
 		<</if>>
 
@@ -84,12 +84,12 @@
 		<</if>>
 	<<else>>
 		<<if $daily.fishing.fishingMoor.fox.closeness gte 8>>
-			<<link [[dolxFishStowLabel($fishingHookedFish)|Fishing Moor Keep Fox]]>>
+			<<link [[fishStowLabel($fishingHookedFish)|Fishing Moor Keep Fox]]>>
 				<<endevent>>
 			<</link>>
 		<<else>>
-			<<link [[dolxFishStowLabel($fishingHookedFish)|Fishing Moor Wait]]>>
-				<<run dolxFishStow($fishingHookedFish)>>
+			<<link [[fishStowLabel($fishingHookedFish)|Fishing Moor Wait]]>>
+				<<run fishStow($fishingHookedFish)>>
 				<<set $fishingAmbientOverride to "stowAway">>
 				<<if baitShopWants($fishingHookedFish)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 				<<endevent>>
@@ -108,7 +108,7 @@
 
 		<<if $daily.fishing.fishingMoor.fox.closeness gte 8>>
 			<br>
-			<<link [["Give the " + dolxFishName($fishingHookedFish.type) + " to the fox"|Fishing Moor Fox Feed]]>><<endevent>><</link>>
+			<<link [["Give the " + fishDisplayName($fishingHookedFish.type) + " to the fox"|Fishing Moor Fox Feed]]>><<endevent>><</link>>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -122,8 +122,8 @@
 		<br><br>
 	<</if>>
 
-	<<link [[dolxFishStowLabel($fishingHookedFish)|Fishing Moor Wait]]>>
-		<<run dolxFishStow($fishingHookedFish)>>
+	<<link [[fishStowLabel($fishingHookedFish)|Fishing Moor Wait]]>>
+		<<run fishStow($fishingHookedFish)>>
 		<<set $fishingAmbientOverride to "stowAway">>
 		<<if baitShopWants($fishingHookedFish)>><<set $daily.fishing.baitShopRequest to "ready">><</if>>
 		<<endevent>>
@@ -148,7 +148,7 @@
 :: Widgets Fishing Moor Cut [widget]
 <<widget "fishingMoorLineCut">>
 	<<effects>>
-	You <span class="purple">cut</span> the line and the <<= dolxFishName($fishingHookedFish.type)>> swims away into the depths.
+	You <span class="purple">cut</span> the line and the <<= fishDisplayName($fishingHookedFish.type)>> swims away into the depths.
 	<br><br><br>
 
 	<<fishingMinigameResultUi $fishingMinigame.fishDistance "cut">>
@@ -165,7 +165,7 @@
 <<widget "fishingMoorLineCutFox">>
 	<<effects>>
 	<<loadNPC 0 "moor_fishing_fox">>
-	You <span class="purple">cut</span> the line and the <<= dolxFishName($fishingHookedFish.type)>> swims away into the depths.
+	You <span class="purple">cut</span> the line and the <<= fishDisplayName($fishingHookedFish.type)>> swims away into the depths.
 	<br><br><br>
 
 	<<fishingMinigameResultUi $fishingMinigame.fishDistance "cut">>
@@ -206,7 +206,7 @@
 <<widget "fishingMoorLineSnappedFox">>
 	<<effects>>
 	<<loadNPC 0 "moor_fishing_fox">>
-	Your line suddenly goes slack, and the <<= dolxFishName($fishingHookedFish.type)>> disappears into the depths.
+	Your line suddenly goes slack, and the <<= fishDisplayName($fishingHookedFish.type)>> disappears into the depths.
 	<br><br><br>
 
 	<<fishingMinigameResultUi $fishingMinigame.fishDistance "lineSnapped">>
@@ -225,7 +225,7 @@
 <<widget "fishingMoorLineSnappedHikers">>
 	<<loadNPC 0 "moor_hiker_1">><<person1>>
 	<<loadNPC 1 "moor_hiker_2">><<person2>>
-	Your line suddenly goes slack, and the <<= dolxFishName($fishingHookedFish.type)>> disappears into the depths.
+	Your line suddenly goes slack, and the <<= fishDisplayName($fishingHookedFish.type)>> disappears into the depths.
 	<br><br><br>
 
 	<<fishingMinigameResultUi $fishingMinigame.fishDistance "lineSnapped">>
@@ -259,7 +259,7 @@
 
 
 <<widget "fishingMoorLineSnapped">>
-	Your line goes taut, then <span class="red">snaps.</span> The <<= dolxFishName($fishingHookedFish.type)>> is gone.
+	Your line goes taut, then <span class="red">snaps.</span> The <<= fishDisplayName($fishingHookedFish.type)>> is gone.
 	<br><br><br>
 
 	<<fishingMinigameResultUi $fishingMinigame.fishDistance "lineSnapped">>
@@ -285,7 +285,7 @@
 
 :: Widgets Fishing Moor Fish Too Far [widget]
 <<widget "fishingMoorFishTooFar">>
-	The <<= dolxFishName($fishingHookedFish.type)>> reaches the end of your line, works the hook loose, and is <span class="red">gone</span>.
+	The <<= fishDisplayName($fishingHookedFish.type)>> reaches the end of your line, works the hook loose, and is <span class="red">gone</span>.
 	<br><br><br>
 
 	<<fishingMinigameResultUi $fishingMinigame.fishDistance "fishOffHook">>

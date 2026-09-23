@@ -3114,8 +3114,33 @@ Renderer.CanvasModels.main = {
 				return 0;
 			},
 			zfn(options) {
-				if (V.rightArmPosition == "above") return ["cover", "hold"].includes(options.arm_right) ? ZIndices.right_cover_arm + 0.5 : ZIndices.under_upper_arm_right - 0.2;
-				return ["cover", "hold"].includes(options.arm_right) ? ZIndices.right_cover_arm + 0.5 : options.zarms + 0.01;
+				/* Always at skin level, under the torso clothes. The copy on a raised arm is writing_right_shoulder_arm. */
+				return V.rightArmPosition == "above" ? ZIndices.under_upper_arm_right - 0.2 : options.zarms + 0.01;
+			},
+		},
+		/* A raised (cover/hold) arm is drawn above the torso clothes. Only the part of the writing that lies on the arm may follow it
+		there; unmasked, the whole shoulder showed through the shirt in front-facing image packs.
+		The mask is its own file so each pack decides: core art ships a copy of the arm, front-facing packs (GooseFem, au) ship a blank
+		one because their raised arm never covers the shoulder, which leaves only the under-clothes copy. */
+		"writing_right_shoulder_arm": {
+			animation: "idle",
+
+			srcfn(options) {
+				if (V.tattoo_bodypart == "right_shoulder" && V.passage == "Tattoo Choice") return getWritingImgPath('right_shoulder', setup.bodywriting[V.tattoo_choice]);
+				return getWritingImgPath('right_shoulder', setup.bodywriting[options.writing_right_shoulder]);
+			},
+			masksrcfn(options) {
+				if (options.mannequin) return `img/body/mannequin/right-arm-${options.arm_right}.png`;
+				return `img/body/right-arm-${options.arm_right}-writing.png`;
+			},
+			showfn(options) {
+				return ["cover", "hold"].includes(options.arm_right) &&(options.show_writings && !!options.writing_right_shoulder || (V.tattoo_bodypart == "right_shoulder" && V.passage == "Tattoo Choice"));
+			},
+			dxfn(options) {
+				return options.arm_right === "cover" ? 4 : 0;
+			},
+			zfn(options) {
+				return ZIndices.right_cover_arm + 0.5;
 			},
 		},
 		"writing_pubic": {

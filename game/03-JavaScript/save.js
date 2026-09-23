@@ -1283,7 +1283,6 @@ function settingsObjects(type) {
 					persistentLocation: { bool: true, displayName: "Persistent Bike Location:" },
 					theftEnabled: { bool: true, displayName: "Bike Security:" },
 				},
-				combatTimePass: { min: 0, max: 1000000, decimals: 0, displayName: "Combat Time Pass:" },
 				depositMax: { min: 0, max: 12, decimals: 0, displayName: "Deposit Max Weeks:" },
 				depositWithdrawalFee: { min: 0, max: 100, decimals: 0, displayName: "Deposit Withdrawal Fee (%):" },
 				parasiteCapMult: { min: 1, max: 10, decimals: 0, displayName: "Parasite Tank/Barn Capacity Multiplier:" },

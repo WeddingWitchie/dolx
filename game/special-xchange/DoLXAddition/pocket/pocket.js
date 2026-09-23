@@ -1,5 +1,5 @@
 /* The POCKET menu: what the PC is physically carrying. */
-/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay dolxPocketBaitValid pocketOutfitPieceCount pocketOutfitUnpackAll */
+/* globals wikifier Time statChange statDisplay earnFeat onTakeClick updateMoment sexToysInventoryOnWearClick sexToyCanWear sexToyWearButtonText sexToyUsesVaginalWornSlot closeOverlay pocketBaitValid pocketOutfitPieceCount pocketOutfitUnpackAll */
 
 /* Setup tables */
 /* How many item types each handheld bag can hold.
@@ -337,7 +337,7 @@ function pocketSlotStillValid(slot) {
 			return pocketToyPackedCount(slot.key) > 0;
 		case "bait":
 			/* The can stays a slot when it's empty: an empty tin is still a tin you can refill. */
-			return dolxPocketBaitValid(slot.key);
+			return pocketBaitValid(slot.key);
 		case "outfit":
 			/* The bundle holds the only copy of its garments. See pocket-outfit.js. */
 			return typeof pocketOutfitPieceCount === "function" && pocketOutfitPieceCount() > 0;

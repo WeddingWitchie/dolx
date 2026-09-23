@@ -1352,11 +1352,12 @@ Looks like we're done already.
 		<<set $blackmoney to 0>>
 	<</if>>
 
-	<<if isNaN(parseInt($crime))>>
+	/* A save already on the crime object (0.4.2.0+) can land here when its version string parses low; don't flatten it. */
+	<<if typeof $crime isnot "object" and isNaN(parseInt($crime))>>
 		<<set $crime to 0>>
 	<</if>>
 
-	<<if isNaN(parseInt($crimehistory))>>
+	<<if typeof $crime isnot "object" and isNaN(parseInt($crimehistory))>>
 		<<set $crimehistory to 0>>
 	<</if>>
 
@@ -2610,19 +2611,6 @@ Looks like we're done already.
 	<</for>>
 
 	<!-- pregnancyVar was moved to <<backComp>>-->
-<</widget>>
-
-<<widget "hermNPCsUpdate">>
-	<<if !$hermNPCsVersionFix>>
-		<!-- Version number fixing -->
-		<!-- replaces any "herm" in the save numbers with ".h1", and replaces numbers ending with "h" with ".h1" -->
-		<<for $_i to 0; $_i lt $saveVersions.length; $_i++>>
-			<<set $saveVersions[$_i] to $saveVersions[$_i].replace(/ herm/, ".h1").replace(/(\d)h/, "$1.h1")>>
-		<</for>>
-		<<if $saveVersion>>
-			<<set $saveVersion to $saveVersion.replace(/ herm/, ".h1").replace(/(\d)h/, "$1.h1")>>
-		<</if>>
-	<</if>>
 <</widget>>
 
 <<widget "variablesVersionUpdate2">>

@@ -170,20 +170,15 @@
 <<widget "clothingCaptionTextHandheld">>
 	<<silently>>
 	<<if $worn.handheld.name isnot "naked" and !pcAreArmsBound("right") and !_prop>>
-		<<if $worn.handheld.integrity lte 24>>
-			<<set _state to "tattered ">>
-		<<elseif $worn.handheld.integrity lte 60>>
-			<<set _state to "torn ">>
-		<<elseif $worn.handheld.integrity lte 108>>
-			<<set _state to "frayed ">>
-		<<else>>
-			<<set _state to "">>
-		<</if>>
-
+		/* Damage word scaled to the item's own max; every damage word starts with a consonant, so it takes "a" */
+		<<set _state to integrityWord($worn.handheld, "handheld")>>
+		<<set _word to setup.clothes.handheld[clothesIndex("handheld", $worn.handheld)].word>>
 		<<if $worn.handheld?.pattern_caption>>
-			<<set $_text_output to `<<possessedWord 'You'>> are carrying ${$worn.handheld.pattern.match(/^[aeiou]/i) ? "an " : "a "}${_state}${$worn.handheld.pattern} ${$worn.handheld.name}.`>>
+			<<set _article to _state ? "a " : ($worn.handheld.pattern.match(/^[aeiou]/i) ? "an " : "a ")>>
+			<<set $_text_output to `<<possessedWord 'You'>> are carrying ${_article}${_state}${$worn.handheld.pattern} ${$worn.handheld.name}.`>>
 		<<else>>
-			<<set $_text_output to `<<possessedWord 'You'>> are carrying a ${_state}${$worn.handheld.name}.`>>
+			<<set _article to _word is "n" ? "" : (_state ? "a " : _word + " ")>>
+			<<set $_text_output to `<<possessedWord 'You'>> are carrying ${_article}${_state}${$worn.handheld.name}.`>>
 		<</if>>
 	<</if>>
 	<</silently>>

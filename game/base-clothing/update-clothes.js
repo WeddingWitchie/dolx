@@ -374,69 +374,6 @@ function updateClothesItem(slot, item, debug) {
 			item.name = "punk leather jacket";
 			item.name_cap = "Punk leather jacket";
 			break;
-		case "swim shirt":
-			item.type = ["swim", "school", "chest_bind", "constricting", "torso_covering"];
-			break;
-		case "undershirt":
-		case "long johns":
-			item.type = ["normal", "lower_covering"];
-			break;
-		case "unitard bottom":
-		case "leotard bottom":
-		case "unitard":
-		case "leotard":
-		case "turtleneck leotard":
-		case "skimpy leotard":
-			item.type = ["dance", "torso_covering"];
-			break;
-		case "turtleneck leotard bottom":
-		case "skimpy leotard bottom":
-			item.type = ["dance"];
-			break;
-		case "sports bra":
-			item.type = ["normal", "athletic", "torso_covering"];
-			break;
-		case "witch dress":
-		case "scarecrow shirt":
-		case "rag skirt":
-		case "skeleton outfit":
-		case "pom poms":
-		case "futuristic bodysuit":
-		case "witch skirt":
-		case "scarecrow skirt":
-		case "futuristic bodysuit pants":
-		case "skeleton bottoms":
-		case "cheerleader gloves":
-			item.type = ["costume"];
-			break;
-		case "rag top":
-		case "vampire jacket":
-			item.type = ["costume", "bellyShow"];
-			break;
-		case "classy vampire jacket":
-			item.type = ["costume", "formal"];
-			break;
-		case "skeleton mask":
-			item.type = ["costume", "mask", "face_covering"];
-			break;
-		case "riding helmet":
-		case "racing helmet":
-			item.type = ["costume", "riding"];
-			break;
-		case "scout shorts":
-		case "baseball cap":
-			item.type = ["normal"];
-			break;
-		case "purse":
-		case "backpack":
-		case "messenger bag":
-		case "heart purse":
-			item.type = ["school", "bookbag"];
-			break;
-		case "boy's gym socks":
-		case "girl's gym socks":
-			item.type = ["school", "athletic"];
-			break;
 		case "padded football shirt":
 			item.name = "foreign football shirt";
 			item.name_cap = "Foreign football shirt";
@@ -471,13 +408,6 @@ function updateClothesItem(slot, item, debug) {
 		case "gingham skirt":
 			item.name = "patterned skirt";
 			item.name_cap = "Patterned skirt";
-			break;
-		case "sarong":
-			item.type = ["naked"];
-			break;
-		case "pencil skirt":
-			item.name = "pencil miniskirt";
-			item.name_cap = "Pencil miniskirt";
 			break;
 		case "bunny slippers":
 			item.name = "animal slippers";
@@ -528,8 +458,6 @@ function updateClothesItem(slot, item, debug) {
 		case "starry witch hat":
 			item.accessory = 0;
 			break;
-		case "slacks":
-			item.type = ["formal", "school"];
 	}
 
 	if (debug) console.log("updateClothesItem:", slot, itemOld, clone(item));
@@ -720,23 +648,6 @@ function wardrobesUpdate() {
 	}
 	/* fix prison wardrobe name */
 	if (V.wardrobes.prison.name === "Prison Locker") V.wardrobes.prison.name = "Prison locker";
-	/* very old saves */
-	if (V.objectVersion.wardrobes < 2) {
-		for (const slot in setup.clothes_all_slots) {
-			/* skip slots that didn't exist in old saves */
-			if (V.wardrobe[slot] === undefined) continue;
-			/* remove all temporary items */
-			for (let j = V.wardrobe[slot].length - 1; j >= 0; j--) {
-				if (V.wardrobe[slot][j].temp) V.wardrobe[slot].deleteAt(j);
-			}
-			for (let j = V.wardrobes.prison[slot].length - 1; j >= 0; j--) {
-				if (V.wardrobes.prison[slot][j].temp) V.wardrobes.prison[slot].deleteAt(j);
-			}
-			for (let j = V.wardrobes.asylum[slot].length - 1; j >= 0; j--) {
-				if (V.wardrobes.asylum[slot][j].temp) V.wardrobes.asylum[slot].deleteAt(j);
-			}
-		}
-	}
 	/* less old saves */
 	if (V.objectVersion.wardrobes < 4) {
 		/* remove unnecessary vars */
@@ -919,7 +830,6 @@ setup.tearableSlots = ["upper", "lower", "legs", "under_upper", "under_lower", "
  * Re-check this list if damaged artwork is added later.
  */
 setup.noDamageArt = {
-	lower: ["schoolskirtplaid2"],
 	legs: ["harness garter stockings", "patterned leggings", "striped garter stockings"],
 };
 

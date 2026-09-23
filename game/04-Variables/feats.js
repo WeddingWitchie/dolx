@@ -3632,7 +3632,7 @@ function earnHourlyFeats() {
 	}
 
 	/* DoLX: the small fish and the bone tackle both come out of the same quiet, patient fishing. */
-	if (dolxSmallFishRecordComplete() && dolxBoneSetOwned()) {
+	if (smallFishRecordComplete() && boneSetOwned()) {
 		earnFeat("Bare Bones");
 	}
 

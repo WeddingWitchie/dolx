@@ -252,7 +252,7 @@ window.eyeColourCalc = eyeColourCalc;
  * @param {object} pregnancy the pregnancy record
  * @returns {number} the possibly-boosted litter size
  */
-function dolxBoostLitterSize(litterSize, base, pregnancy) {
+function boostLitterSize(litterSize, base, pregnancy) {
 	const carrierIsPc = pregnancy.carrier === "pc";
 	const pcIsParent = carrierIsPc || pregnancy.donor === "pc";
 	let count = litterSize;
@@ -279,7 +279,7 @@ function dolxBoostLitterSize(litterSize, base, pregnancy) {
 	// so leave the hard ceiling to the caller and just keep the count sane here.
 	return Math.max(1, Math.round(count));
 }
-window.dolxBoostLitterSize = dolxBoostLitterSize;
+window.boostLitterSize = boostLitterSize;
 
 /**
  * Create the child/children for a new pregnancy record. Called once per pregnancy from createPregnancy.
@@ -292,7 +292,7 @@ function generateChildren(pregnancyId) {
 	const isMonster = isMonsterPerson(pregnancy.donorSpecies);
 	let litterSize = rollLitterSize(base);
 	// DoLX: a latched tummy parasite and the Fertility X-Change treatment both push the litter larger.
-	litterSize = dolxBoostLitterSize(litterSize, base, pregnancy);
+	litterSize = boostLitterSize(litterSize, base, pregnancy);
 	// A harpy PC grows their clutch in advance (giveHarpyEggs). Its count replaces the rolled
 	// litter size. createPregnancy clears the clutch afterwards.
 	if (base === "hawk" && pregnancy.carrier === "pc" && V.harpyEggs) {

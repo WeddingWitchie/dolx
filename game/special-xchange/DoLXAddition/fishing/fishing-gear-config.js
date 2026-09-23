@@ -3,10 +3,10 @@
    hardcodes a number that belongs here. When vanilla changes its fishing tables, the work
    is re-checking this file rather than hunting through the twee. */
 
-function initDolxFishing() {
+function initFishingGear() {
 	const fish = setup.fishing.lootTables.fish;
 
-	setup.fishing.dolx = {
+	setup.fishing.config = {
 		/* Bait */
 		/* How many worms one can holds. */
 		wormCanCapacity: 20,
@@ -318,4 +318,4 @@ function initDolxFishing() {
 		};
 	}
 }
-window.initDolxFishing = initDolxFishing;
+window.initFishingGear = initFishingGear;

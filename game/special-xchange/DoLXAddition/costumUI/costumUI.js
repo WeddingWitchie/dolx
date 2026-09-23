@@ -51,7 +51,7 @@
 		});
 	}
 
-	window.dolxUiStyleOverlayTabs = styleOverlayTabs;
+	window.customUiStyleOverlayTabs = styleOverlayTabs;
 
 	/* The only UI we care about lives inside the sidebar caption / ui-bar.
 	   Observing that container instead of <body> avoids reacting to every mutation in #passages (the story text),

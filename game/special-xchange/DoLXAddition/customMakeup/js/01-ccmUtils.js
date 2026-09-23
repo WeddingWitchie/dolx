@@ -59,7 +59,7 @@ const ccmUtils = {
 	 * @returns {string}
 	 */
 	stringFromHex(hexCode) {
-		return dolxColor.stringFromHex(hexCode);
+		return colorUtils.stringFromHex(hexCode);
 	},
 
 	/**
@@ -78,7 +78,7 @@ const ccmUtils = {
 	 * @returns {Array<string|number>} [hex, brightness]
 	 */
 	stringDecode(filterString) {
-		return dolxColor.stringDecode(filterString);
+		return colorUtils.stringDecode(filterString);
 	},
 
 	/**
@@ -96,7 +96,7 @@ const ccmUtils = {
 	 * @returns {boolean}
 	 */
 	stringIsValid(filterString) {
-		return dolxColor.stringIsValid(filterString);
+		return colorUtils.stringIsValid(filterString);
 	},
 	// }}}
 
@@ -204,7 +204,7 @@ const ccmUtils = {
 	 */
 
 	filterEncode(filter) {
-		return dolxColor.filterEncode(filter);
+		return colorUtils.filterEncode(filter);
 	},
 
 	/**

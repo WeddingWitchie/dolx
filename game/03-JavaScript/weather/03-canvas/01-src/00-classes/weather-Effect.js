@@ -72,6 +72,8 @@ Weather.Renderer.Effect = class Effect {
 					})
 					.catch(() => {
 						Errors.report(`Warning: Missing effect image: Could not load image ${name} at path ${src}`);
+						/* Reported once here; skip init/draw so the missing image doesn't throw every frame. */
+						this.missingImages = true;
 						return null;
 					});
 			});
@@ -121,7 +123,7 @@ Weather.Renderer.Effect = class Effect {
 	 */
 	async init() {
 		this.initPromise = (async () => {
-			if (this.onInit) {
+			if (this.onInit && !this.missingImages) {
 				try {
 					const result = this.onInit();
 					if (result instanceof Promise) {
@@ -164,7 +166,7 @@ Weather.Renderer.Effect = class Effect {
 		}
 		this.previousDrawCondition = currentDrawCondition;
 
-		if (!currentDrawCondition) {
+		if (!currentDrawCondition || this.missingImages) {
 			return;
 		}
 

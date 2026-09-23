@@ -109,7 +109,7 @@
 		<<if $combatExtended.brawlingToggle is 1>>
 			<<set _mod *= autismStatGainMultiplier("brawling", 5)>>
 			<<if $combatExtended.brawling gt 1000 or $AMCTraits.halfGain is 1>>
-				<<set $combatExtended.brawling += 5 * ($enemynomax * (1 + ($enemynomax - 1) * 0.25)) / $AMCTraits.brawling * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _mod>>
+				<<set $combatExtended.brawling += 5 * $enemynomax * ($enemynomax * (1 + ($enemynomax - 1) * 0.25)) / $AMCTraits.brawling * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) * _mod>>
 			<<else>>
 				<<set $combatExtended.brawling += 5 * $enemynomax * ($enemynomax * (1 + ($enemynomax - 1) * 0.25)) * (($statGainMult / 100) * (1 + 0.5 * $featsBoosts.upgrades.transcend / 100)) *_mod>>
 			<</if>>
@@ -1139,7 +1139,11 @@ Some reactions can push them below zero, causing arousal to decrease instead of 
 <</widget>>
 
 <<widget "turnend">>
-	<<set $enemyarousal to Math.clamp($enemyarousal, 0, $enemyarousalmax)>>
+	<<if Number.isFinite($enemyarousal) and Number.isFinite($enemyarousalmax)>>
+		<<set $enemyarousal to Math.clamp($enemyarousal, 0, $enemyarousalmax)>>
+	<<elseif $enemyarousal lt 0>>
+		<<set $enemyarousal to 0>>
+	<</if>>
 	<<if $enemypleasure lt 0>>
 		<<set $enemypleasure to 0>>
 	<</if>>
