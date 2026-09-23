@@ -680,7 +680,7 @@ class PlayerCombatMapper {
 
 		// Set values for freckles, blush, and tears
 		options.freckles = !!V.player.freckles;
-		options.blush = Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
+		options.blush = typeof detachedFaceMasked === "function" && detachedFaceMasked() ? 0 : Math.floor(Math.clamp(V.arousal / 2000 + 1, 0, 5));
 		options.tears = painToTearsLvl(V.pain);
 
 		// Ensure breast size is calculated before clothing options.

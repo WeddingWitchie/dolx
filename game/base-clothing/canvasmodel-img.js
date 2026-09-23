@@ -347,10 +347,13 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.trauma = V.trauma >= V.traumamax * 0.9;
 	}
 	T.modeloptions.blink = V.options.blinkingEnabled;
+	/* Detached: arousal and embarrassment stay off the face. Pain still shows. */
+	const detachedFace = typeof detachedFaceMasked === "function" && detachedFaceMasked();
 	T.modeloptions.eyes_bloodshot = (V.pain >= 100 && V.willpowerpain === 0) || V.tiredness >= C.tiredness.max;
 	T.modeloptions.eyes_half =
 		(V.options.halfClosedEnabled &&
 			(V.arousal >= (V.arousalmax / 5) * 4 || V.orgasmdown >= 1) &&
+			!detachedFace &&
 			V.trauma < V.traumamax * 0.9 &&
 			V.pain < 60 &&
 			V.eyelidTEST === true) ||
@@ -362,7 +365,7 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.brows = "top";
 	} else if (V.pain >= 60) {
 		T.modeloptions.brows = "low";
-	} else if (V.arousal >= (V.arousalmax / 5) * 4 || V.orgasmdown >= 1) {
+	} else if ((V.arousal >= (V.arousalmax / 5) * 4 || V.orgasmdown >= 1) && !detachedFace) {
 		T.modeloptions.brows = "orgasm";
 	} else if (V.pain >= 20) {
 		T.modeloptions.brows = "mid";
@@ -378,11 +381,11 @@ DefineMacro("modelprepare-player-body", function () {
 		T.modeloptions.mouth = "neutral";
 	} else if (V.pain >= 60 || V.orgasmdown >= 1 || V.possessed) {
 		T.modeloptions.mouth = "cry";
-	} else if ((V.exposed === 2 && V.uncomfortable.nude === true && V.dontHide === false && V.libertine !== 2) || V.pain >= 20) {
+	} else if ((V.exposed === 2 && V.uncomfortable.nude === true && V.dontHide === false && V.libertine !== 2 && !detachedFace) || V.pain >= 20) {
 		T.modeloptions.mouth = "frown";
 	} else if (V.pain >= 1 || (V.exposed === 1 && V.uncomfortable.underwear === true) || (V.combat === 1 && V.consensual !== 1)) {
 		T.modeloptions.mouth = "neutral";
-	} else if (V.stress >= (V.stressmax / 5) * 3 || !(V.control >= (V.controlmax / 5) * 1)) {
+	} else if (V.stress >= (V.stressmax / 5) * 3 || !(V.control >= (V.controlmax / 5) * 1) || detachedFace) {
 		T.modeloptions.mouth = "neutral";
 	} else {
 		T.modeloptions.mouth = "smile";
@@ -415,6 +418,7 @@ DefineMacro("modelprepare-player-body", function () {
 	) {
 		T.modeloptions.blush = 2;
 	}
+	if (detachedFace) T.modeloptions.blush = 0;
 
 	// Tears
 	T.modeloptions.tears = painToTearsLvl(V.pain);

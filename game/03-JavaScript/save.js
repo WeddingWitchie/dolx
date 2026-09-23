@@ -1151,6 +1151,7 @@ function settingsObjects(type) {
 					plantlover: { bool: true, displayName: "Dendrophile background:" },
 					insanity: { bool: true, displayName: "Insanity background:" },
 					autism: { bool: true, displayName: "Autism Spectrum trait:" },
+					detached: { bool: true, displayName: "Detached background:" },
 				},
 				startingseason: {
 					strings: ["spring", "summer", "autumn", "winter", "random"],

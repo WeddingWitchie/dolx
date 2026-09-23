@@ -494,6 +494,12 @@ module.exports = {
 		initWornVibratorDefaults: "readonly",
 		playerHasVibrator: "readonly",
 		playerHasVibratorRemote: "readonly",
+		// Detached trait
+		playerIsDetached: "readonly",
+		detachedStressMod: "readonly",
+		detachedLoveScale: "readonly",
+		detachedCracks: "readonly",
+		detachedFaceMasked: "readonly",
 		// Autism Spectrum trait
 		playerHasAutismSpectrum: "readonly",
 		ensureAutismSpectrumState: "readonly",

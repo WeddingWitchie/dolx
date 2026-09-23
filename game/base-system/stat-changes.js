@@ -280,6 +280,8 @@ const statChange = (() => {
 				if (typeof antidepressantActive === "function" && antidepressantActive()) stressMod *= 0.6;
 				/* Well Fed: a well-fed PC takes things a little better. */
 				if (typeof wellFedMod === "function") stressMod *= wellFedMod();
+				/* Detached: less stress, back to full as pain rises. */
+				if (typeof detachedStressMod === "function") stressMod *= detachedStressMod();
 				V.stress += amount * stressMod;
 			}
 		}
