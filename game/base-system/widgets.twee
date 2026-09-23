@@ -5921,7 +5921,7 @@
 	<<set _wageBase to Math.round((_args[0] ? _args[0] : 0) * skillIncomeMultiplier(_args[1]))>>
 	/* Autism Spectrum: compatible, repeatable work pays better. No-op without the trait. */
 	<<set _wageBase to Math.round(_wageBase * autismJobPayMultiplier(_args[1]))>>
-	<<if _args[2]>><<set _wageBase to Math.round(animalTfMultiplier(_wageBase, _args[3] ?? animalTfIncomeBonus, _args[2]))>><</if>>
+	<<if _args[2]>><<set _wageBase to Math.round(animalTfMultiplier(_wageBase, _args[3] ?? animalTfIncomeBonus, _args[2]))>><<elseif _args[1] is "housekeeping">><<set _wageBase to Math.round(animalTfMultiplier(_wageBase, 0.45, "bird"))>><</if>>
 <</silently>><<moneyGain _wageBase>><</widget>>
 
 <<widget "moneyGain">><<silently>>
@@ -5982,6 +5982,8 @@
    Argument 3 marks values already adjusted by an animal TF helper. */
 <<widget "income">><<silently>>
 	<<set _incomeAmount to divineTfIncome(_args[0], _args[1], _args[3])>>
+	/* Full harpy TF: housekeeping jobs pay +45%, matching the chalet rate. */
+	<<if ["hotelCleaning", "flatsCleaning"].includes(_args[1])>><<set _incomeAmount to Math.round(animalTfMultiplier(_incomeAmount, 0.45, "bird"))>><</if>>
 	<<money _incomeAmount _args[1] `{ divineTfAdjusted: true, animalTfAdjusted: _args[2] is true }`>>
 <</silently>><<printmoney _incomeAmount>><</widget>>
 
