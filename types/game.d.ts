@@ -88,6 +88,9 @@ declare module "twine-sugarcube" {
 			lastIncome: number;
 			selfSufficient: 0 | 1;
 			notice: string;
+			owed: number;
+			missedWeeks: number;
+			fellBehind: 0 | 1;
 		};
 		robinStandVenue?: "beach" | "park";
 		robinShareIntro?: 1;

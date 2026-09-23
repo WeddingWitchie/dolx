@@ -629,10 +629,10 @@ function weekPassed() {
 			}
 			if (ensureRobinStand().selfSufficient === 1) {
 				/* Robin took their rent back from the player and pays Bailey directly. */
-				V.robinmoney = Math.max(V.robinmoney - setup.robinStand.rent, 0);
+				robinStandPayOwnRent();
 			}
 		} else {
-			V.robinmoney -= 400;
+			V.robinmoney -= robinStandRent();
 			if (V.robinmoney <= 0 && V.robindebt >= 0) {
 				V.robinmoney = 0;
 				V.robindebt++;

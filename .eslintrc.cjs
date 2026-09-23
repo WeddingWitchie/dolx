@@ -263,6 +263,8 @@ module.exports = {
 		returnTimeFormat: "readonly",
 		rgbToHsv: "readonly",
 		robinStandWeeklyTick: "readonly",
+		robinStandRent: "readonly",
+		robinStandPayOwnRent: "readonly",
 		rollKylarLibraryStalkFlag: "readonly",
 		selfOr: "readonly",
 		setKnowsAboutPregnancy: "readonly",

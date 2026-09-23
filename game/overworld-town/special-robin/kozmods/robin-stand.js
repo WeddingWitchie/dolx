@@ -14,10 +14,13 @@
  *   lastIncome      last weekly income in £ (drives the self-sufficiency scene)
  *   selfSufficient  0|1, set when Robin takes their rent back from the player
  *   notice          name of the last thing Robin bought on their own, "" if none
+ *   owed            £ of rent a self-sufficient Robin still owes Bailey
+ *   missedWeeks     weeks in a row the self-sufficient Robin's debt grew
+ *   fellBehind      0|1, Robin lost self-sufficiency and hasn't told the player yet
  */
 
 setup.robinStand = {
-	/* Weekly £ income Robin needs to cover their own rent. Keep in sync with time.js. */
+	/* Floor for Robin's weekly rent in £. The live figure is robinStandRent(). */
 	rent: 400,
 	/* £/week income at which Robin can free the player of their debt. */
 	selfSufficiencyIncome: 2000,
@@ -81,6 +84,9 @@ function ensureRobinStand() {
 	if (!Number.isFinite(stand.lastIncome)) stand.lastIncome = 0;
 	if (stand.selfSufficient !== 1) stand.selfSufficient = 0;
 	if (typeof stand.notice !== "string") stand.notice = "";
+	if (!Number.isFinite(stand.owed)) stand.owed = 0;
+	if (!Number.isFinite(stand.missedWeeks)) stand.missedWeeks = 0;
+	if (stand.fellBehind !== 1) stand.fellBehind = 0;
 	return stand;
 }
 window.ensureRobinStand = ensureRobinStand;
@@ -195,18 +201,47 @@ function robinStandSelfSufficiencyReady() {
 	return (
 		V.robinpaid === 1 &&
 		stand.selfSufficient !== 1 &&
-		stand.lastIncome >= setup.robinStand.selfSufficiencyIncome &&
+		stand.lastIncome >= Math.max(setup.robinStand.selfSufficiencyIncome, robinStandRent()) &&
 		V.robinmissing === 0 &&
 		C.npc.Robin.trauma < 60
 	);
 }
 window.robinStandSelfSufficiencyReady = robinStandSelfSufficiencyReady;
 
+/* Robin's weekly rent in £: the player's single rent for the current stage, with the rent setting and economy inflation applied, never below the vanilla £400. */
+function robinStandRent() {
+	let rent = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.clamp((V.rentstage || 1) - 1, 0, 6)];
+	if (setup.inflation) rent = setup.inflation.price(Math.floor(rent * setup.inflation.rentSettingModifier()));
+	return Math.max(setup.robinStand.rent, Math.round(rent / 100));
+}
+window.robinStandRent = robinStandRent;
+
+/* Weekly rent for a self-sufficient Robin, called from time.js before income is added.
+Anything Robin can't cover is owed to Bailey and collected first the next week.
+If the debt grows for as many weeks as the vanilla docks limit allows, Robin gives up, and the player covers their rent again. */
+function robinStandPayOwnRent() {
+	const stand = ensureRobinStand();
+	const before = stand.owed;
+	const due = robinStandRent() + before;
+	const paid = Math.min(Math.max(V.robinmoney, 0), due);
+	V.robinmoney -= paid;
+	stand.owed = due - paid;
+	if (stand.owed === 0) stand.missedWeeks = 0;
+	else if (stand.owed > before) stand.missedWeeks++;
+	if (stand.missedWeeks >= (V.robindebtlimit || 5)) {
+		stand.selfSufficient = 0;
+		stand.owed = 0;
+		stand.missedWeeks = 0;
+		stand.fellBehind = 1;
+	}
+}
+window.robinStandPayOwnRent = robinStandPayOwnRent;
+
 function robinStandBecomeSelfSufficient() {
 	if (!robinStandSelfSufficiencyReady()) return false;
 	ensureRobinStand().selfSufficient = 1;
 	V.robinfirstrentfight = 0;
-	V.robinmoney = Math.max(V.robinmoney - setup.robinStand.rent, 0);
+	V.robinmoney = Math.max(V.robinmoney - robinStandRent(), 0);
 	/* Rebuild the current demand without Robin's doubled share. rentpay advances to the next stage later. */
 	V.rentmoney = [10000, 30000, 50000, 70000, 100000, 150000, 200000][Math.clamp(V.rentstage - 1, 0, 6)];
 	wikifier("rentmod");
@@ -228,7 +263,7 @@ function robinStandWeeklyTick() {
 	if (robinStandAutoUpgradeEligible()) {
 		stand.saveWeeks++;
 		const confident = C.npc.Robin.dom >= 60;
-		const cushion = confident ? setup.robinStand.rent : setup.robinStand.rent * 3;
+		const cushion = confident ? robinStandRent() : robinStandRent() * 3;
 		const deliberation = confident ? 2 : 4;
 		const purchases = robinStandAvailablePurchases();
 		if (purchases.length && stand.saveWeeks >= deliberation && V.robinmoney - purchases[0].cost >= cushion) {
