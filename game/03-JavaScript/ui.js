@@ -889,6 +889,8 @@ function updateOptions() {
 			V.options = optionsData;
 			State.show();
 		}
+		// Saves serialise State.history, not the active variables; without this, saving before the next passage stores the old options.
+		State.history[State.length - 1].variables.options = clone(optionsData);
 
 		T.key = tmpKey;
 		T.buttons = tmpButtons;

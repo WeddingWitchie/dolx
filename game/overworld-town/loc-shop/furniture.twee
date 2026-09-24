@@ -484,6 +484,25 @@ You are in the furniture shop. Most of its stock is too large for your room.
 			</div>
 		<</if>>
 	<</for>>
+	<<if $chosenFurnitureCategory is "electronic">>
+		<<set _headphones to setup.clothes.head.find(item => item.variable is "headphones")>>
+		<<set _headphonesColour to _headphonesColour || _headphones.colour>>
+		<<set _headphonesCost to Furniture.setPrice(_headphones.cost / 100)>>
+		<div class="shopBlock no-numberify">
+			<<icon "clothes/headphones.png">> Headphones |
+			<mouse class="tooltip linkBlue">(?)<span><<= _headphones.description>></span></mouse> |
+			<<listbox "_headphonesColour" autoselect>><<optionsfrom _headphones.colour_options>><</listbox>> |
+			<<if setup.inflation.canAfford(_headphonesCost, "furniture")>>
+				<<link `formatMoney(setup.inflation.spendPrice(_headphonesCost, "furniture"))` "Furniture Shop Catalogue">>
+					<<money `-_headphonesCost` "furniture">>
+					<<generalSend $wardrobes.shopReturn "head" _headphones.index _headphonesColour>>
+					<<set $boughtfurniturename to _headphonesColour + " headphones">>
+				<</link>>
+			<<else>>
+				<span class="red"><<print formatMoney(setup.inflation.spendPrice(_headphonesCost, "furniture"))>></span>
+			<</if>>
+		</div>
+	<</if>>
 	<<set _wardrobe to Furniture.get("wardrobe", $furnitureShopTarget)>>
 	<<if $chosenFurnitureCategory is "wardrobe" and _wardrobe.tier is 2>>
 		You've purchased the best possible wardrobe.

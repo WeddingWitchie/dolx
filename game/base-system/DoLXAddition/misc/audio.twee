@@ -163,6 +163,7 @@
 <</widget>>
 
 <<widget "master-audio-update">>
+	<<run PocketMusic.update()>>
 	<<run AmbienceAudio.update()>>
 	<<if $options.npcVoiceoverAudio is undefined>><<set $options.npcVoiceoverAudio to 1>><</if>>
 	<<if $voiceoverActive is undefined>>
@@ -182,7 +183,7 @@
 		<<masteraudio nomuteonhide>>
 	<</if>>
 	<<masteraudio volume `$options.mastervolume ?? 0`>>
-	<<if setup.bgmCurrentPlaylist isnot "none" and setup.bgmCurrentPlaylist isnot undefined>>
+	<<if !PocketMusic.active and setup.bgmCurrentPlaylist isnot "none" and setup.bgmCurrentPlaylist isnot undefined>>
 		<<if ($options.bgm_volume ?? 1) gt 0>>
 			<<playlist setup.bgmCurrentPlaylist volume `$options.bgm_volume ?? 1`>>
 			<<if !SimpleAudio.lists.get(setup.bgmCurrentPlaylist).isPlaying()>>
@@ -213,6 +214,7 @@
 <</widget>>
 
 <<widget "bgm">>
+	<<if PocketMusic.active and _args[0] isnot "stop">><<exit>><</if>>
 	<<if $debug is 1>><<run console.log("Now playing: "+_args[0])>><</if>>
 	<<if setup.bgmCurrentPlaylist is undefined>>
 		<<set setup.bgmCurrentPlaylist to "none">>
@@ -260,6 +262,7 @@
 <</widget>>
 
 <<widget "bgm-intermission">>
+	<<if PocketMusic.active>><<exit>><</if>>
 	<<if $debug is 1>><<run console.log("Now playing: "+_args[0])>><</if>>
 	<<if setup.bgmCurrentPlaylist is undefined>>
 		<<set setup.bgmCurrentPlaylist to "none">>

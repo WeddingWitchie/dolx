@@ -4777,6 +4777,43 @@ function initHead() {
 		}),
 	];
 
+	setup.moddedClothes.head.push(
+		new ClothesItem({
+			index: 0,
+			slot: "head",
+			name: "headphones",
+			name_cap: "Headphones",
+			variable: "headphones",
+			combat: { reference: "naked" },
+			state: 0,
+			state_base: 0,
+			integrity: 200,
+			integrity_max: 200,
+			fabric_strength: 30,
+			reveal: 1,
+			word: "a pair of",
+			plural: 1,
+			colour: "black",
+			colour_options: ["black", "blue", "brown", "green", "pink", "purple", "red", "tangerine", "teal", "white", "yellow", "neon blue"],
+			colour_sidebar: 1,
+			colour_combat: 1,
+			type: ["normal"],
+			gender: "n",
+			femininity: 0,
+			warmth: 1,
+			cost: 5000,
+			description: "Listen to music through the Music tab in your pocket while wearing these.",
+			shop: ["furniture"],
+			accessory: 1,
+			accessory_colour: 0,
+			accessory_colour_options: [],
+			back_img: 0,
+			cursed: 0,
+			location: 0,
+			iconFile: "headphones.png",
+			accIcon: 0,
+		})
+	);
 	setup.moddedClothes.head.forEach((x, i) => (x.index = setup.clothes.head.length + i));
 	setup.clothes.head.push(...setup.moddedClothes.head);
 }

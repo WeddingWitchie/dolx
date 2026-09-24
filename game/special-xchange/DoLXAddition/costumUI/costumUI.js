@@ -37,6 +37,7 @@
 		"Outfit Editor": "\u270E",
 		Bag: "\u25A3",
 		"Hand Mirror": "\u25C9",
+		Music: "\u266B",
 	});
 
 	function styleOverlayTabs() {

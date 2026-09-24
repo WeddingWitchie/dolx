@@ -2,6 +2,8 @@
 
 :: Set working directory
 pushd %~dp0
+node "%~dp0devTools\generate-music-library.cjs"
+if errorlevel 1 exit /b 1
 @set TWEEGO_PATH="%~dp0devTools\tweego\StoryFormats"
 
 :: Run the appropriate compiler for the user's CPU architecture.
