@@ -124,10 +124,6 @@ function onSave(save, details) {
 		State.setSessionState(session);
 	}
 
-	// Save time and weather to localStorage
-	localStorage.setItem("weather", Packer.packWeatherData());
-	localStorage.setItem("time", Time.date.timeStamp.toString(36));
-	localStorage.setItem("worldCorruption", V.world_corruption_soft);
 	// * legacy code for old saves system * //
 	if (!(window.idb && window.idb.active)) {
 		// eslint-disable-next-line no-undef
@@ -314,16 +310,16 @@ Config.navigation.override = function (dest) {
 				return "Trash Compare Show";
 
 			case "Trash Boys Offer Secret":
-				return "Trash Compare Penis Secret";
+				return "Trash Compare Secret";
 
 			case "Trash Boys Wrap It Up":
 				return "Trash Compare Wrap It Up";
 
 			case "Trash Boys Crossdressing Refuse":
-				return "Trash Compare Breast Refuse";
+				return "Trash Compare Show Refuse";
 
 			case "Trash Boys Crossdressing Show All":
-				return "Trash Compare Breast Show All";
+				return "Trash Compare Breasts Show All";
 
 			case "Trash Boys Forced Strip":
 				return "Trash Compare Forced Strip";
@@ -601,7 +597,7 @@ Config.navigation.override = function (dest) {
 			case "Livestock Field Centaur Female Vagina Seduce":
 			case "Livestock Field Centaur Female Vagina Sex":
 			case "Livestock Field Centaur Female Vagina Sex Finish":
-			case "Livestock Field Centaur Female Seduce ":
+			case "Livestock Field Centaur Female Seduce":
 			case "Livestock Field Centaur Female Sex":
 			case "Livestock Field Centaur Female Sex Finish":
 			case "Livestock Field Horse Lewd Seduce":
@@ -650,7 +646,7 @@ Config.navigation.override = function (dest) {
 			case "Museum Dildo":
 				return "Museum Odd Medical Aid";
 			case "Museum Candlestick":
-				return "Museum Noble Candle Stick";
+				return "Museum Noble Candlestick";
 			case "Museum Arrow":
 				return "Museum Mossy Forest Arrow";
 			case "Museum Dagger":

@@ -84,6 +84,9 @@ const constants = {
 			"estate",
 			"avery_mansion",
 			"avery_skyscraper",
+			"townhall",
+			"pound",
+			"seaspray_hotel",
 		],
 	},
 

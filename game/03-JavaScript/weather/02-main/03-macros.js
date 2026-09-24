@@ -6,16 +6,10 @@ Macro.add("skybox", {
 
 Macro.add("banner", {
 	handler() {
-		Weather.banner.skybox.appendTo(this.output);
-
-		/* Remove the below to get rid of the chromium missing image error */
-		// Use fallback image if it exists (modded game) - otherwise just use the banner canvas
-		const bannerFallbackImage = new Image();
-		bannerFallbackImage.src = "img/misc/banner.png";
-		bannerFallbackImage.onload = () => {
-			Weather.banner.skybox.empty().append($(bannerFallbackImage));
-			Weather.banner.skybox.css("padding-top", 0);
-		};
+		// DoLX: the title screen shows our own banner art instead of vanilla's animated weather banner.
+		$("<div />", { id: "canvasBanner" })
+			.append($("<img />", { src: "img/misc/banner.png" }))
+			.appendTo(this.output);
 	},
 });
 

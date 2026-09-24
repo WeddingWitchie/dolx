@@ -196,6 +196,8 @@ function npcPregnancyRoll(carrier, carrierSpecies, donor, donorSpecies, orifice,
 	if (depthWeight === undefined) throw new Error(`unknown depth "${depth}"`);
 	if (!donorSpecies) throw new Error(`no donor species given for "${donor}"`);
 	if (!setup.pregnancy.typesEnabled.includes(donorSpecies)) return null; // a quiet no for everyday non-impregnating species
+	// A slot with no fullDescription passes no carrier; a record keyed to nobody could never be born or cleared.
+	if (typeof carrier !== "string" || !carrier) return null;
 	const generated = slot !== null && !C.npc[carrier];
 	if (generated && (V.NPCList[slot].pregnancy || !randomCarrierTypes.includes(carrierSpecies))) return null;
 	if (getActivePregnancies(carrier).length) return null; // one pregnancy per body, as the player has

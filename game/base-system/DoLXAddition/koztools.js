@@ -969,6 +969,7 @@ function repairNonFiniteNumerics() {
 	]) {
 		fix(mult, 100);
 	}
+	fix("multiOrgasmChance", 20);
 
 	// statNerf must stay finite or skill and combat calculations become NaN.
 	if (V.options && !Number.isFinite(V.options.statNerf)) {

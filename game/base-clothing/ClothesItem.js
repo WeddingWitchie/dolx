@@ -302,6 +302,9 @@ class ClothesItem {
 	/* */
 	mask_img_ponytail;
 
+	/* 0 when mask_img is set but the item has no mask-{integrity}.png for its breasts layer | INT */
+	breast_mask_img;
+
 	/* */
 	head_type;
 

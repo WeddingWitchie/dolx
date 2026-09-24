@@ -11,31 +11,17 @@ $(document).on(":enginerestart", () => {
 	Weather.sidebar?.stopAll();
 });
 
-/* Initialise banner canvas on passageend in order to load Time and localStorage correctly */
-$(document).on(":passageend", async () => {
-	if (State.passage === "Start" && !Weather.banner?.loaded.value) {
-		// Load localStorage weather object if it exists - then set the weatherObj
-		// Otherwise set a default time state
-
-		const timeData = localStorage.getItem("time");
-		if (timeData) {
-			Time.set(new DateTime(parseInt(timeData, 36)));
-		} else {
-			Time.set(new DateTime(2022, 8, 10, 23, 45));
-		}
-
-		const weatherData = localStorage.getItem("weather");
-		if (weatherData) {
-			Packer.unpackWeatherData(weatherData);
-		}
-
-		Weather.banner.initialize();
-	}
+/* Give the start menu a valid date once its passage has rendered */
+$(document).on(":passageend", () => {
+	if (State.passage !== "Start") return;
+	Time.set(new DateTime(2022, 8, 10, 23, 45));
+	// Older builds stored these for the removed animated title banner.
+	["time", "weather", "worldCorruption"].forEach(key => localStorage.removeItem(key));
 });
 
 /* Initialise sky canvas on page refresh */
 $(document).on(":passagestart", () => {
-	// Setup banner for start menu
+	// Nothing to set up on the start menu - the title banner is a static image
 	if (["Start", "Clothes Testing", "Renderer Test Page", "Tips"].includes(State.passage)) {
 		if (State.passage === "Start") {
 			// Set temporary weatherObj for Start menu
@@ -48,52 +34,9 @@ $(document).on(":passagestart", () => {
 				fogKeypoints: [],
 			};
 			Time.set(0);
-			// Setup banner canvas
-			if (!Weather.banner?.loaded.value) {
-				Weather.banner = new Weather.Renderer.Sky({
-					id: "canvasBanner",
-					setup: setup.SkySettings.canvas.banner,
-					layers: [
-						"bannerSky",
-						"sun",
-						"bannerSunGlow",
-						"moon",
-						"bannerCirrusClouds",
-						"bannerOvercastClouds",
-						"bannerClouds",
-						"bannerStarField",
-						"bloodGlow",
-						"bannerPrecipitation",
-						"location",
-						"fogOverlay",
-						"rainbow",
-						"lightning",
-					],
-					resizable: true,
-				});
-			}
-			Weather.activeRenderer = Weather.banner;
-			return;
+			Weather.activeRenderer = Weather.sidebar;
 		}
-
-		if (State.passage === "Clothes Testing" && Weather.banner) {
-			Weather.banner.stopAll();
-			return;
-		}
-
-		// Do nothing if still in start menu
-		if (V.location === "banner") return;
-
 		return;
-	}
-
-	// Do nothing if still in start menu
-	if (["Start", "Clothes Testing", "Renderer Test Page", "Tips"].includes(State.passage) && V.location === "banner") return;
-
-	// Remove banner canvas if no longer on start menu
-	if (State.passage !== "Start" && Weather.banner) {
-		Weather.banner.stopAll();
-		delete Weather.banner;
 	}
 
 	// Return if sidebar has already been initialised

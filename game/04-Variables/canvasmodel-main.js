@@ -5856,7 +5856,7 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 			const variable = options.worn[slot].setup.variable;
 			const integrity = options.worn[slot].integrity;
 			const folder = clothesImgFolder(slot, options.worn[slot].setup);
-			if (options.worn[slot].setup.mask_img === 1) return `img/clothes/${folder}/${variable}/mask-${integrity}.png`;
+			if (options.worn[slot].setup.mask_img === 1 && options.worn[slot].setup.breast_mask_img !== 0) return `img/clothes/${folder}/${variable}/mask-${integrity}.png`;
 			return null;
 		},
 		showfn(options) {

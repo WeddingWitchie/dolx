@@ -3627,7 +3627,7 @@ function earSlimeDaily(passageEffects = false) {
 				// Equips a chastity parasite
 				V.effectsmessage = 1;
 				V.penisslimecagemessage = 1;
-				wikifier("genitalswear", 8);
+				wikifier("genitalswear", "chastity parasite");
 				V.worn.genitals.origin = "ear slime";
 			} else if (V.worn.genitals.name === "chastity parasite" && V.worn.genitals.integrity < clothingData("genitals", V.worn.genitals, "integrity_max")) {
 				// Repairs the chastity parasite

@@ -305,3 +305,35 @@ test.describe("Save resilience", () => {
 		expect(data).toHaveProperty("detailRows");
 	});
 });
+
+test.describe("Save compression dictionaries", () => {
+	// Saves labelled "v3" exist in two layouts: vanilla's, and the shifted one this build wrote from 2026-07-22 (now "v3b").
+	for (const written of ["v3", "v3b"]) {
+		test(`a "v3" save written with the ${written} layout loads back unchanged`, async ({ page }) => {
+			await setupGame(page);
+			const result = await page.evaluate(w => {
+				const win = window as any;
+				const SC = win.SugarCube;
+				const state = JSON.parse(JSON.stringify({ title: SC.State.passage, variables: SC.State.variables }));
+				const zstate = new win.JsonCompressor(win.DoLCompressorDictionaries[w]).compress(state);
+				zstate.dictionary = "v3";
+				zstate.variables = {};
+				const saveObj = { metadata: { jsoncompressed: 1 }, state: { history: [zstate] } };
+				win.DoLSave.decompressIfNeeded(saveObj);
+				return { same: JSON.stringify(saveObj.state.history[0]) === JSON.stringify(state), hasWorn: "worn" in saveObj.state.history[0].variables };
+			}, written);
+			expect(result.hasWorn).toBe(true);
+			expect(result.same).toBe(true);
+		});
+	}
+
+	test("new saves are compressed with vanilla's v3 list", async ({ page }) => {
+		await setupGame(page);
+		const dicts = await page.evaluate(() => {
+			const d = (window as any).DoLCompressorDictionaries;
+			return { v3HasInsert: d.v3.includes("transgenderknown"), v3bExtra: d.v3b.length - d.v3.length };
+		});
+		expect(dicts.v3HasInsert).toBe(false);
+		expect(dicts.v3bExtra).toBe(1);
+	});
+});

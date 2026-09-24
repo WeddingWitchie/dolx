@@ -405,6 +405,10 @@ declare global {
 		leftImage?: 0 | 1;
 		rightImage?: 0 | 1;
 		mask_img_ponytail?: 0 | 1;
+		/**
+		 * 0 when mask_img is set but the item has no mask-{integrity}.png for its breasts layer
+		 */
+		breast_mask_img?: 0;
 		head_type?: "veil" | "hat";
 		// TODO list and document other options
 	}

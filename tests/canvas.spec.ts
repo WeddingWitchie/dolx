@@ -139,10 +139,10 @@ async function openInGame(page: Page) {
 const registeredGroups = () => {
 	const W = (window as any).Weather;
 	const driver = W.Renderer.AnimationGroup.Driver;
-	const owners: { layer: string; inSidebar: boolean; inBanner: boolean }[] = [];
+	const owners: { layer: string; inSidebar: boolean }[] = [];
 	W.Renderer.Layers.layers.forEach((layer: any, name: string) => {
 		if (layer.animationGroup && driver.groups.has(layer.animationGroup)) {
-			owners.push({ layer: name, inSidebar: W.sidebar.layers.has(name), inBanner: !!W.banner && W.banner.layers.has(name) });
+			owners.push({ layer: name, inSidebar: W.sidebar.layers.has(name) });
 		}
 	});
 	return { total: driver.groups.size, running: driver.frameId !== null, owners };
@@ -509,10 +509,10 @@ test.describe("doll rendered at an image pack's resolution", () => {
 test("no animation group outlives the sky that started it", async ({ page }) => {
 	await openInGame(page);
 
-	// The banner sky is torn down when leaving the title screen. A layer still loading at that
-	// moment used to finish and start its animations anyway, leaving a group nothing could stop.
+	// A layer still loading when its sky was torn down used to finish and start its animations
+	// anyway, leaving a group nothing could stop.
 	const live = await page.evaluate(registeredGroups);
-	const orphans = live.owners.filter(o => !o.inSidebar && !o.inBanner);
+	const orphans = live.owners.filter(o => !o.inSidebar);
 	expect(orphans, `orphaned animation groups: ${JSON.stringify(orphans)}`).toEqual([]);
 	expect(live.owners.length).toBe(live.total);
 	expect(live.total).toBeGreaterThan(0);

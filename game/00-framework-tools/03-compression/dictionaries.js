@@ -1775,7 +1775,6 @@ const DoLCompressorDictionaries = (() => {
 		"traits",
 		"trance",
 		"transfer",
-		"transgenderknown",
 		"transformationParts",
 		"transformations",
 		"transformdisable",
@@ -1975,6 +1974,14 @@ const DoLCompressorDictionaries = (() => {
 		d => !["clothing_number", "nextWeather", "sidebarRenderer", "startday", "starthour", "startingseason"].includes(d)
 	);
 
+	/*
+	 * DoLX: from 2026-07-22 to 2026-09-24 this build had "transgenderknown" inserted into v0 after "transfer",
+	 * which shifted every later index. Saves compressed in that window are labelled "v3" but need this list.
+	 * Read-only: when plain v3 fails to decode such a save, the loader's fallback finds this one. Never compress with it.
+	 */
+	const dict_v3b = [...dict_v3];
+	dict_v3b.splice(dict_v3b.indexOf("transfer") + 1, 0, "transgenderknown");
+
 	// template for next versions
 	// const dict_v4 = [
 	// 	...dict_v3,
@@ -1986,9 +1993,11 @@ const DoLCompressorDictionaries = (() => {
 		v1: dict_v1,
 		v2: dict_v2,
 		v3: dict_v3,
+		v3b: dict_v3b,
 	};
 })();
 for (const k in DoLCompressorDictionaries) {
 	const dict = DoLCompressorDictionaries[k];
 	if (dict.length !== new Set(dict).size) throw new Error("DoLCompressorDictionaries[" + JSON.stringify(k) + "] has duplicate elements.");
 }
+window.DoLCompressorDictionaries = DoLCompressorDictionaries;
