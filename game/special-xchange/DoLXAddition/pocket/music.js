@@ -18,7 +18,7 @@ window.PocketMusic = (() => {
 	let resumeAt = 0;
 
 	function available() {
-		return V.worn?.head?.name === "headphones";
+		return playerWearsHeadphones();
 	}
 
 	function library() {

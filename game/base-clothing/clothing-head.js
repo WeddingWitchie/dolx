@@ -4802,7 +4802,8 @@ function initHead() {
 			femininity: 0,
 			warmth: 1,
 			cost: 5000,
-			description: "Listen to music through the Music tab in your pocket while wearing these.",
+			description:
+				"Listen to music through the Music tab in your pocket while wearing these. They block outside noise, so you hear less of what happens around you.",
 			shop: ["furniture"],
 			accessory: 1,
 			accessory_colour: 0,

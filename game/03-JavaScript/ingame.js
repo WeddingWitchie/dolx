@@ -3923,6 +3923,12 @@ window.isBeastSceneAllowed = isBeastSceneAllowed;
  * @param {boolean} reroll re-roll _danger if called more than once per passage
  * @returns {boolean} whether the roll is dangerous
  */
+/* Headphones cover the ears: sharp hearing stops working, and outdoors people get closer before you notice them. */
+function playerWearsHeadphones() {
+	return V.worn?.head?.name === "headphones";
+}
+window.playerWearsHeadphones = playerWearsHeadphones;
+
 function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
 	/**
 	 * (mod = 1, floor = 8,000)
@@ -3936,6 +3942,7 @@ function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
 	 * 0 Allure:		1% pass chance
 	 */
 	if (!T.danger || reroll) T.danger = random(1, 10000);
+	if (V.outside && playerWearsHeadphones()) mod *= 1.1;
 	return T.danger >= floor - allure * mod;
 }
 window.dangerEvent = dangerEvent;
@@ -3949,7 +3956,7 @@ function hasSharpSenses(sense = "any") {
 		if (V.transformationParts.traits.sharpEyes !== "disabled") return "sharp eyes";
 		if (currentSkillValue("skulduggery") >= 600) return "experienced eyes";
 	}
-	if (["any", "hearing"].includes(sense)) {
+	if (["any", "hearing"].includes(sense) && !playerWearsHeadphones()) {
 		if (Transformations.partActive("wolf", "ears")) return "wolf ears";
 		if (Transformations.partActive("cat", "ears")) return "cat ears";
 		if (Transformations.partActive("fox", "ears")) return "fox ears";

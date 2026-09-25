@@ -176,6 +176,7 @@ module.exports = {
 		gwylanHypnoMax: "readonly",
 		hairLengthStringToNumber: "readonly",
 		hasSharpSenses: "readonly",
+		playerWearsHeadphones: "readonly",
 		hourlyClothingFemininityCheck: "readonly",
 		inDOM: "readonly",
 		integrityKeyword: "readonly",

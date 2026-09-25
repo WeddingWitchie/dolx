@@ -831,7 +831,7 @@ function autismAmbientStamp() {
  * can ask the same question again: a queued message must not describe a room the PC has since left.
  */
 function autismAmbientPlaceKind() {
-	const loud = autismPlaceIsLoud();
+	const loud = autismPlaceIsLoud() && !playerWearsHeadphones();
 	const bright = autismPlaceIsBright();
 	if (loud && bright) return "both";
 	if (loud) return "loud";
@@ -1253,7 +1253,8 @@ function autismSensoryUpdate(minutes) {
 	}
 
 	/* Somewhere loud, bright, or busy costs something even when nothing is touching you. */
-	if (autismPlaceIsLoud()) extra += minutes * 2;
+	/* Headphones block most of the noise, and music covers most of what is left. */
+	if (autismPlaceIsLoud()) extra += minutes * (!playerWearsHeadphones() ? 2 : window.PocketMusic?.active ? 0.25 : 0.5);
 	if (autismPlaceIsBright()) extra += minutes * 1.5;
 
 	if (extra > 0) {
