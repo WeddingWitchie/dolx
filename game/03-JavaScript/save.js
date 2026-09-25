@@ -1586,6 +1586,7 @@ function settingsObjects(type) {
 					ruinedOrgasmEnabled: { bool: true, displayName: "Ruined orgasms:" },
 					skillCheckStyle: { strings: ["percentage", "words", "skillname"], randomize: "gameplay", displayName: "Skill check display:" },
 					slimesEnabled: { bool: true, displayName: "Slimes:" },
+					maggotsEnabled: { bool: true, displayName: "Maggots:" },
 					slugsEnabled: { bool: true, displayName: "Slugs:" },
 					spidersEnabled: { bool: true, displayName: "Spiders:" },
 					swarmsEnabled: { bool: true, displayName: "Swarms:" },

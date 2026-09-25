@@ -149,6 +149,7 @@ function beastTogglesCheck() {
 		"voreEnabled",
 		"spidersEnabled",
 		"slugsEnabled",
+		"maggotsEnabled",
 		"waspsEnabled",
 		"beesEnabled",
 		"lurkersEnabled",

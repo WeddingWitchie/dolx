@@ -51,6 +51,7 @@ declare module "twine-sugarcube" {
 			skillCheckStyle: "percentage" | "words" | "skillname";
 			slimesEnabled: true | false;
 			slugsEnabled: true | false;
+			maggotsEnabled: true | false;
 			spidersEnabled: true | false;
 			swarmsEnabled: true | false;
 			tentaclesEnabled: true | false;

@@ -5,39 +5,45 @@
 	let observer = null;
 	let observedScope = null;
 	const overlayTabIcons = Object.freeze({
-		Characteristics: "\u2726",
-		Identity: "\u25C7",
-		Social: "\u2637",
-		Traits: "\u25C6",
-		Journal: "\u25A4",
-		Notes: "\u270E",
-		Statistics: "\u25A5",
-		"Extra stats (spoilers)": "\u2295",
-		Feats: "\u2605",
-		Stats: "\u25A5",
-		Visual: "\u25C9",
-		NPCs: "\u265F",
-		"Alex's Farm": "\u2302",
-		Teleport: "\u21C4",
-		Other: "\u22EF",
-		General: "\u2699\uFE0E",
-		Theme: "\u25C8",
-		Performance: "\u21AF",
-		Advanced: "\u2692\uFE0E",
-		Information: "\u24D8",
-		Saves: "\u25A3",
-		"Export/Import": "\u21C4",
-		"Event Info": "\u25C7",
-		"Blackjack Guide": "\u24D8",
-		Layers: "\u25A4",
-		Colours: "\u25C9",
-		Model: "\u25C8",
-		"Start/Stop Animation": "\u25B6",
-		"Refresh Caches": "\u21BB",
-		"Outfit Editor": "\u270E",
-		Bag: "\u25A3",
-		"Hand Mirror": "\u25C9",
-		Music: "\u266B",
+		Characteristics: "\u2726", // ✦
+		Identity: "\u25C7", // ◇
+		Social: "\u2637", // ☷
+		Relationships: "\u2661", // ♡
+		Reputation: "\u2606", // ☆
+		Traits: "\u25C6", // ◆
+
+		Journal: "\u25A4", // ▤
+		Notes: "\u270E", // ✎
+
+		Statistics: "\u25A5", // ▥
+		"Extra stats (spoilers)": "\u2295", // ⊕
+		Feats: "\u2742", // ❂
+		Stats: "\u25A6", // ▦
+
+		Visual: "\u25C9", // ◉
+		NPCs: "\u265F", // ♟
+		"Alex's Farm": "\u2302", // ⌂
+		Teleport: "\u219C", // ↜
+		Other: "\u22EF", // ⋯
+
+		General: "\u2699\uFE0E", // ⚙︎
+		Theme: "\u25C8", // ◈
+		Performance: "\u21AF", // ↯
+		Advanced: "\u2692\uFE0E", // ⚒︎
+		Saves: "\u25A3", // ▣
+		"Export/Import": "\u21C4", // ⇄
+
+		"Event Info": "\u25CE", // ◎
+		"Blackjack Guide": "\u2660", // ♠
+		Layers: "\u25A9", // ▩
+		Colours: "\u25D2", // ◒
+		Model: "\u25B1", // ▱
+		"Start/Stop Animation": "\u25B6", // ▶
+		"Refresh Caches": "\u21BB", // ↻
+		"Outfit Editor": "\u2702", // ✂
+		Bag: "\u25A2", // ▢
+		"Hand Mirror": "\u232C", // ⌬
+		Music: "\u266B", // ♫
 	});
 
 	function styleOverlayTabs() {

@@ -352,7 +352,7 @@ window.PocketMusic = (() => {
 		text(
 			imports,
 			"p",
-			"Add audio files from your device. They stay until you close or reload the game. Save a preset to keep them: it stores your songs, order and favourites in one file, so loading it brings everything back. Presets with many songs are large files."
+			"Add audio files from your device. They stay until you close or reload the game. Save a preset to keep them: it stores your songs, order, and favourites in one file so loading it brings everything back. Presets with many songs are large files."
 		).className = "pocket-music-hint";
 		const picker = (title, accept, multiple, action) => {
 			const row = text(imports, "label", title);
