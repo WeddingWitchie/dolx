@@ -3532,6 +3532,45 @@ setup.pills.push(
 	},
 
 	{
+		name: "Silver Reversal",
+		description: "An unlabelled silver pill from the Silver Stranger. It undoes a transformation that has become permanent, whatever made it permanent.",
+		onTakeMessage:
+			'<span class="teal">You take the pill.</span><br><br>It tastes of metal. Heat spreads out from your stomach, and your body begins to change back. When it stops, you are in your own body again.',
+		warning_label: "There is no label. The Silver Stranger said it works once.",
+		autoTake() {
+			return false;
+		},
+		doseTaken() {
+			return V.sexStats.pills.pills[this.name].doseTaken;
+		},
+		owned() {
+			return V.sexStats.pills.pills[this.name].owned;
+		},
+		hpi_take_every_morning() {
+			return "";
+		},
+		type: "xchange",
+		subtype: "antidote",
+		shape: "pill",
+		overdose() {
+			return V.sexStats.pills.pills[this.name].overdose;
+		},
+		icon: "img/misc/icon/pillsilver.png",
+		display_condition() {
+			return this.owned() > 0 ? 1 : 0;
+		},
+		take_condition() {
+			return playerIsXChanged() && pillIsPermanent() && !xchangePregnancyBlocksRevert() ? 1 : 0;
+		},
+		take_blocked_reason() {
+			if (!playerIsXChanged()) return "You aren't under the effects of any X-Change pill. There's nothing for it to work on.";
+			if (!pillIsPermanent()) return "Your transformation isn't permanent. This pill only works on a permanent one.";
+			return xchangeRevertPregnancyBlockedReason();
+		},
+		effects: [`<<xchange-restore>>`],
+	},
+
+	{
 		name: "X-Change Test",
 		description:
 			"A single-use test that identifies the X-Change pill's effects and gives a more precise estimate of its remaining duration. To make it work, simply expose the tip to the user's urine and await the message on the display.",

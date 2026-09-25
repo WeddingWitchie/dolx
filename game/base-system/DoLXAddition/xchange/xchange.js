@@ -1586,12 +1586,12 @@ function xchangeHourlyCheck(hours = 1) {
 
 			// If the pill has the continue effect, and a remaining duration of 30 days is accumulated
 			// then, the change becomes permanent
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24) wikifier("xchange-setpermanent");
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24) wikifier("xchange-setpermanent", "continue");
 
 			// If pregnancy or a pregnancy-enabling parasite locks the body, the change becomes permanent.
 			const omegaAnalPregnancy = pill.omegaEffect && !!getActivePregnancy("pc", "anus");
 			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (!!getActivePregnancy("pc", "vagina") || omegaAnalPregnancy || V.earSlime.growth > 50))
-				wikifier("xchange-setpermanent");
+				wikifier("xchange-setpermanent", V.earSlime.growth > 50 && !getActivePregnancy("pc", "vagina") && !omegaAnalPregnancy ? "parasite" : "pregnancy");
 
 			if (pill.innocenceEffect && (V.innocencestate !== 1 || V.awareness >= 0)) {
 				if (pill.innocenceWasNatural === true) {
@@ -1619,7 +1619,7 @@ function xchangeHourlyCheck(hours = 1) {
 				pill.shouldHaveEnded = true;
 
 				if (!pillIsPermanent() && !pillTimerPaused() && pill.resistanceEffect && random(0, 100) > pill.resistanceChance) {
-					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent");
+					if (V.xchange.pillPermanence === 1) wikifier("xchange-setpermanent", "resistance");
 					else {
 						pill.duration += Math.max(1, V.xchange.resistanceDaysPenalty) * 24;
 						pill.resistanceEffect = false;

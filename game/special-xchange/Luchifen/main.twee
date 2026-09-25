@@ -184,6 +184,10 @@ The silver figure is waiting near the water in the same place as before. They no
 	<<socialiseicon "ask">><<link [[Tell them there is nobody left to fight|Silver Stranger Peak]]>><</link>>
 	<br>
 <</if>>
+<<if pillIsPermanent() and !$xchange.silverStranger.reversalSold>>
+	<<socialiseicon "ask">><<link [[Ask if a permanent transformation can be cured|Silver Stranger Reversal]]>><</link>>
+	<br>
+<</if>>
 <<pillicon>><<link [[Look at their wares|Silver Stranger Shop]]>><<set $silverShopView to "menu">><</link>>
 <br><br>
 <<getouticon>><<link [[Leave|Docks]]>><<set $eventskip to 1>><</link>>
@@ -775,4 +779,85 @@ They open the inside of their coat, revealing rows of small pill cases fitted in
 <<pillicon>><<link [[Look at their wares again|Silver Stranger Shop]]>><</link>>
 <br>
 <<getouticon>><<link [[Step back|Silver Stranger]]>><</link>>
+<br>
+
+:: Silver Stranger Reversal
+<<effects>>
+<<set _cause to ($xchange.pill.permanentCause || "")>>
+<<set _src to ($xchange.pill.choiceSource || "")>>
+You tell them about the pill. The change has not worn off, and you don't think it ever will. It is permanent.
+You ask if there is any way to cure it.
+<br><br>
+They look you over from head to toe, and the corner of their mouth lifts. They sound amused.
+"Hmm. How did you manage that?"
+<br><br>
+<<if $xchange.pill.choiceEffect>>
+	<<if _src.includes("Livestock")>>
+		You tell them about the farm. You didn't behave in the milking stall, so Remy made you swallow a Choice pill as punishment.
+	<<elseif _src.includes("Prison")>>
+		You tell them about the prison. After Bailey dropped you off, an officer shoved a Choice pill down your throat and called it regulation.
+	<<elseif _src.includes("Mansion")>>
+		You tell them about Avery's mansion. Avery fed you a Choice pill and didn't listen when you objected.
+	<<elseif _src.includes("Water Dragon") or ($waterDragonNest and $waterDragonNest.labChoicePill)>>
+		You tell them about the lab. Harper gave you a Choice pill during the induction.
+	<<else>>
+		You tell them you took a Choice pill yourself. The packet came with a reversal pill, but you don't have it anymore.
+	<</if>>
+<<elseif _cause is "continue">>
+	You tell them you kept taking Continue pills. The time kept adding up, and one day the change stopped counting down at all.
+<<elseif _cause is "resistance">>
+	You tell them you took a Resistance pill. It was meant to wear off, but it failed, and the change stayed.
+<<elseif _cause is "pregnancy">>
+	You tell them you got pregnant while you were changed. After that, your body stayed the way it was.
+<<elseif _cause is "parasite">>
+	You tell them about the slime in your ear. Once it had grown, your body stopped changing back.
+<<else>>
+	You tell them you don't really know. One day the change simply stopped wearing off.
+<</if>>
+<br><br>
+They laugh quietly. "Of course." They lean back against the railing. "Yes, I can help.
+I have a pill that undoes it, whatever made it permanent.
+It will cost you <span class="gold"><<= formatMoney(setup.inflation.spendPrice(15000000, "blackMarket"))>></span>."
+<br><br>
+<<link [[Buy it|Silver Stranger Reversal Buy]]>><</link>>
+<br>
+<<link [[Say it's far too expensive|Silver Stranger Reversal Price]]>><</link>>
+<br>
+
+:: Silver Stranger Reversal Price
+<<effects>>
+"That's far too expensive," you say. "Why does it cost so much?"
+<br><br>
+They tilt their head. "Why not?"
+<br><br>
+They say nothing else. They only wait for your reply. You know that arguing with them will not change the price.
+<br><br>
+<<link [[Buy it|Silver Stranger Reversal Buy]]>><</link>>
+<br>
+<<link [[Not now|Silver Stranger]]>><</link>>
+<br>
+
+:: Silver Stranger Reversal Buy
+<<effects>>
+/* Charged in the passage body, guarded by reversalSold, so a re-render can't charge twice. */
+<<if !$xchange.silverStranger.reversalSold and setup.inflation.canAfford(15000000, "blackMarket")>>
+	<<money -15000000 "blackMarket">>
+	<<set $sexStats.pills["pills"]["Silver Reversal"].owned++>>
+	<<set $sexStats.pills.boughtOnce to true>>
+	<<set $xchange.silverStranger.reversalSold to true>>
+<</if>>
+<<if !$xchange.silverStranger.reversalSold>>
+	You check how much money you have. It is not enough.
+	<br><br>
+	They see your face and smile. "Come back when you can pay. I will keep it for you."
+<<else>>
+	You hand over the money. They put it into an inner pocket without counting it,
+	then take a small case from their coat and put it in your hand.
+	<span class="green">Inside is a single silver pill.</span>
+	<br><br>
+	"Take it when you are ready. But do not come back asking for another. I will not sell you one again."
+	They smile. "<span class="silverStranger">Unless you can convince me, perhaps?</span>"
+<</if>>
+<br><br>
+<<link [[Next|Silver Stranger]]>><</link>>
 <br>
