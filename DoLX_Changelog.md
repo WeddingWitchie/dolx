@@ -74,6 +74,17 @@
   - **Defy** and **Ignore** work like other Ear Slime tasks.
   - Gray Agent currently treats **Obey** as willingly taking the pill, so Gray-pill gender swapping is not blocked.
 
+- **Added Silver Reversal pill**
+
+  - The Silver Stranger at the docks can now cure permanent X-Change transformations.
+  - A one-time **Silver Reversal** pill can be purchased for **£150,000**.
+
+- **Added X-Change pill tracking to Extra Stats**
+
+  - Extra Stats now shows how many X-Change pills the player has taken.
+  - It also tracks how many times the player has been spiked.
+  - Existing saves cannot recover past spike counts, so the **spiked** counter starts from 0.
+
 - **Added market stall upgrades**
 
   - After the first sale, the market office on Connudatus Street can upgrade the player's stall.
@@ -165,6 +176,11 @@
   - Debug and cheat options are unaffected.
 
 ## Tweaks and Rebalancing
+
+- **Fixed demon purple skin getting stuck after using X-Change**
+
+  - Skin colour now returns to normal after swapping back if the demon transformation is no longer active.
+  - Existing affected saves should also fix themselves after reloading.
 
 - **Fixed custom makeup colours**
 
@@ -406,6 +422,9 @@
   - Identity settings work more reliably on older saves.
   - Fixed the **Miniature** body rejection option.
   - Random X-Change pills given to NPCs now account for the NPC's body.
+  - Partner orgasms, losing virginity, creampies, and breast play no longer change the gender identity meter.
+  - Gender identity changes from non-sexual sources, such as clothing and events, are unchanged.
+  - The player's own orgasms can still cause Dysphoria or comfort depending on the genitals involved, but no longer shift gender identity.
 
 - **Fixed pregnancy records**
 

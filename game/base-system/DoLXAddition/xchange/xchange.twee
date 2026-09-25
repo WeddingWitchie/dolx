@@ -902,7 +902,8 @@
 			fringelength: $fringelength,
 
 			/* Skin */
-			skinColor: $player.skin.color,
+			/* Store the natural colour, not a TF overlay; the TF skin is re-applied on load. */
+			skinColor: (setup.colours.tf_skin_colors.includes($player.skin.color) ? $player.skin_temp.color : $player.skin.color),
 
 			/* Fluids */
 			semen_amount: $semen_amount,
@@ -1051,7 +1052,12 @@
 		/* If the body changes while sleeping, replace the before-bed hair snapshot as well. Otherwise
 		   climbing out of bed can put the outgoing X-Changed body's style back onto the restored body. */
 		<<if $tempSavedHairStyles>><<saveTempHairStyle>><</if>>
-		<<set $player.skin.color to _body.skinColor>>
+		/* Older snapshots may hold a TF colour; fall back to the natural one. Then let the TFs decide what shows. */
+		<<set _loadSkin to (setup.colours.tf_skin_colors.includes(_body.skinColor) ? $player.skin_temp.color : _body.skinColor)>>
+		<<set $player.skin_temp.color to _loadSkin>>
+		<<set $player.skin.color to _loadSkin>>
+		<<syncWaterDragonSkin>>
+		<<syncDemonSkin>>
 
 		/* DHM ("dye HARDER" mod) state restore */
 		<<if V.dhmod isnot undefined>>
