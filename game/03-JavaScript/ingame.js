@@ -1037,7 +1037,7 @@ function transferClothing(slot, index, oldWardrobe, newWardrobe, _opts) {
 	const newW = resolveWardrobe(newWardrobe);
 
 	if (!oldW || !oldW[slot] || oldW[slot][index] == null) return;
-	if (oldW === newW || getWardrobeItemCount(newW, true) >= 1000 || (newW[slot]?.length || 0) >= newW.space) return false;
+	if (oldW === newW || getWardrobeItemCount(newW, true) >= 3000 || (newW[slot]?.length || 0) >= newW.space) return false;
 	if (!Array.isArray(newW[slot])) newW[slot] = [];
 
 	// Keep a reference so we can re-find it if indices shift
@@ -1122,7 +1122,7 @@ function transferClothing(slot, index, oldWardrobe, newWardrobe, _opts) {
 			}
 		}
 
-		if (getWardrobeItemCount(newW, true) + toMove.length + 1 > 1000) return false;
+		if (getWardrobeItemCount(newW, true) + toMove.length + 1 > 3000) return false;
 		const slotsNeeded = { [slot]: 1 };
 		for (const [s] of toMove) slotsNeeded[s] = (slotsNeeded[s] || 0) + 1;
 		if (Object.entries(slotsNeeded).some(([s, count]) => (newW[s]?.length || 0) + count > newW.space)) return false;

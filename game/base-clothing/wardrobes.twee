@@ -314,7 +314,7 @@
 			/*Set the target wardrobe*/
 			<<set _wardrobeTransferObject to selectWardrobe(_wardrobeTransfer, "return")>>
 			/*Make sure there is enough space*/
-			<<if _wardrobeTransferObject[_slot].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 1000>>
+			<<if _wardrobeTransferObject[_slot].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 3000>>
 				<<set _slotsFull to true>>
 			<</if>>
 			<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
@@ -524,14 +524,14 @@
 					<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
 					<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe)>>
 
-					<<if getWardrobeItemCount(_targetWardrobeObj, true) + getWardrobeItemCount(_currentWardrobeObj, true) gt 1000>>
-						<<replace "#wardrobewear">><span class="red">There isn't enough room to transfer all your clothes. The destination is limited to 1,000 total items.</span><</replace>>
+					<<if getWardrobeItemCount(_targetWardrobeObj, true) + getWardrobeItemCount(_currentWardrobeObj, true) gt 3000>>
+						<<replace "#wardrobewear">><span class="red">There isn't enough room to transfer all your clothes. The destination is limited to 3,000 total items.</span><</replace>>
 					<<else>>
 						<<for _slot range setup.clothes_all_slots>>
 							<<capture _currentWardrobeObj, _slot>>
 								<<if !Array.isArray(_currentWardrobeObj[_slot])>><<continue>><</if>>
 								<<for _i = _currentWardrobeObj[_slot].length; _i gt 0; _i-->>
-									<<if getWardrobeItemCount(_targetWardrobeObj, true) lt 1000 and Number.isFinite(_targetWardrobeObj.space) and (!Array.isArray(_targetWardrobeObj[_slot]) or _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space)>>
+									<<if getWardrobeItemCount(_targetWardrobeObj, true) lt 3000 and Number.isFinite(_targetWardrobeObj.space) and (!Array.isArray(_targetWardrobeObj[_slot]) or _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space)>>
 										<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe, { moveLinkedPieces: false })>>
 									<<else>>
 										<<break>>
@@ -753,7 +753,7 @@
 
 	<label><<checkbox "$wardrobeRepeat" false true autocheck>> Repeat Actions</label>
 	<br><br>
-	Wardrobe total: <<= getWardrobeItemCount(_selectedWardrobe, true)>> / 1,000 items. Automatic returns can exceed this limit.
+	Wardrobe total: <<= getWardrobeItemCount(_selectedWardrobe, true)>> / 3,000 items. Automatic returns can exceed this limit.
 	<br>
 	<<set _discardSlot to $lastWardrobeSlot is "over" ? "over_upper" : $lastWardrobeSlot>>
 	Destroy all in slot:
@@ -1219,6 +1219,35 @@
 	</div>
 <</widget>>
 
+<<widget "wardrobePageControls">>
+	<<set _wardrobePageKey to $wardrobe_location + ":" + _args[0]>>
+	<<set _wardrobePages to _wardrobePages || {}>>
+	<<set _wardrobePageCount to Math.max(1, Math.ceil(_args[1] / 20))>>
+	<<set _wardrobePages[_wardrobePageKey] to Math.clamp(_wardrobePages[_wardrobePageKey] || 0, 0, _wardrobePageCount - 1)>>
+	<<set _wardrobePageStart to _wardrobePages[_wardrobePageKey] * 20>>
+	<<if _wardrobePageCount gt 1>>
+		<div class="wardrobe-pages no-numberify" style="clear:both;">
+			<<capture _wardrobePageKey>>
+				<<if _wardrobePages[_wardrobePageKey] gt 0>>
+					<<link "Previous">>
+						<<set _wardrobePages[_wardrobePageKey]-->>
+						<<if $('#wardrobeList').length>><<replace '#wardrobeList'>><<wardrobeContents>><</replace>>
+						<<else>><<replace '#oldWardrobeListDisplay'>><<oldWardrobeListDisplay>><</replace>><</if>>
+					<</link>> |
+				<</if>>
+				Page <<= _wardrobePages[_wardrobePageKey] + 1>> / <<= _wardrobePageCount>>
+				<<if _wardrobePages[_wardrobePageKey] lt _wardrobePageCount - 1>>
+					| <<link "Next">>
+						<<set _wardrobePages[_wardrobePageKey]++>>
+						<<if $('#wardrobeList').length>><<replace '#wardrobeList'>><<wardrobeContents>><</replace>>
+						<<else>><<replace '#oldWardrobeListDisplay'>><<oldWardrobeListDisplay>><</replace>><</if>>
+					<</link>>
+				<</if>>
+			<</capture>>
+		</div>
+	<</if>>
+<</widget>>
+
 <<widget "wardrobeList">>
 	<<if !_args[1]>><<wardrobeClothingOptions>><</if>>
 	<<set _wardrobe_list to _args[0]>>
@@ -1510,7 +1539,7 @@
 						/*Set the target wardrobe*/
 						<<set _wardrobeTransferObject to selectWardrobe($wardrobe_location)>>
 						/*Make sure there is enough space*/
-						<<if _wardrobeTransferObject[_wardrobe_list].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 1000>>
+						<<if _wardrobeTransferObject[_wardrobe_list].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 3000>>
 							<<set _slotsFull to true>>
 						<</if>>
 						<<if _itemOutfitData>>
@@ -1542,15 +1571,15 @@
 			<</for>>
 		<</if>>
 
-		<<for _i to 0; _i lt _selectedWardrobe[_wardrobe_list].length; _i++>>
+		<<set _wardrobeIndices to _selectedWardrobe[_wardrobe_list].reduce((indices, item, index) => {
+			if (!item.outfitSecondary || ["broken", "split"].includes(item.outfitSecondary[1])) indices.push(index);
+			return indices;
+		}, [])>>
+		<<wardrobePageControls _wardrobe_list _wardrobeIndices.length>>
+		<<for _i range _wardrobeIndices.slice(_wardrobePageStart, _wardrobePageStart + 20)>>
 			<<set _item to _selectedWardrobe[_wardrobe_list][_i]>>
 			<<set _itemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)]>>
 			<<set _itemOutfitData to _itemData.outfitPrimary>>
-			<<if _item.outfitSecondary isnot undefined>>
-				<<if _item.outfitSecondary[1] isnot "broken" and _item.outfitSecondary[1] isnot "split">>
-					<<continue>>
-				<</if>>
-			<</if>>
 
 			/*Finds any outfit pieces and records the Ids*/
 			<<set _outfitPieceIds to {}>>
@@ -1670,6 +1699,7 @@
 				</div>
 			</div>
 		<</for>>
+		<<wardrobePageControls _wardrobe_list _wardrobeIndices.length>>
 		<<if !_combinedWardrobeList>><div style="clear:both;"></div><</if>>
 	<</if>>
 <</widget>>
@@ -1810,6 +1840,13 @@
 		<div class="clothingBox">
 		__<<print _wardrobe_list[0].toUpperCase() + _wardrobe_list.substring(1) + (_showType is "outfits" ? " Outfits" : "")>>__ <i>_selectedWardrobe[_wardrobe_list].length / _selectedWardrobe.space</i>
 		<br><br>
+		<<set _wardrobeIndices to _selectedWardrobe[_wardrobe_list].reduce((indices, item, index) => {
+			if (item.outfitSecondary && !["broken", "split"].includes(item.outfitSecondary[1])) return indices;
+			if ((item.outfitPrimary && _showType === "non-outfits") || (!item.outfitPrimary && _showType === "outfits")) return indices;
+			indices.push(index);
+			return indices;
+		}, [])>>
+		<<wardrobePageControls `_wardrobe_list + ":" + (_showType || "all")` _wardrobeIndices.length>>
 		<div>
 		<ul>
 		<<if $worn[_wardrobe_list].name isnot "naked">>
@@ -1821,16 +1858,8 @@
 		<<if (_wardrobe_list is "upper" or _wardrobe_list is "lower") and _showType isnot "outfits">>
 			<li class="no-numberify"><<wearlink_norefresh "Towel" 'towel' _wear>></li>
 		<</if>>
-		<<for _i to 0; _i lt _selectedWardrobe[_wardrobe_list].length; _i++>>
+		<<for _i range _wardrobeIndices.slice(_wardrobePageStart, _wardrobePageStart + 20)>>
 			<<set _item to _selectedWardrobe[_wardrobe_list][_i]>>
-			<<if _item.outfitSecondary isnot undefined>>
-				<<if _item.outfitSecondary[1] isnot "broken" and _item.outfitSecondary[1] isnot "split">>
-					<<continue>>
-				<</if>>
-			<</if>>
-			<<if (_item.outfitPrimary isnot undefined and _showType is "non-outfits") or (_item.outfitPrimary is undefined and _showType is "outfits")>>
-				<<continue>>
-			<</if>>
 			<li class="no-numberify">/*<<clothingicon _item>>*/<<wearlink_norefresh setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)].name_cap _i _wear>>
 			<<if _item.colour isnot 0>>
 				<span @class="_item.colour?.replace(' ','-')">(_item.colour)</span>
@@ -1846,129 +1875,49 @@
 
 <<widget "wardrobeListReorder">>
 	<<if _args[0] and _args[1]>>
-		<<set _slot to _args[0]>>
-		<<set _orderType to _args[1]>>
-		<<set _descending to _args[2]>>
-
-		<<set _wardrobeItems to clone(_selectedWardrobe[_slot])>>
-		<<set _newWardrobeItems to []>>
-		<<switch _orderType>>
-		<<case "name">>
-			<<set _itemNames to []>>
-			<<for _i to 0; _i lt _wardrobeItems.length; _i++>>
-				<<run _itemNames.pushUnique(_wardrobeItems[_i].name)>>
-			<</for>>
-			<<if _descending>>
-				<<set _sortedItemNames to _itemNames.sort(function(a, b){return b.localeCompare(a)})>>
-			<<else>>
-				<<set _sortedItemNames to _itemNames.sort()>>
-			<</if>>
-
-			<<for _i to 0; _i lt _sortedItemNames.length; _i++>>
-				<<for _j to 0; _j lt _wardrobeItems.length; _j++>>
-					<<if _wardrobeItems[_j].name is _sortedItemNames[_i]>>
-						<<run _newWardrobeItems.push(clone(_wardrobeItems[_j]))>>
-					<</if>>
-				<</for>>
-			<</for>>
-		<<case "color">>
-			<<set _itemColors to []>>
-			<<for _i to 0; _i lt _wardrobeItems.length; _i++>>
-				<<run _itemColors.pushUnique(_wardrobeItems[_i].colour)>>
-			<</for>>
-			<<if _descending>>
-				<<set _sortedItemColors to _itemColors.sort(function(a, b){
-					if(a === 0){
-						return 0;
-					}
-					if(b === 0){
-						return 0;
-					}
-					return b.localeCompare(a);
-				})>>
-			<<else>>
-				<<set _sortedItemColors to _itemColors.sort()>>
-			<</if>>
-
-			<<for _i to 0; _i lt _sortedItemColors.length; _i++>>
-				<<for _j to 0; _j lt _wardrobeItems.length; _j++>>
-					<<if _wardrobeItems[_j].colour is _sortedItemColors[_i]>>
-						<<run _newWardrobeItems.push(clone(_wardrobeItems[_j]))>>
-					<</if>>
-				<</for>>
-			<</for>>
-		<<case "integrity">>
-			<<set _itemIntegrity to []>>
-			<<for _i to 0; _i lt _wardrobeItems.length; _i++>>
-				<<run _itemIntegrity.pushUnique((_wardrobeItems[_i].integrity / clothingData(_slot,_wardrobeItems[_i],'integrity_max')))>>
-			<</for>>
-			<<if _descending>>
-				<<set _sortedItemIntegrity to _itemIntegrity.sort()>>
-			<<else>>
-				<<set _sortedItemIntegrity to _itemIntegrity.sort(function(a, b){return b-a})>>
-			<</if>>
-
-			<<for _i to 0; _i lt _sortedItemIntegrity.length; _i++>>
-				<<for _j to 0; _j lt _wardrobeItems.length; _j++>>
-					<<if (_wardrobeItems[_j].integrity / clothingData(_slot,_wardrobeItems[_j],'integrity_max')) is _sortedItemIntegrity[_i]>>
-						<<run _newWardrobeItems.push(clone(_wardrobeItems[_j]))>>
-					<</if>>
-				<</for>>
-			<</for>>
-		<<case "warmth">>
-			<<set _itemWarmth to []>>
-			<<for _i to 0; _i lt _wardrobeItems.length; _i++>>
-				<<run _itemWarmth.pushUnique(_wardrobeItems[_i].warmth)>>
-			<</for>>
-			<<if _descending>>
-				<<set _sortedItemWarmth to _itemWarmth.sort()>>
-			<<else>>
-				<<set _sortedItemWarmth to _itemWarmth.sort(function(a, b){return b-a})>>
-			<</if>>
-
-			<<for _i to 0; _i lt _sortedItemWarmth.length; _i++>>
-				<<for _j to 0; _j lt _wardrobeItems.length; _j++>>
-					<<if _wardrobeItems[_j].warmth is _sortedItemWarmth[_i]>>
-						<<run _newWardrobeItems.push(clone(_wardrobeItems[_j]))>>
-					<</if>>
-				<</for>>
-			<</for>>
-		<<case "outfit">>
-			<<if _descending>>
-				<<set _status to ["broken","split",0,1]>> /* NO SPLIT ADDED */
-			<<else>>
-				<<set _status to [1,0,"split","broken"]>> /* NO SPLIT ADDED */
-			<</if>>
-			<<for _i to 0; _i lt _status.length; _i++>>
-				<<for _j to 0; _j lt _wardrobeItems.length; _j++>>
-					<<if _wardrobeItems[_j].one_piece is _status[_i]>>
-						<<run _newWardrobeItems.push(clone(_wardrobeItems[_j]))>>
-					<</if>>
-				<</for>>
-			<</for>>
-		<<case "lewd">>
-			<<set _itemReveal to []>>
-			<<for _i to 0; _i lt _wardrobeItems.length; _i++>>
-				<<run _itemReveal.pushUnique(_wardrobeItems[_i].reveal)>>
-			<</for>>
-			<<if _descending>>
-				<<set _sortedItemReveal to _itemReveal.sort((a, b) => a - b)>>
-			<<else>>
-				<<set _sortedItemReveal to _itemReveal.sort((a, b) => b - a)>>
-			<</if>>
-			<<for _i to 0; _i lt _sortedItemReveal.length; _i++>>
-				<<for _j to 0; _j lt _wardrobeItems.length; _j++>>
-					<<if _wardrobeItems[_j].reveal is _sortedItemReveal[_i]>>
-						<<run _newWardrobeItems.push(clone(_wardrobeItems[_j]))>>
-					<</if>>
-				<</for>>
-			<</for>>
-		<</switch>>
-
-		/* Each sort re-adds items by matching a value; an unmatched one (NaN integrity, unexpected one_piece) would be dropped, so only apply a complete reorder. */
-		<<if _newWardrobeItems.length is _wardrobeItems.length>>
-			<<set _selectedWardrobe[_slot] to clone(_newWardrobeItems)>>
-		<</if>>
+		<<script>>
+			const [slot, orderType, descending] = T.args;
+			const items = T.selectedWardrobe[slot];
+			const groups = new Map();
+			for (const item of items) {
+				let value;
+				switch (orderType) {
+					case "name": value = item.name; break;
+					case "color": value = item.colour; break;
+					case "integrity": value = item.integrity / clothingData(slot, item, "integrity_max"); break;
+					case "warmth": value = item.warmth; break;
+					case "outfit": value = item.one_piece; break;
+					case "lewd": value = item.reveal; break;
+					default: continue;
+				}
+				/* Preserve the old no-reorder guard for values that could not be matched. */
+				if (Number.isNaN(value)) continue;
+				if (!groups.has(value)) groups.set(value, []);
+				groups.get(value).push(item);
+			}
+			let values = Array.from(groups.keys());
+			switch (orderType) {
+				case "name":
+					values.sort(descending ? (a, b) => b.localeCompare(a) : undefined);
+					break;
+				case "color":
+					values.sort(descending ? (a, b) => a === 0 || b === 0 ? 0 : b.localeCompare(a) : undefined);
+					break;
+				case "integrity":
+				case "warmth":
+					values.sort(descending ? undefined : (a, b) => b - a);
+					break;
+				case "outfit":
+					values = descending ? ["broken", "split", 0, 1] : [1, 0, "split", "broken"];
+					break;
+				case "lewd":
+					values.sort(descending ? (a, b) => a - b : (a, b) => b - a);
+					break;
+			}
+			const sorted = values.flatMap(value => groups.get(value) || []);
+			if (sorted.length === items.length) T.selectedWardrobe[slot] = sorted;
+			if (T.wardrobePages) T.wardrobePages[V.wardrobe_location + ":" + slot] = 0;
+		<</script>>
 		<<run Dynamic.render()>>
 	<</if>>
 <</widget>>
