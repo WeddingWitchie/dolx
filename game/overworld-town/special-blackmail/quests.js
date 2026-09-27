@@ -523,12 +523,12 @@ blackmailQuests.low.push(
 		includesItems: true,
 		receiveItems() {
 			if (V.player.sex === "m") {
-				wikifier("generalWear", "upper", "waiter's shirt");
-				wikifier("generalWear", "lower", "suit trousers", "black");
+				wikifier("generalWear", "upper", `"waiter's shirt"`);
+				wikifier("generalWear", "lower", '"suit trousers"', "black");
 			} else if (V.player.sex === "f") {
-				wikifier("generalWear", "upper", "maid dress");
+				wikifier("generalWear", "upper", '"maid dress"');
 			}
-			wikifier("generalWear", "handheld", "feather duster");
+			wikifier("generalWear", "handheld", '"feather duster"');
 			wikifier("updatesidebarimg");
 		},
 		onDayCleared() {
