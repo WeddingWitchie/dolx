@@ -3943,7 +3943,7 @@ function dangerEvent(mod = 1, floor = 9900, allure = V.allure, reroll = false) {
 	 */
 	if (!T.danger || reroll) T.danger = random(1, 10000);
 	if (V.outside && playerWearsHeadphones()) mod *= 1.1;
-	return T.danger >= floor - allure * mod;
+	return T.danger >= window.colosseumDangerThreshold(floor - allure * mod);
 }
 window.dangerEvent = dangerEvent;
 

@@ -1,4 +1,18 @@
-/* global V statChange */
+/* global V Time statChange */
+/**
+ * Apply the maximum Combat fame deterrent to a city danger roll.
+ *
+ * @param {number} threshold minimum dangerous roll on a 1-10000 die
+ * @returns {number} adjusted threshold
+ */
+window.colosseumDangerThreshold = function (threshold) {
+	if (!(V.fame?.scrap >= 4000) || !["town", "alley", "flats", "canals"].includes(V.location)) return threshold;
+	const col = V.xchange?.colosseum;
+	if (col?.hunt >= 1 && !(col.huntUntil > 0 && Time.days >= col.huntUntil)) return threshold;
+	const chance = Math.clamp(10001 - Math.ceil(threshold), 0, 10000);
+	return 10001 - Math.floor(chance * 0.85);
+};
+
 /* One saved expiry covers the dose and its two-hour rebound, including time spent outside the arena. */
 window.colosseumDrugStage = function () {
 	const until = V.xchange?.colosseum?.drugUntil;
