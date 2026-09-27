@@ -1387,6 +1387,9 @@ Args: reason ("broken", "stolen", or "lost"), optional holder, optional target (
 /*The "generalWear" widget works in the same way as the "...wear" widgets, however, the argument are as follows; Location, slot*/
 
 <<widget "generalUndress">>
+	<<if _args[1] is "earrings" and _args[0] isnot "wardrobe" and !$wardrobes[_args[0]]>>
+		<<exit>>
+	<</if>>
 	<<if _args[0] and _args[1]>>
 		<<if _storeItemSkip is undefined>>
 			<<set _storeItemSkip to {"over_upper":false, "over_lower":false, "upper":false, "lower":false, "under_upper":false, "under_lower":false, "over_head":false, "head":false, "face":false, "neck":false, "scarf":false, "hands":false, "handheld":false, "bag":false, "legs":false, "feet":false, "butt_plug":true, "vaginal_dildo":true}>>
@@ -1689,6 +1692,9 @@ Args: reason ("broken", "stolen", or "lost"), optional holder, optional target (
 
 			<<for $_slot range setup.clothingLayer.all>>
 				<<set $_item to $outfitTmp[_args[0]][$_slot]>>
+				<<if $_slot is "earrings" and $_item is undefined>>
+					<<continue>>
+				<</if>>
 				<<if $_item is undefined or $worn[$_slot].name isnot $_item.name>>
 					<<if $debug is 1>><<run console.log("stripping", $_slot)>><</if>>
 					<<generalStrip $_slot>>
