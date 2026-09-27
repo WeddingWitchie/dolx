@@ -10,14 +10,12 @@ The school lockers are notoriously easy to break into, though thankfully, you've
 <</if>>
 <br><br>
 
-<<if clothingInStorage("locker").length lt 1>>
-	<span class="blue">You can keep your bookbag or another handheld item inside your locker.</span>
-	<br>
-	<<lockerclothes>>
-	<<lockerclothes2>>
-	/*kind of a hacky solution to allow players to swap out their current handheld item for the stored handheld item instead of sending it back to the wardrobe but hey, it's effective and doesn't fuck w how the other storage locations work.*/
-	<<lockerClothesAutoOption>>
-<</if>>
+<span class="blue">You can keep your bag or another handheld item inside your locker.</span>
+<br>
+<<lockerclothes>>
+<<lockerclothes2>>
+/*kind of a hacky solution to allow players to swap out their current handheld item for the stored handheld item instead of sending it back to the wardrobe but hey, it's effective and doesn't fuck w how the other storage locations work.*/
+<<lockerClothesAutoOption>>
 
 <<if !["early", "late", "earlynoschool", "latenoschool", "daynoschool"].includes($schoolstate)>>
 	<<if pcAreArmsBound("both")>>
@@ -345,12 +343,15 @@ You find a small pin in the locker, and use the tip to poke a tiny hole in the c
 			<<if _clothes.length gt 0>>
 				Your _clothes[0].name is safely tucked inside your locker.
 				<br><br>
-				<<if $worn.handheld.name is "naked">>
+				<<set _lockerSlot to _clothes[0].slot>>
+				<<if $worn[_lockerSlot].name is "naked">>
 					<<lockericon>>
 					<<link [[`Take out your ${_clothes[0].name}`|$passage]]>><<set $lockerSwapLock to true>><<set $eventskip to 1>><<storeload "lockers">><</link>>
 				<<else>>
 					<<lockericon>>
-					<<link [[`Swap out your ${$worn.handheld.name}`|$passage]]>><<set $eventskip to 1>><<handheldundress "lockers2">><<storeload "lockers">><</link>>
+					<<capture _lockerSlot>>
+						<<link [[`Swap out your ${$worn[_lockerSlot].name}`|$passage]]>><<set $eventskip to 1>><<generalUndress "lockers2" _lockerSlot>><<storeload "lockers">><</link>>
+					<</capture>>
 				<</if>>
 				<br>
 			<</if>>
@@ -371,12 +372,15 @@ You find a small pin in the locker, and use the tip to poke a tiny hole in the c
 				<br>
 				Your _clothes[0].name is safely tucked inside your locker.
 				<br><br>
-				<<if $worn.handheld.name is "naked">>
+				<<set _lockerSlot to _clothes[0].slot>>
+				<<if $worn[_lockerSlot].name is "naked">>
 					<<lockericon>>
 					<<link [[`Take out your ${_clothes[0].name}`|$passage]]>><<set $lockerSwapLock to true>><<set $eventskip to 1>><<storeload "lockers2">><</link>>
 				<<else>>
 					<<lockericon>>
-					<<link [[`Swap out your ${$worn.handheld.name}`|$passage]]>><<set $eventskip to 1>><<handheldundress "lockers">><<storeload "lockers2">><</link>>
+					<<capture _lockerSlot>>
+						<<link [[`Swap out your ${$worn[_lockerSlot].name}`|$passage]]>><<set $eventskip to 1>><<generalUndress "lockers" _lockerSlot>><<storeload "lockers2">><</link>>
+					<</capture>>
 				<</if>>
 				<br>
 			<</if>>
@@ -405,11 +409,12 @@ You find a small pin in the locker, and use the tip to poke a tiny hole in the c
 		<<if _store_check is 1>>
 			<<set _clothes to clothingInStorage(_store_location)>>
 			<<if _clothes.length gt 0>>
-				<<if $worn.handheld.name is "naked">>
+				<<set _lockerSlot to _clothes[0].slot>>
+				<<if $worn[_lockerSlot].name is "naked">>
 					You take your _clothes[0].name out of your locker before entering class.<<storeload "lockers">>
 					<br><br>
 				<<elseif $lockerSwapLock is false>>
-					You swap out your $worn.handheld.name with your _clothes[0].name before entering class.<<handheldundress "lockers2">><<storeload "lockers">>
+					You swap out your $worn[_lockerSlot].name with your _clothes[0].name before entering class.<<generalUndress "lockers2" _lockerSlot>><<storeload "lockers">>
 					<br><br>
 				<</if>>
 				<<set $lockerSwapLock to true>>
@@ -423,11 +428,12 @@ You find a small pin in the locker, and use the tip to poke a tiny hole in the c
 		<<if _store_check is 1>>
 			<<set _clothes to clothingInStorage(_store_location)>>
 			<<if _clothes.length gt 0>>
-				<<if $worn.handheld.name is "naked">>
+				<<set _lockerSlot to _clothes[0].slot>>
+				<<if $worn[_lockerSlot].name is "naked">>
 					You take your _clothes[0].name out of your locker before entering class.<<storeload "lockers2">>
 					<br><br>
 				<<elseif $lockerSwapLock is false>>
-					You swap out your $worn.handheld.name with your _clothes[0].name before entering class.<<handheldundress "lockers">><<storeload "lockers2">>
+					You swap out your $worn[_lockerSlot].name with your _clothes[0].name before entering class.<<generalUndress "lockers" _lockerSlot>><<storeload "lockers2">>
 					<br><br>
 				<</if>>
 				<<set $lockerSwapLock to true>>

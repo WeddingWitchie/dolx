@@ -229,8 +229,11 @@
 		<<if _temp_strip isnot "lockers" and _temp_strip isnot "lockers2">>
 			You put down your $worn.handheld.name.
 			<br>
+			<<handheldundress _temp_strip>>
+		<<else>>
+			/* A locker holds one item: whatever is in your hands, otherwise your bag. */
+			<<generalUndress _temp_strip `$worn.handheld.name isnot "naked" ? "handheld" : "bag"`>>
 		<</if>>
-		<<handheldundress _temp_strip>>
 	<</if>>
 
 	<<if $action_unclad_hands is 1>>
@@ -376,6 +379,9 @@
 	<<if !$worn.handheld.cursed and !_otherOutfits.handheld and $worn.handheld.name isnot "naked">>
 		<<set _stripOptions[$worn.handheld.name] to "stripHandheld">>
 	<</if>>
+	<<if (_temp_strip is "lockers" or _temp_strip is "lockers2") and $worn.handheld.name is "naked" and !$worn.bag.cursed and $worn.bag.name isnot "naked">>
+		<<set _stripOptions[$worn.bag.name] to "stripHandheld">>
+	<</if>>
 
 	<<if Object.keys(_stripOptions).length gt 0>>
 		<<if _temp_strip isnot "lockers" and _temp_strip isnot "lockers2">>
@@ -411,7 +417,7 @@
 		<<elseif (_temp_strip is "lockers" and clothingInStorage("lockers").length is 0 and clothingInStorage("lockers2").length is 0)>>
 			<br>
 			<<lockericon>>
-			<<link [[`Put your ${$worn.handheld.name} in your locker`|$passage]]>>
+			<<link [[`Put your ${$worn.handheld.name isnot "naked" ? $worn.handheld.name : $worn.bag.name} in your locker`|$passage]]>>
 				<<set $eventskip to 1>>
 				<<set $action_unclad_handheld to 1>>
 			<</link>>
