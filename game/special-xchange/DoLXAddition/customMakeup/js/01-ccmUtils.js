@@ -126,10 +126,9 @@ const ccmUtils = {
 						name: "color picker slot",
 						canvasfilter: this.filterGen(),
 					};
-				} else {
-					// the slot outlives the colour being picked, so follow the desaturate toggle
-					map[slot].canvasfilter.desaturate = !ccmod?.cfg?.skipDesaturate;
 				}
+				// slots made before the per-category rule still carry the old flag
+				map[slot].canvasfilter.desaturate = this.desaturateFor(category);
 			}
 		}
 	},
@@ -163,7 +162,7 @@ const ccmUtils = {
 					setup.colours[`${category}_map`][entry[0]] = {
 						name: _name,
 						name_cap: _name,
-						canvasfilter: entry[1],
+						canvasfilter: { ...entry[1], desaturate: this.desaturateFor(category) },
 					};
 				} else {
 					setup.colours[`${category}_map`][entry[0]] = {
@@ -185,6 +184,17 @@ const ccmUtils = {
 	},
 
 	/**
+	 * Eyeshadow, lipstick and mascara sprites are red, so they must be greyed before the colour is laid over them, as vanilla's prefilters do.
+	 * The blusher sprite goes black when greyed, so it never is.
+	 *
+	 * @param {string} category
+	 * @returns {boolean}
+	 */
+	desaturateFor(category) {
+		return category !== "blusher";
+	},
+
+	/**
 	 * @param {string} blend
 	 * @param {number} brightness
 	 * @returns {Canvasfilter}
@@ -194,7 +204,7 @@ const ccmUtils = {
 			blend,
 			blendMode: "hard-light",
 			brightness,
-			desaturate: !ccmod.cfg.skipDesaturate,
+			desaturate: true,
 		};
 	},
 

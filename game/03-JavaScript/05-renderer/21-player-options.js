@@ -881,8 +881,8 @@ class PlayerCombatMapper {
 	 * @returns {Eyeshadow}
 	 */
 	static genEyeshadow() {
-		const colour = V.makeup.eyeshadow;
-		// Gen filters for eyeshadow
+		// custom makeup zeroes $makeup and keys its colour record by filter string
+		const colour = V.makeup.eyeshadow || (ccmUtils.itemIsValid(ccmod?.equipped?.eyeshadow) && ccmod.equipped.eyeshadow.filterString);
 
 		return {
 			show: !!colour,
@@ -894,7 +894,7 @@ class PlayerCombatMapper {
 	 * @returns {Lipstick}
 	 */
 	static genLipstick() {
-		const colour = V.makeup.lipstick;
+		const colour = V.makeup.lipstick || (ccmUtils.itemIsValid(ccmod?.equipped?.lipstick) && ccmod.equipped.lipstick.filterString);
 		return {
 			show: !!colour,
 			state: PlayerCombatMapper.getMouthState() ? "open" : "closed",
@@ -910,12 +910,18 @@ class PlayerCombatMapper {
 
 		const eyeshadow = options.makeup.eyeshadow;
 		options.filters.eyeshadow = eyeshadow.show
-			? CombatRenderer.lookupColour(setup.colours.eyeshadow_map, eyeshadow.colour, "eyeshadow", "eyeshadow_custom", "eyeshadow")
+			? CombatRenderer.lookupColour(
+					setup.colours.eyeshadow_map,
+					eyeshadow.colour,
+					"eyeshadow",
+					"eyeshadow_custom",
+					V.makeup.eyeshadow ? "eyeshadow" : undefined
+			  )
 			: Renderer.emptyLayerFilter();
 
 		const lipstick = options.makeup.lipstick;
 		options.filters.lipstick = lipstick.show
-			? CombatRenderer.lookupColour(setup.colours.lipstick_map, lipstick.colour, "lipstick", "lipstick_custom", "lipstick")
+			? CombatRenderer.lookupColour(setup.colours.lipstick_map, lipstick.colour, "lipstick", "lipstick_custom", V.makeup.lipstick ? "lipstick" : undefined)
 			: Renderer.emptyLayerFilter();
 	}
 
