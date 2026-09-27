@@ -369,16 +369,14 @@ function pleasure(amount, source) {
 			}
 		}
 
-		const beingPenetrated = ["penis", "penisdouble", "tentacle", "tentacledeep", "machine"];
 		const penetrating = ["penetrated", "othervagina", "otheranus", "othermouth"];
 
-		// $vaginause/$anususe can be stale or empty, so also check the actual penetration state.
-		// This prevents penis addicts from being denied orgasm while already being penetrated.
-		const penetratedStates = ["penetrated", "doublepenetrated", "double", "tentacledeep"];
+		// Read the hole state, not $vaginause/$anususe: those are already set while a penis, tentacle or machine only rests at the entrance.
+		const penetratedStates = ["penetrated", "doublepenetrated", "tentacle", "tentacledeep"];
 		const npcPenetratingHole = ["anus", "anusdouble", "vagina", "vaginadouble"];
 
-		const anusPenetratedNow = beingPenetrated.includes(V.anususe) || penetratedStates.includes(V.anusstate);
-		const vaginaPenetratedNow = beingPenetrated.includes(V.vaginause) || penetratedStates.includes(V.vaginastate);
+		const anusPenetratedNow = penetratedStates.includes(V.anusstate);
+		const vaginaPenetratedNow = penetratedStates.includes(V.vaginastate);
 
 		const playerIsBeingPenetrated =
 			anusPenetratedNow ||
@@ -462,7 +460,7 @@ function pleasure(amount, source) {
 			case "pussy_grope":
 			case "penis_grope":
 				if (amount > 0 && V.player.vaginaExist === true && vaginaPenetratedNow) {
-					statChange.pain(V.vaginalPain);
+					statChange.pain(V.vaginalPain || 0);
 					if (!V.statFreeze && !V.hc && V.penis_addict_trait === 1) sensitivity += insanitySensitivityAdjustment(0.5);
 				}
 				sensitivity += getSensitivity("genital");
