@@ -2467,7 +2467,7 @@ Macro.add("effects", {
 						}
 
 						if (nonMobile) {
-							setStyle("#story", { marginLeft: bigCanvas ? "27em" : "20em" });
+							setStyle("#story", { marginLeft: document.getElementById("ui-bar")?.classList.contains("stowed") ? "" : bigCanvas ? "27em" : "20em" });
 						}
 					}
 				} catch (e) {
@@ -2480,6 +2480,7 @@ Macro.add("effects", {
 				for (const mutation of mutations) {
 					if (mutation.type === "attributes" && mutation.attributeName === "class") {
 						if (document.getElementById("ui-bar").classList.contains("stowed")) {
+							document.querySelector("#story").style.marginLeft = "";
 							if (V.options.bigCanvas === true) {
 								document.querySelector("#ui-bar").style.left = "-22.5em";
 							} else {
@@ -2487,6 +2488,9 @@ Macro.add("effects", {
 							}
 						} else {
 							document.querySelector("#ui-bar").style.left = "0";
+							if (!Browser.isMobile.any() && !/joiplay|cyou\.joiplay\.joiplay|wv/i.test(navigator.userAgent)) {
+								document.querySelector("#story").style.marginLeft = V.options.bigCanvas === true ? "27em" : "20em";
+							}
 						}
 					}
 				}

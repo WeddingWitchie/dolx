@@ -255,6 +255,7 @@
 		"estateBetting",
 		"colosseumBet",
 		"colosseumDebt",
+		"silverStrangerFavor",
 	];
 
 	setup.inflation.isEnabled = function () {
