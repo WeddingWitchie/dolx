@@ -2362,6 +2362,12 @@ function dailyPlayerEffects() {
 	/* Keep trauma symptoms in sync when Innocence directly changes trauma above. */
 	statChange.updatePlayerTraumaState();
 
+	/* Too many orgasms in one day leave cramps the next. $daily is cleared after this runs. */
+	if (V.daily.orgasms >= 15) {
+		V.orgasmCrampMessage = V.daily.orgasms;
+		V.effectsmessage = 1;
+	}
+
 	V.physiquechange = 0;
 	if (V.physique >= 1000) {
 		const decayRate = V.farm_stage >= 6 ? 4 : 5;

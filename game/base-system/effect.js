@@ -857,7 +857,20 @@ function effects() {
 			delete V.breastgrowthmessage;
 		}
 
-		if (V.milkFullPainMessage) {
+		if (V.orgasmCrampMessage) {
+			if (V.orgasmCrampMessage >= 20) {
+				sWikifier(`<span class="red">You climaxed far too many times yesterday. Your groin cramps and aches with every step.</span>`);
+				statChange.pain(10);
+				statChange.tiredness(300);
+			} else {
+				sWikifier(`<span class="red">You climaxed too many times yesterday. Your groin feels sore and crampy.</span>`);
+				statChange.pain(5);
+				statChange.tiredness(150);
+			}
+			delete V.orgasmCrampMessage;
+		}
+
+		if (V.daily.milkFullPainMessage === 1) {
 			if (V.milkFullPain >= 275) {
 				sWikifier(`<span class="red">You haven't been milked enough in some time. Your <<breasts>> throb painfully from being so full.</span>`);
 			} else if (V.milkFullPain >= 250) {
@@ -866,7 +879,6 @@ function effects() {
 				sWikifier(`<span class="red">You haven't been milked enough recently. Your <<breasts>> feel a little sore from being so full.</span>`);
 			}
 			V.daily.milkFullPainMessage = true;
-			delete V.milkFullPainMessage;
 		}
 
 		if (V.breastshrinkmessage !== undefined) {
