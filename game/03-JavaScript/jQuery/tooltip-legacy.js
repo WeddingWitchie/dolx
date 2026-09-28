@@ -206,7 +206,7 @@ function closeLegacyTooltip() {
 	legacyTooltipOpen = null;
 }
 
-$(document).on("mouseenter.legacyTooltip touchstart.legacyTooltip", legacyTooltipAnchors, function (event) {
+$(document).on("mouseenter.legacyTooltip touchstart.legacyTooltip focusin.legacyTooltip", legacyTooltipAnchors, function (event) {
 	const popup = legacyTooltipPopup(this);
 	if (!popup) return;
 	// Scrolling a long tooltip can trigger this too. Keep the current tooltip open instead of moving it.
@@ -217,7 +217,9 @@ $(document).on("mouseenter.legacyTooltip touchstart.legacyTooltip", legacyToolti
 	refreshLegacyTooltip();
 });
 
-$(document).on("mouseleave.legacyTooltip", legacyTooltipAnchors, function () {
+$(document).on("mouseleave.legacyTooltip focusout.legacyTooltip", legacyTooltipAnchors, function (event) {
+	// Keyboard focus still holds the tooltip open, so the pointer leaving must not clear its placement.
+	if (event.type === "mouseleave" && this.matches(":focus-visible")) return;
 	const popup = legacyTooltipPopup(this);
 	if (popup) clearLegacyTooltip(popup);
 	if (legacyTooltipOpen && legacyTooltipOpen.anchor === this) legacyTooltipOpen = null;

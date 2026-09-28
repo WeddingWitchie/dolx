@@ -1063,7 +1063,13 @@
 	<<widget "identityPreferredComfort">>
 		<<set _weight to _args[0] isnot undefined ? _args[0] : 1>>
 		<<if $identityPreference and $identityOption.acceptance and !$identityOption.reject>>
-			<<stress `-1 * _weight` 1>><<trauma `-1 * _weight`>>
+			/* Euphoria acclimation: after a week of the same comfort, it only takes off a tenth of the trauma it used to. Stress relief is unchanged. */
+			<<set _traumaMod to 1>>
+			<<if $xchange.euphoriaAcclimationEnabled isnot false>>
+				<<set $identityOption.comfortHours to Math.min((Number($identityOption.comfortHours) || 0) + 1, 168)>>
+				<<set _traumaMod to Math.clamp(1 - $identityOption.comfortHours / 168, 0.1, 1)>>
+			<</if>>
+			<<stress `-1 * _weight` 1>><<trauma `-1 * _weight * _traumaMod`>>
 		<</if>>
 	<</widget>>
 
@@ -1086,8 +1092,14 @@
 							<<identityTickCharacteristic>>
 							<<identityPreferredComfort>>
 						<</if>>
-					<<elseif $identityOption.dysphoria gt 0>>
-						<<dysphoria -5>>
+					<<else>>
+						/* Time away from a characteristic lets its comfort feel new again, at the same rate it wore off. */
+						<<if $identityOption.comfortHours gt 0>>
+							<<set $identityOption.comfortHours to Math.max($identityOption.comfortHours - 1, 0)>>
+						<</if>>
+						<<if $identityOption.dysphoria gt 0>>
+							<<dysphoria -5>>
+						<</if>>
 					<</if>>
 				<</if>>
 			<</for>>

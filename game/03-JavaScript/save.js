@@ -1999,6 +1999,7 @@ function settingsObjects(type) {
 					willpowerRestPercent: { min: 0, max: 300, decimals: 0, displayName: "Rest recovery strength (%):" },
 					giAutoEnabled: { bool: true, displayName: "Update Gender Identity from Identity system:" },
 					audienceDysphoriaEnabled: { bool: true, displayName: "Dysphoria from the gender of the room:" },
+					euphoriaAcclimationEnabled: { bool: true, displayName: "Preferred-trait comfort wears off over time:" },
 					giTransformEnabled: { bool: true, displayName: "Slow body changes follow Gender Identity:" },
 					giBreastSizeEnabled: { bool: true, displayName: "Body identity: breast size:" },
 					giAssSizeEnabled: { bool: true, displayName: "Body identity: ass size:" },
