@@ -151,6 +151,10 @@ You are inside the hospital foyer. <<if $harper_appointments.enabled>>You see a 
 			<<socialiseicon "ask">><<link [[Ask Doctor Harper about medication (0:10)|Hospital Medication]]>><<pass 10>><</link>>
 			<br>
 		<</if>>
+		<<if hospitalContactOptions().length gt 0>>
+			<<socialiseicon "ask">><<link [[Update your emergency contact (0:02)|Hospital Emergency Contact]]>><<pass 2>><</link>>
+			<br>
+		<</if>>
 		<<if $xchange isnot undefined and $xchange.everConsumed and $xchange.therapy isnot undefined>>
 			<<if $xchange.therapy.questStage is 0>>
 				<<pillicon "blue">><<link [[Ask Doctor Harper about resisting the X-Change pills (0:10)|Hospital XChange Therapy Ask]]>><<pass 10>><</link>>
@@ -511,7 +515,7 @@ You've pushed yourself too much.
 		<<elseif crimeSumCurrent() gte 1000>>
 			<<link [[Leave now (0:10)|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 			<br>
-		<<elseif $baileyhospital lte 2>>
+		<<elseif $baileyhospital lte 2 or hospitalContact()>>
 			<<link [[Leave now (0:10)|Hospital Journey Home]]>><<pass 10>><<endevent>><</link>>
 			<br>
 		<<else>>
@@ -525,7 +529,7 @@ You've pushed yourself too much.
 		<<elseif crimeSumCurrent() gte 1000>>
 			<<link [[Next (0:10)|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 			<br>
-		<<elseif $baileyhospital lte 2>>
+		<<elseif $baileyhospital lte 2 or hospitalContact()>>
 			<<link [[Next (0:10)|Hospital Journey Home]]>><<pass 10>><<endevent>><</link>>
 			<br>
 		<<else>>
@@ -553,7 +557,7 @@ You've pushed yourself too much.
 		<<elseif crimeSumCurrent() gte 1000>>
 			<<link [[Leave now (0:10)|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 			<br>
-		<<elseif $baileyhospital lte 2>>
+		<<elseif $baileyhospital lte 2 or hospitalContact()>>
 			<<link [[Leave now (0:10)|Hospital Journey Home]]>><<pass 10>><<endevent>><</link>>
 			<br>
 		<<else>>
@@ -567,7 +571,7 @@ You've pushed yourself too much.
 		<<elseif crimeSumCurrent() gte 1000>>
 			<<link [[Next (0:10)|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 			<br>
-		<<elseif $baileyhospital lte 2>>
+		<<elseif $baileyhospital lte 2 or hospitalContact()>>
 			<<link [[Next (0:10)|Hospital Journey Home]]>><<pass 10>><<endevent>><</link>>
 			<br>
 		<<else>>
@@ -607,7 +611,7 @@ You've pushed yourself too much.
 		<<elseif crimeSumCurrent() gte 1000>>
 			<<link [[Leave now (0:10)|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 			<br>
-		<<elseif $baileyhospital lte 2>>
+		<<elseif $baileyhospital lte 2 or hospitalContact()>>
 			<<link [[Leave now (0:10)|Hospital Journey Home]]>><<pass 10>><<endevent>><</link>>
 		<br>
 		<<else>>
@@ -621,7 +625,7 @@ You've pushed yourself too much.
 		<<elseif crimeSumCurrent() gte 1000>>
 			<<link [[Next (0:10)|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 			<br>
-		<<elseif $baileyhospital lte 2>>
+		<<elseif $baileyhospital lte 2 or hospitalContact()>>
 			<<link [[Next (0:10)|Hospital Journey Home]]>><<pass 10>><<endevent>><</link>>
 			<br>
 		<<else>>
@@ -927,7 +931,9 @@ The heavy doors slam shut. You're at the top of a staircase leading down into da
 :: Hospital Journey Home
 <<set $outside to 0>><<set $location to "hospital">><<effects>>
 
-<<if $baileyhospital gte 2>>
+<<if hospitalContact()>>
+	<<hospitalContactPickup>>
+<<elseif $baileyhospital gte 2>>
 	<<set $baileyhospital += 1>>
 
 	<<npc Bailey>><<person1>>Bailey waits for you beside <<his>> car. "This is the last time I'm picking you up like this. I've already wasted enough time." The journey home is uneventful.<<npcincr Bailey love -1>><<llove "Bailey">>
@@ -944,7 +950,11 @@ The heavy doors slam shut. You're at the top of a staircase leading down into da
 	<br><br>
 <</if>>
 
-<<link [[Next (0:10)|Orphanage]]>><<endevent>><<pass 10>><</link>>
+<<if ["Bailey", "Avery"].includes(hospitalContact() or "Bailey")>>
+	<<link [[Next (0:10)|Orphanage]]>><<endevent>><<pass 10>><</link>>
+<<else>>
+	<<link [[Next (0:20)|Orphanage]]>><<endevent>><<pass 24>><</link>>
+<</if>>
 <br>
 
 :: Hospital Wait
@@ -969,7 +979,7 @@ The nurse lets you stay in the waiting room until the sun rises.
 <<elseif crimeSumCurrent() gte 1000>>
 	<<link [[Next|Hospital Arrest]]>><<pass 10>><<endevent>><</link>>
 	<br>
-<<elseif $baileyhospital lte 2>>
+<<elseif $baileyhospital lte 2 or hospitalContact()>>
 	<<link [[Next|Hospital Journey Home]]>><<pass 10>><<endevent>><</link>>
 	<br>
 <<else>>
