@@ -342,6 +342,7 @@ module.exports = {
 		getPregnancyOf: "readonly",
 		getActivePregnancy: "readonly",
 		getActivePregnancies: "readonly",
+		clearPregnancyRecord: "readonly",
 		getPlayerPregnancy: "readonly",
 		getActiveVaginalPregnancies: "readonly",
 		playerHasBetaWombs: "readonly",

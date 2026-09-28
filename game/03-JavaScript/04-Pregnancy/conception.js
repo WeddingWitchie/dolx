@@ -550,6 +550,10 @@ function takeMorningAfterPill() {
 	let outcome = "notPregnant";
 	ensurePendingPregnancySlots();
 	const pending = [V.pendingPregnancies.vagina, V.pendingPregnancies.vagina2, V.pendingPregnancies.anus].filter(p => p !== null);
+	// Instant conceptions skip the pending stage, so implantation-window pregnancies count as pending here.
+	const fresh = getActivePregnancies("pc").filter(p => Time.date.timeStamp - p.conceivedDate < PregnancyConstants.implantationWindow);
+	pending.push(...fresh);
+	for (const record of fresh) clearPregnancyRecord(record.pregnancyId);
 	if (pending.length > 0) {
 		// Beta can clear a pending second conception despite an established first pregnancy.
 		// For multiple pending conceptions, judge by the oldest (closest to implantation).
