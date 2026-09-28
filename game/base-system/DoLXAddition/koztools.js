@@ -789,7 +789,7 @@ function updateDynamicStatCaps() {
 	const V = State.variables;
 	if (!window.C || !C.tiredness) return;
 	if (V.tirednessMaxScalingToggle && typeof currentSkillValue === "function") {
-		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique", 0, 1) / 32);
+		C.tiredness.max = 2000 + Math.floor(currentSkillValue("physique", 2, 1) / 32);
 	} else {
 		C.tiredness.max = 2000;
 	}

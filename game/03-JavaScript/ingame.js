@@ -1549,15 +1549,12 @@ function fatigueAdjustedSkillValue(result, disableModifiers = 0, disableStatNerf
  * @returns {number} The current value of the requested skill, accounting for potential modifiers.
  */
 function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
-	if (skill === "physique") {
-		if (V.physique == null && typeof window.updatePhysique === "function") {
-			try {
-				window.updatePhysique();
-			} catch (e) {}
-		}
-		return fatigueAdjustedSkillValue(V.physique ?? 0, disableModifiers, disableStatNerf);
+	if (skill === "physique" && V.physique == null && typeof window.updatePhysique === "function") {
+		try {
+			window.updatePhysique();
+		} catch (e) {}
 	}
-	let result = V[skill];
+	let result = V[skill] ?? (skill === "physique" ? 0 : undefined);
 	if (disableStatNerf === 0) {
 		result *= V.options.statNerf / 100;
 	}
