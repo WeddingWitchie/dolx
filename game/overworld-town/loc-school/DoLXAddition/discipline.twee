@@ -1,61 +1,3 @@
-:: School Discipline Widgets [widget]
-/* Status line shown in the front courtyard while a suspension is being served. */
-<<widget "schoolDisciplineStatus">>
-	<<run ensureSchoolDiscipline()>>
-	<<if $schoolDiscipline.suspended is 1>>
-		<span class="red">You're suspended.</span>
-		<<if $schoolDiscipline.serviceDone gte $schoolDiscipline.serviceRequired>>
-			You've served every session the school asked for.
-			<<if $schoolDiscipline.daysLeft gt 0>>
-				<span class="blue">There are still <<print $schoolDiscipline.daysLeft>> day<<if $schoolDiscipline.daysLeft isnot 1>>s<</if>> left on the suspension itself.</span>
-			<</if>>
-		<<else>>
-			<span class="blue">Community service: <<print $schoolDiscipline.serviceDone>> of <<print $schoolDiscipline.serviceRequired>> sessions done.</span>
-			<<if $schoolDiscipline.serviceMissed gt 0>>
-				<span class="red">You've skipped <<print $schoolDiscipline.serviceMissed>>.</span>
-			<</if>>
-		<</if>>
-		<br><br>
-	<</if>>
-<</widget>>
-
-/* Links the courtyard offers a suspended PC: the service muster, and the readmission meeting. */
-<<widget "schoolDisciplineOptions">>
-	<<run ensureSchoolDiscipline()>>
-	<<if $schoolDiscipline.suspended is 1>>
-		<<if schoolReadmissionDue() and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15>>
-			<<schoolicon "headdesk">><<link [[See the head about coming back|School Readmission]]>><<pass 5>><</link>>
-			<br>
-		<<elseif schoolServiceAvailable()>>
-			<<if $exposed gte 1>>
-				<span class="blue">You can't report for community service while you're this exposed.</span>
-				<br>
-			<<else>>
-				<<schoolicon "courtyard">><<link [[Report for community service|School Service Report]]>><<pass 5>><</link>>
-				<br>
-			<</if>>
-		<<elseif $schoolDiscipline.servedToday is 1>>
-			<span class="blue">You've done your service for today.</span>
-			<br>
-		<<elseif $schoolDiscipline.leftToday is 1>>
-			<span class="red">You walked out on today's session. The van has gone.</span>
-			<br>
-		<<elseif schoolReadmissionDue()>>
-			<span class="blue">You've done everything the school asked. You need to catch the head during school hours.</span>
-			<br>
-		<<elseif !Time.schoolDay>>
-			<span class="blue">There's no service muster at the weekend.</span>
-			<br>
-		<<elseif Time.hour lt 9>>
-			<span class="blue">The service muster isn't until nine.</span>
-			<br>
-		<<else>>
-			<span class="blue">You've missed today's service muster.</span>
-			<br>
-		<</if>>
-	<</if>>
-<</widget>>
-
 :: School Late Slip
 <<endevent>>
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
@@ -490,3 +432,62 @@ checking what you cleaned before coming back to you.
 <br><br>
 <<link [[Next|Hallways]]>><<endevent>><</link>>
 <br>
+
+
+:: School Discipline Widgets [widget]
+/* Status line shown in the front courtyard while a suspension is being served. */
+<<widget "schoolDisciplineStatus">>
+	<<run ensureSchoolDiscipline()>>
+	<<if $schoolDiscipline.suspended is 1>>
+		<span class="red">You're suspended.</span>
+		<<if $schoolDiscipline.serviceDone gte $schoolDiscipline.serviceRequired>>
+			You've served every session the school asked for.
+			<<if $schoolDiscipline.daysLeft gt 0>>
+				<span class="blue">There are still <<print $schoolDiscipline.daysLeft>> day<<if $schoolDiscipline.daysLeft isnot 1>>s<</if>> left on the suspension itself.</span>
+			<</if>>
+		<<else>>
+			<span class="blue">Community service: <<print $schoolDiscipline.serviceDone>> of <<print $schoolDiscipline.serviceRequired>> sessions done.</span>
+			<<if $schoolDiscipline.serviceMissed gt 0>>
+				<span class="red">You've skipped <<print $schoolDiscipline.serviceMissed>>.</span>
+			<</if>>
+		<</if>>
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* Links the courtyard offers a suspended PC: the service muster, and the readmission meeting. */
+<<widget "schoolDisciplineOptions">>
+	<<run ensureSchoolDiscipline()>>
+	<<if $schoolDiscipline.suspended is 1>>
+		<<if schoolReadmissionDue() and Time.schoolDay and Time.hour gte 8 and Time.hour lte 15>>
+			<<schoolicon "headdesk">><<link [[See the head about coming back|School Readmission]]>><<pass 5>><</link>>
+			<br>
+		<<elseif schoolServiceAvailable()>>
+			<<if $exposed gte 1>>
+				<span class="blue">You can't report for community service while you're this exposed.</span>
+				<br>
+			<<else>>
+				<<schoolicon "courtyard">><<link [[Report for community service|School Service Report]]>><<pass 5>><</link>>
+				<br>
+			<</if>>
+		<<elseif $schoolDiscipline.servedToday is 1>>
+			<span class="blue">You've done your service for today.</span>
+			<br>
+		<<elseif $schoolDiscipline.leftToday is 1>>
+			<span class="red">You walked out on today's session. The van has gone.</span>
+			<br>
+		<<elseif schoolReadmissionDue()>>
+			<span class="blue">You've done everything the school asked. You need to catch the head during school hours.</span>
+			<br>
+		<<elseif !Time.schoolDay>>
+			<span class="blue">There's no service muster at the weekend.</span>
+			<br>
+		<<elseif Time.hour lt 9>>
+			<span class="blue">The service muster isn't until nine.</span>
+			<br>
+		<<else>>
+			<span class="blue">You've missed today's service muster.</span>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>

@@ -1,45 +1,3 @@
-:: Shades Excuse Widgets [widget]
-/*
-	Pure calculation. <<shadesExcuseCheck>> updates the counter.
-	Recheck before the roll because $skulduggerydifficulty can be outdated.
-*/
-<<widget "shadesExcuseDifficulty">>
-	<<set _base to (_args[0] ?? 500)>>
-	<<set _englishHelp to Math.floor(($english ?? 0) / 5)>>
-	<<set _excuseUses to ($daily.shadesExcuseUses ?? 0)>>
-	<<set $skulduggerydifficulty to Math.clamp(_base - _englishHelp + (_excuseUses * 150), 100, 1000)>>
-<</widget>>
-
-<<widget "shadesExcuseCheck">>
-	<<set $daily.shadesExcuseUses to ($daily.shadesExcuseUses ?? 0) + 1>>
-	<<skulduggerycheck>>
-	<<if $skulduggerysuccess is 1>>
-		<<skulduggery 3>>
-	<<else>>
-		<<skulduggery 1>>
-	<</if>>
-<</widget>>
-
-/* The excuse itself, phrased to attitude. Shared by both call-out sites. */
-<<widget "shadesExcuseLine">>
-	<<speechresolve>>
-	<<switch _speechAttitudeResolved>>
-		<<case "meek" "shy">>
-			"M-My eyes are sensitive," you say, not quite looking at <<him>>. "The light hurts."
-		<<case "polite" "docile">>
-			"I'm sorry," you say. "My eyes are sensitive to light. I'd rather keep them on, if that's alright."
-		<<case "flamboyant">>
-			"Delicate eyes, darling," you say, touching the frames. "The strip lighting in here is an assault."
-		<<case "bratty" "cruel">>
-			"They're for my eyes," you say flatly. "Which are sensitive. Unless you'd like to explain that to a doctor."
-		<<case "confident">>
-			"Sensitive eyes," you say. "Bright light gives me headaches. That's the whole story."
-		<<default>>
-			"My eyes are sensitive to light," you say. "That's all it is."
-	<</switch>>
-<</widget>>
-
-
 :: Events Shades Remove
 <<set $outside to 1>><<set $location to "school">><<schooleffects>><<effects>>
 You reach up and take the $worn.face.name off yourself before <<he>> can.
@@ -126,3 +84,76 @@ Sydney brightens, visibly relieved not to have had to push.
 <</if>>
 <br><br>
 <<sydneyOptions>>
+
+:: School Changing Room Cameras
+<<set $outside to 0>><<set $location to "pool">><<schooleffects>><<effects>>
+<<set $weekly.lockerCamerasSabotaged to true>>
+You return to the places where the photographs must have been taken: the vent above the showers, the clock on the wall,
+and the smoke detector above the benches. You check each one carefully,
+looking for anything that could hide a small camera.
+<br><br>
+<<if $skulduggerysuccess is 1>>
+	Behind each cover, you find a small lens with wires leading into the wall.
+	You open them one by one, pull the wires free from each camera, then put the covers back into place.
+	<br><br>
+	From the changing room, they look the same as they did before.
+	<span class="green">None of the cameras can record anything now.</span>
+	<br><br>
+	Leighton will probably notice eventually and replace them within a week.<<llstress>><<stress -6>>
+	<<if $leightonCameraSuspicion isnot "exposed">><<set $leightonCameraSuspicion to "clean">><</if>>
+<<else>>
+	You find the cameras hidden in the vent and smoke detector first, then remove their wires.
+	The last one takes longer to find. After checking around the clock,
+	you discover another small camera hidden behind it.
+	<br><br>
+	As you reach towards it, a red light appears beside the lens.
+	You realise the camera has already started recording you. <span class="red">It saw you trying to remove it.</span>
+	<br><br>
+	You pull its wires free anyway and put the clock back, but whoever checks the recording may already know what you did.
+	<<ggstress>><<stress 7>>
+	<<set $leightonCameraSuspicion to "exposed">>
+<</if>>
+<br><br>
+<<skulduggeryuse 500>>
+<<destination_pool>>
+
+:: Shades Excuse Widgets [widget]
+/*
+	Pure calculation. <<shadesExcuseCheck>> updates the counter.
+	Recheck before the roll because $skulduggerydifficulty can be outdated.
+*/
+<<widget "shadesExcuseDifficulty">>
+	<<set _base to (_args[0] ?? 500)>>
+	<<set _englishHelp to Math.floor(($english ?? 0) / 5)>>
+	<<set _excuseUses to ($daily.shadesExcuseUses ?? 0)>>
+	<<set $skulduggerydifficulty to Math.clamp(_base - _englishHelp + (_excuseUses * 150), 100, 1000)>>
+<</widget>>
+
+<<widget "shadesExcuseCheck">>
+	<<set $daily.shadesExcuseUses to ($daily.shadesExcuseUses ?? 0) + 1>>
+	<<skulduggerycheck>>
+	<<if $skulduggerysuccess is 1>>
+		<<skulduggery 3>>
+	<<else>>
+		<<skulduggery 1>>
+	<</if>>
+<</widget>>
+
+/* The excuse itself, phrased to attitude. Shared by both call-out sites. */
+<<widget "shadesExcuseLine">>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek" "shy">>
+			"M-My eyes are sensitive," you say, not quite looking at <<him>>. "The light hurts."
+		<<case "polite" "docile">>
+			"I'm sorry," you say. "My eyes are sensitive to light. I'd rather keep them on, if that's alright."
+		<<case "flamboyant">>
+			"Delicate eyes, darling," you say, touching the frames. "The strip lighting in here is an assault."
+		<<case "bratty" "cruel">>
+			"They're for my eyes," you say flatly. "Which are sensitive. Unless you'd like to explain that to a doctor."
+		<<case "confident">>
+			"Sensitive eyes," you say. "Bright light gives me headaches. That's the whole story."
+		<<default>>
+			"My eyes are sensitive to light," you say. "That's all it is."
+	<</switch>>
+<</widget>>
