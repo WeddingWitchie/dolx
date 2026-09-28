@@ -1329,6 +1329,20 @@ const Tamagotchi = (() => {
 			spd: t.spd,
 		};
 	}
+	/* Drives the console's alert light: an attack or boss is waiting, or the awake active pet needs care.
+	 * Read-only on purpose: sync() rolls mess once per whole elapsed hour, so syncing on every bedroom render would stop the pet ever making a mess. Hunger and energy are projected from lastTick instead. */
+	function needsAttention() {
+		if (!isAlive()) return false;
+		if (attackDue() || bossDue()) return true;
+		const t = V.tamagotchi;
+		if (atCap(t)) return false;
+		const currentTime = now();
+		if ((t.sleepUntil || 0) > currentTime) return false;
+		/* Its nap ended since the last sync: it wakes hungry and messy. */
+		if ((t.sleepUntil || 0) > 0) return true;
+		const hours = Math.min(Math.max(0, (currentTime - (Number.isFinite(t.lastTick) ? t.lastTick : currentTime)) / 3600), Tuning.maxElapsedHours);
+		return t.sick || t.poops > 0 || t.hunger + Tuning.hungerPerHour * hours >= 80 || t.energy - Tuning.energyPerHour * hours <= 15;
+	}
 	function status() {
 		const backups = backupList();
 		const backupBriefs = backups.map((pet, index) => Object.assign({ index }, petBrief(pet)));
@@ -1521,6 +1535,7 @@ const Tamagotchi = (() => {
 		rest,
 		cure,
 		status,
+		needsAttention,
 		stage,
 		ageDays,
 		bury,
