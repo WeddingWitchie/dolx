@@ -3738,10 +3738,10 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 		case "mdildopenetratebounce":
 			clearAction("vagina");
 			altText.selectedToy = selectedToy("vagina");
-			if (V.settings.toyVirginityEnabled) {
+			if (V.settings.toyVirginityEnabled && !altText.selectedToy?.type?.includes("vibrator")) {
 				wikifier("takeTempleVirginity", JSON.stringify("your " + toyDisplay(altText.selectedToy)), "vaginal");
 			}
-			if (V.settings.toyVirginityEnabled && V.player.virginity.vaginal === true) {
+			if (V.settings.toyVirginityEnabled && !altText.selectedToy?.type?.includes("vibrator") && V.player.virginity.vaginal === true) {
 				wikifier("arousal", 1000, "vaginal");
 				wikifier("vaginalstat");
 				wikifier("vaginaraped");
@@ -3847,7 +3847,7 @@ function masturbationEffectsVaginaAnus({ span, otherElement, additionalEffect, s
 		case "mdildopenetratebounce":
 			clearAction("anus");
 			altText.selectedToy = selectedToy("anus");
-			if (V.settings.toyVirginityEnabled && V.player.virginity.anal === true) {
+			if (V.settings.toyVirginityEnabled && !altText.selectedToy?.type?.includes("vibrator") && V.player.virginity.anal === true) {
 				wikifier("arousal", 1000, "anal");
 				wikifier("analstat");
 				fragment.append(span(`You lower yourself onto the ${toyDisplay(altText.selectedToy)}, pushing it deep inside you.`));

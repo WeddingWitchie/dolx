@@ -1245,7 +1245,7 @@ function masturbationActionsVagina({ selectedToy, toyDisplay, genitalsExposed })
 				action: "mdildopenetratebounce",
 				text: `Ride the ${toyDisplay(selectedToy("vagina"))}`,
 				colour: "sub",
-				otherElements: V.settings.toyVirginityEnabled ? "<<vaginalvirginitywarning>>" : "",
+				otherElements: V.settings.toyVirginityEnabled && !selectedToy("vagina")?.type?.includes("vibrator") ? "<<vaginalvirginitywarning>>" : "",
 			});
 			result.options.push({
 				action: "mdildopenetratestop",
@@ -1327,7 +1327,7 @@ function masturbationActionsAnus({ selectedToy, toyDisplay, genitalsExposed }) {
 				action: "mdildopenetratebounce",
 				text: `Ride the ${toyDisplay(selectedToy("anus"))}`,
 				colour: "sub",
-				otherElements: V.settings.toyVirginityEnabled ? "<<analvirginitywarning>>" : "",
+				otherElements: V.settings.toyVirginityEnabled && !selectedToy("anus")?.type?.includes("vibrator") ? "<<analvirginitywarning>>" : "",
 			});
 			result.options.push({
 				action: "mdildopenetratestop",
