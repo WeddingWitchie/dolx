@@ -120,6 +120,11 @@ setup.shopDetails = {
 		desc: "Helps you keep your footing in tough environments.",
 		details: "Helps you succeed at athletics checks in the farmlands, moor, and forest.",
 	},
+	silky: {
+		name: "Silky",
+		desc: "Smooth against the skin.",
+		details: "Won't rub against sensitive nipples or genitals.",
+	},
 	chest_bind: {
 		name: "Chest binding",
 		desc: "Fits tight around your chest, concealing your breasts.",

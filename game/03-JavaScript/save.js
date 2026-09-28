@@ -1278,6 +1278,7 @@ function settingsObjects(type) {
 				disableAutoSelect: { bool: true, displayName: "Disable settings text auto-select:" },
 				realisticTransparency: { min: 0, max: 1, decimals: 0, displayName: "Realistic Clothing Transparency:" },
 				preyTrait: { min: 0, max: 1, decimals: 0, displayName: "Prey Clothing Trait:" },
+				silkyTrait: { min: 0, max: 1, decimals: 0, displayName: "Silky Clothing Trait:" },
 				wardrobeMult: { min: 1, max: 20, decimals: 0, displayName: "Wardrobe Capacity Multiplier:" },
 				bicycle: {
 					persistentLocation: { bool: true, displayName: "Persistent Bike Location:" },

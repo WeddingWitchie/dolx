@@ -271,18 +271,19 @@ function getBreastSensitiveRubSlot() {
 	const upperTypes = upper.type || [];
 	const underBare = wornSlotIsBare("under_upper");
 	const upperBare = wornSlotIsBare("upper");
+	const silky = types => V.silkyTrait !== 0 && types.includes("silky");
 	// Sticky nipple coverings protect even when their minimal coverage gives them the "naked" trait.
 	const protectedByUnder =
 		(!underBare || underTypes.includes("sticky")) &&
 		under.exposed < 2 &&
-		(underTypes.includes("sticky") || underTypes.includes("chest_bind") || underSetup.formfitting === 1 || under.name === "swim shirt");
+		(underTypes.includes("sticky") || underTypes.includes("chest_bind") || underSetup.formfitting === 1 || under.name === "swim shirt" || silky(underTypes));
 
 	if (protectedByUnder) return null;
 	if (!underBare && under.exposed < 2) return "under_upper";
 	if (
 		(!upperBare || upperTypes.includes("sticky")) &&
 		upper.exposed < 2 &&
-		(upperTypes.includes("sticky") || upperTypes.includes("chest_bind") || upperSetup.formfitting === 1 || upper.name === "swim shirt")
+		(upperTypes.includes("sticky") || upperTypes.includes("chest_bind") || upperSetup.formfitting === 1 || upper.name === "swim shirt" || silky(upperTypes))
 	)
 		return null;
 	if (!upperBare && upper.exposed < 2) return "upper";
@@ -297,11 +298,13 @@ function getGenitalSensitiveRubSlot() {
 	const lowerSetup = wornSetupClothes("lower");
 	const underBare = wornSlotIsBare("under_lower");
 	const lowerBare = wornSlotIsBare("lower");
-	const protectedByUnder = !underBare && under.exposed < 2 && (underSetup.one_piece === 1 || (under.name === "boxers" && !V.player.penisExist));
+	const silky = setupItem => V.silkyTrait !== 0 && !!setupItem?.type?.includes("silky");
+	const protectedByUnder =
+		!underBare && under.exposed < 2 && (underSetup.one_piece === 1 || silky(underSetup) || (under.name === "boxers" && !V.player.penisExist));
 
 	if (protectedByUnder) return null;
 	if (!underBare && under.exposed < 2) return "under_lower";
-	if (!lowerBare && lower.exposed < 2 && lowerSetup.skirt !== 1) return "lower";
+	if (!lowerBare && lower.exposed < 2 && lowerSetup.skirt !== 1 && !silky(lowerSetup)) return "lower";
 	return null;
 }
 window.getGenitalSensitiveRubSlot = getGenitalSensitiveRubSlot;
@@ -2060,7 +2063,8 @@ function xchangeEffectsMessages() {
 
 	if (V.genitalSensitiveRubMessage) {
 		const storedSlot = typeof V.genitalSensitiveRubMessage === "string" ? V.genitalSensitiveRubMessage : null;
-		const rubSlot = playerChastity() ? null : storedSlot && !wornSlotIsBare(storedSlot) ? storedSlot : getGenitalSensitiveRubSlot();
+		const currentSlot = getGenitalSensitiveRubSlot();
+		const rubSlot = playerChastity() || !currentSlot ? null : storedSlot && !wornSlotIsBare(storedSlot) ? storedSlot : currentSlot;
 		if (rubSlot) {
 			// <<genitalsensitivity>> leaves its adjective in _text_output, not _text_output2 like <<breastsensitivity>> does.
 			wikifier("genitalsensitivity");

@@ -337,7 +337,7 @@ function initHands() {
 			plural: 1,
 			colour: 0,
 			colour_options: [],
-			type: ["costume"],
+			type: ["costume", "prey"],
 			gender: "n",
 			warmth: 1,
 			cost: 1000,

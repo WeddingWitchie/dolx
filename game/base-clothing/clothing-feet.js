@@ -1697,7 +1697,7 @@ function initFeet() {
 			colour: 0,
 			colour_options: [],
 			colour_combat: "brown",
-			type: ["costume", "sleep"],
+			type: ["costume", "sleep", "prey"],
 			gender: "n",
 			warmth: 2,
 			cost: 1500,

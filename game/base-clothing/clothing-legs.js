@@ -585,7 +585,7 @@ function initLegs() {
 			colour: 0,
 			colour_options: [],
 			colour_combat: 0,
-			type: ["costume"],
+			type: ["costume", "prey"],
 			gender: "n",
 			femininity: 0,
 			warmth: 2,

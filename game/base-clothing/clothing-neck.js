@@ -313,7 +313,7 @@ function initNeck() {
 			colour_options: ["black", "brown", "light pink", "light blue", "light green", "custom"],
 			colour_sidebar: 1,
 			colour_combat: 0,
-			type: ["costume", "eerie", "unstealthy"],
+			type: ["costume", "eerie", "unstealthy", "prey"],
 			gender: "n",
 			warmth: 0,
 			cost: 1500,
