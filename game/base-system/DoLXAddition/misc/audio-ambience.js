@@ -8,6 +8,13 @@ window.AmbienceAudio = (() => {
 		storm: ["rain", "heavy-precipitation", "light-precipitation", "storm"],
 		thunderstorm: ["thunderstorm"],
 	};
+	// Snowfall uses the wind recordings in ambience/snow instead of rain.
+	const snowTracks = {
+		lightPrecipitation: ["wind", "lightPrecipitation"],
+		heavyPrecipitation: ["wind", "heavyPrecipitation"],
+		storm: ["wind", "storm"],
+		thunderstorm: ["wind", "storm", "thunderstorm"],
+	};
 	const tracks = new Map();
 	const pending = new Set();
 	const looping = new WeakSet();
@@ -17,8 +24,9 @@ window.AmbienceAudio = (() => {
 	let lightningIndex = 0;
 
 	function getTrack(name, folder = "rain") {
-		if (!tracks.has(name)) {
-			const id = `ambience-${name}`;
+		const key = folder ? `${folder}/${name}` : name;
+		if (!tracks.has(key)) {
+			const id = `ambience-${key}`;
 			SimpleAudio.tracks.add(id, [`audio/sfx/ambience/${folder ? folder + "/" : ""}${name}.mp3`]);
 			const track = SimpleAudio.tracks.get(id);
 			// Browsers treat file:// media as cross-origin and silence it through Web Audio.
@@ -37,9 +45,9 @@ window.AmbienceAudio = (() => {
 					track.audio.currentTime = 0;
 				}
 			});
-			tracks.set(name, track);
+			tracks.set(key, track);
 		}
-		return tracks.get(name);
+		return tracks.get(key);
 	}
 
 	function volume(muffled = true) {
@@ -86,11 +94,12 @@ window.AmbienceAudio = (() => {
 		const wanted = new Set();
 		const enabled = V.options?.audio === 1 && (V.options.ambience_volume ?? 1) > 0 && V.location && V.location !== "banner";
 		if (enabled) {
-			const weather = V.weatherObj && weatherTracks[Weather.name];
-			if (weather) weather.forEach(track => wanted.add(track));
+			const folder = Weather.precipitation === "snow" && snowTracks[Weather.name] ? "snow" : "rain";
+			const weather = V.weatherObj && (folder === "snow" ? snowTracks : weatherTracks)[Weather.name];
+			if (weather) weather.forEach(track => wanted.add(`${folder}/${track}`));
 		}
 		for (const [name, track] of tracks) {
-			if (name.startsWith("lightning")) {
+			if (name.startsWith("rain/lightning")) {
 				if (!enabled || !Weather.enableLightning) track.stop();
 				else track.volume(volume());
 			} else if (name === "money" || name === "meds") {
@@ -103,7 +112,10 @@ window.AmbienceAudio = (() => {
 				if (!track.isUnloaded()) track.unload();
 			}
 		}
-		for (const name of wanted) play(getTrack(name), true);
+		for (const key of wanted) {
+			const [folder, name] = key.split("/");
+			play(getTrack(name, folder), true);
+		}
 		if (!enabled) {
 			$(document).off(".ambienceUnlock");
 			lastLightning = -Infinity;
