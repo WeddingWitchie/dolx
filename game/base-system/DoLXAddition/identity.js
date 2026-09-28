@@ -712,11 +712,11 @@ function playerPronoun() {
 
 	/* Nothing marked preferred: follow the Gender Identity meter, unless that pronoun set isn't accepted. */
 	const felt = window.playerFeltGender();
-	if (pronouns[{ m: "masculine", f: "feminine", n: "neutral" }[felt]]?.acceptance !== false) return felt;
+	const accepted = gender => pronouns[{ m: "masculine", f: "feminine", n: "neutral" }[gender]]?.acceptance !== false;
+	if (accepted(felt)) return felt;
 
-	if (["m", "f", "n"].includes(pronouns.preferred)) return pronouns.preferred;
-	if (["m", "f", "n"].includes(V.player.pronoun)) return V.player.pronoun;
-	return ["m", "f"].includes(V.player.gender) ? V.player.gender : "n";
+	const fallbacks = [pronouns.preferred, V.player.pronoun, V.player.gender, "m", "f", "n"];
+	return fallbacks.find(gender => ["m", "f", "n"].includes(gender) && accepted(gender)) || "n";
 }
 window.playerPronoun = playerPronoun;
 

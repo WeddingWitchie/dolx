@@ -1632,6 +1632,8 @@
 
 	<<case "spike" "unknown">>
 		<<set $xchange.pill.effectsKnown to false>>
+		/* "unknown" callers (xchange-random-spike) count the spike themselves. */
+		<<if _args[0] is "spike">><<set $xchange.timesSpiked to ($xchange.timesSpiked || 0) + 1>><</if>>
 		/* Safety net: guarantee the player is told they've been dosed with something unidentified */
 		<<if !$xchange.pill.spikeAnnounced>>
 			<<set $xchange.pill.spikeAnnounced to true>>
@@ -1917,6 +1919,7 @@
 			<<set _effects to (_args.length gt 0 ? Array.from(_args) : ["genderflip"])>>
 			<<xchange-effects 1 _effects>>
 			<<exposedcheck>>
+			<<set $xchange.timesTaken.player++>>
 		<</if>>
 
 		<<xchange-addeffect "choice">>
@@ -1943,6 +1946,7 @@
 				<<if $xchange.blackmail.intro>><<set $xchange.blackmail.hasGenderswapped to true>><</if>>
 				<<if $xchange.blackmail.activeQuest>><<set $xchange.blackmail.hasGenderswappedRecently to true>><</if>>
 			<</if>>
+			<<set $xchange.timesTaken.player++>>
 		<</if>>
 	<</widget>>
 
@@ -1968,6 +1972,7 @@
 				<<if $xchange.blackmail.intro>><<set $xchange.blackmail.hasGenderswapped to true>><</if>>
 				<<if $xchange.blackmail.activeQuest>><<set $xchange.blackmail.hasGenderswappedRecently to true>><</if>>
 			<</if>>
+			<<set $xchange.timesTaken.player++>>
 		<</if>>
 	<</widget>>
 
@@ -2389,6 +2394,7 @@
 				<<if _effectPool.length gt 0>>
 					<<xchange-addeffect _effectPool.random()>>
 				<</if>>
+				<<set $xchange.timesTaken.player++>>
 			<</if>>
 			<<xchange-fertility-override>>
 			<<xchange-addeffect "unknown">>
