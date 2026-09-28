@@ -2121,6 +2121,7 @@ function settingsObjects(type) {
 						tattoodream: { bool: true, displayName: "Wraith tattoo during nightmares:" },
 						tattoobypass: { bool: true, displayName: "Wraith can overwrite tattoos:" },
 						nosocialrng: { bool: true, displayName: "Wraith disable social tab RNG:" },
+						notentacles: { bool: true, displayName: "Wraith disable tentacles:" },
 					},
 				},
 				shopDefaults: {
