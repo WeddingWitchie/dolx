@@ -1,6 +1,6 @@
 This Is A Compilation Of Goose Mod Submissions ! 
 Please don't reupload without permission !! 
-Last Updated: 8/3/26
+Last Updated: 9/29/26
 
 Thank you to all the creators who contributed 💖💖
 
@@ -34,11 +34,15 @@ Bibi: modded 20
 
 Birdy: kitty neck cushion
 
+Blue: Back fringe
+
 Bowsni: bloomers, elegant socks
 
 Bunnylily: backgrounds 1(191-192), background 2(10-11), foreground 1/2 (60)
 
 Chou Chou: handhelds, blusher, masking fixes, foreground1/2(12-13), bird tf, demon harpy tf, angel harpy tf, tattoos (square/circle/heart/triangle/skull), lace old choker, overalls
+
+cici: Headphones
 
 Cottage: big sailor hat, pumpkin set
 
@@ -66,9 +70,13 @@ Dxmoni: womb tattoo
 
 En: background 1 (192)
 
+ENNE: Classic fringe
+
 ERRORCOFFIN: ruffled blouse, long dress, edited lolita headband
 
 Feral Fae: scout shirt,
+
+forenhel: Bear plumage
 
 Fox Familiar: torn fallen wings, preppy uniforms, rococo midi dress, suspender skirts, fishnet garter stockings, fuzzy knee socks, fox scarf, wool scarf, lolita dress, lolita bonnet, rose platform heels, butterfly eyepatch, rose eyepatch, kaiju costume, spat shoes, offshoulder lace top, off shoulder puff sleeve top
 
@@ -289,6 +297,8 @@ Ely: modded 23 and 26
 vvya: Androgynous body; modded 24 and 25
 
 Rei: fro fringe
+
+Vanilla (yvanilla): Jellyfish bob sides, Little doll fringe, fairly low buns sides, fluffy pigtails sides, little doll sides
 
 Vipi: teddy backpack, jasper pendant, default demon horns, 
 
