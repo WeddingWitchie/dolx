@@ -1306,6 +1306,7 @@ function settingsObjects(type) {
 				dancingRebalance: { min: 0, max: 1, decimals: 0, displayName: "Dancing Rebalance:" },
 				foodSpoilage: { min: 0, max: 1, decimals: 0, displayName: "Food Spoilage:" },
 				produce_yield_factor: { min: 10, max: 200, decimals: 0, displayName: "Produce Yield:" },
+				combatStressGain: { min: 25, max: 150, decimals: 0, displayName: "Combat Stress Gain:" },
 				easyHousekeeping: { min: 0, max: 1, decimals: 0, displayName: "Easy Housekeeping:" },
 				statGainMult: { min: 10, max: 1000, decimals: 0, displayName: "Stat Gain Multiplier:" },
 				stressBeauty: { min: 0, max: 1, decimals: 0, displayName: "Low Stress Beauty Gain:" },
