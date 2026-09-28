@@ -992,9 +992,19 @@ window.setCanvasScalingMode = setCanvasScalingMode;
  */
 function sizeSidebarDollCanvases(cssSize) {
 	const highRes = dollArtIsHighRes();
-	for (const canvas of document.querySelectorAll("#img canvas.mainCanvas, #img canvas.lighting")) {
-		canvas.style.width = `${cssSize}px`;
-		canvas.style.height = `${cssSize}px`;
+	const rayArt = window.modUtils?.getAnyModByNameNoAlias("Ray Art Mod(for DoLP)");
+	for (const canvas of document.querySelectorAll("#img canvas.mainCanvas, #img canvas.mainCanvasnobonder, #img canvas.lighting")) {
+		if (rayArt) {
+			// Ray fills the whole square frame; the stock doll's cropped viewport cuts off its feet and portrait.
+			const container = canvas.parentElement;
+			cssSize = Math.min(container.clientWidth, container.clientHeight);
+			canvas.style.margin = "0";
+			canvas.style.left = `${(container.clientWidth - cssSize) / 2}px`;
+			canvas.style.top = "0";
+		}
+		// Art mods may force their source resolution with !important; the sidebar still owns its display size.
+		canvas.style.setProperty("width", `${cssSize}px`, "important");
+		canvas.style.setProperty("height", `${cssSize}px`, "important");
 		setCanvasScalingMode(canvas, cssSize, undefined, highRes || undefined);
 	}
 }

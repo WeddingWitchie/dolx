@@ -5862,6 +5862,8 @@ function genlayer_clothing_breasts(slot, overrideOptions) {
 		showfn(options) {
 			let breastImg = options.worn[slot].setup.breast_img;
 			if (typeof breastImg === 'object' && breastImg[options.breast_size] != null) breastImg = 1;
+			// Ray supplies a torso sprite for every size, including the flat-chest slots omitted by stock art.
+			if (typeof breastImg === 'object' && window.modUtils?.getAnyModByNameNoAlias("Ray Art Mod(for DoLP)")) breastImg = 1;
 			return options.show_clothes && options.worn[slot].index > 0 && breastImg === 1;
 		},
 
@@ -6078,6 +6080,8 @@ function genlayer_clothing_breasts_acc(slot, overrideOptions) {
 			if (breastAccImg === 1 && typeof breastImg === 'object' && breastImg[options.breast_size] != null)
 				breastAcc = 1;
 			else if (typeof breastAccImg === 'object' && options.worn[slot].setup.breast_acc_img[options.breast_size] != null)
+				breastAcc = 1;
+			if ((breastAccImg === 1 || typeof breastAccImg === 'object') && window.modUtils?.getAnyModByNameNoAlias("Ray Art Mod(for DoLP)"))
 				breastAcc = 1;
 
 			return options.show_clothes

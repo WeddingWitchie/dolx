@@ -12,10 +12,11 @@ var Renderer;
 		copy.drawImage(image, 0, 0);
 		return copy.canvas;
 	}
-	function rescaleImageToCanvasHeight(scale, image, targetHeight) {
+	function rescaleImageToCanvasHeight(scale, image, targetHeight, sourceHeight = image.height) {
+		if (!scale || !targetHeight || (image.height === targetHeight && sourceHeight === image.height)) return image;
 		const aspectRatio = image.width / image.height;
-		const scaledWidth = scale ? targetHeight * aspectRatio : image.width;
-		const scaledHeight = scale ? targetHeight : image.height;
+		const scaledWidth = targetHeight * aspectRatio;
+		const scaledHeight = targetHeight;
 		const i2 = createCanvas(scaledWidth, scaledHeight);
 		/*
 		* Nearest-neighbour works well when enlarging images, but can lose detail when shrinking them.
@@ -26,7 +27,7 @@ var Renderer;
 		const reducing = scaledHeight < image.height || scaledWidth < image.width;
 		i2.imageSmoothingEnabled = reducing;
 		if (reducing) i2.imageSmoothingQuality = "high";
-		i2.drawImage(image, 0, 0, scaledWidth, scaledHeight);
+		i2.drawImage(image, 0, 0, image.width, sourceHeight, 0, 0, scaledWidth, scaledHeight);
 		return i2.canvas;
 	}
 	function isMaskObject(mask) {
@@ -51,9 +52,7 @@ var Renderer;
 			} else {
 				const image = new Image();
 				image.onload = () => {
-					// Rescale the image to the canvas height, if layer.scale is true
-					const rescaledImage = rescaleImageToCanvasHeight(layer.scale, image, layer.model.height);
-					successCallback(src, layer, rescaledImage);
+					successCallback(src, layer, image);
 				};
 				image.onerror = event => {
 					errorCallback(src, layer, event);
@@ -891,6 +890,13 @@ var Renderer;
 			// Keep the original src as the cache key, even when using the fallback image.
 			const cacheKey = layer.src;
 			const onLoad = (src, layer, image) => {
+				// ImageLoader mods can return raw sprites; normalise after every loader, not just the default one.
+				if (!(src instanceof HTMLCanvasElement)) {
+					// Stock weather and decorations target the cropped sidebar; Ray displays the full square frame.
+					const sourceHeight = typeof src === "string" && (src.startsWith("img/misc/ambient/precipitation/") || src.startsWith("img/decorations/")) &&
+						window.modUtils?.getAnyModByNameNoAlias("Ray Art Mod(for DoLP)") ? image.height * 0.75 : image.height;
+					image = rescaleImageToCanvasHeight(layer.scale, image, layer.model?.height, sourceHeight);
+				}
 				layersLoaded++;
 				if (listener && listener.loaded) {
 					listener.loaded(layer.name || "unnamed", src);
@@ -938,6 +944,7 @@ var Renderer;
 				}
 				// As with layer images, the requested src stays the cache key across a fallback.
 				const onLoad = (loadedSrc, layer, image) => {
+					if (!(loadedSrc instanceof HTMLCanvasElement)) image = rescaleImageToCanvasHeight(layer.scale, image, layer.model?.height);
 					masksLoaded[index] = image;
 					masksToLoad--;
 					if (!(loadedSrc instanceof HTMLCanvasElement)) {
