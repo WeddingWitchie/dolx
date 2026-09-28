@@ -39,6 +39,36 @@
 	})>>
 <</widget>>
 
+/* hatchUi for $eggsHatched. The eggs are stored as hawks so vanilla can brood them; turn them human
+   before the naming cards render, since vanilla hatchUi only lists hawk eggs. */
+<<widget "waterDragonHatchUi">>
+	<<run $eggsHatched.forEach(id => {
+		const child = V.childRecords[id];
+		child.species = "human";
+		child.features.beastTransform = "waterdragon";
+		child.features.skinColour = "waterdragon";
+	})>>
+	<div class="settingsGrid m-0 childContainer">
+		<<for _dnId range $eggsHatched>>
+			<<set _egg to $childRecords[_dnId]>>
+			<<capture _egg>>
+				<div @id="'child-' + _egg.childId" class="childUi">
+					<<birthChildElement _egg>>
+				</div>
+			<</capture>>
+		<</for>>
+	</div>
+	<br>
+	<<link [["Next (00:20)"|_args[0]]]>>
+		<<run $eggsHatched.forEach(id => {
+			const child = V.childRecords[id];
+			if (!child.name) child.name = generateBabyName(undefined, child.gender, child.childId);
+			recordBirth(id);
+		})>>
+		<<pass 20>>
+	<</link>>
+<</widget>>
+
 <<widget "waterDragonDecorationArrange">>
 		<div class="waterdragon-decoration-palette">
 			<<set _dnPlacedDecorationIndices to $waterDragonNest.decorationSlots.filter(slot => slot isnot null)>>
