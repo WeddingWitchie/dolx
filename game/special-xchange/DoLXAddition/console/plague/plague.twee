@@ -1,0 +1,820 @@
+:: Home Console Plague
+<<set $outside to 0>>
+<<if $location isnot "home" and $location isnot "alex_cottage">><<set $location to "home">><</if>>
+<<effects>>
+<<run setup.plagueSimulation.ensure($plagueGame)>>
+<<furnitureicon "controller">>You start Outbreak. You play a new disease, and the aim is to reach every person in six regions before doctors finish a cure.
+<br><br>
+<div id="plague-home"><<plagueMenuBody>></div>
+<br>
+<<getouticon>><<link [[Back to the console|Home Console]]>><</link>>
+<br>
+
+:: Plague Map
+<<if !$plagueGame>>
+	There is no outbreak running.
+	<br><br>
+	<<getouticon>><<link [[Back to Outbreak|Home Console Plague]]>><</link>>
+<<else>>
+	<<run setup.plagueSimulation.ensure($plagueGame)>>
+	<div id="plague-game" class="plague-game"><<if $plagueGame.status is "active">><<plagueGameBody>><<else>><<plagueEndBody>><</if>></div>
+	<br>
+	<<getouticon>><<link [[Back to Outbreak|Home Console Plague]]>><</link>>
+<</if>>
+
+
+:: Widgets Plague [widget]
+<<widget "plagueMenuBody">>
+	<<if !$plagueGame>>
+		<<icon "antiques/antique-silver-amulet.png">><<link "Start a new outbreak">><<plagueOpenSetup>><</link>>
+		<br>
+	<<else>>
+		<<set _plagueTot to setup.plagueSimulation.totals($plagueGame)>>
+		<<if $plagueGame.status is "active">>
+			Your saved outbreak is on day <<print $plagueGame.day>>: <<print _plagueTot.infected.toLocaleString("en-GB")>> infected, <<print _plagueTot.dead.toLocaleString("en-GB")>> dead, cure at <<plaguePct $plagueGame.cure>>.
+			<br><br>
+			<<icon "antiques/antique-silver-amulet.png">><<link [[Continue the outbreak|Plague Map]]>><</link>>
+			<br>
+			<<icon "antiques/antique-hourglass.png">><span id="plague-restart"><<link "Start over">><<plagueReplace "#plague-restart">>
+				A new outbreak replaces your day <<print $plagueGame.day>> outbreak when you begin it. Until then this one stays as it is.
+				<br>
+				<<icon "prison-plaque.png">><<link "Set up a new outbreak">><<plagueOpenSetup>><</link>> | <<link "Keep it">><<plagueReplace "#plague-home">><<plagueMenuBody>><</plagueReplace>><</link>>
+			<</plagueReplace>><</link>></span>
+			<br>
+		<<else>>
+			<<set _plagueEnd to setup.plagueSimulation.endView($plagueGame)>>
+			Your last outbreak ended on day <<print _plagueEnd.finalDay>>: <span @class="_plagueEnd.won ? 'green' : 'red'"><<print _plagueEnd.title>></span>. <<print _plagueEnd.reason>>
+			<br><br>
+			<<icon "project-science.png">><<link [[View final report|Plague Map]]>><</link>>
+			<br>
+			<<icon "antiques/antique-silver-amulet.png">><<link "Start a new outbreak">><<plagueOpenSetup>><</link>>
+			<br>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "plagueOpenSetup">>
+	<<set _plagueSetup to setup.plagueSetup.defaults($plagueMeta)>>
+	<<set _plagueSetupMsg to "">>
+	<<set _plagueBegun to false>>
+	<<plagueSetupRedraw>>
+<</widget>>
+
+/* Redraws the wizard. _args[0] is a selector to focus afterwards, else the step title. */
+<<widget "plagueSetupRedraw">>
+	<<plagueReplace "#plague-home">><<plagueSetupBody>><</plagueReplace>>
+	<<run
+		$("#plague-home .macro-textbox").attr({ id: "plague-name", maxlength: setup.plagueData.nameMax, autocomplete: "off", spellcheck: "false" });
+		$(_args[0] || "#plague-home .plague-setup-title").first().trigger("focus");
+	>>
+<</widget>>
+
+<<widget "plagueSetupBody">>
+	<<set _plagueFit to setup.plagueSetup.fitLastSetup($plagueMeta)>>
+	<section class="plague-setup no-numberify" aria-label="New outbreak setup">
+		<div class="plague-setup-top">
+			<span class="plague-title plague-setup-title" tabindex="-1">New outbreak</span>
+			<<if _plagueFit and _plagueSetup.step is "pathogen">>
+				<span class="plague-button plague-use-last"><<link "Use last setup">>
+					<<set _plagueRes to setup.plagueSetup.useLast(_plagueSetup, $plagueMeta)>>
+					<<set _plagueSetupMsg to _plagueRes.msg>>
+					<<plagueSetupRedraw>>
+				<</link>></span>
+			<</if>>
+		</div>
+		<nav class="plague-steps" aria-label="Setup steps"><ol>
+			<<for _plagueS range setup.plagueSetup.stepBar(_plagueSetup)>>
+				<<if _plagueS.current>>
+					<li class="plague-step plague-step-current" aria-current="step"><span class="plague-step-num"><<print _plagueS.number>></span> <span class="plague-step-name"><<print _plagueS.name>></span></li>
+				<<elseif _plagueS.link>>
+					<li class="plague-step plague-step-done"><<capture _plagueS>><<link `'<span class="plague-step-num">&check;</span> <span class="plague-step-name">' + _plagueS.name + '</span>'`>>
+						<<set _plagueRes to setup.plagueSetup.go(_plagueSetup, _plagueS.id)>>
+						<<set _plagueSetupMsg to _plagueRes.msg>>
+						<<plagueSetupRedraw>>
+					<</link>><</capture>></li>
+				<<else>>
+					<li class="plague-step"><span class="plague-step-num"><<print _plagueS.number>></span> <span class="plague-step-name"><<print _plagueS.name>></span></li>
+				<</if>>
+			<</for>>
+		</ol></nav>
+		<div class="plague-setup-msg" role="status" tabindex="-1"><<if _plagueSetupMsg>><<print _plagueSetupMsg>><</if>></div>
+
+		<<switch _plagueSetup.step>>
+			<<case "pathogen">><<plagueSetupPathogen>>
+			<<case "difficulty">><<plagueSetupDifficulty>>
+			<<case "details">><<plagueSetupDetails>>
+			<<case "traits">><<plagueSetupTraits>>
+			<<default>><<plagueSetupReview>>
+		<</switch>>
+
+		<div class="plague-setup-actions">
+			<<if _plagueSetup.step isnot "pathogen">>
+				<span class="plague-button plague-back-step"><<link "Back">><<run setup.plagueSetup.back(_plagueSetup)>><<set _plagueSetupMsg to "">><<plagueSetupRedraw>><</link>></span>
+			<</if>>
+			<<if _plagueSetup.step is "review">>
+				<span class="plague-button plague-begin"><<link "Begin outbreak">>
+					/* Same double-click guard as Advance. finish() validates again and changes nothing when it refuses. */
+					<<if Date.now() - (_plagueLastBegin || 0) gte 400 and !_plagueBegun>>
+						<<set _plagueLastBegin to Date.now()>>
+						<<set _plagueRes to setup.plagueSetup.finish(_plagueSetup, $plagueMeta)>>
+						<<if _plagueRes.ok>>
+							<<set _plagueBegun to true>>
+							<<set $plagueGame to _plagueRes.game>>
+							<<set $plagueMeta to _plagueRes.meta>>
+							<<goto "Plague Map">>
+						<<else>>
+							<<set _plagueSetupMsg to _plagueRes.errors.join(" ")>>
+							<<plagueSetupRedraw ".plague-setup-msg">>
+						<</if>>
+					<</if>>
+				<</link>></span>
+			<<else>>
+				<span class="plague-button plague-next-step"><<link "Next">>
+					<<set _plagueRes to setup.plagueSetup.next(_plagueSetup)>>
+					<<set _plagueSetupMsg to _plagueRes.msg>>
+					<<plagueSetupRedraw>>
+				<</link>></span>
+			<</if>>
+			<span class="plague-button plague-cancel-setup"><<link "Cancel">>
+				/* Opened from the final report, Cancel returns to the report rather than drawing the console menu inside it. */
+				<<if passage() is "Plague Map">><<plagueReplace "#plague-game">><<plagueEndBody>><</plagueReplace>><<else>><<plagueReplace "#plague-home">><<plagueMenuBody>><</plagueReplace>><</if>>
+			<</link>></span>
+		</div>
+	</section>
+<</widget>>
+
+<<widget "plagueSetupPathogen">>
+	<div class="plague-setup-h">Choose a pathogen</div>
+	<div class="plague-cards" role="group" aria-label="Pathogen">
+		<<for _plagueC range setup.plagueSetup.pathogenCards(_plagueSetup, $plagueMeta)>>
+			<div @class="'plague-card plague-pcard plague-card-' + (_plagueC.selected ? 'selected' : _plagueC.playable ? 'available' : 'locked')" @data-plague-choice="_plagueC.id" @data-plague-focus="_plagueC.id">
+				<span @class="'plague-motif plague-motif-' + _plagueC.id" aria-hidden="true"></span>
+				<span class="plague-card-name">
+					<<if _plagueC.playable>><<capture _plagueC>><<link `'<span aria-hidden="true">' + _plagueC.name + '</span><span class="plague-sr">' + _plagueC.name + ', ' + _plagueC.status + '</span>'`>>
+						<<run setup.plagueSetup.choose(_plagueSetup, "pathogen", _plagueC.id, $plagueMeta)>>
+						<<set _plagueSetupMsg to "">>
+						<<plagueSetupRedraw `'[data-plague-focus="' + _plagueC.id + '"] a'`>>
+					<</link>><</capture>><<else>><<print _plagueC.name>><span class="plague-sr">, Locked</span><</if>>
+				</span>
+				<span class="plague-card-line"><<print _plagueC.line>></span>
+				<<if _plagueC.hint>><span class="plague-card-hint"><<print _plagueC.hint>></span><</if>>
+				<span class="plague-card-status" aria-hidden="true"><<if _plagueC.selected>>&check; Selected<<elseif _plagueC.playable>>Available<<else>>Locked<</if>></span>
+			</div>
+		<</for>>
+	</div>
+	<<for _plagueC range setup.plagueSetup.pathogenCards(_plagueSetup, $plagueMeta)>>
+		<<if _plagueC.selected>><div class="plague-setup-detail"><span class="plague-detail-name"><<print _plagueC.name>></span> <<print _plagueC.desc>></div><</if>>
+	<</for>>
+<</widget>>
+
+<<widget "plagueSetupDifficulty">>
+	<div class="plague-setup-h">Choose a difficulty</div>
+	<div class="plague-cards plague-cards-3" role="group" aria-label="Difficulty">
+		<<for _plagueC range setup.plagueSetup.difficultyCards(_plagueSetup, $plagueMeta)>>
+			<div @class="'plague-card plague-dcard plague-card-' + (_plagueC.selected ? 'selected' : _plagueC.playable ? 'available' : 'locked')" @data-plague-choice="_plagueC.id" @data-plague-focus="_plagueC.id">
+				<span class="plague-dicon"><<print setup.plagueUi.symbol(_plagueC.id)>></span>
+				<span class="plague-card-name">
+					<<if _plagueC.playable>><<capture _plagueC>><<link `'<span aria-hidden="true">' + _plagueC.name + '</span><span class="plague-sr">' + _plagueC.name + ', ' + _plagueC.status + '</span>'`>>
+						<<run setup.plagueSetup.choose(_plagueSetup, "difficulty", _plagueC.id, $plagueMeta)>>
+						<<set _plagueSetupMsg to "">>
+						<<plagueSetupRedraw `'[data-plague-focus="' + _plagueC.id + '"] a'`>>
+					<</link>><</capture>><<else>><<print _plagueC.name>><span class="plague-sr">, Locked</span><</if>>
+				</span>
+				<span class="plague-card-line"><<print _plagueC.line>></span>
+				<ul class="plague-card-notes"><<for _plagueN range _plagueC.notes>><li><<print _plagueN>></li><</for>></ul>
+				<<if _plagueC.hint>><span class="plague-card-hint"><<print _plagueC.hint>></span><</if>>
+				<span class="plague-card-status" aria-hidden="true"><<if _plagueC.selected>>&check; Selected<<elseif _plagueC.playable>>Available<<else>>Locked<</if>></span>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "plagueSetupDetails">>
+	<div class="plague-setup-h">Name your outbreak</div>
+	<div class="plague-name-row">
+		<label for="plague-name" class="plague-sr">Name of the outbreak</label>
+		<<textbox "_plagueSetup.name" _plagueSetup.name>>
+		<span class="plague-button plague-suggest"><<link "Suggest a name">><<run setup.plagueSetup.suggestName(_plagueSetup)>><<set _plagueSetupMsg to "">><<plagueSetupRedraw "#plague-name">><</link>></span>
+	</div>
+	<div class="plague-setup-h">Starting region</div>
+	<div class="plague-cards plague-origins" role="group" aria-label="Starting region">
+		<<for _plagueC range setup.plagueSetup.originCards(_plagueSetup)>>
+			<div @class="'plague-card plague-ocard plague-card-' + (_plagueC.selected ? 'selected' : 'available')" @data-plague-choice="_plagueC.id" @data-plague-focus="_plagueC.id">
+				<span class="plague-oicon"><<print setup.plagueUi.regionIcon(_plagueC.id)>></span>
+				<span class="plague-card-name"><<capture _plagueC>><<link `'<span aria-hidden="true">' + _plagueC.name + '</span><span class="plague-sr">' + _plagueC.name + (_plagueC.selected ? ', Selected' : '') + '</span>'`>>
+					<<run setup.plagueSetup.choose(_plagueSetup, "origin", _plagueC.id, $plagueMeta)>>
+					<<set _plagueSetupMsg to "">>
+					<<plagueSetupRedraw `'[data-plague-focus="' + _plagueC.id + '"] a'`>>
+				<</link>><</capture>></span>
+				<span class="plague-card-line"><<print _plagueC.population.toLocaleString("en-GB")>> people</span>
+				<span class="plague-card-facts"><<print _plagueC.density>><br><<print _plagueC.climate>> climate<br><<print _plagueC.care>><br><<print _plagueC.links>> connections</span>
+				<span class="plague-card-status" aria-hidden="true"><<if _plagueC.selected>>&check; Selected<</if>></span>
+			</div>
+		<</for>>
+	</div>
+<</widget>>
+
+<<widget "plagueSetupTraits">>
+	<<set _plagueTb to setup.plagueSetup.traitBrowser(_plagueSetup, $plagueMeta)>>
+	<div class="plague-setup-h">Starting traits</div>
+	<div class="tama-meta">Each slot holds one trait, and only one trait from any category. Choose which categories to cover.</div>
+	<div class="plague-slots" role="group" aria-label="Trait slots">
+		<<for _plagueSl range _plagueTb.slots>>
+			<div @class="'plague-slot' + (_plagueSl.open ? ' plague-slot-open' : '') + (_plagueSl.id ? ' plague-slot-full' : '')" @data-plague-focus="'slot' + _plagueSl.index">
+				<<capture _plagueSl>><<link `'<span class="plague-slot-num" aria-hidden="true">' + (_plagueSl.open ? '&rsaquo; ' : '') + 'Slot ' + _plagueSl.number + '</span><span class="plague-slot-name" aria-hidden="true">' + (_plagueSl.id ? '&check; ' + _plagueSl.name : 'Empty') + '</span><span class="plague-sr">Slot ' + _plagueSl.number + ', ' + (_plagueSl.id ? _plagueSl.name + ', ' + _plagueSl.category : 'empty') + (_plagueSl.open ? ', open' : '') + '</span>'`>>
+					<<run setup.plagueSetup.openSlot(_plagueSetup, _plagueSl.index)>>
+					<<if _plagueSl.id>><<set _plagueSetup.pick to _plagueSl.id>><</if>>
+					<<set _plagueSetupMsg to "">>
+					<<plagueSetupRedraw `'[data-plague-focus="slot' + _plagueSl.index + '"] a'`>>
+				<</link>><</capture>>
+			</div>
+		<</for>>
+	</div>
+	<div class="plague-cats" role="group" aria-label="Traits">
+		<<for _plagueCat range _plagueTb.categories>>
+			<div class="plague-cat" @data-plague-category="_plagueCat.id">
+				<div class="plague-cat-name"><span class="plague-cat-icon"><<print setup.plagueUi.symbol(_plagueCat.id)>></span><<print _plagueCat.name>><<if _plagueCat.covered>> <span class="tama-sub">(covered by <<print _plagueCat.covered.name>>, slot <<print _plagueCat.covered.slot>>)</span><</if>></div>
+				<div class="plague-cards plague-cards-2">
+					<<for _plagueT range _plagueCat.traits>>
+						<div @class="'plague-card plague-tcard plague-tcard-' + _plagueT.state + (_plagueT.picked ? ' plague-tcard-picked' : '')" @data-plague-trait="_plagueT.id" @data-plague-focus="_plagueT.id">
+							<span class="plague-card-name"><<capture _plagueT>><<link `'<span aria-hidden="true">' + _plagueT.name + '</span><span class="plague-sr">' + _plagueT.name + ', ' + _plagueT.status + (_plagueT.picked ? ', selected' : '') + '</span>'`>>
+								<<set _plagueSetup.pick to _plagueT.id>>
+								<<set _plagueSetupMsg to "">>
+								<<plagueSetupRedraw `'[data-plague-focus="' + _plagueT.id + '"] a'`>>
+							<</link>><</capture>></span>
+							<span class="plague-card-status" aria-hidden="true"><<if _plagueT.state is "equipped">>&check; <<elseif _plagueT.state is "covered">>&times; <</if>><<print _plagueT.status>></span>
+						</div>
+					<</for>>
+				</div>
+			</div>
+		<</for>>
+	</div>
+	<div class="plague-setup-detail plague-trait-detail" aria-live="polite">
+		<<if _plagueTb.detail>>
+			<span class="plague-detail-name"><<print _plagueTb.detail.name>></span> <span class="tama-sub"><<print _plagueTb.detail.category>></span>
+			<div><<print _plagueTb.detail.desc>></div>
+			<ul class="plague-list"><<for _plagueL range _plagueTb.detail.effectLines>><li><<print _plagueL>></li><</for>></ul>
+			<<if _plagueTb.detail.note>><div class="plague-detail-fork"><<print _plagueTb.detail.note>></div><</if>>
+			<<if _plagueTb.detail.action is "equip">>
+				<span class="plague-button plague-equip"><<link `'Put in slot ' + _plagueTb.openSlot`>>
+					<<set _plagueRes to setup.plagueSetup.equip(_plagueSetup, $plagueMeta, _plagueSetup.slotOpen, _plagueSetup.pick)>>
+					<<set _plagueSetupMsg to _plagueRes.msg>>
+					<<plagueSetupRedraw `'[data-plague-focus="' + _plagueSetup.pick + '"] a'`>>
+				<</link>></span>
+			<<elseif _plagueTb.detail.action is "clear">>
+				<span class="plague-button plague-clear"><<link `'Clear slot ' + (_plagueTb.detail.slot + 1)`>>
+					<<run setup.plagueSetup.clearSlot(_plagueSetup, _plagueTb.detail.slot)>>
+					<<set _plagueSetupMsg to "">>
+					<<plagueSetupRedraw `'[data-plague-focus="' + _plagueSetup.pick + '"] a'`>>
+				<</link>></span>
+			<</if>>
+		<<else>>
+			Select a trait to read what it does, then put it in slot <<print _plagueTb.openSlot>>.
+		<</if>>
+	</div>
+<</widget>>
+
+<<widget "plagueSetupReview">>
+	<<set _plagueRv to setup.plagueSetup.review(_plagueSetup, $plagueMeta, $plagueGame)>>
+	<div class="plague-setup-h">Outbreak setup</div>
+	<dl class="plague-review">
+		<div><dt>Name</dt><dd class="plague-review-name"><<print setup.plagueUi.plainHtml(_plagueRv.name)>></dd></div>
+		<div><dt>Pathogen</dt><dd><<print _plagueRv.pathogen>></dd></div>
+		<div><dt>Difficulty</dt><dd><<print _plagueRv.difficulty>></dd></div>
+		<div><dt>Origin</dt><dd><<print _plagueRv.origin>></dd></div>
+	</dl>
+	<<if _plagueRv.originNote>><div class="tama-meta plague-review-note"><<print _plagueRv.originNote>></div><</if>>
+	<div class="plague-setup-h">Starting traits</div>
+	<<if _plagueRv.traits.length>>
+		<ul class="plague-review-traits"><<for _plagueT range _plagueRv.traits>><li><span class="plague-review-trait">&check; <<print _plagueT.name>></span> <span class="tama-sub"><<print _plagueT.category>>: <<print _plagueT.effectLines.join(", ")>></span></li><</for>></ul>
+	<<else>>
+		<div class="tama-meta">None chosen.</div>
+	<</if>>
+	<<if _plagueRv.replaces>><div class="plague-detail-fork">Beginning replaces your day <<print _plagueRv.replaces>> outbreak.</div><</if>>
+<</widget>>
+
+/* Below is outbreak display widgets */
+
+<<widget "plaguePct">>
+	<<set $_pct to Number(_args[0]) || 0>>
+	<<if $_pct lte 0>>0%<<elseif $_pct lt 0.1>>&lt;0.1%<<elseif $_pct lt 10>><<print Math.floor($_pct * 10) / 10>>%<<elseif $_pct lt 100>><<print Math.floor($_pct)>>%<<else>>100%<</if>>
+<</widget>>
+
+<<widget "plagueDnaLabel">><span class="tama-k"><<icon "paternity-test.png">> DNA</span><</widget>>
+
+<<widget "plagueReportLink">>
+	<<if $plagueGame.status isnot "active">>
+		<span class="plague-report-open"><<link "Final report">><<plagueReplace "#plague-game">><<plagueEndBody>><</plagueReplace>><<run $("#plague-game .plague-end-title").trigger("focus")>><</link>></span>
+	<</if>>
+<</widget>>
+
+/* _args[0] is "world" or "evolve". The outbreak name is player text, so it is always printed through plainHtml. */
+<<widget "plagueNav">>
+	<div class="plague-top">
+		<div class="plague-strip">
+			<span class="plague-title"><<print setup.plagueUi.plainHtml($plagueGame.name)>></span>
+			<span class="tama-sub"><<if $plagueGame.status is "active">>Day <<print $plagueGame.day>><<else>>Ended on day <<print $plagueGame.day - 1>><</if>></span>
+			<span class="plague-dna"><<plagueDnaLabel>> <span class="plague-dna-v plague-cost"><<print $plagueGame.dna>></span><span class="plague-dna-gain"><<if _plagueDnaGain>>+<<print _plagueDnaGain>><</if>></span></span>
+		</div>
+		<div class="plague-nav-row">
+			<nav class="plague-nav" aria-label="Outbreak screens">
+				<<if _args[0] is "world">>
+					<span class="plague-tab plague-tab-current" aria-current="page">World</span>
+					<span class="plague-tab plague-evolve-open"><<link "Evolve">><<set _plagueEvolveMsg to "">><<plagueReplace "#plague-game">><<plagueEvolveBody>><</plagueReplace>><<run $("#plague-game .plague-world-open a").first().trigger("focus")>><</link>></span>
+				<<else>>
+					<span class="plague-tab plague-world-open"><<link "World">><<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>><<run $("#plague-game .plague-evolve-open a").first().trigger("focus")>><</link>></span>
+					<span class="plague-tab plague-tab-current" aria-current="page">Evolve</span>
+				<</if>>
+			</nav>
+			<<plagueReportLink>>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "plagueMap">>
+	<<set _plagueRoutes to setup.plagueUi.routes($plagueGame)>>
+	<div class="plague-map">
+		<<print setup.plagueUi.routeSvg($plagueGame)>>
+		<<for _plagueRt range _plagueRoutes>>
+			<<if _plagueRt.closed>><span class="plague-closure" aria-hidden="true" @data-route="_plagueRt.a + '-' + _plagueRt.b" @style="'left:' + _plagueRt.midX + '%;top:' + _plagueRt.midY + '%'">&times;</span><</if>>
+		<</for>>
+		<<for _plagueN range setup.plagueUi.regionNodes($plagueGame)>>
+			<div @class="'plague-region plague-tier-' + _plagueN.tierName + (_plagueN.isolated ? ' plague-isolated' : '')" @data-plague-region="_plagueN.id" @data-plague-tier="_plagueN.tier" @style="'left:' + _plagueN.x + '%;top:' + _plagueN.y + '%'">
+				<<if _plagueN.deadBand>><span class="plague-node-dead" aria-hidden="true" @style="'height:' + _plagueN.deadBand + '%'"></span><</if>>
+				/* The link text carries the whole state for screen readers; the lines under it repeat it visually only. */
+				<span class="plague-region-name plague-region-link"><<capture _plagueN>><<link `'<span aria-hidden="true">' + _plagueN.name + '</span><span class="plague-sr">' + _plagueN.label + '</span>'`>><<plagueReplace "#plague-game">><<plagueRegionBody _plagueN.id>><</plagueReplace>><<run $("#plague-game .plague-back a").first().trigger("focus")>><</link>><</capture>></span>
+				<span class="plague-node-line plague-node-inf" aria-hidden="true"><<print _plagueN.infectedText>> &middot; <<print _plagueN.tierName>></span>
+				<<if _plagueN.deadBand>><span class="plague-node-line plague-node-deadtext" aria-hidden="true"><<print _plagueN.deadText>> dead</span><</if>>
+				<<if _plagueN.isolated>><span class="plague-node-line plague-node-iso" aria-hidden="true">Isolated<<if _plagueN.isolationDays>> &middot; <<print _plagueN.isolationDays>>d<</if>></span><</if>>
+			</div>
+		<</for>>
+	</div>
+	<ul class="plague-sr plague-route-list">
+		<<for _plagueRt range _plagueRoutes>><li><<print _plagueRt.label>></li><</for>>
+	</ul>
+	<div class="plague-legend" aria-hidden="true">
+		<<for _plagueType range Object.keys(setup.plagueData.routeTypes)>>
+			<span class="plague-legend-item"><<print setup.plagueUi.legendSvg(_plagueType)>><<print setup.plagueData.routeTypes[_plagueType].name>></span>
+		<</for>>
+		<<if _plagueRoutes.some(r => r.closed)>><span class="plague-legend-item plague-legend-closed"><span class="plague-closure-key">&times;</span>closed by isolation</span><</if>>
+	</div>
+<</widget>>
+
+<<widget "plagueResponse">>
+	<<set _plagueRv to setup.plagueSimulation.responseView($plagueGame)>>
+	<div class="plague-response">
+		<div class="tama-barline">
+			<span class="tama-blabel">Response</span>
+			<div class="tama-bar"><div @class="'plague-response-fill plague-stage-' + _plagueRv.stage" @style="'width:' + Math.round(_plagueRv.progress * 100) + '%'"></div><span class="tama-bar-label"><<print _plagueRv.name>></span></div>
+		</div>
+		<<if _plagueRv.stage is 0>>
+			<div class="tama-meta plague-response-main">Nobody has recognised the outbreak yet. No cure research.</div>
+		<<else>>
+			<<if _plagueRv.causes.length gt 0>><div class="tama-meta plague-response-main">Main pressure: <<print _plagueRv.causes[0].charAt(0).toLowerCase() + _plagueRv.causes[0].slice(1)>></div><</if>>
+			<details class="plague-response-more tama-meta">
+				<summary>Why the authorities are acting</summary>
+				<ul class="plague-list plague-response-causes">
+					<<for _plagueCause range _plagueRv.causes.slice(1)>><li><<print _plagueCause>></li><</for>>
+					<li><<if _plagueRv.research lt 1>>Doctors are investigating. Cure research has begun, slowly.<<elseif _plagueRv.research is 1>>The authorities are responding. Cure research at full speed.<<else>>The authorities are fighting the outbreak. Cure research is sped up.<</if>></li>
+					<<if _plagueRv.nextName>><li>Pressure is rising toward <<print _plagueRv.nextName>>.</li><</if>>
+				</ul>
+			</details>
+		<</if>>
+	</div>
+<</widget>>
+
+/* Using an ability changes $plagueGame in place: updateMoment() once on success, never on a refusal, and no day advance. */
+<<widget "plagueAbility">>
+	<<set _plagueAb to setup.plagueSimulation.abilityView($plagueGame)>>
+	<<if _plagueAb>>
+		<div class="plague-ability tama-card">
+			<div class="plague-ability-head"><span class="plague-ability-name"><<print _plagueAb.name>> &middot; <<print _plagueAb.charges>> / <<print _plagueAb.max>></span></div>
+			<div class="tama-meta"><<print _plagueAb.desc>></div>
+			<<if _plagueAb.canUse>>
+				<<if _plagueAb.needsTarget and !_plagueAb.targets.some(t => t.id is _plagueAbTarget)>><<set _plagueAbTarget to _plagueAb.targets[0].id>><</if>>
+				<div class="plague-ability-row">
+					<<if _plagueAb.needsTarget>><label for="plague-ability-target" class="plague-sr">Region to seed</label>
+					<<set _plagueAbOptions to {}>><<run _plagueAb.targets.forEach(t => { _plagueAbOptions[t.name] = t.id; })>>
+					<<listbox "_plagueAbTarget" autoselect>><<optionsfrom _plagueAbOptions>><</listbox>><<run $("#plague-game .plague-ability select").attr("id", "plague-ability-target")>><</if>>
+					<span class="plague-button plague-ability-use"><<link `_plagueAb.name`>>
+						<<if $plagueGame.status is "active" and Date.now() - (_plagueLastAbility || 0) gte 400>>
+							<<set _plagueLastAbility to Date.now()>>
+							<<set _plagueAbRes to setup.plagueSimulation.useAbility($plagueGame, _plagueAb.needsTarget ? _plagueAbTarget : null)>>
+							<<set _plagueAdvanceMsg to _plagueAbRes.text>>
+							<<if _plagueAbRes.ok>>
+								<<run updateMoment()>>
+								<<set _plagueDnaGain to 0>><<set _plagueDnaMsg to "">>
+							<</if>>
+							<<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>>
+							<<run $("#plague-game .plague-advance a").first().trigger("focus")>>
+						<</if>>
+					<</link>></span>
+				</div>
+			<</if>>
+			<<if _plagueAb.warn>><div class="tama-meta"><<print _plagueAb.warn>></div><</if>>
+			<<if !_plagueAb.canUse and _plagueAb.note>><div class="tama-meta"><<print _plagueAb.note>></div><</if>>
+		</div>
+	<</if>>
+<</widget>>
+
+<<widget "plagueGameBody">>
+	<<set _plagueTot to setup.plagueSimulation.totals($plagueGame)>>
+	<<plagueNav "world">>
+	<<set _plaguePv to setup.plagueSimulation.pathogenView($plagueGame)>>
+	<<if _plaguePv>><div class="plague-pathogen tama-meta"><<print _plaguePv.name>> &middot; <<print _plaguePv.tag>><<for _plaguePp range _plaguePv.parts>> &middot; <<print _plaguePp>><</for>></div><</if>>
+
+	/* Actions come before the map so DoL's number keys give Evolve 1 and Advance 2, ahead of the six regions. */
+	<div class="plague-actions">
+		<<if $plagueGame.status is "active">>
+			<span class="plague-advance plague-button"><<link "Advance one day">>
+				/* A second click within 400ms is the tail of a double-click: ignore it. */
+				<<if $plagueGame.status is "active" and Date.now() - (_plagueLastAdvance || 0) gte 400>>
+					<<set _plagueLastAdvance to Date.now()>>
+					<<set _plagueDay to setup.plagueSimulation.advanceDay($plagueGame)>>
+					<<set _plagueAdvanceMsg to setup.plagueUi.dayFeedback(_plagueDay, $plagueGame)>>
+					<<plagueRecordRun>>
+					<<run updateMoment()>>
+					<<set _plagueDnaGain to _plagueDay.dnaGained>>
+					<<set _plagueDnaMsg to setup.plagueUi.dnaFeedback(_plagueDay)>>
+					<<if $plagueGame.status is "active">>
+						<<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>>
+						<<run $("#plague-game .plague-advance a").first().trigger("focus")>>
+					<<else>>
+						<<plagueReplace "#plague-game">><<plagueEndBody>><</plagueReplace>>
+						<<run $("#plague-game .plague-end-title").trigger("focus")>>
+					<</if>>
+				<</if>>
+			<</link>></span>
+			<span class="plague-advance-until plague-button"><<link "Advance until something happens">>
+				<<if $plagueGame.status is "active" and Date.now() - (_plagueLastAdvance || 0) gte 400>>
+					<<set _plagueLastAdvance to Date.now()>>
+					<<set _plagueSkip to setup.plagueSimulation.advanceUntil($plagueGame)>>
+					<<plagueRecordRun>>
+					<<run updateMoment()>>
+					<<set _plagueDnaGain to _plagueSkip.dnaGained>>
+					<<set _plagueDnaMsg to setup.plagueUi.dnaFeedback(_plagueSkip)>>
+					<<set _plagueAdvanceMsg to "Advanced " + _plagueSkip.days + (_plagueSkip.days is 1 ? " day" : " days") + ". " + (_plagueSkip.stops.length ? "Stopped on day " + _plagueSkip.stops[0].day + ": " + _plagueSkip.stops.map(s => s.text).join(" ") : "Nothing needed your attention.")>>
+					<<if $plagueGame.status is "active">>
+						<<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>>
+						<<run $("#plague-game .plague-advance-until a").first().trigger("focus")>>
+					<<else>>
+						<<plagueReplace "#plague-game">><<plagueEndBody>><</plagueReplace>>
+						<<run $("#plague-game .plague-end-title").trigger("focus")>>
+					<</if>>
+				<</if>>
+			<</link>></span>
+			<div class="plague-advance-msg tama-meta" role="status"><<if _plagueAdvanceMsg>><<print _plagueAdvanceMsg>><</if>></div>
+			/* Milestone DNA goes here, not in the news log. */
+			<div class="plague-dna-msg tama-meta plague-cost" role="status"><<if _plagueDnaMsg>><<print _plagueDnaMsg>><</if>></div>
+			<<plagueAbility>>
+		<<else>>
+			<div class="plague-outcome tama-meta">This outbreak has ended. The map shows the world as it was on the last day.</div>
+		<</if>>
+	</div>
+
+	<<plagueMap>>
+
+	<div class="tama-card plague-status">
+		<div class="plague-counts">
+			<span><span class="tama-k">Healthy</span> <span class="tama-v"><<print _plagueTot.healthy.toLocaleString("en-GB")>></span></span>
+			<span><span class="tama-k">Infected</span> <span class="tama-v red"><<print _plagueTot.infected.toLocaleString("en-GB")>></span></span>
+			<span><span class="tama-k">Dead</span> <span class="tama-v"><<print _plagueTot.dead.toLocaleString("en-GB")>></span></span>
+		</div>
+		<div class="tama-barline plague-cure">
+			<span class="tama-blabel">Cure</span>
+			<div class="tama-bar"><div class="plague-cure-fill" @style="'width:' + Math.min(100, $plagueGame.cure) + '%'"></div><span class="tama-bar-label"><<plaguePct $plagueGame.cure>></span></div>
+		</div>
+		<<plagueResponse>>
+	</div>
+
+	<<set _plagueRv to setup.plagueSimulation.responseView($plagueGame)>>
+	<<set _plagueEvents to setup.plagueSimulation.activeEventViews($plagueGame)>>
+	<<if _plagueEvents.length gt 0>>
+		<div class="plague-chiprow plague-events">
+			<div class="tama-k"><<if $plagueGame.status is "active">>World events<<else>>World events running when the outbreak ended<</if>></div>
+			<<for _plagueEv range _plagueEvents>>
+				<div class="plague-event"><span class="plague-chip"><span class="plague-event-name"><<print _plagueEv.name>></span> &middot; <<print _plagueEv.daysLeft>> <<print _plagueEv.daysLeft is 1 ? "day" : "days">></span> <span class="plague-chip-effect"><<print _plagueEv.desc>> <span class="plague-evo-effects"><<print _plagueEv.effectLines.join(", ")>>.</span></span></div>
+			<</for>>
+		</div>
+	<</if>>
+	<<if _plagueRv.effects.length gt 0 or _plagueRv.measureLines.length gt 0>>
+		<div class="plague-chiprow plague-authorities">
+			<div class="tama-k">Authorities</div>
+			<<for _plagueAe range _plagueRv.effects>>
+				<div class="plague-authority"><span class="plague-chip"><span class="plague-event-name"><<print _plagueAe.target>> isolated</span> &middot; <<print _plagueAe.daysLeft>> <<print _plagueAe.daysLeft is 1 ? "day" : "days">></span> <span class="plague-chip-effect"><<print _plagueAe.desc>></span></div>
+			<</for>>
+			<<if _plagueRv.measureLines.length gt 0>>
+				<div class="plague-authority plague-measures"><span class="plague-chip"><span class="plague-event-name"><<print _plagueRv.name>> measures</span></span> <span class="plague-chip-effect"><<print _plagueRv.measureLines.join(", ")>>.</span></div>
+			<</if>>
+		</div>
+	<</if>>
+
+	/* Tones are DoL colour classes: red spread milestones, teal world events, gold cure research, plain for the rest. */
+	<div class="plague-log">
+		<div class="tama-k">News</div>
+		<<if $plagueGame.log.length is 0>>
+			<div class="tama-meta">Nothing has happened yet.</div>
+		<<else>>
+			<<set _plagueNews to $plagueGame.log.slice().reverse()>>
+			<<for _plagueI, _plagueEntry range _plagueNews.slice(0, 5)>>
+				<div @class="'plague-log-line' + (_plagueI is 0 ? ' plague-log-latest' : '')"><span class="plague-log-day">Day <<print _plagueEntry.day>></span> <span @class="_plagueEntry.tone"><<print _plagueEntry.text>></span></div>
+			<</for>>
+			<<if _plagueNews.length gt 5>>
+				<details class="plague-log-earlier">
+					<summary>Earlier news (<<print _plagueNews.length - 5>>)</summary>
+					<<for _plagueEntry range _plagueNews.slice(5)>>
+						<div class="plague-log-line"><span class="plague-log-day">Day <<print _plagueEntry.day>></span> <span @class="_plagueEntry.tone"><<print _plagueEntry.text>></span></div>
+					<</for>>
+				</details>
+			<</if>>
+		<</if>>
+	</div>
+<</widget>>
+
+<<widget "plagueRegionBody">>
+	<<set _plagueR to setup.plagueSimulation.regionView($plagueGame, _args[0])>>
+	/* Kept separately because redrawing the map reuses _plagueR for every card. */
+	<<set _plagueViewing to _args[0]>>
+	<div class="plague-back"><span><<historyicon>><<link "Back to map">><<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>><<run $('#plague-game [data-plague-region="' + _plagueViewing + '"] .plague-region-link a').first().trigger("focus")>><</link>></span><<plagueReportLink>></div>
+	<div class="tama-card">
+		<div class="tama-head"><span class="plague-title"><<print _plagueR.name>></span> <span class="tama-sub"><<if $plagueGame.status is "active">>Day <<print $plagueGame.day>><<else>>Final day <<print $plagueGame.day - 1>><</if>></span></div>
+		<div class="tama-row">
+			<div class="tama-stat"><span class="tama-k">Population</span><span class="tama-v"><<print _plagueR.population.toLocaleString("en-GB")>></span></div>
+			<div class="tama-stat"><span class="tama-k">Healthy</span><span class="tama-v"><<print _plagueR.healthy.toLocaleString("en-GB")>></span></div>
+			<div class="tama-stat"><span class="tama-k">Infected</span><span class="tama-v red"><<print _plagueR.infected.toLocaleString("en-GB")>></span></div>
+			<div class="tama-stat"><span class="tama-k">Dead</span><span class="tama-v"><<print _plagueR.dead.toLocaleString("en-GB")>></span></div>
+		</div>
+		<div class="plague-share" aria-hidden="true"><span class="plague-share-inf" @style="'width:' + _plagueR.infectedPct + '%'"></span><span class="plague-share-dead" @style="'width:' + _plagueR.deadPct + '%'"></span></div>
+		<div class="tama-meta"><span class="red"><<plaguePct _plagueR.infectedPct>> infected</span> &middot; <<plaguePct _plagueR.deadPct>> dead</div>
+	</div>
+
+	<div class="plague-section">
+		<div class="tama-k">Local conditions</div>
+		<div class="plague-region-note"><<print _plagueR.note>>.</div>
+		<ul class="plague-list plague-region-traits">
+			<<for _plagueLine range _plagueR.traitLines>><li><<print _plagueLine>></li><</for>>
+			<li>Medical capacity: <<plaguePct `_plagueR.capacityWorking * 100`>> still working, <<plaguePct `_plagueR.capacityWorkingShare * 100`>> of what works in the world today.</li>
+			<<if _plagueR.symptomsReduceCapacity>><li>Symptoms are reducing medical capacity among infected people.</li><</if>>
+		</ul>
+	</div>
+
+	<div class="plague-section">
+		<div class="tama-k">Connections</div>
+		<ul class="plague-list">
+			<<for _plagueN range _plagueR.neighbours>>
+				<li class="plague-connection"><<print _plagueN.name>>, by <<print _plagueN.routeName>><<if _plagueN.closed>> <span class="tama-sub">(closed by isolation)</span><</if>></li>
+			<</for>>
+		</ul>
+	</div>
+
+	<div class="plague-section">
+		<div class="tama-k">Current effects</div>
+		<<if _plagueR.effects.length is 0>>
+			<div class="tama-meta">No evolution or event is changing this region right now.</div>
+		<<else>>
+			<ul class="plague-list">
+				<<for _plagueE range _plagueR.effects>>
+					<li class="plague-effect"><<print _plagueE.name>><<if _plagueE.daysLeft>> <span class="tama-sub">(<<print _plagueE.daysLeft>> <<print _plagueE.daysLeft is 1 ? "day" : "days">> left)</span><</if>>: <<print _plagueE.lines.join(", ")>>.</li>
+				<</for>>
+			</ul>
+		<</if>>
+	</div>
+<</widget>>
+
+<<widget "plagueEvolveBody">>
+	<<set _plagueStats to setup.plagueSimulation.stats($plagueGame)>>
+	<<plagueNav "evolve">>
+	<div class="tama-card">
+		<div class="tama-row">
+			<div class="tama-stat"><span class="tama-k">Infectivity</span><span class="tama-v"><<print _plagueStats.infectivity>></span></div>
+			<div class="tama-stat"><span class="tama-k">Severity</span><span class="tama-v"><<print _plagueStats.severity>></span></div>
+			<div class="tama-stat"><span class="tama-k">Lethality</span><span class="tama-v"><<print _plagueStats.lethality>></span></div>
+			<div class="tama-stat"><span class="tama-k">Cure resistance</span><span class="tama-v"><<print Math.round(_plagueStats.resistance * 100)>>%</span></div>
+		</div>
+	</div>
+	<<set _plagueEnded to $plagueGame.status isnot "active">>
+	<<if _plagueEnded>><div class="plague-evo-ended">This outbreak has ended. Evolutions can no longer be changed.</div><</if>>
+
+	<<set _plagueGroups to setup.plagueSimulation.upgradeViews($plagueGame)>>
+	<<if !_plagueGroups.some(g => g.id is _plagueEvoTab)>><<set _plagueEvoTab to _plagueGroups[0].id>><</if>>
+	<<if typeof _plagueEvoPick isnot "object">><<set _plagueEvoPick to {}>><</if>>
+	<nav class="plague-families" aria-label="Evolution families">
+		<<for _plagueGroup range _plagueGroups>>
+			<<if _plagueGroup.id is _plagueEvoTab>>
+				<span class="plague-family plague-family-current" aria-current="true" tabindex="-1" @data-plague-category="_plagueGroup.id"><<print _plagueGroup.name>> <span class="plague-family-count"><<print _plagueGroup.ownedCount>></span></span>
+			<<else>>
+				<span class="plague-family" @data-plague-category="_plagueGroup.id"><<capture _plagueGroup>><<link `_plagueGroup.name + ' <span class="plague-family-count">' + _plagueGroup.ownedCount + '</span>'`>>
+					<<set _plagueEvoTab to _plagueGroup.id>>
+					<<set _plagueEvolveMsg to "">>
+					<<plagueReplace "#plague-game">><<plagueEvolveBody>><</plagueReplace>>
+					<<run $("#plague-game .plague-family-current").trigger("focus")>>
+				<</link>><</capture>></span>
+			<</if>>
+		<</for>>
+	</nav>
+
+	<<set _plagueTree to setup.plagueUi.evolveLayout($plagueGame, _plagueEvoTab)>>
+	<<set _plagueSel to _plagueTree.nodes.find(u => u.id is _plagueEvoPick[_plagueEvoTab]) || (!_plagueEnded and _plagueTree.nodes.find(u => u.state is "available")) || _plagueTree.nodes[0]>>
+	<<set _plagueSelLane to _plagueTree.lanes.findIndex(l => l.id is _plagueSel.lane)>>
+	<section @class="'plague-tree no-numberify' + (_plagueEnded ? ' plague-tree-ended' : '')" @data-plague-category="_plagueTree.id" @aria-label="_plagueTree.name + ' evolutions'" @style="'--cols:' + _plagueTree.cols + ';--rows:' + _plagueTree.rows + ';--gap-h:' + _plagueTree.tree.gap + 'em;--node-h:' + _plagueTree.tree.node + 'em;--edge-rows:' + (2 * _plagueTree.rows) + ';--end:' + (2 + 2 * _plagueTree.rows) + ';--detail:' + (3 + 2 * _plagueTree.rows)">
+		<<print setup.plagueUi.evolveSvg(_plagueTree)>>
+		<<for _plagueI, _plagueLane range _plagueTree.lanes>>
+			<div class="plague-lane" @data-plague-branch="_plagueLane.id" @style="'--lc:' + (_plagueLane.col + 1) + ';--lw:' + _plagueLane.width + ';--order:' + (2 * _plagueI)">
+				<div class="plague-lane-name"><<print _plagueLane.name>></div>
+				<<for _plagueFork range _plagueTree.forks.filter(f => f.lane is _plagueLane.id)>>
+					<div @class="'plague-fork' + (_plagueFork.chosen ? ' plague-fork-chosen' : '')" aria-hidden="true" @data-plague-fork="_plagueFork.group" @style="'--r:' + _plagueFork.gridRow + ';--c:' + (_plagueFork.col + 1) + ';--span:' + _plagueFork.span + ';--mr:' + _plagueFork.mRow"><span>&times; <<print _plagueFork.label>></span></div>
+				<</for>>
+				<<for _plagueU range _plagueLane.nodes>>
+					<<set _plagueNs to _plagueEnded and ["available", "dna"].includes(_plagueU.planState) ? "unowned" : _plagueU.planState>>
+					<<set _plagueNsWord to {owned: "evolved", available: "can evolve", dna: "needs " + _plagueU.dnaShort + " more DNA", requires: "locked", excluded: "excluded by " + _plagueU.excludedByName, unowned: "not evolved"}[_plagueNs]>>
+					<div @class="'plague-node plague-node-' + _plagueNs + (_plagueU.id is _plagueSel.id ? ' plague-node-selected' : '')" @data-plague-upgrade="_plagueU.id" @data-plague-state="_plagueNs" @style="'--r:' + _plagueU.gridRow + ';--c:' + (_plagueU.col + 1) + ';--mr:' + _plagueU.mRow + ';--mc:' + _plagueU.mCol + ';--ms:' + _plagueU.mSpan">
+						<span class="plague-node-name"><<capture _plagueU>><<link `'<span aria-hidden="true">' + _plagueU.name + '</span><span class="plague-sr">' + _plagueU.name + ', ' + _plagueU.cost + ' DNA, ' + _plagueNsWord + (_plagueU.rivals.length and _plagueNs isnot "excluded" ? ', only one of this or ' + _plagueU.rivalNames.join(' or ') : '') + (_plagueU.id is _plagueSel.id ? ', selected' : '') + '</span>'`>>
+							/* Kept apart from _plagueU, which the redraw's own loop overwrites. */
+							<<set _plagueFocusId to _plagueU.id>>
+							<<set _plagueEvoPick[_plagueEvoTab] to _plagueFocusId>>
+							<<set _plagueEvolveMsg to "">>
+							<<plagueReplace "#plague-game">><<plagueEvolveBody>><</plagueReplace>>
+							<<run $('#plague-game [data-plague-upgrade="' + _plagueFocusId + '"] .plague-node-name a').trigger("focus")>>
+						<</link>><</capture>></span>
+						<span class="plague-node-meta" aria-hidden="true"><span class="plague-node-mark"><<if _plagueNs is "owned">>&check;<<elseif _plagueNs is "available">>+<<elseif _plagueNs is "excluded">>&times;<</if>></span><span class="plague-node-cost plague-cost"><<print _plagueU.cost>></span><<if _plagueU.tag>> &middot; <<print _plagueU.tag>><</if>></span>
+						<<if _plagueU.afterText>><span class="plague-node-after" aria-hidden="true">after <<print _plagueU.afterText>></span><</if>>
+					</div>
+				<</for>>
+			</div>
+		<</for>>
+		<div class="plague-tree-key" aria-hidden="true">
+			<span class="plague-legend-item"><svg class="plague-legend-line" viewBox="0 0 30 10"><path class="plague-edge plague-edge-all" d="M0 5H30"></path></svg>needs</span>
+			<span class="plague-legend-item"><svg class="plague-legend-line" viewBox="0 0 30 10"><path class="plague-edge plague-edge-any" d="M0 5H30"></path></svg>needs either</span>
+			<span class="plague-legend-item"><span class="plague-fork-key">&times;</span>pick one</span>
+			<span class="plague-legend-item">&check; evolved</span>
+			<span class="plague-legend-item">+ can evolve</span>
+			<span class="plague-legend-item"><span class="plague-key-box"></span>locked</span>
+			<span class="plague-legend-item"><span class="plague-key-box plague-key-excluded"></span>excluded</span>
+		</div>
+		<div class="plague-detail" @style="'--order:' + (2 * _plagueSelLane + 1)"><<plagueEvoDetail _plagueSel>></div>
+	</section>
+<</widget>>
+
+<<widget "plagueEvoDetail">>
+	<<set _plagueD to _args[0]>>
+	<div class="plague-detail-head">
+		<span class="plague-detail-name" @data-plague-detail="_plagueD.id"><<print _plagueD.name>></span>
+		<span class="plague-detail-cost plague-cost"><<print _plagueD.cost>> DNA</span>
+	</div>
+	<div class="plague-detail-state">
+		<<switch _plagueD.planState>>
+		<<case "owned">><span class="green">&check; Evolved</span>
+		<<case "excluded">><span class="orange">&times; <<print _plagueD.excludedText>></span>
+		<<case "requires">><span class="plague-detail-locked">Locked</span>
+		<<default>><<if _plagueEnded>>Not evolved<<elseif _plagueD.planState is "dna">>Needs <<print _plagueD.dnaShort>> more DNA<<else>>+ Ready to evolve<</if>>
+		<</switch>>
+	</div>
+	<<if _plagueD.mutatedDay>><div class="purple">Mutated spontaneously on day <<print _plagueD.mutatedDay>>.</div><</if>>
+	<div class="tama-meta"><<print _plagueD.desc>></div>
+	<ul class="plague-list plague-detail-effects"><<for _plagueLine range _plagueD.effectLines>><li><<print _plagueLine>></li><</for>></ul>
+	<<if _plagueD.requires.length or _plagueD.requiresAny.length>>
+		<div class="plague-detail-needs">Needs:
+			<<for _plagueP range _plagueD.requires>><span class="plague-need"><<if $plagueGame.upgrades.includes(_plagueP)>>&check;<<else>>&times;<</if>> <<print setup.plagueData.upgrades[_plagueP].name>></span> <</for>>
+			<<if _plagueD.requiresAny.length>><span class="plague-need">either <<print _plagueD.requiresAny.map(p => ($plagueGame.upgrades.includes(p) ? "&check; " : "") + setup.plagueData.upgrades[p].name).join(" or ")>></span><</if>>
+		</div>
+	<</if>>
+	<<if _plagueD.rivals.length>>
+		<div class="plague-detail-fork">
+			<<if _plagueD.planState is "excluded">>Only one of these can be evolved in a run, and you chose <<print _plagueD.excludedByName>>.
+			<<elseif _plagueD.owned>>You chose this over <<print _plagueD.rivalNames.join(" and ")>>.
+			<<else>>Pick one: evolving this locks <<print _plagueD.rivalNames.join(" and ")>> for this run.<</if>>
+		</div>
+	<</if>>
+	<<if !_plagueEnded>>
+		<div class="plague-detail-action">
+			<<if _plagueD.state is "available">>
+				<span class="plague-button plague-buy"><<capture _plagueD>><<link `"Evolve " + _plagueD.name`>>
+					<<if Date.now() - (_plagueLastBuy || 0) gte 400>>
+						<<set _plagueLastBuy to Date.now()>>
+						<<set _plagueDnaGain to 0>>
+						<<set _plagueDnaMsg to "">>
+						<<if setup.plagueSimulation.buyUpgrade($plagueGame, _plagueD.id)>>
+							<<run updateMoment()>>
+							<<set _plagueEvolveMsg to _plagueD.name + " evolved.">>
+						<<else>>
+							<<set _plagueEvolveMsg to _plagueD.name + " can't be evolved right now.">>
+						<</if>>
+						<<set _plagueEvoPick[_plagueEvoTab] to _plagueD.id>>
+						<<plagueReplace "#plague-game">><<plagueEvolveBody>><</plagueReplace>>
+						<<run $("#plague-game .plague-evolve-msg").trigger("focus")>>
+					<</if>>
+				<</link>><</capture>></span>
+			<<elseif _plagueD.state is "requires">><span class="tama-sub">Evolve what it needs first.</span>
+			<</if>>
+		</div>
+	<</if>>
+	<div class="plague-evolve-msg" tabindex="-1" role="status"><<if _plagueEvolveMsg>><<print _plagueEvolveMsg>><</if>></div>
+<</widget>>
+
+/* Records the run and decides its reward. Both do nothing for a run already handled, so this is safe after every day. */
+<<widget "plagueRecordRun">>
+	<<if $plagueGame.status isnot "active" and (!$plagueGame.recorded or !$plagueGame.rewarded)>>
+		<<if !$plagueMeta>><<set $plagueMeta to setup.plagueSimulation.createMeta()>><</if>>
+		<<run setup.plagueSimulation.recordRun($plagueGame, $plagueMeta)>>
+		/* Science is paid from grant()'s return value, which is null unless the reward was decided just now. */
+		<<set _plagueGrant to setup.plagueReward.grant($plagueGame, $plagueMeta)>>
+		<<if _plagueGrant and _plagueGrant.science>><<scienceskill _plagueGrant.science "no_star">><</if>>
+	<</if>>
+<</widget>>
+
+<<widget "plagueEndBody">>
+	<<set _plagueEnd to setup.plagueSimulation.endView($plagueGame, $plagueMeta)>>
+	<<if !_plagueEnd>>
+		<div class="tama-meta">This outbreak is still running.</div>
+	<<else>>
+		<div @class="'tama-card plague-end ' + (_plagueEnd.won ? 'plague-end-won' : 'plague-end-lost')">
+			<div class="tama-head">
+				<div @class="'plague-end-title ' + (_plagueEnd.won ? 'green' : 'red')" tabindex="-1" role="heading" aria-level="2"><<print _plagueEnd.title>></div>
+				<div class="tama-sub">Outbreak over on day <<print _plagueEnd.finalDay>></div>
+			</div>
+			<div class="plague-end-reason"><<print _plagueEnd.reason>></div>
+			<div class="tama-sub plague-end-setup"><<print _plagueEnd.progress.label>></div>
+			<<if _plagueEnd.progress.lines.length>>
+				<ul class="plague-list plague-end-progress">
+					<<for _plagueL range _plagueEnd.progress.lines>><li @class="_plagueL.tone"><<print _plagueL.text>></li><</for>>
+				</ul>
+			<</if>>
+			<div class="tama-row">
+				<div class="tama-stat"><span class="tama-k">Population</span><span class="tama-v"><<print _plagueEnd.population.toLocaleString("en-GB")>></span></div>
+				<div class="tama-stat"><span class="tama-k">Healthy left</span><span class="tama-v"><<print _plagueEnd.healthy.toLocaleString("en-GB")>></span><span class="tama-k"><<plaguePct _plagueEnd.healthyPct>></span></div>
+				<div class="tama-stat"><span class="tama-k">Infected</span><span class="tama-v red"><<print _plagueEnd.infected.toLocaleString("en-GB")>></span><span class="tama-k"><<plaguePct _plagueEnd.infectedPct>></span></div>
+				<div class="tama-stat"><span class="tama-k">Dead</span><span class="tama-v"><<print _plagueEnd.dead.toLocaleString("en-GB")>></span><span class="tama-k"><<plaguePct _plagueEnd.deadPct>></span></div>
+			</div>
+			<div class="tama-row">
+				<div class="tama-stat"><span class="tama-k">Cure</span><span class="tama-v"><<plaguePct _plagueEnd.cure>></span></div>
+				<div class="tama-stat"><<plagueDnaLabel>><span class="tama-v plague-cost"><<print _plagueEnd.dna>></span></div>
+				<div class="tama-stat"><span class="tama-k">Regions reached</span><span class="tama-v"><<print _plagueEnd.regionsReached>> of <<print _plagueEnd.regionCount>></span></div>
+				<div class="tama-stat"><span class="tama-k">Evolutions</span><span class="tama-v"><<print _plagueEnd.evolutions.length>></span></div>
+			</div>
+			<div class="tama-row">
+				<div class="tama-stat"><span class="tama-k">Infectivity</span><span class="tama-v"><<print _plagueEnd.stats.infectivity>></span></div>
+				<div class="tama-stat"><span class="tama-k">Severity</span><span class="tama-v"><<print _plagueEnd.stats.severity>></span></div>
+				<div class="tama-stat"><span class="tama-k">Lethality</span><span class="tama-v"><<print _plagueEnd.stats.lethality>></span></div>
+				<div class="tama-stat"><span class="tama-k">Cure resistance</span><span class="tama-v"><<print Math.round(_plagueEnd.stats.resistance * 100)>>%</span></div>
+			</div>
+		</div>
+
+		<<if _plagueEnd.reward>>
+			<div class="plague-reward tama-card">
+				<div class="plague-reward-title">Outbreak reward</div>
+				<<if _plagueEnd.reward.science>><div class="plague-reward-line">Science +<<print _plagueEnd.reward.science>></div><</if>>
+				<<if _plagueEnd.reward.pill>><div class="plague-reward-line">Received: <<print _plagueEnd.reward.pill>></div><</if>>
+				<<for _plagueNote range (_plagueEnd.reward.notes || [])>><div class="tama-sub"><<print _plagueNote>></div><</for>>
+			</div>
+		<</if>>
+
+		/* The wizard lives in #plague-home; New outbreak and Use last setup open it here, replacing this grid. Begin still ends with one goto. */
+		<div id="plague-home">
+			<div class="plague-end-grid">
+				<span class="plague-action plague-final-map"><<link `setup.plagueUi.symbol("map") + '<span class="plague-action-text"><span class="plague-action-title">View final map</span><span class="plague-action-sub">The world as it ended</span></span>'`>><<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>><<run $("#plague-game .plague-report-open a").first().trigger("focus")>><</link>></span>
+				<span class="plague-action plague-evolve-open"><<link `setup.plagueUi.symbol("evolutions") + '<span class="plague-action-text"><span class="plague-action-title">View evolutions</span><span class="plague-action-sub">What your strain became</span></span>'`>><<set _plagueEvolveMsg to "">><<plagueReplace "#plague-game">><<plagueEvolveBody>><</plagueReplace>><<run $("#plague-game .plague-world-open a").first().trigger("focus")>><</link>></span>
+				<span class="plague-action plague-new-outbreak"><<link `setup.plagueUi.symbol("newOutbreak") + '<span class="plague-action-text"><span class="plague-action-title">New outbreak</span><span class="plague-action-sub">Choose a pathogen and begin</span></span>'`>><<plagueOpenSetup>><</link>></span>
+				<<if setup.plagueSetup.fitLastSetup($plagueMeta)>><span class="plague-action plague-use-last-end"><<link `setup.plagueUi.symbol("lastSetup") + '<span class="plague-action-text"><span class="plague-action-title">Use last setup</span><span class="plague-action-sub">Same choices, straight to review</span></span>'`>><<plagueOpenSetup>><<run setup.plagueSetup.useLast(_plagueSetup, $plagueMeta)>><<plagueSetupRedraw>><</link>></span><</if>>
+			</div>
+		</div>
+
+		<div class="plague-section">
+			<div class="tama-k">Regions</div>
+			<div class="plague-end-regions">
+				<<for _plagueR range _plagueEnd.regions>>
+					<div class="plague-res">
+						<span class="plague-res-icon"><<print setup.plagueUi.regionIcon(_plagueR.id)>></span>
+						<span class="plague-res-name"><<print _plagueR.name>></span>
+						<span class="plague-res-bar" aria-hidden="true"><span class="plague-res-inf" @style="'width:' + _plagueR.infectedPct + '%'"></span><span class="plague-res-dead" @style="'width:' + _plagueR.deadPct + '%'"></span></span>
+						<span class="plague-res-nums"><span class="red"><<plaguePct _plagueR.infectedPct>> infected</span> &middot; <<plaguePct _plagueR.deadPct>> dead &middot; <<print _plagueR.healthy.toLocaleString("en-GB")>> healthy</span>
+					</div>
+				<</for>>
+			</div>
+		</div>
+
+		<<if _plagueEnd.entrenchment>><div class="plague-section plague-end-entrenchment">
+			<div class="tama-k">Entrenchment reached: <<print _plagueEnd.entrenchment.name>> / <<print _plagueEnd.entrenchment.maxName>></div>
+		</div><</if>>
+		<<if _plagueEnd.ability>><div class="plague-section plague-end-ability">
+			<div class="tama-k"><<print _plagueEnd.ability.label>>: <<print _plagueEnd.ability.used>> / <<print _plagueEnd.ability.max>></div>
+			<<if _plagueEnd.ability.names.length>><div><<print _plagueEnd.ability.names.join(", ")>></div><</if>>
+		</div><</if>>
+		<<if _plagueEnd.mutation>><div class="plague-section plague-end-mutations">
+			<div class="tama-k">Spontaneous mutations: <<print _plagueEnd.mutation.count>></div>
+			<<if _plagueEnd.mutation.count>><div><<print _plagueEnd.mutation.names.join(", ")>></div><</if>>
+		</div><</if>>
+
+		<div class="plague-section">
+			<div class="tama-k">Evolutions bought</div>
+			<<if _plagueEnd.evolutionGroups.length>>
+				<div class="plague-end-evolutions">
+					<<for _plagueG range _plagueEnd.evolutionGroups>>
+						<div class="plague-evo-group"><span class="plague-evo-family"><<print _plagueG.name>></span> <span class="plague-evo-chips"><<for _plagueN range _plagueG.items>><span class="plague-chip"><<print _plagueN>></span><</for>></span></div>
+					<</for>>
+				</div>
+			<<else>>
+				<div class="plague-end-evolutions">None</div>
+			<</if>>
+		</div>
+	<</if>>
+<</widget>>

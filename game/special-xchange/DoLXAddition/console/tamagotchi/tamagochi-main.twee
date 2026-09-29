@@ -1,43 +1,3 @@
-:: Home Console
-<<set $outside to 0>><<unset $consoleAction, $trainType>>
-<<if $location isnot "home" and $location isnot "alex_cottage">><<set $location to "home">><</if>>
-<<effects>>
-<<set _ret to ($location is "alex_cottage" ? "Farm Bedroom" : "Bedroom")>>
-
-<<furnitureicon "controller">>You switch on your console. What would you like to play?
-<br><br>
-
-<<icon "/furniture/tfplushes.png">><<link [[Virtual pet|Home Console Pet]]>><</link>>
-<<if Tamagotchi.exists()>>
-	<<run Tamagotchi.sync()>>
-	<<if Tamagotchi.isAlive()>><<set _t to Tamagotchi.status()>>
-		<<if _t.pendingAttack>>
-			<span class="red">(!) under attack</span>
-		<<elseif _t.pendingSkillChoice>>
-			<span class="gold">(new skill)</span>
-		<<elseif _t.sick or _t.hunger gte 80 or _t.poops gt 0>>
-			<span class="red">(!)</span>
-		<</if>>
-	<</if>>
-<</if>>
-<br>
-/* More games can be added here as further links. */
-<br>
-<<if $location is "alex_cottage">>
-	<<if Tamagotchi.isAlive() and Time.dayState isnot "night" and $farm_stage gte 7 and !$weekly.alexConsole>>
-		<<robinicon "controller">><<link [[Invite Alex to play (0:05)|Alex Console Visit]]>><<set $weekly.alexConsole to true>><<pass 5>><</link>>
-	<</if>>
-<<else>>
-	<<if $robinromance is 1 or $robinbreakup is 1>>
-		<<run getRobinLocation()>>
-		<<if _robin_location is "orphanage" and !$weekly.robinConsole>>
-			<<robinicon "controller">><<link [[Invite Robin to play (0:05)|Robin Console Visit]]>><<set $weekly.robinConsole to true>><<pass 5>><</link>>
-		<</if>>
-	<</if>>
-<</if>>
-<br>
-<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
-
 :: Home Console Pet
 <<set $outside to 0>>
 <<if $location isnot "home" and $location isnot "alex_cottage">><<set $location to "home">><</if>>
@@ -60,7 +20,8 @@
 		<br>
 	<</for>>
 	<br>
-	<<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
+	<<getouticon>><<link [[Back to the console|Home Console]]>><</link>>
+	<br>
 
 <<elseif not Tamagotchi.isAlive()>>
 	<<set _t to Tamagotchi.status()>>

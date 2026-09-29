@@ -7,7 +7,8 @@ module.exports = {
 			{
 				severity: "warning",
 				// To prevent stylelint from removing -webkit-background-clip
-				ignore: ["background-clip"],
+				// grid-template-columns is matched as CSS multi-column; no property in the repo uses actual multi-column layout
+				ignore: ["background-clip", "multicolumn"],
 			},
 		],
 

@@ -1,0 +1,1608 @@
+/* Outbreak console minigame. Cards, stat chips and bars reuse the virtual pet's tama-* classes; only Outbreak-specific parts live here. */
+.plague-game {
+	max-width: 800px;
+	/* DNA and cost accent. DoL's gold is unreadable on the light theme's pale panels, so Outbreak swaps in a dark gold
+	 * there (about 5:1 on --850) without touching DoL's own .gold class. */
+	--plague-cost: var(--gold);
+}
+
+html[data-theme="light"] .plague-game {
+	--plague-cost: #7a5a00;
+}
+
+.plague-cost {
+	color: var(--plague-cost);
+}
+
+.plague-title {
+	font-weight: bold;
+	font-size: 1.05em;
+}
+
+.plague-strip {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 12px;
+}
+
+.plague-dna {
+	margin-left: auto;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 2px 10px;
+	border: 1px solid var(--plague-cost);
+	border-radius: 4px;
+}
+
+.plague-dna .tama-k {
+	font-size: 0.85em;
+}
+
+.plague-dna-v {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.plague-dna-gain:empty {
+	display: none;
+}
+
+.plague-dna-gain {
+	color: var(--green);
+	font-weight: bold;
+}
+
+.plague-nav-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 4px 12px;
+	margin-top: 6px;
+	border-bottom: 1px solid var(--750);
+}
+
+.plague-nav {
+	display: flex;
+}
+
+.plague-tab {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 11px 18px;
+	border: 1px solid transparent;
+	border-bottom: 0;
+	border-radius: 4px 4px 0 0;
+}
+
+.plague-tab a {
+	display: block;
+	margin: -11px -18px;
+	padding: 11px 18px;
+}
+
+.plague-tab-current {
+	border-color: var(--750);
+	background: var(--800);
+	color: var(--000);
+	font-weight: bold;
+	margin-bottom: -1px;
+	padding-bottom: 12px;
+}
+
+.plague-report-open a {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 11px 0;
+}
+
+.plague-cure-fill {
+	height: 100%;
+	background: #4a8fd8;
+}
+
+.plague-map {
+	position: relative;
+	aspect-ratio: 16 / 10;
+	margin: 8px 0 4px;
+	border: 1px solid var(--750);
+	border-radius: 6px;
+	background: var(--850);
+}
+
+/* The routes never take a click or tap; the region nodes above them do. */
+.plague-routes {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.plague-route-line,
+.plague-route-gap {
+	fill: none;
+	vector-effect: non-scaling-stroke;
+}
+
+.plague-route-line {
+	stroke: var(--400);
+	stroke-width: 3;
+}
+
+.plague-route-sea .plague-route-line {
+	stroke-dasharray: 10 7;
+}
+
+.plague-route-trail .plague-route-line {
+	stroke-dasharray: 1 7;
+	stroke-linecap: round;
+	stroke-width: 4;
+}
+
+/* River: a wide line with a thin line of map background along its middle reads as a double line. */
+.plague-route-river .plague-route-line {
+	stroke-width: 7;
+}
+
+.plague-route-gap {
+	stroke: var(--850);
+	stroke-width: 2;
+}
+
+.plague-route-closed {
+	opacity: 0.35;
+}
+
+.plague-closure {
+	position: absolute;
+	transform: translate(-50%, -50%);
+	pointer-events: none;
+	padding: 0 5px;
+	border: 1px solid var(--orange);
+	border-radius: 3px;
+	background: var(--850);
+	color: var(--orange);
+	font-weight: bold;
+	line-height: 1.3;
+}
+
+.plague-region {
+	position: absolute;
+	transform: translate(-50%, -50%);
+	width: 24%;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 5px 6px;
+	border: 1px solid var(--600);
+	border-radius: 4px;
+	background: var(--850);
+	overflow: hidden;
+	text-align: center;
+	line-height: 1.25;
+}
+
+.plague-node-line,
+.plague-node-dead {
+	pointer-events: none;
+}
+
+.plague-region-name {
+	font-weight: bold;
+}
+
+/* Stretched link: the name's link covers the whole node, so the node is one large target with a real, focusable link. */
+.plague-region-link a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+}
+
+/* Link blue is unreadable on the red wash; the node's border, hover and focus ring already mark it as a control. */
+.plague-region-link a {
+	color: var(--000);
+}
+
+.plague-region-link a:hover {
+	text-decoration: underline;
+}
+
+.plague-region:hover,
+.plague-region:focus-within {
+	border-color: var(--000);
+}
+
+.plague-region:focus-within {
+	outline: 2px solid var(--000);
+	outline-offset: 2px;
+	z-index: 1;
+}
+
+.plague-node-line {
+	font-size: 0.8em;
+}
+
+/* Infection tiers: wash strength, hatch density and the word under the name all step up together, so no tier depends on colour alone. */
+.plague-tier-trace {
+	border-color: var(--red);
+}
+
+.plague-tier-low {
+	border-color: var(--red);
+	background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--red) 30%, transparent) 0 1px, transparent 1px 11px),
+		color-mix(in srgb, var(--red) 14%, var(--850));
+}
+
+.plague-tier-medium {
+	border-color: var(--red);
+	background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--red) 40%, transparent) 0 2px, transparent 2px 7px),
+		color-mix(in srgb, var(--red) 28%, var(--850));
+}
+
+.plague-tier-severe {
+	border: 2px solid var(--red);
+	background: repeating-linear-gradient(45deg, color-mix(in srgb, var(--red) 45%, transparent) 0 2px, transparent 2px 4px),
+		color-mix(in srgb, var(--red) 42%, var(--850));
+}
+
+.plague-tier-full {
+	border: 2px solid var(--red);
+	background: color-mix(in srgb, var(--red) 55%, var(--850));
+}
+
+/* The dead: an opaque grey band rising from the bottom, hatched the other way, that replaces the infection wash where it
+ * covers it. A region that is mostly dead turns grey, not a deeper red. */
+.plague-node-dead {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	/* Behind the text: the node's transform makes it a stacking context, so -1 stays above the node's own background. */
+	z-index: -1;
+	border-top: 1px dashed var(--300);
+	background: repeating-linear-gradient(-45deg, var(--700) 0 2px, transparent 2px 6px), var(--800);
+}
+
+.plague-node-iso {
+	color: var(--orange);
+	font-weight: bold;
+}
+
+.plague-isolated {
+	border: 3px double var(--orange);
+}
+
+/* Screen-reader only */
+.plague-sr {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.plague-legend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px 16px;
+	font-size: 0.8em;
+	color: var(--300);
+}
+
+.plague-legend-item {
+	white-space: nowrap;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.plague-legend-line {
+	width: 30px;
+	height: 10px;
+	overflow: visible;
+}
+
+.plague-closure-key {
+	padding: 0 4px;
+	border: 1px solid var(--orange);
+	border-radius: 3px;
+	color: var(--orange);
+	font-weight: bold;
+	line-height: 1.2;
+}
+
+.plague-counts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px 18px;
+	margin-bottom: 6px;
+}
+
+.plague-counts .tama-k {
+	font-size: 0.8em;
+}
+
+.plague-response {
+	margin-top: 4px;
+}
+
+.plague-response-main {
+	margin-left: calc(5em + 6px);
+}
+
+.plague-response-more {
+	margin-left: calc(5em + 6px);
+}
+
+.plague-response-more summary,
+.plague-log-earlier summary {
+	cursor: pointer;
+	color: var(--300);
+	display: list-item;
+	list-style: disclosure-closed inside;
+	padding: 6px 0;
+}
+
+.plague-response-more[open] summary,
+.plague-log-earlier[open] summary {
+	list-style-type: disclosure-open;
+}
+
+.plague-response-fill {
+	height: 100%;
+	background: #4c8;
+}
+
+.plague-response-fill.plague-stage-2 {
+	background: #cb3;
+}
+
+.plague-response-fill.plague-stage-3 {
+	background: #e83;
+}
+
+.plague-response-fill.plague-stage-4 {
+	background: #c33;
+}
+
+/* The pet's bar labels are sized for "HP"/"MP"; Outbreak's "Cure" and "Response" need one shared, wider column. */
+.plague-game .tama-blabel {
+	width: 5em;
+}
+
+.plague-status .tama-barline + .plague-response {
+	margin-top: 6px;
+}
+
+.plague-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 10px 0 0;
+}
+
+.plague-outcome {
+	flex-basis: 100%;
+}
+
+.plague-button a {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 11px 14px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+}
+
+.plague-advance a {
+	border-color: var(--300);
+	font-weight: bold;
+}
+
+/* The skip is the secondary time control: same size, lighter weight, dashed edge. */
+.plague-advance-until a {
+	border-style: dashed;
+}
+
+.plague-advance-msg {
+	flex-basis: 100%;
+	margin-top: 0;
+}
+
+.plague-advance-msg:empty,
+.plague-dna-msg:empty {
+	display: none;
+}
+
+.plague-dna-msg {
+	flex-basis: 100%;
+	margin-top: 0;
+}
+
+.plague-chiprow {
+	margin: 8px 0;
+}
+
+.plague-event,
+.plague-authority {
+	margin: 3px 0;
+	font-size: 0.9em;
+}
+
+.plague-chip {
+	display: inline-block;
+	margin: 2px 4px 2px 0;
+	padding: 1px 8px;
+	border: 1px solid var(--600);
+	border-radius: 4px;
+	background: var(--850);
+}
+
+.plague-authority .plague-chip {
+	border-color: var(--orange);
+}
+
+.plague-event-name {
+	font-weight: bold;
+}
+
+.plague-chip-effect {
+	color: var(--200);
+}
+
+.plague-log {
+	margin-top: 8px;
+}
+
+.plague-log-line {
+	font-size: 0.85em;
+	margin: 2px 0;
+}
+
+.plague-log-latest {
+	font-size: 1em;
+	margin-bottom: 4px;
+}
+
+.plague-log-day {
+	color: var(--300);
+}
+
+.plague-back {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 20px;
+}
+
+.plague-back a {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 11px 0;
+}
+
+.plague-section {
+	margin: 8px 0;
+}
+
+.plague-list {
+	margin: 2px 0;
+	padding-left: 20px;
+}
+
+.plague-list li {
+	margin: 2px 0;
+}
+
+.plague-region-traits li {
+	margin: 1px 0;
+}
+
+.plague-share {
+	display: flex;
+	height: 6px;
+	margin: 4px 0;
+	background: var(--800);
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.plague-share-inf {
+	background: #c33;
+}
+
+.plague-share-dead {
+	background: var(--600);
+}
+
+.plague-evo-ended {
+	margin: 8px 0 0;
+	padding: 6px 10px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+	font-weight: bold;
+}
+
+.plague-families {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 4px;
+	margin: 10px 0 4px;
+}
+
+.plague-family {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 11px 12px 9px;
+	border-bottom: 3px solid transparent;
+}
+
+.plague-family a {
+	display: block;
+	margin: -11px -12px -9px;
+	padding: 11px 12px 9px;
+}
+
+.plague-family-current {
+	border-bottom-color: var(--000);
+	color: var(--000);
+	font-weight: bold;
+}
+
+.plague-family-current:focus {
+	outline: 2px solid var(--000);
+	outline-offset: 2px;
+}
+
+.plague-family-count {
+	display: inline-block;
+	min-width: 1.4em;
+	margin-left: 4px;
+	padding: 0 3px;
+	border: 1px solid var(--600);
+	border-radius: 3px;
+	font-size: 0.85em;
+	text-align: center;
+}
+
+/* The tree: lane names, then a gap row (connectors turn here) above every node row. No column gap, so the SVG's
+ * column units line up with the grid; nodes keep apart with their own margin instead. */
+.plague-tree {
+	position: relative;
+	display: grid;
+	grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+	grid-template-rows: auto repeat(var(--rows), var(--gap-h) var(--node-h));
+	margin: 4px 0;
+	padding: 8px 0 0;
+	border-top: 1px solid var(--750);
+}
+
+.plague-lane {
+	display: contents;
+}
+
+.plague-lane-name {
+	grid-row: 1;
+	grid-column: var(--lc) / span var(--lw);
+	padding: 0 4px;
+	font-size: 0.8em;
+	color: var(--300);
+	text-align: center;
+}
+
+.plague-edges {
+	grid-row: 2 / span var(--edge-rows);
+	grid-column: 1 / -1;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.plague-edge {
+	fill: none;
+	stroke: var(--500);
+	stroke-width: 2;
+	vector-effect: non-scaling-stroke;
+}
+
+/* Needs either: dashed, so the two prerequisite kinds differ without colour. */
+.plague-edge-any {
+	stroke-dasharray: 6 4;
+}
+
+.plague-edge-owned {
+	stroke: var(--000);
+	stroke-width: 3;
+}
+
+.plague-edge-excluded {
+	stroke: var(--700);
+	stroke-dasharray: 2 4;
+}
+
+.plague-fork {
+	grid-row: var(--r);
+	grid-column: var(--c) / span var(--span);
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	pointer-events: none;
+}
+
+.plague-fork span,
+.plague-fork-key {
+	padding: 0 5px;
+	border: 1px solid var(--orange);
+	border-radius: 3px;
+	background: var(--850);
+	color: var(--orange);
+	font-size: 0.8em;
+	line-height: 1.3;
+	white-space: nowrap;
+}
+
+.plague-fork-chosen span {
+	border-style: dashed;
+}
+
+.plague-node {
+	grid-row: var(--r);
+	grid-column: var(--c);
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-width: 0;
+	margin: 0 4px;
+	padding: 3px 5px;
+	box-sizing: border-box;
+	border: 1px solid var(--600);
+	border-radius: 4px;
+	background: var(--850);
+	font-size: 0.85em;
+	line-height: 1.2;
+	text-align: center;
+	overflow: hidden;
+}
+
+.plague-node-name {
+	font-weight: bold;
+	overflow-wrap: anywhere;
+}
+
+.plague-node-name a {
+	color: var(--000);
+}
+
+.plague-node-name a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.plague-node-name a:hover {
+	text-decoration: underline;
+}
+
+.plague-node-meta,
+.plague-node-after {
+	pointer-events: none;
+}
+
+.plague-node-meta {
+	font-size: 0.9em;
+	color: var(--200);
+}
+
+.plague-node-mark {
+	font-weight: bold;
+}
+
+.plague-node-mark:not(:empty) {
+	margin-right: 4px;
+}
+
+.plague-node-cost {
+	color: var(--plague-cost);
+	font-weight: bold;
+}
+
+.plague-node-after {
+	display: none;
+	font-size: 0.85em;
+	color: var(--300);
+}
+
+.plague-node-owned {
+	border: 2px solid var(--000);
+	background: var(--800);
+}
+
+.plague-node-available {
+	border: 3px double var(--plague-cost);
+}
+
+.plague-node-requires {
+	border-style: dashed;
+}
+
+.plague-node-requires .plague-node-name a,
+.plague-node-requires .plague-node-meta,
+.plague-node-unowned .plague-node-meta {
+	color: var(--300);
+}
+
+.plague-node-excluded {
+	border-color: var(--700);
+	background: repeating-linear-gradient(45deg, var(--750) 0 1px, transparent 1px 7px), var(--850);
+}
+
+.plague-node-excluded .plague-node-name a {
+	color: var(--300);
+	text-decoration: line-through;
+}
+
+.plague-node-excluded .plague-node-mark {
+	color: var(--orange);
+}
+
+/* Selected: a white outline outside the border, plus a marker bar under the name, so it shows on any state. */
+.plague-node-selected {
+	outline: 2px solid var(--000);
+	outline-offset: 2px;
+	z-index: 2;
+}
+
+.plague-node-selected .plague-node-name {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+/* Keyboard focus rings the whole node (the link inside is stretched over it), replacing the link's own dotted ring.
+ * Dashed and further out than the selection outline, and white rather than the gold of "can evolve". */
+.plague-node:focus-within {
+	outline: 2px dashed var(--000);
+	outline-offset: 4px;
+	z-index: 3;
+}
+
+.plague-node-name a:focus {
+	outline: none;
+}
+
+.plague-key-box {
+	display: inline-block;
+	width: 18px;
+	height: 12px;
+	border: 1px dashed var(--600);
+	border-radius: 2px;
+}
+
+.plague-key-excluded {
+	border: 1px solid var(--700);
+	background: repeating-linear-gradient(45deg, var(--600) 0 1px, transparent 1px 5px);
+}
+
+.plague-tree-key {
+	grid-row: var(--end);
+	grid-column: 1 / -1;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 2px 16px;
+	margin-top: 8px;
+	font-size: 0.8em;
+	color: var(--300);
+}
+
+.plague-detail {
+	grid-row: var(--detail);
+	grid-column: 1 / -1;
+	margin-top: 8px;
+	padding: 8px 10px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+	background: var(--850);
+}
+
+.plague-detail-head {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 0 10px;
+}
+
+.plague-detail-name {
+	font-weight: bold;
+	font-size: 1.1em;
+}
+
+.plague-detail-cost {
+	font-weight: bold;
+}
+
+.plague-detail-state {
+	margin: 2px 0 4px;
+	font-weight: bold;
+}
+
+.plague-detail-needs,
+.plague-detail-fork {
+	margin: 4px 0;
+}
+
+.plague-need {
+	white-space: nowrap;
+}
+
+.plague-detail-fork {
+	color: var(--orange);
+}
+
+.plague-detail-action {
+	margin-top: 6px;
+}
+
+.plague-evolve-msg:empty {
+	display: none;
+}
+
+.plague-evolve-msg {
+	margin: 6px 0;
+	color: #5c5;
+}
+
+/* Final report */
+.plague-end-title {
+	font-weight: bold;
+	font-size: 1.3em;
+}
+
+.plague-end-won {
+	border-color: #3a7a3a;
+}
+
+.plague-end-reason {
+	margin: 2px 0 6px;
+}
+
+.plague-end-setup {
+	margin-bottom: 4px;
+}
+
+.plague-end-progress {
+	margin: 4px 0 8px;
+	font-weight: bold;
+}
+
+.plague-card-hint {
+	font-size: 0.85em;
+	font-style: italic;
+	color: var(--200);
+	pointer-events: none;
+}
+
+/* Phones: the map turns tall and the nodes wider, keeping the same topology and full-size text. Evolve stacks its columns. */
+@media (max-width: 560px) {
+	.plague-map {
+		aspect-ratio: 3 / 4;
+	}
+
+	.plague-region {
+		width: 38%;
+		padding: 4px;
+	}
+
+	/* Evolve on phones: each branch is its own small grid, top to bottom; lines give way to "after ..." words, and the
+	 * detail panel moves under the selected node's branch. */
+	/* Three equal tabs on one row; a long name wraps above its count rather than pushing a tab onto its own line. */
+	.plague-families {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.plague-family {
+		padding: 6px 4px 4px;
+		text-align: center;
+	}
+
+	.plague-family a {
+		margin: -6px -4px -4px;
+		padding: 6px 4px 4px;
+	}
+
+	.plague-tree {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	.plague-edges,
+	.plague-tree-key {
+		display: none;
+	}
+
+	.plague-lane {
+		order: var(--order);
+		display: grid;
+		grid-template-columns: repeat(var(--lw), minmax(0, 1fr));
+		row-gap: 6px;
+	}
+
+	.plague-lane-name {
+		grid-row: 1;
+		grid-column: 1 / -1;
+		text-align: left;
+		border-bottom: 1px solid var(--750);
+	}
+
+	.plague-fork {
+		grid-row: var(--mr);
+		grid-column: 1 / -1;
+	}
+
+	.plague-node {
+		grid-row: var(--mr);
+		grid-column: var(--mc) / span var(--ms);
+		min-height: 44px;
+	}
+
+	.plague-node-after {
+		display: block;
+	}
+
+	.plague-detail {
+		order: var(--order);
+		margin-top: 0;
+	}
+
+	.plague-response-main,
+	.plague-response-more {
+		margin-left: 0;
+	}
+}
+
+.plague-setup {
+	max-width: 800px;
+}
+
+.plague-setup-top {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 4px 12px;
+}
+
+.plague-setup-title:focus,
+.plague-setup-msg:focus {
+	outline: 2px solid var(--000);
+	outline-offset: 2px;
+}
+
+.plague-steps ol {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 4px;
+	margin: 6px 0 0;
+	padding: 0;
+	list-style: none;
+	border-bottom: 1px solid var(--750);
+}
+
+.plague-step {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 11px 10px 9px;
+	border-bottom: 3px solid transparent;
+	color: var(--300);
+}
+
+.plague-step a {
+	display: block;
+	margin: -11px -10px -9px;
+	padding: 11px 10px 9px;
+}
+
+.plague-step-current {
+	border-bottom-color: var(--000);
+	color: var(--000);
+	font-weight: bold;
+}
+
+.plague-step-num {
+	display: inline-block;
+	min-width: 1.4em;
+	border: 1px solid var(--600);
+	border-radius: 3px;
+	font-size: 0.85em;
+	text-align: center;
+}
+
+.plague-setup-msg:empty {
+	display: none;
+}
+
+.plague-setup-msg {
+	margin: 6px 0;
+	padding: 4px 8px;
+	border: 1px dashed var(--orange);
+	border-radius: 4px;
+}
+
+.plague-setup-h {
+	margin: 12px 0 4px;
+	font-weight: bold;
+}
+
+.plague-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(9.5em, 1fr));
+	gap: 8px;
+	margin: 4px 0;
+}
+
+.plague-cards-3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.plague-cards-2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.plague-card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 6px 8px;
+	border: 1px solid var(--600);
+	border-radius: 4px;
+	background: var(--850);
+}
+
+.plague-card-name {
+	font-weight: bold;
+	overflow-wrap: anywhere;
+}
+
+.plague-card-name a {
+	color: var(--000);
+}
+
+.plague-card-name a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.plague-card-name a:hover {
+	text-decoration: underline;
+}
+
+.plague-card:focus-within {
+	outline: 2px dashed var(--000);
+	outline-offset: 3px;
+}
+
+.plague-card-name a:focus {
+	outline: none;
+}
+
+.plague-card-line,
+.plague-card-facts,
+.plague-card-notes {
+	font-size: 0.85em;
+	color: var(--200);
+	pointer-events: none;
+}
+
+.plague-card-notes {
+	margin: 2px 0 0;
+	padding-left: 1.1em;
+}
+
+.plague-card-status {
+	margin-top: auto;
+	padding-top: 4px;
+	font-size: 0.85em;
+	pointer-events: none;
+}
+
+.plague-card-selected {
+	border: 3px solid var(--000);
+	background: var(--800);
+}
+
+.plague-card-selected .plague-card-status {
+	font-weight: bold;
+}
+
+/* Locked: dashed, dimmed, still readable, and marked in words. */
+.plague-card-locked {
+	border-style: dashed;
+	background: repeating-linear-gradient(45deg, var(--800) 0 1px, transparent 1px 8px), var(--850);
+	color: var(--300);
+}
+
+.plague-card-locked .plague-card-line,
+.plague-card-locked .plague-card-notes {
+	color: var(--300);
+}
+
+.plague-setup-detail {
+	margin: 8px 0;
+	padding: 6px 10px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+	background: var(--850);
+}
+
+/* A plain CSS motif per pathogen, so each card has its own mark without image files. */
+.plague-motif {
+	display: block;
+	width: 2.2em;
+	height: 2.2em;
+	margin-bottom: 2px;
+	border: 1px solid var(--600);
+	border-radius: 4px;
+	pointer-events: none;
+}
+
+.plague-motif-bacteria {
+	background: radial-gradient(circle, var(--000) 0 2px, transparent 3px) 0 0 / 8px 8px;
+}
+
+.plague-motif-virus {
+	background: conic-gradient(
+		from 0deg,
+		var(--000) 0 10%,
+		transparent 10% 25%,
+		var(--000) 25% 35%,
+		transparent 35% 50%,
+		var(--000) 50% 60%,
+		transparent 60% 75%,
+		var(--000) 75% 85%,
+		transparent 85%
+	);
+	border-radius: 50%;
+}
+
+.plague-motif-fungus {
+	background: repeating-linear-gradient(60deg, var(--000) 0 1px, transparent 1px 5px), repeating-linear-gradient(-60deg, var(--000) 0 1px, transparent 1px 5px);
+}
+
+.plague-motif-parasite {
+	background: repeating-radial-gradient(circle at 0 100%, transparent 0 4px, var(--000) 4px 5px);
+}
+
+.plague-motif-prion {
+	background: repeating-linear-gradient(0deg, var(--000) 0 2px, transparent 2px 6px), repeating-linear-gradient(90deg, var(--000) 0 2px, transparent 2px 6px);
+	opacity: 0.8;
+}
+
+.plague-name-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px 10px;
+}
+
+.plague-name-row input[type="text"] {
+	flex: 1 1 12em;
+	min-width: 0;
+	min-height: 44px;
+	box-sizing: border-box;
+}
+
+.plague-slots {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(8em, 1fr));
+	gap: 8px;
+	margin: 8px 0;
+}
+
+.plague-slot {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 6px 8px;
+	border: 1px dashed var(--600);
+	border-radius: 4px;
+	background: var(--850);
+}
+
+.plague-slot a {
+	display: flex;
+	flex-direction: column;
+	color: var(--000);
+}
+
+.plague-slot a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+.plague-slot a:focus {
+	outline: none;
+}
+
+.plague-slot:focus-within {
+	outline: 2px dashed var(--000);
+	outline-offset: 3px;
+}
+
+.plague-slot-num {
+	font-size: 0.85em;
+	color: var(--300);
+}
+
+.plague-slot-full {
+	border-style: solid;
+	background: var(--800);
+}
+
+.plague-slot-open {
+	border: 3px solid var(--000);
+}
+
+.plague-slot-name {
+	font-weight: bold;
+}
+
+.plague-cat {
+	margin: 8px 0;
+}
+
+.plague-cat-name {
+	font-size: 0.85em;
+	color: var(--300);
+}
+
+.plague-tcard-equipped {
+	border: 3px solid var(--000);
+	background: var(--800);
+}
+
+.plague-tcard-elsewhere {
+	border-style: dotted;
+}
+
+.plague-tcard-covered,
+.plague-tcard-locked {
+	border-style: dashed;
+	background: repeating-linear-gradient(45deg, var(--750) 0 1px, transparent 1px 7px), var(--850);
+	color: var(--300);
+}
+
+.plague-tcard-covered .plague-card-name a,
+.plague-tcard-locked .plague-card-name a {
+	color: var(--300);
+}
+
+.plague-tcard-picked .plague-card-name {
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+
+.plague-review {
+	margin: 4px 0;
+}
+
+.plague-review > div {
+	display: flex;
+	gap: 8px;
+	padding: 2px 0;
+}
+
+.plague-review dt {
+	flex: 0 0 6.5em;
+	color: var(--300);
+}
+
+.plague-review dd {
+	margin: 0;
+	font-weight: bold;
+	overflow-wrap: anywhere;
+}
+
+.plague-review-traits {
+	margin: 2px 0;
+	padding-left: 0;
+	list-style: none;
+}
+
+.plague-review-trait {
+	font-weight: bold;
+}
+
+.plague-setup-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin: 12px 0 0;
+}
+
+.plague-begin a {
+	border-color: var(--300);
+	font-weight: bold;
+}
+
+.plague-use-last a,
+.plague-suggest a,
+.plague-equip a,
+.plague-clear a {
+	display: inline-block;
+	min-height: 44px;
+	box-sizing: border-box;
+	padding: 11px 14px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+}
+
+@media (max-width: 560px) {
+	.plague-cards-3 {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	/* Steps shrink to numbers, except the current one, which keeps its name. The names stay readable to screen readers. */
+	.plague-step:not(.plague-step-current) .plague-step-name {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
+
+	.plague-step {
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+
+	.plague-step a {
+		margin-left: -6px;
+		margin-right: -6px;
+		padding-left: 6px;
+		padding-right: 6px;
+	}
+}
+
+.plague-pathogen {
+	margin: 2px 0 6px;
+}
+
+.plague-ability {
+	margin: 6px 0;
+}
+
+.plague-ability-name {
+	font-weight: bold;
+}
+
+.plague-ability-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: 6px;
+}
+
+.plague-symbol {
+	display: block;
+	flex: none;
+}
+
+.plague-dicon {
+	display: block;
+	pointer-events: none;
+}
+
+.plague-dicon .plague-symbol {
+	width: 40px;
+	height: 40px;
+	margin-bottom: 2px;
+}
+
+.plague-oicon,
+.plague-res-icon {
+	display: inline-block;
+	line-height: 0;
+	pointer-events: none;
+}
+
+.plague-region-icon {
+	width: 30px;
+	height: 30px;
+	image-rendering: pixelated;
+	border: 1px solid var(--600);
+	border-radius: 3px;
+	vertical-align: middle;
+}
+
+.plague-oicon {
+	margin-bottom: 2px;
+}
+
+.plague-cat-icon {
+	display: inline-block;
+	vertical-align: middle;
+	margin-right: 6px;
+	line-height: 0;
+}
+
+.plague-cat-icon .plague-symbol {
+	width: 20px;
+	height: 20px;
+}
+
+.plague-card-locked .plague-dicon {
+	opacity: 0.6;
+}
+
+.plague-reward {
+	margin: 8px 0;
+}
+
+.plague-reward-title {
+	font-weight: bold;
+}
+
+.plague-end-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	margin: 10px 0;
+}
+
+.plague-action {
+	display: block;
+}
+
+.plague-action a {
+	white-space: normal;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-height: 44px;
+	height: 100%;
+	box-sizing: border-box;
+	padding: 8px 12px;
+	border: 1px solid var(--600);
+	border-radius: 4px;
+	background: var(--850);
+	text-decoration: none;
+}
+
+.plague-action a:hover,
+.plague-action a:focus-visible {
+	border-color: var(--000);
+	background: var(--800);
+}
+
+.plague-action .plague-symbol {
+	width: 28px;
+	height: 28px;
+}
+
+.plague-action-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+.plague-action-title {
+	font-weight: bold;
+}
+
+.plague-action-sub {
+	font-size: 0.85em;
+	color: var(--200);
+}
+
+.plague-end-regions {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.plague-res {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	grid-template-areas: "icon name" "bar bar" "nums nums";
+	column-gap: 8px;
+	row-gap: 3px;
+	align-items: center;
+	padding: 6px 8px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+	background: var(--850);
+}
+
+.plague-res-icon {
+	grid-area: icon;
+}
+
+.plague-res-name {
+	grid-area: name;
+	font-weight: bold;
+}
+
+.plague-res-bar {
+	grid-area: bar;
+	display: flex;
+	height: 6px;
+	border-radius: 2px;
+	background: var(--750);
+	overflow: hidden;
+}
+
+.plague-res-inf {
+	background: #c44;
+}
+
+.plague-res-dead {
+	background: var(--300);
+}
+
+.plague-res-nums {
+	grid-area: nums;
+	font-size: 0.9em;
+}
+
+.plague-evo-group {
+	margin: 4px 0;
+}
+
+.plague-evo-family {
+	display: inline-block;
+	min-width: 6.5em;
+	font-weight: bold;
+}
+
+@media (max-width: 560px) {
+	.plague-end-grid,
+	.plague-end-regions {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.plague-evo-family {
+		display: block;
+	}
+}
+
+.plague-origins {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 560px) {
+	.plague-origins {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
