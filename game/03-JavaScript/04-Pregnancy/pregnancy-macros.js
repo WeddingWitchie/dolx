@@ -279,7 +279,7 @@ function sillyInseminate(trigger, other, otherSpecies) {
 	if (V.activeNightmare || V.statFreeze || impregnationDisabled(false)) return null;
 
 	// Skin on skin only.
-	if (trigger === "hand" && V.worn.hands.name !== "naked") return null;
+	if (trigger === "hand" && /glove|mitten/.test(V.worn.hands.name)) return null;
 	if (trigger === "kiss" && V.worn.face.type.includes("face_covering")) return null;
 
 	// Someone the player loves being in the scene makes it twice as likely.
