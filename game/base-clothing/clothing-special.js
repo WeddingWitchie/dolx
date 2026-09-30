@@ -845,10 +845,10 @@ function initSpecialClothes() {
 		},
 		antiques: {
 			text: "antique jewellery",
-			hint: "find them all",
+			hint: "find most of them",
 			shop: [],
 			featCost: 30,
-			requirements: () => (V.museumAntiques?.museumCount !== undefined && V.museumAntiques.museumCount === V.museumAntiques.maxCount),
+			requirements: () => (V.museumAntiques?.museumCount !== undefined && V.museumAntiques.museumCount >= V.museumAntiques.maxCount * 0.8),
 			feat: true,
 			icon: "clothes/antique_coral_ring.png",
 		},

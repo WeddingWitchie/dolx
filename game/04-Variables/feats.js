@@ -1606,7 +1606,7 @@ setup.feats = {
 	},
 	"Master Baiter": {
 		title: "Master Baiter",
-		desc: "Caught the biggest size possible of each fish.",
+		desc: "Caught the biggest size possible of most fish.",
 		difficulty: 3,
 		series: "fishing",
 		filter: ["All", "Discoveries-Other"],
@@ -3350,10 +3350,8 @@ function earnHourlyFeats() {
 
 	if (V.submissive >= 2000) earnFeat("Perfect Sub");
 	if (V.submissive <= 0) earnFeat("Defying the Odds");
-	if (V.museumAntiques.museumCount === V.museumAntiques.maxCount) {
-		earnFeat("It Belongs in a Museum");
-		specialClothesUnlock("set", "antiques");
-	}
+	if (V.museumAntiques.museumCount === V.museumAntiques.maxCount) earnFeat("It Belongs in a Museum");
+	if (V.museumAntiques.museumCount >= V.museumAntiques.maxCount * 0.8) specialClothesUnlock("set", "antiques");
 
 	// Award specialClothes series feats based on unlocked set count
 	if (V.specialClothes) {
@@ -3621,12 +3619,13 @@ function earnHourlyFeats() {
 	}
 
 	if (
-		fishKeys.every(key => {
+		fishKeys.filter(key => {
 			const fishConfig = setup.fishing.lootTables.fish[key];
 			const fishRecord = V.fishing.record[key];
 			if (!fishRecord) return false;
 			return fishRecord.largest >= fishConfig.maxSize;
-		})
+		}).length >=
+		fishKeys.length * 0.8
 	) {
 		earnFeat("Master Baiter");
 	}
