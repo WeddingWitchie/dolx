@@ -1412,6 +1412,8 @@ more suspicion if you actually lose the round. -->
 	<<else>>
 
 		<<if $estate.cards.state is "ride">>
+		<<cards_wren_escalate>>
+		<<if !_cardsEscalated>>
 		"If I win—"
 			<<rng 4>>
 			<<if $rng is 4>>
@@ -1441,6 +1443,7 @@ more suspicion if you actually lose the round. -->
 				<<set $estate.cards.desire to "chest_grope">>
 				<<He>> grins. "I get to play with your chest."
 			<</if>>
+		<</if>>
 		<<else>>
 			<<if $estate.cards.lust gte 2>>
 				<<if $NPCList[0].penis isnot "none">>
@@ -1478,6 +1481,87 @@ more suspicion if you actually lose the round. -->
 				<<set $estate.cards.desire to "twirl">>
 				"If I win—" <<He>> grins. "You twirl on the spot. Give us a show. And no covering with your hands." The others murmur their enthusiasm.
 			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "cards_wren_escalate">>
+	<<set _cardsEscalated to false>>
+	<!-- Wren's stakes get riskier as arousal and impatience (from being teased) build -->
+	<<set _escChance to Math.min(75, $estate.cards.lust * 4 + ($estate.cards.agitation || 0) * 15)>>
+	<<if $estate.cards.lust gte 3 and random(1, 100) lte _escChance>>
+		<<set _escOptions to []>>
+		<<if ["penile", "vaginal", "anal", "pc_lap"].includes($estate.cards.position) and $estate.cards.lust gte 6>><<run _escOptions.push("take")>><</if>>
+		<<if !$estate.cards.oralDebt>><<run _escOptions.push("oral_all")>><</if>>
+		<<if ($estate.cards.pillsTaken || 0) lt 2 and !xchangePregnancyBlocksPill() and !xchangePillProtectionActive()>><<run _escOptions.push("pill")>><</if>>
+		<<if $estate.cards.lust gte 6 and $player.vaginaExist and $NPCList[0].penis isnot "none" and !playerChastity("hidden") and !$xchange.pill.breederEffect and !xchangePregnancyBlocksPill() and !xchangePillProtectionActive()>><<run _escOptions.push("breeder")>><</if>>
+		<<if _escOptions.length gt 0>>
+			<<set _cardsEscalated to true>>
+			<<set $estate.cards.agitation to 0>>
+			<<set $estate.cards.desire to _escOptions.random()>>
+			"If I win—"
+			<br><br>
+			<<switch $estate.cards.desire>>
+			<<case "take">>
+				<<He>> squeezes your hips and pulls you against <<him>>. "I'm done waiting for you to cum. <span class="blue">I'm taking you now</span>."
+			<<case "oral_all">>
+				<<He>> looks towards the goons. They move closer when they realise what <<he>> has in mind. "When I'm done with you, <span class="blue">you're getting on your knees for every one of my friends</span>."
+			<<case "pill">>
+				<<He>> takes out a small tin and shakes it beside your ear, making the pills inside rattle. "<span class="blue">You're swallowing whatever I pull out of here</span>." <<He>> smirks. "Could be anything."
+			<<case "breeder">>
+				<<He>> holds up a pale capsule where you can see it. "<span class="blue">You're taking a Breeder</span>, then I'm finishing inside you. I'm not waiting for you to cum."
+			<</switch>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "cards_wren_status">>
+	<<person1>>
+	<<set _wrenLust to Math.min($estate.cards.lust, 15)>>
+	<div>
+		<span>Wren's arousal<mouse class="tooltip">(?)<span>
+		Shows how aroused Wren is. If the bar fills completely, <<he>> climaxes and the game ends while you are still standing.
+		Wren's arousal rises whenever you fail to resist <<his>> touching. Teasing <<him>> raises it faster, but also makes <<him>> more impatient.
+		<br><br>
+		The more aroused and impatient Wren becomes, the more dangerous <<his>> bets can become.
+		</span></mouse>:
+		<<if _wrenLust lte 1>><span class="teal">Composed</span>
+		<<elseif _wrenLust lte 3>><span class="lblue">Warming up</span>
+		<<elseif _wrenLust lte 5>><span class="blue">Flushed</span>
+		<<elseif _wrenLust lte 8>><span class="purple">Breathless</span>
+		<<elseif _wrenLust lte 11>><span class="pink">Trembling</span>
+		<<elseif _wrenLust lte 13>><span class="pink">Barely holding on</span>
+		<<else>><span class="red">About to break</span>
+		<</if>>
+		<<if ($estate.cards.agitation || 0) gte 1>>| <span class="red">Impatient</span><</if>>
+		</span>
+		<<statbar 0 _wrenLust 15>>
+		<div style="clear:both;"></div>
+	</div>
+	<br>
+<</widget>>
+
+<<widget "cards_tease_result">>
+	<!-- args[0]: true if the player won the round -->
+	<<if $estate.cards.teasing>>
+		<<set $estate.cards.teasing to false>>
+		<<set $estate.cards.agitation to ($estate.cards.agitation || 0) + 1>>
+		<<person1>>
+		<<if _args[0]>>
+			<<set $estate.cards.lust to Math.min(14, $estate.cards.lust + 2)>>
+			You press your hips against Wren, and move them slowly back and forth. <span class="pink">Wren shifts beneath you</span>, and <<his>> hands tighten around your waist.
+		<<else>>
+			"Trying to rush me?" Wren says. <<He>> grabs your waist and pulls you against <<him>>, moving you back and forth against <<his>> lap until you gasp. <<arousal 500>><<garousal>>
+		<</if>>
+		<br><br>
+		<<if $estate.cards.bettingEnabled>>
+			<<set _teaseTip to random(300, 800)>>
+			<<set _teaseTopUp to $estate.cards.betStep * 2>>
+			<<set $estate.cards.playerPot += _teaseTip>>
+			<<set $estate.cards.wrenMoney += _teaseTopUp>>
+			<<set $estatePersistent.totalTipMoneyMade += _teaseTip>>
+			The goons whoop and throw <<printmoney _teaseTip>> into your pot. Flustered, Wren adds <<printmoney _teaseTopUp>> to <<his>> own to keep you playing.
+			<br><br>
 		<</if>>
 	<</if>>
 <</widget>>
@@ -2041,6 +2125,34 @@ more suspicion if you actually lose the round. -->
 <</widget>>
 
 <<widget "cards_naked_end">>
+	<<if $estate.cards.oralDebt>>
+		<<cards_oral_debt>>
+	<<else>>
+		<<cards_naked_end_towel>>
+	<</if>>
+<</widget>>
+
+<<widget "cards_oral_debt">>
+	<<person1>>
+	Wren snaps <<his>> fingers as you turn to go. "Not so fast," <<he>> says, nodding at <<his>> friends. "You lost that bet. They've been patient."
+	<br><br>
+
+	<<if hasSexStat("promiscuity", 4)>>
+		<<link [[Pay the debt|Estate Cards Oral]]>><</link>><<promiscuous4>><<goralskill>>
+	<<else>>
+		<<insufficientStat "promiscuity" "to pay up willingly">>
+		<br><br>
+		<<link [[Pay the debt|Estate Cards Oral]]>><<trauma 6>><<stress 6>><</link>><<gtrauma>><<gstress>>
+	<</if>>
+	<br>
+	<<link [[Welsh on the debt|Estate Cards Oral Refuse]]>><<npcincr Wren love -5>><<if $estate.cards.bettingEnabled>><<money `-Math.min($money, Math.floor($estate.cards.playerPot / 2))` "estateBetting">><</if>><</link>><<llove>>
+	<<if $estate.cards.bettingEnabled>>
+		<span class="red">Wren's goons will take half your winnings.</span>
+	<</if>>
+	<br>
+<</widget>>
+
+<<widget "cards_naked_end_towel">>
 	<<speechresolve>>
 	<<covered>>
 	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy" or _speechAttitudeResolved is "docile")>>
@@ -2077,6 +2189,9 @@ more suspicion if you actually lose the round. -->
 <</widget>>
 
 <<widget "cards_play_options">>
+	<<if $estate.cards.state is "ride">>
+		<<cards_wren_status>>
+	<</if>>
 	<<if $estate.cards.bettingEnabled>>
 		<<person1>>
 		<!-- would it perhaps be better to recover the previous bet input here, so that the player doesn't have to manually input the max bet every time? -->
@@ -2109,7 +2224,7 @@ more suspicion if you actually lose the round. -->
 		<<getouticon>><<link [[Leave|Estate Cards Leave]]>><</link>>
 		<br>
 	<<else>>
-		<<gameicon "cards">><<link [[Play (0:01)|Estate Blackjack]]>><<pass 1>><</link>>
+		<<gameicon "cards">><<link [[Play (0:01)|Estate Blackjack]]>><<pass 1>><<set $estate.cards.teasing to false>><</link>>
 		<<if $estate.cards.state is "ride">>
 			<span class="purple">Losing may increase arousal.</span> <<cards_virginity_all_warnings>>
 		<</if>>
@@ -2117,6 +2232,11 @@ more suspicion if you actually lose the round. -->
 			<span class="red">If you lose, Wren will take your first kiss.</span>
 		<</if>>
 		<br>
+		<<if $estate.cards.state is "ride" and $estate.cards.lust lt 14>>
+			<<gameicon "cards">><<link [[Play and tease Wren (0:01)|Estate Blackjack]]>><<pass 1>><<set $estate.cards.teasing to true>><<willpower-spending 25>><<arousal 400>><</link>>
+			<span class="purple">Arouse Wren. <<if $xchange.willpowerSystemEnabled is 1>>Costs willpower and raises your arousal.<<else>>Raises your arousal.<</if>></span>
+			<br>
+		<</if>>
 		<<if $arousal lt ($arousalmax*4/5) or (!$statFreeze and !$hc and $arousalDesensitizedTrait is 1) or (typeof activeInsanityTrait === "function" and activeInsanityTrait())>>
 			<<getouticon>><<link [[Leave|Estate Cards Leave]]>><<npcincr Wren love -1>><<handheldon>><</link>><<llove>>
 		<<else>>
@@ -2184,7 +2304,7 @@ more suspicion if you actually lose the round. -->
 		<<icon "manila-envelope.png">><<link [[Give Wren the letter|Estate Fame Letter]]>><</link>>
 		<br>
 	<</if>>
-
+	<br>
 	<<getouticon>><<link [[Leave|Estate Cards Intro Leave]]>><</link>>
 <</widget>>
 

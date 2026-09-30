@@ -782,6 +782,7 @@ You stay in place, allowing Wren's goons to surround you.
 <br><br>
 <<blackjackResultText true>>
 <<blackjackPostGameBettingResult true>>
+<<cards_tease_result true>>
 
 <<switch $estate.cards.daring>>
 <<case 0>>
@@ -1202,6 +1203,7 @@ Before <<he>> can say anything, you continue.
 
 <<blackjackResultText false>>
 <<blackjackPostGameBettingResult false>>
+<<cards_tease_result false>>
 
 <<switch $estate.cards.desire>>
 <<case "xchange_pink">>
@@ -1506,12 +1508,35 @@ Before <<he>> can say anything, you continue.
 	<br><br>
 
 	<span class="pink"><<His>> friends watch, hoping to get a better look as you walk across the room.</span>
+<<case "take">>
+	<<set _cards_desire to "take">>
+	<<He>> tightens <<his>> grip on your hips and pulls you closer. "I'm getting tired of waiting," <<he>> says, grinning. "If you lose this one, I'm taking you right here. Let's see how long you can keep resisting me."
+
+<<case "oral_all">>
+	<<set _cards_desire to "wren_bet">>
+	<<He>> looks towards <<his>> friends, who are watching you from nearby. "You know, my friends have been awfully patient. How about we reward them? If you lose, you'll have to satisfy every last one of them when I'm finished with you."
+
+<<case "pill">>
+	<<set _cards_desire to "wren_bet">>
+	<<He>> opens <<his>> pill tin and shows you the capsules inside. "Fancy a little surprise?" <<he>> asks, shaking the tin before closing it. "If you lose, I'll pick a pill for you. You won't know which one you're swallowing."
+
+<<case "breeder">>
+	<<set _cards_desire to "wren_bet">>
+	<<He>> takes <span class="lewd">a Breeder pill</span> from <<his>> tin and holds it in front of your face. "I've got something special for you this time. Lose this bet, and you'll swallow this little thing. Then we'll put it to good use and get you bred."
 
 <</switch>>
 <<gdom>><<npcincr Wren dom 1>>
 <br><br>
 
-<<if _cards_desire is "xchange_pink">>
+<!-- Wren's arousal raises the willpower ceiling, so a maxed-out willpower stops being an automatic success -->
+<<set _wrenHold to 1000 + $estate.cards.lust * 100>>
+<<if _cards_desire is "take">>
+	<<link [[Brace yourself|Estate Cards Sex]]>><<set $estate.cards.taken to true>><<set $consensual to 1>><</link>>
+	<br>
+<<elseif _cards_desire is "wren_bet">>
+	<<link [[Accept the stakes|Estate Cards Wren Bet]]>><<stress 6>><<npcincr Wren love 1>><</link>><<gstress>><<glove>>
+	<br>
+<<elseif _cards_desire is "xchange_pink">>
 	<<link [[Take the pill|Estate Cards XChange]]>><<set $phase to 0>><<stress 6>><<npcincr Wren love 1>><</link>><<glove>><<gstress>>
 	<br>
 <<elseif _cards_desire is "xchange_blue">>
@@ -1546,12 +1571,12 @@ Before <<he>> can say anything, you continue.
 		<br>
 	<</if>>
 <<elseif _cards_desire is "ride">>
-	<<link [[Endure|Estate Cards Strip]]>><</link>><<willpowerdifficulty 1 1000>><<cards_virginity_warning>>
+	<<link [[Endure|Estate Cards Strip]]>><</link>><<willpowerdifficulty 1 _wrenHold>><<cards_virginity_warning>>
 	<br>
 <<elseif _cards_desire is "kiss">>
-	<<link [[Endure|Estate Cards Strip]]>><<set $phase to 0>><</link>><<willpowerdifficulty 1 1000>><<note "Failure will increase arousal" "purple">><<cards_virginity_warning>>
+	<<link [[Endure|Estate Cards Strip]]>><<set $phase to 0>><</link>><<willpowerdifficulty 1 _wrenHold>><<note "Failure will increase arousal" "purple">><<cards_virginity_warning>>
 	<br>
-	<<link [[Kiss back|Estate Cards Strip]]>><<set $phase to 1>><<set $estate.cards.degree to "promiscuity1">><</link>><<promiscuous1>><<willpowerdifficulty 1 1000>><<skill_difficulty `currentSkillValue("oralskill")` "Oral Skill" 400 1000>><<ggarousal>><<cards_virginity_warning>>
+	<<link [[Kiss back|Estate Cards Strip]]>><<set $phase to 1>><<set $estate.cards.degree to "promiscuity1">><</link>><<promiscuous1>><<willpowerdifficulty 1 _wrenHold>><<skill_difficulty `currentSkillValue("oralskill")` "Oral Skill" 400 1000>><<ggarousal>><<cards_virginity_warning>>
 	<br>
 <<else>>
 	<<link [[Do as asked|Estate Cards Strip]]>><<set $phase to 0>><<stress 6>><<npcincr Wren love 1>><</link>><<gstress>><<glove>>
@@ -1613,6 +1638,53 @@ Before <<he>> can say anything, you continue.
 <<estate_cards_bet>>
 <br><br>
 <<cards_play_options>>
+
+:: Estate Cards Wren Bet
+<<effects>><<set $outside to 0>>
+<<person1>>
+<<switch $estate.cards.desire>>
+<<case "oral_all">>
+	<<set $estate.cards.oralDebt to true>>
+	"<<goodGirl>>," Wren says as <<his>> friends cheer. "We'll settle up when we're done here."
+	<br><br>
+<<case "pill">>
+	<<set $estate.cards.pillsTaken to ($estate.cards.pillsTaken || 0) + 1>>
+	<<xchange-get-spikepool>>
+	/* The lap position and scenes assume the body the game started with, so skip effects that swap it. */
+	<<run _effectPool.deleteWith(val => val === "genderflip" || val === "herm")>>
+	<<if _effectPool.length gt 0>>
+		<<set _pillEffect to _effectPool.random()>>
+		<<xchange-gray 1 _pillEffect>>
+		You put the pill in your mouth and swallow without water. It sticks briefly in your throat, forcing you to swallow again before it finally goes down. Soon, <span class="lewd">you begin to feel an unusual warmth in your stomach</span>.
+		You press a hand against it, wondering what the pill is doing to your body.
+		<br><br>
+		Wren watches you closely, grinning as <<he>> waits to see how you'll react.
+	<<else>>
+		You swallow the pill dry. Nothing happens. "Just sugar," Wren laughs. "Next time, maybe."
+	<</if>>
+	<br><br>
+<<case "breeder">>
+	<<set $estate.cards.pillsTaken to ($estate.cards.pillsTaken || 0) + 1>>
+	<<set $estate.cards.position to "vaginal">>
+	<<set $estate.cards.taken to true>>
+	<<set $consensual to 1>>
+	<<xchange-gray 1 "breeder">>
+	You swallow the capsule and wait for it to take effect. Soon, <span class="pink">you begin to feel warm in your lower belly</span>, and your body becomes increasingly sensitive.
+	You can feel the <<print $NPCList[0].penisdesc>> pressing against you, making it difficult to concentrate on anything else.
+	<br><br>
+	Wren leans closer and whispers in your ear. "Try not to cum. If you do, it'll be even easier to get you pregnant."
+	<br><br>
+	<<He>> sounds rather pleased about that possibility.
+	<br><br>
+<</switch>>
+<<if $estate.cards.desire is "breeder">>
+	<<link [[Next|Estate Cards Sex]]>><</link>>
+	<br>
+<<else>>
+	<<estate_cards_bet>>
+	<br><br>
+	<<cards_play_options>>
+<</if>>
 
 :: Estate Cards Strip
 <<effects>><<set $outside to 0>>
@@ -2022,6 +2094,10 @@ Before <<he>> can say anything, you continue.
 	<<if $willpowerSuccess>>
 		<<willpowersuccess>>
 		<span class="green">You manage to remain detached,</span> and avoid letting Wren arouse you further, for now.
+		<<if $xchange.willpowerSystemEnabled is 1>>
+			<<willpower-spending `$estate.cards.lust * 3`>>
+			<span class="red">Holding out against <<him>> wears you down.</span>
+		<</if>>
 	<<else>>
 		<<willpowerfailure>>
 		You try to remain detached, <span class="red">but Wren is too skilled and persistent.</span><<ggarousal>><<gwillpower>><<willpower 3>>
@@ -2238,7 +2314,7 @@ Before <<he>> can say anything, you continue.
 <<pass 3>>
 Wren doesn't hesitate.
 <<if $estate.cards.position is "penile">>
-	<<He>> pushes down on your shoulders, moving <<his>> pelvis above yours and resting <<his>> pussy against your <<penis>><<if $semen_amount gte 1>>, catching your seed<</if>>. Your spasms leave you helpless as <<he>> lets <<his>> weight push <<him>> down, <span class="pink">swallowing you to the base.</span>
+	<<He>> pushes down on your shoulders, moving <<his>> pelvis above yours and resting <<his>> pussy against your <<penis>><<if $semen_amount gte 1>>, catching your seed<</if>>. <<if $estate.cards.taken>>Pinned beneath <<him>>, you're helpless<<else>>Your spasms leave you helpless<</if>> as <<he>> lets <<his>> weight push <<him>> down, <span class="pink">swallowing you to the base.</span>
 	<<if $player.virginity.penile is true>>
 		<span class="red">Your foreskin separates from your glans, forever robbing you of your purity.</span>
 		<br><br>
@@ -2255,9 +2331,9 @@ Wren doesn't hesitate.
 		You twitch inside <<him>> as <<he>> fucks you.
 	<</if>>
 	<<internalejac true>>
-	<<He>> speeds up as your spasms subside, <<his>> bottom slapping against your thighs each time <<he>> brings <<his>> body down. <<His>> friends are too busy enjoying the show for their usual banter.
+	<<He>> speeds up as <<if $estate.cards.taken>>you stop struggling<<else>>your spasms subside<</if>>, <<his>> bottom slapping against your thighs each time <<he>> brings <<his>> body down. <<His>> friends are too busy enjoying the show for their usual banter.
 <<elseif $estate.cards.position is "vaginal">>
-	<<He>> grasps your <<bottom>> and lifts you, pushing your <<pussy>> against the tip of <<his>> <<print $NPCList[0].penisdesc>>. <<He>> eases you down, your spasms leaving you helpless as <<he>> <span class="pink">pushes into you,</span>
+	<<He>> grasps your <<bottom>> and lifts you, pushing your <<pussy>> against the tip of <<his>> <<print $NPCList[0].penisdesc>>. <<He>> eases you down, <<if $estate.cards.taken>>you're helpless in <<his>> grip<<else>>your spasms leaving you helpless<</if>> as <<he>> <span class="pink">pushes into you,</span>
 	<<if $player.virginity.vaginal is true>>
 		<<if $sexStats.vagina.pregnancy.totalBirthEvents gt 0>>
 			<span class="red">despite your lack of a hymen, you feel something inside you change as your virginity and purity are taken.</span>
@@ -2274,9 +2350,9 @@ Wren doesn't hesitate.
 	<br>
 	<<bruise vagina>><<vaginalstat>><<raped>><<vaginaraped>>
 
-	You twitch around <<his>> length as <<he>> fucks you, lifting you in time with <<his>> thrusts. <<He>> speeds up as your spasms subside. <<His>> friends are too busy enjoying the show for their usual banter.
+	You twitch around <<his>> length as <<he>> fucks you, lifting you in time with <<his>> thrusts. <<He>> speeds up as <<if $estate.cards.taken>>you stop struggling<<else>>your spasms subside<</if>>. <<His>> friends are too busy enjoying the show for their usual banter.
 <<elseif $estate.cards.position is "anal">>
-	<<He>> grasps your <<bottom>> and lifts you, pushing your <<bottom>> against the tip of <<his>> <<print $NPCList[0].penisdesc>>. <<He>> eases you down, your spasms leaving you helpless as <<he>> <span class="pink">pushes into you,</span>
+	<<He>> grasps your <<bottom>> and lifts you, pushing your <<bottom>> against the tip of <<his>> <<print $NPCList[0].penisdesc>>. <<He>> eases you down, <<if $estate.cards.taken>>you're helpless in <<his>> grip<<else>>your spasms leaving you helpless<</if>> as <<he>> <span class="pink">pushes into you,</span>
 	<<if $player.virginity.anal is true>>
 		<<takeVirginity "Wren" "anal">>
 		<span class="red">violating you in a way you hadn't conceived of.</span>
@@ -2288,7 +2364,7 @@ Wren doesn't hesitate.
 	<<takeNPCVirginity "Wren" "penile">>
 	<br><br>
 	<<bruise anus>><<analstat>><<raped>><<anusraped>>
-	<<He>> fucks you, lifting you in time with <<his>> thrusts. <<He>> speeds up as your spasms subside. <<His>> friends are too busy enjoying the show for their usual banter.
+	<<He>> fucks you, lifting you in time with <<his>> thrusts. <<He>> speeds up as <<if $estate.cards.taken>>you stop struggling<<else>>your spasms subside<</if>>. <<His>> friends are too busy enjoying the show for their usual banter.
 <<elseif $estate.cards.position is "pc_lap">>
 	One leg hooks around your waist, the other weaves under yours. From cramped to constricted, you're left helpless as <<he>> <span class="pink">grinds against your crotch</span><<if V.player.vaginaExist>>, pressing your pussies together<</if>>. <<Hes>> already wet. "I need this," <<he>> whispers. "Now be a <<goodgirl>> and hold still."
 	<<purity -10>>
@@ -2311,7 +2387,7 @@ Wren doesn't hesitate.
 	<<penileejacstat>><<creampie "npc" "vagina">>
 	<<orgasm>>
 	<<npcPregnancyRoll "Wren" "human" "pc" "human" "vagina">>
-	Your second orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy,</span> but <<he>> throws a hand over <<his>> mouth to muffle <<his>> moans.
+	Your <<if !$estate.cards.taken>>second <</if>>orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy,</span> but <<he>> throws a hand over <<his>> mouth to muffle <<his>> moans.
 	<br><br>
 
 	<<He>> leans against you, panting into your chest. <<He>> recovers fast, climbing from your body and rearranging <<his>> clothes.
@@ -2321,7 +2397,7 @@ Wren doesn't hesitate.
 	<<vaginalejacstat>>
 	<<orgasm>>
 	<<sceneInseminate "vagina" "Wren" "human" "deep">>
-	Your second orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy as <<he>> pumps your <<pussy>> full of semen.</span><<bodyliquid "vagina" "semen">><<internalejac true>>
+	Your <<if !$estate.cards.taken>>second <</if>>orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy as <<he>> pumps your <<pussy>> full of semen.</span><<bodyliquid "vagina" "semen">><<internalejac true>>
 	<br><br>
 
 	You slump against <<his>> chest as <<he>> gasps and wraps an arm around your waist. <<He>> recovers fast, and lifts you to your feet before rearranging <<his>> clothes.
@@ -2331,7 +2407,7 @@ Wren doesn't hesitate.
 	<<analejacstat>>
 	<<orgasm>>
 
-	Your second orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy as <<he>> pumps your <<bottom>> full of semen.</span><<bodyliquid "anus" "semen">><<internalejac true>>
+	Your <<if !$estate.cards.taken>>second <</if>>orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy as <<he>> pumps your <<bottom>> full of semen.</span><<bodyliquid "anus" "semen">><<internalejac true>>
 	<<sceneInseminate "anus" "Wren" "human" "deep">>
 	<br><br>
 
@@ -2342,7 +2418,7 @@ Wren doesn't hesitate.
 	<<vaginalentranceejacstat>>
 	<<orgasm>>
 
-	Your second orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy as <<he>> pulls you close,</span> <<his>> moans muffled in your hair.
+	Your <<if !$estate.cards.taken>>second <</if>>orgasm pushes Wren over the edge. <span class="lewd"><<His>> body shakes in ecstasy as <<he>> pulls you close,</span> <<his>> moans muffled in your hair.
 	<<if $NPCList[0].breastsize gte 6>>
 		<<He>> holds your head between <<his>> <<print $NPCList[0].breastsdesc>>, smothering your own cries.
 	<<else>>
