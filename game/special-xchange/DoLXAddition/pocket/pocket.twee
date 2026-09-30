@@ -282,10 +282,12 @@
 <</widget>>
 
 <<widget "pocketPackOutfitList">>
-	<div class="small-description">The whole outfit takes one slot. Maid, butler and waiting clothes only, and only what's in this wardrobe.</div>
-	<br>
+	<div class="pocket-fold-note">
+		Folded clothes are carried to somebody who could wear them for work, like Robin at the cafe. You can't put them on from your bag, but <span class="teal">Put back</span> returns any piece to this wardrobe.
+		<div class="small-description">Maid, butler, and waiting clothes from this wardrobe only. Up to <<= setup.pocketOutfit.maxPieces>> pieces, sharing one slot.</div>
+	</div>
 	<<if $pocket.outfit.pieces.length gt 0>>
-		<span class="teal">Folded up:</span>
+		<span class="teal">Folded up (<<= $pocket.outfit.pieces.length>> / <<= setup.pocketOutfit.maxPieces>>)</span>
 		<div class="pocket-arrange">
 			<<for _packedIndex to 0; _packedIndex lt $pocket.outfit.pieces.length; _packedIndex++>>
 				<<capture _packedIndex>>
@@ -297,10 +299,10 @@
 				<</capture>>
 			<</for>>
 		</div>
-		<br>
 	<</if>>
 	<<set _outfitBlocked to pocketOutfitPackBlocked()>>
 	<<set _outfitCandidates to pocketOutfitCandidates()>>
+	<<if _outfitBlocked isnot "">><div class="pocket-fold-blocked"><<= _outfitBlocked>></div><</if>>
 	<<if _outfitCandidates.length is 0>>
 		<div class="pocket-empty">There's nothing in here a maid or a butler would wear.</div>
 	<<else>>
@@ -309,9 +311,8 @@
 				<<capture _outfitOption>>
 					<div class="pocket-arrange-row">
 						<span class="pocket-arrange-name"><<= _outfitOption.name.toLocaleUpperFirst()>></span>
-						<<if _outfitBlocked isnot "">>
-							<span class="grey"><<= _outfitBlocked>></span>
-						<<else>>
+						<span class="pocket-fold-slot"><<= _outfitOption.slot>></span>
+						<<if _outfitBlocked is "">>
 							<<link [[Fold up|Pocket Pack Outfit]]>><<run pocketOutfitPack(_outfitOption.slot, _outfitOption.index)>><</link>>
 						<</if>>
 					</div>
@@ -477,7 +478,7 @@
 <<run pocketOutfitEnsure()>>
 <<run pocketSyncBag()>>
 <<set _outfitReturn to $pocketOutfitReturn or "Wardrobe">>
-<span class="gold bold">Fold an outfit set into your <<if pocketBagItem()>><<bagname>><<else>>pocket<</if>>.</span>
+<span class="gold bold">Fold a serving outfit into your <<if pocketBagItem()>><<bagname>><<else>>pocket<</if>>.</span>
 <br><br>
 <<pocketPackOutfitList>>
 <br>

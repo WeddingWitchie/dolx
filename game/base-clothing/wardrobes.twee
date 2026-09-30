@@ -314,7 +314,7 @@
 			/*Set the target wardrobe*/
 			<<set _wardrobeTransferObject to selectWardrobe(_wardrobeTransfer, "return")>>
 			/*Make sure there is enough space*/
-			<<if _wardrobeTransferObject[_slot].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 3000>>
+			<<if _wardrobeTransferObject[_slot].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 3500>>
 				<<set _slotsFull to true>>
 			<</if>>
 			<<for $_outfitSlot, $_outfitId range _outfitPieceIds>>
@@ -394,14 +394,166 @@
 	</div>
 <</widget>>
 
+<<widget "wardrobeLegend">>
+	<div id="wardrobe-legend" class="shop-legend hidden">
+		<div class="legend-caption bold gold">Legend</div>
+		<br>
+		Each item lists, in this order:
+		<br>
+		(colour) or (pattern): the colour or pattern of the item.
+		<br>
+		(Outfit): a set that takes its matching bottom slot with it. <span class="red">(Broken)</span> and <span class="red">(Partly Broken)</span> mean a piece of the set is gone. <span class="separated-indicator">(Separated)</span> means it has been cut into single pieces.
+		<br>
+		(9/10): integrity, current over maximum. It reads frayed, torn or tattered as it wears down. Low integrity tears more easily.
+		<br>
+		Reveal: unassuming, smart, tasteful, comfy, seductive, risqué or lewd. How alluring the item makes you.
+		<br>
+		<span class="blue">&#9794;</span> and <span class="pink">&#9792;</span>: the item is made for boys or for girls. No mark means unisex.
+		<br>
+		<span class="cold-resist-icon">20</span> Warmth rating. How well the item protects you from cold.
+		<br>
+		Trait icons (turn them on in settings): hover one to see what it does.
+		<br>
+		Favorite: pins the item to the Favorites tab.
+		<br><br>
+
+		<<if $options.images is 1>>
+			<div class="legend-2em">
+				<img src="img/ui/options.png">
+				Wardrobe settings.
+			</div>
+			<br>
+		<</if>>
+		Sort: click a key to order the list, click it again to reverse it. The arrow shows the last order used.
+		<br>
+		The Filters button next to the search box narrows the list by gender, reveal, warmth or trait. The search box matches an item's name, colour or pattern. Search and filters apply to every tab and clear when you leave the wardrobe.
+		<br><br>
+
+		<div class="legend-warmth">
+			Warmth indicator:
+			<br>
+			<div class="legend-colour-sample" style="background-color: dodgerblue"></div> - you will be too cold at this temperature
+			<br>
+			<div class="legend-colour-sample" style="background-color: lightskyblue"></div> - you will be a bit chilly at this temperature
+			<br>
+			<div class="legend-colour-sample" style="background-color: lemonchiffon"></div> - perfect temperature
+			<br>
+			<div class="legend-colour-sample" style="background-color: orange"></div> - you will be a bit too warm at this temperature
+			<br>
+			<div class="legend-colour-sample" style="background-color: orangered"></div> - you will be way too hot at this temperature
+			<br>
+			<div class="legend-icon"><img src="img/ui/clothes/warmth-indicator.png"></div> - your warmth with your current clothes on
+		</div>
+	</div>
+<</widget>>
+
+<<widget "loadWardrobeFilters">>
+	<div class="filters-div" onclick="event.stopPropagation()">
+		<div id="filter-buttons" class="filter-buttons-div">
+			<div class="filter-button button-apply div-link">
+				<<link "Apply and Close">>
+					<<set _wardrobeFilter.active to true>>
+					<<addclass '#wardrobe-filters' 'hidden'>>
+					<<run wardrobeFilterRefresh()>>
+				<</link>>
+			</div>
+			<div class="filter-button button-reset div-link">
+				<<link "Reset All and Close">>
+					<<run wardrobeFilterReset()>>
+					<<addclass '#wardrobe-filters' 'hidden'>>
+					<<run wardrobeFilterRefresh()>>
+				<</link>>
+			</div>
+			<div class="filter-button button-toggle-traits div-link">
+				<<link "Select / Deselect All Traits">>
+					<<run toggleAllTraitsFilter()>>
+				<</link>>
+			</div>
+		</div>
+		<div class="filters">
+			<div id="filter-gender" class="filter-block">
+				<span class="bold gold">Gender</span>
+				<label><<checkbox "_wardrobeFilter.gender.female" false true autocheck>> Female</label>
+				<label><<checkbox "_wardrobeFilter.gender.neutral" false true autocheck>> Unisex</label>
+				<label><<checkbox "_wardrobeFilter.gender.male" false true autocheck>> Male</label>
+			</div>
+
+			<div id="filter-reveal" class="filter-block">
+				<<wardrobeFilterReveal>>
+			</div>
+
+			<div id="filter-warmth" class="filter-block">
+				<span class="bold gold">Warmth</span>
+				<div class="filter-warmth-fromto">
+					<label>from <<numberbox "_wardrobeFilter.warmth.from" _wardrobeFilter.warmth.from>></label>
+					<label>to <<numberbox "_wardrobeFilter.warmth.to" _wardrobeFilter.warmth.to>></label>
+				</div>
+			</div>
+
+			<div id="filter-traits" class="filter-block">
+				<span class="bold gold">Traits</span>
+				<div class="traits-list">
+					<<set _traitsHere to [...new Set(setup.clothes_all_slots.flatMap(slot => [...(_selectedWardrobe[slot] || []), ...($settings.multipleWardrobes and $worn.bag.type.includes("bookbag") ? $wardrobes.inventory[slot] || [] : []), $worn[slot]]).flatMap(item => item.type || []))].filter(trait => setup.shopDetails[trait]).sort()>>
+					<<for _trait range _traitsHere>>
+						<<set _traitObj to setup.shopDetails[_trait]>>
+						<div class="filters-trait-row">
+							<label>
+								<<clothingtrait _trait 'display_normal'>>
+								<<print '<input type="checkbox" value="' + _trait + '"' + (_wardrobeFilter.traits.includes(_trait) ? ' checked="checked"' : '') + ' onclick="wardrobeFilterToggleTrait(this.value)">'>>
+								<<if !_traitObj.desc>>
+									<<print _traitObj.name>>
+								<<else>>
+									<<set _traitDesc to `<span class="black">` + _traitObj.desc + `</span>`>>
+									<<set _traitDetails to `<i class="green normal">` + (_traitObj.details isnot "none" ? " " + _traitObj.details : "") + `</i>`>>
+									<<set $_tooltip to _traitDesc + "<br>" + _traitDetails>>
+									<div class="tooltip-anchor" @tooltip="$_tooltip">
+										_traitObj.name
+									</div>
+								<</if>>
+							</label>
+						</div>
+					<</for>>
+				</div>
+			</div>
+		</div>
+	</div>
+<</widget>>
+
+<<widget "wardrobeFilterReveal">>
+	<span class="bold gold">Reveal</span>
+	<div class="filter-reveal-fromto">
+		<label>from <<listbox "_wardrobeFilter.reveal.from" autoselect>><<optionsfrom getFilterRevealOptions('from', _wardrobeFilter)>><</listbox>></label>
+		<label>to <<listbox "_wardrobeFilter.reveal.to" autoselect>><<optionsfrom getFilterRevealOptions('to', _wardrobeFilter)>><</listbox>></label>
+	</div>
+
+	<<run $(() => { $('#filter-reveal select').on('change', (e) => { new Wikifier(null, "<<replace '#filter-reveal'>><<wardrobeFilterReveal>><</replace>>"); }) })>>
+<</widget>>
+
 
 <<widget "wardrobe">>
 	<<set _inWardrobe to true>>
 	<div id="action-popup">Don't look here.</div>
 	<<unset $tempDisable>><<unset $xchange.blackmail.gracePeriod>>
 
-	<!-- Options -->
+	<<if _wardrobeFilter is undefined>><<run wardrobeFilterReset()>><</if>>
+	<<if _wardrobeSearch is undefined>><<set _wardrobeSearch to "">><</if>>
+
+	<!-- Filters, options, legend -->
 	<div id="wardrobe-options-div" class="main-shop-div">
+		<div id="wardrobe-filters" class="no-click-overlay no-numberify hidden" onclick="$(this).addClass('hidden')">
+		</div>
+		<div class="wardrobe-legend-button no-numberify div-link">
+			<<if $options.images is 1>>
+				<<iconUi "help.png">>
+			<<else>>
+				Help
+			<</if>>
+			<<link "">>
+				<<toggleclass '#wardrobe-legend' 'hidden'>>
+				<<toggleclass '.wardrobe-legend-button' 'active'>>
+			<</link>>
+		</div>
+		<<wardrobeLegend>>
 		<div class="wardrobe-options-button no-numberify div-link">
 			<<if $options.images is 1>>
 				<<iconUi "options.png">>
@@ -418,33 +570,15 @@
 		</div>
 	</div>
 	<<run linkifyDivs('#wardrobe-options-div')>>
+	<<run $(document).off('keydown.wardrobeFilters').on('keydown.wardrobeFilters', (e) => { if (e.key === 'Escape') $('#wardrobe-filters').addClass('hidden'); })>>
 
 	<hr>
-	<span>Warmth:</span>
 	<<warmthscale>>
 	<div id="warmth-description">
 		<<warmth_description>>
 	</div>
-	<br>
-	<div id="clotheson"><<clotheson>></div> /*Fixes perma pulled aside clothes introduced by 0.2.3.0 bug.*/
-	<<if $overupperwet gte 1 or $overlowerwet gte 1 or $upperwet gte 1 or $lowerwet gte 1 or $underlowerwet gte 1 or $underupperwet gte 1>>
-		<div class="wardrobe-dry">
-		<<link "Dry your clothes">>
-			<<set _wearAction to "dry">>
-			<<updatewardrobe>>
-			<<if $overupperwet lt 1 and $overlowerwet lt 1 and $upperwet lt 1 and $lowerwet lt 1 and $underlowerwet lt 1 and $underupperwet lt 1>>
-				<<remove ".wardrobe-dry">>
-			<</if>>
-		<</link>>
-		<br>
-		</div>
-	<</if>>
-	<div class="wardrobe-action">
-		<<link "Strip all">>
-			<<set _wearAction to "strip">>
-			<<updatewardrobe>>
-		<</link>>
-	</div> |
+	<hr>
+	<<silently>><<clotheson>><</silently>> /*Fixes perma pulled aside clothes introduced by 0.2.3.0 bug.*/
 	<<set _repairCount to 0>>
 	<<for _key range Object.keys(_selectedWardrobe)>>
 		<<if setup.clothes[_key] is undefined or !Array.isArray(_selectedWardrobe[_key]) or _selectedWardrobe[_key].length is 0>>
@@ -466,85 +600,66 @@
 	<</for>>
 	<<set _timeNeeded to Math.min((10 - (1 * Math.round($housekeeping / 250))) * _repairCount, 120)>>
 	<<set _timeString to getTimeString(_timeNeeded)>>
-	<<if $DoLPSpools isnot undefined and _repairCount gt 0>>
+	<div class="wardrobe-quick">
 		<div class="wardrobe-action">
-			<<if $DoLPSpools gte _repairCount>>
-				<<link [["Repair all (_timeString)"|$passage]]>>
-					<<set $repairAll to true>>
+			<<link "Strip all">>
+				<<set _wearAction to "strip">>
+				<<updatewardrobe>>
+			<</link>>
+		</div>
+		<div class="wardrobe-action">
+			<<link "Wear random clothes">>
+				<<set $randomWear to true>>
+				<<updatewardrobe>>
+			<</link>>
+		</div>
+		<div class="wardrobe-action">
+			<<link "Configure random">><<toggleclass "#randomClothingConfigure" "hidden">><</link>>
+		</div>
+		<<if $overupperwet gte 1 or $overlowerwet gte 1 or $upperwet gte 1 or $lowerwet gte 1 or $underlowerwet gte 1 or $underupperwet gte 1>>
+			<div class="wardrobe-action wardrobe-dry">
+				<<link "Dry your clothes">>
+					<<set _wearAction to "dry">>
 					<<updatewardrobe>>
-				<</link>><<ghousekeeping 1000>>
-			<<else>>
-				<span class="red">You only have $DoLPSpools spools, you need _repairCount to repair all.</span>
-			<</if>>
-		</div> |
-	<</if>>
-	<div class="wardrobe-action">
-		<<link "Wear random clothes">>
-			<<set $randomWear to true>>
-			<<updatewardrobe>>
-		<</link>>
-	</div> |
-	<div class="wardrobe-action">
-		<<link "Configure random">><<toggleclass "#randomClothingConfigure" "hidden">><</link>>
-	</div> |
-	<<if $options.images and ($uncomfortable.underwear or $uncomfortable.nude)>>
-		<div class="wardrobe-action">
-			<span id="wardrobe-cover" @class="$dontHide ? '' : 'hidden'">
-				<<link "Cover yourself">>
-					<<dontHideRevert>>
-					<<toggleclass "#wardrobe-cover" "hidden">>
-					<<toggleclass "#wardrobe-dontCover" "hidden">>
-					<<updatesidebarimg>>
-				<</link>>
-				</span>
-			<span id="wardrobe-dontCover" @class="$dontHide ? 'hidden' : ''">
-				<<link "Don't cover yourself">>
-					<<dontHideForNow>>
-					<<toggleclass "#wardrobe-cover" "hidden">>
-					<<toggleclass "#wardrobe-dontCover" "hidden">>
-					<<updatesidebarimg>>
-				<</link>>
-			</span>
-		</div> |
-	<</if>>
-	<<if $settings.multipleWardrobes>>
-		<br><br>
-		<<set _targetWardrobe to "wardrobe">>
-		<<set _homeLocations to getAvailableWardrobeHomes().filter(location => $wardrobe_location isnot location)>>
-		<<if _homeLocations.length gt 0>>
-			<<set _locationMap = {}>>
-			<<run _homeLocations.forEach(key => _locationMap[$wardrobes[key].name] = key)>>
-			__Transfer All Clothes__<br>
-			Destination: 
-			<<listbox "_targetWardrobe" autoselect>>
-				<<optionsfrom _locationMap>>
-			<</listbox>>
-			<div class="wardrobe-action">
-				<<link "Transfer">>
-					<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
-					<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe)>>
-
-					<<if getWardrobeItemCount(_targetWardrobeObj, true) + getWardrobeItemCount(_currentWardrobeObj, true) gt 3000>>
-						<<replace "#wardrobewear">><span class="red">There isn't enough room to transfer all your clothes. The destination is limited to 3,000 total items.</span><</replace>>
-					<<else>>
-						<<for _slot range setup.clothes_all_slots>>
-							<<capture _currentWardrobeObj, _slot>>
-								<<if !Array.isArray(_currentWardrobeObj[_slot])>><<continue>><</if>>
-								<<for _i = _currentWardrobeObj[_slot].length; _i gt 0; _i-->>
-									<<if getWardrobeItemCount(_targetWardrobeObj, true) lt 3000 and Number.isFinite(_targetWardrobeObj.space) and (!Array.isArray(_targetWardrobeObj[_slot]) or _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space)>>
-										<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe, { moveLinkedPieces: false })>>
-									<<else>>
-										<<break>>
-									<</if>>
-								<</for>>
-							<</capture>>
-						<</for>>
-						<<updatewardrobe>>
+					<<if $overupperwet lt 1 and $overlowerwet lt 1 and $upperwet lt 1 and $lowerwet lt 1 and $underlowerwet lt 1 and $underupperwet lt 1>>
+						<<remove ".wardrobe-dry">>
 					<</if>>
 				<</link>>
 			</div>
 		<</if>>
-	<</if>>
+		<<if $DoLPSpools isnot undefined and _repairCount gt 0>>
+			<div class="wardrobe-action">
+				<<if $DoLPSpools gte _repairCount>>
+					<<link [["Repair all (_timeString)"|$passage]]>>
+						<<set $repairAll to true>>
+						<<updatewardrobe>>
+					<</link>><<ghousekeeping 1000>>
+				<<else>>
+					<span class="red">You only have $DoLPSpools spools, you need _repairCount to repair all.</span>
+				<</if>>
+			</div>
+		<</if>>
+		<<if $options.images and ($uncomfortable.underwear or $uncomfortable.nude)>>
+			<div class="wardrobe-action">
+				<span id="wardrobe-cover" @class="$dontHide ? '' : 'hidden'">
+					<<link "Cover yourself">>
+						<<dontHideRevert>>
+						<<toggleclass "#wardrobe-cover" "hidden">>
+						<<toggleclass "#wardrobe-dontCover" "hidden">>
+						<<updatesidebarimg>>
+					<</link>>
+					</span>
+				<span id="wardrobe-dontCover" @class="$dontHide ? 'hidden' : ''">
+					<<link "Don't cover yourself">>
+						<<dontHideForNow>>
+						<<toggleclass "#wardrobe-cover" "hidden">>
+						<<toggleclass "#wardrobe-dontCover" "hidden">>
+						<<updatesidebarimg>>
+					<</link>>
+				</span>
+			</div>
+		<</if>>
+	</div>
 	
 	<div id="randomClothingConfigure" class="hidden">
 		<<if $randomEquipConfigure is undefined>>
@@ -557,8 +672,10 @@
 		<</for>>
 	</div>
 
+	<<wardrobeStorage>>
+
 	<<if $location is "home" or $location is "town">>
-		<br>
+		<<if $tailorMonthlyService is "repair" or $tailorMonthlyService is "discard">><br><</if>>
 		<<if $tailorMonthlyService is "repair">>
 			__Wardrobe Repair Crate__
 			<br>
@@ -606,18 +723,37 @@
 		<</if>>
 	<</if>>
 
-	__Clothing sets__
-	<br>
+	<div class="wardrobe-heading">Clothing sets</div>
 	<div id="listoutfits"><<listoutfits>></div>
 
 	<hr>
-	__Clothing__
-	<br>
+	<div class="wardrobe-heading">Clothing</div>
 
 	<<if ["over_head", "over_upper", "over_lower"].includes($lastWardrobeSlot)>>
 		<<set $lastWardrobeSlot to "over">>
 	<</if>>
 	<<dynamic "wardrobeLinks" "wardrobeLinks">>
+	<!-- The search box sits outside #wardrobeList so redrawing the list doesn't take its focus. -->
+	<div class="wardrobe-search no-numberify">
+		<label>Search: <<textbox "_wardrobeSearch" _wardrobeSearch>></label>
+		<<button "Clear">>
+			<<set _wardrobeSearch to "">>
+			<<run $('#textbox--wardrobesearch').val(''); wardrobeFilterRefresh()>>
+		<</button>>
+		<button type="button" class="wardrobe-filters-toggle" onclick="wardrobeOpenFilters()">Filters<span id="wardrobe-filter-state"><<if _wardrobeFilter.active>> (on)<</if>></span></button>
+	</div>
+	<<run (() => {
+		let timer;
+		$(document).off('input.wardrobeSearch').on('input.wardrobeSearch', '#textbox--wardrobesearch', (e) => {
+			T.wardrobeSearch = e.target.value;
+			clearTimeout(timer);
+			timer = setTimeout(wardrobeFilterRefresh, 250);
+		});
+		$(document).one(':passageinit.wardrobeSearch', () => {
+			clearTimeout(timer);
+			$(document).off('input.wardrobeSearch keydown.wardrobeFilters change.wardrobeRepeat mousedown.wardrobeActionFlash');
+		});
+	})()>>
 	<<dynamic "wardrobeContents" "wardrobeList">>
 
 	<br>
@@ -629,6 +765,9 @@
 	<<set $underupperoff to 0>>
 	<<exposure>>
 
+	<!-- Turning Repeat off disarms whatever mode is active straight away, instead of on the next redraw. -->
+	<<run $(document).off('change.wardrobeRepeat').on('change.wardrobeRepeat', '.wardrobe-repeat input', (e) => { if (!e.target.checked) { V.wardrobeOption = 'wear'; wardrobeRerenderList(); } })>>
+
 	<!-- Briefly highlights wardrobe links when clicked; handler is namespaced to prevent duplicates on re-render. -->
 	<<run $(document).off('mousedown.wardrobeActionFlash').on('mousedown.wardrobeActionFlash', '.wardrobe-action a', (e) => {
 		let target = $(e.currentTarget).parent();
@@ -638,6 +777,13 @@
 <</widget>>
 
 <<widget "wardrobeContents">>
+	<<if _wardrobeFilter.active>>
+		<span class="green">The filter is currently active!</span>
+		<<link "Reset it">>
+			<<run wardrobeFilterReset(); wardrobeFilterRefresh()>>
+		<</link>>
+		<br><br>
+	<</if>>
 	<<if $lastWardrobeSlot is "favorites">>
 		<<wardrobeFavoritesList>>
 	<<elseif $lastWardrobeSlot is "over">>
@@ -650,42 +796,53 @@
 <</widget>>
 
 <<widget "wardrobeLinks">>
-	<<set _wardrobeLinks=[
-		{ id: 'favorites', label: 'Favorites', alt: 'F' },
-		{ id: 'over', label: 'Over Clothes', icon: 'over-outfit', alt: 'O', groupStart: true },
-		{ id: 'head', label: 'Head', icon: 'head', alt: 'He', groupStart: true },
-		{ id: 'face', label: 'Face', icon: 'face', alt: 'Fa' },
-		{ id: 'neck', label: 'Neck', icon: 'neck', alt: 'Ne' },
-		{ id: 'scarf', label: 'Scarf', icon: 'scarf', alt: 'Sc' },
-		{ id: 'upper', label: 'Upper', icon: 'upper', alt: 'U', groupStart: true },
-		{ id: 'lower', label: 'Lower', icon: 'lower', alt: 'L' },
-		{ id: 'under_upper', label: 'Under Upper', icon: 'under-upper', alt: 'UU', groupStart: true },
-		{ id: 'under_lower', label: 'Under Lower', icon: 'under-lower', alt: 'UL' },
-		{ id: 'genitals', label: 'Genitals', icon: 'genitals', alt: 'Ge' },
-		{ id: 'hands', label: 'Hands', icon: 'hand', alt: 'Ha', groupStart: true },
-		{ id: 'handheld', label: 'Handheld', icon: 'handheld', alt: 'Hd' },
-		{ id: 'bag', label: 'Bag', icon: 'bag', alt: 'Bg' },
-		{ id: 'rings', label: 'Rings', icon: 'rings', alt: 'Ri' },
-		{ id: 'earrings', label: 'Earrings', icon: 'earrings', alt: 'Ea' },
-		{ id: 'legs', label: 'Legs', icon: 'legs', alt: 'Le' },
-		{ id: 'feet', label: 'Feet', icon: 'feet', alt: 'Fe' },
+	<<set _wardrobeTabGroups=[
+		{ name: '', links: [
+			{ id: 'favorites', label: 'Favorites' },
+		] },
+		{ name: 'Body', links: [
+			{ id: 'over', label: 'Over', icon: 'over-outfit' },
+			{ id: 'upper', label: 'Upper', icon: 'upper' },
+			{ id: 'lower', label: 'Lower', icon: 'lower' },
+			{ id: 'under_upper', label: 'Under upper', icon: 'under-upper' },
+			{ id: 'under_lower', label: 'Under lower', icon: 'under-lower' },
+			{ id: 'genitals', label: 'Genitals', icon: 'genitals' },
+		] },
+		{ name: 'Head & neck', links: [
+			{ id: 'head', label: 'Head', icon: 'head' },
+			{ id: 'face', label: 'Face', icon: 'face' },
+			{ id: 'neck', label: 'Neck', icon: 'neck' },
+			{ id: 'scarf', label: 'Scarf', icon: 'scarf' },
+			{ id: 'earrings', label: 'Earrings', icon: 'earrings' },
+		] },
+		{ name: 'Extras', links: [
+			{ id: 'hands', label: 'Hands', icon: 'hand' },
+			{ id: 'handheld', label: 'Handheld', icon: 'handheld' },
+			{ id: 'bag', label: 'Bag', icon: 'bag' },
+			{ id: 'rings', label: 'Rings', icon: 'rings' },
+			{ id: 'legs', label: 'Legs', icon: 'legs' },
+			{ id: 'feet', label: 'Feet', icon: 'feet' },
+		] },
 	]>>
-	<div class="shop-category-tabs wardrobe-category-tabs no-numberify">
-	<<for _i = 0; _i < _wardrobeLinks.length; _i++>>
-		<<set _wardrobeLink=_wardrobeLinks[_i]>>
-		<div @class="'category-group' + (_wardrobeLink.groupStart ? ' wardrobe-category-group-start' : '')">
-		<button
-			@class="'category-tab ' + ($lastWardrobeSlot is _wardrobeLink.id ? 'active' : '')"
-			@id="Dynamic.eventBinder(_wardrobeLink.id)"
-			@title="_wardrobeLink.label"
-			onclick="(id) => $lastWardrobeSlot = id"
-		>
-			<<if $options.images is 1>>
-				<<if _wardrobeLink.id is "favorites">><<hearticon>><<else>><<clothingcategoryicon _wardrobeLink.icon>><</if>>
-			<<else>>
-				<div class="category-icon-alt">_wardrobeLink.alt</div>
-			<</if>>
-		</button>
+	<div class="wardrobe-tabs no-numberify">
+	<<for _wardrobeTabGroup range _wardrobeTabGroups>>
+		<div class="wardrobe-tabgroup" role="group" @aria-label="_wardrobeTabGroup.name || 'Favorites'">
+		<<if _wardrobeTabGroup.name>><span class="wardrobe-tabgroup-name">_wardrobeTabGroup.name</span><</if>>
+		<<for _wardrobeLink range _wardrobeTabGroup.links>>
+			<button
+				type="button"
+				@class="'wardrobe-tab' + ($options.images is 1 ? ' wardrobe-tab-icon' : '') + ($lastWardrobeSlot is _wardrobeLink.id ? ' active' : '')"
+				@id="Dynamic.eventBinder(_wardrobeLink.id)"
+				@title="_wardrobeLink.label"
+				@aria-pressed="$lastWardrobeSlot is _wardrobeLink.id ? 'true' : 'false'"
+				onclick="(id) => $lastWardrobeSlot = id"
+			>
+				<<if $options.images is 1>>
+					<<if _wardrobeLink.id is "favorites">><<hearticon>><<else>><<clothingcategoryicon _wardrobeLink.icon>><</if>>
+				<</if>>
+				<span class="wardrobe-tab-label">_wardrobeLink.label</span>
+			</button>
+		<</for>>
 		</div>
 	<</for>>
 	</div>
@@ -700,7 +857,7 @@
 	<</for>>
 
 	__Over clothes__ <i>_overItemCount / <<= _selectedWardrobe.space * _overSlots.length>></i>
-	<br><br>
+	<br>
 	Currently equipped:
 	<<set _overEquipped to 0>>
 	<<for _overSlot range _overSlots>>
@@ -715,7 +872,7 @@
 		<</if>>
 	<</for>>
 	<<if _overEquipped is 0>>nothing<</if>>
-	<br><br>
+	<br>
 
 	<<wardrobeList "over_head" true true>>
 	<<wardrobeList "over_upper" true true>>
@@ -724,61 +881,139 @@
 <</widget>>
 
 <<widget "wardrobeClothingOptions">>
-	<br>
 	<<if $wardrobeOption is undefined or $wardrobeOption is 0>><<set $wardrobeOption to "wear">><</if>>
 	<<if $wardrobeRepeat isnot true or ($wardrobeOption is "repair" and $location isnot "home")>><<set $wardrobeOption to "wear">><</if>>
 
-	<label><<radiobutton "$wardrobeOption" "wear" autocheck>> Wear</label> |
-	<label><<radiobutton "$wardrobeOption" "delete" autocheck>> Discard</label> |
-	<<if $sewingKit is 1 and $location is "home">>
-		<label><<radiobutton "$wardrobeOption" "repair" autocheck>> Repair (0:05 per piece)</label> |
-	<</if>>
-	<label><<radiobutton "$wardrobeOption" "separateOutfits" autocheck>> Separate Outfits (0:10)</label> |
-	<<if $settings.multipleWardrobes and $wardrobes[$wardrobe_location].transfer && Object.values($wardrobes).filter(w => w.unlocked && w.shopSend).length > 1>>
-		<label><<radiobutton "$wardrobeOption" "transfer" autocheck>> Transfer:</label>
-		<<set _options to {}>>
-		<<for _label, _value range $wardrobes>>
-			<<if _value.unlocked and _label isnot $wardrobe_location and $wardrobes[_label].shopSend>>
-				<<if _value.name is "Mansion Wardrobe" and ["kicked", "fallen"].contains($avery_fate)>>
-					<<set _value.name to "Storage Unit">>
+	<div class="wardrobe-modebar" role="radiogroup" aria-label="What clicking an item does">
+		<span class="wardrobe-mode-caption">Click an item to:</span>
+		<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "wear" autocheck>><span class="wardrobe-mode-label">Wear</span></label>
+		<<if $sewingKit is 1 and $location is "home">>
+			<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "repair" autocheck>><span class="wardrobe-mode-label">Repair (0:05 per piece)</span></label>
+		<</if>>
+		<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "separateOutfits" autocheck>><span class="wardrobe-mode-label">Separate Outfits</span></label>
+		<<if $settings.multipleWardrobes and $wardrobes[$wardrobe_location].transfer && Object.values($wardrobes).filter(w => w.unlocked && w.shopSend).length > 1>>
+			<span class="wardrobe-mode-transfer">
+			<label class="wardrobe-mode"><<radiobutton "$wardrobeOption" "transfer" autocheck>><span class="wardrobe-mode-label">Transfer to:</span></label>
+			<<set _options to {}>>
+			<<for _label, _value range $wardrobes>>
+				<<if _value.unlocked and _label isnot $wardrobe_location and $wardrobes[_label].shopSend>>
+					<<if _value.name is "Mansion Wardrobe" and ["kicked", "fallen"].contains($avery_fate)>>
+						<<set _value.name to "Storage Unit">>
+					<</if>>
+					<<set _options[_value.name] to _label>>
 				<</if>>
-				<<set _options[_value.name] to _label>>
-			<</if>>
-		<</for>>
-		<<listbox "_wardrobeTransfer" autoselect>>
-			<<optionsfrom _options>>
-		<</listbox>>
-		|
-	<</if>>
-
-	<label><<checkbox "$wardrobeRepeat" false true autocheck>> Repeat Actions</label>
-	<br><br>
-	Wardrobe total: <<= getWardrobeItemCount(_selectedWardrobe, true)>> / 3,000 items. Automatic returns can exceed this limit.
-	<br>
-	<<set _discardSlot to $lastWardrobeSlot is "over" ? "over_upper" : $lastWardrobeSlot>>
-	Destroy all in slot:
-	<<listbox "_discardSlot" autoselect>>
-		<<optionsfrom Object.fromEntries(setup.clothes_all_slots.filter(slot => Array.isArray(_selectedWardrobe[slot])).map(slot => [slot.replace(/_/g, " "), slot]))>>
-	<</listbox>>
-	<span id="wardrobe-bulk-discard">
-		<<link "Destroy all...">>
-			<<capture _discardSlot>>
-				<<replace "#wardrobe-bulk-discard">>
-					Destroy all <<= _selectedWardrobe[_discardSlot].length>> items in <<= _discardSlot.replace(/_/g, " ")>>, including favorites? Other outfit pieces will be left incomplete.
-					<<link "Confirm destruction">>
-						<<run discardWardrobeSlot(_selectedWardrobe, _discardSlot)>>
-						<<updatewardrobe>>
-					<</link>> |
-					<<link "Cancel">><<updatewardrobe>><</link>>
-				<</replace>>
-			<</capture>>
-		<</link>>
-	</span>
+			<</for>>
+			<<listbox "_wardrobeTransfer" autoselect>>
+				<<optionsfrom _options>>
+			<</listbox>>
+			</span>
+		<</if>>
+		<label class="wardrobe-repeat"><<checkbox "$wardrobeRepeat" false true autocheck>> Repeat Actions</label>
+		<label class="wardrobe-mode wardrobe-mode-danger"><<radiobutton "$wardrobeOption" "delete" autocheck>><span class="wardrobe-mode-label">Discard</span><em class="wardrobe-danger-note">destroys the clicked item</em></label>
+	</div>
 
 	<<if $wardrobeOption is "delete" and $wardrobeRepeat is true>>
 		<h2 class="red">Discard On Repeat</h2>
+	<</if>>
+<</widget>>
+
+<<widget "wardrobeStorage">>
+	<details id="wardrobe-storage" class="wardrobe-storage">
+		<summary><span id="wardrobe-storage-summary"><<wardrobeStorageSummary>></span></summary>
+		<div id="wardrobe-storage-body" class="wardrobe-storage-body"><<wardrobeStorageBody>></div>
+	</details>
+<</widget>>
+
+<<widget "wardrobeStorageSummary">>
+	<<print $wardrobes[$wardrobe_location] ? $wardrobes[$wardrobe_location].name : "Wardrobe">> | <<= getWardrobeItemCount(_selectedWardrobe, true)>> / 3,000
+	<span class="wardrobe-storage-hint">Storage &amp; bulk actions</span>
+<</widget>>
+
+<<widget "wardrobeStorageBody">>
+	<<set _homeLocations to $settings.multipleWardrobes ? getAvailableWardrobeHomes().filter(location => $wardrobe_location isnot location) : []>>
+	<<if _homeLocations.length gt 0>>
+		<div class="wardrobe-storage-group">
+			<b>Move everything</b> to another wardrobe. Automatic returns can exceed the 3,000 item limit.
+			<br>
+			<<set _targetWardrobe to "wardrobe">>
+			<<set _locationMap = {}>>
+			<<run _homeLocations.forEach(key => _locationMap[$wardrobes[key].name] = key)>>
+			Destination:
+			<<listbox "_targetWardrobe" autoselect>>
+				<<optionsfrom _locationMap>>
+			<</listbox>>
+			<div class="wardrobe-action">
+				<<link "Transfer">>
+					<<set _currentWardrobeObj to selectWardrobe($wardrobe_location)>>
+					<<set _targetWardrobeObj to selectWardrobe(_targetWardrobe, "return")>>
+
+					<<if getWardrobeItemCount(_targetWardrobeObj, true) + getWardrobeItemCount(_currentWardrobeObj, true) gt 3500>>
+						<<replace "#wardrobewear">><span class="red">There isn't enough room to transfer all your clothes. The destination is limited to 3,000 total items.</span><</replace>>
+					<<elseif !Number.isFinite(_targetWardrobeObj.space) or setup.clothes_all_slots.some(slot => (_targetWardrobeObj[slot]?.length || 0) + (_currentWardrobeObj[slot]?.length || 0) > _targetWardrobeObj.space)>>
+						<<replace "#wardrobewear">><span class="red">There isn't enough room to transfer all your clothes. At least one destination slot is full. Nothing was moved.</span><</replace>>
+					<<else>>
+						<<for _slot range setup.clothes_all_slots>>
+							<<capture _currentWardrobeObj, _slot>>
+								<<if !Array.isArray(_currentWardrobeObj[_slot])>><<continue>><</if>>
+								<<for _i = _currentWardrobeObj[_slot].length; _i gt 0; _i-->>
+									<<if getWardrobeItemCount(_targetWardrobeObj, true) lt 3500 and Number.isFinite(_targetWardrobeObj.space) and (!Array.isArray(_targetWardrobeObj[_slot]) or _targetWardrobeObj[_slot].length lt _targetWardrobeObj.space)>>
+										<<run transferClothing(_slot, 0, $wardrobe_location, _targetWardrobe, { moveLinkedPieces: false })>>
+									<<else>>
+										<<break>>
+									<</if>>
+								<</for>>
+							<</capture>>
+						<</for>>
+						<<updatewardrobe>>
+					<</if>>
+				<</link>>
+			</div>
+		</div>
 	<<else>>
-		<br><br>
+		<div class="wardrobe-storage-group">
+			<b>Move everything</b> to another wardrobe.
+			<br>
+			<span class="grey"><<if !$settings.multipleWardrobes>>Needs multiple wardrobes, which is turned off in settings.<<else>>You have no other wardrobe to move to.<</if>></span>
+		</div>
+	<</if>>
+	<div class="wardrobe-storage-group wardrobe-danger-zone">
+		<b class="red">Destroy</b> every item in one slot. This cannot be undone.
+		<br>
+		Slot:
+		<<print '<select id="wardrobe-bulk-slot"><option value="">Choose a slot...</option>' + setup.clothes_all_slots.filter(slot => Array.isArray(_selectedWardrobe[slot])).map(slot => '<option value="' + slot + '">' + slot.replace(/_/g, " ") + '</option>').join("") + '</select>'>>
+		<<run setTimeout(() => { const slotSelect = document.getElementById("wardrobe-bulk-slot"); if (slotSelect) slotSelect.selectedIndex = 0; }, 0)>>
+		<span id="wardrobe-bulk-discard">
+			<<link "Destroy all...">>
+				<<set _discardSlot to (document.getElementById("wardrobe-bulk-slot") ? document.getElementById("wardrobe-bulk-slot").value : "")>>
+				<<if _discardSlot is "">>
+					<<replace "#wardrobe-bulk-hint">>Choose a slot first.<</replace>>
+				<<else>>
+					<<capture _discardSlot>>
+						<<replace "#wardrobe-bulk-discard">>
+							<span class="red">Destroy all <<= _selectedWardrobe[_discardSlot].length>> items in <<= _discardSlot.replace(/_/g, " ")>>, including favorites? Other outfit pieces will be left incomplete.</span>
+							<<link "Confirm destruction">>
+								<<run discardWardrobeSlot(_selectedWardrobe, _discardSlot)>>
+								<<updatewardrobe>>
+							<</link>> |
+							<<link "Cancel">><<updatewardrobe>><</link>>
+						<</replace>>
+					<</capture>>
+				<</if>>
+			<</link>>
+		</span>
+		<span id="wardrobe-bulk-hint" class="red"></span>
+	</div>
+<</widget>>
+
+<<widget "wardrobeEquipActions">>
+	<<if $worn[_wardrobe_list].name isnot "naked">>
+		<span class="wardrobe-action no-numberify"><<wearlink_norefresh "Strip" 'strip'>></span>
+	<</if>>
+	<<if _wardrobe_list is "upper">>
+		<span class="wardrobe-action no-numberify"><<wearlink_norefresh "Large towel" 'large_towel'>></span>
+	<</if>>
+	<<if _wardrobe_list is "upper" or _wardrobe_list is "lower">>
+		<span class="wardrobe-action no-numberify"><<wearlink_norefresh "Towel" 'towel'>></span>
 	<</if>>
 <</widget>>
 
@@ -1222,9 +1457,9 @@
 <<widget "wardrobePageControls">>
 	<<set _wardrobePageKey to $wardrobe_location + ":" + _args[0]>>
 	<<set _wardrobePages to _wardrobePages || {}>>
-	<<set _wardrobePageCount to Math.max(1, Math.ceil(_args[1] / 20))>>
+	<<set _wardrobePageCount to Math.max(1, Math.ceil(_args[1] / wardrobePageSize))>>
 	<<set _wardrobePages[_wardrobePageKey] to Math.clamp(_wardrobePages[_wardrobePageKey] || 0, 0, _wardrobePageCount - 1)>>
-	<<set _wardrobePageStart to _wardrobePages[_wardrobePageKey] * 20>>
+	<<set _wardrobePageStart to _wardrobePages[_wardrobePageKey] * wardrobePageSize>>
 	<<if _wardrobePageCount gt 1>>
 		<div class="wardrobe-pages no-numberify" style="clear:both;">
 			<<capture _wardrobePageKey>>
@@ -1259,32 +1494,12 @@
 
 		<<if !_combinedWardrobeList>>
 		<<set _outfitTypes to setup.clothingLayer.torso_inner>>
-		__<<print _wardrobe_list[0].toUpperCase() + _wardrobe_list.substring(1)>>__ <i>_selectedWardrobe[_wardrobe_list].length / _selectedWardrobe.space</i>
-		<<if _wardrobe_list is "upper">>(Outfits will also take a lower slot)<</if>>
-		<<if _wardrobe_list is "under_upper">>(Outfits will also take an under lower slot)<</if>>
-		<br>
-		Order by:
-		/*Undefined error for unknown reason*/
-		/*<a @onclick="`wikifier('wardrobeListReorder', '`+ $lastWardrobeSlot + `', 'name');`">Name</a> |*/
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'name');">Name</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'color');">Colour</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'lewd');">Lewd</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'integrity');">Integrity</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'warmth');">Warmth</a></div> |
-		<<if _outfitTypes.includes(_wardrobe_list)>>
-			<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'outfit');">Outfit Status</a></div> |
-		<</if>>
-		<br>
-		Inverse Order by:
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'name', true);">Name</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'color', true);">Colour</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'lewd', true);">Lewd</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'integrity', true);">Integrity</a></div> |
-		<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'warmth', true);">Warmth</a></div> |
-		<<if _outfitTypes.includes(_wardrobe_list)>>
-			<div class="wardrobe-action"><a onclick="wikifier('wardrobeListReorder', V.lastWardrobeSlot, 'outfit', true);">Outfit Status</a></div> |
-		<</if>>
-		<br><br>
+		<div class="wardrobe-listhead">
+			<span>__<<print _wardrobe_list[0].toUpperCase() + _wardrobe_list.substring(1)>>__ <i>_selectedWardrobe[_wardrobe_list].length / _selectedWardrobe.space</i>
+			<<if _wardrobe_list is "upper">>(Outfits will also take a lower slot)<</if>>
+			<<if _wardrobe_list is "under_upper">>(Outfits will also take an under lower slot)<</if>></span>
+			<div class="wardrobe-sort">Sort: <<print wardrobeSortLinks(_wardrobe_list, _outfitTypes.includes(_wardrobe_list))>></div>
+		</div>
 		<<if $settings.multipleWardrobes>>
 			Items in handbag:
 			<<if $worn.bag.type.includes("bookbag")>>
@@ -1294,11 +1509,13 @@
 			<</if>>
 			<br>
 		<</if>>
-		Currently equipped:
 		<<if $worn[_wardrobe_list].name is "naked">>
-			nothing
-			<br>
+			<div class="wardrobe-equipped">
+				Currently equipped: nothing
+			</div>
 		<<else>>
+			<div class="wardrobe-equipped">
+			Currently equipped:
 			<<set _wornItem to $worn[_wardrobe_list]>>
 			<<set _wornItemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_wornItem)]>>
 			<<clothingicon _wornItem _wardrobe_list>>
@@ -1345,9 +1562,9 @@
 				<</if>>
 			<</if>>
 			<<wardrobeintegrity _wornItem _wardrobe_list>>
-			| <<wardrobeFavoriteLink _wardrobe_list _wornItem>> |
+			|
 			<a onclick="document.getElementById('wardrobeItemDetails').classList.toggle('hidden')">Extra Info</a>
-			<br>
+			</div>
 			<div id="wardrobeItemDetails" @class="$wardrobeDefaults.extraInfo?'':'hidden'">
 				<<if _wornItem.plural is 1>>
 					<<integrity `clothingData(_wardrobe_list,_wornItem,'integrity_max')` "cap">>
@@ -1372,8 +1589,9 @@
 				<<set _temp_choice to $worn[_wardrobe_list]>>
 				<<shoptraits>>
 			</div>
+			<div class="wardrobe-mods">
 			<<if $DoLPSpools isnot undefined>>
-				<<shopicon "tailor">> You have <span class="green">$DoLPSpools</span> spools.
+				<span class="wardrobe-spools"><<shopicon "tailor">> <span class="green">$DoLPSpools</span> spools</span>
 				<div class="no-numberify"><<repairClothing>></div>
 			<</if>>
 
@@ -1406,32 +1624,18 @@
 			<<if _wardrobe_list is "face">>
 				<div class="no-numberify toggleAltLink"><<toggleFaceLayer "wardrobe">></div>
 			<</if>>
-		<</if>>
-		<br>
-		<<if $worn[_wardrobe_list].name isnot "naked">>
-			<div class="wardrobeItem wardrobe-action no-numberify">
-				<<wearlink_norefresh "Strip" 'strip'>>
-				<div class="small-description">~</div>
-			</div>
-		<</if>>
-		<<if _wardrobe_list is "upper">>
-			<div class="wardrobeItem wardrobe-action no-numberify">
-				<<wearlink_norefresh "Large towel" 'large_towel'>>
-				<div class="small-description">~</div>
-			</div>
-		<</if>>
-		<<if _wardrobe_list is "upper" or _wardrobe_list is "lower">>
-			<div class="wardrobeItem wardrobe-action no-numberify">
-				<<wearlink_norefresh "Towel" 'towel'>>
-				<div class="small-description">~</div>
 			</div>
 		<</if>>
 		<</if>>
 
 		<<set _hasHandbag to $worn.bag.type.includes("bookbag")>>
 		<<if $settings.multipleWardrobes and _hasHandbag>>
+			<div class="wardrobe-grid">
 			<<for _i to 0; _i lt $wardrobes.inventory[_wardrobe_list].length; _i++>>
 				<<set _item to $wardrobes.inventory[_wardrobe_list][_i]>>
+				<<if !wardrobeItemMatches(_item)>>
+					<<continue>>
+				<</if>>
 				<<set _itemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)]>>
 				<<set _itemOutfitData to _itemData.outfitPrimary>>
 				<<if _item.outfitSecondary isnot undefined>>
@@ -1539,7 +1743,7 @@
 						/*Set the target wardrobe*/
 						<<set _wardrobeTransferObject to selectWardrobe($wardrobe_location)>>
 						/*Make sure there is enough space*/
-						<<if _wardrobeTransferObject[_wardrobe_list].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 3000>>
+						<<if _wardrobeTransferObject[_wardrobe_list].length gte _wardrobeTransferObject.space or getWardrobeItemCount(_wardrobeTransferObject, true) + 1 + Object.keys(_outfitPieceIds).length gt 3500>>
 							<<set _slotsFull to true>>
 						<</if>>
 						<<if _itemOutfitData>>
@@ -1569,14 +1773,27 @@
 					</div>
 				</div>
 			<</for>>
+			</div>
 		<</if>>
 
 		<<set _wardrobeIndices to _selectedWardrobe[_wardrobe_list].reduce((indices, item, index) => {
-			if (!item.outfitSecondary || ["broken", "split"].includes(item.outfitSecondary[1])) indices.push(index);
+			if ((!item.outfitSecondary || ["broken", "split"].includes(item.outfitSecondary[1])) && wardrobeItemMatches(item)) indices.push(index);
 			return indices;
 		}, [])>>
-		<<wardrobePageControls _wardrobe_list _wardrobeIndices.length>>
-		<<for _i range _wardrobeIndices.slice(_wardrobePageStart, _wardrobePageStart + 20)>>
+		<<if !_combinedWardrobeList and wardrobeFilterActive()>>
+			<<if _wardrobeIndices.length is 0>>
+				Nothing here matches your search or filters.
+			<<else>>
+				Showing _wardrobeIndices.length of <<= _selectedWardrobe[_wardrobe_list].filter(item => !item.outfitSecondary || ["broken", "split"].includes(item.outfitSecondary[1])).length>>.
+			<</if>>
+			<br>
+		<</if>>
+		<div class="wardrobe-listbar">
+			<<wardrobePageControls _wardrobe_list _wardrobeIndices.length>>
+			<div class="wardrobe-equip-actions"><<if !_combinedWardrobeList>><<wardrobeEquipActions>><</if>></div>
+		</div>
+		<div class="wardrobe-grid">
+		<<for _i range _wardrobeIndices.slice(_wardrobePageStart, _wardrobePageStart + wardrobePageSize)>>
 			<<set _item to _selectedWardrobe[_wardrobe_list][_i]>>
 			<<set _itemData to setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)]>>
 			<<set _itemOutfitData to _itemData.outfitPrimary>>
@@ -1699,7 +1916,7 @@
 				</div>
 			</div>
 		<</for>>
-		<<wardrobePageControls _wardrobe_list _wardrobeIndices.length>>
+		</div>
 		<<if !_combinedWardrobeList>><div style="clear:both;"></div><</if>>
 	<</if>>
 <</widget>>
@@ -1727,7 +1944,7 @@
 	<<else>>
 		<<run $('#wardrobewear').html(new Wikifier(null, "<<wardrobewear>>").output)>>
 	<</if>>
-	<<run $('#wardrobewear').addClass('notransition flash'); setTimeout(() => { $('#wardrobewear').removeClass('notransition flash') }, 100);>>
+	<<if _args[0] isnot "noflash">><<run $('#wardrobewear').addClass('notransition flash'); setTimeout(() => { $('#wardrobewear').removeClass('notransition flash') }, 100);>><</if>>
 	<<updatesidebarimg>>
 	<<updatesidebardescription>>
 	<<updateallure>>
@@ -1736,7 +1953,11 @@
 	<<if _args[0] == "outfits">>
 		<<replace "#listoutfits">><<listoutfits>><</replace>>
 	<</if>>
-	<<replace '#clotheson'>><<clotheson>><</replace>>
+	<<silently>><<clotheson>><</silently>>
+	<<if $('#wardrobe-storage-body')[0]>>
+		<<replace '#wardrobe-storage-summary'>><<wardrobeStorageSummary>><</replace>>
+		<<replace '#wardrobe-storage-body'>><<wardrobeStorageBody>><</replace>>
+	<</if>>
 	<<if $('#wardrobeList')[0]>><<replace '#wardrobeList'>><<wardrobeContents>><</replace>><</if>>
 	<<if $('#oldWardrobeListDisplay')[0]>>
 		<<if _args[1]>>
@@ -1858,7 +2079,7 @@
 		<<if (_wardrobe_list is "upper" or _wardrobe_list is "lower") and _showType isnot "outfits">>
 			<li class="no-numberify"><<wearlink_norefresh "Towel" 'towel' _wear>></li>
 		<</if>>
-		<<for _i range _wardrobeIndices.slice(_wardrobePageStart, _wardrobePageStart + 20)>>
+		<<for _i range _wardrobeIndices.slice(_wardrobePageStart, _wardrobePageStart + wardrobePageSize)>>
 			<<set _item to _selectedWardrobe[_wardrobe_list][_i]>>
 			<li class="no-numberify">/*<<clothingicon _item>>*/<<wearlink_norefresh setup.clothes[_wardrobe_list][clothesIndex(_wardrobe_list,_item)].name_cap _i _wear>>
 			<<if _item.colour isnot 0>>
@@ -1885,7 +2106,7 @@
 					case "name": value = item.name; break;
 					case "color": value = item.colour; break;
 					case "integrity": value = item.integrity / clothingData(slot, item, "integrity_max"); break;
-					case "warmth": value = item.warmth; break;
+					case "warmth": value = getTrueWarmth(item); break;
 					case "outfit": value = item.one_piece; break;
 					case "lewd": value = item.reveal; break;
 					default: continue;
@@ -1898,14 +2119,14 @@
 			let values = Array.from(groups.keys());
 			switch (orderType) {
 				case "name":
-					values.sort(descending ? (a, b) => b.localeCompare(a) : undefined);
+					values.sort((a, b) => descending ? b.localeCompare(a) : a.localeCompare(b));
 					break;
 				case "color":
-					values.sort(descending ? (a, b) => a === 0 || b === 0 ? 0 : b.localeCompare(a) : undefined);
+					values.sort((a, b) => descending ? String(b).localeCompare(String(a)) : String(a).localeCompare(String(b)));
 					break;
 				case "integrity":
 				case "warmth":
-					values.sort(descending ? undefined : (a, b) => b - a);
+					values.sort(descending ? (a, b) => a - b : (a, b) => b - a);
 					break;
 				case "outfit":
 					values = descending ? ["broken", "split", 0, 1] : [1, 0, "split", "broken"];
@@ -2092,9 +2313,13 @@
 
 <<widget "warmth_description">>
 	<<print setup.WeatherDescriptions.shop()>>
-	<br>
+	<<if !_inWardrobe>>
+		<br>
+	<</if>>
 	Your clothing warmth is currently <span class="orange"><<print Weather.BodyTemperature.getWarmth()>></span>.
-	<br>
+	<<if !_inWardrobe>>
+		<br>
+	<</if>>
 
 	<<set $_minWarmth to getTargetWarmth(36.4)>>
 	<<set $_maxWarmth to getTargetWarmth(37.6)>>
@@ -2108,7 +2333,16 @@
 	<<else>>
 		to stay indoors.
 	<</if>>
-	<hr />
+	<<if _inWardrobe>>
+		<<set $_warmthNow to Weather.BodyTemperature.getWarmth()>>
+		<<if $_minWarmth and getTargetWarmth(36.5) and $_warmthNow lt getTargetWarmth(36.5)>>
+			<br><span class="red">Add <<print getTargetWarmth(36.5) - $_warmthNow>> more warmth to be comfortable.</span>
+		<<elseif $_maxWarmth and getTargetWarmth(37.5) and $_warmthNow gt getTargetWarmth(37.5)>>
+			<br><span class="red">Remove <<print $_warmthNow - getTargetWarmth(37.5)>> warmth to be comfortable.</span>
+		<</if>>
+	<<else>>
+		<hr />
+	<</if>>
 <</widget>>
 
 <<widget "wardrobeSelection">>

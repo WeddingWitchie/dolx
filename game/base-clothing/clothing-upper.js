@@ -8534,7 +8534,7 @@ function initUpper() {
 			breast_img: { 0: 0, 1: 0, 2: 0, 3: 3, 4: 3, 5: 3, 6: 3 },
 			cursed: 0,
 			location: 0,
-			iconFile: 0,
+			iconFile: "seaweed-top.png",
 			accIcon: 0,
 			mainImage: 0,
 			notuck: 1,

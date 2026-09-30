@@ -319,3 +319,103 @@ function wardrobeSlotName(slot) {
 		.join(" ");
 }
 window.wardrobeSlotName = wardrobeSlotName;
+
+/* Wardrobe search and filter. The state lives in temporary variables, so leaving the wardrobe clears it. */
+function wardrobeFilterReset() {
+	T.wardrobeFilter = {
+		active: false,
+		gender: { female: true, neutral: true, male: true },
+		reveal: { from: 0, to: 9999 },
+		warmth: { from: 0, to: 100 },
+		traits: [],
+	};
+}
+window.wardrobeFilterReset = wardrobeFilterReset;
+
+function wardrobeFilterToggleTrait(trait) {
+	const traits = T.wardrobeFilter.traits;
+	const index = traits.indexOf(trait);
+	if (index === -1) traits.push(trait);
+	else traits.splice(index, 1);
+}
+window.wardrobeFilterToggleTrait = wardrobeFilterToggleTrait;
+
+function wardrobeFilterActive() {
+	return !!(T.wardrobeSearch || T.wardrobeFilter?.active);
+}
+window.wardrobeFilterActive = wardrobeFilterActive;
+
+function wardrobeItemMatches(item) {
+	const words = (T.wardrobeSearch || "").trim().toLowerCase().split(/\s+/).filter(Boolean);
+	if (words.length) {
+		const text = [item.name, item.colour, item.pattern]
+			.filter(part => typeof part === "string")
+			.join(" ")
+			.toLowerCase();
+		if (!words.every(word => text.includes(word))) return false;
+	}
+	const f = T.wardrobeFilter;
+	if (!f?.active) return true;
+	const gender = { f: "female", m: "male" }[item.gender] ?? "neutral";
+	if (!f.gender[gender]) return false;
+	if (item.reveal < f.reveal.from || item.reveal >= f.reveal.to) return false;
+	const warmth = getTrueWarmth(item);
+	if (warmth < f.warmth.from || warmth > f.warmth.to) return false;
+	return f.traits.length === 0 || f.traits.some(trait => (item.type || []).includes(trait));
+}
+window.wardrobeItemMatches = wardrobeItemMatches;
+
+/* Redraws the open list from its first page. The search box sits outside #wardrobeList so it keeps focus while typing. */
+function wardrobeFilterRefresh() {
+	T.wardrobePages = {};
+	$("#wardrobe-filter-state").text(T.wardrobeFilter?.active ? " (on)" : "");
+	wardrobeRerenderList();
+}
+window.wardrobeFilterRefresh = wardrobeFilterRefresh;
+
+/* Redraws the open list in place, keeping the current page. */
+function wardrobeRerenderList() {
+	if ($("#wardrobeList").length) Wikifier.wikifyEval("<<replace '#wardrobeList'>><<wardrobeContents>><</replace>>");
+}
+window.wardrobeRerenderList = wardrobeRerenderList;
+
+/* One row of sort links per slot. The first click on a key uses the normal order, a second click on the same key reverses it. */
+const wardrobeSortKeys = [
+	["name", "Name"],
+	["color", "Colour"],
+	["lewd", "Lewd"],
+	["integrity", "Integrity"],
+	["warmth", "Warmth"],
+	["outfit", "Outfit Status"],
+];
+
+function wardrobeSortBy(slot, key) {
+	T.wardrobeSort = T.wardrobeSort || {};
+	const last = T.wardrobeSort[slot];
+	const descending = last?.key === key && !last.descending;
+	T.wardrobeSort[slot] = { key, descending };
+	window.wikifier("wardrobeListReorder", slot, key, descending);
+}
+window.wardrobeSortBy = wardrobeSortBy;
+
+function wardrobeSortLinks(slot, withOutfit) {
+	const last = T.wardrobeSort?.[slot];
+	return wardrobeSortKeys
+		.filter(([key]) => key !== "outfit" || withOutfit)
+		.map(([key, label]) => {
+			const mark = last?.key === key ? (last.descending ? " &#9660;" : " &#9650;") : "";
+			return `<div class="wardrobe-action"><a title="Click again to reverse the order" onclick="wardrobeSortBy('${slot}', '${key}')">${label}${mark}</a></div>`;
+		})
+		.join("");
+}
+window.wardrobeSortLinks = wardrobeSortLinks;
+
+function wardrobeOpenFilters() {
+	Wikifier.wikifyEval(
+		"<<replace '#wardrobe-filters'>><<loadWardrobeFilters>><</replace>><<run linkifyDivs('#wardrobe-filters')>><<toggleclass '#wardrobe-filters' 'hidden'>>"
+	);
+}
+window.wardrobeOpenFilters = wardrobeOpenFilters;
+
+/* Items shown per wardrobe page. */
+window.wardrobePageSize = 12;

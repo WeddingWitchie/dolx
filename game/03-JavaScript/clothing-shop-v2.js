@@ -255,14 +255,14 @@ function loadCustomColourPreset(slot = "primary") {
 window.loadCustomColourPreset = loadCustomColourPreset;
 
 // adjusts available options for reveal dropdowns (makes sure upper bound is not below lower bound and vice versa)
-function getFilterRevealOptions(type) {
+function getFilterRevealOptions(type, filter = V.shopClothingFilter) {
 	const optionsFrom = { unassuming: 0, smart: 100, tasteful: 200, comfy: 300, seductive: 500, risqué: 700, lewd: 900 };
 	const optionsTo = { unassuming: 100, smart: 200, tasteful: 300, comfy: 500, seductive: 700, risqué: 900, lewd: 9999 };
 
 	if (type === "from") {
 		// this line removes values that are larger than reveal.to
 		return Object.keys(optionsFrom)
-			.filter(x => optionsFrom[x] < V.shopClothingFilter.reveal.to)
+			.filter(x => optionsFrom[x] < filter.reveal.to)
 			.reduce((res, key) => {
 				res[key] = optionsFrom[key];
 				return res;
@@ -270,7 +270,7 @@ function getFilterRevealOptions(type) {
 	} else {
 		// this line removes values that are smaller than reveal.from
 		return Object.keys(optionsTo)
-			.filter(x => optionsTo[x] > V.shopClothingFilter.reveal.from)
+			.filter(x => optionsTo[x] > filter.reveal.from)
 			.reduce((res, key) => {
 				res[key] = optionsTo[key];
 				return res;

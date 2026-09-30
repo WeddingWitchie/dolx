@@ -8116,7 +8116,7 @@ function initLower() {
 			cursed: 0,
 			notuck: 1,
 			location: 0,
-			iconFile: 0,
+			iconFile: "seaweed-skirt.png",
 			accIcon: 0,
 		}),
 		new ClothesItem({

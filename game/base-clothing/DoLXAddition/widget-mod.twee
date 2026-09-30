@@ -152,14 +152,14 @@
 	<<set _favoriteId to _args[2]>>
 	<<capture _favoriteSlot _favoriteItem _favoriteId>>
 		<<if isWardrobeFavorite(_favoriteSlot, _favoriteItem)>>
-			<<link "Unfavorite">>
+			<span class="wardrobe-favorite-on noDivider"><<link "Unfavorite">>
 				<<run toggleWardrobeFavorite(_favoriteSlot, _favoriteItem, _favoriteId)>>
-				<<updatewardrobe>>
-			<</link>>
+				<<updatewardrobe "noflash">>
+			<</link>></span>
 		<<else>>
 			<<link "Favorite">>
 				<<run toggleWardrobeFavorite(_favoriteSlot, _favoriteItem)>>
-				<<updatewardrobe>>
+				<<updatewardrobe "noflash">>
 			<</link>>
 		<</if>>
 	<</capture>>
@@ -185,7 +185,7 @@
 
 <<widget "wardrobeFavoritesList">>
 	<<set _hasHandbag to $settings.multipleWardrobes and $worn.bag.type.includes("bookbag")>>
-	<<set _favoriteItems to wardrobeFavoriteItems(_selectedWardrobe, _hasHandbag)>>
+	<<set _favoriteItems to wardrobeFavoriteItems(_selectedWardrobe, _hasHandbag).filter(favorite => wardrobeItemMatches(favorite.item))>>
 	__Favorites__ <i>_favoriteItems.length item<<if _favoriteItems.length isnot 1>>s<</if>></i>
 	<br><br>
 	__Strip__
@@ -206,10 +206,11 @@
 	<br>
 
 	<<if _favoriteItems.length is 0>>
-		No favorite clothing has been marked in this wardrobe.
+		<<if wardrobeFilterActive()>>Nothing here matches your search or filters.<<else>>No favorite clothing has been marked in this wardrobe.<</if>>
 	<<else>>
 		<<wardrobePageControls "favorites" _favoriteItems.length>>
-		<<for _favorite range _favoriteItems.slice(_wardrobePageStart, _wardrobePageStart + 20)>>
+		<div class="wardrobe-grid">
+		<<for _favorite range _favoriteItems.slice(_wardrobePageStart, _wardrobePageStart + wardrobePageSize)>>
 			<<set _wardrobe_list to _favorite.slot>>
 			<<set _item to _favorite.item>>
 			<<set _i to _favorite.index>>
@@ -284,7 +285,7 @@
 				</div>
 			</div>
 		<</for>>
-		<<wardrobePageControls "favorites" _favoriteItems.length>>
+		</div>
 		<div style="clear:both;"></div>
 	<</if>>
 <</widget>>
