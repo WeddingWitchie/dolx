@@ -465,7 +465,7 @@ blackmailQuests.low.push(
 		receiveItems() {
 			// See quest 13/14/16: a no-op spike must not arm the pill-test fail off a pill this quest never landed.
 			const landed = playerMayBeSpiked();
-			wikifier("generalWear", "lower", 27, "black");
+			wikifier("generalWear", "lower", `"short school skirt"`, "black");
 			wikifier("xchange-pink", 1, "spike");
 			this.tookPill = true;
 			this.pillLanded = landed;

@@ -1133,7 +1133,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Underground Farm`, `Livestock Intro`],
-			widgets: [`<<endevent>>`, `<<leash 21>>`, `<<badEndTracking "Underground Farm" { reason: "abductedMoor" }>>`],
+			widgets: [`<<endevent>>`, `<<leash "collar with leash">>`, `<<badEndTracking "Underground Farm" { reason: "abductedMoor" }>>`],
 		},
 		{
 			link: [`Prison`, `Police Cell`],
@@ -1429,7 +1429,7 @@ setup.debugMenu.eventList = {
 		},
 		{
 			link: [`Collar`, stayOnPassageFn],
-			widgets: [`<<leash 21>>`],
+			widgets: [`<<leash "collar with leash">>`],
 		},
 		{
 			link: [`Bind`, stayOnPassageFn],
