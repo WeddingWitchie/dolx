@@ -1,12 +1,17 @@
-# Canvas renderer documentation
+# Canvas renderer
 
-[[_TOC_]]
+How the game draws layered sprites (the player, NPCs, hair, clothes) onto a canvas. There are two levels:
 
-## Layer processing and composition
+- **Layers**: draw a list of images by hand. Good for one-off pictures.
+- **CanvasModel**: a reusable set of layers that reads an options object. This is what the game uses for characters.
 
-Example code that displays a single layer.
+Source: `game/03-JavaScript/00-libs/renderer.js` (layer composition) and `game/03-JavaScript/05-renderer/` (models). The SugarCube widgets are in `game/base-clothing/canvas.twee` (low level) and `game/base-clothing/canvasmodel.twee` (models). A small working model is in `game/04-Variables/canvasmodel-example.js` and `canvasmodel-example.twee`.
 
-**JavaScript**:
+## Layers
+
+This draws one processed image.
+
+**JavaScript**
 
 ```js
 var canvas = Renderer.createCanvas(256, 256);
@@ -21,7 +26,7 @@ Renderer.composeLayers(canvas, [
 ]);
 ```
 
-**SugarCube**:
+**SugarCube**
 
 ```
 <<canvasstart 256 256 1>>
@@ -29,82 +34,72 @@ Renderer.composeLayers(canvas, [
 <<canvasdraw>>
 ```
 
-The image will be processed in the following way:
-![result](canvasmodel-demo1.png)
+Result:
 
-Explanation of layer processing options:
+![Layer result](assets/canvasmodel-demo1.png)
 
-<dl>
-	<dt>src: string</dt>
-	<dd>Image file path. Required.</dd>
-	<dt>desaturate: boolean</dt>
-	<dd>Convert to grayscale before processing. Optional, default false.</dd>
-	<dt>brightness: number</dt>
-	<dd>Adjust brightness before processing, from -1 (completely black) to +1 (completely white). Optional, default 0</dd>
-	<dt>contrast: number</dt>
-	<dd>Adjust contrast before processing, where 1 (default) is don't change, values in 0..1 reduce contrast (0 makes image gray) and values above 1 raise contrast.</dd>
-	<dt>blend: string</dt>
-	<dd>Blend colour, CSS colour string or gradient/pattern specification (see section at the bottom of the document). Optional, default none.</dd>
-	<dt>blendMode: string</dt>
-	<dd>Blend mode. Optional, default none. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation" target="_blank">globalCompositionOperation docs</a> for list of modes</dd>
-	<dt>masksrc: string</dt>
-	<dd>Mask image file path. Optional. Result alpha = image alpha &times; mask alpha, so image pixels where mask is transparent will be removed. Mask colour does not matter.</dd>
-</dl>
+### Processing options
 
-In addition to processing, layer has composition-related options that govern how multiple layers are composed into single image:
+These change how a single image is drawn.
 
-<dl>
-	<dt>z: number</dt>
-	<dd>Display order, layers with higher numbers are rendered above others. Optional, default 0.</dd>
-	<dt>name: string</dt>
-	<dd>Layer name, for debugging. Optional</dd>
-	<dt>show: boolean</dt>
-	<dd>Render the layer. Optional, default true, and only exact "false" value prevents rendering.</dd>
-	<dt>alpha: number</dt>
-	<dd>Opacity from 0 (invisible) to 1 (opaque). Optional, default 1</dd>
-	<dt>dx: number, dy: number</dt>
-	<dd>Offset on the target canvas. Optional, default 0</dd>
-	<dt>width: number, height: number</dt>
-	<dd>Size of a single animation frame of the image. Optional, default auto-generated. Required if animated frame of this image is smaller than animated frame of target canvas.</dd>
-</dl>
+| Option       | Type             | Meaning                                                                                                                                                              |
+| ------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src`        | string           | Image path. Required.                                                                                                                                                |
+| `desaturate` | boolean          | Convert to grayscale first. Default `false`.                                                                                                                         |
+| `brightness` | number           | From -1 (black) to +1 (white). Default `0`.                                                                                                                          |
+| `contrast`   | number           | `1` leaves it alone, below 1 lowers contrast (`0` is flat gray), above 1 raises it. Default `1`.                                                                     |
+| `blend`      | string or object | A CSS colour, a gradient, or a pattern (see [Gradients and patterns](#gradients-and-patterns)). Default none.                                                        |
+| `blendMode`  | string           | A canvas [globalCompositeOperation](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation) value. Default none.         |
+| `masksrc`    | string           | Mask image path. The result alpha is the image alpha times the mask alpha, so anything under a transparent mask pixel is removed. The mask's colour does not matter. |
 
-and several others covered in [Animations](#Animations) section.
+### Composition options
+
+These control how several layers combine.
+
+| Option            | Type    | Meaning                                                                                                                                          |
+| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `z`               | number  | Draw order. Higher goes on top. Default `0`.                                                                                                     |
+| `name`            | string  | Label for debugging.                                                                                                                             |
+| `show`            | boolean | Only the exact value `false` hides the layer. Default `true`.                                                                                    |
+| `alpha`           | number  | Opacity from 0 to 1. Default `1`.                                                                                                                |
+| `dx`, `dy`        | number  | Offset on the target canvas. Default `0`.                                                                                                        |
+| `width`, `height` | number  | Size of one animation frame of this image. Auto-detected by default. Required when this image's frame is smaller than the target canvas's frame. |
+
+Animation options are in [Animations](#animations).
 
 ## CanvasModel
 
-Instead of composing layers manually from game state, the recommended way to render is to use _CanvasModel_ – a reusable set of layers that uses externally supplied options object to configure its layers. CanvasModel layers can have computable properties that take model options and return layer property value.
-
-For example, `hair_sides` layer is defined as:
+A model declares its layers once. Each layer property can be a fixed value or a function of the options (`srcfn`, `zfn`, `showfn`, `animationfn`).
 
 ```js
 Renderer.CanvasModels["demo_model"] = {
-	...
+	// ...
 	layers: {
-		"hair_sides": {
+		hair_sides: {
 			srcfn(options) {
-				return 'img/hair/sides/' + options.hair_sides_type + '/' + options.hair_sides_length + '.png'
+				return "img/hair/sides/" + options.hair_sides_type + "/" + options.hair_sides_length + ".png";
 			},
 			zfn(options) {
-				if (options.hair_sides_position === "front") {
-					return ZIndices.hairforwards
-				} else {
-					return ZIndices.backhair
-				}
+				return options.hair_sides_position === "front" ? ZIndices.hairforwards : ZIndices.backhair;
 			},
 			showfn(options) {
-				return !!options.hair && !!options.hair_sides_type
+				return !!options.hair && !!options.hair_sides_type;
 			},
-			filters: ["hair"]
+			filters: ["hair"],
 		},
+	},
+};
 ```
 
-Here, `filters` property is constant, while `src`, `z`, and `show` are computed from options. _Options_ for this model would be: `hair`, `hair_sides_type`, and `hair_sides_position`.
+Here `filters` is fixed, and `src`, `z` and `show` come from the options. This model reads `hair`, `hair_sides_type`, `hair_sides_length` and `hair_sides_position`.
 
-If model layer has no `show` or `showfn` property, it will be hidden by default and has to be explicitly displayed with `<<showlayer LAYER_NAME>>`.
+A layer with no `show` or `showfn` is hidden until a passage turns it on with `<<showlayer NAME>>`.
 
-_Model filters_ are used to set same set of properties to multiple layers at once, for example, hair or clothing colours. They have same type of layer properties object and are stored in `filters` object in model options.
+### Filters
 
-So, a model with 1 layer as described above could be used as
+A filter is a layer-properties object applied to every layer that names it in `filters`. Use them to colour many layers at once, such as all hair or one item of clothing. Filters live in `options.filters`.
+
+### Using a model
 
 **JavaScript**
 
@@ -116,10 +111,10 @@ options.hair_sides_type = "default";
 options.hair_sides_position = "front";
 options.filters.hair = { desaturate: true, brightness: -0.3, blendMode: "hard-light", blend: "#e49b67" };
 var canvas = model.createCanvas();
-model.render(options);
+model.render(canvas, options);
 ```
 
-SugarCube
+**SugarCube**
 
 ```
 <<selectmodel "demo_model">>
@@ -130,160 +125,105 @@ SugarCube
 <<rendermodel>>
 ```
 
-Known hair colours are stored in setup.colours.hair_map and could be referenced like this instead:
+### Hair colours
+
+Known hair colours are in `setup.colours.hair_map`. Use one instead of writing the filter by hand:
 
 ```js
 options.filters.hair = setup.colours.hair_map["lightbrown"].canvasfilter;
 ```
 
-Or the model can have hair_colour option and do the lookup itself in its preprocess function:
+Or let the model do the lookup in its `preprocess` function:
 
 ```js
 Renderer.CanvasModels["demo_model"] = {
-	...
+	// ...
 	preprocess(options) {
 		options.filters.hair = setup.colours.hair_map[options.hair_colour].canvasfilter;
-	}
+	},
+};
 ```
 
 ## Animations
 
-There are two ways to animate canvases: generate a spritesheet and CSS-animate it, and JavaScript animations, updating canvas every frame.
+There are two ways to animate: a spritesheet animated with CSS, or a JavaScript animation that redraws the canvas every frame.
 
-For CSS animations you can control which sub-sprites are rendered using layer's `frames` property. It should be an array of size = number of animation frames, and its values are subsprite indices.
-For example, if most layers have 2-frame idle animation, but as an exception, eyelids layer 2nd frame is "closed eyes" and you want it to always use frame 0 instead, add `frames: [0, 0]` property to it.
-Static 1-frame images need no conversion or configuration for animation, they will be repeated for all frames.
+### CSS animation
 
-JavaScript animations are stored in `Renderer.Animations` object:
+Use a layer's `frames` array to choose which sub-sprite each animation frame shows. The array length is the number of frames, and each value is a sub-sprite index. If most layers have a 2-frame idle animation but the eyelids' second frame is "closed eyes" and you want it to stay open, give that layer `frames: [0, 0]`.
+
+Static one-frame images need no setup. They repeat for every frame.
+
+### JavaScript animation
+
+Animations are stored in `Renderer.Animations` (the built-in ones are in `game/03-JavaScript/05-renderer/canvasmodel-animations.js`). A layer names one in its `animation` property, or returns one from `animationfn(options)`.
 
 ```js
 Renderer.Animations["idle"] = {
 	keyframes: [
-		{
-			frame: 0,
-			duration: 1000,
-		},
-		{
-			frame: 1,
-			duration: 1000,
-		},
+		{ frame: 0, duration: 1000 },
+		{ frame: 1, duration: 1000 },
 	],
 };
 ```
 
-or, for animations with same frame count:
+When every frame lasts the same time, this shorthand works:
 
 ```js
-Renderer.Animations["idle"] = {
-	frames: 2,
-	duration: 1000,
-};
+Renderer.Animations["idle"] = { frames: 2, duration: 1000 };
 ```
 
-Durations are in milliseconds and `frame` refers to sub-sprite in the layer sprite.
-Animations are referenced by its name in the model layer's `animation` property and can be functions (`animationfn(options) { ... }`).
+Durations are in milliseconds. `frame` is the sub-sprite index.
 
 ### Animating layer properties
 
-Animatable layer properties are: `show`, `alpha`, `blend`, `brightness`, `contrast`, `dx`, `dy`. They should be specified in animation keyframes.
-
-Example:
+A keyframe can also change `show`, `alpha`, `blend`, `brightness`, `contrast`, `dx` and `dy`:
 
 ```js
 Renderer.Animations["idle_redblue"] = {
-	keyframes: [{
-		frame: 0,
-		duration: 1000,
-		blend: "#ff0000"
-	}, {
-		frame: 1,
-		duration: 1000,
-		blend: "#0000ff"
-	}
+	keyframes: [
+		{ frame: 0, duration: 1000, blend: "#ff0000" },
+		{ frame: 1, duration: 1000, blend: "#0000ff" },
+	],
 };
 ```
 
 ## SugarCube widgets
 
-### Model API
+### Model widgets
 
-#### \<\<selectmodel NAME \[INSTANCE]>>
+| Widget                                                 | What it does                                                                                                                                         |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<<selectmodel NAME [INSTANCE]>>`                      | Picks a model and gets it ready. `INSTANCE` is an id used to cache the model between passages. Do not render one instance twice in the same passage. |
+| `<<showlayer LAYERNAME [...FILTERS]>>`                 | Shows a layer, optionally adding filters.                                                                                                            |
+| `<<hidelayer LAYERNAME>>`                              | Hides a layer.                                                                                                                                       |
+| `<<modelfilter FILTERNAME FILTER>>`                    | Sets a filter object. It copies the object, so you can edit your original safely.                                                                    |
+| `<<modelfilterset FILTERNAME OPTIONNAME OPTIONVALUE>>` | Sets one option on a filter.                                                                                                                         |
+| `<<animatemodel [CSSCLASS]>>`                          | Renders the model and animates it with JavaScript.                                                                                                   |
+| `<<rendermodel [CSSCLASS] [CSSANIM]>>`                 | Renders the model as a still image. If `CSSANIM` is true (default false), it renders every frame so CSS can animate it.                              |
 
-Select model and prepare for rendering
-Parameter `INSTANCE` is id for caching between passages.
-Do not render instance multiple times on same passage.
+### Low-level widgets
 
-#### \<\<showlayer LAYERNAME \[...FILTERS]>>
+| Widget                                      | What it does                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `<<canvasstart WIDTH HEIGHT FRAMES>>`       | Creates an off-screen canvas and an empty layer list. All three arguments must be numbers. |
+| `<<canvaslayer Z SRC [OPTIONS...]>>`        | Adds a layer. Extra option objects are merged, and the last one wins.                      |
+| `<<canvasanimate [CSS_CLASSES]>>`           | Puts the `<canvas>` here, then renders and animates the layers into it.                    |
+| `<<canvasdraw [FRAMECOUNT] [CSS_CLASSES]>>` | Puts the `<canvas>` here and renders the layers into it once.                              |
 
-Show layer and optionally add filters
+You can also add a layer from script with `<<run canvaslayer(...z|src|options)>>`. Arguments are sorted by type: a string is `src`, a number is `z`, an object is options. Leftmost arguments win.
 
-#### \<\<hidelayer LAYERNAME>>
+## Gradients and patterns
 
-Hide layer
-
-#### \<\<modelfilter FILTERNAME FILTER>>
-
-Set model filter object.
-Will do a copy, so you can safely edit filter options
-
-#### \<\<modelfilterset FILTERNAME OPTIONNAME OPTIONVALUE>>
-
-Set model filter option
-
-#### \<\<animatemodel \[CSSCLASS]>>
-
-Render model and JS-animate it
-
-#### \<\<rendermodel \[CSSCLASS] \[CSSANIM]>>
-
-Render model as a static image
-If `CSSANIM` is true (default false), render multiple frames for CSS animation
-
-### Low-level API
-
-#### \<\<canvasstart WIDTH HEIGHT FRAMES>>
-
-Creates an off-screen `<canvas>` element and empty layers array.
-
-#### \<\<canvaslayer Z SRC \[OPTIONS...]\*>>
-
-Prepares a layer to be rendered
-
--   `Z`: layer z property
--   `SRC`: layer src property
--   `OPTIONS`: Extra layer option objects - they are merged, last has most priority
-
-Alternative way to call:
-
-```
-<<run canvaslayer(...z|src|options)>>
-```
-
-Arguments are processed depending on their type: string is `src`, number is `z`, and object is layer options. Leftmost arguments have more priority.
-
-#### \<\<canvasanimate \[CSS_CLASSES]>>
-
-Insert HTML `<canvas>` element right here.
-Render and animate previously prepared images into it.
-
-#### \<\<canvasdraw \[FRAMECOUNT] \[CSS_CLASSES]>>
-
-Insert HTML `<canvas>` element right here.
-Render previously prepared images into it.
-
-## Gradients & Patterns
-
-Instead of fixed colour string, layer's `blend` property can define a linear or radial gradient, or a pattern.
+`blend` can be a gradient or a pattern instead of a colour string.
 
 ### Gradients
 
-A gradient specification is a JSON object of structure:
+A gradient is an object with:
 
--   `gradient: "linear"|"radial"` - type of the gradient.
--   `values: number[]` - gradient coordinates. For linear gradient: `[x0, y0, x1, y1]`; for radial gradient: `[x0, y0, r0, x1, y1, r1]`. The coordinates are in pixels, relative to canvas top left corner.
--   `colors` - colour stops, array of either pairs `[offset:number, color:string]` (where `offset` is position between 0 and 1), or simply `color` strings (in that case, `offset` is generated to create evenly spaced stops).
-
-Example:
+- `gradient`: `"linear"` or `"radial"`.
+- `values`: coordinates in pixels from the canvas's top left. Linear is `[x0, y0, x1, y1]`. Radial is `[x0, y0, r0, x1, y1, r1]`.
+- `colors`: the colour stops. Each is either `[offset, color]` (offset from 0 to 1) or a plain colour string. Plain strings get evenly spaced offsets.
 
 ```js
 T.modeloptions.hair_colour = "custom";
@@ -292,21 +232,22 @@ T.modeloptions.filters.hair = {
 		gradient: "linear",
 		values: [64, 64, 192, 192],
 		colors: ["red", [0.25, "green"], "blue"],
-		// ==   [ [0.0,'red'], [0.25,'green'], [1.0,'blue']]
+		// same as [[0.0, "red"], [0.25, "green"], [1.0, "blue"]]
 	},
 	blendMode: "hard-light",
 	desaturate: true,
 };
 ```
 
-will apply following gradient colouring to the layer:
-![result](canvasmodel-demo2.png)
+Result:
 
-See <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createLinearGradient" target="_blank">createLinearGradient</a>, <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createRadialGradient" target="_blank">createRadialGradient</a>, and <a href="https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop" target="_blank">addColorStop</a> documentation with more details and examples.
+![Gradient result](assets/canvasmodel-demo2.png)
+
+See MDN for [createLinearGradient](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createLinearGradient), [createRadialGradient](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/createRadialGradient) and [addColorStop](https://developer.mozilla.org/en-US/docs/Web/API/CanvasGradient/addColorStop).
 
 ### Patterns
 
-Patterns are images that are tiled horizontally and vertically, and applied to the layer with specified blend mode.
+A pattern is an image tiled across the layer, applied with the layer's blend mode.
 
 ```js
 T.modeloptions.worn.upper_colour = "custom";
@@ -318,8 +259,6 @@ T.modeloptions.filters.worn_lower_custom = {
 
 Result:
 
-![result](canvasmodel-demo3.png)
+![Pattern result](assets/canvasmodel-demo3.png)
 
-Pattern image in this example is ![pattern](../img/ui/sym-harmony.png). It is registered in `game/04-Variables/canvasmodel-patterns-lib.js` file.
-
-It is also possible to define a procedurally generated pattern that takes parameters. See same file.
+The pattern image here is `img/ui/sym-harmony.png`. Patterns are registered in `game/04-Variables/canvasmodel-patterns-lib.js`, for example `registerImagePattern("wolfharmony", "img/ui/sym-harmony.png")`. The same file shows how to define a procedural pattern that takes parameters.

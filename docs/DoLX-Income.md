@@ -1,161 +1,136 @@
-# Divine Transformation Income Bonuses
+# Divine transformation income
 
-This document describes X-Change's divine-transformation income bonuses, their integration with the central money system, and how to preserve them when importing future vanilla money changes.
+Full Angel, Fallen Angel and Demon transformations raise the money the player earns. This page covers how that bonus works, where it hooks into the money system, and what to do when vanilla changes a wage or a money widget.
 
-## Priority: Vanilla First
+## Rule 1: vanilla wins
 
-Vanilla changes always take priority.
+When vanilla changes a wage, reward, gambling flow, stolen-goods flow or money widget:
 
-When vanilla changes a wage, reward, gambling flow, stolen-goods flow, or money widget:
-
-1. Port the vanilla change as written and understand where its money comes from.
+1. Port the vanilla change as written and work out where its money comes from.
 2. Keep the vanilla base amount and reward conditions.
-3. Route genuine income through the existing X-Change income layer instead of copying divine checks into the passage.
-4. Preserve transfers, refunds, returned stakes, and borrowed principal as non-income.
-5. Use the smallest explicit source classification needed when the action itself is sexual but its passage or location name is not.
+3. Send real income through the existing income layer. Do not copy divine checks into the passage.
+4. Treat transfers, refunds, returned stakes and borrowed principal as not income.
+5. When an action is sexual but its passage or location name is not, add the smallest source label that says so.
 
-The divine system is a multiplier layered over genuine income. It does not own base wages, skill scaling, animal-TF bonuses, gambling rules, or bank principal.
+The divine bonus is a multiplier on genuine income. It does not own base wages, skill scaling, animal-transformation bonuses, gambling rules or bank principal.
 
-## Design Goals
+## What it does
 
-- A full Angel transformation rewards ordinary and non-sexual ways of earning money.
-- A full Angel transformation raises the temple chastity-exam allowance by 75% instead of using the general non-sexual multiplier, with matching Jordan dialogue and displayed cash.
-- A full Demon transformation rewards sexualised work, including dancing, prostitution, Avery income, gloryhole work, and paid exhibitionism.
-- A Fallen Angel transformation gives a smaller bonus to every genuine income type.
-- Existing independent bonuses stack. Animal-TF income bonuses, skill multipliers, haggling, gambling profit, stolen-goods value, and divine bonuses are not mutually exclusive.
-- No single transformation bonus doubles a payout. A completed animal transformation adds +75% (`animalTfIncomeBonus` in `koztools.js`, used by `animalTfIncome()` and the default `<<wage>>` bonus), and the full-Angel temple allowance is x1.75.
-- A transformation only counts as completed when the body shows a defining part. Minor cosmetics on their own — bear pubes or plumage, bird eyes or malar markings, seraphim eyes, kitsune cheeks, okami markings — do not grant transformation levels, builds, or income bonuses. `Transformations.chimeraActive()` still reports the chimera as present for the mirror and dialogue; `Transformations.chimeraFull()` is what level and build checks use.
-- The same divine bonus runs only once for one payout. A display helper must not modify a shared value and cause the later cash award to apply the identical multiplier again.
-- Separate economic events can each receive a bonus. Stealing goods and later fencing those goods are intentionally two events, so their bonuses stack.
-- The amount printed to the player should match the amount awarded whenever a passage states the final earnings.
-- Transfers and returned money must not create free cash.
-- The feature has no persistent state, settings, initialization, or save migration of its own.
+- Full Angel raises ordinary, non-sexual income by 50%.
+- Full Angel raises the temple chastity-exam allowance by 75% instead. The Jordan dialogue and the cash shown match.
+- Full Demon raises sexual work by 50%: dancing, prostitution, Avery income, gloryhole work, paid exhibitionism.
+- Fallen Angel raises every genuine income type by 20%.
+- These bonuses stack with animal-transformation bonuses, skill scaling, haggling, gambling profit and stolen-goods value.
+- No transformation bonus doubles a payout. A finished animal form adds 75% (`animalTfIncomeBonus` in `koztools.js`, used by `animalTfIncome()`). The full-Angel temple allowance is x1.75.
+- A transformation only counts when the body shows a defining part. See [DoLX-TFRework.md](DoLX-TFRework.md): `chimeraFull()` is what level checks use.
+- One payout gets the divine bonus once. A display helper must not change a shared value in a way that makes the later cash award apply the bonus again.
+- Separate economic events each get a bonus. Stealing goods and later selling them are two events, so the bonuses stack.
+- Where a passage prints the final earnings, the printed amount matches the amount awarded.
+- Transfers and returned money never create cash.
+- The feature has no saved state, settings, initialisation or migration.
 
-## Transformation Rules
+## The rules
 
-`divineTfIncome(value, source, incomeType)` is implemented in `game/base-system/kozmods/koztools.js`. It returns the adjusted value in the same units it received.
+`divineTfIncome(value, source, incomeType)` is in `game/base-system/DoLXAddition/koztools.js`. It returns the adjusted value in the unit it was given.
 
-| Active transformation | Requirement                                     | Eligible income            | Multiplier |
-| --------------------- | ----------------------------------------------- | -------------------------- | ---------- |
-| Fallen Angel          | `Transformations.effectiveLevel("fallen") >= 2` | Every genuine income type  | x1.2       |
-| Angel                 | `Transformations.effectiveLevel("angel") >= 6`  | Ordinary / non-slut income | x1.5       |
-| Demon                 | `Transformations.effectiveLevel("demon") >= 6`  | Slut income                | x1.5       |
+| Form         | Requirement                                     | Applies to                   | Multiplier |
+| ------------ | ----------------------------------------------- | ---------------------------- | ---------- |
+| Fallen Angel | `Transformations.effectiveLevel("fallen") >= 2` | Every genuine income type    | x1.2       |
+| Angel        | `Transformations.effectiveLevel("angel") >= 6`  | Ordinary (not sexual) income | x1.5       |
+| Demon        | `Transformations.effectiveLevel("demon") >= 6`  | Sexual income                | x1.5       |
 
-Fallen Angel has precedence. If the effective transformation state also exposes Angel or Demon levels, the payout receives Fallen's x1.2 rather than combining divine forms on the same event.
+Fallen Angel wins. If the effective state also shows Angel or Demon levels, the payout gets Fallen's x1.2 and nothing else.
 
-The temple chastity-exam allowance is a deliberate full-Angel exception: an Angel who is not Fallen receives x1.75, while Fallen precedence still gives x1.2. Both the solo and Sydney exam passages calculate the final allowance once, print that value, and award it with `divineTfAdjusted: true`.
+The temple allowance is the one full-Angel exception. An Angel who is not Fallen gets x1.75 (the passage pays `$grace * 7000` instead of `$grace * 4000`). A Fallen Angel still gets x1.2. The solo passage (`loc-temple/main.twee`) and Sydney's passage (`special-sydney/temple.twee`) work the allowance out once, print it, and pay it with `divineTfAdjusted: true`.
 
-The helper ignores zero and negative values and rounds the final positive result with `Math.round()`.
+The helper ignores zero and negative values and rounds a positive result with `Math.round()`.
 
-## Money Units
+## Money units
 
-Normal cash uses pennies:
+Normal cash is in pennies: `100` is £1, `100000` is £1,000. `$blackmoney` is in pounds, so `<<blackmoney>>` passes pound values to the helper, and the pub converts to pennies when the goods are sold. The helper does not care about units. It multiplies and rounds whatever it is given, so callers keep their own subsystem's unit.
 
-- `100` = £1 displayed
-- `100000` = £1,000 displayed
+## Classifying income
 
-`$blackmoney` stores stolen-goods value in pounds. The `<<blackmoney>>` widget therefore passes pound values to `divineTfIncome()`, then the pub converts the resulting inventory value to pennies when the goods are fenced.
+The helper lowercases `source`. With no source it falls back to `$location`. An explicit `incomeType` overrides everything.
 
-The helper is unit-neutral: it multiplies and rounds whatever unit the caller supplies. Callers must keep their existing subsystem's unit convention.
+### Explicit types
 
-## Income Classification
+- `"normal"`: ordinary income for the Angel and Demon split.
+- `"slut"`: sexual income for the Angel and Demon split.
+- `"none"`: not income. The value comes back unchanged.
 
-The helper lowercases `source`. If no source is supplied, it falls back to `$location` (`V.location`). An explicit `incomeType` overrides automatic classification.
+Fallen Angel applies to both `"normal"` and `"slut"`. Only `"none"` turns divine income off completely.
 
-### Explicit classifications
+Use an explicit type only when the source name cannot describe the action. Do not treat an ordinary job as sexual just because it happens somewhere sexual.
 
-- `incomeType: "normal"`: classify the action as ordinary for the Angel/Demon split.
-- `incomeType: "slut"`: classify the action as sexualised for the Angel/Demon split.
-- `incomeType: "none"`: this is not income; return the base value unchanged.
+### Sources that count as sexual (Demon)
 
-Fallen Angel still applies to both `"normal"` and `"slut"`; only `"none"` disables divine income entirely.
+- anything containing `prostitution`
+- exactly `avery`, `briargel`, `stripclub`
+- anything containing `brothel` (this includes `brothelshow`)
+- anything containing `gloryhole`
+- anything containing `exhibitionism`
+- anything containing `dance`
 
-Use an explicit classification only when the source name cannot describe the action reliably. Do not infer sexual income merely because an otherwise ordinary job happens in a sexual location.
+Everything else is ordinary income (Angel) unless overridden.
 
-### Automatically Demon-aligned sources
+All dance income is sexual: party, docks, café and strip-club dancing, Danube dancing (`danubeDanceJob`) and dance tips. Danube is not an Angel exception. Strip-club bartending tips stay ordinary. Strip-club dancing uses a dancer or dance source, so it is sexual.
 
-A source is treated as slut income when it is:
+### Sources that never get a bonus
 
-- any source containing `prostitution`
-- exactly `avery`
-- exactly `briargel`
-- exactly `brothel`
-- exactly `stripclub`
-- any source containing `brothelshow`
-- any source containing `gloryhole`
-- any source containing `exhibitionism`
-- any source containing `dance`
+The helper returns the original amount for `debug`, `startingMoney`, `notTracked`, `bankLoan`, anything containing `refund`, and any call with `incomeType: "none"`.
 
-Everything else is Angel-aligned ordinary income unless explicitly overridden.
+`money()` also skips calls marked `recordOnly: true`. Those rebuild statistics and do not award cash.
 
-This means all dance income is Demon-aligned, including `danubeDanceJob`, party dancing, docks dancing, cafe dancing, strip-club dancing, and dance tips. Danube is not a special Angel exception.
+This keeps cheats, starting money, loans, refunds and expense advances from becoming income. Positive refund sources and `incomeType: "none"` calls restore cash without adding to the earned totals in `moneyStats`.
 
-Generic strip-club bartending tips remain ordinary income. Strip-club dancing uses an explicit dancer/dance source and is therefore Demon-aligned.
+## How it hooks in
 
-### Sources that never receive a divine bonus
+The main hook is the positive-amount branch of `money()` in `game/base-system/stat-changes.js`. For every positive `<<money>>` award, in order:
 
-The helper returns the original amount for:
-
-- `debug`
-- `startingMoney`
-- `notTracked`
-- `bankLoan`
-- any source containing `refund`
-- any call with `incomeType: "none"`
-
-The central `money()` hook also skips calls marked `recordOnly: true`. Those reconstruct statistics and do not award cash.
-
-This prevents cheats, initial money, loans, refunds, expense advances, and internal transfers from becoming income. Positive refund sources and calls marked `incomeType: "none"` restore cash without being added to `moneyStats` earned totals.
-
-## Central Integration
-
-The main hook is the positive-amount branch of `money()` in `game/base-system/stat-changes.js`.
-
-For every positive `<<money>>` award, the order is:
-
-1. Validate and normalize the base amount.
-2. Apply the existing automatic cat-TF bonus for cafe sources, unless the caller already applied its animal bonus.
-3. Apply `divineTfIncome()`, unless the caller already adjusted the payout or marked it as non-income.
+1. Check and normalise the base amount.
+2. Apply the automatic cat bonus for the café sources `cafeWaiter`, `cafeChef` and `cafeBuns`, unless the caller already applied its animal bonus.
+3. Apply `divineTfIncome()`, unless the caller already did or marked it as non-income.
 4. Add the final amount to `$money`.
-5. Record the final amount in the existing money statistics.
+5. Record the final amount in the money statistics.
 
-Negative `<<money>>` calls continue into the separate inflation/spending logic. Divine income never modifies a price or expense.
+Negative `<<money>>` calls go to the separate inflation logic (see [DoLX-Inflation.md](DoLX-Inflation.md)). Divine income never changes a price.
 
-The optional object accepted by `money()` now has three relevant flags:
+`money()` accepts an options object with three relevant fields:
 
-| Option                                        | Meaning                                                                                                               |
-| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `animalTfAdjusted: true`                      | The caller already applied the relevant animal-TF income bonus.                                                       |
-| `divineTfAdjusted: true`                      | The caller already applied `divineTfIncome()` because it needed the final number for display or subsystem accounting. |
-| `incomeType: "normal"`, `"slut"`, or `"none"` | Explicit classification passed to the divine helper.                                                                  |
+| Option                                       | Meaning                                                                                         |
+| -------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `animalTfAdjusted: true`                     | The caller already applied the animal-transformation bonus.                                     |
+| `divineTfAdjusted: true`                     | The caller already ran `divineTfIncome()`, usually because it needed the final number to print. |
+| `incomeType: "normal"`, `"slut"` or `"none"` | Explicit type passed to the divine helper.                                                      |
 
-These flags prevent duplicate application. They do not disable unrelated bonuses.
+These stop duplicates. They do not switch off other bonuses.
 
-## Income Widgets
+## Widgets
 
-The shared widgets live together in `game/base-system/widgets.twee`.
+All are in `game/base-system/widgets.twee`.
 
 ### `<<income amount source [animalAdjusted] [incomeType]>>`
 
-Use this when a passage both awards and prints a known penny amount:
+Awards and prints a known penny amount, divine-adjusted once:
 
 ```twine
 You've earned <<income 50000 "flatsCleaning">>.
 ```
 
-It calculates the final divine-adjusted amount, passes it to `<<money>>` with `divineTfAdjusted: true`, and prints the same value. If the supplied amount already passed through `animalTfIncome()`, pass `true` as the third argument:
+It passes the final amount to `<<money>>` with `divineTfAdjusted: true` and prints the same amount. If the amount already went through `animalTfIncome()`, pass `true` as the third argument:
 
 ```twine
 You earn <<income `animalTfIncome(1000, "bunny")` "cafeDanceJob" true>>.
 ```
 
-The fourth argument is an optional explicit `incomeType`.
+The fourth argument is an optional `incomeType`. For the sources `hotelCleaning` and `flatsCleaning`, the widget also adds the full bird transformation's 45% housekeeping bonus.
 
-### `<<moneyGain>>`
+### `<<moneyGain amount [variation] [crime] [source]>>`
 
-`<<moneyGain amount [variation] [crime] [source]>>` continues to calculate variation and skulduggery scaling first. Crime gain is based on the pre-divine amount. The final cash is then adjusted once, awarded, and printed.
+Works out variation and skulduggery scaling first. Crime gain is based on the amount before the divine bonus. It then applies the bonus once, awards the cash and prints it. When the source is not given, it uses `"thievery"` if the crime argument is set.
 
-Sexual actions with a generic location must pass a source:
+An action that is sexual but happens in a generic location must pass a source:
 
 ```twine
 <<moneyGain 100 false false "exhibitionism">>
@@ -164,15 +139,15 @@ Sexual actions with a generic location must pass a source:
 
 ### `<<moneyGainDisplay>>`
 
-This widget previews the divine-adjusted value but deliberately leaves `_money_gain` at its base, skill-adjusted amount. If a later link awards `_money_gain` through `<<money>>`, the central hook applies the divine bonus once and the cash matches the preview.
+Previews the divine-adjusted amount (in `_money_gain_display`) but leaves `_money_gain` at the base, skill-adjusted amount. A later link that awards `_money_gain` through `<<money>>` gets the bonus once from the central hook, so the cash matches the preview.
 
-Do not change `_money_gain` itself to the divine-adjusted preview. Doing so makes a later `<<money _money_gain>>` apply the same divine multiplier twice.
+Do not set `_money_gain` to the previewed amount. A later `<<money _money_gain>>` would apply the bonus a second time.
 
 ### `<<tipreceive source>>`
 
-This widget applies any relevant bunny/cat income bonus first, then the divine bonus to the tip and its flat cash component. It prints and awards the already-adjusted total with both duplicate-prevention flags.
+Applies the relevant bunny or cat bonus first (dancing sources get the bunny bonus, plus the cat bonus in the café; `cafeWaiter` and `cafeChef` get the cat bonus), then the divine bonus to the tip and to the café's flat 500 extra. It prints and awards the total with both duplicate flags set. The flat bonus is café-only, and not for `cafeWaiter`, whose shift has its own wage.
 
-Always supply a source for sexual work or Avery:
+Always give a source for sexual work and Avery:
 
 ```twine
 <<tipreceive "prostitution">>
@@ -180,116 +155,112 @@ Always supply a source for sexual work or Avery:
 <<tipreceive "avery">>
 ```
 
-An ordinary massage, bartending shift, or office-manager tip can keep its ordinary source or use the existing location fallback.
+An ordinary massage, bartending or office-manager tip can keep its ordinary source or use the location fallback.
 
 ### `<<blackmoney amount [incomeType]>>`
 
-All additions to `$blackmoney` go through this widget. Its amount is in pounds, not pennies.
+Every addition to `$blackmoney` goes through this widget. The amount is in pounds:
 
 ```twine
 <<blackmoney 20>>
 ```
 
-The acquisition bonus becomes part of the stored stolen-goods value. When the player later sells the goods, the pub payout goes through `<<income ... "pubStolenGoods">>` and receives the eligible bonus for that new income event.
+The bonus at theft becomes part of the stored value. When the player sells the goods, the pub pays through `<<income ... "pubStolenGoods">>` and that sale gets its own bonus. Do not exclude `pubStolenGoods`. Stealing and selling are separate events and both count.
 
-Do not exclude `pubStolenGoods` from the divine helper. Acquisition and fencing are intentionally separate and cumulative.
+## Player-facing text
 
-## Player-Facing Trait Descriptions
+`game/base-system/overlays/traits.twee` describes the bonuses beside the other full-transformation effects:
 
-`game/base-system/overlays/traits.twee` displays the bonus alongside the other full-transformation effects:
+- Angel: while not Fallen, non-sexual income +50% and temple allowance +75%.
+- Demon: while not Fallen, sexual-job income +50%.
+- Both Fallen Angel stages: all income +20%. The bonus starts at effective Fallen level 2, earlier than the level-4 trait stage.
 
-- Angel states that, while not Fallen, non-sexual income is increased by 50% and the temple allowance is increased by 75%.
-- Demon states that, while not Fallen, sexualised-job income is increased by 50%.
-- Both Fallen Angel description stages state that all income is increased by 20%, because the mechanic begins at effective Fallen level 2 rather than only at the later level-4 trait stage.
+Keep this text in step with `divineTfIncome()` whenever a percentage, threshold or classification changes.
 
-Keep these descriptions synchronized with `divineTfIncome()` whenever the percentages, thresholds, or classifications change.
+## How bonuses stack
 
-## Stacking Rules
+Independent bonuses apply in the order their subsystem sets:
 
-Independent bonuses stack in the order imposed by their subsystem:
+- Skill and skulduggery scaling can raise a base reward before the divine bonus.
+- Cat and bunny bonuses can change the reward before the divine bonus.
+- Stolen goods: divine bonus at theft, then maths and skulduggery affect the sale value (`blackMoneySaleValue()` in `koztools.js`), then the sale gets its own divine bonus.
+- Gambling: the game rules set the base profit, then the divine bonus changes profit only.
 
-- Skill/skulduggery scaling can increase a base reward before divine income.
-- Cat or bunny income bonuses can modify the reward before divine income.
-- Stolen-goods acquisition can be divinely boosted, then maths/skulduggery can affect its sale value, then the fencing income can receive its own divine bonus.
-- Gambling rules determine base profit first; divine income then modifies profit only.
-
-Example for a full Angel stealing and fencing goods, ignoring maths/skulduggery for clarity:
+A full Angel stealing and selling goods, ignoring maths and skulduggery:
 
 ```text
 100 stolen-goods value
--> 150 stored value from Angel acquisition bonus
--> 225 cash-equivalent sale value from Angel fencing bonus
+-> 150 stored value (Angel bonus at theft)
+-> 225 cash-equivalent sale value (Angel bonus at the sale)
 ```
 
-A Fallen Angel produces `100 -> 120 -> 144` through the same two events.
+A Fallen Angel gets `100 -> 120 -> 144`.
 
-This is intended stacking. Applying Angel x1.5 twice to one `<<money>>` award because both a display widget and the central hook adjusted it is not intended stacking.
+That is intended. What is not intended is applying x1.5 twice to one `<<money>>` award because a display widget and the central hook both adjusted it.
 
-## Direct-Writer Exceptions
+## Direct writers
 
-Most income is covered automatically by `money()`. A few systems deliberately write cash directly because they mix principal, stakes, or subsystem state.
+Most income goes through `money()`. A few systems write `$money` directly because they mix principal, stakes or their own state.
 
 ### Pub dice
 
-The dice minigame removes and returns its working money through direct `$money` writes. At the end of the game:
+`game/overworld-town/loc-pub/DoLXAddition/dice.twee`. The game takes and returns its working money with direct `$money` writes. At the end:
 
-- the original stake remains unchanged
-- only positive net profit passes through `divineTfIncome(..., "pubDice")`
-- the displayed earnings and `$xchange.gamblingEarnings` use the boosted profit
-- win/loss and champion checks continue to use the original game result
+- the original stake is unchanged,
+- only positive net profit goes through `divineTfIncome(..., "pubDice")`,
+- the shown earnings and `$xchange.gamblingEarnings` use the boosted profit,
+- win, loss and champion checks use the original result.
 
-Do not route the entire returned dice pool through `money()`, or the returned stake will be mistaken for income.
+Do not send the whole returned pool through `money()`. The returned stake would count as income.
 
 ### Horse racing
 
-Horse-race payout is split conceptually into returned stake and profit:
+`game/overworld-plains/loc-farm/DoLXAddition/horse-race.js`. Payout splits into returned stake and profit:
 
 ```text
 base profit = max(0, base payout - bet amount)
 final payout = base payout + boosted profit - base profit
 ```
 
-Only `base profit` receives the divine bonus. Refunds remain unchanged.
+Only the profit gets the bonus (source `horseRace`). Refunds are unchanged.
 
 ### HBSC fixed terms
 
-At maturity, only calculated interest receives the `bankInterest` bonus. Principal is added back unchanged:
+`game/overworld-town/loc-hbsc-bank-branch/bank.js`. At maturity only the interest gets the `bankInterest` bonus. The principal comes back unchanged:
 
 ```text
 maturity total = principal + boosted interest
 ```
 
-Cash/savings withdrawals, deposits, fixed-term principal, and loan cash are transfers or debt, not income.
+Withdrawals, deposits, fixed-term principal and loan cash are transfers or debt, not income.
 
-### Avery HBSC transfers
+### Avery deposits to HBSC savings
 
-Some Avery rewards are deposited directly into HBSC savings and therefore bypass `money()`. Those callers apply `divineTfIncome(..., "avery")` before `setup.hbsc.receiveExternalDeposit()` and display the same adjusted amount.
+Some Avery rewards go straight into HBSC savings and skip `money()`. Those callers apply `divineTfIncome(..., "avery")` before `setup.hbsc.receiveExternalDeposit()` and print the same adjusted amount (see `special-avery/DoLXAddition/bank.twee` and `gifts.twee`).
 
-Money Avery gives specifically as an expense advance, such as ingredient-buying money, uses `incomeType: "none"`. It is not a bang-maid wage or reward.
+Money Avery gives as an expense advance, such as ingredient money (`<<money 5000 "averyExpenses" { incomeType: "none" }>>`), is not a wage. It uses `incomeType: "none"`.
 
-## Adding a New Income
+## Adding a new income
 
-### Known amount that is immediately printed
+### A known amount you print straight away
 
-Prefer `<<income>>`:
+Use `<<income>>`:
 
 ```twine
 You make <<income 20000 "factoryProduce">>.
 ```
 
-### Existing `<<money>>` award without an earnings display
+### An existing `<<money>>` award with no earnings display
 
-Keep `<<money>>` and give it a stable source:
+Keep `<<money>>` and give it a stable source. The central hook does the rest:
 
 ```twine
 <<money 20000 "factoryProduce">>
 ```
 
-The central hook applies the correct divine bonus.
+### A sexual or dance action
 
-### Sexual or dancing action
-
-Use a source that classifies the action, even when the passage's location is generic:
+Use a source that classifies the action, even if the location is generic:
 
 ```twine
 <<money 5000 "prostitution">>
@@ -297,61 +268,59 @@ Use a source that classifies the action, even when the passage's location is gen
 <<tipreceive "dancing">>
 ```
 
-Do not classify an entire location as slut income if it also contains ordinary work. Classify the individual payout.
+Classify the individual payout, not the whole location, when the location also has ordinary work.
 
-### Transfer, refund, returned principal, or expense advance
+### A transfer, refund, returned principal or expense advance
 
-Mark it explicitly:
+Mark it:
 
 ```twine
 <<money _amount "savingsWithdrawal" { incomeType: "none" }>>
 ```
 
-If a purchase can be refunded after passage navigation, store the amount returned by `setup.inflation.spendPrice()` when charging it and return that exact value. This keeps the refund equal to the inflation-adjusted payment even if the player's wealth crosses an inflation tier before the refund.
+If a purchase can be refunded after the player leaves the passage, store the amount `setup.inflation.spendPrice()` returned when charging it, and refund exactly that. The refund then equals what was paid even if the player's wealth crossed an inflation tier in between.
 
-If the subsystem already uses a deliberate direct `$money` writer for a balanced transfer, leave that writer direct and document it in the exception audit.
+If a system already writes `$money` directly for a balanced transfer, leave it direct and note it.
 
-### Payout calculated in JavaScript
+### A payout worked out in JavaScript
 
-If the amount is pure income, call `divineTfIncome()` once before the write and keep the adjusted value for display/statistics. If it contains returned stake or principal, split profit/interest from principal first.
+If it is pure income, call `divineTfIncome()` once before the write and keep the result for display and statistics. If it contains returned stake or principal, split off the profit or interest first.
 
-## Important Files
+## Where things are
 
-- `game/base-system/kozmods/koztools.js`: `divineTfIncome()` and `blackMoneySaleValue()`.
-- `game/base-system/stat-changes.js`: central positive-income integration in `money()`.
-- `game/base-system/widgets.twee`: `<<income>>`, `<<moneyGain>>`, `<<moneyGainDisplay>>`, `<<tipreceive>>`, and `<<blackmoney>>`.
-- `game/base-system/overlays/traits.twee`: player-facing Angel, Demon, and Fallen Angel bonus descriptions.
-- `game/special-dance/actions.twee`: final dance-tip source classification and one-time adjustment.
-- `game/overworld-town/loc-dance-studio/job.twee`: party, docks, and Danube dance wages.
-- `game/overworld-town/loc-pub/main.twee`: stolen-goods fencing payout.
-- `game/overworld-town/loc-pub/kozmods/dice.twee`: profit-only dice adjustment.
+- `game/base-system/DoLXAddition/koztools.js`: `divineTfIncome()` and `blackMoneySaleValue()`.
+- `game/base-system/stat-changes.js`: the positive-income hook in `money()`.
+- `game/base-system/widgets.twee`: `<<income>>`, `<<moneyGain>>`, `<<moneyGainDisplay>>`, `<<tipreceive>>`, `<<blackmoney>>`.
+- `game/base-system/overlays/traits.twee`: the Angel, Demon and Fallen Angel text.
+- `game/special-dance/actions.twee`: dance-tip source and one-time adjustment.
+- `game/overworld-town/loc-dance-studio/job.twee`: party, docks and Danube dance wages.
+- `game/overworld-town/loc-pub/main.twee`: stolen-goods sale.
+- `game/overworld-town/loc-pub/DoLXAddition/dice.twee`: profit-only dice adjustment.
 - `game/overworld-plains/loc-farm/DoLXAddition/horse-race.js`: profit-only horse-race adjustment.
-- `game/overworld-town/loc-hbsc-bank-branch/bank.js`: fixed-term interest adjustment.
-- `game/overworld-town/special-avery/`: Avery cash and direct HBSC reward classifications.
-- `game/overworld-town/loc-street/kozmods/resistance-whoring-event.twee`: X-Change car-whoring payout classification.
-- `game/overworld-town/loc-street/danube.twee`, `cliff.twee`, and `starfish.twee`: paid exhibition challenge classifications.
+- `game/overworld-town/loc-hbsc-bank-branch/bank.js`: fixed-term interest.
+- `game/overworld-town/special-avery/` (including `DoLXAddition/`): Avery cash and HBSC deposits.
+- `game/overworld-town/loc-street/DoLXAddition/resistance-whoring-event.twee`: car-whoring payout.
+- `game/overworld-town/loc-street/danube.twee`, `cliff.twee`, `starfish.twee`: paid exhibition challenges.
 
-## Porting a Future Vanilla Change
+## Porting a vanilla change
 
-Use this checklist whenever vanilla changes money rewards or shared money widgets.
+1. Decide whether each amount is income, a cost, a balance, a stake, principal, a refund, a loan or a transfer.
+2. Keep the vanilla base amount and reward conditions.
+3. Normal income: `<<money amount "source">>` or `<<income amount "source">>`.
+4. Dancing, prostitution, paid exhibitionism, gloryhole work and Avery income: make sure that individual payout has a sexual source.
+5. A transfer, refund or advance routed through `<<money>>`: use `incomeType: "none"` or an already excluded source.
+6. If an animal helper already adjusted the amount: pass `animalTfAdjusted: true`, or the third `<<income>>` argument.
+7. If JavaScript or a widget already called `divineTfIncome()`: pass `divineTfAdjusted: true` to the later `money()` call.
+8. Never divine-adjust a whole gambling pool, returned bet, bank principal or withdrawal. Isolate the profit or interest.
+9. Do not add a saved variable for this feature. Transformation levels and the live payout are enough.
+10. Compile and run the checks below.
 
-1. Identify whether the value is income, a cost, a balance, a stake, principal, a refund, a loan, or a transfer.
-2. Preserve the vanilla base amount and reward conditions.
-3. For normal income, use `<<money amount "source">>` or `<<income amount "source">>`.
-4. For dancing, prostitution, paid exhibitionism, gloryhole work, or Avery income, ensure the individual payout has a Demon-aligned source.
-5. For a transfer/refund/advance routed through `<<money>>`, use `incomeType: "none"` or an established excluded source.
-6. If an animal helper already adjusted the amount, pass `animalTfAdjusted: true` or the third `<<income>>` argument.
-7. If JavaScript or a widget already called `divineTfIncome()`, pass `divineTfAdjusted: true` into the later `money()` call.
-8. Never divine-adjust an entire gambling pool, returned bet, bank principal, or savings withdrawal. Isolate profit or interest.
-9. Do not add a persistent initialization variable for this feature; transformation levels and the live payout are sufficient.
-10. Compile and run the validation checks below.
+## Checks
 
-## Validation
-
-From the repository root on Windows:
+From the repository root:
 
 ```powershell
-node --check game/base-system/kozmods/koztools.js
+node --check game/base-system/DoLXAddition/koztools.js
 node --check game/base-system/stat-changes.js
 node --check game/overworld-town/loc-hbsc-bank-branch/bank.js
 node --check game/overworld-plains/loc-farm/DoLXAddition/horse-race.js
@@ -359,44 +328,40 @@ cmd /c compile.bat
 git diff --check
 ```
 
-Useful structural searches:
+Searches to review:
 
 ```powershell
-# Direct cash additions should be a documented transfer/stake subsystem.
+# Direct cash additions should be a documented transfer or stake system.
 rg -n '\$money\s*\+=' game
 
 # The only raw stolen-goods addition should be inside the shared widget.
 rg -n '\$blackmoney\s*\+=' game
 
-# Review unclassified tips in sexual or Avery content.
+# Unclassified tips in sexual or Avery content.
 rg -n '<<tipreceive\s*>>' game
 
-# Review direct positive money calls near refunds, deposits, loans, or advances.
+# Positive money calls near refunds, deposits, loans or advances.
 rg -n -i '(refund|deposit|withdraw|loan|advance|principal|stake|wager).{0,160}<<money\s+[^-]' game -g '*.twee'
 
-# Find every pre-adjusted payout and verify its later money call opts out exactly once.
+# Every pre-adjusted payout. Check that its later money call opts out exactly once.
 rg -n 'divineTfIncome|divineTfAdjusted' game
 ```
 
-The first and third searches are not expected to return zero. Each result must be classified by context.
+The first and third searches will not return zero. Classify each hit by context.
 
-## Review Rule of Thumb
-
-Ask two questions at every positive money reference:
+## Two questions for every positive money reference
 
 > Is this genuinely new wealth, and what action earned it?
 
-- New wealth from ordinary work, sales, theft, interest, or gambling profit: Angel income.
-- New wealth from dancing, prostitution, Avery, gloryhole work, or paid exhibitionism: Demon income.
+- Ordinary work, sales, theft, interest or gambling profit: Angel income.
+- Dancing, prostitution, Avery, gloryhole work or paid exhibitionism: Demon income.
 - Any genuine income while Fallen Angel is active: Fallen x1.2 instead.
-- Refund, withdrawal, loan, returned stake/principal, or expense advance: not income.
-
-Then ask:
+- Refund, withdrawal, loan, returned stake or principal, expense advance: not income.
 
 > Has this exact payout already passed through `divineTfIncome()`?
 
-- If no: let `money()` apply it.
-- If yes: pass `divineTfAdjusted: true` to the later `money()` call.
-- If it is a new economic event, such as fencing previously boosted stolen goods: apply the bonus again. That is intended stacking.
+- No: let `money()` apply it.
+- Yes: pass `divineTfAdjusted: true` to the later `money()` call.
+- It is a new economic event, such as selling goods that were boosted at theft: apply the bonus again.
 
-Keeping the distinction between **separate stacking events** and **duplicate adjustment of one payout** is the core of this system.
+The rule to keep is the difference between separate events that stack and one payout adjusted twice.

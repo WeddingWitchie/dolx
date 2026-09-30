@@ -1,76 +1,59 @@
-# Transformation Rework
+# Transformation state and chimeras
 
-This document describes X-Change's transformation compatibility layer, why it exists, and how to preserve it when importing future vanilla changes.
+X-Change adds chimeras (blends such as Kitsune or Bakunawa) on top of vanilla transformations. This page explains how gameplay code should ask "what can this body do?" without changing the vanilla progression values underneath.
 
-## Priority: Vanilla First
+The code is `game/03-JavaScript/transformations-state.js`, exposed as the `Transformations` class plus a few global wrappers.
 
-Vanilla changes always take priority.
+## Rule 1: vanilla wins
 
 When vanilla changes transformation code:
 
-1. Port the vanilla change as written and understand its new behaviour first.
-2. Reapply only the smallest X-Change compatibility adjustment needed afterward.
-3. Do not replace a new vanilla system with an older copy of the X-Change code.
-4. Preserve vanilla progression, transformation decay, unlocks, feats, and rendering unless this document explicitly identifies an X-Change extension.
-5. If vanilla introduces its own equivalent abstraction, prefer the vanilla abstraction and adapt or remove the X-Change helper.
+1. Port the vanilla change as written and understand it first.
+2. Then reapply only the smallest chimera adjustment that is still needed.
+3. Do not replace a new vanilla system with an old copy of the X-Change code.
+4. Keep vanilla progression, decay, unlocks, feats and rendering unless this page names an X-Change extension.
+5. If vanilla adds its own version of a helper, use the vanilla one and adapt or remove ours.
 
-The purpose of this rework is not to create a second transformation system. It provides a read-only compatibility view for gameplay while leaving vanilla transformation state authoritative.
+This is not a second transformation system. It is a read-only view for gameplay. Vanilla variables stay the source of truth.
 
-## Design Goals
+## What it guarantees
 
-- Chimeras are additive. They add appearance and inherited functionality without replacing their base transformations.
-- Chimeras do not write fake transformation points or build values into the save.
-- A genome dump may clear raw progression without making still-visible transformation parts lose their related gameplay functionality.
-- A player can hide or disable chimera parts in the mirror. Functionality supplied only by those parts should disappear while they are disabled and return when they are shown again.
-- Base transformation progression, decay, feats, history, and permanent unlock flags remain independent from chimera functionality.
-- Story and gameplay checks should behave consistently across every transformation.
-- Exact narration about a horn, wing, ear, or tail must still require that exact part to be visible.
+- Chimeras add appearance and inherited abilities. They never replace the base transformations.
+- Chimeras never write fake levels or builds into the save.
+- A genome dump can clear raw progress without stripping abilities from parts that are still showing.
+- Hiding or disabling a part in the mirror removes any ability that only that part supplied. Showing it again brings the ability back.
+- Progression, decay, feats, history and permanent unlock flags do not depend on chimeras.
+- Story text about one specific horn, wing, ear or tail still needs that exact part to be visible.
 
-## State Model
+## The kinds of state
 
-There are several different kinds of transformation state. They must not be treated as interchangeable.
+They are not interchangeable.
 
-### Raw transformation level
+| Kind           | Examples                                                                          | Owned by               | Rule                                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Raw level      | `$angel`, `$demon`, `$fallenangel`, `$wolfgirl`, `$harpy`, `$fox`, `$waterdragon` | Vanilla progression    | Chimeras must not raise it.                                                                                                                |
+| Raw build      | `$angelbuild`, `$demonbuild`, `$wolfbuild`, `$birdbuild`, `$waterdragonbuild`     | Vanilla progression    | It rises and decays by vanilla rules. Chimeras may expose an effective build but must not overwrite the stored one.                        |
+| Unlock flag    | `$angeltf`, `$demontf`, `$wolftf`, `$harpytf`, `$waterdragontf`                   | Vanilla                | Records that the base form was obtained. Keeps mirror choices available after a genome dump. A chimera must not award an unrelated unlock. |
+| Parts          | `$transformationParts`                                                            | Vanilla and the mirror | Per-part presentation, see below.                                                                                                          |
+| Chimera config | `$chimera`                                                                        | The mirror             | Per-part Show/Hide choices for composite chimeras (Bakunawa, Ryuujin, Melusine). It holds no progress.                                     |
 
-Examples include `$angel`, `$demon`, `$wolfgirl`, `$harpy`, `$fox`, and `$waterdragon`.
+### Part values
 
-These values are vanilla progression state. They are used by transformation gain/loss, build conversion, transformation history, feats, save migration, and mirror unlock logic. Chimeras must not artificially raise them.
+Each entry in `$transformationParts` is one of:
 
-### Raw transformation build
+- `"disabled"`: the part does not exist.
+- `"hidden"`: the part exists but is hidden.
+- anything else, such as `"default"` or a sprite name: the part is showing.
 
-Examples include `$angelbuild`, `$demonbuild`, `$wolfbuild`, and `$waterdragonbuild`.
+Never test visibility with `isnot "hidden"`. `"disabled"` is also not `"hidden"`, so that check treats a missing part as visible.
 
-Build is also progression state. It must continue to rise and decay according to vanilla rules. Chimeras may expose an effective build to inherited abilities, but must not overwrite the stored build.
+The fallen angel's parts live under the key `fallenAngel`, not `fallen`.
 
-### Permanent unlock flags
-
-Examples include `$angeltf`, `$demontf`, `$wolftf`, `$harpytf`, and `$waterdragontf`.
-
-These record that the corresponding base transformation was obtained. They keep mirror choices available after progression changes or a genome dump. A chimera must not automatically award an unrelated base transformation unlock.
-
-### Transformation parts
-
-`$transformationParts` stores the current body-part presentation. Common values are:
-
-- `"disabled"`: the part is not present.
-- `"hidden"`: the part is currently hidden.
-- a sprite or style value such as `"default"`: the part is active.
-
-Never test active visibility with only `isnot "hidden"`. The value `"disabled"` is also not equal to `"hidden"`, so that check incorrectly treats a missing part as visible.
-
-### Chimera configuration
-
-`$chimera` stores per-part Show/Hide choices for composite sprites such as Bakunawa and Ryuujin. It does not store base transformation progress.
-
-## Compatibility API
-
-The compatibility layer is implemented in `game/03-JavaScript/transformations-state.js`.
+## The API
 
 ### `Transformations.partActive(transformation, part)`
 
-Returns `true` only when a part exists and is neither `"disabled"` nor `"hidden"`.
-
-Use this for exact visible-body-part checks:
+True only when the part exists and is neither `"disabled"` nor `"hidden"`. Use it for exact visible-part checks.
 
 ```twee
 <<if Transformations.partActive("demon", "horns")>>
@@ -78,92 +61,109 @@ Use this for exact visible-body-part checks:
 <</if>>
 ```
 
-Do not write:
+### Wing helpers
 
-```twee
-<<if $transformationParts.demon.horns isnot "hidden">>
-```
+- `Transformations.hasWings()`: any wings showing (angel, fallen angel, demon, bird, okami, seraphim).
+- `Transformations.hasNaturalFlightWings()`: bird or seraphim wings.
+- `Transformations.hasDivineWings()`: angel, fallen angel, demon or okami wings. They look right but cannot carry the player unaided.
+- `Transformations.hasGwylanStrengthenedWings()`: divine wings while Gwylan's strengthening is still running (`$gwylan.wingStrength`).
+- `Transformations.hasFlightWings()`: natural flight wings, or strengthened divine wings.
 
 ### `Transformations.chimeraActive(name)`
 
-Returns whether a supported functional chimera currently has an active presentation.
+Whether a chimera is showing. It returns `false` for an unknown name.
 
-Supported functional chimeras are:
+| Chimera    | Base forms                  | Counts as showing when                                                                                                                                                                       |
+| ---------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `seraphim` | Bird + Angel                | Any Seraphim wings, plumage or eyes are showing.                                                                                                                                             |
+| `kitsune`  | Fox + Angel                 | Any Kitsune ears, tail, cheeks or misc are showing.                                                                                                                                          |
+| `okami`    | Wolf + Angel                | Any Okami ears, tail, wings or misc are showing.                                                                                                                                             |
+| `kasha`    | Cat + Demon                 | Cat ears, cat tail, demon horns and demon wings are all showing.                                                                                                                             |
+| `catsith`  | Cat + Fallen Angel          | Cat ears, cat tail, fallen angel halo and fallen angel wings are all showing.                                                                                                                |
+| `bakunawa` | Water Dragon + Demon        | One of its `$chimera.bakunawa` toggles is on and its water dragon and demon parts are showing (tail with tail, horns with horns, or ears with a demon horn, tail or wing).                   |
+| `ryuujin`  | Water Dragon + Angel        | One of its `$chimera.ryuujin` toggles is on and its water dragon and angel parts are showing (tail or horns with an angel halo or wings, or the halo with a water dragon horn, ear or tail). |
+| `melusine` | Water Dragon + Angel + Bird | One of its `$chimera.melusine` toggles is on and all three families are showing. Bird wings are required.                                                                                    |
 
-| Chimera  | Base transformations         | Active presentation                                                                                                  |
-| -------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Seraphim | Bird + Angel                 | Any active Seraphim wing, plumage, or eye part                                                                       |
-| Kitsune  | Fox + Angel                  | Any active Kitsune ear, tail, cheek, or misc part                                                                    |
-| Okami    | Wolf + Angel                 | Any active Okami ear, tail, wing, or misc part                                                                       |
-| Bakunawa | Water Dragon + Demon         | A configured active Water Dragon/Demon composite part                                                                |
-| Ryuujin  | Water Dragon + Angel         | A configured active Water Dragon/Angel composite part                                                                |
-| Melusine | Water Dragon + Angel + Harpy | Water dragon tail, angel halo, and harpy wings all simultaneously active, with the Melusine Show/Hide toggle enabled |
+Other hybrid names (Hellhound, Dog, Jackalope, Moon Rabbit) are description labels only. Do not add them here unless they gain real abilities.
 
-Other vanilla hybrid labels and sprite combinations remain presentation logic unless they are deliberately added to this function.
+### `Transformations.chimeraFull(name)`
+
+True when the chimera is showing and has one of its defining parts. A chimera showing only a cosmetic part still counts as present for the mirror and dialogue (`chimeraActive`), but it is not a finished transformation and must not grant levels, builds or income bonuses.
+
+Defining parts: Seraphim needs wings. Kitsune needs ears or tail. Okami needs ears, tail or wings. Chimeras not in that list already need several parts together, so any active one counts.
+
+This is also why minor cosmetics on their own (bear pubes or plumage, bird eyes or malar markings, seraphim eyes, kitsune cheeks, Okami markings) give no levels, builds or income bonuses.
 
 ### `Transformations.effectiveLevel(name)`
 
-SugarCube passages normally use the global wrapper:
+Global wrapper: `effectiveTransformationLevel(name)`. Read-only. It is the highest of:
 
-```twee
-<<if effectiveTransformationLevel("angel") gte 6>>
-```
+- the raw vanilla level,
+- the level implied by showing parts (see the table),
+- the "full" level (usually 6) when a supported chimera is `chimeraFull`.
 
-The effective level is read-only. It is the highest level implied by:
+| Name          | Raw            | Part levels                                 | Full | Chimera sources                             |
+| ------------- | -------------- | ------------------------------------------- | ---- | ------------------------------------------- |
+| `wolf`        | `$wolfgirl`    | ears 4, cheeks 5, tail 6                    | 6    | Okami                                       |
+| `cat`         | `$cat`         | ears 4, tail 6                              | 6    | Kasha, Cat Sith                             |
+| `cow`         | `$cow`         | horns 2, ears 4, tail 6                     | 6    | none                                        |
+| `bear`        | `$bear`        | ears 4, tail 6                              | 6    | none                                        |
+| `bird`        | `$harpy`       | eyes 2, malar 2, tail 4, plumage 4, wings 6 | 6    | Seraphim, Melusine                          |
+| `fox`         | `$fox`         | ears 4, cheeks 5, tail 6                    | 6    | Kitsune                                     |
+| `bunny`       | `$bunny`       | ears 4, tail 6                              | 6    | none                                        |
+| `angel`       | `$angel`       | halo 4, wings 6                             | 6    | Seraphim, Kitsune, Okami, Ryuujin, Melusine |
+| `fallen`      | `$fallenangel` | halo 2, wings 2 (`fallenplus` wings 4)      | 4    | Cat Sith                                    |
+| `demon`       | `$demon`       | horns 2, tail 4, wings 6                    | 6    | Bakunawa, Kasha                             |
+| `waterdragon` | `$waterdragon` | horns 2, ears 4, tail 7                     | 7    | Bakunawa, Ryuujin, Melusine                 |
 
-- the raw vanilla transformation level;
-- currently active base transformation parts; or
-- a currently active supported chimera.
-
-It does not modify the raw level.
-
-| Name          | Raw variable   | Part thresholds                       | Functional chimera sources                  |
-| ------------- | -------------- | ------------------------------------- | ------------------------------------------- |
-| `wolf`        | `$wolfgirl`    | ears 4, cheeks 5, tail 6              | Okami                                       |
-| `cat`         | `$cat`         | ears 4, tail 6                        | None                                        |
-| `cow`         | `$cow`         | horns 2, ears 4, tail 6               | None                                        |
-| `bear`        | `$bear`        | ears 4, tail 6                        | None                                        |
-| `bird`        | `$harpy`       | eyes/malar 2, tail/plumage 4, wings 6 | Seraphim, Melusine                          |
-| `fox`         | `$fox`         | ears 4, cheeks 5, tail 6              | Kitsune                                     |
-| `bunny`       | `$bunny`       | ears 4, tail 6                        | None                                        |
-| `angel`       | `$angel`       | halo 4, wings 6                       | Seraphim, Kitsune, Okami, Ryuujin, Melusine |
-| `fallen`      | `$fallenangel` | halo/wings 2; plus wings 4            | None                                        |
-| `demon`       | `$demon`       | horns 2, tail 4, wings 6              | Bakunawa                                    |
-| `waterdragon` | `$waterdragon` | horns 2, ears 4, tail 7               | Bakunawa, Ryuujin, Melusine                 |
+Angel, fallen angel and demon are mutually exclusive. `effectiveLevel` checks demon first, then fallen (at level 2 or more), then angel (at level 1 or more), and only the first one that applies returns a level. The other two return 0.
 
 ### `Transformations.effectiveBuild(name)`
 
-SugarCube passages normally use:
+Global wrapper: `effectiveTransformationBuild(name)`. Returns the raw build, or a higher floor when parts or a full chimera need the finished value. It never writes back to the save.
 
-```twee
-<<set _build to effectiveTransformationBuild("angel")>>
-```
-
-The effective build returns the raw build unless an active functional chimera needs the completed base value. It never writes that value back to the save.
-
-Completed effective builds are currently 100 for animal transformations, 50 for Angel, and 30 for Demon.
+- Finished builds: 100 for animal forms and water dragon, 50 for angel, 30 for demon.
+- Any showing demon part restores the full demon build (the demon build gates forced impregnation).
+- Angel halo gives at least 10 and wings at least 50, so Banish does not get stuck at 0/0 when parts are kept or restored.
+- Angel returns 0 while demon or fallen angel is effective.
+- A `chimeraFull` chimera listed for that form raises the build to the finished value.
 
 ### `Transformations.canBanish()`
 
-The global wrapper is `canAngelBanish()`.
+Global wrapper: `canAngelBanish()`. True when the effective Angel level is at least 4 and `$angelBanish` is at least 1. This lets a showing Angel chimera keep Banish after a genome dump without raising `$angel` or `$angelbuild`. Forgive, Seduce, transformation traits and other inherited actions follow the same rule.
 
-Banish availability uses the effective Angel level and the remaining daily Banish count. The daily count is replenished from the effective Angel build. This lets an active Angel chimera retain Banish after a genome dump without forcing `$angel` or `$angelbuild` upward.
+### Shared traits
 
-Forgive, Seduce, transformation-derived traits, and other inherited actions follow the same effective-level principle.
+`Transformations.sharedTraitSources` lists traits that several forms grant (fangs, sharp eyes, mate for life) and the level each form grants them at. `Transformations.dropTraits(source, ...traits)` disables the traits a form is losing, unless another form still grants them. Use it wherever a transformation loses a trait, so one form dropping it does not remove it from another.
 
-## Which Check Should Be Used?
+### Other helpers in the same file
 
-### Use an effective level for gameplay capability
+- `Transformations.colourableAnimalParts` and `defaults`: which parts can be recoloured, and the default colours.
+- `Transformations.isFullWaterDragon()` (global `isFullWaterDragon()`): effective water dragon level 7 and raw `$waterdragon` at least 6. Eggs, dragon labour and the nest use this, not `effectiveLevel`, because a level 7 tail alone can come from a cosmetic unlock after a genome dump.
+- Water dragon egg cycle: `waterDragonLayingBlocked()`, `rollWaterDragonEggCycle()`, `waterDragonEggsOverdueDays()`, `waterDragonEggsOverdue()`. Laying pauses during flashbacks, replays, the Hopeless Cycle, combat, soft bad ends, and in the asylum, prison, island and pirate ship. Harper's lab is the exception. Eggs overdue by 3 days are laid wherever the player sleeps.
+- `Transformations.bakunawaResonant()` and `bakunawaDamageMultiplier()`: Bakunawa deals 15% more damage under a blood moon.
+- `Transformations.stealFortune()`: the Kasha's fortune steal. Adds 2 to `$moorLuck` up to a cap of 10.
+- `descriptionPhrase(id)`, `descriptionComboLabel(id)`, `descriptionComboMenuLabel(id)`: names for description keys such as `"hellhound"` or `"cat+fallen"`.
 
-Use `effectiveTransformationLevel()` when the question is:
+## Which check to use
 
-- Does the player have this transformation's ability?
-- Should this transformation-specific action or dialogue branch be available?
-- Should a transformation-derived stat, allure, attractiveness, instinct, or trait apply?
-- Should a story recognise the player's overall transformed nature?
-- Should functionality survive a genome dump while the relevant form remains present?
+Ask one question at every transformation check:
 
-Example:
+> Is this code deciding what state the player owns, or what the current form can do?
+
+- Owns or changes state: use raw vanilla values.
+- Decides what the form can do: use the effective level or build.
+- Describes one exact visible body part: use `partActive`.
+
+### Effective level, for capability
+
+Use `effectiveTransformationLevel()` for:
+
+- whether the player has a transformation's ability,
+- whether a transformation-specific action or dialogue branch is available,
+- transformation-derived stats, allure, attractiveness, instinct and traits,
+- whether a story recognises the player as transformed,
+- anything that should survive a genome dump while the form is still showing.
 
 ```twee
 <<if effectiveTransformationLevel("demon") gte 6 and $demonseduce isnot 1>>
@@ -171,9 +171,7 @@ Example:
 <</if>>
 ```
 
-### Use `partActive` for exact physical narration
-
-Use `Transformations.partActive()` when text or rendering depends on one exact visible limb.
+### `partActive`, for exact narration
 
 ```twee
 <<if Transformations.partActive("bird", "wings")>>
@@ -181,164 +179,126 @@ Use `Transformations.partActive()` when text or rendering depends on one exact v
 <</if>>
 ```
 
-An effective level alone is insufficient here because another chimera part may provide the inherited ability while the narrated wing is hidden.
+The effective level alone is not enough here, because another chimera part could supply the ability while the wing you are describing is hidden.
 
-### Use both only when both facts matter
-
-Some scenes require a completed form and one specific visible low-level part.
+### Both, only when both facts matter
 
 ```twee
 <<if effectiveTransformationLevel("demon") gte 6 and Transformations.partActive("demon", "horns")>>
 ```
 
-This is valid because Demon horns imply level 2, not level 6. The effective-level condition is not redundant.
+This is valid because demon horns only imply level 2, so the level check adds something.
 
-### Use raw values only for state ownership
+### Raw values, only where you own the state
 
-Raw transformation levels and builds are correct when the code is intentionally reading or changing vanilla progression state. Current examples include:
+Reading or changing raw values is right in code that deliberately manages vanilla progression:
 
-- transformation gain, loss, and decay in `game/base-system/transformations.twee`;
-- initialisation and save migration in `game/04-Variables/`;
-- permanent base transformation flags in `<<widget "tfcheck">>`;
-- mirror menu unlocks and saved description choices in `game/base-system/mirror.twee`;
-- transformation history, statistics, and base-transformation feats;
-- daily Angel/Fallen/Demon progression in `game/03-JavaScript/time.js`.
+- gain, loss and decay in `game/base-system/transformations.twee`,
+- initialisation and save migration in `game/04-Variables/`,
+- the permanent flags in `<<widget "tfcheck">>` (`game/base-system/widgets.twee`),
+- mirror unlocks and saved description choices in `game/base-system/mirror.twee`,
+- history, statistics and base-transformation feats,
+- daily Angel, Fallen and Demon progression in `game/03-JavaScript/time.js`.
 
-Do not mechanically convert these reads to effective levels. For example, using an effective Demon level inside `tfcheck` would let Bakunawa permanently award the base Demon unlock. That violates the additive chimera design.
+Do not convert these to effective levels. An effective demon level inside `tfcheck` would let Bakunawa permanently award the base Demon unlock.
 
-## Common Mistakes
+## Common mistakes
 
-### Redundant capstone OR checks
-
-Do not combine an effective level with the same capstone part:
+Redundant capstone check. Active bird wings already imply effective bird level 6:
 
 ```twee
-/* Wrong: active Bird wings already imply effective Bird level 6. */
+/* Wrong */
 <<if effectiveTransformationLevel("bird") gte 6 or Transformations.partActive("bird", "wings")>>
 ```
 
-Use only the effective level for capability, or only `partActive` for exact wing visibility.
+Use the level for capability, or `partActive` for the exact wing. Likewise, if the tail is active the effective wolf level is already 6, so pair `partActive` checks with each other and the level check with capability only.
 
-### Mixing form and visibility without a reason
-
-This is usually redundant:
+Impossible state:
 
 ```twee
-<<if effectiveTransformationLevel("wolf") gte 6
-	and Transformations.partActive("wolf", "ears")
-	and Transformations.partActive("wolf", "tail")>>
+/* Wrong: a part cannot be both */
+<<if $transformationParts.bird.wings is "hidden" and $transformationParts.bird.wings is "disabled">>
 ```
 
-The active tail already implies effective Wolf level 6. If the scene needs both visible parts, test the two parts. If it only needs Wolf capability, test the effective level.
+Write `not Transformations.partActive("bird", "wings")` instead.
 
-### Impossible state checks
-
-A part cannot equal `"hidden"` and `"disabled"` at the same time.
+Forcing raw progress for a chimera:
 
 ```twee
-/* Wrong. */
-<<if $transformationParts.bird.wings is "hidden"
-	and $transformationParts.bird.wings is "disabled">>
-```
-
-Use `not Transformations.partActive("bird", "wings")` when the question is simply whether the wing is inactive.
-
-### Forcing raw progression for a chimera
-
-Do not restore code that sets base levels or builds merely because a chimera is active:
-
-```twee
-/* Do not do this. */
+/* Never do this */
 <<set $angel to Math.max($angel, 6)>>
 <<set $angelbuild to Math.max($angelbuild, 50)>>
 ```
 
-The effective view exists specifically to avoid this save-state mutation.
+The effective view exists so this is never needed.
 
-### Broad helper rewrites in renderers
+Renderer changes: canvas renderer files route model options and sprite substitutions. Do not add save migration, schema setup or gameplay backfilling there.
 
-Canvas renderer files should continue to route existing model options and sprite substitutions. Do not add save migration, schema initialisation, or gameplay-state backfilling to renderer code.
+## After a genome dump
 
-## Genome Dump Behaviour
+- Raw points and builds may be reduced or cleared by vanilla.
+- Permanent unlock flags still control mirror choices.
+- Showing parts still imply their effective levels.
+- A showing chimera still supplies its finished level and build.
+- Hiding or disabling the parts removes that source. Showing them restores it.
+- Nothing recreates raw progress.
 
-After a genome dump:
+## Mirror and descriptions
 
-- raw transformation points and builds may be reduced or cleared by vanilla behaviour;
-- permanent unlock flags continue to control mirror availability;
-- visible transformation parts continue to imply their appropriate effective levels;
-- active functional chimeras continue to supply completed effective levels/builds;
-- hiding or disabling the relevant parts removes that effective chimera source;
-- showing the parts again restores it;
-- no raw base transformation progress is recreated by the compatibility layer.
+`game/base-system/mirror.twee` keeps four things apart:
 
-## Mirror and Description Behaviour
+- parts that are actually showing (automatic descriptions),
+- permanent unlock flags (manual description options stay available),
+- the chimera Show/Hide config,
+- the saved manual choice (`$tfDesc.primary`).
 
-`game/base-system/mirror.twee` deliberately distinguishes:
+Do not replace the mirror's checks with effective levels. It owns presentation and unlocks, so raw values and flags are often correct there.
 
-- actual visible/present parts, used for automatic descriptions;
-- permanent unlock flags, used to keep manual description options available;
-- chimera Show/Hide configuration;
-- the saved manual description choice.
+`<<tfDescValidList>>` (`mirror.twee`) is also used by the Characteristics overlay. Its supported outputs are:
 
-Do not replace all mirror checks with effective levels. Mirror code owns presentation and unlock state, so raw values and permanent flags are often intentional there.
+- `_present`: what is showing now, per form and per chimera, plus the derived `xenos` state (at least one animal and one divine form, three forms in total),
+- `_descOption`: which manual descriptions are allowed (a form is allowed if it is present or its unlock flag is set, and a chimera is allowed if it is present or both its base forms are allowed),
+- `$tfDescValid`: the final list of valid saved choices.
 
-`<<tfDescValidList>>` is also used by the Characteristics overlay. Its supported outputs are:
+Do not read the widget's own temporaries (`_baseTfPresent`, `_animalIds` and similar) after calling it. Temporary-variable side effects are not stable, and a passage that reads a missing one fails at runtime in a way the compiler cannot catch. Use `_present`, `Transformations.partActive()` or `Transformations.chimeraActive()`.
 
-- `_present`, containing current base/chimera presence and the derived Xenos state;
-- `_descOption`, containing manual-description eligibility;
-- `$tfDescValid`, containing the final list of valid saved choices.
+Bakunawa, Ryuujin, Melusine, Kasha and Cat Sith must appear in: the display-name map, the description ordering, the current-presence calculation, manual option validity, invalid-choice self-healing, and the chimera Show/Hide controls (where they have toggles).
 
-Callers must not depend on implementation-only temporary variables created inside the widget. In particular, do not read `_tfParts`, `_partActive`, or `_baseTfPresent` after calling it. Use `_present`, `Transformations.partActive()`, or `Transformations.chimeraActive()` instead. Temporary-variable side effects are not a stable API and can produce passage-only runtime errors that the Twee compiler cannot detect.
+Presentation-only labels (Hellhound, Dog, Jackalope, Moon Rabbit, generic `animal+celestial` blends) keep their local logic in `tfDescValidList`.
 
-Bakunawa and Ryuujin must be included in:
+## Allure, characteristics and story recognition
 
-- the displayed description-name map;
-- description option ordering;
-- current-presence calculation;
-- permanent/manual option validity;
-- invalid-choice self-healing;
-- chimera Show/Hide controls.
+Transformation-derived allure, attractiveness, traits, actions and story recognition use effective levels. When a line describes a visible limb, combine the level check with `partActive`, or use `partActive` alone if the limb already implies the level.
 
-## Allure, Characteristics, and Story Recognition
+## Where things are
 
-Transformation-derived allure, attractiveness, traits, actions, and general story recognition should use effective levels. This is what lets Ryuujin, Bakunawa, and the older functional chimeras inherit the relevant base behaviour.
+- `game/03-JavaScript/transformations-state.js`: everything in this page.
+- `game/base-system/transformations.twee`: progression and part changes.
+- `game/base-system/mirror.twee`: mirror controls, chimera visibility, description choices.
+- `game/base-system/widgets.twee`: permanent unlock checks (`tfcheck`).
+- `game/base-system/widgets.js`: shared widgets that read effective state.
+- `game/base-system/overlays/characteristics.twee` and `traits.twee`: player-facing allure and trait text.
+- `game/base-clothing/canvasmodel-img.js` and `game/04-Variables/canvasmodel-main.js`: sprite paths, model options and transformation layers.
+- `game/04-Variables/DoLXAddition/variables-modUpdate.twee`: save migration only. No ordinary runtime behaviour here.
 
-When a line specifically describes a visible limb, combine that gameplay decision with `partActive`, or use `partActive` alone if the limb itself already implies the required level.
+## Porting a vanilla transformation change
 
-Presentation-only hybrid names such as Hellhound, Dog, Jackalope, or Moon Rabbit should keep their local classification logic unless they are promoted into functional chimeras. Do not add them to `chimeraActive()` merely because a narration label exists.
+1. Read the whole vanilla change. For each check, decide whether it owns state or consumes it.
+2. Keep new vanilla variables, conditions, actions, narration and rendering.
+3. Replace raw reads in new downstream numeric checks with the effective level or build.
+4. Use `Transformations.partActive()` for exact body-part narration.
+5. Keep raw checks in progression, migration, unlock, feat, history and mirror code.
+6. New level or body part in vanilla: update `levelDefinitions` in `Transformations`.
+7. Changed build thresholds: update `effectiveBuild()` and anything that consumes it.
+8. New functional chimera: add its case to `chimeraActive()`, its defining parts to `chimeraMajorParts` if it has cosmetic-only parts, and list it under the base forms whose abilities it inherits in both `levelDefinitions` and `effectiveBuild`.
+9. New sprite blend or narration label only: do not make it a functional chimera.
+10. Check mirror visibility, automatic and manual descriptions, genome-dump behaviour and Show/Hide toggles.
+11. Check every sprite path and filename.
+12. Compile and run the checks below.
 
-## Important Files
+## Checks
 
-- `game/03-JavaScript/transformations-state.js`: active-part, chimera, effective-level, effective-build, and Banish compatibility helpers.
-- `game/base-system/transformations.twee`: authoritative transformation progression and part mutation.
-- `game/base-system/mirror.twee`: mirror controls, chimera visibility, and description choices.
-- `game/base-system/widgets.twee`: permanent base transformation unlock checks.
-- `game/base-system/widgets.js`: shared gameplay widgets that consume effective state.
-- `game/base-system/overlays/characteristics.twee`: player-facing allure and transformation factors.
-- `game/base-clothing/canvasmodel-img.js`: sprite path and model-option routing.
-- `game/base-clothing/canvasmodel-main.js`: transformation layer generation.
-- `game/04-Variables/variables-modUpdate.twee`: save migration only; do not put ordinary runtime behaviour here.
-
-## Porting a Future Vanilla Transformation Change
-
-Use this checklist whenever vanilla changes a transformation-related file.
-
-1. Read the full vanilla change and identify whether each check owns state or consumes state.
-2. Preserve new vanilla variables, conditions, actions, narration, and renderer behaviour.
-3. For new downstream numeric checks, replace the raw transformation read with the matching effective-level or effective-build helper.
-4. For exact body-part narration, use `Transformations.partActive()`.
-5. Keep raw checks in progression, migration, unlock, feat, history, and mirror-state code.
-6. If vanilla adds a new transformation level or body part, update the threshold table in `Transformations.effectiveLevel()`.
-7. If vanilla changes build thresholds, update `Transformations.effectiveBuild()` and any ability calculation that consumes it.
-8. If vanilla adds a true functional chimera, add its active-part definition and list it only under the base transformations whose functionality it inherits.
-9. If vanilla adds only a sprite blend or narration label, do not automatically make it a functional chimera.
-10. Verify mirror visibility, automatic descriptions, manual descriptions, genome-dump behaviour, and Show/Hide toggles.
-11. Verify every referenced sprite path and filename.
-12. Compile and run the structural checks below.
-
-## Validation
-
-From the repository root on Windows:
+From the repository root:
 
 ```powershell
 node --check game/03-JavaScript/transformations-state.js
@@ -347,35 +307,23 @@ cmd /c compile.bat
 git diff --check
 ```
 
-Useful structural searches:
+Searches to review:
 
 ```powershell
 # Gameplay should not mix an effective level with raw part access.
 rg -n 'effectiveTransformationLevel\("(angel|fallen|demon|wolf|cat|cow|bear|bird|fox|bunny|waterdragon)"\).*\$transformationParts' game
 
-# Find unsafe visible-part checks for review.
+# Unsafe visible-part checks.
 rg -n '\$transformationParts\.[A-Za-z]+\.[A-Za-z]+ isnot "hidden"' game
 
-# Find raw transformation reads and classify every result as state-owning or downstream.
+# Raw reads. Every result should be a state owner or a deliberate downstream read.
 rg -n '\$(angel|fallenangel|demon|wolfgirl|cat|cow|bear|harpy|fox|bunny|waterdragon)\s+(gte|lte|gt|lt|is|isnot)\s+[0-9]+' game
 
-# Catch truthy checks, arithmetic, copies, and writes that the numeric search misses.
+# Truthy checks, arithmetic and writes the numeric search misses.
 rg -n '\$(angel|fallenangel|demon|wolfgirl|cat|cow|bear|harpy|fox|bunny|waterdragon)\b' game
 
-# Effective-level consumers should not accidentally keep a raw build dependency.
+# Effective-level code that still depends on a raw build.
 rg -n '\$(angelbuild|demonbuild|wolfbuild|catbuild|cowbuild|bearbuild|birdbuild|foxbuild|bunnybuild|waterdragonbuild)\b' game
 ```
 
-The raw-read search is not expected to return zero. Its remaining results must be intentional state owners. The important rule is that downstream gameplay must use the effective view while progression remains raw.
-
-## Review Rule of Thumb
-
-Ask one question at every transformation check:
-
-> Is this code deciding what transformation state the player owns, or deciding what the currently presented form can do?
-
-- If it owns or mutates state, use raw vanilla values.
-- If it decides capability, use effective values.
-- If it describes one exact visible body part, use `partActive`.
-
-Keeping that boundary intact is the core of this rework.
+The raw-read searches will not return zero. The point is that each remaining hit is a state owner, and that downstream gameplay uses the effective view.
