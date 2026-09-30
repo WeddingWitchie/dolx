@@ -43,8 +43,86 @@
 		<span class="yellow">You make a minor repair to your bike. It should be able to get you a little farther now.</span><br>
 		<<set $eventskip to 0>><<set $bicycle.durability.repairUse to 0>>
 	<</if>>
-	<<if $bicycle.stolen is true>>
-		/* Maybe implement some events where you can steal your bike back? */
+	/* Low-love Whitney keeps the bike; it resurfaces 3+ days later unless a replacement was bought. */
+	<<if $bicycle.whitneyHas isnot undefined>>
+		<<if $bicycle.own>>
+			<<run delete $bicycle.whitneyHas>>
+		<<elseif (Time.days - $bicycle.whitneyHas) gte 3>>
+			<<set _whitneyBikeRoll to random(1, 100)>>
+			<<run delete $bicycle.whitneyHas>>
+			<<if _whitneyBikeRoll lte 35>>
+				<<generatey1>><<person1>>
+				<span class="red">Your bike isn't coming back.</span> A <<person>> tells you <<he>> watched Whitney ride it off the end of the pier, whooping the whole way, and jump clear at the last second.<br><<endevent>>
+			<<elseif _whitneyBikeRoll lte 70>>
+				<span class="red">You find your bike dumped behind a bin.</span> The frame is bent, one wheel is folded in half, and there's a crushed cigarette butt in the spokes.<br>
+				<<set $bicycle.own to true>><<set $bicycle.durability.current to 0>>
+			<<else>>
+				<span class="orange">Your bike is leaning against the nearest wall.</span> There's a note taped to the saddle. "BORED OF IT. -W" Both tyres are scuffed bald and something rattles in the frame.<br>
+				<<set $bicycle.own to true>><<set $bicycle.durability.current to Math.min($bicycle.durability.current, Math.round($bicycle.durability.max * 0.15))>>
+			<</if>>
+		<</if>>
+	<</if>>
+	/* whitneyRescue is rolled at theft time in bike.js; the love branch is picked here, on a town street. */
+	<<if $bicycle.stolen is true and $bicycle.whitneyRescue and ["residential", "commercial", "industrial"].includes($bicycle.locationRegion)>>
+		<<run delete $bicycle.whitneyRescue>><<run delete $bicycle.whitneyNoticed>>
+		<<set $bicycle.stolen to false>>
+		<<npc Whitney>><<person1>>
+		<<if C.npc.Whitney.love lt 12>>
+			You're still cursing whoever stole your bike when you hear Whitney laughing nearby. You turn and see <<him>> riding towards you on your bike, steering with one hand while holding a cigarette in the other. <<He>> grins when <<he>> sees you, then pedals straight past.
+			<br>
+			"Finders keepers, <<bitch>>!" <<he>> shouts, laughing as <<he>> rides around the corner.
+			<br>
+			<span class="red">Your bike <<if $bicycle.securityStolen is true>>and security gear were<<else>>was<</if>> stolen!</span> <span class="blue">You can buy a new one, or wait and see if this one turns up.</span>
+			<<set $bicycle.whitneyHas to Time.days>>
+		<<elseif $whitneyromance is 1>>
+			<<set $bicycle.own to true>>
+			<<set $bicycle.durability.current to Math.min($bicycle.durability.max, $bicycle.durability.current + Math.round($bicycle.durability.max / 6))>>
+			You hear metal rattling and turn towards the sound. Whitney is walking towards you, pushing your missing bike. <<He>> has tied a bent spoon to the handlebars to replace the broken bell. There's a fresh bruise on <<his>> cheek, and you notice some dried blood under <<his>> nose.
+			<br><br>
+			"Found your fucking bike," <<he>> says, stopping in front of you. "Some dickheads had it. Don't start asking questions."
+			<br><br>
+			You take a closer look at your bike. Whitney has repaired the loose brake cable and covered the torn saddle with fresh tape. <<He>> has also stuck a piece of tape across the frame, with TOUCH THIS AND DIE written on it in large letters. Underneath, <<he>> has added "-W" in smaller writing.
+			<br>
+			You look up at Whitney, who immediately turns <<his>> head away.
+			<br><br>
+			"What? You want me to write you a fucking love letter too?" <<He>> takes hold of the handlebars again. "I fixed the brakes, but I wanna make sure they work before you ride off and break your stupid neck. C'mon, slut, ride it down the road and use the brakes when I tell you."
+			<br><br>
+			<span class="green">Whitney get your bike back.</span>
+			<<if $bicycle.securityStolen is true>>
+				<span class="red">But your security gear is gone for good.</span>
+			<</if>>
+			<br><br>
+			<<link [[Get on the back (0:15)|Whitney Bike Joyride]]>><<set $whitneyBikeReturn to $passage>><<pass 15>><</link>>
+			<br>
+			<<link [[Take it and ride it yourself|Whitney Bike Ride Alone]]>><<set $whitneyBikeReturn to $passage>><</link>>
+			<br>
+		<<else>>
+			<<set $bicycle.durability.current to Math.min($bicycle.durability.current, Math.round($bicycle.durability.max * 0.2))>>
+			You're still angry about your stolen bike when Whitney appears around the corner, pushing it towards you. <<He>> is limping, with blood on <<his>> chin and several cuts across <<his>> knuckles and <<his>> lip has been split. Before you can ask what happened, <<he>> pushes the handlebars into your hands.
+			<br><br>
+			"Found your fucking bike. Couple of idiots had it behind a shop," <<he>> says, wiping the blood from <<his>> chin. "Don't fucking ask about anything."
+			<br><br>
+			You look at your bike while Whitney wipes <<his>> hands on <<his>> clothes. One wheel wobbles when you move it, and there's a large dent in the frame.
+			<br><br>
+			Whatever happened, <span class="green">Whitney seems to have had quite a fight getting it back</span>.
+			<<set $bicycle.own to true>>
+			<<if $bicycle.securityStolen is true>>
+				<span class="red">But your security gear is gone for good.</span>
+			<</if>>
+			<br><br>
+			<<link [[Thank Whitney|Whitney Bike Thank]]>><<set $whitneyBikeReturn to $passage>><</link>>
+			<br>
+			<<link [[Ask about the fight|Whitney Bike Ask]]>><<set $whitneyBikeReturn to $passage>><</link>>
+			<br>
+		<</if>>
+		<<set $bicycle.securityStolen to false>>
+	<<elseif $bicycle.stolen is true and $bicycle.whitneyRescue>>
+		/* Rescue pending but not on a town street yet: announce the theft once, with no culprit. */
+		<<if !$bicycle.whitneyNoticed>>
+			<span class="red">Your bike <<if $bicycle.securityStolen is true>>and security gear were<<else>>was<</if>> stolen!</span><br>
+			<<set $bicycle.whitneyNoticed to true>>
+		<</if>>
+	<<elseif $bicycle.stolen is true>>
 		<span class="red">Your bike <<if $bicycle.securityStolen is true>>and security gear were<<else>>was<</if>> stolen!</span>
 		<<if $bicycle.locationRegion is "lake">>
 			Some student must've stolen it.

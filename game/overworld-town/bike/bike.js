@@ -212,12 +212,20 @@ function bikeSecurity() {
 		if (random(1, 1000) <= Math.max(0, bikeTheft) && V.bicycle.theftEnabled) {
 			V.bicycle.own = false;
 			V.bicycle.stolen = true;
+			V.bicycle.securityStolen = false;
 			if (V.bicycle.security > 0) {
 				V.bicycle.security = 0;
 				V.bicycle.securityStolen = true;
 			}
 			V.bicycle.upgrades = [];
 			V.bicycle.hourlyCheck = 0;
+			// Drop Whitney state from an older theft, then roll once for this one.
+			delete V.bicycle.whitneyHas;
+			delete V.bicycle.whitneyRescue;
+			delete V.bicycle.whitneyNoticed;
+			if (![1, 2].includes(V.whitney_orphanage_special_seen) && (V.whitney_orphanage_special_seen >= 3 || V.loft_whitney >= 6) && random(1, 100) <= 50) {
+				V.bicycle.whitneyRescue = true;
+			}
 			if (Time.days < 150) {
 				V.bicycle.stolenCoolDown = 10;
 			} else {
