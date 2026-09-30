@@ -1593,6 +1593,14 @@ function effects() {
 	// 	// and will let me get save files closer to the source when somebody reports it again.
 	// }
 
+	// The chastity parasite wraps a penis, so it falls away once the penis is gone (identity drift, X-Change pills)
+	if (V.worn.genitals.name === "chastity parasite" && !V.player.penisExist && !V.statFreeze) {
+		V.worn.genitals.type.push("broken");
+		wikifier("genitalsruined");
+		element("span", "With nothing left to hold, your chastity parasite sloughs away.", "purple");
+		br();
+	}
+
 	if (numberOfEarSlime() && V.earSlime.event && !V.statFreeze) {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(

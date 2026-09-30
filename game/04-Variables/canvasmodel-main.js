@@ -3824,7 +3824,8 @@ Renderer.CanvasModels.main = {
 			},
 			srcfn(options) {
 				if (options.worn.genitals.setup.name === "chastity parasite") {
-					return `img/body/ear-slime-chastity-${options.ear_slime_size}.png`;
+					// ear_slime_size is only set while an ear-slime parasite is on the penis or clit; the worn item can outlive it
+					return `img/body/ear-slime-chastity-${options.ear_slime_size ?? 0}.png`;
 				}
 
 				const setupVar = options.worn.genitals.setup.combat?.reference || options.worn.genitals.setup.variable;
