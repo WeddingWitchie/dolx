@@ -1,7 +1,7 @@
 :: Underground Colosseum Entrance
 <<set $outside to 1>><<set $location to "alley">><<effects>><<pass 2>>
 <<set $xchange.colosseum.visitEvents to 0>>
-<<unset $xchange.colosseum.mock>><<unset $xchange.colosseum.fightStart>><<unset $xchange.colosseum.matchRank>><<unset $xchange.colosseum.promotion>><<unset $xchange.colosseum.keepOpponent>><<unset $xchange.colosseum.prefightAnswer>><<unset $xchange.colosseum.lashOuts>>
+<<unset $xchange.colosseum.mock>><<unset $xchange.colosseum.fightStart>><<unset $xchange.colosseum.matchRank>><<unset $xchange.colosseum.promotion>><<unset $xchange.colosseum.keepOpponent>><<unset $xchange.colosseum.prefightAnswer>><<unset $xchange.colosseum.lashOuts>><<unset $xchange.colosseum.breed>>
 <<colosseumDoor>>
 You find the unmarked steel door behind the old factory. A large rubbish skip blocks most of it from anyone looking down the road. You step into the narrow space beside the skip and knock twice.
 <br><br>
@@ -11,7 +11,7 @@ A small panel slides open at eye level. You cannot see much of the person on the
 <br><br>
 The panel closes. You hear four locks turn one after another, then the door opens slightly for the <<person>> on the other side to step into the gap. <<He>> looks past you towards both ends of the alley before letting you inside.
 <br><br>
-Once the door is closed again, <<he>> searches your pockets and runs <<his>> hands over your clothes for anything you could carry into a fight.
+Once the door is closed again, <<he>> searches your pockets and runs <<his>> hands over your clothes for anything you could carry into a fight. The search goes on longer than a search needs to. <<He>> presses a palm flat against your lower belly, then lower, and looks closely at your eyes.
 <br><br>
 <<link [[Next|Underground Colosseum Entrance 2]]>><</link>>
 <br>
@@ -21,7 +21,12 @@ Once the door is closed again, <<he>> searches your pockets and runs <<his>> han
 <<set _entryEvent to $xchange.colosseum.joined gte 1 and !$daily.colosseumEntryEvent and random(1, 100) lte 35>>
 <<set _entryPassage to ($xchange.colosseum.callbacks.protect and Time.days gte $xchange.colosseum.callbacks.protect) ? "Underground Colosseum Protection Callback" : _entryEvent ? "Underground Colosseum Entry Event" : "Underground Colosseum">>
 <<if $xchange.colosseum.callbacks.silver>><<set _entryPassage to "Underground Colosseum Silver Return">><</if>>
-<<if !_colosseumCombatReady and !["walked", "disrupted"].includes($xchange.colosseum.ending)>>
+<<if $xchange.colosseum.banReason is "refused" and $xchange.colosseum.ending is "walked">>
+	The attendant finds your name on the list, then keeps the inner door shut.
+	"You turned down the crowd. The house doesn't forget that. You're not coming in again."
+	<br><br>
+	<<link [[Leave|Industrial Alleyways]]>><<endevent>><</link>>
+<<elseif !_colosseumCombatReady and !["walked", "disrupted"].includes($xchange.colosseum.ending)>>
 	The attendant watches the way you stand and move, then shakes <<his>> head.
 	<br><br>
 	"Tsk. You're not ready for the fights down there. Fighters can stay on their feet, block attacks, counter, feint, and attack while their opponent is doing the same."
@@ -59,6 +64,13 @@ Once the door is closed again, <<he>> searches your pockets and runs <<his>> han
 <<elseif $xchange.colosseum.banUntil gt Time.date.timeStamp>>
 	The attendant finds your name on the list, then keeps the door closed.
 	"Still banned. Read the date. Knock again and I'll break your fucking fingers."
+	<br><br>
+	<<link [[Leave|Industrial Alleyways]]>><<endevent>><</link>>
+<<elseif playerIsXChanged() and !pillIsPermanent() and !$xchange.pill.hermEffect>>
+	The attendant stops with a hand on your stomach and presses until you feel the dose working in you.
+	"You're on something." <<He>> takes the hand away. "Not the house's purple. Come back when it's out of you and you're ready for action."
+	<br><br>
+	<span class="small-description">An antidote shortens the dose. The house hands out its own purple pill at the fighters' desk, but only to people already inside.</span>
 	<br><br>
 	<<link [[Leave|Industrial Alleyways]]>><<endevent>><</link>>
 <<elseif $xchange.colosseum.debt gte 150000 and !$daily.colosseumDebtDoor>>
@@ -111,14 +123,7 @@ The reaction from the crowd is immediate. A spectator bangs a fist against the b
 <br><br>
 You stop near the back row and watch.
 <br><br>
-A <<person>> in a waistcoat soon pushes through the spectators towards you. <<He>> places a hand around your elbow and pulls you away from the seats.
-"You're new. If you're only here to watch, don't stand here too long. The staff will assume you're looking for a fight."
-<br><br>
-<<He>> leads you towards a desk at the side of the room. A row of wire cages stands behind it. Clothes, shoes, bags, and other personal belongings have been placed inside them.
-<br><br>
-<<He>> points towards the cages.
-<br><br>
-<<link [[Next|Underground Colosseum Intro 2]]>><</link>>
+<<link [[Keep watching|Underground Colosseum Intro Finish]]>><</link>>
 <br>
 
 :: Underground Colosseum Intro 2
@@ -131,11 +136,11 @@ You look down at the card.
 <br><br>
 <<He>> waits beside the desk while you read the form.
 <br>
-<<link [[Write for getting strong|Underground Colosseum Register]]>><<set $xchange.colosseum.reason to "strongest">><</link>>
+<<link [[Write that you came to fight the strongest|Underground Colosseum Register]]>><<set $xchange.colosseum.reason to "strongest">><</link>>
 <br>
-<<link [[Write for earning money|Underground Colosseum Register]]>><<set $xchange.colosseum.reason to "money">><</link>>
+<<link [[Write that you came for the cash|Underground Colosseum Register]]>><<set $xchange.colosseum.reason to "money">><</link>>
 <br>
-<<link [[Write for being remembered|Underground Colosseum Register]]>><<set $xchange.colosseum.reason to "remembered">><</link>>
+<<link [[Write that you came to breed with the strongest|Underground Colosseum Register]]>><<set $xchange.colosseum.reason to "breed">><</link>>
 <br>
 
 :: Underground Colosseum Register
@@ -144,8 +149,9 @@ You look down at the card.
 The receptionist reads your answer, then looks up at you before writing a shorter note beneath it.
 <br><br>
 <<switch $xchange.colosseum.reason>>
-	<<case "strongest">>"They all write that," <<he>> says, without looking up. "Ask me again after somebody's put your teeth through your lip. If you're still turning up then, I'll write it down properly."
-	<<case "money">>"Honest, at least." <<He>> keeps writing. "Everybody on that card gets paid, win or lose. Win and you get paid properly."
+	<<case "strongest">>"They all write that," <<he>> says, without looking up. "Ask me again after somebody's put your teeth through your lip. If you're still turning up then, I'll write it down properly."<<famescrap 15 "none" true>>
+	<<case "money">>"Honest, at least." <<He>> keeps writing. "Everybody on that card gets paid, win or lose. Win and you get paid properly."<<fameprostitution 15 "none" true>>
+	<<case "breed">><<He>> stops writing and looks at you properly for the first time, and the corner of <<his>> mouth lifts. "That one's rare. The room likes it when somebody says it out loud." <<He>> underlines it twice. "Win, and you get what you came for."<<famesex 15 "none" true>>
 	<<default>>"Then give them something to remember." <<He>> underlines it. "Careful fighters go home with the fee. The ones that get the room on its feet go home with the fee and a name."
 <</switch>>
 <<unset $xchange.colosseum.reason>>
@@ -156,10 +162,10 @@ You look at <<him>>.
 <br><br>
 "Every new fighter starts with that name," <<he>> explains. "The crowd does not know you yet, so the announcer needs something simple to call you. Keep fighting and the room will give you another name. Once enough people start using it, that becomes your arena name."
 <br><br>
-<<He>> rings a brass bell. An attendant beside the pit opens a gate, and a broad-shouldered fighter walks onto the sand and rolls one shoulder, then the other, while waiting for you.
+<<He>> rings a brass bell. An attendant beside the pit opens a gate, and a broad-shouldered house goon walks onto the sand, rolls one shoulder, then the other, and starts towards the changing cages to collect you.
 <br><br>
 "That is your trial opponent. There is no prize money for this one. The trial only decides whether we register you as a fighter."
-<<He>> points towards the changing cages. "Get changed. If you lose, the house can still take you. If you quit and ask the referee to stop it, I tear up the card."
+<<He>> points towards the cages. "Get changed. If you lose, the house has other plans for you. If you quit and ask the referee to stop it, I tear up the card."
 <br><br>
 <<link [[Next|Underground Colosseum Register Cage]]>><<endevent>><</link>>
 
@@ -171,6 +177,8 @@ An attendant opens an empty wire cage and motions for you to undress beside it.
 You are required to remove everything before entering the arena. Each piece of clothing you take off is checked, then squeezed along the seams for anything hard or sharp. The attendant folds everything, places it inside the cage, then locks the door and keeps the key.
 <br><br>
 You are left naked in the changing corridor. Fighters, attendants and staff pass close to see you, but nobody reacts. From here, the only open route leads down a short ramp towards the sand.<<strip>><<arousal 300>><<garousal>><<fameexhibitionism 4 "none" true>>
+<br><br>
+Before the cage door shuts, an attendant locks a chastity device onto you and pockets the key. The goon is wearing one too. The attendant says it is there so nobody gets made pregnant before the crowd has paid to watch.<<colosseumBeltOn>>
 <br><br>
 When the crowd notices a new fighter standing at the entrance, several people point towards you. More heads turn. Your temporary name, <span class="pink">meat</span>, is announced across the room, and the noise rises as people realise your trial is about to begin.
 <br><br>
@@ -197,6 +205,7 @@ Whichever way you go, you'll have to force your way through the crowd.
 <<if $xchange.colosseum.ending is "champion">><span class="gold">You remain the house champion. The organisers still control which fights you can take.</span><br><br>
 <<elseif $xchange.colosseum.ending is "inside">><span class="black">You remain their champion. The people upstairs still control the money and keep the full records from you.</span><br><br>
 <<elseif $xchange.colosseum.ending is "disrupted">><span class="black">You walked four indebted fighters out of the delivery door. The desk will never book you again, and the people the house pays are still looking for you.</span><br><br>
+<<elseif $xchange.colosseum.ending is "walked" and $xchange.colosseum.banReason is "refused">><span class="black">You turned down the crowd and the house banned you. Your name has come off the board.</span><br><br>
 <<elseif $xchange.colosseum.ending is "walked">><span class="black">You left the arena behind. Your name remains on the board, but the house will no longer offer you fights.</span><br><br><</if>>
 <!-- Only the beat that belongs to the crush at the top of the stands. -->
 <<if _colosseumStoryReady and Time.days gt $xchange.colosseum.storyDay and $xchange.colosseum.story is 0 and _record gte 1>>
@@ -239,6 +248,10 @@ The fighting pit is directly below. Higher up, behind the public seats, dark gla
 	<<icon "mark.gif">><<link [[Look at the lone person in the highest seats|Underground Colosseum Watcher]]>><</link>>
 	<br>
 <</if>>
+<<if hasSharpSenses("sight") and !$daily.colosseumAudience>>
+	<<investigateicon>><<link [[Study the faces in the crowd (0:03)|Underground Colosseum Audience]]>><</link>>
+	<br>
+<</if>>
 <<socialiseicon>><<link [[Find a place to watch the fights (0:30)|Underground Colosseum Spectate]]>><<pass 30>><</link>><<if $xchange.colosseum.cardBet>><<note "Your bout is next on the card" "green">><</if>>
 <br>
 <<colosseumBetLimit>>
@@ -270,6 +283,14 @@ The fighting pit is directly below. Higher up, behind the public seats, dark gla
 <<colosseumThresholds>><<colosseumStoryReady>><<colosseumUnfit>>
 <<set _rankIndex to $xchange.colosseum.rank>>
 <<set _fightsToday to $daily.colosseumFights ?? 0>>
+<<set _pillBlock to playerIsXChanged() and !pillIsPermanent() and !$xchange.pill.hermEffect>>
+<<if $xchange.colosseum.bredPending and !playerAwareTheyArePregnant() and $pregnancyStats.playerChildren gt ($xchange.colosseum.bredBirths ?? 0)>>
+	<<unset $xchange.colosseum.bredPending>>
+	The receptionist looks up from the book as you reach the desk and smiles. "Welcome back. How's the baby?"
+	<br><br>
+	You do not answer.
+	<br><br>
+<</if>>
 A service corridor behind the stands leads down to floor level. The fighters' desk is built against the wall beside the match board, close enough to the pit that staff have to raise their voices whenever the crowd reacts to a hit.
 <br><br>
 The board lists you as <span class="pink"><<colosseumName>></span>. You are currently <span class="gold"><<colosseumRankName _rankIndex>>-rank</span>, with <<print $xchange.colosseum.rankPoints>> ranking points, <<print $xchange.colosseum.wins>> <<pluralise $xchange.colosseum.wins "win" "wins">>, and <<print $xchange.colosseum.losses>> <<pluralise $xchange.colosseum.losses "loss" "losses">>.
@@ -282,6 +303,9 @@ The board lists you as <span class="pink"><<colosseumName>></span>. You are curr
 <<elseif _colosseumUnfit>>
 	The receptionist glances away. "You're in no condition to fight."
 	<br>
+<<elseif $xchange.colosseum.ending is "walked" and $xchange.colosseum.banReason is "refused">>
+	The receptionist shakes <<his>> head. "You turned down the crowd. The house is finished with you. I can't put you on the card."
+	<br>
 <<elseif $xchange.colosseum.ending is "walked">>
 	The receptionist shakes <<his>> head. "You quit fighting for the house. You can still watch, but I can't put you on the card."
 	<br>
@@ -290,6 +314,11 @@ The board lists you as <span class="pink"><<colosseumName>></span>. You are curr
 	<br>
 <<elseif colosseumDrugStage() is "crash">>
 	The receptionist shakes <<his>> head. "You can barely follow my finger. Come back when the dose has worn off."
+	<br>
+<<elseif _pillBlock>>
+	The receptionist looks you over from your eyes to your hips. "You're still on a dose from before. I can't book you on that."
+	<br>
+	<<pillicon>><<link [[Ask what to do about the dose|Underground Colosseum Purple Swap]]>><</link>>
 	<br>
 <<elseif $drunk gte 360>>
 	The receptionist smells the alcohol on you and closes the book. "You're too drunk to fight."
@@ -343,7 +372,8 @@ A fighter spits blood into a drain while an attendant reads out the next booking
 <<set _rankIndex to $xchange.colosseum.rank>>
 <<set _fightsToday to $daily.colosseumFights ?? 0>>
 <<colosseumUnfit>>
-<<if playerAwareTheyArePregnant() or _colosseumUnfit or _fightsToday gte 3 or $drunk gte 360 or colosseumDrugStage() is "crash" or ["walked", "disrupted"].includes($xchange.colosseum.ending)>>
+<<set _pillBlock to playerIsXChanged() and !pillIsPermanent() and !$xchange.pill.hermEffect>>
+<<if playerAwareTheyArePregnant() or _colosseumUnfit or _fightsToday gte 3 or $drunk gte 360 or colosseumDrugStage() is "crash" or _pillBlock or ["walked", "disrupted"].includes($xchange.colosseum.ending)>>
 	The receptionist covers the bookings. "No fight for you now. Back off."
 	<br><br>
 	<<link [[Return to the pit|Underground Colosseum Pit]]>><</link>>
@@ -427,7 +457,7 @@ A fighter spits blood into a drain while an attendant reads out the next booking
 <</if>>
 The receptionist matches your arena name with an <span class="gold"><<colosseumRankName _rankIndex>>-rank</span> opponent and gives both names to an attendant, who adds the match to the public board.
 <br><br>
-Another attendant leads you to the changing cages behind the stands. You undress while they check your clothes for anything hard or sharp, then lock everything inside a wire cage.<<strip>><<set $daily.colosseumFights to ($daily.colosseumFights ?? 0) + 1>><<set $xchange.colosseum.mock to 0>><<set $xchange.colosseum.fightStart to 1>><<set $xchange.colosseum.matchRank to _rankIndex>><<fameexhibitionism `2 + _rankIndex` "none" true>>
+Another attendant leads you to the changing cages behind the stands. You undress while they check your clothes for anything hard or sharp, then lock everything inside a wire cage. A chastity device is locked onto you and the key goes into the attendant's pocket. Your opponent is locked into one too.<<strip>><<colosseumBeltOn>><<set $daily.colosseumFights to ($daily.colosseumFights ?? 0) + 1>><<set $xchange.colosseum.mock to 0>><<set $xchange.colosseum.fightStart to 1>><<set $xchange.colosseum.matchRank to _rankIndex>><<fameexhibitionism `2 + _rankIndex` "none" true>>
 <br><br>
 Your opponent is prepared on the other side of the pit. Once you are both ready, the announcer reads your records to the crowd, exaggerating past victories to make the match sound more exciting.
 <br><br>
@@ -479,7 +509,15 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<br><br>
 <</if>>
 <<if _combatend or $pain gte 200 or ($pain gte 100 and $willpowerpain is 0)>>
-	<span id="next"><<link [[Next|Underground Colosseum Result]]>><</link>></span><<nexttext>>
+	<<set _houseRules to !$xchange.colosseum.mock and !$xchange.colosseum.matchFix and !["champion", "inside"].includes($xchange.colosseum.ending)>>
+	<<set _fightWon to $enemyhealth lte 0 and $finish isnot 1>>
+	<<if _houseRules and _fightWon>>
+		<span id="next"><<link [[Next|Underground Colosseum Breed Offer]]>><</link>></span><<nexttext>>
+	<<elseif _houseRules and $finish isnot 1 and $enemyhealth gt 0>>
+		<span id="next"><<link [[Next|Underground Colosseum Breed Loss]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Underground Colosseum Result]]>><</link>></span><<nexttext>>
+	<</if>>
 <<else>>
 	<span id="next"><<link [[Next|Underground Colosseum Fight]]>><</link>></span><<nexttext>>
 <</if>>
@@ -493,7 +531,11 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 <<set _playerRank to $xchange.colosseum.rank>>
 <<set _rewardTable to [20000, 35000, 55000, 80000, 120000, 170000, 240000]>>
 <<set _gaveUp to $finish is 1>>
+<<set _bredLoss to $xchange.colosseum.breed is "bred">>
+<<set _denied to $xchange.colosseum.breed is "deny">>
+<<set _bredWin to $xchange.colosseum.breed is "accept">>
 <<set $xchange.colosseum.lastResult to _victory ? "win" : _gaveUp ? "quit" : "loss">>
+<<if (_wasMock and _victory) or _bredWin or _bredLoss>><<saveNPC 0 "colosseum_opponent">><</if>>
 <<endcombat>>
 <<colosseumHost>>
 <<if _wasMock>>
@@ -505,7 +547,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 		The receptionist picks up your registration card and tears it in half.
 		<br><br>
 		"I can register someone who loses, but you stopped the trial yourself. I need to know you can finish a full match before I put you on the regular card."
-		<<He>> drops the pieces into the bin. "That's it for today."
+		<<He>> drops the pieces into the bin. "That's it for today." An attendant unlocks the chastity device and takes it back with the key.<<colosseumBeltOff>>
 		<<set $fame.scrap to Math.max(0, $fame.scrap - 200)>><<fameclamp>><<stress 15>><<gggstress>><<trauma 4>><<gtrauma>>
 		<br><br>
 	<<elseif _victory>>
@@ -521,7 +563,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 		<br><br>
 		The receptionist crouches beside you with your registration card still in <<his>> hand.
 		<br><br>
-		"Stayed down for the count. That'll do." <<He>> writes F-rank beside your name, then jerks a thumb towards the grey door. "Get this one off my fucking floor."
+		"Stayed down for the count. That'll do." <<He>> writes F-rank beside your name, then jerks a thumb at the goon standing over you. "Not finished. Everyone who loses the trial gets one more bout, against somebody who is on the card."
 	<</if>>
 	<<if !_gaveUp>>
 		<br><br>
@@ -561,11 +603,14 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<else>>
 		<<set $xchange.colosseum.lastOpponentRank to _rankIndex>><<set $xchange.colosseum.opponentStreak to 0>>
 	<</if>>
+	<!-- Fame bonus from the design doc: Combat, Prostitution and Sex fame plus children sired. Capped so ranks still take many fights. -->
+	<<set _fameBonus to Math.min(10, Math.floor(($fame.scrap + $fame.prostitution + $fame.sex) / 300)) + Math.min(5, $xchange.colosseum.sired ?? 0)>>
+	<<if !$xchange.colosseum.promotion>><<set _pointGain += _fameBonus>><</if>>
 	<<set _pointGain to Math.floor(_pointGain * _repeatScale)>>
 	<<set _reward to Math.floor(_rewardTable[_rankIndex] * _repeatScale)>>
 	<<if ($daily.colosseumFights ?? 0) gte 3>><<set _reward to Math.floor(_reward * 1.25)>><</if>>
 	<<if ["champion", "inside"].includes($xchange.colosseum.ending)>><<set _reward to Math.floor(_reward * 1.25)>><</if>>
-	<<if $xchange.colosseum.matchFix is "throw">><<set _pointGain to 0>><<set _reward to 0>><</if>>
+	<<if $xchange.colosseum.matchFix is "throw" or _denied>><<set _pointGain to 0>><<set _reward to 0>><</if>>
 	<<if _reward gt 0 and Number.isFinite($xchange.colosseum.vipPenalty)>><<set _reward to Math.floor(_reward * $xchange.colosseum.vipPenalty)>><<unset $xchange.colosseum.vipPenalty>><</if>>
 	<<if $xchange.colosseum.promotion>>
 		<<set $xchange.colosseum.rank to Math.min(6, $xchange.colosseum.rank + 1)>>
@@ -581,9 +626,17 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<</if>>
 	<<set $xchange.colosseum.wins += 1>>
 	<<money _reward "colosseum">><<famescrap `8 + _rankIndex * 12` "colosseum" true>><<fameexhibitionism `1 + _rankIndex` "none" true>>
-	Your opponent stays down until the referee finishes the count. The referee declares you the winner, raises your wrist, then sends you back through your gate while the attendants check your opponent.
+	<<if _bredWin>>
+		The referee has already called the bout for you and leaves the sand. The chant goes on around the pit.
+	<<elseif _denied>>
+		The referee has already called you the winner, but nobody in the room is cheering. A goon walks you back towards the desk by the elbow.
+	<<else>>
+		Your opponent stays down until the referee finishes the count. The referee declares you the winner, raises your wrist, then sends you back through your gate while the attendants check your opponent.
+	<</if>>
 	<br><br>
-	<<if $xchange.colosseum.matchFix is "throw" or $xchange.colosseum.matchFix is "betray">>
+	<<if _denied>>
+		The receptionist keeps the cash box shut as you approach. "No purse. You turned down the room, and the room paid for that fight."
+	<<elseif $xchange.colosseum.matchFix is "throw" or $xchange.colosseum.matchFix is "betray">>
 		The receptionist shuts the cash box as you approach.
 		"You were paid to lose, but you won. The people who paid you want their money back. The house will not pay it for you."<<colosseumDebt 150000>><<colosseumHuntRaise 1 7>><<colosseumHeat 2>><<set $xchange.colosseum.callbacks.fix to Time.days + 2>>
 	<<elseif $xchange.colosseum.debtDeferred and $xchange.colosseum.debt gt 0>>
@@ -599,6 +652,8 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 		<<else>>
 			"Clear. Next time you take somebody's money to lose, lose."
 		<</if>>
+	<<elseif _bredWin>>
+		A clerk leans over the barrier and counts <span class="gold"><<printmoney _reward>></span> into your hand without looking away from the sand. "You gained <<print _pointGain>> ranking points."
 	<<else>>
 		The receptionist gives you <span class="gold"><<printmoney _reward>></span>.
 		"You gained <<print _pointGain>> ranking points. Get dressed before another fight is arranged."
@@ -630,15 +685,20 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<money _appearancePay "colosseum">>
 	<<set $fame.scrap to Math.max(0, $fame.scrap - _scrapLoss)>><<fameclamp>>
 	<<colosseumInjure _injuryLevel `1 + _rankIndex`>>
-	You come round as an attendant hauls you off the sand. The crowd is already yelling for the next pair. At the desk, the receptionist counts <span class="gold"><<printmoney _appearancePay>></span> into your hand.
-	<<if ["champion", "inside"].includes($xchange.colosseum.ending)>>
-		"Champion goes to the bench, you deaf bastard. Upstairs wants that one back on the board." The attendant changes direction.
+	<<if _bredLoss>>
+		The referee ends the bout and leaves the sand. A clerk writes your appearance money, <span class="gold"><<printmoney _appearancePay>></span>, against your name, and the chant goes on around the pit.
+		<br><br>
 	<<else>>
-		The attendant keeps a fist closed around your arm. Beyond the cages, another worker unlocks the grey door.
+		You come round as an attendant hauls you off the sand. The crowd is already yelling for the next pair. At the desk, the receptionist counts <span class="gold"><<printmoney _appearancePay>></span> into your hand.
+		<<if ["champion", "inside"].includes($xchange.colosseum.ending)>>
+			"Champion goes to the bench, you deaf bastard. Upstairs wants that one back on the board." The attendant changes direction.
+		<<else>>
+			The attendant keeps a fist closed around your arm. Beyond the cages, another worker unlocks the grey door.
+		<</if>>
+		<br><br>
+		"Appearance money. Count it somewhere else." <<He>> scratches the loss beside your name. "Rank stays. Reputation doesn't."
+		<br><br>
 	<</if>>
-	<br><br>
-	"Appearance money. Count it somewhere else." <<He>> scratches the loss beside your name. "Rank stays. Reputation doesn't."
-	<br><br>
 	<<if _injuryLevel gte 3>>
 		<span class="red">You are badly hurt and will need several days to recover.</span>
 	<<elseif _injuryLevel is 2>>
@@ -651,11 +711,26 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 		<<unset $xchange.colosseum.wager>>
 	<</if>>
 <</if>>
-<<unset $xchange.colosseum.matchRank>><<unset $xchange.colosseum.opponentRank>><<unset $xchange.colosseum.promotion>><<unset $xchange.colosseum.fightStart>><<unset $xchange.colosseum.lashOuts>>
-<br><br><<clotheson>>
+<<unset $xchange.colosseum.matchRank>><<unset $xchange.colosseum.opponentRank>><<unset $xchange.colosseum.promotion>><<unset $xchange.colosseum.fightStart>><<unset $xchange.colosseum.lashOuts>><<unset $xchange.colosseum.breed>>
+<br><br>
+<<set _mockKeep to (_wasMock and !_gaveUp) or _bredWin or _bredLoss>>
+<<if !_mockKeep>>
+	<<if $xchange.colosseum.beltFitted>>An attendant unlocks the chastity device on you and takes it back with the key.<<colosseumBeltOff>><br><br><</if>>
+	<<clotheson>>
+<</if>>
 <<set _forcedPostEvent to $xchange.colosseum.matchFix ? 1 : 0>>
 <<set _randomPostEvent to !_wasMock and !$daily.colosseumPostfightEvent and $xchange.colosseum.visitEvents lt 2 and random(1, 100) lte 50>>
-<<if !_victory and !_gaveUp and !["champion", "inside"].includes($xchange.colosseum.ending)>>
+<<if _wasMock and !_victory and !_gaveUp>>
+	<<link [[Go with the goon|Underground Colosseum Trial Loss]]>><</link>>
+<<elseif _wasMock and _victory>>
+	<<link [[Next|Underground Colosseum Goon Key]]>><</link>>
+<<elseif _denied>>
+	<<link [[Next|Colosseum Deny Goons]]>><<endevent>><</link>>
+<<elseif _bredLoss>>
+	<<link [[Next|Underground Colosseum Breeding Loss Sex]]>><<set $sexstart to 1>><<endevent>><</link>>
+<<elseif _bredWin>>
+	<<link [[Next|Underground Colosseum Breeding Sex]]>><<set $sexstart to 1>><<set $xchange.colosseum.breedCtx to "contestant">><<endevent>><</link>>
+<<elseif !_victory and !_gaveUp and !["champion", "inside"].includes($xchange.colosseum.ending)>>
 	<<link [[The attendants take hold of you|Underground Colosseum Detention]]>><</link>>
 <<elseif _forcedPostEvent or _randomPostEvent>>
 	<<link [[Next|Underground Colosseum Postfight Event]]>><<set $daily.colosseumPostfightEvent to 1>><<set $xchange.colosseum.visitEvents to Math.min(2, $xchange.colosseum.visitEvents + 1)>><</link>>
@@ -762,7 +837,7 @@ Beyond the bench, the floor changes to tile and slopes towards a drain. Water ca
 <br>
 <<pregnancyTest "Underground Colosseum Washroom">>
 <<if $sexStats.pills.boughtOnce is true or $sexStats.pills["pills"]["Dr Harper\'s prescription"].owned gte 1 or $sexStats.pills["pills"]["asylum\'s prescription"].owned gte 1>>
-	<<pillicon>><<link [[Check your pill pocket|PillCollection]]>><<set $pillsExitPassage to "Underground Colosseum Washroom">><</link>>
+	<<pillicon>><<link [[Open the medicine drawer|PillCollection]]>><<set $pillsExitPassage to "Underground Colosseum Washroom">><</link>>
 	<br>
 <</if>>
 <br>
@@ -814,7 +889,9 @@ Someone is already using the far shower and pays no attention when you enter. Th
 	<<else>>
 		You rinse the sand from your hair and body, then get out.<<pain -2>><<lpain>>
 	<</if>>
-	<<run Weather.BodyTemperature.update(10, 10)>><<stress 3>><<gstress>>
+	<<run Weather.BodyTemperature.update(10, 10)>><<stress 3>><<gstress>><<arousal -3000>><<llarousal>>
+	<br><br>
+	The cold knocks the heat out of your body and leaves you clear-headed.
 <<else>>
 	You turn on the water and wait for it to warm up. It stays lukewarm, but it is enough to wash away the sand. The water around your feet runs brown, then faintly pink, before turning clear.
 	<br><br>

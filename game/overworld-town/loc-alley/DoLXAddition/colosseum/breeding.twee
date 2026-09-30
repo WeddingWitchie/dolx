@@ -1,0 +1,439 @@
+:: Widgets Colosseum Breeding [widget]
+<!--
+	Underground Colosseum breeding layer.
+	- The winner of a bout breeds the loser. Pills follow the body: the Bull dose is Blue for a body with no penis
+	  and Gray otherwise, the Breeder dose is Pink for a body with no vagina and Gray otherwise. NPCs follow the same rule.
+	- House doses run 2 days. A Purple dose (herm effect) already covers both, so nothing is added on top of it.
+	- $xchange.colosseum.breed is "", "accept", "deny" or "bred" for the bout in progress. New fields are read with ?? 0.
+	- Chastity devices carry origin "Colosseum" and are only ever removed here if they still carry it.
+-->
+<<widget "colosseumBeltOn">>
+	<<if !playerChastity()>>
+		<<forceChastityFit "Colosseum">>
+		<<set $xchange.colosseum.beltFitted to 1>>
+	<</if>>
+<</widget>>
+
+<<widget "colosseumBeltOff">>
+	<<if $xchange.colosseum.beltFitted>>
+		<<unset $xchange.colosseum.beltFitted>>
+		<<if $worn.genitals.origin is "Colosseum">>
+			<<set $worn.genitals to clone(setup.clothes.genitals[0])>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<!-- Give the player a house dose. Arg 1: "bull" or "breeder". -->
+<<widget "colosseumPlayerPill">>
+	<<set _pillBull to _args[0] is "bull">>
+	<<if playerIsXChanged()>>
+		<<if !$xchange.pill.hermEffect and !pillIsPermanent()>>
+			<<if _pillBull>><<xchange-gray 2 "bull">><<else>><<xchange-gray 2 "breeder" "fertile">><</if>>
+		<</if>>
+	<<elseif _pillBull>>
+		<<if $player.penisExist>><<xchange-gray 2 "bull">><<else>><<xchange-blue 2 "bull">><</if>>
+	<<else>>
+		<<if $player.vaginaExist>><<xchange-gray 2 "breeder" "fertile">><<else>><<xchange-pink 2 "breeder" "fertile">><</if>>
+	<</if>>
+<</widget>>
+
+<!-- Give an NPC a house dose. Arg 1: "bull" or "breeder". Arg 2: their $NPCList slot. -->
+<<widget "colosseumNpcPill">>
+	<<set _pillSlot to _args[1] ?? 0>>
+	<<set _pillGender to $NPCList[_pillSlot].gender>>
+	<<npc-select-xchange-target _pillSlot>>
+	<<if _args[0] is "bull">>
+		<<if _pillGender is "f">><<npc-take-xchange 2 "genderflip" "bull">><<else>><<npc-take-xchange 2 "bull">><</if>>
+	<<else>>
+		<<if _pillGender is "m">><<npc-take-xchange 2 "genderflip" "breeder" "fertile">><<else>><<npc-take-xchange 2 "breeder" "fertile">><</if>>
+	<</if>>
+<</widget>>
+
+<!-- Antidote out, Purple in. Sets $xchangeAntidoteFizzle when the running dose cannot be shifted. -->
+<<widget "colosseumPurpleSwap">>
+	<<xchange-antidote 7>>
+	<<if !$xchangeAntidoteFizzle>>
+		<<xchange-restore>>
+		<<take-xchange 2 "herm" "breeder" "fertile" "bull">>
+	<</if>>
+<</widget>>
+
+:: Underground Colosseum Intro Finish
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<colosseumHost>>
+<<set _loserMale to random(0, 1) is 1>><<set _winnerFemale to random(0, 1) is 1>>
+In the pit, the fighter who took the punch stops trying to get up. The other climbs on top, pins both arms to the sand and pushes a hand between the loser's legs. The loser's back arches and they come with their mouth open and the whole room watching.<<arousal 400>><<garousal>>
+<br><br>
+You find you are gripping the rail. The crowd is on its feet. The chant starts in the front row and spreads back through the seats: "Breed them! Breed them! Breed them!"
+<br><br>
+Two attendants climb over the barrier. One holds the loser's jaw while the other pushes a <<if _loserMale>>pink<<else>>gray<</if>> capsule into their mouth and keeps it shut until they swallow.<<if _loserMale>> The loser's body has started to change before the capsule is gone.<</if>> The winner is handed a <<if _winnerFemale>>blue<<else>>gray<</if>> capsule and takes it without being held down.
+<br><br>
+A <<person>> in a waistcoat soon pushes through the spectators towards you. <<He>> places a hand around your elbow and pulls you away from the seats.
+"You're new. If you're only here to watch, don't stand here too long. The staff will assume you're looking for a fight."
+<br><br>
+<<He>> leads you towards a desk at the side of the room. A row of wire cages stands behind it. Clothes, shoes, bags, and other personal belongings have been placed inside them.
+<br><br>
+<<He>> points towards the cages.
+<br><br>
+<<link [[Next|Underground Colosseum Intro 2]]>><</link>>
+<br>
+
+:: Underground Colosseum Breed Offer
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 1>>
+<<set _bullColour to $player.penisExist ? "gray" : "blue">>
+<<set _breedColour to $NPCList[0].gender is "m" ? "pink" : "gray">>
+<<unset $xchange.colosseum.breed>>
+Your opponent stays down. The referee finishes the count, lifts your wrist and steps back. Nobody in the room sits. The chant starts in the front row and fills the room: "Breed them! Breed them! Breed them!"
+<br><br>
+An attendant drops two keys and two capsules onto the sand by your feet. One key opens the chastity device on you and the other opens <<his>>. The <<print _bullColour>> capsule is a Bull pill, for you. The <<print _breedColour>> capsule is a Breeder pill, for <<him>>.
+<<if playerIsXChanged()>>You are still on the Purple dose, so you do not need yours.<<elseif !$player.penisExist>>The blue pill will give you a cock to use.<</if>>
+<<if $NPCList[0].gender is "m">>The pink pill will give <<him>> a womb to carry with.<</if>>
+<br><br>
+The winner is expected to use them. The room waits to see what you do.
+<br><br>
+<<link [[Take the pill and breed <<him>>|Underground Colosseum Breed Win]]>><</link>>
+<br>
+<<link [[Leave the capsules on the sand|Underground Colosseum Breed Deny]]>><</link>><<note "The house bans you for good" "red">>
+<br>
+
+:: Underground Colosseum Breed Win
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 15>>
+<<set _onPurple to playerIsXChanged()>>
+<<set _gainsPenis to !$player.penisExist>>
+<<set _npcFlips to $NPCList[0].gender is "m">>
+<<colosseumPlayerPill "bull">>
+<<colosseumNpcPill "breeder" 0>>
+<<person1>>
+<<colosseumBeltOff>>
+You pick up your capsule and swallow it dry.
+<<if _onPurple>>
+	It adds nothing to what the Purple dose is already doing.
+<<elseif _gainsPenis>>
+	Your hips tighten and something forms between your legs, thick and heavy, until your body treats it as its own.
+<<else>>
+	Heat spreads down from your stomach and your cock stiffens until it aches.
+<</if>>
+The need to breed comes with it. Stopping feels like the wrong idea.
+<br><br>
+You unlock your own device first, then <<his>>. An attendant holds <<his>> jaw and feeds <<him>> the other capsule.
+<<if _npcFlips>>Within a minute <<his>> body is reshaping itself on the sand: <<his>> hips widen and <<his>> chest softens, and <<he>> stops fighting the change and starts breathing through it.<</if>>
+<<He>> is still winded from the bout and does not stop you when you push <<him>> onto <<his>> back. The crowd starts to count out loud. The pill has already made the decision for you.<<arousal 500>><<garousal>>
+<br><br>
+<<set $xchange.colosseum.breed to "accept">><<colosseumHeat 2>>
+<<link [[Next|Underground Colosseum Result]]>><</link>>
+<br>
+
+:: Underground Colosseum Breed Deny
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 2>>
+<<set $xchange.colosseum.breed to "deny">>
+You let the keys lie where they fell and step back from the capsules.
+<br><br>
+For a few seconds nothing happens. Then someone in the front row starts booing, and the rest of the room follows. Betting slips land on the sand around you.
+<br><br>
+A microphone crackles. The announcer apologises to the room for "a difficulty with the winner" and promises the next bout will be worth the wait. By the gate, three goons stop watching the crowd and start walking towards you.<<colosseumBackDown 80>><<stress 6>><<ggstress>>
+<br><br>
+<<link [[Next|Underground Colosseum Result]]>><</link>>
+<br>
+
+:: Underground Colosseum Breed Loss
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 15>>
+<<set _oppFemale to $NPCList[0].gender is "f">>
+<<set _breedColour to $player.vaginaExist ? "gray" : "pink">>
+<<set _playerFlips to !$player.vaginaExist>>
+<<colosseumNpcPill "bull" 0>>
+<<person1>>
+<<colosseumPlayerPill "breeder">>
+<<colosseumBeltOff>>
+Your legs will not hold you. The referee counts you out, lifts your opponent's wrist and leaves the sand. The chant begins before the gate has closed: "Breed them! Breed them! Breed them!"
+<br><br>
+An attendant drops two keys and two capsules beside your opponent, not beside you. Two more pin your arms. A hand closes your nose until you open your mouth, and a <<print _breedColour>> capsule goes in. They hold your jaw shut until you swallow.
+<<if _playerFlips>>Your body changes on the sand while they hold you: your hips widen, your chest fills out, and a wet heat opens low in your belly.<</if>>
+<<He>> swallows the other capsule without being held, then opens your chastity device with one of the keys.
+<br><br>
+<<He>> is not in a hurry. You cannot push <<him>> off, and the pill has already made your body answer before you do.<<arousal 500>><<garousal>><<stress 10>><<ggstress>>
+<br><br>
+<<set $xchange.colosseum.breed to "bred">><<set $xchange.colosseum.bredPending to 1>><<set $xchange.colosseum.bredBirths to $pregnancyStats.playerChildren>>
+<<famesex 15 "none" true>><<fameexhibitionism 6 "none" true>><<colosseumHeat 2>>
+<<link [[Next|Underground Colosseum Result]]>><</link>>
+<br>
+
+:: Colosseum Deny Goons
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 1>>
+<<generateRole 0 "brisk" "guard">><<generateRole 1 "heavy" "guard">><<generateRole 2 "bored" "guard">>
+<<controlloss>><<violence 1>><<neutral 1>><<maninit>>
+<<set $enemyanger += 100>>
+The three goons reach you together. The one in front says nothing and swings. There is no referee on this side of the barrier, and your clothes are in a cage on the far wall.
+<br><br>
+<<link [[Next|Colosseum Deny Goons Fight]]>><</link>>
+<br>
+
+:: Colosseum Deny Goons Fight
+<<effects>><<effectsman>><<man>><<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Colosseum Deny Goons Result]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Colosseum Deny Goons Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Colosseum Deny Goons Result
+<<effects>><<pass 5>>
+<<set _victory to $enemyhealth lte 0 or $enemypleasure gte $enemypleasuremax>>
+<<set $xchange.colosseum.ending to "walked">><<set $xchange.colosseum.banReason to "refused">>
+<<if _victory>>
+	The last goon goes down against the cages. You take your clothes from the cage, force the delivery door with your shoulder and run up the ramp into the alley.<<famescrap 6 "none" true>>
+	<br><br>
+	Behind you, an attendant is already taking your name off the board. <span class="red">The house has banned you for good.</span>
+	<br><br>
+	<<clotheson>><<endcombat>>
+	<<link [[Leave|Industrial Alleyways]]>><<set $eventskip to 1>><<endevent>><</link>>
+<<else>>
+	You end up on the concrete with your arms over your head. The goons keep kicking until someone tells them to stop, then pick you up by the arms.<<colosseumInjure 2 3>><<trauma 4>><<gtrauma>>
+	<br><br>
+	<<endcombat>>
+	<<link [[The goons carry you towards the grey door|Underground Colosseum Detention]]>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Colosseum Trial Loss
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 5>>
+The goon takes your arm and does not let go.
+<br><br>
+"Nobody leaves after the trial," the goon says. "Everyone who loses it gets one more bout, against somebody on the card. You're a fighter now, so you get treated like one."
+<br><br>
+The goon walks you back along the corridor and recites the rules without looking at you. No breeding until the referee has called the bout. Break that rule and you do not walk home. The chastity device stays on until the winner opens it, because nobody is to be made pregnant before the crowd has paid to watch.
+The winner gets both keys and both capsules, and does as they like with the loser.
+<br><br>
+<<link [[Follow the goon to the gate|Underground Colosseum Trial Loss 2]]>><</link>>
+<br>
+
+:: Underground Colosseum Trial Loss 2
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<colosseumOpponent 0>><<pass 3>>
+<<strip>><<colosseumBeltOn>>
+<<set $daily.colosseumFights to ($daily.colosseumFights ?? 0) + 1>><<set $xchange.colosseum.mock to 0>><<set $xchange.colosseum.fightStart to 1>><<set $xchange.colosseum.matchRank to 0>><<set $xchange.colosseum.opponentRank to 0>>
+The goon stops at the gate and checks the lock on your device against the key, twice. On the other side of the pit your opponent is already waiting, locked into one as well.
+<br><br>
+The announcer reads out the name the crowd knows you by. Someone near the barrier screams it back. The bell rings and both gates open.
+<br><br>
+<<link [[Next|Underground Colosseum Fight]]>><</link>>
+<br>
+
+:: Underground Colosseum Goon Key
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<colosseumHost>><<pass 2>>
+<<loadNPC 1 "colosseum_opponent">>
+<<person1>>
+The goon is on the sand holding the barrier, trying to work out which way is up. The receptionist reaches you first and holds your arm in the air until the room cheers.
+<<if $fame.scrap gte 500>>"That's about what I expected from you," <<he>> says.<</if>>
+<br><br>
+<<He>> puts a small key in your palm. "It opens the goon's belt. The one who tried to drag you in here."
+<<He>> looks at the goon and back at you. "You can put the goon back in it, or you can see what that belt was hiding. The house won't mind either way."
+<br><br>
+<<link [[Take the key|Underground Colosseum Goon Breeding]]>><</link>>
+<br>
+<<link [[Give the key back|Underground Colosseum Goon Key Deny]]>><</link>>
+<br>
+
+:: Underground Colosseum Goon Key Deny
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>>
+The receptionist looks at the key in your hand, then at you, and lets out a long breath when you hold it out.
+<br><br>
+"Nothing? After that? Somebody like you, leaving all that on the table." <<He>> takes the key and drops it in a pocket. "What a waste. If you change your mind, you know where the door is."
+<br><br>
+An attendant takes you by the elbow and leads you back along the corridor. The goon is helped off the sand behind you.
+<br><br>
+<<colosseumBeltOff>><<clotheson>>
+<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Goon Breeding
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 15>>
+<<set _bullColour to $player.penisExist ? "gray" : "blue">>
+<<set _onPurple to playerIsXChanged()>>
+<<set _gainsPenis to !$player.penisExist>>
+<<set _goonFlips to $NPCList[1].gender is "m">>
+<<colosseumPlayerPill "bull">>
+<<colosseumNpcPill "breeder" 1>>
+<<colosseumBeltOff>>
+<<person1>>
+The receptionist gives you a <<if _onPurple>>capsule you do not need, and you hold it without taking it<<else>><<print _bullColour>> capsule<</if>>.
+<<if !_onPurple>>You swallow it.<<if _gainsPenis>> Your body changes around a new cock, heavy and hard before the change has finished.<<else>> Your cock is hard before you have put the glass down.<</if>><</if>>
+You kneel and unlock the goon's belt.
+<br><br>
+<<person2>>The goon pushes onto both elbows. "No. Don't. That's not in the contract, I never signed for that." <<He>> turns <<his>> head towards the receptionist. "Tell them. It isn't in the contract!"
+<br><br>
+<<person1>>The receptionist crouches and takes the goon's jaw in one hand. "You signed for whatever the house needs." <<He>> pushes a <<if _goonFlips>>pink<<else>>gray<</if>> capsule between the goon's lips and holds the goon's mouth shut until the capsule is gone. Then <<he>> stands and turns to you, flushed and breathing fast. "Go on. Give them a bit of the stud you've got in you."
+<br><br>
+<<person2>>
+<<if _goonFlips>>The goon's body is changing while <<he>> is still begging: <<his>> hips spread and <<his>> chest swells until <<he>> has no more words for it.<</if>>
+There is no way for you to turn back now. The pill puts you on top of <<him>> before you have decided anything. The goon keeps saying no, louder, and the receptionist keeps telling you to give <<him>> everything.<<arousal 500>><<garousal>>
+<br><br>
+<<saveNPC 1 "colosseum_opponent">>
+<<set $xchange.colosseum.goonBred to 1>><<famesex 15 "none" true>><<colosseumHeat 2>>
+<<link [[Next|Underground Colosseum Breeding Sex]]>><<set $sexstart to 1>><<set $xchange.colosseum.breedCtx to "goon">><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Goon Breeding End
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<colosseumHost>><<pass 5>>
+<<if $phase is "aroused">>
+	Your whole body is still burning and you want more of it. Your hands are shaking.<<arousal 800>><<ggarousal>>
+<<else>>
+	You look at what you have done and your stomach turns. You have to look away from the goon.<<stress 10>><<ggstress>>
+<</if>>
+<<unset $phase>>
+<br><br>
+It does not change what the receptionist does. <<He>> is flushed and pleased, and claps once. "Welcome to the Colosseum. You're what this place is for."
+<<He>> steps closer. "Keep working on your strength and you'll reach the top. There's good money in it, as long as you're willing to make a lot of cows moo."
+<br><br>
+You open your mouth to answer and what comes out is a long, low moo. You clap a hand over your mouth. The receptionist stares at you, then laughs so hard that an attendant has to hold the desk steady.<<transform cow 2>>
+<br><br>
+"That's the one," the receptionist says, wiping an eye. "Keep making noises like that and they'll pay double." An attendant takes you back towards the desk.
+<br><br>
+<<colosseumBeltOff>>
+<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Purple Swap
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<colosseumHost>><<pass 5>>
+The receptionist looks you over, from your eyes down to your hips, and does not bother to hide what <<he>> is checking.
+"You're still on a dose from before. You can't book on that."
+<br><br>
+<<He>> opens a drawer and sets two things on the desk: an antidote in a foil packet and a purple pill. "Antidote first. It's going to hurt. Then this."
+<br><br>
+<<colosseumPurpleSwap>>
+<<if $xchangeAntidoteFizzle>>
+	You swallow the antidote and wait for the pain. It never comes, and neither does any change. The receptionist watches you for a full minute, then takes the purple pill back and puts it in the drawer.
+	<br><br>
+	"Whatever you're on won't shift. Come back when it wears off."
+<<else>>
+	The antidote takes you to your knees on the concrete. You are sick twice into the bin the receptionist kicks over, and your vision comes back in patches. When your body has stopped changing back, you take the purple pill.
+	<br><br>
+	<<He>> waits until you have it down. "That's the Bull and the Breeder in one. You don't need to take any more antidotes here, as long as you stay on the purple." <<He>> is smiling. "It's like a dream come true. You breed, and then you let yourself be bred. How exciting."
+<</if>>
+<br><br>
+<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Audience
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 3>>
+<<set $daily.colosseumAudience to 1>>
+<<switch random(1, 4)>>
+<<case 1>>
+	<<npc Wren>><<person1>>
+	With your sharp eyes, you pick Wren out of a dense row near the boards. <<He>> has a hand inside a stranger's coat, and the stranger is watching the pit. <<He>> takes out a wallet, sees you looking, and waves it at you.
+<<case 2>>
+	<<npc Bailey>><<person1>>
+	With your sharp eyes, you find Bailey in the third row behind the bookmakers, writing in a small ledger. When <<he>> sees you, <<he>> writes one more line and taps it with the pen.
+<<case 3>>
+	<<npc Briar>><<person1>>
+	With your sharp eyes, you find Briar sitting beside two of <<his>> regulars. <<He>> notices you looking and raises <<his>> glass to you without any expression at all.
+<<default>>
+	<<npc Leighton>><<person1>>
+	With your sharp eyes, you find Leighton by the aisle with a camera in <<his>> lap. <<He>> sees you and lowers the lens, then raises it again a little slower.
+<</switch>>
+<<colosseumHeat 2>>
+<br><br>
+<<link [[Back to the seating|Underground Colosseum Terraces]]>><<endevent>><</link>>
+<br>
+
+:: Underground Colosseum Breeding Sex
+<<set $outside to 0>><<set $location to "colosseum">>
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<loadNPC 0 "colosseum_opponent">>
+	<<person1>>
+	<<set $xchange.colosseum.storedBefore to Object.keys($storedNPCs)>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<npc_submissive>>
+	<<npcexpose>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Colosseum Breeding Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Colosseum Breeding Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Colosseum Breeding Finish
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 10>>
+<<set _bredNpc to colosseumSettleBreeding(0)>>
+<<set _ctx to $xchange.colosseum.breedCtx>>
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+<<elseif $finish is 1>>
+	<<encounterEndViolence>>
+	You stop, climb off and get to your feet. The pill makes it hard. The crowd boos, but the attendants have already decided the job is done.
+<<else>>
+	You pull back and get up, and nobody tries to stop you.
+<</if>>
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<unset $xchange.colosseum.breedCtx>>
+<<if _ctx is "goon">>
+	The goon lies on the sand with wide open eyes and says nothing more.
+	<br><br>
+	<<link [[Enjoy it|Underground Colosseum Goon Breeding End]]>><<set $phase to "aroused">><</link>>
+	<br>
+	<<link [[Feel sick about it|Underground Colosseum Goon Breeding End]]>><<set $phase to "horrified">><</link>>
+	<br>
+<<else>>
+	Two goons lift your opponent off the sand and carry them out through the loser's gate. The chanting turns into cheering for a good breeding, and an attendant walks you back towards the desk.<<famesex 15 "none" true>>
+	<br><br>
+	<<link [[Next|Underground Colosseum Pit]]>><<endevent>><</link>>
+	<br>
+<</if>>
+
+:: Underground Colosseum Breeding Loss Sex
+<<set $outside to 0>><<set $location to "colosseum">>
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<loadNPC 0 "colosseum_opponent">>
+	<<person1>>
+	<<controlloss>><<violence 1>><<neutral 1>><<molested>>
+	<<maninit>>
+	<<set $enemyanger += 20>>
+	<<npc_attempt_sex>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Colosseum Breeding Loss Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Colosseum Breeding Loss Sex]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Underground Colosseum Breeding Loss Finish
+<<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 10>>
+<<set _donor to $NPCList[0].fullDescription>>
+<<set _bredPlayer to colosseumBreedPlayer(_donor)>>
+<<if $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+<<elseif $finish is 1>>
+	<<encounterEndViolence>>
+	When you stop resisting, <<he>> finishes anyway, and the attendants let <<him>>.
+<<else>>
+	<<He>> leaves you on the sand when <<he>> has had enough. An attendant looks between your legs and holds a thumb up towards the gallery. The room cheers.
+<</if>>
+<br><br>
+<<clotheson>>
+<<endcombat>>
+<<colosseumHost>>
+Two goons pick you up by the arms and carry you along the service corridor, past the cages, to the delivery door. They drop you in the alley.
+<br><br>
+The receptionist is standing in the doorway with the cash box under one arm. "Appearance money is already on your tab. Rank stays. Reputation doesn't."
+<<He>> looks at your stomach and then at your face. "Take real good care of that child. Maybe they'll be more capable than you."
+<br><br>
+<<link [[Get up|Industrial Alleyways]]>><<set $eventskip to 1>><<endevent>><</link>>
+<br>

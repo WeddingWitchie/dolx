@@ -95,6 +95,7 @@ function conceiveNow(orifice, load, slot = availablePlayerPregnancySlot(orifice)
 	}
 	return pregnancyId;
 }
+window.conceiveNow = conceiveNow;
 
 /**
  * Instant conception when a load lands. Demon PC's Force Impregnation action

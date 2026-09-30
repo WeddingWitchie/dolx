@@ -1,4 +1,70 @@
-/* global V Time statChange */
+/* global V T Time statChange npcPregnancyRoll inseminate conceiveNow availablePlayerPregnancySlot orificeHasParasites getActivePregnancies */
+/**
+ * Force an impregnation of the NPC in a slot, skipping the conception roll.
+ * The record is tagged so randomPregnancyProgress clears it at term instead of sending the child to Bailey.
+ *
+ * @param {number} slot $NPCList slot of the carrier
+ * @returns {boolean} whether a pregnancy was recorded
+ */
+window.colosseumBreedNpc = function (slot) {
+	const npc = V.NPCList[slot];
+	if (!npc?.fullDescription) return false;
+	T.npcForceImpregnation = true;
+	let pregnancyId;
+	try {
+		pregnancyId = npcPregnancyRoll(npc.fullDescription, npc.type, "pc", "human", "vagina", "deep", V.location, 1, slot);
+	} finally {
+		T.npcForceImpregnation = false;
+	}
+	if (!Number.isInteger(pregnancyId) || !V.pregnancies[pregnancyId]) return false;
+	V.pregnancies[pregnancyId].colosseum = 1;
+	V.xchange.colosseum.sired = (V.xchange.colosseum.sired ?? 0) + 1;
+	return true;
+};
+
+/**
+ * Close out a Colosseum breeding encounter for the NPC in a slot.
+ * Any pregnancy the fight itself created since the snapshot in storedBefore is tagged for the house.
+ * If the fight made none, one is forced.
+ *
+ * @param {number} slot $NPCList slot of the carrier
+ * @returns {boolean} whether the carrier ended up pregnant
+ */
+window.colosseumSettleBreeding = function (slot) {
+	const col = V.xchange.colosseum;
+	const known = col.storedBefore ?? [];
+	let tagged = 0;
+	for (const key of Object.keys(V.storedNPCs)) {
+		if (known.includes(key)) continue;
+		for (const record of getActivePregnancies(key)) {
+			V.pregnancies[record.pregnancyId].colosseum = 1;
+			tagged++;
+		}
+	}
+	delete col.storedBefore;
+	if (tagged > 0) {
+		col.sired = (col.sired ?? 0) + tagged;
+		return true;
+	}
+	return window.colosseumBreedNpc(slot);
+};
+
+/**
+ * Force the player to conceive from a Colosseum opponent, skipping the conception roll.
+ * Anatomy, parasites and the pregnancy settings are still respected.
+ *
+ * @param {string} donor the opponent's description, recorded as the other parent
+ * @returns {boolean} whether the player is now pregnant
+ */
+window.colosseumBreedPlayer = function (donor) {
+	const orifice = V.player.vaginaExist ? "vagina" : "anus";
+	const slot = availablePlayerPregnancySlot(orifice);
+	if (slot === null || orificeHasParasites(orifice)) return false;
+	const load = inseminate(orifice, donor, "human", "deep", V.location, 1, null);
+	if (!load) return false;
+	return Number.isInteger(conceiveNow(orifice, load, slot));
+};
+
 /**
  * Apply the maximum Combat fame deterrent to a city danger roll.
  *
