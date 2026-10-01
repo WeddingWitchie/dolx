@@ -2641,7 +2641,7 @@ function dailyTransformationEffects() {
 	let dailyPurity = 1;
 	if (V.featsPurityBoost) dailyPurity += V.featsPurityBoost;
 	if (effectiveTransformationLevel("fallen") >= 2) dailyPurity -= 10;
-	if (V.player.virginity.vaginal === true && V.player.virginity.penile === true) dailyPurity += 2;
+	if (playerCountsAsVirgin()) dailyPurity += 2;
 	statChange.purity(dailyPurity);
 
 	if (V.purity >= 1000) wikifier("transform", "angel", 1);

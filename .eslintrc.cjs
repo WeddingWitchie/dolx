@@ -483,6 +483,7 @@ module.exports = {
 		ensureLakeStashWardrobe: "readonly",
 		playerIsXChanged: "readonly",
 		pillIsPermanent: "readonly",
+		playerCountsAsVirgin: "readonly",
 		playerIsBreederCreampied: "readonly",
 		ensureBirthId: "readonly",
 		hallucinogenSexStatModifier: "readonly",
