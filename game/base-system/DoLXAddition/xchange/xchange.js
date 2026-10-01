@@ -1058,10 +1058,9 @@ function isNumber(value) {
 window.isNumber = isNumber;
 
 function pillTimerPaused() {
-	const vaginalPregnancy = !!getActivePregnancy("pc", "vagina");
-	const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && !!getActivePregnancy("pc", "anus");
+	const pregnancy = xchangePregnancyBlocksPill();
 	const earSlimeHasGrown = V.earSlime.growth > 50;
-	return V.xchange.pillPermanence !== 1 && (vaginalPregnancy || omegaAnalPregnancy || earSlimeHasGrown);
+	return V.xchange.pillPermanence !== 1 && (pregnancy || earSlimeHasGrown);
 }
 window.pillTimerPaused = pillTimerPaused;
 
@@ -1590,9 +1589,9 @@ function xchangeHourlyCheck(hours = 1) {
 			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && pill.continueEffect && pill.duration >= 30 * 24) wikifier("xchange-setpermanent", "continue");
 
 			// If pregnancy or a pregnancy-enabling parasite locks the body, the change becomes permanent.
-			const omegaAnalPregnancy = pill.omegaEffect && !!getActivePregnancy("pc", "anus");
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (!!getActivePregnancy("pc", "vagina") || omegaAnalPregnancy || V.earSlime.growth > 50))
-				wikifier("xchange-setpermanent", V.earSlime.growth > 50 && !getActivePregnancy("pc", "vagina") && !omegaAnalPregnancy ? "parasite" : "pregnancy");
+			const pregnancy = xchangePregnancyBlocksPill();
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (pregnancy || V.earSlime.growth > 50))
+				wikifier("xchange-setpermanent", V.earSlime.growth > 50 && !pregnancy ? "parasite" : "pregnancy");
 
 			if (pill.innocenceEffect && (V.innocencestate !== 1 || V.awareness >= 0)) {
 				if (pill.innocenceWasNatural === true) {
@@ -1937,13 +1936,12 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.xchangePermanenceMessage) {
-		const vaginalPregnancy = V.sexStats?.vagina?.pregnancy?.type !== null && V.sexStats?.vagina?.pregnancy?.type !== undefined;
-		const omegaAnalPregnancy = V.xchange?.pill?.omegaEffect && V.sexStats?.anus?.pregnancy?.type !== null && V.sexStats?.anus?.pregnancy?.type !== undefined;
+		const pregnancy = xchangePregnancyBlocksPill();
 
 		if (V.xchange.pillPermanence === 1) {
 			element("span", "Seems you didn't turn back. Your pill's effects have become permanent", "red");
 			br();
-		} else if ((vaginalPregnancy || omegaAnalPregnancy) && typeof pillTimerPaused === "function" && pillTimerPaused()) {
+		} else if (pregnancy && typeof pillTimerPaused === "function" && pillTimerPaused()) {
 			element("span", "Seems you didn't turn back. The life growing inside you holds the changes in place.", "red");
 			br();
 		} else {

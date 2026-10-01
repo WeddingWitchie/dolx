@@ -1,4 +1,4 @@
-/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancy getActivePregnancies canBeMPregnant knowsPregnancy */
+/* globals npcStartingSexIs npcIsXChanged xchangePillProtectionActive getActivePregnancies canBeMPregnant knowsPregnancy */
 /* ============================================================
    X-CHANGE PILL DEFINITIONS  (all of them)
    This file now owns every X-Change pill object, migrated out of bedroom-pills.js so that file stays purely vanilla. 
@@ -80,20 +80,15 @@ function xchangePregnancyBlockedReason() {
 }
 window.xchangePregnancyBlockedReason = xchangePregnancyBlockedReason;
 
-/* Reverting uses the same vagina check as a blue pill.
-   It stays available during parasite broods and anal pregnancies so the player cannot get stuck with the pill's body changes. */
-function xchangeRevertBlockingPregnancy() {
-	return V.player?.vaginaExist ? getActivePregnancy("pc", "vagina") : undefined;
-}
+/* Reverting must preserve carrying bodies just like a new body-changing dose. */
 
 function xchangePregnancyBlocksRevert() {
-	return !!xchangeRevertBlockingPregnancy();
+	return xchangePregnancyBlocksPill();
 }
 window.xchangePregnancyBlocksRevert = xchangePregnancyBlocksRevert;
 
 function xchangeRevertPregnancyBlockedReason() {
-	const pregnancy = xchangeRevertBlockingPregnancy();
-	return pregnancy ? xchangePregnancyReason(pregnancy) : "";
+	return xchangePregnancyBlockedReason();
 }
 window.xchangeRevertPregnancyBlockedReason = xchangeRevertPregnancyBlockedReason;
 

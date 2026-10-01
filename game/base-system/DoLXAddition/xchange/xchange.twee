@@ -1977,6 +1977,7 @@
 	<</widget>>
 
 	<<widget "xchange-restore">>
+		<<if xchangePregnancyBlocksRevert() and _args[0] isnot "force">><<exit>><</if>>
 		<<set _xchangeNeedsBodyRevert to ($player.gender_body is "a" and $player.penisExist and $player.vaginaExist) or ($xchange.pill.clone isnot undefined and $xchange.pill.clone isnot "none") or !$xchange.pill.originalBody or ($player.gender_body isnot $xchange.pill.originalBody.gender_body) or ($player.sex isnot $xchange.pill.originalBody.sex)>>
 
 		<<if _args[0] isnot "nosave">>
@@ -2632,8 +2633,7 @@
 				<mouse class="tooltip linkBlue">(?)<span>Reduces the duration of your transformation every time cum is deposited inside you.</span></mouse></li><</if>>
 			<li>Duration: 
 				<<set _pregnancyPauseKnown to
-					(getActivePregnancy("pc", "vagina") and knowsPregnancy(getActivePregnancy("pc", "vagina").pregnancyId, "pc")) or
-					(V.xchange.pill.omegaEffect and getActivePregnancy("pc", "anus") and knowsPregnancy(getActivePregnancy("pc", "anus").pregnancyId, "pc"))>>
+					playerAwareTheyArePregnant() or xchangeParasitesBlockPill()>>
 				<<set _visibleTimerPause to pillTimerPaused() and (_pregnancyPauseKnown or V.earSlime.growth > 50)>>
 				<<if _visibleTimerPause or pillIsPermanent() or V.xchange.pill.choiceEffect>>
 					<<set _duration = `<mouse class="tooltip">Indefinite<span class="lblue">`>>
@@ -2642,7 +2642,7 @@
 						<<set _duration += `Your transformation is now permanent.`>>
 					<<else>>
 						<<if _pregnancyPauseKnown>>
-							<<set _duration += `Your transformation's timer has been halted while your pregnancy runs its course. `>>
+							<<set _duration += `Your transformation cannot end while your pregnancy runs its course. `>>
 						<</if>>
 						<<if (V.earSlime.growth > 50)>>
 							<<set _duration += `A slime is interfering with your genitals. The pill cannot revert itself until the parasite is removed. `>>
