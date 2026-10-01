@@ -49,14 +49,14 @@ module.exports = {
 		},
 		{
 			// Large DoLX override stylesheets
-			files: ["game/special-xchange/DoLXAddition/**/*.css"],
+			files: ["modules/css/xchange/**/*.css"],
 			rules: {
 				"no-descending-specificity": null,
 			},
 		},
 		{
 			// Uses DoL's custom <mouse> tooltip element
-			files: ["game/special-xchange/DoLXAddition/costumUI/costumUI.css"],
+			files: ["modules/css/xchange/costumUI.css"],
 			rules: {
 				"selector-type-no-unknown": null,
 			},
