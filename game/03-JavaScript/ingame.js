@@ -87,17 +87,19 @@ const combatActionColours = {
 	Default: {
 		brat: [
 			/* leftaction or rightaction */
-			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "pillwhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom", "leftblock", "rightblock", "stoporal", "pickupXchangePill", "xchangePillOther",
+			"steal", "penwhack", "freeface", "leftcovervagina", "leftcoverpenis", "leftcoveranus", "rightcovervagina", "rightcoverpenis", "rightcoveranus", "leftunderpull", "leftskirtpull", "leftlowerpull", "leftupperpull", "rightunderpull", "rightskirtpull", "rightlowerpull", "rightupperpull", "rightUndressOther", "leftUndressOther", "stopchoke", "clench", "shacklewhack", "pillwhack", "leftfold", "rightfold", "dildowhack", "hypnosiswhack", "leftstruggleweak", "rightstruggleweak", "handpullpenis", "handpullvagina", "handpullanus", "leftresistW", "rightresistW", "leftstillW", "rightstillW", "penisremovecondom", "npcremovecondom", "npcdamagecondom", "leftblock", "rightblock", "stoporal", "freechest", "pickupXchangePill", "xchangePillOther",
 			/* feetaction */
 			"run", "taunt", "hide", "feetresistW", "stalk_discard_over_head", "stalk_discard_head", "stalk_discard_face", "stalk_discard_neck", "stalk_discard_hands", "stalk_discard_over_upper", "stalk_discard_over_lower", "stalk_discard_upper", "stalk_discard_lower", "stalk_discard_under_upper", "stalk_discard_under_lower", "stalk_discard_legs", "stalk_discard_feet", "legLock", "legLocked", "feetHold", "dodge", "plant", "feetHold",
 			/* mouthaction */
-			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "handpush", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "hiss", "askPullOut", "disparage", "askoral", "askchest",
+			"pullaway", "ejacspit", "pullawayvagina", "finish", "novaginal", "nopenile", "noanal", "scream", "mock", "breastclosed", "breastpull", "pullawaykiss", "noupper", "analpull", "up", "handpush", "stifleorgasm", "stifle", "mouthresistW", "handcloseW", "growl", "hiss", "askPullOut", "disparage", "askoral", "askchest", "askfootjob",
 			/* penisaction */
 			"othermouthescape", "escape", "otheranusescape", "fencingescape", "pullOut", "moveHole", "damageCondom",
 			/* vaginaaction */
 			"tribescape",
 			/* anusaction */
 			"doubleescape",
+			/* chestaction */
+			"chesttomouth",
 		],
 		def: [
 			/* leftaction or rightaction */
@@ -127,7 +129,7 @@ const combatActionColours = {
 			/* feetaction */
 			"grab", "vaginagrab", "grabrub", "vaginagrabrub", "rub", "submit",
 			/* mouthaction */
-			"peniskiss", "kisslips", "kissskin", "suck", "lick", "ejacswallow", "moan", "breastsuck", "breastlick", "swallow", "movetochest", "othervagina", "mouth", "moveotheranus", "facesitinvite", "kissback", "vaginalick", "oraledge", "askchoke", "anallick", "analkiss", "askrough", "condoms", "noCondoms", "seduce",
+			"peniskiss", "kisslips", "kissskin", "suck", "lick", "ejacswallow", "moan", "breastsuck", "breastlick", "swallow", "movetochest", "othervagina", "mouth", "moveotheranus", "facesitinvite", "kissback", "vaginalick", "oraledge", "askchoke", "anallick", "analkiss", "askrough", "condoms", "noCondoms", "seduce", "ejacfacial",
 			/* penisaction */
 			"penistovagina", "penistoanus", "penisvaginafuck", "penisanusfuck", "othermouthtease", "othermouthrub", "othermouthcooperate", "tease", "cooperate", "otheranustease", "otheranusrub", "otheranuscooperate", "clitrub", "vaginaEdging", "otheranusEdging", "handtease", "handAnusRub", "handcooperate", "strokerCooperate", "mouthEdging",
 			/* fencing */

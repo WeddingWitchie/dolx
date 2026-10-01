@@ -122,6 +122,8 @@
 	<<set $settings.condomChance to 60>>
 	<<set $settings.condomUseChanceRape to 33>>
 	<<set $settings.condomUseChanceConsensual to 83>>
+	<<set $settings.playerCondomBreakChance to 0>>
+	<<set $settings.npcCondomBreakChance to 0>>
 	<<set $settings.multipleWardrobes to "isolated">>
 	<<set $settings.tendingYieldModifier to 5>>
 	<<set $notifyUpdate = true>>
@@ -2465,6 +2467,12 @@
 			</label>
 		</div>
 
+		<div class="settingsToggleItem">
+			<label>
+				<<checkbox "$settings.pubicHairEnabled" false true autocheck>> Enable pubic hair growth
+			</label>
+		</div>
+
 		<div class="settingsToggleItem" role="group" aria-labelledby="settingsAnalingusHead">
 			<span id="settingsAnalingusHead">Analingus:</span><br>
 			<label>
@@ -2486,12 +2494,6 @@
 			</label>
 			<mouse class="tooltip linkBlue">(?)<span>Note that double anal requires anal to be enabled.
 			<br>"Double penetration" here means two phalluses in the same orifice of the player.</span></mouse>
-		</div>
-
-		<div class="settingsToggleItem">
-			<label>
-				<<checkbox "$settings.pubicHairEnabled" false true autocheck>> Enable pubic hair growth
-			</label>
 		</div>
 
 		<div class="settingsToggleItem" role="group">
@@ -2554,14 +2556,12 @@
 		</div>
 
 		<div class="settingsToggleItem">
+			Orgasms: <br>
 			<label>
 				<<checkbox "$settings.ruinedOrgasmEnabled" false true autocheck>> Enable ruined orgasms
-				<mouse class="tooltip linkBlue">(?)<span>Ear slimes only.</span></mouse>
 			</label>
-		</div>
-
-		<div class="settingsToggleItem">
-			Penis-related: <br>
+			<mouse class="tooltip linkBlue">(?)<span>Ear slimes only.</span></mouse>
+			<br>
 			<label>
 				<<checkbox "$settings.smallPenisSemenVolumeLossDisabled" false true autocheck>> Disable semen volume loss
 			</label>
@@ -2639,7 +2639,21 @@
 		</div>
 
 		<div class="settingsToggleItem">
-			NPC chastity:<mouse class="tooltip linkBlue">(?)<span>Covers chastity devices forced on you by NPCs, such as after losing an encounter, at the pound, in Winter's storeroom, or by Whitney. It also covers NPCs taking the key to a device you already wear.<br>At 0, these events are disabled. NPCs can still replace or re-lock a device they originally gave you. Chastity you put on yourself, such as at the temple, is not affected.</span></mouse>
+			Player condom automatic breaking:<mouse class="tooltip linkBlue">(?)<span>Sets the chance, each turn of penetration, for your condom to automatically break.</span></mouse>
+			<<numberslider "$settings.playerCondomBreakChance" $settings.playerCondomBreakChance 0 100 1 {
+				value: v => `<span class="small-description">Your condom has a <span class='${v === 0 ? "green" : v < 20 ? "blue" : "red"} inline-colour'>${v}%</span> chance to break each turn it is inside someone.</span>`
+			}>>
+		</div>
+		<div class="settingsToggleItem">
+			NPC condom automatic breaking:<mouse class="tooltip linkBlue">(?)<span>Sets the chance, each turn of penetration, for an NPC's condom to automatically break.</span></mouse>
+			<<numberslider "$settings.npcCondomBreakChance" $settings.npcCondomBreakChance 0 100 1 {
+				value: v => `<span class="small-description">An NPC's condom has a <span class='${v === 0 ? "green" : v < 20 ? "blue" : "red"} inline-colour'>${v}%</span> chance to break each turn they are inside you.</span>`
+			}>>
+		</div>
+
+		<div class="settingsToggleItem">
+			NPC chastity:<mouse class="tooltip linkBlue">(?)<span>Covers chastity devices forced on you by NPCs, such as after losing an encounter, at the pound, in Winter's storeroom, or by Whitney. It also covers NPCs taking the key to a device you already wear.
+			<br><br>At 0, these events are disabled. NPCs can still replace or re-lock a device they originally gave you. Chastity you put on yourself, such as at the temple, is not affected.</span></mouse>
 			<<numberslider "$settings.npcChastityLevel" $settings.npcChastityLevel 0 3 1 {
 				value: v => {
 					switch (v) {
@@ -2682,7 +2696,7 @@
 			}>>
 		</div>
 
-		<div class="settingsToggleItem">
+		<div class="settingsToggleItemWide">
 			<<if !$femininityModifier>><<set $femininityModifier to {}>><</if>>
 			Nude Gender Appearance:
 			<<numberslider "$settings.nudeGenderPerception" $settings.nudeGenderPerception 0 2 1 {

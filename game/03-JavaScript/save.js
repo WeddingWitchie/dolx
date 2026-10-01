@@ -1502,6 +1502,8 @@ function settingsObjects(type) {
 					condomChance: { min: 0, max: 100, decimals: 0, displayName: "Chance of NPCs having condoms:" },
 					condomUseChanceRape: { min: 0, max: 100, decimals: 0, displayName: "NPC condom use during rape:" },
 					condomUseChanceConsensual: { min: 0, max: 100, decimals: 0, displayName: "NPC condom use during consensual sex:" },
+					playerCondomBreakChance: { min: 0, max: 100, decimals: 0, displayName: "Player condom automatic breaking:" },
+					npcCondomBreakChance: { min: 0, max: 100, decimals: 0, displayName: "NPC condom automatic breaking:" },
 					clothingCostModifier: { min: 1, max: 10, decimals: 1, displayName: "Cost of clothing:", randomize: "gameplay" },
 					furnitureCostModifier: { min: 0.6, max: 5, decimals: 1, displayName: "Cost of furniture:", randomize: "gameplay" },
 					lewdClothingCostModifier: { min: 0.1, max: 2, decimals: 1, displayName: "Cost of lewd clothes:", randomize: "gameplay" },

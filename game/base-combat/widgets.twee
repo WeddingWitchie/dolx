@@ -968,6 +968,20 @@
 	<</if>>
 <</widget>>
 
+/* Automatic condom break roll for NPC slot args[0]'s condom and for the player's condom while inside that NPC. */
+<<widget "condomBreakCheck">>
+	<<set _cbNpc to $NPCList[_args[0]]>>
+	<<if condomState(_args[0]) is "worn" and ["vagina", "anus", "vaginadouble", "anusdouble"].includes(_cbNpc.penis) and random(1, 100) lte $settings.npcCondomBreakChance>>
+		<<set _cbNpc.condom.state to "defective">>
+		<<personselect _args[0]>>
+		<span class="lewd">The condom on <<combatpersons>> <<npcPenisSimple _args[0]>> tears.</span>
+	<</if>>
+	<<if condomState("player") is "worn" and (_cbNpc.vagina is "penis" or _cbNpc.vagina is "otheranus" or _cbNpc.penis is "otheranus") and random(1, 100) lte $settings.playerCondomBreakChance>>
+		<<set $player.condom.state to "defective">>
+		<span class="lewd">You feel the tip of your condom rip open.</span>
+	<</if>>
+<</widget>>
+
 /* For the player equipping their own condom on themselves */
 <<widget "equipPlayerCondom">>
 	<<set $_damagedCondom to _args[0] is "damaged" or _args[0] is true>>

@@ -395,6 +395,9 @@
 				<!-- Do Nothing -->
 			<<else>>
 				<<set _leftaction["Remove " + $_target.pronouns.his + " condom"] to "npcremovecondom">>
+				<<if condomState($lefttarget) is "worn">>
+					<<set _leftaction["Damage " + $_target.pronouns.his + " condom"] to "npcdamagecondom">>
+				<</if>>
 			<</if>>
 		<<elseif $prayerRoom or $NPCList[$lefttarget].fullDescription is "Ivory Wraith">>
 			<!-- Do Nothing -->
@@ -843,6 +846,9 @@
 				<!-- Do Nothing -->
 			<<else>>
 				<<set _rightaction["Remove " + $_target.pronouns.his + " condom"] to "npcremovecondom">>
+				<<if condomState($righttarget) is "worn">>
+					<<set _rightaction["Damage " + $_target.pronouns.his + " condom"] to "npcdamagecondom">>
+				<</if>>
 			<</if>>
 		<<elseif $prayerRoom or $NPCList[$righttarget].fullDescription is "Ivory Wraith">>
 			<!-- Do Nothing -->
@@ -905,6 +911,13 @@
 					| <label><span class="brat">Free your face</span><<radiobutton _actionVariable "freeface" `_default is "freeface" ? 'checked' : ''`>></label>
 				<<else>>
 					<<set _actions["Free your face"] to "freeface">>
+				<</if>>
+			<</if>>
+			<<if $chestuse is "mouth">>
+				<<if _style is "old">>
+					| <label><span class="brat">Free your chest</span><<radiobutton _actionVariable "freechest" `_default is "freechest" ? 'checked' : ''`>></label>
+				<<else>>
+					<<set _actions["Free your chest"] to "freechest">>
 				<</if>>
 			<</if>>
 		<</if>>
@@ -2112,6 +2125,93 @@
 				</span>
 				<<brat 2>>
 			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "effectshandsfreechest">>
+	<<if $leftaction is "freechest" or $rightaction is "freechest">>
+		<<if $leftaction is "freechest" and $rightaction is "freechest">>
+			<<set $leftaction to 0>><<set $leftactiondefault to "freechest">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "freechest">>
+			<<set _freestrength to 2.5>>
+			You try to use both hands to free your chest,
+		<<elseif $leftaction is "freechest">>
+			<<set $leftaction to 0>><<set $leftactiondefault to "freechest">>
+			<<set _freestrength to 1>>
+			You try to use your hand to free your chest,
+		<<elseif $rightaction is "freechest">>
+			<<set $rightaction to 0>><<set $rightactiondefault to "freechest">>
+			<<set _freestrength to 1>>
+			You try to use your hand to free your chest,
+		<</if>>
+
+		<<set _npc to $NPCList[$chesttarget]>><<personselect $chesttarget>>
+		<<if (1000 - ($rng * 10) - ((currentSkillValue('physique') / $physiquemax * 100) * _freestrength) + ($enemyanger * 0.5)) lte
+				(200 + $enemytrust)>>
+			<span class="green">
+				<<if $cheststate is "mouthentrance">>
+					<<print either(
+						"and manage to shove <<his>> head away from your <<chest>> before <<he>> can go any further.",
+						"and push <<his>> face some distance from your <<chest>>.",
+						"and manage to distance <<his>> face from your <<chest>> with a good shove."
+					)>>
+				<<elseif $cheststate is "chestimminent">>
+					<<print either(
+						"and manage to push <<his>> face away from your <<nipple>>.",
+						"and pry <<his>> probing mouth off your <<nipple>>.",
+						"and shove <<his>> face off your <<nipple>>."
+					)>>
+				<<else>>
+					<<print either(
+						"and pry <<his>> lips off your <<nipple>> with a wet 'pop.'",
+						"and free your <<nipple>> from <<his>> mouth with a firm shove.",
+						"and manage to shove <<his>> face off your <<nipple>>."
+					)>>
+				<</if>>
+			</span>
+			<<set _npc.mouth to 0>><<set _npc.location.head to 0>>
+			<<set $chestuse to 0>><<set $cheststate to 0>><<set $chestaction to 0>>
+			<<brat 4>><<brat 1>>
+		<<else>>
+			<span class="red">
+				<<if $rng % 4 == 0 and (_npc.lefthand is 0 or _npc.righthand is 0)>>
+					<<if _npc.lefthand is 0>>
+						<<set _npc.lefthand to "arms">>
+					<<else>>
+						<<set _npc.righthand to "arms">>
+					<</if>>
+
+					<<if $leftactiondefault is "freechest">>
+						<<set $leftarm to "grappled">>
+					<</if>>
+					<<if $rightactiondefault is "freechest">>
+						<<set $rightarm to "grappled">>
+					<</if>>
+
+					<<if _freestrength is 1>>
+						however, <<he>> seizes your arm and traps it behind your back.
+					<<else>>
+						however, <<he>> grabs your arms and traps them behind your back.
+					<</if>>
+				<<elseif $cheststate is "mouthentrance">>
+					<<print either(
+						"but you can't push <<his>> head away from your <<chest>>.",
+						"but <<he>> pushes <<his>> face into your <<chest>> with greater force.",
+						"but <<he>> shoves <<his>> face into your " + ($player.breastsize gte 9 ? "cleavage" : "<<chest>>") + "."
+					)>>
+				<<elseif $rng % 4 == 0>>
+					however, <<he>> shoves <<his>> mouth forcefully onto your <<chest>> and bites your <<nipple>> in retaliation.
+					<<violence 4>><<bruise chest>>
+				<<else>>
+					<<print either(
+						"but cannot pry <<his>> lips off your <<nipple>>.",
+						"but <<his>> mouth remains firmly stuck to your <<nipple>>.",
+						"but aren't able to push <<him>> off your <<nipple>>."
+					)>>
+				<</if>>
+			</span>
+			<<brat 2>>
 		<</if>>
 	<</if>>
 <</widget>>

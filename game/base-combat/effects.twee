@@ -183,6 +183,7 @@
 		<<effectsshacklewhack>>
 		<<effectshypnosiswhack>>
 		<<effectshandsfreeface>>
+		<<effectshandsfreechest>>
 		<<effectshandpull>>
 		<<effectsdildowhack>>
 		<<effectspillwhack>>
@@ -3096,6 +3097,29 @@
 			<</if>>
 		<</if>>
 
+		<<if $leftaction is "npcdamagecondom" or $rightaction is "npcdamagecondom">>
+			<<set $_target to ($leftaction is "npcdamagecondom" ? $lefttarget : $righttarget)>>
+			<<if $leftaction is "npcdamagecondom">><<set $leftaction to 0>><<set $leftactiondefault to "rest">><</if>>
+			<<if $rightaction is "npcdamagecondom">><<set $rightaction to 0>><<set $rightactiondefault to "rest">><</if>>
+			<<handskilluse>><<brat 1 $_target>>
+			<<personselect $_target>>
+			<<set $_npc to $NPCList[$_target]>>
+			<<if condomState($_target) is "worn">>
+				<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("hand", $_target)>>
+					<<if $rng lte currentSkillValue("handskill")/10 - 10>>
+						You dig a nail into the condom on <<combatpersons>> <<npcPenisSimple $_target>> and <span class="lewd">feel the latex tear.</span>
+						<<set $_npc.condom.state to "defective">>
+					<<else>>
+						You pick at the condom on <<combatpersons>> <<npcPenisSimple $_target>>, but it holds.
+					<</if>>
+				<<else>>
+					<<combatPerson>> <span class="red">brushes your hand away from <<his>> condom.</span>
+				<</if>>
+			<<else>>
+				<<combatPerson>> has no intact condom to damage.
+			<</if>>
+		<</if>>
+
 		<<if $leftaction is "npcgivecondom" or $leftaction is "npcgivecondomdamaged">>
 			<<set $_damagedCondom to $leftaction is "npcgivecondomdamaged">>
 			<<set $leftaction to 0>><<set $leftactiondefault to "rest">>
@@ -3771,7 +3795,7 @@
 				<<submission 1>><<sextoystat>>
 				<<if $NPCList[$righttarget].vagina is 0>>
 					<<set $rightactiondefault to "dildoOtherPussyFuck">><<set $rightarm to "dildoOtherPussyTease">><<personselect $righttarget>>
-					<span class="lblue">You <<handtext>> tease <<hisselect $righttarget>> pussy<<if $NPCList[$righttarget].chastity.vagina.includes("chastity")>> through <<his>> $NPCList[$righttarget].chastity.vagina<</if>> with your right hand.</span>
+					<span class="lblue">You <<handtext>> tease <<hisselect $righttarget>> pussy<<if $NPCList[$righttarget].chastity.vagina.includes("chastity")>> through <<his>> $NPCList[$righttarget].chastity.vagina<</if>> with the $currentSexToyRight.name in your right hand.</span>
 				<<else>>
 					<span class="blue">You try to tease <<hisselect $righttarget>> pussy with the $currentSexToyRight.name in your right hand, but the entrance is already occupied.</span>
 				<</if>>
@@ -3887,10 +3911,10 @@
 				<<submission 1>><<sextoystat>>
 				<<if $NPCList[$righttarget].vagina is 0>>
 					<<set $rightactiondefault to "dildoOtherAnusFuck">><<set $NPCList[$righttarget].vagina to "rightDildoAnus">><<set $rightarm to "dildoOtherAnusFuck">><<personselect $righttarget>>
-					<span class="lblue">You <<handtext>> tease <<hisselect $righttarget>> ass<<if $NPCList[$righttarget].chastity.vagina.includes("chastity")>> through <<his>> $NPCList[$righttarget].chastity.vagina<</if>> with your right hand.</span>
+					<span class="lblue">You <<handtext>> tease <<hisselect $righttarget>> ass<<if $NPCList[$righttarget].chastity.vagina.includes("chastity")>> through <<his>> $NPCList[$righttarget].chastity.vagina<</if>> with the $currentSexToyRight.name in your right hand.</span>
 				<<elseif $NPCList[$righttarget].penis is 0>>
 					<<set $rightactiondefault to "dildoOtherAnusFuck">><<set $NPCList[$righttarget].penis to "rightDildoAnus">><<set $rightarm to "dildoOtherAnusFuck">><<personselect $righttarget>>
-					<span class="lblue">You <<handtext>> tease <<hisselect $righttarget>> ass<<if $NPCList[$righttarget].chastity.penis.includes("chastity")>> through <<his>> $NPCList[$righttarget].chastity.penis<</if>> with your right hand.</span>
+					<span class="lblue">You <<handtext>> tease <<hisselect $righttarget>> ass<<if $NPCList[$righttarget].chastity.penis.includes("chastity")>> through <<his>> $NPCList[$righttarget].chastity.penis<</if>> with the $currentSexToyRight.name in your right hand.</span>
 				<<else>>
 					<span class="blue">You try to tease <<hisselect $righttarget>> ass with the $currentSexToyRight.name in your right hand, but the entrance is already occupied.</span>
 				<</if>>
@@ -5314,11 +5338,12 @@
 				<<wheeze "ask to choke you" 1>>
 				<<set $speechwheezeaction to "askChoke">>
 			<<else>>
-				<<set $askedtochoke to 1>>
 				<<set $mouthactiondefault to 0>>
 				<<actionschoke>> /* todo: add a case where it doesn't work */
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<else>>
+					<<set $askedtochoke to 1>>
 				<</if>>
 				<<submission `1 + _speechTrait`>>
 			<</if>>
@@ -5333,8 +5358,10 @@
 				<<askrough>>
 				<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
 					<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+				<<else>>
+					<<set $enemyanger += (10 * _speechTrait)>>
 				<</if>>
-				<<submission 1>><<set $enemyanger += (10 * _speechTrait)>><<set $speechaskrough to 1>>
+				<<submission 1>><<set $speechaskrough to 1>>
 			<</if>>
 		<</if>>
 
@@ -5366,6 +5393,42 @@
 						<<elseif $_PorV is "V">>
 							<<set $_target.mouth to "vaginaentrance">>
 							<<set $vaginause to "othermouth">><<set $vaginastate to "othermouthentrance">>
+						<</if>>
+					<</if>>
+				<<else>>
+					<span class="red"><<He>> refuses.</span>
+				<</if>>
+			<</if>>
+		<</if>>
+
+		<<if $mouthaction is "ask" and $askAction is "askfootjob">>
+			<<set $mouthaction to 0>><<unset $askAction>><<set _sound to 1>>
+			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
+				<<wheeze "ask for a foot job" 1>>
+			<<else>>
+				<<set $mouthactiondefault to 0>><<brat 2>>
+				<<set $_target to $NPCList[$mouthtarget]>><<personselect $mouthtarget>>
+				<<set $_canP to $player.penisExist and $penisuse is 0>><<set $_canV to $player.vaginaExist and $vaginause is 0>>
+				<<if $_canP and $_canV>>
+					<<set $_PorV to ($rng gt 50 ? "P" : "V")>>
+				<<elseif $_canP>>
+					<<set $_PorV to "P">>
+				<<elseif $_canV>>
+					<<set $_PorV to "V">>
+				<</if>>
+				<<askfootjob>>
+				<<if $combatExtended.reverseRapeStart is 1 or combatSkillCheck("seduction", $mouthtarget, $_target.fullDescription)>>
+					<<if $role is "islander" and (!$islander_language or $islander_language lt 100)>>
+						<span class="red"><<if $enemyno gte 2>>They don't<<else>><<He>> doesn't<</if>> understand your words,</span> and <<if $enemyno gte 2>>ignore<<else>>ignores<</if>> them.
+					<<elseif $_PorV is undefined or !$settings.footFetishEnabled or $_target.location.genitals isnot 0 or $_target.location.head is "genitals" or ($_target.penis isnot 0 and $_target.vagina isnot 0)>>
+						<span class="blue"><<He>> can't reach you with <<his>> foot right now.</span>
+					<<else>>
+						<<He>> complies, and presses <<his>> foot against your <<genitals>>.
+						<<if $_target.penis is 0>><<set $_target.penis to "footjob">><<else>><<set $_target.vagina to "footjob">><</if>>
+						<<if $_PorV is "P">>
+							<<set $penisuse to "feet">><<set $penisstate to "otherfoot">><<set $speechpenisfoot to 1>>
+						<<elseif $_PorV is "V">>
+							<<set $vaginause to "feet">><<set $vaginastate to "otherfoot">><<set $speechvaginafoot to 1>>
 						<</if>>
 					<</if>>
 				<<else>>
@@ -8559,6 +8622,8 @@
 						<<if $rng lte currentSkillValue("penileskill")/10 - 10>>
 							<span class="lewd">You feel the tip rip open.</span>
 							<<set $player.condom.state to "defective">>
+						<<else>>
+							The condom holds.
 						<</if>>
 					<</if>>
 				<<else>>
@@ -8970,6 +9035,24 @@
 					<<set $NPCList[$chesttarget].penis to 0>>
 					<span class="blue">You try to rub your <<breasts>> against <<hisselect $chesttarget>> penis, but <<he>> pulls away.</span>
 				<</if>>
+			<</if>>
+		<</if>>
+
+		<<if $chestaction is "rest">>
+			<<set $chestaction to 0>><<set $chestactiondefault to "rest">>
+		<</if>>
+
+		<<if $chestaction is "chesttomouth">>
+			<<set $chestaction to 0>><<set $chestactiondefault to "rest">><<chestskilluse>><<combatpromiscuity3>><<meek 2>>
+			<<set $_target to $NPCList[$chesttarget]>><<personselect $chesttarget>>
+			<<if $chestuse isnot 0 or ![0,"speech_only"].includes($_target.mouth) or $_target.location.head is "head" or $_target.location.head is "genitals">>
+				<span class="blue"><<He>> can't reach your chest right now.</span>
+			<<elseif $combatExtended.reverseRapeStart is 1 or combatSkillCheck("chest", $chesttarget)>>
+				<<set $_target.mouth to "chestentrance">><<set $_target.location.head to "head">>
+				<<set $chestuse to "mouth">><<set $cheststate to "mouthentrance">>
+				<span class="lblue">You <<chesttext>> move your <<breasts>> towards <<hisselect $chesttarget>> mouth.</span>
+			<<else>>
+				You fail to move <<hisselect $chesttarget>> mouth towards your <<breasts>>.
 			<</if>>
 		<</if>>
 

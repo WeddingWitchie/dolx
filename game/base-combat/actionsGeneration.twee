@@ -50,7 +50,7 @@
 				<<anusActionInit>>
 			</div>
 
-			<<if $chestuse isnot 0>>
+			<<if $chestuse isnot 0 or ($enemytype is "man" and ($promiscuity gte 35 or $promiscuityIgnore) and $position isnot "wall")>>
 				<div id="chestaction" @class="$options.combatControls + 'Control'">
 					<<chestActionInit>>
 				</div>
@@ -160,7 +160,7 @@
 		<<safereplace #vaginaaction>><<vaginaActionInit true>><</safereplace>>
 	<</if>>
 	<<safereplace #anusaction>><<anusActionInit true>><</safereplace>>
-	<<if $chestuse isnot 0>>
+	<<if $chestuse isnot 0 or ($enemytype is "man" and ($promiscuity gte 35 or $promiscuityIgnore) and $position isnot "wall")>>
 		<<safereplace #chestaction>><<chestActionInit true>><</safereplace>>
 	<</if>>
 	<<if $thighuse isnot 0>>
@@ -438,6 +438,7 @@
 		<<case "peniscondom" "peniscondomdamaged">><<handdifficulty>>
 		<<case "penisremovecondom">><<handdifficulty>>
 		<<case "npcremovecondom">><<handdifficulty>> <<if $consensual is 0 and playerPregnancyPossibleWith($NPCList[$lefttarget])>><<combatpromiscuous6>><</if>>
+		<<case "npcdamagecondom">><<handdifficulty>>
 	<</switch>>
 <</widget>>
 
@@ -836,6 +837,7 @@
 		<<case "peniscondom" "peniscondomdamaged">><<handdifficulty>>
 		<<case "penisremovecondom">><<handdifficulty>>
 		<<case "npcremovecondom">><<handdifficulty>> <<if $consensual is 0 and playerPregnancyPossibleWith($NPCList[$righttarget])>><<combatpromiscuous6>><</if>>
+		<<case "npcdamagecondom">><<handdifficulty>>
 	<</switch>>
 <</widget>>
 
@@ -960,7 +962,7 @@
 				<</if>>
 			<<case "dildoSelfAnus">>
 				<<set _rightaction["Fuck your ass"] to "dildoSelfAnus">>
-				<<set _rightaction["Drop your " + $currentSexToyRight.name] to "dildoDropAnus">>
+				<<set _rightaction["Drop your " + $currentSexToyRight.name] to "dildoDrop">>
 			<<case "strokerSelfPenisEntrance">>
 				<<strokerSelfPenisEntrance "right">>
 			<<case "strokerSelfPenis">>
@@ -1365,6 +1367,7 @@
 		<<case "movetochest">><<oraldifficulty>> <<combatpromiscuous3>>
 		<<case "ejacswallow">><<oraldifficulty>> <<combatpromiscuous5>>
 		<<case "ejacspit">><<oraldifficulty>>
+		<<case "ejacfacial">><<oraldifficulty>> <<combatpromiscuous1>>
 		<<case "swallow">><<oralvirginitywarning>> <<combatpromiscuous5>>
 		<<case "grasp">><<chestdifficulty>> <<combatpromiscuous3>>
 		<<case "kisslips">><<oraldifficulty>> <<combatpromiscuous1>> <<kissvirginitywarning>> <<NPCvirginitywarning $npc[$npcrow.indexOf(_n)] "kiss">>
@@ -1553,6 +1556,9 @@
 				<<set $_changetype to true>><<penisActionInitTentacle>>
 			<<case "struggle" "struggle_pen">>
 				<<set $_changetype to true>><<penisActionInitStruggle>>
+			<<case "otherfoot">>
+				<<set _penisOptions to "otherFoot">><<selectNpcWithPartInPositionAnus "footjob">><<set $penistarget to $index>>
+				<span @class="($lastOptions.penis isnot _penisOptions or _penisGold is true ?'gold':'')"><<combatPersons>> foot presses against your shaft.</span>
 			<<default>>
 				<<switch $penisuse>>
 					<<case "clit">>
@@ -1670,6 +1676,8 @@
 			<<case "otherHandEntrance">>
 				<<set _penisaction["Rest"] to "rest">>
 			<<case "otherHand">>
+				<<set _penisaction["Rest"] to "rest">>
+			<<case "otherFoot">>
 				<<set _penisaction["Rest"] to "rest">>
 			<<case "strokerSelfPenis">>
 				<<set _penisaction["Rest"] to "rest">>
@@ -1805,6 +1813,9 @@
 				<<set $_changetype to true>><<vaginaActionInitTentacle>>
 			<<case "struggle" "struggle_pen">>
 				<<set $_changetype to true>><<vaginaActionInitStruggle>>
+			<<case "otherfoot">>
+				<<set _vaginaOptions to "otherFoot">><<selectNpcWithPartInPositionAnus "footjob">><<set $vaginatarget to $index>>
+				<span @class="($lastOptions.vagina isnot _vaginaOptions or _vaginaGold is true ?'gold':'')"><<combatPersons>> foot rubs your pussy.</span>
 		<</switch>>
 		<<if $lastOptions.vagina isnot _vaginaOptions>>
 			<<set _vaginaGold to true>>
@@ -1906,6 +1917,8 @@
 			<<case "otherHandEntrance">>
 				<<set _vaginaaction["Rest"] to "rest">>
 			<<case "otherHand">>
+				<<set _vaginaaction["Rest"] to "rest">>
+			<<case "otherFoot">>
 				<<set _vaginaaction["Rest"] to "rest">>
 		<</switch>>
 	<</if>>
@@ -2119,6 +2132,31 @@
 <<widget "chestActionInit">>
 	<<if $dissociation lte 1 and $orgasmdown lte 0 and ($pain lt 100 or $willpowerpain is undefined) and !$possessed>>
 		<<switch $chestuse>>
+			<<case 0>>
+				<<if not $options.combatControls.includes("adio") and _targetnumber gt 1>>
+					<<targetListBox "chest" _targetlist>>
+				<</if>>
+				<<set _chestOptions to "free">>
+				<span @class="($lastOptions.chest isnot _chestOptions ?'gold':'')">Your <<breasts>> are free.</span>
+				<<if $options.combatControls.includes("adio") and _targetnumber gt 1>>
+					<br>
+					<<targetListBox "chest" _targetlist>>
+				<</if>>
+				<<if _targetnumber is 1>>
+					<<set $chesttarget to _firsttarget>>
+				<</if>>
+			<<case "mouth">>
+				<<switch $cheststate>>
+					<<case "mouthentrance">>
+						<<set _chestOptions to "mouthEntrance">><<selectNpcWithPartInPosition "mouth" "chestentrance">><<set $chesttarget to $index>>
+						<span @class="($lastOptions.chest isnot _chestOptions ?'gold':'')">You feel breath on your <<breasts>>.</span>
+					<<case "chestimminent">>
+						<<set _chestOptions to "mouthImminent">><<selectNpcWithPartInPosition "mouth" "chestimminent">><<set $chesttarget to $index>>
+						<span @class="($lastOptions.chest isnot _chestOptions ?'gold':'')"><<combatPersons>> lips press against your <<nipple>>.</span>
+					<<case "chest">>
+						<<set _chestOptions to "mouthSuck">><<selectNpcWithPartInPosition "mouth" "chest">><<set $chesttarget to $index>>
+						<span @class="($lastOptions.chest isnot _chestOptions ?'gold':'')"><<combatPersons>> mouth sucks and licks your <<nipple>>.</span>
+				<</switch>>
 			<<case "penis">>
 				<<set _chestOptions to "penis">><<selectNpcWithPartInPosition "penis" "chest">><<set $chesttarget to $index>>
 				<span @class="($lastOptions.chest isnot _chestOptions ?'gold':'')"><<combatPersons>> <<npcPenisSimple $chesttarget>> rests <<print ($player.breastsize is 0 ?"against":"between")>> your <<breasts>>.</span>
@@ -2165,6 +2203,7 @@
 	<</if>>
 	<<switch _diffAction>>
 		<<case "rub">><<chestdifficulty>>
+		<<case "chesttomouth">><<chestdifficulty>> <<combatpromiscuous3>>
 	<</switch>>
 <</widget>>
 
@@ -2176,6 +2215,13 @@
 
 	<<else>>
 		<<switch _chestOptions>>
+			<<case "free">>
+				<<set _chestaction["Rest"] to "rest">>
+				<<if $NPCList[$chesttarget] and ($consensual is 1 or $promiscuity gte 35 or $promiscuityIgnore) and !$gloryhole and [0,"speech_only"].includes($NPCList[$chesttarget].mouth) and $NPCList[$chesttarget].location.genitals isnot "head" and ![$NPCList[$chesttarget].location.head].includesAny("head", "genitals")>>
+					<<set _chestaction["Push towards " + $NPCList[$chesttarget].pronouns.his + " mouth"] to "chesttomouth">>
+				<</if>>
+			<<case "mouthEntrance" "mouthImminent" "mouthSuck">>
+				<<set _chestaction["Rest"] to "rest">>
 			<<case "penis">>
 				<<set _chestaction["Rub"] to "rub">>
 				<<set _chestaction["Stop"] to "stop">>
