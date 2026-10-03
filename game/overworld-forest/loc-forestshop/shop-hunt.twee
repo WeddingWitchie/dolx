@@ -254,6 +254,8 @@
 				<<set $_eden to $shopHunt.actors.find(x => x.type === "eden").id>>
 				<<shopHuntActorSetState $_eden "roam">>
 				<span class="black">The shop rumbles.</span> The gloom closes in on you and <<shopHuntActorName $_eden>>. <<shopHuntPronoun "His">> grip on your arm tightens painfully, before suddenly vanishing. <<shopHuntPronoun "His">> shout becomes muffled, as if you're hearing through wool.
+			<<case "gameCaught" "gameAmbush">>
+				<span class="black">The shop rumbles.</span> The shelves slide and swap places around you like cards being shuffled.
 			<<case "gameFall">>
 				<<shopHuntPronoun "He">> yelps, rubbing <<shopHuntPronoun "his">> head.
 				<<if $gwylanSeen.includes("shopHunt_fallPoint")>>
@@ -266,7 +268,11 @@
 				<span class="black">The shop rumbles.</span> The gloom closes in on you.
 		<</switch>>
 		<br><br>
-		When the gloom clears away, you open your eyes. You're still by the <<shopHuntLocName $_playerLoc>>, but <span class="pink">your surroundings seem entirely different</span>.
+		<<if $shopHunt.context is "game">>
+			When the shelves settle, you're still by the <<shopHuntLocName $_playerLoc>>, but <span class="pink">your surroundings seem entirely different</span>.
+		<<else>>
+			When the gloom clears away, you open your eyes. You're still by the <<shopHuntLocName $_playerLoc>>, but <span class="pink">your surroundings seem entirely different</span>.
+		<</if>>
 		<br><br>
 	<</if>>
 
@@ -651,6 +657,12 @@
 			<<set $shopHunt.actors[$_actorNum].footsteps to 1>>
 			<<set $shopHunt.actors[$_actorNum].obstaclePass to 1>>
 			<<set $shopHunt.actors[$_actorNum].team to "gwylan">>
+			<<if $shopHunt.context is "game">>
+				<!-- Friendly game: Gwylan can't be defeated, hums as they walks, and searches methodically -->
+				<<set $shopHunt.actors[$_actorNum].health to 999>>
+				<<set $shopHunt.actors[$_actorNum].footsteps to 2>>
+				<<set $shopHunt.actors[$_actorNum].state to "search">>
+			<</if>>
 		<<case "mannequin">>
 			<<set $shopHunt.actors[$_actorNum].health to 1>>
 			<<set $shopHunt.actors[$_actorNum].name to _args[3] + " mannequin">>
@@ -959,6 +971,13 @@
 			<</switch>>
 
 		<<case "gwylan">>
+			<<if $shopHunt.context is "game" and $_actor.role is "enemy" and $_context is "search">>
+				<<set $_direction to shopHuntDirectionGet(applyArrays($shopHunt.actors[_args[0]].position, $shopHunt.player.position, "subtraction"))>>
+				Gwylan's hat pokes round the corner from the $_direction. "I see you!" <<shopHuntPronoun "he">> sings, and starts after you at a trot.
+				<<shopHuntActorSetState _args[0] "chase" "player">>
+			<<elseif $shopHunt.context is "game" and $_actor.role is "enemy">>
+				<<shopHuntGameCaught $_context>>
+			<<else>>
 			<<switch $_context>>
 				<<case "mirror">>
 					<<if $_actor.role is "enemy">>
@@ -990,20 +1009,7 @@
 					<</if>>
 					It's <<shopHuntActorName _args[0]>>.
 					<<if $_actor.role is "enemy">>
-						<<if $shopHunt.context is "game">>
-							<<set $_actor.points++>>
-							"Peek-a-boo! Found you!" The whole <<shopHuntLocName _locRaw>> seems to tilt forward, dumping you right into <<shopHuntPronoun "his">> arms.
-							<br><br>
-
-							<<if $_actor.points gte 3>>
-								/* ToDo: Gwylan hunt - end hunt game with Gwylan victory */
-							<<else>>
-								<<He>> hugs you for a moment, before twirling off into the gloom. You hear the snap of fingers.
-								<<shopHuntActorSetState _args[0] "roam">><<shopHuntShuffle>>
-							<</if>>
-						<<else>>
-							<<shopHuntGwylanHypnotise>>
-						<</if>>
+						<<shopHuntGwylanHypnotise>>
 					<<else>>
 						<<He>> smiles at you, and slowly closes the doors again.
 						<<shopHuntActorSetState _args[0] "roam">>
@@ -1011,36 +1017,21 @@
 				<<case "insideExit">>
 					The first thing you see is a pointy hat. You look down at the <<nnpc_gendery "Gwylan">> it's attached to. It's <<shopHuntActorName _args[0]>>.
 					<<if $_actor.role is "enemy">>
-						<<if $shopHunt.context is "game">>
-							<<set $_actor.points++>>
-							/* Todo: shop hunt, Gwylan earns point and map shuffles */
-						<<else>>
-							<<shopHuntGwylanHypnotise>>
-						<</if>>
+						<<shopHuntGwylanHypnotise>>
 					<<else>>
 						<<He>> smiles at you. "Had enough hiding?"
 					<</if>>
 				<<case "rush" "chase">>
 					<<if $_actor.role is "enemy">>
 						<<shopHuntActorName _args[0] "cap">> bounds up to you and <span class="red">tackles you to the floor</span>. <<shopHuntPronoun "He">> smiles proudly.
-						<<if $shopHunt.context is "game">>
-							<<set $_actor.points++>>
-							/* Todo: shop hunt, Gwylan earns point and map shuffles */
-						<<else>>
-							<<shopHuntGwylanHypnotise>>
-						<</if>>
+						<<shopHuntGwylanHypnotise>>
 					<<else>>
 						<<set $_skip to true>>
 					<</if>>
 				<<case "hat" "hide">>
 					<<if $_actor.role is "enemy">>
 						<<shopHuntActorName _args[0] "cap">> walks past the <<shopHuntLocName _locRaw "simple">>, before twirling and <span class="red">looking right at you</span>.
-						<<if $shopHunt.context is "game">>
-							<<set $_actor.points++>>
-							/* Todo: shop hunt, Gwylan earns point and map shuffles */
-						<<else>>
-							<<shopHuntGwylanHypnotise>>
-						<</if>>
+						<<shopHuntGwylanHypnotise>>
 					<<else>>
 						<<set $_skip to true>>
 					<</if>>
@@ -1054,16 +1045,12 @@
 					<</if>>
 				<<default>>
 					<<if $_actor.role is "enemy">>
-						<<if $shopHunt.context is "game">>
-							<<set $_actor.points++>>
-							/* Todo: shop hunt, Gwylan earns point and map shuffles */
-						<<else>>
-							<<shopHuntGwylanHypnotise>>
-						<</if>>
+						<<shopHuntGwylanHypnotise>>
 					<<else>>
 						<<set $_skip to true>>
 					<</if>>
 			<</switch>>
+			<</if>>
 
 		<<case "wraith">>
 			/* This is all assuming the Wraith is only ever an enemy, it's extremely unlikely that it'll ever be an ally in shop hunts
@@ -1402,7 +1389,7 @@
 					<<switch $shopHunt.actors[$_target].type>>
 						<<case "gwylan">>
 							<<if $shopHunt.context is "game">>
-								/* Todo: Gwylan hunt, defeating Gwylan in 'game' version */
+								/* Unreachable in the game version: Gwylan has 999 health there */
 							<<else>>
 								<<shopHuntPronoun "He">> cries out in pain, falling to the floor. The shop itself trembles.
 								<<set $phase to "defeatGwylan">>
@@ -1495,10 +1482,17 @@
 				You shake the <<shopHuntLocName _locRaw>>, <span class="blue">making it <<shopHuntLocName _locRaw "sound">> loudly</span>. Everyone in the shop must have heard it.
 				<<shopHuntMess 1 `_locRaw + "Sound"`>>
 			<<else>>
-				You throw your head back and scream, the sound <span class="blue">echoing throughout the shop</span>. Everyone in the shop must have heard it.
+				<<if $shopHunt.context is "game">>
+					You cup your hands round your mouth and call "Over here!", the sound <span class="blue">carrying through the shelves</span>. Gwylan must have heard it.
+				<<else>>
+					You throw your head back and scream, the sound <span class="blue">echoing throughout the shop</span>. Everyone in the shop must have heard it.
+				<</if>>
 			<</if>>
 			<<set $shopHunt.player.target to null>>
 			<<shopHuntDecoy>>
+		<<elseif _act is "ambush" and $shopHunt.context is "game">>
+			<<set $shopHunt.ambushTarget to false>>
+			<<shopHuntGameTag>>
 		<<elseif _act is "ambush">>
 			<<set $_target to $shopHunt.ambushTarget>>
 			You spring out from your hiding spot and leap at <<shopHuntActorName $_target>>.
@@ -1529,12 +1523,7 @@
 				<<set $shopHunt.actors[$_target].seen.pushUnique("ambush")>>
 				<<switch $shopHunt.actors[$_target].type>>
 					<<case "gwylan">>
-						<<if $shopHunt.context is "game">>
-							<<shopHuntShuffle "gameAmbush">>
-							/* Todo: Gwylan hunt, "gameAmbush" shuffle case */
-						<<else>>
-							<<shopHuntPronoun "He">> yelps as you tackle <<shopHuntPronoun "him">>.
-						<</if>>
+						<<shopHuntPronoun "He">> yelps as you tackle <<shopHuntPronoun "him">>.
 					<<case "eden">>
 						<<shopHuntPronoun "He">> swears as you tackle <<shopHuntPronoun "him">>, staggering back. You flee out of range before <<shopHuntPronoun "he">> can grab you.
 						<<set $shopHunt.actors[$_target].damaged to true>>
@@ -1554,7 +1543,7 @@
 				<<switch $shopHunt.actors[$_target].type>>
 					<<case "gwylan">>
 						<<if $shopHunt.context is "game">>
-							/* Todo: Gwylan hunt, defeating Gwylan in 'game' version */
+							/* Unreachable in the game version: Gwylan has 999 health there */
 						<<else>>
 							<<shopHuntPronoun "He">> cries out in pain, falling to the floor. The shop itself trembles.
 							<<set $phase to "defeatGwylan">>
@@ -2108,7 +2097,9 @@
 		<</if>>
 
 		<!-- Searching options -->
-		<<if $shopHunt.context is "garden" and $shopHunt.actors.filter(x => x.state is "statue").length gte 1>>
+		<<if $shopHunt.context is "game">>
+			<!-- No item hunting in the friendly game -->
+		<<elseif $shopHunt.context is "garden" and $shopHunt.actors.filter(x => x.state is "statue").length gte 1>>
 			<<set $_actorsPresent to shopHuntContains(_locRaw).filter(x => typeof x is "number" and !$shopHunt.actors[x].seen.includes("searchKey"))>>
 			<<if $_actorsPresent.length gte 1 and $shopHunt.item.key isnot "player">>
 				<<set $shopHunt.searchTarget to $_actorsPresent[0]>>
@@ -2168,7 +2159,11 @@
 				<</if>>
 			<<else>>
 				<br>
-				<<shopHuntIcon "yell">><<link [[Scream|Forest Shop Hunt]]>><<shopHuntAction "sound" "yell">><</link>>
+				<<if $shopHunt.context is "game">>
+					<<shopHuntIcon "yell">><<link [[Call out|Forest Shop Hunt]]>><<shopHuntAction "sound" "yell">><</link>>
+				<<else>>
+					<<shopHuntIcon "yell">><<link [[Scream|Forest Shop Hunt]]>><<shopHuntAction "sound" "yell">><</link>>
+				<</if>>
 			<</if>>
 		<</if>>
 
@@ -2222,7 +2217,7 @@
 		<</if>>
 	<</if>>
 
-	<<if shopHuntFind("door") is _locRaw>>
+	<<if shopHuntFind("door") is _locRaw and $shopHunt.context isnot "game">>
 		<<if $shopHunt.context is "garden" and $shopHunt.item.key is "player" and $shopHunt.actors.filter(x => x.state is "guard").length gte 1>>
 			<<for $_i to 0; $_i lt $shopHunt.actors.length; $_i++>>
 				<<shopHuntActorSetState $_i "statue">>
@@ -2854,6 +2849,8 @@
 						<<switch $shopHunt.actors[Object.values($_footsteps)[$_i][$_r][$_o]].type>>
 							<<case "eden">>
 								<<set $_footstepTypes[$_r].pushUnique("creaky footsteps")>>
+							<<case "gwylan">>
+								<<set $_footstepTypes[$_r].pushUnique("soft humming")>>
 							<<case "mannequin">>
 								<<set $_footstepTypes[$_r].pushUnique("wooden footsteps")>>
 							<<case "elkspawn">>
@@ -3719,13 +3716,83 @@
 	<</if>>
 <</widget>>
 
+<<widget "shopHuntGameStatus">>
+	<<set $_gwylan to $shopHunt.actors.find(x => x.type is "gwylan")>>
+	<span class="gold">You: <<print $shopHunt.player.points>> | Gwylan: <<print $_gwylan.points>></span> (first to three wins)
+	<<if $_gwylan.stun.all>>
+		<br>Gwylan is still counting, hat pulled down over <<shopHuntPronoun "his" $_gwylan.id>> eyes.
+	<</if>>
+	<br><br>
+<</widget>>
+
+<<widget "shopHuntGameEnd">>
+	<br><br>
+	<<if _args[0] is "gwylan">>
+		<<link [[Next|Gwylan Hide Seek Found]]>><<shopHuntEnd>><</link>>
+	<<else>>
+		<<link [[Next|Gwylan Hide Seek Won]]>><<shopHuntEnd>><</link>>
+	<</if>>
+	<br>
+	<<exitAll>>
+<</widget>>
+
+<<widget "shopHuntGameCaught">>
+	<<set $_gwylan to $shopHunt.actors.find(x => x.type is "gwylan")>>
+	<<set $shopHuntActive to $_gwylan.id>>
+	<<set $_gwylan.points++>>
+	<<switch _args[0]>>
+		<<case "inside">>
+			The doors of the <<shopHuntLocName _locRaw>> creak open, and Gwylan's face appears, delighted. "Peek-a-boo! Found you!"
+			<br><br>
+			The <<shopHuntLocName _locRaw "simple">> tips you forward into <<shopHuntPronoun "his">> arms, and <<shopHuntPronoun "he">> hugs you before you can wriggle free.
+		<<case "insideExit">>
+			You open the doors of the <<shopHuntLocName _locRaw>> and find yourself face to face with a pointy hat. "Oh!" says Gwylan. "I was just about to look in there. Found you!"
+		<<case "rush" "chase">>
+			Gwylan catches up with you, laughing, and taps both hands on your shoulders. "Caught you!"
+		<<case "hat" "hide">>
+			Gwylan wanders past the <<shopHuntLocName _locRaw "simple">>, stops, and turns all the way round. "Found you!" <<shopHuntPronoun "He">> points at you with a delighted little gasp.
+		<<default>>
+			Gwylan steps round the corner and finds you standing in plain sight. "Well, that was easy," <<shopHuntPronoun "he">> says, tapping the end of your nose. "Found you!"
+	<</switch>>
+	<br><br>
+	<span class="red">Point to Gwylan.</span>
+	<<if $_gwylan.points gte 3>>
+		"That's three!" <<shopHuntPronoun "he">> cheers, and does a small twirl.
+		<<shopHuntGameEnd "gwylan">>
+	<<else>>
+		<<shopHuntPronoun "He">> skips off between the shelves, humming.
+		<br><br>
+		<<shopHuntActorSetState $_gwylan.id "search">>
+		<<shopHuntShuffle "gameCaught">>
+	<</if>>
+<</widget>>
+
+<<widget "shopHuntGameTag">>
+	<<set $_gwylan to $shopHunt.actors.find(x => x.type is "gwylan")>>
+	<<set $shopHuntActive to $_gwylan.id>>
+	<<set $shopHunt.player.points++>>
+	You spring out of your hiding place and tap Gwylan firmly on the shoulder. "Tag!"
+	<<shopHuntPronoun "He">> yelps and spins round with <<shopHuntPronoun "his">> hat askew, then bursts out laughing. "Oh, that was very good!"
+	<br><br>
+	<span class="green">Point to you.</span>
+	<<if $shopHunt.player.points gte 3>>
+		<<shopHuntPronoun "He">> straightens <<shopHuntPronoun "his">> hat and gives you a small bow. "That's three. You've beaten me fair and square."
+		<<shopHuntGameEnd "player">>
+	<<else>>
+		<<shopHuntPronoun "He">> straightens <<shopHuntPronoun "his">> hat and points at you. "Don't get comfortable. Off you go."
+		<br><br>
+		<<shopHuntActorSetState $_gwylan.id "search">>
+		<<shopHuntShuffle "gameAmbush">>
+	<</if>>
+<</widget>>
+
 :: Forest Shop Hunt Test
 <<set $location to "forest_shop">><<set $outside to 0>><<effects>>
 <br><br>
 
 <<link [[Find the key to the garden|Forest Shop Hunt Intro]]>><<set $phase to "garden">><</link>><<note "Complete!" "green">>
 <br>
-<<link [[Hide and seek game|Forest Shop Hunt Intro]]>><<npc Gwylan>><<person1>><<set $phase to "game">><</link>><<note "Only partially supported" "orange">>
+<<link [[Hide and seek game|Forest Shop Hunt Intro]]>><<npc Gwylan>><<person1>><<set $phase to "game">><</link>><<note "Complete!" "green">>
 <br>
 <<link [[Rescue from Eden|Forest Shop Hunt Intro]]>><<set $phase to "rescue">><</link>><<note "Complete!" "green">>
 <br>
@@ -3767,19 +3834,29 @@
 
 		Before long, you find another mannequin. It's pointing off in another direction.
 	<<case "game">>
+		<<set $shopHunt.shop.mannequins to 0>>
 		<<shopHuntCreateActor "Gwylan">>
-		<span class="orange">Unfinished.</span>
-		<br><br>
-		"Let's play hide-and-seek," Gwylan says.
-		<br>
-		"Okay," you say. "Who's going to be 'it' first?"
-		<br>
-		Gwylan laughs.
-		<br>
-		"...Gwylan?"
-		<br>
-		Gwylan laughs louder.
-		<<stress 6>><<gstress>>
+		<<shopHuntStun 0 4 "all">>
+		<<if Time.isBloodMoon()>>
+			"Let's play hide-and-seek," Gwylan says.
+			<br>
+			"Okay," you say. "Who's going to be 'it' first?"
+			<br>
+			Gwylan laughs.
+			<br>
+			"...Gwylan?"
+			<br>
+			Gwylan laughs louder.
+			<<stress 6>><<gstress>>
+			<br><br>
+
+			The shop stretches itself out, the shelves sliding apart in the red light. Gwylan pulls <<his>> hat down over <<his>> eyes and begins to count.
+		<<else>>
+			Gwylan pulls <<his>> hat down over <<his>> eyes and starts to count. "One... two... three..."
+			<br><br>
+
+			The shop stretches itself out the way it does when it knows a game is starting, the shelves sliding apart to make room for you to run.
+		<</if>>
 	<<case "rescue">>
 		<<npc Gwylan>><<npc Eden -1>><<person1>>
 		<<shopHuntCreateActor "Gwylan" "ally">>
@@ -3871,6 +3948,9 @@
 	<<shopHuntTurn>>
 <</if>>
 
+<<if $shopHunt.context is "game">>
+	<<shopHuntGameStatus>>
+<</if>>
 <<if $shopHunt.player.hide is 4 and $shopHunt.locations[shopHuntFind("player")].special.includes("inside")>>
 	<!-- Hiding inside the rotting closet/antique wardrobe -->
 	<<shopHuntMapForget>>

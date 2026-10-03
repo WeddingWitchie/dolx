@@ -1,0 +1,1457 @@
+:: Gwylan Pet Training
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _pool to shuffle(["sit", "stay", "paw", "fetch", "roll", "course", "tug"])>>
+<<set $gwylan.training to { list: _pool.slice(0, 3), step: 0, score: 0, last: null, stopped: false }>>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "meek">>
+	"Gwylan... could you give me a few commands?" you ask, thumb rubbing under the edge of your collar. "I want to see if I can get them right."
+<<elseif _speechAttitudeResolved is "shy">>
+	You rub the side of your neck and look at the collar instead of Gwylan. "Could you give me a few commands? I want to see if I can do them."
+<<elseif _speechAttitudeResolved is "polite">>
+	"Would you mind testing me?" you ask. "Three commands, if you have time."
+<<elseif _speechAttitudeResolved is "flamboyant">>
+	You straighten your collar and step into the clear space between the shelves. "Three commands, Gwylan. Make them interesting."
+<<elseif _speechAttitudeResolved is "docile">>
+	You stop in front of Gwylan and wait for <<him>> to look up. "Tell me what to do. I'll try to do it right."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Pick three commands," you say, tapping your collar. "I can handle them."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Give me an order," you say, tugging at your collar. "See if you can find one I won't do."
+<<else>>
+	"Would you like to see what I've learned?" you ask, hooking a finger under your collar.
+<</if>>
+<br><br>
+Gwylan looks up from the mortar. "Commands?" <<He>> sets the pestle down, trying and failing to look less pleased than <<hes>>.
+"Oh, that's a lovely idea. Hold on, I know where I left the tin."
+<br><br>
+<<He>> fetches a flat tin from beneath the counter and rattles it beside your ear. The smell of candied ginger reaches you before the lid is even off.
+<br><br>
+"Three commands. Manage all three and your bed can stay out for the week. Two will do for tonight." <<He>> tilts the tin towards you.
+"And if you want to stop, say so, and we stop. That's the only rule."
+<br><br>
+<<He>> steps out from behind the counter, onto the stretch of floor between the herb shelves where the boards have been worn pale.
+Through the open door, the forest path is quiet.
+<br><br>
+Gwylan takes out a piece of ginger, holds it between two fingers, and waits for you to look at it.
+<<if $hypnosis_traits.devotion gte 1>>
+	<<hypnosisText "The rattle of the tin keeps going in your head after it stops, and your knees start to bend.">>
+<</if>>
+<br><br>
+<<link [[Wait for the first command|Gwylan Pet Training Round]]>><<pass 2>><</link>>
+<br>
+<<link [[Think better of it|Forest Shop Entrance]]>><<unset $gwylan.training>><<endevent>><</link>>
+<br>
+
+:: Gwylan Pet Training Round
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _wolf to effectiveTransformationLevel("wolf") gte 6>>
+<<set _trick to $gwylan.training.list[$gwylan.training.step]>>
+<<if $gwylan.training.step gt 0>>
+	You get to your feet if you need to and return to the clear space between the shelves.
+	Gwylan sets aside the last prop and comes over with the ginger tin.
+	<br><br>
+<</if>>
+<<switch _trick>>
+	<<case "sit">>
+		Gwylan crouches in front of you with the tin so <<he>> can reach you once you sit.
+		Gwylan holds a piece of ginger between two fingers, level with your eyes, and waits until you are watching it. <<He>> lowers <<his>> hand a little.
+		"<<gwylanCommand "Sit." 1>>"
+		<br><br>
+		<<link [[Sit at once|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "sit", cls: "eager" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+		<br>
+		<<link [[Sit, looking at the floor|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "sit", cls: "shy" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+		<br>
+		<<if _wolf>>
+			<<link [[Sit the way your body wants to|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "sit", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>><<wolfgirl>>
+		<<else>>
+			<<link [[Sit slowly, eyes on <<him>>|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "sit", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<npcincr Gwylan lust 1>><<pass 2>><</link>><<glust>>
+		<</if>>
+		<br>
+		<<link [[Stay on your feet|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "sit", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
+	<<case "stay">>
+		Gwylan crouches and sets a piece of ginger on the floorboards a few paces from you, then straightens and points at your feet.
+		"<<gwylanCommand "Stay." 1>>"
+		<br><br>
+		<<He>> goes back behind the counter, opens the ledger, and does not look at you again.
+		<br><br>
+		<<link [[Hold still|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "stay", cls: "eager" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 10>><</link>>
+		<br>
+		<<link [[Hold still, aware of the open door|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "stay", cls: "shy" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 10>><</link>>
+		<br>
+		<<link [[Inch toward the ginger when <<he>> turns a page|Gwylan Pet Training Result]]>><<if random(1, 2) is 1>><<set $gwylan.training.last to { trick: "stay", cls: "twist", ok: true }>><<set $gwylan.training.score++>><<else>><<set $gwylan.training.last to { trick: "stay", cls: "twist", ok: false }>><</if>><<set $gwylan.training.step++>><<pass 10>><</link>>
+		<br>
+		<<link [[Go straight for it|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "stay", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
+	<<case "paw">>
+		Gwylan crouches in front of you, one hand held out, palm up.
+		"<<gwylanCommand "Paw." 1>>"
+		<br><br>
+		<<link [[Put your hand in <<his>>|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "paw", cls: "eager" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+		<br>
+		<<link [[Offer your hand, looking away|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "paw", cls: "shy" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+		<br>
+		<<link [[Shake <<his>> hand, very formally|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "paw", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+		<br>
+		<<link [[Keep your hands to yourself|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "paw", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
+	<<case "fetch">>
+		Gwylan takes a ball of twine from beneath the counter and rolls it down the aisle between the herb shelves. It bumps against a crate at the far end and stops.
+		<<He>> points after it. "<<gwylanCommand "Fetch." 1>>"
+		<br><br>
+		<<link [[Run after it and bring it back|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "fetch", cls: "eager" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 3>><</link>>
+		<br>
+		<<link [[Fetch it, but walk, and hand it over without looking up|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "fetch", cls: "shy" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 3>><</link>>
+		<br>
+		<<if _wolf>>
+			<<link [[Run it down on instinct|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "fetch", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 3>><</link>><<wolfgirl>>
+			<br>
+		<<elseif hasSexStat("deviancy", 2)>>
+			<<link [[Carry it back in your mouth|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "fetch", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<npcincr Gwylan lust 2>><<sub 1>><<pass 3>><</link>><<glust>><<deviant2>>
+			<br>
+		<<else>>
+			<<link [[Make a show of it, sliding to a stop beside the crate|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "fetch", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 3>><</link>>
+			<br>
+		<</if>>
+		<<link [[Stay put and let it sit there|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "fetch", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
+	<<case "roll">>
+		Gwylan looks at the clear floor beside the pet bed, then points down, the ginger still pinched between <<his>> fingers.
+		"<<gwylanCommand "Roll over." 1>>"
+		<br><br>
+		<<link [[Roll over|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "roll", cls: "eager" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+		<br>
+		<<link [[Roll over, one arm across your front|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "roll", cls: "shy" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+		<br>
+		<<if _wolf>>
+			<<link [[Roll over and stay there, belly bare|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "roll", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<npcincr Gwylan lust 1>><<pass 2>><</link>><<wolfgirl>><<glust>>
+			<br>
+		<<elseif hasSexStat("deviancy", 2)>>
+			<<link [[Roll over and stay on your back|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "roll", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<npcincr Gwylan lust 2>><<sub 1>><<pass 2>><</link>><<glust>><<deviant2>>
+			<br>
+		<<else>>
+			<<link [[Roll over twice|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "roll", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 2>><</link>>
+			<br>
+		<</if>>
+		<<link [[Stay on your feet|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "roll", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
+	<<case "course">>
+		Gwylan drags three crates and a stool into a line between the shelves and lays the stepladder across two of them for a bar.
+		"Over, under and round, please. And do mind the jars. Several of them are very hard to replace."
+		<br><br>
+		<<athleticsdifficulty 1 600>>
+		<<link [[Take it at a run|Gwylan Pet Training Result]]>><<if $athleticsSuccess>><<set $gwylan.training.last to { trick: "course", cls: "eager", ok: true }>><<set $gwylan.training.score++>><<else>><<set $gwylan.training.last to { trick: "course", cls: "eager", ok: false }>><</if>><<set $gwylan.training.step++>><<pass 5>><<tiredness 1>><</link>><<gtiredness>>
+		<br>
+		<<link [[Pick your way through at a walk, watching the jars|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "course", cls: "shy" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 5>><</link>>
+		<br>
+		<<if _wolf>>
+			<<link [[Take it on all fours|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "course", cls: "twist", ok: true }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 5>><<tiredness 1>><</link>><<wolfgirl>><<gtiredness>>
+		<<else>>
+			<<link [[Vault the last crate|Gwylan Pet Training Result]]>><<if random(1, 2) is 1>><<set $gwylan.training.last to { trick: "course", cls: "twist", ok: true }>><<set $gwylan.training.score++>><<else>><<set $gwylan.training.last to { trick: "course", cls: "twist", ok: false }>><</if>><<set $gwylan.training.step++>><<pass 5>><<tiredness 1>><</link>><<gtiredness>>
+		<</if>>
+		<br>
+		<<link [[Walk around the whole thing|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "course", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
+	<<default>>
+		<<He>> takes a length of knotted rope from under the counter and holds out one end. "Let's see how strong you are, then."
+		You take the end <<he>> offers while <<he>> grips the other.
+		<br><br>
+		<<physiquedifficulty 1 9000>>
+		<<link [[Pull with everything you have|Gwylan Pet Training Result]]>><<if $physiqueSuccess>><<set $gwylan.training.last to { trick: "tug", cls: "eager", ok: true }>><<set $gwylan.training.score++>><<else>><<set $gwylan.training.last to { trick: "tug", cls: "eager", ok: false }>><</if>><<set $gwylan.training.step++>><<pass 5>><</link>>
+		<br>
+		<<link [[Pull, though it's hard to keep a straight face|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "tug", cls: "shy" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 5>><</link>>
+		<br>
+		<<if _wolf>>
+			<<link [[Bite the rope and growl|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "tug", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 5>><</link>><<wolfgirl>>
+		<<else>>
+			<<link [[Let Gwylan win|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "tug", cls: "twist" }>><<set $gwylan.training.score++>><<set $gwylan.training.step++>><<pass 5>><</link>>
+		<</if>>
+		<br>
+		<<link [[Drop the rope|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "tug", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
+<</switch>>
+<br>
+
+:: Gwylan Pet Training Result
+<<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
+<<include "Gwylan Pet Training React">>
+<br><br>
+<<if $gwylan.training.stopped or $gwylan.training.step gte 3>>
+	<<link [[Next|Gwylan Pet Training End]]>><</link>>
+<<else>>
+	<<link [[Next command|Gwylan Pet Training Round]]>><<pass 2>><</link>>
+<</if>>
+<br>
+
+:: Gwylan Pet Training React
+<<set _gs to _gwylanStatus ?? []>>
+<<set _t to $gwylan.training.last.trick>>
+<<set _c to $gwylan.training.last.cls>>
+<<set _ok to $gwylan.training.last.ok>>
+<<set _comp to (_c is "defy" and $hypnosis_traits.devotion gte 1 and !$willpowerSuccess and !_gs.includes("cautious"))>>
+<<set _wolfLv to effectiveTransformationLevel("wolf") gte 6>>
+<<switch _t>>
+	<<case "sit">>
+		<<if _c is "eager">>
+			You sit before Gwylan has finished the word. <<He>> brings the ginger to your mouth, and the sugar gives way to a slow warmth as you chew.
+			"<<pcPetname "Gwylan" "good">>."
+			<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+				<br><br>
+				"Was that all right?" you ask once you have swallowed.
+				<br><br>
+				Gwylan taps the tin. "You were sitting before I'd finished speaking, so yes, I think it was."
+			<<elseif _speechAttitudeResolved is "polite">>
+				<br><br>
+				"Thank you," you say.
+				<br><br>
+				Gwylan nods and reaches into the tin again.
+			<<elseif _speechAttitudeResolved is "flamboyant">>
+				<br><br>
+				"A good start," you say, lifting your chin.
+				<br><br>
+				Gwylan points the ginger at you. "I'll do the marking, if you don't mind, dear."
+			<<elseif _speechAttitudeResolved is "docile">>
+				<br><br>
+				You stay sitting after you swallow, hands resting in your lap.
+				Gwylan reaches for another piece of ginger, then remembers there are more commands to go.
+			<<elseif _speechAttitudeResolved is "confident">>
+				<br><br>
+				"One done," you say. "What's next?"
+			<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+				<br><br>
+				"That was easy," you say. "Give me a real one."
+				<br><br>
+				Gwylan lowers the tin, amused. "Mmn. Let's see how you manage the next one first."
+			<</if>>
+		<<elseif _c is "shy">>
+			You sit, but you can't make yourself look up. <<He>> holds the ginger in front of your face a few seconds longer than <<he>> needs to,
+			and the tips of your ears go hot.<<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "waterdragon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "ears"))>> They twitch away from the tin.<</if>>
+		<<elseif _c is "twist">>
+			<<if _wolfLv>>
+				Your knees bend before you decide how to sit, dropping you low in front of <<him>> with your back straight and chin up.
+				<<if Transformations.partActive("wolf", "tail")>>Your tail sweeps across the floorboards behind you.<</if>>
+				<br><br>
+				Gwylan presses the back of <<his>> wrist to <<his>> mouth. "Oh, dear! That's unfair..." <<He>> feeds you the ginger and scratches behind your ear;
+				you tip your head into <<his>> fingers before you catch yourself. <<trauma -3>><<ltrauma>>
+			<<else>>
+				You lower yourself slowly, keeping your eyes on <<him>> all the way down. Gwylan watches you, a little pink, before putting the ginger on your tongue. "Oh, you're showing off."
+			<</if>>
+		<<elseif _comp>>
+			You keep your feet in place and force yourself to stay standing, even as your legs begin to ache. <<gwylanHypnoName "cap">> tilts <<his>> head, and <span class="red">your legs give way beneath you</span>.
+			<br><br>
+			<<hypnosisText "You are sitting before you can stop yourself.">> Gwylan waits until you look up before offering the ginger.
+		<<else>>
+			You stay on your feet. Gwylan looks at you for a moment, then eats the ginger <<himself>> with a small shrug.
+		<</if>>
+	<<case "stay">>
+		<<if _c is "eager">>
+			Minutes go by. Gwylan keeps reading, though every few lines <<he>> glances at you.
+			<<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "bird", "waterdragon", "demon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>>Your tail keeps moving behind you each time the smell of ginger drifts over, and you can't make it stop.<</if>>
+			<br><br>
+			When <<he>> finally closes the ledger, <<he>> looks at the untouched ginger and raises <<his>> eyebrows. "Not a crumb moved. I may have made that one too easy."
+		<<elseif _c is "shy">>
+			The shop door is open to the forest path, and every footstep outside makes you flinch. Gwylan keeps reading without looking up.
+			<br><br>
+			By the time <<he>> closes the ledger, nobody has come in, the ginger is still where <<he>> left it, and your shoulders are up around your ears.
+		<<elseif _c is "twist" and _ok>>
+			<<He>> turns a page. You edge closer. When <<he>> turns another, you reach the ginger and put it in your mouth.
+			<br><br>
+			Gwylan keeps reading. "I did say <i>stay</i>," <<he>> says mildly.
+		<<elseif _c is "twist">>
+			A floorboard creaks as you edge towards the ginger. "Back, please," Gwylan says, without lifting <<his>> eyes from the ledger.
+			<br><br>
+			<<He>> gets up, crosses the shop, and nudges the ginger back to where it started with the toe of <<his>> boot, then waits until you have returned to your spot. Your ears are burning.
+		<<elseif _comp>>
+			You mean to grab it. Your legs stay exactly where they are, and you can smell the ginger the entire time.
+			<br><br>
+			<<hypnosisText "You want it badly, and you cannot make your hand move.">>
+		<<else>>
+			You cross the floor in three strides and close your hand around the ginger.
+			<br><br>
+			Gwylan watches you over the top of the ledger and bursts out laughing. "I'd have been disappointed if you hadn't tried it once.
+			Not like that, though."
+		<</if>>
+	<<case "paw">>
+		<<if _c is "eager">>
+			You put your hand in <<his>> as soon as <<he>> asks. Gwylan closes <<his>> fingers around it for a moment, turns your palm over,
+			then pats your knuckles and lets go.
+		<<elseif _c is "shy">>
+			You give <<him>> your hand but not your eyes. <<His>> fingers are warm and dry, and <<he>> turns your hand over to look at the palm.
+		<<elseif _c is "twist">>
+			<<He>> gives your hand a shake. "A pleasure doing business."
+			<br><br>
+			<<if _speechAttitudeResolved is "polite">>
+				"Likewise," you say, returning the shake just as seriously.
+				<br><br>
+				Gwylan nods once and lets go of your hand.
+			<<elseif _speechAttitudeResolved is "flamboyant">>
+				You give <<his>> hand an extra shake before letting go. "Very professional."
+				<br><br>
+				Gwylan drops the serious face and starts laughing.
+			<<elseif _speechAttitudeResolved is "confident">>
+				"You said paw. You never said how," you say.
+				<br><br>
+				Gwylan nods. "I'll word that one better next time."
+			<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+				You squeeze <<his>> hand once. "There. Happy?"
+				<br><br>
+				Gwylan gives your hand another firm shake. "Very. You even shook on it."
+			<<else>>
+				"Likewise, I'm sure," you say, and <<he>> laughs too hard to keep hold of your hand.
+			<</if>>
+		<<elseif _comp>>
+			You mean to keep your hands where they are, but <span class="red">your right hand rises before you can stop it</span>.
+			Gwylan holds out <<his>> hand, and your fingers close around it before you can pull back. <<He>> watches for a moment, then lets go.
+			<br><br>
+			<<hypnosisText "You move the moment <<he>> asks, and obeying gives you a rush of pleasure.">>
+		<<else>>
+			You fold your arms. Gwylan lets <<his>> hand fall to <<his>> knee.
+		<</if>>
+	<<case "fetch">>
+		<<if _c is "eager">>
+			You run down the aisle, scoop up the ball of twine beside the crate and bring it back at a jog.
+			<br><br>
+			Gwylan takes it from you, winds the loose end back around the ball and gives you the ginger.
+		<<elseif _c is "shy">>
+			You walk down the aisle, pick the twine up, and carry it back, holding it away from your body.
+			<br><br>
+			You hand it over without looking up, and Gwylan accepts it with both hands and a small bow.
+		<<elseif _c is "twist">>
+			<<if _wolfLv>>
+				You rush down the aisle and reach the twine beside the far shelf.
+				By the time you realise what you have done, you are on all fours with the ball between your teeth.
+				<br><br>
+				<<if Transformations.partActive("wolf", "tail")>>Your tail is wagging hard.<</if>>
+				Gwylan grips the counter and laughs. "You didn't even think about that, did you?"
+			<<elseif hasSexStat("deviancy", 2)>>
+				You scoop the ball up with your mouth and carry it back like that, jaw aching a little.
+				Gwylan takes it from your teeth, looks at the damp twine, then wipes it on a cloth without comment.
+			<<else>>
+				You skid to a stop beside the crate, scoop up the twine and race back out of breath.
+				<br><br>
+				Gwylan rattles the ginger tin in quick applause.
+			<</if>>
+		<<elseif _comp>>
+			You mean to stay where you are. <<hypnosisText "Your legs carry you after it regardless.">>
+			<br><br>
+			By the time you stop moving, you are back in front of Gwylan with the twine in your hand.
+		<<else>>
+			You leave the twine where it stopped. Gwylan waits a few seconds, then walks down the aisle and picks it up <<himself>>.
+			<br><br>
+			"No fetch, then." <<He>> puts it back under the counter and reaches for the tin again.
+		<</if>>
+	<<case "roll">>
+		<<if _c is "eager">>
+			You go over on your back and come up again with dust on your shoulders. Gwylan applauds, once, and bows when you look.
+		<<elseif _c is "shy">>
+			You roll, and keep one arm across your front the whole way over. Gwylan studies the cuckoo clock until you are back on your feet.
+		<<elseif _c is "twist">>
+			<<if _wolfLv>>
+				You roll onto your back and stay there with your stomach exposed.<<if Transformations.partActive("wolf", "tail")>>
+				Your tail thumps the boards.<</if>><br><br>Gwylan smiles down at you. "Oh, you are shameless."
+			<<elseif hasSexStat("deviancy", 2)>>
+				You roll onto your back and stay there. A small whine slips out when Gwylan kneels beside you and presses two fingers to the middle of your chest.
+				<br><br>
+				Your back lifts from the boards before you can stop it. "Oh, <<pcpetname "Gwylan" "my">>," <<he>> says, keeping <<his>> hand there a moment longer.
+				<<arousal 300>><<garousal>>
+			<<else>>
+				You roll over twice and sit up again. Gwylan points at you with the ginger.
+				<br><br>
+				"I only asked for one." <<Hes>> already laughing when <<he>> gives it to you.
+			<</if>>
+		<<elseif _comp>>
+			You brace your legs to stay upright, but the command pulls you into the movement anyway. <<hypnosisText "You roll onto your back before you can stop yourself.">>
+			<br><br>
+			Gwylan waits for you to sit up again before offering a hand.
+		<<else>>
+			You stay on your feet until Gwylan lowers <<his>> hand.
+			<br><br>
+			"No? All right." <<He>> puts the ginger back in the tin.
+		<</if>>
+	<<case "course">>
+		<<if _c is "eager" and _ok>>
+			You take the stool in one stride, duck under the ladder and swing around the last crate without touching a jar.
+			Gwylan is counting on <<his>> fingers when you come back.
+			<br><br>
+			"Eleven seconds," <<he>> says. "I started counting after the stool."
+			<<if (_speechAttitudeResolved is "confident" or _speechAttitudeResolved is "flamboyant")>>
+				<br><br>
+				"You were absolutely timing me," you say.
+				<br><br>
+				Gwylan looks at <<his>> raised hand and slowly closes it. "I got curious, dear."
+			<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+				<br><br>
+				"Set it up again," you say. "I can beat that."
+				<br><br>
+				Gwylan eyes the jars. "Once is plenty. I'd like them to see tomorrow."
+			<</if>>
+		<<elseif _c is "eager">>
+			You clip the ladder going under, and the whole row of jars chimes. Gwylan lunges and gets a hand around the one that tips.
+			<br><br>
+			"Mine," <<he>> says, hugging it, "and I'm very fond of it. Again, slower, please."
+		<<elseif _c is "shy">>
+			You pick your way through at a walk, watching the jars as much as the open door.
+			<br><br>
+			Gwylan sits on the counter with <<his>> chin in <<his>> hand and lets you take as long as you need.
+		<<elseif _c is "twist" and _wolfLv>>
+			You drop to all fours and rush the course before you have time to think about it.
+			You clear the stool, duck beneath the ladder and round the last crate on your hands and feet.<<if Transformations.partActive("wolf", "tail")>>
+			<br><br>
+			Your tail swings high behind you as you finish.<</if>> Gwylan has both hands over <<his>> mouth when you look back.
+		<<elseif _c is "twist" and _ok>>
+			You vault the last crate and land on your feet. Gwylan rattles the tin once and hands you the ginger. "That one counts."
+		<<elseif _c is "twist">>
+			You try to vault the last crate, catch it with your foot and hit the floor. Gwylan is beside you before you can get up.
+			<br><br>
+			"Anything hurt?" <<He>> checks your arm when you shake your head, then helps you to your feet.
+			"Perhaps leave the vaulting for another day."
+		<<elseif _comp>>
+			You turn to walk around the course, but your feet carry you towards the stool instead.
+			<br><br>
+			<<hypnosisText "The command keeps you on the course even while you try to leave it.">> You go over, under and round as ordered,
+			only stopping once you reach the end.
+		<<else>>
+			You walk around the whole course instead.
+			<br><br>
+			Gwylan watches you return to the starting point, then puts the ginger back in the tin. "You went around it, dear. That isn't quite the course."
+		<</if>>
+	<<default>>
+		<<if _c is "eager" and _ok>>
+			You plant your feet and haul. The rope slips through Gwylan's hands, and <<he>> stumbles forward onto the floor.
+			<<He>> sits there laughing for a second before dropping the rope.
+			<br><br>
+			"All right. You win." <<He>> rubs the red marks across <<his>> palms. "I was going to let you have it eventually."
+			<br><br>
+			<<if (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "docile")>>
+				"Of course you were," you say, offering <<him>> a hand.
+			<<elseif (_speechAttitudeResolved is "flamboyant" or _speechAttitudeResolved is "confident")>>
+				You bow over the rope. "A gracious defeat."
+				<br><br>
+				You offer your hand, and Gwylan lets you pull <<him>> up. "You look very pleased with yourself."
+			<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+				"You went down very easily," you say.
+				<br><br>
+				Gwylan grabs your end of the rope and gives it a sudden tug, making you stumble a step forward. "Say that again when I'm standing."
+			<<else>>
+				"No, you weren't," you say.
+				<br><br>
+				You offer your hand, and Gwylan gets up without arguing.
+			<</if>>
+		<<elseif _c is "eager">>
+			You haul with everything you have, but Gwylan leans back and holds <<his>> ground.
+			<br><br>
+			When your arms finally give out, <<he>> pulls you closer along the rope until you are within reach, then pats the top of your head.
+			"Nearly had me."
+		<<elseif _c is "shy">>
+			You pull, but not hard. By the time Gwylan starts reeling you in, your face is hot and you can barely look at <<him>>.
+			<br><br>
+			<<He>> lets the rope go before you reach <<him>>. "We'll call that one a draw."
+		<<elseif _c is "twist" and _wolfLv>>
+			You bite down on the rope and jerk your head from side to side. A growl comes out with it, and Gwylan lets go in surprise.
+			<br><br>
+			You keep growling after the rope drops.<<if Transformations.partActive("wolf", "tail")>> Your tail slaps the floorboards behind you.<</if>>
+		<<elseif _c is "twist">>
+			You pull hard at first, then loosen your grip as Gwylan leans back. <<He>> pulls more of the rope towards <<him>> and notices what you are doing.
+			<<if C.npc.Gwylan.dom gte 50>>
+				"You let me win." <<He>> draws you closer with the rope until you are standing in front of <<him>>. "I saw you loosen your grip."
+			<<else>>
+				"Did you let me win?" Gwylan asks, staring at your hands on the rope. <<He>> starts laughing before you answer.
+			<</if>>
+		<<elseif _comp>>
+			You drop the rope, but your hand closes around it again before you can step away.
+			<br><br>
+			By the time you realise what you're doing, it's between your teeth. <<hypnosisText "You don't remember choosing to do any of that.">>
+		<<else>>
+			You drop the rope. Gwylan looks at it, then at you, and winds it up without a word.
+		<</if>>
+<</switch>>
+<br><br>
+<<if _c is "shy">>
+	<<if !_gs.includes("cautious") and (C.npc.Gwylan.dom gte 50 or _gs.includesAny("dom", "lust"))>>
+		Gwylan notices you keep looking at the floor and smiles. "You've gone red right up to the ears."
+		<br><br>
+		<<He>> holds out another piece of ginger, but keeps it just out of reach. "Look at me first, dear." <<npcincr Gwylan dom 1>><<stress 3>><<gstress>>
+	<<elseif _gs.includes("cautious")>>
+		Gwylan lowers the tin. "Is that too much?" <<He>> waits for your answer before moving again. "We can stop whenever you like."
+	<<else>>
+		Gwylan waits until you finally look up, then passes you another piece of ginger. "You did well." <<stress -2>><<lstress>>
+	<</if>>
+<<elseif _c is "defy">>
+	<<if _comp>>
+		<<trauma 1>><<gtrauma>>
+	<<elseif _gs.includes("cautious")>>
+		<<set $gwylan.training.stopped to true>>
+		Gwylan puts the lid back on the tin. "That's quite all right. We'll stop there." <<He>> sets it aside and gives you room to move away.
+	<<elseif C.npc.Gwylan.dom gte 50>>
+		Gwylan grins. "There you are. I was wondering when you'd start arguing." <<He>> puts the ginger back in the tin.
+	<<elseif $gwylanSeen.includes("romance")>>
+		<<He>> presses a hand to <<his>> chest. "Cruel, <<pcpetname "Gwylan" "name">>. So cruel to your poor Gwylan." <<Hes>> already smiling.
+	<<else>>
+		"No? All right," <<he>> says mildly, and puts the ginger back in the tin.
+	<</if>>
+<</if>>
+
+:: Gwylan Pet Training End
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _score to ($gwylan.training and $gwylan.training.score) ?? 0>>
+<<set _stopped to ($gwylan.training and $gwylan.training.stopped) ? true : false>>
+<<set $daily.gwylan.training to true>>
+<<set $gwylanSeen.pushUnique("pet_training")>>
+<<if _stopped>>
+	<<set $gwylan.training.tier to "stopped">>
+	Gwylan clears the floor without a fuss, coiling the rope and stacking the crates back against the wall.
+	The pet bed stays where it is.<<stress -2>><<lstress>>
+<<elseif _score gte 3>>
+	<<set $gwylan.training.tier to "three">>
+	<<set $gwylan.timer.petBed to new DateTime(Math.max(Time.date.timeStamp, $gwylan.timer.petBed || 0)).addDays(7).timeStamp>>
+	Gwylan counts the three commands off on <<his>> fingers, then tips several pieces of ginger into your palm.
+	<br><br>
+	"All three. Your bed can stay out for <span class="blue">a week</span>." <<He>> closes the tin and tucks it under one arm.
+	"Do come and ask me again before then, if you like."
+	<<stress -6>><<trauma -2>><<lstress>><<ltrauma>>
+<<elseif _score is 2>>
+	<<set $gwylan.training.tier to "two">>
+	<<set $gwylan.timer.petBed to new DateTime(Math.max(Time.date.timeStamp, $gwylan.timer.petBed || 0)).addDays(1).timeStamp>>
+	"Two out of three," Gwylan says, patting your head. "That's a good effort. Your bed can stay out for <span class="blue">one more night</span>,
+	but do practise the one you skipped."
+	<<stress -3>><<lstress>>
+<<else>>
+	<<set $gwylan.training.tier to "none">>
+	Gwylan closes the tin and puts it away before looking back at you.
+	<br><br>
+	"That's all right. Not every day goes well." <<He>> pushes the pet bed back into place with <<his>> foot. "Try again tomorrow, if you'd like to."
+<</if>>
+<br><br>
+<<link [[Next|Gwylan Pet Training Wrap]]>><</link>>
+<br>
+
+:: Gwylan Pet Training Wrap
+<<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
+<<set _tier to $gwylan.training.tier>>
+<<unset $gwylan.training>>
+<<switch _tier>>
+	<<case "stopped">>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"Sorry. I thought I'd be able to keep going," you say when Gwylan turns back.
+			<br><br>
+			<<He>> shakes <<his>> head and pushes the tin farther under the counter. "You said stop. That's all I needed to hear."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"I'd like to try again another day," you say.
+			<br><br>
+			Gwylan nods. "Then another day it is."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"I said stop. That doesn't mean you won," you say.
+			<br><br>
+			Gwylan laughs and slides the tin out of sight. "I'll make a note of that."
+		<<else>>
+			Gwylan hangs the rope back on its hook. "Whenever you want another go, I'm here."
+		<</if>>
+	<<case "three">>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"I got all three?" you ask, looking down at the ginger in your palm.
+			<br><br>
+			Gwylan closes your fingers around it. "All three. You can stop looking so surprised."
+		<<elseif _speechAttitudeResolved is "polite">>
+			"Thank you. I enjoyed that," you say.
+			<br><br>
+			Gwylan puts the tin away. "So did I. Ask me again tomorrow, if you'd like to."
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			"You'll need harder commands next time," you say.
+			<br><br>
+			Gwylan shuts the tin and slips it under the counter. "All right. Harder ones next time."
+		<<elseif _speechAttitudeResolved is "docile">>
+			You close your hand around the ginger. "I'll do it again if you want me to."
+			<br><br>
+			Gwylan's smile widens. "Oh, I do."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Told you I could do it," you say.
+			<br><br>
+			Gwylan takes one of the pieces back out of your palm, studies it, then puts it back. "Three. I counted."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"That was your best three?" you ask.
+			<br><br>
+			Gwylan taps a finger against the tin's lid. "Those were the easy ones. If you come back, I'll think of something harder."
+			<<He>> puts the tin away.
+		<<else>>
+			You eat a piece of the ginger. Gwylan watches you do it, looking very pleased with <<himself>>.
+		<</if>>
+		<<if $hypnosis_traits.devotion gte 1>>
+			<br><br>
+			<<hypnosisText "Gwylan's praise stays in your head, and you find yourself waiting to hear it again.">>
+		<</if>>
+	<<case "two">>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"I nearly had all three," you say.
+			<br><br>
+			"You nearly did." Gwylan nudges the ginger tin towards you, then pulls it back when you reach for it. "Not until tomorrow."
+		<<elseif _speechAttitudeResolved is "polite">>
+			"I'll practise," you say.
+			<br><br>
+			Gwylan nudges the pet bed with <<his>> foot. "Then show me tomorrow."
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			"One bad command out of three isn't terrible," you say.
+			<br><br>
+			"No," Gwylan says, closing the tin. "But I know which one to try on you again."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"Which one should I practise?" you ask.
+			<br><br>
+			"The one you skipped." Gwylan taps your collar with one finger. "I'd like to see you get it right next time."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Next time it'll be three," you say.
+			<br><br>
+			Gwylan smiles and puts the tin away. "Then come back and show me."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Two should still get me ginger," you say, reaching for the tin.
+			<br><br>
+			Gwylan moves it behind <<his>> back before you can reach it. "Two earns the bed for tonight. The ginger is for three, I'm afraid."
+		<<else>>
+			Gwylan slides the tin under the counter. "Practise the one you skipped, and come back when you're ready."
+		<</if>>
+	<<default>>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"I did try," you say, looking down.
+			<br><br>
+			"I know." Gwylan touches the top of your head, then leaves <<his>> hand there until you look up. "That's why I'm happy to let you try again."
+		<<elseif _speechAttitudeResolved is "polite">>
+			"I'll do better next time," you say.
+			<br><br>
+			Gwylan points towards the pet bed. "Get some rest first. I'd like you awake when I test you again."
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			"Bad round," you say, straightening your collar. "I'll fix that tomorrow."
+			<br><br>
+			Gwylan grins and taps the counter with <<his>> palm. "I'll be here."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"What do you want me to practise?" you ask.
+			<br><br>
+			Gwylan looks at you for a second, then points to the pet bed. "Rest first. We can do the commands again tomorrow."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Again tomorrow," you say.
+			<br><br>
+			Gwylan slides the tin under the counter. "I'll save the ginger."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"You picked bad commands," you say.
+			<br><br>
+			Gwylan pauses with the tin halfway under the counter. "Did I? We can try those same ones again tomorrow."
+		<<else>>
+			Gwylan hangs the rope on its hook and goes back to the mortar.
+		<</if>>
+<</switch>>
+<br><br>
+<<gwylanOptions>>
+
+:: Gwylan Supper
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _gs to _gwylanStatus ?? []>>
+<<set $daily.gwylan.supper to true>>
+<<set $gwylan.supper to { mode: "" }>>
+Gwylan glances at the cuckoo clock, then at you. "It's gone suppertime, and I don't think you've eaten. Sit down, please." <<Hes>> through to the back room before you can answer.
+You hear a cupboard open and a bowl set down on the worktop.
+<br><br>
+<<He>> comes back carrying your bowl in both hands. It is full of barley, chopped roots and torn bread in thick broth, still steaming.
+<<if $gwylanSeen.includes("dog_bowl_name")>>
+	The gems around the rim catch the lamplight, with your name set into the side facing you.
+<</if>>
+<br><br>
+<<if _gs.includes("cautious")>>
+	<<He>> sets it on the little table with a spoon beside it and steps back. "Eat however you like. I only wanted you fed." <<He>> waits to see what you choose.
+<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+	<<He>> sets it down on the mat by the counter rather than the table and leaves a spoon beside it. "There's a spoon, if you want it."
+<<else>>
+	<<He>> sets it on the little table and puts a spoon beside it. "Mind the heat."
+<</if>>
+<<if Transformations.partActive("wolf", "tail")>>
+	Your tail wags once before you force it still.
+<<elseif ["cat", "cow", "fox", "bunny", "bear", "bird", "waterdragon", "demon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>>
+	Your tail moves behind you as the smell of supper reaches you.
+<</if>>
+<br><br>
+<<link [[Take the spoon and eat like a person|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "spoon">><<pass 20>><<stress -2>><</link>><<lstress>>
+<br>
+<<if hasSexStat("deviancy", 2)>>
+	<<link [[Lower your face to the bowl|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "pet">><<set $gwylanSeen.pushUnique("petplay")>><<pass 20>><<stress -3>><<npcincr Gwylan lust 3>><</link>><<deviant2>><<lstress>><<gglust>>
+<<else>>
+	<<insufficientStat "deviancy" "to eat from the bowl like a pet">>
+<</if>>
+<br>
+<<link [[Keep your hands in your lap until Gwylan says you may|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "wait">><<pass 20>><</link>><<gwylanWillpowerDifficulty>>
+<br>
+<<if $gwylanSeen.includesAny("romance", "partners") or _gs.includes("lust")>>
+	<<link [[Ask to be fed by hand|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "hand">><<pass 20>><<stress -4>><<npcincr Gwylan lust 2>><</link>><<lstress>><<glust>>
+	<br>
+<</if>>
+
+:: Gwylan Supper Eat
+<<effects>><<run statusCheck("Gwylan")>><<speechresolve>>
+<<set _gs to _gwylanStatus ?? []>>
+<<set _mode to $gwylan.supper.mode>>
+<<switch _mode>>
+	<<case "spoon">>
+		You <<if !_gs.includes("cautious") and (C.npc.Gwylan.dom gte 50 or _gs.includes("dom"))>>sit on the mat<<else>>sit at the table<</if>>, take the spoon and eat normally. The bread has soaked up the broth and breaks apart under the spoon.
+		Gwylan drinks from <<his>> mug instead of watching every mouthful.
+		<br><br>
+		<<if _gs.includes("cautious")>>
+			"All right?" <<he>> asks, once. When you nod, <<he>> leaves you to it.
+		<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+			"The spoon tonight," <<he>> says, eyeing it with mild interest. "I wondered what you'd choose."
+		<<else>>
+			Gwylan sits across from you with a mug. "Save some bread for the end. It soaks up all the broth."
+		<</if>>
+	<<case "pet">>
+		You <<if !_gs.includes("cautious") and (C.npc.Gwylan.dom gte 50 or _gs.includes("dom"))>>kneel on the mat<<else>>sit at the table<</if>>, lower your face to the bowl and eat directly from it. Warm broth wets your chin, and a piece of barley sticks to your lip until you lick it away.
+		<<if $hypnosis_traits.devotion gte 3>>
+			<<hypnosisText "A warm rush goes through your chest. You are being good, and Gwylan is watching you do it.">>
+		<</if>>
+		<<if Transformations.partActive("wolf", "tail")>>
+			Your tail thumps slowly on the floor. Gwylan watches it and starts to smile.
+		<<elseif ["cat", "cow", "fox", "bunny", "bear", "bird", "waterdragon", "demon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>>
+			Your tail shifts behind you. Gwylan notices and starts to smile.
+		<</if>>
+		<br><br>
+		<<if _gs.includes("cautious")>>
+			Gwylan crouches where you can see <<him>>. "You can pick the spoon up whenever you want," <<he>> says.
+		<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+			Gwylan crouches beside you and keeps one hand at the back of your head. "Slowly, <<pcpetname "Gwylan" "simple">>. You have the whole bowl."
+		<<else>>
+			Gwylan covers <<his>> mouth when you glance up. "Oh. Oh, you are lovely," <<he>> says through <<his>> fingers. "Don't forget the crust."
+		<</if>>
+	<<case "wait">>
+		You <<if !_gs.includes("cautious") and (C.npc.Gwylan.dom gte 50 or _gs.includes("dom"))>>sit on the mat<<else>>sit at the table<</if>> and fold your hands in your lap, looking at the bowl while steam rises past your face.
+		<br><br>
+		<<if $hypnosis_traits.devotion gte 1 and !$willpowerSuccess>>
+			<<hypnosisText "You cannot make yourself reach for the spoon until Gwylan gives you permission.">>
+			Gwylan watches you for another few seconds, then points at the bowl. "All right. Eat."
+			<<npcincr Gwylan dom 1>>
+		<<else>>
+			You keep your hands in your lap until Gwylan notices you waiting and says, "Go on, eat." By then your stomach is aching,
+			and you start eating so quickly that <<he>> laughs and pushes the bread nearer.
+		<</if>>
+	<<case "hand">>
+		<<if _speechAttitudeResolved is "meek">>
+			"Gwylan... would you feed me?" you ask, looking at the bowl instead of <<him>>.
+		<<elseif _speechAttitudeResolved is "shy">>
+			You rub your thumb over your fingers. "Could you... feed me?"
+		<<elseif _speechAttitudeResolved is "polite">>
+			"Would you mind feeding me?" you ask, nudging the bowl towards <<him>>.
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			You nudge the bowl towards <<him>> and open your mouth expectantly. "You made supper. Finish the job."
+		<<elseif _speechAttitudeResolved is "docile">>
+			You sit closer and fold your hands in your lap. "You can feed me, if you want."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Feed me," you say, moving the bowl towards <<him>>.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"You've gone this far," you say, pushing the bowl into <<his>> hands. "Feed me too."
+		<<else>>
+			"Will you feed me?" you ask.
+		<</if>>
+		<br><br>
+		Gwylan looks at you, then down at the bowl. "Oh. Come here, then." <<He>> sits on the floor and pulls you closer before settling the bowl in <<his>> lap.
+		The bread is torn into smaller pieces, and <<he>> blows on every spoonful before bringing it to your mouth.
+		<br><br>
+		Halfway through, a drop of broth reaches your chin. <<He>> wipes it away with <<his>> thumb, pauses when you look at <<him>>, then reaches for the next spoonful.
+		<<if _gs.includes("cautious")>>
+			<br><br>
+			"Still all right?" <<he>> asks. When you nod, <<he>> blows on the next spoonful and carries on.
+		<</if>>
+<</switch>>
+<br><br>
+<<link [[Next|Gwylan Supper Done]]>><</link>>
+<br>
+
+:: Gwylan Supper Done
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _gs to _gwylanStatus ?? []>>
+<<set _mode to $gwylan.supper.mode>>
+<<unset $gwylan.supper>>
+<<switch _mode>>
+	<<case "spoon">>
+		<<if _gs.includes("cautious")>>
+			When you finish, Gwylan takes the empty bowl without comment and carries it away.
+		<<else>>
+			The two of you finish without hurrying, and Gwylan carries the empty bowl away.
+		<</if>>
+	<<case "pet">>
+		<<if _gs.includes("cautious")>>
+			Gwylan sits back on <<his>> heels while you finish, then takes the bowl once it is clean.
+		<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+			Gwylan takes the clean bowl away and wipes your chin with a cloth.
+		<<else>>
+			When the bowl is clean, Gwylan collects it with a pleased little sigh.
+		<</if>>
+	<<case "wait">>
+		<<if _gs.includes("cautious")>>
+			Afterwards, Gwylan takes the bowl from you. "You don't have to wait for me next time," <<he>> says. "Unless you want to."
+		<<elseif ["wolf", "cat", "cow", "fox", "bunny", "bear", "waterdragon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "ears"))>>
+			Your ears twitch towards Gwylan when <<he>> speaks. "You waited so patiently," <<he>> says, taking the empty bowl to rinse in the basin.
+		<<else>>
+			Gwylan takes the empty bowl and rinses it in the basin.
+		<</if>>
+	<<default>>
+		Gwylan keeps going until the bowl is empty, then sets it aside and leaves you leaning against <<his>> shoulder for a minute longer.
+<</switch>>
+<br><br>
+<<gwylanOptions>>
+
+:: Gwylan Wash
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _gs to _gwylanStatus ?? []>>
+<<set $daily.gwylan.wash to true>>
+Gwylan checks your hair and hands for leaves and mud. "Come through to the back, dear. Let's see what needs washing."
+<br><br>
+<<He>> puts a tin basin on the floor and brings over a jug of warm water, rosemary soap, a comb and an old towel, then tests the water with two fingers.
+"Clothes stay on, I think. I can do your face, hands, hair and neck."
+<br><br>
+<<link [[Wash up yourself|Gwylan Wash Done]]>><<set $gwylan.wash to "self">><<pass 10>><<stress -2>><</link>><<lstress>>
+<br>
+<<if $gwylanSeen.includes("petplay") or _gs.includes("dom") or _gs.includes("lust")>>
+	<<link [[Let Gwylan wash your hair and neck|Gwylan Wash Done]]>><<set $gwylan.wash to "hair">><<pass 10>><<stress -4>><</link>><<lstress>>
+	<br>
+<</if>>
+<<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "ears") or Transformations.partActive(tf, "tail"))>>
+	<<link [[Let Gwylan brush the tangles out of your fur|Gwylan Wash Done]]>><<set $gwylan.wash to "fur">><<pass 15>><<stress -4>><</link>><<lstress>>
+	<br>
+<</if>>
+
+:: Gwylan Wash Done
+<<effects>><<run statusCheck("Gwylan")>><<speechresolve>>
+<<set _gs to _gwylanStatus ?? []>><<wash>>
+<<switch $gwylan.wash>>
+	<<case "self">>
+		You wash your face and hands first, then work the soap through your hair. By the second rinse the water runs clear.
+		Gwylan passes you the towel, then plucks one last leaf from the back of your hair and holds it up. "Missed one."
+		<<if _speechAttitudeResolved is "polite">>
+			<br><br>
+			"Thanks for the water," you say.
+			<br><br>
+			Gwylan takes the wet towel from you and hangs it over the side of the basin.
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			<br><br>
+			You pull the towel around your shoulders and shake your damp hair back. "There. Presentable again."
+			<br><br>
+			Gwylan reaches over and removes another leaf from behind your ear.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			<br><br>
+			You snatch the towel from <<him>>. "Stop inspecting me."
+			<br><br>
+			Gwylan lets you have it, still holding the leaf <<he>> found in your hair.
+		<</if>>
+	<<case "hair">>
+		You sit on the floor with the basin behind you. Gwylan kneels at your back and supports your neck as you tip your head over the basin.
+		The first cup of warm water makes you shut your eyes.
+		<<His>> fingers work the soap through your hair and around your scalp, taking more time around your ears. For a while, <<he>> stops talking.
+		<br><br>
+		<<if $hypnosis_traits.devotion gte 1>>
+			<<hypnosisText "Your shoulders loosen under <<his>> hands, and you lean back whenever <<he>> guides your head.">>
+			<br><br>
+		<</if>>
+		<<if _gs.includes("cautious")>>
+			"Too close?" <<he>> asks. When you shake your head, <<he>> keeps one hand against the side of your neck while <<he>>
+			rinses the soap away with the other.
+		<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+			Gwylan presses two fingers behind your ear to keep your head in place while <<he>> rinses the soap away.
+			"Stay there, dear." <<npcincr Gwylan dom 1>>
+		<<else>>
+			Gwylan gathers another wet handful and works the soap through the ends. "You have a great deal of hair."
+		<</if>>
+		<<if _speechAttitudeResolved is "shy">>
+			<br><br>
+			"Don't laugh," you say, keeping your eyes shut.
+			<br><br>
+			Gwylan keeps working the soap through your hair. "I'm not laughing."
+		<<elseif _speechAttitudeResolved is "polite">>
+			<br><br>
+			You relax back against <<his>> hands. "Could you keep doing that?"
+			<br><br>
+			Gwylan reaches for another cup of water. "I wasn't finished."
+		<<elseif _speechAttitudeResolved is "docile">>
+			<br><br>
+			You tip your head where <<he>> guides it and let <<him>> finish without helping.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			<br><br>
+			"Get soap in my eyes and I'm biting you," you warn.
+			<br><br>
+			Gwylan laughs and moves the cup away from your face. "I'll keep my fingers clear, then."
+		<</if>>
+	<<case "fur">>
+		You sit on the floor while Gwylan kneels beside you with the comb.
+		<<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "ears"))>>
+			Gwylan uses a fine-toothed comb on the fur behind your ears. They twitch away whenever the comb catches.
+			<<if Transformations.partActive("bunny", "ears")>>
+				<<He>> supports each long ear in <<his>> palm before gently combing along it.
+			<</if>>
+		<</if>>
+		<<if ["wolf", "cat", "fox", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>>
+			<<He>> lifts your tail into <<his>> lap, supporting it near the base, and works the comb up from the tip,
+			stopping when you twitch and starting again once you hold still.
+		<<elseif Transformations.partActive("cow", "tail")>>
+			<<He>> supports your tail in one hand and combs the tuft at the end, picking the tangles apart before pulling the comb through.
+		<<elseif ["bunny", "bear"].some(tf => Transformations.partActive(tf, "tail"))>>
+			<<He>> picks the bits of leaf from your short tail with <<his>> fingers, then gently brushes the fur.
+		<</if>>
+		<br><br>
+		<<if _gs.includes("cautious")>>
+			"Tell me if I pull," <<he>> says. Whenever you tense, <<he>> stops the comb and waits before trying again.
+		<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+			"Hold still, please," <<he>> says when the comb catches another knot. <<He>> works it loose with <<his>> fingers before trying again.
+		<<else>>
+			<<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>>
+				"A bit of leaf," <<he>> says, picking it from your tail and holding it up. "You brought some of the forest in with you."
+			<<else>>
+				"You've been pushing through every bush you could find," <<he>> says, picking a burr from behind your ear and holding it up. "Look at this."
+			<</if>>
+		<</if>>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			<br><br>
+			The comb catches another knot and you flinch. "That pulled."
+			<br><br>
+			Gwylan stops and loosens the knot with <<his>> fingers before putting the comb through it again.
+		<<elseif _speechAttitudeResolved is "polite">>
+			<br><br>
+			"Thanks. That was starting to bother me," you say when <<he>> puts the comb down.
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			<br><br>
+			"Don't flatten it all," you say, checking the fur with your hand.
+			<br><br>
+			Gwylan ruffles it back up before you can do it yourself.
+		<<elseif _speechAttitudeResolved is "docile">>
+			<br><br>
+			You keep your head still while <<he>> checks the fur once more for knots <<he>> missed.
+		<<elseif _speechAttitudeResolved is "confident">>
+			<br><br>
+			"You missed one," you say, reaching for a knot.
+			<br><br>
+			Gwylan catches your wrist before you can pull at it. "I saw it. Leave that one to me."
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			<br><br>
+			The comb catches and you reach back for it. "Give me that."
+			<br><br>
+			Gwylan lifts it out of reach. "Hands down, please. I'm nearly finished."
+		<</if>>
+<</switch>>
+<br><br>
+<<link [[Next|Gwylan Wash Finish]]>><</link>>
+<br>
+
+:: Gwylan Wash Finish
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _wash to $gwylan.wash>>
+<<unset $gwylan.wash>>
+<<switch _wash>>
+	<<case "self">>
+		Gwylan carries the basin out the back door and tips it over the herb bed. "There. Presentable."
+	<<case "hair">>
+		Gwylan finishes with a last rinse and wraps the towel round your head. "There. Dry that properly before you go outside."
+	<<default>>
+		Gwylan sets the comb down and brushes the loose fur off your shoulders. "That's the worst of it gone."
+<</switch>>
+<br><br>
+<<gwylanOptions>>
+
+:: Gwylan Tuck In
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _gs to _gwylanStatus ?? []>>
+<<set $gwylan.tuck to { mode: "", day: Time.days }>>
+You shift in the pet bed, turn the pillow over, then call Gwylan's name.
+<<He>> comes from the back room carrying a lamp with the wick turned low and crouches beside you.
+<br><br>
+"Still awake?" <<He>> pulls the fuzzy blanket back over your shoulder where it has slipped.
+<<if ["wolf", "cat", "fox", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>>Your tail has curled round your feet under the blanket.<</if>>
+<br><br>
+<<link [[Ask for a story|Gwylan Tuck In Done]]>><<set $gwylan.tuck.mode to "story">><<pass 5>><<stress -3>><</link>><<lstress>>
+<br>
+<<if $gwylanSeen.includesAny("romance", "partners") or _gs.includes("lust")>>
+	<<link [[Ask Gwylan to stay until you fall asleep|Gwylan Tuck In Done]]>><<set $gwylan.tuck.mode to "stay">><<pass 5>><</link>>
+<<else>>
+	<<link [[Ask Gwylan to sit by the bed for a while|Gwylan Tuck In Done]]>><<set $gwylan.tuck.mode to "sit">><<pass 5>><<stress -1>><</link>>
+<</if>>
+<br>
+<<if $gwylanSeen.includes("partners") or ($gwylanSeen.includes("romance") and C.npc.Gwylan.love gte 25)>>
+	<<link [[Ask to sleep at the foot of Gwylan's bed|Gwylan Tuck In Done]]>><<set $gwylan.tuck.mode to "foot">><<pass 5>><</link>>
+	<br>
+<</if>>
+<<link [[Say goodnight|Gwylan Tuck In Done]]>><<set $gwylan.tuck.mode to "quiet">><</link>>
+<br>
+
+:: Gwylan Tuck In Done
+<<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
+<<set _gs to _gwylanStatus ?? []>>
+<<switch $gwylan.tuck.mode>>
+	<<case "story">>
+		<<if _speechAttitudeResolved is "meek">>
+			"Could you tell me a story?" you ask, pulling the blanket a little higher. "Just until I get sleepy."
+		<<elseif _speechAttitudeResolved is "shy">>
+			You look towards the wall. "Could you... tell me something? A story, I mean."
+		<<elseif _speechAttitudeResolved is "polite">>
+			"Would you mind telling me a story before you go?" you ask.
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			You settle back against the pillow. "I want a story. Something strange, and no sad ending."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"Could you tell me a story?" you ask, settling under the blanket. "Anything you like."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Tell me a story before you go," you say, making room for <<him>> on the edge of the bed.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"You came all the way over here," you say. "Now you have to tell me a story."
+		<<else>>
+			"Can you tell me a story?" you ask.
+		<</if>>
+		<br><br>
+		Gwylan sits on the edge of the bed and thinks. "There was a fox near here that used to steal ribbons from washing lines.
+		Red ones only. Nobody knew why, so naturally everyone started hanging out red ribbons just to see where they went."
+		<br><br>
+		<<He>> gets as far as three gardens, a broken fence and an argument with a farmer before you lose track of who is chasing the fox.
+		<<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "waterdragon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "ears"))>>
+			Your ears still twitch whenever <<he>> speaks, even after you stop following the story.
+		<</if>>
+		<<hypnosisText "Listening to Gwylan makes it harder to keep your eyes open.">>
+		<br><br>
+		By the time the fox reaches the farmer's last washing line, your eyes are closed. Gwylan lowers the lamp and goes quietly back towards the counter.
+		<br><br>
+	<<case "stay">>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"Could you stay until I fall asleep?" you ask.
+		<<elseif _speechAttitudeResolved is "polite">>
+			"Would you stay with me for a while?" you ask.
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			You pat the space beside you. "Stay. I sleep better with company."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"You can stay, if you want," you say, moving over.
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Stay with me until I fall asleep," you say.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"Don't go yet," you say, grabbing <<his>> sleeve.
+		<<else>>
+			"Will you stay until I fall asleep?" you ask.
+		<</if>>
+		<br><br>
+		Gwylan hesitates, then smiles. "Shift over, then." <<He>> turns the lamp down, climbs in behind you, and pulls the blanket over you both.
+		<<set $bedGuest to "Gwylan">><<set $gwylanbed to true>>
+		<<if _gs.includes("cautious")>>
+			"Tell me if I'm too close," <<he>> says. You shake your head, and <<he>> settles behind you without moving any closer.
+		<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+			<<He>> puts an arm around your ribs and pulls you back against <<him>>, then tucks the blanket over your shoulder.
+			"Go to sleep, <<pcpetname "Gwylan" "my">>. I've got you."
+		<<else>>
+			<<He>> hums under <<his>> breath and rests an arm over you. When you shift closer, <<he>> keeps humming.
+		<</if>>
+		<br><br>
+		You are asleep before you notice it happening.
+		<br><br>
+	<<case "sit">>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"Could you sit here for a bit?" you ask, pointing to the chair.
+		<<elseif _speechAttitudeResolved is "polite">>
+			"Would you keep me company for a few minutes?" you ask.
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			"Sit with me until I get bored of being awake," you say.
+		<<elseif _speechAttitudeResolved is "docile">>
+			"You don't have to stay long," you say. "Just sit nearby."
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Sit here a while," you say.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"You're the one who tucked me in. You can keep me company too," you say.
+		<<else>>
+			"Can you sit here for a while?" you ask.
+		<</if>>
+		<br><br>
+		Gwylan sits in the chair beside the bed and opens the ledger to the herb stock. "I can count very slowly," <<he>> says.
+		<br><br>
+		<<He>> reads a few entries under <<his>> breath, waiting between each one until your eyes start to close.
+		<br><br>
+	<<case "foot">>
+		<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+			"Could I sleep at the foot of your bed tonight?" you ask.
+		<<elseif _speechAttitudeResolved is "polite">>
+			"Would you let me sleep at the foot of your bed tonight?" you ask.
+		<<elseif _speechAttitudeResolved is "flamboyant">>
+			You point towards the stairs. "Your bed, but only the foot of it. I want to try it."
+		<<elseif _speechAttitudeResolved is "docile">>
+			"Can I sleep at the foot of your bed tonight?" you ask, waiting for <<his>> answer.
+		<<elseif _speechAttitudeResolved is "confident">>
+			"Let me sleep at the foot of your bed tonight," you say.
+		<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+			"I want your bed," you say. "Only the foot. You can keep the rest."
+		<<else>>
+			"Can I sleep at the foot of your bed tonight?" you ask.
+		<</if>>
+		<br><br>
+		Gwylan looks at the stairs, then back at you. "The foot of my bed?" <<He>> studies your face. "You're sure you want to sleep there?"
+		<br><br>
+		<<if _gs.includes("cautious")>>
+			<<He>> watches your face before offering a hand. "All right. If you change your mind, wake me and we'll come back down."
+		<<elseif C.npc.Gwylan.dom gte 50 or _gs.includes("dom")>>
+			<<He>> holds out a hand. "Come on, then. You can have the foot."
+		<<else>>
+			<<He>> chuckles. "I was going to say the pet bed is already yours, but now I'm curious." <<He>> holds out <<his>> hand. "Come on."
+		<</if>>
+		<br><br>
+		Gwylan leads you upstairs. <<He>> turns back the blankets at the foot of <<his>> bed and pats the mattress once.
+		You climb up and settle crosswise at the foot of the bed while Gwylan gets in beneath the blankets.<<if ["wolf", "cat", "fox", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>><br><br>
+		Your tail brushes the blankets before curling against your leg.<</if>>
+		<<set $bedGuest to "Gwylan">><<set $gwylanbed to true>>
+		<br><br>
+	<<default>>
+		"Goodnight, <<pcpetname "Gwylan" "simple">>," <<he>> says, lowering the lamp before walking back towards the counter.
+		You pull the blanket up and settle down.
+		<br><br>
+<</switch>>
+<<link [[Next|Forest Shop Dog Bed]]>><</link>>
+<br>
+
+:: Gwylan Leash Post
+<<effects>><<run statusCheck("Gwylan")>>
+<<set $daily.gwylan.leashPost to true>>
+<<set $gwylan.post to { leashed: $worn.neck.type.includes("leash") }>>
+<<if !$gwylan.post.leashed>>
+	Gwylan touches your collar, drawing out a glowing leash.<<attach_leash>>
+	<br><br>
+<</if>>
+<<speechresolve>>
+<<if _speechAttitudeResolved is "meek">>
+	"Gwylan... if you're busy, I could wait outside," you say, holding the loose end of the leash towards <<him>>. "You could tie me to the porch."
+<<elseif _speechAttitudeResolved is "shy">>
+	You lay the leash on the counter instead of putting it in <<his>> hand. "If you need me out of the way, I could wait outside. On this."
+<<elseif _speechAttitudeResolved is "polite">>
+	"Would it help if I waited on the porch while you work?" you ask, offering <<him>> the leash. "You can tie me there."
+<<elseif _speechAttitudeResolved is "flamboyant">>
+	You stretch the leash across the counter. "I have an idea. Tie me to the porch and see how well I behave."
+<<elseif _speechAttitudeResolved is "docile">>
+	You step close and place the end of the leash in Gwylan's hand. "If you want me outside, I'll stay there."
+<<elseif _speechAttitudeResolved is "confident">>
+	"Leave me on the porch," you say, holding out the end. "I'll be where you left me."
+<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	"Think I can't sit still?" you ask, dropping the leash into <<his>> hand. "Tie me up outside and see how long I last."
+<<else>>
+	"If you're busy, I can wait on the porch," you say. "On the leash."
+<</if>>
+<br><br>
+Gwylan takes the leash and looks towards the porch. "You'd like me to leave you out there?" <<He>> gives the lead a gentle tug.
+When you do not change your mind, <<he>> nods. "All right. I'll be just inside with the kettle. Stay on the porch until I come back."
+<br><br>
+<<if $worn.neck.name is "familiar collar">>
+	<<He>> walks you out to the porch and hooks the glowing leash over the post. It stays there without any knot, and the collar warms against your throat.
+<<else>>
+	<<He>> walks you out to the porch and ties the leash round the post with a tight knot, then gives it a firm pull to check it.
+<</if>>
+<<if $hypnosis_traits.devotion gte 1>>
+	<<hypnosisText "You feel pulled to the spot as well as tied to it.">>
+<</if>>
+<br><br>
+Gwylan goes back inside and leaves the shop door open. Through the window, you can see <<him>> set the kettle on the stove and return to the ledger behind the counter.
+<br><br>
+<<link [[Sit on the step|Gwylan Leash Post Wait]]>><<set $gwylan.post.pose to "sit">><<set $outside to 1>><<pass 5>><</link>>
+<br>
+<<link [[Stand and wait|Gwylan Leash Post Wait]]>><<set $gwylan.post.pose to "stand">><<set $outside to 1>><<pass 5>><</link>>
+<br>
+<<link [[Test the leash at once|Gwylan Leash Post Wait]]>><<set $gwylan.post.pose to "test">><<set $outside to 1>><<pass 5>><</link>><<gwylanWillpowerDifficulty>>
+<br>
+
+:: Gwylan Leash Post Wait
+<<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
+<<set _gs to _gwylanStatus ?? []>>
+<<set _pose to $gwylan.post.pose>>
+<<if !$gwylan.post.ev>>
+	<<if _pose is "test">>
+		<<if $hypnosis_traits.devotion gte 1 and !$willpowerSuccess>>
+			You take hold of the leash to test it, but your knees bend before you can pull. <<hypnosisText "The order to stay keeps you on the step.">>
+			<br><br>
+			Through the window, Gwylan keeps writing in the ledger.
+			<<set $gwylan.post.pose to "sit">>
+		<<else>>
+			You give the leash two hard pulls, but it stays fixed to the post. Through the window, Gwylan keeps writing as you sit down to wait on your own terms.
+			<<set $gwylan.post.pose to "sit">>
+		<</if>>
+		<br><br>
+	<</if>>
+	<<set _evPool to (Time.dayState is "night" ? ["quiet", "animal"] : ["quiet", "photo", "helper", "animal"])>>
+	<<set $gwylan.post.ev to _evPool.random()>>
+<</if>>
+<<switch $gwylan.post.ev>>
+	<<case "quiet">>
+		No one comes up the path while you wait.
+		<br><br>
+		<<if $gwylan.post.pose is "sit">> After a while, the edge of the step starts pressing into your legs.<<else>>
+		Your feet begin to ache from standing in one place.<</if>><<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "waterdragon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "ears"))>>
+		Your ears twitch towards footsteps farther down the path and rustling in the trees.<</if>><<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "bird", "waterdragon", "demon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "tail"))>>
+		Your tail moves behind you when the smell of tea reaches the porch.<</if>>
+		<br><br>
+		When you look through the window, Gwylan is still behind the ledger. <<He>> drops <<his>> eyes to the page as soon as you catch <<him>> watching.
+		<br><br>
+		<<link [[Wave at the window|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 1>><<pass 20>><</link>>
+		<br>
+		<<link [[Hold your pose and wait|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 2>><<pass 20>><</link>>
+		<br>
+		<<link [[Close your eyes and listen|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 3>><<pass 20>><<stress -3>><</link>><<lstress>>
+	<<case "photo">>
+		A walker comes up the path and slows when they see the leash running from your collar to the porch post.
+		They look towards the shop door, pull out a phone and raise it towards you without asking.
+		<br><br>
+		<<link [[Turn away and cover your face|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 1>><<stress 6>><<pass 15>><</link>><<gstress>>
+		<br>
+		<<link [[Meet the lens and hold still|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 2>><<trauma 3>><<stress 3>><<pass 15>><</link>><<gtrauma>><<gstress>>
+		<br>
+		<<if hasSexStat("exhibitionism", 3)>>
+			<<link [[Pose for it|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 3>><<pass 15>><</link>><<exhibitionist3>>
+			<br>
+		<</if>>
+		<<link [[Tell them to stop|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 4>><<stress 3>><<pass 15>><</link>><<gstress>>
+	<<case "helper">>
+		Footsteps approach along the path. A walker slows at the bottom of the porch steps when they notice the leash.
+		"Are you all right?" They look through the open shop door, then come closer and reach for the leash.
+		<br><br>
+		<<if $worn.neck.name is "familiar collar">>
+			The glowing leash slips through their fingers and settles back around the post. The walker jerks their hand away.
+		<<else>>
+			They pick at the knot, but Gwylan has pulled it too tight. After a few seconds they look up at you. "Did someone tie this on purpose?"
+		<</if>>
+		<br><br>
+		<<link [[Let them keep trying|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 1>><<pass 10>><</link>>
+		<br>
+		<<link [[Tell them you're fine, and that Gwylan is coming|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 2>><<pass 10>><</link>>
+		<br>
+		<<link [[Say nothing and look at the ground|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 3>><<stress 3>><<pass 10>><</link>><<gstress>>
+	<<default>>
+		<<if effectiveTransformationLevel("wolf") gte 6>>
+			A grey wolf watches from the tree line. When you turn towards it, it comes a few steps closer and sniffs the air.
+			<<if Transformations.partActive("wolf", "tail")>> Your tail starts wagging before you can stop it.<</if>> Its eyes move from the leash to your face.
+		<<else>>
+			A grey wolf watches from the tree line. It comes a few steps closer when you notice it,
+			sniffing the air before looking at the leash tied to the post.
+		<</if>>
+		<br><br>
+		<<link [[Stay perfectly still|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 1>><<stress 6>><<pass 10>><</link>><<gstress>>
+		<br>
+		<<link [[Stare it down|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 2>><<pass 10>><</link>>
+		<br>
+		<<link [[Call for Gwylan|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 3>><<stress 3>><<pass 10>><</link>><<gstress>>
+		<br>
+		<<if effectiveTransformationLevel("wolf") gte 6>>
+			<<link [[Greet it like one of the pack|Gwylan Leash Post Return]]>><<set $gwylan.post.res to 4>><<pass 10>><</link>><<wolfgirl>>
+			<br>
+		<</if>>
+<</switch>>
+<br>
+
+:: Gwylan Leash Post Return
+<<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
+<<set _ev to $gwylan.post.ev>>
+<<set _res to $gwylan.post.res>>
+<<switch _ev>>
+	<<case "quiet">>
+		<<if _res is 1>>
+			You raise a hand towards the window. Gwylan lowers the ledger and, caught watching, gives you a small wave back.
+		<<elseif _res is 2>>
+			You keep the same pose until your shoulders ache. By the time Gwylan opens the door, you are still exactly where <<he>> left you.
+		<<else>>
+			You close your eyes and <<if $gwylan.post.pose is "sit">>rest your hands in your lap<<else>>let your arms hang at your sides<</if>>. Your shoulders loosen as you stop checking the path every few seconds.
+			<br><br>
+			<<if $hypnosis_traits.devotion gte 1>> <<hypnosisText "The warm collar reminds you of Gwylan's order, and staying on the porch feels easy.">><</if>>
+			You only notice the door opening when Gwylan steps onto the porch.
+		<</if>>
+	<<case "photo">>
+		<<if _res is 1>>
+			You turn your face into your shoulder and bring one arm up between you and the phone. The walker hesitates, lowers it, and goes on up the path.
+		<<elseif _res is 2>>
+			You look straight into the lens and stay where Gwylan left you. The walker takes the picture, gives you an awkward nod,
+			then continues up the path.
+		<<elseif _res is 3>>
+			You angle yourself towards the camera and let the leash show across your chest. The walker takes three pictures, mouths a quick "thanks",
+			and hurries away.
+		<<else>>
+			<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+				"Please don't," you say, covering your face. "Put it away."
+			<<elseif _speechAttitudeResolved is "polite">>
+				"Please stop taking pictures of me," you say. "I didn't say you could."
+			<<elseif _speechAttitudeResolved is "flamboyant">>
+				"No pictures," you say, pointing up the path. "You can keep walking."
+			<<elseif _speechAttitudeResolved is "docile">>
+				You press back against the post and raise a hand. "Please stop. I don't want a picture."
+			<<elseif _speechAttitudeResolved is "confident">>
+				"Put the phone down," you say. "Now."
+			<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+				"Put it away before I get off this leash and do it for you," you say.
+			<<else>>
+				"Stop," you say. "Don't take pictures of me."
+			<</if>>
+			<br><br>
+			The walker lowers the phone, mutters an apology, and goes on without looking back.
+		<</if>>
+	<<case "helper">>
+		<<if _res is 1>>
+			<<if $worn.neck.name is "familiar collar">>
+				The walker tries to lift the glowing leash from the post, but their fingers pass through it. "Sorry," they say, stepping back. "I can't get hold of it."
+			<<else>>
+				The walker keeps trying the knot until their fingers slip off it again. "Sorry," they say, stepping back. "That's tighter than it looks."
+			<</if>>
+		<<elseif _res is 2>>
+			<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+				"I'm all right," you say. "Gwylan's coming back. I asked to wait here."
+			<<elseif _speechAttitudeResolved is "polite">>
+				"Thank you, but I'm fine," you say. "Gwylan will be back soon."
+			<<elseif _speechAttitudeResolved is "flamboyant">>
+				"I'm not stuck," you say, lifting the leash. "I asked Gwylan to put me here."
+			<<elseif _speechAttitudeResolved is "docile">>
+				"I'm meant to stay here," you say. "Gwylan will come back for me."
+			<<elseif _speechAttitudeResolved is "confident">>
+				"I'm fine. Leave it," you say. "I chose this."
+			<<elseif (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+				"Stop fussing with it," you say. "I asked Gwylan to tie me here."
+			<<else>>
+				"I'm fine," you say. "Gwylan will be back soon."
+			<</if>>
+			<br><br>
+			The walker looks from you to the shop door, still uncertain, but finally lets go of the leash and backs away.
+		<<else>>
+			You look at the ground. The walker waits for an answer, reaches uncertainly towards the leash once more, then leaves you alone.
+		<</if>>
+	<<default>>
+		<<if _res is 1>>
+			You hold perfectly still while the wolf circles the post. You can hear it breathing as it passes,
+			but it never touches you before returning to the trees.
+		<<elseif _res is 2>>
+			You meet the wolf's eyes and refuse to look away. It watches you for a while, yawns, then turns and trots back into the trees.
+		<<elseif _res is 3>>
+			"Gwylan!" you call. The wolf flinches, and the door bangs open. The wolf is gone before Gwylan has finished stepping onto the porch.
+		<<else>>
+			You lower your head and breathe out, the way a pack-mate would. The wolf comes close and sniffs your cheek before moving to the collar.
+			It sneezes at the smell, then turns back towards the trees.
+		<</if>>
+<</switch>>
+<br><br>
+<<link [[Next|Gwylan Leash Post Back]]>><</link>>
+<br>
+
+:: Gwylan Leash Post Back
+<<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
+<<set _gs to _gwylanStatus ?? []>>
+<<set _ev to $gwylan.post.ev>>
+<<set _res to $gwylan.post.res>>
+<<set _push to (C.npc.Gwylan.dom gte 50 or _gs.includesAny("dom", "lust"))>>
+<<if _ev is "animal" and _res is 3>>
+	Gwylan checks the tree line, then goes inside and returns with two mugs.
+<<elseif _ev isnot "quiet" or _res is 1>>
+	The door opens, and Gwylan steps onto the porch carrying two mugs.
+<<else>>
+	<<Hes>> already standing there with two mugs.
+<</if>>
+<br><br>
+<<switch _ev>>
+	<<case "photo">>
+		<<if _push>>
+			Gwylan looks up the path after the walker. "Were they taking pictures of you?"
+		<<else>>
+			Gwylan looks up the path. "Was that a camera?" <<He>> turns back to you. "Did they ask?"
+		<</if>>
+	<<case "helper">>
+		<<if _push>>
+			Gwylan looks at the leash, then up the path the walker took. <<His>> smile drops. "Who was touching my leash?"
+		<<else>>
+			"Did someone try to untie you?" Gwylan looks up the path after the walker, then starts laughing. "I suppose you did look stranded."
+		<</if>>
+	<<case "animal">>
+		<<if _push>>
+			<<He>> glances at the tree line and back at you. "It's been watching you since I left you here. I'd have shooed it off, but I wanted to see what you'd do."
+		<<else>>
+			<<He>> looks towards the trees without reaching for the leash. "That one's been at the tree line all week. It likes to check on my garden." <<He>> looks back at you. "It didn't frighten you, I hope."
+		<</if>>
+	<<default>>
+		<<if _push>>
+			Gwylan checks the collar, runs two fingers down the leash, then nods. "Still where I left you."
+		<<else>>
+			Gwylan checks the clock and winces. "I said I'd be quick. I'm sorry. The kettle took ages."
+		<</if>>
+<</switch>>
+<br><br>
+<<if _ev is "photo" and _res is 3>>
+	<<if _push>>
+		Gwylan raises <<his>> eyebrows. "You posed for them? On my leash?" <<He>> starts laughing as <<he>> gathers the loose lead into <<his>> hand.
+	<<else>>
+		"You posed for them?" Gwylan asks. <<He>> looks up the path, then starts laughing. "I leave you alone for one kettle."
+	<</if>>
+	<br><br>
+<<elseif _ev is "animal" and _res is 4>>
+	<<if _push>>
+		"It came that close?" Gwylan asks, glancing towards the trees. <<He>> checks the collar before loosening the leash.
+	<<else>>
+		Gwylan looks towards the trees. "It normally gets closer to the garden than that. Maybe you distracted it."
+	<</if>>
+	<br><br>
+<</if>>
+<<set _held to ((_ev is "quiet" and _res gte 2) or (_ev is "photo" and _res is 2) or (_ev is "helper" and _res lte 2) or (_ev is "animal" and (_res is 1 or _res is 2)))>>
+<<if $hypnosis_traits.devotion gte 1 and _push>>
+	<<if _held>>
+		<<He>> hands you a mug and starts unlooping the leash. "<<gwylanCommand "Look at you, still exactly where I left you." 1>>"
+		<br><br>
+		<<hypnosisText "Your shoulders drop at the praise, and you want to hear it again.">> <<He>> scratches behind your ear before letting the leash fall.
+		<<stress -6>><<lstress>>
+	<<else>>
+		<<He>> hands you a mug while <<he>> loosens the leash. You wait for the praise that normally follows, but it never comes.
+		<br><br>
+		<<hypnosisText "You notice at once that the word is missing.">> "You got distracted," Gwylan says. "We'll try it again another day."
+		<<stress 3>><<gstress>>
+	<</if>>
+<<elseif _push>>
+	<<if _held>>
+		Gwylan unloops the leash but keeps hold of the end while <<he>> hands you a mug. "You really did stay put."
+		<br><br>
+		<<He>> gives the lead a light pull before letting it hang loose. <<npcincr Gwylan dom 1>><<stress -3>><<lstress>><<gdom>>
+	<<else>>
+		<<He>> gives you the mug and frees the leash.
+		<br><br>
+		"You lasted longer than I expected." Gwylan glances towards whatever distracted you. "Next time I'll know what to watch for."
+	<</if>>
+<<else>>
+	<<if _held>>
+		<<He>> frees the leash and sits beside you on the step before passing you a mug.
+		<br><br>
+		"You really waited the whole time." Gwylan sounds surprised, and <<he>> nudges your knee with <<his>> own. <<stress -6>><<lstress>>
+	<<else>>
+		<<He>> unties you and passes you a mug. "I leave you alone for one kettle and something happens."
+		<br><br>
+		<<He>> sits beside you and checks your face. "Are you all right?" <<stress -3>><<lstress>>
+	<</if>>
+<</if>>
+<<set $gwylan.post.held to _held>>
+<br><br>
+<<link [[Next|Gwylan Leash Post End]]>><</link>>
+<br>
+
+:: Gwylan Leash Post End
+<<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
+<<set _held to $gwylan.post.held>>
+<<if !$gwylan.post.leashed>><<detach_leash>><</if>>
+<<unset $gwylan.post>>
+You both settle on the step with your mugs while the steam drifts up past the porch rail.
+<<if _held and (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	<br><br>
+	"I wanted to see if I could stay there the whole time," you say, rubbing the place where the collar sat.
+	<br><br>
+	Gwylan gives your shoulder a squeeze while you hold the mug.
+<<elseif _held and _speechAttitudeResolved is "polite">>
+	<br><br>
+	"Thanks for the tea," you say, warming your hands around the mug.
+	<br><br>
+	Gwylan looks into <<his>> own mug. "It took a little longer than I expected. I hope it was worth the wait."
+<<elseif _held and _speechAttitudeResolved is "flamboyant">>
+	<br><br>
+	"I think that earned me another drink," you say.
+	<br><br>
+	Gwylan looks into <<his>> own mug, then passes it to you.
+<<elseif _held and _speechAttitudeResolved is "docile">>
+	<br><br>
+	You take the mug in both hands. "I stayed where you put me."
+	<br><br>
+	Gwylan checks the collar with two fingers, then pets the top of your head.
+<<elseif _held and _speechAttitudeResolved is "confident">>
+	<br><br>
+	"Told you I'd still be here," you say.
+	<br><br>
+	Gwylan gives the loose leash one last tug before letting it drop.
+<<elseif _held and (_speechAttitudeResolved is "bratty" or _speechAttitudeResolved is "cruel")>>
+	<br><br>
+	"You looked through the window the whole time," you say.
+	<br><br>
+	Gwylan looks back at the ledger, then takes a drink instead of answering.
+<</if>>
+<br><br>
+When the mugs are empty, Gwylan gathers them up and carries them inside. You follow <<him>> back into the shop.<<set $outside to 0>>
+<br><br>
+<<gwylanOptions>>

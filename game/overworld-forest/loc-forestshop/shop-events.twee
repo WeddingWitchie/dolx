@@ -3842,7 +3842,11 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 
 :: Forest Shop Dog Bed
 <<effects>>
-<<if $bedGuest is "Gwylan">>
+<<set _gwylanFootBed to $gwylan.tuck and $gwylan.tuck.mode is "foot" and Time.days - $gwylan.tuck.day lte 1>>
+<<if _gwylanFootBed>>
+	You settle across the foot of Gwylan's bed. <<He>> lies higher up beneath the blankets, leaving enough space that you do not have to touch unless you want to.
+	<<if ["wolf", "cat", "cow", "fox", "bunny", "bear", "waterdragon", "kitsune", "okami"].some(tf => Transformations.partActive(tf, "ears"))>><br><br>Your ears twitch when <<he>> shifts above you.<</if>>
+<<elseif $bedGuest is "Gwylan">>
 	Gwylan spoons you in the pet bed, idly stroking your hair. <<hypnosisText "<<nnpc_He 'Gwylan'>> hums gently, making your body feel heavy and tired.">>
 <<else>>
 	You curl up in the pet bed. There's a big fuzzy blanket folded next to it, which you pull over yourself.
@@ -3861,13 +3865,13 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 	You stand.
 	<br><br>
 
-	<<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
+	<<link [[Next|Forest Shop Entrance]]>><<if $gwylan.tuck>><<unset $gwylan.tuck.mode>><</if>><<endevent>><</link>>
 	<br>
 <<elseif isGwylanAbsent() is "nobody" and $bedGuest isnot "Gwylan">>
 	You toss and turn for a few moments, before standing back up. <span class="red">You can't hope to sleep while nobody's here.</span>
 	<br><br>
 
-	<<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
+	<<link [[Next|Forest Shop Entrance]]>><<if $gwylan.tuck>><<unset $gwylan.tuck.mode>><</if>><<endevent>><</link>>
 	<br>
 <<elseif !($worn.neck.name is "familiar collar" and $worn.neck.cursed is 1) and $bedGuest isnot "Gwylan">>
 	You toss and turn for a few moments, your mind unable to quiet down.
@@ -3884,16 +3888,24 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 	You stand back up.
 	<br><br>
 
-	<<link [[Next|Forest Shop Entrance]]>><<endevent>><</link>>
+	<<link [[Next|Forest Shop Entrance]]>><<if $gwylan.tuck>><<unset $gwylan.tuck.mode>><</if>><<endevent>><</link>>
 	<br>
 <<else>>
-	It's very comfortable, fitting you <<if $bedGuest is "Gwylan">>both<</if>> easily. You let out a contented sigh and rub the heart on your collar.
+	<<if _gwylanFootBed>>
+		The mattress is soft beneath you. Gwylan settles under the blankets above you, and one of <<his>> feet bumps lightly against your leg before <<he>> shifts it away. You rub the heart on your collar.
+	<<else>>
+		It's very comfortable, fitting you <<if $bedGuest is "Gwylan">>both<</if>> easily. You let out a contented sigh and rub the heart on your collar.
+	<</if>>
 	<br><br>
 
 	<<nightmareCheck "Forest Shop Dog Bed Sleep">>
 	<<generateSleepLinks "Forest Shop Dog Bed Sleep">>
 	<<if $bedGuest isnot "Gwylan">>
-		<<link [[Climb out|Forest Shop Entrance]]>><<endevent>><</link>>
+		<<if !isGwylanAbsent() and (!$gwylan.tuck or $gwylan.tuck.day isnot Time.days)>>
+			<<link [[Call Gwylan over|Gwylan Tuck In]]>><</link>>
+			<br>
+		<</if>>
+		<<link [[Climb out|Forest Shop Entrance]]>><<if $gwylan.tuck>><<unset $gwylan.tuck.mode>><</if>><<endevent>><</link>>
 	<</if>>
 <</if>>
 
@@ -3906,6 +3918,7 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 <<sleepeffects>>
 
 <<if isPregnancyEnding()>>
+	<<if $gwylan.tuck>><<unset $gwylan.tuck.mode>><</if>>
 	<<pregnancyPassout "forestShop">>
 <<elseif _gwylanCafeWake>>
 	<<if !$gwylanbed>> /* Don't generate Gwylan again if they're already generated in _gwylanWake */
@@ -3918,11 +3931,16 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 	<<hypnosisText "The word 'walk' fills you with vigor and excitement.">> You stand and stretch, and your head ends up finding Gwylan's hand again. <<tiredness -2>><<ltiredness>>
 	<br><br>
 
-	<<link [[Walk with Gwylan to the cafe (0:15)|Gwylan Walk Cafe Solo]]>><<pass 15>><<set $phase to 0>><</link>>
+	<<link [[Walk with Gwylan to the cafe (0:15)|Gwylan Walk Cafe Solo]]>><<pass 15>><<set $phase to 0>><<if $gwylan.tuck>><<unset $gwylan.tuck.mode>><</if>><</link>>
 	<br>
 <<elseif _gwylanWake>>
 	<<set $bedGuest to "Gwylan">><<set $gwylanbed to true>>
-	<<npc Gwylan>><<person1>>You feel your blanket briefly get lifted, and someone crawls into the pet bed with you. Gwylan spoons you. "Shh... go back to sleep, <<pcpetname "Gwylan" "simple">>."
+	<<npc Gwylan>><<person1>>
+	<<if $gwylan.tuck and $gwylan.tuck.mode is "foot" and Time.days - $gwylan.tuck.day lte 1>>
+		The mattress shifts as Gwylan settles back under the blankets above you. <<He>> reaches down and rests a hand on your head for a moment. "Shh... go back to sleep, <<pcpetname "Gwylan" "simple">>."
+	<<else>>
+		You feel your blanket briefly get lifted, and someone crawls into the pet bed with you. Gwylan spoons you. "Shh... go back to sleep, <<pcpetname "Gwylan" "simple">>."
+	<</if>>
 	<br><br>
 
 	<<nightmareCheck "Forest Shop Dog Bed Sleep">>
@@ -3953,17 +3971,40 @@ Gwylan sits you down at a table, before disappearing through a dark doorway.
 			<</if>>
 			<br><br>
 		<<elseif !_wakingEffect>>
+			<<set _gwylanSimpleWake to true>>
 			You sleep soundly, and wake up refreshed.
+			<<if $gwylan.tuck and Time.days - $gwylan.tuck.day lte 1>>
+				<<if $gwylan.tuck.mode is "story">>
+					You wake remembering the fox stealing ribbons in Gwylan's story, though you fell asleep before the ending.
+				<<elseif $gwylan.tuck.mode is "sit">>
+					The ledger is closed on the counter, and the chair has been pushed back in.
+				<<elseif $gwylan.tuck.mode is "foot">>
+					You are still lying across the foot of Gwylan's bed. The blankets above you are rumpled where <<he>> slept.
+				<</if>>
+			<</if>>
 			<<if $gwylanbed>>
-				Gwylan kisses you on the cheek, and leaves you alone in the bed.
+				<<if $gwylan.tuck and $gwylan.tuck.mode is "foot" and Time.days - $gwylan.tuck.day lte 1>>
+					Gwylan leans down and scratches lightly behind your ear before getting out of bed.
+				<<else>>
+					Gwylan kisses you on the cheek, and leaves you alone in the bed.
+				<</if>>
 			<</if>>
 			<br><br>
 		<<else>>
 			<br><br>
 		<</if>>
 	<</if>>
-	<<getouticon>><<link [[Get out of bed|Forest Shop Entrance]]>><<endevent>><</link>>
-	<br>
+	<<if _gwylanSimpleWake and $gwylan.tuck?.mode and Time.days - $gwylan.tuck.day lte 1>>
+		<<link [[Stay curled up for another moment|Forest Shop Dog Bed Wake Content]]>><</link>>
+		<br>
+		<<link [[Pull the blanket over your face|Forest Shop Dog Bed Wake Embarrassed]]>><</link>>
+		<br>
+		<<link [[Sit up and complain|Forest Shop Dog Bed Wake Defiant]]>><</link>>
+		<br>
+	<<else>>
+		<<getouticon>><<link [[Get out of bed|Forest Shop Entrance]]>><<if $gwylan.tuck>><<unset $gwylan.tuck.mode>><</if>><<endevent>><</link>>
+		<br>
+	<</if>>
 	<<unset $gwylanbed>>
 <</if>>
 
