@@ -830,7 +830,7 @@
 			<<set $TFBunnyBuffs to 0>>
 		<</if>>
 	<</if>>
-	<<if $bunnytf is 0 and $TFBunnyBuffs is 1>>
+	<<if $bunny lt 6 and !Transformations.partActive("bunny", "tail") and $TFBunnyBuffs is 1>>
 		<<set $TFBunnyBuffs to 0>>
 	<</if>>
 
@@ -2075,6 +2075,26 @@ so a same-version save that predates a key never gets it.
 
 This runs every load (via xchange-modupdate) to fill only the missing keys with TF-appropriate defaults, leaving any value the player already set untouched. */
 <<widget "ensureTransformationTraits">>
+	<<if $bunnytf is undefined>><<set $bunnytf to ($bunny gte 6 ? 1 : 0)>><</if>>
+	/* Older saves did not distinguish safe dumps from stale zero-point unlocks. Preserve those existing unlocks. */
+	<<script>>
+		if (Array.isArray(V.transformationHistory)) {
+			const transformations = {
+				angel: ["angel", "angelbuild", "angeltf"],
+				demon: ["demon", "demonbuild", "demontf"],
+				wolf: ["wolfgirl", "wolfbuild", "wolftf"],
+				cat: ["cat", "catbuild", "cattf"],
+				cow: ["cow", "cowbuild", "cowtf"],
+				bear: ["bear", "bearbuild", "beartf"],
+				harpy: ["harpy", "birdbuild", "harpytf"],
+				fox: ["fox", "foxbuild", "foxtf"],
+				bunny: ["bunny", "bunnybuild", "bunnytf"],
+			};
+			for (const [name, [level, build, flag]] of Object.entries(transformations)) {
+				if (V[flag] === 1 && V[level] === 0 && V[build] === 0) V.transformationHistory.pushUnique(`genomeDump:${name}`);
+			}
+		}
+	<</script>>
 	<<if $transformationParts is undefined>><<setupTransformationPiecesObject>><</if>>
 	<<if $transformationParts.traits is undefined>><<set $transformationParts.traits to {}>><</if>>
 	<<set _traits to $transformationParts.traits>>
