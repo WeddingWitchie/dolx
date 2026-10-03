@@ -355,7 +355,7 @@
 	<<if $pubbooze is "herbal">>
 		<<wearProp "beer mug">>
 		<<set $pubbooze to 0>>
-		The bartender pours a glass of a locally produced spirit. You take a good swig, and down it one gulp. The taste is bitter, but fuzzy, and makes your head feel a bit lighter. The pub seems more colourful after drinking it.
+		The bartender pours a glass of a locally produced spirit. You take a good swig, and down it in one gulp. The taste is bitter, but fuzzy, and makes your head feel a bit lighter. The pub seems more colourful after drinking it.
 		<<if random(0,100) lt 10 and playerMayBeSpiked()>>
 			<br><br>
 			<<drinkwatch>>
@@ -379,7 +379,7 @@
 	<<elseif $pubbooze is "booze">>
 		<<wearProp "beer mug">>
 		<<set $pubbooze to 0>>
-		The bartender pours a glass of a cheap and popular beverage, and then presents it to you. You take a good swig, and down it one gulp. The taste is bitter, but fuzzy, and makes your head feel a bit lighter.
+		The bartender pours a glass of a cheap and popular beverage, and then presents it to you. You take a good swig, and down it in one gulp. The taste is bitter, but fuzzy, and makes your head feel a bit lighter.
 		<<if random(0,100) lt 10 and playerMayBeSpiked()>>
 			<br><br>
 			<<drinkwatch>>
@@ -624,6 +624,7 @@ Deciding there's no chance of danger in public like this, you agree. <<He>> lead
 
 :: Pub Landry
 <<set $outside to 0>><<set $location to "pub">><<effects>><<set $bus to "harvest">>
+<<speechresolve>>
 
 <<if modLISelected("Poppy")>><<run poppySchedule()>><</if>>
 <<set _poppyWithLandry to modLISelected("Poppy") and C.npc.Poppy and C.npc.Poppy.init is 1 and !poppyDismissed() and Array.isArray(T.poppyStatus) and !T.poppyStatus.includes("LowPatience") and random(1, 100) lte 20>>
@@ -668,30 +669,71 @@ Deciding there's no chance of danger in public like this, you agree. <<He>> lead
 	<br><br>
 	"Fancy running into you here," <<he>> says.
 	<br><br>
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"W-what are you doing here?" you ask.
-	<<elseif $speech_attitude is "bratty">>
+	<<case "shy">>
+		"W-what are you doing here?" you ask.
+	<<case "polite">>
+		"Good to see you, Wren," you say. "What brings you here?"
+	<<case "confident">>
+		"What are you after, Wren?" you ask.
+	<<case "bratty">>
 		"Let me guess," you say with a smirk.
-	<</if>>
+	<<case "docile">>
+		"W-what are you doing here?" you ask quietly.
+	<<case "flamboyant">>
+		"Good to see you, Wren," you say. "What brings you here?"
+	<<case "cruel">>
+		"Let me guess," you say with a smirk.
+	<<default>>
+		/* The original neutral wording has no opening line here. */
+	<</switch>>
 
 	<<if $wrenSeenLast is "cards">>
-		<<if $speech_attitude is "meek">>
+		<<switch _speechAttitudeResolved>>
+		<<case "meek">>
 			"Sorry, but I-I can't play cards right now..."
-		<<elseif $speech_attitude is "bratty">>
+		<<case "shy">>
+			"Sorry, but I-I can't play cards right now..."
+		<<case "polite">>
+			"I'm sorry, but I can't play cards right now."
+		<<case "confident">>
+			"If you want a game, the answer is no. I'm busy."
+		<<case "bratty">>
 			"You want to swindle me out of my clothes? Well, I'm too busy to play your games right now."
-		<<else>>
+		<<case "docile">>
+			"Sorry, but I... I can't play cards right now," you say quietly.
+		<<case "flamboyant">>
+			"I'm sorry, but I can't play cards right now."
+		<<case "cruel">>
+			"You want to swindle me out of my clothes? Well, I'm too busy to play your games right now."
+		<<default>>
 			"Looking for a game?" you ask. "Sorry, but I'm busy."
-		<</if>>
+		<</switch>>
 		<br><br>
 		"Not this time," <<he>> says lightly.
 	<<else>>
-		<<if $speech_attitude is "meek">>
+		<<switch _speechAttitudeResolved>>
+		<<case "meek">>
 			"I-I'm not here to do anything to Landry, I promise..."
-		<<elseif $speech_attitude is "bratty">>
+		<<case "shy">>
+			"I-I'm not here to do anything to Landry, I promise..."
+		<<case "polite">>
+			"I'm sorry, but I won't do anything to Landry."
+		<<case "confident">>
+			"If you want me to steal from Landry, the answer is no."
+		<<case "bratty">>
 			"You want to rope me into stealing from Landry? Not on your life."
-		<<else>>
+		<<case "docile">>
+			"I'm sorry... I can't do anything to Landry," you say quietly.
+		<<case "flamboyant">>
+			"I'm sorry, but I won't do anything to Landry."
+		<<case "cruel">>
+			"You want to rope me into stealing from Landry? Not on your life."
+		<<default>>
 			"Looking for a partner-in-crime?" you ask. "Sorry, but I won't steal from Landry."
-		<</if>>
+		<</switch>>
 		<br><br>
 		"Easy, <<girl>>. That's not why I'm here," <<he>> says.
 	<</if>>
@@ -959,6 +1001,7 @@ You push the money across the table.
 
 :: Pub Guard
 <<effects>>
+<<speechresolve>>
 
 <<generate1>><<set $NPCList[0].skills.security to random(1, 600)>><<npcClothesName $NPCList[0] "wildsFlannel">>
 <<generate2>><<person2>>
@@ -967,13 +1010,26 @@ You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a <<
 	sat alone, reclining near the window. <<He>> looks up as you walk over. "How can I help you?" <<he>> asks, gesturing at the seat opposite.
 	<br><br>
 
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
-	<<elseif $speech_attitude is "bratty">>
+	<<case "shy">>
+		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
+	<<case "polite">>
+		"I'm looking to hire security for my farm," you say. "Someone who's willing to work nights."
+	<<case "confident">>
+		"I need security for my farm," you say. "It's a night job. Are you interested?"
+	<<case "bratty">>
 		"I'm looking to employ security for my farm," you say. "It's a night job. You interested?"
-	<<else>>
+	<<case "docile">>
+		"I... I need security to guard my farm," you say. "It's for night work, if you're willing."
+	<<case "flamboyant">>
+		"I'm looking to hire security for my farm," you say. "Someone who's willing to work nights."
+	<<case "cruel">>
+		"I need security for my farm," you say. "It's a night job. Take it or leave it."
+	<<default>>
 		"I'm searching for security for my farm," you say. "Someone who wants to work nights."
-	<</if>>
+	<</switch>>
 	<br><br>
 
 	The <<person>> regards you over <<his>> drink. "Sounds interesting," <<he>> says. "It'll cost you."
@@ -985,13 +1041,26 @@ You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a <<
 	<<He>> agrees to sit with you at another table. "So what's this about?" <<he>> says.
 	<br><br>
 
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
-	<<elseif $speech_attitude is "bratty">>
+	<<case "shy">>
+		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
+	<<case "polite">>
+		"I'm looking to hire security for my farm," you say. "Someone who's willing to work nights."
+	<<case "confident">>
+		"I need security for my farm," you say. "It's a night job. Are you interested?"
+	<<case "bratty">>
 		"I'm looking to employ security for my farm," you say. "It's a night job. You interested?"
-	<<else>>
+	<<case "docile">>
+		"I... I need security to guard my farm," you say. "It's for night work, if you're willing."
+	<<case "flamboyant">>
+		"I'm looking to hire security for my farm," you say. "Someone who's willing to work nights."
+	<<case "cruel">>
+		"I need security for my farm," you say. "It's a night job. Take it or leave it."
+	<<default>>
 		"I'm searching for security for my farm," you say. "Someone who wants to work nights."
-	<</if>>
+	<</switch>>
 	<br><br>
 
 	"Security? Bet that's boring, but a job's a job."
@@ -1002,13 +1071,26 @@ You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a <<
 	<br><br>
 
 	You take the seat opposite <<him>>.
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I-I need—"
-	<<elseif $speech_attitude is "bratty">>
+	<<case "shy">>
+		"I-I need—"
+	<<case "polite">>
+		"I'm looking to hire—"
+	<<case "confident">>
+		"I need—"
+	<<case "bratty">>
 		"I'm looking—"
-	<<else>>
+	<<case "docile">>
+		"I... I need—"
+	<<case "flamboyant">>
+		"I'm looking to hire—"
+	<<case "cruel">>
+		"I'm looking—"
+	<<default>>
 		"I'm searching—"
-	<</if>>
+	<</switch>>
 	<br>
 	"I'll do it," the <<person>> interrupts. <<He>> laughs. "Don't look at me like that. You're not so inconspicuous. Let's discuss my terms."
 	<br><br>
@@ -1020,13 +1102,26 @@ You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a <<
 	"You're not half bad either," the <<person>> says, looking you up and down.
 	<br><br>
 
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
-	<<elseif $speech_attitude is "bratty">>
+	<<case "shy">>
+		"I-I need security to help guard my farm," you say. "Someone who's okay working nights."
+	<<case "polite">>
+		"I'm looking to hire security for my farm," you say. "Someone who's willing to work nights."
+	<<case "confident">>
+		"I need security for my farm," you say. "It's a night job. Are you interested?"
+	<<case "bratty">>
 		"I'm looking to employ security for my farm," you say. "It's a night job. You interested?"
-	<<else>>
+	<<case "docile">>
+		"I... I need security to guard my farm," you say. "It's for night work, if you're willing."
+	<<case "flamboyant">>
+		"I'm looking to hire security for my farm," you say. "Someone who's willing to work nights."
+	<<case "cruel">>
+		"I need security for my farm," you say. "It's a night job. Take it or leave it."
+	<<default>>
 		"I'm searching for security for my farm," you say. "Someone who wants to work nights."
-	<</if>>
+	<</switch>>
 	<br><br>
 
 	"A farm?" <<he>> asks, then shrugs. "As long as I don't need to get muddy. I'm skint."
@@ -1073,7 +1168,7 @@ You ask the landlord if <<he>> knows anyone in need of work. <<He>> nods at a <<
 	<br><br>
 
 <<else>>
-	The <<person>> hesitates, then nods. "Could be fun," <<he>> says. "You can call me <span class="gold"><<print $NPCList[0].name>></span>. Plenty of time to get to know each other. Where's this farm?
+	The <<person>> hesitates, then nods. "Could be fun," <<he>> says. "You can call me <span class="gold"><<print $NPCList[0].name>></span>. Plenty of time to get to know each other. Where's this farm?"
 	<br><br>
 
 	You give <<him>> directions. "No bus service out there," <<he>> complains. "But I'll get there for the night shift."
@@ -1221,15 +1316,29 @@ Three drinks in, the <<person>> excuses <<himself>> to use the restroom. Seizing
 
 :: Pub Exposed Bar Refuse
 <<set $outside to 0>><<set $location to "pub">><<effects>>
+<<speechresolve>>
 
 You crouch low behind the bar.
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"S-sorry," you say. "I'm a bit busy."
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"S-sorry," you say. "I'm a bit busy."
+<<case "polite">>
+	"Sorry," you say. "I'm busy at the moment. Could you ask someone else?"
+<<case "confident">>
+	"I'm busy," you say. "Ask someone else."
+<<case "bratty">>
 	"I'm on break," you lie. "Piss off."
-<<else>>
+<<case "docile">>
+	"S-sorry," you say quietly. "I'm busy right now."
+<<case "flamboyant">>
+	"Sorry," you say. "I'm busy at the moment. Could you ask someone else?"
+<<case "cruel">>
+	"I'm on break," you lie. "Piss off."
+<<default>>
 	"I can't," you say. "Ask someone else."
-<</if>>
+<</switch>>
 <br><br>
 
 <<if random(1)>>
@@ -1268,7 +1377,7 @@ You continue your scan over the room. Before you can find anything suitable, <sp
 <<if $skulduggery gte 1000>>
 	"Not sure why you're here but hey," <<he>> shrugs. "I'll take the money."
 <<elseif $skulduggery gte 900>>
-	"Oho, very close, but not quite." <<he>> says. "This here is a lockpick training set straight from the LockPickingLawyer, best of the best."
+	"Oho, very close, but not quite," <<he>> says. "This here is a lockpick training set straight from the LockPickingLawyer, best of the best."
 <<elseif $skulduggery gte 700>>
 	"For you, master would be the next step," <<he>> says. "But of course, you can just buy the best one and be done with it. I recommend that."
 <<elseif $skulduggery gte 500>>
@@ -1361,11 +1470,11 @@ Without a word, <<he>> picks up where <<he>> left off, matching <<his>> rhythm t
 		<<case 2>>Your tune is languid yet mesmerising. The <<persons>> pace aligns with yours. Closing your eyes and drawing out the last note, you finish the song. With a heavy sigh, you open your eyes and find your audience staring at you with dazed, but yearning expressions. Your ballad longs for a partner, and they must have felt it.
 	<</switch>>
 	<br><br>
-	The room holds its breath for a heartbeat before bursting into a storm of applause. You take your leave.
+	The room goes quiet for a heartbeat, then bursts into loud applause. You take your leave.
 <</if>>
 <br><br>
 
-Behind you, the <<person>> is showered with tips. <<His>> grateful gaze follows your back.
+Behind you, the <<person>> is showered with tips. <<He>> watches you leave with a grateful look.
 <<clearNPC pubMusic>>
 <br><br>
 <<link [[Next|Pub]]>><<endevent>><</link>>
@@ -1409,17 +1518,31 @@ Behind you, the <<person>> is showered with tips. <<His>> grateful gaze follows 
 
 :: Pub Music Bluff
 <<set $outside to 0>><<set $location to "pub">><<effects>>
+<<speechresolve>>
 
 You withdraw your hand and give <<him>> a scandalised look.
 <br><br>
 
-<<if $speech_attitude is "meek">>
-	"I'm just trying to give you a tip?" you say. "Please don't treat me like that." You give <<him>> a baleful look.
-<<elseif $speech_attitude is "bratty">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
+	"I'm just trying to give you a tip?" you say. "Please don't treat me like that." You give <<him>> a hurt look.
+<<case "shy">>
+	"I'm just trying to give you a tip?" you say. "Please don't treat me like that." You give <<him>> a hurt look.
+<<case "polite">>
+	"I was only trying to give you a tip," you say. "Please don't treat me like that."
+<<case "confident">>
+	"I was giving you a tip," you say. "You have no reason to accuse me."
+<<case "bratty">>
 	"If that's how you treat everyone who gives you a tip, I'm not surprised you're not making much." You sneer at <<him>>. "I'll keep my money to myself, then."
-<<else>>
+<<case "docile">>
+	"I'm just trying to give you a tip?" you say softly. "I'm sorry if I upset you."
+<<case "flamboyant">>
+	"I was only trying to give you a tip," you say. "Please don't treat me like that."
+<<case "cruel">>
+	"If that's how you treat everyone who gives you a tip, I'm not surprised you're not making much." You sneer at <<him>>. "I'll keep my money to myself, then."
+<<default>>
 	"I'm just trying to give you a tip," you say. "Why are you treating me like this?"
-<</if>>
+<</switch>>
 <br><br>
 
 <<if $englishSuccess>>
@@ -1517,26 +1640,53 @@ You shake your head. Landry nods with satisfaction, and takes the USB. "Somethin
 
 :: Pub Avery Note
 <<effects>>
+<<speechresolve>>
 <<if $avery_mansion and $avery_mansion.landry is 1>>
 	<<if $avery_mansion.fox.known>>
-		<<if $speech_attitude is "meek">>
+		<<switch _speechAttitudeResolved>>
+		<<case "meek">>
 			"That person you were just speaking with, I found them during one of Avery's parties," you say. "They spoke to me, telling me to find a friend here. Is that you?"
-		<<elseif $speech_attitude is "bratty">>
+		<<case "shy">>
+			"That person you were just speaking with, I found them during one of Avery's parties," you say. "They spoke to me, telling me to find a friend here. Is that you?"
+		<<case "polite">>
+			"That person you were just speaking with, I found them during one of Avery's parties," you say. "They told me to find a friend here. Would that be you?"
+		<<case "confident">>
+			"That person you were just speaking with, I found them during one of Avery's parties," you say. "They sent me here to find a friend. That's you, isn't it?"
+		<<case "bratty">>
 			"That person you were just speaking with, I found them during one of Avery's parties," you say. "Telling me to come here. You wouldn't happen to have anything to do with it, would you?"
-		<<else>>
+		<<case "docile">>
+			"That person you were just speaking with, I found them during one of Avery's parties," you say. "They spoke to me, telling me to find a friend here. Is that you?"
+		<<case "flamboyant">>
+			"That person you were just speaking with, I found them during one of Avery's parties," you say. "They told me to find a friend here. Would that be you?"
+		<<case "cruel">>
+			"That person you were just speaking with, I found them during one of Avery's parties," you say. "Telling me to come here. You wouldn't happen to have anything to do with it, would you?"
+		<<default>>
 			"That person you were just speaking with, I found them during one of Avery's parties," you say. "Someone sent them. That wouldn't happen to be you, would it?"
-		<</if>>
+		<</switch>>
 		<br><br>
 
 		Landry smiles. "Avery? I hear you've a home with <<nnpc_him "Avery">> now. Moving up in the world." <<He>> leans forward. "Now that you mention it, <span class="gold">I have a proposition for you.</span>"
 	<<else>>
-		<<if $speech_attitude is "meek">>
+		<<switch _speechAttitudeResolved>>
+		<<case "meek">>
 			"Someone bumped into me near Danube Street," you say. "They dropped a note, telling me to find a friend here. Is that you?"
-		<<elseif $speech_attitude is "bratty">>
+		<<case "shy">>
+			"Someone bumped into me near Danube Street," you say. "They dropped a note, telling me to find a friend here. Is that you?"
+		<<case "polite">>
+			"Someone bumped into me near Danube Street," you say. "They dropped a note telling me to find a friend here. Would that be you?"
+		<<case "confident">>
+			"Someone bumped into me near Danube Street," you say. "They dropped a note telling me to find a friend here. That's you, isn't it?"
+		<<case "bratty">>
 			"Someone gave me a note near Danube Street," you say. "Telling me to come here. You wouldn't happen to have anything to do with it, would you?"
-		<<else>>
+		<<case "docile">>
+			"Someone bumped into me near Danube Street," you say. "They dropped a note, telling me to find a friend here. Is that you?"
+		<<case "flamboyant">>
+			"Someone bumped into me near Danube Street," you say. "They dropped a note telling me to find a friend here. Would that be you?"
+		<<case "cruel">>
+			"Someone gave me a note near Danube Street," you say. "Telling me to come here. You wouldn't happen to have anything to do with it, would you?"
+		<<default>>
 			"Someone bumped into me near Danube Street," you say. "Someone sent them. That wouldn't happen to be you, would it?"
-		<</if>>
+		<</switch>>
 		<br><br>
 
 		Landry smiles. "Danube Street? I hear you've a home there now. Hooking up with Avery. Moving up in the world." <<He>> leans forward. "Now that you mention it, <span class="gold">I have a proposition for you.</span>"
@@ -1585,14 +1735,28 @@ You reach for the fake stones. Landry's smile falters as you touch them. "Be gen
 
 :: Pub Avery Card
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"Avery is upset with me," you say. "Is there any way you could help?"
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"Avery is upset with me," you say. "Is there any way you could help?"
+<<case "polite">>
+	"I'm afraid Avery is upset with me," you say. "Is there any way you could help?"
+<<case "confident">>
+	"Avery and I aren't on speaking terms," you say. "I need your help fixing that."
+<<case "bratty">>
 	"I need to get back in Avery's good books," you say. "Any way you can help?"
-<<else>>
+<<case "docile">>
+	"Avery is upset with me," you say quietly. "Could you please help?"
+<<case "flamboyant">>
+	"I'm afraid Avery is upset with me," you say. "Is there any way you could help?"
+<<case "cruel">>
+	"I need to get back in Avery's good books," you say. "Any way you can help?"
+<<default>>
 	"Avery and I aren't on speaking terms," you say. "Is there any way you could help?"
-<</if>>
+<</switch>>
 <br><br>
 
 Landry reaches into <<his>> pocket, and produces a thin rectangle in a protective case. <<He>> slides it across the table. It's from an old collectible card game. "Should get your foot in the door. The rest will be up to you."
@@ -1608,14 +1772,28 @@ Landry reaches into <<his>> pocket, and produces a thin rectangle in a protectiv
 
 :: Pub Avery Stones Ask
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"That sounds very dangerous," you say. "What do I get in return?"
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"That sounds very dangerous," you say. "What do I get in return?"
+<<case "polite">>
+	"That sounds very dangerous," you say. "What would I get in return?"
+<<case "confident">>
+	"If I take that risk," you say, "what do I get?"
+<<case "bratty">>
 	"What's in it for me?" you ask.
-<<else>>
+<<case "docile">>
+	"That sounds very dangerous," you say. "What do I get in return?"
+<<case "flamboyant">>
+	"That sounds very dangerous," you say. "What would I get in return?"
+<<case "cruel">>
+	"What's in it for me?" you ask.
+<<default>>
 	"What do I get in return?" you ask.
-<</if>>
+<</switch>>
 <br><br>
 
 Landry pauses for a moment, thinking over <<his>> words. "<span class="blue">If you want to destroy Avery's ambitions,</span> then replace <<nnpc_his "Avery">> stones with mine. Avery's getting in with the wrong crowd. Dangerous people, though <<nnpc_he Avery>> doesn't realise it.
@@ -1638,14 +1816,28 @@ They've trusted <<nnpc_him "Avery">> with this artefact, or soon will. When the 
 
 :: Pub Avery Stones Accept
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"I'll try," you say. "If you think I'm up to it."
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"I'll try," you say. "If you think I'm up to it."
+<<case "polite">>
+	"I'll do it," you say. "Thank you for trusting me."
+<<case "confident">>
+	"I'll do it," you say. "Consider it done."
+<<case "bratty">>
 	"Fine," you say. "I'll soon have Avery wrapped around my finger."
-<<else>>
+<<case "docile">>
+	"I'll do it," you say. "I'll do whatever you need."
+<<case "flamboyant">>
+	"I'll do it," you say. "Thank you for trusting me."
+<<case "cruel">>
+	"Fine," you say. "I'll soon have Avery wrapped around my finger."
+<<default>>
 	"I'll do it," you say. "Sounds exciting."
-<</if>>
+<</switch>>
 <br><br>
 
 Landry smiles. "Excellent. Avery runs in esoteric circles. They've trusted <<nnpc_him "Avery">> with this artefact, or soon will. When the stones are revealed to be fake, <<nnpc_his "Avery">> plans will crumble. <span class="blue">Replace the stones, and Avery's ambitions will be destroyed. It will save <<nnpc_him "Avery">> from <<nnpc_himself "Avery">>.</span>"
@@ -1663,14 +1855,28 @@ Landry smiles. "Excellent. Avery runs in esoteric circles. They've trusted <<nnp
 
 :: Pub Avery Stones Refuse
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"I'm sorry," you say. "This sounds too dangerous."
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"I'm sorry," you say. "This sounds too dangerous."
+<<case "polite">>
+	"I'm sorry," you say. "This sounds too dangerous for me."
+<<case "confident">>
+	"No," you say. "The risk is too high."
+<<case "bratty">>
 	"Sounds like you want me to do all the dangerous work while you sit here drinking beer," you say.
-<<else>>
-	"Sounds too dangerous for me I'm afraid."
-<</if>>
+<<case "docile">>
+	"I'm sorry," you say quietly. "I don't think I can do this."
+<<case "flamboyant">>
+	"I'm sorry," you say. "This sounds too dangerous for me."
+<<case "cruel">>
+	"Sounds like you want me to do all the dangerous work while you sit here drinking beer," you say.
+<<default>>
+	"Sounds too dangerous for me, I'm afraid," you say.
+<</switch>>
 <br><br>
 
 "You're right," Landry says. "It would be incredibly dangerous. Keep the fake stones, in case you reconsider. There's no one else who could get so close to Avery. Not with the skills to pull it off."
@@ -1754,6 +1960,7 @@ Landry pulls out a flip phone, manually dials a number, lets it ring three times
 
 :: Pub Brown Fox Task
 <<effects>><<run statusCheck("Gwylan")>>
+<<speechresolve>>
 <<if $phase is "success">>
 	<<set $avery_mansion.fox.progress++>>
 	<<switch $avery_mansion.fox.task>>
@@ -1767,72 +1974,150 @@ Landry pulls out a flip phone, manually dials a number, lets it ring three times
 
 			<<He>> smiles. "I trust those two will be able to handle what comes next."
 		<<case "Quinn">>
-			<<if $speech_attitude is "meek">>
+			<<switch _speechAttitudeResolved>>
+			<<case "meek">>
 				"I gave the signal to Landry's person on the inside," you say.
-			<<elseif $speech_attitude is "bratty">>
+			<<case "shy">>
+				"I gave the signal to Landry's person on the inside," you say.
+			<<case "polite">>
+				"I gave the signal to Landry's person on the inside," you say.
+			<<case "confident">>
+				"I gave the signal to Landry's person on the inside," you say.
+			<<case "bratty">>
 				"The person on the inside has been brought back in line," you say.
-			<<else>>
+			<<case "docile">>
+				"I gave the signal to Landry's person on the inside," you say.
+			<<case "flamboyant">>
+				"I gave the signal to Landry's person on the inside," you say.
+			<<case "cruel">>
+				"The person on the inside has been brought back in line," you say.
+			<<default>>
 				"The signal has been given," you say.
-			<</if>>
+			<</switch>>
 			<br><br>
 
 			<<He>> smiles. "Thank you. It was important to Landry to get that sorted."<<set $avery_mansion.fox.progress++>>
 		<<case "Remy">>
 			<<if $avery_mansion.fox.task_detail is "ascend">>
-				<<if $speech_attitude is "meek">>
+				<<switch _speechAttitudeResolved>>
+				<<case "meek">>
 					"Both of Remy's companions stayed at the party," you say.
-				<<elseif $speech_attitude is "bratty">>
+				<<case "shy">>
+					"Both of Remy's companions stayed at the party," you say.
+				<<case "polite">>
+					"Both of Remy's companions stayed at the party," you say.
+				<<case "confident">>
+					"Both of Remy's retainers stayed through dinner," you say.
+				<<case "bratty">>
 					"Both of Remy's lapdogs were still there through dinner, just like you wanted," you say.
-				<<else>>
+				<<case "docile">>
+					"Both of Remy's companions stayed at the party," you say.
+				<<case "flamboyant">>
+					"Both of Remy's companions stayed at the party," you say.
+				<<case "cruel">>
+					"Both of Remy's lapdogs were still there through dinner, just like you wanted," you say.
+				<<default>>
 					"Both of Remy's retainers were there at dinner. <<nnpc_He "Remy">> looked very pleased with <<nnpc_himself "Remy">>."
-				<</if>>
+				<</switch>>
 				<br><br>
 
 				<<He>> smiles. "Good work. The High Elk will have a nasty surprise waiting for <<nnpc_him "Remy">> soon."
 			<<else>>
-				<<if $speech_attitude is "meek">>
+				<<switch _speechAttitudeResolved>>
+				<<case "meek">>
 					"Both of Remy's companions left the party early," you say.
-				<<elseif $speech_attitude is "bratty">>
-					"Both of Remy's lapdogs tucked-tail and left early," you say.
-				<<else>>
+				<<case "shy">>
+					"Both of Remy's companions left the party early," you say.
+				<<case "polite">>
+					"Both of Remy's companions left the party early," you say.
+				<<case "confident">>
+					"Both of Remy's retainers left the party early," you say.
+				<<case "bratty">>
+					"Both of Remy's lapdogs ran off early with their tails between their legs," you say.
+				<<case "docile">>
+					"Both of Remy's companions left the party early," you say.
+				<<case "flamboyant">>
+					"Both of Remy's companions left the party early," you say.
+				<<case "cruel">>
+					"Both of Remy's lapdogs ran off early with their tails between their legs," you say.
+				<<default>>
 					"Both of Remy's retainers left the party early. <<nnpc_He "Remy">> wasn't happy about it."
-				<</if>>
+				<</switch>>
 				<br><br>
 
 				<<He>> smiles. "Good work. The High Elk bows <<nnpc_his "Remy">> antlers in shame."
 			<</if>>
 		<<case "Briar">>
 			<<if $avery_mansion.fox.task_detail is "ascend">>
-				<<if $speech_attitude is "meek">>
+				<<switch _speechAttitudeResolved>>
+				<<case "meek">>
 					"Briar's ready to support the tower's construction, if only to start exploiting it in earnest," you say.
-				<<elseif $speech_attitude is "bratty">>
+				<<case "shy">>
+					"Briar's ready to support the tower's construction, if only to start exploiting it in earnest," you say.
+				<<case "polite">>
+					"Briar's ready to support the tower's construction, if only to start exploiting it in earnest," you say.
+				<<case "confident">>
+					"Briar's ready to invest in the tower," you say.
+				<<case "bratty">>
 					"Briar's ready to throw some weight on top of the tower," you say.
-				<<else>>
+				<<case "docile">>
+					"Briar's ready to support the tower's construction, if only to start exploiting it in earnest," you say.
+				<<case "flamboyant">>
+					"Briar's ready to support the tower's construction, if only to start exploiting it in earnest," you say.
+				<<case "cruel">>
+					"Briar's ready to throw some weight on top of the tower," you say.
+				<<default>>
 					"Briar's ready to make an investment in the tower," you say.
-				<</if>>
+				<</switch>>
 				<br><br>
 
 				<<He>> nods. "You're a natural. I trust <<nnpc_he "Briar">> wasn't too much to handle?"
 			<<else>>
-				<<if $speech_attitude is "meek">>
+				<<switch _speechAttitudeResolved>>
+				<<case "meek">>
 					"Briar's going to be a little more bold with <<nnpc_his "Briar">> activities around the skyscraper," you say.
-				<<elseif $speech_attitude is "bratty">>
+				<<case "shy">>
+					"Briar's going to be a little more bold with <<nnpc_his "Briar">> activities around the skyscraper," you say.
+				<<case "polite">>
+					"Briar's going to be a little more bold with <<nnpc_his "Briar">> activities around the skyscraper," you say.
+				<<case "confident">>
+					"Briar will push the crime around the skyscraper even further," you say.
+				<<case "bratty">>
 					"Briar's ready to swoop in like a vulture," you say.
-				<<else>>
+				<<case "docile">>
+					"Briar's going to be a little more bold with <<nnpc_his "Briar">> activities around the skyscraper," you say.
+				<<case "flamboyant">>
+					"Briar's going to be a little more bold with <<nnpc_his "Briar">> activities around the skyscraper," you say.
+				<<case "cruel">>
+					"Briar's ready to swoop in like a vulture," you say.
+				<<default>>
 					"Briar's ready to double down on the crime around the skyscraper," you say.
-				<</if>>
+				<</switch>>
 				<br><br>
 
 				<<He>> nods. "Briar's already contacted me. You're a natural. I trust <<nnpc_he "Briar">> wasn't too much to handle?"
 			<</if>>
 		<<case "Harper">>
-			<<if $speech_attitude is "meek">>
+			<<switch _speechAttitudeResolved>>
+			<<case "meek">>
 				"I swapped out the mixtures like you wanted," you say. "It was scary, but the victims escaped."
-			<<elseif $speech_attitude is "bratty">>
+			<<case "shy">>
+				"I swapped out the mixtures like you wanted," you say. "It was scary, but the victims escaped."
+			<<case "polite">>
+				"I swapped out the mixtures like you wanted," you say. "It was scary, but the victims escaped."
+			<<case "confident">>
+				"I swapped in your mixtures," you say. "All three victims got away."
+			<<case "bratty">>
 				"Dinner was served," you say. "The food preyed upon the guests, and escaped."
-			<<else>>
+			<<case "docile">>
+				"I swapped out the mixtures like you wanted," you say. "It was scary, but the victims escaped."
+			<<case "flamboyant">>
+				"I swapped out the mixtures like you wanted," you say. "It was scary, but the victims escaped."
+			<<case "cruel">>
+				"Dinner was served," you say. "The food preyed upon the guests, and escaped."
+			<<default>>
 				"I swapped in your mixtures," you say. "The results were... interesting. All three seem to have gotten away."
-			<</if>>
+			<</switch>>
 			<br><br>
 
 			<<He>> lets out a long breath. "I hope their revenge was as sweet as the wolfbrew. Thank you for doing this for me. It won't help our end goal, but it will help me sleep at night." <<if $brownFoxRevealed>><<gyearning>><<else>><<note "+ ???" "forest-green">><</if>>
@@ -1842,13 +2127,26 @@ Landry pulls out a flip phone, manually dials a number, lets it ring three times
 				<<set $gwylanSeen.pushUnique("bf_harper")>>
 			<</if>>
 		<<case "HBSC Gala">>
-			<<if $speech_attitude is "meek">>
+			<<switch _speechAttitudeResolved>>
+			<<case "meek">>
 				"There was a back room. Off the salon. They had cases of pills hidden away from the donors..." You lower your voice. "<span class="lewd">X-Change pills.</span> One of them was an anti pill, kept apart from the rest."
-			<<elseif $speech_attitude is "bratty">>
-				"Their charity was a front. Off the floor they had whole cases of <span class="lewd">X-Change</span>, anti pills mixed in with the demonstration stock. Their staff didn't want the wrong donor swallowing the wrong colour."
-			<<else>>
+			<<case "shy">>
+				"There was a back room. Off the salon. They had cases of pills hidden away from the donors..." You lower your voice. "<span class="lewd">X-Change pills.</span> One of them was an anti pill, kept apart from the rest."
+			<<case "polite">>
+				"There was a back room off the salon," you say. "They kept cases of pills hidden from the donors. <span class="lewd">X-Change pills.</span> One of them was an anti pill, kept apart from the rest."
+			<<case "confident">>
 				"You were right about the seams," you say. "There was a sideboard hidden off the main salon. <span class="lewd">X-Change pills,</span> kept separate from the donor display. Including an anti pill the staff handled like it was dangerous."
-			<</if>>
+			<<case "bratty">>
+				"Their charity was a front. Off the floor they had whole cases of <span class="lewd">X-Change</span>, anti pills mixed in with the demonstration stock. Their staff didn't want the wrong donor swallowing the wrong colour."
+			<<case "docile">>
+				"There was a back room. Off the salon. They had cases of pills hidden away from the donors..." You lower your voice. "<span class="lewd">X-Change pills.</span> One of them was an anti pill, kept apart from the rest."
+			<<case "flamboyant">>
+				"There was a back room off the salon," you say. "They kept cases of pills hidden from the donors. <span class="lewd">X-Change pills.</span> One of them was an anti pill, kept apart from the rest."
+			<<case "cruel">>
+				"Their charity was a front. Off the floor they had whole cases of <span class="lewd">X-Change</span>, anti pills mixed in with the demonstration stock. Their staff didn't want the wrong donor swallowing the wrong colour."
+			<<default>>
+				"You were right about the seams," you say. "There was a sideboard hidden off the main salon. <span class="lewd">X-Change pills,</span> kept separate from the donor display. Including an anti pill the staff handled like it was dangerous."
+			<</switch>>
 			<br><br>
 
 			<<He>> is silent for a beat. Then <<his>> mouth curves beneath the mask, slow and almost amused.
@@ -1980,13 +2278,26 @@ Landry pulls out a flip phone, manually dials a number, lets it ring three times
 			<<He>> holds up the green phial. "This one is for the appetiser." <<He>> holds up the red in turn. "This is for the main course. One is a sedative and chemical marker, the other is concentrated wolfbrew.
 			There's nothing we can do to stop <<nnpc_him "Harper">>. But we can at least grant the victims revenge. You'll understand soon, unfortunately."
 		<<case "HBSC Gala">>
-			<<if $speech_attitude is "meek">>
+			<<switch _speechAttitudeResolved>>
+			<<case "meek">>
 				"It's not a guest, exactly. Avery's taking me to a gala at the bank. The HBSC. It came up suddenly."
-			<<elseif $speech_attitude is "bratty">>
+			<<case "shy">>
+				"It's not a guest, exactly. Avery's taking me to a gala at the bank. The HBSC. It came up suddenly."
+			<<case "polite">>
+				"There isn't a guest this time," you say. "Avery is taking me to a charity gala at the HBSC. The invitation came without warning."
+			<<case "confident">>
+				"No guest this time," you say. "Avery's taking me to a charity gala at the HBSC. The invitation came without warning."
+			<<case "bratty">>
 				"There's no guest. Avery dragged me into a sudden invitation to some bank gala. HBSC. Charity, supposedly."
-			<<else>>
+			<<case "docile">>
+				"It's not a guest, exactly. Avery's taking me to a gala at the bank. The HBSC. It came up suddenly."
+			<<case "flamboyant">>
+				"There isn't a guest this time," you say. "Avery is taking me to a charity gala at the HBSC. The invitation came without warning."
+			<<case "cruel">>
+				"There's no guest. Avery dragged me into a sudden invitation to some bank gala. HBSC. Charity, supposedly."
+			<<default>>
 				"There isn't a guest this time. Avery's taking me to a charity gala at the HBSC. The invitation arrived without warning."
-			<</if>>
+			<</switch>>
 			<br><br>
 
 			<<He>> goes very still.
@@ -2021,13 +2332,27 @@ Landry pulls out a flip phone, manually dials a number, lets it ring three times
 
 :: Pub Brown Fox Dungeon
 <<effects>><<run statusCheck("Gwylan")>>
-<<if $speech_attitude is "meek">>
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"I found the vault. It's in a... dungeon. The entrance is hidden somewhere in Avery's study.
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"I found the vault. It's in a... dungeon. The entrance is hidden somewhere in Avery's study.
+<<case "polite">>
+	"I found the vault. It's in a dungeon, and the entrance is hidden somewhere in Avery's study.
+<<case "confident">>
+	"I found the vault. It's in a dungeon. The entrance is hidden somewhere in Avery's study.
+<<case "bratty">>
 	"I found the vault. It's in Avery's rape dungeon, the entrance of which is hidden somewhere in Avery's study.
-<<else>>
+<<case "docile">>
+	"I found the vault. It's in a... dungeon. The entrance is hidden somewhere in Avery's study.
+<<case "flamboyant">>
+	"I found the vault. It's in a dungeon, and the entrance is hidden somewhere in Avery's study.
+<<case "cruel">>
+	"I found the vault. It's in Avery's rape dungeon, the entrance of which is hidden somewhere in Avery's study.
+<<default>>
 	"I found the vault. It's in a dungeon, the entrance of which is hidden somewhere in Avery's study.
-<</if>>
+<</switch>>
 It's locked by a keypad with a four-digit combination."
 <br><br>
 
@@ -2060,13 +2385,27 @@ With the right subterfuge, we can <span class="green">speed up the construction 
 
 :: Pub Brown Fox Revealed
 <<effects>><<run statusCheck("Gwylan")>>
-<<if $speech_attitude is "meek">>
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"Is that you, Gwylan?"
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"Is that you, Gwylan?"
+<<case "polite">>
+	"Excuse me, is that you, Gwylan?"
+<<case "confident">>
 	"I know it's you, Gwylan."
-<<else>>
+<<case "bratty">>
+	"I know it's you, Gwylan."
+<<case "docile">>
+	"Is that you, Gwylan?" you ask quietly.
+<<case "flamboyant">>
+	"Excuse me, is that you, Gwylan?"
+<<case "cruel">>
+	"I know it's you, Gwylan."
+<<default>>
 	"I didn't think this was how you operated, Gwylan."
-<</if>>
+<</switch>>
 <br><br>
 
 <<He>> stares at you for a moment, then giggles. "I thought you'd never catch on. What gave it away?"
@@ -2137,10 +2476,8 @@ With the right subterfuge, we can <span class="green">speed up the construction 
 <<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
 <br>
 
-/*
 :: Pub Avery Nod Note
 <<effects>>
-Reworked
 You nod, and Landry leans back with a smile. "Anything else?"
 <br><br>
 
@@ -2150,14 +2487,28 @@ You nod, and Landry leans back with a smile. "Anything else?"
 
 :: Pub Avery Nod Point
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"That's very generous of you," you say. "But Avery is also generous. And rich. You want me to betray <<nnpc_him Avery>>?"
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"That's very generous of you," you say. "But Avery is also generous. And rich. You want me to betray <<nnpc_him Avery>>?"
+<<case "polite">>
+	"That's very generous of you," you say. "But Avery is also generous. And rich. Do you want me to betray <<nnpc_him Avery>>?"
+<<case "confident">>
+	"That's not much money for Avery," you say. "Why should I betray <<nnpc_him Avery>> for it?"
+<<case "bratty">>
 	"You want me to betray Avery for a sum <<nnpc_he Avery>>'d find down <<nnpc_his Avery>> sofa?" you ask.
-<<else>>
+<<case "docile">>
+	"That's very generous of you," you say. "But Avery is also generous. And rich. You want me to betray <<nnpc_him Avery>>?"
+<<case "flamboyant">>
+	"That's very generous of you," you say. "But Avery is also generous. And rich. Do you want me to betray <<nnpc_him Avery>>?"
+<<case "cruel">>
+	"You want me to betray Avery for a sum <<nnpc_he Avery>>'d find down <<nnpc_his Avery>> sofa?" you ask.
+<<default>>
 	"That's not much money for Avery," you say.
-<</if>>
+<</switch>>
 <br><br>
 
 Landry laughs. "I know. Wasn't my decision, that reward, believe me." <<He>> glances towards the front of the pub. "The £10000 would be from some friends of mine. They're a bit out of touch I'm afraid. But they're strong. The sort your Bailey has to tiptoe around, or risk being crushed by. They have things, and do things, money can't buy. Friends like that would be good to have, no?"
@@ -2215,29 +2566,56 @@ Landry seals the wishing stones within a plastic bag. "I'll need help to analyse
 
 :: Pub Avery Fake Stones
 <<effects>>
+<<speechresolve>>
 
 <<set $avery_mansion.fake_stones to 2>>
 <<if $auriga_artefact is "Landry">>
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I hate to be a bother," you say. "But do you know how I could replace the wishing stones? Avery can be hard to deal with, and it would be easier if they were replaced with a fake."
-	<<elseif $speech_attitude is "bratty">>
-		"Avery will discover the stones' absence sooner or later," you say. "Could be trouble for me. Know any way I could fool <<nnpc_him Avery>>?"
-	<<else>>
+	<<case "shy">>
+		"I hate to be a bother," you say. "But do you know how I could replace the wishing stones? Avery can be hard to deal with, and it would be easier if they were replaced with a fake."
+	<<case "polite">>
+		"Sorry to ask," you say. "Do you know how I could replace the wishing stones? Avery can be hard to deal with, and it would be easier if they were replaced with a fake."
+	<<case "confident">>
 		"A forgery of the stones would be useful," you say. "I could leave them in the vault instead, and keep Avery in the dark for longer."
-	<</if>>
+	<<case "bratty">>
+		"Avery will discover the stones' absence sooner or later," you say. "Could be trouble for me. Know any way I could fool <<nnpc_him Avery>>?"
+	<<case "docile">>
+		"I hate to be a bother," you say. "But do you know how I could replace the wishing stones? Avery can be hard to deal with, and it would be easier if they were replaced with a fake."
+	<<case "flamboyant">>
+		"Sorry to ask," you say. "Do you know how I could replace the wishing stones? Avery can be hard to deal with, and it would be easier if they were replaced with a fake."
+	<<case "cruel">>
+		"Avery will discover the stones' absence sooner or later," you say. "Could be trouble for me. Know any way I could fool <<nnpc_him Avery>>?"
+	<<default>>
+		"A forgery of the stones would be useful," you say. "I could leave them in the vault instead, and keep Avery in the dark for longer."
+	<</switch>>
 	<br><br>
 	Landry smiles, reaches beneath the table, and produces the wishing stones.
 	<br><br>
 	"These are fake," <<he>> says with a satisfied smile. "Good, aren't they?" They do appear identical, as far as you can tell. "Note that they're not a perfect copy. We only had those pictures to go on. But it should fool Avery and co well enough."
 	<br><br>
 <<else>>
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I found the wishing stones you wanted," you say. "But I'd be in trouble if Avery sees them gone. Do you have something I could replace them with?"
-	<<elseif $speech_attitude is "bratty">>
-		"I know where those stones are," you say. "Gimme something to replace them with, and they're all yours."
-	<<else>>
+	<<case "shy">>
+		"I found the wishing stones you wanted," you say. "But I'd be in trouble if Avery sees them gone. Do you have something I could replace them with?"
+	<<case "polite">>
+		"I found the wishing stones you wanted," you say. "Avery would notice if they were gone. Do you have something I could replace them with?"
+	<<case "confident">>
 		"I found the stones," you say. "I just need something to replace them with."
-	<</if>>
+	<<case "bratty">>
+		"I know where those stones are," you say. "Gimme something to replace them with, and they're all yours."
+	<<case "docile">>
+		"I found the wishing stones you wanted," you say. "But I'd be in trouble if Avery sees them gone. Do you have something I could replace them with?"
+	<<case "flamboyant">>
+		"I found the wishing stones you wanted," you say. "Avery would notice if they were gone. Do you have something I could replace them with?"
+	<<case "cruel">>
+		"I know where those stones are," you say. "Gimme something to replace them with, and they're all yours."
+	<<default>>
+		"I found the stones," you say. "I just need something to replace them with."
+	<</switch>>
 	<br><br>
 	Landry smiles, reaches beneath the table, and produces a copy of the wishing stones. Identical, as far as you can tell.
 	<br><br>
@@ -2252,18 +2630,31 @@ You reach for the fake stones. Landry's smile falters as you touch them. "Be gen
 <<landryoptions>>
 <<getouticon>><<link [[Leave|Pub]]>><<endevent>><</link>>
 <br>
- */
 
 :: Pub Avery Stones Tell
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"It was hard," you say. "But I managed to replace Avery's stones."
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"It was hard," you say. "But I managed to replace Avery's stones."
+<<case "polite">>
+	"I replaced Avery's stones," you say. "It was difficult, but I managed."
+<<case "confident">>
+	"It's done," you say. "I replaced Avery's stones with yours."
+<<case "bratty">>
 	"I replaced Avery's stones," you say. "It wasn't difficult."
-<<else>>
+<<case "docile">>
+	"It was hard," you say. "But I managed to replace Avery's stones."
+<<case "flamboyant">>
+	"I replaced Avery's stones," you say. "It was difficult, but I managed."
+<<case "cruel">>
+	"I replaced Avery's stones," you say. "It wasn't difficult."
+<<default>>
 	"I got into Avery's vault," you say. "And replaced <<nnpc_his Avery>> stones with yours."
-<</if>>
+<</switch>>
 <br><br>
 
 Landry smiles as <<he>> pulls out a flip phone and dials something into it. "Very nice work. Now we just need to wait for Avery to finish that building of <<nnpc_hers Avery>> on Elk Street. <<nnpc_He Avery>>'ll need the stones for the opening ceremony. When <<nnpc_he Avery>> can't produce them, <<nnpc_his Avery>> plans will blow up in <<nnpc_his Avery>> face."
@@ -2287,28 +2678,55 @@ Landry hands the stones back to you. "The brown fox insisted that you should hol
 
 :: Pub Avery Stones Tell 2
 <<effects>>
+<<speechresolve>>
 
 <<if $avery_fate is "saved">>
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"It all blew up in Avery's face," you say. "Like you wanted."
-	<<elseif $speech_attitude is "bratty">>
-		"Your bomb went off," you say. "Just as I assume you planned."
-	<<else>>
+	<<case "shy">>
+		"It all blew up in Avery's face," you say. "Like you wanted."
+	<<case "polite">>
+		"It all blew up in Avery's face," you say. "As you wanted."
+	<<case "confident">>
 		"Your bomb went off," you say. "Like you wanted."
-	<</if>>
+	<<case "bratty">>
+		"Your bomb went off," you say. "Just as I assume you planned."
+	<<case "docile">>
+		"It all blew up in Avery's face," you say. "Like you wanted."
+	<<case "flamboyant">>
+		"It all blew up in Avery's face," you say. "As you wanted."
+	<<case "cruel">>
+		"Your bomb went off," you say. "Just as I assume you planned."
+	<<default>>
+		"Your bomb went off," you say. "Like you wanted."
+	<</switch>>
 	<br><br>
 	"So I hear," Landry says. "Avery and those friends of <<nnpc_his Avery>> will think twice before stirring up more trouble. I'm under no illusions, though. The war is far from over, but this is the first significant blow we've struck. I'm sorry about the unforeseen complications. You weren't meant to be that close when they went off."
 	<br><br>
 
 	<<He>> smiles. "You're a good kid. I don't think anyone else would have put their life on the line for someone like Avery. Not willingly, at least."
 <<else>>
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"Avery won't trouble you again," you say.
-	<<elseif $speech_attitude is "bratty">>
-		"Good job," you say. "Avery's gone, and you didn't need to dirty your own hands."
-	<<else>>
+	<<case "shy">>
+		"Avery won't trouble you again," you say.
+	<<case "polite">>
+		"Avery won't trouble you again," you say.
+	<<case "confident">>
 		"Your plan worked," you say. "Avery is gone."
-	<</if>>
+	<<case "bratty">>
+		"Good job," you say. "Avery's gone, and you didn't need to dirty your own hands."
+	<<case "docile">>
+		"Avery won't trouble you again," you say.
+	<<case "flamboyant">>
+		"Avery won't trouble you again," you say.
+	<<case "cruel">>
+		"Good job," you say. "Avery's gone, and you didn't need to dirty your own hands."
+	<<default>>
+		"Your plan worked," you say. "Avery is gone."
+	<</switch>>
 	<br><br>
 
 	"So I heard. You've done a good thing," Landry says. "Sorry, I left out some details. The less you knew, the safer you were. Those friends of <<nnpc_his Avery>> will be cowed, but I'm under no illusions. This war is far from over, but this is the first significant blow we've struck."
@@ -2325,14 +2743,28 @@ Landry hands the stones back to you. "The brown fox insisted that you should hol
 
 :: Pub Avery Stones Angry
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"Your bomb hurt me," you say. "It hurt others. I know they're bad people, but that doesn't make it okay."
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"Your bomb hurt me," you say. "It hurt others. I know they're bad people, but that doesn't make it okay."
+<<case "polite">>
+	"Your bomb hurt me," you say. "It hurt others. I know they're bad people, but that doesn't make it okay."
+<<case "confident">>
+	"Your bomb hurt me," you say. "You went too far, and you should have told me."
+<<case "bratty">>
 	"Your bomb could've killed me," you say. "Who do you think you are?"
-<<else>>
+<<case "docile">>
+	"Your bomb hurt me," you say. "It hurt others. I know they're bad people, but that doesn't make it okay."
+<<case "flamboyant">>
+	"Your bomb hurt me," you say. "It hurt others. I know they're bad people, but that doesn't make it okay."
+<<case "cruel">>
+	"Your bomb could've killed me," you say. "Who do you think you are?"
+<<default>>
 	"Your bomb hurt me," you say. "You went too far."
-<</if>>
+<</switch>>
 <br><br>
 
 Landry throws up <<his>> hands in mock surrender. "I'm sorry," <<he>> says. "It wasn't my decision. Still, you were safer this way. Imagine if you knew the fake stones were a bomb. What you'd now be accessory to. Besides, you weren't meant to be that close when they went off."
@@ -2353,14 +2785,28 @@ Landry throws up <<his>> hands in mock surrender. "I'm sorry," <<he>> says. "It 
 
 :: Pub Avery Stones Threaten
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"It would be safer for me to involve the police," you say.
-<<elseif $speech_attitude is "bratty">>
-	"I could sic the cops on your arse," you say.
-<<else>>
+<<case "shy">>
+	"It would be safer for me to involve the police," you say.
+<<case "polite">>
+	"I could tell the police about this," you say.
+<<case "confident">>
 	"I could tell the police about you," you say.
-<</if>>
+<<case "bratty">>
+	"I could sic the cops on your arse," you say.
+<<case "docile">>
+	"It would be safer for me to involve the police," you say.
+<<case "flamboyant">>
+	"I could tell the police about this," you say.
+<<case "cruel">>
+	"I could sic the cops on your arse," you say.
+<<default>>
+	"I could tell the police about you," you say.
+<</switch>>
 <br><br>
 
 Landry smiles in amusement for just a moment, before gaining control of <<his>> features. "I am at your mercy."
@@ -2374,14 +2820,28 @@ A moment passes. "While you consider involving the authorities, is there anythin
 
 :: Pub Avery Stones Tell Ask
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"Who's 'we'?" you ask. "You and me? I didn't sign up for a war."
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	"Who's 'we'?" you ask. "You and me? I didn't sign up for a war."
+<<case "polite">>
+	"Who do you mean by 'we'?" you ask politely.
+<<case "confident">>
+	"Who is 'we'?" you ask. "I want to know who I'm working for."
+<<case "bratty">>
 	"'We'?" you ask. "You talking about those friends of yours?"
-<<else>>
+<<case "docile">>
+	"Who's 'we'?" you ask. "You and me? I didn't sign up for a war."
+<<case "flamboyant">>
+	"Who do you mean by 'we'?" you ask politely.
+<<case "cruel">>
+	"'We'?" you ask. "You talking about those friends of yours?"
+<<default>>
 	"Who do you mean by 'we'?" you ask.
-<</if>>
+<</switch>>
 <br><br>
 
 Landry gives you an embarrassed smile. "Did I say that? Your good work got my lips flapping. I'll say you've made some powerful people happy, and leave it at that. Now, is there anything else you have for me?"
@@ -2403,13 +2863,27 @@ You remain silent. Landry looks unsure for a moment. "Cheer up. You've made some
 
 :: Pub Avery Stones Ascend
 <<effects>>
-<<if $speech_attitude is "meek">>
+<<speechresolve>>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"I didn't replace your stones."
-<<elseif $speech_attitude is "bratty">>
-	"I never replaced the stones."
-<<else>>
+<<case "shy">>
+	"I didn't replace your stones."
+<<case "polite">>
+	"I didn't replace the stones, I'm afraid."
+<<case "confident">>
 	"I didn't replace the stones."
-<</if>>
+<<case "bratty">>
+	"I never replaced the stones."
+<<case "docile">>
+	"I didn't replace your stones."
+<<case "flamboyant">>
+	"I didn't replace the stones, I'm afraid."
+<<case "cruel">>
+	"I never replaced the stones."
+<<default>>
+	"I didn't replace the stones."
+<</switch>>
 <br><br>
 
 <<He>> frowns. "I know. Things just became a lot more difficult. This war is far from over, but we're on the back foot now. Avery's more powerful than ever, and has thrown <<nnpc_his "Avery">> lot in with very bad people. It's not looking good."
@@ -2432,14 +2906,28 @@ You remain silent. Landry looks unsure for a moment. "Cheer up. It's not all glo
 
 :: Pub Avery Stones Ascend Ask
 <<effects>>
+<<speechresolve>>
 
-<<if $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	"Who's 'we'?" you ask. "You and me? Leave me out of your war."
-<<elseif $speech_attitude is "bratty">>
-	"'We'?" you ask. "You talking about those friends of yours? I'm not fighting a war."
-<<else>>
+<<case "shy">>
+	"Who's 'we'?" you ask. "You and me? Leave me out of your war."
+<<case "polite">>
 	"Who do you mean by 'we'?" you ask. "I never agreed to a war."
-<</if>>
+<<case "confident">>
+	"Who do you mean by 'we'?" you ask. "I never agreed to a war."
+<<case "bratty">>
+	"'We'?" you ask. "You talking about those friends of yours? I'm not fighting a war."
+<<case "docile">>
+	"Who's 'we'?" you ask. "You and me? Leave me out of your war."
+<<case "flamboyant">>
+	"Who do you mean by 'we'?" you ask. "I never agreed to a war."
+<<case "cruel">>
+	"'We'?" you ask. "You talking about those friends of yours? I'm not fighting a war."
+<<default>>
+	"Who do you mean by 'we'?" you ask. "I never agreed to a war."
+<</switch>>
 <br><br>
 
 Landry leans forward. "You're already involved, and you're dangerously close to being on the wrong side. Now, is there anything else you have for me?"
@@ -2451,22 +2939,49 @@ Landry leans forward. "You're already involved, and you're dangerously close to 
 
 :: Pub Avery Stones Fox End
 <<effects>><<summon_brown_fox 2>><<person2>>
+<<speechresolve>>
 <<if $avery_mansion.fox.saved and !$avery_mansion.fox.end and !$brownFoxRevealed>>
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"What happened to our friend, the <<personsimple>> in the fox mask? I never saw <<him>> escape the fire."
-	<<elseif $speech_attitude is "bratty">>
-		"Where's your masked accomplice? I had something I wanted to say to <<him>>, but I never saw <<him>> escape."
-	<<else>>
+	<<case "shy">>
+		"What happened to our friend, the <<personsimple>> in the fox mask? I never saw <<him>> escape the fire."
+	<<case "polite">>
+		"Excuse me, what happened to our friend, the <<personsimple>> in the fox mask? I never saw <<him>> escape the fire."
+	<<case "confident">>
 		"Where's your accomplice? The brown fox. I was at least hoping to say goodbye. Did <<he>> escape the fire?"
-	<</if>>
+	<<case "bratty">>
+		"Where's your masked accomplice? I had something I wanted to say to <<him>>, but I never saw <<him>> escape."
+	<<case "docile">>
+		"What happened to our friend, the <<personsimple>> in the fox mask? I never saw <<him>> escape the fire."
+	<<case "flamboyant">>
+		"Excuse me, what happened to our friend, the <<personsimple>> in the fox mask? I never saw <<him>> escape the fire."
+	<<case "cruel">>
+		"Where's your masked accomplice? I had something I wanted to say to <<him>>, but I never saw <<him>> escape."
+	<<default>>
+		"Where's your accomplice? The brown fox. I was at least hoping to say goodbye. Did <<he>> escape the fire?"
+	<</switch>>
 <<else>>
-	<<if $speech_attitude is "meek">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"What happened to your friend, the <<personsimple>> in the fox mask?"
-	<<elseif $speech_attitude is "bratty">>
-		"Where's your masked accomplice?"
-	<<else>>
+	<<case "shy">>
+		"What happened to your friend, the <<personsimple>> in the fox mask?"
+	<<case "polite">>
+		"Excuse me, what happened to your friend, the <<personsimple>> in the fox mask?"
+	<<case "confident">>
 		"Where's your accomplice? The brown fox."
-	<</if>>
+	<<case "bratty">>
+		"Where's your masked accomplice?"
+	<<case "docile">>
+		"What happened to your friend, the <<personsimple>> in the fox mask?"
+	<<case "flamboyant">>
+		"Excuse me, what happened to your friend, the <<personsimple>> in the fox mask?"
+	<<case "cruel">>
+		"Where's your masked accomplice?"
+	<<default>>
+		"Where's your accomplice? The brown fox."
+	<</switch>>
 <</if>>
 <br><br>
 

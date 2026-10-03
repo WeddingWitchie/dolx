@@ -1265,43 +1265,56 @@
 <</widget>>
 
 <!--
-	speechresolve: reads the player's configured speech attitude ($speech_attitude) and produces three temp variables callers can branch on:
+	speechresolve: resolves $speech_attitude into:
+		_speechAttitudeResolved : concrete attitude:
+			meek, shy, polite, neutral, confident, bratty, docile, flamboyant, cruel.
 
-		_speechAttitudeResolved : the concrete attitude after unrolling fickle / capricious / special randomizers.
-		                          One of: meek, shy, polite, neutral, confident, bratty, docile, flamboyant, cruel.
-		_speechAttitudeBase     : a coarse 3-way bucket for simple widgets.
-		                          "meek"    = meek | shy | polite | docile | flamboyant
-		                          "bratty"  = bratty | cruel
-		                          "neutral" = everything else (incl. confident)
-		_speechVoice            : matching voice tone for <<speechvoice>>.
-		                          "plead" / "demand" / "moan"
+		_speechAttitudeBase : legacy 3-way compatibility bucket only.
+			"meek"    = meek | shy | polite | docile | flamboyant
+			"bratty"  = bratty | cruel
+			"neutral" = everything else
+			New dialogue should branch on _speechAttitudeResolved.
 
-	Fickle is handled out-of-band by speechDailyCheck() in JS on the daily time pass
-	That function rolls $speechDailyAttitude and queues a "Today you feel especially X." line via $speechDailyMessage / $speechDailyMessagePending
-	
-	This widget just READS $speechDailyAttitude; it does not roll or clear it
-	If it happens to be unset (fresh save, or the player switched to "fickle" mid-day before the next day pass runs), 
-	we fall back to "neutral" for this call so the daily pick and its announcement stay in sync.
+		_speechVoice : matching <<speechvoice>> tone:
+			"plead" / "demand" / "moan"
+
+	Fickle is rolled daily by speechDailyCheck() into $speechDailyAttitude.
+	This widget only reads that value; it does not roll or clear it. If unset, fickle falls back to "neutral".
+
+	Idempotent within a passage: repeated calls reuse the resolved result unless $speech_attitude or $speechDailyAttitude changes.
+	Manual overrides to _speechAttitudeResolved after the call are preserved.
 -->
 <<widget "speechresolve">>
-	<<set _speechAttitudeResolved to ($speech_attitude ?? "neutral")>>
+	<<set _speechResolveKey to (($speech_attitude ?? "neutral") + "|" + ($speechDailyAttitude ?? ""))>>
+	<<if _speechResolvedKey isnot _speechResolveKey>>
+		<<set _speechResolvedKey to _speechResolveKey>>
+		<<set _speechAttitudeResolved to ($speech_attitude ?? "neutral")>>
 
-	<<if _speechAttitudeResolved is "fickle">>
-		<<set _speechAttitudeResolved to ($speechDailyAttitude ?? "neutral")>>
-	<<elseif _speechAttitudeResolved is "capricious">>
-		<<set _speechAttitudeResolved to either("meek", "shy", "polite", "neutral", "confident", "bratty")>>
-	<<elseif _speechAttitudeResolved is "special">>
-		<<set _speechAttitudeResolved to either("polite", "bratty")>>
+		<<if $speechCarry and $speechCarry.to is passage() and (State.turns - $speechCarry.turn) lte 2>>
+			<<set _speechAttitudeResolved to $speechCarry.att>>
+		<<elseif _speechAttitudeResolved is "fickle">>
+			<<set _speechAttitudeResolved to ($speechDailyAttitude ?? "neutral")>>
+		<<elseif _speechAttitudeResolved is "capricious">>
+			<<set _speechAttitudeResolved to either("meek", "shy", "polite", "neutral", "confident", "bratty")>>
+		<<elseif _speechAttitudeResolved is "special">>
+			<<set _speechAttitudeResolved to either("polite", "bratty")>>
+		<</if>>
+		<<unset $speechCarry>>
+
+		<<if ["meek", "shy", "polite", "docile", "flamboyant"].includes(_speechAttitudeResolved)>>
+			<<set _speechAttitudeBase to "meek">>
+			<<set _speechVoice to "plead">>
+		<<elseif ["bratty", "cruel"].includes(_speechAttitudeResolved)>>
+			<<set _speechAttitudeBase to "bratty">>
+			<<set _speechVoice to "demand">>
+		<<else>>
+			<<set _speechAttitudeBase to "neutral">>
+			<<set _speechVoice to "moan">>
+		<</if>>
 	<</if>>
-
-	<<if ["meek", "shy", "polite", "docile"].includes(_speechAttitudeResolved)>>
-		<<set _speechAttitudeBase to "meek">>
-		<<set _speechVoice to "plead">>
-	<<elseif ["bratty", "cruel"].includes(_speechAttitudeResolved)>>
-		<<set _speechAttitudeBase to "bratty">>
-		<<set _speechVoice to "demand">>
-	<<else>>
-		<<set _speechAttitudeBase to "neutral">>
-		<<set _speechVoice to "moan">>
+<</widget>>
+<<widget "speechcarry">>
+	<<if _speechAttitudeResolved>>
+		<<set $speechCarry to { to: _args[0], att: _speechAttitudeResolved, turn: State.turns }>>
 	<</if>>
 <</widget>>

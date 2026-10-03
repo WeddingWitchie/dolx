@@ -18,7 +18,7 @@
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
 
 <<if $phase is 0>>
-	You slowly creep up to the outbuilding, and manage to deliver the note and get away without incident. It takes a few minutes however, and when you arrive back at class Doren chides you for lollygagging.
+	You slowly creep up to the outbuilding, and manage to deliver the note and get away without incident. It takes a few minutes however, and when you arrive back at class Doren chides you for dawdling.
 	<br><br>
 	<<link [[Next|English Lesson]]>><<endevent>><</link>>
 <<elseif $phase is 1>>
@@ -182,16 +182,29 @@
 		<<gstress>><<stress 6>>
 	<</if>>
 <<elseif $phase is 2>> /* Confront */
-	<<switch $speech_attitude>>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
 		<<case "meek">>
 			"Please stop harassing me!"
+		<<case "shy">>
+			"Please stop harassing me!"
+		<<case "polite">>
+			"Please stop that. I won't ask twice!"
+		<<case "confident">>
+			"Take your hands off me, now!"
 		<<case "bratty">>
 			"I'll fuck you up, you cunt!"
+		<<case "docile">>
+			"Please stop harassing me!"
+		<<case "flamboyant">>
+			"Please stop that. I won't ask twice!"
+		<<case "cruel">>
+			"Touch me again and I'll break your fingers, you cunt!"
 		<<default>>
 			"Stop it, you perv!"
 	<</switch>>
 
-	You <<= either ("punch", "slap", "kick")>> <<if $enemyno gte 2>>the delinquents<<else>><<him>><</if>> right <<= either ("in the face", "where it hurts")>>.
+	<<if $enemyno gte 2>>They ignore you<<else>><<He>> ignores you<</if>>, so you <<= either ("punch", "slap", "kick")>> <<if $enemyno gte 2>>the delinquents<<else>><<him>><</if>> right <<= either ("in the face", "where it hurts")>>.
 	<<set $attackstat += 1>>
 	<br><br>
 
@@ -226,12 +239,12 @@
 		<<else>>
 			the head's office.
 			<br>
-			"Tell Leighton we said hi." Doren says as everyone waves <<if $enemyno gte 2>>them<<else>><<him>><</if>> goodbye.
+			"Tell Leighton we said hi," Doren says as everyone waves <<if $enemyno gte 2>>them<<else>><<him>><</if>> goodbye.
 		<</if>>
 	<<detention -2>><<ldelinquency>><<gcool>><<status 3>>
 	<br><br>
 
-	<<He>> turns to you, "I'm glad you stood up for yourself, <<lassie>>." <<if $cool gte 160>>Your classmates affirm <<him>>.<</if>>
+	<<He>> turns to you. "I'm glad you stood up for yourself, <<lassie>>." <<if $cool gte 160>>Your classmates affirm <<him>>.<</if>>
 	<br><br>
 
 	The class continues uneventfully with the occasional whispering about what just happened. <<if $cool gte 120>>The classmates sitting near you check on you, making sure you're alright.<<lstress>><<ltrauma>><<stress -1>><<trauma -1>><</if>>
@@ -304,7 +317,7 @@ You tell Doren that you've been attacked numerous times, and that you don't feel
 <br><br>
 
 <<if $trauma gte (($traumamax / 5) * 3)>>
-	You didn't realise you fainted until you wake up in Doren's arms. <<Hes>> caught you before you fall.
+	You didn't realise you fainted until you wake up in Doren's arms. <<Hes>> caught you before you hit the floor.
 <<else>>
 You realise you're sat on the floor, being held up by Doren's arm. You don't remember falling.
 <</if>>
@@ -378,6 +391,7 @@ You nod. "Alright," Doren says. <<He>> doesn't sound convinced.
 
 :: English Read Passage
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>><<wearProp "open English">>
+<<speechresolve>>
 
 <<if $phase is 0>> /* Tell Doren */
 	<<if C.npc.Doren.love gte 10>>
@@ -440,15 +454,29 @@ You nod. "Alright," Doren says. <<He>> doesn't sound convinced.
 			<br><br>
 			"Were you making that up, <<lassie>>?" Doren asks.
 			<br><br>
-			<<if $speech_attitude is "meek">>
+			<<switch _speechAttitudeResolved>>
+			<<case "meek">>
 				"Sorry <<sir>>." You stare down at your desk. <<status -5>><<lcool>>
 				<br><br>
 				Doren shakes <<his>> head sadly. "You need to do better." <<detention 1>><<gdelinquency>>
-			<<elseif $speech_attitude is "polite" or $speech_attitude is "flamboyant">>
-				"I apologize <<sir>>." I tried to experiment and failed. <<status -4>><<lcool>>
+			<<case "shy">>
+				"Sorry <<sir>>." You stare down at your desk. <<status -5>><<lcool>>
 				<br><br>
 				Doren shakes <<his>> head sadly. "You need to do better." <<detention 1>><<gdelinquency>>
-			<<elseif $speech_attitude is "bratty">>
+			<<case "polite">>
+				"I apologize, <<sir>>," you say. "I tried to make up a passage and couldn't finish it." <<status -4>><<lcool>>
+				<br><br>
+				Doren shakes <<his>> head sadly. "You need to do better." <<detention 1>><<gdelinquency>>
+			<<case "confident">>
+				Before you can think what to say, a <<person2>><<person>> answers. "<<pShe>> <<pverb "is" "are">>, <<person1>><<sir>>. None of that is in the book."
+				<br><br>
+				Doren looks at you.
+				<<if $delinquency gte 400>>
+					"Come on, <<lassie>>. I expect better in my class."
+				<<else>>
+					"I'd expect better of you, <<lassie>>."
+				<</if>><<detention 2>><<gdelinquency>>
+			<<case "bratty">>
 				"No," you say. "I wasn't."
 				<br><br>
 				"<<pShe>> <<pverb "is" "are">>, <<sir>>," a <<person2>><<person>> says. "None of that is in the book."
@@ -459,9 +487,30 @@ You nod. "Alright," Doren says. <<He>> doesn't sound convinced.
 				<<if $delinquency gte 400>>
 					"I know about you, <<lassie>>. But in my class I expect better."
 				<<else>>
-					"I expected better of you, <<lassie>>"
+					"I expected better of you, <<lassie>>."
 				<</if>><<detention 3>><<gdelinquency>>
-			<<else>>
+			<<case "docile">>
+				"I'm sorry, <<sir>>." You lower your head. "I'll do better next time." <<status -5>><<lcool>>
+				<br><br>
+				Doren shakes <<his>> head sadly. "You need to do better." <<detention 1>><<gdelinquency>>
+			<<case "flamboyant">>
+				"I apologize, <<sir>>," you say. "I tried to make up a passage and couldn't finish it." <<status -4>><<lcool>>
+				<br><br>
+				Doren shakes <<his>> head sadly. "You need to do better." <<detention 1>><<gdelinquency>>
+			<<case "cruel">>
+				"No," you say. "I wasn't."
+				<br><br>
+				"<<pShe>> <<pverb "is" "are">>, <<sir>>," a <<person2>><<person>> says. "None of that is in the book."
+				<br><br>
+				"Who asked you?" You glare at <<him>>. <<He>> shrinks back. <<status 2>><<gcool>>
+				<br><br>
+				"Stop that right now!" <<person1>>Doren looks at you.
+				<<if $delinquency gte 400>>
+					"I know about you, <<lassie>>. But in my class I expect better."
+				<<else>>
+					"I expected better of you, <<lassie>>."
+				<</if>><<detention 3>><<gdelinquency>>
+			<<default>>
 				Before you can think what to say, a <<person2>><<person>> answers. "<<pShe>> <<pverb "is" "are">>, <<person1>><<sir>>. None of that is in the book."
 				<br><br>
 				Doren looks at you.
@@ -470,7 +519,7 @@ You nod. "Alright," Doren says. <<He>> doesn't sound convinced.
 				<<else>>
 					"I'd expect better of you, <<lassie>>."
 				<</if>><<detention 2>><<gdelinquency>>
-			<</if>>
+			<</switch>>
 			<br><br>
 
 			<<skulduggeryuse>>
@@ -517,6 +566,7 @@ You nod. "Alright," Doren says. <<He>> doesn't sound convinced.
 
 :: English Pantsing
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>><<silently>><<clotheson>><</silently>>
+<<speechresolve>>
 <<set _fix to wornSetupClothes("lower").skirt is 1 ? "smooth out" : "tug up">>
 
 <<if $phase is "cover">>
@@ -542,13 +592,26 @@ You nod. "Alright," Doren says. <<He>> doesn't sound convinced.
 	<br><br>
 	Doren takes notice of the commotion and approaches. "What's going on?" <<nnpc_he Doren>> asks.
 	<br><br>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I-It's nothing," you answer.
-	<<elseif $speech_attitude is "bratty">>
-		"Nothing," you answer.
-	<<else>>
+	<<case "shy">>
+		"I-It's nothing," you answer.
+	<<case "polite">>
 		"It's nothing," you answer.
-	<</if>>
+	<<case "confident">>
+		"It's nothing," you answer.
+	<<case "bratty">>
+		"Nothing," you answer.
+	<<case "docile">>
+		"It's nothing, <<sir>>," you answer.
+	<<case "flamboyant">>
+		"It's nothing," you answer.
+	<<case "cruel">>
+		"Nothing," you answer.
+	<<default>>
+		"It's nothing," you answer.
+	<</switch>>
 	<br><br>
 	<<if $delinquency gte 400>>
 		"Disrupting my class is not nothing," says Doren. "I have my eye on you, <<lassie>>." <<nnpc_He Doren>> gives you detention.
@@ -578,7 +641,7 @@ A <<personsimple>> grabs your arm and yanks you to the ground. <<His>> laughter 
 	<<He>> lines <<his>> $NPCList[0].penisdesc up with your <<print $player.vaginaExist ? "pussy" : "ass">>.
 	<<set $phase to $player.vaginaExist ? "penetrate pussy" : "penetrate ass">>
 <</if>>
-<<He>> <<print $settings.asphyxiaLevel gte 1 ? "crushes <<his>> hand against your windpipe. You can't breathe" : "pins you to the floor. You can't move">>. You can only lay there as <<he>>
+<<He>> <<print $settings.asphyxiaLevel gte 1 ? "crushes <<his>> hand against your windpipe. You can't breathe" : "pins you to the floor. You can't move">>. You can only lie there as <<he>>
 
 <<switch $phase>>
 	<<case "penetrate dick">>
@@ -628,15 +691,29 @@ You stare back at <<person1>><<him>> with empty eyes, unable to shake off the ni
 
 :: English Dream 3
 <<set $outside to 0>><<set $location to "school">><<schooleffects>><<effects>>
+<<speechresolve>>
 
 <<if $phase2 is 0>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		You avert your eyes, clenching your fists to hide your trembling. "I-I'm fine. J-just a little stressed, I guess."
-	<<elseif $speech_attitude is "bratty">>
-		You hold <<his>> gaze and swallow back your fear, clenching your fists to hide your trembling. "I'm fine. Just a bit stressed, that's all."
-	<<else>>
+	<<case "shy">>
+		You avert your eyes, clenching your fists to hide your trembling. "I-I'm fine. J-just a little stressed, I guess."
+	<<case "polite">>
+		You shake your head and press your hands against your legs to hide your trembling. "I'm fine, thank you. I'm just a little stressed."
+	<<case "confident">>
+		You press your hands flat on the desk to hide your trembling. "I'm fine. Just stressed."
+	<<case "bratty">>
+		You look straight at <<him>> and swallow back your fear, clenching your fists to hide your trembling. "I'm fine. Just a bit stressed, that's all."
+	<<case "docile">>
+		You avert your eyes, clenching your fists to hide your trembling. "I'm fine. Please don't worry about me. I'm just a little stressed."
+	<<case "flamboyant">>
+		You shake your head and press your hands against your legs to hide your trembling. "I'm fine, thank you. I'm just a little stressed."
+	<<case "cruel">>
+		You look straight at <<him>> and swallow back your fear, clenching your fists to hide your trembling. "I'm fine. Just stressed. Don't ask me again."
+	<<default>>
 		You shake your head, clenching your fists to hide your trembling. "I'm fine. Just stressed."
-	<</if>>
+	<</switch>>
 	<<gstress>>
 	<br><br>
 
@@ -644,13 +721,26 @@ You stare back at <<person1>><<him>> with empty eyes, unable to shake off the ni
 	<br><br>
 	<<link [[Next|English Lesson]]>><<endevent>><</link>>
 <<else>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy" or $speech_attitude is "special")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		As Doren looks at you with genuine concern, you fall apart. You begin to sob openly in the middle of class.
-	<<elseif $speech_attitude is "bratty">>
+	<<case "shy">>
+		As Doren looks at you with genuine concern, you fall apart. You begin to sob openly in the middle of class.
+	<<case "polite">>
+		You try to stay composed as Doren looks at you with genuine concern, but tears begin to roll down your face.
+	<<case "confident">>
+		You try to stay calm as Doren looks at you with genuine concern, but tears begin to roll down your face.
+	<<case "bratty">>
 		You do your best to remain stoic, but tears begin to trickle down your face.
-	<<else>>
+	<<case "docile">>
+		As Doren looks at you with genuine concern, you fall apart. You begin to sob openly in the middle of class.
+	<<case "flamboyant">>
+		You try to stay composed as Doren looks at you with genuine concern, but tears begin to roll down your face.
+	<<case "cruel">>
+		You do your best to remain stoic, but tears begin to trickle down your face.
+	<<default>>
 		As Doren looks at you with genuine concern, tears begin to roll down your face.
-	<</if>>
+	<</switch>>
 	It feels good to let it out. <<lltrauma>><<lstress>>
 	<br><br>
 

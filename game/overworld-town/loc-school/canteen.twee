@@ -745,25 +745,57 @@ You are in the school canteen.
 <</if>>
 
 :: Canteen Students Rob
+<<speechresolve>>
 <<set _moneyGain to random(1000,3000)>>
 <<set _moneyGain to divineTfIncome(_moneyGain, "schoolRobbery")>><<money _moneyGain "schoolRobbery" { divineTfAdjusted: true }>>
 
-<<if $speech_attitude is "bratty">>
-	You shove the <<person>> against the table and demand that they give you their money. "Hand over your quid, you freak!" "Here, you better hand over your lunch money."
-	<br><br>
-	"O-okay, okay! Just... don't hit us," <<he>> cowers. "This is all we have."
-	<br><br>
-<<elseif $speech_attitude is "meek">>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	You do your best to stand imposingly in front of the <<person>> and demand that they give you their money. "P-please, give me your quid."
 	<br><br>
 	They just stand there, stunned, for a few moments after such a timid approach, yet Whitney's reputation seems to still have been enough to make them comply. "R-right... Here." <<he>> finally speaks. "This is all we have."
 	<br><br>
-<<else>>
-	You shove the <<person>> against the table and demand that they give you their money. "Here, you better hand over your lunch money."
+<<case "shy">>
+	You do your best to stand imposingly in front of the <<person>> and demand that they give you their money. "Um... can you give me your quid?"
+	<br><br>
+	They just stand there, stunned, for a few moments after such a timid approach, yet Whitney's reputation seems to still have been enough to make them comply. "R-right... Here." <<he>> finally speaks. "This is all we have."
+	<br><br>
+<<case "polite">>
+	You do your best to stand imposingly in front of the <<person>> and politely ask that they give you their money. "Please hand over your quid. I would be grateful."
+	<br><br>
+	They just stand there, stunned, for a few moments after such a polite approach, yet Whitney's reputation seems to still have been enough to make them comply. "R-right... Here." <<he>> finally speaks. "This is all we have."
+	<br><br>
+<<case "confident">>
+	You step up to the <<person>> and demand that they give you their money. "Hand over your quid. Now."
 	<br><br>
 	"O-okay, okay! Just... don't hit us," <<he>> cowers. "This is all we have."
 	<br><br>
-<</if>>
+<<case "bratty">>
+	You shove the <<person>> against the table and demand that they give you their money. "Hand over your quid, you freak! You'd better hand over your lunch money, too."
+	<br><br>
+	"O-okay, okay! Just... don't hit us," <<he>> cowers. "This is all we have."
+	<br><br>
+<<case "docile">>
+	You do your best to stand imposingly in front of the <<person>> and demand that they give you their money. "S-sorry, but... please give me your quid."
+	<br><br>
+	They just stand there, stunned, for a few moments after such a timid approach, yet Whitney's reputation seems to still have been enough to make them comply. "R-right... Here." <<he>> finally speaks. "This is all we have."
+	<br><br>
+<<case "flamboyant">>
+	You do your best to stand imposingly in front of the <<person>> and politely ask that they give you their money. "Excuse me, I'll need your quid, please."
+	<br><br>
+	They just stand there, stunned, for a few moments after such a polite approach, yet Whitney's reputation seems to still have been enough to make them comply. "R-right... Here." <<he>> finally speaks. "This is all we have."
+	<br><br>
+<<case "cruel">>
+	You shove the <<person>> against the table, hard enough to rattle the trays, and demand that they give you their money. "Hand over your quid, or I'll make you regret it!"
+	<br><br>
+	"O-okay, okay! Just... don't hit us," <<he>> cowers. "This is all we have."
+	<br><br>
+<<default>>
+	You shove the <<person>> against the table and demand that they give you their money. "Hand over your lunch money. Now."
+	<br><br>
+	"O-okay, okay! Just... don't hit us," <<he>> cowers. "This is all we have."
+	<br><br>
+<</switch>>
 You count the money and find that you've collected <<printmoney _moneyGain>>. You pocket it all. Then you leave.
 <br><br>
 
@@ -1071,18 +1103,32 @@ At least the crisps are untouched.
 
 :: Canteen Lunch Unpopular Student
 <<effects>>
+<<speechresolve>>
 
 <<if $phase is 0>> /* Chat */
 	The other student is visibly shocked at being spoken to and doesn't respond much, but seems grateful. You have a nice lunch.
 <<elseif $phase is 1>> /* Snub */
 	You reach out and push <<his>> tray to the ground. The sound makes a few nearby students look up at you.
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
 		"I don't want to sit with you," you tell <<him>>. "Go away."
-	<<elseif $speech_attitude is "bratty">>
+	<<case "shy">>
+		"I-I don't want to sit with you," you tell <<him>>, looking away. "Go away."
+	<<case "polite">>
+		"I would rather not sit with you," you tell <<him>>. "Please find another table."
+	<<case "confident">>
+		"I'm not sitting with you," you tell <<him>>. "Move."
+	<<case "bratty">>
 		"Get the fuck away from me, freak."
-	<<else>>
+	<<case "docile">>
+		"Sorry... I can't sit with you," you tell <<him>> quietly. "Please go."
+	<<case "flamboyant">>
+		"I would really rather not sit with you," you tell <<him>>. "Please go elsewhere."
+	<<case "cruel">>
+		"Disgusting. Crawl back to wherever you came from, freak."
+	<<default>>
 		"Why would I want to sit next to you?" you ask <<him>>.
-	<</if>>
+	<</switch>>
 <<else>> /* Scoot away */
 	You scoot away so that no one can mistake you for spending lunch with <<him>>. You finish eating in silence.
 <</if>>
@@ -1198,17 +1244,31 @@ Whitney cocks an eyebrow. "Something wrong?" <<he>> asks with a knowing grin.
 
 :: Canteen Lunch Whitney Fake Pee End
 <<effects>>
+<<speechresolve>>
 
 Whitney's friends turn to look at you.
 <br><br>
 <<if $phase is 0>>
-	<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
-		"N-no. There's nothing wrong," you whimper. You look down at the table, avoiding all the eyes boring into you.
-	<<elseif $speech_attitude is "bratty">>
+	<<switch _speechAttitudeResolved>>
+	<<case "meek">>
+		"N-no. There's nothing wrong," you whimper. You look down at the table, avoiding all the eyes on you.
+	<<case "shy">>
+		"N-nothing. There's nothing wrong," you whisper. You look down at the table, avoiding all the eyes on you.
+	<<case "polite">>
+		"No, nothing is wrong, thank you," you say stiffly. You look down at the table, avoiding all the eyes on you.
+	<<case "confident">>
+		"Nothing's wrong," you say evenly, leaning forward to rest your arms on the table and hunching over to hide the wet fabric pressed to your legs.
+	<<case "bratty">>
 		You cross your arms. "I've got no idea what you're talking about. Why would something be wrong?"
-	<<else>>
+	<<case "docile">>
+		"N-nothing's wrong," you say softly. You look down at the table, avoiding all the eyes on you.
+	<<case "flamboyant">>
+		"No, nothing at all," you say with a stiff smile, leaning forward to rest your arms on the table to hide the wet fabric pressed to your legs.
+	<<case "cruel">>
+		"Nothing's wrong," you say flatly, glaring at them. You lean forward to rest your arms on the table, hunching over to hide the wet fabric pressed to your legs.
+	<<default>>
 		You shake your head, leaning forward to rest your arms on the table, hunching over to try and hide the wet fabric pressed to your legs.
-	<</if>>
+	<</switch>>
 	<br><br>
 	Whitney glances at <<his>> friends and nods at you. Two of them get out of their seats, each grabbing one of your arms to force you to stand up.
 <<elseif $phase is 1>>
@@ -1221,13 +1281,26 @@ Whitney's eyes lock onto your wet crotch as <<he>> lets out a laugh. "Holy shit,
 <br><br>
 The silence is near deafening, then laughter erupts. Whitney's friends join in, and their grasp on you weakens as they cackle.<<trauma 6>><<status -5>><<gtrauma>><<lcool>>
 <br><br>
-<<if ($speech_attitude is "meek" or $speech_attitude is "shy")>>
+<<switch _speechAttitudeResolved>>
+<<case "meek">>
 	Tears well in your eyes, and you manage to break free. You turn and run for the school halls.
-<<elseif $speech_attitude is "bratty">>
+<<case "shy">>
+	Tears well in your eyes as you wrench your arms free. You turn and run for the school halls.
+<<case "polite">>
+	You pull your arms free, offer a stiff apology, and leave the canteen as steadily as you can.
+<<case "confident">>
+	You pull your arms free and walk out of the canteen with your chin up, though your face burns bright red.
+<<case "bratty">>
 	You yank your arms out of their grasp and grit your teeth as you storm out of the canteen.
-<<else>>
+<<case "docile">>
+	You don't struggle. Eventually <<his>> friends let you go, helpless with laughter, and you shuffle out of the canteen with your face burning bright red.
+<<case "flamboyant">>
+	You pull your arms free with a stiff smile and leave the canteen, your face burning bright red.
+<<case "cruel">>
+	You yank your arms out of their grasp and glare at every one of them as you storm out of the canteen.
+<<default>>
 	Eventually <<his>> friends let you go, rendered helpless by their own laughter. Your face burns bright red as you leave the canteen.
-<</if>>
+<</switch>>
 <br><br>
 
 <<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
