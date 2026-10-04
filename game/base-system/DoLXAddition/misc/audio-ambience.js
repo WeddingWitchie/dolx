@@ -1,8 +1,6 @@
 /* globals SimpleAudio, Weather */
 window.AmbienceAudio = (() => {
 	const weatherTracks = {
-		lightClouds: ["light-clouds"],
-		heavyClouds: ["heavy-clouds"],
 		lightPrecipitation: ["rain", "light-precipitation"],
 		heavyPrecipitation: ["rain", "heavy-precipitation", "light-precipitation"],
 		storm: ["rain", "heavy-precipitation", "light-precipitation", "storm"],
@@ -10,7 +8,7 @@ window.AmbienceAudio = (() => {
 	};
 	// Snowfall uses the wind recordings in ambience/snow instead of rain.
 	const snowTracks = {
-		lightPrecipitation: ["wind", "lightPrecipitation"],
+		lightPrecipitation: ["wind"],
 		heavyPrecipitation: ["wind", "heavyPrecipitation"],
 		storm: ["wind", "storm"],
 		thunderstorm: ["wind", "storm", "thunderstorm"],
