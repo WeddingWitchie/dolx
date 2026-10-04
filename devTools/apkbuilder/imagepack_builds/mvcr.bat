@@ -1,1 +1,0 @@
-xcopy /E /Y ..\..\..\imagepacks\mvcr\* ..\..\..\img\
