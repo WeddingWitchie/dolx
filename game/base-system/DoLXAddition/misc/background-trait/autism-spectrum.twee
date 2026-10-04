@@ -2669,7 +2669,7 @@ The noise and discomfort are still affecting you. On top of that, you have to ke
 <<set _loadDrop to _loadBefore - ensureAutismSpectrumState().load>>
 <<switch _place>>
 	<<case "alone">>
-		With nobody around, you let your hands and feet move as much as you need. You repeat the familiar motions until your breathing slows and you can follow one thought at a time.
+		<<if _back is "Temple Bunk">>Behind the dressing screen, out of sight of the other initiates,<<else>>With nobody around,<</if>> you let your hands and feet move as much as you need. You repeat the familiar motions until your breathing slows and you can follow one thought at a time.
 		<br><br>
 		After fifteen minutes you are ready to get on with the day.
 		<<autism-stim-result _loadDrop>><<tiredness -3>><<lltiredness>><<stress -2>><<lstress>>
@@ -2841,6 +2841,26 @@ you can think more clearly.
 <<set _autismNext to ($autismLessonReturn || "Hallways")>><<link "Next" _autismNext>><<unset $autismLessonReturn, $autismLessonTeacher, $autismLessonScene>><<endevent>><</link>>
 <br>
 
+:: Autism Disclose Jordan
+<<effects>><<npc Jordan>><<person1>>
+<<if autismHasDocumentation()>>
+	<<run autismDiscloseTo("Jordan")>>
+	You hand Jordan the summary of your assessment. <<He>> reads it carefully, then returns it to you.
+	<br><br>
+	"Thank you for telling me, my child. Does this describe what has been troubling you here?"
+	<br><br>
+	You explain how the noise and activity in the quarters can wear you down, and how much effort it takes to keep your movements and expression under control.
+	<br><br>
+	"You may sit behind the screen by your bunk when you need a quiet break," <<he>> says. "There is no need to keep your hands still for my sake. If an instruction is unclear, ask me to explain it. I would rather repeat myself than leave you struggling with a task you do not understand."
+	<br><br>
+	"Your duties still need doing. If you need a break during them, tell me where you are going, and we can agree when you will return. I will not pass this report around the quarters."
+<<else>>
+	You check your bag, but have no assessment report to show Jordan.
+<</if>>
+<br><br>
+<<link [[Next|Temple Jordan]]>><<endevent>><</link>>
+<br>
+
 :: Autism Unmask
 <<set _autismState to ensureAutismSpectrumState()>>
 <<set _back to _autismState.unmaskReturn || "Bedroom">>
@@ -2848,6 +2868,13 @@ you can think more clearly.
 <<set _loadBefore to ensureAutismSpectrumState().load>>
 <<run autismUnmask(15)>>
 <<set _loadDrop to _loadBefore - ensureAutismSpectrumState().load>>
+<<if _back is "Temple Bunk">>
+	You sit behind the dressing screen beside your bunk, out of sight of the other initiates.
+	<br><br>
+<<elseif _back is "Eden Cabin">>
+	You settle into a corner of the cabin and give yourself a few minutes without trying to look busy.
+	<br><br>
+<</if>>
 You stop checking whether your expression looks interested. You let your eyes rest where they naturally want to look, and you stop forcing your hands to stay still.
 <br><br>
 <<if _loadDrop gte 4>>
@@ -2986,7 +3013,7 @@ something is wrong.<<stress 4>><<gstress>>
 
 :: Widgets Autism [widget]
 <<widget "autism-unmask">>
-	<<if autismCanUnmask()>>
+	<<if autismCanUnmask(_args[0] || $passage)>>
 		<<set _unmaskBack to _args[0] || $passage>>
 		<<icon "antiques/antique-watch.gif">><<link [[Drop the mask (0:15)|Autism Unmask]]>><<pass 15>><<run $autismSpectrum.unmaskReturn = _unmaskBack>><</link>>
 		<br>
@@ -3218,6 +3245,13 @@ something is wrong.<<stress 4>><<gstress>>
 	<</if>>
 <</widget>>
 
+<<widget "autism-disclose-jordan">>
+	<<if autismHasDocumentation() and !autismDisclosedTo("Jordan")>>
+		<<socialiseicon "ask">><<link [[Show Jordan your documentation (0:10)|Autism Disclose Jordan]]>><<pass 10>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
 <<widget "autism-disclose-bailey">>
 	<<if autismHasDocumentation() and !autismDisclosedTo("Bailey")>>
 		<<socialiseicon "ask">><<link [[Show Bailey your documentation (0:10)|Autism Disclose Bailey]]>><<pass 10>><</link>>
@@ -3331,8 +3365,8 @@ something is wrong.<<stress 4>><<gstress>>
 <</widget>>
 
 <<widget "autism-assessment">>
-	<<if autismAssessmentStage() is "intake">>
-		<<if !autismAssessmentHasSource("self") and ["Bedroom", "Bathroom", "Farm Bedroom", "Flats Poppy Bedroom", "School Library"].includes($passage)>>
+	<<if !$possessed and $combat isnot 1 and autismAssessmentStage() is "intake">>
+		<<if !autismAssessmentHasSource("self") and ["Bedroom", "Bathroom", "Farm Bedroom", "Flats Poppy Bedroom", "School Library", "Temple Bunk", "Eden Cabin", "Wolf Cave"].includes($passage)>>
 			<<set _assessBack to $passage>>
 			<<icon "antiques/antique-watch.gif">><<link [[Fill in the assessment questionnaires (1:00)|Autism Assessment Questionnaire]]>><<pass 60>><<run $autismSpectrum.assessmentReturn = _assessBack>><</link>>
 			<br>
@@ -3362,7 +3396,7 @@ something is wrong.<<stress 4>><<gstress>>
 <</widget>>
 
 <<widget "autism-focus">>
-	<<if playerHasAutismSpectrum() and !$daily.autismFocusDwell>>
+	<<if playerHasAutismSpectrum() and !$possessed and $combat isnot 1 and !$daily.autismFocusDwell>>
 		<<set _focusBack to _args[0] || $passage>>
 		<<icon "antiques/antique-watch.gif">><<link [[Spend some time on <<= autismHyperfixationName()>> (0:30)|Autism Focus]]>><<pass 30>><<set $daily.autismFocusDwell to 1>><<run $autismSpectrum.focusReturn = _focusBack>><</link>>
 		<br>
@@ -3508,7 +3542,7 @@ something is wrong.<<stress 4>><<gstress>>
 <</widget>>
 
 <<widget "autism-stim">>
-	<<if playerHasAutismSpectrum()>>
+	<<if playerHasAutismSpectrum() and !$possessed and $combat isnot 1>>
 		<<set _stimBack to _args[0] || $passage>>
 		<<if autismStimIsMasked()>>
 			<<icon "antiques/antique-watch.gif">><<link [[Stim, keeping it small (0:15)|Autism Stim]]>><<pass 15>><<run $autismSpectrum.stimReturn = _stimBack>><</link>>

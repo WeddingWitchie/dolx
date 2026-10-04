@@ -1375,6 +1375,7 @@ const autismKnownPlaces = Object.freeze(["home", "flats", "temple", "asylum", "f
 
 /* Private rooms/unseen activities may still have witnesses at entrances, if caught, or in later encounters. */
 const autismPrivateRooms = Object.freeze([
+	"Temple Bunk",
 	"Temple Prayer",
 	"Temple Prayer Sneak",
 	"Docks Sneak Pick",
@@ -1701,7 +1702,7 @@ function autismMaskingUpdate(minutes) {
  */
 /* Everyone the game actually provides a way of telling. Avery is deliberately absent: there is no Avery
    disclosure scene, so an entry here would be a promise the content does not keep. */
-const autismDisclosureTargets = Object.freeze(["Leighton", "nurse", "River", "Sirris", "Doren", "Winter", "Bailey", "Kylar"]);
+const autismDisclosureTargets = Object.freeze(["Leighton", "nurse", "River", "Sirris", "Doren", "Winter", "Bailey", "Kylar", "Jordan"]);
 
 function autismDisclosureList() {
 	const state = ensureAutismSpectrumState();
@@ -2085,9 +2086,10 @@ function autismUnmask(minutes = 15) {
 	return shed;
 }
 
-function autismCanUnmask() {
+function autismCanUnmask(passage = V.passage) {
 	if (!playerHasAutismSpectrum() || V.statFreeze || V.possessed || V.combat === 1) return false;
-	if (autismPrivacyTier() !== "alone") return false;
+	const place = autismPrivacyTier(passage);
+	if (place !== "alone" && !(passage === "Eden Cabin" && place === "known")) return false;
 	return ensureAutismSpectrumState().masking >= autismMaskingNoticeable;
 }
 
@@ -2131,6 +2133,7 @@ function autismSceneReadyFor(dest) {
  * Overload waits until leaving the passage is safe; its penalties already apply while waiting.
  */
 function autismOverloadRedirect(dest) {
+	if (!playerHasAutismSpectrum()) return null;
 	const state = ensureAutismSpectrumState();
 	if (!state.pendingScene) return null;
 	if (!state.meltdown) {
