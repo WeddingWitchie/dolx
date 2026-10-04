@@ -30,30 +30,27 @@
 		<</if>>
 	<</if>>
 	<<set $waterDragonNest.cleanliness to Math.clamp($waterDragonNest.cleanliness, 0, 100)>>
-	/* Repair clutches laid before Water Dragon transmutation recorded an incubation delay. */
-	<<run (V.childRecords || []).filter(child => child.species === "hawk" && child.development?.dragonNest && child.bornDate === null).forEach(child => {
+	/* Repair older clutches missing their incubation delay or left between the naming preview and hatch. */
+	<<run (V.childRecords || []).filter(child => ["hawk", "human"].includes(child.species) && child.development?.dragonNest && child.bornDate === null).forEach(child => {
 		const pregnancy = V.pregnancies?.[child.pregnancyId];
+		if (pregnancy && pregnancy.deliveredDate !== null) child.species = "hawk";
 		if (pregnancy && pregnancy.deliveredDate !== null && typeof pregnancy.hatchDelay !== "number") {
 			pregnancy.hatchDelay = random(0, PregnancyConstants.birdHatchDelay);
 		}
 	})>>
+	<<if !$pregnancyStats.humanToysUnlocked and ($childRecords || []).some(child => child.development?.dragonNest and child.species is "human" and child.bornDate isnot null)>>
+		<<set $pregnancyStats.humanToysUnlocked to true>>
+	<</if>>
 <</widget>>
 
-/* hatchUi for $eggsHatched. The eggs are stored as hawks so vanilla can brood them; turn them human
-   before the naming cards render, since vanilla hatchUi only lists hawk eggs. */
+/* Keep the eggs broodable until Next records the hatch; the naming cards preview their human form. */
 <<widget "waterDragonHatchUi">>
-	<<run $eggsHatched.forEach(id => {
-		const child = V.childRecords[id];
-		child.species = "human";
-		child.features.beastTransform = "waterdragon";
-		child.features.skinColour = "waterdragon";
-	})>>
 	<div class="settingsGrid m-0 childContainer">
 		<<for _dnId range $eggsHatched>>
 			<<set _egg to $childRecords[_dnId]>>
 			<<capture _egg>>
 				<div @id="'child-' + _egg.childId" class="childUi">
-					<<birthChildElement _egg>>
+					<<birthChildElement _egg "human">>
 				</div>
 			<</capture>>
 		<</for>>
@@ -62,9 +59,13 @@
 	<<link [["Next (00:20)"|_args[0]]]>>
 		<<run $eggsHatched.forEach(id => {
 			const child = V.childRecords[id];
+			child.species = "human";
+			child.features.beastTransform = "waterdragon";
+			child.features.skinColour = "waterdragon";
 			if (!child.name) child.name = generateBabyName(undefined, child.gender, child.childId);
 			recordBirth(id);
 		})>>
+		<<set $pregnancyStats.humanToysUnlocked to true>>
 		<<pass 20>>
 	<</link>>
 <</widget>>

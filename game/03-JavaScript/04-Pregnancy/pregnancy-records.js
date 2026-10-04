@@ -727,7 +727,7 @@ function resolvePaternity(pregnancyId) {
 	const pregnancy = V.pregnancies[pregnancyId];
 	if (knowsDonor(pregnancyId, "pc")) return; // already resolved
 	const litter = getChildrenOf(pregnancyId);
-	const litterBase = litter[0].species; // child.species is already the base (human/wolf/hawk)
+	const litterBase = litter[0].development?.dragonNest ? childBaseSpecies(pregnancy.donorSpecies) : litter[0].species;
 	const fits = pregnancy.possibleDonors.filter(donor => {
 		const species = pregnancy.carrier === "pc" ? donor.species : offspringSpecies(donor.species, pregnancy.carrierSpecies);
 		return species && childBaseSpecies(species) === litterBase;

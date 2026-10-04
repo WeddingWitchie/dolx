@@ -345,6 +345,7 @@
 <<widget "birthChildElement">>
 	<<if _args[0]?.childId isnot undefined>>
 		<<capture _args>>
+			<<set _birthSpecies to _args[1] || _args[0].species>>
 			<<set _pregnancy to getPregnancyOf(_args[0])>>
 			<<if _pregnancy.carrier is "pc" or _pregnancy.donor is "pc">>
 				<<run setKnowsCarrier(_pregnancy.pregnancyId, "pc"); resolvePaternity(_pregnancy.pregnancyId)>>
@@ -355,12 +356,12 @@
 				</div>
 			</div>
 			<div class="childItem m-0 childDetails">
-				<<childTypeDisplay _args[0]>>
+				<<childTypeDisplay `Object.assign({}, _args[0], {species: _birthSpecies})`>>
 				<span class="no-numberify">
 					|
 					<<link "Random Name">>
 						<<set _args[0].name to generateBabyName(undefined, _args[0].gender, _args[0].childId)>>
-						<<replace `"#child-" + _args[0].childId`>><<birthChildElement _args[0]>><</replace>>
+						<<replace `"#child-" + _args[0].childId`>><<birthChildElement _args[0] _args[1]>><</replace>>
 					<</link>>
 				</span>
 				<hr>
@@ -379,16 +380,16 @@
 				<br>
 				<span class="gold">Size:</span> <<print _args[0].features.size>>
 				<<if _args[0].features.hairColour>>
-					<<if _args[0].species.includes("human")>>
+					<<if _birthSpecies.includes("human")>>
 						| <span class="gold">Hair:</span>
-					<<elseif _args[0].species.includes("hawk")>>
+					<<elseif _birthSpecies.includes("hawk")>>
 						| <span class="gold">Plumage:</span>
 					<<else>>
 						| <span class="gold">Fur:</span>
 					<</if>>
 					<<hairmapcolourtext _args[0].features.hairColour>>
 				<</if>>
-				<<if _args[0].features.skinColour and (_args[0].species.includes("human") or _args[0].features.monster)>>
+				<<if _args[0].features.skinColour and (_birthSpecies.includes("human") or _args[0].features.monster)>>
 					| <span class="gold">Skin:</span> <<skinColourName _args[0].features.skinColour>>
 				<</if>>
 				<br>
