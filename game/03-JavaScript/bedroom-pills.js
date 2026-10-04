@@ -620,7 +620,7 @@ setup.pills = [
 	},
 	{
 		name: "prescription painkillers",
-		description: "Strong painkillers kept in the school nurse's locked cabinet. One dose greatly reduces pain, but makes you very tired.",
+		description: "Strong prescription painkillers. One dose greatly reduces pain, but makes you very tired.",
 		onTakeMessage: "You swallow a prescription painkiller. Your pain quickly fades, but you begin to feel very sleepy.",
 		warning_label: "Warning: Causes severe drowsiness. Taking more than two doses in one day can cause dangerous side effects.",
 		indicators: ["<span class='hpi_indic_green'>--- Pain</span>", "<span class='hpi_indic_blue'>+++ Tiredness</span>"],
@@ -853,7 +853,8 @@ setup.pills = [
 // ToDo: figure out a means to allow applying the Hair Growth Formula to pubic hair as well
 
 function generateHomePillsInventory() {
-	$(function () {
+	// Render before history navigation can remove the medicine drawer.
+	$(document).one(":passageend", function () {
 		T.disableGridClick = false;
 		for (const item of setup.pills) {
 			/* X-Change inventory belongs to the real player, not temporary historical/dream bodies. */
@@ -865,13 +866,12 @@ function generateHomePillsInventory() {
 window.generateHomePillsInventory = generateHomePillsInventory;
 
 function addElementToGrid(item) {
-	$(function () {
-		const hpiGridContainer = document.getElementById("homeMainPillContainer");
+	const hpiGridContainer = document.getElementById("homeMainPillContainer");
 
-		const itemName = item.name[0].toUpperCase() + item.name.slice(1);
-		hpiGridContainer.innerHTML =
-			hpiGridContainer.innerHTML +
-			`
+	const itemName = item.name[0].toUpperCase() + item.name.slice(1);
+	hpiGridContainer.innerHTML =
+		hpiGridContainer.innerHTML +
+		`
 			<div class="hpi_item">
 				<div class="hpi_icon">${item.frontIcon ? `<img class="icon infront" src="${item.frontIcon}"/>` : ""}<img class="icon" src="${item.icon}"/></div>
 				<div class="hpi_name" id="hpi_name_${itemName}">
@@ -881,8 +881,7 @@ function addElementToGrid(item) {
 				<div class="hpi_count" onmouseenter="T.disableGridClick = true" onmouseleave="T.disableGridClick = false">${item.owned()}</div>
 			</div>
 			`;
-		hpiGridContainer.lastElementChild.setAttribute("onclick", "window.onHomePillItemClick(" + "`" + item.name + "`" + ")");
-	});
+	hpiGridContainer.lastElementChild.setAttribute("onclick", "window.onHomePillItemClick(" + "`" + item.name + "`" + ")");
 }
 window.addElementToGrid = addElementToGrid;
 
@@ -1425,11 +1424,6 @@ function backCompPillsInventory() {
 			ensurePillInventoryRecords(oPills.pills);
 			return;
 		}
-		try {
-			pillsObjectRepair(oPills, pills);
-		} catch (error) {
-			Errors.report("Compatibility patch for pills object failed: " + error, { oPills, pills });
-		}
 	}
 	Object.assign(pills, {
 		"bottom reduction": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
@@ -1450,13 +1444,20 @@ function backCompPillsInventory() {
 		"sensitivity-decreasing cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 		"sensitivity-increasing cream": { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 },
 	});
+	if (typeof oPills === "object") {
+		try {
+			pillsObjectRepair(oPills, pills);
+		} catch (error) {
+			Errors.report("Compatibility patch for pills object failed: " + error, { oPills, pills });
+		}
+	}
 	ensurePillInventoryRecords(pills);
 	if (typeof oPills === "undefined") {
 		/* If our $sexStats.pills was empty, simply set the object in preparation to assign. */
 		V.sexStats.pills = {};
 	}
 	Object.assign(V.sexStats.pills, {
-		boughtOnce: pills.boughtOnce === true,
+		boughtOnce: oPills?.boughtOnce === true,
 		lastTaken: { bottom: "", breast: "", penis: "", pregnancy: "" },
 		mostTaken: { bottom: "", breast: "", penis: "", pregnancy: "" },
 		pills,
