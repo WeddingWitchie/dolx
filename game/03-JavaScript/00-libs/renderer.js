@@ -1333,8 +1333,19 @@ var Renderer;
 							const cacheLimit = Math.min(64, Math.floor((16 * 1024 * 1024) / Math.max(1, frameBytes)));
 							if (cacheLimit > 0) {
 								const keys = Object.keys(keyframeCaches);
-								while (keys.length >= cacheLimit) delete keyframeCaches[keys.shift()];
-								let canvas = createCanvas(targetCanvas.canvas.width, targetCanvas.canvas.height);
+								let canvas;
+								while (keys.length >= cacheLimit) {
+									const key = keys.shift();
+									canvas = keyframeCaches[key];
+									delete keyframeCaches[key];
+								}
+								// Snow and breathing can cycle through more combinations than the cache holds.
+								// Reuse the evicted buffer instead of allocating a new canvas every frame.
+								if (!canvas) canvas = createCanvas(targetCanvas.canvas.width, targetCanvas.canvas.height);
+								else if (canvas.canvas.width !== targetCanvas.canvas.width || canvas.canvas.height !== targetCanvas.canvas.height) {
+									canvas.canvas.width = targetCanvas.canvas.width;
+									canvas.canvas.height = targetCanvas.canvas.height;
+								} else canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
 								canvas.drawImage(targetCanvas.canvas, 0, 0);
 								keyframeCaches[genAnimationSpec()] = canvas;
 							}

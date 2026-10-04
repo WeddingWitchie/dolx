@@ -94,7 +94,12 @@ Weather.Renderer.Sky = class {
 	 */
 	initialize() {
 		if (this.loaded.value) return this.initializationPromise || Promise.resolve();
-		if (this.loading) return this.initializationPromise;
+		if (this.loading) {
+			// Re-enabling can arrive before a cancelled initialization has finished.
+			return this.initializationPromise.then(() => {
+				if (!this.loaded.value && V.options.weatherUpdate !== false) return this.initialize();
+			});
+		}
 		this.loading = true;
 		this.initSun();
 		this.initMoon();
@@ -115,6 +120,7 @@ Weather.Renderer.Sky = class {
 	}
 
 	async setupCanvas() {
+		const token = this.teardownToken;
 		const loadPromises = Array.from(this.layers.values()).flatMap(layer => layer.loadPromises);
 
 		// Sequentially await each promise in loadPromises
@@ -124,10 +130,12 @@ Weather.Renderer.Sky = class {
 			} catch (error) {
 				console.warn(error);
 			}
+			if (this.teardownToken !== token) return;
 		}
 
 		this.sortLayersByZIndex();
 		await this.initEffects();
+		if (this.teardownToken !== token) return;
 		this.drawLayers();
 		this.loaded.value = true;
 	}

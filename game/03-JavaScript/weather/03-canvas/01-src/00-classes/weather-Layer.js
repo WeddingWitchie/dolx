@@ -56,7 +56,10 @@ Weather.Renderer.Layer = class Layer {
 
 	async init() {
 		this.loading = true;
-		if (!this.renderInstance) return;
+		if (!this.renderInstance || V.options.weatherUpdate === false) {
+			this.loading = false;
+			return;
+		}
 		/*
 		 * Sidebar and banner share sky layers, and effects load asynchronously.
 		 * Check that this sky still owns the layer before starting the effect.

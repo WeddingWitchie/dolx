@@ -122,6 +122,8 @@ Weather.Renderer.Effect = class Effect {
 	 * @returns {Promise} A promise that resolves when the init is complete
 	 */
 	async init() {
+		// Reinitialization creates new emitters even if the last draw was disabled.
+		this.previousDrawCondition = true;
 		this.initPromise = (async () => {
 			if (this.onInit && !this.missingImages) {
 				try {

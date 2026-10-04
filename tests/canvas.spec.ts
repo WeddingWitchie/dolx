@@ -605,3 +605,93 @@ test("composites never overlap on the shared scratch canvas", async ({ page }) =
 	const layerCount = await page.evaluate(() => (window as any).Weather.sidebar.layers.size);
 	expect((await page.evaluate(skyState)).pendingLayers, "the batch queue must stay bounded").toBeLessThanOrEqual(layerCount);
 });
+
+test("snow and rain survive repeated refreshes and release their emitters on shutdown", async ({ page }) => {
+	const errors: string[] = [];
+	page.on("pageerror", error => errors.push(error.message));
+	page.on("console", message => {
+		if (message.type() === "error" && /weather|effect|sky|canvas/i.test(message.text())) errors.push(message.text());
+	});
+	await openInGame(page);
+	for (const kind of ["snow", "rain", "snow", "rain", "snow"]) {
+		await page.evaluate(kind => {
+			const W = (window as any).Weather;
+			Object.defineProperty(W, "precipitation", { configurable: true, value: kind });
+			W.set("heavyPrecipitation", true);
+			W.Observables.checkForUpdate(true);
+		}, kind);
+		await page.waitForTimeout(300);
+		const state = await page.evaluate(() => {
+			const W = (window as any).Weather;
+			const effects = W.sidebar.layers.get("precipitation").effects;
+			return effects
+				.filter((effect: any) => effect.effectName === "particleSnow" || effect.effectName === "particleRain")
+				.map((effect: any) => ({
+					name: effect.effectName,
+					active: !!effect.particleEmitter?.active,
+					count: effect.particleEmitter?.particles.length ?? 0,
+					cap: effect.particleEmitter?.maxParticles ?? 0,
+				}));
+		});
+		for (const effect of state) {
+			expect(effect.active).toBe(effect.name === (kind === "snow" ? "particleSnow" : "particleRain"));
+			expect(effect.count).toBeLessThanOrEqual(effect.cap);
+		}
+		const live = await page.evaluate(registeredGroups);
+		expect(live.owners.length).toBe(live.total);
+		expect(live.owners.every(owner => owner.inSidebar)).toBe(true);
+	}
+	await page.evaluate(() => (window as any).Weather.sidebar.stopAll());
+	await page.waitForTimeout(100);
+	expect((await page.evaluate(skyState)).groups).toBe(0);
+	expect(errors).toEqual([]);
+});
+
+for (const turnBackOnEarly of [false, true]) {
+	test(`weather initialization handles disabling with early re-enable ${turnBackOnEarly}`, async ({ page }) => {
+		await openInGame(page);
+		await page.evaluate(async turnBackOnEarly => {
+			const w = window as any;
+			const sky = w.Weather.sidebar;
+			sky.stopAll();
+			const layer = sky.layers.values().next().value;
+			const original = layer.init;
+			let entered!: () => void;
+			const started = new Promise<void>(resolve => {
+				entered = resolve;
+			});
+			const gate = new Promise<void>(resolve => {
+				w.__releaseWeatherInit = resolve;
+			});
+			layer.init = async function () {
+				entered();
+				await gate;
+				layer.init = original;
+				return original.call(this);
+			};
+			w.__pendingWeatherInit = sky.initialize();
+			await started;
+			w.SugarCube.State.variables.options.weatherUpdate = false;
+			w.Weather.Observables.checkForUpdate(true);
+			if (turnBackOnEarly) {
+				w.SugarCube.State.variables.options.weatherUpdate = true;
+				w.Weather.Observables.checkForUpdate(true);
+			}
+			w.__releaseWeatherInit();
+			await w.__pendingWeatherInit;
+		}, turnBackOnEarly);
+		if (turnBackOnEarly) {
+			await expect.poll(async () => (await page.evaluate(skyState)).loaded).toBe(true);
+			expect((await page.evaluate(skyState)).groups).toBeGreaterThan(0);
+			return;
+		}
+		expect(await page.evaluate(skyState)).toMatchObject({ loaded: false, groups: 0, running: false });
+		await page.evaluate(() => {
+			const w = window as any;
+			w.SugarCube.State.variables.options.weatherUpdate = true;
+			w.Weather.Observables.checkForUpdate(true);
+		});
+		await page.waitForTimeout(SETTLE_MS);
+		expect((await page.evaluate(skyState)).loaded).toBe(true);
+	});
+}

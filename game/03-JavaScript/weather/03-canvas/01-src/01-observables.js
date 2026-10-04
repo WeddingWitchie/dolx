@@ -48,10 +48,10 @@ Weather.Observables = (() => {
 
 	const setBindings = (force = false) => {
 		if (V.options.weatherUpdate === false) {
-			if (Weather.sidebar?.loaded.value) Weather.sidebar.stopAll();
+			if (Weather.sidebar?.loaded.value || Weather.sidebar?.loading) Weather.sidebar.stopAll();
 			return;
 		}
-		if (V.weatherObj && Weather.sidebar && !Weather.sidebar.loaded.value && !Weather.sidebar.loading) {
+		if (V.weatherObj && Weather.sidebar && !Weather.sidebar.loaded.value) {
 			Weather.activeRenderer = Weather.sidebar;
 			Weather.sidebar.initialize();
 			return;

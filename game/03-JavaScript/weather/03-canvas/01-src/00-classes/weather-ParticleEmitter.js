@@ -238,12 +238,15 @@ Weather.Renderer.ParticleEmitter = class ParticleEmitter {
 			this.group = animationGroup;
 		}
 		if (preWarm) {
-			// Await image before prewarming
-			imagePromise.then(() => this.#preWarm()).catch(err => console.warn("Image decode failed:", err));
+			// A burst added during a group update must contain particles before its first tick.
+			if (autoDestroy && spawnRate == null && spawnInterval == null && !(initialSettings.shape === "image" && typeof initialSettings.src === "string")) {
+				this.#preWarm();
+			} else imagePromise.then(() => this.#preWarm()).catch(err => console.warn("Image decode failed:", err));
 		}
 	}
 
 	#preWarm() {
+		if (!this.active) return;
 		const lifetime = this.initialSettings.lifetime;
 		const finiteLife = Number.isFinite(lifetime) && lifetime > 0;
 

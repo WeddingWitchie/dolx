@@ -123,8 +123,7 @@ Weather.Renderer.Effects.add({
 					origin: { x: headX, y: headY },
 					maxParticles: this.splashParticleCount,
 					spawnRate: null,
-					spawnInterval: 0.01,
-					preWarm: false,
+					preWarm: true,
 					autoDestroy: true,
 					initialSettings: {
 						shape: "rect",
