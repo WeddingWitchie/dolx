@@ -13,6 +13,7 @@ function hospitalContactAvailable(name) {
 		case "Avery":
 			return C.npc.Avery.state === "active";
 		case "Sydney":
+			return true;
 		default:
 			return false;
 	}

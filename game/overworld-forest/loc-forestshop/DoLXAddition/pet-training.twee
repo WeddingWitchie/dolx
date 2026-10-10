@@ -1,5 +1,5 @@
 :: Gwylan Pet Training
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _pool to shuffle(["sit", "stay", "paw", "fetch", "roll", "course", "tug"])>>
 <<set $gwylan.training to { list: _pool.slice(0, 3), step: 0, score: 0, last: null, stopped: false }>>
 <<speechresolve>>
@@ -43,7 +43,7 @@ Gwylan takes out a piece of ginger, holds it between two fingers, and waits for 
 <br>
 
 :: Gwylan Pet Training Round
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _wolf to effectiveTransformationLevel("wolf") gte 6>>
 <<set _trick to $gwylan.training.list[$gwylan.training.step]>>
 <<if $gwylan.training.step gt 0>>
@@ -164,9 +164,11 @@ Gwylan takes out a piece of ginger, holds it between two fingers, and waits for 
 		<<link [[Drop the rope|Gwylan Pet Training Result]]>><<set $gwylan.training.last to { trick: "tug", cls: "defy" }>><<set $gwylan.training.step++>><<pass 2>><</link>><<gwylanWillpowerDifficulty>>
 <</switch>>
 <br>
+<<link [[Ask to stop training|Gwylan Pet Training End]]>><<set $gwylan.training.stopped to true>><</link>>
+<br>
 
 :: Gwylan Pet Training Result
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<speechresolve>>
 <<include "Gwylan Pet Training React">>
 <br><br>
@@ -486,29 +488,26 @@ Gwylan takes out a piece of ginger, holds it between two fingers, and waits for 
 <</if>>
 
 :: Gwylan Pet Training End
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _score to ($gwylan.training and $gwylan.training.score) ?? 0>>
 <<set _stopped to ($gwylan.training and $gwylan.training.stopped) ? true : false>>
 <<set $daily.gwylan.training to true>>
 <<set $gwylanSeen.pushUnique("pet_training")>>
 <<if _stopped>>
-	<<set $gwylan.training.tier to "stopped">>
 	Gwylan clears the floor without a fuss, coiling the rope and stacking the crates back against the wall.
-	The pet bed stays where it is.<<stress -2>><<lstress>>
+	The pet bed stays where it is.<<if $gwylan.training.tier isnot "stopped">><<stress -2>><</if>><<set $gwylan.training.tier to "stopped">><<lstress>>
 <<elseif _score gte 3>>
-	<<set $gwylan.training.tier to "three">>
-	<<set $gwylan.timer.petBed to new DateTime(Math.max(Time.date.timeStamp, $gwylan.timer.petBed || 0)).addDays(7).timeStamp>>
+	<<if $gwylan.training.tier isnot "three">><<set $gwylan.timer.petBed to new DateTime(Math.max(Time.date.timeStamp, $gwylan.timer.petBed || 0)).addDays(7).timeStamp>><</if>>
 	Gwylan counts the three commands off on <<his>> fingers, then tips several pieces of ginger into your palm.
 	<br><br>
 	"All three. Your bed can stay out for <span class="blue">a week</span>." <<He>> closes the tin and tucks it under one arm.
 	"Do come and ask me again before then, if you like."
-	<<stress -6>><<trauma -2>><<lstress>><<ltrauma>>
+	<<if $gwylan.training.tier isnot "three">><<stress -6>><<trauma -2>><</if>><<set $gwylan.training.tier to "three">><<lstress>><<ltrauma>>
 <<elseif _score is 2>>
-	<<set $gwylan.training.tier to "two">>
-	<<set $gwylan.timer.petBed to new DateTime(Math.max(Time.date.timeStamp, $gwylan.timer.petBed || 0)).addDays(1).timeStamp>>
+	<<if $gwylan.training.tier isnot "two">><<set $gwylan.timer.petBed to new DateTime(Math.max(Time.date.timeStamp, $gwylan.timer.petBed || 0)).addDays(1).timeStamp>><</if>>
 	"Two out of three," Gwylan says, patting your head. "That's a good effort. Your bed can stay out for <span class="blue">one more night</span>,
 	but do practise the one you skipped."
-	<<stress -3>><<lstress>>
+	<<if $gwylan.training.tier isnot "two">><<stress -3>><</if>><<set $gwylan.training.tier to "two">><<lstress>>
 <<else>>
 	<<set $gwylan.training.tier to "none">>
 	Gwylan closes the tin and puts it away before looking back at you.
@@ -520,7 +519,7 @@ Gwylan takes out a piece of ginger, holds it between two fingers, and waits for 
 <br>
 
 :: Gwylan Pet Training Wrap
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<speechresolve>>
 <<set _tier to $gwylan.training.tier>>
 <<unset $gwylan.training>>
@@ -635,7 +634,7 @@ Gwylan takes out a piece of ginger, holds it between two fingers, and waits for 
 <<gwylanOptions>>
 
 :: Gwylan Supper
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _gs to _gwylanStatus ?? []>>
 <<set $daily.gwylan.supper to true>>
 <<set $gwylan.supper to { mode: "" }>>
@@ -660,23 +659,24 @@ You hear a cupboard open and a bowl set down on the worktop.
 	Your tail moves behind you as the smell of supper reaches you.
 <</if>>
 <br><br>
-<<link [[Take the spoon and eat like a person|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "spoon">><<pass 20>><<stress -2>><</link>><<lstress>>
+<<link [[Take the spoon and eat like a person|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "spoon">><<run foodApplyFullness(3, 4)>><<pass 20>><<stress -2>><</link>><<lstress>>
 <br>
 <<if hasSexStat("deviancy", 2)>>
-	<<link [[Lower your face to the bowl|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "pet">><<set $gwylanSeen.pushUnique("petplay")>><<pass 20>><<stress -3>><<npcincr Gwylan lust 3>><</link>><<deviant2>><<lstress>><<gglust>>
+	<<link [[Lower your face to the bowl|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "pet">><<set $gwylanSeen.pushUnique("petplay")>><<run foodApplyFullness(3, 4)>><<pass 20>><<stress -3>><<npcincr Gwylan lust 3>><</link>><<deviant2>><<lstress>><<gglust>>
 <<else>>
 	<<insufficientStat "deviancy" "to eat from the bowl like a pet">>
 <</if>>
 <br>
-<<link [[Keep your hands in your lap until Gwylan says you may|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "wait">><<pass 20>><</link>><<gwylanWillpowerDifficulty>>
+<<link [[Keep your hands in your lap until Gwylan says you may|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "wait">><<run foodApplyFullness(3, 4)>><<pass 20>><</link>><<gwylanWillpowerDifficulty>>
 <br>
 <<if $gwylanSeen.includesAny("romance", "partners") or _gs.includes("lust")>>
-	<<link [[Ask to be fed by hand|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "hand">><<pass 20>><<stress -4>><<npcincr Gwylan lust 2>><</link>><<lstress>><<glust>>
+	<<link [[Ask to be fed by hand|Gwylan Supper Eat]]>><<set $gwylan.supper.mode to "hand">><<run foodApplyFullness(3, 4)>><<pass 20>><<stress -4>><<npcincr Gwylan lust 2>><</link>><<lstress>><<glust>>
 	<br>
 <</if>>
+<<if !bloatedActive() and foodWouldBloat(3)>><span class="red">Eating supper will make you bloated.</span><br><</if>>
 
 :: Gwylan Supper Eat
-<<effects>><<run statusCheck("Gwylan")>><<speechresolve>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>><<speechresolve>>
 <<set _gs to _gwylanStatus ?? []>>
 <<set _mode to $gwylan.supper.mode>>
 <<switch _mode>>
@@ -753,7 +753,7 @@ You hear a cupboard open and a bowl set down on the worktop.
 <br>
 
 :: Gwylan Supper Done
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _gs to _gwylanStatus ?? []>>
 <<set _mode to $gwylan.supper.mode>>
 <<unset $gwylan.supper>>
@@ -787,7 +787,7 @@ You hear a cupboard open and a bowl set down on the worktop.
 <<gwylanOptions>>
 
 :: Gwylan Wash
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _gs to _gwylanStatus ?? []>>
 <<set $daily.gwylan.wash to true>>
 Gwylan checks your hair and hands for leaves and mud. "Come through to the back, dear. Let's see what needs washing."
@@ -807,8 +807,8 @@ Gwylan checks your hair and hands for leaves and mud. "Come through to the back,
 <</if>>
 
 :: Gwylan Wash Done
-<<effects>><<run statusCheck("Gwylan")>><<speechresolve>>
-<<set _gs to _gwylanStatus ?? []>><<wash>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>><<speechresolve>>
+<<set _gs to _gwylanStatus ?? []>><<wash_face>><<wash_hands>>
 <<switch $gwylan.wash>>
 	<<case "self">>
 		You wash your face and hands first, then work the soap through your hair. By the second rinse the water runs clear.
@@ -927,7 +927,7 @@ Gwylan checks your hair and hands for leaves and mud. "Come through to the back,
 <br>
 
 :: Gwylan Wash Finish
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _wash to $gwylan.wash>>
 <<unset $gwylan.wash>>
 <<switch _wash>>
@@ -942,7 +942,7 @@ Gwylan checks your hair and hands for leaves and mud. "Come through to the back,
 <<gwylanOptions>>
 
 :: Gwylan Tuck In
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set _gs to _gwylanStatus ?? []>>
 <<set $gwylan.tuck to { mode: "", day: Time.days }>>
 You shift in the pet bed, turn the pillow over, then call Gwylan's name.
@@ -967,7 +967,7 @@ You shift in the pet bed, turn the pillow over, then call Gwylan's name.
 <br>
 
 :: Gwylan Tuck In Done
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<speechresolve>>
 <<set _gs to _gwylanStatus ?? []>>
 <<switch $gwylan.tuck.mode>>
@@ -1093,7 +1093,7 @@ You shift in the pet bed, turn the pillow over, then call Gwylan's name.
 <br>
 
 :: Gwylan Leash Post
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<set $daily.gwylan.leashPost to true>>
 <<set $gwylan.post to { leashed: $worn.neck.type.includes("leash") }>>
 <<if !$gwylan.post.leashed>>
@@ -1141,9 +1141,8 @@ Gwylan goes back inside and leaves the shop door open. Through the window, you c
 <br>
 
 :: Gwylan Leash Post Wait
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<speechresolve>>
-<<set _gs to _gwylanStatus ?? []>>
 <<set _pose to $gwylan.post.pose>>
 <<if !$gwylan.post.ev>>
 	<<if _pose is "test">>
@@ -1228,7 +1227,7 @@ Gwylan goes back inside and leaves the shop door open. Through the window, you c
 <br>
 
 :: Gwylan Leash Post Return
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<speechresolve>>
 <<set _ev to $gwylan.post.ev>>
 <<set _res to $gwylan.post.res>>
@@ -1318,7 +1317,7 @@ Gwylan goes back inside and leaves the shop door open. Through the window, you c
 <br>
 
 :: Gwylan Leash Post Back
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<speechresolve>>
 <<set _gs to _gwylanStatus ?? []>>
 <<set _ev to $gwylan.post.ev>>
@@ -1414,7 +1413,7 @@ Gwylan goes back inside and leaves the shop door open. Through the window, you c
 <br>
 
 :: Gwylan Leash Post End
-<<effects>><<run statusCheck("Gwylan")>>
+<<effects>><<if $NPCList[0]?.fullDescription isnot "Gwylan">><<npc Gwylan>><</if>><<person1>><<run statusCheck("Gwylan")>>
 <<speechresolve>>
 <<set _held to $gwylan.post.held>>
 <<if !$gwylan.post.leashed>><<detach_leash>><</if>>
