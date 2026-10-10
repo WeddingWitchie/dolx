@@ -4359,7 +4359,11 @@ function applyFeatBoosts() {
 		V.masochism_level = Math.max(V.masochism_level, 2);
 	}
 	if (upgrades.physique) V.physique += gain("physique", 1500);
-	if (upgrades.willpower) V.willpower += gain("willpower", 200);
+	if (upgrades.willpower) {
+		V.willpower += gain("willpower", 200);
+		// The X-Change willpower pool was seeded from the unboosted value on the Start screen; start it full.
+		if (V.xchange) V.xchange.willpowerPoints = V.willpower;
+	}
 	if (upgrades.oral) V.oralskill += gain("oral", 200);
 	if (upgrades.chest) V.chestskill += gain("chest", 200);
 	if (upgrades.hands) V.handskill += gain("hands", 200);
