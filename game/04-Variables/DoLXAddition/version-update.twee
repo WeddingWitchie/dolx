@@ -1652,15 +1652,26 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</if>>
 
 	/* One-time backfill: saves started with the rank-3 special clothing feat boost predate $specialClothesStorySets, so their imported story unlocks were unreachable. Reconstruct it from sets whose items all sit at unlock level 3 without their requirements being met. */
-	<<if !$dolxStorySetsBackfilled>>
-		<<set $dolxStorySetsBackfilled to true>> /* delete later */
+	/* The first version of this backfill counted items lifted to level 3 by a seasonal set (Halloween, Valentine's...) or by their own unlock condition, so every costume in that season got a story unlock the player never earned. Ranks 1-2 import at level 2, so only rank 3 leaves items at 3 with nothing else explaining it. Rerun it with that check, dropping entries that fail it. */
+	<<if !$dolxStorySetsBackfilled2>>
+		<<unset $dolxStorySetsBackfilled>>
+		<<set $dolxStorySetsBackfilled2 to true>> /* delete later */
 		<<run (() => {
-			if (!Array.isArray(V.specialClothes) || !V.featsBoosts?.upgrades?.specialClothing) return;
-			for (const setName of getSpecialSets(set => set.feat)) {
+			if (!Array.isArray(V.specialClothes)) return;
+			const imported = setName => {
 				const requirements = setup.specialClothesSets[setName]?.requirements;
-				if (typeof requirements === "function" && requirements()) continue;
+				if (typeof requirements === "function" && requirements()) return false;
 				const items = setup.specialClothes.filter(item => item.sets.includes(setName));
-				if (!items.length || !items.every(item => V.specialClothes.find(c => c.name === item.name)?.unlocked === 3)) continue;
+				return items.length > 0 && items.every(item =>
+					V.specialClothes.find(c => c.name === item.name)?.unlocked === 3
+					&& !item.requirements?.()
+					&& !item.sets.some(other => other !== setName && setup.specialClothesSets[other]?.requirements?.()));
+			};
+			const boosted = V.featsBoosts?.upgrades?.specialClothing > 0;
+			if (Array.isArray(V.specialClothesStorySets)) V.specialClothesStorySets = boosted ? V.specialClothesStorySets.filter(imported) : [];
+			if (!boosted) return;
+			for (const setName of getSpecialSets(set => set.feat)) {
+				if (!imported(setName)) continue;
 				if (!Array.isArray(V.specialClothesStorySets)) V.specialClothesStorySets = [];
 				V.specialClothesStorySets.pushUnique(setName);
 			}
