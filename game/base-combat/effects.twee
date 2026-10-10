@@ -6016,6 +6016,25 @@
 			<</if>>
 		<</if>>
 
+		<<if $mouthaction is "dragonboost">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "demand">><<set $dragonBoostUsed to 1>>
+			<<personselect $mouthtarget>>
+			<span class="red">You curl up, channelling your energy, before launching forward with the sharp snap of displaced air, ramming into <<combatperson>>.</span>
+			<<defiance 8 $mouthtarget>><<attackstat>>
+			/* One in ten rams knocks the target out outright, bypassing the per-blow damage cap. */
+			<<if random(1, 10) is 1 and $NPCList[$mouthtarget] and $NPCList[$mouthtarget].stance isnot "defeated">>
+				<span class="red"><span class="bold">The impact lands with crushing force.</span></span>
+				<<if $enemyno gte 2>>
+					<<set _thedamage to Math.max(0, $NPCList[$mouthtarget].health)>>
+					<<npcdamage $mouthtarget>>
+					<<set $enemyhealth -= Math.round(_thedamage)>>
+				<<else>>
+					<<set $enemyhealth to 0>>
+					<<set $NPCList[$mouthtarget].health to 0>>
+				<</if>>
+			<</if>>
+		<</if>>
+
 		<<if $mouthaction is "seduce">>
 			<<set $mouthaction to 0>><<set _sound to 1>>
 			<<if $neckuse is "hand" and $oxygen lt $oxygenmax and $settings.asphyxiaLevel gte 2>>
