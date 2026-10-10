@@ -1,4 +1,5 @@
 /* Horse Race Betting Minigame for DoL-style projects */
+/* globals isMonsterHallucinationAllowed */
 setup.horserace = setup.horserace || {};
 
 (function () {
@@ -41,6 +42,23 @@ setup.horserace = setup.horserace || {};
 		return 100 - HR.effectiveInjuryChance();
 	};
 
+	/* The runners are the farm's horses, so they follow the farm's daily horse/centaur roll (see the farm_text widget).
+	   A 100% beastfolk chance always shows centaurs, even on a day the farm rolled before the setting changed. */
+	HR.centaurs = function () {
+		return isMonsterHallucinationAllowed(State.variables.farm_work?.horse?.monster_roll === true ? 1 : 100);
+	};
+
+	HR.kind = function (plural, capital) {
+		const word = (HR.centaurs() ? "centaur" : "horse") + (plural ? "s" : "");
+		return capital ? word.toUpperFirst() : word;
+	};
+
+	/* Centaur runners are written as male, matching the stallion text and the male combat init. */
+	HR.it = function (form) {
+		const forms = HR.centaurs() ? { it: "he", It: "He", its: "his", Its: "His", itobj: "him" } : { it: "it", It: "It", its: "its", Its: "Its", itobj: "it" };
+		return forms[form];
+	};
+
 	/* ---- Race rigging configuration ------------------------------------ *
 	 * Each stable action adds suspicion on success or failure (failure adds more, since getting caught trying is worse than a clean success).
 	 * SUSPICION_CANCEL_CAP is the maximum percent chance, rolled once when the player places their bet, that the stewards pull the race entirely (bet is never charged).
@@ -56,7 +74,9 @@ setup.horserace = setup.horserace || {};
 		{
 			id: "injure_horse",
 			tier: "high",
-			label: "Injure a horse",
+			get label() {
+				return `Injure a ${HR.kind()}`;
+			},
 			target: "rival",
 			passage: "Racecourse Rig Injure Horse",
 			difficulty: 250,
@@ -102,7 +122,9 @@ setup.horserace = setup.horserace || {};
 		{
 			id: "stimulate_own",
 			tier: "medium",
-			label: "Dose your horse",
+			get label() {
+				return `Dose your ${HR.kind()}`;
+			},
 			target: "own",
 			passage: "Racecourse Rig Stimulant",
 			difficulty: 400,
@@ -146,7 +168,9 @@ setup.horserace = setup.horserace || {};
 		{
 			id: "encourage_own",
 			tier: "low",
-			label: "Encourage your horse",
+			get label() {
+				return `Encourage your ${HR.kind()}`;
+			},
 			target: "own",
 			passage: "Racecourse Rig Encourage Horse",
 			deviancyGated: true,
@@ -227,7 +251,7 @@ setup.horserace = setup.horserace || {};
 				<meter min="0" max="100" low="35" high="70" optimum="0" value="${risk.toFixed(0)}"></meter>
 				<span>${Math.floor(risk)}%</span>
 			</div>
-			<p>Time before the horses are led out: <strong>${turnsLeft}</strong></p>
+			<p>Time before the ${HR.kind(true)} are led out: <strong>${turnsLeft}</strong></p>
 		</div>`;
 	};
 
@@ -272,7 +296,9 @@ setup.horserace = setup.horserace || {};
 
 	HR.RIG_MINIGAME_TEXT = {
 		injure_horse: {
-			scene: "You crouch at the horse's front leg with a grip on the shoe. You need to work the nail loose without the handler noticing.",
+			get scene() {
+				return `You crouch at the ${HR.kind()}'s front leg with a grip on the shoe. You need to work the nail loose without the handler noticing.`;
+			},
 			quick: "Pull hard",
 			careful: "Work it slowly",
 			watchLabel: "Check where the handler is",
@@ -298,7 +324,9 @@ setup.horserace = setup.horserace || {};
 			quick: "Tip in the whole phial",
 			careful: "Mix it in a little at a time",
 			watchLabel: "Listen for footsteps",
-			quickSuccess: "It mixes into the feed cleanly. The horse won't notice a thing.",
+			get quickSuccess() {
+				return `It mixes into the feed cleanly. The ${HR.kind()} won't notice a thing.`;
+			},
 			quickFail: "Some of it splashes over the rim. You wipe it off the bucket with your sleeve before it stains.",
 			carefulSuccess: "You work it in slowly, stirring with two fingers until the feed looks untouched.",
 			carefulFail: "The feed clumps around the liquid instead of soaking it in. You have to keep working at it.",
@@ -338,15 +366,26 @@ setup.horserace = setup.horserace || {};
 			watch: "You look towards the water trough. The handler isn't back yet.",
 		},
 		encourage_own: {
-			scene:
-				"Your hand is on the horse's flank and it is pushing back against you. You need to work it up and settle it again before anyone comes down the row.",
+			get scene() {
+				return `Your hand is on the ${HR.kind()}'s flank and ${HR.it("it")} is pushing back against you. You need to work ${HR.it(
+					"itobj"
+				)} up and settle ${HR.it("itobj")} again before anyone comes down the row.`;
+			},
 			quick: "Keep going, faster",
 			careful: "Slow, steady strokes",
 			watchLabel: "Check the next stall over",
-			quickSuccess: "The horse settles fast, ears forward, weight steady on all four legs.",
-			quickFail: "The horse jerks its head up at the pace and stamps a hoof against the straw.",
-			carefulSuccess: "The horse relaxes into it, breathing slow, eyes half closed.",
-			carefulFail: "The horse is still restless, shifting its weight and flicking its tail.",
+			get quickSuccess() {
+				return `The ${HR.kind()} settles fast, ears forward, weight steady on all four legs.`;
+			},
+			get quickFail() {
+				return `The ${HR.kind()} jerks ${HR.it("its")} head up at the pace and stamps a hoof against the straw.`;
+			},
+			get carefulSuccess() {
+				return `The ${HR.kind()} relaxes into it, breathing slow, eyes half closed.`;
+			},
+			get carefulFail() {
+				return `The ${HR.kind()} is still restless, shifting ${HR.it("its")} weight and flicking ${HR.it("its")} tail.`;
+			},
 			watch: "You listen. Nothing from the next stall yet.",
 		},
 	};
@@ -467,7 +506,7 @@ setup.horserace = setup.horserace || {};
 			effect(horse, race, log) {
 				horse.progress += race.trackId === "cross" ? 4 : 2.5;
 				horse.boost += 1.2;
-				log.push(`${horse.name} turns the corner smoothly and keeps its speed.`);
+				log.push(`${horse.name} turns the corner smoothly and keeps ${HR.it("its")} speed.`);
 			},
 		},
 		{
@@ -586,7 +625,7 @@ setup.horserace = setup.horserace || {};
 			effect(horse, race, log) {
 				horse.stamina += 24;
 				horse.boost += 1;
-				log.push(`${horse.name} finds a second wind when it should be fading.`);
+				log.push(`${horse.name} finds a second wind when ${HR.it("it")} should be fading.`);
 			},
 		},
 		{
@@ -598,7 +637,7 @@ setup.horserace = setup.horserace || {};
 			},
 			effect(horse, race, log) {
 				horse.boost += 4.2;
-				log.push(`${horse.name} saves its strength, then bursts forward near the finish.`);
+				log.push(`${horse.name} saves ${HR.it("its")} strength, then bursts forward near the finish.`);
 			},
 		},
 		{
@@ -718,7 +757,7 @@ setup.horserace = setup.horserace || {};
 					weatherName,
 					condition: "clear",
 					label: "clear",
-					description: "The track is dry; the horses can run at full speed.",
+					description: `The track is dry; the ${HR.kind(true)} can run at full speed.`,
 				};
 
 			case "lightClouds":
@@ -1114,7 +1153,7 @@ setup.horserace = setup.horserace || {};
 			race.paidOut = false;
 			race.trial = false;
 			race.autoWatch = false;
-			race.lastError = "The horses are not in good enough shape to run today.";
+			race.lastError = `The ${HR.kind(true)} are not in good enough shape to run today.`;
 			race.accident = false;
 			race.accidentAtRound = 0;
 			race.accidentRefund = false;
@@ -1246,7 +1285,7 @@ setup.horserace = setup.horserace || {};
 		race.payout = 0;
 		race.paidOut = true;
 		race.autoWatch = false;
-		race.messages = ["Alex waits beside the rail with you while the handlers settle the horses at the gate."];
+		race.messages = [`Alex waits beside the rail with you while the handlers settle the ${HR.kind(true)} at the gate.`];
 		race.messageHistory = race.messages.slice();
 		return race;
 	};
@@ -1269,7 +1308,7 @@ setup.horserace = setup.horserace || {};
 
 		const horse = HR.getHorse(horseId);
 		if (!horse) {
-			race.lastError = "Choose a horse before placing your bet.";
+			race.lastError = `Choose a ${HR.kind()} before placing your bet.`;
 			return { ok: false, reason: "noHorse" };
 		}
 
@@ -1494,8 +1533,12 @@ setup.horserace = setup.horserace || {};
 		}
 
 		const accidentText = refunded
-			? `${horse.name} suddenly shortens its stride near the final stretch and is pulled up by the rider. The other horses thunder on while the medics hurry onto the track. The bookie sighs and returns your stake.`
-			: `${horse.name} falters near the final stretch and is pulled out of the race. The other horses keep running while the medics hurry onto the track, and the bookie keeps your stake.`;
+			? `${horse.name} suddenly shortens ${HR.it("its")} stride near the final stretch and is pulled up by the rider. The other ${HR.kind(
+					true
+			  )} thunder on while the medics hurry onto the track. The bookie sighs and returns your stake.`
+			: `${horse.name} falters near the final stretch and is pulled out of the race. The other ${HR.kind(
+					true
+			  )} keep running while the medics hurry onto the track, and the bookie keeps your stake.`;
 
 		const accidentMessage = {
 			type: "accident",
@@ -1594,10 +1637,10 @@ setup.horserace = setup.horserace || {};
 		if (pauseButton) pauseButton.disabled = !race.autoWatch;
 		if (status) {
 			status.textContent = race.autoWatch
-				? "The horses are running."
+				? `The ${HR.kind(true, true)} are running.`
 				: race.round > 0
 				? "The race is paused."
-				: "The horses are lined up. Start watching when you are ready.";
+				: `The ${HR.kind(true, true)} are lined up. Start watching when you are ready.`;
 		}
 	};
 
@@ -1664,7 +1707,7 @@ setup.horserace = setup.horserace || {};
 		const label = HR.escapeJsArg(resultLabel || "See the result");
 		const wait = Number.isFinite(Number(delay)) ? Number(delay) : HR.DEFAULT_WATCH_DELAY;
 		return `<p id="horse-race-watch-status" class="horse-race-watch-status">${
-			race.round > 0 ? "The race is paused." : "The horses are lined up. Start watching when you are ready."
+			race.round > 0 ? "The race is paused." : `The ${HR.kind(true, true)} are lined up. Start watching when you are ready.`
 		}</p>
 		<div id="horse-race-controls" class="horse-race-controls">
 			<button type="button" data-horse-watch onclick="return setup.horserace.startLiveWatch(${result}, ${wait}, ${label});"${
@@ -1733,7 +1776,7 @@ setup.horserace = setup.horserace || {};
 			<p><strong>Track:</strong> ${HR.escapeHtml(track.name)}. ${HR.escapeHtml(track.description)}</p>
 			<p><strong>Going:</strong> ${HR.escapeHtml(race.goingLabel || race.condition)}. ${HR.escapeHtml(race.goingDescription || "")}</p>
 			<table class="horse-race-table">
-				<thead><tr><th>Lane</th><th>Horse</th><th>Odds</th><th>Speed</th><th>Stamina</th></tr></thead>
+				<thead><tr><th>Lane</th><th>${HR.kind(false, true)}</th><th>Odds</th><th>Speed</th><th>Stamina</th></tr></thead>
 				<tbody>${rows}</tbody>
 			</table>
 		</div>`;
@@ -1834,14 +1877,14 @@ setup.horserace = setup.horserace || {};
 			.map(function (message) {
 				if (message && typeof message === "object" && message.type === "accident") {
 					return `<li class="horse-race-accident-log" style="color:#ff6b6b;"><strong>${HR.escapeHtml(
-						message.text || "A horse is pulled up after an incident."
+						message.text || `A ${HR.kind()} is pulled up after an incident.`
 					)}</strong></li>`;
 				}
 				if (message && typeof message === "object" && message.type === "skill") {
 					const round = Number.isFinite(message.round) ? `<span class="horse-race-log-round">Moment ${message.round}</span> ` : "";
 					return `<li class="horse-race-skill-log">${round}<span class="horse-race-skill-badge">${HR.escapeHtml(
 						message.skillName || "Skill"
-					)}</span> <strong>${HR.escapeHtml(message.horseName || "Horse")}</strong>: ${HR.escapeHtml(message.text || "surges forward.")}</li>`;
+					)}</span> <strong>${HR.escapeHtml(message.horseName || HR.kind(false, true))}</strong>: ${HR.escapeHtml(message.text || "surges forward.")}</li>`;
 				}
 				return `<li>${HR.escapeHtml(message)}</li>`;
 			})
@@ -1891,10 +1934,10 @@ setup.horserace = setup.horserace || {};
 				${winnerLine}
 				<p><strong><span style="color:#ff6b6b;">${HR.escapeHtml(
 					incidentHorse.name
-				)} suffered an incident.</span></strong> Medics hurry onto the track while the other horses finish the race.</p>
+				)} suffered an incident.</span></strong> Medics hurry onto the track while the other ${HR.kind(true)} finish the race.</p>
 				${stakeLine}
 				<table class="horse-race-table">
-					<thead><tr><th>Place</th><th>Horse</th><th>Result</th></tr></thead>
+					<thead><tr><th>Place</th><th>${HR.kind(false, true)}</th><th>Result</th></tr></thead>
 					<tbody>${rows}</tbody>
 				</table>
 			</div>`;
@@ -1908,7 +1951,7 @@ setup.horserace = setup.horserace || {};
 			const betHorse = HR.getHorse(race.betHorseId);
 			if (race.won) {
 				celebration += `<p><strong><span style="color:#5fcf7b;">You won.</span></strong> Your ${HR.formatMoney(race.betAmount)} bet on ${HR.escapeHtml(
-					betHorse ? betHorse.name : "your horse"
+					betHorse ? betHorse.name : `your ${HR.kind()}`
 				)} pays ${HR.formatMoney(race.payout)}.</p>`;
 			} else {
 				celebration += `<p><strong><span style="color:#ff6b6b;">You lost.</span></strong> Your ${HR.formatMoney(
@@ -1920,7 +1963,7 @@ setup.horserace = setup.horserace || {};
 		return `<div class="horse-race-result">
 			${celebration}
 			<table class="horse-race-table">
-				<thead><tr><th>Place</th><th>Horse</th><th>Finish</th></tr></thead>
+				<thead><tr><th>Place</th><th>${HR.kind(false, true)}</th><th>Finish</th></tr></thead>
 				<tbody>${rows}</tbody>
 			</table>
 		</div>`;
