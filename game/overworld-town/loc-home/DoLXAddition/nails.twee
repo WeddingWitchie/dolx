@@ -71,6 +71,15 @@
 	<<if effectiveTransformationLevel("waterdragon") gte 7 or Transformations.partActive("traits", "aquatic")>>
 		<<run _clawTypes.push("waterdragon")>>
 	<</if>>
+	/* Mixed forms: once the PC has claws, any other unlocked claw TF with a visible part can lend its claw style,
+	   even though its own level sits below full because the shared slots show the other animal's parts. */
+	<<if _clawTypes.length gt 0>>
+		<<for _clawTf, _clawTfUnlocked range { cat: $cattf, wolf: $wolftf, fox: $foxtf, bear: $beartf, waterdragon: $waterdragontf }>>
+			<<if _clawTfUnlocked is 1 and !_clawTypes.includes(_clawTf) and Object.keys(Transformations.levelDefinitions[_clawTf].parts).some(part => Transformations.partActive(_clawTf, part))>>
+				<<run _clawTypes.push(_clawTf)>>
+			<</if>>
+		<</for>>
+	<</if>>
 	<<set _clawType to _clawTypes.includes($clawType) ? $clawType : (_clawTypes[0] || "")>>
 	<<set _hasClaws to (_clawType isnot "")>>
 <</widget>>
