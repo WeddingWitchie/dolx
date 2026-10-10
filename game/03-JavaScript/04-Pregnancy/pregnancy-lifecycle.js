@@ -147,6 +147,17 @@ function birthRecordedLitter(pregnancyId, birthLocation, location) {
 }
 window.birthRecordedLitter = birthRecordedLitter;
 
+/**
+ * Whether a pregnancy belongs to the Underground Colosseum: forced by a breeding scene, or conceived on its premises.
+ *
+ * @param {object} pregnancy a pregnancy record
+ * @returns {boolean}
+ */
+function isColosseumPregnancy(pregnancy) {
+	return !!pregnancy.colosseum || pregnancy.conceivedLocation === "colosseum";
+}
+window.isColosseumPregnancy = isColosseumPregnancy;
+
 // NPCs that can take their children out of Bailey's orphanage and avoid the childcare fee
 const CHILD_FEE_NPCS = ["Alex"];
 
@@ -186,6 +197,8 @@ function endPlayerPregnancy(birthLocation, location) {
 	// The pregnancy in labour, if any, otherwise whichever active pregnancy the player has.
 	const pregnancy = getLabouringPregnancy("pc");
 	if (!pregnancy) return false;
+	// Underground Colosseum: the house keeps every child conceived there, wherever the birth happens.
+	if (isColosseumPregnancy(pregnancy)) location = "colosseum";
 
 	if (pregnancy.donor === "Alex") {
 		delete C.npc.Alex.pregnancy.pcKnowledge;
@@ -498,7 +511,7 @@ function randomPregnancyProgress() {
 		const record = getActivePregnancies(npcKey)[0];
 		if (record && Time.date.timeStamp >= getDueDate(record)) {
 			// Underground Colosseum: the house keeps these children, so they never reach the orphanage.
-			if (record.colosseum) {
+			if (isColosseumPregnancy(record)) {
 				clearPregnancyRecord(record.pregnancyId);
 				toDelete.push(npcKey);
 				return;

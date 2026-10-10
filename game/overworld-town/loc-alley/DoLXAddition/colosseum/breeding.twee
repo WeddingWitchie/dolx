@@ -23,9 +23,13 @@
 	<</if>>
 <</widget>>
 
-<!-- Give the player a house dose. Arg 1: "bull" or "breeder". -->
+<!-- Give the player a house dose. Arg 1: "bull" or "breeder". Arg 2: "voluntary" when the player chose to swallow it, so Gray Agent does not block it.
+	 House gray doses never flip the body, whatever the "Gray pills flip sex" setting says. -->
 <<widget "colosseumPlayerPill">>
 	<<set _pillBull to _args[0] is "bull">>
+	<<set _pillVoluntary to _args[1] is "voluntary">>
+	<<set _pillGrayFlip to $xchange.grayPillGenderflip>><<set $xchange.grayPillGenderflip to 0>>
+	<<if _pillVoluntary>><<xchange-dose-deliberate>><</if>>
 	<<if playerIsXChanged()>>
 		<<if !$xchange.pill.hermEffect and !pillIsPermanent()>>
 			<<if _pillBull>><<xchange-gray 2 "bull">><<else>><<xchange-gray 2 "breeder" "fertile">><</if>>
@@ -35,6 +39,8 @@
 	<<else>>
 		<<if $player.vaginaExist>><<xchange-gray 2 "breeder" "fertile">><<else>><<xchange-pink 2 "breeder" "fertile">><</if>>
 	<</if>>
+	<<if _pillVoluntary>><<xchange-dose-deliberate-end>><</if>>
+	<<set $xchange.grayPillGenderflip to _pillGrayFlip>>
 <</widget>>
 
 <!-- Give an NPC a house dose. Arg 1: "bull" or "breeder". Arg 2: their $NPCList slot. -->
@@ -85,7 +91,7 @@ A <<person>> in a waistcoat soon pushes through the spectators towards you. <<He
 Your opponent stays down. The referee finishes the count, lifts your wrist and steps back. Nobody in the room sits. The chant starts in the front row and fills the room: "Breed them! Breed them! Breed them!"
 <br><br>
 An attendant drops two keys and two capsules onto the sand by your feet. One key opens the chastity device on you and the other opens <<his>>. The <<print _bullColour>> capsule is a Bull pill, for you. The <<print _breedColour>> capsule is a Breeder pill, for <<him>>.
-<<if playerIsXChanged()>>You are still on the Purple dose, so you do not need yours.<<elseif !$player.penisExist>>The blue pill will give you a cock to use.<</if>>
+<<if playerIsXChanged() and $xchange.pill.hermEffect>>You are still on the Purple dose, so you do not need yours.<<elseif !$player.penisExist and !playerIsXChanged() and !xchangePregnancyBlocksPill() and !xchangePillProtectionActive()>>The blue pill will give you a cock to use.<</if>>
 <<if $NPCList[0].gender is "m">>The pink pill will give <<him>> a womb to carry with.<</if>>
 <br><br>
 The winner is expected to use them. The room waits to see what you do.
@@ -97,26 +103,28 @@ The winner is expected to use them. The room waits to see what you do.
 
 :: Underground Colosseum Breed Win
 <<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 15>>
-<<set _onPurple to playerIsXChanged()>>
-<<set _gainsPenis to !$player.penisExist>>
+<<set _onPurple to playerIsXChanged() and $xchange.pill.hermEffect>>
+<<set _hadPenis to $player.penisExist>>
 <<set _npcFlips to $NPCList[0].gender is "m">>
-<<colosseumPlayerPill "bull">>
+<<colosseumPlayerPill "bull" "voluntary">>
 <<colosseumNpcPill "breeder" 0>>
 <<person1>>
 <<colosseumBeltOff>>
 You pick up your capsule and swallow it dry.
 <<if _onPurple>>
 	It adds nothing to what the Purple dose is already doing.
-<<elseif _gainsPenis>>
+<<elseif !$player.penisExist>>
+	You wait for the change, but your body will not take the dose.
+<<elseif !_hadPenis>>
 	Your hips tighten and something forms between your legs, thick and heavy, until your body treats it as its own.
 <<else>>
 	Heat spreads down from your stomach and your cock stiffens until it aches.
 <</if>>
-The need to breed comes with it. Stopping feels like the wrong idea.
+<<if $xchange.pill.bullEffect>>The need to breed comes with it. Stopping feels like the wrong idea.<</if>>
 <br><br>
 You unlock your own device first, then <<his>>. An attendant holds <<his>> jaw and feeds <<him>> the other capsule.
 <<if _npcFlips>>Within a minute <<his>> body is reshaping itself on the sand: <<his>> hips widen and <<his>> chest softens, and <<he>> stops fighting the change and starts breathing through it.<</if>>
-<<He>> is still winded from the bout and does not stop you when you push <<him>> onto <<his>> back. The crowd starts to count out loud. The pill has already made the decision for you.<<arousal 500>><<garousal>>
+<<He>> is still winded from the bout and does not stop you when you push <<him>> onto <<his>> back. The crowd starts to count out loud.<<if $xchange.pill.bullEffect>> The pill has already made the decision for you.<</if>><<arousal 500>><<garousal>>
 <br><br>
 <<set $xchange.colosseum.breed to "accept">><<colosseumHeat 2>>
 <<link [[Next|Underground Colosseum Result]]>><</link>>
@@ -138,10 +146,11 @@ A microphone crackles. The announcer apologises to the room for "a difficulty wi
 <<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 15>>
 <<set _oppFemale to $NPCList[0].gender is "f">>
 <<set _breedColour to $player.vaginaExist ? "gray" : "pink">>
-<<set _playerFlips to !$player.vaginaExist>>
+<<set _hadVagina to $player.vaginaExist>>
 <<colosseumNpcPill "bull" 0>>
 <<person1>>
 <<colosseumPlayerPill "breeder">>
+<<set _playerFlips to !_hadVagina and $player.vaginaExist>>
 <<colosseumBeltOff>>
 Your legs will not hold you. The referee counts you out, lifts your opponent's wrist and leaves the sand. The chant begins before the gate has closed: "Breed them! Breed them! Breed them!"
 <br><br>
@@ -149,7 +158,7 @@ An attendant drops two keys and two capsules beside your opponent, not beside yo
 <<if _playerFlips>>Your body changes on the sand while they hold you: your hips widen, your chest fills out, and a wet heat opens low in your belly.<</if>>
 <<He>> swallows the other capsule without being held, then opens your chastity device with one of the keys.
 <br><br>
-<<He>> is not in a hurry. You cannot push <<him>> off, and the pill has already made your body answer before you do.<<arousal 500>><<garousal>><<stress 10>><<ggstress>>
+<<He>> is not in a hurry. You cannot push <<him>> off<<if $xchange.pill.breederEffect>>, and the pill has already made your body answer before you do<</if>>.<<arousal 500>><<garousal>><<stress 10>><<ggstress>>
 <br><br>
 <<set $xchange.colosseum.breed to "bred">><<set $xchange.colosseum.bredPending to 1>><<set $xchange.colosseum.bredBirths to $pregnancyStats.playerChildren>>
 <<famesex 15 "none" true>><<fameexhibitionism 6 "none" true>><<colosseumHeat 2>>
@@ -248,15 +257,15 @@ An attendant takes you by the elbow and leads you back along the corridor. The g
 :: Underground Colosseum Goon Breeding
 <<set $outside to 0>><<set $location to "colosseum">><<effects>><<pass 15>>
 <<set _bullColour to $player.penisExist ? "gray" : "blue">>
-<<set _onPurple to playerIsXChanged()>>
-<<set _gainsPenis to !$player.penisExist>>
+<<set _onPurple to playerIsXChanged() and $xchange.pill.hermEffect>>
+<<set _hadPenis to $player.penisExist>>
 <<set _goonFlips to $NPCList[1].gender is "m">>
-<<colosseumPlayerPill "bull">>
+<<colosseumPlayerPill "bull" "voluntary">>
 <<colosseumNpcPill "breeder" 1>>
 <<colosseumBeltOff>>
 <<person1>>
 The receptionist gives you a <<if _onPurple>>capsule you do not need, and you hold it without taking it<<else>><<print _bullColour>> capsule<</if>>.
-<<if !_onPurple>>You swallow it.<<if _gainsPenis>> Your body changes around a new cock, heavy and hard before the change has finished.<<else>> Your cock is hard before you have put the glass down.<</if>><</if>>
+<<if !_onPurple>>You swallow it.<<if !$player.penisExist>> You wait for the change, but your body will not take the dose.<<elseif !_hadPenis>> Your body changes around a new cock, heavy and hard before the change has finished.<<else>> Your cock is hard before you have put the glass down.<</if>><</if>>
 You kneel and unlock the goon's belt.
 <br><br>
 <<person2>>The goon pushes onto both elbows. "No. Don't. That's not in the contract, I never signed for that." <<He>> turns <<his>> head towards the receptionist. "Tell them. It isn't in the contract!"
@@ -265,7 +274,7 @@ You kneel and unlock the goon's belt.
 <br><br>
 <<person2>>
 <<if _goonFlips>>The goon's body is changing while <<he>> is still begging: <<his>> hips spread and <<his>> chest swells until <<he>> has no more words for it.<</if>>
-There is no way for you to turn back now. The pill puts you on top of <<him>> before you have decided anything. The goon keeps saying no, louder, and the receptionist keeps telling you to give <<him>> everything.<<arousal 500>><<garousal>>
+There is no way for you to turn back now.<<if $xchange.pill.bullEffect>> The pill puts you on top of <<him>> before you have decided anything.<<else>> You climb on top of <<him>>.<</if>> The goon keeps saying no, louder, and the receptionist keeps telling you to give <<him>> everything.<<arousal 500>><<garousal>>
 <br><br>
 <<saveNPC 1 "colosseum_opponent">>
 <<set $xchange.colosseum.goonBred to 1>><<famesex 15 "none" true>><<colosseumHeat 2>>

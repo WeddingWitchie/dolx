@@ -25,7 +25,7 @@ window.colosseumBreedNpc = function (slot) {
 /**
  * Close out a Colosseum breeding encounter for the NPC in a slot.
  * Any pregnancy the fight itself created since the snapshot in storedBefore is tagged for the house.
- * If the fight made none, one is forced.
+ * If the fight made none and the player has a cock, one is forced.
  *
  * @param {number} slot $NPCList slot of the carrier
  * @returns {boolean} whether the carrier ended up pregnant
@@ -46,6 +46,7 @@ window.colosseumSettleBreeding = function (slot) {
 		col.sired = (col.sired ?? 0) + tagged;
 		return true;
 	}
+	if (!V.player.penisExist) return false;
 	return window.colosseumBreedNpc(slot);
 };
 
