@@ -1014,6 +1014,12 @@ function repairNonFiniteNumerics() {
 		V.daily.stall_lewdity = 0;
 	}
 
+	// The bus groper countdown went NaN when one branch skipped setting it; 0 just ends that scene.
+	if ("chikantimeout" in V && !Number.isFinite(V.chikantimeout)) {
+		repaired.push(`chikantimeout=${V.chikantimeout}`);
+		V.chikantimeout = 0;
+	}
+
 	// Refund the extra 1500 from affected negative antiquemoney saves, then clamp at zero.
 	if (Number.isFinite(V.antiquemoney) && V.antiquemoney < 0) {
 		repaired.push(`antiquemoney=${V.antiquemoney}`);
