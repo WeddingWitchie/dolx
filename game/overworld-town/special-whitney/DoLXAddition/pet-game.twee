@@ -89,9 +89,75 @@
 		Someone shoves you between the shoulder blades. You stumble forward, and Whitney laughs. "Better run."
 		<br><br>
 		<<link [[Run|Whitney Locker Game Hide]]>><<def 1>><</link>>
+		<br>
+		<<link [[Fight|Whitney Locker Game Fight]]>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
 	<</if>>
 <</if>>
 <br>
+
+:: Whitney Locker Game Fight
+<<if $fightstart is 1>>
+	<<set $fightstart to 0>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemytrust -= 100>>
+	<<set $enemyanger += 200>>
+	<<npcidlegenitals>>
+	You shove Whitney away. <<He>> stumbles back into the lockers, and <<his>> friends close in around you.
+	<br><br>
+	<<if $delinquency lt 400>><<enable_rescue>><</if>>
+<</if>>
+
+<<effects>>
+<<effectsman>>
+<<alarmstate "<span class='red'>No one comes to your aid, likely due to your reputation as a delinquent.</span>">>
+<<man>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+
+<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Whitney Locker Game Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Whitney Locker Game Fight]]>><</link>></span><<nexttext>>
+<</if>>
+
+:: Whitney Locker Game Fight Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	You push Whitney to the floor and shove past <<his>> friends. <<tearful>> you escape down the corridor. Nobody follows.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation "short">>
+	"You... stupid..." <<he>> pants, leaning against a locker. <<His>> friends are so busy staring at <<him>> that they don't notice you slip away.
+	<<llust>><<npcincr Whitney lust -20>>
+	<br><br>
+	<<tearful>> you escape down the corridor.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
+<<elseif $alarm is 1 and $rescue is 1>>
+	Your cry echoes down the corridor. "Crybaby," Whitney says. "Game's off, then." <<He>> and <<his>> friends leave. <<tearful>> you struggle to your feet.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<link [[Next|Hallways]]>><<set $eventskip to 1>><</link>>
+<<else>>
+	<<if $finish is 1>><<encounterEndViolence>><</if>>
+	You're too battered to keep fighting.
+	<br><br>
+	<<clotheson>>
+	<<endcombat>>
+	<<npc Whitney>><<person1>>
+	Whitney hauls you up by your collar and pushes you down the corridor. "Game's still on. Better run."
+	<br><br>
+	<<link [[Run|Whitney Locker Game Hide]]>><</link>>
+<</if>>
 
 :: Whitney Locker Game Hide
 <<effects>>
@@ -449,9 +515,8 @@ There are a few places nearby where you might fit. Where do you hide?
 		<br><br>
 		"Don't say anything," <<he>> mutters. "I mean it. Not one word."
 	<<else>>
-		You keep your head down for the rest of the morning,
-		glancing over your shoulder and waiting for Whitney to come and collect,
-		but <<he>> never shows up.
+		You slip out of your hiding place and head the other way,
+		glancing over your shoulder the whole time.
 	<</if>>
 	<br><br>
 	<<link [[Next|Whitney Locker Game End]]>><<set $phase to 0>><<pass 5>><</link>>
@@ -471,7 +536,7 @@ There are a few places nearby where you might fit. Where do you hide?
 		<br><br>
 		<<Hes>> already climbing the stairs before you can answer.
 	<<else>>
-		Whitney is waiting outside the canteen with the same friends from earlier.
+		Whitney catches up with you at the stairs, the same friends trailing behind <<him>>.
 		"Where were you? We looked everywhere."
 		<br><br>
 		Nobody believes the innocent tone, including Whitney. <<He>> smiles. "Good news.
