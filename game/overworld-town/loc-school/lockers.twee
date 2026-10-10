@@ -444,18 +444,19 @@ You find a small pin in the locker, and use the tip to poke a tiny hole in the c
 <</widget>>
 
 <<widget "lockerClothesAutoStore">>
-	<<if $autoLockerEnabled and $lockerSwapLock and $worn.handheld.name isnot "naked" and $passagePrev is "Hallways" and !$possessed>>
+	<<if $autoLockerEnabled and $lockerSwapLock and ($worn.handheld.name isnot "naked" or $worn.bag.name isnot "naked") and $passagePrev is "Hallways" and !$possessed>>
+		<<set _carriedName to [$worn.handheld, $worn.bag].filter(item => item.name !== "naked").map(item => item.name).join(" and ")>>
 		<<wardrobeSelection true>>
 		<<set _store_location to "lockers">>
 		<<storeon _store_location "check">>
 		<<set _clothes to clothingInStorage(_store_location)>>
 		<<if _clothes.length gt 0>>
-			You swap out your $worn.handheld.name with your _clothes[0].name before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers2">><<storeload "lockers">>
+			You swap out your _carriedName with your _clothes[0].name before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers2">><<storeload "lockers">>
 			<br><br>
 		<<else>>
 			<<storeon "lockers2" "check">>
 			<<if _store_check isnot 1>>
-				You store your $worn.handheld.name in your locker before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers">>
+				You store your _carriedName in your locker before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers">>
 				<br><br>
 			<</if>>
 		<</if>>
@@ -467,12 +468,12 @@ You find a small pin in the locker, and use the tip to poke a tiny hole in the c
 		<<set _clothes to clothingInStorage(_store_location)>>
 		<<if $lockerSwapLock>>
 			<<if _clothes.length gt 0>>
-				You swap out your $worn.handheld.name with your _clothes[0].name before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers">><<storeload "lockers2">>
+				You swap out your _carriedName with your _clothes[0].name before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers">><<storeload "lockers2">>
 				<br><br>
 			<<else>>
 				<<storeon "lockers" "check">>
 				<<if _store_check isnot 1>>
-					You store your $worn.handheld.name in your locker before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers">>
+					You store your _carriedName in your locker before leaving the main halls.<<set $lockerSwapLock to false>><<handheldundress "lockers">>
 					<br><br>
 				<</if>>
 			<</if>>
