@@ -611,7 +611,10 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<if ($daily.colosseumFights ?? 0) gte 3>><<set _reward to Math.floor(_reward * 1.25)>><</if>>
 	<<if ["champion", "inside"].includes($xchange.colosseum.ending)>><<set _reward to Math.floor(_reward * 1.25)>><</if>>
 	<<if $xchange.colosseum.matchFix is "throw" or _denied>><<set _pointGain to 0>><<set _reward to 0>><</if>>
+	<<if $xchange.colosseum.matchFix is "betray">><<set _reward to 0>><</if>>
 	<<if _reward gt 0 and Number.isFinite($xchange.colosseum.vipPenalty)>><<set _reward to Math.floor(_reward * $xchange.colosseum.vipPenalty)>><<unset $xchange.colosseum.vipPenalty>><</if>>
+	<<if $mathstrait gte 1>><<set _reward to Math.floor(_reward * (1 + $mathstrait / 4))>><</if>>
+	<<set _reward to divineTfIncome(_reward, "colosseum")>>
 	<<if $xchange.colosseum.promotion>>
 		<<set $xchange.colosseum.rank to Math.min(6, $xchange.colosseum.rank + 1)>>
 		<<set $xchange.colosseum.rankPoints to Math.min(1000, $xchange.colosseum.rankPoints + 75)>>
@@ -625,7 +628,7 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 		<</if>>
 	<</if>>
 	<<set $xchange.colosseum.wins += 1>>
-	<<money _reward "colosseum">><<famescrap `8 + _rankIndex * 12` "colosseum" true>><<fameexhibitionism `1 + _rankIndex` "none" true>>
+	<<if _reward gt 0>><<money _reward "colosseum" { divineTfAdjusted: true }>><</if>><<famescrap `8 + _rankIndex * 12` "colosseum" true>><<fameexhibitionism `1 + _rankIndex` "none" true>>
 	<<if _bredWin>>
 		The referee has already called the bout for you and leaves the sand. The chant goes on around the pit.
 	<<elseif _denied>>
@@ -661,8 +664,12 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<if $xchange.colosseum.wager>>
 		<<set _oddsBand to _rankIndex - _playerRank>>
 		<<set _wagerMultiplier to _oddsBand gte 2 ? 4 : _oddsBand is 1 ? 3 : _oddsBand is 0 ? 2 : 1.5>>
-		<<set _payout to Math.floor($xchange.colosseum.wager * _wagerMultiplier)>>
-		<<money _payout "colosseum">> <br><br>
+		<!-- Only the profit is income; the returned stake gets no maths or divine bonus. -->
+		<<set _profit to Math.floor($xchange.colosseum.wager * _wagerMultiplier) - $xchange.colosseum.wager>>
+		<<if $mathstrait gte 1>><<set _profit to Math.floor(_profit * (1 + $mathstrait / 4))>><</if>>
+		<<set _profit to divineTfIncome(_profit, "colosseum")>>
+		<<set _payout to $xchange.colosseum.wager + _profit>>
+		<<money $xchange.colosseum.wager "colosseumBet" { incomeType: "none" }>><<money _profit "colosseum" { divineTfAdjusted: true }>> <br><br>
 		The bookmaker checks your winning slip and pays you <span class="gold"><<printmoney _payout>></span>.
 		<<unset $xchange.colosseum.wager>>
 	<</if>>
@@ -678,11 +685,13 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 	<<set _appearancePay to Math.floor(_rewardTable[_rankIndex] * 0.2)>>
 	<<if ["champion", "inside"].includes($xchange.colosseum.ending)>><<set _appearancePay to Math.floor(_appearancePay * 1.25)>><</if>>
 	<<if Number.isFinite($xchange.colosseum.vipPenalty)>><<set _appearancePay to Math.floor(_appearancePay * $xchange.colosseum.vipPenalty)>><<unset $xchange.colosseum.vipPenalty>><</if>>
+	<<if $mathstrait gte 1>><<set _appearancePay to Math.floor(_appearancePay * (1 + $mathstrait / 4))>><</if>>
+	<<set _appearancePay to divineTfIncome(_appearancePay, "colosseum")>>
 	<<set _injuryLevel to _rankIndex gte 4 ? 2 : 1>>
 	<<if ($daily.colosseumFights ?? 0) gte 3>><<set _injuryLevel to Math.min(3, _injuryLevel + 1)>><</if>>
 	<<set _scrapLoss to 20 + _rankIndex * 10>>
 	<<set $xchange.colosseum.losses += 1>>
-	<<money _appearancePay "colosseum">>
+	<<money _appearancePay "colosseum" { divineTfAdjusted: true }>>
 	<<set $fame.scrap to Math.max(0, $fame.scrap - _scrapLoss)>><<fameclamp>>
 	<<colosseumInjure _injuryLevel `1 + _rankIndex`>>
 	<<if _bredLoss>>
@@ -796,16 +805,19 @@ They enter from opposite gates. <<print _bet.a>> moves towards the centre while 
 The fight ends in the fourth minute. Both fighters are exhausted, but only one is still standing when the referee stops the match.
 <br><br>
 <<if _won>>
-	<<set _payout to Math.floor(_stake * _odds)>>
+	<<set _profit to Math.floor(_stake * _odds) - _stake>>
+	<<if $mathstrait gte 1>><<set _profit to Math.floor(_profit * (1 + $mathstrait / 4))>><</if>>
+	<<set _profit to divineTfIncome(_profit, "colosseum")>>
+	<<set _payout to _stake + _profit>>
 	<<print _other>> falls near the boards and does not get back up. The referee ends the fight, while an attendant helps <<print _backed>> towards the gate.
 	People around you stand and head for the betting booth. You reach it before the line gets too long. The bookmaker checks your slip, then counts out <span class="gold"><<printmoney _payout>></span>.
-	<<money _payout "colosseum">><<colosseumHeat 1>><<stress -4>><<lstress>>
+	<<money _stake "colosseumBet" { incomeType: "none" }>><<money _profit "colosseum" { divineTfAdjusted: true }>><<colosseumHeat 1>><<stress -4>><<lstress>>
 	<br><br>
 	<<if _odds gte 3>>
 		"That's the second time this year they've won at those odds," the bookmaker says, nodding towards <<print _backed>>.
 		<br><br>
 	<</if>>
-	<span class="green">Your bet won. You made <span class="gold"><<printmoney `_payout - _stake`>></span> profit.</span>
+	<span class="green">Your bet won. You made <span class="gold"><<printmoney _profit>></span> profit.</span>
 <<else>>
 	<<print _backed>> moves in to attack, but <<print _other>> knocks them down. They manage to stand again, only to be knocked down a second time. The referee ends the fight.
 	<br><br>
