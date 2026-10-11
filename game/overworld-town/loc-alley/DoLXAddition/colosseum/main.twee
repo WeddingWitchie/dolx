@@ -497,8 +497,14 @@ Someone at the barrier screams your arena name, then shouts that you had better 
 		<<set $NPCList[0].dodgeChance to Math.clamp(Math.round(_dodgeBase + _dodgeShift), 0, 45)>>
 	<</if>>
 	<<set $enemyanger += 200>><<set $enemytrust -= 100>>
+	/* Only a knockout ends a bout: every orgasm goes through the mid-orgasm path and the fight carries on. */
+	<<if !$npcOrgasmState or typeof $npcOrgasmState isnot "object" or Array.isArray($npcOrgasmState)>><<set $npcOrgasmState to {}>><</if>>
+	<<set $npcOrgasmState[0] to { max: 999, count: 0 }>>
+	<<set $setupMidOrgasm to true>>
 <</if>>
 <<effects>>
+/* Cage hits hurt more than a street scuffle, and more at higher ranks. <<violence>> reads this. */
+<<set _colosseumPainMult to 1.5 + 0.25 * ($xchange.colosseum.mock ? 0 : ($xchange.colosseum.matchRank ?? 0))>>
 <<if $pain lt 200 and !($pain gte 100 and $willpowerpain is 0)>>
 	<<effectsman>><<colosseumLashOut>><<man>><<stateman>>
 	<br><br>
