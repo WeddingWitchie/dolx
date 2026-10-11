@@ -948,6 +948,9 @@ const statChange = (() => {
 		if (isNaN(modifier)) paramError("submissive", "modifier", modifier, "Expected a number.");
 		amount = Number(amount);
 		modifier = Number(modifier);
+		/* Personality wears off slowly: a move back toward neutral counts for half, and a quarter while the Submissive, Bratty or Defiant trait holds, so one fight can't undo it. */
+		if (amount < 0 && V.submissive > 1000) amount *= V.submissive >= 1500 ? 0.25 : 0.5;
+		if (amount > 0 && V.submissive < 1000) amount *= V.submissive <= 850 ? 0.25 : 0.5;
 		if (amount && modifier) {
 			V.submissive = Math.clamp(V.submissive + amount * modifier, 0, 2000);
 			subCheck();
