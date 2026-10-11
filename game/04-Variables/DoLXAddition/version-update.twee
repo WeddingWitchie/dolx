@@ -375,7 +375,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<</if>>
 
 	<<portalPantiesSetup>>
-	<<worldGenderOverrideInit>>
 	/* Defaults for combat-pilling controls (back-compat for older saves) */
 	<<if $xchange.combatPillingChance is undefined>><<set $xchange.combatPillingChance to 25>><</if>>
 	<<if $xchange.combatPillingBeastsEnabled is undefined>><<set $xchange.combatPillingBeastsEnabled to 0>><</if>>
@@ -1084,8 +1083,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
-	<<identityIndexInit>>
-
 	<<if $identityOption is undefined>>
 		<<set $identityOption to false>>
 	<</if>>
@@ -1224,12 +1221,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.premium to {}>>
 	<</if>>
 
-	/* --- $sexStats.vagina skeleton safety net ---
-	This runs from <<gameStartOnly>>, which is a whole passage ahead of vanilla's own
-	<<physicalAdjustmentsInit>>, so on a new game whatever it builds here is what the game keeps.
-	It has to be the shape vanilla builds, field for field, and roll the cycle with vanilla's own
-	helpers -- a hand-copied cycle drifts out of step the moment vanilla touches its maths.
-	$sexStats.vagina.pregnancy is the parasite record now; the litter lives in $pregnancies. */
+	/* --- $sexStats.vagina skeleton safety net --- */
 	<<if $sexStats isnot undefined>>
 		<<if $sexStats.vagina is undefined>>
 			<<set _esBaseDays to random(24,38)>>
@@ -1315,7 +1307,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 <</widget>>
 
-/* Static setup data, rebuilt on every page load. Both load paths need it for the identity overlay and gender-identity meter. */
+/* Static setup data, built once per page load from StoryInit. Start2 already reads it for the gender-identity meter, before any load path runs. */
 <<widget "identityIndexInit">>
 	<<set setup.identityIndex to {
 		"Pronoun Preferences": { 
@@ -1466,7 +1458,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 <<widget "xchange-loadinit">>
 	<<if $xchange isnot undefined and $xchange.transIdentitySeeded is undefined>><<set $xchange.transIdentitySeeded to true>><</if>>
-	<<identityIndexInit>>
 	<<script>>window.repairInvalidHairColours?.();<</script>>
 	<<run fishingEnsure()>>
 	/* A restored X-Change body could bring back a demon skin after the demon TF was gone. */
@@ -1476,11 +1467,9 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<dhmInit>>
 	<<wliInit>>
 	<<worldGenderOverrideInit>>
-	<<if $robinGivenTotal is undefined>><<set $robinGivenTotal to 0>><</if>>
-	<<if $settings.maggotsEnabled is undefined>><<set $settings.maggotsEnabled to true>><</if>>
-	<<if $preyTrait is undefined>><<set $preyTrait to 1>><</if>>
-	<<if $silkyTrait is undefined>><<set $silkyTrait to 1>><</if>>
 	<<run ensureRobinStand()>>
+	/* Self-sufficiency and Bailey's Robin-targeting flag are mutually exclusive; older saves could hold both. */
+	<<if $robinStand.selfSufficient is 1 and $robinfirstrentfight>><<set $robinfirstrentfight to 0>><</if>>
 	<<if playerIsXChanged()>><<xchange-fertility-override>><</if>>
 	<<ccmodVersionCheck>>
 	<<ensureTransformationTraits>>
@@ -1490,7 +1479,7 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<script>>window.repairNonFiniteNumerics?.();<</script>>
 	<<script>>window.clearOrphanWetnessKeys?.();<</script>>
 	<<script>>window.ejectOrphanVaginalDildo?.();<</script>>
-	<<run pruneClothes()>>
+	<<run pruneClothes()>><<run pruneNPCName()>>
 	<<run repairWardrobeSlots()>>
 	<<run reclaimStrandedWardrobeItems()>>
 	<<physicalAdjustmentsInit>>
@@ -1499,7 +1488,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 <</widget>>
 
 <<widget "xchange-modupdate">>
-	<<run fishingEnsure()>>
 	/* Chastity control data lives on each item. Backfill old purchases in every owned-clothing location without rewriting NPC-fitted devices. */
 	<<if $chastityAcclimation is undefined>><<set $chastityAcclimation to 0>><</if>>
 	/* Uses the same setting check as the hourly update, so disabled traits stay hidden when loading a save. */
@@ -1515,31 +1503,11 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<unset $xchangePill>>
 	<</if>>
 
-	/* Water dragon defaults. Must run every load */
-	<<waterDragonNestDefaults>><<if $waterDragonLab>><<waterDragonLabDefaults>><</if>>
-	/* Lab captives keep theirs: Harper's serum, not the PC's own body. */
-	<<if $waterDragonEggs and !isFullWaterDragon() and !($waterDragonLab and $waterDragonLab.active)>>
-		<<unset $waterDragonEggs>>
-	<</if>>
-
-	<<dhmInit>>
-	<<wliInit>>
 	<<xchange-init>>
 	<<xchange-init2>>
-	<<if $xchange.transIdentitySeeded is undefined>><<set $xchange.transIdentitySeeded to true>><</if>>
-
-	/* Robin's stand is a live economy system, so its defaults also run. */
 	<<if $robinGivenTotal is undefined>><<set $robinGivenTotal to 0>><</if>>
-	<<run ensureRobinStand()>>
-	/* Self-sufficiency and Bailey's Robin-targeting flag are mutually exclusive; older saves could hold both. */
-	<<if $robinStand.selfSufficient is 1 and $robinfirstrentfight>><<set $robinfirstrentfight to 0>><</if>>
-	<<unset $dolxHairColourSlotRepaired>> /* delete later: its one-time repair is covered by repairInvalidHairColours() */
+	<<if $settings.maggotsEnabled is undefined>><<set $settings.maggotsEnabled to true>><</if>>
 
-	/* Re-resolve fertility so toggling the Fake Breeder / Always fertile settings mid-session takes effect on the running pill. */
-	<<if playerIsXChanged()>><<xchange-fertility-override>><</if>>
-	<<ccmodVersionCheck>>
-	<<ensureTransformationTraits>>
-	<<run restoreActiveBlackmailQuest()>>
 	/* Backfill the Gentleman's Club feats only when the save proves it reached the unpaid stage before the feats existed. */
 	<<if !$xchange.backComp.gentlemansClubFeats>>
 		<<set $xchange.backComp.gentlemansClubFeats to true>> /* delete later */
@@ -1579,15 +1547,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			}
 		<</script>>
 	<</if>>
-	<<script>>setup.inflation?.ensureSettings?.();<</script>>
-	<<script>>window.repairNonFiniteNumerics?.();<</script>>
-	/* The combat renderer used to read wetness under the underscored slot name; those keys never dried and pinned the under/over layers half-transparent. */
-	<<script>>window.clearOrphanWetnessKeys?.();<</script>>
-	/* Vanilla transformation scenes remove the vagina without knowing about the worn-dildo slot; eject any orphaned toy on load. */
-	<<script>>window.ejectOrphanVaginalDildo?.();<</script>>
-
-	/* In here because ModLoader inject and remove without the need to wait the game updating; only refresh */
-	<<run pruneClothes()>><<run pruneNPCName()>>
 
 	/* One-time repair: borrowed kaiju costumes used the normal clothing-loss rebuy path after the costume became a forest-shop item, silently stacking complete outfits in hidden over-outfit wardrobe slots. */
 	<<if !$dolxKaijuCostumeUnlockRepaired>>
@@ -1688,8 +1647,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		})()>>
 	<</if>>
 
-	<<script>>window.repairInvalidHairColours?.();<</script>>
-
 	/* One-time repair two-tone dye */
 	<<if !$dolxTwoToneStyleRepaired2>> /* delete later */
 		<<unset $dolxTwoToneStyleRepaired>>
@@ -1736,8 +1693,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<</if>>
 	<</if>>
 
-	<<if $dolxBaileyCollarUnfixed isnot undefined>><<unset $dolxBaileyCollarUnfixed>><</if>> /* delete later */
-
 	/* Breeder edging migration. Root vars are canonical; old nested pill vars are one-time legacy input. */
 	<<if def $xchange.pill.breederEdgingCount>>
 		<<set $xchange.breederEdgingCount to $xchange.pill.breederEdgingCount>>
@@ -1752,8 +1707,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<set $xchange.breederEdgingStress to (($xchange.pill.breederEffect or $xchange.pill.omegaEffect) ? 100 : 0)>>
 	<</if>>
 
-	<<physicalAdjustmentsInit>>
-
 	<<if $genderknown is undefined or $genderknown is null>><<set $genderknown to []>><</if>>
 	<<if !Array.isArray($transgenderknown)>><<set $transgenderknown to []>><</if>>
 	<<if $schoolrep and $schoolrep.transgender is undefined>><<set $schoolrep.transgender to null>><</if>>
@@ -1766,10 +1719,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if $wardrobes isnot undefined and $wardrobes isnot null and typeof $wardrobes is "object" and !Array.isArray($wardrobes) and $wardrobes.inventory is undefined>>
 		<<wardrobesUpdate>>
 	<</if>>
-	/* Wardrobes can lose slot arrays outside the $objectVersion.wardrobes gate, so heal the shape on every load. */
-	<<run repairWardrobeSlots()>>
-	/* Clothes left in a wardrobe the current multiple-wardrobe setting can no longer open would be unwearable. */
-	<<run reclaimStrandedWardrobeItems()>>
 
 	<<if Object.keys($xchange.pill.changedBody).length gt 0 && $xchange.pill.changedBody.fame is undefined>>
 		<<set $xchange.pill.changedBody.fame to {
@@ -1902,8 +1851,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<if isNaN($penetratingOrgasmStat)>>
 		<<set $penetratingOrgasmStat to 0>>
 	<</if>>
-
-	<<master-audio-update>>
 
 	<<if $xchange.pill.genderflipEffect is undefined>>
 		<<if $xchange.pill.active>>
@@ -2170,8 +2117,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<unset $xchange.spikerates["dumbbitch"]>>
 	<</if>>
 
-	<<xchangeSettingsSliderRepair>>
-
 	<<if $xchange.removerPillCatalogue>>
 		<<for _i to 0; _i lt $xchange.removerPillCatalogue.length; _i++>>
 			<<if $xchange.removerPillCatalogue[_i] is "dumbbitch">>
@@ -2179,7 +2124,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 			<</if>>
 		<</for>>
 	<</if>>
-	<<clamp>>
 <</widget>>
 	
 <<widget "xchangeStartMedicineCabinet">>
