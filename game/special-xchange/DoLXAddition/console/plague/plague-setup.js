@@ -758,3 +758,53 @@ setup.plagueUi = (() => {
 		legendSvg,
 	});
 })();
+
+/* Outbreak sound effects (sounds themselves live in console-sfx.js, "outbreak-*"). A day, or a whole "Advance until
+ * something happens" run, is summarised by comparing the game before and after it: one heartbeat for time passing,
+ * then at most two of the most important notices, highest first. Nothing plays per infected person, per death or per
+ * simulated day, so a ten-day skip sounds like one summary. */
+(() => {
+	const sfx = () => setup.consoleSfx;
+	const reached = game => Object.values(game.regions).filter(r => r.infected > 0 || r.dead > 0).length;
+	const worldEvents = game => game.effects.filter(e => e.source === "world").map(e => e.id);
+	const marks = [25, 50, 75];
+	const warnAt = 90;
+
+	function snap(game) {
+		if (!game) return null;
+		return {
+			status: game.status,
+			cure: game.cure,
+			stage: game.response.stage,
+			reached: reached(game),
+			events: worldEvents(game),
+			goal: game.challenge ? game.challenge.state : null,
+		};
+	}
+
+	/* The sounds a change deserves, most important first. */
+	function notices(before, game, dnaGained) {
+		const list = [];
+		if (game.status !== before.status && game.status !== "active") return [game.status === "won" ? "outbreak-victory" : "outbreak-defeat"];
+		if (game.challenge && game.challenge.state !== before.goal && game.challenge.state === "done") list.push("outbreak-challenge");
+		if (before.cure < warnAt && game.cure >= warnAt) list.push("outbreak-warning");
+		if (reached(game) > before.reached) list.push("outbreak-region");
+		if (game.response.stage > before.stage) list.push("outbreak-restriction");
+		if (worldEvents(game).some(id => !before.events.includes(id))) list.push("outbreak-event");
+		if (marks.some(m => before.cure < m && game.cure >= m)) list.push("outbreak-cure");
+		if (dnaGained > 0) list.push("outbreak-dna");
+		return list;
+	}
+
+	/* After Advance one day / Advance until: the heartbeat, then the top two notices. Returns what it queued. */
+	function report(before, game, dnaGained = 0) {
+		if (!before || !game || !sfx()) return [];
+		const queue = ["outbreak-advance", ...notices(before, game, dnaGained).slice(0, 2)];
+		sfx().sequence(queue, 380);
+		return queue;
+	}
+
+	const play = name => sfx() && sfx().play(name);
+
+	setup.plagueSfx = Object.freeze({ snap, notices, report, play });
+})();

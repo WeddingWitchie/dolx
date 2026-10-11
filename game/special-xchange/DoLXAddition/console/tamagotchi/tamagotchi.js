@@ -1310,6 +1310,7 @@ const Tamagotchi = (() => {
 		const s = speciesDef(t.species);
 		return {
 			name: t.name || (s ? s.name : "Pet"),
+			species: t.species,
 			alive: t.alive === true,
 			speciesLabel: s ? s.name : "",
 			type: t.type || (s ? s.type : ""),
@@ -1464,7 +1465,8 @@ const Tamagotchi = (() => {
 		const s = status();
 		const chip = (k, v) => `<div class="tama-stat"><span class="tama-k">${k}</span><span class="tama-v">${v}</span></div>`;
 		const care = (k, wd, cls) => `<div class="tama-care-item ${cls}"><span class="tama-k">${k}</span><span class="tama-v">${wd}</span></div>`;
-		let h = `<div class="tama-card">`;
+		const art = window.PetArt ? window.PetArt.portrait(V.tamagotchi) : "";
+		let h = art ? `<div class="tama-card tama-card--art">${art}<div class="tama-card-main">` : `<div class="tama-card">`;
 		h += `<div class="tama-head"><span class="tama-name">${esc(s.name)}</span> <span class="tama-sub">${esc(s.stageLabel)} &middot; ${esc(
 			s.speciesLabel
 		)} (${esc(s.typeLabel)})${s.evolved ? " &middot; evolved" : ""}</span></div>`;
@@ -1478,7 +1480,7 @@ const Tamagotchi = (() => {
 			s.elixirs ? " &middot; Elixirs: " + s.elixirs : ""
 		}${s.keys ? " &middot; Keys: " + s.keys : ""} &middot; Skills: ${s.skillCount ? esc(s.skills.join(", ")) : "none yet"}</div>`;
 		if (s.atCap) h += `<div class="tama-meta gold">Fully grown &mdash; this pet has reached its limits and looks after itself now.</div>`;
-		h += `</div>`;
+		h += art ? `</div></div>` : `</div>`;
 		return h;
 	}
 	function bar(cur, max, cls) {
@@ -1489,7 +1491,8 @@ const Tamagotchi = (() => {
 		const b = battleState();
 		if (!b) return "";
 		const pet = V.tamagotchi;
-		const eLabel = b.kind === "boss" ? "Boss " : b.kind === "miniboss" ? "Miniboss " : b.kind === "dungeon" ? "Dungeon " : "Wild ";
+		const eLabel =
+			b.kind === "boss" ? "Boss " : b.kind === "miniboss" ? "Miniboss " : b.kind === "dungeon" ? "Dungeon " : b.kind === "challenge" ? "Challenge: " : "Wild ";
 		let h = `<div class="tama-battle">`;
 		h += `<div class="tama-fighter"><div class="tama-fname">${esc(pet.name)}</div><div class="tama-barline"><span class="tama-blabel">HP</span>${bar(
 			b.hp,
@@ -1586,6 +1589,7 @@ const Tamagotchi = (() => {
 		claimRobinRescue,
 		statusHtml,
 		battleHtml,
+		typeMult,
 	};
 })();
 window.Tamagotchi = Tamagotchi;

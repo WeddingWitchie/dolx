@@ -351,6 +351,8 @@ module.exports = {
 		omegaTargetsVagina: "readonly",
 		aboDrivesHeat: "readonly",
 		xchangePheromoneAllure: "readonly",
+		xchangeBodyAdjustmentPenalty: "readonly",
+		xchangeBodyChanged: "readonly",
 		availablePlayerPregnancySlot: "readonly",
 		ensurePendingPregnancySlots: "readonly",
 		daysAlong: "readonly",
@@ -491,6 +493,8 @@ module.exports = {
 		getGenderedPath: "readonly",
 		redirectRemovedRingStep: "readonly",
 		updateMoment: "readonly",
+		// modules/matter.min.js, Matter.js physics for the fruit console game
+		Matter: "readonly",
 		insanitySensitivityAdjustment: "readonly",
 		chestIdentityAccepted: "readonly",
 		penisIdentityAccepted: "readonly",
@@ -647,6 +651,7 @@ module.exports = {
 		"dist",
 		"game/03-JavaScript/external",
 		"game/03-JavaScript/00-libs/renderer.js",
+		"modules/matter.min.js",
 	],
 
 	parserOptions: {

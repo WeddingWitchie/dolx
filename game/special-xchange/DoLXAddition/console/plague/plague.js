@@ -1226,8 +1226,9 @@
 
 	/* Runs ordinary advanceDay() days (at most tuning.fastForwardDays) and stops after the first day worth the player's attention.
 	 * It only compares the game before and after each day, so the days are exactly what Advance one day would produce. DNA is
-	 * checked after all of a day's milestone rewards are in. */
-	function advanceUntil(game, random = Math.random) {
+	 * checked after all of a day's milestone rewards are in. `onDay(game)`, if given, runs after each day; a text it returns
+	 * is one more reason to stop (challenge runs use it to stop on the day their goal is met or missed). */
+	function advanceUntil(game, random = Math.random, onDay = null) {
 		const d = data();
 		const t = d.tuning;
 		const affordableAtStart = Object.keys(d.upgrades).filter(id => canBuy(game, id).ok);
@@ -1268,6 +1269,8 @@
 			t.fastForwardCureMarks.forEach(mark => {
 				if (cureBefore < mark && game.cure >= mark) add("cure", `Cure research passed ${mark}%.`);
 			});
+			const note = onDay ? onDay(game) : null;
+			if (note) add("challenge", note);
 			if (game.status !== "active") add("end", "The outbreak is over.");
 			else {
 				const newlyAffordable = Object.keys(d.upgrades).filter(id => !affordableAtStart.includes(id) && canBuy(game, id).ok);

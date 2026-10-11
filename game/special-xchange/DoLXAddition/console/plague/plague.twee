@@ -2,12 +2,24 @@
 <<set $outside to 0>>
 <<if $location isnot "home" and $location isnot "alex_cottage">><<set $location to "home">><</if>>
 <<effects>>
+<<if !["Home Console Plague", "Plague Map", "Plague Challenges"].includes(previous())>><<run setup.plagueSfx.play("outbreak-open")>><</if>>
 <<run setup.plagueSimulation.ensure($plagueGame)>>
-<<furnitureicon "controller">>You start Outbreak. You play a new disease, and the aim is to reach every person in six regions before doctors finish a cure.
+<<furnitureicon "controller">>You start Outbreak. You play a new disease, and the aim is to reach every person before doctors finish a cure.
 <br><br>
 <div id="plague-home"><<plagueMenuBody>></div>
-<br>
+<<= setup.consoleSfx.controlsHtml()>>
 <<getouticon>><<link [[Back to the console|Home Console]]>><</link>>
+<br>
+
+:: Plague Challenges
+<<set $outside to 0>>
+<<if $location isnot "home" and $location isnot "alex_cottage">><<set $location to "home">><</if>>
+<<effects>>
+<<furnitureicon "controller">>Each challenge is a normal outbreak with a set start and one objective. The daily scenario changes at midnight UTC and plays out the same way for everyone on that date.
+<br><br>
+<div class="con-list plague-challenges"><<= setup.plagueChallenges.pageHtml()>></div>
+<br>
+<<getouticon>><<link [[Back to Outbreak|Home Console Plague]]>><</link>>
 <br>
 
 :: Plague Map
@@ -51,6 +63,9 @@
 			<br>
 		<</if>>
 	<</if>>
+	/* Inside #plague-home, so the setup wizard replaces it while a new outbreak is being set up. */
+	<<icon "project-science.png">><<link [[Challenges and daily scenario|Plague Challenges]]>><</link>>
+	<br>
 <</widget>>
 
 <<widget "plagueOpenSetup">>
@@ -320,9 +335,9 @@
 			<nav class="plague-nav" aria-label="Outbreak screens">
 				<<if _args[0] is "world">>
 					<span class="plague-tab plague-tab-current" aria-current="page">World</span>
-					<span class="plague-tab plague-evolve-open"><<link "Evolve">><<set _plagueEvolveMsg to "">><<plagueReplace "#plague-game">><<plagueEvolveBody>><</plagueReplace>><<run $("#plague-game .plague-world-open a").first().trigger("focus")>><</link>></span>
+					<span class="plague-tab plague-evolve-open"><<link "Evolve">><<run setup.plagueSfx.play("outbreak-tab")>><<set _plagueEvolveMsg to "">><<plagueReplace "#plague-game">><<plagueEvolveBody>><</plagueReplace>><<run $("#plague-game .plague-world-open a").first().trigger("focus")>><</link>></span>
 				<<else>>
-					<span class="plague-tab plague-world-open"><<link "World">><<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>><<run $("#plague-game .plague-evolve-open a").first().trigger("focus")>><</link>></span>
+					<span class="plague-tab plague-world-open"><<link "World">><<run setup.plagueSfx.play("outbreak-tab")>><<plagueReplace "#plague-game">><<plagueGameBody>><</plagueReplace>><<run $("#plague-game .plague-evolve-open a").first().trigger("focus")>><</link>></span>
 					<span class="plague-tab plague-tab-current" aria-current="page">Evolve</span>
 				<</if>>
 			</nav>
@@ -342,7 +357,7 @@
 			<div @class="'plague-region plague-tier-' + _plagueN.tierName + (_plagueN.isolated ? ' plague-isolated' : '')" @data-plague-region="_plagueN.id" @data-plague-tier="_plagueN.tier" @style="'left:' + _plagueN.x + '%;top:' + _plagueN.y + '%'">
 				<<if _plagueN.deadBand>><span class="plague-node-dead" aria-hidden="true" @style="'height:' + _plagueN.deadBand + '%'"></span><</if>>
 				/* The link text carries the whole state for screen readers; the lines under it repeat it visually only. */
-				<span class="plague-region-name plague-region-link"><<capture _plagueN>><<link `'<span aria-hidden="true">' + _plagueN.name + '</span><span class="plague-sr">' + _plagueN.label + '</span>'`>><<plagueReplace "#plague-game">><<plagueRegionBody _plagueN.id>><</plagueReplace>><<run $("#plague-game .plague-back a").first().trigger("focus")>><</link>><</capture>></span>
+				<span class="plague-region-name plague-region-link"><<capture _plagueN>><<link `'<span aria-hidden="true">' + _plagueN.name + '</span><span class="plague-sr">' + _plagueN.label + '</span>'`>><<run setup.plagueSfx.play("outbreak-details")>><<plagueReplace "#plague-game">><<plagueRegionBody _plagueN.id>><</plagueReplace>><<run $("#plague-game .plague-back a").first().trigger("focus")>><</link>><</capture>></span>
 				<span class="plague-node-line plague-node-inf" aria-hidden="true"><<print _plagueN.infectedText>> &middot; <<print _plagueN.tierName>></span>
 				<<if _plagueN.deadBand>><span class="plague-node-line plague-node-deadtext" aria-hidden="true"><<print _plagueN.deadText>> dead</span><</if>>
 				<<if _plagueN.isolated>><span class="plague-node-line plague-node-iso" aria-hidden="true">Isolated<<if _plagueN.isolationDays>> &middot; <<print _plagueN.isolationDays>>d<</if>></span><</if>>
@@ -420,6 +435,7 @@
 <<widget "plagueGameBody">>
 	<<set _plagueTot to setup.plagueSimulation.totals($plagueGame)>>
 	<<plagueNav "world">>
+	<<= setup.plagueChallenges.banner($plagueGame)>>
 	<<set _plaguePv to setup.plagueSimulation.pathogenView($plagueGame)>>
 	<<if _plaguePv>><div class="plague-pathogen tama-meta"><<print _plaguePv.name>> &middot; <<print _plaguePv.tag>><<for _plaguePp range _plaguePv.parts>> &middot; <<print _plaguePp>><</for>></div><</if>>
 
@@ -430,7 +446,10 @@
 				/* A second click within 400ms is the tail of a double-click: ignore it. */
 				<<if $plagueGame.status is "active" and Date.now() - (_plagueLastAdvance || 0) gte 400>>
 					<<set _plagueLastAdvance to Date.now()>>
-					<<set _plagueDay to setup.plagueSimulation.advanceDay($plagueGame)>>
+					<<set _plagueSfxBefore to setup.plagueSfx.snap($plagueGame)>>
+					<<set _plagueDay to setup.plagueSimulation.advanceDay($plagueGame, setup.plagueChallenges.random($plagueGame))>>
+					<<run setup.plagueChallenges.track($plagueGame)>>
+					<<run setup.plagueSfx.report(_plagueSfxBefore, $plagueGame, _plagueDay.dnaGained)>>
 					<<set _plagueAdvanceMsg to setup.plagueUi.dayFeedback(_plagueDay, $plagueGame)>>
 					<<plagueRecordRun>>
 					<<run updateMoment()>>
@@ -448,7 +467,10 @@
 			<span class="plague-advance-until plague-button"><<link "Advance until something happens">>
 				<<if $plagueGame.status is "active" and Date.now() - (_plagueLastAdvance || 0) gte 400>>
 					<<set _plagueLastAdvance to Date.now()>>
-					<<set _plagueSkip to setup.plagueSimulation.advanceUntil($plagueGame)>>
+					<<set _plagueSfxBefore to setup.plagueSfx.snap($plagueGame)>>
+					<<set _plagueSkip to setup.plagueSimulation.advanceUntil($plagueGame, setup.plagueChallenges.random($plagueGame), g => setup.plagueChallenges.track(g))>>
+					<<run setup.plagueChallenges.track($plagueGame)>>
+					<<run setup.plagueSfx.report(_plagueSfxBefore, $plagueGame, _plagueSkip.dnaGained)>>
 					<<plagueRecordRun>>
 					<<run updateMoment()>>
 					<<set _plagueDnaGain to _plagueSkip.dnaGained>>
@@ -628,8 +650,9 @@
 					<<set _plagueNs to _plagueEnded and ["available", "dna"].includes(_plagueU.planState) ? "unowned" : _plagueU.planState>>
 					<<set _plagueNsWord to {owned: "evolved", available: "can evolve", dna: "needs " + _plagueU.dnaShort + " more DNA", requires: "locked", excluded: "excluded by " + _plagueU.excludedByName, unowned: "not evolved"}[_plagueNs]>>
 					<div @class="'plague-node plague-node-' + _plagueNs + (_plagueU.id is _plagueSel.id ? ' plague-node-selected' : '')" @data-plague-upgrade="_plagueU.id" @data-plague-state="_plagueNs" @style="'--r:' + _plagueU.gridRow + ';--c:' + (_plagueU.col + 1) + ';--mr:' + _plagueU.mRow + ';--mc:' + _plagueU.mCol + ';--ms:' + _plagueU.mSpan">
-						<span class="plague-node-name"><<capture _plagueU>><<link `'<span aria-hidden="true">' + _plagueU.name + '</span><span class="plague-sr">' + _plagueU.name + ', ' + _plagueU.cost + ' DNA, ' + _plagueNsWord + (_plagueU.rivals.length and _plagueNs isnot "excluded" ? ', only one of this or ' + _plagueU.rivalNames.join(' or ') : '') + (_plagueU.id is _plagueSel.id ? ', selected' : '') + '</span>'`>>
+						<span class="plague-node-name"><<capture _plagueU, _plagueNs>><<link `'<span aria-hidden="true">' + _plagueU.name + '</span><span class="plague-sr">' + _plagueU.name + ', ' + _plagueU.cost + ' DNA, ' + _plagueNsWord + (_plagueU.rivals.length and _plagueNs isnot "excluded" ? ', only one of this or ' + _plagueU.rivalNames.join(' or ') : '') + (_plagueU.id is _plagueSel.id ? ', selected' : '') + '</span>'`>>
 							/* Kept apart from _plagueU, which the redraw's own loop overwrites. */
+							<<run setup.plagueSfx.play(_plagueNs is "dna" ? "outbreak-denied" : "outbreak-select")>>
 							<<set _plagueFocusId to _plagueU.id>>
 							<<set _plagueEvoPick[_plagueEvoTab] to _plagueFocusId>>
 							<<set _plagueEvolveMsg to "">>
@@ -695,8 +718,10 @@
 						<<set _plagueDnaMsg to "">>
 						<<if setup.plagueSimulation.buyUpgrade($plagueGame, _plagueD.id)>>
 							<<run updateMoment()>>
+							<<run setup.plagueSfx.play("outbreak-evolve")>>
 							<<set _plagueEvolveMsg to _plagueD.name + " evolved.">>
 						<<else>>
+							<<run setup.plagueSfx.play("outbreak-denied")>>
 							<<set _plagueEvolveMsg to _plagueD.name + " can't be evolved right now.">>
 						<</if>>
 						<<set _plagueEvoPick[_plagueEvoTab] to _plagueD.id>>
@@ -727,6 +752,7 @@
 	<<if !_plagueEnd>>
 		<div class="tama-meta">This outbreak is still running.</div>
 	<<else>>
+		<<= setup.plagueChallenges.banner($plagueGame)>>
 		<div @class="'tama-card plague-end ' + (_plagueEnd.won ? 'plague-end-won' : 'plague-end-lost')">
 			<div class="tama-head">
 				<div @class="'plague-end-title ' + (_plagueEnd.won ? 'green' : 'red')" tabindex="-1" role="heading" aria-level="2"><<print _plagueEnd.title>></div>

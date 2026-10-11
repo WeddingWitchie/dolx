@@ -1,0 +1,572 @@
+/* Fruit console game (Suika-style). Score chips reuse the virtual pet's tama-stat classes; buttons keep DoL's own button theme.
+ * The jar is a console screen with its own theme colours (set by the game as --suika-board / --suika-ring), so fruit and
+ * board text keep the same contrast whatever DoL theme is on. Motion stays at hover states and short fades. */
+.suika {
+	max-width: 100%;
+	box-sizing: border-box;
+}
+
+.suika-play[hidden],
+.suika-panel[hidden],
+.suika-goal[hidden],
+.suika-tip[hidden],
+.suika-toast[hidden],
+.suika-goal-bar[hidden],
+.suika-overlay-extra[hidden],
+.suika-overlay-btn2[hidden] {
+	display: none;
+}
+
+/* Screen reader only: the status line that announces game over, warnings and wand picks. */
+.suika-sr {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* Mode picker: parts of one control, the pressed one marked by border and weight, not colour alone. */
+.suika-modes {
+	display: flex;
+	gap: 6px;
+	max-width: 380px;
+	margin-bottom: 6px;
+}
+
+.suika-modes .suika-btn {
+	flex: 1 1 0;
+	min-width: 0;
+	padding-right: 6px;
+	padding-left: 6px;
+}
+
+.suika-mode[aria-pressed="true"] {
+	border-color: var(--000);
+	font-weight: bold;
+}
+
+/* Challenge, daily and Zen goal: name, progress line and bar. */
+.suika-goal {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	max-width: 380px;
+	margin-bottom: 6px;
+	padding: 6px 8px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.suika-goal-name {
+	font-weight: bold;
+}
+
+.suika-goal-text {
+	color: var(--200);
+	font-size: 0.9em;
+}
+
+.suika-goal-bar {
+	height: 6px;
+	margin-top: 2px;
+	border-radius: 3px;
+	background: linear-gradient(to right, var(--000) var(--suika-goal, 0%), var(--750) var(--suika-goal, 0%));
+}
+
+.suika-tip {
+	max-width: 380px;
+	margin-bottom: 6px;
+	padding: 8px;
+	border: 1px solid var(--300);
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.suika-tip p {
+	margin: 0 0 6px;
+}
+
+.suika-tip-title {
+	font-weight: bold;
+}
+
+.suika-tip-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.suika-hud {
+	display: flex;
+	gap: 6px;
+	max-width: 380px;
+	margin-bottom: 6px;
+}
+
+.suika-hud .tama-stat {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+/* The next fruit's name is the longest value; the extra width keeps "Watermelon" on one line at 360px. */
+.suika-hud .suika-next {
+	flex-grow: 1.5;
+}
+
+.suika-next .tama-v {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	max-width: 100%;
+	overflow-wrap: break-word;
+	font-size: 0.9em;
+}
+
+/* A flex item, so it needs min-width 0 to shrink; at 320px "Strawberry" otherwise pokes out of its chip. */
+.suika-next-name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+@media (max-width: 340px) {
+	.suika-hud .suika-next {
+		flex-grow: 2.2;
+	}
+
+	.suika-next .tama-v {
+		font-size: 0.8em;
+	}
+}
+
+.suika-next-dot {
+	flex: none;
+	width: 20px;
+	height: 20px;
+}
+
+.suika-legend {
+	display: block;
+	max-width: 100%;
+	margin-top: 6px;
+}
+
+.suika-board {
+	position: relative;
+	max-width: 100%;
+}
+
+.suika-canvas {
+	display: block;
+	max-width: 100%;
+	/* A ring, not a border: a border would shrink the drawing area and blur the scaled canvas. */
+	box-shadow: 0 0 0 1px var(--suika-ring, var(--750));
+	border-radius: 4px;
+	background: var(--suika-board, #1c1824);
+	cursor: crosshair;
+	/* Aiming drags across the jar; without this a touch drag scrolls the page instead. */
+	touch-action: none;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* The neon jar's one glow: it is that theme's whole identity, and nothing else on the page glows. */
+.suika[data-theme="neon"] .suika-canvas {
+	box-shadow: 0 0 0 1px var(--suika-ring), 0 0 10px rgb(63 246 255 / 45%);
+}
+
+.suika-canvas:focus-visible {
+	outline: 0;
+	box-shadow: 0 0 0 0.25rem rgb(60 170 233 / 75%);
+}
+
+.suika-toast {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	left: 6px;
+	z-index: 1;
+	padding: 6px 10px;
+	border: 1px solid #ffd84a;
+	border-radius: 4px;
+	background: rgb(16 13 22 / 92%);
+	color: #fff;
+	font-size: 0.9em;
+	text-align: center;
+	pointer-events: none;
+}
+
+.suika-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	padding: 16px;
+	border-radius: 4px;
+	background: rgb(16 13 22 / 86%);
+	color: #eee;
+	text-align: center;
+	box-sizing: border-box;
+	overflow-y: auto;
+}
+
+.suika-overlay[hidden] {
+	display: none;
+}
+
+.suika-overlay-title {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.suika-overlay-extra {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-size: 0.9em;
+	line-height: 1.4;
+}
+
+.suika-overlay-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+}
+
+.suika-controls {
+	display: flex;
+	gap: 8px;
+	max-width: 380px;
+	margin-top: 8px;
+}
+
+.suika-btn {
+	min-height: 44px;
+	min-width: 44px;
+	padding: 8px 14px;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+
+.suika-controls .suika-btn {
+	flex: 1 1 0;
+	min-width: 0;
+	padding-right: 6px;
+	padding-left: 6px;
+}
+
+/* Arcade power-ups: two columns at every width the jar allows, so each button keeps room for its count and hint. */
+.suika-abilities {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 6px;
+	max-width: 380px;
+	margin-top: 8px;
+}
+
+.suika-abilities[hidden] {
+	display: none;
+}
+
+.suika-ability {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	min-height: 48px;
+	padding: 6px 8px;
+	overflow: hidden;
+	border-radius: 4px;
+	font-size: 100%;
+	text-align: left;
+	box-sizing: border-box;
+}
+
+.suika-ability-icon {
+	flex: none;
+	width: 22px;
+	height: 22px;
+	fill: none;
+	stroke: currentcolor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.suika-ability-text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	line-height: 1.2;
+}
+
+.suika-ability-name {
+	font-weight: bold;
+}
+
+.suika-ability-desc {
+	color: var(--300);
+	font-size: 0.8em;
+}
+
+.suika-ability:disabled {
+	opacity: 0.55;
+	cursor: default;
+}
+
+.suika-ability[aria-pressed="true"] {
+	border-color: #ffd84a;
+}
+
+/* After a Shake no power-up works until the cooldown ends; the bar along each button's foot shows what is left. */
+.suika-ability-cooldown {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 0;
+	height: 3px;
+	background: var(--000);
+}
+
+.suika-abilities--cooling .suika-ability-cooldown {
+	width: var(--suika-cooldown, 0%);
+}
+
+/* A spent charge: the border lights up briefly so the press registers. */
+.suika-ability--used {
+	animation: suika-used 0.5s ease-out;
+}
+
+@keyframes suika-used {
+	from {
+		border-color: #ffd84a;
+	}
+}
+
+.suika--reduced .suika-ability--used {
+	animation: none;
+}
+
+/* ---- menu pages ---- */
+.suika-panel {
+	max-width: 560px;
+}
+
+.suika-panel-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.suika-panel-title {
+	margin: 0;
+	font-size: 1.15em;
+}
+
+.suika-panel-title:focus {
+	outline: 0;
+}
+
+.suika-panel-title:focus-visible {
+	outline: 2px solid rgb(60 170 233 / 75%);
+}
+
+.suika-panel-note {
+	margin: 4px 0;
+	color: var(--200);
+	font-size: 0.9em;
+}
+
+.suika-subhead {
+	margin: 14px 0 6px;
+	font-size: 1em;
+}
+
+.suika-menu-list {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.suika-menu-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	text-align: left;
+}
+
+.suika-menu-note {
+	color: var(--300);
+	font-size: 0.85em;
+}
+
+.suika-list > .suika-btn {
+	margin: 4px 0;
+}
+
+.suika-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--750);
+}
+
+.suika-row-main {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.suika-row-title {
+	font-weight: bold;
+}
+
+.suika-row-desc {
+	font-size: 0.9em;
+}
+
+.suika-row-status {
+	color: var(--300);
+	font-size: 0.85em;
+}
+
+.suika-row--done .suika-row-status {
+	color: var(--000);
+}
+
+.suika-row .suika-btn {
+	flex: none;
+}
+
+.suika-fruit-icon,
+.suika-glyph {
+	flex: none;
+	width: 28px;
+	height: 28px;
+}
+
+.suika-glyph svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: currentcolor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+/* Locked achievements: faded icon plus the word "Locked", so the state never relies on colour. */
+.suika-ach--locked .suika-fruit-icon,
+.suika-ach--locked .suika-glyph {
+	opacity: 0.35;
+}
+
+.suika-stats {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 4px 12px;
+	margin: 0;
+}
+
+.suika-stats dt {
+	color: var(--300);
+}
+
+.suika-stats dd {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.suika-records {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.9em;
+}
+
+.suika-records th,
+.suika-records td {
+	padding: 3px 4px;
+	border-bottom: 1px solid var(--750);
+	text-align: left;
+}
+
+.suika-plain-list {
+	margin: 0;
+	padding-left: 18px;
+}
+
+.suika-plain-list li {
+	margin-bottom: 4px;
+}
+
+.suika-fieldset {
+	margin: 0 0 10px;
+	padding: 8px 10px;
+	border: 1px solid var(--750);
+	border-radius: 4px;
+}
+
+.suika-field {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 8px;
+	min-height: 36px;
+}
+
+.suika-field input[type="checkbox"],
+.suika-field input[type="radio"] {
+	width: 20px;
+	height: 20px;
+	margin: 0;
+}
+
+/* The label sits beside its box and wraps there, rather than dropping under it. */
+.suika-field > label {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+.suika-field .suika-panel-note {
+	flex-basis: 100%;
+	margin-top: 0;
+}
+
+.suika-field--range > label {
+	flex-basis: 100%;
+}
+
+.suika-field--range input {
+	flex: 1 1 120px;
+	min-width: 0;
+}
+
+.suika-preview {
+	display: block;
+	max-width: 100%;
+	margin-bottom: 10px;
+	border-radius: 4px;
+}
+
+@media (max-width: 400px) {
+	.suika-records th:nth-child(4),
+	.suika-records td:nth-child(4),
+	.suika-records th:nth-child(6),
+	.suika-records td:nth-child(6) {
+		display: none;
+	}
+}

@@ -70,6 +70,79 @@
 	margin-top: 4px;
 }
 
+/* Pet menu: care and activity tiles. The whole tile is the link (stretched over it), so the tap target is the tile. */
+.pet-menu-head {
+	margin: 4px 0;
+	font-size: 1em;
+}
+
+.pet-tiles {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+	gap: 6px;
+	max-width: 780px;
+	margin-bottom: 10px;
+}
+
+.pet-tiles > br,
+.pet-menu-head + br {
+	display: none;
+}
+
+.pet-tile {
+	position: relative;
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	min-height: 52px;
+	padding: 6px 10px;
+	border: 1px solid var(--750);
+	border-radius: 6px;
+	background: rgb(255 255 255 / 3%);
+	box-sizing: border-box;
+}
+
+.pet-tile:hover {
+	background: rgb(255 255 255 / 7%);
+}
+
+.pet-tile:focus-within {
+	box-shadow: 0 0 0 0.2rem rgb(60 170 233 / 75%);
+}
+
+.pet-tile > .icon {
+	flex: none;
+	margin: 0;
+}
+
+.pet-tile-text {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	line-height: 1.35;
+}
+
+.pet-tile-text a::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+}
+
+.pet-tile-text a:focus-visible {
+	outline: 0;
+}
+
+.pet-tile-meta {
+	color: var(--300);
+	font-size: 0.82em;
+}
+
+/* Needed now: a gold edge, and the meta line names the need, so it never relies on colour alone. */
+.pet-tile--need {
+	border-color: #d9a400;
+}
+
 /* Battle */
 .tama-battle {
 	display: flex;
@@ -161,5 +234,976 @@
 
 	.tama-name {
 		font-size: 1em;
+	}
+}
+
+/* Virtual pet creatures (pet-art.js). Idle motion: the creatures were asked to look alive, so each moves only its own
+ * parts (breath, blink, tail, flame, ears, leaves); nothing else on the page moves. States run once on a battle event.
+ * Reduced motion keeps every drawing and drops all of it. */
+.pa {
+	--pa-size: 104px;
+
+	position: relative;
+	display: inline-block;
+	flex: none;
+	width: calc(var(--pa-size) * var(--pa-scale, 1));
+	max-width: 100%;
+	aspect-ratio: 1;
+	vertical-align: middle;
+}
+
+.pa--icon {
+	--pa-size: 34px;
+}
+
+.pa--pick {
+	--pa-size: 112px;
+}
+
+.pa--battle {
+	--pa-size: 148px;
+}
+
+.pa--boss {
+	--pa-size: 176px;
+}
+
+.pa--evolve {
+	--pa-size: 160px;
+}
+
+.pa-svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.pa--flip .pa-svg {
+	transform: scaleX(-1);
+}
+
+.pa-svg g {
+	transform-box: fill-box;
+}
+
+.pa-rig {
+	transform-origin: 50% 100%;
+}
+
+.pa-eye-shut,
+.pa-eye-happy,
+.pa-zzz,
+.pa-sick {
+	display: none;
+}
+
+/* Happy (healing, cheering): the eyes turn into upturned arcs. */
+.pa--happy .pa-eye-open,
+.pa--cheer .pa-eye-open {
+	display: none;
+}
+
+.pa--happy .pa-eye-happy,
+.pa--cheer .pa-eye-happy {
+	display: inline;
+}
+
+/* ---- personalities: each creature's own idle, on its mood group ---- */
+
+/* Embit: impatient, a quick double hop every few seconds; its tail swings wider. */
+.pa--f-embit .pa-mood {
+	animation: pa-impatient 5.5s ease-out infinite;
+}
+
+.pa--f-embit .pa-tail {
+	animation-duration: 1.2s;
+}
+
+/* Pudduck: calm, a slow bob and slow blinks; bubbles now and then. */
+.pa--f-pudduck .pa-mood {
+	animation: pa-bob-slow 3.8s ease-in-out infinite;
+}
+
+.pa--f-pudduck .pa-eye {
+	animation: pa-blink-slow 6.5s infinite;
+}
+
+.pa-bubble {
+	opacity: 0;
+	animation: pa-bubble 7s ease-out infinite;
+}
+
+/* Sprout: a gentle sway from the roots. */
+.pa--f-sprout .pa-mood {
+	animation: pa-sway-soft 4s ease-in-out infinite alternate;
+}
+
+/* Voltpup: excited, a fast tail wag, twitchy ears and a quicker strike. */
+.pa--f-voltpup .pa-tail {
+	animation: pa-wag 0.35s ease-in-out infinite alternate;
+}
+
+.pa--f-voltpup .pa-ear {
+	animation-duration: 2.4s;
+}
+
+.pa--f-voltpup .pa-spark {
+	animation-duration: 1.1s;
+}
+
+.pa--f-voltpup.pa--attack .pa-rig,
+.pa--f-thundrover.pa--attack .pa-rig {
+	animation-duration: 0.34s;
+}
+
+.pa--f-embit.pa--attack .pa-rig {
+	animation-name: pa-pounce;
+}
+
+/* Evolved forms: the same temperament, grown up. */
+.pa--f-blazilisk .pa-mood {
+	animation: pa-loom 4.5s ease-in-out infinite;
+}
+
+.pa--f-pondswan .pa-mood {
+	animation: pa-bob-slow 5s ease-in-out infinite;
+}
+
+.pa--f-oakguard .pa-breathe {
+	animation-duration: 5s;
+}
+
+.pa--f-oakguard .pa-mood {
+	animation: pa-sway-soft 6s ease-in-out infinite alternate;
+}
+
+.pa--f-thundrover .pa-mood {
+	animation: pa-alert 4s ease-in-out infinite;
+}
+
+.pa--f-thundrover .pa-spark {
+	animation-duration: 1s;
+}
+
+/* ---- bosses: a looming idle, a rear-back before striking, a heavy fall ---- */
+.pa--mirror .pa-mood,
+.pa--f-golem .pa-mood {
+	animation: pa-loom 3.6s ease-in-out infinite;
+}
+
+.pa--mirror .pa-aura {
+	animation-duration: 1.4s;
+}
+
+.pa--mirror.pa--charge .pa-rig,
+.pa--f-golem.pa--charge .pa-rig {
+	animation: pa-rear 0.48s ease-in;
+}
+
+.pa--mirror.pa--attack .pa-rig,
+.pa--f-golem.pa--attack .pa-rig {
+	animation: pa-slam 0.46s ease-in-out;
+}
+
+.pa--mirror.pa--hurt .pa-rig,
+.pa--f-golem.pa--hurt .pa-rig {
+	animation: pa-shudder 0.38s ease-out;
+}
+
+.pa--mirror.pa--down .pa-rig,
+.pa--f-golem.pa--down .pa-rig {
+	transform: translateY(14px) rotate(12deg) scale(0.92);
+	opacity: 0.6;
+	transition: transform 0.7s ease-in, opacity 0.7s;
+}
+
+.pa--mirror.pa--down .pa-aura {
+	opacity: 0;
+	transition: opacity 0.5s;
+}
+
+@keyframes pa-impatient {
+	0%,
+	78%,
+	100% {
+		transform: none;
+	}
+
+	83%,
+	93% {
+		transform: translateY(-5px);
+	}
+
+	88% {
+		transform: none;
+	}
+}
+
+@keyframes pa-bob-slow {
+	50% {
+		transform: translateY(2.5px);
+	}
+}
+
+@keyframes pa-blink-slow {
+	0%,
+	90%,
+	100% {
+		transform: none;
+	}
+
+	94% {
+		transform: scaleY(0.1);
+	}
+}
+
+@keyframes pa-bubble {
+	0%,
+	60% {
+		opacity: 0;
+		transform: none;
+	}
+
+	66% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(-18px);
+	}
+}
+
+@keyframes pa-sway-soft {
+	from {
+		transform: rotate(-2deg);
+	}
+
+	to {
+		transform: rotate(2deg);
+	}
+}
+
+@keyframes pa-wag {
+	from {
+		transform: rotate(-12deg);
+	}
+
+	to {
+		transform: rotate(10deg);
+	}
+}
+
+@keyframes pa-pounce {
+	20% {
+		transform: translateX(-5px) translateY(2px) scaleY(0.92);
+	}
+
+	50% {
+		transform: translateX(16px) translateY(-8px);
+	}
+
+	75% {
+		transform: translateX(10px);
+	}
+}
+
+@keyframes pa-loom {
+	50% {
+		transform: scale(1.025, 1.035);
+	}
+}
+
+@keyframes pa-alert {
+	0%,
+	70%,
+	100% {
+		transform: none;
+	}
+
+	76% {
+		transform: translateY(-2px) rotate(-1.5deg);
+	}
+}
+
+@keyframes pa-rear {
+	60% {
+		transform: translateX(-10px) scale(1.06);
+		filter: drop-shadow(0 0 6px rgb(255 60 90 / 85%));
+	}
+}
+
+@keyframes pa-slam {
+	30% {
+		transform: translateX(-6px) translateY(-6px) scale(1.05);
+	}
+
+	60% {
+		transform: translateX(22px) translateY(2px) scale(1.08);
+	}
+}
+
+@keyframes pa-shudder {
+	15% {
+		transform: translateX(-6px);
+	}
+
+	35% {
+		transform: translateX(5px);
+	}
+
+	55% {
+		transform: translateX(-3px);
+	}
+
+	75% {
+		transform: translateX(2px);
+	}
+}
+
+/* ---- idle ---- */
+.pa-breathe {
+	animation: pa-breathe 3.2s ease-in-out infinite;
+}
+
+.pa-bob {
+	animation: pa-bob 3.2s ease-in-out infinite;
+}
+
+.pa-eye {
+	animation: pa-blink 4.6s infinite;
+}
+
+.pa-tail {
+	animation: pa-sway 1.9s ease-in-out infinite alternate;
+}
+
+.pa-flame {
+	animation: pa-flicker 0.45s ease-in-out infinite alternate;
+}
+
+.pa-wing {
+	animation: pa-flap 2.6s ease-in-out infinite;
+}
+
+.pa-leaf {
+	animation: pa-leaf 3s ease-in-out infinite alternate;
+}
+
+.pa-ear {
+	animation: pa-twitch 5s infinite;
+}
+
+.pa-spark {
+	animation: pa-spark 1.8s steps(1) infinite;
+}
+
+.pa-drop {
+	animation: pa-drip 2.6s ease-in infinite;
+}
+
+.pa-float {
+	animation: pa-float 2.8s ease-in-out infinite alternate;
+}
+
+.pa-arm {
+	animation: pa-arm 3.2s ease-in-out infinite alternate;
+}
+
+.pa-rune,
+.pa-aura {
+	animation: pa-rune 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes pa-breathe {
+	50% {
+		transform: scale(1.015, 1.04);
+	}
+}
+
+@keyframes pa-bob {
+	50% {
+		transform: translateY(1.5px);
+	}
+}
+
+@keyframes pa-blink {
+	0%,
+	93%,
+	100% {
+		transform: none;
+	}
+
+	96% {
+		transform: scaleY(0.1);
+	}
+}
+
+@keyframes pa-sway {
+	from {
+		transform: rotate(-7deg);
+	}
+
+	to {
+		transform: rotate(6deg);
+	}
+}
+
+@keyframes pa-flicker {
+	from {
+		transform: scale(0.92, 1.06);
+	}
+
+	to {
+		transform: scale(1.06, 0.94);
+	}
+}
+
+@keyframes pa-flap {
+	0%,
+	60%,
+	100% {
+		transform: none;
+	}
+
+	70%,
+	90% {
+		transform: rotate(-12deg);
+	}
+
+	80% {
+		transform: rotate(4deg);
+	}
+}
+
+@keyframes pa-leaf {
+	from {
+		transform: rotate(-5deg);
+	}
+
+	to {
+		transform: rotate(5deg);
+	}
+}
+
+@keyframes pa-twitch {
+	0%,
+	86%,
+	100% {
+		transform: none;
+	}
+
+	90% {
+		transform: rotate(-10deg);
+	}
+
+	94% {
+		transform: rotate(5deg);
+	}
+}
+
+@keyframes pa-spark {
+	0%,
+	40% {
+		opacity: 1;
+	}
+
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+
+@keyframes pa-drip {
+	0% {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+
+	20% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+}
+
+@keyframes pa-float {
+	from {
+		transform: translateY(-2px);
+	}
+
+	to {
+		transform: translateY(3px);
+	}
+}
+
+@keyframes pa-arm {
+	from {
+		transform: rotate(-3deg);
+	}
+
+	to {
+		transform: rotate(3deg);
+	}
+}
+
+@keyframes pa-rune {
+	from {
+		opacity: 0.55;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+/* ---- held states ---- */
+.pa--sleep .pa-eye-open,
+.pa--down .pa-eye-open {
+	display: none;
+}
+
+.pa--sleep .pa-eye-shut,
+.pa--down .pa-eye-shut,
+.pa--sleep .pa-zzz,
+.pa--sick .pa-sick {
+	display: inline;
+}
+
+.pa--sleep .pa-breathe {
+	animation-duration: 5s;
+}
+
+.pa--sleep .pa-zzz {
+	animation: pa-rune 1.6s ease-in-out infinite alternate;
+}
+
+.pa--sick .pa-svg {
+	filter: saturate(0.6);
+}
+
+.pa--down .pa-rig {
+	transform: translateY(8px) rotate(9deg) scaleY(0.9);
+	transition: transform 0.4s ease-in;
+}
+
+.pa--down .pa-svg {
+	filter: saturate(0.3) brightness(0.8);
+	transition: filter 0.4s;
+}
+
+.pa--down .pa-rig *,
+.pa--still * {
+	animation-play-state: paused;
+}
+
+.pa--cheer .pa-rig {
+	animation: pa-hop 0.5s ease-out 3;
+}
+
+/* ---- one-off states (pet-art.js adds and removes these) ---- */
+.pa--attack .pa-rig {
+	animation: pa-attack 0.46s ease-in-out;
+}
+
+.pa--hurt .pa-rig {
+	animation: pa-hurt 0.38s ease-out;
+}
+
+.pa--hurt .pa-svg {
+	animation: pa-flash 0.38s;
+}
+
+.pa--charge .pa-svg {
+	animation: pa-charge 0.42s ease-in;
+}
+
+.pa--revive .pa-svg,
+.pa--evolved .pa-svg {
+	animation: pa-revive 0.6s ease-out;
+}
+
+.pa--enter .pa-rig {
+	animation: pa-enter 0.55s ease-out both;
+}
+
+.pa--boss-enter .pa-rig {
+	animation: pa-boss-enter 0.8s ease-out both;
+}
+
+.pa--evolving .pa-svg {
+	animation: pa-evolving 1.4s ease-in both;
+}
+
+.pa--evolved .pa-rig {
+	animation: pa-pop 0.55s ease-out;
+}
+
+@keyframes pa-hop {
+	40% {
+		transform: translateY(-10px);
+	}
+}
+
+@keyframes pa-attack {
+	25% {
+		transform: translateX(-6px) rotate(-3deg);
+	}
+
+	55% {
+		transform: translateX(18px);
+	}
+}
+
+@keyframes pa-hurt {
+	20% {
+		transform: translateX(-8px) rotate(-4deg);
+	}
+
+	45% {
+		transform: translateX(4px);
+	}
+
+	70% {
+		transform: translateX(-2px);
+	}
+}
+
+@keyframes pa-flash {
+	15% {
+		filter: brightness(1.8);
+	}
+
+	45% {
+		filter: none;
+	}
+}
+
+@keyframes pa-charge {
+	70% {
+		filter: drop-shadow(0 0 6px rgb(255 60 90 / 85%));
+	}
+}
+
+@keyframes pa-revive {
+	30% {
+		filter: brightness(1.7);
+	}
+}
+
+@keyframes pa-enter {
+	from {
+		opacity: 0;
+		transform: translateX(40px);
+	}
+}
+
+@keyframes pa-boss-enter {
+	from {
+		opacity: 0;
+		transform: translateY(-26px) scale(0.85);
+	}
+
+	70% {
+		opacity: 1;
+		transform: translateY(2px) scale(1.03);
+	}
+}
+
+@keyframes pa-evolving {
+	20% {
+		filter: brightness(1.6);
+	}
+
+	45% {
+		filter: brightness(1.2);
+	}
+
+	100% {
+		filter: brightness(3) saturate(0);
+	}
+}
+
+@keyframes pa-pop {
+	from {
+		transform: scale(0.8);
+	}
+
+	60% {
+		transform: scale(1.06);
+	}
+}
+
+/* ---- battle effects ---- */
+.pa-fx {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+
+.pa-burst {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+}
+
+.pa-burst i {
+	position: absolute;
+	top: -7px;
+	left: -6px;
+	width: 12px;
+	height: 14px;
+	animation: pa-burst 0.7s ease-out forwards;
+}
+
+.pa-burst svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.pa-burst--heal i {
+	animation-name: pa-rise;
+}
+
+.pa-burst--guard i {
+	top: -34px;
+	left: -34px;
+	width: 68px;
+	height: 68px;
+	border: 3px solid #8fd0ff;
+	border-radius: 50%;
+	animation-name: pa-shield;
+}
+
+@keyframes pa-burst {
+	from {
+		opacity: 1;
+		transform: rotate(var(--a)) translateY(-6px) scale(0.6);
+	}
+
+	to {
+		opacity: 0;
+		transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1);
+	}
+}
+
+@keyframes pa-rise {
+	from {
+		opacity: 0;
+		transform: rotate(var(--a)) translateY(-10px);
+	}
+
+	30% {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+		transform: rotate(var(--a)) translateY(-30px);
+	}
+}
+
+@keyframes pa-shield {
+	from {
+		opacity: 0;
+		transform: scale(0.6);
+	}
+
+	40% {
+		opacity: 0.9;
+	}
+
+	to {
+		opacity: 0;
+		transform: scale(1.15);
+	}
+}
+
+/* ---- the battle stage ---- */
+.pa-stage {
+	position: relative;
+	display: flex;
+	align-items: flex-end;
+	justify-content: space-between;
+	gap: 8px;
+	max-width: 420px;
+	margin: 6px 0 2px;
+	padding: 12px 8px 4px;
+	overflow: hidden;
+	border: 1px solid var(--750);
+	border-radius: 6px;
+	background: rgb(255 255 255 / 3%);
+	box-sizing: border-box;
+}
+
+.pa-battle .tama-battle {
+	max-width: 420px;
+}
+
+/* The blood moon the boss descends under: it marks the encounter as the monthly boss, not decoration. */
+.pa-stage--boss {
+	background: rgb(150 20 50 / 14%);
+}
+
+.pa-moon {
+	position: absolute;
+	top: 8px;
+	left: 50%;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: #b3263c;
+	opacity: 0.6;
+	transform: translateX(-50%);
+}
+
+.pa-slot {
+	display: flex;
+	flex: 0 1 auto;
+	justify-content: center;
+	min-width: 0;
+}
+
+.pa-skip {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	z-index: 1;
+	min-width: 44px;
+	min-height: 44px;
+	padding: 6px 10px;
+}
+
+.pa-skip[hidden] {
+	display: none;
+}
+
+/* While a round plays, the moves read as unavailable; the log stays at full contrast. */
+.pa-held a {
+	opacity: 0.5;
+}
+
+/* ---- evolution, status card, starter cards ---- */
+.pa-evolve {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	max-width: 420px;
+	padding: 8px 0;
+}
+
+.tama-card--art {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+}
+
+.tama-portrait {
+	display: flex;
+	flex: none;
+	justify-content: center;
+}
+
+.tama-card-main {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+/* Starter and adoption cards: the creature beside its name, type and line, so text never squeezes under a picture. */
+.pa-picks {
+	display: grid;
+	/* min(): at 320px the passage is narrower than 260px, and a card must never be wider than the room it has. */
+	grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+	gap: 8px;
+	max-width: 640px;
+	margin: 6px 0;
+}
+
+.pa-pick {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	padding: 6px 10px 6px 4px;
+	border: 1px solid var(--750);
+	border-radius: 6px;
+	background: rgb(255 255 255 / 3%);
+}
+
+.pa-pick-text {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+	line-height: 1.3;
+}
+
+.pa-pick-head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0 8px;
+	align-items: baseline;
+}
+
+.pa-pick-name {
+	font-weight: bold;
+	font-size: 1.1em;
+}
+
+.pa-pick-type {
+	font-size: 0.85em;
+}
+
+.pa-pick-blurb {
+	font-size: 0.9em;
+	font-style: italic;
+}
+
+.pa-pick-choose {
+	margin-top: 2px;
+}
+
+.tama-bench-pet {
+	display: inline-flex;
+	gap: 6px;
+	align-items: center;
+}
+
+@media (max-width: 420px) {
+	.pa--battle {
+		--pa-size: 124px;
+	}
+
+	.pa--boss {
+		--pa-size: 148px;
+	}
+
+	.tama-card--art {
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.tama-card-main {
+		width: 100%;
+	}
+}
+
+.pa-hidden .pa * {
+	animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pa *,
+	.pa-burst {
+		animation: none !important;
+		transition: none !important;
+	}
+
+	.pa-burst {
+		display: none;
 	}
 }

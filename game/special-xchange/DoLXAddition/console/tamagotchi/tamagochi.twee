@@ -13,13 +13,7 @@
 	<br>
 	<<textbox "_petname" "Pixel">>
 	<br><br>
-	<<for _sp range Tamagotchi.listSpecies()>>
-		<<capture _sp>>
-			<<link [["Choose " + _sp.name|Home Console Pet]]>><<run Tamagotchi.hatch(_petname, _sp.id)>><</link>>| <span class="teal">_sp.typeLabel</span> type. <i>_sp.blurb</i>
-		<</capture>>
-		<br>
-	<</for>>
-	<br>
+	<div class="pa-picks"><<for _sp range Tamagotchi.listSpecies()>><<capture _sp>><div class="pa-pick"><<= PetArt.pick(_sp.id)>><div class="pa-pick-text"><span class="pa-pick-head"><span class="pa-pick-name"><<print _sp.name>></span> <span class="pa-pick-type teal"><<print _sp.typeLabel>> type</span></span><span class="pa-pick-blurb"><<print _sp.blurb>></span><span class="pa-pick-choose"><<link [["Choose " + _sp.name|Home Console Pet]]>><<run setup.consoleSfx.play("pet-select")>><<run Tamagotchi.hatch(_petname, _sp.id)>><</link>></span></div></div><</capture>><</for>></div>
 	<<getouticon>><<link [[Back to the console|Home Console]]>><</link>>
 	<br>
 
@@ -43,7 +37,7 @@
 	<<if _t.elixirs gt 0>>
 		<span class="green">You have _t.elixirs <<= _t.elixirs is 1 ? "Elixir" : "Elixirs">> from Robin. You could use one to bring <span class="blue">_t.name</span> back.</span>
 		<br>
-		<<link [[Use an Elixir to revive it|Home Console Pet]]>><<run Tamagotchi.reviveWithElixir()>><</link>>
+		<<link [[Use an Elixir to revive it|Home Console Pet]]>><<run Tamagotchi.reviveWithElixir()>><<run setup.consoleSfx.play("pet-cure")>><</link>>
 		<br><br>
 	<</if>>
 	<<if _t.backupAlive>>
@@ -61,7 +55,7 @@
 	<</if>>
 	<<link [[Lay them to rest and start over|Home Console Pet]]>><<run Tamagotchi.bury()>><</link>><<if _t.backupAlive>> <span class="red">(this buries your living pets too!)</span><</if>>
 	<br>
-	<<link "Turn it off" _ret>><</link>>
+	<<getouticon>><<link [[Back to the console|Home Console]]>><</link>>
 
 <<else>>
 	<<set _t to Tamagotchi.status()>>
@@ -100,7 +94,7 @@
 		<span class="teal"><<= _t.name>> is curled up asleep and can't be disturbed for about _t.sleepHoursLeft
 		<<= _t.sleepHoursLeft is 1 ? "hour" : "hours">>. Come back once it's rested.</span>
 		<br><br>
-		<<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
+		<<getouticon>><<link [[Back to the console|Home Console]]>><<unset $consoleAction, $trainType>><</link>>
 	<<else>>
 		<<if _t.pendingSkillChoice>>
 			<span class="gold"><<= _t.name>> has completed the training needed to learn a new skill!</span>
@@ -113,27 +107,6 @@
 			<br><br>
 		<</if>>
 
-		<<link [[Feed it (0:05)|Home Console Do]]>><<set $consoleAction to "feed">><<pass 5>><</link>>
-		<br>
-		<<link [[Play with it (0:15)|Home Console Do]]>><<set $consoleAction to "play">><<pass 15>><</link>>
-		<br>
-		<<if _t.poops gt 0>>
-			<<link [[Clean up the mess (0:05)|Home Console Do]]>><<set $consoleAction to "clean">><<pass 5>><</link>>
-			<br>
-		<</if>>
-		<<if _t.sick>>
-			<<link [[Give it medicine (0:05)|Home Console Do]]>><<set $consoleAction to "cure">><<pass 5>><</link>>
-			<br>
-		<</if>>
-		<<link [[Let it sleep|Home Console Do]]>><<set $consoleAction to "rest">><</link>>
-		<br><br>
-		<<set _ct to Tamagotchi.canTrain()>>
-		<<if _ct.ok>>
-			<<link [[Train your pet|Home Console Pet Train]]>><</link>>
-		<<else>>
-			<span class="grey">Train your pet</span>, <i>_ct.reason</i>
-		<</if>>
-		<br><br>
 		<<if _t.canEvolve>>
 			<span class="gold"><<= _t.name>> is ready to evolve.
 			Evolving will make it much stronger, but _t.evolveCost of its learned skills will be permanently removed.</span>
@@ -141,20 +114,47 @@
 			<<link [[Evolve your pet|Home Console Pet Evolve]]>><</link>>
 			<br><br>
 		<</if>>
-		<<if _t.inDungeon>>
-			<<furnitureicon "controller">><<link [[Resume your dungeon run|Home Console Dungeon Walk]]>><</link>>
-			<br><br>
-		<<elseif _t.keys gt 0>>
-			<<furnitureicon "controller">><<link [[Enter the dungeon|Home Console Dungeon Enter]]>><</link>> <i>(_t.keys <<= _t.keys is 1 ? "key" : "keys">>)</i>
-			<br><br>
-		<</if>>
+		/* Care and activities as tiles. A tile the pet needs right now gets a gold edge and says why in words. */
+		<h3 class="pet-menu-head">Care</h3>
+		<div class="pet-tiles">
+			<div @class="'pet-tile' + (_t.hunger gte 50 ? ' pet-tile--need' : '')"><<icon "food/eat.png" "nowhitespace">><span class="pet-tile-text"><<link [[Feed it|Home Console Do]]>><<set $consoleAction to "feed">><<pass 5>><</link>><span class="pet-tile-meta">0:05<<if _t.hunger gte 50>> · <span class="gold">_t.hungerWord</span><</if>></span></span></div>
+			<div @class="'pet-tile' + (_t.happiness lte 50 ? ' pet-tile--need' : '')"><<icon "balloons.png" "nowhitespace">><span class="pet-tile-text"><<link [[Play with it|Home Console Do]]>><<set $consoleAction to "play">><<pass 15>><</link>><span class="pet-tile-meta">0:15<<if _t.happiness lte 50>> · <span class="gold">_t.happinessWord</span><</if>></span></span></div>
+			<<if _t.poops gt 0>>
+				<div class="pet-tile pet-tile--need"><<icon "broom-dustpan.png" "nowhitespace">><span class="pet-tile-text"><<link [[Clean up the mess|Home Console Do]]>><<set $consoleAction to "clean">><<pass 5>><</link>><span class="pet-tile-meta">0:05 · <span class="gold"><<= _t.poops is 1 ? "1 mess" : _t.poops + " messes">></span></span></span></div>
+			<</if>>
+			<<if _t.sick>>
+				<div class="pet-tile pet-tile--need"><<icon "pill.png" "nowhitespace">><span class="pet-tile-text"><<link [[Give it medicine|Home Console Do]]>><<set $consoleAction to "cure">><<pass 5>><</link>><span class="pet-tile-meta">0:05 · <span class="gold">Ill</span></span></span></div>
+			<</if>>
+			<div @class="'pet-tile' + (_t.energy lte 40 ? ' pet-tile--need' : '')"><<icon "zzz.png" "nowhitespace">><span class="pet-tile-text"><<link [[Let it sleep|Home Console Do]]>><<set $consoleAction to "rest">><</link>><span class="pet-tile-meta">Sleeps 6 hours<<if _t.energy lte 40>> · <span class="gold">_t.energyWord</span><</if>></span></span></div>
+		</div>
+		<h3 class="pet-menu-head">Activities</h3>
+		<div class="pet-tiles">
+			/* Training shows only when the pet can train; otherwise the option is simply not offered today. */
+			<<set _ct to Tamagotchi.canTrain()>>
+			<<if _ct.ok>>
+				<div class="pet-tile"><<icon "physique.png" "nowhitespace">><span class="pet-tile-text"><<link [[Train your pet|Home Console Pet Train]]>><</link>><span class="pet-tile-meta">Once a day</span></span></div>
+			<</if>>
+			<<set _petBattleNow to Tamagotchi.battleState()>>
+			<<if _petBattleNow and _petBattleNow.kind is "challenge">>
+				<div class="pet-tile pet-tile--need"><<icon "target.png" "nowhitespace">><span class="pet-tile-text"><<link [[Return to your challenge battle|Home Console Pet Battle]]>><</link>><span class="pet-tile-meta gold">In progress</span></span></div>
+			<<else>>
+				<<set _pcProg to setup.petChallenges.progress()>>
+				<<set _pcDaily to setup.petChallenges.dailyView()>>
+				<div class="pet-tile"><<icon "target.png" "nowhitespace">><span class="pet-tile-text"><<link [[Challenges and daily battle|Home Console Pet Challenges]]>><</link>><span class="pet-tile-meta"><<print _pcProg.count>> of <<print _pcProg.total>> done · <<if _pcDaily.rec and _pcDaily.rec.done>>today's battle won<<elseif _pcDaily.c.reward>>today's battle pays <<print formatMoney(_pcDaily.c.reward)>><<else>>today's battle open<</if>></span></span></div>
+			<</if>>
+			<<if _t.inDungeon>>
+				<div class="pet-tile pet-tile--need"><<icon "key-iron.png" "nowhitespace">><span class="pet-tile-text"><<link [[Resume your dungeon run|Home Console Dungeon Walk]]>><</link>><span class="pet-tile-meta gold">In progress</span></span></div>
+			<<elseif _t.keys gt 0>>
+				<div class="pet-tile"><<icon "key-iron.png" "nowhitespace">><span class="pet-tile-text"><<link [[Enter the dungeon|Home Console Dungeon Enter]]>><</link>><span class="pet-tile-meta">_t.keys <<= _t.keys is 1 ? "key" : "keys">></span></span></div>
+			<</if>>
+		</div>
 		<<if _t.hasBackup>>
 			<span class="small-description"><i>Your other pets:</i></span>
 			<br>
 			<<for _p range _t.backups>>
 				<<capture _p>>
 					<<if _p.alive>>
-						<span class="blue">_p.name</span> <span class="teal">(_p.typeLabel)</span><<if _p.atCap>> <span class="gold">(maxed)</span><</if>><<if _p.needsCare>> <span class="red">(needs care)</span><</if>>
+						<span class="tama-bench-pet"><<= PetArt.icon(_p.species)>><span class="blue">_p.name</span></span> <span class="teal">(_p.typeLabel)</span><<if _p.atCap>> <span class="gold">(maxed)</span><</if>><<if _p.needsCare>> <span class="red">(needs care)</span><</if>>
 						<br>
 						<<link [["Switch to " + _p.name|Home Console Pet]]>><<run Tamagotchi.switchActive(_p.index)>><</link>>
 					<<else>>
@@ -189,7 +189,8 @@
 			<span class="small-description"><i>You can adopt another elemental pet after this pet reaches the maximum value for every stat. It still needs: <<= _t.capMissingText>>.</i></span>
 			<br><br>
 		<</if>>
-		<<getouticon>><<link "Turn it off" _ret>><<unset $consoleAction, $trainType>><</link>>
+		<<= setup.consoleSfx.controlsHtml()>>
+		<<getouticon>><<link [[Back to the console|Home Console]]>><<unset $consoleAction, $trainType>><</link>>
 	<</if>>
 <</if>>
 
@@ -207,6 +208,8 @@
 	<<default>><<set _result to "invalid">>
 <</switch>>
 <<set _t to Tamagotchi.status()>>
+/* A sound only for an action that happened; refusals (too tired, already clean...) stay silent. */
+<<run setup.consoleSfx.play({ fed: "pet-feed", played: "pet-play", cleaned: "pet-clean", sleeping: "pet-sleep", cured: "pet-cure" }[_result])>>
 
 <<switch _result>>
 	<<case "fed">>
@@ -273,6 +276,7 @@
 	<<link [[Back|Home Console Pet]]>><</link>>
 <<else>>
 	<<set _t to Tamagotchi.status()>>
+	<<run setup.consoleSfx.play(_r.unlocked ? "pet-levelup" : "pet-train")>>
 	<<switch _r.type>>
 		<<case "strength">>
 			You have <span class="blue">_t.name</span> strike a row of small training blocks. Its first hits barely move them, but it keeps trying until one breaks. By the end of the session, each hit lands harder than the first.
@@ -312,7 +316,7 @@
 	<br><br>
 	<<for _s range _offer>>
 		<<capture _s>>
-			<<link [[_s.name|Home Console Pet]]>><<run Tamagotchi.chooseSkill(_s.id)>><</link>>
+			<<link [[_s.name|Home Console Pet]]>><<run Tamagotchi.chooseSkill(_s.id)>><<run setup.consoleSfx.play("pet-levelup")>><</link>>
 		<</capture>>
 		| <span class="teal">_s.typeLabel</span><<if _s.passive>>, passive | Revives once per battle<<elseif _s.heal>>, restores HP, _s.mp MP<<else>>, Power _s.power, _s.mp MP<</if>>
 		<br>
@@ -329,8 +333,12 @@
 	<br><br>
 	<<link [[Back|Home Console Pet]]>><</link>>
 <<else>>
-	<<= Tamagotchi.battleHtml()>>
-
+	<<set _petChal to setup.petChallenges.status(_b)>>
+	<<if _petChal>>
+		<div class="con-banner pet-goal" role="status"><div class="con-daily-head"><strong><<print _petChal.c.name>></strong><<print setup.petChallenges.chip(_petChal.c.diff)>></div><<print setup.petChallenges.describe(_petChal.c)>><<if _petChal.text>><div class="tama-sub"><<print _petChal.text>></div><</if>><<if _petChal.broken>><div class="red">Challenge missed: <<print _petChal.broken>>. You can still finish the fight.</div><</if>></div>
+	<</if>>
+	<<= PetArt.battleStage()>>
+	<div class="pa-after">
 	<div class="tama-log">
 	<<for _line range _b.log>>
 		_line<br>
@@ -364,10 +372,28 @@
 			<br>
 		<</for>>
 	<</if>>
+	</div>
 <</if>>
 
 :: Home Console Pet Battle Result
 <<set $outside to 0>><<effects>>
+<<if Tamagotchi.battleState() and Tamagotchi.battleState().kind is "challenge">>
+	/* A challenge battle ends here, not through endBattle(): the pet's own data is never touched. */
+	<<set _chalEnd to setup.petChallenges.finish()>>
+	<<if _chalEnd.done>>
+		<span class="green">Challenge complete: <<print _chalEnd.name>>!</span> Your pet won in <<print _chalEnd.turns>> <<= _chalEnd.turns is 1 ? "turn" : "turns">>.<<stress -4>><<lstress>>
+		<<if _chalEnd.paid>><br><span class="gold">You earned <<print formatMoney(_chalEnd.paid)>>.</span><</if>>
+		<<if _chalEnd.feat>><br><span class="gold">Every challenge complete. Feat earned: <<print _chalEnd.feat>>.</span><</if>>
+	<<elseif _chalEnd.result is "win">>
+		Your pet won the fight, but the challenge was missed: <<print _chalEnd.why>>.
+	<<else>>
+		Your pet is knocked out of the challenge. It is only a practice bout, so it shakes itself off, unhurt.
+	<</if>>
+	<br><br>
+	<<link [[Back to the challenges|Home Console Pet Challenges]]>><</link>>
+	<br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
 <<set _sum to Tamagotchi.endBattle()>>
 
 <<if _sum.result is "win">>
@@ -406,6 +432,7 @@
 <<else>>
 	<<if _sum.dungeon>><<run Tamagotchi.dungeonEnd()>><</if>>
 	<<link [[Back|Home Console Pet]]>><</link>>
+<</if>>
 <</if>>
 
 :: Home Console Pet Evolve
@@ -454,6 +481,7 @@
 <<if not _evo or not _evo.ok>>
 	Nothing happens.
 <<else>>
+	<<= PetArt.evolution()>>
 	You sacrifice <span class="red"><<= _evo.sacrificed.join(", ")>></span>.
 	<br>
 
@@ -482,13 +510,160 @@
 	<br>
 	<<textbox "_petname" "Pixel">>
 	<br><br>
-	<<for _sp range _adoptable>>
-		<<capture _sp>>
-			<<link [["Choose " + _sp.name|Home Console Pet]]>><<run Tamagotchi.adopt(_petname, _sp.id)>><</link>>|
-			<span class="teal">_sp.typeLabel</span> type. <i>_sp.blurb</i>
-		<</capture>>
-		<br>
-	<</for>>
+	<div class="pa-picks"><<for _sp range _adoptable>><<capture _sp>><div class="pa-pick"><<= PetArt.pick(_sp.id)>><div class="pa-pick-text"><span class="pa-pick-head"><span class="pa-pick-name"><<print _sp.name>></span> <span class="pa-pick-type teal"><<print _sp.typeLabel>> type</span></span><span class="pa-pick-blurb"><<print _sp.blurb>></span><span class="pa-pick-choose"><<link [["Choose " + _sp.name|Home Console Pet]]>><<run setup.consoleSfx.play("pet-select")>><<run Tamagotchi.adopt(_petname, _sp.id)>><</link>></span></div></div><</capture>><</for>></div>
 	<br>
 	<<link [[Back|Home Console Pet]]>><</link>>
 <</if>>
+
+:: Home Console Pet Challenges
+<<set $outside to 0>>
+<<if $location isnot "home" and $location isnot "alex_cottage">><<set $location to "home">><</if>>
+<<effects>>
+<<run Tamagotchi.sync()>>
+<<furnitureicon "controller">>Practice bouts for your pet. Each opponent is matched to your pet's current strength, and a lost bout costs nothing: your pet can't be hurt, and it gains no stats from winning.
+<br><br>
+<<set _pcBlock to setup.petChallenges.blocked()>>
+<<set _pcBattle to Tamagotchi.battleState()>>
+<<if _pcBattle and _pcBattle.kind is "challenge">>
+	<span class="gold">A challenge battle is still under way.</span>
+	<br>
+	<<link [[Return to it|Home Console Pet Battle]]>><</link>>
+	<br><br>
+<<elseif _pcBlock>>
+	<span class="red"><<print _pcBlock>></span>
+	<br><br>
+<</if>>
+<<set _pcDaily to setup.petChallenges.dailyView()>>
+<div class="con-list">
+<section @class="'con-daily' + (_pcDaily.rec and _pcDaily.rec.done ? ' con-daily--done' : '')" aria-label="Today's battle"><div class="con-daily-head"><span class="con-daily-date">Today's battle, <<print _pcDaily.c.date>> (UTC)</span><<print _pcDaily.chip>></div><<if _pcDaily.art>><div class="con-vs"><span class="con-vs-side"><<print _pcDaily.petArt>><span class="con-vs-name"><<print $tamagotchi.name>></span></span><span class="con-vs-word">vs</span><span class="con-vs-side"><<print _pcDaily.art>><span class="con-vs-name"><<print _pcDaily.foeName>></span></span></div><</if>><p class="con-daily-goal"><<print _pcDaily.describe>></p><dl class="con-facts"><dt>Opponent</dt><dd><<print _pcDaily.foe>></dd><dt>Reward</dt><dd><<print _pcDaily.reward>></dd><dt>Status</dt><dd><<if _pcDaily.rec and _pcDaily.rec.done>><span class="green">Completed</span><<elseif _pcDaily.rec and _pcDaily.rec.tries>>Not completed yet<<else>>Not tried yet<</if>></dd><dt>Best</dt><dd><<if _pcDaily.rec and _pcDaily.rec.best isnot null and _pcDaily.rec.best isnot undefined>>Won in <<print _pcDaily.rec.best>> turns<<else>>None yet<</if>><<if _pcDaily.rec and _pcDaily.rec.tries>>, <<print _pcDaily.rec.tries>> <<= _pcDaily.rec.tries is 1 ? "try" : "tries">><</if>></dd><dt>Next battle</dt><dd>in <<print _pcDaily.reset>> (midnight UTC)</dd></dl><<if !_pcBlock and !_pcBattle>><span class="pet-chal-start con-btn-link"><<link `_pcDaily.rec and _pcDaily.rec.tries ? "Retry today's battle (0:05)" : "Fight today's battle (0:05)"` "Home Console Pet Battle">><<run setup.petChallenges.start("daily")>><<pass 5>><</link>></span><</if>></section>
+<<print _pcDaily.history>>
+<<set _pcProg to setup.petChallenges.progress()>>
+<h3 class="con-page-head">Challenges</h3>
+<div class="con-progress"><div class="con-progress-head"><span>Completed</span><span class="con-progress-count"><<print _pcProg.count>> of <<print _pcProg.total>></span></div><div class="con-bar" role="progressbar" aria-label="Challenges completed" aria-valuemin="0" @aria-valuemax="_pcProg.total" @aria-valuenow="_pcProg.count"><span class="con-bar-fill" @style="'width:' + Math.round(_pcProg.count / _pcProg.total * 100) + '%'"></span></div></div>
+<<= setup.petChallenges.featCard()>>
+<<set _pcRows to setup.petChallenges.rows()>>
+<<for _pcLevel range ["easy", "medium", "hard"]>><<set _pcGroup to _pcRows.filter(r => r.diff is _pcLevel)>><h4 class="con-group-head"><span><<print setup.consoleDaily.levelName(_pcLevel)>></span><span class="con-progress-count"><<print _pcGroup.filter(r => r.done).length>> of <<print _pcGroup.length>></span></h4><<for _pcRow range _pcGroup>><<capture _pcRow>><div @class="'con-row' + (_pcRow.done ? ' con-row--done' : '')"><span class="con-row-icon" aria-hidden="true"><<print _pcRow.art>></span><div class="con-row-main"><span class="con-row-title"><<print _pcRow.name>></span><span class="con-row-desc"><<print _pcRow.describe>></span><span class="con-row-meta">Against <<print _pcRow.foe>>.</span><span class="con-row-status"><<if _pcRow.done>>Completed <<print _pcRow.done>><<elseif _pcRow.needs>><<print _pcRow.needs>><<else>>Not completed<</if>></span></div><div class="con-row-action con-btn-link"><<if !_pcBlock and !_pcBattle and !_pcRow.needs>><<link `_pcRow.done ? "Again" : "Fight"` "Home Console Pet Battle">><<run setup.petChallenges.start(_pcRow.id)>><<pass 5>><</link>><</if>></div></div><</capture>><</for>><</for>>
+</div>
+<br>
+<<getouticon>><<link [[Back to your pet|Home Console Pet]]>><</link>>
+<br>
+
+:: Home Console Dungeon Enter
+<<set $outside to 0>><<effects>>
+<<set _t to Tamagotchi.status()>>
+
+<<if not Tamagotchi.isAlive() or _t.keys lte 0>>
+	You have no keys to open the dungeon.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<else>>
+	A barred gate flickers onto the screen. One of your dungeon keys fits the lock.
+	Beyond it lies a crawl of monsters, treasure, and worse.
+	<br><br>
+	<span class="small-description"><i>A run is 15 tiles deep. You'll find money, items and mobs to grind for stats.
+	Falling here is fatal.</i></span>
+	<br>
+	<<link [[Unlock the gate and descend|Home Console Dungeon Walk]]>><<pass 1>><<run Tamagotchi.dungeonStart()>><</link>> <i>(1 key)</i>
+	<br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<</if>>
+
+:: Home Console Dungeon Walk
+<<effects>><<set $outside to 0>><<run Tamagotchi.sync()>>
+<<set _d to Tamagotchi.dungeonState()>>
+
+<<if _d is null>>
+	You're not inside the dungeon.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<elseif not Tamagotchi.isAlive()>>
+	<<run Tamagotchi.dungeonEnd()>>
+	The dungeon falls silent.
+	<br><br>
+	<<link [[Back|Home Console Pet]]>><</link>>
+<<elseif _d.tile gte _d.tiles>>
+	You reach the end of this stretch of the dungeon.
+	<br><br>
+	<<link [[Climb back out|Home Console Dungeon Exit]]>><<pass 1>><</link>>
+<<else>>
+	You press deeper into the dungeon. <span class="teal">Tile <<= _d.tile + 1>> of _d.tiles.</span>
+	<br>
+	<span class="small-description"><i>Found so far: £<<= Math.floor(_d.money / 100)>>,
+	_d.items <<= _d.items is 1 ? "item" : "items">>, _d.kills <<= _d.kills is 1 ? "kill" : "kills">>.</i></span>
+	<br>
+	<<link [[Step deeper|Home Console Dungeon Step]]>><<set $dungeonStep to Tamagotchi.dungeonStep()>><<pass 5>><</link>>
+	<br>
+	<<link [[Climb back out|Home Console Dungeon Exit]]>><<pass 1>><</link>>
+<</if>>
+
+:: Home Console Dungeon Step
+<<effects>><<set $outside to 0>>
+/* $dungeonStep must be a plain story variable: in DoL's SugarCube fork, "$_name" is a widget-local (State.local) that does not survive passage navigation. */
+<<set _step to $dungeonStep>><<unset $dungeonStep>>
+/* Re-rendering this passage (save load, refresh, history) arrives with $dungeonStep already unset; fall through to the harmless default case instead of crashing the switch below. */
+<<if _step is undefined or _step is null>><<set _step to { type: "none" }>><</if>>
+<<set _t to Tamagotchi.status()>>
+
+<<switch _step.type>>
+	<<case "money">>
+		You prise open a mouldering chest and scoop out the coins inside. <<income _step.amount "dungeon">>!
+		<br><br>
+		<<link [[Continue|Home Console Dungeon Walk]]>><</link>>
+	<<case "item">>
+		Tucked in an alcove you find a <span class="green"><<= _step.name>></span>.
+		<<if $foodstuff[_step.key] is undefined>><<set $foodstuff[_step.key] to {amount: 0}>><</if>>
+		<<set $foodstuff[_step.key].amount += 1>>
+		<br><br>
+		<<link [[Continue|Home Console Dungeon Walk]]>><</link>>
+	<<case "mob">>
+		A dungeon mob lunges from the shadows!
+		<br><br>
+		<<link [[Fight!|Home Console Pet Battle]]>><<run Tamagotchi.startDungeonBattle()>><</link>>
+	<<case "antipill">>
+		Half-buried in the rubble is a single, oddly coloured pill case.
+		<br>
+		/* Anti-pill / Choice Reversal gift, mirroring Whitney Orphanage Special Event Repeat Finish5. */
+		<<set _roll to random(1, 100)>>
+		<<set _choiceValid to (V.xchange and V.xchange.pill and V.xchange.pill.choiceEffect)>>
+		<<set _choiceKey to "">>
+		<<if _choiceValid>>
+			<<if V.player.gender is "f">>
+				<<set _choiceKey to "X-Change Choice Reversal (M)">>
+			<<else>>
+				<<set _choiceKey to "X-Change Choice Reversal (F)">>
+			<</if>>
+		<</if>>
+		<<set _antiKeys to ($sexStats and $sexStats.pills and $sexStats.pills.pills) ? Object.keys($sexStats.pills.pills).filter(k => k.startsWith("SWP Anti-") && k.endsWith(" Pill")) : []>>
+		<<if _choiceValid and _roll lte 20>>
+			<<set _giftKey to _choiceKey>>
+		<<elseif _antiKeys.length gt 0>>
+			<<set _giftKey to _antiKeys[random(0, _antiKeys.length - 1)]>>
+		<<else>>
+			<<set _giftKey to _choiceKey>>
+		<</if>>
+		<<if _giftKey is "" or $sexStats is undefined or $sexStats.pills is undefined>>
+			It crumbles to useless dust in your fingers.
+		<<else>>
+			<<run if (V.sexStats.pills.pills[_giftKey] === undefined) V.sexStats.pills.pills[_giftKey] = { autoTake: false, doseTaken: 0, owned: 0, overdose: 0 };>>
+			<<if $sexStats.pills.pills[_giftKey].owned is undefined>><<set $sexStats.pills.pills[_giftKey].owned to 0>><</if>>
+			<<set $sexStats.pills.pills[_giftKey].owned to $sexStats.pills.pills[_giftKey].owned + 1>>
+			<<set $sexStats.pills.boughtOnce to true>>
+			<span class="green">It's the <<= _giftKey>>!</span>
+		<</if>>
+		<br><br>
+		<<link [[Continue|Home Console Dungeon Walk]]>><</link>>
+	<<default>>
+		You search around but find nothing...
+		<br><br>
+		<<link [[Continue|Home Console Dungeon Walk]]>><</link>>
+<</switch>>
+
+:: Home Console Dungeon Exit
+<<effects>><<set $outside to 0>><<set _d to Tamagotchi.dungeonEnd()>>
+You climb back out of the dungeon and switch the game off for now.
+<br><br>
+<span class="teal">This run you gathered <span class="gold">£<<= Math.floor(_d.money / 100)>></span>,
+_d.items <<= _d.items is 1 ? "item" : "items">> and cleared _d.kills <<= _d.kills is 1 ? "mob" : "mobs">>.</span>
+<br><br>
+<<link [[Back|Home Console Pet]]>><</link>>
+<br>
