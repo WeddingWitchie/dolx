@@ -1571,7 +1571,10 @@ function xchangeDailyCheck(days = 1) {
 		V.recentrape = Math.max(V.recentrape - 1 * days, 0);
 
 		if (V.robinbreakupCooldown > 0) {
-			V.robinbreakupCooldown -= 1 * days;
+			V.robinbreakupCooldown = Math.max(V.robinbreakupCooldown - 1 * days, 0);
+		}
+		if (V.robinconfessionCooldown > 0) {
+			V.robinconfessionCooldown = Math.max(V.robinconfessionCooldown - 1 * days, 0);
 		}
 
 		V.xchange.blackmailHalt = Math.max(0, V.xchange.blackmailHalt - 1 * days);
