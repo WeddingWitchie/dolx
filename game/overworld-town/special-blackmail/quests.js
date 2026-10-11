@@ -924,3 +924,46 @@ blackmailQuests.high.push(
 		finishedGame: false,
 	}
 );
+
+blackmailQuests.high.push(
+	// Work a waiter shift, then make a fluid-filled bun as a returning chef
+	{
+		id: 17,
+		summary: "Work a shift as a waiter or waitress, then make a cream bun using your bodily fluids before midnight.",
+		prerequisites() {
+			return V.chef_state >= 1 && (V.chef_state !== 7 || V.chef_rework > 30) && V.chef_state !== 8 && Time.hour < 19 && !playerCannotSelfClimax();
+		},
+		reward() {
+			return blackmailReward();
+		},
+		instructions: [
+			"Work a shift as a waiter or waitress at the Ocean Breeze Cafe.",
+			"Afterwards, work as the cafe's chef and make a cream bun using your bodily fluids.",
+			"Complete this task before midnight.",
+		],
+		clearCondition() {
+			return this.workedAsWaiter && this.madeFluidBun;
+		},
+		failCondition() {
+			return false;
+		},
+		alertMessage: `You still need to work at the Ocean Breeze Cafe and make a fluid-filled bun.`,
+		clearCheck() {
+			if (this.clearCondition()) this.cleared = true;
+		},
+		failCheck() {
+			if (this.failCondition()) this.failed = true;
+		},
+		cleared: false,
+		failed: false,
+		failMessage() {},
+		includesItems: false,
+		workedAsWaiter: false,
+		madeFluidBun: false,
+		receiveItems() {},
+		onDayCleared() {
+			V.xchange.blackmail.cooldown = 3;
+		},
+		onDayFailed() {},
+	}
+);
