@@ -210,7 +210,14 @@
 		<</if>>
 	<</if>>
 
-	<<if $transformationParts.traits.mateForLife isnot "disabled" and $sexavoid is 0>>
+	/* $sexavoid/$rapeavoid only clear on penetration, so tribbing and oral are caught by either side climaxing. */
+	<<set _hadSex to !_masturbationEnded and ($sexavoid is 0 or $rapeavoid is 0 or $orgasmcurrent gt 0 or $combatRecap?.npcOrgasms gt 0)>>
+
+	<<if _hadSex and $npc.includes("Great Hawk") and !$activeNightmare>>
+		<<earnFeat "Mate for life">>
+	<</if>>
+
+	<<if $transformationParts.traits.mateForLife isnot "disabled" and _hadSex and $consensual is 1>>
 		<<if $enemyno is 1 and isLoveInterest($npc[$npcrow.indexOf(0)])>>
 			<<if effectiveTransformationLevel("fox") gte 3>>
 				<<transform fox 1>>
