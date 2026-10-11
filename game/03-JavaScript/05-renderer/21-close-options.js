@@ -133,7 +133,8 @@ class CloseCombatMapper {
 			"fetish flat chastity cage": "flat",
 			"small chastity cage": "small",
 		};
-		const chastityDevice = playerChastity() ? chastityTypes[V.worn.genitals.name] || "base" : false;
+		// Reshaped X-Change devices and the fetish belt are not in the table; a belt-shaped one still needs the belt sprite.
+		const chastityDevice = playerChastity() ? chastityTypes[V.worn.genitals.name] || (playerChastity("hidden") ? "belt" : "base") : false;
 		options.chastity = `chastity-${chastityDevice}`;
 		if (playerChastity("cage") && !playerHasStrapon()) {
 			if (V.worn.genitals.name === "chastity parasite") options.penis.concealed = true;

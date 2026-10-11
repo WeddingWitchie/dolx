@@ -1607,7 +1607,7 @@ class PlayerCombatMapper {
 		const clothing = CombatRenderer.getClothingBySlot(slot);
 		const source = CombatRenderer.getSourceClothing(slot, defaults);
 
-		const name = source.variable;
+		const name = slot === "genitals" ? setup.xchangeChastitySprite(clothing, source.variable) : source.variable;
 
 		const pattern = clothing.pattern || false;
 

@@ -653,6 +653,7 @@ function getClothingOptionsItem(slot, item, stage) {
 		alt: item.altposition,
 		pattern: item.pattern,
 		pattern_layer: item.pattern_layer,
+		type: item.type,
 	};
 	itemOptions[slot].alpha = { 1: 0.9, 2: 0.7, 3: 0.5 }[stage] ?? 1.0;
 	itemOptions[slot].accColour = item.accessory_colour;

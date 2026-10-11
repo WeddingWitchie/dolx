@@ -949,6 +949,8 @@ Renderer.CanvasModels.main = {
 
 		options.zneck = (options.neck_tucked) ? ZIndices.neck_tucked : ZIndices.neck;
 		options.zscarf = options.neck_tucked ? ZIndices.neck_tucked + 0.1 : ZIndices.neck + 0.1;
+		// The kaiju costume's mask only trims what is outside its outline, so the suit itself has to draw over hair and hats.
+		options.zoverwear = options.worn.over_upper.setup.name === "kaiju costume" ? 46.3 : 0;
 		options.hide_all = false;
 		if (options.worn.upper.setup.name === "cocoon") {
 			options.hide_all = true;
@@ -3783,20 +3785,24 @@ Renderer.CanvasModels.main = {
 		 *
 		 *
 		 */
-		"over_upper_main": genlayer_clothing_main('over_upper'),
+		"over_upper_main": genlayer_clothing_main('over_upper', {
+			zfn(options) {
+				return ZIndices.over_upper + options.zoverwear;
+			},
+		}),
 		"over_upper_breasts": genlayer_clothing_breasts("over_upper"),
 		"over_upper_acc": genlayer_clothing_accessory('over_upper'),
 		"over_upper_detail": genlayer_clothing_detail('over_upper'),
 		"over_upper_rightarm": genlayer_clothing_arm("right", "over_upper", {
 			zfn(options) {
-				return (options.arm_right === "cover" || options.arm_right === "hold") ?
-					ZIndices.over_upper_arms + 0.9 : ZIndices.over_upper_arms;
+				return ((options.arm_right === "cover" || options.arm_right === "hold") ?
+					ZIndices.over_upper_arms + 0.9 : ZIndices.over_upper_arms) + options.zoverwear;
 			},
 		}),
 		"over_upper_leftarm": genlayer_clothing_arm("left", "over_upper", {
 			zfn(options) {
-				return options.arm_left === "cover" ?
-					ZIndices.over_upper_arms + 0.9 : ZIndices.over_upper_arms;
+				return (options.arm_left === "cover" ?
+					ZIndices.over_upper_arms + 0.9 : ZIndices.over_upper_arms) + options.zoverwear;
 			},
 		}),
 		"over_upper_back": genlayer_clothing_back_img('over_upper', {
@@ -3828,7 +3834,10 @@ Renderer.CanvasModels.main = {
 					return `img/body/ear-slime-chastity-${options.ear_slime_size ?? 0}.png`;
 				}
 
-				const setupVar = options.worn.genitals.setup.combat?.reference || options.worn.genitals.setup.variable;
+				const setupVar = setup.xchangeChastitySprite(
+					{ type: options.worn.genitals.type, name: options.worn.genitals.setup.name },
+					options.worn.genitals.setup.combat?.reference || options.worn.genitals.setup.variable
+				);
 				const integrity = options.worn.genitals.integrity;
 				return `img/clothes/genitals/${setupVar}/${integrity}.png`;
 			},
@@ -4056,7 +4065,11 @@ Renderer.CanvasModels.main = {
 		 *
 		 *
 		 */
-		"over_lower": genlayer_clothing_main('over_lower'),
+		"over_lower": genlayer_clothing_main('over_lower', {
+			zfn(options) {
+				return ZIndices.over_lower + options.zoverwear;
+			},
+		}),
 		"over_lower_acc": genlayer_clothing_accessory('over_lower'),
 		"over_lower_detail": genlayer_clothing_detail('over_lower'),
 		"over_lower_back": genlayer_clothing_back_img('over_lower'),

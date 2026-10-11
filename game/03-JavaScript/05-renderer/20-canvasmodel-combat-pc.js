@@ -804,7 +804,7 @@ const combatMainPc = {
 						return `${options.src}body/penetrator/parasite${size}.png`;
 					}
 					if (genitals.type.includes("cage")) {
-						const chastity = genitals.combat?.reference || genitals.variable;
+						const chastity = setup.xchangeChastitySprite(genitals, genitals.combat?.reference || genitals.variable);
 						return `${options.src}body/penetrator/default-${chastity}.png`;
 					}
 					return `${options.src}body/penetrator/default-chastitybelt.png`;

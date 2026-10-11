@@ -84,9 +84,10 @@ const ZIndices = {
 	neck: 103,
 	earrings: 104,
 
-	over_lower: 150.1,
-	over_upper: 150.2,
-	over_upper_arms: 150,
+	// Outerwear sits under hair, hats, scarves and gloves; vanilla 0.5.12 lifted it to 150 for the kaiju costume, which masks what it covers anyway.
+	over_lower: 103.3,
+	over_upper: 103.6,
+	over_upper_arms: 103.9,
 	over_head: 150.3,
 
 	rings: 104,

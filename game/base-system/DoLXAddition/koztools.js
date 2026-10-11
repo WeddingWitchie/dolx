@@ -421,9 +421,11 @@ window.updatePronounSummary = updatePronounSummary;
 			else if (!present && at !== -1) worn.type.splice(at, 1);
 		};
 
-		if (isCage && !V.player?.penisExist) {
+		// Gwylan's gold belt is checked by name across the game and has no cage art, so it always stays a belt.
+		const goldBelt = worn.variable === "goldchastitybelt";
+		if (isCage && (!V.player?.penisExist || goldBelt)) {
 			// An uncursed cage falls into the wardrobe when possible; otherwise reshape it instead of destroying it.
-			if (worn.cursed === 0 && Array.isArray(V.wardrobe?.genitals)) {
+			if (!V.player?.penisExist && worn.cursed === 0 && Array.isArray(V.wardrobe?.genitals)) {
 				V.wardrobe.genitals.push(cloneFn(worn));
 				V.worn.genitals = cloneFn(setup.clothes.genitals[0]);
 				return "fellOff";
@@ -435,10 +437,12 @@ window.updatePronounSummary = updatePronounSummary;
 			worn.exposed = 0;
 			worn.exposed_base = 0;
 			rename("cage", "belt");
-			return "feminize";
+			return V.player?.penisExist ? null : "feminize";
 		}
 
-		if (isBelt && V.player?.penisExist && !V.player?.vaginaExist && !V.xchange?.chastityKeepBeltShape) {
+		// "Keep belt shape" protects a belt the player chose, not a cage that was only reshaped into one.
+		const bornCage = setup.clothes.genitals[clothesIndex("genitals", worn)]?.type?.includes("cage");
+		if (isBelt && !goldBelt && V.player?.penisExist && !V.player?.vaginaExist && (bornCage || !V.xchange?.chastityKeepBeltShape)) {
 			setType("hidden", false);
 			setType("cage", true);
 			setType("constricting", false);
@@ -449,6 +453,14 @@ window.updatePronounSummary = updatePronounSummary;
 		}
 
 		return null;
+	};
+
+	// Sprite folder for a worn chastity device's current shape. A reshaped device keeps its original .variable, so the art follows .type instead.
+	setup.xchangeChastitySprite = function (worn, variable) {
+		if (!Array.isArray(worn?.type) || !worn.type.includes("chastity") || worn.name === "chastity parasite" || typeof variable !== "string") return variable;
+		if (worn.type.includes("hidden") && variable.includes("cage")) return "chastitybelt";
+		if (worn.type.includes("cage") && variable.includes("belt")) return "chastitycage";
+		return variable;
 	};
 
 	// Keep disabled Gender Identity drift from retaining queued state that could fire later.
