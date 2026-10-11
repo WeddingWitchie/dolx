@@ -2,7 +2,25 @@
 
 <<widget "nightmareCheck">>
 	<!-- _args[0] should always be the *next* passage; ex, if the current passage is "Eden Cabin Bed" _args[0] should be "Cabin Sleep" -->
-	<<if $nightmares gt 0 and $controlled is 0 and !$nightmareTimer>>
+	<<set _dream to undefined>>
+	<<if $xchange.recentEvents>>
+		/* X-Change dreams ignore the nightmare trait and cooldown. A dream fires when all its events happened since
+		   the last sleep; higher priority wins, so a combination dream can outrank its parts. */
+		<<set _dreamTable to [
+			{ requires: ["first xchanged orgasm"], passage: "X-Change Dream First Orgasm", priority: 10 },
+		]>>
+		<<run _dreamTable.sort((a, b) => b.priority - a.priority)>>
+		<<set _dream to _dreamTable.find(entry => entry.requires.every(req => $xchange.recentEvents.includes(req)))>>
+
+		<<if _dream>>
+			<<set $nightmareNext to _dream.passage>>
+			<<set $nightmareRedirect to _args[0]>>
+			<<set $nightmareExit to $passage>>
+
+			<<run General.linkOverride({ [$nightmareRedirect]: $nightmareNext })>>
+		<</if>>
+	<</if>>
+	<<if !_dream and $nightmares gt 0 and $controlled is 0 and !$nightmareTimer>>
 		<<set $_possibleNightmares to []>>
 
 		<<if _args[0] is "Cabin Sleep" and isLoveInterest("Eden") and C.npc.Eden.love gt 140>>
@@ -105,4 +123,42 @@
 		<<case 2>><<willpowerdifficulty 200 1000>>
 		<<default>><<willpowerdifficulty 400 1200>>
 	<</switch>>
+<</widget>>
+
+<<widget "xchangeDreamEvent">>
+	/* Queues a dream event for the next sleep, which clears the queue whether or not a dream played. */
+	<<if !$xchange.recentEvents>><<set $xchange.recentEvents to []>><</if>>
+	<<run $xchange.recentEvents.pushUnique(_args[0])>>
+<</widget>>
+
+<<widget "xchangeDreamStart">>
+	/* nightmareStart without the nightmare cooldown. $activeNightmare still blocks pregnancy, virginity and feats. */
+	<<set $activeNightmare to _args[0]>>
+	<<if !$frozenValues>>
+		<<freezePlayerStats>>
+	<</if>>
+	<<set $nightmareWake to 1>>
+
+	<<set $clothingrebuy to 0>>
+	<<set $settings.parasitePregnancyEnabled to false>>
+<</widget>>
+
+<<widget "xchangeDreamEnd">>
+	<<if !$activeNightmare>>
+		<<exit>>
+	<</if>>
+	<<if !$replayScene>>
+		<<set $_wraithDefeated to $wraith.defeated>>
+		<<unfreezePlayerStats>>
+		<<endcombat>>
+		<<set $wraith.defeated to $_wraithDefeated>>
+	<</if>>
+	<<if !$xchange.dreamsSeen>><<set $xchange.dreamsSeen to []>><</if>>
+	<<run $xchange.dreamsSeen.pushUnique($activeNightmare)>>
+	<<unset $nightmareNext>>
+	<<unset $activeNightmare>>
+	<<unset $nightmareRedirect>>
+
+	<<set $sleephour to random(1, $sleephour)>>
+	<<sleep true>>
 <</widget>>

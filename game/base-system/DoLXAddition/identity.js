@@ -648,6 +648,154 @@ function pregnancyIdentityAccepted() {
 }
 window.pregnancyIdentityAccepted = pregnancyIdentityAccepted;
 
+const PRONOUN_CHARACTERISTIC_BY_PRONOUN = { m: "Masculine Pronouns", f: "Feminine Pronouns", n: "Neutral Pronouns" };
+
+/**
+ * Fully accepts every characteristic of the current body except clothing. Preferences are untouched.
+ *
+ * @returns {string[]} Names of the characteristics that were accepted.
+ */
+function playerAcceptXChangedBody() {
+	const accepted = currentXChangedBodyCharacteristics().filter(characteristic => !isClothingCharacteristic(characteristic));
+
+	for (const characteristic of accepted) {
+		const { option } = selectIdentityCharacteristic(characteristic);
+		if (!option) continue;
+
+		option.acceptance = true;
+		option.reject = false;
+		option.dysphoria = 0;
+		option.tolerance = 200;
+		option.everAccepted = true;
+	}
+
+	if (accepted.length > 0) {
+		V.identityAcceptanceMessage = true;
+		V.effectsmessage = 1;
+	}
+	return accepted;
+}
+window.playerAcceptXChangedBody = playerAcceptXChangedBody;
+
+DefineMacro("accept-xchanged-body", playerAcceptXChangedBody);
+
+/**
+ * Identity characteristics of the current body, worn clothing and makeup.
+ * Pronouns are the preferred set rather than the body's, since being misgendered is momentary.
+ *
+ * @returns {string[]} Names of the currently-present characteristics.
+ */
+function currentXChangedBodyCharacteristics() {
+	const current = [];
+	if (!V.identity || typeof V.identity !== "object") return current;
+
+	let currentPronouns = [];
+	const pronouns = V.identity.presentation?.pronouns;
+	if (pronouns && typeof pronouns === "object") {
+		currentPronouns = preferredPronounSet(pronouns);
+		if (currentPronouns.length === 0) currentPronouns = [playerPronoun()];
+	}
+
+	for (const characteristic of Object.keys(IDENTITY_CHARACTERISTICS)) {
+		const { option } = selectIdentityCharacteristic(characteristic);
+		if (!option) continue;
+
+		const entry = IDENTITY_CHARACTERISTICS[characteristic];
+		if (entry.group === "pronouns") {
+			if (!currentPronouns.some(pronoun => PRONOUN_CHARACTERISTIC_BY_PRONOUN[pronoun] === characteristic)) continue;
+		} else if (!(playerHasCharacteristic(characteristic) > 0)) {
+			continue;
+		}
+		current.push(characteristic);
+	}
+	return current;
+}
+window.currentXChangedBodyCharacteristics = currentXChangedBodyCharacteristics;
+
+/* Writes a characteristic's preferred marker the way the Identity settings screen stores it. */
+function setIdentityPreferredCharacteristic(container, entry, key, preferred) {
+	if (!container || typeof container !== "object") return;
+	if (entry.pref.flag) {
+		container[entry.pref.flag] = preferred;
+		return;
+	}
+	const wanted = entry.pref.value === undefined ? key : entry.pref.value;
+	if (entry.pref.field !== "preferred" && entry.pref.field !== "preferredPenis") return;
+	if (preferred) {
+		container[entry.pref.field] = wanted;
+	} else if (container[entry.pref.field] === wanted) {
+		/* The settings screen's "no preference" value; a current characteristic later in the group overwrites it. */
+		container[entry.pref.field] = entry.pref.field === "preferredPenis" ? false : "none";
+	}
+}
+
+/**
+ * Makes the current body the only accepted and preferred one; everything else becomes unaccepted.
+ * All clothing and makeup are accepted, but their preferences are untouched.
+ *
+ * @returns {string[]} Names of the characteristics that are now accepted and preferred.
+ */
+function playerEmbraceXChangedBody() {
+	const current = currentXChangedBodyCharacteristics();
+	if (current.length === 0) return [];
+	const currentSet = new Set(current);
+
+	const presentation = V.identity.presentation || {};
+	const body = V.identity.body || {};
+
+	for (const characteristic of Object.keys(IDENTITY_CHARACTERISTICS)) {
+		const entry = IDENTITY_CHARACTERISTICS[characteristic];
+		const { option } = selectIdentityCharacteristic(characteristic);
+		if (!option) continue;
+
+		const container = IDENTITY_GROUPS[entry.group].sel(presentation, body);
+		const isCurrent = currentSet.has(characteristic);
+
+		if (entry.group === "clothing" || entry.group === "makeup") {
+			option.acceptance = true;
+			option.reject = false;
+			option.dysphoria = 0;
+			option.tolerance = 200;
+			option.everAccepted = true;
+			continue;
+		}
+
+		if (isCurrent) {
+			option.acceptance = true;
+			option.reject = false;
+			option.dysphoria = 0;
+			option.tolerance = 200;
+			option.everAccepted = true;
+			setIdentityPreferredCharacteristic(container, entry, entry.key, true);
+		} else {
+			option.acceptance = false;
+			option.reject = false;
+			option.tolerance = 0;
+			setIdentityPreferredCharacteristic(container, entry, entry.key, false);
+		}
+	}
+
+	/* Sync the legacy genitals.preferred field, as the settings screen does. */
+	const genitals = body.genitals;
+	if (genitals && typeof genitals === "object") {
+		if (genitals.preferredVagina) {
+			genitals.preferred = "vagina";
+		} else if (genitals.preferredPenis) {
+			genitals.preferred = genitals.preferredPenis;
+		} else {
+			genitals.preferred = false;
+		}
+	}
+
+	identityNormalisePresentation();
+	V.identityAcceptanceMessage = true;
+	V.effectsmessage = 1;
+	return current;
+}
+window.playerEmbraceXChangedBody = playerEmbraceXChangedBody;
+
+DefineMacro("embrace-xchanged-body", playerEmbraceXChangedBody);
+
 const PRONOUN_DYNAMIC_MODES = ["body", "clothing", "appearance", "posture"];
 
 /**
