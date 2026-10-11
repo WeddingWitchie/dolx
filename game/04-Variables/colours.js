@@ -2030,7 +2030,7 @@ setup.colours.mascara = [
 	{
 		variable: "light brown waterproof",
 		name: "light brown (waterproof)",
-		name_cap: "Lught brown (waterproof)",
+		name_cap: "Light brown (waterproof)",
 		csstext: "light brown",
 		canvasfilter: {
 			blend: "#907b6a",
@@ -2296,12 +2296,26 @@ function buildColourMap(name, mode) {
 }
 window.buildColourMap = buildColourMap;
 
+// Waterproof versions of every lipstick, eyeshadow and blusher, the same way mascara has them
+for (const name of ["lipstick", "eyeshadow", "blusher"]) {
+	setup.colours[name].push(
+		...setup.colours[name].map(c => ({
+			...c,
+			variable: c.variable + " waterproof",
+			name: c.name + " (waterproof)",
+			name_cap: c.name_cap + " (waterproof)",
+			canvasfilter: { ...c.canvasfilter },
+		}))
+	);
+}
+
 buildColourMap("hair");
 buildColourMap("eyes");
 buildColourMap("clothes");
 buildColourMap("lipstick");
 buildColourMap("mascara");
 buildColourMap("eyeshadow");
+buildColourMap("blusher");
 buildColourMap("condom");
 buildColourMap("tentacle");
 

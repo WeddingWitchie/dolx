@@ -2003,7 +2003,7 @@
 						<<set _modeloptions.tanningEnabled to false>>
 						<<set _modeloptions.skin_type = Skin.color.natural>>
 						<<set _modeloptions.skin_tone = Skin.color.tan>>
-						<<set _modeloptions.freckles = $player.freckles == true and $makeup.concealer != 1>>
+						<<set _modeloptions.freckles = $player.freckles == true and !$makeup.concealer>>
 						<<set _modeloptions.mouth to 'neutral'>>
 						<<set _modeloptions.facevariant = $facevariant>>
 						<<set _modeloptions.left_eye = $makeup.eyelenses.left != 0 ? $makeup.eyelenses.left : $leftEyeColour>>
@@ -2283,7 +2283,8 @@
 							<<set $mirrorMenu to "makeup">>
 							<<replace #mirror>>
 								<<if _itemType is "lipstick">>
-									<<set _colour to _item.colour is "dark red" ? "jewel red" : _item.colour is "orange" ? "tangerine" : _item.colour>>
+									<<set _colour to _item.colour.replace(" waterproof", "")>>
+									<<set _colour to _colour is "dark red" ? "jewel red" : _colour is "orange" ? "tangerine" : _colour>>
 									<<wearProp _itemType _colour>>
 								<<else>>
 									<<wearProp _itemType>>
@@ -2317,8 +2318,8 @@
 		<<if $makeup.mascara isnot 0>>
 			<<run _makeup.push($makeup.mascara + " mascara")>>
 		<</if>>
-		<<if $makeup.concealer is 1>>
-			<<run _makeup.push("concealer")>>
+		<<if $makeup.concealer>>
+			<<run _makeup.push($makeup.concealer is 2 ? "waterproof concealer" : "concealer")>>
 		<</if>>
 		<<for _slot range setup.ccmod.categories>>
 			<<if ccmUtils.itemIsValid(ccmod.equipped[_slot])>>
@@ -2328,7 +2329,7 @@
 		<<set _makeupNames to ["lipstick","eyeshadow","mascara","blusher","browscolour","eyelenses"]>>
 		<<set _makeupData to ["lipstick","eyeshadow","mascara","blusher","hairdye","eyelenses"]>>
 		<<set _ownsMakeup to _makeupData.some(item => $makeup.owned[item].some(colour => colour.count > 0))>>
-		<<set _removableMakeup to _makeup.length gt 1 or (_makeup.length is 1 and _makeup[0] isnot "concealer")>>
+		<<set _removableMakeup to _makeup.length gt 1 or (_makeup.length is 1 and !_makeup[0].endsWith("concealer"))>>
 
 		<div class="settingsToggleItemWide">
 			<<if _makeup.length gt 0>>
@@ -2352,7 +2353,7 @@
 					<<set $makeup.mascara_running to 0>>
 					<<exposure>>
 				<</link>>
-				<<if _makeup.includes("concealer")>>
+				<<if $makeup.concealer>>
 					<mouse class="tooltip linkBlue">(?)<span>Will not remove concealer.</span></mouse>
 				<</if>>
 				|
@@ -2394,6 +2395,10 @@
 				<<if $makeup.concealer == 0>>
 					<<link "Hide freckles with concealer">>
 						<<set $makeup.concealer = 1>>
+						<<run Engine.show()>>
+					<</link>> |
+					<<link "Hide freckles with waterproof concealer">>
+						<<set $makeup.concealer = 2>>
 						<<run Engine.show()>>
 					<</link>>
 				<<else>>
