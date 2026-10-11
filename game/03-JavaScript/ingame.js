@@ -99,7 +99,7 @@ const combatActionColours = {
 			/* anusaction */
 			"doubleescape",
 			/* chestaction */
-			"chesttomouth",
+			"chesttomouth", "chestmouthescape",
 		],
 		def: [
 			/* leftaction or rightaction */

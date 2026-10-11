@@ -5453,7 +5453,7 @@
 					<<else>>
 						<span class="pink"><<He>> complies, and moves <<his>> head to your chest.</span>
 						<<set $_target.mouth to "chestentrance">><<set $_target.location.head to "head">>
-						<<set $chestuse to "mouth">><<set $cheststate to "mouthentrance">><<set $chesttarget to $mouthtarget>>
+						<<set $chestuse to "mouth">><<set $cheststate to "mouthentrance">><<set $chesttarget to $mouthtarget>><<unset $chestRefused>>
 						<<neutralbreast 1 $mouthtarget>>
 						<<namedNpcReaction $mouthtarget "kissSkin" "chest">>
 					<</if>>
@@ -9064,14 +9064,49 @@
 		<<if $chestaction is "chesttomouth">>
 			<<set $chestaction to 0>><<set $chestactiondefault to "rest">><<chestskilluse>><<combatpromiscuity3>><<meek 2>>
 			<<set $_target to $NPCList[$chesttarget]>><<personselect $chesttarget>>
-			<<if $chestuse isnot 0 or ![0,"speech_only"].includes($_target.mouth) or $_target.location.head is "head" or $_target.location.head is "genitals">>
+			<<set $_kissing to $mouthuse is "kiss" and $mouthtarget is $chesttarget>>
+			<<if $chestuse isnot 0 or !$_kissing and (![0,"speech_only"].includes($_target.mouth) or $_target.location.head is "head" or $_target.location.head is "genitals")>>
 				<span class="blue"><<He>> can't reach your chest right now.</span>
 			<<elseif $combatExtended.reverseRapeStart is 1 or combatSkillCheck("chest", $chesttarget)>>
+				<<if $_kissing>>
+					<<set $mouthuse to 0>><<set $mouthstate to 0>>
+					You break the kiss.
+				<</if>>
 				<<set $_target.mouth to "chestentrance">><<set $_target.location.head to "head">>
-				<<set $chestuse to "mouth">><<set $cheststate to "mouthentrance">>
+				<<set $chestuse to "mouth">><<set $cheststate to "mouthentrance">><<unset $chestRefused>>
 				<span class="lblue">You <<chesttext>> move your <<breasts>> towards <<hisselect $chesttarget>> mouth.</span>
 			<<else>>
 				You fail to move <<hisselect $chesttarget>> mouth towards your <<breasts>>.
+			<</if>>
+		<</if>>
+
+		<<if $chestaction is "chestmouthescape">>
+			<<set $chestaction to 0>><<set $chestactiondefault to "chestmouthescape">>
+			<<set $_target to $NPCList[$chesttarget]>>
+			<<if $chestuse is "mouth" and $_target and $_target.mouth.toString().startsWith("chest")>>
+				<<personselect $chesttarget>>
+				<<if $consensual is 1 or $combatExtended.reverseRapeStart is 1>>
+					<span class="green">You ease your <<breasts>> away from <<his>> mouth. <<He>> lets you.</span>
+					<<set $_target.mouth to 0>><<set $_target.location.head to 0>>
+					<<set $chestuse to 0>><<set $cheststate to 0>>
+					/* Consensual partners take the hint for the rest of the encounter; see the chest branches in man-combat.twee. */
+					<<set $chestRefused to true>>
+					<<brat 1 $chesttarget>>
+				<<else>>
+					<<willpowercombatcheck>>
+					<<if !$willpowerSuccess>>
+						You try to twist your <<breasts>> away from <<his>> mouth, <span class="lewd">but your flushed body doesn't obey.</span>
+					<<elseif $_target.mouth is "chestentrance">>
+						<span class="green">You twist away, and <<his>> mouth comes off your <<breasts>>.</span>
+						<<set $_target.mouth to 0>><<set $_target.location.head to 0>>
+						<<set $chestuse to 0>><<set $cheststate to 0>>
+						<<brat 3 $chesttarget>>
+					<<else>>
+						<span class="blue">You twist away, pulling your <<nipple>> from <<his>> lips.</span> <<His>> face stays close to your chest.
+						<<set $_target.mouth to "chestentrance">><<set $cheststate to "mouthentrance">>
+						<<brat 3 $chesttarget>>
+					<</if>>
+				<</if>>
 			<</if>>
 		<</if>>
 

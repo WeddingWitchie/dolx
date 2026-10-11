@@ -50,7 +50,7 @@
 				<<anusActionInit>>
 			</div>
 
-			<<if $chestuse isnot 0 or ($enemytype is "man" and ($promiscuity gte 35 or $promiscuityIgnore) and $position isnot "wall")>>
+			<<if $chestuse isnot 0 or ($enemytype is "man" and ($consensual is 1 or $promiscuity gte 35 or $promiscuityIgnore) and $position isnot "wall")>>
 				<div id="chestaction" @class="$options.combatControls + 'Control'">
 					<<chestActionInit>>
 				</div>
@@ -2217,11 +2217,13 @@
 		<<switch _chestOptions>>
 			<<case "free">>
 				<<set _chestaction["Rest"] to "rest">>
-				<<if $NPCList[$chesttarget] and ($consensual is 1 or $promiscuity gte 35 or $promiscuityIgnore) and !$gloryhole and [0,"speech_only"].includes($NPCList[$chesttarget].mouth) and $NPCList[$chesttarget].location.genitals isnot "head" and ![$NPCList[$chesttarget].location.head].includesAny("head", "genitals")>>
+				/* Kissing counts: the kiss ends and their mouth moves down. */
+				<<if $NPCList[$chesttarget] and !$gloryhole and $NPCList[$chesttarget].location.genitals isnot "head" and ([0,"speech_only"].includes($NPCList[$chesttarget].mouth) and ![$NPCList[$chesttarget].location.head].includesAny("head", "genitals") or $mouthuse is "kiss" and $mouthtarget is $chesttarget)>>
 					<<set _chestaction["Push towards " + $NPCList[$chesttarget].pronouns.his + " mouth"] to "chesttomouth">>
 				<</if>>
 			<<case "mouthEntrance" "mouthImminent" "mouthSuck">>
 				<<set _chestaction["Rest"] to "rest">>
+				<<set _chestaction["Pull away"] to "chestmouthescape">>
 			<<case "penis">>
 				<<set _chestaction["Rub"] to "rub">>
 				<<set _chestaction["Stop"] to "stop">>
