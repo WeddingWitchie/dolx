@@ -1096,6 +1096,48 @@ function playerInTemporaryXChangeBody() {
 }
 window.playerInTemporaryXChangeBody = playerInTemporaryXChangeBody;
 
+/* Body adjustment: after a body change, physical skills dip until you get used to the new body.
+ * How bad and how long depends on how long you lived in the body you just left, so quick NOW pill
+ * swaps barely register while months in one body make the other feel foreign.
+ * $xchange.bodySince is stamped on every body change even while the setting is off, so turning it
+ * on later still knows how long the current body has been worn. Missing means "since the game began". */
+setup.xchangeBodyAdjustment = {
+	graceDays: 2, // time in the old body that causes no adjustment at all
+	fullDays: 60, // time in the old body that gives the full penalty
+	maxPenalty: 0.3, // fraction of the skill lost right after the change at full severity
+	maxDays: 14, // how long the adjustment lasts at full severity
+};
+
+function xchangeBodyChanged() {
+	// Leaving a frozen scene restores the old body, so a swap inside one never happened.
+	if (V.statFreeze) return;
+	// Several hooks can fire for one swap (Choice herm runs genderflip then herm, a clone pill runs both); only the first counts.
+	if (V.xchange.bodySince === V.timeStamp) return;
+	const cfg = setup.xchangeBodyAdjustment;
+	const daysInOldBody = Math.max(0, V.timeStamp - (V.xchange.bodySince ?? 0)) / 86400;
+	V.xchange.bodySince = V.timeStamp;
+	delete V.xchange.bodyAdjustment;
+	if (!V.xchange.bodyAdjustmentEnabled) return;
+
+	const severity = Math.clamp((daysInOldBody - cfg.graceDays) / (cfg.fullDays - cfg.graceDays), 0, 1);
+	if (severity <= 0) return;
+	const hours = Math.round(24 + (cfg.maxDays - 1) * 24 * severity);
+	V.xchange.bodyAdjustment = { severity, hours, endsAt: V.timeStamp + hours * 3600 };
+	V.effectsmessage = 1;
+	V.xchangeBodyAdjustmentMessage = severity >= 0.5 ? "strong" : "mild";
+}
+window.xchangeBodyChanged = xchangeBodyChanged;
+
+/** @returns {number} Fraction (0 to maxPenalty) taken off physical skills right now. Fades linearly to 0. */
+function xchangeBodyAdjustmentPenalty() {
+	const adjustment = V.xchange?.bodyAdjustment;
+	if (!adjustment || !V.xchange.bodyAdjustmentEnabled || V.statFreeze || V.hc) return 0;
+	const remaining = (adjustment.endsAt - V.timeStamp) / (adjustment.hours * 3600);
+	if (!(remaining > 0)) return 0;
+	return setup.xchangeBodyAdjustment.maxPenalty * adjustment.severity * Math.min(remaining, 1);
+}
+window.xchangeBodyAdjustmentPenalty = xchangeBodyAdjustmentPenalty;
+
 /* Hyper Fertility is an X-Change pill effect, not a separate medicine timer.
  * While $xchange.pill.hyperFertilityEffect is true, PC-carried pregnancies advance faster and PC-caused conceptions can roll twins/triplets/quads.
  */
@@ -1678,6 +1720,15 @@ function xchangeHourlyCheck(hours = 1) {
 			}
 		}
 
+		// Body adjustment has run its course
+		if (V.xchange.bodyAdjustment && V.timeStamp >= V.xchange.bodyAdjustment.endsAt) {
+			delete V.xchange.bodyAdjustment;
+			if (V.xchange.bodyAdjustmentEnabled) {
+				V.effectsmessage = 1;
+				V.xchangeBodyAdjustmentMessage = "end";
+			}
+		}
+
 		// Tick the Anti X-Change therapy "clean" period (independent of the pill timer).
 		if (V.xchange?.therapy?.active && typeof V.xchange.therapy.countdown === "number") {
 			V.xchange.therapy.countdown = Math.max(V.xchange.therapy.countdown - 1 * hours, 0);
@@ -1878,6 +1929,26 @@ function xchangeEffectsMessages() {
 				br();
 		}
 		delete V.antiPillSensitivityEndMessage;
+	}
+
+	if (V.xchangeBodyAdjustmentMessage) {
+		switch (V.xchangeBodyAdjustmentMessage) {
+			case "strong":
+				element(
+					"span",
+					"This body feels wrong after so long in the other one. You keep misjudging your reach, your balance and the length of your stride.",
+					"red"
+				);
+				break;
+			case "mild":
+				element("span", "Your body feels a little unfamiliar. Your balance and reach are slightly off.", "orange");
+				break;
+			case "end":
+				element("span", "You've gotten used to this body. Your movements feel natural again.", "green");
+				break;
+		}
+		br();
+		delete V.xchangeBodyAdjustmentMessage;
 	}
 
 	if (!V.statFreeze && V.alcoholToleranceMessage) {

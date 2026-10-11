@@ -1605,6 +1605,10 @@ function currentSkillValue(skill, disableModifiers = 0, disableStatNerf = 0) {
 		}
 		result = Math.floor(result * (1 - playerBellySize() / T.pregnancyModifier));
 	}
+	// X-Change: clumsy in a body you haven't lived in for a while
+	if (["physique", "danceskill", "swimmingskill", "athletics", "skulduggery"].includes(skill)) {
+		result = Math.floor(result * (1 - xchangeBodyAdjustmentPenalty()));
+	}
 	switch (skill) {
 		case "skulduggery":
 			if (V.worn.hands.type.includes("sticky_fingers")) result = Math.floor(result * 1.05);

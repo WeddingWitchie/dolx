@@ -1807,6 +1807,7 @@ function settingsObjects(type) {
 					grayPillGenderflip: { min: 0, max: 1, decimals: 0, displayName: "Gray pills flip sex:" },
 					omegaShrinkGenitals: { min: 0, max: 1, decimals: 0, displayName: "Pink Omega pill shrinks instead of changing sex:" },
 					npcPillChangesGender: { min: 0, max: 1, decimals: 0, displayName: "Pilled NPCs change gender:" },
+					bodyAdjustmentEnabled: { min: 0, max: 1, decimals: 0, displayName: "Adjustment period after changing bodies:" },
 					omegaNeedsNoVagina: { min: 0, max: 1, decimals: 0, displayName: "Omega needs no vagina:" },
 					alphaGrowsPenis: { min: 0, max: 1, decimals: 0, displayName: "Alpha grows a cock if you have none:" },
 					aboDrivesHeat: { min: 0, max: 1, decimals: 0, displayName: "Alpha/Omega drive heat:" },
