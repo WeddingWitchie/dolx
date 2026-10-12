@@ -1771,6 +1771,7 @@ function settingsObjects(type) {
 					timestyle: { strings: ["military", "ampm"], displayName: "Time style:" },
 					tipdisable: { boolLetter: true, bool: true, displayName: "Sidebar Tips:" },
 					pepperSprayDisplay: { strings: ["none", "sprays", "compact"], displayName: "Pepper spray display:" },
+					dragonStarDisplay: { strings: ["none", "show"], displayName: "Dragon star display:" },
 					condomsDisplay: { strings: ["none", "standard"], displayName: "Condom display:" },
 					closeButtonMobile: { bool: true, displayName: "Items per page:" },
 					showDebugRenderer: { bool: true, displayName: "Enable renderer debugger:" },

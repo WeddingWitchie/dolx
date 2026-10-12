@@ -2201,10 +2201,14 @@ Args: reason ("broken", "stolen", or "lost"), optional holder, optional target (
 
 <<widget "peppersprays">>
 	<span id="peppersprays">
-		<<if $options.pepperSprayDisplay isnot "none">>
-			<div tooltip="<span class='def'>Pepper sprays: $spray / $spraymax</span>" id="pepper-sprays" class="pepper-sprays">
+		<<set _showSprays to $options.pepperSprayDisplay isnot "none">>
+		<<set _showStars to $dragonStar gt 0 and $options.dragonStarDisplay isnot "none">>
+		<<if _showSprays or _showStars>>
+			<<set _sprayTip to (_showSprays and $spraymax ? "<span class='def'>Pepper sprays: " + $spray + " / " + $spraymax + "</span>" : "") + (_showStars ? " <span class='blue'>Dragon stars: " + $dragonStar + "</span>" : "")>>
+			<div @tooltip="_sprayTip" id="pepper-sprays" class="pepper-sprays">
+				<<if !_showSprays>>
 				<!-- Compact style (dots) -->
-				<<if $options.pepperSprayDisplay is "compact" or $spraymax gt 7>>
+				<<elseif $options.pepperSprayDisplay is "compact" or $spraymax gt 7>>
 					<div class="pepper-sprays-dots">
 						<<for _i to 1; _i lte $spraymax; _i++>>
 							<<if $spray gte _i>>
@@ -2231,6 +2235,12 @@ Args: reason ("broken", "stolen", or "lost"), optional holder, optional target (
 							<img draggable="false" src="img/ui/pepper-spray-empty.png">
 						<</if>>
 					<</for>>
+				<</if>>
+				<<if _showStars>>
+					<span class="dragon-stars">
+						<<for _i to 1; _i lte 3; _i++>><img draggable="false" @src='"img/ui/dragon-star" + ($dragonStar gte _i ? "" : "-empty") + ".png"'><</for>>
+						<<if $dragonStar gt 3>>+<</if>>
+					</span>
 				<</if>>
 			</div>
 		<</if>>
