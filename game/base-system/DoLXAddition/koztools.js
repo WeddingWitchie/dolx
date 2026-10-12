@@ -537,10 +537,9 @@ window.updatePronounSummary = updatePronounSummary;
 		} catch (e) {}
 	};
 
-	runXChangeLoadCompat();
+	setup.xchangeRunLoadCompat = runXChangeLoadCompat;
 
 	if (typeof jQuery === "function") {
-		jQuery(document).on(":onloadsave", runXChangeLoadCompat);
 		jQuery(document).on(":passagestart", () => {
 			if (V.wraith && !Number.isFinite(V.wraith.will)) {
 				if (V.possessed) V.wraith.will = random(1300, 1700);
@@ -614,6 +613,8 @@ function xChangeCachedBodyUsable(slotName) {
 	const prop = slotName === "genderswapped" ? "changedBody" : slotName === "herm" ? "hermBody" : slotName;
 	const body = pill[prop];
 	if (!body || typeof body !== "object" || Array.isArray(body) || Object.keys(body).length === 0) return false;
+	// Older Swell restoration wrote sizes into an otherwise empty, never-generated cache.
+	if (prop === "changedBody" && Object.keys(body).every(key => ["penissize", "breastsize", "bottomsize"].includes(key))) return false;
 
 	if (window.xChangeBodySnapshotUsable(body)) return true;
 

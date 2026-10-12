@@ -1126,34 +1126,6 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 		<<if $xchange.pill.clonedBody is undefined or $xchange.pill.clonedBody is null or typeof $xchange.pill.clonedBody isnot "object" or Array.isArray($xchange.pill.clonedBody)>><<set $xchange.pill.clonedBody to {}>><</if>>
 		/* clone is a string sentinel ("none"), not an object; explicit falsy check */
 		<<if !$xchange.pill.clone>><<set $xchange.pill.clone to "none">><</if>>
-		<<if $xchange.pill.active and $xchange.pill.baseSex isnot undefined and !["m", "f"].includes($xchange.pill.baseSex)>>
-			<<set $xchange.pill.baseSex to undefined>>
-		<</if>>
-		<<if $xchange.pill.active and $xchange.pill.baseSex is undefined>>
-			<<set _xcBaseSex to undefined>>
-			<<if ["m", "f"].includes($xchange.pill.originalBody.sex)>>
-				<<set _xcBaseSex to $xchange.pill.originalBody.sex>>
-			<<elseif $xchange.pill.baseGenitals isnot undefined and $xchange.pill.baseGenitals isnot null and typeof $xchange.pill.baseGenitals is "object">>
-				<<if $xchange.pill.baseGenitals.penis is true and $xchange.pill.baseGenitals.vagina isnot true>>
-					<<set _xcBaseSex to "m">>
-				<<elseif $xchange.pill.baseGenitals.vagina is true and $xchange.pill.baseGenitals.penis isnot true>>
-					<<set _xcBaseSex to "f">>
-				<</if>>
-			<</if>>
-			<<if _xcBaseSex isnot undefined>>
-				<<set $xchange.pill.baseSex to _xcBaseSex>>
-			<</if>>
-		<</if>>
-	<</if>>
-
-	/* One-time fix for legacy body snapshots whose gender_body/sex are unloadable: either the old base-DoL herm value "h", or (in very old snapshots) missing entirely.
-	X-Change herm bodies are gender_body "a" (two genitals) with an underlying sex of "m"/"f"; load-body tolerates every other missing field but hard-requires a valid gender_body and sex, so only those two are derived.
-	Runs once. */
-	<<if $xchange._didLegacyBodySexFix is not true and typeof setup.xChangeMigrateLegacyHermSnapshots is "function">>
-		<<set $xchange._didLegacyBodySexFix to true>> /* delete later */
-		<<if setup.xChangeMigrateLegacyHermSnapshots()>>
-			<<run setup.xChangeRepairNoticeOnce("repair_xchange_legacy_body_sex", "<b>Save repair notice</b><br>One or more of your stored X-Change body snapshots had a body-sex value that newer versions can no longer load, either the old herm value <b>\"h\"</b> or, in very old snapshots, no stored sex at all. X-Change has filled in a valid body sex so those bodies load again. Where the original male/female sex of a legacy herm body could not be recovered, it was derived from the body's genitals.<br><br><b>If you encounter any error after this, please report it with your save and steps.</b>")>>
-		<</if>>
 	<</if>>
 
 	/* One-time fix: Whitney's re-cage events used to fit a penis chastity cage onto a pill-feminized body with no penis. Adapt an already-worn cage into the belt shape, the same way the pill transformation itself does. Chastity parasites are living slime, not a metal cage, and keep their shape. */
@@ -1457,6 +1429,30 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 <</widget>>
 
 <<widget "xchange-loadinit">>
+	<<run setup.xchangeRunLoadCompat()>>
+	/* Use vanilla's legacy sprite mapping for complete cached bodies that predate bodyshape. */
+	<<if setup.xChangeMigrateLegacyHermSnapshots()>>
+		<<run setup.xChangeRepairNoticeOnce("repair_xchange_legacy_body_snapshot", "<b>Save repair notice</b><br>Stored X-Change bodies used legacy body-sex or appearance fields. Missing body shapes now use the same mapping as vanilla's old-character update. Recorded sizes and body history were preserved.")>>
+	<</if>>
+	<<unset $xchange._didLegacyBodySexFix>>
+		<<if $xchange.pill?.active and $xchange.pill.baseSex isnot undefined and !["m", "f"].includes($xchange.pill.baseSex)>>
+			<<set $xchange.pill.baseSex to undefined>>
+		<</if>>
+		<<if $xchange.pill?.active and $xchange.pill.baseSex is undefined>>
+			<<set _xcBaseSex to undefined>>
+			<<if ["m", "f"].includes($xchange.pill.originalBody?.sex)>>
+				<<set _xcBaseSex to $xchange.pill.originalBody?.sex>>
+			<<elseif $xchange.pill.baseGenitals isnot undefined and $xchange.pill.baseGenitals isnot null and typeof $xchange.pill.baseGenitals is "object">>
+				<<if $xchange.pill.baseGenitals.penis is true and $xchange.pill.baseGenitals.vagina isnot true>>
+					<<set _xcBaseSex to "m">>
+				<<elseif $xchange.pill.baseGenitals.vagina is true and $xchange.pill.baseGenitals.penis isnot true>>
+					<<set _xcBaseSex to "f">>
+				<</if>>
+			<</if>>
+			<<if _xcBaseSex isnot undefined>>
+				<<set $xchange.pill.baseSex to _xcBaseSex>>
+			<</if>>
+		<</if>>
 	<<if $xchange isnot undefined and $xchange.transIdentitySeeded is undefined>><<set $xchange.transIdentitySeeded to true>><</if>>
 	<<script>>window.repairInvalidHairColours?.();<</script>>
 	<<run fishingEnsure()>>

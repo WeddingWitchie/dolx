@@ -48,7 +48,7 @@ if (typeof setup.xChangeRepairNoticeOnce !== "function") setup.xChangeRepairNoti
 /* Pure validation: never mutates the snapshot. A snapshot that fails this is reported
 	loudly (see the <<error>> in xchange.twee load-body/save-body) instead of being silently
 	"repaired" into a lossy shape. Legacy data (e.g. base-DoL sex/gender_body "h") is fixed
-	once by the flagged migration in version-update.twee, not on every load. */
+	once by the idempotent migration in the load initializer. */
 function xChangeBodySnapshotUsable(body) {
 	if (!body || typeof body !== "object" || Array.isArray(body)) return false;
 	if (Object.keys(body).length === 0) return false;
@@ -66,9 +66,9 @@ function xChangeBodySnapshotUsable(body) {
 }
 window.xChangeBodySnapshotUsable = xChangeBodySnapshotUsable;
 
-/* One-time legacy migration, called from version-update.twee.
+/* Idempotent legacy migration, called from the normal load initializer.
 	Old body snapshots may use "h" for sex/gender_body or lack those fields entirely.
-	Derive only gender_body and sex so old snapshots can load. Other invalid data is left
+	Derive gender_body, sex, and the old sprite's missing bodyshape so old snapshots can load. Other invalid data is left
 	untouched and will still be caught by xChangeBodySnapshotUsable. */
 function xChangeDeriveSnapshotGenderBody(body) {
 	if (body.gender_body === "h") return "a"; // legacy herm value
@@ -91,10 +91,23 @@ function xChangeDeriveSnapshotSex(body, genderBody) {
 	return "m";
 }
 
-function xChangeMigrateLegacyHermSnapshot(body) {
+function xChangeMigrateLegacyHermSnapshot(body, migratePenisSizes = false) {
 	if (!body || typeof body !== "object" || Array.isArray(body)) return false;
 	if (Object.keys(body).length === 0) return false; // empty {} placeholder = "no body saved"; leave it
+	if (body.bodysize === undefined) return false; // Swell size-only remnants were never body snapshots.
 	let changed = false;
+	if (migratePenisSizes && Number.isFinite(body.penissize)) {
+		body.penissize = body.penisExist === false ? 0 : body.penissize + 2;
+		if (body.ballsExist === true) body.ballssize = body.penissize;
+		changed = true;
+	}
+	// Already-upgraded saves can still contain the old -2/-1 size scale in cached bodies.
+	for (const key of ["penissize", "ballssize"]) {
+		if (body[key] === -2 || body[key] === -1) {
+			body[key] += 2;
+			changed = true;
+		}
+	}
 	const genderBody = xChangeDeriveSnapshotGenderBody(body);
 	if (genderBody !== undefined && body.gender_body !== genderBody) {
 		body.gender_body = genderBody;
@@ -104,19 +117,26 @@ function xChangeMigrateLegacyHermSnapshot(body) {
 		body.sex = xChangeDeriveSnapshotSex(body, body.gender_body);
 		changed = true;
 	}
+	if (body.bodyshape === undefined) {
+		const shape = { m: "classic", f: "curvy", a: "slender" }[body.gender_body];
+		if (shape && xChangeBodySnapshotUsable({ ...body, bodyshape: shape })) {
+			body.bodyshape = shape;
+			changed = true;
+		}
+	}
 	return changed;
 }
 
-function xChangeMigrateLegacyHermSnapshots() {
+function xChangeMigrateLegacyHermSnapshots(migratePenisSizes = false) {
 	const pill = V.xchange && V.xchange.pill;
 	if (!pill || typeof pill !== "object" || Array.isArray(pill)) return false;
 	let changed = false;
 	for (const key of ["originalBody", "changedBody", "hermBody"]) {
-		if (xChangeMigrateLegacyHermSnapshot(pill[key])) changed = true;
+		if (xChangeMigrateLegacyHermSnapshot(pill[key], migratePenisSizes)) changed = true;
 	}
 	if (pill.clonedBody && typeof pill.clonedBody === "object") {
 		for (const name of Object.keys(pill.clonedBody)) {
-			if (xChangeMigrateLegacyHermSnapshot(pill.clonedBody[name])) changed = true;
+			if (xChangeMigrateLegacyHermSnapshot(pill.clonedBody[name], migratePenisSizes)) changed = true;
 		}
 	}
 	return changed;
