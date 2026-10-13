@@ -1113,7 +1113,7 @@ function collectSample(species, amount = 1) {
 window.collectSample = collectSample;
 
 function gwylanRequestClothingSlotCheck(slot) {
-	if (!V.gwylan?.request.event || !slot) return false;
+	if (!V.gwylan?.request.event || !V.worn[slot]) return false;
 
 	if (slot === "neck" && V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1) return true;
 
