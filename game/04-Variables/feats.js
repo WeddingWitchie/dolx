@@ -1315,6 +1315,14 @@ setup.feats = {
 		hint: "Hint: Outbreak on the bedroom console has scenarios of its own.",
 		filter: ["All", "General"],
 	},
+	"Rhythm Master": {
+		title: "Rhythm Master",
+		desc: "Completed every challenge in the console Rhythm game.",
+		difficulty: 3,
+		series: "",
+		hint: "Hint: The bedroom console's rhythm game keeps a list of challenges.",
+		filter: ["All", "General"],
+	},
 	"Broodmother Host": {
 		title: "Broodmother Host",
 		desc: "Host to an endless number of little critters.",

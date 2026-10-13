@@ -1,4 +1,6 @@
-/* Sidebar swipe */
+/* Sidebar swipe. A touch that starts inside an element marked data-gesture-owner (a minigame playfield that drags or
+ * swipes) belongs to that element: the sidebar ignores it. The mark lives on the element, so it goes away with the
+ * passage and nothing has to be unlocked on exit. */
 document.addEventListener("touchstart", handleTouchStart, false);
 document.addEventListener("touchmove", handleTouchMove, false);
 
@@ -6,6 +8,10 @@ let xDown = null;
 let yDown = null;
 
 function handleTouchStart(ev) {
+	if (ev.target.closest && ev.target.closest("[data-gesture-owner]")) {
+		xDown = yDown = null;
+		return;
+	}
 	const firstTouch = ev.touches[0];
 	xDown = firstTouch.clientX;
 	yDown = firstTouch.clientY;
@@ -15,6 +21,7 @@ function handleTouchMove(ev) {
 	if (!xDown || !yDown) return;
 	// don't interfere with sliders and other inputs
 	if (ev.target.tagName === "INPUT") return;
+	if (ev.target.closest && ev.target.closest("[data-gesture-owner]")) return;
 
 	// Activate the swipe only when finger is over the UI Bar
 	// eslint-disable-next-line no-unused-vars

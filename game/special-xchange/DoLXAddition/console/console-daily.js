@@ -1,5 +1,5 @@
 /* globals statChange earnFeat formatMoney */
-/* Shared by the three console games: UTC day, seeded random, money and feats. Money is paid through
+/* Shared by the console games: UTC day, seeded random, money and feats. Money is paid through
  * statChange.money() (source "consoleGames"); callers write their claim in the same step, so nothing pays twice. */
 (() => {
 	/* Daily money in pennies, paid once per UTC day per game. */
@@ -7,11 +7,13 @@
 		fruit: Object.freeze({ easy: 20000, medium: 35000, hard: 50000 }),
 		pet: Object.freeze({ easy: 20000, medium: 35000, hard: 50000 }),
 		outbreak: Object.freeze({ easy: 20000, medium: 35000, hard: 50000 }),
+		/* The rhythm game's own levels: easy, normal, hard. Built-in songs only. */
+		rhythm: Object.freeze({ easy: 20000, normal: 35000, hard: 50000 }),
 	});
 
 	/* The Level 3 feat each game gives for finishing everything (setup.feats): the Fruit game's for all its achievements,
-	 * the others' for completing every challenge. */
-	const feats = Object.freeze({ fruit: "Fruit Master", pet: "Champion Tamer", outbreak: "Patient Zero" });
+	 * the others' (Virtual Pet, Outbreak, Rhythm) for completing every challenge. */
+	const feats = Object.freeze({ fruit: "Fruit Master", pet: "Champion Tamer", outbreak: "Patient Zero", rhythm: "Rhythm Master" });
 
 	/* How many daily records each game keeps (older days are dropped). */
 	const keepDays = 30;

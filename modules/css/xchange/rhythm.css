@@ -1,0 +1,1356 @@
+/* Rhythm console game. The whole game is one dark console screen with its own palette, so it reads the same in every
+ * DoL theme. The identity is the scan
+ * line: it sweeps each song's loudness bars at the song's own tempo, and
+ * is the playfield itself. One accent (cyan) marks what is selected; difficulty has its own three colours, always
+ * next to its name. Each song also has its own generated cover look. Motion: the cover sweep
+ * stops with reduced motion or the game's "Fewer effects" setting; everything else is
+ * hover and selection changes. */
+.rhythm {
+	--rh-bg: #0b0e15;
+	--rh-panel: #121722;
+	--rh-panel-2: #182032;
+	--rh-line: #2a3450;
+	--rh-text: #ebe8df;
+	--rh-muted: #a3acc0;
+	--rh-accent: #63e3ff;
+	--rh-easy: #6fe39b;
+	--rh-normal: #ffd166;
+	--rh-hard: #ff7a98;
+	--rh-perfect: #ffe27a;
+	--rh-good: #9fe0a0;
+	--rh-miss: #ff8a80;
+
+	position: relative;
+	max-width: 980px;
+	padding: 12px;
+	border: 1px solid var(--rh-line);
+	border-radius: 10px;
+	background: var(--rh-bg);
+	color: var(--rh-text);
+	box-sizing: border-box;
+}
+
+.rhythm [hidden] {
+	display: none !important;
+}
+
+.rh-sr {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+}
+
+/* ---- buttons and form controls: one look for the whole screen ---- */
+.rhythm .rh-btn,
+.rhythm .rh-select,
+.rhythm .rh-input,
+.rhythm .rh-file-label {
+	min-height: 44px;
+	padding: 8px 14px;
+	border: 1px solid var(--rh-line);
+	border-radius: 6px;
+	background: var(--rh-panel);
+	color: var(--rh-text);
+	font: inherit;
+	box-sizing: border-box;
+}
+
+.rhythm .rh-btn {
+	min-width: 44px;
+	cursor: pointer;
+	transition: border-color 0.12s, background-color 0.12s;
+}
+
+/* No wait for a double-tap zoom on touch screens, and a pressed look the moment a button is touched. */
+.rhythm button,
+.rhythm select,
+.rhythm input,
+.rhythm .rh-file-label {
+	touch-action: manipulation;
+}
+
+.rhythm .rh-btn:active,
+.rhythm .rh-pick:active,
+.rhythm .rh-level:active,
+.rhythm .rh-tab:active {
+	background: var(--rh-line);
+}
+
+.rhythm .rh-btn:hover,
+.rhythm .rh-file-label:hover {
+	border-color: var(--rh-accent);
+	background: var(--rh-panel-2);
+}
+
+.rhythm .rh-btn:disabled {
+	opacity: 0.5;
+	cursor: default;
+}
+
+.rhythm .rh-btn[aria-pressed="true"],
+.rhythm .rh-btn--main {
+	border-color: var(--rh-accent);
+	font-weight: bold;
+}
+
+.rhythm .rh-btn--small {
+	min-height: 32px;
+	padding: 2px 10px;
+}
+
+.rhythm .rh-select,
+.rhythm .rh-input {
+	max-width: 100%;
+}
+
+.rhythm :focus-visible {
+	outline: 2px solid var(--rh-accent);
+	outline-offset: 2px;
+}
+
+.rh-file {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	opacity: 0;
+}
+
+.rhythm .rh-file-label {
+	display: inline-flex;
+	position: relative;
+	align-items: center;
+	cursor: pointer;
+}
+
+.rh-file-label:focus-within {
+	outline: 2px solid var(--rh-accent);
+	outline-offset: 2px;
+}
+
+.rh-range {
+	flex: 1 1 160px;
+	max-width: 260px;
+	accent-color: var(--rh-accent);
+}
+
+/* ---- type ---- */
+.rh-head,
+.rh-panel-head {
+	margin: 4px 0 8px;
+	font-size: 1.1em;
+}
+
+/* Song details: each setting with its explanation directly under it. */
+.rh-detail-field {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin: 8px 0;
+}
+
+.rhythm .rh-btn--danger {
+	border-color: var(--rh-miss);
+	color: var(--rh-miss);
+}
+
+.rh-song-title {
+	font-weight: bold;
+}
+
+.rh-song-sub,
+.rh-note,
+.rh-progress-text {
+	color: var(--rh-muted);
+	font-size: 0.88em;
+}
+
+/* Small labels above values (Daily challenge, Best on Normal): spaced capitals, the HUD's voice. */
+.rh-k {
+	color: var(--rh-muted);
+	font-size: 0.82em;
+	font-weight: bold;
+}
+
+.rh-score {
+	font-size: 1.3em;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.08em;
+}
+
+.rh-score--big {
+	font-size: 2em;
+}
+
+.rh-error {
+	color: var(--rh-miss);
+}
+
+.rh-warning {
+	padding: 8px 10px;
+	border: 1px solid var(--rh-line);
+	border-left: 3px solid var(--rh-normal);
+	border-radius: 6px;
+	background: var(--rh-panel);
+}
+
+.rh-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin: 8px 0;
+}
+
+.rh-row > .rh-input {
+	flex: 1 1 160px;
+	min-width: 0;
+}
+
+.rh-field-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin: 6px 0;
+}
+
+.rh-field-row > span {
+	min-width: 10em;
+}
+
+.rh-field-row .rh-input {
+	width: 9em;
+}
+
+.rh-field-row input[type="text"] {
+	width: 16em;
+	max-width: 100%;
+}
+
+.rh-check > span {
+	min-width: 0;
+}
+
+.rh-row > .rh-field-row {
+	flex: 1 1 16em;
+	min-width: 0;
+}
+
+/* A select in a settings row shrinks with the screen instead of sizing to its longest option. */
+.rh-field-row > .rh-select {
+	flex: 1 1 12em;
+	width: auto;
+	min-width: 0;
+}
+
+.rh-tag {
+	display: inline-block;
+	margin-right: 6px;
+	padding: 1px 7px;
+	border: 1px solid var(--rh-line);
+	border-radius: 3px;
+	color: var(--rh-muted);
+	font-size: 0.78em;
+}
+
+.rh-tag--warn {
+	border-color: var(--rh-normal);
+	color: var(--rh-normal);
+}
+
+/* Difficulty colours: text and borders, always beside the difficulty's name. */
+.rh-lv--easy {
+	--rh-lv: var(--rh-easy);
+}
+
+.rh-lv--normal {
+	--rh-lv: var(--rh-normal);
+}
+
+.rh-lv--hard {
+	--rh-lv: var(--rh-hard);
+}
+
+.rh-lv-tag {
+	padding: 1px 8px;
+	border: 1px solid var(--rh-lv);
+	border-radius: 3px;
+	color: var(--rh-lv);
+	font-size: 0.85em;
+	font-weight: bold;
+}
+
+th.rh-lv--easy,
+th.rh-lv--normal,
+th.rh-lv--hard {
+	color: var(--rh-lv);
+}
+
+/* ---- masthead and tabs ---- */
+.rh-masthead {
+	position: relative;
+	height: 30px;
+	margin: -4px 0 8px;
+	overflow: hidden;
+}
+
+.rh-wordmark {
+	position: relative;
+	z-index: 1;
+	font-size: 1.15em;
+	font-weight: bold;
+	letter-spacing: 0.06em;
+}
+
+.rh-mast-line {
+	position: absolute;
+	right: 0;
+	left: 0;
+	height: 1px;
+	top: auto;
+	bottom: 0;
+	background: var(--rh-line);
+}
+
+.rh-tabs {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(7.2em, 1fr));
+	gap: 0;
+	margin-bottom: 12px;
+	border-bottom: 1px solid var(--rh-line);
+}
+
+.rhythm .rh-tab {
+	min-width: 0;
+	min-height: 44px;
+	padding: 8px 4px;
+	border: 0;
+	border-bottom: 2px solid transparent;
+	border-radius: 0;
+	background: transparent;
+	color: var(--rh-muted);
+}
+
+.rhythm .rh-tab:hover {
+	border-color: transparent;
+	border-bottom-color: var(--rh-line);
+	background: transparent;
+	color: var(--rh-text);
+}
+
+.rhythm .rh-tab[aria-pressed="true"] {
+	border-bottom-color: var(--rh-accent);
+	color: var(--rh-text);
+}
+
+/* ---- panels: every non-game page is a stack of these ---- */
+.rh-panel,
+.rh-offer,
+.rh-daily,
+.rh-daily-strip {
+	margin: 0 0 12px;
+	padding: 10px 12px;
+	border: 1px solid var(--rh-line);
+	border-radius: 8px;
+	background: var(--rh-panel);
+}
+
+.rh-offer {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	border-color: var(--rh-line);
+}
+
+/* ---- Play tab: stage (selected song) and list side by side on wide screens, stage first on narrow ones ---- */
+.rh-select-layout {
+	display: grid;
+	gap: 12px;
+}
+
+@media (min-width: 900px) {
+	.rh-select-layout {
+		grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+		align-items: start;
+	}
+
+	.rh-stage {
+		position: sticky;
+		top: 8px;
+	}
+
+	.rh-picks {
+		max-height: 62vh;
+		overflow-y: auto;
+		overscroll-behavior: contain;
+	}
+}
+
+.rh-stage {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 12px;
+	border: 1px solid var(--rh-line);
+	border-top: 3px solid hsl(var(--hue, 190) 80% 62%);
+	border-radius: 10px;
+	background: var(--rh-panel);
+}
+
+.rh-stage-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.rh-stage-title {
+	margin: 0;
+	font-size: 1.35em;
+	overflow-wrap: anywhere;
+}
+
+.rh-stage-meta {
+	font-variant-numeric: tabular-nums;
+	font-size: 0.9em;
+}
+
+.rh-stage-foot {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.rh-stage-best {
+	display: flex;
+	flex-direction: column;
+}
+
+/* The one Play action: wide, in the difficulty's colour. */
+.rhythm .rh-play {
+	flex: 1 1 160px;
+	max-width: 280px;
+	min-height: 52px;
+	border: 2px solid var(--rh-lv, var(--rh-accent));
+	background: var(--rh-panel-2);
+	color: var(--rh-text);
+	font-size: 1.1em;
+	font-weight: bold;
+	letter-spacing: 0.06em;
+}
+
+.rhythm .rh-play:hover {
+	border-color: var(--rh-lv, var(--rh-accent));
+	background: #1f2940;
+}
+
+/* Song colours and loudness form the cover; only the selected cover carries the scan line. */
+.rh-cover {
+	position: relative;
+	flex: none;
+	width: 56px;
+	height: 56px;
+	overflow: hidden;
+	border-radius: 6px;
+	background: radial-gradient(circle at var(--gx) var(--gy), hsl(var(--hue) var(--sat) 45% / 85%), transparent 62%),
+		radial-gradient(circle at calc(100% - var(--gx)) 90%, hsl(var(--hue2) var(--sat) 42% / 70%), transparent 60%),
+		linear-gradient(135deg, hsl(var(--hue) 40% 10%), hsl(var(--hue2) 40% 7%));
+}
+
+.rh-cover--small {
+	width: 40px;
+	height: 40px;
+	border-radius: 5px;
+}
+
+.rh-cover--big {
+	width: 100%;
+	height: 120px;
+}
+
+.rh-pattern {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: hsl(var(--hue2) 90% 82% / 24%);
+	stroke-width: 1;
+	vector-effect: non-scaling-stroke;
+}
+
+.rh-pattern line,
+.rh-pattern circle,
+.rh-pattern ellipse {
+	vector-effect: non-scaling-stroke;
+}
+
+.rh-pattern .rh-pattern-dot {
+	fill: hsl(var(--hue2) 90% 82% / 35%);
+	stroke: none;
+}
+
+.rh-wave {
+	position: absolute;
+	inset: auto 0 0;
+	width: 100%;
+	height: 70%;
+	fill: hsl(var(--hue2) 85% 88% / 62%);
+}
+
+.rh-wave--mirror {
+	inset: 15% 0 auto;
+}
+
+.rh-cover-line {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 2px;
+	background: #fff;
+	opacity: 0.65;
+	animation: rh-sweep var(--sweep) linear infinite alternate;
+}
+
+@keyframes rh-sweep {
+	from {
+		left: 0;
+	}
+
+	to {
+		left: calc(100% - 2px);
+	}
+}
+
+/* Difficulty: three equal parts with name, level number and best grade; the pressed one takes its colour. */
+.rh-levels {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+}
+
+.rhythm .rh-level {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	grid-template-rows: auto auto;
+	min-height: 54px;
+	padding: 6px 10px;
+	border: 1px solid var(--rh-line);
+	border-radius: 8px;
+	background: var(--rh-bg);
+	color: var(--rh-muted);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.rh-level-name {
+	font-size: 0.85em;
+}
+
+.rh-level-num {
+	grid-row: 1 / span 2;
+	grid-column: 2;
+	align-self: center;
+	font-size: 1.6em;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+}
+
+.rh-level-best {
+	font-size: 0.8em;
+}
+
+.rhythm .rh-level:hover {
+	border-color: var(--rh-lv);
+}
+
+.rhythm .rh-level[aria-pressed="true"] {
+	border: 2px solid var(--rh-lv);
+	background: var(--rh-panel-2);
+	color: var(--rh-text);
+}
+
+.rhythm .rh-level[aria-pressed="true"] .rh-level-num,
+.rhythm .rh-level[aria-pressed="true"] .rh-level-name {
+	color: var(--rh-lv);
+}
+
+/* Song list: compact rows; the selected one carries the accent bar and a dot instead of an arrow. */
+.rh-list-col {
+	min-width: 0;
+}
+
+.rh-row--head {
+	flex-wrap: nowrap;
+	margin-top: 0;
+}
+
+.rh-row--head > .rh-select {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.rh-row--head > .rh-btn {
+	flex: none;
+}
+
+.rhythm .rh-picks {
+	margin: 0;
+	padding: 0;
+	border: 1px solid var(--rh-line);
+	border-radius: 8px;
+	list-style: none;
+}
+
+.rhythm .rh-pick-item {
+	margin: 0;
+	border-bottom: 1px solid var(--rh-line);
+}
+
+.rhythm .rh-pick-item:last-child {
+	border-bottom: 0;
+}
+
+.rhythm .rh-pick {
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	width: 100%;
+	min-height: 52px;
+	padding: 6px 10px 6px 8px;
+	border: 0;
+	border-left: 3px solid transparent;
+	border-radius: 0;
+	background: transparent;
+	color: var(--rh-text);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+	transition: background-color 0.12s;
+}
+
+.rhythm .rh-pick:hover {
+	background: var(--rh-panel);
+}
+
+.rhythm .rh-pick:focus-visible {
+	outline-offset: -2px;
+}
+
+.rhythm .rh-pick[aria-pressed="true"] {
+	border-left-color: var(--rh-accent);
+	background: var(--rh-panel-2);
+}
+
+.rh-pick-text {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.rh-pick-text > span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.rh-pick-grade {
+	flex: none;
+	width: 1.6em;
+	font-size: 1.15em;
+	font-weight: bold;
+	text-align: center;
+}
+
+.rh-pick-grade--none {
+	color: var(--rh-muted);
+	font-weight: normal;
+}
+
+.rh-pick-mark {
+	flex: none;
+	width: 1em;
+	color: var(--rh-muted);
+	text-align: center;
+}
+
+.rh-pick[aria-pressed="true"] .rh-pick-mark {
+	color: var(--rh-accent);
+}
+
+/* Daily challenge, short form above the song list. */
+.rh-daily-strip {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	gap: 2px 12px;
+	align-items: center;
+	border-left: 3px solid var(--rh-accent);
+}
+
+.rh-daily-strip > .rh-btn {
+	grid-row: 1 / span 3;
+	grid-column: 2;
+}
+
+.rh-daily-goal {
+	margin: 0;
+}
+
+/* ---- Challenges tab ---- */
+.rh-daily-head,
+.rh-chal-head {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	justify-content: space-between;
+	margin: 0 0 8px;
+}
+
+.rh-daily-body {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.rh-daily--done {
+	border-color: var(--rh-easy);
+}
+
+.rh-facts {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 4px 14px;
+	margin: 10px 0;
+}
+
+.rh-facts dt {
+	color: var(--rh-muted);
+}
+
+.rh-facts dd {
+	margin: 0;
+}
+
+.rh-chal-total {
+	display: grid;
+	grid-template-columns: auto 1fr;
+	gap: 4px 12px;
+	align-items: center;
+	margin: 0 0 12px;
+}
+
+.rh-chal-total > .rh-meter {
+	grid-column: 1 / -1;
+}
+
+.rh-chal-group {
+	margin: 0 0 12px;
+}
+
+.rhythm .rh-chal-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.rhythm .rh-chal {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+	margin: 0;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--rh-line);
+}
+
+.rh-chal-mark {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border: 1px solid var(--rh-line);
+	border-radius: 50%;
+	color: var(--rh-easy);
+	font-weight: bold;
+}
+
+.rh-chal--done .rh-chal-mark {
+	border-color: var(--rh-easy);
+}
+
+.rh-chal-main {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	gap: 3px;
+	min-width: 0;
+}
+
+.rh-chal-state {
+	color: var(--rh-muted);
+	font-size: 0.82em;
+}
+
+.rh-chal--done .rh-chal-state {
+	color: var(--rh-easy);
+}
+
+.rh-meter {
+	display: block;
+	height: 6px;
+	max-width: 320px;
+	overflow: hidden;
+	border-radius: 3px;
+	background: var(--rh-bg);
+}
+
+.rh-meter-fill {
+	display: block;
+	height: 100%;
+	background: var(--rh-accent);
+}
+
+.rh-feat .con-feat {
+	border-color: var(--rh-line);
+	background: var(--rh-panel);
+	color: var(--rh-text);
+}
+
+/* ---- Settings: lane keys ---- */
+.rh-keys {
+	display: grid;
+	grid-template-columns: repeat(6, minmax(0, 1fr));
+	gap: 6px;
+	max-width: 480px;
+	margin: 8px 0;
+}
+
+.rhythm .rh-key {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-height: 56px;
+	padding: 4px 0;
+	border: 1px solid var(--rh-line);
+	border-bottom-width: 3px;
+	border-radius: 6px;
+	background: var(--rh-bg);
+	color: var(--rh-text);
+	font: inherit;
+	cursor: pointer;
+}
+
+.rhythm .rh-key:hover {
+	border-color: var(--rh-accent);
+}
+
+.rh-key-cap {
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
+.rh-key-lane {
+	color: var(--rh-muted);
+	font-size: 0.7em;
+}
+
+.rhythm .rh-key--wait {
+	border-color: var(--rh-accent);
+	color: var(--rh-accent);
+}
+
+.rh-sfx .console-sfx-note {
+	color: var(--rh-muted);
+}
+
+/* ---- library, playlists and song details (older lists, same look) ---- */
+.rhythm .rh-songs {
+	margin: 6px 0;
+	padding: 0;
+	list-style: none;
+}
+
+.rhythm .rh-song {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	margin: 0;
+	padding: 8px 0;
+	border-bottom: 1px solid var(--rh-line);
+}
+
+.rh-song-main {
+	display: flex;
+	flex: 1 1 220px;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.rh-song-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+/* ---- the game ---- */
+.rh-game-head {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+}
+
+.rh-game-head > :last-child {
+	margin-left: auto;
+}
+
+/* HUD bar: pause on the left, combo in the middle, score on the right, song progress along the top edge. It sits above
+ * the field, never over it, so notes at the top edge are never covered. */
+.rh-hud-bar {
+	display: grid;
+	position: relative;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
+	padding: 6px 2px 4px;
+}
+
+.rh-progress {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	height: 2px;
+	overflow: hidden;
+	background: var(--rh-line);
+}
+
+.rh-progress-fill {
+	display: block;
+	width: 0;
+	height: 100%;
+	background: var(--rh-accent);
+	box-shadow: 0 0 6px var(--rh-accent);
+}
+
+.rhythm .rh-pause {
+	justify-self: start;
+	padding: 0;
+	border-color: transparent;
+	background: transparent;
+}
+
+.rh-pause-icon {
+	display: block;
+	width: 14px;
+	height: 18px;
+	margin: auto;
+	border-right: 5px solid var(--rh-text);
+	border-left: 5px solid var(--rh-text);
+	box-sizing: border-box;
+}
+
+.rh-hud-mid {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	line-height: 1.1;
+}
+
+.rh-hud-combo {
+	font-size: 1.7em;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+}
+
+.rh-hud-combo--zero {
+	color: var(--rh-muted);
+}
+
+.rh-hud-k {
+	color: var(--rh-muted);
+	font-size: 0.68em;
+	letter-spacing: 0.04em;
+}
+
+.rh-hud-right {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	justify-self: end;
+}
+
+.rh-hud-score {
+	font-size: 1.25em;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.1em;
+}
+
+.rh-hud-sub {
+	color: var(--rh-muted);
+	font-size: 0.85em;
+	font-variant-numeric: tabular-nums;
+}
+
+.rh-judge--perfect {
+	color: var(--rh-perfect);
+}
+
+.rh-judge--good {
+	color: var(--rh-good);
+}
+
+.rh-judge--miss {
+	color: var(--rh-miss);
+}
+
+.rh-judge--hold {
+	color: var(--rh-normal);
+}
+
+.rh-game-foot {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 10px;
+	align-items: baseline;
+	padding: 6px 2px 0;
+}
+
+.rh-game-foot > .rh-lv-tag {
+	margin-left: auto;
+}
+
+/* The playfield owns every touch that starts on it: no scrolling, zooming, selection or callout while playing. The
+ * sidebar's swipe skips it through data-gesture-owner (ui-sidebar-swipe.js). */
+.rh-field {
+	position: relative;
+	width: 100%;
+	height: clamp(260px, 52vw, 520px);
+	max-height: 70vh;
+	max-height: 70dvh;
+	overflow: hidden;
+	border: 1px solid var(--rh-line);
+	border-radius: 8px;
+	background: #10131a;
+	touch-action: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+}
+
+.rh-canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.rh-overlay {
+	display: flex;
+	position: absolute;
+	inset: 0;
+	flex-direction: column;
+	gap: 10px;
+	align-items: center;
+	justify-content: center;
+	padding: 12px;
+	background: rgb(11 14 21 / 86%);
+	color: var(--rh-text);
+	text-align: center;
+}
+
+/* Countdown and end-of-song words: see-through, so the notes underneath stay readable, and taps pass through. */
+.rh-overlay--light {
+	background: transparent;
+	pointer-events: none;
+	text-shadow: 0 0 8px #10131a, 0 0 2px #10131a;
+}
+
+.rh-overlay-title {
+	font-size: 1.6em;
+	font-weight: bold;
+	letter-spacing: 0.08em;
+}
+
+.rh-overlay--light .rh-overlay-title {
+	font-size: 2.8em;
+}
+
+.rh-overlay-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	justify-content: center;
+}
+
+/* ---- results ---- */
+.rh-result-head {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.rh-result-song {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+	min-width: 0;
+}
+
+.rh-result-top {
+	display: flex;
+	gap: 18px;
+	align-items: center;
+	margin: 14px 0 10px;
+}
+
+.rh-grade {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 84px;
+	height: 84px;
+	border: 2px solid var(--rh-accent);
+	border-radius: 50%;
+	font-size: 2.8em;
+	font-weight: bold;
+	line-height: 1;
+}
+
+.rh-results--S .rh-grade {
+	border-color: var(--rh-perfect);
+	color: var(--rh-perfect);
+}
+
+.rh-results--D .rh-grade {
+	border-color: var(--rh-line);
+	box-shadow: none;
+	color: var(--rh-muted);
+}
+
+.rh-result-main {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.rh-result-verdict {
+	color: var(--rh-accent);
+	font-weight: bold;
+	letter-spacing: 0.02em;
+}
+
+.rh-split {
+	display: flex;
+	height: 6px;
+	overflow: hidden;
+	border-radius: 3px;
+	background: var(--rh-line);
+}
+
+.rh-split-perfect {
+	background: var(--rh-perfect);
+}
+
+.rh-split-good {
+	background: var(--rh-good);
+}
+
+.rh-split-miss {
+	background: var(--rh-miss);
+}
+
+.rh-counts {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
+	margin: 10px 0;
+}
+
+.rh-count {
+	display: flex;
+	flex-direction: column;
+	padding: 6px 10px;
+	border: 1px solid var(--rh-line);
+	border-radius: 6px;
+	background: var(--rh-panel);
+}
+
+.rh-count-v {
+	font-size: 1.3em;
+	font-weight: bold;
+	font-variant-numeric: tabular-nums;
+}
+
+.rh-extra {
+	margin: 8px 0;
+	padding-left: 1.2em;
+}
+
+.rh-offset-tip {
+	margin: 8px 0;
+	padding: 8px 10px;
+	border: 1px solid var(--rh-line);
+	border-radius: 6px;
+	background: var(--rh-panel);
+}
+
+/* ---- tutorial ---- */
+.rh-tut-card {
+	margin: 8px 0;
+	padding: 10px 12px;
+	border: 1px solid var(--rh-line);
+	border-left: 3px solid var(--rh-accent);
+	border-radius: 8px;
+	background: var(--rh-panel);
+}
+
+.rh-tut-card .rh-head {
+	margin-top: 0;
+}
+
+.rh-tut-text {
+	margin: 0;
+}
+
+.rh-tut-outcome {
+	min-height: 1.4em;
+	margin: 8px 0;
+}
+
+.rh-tut-mode {
+	display: inline-flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.rh-hud {
+	display: flex;
+	gap: 6px;
+	margin: 6px 0;
+}
+
+.rh-hud .tama-stat {
+	background: var(--rh-panel);
+}
+
+.rh-hud .tama-k {
+	color: var(--rh-muted);
+}
+
+/* ---- editor ---- */
+.rh-field--edit {
+	cursor: crosshair;
+}
+
+.rh-page-label {
+	flex: 1 1 160px;
+	color: var(--rh-muted);
+	font-size: 0.9em;
+	text-align: center;
+}
+
+.rh-sel {
+	margin: 6px 0;
+	padding: 8px 10px;
+	border: 1px solid var(--rh-line);
+	border-radius: 6px;
+	background: var(--rh-panel);
+}
+
+/* ---- narrow screens: the console's own padding shrinks and the field gets more height for thumbs ---- */
+@media (max-width: 600px) {
+	.rh-hud-bar {
+		grid-template-columns: 44px minmax(0, 1fr) auto;
+	}
+
+	.rh-hud-sub {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		gap: 2px 6px;
+		max-width: 10em;
+	}
+
+	.rh-row--head {
+		flex-wrap: wrap;
+	}
+
+	.rhythm {
+		padding: 8px;
+		border-radius: 8px;
+	}
+
+	.rh-field {
+		height: min(105vw, 58vh);
+		height: min(105vw, 58dvh);
+	}
+
+	.rh-cover--big {
+		height: 84px;
+	}
+
+	.rh-field-row > span {
+		min-width: 0;
+		flex: 1 1 100%;
+	}
+
+	.rh-check > span {
+		flex: 1 1 0;
+	}
+
+	.rh-keys {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+
+	.rh-hud .tama-stat {
+		min-width: 0;
+	}
+
+	.rh-daily-strip {
+		grid-template-columns: 1fr;
+	}
+
+	.rh-daily-strip > .rh-btn {
+		grid-row: auto;
+		grid-column: auto;
+	}
+
+	.rh-grade {
+		width: 68px;
+		height: 68px;
+		font-size: 2.2em;
+	}
+}
+
+/* Motion off: the system setting, or the game's own "Fewer effects". */
+@media (prefers-reduced-motion: reduce) {
+	.rh-mast-line,
+	.rh-cover-line {
+		animation: none;
+	}
+}
+
+.rh-calm .rh-mast-line,
+.rh-calm .rh-cover-line {
+	animation: none;
+}
+
+.rh-calm .rh-cover-line {
+	display: none;
+}

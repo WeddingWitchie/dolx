@@ -145,6 +145,13 @@
 		],
 		"pet-challenge": (c, t) => notes(c, t, [784, 988, 1175], { type: "triangle", dur: 0.18, gain: 0.12, step: 0.1 }),
 
+		/* Rhythm game: short and dry, so they sit on top of the music without blurring the beat. */
+		"rhythm-perfect": (c, t) => tone(c, t, { f: 1320, type: "triangle", dur: 0.06, gain: 0.09 }),
+		"rhythm-good": (c, t) => tone(c, t, { f: 880, type: "triangle", dur: 0.05, gain: 0.07 }),
+		"rhythm-start": (c, t) => notes(c, t, [660, 880], { type: "triangle", dur: 0.1, gain: 0.1, step: 0.08 }),
+		"rhythm-clear": (c, t) => notes(c, t, [523, 659, 784, 1046], { type: "triangle", dur: 0.16, gain: 0.12, step: 0.08 }),
+		"rhythm-fail": (c, t) => notes(c, t, [392, 330], { type: "triangle", dur: 0.25, gain: 0.1, step: 0.18 }),
+
 		/* Outbreak */
 		"outbreak-open": (c, t) => [tone(c, t, { f: 55, dur: 1.6, gain: 0.12, attack: 0.5 }), tone(c, t, { f: 58.3, dur: 1.6, gain: 0.08, attack: 0.6 })],
 		"outbreak-select": (c, t) => [noise(c, t, { dur: 0.04, gain: 0.08, filter: "lowpass", freq: 1500 }), tone(c, t, { f: 220, dur: 0.09, gain: 0.06 })],
@@ -182,6 +189,8 @@
 
 	/* Minimum gap per sound in ms; anything not listed uses 120. */
 	const cooldownMs = {
+		"rhythm-perfect": 25,
+		"rhythm-good": 25,
 		"pet-hurt": 200,
 		"outbreak-advance": 250,
 		"outbreak-dna": 400,

@@ -18,7 +18,7 @@ window.PocketMusic = (() => {
 	let resumeAt = 0;
 
 	function available() {
-		return playerWearsHeadphones();
+		return V.passage !== "Home Console Rhythm" && playerWearsHeadphones();
 	}
 
 	function library() {
@@ -486,6 +486,7 @@ window.PocketMusic = (() => {
 	return {
 		available,
 		update,
+		stop,
 		get active() {
 			return active;
 		},
