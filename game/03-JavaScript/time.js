@@ -1210,6 +1210,8 @@ function dayPassed(days) {
 			}
 
 			// daysTillLaying only applies to unfertilised eggs
+			// A harpy clutch grown before the PC became a full water dragon would otherwise be laid as harpy eggs instead of calling them to the nest
+			if (V.harpyEggs && Transformations.isFullWaterDragon()) delete V.harpyEggs;
 			if (V.harpyEggs) V.harpyEggs.daysTillLaying--;
 			if (V.harpyEggsPrevent) {
 				V.harpyEggsPrevent--;
