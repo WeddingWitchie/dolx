@@ -8,7 +8,7 @@
 function aStarMovement(start, end, obstacles, grid) {
 	const path = aStar(start, end, obstacles, grid);
 
-	if (path === null) return null;
+	if (path === null) return [];
 
 	const movement = [];
 	for (let i = 0; i < path.length - 1; i++) {

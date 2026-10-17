@@ -2632,15 +2632,15 @@
 						<<if $shopHunt.actors[$_i].state is "statue" and (
 							shopHuntFind($_i) is _locRaw or
 							Object.values(T.bordering).includes(shopHuntFind($_i)) or
-							Object.values(T.bordering).includes(shopHuntLoc(applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]))) or
+							Object.values(T.bordering).includes(shopHuntLoc(applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position)) or
 							$shopHunt.actors[$_i].history.map(x => x.found).slice(0,3).filter(x => x and Object.values(x).flat().includes("player")).length gte 1 and $shopHunt.player.history.slice(0,3).map(x => x.shuffle).filter(x => x === true).length is 0
 							)>>
 							<!-- Do nothing -->
 						<<else>>
-							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 							<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<<if $shopHunt.actors[$_i].movement.length gte 1 and $shopHunt.actors[$_i].state is "rush">>
-								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 								<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<</if>>
 							<<if $shopHunt.actors[$_i].state is "search">>
@@ -2650,7 +2650,7 @@
 						<</if>>
 					<<case "march" "flee" "drag">>
 						<<if $shopHunt.actors[$_i].movement.length gte 1>>
-							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 							<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 						<<elseif $shopHunt.actors[$_i].target and $shopHunt.actors[$_i].target isnot shopHuntFind($_i)>>
@@ -2660,7 +2660,7 @@
 								<<run console.log("map: " + $shopHunt.actors[$_i].name + " (ID " + $_i + ") moving to " + $_destination + " in state " + $shopHunt.actors[$_i].state)>>
 							<</if>>
 							<<set $shopHunt.actors[$_i].movement to aStarMovement($shopHunt.actors[$_i].position, shopHuntCoords($_destination), aStarGetObstacles("shopHunt", $shopHunt.actors[$_i].obstaclePass), $shopHuntMap)>>
-							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 							<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 						<<else>>
@@ -2694,7 +2694,7 @@
 									<<set $_destination to $_possibleLocs.random()>>
 									<<set $shopHunt.actors[$_i].movement to aStarMovement($shopHunt.actors[$_i].position, shopHuntCoords($_destination), aStarGetObstacles("shopHunt", $shopHunt.actors[$_i].obstaclePass), $shopHuntMap)>>
 								<</if>>
-								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 								<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 								<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 								<<set $shopHunt.actors[$_i].target to false>>
@@ -2704,7 +2704,7 @@
 								<<run console.log("map: " + $shopHunt.actors[$_i].name + " (ID " + $_i + ") moving to player's last known location in state " + $shopHunt.actors[$_i].state)>>
 							<</if>>
 							<<set $shopHunt.actors[$_i].movement to aStarMovement($shopHunt.actors[$_i].position, shopHuntCoords(Object.keys($shopHunt.actors[$_i].history[0].found).filter(x => $shopHunt.actors[$_i].history[0].found[x].includes($shopHunt.actors[$_i].target))[0]), aStarGetObstacles("shopHunt", $shopHunt.actors[$_i].obstaclePass), $shopHuntMap)>>
-							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 							<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<<if $shopHunt.actors[$_i].state is "chase">>
 								<<set $shopHunt.actors[$_i].chaseTimer-->>
@@ -2728,7 +2728,7 @@
 								<<set $_destination to $_possibleLocs.random()>>
 								<<set $shopHunt.actors[$_i].movement to aStarMovement($shopHunt.actors[$_i].position, shopHuntCoords($_destination), aStarGetObstacles("shopHunt", $shopHunt.actors[$_i].obstaclePass), $shopHuntMap)>>
 							<</if>>
-							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 							<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 							<<set $shopHunt.actors[$_i].target to false>>
@@ -2736,7 +2736,7 @@
 					<<case "guide">>
 						<<if shopHuntContains(shopHuntLoc($shopHunt.actors[$_i].position)).includes("player")>>
 							<<if $shopHunt.actors[$_i].movement.length gte 1>>
-								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 								<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 								<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 							<<elseif $shopHunt.actors[$_i].position is shopHuntCoords($shopHunt.actors[$_i].target)>>
@@ -2746,7 +2746,7 @@
 									<<run console.log("map: " + $shopHunt.actors[$_i].name + " (ID " + $_i + ") moving to " + $shopHunt.actors[$_i].target + " in state " + $shopHunt.actors[$_i].state)>>
 								<</if>>
 								<<set $shopHunt.actors[$_i].movement to aStarMovement($shopHunt.actors[$_i].position, shopHuntCoords($shopHunt.actors[$_i].target), aStarGetObstacles("shopHunt"), $shopHuntMap)>>
-								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+								<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 								<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 								<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 							<</if>>
@@ -2757,7 +2757,7 @@
 								<<run console.log("map: " + $shopHunt.actors[$_i].name + " (ID " + $_i + ") moving to player's location in state " + $shopHunt.actors[$_i].state)>>
 							<</if>>
 							<<set $shopHunt.actors[$_i].movement to aStarMovement($shopHunt.actors[$_i].position, shopHuntCoords(shopHuntFind("player")), aStarGetObstacles("shopHunt", $shopHunt.actors[$_i].obstaclePass), $shopHuntMap)>>
-							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 							<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 						<</if>>
@@ -2774,7 +2774,7 @@
 								<<run console.log("map: " + $shopHunt.actors[$_i].name + " (ID " + $_i + ") moving to player's location in state " + $shopHunt.actors[$_i].state)>>
 							<</if>>
 							<<set $shopHunt.actors[$_i].movement to aStarMovement($shopHunt.actors[$_i].position, shopHuntCoords(shopHuntFind("player")), aStarGetObstacles("shopHunt", $shopHunt.actors[$_i].obstaclePass), $shopHuntMap)>>
-							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0])>>
+							<<set $shopHunt.actors[$_i].position to applyArrays($shopHunt.actors[$_i].position, $shopHunt.actors[$_i].movement[0]) || $shopHunt.actors[$_i].position>>
 							<<run $shopHunt.actors[$_i].movement.deleteAt(0)>>
 							<<set _actorMoved[$_i] to $shopHunt.actors[$_i].position>>
 							<<if shopHuntContains(shopHuntLoc($shopHunt.actors[$_i].position)).includes("player")>>
