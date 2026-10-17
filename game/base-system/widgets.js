@@ -173,8 +173,8 @@ function perceivedGender() {
 	}
 
 	// Are the genitals actually on display?
-	const lowerOpen = V.worn.lower.exposed >= 2;
-	const underOpen = V.worn.under_lower.exposed >= 2;
+	const lowerOpen = V.worn.over_lower.exposed >= 2 && V.worn.lower.exposed >= 2;
+	const underOpen = V.worn.under_lower.exposed >= 1;
 	const hidden = typeof playerChastity === "function" && playerChastity("hidden");
 	const genitalsExposed = lowerOpen && underOpen && !hidden;
 

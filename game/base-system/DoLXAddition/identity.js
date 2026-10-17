@@ -890,13 +890,13 @@ window.pronounSummaryLabel = pronounSummaryLabel;
 
 /**
  * Whether a named NPC knows the player's actual identity/pronouns.
- * True at 50+ love or if tracked in $genderknown.
+ * True at 50+ love or if the player told them ($transgenderknown).
  *
  * @param {string} npcName NPC name in `C.npc`.
  */
 function npcKnowsPlayerIdentity(npcName) {
 	if (!npcName) return false;
-	if (Array.isArray(V.genderknown) && V.genderknown.includes(npcName)) return true;
+	if (Array.isArray(V.transgenderknown) && V.transgenderknown.includes(npcName)) return true;
 	const npc = window.C?.npc?.[npcName];
 	return !!npc && Number(npc.love) >= 50;
 }
