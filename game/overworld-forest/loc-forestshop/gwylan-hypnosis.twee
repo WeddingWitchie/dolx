@@ -498,6 +498,10 @@ Gwylan leaves momentarily, returning with a tray that holds a teacup, many herbs
 			<<link [[Tell <<him>> about your urge to provoke beasts|Gwylan Hypnosis Removal]]>><<set $phase to "deviancy">><</link>>
 			<br>
 		<</if>>
+		<<if $hypnosis_traits.crossdressing gte 1>>
+			<<link [[Tell <<him>> about your urge to crossdress|Gwylan Hypnosis Removal]]>><<set $phase to "crossdressing">><</link>>
+			<br>
+		<</if>>
 		<<link [[Tell <<him>> that you can't remember|Gwylan Hypnosis Removal]]>><<set $phase to "forgot">><</link>>
 		<br>
 	<<default>>
@@ -2627,12 +2631,38 @@ It doesn't fix the problem."
 		Gwylan frowns. "I'm familiar with such techniques. We'll fix this."
 	<</if>>
 	<<set $gwylanSeen.pushUnique("hypnosis_removal_deviancy")>>
+<<elseif $phase is "crossdressing">>
+	<<set _crossClothes to $player.gender is "m" ? "masculine" : "feminine">>
+	<<speechresolve>>
+	<<switch _speechAttitudeResolved>>
+		<<case "meek">>
+			"Someone hypnotised me," you say quietly. "Now I can't put on _crossClothes clothes, even when I want to."
+		<<case "shy">>
+			"This is a bit embarrassing, but someone hypnotised me," you admit. "I can't make myself wear _crossClothes clothes anymore."
+		<<case "polite">>
+			"Someone hypnotised me so I can't wear _crossClothes clothes anymore," you explain. "Could you help me with that?"
+		<<case "confident">>
+			"Someone hypnotised me so I can't wear _crossClothes clothes," you explain. "I want to be able to choose what I wear again."
+		<<case "bratty">>
+			"Some creep hypnotised me, and now I can't even wear _crossClothes clothes," you complain. "I want that fixed."
+		<<case "docile">>
+			"Someone hypnotised me, and now I can't wear _crossClothes clothes," you say. "I'd like to be able to wear them again, please."
+		<<case "flamboyant">>
+			"Someone hypnotised me so I can't wear _crossClothes clothes anymore," you explain. "Could you help me with that?"
+		<<case "cruel">>
+			"Some bastard hypnotised me so I can't wear _crossClothes clothes," you say. "I want to get rid of whatever they did to me."
+		<<default>>
+			"Someone hypnotised me, and now I can't wear _crossClothes clothes," you say. "I want to get rid of the hypnosis."
+	<</switch>>
+	<br><br>
+	"Someone actually hypnotised you just to stop you wearing certain clothes?" Gwylan shakes <<his>> head. "That's a strange thing to do to someone. Let's see if I can remove the hypnosis."
+	<<set $gwylanSeen.pushUnique("hypnosis_removal_crossdressing")>>
 <<else>>
 	"I can't remember. There's a lot of memories missing."
 	<br><br>
 
 	Gwylan nods. "I know how to bring up blocked memories. Let's have a dig through."
-	<<set _hypnosisTypes to ["suggestion", "dragonbrood", "scream", "cover", "deviancy"].filter(h => V.hypnosis_traits[h] && V.hypnosis_traits[h] >= 1)>>
+	<<set _hypnosisTypes to ["suggestion", "dragonbrood", "scream", "cover", "deviancy", "crossdressing"].filter(h => V.hypnosis_traits[h] && V.hypnosis_traits[h] >= 1)>>
 	<<if _hypnosisTypes.length>>
 		<<set $phase to _hypnosisTypes.random()>>
 	<</if>>
@@ -2666,6 +2696,7 @@ It doesn't fix the problem."
 	<<case "scream">><<link [[Next|Gwylan Hypnosis Removal Scream]]>><<pass 10>><</link>><br>
 	<<case "cover">><<link [[Next|Gwylan Hypnosis Removal Cover]]>><<pass 10>><</link>><br>
 	<<case "deviancy">><<link [[Next|Gwylan Hypnosis Removal Deviancy]]>><<pass 10>><</link>><br>
+	<<case "crossdressing">><<link [[Next|Gwylan Hypnosis Removal Crossdressing]]>><<pass 10>><</link>><br>
 	<<default>><<link [[Next|Gwylan Hypnosis Removal Error]]>><<pass 10>><</link>><br>
 <</switch>>
 
@@ -3241,6 +3272,53 @@ Harper doesn't get to make either decision for you."
 <br><br>
 <<link [[Next|Gwylan Hypnosis Removal Wake]]>><<pass 30>><</link>> <br>
 
+
+:: Gwylan Hypnosis Removal Crossdressing
+<<effects>><<run statusCheck("Gwylan")>>
+<<gwylanHypnoCanvas>>
+<<set _crossClothes to $player.gender is "m" ? "masculine" : "feminine">>
+You're standing in front of an open wardrobe. Two piles of clothes are on the floor beside it.
+<br><br>
+You reach for the _crossClothes pile, but your hand suddenly stops before you can touch the clothes. You try to move it closer, but your arm won't move.
+<br><br>
+Then you hear someone quietly humming behind you. You don't recognise the voice, and before you can figure out where it's coming from, your arm starts moving towards the other pile of clothes instead. You try to stop yourself, but your hand keeps moving without your control. <<stress 6>><<gstress>>
+<br><br>
+<<link [[Keep reaching|Gwylan Hypnosis Removal Crossdressing 2]]>><<set $phase2 to "reach">><</link>>
+<br>
+<<link [[Let your hand drift|Gwylan Hypnosis Removal Crossdressing 2]]>><<set $phase2 to "drift">><</link>>
+<br>
+
+:: Gwylan Hypnosis Removal Crossdressing 2
+<<effects>><<run statusCheck("Gwylan")>>
+<<set _crossClothes to $player.gender is "m" ? "masculine" : "feminine">>
+<<if $phase2 is "reach">>
+	You try to reach for the clothes, but the humming gets louder and your arm starts shaking. You have to force your hand forward, fighting the strange urge to pull it back.
+	<br><br>
+	After some effort, you finally manage to touch the fabric.
+<<else>>
+	You hear the humming as you reach for the other pile. This time, your arm moves without any trouble.
+	<br><br>
+	Before you realise what you're doing, you've already placed your hand on the clothes, even though you never meant to choose them.
+<</if>>
+<br><br>
+Gwylan comes out from behind the wardrobe door, holding a small music box. <<He>> closes it, and the humming stops.
+<br><br>
+"There we are," <<he>> says, showing you the box. "That little tune was making you choose one pile over the other."
+<br><br>
+<<link [[Next|Gwylan Hypnosis Removal Crossdressing 3]]>><</link>>
+<br>
+
+:: Gwylan Hypnosis Removal Crossdressing 3
+Gwylan puts the box away in <<his>> robes and pushes both piles of clothes closer to you.
+<br><br>
+"Now you can choose for yourself. Wear either one, or neither. Today, tomorrow, whenever you like. I won't make you."
+<br><br>
+You look at the clothes again. The strange feeling that made you want to choose one pile is gone, and you can move your hands normally.
+<br><br>
+<<He>> snaps <<his>> fingers. "Awaken."
+<br><br>
+<<link [[Next|Gwylan Hypnosis Removal Wake]]>><<pass 30>><</link>>
+<br>
 
 :: Gwylan Hypnosis Removal Error
 <<effects>><<run statusCheck("Gwylan")>>
