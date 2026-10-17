@@ -707,8 +707,18 @@
 		<<if $NPCList[_i]>>
 			<<set $NPCList[_i].state to "pursuit">>
 			<<set $NPCList[_i].distance to 2>>
+			/* A fleeing NPC lets go of everything it was holding or penetrating. */
+			<<run ["penis", "vagina", "lefthand", "righthand", "mouth"].forEach(part => { if (!["none", "idle", "clothed"].includes(V.NPCList[_i][part])) V.NPCList[_i][part] = 0 })>>
+			<<if $NPCList[_i].location>><<set $NPCList[_i].location.head to 0>><<set $NPCList[_i].location.genitals to 0>><</if>>
 		<</if>>
 	<</for>>
+	<<run ["mouth", "vagina", "anus", "penis", "chest", "thigh", "bottom"].forEach(part => {
+		if (["none", "cover", "gagged"].includes(V[part + "use"])) return;
+		V[part + "use"] = 0;
+		if (part + "state" in V) V[part + "state"] = 0;
+	})>>
+	<<if $leftarm is "grappled">><<set $leftarm to 0>><</if>>
+	<<if $rightarm is "grappled">><<set $rightarm to 0>><</if>>
 	<<set $rescue to 0>>
 	<<unset $audience_active>>
 <</widget>>
