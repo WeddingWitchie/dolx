@@ -1012,7 +1012,7 @@ const statChange = (() => {
 		if (isNaN(amount)) paramError("gainBreastInsecurity", "amount", amount, "Expected a number.");
 		amount = Number(amount);
 		if (amount) {
-			if (V.player.breastsize >= 8) {
+			if ((V.player.perceived_breastsize ?? V.player.breastsize) >= 8) {
 				insecurity("breasts_big", amount);
 				return statDisplay.ginsecurity("breasts_big");
 			} else {
@@ -1045,8 +1045,8 @@ const statChange = (() => {
 			{
 				penis_small: V.player.penisExist && V.player.penissize <= 3,
 				penis_big: V.player.penisExist && V.player.penissize >= (V.player.gender === "m" ? 6 : 5),
-				breasts_small: V.player.gender === "f" && between(V.player.breastsize, 0, 4),
-				breasts_big: V.player.breastsize >= (V.player.gender === "m" ? 1 : 8),
+				breasts_small: V.player.gender === "f" && between(V.player.perceived_breastsize ?? V.player.breastsize, 0, 4),
+				breasts_big: (V.player.perceived_breastsize ?? V.player.breastsize) >= (V.player.gender === "m" ? 1 : 8),
 				pregnancy: playerBellySize() >= 8,
 				clear_climax: V.player.penisExist && playerClearClimax(),
 			}[type] && V["acceptance_" + type] < 1000,
