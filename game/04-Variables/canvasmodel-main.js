@@ -3160,6 +3160,11 @@ Renderer.CanvasModels.main = {
 				if (V.tattoo_bodypart == "pubic" && V.passage == "Tattoo Choice") return getWritingImgPath('pubic', setup.bodywriting[V.tattoo_choice]);
 				return getWritingImgPathArrow('pubic', setup.bodywriting[options.writing_pubic]);
 			},
+			/* The shift below follows the side-on core belly. Front-facing packs ship a blank copy of this mask and an opaque
+			pubic-belly-front.png, so writing_pubic_front draws the writing unshifted instead. */
+			masksrcfn(options) {
+				return options.belly >= 8 ? "img/bodywriting/pubic-belly-shift.png" : null;
+			},
 			showfn(options) {
 				return options.show_writings && !!options.writing_pubic || (V.tattoo_bodypart == "pubic" && V.passage == "Tattoo Choice");
 			},
@@ -3176,6 +3181,21 @@ Renderer.CanvasModels.main = {
 				if (options.belly >= 22) return 4;
 				if (options.belly >= 21) return 2;
 				return 0;
+			},
+		},
+		"writing_pubic_front": {
+			z: ZIndices.skin,
+			animation: "idle",
+
+			srcfn(options) {
+				if (V.tattoo_bodypart == "pubic" && V.passage == "Tattoo Choice") return getWritingImgPath('pubic', setup.bodywriting[V.tattoo_choice]);
+				return getWritingImgPathArrow('pubic', setup.bodywriting[options.writing_pubic]);
+			},
+			masksrcfn() {
+				return "img/bodywriting/pubic-belly-front.png";
+			},
+			showfn(options) {
+				return options.belly >= 8 && (options.show_writings && !!options.writing_pubic || (V.tattoo_bodypart == "pubic" && V.passage == "Tattoo Choice"));
 			},
 		},
 		"writing_left_thigh": {
