@@ -306,14 +306,20 @@ window.audienceSegregatedSpace = audienceSegregatedSpace;
 
 /**
  * Returns the gender of the NPC group when they are all the same gender.
- * Requires at least AUDIENCE_MIN_GROUP NPCs. Mixed or herm groups return "".
+ * Requires at least AUDIENCE_MIN_GROUP NPCs, not counting love interests or Gwylan. Mixed or herm groups, or any group with Mickey, return "".
  *
  * @returns {string} "m", "f", or ""
  */
 function audienceCompanyGender() {
 	const list = Array.isArray(V.NPCList) ? V.NPCList : [];
-	const present = list.filter(npc => npc && npc.description && (npc.type === undefined || npc.type === "human"));
+	/* Love interests and Gwylan aren't sizing you up, so they don't count toward the crowd. */
+	const present = list.filter(
+		npc =>
+			npc && npc.description && (npc.type === undefined || npc.type === "human") && npc.fullDescription !== "Gwylan" && !isLoveInterest(npc.fullDescription)
+	);
 	if (present.length < AUDIENCE_MIN_GROUP) return "";
+	/* Mickey's gender is "No", whatever pronoun the settings give them, so a group with Mickey in it is never single-gender. */
+	if (present.some(npc => npc.role === "hacker")) return "";
 	/* Strap-ons change combat gender to "m", but leave the NPC's pronouns unchanged. */
 	const gender = present[0].pronoun;
 	if (gender !== "m" && gender !== "f") return "";
