@@ -250,7 +250,7 @@ function clothingCharacteristicForBand(band) {
 window.clothingCharacteristicForBand = clothingCharacteristicForBand;
 
 /**
- * The clothing characteristics, which are driven by changes of outfit rather than by the hourly tick.
+ * The clothing characteristics, which react to outfit changes as well as hourly wear.
  *
  * @param {string} characteristic A name from setup.identityIndex.
  */
@@ -277,7 +277,7 @@ function currentClothingReading() {
 window.currentClothingReading = currentClothingReading;
 
 /**
- * How many hourly ticks' worth one change of outfit is worth. Rare but heavy, instead of a constant drip.
+ * How many hourly ticks' worth the initial reaction to a change of outfit is worth.
  * Only the dysphoria half of the clothing axis is weighted this way.
  */
 const CLOTHING_CHANGE_WEIGHT = 5;
@@ -294,8 +294,8 @@ window.CLOTHING_COMFORT_WEIGHT = CLOTHING_COMFORT_WEIGHT;
 /**
  * Fires the clothing side of the identity system once, when the outfit's overall reading changes.
  *
- * Wearing something you can't stand is a reaction to putting it on and catching sight of yourself, not a
- * feeling that renews every hour you keep it on, so this is hooked to the passage cycle rather than the clock.
+ * The initial reaction to putting on a different style is hooked to the passage cycle.
+ * Continuing to wear it also contributes through the hourly identity tick.
  * What counts as a change is the outfit's reading (see currentClothingReading), so swapping one feminine
  * outfit for another is not news, and neither is being stripped and put back in the same clothes.
  *

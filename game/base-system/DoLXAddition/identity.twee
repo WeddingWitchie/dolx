@@ -161,7 +161,7 @@
 				<br>
 			</div>
 			<div class="settingsToggleItem identity-clothing-settings">
-				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted outfit styles cause dysphoria when you change clothes. Preferred styles provide comfort while worn. Neutral prefers clothing that looks neither masculine nor feminine. "Don't Care" disables clothing dysphoria and comfort.</span></mouse>
+				<span class="gold">Clothing Preference </span> <mouse class="tooltip linkBlue">(?)<span>Unaccepted outfit styles cause dysphoria when you change clothes and while worn. Preferred styles provide comfort while worn. Neutral prefers clothing that looks neither masculine nor feminine. "Don't Care" disables clothing dysphoria and comfort.</span></mouse>
 				<br>
 				Masculine:
 				<br>
@@ -761,7 +761,7 @@
 							<<set _reason to "Hearing someone use feminine pronouns for you does not match how you understand your gender.">>
 						<<case "Neutral Pronouns">>
 							<<set _reason to "Hearing someone use neutral pronouns for you does not match how you understand your gender.">>
-						/* Clothing fires on getting changed, so these read as a reaction to the outfit you've just put on. */
+						/* Clothing reactions apply both when getting changed and while wearing the outfit. */
 						<<case "Masculine Clothing">>
 							<<set _reason to $identityOption.reject ? "This outfit makes you look masculine, and wearing it feels unbearable." : "This outfit makes you look masculine, which does not match how you want to present.">>
 						<<case "Feminine Clothing">>
@@ -1073,9 +1073,8 @@
 		<</if>>
 	<</widget>>
 
-	/* Clothing dysphoria is applied once when changing into a different clothing style, not every hour.
-	Preferred clothing comfort is hourly instead, so wearing suitable clothes continues to reduce Stress and Trauma.
-	This also prevents repeatedly changing outfits from farming the effect.
+	/* Clothing dysphoria and tolerance also progress while the outfit is worn.
+	Preferred clothing comfort stays hourly, so repeatedly changing outfits cannot farm comfort.
 	Dysphoria recovery remains hourly when the related characteristic is no longer present. */
 	<<widget "hourlyIdentityEffects">>
 		<<normaliseNeutralClothing>>
@@ -1087,6 +1086,7 @@
 					<<identityRememberAcceptance>>
 					<<if playerHasCharacteristic(_char)>>
 						<<if isClothingCharacteristic(_char)>>
+							<<identityTickCharacteristic>>
 							<<identityPreferredComfort `CLOTHING_COMFORT_WEIGHT`>>
 						<<else>>
 							<<identityTickCharacteristic>>
