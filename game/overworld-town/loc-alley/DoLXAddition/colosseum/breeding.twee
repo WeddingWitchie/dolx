@@ -351,6 +351,7 @@ The receptionist looks you over, from your eyes down to your hips, and does not 
 	<<loadNPC 0 "colosseum_opponent">>
 	<<person1>>
 	<<set $xchange.colosseum.storedBefore to Object.keys($storedNPCs)>>
+	<<set $speechorgasmcount to 0>>
 	<<consensual>>
 	<<set $consensual to 1>>
 	<<neutral 1>>
@@ -358,12 +359,14 @@ The receptionist looks you over, from your eyes down to your hips, and does not 
 	<<npc_submissive>>
 	<<npcexpose>>
 <</if>>
+<<set $setupMidOrgasm to true>>
 <<effects>>
 <<effectsman>>
 <<man>>
 <<stateman>>
 <br><br>
 <<actionsman>>
+<<set _combatend to $finish is 1 or ($alarm is 1 and $rescue gte 1)>>
 <<if _combatend>>
 	<span id="next"><<link [[Next|Underground Colosseum Breeding Finish]]>><</link>></span><<nexttext>>
 <<else>>
@@ -374,11 +377,12 @@ The receptionist looks you over, from your eyes down to your hips, and does not 
 <<set $outside to 0>><<set $location to "colosseum">><<effects>><<person1>><<pass 10>>
 <<set _bredNpc to colosseumSettleBreeding(0)>>
 <<set _ctx to $xchange.colosseum.breedCtx>>
+<<set _stoppedEarly to !($speechorgasmcount gt 0)>>
 <<if $enemypleasure gte $enemypleasuremax>>
 	<<ejaculation>>
 <<elseif $finish is 1>>
 	<<encounterEndViolence>>
-	You stop, climb off and get to your feet. The pill makes it hard. The crowd boos, but the attendants have already decided the job is done.
+	You stop, climb off and get to your feet.
 <<else>>
 	You pull back and get up, and nobody tries to stop you.
 <</if>>
@@ -386,7 +390,14 @@ The receptionist looks you over, from your eyes down to your hips, and does not 
 <<clotheson>>
 <<endcombat>>
 <<unset $xchange.colosseum.breedCtx>>
-<<if _ctx is "goon">>
+<<if _stoppedEarly>>
+	<<set $xchange.colosseum.ending to "walked">><<set $xchange.colosseum.banReason to "refused">>
+	The receptionist orders you out for stopping before you finished. <span class="red">The house has banned you for good.</span>
+	<br><br>
+	<<colosseumBeltOff>>
+	<<link [[Leave|Industrial Alleyways]]>><<set $eventskip to 1>><<endevent>><</link>>
+	<br>
+<<elseif _ctx is "goon">>
 	The goon lies on the sand with wide open eyes and says nothing more.
 	<br><br>
 	<<link [[Enjoy it|Underground Colosseum Goon Breeding End]]>><<set $phase to "aroused">><</link>>
