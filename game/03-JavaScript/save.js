@@ -1,4 +1,4 @@
-/* globals traversePair autismTalentLimit */
+/* globals autismTalentLimit */
 
 const DoLSave = ((Story, Save) => {
 	"use strict";
@@ -570,7 +570,9 @@ function compatibilityConversion(rawData) {
 	} catch {
 		return rawData;
 	}
-	if (!processed || typeof processed !== "object") return rawData;
+	if (!processed || typeof processed !== "object" || Array.isArray(processed)) return rawData;
+	if (!processed.general || typeof processed.general !== "object" || Array.isArray(processed.general)) return rawData;
+	if (processed.general.settings != null && (typeof processed.general.settings !== "object" || Array.isArray(processed.general.settings))) return rawData;
 
 	const map = {
 		alluremod: { key: "allureModifier", invert: false },
@@ -715,6 +717,7 @@ function importSettingsData(data) {
 	} else {
 		overrides = JSON.parse(data);
 	}
+	if (!overrides || typeof overrides !== "object" || Array.isArray(overrides)) return;
 	if (V.passage === "Start" && overrides.starting != null) {
 		overrides.starting = settingsConvert(false, "starting", overrides.starting);
 	}
@@ -722,36 +725,13 @@ function importSettingsData(data) {
 		overrides.general = settingsConvert(false, "general", overrides.general);
 	}
 
-	/**
-	 * @param {object} source
-	 * @param {object} target
-	 * @param {string} key
-	 * @returns {any?}
-	 */
-	const validateAndSet = (source, target, key) => {
-		if (!validateValue(source[key], target[key])) {
-			console.debug(`Validation fail - Key ${key} Source`, source, "Target", target);
-			return null;
-		}
-		return target[key];
-	};
-
-	/**
-	 * @param {object} source
-	 * @param {object} target
-	 * @param {string} key
-	 * @returns {any?}
-	 */
-	const setValue = (source, target, key) => {
-		target[key] = source[key];
-		return target[key];
-	};
-
 	if (V.passage === "Start" && overrides.starting != null) {
 		const startingConfig = settingsObjects("starting");
-
-		traversePair(startingConfig, overrides.starting, "root", settingContainers, validateAndSet);
-		traversePair(overrides.starting, V, "root", settingContainers, setValue);
+		if (validateValue(startingConfig.facestyle, overrides.starting.facestyle)) {
+			V.facestyle = overrides.starting.facestyle;
+			startingConfig.facevariant = settingsObjects("starting").facevariant;
+		}
+		importSettingsWalk(startingConfig, overrides.starting, V);
 	}
 
 	if (overrides.general != null) {
@@ -771,16 +751,24 @@ function importSettingsData(data) {
 			overrides.general.bottomsizemin = overrides.general.bottomsizemax;
 			overrides.general.bottomsizemax = temp;
 		}
-		importSettingsWalk(settingsObjects("general"), overrides.general, V);
+		const generalConfig = settingsObjects("general");
+		importSettingsWalk(generalConfig, overrides.general, V);
+		if (validateValue(generalConfig.options.theme, overrides.general.options?.theme)) {
+			Theme.setPreference(overrides.general.options.theme);
+		}
 	}
 
 	if (overrides.npc != null) {
+		if ((setup.modLIRegistry || []).some(name => V.modLIUnlocks?.[name] && overrides.npc[name] && !V.NPCNameList.includes(name))) {
+			Wikifier.wikifyEval("<<modLI-init>>");
+		}
 		const listObject = settingsObjects("npc");
 		// eslint-disable-next-line no-var
 		const listKey = Object.keys(listObject);
 		// eslint-disable-next-line no-var
 		for (let i = 0; i < V.NPCNameList.length; i++) {
 			if (overrides.npc[V.NPCNameList[i]] != null) {
+				const previousGender = V.NPCName[i].gender;
 				const carriedGender = getActivePregnancies(V.NPCName[i].nam).length ? V.NPCName[i].gender : undefined;
 				// eslint-disable-next-line no-var
 				for (let j = 0; j < listKey.length; j++) {
@@ -792,6 +780,11 @@ function importSettingsData(data) {
 					}
 				}
 				if (carriedGender !== undefined) V.NPCName[i].gender = carriedGender;
+				if (carriedGender === undefined && previousGender !== V.NPCName[i].gender && ["m", "f"].includes(V.NPCName[i].gender)) {
+					const present = V.NPCName[i].type === "human" ? "clothed" : 0;
+					V.NPCName[i].penis = V.NPCName[i].gender === "m" ? present : "none";
+					V.NPCName[i].vagina = V.NPCName[i].gender === "f" ? present : "none";
+				}
 			}
 		}
 	}
@@ -810,6 +803,7 @@ window.importSettingsData = importSettingsData;
  * @returns {boolean}
  */
 function validateValue(configuration, value) {
+	if (value == null) return false;
 	// console.log("validateValue", keys, value);
 	const keyArray = Object.keys(configuration);
 	let valid = false;
@@ -817,7 +811,7 @@ function validateValue(configuration, value) {
 		valid = true;
 	}
 	if (keyArray.includes("min")) {
-		if (configuration.min <= value && configuration.max >= value) {
+		if (typeof value === "number" && Number.isFinite(value) && configuration.min <= value && configuration.max >= value) {
 			valid = true;
 		}
 	}
@@ -883,8 +877,9 @@ function exportSettingsWalk(config, source, output) {
 		const cfg = config[key];
 		if (cfg == null) continue;
 		if (isSettingLeaf(cfg)) {
-			if (source[key] != null && validateValue(cfg, source[key])) {
-				output[key] = source[key];
+			const value = source[key] ?? cfg.default;
+			if (value != null && validateValue(cfg, value)) {
+				output[key] = value;
 			}
 		} else if (source[key] != null && typeof source[key] === "object") {
 			const sub = {};
@@ -899,7 +894,7 @@ window.exportSettingsWalk = exportSettingsWalk;
 
 /**
  * Recursively write valid setting values from an imported object into the live variable tree,
- * driven by the settings schema. Only overwrites settings that already exist, mirroring legacy behaviour.
+ * driven by the settings schema.
  *
  * @param {object} config schema node
  * @param {object} override imported node
@@ -913,11 +908,12 @@ function importSettingsWalk(config, override, target) {
 		const cfg = config[key];
 		if (cfg == null) continue;
 		if (isSettingLeaf(cfg)) {
-			if (override[key] != null && target[key] != null && validateValue(cfg, override[key])) {
+			if (override[key] != null && validateValue(cfg, override[key])) {
 				target[key] = override[key];
 			}
-		} else if (override[key] != null && target[key] != null && typeof override[key] === "object" && typeof target[key] === "object") {
-			importSettingsWalk(cfg, override[key], target[key]);
+		} else if (override[key] != null && typeof override[key] === "object") {
+			target[key] ??= {};
+			if (typeof target[key] === "object") importSettingsWalk(cfg, override[key], target[key]);
 		}
 	}
 }
@@ -957,22 +953,12 @@ function exportSettings(data, type) {
 		general: {},
 		npc: {},
 	};
-	if (V.passage === "Start") {
-		const startingConfig = settingsObjects("starting");
-		const startingOutput = traversePair(startingConfig, V, "root", settingContainers, (source, target, key) => {
-			console.debug(source, target, key);
-			if (!validateValue(source[key], target[key])) {
-				console.debug(`Target ${key} does not contain a valid value:`, target[key], "configuration:", source[key]);
-				return null;
-			}
-			return target[key];
-		});
+	output.starting = {};
+	exportSettingsWalk(settingsObjects("starting"), V, output.starting);
 
-		output.starting = startingOutput;
-	}
-
-	output.general = {};
 	exportSettingsWalk(settingsObjects("general"), V, output.general);
+	output.general.options.theme = Theme.getPreference();
+	output.general.modLIUnlocks = Object.fromEntries((setup.modLIRegistry || []).map(name => [name, !!V.modLIUnlocks?.[name]]));
 
 	const listObject = settingsObjects("npc");
 	const listKey = Object.keys(listObject);
@@ -990,9 +976,7 @@ function exportSettings(data, type) {
 		}
 	}
 
-	if (V.passage === "Start") {
-		output.starting = settingsConvert(true, "starting", output.starting);
-	}
+	output.starting = settingsConvert(true, "starting", output.starting);
 	output.general = settingsConvert(true, "general", output.general);
 	output.pregnancyChancePercent = true;
 
@@ -1007,8 +991,6 @@ function exportSettings(data, type) {
 	}
 }
 window.exportSettings = exportSettings;
-
-const settingContainers = ["player", "skin", "settings", "background"];
 
 /**
  * The demeanours the character creation and mirror menus offer for the current face style, as a { "Display name": value } map.
@@ -1041,6 +1023,7 @@ function settingsObjects(type) {
 	switch (type) {
 		case "starting":
 			result = {
+				facestyle: { strings: Object.values(setup.faceStyleOptions), displayName: "Face style:" },
 				beauty: { min: 0, max: 10000, decimals: 0, displayName: "Beauty:" },
 				bodysize: {
 					min: -1,
@@ -1272,6 +1255,7 @@ function settingsObjects(type) {
 			break;
 		case "general":
 			result = {
+				modLIUnlocks: Object.fromEntries((setup.modLIRegistry || []).map(name => [name, { bool: true, displayName: `${name} enabled:` }])),
 				enemystatstyle: { strings: ["full", "default"], randomize: "gameplay", displayName: "Enemy stat display:" },
 				postCombatStats: { min: 0, max: 1, decimals: 0, displayName: "Post-encounter summary:" },
 				ModExclusiveLIEnabled: { min: 0, max: 1, decimals: 0, displayName: "Mod-exclusive love interests:" },
@@ -1305,6 +1289,7 @@ function settingsObjects(type) {
 				DoLPTFTempTolerance: { min: 0, max: 1, decimals: 0, displayName: "Animal TF Temperature Tolerance:" },
 				substanceRebalance: { min: 0, max: 1, decimals: 0, displayName: "Vanilla Substance Rebalance:" },
 				dancingRebalance: { min: 0, max: 1, decimals: 0, displayName: "Dancing Rebalance:" },
+				danceSkillDecay: { min: 0, max: 1, decimals: 0, displayName: "Dancing skill maintenance:" },
 				foodSpoilage: { min: 0, max: 1, decimals: 0, displayName: "Food Spoilage:" },
 				produce_yield_factor: { min: 10, max: 200, decimals: 0, displayName: "Produce Yield:" },
 				combatStressGain: { min: 25, max: 150, decimals: 0, displayName: "Combat Stress Gain:" },
@@ -1771,24 +1756,41 @@ function settingsObjects(type) {
 					numberify_enabled: { min: 0, max: 1, decimals: 0, displayName: "Enable numbered link navigation:" },
 					timestyle: { strings: ["military", "ampm"], displayName: "Time style:" },
 					tipdisable: { boolLetter: true, bool: true, displayName: "Sidebar Tips:" },
-					pepperSprayDisplay: { strings: ["none", "sprays", "compact"], displayName: "Pepper spray display:" },
+					pepperSprayDisplay: {
+						strings: ["none", "sprays", "compact", ...Array.from({ length: 9 }, (_, i) => `modded${i + 1}`)],
+						displayName: "Pepper spray display:",
+					},
 					dragonStarDisplay: { strings: ["none", "show"], displayName: "Dragon star display:" },
-					condomsDisplay: { strings: ["none", "standard"], displayName: "Condom display:" },
+					condomsDisplay: { strings: ["none", "standard", ...Array.from({ length: 9 }, (_, i) => `modded${i + 1}`)], displayName: "Condom display:" },
 					closeButtonMobile: { bool: true, displayName: "Items per page:" },
 					showDebugRenderer: { bool: true, displayName: "Enable renderer debugger:" },
 					showCombatTools: { bool: true, displayName: "Enable combat tools:" },
 					numpad: { bool: true, displayName: "Enable numpad:" },
 					traitOverlayFormat: { strings: ["table", "reducedTable", "list"], displayName: "Display traits:" },
 					font: {
-						strings: ["", "Arial", "Verdana", "TimesNewRoman", "Georgia", "Garamond", "CourierNew", "LucidaConsole", "Monaco", "ComicSans"],
+						default: "",
+						strings: [
+							"",
+							"Arial",
+							"Verdana",
+							"TimesNewRoman",
+							"Georgia",
+							"Garamond",
+							"CourierNew",
+							"LucidaConsole",
+							"Monaco",
+							"ComicSans",
+							"OpenDyslexicMono",
+							"Lexend",
+						],
 						displayName: "Font:",
 					},
-					passageLineHeight: { strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Passage line height:" },
-					overlayLineHeight: { strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Overlay line height:" },
-					sidebarLineHeight: { strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Sidebar line height:" },
-					passageFontSize: { strings: [0, 10, 12, 14, 16, 18, 20], displayName: "Passage font size:" },
-					overlayFontSize: { strings: [0, 10, 12, 14, 16, 18, 20], displayName: "Overlay font size:" },
-					sidebarFontSize: { strings: [0, 12, 14, 16, 18, 20], displayName: "Sidebar font size:" },
+					passageLineHeight: { default: 0, strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Passage line height:" },
+					overlayLineHeight: { default: 0, strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Overlay line height:" },
+					sidebarLineHeight: { default: 0, strings: [0, 1, 1.25, 1.5, 1.75, 2], displayName: "Sidebar line height:" },
+					passageFontSize: { default: 0, strings: [0, 10, 12, 14, 16, 18, 20], displayName: "Passage font size:" },
+					overlayFontSize: { default: 0, strings: [0, 10, 12, 14, 16, 18, 20], displayName: "Overlay font size:" },
+					sidebarFontSize: { default: 0, strings: [0, 12, 14, 16, 18, 20], displayName: "Sidebar font size:" },
 					genderBody: { strings: ["default", "m", "a", "f"], displayName: "Body type displayed:" },
 					notesAutoSave: { bool: true, displayName: "Notes auto saving:" },
 					dateFormat: { strings: ["en-GB", "en-US", "zh-CN"], displayName: "Date format:" },
@@ -2151,6 +2153,120 @@ function settingsObjects(type) {
 					extraInfo: { bool: false },
 				},
 			};
+			Object.assign(result.options, {
+				theme: {
+					strings: ["system-default", "dark", "light", "arctic", "zen", "monokai", "storm", "latte", "frappe", "macchiato", "mocha", "sea"],
+					displayName: "Theme:",
+				},
+				passageMaxWidth: { default: 0, strings: [0, 50, 55, 60, 65, 70, 75], displayName: "Passage width:" },
+				thermometerDisplay: { strings: ["", ...Array.from({ length: 9 }, (_, i) => `modded${i + 1}`)], displayName: "Thermometer:" },
+				NnpcDisplaySystem: { strings: ["none", "vanilla", "dolp"], displayName: "Named NPC sprite system:" },
+				nnpcDisplay: {
+					strings: [0, ...setup.NPCNameList.filter(name => name !== "Luchifen").map(name => name.toLowerCase().replaceAll(" ", "_")), "others"],
+					displayName: "Named NPC sprite:",
+				},
+				nnpcDisplayGender: { strings: ["male", "female", "monster"], displayName: "NPC sprite gender:" },
+				nnpcDisplayLayer: { strings: ["front", "back"], displayName: "NPC sprite layer:" },
+				nnpcDisplaySkin: { strings: ["pale", "dark", "monster"], displayName: "NPC sprite skin:" },
+				nnpcDisplaySlot: { min: 0, max: 9, decimals: 0, displayName: "NPC sprite slot:" },
+				altImgGender: { strings: ["m", "f"], displayName: "Alternative spriteset gender:" },
+				showCombatImgWhenGender: { strings: ["both", "m", "f"], displayName: "Combat image gender:" },
+				fishingBaitSelection: { strings: ["sidebar", "dropdown"], displayName: "Fishing bait selection:" },
+				debugdisable: { bool: true, boolLetter: true, displayName: "Additional error messages:" },
+				statNerf: { min: 0, max: 100, decimals: 0, displayName: "Lewd stat multiplier:" },
+				zoom: { min: 50, max: 200, decimals: 0, displayName: "Zoom:" },
+			});
+			for (const key of [
+				"fahrenheit",
+				"mapLegacy",
+				"autosaveDisabled",
+				"listboxOutfitsEnabled",
+				"lowerHalo",
+				"showUiBar",
+				"bigCanvas",
+				"showSidebarEffects",
+				"showExactMeasurements",
+				"targetYourself",
+				"scrollRemember",
+				"textAnimsAll",
+				"textAnimsDrunk",
+				"textAnimsHeat",
+				"textAnimsHypno",
+				"weatherUpdate",
+				"reflections",
+				"topdownBreastjob",
+				"confirmDialogUponTabClose",
+				"showGameVersion",
+			]) {
+				result.options[key] = { bool: true, displayName: `${key}:` };
+			}
+			for (const key of [
+				"postureAffectsVoice",
+				"muteonhide",
+				"audio",
+				"voiceoverAudio",
+				"npcVoiceoverAudio",
+				"useAltImg",
+				"altImgAlways",
+				"showCombatImgWhileStanding",
+				"showCurrentSexIcon",
+				"currentSexIconIdentity",
+				"showPortalXray",
+			]) {
+				result.options[key] = { min: 0, max: 1, decimals: 0, displayName: `${key}:` };
+			}
+			for (const key of ["mastervolume", "bgm_volume", "bgs_volume", "ambience_volume", "voice_volume", "nonCombatMoanVolume"]) {
+				result.options[key] = { min: 0, max: 1, decimals: 2, displayName: `${key}:` };
+			}
+			result.options.voiceConfig = Object.fromEntries(
+				["male", "female", "sissy", "butch", "herm"].map(key => [
+					key,
+					{
+						enabled: { bool: true, displayName: `${key} voice enabled:` },
+						voice: { strings: ["v1", "v2", "m"], displayName: `${key} voice:` },
+						npc: { strings: ["all", "m", "f", "off"], displayName: `${key} NPC voice:` },
+					},
+				])
+			);
+			result.options.autoNNPCDisplay = { enabled: { bool: true, displayName: "Automatic NPC sprites:" } };
+			for (const name of [...setup.NPCNameList.filter(name => name !== "Luchifen"), "Others"]) {
+				result.options.autoNNPCDisplay[name.toLowerCase().replaceAll(" ", "_")] = {
+					genderOverride: { bool: true, displayName: `${name} sprite gender override:` },
+					gender: { strings: ["", "male", "female", "monster"], displayName: `${name} sprite gender:` },
+					skin: { strings: ["pale", "dark", "monster"], displayName: `${name} sprite skin:` },
+					slot: { min: 0, max: 9, decimals: 0, displayName: `${name} sprite slot:` },
+					layer: { strings: ["front", "back"], displayName: `${name} sprite layer:` },
+				};
+			}
+			result.identity.body = {};
+			for (const [group, choices] of Object.entries({
+				chest: ["flat", "small", "medium", "big"],
+				bottom: ["small", "medium", "big"],
+				genitals: ["vagina", "tinypenis", "smallpenis", "mediumpenis", "bigpenis"],
+				hairlength: ["short", "medium", "long"],
+				bodysize: ["miniature", "tiny", "small", "normal", "tall", "large", "giant"],
+			})) {
+				result.identity.body[group] = Object.fromEntries(
+					choices.map(choice => [
+						choice,
+						{
+							reject: { bool: true, displayName: `${group} ${choice} rejected:` },
+							acceptance: { bool: true, displayName: `${group} ${choice} accepted:` },
+						},
+					])
+				);
+				result.identity.body[group].preferred = { strings: choices, displayName: `Preferred ${group}:` };
+			}
+			result.identity.body.genitals.preferred = { strings: [false, "vagina", "tinypenis", "smallpenis", "mediumpenis", "bigpenis"] };
+			result.identity.body.genitals.preferredPenis = { strings: [false, "tinypenis", "smallpenis", "mediumpenis", "bigpenis"] };
+			result.identity.body.genitals.preferredVagina = { bool: true };
+			for (const group of ["lactation", "pregnancy"]) {
+				result.identity.body[group] = {
+					reject: { bool: true, displayName: `${group} rejected:` },
+					acceptance: { bool: true, displayName: `${group} accepted:` },
+					preferred: { strings: ["none", group], displayName: `${group} preferred:` },
+				};
+			}
 			break;
 		case "npc":
 			result = {
@@ -2163,17 +2279,16 @@ function settingsObjects(type) {
 				},
 				penissize: {
 					min: 0,
-					max: 6,
+					max: 5,
 					decimals: 0,
 					displayName: "Penis size: ",
 					textMap: {
-						0: "Micro",
-						1: "Mini",
-						2: "Tiny",
-						3: "Small",
-						4: "Normal",
-						5: "Large",
-						6: "Enormous",
+						0: "None",
+						1: "Tiny",
+						2: "Average",
+						3: "Thick",
+						4: "Huge",
+						5: "Colossal",
 					},
 				},
 				breastsize: {

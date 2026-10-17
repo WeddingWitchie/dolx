@@ -21,6 +21,37 @@ IMPORTANT:
 	<</script>>
 <</widget>>
 
+<<widget "optionsDefaults">>
+	<div class="settingsGrid">
+		<div>
+			<<button "Save All Options As Default">>
+				<<set _toSaveDefaults to {}>>
+				<<set $options.theme to Theme.getPreference()>>
+				<<run exportSettingsWalk(settingsObjects("general").options, V.options, T.toSaveDefaults)>>
+				<<run localStorage.setItem("dolDefaultGeneralSettings", JSON.stringify(T.toSaveDefaults))>>
+				<<run localStorage.removeItem("dolDefaultThemeSettings")>>
+				<<set _globalGeneralDefaults to _toSaveDefaults>>
+				<<set _globalThemeDefaults to {}>>
+				<<run $('[id^="optionsThemeDefault-"]').each(function () {
+					const value = T.globalGeneralDefaults[this.id.substring("optionsThemeDefault-".length)];
+					this.textContent = value === undefined ? "" : " Default: (" + value + ")";
+				})>>
+				<<replace "#optionsDefaultsStatus">>Defaults saved for new games.<</replace>>
+			<</button>>
+			<<button "Reset Defaults">>
+				<<run localStorage.removeItem("dolDefaultGeneralSettings")>>
+				<<run localStorage.removeItem("dolDefaultThemeSettings")>>
+				<<set _globalGeneralDefaults to {}>>
+				<<set _globalThemeDefaults to {}>>
+				<<run $('[id^="optionsThemeDefault-"]').empty()>>
+				<<replace "#optionsDefaultsStatus">>Defaults reset.<</replace>>
+			<</button>>
+			<span id="optionsDefaultsStatus" role="status"></span>
+			<br><span class="small-description">Defaults apply to new games. Existing saves keep their own options. Settings exports include these options for transfer to another installation.</span>
+		</div>
+	</div>
+<</widget>>
+
 <<widget "optionsgeneral">>
 	<<setupOptions>>
 	<<set _globalGeneralDefaults to JSON.parse(localStorage.getItem("dolDefaultGeneralSettings"))>>
@@ -38,35 +69,7 @@ IMPORTANT:
 		<</link>>
 		<br><br>*/
 	<</if>>
-	<div class="settingsGrid">
-		<div>
-			<<button "Save Current As Default">>
-				<<set _toSaveDefaults to {}>>
-				<<if $options.general>><<set _toSaveDefaults.general to $options.general>><</if>>
-				<<if $options.dateFormat>><<set _toSaveDefaults.dateFormat to $options.dateFormat>><</if>>
-				<<if $options.fahrenheit>><<set _toSaveDefaults.fahrenheit to $options.fahrenheit>><</if>>
-				<<if $options.timestyle>><<set _toSaveDefaults.timestyle to $options.timestyle>><</if>>
-				<<if $options.mapMovement>><<set _toSaveDefaults.mapMovement to $options.mapMovement>><</if>>
-				<<if $options.mapLegacy>><<set _toSaveDefaults.mapLegacy to $options.mapLegacy>><</if>>
-				<<if $options.mapMarkers>><<set _toSaveDefaults.mapMarkers to $options.mapMarkers>><</if>>
-				<<if $options.mapTop>><<set _toSaveDefaults.mapTop to $options.mapTop>><</if>>
-				<<if $options.closeButtonMobile>><<set _toSaveDefaults.closeButtonMobile to $options.closeButtonMobile>><</if>>
-				<<if $options.passageCount>><<set _toSaveDefaults.passageCount to $options.passageCount>><</if>>
-				<<if $options.playtime>><<set _toSaveDefaults.playtime to $options.playtime>><</if>>
-				<<if $options.showGameVersion isnot undefined>><<set _toSaveDefaults.showGameVersion to $options.showGameVersion>><</if>>
-				<<if $options.neverNudeMenus>><<set _toSaveDefaults.neverNudeMenus to $options.neverNudeMenus>><</if>>
-				<<if $options.autosaveDisabled>><<set _toSaveDefaults.autosaveDisabled to $options.autosaveDisabled>><</if>>
-				<<if $options.numberify_enabled>><<set _toSaveDefaults.numberify_enabled to $options.numberify_enabled>><</if>>
-				<<if $options.clothingReplacementWarning>><<set _toSaveDefaults.clothingReplacementWarning to $options.clothingReplacementWarning>><</if>>
-				<<if $options.showAllStatMeters isnot undefined>><<set _toSaveDefaults.showAllStatMeters to $options.showAllStatMeters>><</if>>
-				<<run localStorage.setItem("dolDefaultGeneralSettings",JSON.stringify(_toSaveDefaults))>>
-				<<replace #customOverlayContent>><<optionsgeneral>><</replace>>
-			<</button>>
-			<<button "Reset Defaults">>
-				<<run localStorage.removeItem("dolDefaultGeneralSettings")>>
-			<</button>>
-		</div>
-	</div>
+	<<optionsDefaults>>
 	<div class="settingsGrid">
 		<div class="settingsHeader options"><span class="gold">General</span></div>
 		<div class="settingsToggleItem">
@@ -608,27 +611,7 @@ IMPORTANT:
 	<<if !_globalThemeDefaults>>
 		<<set _globalThemeDefaults to {}>>
 	<</if>>
-	<div class="settingsGrid">
-		<div>
-			<<button "Save Current As Default">>
-				<<set _toSaveDefaults to {}>>
-				<<if $options.theme>><<set _toSaveDefaults.theme to $options.theme>><</if>>
-				<<if $options.passageMaxWidth>><<set _toSaveDefaults.passageMaxWidth to $options.passageMaxWidth>><</if>>
-				<<if $options.passageLineHeight>><<set _toSaveDefaults.passageLineHeight to $options.passageLineHeight>><</if>>
-				<<if $options.overlayLineHeight>><<set _toSaveDefaults.overlayLineHeight to $options.overlayLineHeight>><</if>>
-				<<if $options.sidebarLineHeight>><<set _toSaveDefaults.sidebarLineHeight to $options.sidebarLineHeight>><</if>>
-				<<if $options.passageFontSize>><<set _toSaveDefaults.passageFontSize to $options.passageFontSize>><</if>>
-				<<if $options.overlayFontSize>><<set _toSaveDefaults.overlayFontSize to $options.overlayFontSize>><</if>>
-				<<if $options.sidebarFontSize>><<set _toSaveDefaults.sidebarFontSize to $options.sidebarFontSize>><</if>>
-				<<if $options.font>><<set _toSaveDefaults.font to $options.font>><</if>>
-				<<run localStorage.setItem("dolDefaultThemeSettings",JSON.stringify(_toSaveDefaults))>>
-				<<replace #customOverlayContent>><<optionstheme>><</replace>>
-			<</button>>
-			<<button "Reset Defaults">>
-				<<run localStorage.removeItem("dolDefaultThemeSettings")>>
-			<</button>>
-		</div>
-	</div>
+	<<optionsDefaults>>
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Theme<<optionsThemeDefault "theme">></div>
 		<div class="settingsToggleItemWide">
@@ -644,7 +627,7 @@ IMPORTANT:
 			<label><input type="radio" name="theme" value="macchiato" /> Catppuccin Macchiato</label> |
 			<label><input type="radio" name="theme" value="mocha" /> Catppuccin Mocha</label> |
 			<label><input type="radio" name="theme" value="sea" /> Sea</label>
-			<div class="small-description">Selected styles cannot currently be saved as the 'default' option, though they will carry over to new saves.</div>
+			<div class="small-description">Theme selection is shared on this installation. Save it with your other defaults or export settings to transfer it to another installation.</div>
 		</div>
 	</div>
 	<hr>
@@ -654,7 +637,7 @@ IMPORTANT:
 		<div class="settingsToggleItem">
 			Passage:
 			<<listbox "$options.passageLineHeight" autoselect>>
-				<<option "Default" undefined>>
+				<<option "Default" 0>>
 				<<option "1" 1>>
 				<<option "1.25" 1.25>>
 				<<option "1.5" 1.5>>
@@ -666,7 +649,7 @@ IMPORTANT:
 		<div class="settingsToggleItem">
 			Overlay:
 			<<listbox "$options.overlayLineHeight" autoselect>>
-				<<option "Default" undefined>>
+				<<option "Default" 0>>
 				<<option "1" 1>>
 				<<option "1.25" 1.25>>
 				<<option "1.5" 1.5>>
@@ -678,7 +661,7 @@ IMPORTANT:
 		<div class="settingsToggleItemWide">
 			Sidebar:
 			<<listbox "$options.sidebarLineHeight" autoselect>>
-				<<option "Default" undefined>>
+				<<option "Default" 0>>
 				<<option "1" 1>>
 				<<option "1.25" 1.25>>
 				<<option "1.5" 1.5>>
@@ -695,7 +678,7 @@ IMPORTANT:
 		<div class="settingsToggleItem">
 			Passage:
 			<<listbox "$options.passageFontSize" autoselect>>
-				<<option "Default" undefined>>
+				<<option "Default" 0>>
 				<<option "10px" 10>>
 				<<option "12px" 12>>
 				<<option "14px" 14>>
@@ -708,7 +691,7 @@ IMPORTANT:
 		<div class="settingsToggleItem">
 			<mouse class="tooltip">Overlay<span class="blue">Default is equivalent to passage font size.</span></mouse>:
 			<<listbox "$options.overlayFontSize" autoselect>>
-				<<option "Default" undefined>>
+				<<option "Default" 0>>
 				<<option "10px" 10>>
 				<<option "12px" 12>>
 				<<option "14px" 14>>
@@ -721,7 +704,7 @@ IMPORTANT:
 		<div class="settingsToggleItemWide">
 			Sidebar:
 			<<listbox "$options.sidebarFontSize" autoselect>>
-				<<option "Default" undefined>>
+				<<option "Default" 0>>
 				<<option "12px" 12>>
 				<<option "14px" 14>>
 				<<option "16px" 16>>
@@ -794,8 +777,8 @@ IMPORTANT:
 <<widget "optionsThemeDefault">>
 	<<if _args[0]>>
 		<span @id="'optionsThemeDefault-' + _args[0]">
-			<<if _globalThemeDefaults[_args[0]]>> Default: (<<print _globalThemeDefaults[_args[0]]>>)
-			<<elseif _globalGeneralDefaults[_args[0]]>> Default: (<<print _globalGeneralDefaults[_args[0]]>>)
+			<<if _globalThemeDefaults?.[_args[0]] isnot undefined>> Default: (<<print _globalThemeDefaults[_args[0]]>>)
+			<<elseif _globalGeneralDefaults?.[_args[0]] isnot undefined>> Default: (<<print _globalGeneralDefaults[_args[0]]>>)
 			<</if>>
 		</span>
 	<</if>>
@@ -803,6 +786,7 @@ IMPORTANT:
 
 <<widget "optionsperformance">>
 	<<setupOptions>>
+	<<optionsDefaults>>
 	<div class="settingsGrid">
 		<div class="settingsHeader options">Audio</div>
 		<div class="settingsToggleItemWide">

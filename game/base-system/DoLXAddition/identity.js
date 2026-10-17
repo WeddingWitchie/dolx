@@ -13,7 +13,8 @@
  * every pronoun, or preferring something that was never accepted.
  *
  * This only fixes invalid combinations. Rejected + Accepted is allowed during play because it represents a Begrudged
- * characteristic, which can also be Preferred. During character creation, Begrudged cannot exist yet, so Rejected wins.
+ * characteristic, which can also be Preferred. During character creation, Begrudged cannot exist yet, so Rejected wins,
+ * including for imported or randomised body preferences.
  *
  * "Don't care" clothing and makeup options are handled by their own normalisers because they also affect dysphoria
  * and tolerance, so they are skipped here.
@@ -44,6 +45,30 @@ function identityNormalisePresentation() {
 		{ group: presentation.clothing, options: { m: "masculine", f: "feminine", u: "neutral" }, dontCare: "n" },
 		{ group: presentation.makeup, options: { wearing: "wearing", bare: "bare" }, dontCare: "n" },
 	];
+	if (creatingCharacter) {
+		const body = V.identity.body;
+		exclusiveGroups.push(
+			{ group: body?.chest, options: { flat: "flat", small: "small", medium: "medium", big: "big" }, dontCare: null },
+			{ group: body?.bottom, options: { small: "small", medium: "medium", big: "big" }, dontCare: null },
+			{ group: body?.hairlength, options: { short: "short", medium: "medium", long: "long" }, dontCare: null },
+			{
+				group: body?.bodysize,
+				options: { miniature: "miniature", tiny: "tiny", small: "small", normal: "normal", tall: "tall", large: "large", giant: "giant" },
+				dontCare: null,
+			}
+		);
+		const genitals = body?.genitals;
+		if (genitals) {
+			for (const name of ["vagina", "tinypenis", "smallpenis", "mediumpenis", "bigpenis"]) isAccepted(genitals[name]);
+			if (!genitals.vagina?.acceptance) genitals.preferredVagina = false;
+			if (!genitals[genitals.preferredPenis]?.acceptance) genitals.preferredPenis = false;
+			genitals.preferred = genitals.preferredVagina ? "vagina" : genitals.preferredPenis || false;
+		}
+		for (const name of ["lactation", "pregnancy"]) {
+			const group = body?.[name];
+			if (group && !isAccepted(group)) group.preferred = "none";
+		}
+	}
 	for (const { group, options, dontCare } of exclusiveGroups) {
 		if (!group || typeof group !== "object") continue;
 		if (dontCare != null && group.preferred === dontCare) continue;

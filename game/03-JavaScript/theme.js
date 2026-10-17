@@ -19,6 +19,7 @@ var ThemeManager = (() => {
 	 */
 	function setPreference(preference) {
 		localStorage.setItem(STORAGE_KEY, preference);
+		if (typeof V !== "undefined" && V.options) V.options.theme = preference;
 		reflectPreference(preference);
 	}
 
@@ -42,12 +43,15 @@ var ThemeManager = (() => {
 	 */
 	function reflectPreference(preference) {
 		let theme;
+		if (isDarkPreferredQuery) {
+			if (typeof isDarkPreferredQuery.removeEventListener === "function") {
+				isDarkPreferredQuery.removeEventListener("change", onThemeChange);
+			} else {
+				isDarkPreferredQuery.removeListener(onThemeChange);
+			}
+		}
 
 		if (preference === "system-default") {
-			if (isDarkPreferredQuery) {
-				isDarkPreferredQuery.removeEventListener("change", onThemeChange);
-			}
-
 			isDarkPreferredQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
 			theme = isDarkPreferredQuery.matches ? "dark" : "light";
@@ -69,6 +73,8 @@ var ThemeManager = (() => {
 	reflectPreference(getPreference());
 
 	window.Theme = {
+		getPreference,
+		setPreference,
 		initControl() {
 			$(document).ready(() => {
 				$(`input[name=theme][value="${getPreference()}"]`).prop("checked", true);
@@ -79,4 +85,10 @@ var ThemeManager = (() => {
 			});
 		},
 	};
+
+	$(document).on(":onloadsave", (_event, { save }) => {
+		if (localStorage.getItem(STORAGE_KEY) !== null) return;
+		const preference = save.state.history[save.state.index].variables.options?.theme;
+		if (validateValue(settingsObjects("general").options.theme, preference)) setPreference(preference);
+	});
 })();

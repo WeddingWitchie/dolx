@@ -27,6 +27,7 @@
 	/* <<set $background to "waif">> */
 	<<set $startingseason to "autumn">>
 	<<set $gamemode to "normal">>
+	<<set $danceSkillDecay to 0>>
 	<<set $settings.darkSkinChance to 10>>
 	<<set $settings.femaleNPCPenisChance to 0>>
 	<<set $settings.maleNPCVaginaChance to 0>>
@@ -5521,9 +5522,8 @@
 				<<set _xchangeOldSaveGenitalMismatchNPC to []>>
 				<<for _xchangeOldSaveNPCIndex to 0; _xchangeOldSaveNPCIndex lt $NPCName.length; _xchangeOldSaveNPCIndex++>>
 					<<set _xchangeOldSaveNPC to $NPCName[_xchangeOldSaveNPCIndex]>>
-					/* Only a pre-records-model save carries a fetus array.
-					Some NPCs never have one at all (Black Wolf, Alex and the Great Hawk on a brand-new game), and reading .length off the missing array threw, which took the whole X-Change settings tab down with it. */
-					<<if _xchangeOldSaveNPC and _xchangeOldSaveNPC.pregnancy and _xchangeOldSaveNPC.pregnancy.enabled isnot undefined and Array.isArray(_xchangeOldSaveNPC.pregnancy.fetus) and !_xchangeOldSaveNPC.pregnancy.fetus.length>>
+					/* Poppy can retain a legacy fetus array after migration. Neither pregnancy model may contain an active pregnancy before offering anatomy recovery. */
+					<<if $passage isnot "Start" and _xchangeOldSaveNPC and _xchangeOldSaveNPC.pregnancy and _xchangeOldSaveNPC.pregnancy.enabled isnot undefined and Array.isArray(_xchangeOldSaveNPC.pregnancy.fetus) and !_xchangeOldSaveNPC.pregnancy.fetus.length and !getActivePregnancies(_xchangeOldSaveNPC.nam).length>>
 						<<if _xchangeOldSaveNPC.gender is "f" and (_xchangeOldSaveNPC.vagina is undefined or _xchangeOldSaveNPC.vagina is "none" or _xchangeOldSaveNPC.penis isnot "none")>>
 							<<set _xchangeOldSaveGenitalMismatchNPC.push(_xchangeOldSaveNPCIndex)>>
 						<<elseif _xchangeOldSaveNPC.gender is "m" and (_xchangeOldSaveNPC.penis is undefined or _xchangeOldSaveNPC.penis is "none" or _xchangeOldSaveNPC.vagina isnot "none")>>

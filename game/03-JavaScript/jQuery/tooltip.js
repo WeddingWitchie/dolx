@@ -73,7 +73,7 @@ const forgetTooltip = anchorEl => {
 	openTooltips.delete(anchorEl);
 	$(window).off("resize.tooltip", entry.resizeHandler);
 	entry.tooltip.remove();
-	$(anchorEl).removeData("tooltip-instance");
+	$(anchorEl).removeData("tooltip-instance tooltip-pinned");
 };
 
 const observer = new MutationObserver(() => {
@@ -129,10 +129,48 @@ $(document).on("mouseenter.tooltip", "[tooltip]", function (event) {
 	show($this);
 });
 
+$(document).on("focusin.tooltip", "[tooltip]", function () {
+	const $this = $(this);
+	const settings = $.extend({}, getTooltipSettings(this), $this.data("tooltip-plugin-settings") || {});
+	settings.position = "top";
+	$this.data("tooltip-settings", settings);
+	show($this, true);
+});
+
+$(document).on("focusout.tooltip", "[tooltip]", function () {
+	if ($(this).data("tooltip-pinned")) return;
+	hide($(this));
+});
+
+$(document).on(":oncloseoverlay.tooltip :passageinit.tooltip", function () {
+	openTooltips.forEach((_entry, anchor) => hide($(anchor)));
+});
+
 $(document).on("mouseleave.tooltip", "[tooltip]", function () {
 	const $this = $(this);
+	if ($this.data("tooltip-pinned") || this.matches(":focus-visible")) return;
 	clearTimeout($this.data("tooltip-timeout"));
 	hide($this);
+});
+
+$(document).on("pointerup.tooltip", "[tooltip]", function (event) {
+	if (event.originalEvent.pointerType !== "touch") return;
+	const $this = $(this);
+	if ($this.data("tooltip-pinned")) {
+		hide($this);
+		return;
+	}
+	const settings = $.extend({}, getTooltipSettings(this), $this.data("tooltip-plugin-settings") || {});
+	settings.position = "top";
+	$this.data("tooltip-settings", settings).data("tooltip-pinned", true);
+	show($this, true);
+});
+
+$(document).on("pointerup.tooltip keydown.tooltip", function (event) {
+	if (event.type === "keydown" && event.key !== "Escape") return;
+	openTooltips.forEach((entry, anchor) => {
+		if (event.type === "keydown" || (!anchor.contains(event.target) && !entry.tooltip[0].contains(event.target))) hide($(anchor));
+	});
 });
 
 $(document).on("mousemove.tooltip", "[tooltip]", function (event) {
@@ -168,11 +206,12 @@ const show = ($element, force = false) => {
 
 const hide = $element => {
 	clearTimeout($element.data("tooltip-timeout"));
+	$element.removeData("tooltip-pinned");
 	forgetTooltip($element[0]);
 };
 
 const createTooltip = ($element, settings) => {
-	if (!document.contains($element[0])) return;
+	if (!document.contains($element[0]) || !$element[0].getClientRects().length) return;
 	const tooltip = $("<div>").addClass("tooltip-popup");
 
 	if (settings.title) {
@@ -213,6 +252,11 @@ const updatePosition = ($element, tooltip) => {
 
 	const position = settings.position.toLowerCase();
 	const distance = 15; // Distance from cursor
+	const viewport = window.visualViewport;
+	const viewportWidth = viewport?.width ?? document.documentElement.clientWidth;
+	const viewportHeight = viewport?.height ?? document.documentElement.clientHeight;
+	const viewportLeft = viewport?.offsetLeft ?? 0;
+	const viewportTop = viewport?.offsetTop ?? 0;
 	const popup = tooltip[0];
 	const anchor = $element[0];
 
@@ -220,9 +264,13 @@ const updatePosition = ($element, tooltip) => {
 	popup.style.position = "fixed";
 	popup.style.left = "0px";
 	popup.style.top = "0px";
-	const originRect = popup.getBoundingClientRect();
+	let originRect = popup.getBoundingClientRect();
 	const measured = popup.offsetWidth > 0 ? originRect.width / popup.offsetWidth : 1;
 	const unit = Number.isFinite(measured) && measured > 0 ? measured : 1;
+	popup.style.boxSizing = "border-box";
+	popup.style.maxWidth = Math.min(settings.maxWidth || viewportWidth, (viewportWidth - 2 * distance) / unit) + "px";
+	popup.style.maxHeight = (viewportHeight - 2 * distance) / unit + "px";
+	originRect = popup.getBoundingClientRect();
 
 	const tooltipWidth = originRect.width;
 	const tooltipHeight = originRect.height;
@@ -277,8 +325,8 @@ const updatePosition = ($element, tooltip) => {
 	}
 
 	// Keep it on screen. Both sides of this comparison are screen pixels.
-	left = Math.max(distance, Math.min(left, window.innerWidth - tooltipWidth - distance));
-	top = Math.max(distance, Math.min(top, window.innerHeight - tooltipHeight - distance));
+	left = Math.max(viewportLeft + distance, Math.min(left, viewportLeft + viewportWidth - tooltipWidth - distance));
+	top = Math.max(viewportTop + distance, Math.min(top, viewportTop + viewportHeight - tooltipHeight - distance));
 
 	// Turn the screen position back into the numbers this tooltip's own container measures in.
 	popup.style.left = (left - originRect.left) / unit + "px";
