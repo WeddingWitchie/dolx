@@ -743,7 +743,7 @@ function calculateallure() {
 	if (V.earSlime.growth > 50) allure += (V.earSlime.growth - 50) * 10;
 	/* fame mods */
 	let reputationMod = 1;
-	if (!["island"].includes(V.location)) {
+	if (!["island"].includes(V.location) && !V.settings.allureIgnoresFame) {
 		reputationMod = 0;
 		reputationMod = Math.max(reputationMod, (V.fame.sex * 1.5) / 1000);
 		reputationMod = Math.max(reputationMod, (V.fame.prostitution * 3) / 1000);

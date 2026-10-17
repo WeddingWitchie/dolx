@@ -1520,6 +1520,7 @@ function settingsObjects(type) {
 					vaginalDoubleEnabled: { bool: true, displayName: "Double Vaginal:" },
 					earSlimesEnabled: { bool: true, displayName: "Ear slimes:" },
 					allureModifier: { min: 0.2, max: 2, decimals: 1, displayName: "Encounter rate:", randomize: "gameplay" },
+					allureIgnoresFame: { bool: true, displayName: "Allure ignores fame:" },
 					facesitEnabled: { bool: true, displayName: "Facesitting:" },
 					pregnancySpeechEnabled: { bool: true, displayName: "Fertility references:" },
 					footFetishEnabled: { bool: true, displayName: "Foot fetish:" },
