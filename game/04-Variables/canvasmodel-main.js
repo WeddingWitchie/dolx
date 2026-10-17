@@ -1034,13 +1034,20 @@ Renderer.CanvasModels.main = {
 			options.fringe_mask_src = null;
 		}
 
-		if (
-			options.worn.upper.setup.type.includes("bellyHide")
-			|| options.worn.lower.setup.type.includes("bellyHide")
-			|| !V.worn.over_upper.type.includes("naked")
-		) {
-			options.belly -= 3;
-		}
+		// These are derived per render; cached models can be redrawn after size or clothing changes.
+		options.belly_mask_src = null;
+		options.belly_mask_clip_src = null;
+		options.belly_mask_lower_shadow_src = null;
+		options.belly_mask_upper_shadow_src = null;
+		options.belly_hides_lower = false;
+		options.belly_hides_under_lower = false;
+		options.shirt_mask_clip_src = null;
+		options.shirt_mask_breasts_src = null;
+		options.shirt_move_left_src = null;
+		options.shirt_move_left2_src = null;
+		options.shirt_move_right_src = null;
+		options.shirt_move_right2_src = null;
+		options.shirt_move_right3_src = null;
 
 		const bellyDir = "img/clothes/belly"
 		if (between(options.belly, 8, 24)) {
@@ -1055,7 +1062,7 @@ Renderer.CanvasModels.main = {
 				`${bellyDir}/mask-min-${options.belly}.png` : `${bellyDir}/mask-${options.belly}.png`;
 			options.lowerBellyMask.push(options.belly_mask_src);
 
-			if (V.worn.upper.outfitPrimary == undefined && options.worn.lower.setup.pregType !== "cover") {
+			if (options.worn.upper.setup.outfitPrimary == undefined && options.worn.lower.setup.pregType !== "cover") {
 				if (options.belly >= 19) {
 					options.belly_hides_lower = true;
 					options.belly_mask_clip_src = `${bellyDir}/mask-clip-${options.belly}.png`;
@@ -1077,7 +1084,7 @@ Renderer.CanvasModels.main = {
 				}
 			}
 
-			if (V.worn.under_upper.outfitPrimary == undefined) {
+			if (options.worn.under_upper.setup.outfitPrimary == undefined) {
 				options.belly_hides_under_lower = true;
 				options.underLowerMask.push(`${bellyDir}/mask-clip-${options.belly}.png`);
 				options.underLowerShadowMask.push(`${bellyDir}/mask-clip-${options.belly}.png`);
@@ -4100,7 +4107,7 @@ Renderer.CanvasModels.main = {
 					ZIndices.under_lower_high : ZIndices.under_lower;
 			},
 			showfn(options) {
-				return options.belly > 7
+				return !!options.belly_mask_src
 					&& options.show_clothes
 					&& !options.belly_hides_under_lower
 					&& options.worn.under_lower.index > 0
@@ -4116,7 +4123,7 @@ Renderer.CanvasModels.main = {
 					ZIndices.under_lower_high : ZIndices.under_lower;
 			},
 			showfn(options) {
-				return options.belly > 7
+				return !!options.belly_mask_src
 					&& options.show_clothes
 					&& !options.belly_hides_under_lower
 					&& options.worn.under_lower.index > 0
@@ -4144,7 +4151,7 @@ Renderer.CanvasModels.main = {
 					ZIndices.under_lower_high : ZIndices.under_lower;
 			},
 			showfn(options) {
-				return options.belly > 7
+				return !!options.belly_mask_src
 					&& options.show_clothes
 					&& !options.belly_hides_under_lower
 					&& options.worn.under_lower.index > 0
@@ -5865,7 +5872,7 @@ function genlayer_clothing_breasts_detail(slot, overrideOptions) {
 function genlayer_clothing_breasts(slot, overrideOptions) {
 	return genlayer_clothing_main(slot, Object.assign({
 		masksrcfn(options) {
-			if (options.belly >= 19) return options.shirt_mask_breasts_src;
+			if (slot === "upper" && options.shirt_mask_breasts_src) return options.shirt_mask_breasts_src;
 
 			const variable = options.worn[slot].setup.variable;
 			const integrity = options.worn[slot].integrity;
@@ -5903,7 +5910,7 @@ function genlayer_clothing_belly(slot, overrideOptions) {
 	return genlayer_clothing_main(slot, Object.assign({
 		z: ZIndices.bellyClothes,
 		showfn(options) {
-			const commonChecks = options.belly > 7
+			const commonChecks = !!options.belly_mask_src
 				&& options.show_clothes
 				&& options.worn[slot].index > 0
 				&& options.worn[slot].setup.mainImage !== 0;
@@ -5952,7 +5959,7 @@ function genlayer_clothing_belly_2(slot, overrideOptions) {
 function genlayer_clothing_belly_split(slot, overrideOptions) {
 	return genlayer_clothing_belly(slot, Object.assign({
 		showfn(options) {
-			return options.belly > 7
+			return !!options.shirt_mask_clip_src
 				&& options.show_clothes
 				&& options.worn[slot].index > 0
 				&& options.worn[slot].setup.mainImage !== 0;
@@ -5969,7 +5976,7 @@ function genlayer_clothing_belly_split_acc(slot, overrideOptions) {
 		filters: [`worn_${slot}_acc`],
 
 		showfn(options) {
-			return options.belly > 7
+			return !!options.shirt_mask_clip_src
 				&& options.show_clothes
 				&& options.worn[slot].index > 0
 				&& options.worn[slot].setup.accessory === 1
@@ -6037,7 +6044,7 @@ function genlayer_clothing_belly_acc(slot, overrideOptions) {
 		z: ZIndices[slot],
 
 		showfn(options) {
-			const commonChecks = options.belly > 7
+			const commonChecks = !!options.belly_mask_src
 				&& options.worn[slot].index > 0
 				&& options.worn[slot].setup.accessory === 1
 				&& options.worn[slot].setup.mainImage !== 0

@@ -67,9 +67,11 @@ DefineMacro("modelprepare-player-body", function () {
 	T.modeloptions.breasts = "default";
 
 	if (V.sexStats) {
-		const bellySize = playerBellySize() || V.bellySizeDebug;
+		const bellySize = playerBellySize();
 		T.modeloptions.belly = bellySize;
-		T.bellySize = bellySize;
+		if (V.worn.upper.type.includes("bellyHide") || V.worn.lower.type.includes("bellyHide") || !V.worn.over_upper.type.includes("naked")) {
+			T.modeloptions.belly = Math.max(0, bellySize - 3);
+		}
 	}
 
 	if (V.wraithSkin) {
