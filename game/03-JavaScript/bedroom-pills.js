@@ -1318,7 +1318,11 @@ function autoTakeDailyPills() {
 			continue;
 		}
 
-		if (onTakeClickSilent(chosen.name) && chosen.owned() <= 0) {
+		if (!onTakeClickSilent(chosen.name)) continue;
+		/* Stamp the day, or the per-passage check retakes the pill until take_condition blocks it (a daily overdose). */
+		V.pillsTakenOn = Time.monthDay.toString() + Time.month + Time.year.toString();
+		V.effectsmessage = 1;
+		if (chosen.owned() <= 0) {
 			V.sexStats.pills.pills[chosen.name].autoTake = false;
 			V.pillsTakenLast = 1;
 		}
