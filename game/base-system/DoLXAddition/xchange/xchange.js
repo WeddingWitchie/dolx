@@ -291,7 +291,7 @@ function getBreastSensitiveRubSlot() {
 	const upperTypes = upper.type || [];
 	const underBare = wornSlotIsBare("under_upper");
 	const upperBare = wornSlotIsBare("upper");
-	const silky = types => V.silkyTrait !== 0 && types.includes("silky");
+	const silky = types => (V.silkyTrait !== 0 && types.includes("silky")) || types.includes("sleep");
 	// Sticky nipple coverings protect even when their minimal coverage gives them the "naked" trait.
 	const protectedByUnder =
 		(!underBare || underTypes.includes("sticky")) &&
@@ -318,7 +318,7 @@ function getGenitalSensitiveRubSlot() {
 	const lowerSetup = wornSetupClothes("lower");
 	const underBare = wornSlotIsBare("under_lower");
 	const lowerBare = wornSlotIsBare("lower");
-	const silky = setupItem => V.silkyTrait !== 0 && !!setupItem?.type?.includes("silky");
+	const silky = setupItem => (V.silkyTrait !== 0 && !!setupItem?.type?.includes("silky")) || !!setupItem?.type?.includes("sleep");
 	const protectedByUnder =
 		!underBare && under.exposed < 2 && (underSetup.one_piece === 1 || silky(underSetup) || (under.name === "boxers" && !V.player.penisExist));
 
@@ -2143,7 +2143,8 @@ function xchangeEffectsMessages() {
 		// The slot is picked during the time tick, but this prints once the passage has run and a link that passes time then strips
 		// (washing, bathing, going to bed) leaves the stored slot empty. Re-check it, and fall back to whatever is being worn now.
 		const storedSlot = typeof V.breastSensitiveRubMessage === "string" ? V.breastSensitiveRubMessage : null;
-		const rubSlot = storedSlot && !wornSlotIsBare(storedSlot) ? storedSlot : getBreastSensitiveRubSlot();
+		const currentSlot = getBreastSensitiveRubSlot();
+		const rubSlot = !currentSlot ? null : storedSlot && !wornSlotIsBare(storedSlot) ? storedSlot : currentSlot;
 		if (rubSlot) {
 			// The widget prints nothing useful here; it's called for the adjective it leaves in _text_output2 ("sensitive ", "tender ", ...).
 			wikifier("breastsensitivity");

@@ -62,7 +62,8 @@ setup.shopDetails = {
 	sleep: {
 		name: "Sleep",
 		desc: "Soft and cosy. May improve the quality of your sleep.",
-		details: "Reduces additional fatigue while sleeping. Sleeping in clothes other than sleepwear, underwear, and eerie items will negate this effect.",
+		details:
+			"Reduces additional fatigue while sleeping. Sleeping in clothes other than sleepwear, underwear, and eerie items will negate this effect. Won't rub against sensitive nipples or genitals.",
 	},
 	mask: {
 		name: "Mask",
