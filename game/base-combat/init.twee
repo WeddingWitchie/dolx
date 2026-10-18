@@ -1148,7 +1148,14 @@
 			<<for _mancombatcontrol = 0; _mancombatcontrol lt $enemynomax; _mancombatcontrol++>>
 				<<set _npc = setup.getNPC(_mancombatcontrol)>>
 
-				<<if _npc and _npc.active is "active" and _npc.stance isnot "defeated">>
+				<<if _npc and _npc.active is "active" and _npc.stance isnot "defeated" and _npc.sprayStun gt 0 and !["stalk", "pursuit", "chased"].includes(_npc.state)>>
+					<<set _npc.sprayStun-->>
+					<<personselect _mancombatcontrol>>
+					<span class="green"><<combatPerson>> is stunned</span>, rubbing at <<if $enemytype is "beast">>its<<else>><<his>><</if>> eyes and unable to act.
+					<<if $position isnot "stalk" and !$breakIgnore>>
+						<br><br>
+					<</if>>
+				<<elseif _npc and _npc.active is "active" and _npc.stance isnot "defeated">>
 					<<man-combat _mancombatcontrol>>
 					<<if $position isnot "stalk" and !$breakIgnore>>
 						<br><br>
