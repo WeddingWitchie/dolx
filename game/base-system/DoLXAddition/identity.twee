@@ -1200,18 +1200,21 @@
 
 	<<widget "misgender">>
 		<<set _usedPronoun to _args[0] || perceivedGender()>>
-		/* One remark counts once. Repeats of the same pronoun in the same turn are just wording. */
-		<<if !misgenderShouldCount(_usedPronoun)>>
-			<<set _usedPronoun to "">>
-		<</if>>
+		/* One remark counts once. Repeats of the same pronoun in the same turn are just wording, but still marked. */
+		<<set _misgenderCounts to misgenderShouldCount(_usedPronoun)>>
 		<<set _pronounTopic to {m: "Masculine Pronouns", f: "Feminine Pronouns", n: "Neutral Pronouns"}[_usedPronoun]>>
 		<<if _pronounTopic>>
 			<<identitySelector _pronounTopic>>
-			<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
 			/* Begrudged (rejected but accepted) still hurts, the same as for every other topic. */
 			<<if !$identityOption.acceptance or $identityOption.reject>>
-				<<dysphoria 10>>
-			<<else>>
+				/* Every caller has the word in _text_output by now and prints it afterwards. */
+				<<if _text_output and !$statFreeze>><<set _text_output to '<span class="dysphoria-text">' + _text_output + '</span>'>><</if>>
+				<<if _misgenderCounts>>
+					<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
+					<<dysphoria 10>>
+				<</if>>
+			<<elseif _misgenderCounts>>
+				<<if !$statFreeze>><<set $identityOption.misgendered to 2>><</if>>
 				<<dysphoria -1>>
 				<<if $identityPreference>>
 					<<stress -1 1>><<trauma -1>>

@@ -1792,7 +1792,7 @@ function xchangeEffectsMessages() {
 	const fragment = document.createDocumentFragment();
 	const element = (element, text, colour) => {
 		const result = document.createElement(element);
-		if (colour) result.classList.add(colour);
+		if (colour) result.classList.add(...colour.split(" "));
 		result.textContent = text + " ";
 		fragment.append(result);
 	};
@@ -2374,7 +2374,7 @@ function xchangeEffectsMessages() {
 
 		for (const msg of msgs) {
 			if (typeof msg === "string" && msg.trim().length) {
-				element("span", msg, "purple");
+				element("span", msg, "purple dysphoria-text");
 				br();
 			}
 		}
@@ -2383,7 +2383,7 @@ function xchangeEffectsMessages() {
 	}
 
 	if (typeof V.audienceErasureMessage === "string" && V.audienceErasureMessage.trim().length) {
-		element("span", V.audienceErasureMessage, "purple");
+		element("span", V.audienceErasureMessage, "purple dysphoria-text");
 		br();
 		delete V.audienceErasureMessage;
 	}
@@ -2395,7 +2395,7 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.dysphoriaMessage) {
-		element("span", "You suffer from dysphoria.", "purple");
+		element("span", "You suffer from dysphoria.", "purple dysphoria-text");
 		br();
 		delete V.dysphoriaMessage;
 	}
@@ -2432,7 +2432,7 @@ function xchangeEffectsMessages() {
 	}
 
 	if (V.breakdownMessage) {
-		element("span", "The dysphoria has become too much.", "purple");
+		element("span", "The dysphoria has become too much.", "purple dysphoria-text");
 		element("span", "You begrudgingly surrender yourself to being this way.", "red");
 		fragment.append(wikifier("lllwillpower"));
 		br();
