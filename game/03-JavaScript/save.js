@@ -1824,6 +1824,7 @@ function settingsObjects(type) {
 					genitalAddictTraitsEnabled: { min: 0, max: 1, decimals: 0, displayName: "Cock/hole addict traits:" },
 					oralFixationTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Oral Fixation trait:" },
 					oralFixationSwallowRelief: { min: 0, max: 1, decimals: 0, displayName: "Oral Fixation swallow relief:" },
+					heatBlocksScream: { min: 0, max: 1, decimals: 0, displayName: "Can't scream in heat/rut:" },
 					critterMagnetTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Critter Magnet trait:" },
 					chastityAcclimatedTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Chastity Acclimated trait:" },
 					arousalAcclimatedTraitEnabled: { min: 0, max: 1, decimals: 0, displayName: "Arousal Acclimated trait:" },
