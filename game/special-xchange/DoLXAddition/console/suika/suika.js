@@ -1711,7 +1711,7 @@
 				btn.type = "button";
 				btn.className = "suika-ability";
 				btn.dataset.ability = id;
-				btn.title = a.help;
+				btn.title = `${a.help} Key: ${abilityIds.indexOf(id) + 1}.`;
 				btn.innerHTML =
 					`<svg class="suika-ability-icon" viewBox="0 0 24 24" aria-hidden="true">${a.icon}</svg>` +
 					'<span class="suika-ability-text"><span><span class="suika-ability-name"></span> <span class="suika-ability-count"></span></span>' +
@@ -2130,6 +2130,7 @@
 			else if (k === " " || k === "Enter" || k === "ArrowDown") {
 				if (!e.repeat) this.drop();
 			} else if (k === "p" || k === "P") this.setPaused(!this.paused);
+			else if (this.abilitiesOn && k.length === 1 && abilityIds[k - 1]) this.abilityBtns[abilityIds[k - 1]].btn.click();
 			else handled = false;
 			if (handled) {
 				e.preventDefault();
@@ -2184,6 +2185,7 @@
 				if (this.mode === "tutorial") this.hideTip();
 				setup.suikaUI.close(this, false);
 				this.newGame(mode, { challenge });
+				if (this.el && this.el.overlay.hidden && this.el.panel.hidden) this.canvas.focus({ preventScroll: true });
 			});
 		}
 
