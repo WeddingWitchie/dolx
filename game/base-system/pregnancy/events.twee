@@ -44,6 +44,14 @@ You shake your head. <<He>> holds open the door for you, and you leave the offic
 		<br>
 	<</if>>
 <</if>>
+<<if $pregnancyStats.parasiteDoctorEvents gte 2 and ($pregnancyStats.parasitesSold or 0) gte 10 and !$weekly.harperParasiteRequestFilled and Array.isArray($pregnancyStats.parasiteTypesSeen) and $pregnancyStats.parasiteTypesSeen.length gt 0>>
+	<<if !$weekly.harperParasiteRequest>>
+		<<set $weekly.harperParasiteRequest to { species: $pregnancyStats.parasiteTypesSeen.random(), speed: either(150, 100, 70) }>>
+	<</if>>
+	<<set _harperRequest to $weekly.harperParasiteRequest>>
+	<span class="gold">This week, Harper's client is asking for one <<= _harperRequest.species.toLowerCase()>> parasite</span>. They want <<creatureActivity _harperRequest.speed>> or better, and it sells for several times the normal price.
+	<br>
+<</if>>
 <<if $pregnancyStats.parasiteDoctorEvents is 3>>
 	<<link [[Enquire about feeling something large in your stomach (0:10)|Pregnancy Futa Introduction]]>><<pass 10>><<set $firstOption to false>><</link>>
 	<br>
@@ -75,8 +83,26 @@ You shake your head. <<He>> holds open the door for you, and you leave the offic
 Doctor Harper walks over to <<his>> office door and locks it. <<He>> sits back down. "What have you brought me today?" <<he>> asks.
 <br><br>
 /* the 100 multiplier is intentional, used to use the moneyGain widget */
-You pull out the small container <<he>> gave you. <<He>> looks inside. Seeming satisfied, <<he>> produces another, larger container from beneath <<his>> desk. <<He>> transfers the contents and hands the empty container to you. <<He>> opens a drawer and counts out <<income `$container.portable.value * 100` "hospitalParasitesSold">>. <<He>> hands it to you.
+<<set _harperRequest to $weekly.harperParasiteRequest>>
+<<if _harperRequest and !$weekly.harperParasiteRequestFilled>>
+	<<set _requestIndex to $container.portable.creatures.findIndex(c => c.creature.includes(_harperRequest.species) && c.stats.speed <= _harperRequest.speed)>>
+	<<if _requestIndex gte 0>>
+		<<set _requestCreature to $container.portable.creatures[_requestIndex]>>
+		<<set _requestBase to Math.floor(1000 / _requestCreature.stats.growth)>>
+		<<set _requestMultiplier to (_harperRequest.speed lte 70 ? 10 : _harperRequest.speed lte 100 ? 6 : 4)>>
+		<<set $container.portable.value -= _requestBase>>
+		<<set $weekly.harperParasiteRequestFilled to true>>
+	<</if>>
+<</if>>
+<<set $pregnancyStats.parasitesSold to ($pregnancyStats.parasitesSold or 0) + $container.portable.creatures.length>>
+You pull out the small container <<he>> gave you. <<He>> looks inside and nods. <<He>> takes a larger container from under <<his>> desk. <<He>> moves the contents into the larger container. Then <<he>> hands you the empty one.
+<<if _requestCreature>>
+	<<He>> stops at one of them and holds it up to the light. "This is the one my client asked for." <<He>> puts it to one side and counts out <<income `_requestBase * _requestMultiplier * 100` "hospitalParasitesSold">> for that one.
+<</if>>
 <br><br>
+<<if $container.portable.value gt 0>>
+	<<He>> opens a drawer and counts out <<income `$container.portable.value * 100` "hospitalParasitesSold">>. <<He>> hands it to you.
+<</if>>
 "The community thanks you," <<he>> says.
 <br><br>
 <<set _paleAmount to 0>>
