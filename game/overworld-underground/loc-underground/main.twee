@@ -158,7 +158,13 @@
 	<<seenPassage "RobinUnderground">>
 	<<unset $undergroundbrothelwithRobin>>
 <</if>>
-<<link [[Next|Underground Cell]]>><<endevent>><<set $eventskip to 1>><</link>>
+/* Staff who remember a well-behaved contract worker can book you onto a short unpaid contract instead. */
+<<set _contractDaysWorked to Math.floor($badEndStats.filter(b => b.source === "Underground Dungeon" && b.trackedEnd && (b.reasonStart === "uDungeonContract" || b.reasonEnd === "uDungeonContractServed")).reduce((total, b) => total + b.trackedEnd - b.trackedStart, 0) / 86400)>>
+<<if !_withRobin and _contractDaysWorked gt 0 and random(1, 100) lte Math.min(40, 5 + _contractDaysWorked)>>
+	<<link [[Next|Underground Brothel Favour]]>><<endevent>><</link>>
+<<else>>
+	<<link [[Next|Underground Cell]]>><<endevent>><<set $eventskip to 1>><</link>>
+<</if>>
 <br>
 
 :: Underground Cell

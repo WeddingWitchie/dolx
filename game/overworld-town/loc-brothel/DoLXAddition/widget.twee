@@ -1,0 +1,147 @@
+:: Underground Brothel Contract Widgets [widget]
+
+<<widget "undergroundBrothelContractOffer">>
+	<<endevent>>
+	<<set _broker to _args[0]>>
+	<<if _broker is "Bailey">>
+		<<npc Bailey>><<person1>>
+		Bailey rests <<his>> elbows on the desk. "You wanted money. I know somewhere that'll pay well for a guaranteed worker."
+		<br><br>
+		"Same underground brothel you crawled out of," <<he>> says. "This time there'd be a date on the deal. They keep you until then, and you get paid when they let you go. Walk out early and you get nothing."
+	<<else>>
+		<<npc Briar>><<person1>>
+		Briar taps a pen against <<his>> desk. "There's a place below town that pays for longer bookings. Not a show. They'd own your time until the contract ends."
+		<br><br>
+		"You already know what they're like," <<he>> says. "They won't become gentle because you volunteered. Stay until the agreed date and they'll pay you. Escape early and the agreement is void."
+	<</if>>
+	<br><br>
+	/* Fee quoted at current prices then fixed, so a long booking keeps the value it had when signed. */
+	<<brothelicon>><<link [[Discuss one week|Underground Brothel Contract Terms]]>><<set $undergroundbrothelcontract to {broker: _broker, end: Time.days + 7, pay: setup.inflation.price(250000), penalty: 0, obedience: 0}>><</link>> | <span class="green">+<<printprice 250000>></span>
+	<br>
+	<<brothelicon>><<link [[Discuss two weeks|Underground Brothel Contract Terms]]>><<set $undergroundbrothelcontract to {broker: _broker, end: Time.days + 14, pay: setup.inflation.price(600000), penalty: 0, obedience: 0}>><</link>> | <span class="green">+<<printprice 600000>></span>
+	<br>
+	<<brothelicon>><<link [[Discuss one month|Underground Brothel Contract Terms]]>><<set $undergroundbrothelcontract to {broker: _broker, end: Time.days + 30, pay: setup.inflation.price(1500000), penalty: 0, obedience: 0}>><</link>> | <span class="green">+<<printprice 1500000>></span>
+	<br><br>
+	<<if _broker is "Bailey">>
+		<<link [[Refuse|Bailey's Office]]>><<endevent>><</link>>
+	<<else>>
+		<<link [[Refuse|Briar's Office]]>><<endevent>><</link>>
+	<</if>>
+	<br>
+<</widget>>
+
+<<widget "undergroundBrothelContractPenalty">>
+	<<if $undergroundbrothelcontract>>
+		<<set $undergroundbrothelcontract.end += 1>>
+		<<set $undergroundbrothelcontract.penalty += 1>>
+		<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+	<</if>>
+<</widget>>
+
+/* The brothel's collar is equipped cursed, so it has to be marked broken before it can be taken off the same two-step <<remove_shackle>> and <<leash>> use.
+   A cursed "familiar collar" is left alone, because "Underground Brothel Contract Arrival" never replaces one. */
+<<widget "undergroundBrothelContractUncollar">>
+	<<if $worn.neck.name is "collar with leash">>
+		<<set $worn.neck.type.push("broken")>>
+		<<neckruined>>
+	<</if>>
+<</widget>>
+
+/* Frees the arms and nothing else. <<unbind>> and <<unbindtemp>> both call <<remove_shackle>>, which
+   would take the brothel's ankle cuffs off with the rope. The carry flags have to be cleared too, or
+   <<bindings>> ties the arms straight back on the next <<effects>>. */
+<<widget "undergroundBrothelContractUntie">>
+	<<set $leftboundcarry to 0>>
+	<<set $rightboundcarry to 0>>
+	<<set $leftarm to 0>>
+	<<set $rightarm to 0>>
+	<<if $head is "bound">>
+		<<set $head to 0>>
+	<</if>>
+<</widget>>
+
+<<widget "undergroundBrothelContractWakeRoll">>
+	<<if $undergroundbrothelcontract and !$contractWake>>
+		<<set _contractObedience to $undergroundbrothelcontract.obedience>>
+		/* ~3% an hour at the top of the scale, ~11% at the bottom. */
+		<<if random(1, 100) lte 8 - _contractObedience>>
+			<<set _contractWakePool to []>>
+			<<set _contractStaffBed to $passage is "Underground Brothel Contract Master Bed Sleep">>
+			<<set _contractWakeTrait to $undergroundbrothelcontract.masterTrait>>
+			<<if _contractObedience lte -2>>
+				<<run _contractWakePool.push("punish", "punish", "punish", "punish")>>
+			<<elseif _contractObedience lte 0>>
+				<<run _contractWakePool.push("punish")>>
+			<</if>>
+			<<if _contractStaffBed>>
+				/* Chained beside your handler, so nothing reaches you but the handler. */
+				<<run _contractWakePool.push("master", "master", "master")>>
+				<<if _contractWakeTrait is "sociable">><<run _contractWakePool.push("group", "group")>><</if>>
+			<<else>>
+				/* The worse your standing, the more of your nights get sold to patrons. */
+				<<for _contractSold to 0; _contractSold lt Math.clamp(3 - _contractObedience, 1, 6); _contractSold++>>
+					<<run _contractWakePool.push("patron")>>
+				<</for>>
+				<<switch _contractWakeTrait>>
+					<<case "lecher">><<run _contractWakePool.push("master", "master", "master", "master")>>
+					<<case "sociable">><<run _contractWakePool.push("group", "group", "group")>>
+					<<default>><<run _contractWakePool.push("trait", "trait", "trait")>>
+				<</switch>>
+			<</if>>
+			<<if _contractWakePool.length>>
+				<<set $contractWake to _contractWakePool.random()>>
+				<<set _sleepinterrupt to 1>>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+<<widget "undergroundBrothelContractStatus">>
+	<<set _contractDaysLeft to Math.max(0, $undergroundbrothelcontract.end - Time.days)>>
+	<span class="gold">Your contract has <<= _contractDaysLeft>> <<= _contractDaysLeft is 1 ? "day" : "days">> remaining.</span>
+	<<if $undergroundbrothelcontract.penalty gte 1>>
+		<span class="red"> <<= $undergroundbrothelcontract.penalty>> unpaid <<= $undergroundbrothelcontract.penalty is 1 ? "day has" : "days have">> been added.</span>
+	<</if>>
+	<<if ["favour", "hunt"].includes($undergroundbrothelcontract.broker)>>
+		<span class="red"> None of it is paid.</span>
+	<</if>>
+<</widget>>
+
+<<widget "undergroundBrothelContractMaster">>
+	<<if $NPCList[0] and $NPCList[0].per is "contract_master" and $NPCList[0].gender and $NPCList[0].description>>
+		/* Already in slot 0 for this passage. Loading again would inflate $enemyno. */
+	<<else>>
+		<!-- Clear anything a scene left behind, the same way npc handles a cold entry. -->
+		<<if $enemyno gte 1 or ($NPCList[0] and $NPCList[0].gender and $NPCList[0].description)>>
+			<<endevent phaseless>>
+		<</if>>
+		<<if $per_npc.contract_master is undefined>>
+			<<generate1>>
+			<<set _contractMasterTraits to ["relaxed", "sociable", "brooding", "lecher"]>>
+			<<set $undergroundbrothelcontract.masterTrait to
+				_contractMasterTraits.find(trait => $NPCList[0].traits.includes(trait)) ?? _contractMasterTraits.random()>>
+			<<saveNPC 0 "contract_master">>
+			<<set $NPCList[0].per to "contract_master">>
+		<<else>>
+			<<loadNPC 0 "contract_master">>
+		<</if>>
+	<</if>>
+	<<person1>>
+	<<set _contractMasterTrait to $undergroundbrothelcontract.masterTrait>>
+	<<set _contractMasterTitle to $NPCList[0].pronoun is "f" ? "mistress" : "master">>
+	<<set _contractMasterTitleCap to $NPCList[0].pronoun is "f" ? "Mistress" : "Master">>
+<</widget>>
+
+<<widget "undergroundBrothelContractMasterOpinion">>
+	<<if $undergroundbrothelcontract.obedience gte 4>>
+		<span class="teal">Your <<= _contractMasterTitle>> considers you a reliable worker.</span>
+	<<elseif $undergroundbrothelcontract.obedience gte 2>>
+		<span class="lblue">Your <<= _contractMasterTitle>> is satisfied with your behaviour.</span>
+	<<elseif $undergroundbrothelcontract.obedience gte 0>>
+		<span class="blue">Your <<= _contractMasterTitle>> is still judging how manageable you are.</span>
+	<<elseif $undergroundbrothelcontract.obedience gte -2>>
+		<span class="purple">Your <<= _contractMasterTitle>> considers you troublesome.</span>
+	<<else>>
+		<span class="red">Your <<= _contractMasterTitle>> expects you to cause trouble.</span>
+	<</if>>
+<</widget>>

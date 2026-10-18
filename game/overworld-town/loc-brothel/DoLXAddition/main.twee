@@ -1,0 +1,1162 @@
+:: Underground Brothel Contract Main Room
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<include "Underground Brothel Contract Complete">>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+<<undergroundBrothelContractMaster>>
+The contracted workers' common room lies between the sleeping corridor and the performance halls.
+Worn couches surround a low table. A sink and food hatch occupy one wall. Opposite them,
+stairs climb towards the locked outer door.
+<br><br>
+<<if Time.hour gte 22 or Time.hour lt 6>>
+	Your <<= _contractMasterTitle>> is in the staff quarters. A night handler watches the room from behind the desk.
+<<elseif Time.hour lt 10>>
+	Your <<= _contractMasterTitle>> stands behind the desk, reading the previous night's reports and checking names against the morning schedule.
+<<elseif Time.hour lt 18>>
+	Your <<= _contractMasterTitle>> moves between the desk and performance hall, stopping occasionally to speak with staff.
+<<else>>
+	<<switch _contractMasterTrait>>
+		<<case "relaxed">>
+			Your <<= _contractMasterTitle>> sits on a couch with the evening schedule resting across <<his>> knee, appearing almost half asleep.
+		<<case "sociable">>
+			Your <<= _contractMasterTitle>> leans against the desk, chatting with patrons and describing the workers available tonight.
+		<<case "brooding">>
+			Your <<= _contractMasterTitle>> stands beside a dark window overlooking the stage, watching without joining the conversation around <<him>>.
+		<<case "lecher">>
+			Your <<= _contractMasterTitle>> watches the performance feed from a couch, one hand resting between <<his>> legs.
+	<</switch>>
+<</if>>
+<br><br>
+<<if $undergroundbrothelcontract.obedience lt 2 and Time.hour gte 6 and Time.hour lt 22>>
+	Your <<= _contractMasterTitle>> looks up and immediately reaches for a length of restraint. "Who gave you permission to leave your room?"
+	<br><br>
+	<<link [[Submit|Underground Brothel Contract Punishment Submit]]>><<set $sexstart to 1>><<undergroundBrothelContractPenalty>><<sub 3>><</link>> <span class="red">(adds one unpaid day)</span><<submissivetext>>
+	<br>
+	<<link [[Resist|Underground Brothel Contract Punishment Fight]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+<<else>>
+	<<undergroundBrothelContractMasterOpinion>>
+	<br><br>
+	<<if _contractMasterTrait is "lecher" and Time.hour gte 18 and Time.hour lt 22>>
+		Your <<= _contractMasterTitle>> notices you looking. <<He>> pats the empty space beside <<him>>.
+		<br>
+		<<brothelicon>><<link [[Go to <<him>>|Underground Brothel Contract Master Personal]]>><</link>>
+		<br><br>
+	<</if>>
+	<<socialiseicon "ask">><<link [[Approach your <<= _contractMasterTitle>>|Underground Brothel Contract Master Inspection]]>><</link>>
+	<br>
+	<<if $undergroundbrothelcontract.obedience gte 3>>
+		<<dooricon>><<link [[Enter your <<= _contractMasterTitle>>'s bedroom|Underground Brothel Contract Master Bedroom]]>><</link>>
+		<br>
+	<</if>>
+	<<brothelicon>><<link [[Report for work (1:00)|Underground Brothel Contract Work]]>><<pass 1 hour>><</link>>
+	<br>
+	<<exiticon>><<link [[Return to your room|Underground Brothel Contract Quarters]]>><</link>>
+	<br><br>
+	The outer door is visible at the top of the stairs.
+	<br>
+	<<if $leftarm is "bound" and $rightarm is "bound">>
+		<span class="blue">You can't work its lock while your arms are bound.</span>
+	<<else>>
+		<<lockicon "pick">><<link [[Try the outer door (0:05)|Underground Brothel Contract Exit Sneak]]>><<set $skulduggerydifficulty to 1000>><<pass 5>><</link>><<skulduggerydifficulty>>
+	<</if>>
+<</if>>
+<</if>>
+<br>
+:: Underground Brothel Contract Quarters
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<include "Underground Brothel Contract Complete">>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+	<<undergroundBrothelContractMaster>>
+	You are in the room assigned to the brothel's contracted workers. The walls and floor are cold stone, but a narrow strip of pink light leaks beneath the door.
+	<br>
+	<<undergroundBrothelContractStatus>>
+	<br><br>
+	<<if Time.hour gte 22 or Time.hour lt 6>>
+		The music beyond the wall has quietened. Your <<= _contractMasterTitle>> is in <<his>> private bedroom across the common room, leaving the night handlers to watch the corridor.
+	<<elseif Time.hour gte 18>>
+		Music and applause shake dust from the ceiling. Your <<= _contractMasterTitle>> is supervising the evening performances.
+	<<elseif Time.hour gte 10>>
+		Your <<= _contractMasterTitle>> moves between the contract desk and performance rooms while staff hurry through the corridor.
+	<<else>>
+		The brothel is quieter in the morning. Your <<= _contractMasterTitle>> is making <<his>> rounds.
+	<</if>>
+	<br><br>
+	<<brothelicon>><<link [[Report for work (1:00)|Underground Brothel Contract Work]]>><<pass 1 hour>><</link>>
+	<br>
+	<<bedicon "zzz">><<link [[Lie on the mattress|Underground Brothel Contract Bed]]>><</link>>
+	<br>
+	<<socialiseicon "ask">><<link [[Think about your <<= _contractMasterTitle>>|Underground Brothel Contract Master]]>><</link>>
+	<br>
+	<<if Time.hour gte 6 and Time.hour lt 22>>
+		<<investigateicon>><<link [[Wait for inspection|Underground Brothel Contract Master Inspection]]>><</link>>
+		<br>
+	<</if>>
+	<<if $undergroundbrothelcontract.obedience gte 2>>
+		<<bathroomicon>><<link [[Ask to use the washroom (0:20)|Underground Brothel Contract Washroom]]>><<pass 20>><</link>>
+		<br>
+		<<dooricon>><<link [[Ask to use the common room|Underground Brothel Contract Main Room]]>><</link>>
+		<br>
+	<<else>>
+		The door to the corridor is <span class="red">locked</span>.
+		<br>
+	<</if>>
+	<<if $leftarm is "bound" or $rightarm is "bound">>
+		<<undobindingsicon>><<link [[Undo your bindings (0:10)|Underground Brothel Contract Quarters]]>><<pass 10>><<undergroundBrothelContractUntie>><</link>>
+		<br>
+	<<elseif $worn.face.cursed is 1>>
+		<<undobindingsicon>><<link [[Break off your $worn.face.name (0:10)|Underground Brothel Contract Quarters]]>><<pass 10>><<set $worn.face.type.push("broken")>><<faceruined>><</link>>
+		<br>
+	<</if>>
+	<<if $undergroundbrothelcontract.obedience lt 2>>
+		<<if $leftarm is "bound" and $rightarm is "bound">>
+			<span class="blue">You might be able to pick the lock if your arms were free.</span>
+		<<else>>
+			<<lockicon "pick">><<link [[Work on the door lock (0:05)|Underground Brothel Contract Door Sneak]]>><<set $skulduggerydifficulty to 600>><<pass 5>><</link>><<skulduggerydifficulty>>
+		<</if>>
+	<</if>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Master Personal
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+Your <<= _contractMasterTitle>> grabs your leash and draws you between <<his>> knees. "The patrons don't get all of your contracted time," <<he>> says.
+<br><br>
+<<He>> pulls you down onto the couch. The other workers and handlers continue moving through the room without looking your way.
+<br><br>
+/* Not "Underground Cell Molestation": its aftermath narrates a patron shouting to be let out of your locked cell and then generates a replacement NPC, which contradicts this scene and discards the handler. */
+<<link [[Let it happen|Underground Brothel Contract Sleep Molestation]]>><<set $molestationstart to 1>><<set $phase to 0>><</link>>
+<br>
+<<link [[Struggle|Underground Brothel Contract Sleep Molestation]]>><<set $molestationstart to 1>><<set $phase to 1>><</link>>
+<br>
+
+:: Underground Brothel Contract Master Bedroom
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<include "Underground Brothel Contract Complete">>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+	<<undergroundBrothelContractMaster>>
+	The private bedroom used by your <<= _contractMasterTitle>> is warmer than the workers' quarters. A wide bed fills most of the room. A wardrobe stands beside a desk covered with contracts, keys, and performance schedules.
+	<br><br>
+	<<if Time.hour gte 22 or Time.hour lt 6>>
+		Your <<= _contractMasterTitle>> is here, preparing to sleep.
+	<<elseif Time.hour lt 10>>
+		Your <<= _contractMasterTitle>> is finishing <<his>> morning paperwork at the desk.
+	<<else>>
+		The room is empty while your <<= _contractMasterTitle>> works elsewhere in the brothel.
+	<</if>>
+	<br><br>
+	<<undergroundBrothelContractMasterOpinion>>
+	<br><br>
+	The bed looks far more comfortable than your mattress.
+	<br>
+	<<if $undergroundbrothelcontract.obedience gte 4>>
+		Your <<= _contractMasterTitle>> permits you to sleep there, though a short chain beside the pillow remains ready for your collar.
+		<br>
+		<<bedicon "deluxe">><<link [[Lie on the bed|Underground Brothel Contract Master Bed]]>><</link>>
+	<<else>>
+		<span class="red">Your <<= _contractMasterTitle>> has not given you permission to use it, and will block the door if you try.</span>
+		<br>
+		<<bedicon "deluxe">><<link [[Try for the bed anyway|Underground Brothel Contract Master Bed]]>><</link>> <span class="red">(<<he>> will turn you away)</span>
+	<</if>>
+	<br><br>
+	The wardrobe contains spare sheets, restraints, and clothes reserved for performances. Your original outfit remains sealed with the contract office.
+	<br>
+	<<wardrobeicon>><<link [[Examine the wardrobe|Underground Brothel Contract Bedroom Wardrobe]]>><</link>>
+	<br><br>
+	<<exiticon>><<link [[Return to the common room|Underground Brothel Contract Main Room]]>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Bedroom Wardrobe
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+<<outfitChecks>>
+<<if $undergroundbrothelcontract.obedience gte 4>>
+	Your <<= _contractMasterTitle>> has left one section unlocked for you. It contains clean towels, a folded blanket, and several humiliating performance outfits. None are suitable for leaving the brothel.
+	<br><br>
+	<<if _shirtless and $underground_shirt isnot 1>>
+		A shirt with the word "Slut" printed across its chest lies on top.
+		<br>
+		<<wardrobeicon>><<link [[Wear the shirt|Underground Brothel Contract Master Bedroom]]>><<upperwear "slut shirt">><<set $underground_shirt to 1>><</link>>
+		<br>
+	<</if>>
+	<<link [[Close the wardrobe|Underground Brothel Contract Master Bedroom]]>><</link>>
+<<else>>
+	The wardrobe is locked. Your <<= _contractMasterTitle>> notices you testing the handle.
+	"Your clothes stay sealed until release," <<he>> says.
+	<br><br>
+	<<link [[Step away|Underground Brothel Contract Master Bedroom]]>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Master
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+The senior handler assigned to your contract is a <<person>>. The other workers call <<him>>
+"<<= _contractMasterTitleCap>>", and <<he>> expects the same from you.
+<br><br>
+<<switch _contractMasterTrait>>
+	<<case "relaxed">>
+		<<He>> rarely raises <<his>> voice. Contracts, punishments, and performances are all routine to <<him>>, handled with the same unhurried care. That calm makes it difficult to tell what might finally anger <<him>>.
+	<<case "sociable">>
+		<<He>> is talkative with staff and patrons, often making jokes while checking the evening schedule. <<He>> enjoys presenting contracted workers personally and watching how the crowd responds.
+	<<case "brooding">>
+		<<He>> speaks little and watches for a long time before acting. You often find <<him>> standing beyond the pink light, studying you through the door panel.
+	<<case "lecher">>
+		<<He>> takes a personal interest in inspections and rarely keeps <<his>> hands to <<himself>>. <<He>> supervises the roughest shifts from close by.
+<</switch>>
+<br><br>
+<<undergroundBrothelContractMasterOpinion>>
+<br><br>
+<<if Time.hour gte 22 or Time.hour lt 6>>
+	Your <<= _contractMasterTitle>> is usually in the staff quarters now. Night handlers watch the corridor in <<his>> place.
+<<elseif Time.hour lt 10>>
+	Your <<= _contractMasterTitle>> is making the morning rounds and checking the previous night's reports.
+<<elseif Time.hour lt 18>>
+	Your <<= _contractMasterTitle>> is working between the contract desk and performance rooms.
+<<else>>
+	Your <<= _contractMasterTitle>> is personally supervising the brothel's busiest performances.
+<</if>>
+<br><br>
+<<link [[Return to your room|Underground Brothel Contract Quarters]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Master Inspection
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+The lock turns and your <<= _contractMasterTitle>> enters with your contract tucked beneath one arm. <<He>> checks your collar, shackles, mouth, and any marks left by the last shift.
+<br><br>
+<<switch _contractMasterTrait>>
+	<<case "relaxed">>
+		"Hold still. The sooner I finish, the sooner you can rest," <<he>> says.
+	<<case "sociable">>
+		"Patrons have been talking about you," <<he>> says. "Let's make sure you're presentable for them."
+	<<case "brooding">>
+		<<He>> says nothing at first. <<His>> fingers linger over every bruise before <<he>> finally looks you in the eyes.
+	<<case "lecher">>
+		"Inspection time," <<he>> says, smiling as <<his>> hands begin their work. "Try to look grateful."
+<</switch>>
+<br><br>
+<<link [[Hold still|Underground Brothel Contract Quarters]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><<stress -4>><<trauma -2>><<pass 30>><</link>><<lstress>><<ltrauma>>
+<br>
+<<link [[Ask about your release date|Underground Brothel Contract Master Release]]>><</link>>
+<br>
+<<link [[Pull away|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+<br>
+
+:: Underground Brothel Contract Master Release
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+<<set _contractDaysLeft to Math.max(0, $undergroundbrothelcontract.end - Time.days)>>
+You ask when you will be released.
+<br><br>
+Your <<= _contractMasterTitle>> takes the contract from <<his>> arm and points to the final line. "In <<= _contractDaysLeft>> <<= _contractDaysLeft is 1 ? "day" : "days">>, provided you stop giving me reasons to change it."
+<br><br>
+<<if $undergroundbrothelcontract.penalty gte 1>>
+	<<He>> taps the red additions beneath the original date. "<<= $undergroundbrothelcontract.penalty is 1 ? "This was" : "These were">> your choice. You won't be paid for <<= $undergroundbrothelcontract.penalty is 1 ? "it" : "them">>."
+	<br><br>
+<</if>>
+<<link [[Return to your room|Underground Brothel Contract Quarters]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Punishment Refusal
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+Your <<= _contractMasterTitle>> stops pulling and looks back at you. "You agreed to work."
+<br><br>
+<<He>> marks another day on your contract, then unclips the leash and winds it around one fist. "If you won't walk, I'll teach you what refusing costs."
+<br><br>
+<<link [[Submit|Underground Brothel Contract Punishment Submit]]>><<set $sexstart to 1>><<sub 3>><</link>><<submissivetext>>
+<br>
+<<link [[Fight back|Underground Brothel Contract Punishment Fight]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+:: Underground Brothel Contract Punishment Submit
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	<<maninit>>
+	<<set $enemyanger to 0>>
+	<<set $enemytrust to 100>>
+	<<npcspank>>
+	You lower your head and stop resisting. The <<person>> bends you over a bench and secures your wrists without hurrying.
+	<br><br>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<if $alarm is 1>>
+	<<set $alarm to 0>>
+	"None of that," the <<person>> says, unbothered. "You chose to take this properly. Take it quietly as well."
+	<br><br>
+<</if>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Punishment Submit Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Punishment Submit]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Punishment Submit Finish
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<set _contractMasterTitle to $NPCList[0].pronoun is "f" ? "mistress" : "master">>
+<<if $finish is 1>>
+	<<encounterEndViolence>>
+	You stop cooperating partway through and twist off the bench. The <<person>> holds you down until you go still again, then finishes what <<he>> started without counting.
+	<br><br>
+	"You don't get to decide when it's over," <<he>> says.<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+<<elseif $enemyhealth lte 0>>
+	/* Landing a blow on staff is the same offence whether or not you meant to submit first. */
+	One of your reflexes catches the <<person>> across the face. <<He>> steps back, touches <<his>> lip, and looks at the blood on <<his>> fingers.
+	<br><br>
+	"So much for taking it properly." <<He>> reaches past you for the contract and marks it.<<undergroundBrothelContractPenalty>>
+	<span class="red">(one unpaid day added)</span>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The <<person>> takes <<his>> time about it, then unlocks your wrists and pulls you upright by the collar.
+	<br><br>
+	"That's how it's supposed to go," <<he>> says, almost approving.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+<<else>>
+	The punishment is measured. Each strike is counted aloud. When <<he>> finishes, <<he>> unlocks your wrists and pulls you upright by the collar.<<trauma 6>><<ggtrauma>>
+	<br><br>
+	/* Reached from penalised refusals and from unpenalised random punishments alike, so don't promise a new date. */
+	<<if $undergroundbrothelcontract.penalty gte 1>>"Remember the new date."<<else>>"Remember who decides when you leave."<</if>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+<</if>>
+<br><br>
+<<He>> marches you back to your room and locks you inside.
+<br><br>
+<<link [[Next (0:30)|Underground Brothel Contract Quarters]]>><<pass 30>><<endcombat>><<endevent>><</link>>
+<br>
+
+:: Underground Brothel Contract Punishment Fight
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 5>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<set $enemyanger to 200>>
+	<<npcspank>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<if $alarm is 1>>
+	<<set $alarm to 0>>
+	"Shout all you like," the <<person>> says. "Everyone down here knows what that red mark on your contract means."
+	<br><br>
+<</if>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend or $enemyanger lte 0 or ($pain gte 100 and $willpowerpain is 0)>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Punishment Fight Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Punishment Fight]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Punishment Fight Finish
+<<effects>>
+<<if $enemyhealth lte 0>>
+	The <<person>> stumbles into the wall. <<He>> reaches for your leash and misses.
+	<br><br>
+	The service corridor is clear. This may be your only chance to reach the outer door.
+	<br><br>
+	<<link [[Make a run for it|Underground Brothel Contract Corridor]]>><<endcombat>><</link>>
+	<br>
+	<<link [[Retreat to your room|Underground Brothel Contract Quarters]]>><<endcombat>><</link>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	The handler's grip loosens. <<He>> catches <<his>> breath, then gives the red mark on your contract a tired glance.
+	<br><br>
+	"Enough. Get back in your room." <<He>> shoves your leash into your hands and waves you away.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 2)>>
+	<br><br>
+	<<link [[Leave while you can|Underground Brothel Contract Quarters]]>><<endcombat>><</link>>
+<<elseif $pain gte 100 and $willpowerpain is 0>>
+	You're too badly beaten to keep fighting. The <<person>> pins you to the floor.
+	<<if $rightarm isnot "bound" or $leftarm isnot "bound">>
+		<<He>> binds your arms before dragging you back to your room.<<bind>>
+	<<else>>
+		<<He>> drags you back to your room by your bindings.
+	<</if>>
+	The door slams and locks behind <<him>>.<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+	<br><br>
+	<<link [[Next|Underground Brothel Contract Quarters]]>><<endcombat>><</link>>
+<<else>>
+	<<encounterEndViolence>>
+	The struggle slows. The <<person>> keeps hold of your leash, but no longer tries to force you down.
+	<br><br>
+	"I think you've had enough," <<he>> says. "I'll be watching you."
+	<<if $undergroundbrothelcontract.obedience gte 2>>
+		<<He>> leaves you bruised in the service corridor while <<he>> goes to fetch another handler.
+		<br><br>
+		<<link [[Use the opening|Underground Brothel Contract Corridor]]>><<endcombat>><</link>>
+		<br>
+		<<link [[Return to your room|Underground Brothel Contract Quarters]]>><<endcombat>><</link>>
+	<<else>>
+		<<if $rightarm isnot "bound" or $leftarm isnot "bound">>
+			<<He>> binds your arms, then throws you back into your room.<<bind>>
+		<<else>>
+			<<He>> throws you back into your room.
+		<</if>>
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Quarters]]>><<endcombat>><</link>>
+	<</if>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Washroom
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<include "Underground Brothel Contract Complete">>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+	<<undergroundBrothelContractMaster>>
+	Your <<= _contractMasterTitle>> fastens a leash to your collar and walks you to a tiled washroom. There are no stalls and no lock on the door. <<He>> remains outside, close enough that you can see <<his>> shadow.
+	<br><br>
+	The water is warm. For a few minutes, you can wash away the sweat, makeup, and traces left by patrons.<<wash>><<stress -6>><<trauma -4>><<lstress>><<ltrauma>>
+	<br><br>
+	<<link [[Return to your room|Underground Brothel Contract Quarters]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><</link>>
+	<br>
+	<<if $leftarm isnot "bound" or $rightarm isnot "bound">>
+		<<link [[Slip into the service corridor|Underground Brothel Contract Corridor]]>><</link>>
+	<</if>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Work
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<include "Underground Brothel Contract Complete">>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+	/* The brothel's own shifts are always on the schedule. Your handler adds the theatre show, where
+	   your standing is settled in front of the house, and puts you on it more often the worse it is. */
+	<<set _contractShiftPool to ["dance", "presentation", "stage", "film", "hunt"]>>
+	<<for _contractShiftSlot to 0; _contractShiftSlot lt Math.clamp(4 - $undergroundbrothelcontract.obedience, 1, 6); _contractShiftSlot++>>
+		<<run _contractShiftPool.push("show")>>
+	<</for>>
+	<<set _contractShift to _contractShiftPool.random()>><<undergroundBrothelContractMaster>>
+	The light above the door turns pink. Your <<= _contractMasterTitle>> enters, clips a leash to your collar, and leads you through the brothel.
+	<br><br>
+	<<switch _contractShift>>
+	<<case "dance">>
+		The main hall is packed. "Dance until someone pays for you," your <<= _contractMasterTitle>> says. "If no one does, the audience gets you."
+		<br><br>
+		<<link [[Go quietly|Underground Dance Intro]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><<endevent>><</link>>
+		<br>
+		<<link [[Refuse|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+	<<case "presentation">>
+		<<He>> takes you towards a private presentation room. You can hear patrons bidding on the other side of the curtain.
+		<br><br>
+		<<link [[Go quietly|Underground Presentation]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><<endevent>><</link>>
+		<br>
+		<<link [[Refuse|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+	<<case "stage">>
+		The stage equipment is already waiting. Your <<= _contractMasterTitle>> points to the centre beneath the lights.
+		<br><br>
+		<<link [[Go quietly|Underground Stage Intro]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><<endevent>><</link>>
+		<br>
+		<<link [[Refuse|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+	<<case "film">>
+		<<He>> leads you past a camera crew and into the filming room. "They've paid for a full scene," <<he>> says.
+		<br><br>
+		<<link [[Go quietly|Underground Film Intro]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><<endevent>><</link>>
+		<br>
+		<<link [[Refuse|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+	<<case "show">>
+		<<He>> doesn't hand your leash to anyone. The corridor <<he>> takes bends towards the theatre, and you can hear a room filling up beyond it.
+		<br><br>
+		<<if $undergroundbrothelcontract.obedience gte 3>>
+			"My show tonight," <<he>> says. "You're on it because you've been worth putting on it."
+		<<elseif $undergroundbrothelcontract.obedience gte 0>>
+			"My show tonight," <<he>> says. "The house wants to see what it's renting."
+		<<else>>
+			"My show tonight," <<he>> says, and taps the red lines on your contract. "The house wants to see what these cost you."
+		<</if>>
+		<br><br>
+		<<link [[Go quietly|Underground Brothel Contract Show]]>><</link>>
+		<br>
+		<<link [[Refuse|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+	<<default>>
+		Your <<= _contractMasterTitle>> takes you upstairs. Cool forest air reaches you through an open door, along with the sound of dogs.
+		<br><br>
+		<span class="blue">The hunt takes place above ground. Outrunning it would put you outside the brothel's doors, and that would void your contract.</span>
+		<br><br>
+		<<link [[Go quietly|Underground Hunt Intro]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><<endevent>><</link>>
+		<br>
+		<<link [[Refuse|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+	<</switch>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Show
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+/* The one shift your handler runs personally, because it is where your standing is made public.
+   Obedience decides what the crowd is told about you and whether you are bound for it. */
+<<if $undergroundbrothelcontract.obedience gte 3>>
+	<<set _contractShow to "showcase">>
+<<elseif $undergroundbrothelcontract.obedience gte 0>>
+	<<set _contractShow to "display">>
+<<else>>
+	<<set _contractShow to "example">>
+<</if>>
+The corridor opens onto the side of a low stage. Beyond the lights the theatre is full, and the noise of it drops as your <<= _contractMasterTitle>> walks you into view.
+<br><br>
+<<switch _contractShow>>
+	<<case "showcase">>
+		<<He>> unclips the leash from your collar and lets it hang over <<his>> arm.
+		<br><br>
+		"This one signed for us," <<he>> tells the room. "Getting paid to be here, and earning every bit of it. Watch how a willing <<girl>> works."
+		<br><br>
+		<<switch _contractMasterTrait>>
+			<<case "relaxed">>
+				"Nothing to be nervous about," <<he>> says to you, quietly. "You've earned the loose collar. Don't hand it back to me."
+			<<case "sociable">>
+				<<He>> catches your eye and grins. "They've heard about you all week. Give them something worth repeating."
+			<<case "brooding">>
+				<<He>> says nothing to you at all, and takes up a position at the edge of the light where you can still see <<him>>.
+			<<case "lecher">>
+				"Free hands," <<he>> murmurs, close to your ear. "I'll be deciding whether that was wise."
+		<</switch>>
+	<<case "display">>
+		Two handlers walk you to a padded frame at the centre of the stage. Your collar is clipped to a ring at the top of it.
+		<br><br>
+		"A contracted worker," your <<= _contractMasterTitle>> announces. "Hired by the day. The house takes the fee, so use <<phim stranger>> like it's already paid for."
+		<br><br>
+		<<switch _contractMasterTrait>>
+			<<case "relaxed">>
+				<<He>> tests the clip on your collar with one finger, unhurried, and steps back out of the light.
+			<<case "sociable">>
+				<<He>> works the front row while the handlers finish with the straps, naming the things you are said to be good at.
+			<<case "brooding">>
+				<<He>> checks every buckle twice without speaking, then stands where the frame keeps you facing <<him>>.
+			<<case "lecher">>
+				<<He>> takes <<his>> time over the straps, hands lingering, until the audience whistles at <<him>> to get on with it.
+		<</switch>>
+	<<default>>
+		The handlers do not walk you to the frame so much as carry you to it. Your collar is chained short to the ring, your ankles hooked wide by the cuffs you have worn since you arrived.
+		<br><br>
+		Your <<= _contractMasterTitle>> holds up your contract so the front rows can see the red lines added beneath the date.
+		<br><br>
+		"<<= $undergroundbrothelcontract.penalty gte 1 ? "Every one of these is a night this one owes me" : "This one has been difficult">>," <<he>> says. "The chain is not decoration. It's the reason <<pshe stranger>> <<pverb "is" "are" stranger>> still here at all."
+		<br><br>
+		<<switch _contractMasterTrait>>
+			<<case "relaxed">>
+				"You made this evening happen," <<he>> tells you, without any heat in it. "I'd rather have been at the desk."
+			<<case "sociable">>
+				"Don't be shy with <<phim stranger>>," <<he>> calls out, to laughter. "<<pShe stranger>> has opinions. <<pShe stranger>> can keep them."
+			<<case "brooding">>
+				<<He>> turns your face towards the crowd with two fingers and holds it there until you stop resisting <<his>> hand.
+			<<case "lecher">>
+				"I did offer you an easier week," <<he>> says, checking the chain's length against your throat. "You'll remember that later."
+		<</switch>>
+		<br><br>
+		/* The house's own answer to a difficult worker. Settings decide whether the kennel is real, a hallucination, or unavailable, and the last of those falls back to the patrons instead. */
+		<<set _contractKennel to $settings.bestialityEnabled or isMonsterHallucinationAllowed(1)>>
+		<<if _contractKennel>>
+			<<endevent>>
+			<<if !$settings.bestialityEnabled>>
+				<<if maleChance() gte random(1, 100)>>
+					<<if $settings.maleNPCVaginaChance gte random(1, 100)>>
+						<<generateBEAST 1 dog m vagina monster>><<generateBEAST 2 cat m vagina monster>><<generateBEAST 3 pig m vagina monster>>
+					<<else>>
+						<<generateBEAST 1 dog m penis monster>><<generateBEAST 2 cat m penis monster>><<generateBEAST 3 pig m penis monster>>
+					<</if>>
+				<<else>>
+					<<if $settings.femaleNPCPenisChance gte random(1, 100)>>
+						<<generateBEAST 1 dog f penis monster>><<generateBEAST 2 cat f penis monster>><<generateBEAST 3 pig f penis monster>>
+					<<else>>
+						<<generateBEAST 1 dog f vagina monster>><<generateBEAST 2 cat f vagina monster>><<generateBEAST 3 pig f vagina monster>>
+					<</if>>
+				<</if>>
+			<<else>>
+				<<generateBEAST 1 dog>><<generateBEAST 2 cat>><<generateBEAST 3 pig>>
+			<</if>>
+			Three handlers wheel cages onto the stage. A dog throws itself against the first door. A cat prowls behind the bars of the second. The pig in the last cage snorts and stamps until the boards shake.
+			<br><br>
+			"An animal party," your <<= _contractMasterTitle>> tells the audience. "One turn each. Let's see whether our problem worker can learn to behave."<<deviancy5>>
+		<<else>>
+			The patrons at the front are invited up instead, and told there is no queue and no hurry.
+		<</if>>
+<</switch>>
+<br><br>
+<<if _contractShow is "showcase">>
+	<<link [[Perform for them|Underground Brothel Contract Show Perform]]>><<set $sexstart to 1>><</link>><<promiscuous4>>
+	<br>
+	<<link [[Stand there and do nothing|Underground Brothel Contract Show Molestation]]>><<set $molestationstart to 1>><<set $phase to 1>><<bindtemp>><<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>><</link>> <span class="purple">(your handler will take the stage back)</span>
+<<elseif _contractShow is "display">>
+	<<link [[Hold still|Underground Brothel Contract Show Molestation]]>><<set $molestationstart to 1>><<set $phase to 0>><<bindtemp>><</link>>
+	<br>
+	<<link [[Pull against the frame|Underground Brothel Contract Show Molestation]]>><<set $molestationstart to 1>><<set $phase to 1>><<bindtemp>><<defiance 3>><</link>><<defianttext>>
+<<elseif _contractKennel>>
+	<<link [[Take it|Underground Brothel Contract Show Beasts]]>><<set $molestationstart to 1>><<bindtemp>><<sub 3>><</link>><<submissivetext>>
+	<br>
+	<<link [[Fight the frame|Underground Brothel Contract Show Beasts]]>><<set $molestationstart to 1>><<bindtemp>><<defiance 3>><</link>><<defianttext>>
+<<else>>
+	<<link [[Take it|Underground Brothel Contract Show Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><<bindtemp>><<sub 3>><</link>><<submissivetext>>
+	<br>
+	<<link [[Fight the frame|Underground Brothel Contract Show Molestation]]>><<set $molestationstart to 1>><<set $phase to 3>><<bindtemp>><<defiance 3>><</link>><<defianttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Show Perform
+<<if $sexstart is 1>>
+	<<set $sexstart to 0>>
+	<<consensual>>
+	<<set $consensual to 1>>
+	<<neutral 1>>
+	/* Your handler stays offstage for this one, so the volunteers are strangers. */
+	<<endevent>>
+	<<generate1>><<generate2>><<person1>>
+	<<set $enemyno to 2>>
+	<<maninit>>
+	<<set $enemytrust += 100>>
+	<<promiscuity4>><<exhibitionism5>>
+	You take the front of the stage yourself. Two of them come up when you ask for volunteers, and the noise the room makes tells you the choice was the right one.
+	<br><br>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Show Perform Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Show Perform]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Show Perform Finish
+<<set $outside to 0>><<set $location to "underground">><<effects>><<person1>>
+/* Read the title off the stored handler: the volunteers are the ones in the combat slots. */
+<<set _contractMasterTitle to $per_npc.contract_master?.pronoun is "f" ? "mistress" : "master">>
+<<if $enemyhealth lte 0>>
+	One of the volunteers goes off the front of the stage, and the applause turns into something uglier.
+	<br><br>
+	Your <<= _contractMasterTitle>> is on the boards before you can explain. The house refunds the room, and the refund is written on your contract in red.<<undergroundBrothelContractPenalty>>
+	<span class="red">(one unpaid day added)</span>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	/* Tips are added to the sum agreed at signing, so they are lost with it if you walk out early. */
+	<<set _contractShowTip to setup.inflation.price(15000)>>
+	<<set $undergroundbrothelcontract.pay += _contractShowTip>>
+	The lights come up while the room is still applauding. Notes are thrown onto the boards, and a handler collects them into a tin.
+	<br><br>
+	Your <<= _contractMasterTitle>> counts the tin in front of you before <<he>> writes the figure on the back of your contract.
+	"Yours, at the end. Not before."<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+	<br><br>
+	<span class="green">Your final payment has risen by <<printmoney _contractShowTip>>.</span>
+<<elseif $finish is 1>>
+	<<encounterEndViolence>>
+	You stop partway through, and the stage is a bad place to stop. The volunteers stand there until a handler waves them off, and the room makes its opinion known.<<stress 12>><<trauma 6>><<ggstress>><<gtrauma>>
+	<br><br>
+	"That wasn't what I put you out there for," your <<= _contractMasterTitle>> says.<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+<<else>>
+	It ends without ending, the way a show does when the audience has already decided it's over. The volunteers are sent back to their seats.
+	"Not your best," your <<= _contractMasterTitle>> says, clipping the leash back on. "Not a red mark either."
+<</if>>
+<br><br>
+<<link [[Next (0:30)|Underground Brothel Contract Quarters]]>><<pass 30>><<endcombat>><<endevent>><</link>>
+<br>
+
+:: Underground Brothel Contract Show Beasts
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	/* One at a time, in front of the house. */
+	<<beastCombatInit>>
+	<<beastTrainGenerate>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<br>
+<<beast $enemyno>>
+<br><br>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Show Beasts Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Show Beasts]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Show Beasts Finish
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<set _contractMasterTitle to $per_npc.contract_master?.pronoun is "f" ? "mistress" : "master">>
+<<if $enemyhealth lte 0>>
+	<<beastwound>>
+	<<if $combatTrain.length gt 0>>
+		The <<beasttype>> recoils from you, and a handler has the next cage open before the noise dies down.
+		<<combatTrainAdvance>>
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Show Beasts]]>><</link>>
+	<<else>>
+		The last <<beasttype>> recoils from you and will not come back.
+		<<combatTrainAdvance>>
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Show Beasts Finish]]>><<set $finish to 1>><</link>>
+	<</if>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<beastejaculation>>
+	<<if $combatTrain.length gt 0>>
+		Satisfied, the <<beasttype>> is drawn off the boards, and the next is already pulling towards you.
+		<<combatTrainAdvance>>
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Show Beasts]]>><</link>>
+	<<else>>
+		Satisfied, the last <<beasttype>> is drawn off the boards.
+		<<combatTrainAdvance>>
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Show Beasts Finish]]>><<set $finish to 1>><</link>>
+	<</if>>
+<<else>>
+	<<encounterEndViolence>>
+	<<if $enemywounded gte 2 and $enemyejaculated is 0>>
+		/* The kennel is the brothel's property, and property is charged for. */
+		The handlers get the last of them away from you with a pole and a lot of swearing. The audience is loud about the refund.
+		<br><br>
+		Your <<= _contractMasterTitle>> is waiting at the edge of the boards with the contract already open.<<undergroundBrothelContractPenalty>>
+		<span class="red">(one unpaid day added)</span>
+	<<elseif $enemywounded is 1 and $enemyejaculated is 0>>
+		The <<beasttype>> whimpers away from you, and the handlers decide the room has seen enough.
+	<<elseif $enemywounded is 0 and $enemyejaculated gte 1>>
+		They are led off one by one, and you are left where the lights can still find you.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+	<<else>>
+		The handlers clear the boards. Whatever the room paid for, it is over.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+	<</if>>
+	<br><br>
+	<<tearful>> you are unhooked from the ring and left to find your feet.
+	/* Made an example of, so the arms are tied again rather than freed. Nothing else comes off. */
+	Your arms are pulled behind you and knotted before you are walked back down the corridor.
+	<br><br>
+	<<link [[Next (0:30)|Underground Brothel Contract Quarters]]>><<pass 30>><<bind>><<endcombat>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Show Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	/* Your handler hands the stage over and watches, so the crowd fills the combat slots. */
+	<<endevent phaseless>>
+	<<generate1>><<generate2>>
+	<<if $phase gte 2>><<generate3>><</if>>
+	<<person1>>
+	<<set $enemyno to $phase gte 2 ? 3 : 2>>
+	<<maninit>>
+	<<if $phase is 1 or $phase is 3>>
+		<<set $enemytrust -= 120>>
+		<<set $enemyanger += 100>>
+	<<else>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+	<<if $phase gte 2>>
+		<<set $enemyanger += 60>>
+	<</if>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<if $alarm is 1>>
+	<<set $alarm to 0>>
+	/* Shouting on a stage reaches an audience that paid to hear it. */
+	<<switch $undergroundbrothelcontract.masterTrait>>
+		<<case "relaxed">>
+			Your <<= $per_npc.contract_master?.pronoun is "f" ? "mistress" : "master">> does not move from the edge of the light. The audience decides the noise was part of it.
+		<<case "sociable">>
+			"There it is," your <<= $per_npc.contract_master?.pronoun is "f" ? "mistress" : "master">> announces, to a roar from the front rows. "I said <<pshe stranger>> had opinions."
+		<<case "brooding">>
+			Nobody on the stage reacts. Your handler watches from beyond the lights, and keeps watching.
+		<<case "lecher">>
+			Your handler laughs somewhere behind you, close enough that <<he>> must have come back onto the boards to hear it better.
+	<</switch>>
+	<br><br>
+<</if>>
+<<man>>
+<<audience>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Show Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Show Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Show Finish
+<<set $outside to 0>><<set $location to "underground">><<effects>><<person1>>
+<<set _contractMasterTitle to $per_npc.contract_master?.pronoun is "f" ? "mistress" : "master">>
+<<set _contractShowHarsh to $phase gte 2>>
+<<if $enemyhealth lte 0>>
+	The <<person>> falls away from the frame holding <<his>> face, and the stage lights find <<him>> doing it.
+	<br><br>
+	Your <<= _contractMasterTitle>> ends the show early. The room is refunded, and the refund goes onto your contract in red.<<undergroundBrothelContractPenalty>>
+	<span class="red">(one unpaid day added)</span>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	<<if _contractShowHarsh>>
+		They are still applauding when the handlers unhook your collar from the ring. Your <<= _contractMasterTitle>> looks at you for a long moment before <<he>> decides not to say anything.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+	<<else>>
+		The frame is unbuckled while the room is still noisy. "That's what the fee was for," your <<= _contractMasterTitle>> says, clipping the leash back on.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+	<</if>>
+<<elseif $finish is 1>>
+	<<encounterEndViolence>>
+	You stop reacting at all, and after a while there is nothing on the stage worth watching. The handlers clear it.<<trauma 6>><<gtrauma>>
+	<br><br>
+	"A frame and a crowd, and you still made it boring," your <<= _contractMasterTitle>> says.<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+<<else>>
+	The lights drop before the audience is finished with you. Somebody complains. A handler tells them the hour is up.<<stress 12>><<pain 6>><<ggstress>><<gpain>>
+<</if>>
+<br><br>
+<<if _contractShowHarsh>>
+	/* Made an example of: the restraints do not come off with the frame. */
+	Your arms are unbuckled from the frame and tied behind you again before you are walked off the boards.
+	<br><br>
+	<<link [[Next (0:30)|Underground Brothel Contract Quarters]]>><<pass 30>><<bind>><<endcombat>><<endevent>><</link>>
+<<else>>
+	The straps come off. Your collar and cuffs stay where they are.
+	<br><br>
+	<<link [[Next (0:30)|Underground Brothel Contract Quarters]]>><<pass 30>><<undergroundBrothelContractUntie>><<endcombat>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Bed
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+You lie on the thin mattress. Springs press through the fabric, and the distant bass makes the frame tremble.
+<br><br>
+<<nightmareCheck "Underground Brothel Contract Sleep">>
+<<generateSleepLinks "Underground Brothel Contract Sleep">>
+<<link [[Get up|Underground Brothel Contract Quarters]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Sleep
+<<set $outside to 0>><<set $location to "underground">><<endevent>>
+<<set _autosavehere to true>><<sleep>><<effects>>
+<<undergroundBrothelContractMaster>>
+<<wakingEffects $sleepHoursTotal>>
+<<sleepeffects>>
+<<set _contractWake to $contractWake>><<unset $contractWake>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	The numbered light above the door changes from pink to white.
+	<br><br>
+	<<link [[Get up|Underground Brothel Contract Complete]]>><<endevent>><</link>>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+	<<if _contractWake is "punish">>
+		<<include "Underground Brothel Contract Sleep Punishment">>
+	<<elseif _contractWake is "group">>
+		<<include "Underground Brothel Contract Sleep Group Wake">>
+	<<elseif _contractWake is "master">>
+		<<include "Underground Brothel Contract Sleep Master Wake">>
+	<<elseif _contractWake is "trait">>
+		<<include "Underground Brothel Contract Sleep Trait Wake">>
+	<<elseif _contractWake is "patron">>
+		<<include "Underground Brothel Contract Sleep Patron">>
+	<<elseif $nightmares gte 1 and $controlled is 0>>
+		You dream of the first time you were trapped here, when there was no date on the door and no one waiting to pay you. You wake with your fingers wrapped around the edge of the mattress.<<stress 6>><<trauma 4>><<gstress>><<gtrauma>>
+		<br><br>
+		<<link [[Get up|Underground Brothel Contract Quarters]]>><</link>>
+	<<elseif ["dryheaving", "nausea"].includes(_wakingEffect)>>
+		You wake feeling sick. The air below ground is stale and close.
+		<br><br>
+		<<link [[Get up|Underground Brothel Contract Quarters]]>><</link>>
+	<<else>>
+		You sleep as well as the place allows. Remembering that the contract has an end makes the locked door easier to face.<<stress -8>><<trauma -6>><<lstress>><<ltrauma>>
+		<br><br>
+		The hatch in the door bangs open. A bowl of food and a cup of water slide across the floor.
+		<br><br>
+		<<link [[Get up|Underground Brothel Contract Quarters]]>><</link>>
+	<</if>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Master Bed
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+<<if $undergroundbrothelcontract.obedience lt 4>>
+	Your <<= _contractMasterTitle>> blocks the bedroom door. "You haven't earned that privilege."
+	<br><br>
+	<<link [[Return to the common room|Underground Brothel Contract Main Room]]>><</link>>
+	<br>
+	<<link [[Try to push past <<him>>|Underground Brothel Contract Punishment Refusal]]>><<set $molestationstart to 1>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(adds one unpaid day)</span>
+<<else>>
+	The staff bedroom is warmer than your quarters. Your <<= _contractMasterTitle>> lets you onto the wide bed but keeps your collar fastened to a short chain fixed beside <<his>> pillow.
+	<br><br>
+	<<switch _contractMasterTrait>>
+		<<case "relaxed">>
+			<<He>> lies beside you with one arm draped loosely across your waist.
+		<<case "sociable">>
+			<<He>> talks about the evening's patrons while getting comfortable beside you.
+		<<case "brooding">>
+			<<He>> lies facing you in silence, watching until you close your eyes.
+		<<case "lecher">>
+			<<He>> pulls you against <<his>> body and keeps one hand between your legs.
+	<</switch>>
+	<br><br>
+	<<nightmareCheck "Underground Brothel Contract Master Bed Sleep">>
+	<<generateSleepLinks "Underground Brothel Contract Master Bed Sleep">>
+	<<link [[Leave the bed|Underground Brothel Contract Main Room]]>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Master Bed Sleep
+<<set $outside to 0>><<set $location to "underground">><<endevent>>
+<<set _autosavehere to true>><<sleep>><<effects>>
+<<undergroundBrothelContractMaster>>
+<<wakingEffects $sleepHoursTotal>>
+<<sleepeffects>>
+/* Same hand-off as the quarters. The pool for this bed has no patrons in it. */
+<<set _contractWake to $contractWake>><<unset $contractWake>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	Your <<= _contractMasterTitle>> wakes you and unclips the chain. "Get dressed. Your time is finished."
+	<br><br>
+	<<link [[Get up|Underground Brothel Contract Complete]]>><<endevent>><</link>>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<elseif _contractWake is "punish">>
+	<<include "Underground Brothel Contract Sleep Punishment">>
+<<elseif _contractWake is "group">>
+	<<include "Underground Brothel Contract Sleep Group Wake">>
+<<elseif _contractWake is "master">>
+	<<include "Underground Brothel Contract Sleep Master Wake">>
+<<elseif $nightmares gte 1 and $controlled is 0>>
+	You wake from a nightmare pressed against your <<= _contractMasterTitle>>. <<He>> tightens the arm around you until you stop trembling. Whether the gesture is comforting or possessive is difficult to tell.<<stress 4>><<trauma 2>><<gstress>><<gtrauma>>
+	<br><br>
+	<<link [[Get out of bed|Underground Brothel Contract Main Room]]>><</link>>
+<<else>>
+	You wake beside your <<= _contractMasterTitle>>. <<He>> is already awake, studying the morning schedule.
+	<br><br>
+	"Get some food before your first shift," <<he>> says, unclipping the chain.<<stress -8>><<trauma -4>><<lstress>><<ltrauma>>
+	<br><br>
+	<<link [[Get out of bed|Underground Brothel Contract Main Room]]>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Sleep Master Wake
+<<undergroundBrothelContractMaster>>
+You wake to the mattress shifting beneath your <<= _contractMasterTitle>>. <<He>> has opened your door and climbed over you while you slept.
+<br><br>
+<<if $undergroundbrothelcontract.obedience gte 3>>
+	"You've been good," <<he>> murmurs, drawing your leash around <<his>> hand. "Keep me company before the morning shift."
+<<else>>
+	"Your contracted time includes the night," <<he>> says. "You don't get to sleep through all of it."
+<</if>>
+<br><br>
+<<link [[Let <<him>> continue|Underground Brothel Contract Sleep Molestation]]>><<set $molestationstart to 1>><<set $phase to 0>><</link>>
+<br>
+<<link [[Struggle|Underground Brothel Contract Sleep Molestation]]>><<set $molestationstart to 1>><<set $phase to 1>><</link>>
+<br>
+
+:: Underground Brothel Contract Sleep Group Wake
+<<undergroundBrothelContractMaster>>
+<<generate2>><<generate3>>
+Voices wake you before the door opens. Your <<= _contractMasterTitle>> enters with two patrons close behind.
+<br><br>
+"They paid for private access before opening," <<he>> says. The visitors look you over while <<he>> fastens your leash to the bed frame. "Try not to disappoint them."
+<br><br>
+<<link [[Submit|Underground Brothel Contract Sleep Molestation]]>><<set $molestationstart to 1>><<set $phase to 2>><</link>>
+<br>
+<<link [[Fight them|Underground Brothel Contract Sleep Molestation]]>><<set $molestationstart to 1>><<set $phase to 3>><</link>>
+<br>
+
+:: Underground Brothel Contract Sleep Trait Wake
+<<undergroundBrothelContractMaster>>
+<<switch _contractMasterTrait>>
+	<<case "relaxed">>
+		Your <<= _contractMasterTitle>> wakes you by nudging a tray through the hatch. "Eat. You've got half an hour before anyone needs you."
+		<br><br>
+		The food is plain but warm. You eat while <<he>> checks the lock.<<stress -6>><<trauma -2>><<lstress>><<ltrauma>>
+		<br><br>
+		<<link [[Get up|Underground Brothel Contract Quarters]]>><</link>>
+	<<default>>
+		You open your eyes and find your <<= _contractMasterTitle>> standing inside the room. <<He>> watches you for another long moment before checking something off on the schedule.
+		<br><br>
+		"You talk in your sleep," <<he>> says. <<He>> leaves without explaining what you said.<<stress 4>><<gstress>>
+		<br><br>
+		<<link [[Get up|Underground Brothel Contract Quarters]]>><</link>>
+<</switch>>
+<br>
+
+:: Underground Brothel Contract Sleep Punishment
+<<undergroundBrothelContractMaster>>
+The light snaps on. Your <<= _contractMasterTitle>> stands over the mattress holding the previous shift's report.
+<br><br>
+"You don't get a peaceful morning after behaving like this," <<he>> says.
+<br><br>
+<<link [[Submit|Underground Brothel Contract Punishment Submit]]>><<set $sexstart to 1>><<sub 3>><</link>><<submissivetext>>
+<br>
+<<link [[Fight back|Underground Brothel Contract Punishment Fight]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+:: Underground Brothel Contract Sleep Patron
+<<set _contractMasterTitle to $per_npc.contract_master?.pronoun is "f" ? "mistress" : "master">>
+<<endevent>>
+<<generate1>><<person1>>
+You surface slowly, and only because something is wrong with the dark. The mattress is moving. Someone is already kneeling over you, and has been for a while.
+<br><br>
+The corridor light shows you a <<person>>, still holding the wristband the desk gives out for after-hours access. <<He>> waits, unhurried, until <<he>> is sure you are awake enough to understand.
+<br><br>
+"Bought the quiet hours," <<he>> says. "Your <<= _contractMasterTitle>> took the money an hour ago. Go back to sleep if you like. It makes no difference to me."
+<br><br>
+<<link [[Next|Underground Brothel Contract Sleep Patron Molestation]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+:: Underground Brothel Contract Sleep Patron Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 5>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<set $enemytrust -= 40>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<if $alarm is 1>>
+	<<set $alarm to 0>>
+	/* Shouting is answered by whoever is on the desk, and the answer depends on your handler. */
+	<<switch $undergroundbrothelcontract.masterTrait>>
+		<<case "relaxed">>
+			Somebody further down the corridor laughs. "Quiet hours," a night handler calls, without getting up.
+		<<case "sociable">>
+			"That's the noise <<= $undergroundbrothelcontract.penalty gte 1 ? "a red mark" : "a paid booking">> makes," a night handler announces to the corridor. Somebody else laughs.
+		<<case "brooding">>
+			Nobody answers at all. The corridor stays exactly as quiet as it was before you shouted.
+		<<case "lecher">>
+			A night handler's shadow crosses the door panel, stops long enough to watch, and moves on.
+	<</switch>>
+	<br><br>
+	"Told you," the <<person>> says. "Paid for."
+	<br><br>
+<</if>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Sleep Patron Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Sleep Patron Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Sleep Patron Finish
+<<set $outside to 0>><<set $location to "underground">><<effects>><<person1>>
+<<set _contractMasterTitle to $per_npc.contract_master?.pronoun is "f" ? "mistress" : "master">>
+<<if $enemyhealth lte 0>>
+	/* A paying patron is the brothel's customer, so hurting one costs the same as hurting staff. */
+	The <<person>> goes down against the wall, swearing, and hammers on the door until it opens.
+	<br><br>
+	The report reaches your <<= _contractMasterTitle>> before morning does. A day is added to your contract in red, and the wristband is refunded from money you were never going to see.<<undergroundBrothelContractPenalty>>
+	<span class="red">(one unpaid day added)</span>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	<<if $undergroundbrothelcontract.obedience gte 3>>
+		The <<person>> is unhurried about leaving, and pulls the blanket back over you on <<his>> way out. Your <<= _contractMasterTitle>> mentions that the night desk had nothing to report.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+	<<else>>
+		The <<person>> gathers <<his>> things and leaves without looking back. The door locks itself behind <<him>>.<<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>>
+	<</if>>
+<<elseif $finish is 1>>
+	<<encounterEndViolence>>
+	You stop responding altogether and lie still until <<he>> loses interest. The <<person>> leaves complaining that the brothel sold <<him>> a corpse.
+	<br><br>
+	Your <<= _contractMasterTitle>> hears about it. Nothing is added to your contract, but nothing is forgotten either.<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+<<else>>
+	Whatever <<he>> paid for, <<he>> does not get it. The <<person>> gives up, dresses in the dark, and leaves you where you are.<<stress 12>><<pain 12>><<ggstress>><<gpain>>
+<</if>>
+<br><br>
+The hatch stays shut. There are hours left before the pink light comes on.
+<br><br>
+<<link [[Try to sleep again|Underground Brothel Contract Bed]]>><<endcombat>><<endevent>><</link>>
+<br>
+<<link [[Get up|Underground Brothel Contract Quarters]]>><<endcombat>><<endevent>><</link>>
+<br>
+
+:: Underground Brothel Contract Sleep Molestation
+<<if $molestationstart is 1>>
+	<<set $molestationstart to 0>>
+	<<controlloss>>
+	<<violence 1>>
+	<<neutral 1>>
+	<<molested>>
+	<<maninit>>
+	<<if [1, 3].includes($phase)>>
+		<<set $enemytrust -= 80>>
+		<<set $enemyanger += 100>>
+	<<else>>
+		<<set $enemytrust -= 40>>
+	<</if>>
+<</if>>
+<<effects>>
+<<effectsman>>
+<<man>>
+<<stateman>>
+<br><br>
+<<actionsman>>
+<<if _combatend>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Sleep Molestation Finish]]>><</link>></span><<nexttext>>
+<<else>>
+	<span id="next"><<link [[Next|Underground Brothel Contract Sleep Molestation]]>><</link>></span><<nexttext>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Sleep Molestation Finish
+<<effects>><<person1>>
+/* The handler is still slot 0 from the combat, so read the title off person1 rather than reloading. */
+<<set _contractMasterTitle to $NPCList[0].pronoun is "f" ? "mistress" : "master">>
+<<if $enemyhealth lte 0>>
+	<<if $phase gte 2>>
+		One of the visitors recoils from you. Your <<= _contractMasterTitle>> pulls the others back before the fight can spread into the corridor.
+	<<else>>
+		Your <<= _contractMasterTitle>> recoils from you and reaches for the door.
+	<</if>>
+	<br><br>
+	"You'll regret that before the contract ends," <<he>> says.<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+<<elseif $enemypleasure gte $enemypleasuremax>>
+	<<ejaculation>>
+	<<if $phase gte 2>>
+		The visitors finish with you one after another. Your <<= _contractMasterTitle>> finally unfastens your leash from the bed and shows them out.
+	<<else>>
+		Satisfied, your <<= _contractMasterTitle>> releases your leash and gets to <<his>> feet.
+	<</if>>
+	<<if [0, 2].includes($phase)>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><</if>>
+<<else>>
+	<<encounterEndViolence>>
+	The encounter ends without satisfying anyone. Your <<= _contractMasterTitle>> leaves you tangled in the bedding while <<he>> clears the room.
+<</if>>
+<br><br>
+<<link [[Get up|Underground Brothel Contract Quarters]]>><<endcombat>><<endevent>><</link>>
+<br>

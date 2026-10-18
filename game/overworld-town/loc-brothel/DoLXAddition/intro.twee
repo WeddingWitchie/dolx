@@ -1,0 +1,554 @@
+:: Underground Brothel Contract Bailey
+<<set $outside to 0>><<set $location to "home">><<effects>>
+<<undergroundBrothelContractOffer "Bailey">>
+
+:: Underground Brothel Contract Briar
+<<set $outside to 0>><<set $location to "brothel">><<effects>>
+<<undergroundBrothelContractOffer "Briar">>
+
+:: Underground Brothel Contract Terms
+/* Still sat in whichever office made the offer. */
+<<endevent>>
+<<set $outside to 0>><<set $location to $undergroundbrothelcontract.broker is "Bailey" ? "home" : "brothel">><<effects>>
+<<set _contractLength to $undergroundbrothelcontract.end - Time.days>>
+<<if $undergroundbrothelcontract.broker is "Bailey">>
+	<<npc Bailey>><<person1>>
+	Bailey slides a single sheet across the desk. Most of the page concerns the payment. The rest is written in blunt, cramped lines.
+<<else>>
+	<<npc Briar>><<person1>>
+	Briar turns the paper around so you can read it. The payment is printed in large type. The conditions beneath it are not.
+<</if>>
+<br><br>
+For <<= _contractLength>> <<= _contractLength is 1 ? "day" : "days">>, the underground brothel can make you perform for its patrons at any hour.
+Protection is not promised. Neither is gentle treatment. Refusing work, attacking staff, or trying to escape can add unpaid days. If you go into labour,
+they will take you to hospital and collect you again after the birth. You are only paid if you remain until the final date.
+<br><br>
+<<if $undergroundbrothelcontract.broker is "Bailey">>
+	"Don't pretend you weren't warned," Bailey says. "If you sign, they'll hold you to every word."
+<<else>>
+	"You've survived the place once," Briar says. "That doesn't make this safe. It only means you know what you're choosing."
+<</if>>
+<br><br>
+<<agreeicon>><<link [[Sign the contract|Underground Brothel Contract Departure]]>><<endevent>><</link>>
+<br>
+<<if $undergroundbrothelcontract.broker is "Bailey">>
+	<<link [[Put the pen down|Bailey's Office]]>><<unset $undergroundbrothelcontract>><<endevent>><</link>>
+<<else>>
+	<<link [[Put the pen down|Briar's Office]]>><<unset $undergroundbrothelcontract>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Complete
+<<set $outside to 0>><<set $location to "underground">>
+<<if $passage is "Underground Brothel Contract Complete">><<effects>><</if>>
+<<undergroundBrothelContractMaster>>
+The lock turns at an hour when it usually stays shut. Your <<= _contractMasterTitle>> comes in with your clothes and an envelope.
+<br><br>
+"Your time is up." <<He>> takes off the shackles and collar, then waits while you dress.<<if $undergroundbrothelcontract.penalty gte 1>> <<He>> taps the <<= $undergroundbrothelcontract.penalty is 1 ? "extra day" : $undergroundbrothelcontract.penalty + " extra days">>
+marked in red on your contract.<<if !["favour", "hunt"].includes($undergroundbrothelcontract.broker)>> "Those days were not paid for. The original price has not changed."<</if>><</if>>
+<br><br>
+<<unbind>><<undergroundBrothelContractUncollar>>
+<<storeon "underground_contract">><<specialClothesUnlock "set" "underground_brothel">>
+<<if $undergroundbrothelcontract.pay gt 0>>
+	The envelope contains <<printmoney `divineTfIncome($undergroundbrothelcontract.pay, "undergroundBrothelContract")`>>.
+<<else>>
+	The envelope holds your contract, stamped as served. There is no money in it.
+<</if>>
+<br><br>
+You are hooded for the trip back. When the car stops, the hood is removed, and the car pulls away from Domus Street. The orphanage is a short walk ahead. No one stops you.
+<br><br>
+<<link [[Next|Domus Street]]>>
+	<<if $undergroundbrothelcontract.pay gt 0>><<income $undergroundbrothelcontract.pay "undergroundBrothelContract">><</if>>
+	<<badEndTrackingEnd "Underground Dungeon" { reason: "uDungeonContractServed" }>>
+	<<dungeonescape "contractServed">>
+	<<unset $litter_size>><<unset $first_birth>><<unset $bornChildrenIds>>
+	<<endevent>>
+<</link>>
+<br>
+
+:: Underground Brothel Contract Hospital Return
+<<set $outside to 0>><<set $location to "hospital">><<effects>>
+<<undergroundBrothelContractMaster>>
+A hospital worker brings your discharge papers. Your <<= _contractMasterTitle>> is waiting beside the door in a dark coat, your contract folded beneath one arm.
+<br><br>
+"Your contract kept running while you were here," <<he>> says. "The children are going to the orphanage. You're coming with me."
+<br><br>
+<<set $ward_unlocked to true>>
+<<if $first_birth>>
+	<span class="gold">You can now access the youth ward, and the nursery.</span>
+	<br><br>
+<</if>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<link [[Leave the hospital|Underground Brothel Contract Complete]]>><<unset $litter_size>><<unset $first_birth>><<unset $bornChildrenIds>><<endevent>><</link>>
+<<else>>
+	You're hooded in the hospital car park. By the time it comes off, you're standing in the brothel's service corridor. The handler checks your collar and shackles, then marches you back to your room.
+	<br><br>
+	<<link [[Return underground|Underground Brothel Contract Quarters]]>><<unset $litter_size>><<unset $first_birth>><<unset $bornChildrenIds>><<endevent>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Door Sneak
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<include "Underground Brothel Contract Complete">>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+	<<skulduggerycheck>>
+	<<if $skulduggerysuccess is 1>>
+	The lock gives a soft click. You catch the door before it can swing open and slip into the corridor.<<skulduggeryuse>>
+	<br><br>
+	<<link [[Sneak onward|Underground Brothel Contract Corridor]]>><</link>>
+	<<else>>
+	The lock chirps. Your improvised tool slips from your fingers and clatters against the floor.
+	<br><br>
+	<<if Time.hour gte 6 and Time.hour lt 22>>
+		<<undergroundBrothelContractMaster>>
+		<<if Time.hour lt 10>>
+			The sound interrupts your <<= _contractMasterTitle>>'s morning rounds. <<He>> reaches your door before you can hide the tool.
+		<<elseif Time.hour lt 18>>
+			Your <<= _contractMasterTitle>> leaves the contract desk and follows the noise to your room.
+		<<else>>
+			Your <<= _contractMasterTitle>> abandons the performance floor and strides down the corridor towards you.
+		<</if>>
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Caught]]>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(one unpaid day added)</span>
+	<<elseif random(1, 2) is 1>>
+		A night handler calls out. You hear keys and hurried footsteps approaching.
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Caught]]>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(one unpaid day added)</span>
+	<<else>>
+		You freeze, waiting for someone to investigate. The corridor remains quiet. <span class="green">It seems no one heard.</span>
+		<br><br>
+		<<link [[Try to sleep|Underground Brothel Contract Quarters]]>><</link>>
+	<</if>>
+	<</if>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Corridor
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+You crouch in the service corridor. One way leads back to the performance rooms. The other climbs towards a heavy outer door. Staff voices drift from a room between you and the stairs.
+<br><br>
+<<if Time.hour gte 18 or Time.hour lt 2>>
+	The brothel is busy. Handlers cross the corridor often, but the noise gives you cover.
+<<else>>
+	The corridor is quiet enough that every movement of your shackles sounds dangerously loud.
+<</if>>
+<br><br>
+<<lockicon "pick">><<link [[Try the outer door (0:05)|Underground Brothel Contract Exit Sneak]]>><<set $skulduggerydifficulty to 1000>><<pass 5>><</link>><<skulduggerydifficulty>>
+<br>
+<<getouticon>><<link [[Return before you're noticed|Underground Brothel Contract Quarters]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Exit Sneak
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if Time.days gte $undergroundbrothelcontract.end>>
+	<<include "Underground Brothel Contract Complete">>
+<<elseif isPregnancyEnding()>>
+	<<pregnancyPassout "dungeon">>
+<<else>>
+	<<skulduggerycheck>>
+	<<if $skulduggerysuccess is 1>>
+	The outer lock yields. Cold air spills down the stairs. Beyond the door, trees crowd beneath the night sky.
+	You can still return and finish the contract. If you run, the payment is forfeit.
+	<br><br>
+	<<link [[Run|Underground Brothel Contract Escape]]>><<skulduggeryuse>><</link>>
+	<br>
+	<<link [[Lock the door and go back|Underground Brothel Contract Quarters]]>><<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>><</link>>
+	<<else>>
+	The pick slips from the mechanism. Metal strikes stone with a sharp click.
+	<br><br>
+	<<if Time.hour gte 6 and Time.hour lt 22>>
+		<<undergroundBrothelContractMaster>>
+		<<if Time.hour lt 10>>
+			Your <<= _contractMasterTitle>> looks up from the morning reports at the desk below. <<He>> is already climbing the stairs when you turn.
+		<<elseif Time.hour lt 18>>
+			A handler shouts. Your <<= _contractMasterTitle>> emerges from the performance corridor and blocks the only way back.
+		<<else>>
+			<<switch _contractMasterTrait>>
+				<<case "relaxed">>
+					Your <<= _contractMasterTitle>> opens one eye from the couch below. The lazy look vanishes as <<he>> sees you beside the outer door.
+				<<case "sociable">>
+					Your <<= _contractMasterTitle>> stops mid-conversation. "Excuse me," <<he>> tells the patrons, then starts up the stairs.
+				<<case "brooding">>
+					Your <<= _contractMasterTitle>> is already watching from beside the performance window. <<He>> meets your gaze and silently points back down the stairs.
+				<<case "lecher">>
+					Your <<= _contractMasterTitle>> switches off the performance feed. "So that's what you were doing while my back was turned."
+			<</switch>>
+		<</if>>
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Caught]]>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(one unpaid day added)</span>
+	<<elseif random(1, 2) is 1>>
+		A night handler pushes away from the desk below. The beam of a torch climbs the stairwell and catches you against the locked door.
+		<br><br>
+		<<link [[Next|Underground Brothel Contract Caught]]>><<undergroundBrothelContractPenalty>><</link>> <span class="red">(one unpaid day added)</span>
+	<<else>>
+		You hold still and listen. The handler below mutters at the performance monitor, oblivious. <span class="green">No one heard.</span>
+		<br><br>
+		<<lockicon "pick">><<link [[Try the lock again (0:05)|Underground Brothel Contract Exit Sneak]]>><<set $skulduggerydifficulty to 1000>><<pass 5>><</link>><<skulduggerydifficulty>>
+		<br>
+		<<getouticon>><<link [[Retreat to your room|Underground Brothel Contract Quarters]]>><</link>>
+	<</if>>
+	<</if>>
+<</if>>
+<br>
+
+:: Underground Brothel Contract Caught
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+Your <<= _contractMasterTitle>> drags you back by your collar and throws you against the wall outside your room.
+<br><br>
+"You signed for a release date," <<he>> says, showing you the contract. A fresh day has been written beneath it in red. "Now you have a new one."
+<br><br>
+<<link [[Submit to the punishment|Underground Brothel Contract Punishment Submit]]>><<set $sexstart to 1>><<sub 3>><</link>><<submissivetext>>
+<br>
+<<link [[Fight back|Underground Brothel Contract Punishment Fight]]>><<set $molestationstart to 1>><</link>>
+<br>
+
+:: Underground Brothel Contract Escape
+<<set $outside to 1>><<set $location to "forest">><<effects>>
+<<set _contractCollar to $worn.neck.name is "collar with leash">>
+You pull the door closed and run into the trees. Branches claw at your skin and the shackles shorten your stride, but no one catches you before the music fades behind you.
+<br><br>
+At the edge of a stream you stop long enough to try the fastenings. The ankle cuffs don't give<<if _contractCollar>>, and there's no seam in the collar that your fingers can find<</if>>. Whatever opens them is still underground, in a drawer you never saw.
+<br><br>
+The contract is gone. You are not.
+<br><br>
+<span class="blue">You are still wearing the brothel's <<if _contractCollar>>collar and cuffs<<else>>cuffs<</if>>. You'll have to find someone in town willing to take <<if _contractCollar>>them<<else>>them<</if>> off.</span>
+<br><br>
+<<badEndTrackingEnd "Underground Dungeon" { reason: "uDungeonSneak" }>>
+<<dungeonescape>><<specialClothesUnlock "set" "underground_brothel">>
+<<link [[Keep running|Forest]]>><<set $forest to 40>><<set $stress -= 1000>><<endevent>><</link>>
+
+:: Underground Brothel Contract Departure
+/* Still in whichever office made the offer, right up until the car pulls away. */
+<<set $outside to 0>><<set $location to $undergroundbrothelcontract.broker is "Bailey" ? "home" : "brothel">><<effects>>
+<<pass 30>><<endevent>>
+/* The broker has to be re-established here */
+<<if $undergroundbrothelcontract.broker is "Bailey">>
+	<<npc Bailey>><<person1>>
+	Bailey makes the call before you can change your mind. A car with blacked-out windows is waiting behind the orphanage. <<He>> watches while two people search you.
+	<br><br>
+	"Don't come crying to me if you hate it," Bailey says. One of the people waiting beside the car takes your contract from <<him>>.
+<<else>>
+	<<npc Briar>><<person1>>
+	Briar makes a short call. Half an hour later, two people lead you through a rear door to a car with blacked-out windows. They search you while Briar watches from the doorway.
+	<br><br>
+	"Our part's finished," <<he>> says. "Whatever happens down there is between you and them." One of the people waiting beside the car takes your contract from <<him>>.
+<</if>>
+<br><br>
+<<link [[Meet your handler|Underground Brothel Contract Master Introduction]]>><<endevent>><</link>>
+<br>
+
+:: Underground Brothel Contract Master Introduction
+/* Behind the office, then inside the car; out of the building but not yet underground. */
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<undergroundBrothelContractMaster>>
+The <<person>> holding your contract steps close and looks you over without speaking. <<He>> catches your chin and forces you to meet <<his>> eyes.
+<br><br>
+"The brothel bought your time. Until the date on this paper, you answer to me." <<He>> folds the contract and slips it beneath one arm.
+"You call me <<= _contractMasterTitleCap>>. Understood?"
+<br><br>
+<<link [[Nod|Underground Brothel Contract Transport]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><</link>>
+<br>
+<<link [[Stay quiet|Underground Brothel Contract Introduction Quiet]]>><</link>>
+<br>
+<<link [[Remind <<him>> this is only a contract|Underground Brothel Contract Transport]]>><<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>><<stress 4>><</link>><<gstress>>
+<br>
+
+:: Underground Brothel Contract Introduction Quiet
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<undergroundBrothelContractMaster>>
+<<if $submissive lte 850>>
+	You say nothing, but keep your eyes fixed on <<his>>.
+<<elseif $submissive gte 1150>>
+	You lower your eyes and stay quiet.
+<<else>>
+	You say nothing.
+<</if>>
+<br><br>
+"At least you know when to keep your mouth shut," your <<= _contractMasterTitle>> says. <<He>> opens the rear door of the car.
+<br><br>
+<<link [[Get in|Underground Brothel Contract Transport]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Transport
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<undergroundBrothelContractMaster>>
+Before you can sit, your <<= _contractMasterTitle>> pulls a hood over your head.
+<<if $rightarm isnot "bound" or $leftarm isnot "bound">>
+	<<He>> binds your arms behind your back and checks the knots twice.<<bind>>
+<</if>>
+<br><br>
+The door closes. The car moves before you can judge which direction it faces.
+Your <<= _contractMasterTitle>> sits beside you, one hand resting on your leash. The hood smells of detergent and someone else's sweat.
+<br><br>
+<<socialiseicon "ask">><<link [[Ask where you're being taken|Underground Brothel Contract Transport Question]]>><</link>>
+<br>
+<<link [[Stay quiet|Underground Brothel Contract Transport Quiet]]>><</link>>
+<br>
+<<refuseicon>><<link [[Pull against the bindings|Underground Brothel Contract Transport Resist]]>><<def 1>><</link>><<defianttext>>
+<br>
+
+:: Underground Brothel Contract Transport Question
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<undergroundBrothelContractMaster>>
+"Where are you taking me?" you ask.
+<br><br>
+<<switch _contractMasterTrait>>
+	<<case "relaxed">>
+		"Where you agreed to go," your <<= _contractMasterTitle>> replies. "Save your worry for when the hood comes off."
+	<<case "sociable">>
+		"Back underground," your <<= _contractMasterTitle>> says. "Private room, house stage, as many shifts as they can fit before your release date. You did read the paper."
+	<<case "brooding">>
+		"The brothel," your <<= _contractMasterTitle>> says. Nothing more follows.
+	<<case "lecher">>
+		"Somewhere no one will interrupt us," your <<= _contractMasterTitle>> says. <<His>> hand slides down the leash until <<his>> knuckles touch your collar. "Unless they've paid for the privilege."
+<</switch>>
+<br><br>
+The car turns sharply. With no view outside, the answer tells you nothing about the route.
+<br><br>
+<<link [[Fall silent|Underground Brothel Contract Transport Journey]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Transport Quiet
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<undergroundBrothelContractMaster>>
+You keep your questions to yourself and listen. Traffic thins, returns, then disappears beneath the steady hum of an enclosed road.
+<br><br>
+<<switch _contractMasterTrait>>
+	<<case "relaxed">>
+		Your <<= _contractMasterTitle>> settles deeper into the seat, keeping only enough tension on the leash to remind you it is there.
+	<<case "sociable">>
+		"Good," your <<= _contractMasterTitle>> says. "You can listen. That will make the first few days easier."
+	<<case "brooding">>
+		Your <<= _contractMasterTitle>> says nothing. Whenever the car turns, <<his>> grip stops you from sliding across the seat.
+	<<case "lecher">>
+		Your <<= _contractMasterTitle>> toys with the leash in the silence, drawing you close and letting it slacken again.
+<</switch>>
+<br><br>
+<<link [[Keep waiting|Underground Brothel Contract Transport Journey]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Transport Resist
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<undergroundBrothelContractMaster>>
+You twist your wrists and pull against the knots. Your <<= _contractMasterTitle>> catches the movement at once and jerks the leash short, dragging you against <<him>>.
+<br><br>
+<<switch _contractMasterTrait>>
+	<<case "relaxed">>
+		"Bit late for that." <<He>> tightens the knot with an irritated tug. "You signed before I tied it."
+	<<case "sociable">>
+		"Already putting on a show?" <<he>> asks. "Keep it up. The house will know exactly how to introduce you."
+	<<case "brooding">>
+		<<He>> says nothing. The knot is simply pulled tighter until your hands begin to ache.
+	<<case "lecher">>
+		"That's better," <<he>> murmurs, forcing your bound hands still. "I was worried the contract had made you boring."
+<</switch>>
+<<pain 3>><<stress 4>><<gpain>><<gstress>>
+<<set $undergroundbrothelcontract.obedience to Math.max(-3, $undergroundbrothelcontract.obedience - 1)>>
+<br><br>
+<<link [[Stop struggling|Underground Brothel Contract Transport Journey]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Transport Journey
+<<set $outside to 0>><<set $location to "town">><<effects>>
+<<undergroundBrothelContractMaster>>
+The journey stretches on. You count turns until you lose track. At some point the road changes beneath the tyres, smooth tarmac giving way to concrete. The car slows, descends, and passes through a gate that closes heavily behind it.
+<br><br>
+Your <<= _contractMasterTitle>> keeps hold of the leash until the engine stops.
+<br><br>
+<<link [[Wait for the hood to come off (0:30)|Underground Brothel Contract Arrival]]>><<pass 30>><</link>>
+<br>
+
+:: Underground Brothel Contract Arrival
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+The hood comes off when the car stops. You're already below ground. Music echoes faintly through the walls.
+<br><br>
+Your <<= _contractMasterTitle>> checks the contract against your face. "Voluntary booking," <<he>> says. "That buys you a release date. Nothing else."
+<br><br>
+Your clothes are taken, labelled, and sealed in a plastic crate. Metal closes around your neck and ankles. You knew what you were agreeing to.
+<<undress "underground_contract">>
+<<if $worn.neck.name is "familiar collar" and $worn.neck.cursed is 1>>
+	Your <<= _contractMasterTitle>> fails to remove your collar and gives up with a curse.
+<<else>>
+	<<neckwear "collar with leash">>
+<</if>>
+<<if !$worn.feet.type.includes("shackle")>><<shackle_feet>><</if>>
+<br><br>
+<<link [[Let <<him>> inspect you|Underground Brothel Contract Rules]]>>
+	/* Someone on staff remembers the last time you got out without permission. */
+	<<if $badEndStats.some(b => b.source === "Underground Dungeon" && b.reasonEnd && !["uDungeonContractServed", "uDungeonDumped"].includes(b.reasonEnd)) and random(1, 100) lte 20>>
+		<<set $undergroundbrothelcontract.recognised to true>>
+		<<set $undergroundbrothelcontract.end += 5>>
+		<<set $undergroundbrothelcontract.penalty += 5>>
+	<</if>>
+<</link>>
+<br>
+
+:: Underground Brothel Contract Rules
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+The senior handler assigned to you walks around you slowly. <<He>> writes down your marks, your piercings, and any signs of pregnancy.
+<<He>> checks your mouth with a gloved thumb and pulls once on the leash.
+<br><br>
+<<if $undergroundbrothelcontract.recognised>>
+	A handler behind <<him>> stops, looks at your face, then leans in and whispers. You cannot hear the words. Your <<= _contractMasterTitle>> stops writing.
+	<br><br>
+	"You have been here before," <<he>> says. "You left without asking." <<He>> writes five days under the release date and underlines them. <span class="red">"Those days are for the door you used last time. They are not paid."</span>
+	<br><br>
+<</if>>
+"You work when the light above your door turns pink. Patrons choose what they want. We do not promise condoms.
+We also do not promise they will be careful." <<He>> points down the corridor. "The tap works. The mattress is yours.
+If you behave, you can use the washroom between shifts."
+<br><br>
+"If you refuse, fight, or touch the outer doors, we add a day. You get no pay for penalty time.
+If work puts you in a hospital bed, that does not make you free. We collect you afterward."
+<br><br>
+"While you are here, you call me <<= _contractMasterTitleCap>>. I decide whether you have behaved."
+<br><br>
+<<link [[Say you understand|Underground Brothel Contract Room]]>><<set $undergroundbrothelcontract.obedience to Math.min(5, $undergroundbrothelcontract.obedience + 1)>><</link>>
+<br>
+<<link [[Say nothing|Underground Brothel Contract Room]]>><</link>>
+<br>
+
+:: Underground Brothel Contract Room
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<undergroundBrothelContractMaster>>
+Your <<= _contractMasterTitle>> leads you past the black cells. Your room is different only in small ways:
+a thin mattress raised from the floor, a metal toilet, a tap, and a numbered light above the door.
+<br><br>
+There is no handle on your side. <<He>> clips the contract schedule behind a clear panel, pushes you inside, and locks the door.
+<br><br>
+The pink light blinks once. Your first shift will begin soon.
+<br><br>
+<<set $undergroundbrothel to {
+	"active": true,
+	"time": 0,
+	"timepass": false,
+	"water": 0,
+	"escape": $undergroundbrothel?.escape ?? 0
+}>>
+<<badEndTracking "Underground Dungeon" { reason: "uDungeonContract" }>>
+<<link [[Wait|Underground Brothel Contract Quarters]]>><<endevent>><</link>>
+<br>
+
+:: Underground Brothel Favour
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if !$undergroundbrothelcontract>>
+	<<set $undergroundbrothelcontract to {broker: "favour", end: Time.days + 3, pay: 0, penalty: 0, obedience: 0}>>
+	<<set $undergroundbrothel.timepass to false>>
+<</if>>
+<<undergroundBrothelContractMaster>>
+The hatch opens again while your eyes are still adjusting. Someone lowers a torch into the cell. A <<person>> crouches at the edge and looks down at you.
+<br><br>
+"I know that face," <<he>> says. "You worked the contract rooms."
+<br><br>
+<<He>> drops a ladder into the cell. "The people here don't let anyone walk out for free. But I can put you on the contract list instead of leaving you down here. Three days. No pay. Then you go home."
+<br><br>
+<<He>> doesn't wait for an answer. <<He>> leads you up by the leash and into the corridor of numbered doors, where <<he>> writes your name on a schedule and clips it behind the panel of an empty room.
+<br><br>
+"While you're on my list, you call me <<= _contractMasterTitleCap>>," <<he>> says. "Don't make me regret this."
+<br><br>
+<<link [[Next|Underground Brothel Contract Quarters]]>><</link>>
+<br>
+
+:: Underground Brothel Hunt Town
+<<set $undergroundbrothelhunt.returnTo to $passage>>
+<<generate1>><<person1>>
+<<if random(1, 2) is 1>>
+	<<set _brothelHuntPolice to true>>
+	A police officer walks up to you and stands in your way. <<He>> takes out <<his>> phone and shows you a photo of yourself.
+	<br><br>
+	"That's you, right?" <<he>> says. "Someone is paying me to find you and take you back. They pay more than I earn working for the town."
+<<else>>
+	A <<person>> walks up and starts walking beside you. You know <<him>> from the brothel. You saw <<him>> standing near the customers in the hallway.
+	<br><br>
+	"You still have days of work left at the brothel," <<he>> says. "I'm here to take you back."
+<</if>>
+<br><br>
+<<link [[Go quietly|Underground Brothel Hunt Return]]>><</link>>
+<br>
+<<link [[Run|Underground Brothel Hunt Run]]>><</link>>
+<br>
+
+:: Underground Brothel Hunt Forest
+<<set $undergroundbrothelhunt.returnTo to $passage>>
+<<generate1>><<generate2>><<person1>>
+Dogs bark behind you. You have heard the brothel's hunting dogs before, and these barks sound the same.
+<br><br>
+Before you can turn to look, two people step out from between the trees. One stands on the left side of the path. The other stands on the right and blocks your way. <<person1>>
+<br><br>
+"Found you," the <<person>> says. "The brothel wants you back. You still owe them days of work."
+<br><br>
+<<link [[Go quietly|Underground Brothel Hunt Return]]>><</link>>
+<br>
+<<link [[Run|Underground Brothel Hunt Run]]>><</link>>
+<br>
+
+:: Underground Brothel Hunt Run
+<<set $outside to 1>><<effects>><<pass 5>>
+<<if !$worn.feet.type.includes("shackle") and $athletics gte random(400, 1200)>>
+	You run as fast as you can, changing direction often so anyone following you has a harder time. You keep running until the footsteps behind you fade, then slow down and look back. No one is following you.<<stress 6>><<gstress>>
+	<br><br>
+	<span class="green">You escaped</span>. They will not find you today.
+	<br><br>
+	<<set _brothelHuntReturn to $undergroundbrothelhunt.returnTo>>
+	<<link "Next" _brothelHuntReturn>><<endevent>><</link>>
+<<else>>
+	<<if $worn.feet.type.includes("shackle")>>
+		You try to run, but the metal cuffs around your ankles keep your legs close together. You can only take small steps.
+		<br><br>
+		Before you get far, <span class="red">someone catches up and grabs your arm to stop you</span>.
+	<<else>>
+		You run as fast as you can, <span class="red">but someone catches up</span>.
+		<br><br>
+		They grab the back of your neck, pull you backward, and you fall to the ground.
+	<</if>>
+	<<pain 4>><<stress 6>><<gpain>><<gstress>>
+	<br><br>
+	<<link [[Next|Underground Brothel Hunt Return]]>><</link>>
+<</if>>
+<br>
+
+:: Underground Brothel Hunt Return
+<<set $outside to 0>><<set $location to "underground">><<effects>>
+<<if !$undergroundbrothelcontract>>
+	<<set $undergroundbrothelcontract to {
+		broker: "hunt",
+		end: Time.days + $undergroundbrothelhunt.remaining + 5,
+		pay: 0,
+		penalty: $undergroundbrothelhunt.penalty + 5,
+		obedience: -1
+	}>>
+	<<unset $undergroundbrothelhunt>>
+	<<set $undergroundbrothel to {
+		"active": true,
+		"time": 0,
+		"timepass": false,
+		"water": 0,
+		"escape": $undergroundbrothel?.escape ?? 0
+	}>>
+	<<badEndTracking "Underground Dungeon" { reason: "uDungeonContract" }>>
+	<<undress "underground_contract">>
+	<<if !($worn.neck.name is "familiar collar" and $worn.neck.cursed is 1)>>
+		<<neckwear "collar with leash">>
+	<</if>>
+	<<if !$worn.feet.type.includes("shackle")>><<shackle_feet>><</if>>
+<</if>>
+<<endevent>>
+<<undergroundBrothelContractMaster>>
+Someone pulls a hood over your head so you cannot see where you are going. No one speaks during the short car ride.
+<br><br>
+When the car stops, someone walks you into the building and takes off the hood. You are standing in a hallway with numbered doors. Your clothes are in a closed box on the floor next to your feet.
+<br><br>
+Your new <<= _contractMasterTitle>> stands in front of you with a new contract and reads it aloud.
+<br><br>
+"You still have to work the days you missed. I'm adding five more days because you left. You won't get paid for any of them."
+<<He>> slides your work schedule behind the panel on your door and clips it in place.
+"From now on, you call me <<= _contractMasterTitleCap>>."
+<br><br>
+<<link [[Next|Underground Brothel Contract Quarters]]>><</link>>
+<br>

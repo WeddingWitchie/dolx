@@ -2,14 +2,22 @@
 
 <<widget "dungeonescape">>
 	<!-- Every way out of the brothel runs through here, so this is where a contract is torn up. -->
+	<<unset $undergroundbrothelhunt>>
 	<<if $undergroundbrothelcontract>>
 		<<storeon "underground_contract">>
 		<<clearNPC "contract_master">>
 		<<unset $contractWake>>
 		<<if _args[0] isnot "contractServed">>
 			<br>
-			<span class="red">You left the underground brothel before the agreed date. Your contract is void, and you will not be paid for the time you served.</span>
+			You left the underground brothel before the date you agreed to. Your contract is canceled. You will not be paid for the time you worked.
 			<br><br>
+			<span class="red">The brothel will send people after you</span>. Some police officers take money from it. If they find you within a week, they will take you back. You will serve the rest of your time, plus five more days without pay.
+			<br><br>
+			<<set $undergroundbrothelhunt to {
+				"until": Time.days + 7,
+				"remaining": Math.max(1, $undergroundbrothelcontract.end - Time.days),
+				"penalty": $undergroundbrothelcontract.penalty
+			}>>
 		<</if>>
 		<<unset $undergroundbrothelcontract>>
 	<</if>>
@@ -152,4 +160,17 @@
 		"Too bad this is where you ended up. You always did seem like a whore."
 	<</if>>
 	<br><br>
+<</widget>>
+
+/* Once a day while the hunt lasts. Sets _brothelHuntCaught. */
+<<widget "undergroundBrothelHuntRoll">>
+	<<set _brothelHuntCaught to false>>
+	<<if $undergroundbrothelhunt and !$daily.undergroundBrothelHunt>>
+		<<set $daily.undergroundBrothelHunt to 1>>
+		<<if Time.days gt $undergroundbrothelhunt.until or $undergroundbrothelcontract or ($undergroundbrothel and $undergroundbrothel.active)>>
+			<<unset $undergroundbrothelhunt>>
+		<<elseif random(1, 100) lte 15>>
+			<<set _brothelHuntCaught to true>>
+		<</if>>
+	<</if>>
 <</widget>>
