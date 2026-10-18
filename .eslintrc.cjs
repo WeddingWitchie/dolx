@@ -205,6 +205,8 @@ module.exports = {
 		npcMakeNaked: "readonly",
 		npcPregnancyCycle: "readonly",
 		numberOfEarSlime: "readonly",
+		earSlimeThoughts: "readonly",
+		earSlimeNoun: "readonly",
 		ordinalSuffixOf: "readonly",
 		orphanagePlotsPlanted: "readonly",
 		orphanagePlotsWatered: "readonly",

@@ -3588,7 +3588,7 @@ function earSlimeDaily(passageEffects = false) {
 	V.earSlime.growth = Math.clamp(V.earSlime.growth, 0, V.earSlime.focus === "none" ? 50 : 200);
 
 	// Growth Changes
-	if (V.earSlime.growth >= 75 && V.parasite.breasts.name !== "parasite") {
+	if (V.earSlime.growth >= 75 && V.parasite.breasts.name !== "parasite" && !earSlimeThoughts()) {
 		wikifier("parasite", "breasts", "parasite", "noSuck");
 		V.effectsmessage = 1;
 		V.earSlimebreastsParasite = 1;
@@ -3596,8 +3596,9 @@ function earSlimeDaily(passageEffects = false) {
 
 	if (V.earSlime.growth >= 100) {
 		if (
-			(V.earSlime.growth >= 100 && V.player.sex !== "f" && V.parasite.penis.name !== "parasite") ||
-			(V.earSlime.growth >= 100 && V.player.sex === "f" && V.parasite.clit.name !== "parasite")
+			!earSlimeThoughts() &&
+			((V.earSlime.growth >= 100 && V.player.sex !== "f" && V.parasite.penis.name !== "parasite") ||
+				(V.earSlime.growth >= 100 && V.player.sex === "f" && V.parasite.clit.name !== "parasite"))
 		) {
 			if (V.player.sex !== "f") {
 				V.effectsmessage = 1;
@@ -3620,7 +3621,7 @@ function earSlimeDaily(passageEffects = false) {
 		}
 
 		// Breaks chastity gear over time, attempts to equip a chastity parasite if it applies
-		if (!["naked", "chastity parasite"].includes(V.worn.genitals.name) && playerChastity()) {
+		if (!earSlimeThoughts() && !["naked", "chastity parasite"].includes(V.worn.genitals.name) && playerChastity()) {
 			V.worn.genitals.integrity -= 500;
 			if (V.worn.genitals.integrity <= 0) {
 				V.effectsmessage = 1;
@@ -3630,7 +3631,7 @@ function earSlimeDaily(passageEffects = false) {
 			}
 		}
 
-		if (V.earSlime.focus === "pregnancy" && V.player.penisExist) {
+		if (V.earSlime.focus === "pregnancy" && V.player.penisExist && !earSlimeThoughts()) {
 			if (V.worn.genitals.name === "naked" && !V.masturbating) {
 				// Equips a chastity parasite
 				V.effectsmessage = 1;

@@ -62,7 +62,7 @@ function masturbationEffects() {
 	if (V.corruptionMasturbation) {
 		if (pcAreArmsBound("both")) {
 			sWikifier(
-				'The slime in your ear makes you fight against the binds around your arms. You make no progress, <span class="blue">and it gives up.</span><<arousal 600 "masturbation">><<stress 6>><<gstress>><<garousal>>'
+				`The ${earSlimeNoun()} in your ear makes you fight against the binds around your arms. You make no progress, <span class="blue">and it gives up.</span><<arousal 600 "masturbation">><<stress 6>><<gstress>><<garousal>>`
 			);
 			fragment.append(" ");
 			V.rightaction = "mrest";
@@ -74,14 +74,14 @@ function masturbationEffects() {
 			(playerHeatMinArousal() + playerRutMinArousal() >= 1000 && V.earSlime.growth >= 100 && V.earSlime.defyCooldown)
 		) {
 			sWikifier(
-				'The slime in your ear feel it\'s not worth trying to force you to masturbate in your current state, <span class="blue">and it lets you go.</span>'
+				`The ${earSlimeNoun()} in your ear feel it's not worth trying to force you to masturbate in your current state, <span class="blue">and it lets you go.</span>`
 			);
 			fragment.append(" ");
 			V.corruptionMasturbation = false;
 			delete V.corruptionMasturbationCount;
 		} else if (playerCannotSelfClimax()) {
 			sWikifier(
-				`The slime in your ears gets frustrated as it notices that, despite its best effort, you're unable to cum. And making no progress, <span class="blue">it gives up.</span><<arousal 600 "masturbation">><<pain 4>><<stress 6>><<gstress>><<gpain>>`
+				`The ${earSlimeNoun()} in your ears gets frustrated as it notices that, despite its best effort, you're unable to cum. And making no progress, <span class="blue">it gives up.</span><<arousal 600 "masturbation">><<pain 4>><<stress 6>><<gstress>><<gpain>>`
 			);
 			fragment.append(" ");
 			V.corruptionMasturbation = false;
@@ -99,7 +99,7 @@ function masturbationEffects() {
 						// Prevents the PC from continuing actions that they normally are unable to do yet
 						if (V.mouth === "mpenis") {
 							sWikifier(
-								'<span class="green">With the loss of the control from the slime in your ear, you remove your <<penis>> from your mouth and move away.</span>'
+								`<span class="green">With the loss of the control from the ${earSlimeNoun()} in your ear, you remove your <<penis>> from your mouth and move away.</span>`
 							);
 							fragment.append(" ");
 							V.mouthactiondefault = "rest";
@@ -107,21 +107,23 @@ function masturbationEffects() {
 							V.mouth = 0;
 							V.penisuse = 0;
 						} else if (V.mouth === "mpenisentrance") {
-							sWikifier('<span class="green">With the loss of the control from the slime in your ear, you move away from your <<penis>>.</span>');
+							sWikifier(`<span class="green">With the loss of the control from the ${earSlimeNoun()} in your ear, you move away from your <<penis>>.</span>`);
 							fragment.append(" ");
 							V.mouthactiondefault = "rest";
 							V.mouthaction = 0;
 							V.mouth = 0;
 							V.penisuse = 0;
 						} else if (V.mouth === "mchastityparasiteentrance") {
-							sWikifier('<span class="green">With the loss of the control from the slime in your ear, you move away from your chastity parasite.</span>');
+							sWikifier(
+								`<span class="green">With the loss of the control from the ${earSlimeNoun()} in your ear, you move away from your chastity parasite.</span>`
+							);
 							fragment.append(" ");
 							V.mouthactiondefault = "rest";
 							V.mouthaction = 0;
 							V.mouth = 0;
 							V.penisuse = 0;
 						} else if (V.mouth === "mvaginaentrance") {
-							sWikifier('<span class="green">With the loss of the control from the slime in your ear, you move away from your <<pussy>>.</span>');
+							sWikifier(`<span class="green">With the loss of the control from the ${earSlimeNoun()} in your ear, you move away from your <<pussy>>.</span>`);
 							fragment.append(" ");
 							V.mouthactiondefault = "rest";
 							V.mouthaction = 0;
@@ -129,10 +131,12 @@ function masturbationEffects() {
 						} else if (V.mouth === "mbreast" || V.leftarm === "mbreasthold" || V.rightarm === "mbreasthold") {
 							if (V.mouth === "mbreast") {
 								sWikifier(
-									'<span class="green">With the loss of the control from the slime in your ear, you move your mouth away from your <<breasts>>.</span>'
+									`<span class="green">With the loss of the control from the ${earSlimeNoun()} in your ear, you move your mouth away from your <<breasts>>.</span>`
 								);
 							} else {
-								sWikifier('<span class="green">With the loss of the control from the slime in your ear, you stop squeezing your <<breasts>>.</span>');
+								sWikifier(
+									`<span class="green">With the loss of the control from the ${earSlimeNoun()} in your ear, you stop squeezing your <<breasts>>.</span>`
+								);
 							}
 							fragment.append(" ");
 							if (V.mouth === "mbreast") {
@@ -290,7 +294,7 @@ function masturbationEffects() {
 	) {
 		V.corruptionMasturbation = true;
 		V.corruptionMasturbationCount = random(1, 4);
-		fragment.append(span("The slime in your ear decides that it wants you to have more fun.", "red"));
+		fragment.append(span(`The ${earSlimeNoun()} in your ear decides that it wants you to have more fun.`, "red"));
 		fragment.append(" ");
 	}
 
@@ -343,7 +347,7 @@ function masturbationEffectsArms(
 		) {
 			V.corruptionMasturbation = true;
 			V.corruptionMasturbationCount = random(2, 6);
-			fragment.append(span("The slime in your ear decides that it will continue for you.", "red"));
+			fragment.append(span(`The ${earSlimeNoun()} in your ear decides that it will continue for you.`, "red"));
 			fragment.append(" ");
 			clearAction(0);
 		} else {
@@ -3034,7 +3038,7 @@ function masturbationEffectsMouth({
 				if (V.awareness < 200 && V.corruptionMasturbation) {
 					wikifier("awareness", 1);
 					sWikifier(
-						`<span class="red">The slime in your ear forces you to bend down. You're not sure if you're going to like what's coming.</span><<gawareness>>`
+						`<span class="red">The ${earSlimeNoun()} in your ear forces you to bend down. You're not sure if you're going to like what's coming.</span><<gawareness>>`
 					);
 					fragment.append(" ");
 				}
@@ -3060,7 +3064,7 @@ function masturbationEffectsMouth({
 				if (V.awareness < 200 && V.corruptionMasturbation) {
 					wikifier("awareness", 1);
 					sWikifier(
-						`<span class="red">The slime in your ear forces you to bend down. You're not sure if you're going to like what's coming.</span><<gawareness>>`
+						`<span class="red">The ${earSlimeNoun()} in your ear forces you to bend down. You're not sure if you're going to like what's coming.</span><<gawareness>>`
 					);
 					fragment.append(" ");
 				}
@@ -3328,7 +3332,7 @@ function masturbationEffectsMouth({
 				if (V.awareness < 200 && V.corruptionMasturbation) {
 					wikifier("awareness", 1);
 					sWikifier(
-						`<span class="red">The slime in your ear forces you to bend down. You're not sure if you're going to like what's coming.</span><<gawareness>>`
+						`<span class="red">The ${earSlimeNoun()} in your ear forces you to bend down. You're not sure if you're going to like what's coming.</span><<gawareness>>`
 					);
 					fragment.append(" ");
 				}

@@ -1079,7 +1079,7 @@ window.isNumber = isNumber;
 
 function pillTimerPaused() {
 	const pregnancy = xchangePregnancyBlocksPill();
-	const earSlimeHasGrown = V.earSlime.growth > 50;
+	const earSlimeHasGrown = !earSlimeThoughts() && V.earSlime.growth > 50;
 	return V.xchange.pillPermanence !== 1 && (pregnancy || earSlimeHasGrown);
 }
 window.pillTimerPaused = pillTimerPaused;
@@ -1655,7 +1655,7 @@ function xchangeHourlyCheck(hours = 1) {
 
 			// If pregnancy or a pregnancy-enabling parasite locks the body, the change becomes permanent.
 			const pregnancy = xchangePregnancyBlocksPill();
-			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (pregnancy || V.earSlime.growth > 50))
+			if (V.xchange.pillPermanence === 1 && !pillIsPermanent() && (pregnancy || (!earSlimeThoughts() && V.earSlime.growth > 50)))
 				wikifier("xchange-setpermanent", V.earSlime.growth > 50 && !pregnancy ? "parasite" : "pregnancy");
 
 			if (pill.innocenceEffect && (V.innocencestate !== 1 || V.awareness >= 0)) {

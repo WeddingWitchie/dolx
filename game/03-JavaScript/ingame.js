@@ -3331,6 +3331,18 @@ function numberOfEarSlime(ignoreHypnoticSilence = false) {
 }
 window.numberOfEarSlime = numberOfEarSlime;
 
+/** Ear slimes shown as hypnotically planted intrusive thoughts instead of a parasite. */
+function earSlimeThoughts() {
+	return !!V.settings.earSlimeThoughts;
+}
+window.earSlimeThoughts = earSlimeThoughts;
+
+/** "slime" or "voice", for ear slime text built in JS. */
+function earSlimeNoun() {
+	return earSlimeThoughts() ? "voice" : "slime";
+}
+window.earSlimeNoun = earSlimeNoun;
+
 function earSlimeMakingMundaneRequests() {
 	if (!numberOfEarSlime()) return false;
 	// First rape requests

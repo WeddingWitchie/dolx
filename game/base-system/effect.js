@@ -706,6 +706,14 @@ function effects() {
 					case "devotion":
 						sWikifier("<<gwylanHypnosis 'devotion' -1>>");
 						break;
+					case "intrusive_planted":
+						sWikifier(
+							numberOfEarSlime() >= 2
+								? '<span class="lewd">A second voice settles in beside the first. The two of them murmur back and forth about what you should do.</span>'
+								: `<span class="lewd">Something from the trance stays with you: a quiet voice at the back of your mind, suggesting lewd things. It doesn't feel like your own, and it doesn't go away.</span>` +
+										(V.earSlime.corruption ? "" : "<br><i>A corruption bar has appeared in the Characteristics tab.</i>")
+						);
+						break;
 					case "peace":
 						sWikifier('<span class="purple">A familiar uncertainty fills your being. Your Hypnotic Peace has faded.</span>');
 						delete V.hypnosis_traits[trait];
@@ -1605,7 +1613,7 @@ function effects() {
 		if (V.earSlime.event.includes("get sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(
 				"span",
-				`The slime in your ear is pleased that you completed its task of getting sperm into your ${V.player.vaginaExist ? "vagina" : "anus"}.`,
+				`The ${earSlimeNoun()} in your ear is pleased that you completed its task of getting sperm into your ${V.player.vaginaExist ? "vagina" : "anus"}.`,
 				"green"
 			);
 			sWikifier(`<<pain -4>><<stress -6>><<trauma -12>><<lpain>><<lltrauma>><<lstress>>`);
@@ -1614,11 +1622,13 @@ function effects() {
 		} else if (V.earSlime.event.includes("get your own sperm into your") && V.earSlime.event.includes("completed") && V.earSlime.eventTimer <= 2) {
 			element(
 				"span",
-				`The slime in your ear is pleased that you completed its task of getting your own sperm into your ${V.player.vaginaExist ? "vagina" : "anus"}.`,
+				`The ${earSlimeNoun()} in your ear is pleased that you completed its task of getting your own sperm into your ${
+					V.player.vaginaExist ? "vagina" : "anus"
+				}.`,
 				"green"
 			);
 			sWikifier(`<<pain -4>><<stress -6>><<trauma -12>><<lpain>><<lltrauma>><<lstress>>`);
-			if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy" && V.worn.genitals.name === "naked") {
+			if (V.earSlime.growth >= 100 && V.earSlime.focus === "pregnancy" && V.worn.genitals.name === "naked" && !earSlimeThoughts()) {
 				sWikifier(`<span class="purple">A new chastity parasite forms around your penis.</span> <<genitalswear "chastity parasite">>`);
 				V.worn.genitals.origin = "ear slime";
 			}
@@ -1626,11 +1636,11 @@ function effects() {
 			V.earSlime.event = "";
 		} else if (V.earSlime.eventTimer <= 2 || (V.earSlime.noSleep && Time.dayState !== "night")) {
 			if (V.earSlime.startedThreats) {
-				element("span", "The slime in your ear punishes you for failing to complete your task.", "red");
+				element("span", `The ${earSlimeNoun()} in your ear punishes you for failing to complete your task.`, "red");
 				sWikifier(`<<ggpain>><<ggtrauma>><<ggstress>><<pain 16>><<stress 12>><<trauma 12>>`);
 				V.earSlime.defyCooldown += 4;
 			} else {
-				element("span", "The slime in your ear is upset you were unable to complete what you said you would do.", "cyan");
+				element("span", `The ${earSlimeNoun()} in your ear is upset you were unable to complete what you said you would do.`, "cyan");
 			}
 			br();
 			V.earSlime.event = "";

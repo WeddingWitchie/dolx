@@ -533,7 +533,7 @@
 				},
 				{
 					name: () => {
-						return "Ear slime focus: " + $earSlime.focus;
+						return (earSlimeThoughts() ? "Inner voice focus: " : "Ear slime focus: ") + $earSlime.focus;
 					},
 					colour: "lewd",
 					has: $earSlime.focus and $earSlime.focus isnot "none",
@@ -541,13 +541,13 @@
 						let result;
 						switch ($earSlime.focus) {
 							case "pregnancy":
-								result = "You chose the path of pregnancy, causing the ear slime to amplify traits related to becoming pregnant, while weakening other traits.";
+								result = `You chose the path of pregnancy, causing the ${earSlimeThoughts() ? "voice in your head" : "ear slime"} to amplify traits related to becoming pregnant, while weakening other traits.`;
 								break;
 							case "mixed":
-								result = "You chose to walk the path between pregnancy and impregnation, causing the ear slime to amplify traits related to both, to a lesser degree.";
+								result = `You chose to walk the path between pregnancy and impregnation, causing the ${earSlimeThoughts() ? "voices in your head" : "ear slime"} to amplify traits related to both, to a lesser degree.`;
 								break;
 							case "impregnation":
-								result = "You chose the path of impregnation, causing the ear slime to amplify traits related to impregnating others, while weakening other traits.";
+								result = `You chose the path of impregnation, causing the ${earSlimeThoughts() ? "voice in your head" : "ear slime"} to amplify traits related to impregnating others, while weakening other traits.`;
 								break;
 						}
 						let parasites = [];
@@ -1367,7 +1367,7 @@
 						let duration = "";
 						const pregnancyPauseKnown =
 							playerAwareTheyArePregnant() || xchangeParasitesBlockPill();
-						const visibleTimerPause = pillTimerPaused() && (pregnancyPauseKnown || V.earSlime.growth > 50);
+						const visibleTimerPause = pillTimerPaused() && (pregnancyPauseKnown || (!earSlimeThoughts() && V.earSlime.growth > 50));
 						if ((visibleTimerPause || pillIsPermanent() || V.xchange.pill.choiceEffect) && !wondersAboutPillEnd()) {
 							duration = `<mouse class="tooltip">Indefinite<span class="lblue">`;
 
@@ -1377,7 +1377,7 @@
 							else {
 								if (pregnancyPauseKnown)
 									duration += `Your transformation cannot end while your pregnancy runs its course. `;
-								if (V.earSlime.growth > 50)
+								if (!earSlimeThoughts() && V.earSlime.growth > 50)
 									duration += `A slime is interfering with your genitals. The pill cannot revert itself until the parasite is removed. `;
 								if (V.xchange.pill.choiceEffect)
 									duration += `You're under a Choice pill. The effect will last until a Choice Reversal pill is taken.`;
@@ -2730,7 +2730,7 @@
 					name: "Hypnotic Silence",
 					colour: "purple",
 					has: V.hypnosis_traits.silence gte 1,
-					text: "Your thoughts are solitary and tranquil. Ear slimes are temporarily silenced.",
+					text: `Your thoughts are solitary and tranquil. ${earSlimeThoughts() ? "The voices in your head are" : "Ear slimes are"} temporarily silenced.`,
 					meter: {
 						has: V.hypnosisTimers.silence,
 						hide: V.hypnosis_traits.devotion >= 5,

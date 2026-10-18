@@ -1504,6 +1504,7 @@ function settingsObjects(type) {
 					analDoubleEnabled: { bool: true, displayName: "Double Anal:" },
 					vaginalDoubleEnabled: { bool: true, displayName: "Double Vaginal:" },
 					earSlimesEnabled: { bool: true, displayName: "Ear slimes:" },
+					earSlimeThoughts: { bool: true, displayName: "Ear slimes appear as intrusive thoughts:" },
 					allureModifier: { min: 0.2, max: 2, decimals: 1, displayName: "Encounter rate:", randomize: "gameplay" },
 					allureIgnoresFame: { bool: true, displayName: "Allure ignores fame:" },
 					facesitEnabled: { bool: true, displayName: "Facesitting:" },
