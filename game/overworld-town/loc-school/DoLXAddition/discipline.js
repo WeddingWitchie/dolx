@@ -70,6 +70,8 @@ window.schoolSuspended = schoolSuspended;
 /* A repeat offender has to be signed in by the head before a teacher will admit them late. */
 function schoolLateSlipRequired() {
 	if (V.delinquency < setup.schoolDiscipline.slipThreshold) return false;
+	/* Only once the PC has actually been late twice already this week, not on delinquency alone. */
+	if ((V.weekly?.schoolLates || 0) < 2) return false;
 	if (V.daily?.school?.lateSlip) return false;
 	/* Leighton has to be at the school to sign anything. */
 	if (V.pillory?.tenant?.special?.name === "Leighton") return false;
