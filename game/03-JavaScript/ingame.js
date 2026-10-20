@@ -1533,7 +1533,7 @@ function drinkWatchDifficulty() {
 	difficulty += Math.clamp(effectiveDrunk() / 480, 0, 1) * 500;
 	difficulty += Math.clamp((Number(V.drugged) || 0) / 2, 0, 150);
 	difficulty -= Math.clamp((Number(V.awareness) || 0) / 10, 0, 100);
-	if (typeof window.pcIsBlinded === "function" && window.pcIsBlinded()) difficulty += 200;
+	if (typeof window.pcIsBlinded === "function" && window.pcIsBlinded()) difficulty += 200 * (1 - window.blindAdaptationStrength());
 	return Math.round(Math.clamp(difficulty, 100, 1500));
 }
 window.drinkWatchDifficulty = drinkWatchDifficulty;

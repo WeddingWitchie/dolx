@@ -5679,6 +5679,7 @@ function genlayer_clothing_main(slot, overrideOptions) {
 		},
 		srcfn(options) {
 			const setup = options.worn[slot].setup;
+			if (setup.sharedImage) return setup.sharedImage;
 			const folder = clothesImgFolder(slot, options.worn[slot].setup);
 
 			const isHoodDown = options.hood_down

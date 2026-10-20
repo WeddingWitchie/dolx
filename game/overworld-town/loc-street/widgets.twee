@@ -634,7 +634,15 @@
 		<<link [[Next|Wraith Stalk]]>><<set $molestationstart to 1>><</link>>
 	<<else>>
 		<<generate1>><<person1>>
-		<<link [[Next|Street Stalk]]>><<set $molestationstart to 1>><</link>>
+		<<if pcEyesCovered() and blindAdaptationStrength() >= 1>>
+			You start walking faster, but the person following you does the same.
+			<br><br>
+			You know this area well, so you could try running away without worrying about getting lost.
+			<br><br>
+			<<link [[Run|Street Stalk Run]]>><<set $molestationstart to 1>><</link>>
+		<<else>>
+			<<link [[Next|Street Stalk]]>><<set $molestationstart to 1>><</link>>
+		<</if>>
 	<</if>>
 
 	<br>
@@ -3595,7 +3603,7 @@
 
 			/* Same probability regardless of time of day */
 			<<addevent "streetCatcall" 1.2>>
-			<<addevent "streetSoloStalk" 1>>
+			<<addevent "streetSoloStalk" `(pcEyesCovered() ? (blindAdaptationStrength() >= 1 ? 5 : 2) : 1)`>>
 			<<addevent "streetMoneyProposition" 1>>
 			<<addevent "streetClothingTorn" 0.5>>
 			<<addevent "streetFlirt" 1>>
@@ -4255,9 +4263,13 @@
 			<<wHunt "town">>
 		<<elseif $wraith.hunt>>
 			<<wHunt "town">>
-		<<elseif $kylar and $kylar.timer.street gte ($rng + 65) and (!$kylar.timer.streetCooldown or $kylar.timer.streetCooldown lte Time.date.timeStamp) and C.npc.Kylar.state is "active" and $kylarwatched isnot 1 and $exposed lte 0 and _kylarLocation.area isnot $location and _kylarStatus.includes("Love")>>
+		<<elseif $kylar and $kylar.timer.street gte ($rng + (pcEyesCovered() and C.npc.Kylar.love gte 50 ? 30 : 65)) and (!$kylar.timer.streetCooldown or $kylar.timer.streetCooldown lte Time.date.timeStamp) and C.npc.Kylar.state is "active" and $kylarwatched isnot 1 and $exposed lte 0 and _kylarLocation.area isnot $location and _kylarStatus.includes("Love")>>
 			<<set $kylar.timer.street to 0>><<set $kylar.timer.streetCooldown to new DateTime(Time.date).addHours(5).timeStamp>><<set $kylarwatchedtimer to 2>>
-			You hear some steps behind you. <span class="blue">You turn around, but find nothing.</span>
+			<<if pcEyesCovered() and C.npc.Kylar.love gte 50>>
+				"Y-you shouldn't walk around like that alone." Kylar's voice comes from behind you. "I'll keep an eye out. You won't even know I'm here."
+			<<else>>
+				You hear some steps behind you. <span class="blue">You turn around, but find nothing.</span>
+			<</if>>
 			<<set $kylarwatched to 1>><<set $eventskip to 1>>
 		<<elseif $kylarwatched is 1>>
 			<<if $exposed gte 1 or C.npc.Kylar.state isnot "active" or $kylarwatchedtimer lte 0 or _kylarLocation.area is $location>>

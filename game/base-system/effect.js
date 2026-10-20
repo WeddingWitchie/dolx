@@ -1669,6 +1669,9 @@ function effects() {
 		V.timeMessages.forEach(messageKey => {
 			let display;
 			switch (messageKey) {
+				case "blindAdaptation":
+					element("span", "Sound, scent, and touch now tell you where things are even with your eyes covered. You have gained Adaptability.", "green");
+					break;
 				case "feats":
 					display = earnHourlyFeats();
 					if (display) fragment.append(display);

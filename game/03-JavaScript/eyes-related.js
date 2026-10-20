@@ -270,12 +270,12 @@ window.defineCustomEyeColourStyle = function () {
 };
 
 /*
-	Central check for whether the player can see.
+	Physical eye covering, including after the player has adapted.
 
 	The player is blinded by a blindfold, or by the sleeping mask when it is pulled down.
-	New content should use this check instead of checking for "blindfold" directly.
+	Use pcIsBlinded() to check whether the covering still prevents navigation.
 */
-function pcIsBlinded() {
+function pcEyesCovered() {
 	const face = V.worn?.face;
 	if (!face || !Array.isArray(face.type)) return false;
 	/* A blindfold torn off in combat leaves the item behind but stops covering anything. */
@@ -284,7 +284,47 @@ function pcIsBlinded() {
 	if (face.variable === "sleeping mask" && face.altposition === "alt") return true;
 	return false;
 }
+window.pcEyesCovered = pcEyesCovered;
+
+function blindAdaptationStrength() {
+	return Math.min(1, (V.blindAdaptation?.minutes ?? 0) / 10080);
+}
+window.blindAdaptationStrength = blindAdaptationStrength;
+
+function blindSkillFailureChance() {
+	return pcEyesCovered() ? Math.ceil(30 * (1 - blindAdaptationStrength())) : 0;
+}
+window.blindSkillFailureChance = blindSkillFailureChance;
+
+function pcIsBlinded() {
+	return pcEyesCovered() && blindAdaptationStrength() < 1;
+}
 window.pcIsBlinded = pcIsBlinded;
+
+function blindAdaptationTimePassed(minutes) {
+	if (minutes <= 0 || V.statFreeze) return;
+	const covered = pcEyesCovered();
+	if (!covered && (!V.blindAdaptation || V.blindAdaptation.minutes === 0 || V.hypnosis_traits?.adaptability)) return;
+	V.blindAdaptation ??= { minutes: 0 };
+	const state = V.blindAdaptation;
+	let senses = 0;
+	for (const animal of ["wolf", "bear", "cat", "fox", "bunny", "waterdragon", "bird", "cow"]) {
+		if (Transformations.effectiveLevel(animal) >= 2) senses++;
+	}
+	if (covered) {
+		const before = state.minutes;
+		state.minutes = Math.min(10080, state.minutes + minutes * (1 + senses * 0.25));
+		if (before < 10080 && state.minutes === 10080) {
+			V.timeMessages ??= [];
+			V.timeMessages.pushUnique("blindAdaptation");
+		}
+		if (Transformations.effectiveLevel("bird") >= 2 || Transformations.effectiveLevel("cow") >= 2) statChange.stress(-minutes / 60);
+		if (V.backgroundTraits.includes("insanity") && !V.insanityPermanent) statChange.trauma(-minutes / 1440);
+	} else {
+		state.minutes = Math.max(0, state.minutes - minutes / (1 + senses * 0.25));
+	}
+}
+window.blindAdaptationTimePassed = blindAdaptationTimePassed;
 
 /*
 	True only when the player chose removable darkness, not when it was forced on them.
@@ -309,6 +349,6 @@ function blindSexMultiplier(skillName) {
 	if (skillName && typeof currentSkillValue === "function") {
 		skill = Math.clamp(currentSkillValue(skillName) / 1000, 0, 1);
 	}
-	return 1 - penalty * (1 - skill * 0.5);
+	return 1 - penalty * (1 - skill * 0.5) * (1 - blindAdaptationStrength());
 }
 window.blindSexMultiplier = blindSexMultiplier;

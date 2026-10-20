@@ -1512,6 +1512,7 @@ function hourPassed(hours, advanceFirst) {
 }
 
 function minutePassed(minutes) {
+	window.blindAdaptationTimePassed(minutes);
 	// Stress
 	// decay/rise and crossdresser trait
 	const isCrossdresser = !V.statFreeze && V.backgroundTraits.includes("crossdresser");

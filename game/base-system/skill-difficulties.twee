@@ -140,7 +140,7 @@
 	<<set _skulduggeryDifficulty to foxSkulduggeryDifficulty($skulduggerydifficulty)>>
 	<<set $skulduggerysuccess to (random(101, 1100) >= 200 * Math.floor((_skulduggeryDifficulty - currentSkillValue('skulduggery')) / 100)) ? 1 : 0>>
 
-	<<if Math.clamp(($temple_burden or 0) + bloatedSkillPenalty(), 0, 100) gte random(1, 100)>>
+	<<if Math.clamp(($temple_burden or 0) + bloatedSkillPenalty() + blindSkillFailureChance(), 0, 100) gte random(1, 100)>>
 		<<set $skulduggerysuccess to 0>>
 	<</if>>
 
@@ -415,6 +415,9 @@
 		<</if>>
 		<<if !$settings.blindStatsEnabled>>
 			<<set _difficulty to Math.round(Math.clamp(($_skill - _skilldifficultymin) / (_skilldifficultymax - _skilldifficultymin), 0, 1) * 100)>>
+			<<if blindSkillFailureChance() gt 0>>
+				<<set _difficulty to Math.round(_difficulty * (1 - Math.clamp(($temple_burden or 0) + bloatedSkillPenalty() + blindSkillFailureChance(), 0, 100) / 100))>>
+			<</if>>
 			<<if _difficulty gt 100>>
 				<<set _difficulty to 100>>
 			<</if>>
@@ -441,7 +444,7 @@
 				<</if>>
 			<</if>>
 		<</if>>
-		<<if Math.clamp(($temple_burden or 0) + bloatedSkillPenalty(), 0, 100) gte random(1, 100)>>
+		<<if Math.clamp(($temple_burden or 0) + bloatedSkillPenalty() + blindSkillFailureChance(), 0, 100) gte random(1, 100)>>
 			<<set $_skill to 0>>
 		<</if>>
 		<!--

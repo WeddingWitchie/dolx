@@ -14,6 +14,35 @@
 			title: "General Traits",
 			traits: [
 				{
+					name: "Fumbling in the dark",
+					colour: "red",
+					has: blindSkillFailureChance() > 0,
+					text: () => "Your covered eyes give skill checks a " + blindSkillFailureChance() + "% chance to fail as you fumble without sight. Building Adaptability gradually removes this chance.",
+				},
+				{
+					name: "Adaptability",
+					colour: "green",
+					has: blindAdaptationStrength() > 0,
+					text: () => {
+						const text = ["Practice without sight: " + Math.floor(blindAdaptationStrength() * 100) + "%. Full adaptation removes blindness penalties."];
+						if (V.hypnosis_traits.adaptability) {
+							text.push("Hypnotic Adaptability stops this progress from fading.");
+						} else {
+							if (blindAdaptationStrength() < 1) text.push("Training takes seven days with covered eyes.");
+							text.push("Progress fades while your eyes are uncovered.");
+							const senses = [
+								["wolf", "wolf scent"], ["bear", "bear scent"], ["cat", "cat reflexes"],
+								["fox", "fox hearing"], ["bunny", "bunny hearing"], ["waterdragon", "water dragon echoes"],
+								["bird", "harpy calm"], ["cow", "cow calm"]
+							].filter(([animal]) => Transformations.effectiveLevel(animal) >= 2).map(([, sense]) => sense);
+							if (senses.length) text.push("Bonuses from " + senses.join(", ") + ": faster training and slower decay (+25% each).");
+						}
+						if (Transformations.effectiveLevel("bird") >= 2 || Transformations.effectiveLevel("cow") >= 2) text.push("Covered eyes also ease stress.");
+						if (V.backgroundTraits.includes("insanity") && !V.insanityPermanent) text.push("Covered eyes slowly ease trauma from acquired Insanity.");
+						return text.join(" ");
+					},
+				},
+				{
 					name: "Virgin",
 					colour: "green",
 					has: playerCountsAsVirgin(),
@@ -2778,6 +2807,19 @@
 						value: V.hypnosisTimers.clarity?.time,
 						max: V.hypnosisTimers.clarity?.max,
 						colour: "bluebar glowbar",
+					},
+				},
+				{
+					name: "Hypnotic Adaptability",
+					colour: "green",
+					has: V.hypnosis_traits.adaptability gte 1,
+					text: "Your Adaptability does not fade while your eyes are uncovered.",
+					meter: {
+						has: V.hypnosisTimers.adaptability,
+						hide: V.hypnosis_traits.devotion >= 5,
+						value: V.hypnosisTimers.adaptability?.time,
+						max: V.hypnosisTimers.adaptability?.max,
+						colour: "greenbar glowbar",
 					},
 				},
 			],
