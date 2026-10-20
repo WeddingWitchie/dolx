@@ -3217,27 +3217,28 @@ function dailyFarmEvents() {
 				V.farm.stock.cream = Math.trunc(V.farm.stock.cream * 0.8);
 			}
 		}
+		// Passive pig respect loss stops at -20; only encounters can push it lower.
 		if (V.farm.woodland >= 7) {
 			wikifier("farm_stock", "truffles", 192, 384);
-			wikifier("farm_pigs", -4);
+			wikifier("farm_pigs", -Math.min(3.2, Math.max(0, V.farm.beasts.pigs + 20)));
 		} else if (V.farm.woodland >= 6) {
 			wikifier("farm_stock", "truffles", 96, 192);
-			wikifier("farm_pigs", -3);
+			wikifier("farm_pigs", -Math.min(2.4, Math.max(0, V.farm.beasts.pigs + 20)));
 		} else if (V.farm.woodland >= 5) {
 			wikifier("farm_stock", "truffles", 48, 96);
-			wikifier("farm_pigs", -3);
+			wikifier("farm_pigs", -Math.min(2.4, Math.max(0, V.farm.beasts.pigs + 20)));
 		} else if (V.farm.woodland >= 4) {
 			wikifier("farm_stock", "truffles", 24, 48);
-			wikifier("farm_pigs", -2);
+			wikifier("farm_pigs", -Math.min(1.6, Math.max(0, V.farm.beasts.pigs + 20)));
 		} else if (V.farm.woodland >= 3) {
 			wikifier("farm_stock", "truffles", 12, 24);
-			wikifier("farm_pigs", -2);
+			wikifier("farm_pigs", -Math.min(1.6, Math.max(0, V.farm.beasts.pigs + 20)));
 		} else if (V.farm.woodland >= 2) {
 			wikifier("farm_stock", "truffles", 6, 12);
-			wikifier("farm_pigs", -1);
+			wikifier("farm_pigs", -Math.min(0.8, Math.max(0, V.farm.beasts.pigs + 20)));
 		} else if (V.farm.woodland >= 1) {
 			wikifier("farm_stock", "truffles", 3, 6);
-			wikifier("farm_pigs", -1);
+			wikifier("farm_pigs", -Math.min(0.8, Math.max(0, V.farm.beasts.pigs + 20)));
 		}
 		if (V.farm.barn >= 7) {
 			wikifier("farm_stock", "milk", 1280, 2560);
@@ -3282,8 +3283,8 @@ function dailyFarmEvents() {
 			 *
 			 * Probably too political for DOL, though.
 			 */
-			wikifier("farm_dogs", -1);
-			wikifier("farm_cattle", -1);
+			wikifier("farm_dogs", -0.8);
+			wikifier("farm_cattle", -0.8);
 		}
 		wikifier("farm_build_day");
 		if (V.farm.compostbin >= 1) {
