@@ -173,6 +173,8 @@ You are in the Ocean Breeze Cafe.
 		<<orgasmLocation "cafe">>
 	<</if>>
 
+	<<kylarCafePresence>>
+
 	<<if Time.openingHours() and $exposed lt 1 and $oceanbreezejob isnot 1>>
 		<<if $oceanbreezejoboffer is 1>>
 			<<socialiseicon "ask">><<link [[Ask for work|Ocean Breeze Ask Again]]>><</link>>
@@ -184,6 +186,9 @@ You are in the Ocean Breeze Cafe.
 	<</if>>
 
 	<<if Time.openingHours() and $exposed lt 1 and $oceanbreezejob is 1>>
+		<<if kylarCafeAvailable() and $daily.kylarCafe is undefined>>
+			<<set $daily.kylarCafe to $kylar.cafeVisitDay is Time.date.midnight.timeStamp or random(1, 4) is 1 ? "pending" : "absent">>
+		<</if>>
 		You see Sam attending to the customers. <<nnpc_He "Sam">> looks like <<nnpc_he "Sam">> could use some help.
 		<br>
 		<<if $chef_state is 0>>
@@ -193,7 +198,7 @@ You are in the Ocean Breeze Cafe.
 			<<if pcAreArmsBound("both")>>
 				<span class="red">Both of your arms are bound</span>, so you are unable to work as a chef.
 			<<else>>
-				<<skinicon "chef">><<link [[Work as a chef (1:00)|Chef Work]]>><</link>>
+				<<skinicon "chef">><<link "Work as a chef (1:00)" `kylarCafeAvailable() && $daily.kylarCafe === "pending" ? "Kylar Cafe Visit Chef" : "Chef Work"`>><<unset $kylar_action>><</link>>
 			<</if>>
 			<br>
 		<</if>>
@@ -204,7 +209,7 @@ You are in the Ocean Breeze Cafe.
 		<<if pcAreArmsBound("both")>>
 			<span class="red">Both of your arms are bound</span>, so you are unable to work as a <<pwaitress>>.
 		<<else>>
-			<<skinicon "waiter">><<link [[`Work as a <<pwaitress>> (1:00)`|Ocean Breeze Work]]>><<set $tablesservedstat += random(10,30)>><</link>>
+			<<skinicon "waiter">><<link "Work as a <<pwaitress>> (1:00)" `kylarCafeAvailable() && $daily.kylarCafe === "pending" ? "Kylar Cafe Visit" : "Ocean Breeze Work"`>><<unset $kylar_action>><<set $tablesservedstat += random(10,30)>><</link>>
 		<</if>>
 		<br>
 	<</if>>

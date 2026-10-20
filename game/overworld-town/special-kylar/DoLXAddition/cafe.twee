@@ -1,0 +1,127 @@
+:: Kylar Cafe Widgets [widget]
+<<widget "kylarCafePresence">>
+	<<if $daily.kylarCafe is "visiting">>
+		<<if C.npc.Kylar.state isnot "active">>
+			<<set $daily.kylarCafe to "left">>
+		<<elseif Time.dayState isnot "day">>
+			<<set $daily.kylarCafe to "left">>
+			<<endevent>><<npc Kylar>><<person1>>
+			Kylar checks the time on <<his>> watch and looks towards the door. "I need to go. They're waiting for me."
+			<br><br>
+			Before leaving, <<he>> looks at you one last time, then quickly walks outside.
+			<br><br>
+		<<elseif !kylarCafeAvailable()>>
+			<<set $daily.kylarCafe to "left">>
+		<<elseif $exposed lt 1 and getKylarLocation().area is "cafe">>
+			<<endevent>><<npc Kylar>><<person1>>
+			Kylar is sitting near the counter, drinking from a cup. When you look at <<him>>, <<he>> lowers the cup and smiles at you.
+			<br>
+			<<if !$daily.kylarCafeDate and kylarCafeAvailable(30) and setup.inflation.canAfford(400, "cafe")>>
+				<<socialiseicon>><<link [[Have coffee with Kylar (0:30 <<printprice 400>>)|Kylar Cafe Date]]>><<set $daily.kylarCafeDate to true>><<set $dateCount.Total++>><<set $dateCount.Kylar++>><<money -400 "cafe">><</link>>
+				<br>
+			<</if>>
+		<</if>>
+	<</if>>
+<</widget>>
+
+:: Kylar Cafe Visit
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<set $daily.kylarCafe to "visiting">>
+<<endevent>><<npc Kylar>><<person1>>
+As you begin working, Kylar comes through the door. You look up when <<he>> enters, and <<he>> stops walking as soon as <<he>> sees you. <<He>> gives you a small wave.
+<br><br>
+<<if $kylar.cafeVisitDay is Time.date.midnight.timeStamp>>
+	"I-I said I'd come," <<he>> says.
+<<else>>
+	"I-I didn't know you were working today," <<he>> says.
+<</if>>
+<br><br>
+<<He>> walks over to a table where <<he>> can still see you behind the counter and sits down. <<He>> picks up the menu and opens it, but <<hes>> so nervous that <<he>> doesn't notice <<hes>> holding it upside down.
+<br><br>
+<<if passage() is "Kylar Cafe Visit Chef">>
+	<<link [[Next|Chef Work]]>><<endevent>><<unset $kylar_action $kylar.cafeVisitDay>><</link>>
+<<else>>
+	<<link [[Next|Ocean Breeze Work]]>><<endevent>><<unset $kylar_action $kylar.cafeVisitDay>><</link>>
+<</if>>
+
+:: Kylar Cafe Visit Chef
+<<include "Kylar Cafe Visit">>
+
+:: Kylar Cafe Date
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<set $daily.kylarCafe to "visiting">>
+<<endevent>><<npc Kylar>><<person1>>
+You carry two cups of coffee to a table near the window and put them down. Kylar pulls a chair away from the table for you. After you sit down, <<he>> looks at the other chairs, unsure which one to choose.
+<br><br>
+"You can sit here," you say, pointing to the chair beside yours.
+<br><br>
+Kylar smiles and quickly takes the seat next to you. <<He>> accidentally bumps the table while sitting down, making the spoon on <<his>> small coffee plate move and make a noise.
+<br><br>
+<<link [[Next|Kylar Cafe Date Coffee]]>><</link>>
+
+:: Kylar Cafe Date Coffee
+<<effects>>
+You spend some time looking out the window, watching people walk past the café. Kylar sits quietly beside you, occasionally looking at you instead of the people outside. <<He>> hasn't taken a drink from <<his>> coffee yet.
+<br><br>
+"Don't you like your coffee?" you ask.
+<br><br>
+"Oh! I do!" <<He>> quickly picks up the cup and takes a sip, but the coffee is still too hot. <<He>> makes a face and puts the cup back down.
+<br><br>
+"It's good! But... hot," <<he>> explains, looking a little embarrassed. After a moment, <<he>> smiles at you. "I-I like being here. With you."
+<br><br>
+<<link [[Hold Kylar's hand (0:30)|Kylar Cafe Date End]]>><<set $kylar_action to "cafeHand">><<npcincr Kylar love 2>><<npcincr Kylar rage -2>><<stress -10>><<pass 30>><</link>><<glove>><<lksuspicion>><<lstress>>
+<br>
+<<link [[Talk over your coffee (0:30)|Kylar Cafe Date End]]>><<unset $kylar_action>><<npcincr Kylar love 1>><<stress -6>><<pass 30>><</link>><<glove>><<lstress>>
+<br>
+
+:: Kylar Cafe Date End
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<if $kylar_action is "cafeHand">>
+	You reach under the table and take Kylar's hand. <<He>> looks down at your hands, then gently holds yours. <<He>> seems happy to stay like this, so you let <<him>> hold your hand for a while before giving it a gentle squeeze.
+	<br><br>
+	You remind <<him>> to drink <<his>> coffee before it gets cold.
+<<else>>
+	You ask Kylar about <<his>> drawings. <<He>> tries to explain them, but sometimes stops halfway through a sentence because <<he>> doesn't know what to say.
+	<br><br>
+	You keep listening and asking questions, which seems to help <<him>> relax. Soon, <<he>> starts talking more and even tells you about some of <<his>> other drawings.
+	When you mention a place you like, <<he>> takes out <<his>> sketchbook and asks you to describe what it looks like.
+<</if>>
+<br><br>
+<<if !kylarCafeAvailable()>>
+	Kylar looks at <<his>> watch. "I need to go. They're waiting for me."
+	<br><br>
+	<<He>> looks at you, then down at <<his>> unfinished coffee. <<He>> stays in <<his>> chair for a little longer before finally standing up.
+	<<He>> leaves with half of <<his>> coffee still in the cup.
+	<<set $daily.kylarCafe to "left">><br>
+<<else>>
+	After you both finish your coffee, Kylar pulls <<his>> chair a little closer to you.
+	<br><br>
+	"Could we do this again tomorrow?" <<he>> asks. "O-Or another day, if you want."
+	<br><br>
+	<<link [[Say you can|Kylar Cafe Tomorrow Yes]]>><<set $kylar.cafeVisitDay to Time.tomorrow.midnight.timeStamp>><</link>>
+	<br>
+	<<link [[Say you can't|Kylar Cafe Tomorrow No]]>><<unset $kylar.cafeVisitDay>><<npcincr Kylar love -1>><</link>><<llove>>
+<</if>>
+<br>
+<<if !kylarCafeAvailable() or $oceanbreezejob isnot 1>>
+	<<link [[Finish your coffee|Ocean Breeze]]>><<endevent>><<unset $kylar_action>><</link>>
+<</if>>
+<br>
+
+:: Kylar Cafe Tomorrow Yes
+<<effects>>
+"Yes, I'll be working here tomorrow," you say.
+<br><br>
+Kylar quickly looks up at you. "Y-you will? Then I'll come and see you tomorrow!"
+<br><br>
+<<He>> smiles, then looks down at the empty cups on the table, still looking happy.
+<br><br>
+<<link [[Finish your coffee|Ocean Breeze]]>><<endevent>><<unset $kylar_action>><</link>>
+
+:: Kylar Cafe Tomorrow No
+<<effects>>
+"No, I won't be working here tomorrow," you say.
+<br><br>
+"Oh..." Kylar looks down at <<his>> cup. "I was hoping I could see you here again."
+<br><br>
+<<link [[Finish your coffee|Ocean Breeze]]>><<endevent>><<unset $kylar_action>><</link>>

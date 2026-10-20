@@ -1255,6 +1255,7 @@ function dayPassed(days) {
 
 		/* Always runs, even if the block above fails, so daily flags still reset properly. */
 		V.daily.clearProperties();
+		if (V.kylar?.cafeVisitDay < Time.date.midnight.timeStamp) delete V.kylar.cafeVisitDay;
 		try {
 			if (typeof autismSpectrumDailyUpdate === "function") autismSpectrumDailyUpdate();
 		} catch (ex) {

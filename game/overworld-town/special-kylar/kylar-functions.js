@@ -110,6 +110,9 @@ window.getKylarLocationInLunchtime = getKylarLocationInLunchtime;
 
 /** @returns {DolLocation} Kylar's active location */
 function getKylarPersonalLocation() {
+	if (V.daily.kylarCafe === "visiting" && kylarCafeAvailable() && Time.openingHours()) {
+		return { area: "cafe", state: "visiting" };
+	}
 	// Midnight to 6:59 AM
 	if (Time.hour < 7) {
 		return { area: "manor_bedroom", state: "sleeping" };
@@ -125,6 +128,22 @@ function getKylarPersonalLocation() {
 	return UnknownLocation;
 }
 window.getKylarPersonalLocation = getKylarPersonalLocation;
+
+function kylarCafeAvailable(minutes = 0) {
+	return (
+		C.npc.Kylar.state === "active" &&
+		C.npc.Kylar.init === 1 &&
+		C.npc.Kylar.love >= 50 &&
+		!V.kylarwatched &&
+		!Time.schoolTime &&
+		Time.dayState === "day" &&
+		(!minutes || new DateTime(Time.date.timeStamp + minutes * 60).dayState === "day") &&
+		V.chef_state !== 8 &&
+		!(V.chef_state === 7 && V.chef_rework <= 30) &&
+		!(V.schoolstate === "afternoon" && isKylarAvailableForRehearsal())
+	);
+}
+window.kylarCafeAvailable = kylarCafeAvailable;
 
 /** @returns {DolLocation} Kylar's active location */
 function getKylarPrisonLocation() {
