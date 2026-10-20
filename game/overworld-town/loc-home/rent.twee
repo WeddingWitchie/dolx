@@ -1736,9 +1736,9 @@ You're escorted by Bailey back to your bedroom and left alone.
 
 <<widget "baileyRentReclaimOption">>
 	<<if $bailey_confiscation>>
-		<<babyRent true>>
-		<<set _owed to $rentmoney + ($babyRent or 0)>>
-		<<if $money gte _owed>>
+		<<babyRent true>><<bratTaxCalc>>
+		<<set _owed to Math.max(0, $rentmoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0) - ($baileyDeposit or 0))>>
+		<<if (setup.inflation ? setup.inflation.rentPayable() : $money) gte _owed>>
 			<<highicon>><<link [[Reclaim your confiscated things|Bailey Rent Reclaim]]>><</link>> (<<printmoney _owed>>)
 			<br>
 		<<else>>

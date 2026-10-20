@@ -157,11 +157,16 @@
 			<</if>>
 		<</if>>
 		<<if $robinRentEvent is 1 and $combatPhase is "pay">>
-			<<if $money gte $rentmoney + ($babyRent or 0)>>
+			<<bratTaxCalc>>
+			<<set _rentTotal to $rentmoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
+			<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 				<<set _mouthaction["Pay Bailey"] to "pay">>
 			<<else>>
 				<<set _mouthaction["Tell Bailey you can't afford it"] to "pay">>
 			<</if>>
+		<</if>>
+		<<if $baileySafeWord and $npc.includes("Bailey")>>
+			<<set _mouthaction["Use your safe word"] to "safeword">>
 		<</if>>
 		<<if $worn.face.name isnot "naked" and $worn.face.type.includes("mask") and $consensual is 1 and $enemytype is "man" and !$npcSub and !$gloryhole and $nomaskasked isnot 1>>
 				<<set _askActions["to leave your mask on" + _diffText] to "nomask">>

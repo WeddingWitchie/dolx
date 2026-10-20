@@ -7333,11 +7333,26 @@
 			<</if>>
 		<</if>>
 
+		<<if $mouthaction is "safeword">>
+			<<set $mouthaction to 0>><<set $mouthactiondefault to "rest">>
+			<<baileySafeWordLine>>
+			<<if $consensual is 1>>
+				<<set $finish to 1>>
+			<<else>>
+				<span class="red">The word has no effect.</span> <<nnpc_He "Bailey">> sneers. <<print either(
+					`"That word means nothing right now, brat."`,
+					`"Don't waste your breath, you little shit."`,
+					`"Shut up, brat. You owe me."`
+				)>>
+			<</if>>
+		<</if>>
 		<<if $mouthaction is "pay">>
 			<<set $mouthaction to 0>><<set $mouthactiondefault to "rest">>
 			<<speechresolve>>
 			<<set _speechRobinPayAtt to _speechAttitudeResolved>>
-			<<if $money gte $rentmoney + ($babyRent or 0)>>
+			<<bratTaxCalc>>
+			<<set _rentTotal to $rentmoney + ($babyRent or 0) + ($bratTax or 0) + (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
+			<<if ((setup.inflation ? setup.inflation.rentPayable() : $money) + ($baileyDeposit or 0)) gte _rentTotal>>
 				<<set $speechpay to 1>>
 				<<switch _speechRobinPayAtt>>
 					<<case "meek" "shy" "docile">>

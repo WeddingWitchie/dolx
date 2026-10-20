@@ -2390,14 +2390,18 @@ You wake up. The entire flat smells like coffee.
 Bailey exits the kitchen with a mug of coffee in hand. <<He>> is already dressed.
 <br><br>
 
-<<He>> drinks standing up, facing the window.
+<<He>> drinks standing up, facing the window.<<if $baileySeen?.includes("coffeeMug")>> There's a second mug of coffee sitting on the counter.<</if>>
 <br><br>
 
-<<link [[Ask for coffee|Bailey Date All Night Coffee]]>><</link>>
+<<if $baileySeen?.includes("coffeeMug")>>
+	<<foodicon "coffee">><<link [[Drink the coffee on the counter|Bailey Date All Night Coffee Drink]]>><</link>>
+<<else>>
+	<<foodicon "coffee">><<link [[Ask for coffee|Bailey Date All Night Coffee]]>><</link>>
+<</if>>
 <br>
-<<link [[Say good morning|Bailey Date All Night Good Morning]]>><</link>>
+<<ind>><<link [[Say good morning|Bailey Date All Night Good Morning]]>><</link>>
 <br>
-<<link [[Stay quiet|Bailey Date All Night Stay Quiet]]>><</link>>
+<<ind>><<link [[Stay quiet|Bailey Date All Night Stay Quiet]]>><</link>>
 <br>
 
 
@@ -2405,36 +2409,189 @@ Bailey exits the kitchen with a mug of coffee in hand. <<He>> is already dressed
 <<pass 5>><<effects>><<speechresolve>><<endevent>>
 <<npc Bailey>><<person1>>
 
-<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
-	"M-May I have some coffee, please?" you ask.
-<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
-	"Could I trouble you for some coffee?" you ask, reaching for a cup.
-<<elseif _speechAttitudeResolved is "docile">>
-	You wait beside the counter. "May I have coffee too?"
-<<elseif _speechAttitudeResolved is "confident">>
-	You take down a second cup. "I'm having some coffee."
-<<elseif _speechAttitudeResolved is "bratty">>
-	"Did you make enough coffee for me?" you ask.
-<<elseif _speechAttitudeResolved is "cruel">>
-	You hold your cup out towards Bailey. "Pour me some before you finish it."
+<<if $baileyCoffee>>
+	You're about to ask for coffee, as you've done, when you notice there's a second mug sitting on the counter with coffee already in it. You glance at Bailey, who drinks from <<his>> own mug.
+	<br><br>
+	You head over to the counter and pick up the mug.<<wearProp "coffee">> You give it a tentative sniff. <<if $baileyCoffee.length>>It seems to be made with <<print formatList($baileyCoffee, "and", true)>>.<<else>>It's just black coffee.<</if>><<baileySeenAdd "coffeeMug">>
+	<br><br>
+
+	<<ind>><<link [[Ask Bailey if <<he>> made this for you|Bailey Date All Night Coffee For You]]>><</link>>
+	<br>
+	<<foodicon "coffee">><<link [[Drink the coffee|Bailey Date All Night Coffee Drink]]>><</link>>
+	<br>
 <<else>>
-	"Can I have some coffee?" you ask.
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"M-May I have some coffee, please?" you ask.
+	<<elseif (_speechAttitudeResolved is "polite" or _speechAttitudeResolved is "flamboyant")>>
+		"Could I trouble you for some coffee?" you ask, reaching for a cup.
+	<<elseif _speechAttitudeResolved is "docile">>
+		You wait beside the counter. "May I have coffee too?"
+	<<elseif _speechAttitudeResolved is "confident">>
+		You take down a second cup. "I'm having some coffee."
+	<<elseif _speechAttitudeResolved is "bratty">>
+		"Did you make enough coffee for me?" you ask.
+	<<elseif _speechAttitudeResolved is "cruel">>
+		You hold your cup out towards Bailey. "Pour me some before you finish it."
+	<<else>>
+		"Can I have some coffee?" you ask.
+	<</if>>
+	<br><br>
+
+	"Help yourself," Bailey shrugs. <<He>> doesn't look away from the window. "Don't make a mess."
+	<br><br>
+
+	<<if $bailey_weekend_visits gte 3>>
+		You enter the kitchen and grab a mug. Next to the coffee are some ingredients you don't recall seeing before. There's milk, cream, sugar, and honey.
+		<br><br>
+
+		<<ind>><<link [[Ask Bailey if you can use them|Bailey Date All Night Coffee Ingredients]]>><<set $baileyCoffee to []>><<set $phase to "ask">><</link>>
+		<br>
+		<<ind>><<link [[Ask Bailey if <<he>> got them for you|Bailey Date All Night Coffee Ingredients]]>><<set $baileyCoffee to []>><<set $phase to "bought">><</link>>
+		<br>
+		<<ind>><<link [[Use them in your coffee|Bailey Date All Night Coffee Ingredients]]>><<set $baileyCoffee to []>><<set $phase to 0>><</link>>
+		<br>
+		<<foodicon "coffee">><<link [[Just drink your coffee black|Bailey Date All Night Coffee Made]]>><<set $baileyCoffee to []>><</link>>
+		<br>
+	<<else>>
+		You enter the kitchen and grab a mug. You fill the mug with the pitcher on the coffee maker.
+		<br><br>
+
+		You quickly realise <<he>> doesn't have sugar, milk, or creamer anywhere.
+		<br><br>
+
+		You sip the black coffee slowly as you walk back into the living room.<<tiredness -6>><<ltiredness>>
+		<br><br>
+
+		"Make yourself presentable," Bailey says. "I'll drive you to the orphanage."
+		<br><br>
+
+		<<link [[Go with Bailey|Bailey Date All Night End]]>><</link>>
+		<br>
+		<<link [[Insist you can walk|Bailey Date All Night Morning Insist]]>><</link>>
+		<br>
+	<</if>>
+<</if>>
+
+
+:: Bailey Date All Night Coffee Ingredients
+<<effects>><<speechresolve>><<person1>>
+<<if $phase is "ask">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"May I use these in my coffee?" you ask, looking up from the assortment of ingredients.
+	<<elseif _speechAttitudeResolved is "bratty">>
+		"You mind if I use these for my coffee?" you ask, looking up from the assortment of ingredients.
+	<<else>>
+		"Can I use these in my coffee?" you ask, looking up from the assortment of ingredients.
+	<</if>>
+	<br><br>
+
+	Bailey says nothing, still looking out the window while nursing <<his>> own mug. "Suit yourself."
+	<br><br>
+<<elseif $phase is "bought">>
+	<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+		"Did... Did you buy these for me?" you ask, looking up from the assortment of ingredients. "I don't remember you having them before."
+	<<elseif _speechAttitudeResolved is "bratty">>
+		"You got these for me, didn't you?" you ask, looking up from the assortment of ingredients. "You don't use any of these."
+	<<else>>
+		"These ingredients weren't here last time," you say, looking up from the assortment of ingredients. "Did you get them for me?"
+	<</if>>
+	<br><br>
+
+	Bailey says nothing to you, still looking out the window while nursing <<his>> own mug. You think it's alright to use the ingredients. <<He>> wouldn't stock them if <<he>> didn't approve of the ingredients and <<he>> would have said something by now if <<he>> didn't want you to use them.
+	<br><br>
+<</if>>
+
+<<if $baileyCoffee.length is 0>>
+	<<wearProp "coffee">>You fill your mug from the pitcher on the coffee maker. The milk, cream, sugar, and honey sit in front of you.
+<<else>>
+	<<switch $baileyCoffee.at(-1)>>
+		<<case "milk">><<wearProp "bottle of milk">>You pour a splash of milk into your coffee.
+		<<case "cream">><<wearProp "cream">>You stir in a spoonful of cream.
+		<<case "sugar">><<wearProp "sugar">>You add a spoonful of sugar.
+		<<case "honey">><<wearProp "honey">>You drizzle in some honey.
+	<</switch>>
+	Your coffee now has <<print formatList($baileyCoffee, "and", true)>> in it.
 <</if>>
 <br><br>
 
-"Help yourself," Bailey shrugs. <<He>> doesn't look away from the window. "Don't make a mess."
+<<if !$baileyCoffee.includes("milk")>>
+	<<foodstufficon "bottle_of_milk">><<link [[Add the milk|Bailey Date All Night Coffee Ingredients]]>><<run $baileyCoffee.pushUnique("milk")>><<set $phase to 0>><</link>>
+	<br>
+<</if>>
+<<if !$baileyCoffee.includes("cream")>>
+	<<foodstufficon "cream">><<link [[Add the cream|Bailey Date All Night Coffee Ingredients]]>><<run $baileyCoffee.pushUnique("cream")>><<set $phase to 0>><</link>>
+	<br>
+<</if>>
+<<if !$baileyCoffee.includes("sugar")>>
+	<<foodstufficon "sugar">><<link [[Add the sugar|Bailey Date All Night Coffee Ingredients]]>><<run $baileyCoffee.pushUnique("sugar")>><<set $phase to 0>><</link>>
+	<br>
+<</if>>
+<<if !$baileyCoffee.includes("honey")>>
+	<<foodstufficon "honey">><<link [[Add the honey|Bailey Date All Night Coffee Ingredients]]>><<run $baileyCoffee.pushUnique("honey")>><<set $phase to 0>><</link>>
+	<br>
+<</if>>
+<<if $baileyCoffee.length>>
+	<<foodicon "coffee">><<link [[That's enough|Bailey Date All Night Coffee Made]]>><<set $phase to 0>><</link>>
+<<else>>
+	<<foodicon "coffee">><<link [[Just have your coffee black|Bailey Date All Night Coffee Made]]>><<set $phase to 0>><</link>>
+<</if>>
+<br>
+
+
+:: Bailey Date All Night Coffee Made
+<<pass 5>><<effects>><<person1>><<wearProp "coffee">>
+<<if $baileyCoffee.length>>
+	You decide to have your coffee with <<print formatList($baileyCoffee, "and", true)>>. You mix it all together with a spoon.
+<<else>>
+	You decide to just have your coffee black.
+<</if>>
 <br><br>
 
-You enter the kitchen and grab a mug. You fill the mug with the pitcher on the coffee maker.
+You sip the coffee slowly as you walk back into the living room.<<tiredness -6>><<ltiredness>>
 <br><br>
 
-You quickly realise <<he>> doesn't have sugar, milk, or creamer anywhere.
+"Make yourself presentable," Bailey says. "I'll drive you to the orphanage."
 <br><br>
 
-You sip the black coffee slowly as you walk back into the living room.
+<<link [[Go with Bailey|Bailey Date All Night End]]>><</link>>
+<br>
+<<link [[Insist you can walk|Bailey Date All Night Morning Insist]]>><</link>>
+<br>
+
+
+:: Bailey Date All Night Coffee For You
+<<effects>><<speechresolve>><<person1>><<wearProp "coffee">>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"<<baileyTitleNarration>>, did... did you make this just for me?" you ask, feeling your cheeks flush.
+<<elseif _speechAttitudeResolved is "bratty">>
+	"You made this just for me, didn't you?" you ask, smirking over the mug. "I knew you cared, <<baileyTitleNarration>>."
+<<else>>
+	"Is this for me?" you ask, looking between the mug and <<him>>. "That's kind of you."
+<</if>>
 <br><br>
 
-"Make yourself presentable," Bailey says. "I'll drive you back to the orphanage."
+Bailey spares you a single glance before going back to glare out the window. <<He>> doesn't answer your question.
+<br><br>
+
+You sip your coffee carefully.<<tiredness -6>><<ltiredness>>
+<br><br>
+
+"Make yourself presentable," Bailey says. "I'll drive you to the orphanage."
+<br><br>
+
+<<link [[Go with Bailey|Bailey Date All Night End]]>><</link>>
+<br>
+<<link [[Insist you can walk|Bailey Date All Night Morning Insist]]>><</link>>
+<br>
+
+
+:: Bailey Date All Night Coffee Drink
+<<pass 5>><<effects>><<endevent>>
+<<npc Bailey>><<person1>><<wearProp "coffee">>
+You pick up the mug and take a sip. <<if $baileyCoffee.length>><<print formatList($baileyCoffee, "and", true).toUpperFirst()>><<else>>Black<</if>>, just how you take it.<<tiredness -6>><<ltiredness>>
+<br><br>
+
+"Make yourself presentable," Bailey says. "I'll drive you to the orphanage."
 <br><br>
 
 <<link [[Go with Bailey|Bailey Date All Night End]]>><</link>>
@@ -2467,7 +2624,7 @@ You sip the black coffee slowly as you walk back into the living room.
 Bailey says nothing back to you. <<He>> continues to drink from <<his>> coffee.
 <br><br>
 
-"Make yourself presentable," Bailey says. "I'll drive you back to the orphanage."
+"Make yourself presentable," Bailey says. "I'll drive you to the orphanage."
 <br><br>
 
 <<link [[Go with Bailey|Bailey Date All Night End]]>><</link>>
@@ -2503,7 +2660,7 @@ You watch Bailey drink coffee from <<his>> mug slowly. <<He>> looks out the wind
 After a moment, <<he>> looks at you.
 <br><br>
 
-"Make yourself presentable," Bailey says. "I'll drive you back to the orphanage."
+"Make yourself presentable," Bailey says. "I'll drive you to the orphanage."
 <br><br>
 
 <<link [[Go with Bailey|Bailey Date All Night End]]>><</link>>

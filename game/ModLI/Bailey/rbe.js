@@ -1,4 +1,4 @@
-const BAILEY_EXPANSION_VERSION = "0.6.1.2";
+const BAILEY_EXPANSION_VERSION = "0.6.2";
 
 function baileyRevealed() {
 	return V.syndromebailey === true;
@@ -56,6 +56,10 @@ window.baileyWeeksMissed = function () {
 
 window.baileyStraying = function () {
 	return window.baileyWeeksMissed() >= 2;
+};
+
+window.baileySafeWordIsName = function (word) {
+	return V.NPCNameList.some(name => name.toLowerCase() === word.toLowerCase());
 };
 
 /* Each key -> img/clothes/neck/baileys_collar_<key>/full.png */

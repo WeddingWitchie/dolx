@@ -23,7 +23,7 @@ You can't bring yourself to knock the door knowing that <span class="bailey-red"
 		Bailey opens the door before you can knock. <<He>> looks like <<he>> was just about to head somewhere.
 		<br><br>
 		<<if C.npc.Bailey.love gt 20>>
-			"It's good to see you," <<he>> says without missing a beat. "I'll drive you to the orphanage."
+			"It's good to see you," <<he>> says without missing a beat, wearing a false smile. "I'll drive you to the orphanage."
 			<br><br>
 			<<He>> leaves you no choice, already dragging you by the arm towards the stairs.
 			<br><br>
@@ -252,7 +252,7 @@ The door shuts behind you. Bailey turns towards you, but stills when <<he>> sees
 <br><br>
 <span class="red">Everything feels distant. Nothing feels real. You forget why you came here.</span> You let <<him>> tilt your chin left and right.
 <br><br>
-"<<if $bailey_vent_seen gte 2>>This again? <<else>>You look like shit, brat,<</if>>" <<he>> says.
+"<<if $bailey_vent_seen gte 2>>This again?<<else>>You look like shit, brat,<</if>>" <<he>> says.
 <br><br>
 Your eyes burn. Your throat aches. You are overcome with despair.
 <br><br>
@@ -427,31 +427,38 @@ When you finish drinking, Bailey takes the water cup and sets it aside. <<He>> t
 
 
 :: Bailey Flat Weekend Sex
-<<if $molestationstart is 1>>
-	<<set $molestationstart to 0>>
-	<<person1>>
-	<<consensual>>
-	<<set $consensual to 1>>
-	<<neutral 1>>
-	<<maninit>>
-	<<set $enemytrust to 0>>
-	<<set $enemyanger to 0>>
-	<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
-	<<healthMultiplier>>
-	<<promiscuity1>>
-<</if>>
-
-<<effects>>
-<<effectsman>>
-<<man>>
-<<stateman>>
-<br><br>
-<<actionsman>>
-
-<<if _combatend>>
-	<span id="next"><<link [[Next|Bailey Flat Weekend Sex Finish]]>><</link>></span><<nexttext>>
+<<if $safeWordEncounter and $mouthaction is "safeword">>
+	<<include "Bailey Flat Safe Word Used">>
 <<else>>
-	<span id="next"><<link [[Next|Bailey Flat Weekend Sex]]>><</link>></span><<nexttext>>
+	<<if $molestationstart is 1>>
+		<<set $molestationstart to 0>>
+		<<person1>>
+		<<consensual>>
+		<<set $consensual to 1>>
+		<<neutral 1>>
+		<<maninit>>
+		<<set $enemytrust to 0>>
+		<<set $enemyanger to 0>>
+		<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
+		<<healthMultiplier>>
+		<<promiscuity1>>
+		<<if $bailey_fight_sex>>
+			<<set $safeWordEncounter to "baileyFlatFight">>
+		<</if>>
+	<</if>>
+
+	<<effects>>
+	<<effectsman>>
+	<<man>>
+	<<stateman>>
+	<br><br>
+	<<actionsman>>
+
+	<<if _combatend>>
+		<span id="next"><<link [[Next|Bailey Flat Weekend Sex Finish]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Bailey Flat Weekend Sex]]>><</link>></span><<nexttext>>
+	<</if>>
 <</if>>
 
 
@@ -494,12 +501,13 @@ When you finish drinking, Bailey takes the water cup and sets it aside. <<He>> t
 			<<link [[Next|Bailey Flat Bath]]>><</link>>
 			<br>
 		<<else>>
+			<<clotheson>>
 			In the dark, <<he>> gathers you close to <<his>> chest.
 			<br><br>
 			"You're staying here tonight," <<he>> tells you, pulling the cover over you both. "I'll drive you to the orphanage in the morning."
 			<br><br>
 			<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
-			<<clotheson>><<endcombat>>
+			<<endcombat>>
 			<<link [[Stay the night|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "beside">><</link>>
 			<br>
 		<</if>>
@@ -508,6 +516,7 @@ When you finish drinking, Bailey takes the water cup and sets it aside. <<He>> t
 	<<if _fromFight>>
 		The two of you fight until you're running on fumes. Despite the fact <<he>> didn't cum, Bailey seems satisfied as <<he>> looks over you.
 		<br><br>
+		<<clotheson>>
 		"Good," <<he>> says, <<his>> voice having gone ragged. "I knew you could take it."
 		<br><br>
 		<<He>> gets up and pulls you up by the arm, pulling you towards <<his>> bed.
@@ -517,7 +526,7 @@ When you finish drinking, Bailey takes the water cup and sets it aside. <<He>> t
 		<<He>> tosses the bed sheet over you roughly before leaving. You find yourself falling asleep, exhausted and tired.
 		<br><br>
 		<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
-		<<clotheson>><<endcombat>>
+		<<endcombat>>
 		<<link [[Next|Bailey Date All Night Sleep]]>><<set $bailey_sleep_config to "alone_bed">><</link>>
 		<br>
 	<<else>>
@@ -631,7 +640,12 @@ Once you're dry, <<he>> guides you back to <<his>> bed and pulls the cover over 
 You notice Bailey is taking things slow today. <<He>> would normally have you in <<his>> bed by now. Today, <<he>> leans against the doorframe of <<his>> bedroom, watching you.
 <br><br>
 
-You stare back. Eventually, <<he>> peels from the doorframe and steps towards you. <<He>> looks over you with an expression you've never seen before.
+You stare back. Eventually, <<he>> peels from the doorframe and steps towards you. <<if $baileySeen?.includes("flatFight")>>
+	<<Hes>> giving you a fiery look, and you know <<him>> well enough to guess what <<he>> wants by now.
+<<else>>
+	<<He>> looks over you with an expression you've never seen before.
+<</if>>
+<<baileySeenAdd "flatFight">>
 <br><br>
 
 "I want you to fight me," <<he>> says. "Don't pull your punches. I won't be pulling mine."
@@ -640,7 +654,11 @@ You stare back. Eventually, <<he>> peels from the doorframe and steps towards yo
 <<He>> pauses in front of you, waiting.
 <br><br>
 
-<<link [[Fight <<him>>|Bailey Flat Fight Him]]>><</link>>
+<<if $baileySafeWord is undefined>>
+	<<link [[Agree to fight <<him>>|Bailey Flat Safe Word]]>><</link>>
+<<else>>
+	<<link [[Fight <<him>>|Bailey Flat Fight Him]]>><</link>>
+<</if>>
 <br>
 <<link [[Ask|Bailey Flat Fight Ask]]>><</link>>
 <br>
@@ -676,10 +694,112 @@ Bailey pauses for a moment. <<He>> works something in <<his>> jaw while <<he>> s
 <<He>> waits for you to speak again.
 <br><br>
 
-<<link [[Fight <<him>>|Bailey Flat Fight Him]]>><</link>>
+<<if $baileySafeWord is undefined>>
+	<<link [[Agree to fight <<him>>|Bailey Flat Safe Word]]>><</link>>
+<<else>>
+	<<link [[Fight <<him>>|Bailey Flat Fight Him]]>><</link>>
+<</if>>
 <br>
 <<link [[Refuse|Bailey Flat Fight Refuse]]>><</link>>
 <br>
+
+
+:: Bailey Flat Safe Word
+<<effects>><<speechresolve>><<person1>>
+<<if (_speechAttitudeResolved is "meek" or _speechAttitudeResolved is "shy")>>
+	"I... I guess I can fight you," you say, still hesitant. "If that's what you want."
+<<elseif _speechAttitudeResolved is "bratty">>
+	"Are you kidding? I've been waiting for you to ask," you say, goading <<him>> on. "Come at me."
+<<else>>
+	"I'll fight you," you say directly. "I can take it."
+<</if>>
+<br><br>
+
+Something crosses Bailey's face, too fast for you to catch. <<He>> nods. "Good. Pick a word."
+<br><br>
+
+"A word?" you ask.
+<br><br>
+
+"If you say it, we stop," <<he>> says. "No questions asked. Nothing owed. No nonsense. Don't waste time. Pick one."
+<br><br>
+
+<<if $awarelevel gte 1>>
+	You realize <<hes>> asking you for a safe word<<if $wintersafeword>>, like the one you use with Winter.<<else>>.<</if>>
+<<else>>
+	You're not quite sure what <<hes>> asking for, but maybe it's a word that will stop whatever's happening<<if $wintersafeword>>, like the one you use with Winter.<<else>>.<</if>>
+<</if>>
+<<if $baileySeen?.includes("averyNoSafeWord")>>
+	You think about how Avery told you <<nnpc_he "Avery">> never bothered with such things.
+<</if>>
+<br><br>
+
+<<link [[Choose a word|Bailey Safe Word]]>><</link>>
+<br>
+<<link [[Back out|Bailey Flat Fight Refuse]]>><</link>>
+<br>
+
+
+:: Bailey Safe Word
+<<effects>><<person1>>
+<span class="bailey-red">Choose a safe word to use with Bailey:</span>
+<br>
+<<textbox "$baileySafeWord" "Marshmallow" autofocus>>
+<br><br>
+<<link [[Next|Bailey Safe Word Reaction]]>><</link>>
+<br>
+
+
+:: Bailey Safe Word Reaction
+<<effects>><<person1>>
+<<baileySafeWordClean>>
+<<set _safeWordLower to $baileySafeWord.toLowerCase()>>
+"I choose <span class="purple"><<baileySafeWord>></span>," you say.
+<br><br>
+
+<<if baileySafeWordIsName($baileySafeWord)>>
+	"Enough with the games," Bailey sneers. "I told you not to waste my time. Pick a different one."
+	<br><br>
+
+	It seems Bailey won't let you use someone's name as your safe word.<<unset $baileySafeWord>>
+	<br><br>
+
+	<<link [[Choose a word|Bailey Safe Word]]>><</link>>
+	<br>
+<<else>>
+	<<if ["lotus", "lotuses"].includes(_safeWordLower)>>
+		<<set _lotusPlanted to $bailey_lotus_seen gte 1 or Object.values($plots).some(plots => plots.some(plot => plot.plant is "lotus"))>>
+		"<<BaileySafeWord>>," Bailey repeats. <<His>> expression is unreadable. You notice <<him>> shoot a glance at the lotus doorknob.
+		<br><br>
+
+		"Yes," you say.
+		<<if _lotusPlanted>>
+			"I plant them sometimes in the orphanage pond."
+		<<else>>
+			"You like them, right?"
+		<</if>>
+		<br><br>
+
+		<<if _lotusPlanted>>"I'm aware," <<he>> says<<else>><<He>> doesn't reply<</if>>, frowning briefly. Then <<he>> nods. "It'll do."
+	<<elseif ["snake", "snakes", "serpent", "serpents"].includes(_safeWordLower)>>
+		"<<BaileySafeWord>>," Bailey repeats with a scoff.
+		<br><br>
+
+		You glance up and down at the abstract snakes on the ceiling and carpet above and below you, thinking on Bailey's tattoo. You notice <<him>> glancing towards the rug, where <<his>> serpent hides.
+		<br><br>
+
+		"Fine. It'll do," <<he>> says, though <<he>> sounds exasperated.
+	<<else>>
+		"<<BaileySafeWord>>. That'll do," Bailey replies with a nod.
+	<</if>>
+	<<He>> then takes a step towards you, rolling up <<his>> sleeves as <<he>> approaches. "Now, I want you to fight me like you mean it, brat."
+	<br><br>
+
+	<<link [[Fight <<him>>|Bailey Flat Fight Him]]>><</link>>
+	<br>
+	<<link [[Refuse|Bailey Flat Fight Refuse]]>><</link>>
+	<br>
+<</if>>
 
 
 :: Bailey Flat Fight Refuse
@@ -736,34 +856,87 @@ You don't hesitate. You press both palms to Bailey's chest and shove <<him>> awa
 
 
 :: Bailey Flat Fight Combat
-<<if $fightstart is 1>>
-	<<set $fightstart to 0>>
-	<<pass 10>>
-	<<person1>>
-	<<consensual>>
-	<<set $consensual to 0>>
-	<<neutral 1>>
-	<<maninit>>
-	<<set $enemytrust to -50>>
-	<<set $enemyanger to 100>>
-	<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
-	<<healthMultiplier>>
-	<<npcidlegenitals>>
-	<<promiscuity1>>
-<</if>>
-
-<<effects>>
-<<effectsman>>
-<<man>>
-<<stateman>>
-<br><br>
-<<actionsman>>
-
-<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
-	<span id="next"><<link [[Next|Bailey Flat Fight Finish]]>><</link>></span><<nexttext>>
+<<if $safeWordEncounter and $mouthaction is "safeword">>
+	<<include "Bailey Flat Safe Word Used">>
 <<else>>
-	<span id="next"><<link [[Next|Bailey Flat Fight Combat]]>><</link>></span><<nexttext>>
+	<<if $fightstart is 1>>
+		<<set $fightstart to 0>>
+		<<pass 10>>
+		<<person1>>
+		<<set $consensual to 0>>
+		<<neutral 1>>
+		<<maninit>>
+		<<set $enemytrust to -50>>
+		<<set $enemyanger to 150>>
+		<<set $encounterDialogue to "baileyFlatFight">>
+		<<set $enemyhealth to 600>><<set $enemyhealthmax to 600>>
+		<<healthMultiplier>>
+		<<npcidlegenitals>>
+		<<if !$bailey_vent_fight>>
+			<<set $safeWordEncounter to "baileyFlatFight">>
+		<</if>>
+	<</if>>
+
+	<<effects>>
+	<<effectsman>>
+	<<man>>
+	<<stateman>>
+	<br><br>
+	<<actionsman>>
+
+	<<if _combatend or ($pain gte 100 and $willpowerpain is 0)>>
+		<span id="next"><<link [[Next|Bailey Flat Fight Finish]]>><</link>></span><<nexttext>>
+	<<else>>
+		<span id="next"><<link [[Next|Bailey Flat Fight Combat]]>><</link>></span><<nexttext>>
+	<</if>>
 <</if>>
+
+
+:: Bailey Flat Safe Word Used
+<<person1>><<set $outside to 0>><<set $location to "baileys_flat">><<effects>>
+<<set $bailey_vent_fight to false>><<set $bailey_fight_sex to false>><<set $mouthaction to 0>><<set $mouthactiondefault to "rest">>
+You manage to get out your safe word. "<span class="purple"><<BaileySafeWord>></span>."
+<br><br>
+
+Bailey stops immediately. <<He>> pulls away from you and looks you over.
+<br><br>
+
+<<if $pain gte 60>>
+	<<He>> looks at your tearful face for a long moment before fully climbing off of you. Once standing, <<he>> runs a hand through <<his>> hair. You glance at <<his>> face. <<He>> doesn't seem more upset than usual.
+	<br><br>
+
+	<<clotheson>>
+	Then <<he>> gathers you in <<his>> arms and lifts you, carrying you to <<his>> bed. <<He>> leaves you for a moment there before returning from the bathroom with a first aid kit. <<He>> treats your injuries wordlessly.<<pain -5>><<lpain>><<stress -6>><<lstress>>
+	<br><br>
+
+	After quietly tending to you, <<he>> pulls the bedsheet over you. "Sleep."
+	<br><br>
+
+	<<He>> leaves you alone in bed. <<if $pain gt 20>>Still in pain and exhausted,<<else>>Exhausted,<</if>> you find yourself falling asleep quickly.
+	<br><br>
+	<<set $bailey_sleep_config to "alone_bed">>
+<<else>>
+	<<clotheson>>
+	<<if $arousal gte ($arousalmax / 5) * 2>>
+		<<He>> looks over your flushed face with a frown, but says nothing.
+		<br><br>
+	<<elseif $enemypleasure gte $enemypleasuremax / 5>>
+		You dare a glance at <<his>> expression. <<He>> seems frustrated, but says nothing.<<stress 6>><<gstress>>
+		<br><br>
+	<</if>>
+
+	<<He>> grabs you by the arm and deposits you on the couch. "Go to sleep."
+	<br><br>
+
+	<<He>> leaves you alone on the couch. <<if $pain gt 20>>Still in pain and exhausted,<<else>>Exhausted,<</if>> you find yourself falling asleep quickly.
+	<br><br>
+	<<set $bailey_sleep_config to "alone_couch">>
+<</if>>
+
+<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
+<<endcombat>>
+<<link [[Next|Bailey Date All Night Morning]]>><<npc Bailey>><<person1>><</link>>
+<br>
 
 
 :: Bailey Flat Fight Finish
@@ -821,17 +994,18 @@ You don't hesitate. You press both palms to Bailey's chest and shove <<him>> awa
 	Bailey looks at your tearful face for a long moment before <<he>> climbs off of you. Once standing, <<he>> lets out a long sigh, running a hand through <<his>> hair.
 	<br><br>
 
+	<<clotheson>>
 	Then <<he>> gathers you in <<his>> arms and lifts you, carrying you to <<his>> bed. <<He>> leaves you for a moment there before returning from the bathroom with a first aid kit. <<He>> treats your injuries wordlessly.
 	<br><br>
 
 	"Just say no next time, brat," <<he>> says to you flatly. "Know your own limits. Don't waste my time if you can't take it."
 	<br><br>
 
-	<<He>> pulls the bedsheet over you and leaves you alone in bed. Still in pain and exhausted, you find yourself falling asleep quickly.
+	<<He>> pulls the bedsheet over you and leaves you alone in bed. <<if $pain gt 20>>Still in pain and exhausted,<<else>>Exhausted,<</if>> you find yourself falling asleep quickly.
 	<br><br>
 
 	<<baileyWeekendVisitDone>><<set $bailey_weekend_visits += 1>>
-	<<clotheson>><<endcombat>>
+	<<endcombat>>
 	<<link [[Next|Bailey Date All Night Morning]]>><<npc Bailey>><<person1>><<set $bailey_sleep_config to "alone_bed">><</link>>
 	<br>
 <</if>>

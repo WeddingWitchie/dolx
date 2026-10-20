@@ -68,6 +68,14 @@ To add a new collar, just add it to that registry in rbe.js.
 		<</if>>
 	<</silently>><<print _bt_out>><</widget>>
 
+<<widget "baileySafeWord">><<print $baileySafeWord>><</widget>>
+
+<<widget "BaileySafeWord">><<print $baileySafeWord.charAt(0).toUpperCase() + $baileySafeWord.slice(1)>><</widget>>
+
+<<widget "baileySafeWordLine">>You use your safe word. "<span class="purple"><<BaileySafeWord>></span>."<</widget>>
+
+<<widget "baileySafeWordClean">><<set $baileySafeWord to $baileySafeWord.replace(/[^\p{L}\p{N} \u0027\-]/gu, "").trim() || "Marshmallow">><</widget>>
+
 <<widget "baileyTitleClean">><<set $bailey_title to String($bailey_title || "").replace(/[<>]/g, "").trim().slice(0, 15) || "Bailey">><</widget>>
 
 /* Narration version: only prints the title once $bailey_title_unlocked is set. */
@@ -164,8 +172,39 @@ Type a name (15 characters max):
 <br>
 
 
+:: Bailey Safe Word Change
+<<person1>>
+<span class="bailey-red">Choose a safe word to use with Bailey:</span>
+<br>
+<<textbox "$baileySafeWordEntry" $baileySafeWord autofocus>>
+<br><br>
+<<link [[Confirm|Bailey Safe Word Change Set]]>><</link>>
+<br>
+<<link [[Back|Bailey's Office]]>><<unset $baileySafeWordEntry>><<endevent>><</link>>
+<br>
+
+
+:: Bailey Safe Word Change Set
+<<person1>>
+<<set _previousSafeWord to $baileySafeWord>>
+<<set $baileySafeWord to $baileySafeWordEntry>><<unset $baileySafeWordEntry>>
+<<baileySafeWordClean>>
+<<if baileySafeWordIsName($baileySafeWord)>>
+	<<set $baileySafeWord to _previousSafeWord>>
+	It seems Bailey won't let you use someone's name as your safe word.
+	<br><br>
+	<<link [[Choose a word|Bailey Safe Word Change]]>><</link>>
+	<br>
+<<else>>
+	Your safe word is now <span class="purple"><<baileySafeWord>></span>.
+	<br><br>
+<</if>>
+<<link [[Back|Bailey's Office]]>><<endevent>><</link>>
+<br>
+
+
 :: Bailey Collar Art Choose
-<<npc Bailey>><<person1>>
+<<person1>>
 <span class="gold">Collar art style:</span>
 <br><br>
 <span id="collar-listbox"><<lotus_listbox>></span>
@@ -205,6 +244,11 @@ Type a name (15 characters max):
 
 	<<if $syndromebailey>>
 		<<ind>><<link [[Change what you call <<him>>|Bailey Title Choose]]>><<set $bailey_title_from to "office">><</link>>
+		<br>
+	<</if>>
+
+	<<if $baileySafeWord>>
+		<<ind>><<link [[Change your safe word|Bailey Safe Word Change]]>><</link>>
 		<br>
 	<</if>>
 
@@ -480,7 +524,8 @@ Call sites own their own spacing. */
 <<widget "baileyOfferSettleRent">>
 	/* Recompute rather than trusting $bratTax: not every path in announces the tax first. */
 	<<bratTaxCalc>>
-	<<set _offerRentDue to $rentmoney + ($babyRent or 0) + ($bratTax or 0)>>
+	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
+	<<set _offerRentDue to $rentmoney + ($babyRent or 0) + ($bratTax or 0) + _loanSurcharge>>
 	<<set _offerDeposit to Math.min(Math.max($baileyDeposit or 0, 0), _offerRentDue)>>
 	<<set _offerCashDue to _offerRentDue - _offerDeposit>>
 	<<set _offerCashBefore to $money>>
@@ -491,12 +536,18 @@ Call sites own their own spacing. */
 		<<set $baileyDeposit -= _offerDeposit>>
 		<<if _offerCashDue gt 0>><<money `-_offerCashDue` "baileyRent">><</if>>
 	<</if>>
-	<<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
 	<<set $baileydefeatedchain to 0>>
 	/* Only wipe the arrears if the money actually changed hands. */
 	<<if _offerRentPaid>>
+		<<set $bailey_brat to { points: 0, reasons: [] }>><<set $bratTax to 0>>
 		<<set $baileyRefusedToPay to 0>>
 		<<set $baileyRefusedToPayTotal to $baileyRefusedToPayTotal lt _offerRentDue ? 0 : $baileyRefusedToPayTotal - _offerRentDue>>
+		<<if $bailey_confiscation>><<run baileyConfiscationRestore()>><</if>>
+		<<if _loanSurcharge gt 0>><<run setup.hbsc.collectLoanFromRent(_loanSurcharge)>><</if>>
+		<<if setup.inflation and setup.inflation.advanceRentPressure>><<run setup.inflation.advanceRentPressure()>><</if>>
+		<<set $rentmoney to [10000,30000,50000,70000,100000,150000,200000][Math.clamp($rentstage,1,6)]>>
+		<<rentmod>>
+		<<set $rentstage += 1>>
 	<</if>>
 	<<unset $bailey_encroach>>
 <</widget>>
@@ -518,6 +569,7 @@ Call sites own their own spacing. */
 			case "vent_blame": return "you blamed " + him + " for your problems";
 			case "vent_fight": return "you beat " + him + " up and ran out on " + him;
 			case "monogamy_refused": return "you refused to fulfill your obligations after agreeing to them";
+			case "pounce": return "you ambushed " + him + " in " + his + " own hallway";
 			default:        return r;
 		}
 	})>>
