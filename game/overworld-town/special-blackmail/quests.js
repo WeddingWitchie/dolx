@@ -235,7 +235,7 @@ blackmailQuests.high.push(
 	// Masturbate in an empty classroom
 	{
 		id: 4, // Implemented. ID fixed. Do not alter value.
-		summary: "Masturbate for five uninterrupted minutes in an empty classroom before midnight.",
+		summary: "Masturbate to orgasm in an empty classroom before midnight.",
 		prerequisites() {
 			return Time.schoolDay || (V.historytrait >= 1 && V.parktunnelintro >= 1) || currentSkillValue("skulduggery") >= 200;
 		},
@@ -243,8 +243,8 @@ blackmailQuests.high.push(
 			return blackmailReward();
 		},
 		instructions: [
-			"Masturbate naked for 5 minutes, within an empty classroom.",
-			`<span class="red">If you stop before the exact 5 minutes have lapsed, you must start over.</span>`,
+			"Masturbate naked in an empty classroom until you orgasm.",
+			`<span class="red">If you stop or are interrupted before you orgasm, you must start over.</span>`,
 			"Complete this task before midnight.",
 		],
 		clearCondition() {
