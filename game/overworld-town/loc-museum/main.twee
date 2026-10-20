@@ -3,7 +3,6 @@
 	<<museumAntiqueStatus "antiquebox" "talk">>
 	<<museumAntiqueStatus "antiquesilverring" "talk">>
 	<<museumAntiqueStatus "antiquegoldnecklace" "talk">>
-	<<museumAntiqueStatus "antiqueivorynecklace" "talk">>
 	<<museumAntiqueStatus "antiquecrystal" "talk">>
 	<<museumAntiqueStatus "antiquehorn" "talk">>
 	<<museumAntiqueStatus "antiquewatch" "talk">>
@@ -280,8 +279,12 @@ The museum is closed. A sign reads:
 		<<antiqueicon "forest-gem">><<link [[Touch green gem|Museum Green Gem Touch]]>><<stress -9>><<set $daily.museumGreenGemTouch to 1>><</link>><<lstress>>
 		<br>
 	<</if>>
-	<<if $antiquemoney gt 0>>
-		<<highicon>><<link [[Sell antiques|Museum Sell]]>><<if $museumAntiques.antiques.antiquesilvermask is "found">><<set $phase to 1>><<else>><<set $phase to 0>><</if>><<if $museumAntiques.antiques.antiqueivorynecklace is "found">><<world_corruption "hard" 2>><</if>><<museumdonate>><</link>>
+	<<if $museumAntiques.antiques.antiqueivorynecklace is "found">>
+		<<icon "clothes/ivory-necklace.png">><<link [[Sell the ivory necklace|Museum Sell Ivory Necklace]]>><</link>>
+		<br>
+	<</if>>
+	<<if $antiquemoney gt ($museumAntiques.antiques.antiqueivorynecklace is "found" ? 2000 : 0)>>
+		<<highicon>><<link [[Sell antiques|Museum Sell]]>><<if $museumAntiques.antiques.antiquesilvermask is "found">><<set $phase to 1>><<else>><<set $phase to 0>><</if>><<museumdonate>><</link>>
 		<br>
 	<</if>>
 	<<crimeicon "mark">><<link [[Look around the museum|Museum Look around]]>><</link>>
@@ -762,28 +765,45 @@ A vein twitches on <<his>> forehead as <<he>> stares at you. "You shouldn't spea
 :: Museum Sell
 <<set $outside to 0>><<set $location to "museum">><<effects>>
 <<npc Winter>><<person1>>
+<<set _antiqueSaleAmount to $antiquemoney - ($museumAntiques.antiques.antiqueivorynecklace is "found" ? 2000 : 0)>>
 
 Winter dons a pair of gloves and appraises the goods.
 <<if $phase is 1>>
-	"Aha," <<he>> says. "The mask. I'm glad you've decided to put it under my care." <<He>> places <<printmoney `previewSaleValue(antiqueSaleValue(), "museumAntique")`>> on the table.
+	"Aha," <<he>> says. "The mask. I'm glad you've decided to put it under my care." <<He>> places <<printmoney `previewSaleValue(antiqueSaleValue(_antiqueSaleAmount), "museumAntique")`>> on the table.
 	<<glove>><<npcincr Winter love 1>>
 
-<<elseif $antiquemoney gte 1000>>
-	<<His>> scepticism fades as <<he>> works. "Where did you get this?" <<he>> asks. <<He>> doesn't wait for an answer, but places <<printmoney `previewSaleValue(antiqueSaleValue(), "museumAntique")`>> on the table.
+<<elseif _antiqueSaleAmount gte 1000>>
+	<<His>> scepticism fades as <<he>> works. "Where did you get this?" <<he>> asks. <<He>> doesn't wait for an answer, but places <<printmoney `previewSaleValue(antiqueSaleValue(_antiqueSaleAmount), "museumAntique")`>> on the table.
 	<<glove>><<npcincr Winter love 1>>
 
-<<elseif $antiquemoney gte 200>>
-	"Thank you," <<he>> says. "Your contribution is noted." <<He>> places <<printmoney `previewSaleValue(antiqueSaleValue(), "museumAntique")`>> on the table.
+<<elseif _antiqueSaleAmount gte 200>>
+	"Thank you," <<he>> says. "Your contribution is noted." <<He>> places <<printmoney `previewSaleValue(antiqueSaleValue(_antiqueSaleAmount), "museumAntique")`>> on the table.
 
 <<else>>
-	 Without a word, <<he>> places <<printmoney `previewSaleValue(antiqueSaleValue(), "museumAntique")`>> on the table.
+	 Without a word, <<he>> places <<printmoney `previewSaleValue(antiqueSaleValue(_antiqueSaleAmount), "museumAntique")`>> on the table.
 <</if>>
 <br><br>
 
 <<He>> takes the goods into a back room.
 <br><br>
 
-<<money `antiqueSaleValue()` "museumAntique">><<set $antiquemoneyhistory += $antiquemoney>><<set $antiquemoney to 0>>
+<<money `antiqueSaleValue(_antiqueSaleAmount)` "museumAntique">><<set $antiquemoneyhistory += _antiqueSaleAmount>><<set $antiquemoney -= _antiqueSaleAmount>>
+
+<<link [[Next|Museum]]>><<endevent>><</link>>
+<br>
+
+:: Museum Sell Ivory Necklace
+<<set $outside to 0>><<set $location to "museum">><<effects>>
+<<npc Winter>><<person1>>
+
+You hand Winter the ivory necklace. <<He>> dons a pair of gloves and turns it over, examining the blue jewels.
+<br><br>
+
+"An extraordinary piece," <<he>> says. <<He>> places <<printmoney `previewSaleValue(antiqueSaleValue(2000), "museumAntique")`>> on the table, then carries the necklace into a back room.
+<<glove>><<npcincr Winter love 1>>
+<<money `antiqueSaleValue(2000)` "museumAntique">><<set $antiquemoneyhistory += 2000>><<set $antiquemoney -= 2000>>
+<<museumAntiqueStatus "antiqueivorynecklace" "talk">><<world_corruption "hard" 2>>
+<br><br>
 
 <<link [[Next|Museum]]>><<endevent>><</link>>
 <br>

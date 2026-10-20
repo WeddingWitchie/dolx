@@ -1974,8 +1974,8 @@ function valuableSaleMultiplier() {
 }
 window.valuableSaleMultiplier = valuableSaleMultiplier;
 
-function antiqueSaleValue() {
-	const base = (Number.isFinite(V.antiquemoney) ? V.antiquemoney : 0) * 100;
+function antiqueSaleValue(amount = V.antiquemoney) {
+	const base = (Number.isFinite(amount) ? amount : 0) * 100;
 	const mathsBuff = V.mathsTraitBuffs && V.mathsTraitBuffs.antiques === 1 ? 1 + (Number(V.mathstrait) || 0) / 4 : 1;
 	return Math.round(base * mathsBuff * valuableSaleMultiplier());
 }
