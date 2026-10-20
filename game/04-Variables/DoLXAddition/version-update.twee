@@ -1434,6 +1434,14 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 
 <<widget "xchange-loadinit">>
 	<<run setup.xchangeRunLoadCompat()>>
+	/* Older Gwylan requests copied missing mod catalogue slots as "none". */
+	<<if $gwylan?.request?.event is "clothing">>
+		<<run $gwylan.request.items?.forEach(item => {
+			if (item.category !== "clothing" || item.slot !== "none") return;
+			const slots = setup.clothes_all_slots.filter(slot => setup.clothes[slot].some(clothes => clothes.name === item.name));
+			if (slots.length === 1) item.slot = slots[0];
+		})>>
+	<</if>>
 	/* Use vanilla's legacy sprite mapping for complete cached bodies that predate bodyshape. */
 	<<if setup.xChangeMigrateLegacyHermSnapshots()>>
 		<<run setup.xChangeRepairNoticeOnce("repair_xchange_legacy_body_snapshot", "<b>Save repair notice</b><br>Stored X-Change bodies used legacy body-sex or appearance fields. Missing body shapes now use the same mapping as vanilla's old-character update. Recorded sizes and body history were preserved.")>>

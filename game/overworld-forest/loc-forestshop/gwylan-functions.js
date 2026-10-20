@@ -330,6 +330,7 @@ function gwylanRequestClothes(override) {
 		}
 
 		grcAssign(newItem, setupItem);
+		newItem.slot = clothingSlot;
 
 		if (!V.gwylan.request.items.some(thing => thing.root)) newItem.root = true;
 		const masterItem = newItem.root ? null : V.gwylan.request.items.find(thing => thing.root);
@@ -395,6 +396,7 @@ function gwylanRequestClothes(override) {
 				const outfitPart = clone(setup.clothes[targetSlot].find(outfit => outfit.outfitSecondary?.includesAll(clothingSlot, toCheck.name)));
 				const outfitSecondary = clone(baseItem);
 				grcAssign(outfitSecondary, outfitPart);
+				outfitSecondary.slot = targetSlot;
 				/* Only demand a colour the part can actually be dyed */
 				outfitSecondary.colour_requirement = outfitPart.colour_options?.length ? base.colour_requirement : "any";
 				outfitSecondary.acc_colour_requirement = outfitPart.accessory_colour_options?.length ? base.acc_colour_requirement : "any";
@@ -419,6 +421,7 @@ function gwylanRequestClothes(override) {
 					.forEach(altSetup => {
 						const altItem = clone(newItem);
 						grcAssign(altItem, altSetup);
+						altItem.slot = clothingSlot;
 						altItem.alt = true;
 						altItem.root = false;
 						V.gwylan.request.items.push(altItem);
@@ -725,7 +728,7 @@ function gwylanWardrobeRequestPool() {
 				if (!setupItem) return;
 				if (blockedItems.includes(item.name)) return;
 				if (!allowedGenders.includes(setupItem.gender)) return;
-				if (gwylanClothingHypnosisBlocked(setupItem)) return;
+				if (gwylanClothingHypnosisBlocked({ ...setupItem, slot })) return;
 				if (setupItem.type?.includes("naked")) return;
 				if (setupItem.outfitSecondary) return; // Requested via its primary piece instead
 				if (setupItem.shop?.includes("school")) return; // The player needs their uniform

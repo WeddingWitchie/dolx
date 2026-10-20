@@ -3472,7 +3472,12 @@ Gwylan leads you back to the shop. "I'm looking forward to what we can do with t
 			<<set $_thisItem to $_itemsToList[$_requestIndex]>>
 			<<switch $_thisItem.category>>
 				<<case "clothing">>
-					<<set $_thisItemSetup to clone(setup.clothes[$_thisItem.slot].find(it => it.name === $_thisItem.name))>>
+					<<set $_thisItemSetup to clone(setup.clothes[$_thisItem.slot]?.find(it => it.name === $_thisItem.name))>>
+					<<if !$_thisItemSetup>>
+						<span class='fa-icon fa-unselected'></span>
+						<<print $_thisItem.name>> <span class="red">(clothing unavailable)</span><br>
+						<<continue>>
+					<</if>>
 					<<set $_thisItemSetup.colour to $_thisItem.colour_requirement isnot "any" ? $_thisItem.colour_requirement : $_thisItemSetup.colour_options.random()>>
 					<<set $_thisItemSetup.accessory_colour to $_thisItem.acc_colour_requirement isnot "any" ? $_thisItem.acc_colour_requirement : $_thisItemSetup.accessory_colour_options.random()>>
 					<<if gwylanRequestClothingSlotCheck($_thisItem.slot)>>
