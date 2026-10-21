@@ -292,9 +292,15 @@ function blindAdaptationStrength() {
 window.blindAdaptationStrength = blindAdaptationStrength;
 
 function blindSkillFailureChance() {
-	return pcEyesCovered() ? Math.ceil(30 * (1 - blindAdaptationStrength())) : 0;
+	return pcEyesCovered() ? Math.ceil(30 * (1 - blindAdaptationStrength()) * (pcHasBlindCane() ? 0.8 : 1)) : 0;
 }
 window.blindSkillFailureChance = blindSkillFailureChance;
+
+function pcHasBlindCane() {
+	const handheld = V.worn?.handheld;
+	return handheld?.variable === "cane" && handheld.integrity >= 1 && !handheld.type.includes("broken");
+}
+window.pcHasBlindCane = pcHasBlindCane;
 
 function pcIsBlinded() {
 	return pcEyesCovered() && blindAdaptationStrength() < 1;
@@ -313,7 +319,7 @@ function blindAdaptationTimePassed(minutes) {
 	}
 	if (covered) {
 		const before = state.minutes;
-		state.minutes = Math.min(10080, state.minutes + minutes * (1 + senses * 0.25));
+		state.minutes = Math.min(10080, state.minutes + minutes * (1 + senses * 0.25) * (pcHasBlindCane() ? 0.25 : 1));
 		if (before < 10080 && state.minutes === 10080) {
 			V.timeMessages ??= [];
 			V.timeMessages.pushUnique("blindAdaptation");

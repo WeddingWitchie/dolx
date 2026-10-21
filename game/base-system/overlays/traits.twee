@@ -17,7 +17,7 @@
 					name: "Fumbling in the dark",
 					colour: "red",
 					has: blindSkillFailureChance() > 0,
-					text: () => "Your covered eyes give skill checks a " + blindSkillFailureChance() + "% chance to fail as you fumble without sight. Building Adaptability gradually removes this chance.",
+					text: () => "Your covered eyes give skill checks a " + blindSkillFailureChance() + "% chance to fail as you fumble without sight. Building Adaptability gradually removes this chance." + (pcHasBlindCane() ? " Your cane reduces the remaining chance by 20%, but reliance on it slows adaptation training to a quarter of its normal rate. Losing or breaking it removes this help." : ""),
 				},
 				{
 					name: "Adaptability",
@@ -25,10 +25,10 @@
 					has: blindAdaptationStrength() > 0,
 					text: () => {
 						const text = ["Practice without sight: " + Math.floor(blindAdaptationStrength() * 100) + "%. Full adaptation removes blindness penalties."];
+						if (blindAdaptationStrength() < 1) text.push(pcHasBlindCane() ? "Training takes twenty-eight days with covered eyes while relying on your cane, before bonuses from animal senses." : "Training takes seven days with covered eyes, before bonuses from animal senses.");
 						if (V.hypnosis_traits.adaptability) {
 							text.push("Hypnotic Adaptability stops this progress from fading.");
 						} else {
-							if (blindAdaptationStrength() < 1) text.push("Training takes seven days with covered eyes.");
 							text.push("Progress fades while your eyes are uncovered.");
 							const senses = [
 								["wolf", "wolf scent"], ["bear", "bear scent"], ["cat", "cat reflexes"],

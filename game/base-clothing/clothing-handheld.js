@@ -439,7 +439,7 @@ function initHandheld() {
 			gender: "n",
 			femininity: 0,
 			cost: 1000,
-			description: "Lightweight and dignified.",
+			description: "Lightweight and dignified. Helps you feel your way without sight, but relying on it slows adaptation. Can break when used to fight.",
 			shop: ["clothing"],
 			accessory: 1,
 			accessory_colour: 0,
