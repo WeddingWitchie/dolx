@@ -244,6 +244,16 @@ setup.shopDetails = {
 		desc: "Protects your mouth, but also limits its use.",
 		details: "Prevents kissing, penetration, and other oral activities. Makes it impossible to speak.",
 	},
+	blindfold: {
+		name: "Blindfold",
+		desc: "Covers your eyes.",
+		details: "Prevents you from seeing while worn.",
+	},
+	shackle: {
+		name: "Shackles",
+		desc: "Restricts your legs.",
+		details: "Makes running, swimming, and dancing more difficult.",
+	},
 	leash: {
 		name: "Leash",
 		desc: "A convenient handle to yank you around with.",
