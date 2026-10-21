@@ -1803,7 +1803,7 @@
 				</ul>
 				<br>
 			<</if>>
-			<<set $_antiquesFound to Object.values($museumAntiques.antiques).filter(status => status !== "notFound").length>>
+			<<set $_antiquesFound to Object.entries($museumAntiques.antiques).filter(([name, status]) => _museumAntiqueText[name] && status !== "notFound").length>>
 			<<set $_paintingsFound to Object.values($museumAntiques.paintings).filter(status => status !== "notFound").length>>
 			<<set $_totalFound to $_antiquesFound + $_paintingsFound>>
 			<<if $_totalFound is 0>>
@@ -1840,6 +1840,7 @@
 				<</if>>
 				<div class="itemCollectible">
 					<<for _labelM, _valueM range $museumAntiques.antiques>>
+						<<if !_museumAntiqueText[_labelM]>><<continue>><</if>>
 						<<set _antique to $museumAntiqueJournalHints.includes(_labelM) ? _museumAntiqueText[_labelM]?.journalName || _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst() : _museumAntiqueText[_labelM].name.toLowerCase().toUpperFirst()>>
 						<<if $museumAntiqueJournalHints.includes(_labelM)>>
 							<<switch _valueM>>

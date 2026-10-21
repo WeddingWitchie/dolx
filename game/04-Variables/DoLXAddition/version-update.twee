@@ -1488,6 +1488,16 @@ if (typeof window.defined !== "function") { window.defined = function (v) { retu
 	<<script>>window.clearOrphanWetnessKeys?.();<</script>>
 	<<script>>window.ejectOrphanVaginalDildo?.();<</script>>
 	<<run pruneClothes()>><<run pruneNPCName()>>
+	<<museumAntiqueText>>
+	/* Prune unused antique entries absent from this version, preserving collected antiques. */
+	<<for _labelM, _valueM range $museumAntiques.antiques>>
+		<<if !_museumAntiqueText[_labelM] and _valueM is "notFound">>
+			<<run delete $museumAntiques.antiques[_labelM]>>
+			<<run $museumAntiqueJournalHints?.delete(_labelM)>>
+			<<if $winterHint is _labelM>><<set $winterHint to "notGiven">><</if>>
+		<</if>>
+	<</for>>
+	<<set $museumAntiques.maxCount to Object.keys($museumAntiques.antiques).filter(name => _museumAntiqueText[name]).length>>
 	<<run repairWardrobeSlots()>>
 	<<run reclaimStrandedWardrobeItems()>>
 	<<physicalAdjustmentsInit>>
