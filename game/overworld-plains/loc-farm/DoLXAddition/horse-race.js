@@ -8,39 +8,43 @@ setup.horserace = setup.horserace || {};
 	HR.DEFAULT_WATCH_DELAY = 1600;
 
 	/* Gambling balance configuration.
-	 * INJURY_CHANCE_PERCENT: chance that the backed horse will be pulled up
-	 *   late in the race after a bet is placed.
+	 * PAYOUT_MARGIN: house edge built into the posted odds. Odds are the
+	 *   margin divided by the horse's estimated chance, so every bet returns
+	 *   92% of its stake on average. Set to 1.0 for fair odds. The odds are
+	 *   never capped, because a cap would quietly worsen the edge on longshots.
 	 *
-	 * PAYOUT_MARGIN: house edge applied to winning payouts. 1.0 = fair odds
-	 *   (the original, slightly player-favorable behaviour). 0.92 = the house
-	 *   keeps 8%, so grinding trends negative over time. Set to 1.0 to disable.
+	 * MAX_PAYOUT: the most one slip can return, in whole pounds. Instead of
+	 *   shortening long odds, the bookie lowers the largest stake it takes
+	 *   (MAX_PAYOUT / odds), so the price stays honest and one lucky longshot
+	 *   cannot pay more than the old 5.75x odds on a 2000 stake did.
+	 *
+	 * PLACE_WIN_WEIGHT: how much a winning place bet counts towards the weekly
+	 *   win cap. Place bets land about twice as often and pay much less.
+	 *
+	 * INCIDENT_CHANCES: percent chance per runner per race, rolled once at the
+	 *   start whether or not anyone backed that runner. Only "injured" marks the
+	 *   horse as injured for the week; "exhausted" pulls it out of this race only.
+	 *
+	 * ODDS_TRIALS: how many silent runs of the field createRace uses to price it.
 	 *
 	 * The weekly reset is handled by DoL's native $weekly cleanup; all weekly
 	 * counters live on $weekly, so they clear automatically each game week.
 	 */
-	HR.INJURY_CHANCE_PERCENT = 80;
 	HR.PAYOUT_MARGIN = 0.92;
-
-	/* Every clean rigging job makes the backed horse steadier; every botched one leaves it rattled.
-	These shift the base injury chance up or down, so a player who works the stable yard well raises their 25% clean run,
-	and a player who fumbles it lowers their own odds. */
-	HR.RIG_SUCCESS_INJURY_SHIFT = 8;
-	HR.RIG_FAILURE_INJURY_SHIFT = 6;
-	HR.INJURY_CHANCE_FLOOR = 30;
-	HR.INJURY_CHANCE_CEILING = 92;
-
-	HR.effectiveInjuryChance = function () {
-		const race = HR.ensureState();
-		const successes = Number.isFinite(race.rigSuccesses) ? race.rigSuccesses : 0;
-		const failures = Number.isFinite(race.rigFailures) ? race.rigFailures : 0;
-		const shifted = HR.INJURY_CHANCE_PERCENT - successes * HR.RIG_SUCCESS_INJURY_SHIFT + failures * HR.RIG_FAILURE_INJURY_SHIFT;
-		return HR.clamp(shifted, HR.INJURY_CHANCE_FLOOR, HR.INJURY_CHANCE_CEILING);
-	};
-
-	/* The number the player actually cares about: the chance their backed horse gets round the course without being pulled up. */
-	HR.cleanRunChance = function () {
-		return 100 - HR.effectiveInjuryChance();
-	};
+	HR.INCIDENT_CHANCES = { blocked: 5, wide: 3, stumble: 2, exhausted: 1.5, injured: 1 };
+	/* Pace multipliers for the rounds after a non-fatal incident starts. */
+	HR.INCIDENT_PACE = { blocked: [0.35, 0.45, 0.65], wide: [0.2, 0.55], stumble: [0.1, 0.7] };
+	/* Each runner's form on the day, rolled once per race and added to its pace every round. Bigger means more upsets. */
+	HR.FORM_SPREAD = 1.7;
+	HR.ODDS_TRIALS = 2000;
+	/* A winning slip always returns at least the stake. */
+	HR.ODDS_FLOOR = 1;
+	HR.MAX_PAYOUT = 10000;
+	HR.PLACE_WIN_WEIGHT = 0.5;
+	/* Gambling luck speeds up only the backed horse, after the odds are posted, so it is a real edge over the bookie.
+	   Sized so the average return per stake roughly matches what the same luck gives at blackjack and dice. */
+	HR.MOOR_LUCK_PACE = 0.13;
+	HR.CLOVER_LUCK_PACE = 0.035;
 
 	/* The runners are the farm's horses, so they follow the farm's daily horse/centaur roll (see the farm_text widget).
 	   A 100% beastfolk chance always shows centaurs, even on a day the farm rolled before the setting changed. */
@@ -415,13 +419,10 @@ setup.horserace = setup.horserace || {};
 
 		if (success) {
 			action.apply(horse);
-			race.rigSuccesses = (Number.isFinite(race.rigSuccesses) ? race.rigSuccesses : 0) + 1;
 			/* A rider or handler on your side keeps the bookies quiet for longer. */
 			if (actionId === "bribe_money" || actionId === "bribe_sex") {
 				HR.weeklyState().horseRaceStaffBribed = true;
 			}
-		} else {
-			race.rigFailures = (Number.isFinite(race.rigFailures) ? race.rigFailures : 0) + 1;
 		}
 
 		horse.baseSpeed = HR.clamp(horse.baseSpeed, 5, 140);
@@ -1048,6 +1049,7 @@ setup.horserace = setup.horserace || {};
 		if (typeof race.lossStressPending !== "boolean") race.lossStressPending = false;
 		if (typeof race.lossTraumaPending !== "boolean") race.lossTraumaPending = false;
 		if (typeof race.lossRecorded !== "boolean") race.lossRecorded = false;
+		if (race.betType !== "place") race.betType = "win";
 
 		/* Weekly counters used to live here; they now live on $weekly and reset
 		   with DoL's weekly cleanup. Shed the old fields from existing saves. */
@@ -1056,16 +1058,14 @@ setup.horserace = setup.horserace || {};
 		if ("weekAnchorDay" in race) delete race.weekAnchorDay;
 		if ("inputNonce" in race) delete race.inputNonce;
 
-		/* Per-race "fixed" accident fields (reset by createRace). */
-		if (typeof race.accident !== "boolean") race.accident = false;
-		if (!Number.isFinite(race.accidentAtRound)) race.accidentAtRound = 0;
-		if (typeof race.accidentRefund !== "boolean") race.accidentRefund = false;
+		/* The backed horse is no longer pulled up by a pre-rolled accident; incidents live on each horse. */
+		for (const key of ["accident", "accidentAtRound", "accidentRefund", "rigSuccesses", "rigFailures"]) {
+			if (key in race) delete race[key];
+		}
 		if (typeof race.incidentHorseId !== "string") race.incidentHorseId = "";
 
 		/* Per-race stable rigging fields (reset by createRace). */
 		if (!Number.isFinite(race.suspicion)) race.suspicion = 0;
-		if (!Number.isFinite(race.rigSuccesses)) race.rigSuccesses = 0;
-		if (!Number.isFinite(race.rigFailures)) race.rigFailures = 0;
 		if (typeof race.rigEntered !== "boolean") race.rigEntered = false;
 		if (typeof race.rigSuccessPassage !== "string") race.rigSuccessPassage = "";
 		if (typeof race.rigCaughtPassage !== "string") race.rigCaughtPassage = "";
@@ -1077,6 +1077,12 @@ setup.horserace = setup.horserace || {};
 		for (const horse of race.horses) {
 			if (!horse || typeof horse !== "object") continue;
 			if (typeof horse.accident !== "boolean") horse.accident = false;
+			if (typeof horse.withdrawn !== "boolean") horse.withdrawn = false;
+			if (typeof horse.incident !== "string") horse.incident = "";
+			if (!Number.isFinite(horse.incidentRound)) horse.incidentRound = 0;
+			if (typeof horse.incidentHappened !== "boolean") horse.incidentHappened = false;
+			if (!Number.isFinite(horse.odds)) horse.odds = 2;
+			if (!Number.isFinite(horse.placeOdds)) horse.placeOdds = Math.max(HR.ODDS_FLOOR, Number((1 + (horse.odds - 1) / 3).toFixed(2)));
 			if (!Number.isFinite(horse.progress)) horse.progress = 0;
 			if (!Number.isFinite(horse.stamina)) horse.stamina = 80;
 			if (!Number.isFinite(horse.boost)) horse.boost = 0;
@@ -1125,7 +1131,12 @@ setup.horserace = setup.horserace || {};
 			lastSkillRound: -99,
 			skills: HR.randomSkills(3),
 			skillHistory: [],
+			withdrawn: false,
+			incident: "",
+			incidentRound: 0,
+			incidentHappened: false,
 			odds: 2.0,
+			placeOdds: 1.3,
 			formScore: baseSpeed * 0.52 + stamina * 0.3 + focus * 0.14 + kick * 5,
 		};
 	};
@@ -1154,9 +1165,6 @@ setup.horserace = setup.horserace || {};
 			race.trial = false;
 			race.autoWatch = false;
 			race.lastError = `The ${HR.kind(true)} are not in good enough shape to run today.`;
-			race.accident = false;
-			race.accidentAtRound = 0;
-			race.accidentRefund = false;
 			race.incidentHorseId = "";
 			race.lossStressPending = false;
 			race.lossTraumaPending = false;
@@ -1167,8 +1175,6 @@ setup.horserace = setup.horserace || {};
 			race.rigTargetId = "";
 			race.riggedCancelled = false;
 			race.rigGame = {};
-			race.rigSuccesses = 0;
-			race.rigFailures = 0;
 			race.rigEntered = false;
 			race.rigSuccessPassage = "";
 			race.rigCaughtPassage = "";
@@ -1180,15 +1186,6 @@ setup.horserace = setup.horserace || {};
 		const count = HR.randInt(minCount, maxCount);
 		const names = HR.shuffle(namePool).slice(0, count);
 		const horses = names.map((name, index) => HR.createHorse(name, index));
-		const bestScore = Math.max.apply(
-			null,
-			horses.map(horse => horse.formScore)
-		);
-
-		for (const horse of horses) {
-			const weakness = Math.max(0, bestScore - horse.formScore);
-			horse.odds = Number(HR.clamp(1.35 + weakness / 18 + HR.randFloat(0, 0.45), 1.35, 5.75).toFixed(2));
-		}
 
 		race.id = `hr-${Date.now()}-${HR.randInt(1000, 9999)}`;
 		race.phase = "betting";
@@ -1198,6 +1195,14 @@ setup.horserace = setup.horserace || {};
 		race.condition = going.condition;
 		race.goingLabel = going.label;
 		race.goingDescription = going.description;
+
+		/* Price the field by running it silently, so the posted odds match how often each horse really wins or places on this track and going. */
+		const chances = HR.estimateChances({ trackId: race.trackId, condition: race.condition, horses });
+		for (const horse of horses) {
+			horse.odds = Math.max(HR.ODDS_FLOOR, Number((HR.PAYOUT_MARGIN / chances.win[horse.id]).toFixed(2)));
+			horse.placeOdds = Math.max(HR.ODDS_FLOOR, Number((HR.PAYOUT_MARGIN / chances.place[horse.id]).toFixed(2)));
+		}
+		race.betType = "win";
 		race.round = 0;
 		race.horses = horses;
 		race.messages = [];
@@ -1214,9 +1219,6 @@ setup.horserace = setup.horserace || {};
 		race.trial = false;
 		race.autoWatch = false;
 		race.lastError = "";
-		race.accident = false;
-		race.accidentAtRound = 0;
-		race.accidentRefund = false;
 		race.incidentHorseId = "";
 		race.lossStressPending = false;
 		race.lossTraumaPending = false;
@@ -1227,8 +1229,6 @@ setup.horserace = setup.horserace || {};
 		race.rigTargetId = "";
 		race.riggedCancelled = false;
 		race.rigGame = {};
-		race.rigSuccesses = 0;
-		race.rigFailures = 0;
 		race.rigEntered = false;
 		race.rigSuccessPassage = "";
 		race.rigCaughtPassage = "";
@@ -1252,9 +1252,6 @@ setup.horserace = setup.horserace || {};
 		race.betInput = "";
 		race.betAmount = 0;
 		race.payout = 0;
-		race.accident = false;
-		race.accidentAtRound = 0;
-		race.accidentRefund = false;
 		race.lossStressPending = false;
 		race.lossTraumaPending = false;
 		race.lossRecorded = false;
@@ -1264,8 +1261,6 @@ setup.horserace = setup.horserace || {};
 		race.rigTargetId = "";
 		race.riggedCancelled = false;
 		race.rigGame = {};
-		race.rigSuccesses = 0;
-		race.rigFailures = 0;
 		race.rigEntered = false;
 		race.rigSuccessPassage = "";
 		race.rigCaughtPassage = "";
@@ -1290,7 +1285,7 @@ setup.horserace = setup.horserace || {};
 		return race;
 	};
 
-	HR.placeBet = function (horseId, rawAmount) {
+	HR.placeBet = function (horseId, rawAmount, betType) {
 		const V = State.variables;
 		const race = HR.ensureState();
 		race.lastError = "";
@@ -1321,6 +1316,11 @@ setup.horserace = setup.horserace || {};
 			race.lastError = `You do not have ${HR.formatMoney(amount)} to bet.`;
 			return { ok: false, reason: "insufficientMoney" };
 		}
+		const maxStake = HR.maxStake(horse, betType);
+		if (amount > maxStake) {
+			race.lastError = `The bookie will not take more than ${HR.formatMoney(maxStake)} on that slip.`;
+			return { ok: false, reason: "overLimit" };
+		}
 
 		const suspicion = HR.clamp(race.suspicion || 0, 0, 100);
 		if (suspicion > 0 && HR.randInt(1, 100) <= HR.clamp(suspicion, 0, HR.SUSPICION_CANCEL_CAP)) {
@@ -1339,37 +1339,213 @@ setup.horserace = setup.horserace || {};
 			return { ok: false, reason: "cancelled" };
 		}
 
-		const weekly = HR.weeklyState();
-		const injuryRoll = HR.randInt(1, 100) <= HR.effectiveInjuryChance();
-
 		V.money = HR.roundMoney(V.money - amount);
 		HR.addWeeklyBet(amount);
 		race.betHorseId = horse.id;
 		race.selectedHorseId = horse.id;
 		race.betAmount = amount;
+		race.betType = betType === "place" ? "place" : "win";
 		race.phase = "running";
 		race.autoWatch = false;
-		race.messages = [`You back ${horse.name} for ${HR.formatMoney(amount)} at ${horse.odds.toFixed(2)}x odds.`];
-
-		if (injuryRoll) {
-			race.accident = true;
-			race.accidentAtRound = HR.randInt(18, 24);
-			race.accidentRefund = false;
-			weekly.horseRaceWeeklyAccidents += 1;
-		} else {
-			race.accident = false;
-			race.accidentAtRound = 0;
-			race.accidentRefund = false;
-		}
+		race.messages = [
+			race.betType === "place"
+				? `You back ${horse.name} to place for ${HR.formatMoney(amount)} at ${horse.placeOdds.toFixed(2)}x odds.`
+				: `You back ${horse.name} to win for ${HR.formatMoney(amount)} at ${horse.odds.toFixed(2)}x odds.`,
+		];
 
 		race.messageHistory = race.messages.slice();
-		return { ok: true, accident: race.accident };
+		return { ok: true };
+	};
+
+	/* The largest stake (internal money) the bookie takes on this horse and bet type, so no slip returns more than MAX_PAYOUT. */
+	HR.maxStake = function (horse, betType) {
+		const odds = betType === "place" ? horse.placeOdds : horse.odds;
+		return HR.toInternalMoney(Math.floor(HR.MAX_PAYOUT / Math.max(HR.ODDS_FLOOR, odds)));
+	};
+
+	/* Injured and withdrawn runners stop where they are and can never be placed. */
+	HR.isOut = function (horse) {
+		return Boolean(horse && (horse.accident === true || horse.withdrawn === true));
+	};
+
+	HR.raceOver = function (race) {
+		return race.horses.some(horse => horse.progress >= 100) || race.round >= 28 || race.horses.every(HR.isOut);
+	};
+
+	/* Runners still in the race, best first. */
+	HR.finishers = function (race) {
+		return HR.rankedHorses(race).filter(horse => !HR.isOut(horse));
+	};
+
+	HR.rollIncidents = function (race) {
+		for (const horse of race.horses) {
+			horse.incident = "";
+			horse.incidentRound = 0;
+			horse.incidentHappened = false;
+			horse.form = HR.randFloat(-HR.FORM_SPREAD, HR.FORM_SPREAD);
+			let roll = Math.random() * 100;
+			for (const type in HR.INCIDENT_CHANCES) {
+				if (roll < HR.INCIDENT_CHANCES[type]) {
+					horse.incident = type;
+					horse.incidentRound = type === "exhausted" ? HR.randInt(12, 20) : HR.randInt(5, 19);
+					break;
+				}
+				roll -= HR.INCIDENT_CHANCES[type];
+			}
+		}
+	};
+
+	HR.INCIDENT_LOG = {
+		blocked: [
+			name => `${name} gets stuck behind a slower ${HR.kind()} and has to slow down because there is no room to pass.`,
+			name => `Another ${HR.kind()} moves in front of ${name}, forcing ${name} to slow down and wait for enough space to pass.`,
+		],
+		wide: [
+			name => `${name} takes the turn too far from the inside of the track, making ${name} run farther than the other horses and lose some distance.`,
+			name =>
+				`${name} moves too far towards the outside of the track while turning. By the time ${name} returns to the normal path, the other horses are farther ahead.`,
+		],
+		stumble: [
+			name => `${name} almost falls while turning, but manages to stay on ${HR.it("its")} feet and continues running.`,
+			name => `${name} takes a bad step and briefly loses speed before continuing the race.`,
+		],
+		exhausted: [
+			name => `${name} becomes too tired to keep running. The rider slows ${HR.it("itobj")} down and takes ${HR.it("itobj")} out of the race.`,
+			name => `${name} is having trouble keeping up because of exhaustion. The rider decides to stop racing rather than force ${HR.it("itobj")} to continue.`,
+		],
+		injured: [
+			name =>
+				`${name} hurts one of ${HR.it(
+					"its"
+				)} legs while running and starts having trouble walking properly. The rider stops immediately, and the vets come onto the track to help.`,
+			name =>
+				`${name} falls while running on the other side of the track. The rider quickly gets back up, while the vets hurry over to check the ${HR.kind()}.`,
+		],
+	};
+
+	/* Starts the planned incident for this horse. Returns the pace multiplier for this round, or 0 if the horse leaves the race. */
+	HR.startIncident = function (race, horse, log) {
+		horse.incidentHappened = true;
+		const text = HR.INCIDENT_LOG[horse.incident][HR.randInt(0, HR.INCIDENT_LOG[horse.incident].length - 1)](horse.name);
+		if (horse.incident === "injured") {
+			horse.accident = true;
+			horse.boost = 0;
+			race.incidentHorseId = horse.id;
+			log.push({ type: "accident", horseId: horse.id, text });
+			return 0;
+		}
+		if (horse.incident === "exhausted") {
+			horse.withdrawn = true;
+			horse.boost = 0;
+			log.push({ type: "incident", serious: true, horseId: horse.id, text });
+			return 0;
+		}
+		horse.boost = 0;
+		log.push({ type: "incident", horseId: horse.id, text });
+		return HR.INCIDENT_PACE[horse.incident][0];
+	};
+
+	/* One round of the race. Shared by the live view, the skip button, and the odds estimate, so all three run the same race.
+	   luckHorseId gets the player's gambling luck; the odds estimate passes "" so the posted odds never depend on who backs what. */
+	HR.advanceRound = function (race, log, luckHorseId, luck) {
+		race.round += 1;
+		if (race.round === 1) HR.rollIncidents(race);
+
+		for (const horse of race.horses) {
+			if (HR.isOut(horse)) continue;
+			HR.trySkill(horse, race, log);
+		}
+
+		for (const horse of race.horses) {
+			if (HR.isOut(horse)) continue;
+
+			let incidentPace = 1;
+			if (horse.incident && race.round >= horse.incidentRound) {
+				if (!horse.incidentHappened) {
+					incidentPace = HR.startIncident(race, horse, log);
+					if (HR.isOut(horse)) continue;
+				} else {
+					const pace = HR.INCIDENT_PACE[horse.incident];
+					const offset = race.round - horse.incidentRound;
+					if (pace && offset < pace.length) incidentPace = pace[offset];
+				}
+			}
+
+			const staminaPressure = (horse.stamina - 50) / 55;
+			const wetPenalty = race.condition === "wet" ? -0.15 : race.condition === "muddy" ? -0.35 : 0;
+			const trackChaos = race.trackId === "cross" ? HR.randFloat(-0.35, 0.45) : HR.randFloat(-0.2, 0.25);
+			const finalKick = horse.progress >= 75 ? horse.finishKick : 0;
+			const pace =
+				(horse.baseSpeed / 21 + (horse.form || 0) + staminaPressure + horse.boost + finalKick + wetPenalty + trackChaos + HR.randFloat(-0.85, 1.05)) *
+				(horse.id === luckHorseId ? luck : 1);
+
+			horse.progress = HR.clamp(horse.progress + (incidentPace < 1 ? Math.max(0.2, pace * incidentPace) : Math.max(0.8, pace)), 0, 100);
+			horse.stamina = HR.clamp(horse.stamina - HR.randFloat(1.8, 4.1), 0, horse.maxStamina + 35);
+			horse.boost *= 0.52;
+		}
+	};
+
+	/* Runs the field silently many times from the start line and counts wins and top-two finishes. */
+	HR.estimateChances = function (race, trials) {
+		const runs = trials || HR.ODDS_TRIALS;
+		const wins = {};
+		const places = {};
+		for (const horse of race.horses) {
+			wins[horse.id] = 0;
+			places[horse.id] = 0;
+		}
+		for (let t = 0; t < runs; t++) {
+			const sim = {
+				round: 0,
+				trackId: race.trackId,
+				condition: race.condition,
+				betHorseId: "",
+				incidentHorseId: "",
+				/* Only the fields the race and the skills read, so the real horses are never touched. */
+				horses: race.horses.map(horse => ({
+					id: horse.id,
+					name: horse.name,
+					lane: horse.lane,
+					baseSpeed: horse.baseSpeed,
+					stamina: horse.maxStamina,
+					maxStamina: horse.maxStamina,
+					focus: horse.focus,
+					finishKick: horse.finishKick,
+					formScore: horse.formScore,
+					skills: horse.skills,
+					skillCooldown: horse.skillCooldown,
+					skillHistory: [],
+					lastSkillRound: -99,
+					progress: 0,
+					boost: 0,
+					form: 0,
+					accident: false,
+					withdrawn: false,
+					incident: "",
+					incidentRound: 0,
+					incidentHappened: false,
+				})),
+			};
+			while (!HR.raceOver(sim)) HR.advanceRound(sim, [], "", 1);
+			const top = HR.finishers(sim);
+			if (top[0]) wins[top[0].id] += 1;
+			for (const horse of top.slice(0, 2)) places[horse.id] += 1;
+		}
+		const win = {};
+		const place = {};
+		for (const id in wins) {
+			/* (count + 1) / runs is never zero, and the odds it gives are on average no longer than the true price,
+			   so sampling noise cannot hand the player better than the posted margin on a rare longshot. */
+			win[id] = Math.min(1, (wins[id] + 1) / runs);
+			place[id] = Math.min(1, (places[id] + 1) / runs);
+		}
+		return { win, place };
 	};
 
 	HR.rankedHorses = function (race) {
 		return race.horses.slice().sort(function (a, b) {
-			const aAccident = a && a.accident === true;
-			const bAccident = b && b.accident === true;
+			const aAccident = HR.isOut(a);
+			const bAccident = HR.isOut(b);
 			if (aAccident !== bAccident) return aAccident ? 1 : -1;
 			if (b.progress !== a.progress) return b.progress - a.progress;
 			return b.formScore - a.formScore;
@@ -1437,50 +1613,31 @@ setup.horserace = setup.horserace || {};
 		horse.skillCooldown = HR.randInt(2, 4);
 	};
 
-	HR.step = function (watching) {
+	HR.step = function () {
 		const V = State.variables;
 		const race = HR.ensureState();
 		if (race.phase === "betting") race.phase = "running";
 		if (race.phase !== "running") return race;
 
 		HR.passRaceTime(2);
-		race.round += 1;
 		const stepMessages = [];
+		const gamblingLuck = V.statFreeze
+			? 1
+			: 1 + (V.daily?.moorGamblingLuck ? HR.MOOR_LUCK_PACE : 0) + (V.foodstuff?.four_leaf_clover?.amount >= 1 ? HR.CLOVER_LUCK_PACE : 0);
+		HR.advanceRound(race, stepMessages, race.betHorseId, gamblingLuck);
 
-		if (watching) {
-			for (const horse of race.horses) {
-				if (horse.accident === true) continue;
-				HR.trySkill(horse, race, stepMessages);
-			}
-		}
-
-		for (const horse of race.horses) {
-			if (horse.accident === true) continue;
-
-			const staminaPressure = (horse.stamina - 50) / 55;
-			const wetPenalty = race.condition === "wet" ? -0.15 : race.condition === "muddy" ? -0.35 : 0;
-			const trackChaos = race.trackId === "cross" ? HR.randFloat(-0.35, 0.45) : HR.randFloat(-0.2, 0.25);
-			const finalKick = horse.progress >= 75 ? horse.finishKick : 0;
-			const gamblingLuck = V.statFreeze ? 1 : 1 + (V.daily?.moorGamblingLuck ? 0.4 : 0) + (V.foodstuff?.four_leaf_clover?.amount >= 1 ? 0.07 : 0);
-			const pace =
-				(horse.baseSpeed / 21 + staminaPressure + horse.boost + finalKick + wetPenalty + trackChaos + HR.randFloat(-0.85, 1.05)) *
-				(horse.id === race.betHorseId ? gamblingLuck : 1);
-
-			horse.progress = HR.clamp(horse.progress + Math.max(0.8, pace), 0, 100);
-			horse.stamina = HR.clamp(horse.stamina - HR.randFloat(1.8, 4.1), 0, horse.maxStamina + 35);
-			horse.boost *= 0.52;
-		}
-
-		if (race.accident) {
-			const incidentHorse = HR.getHorse(race.betHorseId);
-			if (incidentHorse && incidentHorse.accident !== true && (incidentHorse.progress >= 82 || race.round >= race.accidentAtRound)) {
-				HR.triggerAccident();
-			}
+		const weekly = HR.weeklyState();
+		for (const message of stepMessages) {
+			if (!message || message.type !== "accident") continue;
+			const horse = HR.getHorse(message.horseId);
+			if (horse && !weekly.horseRaceInjuredHorses.includes(horse.name)) weekly.horseRaceInjuredHorses.push(horse.name);
+			weekly.horseRaceWeeklyAccidents += 1;
+			if (message.horseId === race.betHorseId && race.betAmount > 0) weekly.horseRaceIncidentLossStreak += 1;
 		}
 
 		if (stepMessages.length === 0) {
-			const leader = HR.rankedHorses(race)[0];
-			stepMessages.push(`${leader.name} keeps ahead of the others.`);
+			const leader = HR.finishers(race)[0];
+			if (leader) stepMessages.push(`${leader.name} keeps ahead of the others.`);
 		}
 
 		race.messages = stepMessages;
@@ -1490,71 +1647,18 @@ setup.horserace = setup.horserace || {};
 		}
 		race.messageHistory = race.messageHistory.slice(0, 3);
 
-		if (race.horses.some(horse => horse.progress >= 100) || race.round >= 28) {
+		if (HR.raceOver(race)) {
 			HR.finishRace();
 		}
 
 		return race;
 	};
 
-	HR.triggerAccident = function () {
-		const V = State.variables;
-		const race = HR.ensureState();
-		const horse = HR.getHorse(race.betHorseId);
-
-		if (!horse) {
-			race.accident = false;
-			return race;
-		}
-
-		const refunded = race.accidentRefund;
-		const weekly = HR.weeklyState();
-
-		/* Only the backed horse is pulled up. The race continues for everyone else. */
-		race.accident = false;
-		race.incidentHorseId = horse.id;
-		horse.accident = true;
-		horse.boost = 0;
-		horse.stamina = 0;
-
-		if (!weekly.horseRaceInjuredHorses.includes(horse.name)) {
-			weekly.horseRaceInjuredHorses.push(horse.name);
-		}
-
-		if (!race.paidOut) {
-			if (refunded && race.betAmount > 0) {
-				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.betAmount);
-			} else {
-				weekly.horseRaceIncidentLossStreak += 1;
-				HR.recordLoss();
-			}
-			/* This bet is already resolved. finishRace must not pay or charge it again. */
-			race.paidOut = true;
-		}
-
-		const accidentText = refunded
-			? `${horse.name} suddenly shortens ${HR.it("its")} stride near the final stretch and is pulled up by the rider. The other ${HR.kind(
-					true
-			  )} thunder on while the medics hurry onto the track. The bookie sighs and returns your stake.`
-			: `${horse.name} falters near the final stretch and is pulled out of the race. The other ${HR.kind(
-					true
-			  )} keep running while the medics hurry onto the track, and the bookie keeps your stake.`;
-
-		const accidentMessage = {
-			type: "accident",
-			horseId: horse.id,
-			text: accidentText,
-		};
-
-		race.messages = [accidentMessage];
-		race.messageHistory = [accidentMessage].concat(Array.isArray(race.messageHistory) ? race.messageHistory : []).slice(0, 3);
-		return race;
-	};
-	HR.simulateToEnd = function (watching) {
+	HR.simulateToEnd = function () {
 		const race = HR.ensureState();
 		let guard = 0;
 		while (race.phase === "running" && guard < 40) {
-			HR.step(Boolean(watching));
+			HR.step();
 			guard += 1;
 		}
 		return race;
@@ -1575,7 +1679,7 @@ setup.horserace = setup.horserace || {};
 
 		const caption = root.querySelector(".horse-race-caption");
 		const track = HR.trackDefs[race.trackId] || HR.trackDefs.oval;
-		root.classList.toggle("horse-race-accident-active", race.accident === true || Boolean(race.incidentHorseId));
+		root.classList.toggle("horse-race-accident-active", Boolean(race.incidentHorseId));
 		if (caption) {
 			caption.innerHTML = `<strong>${HR.escapeHtml(track.name)}</strong>`;
 		}
@@ -1670,7 +1774,7 @@ setup.horserace = setup.horserace || {};
 				return;
 			}
 
-			HR.step(true);
+			HR.step();
 			const afterStep = HR.ensureState();
 			if (afterStep.phase === "finished") {
 				afterStep.autoWatch = false;
@@ -1728,21 +1832,30 @@ setup.horserace = setup.horserace || {};
 		race.phase = "finished";
 		race.autoWatch = false;
 		race.ranking = ranked.map(horse => horse.id);
-		race.winnerId = ranked.length > 0 ? ranked[0].id : "";
-		race.won = race.betHorseId !== "" && race.betHorseId === race.winnerId;
+		/* An injured or withdrawn runner can never be declared the winner or placed. */
+		const finishers = HR.finishers(race);
+		race.winnerId = finishers.length > 0 ? finishers[0].id : "";
+		const neededPlace = race.betType === "place" ? 2 : 1;
+		race.won =
+			race.betHorseId !== "" &&
+			finishers
+				.slice(0, neededPlace)
+				.map(horse => horse.id)
+				.includes(race.betHorseId);
 		race.payout = 0;
 
 		if (!race.paidOut && race.betAmount > 0 && race.betHorseId !== "") {
 			const betHorse = HR.getHorse(race.betHorseId);
 			if (race.won && betHorse) {
-				const margin = Number.isFinite(HR.PAYOUT_MARGIN) ? HR.clamp(HR.PAYOUT_MARGIN, 0, 1) : 1;
+				/* The house margin is already inside the posted odds. */
+				const odds = race.betType === "place" ? betHorse.placeOdds : betHorse.odds;
 				const suspicionMultiplier = HR.suspicionPayoutMultiplier(race.suspicion || 0);
-				const basePayout = HR.roundMoney(race.betAmount * betHorse.odds * margin * suspicionMultiplier);
+				const basePayout = HR.roundMoney(race.betAmount * odds * suspicionMultiplier);
 				const baseProfit = Math.max(0, basePayout - race.betAmount);
 				const boostedProfit = window.divineTfIncome(baseProfit, "horseRace");
 				race.payout = HR.roundMoney(basePayout + boostedProfit - baseProfit);
 				V.money = HR.roundMoney((Number.isFinite(V.money) ? V.money : 0) + race.payout);
-				HR.weeklyState().horseRaceWeeklyWins += 1;
+				HR.weeklyState().horseRaceWeeklyWins += race.betType === "place" ? HR.PLACE_WIN_WEIGHT : 1;
 			} else {
 				HR.recordLoss();
 			}
@@ -1765,6 +1878,7 @@ setup.horserace = setup.horserace || {};
 				<td>${horse.lane}</td>
 				<td><strong>${HR.escapeHtml(horse.name)}</strong></td>
 				<td>${horse.odds.toFixed(2)}x</td>
+				<td>${horse.placeOdds.toFixed(2)}x</td>
 				<td>${horse.baseSpeed}</td>
 				<td>${horse.maxStamina}</td>
 			</tr>`;
@@ -1776,7 +1890,7 @@ setup.horserace = setup.horserace || {};
 			<p><strong>Track:</strong> ${HR.escapeHtml(track.name)}. ${HR.escapeHtml(track.description)}</p>
 			<p><strong>Going:</strong> ${HR.escapeHtml(race.goingLabel || race.condition)}. ${HR.escapeHtml(race.goingDescription || "")}</p>
 			<table class="horse-race-table">
-				<thead><tr><th>Lane</th><th>${HR.kind(false, true)}</th><th>Odds</th><th>Speed</th><th>Stamina</th></tr></thead>
+				<thead><tr><th>Lane</th><th>${HR.kind(false, true)}</th><th>Win</th><th>Place</th><th>Speed</th><th>Stamina</th></tr></thead>
 				<tbody>${rows}</tbody>
 			</table>
 		</div>`;
@@ -1876,9 +1990,13 @@ setup.horserace = setup.horserace || {};
 		const items = messages
 			.map(function (message) {
 				if (message && typeof message === "object" && message.type === "accident") {
-					return `<li class="horse-race-accident-log" style="color:#ff6b6b;"><strong>${HR.escapeHtml(
+					return `<li class="horse-race-accident-log"><strong><span style="color:#ff6b6b;">Injured.</span> ${HR.escapeHtml(
 						message.text || `A ${HR.kind()} is pulled up after an incident.`
 					)}</strong></li>`;
+				}
+				if (message && typeof message === "object" && message.type === "incident") {
+					const text = HR.escapeHtml(message.text || "");
+					return `<li class="horse-race-incident-log">${message.serious ? `<strong>${text}</strong>` : text}</li>`;
 				}
 				if (message && typeof message === "object" && message.type === "skill") {
 					const round = Number.isFinite(message.round) ? `<span class="horse-race-log-round">Moment ${message.round}</span> ` : "";
@@ -1892,21 +2010,79 @@ setup.horserace = setup.horserace || {};
 		return `<div id="horse-race-log-area" class="horse-race-log"><strong>Race log</strong><ul>${items}</ul></div>`;
 	};
 
+	HR.ordinal = function (n) {
+		return ["first", "second", "third", "fourth", "fifth"][n - 1] || `number ${n}`;
+	};
+
+	/* What happened to the backed horse, told from what the simulation actually did to it. */
+	HR.BACKED_STORY = {
+		injured: [
+			(name, it) =>
+				`${name} fell during the race. The rider stopped ${it.itobj} from continuing, and the vets helped ${it.itobj} leave the track. ${it.It} cannot race again this week.`,
+			(name, it) =>
+				`${name} started limping and could not finish the race. The vets took ${it.itobj} back to the stables to check ${it.its} injury. ${it.It} cannot race again this week.`,
+		],
+		exhausted: [
+			(name, it) =>
+				`${name} became too tired to keep racing. The rider slowed ${it.itobj} down and stopped before the finish. ${it.It} walked back to the stables, tired but not injured.`,
+			(name, it) =>
+				`${name} became slower as the race continued. The rider eventually stopped ${it.itobj} before the finish. A worker checked ${it.its} legs and found no injury, so the vets were not needed.`,
+		],
+		blocked: [
+			(name, it, place) =>
+				`${name} was stuck behind another ${HR.kind()} and could not get past. When there was finally enough space to move forward, the horses in front were already too far ahead. ${
+					it.It
+				} finished ${place}.`,
+			(name, it, place) =>
+				`Another ${HR.kind()} suddenly moved in front of ${name}, forcing the rider to slow down to avoid a collision. ${name} continued racing but finished ${place}.`,
+		],
+		wide: [
+			(name, it, place) =>
+				`${name} moved too far towards the outside of the track while turning. The rider guided ${it.itobj} back towards the other horses, but the extra distance made ${it.itobj} fall behind. ${it.It} finished ${place}.`,
+			(name, it, place) =>
+				`${name} moved away from the other horses while turning and had to travel farther around the corner. ${it.It} was not injured, but the extra distance cost ${it.itobj} time. ${it.It} finished ${place}.`,
+		],
+		stumble: [
+			(name, it, place) =>
+				`${name} briefly lost ${it.its} balance while running. ${it.It} managed to keep going, but several other horses passed ${it.itobj} before ${it.it} recovered. ${it.It} finished ${place}.`,
+			(name, it, place) =>
+				`${name} nearly fell while turning and had to slow down to regain ${it.its} balance. ${it.It} continued racing and finished ${place}, tired but not injured.`,
+		],
+		beaten: [
+			(name, it, place) => `${name} ran as fast as ${it.it} could near the finish, but the horse in front stayed ahead. ${it.It} finished ${place}.`,
+			(name, it, place) =>
+				`${name} stayed close to the other horses for most of the race but could not run fast enough to pass them. ${it.It} finished ${place}.`,
+			(name, it, place) => `${name} completed the race without any problems, but the other horses were faster. ${it.It} finished ${place}.`,
+		],
+	};
+
+	HR.backedStory = function (race, horse) {
+		const it = { it: HR.it("it"), It: HR.it("It"), its: HR.it("its"), itobj: HR.it("itobj") };
+		let key = "beaten";
+		if (horse.accident === true) key = "injured";
+		else if (horse.withdrawn === true) key = "exhausted";
+		else if (horse.incidentHappened && HR.BACKED_STORY[horse.incident]) key = horse.incident;
+		const finishPlace = HR.finishers(race).findIndex(runner => runner.id === horse.id) + 1;
+		const lines = HR.BACKED_STORY[key];
+		/* Picked from the race itself so reloading the page keeps the same text. */
+		const line = lines[(race.round + horse.lane) % lines.length];
+		return line(HR.escapeHtml(horse.name), it, HR.ordinal(finishPlace));
+	};
+
 	HR.renderResult = function () {
 		const race = HR.ensureState();
 		if (race.phase !== "finished") HR.finishRace();
-
-		const incidentHorse = race.incidentHorseId ? HR.getHorse(race.incidentHorseId) : null;
 
 		const ranked = race.ranking.map(horseId => HR.getHorse(horseId)).filter(Boolean);
 		const rows = ranked
 			.map(function (horse, index) {
 				const backed = horse.id === race.betHorseId ? " backed" : "";
-				const incident = horse.accident === true || horse.id === race.incidentHorseId;
-				const resultText = incident ? `<strong><span style="color:#ff6b6b;">Accident</span></strong>` : `${Math.floor(horse.progress)}%`;
+				let resultText = `${Math.floor(horse.progress)}%`;
+				if (horse.accident === true) resultText = `<strong><span style="color:#ff6b6b;">Injured</span></strong>`;
+				else if (horse.withdrawn === true) resultText = `<span style="color:#ffcf6b;">Withdrawn</span>`;
 
 				return `<tr class="${backed}">
-				<td>${index + 1}</td>
+				<td>${HR.isOut(horse) ? "-" : index + 1}</td>
 				<td>${HR.escapeHtml(horse.name)}</td>
 				<td>${resultText}</td>
 			</tr>`;
@@ -1914,49 +2090,32 @@ setup.horserace = setup.horserace || {};
 			.join("");
 
 		const winner = HR.getHorse(race.winnerId);
-
-		if (incidentHorse) {
-			const winnerLine = winner
-				? `<p><strong>${HR.escapeHtml(winner.name)}</strong> crosses the winning post first, but the crowd is still looking back towards ${HR.escapeHtml(
-						incidentHorse.name
-				  )}.</p>`
-				: `<p>The field reaches the end in confusion while the officials check the track.</p>`;
-
-			const stakeLine = race.accidentRefund
-				? `<p><strong><span style="color:#ffcf6b;">Your stake is returned.</span></strong> ${HR.escapeHtml(
-						incidentHorse.name
-				  )} was pulled from the race, so your ${HR.formatMoney(race.betAmount)} bet wins nothing.</p>`
-				: `<p><strong><span style="color:#ff6b6b;">Your stake is lost.</span></strong> ${HR.escapeHtml(
-						incidentHorse.name
-				  )} was pulled from the race, and the bookie keeps your ${HR.formatMoney(race.betAmount)} bet.</p>`;
-
-			return `<div class="horse-race-result">
-				${winnerLine}
-				<p><strong><span style="color:#ff6b6b;">${HR.escapeHtml(
-					incidentHorse.name
-				)} suffered an incident.</span></strong> Medics hurry onto the track while the other ${HR.kind(true)} finish the race.</p>
-				${stakeLine}
-				<table class="horse-race-table">
-					<thead><tr><th>Place</th><th>${HR.kind(false, true)}</th><th>Result</th></tr></thead>
-					<tbody>${rows}</tbody>
-				</table>
-			</div>`;
-		}
+		const injured = race.horses.filter(horse => horse.accident === true && horse.id !== race.betHorseId);
 
 		let celebration = winner
 			? `<p><strong>${HR.escapeHtml(winner.name)}</strong> crosses the winning post first. The crowd cheers while the bookies start checking their slips.</p>`
 			: "<p>The result board changes, and nobody seems certain who crossed the line first.</p>";
 
+		for (const horse of injured) {
+			celebration += `<p>The vets are still with ${HR.escapeHtml(horse.name)} on the far side of the course.</p>`;
+		}
+
 		if (race.betAmount > 0 && race.betHorseId !== "") {
 			const betHorse = HR.getHorse(race.betHorseId);
+			const betName = HR.escapeHtml(betHorse ? betHorse.name : `your ${HR.kind()}`);
+			const betLabel = race.betType === "place" ? "place bet" : "bet";
 			if (race.won) {
-				celebration += `<p><strong><span style="color:#5fcf7b;">You won.</span></strong> Your ${HR.formatMoney(race.betAmount)} bet on ${HR.escapeHtml(
-					betHorse ? betHorse.name : `your ${HR.kind()}`
-				)} pays ${HR.formatMoney(race.payout)}.</p>`;
+				if (betHorse && race.betType === "place" && race.winnerId !== betHorse.id) {
+					celebration += `<p>${HR.escapeHtml(betHorse.name)} finishes second, which is enough for a place.</p>`;
+				}
+				celebration += `<p><strong><span style="color:#5fcf7b;">You won.</span></strong> Your ${HR.formatMoney(
+					race.betAmount
+				)} ${betLabel} on ${betName} pays ${HR.formatMoney(race.payout)}.</p>`;
 			} else {
+				if (betHorse) celebration += `<p>${HR.backedStory(race, betHorse)}</p>`;
 				celebration += `<p><strong><span style="color:#ff6b6b;">You lost.</span></strong> Your ${HR.formatMoney(
 					race.betAmount
-				)} bet does not return anything.</p>`;
+				)} ${betLabel} does not return anything.</p>`;
 			}
 		}
 
