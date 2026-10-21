@@ -34,7 +34,7 @@ Bibi: modded 20
 
 Birdy: kitty neck cushion
 
-Blue: Back fringe
+Sussyorenji: Back fringe, Modded face 29
 
 Bowsni: bloomers, elegant socks
 
@@ -69,6 +69,8 @@ Dumbling: tie, short tie, utility vest
 Dxmoni: womb tattoo
 
 En: background 1 (192)
+
+Estalia: snakes pet 
 
 ENNE: Classic fringe
 
@@ -140,7 +142,7 @@ Koyo: gothic old, all down side, open shoulder classic lolita, foreground 1/2(19
 
 Lark: props
 
-Leni: princess wave side, mesh, leather tops, emo fringe, suspenders, cable knit cardigan, leather pants, ringlet fringe, leather crop jacket, side-pinned fringe, sectioned fringe, swept left fringe, fluffy ponytail side, slender body, baggy pants, parted fringe, vampire jacket, vintage suitcase, luggage, totebag, one-shoulder crop top, modded 3, modded4, background 1(6-8,189), background 2(1-2,5-6,8), foreground 1/2(7-8,10,15)
+Leni: princess wave side, mesh, leather tops, emo fringe, suspenders, cable knit cardigan, leather pants, ringlet fringe, leather crop jacket, side-pinned fringe, sectioned fringe, swept left fringe, fluffy ponytail side, slender body, baggy pants, parted fringe, vampire jacket, vintage suitcase, luggage, totebag, one-shoulder crop top, modded 3, modded4, background 1(6-8,189), background 2(1-2,5-6,8), foreground 1/2(7-8,10,15), Blunt Twintails, Outward-flicked, Rounded, Layered Sweep, Outward-flicked
 
 Lily-Luc: heart pasties, lace bra
 
@@ -159,6 +161,8 @@ M ghost: single-breasted jacket, double-breasted jacket, gakuran, winter jacket
 Maido: head and under outfit for gift wrap set, christmas boots, chef shirt
 
 Mango: aerial fringe, split fringe, shaved side, short side, short spiky side, cat, boot heels, bunny slippers, canvas loaders, combat boots, cordovan loaders, cowboy boots, dress sandals, field boots, fur boots, flippers, geta, ice skates, kitten heels, light-up trainers, long heels, paddock boots, thigh-high heels, trainers, tuxedo shoes, wedge sandals, wellies, zori, arm warmers, fingerless gloves, lace warmers, long leather gloves, mittens, pompoms, work gloves
+
+Marin: Modded face 28
 
 Mars (herdeshe.r): modde 17, fringe side-pinned & goopy
 
