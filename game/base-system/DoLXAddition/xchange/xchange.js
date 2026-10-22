@@ -2167,6 +2167,14 @@ function xchangeEffectsMessages() {
 		delete V.genitalSensitiveRubMessage;
 	}
 
+	if (V.perfumeFadedMessage) {
+		const name = V.perfumeFadedMessage;
+		element("span", V.perfumeWashedMessage ? `The scent of your ${name} is gone.` : `The scent of your ${name} has faded from your skin.`, "purple");
+		br();
+		delete V.perfumeFadedMessage;
+		delete V.perfumeWashedMessage;
+	}
+
 	if (V.chastityArousalSpikeMessage) {
 		element("span", `Locked away like this, a sudden wave of arousal catches you off guard.`, "pink");
 		br();

@@ -1,0 +1,979 @@
+:: Poppy Perfumery Invitation
+<<perfumeryPoppyPrep "conversation">>
+<<if setup.perfumery.canInvite()>>
+	Poppy has placed a narrow strip of paper between the pages of the book to mark a place. When <<nnpc_he "Poppy">> opens it, you smell the familiar powdery perfume you often notice around <<nnpc_him "Poppy">>. It is stronger than the smell of the flowers on the table.
+	<br><br>
+	You ask about it. Poppy stops turning the page.
+	<<if Number($poppyromance) gte 0>>
+		"All this time, and now you ask?" <<nnpc_He "Poppy">> holds the strip just beyond your reach. "I was beginning to think you liked me for my conversation."
+	<<elseif C.npc.Poppy.patience lt 67>>
+		"Careful with the book." Poppy keeps a finger between the pages. "What exactly did you want to know?"
+	<<else>>
+		"You noticed that, did you?" Poppy lifts the paper out before you can touch it. "Ask first. Some things on my table look more innocent than they are."
+	<</if>>
+	<br><br>
+	<<socialiseicon "ask">><<link [[Ask about the soft scent|Poppy Perfumery Scent]]>><</link>><br>
+	<<socialiseicon "ask">><<link [[Ask about the notebook|Poppy Perfumery Notebook]]>><</link>>
+<<else>>
+	This isn't a good moment to ask Poppy about the fragrance.
+<</if>>
+<br><<perfumeryConversationReturn>>
+
+:: Poppy Perfumery Scent
+<<perfumeryPoppyPrep "conversation">>
+<<if setup.perfumery.canInvite()>>
+	<<if $opium_knowledge is 1>>
+		You mention what you've already learned to recognise. Poppy folds the strip along its clean end.
+		<br><br>
+		"That's a different conversation. If you want to learn perfume, we start with something you can take home without wondering about it."
+	<<else>>
+		"A gentle smell doesn't have to be weak." Poppy puts the strip back in the book. "But if you use too much of one flower, it can hide the other scents completely. I've made that mistake myself."
+	<</if>>
+	<br><br>
+	You ask whether Poppy makes the other bottles at the flat as well.
+	<br><br>
+	"Some of them. Look for the labels I wrote myself." Poppy smiles. "I'll let you try a few ordinary ingredients, but write down how much you use. I'm not spending the afternoon guessing whether 'a little' meant one drop or six."
+	<br><br>
+	<<link [[Agree to keep proper notes (0:05)|Poppy Perfumery Accepted]]>><<run setup.perfumery.invite()>><</link>>
+<</if>>
+<br><<perfumeryConversationReturn>>
+
+:: Poppy Perfumery Notebook
+<<perfumeryPoppyPrep "conversation">>
+<<if setup.perfumery.canInvite()>>
+	Poppy turns the book so you can see the margin without handing it over. Beside a small ink stain, an amount has been crossed out and written again.
+	<br><br>
+	"So I can remember what I actually put in the bottle." <<nnpc_He "Poppy">> taps the amount <<nnpc_he "Poppy">> crossed out. "Otherwise, I might convince myself I meant to use that much."
+	<br><br>
+	You point out that another nose might help.
+	<br><br>
+	"Only if that other person writes things down too. I'm not having us argue later about what we used." Poppy looks at you, then closes the book. "Come by the flat when I'm free. I'll teach you the basics, and we can compare notes."
+	<br><br>
+	<<link [[Accept the invitation (0:05)|Poppy Perfumery Accepted]]>><<run setup.perfumery.invite()>><</link>>
+<</if>>
+<br><<perfumeryConversationReturn>>
+
+:: Poppy Perfumery Accepted
+<<effects>>
+<<if $perfumery?.invited>>
+	"Look for the painted poppy on the door. Come when I'm in the living room, not when I'm trying to get ready for something."
+	<br><br>
+	Poppy slips the book away. "I'll put a few materials aside. Bring a little patience of your own."
+<</if>>
+<br><<perfumeryConversationReturn>>
+
+:: Poppy Perfumery Visit
+<<perfumeryPoppyPrep>>
+<<if setup.perfumery.canVisit()>>
+	Poppy has made room for the perfume-making tray on the coffee table, between the books and little figurines. A folded cloth lies beneath the glass bottles to protect the table. Some old bottles have left round marks on the paper underneath, and Poppy has cleared a space for your notebook.
+	<br><br>
+	<<if setup.perfumery.availableTeacher()>>
+		<<if $perfumery.lesson gte 4>>
+			Poppy moves a book out of the way to make room for your perfume. "Well? What have you brought me this time? I hope it's something we can argue about."
+		<<else>>
+			Poppy checks that the stoppers are secure before sitting down. "Leave room for your strips. You'll want to compare them."
+		<</if>>
+	<<else>>
+		<<if $poppyFlat.home>>Poppy is busy elsewhere in the flat.<<else>>The flat is quiet; Poppy is out.<</if>> The tray is ready for you to work on your own. A lesson or a shared comparison will have to wait.
+	<</if>>
+	<br><br>
+	<<if $perfumery.session?.stage is "review">>
+		<<icon "ask.png">><<link [[Bring out your waiting sample|Poppy Perfumery Debrief]]>><</link>><br>
+	<<elseif $perfumery.session?.stage is "compose">>
+		<<icon "tending/white-rose.png">><<link [[Continue the experiment you began|Poppy Perfumery Practice]]>><</link>><br>
+	<<elseif setup.perfumery.canTeach()>>
+		<<if setup.perfumeryCharacters.poppyPending()>>
+			<<icon "ask.png">><<link [[Discuss your new bottle|Poppy Perfumery Special]]>><</link>><br>
+		<</if>>
+		<<if setup.perfumeryCharacters.poppyFollowup()>>
+			<<socialiseicon "ask">><<link [[Report on Avery's commission|Poppy Perfumery Commission Followup]]>><</link>><br>
+		<<elseif $perfumery.characters?.avery?.commission?.stage is "active" and !$perfumery.characters.avery.commission.poppy and $perfumery.lesson gte 4>>
+			<<socialiseicon "ask">><<link [[Ask Poppy about Avery's commission|Poppy Perfumery Commission]]>><</link>><br>
+		<</if>>
+		<<if $perfumery.lesson lt 4>>
+			<<socialiseicon>><<link [[Sit down for your next lesson|Poppy Perfumery Lesson]]>><</link>><br>
+		<<else>>
+			<<socialiseicon>><<link [[Compare ideas with Poppy|Poppy Perfumery Collaboration]]>><</link>><br>
+			<<socialiseicon>><<link [[Compare flower and food aromas|Poppy Perfumery Extraction]]>><</link>><br>
+			<<if setup.perfumeryOpium.available()>>
+				<<socialiseicon "ask">><<link [[Ask what Poppy smells of|Poppy Perfumery Opium]]>><<run setup.perfumeryOpium.talk()>><</link>><br>
+			<</if>>
+		<</if>>
+	<</if>>
+	<<if $perfumery.lesson is 3 and !setup.perfumery.canTeach() and setup.perfumery.availableTeacher()>>
+		Poppy leaves the signature bottle in its drawer. "Not that one yet. Show me what you've been making on your own."<br>
+	<</if>>
+	<<if setup.perfumery.access()>>
+		<<icon "tending/white-rose.png">><<link [[Work at the tray or choose a gift|Perfumery Workstation]]>><</link>><br>
+	<</if>>
+	<<if $perfumery.session and $perfumery.session.stage isnot "concluded">>
+		<<link [[Set aside; keep the bottle|Poppy Perfumery Visit]]>><<set $perfumery.session to null>><</link>><br>
+	<</if>>
+<<else>>
+	The invitation is for the perfumery table while Poppy is at home and willing to have you. It doesn't give you a key to the flat.
+	<br><br>
+<</if>>
+<<if poppyFlatAccessible() and setup.perfumery.canVisit()>>
+	<<poppyicon "living_room">><<link [[Step away from the tray|Flats Poppy Living Room]]>><</link>><br>
+<</if>>
+<<getouticon>><<link [[Leave the flat (0:01)|Flats]]>><<pass 1>><<endevent>><</link>>
+
+:: Poppy Perfumery Lesson
+<<perfumeryPoppyPrep>>
+<<if !setup.perfumery.canTeach() or !$perfumery?.invited or $perfumery.lesson gte 4>>
+	Poppy isn't free to teach the next lesson just now. You can come back to your notes and finished samples later.
+<<elseif $perfumery.session and $perfumery.session.stage isnot "concluded">>
+	You already have an experiment in progress.
+	<br><<link [[Return to it|Poppy Perfumery Practice]]>><</link>>
+<<else>>
+	<<switch $perfumery.lesson>>
+	<<case 0>>
+		Poppy has put three saucers on the cloth. One holds daisies, one rose petals, and one a small orchid flower. When you reach for the rose, <<nnpc_he "Poppy">> slides your notebook under your hand instead.
+		<br><br>
+		"First, tell me what you noticed. Not what you think I want to hear."
+		<br><br>
+		You describe the perfume you often smell around Poppy. <<nnpc_He "Poppy">> listens, then opens a bottle containing an ordinary flower scent and holds it near your nose. The smell is too strong at that distance. When <<nnpc_he "Poppy">> moves it farther away, you can notice the sweet part and the fresh smell of the flower separately.
+		<br><br>
+		"There are three parts to a perfume. The top is what you smell first, the heart comes next, and the base is the smell that lasts the longest." Poppy closes the sample. "We're leaving my bottle alone. Tell me what you'd like yours to smell like."
+		<br><br>
+		<<link [[Try a light opening (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("observe")>><</link>><br>
+		<<link [[Try a familiar scent (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("familiar")>><</link>>
+	<<case 1>>
+		Your first formula is open on the table. Poppy lays a clean strip across the quantities, then uncovers them one at a time.
+		<br><br>
+		"You used all three scents in your first perfume. Now try smelling it again and decide whether you needed every one of them."
+		<br><br>
+		Poppy brings one scented paper strip close to another, then moves it away again. When they are close together, the stronger flower makes the other one difficult to smell. Poppy checks the labels, realises <<nnpc_he "Poppy">> has mixed up the strips and puts them back in the right places.
+		<br><br>
+		"That was the stronger one. Yes, I do label them. It only helps if I read the label."
+		<br><br>
+		You start to smile at Poppy's mistake. <<nnpc_He "Poppy">> notices and gives you a look. "Enjoy that while you can. Now use the same ingredients, but try putting them in different parts of the perfume or changing the amounts. You can even put two scents in the same part. See whether you can still smell both."
+		<br><br>
+		<<link [[Keep the familiar notes (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("familiar")>><</link>><br>
+		<<link [[Try a new placement (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("contrast")>><</link>>
+	<<case 2>>
+		Poppy clears two spaces on the table so you can compare your bottles. <<nnpc_He "Poppy">> moves the Frostburger pillow to the comfortable end of the couch and sits beside it, checking the dates written on the small bottles.
+		<br><br>
+		"Keep the same flowers and amounts today. We're changing the liquid you mix them with, not the flower scents."
+		<br><br>
+		Poppy opens two bottles of mixing liquid. The first has a mild smell, but the second smells sharp even before you bring it close to your nose. When you try to smell them again, Poppy puts the lids back on and stops you.
+		<br><br>
+		"Give your nose a rest. If you keep smelling one bottle after another, it gets harder to tell them apart." <<nnpc_He "Poppy">> puts the last bottle aside. "And think about where you'll wear your perfume. You might want something gentle for sitting together indoors, or something people can notice when you pass them outside."
+		<br><br>
+		<<link [[Blend for quiet company (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("quiet")>><</link>><br>
+		<<link [[Make the opening stronger (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("bold")>><</link>>
+	<<case 3>>
+		The scent that stays after you smell your last perfume reminds you of Poppy. When <<nnpc_he "Poppy">> opens the drawer, you recognise the small bottle where <<nnpc_he "Poppy">> keeps <<nnpc_his "Poppy">> own perfume.
+		<br><br>
+		Poppy notices where you're looking. The bottle stays in <<nnpc_his "Poppy">> palm rather than joining the others on the tray.
+		<br><br>
+		"You've learned enough to ask a better question now."
+		<br><br>
+		<<if $opium_knowledge is 1>>
+			You recognise the scent. Poppy waits to see whether you will say its name or reach for the bottle.
+		<<else>>
+			There is the familiar powdery softness, but it doesn't seem to explain everything you notice when you spend time here. Your own bottles have never quite done that.
+		<</if>>
+		<br><br>
+		<<link [[Ask without opening it (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("respect")>><</link>><br>
+		<<link [[Ask why it smells different (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.beginLesson("question")>><</link>>
+	<</switch>>
+<</if>>
+<br><<link [[Return to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Practice
+<<perfumeryPoppyPrep>>
+<<set _session to $perfumery?.session>>
+<<if _session?.stage is "review">>
+	Your completed sample is waiting to be compared.
+	<br><<link [[Bring it out|Poppy Perfumery Debrief]]>><</link>>
+<<elseif _session?.stage is "compose" and setup.perfumery.canVisit()>>
+	<<if _session.kind is "collaboration">>
+		<<if _session.approach is "opening">>
+			Poppy puts the first scented strip aside. "The first smell is much too sweet. Every time I try to fix it, I add another flower and make it worse." <<nnpc_He "Poppy">> moves the bottles towards you. "Your turn. And if I start interfering, tell me to stop."
+		<<elseif _session.approach is "challenge">>
+			"I like a perfume that still smells pleasant after the sweetness fades," Poppy says. "You don't have to agree with me. Make yours the way you like it, and I'll try not to interfere."
+		<<elseif _session.approach is "demonstration">>
+			Poppy sits with the notebook on <<nnpc_his "Poppy">> knees and the pen capped. "Your formula. Your hands, or mine if you tell me where to put them. Change one thing and tell me why before you do it."
+		<<elseif _session.approach is "rescue">>
+			Poppy pushes the unsuccessful perfume to the edge of the tray, away from the clean paper strips. "Change only one thing. Find the scent that's too strong and try using less of it. Leave everything else alone so we can tell whether it helped."
+		<<elseif _session.approach is "rivalry">>
+			Poppy's own little bottle is already on the cloth: daisy on top, rose in the heart, orchid underneath. "That's mine. Beat it." <<nnpc_He "Poppy">> folds <<nnpc_his "Poppy">> arms. "With anything you like."
+		<<else>>
+			Poppy has kept a place in the notebook for the perfume you gave. "Now show me what you'd change if I hadn't been the one receiving it."
+		<</if>>
+	<<else>>
+		<<switch _session.lesson>>
+		<<case 0>>
+			Poppy lets you smell the separate materials before putting them within reach. A daisy is sharp and green against the rose; the orchid is hard to smell until the first two have been moved away.
+			<br><br>
+			"Flowers don't go in the bottle. Their scent does." Poppy leaves the raw materials beside your empty vials. "One flower first. I'll tell you what to do as we go."
+			<br><br>
+			<<if _session.approach is "familiar">>"There's nothing wrong with making a gentle perfume. You don't have to add more flowers just to impress me."<<else>>"Let the first scent be easy to notice, but remember that the perfume still needs to smell pleasant after it fades."<</if>>
+		<<case 1>>
+			<<if _session.approach is "contrast">>Poppy looks at the scented strips you have put together. "That's not where I'd put those scents. But if you think it works, I want to smell the result."<<else>>"If that's the scent you like most, try using less of the others so you can still notice it." Poppy leaves your first notes open beside the blank page.<</if>>
+			<br><br>
+			"Same flowers. Move them around, or change how much of each. Put two together in one note and see what happens."
+		<<case 2>>
+			<<if _session.approach is "quiet">>"Then let's make something people only notice when they're close to you." Poppy draws two circles close together on the page.<<else>>"Let's make the first scent stronger, then see whether we can still smell the middle one." Poppy draws a second circle farther from the first.<</if>>
+			<br><br>
+			"Keep the flowers exactly as they were. Change only what carries them: the spirit, the strength, or how long it rests."
+		<<case 3>>
+			<<if _session.approach is "question">>
+				Poppy closes <<nnpc_his "Poppy">> fingers around the bottle. "It is different. Learning to notice that doesn't give you everything that belongs to me."
+				<br><br>
+				The words are firm, but <<nnpc_he "Poppy">> stays beside you. "I'll let you compare a strip if you want. We aren't putting it in your formula book."
+			<<else>>
+				Poppy relaxes the hand holding the bottle. "Start with what you can describe. You don't have to name everything to know that it's there."
+			<</if>>
+			<br><br>
+			Make a perfume using flowers, with a base scent that lasts after the others fade. You can take ideas from Poppy's perfume without trying to make an exact copy.
+			<<if !$poppySeen.includes("perfumery_signature_strip") and setup.perfumery.canTeach()>>
+				<br><<link [[Smell Poppy's sample (0:05)|Poppy Perfumery Signature]]>><<run setup.perfumery.smellSignature()>><</link>>
+			<</if>>
+		<</switch>>
+	<</if>>
+	<br><br>
+	<<if setup.perfumery.access()>><<icon "tending/white-rose.png">><<link [[Set out your materials|Perfumery Workstation]]>><</link>><</if>>
+<<else>>
+	You can begin or resume an experiment when Poppy is willing to have you at the table.
+<</if>>
+<br><<link [[Return to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Signature
+<<perfumeryPoppyPrep>>
+<<if $poppySeen?.includes("perfumery_signature_strip") and $perfumery?.session?.lesson is 3>>
+	Poppy has put the stopper back before handing you the strip. There is the scent you recognise, separate from the open flowers and the traces left on your sleeves.
+	<br><br>
+	<<if $opium_knowledge is 1>>You know the opium-associated fragrance. Poppy doesn't deny what you've recognised.<<else>>Your eyes feel heavy in that familiar way, quite unlike smelling your ordinary blends.<</if>>
+	<br><br>
+	"That's enough of my perfume for today." Poppy places the scented strip beside the closed bottle and turns your notebook towards you. "You still haven't made your own. What are you going to try?"
+<</if>>
+<br><<link [[Make something of your own|Poppy Perfumery Practice]]>><</link>>
+
+:: Poppy Perfumery Debrief
+<<perfumeryPoppyPrep>>
+<<set _session to $perfumery?.session>><<set _sample to setup.perfumery.sessionBottle()>>
+<<if !setup.perfumery.canTeach()>>
+	The sample is safe in its bottle. Poppy isn't free to compare it now; there is no reason to start the experiment again.
+<<elseif _session?.stage isnot "review" or !_sample>>
+	Bring a completed experiment before asking Poppy to compare it.
+<<elseif _session.kind is "lesson" and _session.lesson is 2 and !setup.perfumery.ready(_sample)>>
+	Poppy checks the date, then returns the stopper to its place.
+	<br><br>
+	"Leave that bottle alone for a while, even if you're bored. Come and sit with me instead. I know waiting isn't very exciting."
+	<br><br>
+	The notebook stays open, but the bottle goes to the far side of the tray. You can spend a few minutes together or leave it to mature while you do something else.
+	<br><br>
+	<<link [[Ask about Poppy's time (0:05)|Poppy Perfumery Waiting]]>><<set $perfumery.session.conversation to "company">><<pass 5>><</link>><br>
+	<<link [[Talk about perfume (0:05)|Poppy Perfumery Waiting]]>><<set $perfumery.session.conversation to "technical">><<pass 5>><</link>>
+<<else>>
+	<<set _profile to setup.perfumery.properties(_sample)>><<set _outcome to setup.perfumery.outcome(_sample)>>
+	Poppy reads your amounts before trying the strip. <<nnpc_He "Poppy">> keeps it away from the tray, waits, then offers it back so you can smell what has changed.
+	<br><br>
+	<<print setup.perfumery.feedback(_sample)>>
+	<br><br>
+	<<if _session.kind is "collaboration">>
+		<<if $perfumery.extraction?.lesson?.complete>>
+			<<if _profile.families.includes("savoury") or _profile.families.includes("sulphurous")>>
+				Poppy holds the strip away from the flowers before trying them together. "I wouldn't have invited that part in." <<nnpc_He "Poppy">> tries the pair again. "It does change the flower. Now tell me whether that's what you meant."
+				<br><br>
+			<<elseif _profile.families.includes("bakery") or _profile.families.includes("roasted")>>
+				The rebuilt accord is easier to smell in the finished perfume. Poppy reaches for the old cookie notes, then stops. "No. Let me try it without deciding what it ought to remind me of."
+				<br><br>
+			<</if>>
+		<</if>>
+		<<if _session.approach is "opening">>
+			<<if _profile.sweet lt setup.perfumeryModel.calculate(_session.reference).sweet>>
+				Poppy puts the earlier strip down beside yours and smells them again. "Yours gets less sweet after the first smell fades. I kept trying to make every part last." <<nnpc_He "Poppy">> corrects an amount in the notebook. "I hate to admit it, but I think you were right."
+			<<else>>
+				"You've kept the sweetness too." Poppy smells it once more. "If that was deliberate, tell me what you wanted it to hold together. Don't just rescue my mistake because I made it first."
+			<</if>>
+		<<elseif _session.approach is "challenge">>
+			<<if _profile.sweet lt 0.35 and _profile.quality gte 65>>
+				"I'd probably make it a little warmer," Poppy says, reaching for another bottle before stopping <<nnpc_himself "Poppy">>. "But that's what I like. You're trying to keep these scents easy to tell apart, and I can see why."
+			<<else>>
+				"You're allowed to like it sweeter than I do, you know." Poppy nudges the used strip towards your notes. "But if you're saying that's your preference, stand by the amount."
+			<</if>>
+		<<elseif _session.approach is "demonstration">>
+			<<if _profile.quality gte setup.perfumeryModel.calculate(_session.reference).quality>>
+				Poppy reads the change you made and your reason for making it, then smells the result again. "The scents work together just as you said they would." <<nnpc_He "Poppy">> writes your explanation beneath <<nnpc_his "Poppy">> own name, pauses, and crosses out <<nnpc_his "Poppy">> name. "I suppose I should give you credit for that."
+			<<else>>
+				"That made it worse," Poppy says, sounding almost relieved. "I was starting to think you never made mistakes. Look at your first formula and tell me what changed. That's how you'll learn from it."
+			<</if>>
+		<<elseif _session.approach is "rescue">>
+			<<if _profile.pleasantness gt setup.perfumeryModel.calculate(_session.reference).pleasantness + 10>>
+				Poppy brings the strip closer to <<nnpc_his "Poppy">> nose than last time, then smiles. "I can actually smell the flowers now. It still needs work, but that's much better than before."
+			<<else>>
+				Poppy smells the strip again and shakes <<nnpc_his "Poppy">> head. "You changed the formula, but the same unpleasant smell is still there. We might have to start this one again."
+			<</if>>
+		<<elseif _session.approach is "rivalry">>
+			<<set _rivalQ to setup.perfumeryModel.calculate(_session.reference).quality>>
+			<<if _profile.quality gt _rivalQ + 5>>
+				Poppy smells your perfume, compares it with <<nnpc_his "Poppy">> own, and tries yours once more. At last <<nnpc_he "Poppy">> pushes <<nnpc_his "Poppy">> bottle aside. "Oh, alright, you win this time. Try not to look so pleased with yourself." You cannot quite hide your smile.
+			<<elseif _profile.quality lt _rivalQ - 5>>
+				Poppy smells your strip and reaches for <<nnpc_his "Poppy">> own, but <<nnpc_he "Poppy">> is already smiling. "Want another try? I wouldn't mind winning again."
+			<<else>>
+				Poppy smells each strip several times, setting one down before picking the other up again. "I honestly can't choose between them. You know how annoying that is?" <<nnpc_He "Poppy">> writes "draw" in the notebook and underlines it twice.
+			<</if>>
+		<<else>>
+			Poppy compares it with the notes beside your earlier gift. "This is what I wanted to ask you. Did you change it because you preferred it this way, or because you thought I would?"
+		<</if>>
+	<<else>>
+		<<switch _session.lesson>>
+		<<case 0>>
+			<<if _outcome is "discordant" or _outcome is "intense">>
+				Poppy puts the stronger strips at the far edge of the table. "Now try yours again. You don't have to like it to learn which part you keep noticing."
+			<<else>>
+				"Tell me which scent you notice first." Poppy waits while you smell the strip again, then nods. "And if you had to remove one, which scent would you miss the most?"
+			<</if>>
+		<<case 1>>
+			<<if !setup.perfumery.lessonMatches(_sample)>>
+				Poppy compares the ingredients in both formulas. "You've used different materials this time. There's nothing wrong with trying that, but we were supposed to see what happens when you move the same scents around. Keep these notes and try that comparison again."
+			<<elseif _session.approach is "contrast" and _profile.quality gte 65>>
+				Poppy smells the strip without looking at the notebook this time. "I was expecting that part to get lost." <<nnpc_He "Poppy">> checks your placement. "It hasn't. Give me that amount again."
+			<<else>>
+				Poppy places your two pages side by side. "You used the same ingredients, but put them in different parts of the perfume." <<nnpc_He "Poppy">> points to the part you changed. "Remember what that did to the smell. That's more useful than knowing whether I liked it."
+			<</if>>
+		<<case 2>>
+			<<if _sample.formula.age gte 3>>
+				The first scent no longer seems so strong beside the others. Poppy lets you smell the strip again and compare it with your notes from the first day. "See how it changed while you left it alone? Waiting matters as much as which mixing liquid you choose."
+			<<elseif _sample.formula.concentration gt $perfumery.lessonSample.concentration>>
+				Poppy holds this strip farther from <<nnpc_his "Poppy">> nose than the first one. "I can smell it from farther away. Now check whether the different flower scents are still easy to recognise."
+			<<else>>
+				Poppy brings the strip closer to <<nnpc_his "Poppy">> nose. "This one has a gentler smell. That can be nice when you're sitting close to someone." <<nnpc_He "Poppy">> leaves the strip near the notebook and smells it again a little later.
+			<</if>>
+		<<case 3>>
+			<<if !setup.perfumery.lessonMatches(_sample)>>
+				Poppy places the strip beside your formula. "The flower scents need a base that lasts, but they also need to be strong enough to smell. One part of your perfume is covering another. Which scent could you use less of?"
+			<<elseif _outcome is "familiar">>
+				Poppy places your strip beside <<nnpc_his "Poppy">> own perfume bottle, then puts it back on your notebook. "I can smell the similarity, but I can tell you made different choices. I'd rather you made something you like than an exact copy of mine."
+			<<else>>
+				"You kept a different part of it." Poppy looks between the closed bottle and your notes. "That tells me something about what you've been noticing."
+			<</if>>
+		<</switch>>
+	<</if>>
+	<br><br>
+	<<if _session.kind is "lesson" and _session.lesson is 3>>
+		<<link [[Explain; leave it closed (0:05)|Poppy Perfumery Conclusion]]>><<run setup.perfumery.review("respect")>><</link>><br>
+		<<link [[Ask what you're missing (0:05)|Poppy Perfumery Conclusion]]>><<run setup.perfumery.review("question")>><</link>>
+	<<else>>
+		<<link [[Explain your choice (0:05)|Poppy Perfumery Conclusion]]>><<run setup.perfumery.review("explain")>><</link>><br>
+		<<link [[Suggest a change (0:05)|Poppy Perfumery Conclusion]]>><<run setup.perfumery.review("revise")>><</link>>
+	<</if>>
+<</if>>
+<br><<link [[Put the sample back on the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Waiting
+<<perfumeryPoppyPrep>>
+<<if $perfumery?.session?.conversation is "company">>
+	Poppy looks up from the bottle. "If it were, I'd tell you. I do tell you things, you know."
+	<br><br>
+	You say you weren't sure whether the offer was just politeness. Poppy shifts the notebook so you can both read it.
+	<br><br>
+	"Politeness would have been letting you say it smelled lovely and sending you home. You're still here, arguing about the amount."
+	<<if Number($poppyromance) gte 0>><br><br><<nnpc_He "Poppy">> catches your hand before you can reach for the bottle again. "And you're much better company when you're not fussing with that stopper."<</if>>
+<<elseif $perfumery?.session>>
+	You compare what the spirit lets you notice first. Poppy begins to answer, stops, and moves the open bottles further away.
+	<br><br>
+	"We've been opening too many bottles at once. Let's put them away for a minute so we can tell the smells apart again."
+	<br><br>
+	You spend a little while looking through the earlier notes instead. Poppy crosses out one confident prediction after checking the strip tucked beside it. This time, <<nnpc_he "Poppy">> lets you see the correction.
+<</if>>
+<br><<link [[Leave the perfume to rest|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Conclusion
+<<effects>>
+<<set _session to $perfumery?.session>><<set _sample to setup.perfumery.sessionBottle()>>
+<<if _session?.stage is "concluded" and _sample>>
+	<<if !_session.success>>
+		Poppy puts a small mark beside the part you still need to compare. "Keep the bottle. Changing everything at once would be a waste of a good mistake."
+		<br><br>
+		Your notes stay in the book. You can repeat this lesson with another batch; nothing you've already made is taken away.
+	<<else>>
+		<<if _session.response is "revise">>
+			You point to the part that still bothers you. Poppy starts to suggest another flower, then looks at the space you've left in the margin. "No, go on. You had an answer before I interrupted."
+		<<elseif _session.response is "question">>
+			"That noticing something doesn't make it yours." Poppy's voice is quiet. After a moment, <<nnpc_he "Poppy">> places your own bottle between you. "And that you don't need my whole story to make something worth keeping."
+		<<elseif _session.response is "respect">>
+			Poppy leaves the signature bottle where it is and reaches for your notebook instead. "Thank you. Now tell me which part of yours you would keep if I weren't sitting here."
+		<<else>>
+			You explain the amount or placement you wanted to preserve. Poppy follows it through the written formula before answering. "Then leave it. Don't change your mind just because I reach for something sweeter."
+		<</if>>
+		<br><br>
+		<<if _session.kind is "collaboration">>
+			<<if setup.perfumery.outcome(_sample) is "original" or $perfumery.skill gte 20>>
+				Poppy turns the book back towards you. "Next time, I want your opinion before I start adding things. Will you do that?" The space beside the new page is left clear for your handwriting.
+			<<else>>
+				Poppy puts both strips between the pages. "Bring this back when you've changed your mind about it. Or when you want to tell me I should change mine."
+			<</if>>
+		<<elseif _session.lesson is 3>>
+			Poppy draws a line beneath the comparison and gives the notebook back. "That's enough of me deciding what comes next. Bring me something I haven't thought to ask for."
+			<br><br>
+			<<if Number($poppyromance) gte 0>>
+				<<nnpc_He "Poppy">> leaves a hand over yours for a moment. "You can still sit close while we're disagreeing, my jewel."
+			<<else>>
+				<<nnpc_He "Poppy">> nudges the used strips into two separate piles. "You take yours. I'll keep mine. I want to see which of us changes our mind first."
+			<</if>>
+		<<else>>
+			Poppy dates the comparison and leaves the next page empty. You can return for another lesson, or work with what you've learned at your own desk.
+		<</if>>
+	<</if>>
+<<else>>
+	There is no completed comparison to put in the notebook yet.
+<</if>>
+<br><<link [[Put away the notebook|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Collaboration
+<<perfumeryPoppyPrep>>
+<<if setup.perfumery.canTeach() and $perfumery?.lesson gte 4 and (!$perfumery.session or $perfumery.session.stage is "concluded")>>
+	<<if $perfumery.skill gte 20>>
+		Poppy has a strip ready before you sit down. "Tell me what you think of the opening. Before I tell you what I've done to it."
+	<<else>>
+		Poppy sets your notebook beside the familiar one. "Let's try something without me writing the question at the top of the page first."
+	<</if>>
+	<br><br>
+	<<if $perfumery.gifts.length>>
+		There is a small space in the notes beside the perfume you gave. Poppy has left room for another version rather than treating the gift as the last word.
+	<<else>>
+		One of Poppy's predictions has been crossed out twice. <<nnpc_He "Poppy">> notices you reading it. "I know. Don't look so pleased."
+	<</if>>
+	<br><br>
+	<<link [[Improve the opening (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.startCollaboration("opening")>><</link>><br>
+	<<link [[Try your own style (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.startCollaboration("challenge")>><</link>><br>
+	<<if $perfumery.gifts.length>><<link [[Revise your gift (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.startCollaboration("gift")>><</link>><br><</if>>
+	<<if $perfumery.characters?.poppy?.rivalry>><<link [[Challenge Poppy (0:05)|Poppy Perfumery Practice]]>><<run setup.perfumery.startCollaboration("rivalry")>><</link>><br><</if>>
+<<else>>
+	Finish your current experiment, or return when Poppy is free to compare ideas.
+<</if>>
+<br><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Extraction
+<<perfumeryPoppyPrep>><<run setup.perfumery.state()>>
+<<if setup.perfumery.canTeach() and $perfumery.lesson gte 4 and (!$perfumery.session or $perfumery.session.stage is "concluded")>>
+	<<if !$perfumery.extraction.lesson>>
+		Poppy has put a rose beside a chocolate-chip cookie. The cookie is on a saucer, well away from the spirit bottles. There is a bite missing.
+		<br><br>
+		"I was checking something," <<nnpc_he "Poppy">> says when you notice. "You can smell the chocolate without deciding the whole thing smells of chocolate. Try it."
+		<br><br>
+		At first there is only warm sweetness. Held closer, the broken edge smells buttery; under that there is a darker smell. Poppy turns the saucer rather than pushing it under your nose.
+		<br><br>
+		"Flowers have several different smells mixed together too. For the cookie, we'll make an aroma by combining separate scents until they remind us of it. We aren't putting the cookie itself into a perfume bottle."
+		<br><br>
+		<<nnpc_He "Poppy">> draws six joined circles on the paper, one for each part of the cookie's smell. "Keep the buttery part and the chocolate seems gentler. Leave it out and you might smell the chocolate more clearly, but it might not remind you of a cookie any more. You decide which parts to keep."
+		<br><br>
+		<<link [[Compare flower and cookie (0:05)|Poppy Perfumery Extraction Work]]>><<run setup.perfumery.extractionLesson("begin")>><</link>>
+	<<elseif !$perfumery.extraction.lesson.complete>>
+		The saucer and the rose's paper sleeve are still beside your notes. Poppy leaves room for your two strips. "One flower, one rebuilt food. Smell each one on its own before you try to make them work together."
+		<br><br>
+		<<link [[Continue separating the two aromas|Poppy Perfumery Extraction Work]]>><</link>><br>
+		<<if $perfumery.extraction.lesson.flower and $perfumery.extraction.lesson.food>>
+			<<link [[Compare the aromas (0:05)|Poppy Perfumery Extraction Review]]>><<run setup.perfumery.extractionLesson("review")>><</link>>
+		<</if>>
+	<<else>>
+		Poppy opens the notebook at the joined circles. "I've been calling this one too savoury." <<nnpc_He "Poppy">> taps a space beside the flowers. "Perhaps I've been trying it in the wrong company."
+		<br><br>
+		<<if $perfumery.skill gte 20>>"Which part would you keep? Tell me before I show you what I did."<<else>>"Try keeping one difficult part. Give it something to stand beside, then tell me if you still want it gone."<</if>>
+		<br><br>
+		You can bring a roasted, savoury or sweet accord into your next shared formula. Poppy will have an opinion; it needn't be yours.
+		<br><br>
+		<<link [[Set out another material|Perfumery Workstation]]>><</link>><br>
+		<<link [[Plan a fragrance together|Poppy Perfumery Collaboration]]>><</link>>
+	<</if>>
+<<else>>
+	The comparison needs the two of you at the table, with your earlier experiment finished. Your samples will keep until Poppy is free.
+<</if>>
+<br><br><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Extraction Work
+<<perfumeryPoppyPrep>>
+<<if $perfumery.extraction?.lesson and !$perfumery.extraction.lesson.complete and setup.perfumery.access()>>
+	"Smell the whole ingredient first," Poppy says. "Then try removing one part of the smell and see what you notice without it. Gentle capture focuses on the smells you notice first. Deep study focuses on the smells that last longer. For cooked food, you can collect its aroma or try making that aroma from separate scents."
+	<br><br>
+	At the tray, select one red rose and one chocolate-chip cookie. For each one, choose a method and keep at least two parts of its smell. The Purity bar shows how clear the aroma will be, but a purer result gives you less to use. The Yield bar shows how much aroma you will collect, although collecting more makes it weaker. Stability shows how long the aroma will last. Check these bars before collecting your samples. You will not be using Poppy's own perfume.
+	<br><br>
+	<<link [[Separate the comparison samples|Perfumery Workstation]]>><</link>><br>
+	<<link [[Compare your samples|Poppy Perfumery Extraction]]>><</link>>
+<<else>>
+	Your comparison notes are at Poppy's table. Return when you can use the tray.
+<</if>>
+<br><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Extraction Review
+<<perfumeryPoppyPrep>>
+<<if setup.perfumery.canTeach() and $perfumery.extraction?.lesson.complete>>
+	<<set _extractKey to $perfumery.extraction.lesson.food>>
+	<<set _accord to setup.perfumeryExtraction.resolve(_extractKey)>>
+	Poppy lays your two strips across the saucer. The flower is easier to recognise beside the rebuilt food than beside the whole cookie. <<nnpc_He "Poppy">> waits for you to smell both before trying them.
+	<br><br>
+	<<if _accord.families.roasted gt 0.3>>
+		"You left out most of the buttery smell." Poppy tries the stronger, darker strip again. "I'd have kept more of it, but we don't need to copy the cookie exactly. Try using this with a flower scent and see whether they work together."
+	<<elseif _accord.families.bakery gt 0.4>>
+		"That reminds me of the freshly broken cookie." Poppy smiles at the saucer. "I thought you'd keep more of the sugary smell. I was about to tell you to add something darker, but let's try what you've made first."
+	<<elseif _accord.properties.sweet gt 0.6>>
+		Poppy brings the sweet strip back towards the rose. "Yes. I like that part too. But liking it isn't a reason to put it in everything." The hand hovering over the tray withdraws. "That's advice for both of us."
+	<<elseif _accord.families.fermented gt 0.15>>
+		Poppy wrinkles <<nnpc_his "Poppy">> nose and moves the strip away, then smells it again. "That's an unusual smell to keep. I'm not sure I like it, but show me what you'd mix it with before we decide to remove it."
+	<<else>>
+		"Not quite what I expected." Poppy checks the circles you left joined. "Tell me which part made you leave the others out. I want to try it your way before I change it."
+	<</if>>
+	<br><br>
+	You write down which parts you kept and how you finished each one. Poppy writes a different guess underneath. The vials go in your case, and your notes are enough to make them again.
+<<else>>
+	The strips are ready for a quieter conversation when Poppy is free. The completed comparison is safely recorded.
+<</if>>
+<br><br><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Special
+<<perfumeryPoppyPrep>>
+<<set _pe to setup.perfumeryCharacters.poppyPending()>>
+<<if !_pe>>
+	Poppy has already said what <<nnpc_he "Poppy">> wanted to say about that bottle.
+<<elseif !setup.perfumery.canTeach() and $debug isnot 1>>
+	Poppy has gone to deal with something else. You leave the bottle on the tray until <<nnpc_he "Poppy">> is free again.
+<<else>>
+	<<include "Poppy Perfumery Special Body">>
+<</if>>
+<br><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Special Body
+<<switch _pe.id>>
+<<case "unconventional">>
+	<<if _pe.repeat>>
+		Poppy smells the strip and puts it down with exaggerated care. "You've done it again. Stop that." <<nnpc_He "Poppy">> reads the amounts anyway, mouthing <<print _pe.sources.join(", ")>> under <<nnpc_his "Poppy">> breath.
+		<br><br>
+		<<poppySpecialChoice "Walk Poppy through it" "explain">>
+		<<poppySpecialChoice "Make Poppy guess again" "guess">>
+	<<else>>
+		Poppy reads your ingredient list before smelling the perfume. "<<print _pe.sources.join(", ")>>," <<nnpc_he "Poppy">> reads aloud, looking up at you. "You put all of those together?"
+		<br><br>
+		<<nnpc_He "Poppy">> holds the strip away from <<nnpc_his "Poppy">> nose, then brings it closer for another smell. "I thought that ingredient would cover up everything else. I was so sure of it that I would have bet my notebook."
+		<br><br>
+		Poppy smells the strip twice more, then lowers it. "I can still smell the other ingredients. Somehow that strange one makes them smell better together." <<nnpc_He "Poppy">> sits back. "How did you work that out? I certainly didn't teach you. I'd remember being that clever."
+		<br><br>
+		<<poppySpecialChoice "Explain the technique" "explain">>
+		<<poppySpecialChoice "Let Poppy guess" "guess">>
+		<<poppySpecialChoice "Admit it was luck" "accident">>
+		<<poppySpecialChoice "Challenge Poppy" "challenge">>
+	<</if>>
+<<case "disaster">>
+	<<if _pe.repeat>>
+		<<switch _pe.kind>>
+		<<case "crafted">>Poppy sniffs, coughs, and sniffs again out of what seems to be professional obligation. "Clean. Well balanced. Still dreadful. You're getting very good at that."
+		<<case "extraction">>Poppy doesn't even reach for the strip. "Your extract again?" <<nnpc_He "Poppy">> taps the separation notes. "We've talked about what goes in the vial."
+		<<case "unstable">>"It's changing while I'm holding it." Poppy turns the strip over. "Not for the better. Did you rush the blend?"
+		<<case "intent">>"You did that on purpose." Poppy doesn't sound surprised any more. "What are you planning to do with it?"
+		<<default>>Poppy wrinkles <<nnpc_his "Poppy">> nose. "Another one for the window ledge."<<if _pe.done?.n gte 3>> "That's three now. I'm starting a collection."<</if>>
+		<</switch>>
+		<br><br>
+		<<poppySpecialChoice "Ask what went wrong" "ask">>
+		<<poppySpecialChoice "Laugh about it" "laugh">>
+		<<poppySpecialChoice "Rescue it together" "rescue">>
+	<<else>>
+		Poppy smells it before you've even held out the strip. <<nnpc_He "Poppy">> leans back so fast the couch creaks.
+		<br><br>
+		<<switch _pe.kind>>
+		<<case "crafted">>
+			Once Poppy has recovered from the first smell, <<nnpc_he "Poppy">> tries the strip again, more carefully. "Wait, you really meant it to smell this bad, didn't you?" <<nnpc_He "Poppy">> checks your formula. "Every scent is easy to tell apart, and you put them all exactly where you wanted them. I hate the smell, but I have to admit you made it well."
+		<<case "extraction">>
+			"That smell came from the ingredient itself, not how you mixed your perfume," Poppy says, wiping at <<nnpc_his "Poppy">> watering eyes. <<nnpc_He "Poppy">> points at your extraction notes. "You collected a part of the smell that you should have removed before mixing it."
+		<<case "unstable">>
+			"The smell keeps changing," Poppy says, turning the strip over. "At first it was nearly pleasant, but then the middle scents started mixing badly. And now it's even worse." <<nnpc_He "Poppy">> holds the strip farther away. "I don't think you blended this properly."
+		<<case "intent">>
+			Poppy smells the strip again, then looks at you. "You didn't accidentally ruin a rose perfume. You made it smell like this on purpose, didn't you?" <<nnpc_He "Poppy">> waits for your reaction. "Why?"
+		<<default>>
+			"I can tell you were trying to make something nice," Poppy says gently, which somehow makes it worse. "There's a pleasant flower smell in there somewhere, but the stronger ingredients make it almost impossible to notice."
+		<</switch>>
+		<br><br>
+		<<poppySpecialChoice "Defend the formula" "defend">>
+		<<poppySpecialChoice "Ask what went wrong" "ask">>
+		<<poppySpecialChoice "Laugh about it" "laugh">>
+		<<poppySpecialChoice "Rescue it together" "rescue">>
+		<<poppySpecialChoice "Claim you meant it" "claim">>
+	<</if>>
+<<case "familiar">>
+	<<if _pe.repeat>>
+		Poppy goes quiet over the strip again. "You keep coming back to this." It isn't quite a question. "You can, you know. Just don't expect me to explain it every time."
+		<br><br>
+		<<poppySpecialChoice "It reminds you of Poppy" "reminds">>
+		<<poppySpecialChoice "Change the subject" "quiet">>
+	<<else>>
+		Poppy smells the strip, then pauses with it still close to <<nnpc_his "Poppy">> nose. <<nnpc_He "Poppy">> doesn't frown the way <<nnpc_he "Poppy">> usually does when something is wrong, but <<nnpc_he "Poppy">> doesn't smile either.
+		<br><br>
+		Poppy places the strip on the table near the drawer holding <<nnpc_his "Poppy">> own bottle, but leaves the drawer closed. "That powdery smell, the flowers, and the softer scent that stays afterwards..." <<nnpc_He "Poppy">> looks at you. "You've been paying attention to my perfume."
+		<br><br>
+		<<if $poppySeen.includes("perfumery_signature_strip")>>
+			"You smelled mine. I let you." <<nnpc_He "Poppy">> sets your strip down beside the closed drawer, not inside it. "I didn't think you'd carry it home with you."
+		<<else>>
+			"I've never let you try my perfume properly, but you remembered enough of its smell to make something similar." Poppy smiles a little, though <<nnpc_he "Poppy">> keeps the drawer closed.
+		<</if>>
+		<br><br>
+		<<poppySpecialChoice "Ask about Poppy's perfume" "ask">>
+		<<poppySpecialChoice "It reminds you of Poppy" "reminds">>
+		<<poppySpecialChoice "Say you didn't copy it" "sorry">>
+	<</if>>
+<<case "gift">>
+	<<if _pe.repeat>>
+		Poppy tries the strip and smiles before <<nnpc_he "Poppy">> can stop <<nnpc_himself "Poppy">>. "This again. Sweet, then flowers, then something left on the cloth." <<nnpc_He "Poppy">> narrows <<nnpc_his "Poppy">> eyes. "If you're making these for me, you'll spoil me. Or bore me. I haven't decided."
+		<br><br>
+		<<poppySpecialChoice "Give Poppy the bottle" "give">>
+		<<poppySpecialChoice "Keep it for yourself" "keep">>
+	<<else>>
+		Poppy smells the strip once and goes still. Then <<nnpc_he "Poppy">> smells it again, slower, the way <<nnpc_he "Poppy">> tests a material <<nnpc_he "Poppy">> already suspects <<nnpc_he "Poppy">> likes.
+		<br><br>
+		<<if _pe.q.attention gte 4>>
+			"The sweetness fades first, and I can still smell the flowers afterwards. There's even a gentle scent left when those fade." <<nnpc_He "Poppy">> looks up at you. "That's exactly what I told you I liked. Weeks ago, when I was half asleep on this couch."
+		<<else>>
+			"It's close to something I'd wear," Poppy says, smelling the strip again. "Not quite what I would choose. There's one part I'd change, but I can't decide which one yet."
+		<</if>>
+		<br><br>
+		<<poppySpecialChoice "Say it's for Poppy" "give">>
+		<<poppySpecialChoice "Admit you were guessing" "admit">>
+		<<poppySpecialChoice "Say nothing" "keep">>
+	<</if>>
+<<case "teacher">>
+	<<if _pe.repeat>>
+		Poppy pushes the notebook across before you've finished stoppering the bottle. "Show me. Properly, this time; I was too busy being impressed last time to take notes."
+		<br><br>
+		<<poppySpecialChoice "Walk Poppy through it" "reason">>
+		<<poppySpecialChoice "Guide Poppy at the tray" "guide">>
+	<<elseif _pe.accord>>
+		You talk about the <<print _pe.accord>> accord: what you kept from it, what you left on the saucer, why you put it where it is. Poppy listens without interrupting, which is new. Twice <<nnpc_he "Poppy">> starts to say something and stops.
+		<br><br>
+		"I'd have kept the sweeter part," <<nnpc_he "Poppy">> says eventually. "I always do. You didn't, and it's better for it." <<nnpc_He "Poppy">> looks at the notebook in <<nnpc_his "Poppy">> lap, then at you. "Will you show me? Not tell me. Show me."
+		<br><br>
+		<<poppySpecialChoice "Guide Poppy at the tray" "guide">>
+		<<poppySpecialChoice "Compare two accords" "compare">>
+		<<poppySpecialChoice "Explain your reasoning" "reason">>
+	<<else>>
+		Poppy smells the strip, puts it down beside your notes, then picks it up to check the smell again. <<nnpc_He "Poppy">> looks through your ingredient list before speaking.
+		<br><br>
+		"I can recognise all the ingredients, but I can't work out how you made them smell so good together," Poppy admits. <<nnpc_He "Poppy">> opens <<nnpc_his "Poppy">> own notebook to a blank page and offers you the pen. "Will you show me how you did it? You can start wherever you like."
+		<br><br>
+		<<for _acc range (_pe.accords.length ? _pe.accords : _pe.sources.slice(0, 2))>>
+			<<capture _acc>><<link `"Start with " + _acc` "Poppy Perfumery Special">><<set $perfumery.characters.poppy.pending.accord to _acc>><</link>><br><</capture>>
+		<</for>>
+	<</if>>
+<</switch>>
+
+:: Poppy Perfumery Special Reply
+<<perfumeryPoppyPrep>>
+<<set _o to $perfumery.characters?.poppy?.last>>
+<<if !_o>>
+	Poppy has already said what <<nnpc_he "Poppy">> wanted to say about that bottle.
+<<else>>
+<<switch _o.id>>
+<<case "unconventional">>
+	<<switch _o.choice>>
+	<<case "explain">>
+		You explain why you kept the unusual scent and which part of the perfume you put it in. Poppy writes down your explanation, crosses out a line, and writes it again. "So you didn't try to hide the smell. You mixed it with something that made it work better." <<nnpc_He "Poppy">> taps the page. "I'm stealing that idea."
+	<<case "guess">>
+		Poppy closes <<nnpc_his "Poppy">> eyes and guesses two ingredients. When you tell <<nnpc_him "Poppy">> one was wrong, <<nnpc_he "Poppy">> swears quietly. "Let me try again. I want to get the next one right."
+	<<case "accident">>
+		Poppy laughs, really laughs. "Then you have a very good nose for accidents. Most people pour theirs down the sink." <<nnpc_He "Poppy">> slides the notebook towards you. "Write down exactly what you did. Accidents don't happen twice unless you're careful."
+	<<case "challenge">>
+		Poppy raises <<nnpc_his "Poppy">> eyebrows and reaches for the daisies. "Oh, you want to challenge me? Then we'll use the same flowers I taught you with. Your bottle against mine. And don't expect me to pretend you won if you didn't."
+		<br><br>
+		<span class="gold">Poppy will now accept a friendly rivalry at the table.</span>
+	<</switch>>
+<<case "disaster">>
+	<<switch _o.choice>>
+	<<case "defend">>
+		<<if _o.kind is "crafted" or _o.kind is "intent">>
+			You defend every layer. Poppy listens, holding the strip at a safe distance. "I can't argue with the work," <<nnpc_he "Poppy">> admits. "I can argue with the smell. But not the work."
+		<<else>>
+			You defend the formula. Poppy waits until you've finished, then hands you the strip. You smell it again. You stop defending the formula.
+		<</if>>
+	<<case "ask">>
+		<<switch _o.kind>>
+		<<case "extraction">>"Separate it again. Leave out the part that made your eyes water. Then decide whether the formula still needs changing." Poppy writes "extract first" in the margin and underlines it twice.
+		<<case "unstable">>"Blend it properly and let it sit. Half of that is impatience." Poppy softens it with a nudge. "The other half is the formula. But start with the patience."
+		<<case "crafted" "intent">>"You made it exactly the way you intended," Poppy says. "That's what worries me."
+		<<default>>"There are too many strong smells competing in the middle of this perfume." Poppy draws three small circles and crosses one out. "Try removing this one, then smell it again."
+		<</switch>>
+	<<case "laugh">>
+		You start laughing. Poppy tries to keep a straight face and fails. For a while neither of you can look at the strip without setting the other off again. It is, at least, a very memorable bottle.
+	<<case "rescue">>
+		"Alright, let's see whether we can save it." Poppy pushes the failed formula back across the tray and puts a clean page beside it. "Change one ingredient or amount, then we'll smell it again. If we change everything, we won't know what helped."
+		<br><br>
+		<<link [[Set out the materials|Poppy Perfumery Practice]]>><</link>>
+	<<case "claim">>
+		You insist you meant to make the perfume smell that way. Poppy looks at you for a moment, then smiles. "Oh, I don't believe you. But that's a much more interesting story, so I'll pretend I do."
+	<</switch>>
+<<case "familiar">>
+	<<switch _o.choice>>
+	<<case "ask">>
+		<<if $opium_knowledge is 1>>
+			"You already know what's in my perfume." Poppy keeps <<nnpc_his "Poppy">> voice calm. "You didn't put any of that in yours, and I'm glad. Keep it that way." <<nnpc_He "Poppy">> taps your strip. "You made this with flowers and time. It doesn't need anything else."
+		<<else>>
+			"Mine is mine," Poppy says, not unkindly. "There are things in it I'm not ready to talk about." <<nnpc_He "Poppy">> taps your strip. "Yours is flowers and patience. I like that about it."
+		<</if>>
+	<<case "reminds">>
+		<<if Number($poppyromance) gte 0 and C.npc.Poppy.love gte 60>>
+			You say it reminds you of Poppy. <<nnpc_He "Poppy">> doesn't answer straight away. Then <<nnpc_he "Poppy">> leans in, close enough that you can smell the real thing under the strip. "It's not the same," <<nnpc_he "Poppy">> murmurs. "But I don't mind that you tried, my jewel."
+		<<else>>
+			You say it reminds you of Poppy. "That's a strange thing to want to smell like," Poppy says, but <<nnpc_he "Poppy">> doesn't hand the strip back.
+		<</if>>
+	<<case "sorry">>
+		You say you didn't mean to copy it. "I know." Poppy smooths the corner of your page. "You noticed something and wrote it down. That's what I taught you to do. I just didn't expect you to notice me."
+	<<case "quiet">>
+		You let the moment pass. Poppy is grateful for it, though <<nnpc_he "Poppy">> doesn't say so.
+	<</switch>>
+	<br><br>
+	Your version has none of the heaviness that follows Poppy out of a room. It's only a perfume.
+<<case "gift">>
+	<<switch _o.choice>>
+	<<case "give">>
+		<<if _o.repeat>>
+			Poppy accepts the bottle, though <<nnpc_he "Poppy">> tries to look reluctant. "You're spoiling me, you know. I'm going to say this is the last one, but I doubt I'll mean it."
+		<<elseif _o.attention gte 4>>
+			You say you made it for Poppy. <<nnpc_He "Poppy">> holds the bottle in both hands, not quite looking at you. "You listened," <<nnpc_he "Poppy">> says. "Most people only remember the things I say when I want them to." The bottle goes on the shelf beside the signature drawer, where <<nnpc_he "Poppy">> can see it from the couch.
+		<<else>>
+			You say you made it for Poppy. "It's not quite right," <<nnpc_he "Poppy">> says, and then, before you can answer: "I'm keeping it anyway. Don't you dare fix it."
+		<</if>>
+		<<if Number($poppyromance) gte 0 and C.npc.Poppy.love gte 60 and !_o.repeat>><br><br><<nnpc_He "Poppy">> kisses your cheek, quick and light, and goes straight back to the notebook.<</if>>
+	<<case "admit">>
+		You admit you were guessing what Poppy would like. Poppy laughs. "Well, you didn't do badly." <<nnpc_He "Poppy">> smells the strip again and puts the bottle on the shelf. "There are parts I'd change, but you got more right than I expected. I'll tell you which ones later."
+	<<case "keep">>
+		You stopper it and put it with your own bottles. Poppy watches it go and says nothing, but <<nnpc_he "Poppy">> makes a small mark in <<nnpc_his "Poppy">> notebook.
+	<</switch>>
+<<case "teacher">>
+	<<switch _o.choice>>
+	<<case "guide">>
+		Poppy moves the bottles towards you so you can use the tray, then sits beside you with <<nnpc_his "Poppy">> notebook open. <<nnpc_He "Poppy">> watches what you do and writes down each step instead of reaching in to change things.
+		<br><br>
+		<<link [[Guide Poppy at the tray|Poppy Perfumery Practice]]>><</link>>
+	<<case "compare">>
+		You place two scented strips beside each other: one with the aroma you made and one with the original ingredient's smell. Poppy smells each one several times before noticing what is missing. <<nnpc_He "Poppy">> laughs. "You left out the part I thought you needed most, and somehow the result is better."
+	<<case "reason">>
+		You explain every choice, from the first part to the last. Poppy takes notes the whole time. At the end, <<nnpc_he "Poppy">> reads them back, corrects one thing you said, and then corrects <<nnpc_his "Poppy">> correction. "You were right the first time. I'm going to have to get used to that."
+	<</switch>>
+	<<if !_o.repeat>><br><br>Poppy closes the notebook. "Next time I'm stuck," <<nnpc_he "Poppy">> says, "I'm asking you first." <<nnpc_He "Poppy">> sounds like <<nnpc_he "Poppy">> means it.<</if>>
+<</switch>>
+<<if _o.love gt 0>> <<glove>><</if>>
+<</if>>
+<br><br>
+<<if previous() is "Perfumery Test Events">><<link [[Back to the test page|Perfumery Test Events]]>><</link>><<else>><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>><</if>>
+
+:: Poppy Perfumery Commission
+<<perfumeryPoppyPrep>>
+<<set _pcm to setup.perfumeryCharacters.state().avery.commission>>
+<<if !setup.perfumery.canTeach() or !_pcm or _pcm.stage isnot "active">>
+	Poppy isn't free to look at your plans right now.
+<<elseif _pcm.poppy>>
+	"You've already asked me," Poppy says. "Now go and make it." <<nnpc_He "Poppy">> doesn't look up from the notebook. "I'm curious how it turns out, though."
+<<else>>
+	You tell Poppy someone has asked you to make a perfume.
+	<br><br>
+	"Someone asked you? You're going to have to tell me who." When you say Avery's name, Poppy raises an eyebrow. "Well, that's interesting. What did <<nnpc_he "Avery">> ask for?"
+	<br><br>
+	<<switch _pcm.context>>
+	<<case "dinner">>You describe the dinners: woods and amber, something powdery, nothing that smells of food, close to the skin.
+	<<case "party">>You describe the parties on Danube Street: flowers but not a garden, something bright with resin underneath, nothing musky, nothing that carries across a street.
+	<<default>>You say it's for Avery to wear: amber, resin, a little spice, no fruit, no grass, no sugar.
+	<</switch>>
+	<br><br>
+	Poppy thinks over Avery's requests. "Avery certainly knows what <<nnpc_he "Avery">> wants, doesn't <<nnpc_he "Avery">>? Have you made anything to show <<nnpc_him "Avery">> yet?"
+	<br><br>
+	<<for _pcB range $perfumery.bottles.slice(-6)>>
+		<<capture _pcB>><<perfumeryIcon _pcB>><<link `"Show " + _pcB.name.replace(/[<>\[\]|$_@]/g, "")` "Poppy Perfumery Commission Advice">><<run setup.perfumeryCharacters.poppyAsk(_pcB.id)>><</link>><br><</capture>>
+	<</for>>
+	<<link [[Not started yet|Poppy Perfumery Commission Advice]]>><<run setup.perfumeryCharacters.poppyAsk(-1)>><</link>><br>
+<</if>>
+<br><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Commission Advice
+<<perfumeryPoppyPrep>>
+<<set _pcm to setup.perfumeryCharacters.state().avery.commission>>
+<<if !setup.perfumery.canTeach() or !_pcm or _pcm.stage isnot "active" or _pcm.asked is undefined>>
+	Poppy isn't free to look at your plans right now.
+	<br><br><<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+<<else>>
+	<<set _pcAdvice to setup.perfumeryCharacters.poppyAdvice(_pcm.asked)>>
+	<<if !_pcAdvice.bottle>>
+		"Start with the base scent," Poppy says. "It needs to last without being so strong that people smell it across the room. Once you have that, choose the other scents to suit where Avery plans to wear it."
+	<<else>>
+		Poppy tries the strip slowly, the way <<nnpc_he "Poppy">> would try one of <<nnpc_his "Poppy">> own.
+		<br><br>
+		<<if _pcAdvice.clashing.length>>
+			"The <<print _pcAdvice.clashing[0]>> will be the first thing anyone notices. If Avery said no to it, that's the thing that will be remembered."
+		<<elseif _pcAdvice.missing.length gte 2>>
+			"It's nice. It isn't what you were asked for. Where's the <<print _pcAdvice.missing[0]>>? Where's the <<print _pcAdvice.missing[1]>>?"
+		<<elseif _pcAdvice.fit.tooStrong>>
+			"This smells much stronger than Avery asked for. Try using less concentrated perfume, or a gentler mixing liquid."
+		<<elseif _pcAdvice.offNote>>
+			"After the other scents fade, there's a <<print _pcAdvice.offNote>> smell left behind. You might not notice it when you first put the perfume on, but it becomes much easier to smell later."
+		<<else>>
+			"I can't find anything wrong with it." Poppy sounds faintly annoyed. "That doesn't mean <<nnpc_he "Avery">>'ll like it. It means I can't find anything wrong with it."
+		<</if>>
+		<<if _pcAdvice.unusual>><br><br>"And it's strange. Some people like strange. Some people only say they do."<</if>>
+	<</if>>
+	<br><br>
+	"Does it suit <<nnpc_him "Avery">>?" Poppy asks. "Not the request. <<nnpc_Him "Avery">>." <<nnpc_He "Poppy">> leaves the question open.
+	<br><br>
+	<<link [[Take the advice|Poppy Perfumery Commission Reply]]>><<run setup.perfumeryCharacters.poppyAdviceRecord("accept")>><</link>><br>
+	<<link [[Keep your own plan|Poppy Perfumery Commission Reply]]>><<run setup.perfumeryCharacters.poppyAdviceRecord("ignore")>><</link>><br>
+	<<link [[Argue your version|Poppy Perfumery Commission Reply]]>><<run setup.perfumeryCharacters.poppyAdviceRecord("own")>><</link>><br>
+<</if>>
+
+:: Poppy Perfumery Commission Reply
+<<perfumeryPoppyPrep>>
+<<set _pcm to setup.perfumeryCharacters.state().avery.commission>>
+<<switch _pcm?.poppy?.advice>>
+<<case "accept">>"I think that's a sensible choice. Just don't tell Avery I helped you decide. Some people like to think they're the only ones with good taste."
+<<case "ignore">>"Your bottle, your name on the label." Poppy shrugs, unoffended. "Tell me how it goes either way."
+<<case "own">>You explain why your version fits Avery better than Poppy's suggestion. Poppy listens to the whole argument. "You might be right. You've spent more time with Avery recently than I have." <<nnpc_He "Poppy">> makes a note anyway. "I'll want to hear which of us was right."
+<<default>>Poppy has nothing more to add about the commission.
+<</switch>>
+<br><br>
+<<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Commission Followup
+<<perfumeryPoppyPrep>>
+<<set _pcf to setup.perfumeryCharacters.poppyFollowup() ?? _pcfShown>>
+<<if _pcf and setup.perfumery.canTeach()>>
+	<<if !_pcfShown>><<set _pcfShown to _pcf>><<run setup.perfumeryCharacters.poppyFollowupDone()>><</if>>
+	<<set _pcfGood to ["excellent", "unexpected", "exception"].includes(_pcf.outcome)>>
+	<<set _pcfBad to ["embarrassing", "defiance"].includes(_pcf.outcome)>>
+	Poppy asks how the commission went before you've sat down.
+	<br><br>
+	<<if _pcfGood and _pcf.poppy.advice is "accept">>
+		You tell <<nnpc_him "Poppy">>. Poppy looks pleased, then catches <<nnpc_himself "Poppy">>. "That was your bottle. I just pointed at things."
+	<<elseif _pcfGood>>
+		You tell Poppy how well the commission went, including that you ignored <<nnpc_his "Poppy">> advice. Poppy rolls <<nnpc_his "Poppy">> eyes, but smiles. "How annoying. You did well without my help."
+	<<elseif _pcfBad and _pcf.poppy.advice is "accept">>
+		You tell <<nnpc_him "Poppy">> it went badly. Poppy winces. "Some of that's mine, then. I'm sorry. I should have asked more about <<nnpc_him "Avery">> and less about the bottle."
+	<<elseif _pcfBad>>
+		You tell <<nnpc_him "Poppy">> it went badly. Poppy doesn't say anything about the advice you didn't take. <<nnpc_He "Poppy">> pours you something to drink and lets you complain.
+	<<elseif _pcf.outcome is "technical">>
+		"<<nnpc_He "Avery">> liked the work and not the perfume?" Poppy snorts. "That's the most backhanded thing anyone can say to a perfumer. Take it as a compliment. I would."
+	<<else>>
+		"Avery only said it was fine? After all the work you put into it?" Poppy looks more offended on your behalf than you feel.
+	<</if>>
+	<br><br>
+<<else>>
+	There's nothing new to tell Poppy about the commission.
+	<br><br>
+<</if>>
+<<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Opium
+<<perfumeryPoppyPrep>>
+Poppy opens the drawer where <<nnpc_he "Poppy">> keeps <<nnpc_his "Poppy">> own perfume. Instead of taking out the bottle, <<nnpc_he "Poppy">> removes a small round tin and puts it on the cloth between you.
+<br><br>
+"You've been smelling this on me since the day we met," <<nnpc_he "Poppy">> says. "You might as well know what it is."
+<br><br>
+<<if $opium_knowledge is 1>>
+	You know the smell before the lid comes off: the powdery, heavy scent that is always in the air around Poppy. "Opium," you say. Poppy doesn't argue.
+<<else>>
+	Poppy lifts the lid. Inside is a dark, sticky lump, and the smell that comes out of the tin is the powdery one you always notice near Poppy. Your eyelids feel heavy almost at once. "Opium," Poppy says. "Poppy milk, dried until it's thick."
+<</if>>
+<br><br>
+<<if $poppySeen?.includes("poppy_tf_revealed")>>
+	"Nobody sprays it on me," <<nnpc_he "Poppy">> goes on. "It comes off my skin, like your smell comes off yours. A fallen fox has to smell of something." <<nnpc_His "Poppy">> tail flicks once against the couch.
+<<else>>
+	"Nobody sprays it on me," <<nnpc_he "Poppy">> goes on. "It comes off my skin, like your smell comes off yours. Don't ask me why. Not today."
+<</if>>
+<br><br>
+"I put it in the base of a perfume, where the smell lasts longest. It can ease pain and make people nearby feel sleepy and relaxed." Poppy turns the tin on the cloth. "But there's a risk. If you keep breathing it in, your body can become dependent on it. You've noticed how much better you feel when you're near me.<<if $backgroundTraits.includes("opiumaddict")>> I think you know what I mean better than most.<</if>>"
+<br><br>
+<<nnpc_He "Poppy">> puts the lid back on, but doesn't push the tin away. "I keep a little for my own bottle. I could help you make one, and it would be yours to keep. Just wear it carefully."
+<<poppyOpiumPulse 1>>
+<<if $perfumery.bottles.length gte 24>>
+	<span class="grey">Your perfume cabinet is full. Use, give away or throw out a bottle before you make another.</span>
+	<br>
+<<else>>
+	<<icon "tending/white-rose.png">><<link [[Make it with Poppy (0:05)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.start()>><</link>><br>
+<</if>>
+<<getouticon>><<link [[Not today|Poppy Perfumery Visit]]>><</link>>
+
+:: Poppy Perfumery Opium Make
+<<perfumeryPoppyPrep>>
+<<set _po to $perfumeryOpium>>
+<<if !_po>>
+	Poppy has already put the tin away.
+	<br><br>
+	<<link [[Back to the table|Poppy Perfumery Visit]]>><</link>>
+<<elseif _po.step is "latex">>
+	<<if !_po.ownBottle and !_po.ownSpirit>>
+		"You haven't brought a bottle or any soft spirit," Poppy says, and takes both from the shelf behind the couch. "Use mine. I've got plenty."
+		<br><br>
+	<<elseif !_po.ownBottle>>
+		"No empty bottle?" Poppy takes one of <<nnpc_his "Poppy">> own from the shelf. "Use this one."
+		<br><br>
+	<<elseif !_po.ownSpirit>>
+		"You're out of soft spirit." Poppy takes a jar from the shelf and puts it next to your notebook. "Use mine."
+		<br><br>
+	<</if>>
+	Poppy cuts a small piece from the lump with a knife and puts it in a glass dish. "First it has to soften. It's like old honey. If you heat it too fast it burns, and burnt opium smells of nothing but smoke."
+	<br><br>
+	<<link [[Warm the dish in your hands (0:10)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.choose("latex", "warm")>><</link>><br>
+	<<link [[Hold it over the burner (0:10)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.choose("latex", "burner")>><</link>><br>
+	<<link [[Ask Poppy to do it (0:10)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.choose("latex", "ask")>><</link>>
+<<elseif _po.step is "layer">>
+	<<switch _po.latex>>
+	<<case "warm">>
+		You hold the dish in both hands and wait while the piece of opium slowly softens around the edges. Poppy checks it and smiles. "There you are. You didn't rush it."
+	<<case "burner">>
+		You hold the glass dish over the small burner. After a few seconds, the edge of the opium starts bubbling and smoke rises from it. Poppy catches your wrist and helps move the dish away from the heat. <<nnpc_He "Poppy">> removes the burnt part with a knife. "That was too hot. We lost a little, but there's still enough left."
+	<<default>>
+		Poppy takes the dish and holds it against <<nnpc_his "Poppy">> chest, under <<nnpc_his "Poppy">> collar. "Body heat," <<nnpc_he "Poppy">> says. "That's the trick." After a few minutes <<nnpc_he "Poppy">> gives the dish back to you, and the opium inside is soft and shining.
+	<</switch>>
+	<br><br>
+	Poppy puts three small bottles on the cloth: daisy for the top scent, rose for the middle and orchid for the base. "Where do you think we should put the opium?"
+	<br><br>
+	<<link [[Base: under the orchid (0:10)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.choose("layer", "base")>><</link>><br>
+	<<link [[In the heart, with the rose (0:10)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.choose("layer", "heart")>><</link>><br>
+	<<link [[On top, with the daisy (0:10)|Poppy Perfumery Opium Make]]>><<run setup.perfumeryOpium.choose("layer", "top")>><</link>>
+<<else>>
+	<<switch _po.layer>>
+	<<case "base">>
+		You drip the soft opium into the base, under the orchid. Poppy watches, then smiles. "That's where I put mine. People smell the flowers first, and they only notice the rest when they're close to you."
+	<<case "heart">>
+		You start to add it to the heart. Poppy puts a finger on the rim of the glass to stop you. "In the heart, it's all anyone would smell for hours. Under the orchid." <<nnpc_He "Poppy">> guides your hand down to the base.
+	<<default>>
+		You tip the dish towards the daisy. Poppy catches your hand and laughs. "On top, it would put the first person who hugs you to sleep." <<nnpc_He "Poppy">> guides your hand down to the base.
+	<</switch>>
+	<br><br>
+	"Now we mix it." Poppy hands you a glass rod. "Stir while I count, and stop when I say 'now'. If you stop too early, the ingredients won't mix properly. If you stir for too long, the rose scent will get weaker." Poppy starts counting quietly. <span class="gold">Stop the moving marker when it reaches the gold area.</span>
+	<br><br>
+	<<if _po.step is "blend">>
+		<<perfumeryOpiumBar>>
+		<span id="poppy-opium-next" hidden><<link [[Bottle it (0:20)|Poppy Perfumery Opium Result]]>><<run setup.perfumeryOpium.finish()>><</link>></span>
+	<<else>>
+		<<link [[Bottle it (0:20)|Poppy Perfumery Opium Result]]>><<run setup.perfumeryOpium.finish()>><</link>>
+	<</if>>
+<</if>>
+
+:: Poppy Perfumery Opium Result
+<<perfumeryPoppyPrep>>
+<<set _po to $perfumeryOpium>>
+<<if !_po?.result>>
+	Poppy has already put the tin away.
+<<else>>
+	<<if _po.blend gte 0.7>>
+		You stop stirring when Poppy says "now". The liquid looks clear, and you cannot see where one layer ends and another begins.
+	<<elseif _po.blend gte 0.4>>
+		You stop stirring a moment after Poppy says "now". You can still see a thin line between the liquids, so Poppy takes the rod and stirs the mixture twice more.
+	<<else>>
+		You stop stirring too early or too late. A cloudy line appears where the liquids have not mixed properly, so Poppy takes the rod and keeps stirring until the line disappears.
+	<</if>>
+	<br><br>
+	Poppy pours the perfume through a small funnel into the bottle and pushes the stopper in. On the label <<nnpc_he "Poppy">> writes <i>Opium</i> in small, careful letters, then hands the bottle to you.
+	<br><br>
+	<<if _po.fixed is 0>>
+		Poppy smells the stopper and goes quiet for a moment. "That's nearly mine," <<nnpc_he "Poppy">> says. "Don't tell anyone you made it in one afternoon."
+	<<elseif _po.fixed is 1>>
+		Poppy smells the stopper. "Close. You'll smell the difference, but nobody else will."
+	<<else>>
+		Poppy smells the stopper and shrugs. "It's yours. Not perfect, but yours." <<nnpc_He "Poppy">> taps the label. "Next time you won't need me to fix it."
+	<</if>>
+	<<if !_po.result.first>>"Another one? Soon you'll smell more like me than I do."<</if>>
+	<br><br>
+	"Let it rest for a day before you wear it," Poppy says. "And one dab is enough. Not every day."
+	<<glove>>
+	<br><br>
+	<span class="purple">You put <i>Opium</i> in your perfume cabinet.</span> Wearing it counts as breathing in opium.
+<</if>>
+<br><br>
+<<link [[Back to the table|Poppy Perfumery Visit]]>><<unset $perfumeryOpium>><</link>>

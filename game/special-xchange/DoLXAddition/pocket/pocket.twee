@@ -88,7 +88,7 @@
 <<widget "pocketBagContents">>
 	<<set _personalSlots to $pocket.bag.slots.filter(slot => slot.location is "pocket")>>
 	<<set _bagSlots to $pocket.bag.slots.filter(slot => slot.location is "bag")>>
-	<div class="small-description">Each kind of thing takes one slot, however many of it you pack. Pack things where you keep them: the kitchen, the medicine drawer, the toy cupboard, the bait shop.</div>
+	<div class="small-description">Each kind of thing takes one slot, however many of it you pack. Pack things where you keep them: the kitchen, the medicine drawer, the toy cupboard, the perfume cabinet, the bait shop.</div>
 	<br>
 	<<if bloatedActive()>>
 		<div class="red">You feel bloated. Eating anything will keep you bloated for another 10 hours.</div><br>
@@ -250,6 +250,38 @@
 									|
 									<<link "Take out">>
 										<<if _toyItem.stacked>><<run pocketSlotToggle("toy", _toyItem.category)>><<else>><<run pocketToyPack(_toyItem.category, _toyItem.index, false)>><</if>>
+										<<replace #pocketPane>><<pocketBagContents>><</replace>>
+									<</link>>
+								<</capture>>
+							</span>
+						</div>
+					<</for>>
+				</div>
+			<<case "perfume">>
+				<div class="pocket-toy-list">
+					<<for _perfumeBottle range pocketPerfumeBottles()>>
+						<div @class="'pocket-item-row pocket-toy-row' + ($options.images is 1 ? ' pocket-item-row-icon' : '')">
+							<<if $options.images is 1>><span class="pocket-item-icon"><<perfumeryIcon _perfumeBottle>></span><</if>>
+							<span class="pocket-item-name">
+								<span class="teal"><<= Util.escapeMarkup(_perfumeBottle.name)>></span>
+								<span class="gold">(<<= _perfumeBottle.uses>> <<= _perfumeBottle.uses is 1 ? "use" : "uses">>)</span>
+							</span>
+							<span class="pocket-item-actions">
+								<<capture _perfumeBottle>>
+									<<if _perfumeBottle.uses gt 0 and setup.perfumery.ready(_perfumeBottle)>>
+										<<link "Wear">>
+											<<set _perfumeNotice to pocketPerfumeWear(_perfumeBottle.id)>>
+											<<replace #pocketPane>><<pocketBagContents>><</replace>>
+											<<replace #pocketUseReport>><span class="purple"><<= Util.escapeMarkup(_perfumeNotice)>></span><</replace>>
+										<</link>>
+									<<elseif _perfumeBottle.uses lte 0>>
+										<span class="grey">Empty</span>
+									<<else>>
+										<span class="grey">Still maturing</span>
+									<</if>>
+									|
+									<<link "Take out">>
+										<<run pocketPerfumePack(_perfumeBottle.id, false)>>
 										<<replace #pocketPane>><<pocketBagContents>><</replace>>
 									<</link>>
 								<</capture>>

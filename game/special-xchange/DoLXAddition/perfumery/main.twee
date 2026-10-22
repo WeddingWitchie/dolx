@@ -1,0 +1,923 @@
+:: Perfumery Workstation
+<<effects>>
+<<if setup.perfumery.access()>>
+	<<set $outside to 0>>
+	<<perfumeryUI "station">>
+	<br>
+	<<icon "socialise-question.png">><<link [[How perfume works|Perfumery Guide]]>><</link>><br>
+	<<refuseicon>><<link [[Clear the draft|Perfumery Workstation]]>><<run setup.perfumeryUI.resetDraft()>><</link>><br>
+	<<icon "filing-cabinet.png">><<link [[Cabinet and formulas|Perfumery Cabinet]]>><</link>><br>
+<<else>>
+	You cannot use the perfume-making table yet. You need your own equipment, or you can use Poppy's when Poppy has invited you over and is available to teach you.
+	<br>
+<</if>>
+<<if $perfumeryVenue is "poppy">>
+	<<getouticon>><<link [[Put away the materials|Poppy Perfumery Visit]]>><</link>>
+<<else>>
+	<<getouticon>><<link [[Put away the case|Bedroom]]>><</link>>
+<</if>>
+
+:: Perfumery Guide
+<<effects>>
+<h3>What you're making</h3>
+You make perfume by mixing different smells into a special liquid called <span class="gold">spirit</span>, then putting the mixture in a bottle. When you wear it, people and animals near you may notice the smell.
+
+<h3>1. Prepare: ingredients become aromas</h3>
+First, prepare an ingredient, such as a flower or a fruit. This gives you a small amount of its smell, called an <span class="gold">aroma</span>. The game calls each amount a <span class="gold">measure</span>.
+<br><br>
+Each ingredient has six different smell characteristics, shown by the bars on the screen. For example, a rose may smell mostly of flowers, with smaller amounts of leaves and earth. You can choose which characteristics to keep or remove. Check the bars to see how your choice changes the aroma before confirming it.
+<ul>
+	<li><span class="gold">Clarity</span>: how easy it is to recognise the different smells. Some ingredients make it harder to tell one smell from another.</li>
+	<li><span class="gold">Lasting</span>: how long the smell remains after you wear the perfume.</li>
+	<li><span class="gold">Suits</span>: which of the three perfume layers works best for that aroma. You can still put it in any layer you want.</li>
+	<li><span class="gold">Method and finish</span>: optional choices for how you prepare the ingredient. You can leave these at their default settings for your first perfume.</li>
+</ul>
+
+<h3>2. Compose: the three notes</h3>
+The smell of a perfume changes over time. To make one, put your prepared aromas into three groups, called <span class="gold">notes</span>:
+<ul>
+	<li><span class="gold">Top</span>: the smell people notice first. It usually fades within an hour.</li>
+	<li><span class="gold">Heart</span>: the main smell, which stays noticeable for most of the time you wear it.</li>
+	<li><span class="gold">Base</span>: the smell that remains on your skin after the others become weaker.</li>
+</ul>
+Choose Top, Heart or Base on the screen, then select a prepared aroma. Each time you select it, you add one measure to that group. You can make a simple perfume with just one aroma, although using all three groups usually gives the perfume more variety as it wears off.
+
+<h3>3. Blend</h3>
+Press <span class="gold">Start</span> to begin the mixing game. Watch the moving marker and press <span class="gold">Stop</span> when it reaches the gold area. Repeat this for the Top, Heart and Base groups. Stopping inside the gold area improves your <span class="gold">craftsmanship</span> score and can improve the perfume's quality. If you do not want to play the timing game, choose the quick blend for an average result.
+<br><br>
+<span class="gold">Liquid settings</span> are optional:
+<ul>
+	<li><span class="gold">Spirit</span>: soft perfume can only be smelled nearby but lasts longer. Bright perfume is easier to notice from a distance but fades sooner. Clear is between the two.</li>
+	<li><span class="gold">Strength</span>: a stronger perfume can last longer and fit more aroma measures into the same bottle. With the same amount of aroma, it uses less spirit and gives you fewer applications.</li>
+	<li><span class="gold">Bottle size</span>: how much perfume the bottle can hold. A bigger bottle lets you add more aromas; the amount you actually mix determines how many uses you get.</li>
+	<li><span class="gold">Maturing</span>: leaving the finished perfume alone for a few days can improve its smell, but you cannot wear it until it is ready.</li>
+</ul>
+
+<h3>4. Bottle</h3>
+You can try different recipes without using up any supplies. Supplies are only used when you put the finished perfume into a bottle. This step takes 20 minutes and uses your prepared aromas, spirit and one empty bottle.
+<br><br>
+Wear a perfume from the cabinet or your journal. Empty bottles and spirit are sold at the cosmetics shop.
+<br><br>
+<<link [[Back to the table|Perfumery Workstation]]>><</link>>
+<br>
+
+:: Perfumery Cabinet
+<<effects>>
+<<perfumeryUI "cabinet">>
+<br>
+<<if setup.perfumery.access()>><<link [[Back to the table|Perfumery Workstation]]>><</link>><br><</if>>
+<<if $perfumeryVenue is "poppy">>
+	<<link [[Return to Poppy|Poppy Perfumery Visit]]>><</link>>
+<<else>>
+	<<link [[Close the cabinet|Bedroom]]>><</link>>
+<</if>>
+<br>
+
+:: Perfumery Supplies
+<<set $location to "shopping_centre">><<set $outside to 0>><<effects>>
+<<if setup.perfumery.enabled() and Time.dayState isnot "night" and Time.hour isnot 21 and $exposed lte 0>>
+	<<set _perfumery to setup.perfumery.state()>>
+	Near the small desks, you find a cabinet with bottles of perfume-making liquid and other equipment. The bottles are labelled Soft, Clear and Bright. Soft makes a perfume harder to smell from far away, but it lasts longer. Bright makes it easier to notice from a distance, although it fades sooner.
+	<br><br>
+	<<if !_perfumery.learned and !modLISelected("Poppy")>>
+		<<perfumeryShopItem "manual" "Beginner's manual and case" 5000>>
+	<<elseif _perfumery.learned and !_perfumery.equipment>>
+		<<perfumeryShopItem "equipment" "Perfumer's case" 15000>>
+	<<elseif !_perfumery.learned>>
+		<span class="grey">Poppy can teach you the basics before you buy a case.</span>
+		<br>
+	<</if>>
+	<<perfumeryShopItem "container" "Empty bottle" 150>>
+	<<for _type range ["soft", "clear", "bright"]>>
+		<<perfumeryShopItem "solvent" `_type.toUpperFirst() + " spirit ×20"` `setup.perfumeryModel.solvents[_type].cost * 20` _type>>
+	<</for>>
+<<else>>
+	The perfumery supplies counter is unavailable just now.
+<</if>>
+<br>
+<<getouticon>><<link [[Back|Cosmetics Store]]>><</link>>
+<br>
+
+:: Perfumery Moment Robin
+<<if _pm.ctx is "study">>
+	<<perfumeryNotice>>
+	<<if _pm.kind is "discomfort">>
+		Robin stops reading and rubs <<nnpc_his "Robin">> nose. "Is that your perfume? It's a bit strong." <<nnpc_He "Robin">> moves the textbook aside, gets up to open the window a little, then returns to the desk without asking you to take the perfume off.
+	<<elseif _pm.kind is "familiar">>
+		Robin turns a page while you sit beside <<nnpc_him "Robin">>. After a moment, <<nnpc_he "Robin">> smiles without looking up. "I know that perfume now. You've been wearing it when we study."
+	<<elseif _pm.kind is "personal">>
+		Robin stops halfway through reading a sentence and looks towards your wrist. "Is that daisies I can smell?" <<nnpc_He "Robin">> smiles down at the book, then waits while you decide whether to answer.
+	<<elseif C.npc.Robin.trauma gte 60 and _pm.tone is "good">>
+		Robin notices your perfume as you sit beside <<nnpc_him "Robin">> to study. <<nnpc_He "Robin">> moves the textbook between you so you can both read it and stays close while you work through the next pages.
+	<<elseif _pm.kind is "enjoy" and _pm.note is "gourmand">>
+		Robin looks up from the textbook and glances towards the door. "I thought someone had brought cakes in." When you explain that the sweet smell is your perfume, <<nnpc_he "Robin">> laughs and looks back at the book.
+	<<elseif _pm.kind is "enjoy">>
+		Robin leans closer to compare your notes with <<nnpc_his "Robin">>, then notices your perfume. "You smell nice," <<nnpc_he "Robin">> says, smiling at you before returning to the page. "It reminds me of the garden."
+	<<elseif _pm.kind is "dislike">>
+		Robin wrinkles <<nnpc_his "Robin">> nose once, then pretends <<nnpc_he "Robin">> didn't.
+	<<elseif _pm.kind is "craft">>
+		Robin stops writing and sniffs your sleeve. "It's not really my kind of smell," <<nnpc_he "Robin">> admits, "but it doesn't smell like something from a shop. Did you make it properly, with the layers and everything?"
+	<<elseif _pm.kind is "curious">>
+		Each time you turn a page, Robin glances towards your wrist. After <<nnpc_he "Robin">> leans closer to smell the perfume, you both lose your place in the book. "Sorry, I wasn't paying attention to the page," <<nnpc_he "Robin">> admits, pointing back to where you left off. "I was trying to work out what you used to make your perfume."
+	<<else>>
+		Robin glances at your wrist when you turn a page, curious, then goes back to the dates.
+	<</if>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<elseif _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "made">>
+		<<if _pm.tone is "good">>
+			"You made the perfume yourself?" Robin puts the book down and looks at you. "Did you use flowers from the garden?" <<nnpc_He "Robin">> looks pleased as <<nnpc_he "Robin">> gently takes your wrist to smell it, then lets go with an embarrassed laugh.
+			<<if $robinromance is 1>>A moment later <<nnpc_he "Robin">> takes your wrist again, and this time <<nnpc_he "Robin">> doesn't let go.<</if>>
+		<<elseif _pm.tone is "bad">>
+			Robin looks at your wrist again when you tell <<nnpc_him "Robin">> you made the perfume yourself. "You must have spent a lot of time making it," <<nnpc_he "Robin">> says, trying to sound encouraging. <<nnpc_He "Robin">> gives you a small smile but doesn't ask to smell it again.
+		<<else>>
+			"You made that yourself?" Robin looks down at the perfume on your wrist, then back at you. "I wouldn't even know what I needed to start making perfume."
+		<</if>>
+	<<case "ask">>
+		<<if _pm.favourite is "known">>
+			Robin looks up quickly when you ask about the flowers. "You used daisies? You remembered they're my favourite?" <<nnpc_His "Robin">> ears turn pink, and <<nnpc_he "Robin">> smiles before looking back down at the book.
+		<<elseif _pm.tone is "good">>
+			Robin thinks about it seriously. "I like it. The <<print _pm.liked[0] ?? "light">> part most. It's like the flowerbeds after rain."
+		<<else>>
+			Robin hesitates. "Honestly? The <<print _pm.disliked[0] ?? "strong">> bit is a lot. But I like that you made something."
+		<</if>>
+	<<case "quiet">>
+		You smile without answering Robin's question. <<nnpc_He "Robin">> smiles back and returns to the book. A little later, while you keep studying together, <<nnpc_he "Robin">> moves <<nnpc_his "Robin">> chair closer to yours.
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<else>>
+	<<if _pm.kind is "discomfort">>
+		Robin is kneeling by the flowerbed when you crouch next to <<nnpc_him "Robin">>. <<nnpc_He "Robin">> sneezes twice, rubs <<nnpc_his "Robin">> nose with the back of a muddy hand, and looks at you. "Is that you? It's stronger than the flowers."
+	<<elseif _pm.kind is "familiar">>
+		Robin starts smiling before <<nnpc_he "Robin">> even turns round. "I knew it was you," <<nnpc_he "Robin">> says. "The garden never smells like that on its own."
+	<<else>>
+		Robin notices the smell while you're standing together beside the flowerbed. <<nnpc_He "Robin">> looks over the flowers, then turns back to you. "I thought that was coming from the garden, but it's your perfume, isn't it?"
+	<</if>>
+	<<if C.npc.Robin.trauma gte 60>>
+		"I like it when you come to the garden," <<nnpc_he "Robin">> says quietly, looking down at the flowers. <<nnpc_He "Robin">> doesn't ask any more questions about the perfume.
+	<<else>>
+		"Have you started wearing a new perfume?"
+	<</if>>
+	<br><br>
+	<<perfumeryChoice "Tell Robin you made it" "made" `{ love: _pm.tone is "good" ? 1 : 0 }`>>
+	<<perfumeryChoice "Ask Robin's opinion" "ask" `{ love: _pm.favourite is "known" ? 1 : 0 }`>>
+	<<perfumeryChoice "Just smile" "quiet">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Whitney
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "made">>
+		<<if _pm.ctx is "school">>
+			"You made that shit yourself?" Whitney repeats loudly enough for <<nnpc_his "Whitney">> friends to hear. "Listen to this. Our little perfume expert's been making fancy smells instead of doing something useful." One of the others laughs and asks whether you'll be selling bottles next. Whitney catches your wrist before you can walk away, takes another smell, then lets go. "Didn't say it was completely fucking terrible, did I?"
+		<<elseif _pm.tone is "good" and C.npc.Whitney.love gte 20>>
+			Whitney stops talking when you say you made the perfume. <<nnpc_He "Whitney">> grabs your collar and pulls you closer, bringing <<nnpc_his "Whitney">> face near your neck for another smell. "You actually know how to make this stuff, slut? Fuck, you find some weird ways to spend your time." <<nnpc_He "Whitney">> lets go, though <<nnpc_his "Whitney">> fingers stay on your collar for a moment. "Don't go making it sweeter. I like how you smell now, alright?"
+		<<else>>
+			"You make perfume now, slut?" Whitney snorts and looks you up and down. "What a fucking hobby. You going to start rubbing people to smell like you?" <<nnpc_He "Whitney">> turns away, but when your wrist comes near <<nnpc_him "Whitney">> again, <<nnpc_he "Whitney">> catches it for a second smell. "Stop waving that stuff around, <<bitch>>. I'm trying to work out what the hell you put in it."
+		<</if>>
+	<<case "shrug">>
+		<<if _pm.ctx is "school">>
+			You shrug instead of giving Whitney and <<nnpc_his "Whitney">> friends anything else to laugh about. "Huh, nothing to say?" Whitney asks, stepping into your path. When you still refuse to answer, one of <<nnpc_his "Whitney">> friends gets bored and starts talking about something else. Whitney finally moves aside, looking irritated that you haven't given <<nnpc_him "Whitney">> the reaction <<nnpc_he "Whitney">> wanted.
+		<<else>>
+			You shrug and leave Whitney to make up <<nnpc_his "Whitney">> own mind about the perfume. "Don't act like I was the one asking you to fucking explain it," <<nnpc_he "Whitney">> mutters, although <<nnpc_he "Whitney">> stays close instead of walking away.
+		<</if>>
+	<<case "back">>
+		<<if C.npc.Whitney.dom gte 30>>
+			You tell Whitney <<nnpc_he "Whitney">> smells worse, mostly of cigarettes and bad decisions. "You've got a fucking mouth on you today," <<nnpc_he "Whitney">> says, catching your shoulder before you can move away. <<nnpc_His "Whitney">> fingers squeeze until you wince. "Tsk, say it again if you're so damn clever."<<pain 2>><<gpain>>
+		<<else>>
+			You tell Whitney <<nnpc_he "Whitney">> smells worse, mostly of cigarettes and bad decisions. Whitney laughs and blows a little air towards your face. "Yeah? At least I don't smell like I fell into a fucking sweet shop."
+		<</if>>
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<elseif _pm.ctx is "school">>
+	You walk past Whitney and <<nnpc_his "Whitney">> friends in the school corridor. Whitney notices your perfume, steps into your path, and leans close enough to smell it before you can get around <<nnpc_him "Whitney">>. "Fuck me, what's that? Did a flower shop explode all over you?" <<nnpc_He "Whitney">> pulls a face for the benefit of <<nnpc_his "Whitney">> friends. One of them laughs and asks who you're trying to impress.
+	<<if _pm.tone is "good">>Whitney laughs with the others, but when you move to go past, <<nnpc_he "Whitney">> leans close for another smell instead of immediately letting you leave.<</if>>
+	<br><br>
+	<<perfumeryChoice "Say you made it" "made">>
+	<<perfumeryChoice "Shrug it off" "shrug">>
+	<<perfumeryChoice "Say Whitney smells worse" "back" `{ dom: C.npc.Whitney.dom gte 30 ? 1 : 0 }`>>
+	<br>
+<<else>>
+	<<if _pm.kind is "personal">>
+		Whitney stops halfway through insulting someone and turns towards you. "Hang on. Is that lily?" <<nnpc_He "Whitney">> catches your wrist and smells it before you can answer. "You remembered that, did you? Fucking hell." <<nnpc_He "Whitney">> releases your hand and looks away, as though <<nnpc_he "Whitney">> regrets sounding pleased.
+	<<elseif _pm.tone is "good" and C.npc.Whitney.love gte 20>>
+		Whitney draws you closer by the collar and smells the perfume near your neck. "What the fuck have you put on today?" <<nnpc_He "Whitney">> takes another smell while you're still close. "Don't get the wrong idea. I'm not saying you should start wearing loads of this shit. Just... this one's alright on you." <<nnpc_He "Whitney">> lets go before you can tease <<nnpc_him "Whitney">> about it.
+	<<elseif _pm.kind is "discomfort">>
+		Whitney wrinkles <<nnpc_his "Whitney">> nose and pushes open the nearest window. "Did you empty the whole fucking bottle onto yourself? I can taste that shit from here." <<nnpc_He "Whitney">> waves you away from the window, still complaining about how much perfume you've put on.
+	<<elseif _pm.kind is "craft">>
+		Whitney grabs your wrist without asking and holds it near <<nnpc_his "Whitney">> nose. "Smells like some expensive posh shit. What did you spend on that?" <<nnpc_He "Whitney">> lets go, shaking <<nnpc_his "Whitney">> head, but catches your hand again when you come closer. "I didn't say you could fucking leave yet, <<bitch>>. There's something else in it."
+	<<elseif _pm.tone is "bad">>
+		Whitney leans close, wrinkles <<nnpc_his "Whitney">> nose, then flicks your forehead. "Fuck, you stink. What the hell have you been putting on yourself?" <<nnpc_He "Whitney">> moves away as you rub your forehead, apparently satisfied with <<nnpc_his "Whitney">> inspection.
+	<<else>>
+		Whitney looks up as you approach and sniffs the air. "You smell expensive today. Who the fuck are you trying to impress?" <<nnpc_He "Whitney">> takes a step closer before you answer, clearly expecting you to explain yourself.
+	<</if>>
+	<br><br>
+	<<perfumeryChoice "Say you made it" "made" `{ love: _pm.tone is "good" and C.npc.Whitney.love gte 20 ? 1 : 0 }`>>
+	<<perfumeryChoice "Shrug it off" "shrug">>
+	<<perfumeryChoice "Say Whitney smells worse" "back">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Kylar
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "made">>
+		<<if _pm.familiarity gte 3 or _pm.gifted>>
+			Kylar looks down at your wrist when you explain that you made the perfume yourself. "I thought so. I-I mean, I wasn't sure at first, but I remembered the smell from last time." <<nnpc_He "Kylar">> moves closer, smiling as <<nnpc_he "Kylar">> smells it again. "I'd know it was you even if I couldn't see you. I've been trying to remember exactly what it smells like when you're not here."
+		<<else>>
+			"Y-you made it yourself?" Kylar asks, looking from your wrist to your face. "So you didn't get it from someone else?" When you confirm that you prepared it yourself, <<nnpc_he "Kylar">> relaxes and takes another smell. "I thought someone might have given it to you. I was going to ask who, but... I didn't want you to think I was being strange."
+		<</if>>
+	<<case "forkylar">>
+		Kylar stares at you when you say the perfume is for <<nnpc_him "Kylar">>. "F-for me? You really made something just for me?" <<nnpc_He "Kylar">> takes your hand carefully and brings your wrist closer, smelling the perfume without letting go. "Could you wear it when we see each other? Then I'd know you were thinking of me when you put it on." <<nnpc_He "Kylar">> watches your face anxiously. "I-I mean, only if you want to. I just really like it."
+		<br><br>
+		You haven't promised to wear it every time, and Kylar keeps holding your hand while waiting to see whether you want to pull away.
+	<<case "mine">>
+		You tell Kylar that you made the perfume for yourself and don't want it to belong to anybody else.
+		<<if C.npc.Kylar.rage gte 40>>
+			Kylar's smile disappears. "Y-you can wear whatever you want," <<nnpc_he "Kylar">> says, although <<nnpc_his "Kylar">> attention moves to the students passing nearby. "I just wondered if... if someone else asked you to wear it." <<nnpc_He "Kylar">> looks at a student who walks close to you, then quickly looks back when you notice.
+		<<else>>
+			Kylar nods, though <<nnpc_he "Kylar">> still looks a little disappointed. "O-of course. I didn't mean you had to make it for anyone." <<nnpc_He "Kylar">> glances at your wrist again. "It really does suit you. I like how it smells when you're close."
+		<</if>>
+	<</switch>>
+	<<if _pm.outcome?.rage gt 0>><<gksuspicion>><<elseif _pm.outcome?.rage lt 0>><<lksuspicion>><</if>><<perfumeryLoveIcon>>
+	<br><br>
+<<else>>
+	<<if _pm.familiarity gte 3>>
+		Kylar notices the perfume as you sit down and immediately moves closer. "Y-you're wearing it again." <<nnpc_He "Kylar">> smiles when <<nnpc_he "Kylar">> recognises the smell. "I remembered it from the last time I saw you. I was hoping you'd wear it again, but I didn't want to ask."
+	<<elseif _pm.kind is "discomfort">>
+		Kylar leans a little closer to you, then sneezes into <<nnpc_his "Kylar">> sleeve. <<nnpc_He "Kylar">> looks at you in alarm. "S-sorry! I wasn't trying to be rude. It's just... your perfume's quite strong when I'm this close." <<nnpc_He "Kylar">> rubs <<nnpc_his "Kylar">> nose, looking worried that <<nnpc_he "Kylar">> has upset you.
+	<<elseif _pm.kind is "curious" or _pm.kind is "craft">>
+		Kylar keeps looking towards your wrist until you notice. "C-can I ask what you put in that perfume?" When you start naming the ingredients, <<nnpc_he "Kylar">> listens closely and quietly repeats them in the same order. "I wanted to remember what makes you smell like this. N-not because I'm going to copy it or anything. I just wanted to know."
+	<<elseif C.npc.Kylar.love gte 40 and C.npc.Kylar.rage gte 20>>
+		Kylar notices your perfume when you come closer, but doesn't smile. "Th-that's different from what you normally wear." <<nnpc_He "Kylar">> glances past you towards the other students. "Did you buy it yourself, or did someone give it to you?" When you don't answer immediately, <<nnpc_he "Kylar">> takes a small step closer. "I only want to know who you've been spending time with. Is that so bad?"
+	<<else>>
+		Kylar leans closer while you're sitting together, then quickly looks down when you turn towards <<nnpc_him "Kylar">>. "Y-you smell different today," <<nnpc_he "Kylar">> says quietly. <<nnpc_He "Kylar">> glances at your wrist again. "It's perfume, isn't it? I like it. I just wasn't sure if you'd want me to say anything."
+	<</if>>
+	<br><br>
+	<<perfumeryChoice "Say you made it yourself" "made" `{ rage: C.npc.Kylar.rage gte 20 ? -2 : 0, love: _pm.tone isnot "bad" ? 1 : 0 }`>>
+	<<if C.npc.Kylar.love gte 30>><<perfumeryChoice "Say it's for Kylar" "forkylar" `{ love: 1, rage: -1 }`>><</if>>
+	<<perfumeryChoice "Just say it's yours" "mine" `{ rage: C.npc.Kylar.rage gte 40 ? 2 : 0 }`>>
+	<br>
+<</if>>
+
+:: Perfumery Moment Sydney
+<<set _sydCorrupt to C.npc.Sydney.corruption gt C.npc.Sydney.purity>>
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "explain">>
+		<<if _sydCorrupt>>
+			You explain that one part of the perfume fades quickly, while another remains on the skin for longer. Sydney listens from behind the counter with <<nnpc_his "Sydney">> chin resting on one hand. "So you can choose what someone smells later?" <<nnpc_He "Sydney">> glances towards your neck. "I'd like to smell it closer."
+		<<else>>
+			You explain how you separated the ingredients and mixed them so the smell changes over time. Sydney finds a spare piece of paper beside the book returns and writes down the word "drydown". "That's what you call the smell that stays at the end?" <<nnpc_He "Sydney">> looks back at your wrist. "It must take a lot of patience."
+		<</if>>
+	<<case "ask">>
+		<<if _pm.kind is "personal">>
+			"White rose," Sydney says softly. "You didn't have to." <<nnpc_He "Sydney">> touches the counter near your hand without touching your hand.
+		<<elseif _pm.tone is "good">>
+			Sydney smells the perfume once more before answering. "I like it, especially the <<print _pm.liked[0] ?? "flower">> smell. It suits you."
+		<<else>>
+			Sydney takes another moment to smell the perfume, then looks at you apologetically. "I don't think I'd wear it myself," <<nnpc_he "Sydney">> admits. "But I like that you made something on your own."
+		<</if>>
+	<<case "tease">>
+		<<if _sydCorrupt>>
+			You ask whether it's distracting. "You're making it rather difficult to concentrate on these books," Sydney says, smiling as <<nnpc_he "Sydney">> looks from your wrist back to your face.
+		<<else>>
+			You ask whether the perfume is distracting. Sydney's face goes red, and <<nnpc_he "Sydney">> looks down at the books waiting to be checked. <<nnpc_He "Sydney">> begins stamping them without looking back at you.
+		<</if>>
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<else>>
+	<<if _pm.kind is "discomfort">>
+		When you lean towards the library counter, Sydney blinks several times and rubs one eye. <<nnpc_He "Sydney">> moves the book between you farther across the counter, trying to keep working without mentioning your strong perfume.
+	<<elseif _sydCorrupt and _pm.note is "musky" or _sydCorrupt and _pm.note is "amber">>
+		Sydney stops sorting the returns. "You smell warm," <<nnpc_he "Sydney">> says, very low. "Did you mean to?"
+	<<elseif _sydCorrupt>>
+		Sydney breathes in when you lean on the counter and doesn't say anything for a while. "Are you wearing a different perfume today?"
+	<<elseif _pm.kind is "personal">>
+		Sydney looks up from the date stamp. "Is that a rose perfume? I thought I could smell flowers when you came up to the counter."
+	<<elseif _pm.kind is "craft">>
+		Sydney tilts <<nnpc_his "Sydney">> head while <<nnpc_he "Sydney">> stamps your book. "It's very carefully made," <<nnpc_he "Sydney">> says. "I don't think I like it, but I can tell you worked on it."
+	<<elseif _pm.kind is "dislike">>
+		Sydney's smile stays polite, but <<nnpc_he "Sydney">> slides your book across the counter instead of handing it to you, so that <<nnpc_he "Sydney">> doesn't have to lean closer.
+	<<else>>
+		While Sydney checks your book, <<nnpc_he "Sydney">> notices your perfume and looks towards your wrist. "Where did you get that? It smells like real flowers, not something from a shop."
+	<</if>>
+	<br><br>
+	<<perfumeryChoice "Explain how you made it" "explain" `{ love: _pm.craft gt 0.3 or _pm.tone is "good" ? 1 : 0 }`>>
+	<<perfumeryChoice "Ask what Sydney thinks" "ask" `{ love: _pm.kind is "personal" ? 1 : 0 }`>>
+	<<perfumeryChoice "Ask if it's distracting" "tease">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Eden
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "made">>
+		<<if _pm.tone is "good">>
+			"You made this out of what grows here?" Eden turns your wrist towards the fire. "Didn't know you could take the smell of these plants and make it last in a bottle," Eden says, looking at your wrist again.
+		<<else>>
+			"You made it yourself?" Eden asks, pulling back a little to smell your wrist again. <<nnpc_He "Eden">> frowns. "Next time, use less of whatever makes it so strong."
+		<</if>>
+	<<case "warn">>
+		<<if (_pm.note is "sweet" or _pm.note is "gourmand" or _pm.note is "fruity")>>
+			You ask if the smell matters while you're in the forest. Eden looks towards the door. "Animals can smell sweet things from far away. Bears might come looking for food, and wolves might come to see what's new. Wash that off before you walk through the forest alone."
+		<<else>>
+			You ask if the smell matters while you're in the forest. Eden leans closer to check it. "This one isn't too strong. I can still smell you beneath it. The animals probably can too."
+		<</if>>
+	<<case "wash">>
+		You offer to wash off the perfume. Eden smells it again before shaking <<nnpc_his "Eden">> head. "You can leave it for tonight. Just don't wear it when we go hunting."
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<else>>
+	<<if _pm.kind is "personal">>
+		Eden's arm tightens around you. "Daisies," <<nnpc_he "Eden">> says into your hair. "You found them in a bottle."
+	<<elseif _pm.familiarity gte 3>>
+		Eden doesn't comment on it any more. <<nnpc_He "Eden">> just breathes in when you come close.
+	<<elseif _pm.tooStrong>>
+		Eden lifts <<nnpc_his "Eden">> head from your shoulder. "I could smell you from the porch. So could every animal between here and the river."
+	<<elseif _pm.kind is "curious">>
+		Eden takes your hand and brings it close to <<nnpc_his "Eden">> nose, checking the smell on your fingers. "I recognise some of the plants you used. They grow by the stream," <<nnpc_he "Eden">> says. "But the rest aren't from around here."
+	<<elseif _pm.tone is "bad">>
+		Eden pulls back to look at you. "You smell like town." It isn't a compliment.
+	<<else>>
+		Eden sniffs the air, frowns, then sniffs you. "That's not woodsmoke. What's on you?"
+	<</if>>
+	<br><br>
+	<<perfumeryChoice "Say you made it" "made" `{ love: _pm.tone is "good" ? 1 : 0 }`>>
+	<<perfumeryChoice "Ask about the forest" "warn">>
+	<<perfumeryChoice "Offer to wash it off" "wash">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Alex
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "grown">>
+		<<if _pm.grown gte 1>>
+			"From our flowerbeds?" Alex asks, leaning towards your wrist for another smell. "We grew those flowers here, didn't we?" <<nnpc_He "Alex">> grins at you. "Never thought we'd be making perfume out of them."
+		<<else>>
+			"You bought the flowers?" Alex asks, pretending to look offended. <<nnpc_He "Alex">> points towards the flowerbeds. "What's wrong with the ones we grow here?"
+		<</if>>
+	<<case "ask">>
+		<<if _pm.kind is "personal">>
+			"Sunflowers? You actually made perfume with sunflowers?" Alex asks. <<nnpc_He "Alex">> laughs and leans closer to smell it. "That's a strange idea. I love it."
+		<<elseif _pm.tone is "good">>
+			Alex smells your wrist and looks out across the fields. "I like it. It reminds me of being out here in the morning, before the flies come out."
+		<<else>>
+			Alex leans close to smell it, then pulls back and wrinkles <<nnpc_his "Alex">> nose. "That reminds me of wet compost," <<nnpc_he "Alex">> says. "I know that's probably not what you wanted to hear, but you did ask me what I thought," <<nnpc_he "Alex">> adds, looking a little embarrassed.
+		<</if>>
+	<<case "work">>
+		You ask Alex how the fields are doing instead. <<nnpc_He "Alex">> looks towards them and begins telling you what still needs planting, leaving the perfume discussion behind.
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<else>>
+	<<if _pm.kind is "discomfort">>
+		Alex leans away as you sit down, rubbing <<nnpc_his "Alex">> nose. "Alright, what have you put on?" <<nnpc_he "Alex">> asks with a laugh. "I could smell that before you got here."
+	<<elseif _pm.kind is "craft">>
+		Alex is leaning against the fence when <<nnpc_he "Alex">> notices your perfume. <<nnpc_He "Alex">> leans closer to smell it. "That's fancy. Maybe a bit fancy for working on a farm. What did you use?"
+	<<else>>
+		Alex turns towards you as you approach. <<nnpc_He "Alex">> sniffs the air, looks towards the nearby fields, then looks at you. "Hang on, is that smell coming from you?"
+	<</if>>
+	<<if _pm.grown gte 1>>"I think I can smell some of the flowers we grow in the far beds."<<elseif _pm.tone is "bad">>"And it's even stronger with the manure nearby."<<else>>"I knew that smell wasn't coming from the fields."<</if>>
+	<br><br>
+	<<perfumeryChoice "Say you grew the flowers" "grown" `{ love: _pm.grown gte 1 and _pm.tone isnot "bad" ? 1 : 0 }`>>
+	<<perfumeryChoice "Ask what Alex thinks" "ask" `{ love: _pm.kind is "personal" ? 1 : 0 }`>>
+	<<perfumeryChoice "Talk about the farm" "work">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Gwylan
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "guess">>
+		<<if _pm.curiosity gte 0.4>>
+			Gwylan takes your wrist and smells the perfume, then moves your hand a little farther away before bringing it back. "I can smell <<print _pm.liked[0] ?? _pm.note>>. But you took something out of it, didn't you?" <<nnpc_He "Gwylan">> smiles when you explain that you prepared the ingredients separately.
+		<<else>>
+			Gwylan smells your wrist and names three ingredients. When you tell <<nnpc_him "Gwylan">> that two are correct, <<nnpc_he "Gwylan">> laughs and tries to guess the third. "Well, I can tell you made something. I just can't tell what the last ingredient is."
+		<</if>>
+	<<case "explain">>
+		You tell Gwylan how you prepared each ingredient and removed the parts you didn't want in the perfume. <<nnpc_He "Gwylan">> turns over a recipe card and writes down what you did. "Oh, so you can take out the unpleasant smell before mixing it?" <<nnpc_He "Gwylan">> looks up with a smile. "I wonder if I could do that with some of these roots."
+		<<if _pm.outcome?.dom gt 0>><<nnpc_He "Gwylan">> puts the pencil down but keeps the recipe card. <<nnpc_He "Gwylan">> points to the last ingredient you mentioned and asks how you separated it from the others.<</if>>
+	<<case "keep">>
+		You tell Gwylan that you would rather keep your recipe private. <<nnpc_He "Gwylan">> tilts <<nnpc_his "Gwylan">> head, then puts the pencil away. "You don't want to tell me? Fair enough. I have recipes I don't share either."
+	<</switch>>
+	<br><br>
+<<else>>
+	<<if _pm.kind is "discomfort">>
+		Gwylan stops sorting the recipe cards when your perfume reaches <<nnpc_him "Gwylan">>. <<nnpc_He "Gwylan">> puts the cards down and waves a hand in front of <<nnpc_his "Gwylan">> nose. "How much of that did you put on? I can smell it all the way over here."
+	<<elseif _pm.curiosity gte 0.4 or _pm.kind is "craft">>
+		Gwylan stops talking while showing you a recipe, then leans across the counter to smell your wrist. "I know what most of these plants smell like, but you've made something different out of them," <<nnpc_he "Gwylan">> says, drawing your hand a little closer. <<nnpc_He "Gwylan">> looks at the bottles behind the counter. "What have you mixed together?"
+	<<elseif _pm.kind is "enjoy" or _pm.kind is "personal">>
+		Gwylan puts the pen down when <<nnpc_he "Gwylan">> notices your perfume. <<nnpc_He "Gwylan">> leans a little closer and takes another smell before smiling. "Oh, I like that. It's nice to smell something other than dried roots in here."
+	<<elseif _pm.kind is "dislike">>
+		Gwylan smells your perfume, then looks at the recipe card in <<nnpc_his "Gwylan">> hand. "I don't think I like that smell," <<nnpc_he "Gwylan">> admits. "Still, I'm curious about what you used to make it."
+	<<else>>
+		While Gwylan copies a recipe, <<nnpc_he "Gwylan">> notices your perfume and stops writing. "Have you been making something?" <<nnpc_he "Gwylan">> asks, setting the pencil down. "I can smell it from here."
+	<</if>>
+	<br><br>
+	<<set _pmYearn to $gwylanSeen?.includes("yearning") and _pm.tone isnot "bad" ? 1 : 0>>
+	<<perfumeryChoice "Let Gwylan guess" "guess" `{ dom: _pmYearn }`>><<if _pmYearn>><<gyearning>><</if>>
+	<<perfumeryChoice "Explain the extraction" "explain" `{ dom: _pmYearn }`>><<if _pmYearn>><<gyearning>><</if>>
+	<<perfumeryChoice "Keep it a secret" "keep">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Black Wolf
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "still">>
+		<<if _pm.kind is "masked">>
+			You keep your arms still while the black wolf smells your hand and then moves <<bhis 0>> nose slowly along your arm. Near your elbow, where the perfume is weaker, <<bhe 0>> stops growling and gives your arm another smell. The other <<wolf_cave_plural>> begin to settle down nearby.
+		<<else>>
+			You stay still while the black wolf smells your hands and clothes. After checking you, <<bhe 0>> lies down beside your legs, occasionally lifting <<bhis 0>> nose towards you.
+		<</if>>
+	<<case "rub">>
+		You rub your wrist against your clothes to remove some of the perfume. The black wolf brings <<bhis 0>> nose close to your arm and smells it again. <<bHe 0>> stops growling, and the other <<wolf_cave_plural>> move back towards their resting places.
+	<<case "push">>
+		You put your hand against the black wolf's nose and push <<bhim 0>> away. <<bHe 0>> quickly opens and closes <<bhis 0>> mouth near your hand without biting you. You pull your hand back as the other <<wolf_cave_plural>> watch from a short distance.
+	<</switch>>
+	<br><br>
+<<else>>
+	<<if _pm.kind is "masked">>
+		The black wolf moves <<bhis 0>> nose close to your neck and smells your perfume. <<bHe 0>> checks your hands next, then returns to your neck. After several attempts, <<bhe 0>> begins growling quietly, still trying to recognise your usual smell.
+	<<elseif _pm.kind is "discomfort">>
+		The black wolf sneezes, shakes <<bhis 0>> head, and backs away. Two of the younger <<wolf_cave_plural>> copy <<bhim 0>>.
+	<<else>>
+		The black wolf smells your hair and clothes, then lowers <<bhis 0>> nose towards your legs. <<bHe 0>> seems satisfied when <<bhe 0>> recognises your usual smell beneath the perfume.
+	<</if>>
+	<br><br>
+	<<perfumeryChoice "Stay still" "still">>
+	<<perfumeryChoice "Rub the scent off" "rub" `{ wash: true }`>>
+	<<perfumeryChoice "Push the wolf's nose away" "push">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Great Hawk
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "lean">>
+		<<if _pm.kind is "moor">>
+			You move closer until the Great Hawk's wing rests against your side. <<bHe 0>> <<if $monster is 1>>uses <<bhis 0>> fingers to<<else>>lowers <<bhis 0>> beak towards your hair to<</if>> gently move a loose strand back into place.
+		<<else>>
+			You move closer and rest against the Great Hawk's wing. <<bHe 0>> leaves the wing beside you but turns <<bhis 0>> head away from the smell of your perfume.
+		<</if>>
+	<<case "move">>
+		You move farther from the fire, hoping the cooler air will make the perfume less noticeable. The Great Hawk moves closer and brings <<bhis 0>> wing around you again to keep you warm.
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<else>>
+	As you sit near the fire, the perfume on your skin becomes easier to smell.
+	<<if _pm.kind is "discomfort">>
+		The Great Hawk quickly turns <<bhis 0>> head towards you<<if $monster is 1>>, wrinkling <<bhis 0>> nose<<else>> and closes <<bhis 0>> beak with a sharp sound<</if>>. <<bHe 0>> moves the wing a little farther from your face, but leaves it close to your body so you can stay warm.
+	<<elseif _pm.kind is "moor">>
+		The Great Hawk smells your perfume and relaxes, half-closing one eye. <<bHe 0>> moves the wing closer around you, apparently recognising one of the plants that grows on the moor.
+	<<else>>
+		The Great Hawk turns <<bhis 0>> head towards you, then looks at you from the other side. <<bHe 0>> moves <<bhis 0>> face a little farther from your perfume, noticing that you smell different.
+	<</if>>
+	<<if $monster is 1>><br>"You smell like flowers," <<bhe 0>> says, bringing <<bhis 0>> face closer to yours. "But not quite like the ones outside."<</if>>
+	<br><br>
+	<<perfumeryChoice "Lean into the wing" "lean" `{ love: _pm.kind is "moor" ? 1 : 0 }`>>
+	<<perfumeryChoice "Move away from the fire" "move">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Wren
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "made">>
+		<<if _pm.kind is "personal">>
+			"Tulips? You put tulips in your perfume?" Wren asks, then laughs. "Now I'm wondering whether you chose them because of me. You can admit it, you know."
+		<<elseif _pm.tone is "good">>
+			"You made it yourself?" Wren asks, bringing your wrist closer for another smell. "You could sell that down here. Don't let the lot at the docks get hold of it, though. They'd add water and sell it as something expensive."
+		<<else>>
+			"You made that?" Wren asks. <<nnpc_He "Wren">> smells the perfume once more, then gives you a small nod. "Keep practising. I think you'll get better at it."
+		<</if>>
+	<<case "bought">>
+		<<if _pm.quality gte 75>>
+			Wren raises an eyebrow. "Bought? Nobody in this town sells that. Lie to me better than that."
+		<<else>>
+			Wren laughs. "If you actually paid for that smell, someone cheated you."
+		<</if>>
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<else>>
+	<<if _pm.kind is "discomfort">>
+		When you approach the table, Wren notices your perfume before you can sit down. <<nnpc_He "Wren">> moves <<nnpc_his "Wren">> chair away a little and looks towards the bar. "Bloody hell. Even the drunks over there can smell you."
+	<<elseif _pm.kind is "curious" or _pm.kind is "craft">>
+		Wren leans across the table and takes your wrist, turning your hand so <<nnpc_he "Wren">> can smell the perfume on your skin. "Where did you get this? Nobody I know sells anything that smells like it."
+	<<else>>
+		Wren leans across the table as you sit down. <<nnpc_He "Wren">> notices your perfume and looks towards the bar before turning back to you. "That smell definitely isn't coming from this place."
+		<<if _pm.tone is "bad">>"Though I'm not sure yours is much better."<<else>>"Yours smells a lot better than what they serve in here."<</if>>
+	<</if>>
+	<br><br>
+	<<perfumeryChoice "Admit you made it" "made" `{ love: _pm.tone is "good" ? 1 : 0 }`>>
+	<<perfumeryChoice "Say you bought it" "bought">>
+	<br>
+<</if>>
+
+:: Perfumery Moment Charlie
+<<if _pm.choice>>
+	<<switch _pm.choice>>
+	<<case "sorry">>
+		You apologise for wearing so much perfume. Charlie shakes <<nnpc_his "Charlie">> head and motions towards the other dancers. "Just wear a little less next time. Everyone's breathing hard while we practise, so strong perfume can be unpleasant."
+	<<case "made">>
+		"You made this perfume?" Charlie asks, looking surprised. "It smells nice, honestly. But it might be better to wear it after dance class rather than during it."
+	<</switch>>
+	<<perfumeryLoveIcon>>
+	<br><br>
+<<elseif _pm.tooStrong or _pm.kind is "discomfort">>
+	<<perfumeryNotice>>
+	As you practise a turn, you move close to the other dancers. Charlie notices your perfume when you pass and coughs before walking over to open a window. "Someone's wearing a lot of perfume today," <<nnpc_he "Charlie">> says, and two dancers turn to look at you.
+	<br><br>
+	When class ends and you head towards the door, Charlie walks over to you. "Your perfume might be nice outside," <<nnpc_he "Charlie">> says, keeping <<nnpc_his "Charlie">> voice low. "But with everyone moving and breathing so hard in here, could you wear less next time?"
+	<br><br>
+<<else>>
+	<<perfumeryNotice `{ love: _pm.kind is "enjoy" ? 1 : 0 }`>>
+	<<if _pm.kind is "dislike">>
+		During practice, Charlie shows you where to move your arms without coming as close as before. Once class has finished, <<nnpc_he "Charlie">> explains that your perfume is a little strong for dancing close to other people and suggests wearing less next time.
+	<<elseif _pm.kind is "craft" or _pm.kind is "curious">>
+		While everyone is stretching, Charlie comes over and notices your perfume. "That's an unusual smell. Where did you get it?" When you explain that you made it yourself, <<nnpc_he "Charlie">> looks interested. "Could you show me how you make it after class?"
+	<<else>>
+		Charlie comes beside you to correct the position of your arms. When <<nnpc_he "Charlie">> notices your perfume, <<nnpc_he "Charlie">> smiles. "That smells nice. It reminds me of the flowers outside before the day gets hot." <<perfumeryLoveIcon>>
+	<</if>>
+	<br><br>
+<</if>>
+
+:: Perfumery Moment Reply
+<<effects>>
+<<set _pm to $perfumeryMoment?.pm>>
+<<if _pm>>
+	<<set _pmPassage to "Perfumery Moment " + $perfumeryMoment.id>>
+	<<include _pmPassage>>
+<</if>>
+<<link "Next" `$perfumeryMoment?.back ?? "Bedroom"`>><<unset $perfumeryMoment>><</link>>
+
+:: Perfumery Moment Doren
+<<perfumeryNotice>>
+Max runs over to you before Doren reaches the hallway. You hold out your hand for the dog to smell, but when Max moves closer to your wrist, the perfume makes him sneeze.
+<<if _pm.kind is "discomfort">>
+	Max sneezes several more times and moves away to lie down in the hallway. Doren goes to open a window, then checks on the dog. "That perfume is very strong," <<nnpc_he "Doren">> says. "Could you use a bit less next time? Max doesn't seem to like it."
+<<elseif _pm.kind is "craft">>
+	Doren notices the perfume after Max has finished smelling your wrist. "Did you make that yourself?" <<nnpc_he "Doren">> asks. "I don't know much about perfume, but you must have spent some time practising."
+<<elseif _pm.tone is "bad">>
+	Doren laughs when Max moves away from you. "I think Max would prefer it if you washed that off," <<nnpc_he "Doren">> says. "And I agree with him."
+<<elseif _pm.note is "citrus" or _pm.note is "green">>
+	Doren smells the perfume and smiles. "That's nice and fresh. You'd probably still smell better than the rest of the class after a run."
+<<else>>
+	Doren smiles when Max comes back towards you. "Are you wearing a new perfume? Max seems to like this one, so I suppose that's a good sign."
+<</if>>
+<br><br>
+
+:: Perfumery Moment Bailey
+<<perfumeryNotice>>
+Bailey is counting money when <<nnpc_he "Bailey">> notices your perfume. <<nnpc_He "Bailey">> pauses, looks up from the money and sniffs. "That's not the soap we use at the orphanage."
+<<if _pm.quality gte 75>>
+	Bailey looks towards the perfume on your wrist. "You made that?" <<nnpc_he "Bailey">> asks. "If it's any good, you might be able to sell it." <<nnpc_He "Bailey">> puts the money away and returns to business. "You still owe your usual rent, though."
+<<elseif _pm.tooStrong>>
+	Bailey moves back from the doorway after smelling your perfume. "That's too strong. People will start complaining if you walk through the orphanage wearing that much. Wash some of it off."
+<<elseif _pm.tone is "bad">>
+	"I don't know what you've put on yourself, but don't get that stuff on the carpets. I'm not paying to have them cleaned," Bailey says.
+<<else>>
+	Bailey gives your perfume another smell and looks back at the money on the table. "You've got enough money to waste on perfume, but you'd better still have enough for your rent," <<nnpc_he "Bailey">> says, continuing to count.
+<</if>>
+<br><br>
+
+:: Perfumery Test Events
+<<set $outside to 0>><<effects>>
+/* Saves that never touched perfumery have no $perfumery yet; state() creates it. */
+<<run setup.perfumery.state()>>
+Debug page for playing the perfumery character scenes directly. The scene buttons make a bottle named "Test: ..." (replacing the last one) and start the scene below. Only perfumery records change; relationship values change only through the choices you make, the same as in play.
+<br><br>
+<b>Making perfume</b><br>
+<<link "Give a starter kit">><<run setup.perfumeryCharacters.debug("kit")>><<replace "#perfumery-test-note">>Workstation unlocked, lessons done, 20 bottles, spirits and extracts for every preset added.<</replace>><</link>><br>
+Perfumery skill:
+<<for _sk range [0, 30, 60, 100]>><<capture _sk>> <<link _sk>><<run setup.perfumery.debugAction("skill", _sk)>><<replace "#perfumery-test-note">>Skill set to <<print _sk>>.<</replace>><</link>><</capture>><</for>>
+(now <<print $perfumery.skill>>)<br>
+<<set _testPreset to setup.perfumeryLab.presets[0]>>
+Matured bottle from preset: <<listbox "_testPreset" autoselect>><<optionsfrom setup.perfumeryLab.presets>><</listbox>>
+<<link "Make it">><<run setup.perfumeryCharacters.debug("testBottle", { preset: _testPreset })>><<replace "#perfumery-test-note">>Made "Test: <<print _testPreset>>". It's in your cabinet and ready to wear.<</replace>><</link>> |
+<<link "Make and wear it">><<run setup.perfumeryCharacters.debug("testBottle", { preset: _testPreset, wear: true })>><<replace "#perfumery-test-note">>Now wearing "Test: <<print _testPreset>>".<</replace>><</link>><br>
+<<link "Wash it off">><<run setup.perfumery.wash()>><<replace "#perfumery-test-note">>Scent washed off.<</replace>><</link>> |
+<<link "Remove test bottles">><<run setup.perfumeryCharacters.debug("clearTestBottles")>><<replace "#perfumery-test-note">>Test bottles removed.<</replace>><</link>><br>
+<<link [[Open the workstation|Perfumery Workstation]]>><<run setup.perfumeryCharacters.debug("kit")>><<set $perfumeryVenue to "home">><<set $location to "home">><</link>>
+<br><span id="perfumery-test-note"></span>
+<br><br>
+<b>Poppy's special events</b><br>
+<<if !modLISelected("Poppy")>>
+	Poppy isn't enabled in this game.<br>
+<<else>>
+	<<for _t range [["This Shouldn't Work", "unconventional", "Balanced floral"], ["A Beautiful Disaster", "disaster", "Rancid"], ["A Familiar Fragrance", "familiar", "Sweet romantic"], ["A Perfume Just for You", "gift", "Sweet romantic"], ["The Apprentice Becomes the Teacher", "teacher", "Rich gourmand"]]>>
+		<<capture _t>><<link _t[0] "Poppy Perfumery Special">><<perfumeryTestPoppy _t[1] _t[2]>><</link>><br><</capture>>
+	<</for>>
+<</if>>
+<br>
+<b>Avery</b><br>
+<<if !C.npc.Avery or C.npc.Avery.init isnot 1>>
+	You haven't met Avery in this game.<br>
+<<else>>
+	Love <<print C.npc.Avery.love>>, rage <<print C.npc.Avery.rage>>. The commission offer needs Love 35 or more<<if $averyragerevealed is 1>> and rage under 50<</if>>.<br>
+	<<link "Avery notices your perfume">><<replace "#perfumery-test-scene">><<perfumeryTestAvery "notice">><</replace>><</link>><br>
+	<<link "Avery offers a commission">><<replace "#perfumery-test-scene">><<perfumeryTestAvery "offer">><</replace>><</link>><br>
+	<<link "Deliver the commission">><<replace "#perfumery-test-scene">><<perfumeryTestAvery "deliver">><</replace>><</link>><br>
+<</if>>
+<br>
+<b>Street and hallway encounters</b><br>
+Today: street <<print $daily.perfumeryStreet ? "used" : "free">>, hallway <<print $daily.perfumeryHallway ? "used" : "free">>.
+<<link "Free both again">><<unset $daily.perfumeryStreet>><<unset $daily.perfumeryHallway>><<replace "#perfumery-test-note">>Both daily encounters are free again. Reopen this page to see the change.<</replace>><</link>><br>
+<<for _place range ["street", "hallway"]>>
+	<<set _pv to setup.perfumeryEncounters.preview(_place)>>
+	<<print _place.toUpperFirst()>>: pool weight <<print _pv.weight>><<if _pv.blocked>> (<<print _pv.blocked>>)<</if>>.
+	<<for _sc range _pv.scenes>>
+		<<capture _place _sc>>
+			<<if _sc.eligible>><span class="green"><<print _sc.id>></span><<else>><span class="grey"><<print _sc.id>></span><</if>>
+			<<link "play" `"Perfumery Test Encounter"`>><<set $perfumeryTestEncounter to [_place, _sc.id]>><</link>>
+		<</capture>>
+	<</for>>
+	<br>
+<</for>>
+<<if !$perfumery.active>><span class="grey">Wear a test bottle first; without a scent nothing is eligible.</span><br><</if>>
+<br><hr><br>
+<div id="perfumery-test-scene"></div>
+<br>
+<<link [[Back to your bedroom|Bedroom]]>><</link>>
+
+:: Perfumery Test Encounter
+<<effects>>
+/* Plays one scene directly. Uses today's daily flag like the real event, so free it again on the test page to repeat. */
+<<set _pe to setup.perfumeryEncounters.begin($perfumeryTestEncounter[0], $perfumeryTestEncounter[1])>>
+<<unset $perfumeryTestEncounter>>
+<<if _pe>>
+	<<include `"Perfumery " + (_pe.place is "street" ? "Street " : "Hallway ") + _pe.id`>>
+<<else>>
+	No scent is being worn, so the scene can't start.
+	<br><br>
+	<<link [[Back to the test page|Perfumery Test Events]]>><</link>>
+<</if>>
+
+:: Perfumery Avery Scene
+<<effects>>
+<<set _av to $perfumeryAveryScene>>
+<<if _av>>
+	<<if _av.mode is "notice">><<set _pm to _av.r>><<set _pmPassage to "Perfumery Avery">><</if>>
+	<<include "Perfumery Avery">>
+<</if>>
+<<if !_av or _avEnd>>
+	<<unset $perfumeryAveryScene>>
+	<<include `_av?.cont ?? "Perfumery Avery Mansion End"`>>
+<</if>>
+
+:: Perfumery Avery Mansion End
+<<endevent>>
+<<avery_mansion_end_links>>
+
+:: Perfumery Avery
+<<set _avRage to $averyragerevealed is 1 ? C.npc.Avery.rage : 0>>
+<<set _avDate to _av.ctx isnot "mansion">>
+<<switch _av.mode>>
+<<case "notice">>
+	<<if _pm.choice>>
+		<<switch _pm.choice>>
+		<<case "made">>
+			<<if _pm.tone is "bad">>
+				"You made that yourself?" Avery asks, setting <<nnpc_his "Avery">> glass on the table. <<nnpc_He "Avery">> looks towards your wrist, then back at your face. "Then I expect you to make something better before you wear it to dinner with me again."
+			<<elseif C.npc.Avery.love gte 50 and _pm.tone is "good">>
+				"You made it yourself?" Avery asks, turning a little towards you. <<nnpc_He "Avery">> looks around at the other guests before smiling. "Then nobody else here can be wearing quite the same perfume, can they?" <<nnpc_He "Avery">> seems pleased by the idea.
+			<<elseif _pm.quality gte 75>>
+				Avery raises <<nnpc_his "Avery">> eyebrows when you say you made the perfume. <<nnpc_He "Avery">> looks at your wrist before speaking. "I thought you'd bought it from one of the shops on Danube Street. Well, you're more capable than I thought."
+			<<else>>
+				"Ah, you made it at home," Avery says after another smell. <<nnpc_He "Avery">> sets <<nnpc_his "Avery">> glass down. "A nice hobby. Perhaps save this perfume for the weekends, though."
+			<</if>>
+		<<case "vague">>
+			You tell Avery that you found the perfume somewhere, without explaining where. <<nnpc_He "Avery">> waits to see whether you will say more, then takes another drink. "Keeping secrets now? How fashionable." <<nnpc_He "Avery">> changes the subject without asking where you found it.
+		<<case "ask">>
+			When you ask what Avery thinks of the perfume, <<nnpc_he "Avery">> brings your wrist a little closer and smells it before answering.
+			<<if _pm.liked.length and _pm.disliked.length>>
+				"I like the <<print _pm.liked[0]>> smell, but the <<print _pm.disliked[0]>> part doesn't work for me. People at these dinners notice things like that. You should think about which smell they'll notice first."
+			<<elseif _pm.liked.length>>
+				"I like the <<print _pm.liked[0]>> smell," Avery says. "It's pleasant without being so strong that everyone in the room will notice."
+			<<elseif _pm.disliked.length>>
+				"The <<print _pm.disliked[0]>> part is too strong for my taste," Avery says. "People will notice that before they notice anything else."
+			<<else>>
+				Avery takes another smell before letting go of your wrist. "It doesn't smell bad." The flat way <<nnpc_he "Avery">> says it makes clear that <<nnpc_he "Avery">> isn't especially impressed.
+			<</if>>
+		<<case "tease">>
+			You ask Avery whether the perfume is making you more attractive. <<nnpc_He "Avery">> smiles and takes another look at you. "Don't get too pleased with yourself, <<pcpetname "Avery">>. The perfume is nice, but I already liked looking at you."
+		<<case "defend">>
+			<<if _avRage gte 20>>
+				You tell Avery that you like the perfume and intend to keep wearing it. <<nnpc_He "Avery">> stops smiling and lowers <<nnpc_his "Avery">> voice. "I heard you. There's no need to argue with me in front of everyone."
+			<<else>>
+				You tell Avery that you like the perfume. <<nnpc_He "Avery">> looks at you for a moment, then picks up <<nnpc_his "Avery">> glass. "Wear it if you want, then." <<nnpc_He "Avery">> turns the conversation towards the evening's plans.
+			<</if>>
+		<</switch>>
+		<<if _pm.outcome?.love gt 0>><<glove>><<elseif _pm.outcome?.love lt 0>><<llove>><</if>><<if _pm.outcome?.rage gt 0>><<garage>><</if>><<if _pm.outcome?.endear gt 0>><<gendear>><<elseif _pm.outcome?.endear lt 0>><<lendear>><</if>>
+		<br><br>
+		<<set _avEnd to true>>
+	<<else>>
+		<<if _pm.tooStrong>>
+			Avery notices the strong perfume as you come closer. <<nnpc_He "Avery">> moves back a little and looks at your clothes.
+			<<if _av.ctx is "dinner">>A couple at the next table turns towards you before returning to their conversation.<</if>>
+			"You've put on a lot of perfume, <<pcpetname "Avery">>. This is a dinner, not a nightclub."
+		<<elseif _pm.tone is "bad">>
+			Avery notices the perfume when you sit nearby. <<nnpc_He "Avery">> moves back from the table a little and looks at you. "What is that smell?" <<nnpc_he "Avery">> asks in a low voice. "Did somebody give you that perfume as a joke?"
+		<<elseif _pm.familiarity gte 3>>
+			"You're wearing that perfume again," Avery says. <<nnpc_He "Avery">> reaches across the table for your hand and brings your wrist closer. "I recognise it now. If you keep wearing it, everyone will start thinking of you when they smell it."
+		<<elseif _pm.quality gte 70 and _pm.tone is "good">>
+			You sit down across from Avery. As you move your hand towards the table, <<nnpc_he "Avery">> notices your perfume and looks at your wrist. "That smells lovely. Where did you buy it? I haven't noticed anything like it in the town shops."
+		<<elseif _pm.kind is "craft">>
+			Avery brings your wrist closer to smell the perfume, then lets go. "There's some skill in this," <<nnpc_he "Avery">> says. "I'm just not sure this is the right perfume for you."
+		<<else>>
+			As you sit near Avery, <<nnpc_he "Avery">> notices the perfume on your skin and turns towards you. "Is that a new perfume?"
+		<</if>>
+		<br><br>
+		<<perfumeryChoice "Say you made it yourself" "made" `{ love: _pm.tone is "good" ? 1 : 0, endear: _avDate ? (_pm.tone is "good" ? 5 : _pm.tone is "bad" ? -5 : 0) : 0, rage: _pm.tone is "bad" and _avRage gte 20 ? 2 : 0 }`>>
+		<<perfumeryChoice "Say very little" "vague">>
+		<<perfumeryChoice "Ask if Avery likes it" "ask">>
+		<<if C.npc.Avery.love gte 50 and _avRage lt 40>><<perfumeryChoice "Ask whether it's working" "tease" `{ love: _pm.tone isnot "bad" ? 1 : 0 }`>><</if>>
+		<<if _pm.tone is "bad" or _pm.tooStrong>><<perfumeryChoice "Say you like it" "defend" `{ rage: _avRage gte 20 ? 3 : 0, endear: _avDate ? -5 : 0 }`>><</if>>
+		<br>
+	<</if>>
+	<<if _pm.choice and !_pm.shown>><<run setup.perfumeryCharacters.averyNotice(_pm.choice)>><</if>>
+
+<<case "offer">>
+	<<set _avReq to _av.request>>
+	<<switch _av.step>>
+	<<case "accept" "materials" "fee">>
+		<<if !_av.done>><<set _av.paid to setup.perfumeryCharacters.averyAccept(_av.step is "accept" ? "none" : _av.step).paid>><<set _av.done to true>><<run setup.perfumeryCharacters.averyMark(_av.ctx, _av)>><<if _avDate>><<set $endear += 5>><</if>><</if>>
+		<<if _av.step is "materials">>
+			<<if _av.paid gt 0>>
+				Avery takes out <<nnpc_his "Avery">> wallet when you ask for money to buy ingredients. "This is for the materials," <<nnpc_he "Avery">> says, handing you <<income 5000 "avery">>. "I expect you to use it on the perfume."
+			<<else>>
+				"I gave you money for ingredients last time," Avery says, putting <<nnpc_his "Avery">> wallet away. "I assume you still have some of what you bought."
+			<</if>>
+		<<elseif _av.step is "fee">>
+			<<if _avRage gte 30>>
+				Avery puts <<nnpc_his "Avery">> glass down when you ask to be paid for the work. "You want a fee? Very well, but I'll only pay if the perfume meets my expectations. Otherwise we'll both have wasted our time."
+			<<else>>
+				Avery raises <<nnpc_his "Avery">> eyebrows when you ask for payment. "You want to treat this as proper work? Bring me a perfume I can use, and I'll pay you for it."
+			<</if>>
+		<<else>>
+			Avery lifts <<nnpc_his "Avery">> glass when you accept the request. "Bring the perfume to me once you've finished it, <<pcpetname "Avery">>. Try not to keep me waiting."
+		<</if>>
+		<<if _avDate>><<gendear>><</if>>
+		<br><br>
+		<span class="gold">Avery has commissioned a perfume.</span> Bring a matured bottle to a later date or mansion conversation.
+		<br><br>
+		<<set _avEnd to true>>
+	<<case "decline">>
+		<<if !_av.done>><<run setup.perfumeryCharacters.averyDecline()>><<set _av.done to true>><<run setup.perfumeryCharacters.averyMark(_av.ctx, _av)>><<if _avRage gte 40>><<npcincr Avery rage 3>><</if>><</if>>
+		<<if _avRage gte 40>>
+			Avery puts <<nnpc_his "Avery">> glass down and looks directly at you. "So you're refusing." <<nnpc_He "Avery">> smiles, although <<nnpc_his "Avery">> voice is cold. "I'll remember that you turned me down." <<garage>>
+		<<elseif C.npc.Avery.love gte 60>>
+			Avery puts <<nnpc_his "Avery">> glass down, looking disappointed. "I was looking forward to seeing what you'd make, but you don't have to decide anything tonight. Perhaps I'll ask another time."
+		<<else>>
+			Avery lifts <<nnpc_his "Avery">> glass and turns away. "I was offering you an opportunity, but I won't spend the evening trying to convince you to take it."
+		<</if>>
+		<br><br>
+		<<set _avEnd to true>>
+	<<case "questions">>
+		You ask what exactly Avery wants.
+		<br><br>
+		<<switch _avReq.context>>
+		<<case "dinner">>
+			"I want something that smells of wood and amber, with a little of that soft powder smell some expensive gloves have inside," Avery says, counting the ideas on <<nnpc_his "Avery">> fingers. "No fruit or anything that smells like food. And it must be light. Someone sitting at the next table shouldn't be able to smell it."
+		<<case "party">>
+			"Flowers, with a little citrus at first," Avery says. "Add some resin so the smell lasts, but don't make it smell like food, mud or sweat." <<nnpc_He "Avery">> moves <<nnpc_his "Avery">> hand towards the other side of the table. "People nearby should notice it. People on the other side of the street shouldn't."
+		<<default>>
+			"I want something for myself," Avery says. "Amber, resin and a little spice. Nothing fruity, grassy or sweet." <<nnpc_He "Avery">> pulls back <<nnpc_his "Avery">> sleeve to show <<nnpc_his "Avery">> wrist. "It should only be noticeable when someone is close to me."
+		<</switch>>
+		<br><br>
+		You ask when Avery needs the perfume. "Within a couple of weeks," <<nnpc_he "Avery">> says. <<nnpc_He "Avery">> picks up <<nnpc_his "Avery">> glass again. "I can wait that long, if I know you're working on it."
+		<br><br>
+		<<perfumeryAveryStep "Accept the commission" "accept">>
+		<<perfumeryAveryStep "Negotiate the terms" "negotiate">>
+		<<perfumeryAveryStep "Decline" "decline">>
+	<<case "negotiate">>
+		You explain that you want to agree on payment before you begin making the perfume. Avery raises <<nnpc_his "Avery">> eyebrows.
+		<<if _avRage gte 40>>"And what exactly are you asking me to pay for?"<<else>>"All right. What did you have in mind?"<</if>>
+		<br><br>
+		<<perfumeryAveryStep "Ask for material costs" "materials">>
+		<<perfumeryAveryStep "Ask to be paid" "fee">>
+		<<perfumeryAveryStep "Accept without terms" "accept">>
+		<<perfumeryAveryStep "Decline after all" "decline">>
+	<<default>>
+		<<if _av.repeat>>
+			Avery taps the side of <<nnpc_his "Avery">> glass to get your attention. "I have another perfume I'd like you to make. You know what sort of smells I prefer by now."
+			<<if _avReq.context is "party">>"This time I want something you can wear when you come with me to a party on Danube Street."<<elseif _avReq.context is "avery">>"This bottle will be for me to wear."<<else>>"I want something you can wear when we go out for dinner."<</if>>
+		<<else>>
+			You notice Avery turning <<nnpc_his "Avery">> glass in one hand while the conversation slows. After a short pause, <<nnpc_he "Avery">> puts the glass down. "I've been thinking about the perfume you made."
+			<br><br>
+			<<switch _avReq.context>>
+			<<case "dinner">>
+				"When I take you to dinner, people notice how you dress and behave," Avery says. <<nnpc_He "Avery">> puts the glass down and looks at you. "I want you to make a perfume that suits those restaurants. Something pleasant that people can only smell when they're close to you."
+			<<case "party">>
+				"You know the parties on Danube Street," Avery says. "Those guests can buy almost any perfume they want." <<nnpc_He "Avery">> smiles and glances at your wrist. "I want you to wear one you made yourself when you come with me. Something nobody else can buy."
+			<<default>>
+				"I'd like you to make a perfume for me," Avery says, looking down at <<nnpc_his "Avery">> glass before turning towards you. "You know what I like better than a shop assistant would. I want to see what you come up with."
+			<</switch>>
+		<</if>>
+		<br><br>
+		<<perfumeryAveryStep "Accept" "accept">>
+		<<perfumeryAveryStep "Ask what Avery wants" "questions">>
+		<<perfumeryAveryStep "Negotiate the terms" "negotiate">>
+		<<perfumeryAveryStep "Decline" "decline">>
+	<</switch>>
+
+<<case "deliver">>
+	<<set _avC to setup.perfumeryCharacters.state().avery.commission>>
+	<<if _av.step is "thank" or _av.step is "change" or _av.step is "stand">>
+		<<set _av.reply to _av.step>><<set _r to _av.res>>
+		<<switch _av.step>>
+		<<case "thank">>
+			<<if ["excellent", "unexpected", "exception"].includes(_r.outcome)>>Avery smiles when you thank <<nnpc_him "Avery">>. "I expected you to do good work. That's why I asked you." <<nnpc_He "Avery">> looks at the bottle in <<nnpc_his "Avery">> hand before putting it away.<<else>>Avery accepts the thanks with a small nod, then looks back at the bottle.<</if>>
+		<<case "change">>
+			<<if _r.avoid gt 0.15>>"Use less of the ingredients I told you to avoid," Avery says. "I was quite clear about those."<<elseif _r.wants lt 0.2>>"Put more of the smells I asked for into it," Avery says. "I gave you a list."<<elseif _r.tooStrong>>"Make it weaker," Avery says. "I should only smell it when someone stands close to me."<<else>>Avery looks at the perfume bottle before answering. "I wouldn't change anything about this one. I'm pleased with what you've made," Avery says.<</if>>
+		<<case "stand">>
+			<<if C.npc.Avery.love gte 60 and _avRage lt 40>>You say you would use the same recipe if you made it again. Avery looks at you, then smiles a little. "You really won't change your mind, will you? I suppose I like that about you."<<else>>You say you would use the same recipe if you made it again. Avery puts the bottle down. "Then you'll have to find someone else who wants to wear it."<</if>>
+		<</switch>>
+		<br><br>
+		<<set _avEnd to true>>
+	<<elseif _av.step is "result">>
+		<<set _r to _av.res>>
+		<<if !_av.res>>
+			<<set _av.res to setup.perfumeryCharacters.averyDeliver(_av.bottle, _av.framing, _av.ctx)>><<set _r to _av.res>>
+			<<run setup.perfumeryCharacters.averyMark(_av.ctx, _av)>>
+		<</if>>
+		Avery waits a few minutes after putting the perfume on <<nnpc_his "Avery">> wrist, then brings the same wrist back towards <<nnpc_his "Avery">> nose. The first smell has become weaker.
+		<<if _av.p.heart>>Now <<nnpc_he "Avery">> notices another part of the perfume: <<perfumeryAveryPhase _av.p.heart>>. A softer smell remains beneath it: <<perfumeryAveryPhase _av.p.drydown>>.<</if>>
+		<br><br>
+		<<switch _r.outcome>>
+		<<case "excellent">>
+			Avery smells <<nnpc_his "Avery">> wrist once more and smiles. "This is exactly what I asked you to make. You've done well," Avery says. <<nnpc_He "Avery">> puts the cap back on the bottle and keeps it close. "I'll wear it the next time we go out. Let people wonder where I bought it."
+		<<case "unexpected">>
+			Avery looks at the bottle and then smells <<nnpc_his "Avery">> wrist. "You didn't follow my instructions," <<nnpc_he "Avery">> says. <<nnpc_He "Avery">> pauses before smiling. "But I like this perfume more than the one I described. I didn't expect that." <<nnpc_He "Avery">> keeps hold of the bottle.
+		<<case "exception">>
+			Avery looks at your handwritten label and gently moves a thumb over the writing. <<nnpc_He "Avery">> takes another smell from <<nnpc_his "Avery">> wrist before speaking. "I wouldn't have asked anyone else to make this for me. You ignored some of my instructions, but I like what you made. Don't assume I'll approve of that every time."
+		<<case "technical">>
+			Avery smells <<nnpc_his "Avery">> wrist again, then puts the perfume bottle on the table. "You made this well. I can recognise the different ingredients, and the smell lasts." <<nnpc_He "Avery">> looks at you. "But it's not the perfume I asked for. You need to think about what I actually want to wear."
+		<<case "adequate">>
+			Avery takes one last smell of <<nnpc_his "Avery">> wrist before putting the bottle in <<nnpc_his "Avery">> jacket. "I can wear this. I've tried more expensive perfumes that smelled worse."
+		<<case "embarrassing">>
+			<<if _r.tooStrong>>
+				Avery puts the cap back on the bottle as soon as <<nnpc_he "Avery">> finishes smelling <<nnpc_his "Avery">> wrist. "I can't wear this to dinner. It's far too strong, and I don't want everyone smelling my perfume before I've even sat down," Avery says.
+			<<else>>
+				Avery puts the bottle on the table and moves <<nnpc_his "Avery">> wrist away from <<nnpc_his "Avery">> face. "I wouldn't wear this perfume, and I don't want you wearing it when you're with me."
+			<</if>>
+		<<case "defiance">>
+			Avery reads the label on the bottle before smelling <<nnpc_his "Avery">> wrist again. <<nnpc_He "Avery">> puts the bottle down and looks at you. "You didn't follow any of my instructions. You chose these ingredients knowing they were the ones I told you to avoid."
+		<</switch>>
+		<br><br>
+		<<if _r.effects.love gt 0>><<glove>><<elseif _r.effects.love lt 0>><<llove>><</if>><<if _r.effects.rage gt 0>><<garage>><<elseif _r.effects.rage lt 0>><<larage>><</if>><<if _r.endearApplied and _r.effects.endear gt 0>><<gendear>><<elseif _r.endearApplied and _r.effects.endear lt 0>><<lendear>><</if>>
+		<<if _r.fee gt 0 and !_av.feePaid>><<set _av.feePaid to true>><br>Avery pays what you agreed: <<income `_r.fee` "avery">>.<</if>>
+		<br><br>
+		<<if !_av.reply>>
+			<<perfumeryAveryStep "Thank Avery" "thank">>
+			<<perfumeryAveryStep "Ask what to change" "change">>
+			<<if ["technical", "embarrassing", "defiance"].includes(_r.outcome)>><<perfumeryAveryStep "Stand by your choice" "stand">><</if>>
+		<</if>>
+	<<elseif _av.step is "framing">>
+		<<set _av.p to setup.perfumeryCharacters.evaluate("Avery", setup.perfumery.properties($perfumery.bottles.find(b => b.id is _av.bottle)), { phase: "opening", strength: 1 })>>
+		You hand the finished perfume to Avery. <<nnpc_He "Avery">> turns the bottle to read your label and looks through the glass at the liquid inside. After removing the cap, <<nnpc_he "Avery">> uses it to put a small amount of perfume on the inside of <<nnpc_his "Avery">> wrist. <<nnpc_He "Avery">> sets the bottle down and waits a moment before smelling <<nnpc_his "Avery">> wrist.
+		<br><br>
+		<<if _av.p.tone is "good">>
+			Even from across the table, you notice the perfume's first smell: <<perfumeryAveryPhase _av.p.opening>>. Avery keeps checking <<nnpc_his "Avery">> wrist without commenting yet.
+		<<elseif _av.p.tone is "bad">>
+			The first smell reaches you: <<perfumeryAveryPhase _av.p.opening>>. Avery quickly moves <<nnpc_his "Avery">> wrist farther from <<nnpc_his "Avery">> nose, then looks at the bottle.
+		<<else>>
+			At first, you notice <<perfumeryAveryPhase _av.p.opening>>. Avery brings <<nnpc_his "Avery">> wrist close to <<nnpc_his "Avery">> nose for another smell.
+		<</if>>
+		<br><br>
+		"Tell me about it," <<nnpc_he "Avery">> says.
+		<br><br>
+		<<capture _av>>
+			<<link "Say you followed the brief" "Perfumery Avery Scene">><<set $perfumeryAveryScene.framing to "asked">><<set $perfumeryAveryScene.step to "result">><</link>><br>
+			<<link "Say you made your own choices" "Perfumery Avery Scene">><<set $perfumeryAveryScene.framing to "own">><<set $perfumeryAveryScene.step to "result">><</link>><br>
+			<<link "Say it's for Avery" "Perfumery Avery Scene">><<set $perfumeryAveryScene.framing to "you">><<set $perfumeryAveryScene.step to "result">><</link>><br>
+		<</capture>>
+	<<elseif _av.step is "later">>
+		<<if !_av.done>><<set _av.done to true>><<run setup.perfumeryCharacters.averyMark(_av.ctx, _av)>><</if>>
+		You tell Avery that you are still working on the perfume and have not brought a finished bottle. <<nnpc_He "Avery">> puts <<nnpc_his "Avery">> glass down. "Then I'll wait," <<nnpc_he "Avery">> says. <<if Time.days gt _avC.dueDay>>"You have missed the date we agreed on, though. I expect you to finish it soon."<</if>>
+		<br><br>
+			<<set _avEnd to true>>
+	<<else>>
+		<<if Time.days gt _avC.dueDay>>
+			Before you can settle into your seat, Avery looks towards your hands. "You've kept me waiting for that perfume, <<pcpetname "Avery">>. Have you brought it with you?"
+		<<else>>
+			Avery looks towards the things you have brought with you. "Have you finished the perfume I asked for?" <<nnpc_he "Avery">> asks.
+		<</if>>
+		<br><br>
+		<<for _avB range setup.perfumeryCharacters.averyDeliverable()>>
+			<<capture _avB>><<link `"Present " + _avB.name.replace(/[<>\[\]|$_@]/g, "")` "Perfumery Avery Scene">><<set $perfumeryAveryScene.bottle to _avB.id>><<set $perfumeryAveryScene.step to "framing">><</link>> <<perfumeryIcon _avB>><br><</capture>>
+		<</for>>
+		<<perfumeryAveryStep "Say it isn't ready yet" "later">>
+	<</if>>
+<</switch>>

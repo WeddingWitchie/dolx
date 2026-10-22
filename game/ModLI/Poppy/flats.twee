@@ -4,6 +4,9 @@
 <<if poppyDismissed()>>
 	<<include "Flats Poppy Locked">>
 <<elseif !((Number($poppySafeHouse) gte 1 or (Number($poppyromance) gte 0 and $poppySeen.includes("lake_postclaim_intro"))) and !(Number($poppyFlat.kickedUntilDay) gte Time.days) and !Time.isBloodMoon())>>
+	<<if setup.perfumery.canVisit()>>
+		<<include "Poppy Perfumery Visit">>
+	<<else>>
 	<<if Number($poppyFlat.kickedUntilDay) gte Time.days>>
 		You try to enter Poppy's flat, but the door is locked. Maybe you should try again next time.
 	<<elseif Time.isBloodMoon()>>
@@ -13,6 +16,7 @@
 	<</if>>
 	<br><br>
 	<<getouticon>><<link [[Back|Flats]]>><<pass 1>><<endevent>><<set $eventskip to 0>><</link>>
+	<</if>>
 <<elseif T.poppyStatus.includes("LowPatience") and Number($poppyromance) lt 0>>
 	<<if $poppyFlat.home>>
 		You realise the door is locked. You knock on Poppy's door. You hear someone shuffling about inside, but no one answers.
@@ -95,6 +99,11 @@ You are in Poppy's living room.
 <br><br>
 There is a glass coffee table between the couch and TV stand. The TV stand is decorated with cute little figurines. On the couch, a pillow stands out from its surroundings. It's a Frostburger pillow.
 <<poppyOpiumPulse>>
+<<if $perfumery?.learned and setup.perfumery.canVisit()>>
+	A folded cloth covers the perfumery tray at one end of the table.
+	<br>
+	<<icon "tending/white-rose.png">><<link [[Uncover the perfumery tray|Poppy Perfumery Visit]]>><<set $perfumeryVenue to "poppy">><</link>><br>
+<</if>>
 <<if $poppyFlat.home>>
 	<<if $poppyFlat.room is "kitchen" and $poppyFlat.meal and !$daily.poppy.flatMeals[$poppyFlat.meal]>>
 		/* Poppy is cooking and player hears it from the living room */
@@ -212,7 +221,6 @@ You rest on the couch, enjoying the tranquility of the place that the orphanage 
 	You feel a little more at ease, but the drowsiness doesn't fade.
 	<<lstress>><<stress -4>><<gtiredness>><<tiredness 15>>
 <</if>>
-/* Track addiction without double-applying the stat effects from the widget. */
 <<poppyOpiumPulse>>
 <<link [[Back|Flats Poppy Living Room]]>><</link>>
 
@@ -1429,6 +1437,10 @@ There is a thermometer outside the window. It reads <span class="teal"><<print W
 <</if>>
 <<poppyOpiumPulse>>
 <<poppyChristmasWrapOption>>
+<<perfumeryInvitation "bedroom">>
+<<if $perfumery?.invited and setup.perfumery.canVisit()>>
+	<<icon "tending/white-rose.png">><<link [[Perfumery table|Poppy Perfumery Visit]]>><<set $perfumeryVenue to "poppy">><</link>><br>
+<</if>>
 
 /* Bed */
 <<poppyicon "bed">><<link [[Strip and get in bed|Flats Poppy Bed]]>><<undressSleep "bed">><</link>>

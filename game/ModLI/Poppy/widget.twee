@@ -358,6 +358,29 @@
 	<<run poppySchedule()>><<speechresolve>>
 <</widget>>
 
+/* Perfumery */
+<<widget "poppySpecialChoice">>
+	<<capture _args>>
+		<<link _args[0] "Poppy Perfumery Special Reply">><<run setup.perfumeryCharacters.poppyResolve(_args[1])>><</link>>
+		<br>
+	<</capture>>
+<</widget>>
+<<widget "perfumeryPoppyPrep">>
+	<<if _args[0] isnot "conversation">><<set $location to "flats">><<set $bus to "poppy_living_room">><<set $outside to 0>><<set $perfumeryVenue to "poppy">><</if>>
+	<<effects>>
+	<<if setup.perfumery.enabled() and $modLIUnlocks?.Poppy and C.npc.Poppy?.init is 1>><<run poppySchedule()>><</if>>
+<</widget>>
+<<widget "perfumeryConversationReturn">>
+	<<if $perfumeryVenue is "poppy" and setup.perfumery.canVisit()>>
+		<<link [[Return to your conversation|Flats Poppy Social]]>><</link>>
+	<<elseif $perfumeryVenue is "poppy">>
+		<<link [[Leave the doorway|Flats]]>><</link>>
+	<<elseif $perfumeryVenue is "bedroom">>
+		<<link [[Back|Flats Poppy Bedroom]]>><</link>>
+	<<else>>
+		<<link [[Return to the lakeside|Lake Shore]]>><</link>>
+	<</if>>
+<</widget>>
 
 /* Menu */
 <<widget "poppyLakeMenu">>
@@ -417,7 +440,8 @@
 				<<poppyOpiumPulse>>
 		<</if>>
 		<<poppyComfortOption "lake">>
-		<<socialiseicon>><<link [[Chat with Poppy (0:15)|Lake Poppy Chat]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
+		<<perfumeryInvitation "lake">>
+		<<socialiseicon>><<link [[Chat with Poppy (0:15)|Lake Poppy Chat]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><<run setup.perfumery.social("Poppy")>><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
 		<br>
 		<<if (npcIsPregnant("Poppy") and knowsAboutPregnancy("Poppy", "pc")) or (playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc", "Poppy"))>>
 			<<if playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc", "Poppy")>><<pregnancyicon "player">><<else>><<pregnancyicon>><</if>><<link [[Talk about the pregnancy (0:15)|Poppy Pregnancy Chat]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>>
@@ -561,11 +585,15 @@
 			<</if>>
 		<</if>>
 		<<poppyComfortOption "flat">>
+		<<perfumeryInvitation "poppy">>
+		<<if $perfumery?.invited and setup.perfumery.canVisit()>>
+			<<icon "tending/white-rose.png">><<link [[Talk at the perfumery table|Poppy Perfumery Visit]]>><<set $perfumeryVenue to "poppy">><</link>><br>
+		<</if>>
 		<<if !$poppySeen.includes("flat_chat_plant") and _poppyRom gte 0>>
-			<<socialiseicon>><<link [[Chat (0:15)|Flats Poppy Chat Plant]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
+			<<socialiseicon>><<link [[Chat (0:15)|Flats Poppy Chat Plant]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><<run setup.perfumery.social("Poppy")>><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
 			<br>
 		<<else>>
-			<<socialiseicon>><<link [[Chat (0:15)|Flats Poppy Chat]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
+			<<socialiseicon>><<link [[Chat (0:15)|Flats Poppy Chat]]>><<pass 15>><<set $daily.poppy.lastAction to "chat">><<run setup.perfumery.social("Poppy")>><</link>><<if T.poppyLoveGainAllowed>><<glove>><</if>><<if _poppyPositive>><<gpatience>><<else>><<langer>><</if>>
 			<br>
 		<</if>>
 		<<if (npcIsPregnant("Poppy") and knowsAboutPregnancy("Poppy", "pc")) or (playerIsPregnant() and playerAwareTheyArePregnant() and knowsAboutPregnancy("pc", "Poppy"))>>

@@ -315,6 +315,9 @@ function pocketSyncBag() {
 		pocketOutfitUnpackAll();
 	}
 
+	/* Perfume removed with its slot goes back to the cabinet. */
+	if (!V.pocket.bag.slots.some(slot => slot.kind === "perfume")) for (const b of pocketPerfumeBottles()) b.packed = false;
+
 	/* Toys removed with bag slots return to the cupboard. */
 	const toySlots = new Set(V.pocket.bag.slots.filter(slot => slot.kind === "toy").map(slot => slot.key));
 	const inv = V.player && V.player.inventory && V.player.inventory.sextoys;
@@ -338,6 +341,8 @@ function pocketSlotStillValid(slot) {
 		case "bait":
 			/* The can stays a slot when it's empty: an empty tin is still a tin you can refill. */
 			return pocketBaitValid(slot.key);
+		case "perfume":
+			return pocketPerfumeBottles().length > 0;
 		case "outfit":
 			/* The bundle holds the only copy of its garments. See pocket-outfit.js. */
 			return typeof pocketOutfitPieceCount === "function" && pocketOutfitPieceCount() > 0;
@@ -400,6 +405,55 @@ function pocketToyPackedCount(category) {
 window.pocketToyPackedCount = pocketToyPackedCount;
 
 /* Put one copy in the carried container, or take it out. Returns false when there's no room. */
+/* Perfume works like toys: every bottle shares one "perfume" slot, and each bottle carries a `packed` flag. */
+function pocketPerfumeBottles() {
+	return V.perfumery?.bottles?.filter(b => b.packed) || [];
+}
+window.pocketPerfumeBottles = pocketPerfumeBottles;
+
+function pocketPerfumePack(id, on) {
+	if (!pocketAvailable()) return false;
+	pocketEnsure();
+	const bottle = V.perfumery?.bottles?.find(b => b.id === id);
+	if (!bottle) return false;
+	pocketSyncBag();
+	if (!on) {
+		bottle.packed = false;
+		if (!pocketPerfumeBottles().length) {
+			const slot = pocketSlotIndex("perfume", "perfume");
+			if (slot !== -1) V.pocket.bag.slots.splice(slot, 1);
+		}
+		pocketCommit();
+		return true;
+	}
+	const hasSlot = pocketSlotIndex("perfume", "perfume") !== -1;
+	let location = "pocket";
+	if (!hasSlot && V.pocket.bag.slots.some(slot => slot.location === "pocket")) {
+		if (!pocketBagItem()) return false;
+		if (V.pocket.bag.slots.filter(slot => slot.location === "bag").length >= pocketBagCapacity()) return false;
+		location = "bag";
+	}
+	bottle.packed = true;
+	if (!hasSlot) V.pocket.bag.slots.push({ kind: "perfume", key: "perfume", location });
+	pocketCommit();
+	return true;
+}
+window.pocketPerfumePack = pocketPerfumePack;
+
+/* Returns a line for the use report, or the reason it can't be worn. */
+function pocketPerfumeWear(id) {
+	const bottle = V.perfumery?.bottles?.find(b => b.id === id);
+	if (!bottle) return "";
+	try {
+		setup.perfumery.apply(id);
+	} catch (error) {
+		return error.message;
+	}
+	pocketCommit();
+	return `You dab on some ${bottle.name}.`;
+}
+window.pocketPerfumeWear = pocketPerfumeWear;
+
 function pocketToyPack(category, index, on) {
 	if (!pocketAvailable()) return false;
 	pocketEnsure();

@@ -1,0 +1,686 @@
+:: Perfumery Encounter Reply
+<<effects>>
+<<set _pe to setup.perfumeryEncounters.finish()>>
+<<if _pe>>
+	<<include `"Perfumery " + (_pe.place is "street" ? "Street " : "Hallway ") + _pe.id`>>
+<</if>>
+<br><br>
+<<if _pe?.place is "hallway">>
+	<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
+<<else>>
+	<<destinationeventend>>
+<</if>>
+<br>
+
+:: Perfumery Street compliment
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	<<if _pe.v lt 2>>
+		A <<person>> walking towards you slows down after passing you. You hear <<him>> stop, and when you look back, <<he>> has turned towards you. "Sorry, can I ask what perfume you're wearing? I can smell <<perfumeryWord _pe.f.dominant>>, but it's nicer than anything I've bought."
+	<<else>>
+		You stop at a crossing beside a <<person>> who keeps looking your way. When the lights change, <<he>> stays beside you instead of crossing. "Sorry, what perfume is that? I could smell it when you were over by the bus shelter."
+	<</if>>
+	<br><br>
+	<<perfumeryEncounterChoice "Thank <<him>>" "thank" `{ stress: -2 }`>><<lstress>><br>
+	<<perfumeryEncounterChoice "Say you made it" "made">><br>
+	<<perfumeryEncounterChoice "Ask what <<he>> likes about it" "opinion">><br>
+	<<perfumeryOfferChoice "Give <<him>>" "give" `{ give: true }`>>
+	<<perfumeryEncounterChoice "Walk on" "leave">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "thank">>
+		You thank <<him>>. "It suits you," <<he>> says with a smile. <<if _pe.v lt 2>>You both continue on your way.<<else>>When the crossing light starts flashing, <<he>> says goodbye and hurries across the road.<</if>>
+	<<case "made">>
+		<<if _pe.f.quality gte 70>>
+			<<His>> eyebrows go up. "You made that at home?" <<He>> asks whether you sell it, and when you say you don't, <<he>> looks disappointed. "If you ever start, I'd buy one." <<He>> waves as <<he>> walks away.
+		<<else>>
+			<<He>> nods slowly. "That explains it. It's different from the shop ones." <<He>> doesn't say whether that's a good thing before <<he>> walks on.
+		<</if>>
+	<<case "opinion">>
+		<<He>> takes another breath through <<his>> nose before answering.
+		<<if _pe.f.proj gte 1.6>>
+			"The <<perfumeryWord _pe.f.dominant>>. It's strong, though. I noticed it from a few steps away, before I saw you."
+		<<else>>
+			"The <<perfumeryWord _pe.f.dominant>>. It's soft, so you only notice it when you're close. I like that."
+		<</if>>
+		<<He>> smiles again and goes on <<his>> way.
+	<<case "give">>
+		You take <<print _pe.bottle.name>> out of your <<print pocketBagName()>> and offer it to <<him>>. <<He>> looks at the bottle and then back at you. "Are you sure?"
+		<br><br>
+		When you nod, <<he>> takes it with both hands, thanks you twice and goes on <<his>> way.
+	<<default>>
+		You smile without answering and continue walking. The <<person>> lets you go without asking again.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street complaint
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	<<if _pe.v lt 2>>
+		The <<person>> standing in front of you keeps turning <<his>> head, then finally faces you.
+		<br><br>
+		"What is that smell?" <<he>> asks loudly. Several people in the queue turn to look.
+	<<else>>
+		A <<person>> holds a shop door open as you approach. When you get close, <<he>> notices your perfume and steps back onto the pavement, letting the door close. "Is that smell coming from you? What is it?"
+	<</if>>
+	<<if _pe.f.foul>>"It smells like <<perfumeryWord _pe.f.foul>>," <<he>> adds.<</if>> Two people nearby step away from you.
+	<br><br>
+	<<perfumeryEncounterChoice "Apologise" "sorry" `{ stress: 2 }`>><<gstress>><br>
+	<<perfumeryEncounterChoice "Explain the failed perfume" "explain">><br>
+	<<perfumeryEncounterChoice "Tell <<him>> to mind <<his>> business" "snap" `{ stress: 1 }`>><<gstress>><br>
+	<<perfumeryEncounterChoice "Walk away" "leave" `{ stress: 2 }`>><<gstress>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "sorry">>
+		You apologise and move away from <<him>>. <<He>> nods and turns back to what <<he>> was doing. <<if _pe.v lt 2>>You can still hear people in the bus queue talking behind you, so you leave the stop and decide to walk instead of waiting.<<else>>You continue past the shop with your face hot from embarrassment. Even after you've gone a little way, you keep thinking about how loudly <<he>> spoke.<</if>>
+	<<case "explain">>
+		You explain that you made the perfume yourself, but it didn't turn out the way you wanted. The <<person>> looks less annoyed. "You made it? You know how bad it smells, then?" <<He>> laughs a little and suggests washing your skin with soap and cold water. You thank <<him>> for the advice, even though people nearby can still hear the conversation.
+	<<case "snap">>
+		You tell <<him>> to mind <<his>> own business. <<He>> looks annoyed and turns away, covering <<his>> nose with <<his>> sleeve. The person next to <<him>> does the same, making it clear that neither of them wants to stand close to you.
+	<<default>>
+		You walk away without answering. Behind you, the <<person>> says something to the others, but you keep going. When you turn the corner, you finally stop hearing their voices.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street ingredient
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	A <<person>> sitting outside a café lowers <<his>> newspaper as you walk past. "<<print _pe.f.material.toUpperFirst()>>," <<he>> says quietly. You stop when you realise <<he>> is talking about your perfume. <<He>> looks up from the paper. "Sorry. Is that <<print _pe.f.material.toLowerCase()>> I can smell?
+	<<if _pe.v lt 2>>My mother used to grow it."<<else>>I worked at a market stall for twenty years. I still remember that smell."<</if>>
+	<br><br>
+	<<perfumeryEncounterChoice "Say <<he>> is right" "yes">><br>
+	<<perfumeryEncounterChoice "Ask how <<he>> could tell" "how">><br>
+	<<perfumeryEncounterChoice "Say you made it yourself" "made" `{ stress: -2 }`>><<lstress>><br>
+	<<perfumeryEncounterChoice "Keep walking" "leave">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "yes">>
+		<<He>> looks pleased with <<himself>>. "I knew it. Most perfumes smell of nothing real these days." <<He>> goes back to the newspaper, still smiling.
+	<<case "how">>
+		"I used to smell it all the time. You remember things like that." <<He>> smells your perfume again. "You might have used a little too much, but I still like it."
+	<<case "made">>
+		You tell <<him>> you made the perfume yourself. <<He>> folds the newspaper and puts it on the table so <<he>> can listen. "Then you used the real ingredient. Some shops use a cheaper smell and call it the same thing." <<He>> asks what else you used and listens while you explain.
+	<<default>>
+		You smile and keep walking. Behind you, the newspaper rustles as <<he>> opens it again.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street customer
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	You hear someone calling for you outside the shopping centre. A <<person>> who was standing near one of the shops walks quickly towards you, a little out of breath. "Excuse me. I noticed your perfume when you walked past. Where did you get it? I've been looking for something like that for months."
+	<br><br>
+	<<perfumeryEncounterChoice "Say you made it" "made">><br>
+	<<if _pe.bottle>>
+		<<set _peLabel to "Offer to sell " + _pe.bottle.name + " (" + formatMoney(_pe.bottle.price) + ")">>
+		<<perfumeryEncounterChoice _peLabel "sell" `{ sell: _pe.buys }`>><br>
+	<</if>>
+	<<perfumeryEncounterChoice "Say it was a present" "lie">><br>
+	<<perfumeryEncounterChoice "Say you're in a hurry" "leave">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "made">>
+		"You made it yourself? Could you make one for me?" You tell <<him>> you'd need to think about it before promising anything. <<He>> nods, says <<he>> hopes to see you again, and walks back towards the shops.
+	<<case "sell">>
+		<<if _pe.out.sold>>
+			You take out the bottle and pass it to <<him>>. <<He>> opens it, smells the perfume twice and smiles. After closing it, <<he>> counts out <<print formatMoney(_pe.bottle.price)>> and pays you. <<He>> puts the bottle carefully in <<his>> bag. "I'm going to make this last."
+		<<else>>
+			You take out the bottle and hand it to <<him>> so <<he>> can smell the perfume. <<He>> takes a moment to decide, then hands it back. "It smells lovely on you, but I'm not sure I'd like it on myself." <<He>> thanks you for showing <<him>> and returns to the shops.
+		<</if>>
+	<<case "lie">>
+		You say it was a present. The <<person>> looks disappointed. "Lucky you," <<he>> says, and goes back into the shop.
+	<<default>>
+		You say you're in a hurry. <<He>> apologises for stopping you and lets you go.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street tooMuch
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	The pavement is crowded, and several people turn to look as you pass. A <<person>> who was standing beside a shop window turns to watch you, then leaves the window and starts walking beside you.
+	<<if Time.dayState is "night">>
+		"You smell amazing," <<he>> says, close to your ear. "Where are you going this late?"
+	<<else>>
+		"I could smell you from the other end of the street," <<he>> says, grinning. "Where are you off to?"
+	<</if>>
+	<br><br>
+	<<perfumeryEncounterChoice "Walk faster" "hurry" `{ stress: Time.dayState is "night" and _pe.v lt 2 ? 4 : 3, trauma: Time.dayState is "night" and _pe.v lt 2 ? 2 : 0 }`>><<gstress>><br>
+	<<perfumeryEncounterChoice "Tell <<him>> to leave you alone" "refuse" `{ stress: 2 }`>><<gstress>><br>
+	<<if Time.dayState isnot "night">><<perfumeryEncounterChoice "Go into the nearest shop" "shop" `{ stress: 1 }`>><<gstress>><br><</if>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "hurry">>
+		<<if Time.dayState is "night" and _pe.v lt 2>>
+			You walk faster, but <<he>> keeps following. <<He>> grabs your wrist and pulls your hand towards <<his>> nose before you can move away. You pull your hand free and start running. When you turn the corner and look back, <<he>> is still where you left <<him>>, laughing.
+		<<else>>
+			You walk faster. <<He>> keeps up for a few steps, laughing, then gives up at the next corner and shouts something after you that you don't hear properly.
+		<</if>>
+	<<case "refuse">>
+		You stop walking and tell <<him>> to leave you alone. <<He>> raises both hands. "Alright, alright. I was being friendly." You start walking again while <<he>> stays where <<he>> is. When you glance back, <<he>> is still watching you, so you keep going until you turn the corner.
+	<<default>>
+		You enter the nearest shop and stop beside a shelf, pretending to look at the products. Through the window, you can see the <<person>> waiting outside. After a minute <<he>> gives up and walks away. A shop assistant approaches to ask if you need help, notices your perfume, then goes back behind the counter.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street sweet
+<<if !_pe.choice>><<generatey1>><</if>><<person1>>
+<<if !_pe.choice>>
+	Outside the bakery, a <<persons>> eating a sandwich. As you walk past, <<he>> stops eating and looks around, then turns towards you. "Have you got cake? I can smell cake, but I can't see any."
+	<br><br>
+	<<perfumeryEncounterChoice "Say it's your perfume" "explain">><br>
+	<<perfumeryEncounterChoice "Hold out your wrist" "wrist">><br>
+	<<perfumeryEncounterChoice "Say you already ate it" "joke" `{ stress: -2 }`>><<lstress>><br>
+	<<perfumeryEncounterChoice "Walk on" "leave">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "explain">>
+		"Perfume? Really?" When you hold out your wrist to show <<him>>, <<he>> comes a little closer and smells it. <<He>> laughs when <<he>> realises you're telling the truth. "You smell like cake on purpose? I'd be hungry all day."
+	<<case "wrist">>
+		<<if _pe.f.romance gte 0.5>>
+			<<He>> takes your hand and holds your wrist under <<his>> nose for longer than you expected. When <<he>> lets go, <<his>> face has gone red. "Sorry. It's really nice," <<he>> says, and goes back to the sandwich without looking at you.
+		<<else>>
+			<<He>> smells your wrist and laughs. "It was you! I thought someone had cake." <<He>> looks at the sandwich in <<his>> hand and offers you half, apparently thinking you might be hungry too.
+		<</if>>
+	<<case "joke">>
+		You tell <<him>> the cake is gone because you ate it. <<He>> looks at you with real disappointment, then laughs and takes another bite of the sandwich.
+	<<default>>
+		You walk on. When you look back, the <<person>> is peering through the bakery window, looking for the cake.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street animal
+<<if !_pe.choice>><<generateBEAST 1 dog>><</if>>
+<<if !_pe.choice>>
+	A thin <<beasttype 0>> walking beside the road lifts <<bhis 0>> head as you pass. <<bHe 0>> turns and follows you for a few steps, smelling the air. When you slow down, <<bhe 0>> comes close to your hand<<if $NPCList[0].monster is "monster">>, then looks up at you with a hopeful smile<<else>> and starts wagging <<bhis 0>> tail<</if>>.
+	<br><br>
+	<<perfumeryEncounterChoice "Let <<bhim 0>> sniff" "let" `{ stress: -3 }`>><<lstress>><br>
+	<<if $NPCList[0].monster is "monster">>
+		<<perfumeryEncounterChoice "Offer to stroke <<bhis 0>> hair" "pet" `{ stress: -4 }`>><<lstress>><br>
+	<<else>>
+		<<perfumeryEncounterChoice "Crouch down to pet <<bhim 0>>" "pet" `{ stress: -4 }`>><<lstress>><br>
+	<</if>>
+	<<perfumeryEncounterChoice "Shoo <<bhim 0>> away" "shoo">><br>
+	<<perfumeryEncounterChoice "Keep walking" "leave">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "let">>
+		You hold your hand still so the <<beasttype 0>> can smell it. <<bHe 0>> moves <<bhis 0>> nose from your fingers to your wrist and then your sleeve before sneezing. <<if $NPCList[0].monster is "monster">><<bHe 0>> laughs and wipes <<bhis 0>> nose with a sleeve<<else>><<bHis 0>> tail moves even faster<</if>>, and <<bhe 0>> stays beside you until a car door shuts loudly farther down the street. The <<beasttype 0>> turns towards the noise and runs off.
+	<<case "pet">>
+		<<if $NPCList[0].monster is "monster">>
+			You offer your hand. The <<beasttype 0>> bows <<bhis 0>> head beneath it, letting you stroke <<bhis 0>> hair. <<bHe 0>> breathes in the perfume on your wrist and smiles. When you take your hand back, <<bhe 0>> thanks you and carries on down the street.
+		<<else>>
+			You crouch down. The <<beasttype 0>> pushes <<bhis 0>> head under your hand at once<<if _pe.f.gourmand>> and licks your wrist, chasing the sweet smell with <<bhis 0>> tongue until you're laughing<<else>> and leans <<bhis 0>> whole weight against your knees<</if>>. When you stand up again, <<bhe 0>> follows you for a while before losing interest at a bin.
+		<</if>>
+	<<case "shoo">>
+		You wave your hand to send the <<beasttype 0>> away. <<bHe 0>> moves back a few steps<<if $NPCList[0].monster is "monster">>, looking disappointed<<else>> and sits on the pavement<</if>>, watching you instead of following.
+	<<default>>
+		You keep walking. The <<beasttype 0>> follows you all the way to the end of the street, sniffing the air, before giving up and heading back the way <<bhe 0>> came.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street advice
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	At the flower stall on the corner, a <<persons>> wrapping a bunch of tulips. As you pass, <<he>> notices your perfume and looks up. "Can I give you some advice?" <<he>> asks. "I can mostly smell <<perfumeryWord _pe.f.dominant>>. You could try adding a little of something different, so it isn't the only smell."
+	<br><br>
+	<<perfumeryEncounterChoice "Thank <<him>>" "thank">><br>
+	<<perfumeryEncounterChoice "Ask what <<he>> would add" "ask">><br>
+	<<perfumeryEncounterChoice "Say you like it the way it is" "defend">><br>
+	<<perfumeryEncounterChoice "Ignore <<him>>" "ignore">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "thank">>
+		You thank <<him>> for the advice. <<He>> nods and finishes wrapping the tulips. "Try it next time you make some. See whether you like the difference."
+	<<case "ask">>
+		<<if _pe.f.family is "floral">>
+			<<He>> takes a small branch from a bucket and holds it close enough for you to smell. It has a dry, woody smell. "You could add a little of this to the flowers. That way there's more than one smell in the perfume." <<He>> puts the branch back in the bucket.
+		<<elseif _pe.f.family is "gourmand">>
+			<<He>> takes a leaf from one of the plants and rubs it between <<his>> fingers, then holds it out for you to smell. The leaf has a fresh, strong smell. "Try adding something like this to the sweet ingredients. Even a little lemon might help."
+		<<elseif _pe.f.family is "nature">>
+			<<He>> takes some lavender from a bucket and holds it out for you to smell. "You could add a flower like this. Then people will smell something floral too, not just wood and leaves." <<He>> puts the lavender back in the bucket.
+		<<else>>
+			<<He>> thinks for a moment. "You've got a lot of different smells in there," <<he>> says. "Try choosing one you like best, then use smaller amounts of the others."
+		<</if>>
+		"That's just what I'd try," <<he>> says, and goes back to wrapping flowers.
+	<<case "defend">>
+		<<He>> shrugs. "It's your neck," <<he>> says, and goes back to the tulips.
+	<<default>>
+		You walk past without answering. The <<person>> goes back to wrapping flowers.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street trail
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	You walk past a group of people sitting on a bench. A few steps later, one of them calls after you. When you turn, a <<person>> is walking quickly towards you while <<his>> friends watch from the bench. "Sorry! My friends want to know what perfume you're wearing. We could still smell it after you walked past."
+	<br><br>
+	<<perfumeryEncounterChoice "Say you made it" "made" `{ stress: -2 }`>><<lstress>><br>
+	<<perfumeryEncounterChoice "Tell <<him>> its name" "name">><br>
+	<<perfumeryEncounterChoice "Let <<him>> smell your wrist" "wrist">><br>
+	<<perfumeryEncounterChoice "Wave and keep walking" "leave">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "made">>
+		You tell <<him>> you made it yourself. <<He>> turns towards <<his>> friends and calls out your answer. One of them claps and shouts, "Told you nobody sells it!" The <<person>> thanks you and returns to the bench.
+	<<case "name">>
+		You tell <<him>> it's called <<print _pe.name>>. <<He>> repeats the name twice so <<he>> won't forget it, then hurries back to <<his>> friends. You hear one of them say they'll never find it in a shop.
+	<<case "wrist">>
+		You hold out your wrist so <<he>> can smell the perfume up close. <<He>> smells it, then looks towards <<his>> friends with a grin. "Yeah, that's what we could smell when you passed!" <<he>> says. <<He>> thanks you and goes back to the bench.
+	<<default>>
+		You wave and keep walking. Behind you, the group starts arguing about what the perfume was.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street turned
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	While you wait to cross the road, you notice that your perfume no longer smells the way it did when you put it on. Most of the smell you liked has disappeared. When you smell your wrist, you notice <<perfumeryWord (_pe.f.foul ?? "stale")>> instead. A <<person>> beside you notices something too. <<He>> looks down at <<his>> shoes, checks the bottom of one, then glances at you.
+	<br><br>
+	<<perfumeryEncounterChoice "Explain it's your perfume" "explain">><br>
+	<<perfumeryEncounterChoice "Rub your wrist on your sleeve" "rub">><br>
+	<<perfumeryEncounterChoice "Check your own shoe" "pretend" `{ stress: -1 }`>><<lstress>><br>
+	<<perfumeryEncounterChoice "Cross the road quickly" "leave" `{ stress: 1 }`>><<gstress>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "explain">>
+		You tell <<him>> the smell is coming from your perfume, which smelled much better when you put it on. "My aftershave does that by lunch," <<he>> says. "You need something that still smells good after a few hours." When the crossing lights change, <<he>> walks across the road ahead of you.
+	<<case "rub">>
+		You rub your wrist against your sleeve, trying to get some of the perfume off your skin. The smell doesn't get much weaker, and now you can smell it on your sleeve as well. The <<person>> sees what you're doing but says nothing. As soon as the lights change, <<he>> crosses the road.
+	<<case "pretend">>
+		You lift your foot and look at the bottom of your shoe, pretending you're trying to find the source of the smell. The <<person>> checks <<his>> other shoe too. <<He>> finds nothing and keeps looking at the ground until the lights change. You manage not to laugh before <<he>> walks away.
+	<<default>>
+		You cross before the lights change and hurry down the street. A car beeps at you, but at least nobody is standing close enough to smell you.
+	<</switch>>
+<</if>>
+
+:: Perfumery Street follower
+<<if !_pe.choice>><<generate1>><</if>><<person1>>
+<<if !_pe.choice>>
+	You have heard footsteps behind you for the last two streets. They stay close enough that you begin to wonder if someone is following you. You stop beneath a streetlight to check, and the footsteps stop too. A <<person>> walks close enough for you to see <<him>>. "You smell nice," <<he>> says. "I noticed your perfume at the last corner and wanted to find out where it was coming from."
+	<br><br>
+	<<perfumeryEncounterChoice "Run" "run" `{ stress: _pe.v lt 2 ? 4 : 6, trauma: _pe.v lt 2 ? 0 : 3 }`>><<gstress>><br>
+	<<perfumeryEncounterChoice "Tell <<him>> to go away" "refuse" `{ stress: 3 }`>><<gstress>><br>
+	<<perfumeryEncounterChoice "Keep walking at the same pace" "walk" `{ stress: 3 }`>><<gstress>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "run">>
+		<<if _pe.v lt 2>>
+			You turn and run. You can hear <<his>> footsteps behind yours at first, but after you turn into another street, the sound stops. You keep going a little farther before slowing down to listen. <<He>> isn't following you any more.
+		<<else>>
+			You run towards the next corner, but <<he>> catches hold of your sleeve before you can turn. <<He>> pulls you back towards <<him>> and puts <<his>> face close to your neck to smell your perfume. You pull against <<his>> grip. A car turns into the street, and when its headlights reach you, <<he>> laughs and lets go. You run without looking back.
+		<</if>>
+	<<case "refuse">>
+		You tell <<him>> to stop following you and go away. <<He>> only smiles, refusing to answer. You turn and walk away, listening for footsteps behind you. You don't look back until you reach a street with more people on it.
+	<<default>>
+		You keep walking without speeding up. <<He>> stays a short distance behind you for another street, then turns into a narrow side road. You keep listening for <<his>> footsteps even after <<he>> is gone, and it takes a while before your hands stop shaking.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway Robin
+<<set _peRobinHurt to $robin.timer.hurt gte 1>>
+<<if !_pe.choice>>
+	<<if _peRobinHurt>>
+		Robin passes you in the corridor without looking at you. A few steps farther on, <<nnpc_he "Robin">> slows down and seems to notice your perfume. <<nnpc_He "Robin">> turns <<nnpc_his "Robin">> head slightly towards you but keeps walking without saying anything.
+		<br><br>
+		<<perfumeryEncounterChoice "Call after Robin" "call">><br>
+		<<perfumeryEncounterChoice "Let Robin go" "let">>
+	<<else>>
+		<<if _pe.r.kind is "familiar" and C.npc.Robin.trauma gte 40>>
+			Robin is standing alone by the lockers, holding <<nnpc_his "Robin">> bag against <<nnpc_his "Robin">> chest. When you stop beside <<nnpc_him "Robin">>, <<nnpc_he "Robin">> looks at you and relaxes a little. "That's the perfume you wear when we study together," <<nnpc_he "Robin">> says quietly. "I like it. Can you stay here with me for a minute?"
+		<<elseif _pe.r.kind is "familiar">>
+			Robin is taking books out of <<nnpc_his "Robin">> locker when you walk past. <<nnpc_He "Robin">> turns towards you, still holding a book in each hand, and smiles. "I thought that was you. I noticed your perfume before I even looked up."
+		<<elseif _pe.r.kind is "personal">>
+			Robin walks quickly to catch up with you between lessons. While you're walking together, <<nnpc_he "Robin">> notices your perfume and stops. "Is that daisy?" <<nnpc_he "Robin">> asks. <<nnpc_His "Robin">> ears turn pink. "It is, isn't it?"
+		<<elseif _pe.r.kind is "discomfort">>
+			Robin comes over and starts walking beside you, but after a few steps <<nnpc_he "Robin">> coughs into <<nnpc_his "Robin">> elbow. "Sorry, is that your perfume? It's really strong in here. There aren't any open windows."
+		<<elseif _pe.r.kind is "dislike">>
+			Robin waves from the end of the corridor and walks over to you. When <<nnpc_he "Robin">> gets close enough to smell your perfume, <<nnpc_he "Robin">> looks uncomfortable for a moment, then tries to smile. "Hi! Your perfume smells... different today."
+		<<elseif _pe.r.tone is "good">>
+			Robin walks up beside you between lessons. After a few steps, <<nnpc_he "Robin">> notices your perfume and smiles. "Is that new? It smells really nice, like being outside after it rains."
+		<<else>>
+			You meet Robin beside the noticeboard. <<nnpc_He "Robin">> looks at you, then takes a moment to work out what's different. "Is that perfume? I don't think I've smelled that one before."
+		<</if>>
+		<br><br>
+		<<perfumeryEncounterChoice "Say you made it" "made" `{ love: _pe.r.tone is "good" ? 1 : 0 }`>><<if _pe.r.tone is "good">><<glove>><</if>><br>
+		<<perfumeryEncounterChoice "Ask Robin what <<nnpc_he 'Robin'>> thinks" "ask">><br>
+		<<if _pe.r.tone isnot "bad" and C.npc.Robin.love gte 30>><<perfumeryEncounterChoice "Rub your wrist on Robin's" "share" `{ love: 1, stress: -2 }`>><<glove>><<lstress>><br><</if>>
+		<<perfumeryEncounterChoice "Say you have to get to class" "leave">>
+	<</if>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "call">>
+		You call Robin's name. <<nnpc_He "Robin">> stops, but doesn't turn round. "Not now," <<nnpc_he "Robin">> says, and keeps walking. <<nnpc_He "Robin">> doesn't sniff the air again.
+	<<case "let">>
+		You let Robin go. <<nnpc_He "Robin">> turns the corner without looking back.
+	<<case "made">>
+		<<if _pe.r.tone is "good">>
+			"You made it?" Robin asks, stopping so suddenly that another student has to walk around <<nnpc_him "Robin">>. "That's amazing! What did you use?" <<nnpc_He "Robin">> gently takes your wrist to smell the perfume again, then notices the people walking around you and lets go with an embarrassed laugh.
+		<<elseif _pe.r.tone is "bad">>
+			"You made it yourself?" Robin asks, trying hard to look impressed. "That must have been a lot of work." <<nnpc_He "Robin">> doesn't ask to smell it again.
+		<<else>>
+			"You made it yourself?" Robin asks. <<nnpc_He "Robin">> looks at your wrist, curious about how you managed it. "I wouldn't know where to start. Could you show me how sometime?"
+		<</if>>
+	<<case "ask">>
+		<<if _pe.r.kind is "personal">>
+			"I love it," Robin says straight away. "Daisies are my favourite. You knew that." <<nnpc_He "Robin">> looks at the floor, smiling.
+		<<elseif _pe.r.tone is "good">>
+			Robin takes the question seriously. "I like the <<print _pe.r.liked?.[0] ?? "fresh">> part most. It makes me think of the flowerbeds after it rains."
+		<<elseif _pe.r.kind is "discomfort">>
+			Robin hesitates. "It's nice, I think. It's just a lot. Maybe less of it, before school?"
+		<<else>>
+			Robin hesitates. "Honestly? The <<print _pe.r.disliked?.[0] ?? "strong">> bit isn't really for me. But I like that you made something."
+		<</if>>
+	<<case "share">>
+		You hold out your hand to Robin. When <<nnpc_he "Robin">> takes it, you bring your wrist against <<nnpc_his "Robin">> and gently rub them together to share some of the perfume. Robin laughs quietly and smells <<nnpc_his "Robin">> wrist. "Now I've got some too," <<nnpc_he "Robin">> says. <<nnpc_He "Robin">> checks the smell a few more times as you walk towards the classroom.
+	<<default>>
+		You tell Robin you have to get to class. "Me too," <<nnpc_he "Robin">> says, and waves as you go.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway Whitney
+<<set _pePrivate to _pe.r.tone is "good" and (C.npc.Whitney.love gte 30 or $whitneyromance is 1) and _pe.v gte 2>>
+<<if !_pe.choice>>
+	<<if _pePrivate>>
+		As you walk past the lockers, someone grabs the back of your collar and pulls you away from the busy part of the corridor. You turn and see Whitney. <<nnpc_He "Whitney">> pulls you into a narrow space between two rows of lockers, then puts one hand against the lockers beside you to stop you moving past <<nnpc_him "Whitney">>. After checking that nobody is coming, <<nnpc_he "Whitney">> moves <<nnpc_his "Whitney">> face close to your neck and smells your perfume.
+		<br><br>
+		"Don't you fucking tell anyone about this," <<nnpc_he "Whitney">> says, still holding you by the collar. "I mean it, slut."
+		<br><br>
+		<<perfumeryEncounterChoice "Ask if <<nnpc_he 'Whitney'>> likes it" "ask" `{ love: 1 }`>><<glove>><br>
+		<<perfumeryEncounterChoice "Stay still" "stay">><br>
+		<<perfumeryEncounterChoice "Push <<nnpc_him 'Whitney'>> off" "push">>
+	<<else>>
+		Whitney is standing by the lockers with two friends. When you try to walk past, <<nnpc_he "Whitney">> steps in front of you, making you stop. <<nnpc_He "Whitney">> takes a loud breath through <<nnpc_his "Whitney">> nose, then does it again while <<nnpc_his "Whitney">> friends watch.
+		<<if _pe.r.kind is "personal">>
+			"Is that lily?" Whitney asks before <<nnpc_he "Whitney">> seems to realise <<nnpc_his "Whitney">> friends are listening. <<nnpc_He "Whitney">> gives you a rough grin. "What? You trying to kiss my ass now, slut?"
+		<<elseif _pe.r.tone is "bad" or _pe.r.tooStrong>>
+			"What the fuck is that stink?" Whitney leans back and wrinkles <<nnpc_his "Whitney">> nose. "You been rolling round in the bins behind a flower shop or something?"
+			<br><br>
+			One of the friends laughs.
+		<<else>>
+			"Look at you, smelling all fancy," Whitney says, loud enough for <<nnpc_his "Whitney">> friends to hear. "Who the fuck are you trying to impress, slut?"
+			<br><br>
+			One of the friends makes a kissing noise.
+		<</if>>
+		<br><br>
+		<<perfumeryEncounterChoice "Say you made it" "made">><br>
+		<<perfumeryEncounterChoice "Say Whitney smells of smoke" "back" `{ dom: C.npc.Whitney.dom gte 30 ? 1 : 0 }`>><br>
+		<<perfumeryEncounterChoice "Push past" "push" `{ stress: 1 }`>><<gstress>><br>
+		<<perfumeryEncounterChoice "Wait for <<nnpc_him 'Whitney'>> to get bored" "wait" `{ stress: 2 }`>><<gstress>>
+	<</if>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "ask">>
+		"Yeah, it smells good. Don't get a big head about it, slut," Whitney says, still close to your neck. <<nnpc_He "Whitney">> smells the perfume once more, then lets go of your collar and steps back. <<nnpc_He "Whitney">> pulls your collar into place with a rough movement. "Wear it again tomorrow. I wanna smell it." Before you can reply, <<nnpc_he "Whitney">> walks back towards the main corridor.
+	<<case "stay">>
+		You stay still while Whitney remains close to your neck. <<nnpc_He "Whitney">> takes another breath through <<nnpc_his "Whitney">> nose, then pulls away when footsteps pass at the end of the row. "Don't fucking look at me like that," <<nnpc_he "Whitney">> says, finally releasing your collar. <<nnpc_He "Whitney">> walks out into the corridor with <<nnpc_his "Whitney">> hands in <<nnpc_his "Whitney">> pockets.
+		<br><br>
+		As you return to the hallway, you hear <<nnpc_him "Whitney">> laughing with <<nnpc_his "Whitney">> friends nearby.
+	<<case "made">>
+		"You made that shit yourself? Yeah, fucking right," Whitney says loudly enough for <<nnpc_his "Whitney">> friends to hear. They laugh, but <<nnpc_he "Whitney">> takes another quick smell before stepping aside. Whitney doesn't laugh for as long as they do, and when you walk away <<nnpc_he "Whitney">> doesn't follow.
+	<<case "back">>
+		<<if C.npc.Whitney.dom gte 30>>
+			You tell Whitney <<nnpc_he "Whitney">> smells of smoke. <<nnpc_His "Whitney">> grin gets wider. "Yeah? Got a fucking problem with it?" <<nnpc_He "Whitney">> puts a hand on your shoulder and squeezes until you wince. <<pain 2>><<gpain>>
+		<<else>>
+			You tell Whitney <<nnpc_he "Whitney">> smells of smoke. One of the friends bursts out laughing at <<nnpc_him "Whitney">> this time. "Oh, shut the fuck up," Whitney snaps, shoving the friend instead of you. You get away while they argue.
+		<</if>>
+	<<case "push">>
+		<<if _pePrivate>>
+			You put both hands against Whitney and push <<nnpc_him "Whitney">> away from you. <<nnpc_He "Whitney">> steps back out into the corridor, then laughs when <<nnpc_he "Whitney">> sees you're angry. "Fuck off, then. See if I give a shit what perfume you wear." <<nnpc_He "Whitney">> walks off with <<nnpc_his "Whitney">> hands in <<nnpc_his "Whitney">> pockets, leaving you beside the lockers.
+		<<else>>
+			You push Whitney aside and start walking past <<nnpc_him "Whitney">>. "Watch it, bitch," <<nnpc_he "Whitney">> says, putting a foot in your path as you move away. You trip and reach out to grab a locker to stop yourself from falling. Behind you, <<nnpc_his "Whitney">> friends laugh.
+		<</if>>
+	<<default>>
+		You stand there and wait while Whitney carries on making fun of your perfume. "What, you use the whole fucking bottle?" <<nnpc_he "Whitney">> asks, looking to <<nnpc_his "Whitney">> friends for a laugh. One of them chuckles, but nobody laughs when <<nnpc_he "Whitney">> tries another joke. Whitney gets bored and waves you away.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway Kylar
+<<if !_pe.choice>>
+	<<if _pe.r.familiarity gte 3 or _pe.r.gifted>>
+		You're walking down the corridor when Kylar catches up with you from behind. "Y-you're wearing that perfume," <<nnpc_he "Kylar">> says. "I knew it was you before I saw you." <<nnpc_He "Kylar">> walks close enough that your arms touch now and then, glancing at you whenever you look <<nnpc_his "Kylar">> way.
+	<<elseif C.npc.Kylar.rage gte 20>>
+		Kylar sees you walking past and stops so suddenly that another student bumps into <<nnpc_his "Kylar">> back. <<nnpc_He "Kylar">> barely notices, hurrying after you instead. "W-wait! That perfume... is it new?" <<nnpc_He "Kylar">> looks around at the other students. "W-who's it for? Did somebody give it to you?"
+	<<elseif _pe.r.kind is "discomfort">>
+		Kylar is waiting near your classroom door. When you walk over, <<nnpc_he "Kylar">> notices your perfume and sneezes into <<nnpc_his "Kylar">> sleeve. <<nnpc_He "Kylar">> looks embarrassed and keeps <<nnpc_his "Kylar">> sleeve near <<nnpc_his "Kylar">> nose. "S-sorry, I wasn't trying to be rude. Did you put a lot of perfume on today?"
+	<<else>>
+		Kylar comes over and starts walking beside you without saying hello. After a few steps, <<nnpc_he "Kylar">> notices your perfume and glances at you. "Y-you smell different today," <<nnpc_he "Kylar">> says. "Is that a new perfume?"
+	<</if>>
+	<br><br>
+	<<perfumeryEncounterChoice "Say you made it yourself" "made" `{ rage: C.npc.Kylar.rage gte 20 ? -2 : 0, love: _pe.r.tone isnot "bad" ? 1 : 0 }`>><<if C.npc.Kylar.rage gte 20>><<lksuspicion>><</if>><br>
+	<<if C.npc.Kylar.love gte 30>><<perfumeryEncounterChoice "Say you wore it for Kylar" "forkylar" `{ love: 1, rage: -1 }`>><<glove>><<lksuspicion>><br><</if>>
+	<<perfumeryEncounterChoice "Say it's none of Kylar's business" "mine" `{ rage: C.npc.Kylar.rage gte 20 ? 2 : 0 }`>><<if C.npc.Kylar.rage gte 20>><<gksuspicion>><</if>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "made">>
+		<<if _pe.r.familiarity gte 3>>
+			"I-I knew it was yours," Kylar says, smiling. "I can tell when you're nearby, even before I see you." <<nnpc_He "Kylar">> walks beside you, staying close until you reach the classroom door.
+		<<else>>
+			"Y-you made it yourself?" Kylar asks, looking relieved. "So... nobody else gave it to you?" <<nnpc_He "Kylar">> glances at your face, then stays beside you as you walk towards the end of the corridor.
+		<</if>>
+	<<case "forkylar">>
+		Kylar stops walking and turns towards you, <<nnpc_his "Kylar">> face going red. "F-for me? You really put it on because of me?" <<nnpc_He "Kylar">> takes your hand and brings your wrist close to <<nnpc_his "Kylar">> nose to smell the perfume. "C-could you wear it again tomorrow? I want to remember what it smells like on you." A student walking past stares at the two of you, but Kylar doesn't notice.
+	<<default>>
+		<<if C.npc.Kylar.rage gte 20>>
+			Kylar stops smiling, but <<nnpc_he "Kylar">> doesn't step away straight away. "W-why won't you tell me?" <<nnpc_he "Kylar">> asks quietly. "I just want to know if somebody else gave it to you." <<nnpc_He "Kylar">> finally moves aside so you can continue towards class. When you look back from the classroom door, <<nnpc_he "Kylar">> is still in the corridor, watching the other students walking near you.
+		<<else>>
+			Kylar looks down and nods quickly. "I-I didn't mean to bother you. I just thought the perfume smelled nice on you." <<nnpc_He "Kylar">> goes the other way.
+		<</if>>
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway Sydney
+<<set _peSydCorrupt to C.npc.Sydney.corruption gt C.npc.Sydney.purity>>
+<<if !_pe.choice>>
+	<<if _peSydCorrupt>>
+		Sydney is carrying several books towards the library. You hold the door open to let <<nnpc_him "Sydney">> through, but <<nnpc_he "Sydney">> stops in the doorway instead. When you try to move past, <<nnpc_he "Sydney">> leans close to your neck and smells your perfume. "I noticed that smell all the way down the corridor. I'm not sure you're supposed to wear perfume like that at school."
+	<<elseif _pe.r.kind is "personal">>
+		Sydney is walking towards the library with several books. You hold the door for <<nnpc_him "Sydney">>, but <<nnpc_he "Sydney">> stops to speak to you before going inside. "Is that white rose? It reminds me of the roses in the temple garden during summer."
+	<<elseif _pe.r.kind is "discomfort">>
+		You reach the library just as Sydney comes out. When <<nnpc_he "Sydney">> walks near you, your strong perfume makes <<nnpc_his "Sydney">> eyes water. <<nnpc_He "Sydney">> blinks several times and turns <<nnpc_his "Sydney">> face away, trying not to make a fuss.
+	<<else>>
+		Sydney is walking towards the library with several books. You hold the door open, and <<nnpc_he "Sydney">> thanks you before noticing your perfume. "Did you make that yourself? It smells more like real flowers and plants than the perfume they sell in shops."
+	<</if>>
+	<br><br>
+	<<perfumeryEncounterChoice "Explain how you made it" "explain" `{ love: _pe.r.craft gt 0.3 or _pe.r.tone is "good" ? 1 : 0 }`>><<if _pe.r.craft gt 0.3 or _pe.r.tone is "good">><<glove>><</if>><br>
+	<<perfumeryEncounterChoice "Ask what Sydney thinks" "ask">><br>
+	<<perfumeryEncounterChoice "Help carry the books" "help">><br>
+	<<if _peSydCorrupt>><<perfumeryEncounterChoice "Ask if it's distracting" "tease">><br><</if>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "explain">>
+		<<if _peSydCorrupt>>
+			You explain how different smells appear as the perfume changes over time. Sydney stays beside the library door, listening. "So you can decide which smell stays on someone's skin longest," <<nnpc_he "Sydney">> says, looking at your neck. "I'd like to see how you made it sometime."
+		<<else>>
+			You explain how you prepare the ingredients and how some smells last longer than others. Sydney moves the books onto one arm so <<nnpc_he "Sydney">> can take out a pen. <<nnpc_He "Sydney">> writes "base notes" on the back of <<nnpc_his "Sydney">> hand so <<nnpc_he "Sydney">> can remember the term. "That sounds like a lot of careful work, I think I'd enjoy it."
+		<</if>>
+	<<case "ask">>
+		<<if _pe.r.kind is "personal">>
+			"It's lovely," Sydney says softly. "You didn't have to choose something I'd like." <<nnpc_He "Sydney">> rests <<nnpc_his "Sydney">> hand against the doorframe near yours but doesn't touch you.
+		<<elseif _pe.r.tone is "good">>
+			"It's lovely," Sydney says, and you can tell <<nnpc_he "Sydney">> means it. "The <<print _pe.r.liked?.[0] ?? "floral">> part is the best."
+		<<else>>
+			Sydney thinks before answering. "It's interesting. I don't think I'd wear it myself." <<nnpc_He "Sydney">> smiles a little. "But I'm glad you made it."
+		<</if>>
+	<<case "help">>
+		You offer to help with the books, and Sydney passes you half of them. Together you go through the library door and walk to the returns desk. As you put the books down, Sydney stands close beside you. "Thank you," <<nnpc_he "Sydney">> says with a smile. "I wouldn't mind if you wore that perfume in here again."
+	<<default>>
+		You ask Sydney if your perfume is distracting. "Very. I keep noticing it when you stand close to me," <<nnpc_he "Sydney">> answers, smiling at you instead of looking away. <<nnpc_He "Sydney">> carries the books into the library, then looks back at you once before the door closes.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway food
+<<if !_pe.choice>><<generatey1>><</if>><<person1>>
+<<if !_pe.choice>>
+	A <<person>> who has been walking behind you moves closer until <<he>> is beside you. "Have you got something to eat? I missed breakfast, and I can smell <<perfumeryWord _pe.f.dominant>>."
+	<br><br>
+	<<perfumeryEncounterChoice "Say it's your perfume" "explain">><br>
+	<<perfumeryEncounterChoice "Let <<him>> smell your wrist" "wrist">><br>
+	<<perfumeryEncounterChoice "Say you ate it all" "joke" `{ stress: -2 }`>><<lstress>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "explain">>
+		The <<person>> looks disappointed when you explain it's only perfume. "That's cruel," <<he>> says with an exaggerated groan. "Now I'm hungry for something you haven't even got." <<He>> laughs at <<his>> own complaint and walks towards the canteen.
+	<<case "wrist">>
+		You hold out your wrist. The <<person>> moves closer to smell the perfume, then groans loudly enough for nearby students to look over. "That's worse. Now I'm even hungrier." <<He>> thanks you anyway and walks off towards the canteen.
+	<<default>>
+		You tell <<him>> you ate it all. The <<person>> looks so betrayed that you laugh, and after a second <<he>> laughs too.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway complaint
+<<if !_pe.choice>><<generates1>><</if>><<person1>>
+<<if !_pe.choice>>
+	You are waiting with other students outside a classroom when the <<person>> beside you begins waving a hand in front of <<his>> nose. "Who's wearing that perfume? It's making my eyes water." Other students turn towards the smell, then look at you.
+	<<if _pe.f.foul>>Someone farther down the queue complains that it smells like <<perfumeryWord _pe.f.foul>>.<</if>>
+	<br><br>
+	<<perfumeryEncounterChoice "Say it's yours" "own" `{ stress: 1 }`>><<gstress>><br>
+	<<perfumeryEncounterChoice "Apologise" "sorry" `{ stress: 2 }`>><<gstress>><br>
+	<<perfumeryEncounterChoice "Go and wash it off (0:05)" "wash" `{ wash: true, pass: 5 }`>><br>
+	<<perfumeryEncounterChoice "Pretend you can't smell anything" "pretend" `{ stress: 2 }`>><<gstress>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "own">>
+		You admit it's your perfume without apologising. The <<person>> looks annoyed. "Then please sit by the window, where we can get some fresh air." When the classroom door opens, several students go in ahead of you and choose seats away from where you're standing.
+	<<case "sorry">>
+		You apologise. The <<person>> shrugs, but the students around you still move away while you wait. When the classroom opens, the other students choose seats farther from yours, leaving the seats beside you empty.
+	<<case "wash">>
+		You leave the queue and go to the toilets. At a sink, you wash your neck and wrists with soap and cold water until you can barely smell the perfume. By the time you return, the other students have gone inside, so you enter quietly and find a seat near the back.
+	<<default>>
+		You sniff the air like everyone else and look around. The <<person>> stares at you for a long moment. "It's literally you," <<he>> says, and the student behind <<him>> laughs.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway bought
+<<if !_pe.choice>><<generates1>><</if>><<person1>>
+<<if !_pe.choice>>
+	While you're walking up the school stairs, a <<person>> from your year calls to you and stops beside you. "Where did you get that perfume? I really like it. Which shop sells it?"
+	<br><br>
+	<<perfumeryEncounterChoice "Say you made it" "made">><br>
+	<<if _pe.bottle>>
+		<<set _peLabel to "Offer to sell " + _pe.bottle.name + " (" + formatMoney(_pe.bottle.price) + ")">>
+		<<perfumeryEncounterChoice _peLabel "sell" `{ sell: _pe.buys }`>><br>
+	<</if>>
+	<<perfumeryEncounterChoice "Make up a shop" "lie">><br>
+	<<perfumeryEncounterChoice "Say it's a secret" "secret">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "made">>
+		"You made it yourself?" <<he>> asks in surprise. "Could you make one for me? Oh, no, I'm sorry. Forget it." As you continue up the stairs, <<he>> walks beside you and asks how long it would take to make another bottle.
+	<<case "sell">>
+		<<if _pe.out.sold>>
+			You take out the bottle and hand it to <<him>>. After smelling the perfume, <<he>> nods and takes money out of <<his>> pockets. <<He>> counts out <<print formatMoney(_pe.bottle.price)>> and hands you the money. "Don't tell anyone where I got it," <<he>> says, putting the bottle away.
+		<<else>>
+			You take out the bottle and hand it to <<him>> so <<he>> can smell it. <<He>> takes a moment, then hands it back. "It smells a bit different in the bottle. Maybe I just like how it smells on you..." <<He>> realises what <<he>> said, blushes and hurries up the stairs before you can answer.
+		<</if>>
+	<<case "lie">>
+		You make up the name of a shop in the shopping centre. The <<person>> writes it on <<his>> hand. You feel a little bad about it when <<he>> thanks you.
+	<<default>>
+		You say you don't want to tell <<him>>. <<He>> groans and follows you a few more steps, guessing different shops. When you still won't tell <<him>>, <<he>> finally gives up and lets you continue.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway howTo
+<<if !_pe.choice>><<generates1>><</if>><<person1>>
+<<if !_pe.choice>>
+	You are passing the lockers when a <<person>> you recognise from science lessons walks over to speak to you. "Someone told me you make your own perfume. Is that true? How do you make it?"
+	<br><br>
+	<<perfumeryEncounterChoice "Explain the basics" "explain" `{ control: 2 }`>><<gcontrol>><br>
+	<<perfumeryEncounterChoice "Let <<him>> smell your wrist first" "wrist">><br>
+	<<perfumeryEncounterChoice "Say it's too hard to explain" "short">><br>
+	<<perfumeryEncounterChoice "Say it's a secret" "secret">>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "explain">>
+		You explain how you get scented oils from different ingredients and mix them together. Some smells are noticeable right away, while others become easier to smell after the perfume has been on your skin for a while. The <<person>> listens and asks what makes some smells last longer than others. "That's basically chemistry. Why is it never this interesting in class?"
+	<<case "wrist">>
+		You hold out your wrist so <<he>> can smell the perfume. <<He>> leans closer, then looks surprised. "You made that? I thought you bought it." <<He>> asks which ingredient you used most, and you name the <<print (_pe.f.material ?? "main ingredient").toLowerCase()>>. <<He>> repeats the name quietly, trying to remember it as <<he>> walks away.
+	<<case "short">>
+		You say it's too hard to explain in a corridor. The <<person>> nods, a little disappointed. "Fair enough. It smells good, anyway."
+	<<default>>
+		You say it's a secret. The <<person>> laughs. "What are you, some kind of witch?" <<he>> asks, and walks off still smiling.
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway teacher
+<<set _peTeacher to _pe.teacher ?? "Leighton">>
+<<set _peUnusual to !_pe.f.foul and _pe.f.proj lt 2 and _pe.f.distinct gte 70>>
+<<if !_pe.choice>>
+	<<if _peTeacher is "River">>
+		River is walking towards the staff room, carrying a pile of marked tests. As you pass, <<nnpc_he _peTeacher>> notices your perfume and stops to speak to you.
+		<<if _peUnusual>>
+			"That's an unusual perfume. Where did you get it?"
+		<<else>>
+			"That perfume is far too strong for a classroom," <<nnpc_he _peTeacher>> says, looking directly at you. "You'll have to sit by an open window if you're going to wear that much."
+		<</if>>
+	<<else>>
+		The headteacher is standing outside <<nnpc_his _peTeacher>> office, watching students walk past. When you pass, <<nnpc_he _peTeacher>> calls your name and motions for you to stop. "I want a word with you."
+		<<if _peUnusual>>
+			<<nnpc_He _peTeacher>> notices your perfume and steps closer to smell it more clearly. "That's an unusual one," <<nnpc_he _peTeacher>> says. "Where did you get it?"
+		<<elseif _pe.f.foul>>
+			<<nnpc_He _peTeacher>> sniffs once and <<nnpc_his _peTeacher>> mouth tightens. "That smell is disrupting lessons. Teachers have complained."
+		<<else>>
+			<<nnpc_He _peTeacher>> sniffs once. "Perfume is allowed at this school in moderation. That is not moderation."
+		<</if>>
+	<</if>>
+	<br><br>
+	<<if _peUnusual>>
+		<<perfumeryEncounterChoice "Say you made it yourself" "made">><br>
+		<<perfumeryEncounterChoice "Give a vague answer" "vague">><br>
+	<<else>>
+		<<perfumeryEncounterChoice "Apologise" "sorry">><br>
+		<<perfumeryEncounterChoice "Go and wash it off (0:05)" "wash" `{ wash: true, pass: 5 }`>><br>
+		<<perfumeryEncounterChoice "Argue that perfume is allowed" "argue" `{ detention: 1 }`>><<gdelinquency>><br>
+	<</if>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "made">>
+		<<if _peTeacher is "River">>
+			River's eyebrows rise a little. "Did you measure it, or guess?" When you say you measured it, <<nnpc_he _peTeacher>> nods once then carries on to the staff room.
+		<<else>>
+			"You made it yourself? I like students who try something creative." <<nnpc_He _peTeacher>> continues looking at you even after the conversation seems finished, then finally tells you to go to class.
+		<</if>>
+	<<case "vague">>
+		You tell <<nnpc_him _peTeacher>> you bought the perfume somewhere in town, without naming a shop. <<if _peTeacher is "River">>River looks at you, then at the tests in <<nnpc_his _peTeacher>> hands. "If you say so," <<nnpc_he _peTeacher>> says, not sounding convinced, before continuing towards the staff room.<<else>>The headteacher smiles. "Of course," <<nnpc_he _peTeacher>> says, though <<nnpc_he _peTeacher>> seems unconvinced. "Go on to class."<</if>>
+	<<case "sorry">>
+		You apologise. <<if _peTeacher is "River">>"Less of it tomorrow," River says, and walks on.<<else>>"See that it doesn't happen again," the headteacher says, and goes back into <<nnpc_his _peTeacher>> office.<</if>>
+	<<case "wash">>
+		You agree to wash the perfume off. <<if _peTeacher is "River">>River nods and continues towards the staff room.<<else>>The headteacher stands outside <<nnpc_his _peTeacher>> office and watches as you leave for the toilets.<</if>> At a sink, you wash your neck and wrists with soap and water. You have to wash several times before most of the smell is gone, leaving your skin red.
+	<<default>>
+		You say there's no rule against perfume. <<if _peTeacher is "River">>"There is a rule against disrupting lessons," River says. "Detention. You can argue there."<<else>>"There is now," the headteacher says. "You can spend detention thinking about it."<</if>>
+	<</switch>>
+<</if>>
+
+:: Perfumery Hallway admirer
+<<if !_pe.choice>><<generates1>><</if>><<person1>>
+<<if !_pe.choice>>
+	<<if _pe.v lt 2>>
+		When you reach your locker, you notice a folded note sticking out from the narrow gap beside the door. You take it out and unfold it. Someone has written: <i>Your perfume is the best part of my day. Please don't stop wearing it.</i> There's no name on the note. You look around and see a <<person>> near the stairs quickly turn away when <<he>> notices you looking.
+	<<else>>
+		While you're walking to your next lesson, someone behind you comes close enough to step on the back of your shoe. You stop and turn around. The <<person>> looks embarrassed. "Sorry! I was just... I noticed your perfume. You smell really nice."
+	<</if>>
+	<br><br>
+	<<if _pe.v lt 2>>
+		<<perfumeryEncounterChoice "Go over to the <<person>>" "look">><br>
+		<<perfumeryEncounterChoice "Keep the note" "keep" `{ stress: -3 }`>><<lstress>><br>
+		<<perfumeryEncounterChoice "Throw it away" "bin">>
+	<<else>>
+		<<perfumeryEncounterChoice "Say thank you" "thank" `{ stress: -2 }`>><<lstress>><br>
+		<<perfumeryEncounterChoice "Tease <<him>>" "tease">><br>
+		<<perfumeryEncounterChoice "Tell <<him>> to back off" "back">>
+	<</if>>
+<<else>>
+	<<switch _pe.choice>>
+	<<case "look">>
+		You walk towards the stairs with the note still in your hand. The <<person>> notices you approaching and looks embarrassed. "It wasn't me," <<he>> says before you can ask about the note. Then <<he>> hurries up the stairs without waiting for an answer.
+	<<case "keep">>
+		You fold the note again and put it in your pocket. For the rest of the morning you catch yourself smiling about it.
+	<<case "bin">>
+		You drop the note in the bin by the lockers. When you look back at the stairs, the <<person>> has gone.
+	<<case "thank">>
+		You thank <<him>> for the compliment. <<He>> nods several times without looking directly at you, then walks past with <<his>> head down. When <<he>> reaches the end of the corridor, <<he>> glances back once before turning the corner.
+	<<case "tease">>
+		You ask whether <<he>> always follows people this closely. <<He>> goes even redder. "Only the ones who smell nice," <<he>> says, and then looks horrified that <<he>> said it out loud.
+	<<default>>
+		You tell <<him>> to back off. <<He>> apologises again and waits for you to get further ahead before <<he>> walks on.
+	<</switch>>
+<</if>>
