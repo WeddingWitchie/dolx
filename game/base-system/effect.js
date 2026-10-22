@@ -1,4 +1,4 @@
-/* globals pcIsBlinded, sizeSidebarDollCanvases */
+/* globals pcIsBlinded, sizeSidebarDollCanvases, canBeMPregnant, playerClutchReadyToLay */
 function effectsWater(waterType = "liquid") {
 	const fragment = document.createDocumentFragment();
 
@@ -554,6 +554,24 @@ function effects() {
 				}
 				break;
 		}
+	}
+
+	if (
+		!V.waterDragonNest?.discovered &&
+		((V.settings.playerPregnancyEggLayingEnabled === true &&
+			V.waterDragonEggs?.daysTillLaying <= 0 &&
+			(V.player.vaginaExist || canBeMPregnant()) &&
+			!playerIsPregnant()) ||
+			(Transformations.isFullWaterDragon() && (isPregnancyEnding() || playerClutchReadyToLay()))) &&
+		!Transformations.waterDragonLayingBlocked() &&
+		!V.waterDragonLab?.active
+	) {
+		sWikifier("<<waterDragonNestDefaults>>");
+		V.waterDragonNest.discovered = true;
+		sWikifier(
+			'<span class="navy">A strong pull draws your attention towards the sea. You can picture a hidden opening in the coastal cliffs, beyond the white roses. You know how to reach the hidden beach from the coastal path.</span>'
+		);
+		br();
 	}
 
 	// eslint-disable-next-line no-undef
