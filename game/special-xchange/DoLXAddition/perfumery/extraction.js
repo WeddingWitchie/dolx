@@ -373,7 +373,8 @@
 				b.disabled = !!result;
 				el("strong", cap(f.name), b);
 				el("span", facetWords[f.name] || f.family, b);
-				el("small", `${kept ? "Kept" : "Removed"}${f.unpleasant ? " · harsh" : ""} · next to ${f.neighbours.map(j => parts[j].name).join(" and ")}`, b);
+				el("b", kept ? "Keeping" : "Removed", b, "perf-facet-state");
+				el("small", `${f.unpleasant ? "Harsh · " : ""}Next to ${f.neighbours.map(j => parts[j].name).join(" and ")}`, b);
 			});
 			const live = el("p", feedback, facets, "perf-facet-detail");
 			live.setAttribute("aria-live", "polite");
@@ -476,6 +477,7 @@
 
 		function renderBook() {
 			entries.replaceChildren();
+			if (!book.open) return;
 			el("p", `Practice ${e.practice}/100. Make a saved recipe twice to unlock Quick extraction.`, entries);
 			if (!e.profiles.length && !Object.keys(e.stock).length) el("p", "Nothing saved yet.", entries);
 			for (const profile of e.profiles) {
@@ -493,6 +495,7 @@
 				button("Pour away", "discard", row, key);
 			}
 		}
+		book.ontoggle = renderBook;
 
 		function render() {
 			renderPick();

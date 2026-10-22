@@ -24,9 +24,9 @@
 			)
 			.join(". ");
 	function state() {
-		// Additive initialization also covers same-version old saves. Never rewrite existing progress.
+		// Initialize on first use; ordinary scent checks leave untouched saves alone.
 		V.perfumery ??= {
-			version: 5,
+			version: 1,
 			extraction: { stock: {}, profiles: [], serial: 0, practice: 0, lesson: null },
 			session: null,
 			collaborations: [],
@@ -47,39 +47,9 @@
 			gifts: [],
 			invited: false,
 		};
-		const s = V.perfumery;
-		if (s.version === 1) {
-			// Version 1 saved only a tutorial flag. Preserve its draft context and every earned item/stat.
-			s.enabled = true;
-			s.session = V.perfumeryLesson && s.lesson < 4 ? { kind: "lesson", lesson: s.lesson, stage: "compose", approach: "observe", bottleId: null } : null;
-			s.collaborations = [];
-			s.gifts = s.gifts.map(key => {
-				try {
-					return formulaKey(JSON.parse(key));
-				} catch {
-					return key;
-				}
-			});
-			delete V.perfumeryLesson;
-			s.version = 2;
-		}
-		if (s.version === 2) {
-			s.extraction = { stock: {}, profiles: [], serial: 0, practice: 0, lesson: null };
-			s.version = 3;
-		}
-		if (s.version === 3) {
-			/* Version 4 stores character reaction records without the full evaluator result. Records only matter on the day they
-			   were made, so older ones are dropped rather than rewritten. A legacy worn scent keeps its stored properties. */
-			for (const [id, last] of Object.entries(s.characters?.last || {})) if (last.day !== Time.days) delete s.characters.last[id];
-			s.version = 4;
-		}
-		if (s.version === 4) {
-			// The journal toggle is gone; a save that switched perfumery off gets it back.
-			delete s.enabled;
-			s.version = 5;
-		}
-		return s;
+		return V.perfumery;
 	}
+
 	function extract(source, method, mask, finish, serial, quick = false) {
 		const s = state();
 		const e = s.extraction;
@@ -362,7 +332,7 @@
 	}
 	function properties(bottle) {
 		const age = Math.min(bottle.formula.age, Math.max(0, (now() - bottle.made) / 86400));
-		return model().calculate(bottle.formula, bottle.blending, age, bottle.identityVersion || 1);
+		return model().calculate(bottle.formula, bottle.blending, age);
 	}
 	function bottleRecord(formula, blending, id) {
 		const p = model().calculate(formula, blending);
@@ -373,7 +343,6 @@
 			made: now(),
 			name: p.name,
 			uses: p.applications,
-			identityVersion: 2,
 			fingerprint: p.fingerprint,
 			icon: setup.perfumeryIcons.descriptor(p.fingerprint, p),
 		};
@@ -446,7 +415,6 @@
 			formula: model().copy(b.formula),
 			blending: b.blending,
 			age,
-			identityVersion: b.identityVersion || 1,
 		};
 		const p = activeProperties(s.active);
 		s.active.remaining = p.duration;
@@ -478,12 +446,10 @@
 	}
 	const activeCache = new Map();
 	function activeProperties(a) {
-		/* Saves from before version 4 stored the full calculation; they keep using it until that scent wears off. */
-		if (a.properties) return a.properties;
-		const key = JSON.stringify([a.formula, a.blending, a.age, a.identityVersion]);
+		const key = JSON.stringify([a.formula, a.blending, a.age]);
 		if (!activeCache.has(key)) {
 			if (activeCache.size >= 8) activeCache.clear();
-			activeCache.set(key, model().calculate(a.formula, a.blending, a.age, a.identityVersion));
+			activeCache.set(key, model().calculate(a.formula, a.blending, a.age));
 		}
 		return activeCache.get(key);
 	}
@@ -495,11 +461,11 @@
 		const p = activeProperties(active);
 		const d = p.development;
 		const layer = left > 0.7 ? "top" : left > 0.3 ? "heart" : "base";
-		const pleasantness = p.identityVersion === 2 ? p.phasePleasantness?.[layer] ?? p.pleasantness : p.pleasantness;
+		const pleasantness = p.phasePleasantness?.[layer] ?? p.pleasantness;
 		return {
 			...p,
 			pleasantness,
-			romance: p.identityVersion === 2 ? model().clamp(p.romance * Math.min(1.2, pleasantness / Math.max(1, p.pleasantness)), 0, 1) : p.romance,
+			romance: model().clamp(p.romance * Math.min(1.2, pleasantness / Math.max(1, p.pleasantness)), 0, 1),
 			remaining,
 			strength: d.top * left ** 3 + d.heart * Math.sin((left * Math.PI) / 2) + d.base * Math.sqrt(left),
 			phase: layer === "top" ? "opening" : layer === "heart" ? "heart" : "foundation",
@@ -524,7 +490,7 @@
 	}
 	function wildlifePreview(category, p, outside = V.outside) {
 		if (!p || !outside || !(V.settings.bestialityEnabled || V.monster === 1)) return 1;
-		const sensory = p.identityVersion === 2 ? p.descriptorStrengths : null;
+		const sensory = p.descriptorStrengths;
 		const interest =
 			category === "bear" ? p.sweet : category === "boar" ? p.animal + (sensory?.savoury || 0) * 0.4 : p.animal - (sensory?.sulfurous || 0) * 0.5;
 		return model().clamp(1 + (interest * 0.25 - p.concealment * 0.35) * p.strength, 0.7, 1.3);
@@ -540,8 +506,7 @@
 	}
 	function socialPreview(npc, p = scent()) {
 		if (!p || !["Poppy", "Robin"].includes(npc)) return { preference: 0, score: 0, eligible: false };
-		const preference =
-			npc === "Poppy" ? p.sweet * 0.4 + p.persistence * 0.6 : Math.max(0, p.fresh - (p.identityVersion === 2 ? p.descriptorStrengths?.smoky || 0 : 0) * 0.25);
+		const preference = npc === "Poppy" ? p.sweet * 0.4 + p.persistence * 0.6 : Math.max(0, p.fresh - (p.descriptorStrengths?.smoky || 0) * 0.25);
 		return {
 			preference,
 			score: p.romance * (p.strength ?? 1) * preference,
@@ -563,7 +528,6 @@
 		const quality = model().calculate(b.formula, b.blending).quality;
 		const entry = { name: String(name || b.name).slice(0, 48), formula: model().copy(b.formula), best: quality, attempts: 1, results: [Math.round(quality)] };
 		entry.blending = b.blending;
-		entry.identityVersion = b.identityVersion || 1;
 		entry.icon = setup.perfumeryIcons.forBottle(b);
 		if (previous) {
 			previous.name = entry.name;
@@ -586,15 +550,15 @@
 	}
 	function feedback(b) {
 		const p = properties(b);
-		if (p.identityVersion === 2 && p.pleasantness < 30 && p.quality > 72)
+		if (p.pleasantness < 30 && p.quality > 72)
 			return 'Poppy smells the paper again, then looks at your notes. "You made this well, but it smells awful. Was that what you wanted?"';
-		if (p.identityVersion === 2 && p.pleasantness < 25)
+		if (p.pleasantness < 25)
 			return 'Poppy coughs and moves the paper away. "That smells terrible! Put the cap back on the bottle before the whole room smells like it."';
-		if (p.identityVersion === 2 && p.extractionPurity < 0.55)
+		if (p.extractionPurity < 0.55)
 			return 'Poppy checks your notes about the ingredients. "I think the problem started when you extracted this one. Try making the extract again before changing how much you use."';
-		if (p.identityVersion === 2 && p.distinctiveness > 60 && p.quality > 65)
+		if (p.distinctiveness > 60 && p.quality > 65)
 			return 'Poppy smells the paper again. "I wouldn\'t wear this myself, but you made something interesting. How did you come up with it?"';
-		if (p.identityVersion === 2 && p.nuances.includes("gourmand") && p.pleasantness > 65)
+		if (p.nuances.includes("gourmand") && p.pleasantness > 65)
 			return 'Poppy checks the page where you compared the perfume to cookies. "You were right about the sweet smell. I thought it would cover up the flowers, but I can still smell them."';
 		return {
 			intense: 'Poppy moves the paper away from the nose. "That\'s strong! I can smell it without bringing it close. Did you want it that strong?"',
@@ -624,13 +588,7 @@
 		s.giftDay = Time.days;
 		s.gifts.push(key);
 		// At most 32 rewarded discoveries, so alternating or slightly editing formulas cannot farm forever.
-		if (
-			s.gifts.length <= 32 &&
-			p.quality > 65 &&
-			p.sweet > 0.3 &&
-			p.persistence > 0.4 &&
-			(p.identityVersion !== 2 || p.pleasantness >= 45 || (p.quality > 85 && p.distinctiveness > 65))
-		)
+		if (s.gifts.length <= 32 && p.quality > 65 && p.sweet > 0.3 && p.persistence > 0.4 && (p.pleasantness >= 45 || (p.quality > 85 && p.distinctiveness > 65)))
 			Wikifier.wikifyEval("<<npcincr Poppy love 2>>");
 		if (s.gifts.length > 32) s.gifts.shift();
 		s.bottles.splice(s.bottles.indexOf(b), 1);

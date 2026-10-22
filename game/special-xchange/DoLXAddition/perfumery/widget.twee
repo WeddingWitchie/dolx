@@ -107,12 +107,14 @@
 	<<set _avLater to setup.perfumeryCharacters.averyLater(_args[0])>>
 	<<if _avLater>>
 		<<if _args[1]>><br><br><</if>>
+		<<set _avNow to _args[0] is "hotel" ? "As you take your seat at the balcony table" : "When the food arrives">>
+		<<set _avThen to _args[0] is "hotel" ? "when I came in" : "when we sat down">>
 		<<if _avLater.worse>>
-			As you reach for your glass during dinner, Avery looks towards your wrist. <<nnpc_His "Avery">> eyes stay on it for a moment before <<nnpc_he "Avery">> speaks. "That perfume smelled better when we sat down. I expected it to last longer."
+			<<print _avNow>>, Avery looks at your wrist for a moment before <<nnpc_he "Avery">> speaks. "That perfume smelled better <<print _avThen>>. I expected it to last longer."
 		<<elseif _avLater.better>>
-			Later in the evening, Avery leans closer across the table as you lift your glass. "Your perfume smells much better now," <<nnpc_he "Avery">> says with a small smile. "I wasn't impressed when we first sat down."
+			<<print _avNow>>, Avery leans closer to you. "Your perfume smells much better now," <<nnpc_he "Avery">> says with a small smile. "I wasn't impressed <<print _avThen>>."
 		<<else>>
-			By the time you pass the salt across the table, the smell of your perfume has changed. Avery glances at your wrist as it passes nearby, but <<nnpc_he "Avery">> says nothing and goes back to dinner.
+			<<print _avNow>>, you notice that your perfume smells different from before. Avery glances at your wrist, but <<nnpc_he "Avery">> says nothing about it.
 		<</if>>
 		<br><br>
 	<</if>>
@@ -156,27 +158,6 @@
 <</widget>>
 <<widget "perfumeryLoveIcon">>
 	<<if _pm.outcome?.love gt 0>><<glove>><<elseif _pm.outcome?.love lt 0>><<llove>><</if>>
-<</widget>>
-
-<<widget "perfumeryTestPoppy">>
-	<<set _testBottle to setup.perfumeryCharacters.debug("testBottle", { preset: _args[1] })>>
-	<<run setup.perfumeryCharacters.debug("poppyPending", { id: _args[0], bottleId: _testBottle })>>
-<</widget>>
-<<widget "perfumeryTestAvery">>
-	<<run setup.perfumeryCharacters.debug("resetReactions")>>
-	<<if _args[0] is "notice">>
-		<<run setup.perfumeryCharacters.debug("testBottle", { preset: "Soft woody", wear: true })>>
-		<<set _avCtx to "mansion">>
-	<<elseif _args[0] is "offer">>
-		<<run setup.perfumeryCharacters.debug("averyStage", "noticed")>>
-		<<set _avCtx to "dinner">>
-	<<else>>
-		<<run setup.perfumeryCharacters.debug("averyStage", "active")>>
-		<<run setup.perfumeryCharacters.debug("testBottle", { preset: "Soft woody" })>>
-		<<set _avCtx to "dinner">>
-	<</if>>
-	<<perfumeryAvery _avCtx>>
-	<<if !_av>>Avery's perfume scene could not start. <<if _args[0] is "offer">>Check whether Avery's love is at least 35.<<else>>Check whether you have met Avery.<</if>><</if>>
 <</widget>>
 
 /* Each scene passage shows its opening when _pe.choice is unset, and the reply once a choice link has run. */

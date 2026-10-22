@@ -384,7 +384,7 @@
 			formula.age = Number(age.value);
 			const b = Number(blending.value);
 			if (!Number.isFinite(b) || b < 0 || b > 1) throw new Error("Craftsmanship must be 0–1.");
-			return m().calculate(formula, b, formula.age, 2, overrides);
+			return m().calculate(formula, b, formula.age, overrides);
 		}
 		function preview() {
 			const p = current();
@@ -617,7 +617,7 @@
 								actualCanVisit: a().canVisit(),
 								signatureTrust: C.npc.Poppy?.love >= 60,
 								advancedEligible: sandbox.lesson >= 4,
-								reaction: a().feedback({ formula, blending: Number(blending.value), made: V.timeStamp - formula.age * 86400, identityVersion: 2 }),
+								reaction: a().feedback({ formula, blending: Number(blending.value), made: V.timeStamp - formula.age * 86400 }),
 							},
 							null,
 							2
@@ -756,28 +756,39 @@
 	/* A Start/Stop timing bar. Stop records one score through blend(); the Continue link appears afterwards. */
 	Macro.add("perfumeryOpiumBar", {
 		handler() {
-			const wrap = $("<div class='perf-timing'>").appendTo(this.output);
-			const meter = $("<div class='perf-meter'><div class='perf-zone' style='left:40%;width:20%'></div><div class='perf-needle'></div></div>").appendTo(wrap);
+			const wrap = $("<div class='perfumery perf-timing'>").appendTo(this.output);
+			const meter = $(
+				"<div class='perf-meter' aria-hidden='true'><div class='perf-zone' style='left:40%;width:20%'>STOP</div><div class='perf-needle'></div></div>"
+			).appendTo(wrap);
 			const needle = meter.find(".perf-needle");
-			const button = $("<button class='perf-button perf-primary' type='button'>Start</button>").appendTo(wrap);
+			const button = $("<button class='perf-button perf-primary perf-blend-go' type='button'>Start blending</button>").appendTo(wrap);
+			const feedback = $("<p class='perf-timing-feedback' role='status'>Press Start, then Stop when the light marker crosses the gold band.</p>").appendTo(
+				wrap
+			);
 			let frame = 0;
 			let pos = 0;
-			let dir = 1;
-			const step = () => {
-				pos += dir * 1.6;
-				if (pos >= 100 || pos <= 0) dir = -dir;
-				needle.css("left", `${pos}%`);
+			let start = 0;
+			const speed = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0.03 : 0.096;
+			const step = now => {
+				if (!needle[0].isConnected) return;
+				pos = 100 - Math.abs(100 - (((now - start) * speed) % 200));
+				needle.css("transform", `translateX(${pos}%)`);
 				frame = requestAnimationFrame(step);
 			};
 			$(document).one(":passagestart", () => cancelAnimationFrame(frame));
 			button.on("click", () => {
 				if (!frame) {
+					start = performance.now();
+					wrap.addClass("perf-blending");
 					button.text("Stop");
+					feedback.text("Watch the marker. You can wait for another crossing.");
 					frame = requestAnimationFrame(step);
 					return;
 				}
 				cancelAnimationFrame(frame);
-				button.prop("disabled", true);
+				wrap.removeClass("perf-blending");
+				button.text("Blended").prop("disabled", true);
+				feedback.text("Blending finished. Continue below to bottle the perfume.");
 				setup.perfumeryOpium.blend(1 - Math.min(1, Math.abs(pos - 50) / 50));
 				$("#poppy-opium-next").removeAttr("hidden");
 			});

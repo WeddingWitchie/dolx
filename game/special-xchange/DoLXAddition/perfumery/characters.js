@@ -212,7 +212,7 @@
 	}
 	function evaluate(id, p, context = {}) {
 		const prof = profiles[id];
-		if (!prof || !p || p.identityVersion !== 2) return neutral(id);
+		if (!prof || !p) return neutral(id);
 		const phase = context.phase || p.phase || "opening";
 		const d = descriptorsAt(p, phase);
 		const negative = setup.perfumeryIdentity.negative;
@@ -302,7 +302,7 @@
 		if (last && last.turn === State.turns && last.ctx === ctx)
 			return { ...last.result, ctx, shown: true, choice: last.choice === "notice" ? null : last.choice, outcome: last.outcome };
 		const p = P().scent();
-		if (!p || p.identityVersion !== 2 || p.strength < 0.15 || !C.npc[id] || C.npc[id].init === 0) return null;
+		if (!p || p.strength < 0.15 || !C.npc[id] || C.npc[id].init === 0) return null;
 		if (s?.reacted?.[id] === Time.days) return null;
 		if (!profiles[id].gate()) return null;
 		const fresh = !s?.memories?.some(m => m.c === id && m.fp === p.fingerprint);
@@ -411,6 +411,7 @@
 		s.reacted[id] = Time.days;
 		s.last[id] = { turn: State.turns, day: Time.days, ctx, choice, result: slim(r), outcome };
 		if (delta.wash) P().wash();
+		if (delta.pain) Wikifier.wikifyEval(`<<pain ${clamp(delta.pain, 0, 10)}>>`);
 		return outcome;
 	}
 
@@ -430,7 +431,6 @@
 		const p = P().properties(bottle);
 		const s = V.perfumery;
 		const q = {};
-		if (p.identityVersion !== 2) return { p, q };
 		const used = sources(p);
 		const accords = new Set((p.contributions || []).filter(c => c.id.startsWith("aroma~")).map(c => M().source(c.id))).size;
 		const challenging = Object.keys(p.descriptorStrengths).some(k => setup.perfumeryIdentity.negative[k] && p.descriptorStrengths[k] > 0.15);
@@ -686,8 +686,9 @@
 		};
 		a.stage = "active";
 		a.offering = false;
-		const paid = terms === "materials" && !a.history.some(h => h.paidMaterials) ? 5000 : 0;
+		const paid = terms === "materials" && !a.history.some(h => h.paidMaterials) ? window.divineTfIncome(5000, "avery") : 0;
 		a.commission.paidMaterials = paid > 0;
+		if (paid) statChange.money(paid, "avery", { divineTfAdjusted: true });
 		return { paid };
 	}
 	function averyDecline() {
@@ -727,7 +728,17 @@
 		while (a.history.length > 4) a.history.shift();
 		a.count = Math.min(99, a.count + 1);
 		a.stage = "delivered";
-		a.last = { ...judged, framing, turn: State.turns, ctx, name: b.name, fee: c.fee, endearApplied: ctx !== "mansion" };
+		a.last = {
+			...judged,
+			framing,
+			turn: State.turns,
+			ctx,
+			name: b.name,
+			fee: c.fee,
+			endearApplied: ctx !== "mansion",
+			heart: p.phases?.heart,
+			drydown: p.phases?.drydown,
+		};
 		remember({
 			c: "Avery",
 			fp: b.fingerprint,
@@ -898,32 +909,6 @@
 			s.poppy.pending = { id: value.id, bottleId: b.id, fp: b.fingerprint, repeat: !!s.poppy.done[value.id], kind: poppyQualifies(b).q.disasterKind };
 		}
 		if (action === "resetReactions") Object.assign(s, { reacted: {}, last: {}, loveWeek: {} });
-		if (action === "kit") {
-			/* Equipment, every lesson, spirits, empty bottles and 24 measures of each preset's extracts. */
-			const v = V.perfumery;
-			P().debugAction("workstation");
-			v.lesson = Math.max(v.lesson, 4);
-			v.invited = true;
-			v.containers = Math.max(v.containers, 20);
-			for (const k of Object.keys(v.solvent)) v.solvent[k] = Math.max(v.solvent[k], 400);
-			for (const name of setup.perfumeryLab.presets)
-				for (const layer of M().layers)
-					for (const key of Object.keys(setup.perfumeryLab.preset(name)[layer]))
-						if (!v.extraction.stock[key] || v.extraction.stock[key] < 24) P().debugAction("extract", key, 24);
-		}
-		if (action === "clearTestBottles") V.perfumery.bottles = V.perfumery.bottles.filter(b => !b.name.startsWith("Test: "));
-		if (action === "testBottle") {
-			/* Test bottles replace each other so the cabinet doesn't fill up. */
-			const v = V.perfumery;
-			v.learned = true;
-			v.lesson = Math.max(v.lesson, 4);
-			v.bottles = v.bottles.filter(b => !b.name.startsWith("Test: "));
-			const b = P().debugAction("bottle", setup.perfumeryLab.preset(value.preset), 0.85);
-			b.made -= 60 * 86400;
-			b.name = "Test: " + value.preset;
-			if (value.wear) P().apply(b.id);
-			return b.id;
-		}
 		if (action === "clearMemories") Object.assign(s, { memories: [], known: {}, familiar: {} });
 	}
 
@@ -1050,7 +1035,7 @@
 						const p = props();
 						const fake =
 							owned.value === "lab"
-								? { formula: current().formula, blending: 0.7, made: V.timeStamp - 60 * 86400, identityVersion: 2 }
+								? { formula: current().formula, blending: 0.7, made: V.timeStamp - 60 * 86400 }
 								: V.perfumery.bottles.find(b => b.id === Number(owned.value));
 						const c = V.perfumery?.characters?.poppy || { done: {}, skipped: {} };
 						const q = poppyQualifies(fake).q;
@@ -1223,7 +1208,7 @@
 
 	/* What a passer-by can tell about the perfume right now, from the calculated profile and the current phase. */
 	function profile(p = P().scent()) {
-		if (!p || p.identityVersion !== 2 || p.strength < 0.15) return null;
+		if (!p || p.strength < 0.15) return null;
 		const layer = layerOf(p.phase);
 		const local = p.phaseStrengths?.[layer] || p.descriptorStrengths || {};
 		const all = p.descriptorStrengths || {};
@@ -1320,13 +1305,13 @@
 		const session = V.perfumery?.session;
 		return (V.perfumery?.bottles || []).filter(b => b.packed && b.uses > 0 && P().ready(b) && !(session?.stage === "review" && session.bottleId === b.id));
 	}
-	function price(b) {
-		const q = P().properties(b).technicalQuality;
+	function price(b, q = P().properties(b).technicalQuality) {
 		return Math.round(clamp(400 + q * 15, 800, 2400) * Math.min(1, b.uses / 10));
 	}
 	const kept = ["kind", "tone", "note", "liked", "disliked", "favourite", "familiarity", "gifted", "tooStrong", "craft", "curiosity", "enjoyment", "quality"];
 	/* Starts the event the pool picked. Sets the daily flag, chooses the scene and stores what the scene needs to show. */
 	function begin(place, force) {
+		if (!force && V.perfumeryEncounter?.place === place && !V.perfumeryEncounter.choice) return V.perfumeryEncounter;
 		if (!force && blocked(place)) return null;
 		const f = profile();
 		if (!f) return null;
@@ -1353,8 +1338,16 @@
 			e.npc = pick.id;
 			e.r = Object.fromEntries(kept.filter(k => r[k] !== undefined).map(k => [k, r[k]]));
 		}
-		const offer = carried().sort((a, b) => P().properties(b).technicalQuality - P().properties(a).technicalQuality)[0];
-		if (offer) e.bottle = { id: offer.id, name: offer.name, price: price(offer) };
+		let offer;
+		let quality = -Infinity;
+		for (const b of carried()) {
+			const q = P().properties(b).technicalQuality;
+			if (q > quality) {
+				offer = b;
+				quality = q;
+			}
+		}
+		if (offer) e.bottle = { id: offer.id, name: offer.name, price: price(offer, quality) };
 		V.perfumeryEncounter = e;
 		return e;
 	}
@@ -1373,7 +1366,7 @@
 		e.choice = choice;
 		e.out = {};
 		if (e.npc) e.out = CH().commit(e.npc, "hallway", choice, delta);
-		for (const stat of ["stress", "control", "trauma"]) if (delta[stat]) Wikifier.wikifyEval(`<<${stat} ${clamp(delta[stat], -10, 10)}>>`);
+		for (const stat of ["stress", "control", "trauma", "pain"]) if (delta[stat]) Wikifier.wikifyEval(`<<${stat} ${clamp(delta[stat], -10, 10)}>>`);
 		if (delta.sell && e.bottle) {
 			e.out.sold = removeBottle(e.bottle.id);
 			if (e.out.sold) {

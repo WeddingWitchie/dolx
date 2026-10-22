@@ -102,7 +102,7 @@
 	function contribution(id, layer, quantity, d = material(id)) {
 		return quantity * d.intensity * (layer === "top" ? 0.75 + d.volatility * 0.5 : layer === "base" ? 0.75 + d.persistence * 0.5 : 1);
 	}
-	function calculate(f, blending = 0.5, age = f.age, identityVersion = 2, overrides = {}) {
+	function calculate(f, blending = 0.5, age = f.age, overrides = {}) {
 		const cost = validate(f);
 		const s = solvents[f.solvent];
 		const totals = { sweet: 0, fresh: 0, earth: 0, human: 0, animal: 0, persistence: 0, volatility: 0 };
@@ -163,18 +163,13 @@
 			colour: `hsl(${Math.round(35 + totals.fresh * 70 - totals.sweet * 25)}, 48%, ${Math.round(42 + totals.fresh * 15)}%)`,
 			name: `${families[0][0].toUpperCase() + families[0].slice(1)} ${totals.fresh > totals.sweet ? "Murmur" : "Embrace"}`,
 		};
-		if (!setup.perfumeryIdentity) return result;
 		const identity = setup.perfumeryIdentity.analyze(f, result, blending, age, overrides);
 		return {
 			...result,
 			...identity,
-			identityVersion,
-			name: identityVersion === 1 ? result.name : identity.name,
-			romance: identityVersion === 1 ? result.romance : identity.socialAppeal,
-			attention:
-				identityVersion === 1
-					? result.attention
-					: clamp(result.intensity * (0.25 + identity.distinctiveness / 150 + (100 - identity.pleasantness) / 250), 0, 2),
+			name: identity.name,
+			romance: identity.socialAppeal,
+			attention: clamp(result.intensity * (0.25 + identity.distinctiveness / 150 + (100 - identity.pleasantness) / 250), 0, 2),
 		};
 	}
 	function blendStep(f, stage, technique) {
@@ -557,7 +552,6 @@
 				: "The impression shifts as the lighter material fades."
 		}`;
 		return {
-			identityVersion: 2,
 			simulationOnly,
 			fingerprint: fp,
 			name: generatedName,

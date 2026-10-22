@@ -210,7 +210,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 		case "orgasm":
 			resultArray.push(`"Your face is so cute when you cum."`, `"You better not stop now. I know you want another round."`);
 			if (V.masturbationAudience > 1) {
-				resultArray.push(`"Look at how much <<pshe stranger>> is shaking. Must be a pretty intense orgasm."`);
+				resultArray.push(`"Look at how much <<pshes stranger>> shaking. Must be a pretty intense orgasm."`);
 			}
 			if (V.masturbationAudience >= 3 && V.masturbationAudienceReactions >= 3) {
 				resultArray.push(`"Cum for us, you pervert. Show everyone how lewd you are."`, `"Do you enjoy cumming in front of everyone?"`);
@@ -353,7 +353,7 @@ function masturbationAudienceLineText(npc, lineType = "") {
 				`"Can I suck on those tits too?"`
 			);
 			if (V.lactating && V.settings.breastFeedingEnabled === true) {
-				resultArray.push(`"Look at how hard <<pshe stranger>> is trying to milk <<pherself stranger>>."`);
+				resultArray.push(`"Look at how hard <<pshes stranger>> trying to milk <<pherself stranger>>."`);
 			}
 			return resultArray.random();
 		case "chest":

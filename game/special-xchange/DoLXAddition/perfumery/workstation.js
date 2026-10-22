@@ -64,7 +64,7 @@
 	}
 	function forBottle(b) {
 		if (b.icon) return b.icon;
-		const p = setup.perfumeryModel.calculate(b.formula, b.blending ?? 0.5, b.formula.age, b.identityVersion || 1);
+		const p = setup.perfumeryModel.calculate(b.formula, b.blending ?? 0.5, b.formula.age);
 		return descriptor(p.fingerprint, p);
 	}
 	function render(d, label = "Perfume bottle") {
@@ -170,11 +170,11 @@
 			[Infinity, "Strong"],
 		]);
 	const hours = minutes => (minutes < 90 ? `about ${Math.round(minutes / 10) * 10} minutes` : `about ${Math.round(minutes / 30) / 2} hours`);
-	/* Workflow order. "notes" keeps its id from earlier versions; players see it as Compose. */
+	/* Workflow order. "notes" is the internal id for Compose. */
 	const stages = [
 		["prepare", "Prepare", "Turn an ingredient into an aroma"],
 		["notes", "Compose", "Place aromas in the perfume"],
-		["blend", "Blend", "Mix it, then stop the marker in the gold band"],
+		["blend", "Blend", "Blend the top, heart and base notes"],
 		["bottle", "Bottle", "Seal it and name it"],
 	];
 	/* Where the gold band sits on each blending pass. */
@@ -372,7 +372,7 @@
 		}
 		function renderCoach(c) {
 			coach.hidden = true;
-			if (!firstTime || result) return;
+			if (!firstTime || result || d.tab === "blend") return;
 			const lines = poppyHere
 				? {
 						prepare: '"First, choose a flower. You can remove parts of its scent that you don\'t want before collecting the aroma."',
@@ -398,6 +398,7 @@
 		function head(panel, id, need) {
 			const box = el("div", undefined, panel, "perf-stage-head");
 			const [, name, what] = stages.find(x => x[0] === id);
+			el("small", `Step ${stages.findIndex(x => x[0] === id) + 1} of ${stages.length}`, box, "perf-stage-number");
 			el("h3", name, box);
 			el("p", what + ".", box);
 			if (need) el("p", need, box, "perf-need");
@@ -476,19 +477,19 @@
 				caption
 			);
 			const meters = el("dl", undefined, box, "perf-meters");
-			const meter = (k, v) => {
+			const meter = (k, v, text) => {
 				const row = el("div", undefined, meters);
 				el("dt", k, row);
 				const dd = el("dd", undefined, row);
 				const track = el("span", undefined, dd, "perf-track");
 				track.setAttribute("aria-hidden", "true");
 				el("i", undefined, track).style.width = `${Math.round(clamp01(v) * 100)}%`;
-				el("b", p ? (advanced ? `${Math.round(clamp01(v) * 100)}` : meterWord(v)) : "-", dd);
+				el("b", p ? text || (advanced ? `${Math.round(clamp01(v) * 100)}%` : meterWord(v)) : "-", dd);
 			};
-			meter("Reach", p ? p.intensity / 2.6 : 0);
-			meter("Lasting", p ? p.duration / 720 : 0);
-			meter("Sweetness", p ? p.sweet : 0);
-			meter("Wildlife interest", p ? Math.max(0, p.animal) : 0);
+			meter("Reach", p ? p.intensity / 2.6 : 0, p ? (p.intensity < 0.9 ? "Soft" : p.intensity < 1.8 ? "Moderate" : "Strong") : null);
+			meter("Lasting", p ? p.duration / 720 : 0, p ? hours(p.duration) : null);
+			meter("Sweetness", p ? p.sweet : 0, p ? (p.sweet < 0.3 ? "Low" : p.sweet < 0.65 ? "Medium" : "High") : null);
+			meter("Wildlife interest", p ? Math.max(0, p.animal) : 0, p ? (p.animal < 0.3 ? "Low" : p.animal < 0.65 ? "Medium" : "High") : null);
 			return box;
 		}
 
@@ -574,7 +575,7 @@
 			el("i", undefined, share).style.width = `${total ? (count / total) * 100 : 0}%`;
 		}
 
-		/* Owned extracts, legacy raw materials, and extractable sources. Rebuilt when an aroma is collected,
+		/* Owned extracts, basic aromas, and extractable sources. Rebuilt when an aroma is collected,
 		   so a vial prepared during this visit shows up in Compose straight away. */
 		const buildCatalogue = () =>
 			station
@@ -703,7 +704,7 @@
 					label: source ? `Prepare an aroma from ${e.full}` : `Add ${e.full} to the ${d.layer} note, ${n} left`,
 				});
 				if (!source) {
-					tile.draggable = n > 0;
+					tile.draggable = n > 0 && window.matchMedia("(pointer: fine)").matches;
 					tile.disabled = n <= 0;
 				}
 				const src = iconOf(e.id);
@@ -852,14 +853,14 @@
 			const panel = panels.blend;
 			panel.replaceChildren();
 			const c = check();
-			head(panel, "blend", c.n ? "Better timing gives a better perfume. Nothing is spent until you bottle." : null);
+			head(panel, "blend", c.n ? "Press Start, then Stop inside the gold band. Repeat for each note." : null);
 			if (!c.n) {
 				const empty = el("div", undefined, panel, "perf-callout");
 				el("p", "There's nothing to blend yet.", empty);
 				button("Compose a perfume first", "tab", empty, "notes", { cls: "perf-primary" });
 				return;
 			}
-			const bench = el("div", undefined, panel, "perf-workbench perf-workbench-two");
+			const bench = el("div", undefined, panel, "perf-workbench perf-workbench-two perf-blend-bench");
 			bottleStage(bench);
 			const side = el("section", undefined, bench, "perf-blend");
 			if (!c.cost) {
@@ -867,8 +868,13 @@
 				return foot(panel, "notes", null);
 			}
 			if (c.blendDone) {
-				el("p", `Blended. Craftsmanship: ${scoreWord(blending * 100)}${advanced ? ` (${Math.round(blending * 100)}%)` : ""}.`, side, "perf-done");
+				el("h4", "Your blend is ready", side, "perf-done");
+				el("p", `Craftsmanship: ${scoreWord(blending * 100)}${advanced ? ` (${Math.round(blending * 100)}%)` : ""}.`, side);
+				const quality = el("div", undefined, side, "perf-track perf-craftsmanship");
+				quality.setAttribute("aria-hidden", "true");
+				el("i", undefined, quality).style.width = `${Math.round(blending * 100)}%`;
 				if (timing.last) el("p", timing.last, side);
+				el("p", "Continue to Bottle to check your supplies and seal the perfume. Nothing has been spent yet.", side, "perf-hint");
 				button("Blend again", "reblend", side);
 				renderLiquid(side, c);
 				return foot(panel, "notes", "bottle", "Continue to Bottle");
@@ -876,7 +882,23 @@
 			const pass = timing.scores.length;
 			const track = el("ol", undefined, side, "perf-stage-track");
 			passes.forEach(([name], i) => {
-				const li = el("li", name, track);
+				const li = el("li", undefined, track);
+				el("strong", name, li);
+				el(
+					"small",
+					i < pass
+						? timing.scores[i] >= 0.85
+							? "Perfect"
+							: timing.scores[i] >= 0.5
+							? "Close"
+							: "Missed"
+						: i === pass
+						? timing.running
+							? "Blending"
+							: "Ready"
+						: "Next",
+					li
+				);
 				if (i < pass) li.className = "perf-stage-done";
 				if (i === pass) {
 					li.className = "perf-stage-now";
@@ -884,26 +906,39 @@
 				}
 			});
 			const [passName, layer] = passes[pass];
-			el("p", `${passName} pass: ${noteCharacter(layer)}`, side, "perf-need");
+			el("h4", `${pass + 1} / ${passes.length} · ${passName} note`, side, "perf-pass-title");
+			el("p", noteCharacter(layer), side, "perf-need");
 			const bar = el("div", undefined, side, "perf-meter");
 			bar.setAttribute("aria-hidden", "true");
 			const zone = el("i", undefined, bar, "perf-zone");
 			zone.style.left = `${zones[pass] - 9}%`;
+			zone.textContent = "STOP";
 			const needle = el("b", undefined, bar, "perf-needle");
-			needle.style.left = `${timing.pos}%`;
+			needle.style.transform = `translateX(${timing.pos}%)`;
 			const row = el("div", undefined, side, "perf-steps");
 			button(timing.running ? "Stop" : pass ? "Start the next pass" : "Start blending", timing.running ? "stopBlend" : "startBlend", row, undefined, {
 				cls: "perf-primary perf-blend-go",
 			});
-			if (!timing.running) button("Quick blend (average result)", "gentle", row);
-			const feedback = el("p", timing.last || "Press Start, then press Stop when the marker is inside the gold band.", side, "perf-hint");
+			const feedback = el(
+				"p",
+				timing.running
+					? "Watch the light marker. Stop while it crosses the gold band."
+					: timing.last || "The marker moves back and forth. You can wait for another crossing.",
+				side,
+				"perf-timing-feedback"
+			);
 			feedback.setAttribute("aria-live", "polite");
+			if (!timing.running) {
+				const quick = el("div", undefined, side, "perf-quick-blend");
+				button("Quick blend", "gentle", quick);
+				el("small", "Skip the timing for an average result.", quick);
+			}
 			renderLiquid(side, c);
 			foot(panel, "notes", null);
 		}
 		function noteCharacter(l) {
 			const ids = Object.keys(d.formula[l]);
-			if (!ids.length) return "this note is empty, so any timing works.";
+			if (!ids.length) return "No aromas in this note. This pass still affects craftsmanship.";
 			const v = ids.reduce((a, id) => a + m.material(id).volatility, 0) / ids.length;
 			const p = ids.reduce((a, id) => a + m.material(id).persistence, 0) / ids.length;
 			return `${ids.map(id => label(id).title).join(", ")}, ${v > 0.6 ? "light and quick" : p > 0.6 ? "rich and lasting" : "in between"}.`;
@@ -919,7 +954,7 @@
 			const step = now => {
 				if (!timing.running || !needle.isConnected) return;
 				timing.pos = (Math.sin((now - timing.start) / period - Math.PI / 2) + 1) * 50;
-				needle.style.left = `${timing.pos}%`;
+				needle.style.transform = `translateX(${timing.pos}%)`;
 				timing.raf = requestAnimationFrame(step);
 			};
 			timing.raf = requestAnimationFrame(step);
@@ -1055,19 +1090,22 @@
 					`${b.name} · ${plural(b.uses, "use")} · ${api.ready(b) ? "ready" : `${Math.ceil((b.made + b.formula.age * 86400 - V.timeStamp) / 3600)} h maturing`}`,
 					sum
 				);
-				el("p", describe(api.properties(b)), row);
-				const rename = el("label", undefined, row, "perf-rename");
-				el("span", "Rename", rename);
-				const name = el("input", undefined, rename);
-				Object.assign(name, { value: b.name, maxLength: 48 });
-				name.dataset.rename = b.id;
-				const actions = el("div", undefined, row, "perf-steps");
-				button("Wear", "apply", actions, b.id).disabled = !api.ready(b) || b.uses < 1 || !api.enabled();
-				button("Save formula", "save", actions, b.id);
-				if (canCompose) Wikifier.createInternalLink(actions, "Perfumery Workstation", "Copy into the draft", () => load(b.formula));
-				if (typeof pocketPerfumePack === "function") button(b.packed ? "Leave it here" : `Put in your ${pocketBagName()}`, "carry", actions, b.id);
-				if (teacherPresent) button("Offer to Poppy (5 min)", "gift", actions, b.id);
-				button("Discard", "discard", actions, b.id).disabled = s.session?.stage === "review" && s.session.bottleId === b.id;
+				row.ontoggle = () => {
+					if (!row.open || row.childElementCount > 1) return;
+					el("p", describe(api.properties(b)), row);
+					const rename = el("label", undefined, row, "perf-rename");
+					el("span", "Rename", rename);
+					const name = el("input", undefined, rename);
+					Object.assign(name, { value: b.name, maxLength: 48 });
+					name.dataset.rename = b.id;
+					const actions = el("div", undefined, row, "perf-steps");
+					button("Wear", "apply", actions, b.id).disabled = !api.ready(b) || b.uses < 1 || !api.enabled();
+					button("Save formula", "save", actions, b.id);
+					if (canCompose) Wikifier.createInternalLink(actions, "Perfumery Workstation", "Copy into the draft", () => load(b.formula));
+					if (typeof pocketPerfumePack === "function") button(b.packed ? "Leave it here" : `Put in your ${pocketBagName()}`, "carry", actions, b.id);
+					if (teacherPresent) button("Offer to Poppy (5 min)", "gift", actions, b.id);
+					button("Discard", "discard", actions, b.id).disabled = s.session?.stage === "review" && s.session.bottleId === b.id;
+				};
 			}
 			el("h3", `Formulas (${s.journal.length}/32)`, journal);
 			if (!s.journal.length) el("p", "Save a bottle's formula to make it again later.", journal);
@@ -1076,28 +1114,36 @@
 				const sum = el("summary", undefined, row);
 				sum.append(setup.perfumeryIcons.render(setup.perfumeryIcons.forBottle(entry), entry.name));
 				el("span", `${entry.name} · best ${scoreWord(entry.best).toLowerCase()}`, sum);
-				el("p", api.notes(entry.formula), row);
-				el(
-					"p",
-					`${entry.formula.concentration}% aroma, ${entry.formula.solvent} spirit, ${entry.formula.capacity}-measure bottle, ${plural(
-						entry.formula.age,
-						"day"
-					)} maturing. Made ${plural(entry.attempts, "time")}.`,
-					row
-				);
-				const rename = el("label", undefined, row, "perf-rename");
-				el("span", "Rename", rename);
-				const name = el("input", undefined, rename);
-				Object.assign(name, { value: entry.name, maxLength: 48 });
-				name.dataset.journalRename = i;
-				const actions = el("div", undefined, row, "perf-steps");
-				if (canCompose) Wikifier.createInternalLink(actions, "Perfumery Workstation", "Load as draft", () => load(entry.formula));
-				button("Remove", "forget", actions, i);
+				row.ontoggle = () => {
+					if (!row.open || row.childElementCount > 1) return;
+					el("p", api.notes(entry.formula), row);
+					el(
+						"p",
+						`${entry.formula.concentration}% aroma, ${entry.formula.solvent} spirit, ${entry.formula.capacity}-measure bottle, ${plural(
+							entry.formula.age,
+							"day"
+						)} maturing. Made ${plural(entry.attempts, "time")}.`,
+						row
+					);
+					const rename = el("label", undefined, row, "perf-rename");
+					el("span", "Rename", rename);
+					const name = el("input", undefined, rename);
+					Object.assign(name, { value: entry.name, maxLength: 48 });
+					name.dataset.journalRename = i;
+					const actions = el("div", undefined, row, "perf-steps");
+					if (canCompose) Wikifier.createInternalLink(actions, "Perfumery Workstation", "Load as draft", () => load(entry.formula));
+					button("Remove", "forget", actions, i);
+				};
 			});
 		}
 
 		function renderAll() {
 			if (!station) return renderInventory();
+			if (timing.running) {
+				cancelAnimationFrame(timing.raf);
+				timing.running = false;
+				root.classList.remove("perf-blending");
+			}
 			renderProgress();
 			if (d.tab === "prepare") renderPrepare();
 			if (d.tab === "notes") renderNotes();
@@ -1293,7 +1339,7 @@
 				if (t.dataset.filter === "q") {
 					d.filters.q = t.value;
 					d.page = 0;
-					renderCards(root.querySelector(".perf-tiles"));
+					renderCards(panels.notes.querySelector(".perf-tiles"));
 				}
 				if (t.dataset.control === "concentration") {
 					d.formula.concentration = Number(t.value);
@@ -1314,7 +1360,7 @@
 					if (t.dataset.filter && t.dataset.filter !== "q") {
 						d.filters[t.dataset.filter] = t.type === "checkbox" ? t.checked : t.value;
 						d.page = 0;
-						renderCards(root.querySelector(".perf-tiles"));
+						renderCards(panels.notes.querySelector(".perf-tiles"));
 						return;
 					}
 					if (t.dataset.move) {
@@ -1424,7 +1470,12 @@
 		},
 		draft: () => draft,
 	};
-	$(document).off(":passageinit.perfumery").on(":passageinit.perfumery", dispose);
+	$(document)
+		.off(":passageinit.perfumery")
+		.on(":passageinit.perfumery", event => {
+			dispose();
+			if (event.passage.title !== "Perfumery Avery Scene") delete V.perfumeryAveryScene;
+		});
 	$(document).on(":onloadsave.perfumery", () => {
 		dispose();
 		draft = null;

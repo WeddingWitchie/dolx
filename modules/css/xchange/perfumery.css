@@ -40,7 +40,7 @@
 
 .perfumery summary {
 	cursor: pointer;
-	min-height: 36px;
+	min-height: 44px;
 	overflow-wrap: anywhere;
 }
 
@@ -67,6 +67,11 @@
 .perfumery .perf-status {
 	min-height: 1.5em;
 	margin: 6px 0;
+}
+
+.perfumery .perf-status:empty {
+	min-height: 0;
+	margin: 0;
 }
 
 .perfumery .perf-brief,
@@ -153,8 +158,16 @@
 }
 
 .perfumery .perf-stage-head {
-	padding-bottom: 6px;
+	margin-top: 12px;
+	padding-bottom: 10px;
 	border-bottom: 1px solid var(--perf-border);
+}
+
+.perfumery .perf-stage-number {
+	color: var(--perf-gold);
+	font-size: 0.8em;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
 }
 
 .perfumery .perf-stage-head h3 {
@@ -189,6 +202,13 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
+}
+
+.perfumery .perf-steps a {
+	display: inline-flex;
+	min-height: 44px;
+	align-items: center;
+	padding: 4px 8px;
 }
 
 /* Workbench: drawer, bottle and note chambers side by side, so adding an aroma visibly fills the bottle.
@@ -546,6 +566,7 @@
 .perfumery .perf-filters input[type="search"] {
 	width: 100%;
 	min-width: 0;
+	box-sizing: border-box;
 }
 
 .perfumery .perf-more-filters {
@@ -557,10 +578,11 @@
 /* Timing bar: the gold band is the target, the light marker sweeps across it. */
 .perfumery .perf-meter {
 	position: relative;
-	height: 22px;
-	margin: 10px 0;
+	height: 56px;
+	margin: 20px 0 16px;
 	overflow: hidden;
-	border-radius: 11px;
+	border: 1px solid var(--perf-border);
+	border-radius: 6px;
 	background: var(--750, #333);
 }
 
@@ -569,18 +591,87 @@
 	top: 0;
 	bottom: 0;
 	width: 18%;
+	display: grid;
+	place-items: center;
 	border-right: 2px solid var(--perf-gold);
 	border-left: 2px solid var(--perf-gold);
-	background: rgb(231 194 138 / 45%);
+	background: var(--perf-gold);
+	color: #1c2116;
+	font-style: normal;
+	font-weight: bold;
+	font-size: 0.7em;
 }
 
 .perfumery .perf-needle {
 	position: absolute;
 	top: 0;
 	bottom: 0;
-	width: 4px;
+	left: 0;
+	width: 100%;
 	margin-left: -2px;
-	background: #fff4cf;
+	border-left: 4px solid #fff;
+	pointer-events: none;
+}
+
+.perfumery .perf-needle::before {
+	position: absolute;
+	top: 0;
+	left: -5px;
+	width: 0;
+	height: 0;
+	border-top: 9px solid #fff;
+	border-right: 7px solid transparent;
+	border-left: 7px solid transparent;
+	content: "";
+}
+
+.perfumery.perf-blending .perf-needle {
+	will-change: transform;
+}
+
+.perfumery .perf-blend-bench {
+	grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+}
+
+.perfumery .perf-blend-bench .perf-blend {
+	order: -1;
+	padding: 16px;
+	border-color: var(--perf-gold);
+}
+
+.perfumery .perf-pass-title {
+	color: var(--perf-gold);
+	font-size: 1.3em;
+}
+
+.perfumery .perf-blend-go {
+	width: 100%;
+	min-height: 54px;
+	margin: 0;
+	font-size: 1.1em;
+}
+
+.perfumery .perf-timing-feedback {
+	min-height: 3em;
+	margin: 10px 0;
+}
+
+.perfumery .perf-quick-blend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 10px;
+	align-items: center;
+	padding-top: 8px;
+	border-top: 1px solid var(--perf-border);
+}
+
+.perfumery .perf-quick-blend small {
+	flex: 1 1 9em;
+}
+
+.perfumery .perf-craftsmanship {
+	height: 10px;
+	margin: 12px 0;
 }
 
 /* Liquid settings: one summary line; the radio cards only appear when opened. */
@@ -677,13 +768,29 @@
 
 .perfumery .perf-stage-track li {
 	flex: 1;
-	padding: 4px;
+	min-width: 0;
+	padding: 8px 4px;
 	border: 1px solid var(--perf-border);
 	text-align: center;
 }
 
-.perfumery .perf-stage-track .perf-stage-done::before {
-	content: "Done: ";
+.perfumery .perf-stage-track strong,
+.perfumery .perf-stage-track small {
+	display: block;
+	overflow-wrap: anywhere;
+}
+
+.perfumery .perf-stage-track small {
+	margin-top: 4px;
+	font-size: 0.75em;
+}
+
+.perfumery .perf-stage-track .perf-stage-done {
+	border-color: var(--perf-leaf);
+}
+
+.perfumery .perf-stage-track .perf-stage-done small {
+	color: var(--perf-leaf);
 }
 
 .perfumery .perf-stage-track .perf-stage-now {
@@ -815,8 +922,19 @@
 
 .perfumery .perf-facet[aria-pressed="false"] {
 	border-style: dashed;
-	opacity: 0.7;
+}
+
+.perfumery .perf-facet[aria-pressed="false"] strong {
 	text-decoration: line-through;
+}
+
+.perfumery .perf-facet-state {
+	margin-top: 6px;
+	font-size: 0.8em;
+}
+
+.perfumery .perf-facet[aria-pressed="true"] .perf-facet-state {
+	color: var(--perf-leaf);
 }
 
 .perfumery .perf-facet small {
@@ -922,7 +1040,8 @@
 
 @media (max-width: 900px) {
 	.perfumery .perf-workbench,
-	.perfumery .perf-workbench-two {
+	.perfumery .perf-workbench-two,
+	.perfumery .perf-blend-bench {
 		grid-template-columns: minmax(0, 1fr);
 	}
 
@@ -934,6 +1053,15 @@
 }
 
 @media (max-width: 520px) {
+	.perfumery .perf-tiles {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.perfumery input,
+	.perfumery select {
+		font-size: max(1em, 16px);
+	}
+
 	.perfumery .perf-stepper {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
@@ -947,7 +1075,8 @@
 	}
 
 	.perfumery .perf-stage-track {
-		font-size: 0.9em;
+		gap: 4px;
+		font-size: 0.8em;
 	}
 
 	.perfumery .perf-profile li {
