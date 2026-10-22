@@ -1,0 +1,400 @@
+:: Robin Independent Widgets [widget]
+<<widget "robinGiveMoneyConfirm">>
+	You're giving Robin <<printmoney `_giveAmount * 100`>>. Continue?
+	<br>
+	<<link [[Confirm|Robin Give Money Done]]>>
+		/* A hand-to-hand transfer, not a purchase: "robinGift" is inflation-excluded so Robin receives exactly what the player pays. */
+		<<money `-(_giveAmount * 100)` "robinGift">>
+		<<set $robinmoney += _giveAmount>>
+		<<set $robinGivenTotal += _giveAmount>>
+	<</link>>
+	<br>
+	<<link "Cancel">><<replace "#giveArea">><<robinoptions>><</replace>><</link>>
+<</widget>>
+
+/* Robin proudly shows off anything they bought for the stand on their own.
+   Set by robinStandWeeklyTick() in robin-stand.js. */
+<<widget "robinStandNotice">>
+	<<run ensureRobinStand()>>
+	<<if $robinStand.notice and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
+		"Look!" Robin says with a wide smile, pointing at the stand. "I saved enough money to buy the <<print $robinStand.notice>> myself. I think I'll be able to sell even more now."<<npcincr Robin dom 1>><<gdom>>
+		<<set $robinStand.notice to "">>
+		<br><br>
+	<</if>>
+	<<if $robinStand.fellBehind is 1 and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
+		Robin looks down at the cups instead of at you. "I couldn't pay all of Bailey's rent. Every week, I owed more money, so I finally told <<nnpc_him "Bailey">> I couldn't pay it on my own any more."
+		<<He>> swallows before looking up at you. "I'm sorry. You'll have to pay it again."<<npcincr Robin dom -2>><<ldom>>
+		<<set $robinStand.fellBehind to 0>>
+		<br><br>
+	<<elseif $robinStand.selfSufficient is 1 and $robinStand.owed gt 0 and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
+		Robin opens the box where <<he>> keeps the money and counts the coins twice. "I still owe Bailey some rent. Bailey takes that money before I can spend any of my earnings." Robin tries to smile. "I'll manage to pay it all."
+		<br><br>
+	<</if>>
+<</widget>>
+
+/* Shown when the player discusses the stand while Robin also works at the cafe. */
+<<widget "robinCafeNotice">>
+	<<run ensureRobinCafe()>>
+	<<if robinCafeEmployed()>>
+		<br><br>
+		<<if robinCafeClosed()>>
+			"The cafe is closed while they make it bigger, so for now I can only work at the stand on weekends," Robin says while wiping the counter.
+		<<else>>
+			"I work at the cafe during the week now, so I only open my stand on weekends," Robin says while wiping the counter.
+		<</if>>
+		<<if $robinCafe.lastWage gt 0>>
+			"Sam paid me <span class="gold">£<<print $robinCafe.lastWage>></span> last week. I put it with the money from the stand."
+			<<if $robinCafe.totalWage gt $robinCafe.lastWage>>
+				<<nnpc_He "Robin">> smiles. "That's <span class="gold">£<<print $robinCafe.totalWage>></span> from the cafe altogether."
+			<</if>>
+		<<elseif !robinCafeClosed()>>
+			"I don't earn much at the cafe yet, but at least I know how much money I'll get each week."
+		<</if>>
+		<br><br>
+		<span class="blue"><<if robinCafeClosed()>>Robin can't work at the cafe while it is closed</span>. The stand is still open on weekends.<<else>>Robin earns money at the cafe during the week. The stand is only open on weekends.<</if>>
+	<</if>>
+<</widget>>
+
+/* Cafe conversations the player can start at the orphanage. */
+<<widget "robinCafeOptions">>
+	<<run ensureRobinCafe()>>
+	<<if robinCafeTellAvailable()>>
+		<<cafeicon>><<link [[Tell Robin about the cafe job (0:15)|Robin Cafe Tell]]>><<pass 15>><</link>>
+		<br>
+	<<elseif robinCafeResolutionAvailable()>>
+		<<cafeicon>><<link [[Ask Robin about the cafe (0:15)|Robin Cafe Decision]]>><<pass 15>><</link>>
+		<br>
+	<</if>>
+	<<robinOutfitOptions>>
+	<<if robinCafeEmployed() and robinCafeClosed() and !$robinCafe.seen.renovation and !$robinmissing and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
+		<<cafeicon>><<link [[Discuss renovations (0:05)|Robin Cafe Renovation]]>><<pass 5>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* Offer, and the follow-up once Robin has grown into an outfit they wouldn't wear at first.
+Called from robinCafeOptions and from the cafe shift. */
+<<widget "robinOutfitOptions">>
+	<<run ensureRobinCafe()>>
+	<<if robinOutfitOfferAvailable()>>
+		<<skinicon "give">><<link [[Give <<= pocketOutfitName()>> (0:10)|Robin Outfit Offer]]>><<pass 10>><</link>>
+		<br>
+	<<elseif robinOutfitReadyToWear()>>
+		<<skinicon "give">><<link [[Ask to wear <<= $robinCafe.outfit.name>> (0:10)|Robin Outfit Wear]]>><<pass 10>><</link>>
+		<br>
+	<</if>>
+<</widget>>
+
+/* Where the three outfit outcomes send you back to, and the end of the offer scene. */
+<<widget "robinOutfitReturn">>
+	<<unset $robinOutfitPending>>
+	<<if $location is "cafe">>
+		<<link [[Next|Ocean Breeze]]>><<endevent>><</link>>
+		<br>
+	<<elseif $location is "park" or $location is "beach">>
+		<<link [[Next|Robin Stand Business]]>><<endevent>><</link>>
+		<br>
+	<<else>>
+		<<robinoptions>>
+	<</if>>
+<</widget>>
+
+/* How Robin looks behind the counter in the gift. */
+<<widget "robinOutfitLook">>
+	<<if robinOutfitWorn()>>
+		<<if $robinCafe.outfit.sexy>>
+			Robin is wearing the <<= $robinCafe.outfit.name>>. It shows more of <<his>> body than Sam's usual apron.
+		<<elseif $robinCafe.outfit.modest>>
+			Robin is wearing the <<= $robinCafe.outfit.name>>, buttoned all the way up to the neck.
+		<<else>>
+			Robin is wearing the <<= $robinCafe.outfit.name>> and has tied the apron around <<his>> waist.
+		<</if>>
+	<</if>>
+<</widget>>
+
+<!-- Robin wakes on their own schedule and rouses the player, rather than the player guessing a wake-up hour. -->
+<!-- _args[0]: "yours" if Robin climbed into your bed, "theirs" if you slept in Robin's room. -->
+<<widget "robinCompanionWake">>
+	<<set _robinWakeBed to _args[0]>>
+	<<set _robin to statusCheck("Robin")>>
+	<<endevent>>	<<npc Robin>><<person1>>
+	<<set _robinWakeRoll to random(1, 4)>>
+	<<if _robin.trauma gte 50>>
+		When you open your eyes, Robin is already awake, with <<his>> arms still around you.
+		"You stayed," <<he>> says quietly. <<He>> seems surprised to find you still beside <<him>>.
+		<<if Time.schoolDay>>
+			<<He>> looks past you at the window and sighs. "It's a school day. I suppose we should get ready."
+		<<else>>
+			"No school today," <<he>> says. <<He>> stays where <<he>> is a moment longer, then sits up.
+		<</if>>
+	<<elseif Time.schoolDay>>
+		<<switch _robinWakeRoll>>
+			<<case 1>>
+				<<He>> shakes your shoulder until you open your eyes. "Morning," <<he>> says. "It's a school day. Let's get ready."
+			<<case 2>>
+				You wake to find Robin sitting up beside you. <<His>> hair is pressed flat on one side from sleeping. "Oh good, you're awake," <<he>> says. "I didn't want to leave without telling you. We've got school today."
+			<<case 3>>
+				<<He>> yawns against your shoulder, then stops moving. "Wait. What day is it?" A moment later, <<he>> remembers. "School. We've got school. Come on, get up."
+			<<default>>
+				<<He>> gently pokes your cheek with one finger until you open your eyes a little. "Morning! Come on, we'll be late," <<he>> says, pulling the covers away.
+		<</switch>>
+	<<else>>
+		<<switch _robinWakeRoll>>
+			<<case 1>>
+				<<He>> stretches beside you and yawns. "Morning," <<he>> says. "No school today. We can take our time."
+			<<case 2>>
+				You wake to find Robin looking at you. "Your nose moves a little when you sleep," <<he>> says, smiling. When <<he>> sees you're awake, <<his>> cheeks turn red. "Sorry. Morning."
+			<<case 3>>
+				Robin rolls over and looks at you with <<his>> eyes only half open. "Is it morning?" <<he>> asks. It is, but <<he>> stays in bed a little longer.
+			<<default>>
+				<<He>> moves <<his>> legs away from yours and sits up. "Morning," <<he>> says. "I'll see what's left for breakfast. Do you want me to bring you something?"
+		<</switch>>
+	<</if>>
+	<br><br>
+	<<if $robinromance is 1 and _robin.trauma lt 50>>
+		<<He>> leans over and kisses your forehead, then sits on the edge of the bed and puts <<his>> feet on the floor.
+	<</if>>
+	<<if _robinWakeBed is "theirs">>
+		<<He>> walks over to <<his>> wardrobe and looks through <<his>> clothes, choosing what to wear. Your own clothes are still in your room.
+	<<else>>
+		<<He>> collects <<his>> things and gets ready to go quietly back to <<his>> own room, hoping nobody notices <<he>> slept in yours.
+	<</if>>
+	<br><br>
+	<<if Time.hour is 6>><<run setRobinLocationOverride("orphanage", 6)>><</if>>
+	<<if _robinWakeBed is "theirs">>
+		<<set $phase to 1>>
+		<<endevent "phaseless">>
+		<<bedicon "zzz">><<link [[Pull the covers back|Robin Bed]]>><</link>>
+		<br>
+		<<if $renttime lte 0>>
+			<<set $bus to "home">><<set $inRobinsRoom to true>>
+			<<getouticon>><<link [[Get up with Robin|Bedroom Bailey]]>><<set $wardrobe_location to "wardrobe">><<set $wear_outfit to "clotheson">><</link>>
+		<<else>>
+			<<getouticon>><<link [[Get up with Robin|Robin Room Wake]]>><<set $wardrobe_location to "wardrobe">><<set $wear_outfit to "clotheson">><</link>>
+		<</if>>
+	<<else>>
+		<<set $phase to 0>>
+		<<endevent>>
+		<<bedicon "zzz">><<link [[Pull the covers back over yourself|Bed]]>><<set $robinbed to "yours">><<set $bedGuest to "Robin">><</link>>
+		<br>
+		<<if $renttime lte 0>>
+			<<set $bus to "home">>
+			<<getouticon>><<link [[Get up with Robin|Bedroom Bailey]]>><<unset $robinbed>><<unset $bedGuest>><<set $wear_outfit to "clotheson">><</link>>
+		<<else>>
+			<!-- Robin heading off is already narrated above, so clear the flag Bedroom would repeat it from. -->
+			<<getouticon>><<link [[Get up with Robin|Bedroom]]>><<unset $robinbed>><<unset $bedGuest>><<set $wear_outfit to "clotheson">><</link>>
+		<</if>>
+	<</if>>
+	<br>
+<</widget>>
+
+<<widget "robinStandOptions">>
+	<<if _args[0] is "park">>
+		<<robinChocolateOfferHelp>>
+	<<else>>
+		<<lemonade_stand_options>>
+	<</if>>
+<</widget>>
+
+<<widget "robinStandLocation">>
+	<<if _args[0] is "park">>
+		<<set $outside to 0>><<set $location to "park">>
+	<<else>>
+		<<location "beach">>
+	<</if>>
+<</widget>>
+
+<<widget "robinStandDrink">><<if _args[0] is "park">>hot chocolate<<else>>lemonade<</if>><</widget>>
+
+<<widget "robinStandQuietEvent">>
+	<<set $_venue to _args[0]>>
+	<<run ensureRobinStand()>>
+	<<set $_quietPool to ["regular", "till", "child", "future"]>>
+	<<if $robinStand.nudeRounds gte 1 and !$daily.robin.standRecognised>>
+		<<run $_quietPool.push("recognised")>>
+	<</if>>
+	<<if $balloonStand.open is true and $_venue is "beach">>
+		<<run $_quietPool.push("rival")>>
+	<</if>>
+	<<if $_venue is "park">>
+		<<run $_quietPool.push("cold")>>
+	<<else>>
+		<<run $_quietPool.push("heat")>>
+	<</if>>
+	<<switch $_quietPool.random()>>
+		<<case "regular">>
+			<<generate2>><<person2>>
+			A <<person>> comes up to the stand and puts down exactly enough money for a drink without ordering anything. Robin recognises <<him>> and starts making the drink before <<he>> reaches the counter.
+			<br><br>
+			"That <<personsimple>> comes here every Saturday," <<person1>>Robin says after <<person2>><<he>> leaves. <<person1>>"Always the same drink, and I still don't know <<person2>><<his>> name." <<person1>><<He>> smiles as <<he>> wipes the counter.
+			<<endevent>><<npc Robin>><<person1>>
+		<<case "till">>
+			Robin opens the box where <<he>> keeps the money and counts the coins twice, quietly saying each amount as <<he>> adds them together. Then <<he>> writes the total on the inside of <<his>> wrist so <<he>> won't forget it.
+			<br><br>
+			<<set $_wish to robinStandAvailablePurchases()>>
+			<<if $_wish.length and $robinmoney lt $_wish[0].cost>>
+				"I need another £<<print Math.max($_wish[0].cost - Math.max($robinmoney, 0), 0)>>," <<he>> says, checking the number on <<his>> wrist. "Then I'll have enough to buy the <<print $_wish[0].name>>."
+			<<elseif $_wish.length>>
+				"I finally have enough money for the <<print $_wish[0].name>>," <<he>> says. <<He>> checks the number on <<his>> wrist one more time before closing the money box.
+			<<else>>
+				"I keep counting it," <<he>> admits. "I don't have anything left to save for. I'm not used to that."
+			<</if>>
+		<<case "child">>
+			<<generatey2>><<person2>>
+			A <<person>> stands on <<his>> toes to see over the counter and places some coins in front of Robin. Robin counts them, but there isn't enough money for a drink. The child looks down, disappointed.
+			<br><br>
+			Robin gives the coins back and fills a cup anyway, placing it in front of <<him>>. <<person1>>"Staff discount," <<he>> says with a serious face. "You're staff now."
+			<<npcincr Robin dom 1>><<gdom>><<ltrauma>><<trauma -2>>
+			<<endevent>><<npc Robin>><<person1>>
+		<<case "future">>
+			<<if $robinStand.selfSufficient is 1>>
+				"I keep worrying I won't earn enough to pay everything," Robin says, looking towards the <<print $_venue is "park" ? "path" : "water">>. "But so far, I've managed to pay what I need to."
+			<<elseif $robinpaid is 1>>
+				"When I've finished paying Bailey, I'd like to open a second stand," Robin says. "Then we'd have two. You could run one." <<He>> looks down at the counter. "Sorry. I shouldn't make plans for you without asking."
+			<<else>>
+				"Every time someone buys a drink, I can put a little more money towards what I owe," Robin says, tapping the money box with one finger. "It's taking a long time, but I owe less than I did before."
+			<</if>>
+			<<lstress>><<stress -3>>
+		<<case "recognised">>
+			<<set $daily.robin.standRecognised to 1>>
+			<<generate2>><<person2>>
+			A <<person>> buys a <<robinStandDrink $_venue>>, but doesn't leave right away. <<He>> keeps looking at you instead of drinking. "It <i>is</i> you," <<he>> says. "My mate said you'd be here."
+			<br><br>
+			<<He>> buys another cup and looks at you once more before finally leaving.
+			<<famebusiness 2>><<fameexhibitionism 2>>
+			<<set $robinmoney += 3>>
+			<br><br>
+			<<person1>>Robin watches <<person2>><<him>> walk away from the stand and join the other people nearby. <<person1>>"That customer bought a second drink just to keep looking at you," <<he>> says. "I don't think they cared about the drink. I don't know how I feel about that."
+			<<endevent>><<npc Robin>><<person1>>
+		<<case "rival">>
+			Robin looks over at the nearby popcorn stall, then quickly turns back to <<his>> own counter.
+			<br><br>
+			<<if $balloonStand.robin.status is "helped">>
+				"The popcorn seller told three people about my stand this morning," <<he>> says. "I told two of my customers about the popcorn stall too. I think that's how we're supposed to help each other."
+			<<elseif $balloonStand.robin.status is "sabotaged">>
+				"The popcorn seller won't even look at me any more," <<he>> says quietly. "I don't know what I did wrong."
+			<<else>>
+				"I should go over and introduce myself to the popcorn <<personsimple>> one day," <<he>> says. "We're the only two selling things out here when it rains."
+			<</if>>
+		<<case "heat">>
+			It gets hotter as the afternoon goes on, and customers keep coming. Robin uses the last of the ice, then runs out of clean cups. <<He>> starts washing the used ones in a bucket so <<he>> can keep selling drinks.
+			<br><br>
+			"Best day I've had," <<he>> says, wiping sweat from <<his>> forehead with <<his>> sleeve. "I hate it. It's the best day I've had."
+			<<set $robinmoney += 8>>
+		<<case "cold">>
+			As the afternoon gets colder, people walk quickly along the path with their hands in their pockets. Some notice the smell of hot chocolate, stop for a moment, and come over to buy a cup.
+			<br><br>
+			Between customers, Robin holds the warm handle of the large spoon <<he>> uses to serve the hot chocolate with both hands. "My hands are freezing," <<he>> says, smiling as <<he>> points towards the money box. "Look how much we've sold."
+			<<set $robinmoney += 8>>
+	<</switch>>
+	<br><br>
+<</widget>>
+
+<<widget "robinStandCompanyEvent">>
+	<<set $_venue to _args[0]>>
+	<<if $pleasure gte $pleasuremax>>
+		<<if $_venue is "park">>
+			You try to answer, but you can no longer form the words.
+		<<else>>
+			You hear Robin speaking, but cannot follow what <<he>> is saying.
+		<</if>>
+		<<orgasm>>
+		Robin quickly turns towards the cups, but <<his>> cheeks redden and <<he>> keeps <<his>> eyes on the counter.<<npcincr Robin lust 1>>
+		<br><br>
+	<</if>>
+	<<set $_roll to random(1, 100)>>
+	<<if $_roll lte 25 and !$daily.robin.standHaggle>>
+		<<robinStandHaggleIntro $_venue>>
+	<<elseif $_roll lte 45 and !$daily.robin.standSpill>>
+		<<robinStandSpillIntro $_venue>>
+	<<elseif $_roll lte 80>>
+		<<robinStandQuietEvent $_venue>>
+		Robin finishes serving the next customer before turning back to you. "Thank you for staying with me," <<he>> says.
+		<br><br>
+		<<robinStandOptions $_venue>>
+	<<else>>
+		After serving another customer, Robin rests <<his>> hands on the counter and looks at you. "Thank you for staying with me," <<he>> says.
+		<br><br>
+		<<robinStandOptions $_venue>>
+	<</if>>
+<</widget>>
+
+<<widget "robinStandHaggleIntro">>
+	<<set $daily.robin.standHaggle to 1>>
+	<<set $robinStandVenue to _args[0]>>
+	<<generate2>><<person2>>
+	A <<person>> finishes <<his>> drink at the counter, then holds the empty cup out towards Robin.
+	<<if _args[0] is "park">>
+		"Fill it up again. Half the cup was just foam."
+	<<else>>
+		"Fill it up again. It was mostly ice."
+	<</if>>
+	<br><br>
+	<<person1>>"Oh—! Um..." Robin looks at the empty cup and then at the customers waiting in line behind <<person2>><<him>>. "It's <<print _args[0] is "park" ? "two pounds" : "a pound">> a cup. I'm sorry."
+	<br><br>
+	"For <i>that</i>?" The <<person2>><<person>> keeps holding the empty cup out, waiting for Robin to fill it again. Someone farther back in the line sighs and leaves without buying anything.
+	<br><br>
+	<<if displayDefiantOption(300)>>
+		<<link [[Tell price is final|Robin Stand Haggle Firm]]>><<wolfDefiant 300>><<def 1>><</link>><<defianttext 300>>
+		<br>
+	<</if>>
+	<<if hasSexStat("promiscuity", 1)>>
+		<<link [[Charm <<him>>|Robin Stand Haggle Charm]]>><</link>><<promiscuous1>>
+		<br>
+	<</if>>
+	<<link [[Let Robin decide|Robin Stand Haggle Robin]]>><</link>>
+	<br>
+<</widget>>
+
+<<widget "robinStandSpillIntro">>
+	<<set $daily.robin.standSpill to 1>>
+	<<set $robinStandVenue to _args[0]>>
+	<<if _args[0] is "park">>
+		Robin tries to lift the pot of hot chocolate, but it slips from <<his>> hands and falls onto its side. Most of the hot chocolate spills over the counter and onto the floor before <<he>> can pick up the pot and set it upright again.
+	<<else>>
+		Robin reaches across the counter and accidentally hits the lemonade jug with <<his>> arm. The jug falls over, spilling most of the lemonade into the sand. The last slices of lemon fall out too.
+	<</if>>
+	<br><br>
+	Robin looks at the spilled drinks and then at the customers waiting in front of the stand. "That was... that was nearly everything I had left to sell today," <<he>> says. When the people at the front see there is almost nothing left to buy, they start leaving the line.
+	<br><br>
+	<<if setup.inflation.canAfford(1500, "robin")>>
+		<<link [[Buy supplies (<<printprice 1500>>)|Robin Stand Spill Buy]]>><<money -1500 "robin">><<pass 15>><</link>>
+		<br>
+	<</if>>
+	<<link [[Help make drinks (0:30)|Robin Stand Spill Help]]>><<pass 30>><</link>>
+	<br>
+	<<link [[Tell to sell leftovers|Robin Stand Spill Sell]]>><</link>>
+	<br>
+<</widget>>
+
+<<widget "robinStandBusinessBeat">>
+	<<run ensureRobinStand()>>
+	<<set $_beatPool to ["queue"]>>
+	<<if $robinStand.named>><<run $_beatPool.push("named")>><</if>>
+	<<if $robinStand.nudeRounds gte 3>><<run $_beatPool.push("reputation")>><</if>>
+	<<if $robinStand.tier gte 3>><<run $_beatPool.push("fixture")>><</if>>
+	<<if $robinStand.skill gte 600>><<run $_beatPool.push("practised")>><</if>>
+	<<if $robinStand.selfSufficient isnot 1 and $robinpaid isnot 1>><<run $_beatPool.push("owing")>><</if>>
+	<<switch $_beatPool.random()>>
+		<<case "named">>
+			A customer asks for "the usual" and calls the stand by its name. Robin starts making the drink right away, then stops for a moment when <<he>> realises the customer knows the stand's name.
+		<<case "reputation">>
+			Two people waiting in line keep looking at you instead of reading the menu. Robin notices, but keeps making their drinks while they are still telling <<him>> what they want.
+		<<case "fixture">>
+			A <<personsimple>> asks Robin what time the stand will open tomorrow. Robin pauses to think before answering. After the customer leaves, <<he>> looks at you. "People are asking when to come back now. I have regular opening times."
+		<<case "practised">>
+			Robin listens to a customer's order, makes the drink, and takes the payment. <<He>> quickly counts out the money the customer should get back and hands it over, without having to stop and check each coin.
+		<<case "owing">>
+			Whenever a customer pays, Robin puts some of the money into a second box. <<He>> is saving that money to pay what <<he>> still owes Bailey.
+		<<default>>
+			Customers keep arriving while you talk. Robin serves them and answers you whenever <<he>> has a moment, without making anyone wait. <<He>> used to have trouble doing both things at once when the stand first opened.
+	<</switch>>
+	<br><br>
+<</widget>>
+
+<<widget "robinStandNudeLink">>
+	<<if robinStandNudeEligible()>>
+		<<skinicon "strip">><<link [[Advertise naked (0:20)|Robin Stand Nude Start]]>><<run robinStandNudeStart(_args[0])>><<pass 20>><</link>><<exhibitionist5>><<promiscuous2>><<crime "exposure">>
+		<br>
+	<</if>>
+<</widget>>
