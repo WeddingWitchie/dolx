@@ -49,7 +49,7 @@
 		<<elseif $whitney_toilet is 1 and C.npc.Whitney.state is "active" and $rng gte 51 and $daily.whitney.toiletCheck isnot 1>>
 			<<set $daily.whitney.toiletCheck to 1>>
 			<!-- Migration guard for saves made before the assigned toilet was persisted. Lock in the long-standing "opposite of current body" rule once, deterministically, so enforcement never re-rolls per visit. -->
-			<<if $whitney_toilet_gender is undefined>><<set $whitney_toilet_gender to (playerBodyIsMale() ? "girls" : "boys")>><</if>>
+			<<if $whitney_toilet_gender is undefined>><<set $whitney_toilet_gender to (($settings.nudeGenderPerception is 0 ? perceivedGenderBinary() is "m" : playerBodyIsMale()) ? "girls" : "boys")>><</if>>
 			<!-- Whitney's own toilet, used only to decide whether she turns up in person or sends friends. -->
 			<<set _whitneyRoom to (C.npc.Whitney.pronoun is "m" ? "boys" : "girls")>>
 			<<set _roomIsWhitneys to $changingRoomGender is _whitneyRoom>>
@@ -1069,11 +1069,11 @@
 
 				<<if $submissive gte 1900>>
 					<<if hasSexStat("promiscuity", 4) and _catcallType is "breasts">>
-						<<link [[Submit willingly|Hallways Slime Breasts Obey]]>><<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>><</link>>
+						<<link [[Submit willingly|Hallways Slime Breasts Submit willingly]]>><<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>><</link>>
 						<<promiscuous4>><<ggcorruption>><<llpain>><<llltrauma>><<llstress>><<submissivetext>>
 						<br>
 					<<elseif hasSexStat("promiscuity", 5) and _catcallType is "general">>
-						<<link [[Submit willingly|Hallways Slime Strip Obey]]>><<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>><</link>>
+						<<link [[Submit willingly|Hallways Slime Strip Submit willingly]]>><<corruption 3>><<pain -8>><<stress -12>><<trauma -24>><<sub 2>><</link>>
 						<<promiscuous5>><<ggcorruption>><<llpain>><<llltrauma>><<llstress>><<submissivetext>>
 						<br>
 					<</if>>
@@ -3522,6 +3522,9 @@
 			<<set _hasPenis to $player.penisExist ? true : false>>
 			<<set _hasVagina to $player.vaginaExist ? true : false>>
 			<<set _isHerm to _hasPenis and _hasVagina>>
+			<!-- Nude Gender Appearance "ignore": Whitney only judges by how you present, so genitals (pill-changed or not) never decide the rule or show up in her lines. -->
+			<<set _ignoreGenitals to $settings.nudeGenderPerception is 0>>
+			<<if _ignoreGenitals>><<set _hasPenis to false>><<set _hasVagina to false>><<set _isHerm to false>><</if>>
 			<<set _whitneyKnowsPill to $xchange.known.includes("Whitney")>>
 			<<set _playerIsXChanged to playerIsXChanged()>>
 			<<set _whitneyDiscoversXChangeHere to _playerIsXChanged and !_whitneyKnowsPill and $genderknown.includes("Whitney") and $xchange.expectedGenderBy.Whitney isnot undefined and $xchange.expectedGenderBy.Whitney isnot $player.sex>>
@@ -3547,8 +3550,8 @@
 				<<set _whitneyKnowsPill to true>>
 				<br><br>
 			<</if>>
-			<!-- Use the player's current body sex, pill included, so Whitney always assigns the opposite toilets rather than sometimes making a rule out of the ones the player already uses. -->
-			<<set _toiletAppearance to playerBodyIsMale() ? "m" : "f">>
+			<!-- Use the player's current body sex, pill included (or how they present, under the "ignore genitals" setting), so Whitney always assigns the opposite toilets rather than sometimes making a rule out of the ones the player already uses. -->
+			<<set _toiletAppearance to _ignoreGenitals ? perceivedGenderBinary() : (playerBodyIsMale() ? "m" : "f")>>
 			<!-- Persist the toilet Whitney assigns so the recurring toilet check enforces exactly what she says here. -->
 			<<set $whitney_toilet_gender to (_toiletAppearance is "m" ? "girls" : "boys")>>
 			<<if _toiletAppearance is _whitney.pronoun>>
@@ -3557,9 +3560,9 @@
 				<<if _whitneyPossessiveToilet>>
 					<<if _whitneyKnowsPill and _isHerm>>
 						"New rule," <<he>> says, fingers tightening on your shoulder. "I know what X-Change left you with, and I do not care which door you think makes sense. You use the <<print (_toiletAppearance is "m" ? "girls' toilets" : "boys' toilets")>> from now on, where I can pull you out whenever I want."
-					<<elseif _whitneyKnowsPill and playerBodyIsMale() and _hasVagina>>
+					<<elseif _whitneyKnowsPill and _toiletAppearance is "m" and _hasVagina>>
 						"New rule," <<he>> says, giving you a slow look over. "You still look like a boy, but I know what X-Change did to you. You use the <<print (_toiletAppearance is "m" ? "girls' toilets" : "boys' toilets")>> from now on. I want you close, not hiding behind the door everyone expects."
-					<<elseif _whitneyKnowsPill and !playerBodyIsMale() and _hasPenis>>
+					<<elseif _whitneyKnowsPill and _toiletAppearance isnot "m" and _hasPenis>>
 						"New rule," <<he>> says, grin sharpening. "You look like a girl now, but I know what X-Change left under your clothes. You use the <<print (_toiletAppearance is "m" ? "girls' toilets" : "boys' toilets")>> from now on. Close enough for me to find you when I feel like it."
 					<<elseif _whitneyKnowsPill>>
 						"New rule," <<he>> says. "X-Change or not, you are still mine. You use the <<print (_toiletAppearance is "m" ? "girls' toilets" : "boys' toilets")>> from now on, because I want you nearby where I can keep an eye on you."
@@ -3568,11 +3571,11 @@
 					<</if>>
 				<<elseif _whitneyKnowsPill and _isHerm>>
 					"A new rule, slut," <<he>> says. "X-Change left you with both, so don't act like that means you get to choose. You're using the <<print (_toiletAppearance is "m" ? "girls' toilets" : "boys' toilets")>> from now on."
-				<<elseif _whitneyKnowsPill and playerBodyIsMale() and _hasVagina>>
+				<<elseif _whitneyKnowsPill and _toiletAppearance is "m" and _hasVagina>>
 					"A new rule, slut," <<he>> says. "You still look like a boy, but X-Change left you with a pussy. Don't pretend the old rules still fit. You're using the girls' toilets from now on."
-				<<elseif _whitneyKnowsPill and !playerBodyIsMale() and _hasPenis>>
+				<<elseif _whitneyKnowsPill and _toiletAppearance isnot "m" and _hasPenis>>
 					"A new rule, slut," <<he>> says. "You look like a girl, but I know what X-Change left between your legs. Don't think that gets you a choice. You're using the boys' toilets from now on."
-				<<elseif _whitneyKnowsPill and playerBodyIsMale()>>
+				<<elseif _whitneyKnowsPill and _toiletAppearance is "m">>
 					"A new rule, slut," <<he>> says. "Still trying to use the boys' toilets after playing with X-Change? No. You're using the girls' toilets from now on."
 				<<elseif _whitneyKnowsPill>>
 					"A new rule, slut," <<he>> says. "X-Change made this easy for me. You don't get to use the girls' toilets with me anymore. You're using the boys' toilets from now on."
@@ -3587,15 +3590,15 @@
 				<<if _whitneyPossessiveToilet>>
 					<<if _whitneyKnowsPill and _isHerm>>
 						"New rule," <<he>> says. "I know what X-Change did to you, and I don't care which sign anyone thinks you belong under. You're mine, so you're using the <<nnpc_gendery "Whitney">>s' toilets from now on. I want you close enough to find when I feel like it."
-					<<elseif _whitneyKnowsPill and playerBodyIsMale() and _hasVagina>>
+					<<elseif _whitneyKnowsPill and _toiletAppearance is "m" and _hasVagina>>
 						"New rule," <<he>> says. "You still look like a boy, and X-Change gave you a pussy. Good. That means you're using the <<nnpc_gendery "Whitney">>s' toilets from now on, where I can keep an eye on you."
-					<<elseif _whitneyKnowsPill and !playerBodyIsMale() and _hasPenis>>
+					<<elseif _whitneyKnowsPill and _toiletAppearance isnot "m" and _hasPenis>>
 						"New rule," <<he>> says. "X-Change may have made you look like a girl, but I know what's under your clothes. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, because I want you nearby."
 					<<elseif _whitneyKnowsPill>>
 						"New rule," <<he>> says. "X-Change or not, you're mine. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, because I want you nearby when I feel like grabbing you."
 					<<elseif _isHerm>>
 						"New rule," <<he>> says. "Since your body's got both, I get to pick for you. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, close enough for me to find you."
-					<<elseif playerBodyIsMale()>>
+					<<elseif _toiletAppearance is "m">>
 						"New rule," <<he>> says. "You may look like a boy, but you're still mine. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, where I can keep you nearby."
 					<<else>>
 						"New rule," <<he>> says. "You may look like a girl, but you're still mine. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, where I can keep you nearby."
@@ -3603,18 +3606,18 @@
 				<<elseif _whitneyKnowsPill>>
 					<<if _isHerm>>
 						"A new rule, slut," <<he>> says. "X-Change left you with both, so don't act like that gives you a choice. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, regardless of which one you used before."
-					<<elseif playerBodyIsMale() and _hasVagina>>
+					<<elseif _toiletAppearance is "m" and _hasVagina>>
 						"A new rule, slut," <<he>> says. "You still look like a boy, but X-Change left you with a pussy. You're not hiding behind the old rules anymore. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on."
-					<<elseif !playerBodyIsMale() and _hasPenis>>
+					<<elseif _toiletAppearance isnot "m" and _hasPenis>>
 						"A new rule, slut," <<he>> says. "You look like a girl, but I know what X-Change left between your legs. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, whether you like it or not."
-					<<elseif playerBodyIsMale()>>
+					<<elseif _toiletAppearance is "m">>
 						"A new rule, slut," <<he>> says. "Still walking around like a boy after messing with X-Change? Cute. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on."
 					<<else>>
 						"A new rule, slut," <<he>> says. "X-Change made this easy. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on, regardless of which one you used before."
 					<</if>>
 				<<elseif _isHerm>>
 					"A new rule, slut," <<he>> says. "Since your body's got both, I get to pick for you. You're using the <<nnpc_gendery "Whitney">>s' toilets from now on."
-				<<elseif playerBodyIsMale()>>
+				<<elseif _toiletAppearance is "m">>
 					"A new rule, slut," <<he>> says. "You may look like a boy, but you're using the <<nnpc_gendery "Whitney">>s' toilets from now on, regardless of which one you used before."
 				<<else>>
 					"A new rule, slut," <<he>> says. "You may look like a girl, but you're using the <<nnpc_gendery "Whitney">>s' toilets from now on, regardless of which one you used before."
@@ -3953,87 +3956,6 @@
 		<<else>>
 			<<set $bullyevent to 3>>
 		<</if>>
-
-	<<elseif $bullyevent is 17>> /* Parasite */
-		<<set $bullyevent += 1>>
-		/* parasite bully event */
-		<<if $settings.parasitesEnabled>>
-			<<generatey2>><<person1>>
-			A pair of hands grab you from behind. Alarmed, you turn to face Whitney and <<his>> friends. "Hey, slut," <<he>> says. <<Hes>> hiding something behind <<his>> back. "I brought you a little present. I think you'll like it." <<He>> reveals a small bag. You watch in confusion as <<he>> gropes inside the bag for this thing with a weird mixture of amusement and revulsion on <<his>> face, adding to your apprehension. Eventually <<he>> manages to get a grip on whatever it is <<hes>> fishing around in there for and removes it from the bag. It's a parasite.
-			<br><br>
-			Your skin crawls at the sight, and a <<print hasSexStat("deviancy", 5) ? (["lewd", "delightfully <<EZdisgusting>>"].pluck()) : "<<EZdisgusting>>">> thought comes to mind. <<Hes>> not going to do what you think <<he>> is with that, is <<he>>?
-			<<if hasSexStat("deviancy", 5)>><<arousal 20>><<garousal>><<else>><<stress 20>><<gstress>><</if>>
-			<br><br>
-
-			<<link [[Let it happen|Bully Parasite]]>><<set $phase to 0>><<npcincr Whitney dom 1>><<sub 1>><</link>><<gdom>>
-			<br>
-			<<link [[Try to escape|Bully Parasite]]>><<set $phase to 1>><<npcincr Whitney dom -1>><</link>><<physiquedifficulty 1 $physiquemax>><<ldom>>
-		<<else>>
-			You see Whitney and <<his>> friends walking in your direction, talking amongst themselves. Whitney appears absorbed in the conversation and doesn't even seem to notice you.
-			<br><br>
-
-			<<if $player.breastsize gte 4>>
-				As <<he>> passes you, Whitney raises a hand up to your chest and palms one of your <<breasts>> without a glance in your direction.
-				<<stress 3>><<gstress>><<arousal 20 "breasts">><<garousal>>
-			<<else>>
-				<<He>> passes you without a glance, and then you feel a sharp spank to your ass.
-				<<pain 3>><<gpain>><<arousal 20 "bottom">><<garousal>>
-			<</if>>
-			<<npcincr Whitney lust 5>><<glust>>
-			<br><br>
-
-			<<link [[Next|Hallways]]>><<endevent>><<set $eventskip to 1>><</link>>
-			<br>
-		<</if>>
-
-	<<elseif $bullyevent is 18 and C.npc.Robin.init is 1 and getRobinLocation() is "school" and $robinmissing is 0>>/* Robin Pantsed*/
-		<<set $bullyevent += 1>>
-		<<endevent>><<npc "Robin">><<person1>>
-		<<set _lower to C.npc.Robin.clothes.lower.name>>
-
-		You enter the hallway to the hustle and bustle of the school. As you turn a corner, you spot Whitney standing behind Robin. Before you can do anything, Whitney pulls Robin's _lower down, flashing <<his>> underwear to everyone nearby. <<gstress>><<garousal>><<stress 6>><<arousal 600>>
-		<br><br>
-
-		<<if C.npc.Robin.trauma lte 30>>
-			Robin is stunned for a moment, <<his>> face bright red and on the verge of tears. Whitney and <<nnpc_his "Whitney">> friends burst out laughing and walk away, high-fiving each other.
-
-		<<else>>
-			<<His>> eyes begin to well up with tears. <<He>> begins to sob loudly, <<his>> face turning bright red.<<gstress>><<lldom>><<ggrtrauma>><<stress 6>><<npcincr "Robin" trauma 2>><<npcincr "Robin" dom -2>>
-			<br><br>
-
-			Whitney and <<nnpc_his "Whitney">> friends look shocked and back away from Robin. They dash down the hall before a teacher can catch wind of the commotion and investigate.
-
-		<</if>>
-		<br><br>
-
-		<<link [[Comfort (0:05)|Bully Pantsing Robin]]>><<npcincr "Robin" trauma -2>><<pass 5>><</link>><<llrtrauma>>
-		<br>
-		<<link [[Ignore|Hallways]]>><<endevent>><<set $eventskip to 1>><<stress 6>><</link>><<gstress>>
-
-	/* [18, 19].includes($bullyevent) and [18, 19, 20].includes($bullyevent) is a temp fix for this event being skipped in cases of Robin being missing, both event 18 and 19 need an alternative for when the event can't be run. The code can then be adjusted to fit with previous checks */
-	<<elseif [18, 19].includes($bullyevent) and C.npc.Whitney.dom gte 18 and ($settings.watersportsEnabled or $pillory.tenant.special.name isnot "Leighton")>>/* Watersports*/
-		<<set $bullyevent to 20>>
-
-		You're walking down the hallway when someone <<= $worn.neck.type.includes("leash") ? "jerks your leash back" : $worn.neck.name isnot "naked" ? "hooks a finger into your $worn.neck.name" : "grabs your arm">>, stopping you in your tracks.
-		<br><br>
-		"And where do you think you're going, slut?" It's Whitney, with several of <<his>> goons trailing behind <<him>>. "Come on, step into my office." <<He>> herds you toward the <<nnpc_gendery "Whitney">>s' toilets.
-		<br><br>
-
-		<<if !$settings.watersportsEnabled>>
-			<<link [[Next|Bully Piss Rescue]]>><</link>>
-		<<else>>
-			<<link [[Go with it (0:15)|Bully Piss]]>><<set $phase to 0>><<pass 15>><<sub 1>><<npcincr Whitney dom 1>><</link>><<gdom>>
-			<br>
-			<<link [[Fight|Bully Fight]]>><<set $phase to 0>><<set $fightstart to 1>><<def 1>><<npcincr Whitney dom -1>><</link>><<ldom>>
-			<br>
-		<</if>>
-
-	<<elseif [18, 19, 20].includes($bullyevent)>>/* Pantycheck*/
-		<<set $bullyevent to 21>>
-		<<WhitneyPantyCheck>>
-
-	<<else>>/* Hair Pull*/
-		<<set $bullyevent to 2>>
 		Someone grabs your hair from behind, tugging your head back. It's Whitney. <<He>> grins as <<his>> friends laugh.
 			<<if $worn.neck.name is "Whitney's collar with leash" or $worn.neck.name is "Whitney's collar">>
 				<<He>> glances over your collar and gives you a smirk.

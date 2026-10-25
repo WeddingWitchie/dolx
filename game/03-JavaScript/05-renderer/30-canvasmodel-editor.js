@@ -79,7 +79,7 @@ class CombatEditor {
 
 	/**
 	 * Daily limits for leaving encounters early.
-	 * Forced encounters have a limited number of escapes, while consensual encounters do not.
+	 * Forced encounters and consensual encounters have separate daily limits.
 	 *
 	 * @returns {{ forced: number, consensual: number }}
 	 */
@@ -130,6 +130,8 @@ class CombatEditor {
 	 */
 	static loseEncounter() {
 		const v = State.variables;
+		if (!v.combat || v.finish === 1) return;
+		const passage = State.passage;
 		const allowance = CombatEditor.giveUpAllowance();
 		if (allowance != null) {
 			if (CombatEditor.giveUpsRemaining() <= 0) return;
@@ -137,9 +139,9 @@ class CombatEditor {
 			const key = CombatEditor.giveUpDailyKey(allowance);
 			v.daily[key] = (Number(v.daily[key]) || 0) + 1;
 		}
-		/* Marks the encounter as a surrender so the ending beating only happens after surrender.
-			Cleared by <<encounterEndViolence>>. */
-		v.combatGiveUp = 1;
+		/* Only forced surrender carries a beating. Endings may clear consensual before cleanup. */
+		if (allowance === "forced") v.combatGiveUp = 1;
+		else delete v.combatGiveUp;
 		v.finish = 1;
 		if (v.combatExtended?.reverseRapeStart === 1) {
 			v.combatExtended.reverseRapeEnd = 1;
@@ -148,8 +150,12 @@ class CombatEditor {
 		if (Number.isFinite(v.enemypleasuremax)) {
 			v.enemypleasure = Math.min(Number(v.enemypleasure) || 0, Math.max(v.enemypleasuremax - 1, 0));
 		}
+		if (Number.isFinite(v.enemyarousalmax)) {
+			v.enemyarousal = Math.min(Number(v.enemyarousal) || 0, Math.max(v.enemyarousalmax - 1, 0));
+		}
 		Engine.play(State.passage);
 		setTimeout(function () {
+			if (State.passage !== passage || V.finish !== 1 || !V.combat) return;
 			const nextLink = document.querySelector("#next a");
 			const target = nextLink instanceof HTMLElement ? nextLink.getAttribute("data-passage") : null;
 			if (target && target !== State.passage && Story.has(target)) nextLink.click();

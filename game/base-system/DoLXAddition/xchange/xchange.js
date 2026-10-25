@@ -798,44 +798,6 @@ Macro.add("pleasure", {
 });
 window.pleasure = pleasure;
 
-function getPleasure(passMinutes) {
-	const minuteMultiplier = passMinutes * 10;
-	let addedPleasure = 0;
-
-	if (
-		V.worn.genitals.name === "chastity parasite" ||
-		(V.parasite.penis.name && V.parasite.penis.name === "parasite") ||
-		(V.parasite.clit.name && V.parasite.clit.name === "parasite")
-	) {
-		if (!V.masturbating) {
-			if (V.earSlime.corruption >= 100 && !V.earSlime.defyCooldown && !V.earSlime.vibration && !V.earSlime.event) {
-				V.earSlime.lastVibration += passMinutes;
-				if (V.earSlime.lastVibration > random(240, 720)) {
-					V.earSlime.vibration = random(60, 120);
-					V.earSlime.lastVibration = 0;
-				}
-			}
-			if (V.earSlime.defyCooldown) {
-				if (V.pain < 25) V.pain += Math.clamp(passMinutes, 0, 20 - Math.floor(V.pain));
-				if (V.worn.genitals.name === "chastity parasite") {
-					// Helps to reduce the penis size
-					V.penisgrowthtimer += Math.floor(Math.clamp(passMinutes / 8, 0, (passMinutes * 60) / V.earSlime.defyCooldown));
-				}
-			} else if (V.earSlime.vibration > 0) {
-				addedPleasure += Math.clamp(minuteMultiplier * 4, 0, V.earSlime.vibration * 40) * getSensitivity("genitals");
-				V.earSlime.vibration -= Math.clamp(passMinutes, 0, V.earSlime.vibration);
-				V.earSlime.lastVibration = Math.clamp(passMinutes - V.earSlime.vibration, 0, Infinity);
-			}
-		}
-	} else {
-		V.earSlime.vibration = 0;
-		V.earSlime.lastVibration = 0;
-	}
-
-	return addedPleasure;
-}
-window.getPleasure = getPleasure;
-
 function updatePhysique() {
 	// Vanilla physique ceiling per bodysize (indexed 0..4):
 	//   -1: 3000 (extrapolated below),  0: 6000,  1: 8000,

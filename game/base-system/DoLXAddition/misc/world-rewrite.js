@@ -817,7 +817,7 @@
 
 	function installWrappers() {
 		const okA = installChanceWrapper("maleChance");
-		const okB = installChanceWrapper("beastMaleChance");
+		const okB = installChanceWrapper("beastMaleChanceForType");
 		const okC = installBirthWrapper();
 		const okD = installPregnancyCompatibilityWrappers();
 		return okA && okB && okC && okD;

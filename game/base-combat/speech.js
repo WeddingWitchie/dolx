@@ -56,6 +56,8 @@ setup.speechCategories = {
 	plead: { priority: 70 },
 	screamForHelp: { priority: 70 },
 	struggle: { priority: 70, cooldown: 3 },
+	/* Mod: the PC pulls off a condom mid-sex. */
+	condomRemoved: { priority: 70 },
 
 	/* An NNPC's follow up line to something they said earlier. */
 	followUp: { priority: 65 },
@@ -80,6 +82,8 @@ setup.speechCategories = {
 	touch: { priority: 10, cooldown: 3 },
 	toy: { priority: 10, cooldown: 3 },
 	trib: { priority: 10, cooldown: 3 },
+	/* Mod: the NNPC is trying to strip the PC. */
+	strip: { priority: 10, cooldown: 3 },
 	vaginaFlaunt: { priority: 10, cooldown: 3 },
 	withhold: { priority: 10, cooldown: 3 },
 

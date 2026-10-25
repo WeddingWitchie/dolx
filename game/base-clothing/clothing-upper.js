@@ -12858,7 +12858,7 @@ function initUpper() {
 			iconFile: "flannel-shirt.png",
 		}),
 		new ClothesItem({
-			index: 238,
+			index: 229,
 			slot: "upper",
 			name: "boiler suit",
 			variable: "boilersuit",

@@ -52,10 +52,8 @@ function gwylanRequest(override = null) {
 	// Unlockable events
 	if (V.gwylanSeen?.includes("ritual_beast") && (!V.gwylan.timer.sample || Time.date.dayDifference(new DateTime(V.gwylan.timer.sample)) < 7))
 		allPossibleRequests.push(["sample", 1]); // Lewd fluid sample
-	/* ToDo: Gwylan - Asking for a sample of the player's fluids
-	if (V.gwylanSeen.includes("cafe_chef_truth") && (!V.gwylan.timer.samplePlayer || V.gwylan.timer.samplePlayer < Time.date.timeStamp))
+	if (V.gwylanSeen.includes("cafe_chef_truth") && V.milk_amount >= 1 && (!V.gwylan.timer.samplePlayer || V.gwylan.timer.samplePlayer < Time.date.timeStamp))
 		allPossibleRequests.push(["samplePlayer", 3]); // Player fluid sample
-	*/
 	if (
 		V.gwylanTalked.includes("bird") &&
 		!V.plucked &&
@@ -1156,6 +1154,8 @@ function gwylanRequestMet() {
 			return V.gwylan.request.items?.every(item => V.foodstuff[item.name]?.amount >= item.need);
 		case "sample":
 			return V.gwylan.request.items?.every(item => item.have >= item.need);
+		case "samplePlayer":
+			return V.milk_amount >= 1;
 		case "recipe":
 			return V.gwylan.request.items?.every(
 				item =>

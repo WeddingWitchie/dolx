@@ -1619,13 +1619,6 @@ setup.colours.clothes = [
 		canvasfilter: { blend: "#40D8F0" },
 	},
 	{
-		variable: "cyan",
-		name: "cyan",
-		name_cap: "Cyan",
-		csstext: "cyan",
-		canvasfilter: { blend: "#00FFFF" },
-	},
-	{
 		variable: "yellow",
 		name: "yellow",
 		name_cap: "Yellow",

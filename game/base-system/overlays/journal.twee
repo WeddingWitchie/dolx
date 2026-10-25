@@ -138,33 +138,34 @@
 					<li>You still have enough deposit for Bailey for <span class="gold">_baileyDepositDays</span><<if _baileyDepositDays gte 1000>>+<</if>> weeks which is worth <<printmoney _baileyDepositWorth>><<if _baileyDepositDays gte 1000>>+<</if>>.</li>
 				<<else>>
 					<<if $rentDay isnot undefined>>
-						<<if $rentTime lte 0>>
-							<li>Bailey is looking for you and wants <<printmoney $rentMoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
+						<<if isRentDue() or isBaileyLookingForPlayer()>>
+							<li>
+							<<if $baileyRefusedToPay>>
+								Bailey will try to visit you again on <<rentday>> and wants <<printmoney $rentMoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.
+							<<else>>
+								Bailey is looking for you and wants <<printmoney $rentMoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.
+							<</if>>
+							<<if $rentThug>>
+								<<if $rentTime is 0>>
+									<span class="green"><<nnpc_His "Bailey">> thugs aren't after you yet.</span>
+								<<else>>
+									<<switch $rentThug?.anger>>
+										<<case 0>><span class="teal"><<nnpc_His "Bailey">> thugs are looking for you.</span>
+										<<case 1>><span class="lblue"><<nnpc_His "Bailey">> thugs are focused on finding you.</span>
+										<<case 2>><span class="blue"><<nnpc_His "Bailey">> thugs are frustrated by you.</span>
+										<<case 3>><span class="purple"><<nnpc_His "Bailey">> thugs are making your capture a priority.</span>
+										<<case 4>><span class="pink"><<nnpc_His "Bailey">> thugs are developing a vendetta against you.</span>
+										<<default>><span class="red"><<nnpc_His "Bailey">> thugs view catching you as their number one priority.</span>
+									<</switch>>
+								<</if>>
+							<</if>></li>
 						<<else>>
 							<li>Bailey wants <<printmoney $rentMoney>> on <<rentday>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
 						<</if>>
 					<<elseif $rentMoney isnot undefined>>
 						<li>Bailey wants <<printmoney $rentMoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
 					<</if>>
-					<<if $rentThug>>
-						<<if $rentTime is 0>>
-							<span class="green"><<nnpc_His "Bailey">> thugs aren't after you yet.</span>
-						<<else>>
-							<<switch $rentThug?.anger>>
-								<<case 0>><span class="teal"><<nnpc_His "Bailey">> thugs are looking for you.</span>
-								<<case 1>><span class="lblue"><<nnpc_His "Bailey">> thugs are focused on finding you.</span>
-								<<case 2>><span class="blue"><<nnpc_His "Bailey">> thugs are frustrated by you.</span>
-								<<case 3>><span class="purple"><<nnpc_His "Bailey">> thugs are making your capture a priority.</span>
-								<<case 4>><span class="pink"><<nnpc_His "Bailey">> thugs are developing a vendetta against you.</span>
-								<<default>><span class="red"><<nnpc_His "Bailey">> thugs view catching you as their number one priority.</span>
-							<</switch>>
-						<</if>>
-					<</if>></li>
-				<<elseif isAveryPayingBailey() isnot 2>>
-					<li>Bailey wants <<printmoney $rentMoney>> on <<rentday>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
 				<</if>>
-			<<elseif $rentMoney isnot undefined>>
-				<li>Bailey wants <<printmoney $rentMoney>><<babyRentDisplay " plus " " for not looking after your children" "gold">>.</li>
 			<</if>>
 
 			<<if $bailey_confiscation?.items?.length gt 0>> /* Bailey Confiscation System */
@@ -530,6 +531,34 @@
 			<</if>>
 		<</for>>
 	<</if>>
+	<<if $museumintro is 1>>
+		<<museumAntiqueText>><<museumPaintingText>><<set _museumItemsFound to []>><<set _museumItemsTalk to []>>
+		<<set _museumKeys to Object.keys($museumAntiques.antiques)>>
+		<<for _i to 0; _i lt _museumKeys.length; _i++>>
+			<<if ["found", "talk"].includes($museumAntiques.antiques[_museumKeys[_i]])>>
+				<<if _museumAntiqueText[_museumKeys[_i]]>>
+					<<if ["found"].includes($museumAntiques.antiques[_museumKeys[_i]])>>
+						<<set _museumItemsFound.push(_museumAntiqueText[_museumKeys[_i]].name.toLowerCase())>>
+					<<else>>
+						<<set _museumItemsTalk.push(_museumAntiqueText[_museumKeys[_i]].name.toLowerCase())>>
+					<</if>>
+				<<else>>
+					<li><span class="red">Warning: Antique "_museumKeys[_i]" doesn't have a hint. Did you export this save from a modded version?</span></li>
+					<<set $museumAntiqueJournalHints.delete(_museumKeys[_i])>>
+				<</if>>
+			<</if>>
+		<</for>>
+		<<set _museumKeys to Object.keys($museumAntiques.paintings)>>
+		<<for _i to 0; _i lt _museumKeys.length; _i++>>
+			<<if ["found", "talk"].includes($museumAntiques.paintings[_museumKeys[_i]])>>
+				<<if ["found"].includes($museumAntiques.paintings[_museumKeys[_i]])>>
+					<<set _museumItemsFound.push(_museumPaintingText[_museumKeys[_i]].journalName.toLowerCase())>>
+				<<else>>
+					<<set _museumItemsTalk.push(_museumPaintingText[_museumKeys[_i]].journalName.toLowerCase())>>
+				<</if>>
+			<</if>>
+		<</for>>
+	<</if>>
 	<<if !$statFreeze and (
 		($location is "asylum" and ($eden_asylum_window is 1 or ($daily.eden.distract gte 1 and Time.hour lt 21)))
 		|| $temple_spear_mission gte 1
@@ -562,6 +591,8 @@
 		|| $xchange.blackmail.activeQuest
 		|| Tamagotchi.isAlive()
 		|| autismHasDocumentation()
+		|| _museumItemsFound?.length gte 1
+		|| _museumItemsTalk?.length gte 1
 	)>>
 		/*TODO: streamline during eventual Journal UI Overhaul bc lol. lmao, even. */
 		<hr>
@@ -678,10 +709,6 @@
 				<<if $hacker_tasks.length gte 2>>
 					<li><<socialiseicon>> You need to talk to Landry about 'Mickey'.</li>
 				<</if>>
-			<</if>>
-
-			<<if $fake_artefact is "pc" and $avery_fate isnot "ascended">>
-				<li><<ind>>Landry wants you to find the wishing stones in the vault in Avery's mansion and replace them with the fakes <<nnpc_he Landry>> provided. <<nnpc_He Landry>> said that would save Avery from <<nnpc_himself "Avery">>.</li>
 			<</if>>
 
 			<<if $pubfame>>
@@ -1005,7 +1032,7 @@
 						<</if>>
 						<<gwylanJournalItems>>
 					<<case "samplePlayer">>
-						/* ToDo: Gwylan */
+						<li><<scienceicon>> Gwylan has asked for a fresh sample of your milk. You can provide it at <<nnpc_his "Gwylan">> shop.<<if !gwylanRequestMet()>> <span class="blue">You don't have enough milk yet.</span><</if>></li>
 					<<case "preen">>
 						<<if $gwylan.request.special is "harpy">>
 							<li><<tficon "bird">> Gwylan has asked to preen your wings.
@@ -1091,6 +1118,12 @@
 				<<if autismSchoolPlan()>>
 					<li><<ind>><span class="green">Your support plan is on the school's file.</span></li>
 				<</if>>
+			<</if>>
+
+			<<if _museumItemsFound?.length gte 1>>
+				<li><<museumicon>>You should show the <<= formatList(_museumItemsFound, "and")>> to Winter<<if _museumItemsTalk.length gte 1>>, and ask <<nnpc_him "Winter">> about the <<= formatList(_museumItemsTalk, "and")>><</if>>.</li>
+			<<elseif _museumItemsTalk?.length gte 1>>
+				<li><<museumicon>>You should ask Winter about the <<= formatList(_museumItemsTalk, "and")>>.</li>
 			<</if>>
 		</ul>
 	<</if>>

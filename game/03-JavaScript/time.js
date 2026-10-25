@@ -1,4 +1,4 @@
-/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure getPleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate playerClearClimax */
+/* globals orphanagePlotsPlanted orphanagePlotsWatered schoolDisciplineDayPassed ensureRobinStand robinStandWeeklyTick robinCafeWeeklyTick robinCafeDayPassed robinStandSelfSufficiencyReady ensureBrothelVendingState xchangeWeeklyCheck speechDailyCheck xchangeDailyCheck xchangeHourlyCheck hourlyClothingFemininityCheck rainWashFluids waterPlotsFromRain earnFeat playerPregnancyRisk playerIsXChanged playerOriginalSex activeInsanityTrait getSensitivity getBreastSensitiveRubSlot getGenitalSensitiveRubSlot pleasure xchangeTimePassedCheck getEffectiveBeauty effectiveTransformationLevel effectiveTransformationBuild playerVibratorOn chastityConsensual chastityFrustrationImmune wearingTidebloomRing medicationDayPassed pocketDayPassed pocketHourPassed whiteSoPaleHeld canBeMPregnant advancePregnancy hourlyPregnancyUpdate checkLabour rollAndRecordConception autismMaskingUpdate playerClearClimax */
 /* Time namespace
 	Use Time prefix when accessing any getters or functions (e.g. Time.second, Time.schoolDay, or Time.getLastDayOfMonth(), etc.)
 	Getters: (Most of these are being used in one way or another)
@@ -1573,7 +1573,7 @@ function minutePassed(minutes) {
 	}
 
 	// Thug traps
-	for (let i = 0; i < V.rentThug?.traps.length; i++) {
+	for (let i = (V.rentThug?.traps.length ?? 0) - 1; i >= 0; i--) {
 		if (Time.date.timeStamp >= V.rentThug.traps[i].endTime) V.rentThug.traps.deleteAt([i]);
 	}
 
@@ -1833,7 +1833,7 @@ function minutePassed(minutes) {
 		V.effectsmessage = 1;
 	}
 
-	pleasure(minutes * -25 + getPleasure(minutes));
+	pleasure(minutes * -25);
 
 	if (V.player.vaginaExist) passArousalWetness(minutes);
 

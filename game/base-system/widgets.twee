@@ -102,26 +102,6 @@
 	</div>
 <</widget>>
 
-<<widget "glowstatbarinverted">>
-	<<set _now to _args[0]>><<set _max to _args[1]>>
-	<div @class="(_args[2] is true ? 'rightMeter' : 'meter') + ' glowstatbar'">
-		<<if _args[0] is 0>>
-		<<else>>
-			<<set _percent to Math.floor((_args[0]/_args[1])*100)>>
-			<<switch Math.floor(_percent/10)>>
-				<<case 8 9>><<set _statColor to "tealbar">>
-				<<case 6 7>><<set _statColor to "lbluebar">>
-				<<case 4 5>><<set _statColor to "bluebar">>
-				<<case 2 3>><<set _statColor to "purplebar">>
-				<<case 1>><<set _statColor to "pinkbar">>
-				<<case 0>><<set _statColor to "redbar">>
-				<<default>><<set _statColor to "greenbar">>
-			<</switch>>
-			<div @class="_statColor" @style="'width:' + _percent + '%'"></div>
-		<</if>>
-	</div>
-<</widget>>
-
 <<widget "wateraction">>
 	<<set $_swimSkill to Math.max(currentSkillValue('swimmingskill'), 0)>>
 	<<set $_swimLevel to Math.floor($_swimSkill / 100)>>
@@ -449,7 +429,7 @@
 
 <<widget "encounterEndViolence">>
 	<<set $combatExtended.blockingActive to 0>>
-	<<if $combatGiveUp is 1 and $consensual isnot 1>>
+	<<if $combatGiveUp is 1 and $consensual isnot 1 and $enemytype isnot "childbirth">>
 		<span class="red">You give in. The encounter leaves you battered and shaken.</span>
 		You fall to the ground. You're too hurt to continue.<<violence 75 1 1 1 0 0.3>><<gggstress>><<gggpain>>
 		<br><br>
@@ -5964,7 +5944,7 @@
 			<!-- cue the appropriate rep increase message -->
 			<<if $_rep is "herm">>
 				<<set $school_herm_message to $schoolrep.herm>>
-			<<elseif $rep is "crossdress">>
+			<<elseif $_rep is "crossdress">>
 				<<set $school_crossdress_message to $schoolrep.crossdress>>
 			<</if>>
 		<</if>>

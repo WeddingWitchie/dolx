@@ -2573,7 +2573,7 @@ Renderer.CanvasModels.main = {
 
 						// Skin from Poppy's actual skincolour
 						const _pSkinRaw = V.NPCList?.[0]?.skincolour ?? C.npc.Poppy.skincolour;
-						const _pSkin = (_pSkinRaw === "white") ? "pale" : "dark";
+						const _pSkin = (V.NPCList?.[0]?.skinType ?? C.npc.Poppy.skinType) !== "ghost" && _pSkinRaw >= 70 ? "dark" : "pale";
 
 						// Slot from context (Halloween > Christmas > school/lake/soup > default)
 						let _pSlot = 1;
@@ -2710,14 +2710,16 @@ Renderer.CanvasModels.main = {
 				// Skin: humans follow their actual skin colour (the per-NPC Pale/Dark setting), so the sprite can't be pinned to a stale saved display choice.
 				// The saved choice still decides beast art (human vs monster form) and is the fallback when the actual colour can't be resolved.
 				const skincolour =
-					activeNpc?.skincolour ||
+					activeNpc?.skincolour ??
 					npcRecord?.skincolour;
 
 				let skinChoice;
 				if (isBeast) {
 					skinChoice = cfg.skin || "monster";
-				} else if (skincolour) {
-					skinChoice = skincolour === "white" ? "pale" : "dark";
+				} else if ((activeNpc?.skinType ?? npcRecord?.skinType) === "ghost") {
+					skinChoice = "pale";
+				} else if (Number.isFinite(skincolour)) {
+					skinChoice = skincolour >= 70 ? "dark" : "pale";
 				} else {
 					skinChoice = cfg.skin || "pale";
 				}

@@ -546,8 +546,8 @@
 <</widget>>
 
 <<widget "rentpay">>
-	/* The bank deduction is committed here so payment + bookkeeping stay atomic. */
-	<<set _payVia to (_args[0] || "cash")>>
+	/* The bank deduction is committed here so payment + bookkeeping stay atomic. "thug" marks a thug-escorted visit, not a payment method. */
+	<<set _payVia to (_args[0] is "bank" ? "bank" : "cash")>>
 	/* Overdue HBSC loan: Bailey collects a weekly surcharge on top of rent. */
 	<<set _loanSurcharge to (setup.hbsc and setup.hbsc.loanRentSurcharge ? setup.hbsc.loanRentSurcharge() : 0)>>
 	/* Recompute here rather than trusting $bratTax: not every path into rentpay runs a demand passage first, and the tax must match what was announced before $rentMoney rolls over below. */
@@ -589,6 +589,10 @@
 		Next week I want <<printmoney $rentMoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>. You didn't think it would get any easier, did you?"
 	<<else>>
 		Next week I want <<printmoney $rentMoney "pink">><<babyRentDisplay " plus " " if you don't look after your children" "pink">>."
+	<</if>>
+	<<if _args[0] is "thug">>
+		<br><br>
+		By the time <<nnpc_hes "Bailey">> done counting the money, the <<print $event.buffer.length gte 3 ? "thugs that were with <<nnpc_him 'Bailey'>> have" : "thug that was with <<nnpc_him 'Bailey'>> has">> already vanished.<<thuganger -5>><<lllthuganger>>
 	<</if>>
 	<<if _loanSurcharge gt 0>>
 		<br><br>
@@ -923,7 +927,7 @@
 :: Rent Pay
 <<effects>>
 
-<<rentpay>>
+<<rentpay $phase2>>
 <<if $bus isnot "hospital">><<perfumeryMoment "Bailey" "rent" 30>><</if>>
 <<set $bailey_office_seduced_this_cycle to false>>
 

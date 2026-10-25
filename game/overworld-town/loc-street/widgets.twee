@@ -111,7 +111,7 @@
 		"Look what I found, a helpless slut, naked and cold on the street instead of at home," says a <<person1>><<person>>, stepping out from the shadows.
 		<br><br>
 		You attempt to flee but run into a <<person2>><<person>> who promptly grabs your wrist.
-		"Not just any slut, it's that Bailey brat we've been looking for. Must be our lucky day <<pshe>> is already dressed for the occasion," <<he>> laughs.<<stress 8>><<gstress>>
+		"Not just any slut, it's that Bailey brat we've been looking for. Must be our lucky day <<pshe>> <<pverb "is" "are">> already dressed for the occasion," <<he>> laughs.<<stress 8>><<gstress>>
 		<br><br>
 		<<if $rentThug.anger is 3>>
 			<<generate3>>
@@ -132,7 +132,7 @@
 		As you walk along the street, you hear a voice behind you. A <<person1>><<person>> steps out from an alley and leers, "Are you the one <<nnpc_he "Bailey">> was talking about?"
 		<br><br>
 		You don't know who <<hes>> referring to, and you don't wish to find out. You turn to flee but run into a <<person2>><<person>> who promptly grabs your wrist.
-		"You know, I think <<pshe>> is," <<he>> says with a sinister grin. "And right where Bailey said <<pshe>> would be too."
+		"You know, I think <<pshe>> <<pverb "is" "are">>," <<he>> says with a sinister grin. "And right where Bailey said <<pshe>> would be too."
 		<br><br>
 		<<if $rentThug.anger is 3>>
 			<<generate3>>
@@ -1822,6 +1822,16 @@
 	<</if>>
 
 	<<link [[Try to run|Street Tentacle Run]]>><<stress 3>><<trauma 3>><</link>><<gtrauma>><<gstress>>
+	<br>
+<</widget>>
+
+<<widget "streetPairGrab">>
+	<<generate1>><<generate2>><<person1>>You are walking past a <<person>> when <<he>> seizes you by your arms and mouth. <<He>> drags you toward a nearby alley.
+	<br><br>
+
+	<<link [[Don't struggle|Street Pair Accept]]>><<sub 1>><</link>>
+	<br>
+	<<link [[Struggle|Street Pair Struggle]]>><<def 1>><</link>><<physiquedifficulty>>
 	<br>
 <</widget>>
 
@@ -3725,6 +3735,10 @@
 	<</if>>
 
 	/* Events that must bypass eventpool and any conditions */
+	<<if $baileyStreetHuntPending and (!isRentDue() or !setup.inflation.baileyAggressive())>>
+		<<unset $baileyStreetHuntPending $baileyHuntReturn>>
+		<<set $eventforced to 0>>
+	<</if>>
 	<<if $baileyStreetHuntPending>>
 		<<set $baileyStreetHuntPending to false>>
 		<<set $eventforced to 0>>
@@ -4144,6 +4158,30 @@
 				<<addevent "streetpolice" 2>>
 			<</if>>
 
+			<<if $location isnot "alley" and Time.dayState isnot "night">>
+				<<addevent "streetPairGrab" 0.5>>
+			<</if>>
+
+			/* Whitney's stepparent, a police sergeant, singles out the delinquent Whitney runs with. */
+			<<if !$weekly.policeSergeant and Time.dayState is "day" and C.npc.Whitney.init is 1 and C.npc.Whitney.state is "active" and (crimeSumCurrent() gte 500 or C.npc.Whitney.dom gte 15)>>
+				<<addevent "eventPoliceSergeant" 0.5>>
+			<</if>>
+
+			/* In a corrupt town, some officers would rather prey on a wanted criminal than arrest them. */
+			<<if crimeSumCurrent() gte 1000 and $world_corruption_hard gte 3>>
+				<<if pcAreArmsBound("any")>>
+					<<addevent "stalkpolicebound" 0.5>>
+				<<elseif $worn.lower.name is "towel" or $worn.lower.name is "large towel bottom">>
+					<<addevent "stalkpolicelowertowel" 0.5>>
+				<<elseif $worn.upper.name is "towel" or $worn.upper.name is "large towel">>
+					<<addevent "stalkpoliceuppertowel" 0.5>>
+				<<elseif Time.dayState is "night">>
+					<<addevent "stalkpolice2" 0.5>>
+				<<else>>
+					<<addevent "stalkpolice1" 0.5>>
+				<</if>>
+			<</if>>
+
 			<<if $worn.neck.collared is 1>>
 				<<addevent "streetCollared" 1>>
 			<</if>>
@@ -4553,8 +4591,9 @@
 	<</if>>
 	<<rng>>
 	<<if !$possessed>>
-		<<if $eventskip is 0 and ($rentMoney or 0) gt 0 and $tutorial isnot 0 and not $daily.baileyHuntBroke and setup.inflation and setup.inflation.baileyAggressive() and ($rentTime lte -2 or ($rentTime lte 0 and Time.hour gte 4 and Time.hour lte 21))>>
-			/* Aggressive Bailey hunts the player through the streets while rent is overdue. Fires on EVERY street entry until rent is paid (which resets $rentTime).
+		<<if $eventskip is 0 and !$eventforced and isRentDue() and ($rentMoney or 0) gt 0 and $tutorial isnot 0 and not $daily.baileyHuntBroke and setup.inflation and setup.inflation.baileyAggressive() and ($rentTime lte -2 or ($rentTime lte 0 and Time.hour gte 4 and Time.hour lte 21)) and $rentThug and ($location is "alley" or $bus is "park" or !$rentThug.traps.some(trap => trap.location === $bus)) and random(1, 100) lte Math.min(85, (setup.inflation.baileyRelentless() ? 60 : 25) + $rentThug.anger * 15)>>
+			/* The native thug intro comes first, and trapped streets stay with the vanilla encounters. Bailey joins more often as thug anger rises (relentless Bailey starts higher),
+			   capped at 85% so personal visits never replace every patrol. The due-rent check respects Avery covering rent and paused rent.
 			   A broke player only triggers it once per day ($daily.baileyHuntBroke) so it can't soft-lock travel. */
 			<<set $baileyHuntReturn to $passage>>
 			<<set $baileyStreetHuntPending to true>>

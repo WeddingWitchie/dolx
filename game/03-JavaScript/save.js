@@ -562,6 +562,14 @@ window.importSettings = function (data, type) {
 	}
 };
 
+function skinToneSettingsFromDarkChance(darkChance) {
+	const dark = Math.clamp(Math.round(darkChance), 0, 100);
+	if (dark <= 0) return { skinToneMin: 0, skinToneMode: 0, skinToneMax: 0 };
+	if (dark >= 100) return { skinToneMin: 70, skinToneMode: 70, skinToneMax: 70 };
+	return { skinToneMin: 0, skinToneMode: dark, skinToneMax: 100 };
+}
+window.skinToneSettingsFromDarkChance = skinToneSettingsFromDarkChance;
+
 function compatibilityConversion(rawData) {
 	let processed;
 
@@ -2508,7 +2516,7 @@ function settingsConvert(exportType, type, settings) {
 window.settingsConvert = settingsConvert;
 
 window.loadExternalExportFile = function () {
-	importScripts("DolSettingsExport.json")
+	importScripts("DolSettingsExport.js")
 		.then(function () {
 			const textArea = document.getElementById("settingsDataInput");
 			textArea.value = JSON.stringify(DolSettingsExport);

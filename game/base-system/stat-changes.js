@@ -721,7 +721,7 @@ const statChange = (() => {
 	DefineMacro("masopain", masopain);
 
 	function painClamp() {
-		if (V.gamemode === "soft") {
+		if (V.gamemode === "soft" && !V.possessed) {
 			V.pain = 0;
 		} else {
 			V.pain = Math.clamp(V.pain, minPain(), 200);
@@ -1748,14 +1748,6 @@ const statChange = (() => {
 			if (type !== "fox" && V.worn.head.name !== "spirit mask" && V.worn.neck.name !== "jasper pendant") {
 				V.foxbuild -= change;
 			}
-		}
-
-		if (
-			!["angel", "fallen", "demon"].includes(type) &&
-			change > 0 &&
-			!(V.auriga_scar >= 1) &&
-			!(V.worn.neck.name === "familiar collar" && V.worn.neck.cursed === 1)
-		) {
 			if (type !== "waterdragon" && V.worn.earrings.variable !== "lilacheadpiece") V.waterdragonbuild -= change;
 			if (type !== "bear" && !["honey pouch", "bear backpack"].includes(V.worn.bag.name) && V.worn.head.name !== "honey hair clip") V.bearbuild -= change;
 			if (type !== "bunny" && V.worn.head.name !== "carrot pin") V.bunnybuild -= change;

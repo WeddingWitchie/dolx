@@ -1186,6 +1186,7 @@
 
 <<widget "depositBaileyExitConfirm">>
 	<<if _args[0] is 0>>
+		<<set _depositRentMoney to $rentMoney>>
 		<<set _rentstage to $rentStage - 1>>
 		<<set _baileyDepositMax to 0>>
 		<<for _i to 1; _i <= $depositMax; _i++>>
@@ -1194,11 +1195,12 @@
 			<<set _rentstage += 1>>
 			<<set _baileyDepositMax += $rentMoney + ($babyRent or 0)>>
 		<</for>>
+		<<set $rentMoney to _depositRentMoney>>
 		<<if $baileyDeposit + _depositAmount gte _baileyDepositMax and $depositMax gt 0>>
 			You can only deposit for <span class="gold">$depositMax</span> weeks which is worth <<printmoney _baileyDepositMax>>.
 			<br>
+			<<set _depositAmount to Math.max(0, _baileyDepositMax - $baileyDeposit)>>
 			<<if $baileyDeposit gt 0>>
-				<<set _depositAmount to _baileyDepositMax - $baileyDeposit>>
 				You already had <<printmoney $baileyDeposit>> in deposit. 
 			<</if>>
 			Your deposit has been adjusted to <<printmoney _depositAmount>>. Would you like to continue?

@@ -327,6 +327,10 @@ You hear heavy footsteps behind you. <span class="red">Someone is hunting you.</
 	<span class="green">"Fine, what?" Eden relents</span>, but <<he>> still seems tense.
 	<br><br>
 	<<link [[Suggest a walk in the park (1:00)|Street Eden Worried Suggest Park]]>><</link>>
+	<<if Time.openingHours() and $exposed lte 0>>
+		<br>
+		<<link [[Suggest a cafe stop (0:05)|Town Eden Cafe]]>><<pass 5>><</link>>
+	<</if>>
 
 	<<if Time.hour gte 6 and Time.hour lte 20 and $edenshopping is 0>>
 		<br>
@@ -852,13 +856,80 @@ Eden looks cross. "I'm not doing it here."
 <</if>>
 
 :: Town Eden Cafe
-<<set $outside to 0>><<set $location to "cafe">><<effects>><<edenTrackers>>
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+<<if !Time.openingHours()>>
+	The cafe is closing when you reach it. Eden tests the locked door, then turns back to you. "There. We tried. Let's go."
+<<else>>
+	"Somewhere we can sit down for a few minutes," you suggest, pointing out the cafe.
+	<br><br>
+	Eden looks through the window before agreeing. <<He>> chooses a table against the wall, where <<he>> can see the door. The smell of fresh baking reaches you as you sit down. After a moment, Eden picks up the menu.
+	<br><br>
+	"Cream buns," <<he>> reads. "You're paying that much for a bun?"
+	<br><br>
+	<<if setup.inflation.canAfford(10000, "cafe")>>
+		<<foodicon "creambun">><<link [[Order a cream bun each (0:20 <<printprice 10000>>)|Town Eden Cafe Eat]]>><<money -10000 "cafe">><<set $daily.cafeEaten += 1>><<run foodApplyFullness(2, 3)>><<transform cat 1>><<pass 20>><<stress -18>><<npcincr Eden love 1>><</link>><<llstress>><<glove "Eden">>
+		<br>
+	<<else>>
+		<span class="blue">You don't have enough money to buy buns for both of you.</span>
+		<br>
+	<</if>>
+	<<link [[Keep Eden company (0:20)|Town Eden Cafe Talk]]>><<pass 20>><<stress -6>><<npcincr Eden love 1>><</link>><<lstress>><<glove "Eden">>
+	<br>
+<</if>>
+<br>
+<<link [[Leave the cafe|Town Eden Cafe Leave]]>><</link>>
+<br>
 
-<!--
-Can order cream buns. Option to lick cream flirtatiously. +Lust
-Option to reveal that you have something to do with the cream production. Eden looks shocked. +Lust
-Can't think of a ton more you can really do with this one
--->
+:: Town Eden Cafe Eat
+<<set $outside to 0>><<set $location to "cafe">><<effects>><<wearProp "cream buns">>
+The buns arrive on two small plates. Eden lifts the top of <<his>> to inspect the filling, then takes a cautious bite. Cream squeezes out onto <<his>> fingers.
+<br><br>
+"Messy," <<he>> says. <<He>> takes another bite before you can offer to swap.
+<br><br>
+You have no better luck with yours. By the time you've finished, both plates are dotted with cream. Eden pushes a napkin towards you, then wipes <<his>> own hand. <<He>> hasn't looked at the door for a while.
+<br><br>
+<<if $bunstat gte 1>>
+	<<link [[Tell Eden you help make the buns|Town Eden Cafe Baking]]>><</link>>
+	<br>
+<</if>>
+<<link [[Smile at Eden|Town Eden Cafe Talk]]>><</link>>
+<br>
+<<link [[Leave together|Town Eden Cafe Leave]]>><</link>>
+<br>
+
+:: Town Eden Cafe Baking
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+"I've helped make those," you tell Eden, nodding at the plates.
+<br><br>
+<<He>> looks down at the crumbs, then back at you. "Here?"
+<br><br>
+You explain about working in the kitchen. Eden listens, turning the empty plate with one finger. "You could have said something before I complained about the price."
+<br><br>
+You ask if <<he>> liked it. <<He>> gathers a last crumb from the plate. "Didn't leave any, did I?"
+<br><br>
+<<link [[Leave together|Town Eden Cafe Leave]]>><</link>>
+<br>
+
+:: Town Eden Cafe Talk
+<<set $outside to 0>><<set $location to "cafe">><<effects>>
+You sit across from Eden and talk about the cabin. <<He>> tells you about a repair that has been giving <<him>> trouble, tracing the shape of a joint on the tabletop with <<his>> finger. You have to lean closer to hear <<him>> over the clatter of cups.
+<br><br>
+When someone passes close behind you, <<he>> stops talking. You wait until they've gone, then ask what <<he>> plans to do about the repair. After a moment, <<he>> begins again.
+<br><br>
+"It's easier to think at home," <<he>> says eventually. "But this isn't so bad. With you here."
+<br><br>
+<<link [[Leave together|Town Eden Cafe Leave]]>><</link>>
+<br>
+
+:: Town Eden Cafe Leave
+<<set $outside to 1>><<set $location to "town">><<effects>>
+Eden checks the pavement before holding the door open for you. Outside, <<he>> takes your hand.
+"We've had our break. Let's go back to the cabin."
+<br><br>
+<<link [[Go with <<him>> (1:00)|Street Eden Worried Go To Cabin]]>><<pass 60>><</link>>
+<br>
+<<link [[Refuse|Town Eden Shopping Finish 2]]>><<set $phase to 1>><</link>>
+<br>
 
 :: Town Eden Shopping
 <<set $outside to 0>><<set $location to "shopping_centre">><<effects>>

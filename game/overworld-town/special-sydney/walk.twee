@@ -1687,6 +1687,10 @@ You are on the beach with Sydney.
 	<</if>>
 	<<link [[Take a walk on the beach (0:30)|Sydney Beach Walk]]>><<athletics 1>><<pass 30>><<stress -6>><<npcincr Sydney love 1>><</link>><<gtiredness>><<gathletics>><<lstress>><<glove>>
 	<br>
+	<<if getRobinLocation() is "beach" and $robin.timer.hurt is 0 and !$robinbreakupCooldown>>
+		<<robinicon "lemonade">><<link [[Visit Robin's lemonade stand|Sydney Robin's Lemonade]]>><</link>>
+		<br>
+	<</if>>
 	<<if !Weather.isOvercast and Time.dayState isnot "night" and $exposed lte 0>>
 		<<if pcAreArmsBound("both")>>
 			You could join in the game of volleyball together, <span class="blue">if your arms weren't bound.</span>
@@ -1823,85 +1827,81 @@ You have a <<skincolourtext>>
 <<link [[Next|Sydney Beach]]>><<pass 60>><</link>>
 
 :: Sydney Robin's Lemonade
-<<location "beach">><<effects>>
-<<run statusCheck("Sydney")>>
-<<set _robin to statusCheck("Robin")>>
-This passage should be unreachable. If you're seeing this, you've found a bug. Please report it to D.N.A., and take this convenient portal to Starfish Street to escape.
-<<link [[Next|Starfish Street]]>><<endevent>><<set $eventskip to 1>><</link>>
-<br>
-<<npc "Robin" 2>><<person2>>
+<<location "beach">><<effects>><<run statusCheck("Sydney")>>
+<<if getRobinLocation() isnot "beach" or $robin.timer.hurt gte 1 or $robinbreakupCooldown>>
+	You walk along the beach with Sydney, but Robin's stand is closed.
+	<br><br>
+	<<link [[Return to the beach|Sydney Beach]]>><<person1>><</link>>
+	<<exit>>
+<</if>>
+<<set _robin to statusCheck("Robin")>><<if $NPCList[1].fullDescription isnot "Robin">><<npc "Robin" 2>><</if>><<person2>>
 <<if $robinlemonadeintro isnot 1>>
-	<<set $robinlemonadeintro to 1>>
+	<<set $robinlemonadeintro to 1>><<set $daily.robin.freeDrink to 1>>
 	You see Robin standing behind <<his>> lemonade stand. <<He>> waves when <<he>> sees the two of you.
 	<br><br>
-	"Hey," <<he>> says as you draw close. <<He>> beams. "It's nice to see you both. I want you to try my lemonade." <<He>> mixes together water, lemon juice, and sugar and hands you a glass, before preparing one for Sydney too. "On the house." It's very sweet.
+	"Hey," <<he>> says as you draw close. <<He>> <<if _robin.trauma gte 40>>smiles hesitantly<<else>>beams<</if>>. "It's nice to see you both. I want you to try my lemonade." <<He>> mixes together water, lemon juice, and sugar and hands you a glass, before preparing one for Sydney too. "On the house." It's very sweet.
 	<br><br>
-	Sydney beams. "This tastes fantastic, Robin."
-	<br><br>
+	<<person1>>Sydney beams. "This tastes fantastic, Robin."
 <<elseif $sydney.swim is "crossdress" and !$sydneySeen.includes("lemonadecross")>>
 	<<set $sydneySeen.pushUnique("lemonadecross")>>
 	You see Robin standing behind <<his>> lemonade stand. <<Hes>> sipping a glass of lemonade, which <<he>> promptly spits out upon seeing Sydney.
 	"Ah, S-Sydney! You're... wearing, uh..."
 	<br>
-	<<if _sydneyStatus.includes("corrupt")>>
-		"I know." Sydney stares at <<him>> deadpan.
+	<<person1>><<if _sydneyStatus.includes("corrupt")>>
+		"I know." Sydney stares at Robin deadpan.
 	<<else>>
-		Sydney blushes and looks away from Robin.
+		Sydney blushes and looks away.
 	<</if>>
 	<br><br>
-	<<if _robin.crossdress isnot undefined and _robin.cdquest is 0>>
+	<<person2>><<if _robin.crossdress isnot undefined and _robin.cdquest is 0>>
 		"Let me guess. Did <<pshe "Robin">>..." Robin points at you.
-		<br>"Yes." Sydney <<if _sydneyStatus.includes("corrupt")>>says plainly<<else>>squeaks out<</if>>.
-		<br>"Ah." There's a moment of pause. "See, <<pshe "Robin">> also got me to..." Robin looks down. "A-anyways! What can I do for you two today?"
+		<br>"Yes," <<person1>>Sydney <<if _sydneyStatus.includes("corrupt")>>says plainly<<else>>squeaks out<</if>>.
+		<<person2>><br>"Ah." There's a moment of pause. "See, <<pshe "Robin">> also got me to..." Robin looks down. "A-anyways! What can I do for you two today?"
 	<<elseif _robin.crossdressing is 2>>
-		<br>Robin smiles warmly at Sydney. "You get used to it after a while," <<person2>><<he>> says gesturing to <<his>> own outfit.
-		<<if _sydneyStatus.includes("corrupt")>>
-			<br>"Cool."
-			<<if _robin.dom gte 40>>
-				<br>Robin pours a glass of lemonade. "Anyways, do you want a glass?"
-			<<else>>
-				<br>Robin flusters, stumbling over <<his>> words. "A-anyways do you want some lemonade?"
-			<</if>>
-		<<else>>
-			Sydney seems to perk up at Robin's words.
-			<br><br>
-			"Anyways, what can I do for you two?"
-		<</if>>
+		Robin smiles warmly at Sydney. "You get used to it after a while," <<he>> says, gesturing to <<his>> own outfit.
 	<<else>>
-		"Well. I can at least say that you... look good? You shouldn't be ashamed."
-		<<if _sydneyStatus.includes("corrupt")>>
-			<br>"I'm not."
-			<br>"Ah. Good. Good! Anyways, what can I do for you two?" Robin is visibly sweating.
-		<<else>>
-			Sydney seems to perk up at Robin's words.
-			<br><br>
-			"Anyways, what can I do for you two?"
-		<</if>>
+		"Well. I can at least say that you look good. You shouldn't be ashamed."
+	<</if>>
+	<<person1>><<if _sydneyStatus.includes("corrupt")>>
+		<br>"I'm not."
+		<<person2>><br>"Ah. Good. Good! Anyways, what can I do for you two?" Robin is visibly sweating.
+	<<else>>
+		Sydney seems to perk up at Robin's words.
+		<<person2>><br><br>"Anyways, what can I do for you two?"
 	<</if>>
 <<else>>
 	You see Robin standing behind <<his>> lemonade stand. <<He>> waves when <<he>> sees you and Sydney.
-	<br><br>
 <</if>>
-<<link [[Offer help (0:30)|Sydney Robin's Lemonade Help]]>><<npcincr Robin love 1>><<pass 30>><</link>><<glove>>
-<br>
-<<link [[Leave|Sydney Beach]]>><<endevent>><<npc "Sydney">><<person1>><</link>>
+<br><br>
+<<if !pcAreArmsBound("any")>>
+	<<link [[Offer help (0:30)|Sydney Robin's Lemonade Help]]>><<npcincr Robin love 1>><<npcincr Robin trauma -1>><<npcincr Sydney love 1>><<run robinStandRecordHelp()>><<pass 30>><</link>><<glove "Robin">><<glove "Sydney">><<lrtrauma>>
+	<br>
+<</if>>
+<<link [[Leave|Sydney Beach]]>><<clearsinglenpc 1>><<person1>><</link>>
 <br>
 
 :: Sydney Robin's Lemonade Help
 <<location "beach">><<effects>><<run statusCheck("Sydney")>>
-This passage should be unreachable. If you're seeing this, you've found a bug. Please report it to D.N.A., and take this convenient portal to Starfish Street to escape.
-<<link [[Next|Starfish Street]]>><<endevent>><<set $eventskip to 1>><</link>>
-<br>
-<<if Time.hour gte 17>>
-	"I'd ask for help carrying my things home, but I don't want to interrupt your day here. Can you just help me pack up?" Robin asks. "People don't buy much lemonade this late."
+<<person2>>
+<<if getRobinLocation() isnot "beach">>
+	"I'd ask for help carrying my things home, but I don't want to interrupt your day here. Can you just help me pack up?" Robin asks.
 	<br><br>
-	You, Robin and Sydney pack up <<his>> things. <<He>> waves you both off.
+	You, Robin and Sydney pack up <<his>> things. Sydney dries the last glasses while you fold the tablecloth and help Robin secure everything to the stand. <<He>> waves you both off.
 	<br><br>
-	"Robin is pure of heart," Sydney suddenly says. "I wish there were more like <<him>> in this town."
-	<<endevent>><<npc "Sydney">><<person1>>
-	<<link [[Next|Sydney Beach]]>><</link>>
-	<br>
+	<<person1>>"Robin is pure of heart," Sydney says as you walk away. "I wish there were more like <<nnpc_him "Robin">> in this town."
+<<else>>
+	"Really? Both of you?" Robin glances at the waiting customers, then moves aside to give you room.
+	<br><br>
+	You help Robin mix the lemonade while Sydney takes orders. The first customer has to repeat theirs when Sydney forgets to ask which size they want, but soon cups move steadily across the counter. Robin keeps count of the coins as you pass them over.
+	<br><br>
+	Between customers, the three of you talk. Sydney asks how Robin decided on the recipe, and Robin admits that <<he>> kept adding sugar until it tasted right. Sydney laughs. "That explains why I liked it."
+	<br><br>
+	When you stop, Robin pours two small glasses from the last jug. "You've earned these. Thank you."
 <</if>>
+<<stress -6>><<trauma -3>><<lstress>><<ltrauma>>
+<br><br>
+<<link [[Return to the beach|Sydney Beach]]>><<clearsinglenpc 1>><<person1>><</link>>
+<br>
 
 :: Sydney Beach Walk
 <<location "beach">><<effects>><<run statusCheck("Sydney")>>

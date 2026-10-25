@@ -563,7 +563,7 @@ The corridor opens onto the side of a low stage. Beyond the lights the theatre i
 			<<case "relaxed">>
 				"You made this evening happen," <<he>> tells you, without any heat in it. "I'd rather have been at the desk."
 			<<case "sociable">>
-				"Don't be shy with <<phim stranger>>," <<he>> calls out, to laughter. "<<pShe stranger>> has opinions. <<pShe stranger>> can keep them."
+				"Don't be shy with <<phim stranger>>," <<he>> calls out, to laughter. "<<pShe stranger>> <<pverb "has" "have" stranger>> opinions. <<pShe stranger>> can keep them."
 			<<case "brooding">>
 				<<He>> turns your face towards the crowd with two fingers and holds it there until you stop resisting <<his>> hand.
 			<<case "lecher">>
@@ -571,10 +571,10 @@ The corridor opens onto the side of a low stage. Beyond the lights the theatre i
 		<</switch>>
 		<br><br>
 		/* The house's own answer to a difficult worker. Settings decide whether the kennel is real, a hallucination, or unavailable, and the last of those falls back to the patrons instead. */
-		<<set _contractKennel to isBestialityOnForAnyCreature() or isMonsterHallucinationAllowed(1)>>
+		<<set _contractKennel to ["dog", "cat", "pig"].every(type => animalSexEnabledForType(type) || (monsterSexEnabledForType(type) && isMonsterHallucinationAllowed(1, type)))>>
 		<<if _contractKennel>>
 			<<endevent>>
-			<<if !isBestialityOnForAnyCreature()>>
+			<<if ["dog", "cat", "pig"].every(type => !animalSexEnabledForType(type))>>
 				<<if maleChance() gte random(1, 100)>>
 					<<if $settings.maleNPCVaginaChance gte random(1, 100)>>
 						<<generateBEAST 1 dog m vagina monster>><<generateBEAST 2 cat m vagina monster>><<generateBEAST 3 pig m vagina monster>>
@@ -591,10 +591,14 @@ The corridor opens onto the side of a low stage. Beyond the lights the theatre i
 			<<else>>
 				<<generateBEAST 1 dog>><<generateBEAST 2 cat>><<generateBEAST 3 pig>>
 			<</if>>
+			<<set _contractKennel to [0, 1, 2].every(n => !$NPCList[n].lewdBlocked)>>
+		<</if>>
+		<<if _contractKennel>>
 			Three handlers wheel cages onto the stage. A dog throws itself against the first door. A cat prowls behind the bars of the second. The pig in the last cage snorts and stamps until the boards shake.
 			<br><br>
 			"An animal party," your <<= _contractMasterTitle>> tells the audience. "One turn each. Let's see whether our problem worker can learn to behave."<<deviancy5>>
 		<<else>>
+			<<endevent>><<generate1>><<generate2>><<generate3>>
 			The patrons at the front are invited up instead, and told there is no queue and no hurry.
 		<</if>>
 <</switch>>
